@@ -4,15 +4,16 @@ import appPeersManager from './appPeersManager';
 import appMessagesManager, { AppMessagesManager, Dialog, DialogFilter } from "./appMessagesManager";
 import appUsersManager, { User } from "./appUsersManager";
 import { RichTextProcessor } from "../richtextprocessor";
-import { ripple, putPreloader, positionMenu, openBtnMenu, parseMenuButtonsTo, horizontalMenu } from "../../components/misc";
+import { ripple, putPreloader, positionMenu, openBtnMenu, parseMenuButtonsTo, horizontalMenu, attachContextMenuListener } from "../../components/misc";
 //import Scrollable from "../../components/scrollable";
 import Scrollable from "../../components/scrollable_new";
-import { logger, LogLevels } from "../polyfill";
+import { logger, LogLevels } from "../logger";
 import appChatsManager from "./appChatsManager";
 import AvatarElement from "../../components/avatar";
 import { PopupButton, PopupPeer } from "../../components/popup";
 import { SliderTab } from "../../components/slider";
 import appStateManager from "./appStateManager";
+import { touchSupport, isSafari } from "../config";
 
 type DialogDom = {
   avatarEl: AvatarElement,
@@ -163,7 +164,7 @@ class DialogsContextMenu {
     });
   }
 
-  onContextMenu = (e: MouseEvent) => {
+  onContextMenu = (e: MouseEvent | Touch) => {
     let li: HTMLDivElement = null;
     
     try {
@@ -172,11 +173,11 @@ class DialogsContextMenu {
     
     if(!li) return;
 
-    e.preventDefault();
+    if(e instanceof MouseEvent) e.preventDefault();
     if(this.element.classList.contains('active')) {
       return false;
     }
-    e.cancelBubble = true;
+    if(e instanceof MouseEvent) e.cancelBubble = true;
 
     this.filterID = appDialogsManager.filterID;
 
@@ -257,6 +258,10 @@ class DialogsContextMenu {
       li.classList.remove('menu-open');
     });
   };
+  
+  attachListener(element: HTMLElement) {
+    attachContextMenuListener(element, this.onContextMenu);
+  }
 }
 
 export class AppArchivedTab implements SliderTab {
@@ -346,8 +351,9 @@ export class AppDialogsManager {
     1: archivedTab.chatList
   };
   public filterID = 0;
-  private folders: {[k in 'menu' | 'container']: HTMLElement} = {
+  private folders: {[k in 'menu' | 'container' | 'menuScrollContainer']: HTMLElement} = {
     menu: document.getElementById('folders-tabs'),
+    menuScrollContainer: null,
     container: document.getElementById('folders-container')
   };
   private filtersRendered: {
@@ -363,7 +369,7 @@ export class AppDialogsManager {
   private accumulateArchivedTimeout: number;
 
   constructor() {
-    this.chatList.addEventListener('contextmenu', this.contextMenu.onContextMenu);
+    this.contextMenu.attachListener(this.chatList);
     this.chatsPreloader = putPreloader(null, true);
 
     this.allUnreadCount = this.folders.menu.querySelector('.unread-count');
@@ -374,10 +380,34 @@ export class AppDialogsManager {
       this.pinnedDelimiter.appendChild(document.createElement('span'));
     }
 
+    this.folders.menuScrollContainer = this.folders.menu.parentElement;
+
     this.scroll = this._scroll = new Scrollable(this.chatsContainer, 'y', 'CL', this.chatList, 500);
     this.scroll.onScrolledBottom = this.onChatsScroll;
     this.scroll.setVirtualContainer(this.chatList);
     //this.scroll.attachSentinels();
+
+    if(touchSupport && isSafari) {
+      let allowUp: boolean, allowDown: boolean, slideBeginY: number;
+      const container = this.scroll.container;
+      container.addEventListener('touchstart', (event) => {
+        allowUp = container.scrollTop > 0;
+        allowDown = (container.scrollTop < container.scrollHeight - container.clientHeight);
+        // @ts-ignore
+        slideBeginY = event.pageY;
+      });
+      
+      container.addEventListener('touchmove', (event: any) => {
+        var up = (event.pageY > slideBeginY);
+        var down = (event.pageY < slideBeginY);
+        slideBeginY = event.pageY;
+        if((up && allowUp) || (down && allowDown)) {
+          event.stopPropagation();
+        } else if(up || down) {
+          event.preventDefault();
+        }
+      });
+    }
 
     this.setListClickListener(this.chatList);
 
@@ -538,7 +568,7 @@ export class AppDialogsManager {
       delete this.filtersRendered[filter.id];
 
       if(!Object.keys(this.filtersRendered).length) {
-        this.folders.menu.style.display = 'none';
+        this.folders.menuScrollContainer.classList.add('hide');
       }
     });
 
@@ -553,7 +583,8 @@ export class AppDialogsManager {
       }
     }); */
 
-    new Scrollable(this.folders.menu.parentElement, 'x');
+    new Scrollable(this.folders.menuScrollContainer, 'x');
+    this.chatsContainer.prepend(this.folders.menuScrollContainer);
     const selectTab = horizontalMenu(this.folders.menu, this.folders.container, (id, tabContent) => {
       /* if(id != 0) {
         id += 1;
@@ -690,7 +721,7 @@ export class AppDialogsManager {
     if(!this.showFiltersTimeout) {
       this.showFiltersTimeout = setTimeout(() => {
         this.showFiltersTimeout = 0;
-        this.folders.menu.style.display = '';
+        this.folders.menuScrollContainer.classList.remove('hide');
         this.setFiltersUnreadCount();
       }, 0);
     }
