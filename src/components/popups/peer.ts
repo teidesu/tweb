@@ -123,7 +123,8 @@ export default class PopupPeer extends PopupElement {
       });
     }
 
-    this.header.after(fragment);
+    if(this.scrollable) this.scrollable.append(fragment);
+    else this.header.after(fragment);
   }
 
   public show(animate?: boolean): void {
