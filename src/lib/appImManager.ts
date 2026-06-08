@@ -92,7 +92,7 @@ import partition from '@helpers/array/partition';
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
 import liteMode, {LiteModeKey} from '@helpers/liteMode';
 import RLottiePlayer from '@lib/rlottie/rlottiePlayer';
-import PopupGiftPremium from '@components/popups/giftPremium';
+import showGiftPremiumPopup from '@components/popups/giftPremium';
 import internalLinkProcessor from '@lib/internalLinkProcessor';
 import {createStoriesViewerWithPeer} from '@components/stories/viewer';
 import type {CustomEmojiRendererElement} from '@lib/customEmoji/renderer';
@@ -3183,8 +3183,7 @@ export class AppImManager extends EventListenerBase<{
 
   public giftPremium(peerId: PeerId) {
     this.managers.appPaymentsManager.getPremiumGiftCodeOptions().then((giftCodeOptions) => {
-      PopupElement.createPopup(
-        PopupGiftPremium,
+      showGiftPremiumPopup(
         peerId,
         giftCodeOptions.filter((option) => option.users === 1 && option.currency !== STARS_CURRENCY)
       );
