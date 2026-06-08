@@ -186,10 +186,9 @@ export default defineConfig({
   server: serverOptions,
   base: '',
   // Pin the dep-optimizer's scan to the real entry (index.html → src/index.ts).
-  // Otherwise Vite auto-globs every *.html (stats.html, public/*.html, the icomoon
-  // demo.html) as scan entries, and a parse error in any of them (e.g. the stale
-  // public/*.js build artifacts with merge-conflict markers) aborts the whole scan
-  // and disables dependency pre-bundling — making cold dev loads slow and reload-prone.
+  // Otherwise Vite auto-globs every *.html (stats.html, icomoon demo.html) as scan
+  // entries, and a parse error in any of them aborts the whole scan and disables
+  // dependency pre-bundling — making cold dev loads slow and reload-prone.
   optimizeDeps: {
     entries: ['index.html']
   },
@@ -197,7 +196,6 @@ export default defineConfig({
     target: 'es2020',
     sourcemap: true,
     assetsDir: '',
-    copyPublicDir: false,
     emptyOutDir: true,
     minify: NO_MINIFY ? false : undefined,
     rollupOptions: {
