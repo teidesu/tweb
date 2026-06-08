@@ -9,7 +9,7 @@ import PopupDeleteDialog from '@components/popups/deleteDialog';
 import {i18n, LangPackKey, _i18n} from '@lib/langPack';
 import findUpTag from '@helpers/dom/findUpTag';
 import {toastNew} from '@components/toast';
-import PopupMute from '@components/popups/mute';
+import showMutePopup from '@components/popups/mute';
 import {AppManagers} from '@lib/managers';
 import {CAN_HIDE_TOPIC, FOLDER_ID_ARCHIVE, GENERAL_TOPIC_ID, REAL_FOLDER_ID, REAL_FOLDERS} from '@appManagers/constants';
 import showLimitPopup from '@components/popups/limit';
@@ -360,7 +360,7 @@ export default class DialogsContextMenu {
   };
 
   private onMuteClick = () => {
-    PopupElement.createPopup(PopupMute, this.peerId, this.threadId);
+    showMutePopup(this.peerId, this.threadId);
   };
 
   private onPreviewClick = () => {
