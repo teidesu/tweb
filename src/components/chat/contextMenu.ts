@@ -6,7 +6,7 @@ import PopupDeleteMessages from '@components/popups/deleteMessages';
 import showForwardPopup from '@components/popups/forward';
 import PopupPinMessage from '@components/popups/unpinMessage';
 import {copyTextToClipboard} from '@helpers/clipboard';
-import PopupSendNow from '@components/popups/sendNow';
+import showSendNowPopup from '@components/popups/sendNow';
 import {toastNew} from '@components/toast';
 import I18n, {i18n, LangPackKey} from '@lib/langPack';
 import findUpClassName from '@helpers/dom/findUpClassName';
@@ -1677,7 +1677,7 @@ export default class ChatContextMenu {
     if(this.chat.selection.isSelecting) {
       simulateClickEvent(this.chat.selection.selectionSendNowBtn);
     } else {
-      PopupElement.createPopup(PopupSendNow, this.peerId, await this.chat.getMidsByMid(this.messagePeerId, this.mid));
+      showSendNowPopup(this.peerId, await this.chat.getMidsByMid(this.messagePeerId, this.mid));
     }
   };
 

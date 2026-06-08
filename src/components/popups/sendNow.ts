@@ -1,19 +1,16 @@
-import PopupPeer from '@components/popups/peer';
+import confirmationPopup from '@components/confirmationPopup';
+import rootScope from '@lib/rootScope';
 
-export default class PopupSendNow extends PopupPeer {
-  constructor(peerId: PeerId, mids: number[], onConfirm?: () => void) {
-    super('popup-delete-chat', {
-      title: `Send Message${mids.length > 1 ? 's' : ''} Now`,
-      description: mids.length > 1 ? 'Send ' + mids.length + ' messages now?' : 'Send message now?',
-      buttons: [{
-        langKey: 'Send',
-        callback: () => {
-          onConfirm && onConfirm();
-          this.managers.appMessagesManager.sendScheduledMessages(peerId, mids);
-        }
-      }]
-    });
-
-    this.show();
-  }
+export default function showSendNowPopup(peerId: PeerId, mids: number[], onConfirm?: () => void) {
+  const isMultiple = mids.length > 1;
+  confirmationPopup({
+    title: `Send Message${isMultiple ? 's' : ''} Now`,
+    description: isMultiple ? `Send ${mids.length} messages now?` : 'Send message now?',
+    button: {
+      langKey: 'Send'
+    }
+  }).then(() => {
+    onConfirm?.();
+    rootScope.managers.appMessagesManager.sendScheduledMessages(peerId, mids);
+  }, () => {});
 }
