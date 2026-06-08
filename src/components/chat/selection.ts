@@ -10,7 +10,7 @@ import PopupDeleteMessages from '@components/popups/deleteMessages';
 import showForwardPopup from '@components/popups/forward';
 import SetTransition from '@components/singleTransition';
 import ListenerSetter from '@helpers/listenerSetter';
-import PopupSendNow from '@components/popups/sendNow';
+import showSendNowPopup from '@components/popups/sendNow';
 import appNavigationController, {NavigationItem} from '@components/appNavigationController';
 import {IS_MOBILE_SAFARI} from '@environment/userAgent';
 import {i18n, _i18n} from '@lib/langPack';
@@ -999,7 +999,7 @@ export default class ChatSelection extends AppSelection {
       if(this.chat.type === ChatType.Scheduled) {
         rightButton = this.selectionSendNowBtn = ButtonIcon('send2 selection-container-send');
         attachClickEvent(this.selectionSendNowBtn, () => {
-          PopupElement.createPopup(PopupSendNow, this.chat.peerId, [...this.selectedMids.get(this.chat.peerId)], () => {
+          showSendNowPopup(this.chat.peerId, [...this.selectedMids.get(this.chat.peerId)], () => {
             this.cancelSelection();
           });
         }, attachClickOptions);
