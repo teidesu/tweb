@@ -26,7 +26,7 @@ import {AppEditContactTab} from '@components/solidJsTabs/tabs';
 import IS_GROUP_CALL_SUPPORTED from '@environment/groupCallSupport';
 import IS_CALL_SUPPORTED from '@environment/callSupport';
 import {CallType} from '@lib/calls/types';
-import PopupMute from '@components/popups/mute';
+import showMutePopup from '@components/popups/mute';
 import {AppManagers} from '@lib/managers';
 import hasRights from '@appManagers/utils/chats/hasRights';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
@@ -1095,7 +1095,7 @@ export default class ChatTopbar {
   };
 
   private onMuteClick = () => {
-    PopupElement.createPopup(PopupMute, this.peerId);
+    showMutePopup(this.peerId);
   };
 
   private onUnmuteClick = () => {
