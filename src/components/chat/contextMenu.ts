@@ -15,7 +15,7 @@ import {attachClickEvent, simulateClickEvent} from '@helpers/dom/clickEvent';
 import isSelectionEmpty from '@helpers/dom/isSelectionEmpty';
 import {Message, Poll, Chat as MTChat, MessageMedia, InputStickerSet, StickerSet, Document, Reaction, Photo, SponsoredMessage, TextWithEntities, TodoItem, TodoCompletion, MessageReplyHeader, PollAnswer} from '@layer';
 import assumeType from '@helpers/assumeType';
-import PopupSponsored from '@components/popups/sponsored';
+import showSponsoredPopup from '@components/popups/sponsored';
 import ListenerSetter from '@helpers/listenerSetter';
 import {getMiddleware} from '@helpers/middleware';
 import PeerTitle from '@components/peerTitle';
@@ -118,9 +118,7 @@ export function getSponsoredMessageButtons(options: {
     {
       icon: 'info',
       text: 'Chat.Message.Sponsored.What',
-      onClick: () => {
-        PopupElement.createPopup(PopupSponsored);
-      },
+      onClick: () =>  showSponsoredPopup(),
       verify: () => extraVerify() && !canReport,
       isSponsored: true
     }, {
