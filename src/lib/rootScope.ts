@@ -210,6 +210,7 @@ export type BroadcastEvents = {
 
   'resizing_left_sidebar': void,
   'right_sidebar_toggle': boolean,
+  'right_column_floats': boolean,
 
   'chat_background_set': void,
 

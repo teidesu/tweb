@@ -6,6 +6,7 @@ import animationIntersector from '@components/animationIntersector';
 import appSidebarLeft, {LEFT_COLUMN_ACTIVE_CLASSNAME} from '@components/sidebarLeft';
 import appSidebarRight, {RIGHT_COLUMN_ACTIVE_CLASSNAME} from '@components/sidebarRight';
 import mediaSizes, {ScreenSize} from '@helpers/mediaSizes';
+import {isRightColumnFloating} from '@helpers/updateColumnWidths';
 import {logger, LogTypes} from '@lib/logger';
 import rootScope from '@lib/rootScope';
 import Chat, {ChatSearchKeys} from '@components/chat/chat';
@@ -355,7 +356,7 @@ export class AppImManager extends EventListenerBase<{
     mediaSizes.addEventListener('changeScreen', (from, to) => {
       if(document.body.classList.contains(LEFT_COLUMN_ACTIVE_CLASSNAME) &&
         document.body.classList.contains(RIGHT_COLUMN_ACTIVE_CLASSNAME)) {
-        appSidebarRight.toggleSidebar(false);
+        appSidebarRight.toggleSidebar(false, undefined, false);
       }
 
       this.appendEmojiAnimationContainer(to);
@@ -381,6 +382,24 @@ export class AppImManager extends EventListenerBase<{
     };
 
     this.addEventListener('peer_changed', onPeerChanged);
+
+    this.addEventListener('peer_changed', (chat) => {
+      if(!chat.peerId) {
+        return;
+      }
+
+      const isShown = document.body.classList.contains(RIGHT_COLUMN_ACTIVE_CLASSNAME);
+      if(!isRightColumnFloating()) {
+        // restore the persisted right column state when a chat opens (docked layout only)
+        const [appSettings] = useAppSettings();
+        if(appSettings.rightColumnShown && !isShown) {
+          appSidebarRight.toggleSidebar(true, false, false);
+        }
+      } else if(!mediaSizes.isMobile && isShown) {
+        // floating: the column overlays the chat, so opening a chat dismisses it like on mobile
+        appSidebarRight.toggleSidebar(false, false, false);
+      }
+    });
 
     // * prefetch some data
     this.addEventListener('peer_changed', () => {

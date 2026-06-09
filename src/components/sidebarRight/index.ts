@@ -6,8 +6,9 @@ import {MOUNT_CLASS_TO} from '@config/debug';
 import {AppManagers} from '@lib/managers';
 import appNavigationController from '@components/appNavigationController';
 import rootScope from '@lib/rootScope';
-import {installColumnWidthsUpdater} from '@helpers/updateColumnWidths';
+import {installColumnWidthsUpdater, isRightColumnFloating} from '@helpers/updateColumnWidths';
 import installColumnResize from '@helpers/installColumnResize';
+import {appSettings, setAppSettings} from '@stores/appSettings';
 
 
 export const RIGHT_COLUMN_ACTIVE_CLASSNAME = 'is-right-column-shown';
@@ -29,7 +30,17 @@ export class AppSidebarRight extends SidebarSlider {
 
     mediaSizes.addEventListener('changeScreen', (from, to) => {
       if(to === ScreenSize.medium && from !== ScreenSize.mobile) {
-        this.toggleSidebar(false);
+        this.toggleSidebar(false, undefined, false);
+      }
+    });
+
+    // entering the floating range hides the overlay, going back to docked
+    // restores the persisted state
+    rootScope.addEventListener('right_column_floats', (floats) => {
+      if(floats) {
+        this.toggleSidebar(false, false, false);
+      } else if(appSettings.rightColumnShown && appImManager.chat?.peerId) {
+        this.toggleSidebar(true, false, false);
       }
     });
 
@@ -92,7 +103,7 @@ export class AppSidebarRight extends SidebarSlider {
     rootScope.dispatchEventSingle('right_sidebar_toggle', false);
   }
 
-  public toggleSidebar(enable?: boolean, animate?: boolean) {
+  public toggleSidebar(enable?: boolean, animate?: boolean, persist = true) {
     const active = document.body.classList.contains(RIGHT_COLUMN_ACTIVE_CLASSNAME);
     let willChange: boolean;
     if(enable !== undefined) {
@@ -108,6 +119,10 @@ export class AppSidebarRight extends SidebarSlider {
     }
 
     if(!willChange) return Promise.resolve();
+
+    if(persist && !isRightColumnFloating()) {
+      setAppSettings('rightColumnShown', !active);
+    }
 
     if(!active && !this.historyTabIds.length) {
       this.sharedMediaTab.open();

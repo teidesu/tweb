@@ -710,7 +710,6 @@ PeerProfile.Phone = () => {
           }]
         }}
       >
-        <Row.Icon icon="phone" />
         <Row.Title>{phoneDetails().formatted}</Row.Title>
         <Row.Subtitle>{i18n(phoneDetails().isAnonymous ? 'AnonymousNumber' : 'Phone')}</Row.Subtitle>
       </Row>
@@ -748,7 +747,6 @@ PeerProfile.Username = () => {
           }]
         }}
       >
-        <Row.Icon icon="username" />
         <Row.Title>{mainUsername()}</Row.Title>
         <Row.Subtitle>{
           getUsernamesAlso(usernames()) || i18n('Username')
@@ -845,7 +843,6 @@ PeerProfile.Birthday = () => {
           }]
         }}
       >
-        <Row.Icon icon="gift" />
         <Row.Title>{text()}</Row.Title>
         <Row.Subtitle>
           {i18n('Birthday')}
@@ -885,7 +882,6 @@ PeerProfile.ContactNote = () => {
           }]
         }}
       >
-        <Row.Icon icon="edit" />
         <Row.Title>{text()}</Row.Title>
         <Row.Subtitle subtitleRight={i18n('ContactNoteRowDesc')}>
           {i18n('ContactNoteRow')}
@@ -909,7 +905,6 @@ PeerProfile.Location = () => {
   return (
     <Show when={location()}>
       <Row>
-        <Row.Icon icon="location" />
         <Row.Title>{location()?.address}</Row.Title>
         <Row.Subtitle>{i18n('ChatLocation')}</Row.Subtitle>
       </Row>
@@ -982,7 +977,6 @@ PeerProfile.Bio = () => {
           }]
         }}
       >
-        <Row.Icon icon="info" />
         <Row.Title class="pre-wrap">{aboutWrapped()}</Row.Title>
         <Row.Subtitle>{i18n(context.peerId.isUser() ? 'UserBio' : 'Info')}</Row.Subtitle>
       </Row>
@@ -1050,7 +1044,6 @@ PeerProfile.Link = () => {
           }]
         }}
       >
-        <Row.Icon icon="link" />
         <Row.Title>{toFill().url}</Row.Title>
         <Row.Subtitle>{toFill().also || i18n('SetUrlPlaceholder')}</Row.Subtitle>
         <PeerProfile.QrButton />
@@ -1130,7 +1123,6 @@ PeerProfile.BusinessLocation = () => {
           }]
         }}
       >
-        <Row.Icon icon="location" />
         <Row.Title>{wrapEmojiText(location().address)}</Row.Title>
         <Row.Subtitle>{i18n('BusinessProfileLocation')}</Row.Subtitle>
         <Show when={location().geo_point}>
@@ -1442,9 +1434,9 @@ PeerProfile.MainSection = () => {
       </Show>
       <Show when={!(context.isBotforum && context.threadId)}>
         <PeerProfile.Phone />
+        <PeerProfile.Bio />
         <PeerProfile.Username />
         <PeerProfile.Location />
-        <PeerProfile.Bio />
         <PeerProfile.Link />
         <PeerProfile.Birthday />
         <PeerProfile.ContactNote />
