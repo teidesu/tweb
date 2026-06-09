@@ -17,7 +17,6 @@ const compat = new FlatCompat({
 export default [{
   ignores: [
     'src/vendor/**/*',
-    'src/solid/**/*',
     'src/opus-recorder/**/*',
     'public/**/*'
   ]

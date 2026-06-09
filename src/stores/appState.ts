@@ -1,17 +1,18 @@
 import {createRoot} from 'solid-js';
-import {createStore, reconcile, SetStoreFunction, unwrap} from 'solid-js/store';
+import {createStore, reconcile, unwrap} from 'solid-js/store';
 import {State} from '@config/state';
 import rootScope from '@lib/rootScope';
+import {SetStoreFunctionReturning} from '@helpers/solid/setStoreFunctionReturning';
 
 const [appState, _setAppState] = createRoot(() => createStore<State>({} as any));
 
-const setAppState: SetStoreFunction<State, Promise<void>> = (...args: any[]) => {
+const setAppState = ((...args: any[]) => {
   const key = args[0];
   // @ts-ignore
   _setAppState(...args);
   // @ts-ignore
   return rootScope.managers.appStateManager.setByKey(key, unwrap(appState[key]));
-};
+}) as SetStoreFunctionReturning<State, Promise<void>>;
 
 const setAppStateSilent = (key: any, value?: any) => {
   if(typeof(key) === 'object') {
