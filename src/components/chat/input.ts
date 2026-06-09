@@ -2177,7 +2177,7 @@ export default class ChatInput {
           });
         } else if(fromUpdate && !this.saveDraftDebounced.isDebounced()) {
           this.clearInput();
-          this.clearHelper();
+          this.clearHelper(undefined, undefined, true);
         }
 
         return fromUpdate;
@@ -2194,7 +2194,8 @@ export default class ChatInput {
     }
 
     if(fromUpdate) {
-      this.clearHelper();
+      this.clearHelper(undefined, undefined, true);
+      this.saveDraftDebounced.clearTimeout();
     }
 
     this.noWebPage = draft.pFlags.no_webpage;
@@ -4753,7 +4754,7 @@ export default class ChatInput {
     this.center(true);
   }
 
-  public clearHelper(type?: ChatInputHelperType, willHaveHelper?: boolean) {
+  public clearHelper(type?: ChatInputHelperType, willHaveHelper?: boolean, fromUpdate?: boolean) {
     if(this.helperType === 'edit' && type !== 'edit') {
       this.clearInput();
     }
@@ -4783,7 +4784,9 @@ export default class ChatInput {
     this.editMsgId = this.editMessage = undefined;
     this.helperType = this.helperFunc = undefined;
     this.setCurrentHover();
-    this.saveDraftDebounced();
+    if(!fromUpdate) {
+      this.saveDraftDebounced();
+    }
 
     if(this.restoreInputLock) {
       this.restoreInputLock();
