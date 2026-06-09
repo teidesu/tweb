@@ -70,6 +70,7 @@
     "src/vendor/**/*.js",
     "*.js",
     "*.cjs",
+    "private",
     "tweb-design"
   ]
 }
