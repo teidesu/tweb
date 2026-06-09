@@ -8,7 +8,7 @@ import checker from 'vite-plugin-checker';
 import autoprefixer from 'autoprefixer';
 import {existsSync, copyFileSync, readFileSync} from 'fs';
 import {resolve, join} from 'path';
-import {watchLangFile} from './scripts/watch-lang.js';
+import langPlugin from './scripts/vite-plugin-lang.js';
 
 const rootDir = resolve(__dirname);
 const certsDir = join(rootDir, 'certs');
@@ -20,12 +20,8 @@ if(!existsSync(LANG_PACK_LOCAL_FILE_PATH)) {
   copyFileSync(join(rootDir, 'src', 'langPackLocalVersion.example.ts'), LANG_PACK_LOCAL_FILE_PATH);
 }
 
-if(isDEV) {
-  if(!existsSync(ENV_LOCAL_FILE_PATH)) {
-    copyFileSync(join(rootDir, '.env.local.example'), ENV_LOCAL_FILE_PATH);
-  }
-
-  watchLangFile();
+if(isDEV && !existsSync(ENV_LOCAL_FILE_PATH)) {
+  copyFileSync(join(rootDir, '.env.local.example'), ENV_LOCAL_FILE_PATH);
 }
 
 const indexHtmlVars: Record<string, string> = {
@@ -86,6 +82,7 @@ export default defineConfig({
     }),
     tsconfigPaths(),
     solidPlugin(),
+    langPlugin(),
     {
       name: 'tweb-index-html-vars',
       transformIndexHtml(html: string) {
