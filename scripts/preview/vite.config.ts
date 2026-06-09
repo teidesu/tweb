@@ -6,20 +6,20 @@
  *
  * The authorization file is PER PREVIEW: pass it via the PREVIEW_SEED env var.
  * Two previews must never share an auth key (parallel use logs both out), so
- * each one gets its own minted session — see scripts/start-preview.sh.
+ * each one gets its own minted session — see scripts/preview/start.sh.
  *
  * Launch (the wrapper mints a fresh auth + picks a free port):
- *   bash scripts/start-preview.sh [--id <id>] [--port <port>] [--remint]
+ *   bash scripts/preview/start.sh [--id <id>] [--port <port>] [--remint]
  */
 
 import {mergeConfig} from 'vite';
 import {readFileSync} from 'fs';
 import {basename, resolve} from 'path';
-import baseConfig from './vite.config';
+import baseConfig from '../../vite.config';
 
 const seedPath = process.env.PREVIEW_SEED ?
   resolve(process.env.PREVIEW_SEED) :
-  resolve(__dirname, 'tmp/seed-preview.json');
+  resolve(__dirname, '../../tmp/seed-preview.json');
 const seed = JSON.parse(readFileSync(seedPath, 'utf8'));
 
 // per-seed cache dir so simultaneous preview servers don't clobber each other

@@ -13,7 +13,7 @@
 # from the Telegram service chat — two concurrent mints would collide.
 #
 # Usage (run from anywhere — the script cd's to the repo root itself):
-#   bash scripts/start-preview.sh [--id <id>] [--port <port>] [--remint] [--no-worker]
+#   bash scripts/preview/start.sh [--id <id>] [--port <port>] [--remint] [--no-worker]
 #
 #   --id          preview identity; the auth is cached per id.
 #                 Default: the current worktree directory name.
@@ -25,7 +25,7 @@
 #
 set -euo pipefail
 
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../.."
 REPO="$(pwd)"
 
 ID=""; PORT=""; REMINT=0; NO_WORKER=0
@@ -93,4 +93,4 @@ fi
 echo "[start-preview] id=$ID  port=$PORT  seed=$SEED  no-worker=$NO_WORKER"
 echo "[start-preview] preview: http://localhost:$PORT"
 exec env PREVIEW_SEED="$SEED" TWEB_PREVIEW=1 TWEB_NO_WORKER="$NO_WORKER" pnpm exec vite \
-  --config vite.preview.config.ts --port "$PORT" --strictPort
+  --config scripts/preview/vite.config.ts --port "$PORT" --strictPort

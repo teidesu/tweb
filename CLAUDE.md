@@ -34,7 +34,7 @@ Debug query params: `?test=1` (test DCs), `?debug=1` (verbose logging), `?noShar
 
 ### Preview
 
-Launch an authorized local preview with `bash scripts/start-preview.sh` (never
+Launch an authorized local preview with `bash scripts/preview/start.sh` (never
 plain `vite`) — it mints a fresh per-preview auth + picks a free port. Flags and
 details: see the script header. `.claude/launch.json` is wired to it.
 

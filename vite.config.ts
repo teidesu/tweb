@@ -12,7 +12,7 @@ import autoprefixer from 'autoprefixer';
 import {resolve} from 'path';
 import {existsSync, copyFileSync, readFileSync} from 'fs';
 import {ServerOptions} from 'vite';
-import {watchLangFile} from './watch-lang.js';
+import {watchLangFile} from './scripts/watch-lang.js';
 import path from 'path';
 
 const rootDir = resolve(__dirname);
