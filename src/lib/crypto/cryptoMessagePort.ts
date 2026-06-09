@@ -1,4 +1,4 @@
-import {CryptoMethods} from '@lib/crypto/crypto_methods';
+import {CryptoMethods} from '@lib/crypto/cryptoMethodsRegistry';
 import SuperMessagePort from '@lib/superMessagePort';
 import {MOUNT_CLASS_TO} from '@config/debug';
 import {IS_WORKER} from '@helpers/context';
@@ -29,16 +29,17 @@ export class CryptoMessagePort<Master extends boolean = false> extends SuperMess
     const payload = {method, args};
     const listeners = this.listeners['invoke'];
     if(listeners?.size) { // already in worker
-      // try {
-      let result: any = listeners.values().next().value.callback(payload);
+      const callback = listeners.values().next().value.callback;
+      if(this.readyPromise) {
+        return this.readyPromise.then(() => callback(payload) as any);
+      }
+
+      let result: any = callback(payload);
       if(!IS_WORKER && !(result instanceof Promise)) {
         result = Promise.resolve(result);
       }
 
       return result;
-      // } catch(err) {
-      //   return Promise.reject(err);
-      // }
     }
 
     const sendPortIndex = method === 'aes-encrypt' || method === 'aes-decrypt' ?

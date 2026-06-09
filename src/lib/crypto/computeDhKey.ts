@@ -1,7 +1,7 @@
 import {bigIntFromBytes, bigIntToSigned} from '@helpers/bigInt/bigIntConversion';
 import cryptoWorker from '@lib/crypto/cryptoMessagePort';
 
-export default async function computeDhKey(g_b: Uint8Array, a: Uint8Array, p: Uint8Array) {
+export default async function computeDhKey(g_b: Uint8Array, a: Uint8Array, p: Uint8Array): Promise<{key: Uint8Array, key_fingerprint: string}> {
   const key = await cryptoWorker.invokeCrypto('mod-pow', g_b, a, p);
   const keySha1Hashed = await cryptoWorker.invokeCrypto('sha1', key);
   const key_fingerprint = keySha1Hashed.slice(-8).reverse();

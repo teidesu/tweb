@@ -67,7 +67,7 @@ const emojis = [
   '1f531', '1f534', '1f535', '1f536', '1f537'
 ];
 
-export default async function getEmojisFingerprint(key: Uint8Array, g_a: Uint8Array) {
+export default async function getEmojisFingerprint(key: Uint8Array, g_a: Uint8Array): Promise<[string, string, string, string]> {
   const arr = key.concat(g_a);
   const hash = await cryptoWorker.invokeCrypto('sha256', arr);
 

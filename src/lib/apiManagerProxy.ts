@@ -1,7 +1,7 @@
 import type {ModifyFunctionsToAsync} from '@types';
 import {type State} from '@config/state';
 import type {Chat, ChatPhoto, Message, MessagePeerReaction, PeerNotifySettings, User, UserProfilePhoto} from '@layer';
-import type {CryptoMethods} from '@lib/crypto/crypto_methods';
+import type {CryptoMethods} from '@lib/crypto/cryptoMethodsRegistry';
 import type {ThumbStorageMedia} from '@lib/storages/thumbs';
 import type ThumbsStorage from '@lib/storages/thumbs';
 import type {AppReactionsManager} from '@appManagers/appReactionsManager';

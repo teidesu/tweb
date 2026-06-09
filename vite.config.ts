@@ -120,6 +120,7 @@ export default defineConfig({
   // entries, and a parse error in any of them aborts the whole scan and disables
   // dependency pre-bundling — making cold dev loads slow and reload-prone.
   optimizeDeps: {
+    exclude: ['@mtcute/wasm'],
     entries: ['index.html']
   },
   build: {

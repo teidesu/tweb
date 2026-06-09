@@ -22,7 +22,7 @@ export async function makePasswordHash(password: string, client_salt: Uint8Array
   return buffer;
 }
 
-export default async function computeSRP(password: string, state: AccountPassword, isNew: boolean) {
+export default async function computeSRP(password: string, state: AccountPassword, isNew: boolean): Promise<Uint8Array | InputCheckPasswordSRP.inputCheckPasswordSRP> {
   const algo = (isNew ? state.new_algo : state.current_algo) as PasswordKdfAlgo.passwordKdfAlgoSHA256SHA256PBKDF2HMACSHA512iter100000SHA256ModPow;
 
   const p = bigIntFromBytes(algo.p);

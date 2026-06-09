@@ -5,9 +5,8 @@
  * https://github.com/evgeny-nadymov/telegram-react/blob/master/LICENSE
  */
 
+import {createCtr256, ctr256, freeCtr256, sha256} from '@mtcute/wasm';
 import bufferConcats from '@helpers/bytes/bufferConcats';
-import subtle from '@lib/crypto/subtle';
-import sha256 from '@lib/crypto/utils/sha256';
 
 const kMaxIncomingPacketSize = 128 * 1024 * 1024;
 
@@ -35,7 +34,7 @@ export default class P2PEncryptor {
     const x = (this.isOutgoing ? 0 : 8) + (this.type === 'Signaling' ? 128 : 0);
     const key = this.p2pKey;
 
-    const msgKeyLarge = await this.concatSHA256([key.subarray(x + 88, x + 88 + 32), buffer]);
+    const msgKeyLarge = this.concatSHA256([key.subarray(x + 88, x + 88 + 32), buffer]);
     const msgKey = result.bytes;
     for(let i = 0; i < 16; ++i) {
       msgKey[i] = msgKeyLarge[i + 8];
@@ -43,7 +42,7 @@ export default class P2PEncryptor {
 
     const aesKeyIv = await this.prepareAesKeyIv(key, msgKey, x);
 
-    const bytes = await this.aesProcessCtr(buffer, buffer.length, aesKeyIv, true);
+    const bytes = this.aesProcessCtr(buffer, aesKeyIv);
 
     result.bytes = new Uint8Array([...result.bytes.subarray(0, 16), ...bytes]);
 
@@ -88,25 +87,13 @@ export default class P2PEncryptor {
     };
   }
 
-  private async aesProcessCtr(encryptedData: Uint8Array, dataSize: number, aesKeyIv: {key: Uint8Array, iv: Uint8Array}, encrypt = true) {
-    const cryptoKey = await subtle.importKey(
-      'raw',
-      aesKeyIv.key as BufferSource,
-      {name: 'AES-CTR'},
-      false,
-      [encrypt ? 'encrypt' : 'decrypt']
-    );
-
-    const buffer: ArrayBuffer = await subtle[encrypt ? 'encrypt' : 'decrypt']({
-      name: 'AES-CTR',
-      counter: aesKeyIv.iv as BufferSource,
-      length: aesKeyIv.iv.length * 8
-    },
-    cryptoKey,
-    encryptedData as BufferSource
-    );
-
-    return new Uint8Array(buffer);
+  private aesProcessCtr(data: Uint8Array, aesKeyIv: {key: Uint8Array, iv: Uint8Array}) {
+    const ctx = createCtr256(aesKeyIv.key, aesKeyIv.iv);
+    try {
+      return ctr256(ctx, data);
+    } finally {
+      freeCtr256(ctx);
+    }
   }
 
   private constTimeIsDifferent(a: Uint8Array, b: Uint8Array, count: number) {
@@ -132,13 +119,11 @@ export default class P2PEncryptor {
 
     const msgKey = buffer.subarray(0, 16);
     const encryptedData = buffer.subarray(16);
-    const encryptedDataSize = buffer.length - 16;
-
     const aesKeyIv = await this.prepareAesKeyIv(key, msgKey, x);
 
-    const decryptionBuffer = await this.aesProcessCtr(encryptedData, encryptedDataSize, aesKeyIv, false);
+    const decryptionBuffer = this.aesProcessCtr(encryptedData, aesKeyIv);
 
-    const msgKeyLarge = await this.concatSHA256([
+    const msgKeyLarge = this.concatSHA256([
       key.subarray(88 + x, 88 + x + 32),
       decryptionBuffer
     ]);
