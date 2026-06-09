@@ -1,0 +1,3 @@
+# SPA fallback — serve index.html for any path that isn't a real static asset
+# (static files always take precedence, so this only fires on deep-link refreshes).
+/*  /index.html  200
