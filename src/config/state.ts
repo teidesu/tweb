@@ -171,6 +171,8 @@ export type StateSettings = {
     nightMode?: boolean,
     selectedThemeId: string
   },
+  // Remembers whether the right column (peer profile) was left open so a freshly opened chat restores it.
+  rightColumnShown: boolean,
 };
 
 // (1 - use swatch, 2 - use picker color), (color from swatch), (color from picker)
@@ -543,7 +545,8 @@ export const SETTINGS_INIT: StateSettings = {
   recordingMediaType: 'voice',
   qrCode: {
     selectedThemeId: ''
-  }
+  },
+  rightColumnShown: false
 };
 
 export const STATE_INIT: State = {

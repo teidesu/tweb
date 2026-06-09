@@ -42,7 +42,6 @@ export default function BusinessHours(props: {
     ) as HTMLElement,
     subtitleLangKey: 'BusinessHoursProfile',
     subtitleRight: true,
-    icon: 'sending',
     clickable: (e) => {
       if(findUpAsChild(e.target as HTMLElement, switchElement)) {
         setShowInMyTimezone((value) => !value);

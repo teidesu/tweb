@@ -375,7 +375,12 @@ export default function updateColumnWidths(): void {
   if(last.floats !== floats) {
     document.body.classList.toggle('right-column-floats', floats);
     last.floats = floats;
+    rootScope.dispatchEventSingle('right_column_floats', floats);
   }
+}
+
+export function isRightColumnFloating(): boolean {
+  return last.floats;
 }
 
 export function installColumnWidthsUpdater(): void {

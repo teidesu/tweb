@@ -1063,7 +1063,7 @@ export default class Chat extends EventListenerBase<{
       }
 
       callbackify(promise, () => {
-        appSidebarRight.toggleSidebar(false);
+        appSidebarRight.toggleSidebar(false, undefined, false);
         this.cleanup(true);
         this.bubbles.setPeer({peerId, samePeer: false, sameSearch: false});
         this.appImManager.dispatchEvent('peer_changed', this);
