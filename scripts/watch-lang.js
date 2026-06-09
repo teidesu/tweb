@@ -2,9 +2,9 @@ const fs = require('fs');
 const path = require('path');
 const {spawn, execSync} = require('child_process');
 
-const LANG_FILE_PATH = path.join(__dirname, 'src', 'lang.ts');
-const LANG_SIGN_FILE_PATH = path.join(__dirname, 'src', 'langSign.ts');
-const EDIT_FILE_PATH = path.join(__dirname, 'src', 'langPackLocalVersion.ts');
+const LANG_FILE_PATH = path.join(__dirname, '../src', 'lang.ts');
+const LANG_SIGN_FILE_PATH = path.join(__dirname, '../src', 'langSign.ts');
+const EDIT_FILE_PATH = path.join(__dirname, '../src', 'langPackLocalVersion.ts');
 const npmCmd = /^win/.test(process.platform) ? 'npm.cmd' : 'npm';
 
 // Function to read current version from App.ts
