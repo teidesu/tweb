@@ -1,3 +1,4 @@
+// eslint-disable-next-line spaced-comment
 /// <reference types="vitest/config" />
 import {defineConfig} from 'vite';
 import solidPlugin from 'vite-plugin-solid';
@@ -90,12 +91,6 @@ const serverOptions: ServerOptions = {
   } : undefined
 };
 
-const SOLID_SRC_PATH = 'src/solid/packages/solid';
-const SOLID_BUILT_PATH = 'src/vendor/solid';
-const USE_SOLID_SRC = false;
-const SOLID_PATH = USE_SOLID_SRC ? SOLID_SRC_PATH : SOLID_BUILT_PATH;
-const USE_OWN_SOLID = existsSync(resolve(rootDir, SOLID_PATH));
-
 const NO_MINIFY = false;
 const BASIC_SSL_CONFIG: Parameters<typeof basicSsl>[0] = USE_SELF_SIGNED_CERTS ? {
   name: host,
@@ -121,12 +116,6 @@ const ADDITIONAL_ALIASES = {
   '@': resolve(rootDir, 'src')
 };
 
-if(USE_OWN_SOLID) {
-  console.log('using own solid', SOLID_PATH, 'built', !USE_SOLID_SRC);
-} else {
-  console.log('using original solid');
-}
-
 export default defineConfig({
   plugins: [
     // devtools({
@@ -137,7 +126,7 @@ export default defineConfig({
       typescript: true,
       eslint: {
         // for example, lint .ts and .tsx
-        lintCommand: 'eslint "./src/**/*.{ts,tsx}" --ignore-pattern "/src/solid/*"',
+        lintCommand: 'eslint "./src/**/*.{ts,tsx}"',
         useFlatConfig: true,
         // Only watch src/ for re-lint. The checker's default watchTarget is the project
         // ROOT, and its ignore filter skips files but never directories — so chokidar
@@ -167,8 +156,7 @@ export default defineConfig({
       '**/.claude/**',
       '**/cypress/**',
       '**/.{idea,git,cache,output,temp}/**',
-      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
-      '**/solid/**'
+      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*'
     ],
     // coverage: {
     //   provider: 'v8',
@@ -222,13 +210,6 @@ export default defineConfig({
   },
   resolve: {
     // conditions: ['development', 'browser'],
-    alias: USE_OWN_SOLID ? {
-      'rxcore': resolve(rootDir, SOLID_PATH, 'web/core'),
-      'solid-js/jsx-runtime': resolve(rootDir, SOLID_PATH, 'jsx'),
-      'solid-js/web': resolve(rootDir, SOLID_PATH, 'web'),
-      'solid-js/store': resolve(rootDir, SOLID_PATH, 'store'),
-      'solid-js': resolve(rootDir, SOLID_PATH),
-      ...ADDITIONAL_ALIASES
-    } : ADDITIONAL_ALIASES
+    alias: ADDITIONAL_ALIASES
   }
 });
