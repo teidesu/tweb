@@ -18,6 +18,8 @@ archive.zip
 .env.local
 src/langPackLocalVersion.ts
 scripts/out/langPack.strings
+scripts/out/icons
+scripts/out/icon-diff
 /.ai
 tmp
 

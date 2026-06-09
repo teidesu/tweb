@@ -18,6 +18,7 @@ export default [{
   ignores: [
     'src/vendor/**/*',
     'src/opus-recorder/**/*',
+    'private/**/*',
     'public/**/*'
   ]
 }, ...compat.extends(), {
