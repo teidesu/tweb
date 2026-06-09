@@ -1,7 +1,7 @@
 /*
  * In-memory ring buffer that mirrors every logger() call so the session can be
  * exported to a file and symbolicated offline (see ./exportLogs +
- * src/scripts/symbolicate-logs.js).
+ * scripts/symbolicate-logs.js).
  *
  * This is a LEAF module on purpose: logger.ts imports capture() on the hot
  * path, so we must not pull in anything heavy (no message ports, no managers)

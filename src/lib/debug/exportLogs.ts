@@ -4,7 +4,7 @@
  * an NDJSON file. Loaded lazily (dynamic import from logsBuffer) so none of this
  * — nor the message-port import — is paid for unless logs are actually exported.
  *
- * Offline symbolication of the captured stacks: src/scripts/symbolicate-logs.js
+ * Offline symbolication of the captured stacks: scripts/symbolicate-logs.js
  */
 
 import Modes from '@config/modes';

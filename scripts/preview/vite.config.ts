@@ -1,3 +1,4 @@
+// eslint-disable-next-line spaced-comment
 /// <reference types="vite/client" />
 /*
  * Preview config: extends vite.config.ts and injects a script that seeds

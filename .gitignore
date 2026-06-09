@@ -17,6 +17,7 @@ archive.zip
 .idea
 .env.local
 src/langPackLocalVersion.ts
+scripts/out/langPack.strings
 /.ai
 tmp
 
