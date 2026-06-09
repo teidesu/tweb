@@ -803,6 +803,11 @@ class ApiManagerProxy extends MTProtoMessagePort {
           text = text.replace(/(rlottie-wasm\.wasm)/, pre + '$1');
         }
 
+        // @mtcute/wasm resolves its wasm via `new URL('mtcute-*.wasm', import.meta.url)`,
+        // which throws against the blob: URL these proxy workers run from. Make the hashed
+        // filenames absolute so import.meta.url is irrelevant.
+        text = text.replace(/(["'])(mtcute(?:-simd)?-[\w-]+\.wasm)/g, '$1' + pre + '$2');
+
         const blob = new Blob([text], {type: 'application/javascript'});
         return blob;
       });

@@ -1,0 +1,19 @@
+# Cloudflare Pages headers.
+#
+# NB: COOP/COEP are deliberately NOT set. Cross-origin isolation would restore
+# SharedArrayBuffer (used only by call e2e + the mic level meter), but COEP
+# require-corp breaks the cross-origin iframes this app embeds — bot mini-apps
+# (webApp.tsx / telegramWebView.ts) and payment provider frames (paymentCard.ts
+# / paymentVerification.ts). The official web.telegram.org/k/ ships without it
+# too, so we match that and keep mini-apps/payments working.
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# Entry document must always revalidate so new deploys are picked up immediately
+# (hashed JS/CSS chunks are content-addressed and cached by CF's defaults).
+/
+  Cache-Control: public, max-age=0, must-revalidate
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
