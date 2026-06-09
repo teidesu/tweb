@@ -181,6 +181,14 @@
     &.active {
       display: flex;
     }
+
+    // Outgoing tab held visible on top of the (still-empty) incoming one during a
+    // non-animated folder switch — see AppDialogsManager.holdOutgoingTab.
+    &.folder-tab-holding {
+      display: flex;
+      z-index: 2;
+      pointer-events: none;
+    }
   }
 
   /* &[data-animation="tabs"] {

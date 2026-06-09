@@ -31,7 +31,8 @@ import positionElementByIndex from '@helpers/dom/positionElementByIndex';
 import replaceContent from '@helpers/dom/replaceContent';
 import ConnectionStatusComponent from '@components/connectionStatus';
 import {renderImageFromUrlPromise} from '@helpers/dom/renderImageFromUrl';
-import {fastRafPromise} from '@helpers/schedulers';
+import {doubleRaf, fastRafPromise} from '@helpers/schedulers';
+import liteMode from '@helpers/liteMode';
 import SortedUserList from '@components/sortedUserList';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
 import handleTabSwipe from '@helpers/dom/handleTabSwipe';
@@ -411,7 +412,7 @@ export class DialogElement extends Row {
     if(this.dom.pinnedBadge) return;
     const badge = this.dom.pinnedBadge = document.createElement('div');
     badge.className = `dialog-subtitle-badge badge badge-icon badge-${BADGE_SIZE} dialog-subtitle-badge-pinned`;
-    badge.append(Icon('chatspinned'));
+    badge.append(Icon('pin2'));
     this.dom.subtitleEl.append(badge);
   }
 
@@ -733,7 +734,7 @@ export class AppDialogsManager {
     });
 
     const {setSelectedFolderId, onClick, setOnClick, folderItems} = useFolders();
-    const selectFolderByIndex = async(index: number) => {
+    const selectFolderByIndex = async(index: number, _tabContent?: HTMLElement, animate = true) => {
       const id = folderItems[index]?.filter.id ?? FOLDER_ID_ALL;
       const wasFilterId = this.filterId;
 
@@ -771,10 +772,13 @@ export class AppDialogsManager {
 
       setSelectedFolderId(id);
 
+      const willAnimate = animate && liteMode.isAvailable('animations');
+
       this.xds[id].clear();
       const promise = this.setFilterIdAndChangeTab(id);
-      if(wasFilterId !== -1) {
-        return promise;
+
+      if(!willAnimate && wasFilterId !== -1) {
+        this.holdOutgoingTab(wasFilterId, promise);
       }
     };
 
@@ -785,7 +789,9 @@ export class AppDialogsManager {
       onClick: selectFolderByIndex,
       onTransitionEnd: () => {
         for(const folderId in this.xds) {
-          if(+folderId !== this.filterId) {
+          // Don't clear a tab that's being held visible over the incoming one — it would
+          // empty mid-hold and re-expose the blank frame. holdOutgoingTab clears it on release.
+          if(+folderId !== this.filterId && +folderId !== this.heldTabFilterId) {
             this.xds[folderId].clear();
           }
         }
@@ -843,6 +849,50 @@ export class AppDialogsManager {
   public async setFilterIdAndChangeTab(filterId: number) {
     this.setFilterId(filterId);
     return this.onTabChange();
+  }
+
+  private heldTabFilterId: number;
+  // Keeps the outgoing folder tab painted on top of the incoming one (which is empty until its
+  // rows render) until `renderPromise` resolves, masking the otherwise-black frame on a
+  // non-animated tab switch. While held, the tab is exempt from onTransitionEnd's clearing;
+  // it's cleared on release. heldTabFilterId ensures only the latest hold stays active.
+  private async holdOutgoingTab(filterId: number, renderPromise: Promise<any>) {
+    const content = this.filtersRendered[filterId]?.container;
+    if(!content) {
+      return;
+    }
+
+    if(this.heldTabFilterId !== undefined && this.heldTabFilterId !== filterId) {
+      this.releaseHeldTab();
+    }
+
+    this.heldTabFilterId = filterId;
+    content.classList.add('folder-tab-holding');
+
+    try {
+      await renderPromise;
+    } catch{}
+    await doubleRaf(); // let the incoming rows paint before revealing them
+
+    if(this.heldTabFilterId === filterId) {
+      this.releaseHeldTab();
+    } else {
+      content.classList.remove('folder-tab-holding'); // already superseded
+    }
+  }
+
+  private releaseHeldTab() {
+    const filterId = this.heldTabFilterId;
+    if(filterId === undefined) {
+      return;
+    }
+
+    this.heldTabFilterId = undefined;
+    this.filtersRendered[filterId]?.container.classList.remove('folder-tab-holding');
+    // onTransitionEnd skipped this folder while held — do the deferred clear now.
+    if(filterId !== this.filterId) {
+      this.xds[filterId]?.clear();
+    }
   }
 
   private initListeners() {

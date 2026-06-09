@@ -63,7 +63,7 @@ export function FoldersSidebarContent(props: {
 
   async function _onClick(folderId: number) {
     const index = folderItems.findIndex(({filter}) => filter.id === folderId);
-    if(!(await onClick()(index))) {
+    if(!(await onClick()(index, false))) {
       return false;
     }
 

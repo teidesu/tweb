@@ -208,6 +208,11 @@ ul.chatlist {
       }
     }
 
+    .dialog-subtitle-badge-pinned {
+      font-size: 26px;
+      margin-inline-end: -6px;
+    }
+
     @include respond-to(not-handhelds) {
       &.active {
         --background: var(--primary-color) !important;

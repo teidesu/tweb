@@ -1,5 +1,5 @@
 import {Dynamic} from 'solid-js/web';
-import {JSX} from 'solid-js';
+import {JSX, Ref} from 'solid-js';
 import classNames from '@helpers/string/classNames';
 
 export default function Badge(props: {
@@ -7,10 +7,12 @@ export default function Badge(props: {
   size: number,
   color: 'primary' | 'gray',
   children: JSX.Element,
-  class?: string
+  class?: string,
+  ref?: Ref<HTMLElement>
 }) {
   return (
     <Dynamic
+      ref={props.ref}
       component={props.tag}
       class={classNames(
         'badge',

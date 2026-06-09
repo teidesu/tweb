@@ -143,6 +143,9 @@ export class AutonomousDialogListBase<T extends PossibleDialog = PossibleDialog>
 
   public onChatsScroll() {
     this.requestItemForIdx(0);
+    // The fetch is kicked off synchronously, so the deferred is already set — callers can
+    // await it to know when the first batch has been rendered into the list.
+    return this.loadDialogsDeferred;
   };
 
   protected onScrolledBottom() {
