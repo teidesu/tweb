@@ -16,7 +16,6 @@
     "generate-icons": "node ./scripts/icomoon/icomoon_generate.js",
     "change-version": "node ./scripts/change_version.js",
     "apply-new-lang": "node ./scripts/apply_new_lang.js",
-    "watch-lang": "node scripts/watch-lang.js",
     "lint": "eslint \"src/**/**.ts\"",
     "format-lang": "node ./scripts/format_lang.js"
   },
