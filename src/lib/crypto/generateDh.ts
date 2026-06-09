@@ -7,7 +7,7 @@ import bytesFromHex from '@helpers/bytes/bytesFromHex';
 import cryptoWorker from '@lib/crypto/cryptoMessagePort';
 import {randomBytes} from '@helpers/random';
 
-export default async function generateDh(dhConfig: MessagesDhConfig.messagesDhConfig) {
+export default async function generateDh(dhConfig: MessagesDhConfig.messagesDhConfig): Promise<CallInstance['dh']> {
   const {p, g} = dhConfig;
 
   const generateA = (p: Uint8Array) => {

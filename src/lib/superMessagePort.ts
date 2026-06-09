@@ -137,6 +137,18 @@ class SuperMessagePort<
   protected heldLocks: Map<SendPort, {resolve: () => void, id: string}>;
   protected requestedLocks: Map<string, SendPort>;
 
+  protected readyPromise?: Promise<void>;
+
+  // Defer invoke handling until `promise` resolves. Outgoing invokes are sent immediately;
+  // incoming invokes queue (naturally, via await) on the receiver side. Use when listener
+  // setup is sync but the work behind those listeners needs async initialisation (e.g. WASM).
+  public deferInvokesUntil(promise: Promise<void>) {
+    this.readyPromise = promise;
+    promise.then(() => {
+      if(this.readyPromise === promise) this.readyPromise = undefined;
+    });
+  }
+
   constructor(protected logSuffix?: string) {
     super(false);
 
@@ -514,6 +526,8 @@ class SuperMessagePort<
   };
 
   protected processInvokeTask = async(task: InvokeTask, source: MessageEventSource, event: MessageEvent) => {
+    if(this.readyPromise) await this.readyPromise;
+
     const id = task.id;
     const innerTask = task.payload;
 

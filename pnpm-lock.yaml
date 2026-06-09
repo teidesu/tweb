@@ -8,21 +8,15 @@ importers:
 
   .:
     devDependencies:
-      '@cryptography/aes':
-        specifier: ^0.1.1
-        version: 0.1.1
-      '@cryptography/sha1':
-        specifier: ^0.2.0
-        version: 0.2.0
-      '@cryptography/sha256':
-        specifier: ^0.2.0
-        version: 0.2.0
       '@eslint/eslintrc':
         specifier: ^3.3.5
         version: 3.3.5
       '@eslint/js':
         specifier: ^9.39.0
         version: 9.39.4
+      '@mtcute/wasm':
+        specifier: ^0.29.0
+        version: 0.29.0
       '@solid-primitives/refs':
         specifier: ^1.0.5
         version: 1.0.5(solid-js@1.9.9)
@@ -83,6 +77,9 @@ importers:
       hls.js:
         specifier: ^1.5.18
         version: 1.5.18
+      iconv-lite:
+        specifier: ^0.7.2
+        version: 0.7.2
       js-md5:
         specifier: ^0.8.3
         version: 0.8.3
@@ -250,15 +247,6 @@ packages:
   '@babel/types@7.23.6':
     resolution: {integrity: sha512-+uarb83brBzPKN38NX1MkB6vb6+mwvR6amUulqAE7ccQw1pEl+bCia9TbdG1lsnFP7lZySvUn37CHyXQdfTwzg==}
     engines: {node: '>=6.9.0'}
-
-  '@cryptography/aes@0.1.1':
-    resolution: {integrity: sha512-PcYz4FDGblO6tM2kSC+VzhhK62vml6k6/YAkiWtyPvrgJVfnDRoHGDtKn5UiaRRUrvUTTocBpvc2rRgTCqxjsg==}
-
-  '@cryptography/sha1@0.2.0':
-    resolution: {integrity: sha512-qlMD9LvSs8fL3+coW3CP4xwLoeWxXTnuFuCiC5r/SEh6Od8YI28OjtAiMwAavw9I0d9Ow3Z9zHwgEEaMwJrFVw==}
-
-  '@cryptography/sha256@0.2.0':
-    resolution: {integrity: sha512-BptcDkQWplfUjMJAxewmMN/O8JD19cwJM6XUFQrqaCDMYt5e40Czm4S7BEFc+PN7dElNH79ik687/5aMk4uDSQ==}
 
   '@esbuild/aix-ppc64@0.27.4':
     resolution: {integrity: sha512-cQPwL2mp2nSmHHJlCyoXgHGhbEPMrEEU5xhkcy3Hs/O7nGZqEpZ2sUtLaL9MORLtDfRvVl2/3PAuEkYZH0Ty8Q==}
@@ -494,6 +482,9 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.20':
     resolution: {integrity: sha512-R8LcPeWZol2zR8mmH3JeKQ6QRCFb7XgUhV9ZlGhHLGyg4wpPiPZNQOOWhFZhxKw8u//yTbNGI42Bx/3paXEQ+Q==}
+
+  '@mtcute/wasm@0.29.0':
+    resolution: {integrity: sha512-PFZ60ufUIt3BW1FFkCqcaEvEcezaTK+KyMVs3A/aXA19aFhDpu6HCSI8FJ6iOfGsIMGaNGYrwH3CZ7XxLn24XA==}
 
   '@parcel/watcher-android-arm64@2.5.6':
     resolution: {integrity: sha512-YQxSS34tPF/6ZG7r/Ih9xy+kP/WwediEUsqmtf0cuCV5TPPKw/PQHRhueUo6JdeFJaqV3pyjm0GdYjZotbRt/A==}
@@ -1271,6 +1262,10 @@ packages:
 
   iconv-lite@0.6.3:
     resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
+    engines: {node: '>=0.10.0'}
+
+  iconv-lite@0.7.2:
+    resolution: {integrity: sha512-im9DjEDQ55s9fL4EYzOAv0yMqmMBSZp6G0VvFyTMPKWxiSBHUj9NW/qqLmXUwXrrM7AvqSlTCfvqRb0cM8yYqw==}
     engines: {node: '>=0.10.0'}
 
   ignore@5.3.0:
@@ -2176,12 +2171,6 @@ snapshots:
       '@babel/helper-validator-identifier': 7.22.20
       to-fast-properties: 2.0.0
 
-  '@cryptography/aes@0.1.1': {}
-
-  '@cryptography/sha1@0.2.0': {}
-
-  '@cryptography/sha256@0.2.0': {}
-
   '@esbuild/aix-ppc64@0.27.4':
     optional: true
 
@@ -2337,6 +2326,8 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.1
       '@jridgewell/sourcemap-codec': 1.4.15
+
+  '@mtcute/wasm@0.29.0': {}
 
   '@parcel/watcher-android-arm64@2.5.6':
     optional: true
@@ -3083,6 +3074,10 @@ snapshots:
       - supports-color
 
   iconv-lite@0.6.3:
+    dependencies:
+      safer-buffer: 2.1.2
+
+  iconv-lite@0.7.2:
     dependencies:
       safer-buffer: 2.1.2
 

@@ -10,7 +10,7 @@ import {JSONValue} from '@layer';
 import {MOUNT_CLASS_TO} from '@config/debug';
 import bytesToHex from '@helpers/bytes/bytesToHex';
 import isObject from '@helpers/object/isObject';
-import gzipUncompress from '@helpers/gzipUncompress';
+import {gzipUncompress} from '@helpers/gzip';
 import bigInt from 'big-integer';
 import ulongFromInts from '@helpers/long/ulongFromInts';
 import {safeBigInt} from '@helpers/bigInt/bigIntConstants';

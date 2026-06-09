@@ -20,9 +20,6 @@
     "format-lang": "node ./scripts/format_lang.js"
   },
   "devDependencies": {
-    "@cryptography/aes": "^0.1.1",
-    "@cryptography/sha1": "^0.2.0",
-    "@cryptography/sha256": "^0.2.0",
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^9.39.0",
     "@solid-primitives/refs": "^1.0.5",
@@ -45,6 +42,7 @@
     "fflate": "^0.8.2",
     "globals": "^17.4.0",
     "hls.js": "^1.5.18",
+    "iconv-lite": "^0.7.2",
     "js-md5": "^0.8.3",
     "jsdom": "^22.1.0",
     "libsodium-wrappers": "^0.8.4",
@@ -60,7 +58,8 @@
     "vite-plugin-checker": "^0.12.0",
     "vite-plugin-solid": "^2.11.11",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.0",
+    "@mtcute/wasm": "^0.29.0"
   },
   "packageManager": "pnpm@9.15.3+sha512.1f79bc245a66eb0b07c5d4d83131240774642caaa86ef7d0434ab47c0d16f66b04e21e0c086eb61e62c77efc4d7f7ec071afad3796af64892fae66509173893a"
 }

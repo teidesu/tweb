@@ -36,7 +36,7 @@ import {bigIntFromBytes} from '@helpers/bigInt/bigIntConversion';
 import safeAssign from '@helpers/object/safeAssign';
 import {MTAuthKey} from '@lib/mtproto/authKey';
 import {MessageKeyUtils} from '@lib/mtproto/messageKeyUtils';
-import gzipCompress from '@helpers/gzipCompress';
+import {gzipCompress} from '@helpers/gzip';
 
 // console.error('networker included!', new Error().stack);
 
@@ -417,10 +417,12 @@ export default class MTPNetworker {
     let body = serializer.getBytes(true);
     if(options.gzipCompress) {
       const packed = gzipCompress(body);
-      const wrapper = new TLSerialization({startMaxLength: (packed.length + 67) & ~3});
-      wrapper.storeInt(gzipPacked, 'gzip_packed[id]');
-      wrapper.storeBytes(packed, 'gzip_packed[packed_data]');
-      body = wrapper.getBytes(true);
+      if(packed) {
+        const wrapper = new TLSerialization({startMaxLength: (packed.length + 67) & ~3});
+        wrapper.storeInt(gzipPacked, 'gzip_packed[id]');
+        wrapper.storeBytes(packed, 'gzip_packed[packed_data]');
+        body = wrapper.getBytes(true);
+      }
     }
     const message: MTMessage = {
       msg_id: messageId,

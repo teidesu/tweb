@@ -27,6 +27,7 @@ import {useAutoLock} from '@lib/mainWorker/useAutoLock';
 import pushSingleManager from '@appManagers/pushSingleManager';
 import {createBroadcastChannelWrapper} from '@lib/broadcastChannelWrapper';
 import {MainBroadcastChannelEvents, unversionedMainBroadcastChannelName} from '@config/broadcastChannel';
+import {initCryptoWasm} from '@lib/crypto/wasmInit';
 
 
 const log = logger('MTPROTO');
@@ -36,6 +37,8 @@ const log = logger('MTPROTO');
 // module is imported into the main thread under Modes.noWorker (otherwise
 // MTProtoMessagePort.MASTER_INSTANCE would be overwritten).
 const port = new MTProtoMessagePort<false>(false);
+
+port.deferInvokesUntil(initCryptoWasm());
 
 const mainBroadcastChannel = createBroadcastChannelWrapper<MainBroadcastChannelEvents>(unversionedMainBroadcastChannelName);
 
