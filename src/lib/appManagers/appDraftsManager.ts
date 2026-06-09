@@ -33,6 +33,8 @@ type ClearDraftArgs = {
 
 export class AppDraftsManager extends AppManager {
   private drafts: { [peerIdAndThreadId: string]: MyDraftMessage };
+  // drafts that were replaced/cleared by a server update and weren't locally modified since
+  private supersededDrafts: { [peerIdAndThreadId: string]: MyDraftMessage };
   private getAllDraftPromise: Promise<void>;
   private getAllDraftsResolved = false;
 
@@ -65,7 +67,8 @@ export class AppDraftsManager extends AppManager {
           threadId: threadId || update.top_msg_id,
           monoforumThreadId,
           draft,
-          notify: true
+          notify: true,
+          fromUpdate: true
         });
       }
     });
@@ -82,6 +85,7 @@ export class AppDraftsManager extends AppManager {
     }
 
     this.drafts = {};
+    this.supersededDrafts = {};
   };
 
   private getKey(peerId: PeerId, threadId?: number) {
@@ -143,18 +147,29 @@ export class AppDraftsManager extends AppManager {
     monoforumThreadId,
     draft: apiDraft,
     notify,
-    force
+    force,
+    fromUpdate
   }: {
     peerId: PeerId,
     threadId?: number,
     monoforumThreadId?: PeerId,
     draft: DraftMessage,
     notify?: boolean,
-    force?: boolean
+    force?: boolean,
+    fromUpdate?: boolean
   }) {
     const draft = this.processApiDraft(apiDraft, peerId);
 
     const key = this.getKey(peerId, monoforumThreadId || threadId);
+    if(fromUpdate) {
+      const previous = this.drafts[key];
+      if(previous && !draftsAreEqual(previous, draft)) {
+        this.supersededDrafts[key] = previous;
+      }
+    } else {
+      delete this.supersededDrafts[key];
+    }
+
     if(draft) {
       this.drafts[key] = draft;
     } else {
@@ -217,6 +232,14 @@ export class AppDraftsManager extends AppManager {
     const serverDraft = this.getDraft(peerId, monoforumThreadId || threadId);
     if(draftsAreEqual(serverDraft, localDraft)) {
       // console.warn(dT(), 'equal drafts', localDraft, serverDraft)
+      return true;
+    }
+
+    // the input is echoing back a draft the server has since replaced or cleared
+    // (e.g. the message was sent from another client) — uploading it would
+    // resurrect the stale draft on all clients
+    const superseded = this.supersededDrafts[this.getKey(peerId, monoforumThreadId || threadId)];
+    if(!force && superseded && draftsAreEqual(superseded, localDraft)) {
       return true;
     }
 
