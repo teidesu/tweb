@@ -6,10 +6,11 @@
   // We bypass the centered-modal flexbox layout that PopupElement uses by default so
   // the preview can anchor next to the clicked dialog row, tdesktop-style.
 
-  // Re-declare handheld page padding for the whole preview subtree. `:root` carries the
-  // active value from `updateColumnWidths` (0 on desktop), but we always want the
-  // mobile-style breathing room around the topbar/input plates inside the popup.
-  --page-chats-padding: 8px;
+  // Flush layout inside the popup, same as the main chat — the bars span
+  // edge-to-edge and the popup-container's border-radius clips them. Pin the
+  // chat-scoped padding to 0 so the handheld :root/#column-center values
+  // can't leak in.
+  --page-chats-padding: 0px;
 
   // The base `.popup` carries `padding: 1.875rem` (zeroed by `.no-overlay`). On handhelds we
   // drop `withoutOverlay` to show the dimmed backdrop, which re-introduces that padding — pin
@@ -63,11 +64,7 @@
 
 .chat.chat-preview {
   position: absolute;
-  // Mirror `#column-center { inset: var(--page-chats-padding) }`. In the main chat that's
-  // what gives the floating topbar and input plates a uniform 8px breathing room around
-  // them on handheld — both are anchored `inset-inline: 0` inside the chat, so insetting
-  // the chat itself is what creates the visible gap.
-  inset: var(--page-chats-padding, 8px);
+  inset: 0;
   // The base `.chat` rule sets `width: 100%`, which would override the right-side `inset`
   // value and leave the chat sticking out past the wrapper. Reset to auto so the absolute
   // positioning's left+right insets actually resolve the width.
@@ -129,17 +126,9 @@
     transform: none !important;
   }
 
-  // Main `.bubbles` is anchored with `inset-inline: -.5rem` so its width grows past the
-  // chat container. That looks fine when the chat fills a wide column but overflows our
-  // 360px preview popup — pin the bubbles to the container's horizontal edges instead.
-  // Leave `inset-block` as the base rule sets it (`calc(--page-chats-padding * -1)`) —
-  // that negative offset is what the `.is-date` sticky math expects when computing
-  // `top: calc(var(--chat-padding-top) + ...)`, so the date sticker lands right under
-  // the topbar.
-  .bubbles {
-    inset-inline: 0;
-    flex: 1 1 auto;
-  }
+  // (The bars and .bubbles need no overrides: with --page-chats-padding
+  // pinned to 0 their negative-inset cancellations resolve to 0, so they
+  // span the popup edge-to-edge just like the main chat spans its column.)
 
   // Preview is purely visual — clicks on bubbles (open media, jump-to-reply, follow
   // links, context menus) shouldn't fire. The early return in `bubbles.onBubblesClick`

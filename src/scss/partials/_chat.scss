@@ -16,7 +16,6 @@
 		display: flex;
 		align-items: flex-end;
 		justify-content: center;
-		max-width: var(--chat-input-max-width);
 		margin: 0 auto;
 		width: 100%;
 		padding: 0 var(--padding-horizontal);
@@ -271,9 +270,10 @@
   --translateY: 0;
   z-index: 2; // fix safari topbar bug
   position: absolute;
-  bottom: 0;
-  inset-inline: 0;
-  margin-inline: auto;
+  bottom: calc(var(--page-chats-padding) * -1);
+  inset-inline: calc(var(--page-chats-padding) * -1);
+  width: auto;
+  max-width: none;
   transition: transform var(--transition-standard-out);
   transform: translate3d(0, var(--translateY), 0);
 
@@ -325,10 +325,6 @@
     transition: none !important;
   }
 
-  @include respond-to(esg-top) {
-    max-width: var(--chat-width) !important;
-  }
-
   .bubbles.is-selecting.forwards ~ & {
     .selection-wrapper {
       opacity: 1;
@@ -371,33 +367,22 @@
 	inset: var(--page-chats-padding);
 
 	// `--page-chats-padding` is a JS signal (helpers/updateColumnWidths.ts);
-	// the handheld value (8px) already gives the chat its breathing room
-	// without a SCSS @media override here.
+	// 0 on desktop (flush layout), 8px on handhelds for the floating plates.
 
-	// #column-center spans the whole middle area; the chat-content plates inside
-	// it (topbar / pinned / chat-input) are capped to --chat-width and centred
-	// via max-width + margin:auto. (The bubbles scroll container instead fills
-	// the full middle zone so it scrolls edge-to-edge — see .bubbles — but its
-	// messages are likewise centred at --chat-width.) Centre that content in the
-	// space to the right of the docked left bar — at every width above the
-	// floating-drawer range.
-	// #column-center is inset by --page-chats-padding on its right edge, which
-	// alone would centre the chat in [bar, viewport − inset] and leave the right
-	// gap a padding wider than the left; the extra + --page-chats-padding in the
-	// shift compensates so the chat sits symmetrically between the bar and the
-	// viewport edge. JS clamps --chat-width to the same space so it never spills
-	// past the edge. --folders-sidebar-offset (0 normally, 80px when folders
-	// panel is shown) is folded into the left side so chat content stays centered
-	// past the panel too.
+	// Plain boxy layout: the chat column statically spans from the left bar's
+	// edge to the screen edge — or the docked right column's inner edge when
+	// it's shown. Toggling a sidebar animates these insets (real layout, same
+	// layout pass as the sliding column, so the seam can't desync); everything
+	// inside is a dumb static box. Heavier per-frame than a transform, but the
+	// bubble DOM is virtualized so the relayout cost is bounded.
 	@include respond-to(no-floating-left-sidebar) {
-		transform: translateX(calc((var(--folders-sidebar-offset) + var(--left-column-width) + var(--page-chats-padding)) / 2 * var(--reflect)));
-		transition: transform var(--transition-standard-out);
-	}
+		inset-inline-start: calc(var(--folders-sidebar-offset) + var(--left-column-width));
+		inset-inline-end: 0;
+		transition: inset-inline-start var(--transition-standard-out), inset-inline-end var(--transition-standard-out);
 
-	@include respond-to(no-floating-left-sidebar) {
 		body.is-right-column-shown:not(.right-column-floats) & {
-			transform: translateX(calc((var(--folders-sidebar-offset) + var(--left-column-width) - var(--right-column-width)) / 2 * var(--reflect)));
-			transition: transform var(--transition-standard-in);
+			inset-inline-end: var(--right-column-width);
+			transition: inset-inline-start var(--transition-standard-in), inset-inline-end var(--transition-standard-in);
 		}
 	}
 
@@ -422,9 +407,17 @@
 	}
 
 	@include respond-to(floating-left-sidebar) {
+		// The drawer (#column-left) slides with --layer-transition; the chat's
+		// make-room shift must follow the same curve or the seam between them
+		// drifts mid-animation (.main-column's default is --tabs-transition).
+		// Same animation-level/auth gating as the .main-column rule in
+		// pages/_chats.scss.
+		body.animation-level-2:not(.has-auth-pages) & {
+			transition: transform var(--layer-transition), opacity var(--tabs-transition);
+		}
+
 		body.is-left-column-shown & {
-			//transform: translate3d(26.5rem, 0, 0);
-			transform: translate3d(26.5625rem, 0, 0); // + 1px to show left border
+			transform: translate3d(calc(var(--left-column-visual-width) * var(--reflect)), 0, 0);
 
 			.sidebar-close-button {
         &:before {
@@ -443,8 +436,9 @@
   --chat-topbar-height: 3rem;
   --chat-input-height-surplus: 0px;
   --pinned-floating-height: 0px;
-  --chat-padding-top: calc(var(--chat-topbar-height) + var(--page-chats-padding) + var(--pinned-floating-height));
-  --chat-padding-bottom: calc(var(--chat-input-height) + var(--page-chats-padding) + var(--chat-input-height-surplus));
+  --topbar-plates-offset: 0px;
+  --chat-padding-top: calc(var(--chat-topbar-height) + var(--pinned-floating-height) + var(--topbar-plates-offset));
+  --chat-padding-bottom: calc(var(--chat-input-height) + var(--chat-input-height-surplus));
   --chat-input-background: var(--surface-color);
 	display: flex !important;
 	width: 100%;
@@ -469,10 +463,6 @@
     --padding: 20px;
     --pinned-floating-height: 0px;
     top: calc(56px + var(--pinned-floating-height) + var(--padding));
-
-    body.is-right-column-shown:not(.right-column-floats) & {
-      inset-inline-end: calc(var(--right-column-width));
-    }
 
     @include respond-to(handhelds) {
       --padding: 10px;
@@ -1058,16 +1048,9 @@
 
 .bubbles {
 	--translateY: 0;
-	// The scroll container spans the FULL visible middle zone — from the left
-	// card's edge to the page edge (or the docked right column) — so the chat
-	// scrolls edge-to-edge and the scrollbar sits right at the edge. No gutter,
-	// no padding. #column-center is full-middle-width but translateX-centred (to
-	// drop the chat content into the gap), so these insets are *symmetric* values
-	// that counter that shift to reach the real edges: symmetric keeps .bubbles
-	// centred within #column-center, so the centred messages don't move — only
-	// the scroll region widens. They mirror the #column-center translateX
-	// formulas above. Base = handheld / floating-drawer range (the left bar
-	// overlays, so the chat fills the whole content box).
+	// The scroll container fills #column-center edge-to-edge so the scrollbar
+	// sits right at the edge. The negative insets cancel the handheld 8px chat
+	// padding (0 on desktop).
 	inset-inline: calc(var(--page-chats-padding) * -1);
 	flex: 1 1 auto;
 	position: absolute;
@@ -1077,17 +1060,6 @@
 	transform: translate3d(0, var(--translateY), 0);
 	transition: transform var(--transition-standard-out);
 
-	// Docked-left range: counter #column-center's centring shift so the scroll
-	// area reaches the real edges — the page edge when the right column is
-	// closed/floating, or the docked right column's inner edge when it's shown.
-	@include respond-to(no-floating-left-sidebar) {
-		inset-inline: calc((var(--folders-sidebar-offset) + var(--left-column-width) - var(--page-chats-padding)) / 2);
-
-		body.is-right-column-shown:not(.right-column-floats) & {
-			inset-inline: calc((var(--folders-sidebar-offset) + var(--left-column-width) + var(--right-column-width)) / 2);
-		}
-	}
-
 	@include animation-level(0) {
 		transition: none !important;
 	}
@@ -1095,18 +1067,6 @@
   &-scrollable {
     height: auto;
     display: block;
-    --bubbles-scrollable-fade-top: calc(3rem + var(--page-chats-padding));
-    --bubbles-scrollable-fade-top-add: var(--pinned-floating-height);
-    --bubbles-scrollable-fade-bottom: calc(3rem + var(--page-chats-padding));
-    --bubbles-scrollable-fade-color: rgba(255, 255, 255, 0.5);
-    mask-image: linear-gradient(
-      to bottom,
-      var(--bubbles-scrollable-fade-color) 0,
-      var(--bubbles-scrollable-fade-color) var(--bubbles-scrollable-fade-top-add),
-      #000 var(--bubbles-scrollable-fade-top),
-      #000 calc(100% - var(--bubbles-scrollable-fade-bottom)),
-      var(--bubbles-scrollable-fade-color) 100%
-    );
   }
 
 	// ! WARNING, НЕЛЬЗЯ СТАВИТЬ ТРАНСФОРМ КРОМЕ TRANSLATEZ(0) НА БЛОК С OVERFLOW, ОН БУДЕТ ПРЫГАТЬ ВВЕРХ ПРИ ВКЛЮЧЕННОМ ПРАВИЛЕ И ЭТО НЕ ИСПРАВИТЬ JS'ОМ!
@@ -1219,7 +1179,7 @@
 	margin: 0 auto;
 	min-height: calc(100% - var(--chat-padding-top) - var(--chat-padding-bottom));
 	justify-content: flex-end;
-	max-width: calc(var(--chat-width) - var(--chat-bubbles-padding) * 2);
+	max-width: calc(100% - var(--chat-bubbles-padding) * 2);
 	transition: transform var(--transition-standard-out);
 	transform: translateY(0);
   box-sizing: content-box;
@@ -1227,10 +1187,6 @@
 	@include animation-level(0) {
 		transition: none !important;
 	}
-
-	// (No right-column subtraction here: .bubbles spans the full middle zone and
-	// the inner is centred within it via max-width + margin:auto, which keeps the
-	// messages in the gap, clear of the docked right column.)
 
 	&.is-chat .is-in/* ,
   .bubbles-group-sponsored */ {
@@ -1361,7 +1317,7 @@
 }
 
 .bubbles-corner-button {
-	inset-inline-end: 0;
+	inset-inline-end: .5rem;
 	bottom: calc(var(--chat-input-height) + .5rem);
 	z-index: 2;
 	overflow: visible;

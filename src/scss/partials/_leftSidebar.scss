@@ -15,13 +15,16 @@
   width: var(--left-column-visual-width);
 
   overflow: hidden;
-  border-radius: var(--main-column-border-radius);
   box-shadow: var(--column-box-shadow);
   z-index: 1;
-  margin-block: var(--page-chats-padding);
-  // --folders-sidebar-offset (0px or 5.5rem) sits side-by-side with the
-  // page padding so the column lands 8px past the folders panel when shown.
-  margin-inline-start: calc(var(--page-chats-padding) + var(--folders-sidebar-offset));
+  // Pinned flush to the screen edge, full height, square corners —
+  // --folders-sidebar-offset (0px, or the bar width when shown) is the only
+  // inline offset, so the column sits right next to the edge-pinned folders
+  // bar with no gap.
+  margin-inline-start: var(--folders-sidebar-offset);
+  // The column is full-height now, so inner panels sized off --100vh-inset
+  // (search-super, menus) must see the uninset viewport height.
+  --100vh-inset: var(--100vh);
 
   // Icon-only search affordance shown when the sidebar is collapsed and
   // there's no room for the full search input. Visibility is owned by JS —
@@ -147,7 +150,7 @@
 
     .btn-update {
       position: fixed !important;
-      left: calc(var(--page-chats-padding) + 12px) !important;
+      left: calc(var(--folders-sidebar-offset) + 12px) !important;
       z-index: 4;
     }
 
@@ -257,10 +260,11 @@
     top: 0;
     bottom: 0;
     inset-inline-start: 0;
-    // Slide fully off-screen (own width + the outer page padding) so no peek
-    // shows through the chat when the drawer is closed.
-    transform: translate3d(calc((var(--left-column-visual-width) + var(--page-chats-padding)) * -1 * var(--reflect)), 0, 0);
-    transition: transform var(--layer-transition);
+    // Slide off-screen by exactly the drawer's own width; the box-shadow blur
+    // that would still peek into the viewport fades out with the slide.
+    transform: translate3d(calc(var(--left-column-visual-width) * -1 * var(--reflect)), 0, 0);
+    box-shadow: none;
+    transition: transform var(--layer-transition), box-shadow var(--layer-transition);
 
     body.animation-level-0 & {
       transition: none;
@@ -268,6 +272,7 @@
 
     body.is-left-column-shown & {
       transform: translateZ(0);
+      box-shadow: var(--column-box-shadow);
     }
   }
 

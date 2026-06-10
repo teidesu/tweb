@@ -153,16 +153,11 @@
   --custom-emoji-size: 1.25rem;
 
   --chat-bubbles-padding: .5rem;
-  --chat-input-border-radius: #{$border-radius-big};
-  --chat-input-max-width: var(--chat-width);
+  --chat-input-border-radius: 0px;
   --chat-input-btn-send-margin: #{$btn-send-margin};
   --chat-input-padding: 0px;
   --chat-input-height: 3rem;
   --plates-gap: 0.5rem;
-
-  @include respond-to(not-handhelds) {
-    --chat-bubbles-padding: 0px;
-  }
 
   // https://github.com/overtake/TelegramSwift/blob/5cc7d2475fe4738a6aa0486c23eaf80a89d33b97/submodules/TGUIKit/TGUIKit/PresentationTheme.swift#L2054
   @include avatar-color("red", #FF845E, #D45246);
