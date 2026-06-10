@@ -1,10 +1,10 @@
-# CLAUDE.md — tweb (Telegram Web K)
+# inutweb
 
 ## Project Overview
 
-**tweb** is a full-featured Telegram web client (https://web.telegram.org/k/) built with Solid.js and TypeScript. It implements Telegram's MTProto protocol directly in the browser (no third-party API wrappers). The codebase is large (~100k+ lines excluding vendor), mature, and highly performance-oriented.
+this repo is a hard fork of tweb, a full-featured Telegram web client built with Solid.js and TypeScript. It implements Telegram's MTProto protocol directly in the browser (no third-party API wrappers). The codebase is large (~100k+ lines excluding vendor), mature, and highly performance-oriented.
 
-Author: Eduard Kuzmenko. License: GPL v3.
+this fork focuses on improving ui/ux and performance, and extends it to support more features.
 
 ## Tech Stack
 
@@ -24,7 +24,7 @@ Author: Eduard Kuzmenko. License: GPL v3.
 
 ```bash
 pnpm install
-pnpm start          # Dev server on :8080
+pnpm dev            # Dev server on :8080
 pnpm build          # Production build → dist/
 pnpm test           # Run tests (Vitest)
 pnpm lint           # ESLint on src/**/*.ts
@@ -82,11 +82,6 @@ Always use these aliases instead of relative paths:
 @layer          → src/layer.d.ts    (MTProto API types)
 @types          → src/types.d.ts    (utility types)
 @/*             → src/
-
-// Solid.js resolves to the custom fork:
-solid-js        → src/vendor/solid
-solid-js/web    → src/vendor/solid/web
-solid-js/store  → src/vendor/solid/store
 ```
 
 ## Code Style (all ESLint-enforced)
@@ -132,6 +127,8 @@ export default function MyComponent(props: {
 }
 ```
 
+For new components, **always** use CSS modules. 
+
 ### CSS Modules
 
 Scoped styles use `.module.scss` files. Import as `styles`:
@@ -139,6 +136,22 @@ Scoped styles use `.module.scss` files. Import as `styles`:
 ```typescript
 import styles from '@components/chat/bubbles/service.module.scss';
 // Usage: <div class={styles.wrap}>
+```
+
+For CSS modules, one useful trick is to use `/* @once */` to mark the prop as "it will never change",
+which allows Solid.js to skip attaching an effect to it.
+
+for example:
+
+```tsx
+import styles from '.../whatever.module.scss';
+
+// ❌ this will make a redundant effect to update the class even though `styles.wrap` never changes
+<div class={styles.wrap} />
+// ✅ this will transform to basically a simple document.createElement
+<div class={/* @once */ styles.wrap} />
+// ❌ NEVER put @once for computed classes — it will never update
+<div class={/* @once */ classNames(styles.wrap, props.className)} />
 ```
 
 ### Solid.js Stores

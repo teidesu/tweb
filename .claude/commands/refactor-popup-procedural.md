@@ -14,6 +14,7 @@ User asks to refactor a popup at `src/components/popups/<name>.ts(x)` from a cla
 ## Inputs to confirm
 
 - **Source file**: `src/components/popups/<name>.ts` (or `.tsx`). If unclear, ask.
+- **Source styles**: usually `src/scss/partials/popups/_<name>.scss`. If unclear, ask.
 - **Target name**: `show<Xxx>Popup` (camelCase with leading `show`). If the class was `PopupXxx`, default to `showXxxPopup`.
 
 If the current user prompt names the file (even indirectly, e.g. via an open editor selection), proceed without asking.
