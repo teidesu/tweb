@@ -302,7 +302,8 @@ export class Authorizer {
           throw 'DH_params: dataWithHash !== 224 bytes!';
         }
 
-        const aesEncrypted = await CryptoWorker.invokeCrypto('aes-encrypt', dataWithHash, tempKey, new Uint8Array([0]));
+        // IV must be full 32 bytes: wasm ige256 copies it into a shared buffer as-is
+        const aesEncrypted = await CryptoWorker.invokeCrypto('aes-encrypt', dataWithHash, tempKey, new Uint8Array(32));
         const tempKeyXor = bytesXor(tempKey, await CryptoWorker.invokeCrypto('sha256', aesEncrypted));
         const keyAesEncrypted = tempKeyXor.concat(aesEncrypted);
 
