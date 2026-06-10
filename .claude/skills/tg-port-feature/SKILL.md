@@ -9,26 +9,26 @@ This skill is the standard procedure for replicating a feature that exists in an
 
 ## Reference repositories
 
-The skill expects the three official Telegram clients to be cloned as **siblings of the tweb repo** (one directory up from the tweb root). Default paths assume `~/Documents/projects/tweb`; if the project lives elsewhere, the same sibling layout still applies — just adjust the parent.
+The skill expects the three official Telegram clients to be cloned at `~/repo`
 
 | Client | Default path | Tech | Recommended clone | When to prefer |
 |---|---|---|---|---|
-| **Desktop** (tdesktop) | `<projects>/tdesktop` | C++17, Qt | `--depth 1 --filter=blob:none` (~85 MB) | Default if user doesn't specify. Most desktop-aligned UX. Often the cleanest abstraction layer. |
-| **Android** (DrKLO) | `<projects>/Telegram` | Java | full history (~11 GB) or `--depth 1 --filter=blob:none` (~700 MB) | Mobile-aligned UX, animation timing, gestures. Single huge module — `grep` first, navigate second. |
-| **iOS** (TelegramMessenger) | `<projects>/Telegram-iOS` | Swift | `--depth 1 --filter=blob:none` (~575 MB) | Best modular separation. Each feature is its own submodule with a self-explanatory name. |
+| **Desktop** (tdesktop) | `~/repo/tdesktop` | C++17, Qt | `--depth 1 --filter=blob:none` (~85 MB) | Default if user doesn't specify. Most desktop-aligned UX. Often the cleanest abstraction layer. |
+| **Android** (DrKLO) | `~/repo/Telegram` | Java | full history (~11 GB) or `--depth 1 --filter=blob:none` (~700 MB) | Mobile-aligned UX, animation timing, gestures. Single huge module — `grep` first, navigate second. |
+| **iOS** (TelegramMessenger) | `~/repo/Telegram-iOS` | Swift | `--depth 1 --filter=blob:none` (~575 MB) | Best modular separation. Each feature is its own submodule with a self-explanatory name. |
 
 ### Setup (one-time, only if any repo is missing)
 
 Before invoking the skill, check the paths above exist. If any is missing, clone it as a sibling of `tweb`:
 
 ```bash
-cd "$(dirname "$(git -C ~/Documents/projects/tweb rev-parse --show-toplevel)")"   # or just: cd ~/Documents/projects
-git clone --depth 1 --filter=blob:none https://github.com/telegramdesktop/tdesktop.git
-git clone --depth 1 --filter=blob:none https://github.com/DrKLO/Telegram.git
-git clone --depth 1 --filter=blob:none https://github.com/TelegramMessenger/Telegram-iOS.git
+cd ~/repo
+git clone https://github.com/telegramdesktop/tdesktop.git
+git clone https://github.com/DrKLO/Telegram.git
+git clone https://github.com/TelegramMessenger/Telegram-iOS.git
 ```
 
-If a clone goes stale, refresh with `git -C <path> pull` (works for both shallow and full clones). Don't re-clone unless necessary.
+If a clone goes stale, refresh with `git pull`. Check for staleness and notify the user if the gap is big enough, before refreshing.
 
 ## Specifying the reference client
 
@@ -46,7 +46,7 @@ If the feature renders very differently per platform (e.g., a swipe-driven UI), 
 
 ## Where common feature areas live
 
-### tdesktop — `~/Documents/projects/tdesktop/Telegram/SourceFiles/`
+### tdesktop — `~/repo/tdesktop/Telegram/SourceFiles/`
 
 | Subdir | Contains |
 |---|---|
@@ -67,7 +67,7 @@ If the feature renders very differently per platform (e.g., a swipe-driven UI), 
 | `storage/` | Local storage wrappers |
 | `passport/`, `inline_bots/`, `support/`, `intro/`, `iv/`, `editor/`, `export/`, `tde2e/` | Self-explanatory |
 
-### Android DrKLO — `~/Documents/projects/Telegram/TMessagesProj/src/main/java/org/telegram/`
+### Android DrKLO — `~/repo/Telegram/TMessagesProj/src/main/java/org/telegram/`
 
 | Subdir | Contains |
 |---|---|
@@ -80,7 +80,7 @@ If the feature renders very differently per platform (e.g., a swipe-driven UI), 
 
 For Android, ALWAYS `grep -rn` first — the files are too big to read top-to-bottom.
 
-### Telegram-iOS — `~/Documents/projects/Telegram-iOS/submodules/`
+### Telegram-iOS — `~/repo/Telegram-iOS/submodules/`
 
 Modular layout. Each module name maps to a feature. Examples:
 - `ChatListUI/` — chat list
@@ -102,11 +102,11 @@ Search by feature noun first (`ls submodules | grep -i story`); the names are de
    Agent({
      subagent_type: "Explore",
      description: "Find gift resale flow in tdesktop",
-     prompt: "In ~/Documents/projects/tdesktop, find where the 'resell unique gift' flow is implemented. I need: (1) the popup/box class, (2) the MTProto method(s) called and their params, (3) the data model/struct that backs the gift state. Search breadth: medium."
+     prompt: "In ~/repo/tdesktop, find where the 'resell unique gift' flow is implemented. I need: (1) the popup/box class, (2) the MTProto method(s) called and their params, (3) the data model/struct that backs the gift state. Search breadth: medium."
    })
    ```
 
-   For Android use `~/Documents/projects/Telegram/TMessagesProj/src/main/java`, for iOS use `~/Documents/projects/Telegram-iOS/submodules`.
+   For Android use `~/repo/Telegram/TMessagesProj/src/main/java`, for iOS use `~/repo/Telegram-iOS/submodules`.
 
 2. **Find the MTProto method(s).** This is the most portable signal across clients — the same method name maps directly to tweb. Search patterns:
    - tdesktop: `grep -rn "MTPxxxxxx" Telegram/SourceFiles` (e.g. `MTPpayments_GetStarGifts`)
@@ -140,10 +140,10 @@ Search by feature noun first (`ls submodules | grep -i story`); the names are de
 
 If iOS / Android / Desktop implement the same feature differently (different popup vs page, different option ordering, different default, different MTProto flag values), and the user didn't pre-select a reference:
 
-1. Default to **tdesktop** (canonical-most often).
+1. Default to **android** (canonical-most often).
 2. In your reply, surface the disagreement in 1–2 sentences with the trade-off, and let the user redirect before you write code.
 
-Example: "iOS shows resale price as a single field; Android splits it into 'price' + 'currency picker'. Defaulting to tdesktop's combined-field approach — say if you'd prefer Android's split UI."
+Example: "iOS shows resale price as a single field; Android splits it into 'price' + 'currency picker'. Defaulting to android's split-field approach — say if you'd prefer Android's split UI."
 
 ## Memory & follow-ups
 
