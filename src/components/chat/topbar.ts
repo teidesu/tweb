@@ -1501,7 +1501,7 @@ export default class ChatTopbar {
       this.pinnedMessage,
       ...(this.plates?.all || [])
     ].filter(Boolean);
-    const TOPBAR_GAP = 8;
+    const TOPBAR_GAP = 1;
     const PLATE_DIVIDER = 1;
     let platesHeight = 0;
     // let firstVisible: typeof containers[number];

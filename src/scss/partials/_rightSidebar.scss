@@ -4,13 +4,11 @@
   position: relative;
   overflow: unset;
 
-  @include respond-to(floating-left-sidebar) {
-    box-shadow: 0 0.25rem 0.5rem 0.1rem rgba(0, 0, 0, .2);
-  }
-
-  border-radius: var(--main-column-border-radius);
   box-shadow: var(--column-box-shadow);
   overflow: hidden;
+  // The column is full-height now, so inner panels sized off --100vh-inset
+  // (profile content, search-super) must see the uninset viewport height.
+  --100vh-inset: var(--100vh);
 
   @include respond-to(handhelds) {
     body:not(.is-right-column-shown) & {
@@ -20,37 +18,37 @@
 
   @include respond-to(floating-left-sidebar) {
     body.is-right-column-shown:not(.is-left-column-shown) & {
-      transition: transform var(--transition-standard-in);
-      transform: translate3d(0, 0, 0);
+      transition: inset-inline-end var(--transition-standard-in), box-shadow var(--transition-standard-in);
+      inset-inline-end: 0;
+      box-shadow: 0 0.25rem 0.5rem 0.1rem rgba(0, 0, 0, .2);
     }
   }
 
   @include respond-to(no-floating-left-sidebar) {
     body.is-right-column-shown & {
-      transition: transform var(--transition-standard-in);
-      transform: translate3d(0, 0, 0);
+      transition: inset-inline-end var(--transition-standard-in), box-shadow var(--transition-standard-in);
+      inset-inline-end: 0;
+      box-shadow: var(--column-box-shadow);
     }
   }
 
   @include respond-to(not-handhelds) {
     width: calc(var(--right-column-width));
-    transition: transform var(--transition-standard-out);
+    transition: inset-inline-end var(--transition-standard-out), box-shadow var(--transition-standard-out);
     position: absolute;
-    inset-inline-end: var(--page-chats-padding);
-    inset-block: var(--page-chats-padding);
+    inset-block: 0;
     z-index: 3;
-    // Closed: slide the card fully past the viewport's inline-end edge.
-    // --page-chats-padding closes the resting gap from `inset-inline-end` and
-    // carries the card's own width off; --safe-area-inset-inline-end then covers
-    // the iOS safe-area gap between #main-columns' edge (inside html's safe-area
-    // padding — see base.scss) and the real screen edge, which #main-columns
-    // (overflow: visible) doesn't clip — otherwise the card and its box-shadow
-    // peek through that strip on landscape iPhones. The inset is 0 on desktop,
-    // so the closed offset is unchanged there. Both terms are inside the
-    // magnitude (before `* var(--reflect)`), and the var resolves to the
-    // inline-end inset, so it stays correct in RTL.
-    transform: translate3d(calc((var(--right-column-width) + var(--page-chats-padding) + var(--safe-area-inset-inline-end)) * var(--reflect)), 0, 0);
-    //transform: translate3d(calc(var(--right-column-width) + 1px), 0, 0);
+    // The slide is a LAYOUT animation on purpose: #column-center's
+    // inset-inline-end animates the same property with the same curve, so
+    // both resolve in the same layout pass and the seam between the chat and
+    // the column can't desync (a compositor transform here would glide while
+    // a busy main thread stalls the chat resize). Closed, the card sits
+    // exactly its own width past the inline-end edge (plus the iOS
+    // safe-area inset, which #main-columns doesn't clip; 0 on desktop); the
+    // box-shadow blur that would peek back into the viewport fades out with
+    // the slide instead (shadow lives in the shown-state rules above).
+    inset-inline-end: calc((var(--right-column-width) + var(--safe-area-inset-inline-end)) * -1);
+    box-shadow: none;
 
     .sidebar-content {
       min-width: var(--right-column-width);

@@ -40,11 +40,11 @@
  *                                  class instead of a media query.
  *   --page-chats-padding          outer chrome around each column. Owned by
  *                                  JS in two scopes:
- *                                    • :root            16 desktop / 0  handheld
- *                                                       (used by #column-left
- *                                                        and #column-right
- *                                                        margins).
- *                                    • #column-center   16 desktop / 8  handheld
+ *                                    • :root            0 — flush desktop
+ *                                                       layout; kept as a var
+ *                                                       because handheld rules
+ *                                                       still read it.
+ *                                    • #column-center   0 desktop / 8 handheld
  *                                                       (used by the chat
  *                                                        `inset`, .bubbles
  *                                                        inset-block, fade
@@ -73,19 +73,21 @@ export const SIDEBAR_COLLAPSE_FACTOR = 0.65;
 // Width of #column-left when collapsed. Matches --sidebar-collapsed-width in
 // scss/partials/_leftSidebar.scss.
 export const SIDEBAR_COLLAPSED_WIDTH = 80;
-// Folders sidebar geometry. Owned by JS — written to `--folders-sidebar-width`
-// and `--folders-sidebar-offset` so SCSS only consumes the vars.
-const FOLDERS_SIDEBAR_WIDTH = 72;
-const FOLDERS_SIDEBAR_GAP = 8;
-const FOLDERS_SIDEBAR_OFFSET = FOLDERS_SIDEBAR_WIDTH + FOLDERS_SIDEBAR_GAP;
-
 // Outer page padding values, written into `--page-chats-padding` by JS in
-// two scopes (see below). The sidebar value collapses to 0 on handheld so
-// #column-left / #column-right fill the screen; the chat keeps 8 so the
-// floating topbar / chat-input plates have breathing room.
-const PAGE_CHATS_PADDING_ROOT_DESKTOP = 16;
+// two scopes (see below). Desktop is fully flush (0); the handheld chat
+// scope keeps 8 so the floating topbar / chat-input plates have breathing
+// room.
+const PAGE_CHATS_PADDING_ROOT_DESKTOP = 0;
 const PAGE_CHATS_PADDING_ROOT_HANDHELD = 0;
-const PAGE_CHATS_PADDING_CHAT_DESKTOP = 16;
+
+// Folders sidebar geometry. Owned by JS — written to `--folders-sidebar-width`
+// and `--folders-sidebar-offset` so SCSS only consumes the vars. Both the bar
+// and #column-left are pinned flush to the screen edge (x=0, full height,
+// no gap between them), so the offset — the inline-start position of the left
+// column — is simply the bar width when the bar is shown.
+const FOLDERS_SIDEBAR_WIDTH = 72;
+const FOLDERS_SIDEBAR_OFFSET = FOLDERS_SIDEBAR_WIDTH;
+const PAGE_CHATS_PADDING_CHAT_DESKTOP = 0;
 const PAGE_CHATS_PADDING_CHAT_HANDHELD = 8;
 // Used in right-column-fits math (desktop threshold).
 const PAGE_CHATS_PADDING = PAGE_CHATS_PADDING_ROOT_DESKTOP;
@@ -286,7 +288,9 @@ export default function updateColumnWidths(): void {
   // layout, so resizing either column (or collapsing the left, or toggling
   // the folders panel) immediately re-evaluates the floats decision.
   const foldersOffset = foldersSidebarShown ? FOLDERS_SIDEBAR_OFFSET : 0;
-  const rightColumnFits = foldersOffset + layoutLeftWidth + rightWidth + CHAT_WIDTH_MAX + PAGE_CHATS_PADDING * 4;
+  // 2 paddings: the two gutters flanking the chat. Both side bars are flush
+  // to the screen edges, so there are no outer insets.
+  const rightColumnFits = foldersOffset + layoutLeftWidth + rightWidth + CHAT_WIDTH_MAX + PAGE_CHATS_PADDING * 2;
   // Handheld is a slider — the right column overlays the chat, so it
   // always floats. Without this body.right-column-floats stays off and the
   // `.bubbles-inner { width: calc(100% - var(--right-column-width) ...) }`
@@ -295,21 +299,17 @@ export default function updateColumnWidths(): void {
   const floats = isMobile || availableWidth < rightColumnFits;
   const middleWidth = isMobile ? vw : availableWidth - PAGE_CHATS_PADDING * 2;
   // Chat content max width — fills the viewport on handheld (single-column
-  // slider) and caps at CHAT_WIDTH_MAX otherwise. It also never exceeds the
-  // space actually free beside the left column: in the docked-left range
-  // (>925px) the left column + folders panel sit in-flow and the chat is
-  // centred in the gap to their right (see #column-center translateX in
-  // _chat.scss). Subtract them plus 3 paddings — the page's left inset and the
-  // two 16px gutters that flank the chat once it's clamped — so the chat keeps
-  // a symmetric gap on both sides and a wide/resized left column reclaims width
-  // from it. Uses availableWidth (not vw) so the iOS safe-area inset doesn't
-  // eat the left gap on landscape iPhones. In the floating-drawer range
-  // (601-925) and on mobile the left column overlays the chat, which keeps
-  // full width.
+  // slider) and caps at CHAT_WIDTH_MAX otherwise. Only narrow consumers are
+  // left (service bubbles, call/audio plates' max-width) — the chat column
+  // itself is a plain box spanning the space beside the left column (see
+  // #column-center in _chat.scss). Uses availableWidth (not vw) so the iOS
+  // safe-area inset doesn't shrink it on landscape iPhones. In the
+  // floating-drawer range (601-925) and on mobile the left column overlays
+  // the chat, which keeps full width.
   const isFloatingLeft = mediaSizes.isLessThanFloatingLeftSidebar && !isMobile;
   const chatAvailableWidth = (isMobile || isFloatingLeft) ?
     middleWidth :
-    availableWidth - foldersOffset - layoutLeftWidth - PAGE_CHATS_PADDING * 3;
+    availableWidth - foldersOffset - layoutLeftWidth - PAGE_CHATS_PADDING * 2;
   const chatWidth = isMobile ? vw : Math.min(chatAvailableWidth, CHAT_WIDTH_MAX);
   // Viewport threshold at which the right column can dock at default size
   // without overlapping a CHAT_WIDTH_MAX chat. Exposed for any caller that

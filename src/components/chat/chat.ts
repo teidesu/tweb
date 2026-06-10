@@ -341,16 +341,14 @@ export default class Chat extends EventListenerBase<{
   public recomputePaddings() {
     // const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
     const rem = 16;
-    // Main chat reserves 4.5rem above + 4rem below for the floating topbar / pinned-plate
-    // buffer and the chat-input plate. The preview shows neither — only the basic 3rem
-    // topbar — so collapse to topbar-height + 0.5rem (page-chats-padding) on each side.
-    // Handhelds drop those buffers too: the page inset shrinks to 8px so each floating
-    // plate's inner edge sits at 56px (3rem + 0.5rem). Collapse both spacers to sit flush
-    // (= --chat-padding-top / --chat-padding-bottom) instead of the wider desktop gap. Kept
-    // in sync across mobile<->desktop transitions by the 'changeScreen' listener in init().
-    const collapse = this.isPreview || mediaSizes.isMobile;
-    const topBase = collapse ? 3.5 : 4.5;
-    const bottomBase = collapse ? 3.5 : 4;
+    // The topbar and input are flush, full-width 3rem bars (main chat and
+    // preview alike) — reserve 3rem below, and 3rem above plus a 0.5rem
+    // desktop-only buffer for the pinned-plate gap (mobile drops the buffer).
+    // Kept in sync across mobile<->desktop transitions by the 'changeScreen'
+    // listener in init(). Mirrors --chat-padding-top / --chat-padding-bottom
+    // in _chat.scss.
+    const topBase = (!this.isPreview && mediaSizes.isMobile) ? 3 : 3.5;
+    const bottomBase = 3;
     const top = Math.round(topBase * rem + this.pinnedFloatingHeightPx);
     const bottom = Math.round(bottomBase * rem + this.chatInputSurplusPx);
     this.chatPaddingTop[1](top);
