@@ -290,10 +290,10 @@ export default class Chat extends EventListenerBase<{
     const scrollable = this.bubbles?.scrollable;
     const wasAtEnd = scrollable?.isScrolledToEnd;
     this.recomputePaddings();
-    // Compensate only when the chat was pinned to the bottom: paddingTop
-    // grows inside the scroller, so without this the chat drifts off the
-    // end. Mid-scroll is left alone — a restored saved scroll position
-    // already accounts for the eventual plate height.
+    // Compensate only when the chat was pinned to the bottom: the plate grows
+    // the scrollable's top border, shrinking the scrollport, so without this
+    // the chat drifts off the end. Mid-scroll is left alone — a restored saved
+    // scroll position already accounts for the eventual plate height.
     if(scrollable && wasAtEnd && delta > 0) {
       scrollable.setScrollPositionSilently(scrollable.scrollPosition + delta);
     }
@@ -341,16 +341,14 @@ export default class Chat extends EventListenerBase<{
   public recomputePaddings() {
     // const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
     const rem = 16;
-    // The topbar and input are flush, full-width 3rem bars (main chat and
-    // preview alike) — reserve 3rem below, and 3rem above plus a 0.5rem
-    // desktop-only buffer for the pinned-plate gap (mobile drops the buffer).
-    // Kept in sync across mobile<->desktop transitions by the 'changeScreen'
-    // listener in init(). Mirrors --chat-padding-top / --chat-padding-bottom
-    // in _chat.scss.
-    const topBase = (!this.isPreview && mediaSizes.isMobile) ? 3 : 3.5;
-    const bottomBase = 3;
-    const top = Math.round(topBase * rem + this.pinnedFloatingHeightPx);
-    const bottom = Math.round(bottomBase * rem + this.chatInputSurplusPx);
+    // The bars' reserved space lives in the .bubbles-scrollable transparent
+    // borders (--chat-padding-top / --chat-padding-bottom in _chat.scss), so
+    // the spacers only keep the content gap below the topbar: a 0.5rem
+    // desktop-only buffer for the pinned plates (mobile drops it). Kept in
+    // sync across mobile<->desktop transitions by the 'changeScreen' listener
+    // in init(). Mirrors --chat-content-buffer-top in _chat.scss.
+    const top = (!this.isPreview && mediaSizes.isMobile) ? 0 : Math.round(0.5 * rem);
+    const bottom = 0;
     this.chatPaddingTop[1](top);
     this.chatPaddingBottom[1](bottom);
     if(this.bubbles?.paddingTop) this.bubbles.paddingTop.style.height = top + 'px';
