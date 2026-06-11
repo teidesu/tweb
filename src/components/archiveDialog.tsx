@@ -412,7 +412,7 @@ function ArchiveAvatar(props: {
   const hasStories = createMemo(() => props.storiesSegments?.length > 0);
 
   const {setStoriesSegments, storyDimensions, storiesCircle} = StoriesSegments({
-    size: 54,
+    size: 48,
     colors: {}
   });
 

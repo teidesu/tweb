@@ -22,7 +22,7 @@ export class MonoforumTab extends ForumTab {
     autonomousList.scrollable = this.scrollable;
 
     const sortedList = autonomousList.sortedList = new SortedDialogList({
-      itemSize: 72,
+      itemSize: 62,
       appDialogsManager,
       scrollable: this.scrollable,
       managers: rootScope.managers,

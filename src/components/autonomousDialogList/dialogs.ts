@@ -218,7 +218,7 @@ export class AutonomousDialogList extends AutonomousDialogListBase<Dialog> {
       indexKey,
       requestItemForIdx: this.requestItemForIdx,
       onListShrinked: this.onListShrinked,
-      itemSize: 72,
+      itemSize: 62,
       onListLengthChange: () => {
         scrollable.onSizeChange();
         this.appDialogsManager.onListLengthChange?.();

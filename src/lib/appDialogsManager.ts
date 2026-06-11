@@ -26,7 +26,7 @@ import lottieLoader from '@rlottie/lottieLoader';
 import wrapPhoto from '@components/wrappers/photo';
 import {AppEditFolderTab} from '@components/solidJsTabs/tabs';
 import appSidebarLeft from '@components/sidebarLeft';
-import {attachClickEvent, simulateClickEvent} from '@helpers/dom/clickEvent';
+import {attachClickEvent, hasMouseMovedSinceDown, simulateClickEvent} from '@helpers/dom/clickEvent';
 import positionElementByIndex from '@helpers/dom/positionElementByIndex';
 import replaceContent from '@helpers/dom/replaceContent';
 import ConnectionStatusComponent from '@components/connectionStatus';
@@ -171,11 +171,11 @@ function getFolderTitleTextColor(active: boolean) {
   return active ? 'primary-color' : 'secondary-text-color';
 }
 
-const BADGE_SIZE = 22;
+const BADGE_SIZE = 20;
 
 
 const avatarSizeMap: {[k in DialogElementSize]?: number} = {
-  bigger: 54,
+  bigger: 48,
   abitbigger: 42,
   small: 32
 };
@@ -1780,6 +1780,37 @@ export class AppDialogsManager {
     window.open(url, '_blank');
   }
 
+  private prefetchedHistoryKey: string;
+
+  // warms up the worker-side history cache, so that opening the chat
+  // afterwards hits the cache instead of going to the network
+  private prefetchHistory(options: {peerId: PeerId, threadId?: number, monoforumThreadId?: PeerId}) {
+    const key = JSON.stringify(options);
+    if(this.prefetchedHistoryKey === key) {
+      return;
+    }
+    this.prefetchedHistoryKey = key;
+
+    (async() => {
+      let offsetId: number, backLimit: number;
+      // an unread chat opens around the first unread message, not at the bottom
+      if(!options.threadId && !options.monoforumThreadId) {
+        const dialog = await this.managers.appMessagesManager.getDialogOnly(options.peerId);
+        if(dialog?.unread_count && dialog.read_inbox_max_id) {
+          offsetId = dialog.read_inbox_max_id;
+          backLimit = Math.min(40, windowSize.height / 40 | 0);
+        }
+      }
+
+      await this.managers.appMessagesManager.getHistory({
+        ...options,
+        offsetId,
+        backLimit,
+        limit: Math.min(40, windowSize.height / 40 | 0)
+      });
+    })().catch(noop);
+  }
+
   public setListClickListener({
     list,
     onFound,
@@ -1820,17 +1851,56 @@ export class AppDialogsManager {
 
     const isOpeningStoriesDisabled = () => appSidebarLeft.isCollapsed() && !appSidebarLeft.hasSomethingOpenInside();
 
-    let willOpenStory = false;
-
-    const setWillOpenStory = (e: Event) => willOpenStory = !isOpeningStoriesDisabled() && !!getOpenStoryCallback(e.target);
-
     list.dataset.autonomous = '' + +autonomous;
+
+    // the chat is switched on click (mouseup), prefetching on mousedown buys
+    // the press-to-release time for the initial history request
     list.addEventListener('mousedown', (e) => {
+      if(e.button !== 0 || e.shiftKey || e.ctrlKey || e.metaKey) {
+        return;
+      }
+
+      const target = e.target as HTMLElement;
+      const elem = findUpTag(target, DIALOG_LIST_ELEMENT_TAG);
       if(
-        e.button !== 0 ||
-        setWillOpenStory(e)
+        !elem?.dataset.peerId ||
+        elem.dataset.sponsored === 'true' ||
+        findUpTag(target, archiveDialogTagName) ||
+        elem.querySelector('.is-forum') // opens the topics tab, not the chat
       ) {
         return;
+      }
+
+      const peerId = elem.dataset.peerId.toPeerId();
+      const monoforumParentPeerId = +elem.dataset.monoforumParentPeerId || undefined;
+      this.prefetchHistory({
+        peerId: monoforumParentPeerId || peerId,
+        monoforumThreadId: monoforumParentPeerId ? peerId : undefined,
+        threadId: +elem.dataset.threadId || undefined
+      });
+    }, {capture: true});
+
+    // ! do not change it to attachClickEvent
+    list.addEventListener('click', (e) => {
+      // synthetic events (plain Event, no button) must pass through untouched,
+      // e.g. the sponsored chip click re-dispatched below
+      if(e.button !== 0) {
+        return;
+      }
+
+      // the dialog is an <a href="#peerId">, prevent the link navigation
+      cancelEvent(e);
+
+      if(hasMouseMovedSinceDown(e)) {
+        return;
+      }
+
+      if(!isOpeningStoriesDisabled()) {
+        const openStory = getOpenStoryCallback(e.target);
+        if(openStory) {
+          openStory();
+          return;
+        }
       }
 
       this.log('dialogs click list');
@@ -1944,6 +2014,16 @@ export class AppDialogsManager {
           lastActiveListElement = elem;
           this.lastActiveElements.add(elem);
         }
+      } else if(!openInner) {
+        // switch the active row right away instead of waiting for the chat
+        // to render (peer_changed will confirm it later anyway)
+        for(const element of this.lastActiveElements) {
+          if(element !== elem) {
+            this.setDialogActive(element, false);
+          }
+        }
+
+        this.setDialogActive(elem, true);
       }
 
       if(
@@ -1955,19 +2035,6 @@ export class AppDialogsManager {
       }
 
       openChat();
-    }, {capture: true});
-
-    // cancel link click
-    // ! do not change it to attachClickEvent
-    list.addEventListener('click', (e) => {
-      if(e.button === 0) {
-        cancelEvent(e);
-      }
-
-      if(!willOpenStory || isOpeningStoriesDisabled()) return;
-
-      const callback = getOpenStoryCallback(e.target);
-      callback?.();
     }, {capture: true});
 
     if(withContext) {
