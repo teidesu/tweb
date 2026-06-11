@@ -1409,24 +1409,17 @@ export default class ChatBubbles {
     this.chat.contextMenu.attachTo(container);
     this.chat.selection.attachListeners(container, new ListenerSetter());
 
-    if(DEBUG) {
-      this.listenerSetter.add(container)('dblclick', (e) => {
-        const bubble = findUpClassName(e.target, 'grouped-item') || findUpClassName(e.target, 'bubble');
-        if(bubble) {
-          const fullMid = getBubbleFullMid(bubble);
-
-          if(TEST_BUBBLES_DELETION) {
-            return this.deleteMessagesByIds([fullMid], true);
-          }
-
-          this.log('debug message:', this.chat.getMessage(fullMid));
-          this.highlightBubble(bubble);
-        }
-      });
-    }
-
     if(!IS_MOBILE && !TEST_BUBBLES_DELETION) {
-      this.listenerSetter.add(container)('dblclick', async(e) => {
+      // mousedown with detail === 2 instead of dblclick: dblclick fires only on the
+      // second *release*, so the whole press duration reads as input lag
+      this.listenerSetter.add(container)('mousedown', (e) => {
+        // every even click, like native dblclick: rapid same-spot clicks keep
+        // incrementing the counter past 2 (e.g. re-replying right after a cancel
+        // arrives as detail 3-4), and odd details are triple-click selection
+        if(e.button !== 0 || e.detail < 2 || e.detail % 2 !== 0) {
+          return;
+        }
+
         if(
           this.chat.type === ChatType.Pinned ||
           this.chat.type === ChatType.Logs ||
@@ -1451,25 +1444,38 @@ export default class ChatBubbles {
         }
 
         const target = e.target as HTMLElement;
-        let bubble = target.classList.contains('bubble') ?
+        const directBubble = target.classList.contains('bubble') ?
           target :
           (target.classList.contains('document-selection') ? target.parentElement : null);
 
-        const selectedText = getSelectedText();
-        if(!bubble && (!selectedText.trim() || /^\s/.test(selectedText))) {
-          bubble = findUpClassName(target, 'bubble');
-          // cancelEvent(e);
-          // cancelSelection();
-        }
+        const tryReply = (bubble: HTMLElement) => {
+          if(!bubble || bubble.classList.contains('bubble-first')) {
+            return;
+          }
 
-        if(bubble && !bubble.classList.contains('bubble-first')) {
           const message = this.chat.getMessage(getBubbleFullMid(bubble));
           if(message.pFlags.is_outgoing || message.peerId !== this.peerId) {
             return;
           }
 
           this.chat.input.initMessageReply(this.chat.input.getChatInputReplyToFromMessage(message));
+        };
+
+        if(directBubble) {
+          tryReply(directBubble);
+          return;
         }
+
+        // The double-click landed on message content, where the browser's default
+        // action for this very mousedown is word selection — it hasn't run yet, so
+        // defer one task to inspect the resulting selection: a selected word means
+        // the user is selecting text, not replying.
+        setTimeout(() => {
+          const selectedText = getSelectedText();
+          if(!selectedText.trim() || /^\s/.test(selectedText)) {
+            tryReply(findUpClassName(target, 'bubble'));
+          }
+        }, 0);
       });
     } else if(IS_TOUCH_SUPPORTED) {
       const className = 'is-gesturing-reply';
@@ -3794,6 +3800,7 @@ export default class ChatBubbles {
 
     this.scrollable = new Scrollable(null, 'IM', /* 10300 */300);
     this.scrollable.container.classList.add('bubbles-scrollable');
+    this.scrollable.getThumbTrackInsetEnd = () => this.chat.chatPaddingBottom[0]();
     this.setLoaded('top', false, false);
     this.setLoaded('bottom', false, false);
 
@@ -4206,13 +4213,12 @@ export default class ChatBubbles {
     const {isPaddingNeeded, unsetPadding} = this.setTopPadding(middleware);
 
     if(scrolledDown) {
-      // A forward/reply send collapses the input helper, kicking off
-      // chat.preservePaddingScroll() — a 250ms loop pinning the view to the absolute
-      // bottom every frame. That pin would follow the new bubble down instantly,
-      // leaving the animated scrollToEnd() below with nothing to animate (no reveal,
-      // most visibly when forwarding a tall message). Cancel it before the new bubble
-      // inflates scrollHeight so the reveal animation owns the scroll.
-      this.chat.cancelPreservePaddingScroll();
+      // A forward/reply send collapses the input helper, kicking off the bubbles
+      // shift settle in chat.updateChatInputHeight(). That settle would compose with
+      // the animated scrollToEnd() below into a double motion (most visibly when
+      // forwarding a tall message). Cancel it before the new bubble inflates
+      // scrollHeight so the reveal animation owns the motion.
+      this.chat.cancelBubblesShift();
     }
 
     const promise = this.performHistoryResult({history: [message]}, false);
@@ -4280,21 +4286,27 @@ export default class ChatBubbles {
       element = this.getLastDateGroup();
     } */
 
+    // An in-flight helper-toggle settle skews the rect measurements below (the
+    // transform offsets getBoundingClientRect) — snap it, the scroll animation
+    // owns the motion from here. The input layout itself doesn't need the old
+    // getNormalSize pre-compensation anymore: it snaps in one relayout now, so
+    // the viewport rect is already final.
+    this.chat.cancelBubblesShift();
+
     // Scroll positions are computed against bubblesViewport (the visible bubble area)
     // rather than scrollable.container, which extends into the topbar and chat-input
     // zones via inset-block: -page-chats-padding.
     const bubblesViewportRect = this.chat.bubblesViewport.getBoundingClientRect();
-    const containerRect = this.scrollable.container.getBoundingClientRect();
-    // For 'end', fastSmoothScroll's path uses raw containerRect.bottom and isn't
-    // overridable, so compensate via margin to land at viewport.bottom instead.
-    const margin = 4 + (position === 'end' ? containerRect.bottom - bubblesViewportRect.bottom : 0);
+    // For 'end', fastSmoothScroll aligns the element to raw containerRect.bottom — the
+    // border-box bottom, which includes the transparent border-bottom reserving the
+    // base input space. True scroll end puts the content above the bottom spacer
+    // (which holds the input-helper surplus, see Chat.recomputePaddings), so
+    // compensate by border width + spacer height (the +4 overshoot is harmless —
+    // the browser clamps the last pixels at the scroll max).
+    const margin = 4 + (position === 'end' ?
+      parseFloat(getComputedStyle(this.scrollable.container).borderBottomWidth) + this.chat.chatPaddingBottom[0]() :
+      0);
 
-    const isTogglingHelper = this.chat.container.classList.contains('is-toggling-helper');
-    const isChangingHeight = isTogglingHelper || (
-      this.chat.input.messageInput &&
-      this.chat.input.messageInput.classList.contains('is-changing-height')
-    );
-    const isAddingHelper = this.chat.container.classList.contains('is-helper-active');
     const promise = this.scrollable.scrollIntoViewNew({
       element,
       position,
@@ -4302,22 +4314,7 @@ export default class ChatBubbles {
       forceDirection,
       forceDuration,
       axis: 'y',
-      getNormalSize: isChangingHeight ? ({rect}) => {
-        // return rect.height;
-
-        let height = windowSize.height;
-        // height -= this.chat.topbar.container.getBoundingClientRect().height;
-        height -= this.container.offsetTop;
-        height -= mediaSizes.isMobile || windowSize.height < 570 ? 58 : 78;
-        if(isTogglingHelper && isAddingHelper) {
-          height -= mediaSizes.isMobile || windowSize.height < 570 ? 40 : 36;
-        }
-        return height;
-
-        /* const rowsWrapperHeight = this.chat.input.rowsWrapper.getBoundingClientRect().height;
-        const diff = rowsWrapperHeight - 54;
-        return rect.height + diff; */
-      } : () => bubblesViewportRect.height,
+      getNormalSize: () => bubblesViewportRect.height,
       getElementPosition: ({elementRect}) => elementRect.top - bubblesViewportRect.top,
       fallbackToElementStartWhenCentering,
       startCallback: (dimensions) => {

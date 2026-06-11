@@ -14,7 +14,7 @@ The skill expects the three official Telegram clients to be cloned at `~/repo`
 | Client | Default path | Tech | Recommended clone | When to prefer |
 |---|---|---|---|---|
 | **Desktop** (tdesktop) | `~/repo/tdesktop` | C++17, Qt | `--depth 1 --filter=blob:none` (~85 MB) | Default if user doesn't specify. Most desktop-aligned UX. Often the cleanest abstraction layer. |
-| **Android** (DrKLO) | `~/repo/Telegram` | Java | full history (~11 GB) or `--depth 1 --filter=blob:none` (~700 MB) | Mobile-aligned UX, animation timing, gestures. Single huge module — `grep` first, navigate second. |
+| **Android** (DrKLO) | `~/repo/TelegramAndroid` | Java | full history (~11 GB) or `--depth 1 --filter=blob:none` (~700 MB) | Mobile-aligned UX, animation timing, gestures. Single huge module — `grep` first, navigate second. |
 | **iOS** (TelegramMessenger) | `~/repo/Telegram-iOS` | Swift | `--depth 1 --filter=blob:none` (~575 MB) | Best modular separation. Each feature is its own submodule with a self-explanatory name. |
 
 ### Setup (one-time, only if any repo is missing)
@@ -24,7 +24,7 @@ Before invoking the skill, check the paths above exist. If any is missing, clone
 ```bash
 cd ~/repo
 git clone https://github.com/telegramdesktop/tdesktop.git
-git clone https://github.com/DrKLO/Telegram.git
+git clone https://github.com/DrKLO/Telegram.git TelegramAndroid
 git clone https://github.com/TelegramMessenger/Telegram-iOS.git
 ```
 

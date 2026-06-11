@@ -4,6 +4,7 @@ import fastSmoothScroll, {ScrollOptions} from '@helpers/fastSmoothScroll';
 import useHeavyAnimationCheck from '@hooks/useHeavyAnimationCheck';
 import cancelEvent from '@helpers/dom/cancelEvent';
 import {IS_OVERLAY_SCROLL_SUPPORTED} from '@environment/overlayScrollSupport';
+import liteMode from '@helpers/liteMode';
 import {IS_MOBILE_SAFARI, IS_SAFARI} from '@environment/userAgent';
 /*
 var el = $0;
@@ -95,6 +96,10 @@ export class ScrollableBase {
 
   protected thumb: HTMLElement;
   protected thumbContainer: HTMLElement;
+  // Shortens the thumb track at the end edge (px). Needed when part of the
+  // padding box is reserved by in-content spacers rather than borders (chat
+  // input helper surplus) — the track must not extend behind the overlay.
+  public getThumbTrackInsetEnd?: () => number;
 
   protected removeHeavyAnimationListener: () => void;
   protected addedScrollListener: boolean;
@@ -248,14 +253,19 @@ export class ScrollableBase {
       return;
     }
 
+    // a live scroll mid-settle takes over: drop the transition so the thumb
+    // tracks the scroll position without lag
+    this.thumbTransitionCleanup?.();
+
     const scrollSize = this.container[this.scrollSizeProperty];
     const clientSize = this.container[this.clientSizeProperty];
-    const divider = scrollSize / clientSize / 0.75;
-    const thumbSize = Math.max(20, clientSize / divider);
-    const value = scrollPosition / (scrollSize - clientSize) * clientSize;
+    const trackSize = clientSize - (this.getThumbTrackInsetEnd?.() ?? 0);
+    const divider = scrollSize / trackSize / 0.75;
+    const thumbSize = Math.max(20, trackSize / divider);
+    const value = scrollPosition / (scrollSize - clientSize) * trackSize;
     // const b = (scrollPosition + clientSize) / scrollSize;
     const b = scrollPosition / (scrollSize - clientSize);
-    const maxValue = clientSize - thumbSize;
+    const maxValue = trackSize - thumbSize;
     if(clientSize < scrollSize) {
       this.thumb.style.height = thumbSize + 'px';
       // this.thumb.style.top = `${Math.min(maxValue, value - thumbSize * b)}px`;
@@ -263,6 +273,38 @@ export class ScrollableBase {
     } else {
       this.thumb.style.height = '0px';
     }
+  }
+
+  protected thumbTransitionCleanup?: () => void;
+
+  // Repositions the thumb with a transform/height settle instead of a snap —
+  // for one-shot track changes (input helper toggling) that accompany an
+  // animated content shift. Regular scroll updates stay transition-free so the
+  // thumb never lags behind live scrolling.
+  public updateThumbAnimated() {
+    const thumb = this.thumb;
+    if(IS_OVERLAY_SCROLL_SUPPORTED() || !thumb || !liteMode.isAvailable('animations')) {
+      this.updateThumb();
+      return;
+    }
+
+    this.thumbTransitionCleanup?.();
+    // keep the hover opacity transition from _scrollable.scss alive while the inline override is active
+    thumb.style.transition = 'transform var(--transition-snappy), height var(--transition-snappy), opacity .1s ease-in-out';
+    // the cleanup isn't registered yet, so updateThumb's cancel is a no-op here
+    this.updateThumb();
+
+    const onTransitionEnd = (e: TransitionEvent) => {
+      if(e.target === thumb && e.propertyName === 'transform') cleanup();
+    };
+    const timeout = setTimeout(() => cleanup(), 400);
+    thumb.addEventListener('transitionend', onTransitionEnd);
+    const cleanup = this.thumbTransitionCleanup = () => {
+      this.thumbTransitionCleanup = undefined;
+      clearTimeout(timeout);
+      thumb.removeEventListener('transitionend', onTransitionEnd);
+      thumb.style.transition = '';
+    };
   }
 
   public cancelMeasure() {
@@ -277,10 +319,11 @@ export class ScrollableBase {
 
     const contentHeight = this.scrollSize;
     const viewportHeight = this.clientSize;
+    const trackHeight = viewportHeight - (this.getThumbTrackInsetEnd?.() ?? 0);
     const scrollbarSize = this.thumb.offsetHeight;
     const maxScrollTop = contentHeight - viewportHeight;
 
-    const maxScrollbarOffset = viewportHeight - scrollbarSize;
+    const maxScrollbarOffset = trackHeight - scrollbarSize;
     const deltaY = e[this.clientAxis] - this.startMousePosition;
     const scrollAmount = (deltaY / maxScrollbarOffset) * maxScrollTop;
     const newScrollTop = this.startScrollPosition + scrollAmount;

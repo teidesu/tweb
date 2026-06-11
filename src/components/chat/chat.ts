@@ -68,7 +68,6 @@ import {AckedResult} from '@lib/superMessagePort';
 import SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
 import hasRights from '@appManagers/utils/chats/hasRights';
 import {ChatType} from '@components/chat/chatType';
-import {animateSingle} from '@helpers/animation';
 
 export type ChatSearchKeys = Pick<RequestHistoryOptions, 'query' | 'isCacheableSearch' | 'isPublicHashtag' | 'savedReaction' | 'fromPeerId' | 'inputFilter' | 'hashtagType'>;
 export const CHAT_SEARCH_KEYS: (keyof ChatSearchKeys)[] = ['query', 'isCacheableSearch', 'isPublicHashtag', 'savedReaction', 'fromPeerId', 'inputFilter', 'hashtagType'];
@@ -273,14 +272,30 @@ export default class Chat extends EventListenerBase<{
 
   private chatInputSurplusPx = 0;
   private pinnedFloatingHeightPx = 0;
-  private preservePaddingScrollAbort?: () => void;
+  private bubblesShiftCleanup?: () => void;
 
-  public updateChatInputHeight(surplus: number) {
+  public updateChatInputHeight(surplus: number, animate = true) {
     if(this.chatInputSurplusPx === surplus) return;
-    this.preservePaddingScroll();
+    const scrollable = this.bubbles?.scrollable;
+    const wasAtEnd = scrollable?.isScrolledToEnd;
+    const oldScrollPosition = scrollable?.scrollPosition;
     this.chatInputSurplusPx = surplus;
     this.container.style.setProperty('--chat-input-height-surplus', surplus + 'px');
     this.recomputePaddings();
+
+    if(!scrollable) return;
+    // FLIP: the reserved space (the bottom spacer set in recomputePaddings) snaps in
+    // a single relayout, then the resulting scroll jump is played back as a
+    // compositor-only transform — transitioning the reserved space relayouted the
+    // whole bubbles list every frame.
+    if(wasAtEnd) scrollable.setScrollPositionSilently(99999);
+    const delta = scrollable.scrollPosition - oldScrollPosition;
+    if(delta && animate) this.animateBubblesShift(delta);
+    // the silent scroll bump suppresses the scroll event, and the track inset
+    // (getThumbTrackInsetEnd) changed — reposition the thumb explicitly,
+    // settling in sync with the bubbles shift
+    if(animate) scrollable.updateThumbAnimated();
+    else scrollable.updateThumb();
   }
 
   public updatePinnedFloatingHeight(value: number) {
@@ -299,56 +314,70 @@ export default class Chat extends EventListenerBase<{
     }
   }
 
-  private preservePaddingScroll() {
-    if(
-      !this.bubbles ||
-      !this.bubbles.scrollable.isScrolledToEnd/*  ||
-      true */
-    ) return;
-    this.preservePaddingScrollAbort?.();
-    let finished = false;
-    const timeout = setTimeout(() => {
-      finished = true;
-    }, 250);
-    this.preservePaddingScrollAbort = () => {
-      finished = true;
-      clearTimeout(timeout);
-      this.preservePaddingScrollAbort = undefined;
+  // Plays back a scroll jump caused by a one-shot relayout (input helper toggling,
+  // message input growing) as a transform settle on the scroll content
+  // (.bubbles-inner) — compositor-only, the list itself is laid out exactly once.
+  // Must NOT target the scroll container or its ancestors: the overflow clip
+  // rectangle moves with their transform, leaving an empty strip under the
+  // topbar for the duration of the settle.
+  private animateBubblesShift(delta: number) {
+    const container = this.bubbles?.chatInner;
+    if(!container || !liteMode.isAvailable('animations')) return;
+
+    // compose with an in-flight shift so quick consecutive toggles don't jump
+    let currentY = 0;
+    if(this.bubblesShiftCleanup) {
+      const transform = getComputedStyle(container).transform;
+      if(transform !== 'none') currentY = new DOMMatrixReadOnly(transform).f;
+      this.bubblesShiftCleanup();
+    }
+
+    const startY = currentY + delta;
+    if(!startY) return;
+
+    container.style.transition = 'none';
+    container.style.transform = `translate3d(0, ${startY}px, 0)`;
+    void container.offsetWidth; // reflow so the seed isn't transitioned to
+    container.style.transition = 'transform var(--transition-snappy)';
+    container.style.transform = '';
+
+    const onTransitionEnd = (e: TransitionEvent) => {
+      if(e.target === container && e.propertyName === 'transform') cleanup();
     };
-    animateSingle(() => {
-      if(finished) {
-        return false;
-      }
-
-      this.bubbles.scrollable.setScrollPositionSilently(99999);
-      return true;
-    }, this.bubbles.scrollable.container);
-
-    // const scrollSaver = this.bubbles.createScrollSaver(false);
-    // scrollSaver.save();
-    // const promise = new Promise<void>((resolve) => setTimeout(resolve, 250));
-    // this.bubbles.animateSomethingWithScroll(promise, scrollSaver);
+    const timeout = setTimeout(() => cleanup(), 400);
+    container.addEventListener('transitionend', onTransitionEnd);
+    const cleanup = this.bubblesShiftCleanup = () => {
+      this.bubblesShiftCleanup = undefined;
+      clearTimeout(timeout);
+      container.removeEventListener('transitionend', onTransitionEnd);
+      container.style.transition = '';
+      container.style.transform = '';
+    };
   }
 
-  // Hands scroll control to an imminent new-message reveal (renderNewMessage →
-  // scrollToEnd). Otherwise the pin above slams to the absolute bottom every frame
-  // and swallows the reveal animation — most visibly when forwarding a tall message,
-  // where the input helper collapse that triggers the pin coincides with the new bubble.
-  public cancelPreservePaddingScroll() {
-    this.preservePaddingScrollAbort?.();
+  // Hands the visual settle to an imminent new-message reveal (renderNewMessage →
+  // scrollToEnd). Otherwise the shift transform composes with the reveal scroll
+  // animation into a double motion — most visibly when forwarding a tall message,
+  // where the input helper collapse that triggers the shift coincides with the new bubble.
+  public cancelBubblesShift() {
+    this.bubblesShiftCleanup?.();
   }
 
   public recomputePaddings() {
     // const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
     const rem = 16;
     // The bars' reserved space lives in the .bubbles-scrollable transparent
-    // borders (--chat-padding-top / --chat-padding-bottom in _chat.scss), so
-    // the spacers only keep the content gap below the topbar: a 0.5rem
+    // borders (--chat-padding-top / --chat-input-height in _chat.scss), so
+    // the top spacer only keeps the content gap below the topbar: a 0.5rem
     // desktop-only buffer for the pinned plates (mobile drops it). Kept in
     // sync across mobile<->desktop transitions by the 'changeScreen' listener
     // in init(). Mirrors --chat-content-buffer-top in _chat.scss.
     const top = (!this.isPreview && mediaSizes.isMobile) ? 0 : Math.round(0.5 * rem);
-    const bottom = 0;
+    // The input-helper surplus is reserved by the bottom spacer (inside the scroll
+    // content) rather than the scrollable's border: the border would move the
+    // overflow clip edge, instantly hiding the bottom of the last message on every
+    // helper toggle. See the border-bottom comment on .bubbles-scrollable.
+    const bottom = this.chatInputSurplusPx;
     this.chatPaddingTop[1](top);
     this.chatPaddingBottom[1](bottom);
     if(this.bubbles?.paddingTop) this.bubbles.paddingTop.style.height = top + 'px';

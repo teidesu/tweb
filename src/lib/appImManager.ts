@@ -2627,13 +2627,22 @@ export class AppImManager extends EventListenerBase<{
 
     if(prevTabId !== undefined && id > prevTabId) {
       if(id < APP_TABS.PROFILE || !appNavigationController.findItemByType('im')) {
-        appNavigationController.pushItem({
-          type: 'im',
-          onPop: (canAnimate) => {
-            // this.selectTab(prevTabId, !isSafari);
-            this.setPeer({}, canAnimate);
+        // this tab switch is deferred behind the chat render, so a chat-scoped
+        // item (e.g. a draft reply's input-helper) may already be in the stack —
+        // the im item must sit below it so esc cancels the helper before
+        // closing the chat (same splice as in chatsSelectTab)
+        const found = this.chat && appNavigationController.findItem((item) => item.context === this.chat);
+        appNavigationController.spliceItems(
+          found ? found.index : appNavigationController.getNextIndex(),
+          0,
+          {
+            type: 'im',
+            onPop: (canAnimate) => {
+              // this.selectTab(prevTabId, !isSafari);
+              this.setPeer({}, canAnimate);
+            }
           }
-        });
+        );
       }
     }
 
@@ -2817,6 +2826,13 @@ export class AppImManager extends EventListenerBase<{
               this.chatsSelectTab(this.chat, undefined);
             }, 0);
             this.selectTab(APP_TABS.CHAT, animate);
+            // selectTab blurs the active element — focus the input once the open
+            // settles (a cold open may still be running finishPeerChange here)
+            (chat.setPeerPromise || Promise.resolve()).then(() => {
+              if(this.chat === chat && chat.peerId === peerId) {
+                chat.input?.focus();
+              }
+            });
           }, 0);
         });
       }
