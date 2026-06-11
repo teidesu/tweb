@@ -221,6 +221,8 @@ export default class AppMediaViewerBase<
 
   protected setMoverPromise: Promise<void>;
   protected setMoverAnimationPromise: Promise<void>;
+  // slide animation is reserved for touch swipes; chevrons/keyboard switch instantly
+  protected animatedNav = false;
 
   protected lazyLoadQueue: LazyLoadQueueBase;
 
@@ -451,9 +453,7 @@ export default class AppMediaViewerBase<
       // attachClickEvent(button, (e) => {
       button.addEventListener('click', (e) => {
         cancelEvent(e);
-        if(this.setMoverPromise) return;
-
-        this.listLoader.go(moveLength);
+        this.goToSibling(moveLength);
       });
     });
 
@@ -529,12 +529,7 @@ export default class AppMediaViewerBase<
 
         const percents = Math.abs(xDiff) / windowSize.width;
         if(percents > .2 || Math.abs(xDiff) > 125) {
-          if(xDiff > 0) {
-            this.buttons.prev.click();
-          } else {
-            this.buttons.next.click();
-          }
-
+          this.goToSibling(xDiff > 0 ? -1 : 1, e.type === 'touchmove');
           return true;
         }
 
@@ -1037,6 +1032,13 @@ export default class AppMediaViewerBase<
     }
   };
 
+  protected goToSibling(moveLength: number, animated = false) {
+    if(this.setMoverPromise) return;
+
+    this.animatedNav = animated;
+    this.listLoader.go(moveLength);
+  }
+
   protected async setMoverToTarget(target: HTMLElement, closing = false, fromRight = 0) {
     this.dispatchEvent('setMoverBefore');
 
@@ -1115,8 +1117,9 @@ export default class AppMediaViewerBase<
     }
 
     const wasActive = fromRight !== 0;
+    const animatedMove = wasActive && this.animatedNav;
 
-    const delay = liteMode.isAvailable('animations') ? (wasActive ? MOVE_TRANSITION_TIME : OPEN_TRANSITION_TIME) : 0;
+    const delay = liteMode.isAvailable('animations') ? (wasActive ? (animatedMove ? MOVE_TRANSITION_TIME : 0) : OPEN_TRANSITION_TIME) : 0;
     // let delay = wasActive ? 350 : 10000;
 
     /* if(wasActive) {
@@ -1219,7 +1222,8 @@ export default class AppMediaViewerBase<
     let top: number;
 
     if(wasActive) {
-      left = fromRight === 1 ? windowSize.width : -containerRect.width;
+      // non-animated nav starts at the final position right away
+      left = animatedMove ? (fromRight === 1 ? windowSize.width : -containerRect.width) : containerRect.left;
       top = containerRect.top;
     } else {
       left = rect.left;
@@ -1713,7 +1717,7 @@ export default class AppMediaViewerBase<
     }
   }
 
-  protected moveTheMover(mover: HTMLElement, toLeft = true) {
+  protected moveTheMover(mover: HTMLElement, toLeft = true, animated = true) {
     const windowW = windowSize.width;
 
     this.removeCenterFromMover(mover);
@@ -1723,6 +1727,17 @@ export default class AppMediaViewerBase<
 
     if(mover.dataset.timeout) { // и это тоже всё из-за скейла видео, так бы это не нужно было
       clearTimeout(+mover.dataset.timeout);
+    }
+
+    const remove = () => {
+      mover.middlewareHelper.destroy();
+      // Remove the wrapper too so it doesn't leak.
+      (mover.parentElement || mover).remove();
+    };
+
+    if(!animated) {
+      this.addEventListener('setMoverAfter', remove, {once: true});
+      return;
     }
 
     const rect = mover.getBoundingClientRect();
@@ -1737,11 +1752,7 @@ export default class AppMediaViewerBase<
     // //////this.log('set newTransform:', newTransform, mover.style.transform, toLeft);
     mover.style.transform = newTransform;
 
-    setTimeout(() => {
-      mover.middlewareHelper.destroy();
-      // Remove the wrapper too so it doesn't leak.
-      (mover.parentElement || mover).remove();
-    }, 350);
+    setTimeout(remove, 350);
   }
 
   protected setNewMover() {
@@ -2190,7 +2201,7 @@ export default class AppMediaViewerBase<
 
     const wasActive = fromRight !== 0;
     if(wasActive) {
-      this.moveTheMover(this.content.mover, fromRight === 1);
+      this.moveTheMover(this.content.mover, fromRight === 1, this.animatedNav);
       this.setNewMover();
     } else {
       this.navigationItem = {
