@@ -2492,12 +2492,19 @@ export class AppDialogsManager {
     }
 
     const badgesLength = [hasPinnedBadge, hasUnreadBadge, hasMentionsBadge, hasReactionsBadge, hasPollVotesBadge].filter(Boolean).length;
-    SetTransition({
-      element: dialogElement.subtitleRow,
-      className: 'has-only-pinned-badge',
-      forwards: hasPinnedBadge && badgesLength === 1,
-      duration: isBatch ? 0 : BADGE_TRANSITION_TIME
-    });
+    const hasOnlyPinnedBadge = hasPinnedBadge && badgesLength === 1;
+    const {subtitleRow} = dialogElement;
+    if(
+      subtitleRow.classList.contains('has-only-pinned-badge') !== hasOnlyPinnedBadge ||
+      subtitleRow.classList.contains('animating')
+    ) {
+      SetTransition({
+        element: subtitleRow,
+        className: 'has-only-pinned-badge',
+        forwards: hasOnlyPinnedBadge,
+        duration: isBatch ? 0 : BADGE_TRANSITION_TIME
+      });
+    }
 
     const a: [Parameters<DialogElement['toggleBadgeByKey']>[0], boolean, boolean][] = [
       ['pinnedBadge', hasPinnedBadge, isPinnedBadgeMounted],
