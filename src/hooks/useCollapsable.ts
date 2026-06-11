@@ -19,6 +19,7 @@ export function useCollapsable(props: {
   listenWheelOn: HTMLElement,
   container: () => HTMLElement,
   shouldIgnore?: () => boolean,
+  canUnfold?: () => boolean,
   skipAnimationClassName?: string,
   disableHoverWhenFolded?: boolean
 }) {
@@ -91,6 +92,10 @@ export function useCollapsable(props: {
       }
 
       const newState = delta < 0 ? STATE_UNFOLDED : STATE_FOLDED;
+      if(newState === STATE_UNFOLDED && props.canUnfold && !props.canUnfold()) {
+        return;
+      }
+
       if((scrollTop && progress() !== STATE_UNFOLDED) || debounced.isDebounced()) {
         debounced();
         return;
