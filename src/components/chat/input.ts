@@ -367,7 +367,10 @@ export default class ChatInput {
 
   private isFocused: boolean;
   private freezedFocused: boolean;
-  /** True while `finishPeerChange` runs — suppresses animated plate centering. */
+  /**
+   * True from the `peer_changing` event until the end of `finishPeerChange`'s
+   * commit closure — suppresses helper/plate animations while switching chats.
+   */
   private peerChanging: boolean;
   public onFocusChange: (isFocused: boolean) => void;
   public onMenuToggle: (isOpen: boolean) => void;
@@ -1529,7 +1532,17 @@ export default class ChatInput {
     });
 
     this.listenerSetter.add(this.appImManager)('peer_changing', (chat) => {
-      if(this.chat === chat && (this.chat.type === ChatType.Chat || this.chat.type === ChatType.Discussion)) {
+      if(this.chat !== chat) {
+        return;
+      }
+
+      // raised here rather than in finishPeerChange: Chat.finishPeerChange's
+      // cleanup() runs first and its clearInput -> setDraft applies the new
+      // peer's draft — that must already see the flag to not animate the
+      // helper in. Cleared at the end of finishPeerChange's commit closure.
+      this.peerChanging = true;
+
+      if(this.chat.type === ChatType.Chat || this.chat.type === ChatType.Discussion) {
         this.saveDraft();
       }
     });
@@ -2144,6 +2157,10 @@ export default class ChatInput {
   }
 
   public async setDraft(draft?: MyDraftMessage, fromUpdate = true, force = false) {
+    // captured before the draft fetch below: by the time the draft arrives,
+    // finishPeerChange has already flipped the flag back, but a draft applied
+    // on chat open must not animate the helper in
+    const isPeerChange = this.peerChanging;
     if(
       (!force && draft && !isInputEmpty(this.messageInput)) ||
       PEER_EXCEPTIONS.has(this.chat.type)
@@ -2163,9 +2180,10 @@ export default class ChatInput {
           /* const height = this.chatInput.getBoundingClientRect().height;
           const willChangeHeight = 78 - height;
           this.willChangeHeight = willChangeHeight; */
-          if(this.chat.container.classList.contains('is-helper-active')) {
-            this.t();
-          }
+          // collapse the helper layout right away so the new-message reveal
+          // (renderNewMessage -> scrollToEnd) measures the final geometry instead
+          // of racing with onMessageSent's deferred clearHelper
+          this.collapseHelperLayout();
 
           this.messageInputField.inputFake.textContent = '';
           this.messageInputField.onFakeInput(false);
@@ -2210,7 +2228,7 @@ export default class ChatInput {
         },
         replyToPollOption: replyTo.poll_option,
         replyToMonoforumPeerId: replyTo.monoforum_peer_id && getPeerId(replyTo.monoforum_peer_id)
-      });
+      }, !isPeerChange);
     }
 
     this.setInputValue(wrappedDraft, fromUpdate, fromUpdate, draft);
@@ -2256,8 +2274,6 @@ export default class ChatInput {
 
   public async finishPeerChange(options: Parameters<Chat['finishPeerChange']>[0]) {
     const {peerId, startParam, middleware} = options;
-
-    this.peerChanging = true;
 
     const {
       forwardElements,
@@ -2318,7 +2334,6 @@ export default class ChatInput {
 
     return () => {
       const {isMonoforum, canManageDirectMessages, monoforumThreadId} = this.chat;
-      // console.warn('[input] finishpeerchange start');
 
       chatInput.classList.toggle('hide', this.chat.noInput);
 
@@ -2533,7 +2548,6 @@ export default class ChatInput {
       });
 
       this.peerChanging = false;
-      // console.warn('[input] finishpeerchange ends');
     };
   }
 
@@ -2725,7 +2739,6 @@ export default class ChatInput {
     args?: FormatterArguments,
     inputStarsCountEl?: HTMLElement
   }) {
-    // console.warn('[input] update placeholder');
     // const i = I18n.weakMap.get(this.messageInput) as I18n.IntlElement;
     const i = I18n.weakMap.get(this.messageInputField.placeholder) as I18n.IntlElement;
     if(!i) {
@@ -2795,9 +2808,9 @@ export default class ChatInput {
     this.updateSendBtn();
   }
 
-  private notifyChatInputHeight() {
+  private notifyChatInputHeight(animate = true) {
     const helperPx = this.helperVisible ? 48 : 0;
-    this.chat.updateChatInputHeight(this.inputHeightDelta + helperPx);
+    this.chat.updateChatInputHeight(this.inputHeightDelta + helperPx, animate);
   }
 
   // Single source of truth for `.input-message-input` max-height. The same
@@ -3021,6 +3034,17 @@ export default class ChatInput {
 
   public canSendPlain() {
     return this.messageInput.isContentEditable && !this.chatInput.classList.contains('is-hidden');
+  }
+
+  // Focuses the message input (e.g. when a chat opens), keeping any restored
+  // draft's caret at the end. No-op on touch devices — focusing would pop the
+  // on-screen keyboard.
+  public focus() {
+    if(IS_TOUCH_SUPPORTED || !this.messageInput || !this.canSendPlain() || this.recording) {
+      return;
+    }
+
+    placeCaretAtEnd(this.messageInput);
   }
 
   public onMessageInput = (e?: Event) => {
@@ -4607,18 +4631,17 @@ export default class ChatInput {
     return result;
   }
 
-  public async initMessageReply(replyTo: ReturnType<ChatInput['getReplyTo']>) {
+  public async initMessageReply(replyTo: ReturnType<ChatInput['getReplyTo']>, animate = true) {
     if(deepEqual(this.getReplyTo(), replyTo)) {
       return;
     }
 
     let {replyToMsgId, replyToQuote, replyToPeerId, replyToPollOption} = replyTo;
     replyToPeerId ??= this.chat.peerId;
-    let message = await (
-      replyToPeerId ?
-        this.managers.appMessagesManager.getMessageByPeer(replyToPeerId, replyToMsgId) :
-        this.chat.getMessage(replyToMsgId)
-    );
+    // read from the main-thread mirror to avoid a worker round-trip on every reply
+    let message = replyToPeerId ?
+      apiManagerProxy.getMessageByPeer(replyToPeerId, replyToMsgId) :
+      this.chat.getMessage(replyToMsgId);
 
     this.setSavedReplyToPollOption(replyToMsgId, replyToPollOption, message);
 
@@ -4670,7 +4693,8 @@ export default class ChatInput {
         subtitle,
         message,
         setColorPeerId: message?.fromId,
-        quote
+        quote,
+        animate
       });
       this.setReplyTo(replyTo);
 
@@ -4793,32 +4817,37 @@ export default class ChatInput {
       this.restoreInputLock = undefined;
     }
 
-    if(
-      this.chat.container &&
-      this.chat.container.classList.contains('is-helper-active') &&
-      !willHaveHelper
-    ) {
-      appNavigationController.removeByType('input-helper');
-      this.chat.container.classList.remove('is-helper-active');
-      this.helperVisible = false;
-      this.notifyChatInputHeight();
-      this.t();
+    if(this.chat.container && !willHaveHelper) {
+      this.collapseHelperLayout();
     }
 
     if(!type) this.directMessagesHandler.set({isReplying: false});
   }
 
-  private t() {
-    const className = 'is-toggling-helper';
-    SetTransition({
-      element: this.chat.container,
-      className,
-      forwards: true,
-      duration: 150,
-      onTransitionEnd: () => {
-        this.chat.container.classList.remove(className);
-      }
-    });
+  private collapseHelperLayout() {
+    if(!this.helperVisible || !this.chat.container.classList.contains('is-helper-active')) {
+      return;
+    }
+
+    appNavigationController.removeByType('input-helper');
+    // the old peer's helper must snap away when switching chats
+    this.toggleHelperLayout(false, !this.peerChanging);
+  }
+
+  // Flips is-helper-active together with the reserved input height; !animate
+  // wraps the flip in .no-helper-transition with a forced reflow so the one-shot
+  // change isn't transitioned by anything.
+  private toggleHelperLayout(active: boolean, animate: boolean) {
+    if(!animate) {
+      this.chat.container.classList.add('no-helper-transition');
+    }
+    this.chat.container.classList.toggle('is-helper-active', active);
+    this.helperVisible = active;
+    this.notifyChatInputHeight(animate);
+    if(!animate) {
+      void this.chat.container.offsetWidth; // reflow so the snap isn't transitioned
+      this.chat.container.classList.remove('no-helper-transition');
+    }
   }
 
   public setInputValue(
@@ -4850,12 +4879,14 @@ export default class ChatInput {
     setColorPeerId,
     input,
     message,
-    quote
+    quote,
+    animate = true
   }: {
     type: ChatInputHelperType,
     callerFunc: () => void,
     input?: Parameters<InputFieldAnimated['setValueSilently']>[0],
-    message?: any
+    message?: any,
+    animate?: boolean
   } & Pick<Parameters<typeof wrapReply>[0], 'title' | 'subtitle' | 'setColorPeerId' | 'quote'>) {
     if(this.willSendWebPage && type === 'reply') {
       return;
@@ -4898,10 +4929,7 @@ export default class ChatInput {
     }
 
     if(!this.chat.container.classList.contains('is-helper-active')) {
-      this.chat.container.classList.add('is-helper-active');
-      this.helperVisible = true;
-      this.notifyChatInputHeight();
-      this.t();
+      this.toggleHelperLayout(true, animate);
     }
 
     if(!IS_MOBILE) {

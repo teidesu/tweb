@@ -41,6 +41,7 @@
   --transition-standard-out-time: .25s;
   --transition-standard-in: var(--transition-standard-in-time) var(--transition-standard-easing);
   --transition-standard-out: var(--transition-standard-out-time) var(--transition-standard-easing);
+  --transition-snappy: .2s cubic-bezier(.05, .7, .1, 1);
   --transform-origin-inline-start: left;
   --transform-origin-inline-end: right;
   --transform-origin-left-center: left center;
