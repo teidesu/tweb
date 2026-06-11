@@ -20,6 +20,7 @@ type VideoTimestampSegment = {
 export default class MediaProgressLine extends RangeSelector {
   protected filledContainer?: HTMLDivElement;
   protected filledLoad: HTMLDivElement;
+  protected thumb?: HTMLDivElement;
 
   protected currentTimeInfoElement?: HTMLDivElement;
   protected currentTimeElement?: HTMLDivElement;
@@ -179,7 +180,7 @@ export default class MediaProgressLine extends RangeSelector {
     this.filledContainer = document.createElement('div');
     this.filledContainer.classList.add('media-progress-line__filled-container');
 
-    const thumb = document.createElement('div');
+    const thumb = this.thumb = document.createElement('div');
     thumb.classList.add('media-progress-line__thumb');
 
     this.currentTimeInfoElement = document.createElement('div');
@@ -461,7 +462,10 @@ export default class MediaProgressLine extends RangeSelector {
     this.options.onTimeUpdate?.(currentTime);
     super.setProgress(currentTime);
 
-    this.container.style.setProperty('--progress', currentTime / this.media.duration + '');
+    if(this.thumb) {
+      const progress = this.media.duration ? currentTime / this.media.duration : 0;
+      this.thumb.style.left = (progress * 100) + '%';
+    }
   }
 
   public setListeners() {

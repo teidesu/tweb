@@ -5,11 +5,10 @@ body.is-calling.forwards:not(.animating) {
 }
 
 body.is-pinned-audio-shown {
-  --topbar-floating-audio-height: calc(var(--topbar-audio-height) + var(--plates-gap));
+  --topbar-floating-audio-height: var(--topbar-audio-height);
 }
 
-body.is-calling.forwards:not(.animating) .chat,
-body.is-pinned-audio-shown .chat {
+body.is-calling.forwards:not(.animating) .chat {
   --topbar-plates-offset: var(--page-chats-padding);
 }
 
@@ -20,8 +19,7 @@ body.is-pinned-audio-shown, body.is-calling.forwards {
   }
 }
 
-.pinned-call,
-.pinned-audio {
+.pinned-call {
   @include animation-level(2) {
     transition: transform var(--transition-standard-out);
   }
@@ -34,7 +32,6 @@ body.is-pinned-audio-shown, body.is-calling.forwards {
   --topbar-box-shadow: 0px 1px 5px -1px rgba(0, 0, 0, .21);
 
   --pinned-container-height: 3rem;
-	--pinned-audio-height: var(--pinned-container-height);
 	--pinned-message-height: var(--pinned-container-height);
   --pinned-translation-height: var(--pinned-container-height);
   --pinned-live-height: var(--pinned-container-height);
