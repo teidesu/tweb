@@ -145,10 +145,6 @@
       margin-inline-start: .75rem;
     }
 
-    #new-menu {
-      display: none !important;
-    }
-
     .btn-update {
       position: fixed !important;
       left: calc(var(--folders-sidebar-offset) + 12px) !important;
@@ -458,12 +454,6 @@
     justify-content: center;
 
     .btn-corner {
-      &:not(.menu-open) .animated-button-icon-icon-first,
-      &.menu-open .animated-button-icon-icon-last {
-        visibility: visible;
-        animation: grow-icon .4s forwards ease-in-out;
-      }
-
       @include respond-to(handhelds) {
         --size: 54px;
         bottom: 14px;
