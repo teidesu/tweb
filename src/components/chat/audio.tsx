@@ -25,8 +25,8 @@ import appSidebarRight from '../sidebarRight';
 import AppSavedMusicTab from '../sidebarRight/tabs/savedMusic';
 import TopbarPlate, {createTopbarPlate} from '@components/chat/topbarPlate';
 import Button from '@components/buttonTsx';
-import documentFragmentToNodes from '@helpers/dom/documentFragmentToNodes';
-import RippleElement from '@components/rippleElement';
+import classNames from '@helpers/string/classNames';
+import styles from '@components/chat/audio.module.scss';
 
 export type ChatAudioController = {
   container: HTMLElement,
@@ -63,8 +63,8 @@ export default function createChatAudio(
   volumeProgressLineContainer.classList.add('progress-line-container');
   volumeProgressLineContainer.append(volumeSelector.container);
   const tunnel = document.createElement('div');
-  tunnel.classList.add('pinned-audio-volume-tunnel');
-  volumeSelector.btn.classList.add('pinned-audio-volume', 'active');
+  tunnel.classList.add(styles.volumeTunnel);
+  volumeSelector.btn.classList.add(styles.volume, 'active');
   volumeSelector.btn.prepend(tunnel);
   volumeSelector.btn.append(volumeProgressLineContainer);
 
@@ -73,20 +73,21 @@ export default function createChatAudio(
     useTransform: true,
     onTimeUpdate: (t) => setTimeText(toHHMMSS(t, true))
   });
-  progressLine.container.classList.add('pinned-audio-progress');
+  progressLine.container.classList.add(styles.progress);
 
   // ───────────────────────── Plate ─────────────────────────
 
-  // The audio plate uses its own visibility logic (`is-visible` + `body.is-pinned-audio-shown`)
+  // The audio plate uses its own visibility logic (`styles.isVisible` + `body.is-pinned-audio-shown`)
   // wired below in `toggle()`. The default `hide` class would conflict with the SCSS
-  // `:not(.is-visible) { display: none !important }` rule, so we keep the plate root unmarked.
+  // `:not(.isVisible) { display: none !important }` rule, so we keep the plate root unmarked.
   const plate = createTopbarPlate({
     modifier: 'audio',
-    height: 48,
+    height: 36,
     initiallyHidden: false,
+    class: () => styles.container,
     render: () => (
       <>
-        <TopbarPlate.Body>
+        <TopbarPlate.Body class={/* @once */ styles.wrapper}>
           <Button.Icon
             ref={prevEl}
             icon="fast_rewind"
@@ -96,7 +97,7 @@ export default function createChatAudio(
           />
           <Button.Icon
             icon={playIcon()}
-            class="active pinned-audio-ico"
+            class="active"
             noRipple
             onClick={(e) => { cancelEvent(e); appMediaPlaybackController.toggle(); }}
           />
@@ -107,15 +108,15 @@ export default function createChatAudio(
             noRipple
             onClick={(e) => { cancelEvent(e); appMediaPlaybackController.next(); }}
           />
-          <TopbarPlate.Content class="hover-effect" ripple>
-            <TopbarPlate.Title>{title()}</TopbarPlate.Title>
-            <TopbarPlate.Subtitle>
-              <span class="pinned-audio-time">{timeText()}</span>
-              {' • '}
+          <TopbarPlate.Content class={/* @once */ classNames('hover-effect', styles.content)} ripple>
+            <span class={/* @once */ styles.label}>
+              <span class={/* @once */ styles.artist}>{title()}</span>
+              {' – '}
               {subtitle()}
-            </TopbarPlate.Subtitle>
+            </span>
+            <span class={/* @once */ styles.time}>{timeText()}</span>
           </TopbarPlate.Content>
-          <div class="pinned-container-wrapper-utils pinned-audio-wrapper-utils">
+          <div class={/* @once */ classNames('pinned-container-wrapper-utils', styles.utils)}>
             {volumeSelector.btn}
             {playbackRateButton.element}
             <Button.Icon
@@ -140,7 +141,7 @@ export default function createChatAudio(
             />
           </div>
         </TopbarPlate.Body>
-        <div class="pinned-audio-progress-wrapper">
+        <div class={/* @once */ styles.progressWrapper}>
           {progressLine.container}
         </div>
       </>
@@ -188,13 +189,15 @@ export default function createChatAudio(
   // ───────────────────────── State / event handlers ─────────────────────────
 
   function toggle(hide?: boolean): void {
-    const current = !plate.container.classList.contains('is-visible');
+    const current = !plate.container.classList.contains(styles.isVisible);
     if((hide ??= !current) === current) return;
 
+    // Keep in sync with --transition-standard-in-time (the plate's transform
+    // transition) — shorter would display:none the plate mid-slide on hide.
     SetTransition({
       element: plate.container,
-      duration: 250,
-      className: 'is-visible',
+      duration: 300,
+      className: styles.isVisible,
       forwards: !hide,
       onTransitionStart: () => {
         doubleRaf().then(() => {
@@ -219,8 +222,8 @@ export default function createChatAudio(
       subtitleVal = formatFullSentTime(message.date);
     } else {
       const audioAttribute = doc.attributes.find((attr) => attr._ === 'documentAttributeAudio') as DocumentAttribute.documentAttributeAudio;
-      titleVal = wrapEmojiText(audioAttribute?.title ?? doc.file_name);
-      subtitleVal = audioAttribute?.performer ? wrapEmojiText(audioAttribute.performer) : i18n('AudioUnknownArtist');
+      titleVal = audioAttribute?.performer ? wrapEmojiText(audioAttribute.performer) : i18n('AudioUnknownArtist');
+      subtitleVal = wrapEmojiText(audioAttribute?.title ?? doc.file_name);
     }
 
     // Slotted media (e.g. poll description / explanation audio) is played in

@@ -1066,7 +1066,7 @@ $inactive-opacity: .4;
   &__thumb {
     position: absolute;
     top: 50%;
-    left: calc(var(--progress) * 100%);
+    left: 0; // actual position is set inline by MediaProgressLine.setProgress
     transform: translate(-50%, -50%);
   
     border-radius: 50%;
