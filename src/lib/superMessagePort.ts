@@ -146,6 +146,11 @@ class SuperMessagePort<
     this.readyPromise = promise;
     promise.then(() => {
       if(this.readyPromise === promise) this.readyPromise = undefined;
+    }, (err) => {
+      // keep readyPromise set — processInvokeTask awaits it inside its
+      // try/catch, so every queued/future invoke rejects with the root error
+      // instead of hanging silently
+      this.log.error('deferInvokesUntil failed, incoming invokes will reject:', err);
     });
   }
 
@@ -526,8 +531,6 @@ class SuperMessagePort<
   };
 
   protected processInvokeTask = async(task: InvokeTask, source: MessageEventSource, event: MessageEvent) => {
-    if(this.readyPromise) await this.readyPromise;
-
     const id = task.id;
     const innerTask = task.payload;
 
@@ -548,6 +551,10 @@ class SuperMessagePort<
     let isPromise: boolean;
 
     try {
+      // awaited inside try — if the init promise rejected, the caller gets an
+      // error result instead of waiting forever
+      if(this.readyPromise) await this.readyPromise;
+
       const listeners = this.listeners[innerTask.type];
       if(!listeners?.size) {
         throw new Error('no listener');
@@ -652,9 +659,14 @@ class SuperMessagePort<
     });
 
     if(timeout) {
-      const {reject} = this.awaiting[task.id];
+      const awaiting = this.awaiting[task.id];
       setTimeout(() => {
-        reject(makeError('TIMEOUT'));
+        // also remove the entry, otherwise it leaks and the stuck-invoke
+        // watchdog keeps reporting it forever
+        if(this.awaiting[task.id] === awaiting) {
+          delete this.awaiting[task.id];
+          awaiting.reject(makeError('TIMEOUT'));
+        }
       }, timeout);
     }
 
