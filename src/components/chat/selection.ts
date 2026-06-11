@@ -44,7 +44,7 @@ const accumulateMapSet = (map: Map<any, Set<number>>) => {
   return [...map.values()].reduce((acc, v) => acc + v.size, 0);
 };
 
-// const MIN_CLICK_MOVE = 32; // minimum bubble height
+const DRAG_SELECT_THRESHOLD = 10;
 
 export class AppSelection extends EventListenerBase<{
   toggle: (isSelecting: boolean) => void
@@ -168,16 +168,9 @@ export class AppSelection extends EventListenerBase<{
     const seen: AppSelection['selectedMids'] = new Map();
     let selecting: boolean;
 
-    /* let good = false;
-    const {x, y} = e; */
-
-    /* const bubbles = appImManager.bubbles;
-    for(const mid in bubbles) {
-      const bubble = bubbles[mid];
-      bubble.addEventListener('mouseover', () => {
-        console.log('mouseover');
-      }, {once: true});
-    } */
+    const anchorElement = this.getElementFromTarget(e.target as HTMLElement);
+    const startX = e.clientX, startY = e.clientY;
+    let thresholdPassed = false;
 
     let firstTarget = element;
 
@@ -208,16 +201,14 @@ export class AppSelection extends EventListenerBase<{
       seenSet.add(mid);
 
       if((selecting && !isSelected) || (!selecting && isSelected)) {
-        const seenLength = accumulateMapSet(seen);
         if(this.toggleByElement && checkBetween) {
-          if(seenLength < 2) {
+          if(accumulateMapSet(seen) < 2) {
             if(findUpAsChild(element, firstTarget)) {
               firstTarget = element;
             }
           }
 
           const elementsBetween = this.getElementsBetween(firstTarget, element);
-          // console.log(elementsBetween);
           if(elementsBetween.length) {
             elementsBetween.forEach((element) => {
               processElement(element, false);
@@ -225,43 +216,33 @@ export class AppSelection extends EventListenerBase<{
           }
         }
 
-        if(!this.selectedMids.size) {
-          if(seenLength === 2 && this.toggleByMid) {
-            for(const [peerId, mids] of seen) {
-              for(const mid of mids) {
-                this.toggleByMid(peerId, mid);
-              }
-            }
-          }
-        } else if(this.toggleByElement) {
-          this.toggleByElement(element);
-        }
+        this.toggleByElement?.(element);
       }
     };
 
-    // const foundTargets: Map<HTMLElement, true> = new Map();
-    let canceledSelection = false;
     const onMouseMove = (e: MouseEvent) => {
-      if(!canceledSelection) {
-        cancelSelection();
-        canceledSelection = true;
-        document.body.classList.add('no-select');
-        // const chat = document.querySelector('.chat');
-        // chat.classList.add('no-select');
-      }
-      /* if(!good) {
-        if(Math.abs(e.x - x) > MIN_CLICK_MOVE || Math.abs(e.y - y) > MIN_CLICK_MOVE) {
-          good = true;
-        } else {
+      const element = this.getElementFromTarget(e.target as HTMLElement);
+      if(!thresholdPassed) {
+        const movedEnough = (Math.abs(e.clientX - startX) + Math.abs(e.clientY - startY)) >= DRAG_SELECT_THRESHOLD;
+        // * compare on the top-level element so moving within a grouped album doesn't count
+        const currentTarget = findUpClassName(e.target, this.targetLookupClassName);
+        const movedToAnotherTarget = currentTarget && firstTarget && currentTarget !== firstTarget;
+        if(!movedEnough && !movedToAnotherTarget) {
           return;
         }
-      } */
 
-      /* if(foundTargets.has(e.target as HTMLElement)) return;
-      foundTargets.set(e.target as HTMLElement, true); */
-      const element = this.getElementFromTarget(e.target as HTMLElement);
+        thresholdPassed = true;
+        cancelSelection();
+        document.body.classList.add('no-select');
+
+        // * the anchor passed verifyTarget on mousedown, the drag is committed to it —
+        // * select it right away so a drag inside a single message works
+        if(anchorElement) {
+          processElement(anchorElement);
+        }
+      }
+
       if(!element) {
-        // console.error('found no bubble', e);
         return;
       }
 
