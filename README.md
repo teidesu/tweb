@@ -1,3 +1,13 @@
+hi so this is an experimental attempt at making a fully-featured *desktop* telegram client based on webk.
+
+this fork is primarily focused on ui/ux improvements, code cleanup, and making the app *feel* more like a native desktop app. this might end up being nothing in the future, but it also might become the "inugram desktop" kind of thing.
+
+this fork is unofficial and is not affiliated with nor endorsed by telegram llc.
+
+below is the original readme
+
+--- 
+
 ## Telegram Web K
 Based on Webogram, patched and improved. Available for everyone here: https://web.telegram.org/k/
 
