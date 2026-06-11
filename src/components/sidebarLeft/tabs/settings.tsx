@@ -3,17 +3,15 @@ import ButtonMenuToggle from '@components/buttonMenuToggle';
 import {AppPrivacyAndSecurityTab} from '@components/solidJsTabs/tabs';
 import {AppChatFoldersTab} from '@components/solidJsTabs/tabs';
 import {
-  AppEditProfileTab,
   AppGeneralSettingsTab,
   AppKeyboardShortcutsTab,
   AppLanguageTab,
+  AppMyProfileTab,
   AppNotificationsTab,
-  AppSpeakersAndCameraTab,
-  getEditProfileInitArgs
+  AppSpeakersAndCameraTab
 } from '@components/solidJsTabs';
 import lottieLoader from '@lib/rlottie/lottieLoader';
 import {AppDataAndStorageTab} from '@components/solidJsTabs/tabs';
-import ButtonIcon from '@components/buttonIcon';
 import rootScope from '@lib/rootScope';
 import Row from '@components/rowTsx';
 import {AppActiveSessionsTab} from '@components/solidJsTabs/tabs';
@@ -21,23 +19,22 @@ import {i18n, LangPackKey} from '@lib/langPack';
 import {SliderSuperTabConstructable, SliderSuperTabEventable} from '@components/sliderTab';
 import {AccountAuthorizations, Authorization} from '@layer';
 import PopupElement from '@components/popups';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
 import Section from '@components/section';
 import {AppStickersAndEmojiTab} from '@components/solidJsTabs/tabs';
 import PopupPremium from '@components/popups/premium';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import useStars from '@stores/stars';
 import PopupStars from '@components/popups/stars';
-import {renderPeerProfile} from '@components/peerProfile';
-import SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
 import showPickUserPopup from '@components/popups/pickUser';
-import showMyQrCodePopup from '@components/popups/myQrCode';
 import PopupSendGift from '@components/popups/sendGift';
 import {formatNanoton} from '@helpers/paymentsWrapCurrencyAmount';
 import showLogOutPopup from '@components/popups/logOut';
 import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
 import {usePromiseCollector} from '@components/solidJsTabs/promiseCollector';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
+import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import {getAccountEntries, AccountEntry} from '@lib/accounts/getAccountEntries';
+import {MAX_ACCOUNTS} from '@lib/accounts/constants';
+import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helper — wraps a sub-tab declaration. If the tab has a static `getInitArgs`,
@@ -79,13 +76,47 @@ const makeSubTabConfig = (
 // Tab UI
 // ─────────────────────────────────────────────────────────────────────────────
 
+type AccountRow = AccountEntry & {
+  title: DocumentFragment;
+  notificationsCount: number;
+};
+
 const Settings = () => {
   const promiseCollector = usePromiseCollector();
   const [tab] = useSuperTab();
+  const {appSidebarLeft, uiNotificationsManager, AvatarNewTsx} = useHotReloadGuard();
 
-  // ── Header (qr + edit + overflow menu)
-  const qrBtn = ButtonIcon('qr');
-  const editBtn = ButtonIcon('edit');
+  // ── Accounts section, mirrors the hamburger menu's account list. All data is
+  //    local (storage / worker caches), so we can afford waiting on it before
+  //    the open animation.
+  const [accounts, setAccounts] = createSignal<AccountRow[]>([]);
+  promiseCollector.collect((async() => {
+    const [notificationsCount, entries] = await Promise.all([
+      uiNotificationsManager.getNotificationsCountForAllAccounts(),
+      getAccountEntries()
+    ]);
+
+    setAccounts(entries.map((entry) => {
+      const {user, peerId, accountNumber, active} = entry;
+      const name = user ? [user.first_name, user.last_name].filter(Boolean).join(' ') : '' + peerId;
+      return {
+        ...entry,
+        title: wrapEmojiText(name),
+        notificationsCount: active ? 0 : notificationsCount[accountNumber] ?? 0
+      };
+    }));
+  })());
+
+  const onAccountClick = (account: AccountRow) => (e: MouseEvent) => {
+    if(account.active) {
+      tab.slider.createTab(AppMyProfileTab).open();
+      return;
+    }
+
+    appSidebarLeft.switchAccount(account.accountNumber, e.ctrlKey || e.metaKey);
+  };
+
+  // ── Header (logout overflow menu)
   const btnMenu = ButtonMenuToggle({
     listenerSetter: tab.listenerSetter,
     direction: 'bottom-left',
@@ -98,27 +129,7 @@ const Settings = () => {
 
   onMount(() => {
     tab.container.classList.add('settings-container');
-    tab.header.append(qrBtn, editBtn, btnMenu);
-  });
-
-  attachClickEvent(qrBtn, () => {
-    showMyQrCodePopup();
-  }, {listenerSetter: tab.listenerSetter});
-
-  // ── Edit profile click — prefetch args, refresh on user_update.
-  let editProfileArgs: ReturnType<typeof getEditProfileInitArgs>;
-  const refreshEditProfileArgs = () => {
-    editProfileArgs = getEditProfileInitArgs();
-  };
-  refreshEditProfileArgs();
-  attachClickEvent(editBtn, () => {
-    tab.slider.createTab(AppEditProfileTab).open(editProfileArgs);
-  }, {listenerSetter: tab.listenerSetter});
-
-  subscribeOn(rootScope)('user_update', (userId) => {
-    if(rootScope.myId.toUserId() === userId) {
-      refreshEditProfileArgs();
-    }
+    tab.header.append(btnMenu);
   });
 
   // ── Sub-tab rows (notifications/data/privacy/general/folders/stickers).
@@ -201,19 +212,6 @@ const Settings = () => {
   const stars = useStars();
   const starsTon = useStars(true);
 
-  // ── Self profile (avatar + name + collapse-on-scroll). The avatar inside
-  //    `PeerProfileAvatars` is filled async via `setPeer()` (peer photo IPC →
-  //    appearance render → thumb load) — without waiting, the gradient header
-  //    is rendered empty and the avatar pops in mid-transition. We collect the
-  //    `onAvatarReady` promise so the tab opens with the avatar already in DOM.
-  const peerProfileElement = renderPeerProfile({
-    peerId: rootScope.myId,
-    isDialog: false,
-    scrollable: tab.scrollable,
-    setCollapsedOn: tab.container,
-    onAvatarReady: (promise) => promiseCollector.collect(promise)
-  }, SolidJSHotReloadGuardProvider);
-
   // Lottie workers preload — fire and forget.
   lottieLoader.loadLottieWorkers();
 
@@ -232,7 +230,35 @@ const Settings = () => {
 
   return (
     <>
-      {peerProfileElement}
+      <Section>
+        <For each={accounts()}>
+          {(account) => (
+            <Row clickable={onAccountClick(account)}>
+              <Row.Media size="small">
+                <AvatarNewTsx
+                  accountNumber={account.accountNumber}
+                  peerId={account.peerId}
+                  peer={account.active ? undefined : account.user}
+                  size={32}
+                />
+              </Row.Media>
+              <Row.Title
+                titleRight={account.notificationsCount ?
+                  <span class="badge badge-20 badge-primary">{'' + account.notificationsCount}</span> :
+                  undefined}
+              >
+                {account.title}
+              </Row.Title>
+            </Row>
+          )}
+        </For>
+        <Show when={accounts().length && accounts().length < MAX_ACCOUNTS}>
+          <Row clickable={(e) => appSidebarLeft.addAccount(e)}>
+            <Row.Icon icon="plus" />
+            <Row.Title>{i18n('MultiAccount.AddAccount')}</Row.Title>
+          </Row>
+        </Show>
+      </Section>
       <Section>
         <div class="profile-buttons">
           <For each={subTabConfigs}>

@@ -47,7 +47,7 @@ import {AppEditProfileTab, AppSettingsTab, getEditProfileInitArgs} from '@compon
 import showBirthdayPopup, {saveMyBirthday} from '@components/popups/birthday';
 import showLogOutPopup from '@components/popups/logOut';
 import {getStickerSetInputByShortName} from '@lib/appManagers/utils/stickers/getStickerSetInput';
-import {AppMyStoriesTab} from '@components/solidJsTabs/tabs';
+import {AppMyProfileTab, AppMyStoriesTab} from '@components/solidJsTabs/tabs';
 
 export class InternalLinkProcessor {
   protected managers: AppManagers;
@@ -1206,6 +1206,14 @@ export class InternalLinkProcessor {
   public processStarGiftCollectionLink = async(link: InternalLink.InternalLinkStarGiftCollection) => {
     const peer = await this.managers.appUsersManager.resolveUsername(link.domain);
     const peerId = peer.id.toPeerId(peer._ !== 'user');
+    if(peerId === rootScope.myId) {
+      // own gifts live in My Profile, not in the Saved Messages shared media
+      const tab = appSidebarLeft.createTab(AppMyProfileTab);
+      await tab.open();
+      (tab as any)._openGiftsCollection(Number(link.id));
+      return;
+    }
+
     if(appImManager.chat.peerId !== peerId) {
       await appImManager.setInnerPeer({peerId});
       await pause(500);

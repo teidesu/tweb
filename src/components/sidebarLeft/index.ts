@@ -9,7 +9,7 @@ import TransitionSlider from '@components/transition';
 import AppSearchSuper, {SearchSuperMediaType} from '@components/appSearchSuper';
 import {DateData, fillTipDates} from '@helpers/date';
 import {MOUNT_CLASS_TO} from '@config/debug';
-import {AppSettingsTab} from '@components/solidJsTabs';
+import {AppMyProfileTab, AppSettingsTab} from '@components/solidJsTabs';
 import {AppNewChannelTab} from '@components/solidJsTabs/tabs';
 import {AppContactsTab} from '@components/solidJsTabs/tabs';
 import {AppArchivedTab} from '@components/solidJsTabs/tabs';
@@ -37,7 +37,7 @@ import themeController from '@helpers/themeController';
 import contextMenuController from '@helpers/contextMenuController';
 import appDialogsManager, {DIALOG_LIST_ELEMENT_TAG} from '@lib/appDialogsManager';
 import apiManagerProxy from '@lib/apiManagerProxy';
-import {FOLDER_ID_ARCHIVE, TEST_NO_STORIES} from '@appManagers/constants';
+import {FOLDER_ID_ARCHIVE} from '@appManagers/constants';
 import mediaSizes from '@helpers/mediaSizes';
 import updateColumnWidths, {setOpenTabsLeftSidebar} from '@helpers/updateColumnWidths';
 import installColumnResize from '@helpers/installColumnResize';
@@ -45,7 +45,6 @@ import {doubleRaf, fastRaf} from '@helpers/schedulers';
 import {getInstallPrompt} from '@helpers/dom/installPrompt';
 import liteMode from '@helpers/liteMode';
 import {AppPowerSavingTab} from '@components/solidJsTabs/tabs';
-import {AppMyStoriesTab} from '@components/solidJsTabs/tabs';
 import AppSelectPeers from '@components/appSelectPeers';
 import setBadgeContent from '@helpers/setBadgeContent';
 import createBadge from '@helpers/createBadge';
@@ -64,7 +63,7 @@ import AccountController from '@lib/accounts/accountController';
 import {ActiveAccountNumber} from '@lib/accounts/types';
 import {MAX_ACCOUNTS, MAX_ACCOUNTS_FREE} from '@lib/accounts/constants';
 import {getCurrentAccount} from '@lib/accounts/getCurrentAccount';
-import {createProxiedManagersForAccount} from '@lib/getProxiedManagers';
+import {getAccountEntries} from '@lib/accounts/getAccountEntries';
 import limitSymbols from '@helpers/string/limitSymbols';
 import filterAsync from '@helpers/array/filterAsync';
 import pause from '@helpers/schedulers/pause';
@@ -674,23 +673,23 @@ export class AppSidebarLeft extends SidebarSlider {
       },
       separator: true
     }, btnArchive, {
-      icon: 'stories',
-      text: 'MyStories.Title',
-      onClick: () => {
-        closeTabsBefore(() => {
-          this.createTab(AppMyStoriesTab).open(AppMyStoriesTab.getInitArgs());
-        });
-      },
-      verify: () => !TEST_NO_STORIES
-    }, {
       icon: 'user',
       text: 'Contacts',
       onClick: onContactsClick
     }, {
+      id: 'profile',
+      icon: 'newprivate',
+      text: 'Profile',
+      separator: true,
+      onClick: () => {
+        closeTabsBefore(() => {
+          this.createTab(AppMyProfileTab).open();
+        });
+      }
+    }, {
       id: 'settings',
       icon: 'settings',
       text: 'Settings',
-      separator: true,
       onClick: () => {
         closeTabsBefore(() => {
           this.createTab(AppSettingsTab).open();
@@ -745,74 +744,52 @@ export class AppSidebarLeft extends SidebarSlider {
           return wrapEmojiText(name);
         }
 
-        const targetIdx = buttons.findIndex((btn) => btn.id === 'settings');
+        const targetIdx = buttons.findIndex((btn) => btn.id === 'profile');
         buttons[targetIdx].separator = !!attachMenuBotsButtons.length;
         buttons.splice(targetIdx, 0, ...attachMenuBotsButtons);
         buttons[targetIdx].separator = true;
 
-        const [totalAccounts, notificationsCount] = await Promise.all([
-          AccountController.getTotalAccounts(),
-          uiNotificationsManager.getNotificationsCountForAllAccounts()
+        const [notificationsCount, accountEntries] = await Promise.all([
+          uiNotificationsManager.getNotificationsCountForAllAccounts(),
+          getAccountEntries()
         ]);
-        const accountButtons: typeof buttons = [];
-        for(let i = 1; i <= totalAccounts; i++) {
-          const accountNumber = i as ActiveAccountNumber;
-          if(accountNumber === getCurrentAccount()) {
-            const user = await this.managers.appUsersManager.getSelf();
-            accountButtons.push({
+        const accountButtons: typeof buttons = accountEntries.map(({accountNumber, peerId, user, active}) => {
+          if(active) {
+            return {
               avatarInfo: {
-                accountNumber: getCurrentAccount(),
-                peerId: rootScope.myId.toPeerId(),
+                accountNumber,
+                peerId,
                 active: true
               },
               regularText: wrapUserName(user),
               onClick: () => {
                 closeTabsBefore(() => {
-                  this.createTab(AppSettingsTab).open();
+                  this.createTab(AppMyProfileTab).open();
                 });
               }
-            });
-          } else {
-            const otherManagers = createProxiedManagersForAccount(accountNumber);
-            const accountData = await AccountController.get(accountNumber);
-            const peerId = accountData.userId?.toPeerId();
-            const user = await otherManagers.appUsersManager.getSelf();
-
-            const content = document.createElement('span');
-            content.append(wrapUserName(user || peerId));
-
-            if(notificationsCount[accountNumber]) {
-              const badge = createBadge('span', 20, 'primary');
-              setBadgeContent(badge, '' + notificationsCount[accountNumber]);
-              content.append(badge);
-            }
-
-            accountButtons.push({
-              avatarInfo: {
-                accountNumber,
-                peerId,
-                peer: user
-              },
-              className: 'btn-menu-account-item',
-              regularText: content,
-              onClick: async(e) => {
-                const newTab = e.ctrlKey || e.metaKey;
-                if(!newTab) {
-                  appImManager.goOffline();
-
-                  const chatListEl = document.querySelector('.chatlist-container')?.firstElementChild;
-                  chatListEl.classList.add('chatlist-exit');
-                  await doubleRaf();
-                  chatListEl.classList.add('chatlist-exiting');
-                  await pause(200);
-
-                  await this.saveEncryptionKeyBeforeSwitchingAccounts();
-                }
-                changeAccount(accountNumber, newTab);
-              }
-            });
+            };
           }
-        }
+
+          const content = document.createElement('span');
+          content.append(wrapUserName(user || peerId));
+
+          if(notificationsCount[accountNumber]) {
+            const badge = createBadge('span', 20, 'primary');
+            setBadgeContent(badge, '' + notificationsCount[accountNumber]);
+            content.append(badge);
+          }
+
+          return {
+            avatarInfo: {
+              accountNumber,
+              peerId,
+              peer: user
+            },
+            className: 'btn-menu-account-item',
+            regularText: content,
+            onClick: (e: MouseEvent | TouchEvent) => this.switchAccount(accountNumber, e.ctrlKey || e.metaKey)
+          };
+        });
 
         buttons.splice(0, 0, ...accountButtons);
 
@@ -831,6 +808,21 @@ export class AppSidebarLeft extends SidebarSlider {
     });
 
     return buttonMenuToggle;
+  }
+
+  public async switchAccount(accountNumber: ActiveAccountNumber, newTab?: boolean) {
+    if(!newTab) {
+      appImManager.goOffline();
+
+      const chatListEl = document.querySelector('.chatlist-container')?.firstElementChild;
+      chatListEl.classList.add('chatlist-exit');
+      await doubleRaf();
+      chatListEl.classList.add('chatlist-exiting');
+      await pause(200);
+
+      await this.saveEncryptionKeyBeforeSwitchingAccounts();
+    }
+    changeAccount(accountNumber, newTab);
   }
 
   private async saveEncryptionKeyBeforeSwitchingAccounts() {
@@ -1527,7 +1519,7 @@ export class AppSidebarLeft extends SidebarSlider {
     destroyable = true,
     doNotAppend?: boolean
   ) {
-    const ctorsToOpenInPopup = [AppSettingsTab, AppEditFolderTab, AppChatFoldersTab]
+    const ctorsToOpenInPopup = [AppSettingsTab, AppMyProfileTab, AppEditFolderTab, AppChatFoldersTab]
     if(this.isCollapsed() && !mediaSizes.isLessThanFloatingLeftSidebar && ctorsToOpenInPopup.includes(ctor as any)) {
       const popup = new SettingsSliderPopup(this.managers);
       popup.show();

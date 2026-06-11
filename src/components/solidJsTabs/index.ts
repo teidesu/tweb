@@ -13,6 +13,7 @@ import {
   AppPasscodeLockTab,
   AppPrivacyMessagesTab,
   AppPasskeysTab,
+  AppMyProfileTab,
   AppSettingsTab,
   AppSpeakersAndCameraTab,
   getEditProfileInitArgs
@@ -37,6 +38,7 @@ export {
   AppPasscodeLockTab,
   AppPrivacyMessagesTab,
   AppPasskeysTab,
+  AppMyProfileTab,
   AppSettingsTab,
   AppSpeakersAndCameraTab,
   getEditProfileInitArgs

@@ -173,6 +173,16 @@ export const AppSettingsTab =
   });
 
 
+export const AppMyProfileTab =
+  scaffoldSolidJSTab({
+    title: 'Profile',
+    getComponentModule: () => import('../sidebarLeft/tabs/myProfile'),
+    onCloseAfterTimeout: function() {
+      (this as any)._onCloseAfterTimeout?.();
+    }
+  });
+
+
 export const AppQuickReactionTab =
   scaffoldSolidJSTab({
     title: 'DoubleTapSetting',
