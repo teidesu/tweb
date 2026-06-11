@@ -2148,7 +2148,7 @@ export default class ChatBubbles {
     // let skipNext = true;
 
     const onResizeEnd = () => {
-      const height = container.offsetHeight;
+      const height = container.clientHeight;
       const isScrolledDown = this.scrollable.isScrolledToEnd;
       if(height !== wasHeight && (!skip || !isScrolledDown)) { // * fix opening keyboard while ESG is active, offsetHeight will change right between 'start' and this first frame
         part += wasHeight - height;

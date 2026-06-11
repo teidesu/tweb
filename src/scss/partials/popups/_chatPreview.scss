@@ -81,6 +81,8 @@
   --chat-topbar-height: 3rem;
   --chat-input-height-surplus: 0px;
   --chat-bubbles-padding: .5rem;
+  --chat-bubbles-padding-end: .5rem;
+  --chat-content-buffer-top: .5rem;
   // `--chat-width` is set on :root by updateColumnWidths for the main column and clamps
   // `.bubbles-inner` / `.bubble` max-widths. Override locally so they size to the popup
   // instead of inheriting a width meant for a 1000px+ middle column.

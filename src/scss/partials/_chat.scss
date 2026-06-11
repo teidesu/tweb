@@ -440,7 +440,14 @@
   --topbar-plates-offset: 0px;
   --chat-padding-top: calc(var(--chat-topbar-height) + var(--pinned-floating-height) + var(--topbar-plates-offset));
   --chat-padding-bottom: calc(var(--chat-input-height) + var(--chat-input-height-surplus));
+  // Content gap below the topbar (pinned-plate buffer), desktop-only.
+  // Mirrored in px by Chat.recomputePaddings — keep both in sync.
+  --chat-content-buffer-top: .5rem;
   --chat-input-background: var(--surface-color);
+
+  @include respond-to(handhelds) {
+    --chat-content-buffer-top: 0px;
+  }
 	display: flex !important;
 	width: 100%;
 	align-items: center;
@@ -482,7 +489,7 @@
     }
 
     .is-date {
-      top: calc(var(--chat-padding-top) + 3.75rem);
+      top: 3.75rem;
     }
   }
 }
@@ -1050,8 +1057,10 @@
 .bubbles {
 	--translateY: 0;
 	// The scroll container fills #column-center edge-to-edge so the scrollbar
-	// sits right at the edge. The negative insets cancel the handheld 8px chat
-	// padding (0 on desktop).
+	// sits right at the edge horizontally; vertically the scrollbar track is
+	// confined between the topbar and the input by the transparent borders on
+	// .bubbles-scrollable below. The negative insets cancel the handheld 8px
+	// chat padding (0 on desktop).
 	inset-inline: calc(var(--page-chats-padding) * -1);
 	flex: 1 1 auto;
 	position: absolute;
@@ -1068,6 +1077,11 @@
   &-scrollable {
     height: auto;
     display: block;
+    border-top: var(--chat-padding-top) solid transparent;
+    border-bottom: var(--chat-padding-bottom) solid transparent;
+    @include animation-level(2) {
+      transition: border-bottom-width var(--transition-standard-out);
+    }
   }
 
 	// ! WARNING, НЕЛЬЗЯ СТАВИТЬ ТРАНСФОРМ КРОМЕ TRANSLATEZ(0) НА БЛОК С OVERFLOW, ОН БУДЕТ ПРЫГАТЬ ВВЕРХ ПРИ ВКЛЮЧЕННОМ ПРАВИЛЕ И ЭТО НЕ ИСПРАВИТЬ JS'ОМ!
@@ -1156,31 +1170,23 @@
   }
 }
 
+// Static content spacers (heights set by Chat.recomputePaddings) — only the
+// --chat-content-buffer-top gap remains here; the bar areas are reserved by
+// the transparent borders on .bubbles-scrollable.
 .bubbles-padding {
   width: 100%;
   flex: 0 0 auto;
-  transition: height var(--transition-standard-out);
-
-  &-top {
-    // top padding must follow --chat-padding-top instantly — its CSS var changes
-    // are not transitionable, so any transition here desyncs chatInner from the
-    // bubblesViewport and looks like a wrong-direction scroll.
-    transition: none;
-  }
-
-  @include animation-level(0) {
-    transition: none !important;
-  }
 }
 
 .bubbles-inner {
 	width: 100%;
 	display: flex;
 	flex-direction: column;
-	margin: 0 auto;
-	min-height: calc(100% - var(--chat-padding-top) - var(--chat-padding-bottom));
+	margin-block: 0;
+	margin-inline: var(--chat-bubbles-padding) var(--chat-bubbles-padding-end);
+	min-height: calc(100% - var(--chat-content-buffer-top));
 	justify-content: flex-end;
-	max-width: calc(100% - var(--chat-bubbles-padding) * 2);
+	max-width: calc(100% - var(--chat-bubbles-padding) - var(--chat-bubbles-padding-end));
 	transition: transform var(--transition-standard-out);
 	transform: translateY(0);
   box-sizing: content-box;

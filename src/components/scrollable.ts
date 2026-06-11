@@ -310,7 +310,8 @@ export class ScrollableBase {
   }
 
   public getDistanceToEnd() {
-    return this.scrollSize - Math.round(this.scrollPosition + this.offsetSize);
+    // clientSize, not offsetSize, to exclude borders
+    return this.scrollSize - Math.round(this.scrollPosition + this.clientSize);
   }
 
   get isScrolledToEnd() {

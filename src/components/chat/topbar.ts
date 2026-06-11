@@ -1496,7 +1496,7 @@ export default class ChatTopbar {
     // controllers still exist for the rest of the code, and a peer with a pinned message
     // would mark the pinnedMessage plate visible — its hardcoded `height: 48` + TOPBAR_GAP
     // would leak into `--pinned-floating-height` / `pinnedFloatingHeightPx` and inflate
-    // `bubbles-padding-top` from 56 to 112 above the first message. Bail early.
+    // the scrollable's top border by 48px above the first message. Bail early.
     if(this.chat.isPreview) return;
     const containers = [
       this.pinnedMessage,
