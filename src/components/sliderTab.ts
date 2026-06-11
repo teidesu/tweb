@@ -78,6 +78,21 @@ export default class SliderSuperTab {
   }
 
   public async open(...args: Parameters<typeof this['init']>) {
+    await this.initTab(...args);
+    this.slider.selectTab(this);
+  }
+
+  // same as open(), but the slider switches without animation
+  public async openInstant(...args: Parameters<typeof this['init']>) {
+    await this.initTab(...args);
+    return this.slider.selectTab(this, false);
+  }
+
+  // the hosting column is being hidden — a tab that can't live in a hidden
+  // column can close itself here
+  public onSidebarHide?(persist: boolean): void;
+
+  public async initTab(...args: Parameters<typeof this['init']>) {
     if(this.init) {
       try {
         const result = this.init(...args);
@@ -90,8 +105,6 @@ export default class SliderSuperTab {
         console.error('open tab error', err);
       }
     }
-
-    this.slider.selectTab(this);
   }
 
   public init(...args: any[]): Promise<any> | any {

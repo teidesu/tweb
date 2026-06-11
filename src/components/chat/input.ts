@@ -1325,7 +1325,7 @@ export default class ChatInput {
     // preview overlay onto <body>.
 
     if(this.btnToggleEmoticons) {
-      this.emoticonsDropdown.attachButtonListener(this.btnToggleEmoticons, this.listenerSetter);
+      this.emoticonsDropdown.attachButtonListener(this.btnToggleEmoticons, this.listenerSetter, this.emoticonsDropdown.onToggleButtonClick);
       this.listenerSetter.add(this.emoticonsDropdown)('open', this.onEmoticonsOpen);
       this.listenerSetter.add(this.emoticonsDropdown)('close', this.onEmoticonsClose);
 

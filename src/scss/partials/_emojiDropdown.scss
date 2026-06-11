@@ -6,8 +6,7 @@ $menu-item-active-background-opacity: .06;
 $menu-inner-transition: cubic-bezier(0.42, 0.0, 0.58, 1.0);
 $menu-transition-duration: .2s;
 $menu-height: 3.0625rem;
-// $menu-search-translateY: -2.5rem;
-$menu-search-translateY: -#{$menu-height};
+$packs-menu-height: 2.25rem;
 
 .emoji-dropdown {
   --width: 23.875rem;
@@ -59,13 +58,79 @@ $menu-search-translateY: -#{$menu-height};
 
   &.is-under {
     --width: 100%;
-    --height: min(282px, calc(var(--100vh-inset) - 135px));
+    // keyboard-like share of the screen (~45%, but never less than the old
+    // 282px cap), while still leaving room for the topbar + input above
+    --height: min(max(282px, calc(var(--100vh-inset) * .45)), calc(var(--100vh-inset) - 135px));
     position: relative;
     transform: none;
     inset: unset;
     border-radius: unset;
     max-width: 100%;
     max-height: 100%;
+
+    // mobile keeps the classic layout: tabs strip at the bottom (thumb
+    // reach), pack strip at the top — flipped visually, the DOM stays the
+    // same as the desktop top-tabs layout
+    .emoji-tabs {
+      order: 1;
+      border-bottom: none;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .emoticons-menu-wrapper {
+      order: -1;
+      border-top: none;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .emoticons-content .scrollable-y {
+      @include animation-level(2) {
+        transition: transform var(--transition-standard-in);
+      }
+    }
+
+    // mirror of the desktop search animation: the pack strip slides UP out
+    // of view and the scrollable (which is $packs-menu-height taller than
+    // its box) shifts up to fill the freed row, unclipped at the top
+    .is-searching {
+      .emoticons-menu-wrapper {
+        transform: translateY(-#{$packs-menu-height});
+      }
+
+      .emoticons-content {
+        clip-path: inset(-#{$packs-menu-height} 0 0 0);
+
+        .scrollable-y {
+          transform: translateY(-#{$packs-menu-height});
+        }
+      }
+    }
+  }
+
+  // backspace only makes sense on touch layouts
+  &:not(.is-under) .emoji-tabs-delete {
+    display: none;
+  }
+
+  // docked into the right sidebar
+  &.is-docked {
+    --width: 100%;
+    --height: 100%;
+    position: relative;
+    transform: none;
+    transition: none;
+    inset: unset;
+    border-radius: unset;
+    max-width: 100%;
+    max-height: 100%;
+    box-shadow: none;
+    opacity: 1;
+    // floating mode's z-index: 4 would cover the column's resize handle
+    // (z-index: 3); 0 keeps the inner menus' z-indexes contained too
+    z-index: 0;
+    flex: 1 1 auto;
+    backdrop-filter: none;
+    background-color: var(--surface-color);
   }
 
   &.active {
@@ -92,7 +157,12 @@ $menu-search-translateY: -#{$menu-height};
 		justify-content: center;
 		//font-weight: 500;
 		border: none;
-		border-top: 1px solid var(--border-color);
+		border-bottom: 1px solid var(--border-color);
+    // the shared .emoticons-menu base is sized for the (smaller) packs
+    // strip — the tabs strip keeps the full height and item size
+    --item-size: 1.875rem;
+    height: $menu-height;
+    min-height: $menu-height;
 
     &:after {
       content: none;
@@ -112,6 +182,15 @@ $menu-search-translateY: -#{$menu-height};
 
     .menu-horizontal-div-item {
       margin: 0 .75rem;
+      font-size: 1.5rem;
+
+      // the strip shares .emoticons-menu with the category menus, whose rules
+      // tint the active item with primary-text-color !important — win it back
+      &.active {
+        &, html.no-touch &:hover {
+          color: var(--primary-color) !important;
+        }
+      }
     }
 	}
 
@@ -120,7 +199,6 @@ $menu-search-translateY: -#{$menu-height};
 	}
 
   .super-stickers {
-    gap: .25rem;
     padding: 0 .1875rem;
   }
 
@@ -140,10 +218,6 @@ $menu-search-translateY: -#{$menu-height};
     background-color: transparent !important;
 
     &.no-menu {
-      .emoticons-search-container {
-        margin-top: .5rem;
-      }
-
       .scrollable-y {
         height: 100%;
         max-height: 100%;
@@ -155,32 +229,23 @@ $menu-search-translateY: -#{$menu-height};
     }
   }
 
-  &-will-move {
-    &-up,
-    &-down {
-      @include animation-level(2) {
-        transition: transform var(--transition-standard-in);
-      }
+  &-will-move-down {
+    @include animation-level(2) {
+      transition: transform var(--transition-standard-in);
     }
 
-    &-up {
-      .is-searching & {
-        transform: translateY(#{$menu-search-translateY});
-      }
-    }
-
-    &-down {
-      .is-searching & {
-        transform: translateY(.5rem);
-      }
+    // the pack strip is docked at the bottom — searching slides it out of
+    // view to free the row for results
+    .is-searching & {
+      transform: translateY(#{$packs-menu-height});
     }
   }
 
   &-menu {
-    --item-size: 1.875rem;
+    --item-size: 1.75rem;
 		width: 100%;
-		height: $menu-height;
-    min-height: $menu-height;
+		height: $packs-menu-height;
+    min-height: $packs-menu-height;
     align-items: center;
     padding: 0 .3125rem;
     z-index: 4;
@@ -188,10 +253,10 @@ $menu-search-translateY: -#{$menu-height};
 
     &-wrapper {
       padding: 0;
-      height: $menu-height;
+      height: $packs-menu-height;
       max-width: 100%;
       position: relative;
-      border-bottom: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
       // background-color: var(--surface-color);
       background-color: transparent;
     }
@@ -205,7 +270,7 @@ $menu-search-translateY: -#{$menu-height};
     }
 
     .menu-horizontal-div-item {
-      font-size: 1.5rem;
+      font-size: 1.25rem;
       width: var(--item-size);
       height: var(--item-size);
       line-height: var(--item-size);
@@ -213,12 +278,12 @@ $menu-search-translateY: -#{$menu-height};
       align-items: center;
       flex: 0 0 auto;
       padding: 0;
-      margin: 0 .3125rem;
+      margin: 0 1px;
+      // same square-ish background for every item
+      border-radius: .5rem !important;
 
       &.not-local {
-        --item-size: 2.375rem;
-        padding: .25rem;
-        border-radius: .25rem !important;
+        padding: .125rem;
       }
 
       &.active {
@@ -240,9 +305,9 @@ $menu-search-translateY: -#{$menu-height};
     .menu-horizontal-inner {
       overflow: hidden;
       flex: 0 0 auto;
-      width: 1.875rem;
-      border-radius: 15px;
-      margin: 0 .3125rem;
+      width: var(--item-size);
+      border-radius: calc(var(--item-size) / 2);
+      margin: 0 1px;
 
       html.is-safari & {
         -webkit-mask-image: -webkit-radial-gradient(circle, white 100%, black 100%);
@@ -300,7 +365,19 @@ $menu-search-translateY: -#{$menu-height};
     flex: 1;
     padding: 0;
     position: relative;
+    // the scrollable is $packs-menu-height taller than the content box and
+    // hides behind the bottom pack strip; unclip it when searching, in sync
+    // with the strip sliding away
+    clip-path: inset(0);
     // background-color: var(--surface-color);
+
+    @include animation-level(2) {
+      transition: clip-path var(--transition-standard-in);
+    }
+
+    .is-searching & {
+      clip-path: inset(0 0 -#{$packs-menu-height} 0);
+    }
 
     // .scrollable-y,
     // &.is-loaded .preloader {
@@ -368,7 +445,7 @@ $menu-search-translateY: -#{$menu-height};
     }
 
     .scrollable-y {
-      height: calc(100% + #{$menu-height});
+      height: calc(100% + #{$packs-menu-height});
       max-height: none;
       // padding-bottom: .5rem;
     }
@@ -377,7 +454,7 @@ $menu-search-translateY: -#{$menu-height};
   &-search {
     &-container {
       height: 2.375rem;
-      margin: 0 .5rem .25rem;
+      margin: .5rem .5rem .25rem;
       border-radius: $border-radius-medium;
       background-color: rgba(var(--primary-text-color-rgb), #{$menu-item-active-background-opacity});
     }
@@ -497,7 +574,7 @@ $menu-search-translateY: -#{$menu-height};
       &.emoticons-has-search:after {
         content: " ";
         display: block;
-        height: calc(#{$menu-height} + .5rem);
+        height: calc(#{$packs-menu-height} + .5rem);
 
         .is-searching & {
           height: .5rem;
@@ -522,12 +599,5 @@ $menu-search-translateY: -#{$menu-height};
 .emoji-padding {
   .super-emojis {
     padding: 0 .5rem;
-  }
-}
-
-.no-border-top {
-  .menu-horizontal-div,
-  .menu-wrapper {
-    border-bottom-color: transparent;
   }
 }

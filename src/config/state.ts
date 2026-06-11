@@ -173,6 +173,12 @@ export type StateSettings = {
   },
   // Remembers whether the right column (peer profile) was left open so a freshly opened chat restores it.
   rightColumnShown: boolean,
+  // tdesktop's "tabbed panel in third column": the emoji/stickers/gifs panel is
+  // docked into the right column instead of floating above the chat input.
+  esgInSidebar: boolean,
+  // Last user-selected tab of the primary emoji/stickers/gifs panel
+  // (tab index in the default render order: 0 emoji, 1 stickers, 2 gifs).
+  esgSelectedTab: number,
 };
 
 // (1 - use swatch, 2 - use picker color), (color from swatch), (color from picker)
@@ -546,7 +552,9 @@ export const SETTINGS_INIT: StateSettings = {
   qrCode: {
     selectedThemeId: ''
   },
-  rightColumnShown: false
+  rightColumnShown: false,
+  esgInSidebar: false,
+  esgSelectedTab: 0
 };
 
 export const STATE_INIT: State = {

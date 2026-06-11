@@ -26,9 +26,12 @@
     }
   }
 
-  /* .super-emoji {
-    flex: 0 0 auto;
-  } */
+  .super-emoji {
+    display: inline-flex;
+    width: var(--esg-emoji-total-size);
+    height: var(--esg-emoji-total-size);
+    aspect-ratio: auto;
+  }
 
   .super-emoji:not(.active) {
     @include hover() {

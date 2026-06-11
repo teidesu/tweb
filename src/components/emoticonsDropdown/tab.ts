@@ -18,6 +18,7 @@ import Icon from '@components/icon';
 import Scrollable, {ScrollableX} from '@components/scrollable';
 import attachStickerViewerListeners from '@components/stickerViewer';
 import VisibilityIntersector from '@components/visibilityIntersector';
+import {observeResize, unobserveResize} from '@components/resizeObserver';
 import StickersTabCategory, {EmoticonsTabStyles, StickersTabStyles} from '@components/emoticonsDropdown/category';
 import EmoticonsSearch from '@components/emoticonsDropdown/search';
 import wrapStickerSetThumb from '@components/wrappers/stickerSetThumb';
@@ -54,6 +55,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
 
   public middlewareHelper: MiddlewareHelper;
   private disposeSearch: () => void;
+  private lastObservedWidth: number;
 
   public managers: AppManagers;
   protected noMenu: boolean;
@@ -98,17 +100,12 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
     this.content = document.createElement('div');
     this.content.classList.add('emoticons-content');
 
-    this.container.append(...[this.menuWrapper, this.content].filter(Boolean));
+    this.container.append(...[this.content, this.menuWrapper].filter(Boolean));
 
     this.scrollable = new Scrollable(this.content, 'STICKERS');
 
     this.categoriesContainer = document.createElement('div');
     this.categoriesContainer.classList.add('emoticons-categories-container');
-
-    if(!this.noMenu) {
-      this.scrollable.container.classList.add('emoticons-will-move-up');
-      this.categoriesContainer.classList.add('emoticons-will-move-down');
-    }
 
     if(options.searchFetcher) {
       this.createSearch();
@@ -123,7 +120,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
 
   private createMenu() {
     this.menuWrapper = document.createElement('div');
-    this.menuWrapper.classList.add('menu-wrapper', 'emoticons-menu-wrapper', 'emoticons-will-move-up');
+    this.menuWrapper.classList.add('menu-wrapper', 'emoticons-menu-wrapper', 'emoticons-will-move-down');
 
     this.menu = document.createElement('nav');
     this.menu.className = 'menu-horizontal-div no-stripe justify-start emoticons-menu';
@@ -135,7 +132,6 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
   private createSearch() {
     const searchContainer = document.createElement('div');
     searchContainer.classList.add('emoticons-search-container');
-    if(!this.noMenu) searchContainer.classList.add('emoticons-will-move-down');
     this.scrollable.append(searchContainer);
     this.categoriesContainer.classList.add('emoticons-has-search');
     this.disposeSearch = render(() => {
@@ -404,11 +400,20 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
 
       this.postponedEvents.length = 0;
     });
+
+    // needed to respond to right sidebar resize
+    observeResize(this.content, (entry) => {
+      const width = entry.contentRect.width;
+      if(!width || width === this.lastObservedWidth) return;
+      this.lastObservedWidth = width;
+      this.resizeCategories();
+    });
   }
 
   public destroy() {
     this.getContainerSize = undefined;
     this.postponedEvents.length = 0;
+    this.content && unobserveResize(this.content);
     this.categoriesIntersector?.disconnect();
     this.listenerSetter.removeAll();
     this.scrollable.destroy();

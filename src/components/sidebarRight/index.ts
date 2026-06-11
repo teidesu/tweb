@@ -1,5 +1,5 @@
 import appImManager, {APP_TABS} from '@lib/appImManager';
-import SidebarSlider from '@components/slider';
+import SidebarSlider, {SliderSuperTab} from '@components/slider';
 import mediaSizes, {ScreenSize} from '@helpers/mediaSizes';
 import AppSharedMediaTab from '@components/sidebarRight/tabs/sharedMediaTab';
 import {MOUNT_CLASS_TO} from '@config/debug';
@@ -8,7 +8,7 @@ import appNavigationController from '@components/appNavigationController';
 import rootScope from '@lib/rootScope';
 import {installColumnWidthsUpdater, isRightColumnFloating} from '@helpers/updateColumnWidths';
 import installColumnResize from '@helpers/installColumnResize';
-import {appSettings, setAppSettings} from '@stores/appSettings';
+import {setAppSettings} from '@stores/appSettings';
 
 
 export const RIGHT_COLUMN_ACTIVE_CLASSNAME = 'is-right-column-shown';
@@ -31,16 +31,6 @@ export class AppSidebarRight extends SidebarSlider {
     mediaSizes.addEventListener('changeScreen', (from, to) => {
       if(to === ScreenSize.medium && from !== ScreenSize.mobile) {
         this.toggleSidebar(false, undefined, false);
-      }
-    });
-
-    // entering the floating range hides the overlay, going back to docked
-    // restores the persisted state
-    rootScope.addEventListener('right_column_floats', (floats) => {
-      if(floats) {
-        this.toggleSidebar(false, false, false);
-      } else if(appSettings.rightColumnShown && appImManager.chat?.peerId) {
-        this.toggleSidebar(true, false, false);
       }
     });
 
@@ -129,8 +119,15 @@ export class AppSidebarRight extends SidebarSlider {
     }
 
     const animationPromise = appImManager.selectTab(active ? APP_TABS.CHAT : APP_TABS.PROFILE, animate);
-    if(!enable) this.hide();
-    else {
+    if(!enable) {
+      this.hide();
+
+      for(const tab of this.historyTabIds.slice()) {
+        if(tab instanceof SliderSuperTab) {
+          tab.onSidebarHide?.(persist);
+        }
+      }
+    } else {
       document.body.classList.add(RIGHT_COLUMN_ACTIVE_CLASSNAME);
       if(!appNavigationController.findItemByType('right')) {
         this.pushNavigationItem(this.sharedMediaTab);

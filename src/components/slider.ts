@@ -114,7 +114,7 @@ export default class SidebarSlider {
     // }
   }
 
-  public async selectTab(id: number | SliderSuperTab) {
+  public async selectTab(id: number | SliderSuperTab, animate?: boolean) {
     /* if(id instanceof SliderSuperTab) {
       id = id.id;
     } */
@@ -142,7 +142,7 @@ export default class SidebarSlider {
     this.pushNavigationItem(tab);
 
     this.historyTabIds.push(id);
-    this._selectTab(id instanceof SliderSuperTab ? id.container : id);
+    this._selectTab(id instanceof SliderSuperTab ? id.container : id, animate);
     return true;
   }
 

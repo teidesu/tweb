@@ -7,6 +7,9 @@ import {horizontalMenu} from '@components/horizontalMenu';
 import LazyLoadQueue from '@components/lazyLoadQueue';
 import Scrollable, {ScrollableX} from '@components/scrollable';
 import appSidebarRight from '@components/sidebarRight';
+import {openEmoticonsPanel, closeEmoticonsPanel} from '@components/sidebarRight/tabs/emoticons';
+import appNavigationController from '@components/appNavigationController';
+import {appSettings, setAppSettings} from '@stores/appSettings';
 import StickyIntersector from '@components/stickyIntersector';
 import EmojiTab, {EmojiTabCategory, getEmojiFromElement} from '@components/emoticonsDropdown/tabs/emoji';
 import GifsTab from '@components/emoticonsDropdown/tabs/gifs';
@@ -25,7 +28,6 @@ import {IS_APPLE_MOBILE} from '@environment/userAgent';
 import {AppManagers} from '@lib/managers';
 import {attachClickEvent, simulateClickEvent} from '@helpers/dom/clickEvent';
 import overlayCounter from '@helpers/overlayCounter';
-import noop from '@helpers/noop';
 import {FocusDirection, ScrollOptions} from '@helpers/fastSmoothScroll';
 import BezierEasing from '@vendor/bezierEasing';
 import RichInputHandler from '@helpers/dom/richInputHandler';
@@ -38,6 +40,9 @@ import safeAssign from '@helpers/object/safeAssign';
 import ButtonIcon from '@components/buttonIcon';
 import StickersTabCategory from '@components/emoticonsDropdown/category';
 import {Middleware} from '@helpers/middleware';
+import mediaSizes, {ScreenSize} from '@helpers/mediaSizes';
+import {isRightColumnFloating} from '@helpers/updateColumnWidths';
+import reparentElement from '@helpers/dom/reparentElement';
 import {Accessor, createSignal, Setter} from 'solid-js';
 
 export const EMOTICONSSTICKERGROUP: AnimationItemGroup = 'emoticons-dropdown';
@@ -68,10 +73,10 @@ const renderEmojiDropdownElement = (): HTMLDivElement => {
   const div = document.createElement('div');
   div.innerHTML =
     `<div class="emoji-dropdown" style="display: none;">
+      <div class="emoji-tabs menu-horizontal-div emoticons-menu no-stripe"></div>
       <div class="emoji-container">
         <div class="tabs-container"></div>
       </div>
-      <div class="emoji-tabs menu-horizontal-div emoticons-menu no-stripe"></div>
     </div>`;
   const a: [string, string, number][] = [
     ['search justify-self-start', 'search', -1],
@@ -81,7 +86,7 @@ const renderEmojiDropdownElement = (): HTMLDivElement => {
     ['delete justify-self-end', 'deleteleft', -1]
   ];
   const d = div.firstElementChild as HTMLDivElement;
-  d.lastElementChild.append(...a.map(([className, icon, tabId]) => {
+  d.firstElementChild.append(...a.map(([className, icon, tabId]) => {
     const button = ButtonIcon(`${icon} menu-horizontal-div-item emoji-tabs-${className}`, {noRipple: true});
     button.dataset.tab = '' + tabId;
     return button;
@@ -120,6 +125,8 @@ export class EmoticonsDropdown extends DropdownHover {
   public isStandalone: boolean;
 
   public animationGroup: AnimationItemGroup;
+
+  private dockedContainer: HTMLElement;
 
   constructor(options: {
     customParentElement?: HTMLElement | (() => HTMLElement),
@@ -167,12 +174,16 @@ export class EmoticonsDropdown extends DropdownHover {
         this.element.style.bottom = anchorRect.top + offset + 'px' as string;
       } */
 
-      if(options.customParentElement) {
+      if(this.dockedContainer) {
+        if(this.element.parentElement !== this.dockedContainer) {
+          reparentElement(this.element, this.dockedContainer);
+        }
+      } else if(options.customParentElement) {
         const c = options.customParentElement;
         const parent = typeof(c) === 'function' ? c() : c;
-        parent.append(this.element);
+        reparentElement(this.element, parent);
       } else if(this.element.parentElement !== this.chatInput.chatInput) {
-        this.chatInput.chatInput.append(this.element);
+        reparentElement(this.element, this.chatInput.chatInput);
       }
 
       this.savedRange = this.getGoodRange();
@@ -225,6 +236,80 @@ export class EmoticonsDropdown extends DropdownHover {
       const tab = this.tab;
       tab.onClosed?.();
     });
+  }
+
+  public get isDocked() {
+    return !!this.dockedContainer;
+  }
+
+  public onToggleButtonClick = (button: HTMLElement, e: MouseEvent) => {
+    if(this.isDocked) {
+      closeEmoticonsPanel();
+    } else if(!this.isStandalone && mediaSizes.activeScreen === ScreenSize.large && !isRightColumnFloating()) {
+      openEmoticonsPanel();
+    } else {
+      this.onButtonClick(button, e);
+    }
+  };
+
+  protected isToggleLocked() {
+    return this.isDocked;
+  }
+
+  public async dock(container: HTMLElement) {
+    if(this.dockedContainer) {
+      this.dockedContainer = container;
+      reparentElement(this.element, container);
+      return;
+    }
+
+    this.init?.();
+
+    const wasActive = this.isActive();
+    this.dockedContainer = container;
+    this.element.classList.add('is-docked');
+
+    if(wasActive) {
+      // the floating panel is already open — move it live and drop the
+      // floating-only state (nav item, click-out listener, hover ignores)
+      this.clearTimeout('toggle');
+      this.clearTimeout('done');
+      appNavigationController.removeItem(this.navigationItem);
+      this.navigationItem = undefined;
+      this.detachClickEvent?.();
+      this.detachClickEvent = undefined;
+      this.ignoreMouseOut.clear();
+      this.ignoreButtons.clear();
+      this.forceClose = false;
+      reparentElement(this.element, container);
+    } else {
+      // replicate the open sequence of DropdownHover.toggle (which is locked while docked)
+      const res = this.dispatchResultableEvent('open');
+      await Promise.all(res);
+      this.element.style.display = '';
+      this.element.classList.add('active');
+      this.dispatchEvent('openAfterLayout');
+      this.dispatchEvent('opened');
+    }
+  }
+
+  public undock(container?: HTMLElement) {
+    if(!this.dockedContainer || (container && this.dockedContainer !== container)) {
+      return;
+    }
+
+    this.dockedContainer = undefined;
+    this.element.classList.remove('is-docked');
+
+    // replicate the close sequence of DropdownHover.toggle
+    this.dispatchEvent('close');
+    this.element.classList.remove('active');
+    this.element.style.display = 'none';
+    this.dispatchEvent('closed');
+
+    // return home so the element doesn't get removed together with the sidebar tab
+    const home = appImManager.chat?.input?.chatInput;
+    home && reparentElement(this.element, home);
   }
 
   public canUseEmoji(emoji: AppEmoji, showToast?: boolean) {
@@ -359,7 +444,10 @@ export class EmoticonsDropdown extends DropdownHover {
 
     const HIDE_EMOJI_TAB = IS_APPLE_MOBILE && false;
 
-    const INIT_TAB_ID = (HIDE_EMOJI_TAB ? this.getTab(StickersTab) : this.getTab(EmojiTab))?.tabId ?? this.tabsToRender[0]?.tabId ?? 0;
+    let INIT_TAB_ID = (HIDE_EMOJI_TAB ? this.getTab(StickersTab) : this.getTab(EmojiTab))?.tabId ?? this.tabsToRender[0]?.tabId ?? 0;
+    if(!this.isStandalone && this.tabs[appSettings.esgSelectedTab]) {
+      INIT_TAB_ID = appSettings.esgSelectedTab;
+    }
 
     if(HIDE_EMOJI_TAB) {
       (this.tabsEl.children[1] as HTMLElement).classList.add('hide');
@@ -430,20 +518,24 @@ export class EmoticonsDropdown extends DropdownHover {
     });
   }
 
-  private onSelectTabClick = (id: number) => {
+  private onSelectTabClick = (id: number, _tabContent?: HTMLDivElement, _animate?: boolean, isUserClick?: boolean) => {
     if(this.tabId === id) {
       const {tab} = this;
       this.scrollTo(tab, tab.scrollable.container as HTMLElement);
       return;
     }
 
+    const stickersTab = this.getTab(StickersTab);
+    const gifsTab = this.getTab(GifsTab);
     const rights: {[tabId: number]: ChatRights} = {
-      ...(this.getTab(StickersTab) && {[this.getTab(StickersTab).tabId]: 'send_stickers'}),
-      ...(this.getTab(GifsTab) && {[this.getTab(GifsTab).tabId]: 'send_gifs'})
+      ...(stickersTab && {[stickersTab.tabId]: 'send_stickers'}),
+      ...(gifsTab && {[gifsTab.tabId]: 'send_gifs'})
     };
 
     const action = rights[id];
-    if(action && !this.rights[action]) {
+    // rights are unknown until the first async checkRights — don't gate the
+    // initial (restored) tab selection, checkRights corrects it if needed
+    if(action && !this.rights[action] && !this.init) {
       toastNew({langPackKey: POSTING_NOT_ALLOWED_MAP[action]});
       return false;
     }
@@ -451,6 +543,10 @@ export class EmoticonsDropdown extends DropdownHover {
     animationIntersector.checkAnimations(true, this.animationGroup);
 
     this.tabId = id;
+    if(!this.isStandalone && isUserClick) {
+      setAppSettings('esgSelectedTab', id);
+    }
+
     this.searchButton.classList.toggle('hide', this.tabId === this.getTab(EmojiTab)?.tabId);
     this.deleteBtn.classList.toggle('hide', this.tabId !== this.getTab(EmojiTab)?.tabId);
   };
@@ -640,17 +736,6 @@ export class EmoticonsDropdown extends DropdownHover {
         scrollingToContent = false;
       });
     }, {listenerSetter});
-
-    const a = scrollable.onAdditionalScroll ? scrollable.onAdditionalScroll.bind(scrollable) : noop;
-    scrollable.onAdditionalScroll = () => {
-      emoticons.content.parentElement.classList.toggle('no-border-top',
-        scrollable.scrollPosition <= 0 ||
-        emoticons.container.classList.contains('is-searching')
-      );
-      a();
-    };
-
-    emoticons.content.parentElement.classList.add('no-border-top');
 
     return {stickyIntersector, setActive, setActiveStatic};
   };
