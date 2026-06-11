@@ -76,7 +76,8 @@
     // so the column and the incoming tab arrive in lockstep.
     transition: width var(--transition-standard-in);
 
-    body.resizing-left-sidebar & {
+    body.resizing-left-sidebar &,
+    body.layout-resizing & {
       transition: none;
     }
 
@@ -266,7 +267,8 @@
     box-shadow: none;
     transition: transform var(--layer-transition), box-shadow var(--layer-transition);
 
-    body.animation-level-0 & {
+    body.animation-level-0 &,
+    body.layout-resizing & {
       transition: none;
     }
 

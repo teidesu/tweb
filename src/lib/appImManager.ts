@@ -357,7 +357,7 @@ export class AppImManager extends EventListenerBase<{
     mediaSizes.addEventListener('changeScreen', (from, to) => {
       if(document.body.classList.contains(LEFT_COLUMN_ACTIVE_CLASSNAME) &&
         document.body.classList.contains(RIGHT_COLUMN_ACTIVE_CLASSNAME)) {
-        appSidebarRight.toggleSidebar(false, undefined, false);
+        appSidebarRight.toggleSidebar(false, false, false);
       }
 
       this.appendEmojiAnimationContainer(to);
@@ -404,11 +404,13 @@ export class AppImManager extends EventListenerBase<{
       }
     });
 
-    // entering the floating range hides the overlay, going back to docked
-    // restores the persisted state
+    // Going back to docked restores the persisted state.
     rootScope.addEventListener('right_column_floats', (floats) => {
+      const [appSettings] = useAppSettings();
       if(floats) {
-        appSidebarRight.toggleSidebar(false, false, false);
+        if(appSettings.esgInSidebar) {
+          appSidebarRight.toggleSidebar(false, false, false);
+        }
         return;
       }
 
@@ -416,7 +418,6 @@ export class AppImManager extends EventListenerBase<{
         return;
       }
 
-      const [appSettings] = useAppSettings();
       if(appSettings.esgInSidebar) {
         openEmoticonsPanel(false, false);
       } else if(appSettings.rightColumnShown) {
