@@ -118,7 +118,7 @@ import useProfileColors from '@hooks/useProfileColors';
 import {wrapSlowModeLeftDuration} from '@components/wrappers/wrapDuration';
 import {splitFullMid} from '@components/chat/bubbles';
 import getSelectedNodes from '@helpers/dom/getSelectedNodes';
-import {setQuizHint} from '@components/quizHint';
+import showChatToast from '@components/chat/chatToast';
 import anchorCallback from '@helpers/dom/anchorCallback';
 import PopupPremium from '@components/popups/premium';
 import safeWindowOpen from '@helpers/dom/safeWindowOpen';
@@ -504,7 +504,7 @@ export class AppImManager extends EventListenerBase<{
     });
 
     rootScope.addEventListener('file_speed_limited', ({increaseTimes, isUpload}) => {
-      const {hide} = setQuizHint({
+      const {hide} = showChatToast({
         icon: 'premium_speed',
         title: i18n(isUpload ? 'UploadSpeedLimited' : 'DownloadSpeedLimited'),
         textElement: i18n(isUpload ? 'Chat.UploadLimit.Text' : 'Chat.DownloadLimit.Text', [
@@ -514,8 +514,6 @@ export class AppImManager extends EventListenerBase<{
           }),
           increaseTimes
         ]),
-        appendTo: this.chat.bubbles.container,
-        from: 'top',
         duration: 10000
       });
     });
@@ -645,7 +643,7 @@ export class AppImManager extends EventListenerBase<{
                 fromPeerId: message.peerId
               });
 
-              const {hide} = setQuizHint({
+              const {hide} = showChatToast({
                 icon: 'saved',
                 textElement: i18n('ReminderScheduled', [
                   anchorCallback(() => {
@@ -653,8 +651,6 @@ export class AppImManager extends EventListenerBase<{
                     this.openScheduled(rootScope.myId);
                   })
                 ]),
-                appendTo: this.chat.bubbles.container,
-                from: 'top',
                 duration: 5000
               });
             }

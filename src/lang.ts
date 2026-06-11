@@ -1048,6 +1048,7 @@ const lang = {
   'Verified.Bot': 'This bot is verified as official by the representatives of Telegram.',
   'Verified.Channel': 'This channel was verified by Telegram.',
   'Verified.Group': 'This group was verified by Telegram.',
+  'ProfileUnofficialSecurityRisk': '%1$s uses an unofficial Telegram client — messages to this user may be less secure.',
   // 'SavedMessages.Count': {
   //   'one_value': '%d saved message',
   //   'other_value': '%d saved messages'
@@ -2346,6 +2347,8 @@ const lang = {
     'one_value': '%1$s view',
     'other_value': '%1$s views'
   },
+  'ViewsTooltip': 'Views: %1$s',
+  'SharesTooltip': 'Shares: %1$s',
   'NobodyViews': 'No views yet',
   'NobodyViewsArchived': 'No views available',
   'NotificationsStoryMute2': 'Do Not Notify\nAbout Stories',
