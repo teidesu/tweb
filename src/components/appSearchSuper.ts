@@ -421,6 +421,7 @@ export default class AppSearchSuper {
   private swipeHandler: SwipeHandler;
 
   public storiesArchive: boolean;
+  public isSelfProfile: boolean;
 
   public counters: Partial<{[type in SearchSuperMediaType]: number}> = {};
   public onLengthChange: (type: SearchSuperMediaType, length: number) => void;
@@ -445,7 +446,7 @@ export default class AppSearchSuper {
     'showSender' |
     'managers' |
     'scrollOffset'
-  > & Partial<Pick<AppSearchSuper, 'storiesArchive' | 'onLengthChange' | 'openSavedDialogsInner' | 'slider'>>) {
+  > & Partial<Pick<AppSearchSuper, 'storiesArchive' | 'isSelfProfile' | 'onLengthChange' | 'openSavedDialogsInner' | 'slider'>>) {
     safeAssign(this, options);
 
     this.slider ??= appSidebarRight;
@@ -2385,6 +2386,7 @@ export default class AppSearchSuper {
     const mediaTabs = this.mediaTabs.filter((mediaTab) => mediaTab.inputFilter && mediaTab.inputFilter !== 'inputMessagesFilterEmpty');
     const filters = mediaTabs.map((mediaTab) => ({_: mediaTab.inputFilter}));
 
+    const canViewGifts = this.canViewGifts();
     const [
       counters,
       canViewSavedDialogs,
@@ -2393,20 +2395,18 @@ export default class AppSearchSuper {
       canViewGroups,
       canViewStories,
       canViewSimilar,
-      canViewGifts,
       giftsCount,
       maybePinnedGifts
     ] = await Promise.all([
-      this.getSearchCounters(filters),
+      filters.length ? this.getSearchCounters(filters) : [],
       this.canViewSavedDialogs(),
       this.canViewSaved(),
       this.canViewMembers(),
       this.canViewGroups(),
       this.canViewStories(),
       this.canViewSimilar(),
-      this.canViewGifts(),
       this.getGiftsCount(),
-      peerId === rootScope.myId && this.managers.appGiftsManager.getPinnedGifts(peerId)
+      peerId === rootScope.myId && canViewGifts && this.managers.appGiftsManager.getPinnedGifts(peerId)
     ]);
 
     if(!middleware()) {
@@ -2666,7 +2666,7 @@ export default class AppSearchSuper {
       return false;
     }
 
-    if(peerId === rootScope.myId) {
+    if(peerId === rootScope.myId && !this.isSelfProfile) {
       return false;
     }
 
@@ -2696,6 +2696,10 @@ export default class AppSearchSuper {
   }
 
   public canViewGifts() {
+    if(this.searchContext.peerId === rootScope.myId && !this.isSelfProfile) {
+      return false;
+    }
+
     return !this.searchContext.threadId && this.mediaTabsMap.has('gifts');
   }
 
