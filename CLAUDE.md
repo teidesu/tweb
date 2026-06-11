@@ -290,6 +290,7 @@ import {Message, Chat, User, InputPeer} from '@layer';
 - Do not import from `react` or use React patterns — this is Solid.js
 - Do not use heavy CSS selectors (deep descendant chains, universal `*`, expensive attribute matchers, `:not()` with complex arguments) — prefer a dedicated class on the target element
 - **Never add a blocking MTProto request on the chat-open path.** `ChatInput.finishPeerChange` (and any sibling `finishPeerChange` in the chat stack) awaits a `Promise.all` before unfreezing the input — every entry there is paid in chat-open latency. Do NOT add `appPrivacyManager.getGlobalPrivacySettings`, `appProfileManager.getProfile` for unrelated peers, fresh `account.*` fetches, or any new uncached round-trip into that batch. If a feature needs server data, either: (a) read it from a manager-side cache that's already kept warm (e.g. `apiManagerProxy.getAppConfig`, `getPrivacy` after preload, cached userFull), (b) fetch it lazily AFTER the chat renders and reconcile via an event (`peer_full_update`, `privacy_update`, custom dispatched event) + a `update*` helper, or (c) preload at app startup and gate via `rootScope.premium`-style cached flags. The same rule holds for `appImManager.setPeer` listeners and `setChatListeners` — keep them event-driven, never `await managers.*` for a per-peer hot-path render.
+- Do not run preview or use chrome devtools MCP unprompted. Always ask the user for permission.
 
 ## Running Tests
 
@@ -299,11 +300,3 @@ pnpm test src/tests/foo    # specific test file
 ```
 
 Vitest config: `threads: false`, `globals: true`, jsdom environment, setup in `src/tests/setup.ts`.
-
-<!-- rtk-instructions v2 -->
-## RTK — token-optimized commands
-
-Prefix every shell command with `rtk`, including each command inside `&&`
-chains: `rtk git add . && rtk git commit -m "msg"`. RTK applies a filter when it
-has one, otherwise passes through unchanged — so it is always safe.
-<!-- /rtk-instructions -->
