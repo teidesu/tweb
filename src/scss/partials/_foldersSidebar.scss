@@ -208,20 +208,6 @@
     }
   }
 
-  .btn-new-menu {
-    display: none;
-    position: absolute !important;
-    bottom: 1.25rem;
-    left: 50%;
-    transform: translateX(-50%) !important;
-
-    @include respond-to(no-floating-left-sidebar) {
-      html:has(#column-left.is-collapsed) & {
-        display: flex;
-      }
-    }
-  }
-
   &__add-folders-button {
     position: absolute;
     top: calc(var(--offset) * 1px);

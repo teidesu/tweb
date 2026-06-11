@@ -46,7 +46,6 @@ import {getInstallPrompt} from '@helpers/dom/installPrompt';
 import liteMode from '@helpers/liteMode';
 import {AppPowerSavingTab} from '@components/solidJsTabs/tabs';
 import {AppMyStoriesTab} from '@components/solidJsTabs/tabs';
-import Icon from '@components/icon';
 import AppSelectPeers from '@components/appSelectPeers';
 import setBadgeContent from '@helpers/setBadgeContent';
 import createBadge from '@helpers/createBadge';
@@ -117,8 +116,6 @@ export class AppSidebarLeft extends SidebarSlider {
   private totalNotificationsCount: HTMLSpanElement;
   private totalNotificationsCountSidebar: HTMLSpanElement;
   public rect: DOMRect;
-
-  private newBtnMenu: HTMLElement;
 
   private searchGroups: {[k in 'contacts' | 'globalContacts' | 'messages' | 'people' | 'recent']: SearchGroup} = {} as any;
   public searchSuper: AppSearchSuper;
@@ -195,9 +192,6 @@ export class AppSidebarLeft extends SidebarSlider {
     this.backBtn.parentElement.insertBefore(this.toolsBtn, this.backBtn);
 
     this.buttonsContainer = this.backBtn.parentElement;
-
-    this.newBtnMenu = this.createNewChatsMenuButton();
-    sidebarHeader.nextElementSibling.append(this.newBtnMenu);
 
     this.updateBtn = document.createElement('div');
     this.updateBtn.className = 'btn-circle rp btn-corner z-depth-1 btn-update is-hidden';
@@ -345,7 +339,7 @@ export class AppSidebarLeft extends SidebarSlider {
             this.hasUpdate = true;
             clearInterval(checkUpdateInterval);
 
-            if(!this.newBtnMenu.classList.contains('is-hidden')) {
+            if(!this.isSearchActive) {
               this.updateBtn.classList.remove('is-hidden');
             }
           }
@@ -655,7 +649,6 @@ export class AppSidebarLeft extends SidebarSlider {
       options: {
         text: 'CreateANew',
         icon: 'edit',
-        verify: () => this.isCollapsed(),
         separator: true
       },
       createSubmenu: () => this.createNewChatsSubmenu()
@@ -985,11 +978,9 @@ export class AppSidebarLeft extends SidebarSlider {
     return menu;
   }
 
-  private createNewChatsMenuOptions(closeBefore?: boolean, singular?: boolean): ButtonMenuItemOptionsVerifiable[]  {
+  private createNewChatsMenuOptions(): ButtonMenuItemOptionsVerifiable[]  {
     const closeTabsBefore = async(clb: () => void) => {
-      if(closeBefore) {
-        this.closeEverythingInside() && await pause(200);
-      }
+      this.closeEverythingInside() && await pause(200);
       clb();
     }
 
@@ -1007,7 +998,7 @@ export class AppSidebarLeft extends SidebarSlider {
 
     return [{
       icon: 'newchannel',
-      text: singular ? 'Channel' : 'NewChannel',
+      text: 'Channel',
       onClick: () => {
         closeTabsBefore(() => {
           this.createTab(AppNewChannelTab).open();
@@ -1015,34 +1006,18 @@ export class AppSidebarLeft extends SidebarSlider {
       }
     }, {
       icon: 'newgroup',
-      text: singular ? 'Group' : 'NewGroup',
+      text: 'Group',
       onClick: onNewGroupClick
     }, {
       icon: 'newprivate',
-      text: singular ? 'PrivateChat' : 'NewPrivateChat',
+      text: 'PrivateChat',
       onClick: onContactsClick
     }];
   }
 
-  private createNewChatsMenuButton() {
-    const btnMenu = ButtonMenuToggle({
-      direction: 'top-left',
-      buttons: this.createNewChatsMenuOptions(false),
-      noIcon: true,
-      positionPadding: {bottom: 10}
-    });
-    btnMenu.className = 'btn-new-menu btn-circle rp btn-corner z-depth-1 btn-menu-toggle animated-button-icon';
-    btnMenu.tabIndex = -1;
-    const icons: Icon[] = ['newchat_filled', 'close'];
-    btnMenu.prepend(...icons.map((icon, idx) => Icon(icon, 'animated-button-icon-icon', 'animated-button-icon-icon-' + (idx === 0 ? 'first' : 'last'))));
-    btnMenu.id = 'new-menu';
-
-    return btnMenu;
-  }
-
   private createNewChatsSubmenu() {
     return ButtonMenu({
-      buttons: this.createNewChatsMenuOptions(true, true)
+      buttons: this.createNewChatsMenuOptions()
     });
   }
 
@@ -1361,7 +1336,7 @@ export class AppSidebarLeft extends SidebarSlider {
     }, {capture: true});
 
     let first = true;
-    let hideNewBtnMenuTimeout: number;
+    let showUpdateBtnTimeout: number;
     // const transition = Transition.bind(null, searchContainer.parentElement, 150);
     const cleanup = () => {
       pickedElements.forEach((el) => {
@@ -1396,13 +1371,12 @@ export class AppSidebarLeft extends SidebarSlider {
         searchContainer.parentElement.parentElement.classList.toggle('is-search-active', id === 1);
       },
       onTransitionEnd: (id) => {
-        if(hideNewBtnMenuTimeout) clearTimeout(hideNewBtnMenuTimeout);
+        if(showUpdateBtnTimeout) clearTimeout(showUpdateBtnTimeout);
 
         if(id === 0 && !first) {
           cleanup();
-          hideNewBtnMenuTimeout = window.setTimeout(() => {
-            hideNewBtnMenuTimeout = 0;
-            this.newBtnMenu.classList.remove('is-hidden');
+          showUpdateBtnTimeout = window.setTimeout(() => {
+            showUpdateBtnTimeout = 0;
             this.hasUpdate && this.updateBtn.classList.remove('is-hidden');
           }, 150);
         }
@@ -1417,7 +1391,6 @@ export class AppSidebarLeft extends SidebarSlider {
       // toolsBtn/backBtn `.is-visible` and the animated icon's `.state-back`
       // are owned by the Solid effect in init() — flipping `isSearchActive`
       // below propagates to all three classes.
-      this.newBtnMenu.classList.add('is-hidden');
       this.updateBtn.classList.add('is-hidden');
 
       const navigationType: NavigationItem['type'] = 'global-search';
