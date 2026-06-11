@@ -113,7 +113,7 @@
   --font-size-11: 11px;
   --font-size-10: 10px;
   --font-size: var(--font-size-16);
-  --esg-sticker-size: 72px;
+  --esg-sticker-size: 64px;
   --esg-custom-emoji-size: 36px;
   --popup-sticker-size: 80px;
   --disabled-opacity: .3;
@@ -205,7 +205,6 @@
 
   @include respond-to(handhelds) {
     --right-column-width: 100vw;
-    --esg-sticker-size: 68px;
     --popup-sticker-size: 68px;
     --round-video-size: 240px;
   }
@@ -987,14 +986,16 @@ not screen and (                min-resolution: 2dppx) {
 .super-stickers {
   width: 100%;
 	display: grid;
-	grid-template-columns: repeat(auto-fill, var(--esg-sticker-size)); // 64px
-	// grid-column-gap: 1px;
-	justify-content: space-between;
+	grid-template-columns: repeat(auto-fill, minmax(var(--esg-sticker-size), 1fr));
 }
 
 .super-sticker {
   @include hover-background-effect() {
-    border-radius: $border-radius-medium;
+    border-radius: $border-radius;
+  }
+
+  .media-sticker {
+    padding: 4px;
   }
 
   /* &:nth-child(5n+5) {
@@ -1409,12 +1410,10 @@ hr {
   --custom-emoji-size: 2.25rem;
   // ! No chrome 56 support
   display: grid;
-  grid-template-columns: repeat(auto-fill, var(--esg-emoji-total-size));
-  justify-content: space-between;
+  grid-template-columns: repeat(auto-fill, minmax(var(--esg-emoji-total-size), 1fr));
   position: relative;
   font-size: var(--esg-emoji-size);
   line-height: var(--esg-emoji-size);
-  column-gap: .25rem;
 
   .custom-emoji {
     display: block;
@@ -1430,20 +1429,22 @@ hr {
 }
 
 .super-emoji {
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: .25rem;
   line-height: inherit;
   border-radius: $border-radius;
   cursor: pointer;
   vertical-align: middle;
-  width: var(--esg-emoji-total-size);
-  height: var(--esg-emoji-total-size);
+  width: 100%;
+  aspect-ratio: 1;
   position: relative;
 
   .emoji-placeholder {
     position: absolute;
-    left: 7px;
-    top: 7px;
+    inset: 0;
+    margin: auto;
     width: 1.75rem;
     height: 1.75rem;
     border-radius: 50%;
@@ -1457,8 +1458,8 @@ hr {
   }
 
   .emoji {
-    width: 100%;
-    height: 100%;
+    width: var(--esg-emoji-size);
+    height: var(--esg-emoji-size);
     vertical-align: unset;
     margin: 0;
 

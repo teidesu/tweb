@@ -48,7 +48,8 @@ export default class DropdownHover extends EventListenerBase<{
 
   public attachButtonListener(
     button: HTMLElement,
-    listenerSetter: ListenerSetter
+    listenerSetter: ListenerSetter,
+    onClick?: (button: HTMLElement, e: MouseEvent) => void
   ) {
     let firstTime = true;
     if(IS_TOUCH_SUPPORTED) {
@@ -75,7 +76,7 @@ export default class DropdownHover extends EventListenerBase<{
         }, TOGGLE_TIMEOUT);
       });
 
-      attachClickEvent(button, this.onButtonClick.bind(this, button), {listenerSetter});
+      attachClickEvent(button, onClick ? (e) => onClick(button, e as MouseEvent) : this.onButtonClick.bind(this, button), {listenerSetter});
     }
   }
 
@@ -154,8 +155,13 @@ export default class DropdownHover extends EventListenerBase<{
     }
   }
 
+  // when the dropdown is hosted by an external container (e.g. docked into the
+  // right sidebar), its visibility is managed by the host — toggle() is a no-op
+  protected isToggleLocked?(): boolean;
+
   public toggle = async(enable?: boolean) => {
     // if(!this.element) return;
+    if(this.isToggleLocked?.()) return;
     const willBeActive = (!!this.element.style.display && enable === undefined) || enable;
     if(this.init) {
       if(willBeActive) {

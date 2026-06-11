@@ -17,7 +17,7 @@ type OnChangeArgs = {
 type Args = {
   tabs: HTMLElement;
   content: HTMLElement,
-  onClick?: (id: number, tabContent: HTMLDivElement, animate: boolean) => void | boolean | Promise<void | boolean>;
+  onClick?: (id: number, tabContent: HTMLDivElement, animate: boolean, isUserClick?: boolean) => void | boolean | Promise<void | boolean>;
   onTransitionEnd?: () => void;
   transitionTime?: number;
   scrollableX?: ScrollableX | ScrollableContextValue;
@@ -37,6 +37,7 @@ export type SelectTargetArgs = {
   prevId?: number;
   selectTab?: (id: number, animate: boolean) => void;
   onChange?: (args: OnChangeArgs) => void;
+  isUserClick?: boolean;
 };
 
 export async function selectTarget({
@@ -50,11 +51,12 @@ export async function selectTarget({
   transitionTime = 200,
   prevId = -1,
   selectTab,
-  onChange
+  onChange,
+  isUserClick
 }: SelectTargetArgs) {
   if(onClick) {
     const tabContent = content?.children[id] as HTMLDivElement;
-    const result1 = onClick(id, tabContent, animate);
+    const result1 = onClick(id, tabContent, animate, isUserClick);
     const canChange = result1 instanceof Promise ? await result1 : result1;
     if(canChange === false) {
       return;
@@ -106,8 +108,9 @@ export async function selectTarget({
   if(prevId !== -1 && animate) {
     const selector = '.menu-horizontal-div-item-background';
     mutateCallback(() => {
-      const indicator = target.querySelector(selector)! as HTMLElement;
-      const currentIndicator = target.parentElement.children[prevId].querySelector(selector)! as HTMLElement;
+      const indicator = target.querySelector(selector) as HTMLElement;
+      const currentIndicator = target.parentElement.children[prevId]?.querySelector(selector) as HTMLElement;
+      if(!indicator || !currentIndicator) return;
 
       currentIndicator.classList.remove('animate');
       indicator.classList.remove('animate');
@@ -160,7 +163,7 @@ export function horizontalMenu(
     return _selectTab;
   }
 
-  const _selectTarget = (target: HTMLElement, id: number, animate = true) => {
+  const _selectTarget = (target: HTMLElement, id: number, animate = true, isUserClick?: boolean) => {
     return selectTarget({
       target,
       id,
@@ -172,7 +175,8 @@ export function horizontalMenu(
       transitionTime,
       prevId: _selectTab.prevId(),
       selectTab: _selectTab,
-      onChange
+      onChange,
+      isUserClick
     });
   };
 
@@ -208,7 +212,7 @@ export function horizontalMenu(
       id = whichChild(target);
     }
 
-    _selectTarget(target, id);
+    _selectTarget(target, id, true, true);
   }, {listenerSetter});
 
   return proxy;

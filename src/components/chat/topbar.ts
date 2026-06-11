@@ -2,6 +2,7 @@ import type {Channel} from '@appManagers/appChatsManager';
 import type {AppSidebarRight} from '@components/sidebarRight';
 import type Chat from '@components/chat/chat';
 import {RIGHT_COLUMN_ACTIVE_CLASSNAME} from '@components/sidebarRight';
+import {replaceEmoticonsPanelWithProfile} from '@components/sidebarRight/tabs/emoticons';
 import mediaSizes, {ScreenSize} from '@helpers/mediaSizes';
 import rootScope, {BroadcastEvents} from '@lib/rootScope';
 import ButtonIcon from '@components/buttonIcon';
@@ -265,14 +266,14 @@ export default class ChatTopbar {
         const avatar = findUpAvatar(e.target);
         if(mediaSizes.activeScreen === ScreenSize.medium && document.body.classList.contains(LEFT_COLUMN_ACTIVE_CLASSNAME)) {
           onBtnBackClick();
-        } else if(avatar) {
-          if(avatar.classList.contains('has-stories')) {
+        } else {
+          if(avatar?.classList.contains('has-stories')) {
             return;
           }
 
-          this.appSidebarRight.toggleSidebar(!document.body.classList.contains(RIGHT_COLUMN_ACTIVE_CLASSNAME));
-        } else {
-          this.appSidebarRight.toggleSidebar(true);
+          if(!replaceEmoticonsPanelWithProfile()) {
+            this.appSidebarRight.toggleSidebar(avatar ? !document.body.classList.contains(RIGHT_COLUMN_ACTIVE_CLASSNAME) : true);
+          }
         }
       }
     }, {listenerSetter: this.listenerSetter});

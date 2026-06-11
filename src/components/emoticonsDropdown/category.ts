@@ -12,23 +12,26 @@ export type StickersTabStyles = {
   gapX: number,
   gapY: number,
   getElementMediaSize: () => MediaSize,
-  itemsClassName: string
+  itemsClassName: string,
+  squareCells?: boolean
 };
 
 export const EmoticonsTabStyles: {[key in 'Stickers' | 'Emoji' | 'GIF']?: StickersTabStyles} = {
   Stickers: {
     getElementMediaSize: () => mediaSizes.active.esgSticker,
     padding: 3 * 2,
-    gapX: 4,
-    gapY: 4,
-    itemsClassName: 'super-stickers'
+    gapX: 0,
+    gapY: 0,
+    itemsClassName: 'super-stickers',
+    squareCells: true
   },
   Emoji: {
     getElementMediaSize: () => EMOJI_ELEMENT_SIZE,
     padding: 16,
-    gapX: 4,
+    gapX: 0,
     gapY: 0,
-    itemsClassName: 'super-emojis'
+    itemsClassName: 'super-emojis',
+    squareCells: true
   },
   GIF: {
     getElementMediaSize: () => makeMediaSize(124, 124),
@@ -57,6 +60,7 @@ export default class StickersTabCategory<Item extends StickersTabCategoryItem, A
 
   private gapX: number;
   private gapY: number;
+  private squareCells: boolean;
 
   public set?: StickerSet;
   public local?: boolean;
@@ -114,6 +118,7 @@ export default class StickersTabCategory<Item extends StickersTabCategoryItem, A
     this.getElementMediaSize = options.styles.getElementMediaSize;
     this.gapX = options.styles.gapX ?? 0;
     this.gapY = options.styles.gapY ?? 0;
+    this.squareCells = options.styles.squareCells ?? false;
     this.middlewareHelper = options.middleware ? options.middleware.create() : getMiddleware();
   }
 
@@ -121,12 +126,13 @@ export default class StickersTabCategory<Item extends StickersTabCategoryItem, A
     const {width: containerWidth} = this.getContainerSize();
     const elementSize = this.getElementMediaSize().width;
 
-    let itemsPerRow = containerWidth / elementSize;
-    if(this.gapX) itemsPerRow -= Math.floor(itemsPerRow - 1) * this.gapX / elementSize;
-    itemsPerRow = Math.floor(itemsPerRow);
+    const itemsPerRow = Math.max(1, Math.floor((containerWidth + this.gapX) / (elementSize + this.gapX)));
+    const rowHeight = this.squareCells ?
+      (containerWidth - (itemsPerRow - 1) * this.gapX) / itemsPerRow :
+      elementSize;
 
     const rows = Math.ceil(itemsLength / itemsPerRow);
-    let height = rows * elementSize;
+    let height = rows * rowHeight;
     if(this.gapY) height += (rows - 1) * this.gapY;
 
     this.elements.items.style.minHeight = height + 'px';
