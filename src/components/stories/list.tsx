@@ -19,6 +19,7 @@ import wrapPeerTitle from '@components/wrappers/peerTitle';
 import {ChatType} from '@components/chat/chatType';
 import {subscribeOn} from '@helpers/solid/subscribeOn';
 import {useCollapsable} from '@hooks/useCollapsable';
+import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
 import createMiddleware from '@helpers/solid/createMiddleware';
 import ListenerSetter from '@helpers/listenerSetter';
 import {PeerTitleTsx} from '@components/peerTitleTsx';
@@ -306,6 +307,7 @@ function _StoriesList(props: {
     container: () => container,
     listenWheelOn: props.listenWheelOn,
     shouldIgnore: () => !peers().length,
+    canUnfold: () => IS_TOUCH_SUPPORTED,
     disableHoverWhenFolded: true
   });
 
