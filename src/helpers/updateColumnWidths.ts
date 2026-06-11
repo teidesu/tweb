@@ -17,8 +17,8 @@
  *                                  layout still reserves only 80 (overlays
  *                                  the chat).
  *   --right-column-width          right column rendered width (user
- *                                  preference, clamped to MIN/MAX); full vw
- *                                  on handhelds.
+ *                                  preference, clamped to MIN/MAX and the
+ *                                  docked chat minimum); full vw on handhelds.
  *   --middle-column-width         column-center's layout width (vw - 2 × outer
  *                                  padding).
  *   --middle-column-width-value   numeric copy used by SCSS calc().
@@ -30,7 +30,8 @@
  *                                  a max-width.
  *   --right-sidebar-fits          viewport threshold (px) at which the right
  *                                  column can dock at default size without
- *                                  overlapping a CHAT_WIDTH_MAX-wide chat.
+ *                                  making the chat narrower than the docked
+ *                                  minimum.
  *                                  Exposed for any SCSS consumer that needs
  *                                  to react to the same threshold the JS
  *                                  layout decision uses; @media queries
@@ -57,7 +58,7 @@
  *                                                        the same number).
  *
  * Toggles `body.right-column-floats` when the right column overlays the chat
- * (viewport too narrow to fit left + chat + right + paddings side-by-side).
+ * (viewport too narrow to fit left + minimum chat + right + paddings side-by-side).
  */
 
 import mediaSizes from '@helpers/mediaSizes';
@@ -96,6 +97,7 @@ const PAGE_CHATS_PADDING = PAGE_CHATS_PADDING_ROOT_DESKTOP;
 // `--chat-width` CSS variable (clamped to the actually-available middle
 // column width on narrower viewports).
 const CHAT_WIDTH_MAX = 696;
+const CHAT_WIDTH_MIN_DOCKED = 520;
 // Extra spacing used inside the right-sidebar-fit equation — historical
 // `+ 64px` from $right-sidebar-fits, kept as-is so the threshold doesn't
 // shift.
@@ -121,6 +123,7 @@ let openTabsLeftSidebar = false;
 // viewport wide enough). Mirrors `body.has-folders-sidebar`; pushed in by
 // stores/foldersSidebar.ts when the class is toggled.
 let foldersSidebarShown = false;
+let resizeTransitionRaf = 0;
 
 (function loadUserPreferences() {
   const rawLeft = localStorage.getItem(STORAGE_KEY_LEFT);
@@ -149,10 +152,48 @@ const persistRightPreference = throttle(() => {
   localStorage.setItem(STORAGE_KEY_RIGHT, userPreferredRightWidth + '');
 }, 200);
 
+function getAvailableWidth(): number {
+  const rootStyle = getComputedStyle(document.documentElement);
+  const safeAreaPaddingX = (parseFloat(rootStyle.paddingLeft) || 0) + (parseFloat(rootStyle.paddingRight) || 0);
+  return window.innerWidth - safeAreaPaddingX;
+}
+
+function getMaxDockedSidebarWidth(otherWidth: number): number {
+  const foldersOffset = foldersSidebarShown ? FOLDERS_SIDEBAR_OFFSET : 0;
+  return getAvailableWidth() - foldersOffset - otherWidth - CHAT_WIDTH_MIN_DOCKED - PAGE_CHATS_PADDING * 2;
+}
+
+function clampSidebarWidth(width: number, otherWidth: number): number {
+  const vw = window.innerWidth;
+  const isMobile = mediaSizes.isMobile;
+  const isFloatingLeft = mediaSizes.isLessThanFloatingLeftSidebar && !isMobile;
+
+  if(isMobile || isFloatingLeft || last.floats) {
+    return clamp(width, MIN_SIDEBAR_WIDTH, MAX_SIDEBAR_WIDTH);
+  }
+
+  const maxWidth = getMaxDockedSidebarWidth(otherWidth);
+  return clamp(width, MIN_SIDEBAR_WIDTH, Math.max(MIN_SIDEBAR_WIDTH, Math.min(MAX_SIDEBAR_WIDTH, maxWidth)));
+}
+
+function disableResizeTransitions(): void {
+  document.body.classList.add('layout-resizing');
+
+  if(resizeTransitionRaf) {
+    window.cancelAnimationFrame(resizeTransitionRaf);
+  }
+
+  resizeTransitionRaf = window.requestAnimationFrame(() => {
+    resizeTransitionRaf = window.requestAnimationFrame(() => {
+      document.body.classList.remove('layout-resizing');
+      resizeTransitionRaf = 0;
+    });
+  });
+}
+
 /**
  * Called by the left resize handle while the user drags. `width <= 0`
- * records a collapsed preference; any other value is clamped to MIN/MAX
- * before storing.
+ * records a collapsed preference; any other value is clamped before storing.
  */
 export function setUserPreferredLeft(width: number): void {
   if(width <= 0) {
@@ -160,7 +201,7 @@ export function setUserPreferredLeft(width: number): void {
     userPreferredLeftWidth = undefined;
   } else {
     userPreferredLeftCollapsed = false;
-    userPreferredLeftWidth = clamp(width, MIN_SIDEBAR_WIDTH, MAX_SIDEBAR_WIDTH);
+    userPreferredLeftWidth = clampSidebarWidth(width, computeRightWidth());
   }
   persistLeftPreference();
   updateColumnWidths();
@@ -168,10 +209,10 @@ export function setUserPreferredLeft(width: number): void {
 
 /**
  * Called by the right resize handle while the user drags. The width is
- * clamped to MIN/MAX — the right column has no collapsed state.
+ * clamped before storing — the right column has no collapsed state.
  */
 export function setUserPreferredRight(width: number): void {
-  userPreferredRightWidth = clamp(width, MIN_SIDEBAR_WIDTH, MAX_SIDEBAR_WIDTH);
+  userPreferredRightWidth = clampSidebarWidth(width, computeLayoutLeftWidth());
   persistRightPreference();
   updateColumnWidths();
 }
@@ -275,22 +316,20 @@ export default function updateColumnWidths(): void {
   // left bar on landscape iPhones (the inset is 0 on desktop, so this is a
   // no-op there). Read with the other reads at the top to avoid interleaving
   // a style read between the setProperty writes below (layout thrash).
-  const rootStyle = getComputedStyle(root);
-  const safeAreaPaddingX = (parseFloat(rootStyle.paddingLeft) || 0) + (parseFloat(rootStyle.paddingRight) || 0);
-  const availableWidth = vw - safeAreaPaddingX;
+  const availableWidth = getAvailableWidth();
 
   const defaultColumnWidth = Math.min(vw, DEFAULT_COLUMN_WIDTH);
   const visualLeftWidth = computeVisualLeftWidth();
   const layoutLeftWidth = computeLayoutLeftWidth();
   const rightWidth = computeRightWidth();
-  // Whether the right column can dock without overlapping the chat. The
+  // Whether the right column can dock without making the chat too narrow. The
   // threshold is the sum of every horizontal piece currently in the docked
   // layout, so resizing either column (or collapsing the left, or toggling
   // the folders panel) immediately re-evaluates the floats decision.
   const foldersOffset = foldersSidebarShown ? FOLDERS_SIDEBAR_OFFSET : 0;
   // 2 paddings: the two gutters flanking the chat. Both side bars are flush
   // to the screen edges, so there are no outer insets.
-  const rightColumnFits = foldersOffset + layoutLeftWidth + rightWidth + CHAT_WIDTH_MAX + PAGE_CHATS_PADDING * 2;
+  const rightColumnFits = foldersOffset + layoutLeftWidth + rightWidth + CHAT_WIDTH_MIN_DOCKED + PAGE_CHATS_PADDING * 2;
   // Handheld is a slider — the right column overlays the chat, so it
   // always floats. Without this body.right-column-floats stays off and the
   // `.bubbles-inner { width: calc(100% - var(--right-column-width) ...) }`
@@ -312,9 +351,10 @@ export default function updateColumnWidths(): void {
     availableWidth - foldersOffset - layoutLeftWidth - PAGE_CHATS_PADDING * 2;
   const chatWidth = isMobile ? vw : Math.min(chatAvailableWidth, CHAT_WIDTH_MAX);
   // Viewport threshold at which the right column can dock at default size
-  // without overlapping a CHAT_WIDTH_MAX chat. Exposed for any caller that
-  // wants to read the same number JS uses for `body.right-column-floats`.
-  const rightSidebarFits = DEFAULT_COLUMN_WIDTH * 2 + CHAT_WIDTH_MAX + RIGHT_SIDEBAR_FITS_EXTRA;
+  // without making the chat narrower than the docked minimum. Exposed for
+  // any caller that wants to read the same number JS uses for
+  // `body.right-column-floats`.
+  const rightSidebarFits = DEFAULT_COLUMN_WIDTH * 2 + CHAT_WIDTH_MIN_DOCKED + RIGHT_SIDEBAR_FITS_EXTRA;
   // Outer chrome — split into two scopes so left/right sidebars can drop
   // to 0 on handheld (full-screen slider) while the chat keeps an 8px
   // breathing room for the floating topbar / chat-input plates.
@@ -386,6 +426,7 @@ export function isRightColumnFloating(): boolean {
 export function installColumnWidthsUpdater(): void {
   if(installed) return;
   installed = true;
+  window.addEventListener('resize', disableResizeTransitions, {passive: true});
   mediaSizes.addEventListener('resize', updateColumnWidths);
   rootScope.addEventListener('resizing_left_sidebar', updateColumnWidths);
   updateColumnWidths();

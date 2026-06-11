@@ -52,4 +52,8 @@
   body.animation-level-2:not(.has-auth-pages) & .main-column {
     transition: transform var(--tabs-transition), opacity var(--tabs-transition);
   }
+
+  body.layout-resizing & .main-column {
+    transition: none !important;
+  }
 }

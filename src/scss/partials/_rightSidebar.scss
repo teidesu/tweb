@@ -57,8 +57,9 @@
 
     body.animation-level-0 &,
     body.resizing-left-sidebar &,
-    body.resizing-right-sidebar & {
-			transition: none;
+    body.resizing-right-sidebar &,
+    body.layout-resizing & {
+			transition: none !important;
 		}
   }
 

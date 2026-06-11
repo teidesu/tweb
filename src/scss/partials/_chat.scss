@@ -390,7 +390,8 @@
 	// track the sidebar edge instantly — animating the transform makes the
 	// chat lag behind the pointer.
 	body.resizing-left-sidebar &,
-	body.resizing-right-sidebar & {
+	body.resizing-right-sidebar &,
+	body.layout-resizing & {
 		transition: none !important;
 	}
 
