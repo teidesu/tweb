@@ -410,7 +410,7 @@ const makeDefaultAppTheme = (name: AppTheme['name']): AppTheme => {
 };
 
 export const SETTINGS_INIT: StateSettings = {
-  messagesTextSize: 16,
+  messagesTextSize: 15,
   distanceUnit: 'kilometers',
   sendShortcut: 'enter',
   autoDownload: {

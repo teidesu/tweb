@@ -1899,7 +1899,7 @@ export default class AppSearchSuper {
       log: this.log,
       requestItemForIdx: xd.requestItemForIdx,
       onListShrinked: xd.onListShrinked,
-      itemSize: 72,
+      itemSize: 62,
       scrollable: this.scrollable,
       indexKey: 'index_0',
       virtualFilterId: rootScope.myId,

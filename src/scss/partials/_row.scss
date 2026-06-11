@@ -437,8 +437,8 @@ $row-border-radius: $border-radius-medium;
     }
 
     &-bigger {
-      width: 3.375rem !important;
-      height: 3.375rem !important;
+      width: 3rem !important;
+      height: 3rem !important;
       inset-inline-start: .5625rem !important; // it's wrong but old chatlist has it
     }
   }

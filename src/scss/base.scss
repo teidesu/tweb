@@ -134,7 +134,7 @@
   --selection-color: inherit;
   --white: #ffffff;
 
-  --ripple-duration: .7s;
+  --ripple-duration: .35s;
   --ripple-start-scale: 0;
   --ripple-end-scale: 2;
 
@@ -1632,7 +1632,7 @@ hr {
 
 .chatlist-chat {
   &.row-with-padding {
-    padding-inline-start: 4.5rem !important;
+    padding-inline-start: 4.125rem !important;
   }
 
   // span {
@@ -1641,7 +1641,7 @@ hr {
 
   .row {
     &-title {
-      font-size: var(--font-size-16) !important;
+      font-size: var(--font-size-15) !important;
       line-height: 1.375rem;
 
       &-right-secondary {
@@ -1675,7 +1675,7 @@ hr {
     .row {
       &-subtitle {
         margin-top: 0;
-        font-size: var(--font-size-16) !important;
+        font-size: var(--font-size-14) !important;
         line-height: 1.375rem;
 
         &-row {
