@@ -171,8 +171,9 @@
       background-color: var(--avatar-online-color);
       width: 14px;
       height: 14px;
-      left: 2.4375rem;
-      top: 2.4375rem;
+      // 1px inset from the avatar's bottom-right corner
+      inset-inline-start: calc(var(--size) - 15px);
+      top: calc(var(--size) - 15px);
     }
   }
 
