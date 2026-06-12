@@ -44,7 +44,7 @@ export class NetworkerFactory extends AppManager {
         id: App.id,
         deviceModel: getEnvironment().USER_AGENT || 'Unknown UserAgent',
         systemVersion: navigator.platform || 'Unknown Platform',
-        version: App.version + (App.isMainDomain ? ' ' + App.suffix : ''),
+        version: 'web ' + App.version,
         systemLangCode: navigator.language || 'en',
         langPack: App.langPack,
         langCode: this.language

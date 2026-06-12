@@ -35,7 +35,6 @@ import DEBUG, {IS_BETA} from '@config/debug';
 import IS_INSTALL_PROMPT_SUPPORTED from '@environment/installPrompt';
 import cacheInstallPrompt from '@helpers/dom/installPrompt';
 import {fillLocalizedDates} from '@helpers/date';
-import {nextRandomUint} from '@helpers/random';
 import {createEffect} from 'solid-js';
 import {IS_OVERLAY_SCROLL_SUPPORTED, USE_CUSTOM_SCROLL, USE_NATIVE_SCROLL} from '@environment/overlayScrollSupport';
 import IMAGE_MIME_TYPES_SUPPORTED, {IMAGE_MIME_TYPES_SUPPORTED_PROMISE} from '@environment/imageMimeTypesSupport';
@@ -82,44 +81,6 @@ IMAGE_MIME_TYPES_SUPPORTED_PROMISE.then((mimeTypes) => {
   console.log('Supported image mime types', IMAGE_MIME_TYPES_SUPPORTED);
   apiManagerProxy.sendEnvironment();
 });
-
-// * Randomly choose a version if user came from a search engine
-function randomlyChooseVersionFromSearch() {
-  try {
-    if(
-      App.isMainDomain &&
-      document.referrer &&
-      /(^|\.)(google|bing|duckduckgo|ya|yandex)\./i.test(new URL(document.referrer).host)
-    ) {
-      const version = localStorage.getItem('kz_version');
-      if(version === 'Z' || nextRandomUint(8) > 127) {
-        localStorage.setItem('kz_version', 'Z');
-        appNavigationController.navigateToUrl('https://web.telegram.org/a/');
-      } else {
-        localStorage.setItem('kz_version', 'K');
-      }
-    }
-  } catch(err) {}
-}
-
-async function checkLastActiveAccountFromTMe() {
-  try {
-    if(
-      App.isMainDomain &&
-      document.referrer &&
-      /^(t|telegram)\.me/i.test(new URL(document.referrer).host)
-    ) {
-      const [totalAccounts, {accountNumber}] = await Promise.all([
-        AccountController.getUnencryptedTotalAccounts(),
-        sessionStorage.get('xt_instance')
-      ]);
-
-      if(accountNumber <= totalAccounts && accountNumber !== getCurrentAccount()) {
-        changeAccount(accountNumber, false, true);
-      }
-    }
-  } catch(err) {}
-}
 
 function setManifest() {
   const manifest = document.getElementById('manifest') as HTMLLinkElement;
@@ -396,7 +357,6 @@ function setDocumentLangPackProperties(langPack: LangPackDifference.langPackDiff
 
 /* false &&  */document.addEventListener('DOMContentLoaded', async() => {
   const perf = performance.now();
-  randomlyChooseVersionFromSearch();
   setSidebarLeftWidth();
   toggleAttributePolyfill();
   replaceChildrenPolyfill();
@@ -407,7 +367,6 @@ function setDocumentLangPackProperties(langPack: LangPackDifference.langPackDiff
   listenForWindowPrint();
   cancelImageEvents();
   setRootClasses();
-  await checkLastActiveAccountFromTMe();
 
   if(IS_INSTALL_PROMPT_SUPPORTED) {
     cacheInstallPrompt();
@@ -585,11 +544,7 @@ function setDocumentLangPackProperties(langPack: LangPackDifference.langPackDiff
     })();
 
     try {
-      await Promise.all([
-        import('./lib/telegramMeWebManager'),
-        import('./lib/webPushApiManager')
-      ]).then(([meModule, pushModule]) => {
-        meModule.default.setAuthorized(false);
+      await import('./lib/webPushApiManager').then((pushModule) => {
         pushModule.default.unsubscribe();
       });
     } catch(err) {

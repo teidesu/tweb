@@ -65,7 +65,7 @@ port.addMultipleEventsListeners({
 
   setLogBufferEnabled: (enabled) => setLogBufferEnabled(enabled),
 
-  state: ({state, resetStorages, pushedKeys, newVersion, oldVersion, userId, accountNumber, common, refetchStorages}) => {
+  state: ({state, resetStorages, pushedKeys, oldVersion, userId, accountNumber, common, refetchStorages}) => {
     // if(haveState) {
     //   return;
     // }
@@ -74,7 +74,6 @@ port.addMultipleEventsListeners({
 
     const appStateManager = appManagersManager.stateManagersByAccount[accountNumber];
     appStateManager.userId = userId;
-    appStateManager.newVersion = newVersion;
     appStateManager.oldVersion = oldVersion;
 
     // * preserve self user

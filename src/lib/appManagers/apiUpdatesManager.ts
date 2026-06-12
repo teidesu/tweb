@@ -8,10 +8,7 @@
 import {ConstructorDeclMap, Message, MessageFwdHeader, Peer, StarsAmount, Update, Updates} from '@layer';
 import {LogTypes} from '@lib/logger';
 import assumeType from '@helpers/assumeType';
-import App from '@config/app';
-import filterUnique from '@helpers/array/filterUnique';
 import {AppManager} from '@appManagers/manager';
-import parseMarkdown from '@lib/richTextProcessor/parseMarkdown';
 import ctx from '@environment/ctx';
 import EventListenerBase from '@helpers/eventListenerBase';
 import applyMixins from '@helpers/applyMixins';
@@ -704,8 +701,6 @@ class ApiUpdatesManager {
     this.attached = true;
 
     this.appStateManager.getState().then(({updates: state}) => {
-      const newVersion = this.appStateManager.newVersion/*  || '1.6.0' */;
-
       this.log('got state', state);
 
       // rootScope.broadcast('state_synchronizing');
@@ -758,50 +753,6 @@ class ApiUpdatesManager {
       // this.updatesState.syncLoading.then(() => {
       this.setProxy();
       // });
-
-      if(newVersion) {
-        this.updatesState.syncLoading.then(async() => {
-          const strs: Record<string, string> = {
-            en: 'was updated to version',
-            ru: 'обновлён до версии'
-          };
-
-          const getChangelog = (lang: string) => {
-            return fetch(`changelogs/${lang}_${newVersion.split(' ')[0]}.md`)
-            .then((res) => (res.status === 200 && res.ok && res.text()) || Promise.reject())
-            .then((text) => {
-              const langStr = strs[lang] || strs.en;
-              const pre = `**Telegram Web${App.suffix} ${langStr} ${newVersion}**\n\n`;
-
-              text = pre + text;
-
-              const [message, entities] = parseMarkdown(text, []);
-
-              const update: Update.updateServiceNotification = {
-                _: 'updateServiceNotification',
-                entities,
-                message,
-                type: 'local',
-                pFlags: {},
-                inbox_date: tsNow(true),
-                media: undefined
-              };
-
-              this.processLocalUpdate(update);
-            });
-          };
-
-          const languages = filterUnique([this.networkerFactory.language, 'en']);
-          for(const language of languages) {
-            try {
-              await getChangelog(language);
-              break;
-            } catch(err) {
-
-            }
-          }
-        });
-      }
     });
   }
 }

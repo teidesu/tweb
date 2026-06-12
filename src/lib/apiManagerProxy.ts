@@ -12,8 +12,6 @@ import webpWorkerController from '@lib/webp/webpWorkerController';
 import DEBUG, {MOUNT_CLASS_TO} from '@config/debug';
 import sessionStorage from '@lib/sessionStorage';
 import webPushApiManager from '@lib/webPushApiManager';
-import telegramMeWebManager from '@lib/telegramMeWebManager';
-import pause from '@helpers/schedulers/pause';
 import ENVIRONMENT from '@environment/index';
 import loadStateForAllAccountsOnce from '@appManagers/utils/state/loadState';
 import opusDecodeController from '@lib/opusDecodeController';
@@ -120,7 +118,6 @@ class ApiManagerProxy extends MTProtoMessagePort {
   // private sockets: Map<number, Socket> = new Map();
   private mirrors: Mirrors;
 
-  public newVersion: string;
   public oldVersion: string;
 
   private tabState: TabState;
@@ -494,11 +491,6 @@ class ApiManagerProxy extends MTProtoMessagePort {
       // const toClear: CacheStorageDbName[] = ['cachedFiles', 'cachedStreamChunks'];
       Promise.all([
         toggleStorages(false, true),
-        Promise.race([
-          // TODO: Check here
-          telegramMeWebManager.setAuthorized(false),
-          pause(3000)
-        ]),
         webPushApiManager.unsubscribe(),
         this.invokeVoid('terminate', undefined), // * terminate mtproto worker
         this.serviceWorkerRegistration?.unregister().catch(noop) // * release storages
@@ -946,7 +938,6 @@ class ApiManagerProxy extends MTProtoMessagePort {
     this.dispatchUserAuth();
 
     const stateForThisAccount = loadedStates[getCurrentAccount()];
-    this.newVersion = stateForThisAccount.newVersion;
     this.oldVersion = stateForThisAccount.oldVersion;
     this.mirrors['state'] = stateForThisAccount.state;
     setAppStateSilent(stateForThisAccount.state);
