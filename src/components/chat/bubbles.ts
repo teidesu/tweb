@@ -11,6 +11,7 @@ import confirmationPopup from '@components/confirmationPopup';
 import showForwardPopup from '@components/popups/forward';
 import showStickersPopup from '@components/popups/stickers';
 import ProgressivePreloader from '@components/preloader';
+import {createProgressRing, ProgressRingHandle} from '@components/progressRing';
 import Scrollable, {SliceSides} from '@components/scrollable';
 import StickyIntersector from '@components/stickyIntersector';
 import animationIntersector from '@components/animationIntersector';
@@ -629,6 +630,7 @@ export default class ChatBubbles {
 
   private updateLocalOnEdit: Map<HTMLElement, (message: Message.message) => void> = new Map();
   public replySwipeHandler: SwipeHandler;
+  private replySwipeRing: ProgressRingHandle;
 
   private remover: HTMLDivElement;
   public floatingSeparatorsContainer: HTMLDivElement;
@@ -1527,9 +1529,18 @@ export default class ChatBubbles {
 
             if(!icon) {
               icon = Icon('reply_filled', 'bubble-gesture-reply-icon');
+              this.replySwipeRing = createProgressRing({
+                size: 38, // = --message-beside-button-size (2.375rem)
+                strokeWidth: 2,
+                stroke: 'white',
+                strokeOpacity: 1,
+                class: 'bubble-gesture-reply-ring'
+              });
+              icon.append(this.replySwipeRing.element);
             } else {
               icon.classList.remove('is-visible');
               icon.style.opacity = '';
+              this.replySwipeRing.setProgress(0);
             }
 
             target/* .querySelector('.bubble-content') */.append(icon);
@@ -1539,11 +1550,11 @@ export default class ChatBubbles {
         },
         onSwipe: (xDiff) => {
           shouldReply = xDiff >= replyAfter;
+          icon.classList.toggle('is-visible', shouldReply);
 
-          if(shouldReply && !icon.classList.contains('is-visible')) {
-            icon.classList.add('is-visible');
-          }
-          icon.style.opacity = '' + Math.min(1, xDiff / replyAfter);
+          const progress = Math.min(1, Math.max(0, xDiff) / replyAfter);
+          icon.style.opacity = '' + progress;
+          this.replySwipeRing.setProgress(progress);
 
           const x = -Math.max(0, Math.min(MAX, xDiff));
           const transform = `translateX(${x}px)`;
@@ -1580,6 +1591,10 @@ export default class ChatBubbles {
             if(_swipeAvatar) {
               _swipeAvatar.style.transform = '';
             }
+
+            // fade out along with the bubble snap-back (transition is enabled
+            // by .animating.backwards on the bubble)
+            icon.style.opacity = '0';
 
             if(shouldReply) {
               const message = this.chat.getMessage(getBubbleFullMid(_target));
@@ -4505,6 +4520,8 @@ export default class ChatBubbles {
     // this.chat.log.error('Bubbles destroying');
 
     this.readMetricsTracker?.finalizeAll();
+
+    this.replySwipeRing?.destroy();
 
     this.destroyScrollable();
 

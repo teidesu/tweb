@@ -83,6 +83,32 @@
   }
 }
 
+@keyframes bubble-reply-icon-bounce {
+  0% {
+    transform: translateY(-50%) scale(.8);
+  }
+
+  50% {
+    transform: translateY(-50%) scale(1.15);
+  }
+
+  100% {
+    transform: translateY(-50%) scale(1);
+  }
+}
+
+@keyframes bubble-reply-icon-wave {
+  from {
+    transform: scale(1);
+    opacity: .5;
+  }
+
+  to {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
 .bubble {
   --line-height: var(--messages-line-height);
   --primary-color: var(--message-primary-color);
@@ -142,7 +168,6 @@
       position: absolute;
       top: 50%;
       right: var(--message-beside-button-margin);
-      transform: translateY(-50%);
       color: #fff;
       border-radius: 50%;
       background-color: var(--message-highlighting-color);
@@ -150,19 +175,44 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transform: translateY(-50%) scale(0.6);
-      visibility: hidden;
+      transform: translateY(-50%) scale(0.8);
       font-size: 1.125rem !important;
 
       @include animation-level(2) {
         transition: transform .1s ease-in-out;
       }
 
-      &.is-visible {
-        visibility: visible;
-        // opacity: 1;
-        transform: translateY(-50%) scale(1);
+      .bubble-gesture-reply-ring {
+        position: absolute;
+        inset: 0;
       }
+
+      // expanding "wave" ring fired when the swipe arms
+      &:after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      &.is-visible {
+        transform: translateY(-50%) scale(1);
+
+        @include animation-level(2) {
+          animation: bubble-reply-icon-bounce .25s ease-out;
+
+          &:after {
+            animation: bubble-reply-icon-wave .4s ease-out;
+          }
+        }
+      }
+    }
+
+    &.animating.backwards .bubble-gesture-reply-icon {
+      transition: opacity var(--transition-standard-out);
     }
   }
 
