@@ -84,7 +84,15 @@ export default class SidebarSlider {
     return true;
   };
 
+  // a tab that is "transparent" to the navigation stack (e.g. a docked right
+  // sidebar persisted along with the chat) shouldn't consume Esc / history back
+  protected shouldSkipNavigationItem?(tab: SliderSuperTab): boolean;
+
   protected pushNavigationItem(tab: SliderSuperTab) {
+    if(this.shouldSkipNavigationItem?.(tab)) {
+      return;
+    }
+
     const navigationItem: NavigationItem = {
       type: this.navigationType,
       onPop: (canAnimate) => {

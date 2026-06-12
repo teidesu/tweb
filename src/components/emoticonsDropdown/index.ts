@@ -556,6 +556,12 @@ export class EmoticonsDropdown extends DropdownHover {
     this.managers ??= rootScope.managers;
     const {peerId, threadId} = this.chatInput.chat;
 
+    // chat is closing — keep the rights and the selected tab for the next chat,
+    // otherwise the no-peer "can't send" verdict would force-switch to emoji
+    if(!peerId) {
+      return;
+    }
+
     const actions = Object.keys(this.rights) as ChatRights[];
 
     const rights = await Promise.all(actions.map((action) => {

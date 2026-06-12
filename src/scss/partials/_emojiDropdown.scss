@@ -131,6 +131,8 @@ $packs-menu-height: 2.25rem;
     flex: 1 1 auto;
     backdrop-filter: none;
     background-color: var(--surface-color);
+    // ! promote to compositor layer for smoother open/close transitions
+    will-change: transform;
   }
 
   &.active {
