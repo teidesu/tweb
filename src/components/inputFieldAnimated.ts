@@ -6,7 +6,14 @@ import SetTransition from '@components/singleTransition';
 
 const USELESS_REG_EXP = new RegExp(`(<span>${BOM}</span>)|(<br\/?>)`, 'g');
 
+export type InputFieldAnimatedOptions = InputFieldOptions & {
+  // snap height changes in one frame instead of the default transition
+  // (log-scaled duration based on the height delta)
+  noHeightAnimation?: boolean
+};
+
 export default class InputFieldAnimated extends InputField {
+  declare public options: InputFieldAnimatedOptions;
   public inputFake: HTMLElement;
   public onChangeHeight: (height: number) => void;
   // Owned by the consumer via setMaxHeight(). Single source of truth: the
@@ -19,7 +26,7 @@ export default class InputFieldAnimated extends InputField {
   // protected wasInputFakeClientHeight: number;
   // protected showScrollDebounced: () => void;
 
-  constructor(options?: InputFieldOptions) {
+  constructor(options?: InputFieldAnimatedOptions) {
     super(options);
 
     this.input.addEventListener('input', () => {
@@ -60,7 +67,7 @@ export default class InputFieldAnimated extends InputField {
     }
 
     const TRANSITION_DURATION_FACTOR = 50;
-    const transitionDuration = noAnimation ? 0 : Math.round(
+    const transitionDuration = noAnimation || this.options.noHeightAnimation ? 0 : Math.round(
       TRANSITION_DURATION_FACTOR * Math.log(Math.abs(newHeight - currentHeight))
     );
 
@@ -84,14 +91,12 @@ export default class InputFieldAnimated extends InputField {
       });
     }
 
-    const className = 'is-changing-height';
     SetTransition({
       element: this.input,
-      className,
+      className: '',
       forwards: true,
       duration: transitionDuration,
       onTransitionEnd: () => {
-        this.input.classList.remove(className);
         (this.input as any).oldHeight = (this.input as any).newHeight;
       }
     });

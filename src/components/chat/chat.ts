@@ -291,6 +291,9 @@ export default class Chat extends EventListenerBase<{
     if(wasAtEnd) scrollable.setScrollPositionSilently(99999);
     const delta = scrollable.scrollPosition - oldScrollPosition;
     if(delta && animate) this.animateBubblesShift(delta);
+    // snap: an in-flight settle (e.g. a helper toggle) measured the old
+    // geometry — finish it instantly instead of replaying a stale shift
+    else if(delta) this.cancelBubblesShift();
     // the silent scroll bump suppresses the scroll event, and the track inset
     // (getThumbTrackInsetEnd) changed — reposition the thumb explicitly,
     // settling in sync with the bubbles shift
@@ -314,15 +317,25 @@ export default class Chat extends EventListenerBase<{
     }
   }
 
-  // Plays back a scroll jump caused by a one-shot relayout (input helper toggling,
-  // message input growing) as a transform settle on the scroll content
+  // Plays back a scroll jump caused by a one-shot relayout (input helper
+  // toggling; message input growth snaps and doesn't come here, see
+  // ChatInput.notifyChatInputHeight) as a transform settle on the scroll content
   // (.bubbles-inner) — compositor-only, the list itself is laid out exactly once.
   // Must NOT target the scroll container or its ancestors: the overflow clip
   // rectangle moves with their transform, leaving an empty strip under the
   // topbar for the duration of the settle.
+  //
+  // The settle FOLLOWS the input bar's measured top edge per frame instead of
+  // running a parallel transition: the bar's height animation is not a clean
+  // curve (the message input first grows inside the centered
+  // .input-message-container before the bar's min-height floor is exceeded), so
+  // replicating duration+easing still desyncs. Tracking the real edge keeps the
+  // gap between the last bubble and the bar constant by construction, whatever
+  // animates the bar.
   private animateBubblesShift(delta: number) {
     const container = this.bubbles?.chatInner;
-    if(!container || !liteMode.isAvailable('animations')) return;
+    const bar = this.input?.rowsWrapper;
+    if(!container || !bar || !liteMode.isAvailable('animations')) return;
 
     // compose with an in-flight shift so quick consecutive toggles don't jump
     let currentY = 0;
@@ -332,31 +345,41 @@ export default class Chat extends EventListenerBase<{
       this.bubblesShiftCleanup();
     }
 
+    // startY = the content's current visual offset from its final position; it
+    // equals the bar's remaining travel (the scroll jump and the bar growth are
+    // both `delta`), so per frame: offset = startY - (bar movement so far).
     const startY = currentY + delta;
     if(!startY) return;
 
+    // inline transition: none — .bubbles-inner declares `transition: transform`
+    // in the stylesheet, which would otherwise smooth every per-frame write
     container.style.transition = 'none';
     container.style.transform = `translate3d(0, ${startY}px, 0)`;
-    void container.offsetWidth; // reflow so the seed isn't transitioned to
-    container.style.transition = 'transform var(--transition-snappy)';
-    container.style.transform = '';
 
-    const onTransitionEnd = (e: TransitionEvent) => {
-      if(e.target === container && e.propertyName === 'transform') cleanup();
+    const barStartTop = bar.getBoundingClientRect().top;
+    let raf: number;
+    const tick = () => {
+      const barMoved = barStartTop - bar.getBoundingClientRect().top;
+      const y = startY - barMoved;
+      if(Math.abs(y) < 0.5) {
+        cleanup();
+        return;
+      }
+
+      container.style.transform = `translate3d(0, ${y}px, 0)`;
+      raf = requestAnimationFrame(tick);
     };
+    raf = requestAnimationFrame(tick);
+
+    // safety net: the bar may never cover the full travel (resize mid-flight,
+    // animations getting disabled) — snap to the final layout regardless
     const timeout = setTimeout(() => cleanup(), 400);
-    container.addEventListener('transitionend', onTransitionEnd);
     const cleanup = this.bubblesShiftCleanup = () => {
       this.bubblesShiftCleanup = undefined;
       clearTimeout(timeout);
-      container.removeEventListener('transitionend', onTransitionEnd);
-      // .bubbles-inner declares `transition: transform` in the stylesheet, so just
-      // clearing the inline styles doesn't cancel a mid-flight settle — it keeps
-      // animating from the stylesheet rule and skews rect measurements (e.g. the
-      // scrollToEnd target on reply send). Snap it: transition off, recalc, restore.
-      container.style.transition = 'none';
+      cancelAnimationFrame(raf);
       container.style.transform = '';
-      void container.offsetWidth; // reflow cancels the running transition
+      void container.offsetWidth; // recalc so a following seed isn't smoothed by the stylesheet transition
       container.style.transition = '';
     };
   }
