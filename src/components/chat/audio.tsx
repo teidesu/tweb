@@ -87,7 +87,7 @@ export default function createChatAudio(
     class: () => styles.container,
     render: () => (
       <>
-        <TopbarPlate.Body class={/* @once */ styles.wrapper}>
+        <TopbarPlate.Body class={/* @once */ styles.wrapper} noRipple>
           <Button.Icon
             ref={prevEl}
             icon="fast_rewind"
@@ -148,14 +148,10 @@ export default function createChatAudio(
     )
   });
 
-  // Click on the plate (excluding progress, utils, btn-icon) → open the source chat /
-  // saved music tab. Same filter list as the legacy ChatAudio container click.
+  // Click on the central content (title/subtitle) → open the source chat /
+  // saved music tab. Clicks anywhere else on the plate do nothing.
   attachClickEvent(plate.container, (e) => {
-    if(
-      findUpClassName(e.target, 'progress-line') ||
-      findUpClassName(e.target, 'pinned-container-wrapper-utils') ||
-      findUpClassName(e.target, 'btn-icon')
-    ) {
+    if(!findUpClassName(e.target, 'pinned-container-content')) {
       return;
     }
 
