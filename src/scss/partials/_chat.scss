@@ -1087,6 +1087,8 @@
   &-scrollable {
     height: auto;
     display: block;
+    // Scroll position is managed entirely by hand
+    overflow-anchor: none;
     border-top: var(--chat-padding-top) solid transparent;
     // Deliberately excludes --chat-input-height-surplus: the overflow clip sits at
     // the padding box, so a border that grows with the input helper would snap the

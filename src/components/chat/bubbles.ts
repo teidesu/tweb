@@ -297,6 +297,7 @@ type GenerateLocalMessageType<IsService> = IsService extends true ? Message.mess
 const SPONSORED_MESSAGE_ID_OFFSET = 1;
 export const STICKY_OFFSET = 3;
 const SCROLLED_DOWN_THRESHOLD = 300;
+const FOLLOWING_UNREAD_TOP_MARGIN = 150;
 const PEER_CHANGED_ERROR = new Error('peer changed');
 
 const DO_NOT_SLICE_VIEWPORT = false;
@@ -549,6 +550,7 @@ export default class ChatBubbles {
 
   private firstUnreadBubble: HTMLElement = null;
   private attachedUnreadBubble: boolean;
+  private unreadDelimiterReadMaxIdPromise: Promise<number>;
 
   public lazyLoadQueue: LazyLoadQueue;
 
@@ -2613,8 +2615,17 @@ export default class ChatBubbles {
 
       this[unreadedSeenKey].clear();
 
-      // const promise = Promise.resolve();
       const promise = callback();
+
+      // avoid serializing history reads to apply counter in chatlist immediately
+      if(type === 'history') {
+        this[readPromiseKey] = undefined;
+        promise.catch((err: any) => {
+          this.log.error('read err:', type, err);
+          callback();
+        });
+        return;
+      }
 
       return promise.catch((err: any) => {
         this.log.error('read err:', type, err);
@@ -4257,7 +4268,8 @@ export default class ChatBubbles {
     element: HTMLElement,
     position: ScrollLogicalPosition,
     forceDirection?: FocusDirection,
-    forceDuration?: number
+    forceDuration?: number,
+    extraStartMargin?: number
   ) {
     const bubble = findUpClassName(element, 'bubble');
 
@@ -4303,7 +4315,7 @@ export default class ChatBubbles {
     // the browser clamps the last pixels at the scroll max).
     const margin = 4 + (position === 'end' ?
       parseFloat(getComputedStyle(this.scrollable.container).borderBottomWidth) + this.chat.chatPaddingBottom[0]() :
-      0);
+      (extraStartMargin ?? 0));
 
     const promise = this.scrollable.scrollIntoViewNew({
       element,
@@ -4561,6 +4573,7 @@ export default class ChatBubbles {
 
     this.firstUnreadBubble = null;
     this.attachedUnreadBubble = false;
+    this.unreadDelimiterReadMaxIdPromise = undefined;
 
     this.batchProcessor.clear();
 
@@ -5073,7 +5086,13 @@ export default class ChatBubbles {
           if(position === 'end' && lastBubble === bubble && samePeer) {
             promise = this.scrollToEnd();
           } else {
-            promise = this.scrollToBubble(bubble, position, !samePeer ? FocusDirection.Static : undefined);
+            promise = this.scrollToBubble(
+              bubble,
+              position,
+              !samePeer ? FocusDirection.Static : undefined,
+              undefined,
+              followingUnread ? FOLLOWING_UNREAD_TOP_MARGIN : undefined
+            );
           }
 
           if(!followingUnread && isTarget && foundTarget) {
@@ -5843,6 +5862,15 @@ export default class ChatBubbles {
       if(bubble) {
         bubble.middlewareHelper.destroy();
         this.skippedMids.delete(fullMid);
+
+        // carry the unread divider over to the replacement
+        if(this.firstUnreadBubble === bubble) {
+          if(bubble.classList.contains('is-first-unread')) {
+            newBubble.classList.add('is-first-unread');
+          }
+
+          this.firstUnreadBubble = newBubble;
+        }
 
         this.bubblesToEject.add(bubble);
         this.bubblesToReplace.delete(bubble);
@@ -10953,19 +10981,35 @@ export default class ChatBubbles {
     const {peerId, threadId, monoforumThreadId} = this.chat;
 
     const historyMaxId = this.chat.getHistoryMaxId();
-    let readMaxId = await this.managers.appMessagesManager.getReadMaxIdIfUnread(peerId, threadId || monoforumThreadId);
-    if(!readMaxId || !middleware()) return;
-
-    readMaxId = this.getRenderedHistory('asc', true)
-    .filter((fullMid) => !this.getBubble(fullMid).classList.contains('is-out'))
-    .map((fullMid) => splitFullMid(fullMid).mid)
-    .find((mid) => mid > readMaxId);
-
-    if(!readMaxId) {
+    // During the initial open, render batches race with the viewport starting
+    // to read messages — by the time a later batch retries, the live cursor may
+    // already be past the messages that were unread on open, losing the divider
+    // entirely. Snapshot the cursor once per setPeer (official clients fix the
+    // bar position at history-load time). After the open settles, fall back to
+    // the live cursor so the divider for newly arrived messages keeps working.
+    const usingSnapshot = !!this.chat.setPeerPromise;
+    this.unreadDelimiterReadMaxIdPromise ??= this.managers.appMessagesManager.getReadMaxIdIfUnread(peerId, threadId || monoforumThreadId);
+    const cursor = await (usingSnapshot ?
+      this.unreadDelimiterReadMaxIdPromise :
+      this.managers.appMessagesManager.getReadMaxIdIfUnread(peerId, threadId || monoforumThreadId));
+    if(!cursor || !middleware()) {
       return;
     }
 
-    const bubble = this.getBubble(peerId, readMaxId);
+    const renderedHistory = this.getRenderedHistory('asc', true);
+    const foundMid = renderedHistory
+    .filter((fullMid) => {
+      const bubble = this.getBubble(fullMid);
+      return bubble && !bubble.classList.contains('is-out');
+    })
+    .map((fullMid) => splitFullMid(fullMid).mid)
+    .find((mid) => mid > cursor);
+
+    if(!foundMid) {
+      return;
+    }
+
+    const bubble = this.getBubble(peerId, foundMid);
     if(!bubble) {
       return;
     }
@@ -10975,7 +11019,7 @@ export default class ChatBubbles {
       this.firstUnreadBubble = null;
     }
 
-    if(readMaxId !== historyMaxId) {
+    if(foundMid !== historyMaxId) {
       bubble.classList.add('is-first-unread');
     }
 
