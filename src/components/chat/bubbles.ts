@@ -10944,7 +10944,7 @@ export default class ChatBubbles {
       return;
     }
 
-    if(this.chat.canManageDirectMessages && !this.chat.monoforumThreadId) {
+    if(this.chat.isMonoforum && this.chat.canManageDirectMessages && !this.chat.monoforumThreadId) {
       return;
     }
 
