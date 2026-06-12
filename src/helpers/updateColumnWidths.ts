@@ -68,7 +68,8 @@ import throttle from '@helpers/schedulers/throttle';
 
 // Default and resize range for the left & right columns.
 export const DEFAULT_COLUMN_WIDTH = 360;
-export const MIN_SIDEBAR_WIDTH = 320;
+export const MIN_LEFT_SIDEBAR_WIDTH = 250;
+export const MIN_RIGHT_SIDEBAR_WIDTH = 320;
 export const MAX_SIDEBAR_WIDTH = 480;
 export const SIDEBAR_COLLAPSE_FACTOR = 0.65;
 // Width of #column-left when collapsed. Matches --sidebar-collapsed-width in
@@ -131,13 +132,13 @@ let resizeTransitionRaf = 0;
     const n = parseInt(rawLeft);
     if(!isNaN(n)) {
       if(n === 0) userPreferredLeftCollapsed = true;
-      else userPreferredLeftWidth = clamp(n, MIN_SIDEBAR_WIDTH, MAX_SIDEBAR_WIDTH);
+      else userPreferredLeftWidth = clamp(n, MIN_LEFT_SIDEBAR_WIDTH, MAX_SIDEBAR_WIDTH);
     }
   }
   const rawRight = localStorage.getItem(STORAGE_KEY_RIGHT);
   if(rawRight != null) {
     const n = parseInt(rawRight);
-    if(!isNaN(n)) userPreferredRightWidth = clamp(n, MIN_SIDEBAR_WIDTH, MAX_SIDEBAR_WIDTH);
+    if(!isNaN(n)) userPreferredRightWidth = clamp(n, MIN_RIGHT_SIDEBAR_WIDTH, MAX_SIDEBAR_WIDTH);
   }
 })();
 
@@ -163,17 +164,16 @@ function getMaxDockedSidebarWidth(otherWidth: number): number {
   return getAvailableWidth() - foldersOffset - otherWidth - CHAT_WIDTH_MIN_DOCKED - PAGE_CHATS_PADDING * 2;
 }
 
-function clampSidebarWidth(width: number, otherWidth: number): number {
-  const vw = window.innerWidth;
+function clampSidebarWidth(width: number, otherWidth: number, minWidth: number): number {
   const isMobile = mediaSizes.isMobile;
   const isFloatingLeft = mediaSizes.isLessThanFloatingLeftSidebar && !isMobile;
 
   if(isMobile || isFloatingLeft || last.floats) {
-    return clamp(width, MIN_SIDEBAR_WIDTH, MAX_SIDEBAR_WIDTH);
+    return clamp(width, minWidth, MAX_SIDEBAR_WIDTH);
   }
 
   const maxWidth = getMaxDockedSidebarWidth(otherWidth);
-  return clamp(width, MIN_SIDEBAR_WIDTH, Math.max(MIN_SIDEBAR_WIDTH, Math.min(MAX_SIDEBAR_WIDTH, maxWidth)));
+  return clamp(width, minWidth, Math.max(minWidth, Math.min(MAX_SIDEBAR_WIDTH, maxWidth)));
 }
 
 function disableResizeTransitions(): void {
@@ -201,7 +201,7 @@ export function setUserPreferredLeft(width: number): void {
     userPreferredLeftWidth = undefined;
   } else {
     userPreferredLeftCollapsed = false;
-    userPreferredLeftWidth = clampSidebarWidth(width, computeRightWidth());
+    userPreferredLeftWidth = clampSidebarWidth(width, computeRightWidth(), MIN_LEFT_SIDEBAR_WIDTH);
   }
   persistLeftPreference();
   updateColumnWidths();
@@ -212,7 +212,7 @@ export function setUserPreferredLeft(width: number): void {
  * clamped before storing — the right column has no collapsed state.
  */
 export function setUserPreferredRight(width: number): void {
-  userPreferredRightWidth = clampSidebarWidth(width, computeLayoutLeftWidth());
+  userPreferredRightWidth = clampSidebarWidth(width, computeLayoutLeftWidth(), MIN_RIGHT_SIDEBAR_WIDTH);
   persistRightPreference();
   updateColumnWidths();
 }

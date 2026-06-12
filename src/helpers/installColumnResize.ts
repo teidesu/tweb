@@ -3,7 +3,8 @@ import {toastNew} from '@components/toast';
 import rootScope from '@lib/rootScope';
 import {appSettings, setAppSettings} from '@stores/appSettings';
 import {
-  MIN_SIDEBAR_WIDTH,
+  MIN_LEFT_SIDEBAR_WIDTH,
+  MIN_RIGHT_SIDEBAR_WIDTH,
   SIDEBAR_COLLAPSE_FACTOR,
   setUserPreferredLeft,
   setUserPreferredRight
@@ -71,14 +72,14 @@ export default function installColumnResize(opts: InstallColumnResizeOptions): v
 
       if(side === 'left') {
         const wasCollapsed = !!isCollapsed?.();
-        const collapsed = !preventCollapse?.() && rawWidth < MIN_SIDEBAR_WIDTH * SIDEBAR_COLLAPSE_FACTOR;
+        const collapsed = !preventCollapse?.() && rawWidth < MIN_LEFT_SIDEBAR_WIDTH * SIDEBAR_COLLAPSE_FACTOR;
         setUserPreferredLeft(collapsed ? 0 : rawWidth);
         setCollapsed?.(collapsed);
         if(collapsed !== wasCollapsed) onCollapsedChange?.();
         if(isShift) {
           // Mirror to the right column — clamped to its valid range, no
           // collapse semantics. setUserPreferredRight handles the clamp.
-          setUserPreferredRight(collapsed ? MIN_SIDEBAR_WIDTH : rawWidth);
+          setUserPreferredRight(collapsed ? MIN_RIGHT_SIDEBAR_WIDTH : rawWidth);
         }
       } else {
         setUserPreferredRight(rawWidth);
