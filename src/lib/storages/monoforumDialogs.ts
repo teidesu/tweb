@@ -426,7 +426,8 @@ class MonoforumDialogsStorage extends AppManager {
     }
 
     const inboxUnread = !message.pFlags.out && message.pFlags.unread;
-    if(inboxUnread && message.mid > dialog.top_message) {
+    const isPastReadCursor = dialog.read_inbox_max_id !== undefined && message.mid <= dialog.read_inbox_max_id;
+    if(inboxUnread && message.mid > dialog.top_message && !isPastReadCursor) {
       increment(dialog, 'unread_count');
       if(isMentionUnread(message)) increment(dialog, 'unread_reactions_count');
     }

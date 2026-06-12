@@ -6462,9 +6462,10 @@ export class AppMessagesManager extends AppManager {
 
     this.rootScope.dispatchEvent('notification_reset', this.appPeersManager.getPeerString(peerId));
 
-    // Track the highest maxId we've locally applied so future overlapping calls
-    // can correctly decide whether the server call is still needed.
-    if(!(historyStorage.triedToReadMaxId >= maxId)) {
+    // Track the highest maxId actually sent to the server. Bumping it when the
+    // call was skipped because of an in-flight RPC would make the re-fire in
+    // `finally` below skip its server call too, losing the newer cursor.
+    if(!skipServerCall && !(historyStorage.triedToReadMaxId >= maxId)) {
       historyStorage.triedToReadMaxId = maxId;
     }
 
@@ -7922,9 +7923,17 @@ export class AppMessagesManager extends AppManager {
 
     const releaseUnreadCount = foundDialog && this.dialogsStorage.prepareDialogUnreadCountModifying(foundDialog);
     const readMaxId = this.getReadMaxIdIfUnread(peerId, threadId || monoforumThreadId);
+    const previousReadMaxId = historyStorage.readMaxId;
     const monoforumDialogsTouched: Record<PeerId, MonoforumDialog> = {};
     // Forum: aggregate mention reads from a topic up to the parent forum dialog
     const isTopicRead = !!threadId && (isForum || isBotforum) && foundDialog && isForumTopic(foundDialog);
+    // whether foundDialog's cursors/counters cover the same message set as historyStorage
+    const dialogMatchesStorage = isTopicRead || (!threadId && !monoforumThreadId);
+    // A replayed/out-of-order read with an older maxId
+    const isStaleRead = !isOut && stillUnreadCount === undefined && maxId <= Math.max(
+      previousReadMaxId || 0,
+      (dialogMatchesStorage && foundDialog?.read_inbox_max_id) || 0
+    );
     let parentMentionDecrement = 0;
 
     for(let i = 0, length = history.length; i < length; i++) {
@@ -7960,7 +7969,7 @@ export class AppMessagesManager extends AppManager {
       foundAffected ||= true;
 
       if(!message.pFlags.out && foundDialog) {
-        if(stillUnreadCount === undefined) {
+        if(stillUnreadCount === undefined && !isStaleRead) {
           newUnreadCount = --foundDialog.unread_count;
         }
 
@@ -7975,7 +7984,7 @@ export class AppMessagesManager extends AppManager {
         const monoforumDialog = this.monoforumDialogsStorage.getDialogByParent(peerId, messageThreadId);
         if(!message.pFlags.out && monoforumDialog) {
           monoforumDialogsTouched[monoforumDialog.peerId] = monoforumDialog;
-          increment(monoforumDialog, 'unread_count', -1);
+          if(!isStaleRead) increment(monoforumDialog, 'unread_count', -1);
           if(isMentionUnread(message)) {
             increment(monoforumDialog, 'unread_reactions_count', -1);
           }
@@ -7985,29 +7994,82 @@ export class AppMessagesManager extends AppManager {
       this.rootScope.dispatchEvent('notification_cancel', `msg_${this.getAccountNumber()}_${peerId}_${mid}`);
     }
 
-    if(isOut) historyStorage.readOutboxMaxId = maxId;
-    else historyStorage.readMaxId = maxId;
+    if(isOut) historyStorage.readOutboxMaxId = Math.max(historyStorage.readOutboxMaxId || 0, maxId);
+    else historyStorage.readMaxId = Math.max(previousReadMaxId || 0, maxId);
 
     if(foundDialog) {
-      if(isOut) foundDialog.read_outbox_max_id = maxId;
-      else foundDialog.read_inbox_max_id = maxId;
+      if(isOut) foundDialog.read_outbox_max_id = Math.max(foundDialog.read_outbox_max_id || 0, maxId);
+      else foundDialog.read_inbox_max_id = Math.max(foundDialog.read_inbox_max_id || 0, maxId);
 
+      let needReload = false;
       if(!isOut) {
-        let setCount: number;
-        if(stillUnreadCount !== undefined) {
-          setCount = stillUnreadCount;
-        } else if(
-          newUnreadCount < 0 ||
-          maxId >= foundDialog.top_message ||
-          !readMaxId
-        ) {
-          setCount = 0;
-        } else if(newUnreadCount && foundDialog.top_message > maxId) {
-          setCount = newUnreadCount;
-        }
+        // The per-message decrement above only saw locally cached messages.
+        // we can only trust it if there are no holes in (previousReadMaxId, maxId]
+        const isSubtractionReliable = () => {
+          if(!previousReadMaxId) return false;
+          const found = historyStorage.history.findSliceOffset(maxId);
+          if(!found) return false;
+          const {slice} = found;
+          return maxId <= slice[0] &&
+            (slice.isEnd(SliceEnd.Top) || slice[slice.length - 1] <= previousReadMaxId);
+        };
 
-        if(setCount !== undefined) {
-          foundDialog.unread_count = setCount;
+        // TDLib's calc_new_unread_count_from_the_end: recount what is left above
+        // fromMid when the cache contiguously covers (fromMid, top]. Unlike the
+        // subtraction it doesn't depend on the previous count, so it also
+        // self-heals previously accumulated drift.
+        const recountUnreadFromEnd = (fromMid = maxId): number | undefined => {
+          const slice = historyStorage.history.first;
+          if(!slice?.length || !slice.isEnd(SliceEnd.Bottom)) return;
+          let count = 0;
+          for(let i = 0; i < slice.length; ++i) {
+            const mid = slice[i];
+            if(mid <= fromMid) return count;
+            const message: MyMessage = storage.get(mid);
+            if(!message) return; // can't classify the message — bail to repair
+            if(!message.pFlags.out && message.pFlags.unread) ++count;
+          }
+
+          return slice.isEnd(SliceEnd.Top) ? count : undefined;
+        };
+
+        if(!isStaleRead) {
+          let setCount: number;
+          if(stillUnreadCount !== undefined) {
+            setCount = stillUnreadCount;
+          } else if(maxId >= foundDialog.top_message) {
+            setCount = 0; // the read covers the whole dialog
+          } else if(foundAffected && newUnreadCount >= 0 && isSubtractionReliable()) {
+            setCount = newUnreadCount;
+          } else {
+            const recounted = dialogMatchesStorage ? recountUnreadFromEnd() : undefined;
+            if(recounted !== undefined) {
+              setCount = recounted;
+            } else {
+              // the local cache can't account for this read - need to repair
+              if(newUnreadCount < 0) {
+                setCount = 0; // over-decremented, unread flags are out of sync
+              }
+
+              needReload = foundAffected || newUnreadCount < 0 || !!foundDialog.unread_count;
+            }
+          }
+
+          if(setCount !== undefined) {
+            foundDialog.unread_count = setCount;
+          }
+        } else if(
+          dialogMatchesStorage &&
+          foundDialog.unread_count &&
+          foundDialog.read_inbox_max_id >= foundDialog.top_message
+        ) {
+          // A stale read carries no new cursor info, but the dialog is in an
+          // impossible state: the cursor already covers top_message yet the
+          // count is non-zero (e.g. an orphaned count left by a local-only
+          // service message that didn't survive a reload). tdesktop zeroes the
+          // count whenever the read covers the top message; the recount rescues
+          // local-only messages that may still legitimately sit above the cursor.
+          foundDialog.unread_count = recountUnreadFromEnd(foundDialog.read_inbox_max_id) ?? 0;
         }
 
         if(newUnreadMentionsCount < 0 || !foundDialog.unread_count) {
@@ -8022,12 +8084,20 @@ export class AppMessagesManager extends AppManager {
       this.rootScope.dispatchEvent('dialog_unread', {peerId, dialog: foundDialog});
       this.dialogsStorage.setDialogToState(foundDialog);
 
-      if(!foundAffected && stillUnreadCount === undefined && !isOut && foundDialog.unread_count) {
-        if(isForumTopic(foundDialog)) {
-          this.dialogsStorage.getForumTopicById(peerId, threadId);
-        } else  {
-          this.reloadConversation(peerId);
-        }
+      if(needReload) {
+        const repair = () => {
+          if(isForumTopic(foundDialog)) {
+            this.dialogsStorage.getForumTopicById(peerId, threadId);
+          } else  {
+            this.reloadConversation(peerId);
+          }
+        };
+
+        // delay the repair until the in-flight read RPC settles
+        queueMicrotask(() => {
+          const {readPromise} = historyStorage;
+          readPromise ? readPromise.then(repair, repair) : repair();
+        });
       }
     }
 
