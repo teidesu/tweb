@@ -2,6 +2,7 @@ import appImManager, {APP_TABS} from '@lib/appImManager';
 import SidebarSlider, {SliderSuperTab} from '@components/slider';
 import mediaSizes, {ScreenSize} from '@helpers/mediaSizes';
 import AppSharedMediaTab from '@components/sidebarRight/tabs/sharedMediaTab';
+import AppEmoticonsTab from '@components/sidebarRight/tabs/emoticons';
 import {MOUNT_CLASS_TO} from '@config/debug';
 import {AppManagers} from '@lib/managers';
 import appNavigationController from '@components/appNavigationController';
@@ -36,6 +37,48 @@ export class AppSidebarRight extends SidebarSlider {
 
     installColumnWidthsUpdater();
     installColumnResize({columnEl: this.sidebarEl, side: 'right'});
+
+    // floating ↔ docked changes whether the open tab is transparent to the nav stack
+    rootScope.addEventListener('right_column_floats', () => this.updateNavigationTransparency());
+  }
+
+  // a docked sidebar showing only the active chat's profile or the ESG panel is
+  // persisted state, not user navigation — Esc / back should go to the chat instead
+  private isTabNavigationTransparent(tab: SliderSuperTab) {
+    if(isRightColumnFloating()) {
+      return false;
+    }
+
+    // pushNavigationItem may be called before or after the tab lands in history
+    if(this.historyTabIds.length !== (this.historyTabIds.includes(tab) ? 1 : 0)) {
+      return false;
+    }
+
+    return tab === this.sharedMediaTab || tab instanceof AppEmoticonsTab;
+  }
+
+  protected shouldSkipNavigationItem(tab: SliderSuperTab) {
+    return this.isTabNavigationTransparent(tab);
+  }
+
+  private updateNavigationTransparency() {
+    if(!document.body.classList.contains(RIGHT_COLUMN_ACTIVE_CLASSNAME)) {
+      return;
+    }
+
+    const topTab = this.historyTabIds[this.historyTabIds.length - 1];
+    if(!(topTab instanceof SliderSuperTab)) {
+      return;
+    }
+
+    const found = appNavigationController.findItemByType('right');
+    if(this.isTabNavigationTransparent(topTab)) {
+      if(found) {
+        appNavigationController.removeItem(found.item);
+      }
+    } else if(!found) {
+      this.pushNavigationItem(topTab);
+    }
   }
 
   public createSharedMediaTab() {
@@ -85,6 +128,7 @@ export class AppSidebarRight extends SidebarSlider {
     }
 
     super.onCloseTab(id, animate, isNavigation);
+    this.updateNavigationTransparency();
   }
 
   public hide() {
@@ -130,7 +174,8 @@ export class AppSidebarRight extends SidebarSlider {
     } else {
       document.body.classList.add(RIGHT_COLUMN_ACTIVE_CLASSNAME);
       if(!appNavigationController.findItemByType('right')) {
-        this.pushNavigationItem(this.sharedMediaTab);
+        const topTab = this.historyTabIds[this.historyTabIds.length - 1];
+        this.pushNavigationItem(topTab instanceof SliderSuperTab ? topTab : this.sharedMediaTab);
       }
       rootScope.dispatchEventSingle('right_sidebar_toggle', true);
     }

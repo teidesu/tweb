@@ -385,6 +385,11 @@ export class AppImManager extends EventListenerBase<{
 
     this.addEventListener('peer_changed', (chat) => {
       if(!chat.peerId) {
+        // the sidebar content belongs to the chat — when a nav-transparent sidebar
+        // is open, closing the chat is what dismisses it
+        if(document.body.classList.contains(RIGHT_COLUMN_ACTIVE_CLASSNAME)) {
+          appSidebarRight.toggleSidebar(false, false, false);
+        }
         return;
       }
 

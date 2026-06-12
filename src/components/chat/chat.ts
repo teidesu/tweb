@@ -22,6 +22,7 @@ import {AppManagers} from '@lib/managers';
 import SlicedArray from '@helpers/slicedArray';
 import themeController from '@helpers/themeController';
 import AppSharedMediaTab from '@components/sidebarRight/tabs/sharedMediaTab';
+import AppEmoticonsTab from '@components/sidebarRight/tabs/emoticons';
 import noop from '@helpers/noop';
 import middlewarePromise from '@helpers/middlewarePromise';
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
@@ -1117,7 +1118,9 @@ export default class Chat extends EventListenerBase<{
       }
 
       callbackify(promise, () => {
-        appSidebarRight.toggleSidebar(false, undefined, false);
+        // the docked ESG panel undocks on hide, sliding an emptied column looks broken
+        const animate = appSidebarRight.isTabExists(AppEmoticonsTab) ? false : undefined;
+        appSidebarRight.toggleSidebar(false, animate, false);
         this.cleanup(true);
         this.bubbles.setPeer({peerId, samePeer: false, sameSearch: false});
         this.appImManager.dispatchEvent('peer_changed', this);
