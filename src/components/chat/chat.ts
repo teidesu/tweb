@@ -350,8 +350,14 @@ export default class Chat extends EventListenerBase<{
       this.bubblesShiftCleanup = undefined;
       clearTimeout(timeout);
       container.removeEventListener('transitionend', onTransitionEnd);
-      container.style.transition = '';
+      // .bubbles-inner declares `transition: transform` in the stylesheet, so just
+      // clearing the inline styles doesn't cancel a mid-flight settle — it keeps
+      // animating from the stylesheet rule and skews rect measurements (e.g. the
+      // scrollToEnd target on reply send). Snap it: transition off, recalc, restore.
+      container.style.transition = 'none';
       container.style.transform = '';
+      void container.offsetWidth; // reflow cancels the running transition
+      container.style.transition = '';
     };
   }
 
