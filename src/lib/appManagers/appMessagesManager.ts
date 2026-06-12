@@ -6227,7 +6227,7 @@ export class AppMessagesManager extends AppManager {
     });
   }
 
-  private async deleteMessagesInner(channelId: ChatId, mids: number[], revoke?: boolean, isRecursion?: boolean) {
+  private async deleteMessagesInner(channelId: ChatId, peerId: PeerId, mids: number[], revoke?: boolean, isRecursion?: boolean) {
     let promise: Promise<any>;
 
     if(channelId && !isRecursion) {
@@ -6244,6 +6244,30 @@ export class AppMessagesManager extends AppManager {
       }
     }
 
+    if(!isRecursion) {
+      // optimistic removal: don't make the UI wait for the round trip. pts: 0 skips
+      // the pts bookkeeping; the response below reconciles the real pts (its handler
+      // re-run is a no-op on the already-deleted mids)
+      // copy: the overflow splice below mutates `mids`
+      const messages = mids.slice();
+      this.apiUpdatesManager.processLocalUpdate(channelId ? {
+        _: 'updateDeleteChannelMessages',
+        channel_id: channelId,
+        messages,
+        pts: 0,
+        pts_count: 0
+      } : {
+        _: 'updateDeleteMessages',
+        messages,
+        pts: 0,
+        pts_count: 0
+      });
+    }
+
+    if(DO_NOT_DELETE_MESSAGES) {
+      return;
+    }
+
     const config = await this.apiManager.getConfig();
     const overflowMids = mids.splice(config.forwarded_count_max, mids.length - config.forwarded_count_max);
 
@@ -6253,16 +6277,16 @@ export class AppMessagesManager extends AppManager {
       return this.appMessagesIdsManager.generateMessageId(messageId, channelId) === mid && messageId;
     }).filter(Boolean);
 
-    if(DO_NOT_DELETE_MESSAGES) {
-      this.apiUpdatesManager.processLocalUpdate({
-        _: 'updateDeleteMessages',
-        messages: mids,
-        pts: 0,
-        pts_count: 0
+    const onError = (error: ApiError) => {
+      // the messages are already removed locally and can't be restored from here —
+      // flush and refetch the conversation from the server (same recovery as updateChannelReload)
+      const recoveryPeerId = channelId ? channelId.toPeerId(true) : peerId;
+      this.flushStoragesByPeerId(recoveryPeerId);
+      this.reloadConversation(recoveryPeerId).then(() => {
+        this.rootScope.dispatchEvent('history_reload', recoveryPeerId);
       });
-
-      return;
-    }
+      throw error;
+    };
 
     if(channelId) {
       promise = this.apiManager.invokeApi('channels.deleteMessages', {
@@ -6276,7 +6300,7 @@ export class AppMessagesManager extends AppManager {
           pts: affectedMessages.pts,
           pts_count: affectedMessages.pts_count
         });
-      });
+      }, onError);
     } else {
       promise = this.apiManager.invokeApi('messages.deleteMessages', {
         revoke,
@@ -6288,12 +6312,12 @@ export class AppMessagesManager extends AppManager {
           pts: affectedMessages.pts,
           pts_count: affectedMessages.pts_count
         });
-      });
+      }, onError);
     }
 
     const promises: (typeof promise)[] = [promise];
     if(overflowMids.length) {
-      promises.push(this.deleteMessagesInner(channelId, overflowMids, revoke, true));
+      promises.push(this.deleteMessagesInner(channelId, peerId, overflowMids, revoke, true));
     }
 
     return Promise.all(promises).then(noop);
@@ -6303,7 +6327,7 @@ export class AppMessagesManager extends AppManager {
     const channelId = this.appPeersManager.isChannel(peerId) ? peerId.toChatId() : undefined;
     const splitted = this.appMessagesIdsManager.splitMessageIdsByChannels(mids, channelId);
     const promises = splitted.map(([channelId, {mids}]) => {
-      return this.deleteMessagesInner(channelId, mids, revoke);
+      return this.deleteMessagesInner(channelId, peerId, mids, revoke);
     });
 
     return Promise.all(promises).then(noop);
@@ -9110,11 +9134,28 @@ export class AppMessagesManager extends AppManager {
   }
 
   public deleteScheduledMessages(peerId: PeerId, mids: number[]) {
+    // optimistic removal, like deleteMessagesInner; the response update no-ops
+    // on the already-deleted mids
+    this.apiUpdatesManager.processLocalUpdate({
+      _: 'updateDeleteScheduledMessages',
+      peer: this.appPeersManager.getOutputPeer(peerId),
+      messages: mids
+    });
+
     return this.apiManager.invokeApi('messages.deleteScheduledMessages', {
       peer: this.appPeersManager.getInputPeerById(peerId),
       id: mids.map((mid) => getServerMessageId(mid))
     }).then((updates) => {
       this.apiUpdatesManager.processUpdateMessage(updates);
+    }, (error: ApiError) => {
+      // can't restore locally — refetch and re-announce what survived
+      delete this.scheduledMessagesStorage[peerId];
+      this.getScheduledMessages(peerId).then((mids) => {
+        mids?.forEach((mid) => {
+          this.rootScope.dispatchEvent('scheduled_new', this.getScheduledMessageByPeer(peerId, mid) as Message.message);
+        });
+      });
+      throw error;
     });
   }
 

@@ -1167,8 +1167,7 @@
 
 .bubbles-remover {
   position: absolute;
-  left: 50%;
-  transform: translateX(-50%) !important;
+  inset-inline: 0;
   z-index: 0;
 
   &-container {
