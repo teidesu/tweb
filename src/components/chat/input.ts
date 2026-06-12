@@ -1642,10 +1642,11 @@ export default class ChatInput {
       this.fileInput.removeAttribute('accept');
       this.willAttachType = 'document';
     } else {
-      const accept = [
+      const accept = [...new Set([
         ...(photos ? IMAGE_MIME_TYPES_SUPPORTED : []),
-        ...(videos ? VIDEO_MIME_TYPES_SUPPORTED : [])
-      ].join(', ');
+        // * .mov is selectable even when not natively playable — the send popup converts it to mp4
+        ...(videos ? [...VIDEO_MIME_TYPES_SUPPORTED, 'video/quicktime'] : [])
+      ])].join(', ');
 
       this.fileInput.setAttribute('accept', accept || '*/*');
       this.willAttachType = 'media';
@@ -1829,6 +1830,12 @@ export default class ChatInput {
     return !(await this.chat.canSend('send_messages'));
   }
 
+  // Nobody can write to the Replies chat — official clients replace the
+  // composer with the same Mute/Unmute plate as for channels.
+  private isRepliesChat(peerId = this.chat.peerId) {
+    return peerId === REPLIES_PEER_ID && this.chat.type === ChatType.Chat;
+  }
+
   // Keeps the channel "can't write" plate's centre button labelled Mute/Unmute.
   private updateChannelMuteButton() {
     if(!this.channelMuteBtn) {
@@ -1858,6 +1865,7 @@ export default class ChatInput {
       (this.chat.peerId.isUser() && (this.chat.isUserBlocked || this.chat.isPremiumRequired)) ||
       this.getJoinButtonType() ||
       await this.isChannelControlNeeded() ||
+      this.isRepliesChat() ||
       (this.frozenBtn && this.chat.appConfig.freeze_since_date && !(await this.chat.canSend()))
     ) {
       return this.controlContainer;
@@ -2402,11 +2410,12 @@ export default class ChatInput {
 
         // A broadcast channel OR gigagroup the user can't post in: not subscribed
         // -> Subscribe/Join (primary filled), subscribed -> Mute (transparent).
-        // Regular megagroups keep using getJoinButtonType().
+        // Regular megagroups keep using getJoinButtonType(). The Replies chat
+        // always gets Mute.
         const cantPost = (isBroadcast || isBroadcastGroup) && !canSend &&
           this.chat.type === ChatType.Chat && !peerId.isUser() && !this.chat.isMonoforum;
         const showJoin = !!type || (cantPost && !!channel?.pFlags?.left);
-        const showMute = cantPost && !channel?.pFlags?.left;
+        const showMute = (cantPost && !channel?.pFlags?.left) || this.isRepliesChat(peerId);
         const good = !haveSomethingInControl && (showJoin || showMute);
         haveSomethingInControl ||= good;
 

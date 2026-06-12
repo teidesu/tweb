@@ -37,6 +37,7 @@ import {hideToast, toastNew} from '@components/toast';
 import debounce from '@helpers/schedulers/debounce';
 import pause from '@helpers/schedulers/pause';
 import MEDIA_MIME_TYPES_SUPPORTED from '@environment/mediaMimeTypesSupport';
+import {isConvertibleMov} from '@helpers/movToVideo';
 import IMAGE_MIME_TYPES_SUPPORTED from '@environment/imageMimeTypesSupport';
 import {NULL_PEER_ID, STARS_CURRENCY} from '@appManagers/constants';
 import {formatDate} from '@helpers/date';
@@ -886,7 +887,7 @@ export class AppImManager extends EventListenerBase<{
       showForwardPopup(undefined, async(peerId, threadId) => {
         await this.setPeer({peerId, threadId});
         if(share.files?.length) {
-          const foundMedia = share.files.some((file) => MEDIA_MIME_TYPES_SUPPORTED.has(file.type));
+          const foundMedia = share.files.some((file) => MEDIA_MIME_TYPES_SUPPORTED.has(file.type) || isConvertibleMov(file));
           PopupElement.createPopup(PopupNewMedia, this.chat, share.files, foundMedia ? 'media' : 'document');
         } else {
           const preparedPaymentResult = await PaidMessagesInterceptor.prepareStarsForPayment({messageCount: 1, peerId});
@@ -2333,7 +2334,8 @@ export class AppImManager extends EventListenerBase<{
       if(mount && !_drops.length) {
         const force = isFiles && !types.length; // * can't get file items not from 'drop' on Safari
 
-        const [foundMedia, foundDocuments] = partition(types, (t) => MEDIA_MIME_TYPES_SUPPORTED.has(t));
+        // * a .mov counts as media — it gets converted to mp4 in the send popup
+        const [foundMedia, foundDocuments] = partition(types, (t) => MEDIA_MIME_TYPES_SUPPORTED.has(t) || t === 'video/quicktime');
         const [foundPhotos, foundVideos] = partition(foundMedia, (t) => IMAGE_MIME_TYPES_SUPPORTED.has(t));
 
         if(!rights.send_docs) {
@@ -2562,7 +2564,7 @@ export class AppImManager extends EventListenerBase<{
 
     if(chatInput.editMessage) {
       const file = files[0];
-      const canUploadAsMedia = MEDIA_MIME_TYPES_SUPPORTED.has(file.type) && canUploadAsWhenEditing({message: chatInput.editMessage, asWhat: 'media'});
+      const canUploadAsMedia = (MEDIA_MIME_TYPES_SUPPORTED.has(file.type) || isConvertibleMov(file)) && canUploadAsWhenEditing({message: chatInput.editMessage, asWhat: 'media'});
       const canUploadAsDocument = canUploadAsWhenEditing({message: chatInput.editMessage, asWhat: 'document'});
       chatInput.willAttachType = (canUploadAsMedia ? 'media' : canUploadAsDocument ? 'document' : undefined);
 
@@ -2573,7 +2575,7 @@ export class AppImManager extends EventListenerBase<{
       return;
     }
 
-    chatInput.willAttachType = attachType || (MEDIA_MIME_TYPES_SUPPORTED.has(files[0].type) ? 'media' : 'document');
+    chatInput.willAttachType = attachType || ((MEDIA_MIME_TYPES_SUPPORTED.has(files[0].type) || isConvertibleMov(files[0])) ? 'media' : 'document');
     PopupElement.createPopup(PopupNewMedia, this.chat, files, chatInput.willAttachType);
   };
 
