@@ -2808,7 +2808,7 @@ export default class ChatInput {
     this.updateSendBtn();
   }
 
-  private notifyChatInputHeight(animate = true) {
+  private notifyChatInputHeight(animate: boolean) {
     const helperPx = this.helperVisible ? 48 : 0;
     this.chat.updateChatInputHeight(this.inputHeightDelta + helperPx, animate);
   }
@@ -2845,13 +2845,14 @@ export default class ChatInput {
       placeholder: 'Message',
       // placeholderAsElement: true,
       name: 'message',
-      withLinebreaks: true
+      withLinebreaks: true,
+      noHeightAnimation: true
     });
 
-    const DEFAULT_INPUT_HEIGHT = 37;
+    const INPUT_HEIGHT_BASELINE = 40;
     this.messageInputField.onChangeHeight = (newHeight) => {
-      this.inputHeightDelta = Math.max(0, newHeight - DEFAULT_INPUT_HEIGHT);
-      this.notifyChatInputHeight();
+      this.inputHeightDelta = Math.max(0, newHeight - INPUT_HEIGHT_BASELINE);
+      this.notifyChatInputHeight(false);
     };
 
     this.messageInputField.input.tabIndex = -1;
