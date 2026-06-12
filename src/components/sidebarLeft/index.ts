@@ -877,27 +877,6 @@ export class AppSidebarLeft extends SidebarSlider {
       },
       verify: () => liteMode.isEnabled()
     }, {
-      icon: 'aversion',
-      text: 'ChatList.Menu.SwitchTo.A',
-      onClick: () => {
-        Promise.all([
-          sessionStorage.set({kz_version: 'Z'}),
-          sessionStorage.delete('tgme_sync')
-        ]).then(() => {
-          appNavigationController.navigateToUrl('https://web.telegram.org/a/');
-        });
-      },
-      separator: App.isMainDomain,
-      verify: () => App.isMainDomain
-    }, {
-      icon: 'help',
-      text: 'TelegramFeatures',
-      onClick: () => {
-        const url = I18n.format('TelegramFeaturesUrl', true);
-        appImManager.openUrl(url);
-      },
-      separator: !App.isMainDomain
-    }, {
       icon: 'bug',
       text: 'ReportBug',
       onClick: () => {
@@ -1589,7 +1568,7 @@ export default appSidebarLeft;
 
 function getVersionLink() {
   const btnMenuFooter = document.createElement('a');
-  btnMenuFooter.href = 'https://github.com/morethanwords/tweb/blob/master/CHANGELOG.md';
+  btnMenuFooter.href = 'https://github.com/teidesu/tweb';
   setBlankToAnchor(btnMenuFooter);
   btnMenuFooter.classList.add('btn-menu-footer');
   btnMenuFooter.addEventListener(CLICK_EVENT_NAME, (e) => {

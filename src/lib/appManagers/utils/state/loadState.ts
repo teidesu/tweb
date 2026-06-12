@@ -24,7 +24,6 @@ export type LoadStateResult = {
   state: State,
   common: StateCommon,
   resetStorages: Map<keyof StoragesResults, (PeerId | UserId | ChatId)[]>,
-  newVersion: string,
   oldVersion: string,
   pushedKeys: Set<keyof State>,
   userId: UserId
@@ -196,7 +195,7 @@ const STATE_STEPS = {
     }
   },
   VERSION: (writer: ReturnType<typeof StateWriter>) => {
-    let newVersion: string, oldVersion: string;
+    let oldVersion: string;
     if(writer.state.version !== STATE_VERSION || writer.state.build !== BUILD/*  || true */) {
       if(writer.state.build < 526) { // * drop all previous migrations
         writer.reset();
@@ -209,7 +208,6 @@ const STATE_STEPS = {
       }
 
       if(compareVersion(writer.state.version, STATE_VERSION) !== 0) {
-        newVersion = STATE_VERSION;
         oldVersion = writer.state.version;
       }
 
@@ -218,7 +216,7 @@ const STATE_STEPS = {
       });
     }
 
-    return {newVersion, oldVersion};
+    return {oldVersion};
   },
   CHANGED_AUTH: async(writer: ReturnType<typeof StateWriter>) => {
     const [authKeyFingerprint, baseDcAuthKey] = await Promise.all([
@@ -283,12 +281,11 @@ async function loadStateForAccount(accountNumber: ActiveAccountNumber): Promise<
   STATE_STEPS.VALIDATE(writer, STATE_INIT);
   STATE_STEPS.VALIDATE(commonWriter, COMMON_STATE_INIT);
   STATE_STEPS.MIGRATE_THEMES(commonWriter);
-  const {newVersion, oldVersion} = STATE_STEPS.VERSION(writer);
+  const {oldVersion} = STATE_STEPS.VERSION(writer);
 
   return {
     state: writer.state,
     pushedKeys: writer.pushedKeys,
-    newVersion,
     oldVersion,
     resetStorages: writer.resetStorages,
     common: commonWriter.state,
@@ -346,7 +343,7 @@ async function loadOldState(): Promise<LoadStateResult> {
   STATE_STEPS.VALIDATE(writer, STATE_INIT);
   STATE_STEPS.VALIDATE(commonWriter, COMMON_STATE_INIT);
   STATE_STEPS.MIGRATE_THEMES(commonWriter);
-  const {newVersion, oldVersion} = STATE_STEPS.VERSION(writer);
+  const {oldVersion} = STATE_STEPS.VERSION(writer);
 
   if(DEBUG) {
     log('state res', writer.state, copy(writer.state));
@@ -374,7 +371,6 @@ async function loadOldState(): Promise<LoadStateResult> {
   return {
     state: writer.state,
     pushedKeys: writer.pushedKeys,
-    newVersion,
     oldVersion,
     resetStorages: writer.resetStorages,
     common: commonWriter.state,

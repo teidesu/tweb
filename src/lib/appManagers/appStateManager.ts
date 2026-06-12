@@ -21,7 +21,6 @@ export default class AppStateManager {
   public readonly storage: StateStorage;
 
   // ! for mtproto worker use only
-  public newVersion: string;
   public oldVersion: string;
   public userId: UserId;
 

@@ -39,8 +39,7 @@ import pause from '@helpers/schedulers/pause';
 import MEDIA_MIME_TYPES_SUPPORTED from '@environment/mediaMimeTypesSupport';
 import IMAGE_MIME_TYPES_SUPPORTED from '@environment/imageMimeTypesSupport';
 import {NULL_PEER_ID, STARS_CURRENCY} from '@appManagers/constants';
-import telegramMeWebManager from '@lib/telegramMeWebManager';
-import {formatDate, ONE_DAY} from '@helpers/date';
+import {formatDate} from '@helpers/date';
 import createTopbarCall, {TopbarCallController} from '@components/topbarCall';
 import confirmationPopup from '@components/confirmationPopup';
 import IS_GROUP_CALL_SUPPORTED from '@environment/groupCallSupport';
@@ -822,10 +821,6 @@ export class AppImManager extends EventListenerBase<{
     // ! instance can be deactivated before the UI starts, because it waits in background for RAF that is delayed
     singleInstance.activateInstance();
 
-    const setAuthorized = () => {
-      telegramMeWebManager.setAuthorized(true);
-    };
-
     // ! THANKS TO CHROMIUM DEVELOPERS FOR THIS BUG
     // ! https://issues.chromium.org/issues/328755781
     if(IS_CHROMIUM) document.addEventListener('visibilitychange', () => {
@@ -846,9 +841,6 @@ export class AppImManager extends EventListenerBase<{
         context.fillStyle = oldFillStyle;
       });
     });
-
-    setInterval(setAuthorized, ONE_DAY);
-    setAuthorized();
 
     this.managers.appReactionsManager.getSavedReactionTags().then((tags) => {
       savedReactionTags.splice(0, savedReactionTags.length, ...tags);

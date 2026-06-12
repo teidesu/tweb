@@ -19,11 +19,6 @@ type StorageValues = {
 
   server_time_offset: number,
   xt_instance: AppInstance,
-  kz_version: 'K' | 'Z',
-  tgme_sync: {
-    canRedirect: boolean,
-    ts: number
-  },
   k_build: number,
 
   // auth options
