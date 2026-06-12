@@ -8,6 +8,10 @@ import transportController from '@lib/mtproto/transports/controller';
 
 const TEST_DROPPING_REQUESTS: TrueDcId = undefined;
 
+// telegram's load balancer sometimes returns 400 when the request landed on a broken upstream or something,
+// even if the content itself is actually perfectly valid, so we need to retry a few times
+const FLAKY_400_MAX_RETRIES = 10;
+
 export default class HTTP implements MTTransport {
   public noScheduler: boolean;
   private log: ReturnType<typeof logger>;
@@ -39,25 +43,47 @@ export default class HTTP implements MTTransport {
     this.connected = false;
   }
 
-  public _send(
+  public async _send(
+    body: Uint8Array,
+    mode?: RequestMode,
+    timeoutMs?: number
+  ) {
+    for(let attempt = 0; ; ++attempt) {
+      try {
+        return await this._sendOnce(body, mode, timeoutMs);
+      } catch(err) {
+        if(err instanceof Response && err.status === 400 && attempt < FLAKY_400_MAX_RETRIES && !this.destroyed) {
+          this.debug && this.log.debug('flaky 400, retrying, attempt', attempt);
+          continue;
+        }
+
+        if(err instanceof Response) {
+          err.arrayBuffer().then((buffer) => {
+            this.log.error('not 200',
+              new TextDecoder('utf-8').decode(new Uint8Array(buffer)));
+          });
+        }
+
+        this.setConnected(false);
+        throw err;
+      }
+    }
+  }
+
+  private async _sendOnce(
     body: Uint8Array,
     mode?: RequestMode,
     timeoutMs = 30000
-  ) {
+  ): Promise<Uint8Array> {
     this.debug && this.log.debug('-> body length to send:', body.length);
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
-    // networkStats.addSent(this.dcId, length);
-    return fetch(this.url, {method: 'POST', body: body as BodyInit, mode, signal: controller.signal})
-    .then(async(response) => {
+    try {
+      // networkStats.addSent(this.dcId, length);
+      const response = await fetch(this.url, {method: 'POST', body: body as BodyInit, mode, signal: controller.signal});
       if(response.status !== 200 && !mode) {
-        response.arrayBuffer().then((buffer) => {
-          this.log.error('not 200',
-            new TextDecoder('utf-8').decode(new Uint8Array(buffer)));
-        });
-
         throw response;
       }
 
@@ -72,12 +98,9 @@ export default class HTTP implements MTTransport {
       const buffer = await response.arrayBuffer();
       // networkStats.addReceived(this.dcId, buffer.byteLength);
       return new Uint8Array(buffer);
-    }).catch((err) => {
-      this.setConnected(false);
-      throw err;
-    }).finally(() => {
+    } finally {
       clearTimeout(timeout);
-    });
+    }
   }
 
   private setConnected(connected: boolean) {
