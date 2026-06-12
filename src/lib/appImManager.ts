@@ -1426,6 +1426,15 @@ export class AppImManager extends EventListenerBase<{
       } else if(e.code === 'KeyC' && (e.ctrlKey || e.metaKey) && !isTargetAnInput) {
         return;
       } else if(
+        (key === 'Backspace' || key === 'Delete') &&
+        !isTargetAnInput &&
+        !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey &&
+        chat?.selection?.isSelecting
+      ) {
+        cancelEvent(e);
+        chat.selection.deleteSelected();
+        return;
+      } else if(
         (key === 'PageUp' || key === 'PageDown') &&
         !isTargetAnInput &&
         !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey

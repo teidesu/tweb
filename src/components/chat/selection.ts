@@ -729,6 +729,23 @@ export default class ChatSelection extends AppSelection {
   public selectionSendNowBtn: HTMLElement;
   public selectionForwardBtn: HTMLElement;
   public selectionDeleteBtn: HTMLElement;
+  private cantDeleteSelected = true;
+
+  public deleteSelected() {
+    if(!this.isSelecting || this.cantDeleteSelected) {
+      return;
+    }
+
+    PopupElement.createPopup(
+      PopupDeleteMessages,
+      this.chat.peerId,
+      this.getSelectedMids(),
+      this.chat.type,
+      () => {
+        this.cancelSelection();
+      }
+    );
+  }
 
   constructor(
     private chat: Chat,
@@ -963,17 +980,7 @@ export default class ChatSelection extends AppSelection {
 
       // Left slot — delete.
       this.selectionDeleteBtn = ButtonIcon('delete danger selection-container-delete');
-      attachClickEvent(this.selectionDeleteBtn, () => {
-        PopupElement.createPopup(
-          PopupDeleteMessages,
-          this.chat.peerId,
-          this.getSelectedMids(),
-          this.chat.type,
-          () => {
-            this.cancelSelection();
-          }
-        );
-      }, attachClickOptions);
+      attachClickEvent(this.selectionDeleteBtn, () => this.deleteSelected(), attachClickOptions);
 
       // Right slot — forward (or "send now" for scheduled messages).
       let rightButton: HTMLElement;
@@ -1015,6 +1022,7 @@ export default class ChatSelection extends AppSelection {
   };
 
   protected onUpdateContainer = (cantForward: boolean, cantDelete: boolean, cantSend: boolean) => {
+    this.cantDeleteSelected = cantDelete;
     replaceContent(this.selectionCountEl, i18n('messages', [this.length()]));
     this.selectionSendNowBtn?.toggleAttribute('disabled', cantSend);
     this.selectionForwardBtn?.toggleAttribute('disabled', cantForward);
