@@ -1,5 +1,5 @@
 import type {MyDialogFilter} from '@lib/storages/filters';
-import type {Dialog, ForumTopic, MyMessage, RequestHistoryOptions, SavedDialog} from '@appManagers/appMessagesManager';
+import type {Dialog, ForumTopic, MyMessage, SavedDialog} from '@appManagers/appMessagesManager';
 import type {MyDocument} from '@appManagers/appDocsManager';
 import type {State} from '@config/state';
 import type {AnyDialog} from '@lib/storages/dialogs';
@@ -103,7 +103,6 @@ import {AutonomousDialogList} from '@components/autonomousDialogList/dialogs';
 import {PossibleDialog} from '@components/autonomousDialogList/base';
 import {ForumTab} from '@components/forumTab/forumTab';
 import {fillForumTabRegister} from '@components/forumTab/fillRegister';
-import LazyLoadQueue from '@components/lazyLoadQueue';
 import {fastSmoothScrollToStart} from '@helpers/fastSmoothScroll';
 import ArchiveDialog, {archiveDialogTagName} from '@components/archiveDialog';
 import {createArchiveDialogContextMenu} from '@components/archiveDialogContextMenu';
@@ -569,8 +568,6 @@ export class AppDialogsManager {
   private suggestionContainer: HTMLElement;
   private foldersOverlay: HTMLElement;
 
-  private lazyLoadQueue: LazyLoadQueue;
-
   private ignoreFolderChange: boolean;
 
   public start() {
@@ -578,7 +575,6 @@ export class AppDialogsManager {
 
     this.contextMenu = new DialogsContextMenu(managers);
     this.stateMiddlewareHelper = getMiddleware();
-    this.lazyLoadQueue = new LazyLoadQueue(5, true);
 
     // this.onListLengthChange = debounce(this._onListLengthChange, 100, false, true);
     this.onListLengthChange = () => void this._onListLengthChange();
@@ -2632,48 +2628,8 @@ export class AppDialogsManager {
       options.loadPromises?.push(promise);
     }
 
-    if(ret && this.lazyLoadQueue) {
-      const div = ret.dom.listEl;
-      const lazyLoadElement: Parameters<AppDialogsManager['lazyLoadQueue']['push']>[0] = {
-        div,
-        load: async() => {
-          await pause(200);
-          if(!this.lazyLoadQueue.intersector.isVisible(div)) {
-            this.lazyLoadQueue.push(lazyLoadElement); // * to process again
-            return;
-          }
-
-          const getHistoryOptions: RequestHistoryOptions = {
-            peerId: options.monoforumParentPeerId || options.peerId,
-            threadId: options.threadId,
-            monoforumThreadId: options.monoforumParentPeerId ? options.peerId : undefined,
-            limit: 50
-          };
-
-          const readMaxId = await this.managers.appMessagesManager.getReadMaxIdIfUnread(
-            options.peerId,
-            options.threadId
-          );
-
-          if(readMaxId) {
-            const limit = Math.floor(getHistoryOptions.limit / 2);
-            await this.managers.appMessagesManager.getHistory({
-              ...getHistoryOptions,
-              offsetId: readMaxId || undefined,
-              backLimit: readMaxId ? limit : undefined,
-              limit
-            });
-          }
-
-          return this.managers.appMessagesManager.getHistory(getHistoryOptions);
-        }
-      };
-
-      this.lazyLoadQueue.push(lazyLoadElement);
-      ret.middlewareHelper.onDestroy(() => {
-        this.lazyLoadQueue.delete(lazyLoadElement);
-      });
-    }
+    // tombstone: stock had a blanked per-chat history preload for every visible dialog,
+    // but this was causing a bunch of FLOOD_WAIT-s for no real benefit since we prefetch on mousedown
 
     return ret;
   }
