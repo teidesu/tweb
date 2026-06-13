@@ -1,10 +1,11 @@
-import {children, createContext, createEffect, createMemo, createSignal, JSX, on, onCleanup, Ref, untrack} from 'solid-js';
+import {children, createContext, createEffect, createMemo, createSignal, JSX, on, onCleanup, onMount, Ref, untrack} from 'solid-js';
 import {IS_OVERLAY_SCROLL_SUPPORTED} from '@environment/overlayScrollSupport';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
 import {IS_MOBILE_SAFARI, IS_SAFARI} from '@environment/userAgent';
 import cancelEvent from '@helpers/dom/cancelEvent';
 import classNames from '@helpers/string/classNames';
 import useHeavyAnimationCheck from '@hooks/useHeavyAnimationCheck';
+import {syncThumbContainerGeometry} from '@components/scrollable';
 
 const SCROLL_THROTTLE = /* IS_ANDROID ? 200 :  */24;
 
@@ -117,15 +118,23 @@ export default function Scrollable(props: {
 
     // if(this.onScrollMeasure || ((this.scrollLocked || (!this.onScrolledTop && !this.onScrolledBottom)) && !this.splitUp && !this.onAdditionalScroll)) return;
     if((!props.onScrolledTop && !props.onScrolledBottom)/*  && !this.splitUp */ && !onScrollCallbacks().length && IS_OVERLAY_SCROLL_SUPPORTED()) return;
+
+    // cache scroll position to avoid forced reflows if the layout is dirty in the throttled measure
+    capturedScrollPosition = scrollPosition();
+
     if(onScrollMeasure) return;
     onScrollMeasure = throttleMeasurement(() => {
       onScrollMeasure = 0;
 
-      const _scrollPosition = scrollPosition();
+      if(sizesDirty) {
+        refreshMeasurements();
+      }
+
+      const _scrollPosition = capturedScrollPosition;
       lastScrollDirection = lastScrollPosition === _scrollPosition ? 0 : (lastScrollPosition < _scrollPosition ? 1 : -1); // * 1 - bottom, -1 - top
       lastScrollPosition = _scrollPosition;
 
-      updateThumb(_scrollPosition);
+      updateThumb(_scrollPosition, false);
 
       // lastScrollDirection check is useless here, every callback should decide on its own
       if(true/*  && lastScrollDirection !== 0 */) {
@@ -151,15 +160,21 @@ export default function Scrollable(props: {
     //   return;
     // }
 
-    const _scrollSize = scrollSize();
+    if(sizesDirty) {
+      refreshMeasurements();
+    }
+
+    const _scrollSize = cachedScrollSize;
     if(!_scrollSize) { // незачем вызывать триггеры если блок пустой или не виден
       return;
     }
 
-    const _scrollPosition = scrollPosition();
-    const _clientSize = offsetSize();
+    // lastScrollPosition is in sync: the scroll measure updates it right
+    // before calling here, external callers (force-checking after a content
+    // load) come after a measure or a silent set
+    const _scrollPosition = lastScrollPosition;
     const _onScrollOffset = onScrollOffset();
-    const maxScrollPosition = _scrollSize - _clientSize;
+    const maxScrollPosition = _scrollSize - cachedOffsetSize;
 
     // this.log('checkForTriggers:', scrollTop, maxScrollTop);
 
@@ -173,17 +188,80 @@ export default function Scrollable(props: {
   };
 
   const checkEnds = () => {
-    setIsScrolledToStart(!scrollPosition());
-    setIsScrolledToEnd(getDistanceToEnd() <= 1);
+    // runs from the scroll measure: lastScrollPosition and the caches were
+    // refreshed right before
+    setIsScrolledToStart(!lastScrollPosition);
+    setIsScrolledToEnd(cachedScrollSize - Math.round(lastScrollPosition + cachedOffsetSize) <= 1);
   };
 
-  const updateThumb = (_scrollPosition = scrollPosition()) => {
+  let lastThumbGeometry = '';
+  let cachedScrollSize = -1;
+  let cachedClientSize = -1;
+  let cachedOffsetSize = -1;
+  let sizesDirty = true;
+  let capturedScrollPosition = 0;
+
+  // Layout reads are confined here and run only when something invalidated
+  // them (content mutation, resize, explicit signal) — a plain scroll frame
+  // computes the thumb and the triggers entirely from caches, so it never
+  // forces a reflow when unrelated code dirtied layout mid-frame.
+  const refreshMeasurements = () => {
+    sizesDirty = false;
+    cachedScrollSize = scrollSize();
+    cachedClientSize = clientSize();
+    cachedOffsetSize = offsetSize();
+    if(thumbContainerRef?.parentElement) {
+      lastThumbGeometry = syncThumbContainerGeometry(ref, thumbContainerRef, lastThumbGeometry);
+    }
+  };
+
+  const invalidateMeasurements = () => {
+    sizesDirty = true;
+    onScroll();
+  };
+
+  // The thumb overlays the scroller from outside, as a sibling: any descendant
+  // (even position: sticky) rides the macOS rubber-band overscroll bounce
+  // together with the content, while a sibling stays pinned. Inserted
+  // imperatively (not as a JSX sibling) so the component stays single-rooted —
+  // transition wrappers track only the first node of a fragment. Adjacency is
+  // re-asserted on every update: wrappers may move the scroller without us.
+  const ensureThumbAttached = () => {
+    if(!ref.parentElement) {
+      thumbContainerRef.remove();
+      lastThumbGeometry = '';
+      return false;
+    }
+
+    if(ref.nextElementSibling !== thumbContainerRef) {
+      ref.after(thumbContainerRef);
+      // an attach/move means the container's offsets may have changed too
+      sizesDirty = true;
+    }
+
+    return true;
+  };
+
+  // fresh = re-read layout: the default for external callers (they signal a
+  // change we can't observe synchronously); scroll measures pass false and
+  // consume the caches
+  const updateThumb = (_scrollPosition = scrollPosition(), fresh = true) => {
     if(IS_OVERLAY_SCROLL_SUPPORTED() || !thumbRef) {
       return;
     }
 
-    const _scrollSize = scrollSize();
-    const _clientSize = clientSize();
+    if(!ensureThumbAttached()) {
+      return;
+    }
+
+    if(fresh || sizesDirty) {
+      refreshMeasurements();
+    }
+
+    const _scrollSize = cachedScrollSize;
+    const _clientSize = cachedClientSize;
+    // Safari reports out-of-bounds positions during rubber-band overscroll
+    _scrollPosition = Math.max(0, Math.min(_scrollPosition, _scrollSize - _clientSize));
     const divider = _scrollSize / _clientSize / 0.75;
     const thumbSize = Math.max(20, _clientSize / divider);
     const value = _scrollPosition / (_scrollSize - _clientSize) * _clientSize;
@@ -201,6 +279,8 @@ export default function Scrollable(props: {
 
   const setScrollPositionSilently = (value: number) => {
     lastScrollPosition = value;
+    // a pending measure must not consume a position captured before the jump
+    capturedScrollPosition = value;
     ignoreNextScrollEvent();
 
     setScrollPosition(value);
@@ -220,8 +300,10 @@ export default function Scrollable(props: {
   const onThumbMouseMove = (e: MouseEvent) => {
     cancelEvent(e);
 
-    const contentHeight = scrollSize();
-    const viewportHeight = clientSize();
+    // caches are fresh here: the thumb is only draggable while visible, and
+    // visibility implies a recent updateThumb
+    const contentHeight = cachedScrollSize;
+    const viewportHeight = cachedClientSize;
     const scrollbarSize = thumbRef.offsetHeight;
     const maxScrollTop = contentHeight - viewportHeight;
 
@@ -258,10 +340,22 @@ export default function Scrollable(props: {
   };
 
   const onSizeChange = () => {
-    if(!IS_OVERLAY_SCROLL_SUPPORTED() && thumbRef) {
-      onScroll();
-    }
+    invalidateMeasurements();
   };
+
+  onMount(() => {
+    // ResizeObserver covers the container's own box, MutationObserver covers
+    // content changes that only affect scrollSize — together they invalidate
+    // the measurement caches so scroll frames never have to read layout
+    const resizeObserver = new ResizeObserver(invalidateMeasurements);
+    resizeObserver.observe(ref);
+    const mutationObserver = new MutationObserver(invalidateMeasurements);
+    mutationObserver.observe(ref, {childList: true, subtree: true});
+    onCleanup(() => {
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+    });
+  });
 
   const value: ScrollableContextValue = {
     get scrollPosition() {
@@ -299,7 +393,25 @@ export default function Scrollable(props: {
 
   createEffect(on(resolvedChildren, onSizeChange));
 
-  let ref: HTMLDivElement, thumbRef: HTMLDivElement;
+  let ref: HTMLDivElement, thumbRef: HTMLDivElement, thumbContainerRef: HTMLDivElement;
+
+  const withThumb = !IS_OVERLAY_SCROLL_SUPPORTED() && axis === 'y';
+  if(withThumb) {
+    thumbContainerRef = (
+      <div class="scrollable-thumb-container">
+        <div
+          class="scrollable-thumb"
+          ref={(el) => {
+            thumbRef = el;
+            props.thumbRef?.(el);
+          }}
+          onMouseDown={onThumbMouseDown}
+        ></div>
+      </div>
+    ) as HTMLDivElement;
+    onCleanup(() => thumbContainerRef.remove());
+  }
+
   return (
     <div
       ref={(_ref) => {
@@ -324,19 +436,10 @@ export default function Scrollable(props: {
       classList={props.classList}
       style={props.style}
       onWheel={(axis === 'x' && !IS_TOUCH_SUPPORTED && onWheel) || undefined}
+      // the thumb overlay is attached/positioned by JS — refresh it before it
+      // becomes visible, the container may have moved/resized without a scroll
+      onMouseEnter={(withThumb && (() => updateThumb())) || undefined}
     >
-      {!IS_OVERLAY_SCROLL_SUPPORTED() && axis === 'y' && (
-        <div class="scrollable-thumb-container">
-          <div
-            class="scrollable-thumb"
-            ref={(el) => {
-              thumbRef = el;
-              props.thumbRef?.(el);
-            }}
-            onMouseDown={onThumbMouseDown}
-          ></div>
-        </div>
-      )}
       {resolvedChildren()}
     </div>
   );

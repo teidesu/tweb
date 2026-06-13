@@ -83,7 +83,10 @@ $packs-menu-height: 2.25rem;
       border-bottom: 1px solid var(--border-color);
     }
 
-    .emoticons-content .scrollable-y {
+    // the thumb overlay is a transform-less sibling of the scrollable — it
+    // must mirror the scroller's own shift to stay aligned
+    .emoticons-content .scrollable-y,
+    .emoticons-content .scrollable-y + .scrollable-thumb-container {
       @include animation-level(2) {
         transition: transform var(--transition-standard-in);
       }
@@ -100,7 +103,8 @@ $packs-menu-height: 2.25rem;
       .emoticons-content {
         clip-path: inset(-#{$packs-menu-height} 0 0 0);
 
-        .scrollable-y {
+        .scrollable-y,
+        .scrollable-y + .scrollable-thumb-container {
           transform: translateY(-#{$packs-menu-height});
         }
       }

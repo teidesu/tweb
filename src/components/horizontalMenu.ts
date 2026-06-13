@@ -3,6 +3,7 @@ import {ScrollableX} from '@components/scrollable';
 import {fastRaf} from '@helpers/schedulers';
 import fastSmoothScroll, {FocusDirection} from '@helpers/fastSmoothScroll';
 import findUpAsChild from '@helpers/dom/findUpAsChild';
+import nthChild from '@helpers/dom/nthChild';
 import whichChild from '@helpers/dom/whichChild';
 import ListenerSetter from '@helpers/listenerSetter';
 import {attachClickEvent} from '@helpers/dom/clickEvent';
@@ -55,7 +56,7 @@ export async function selectTarget({
   isUserClick
 }: SelectTargetArgs) {
   if(onClick) {
-    const tabContent = content?.children[id] as HTMLDivElement;
+    const tabContent = content && nthChild(content, id) as HTMLDivElement;
     const result1 = onClick(id, tabContent, animate, isUserClick);
     const canChange = result1 instanceof Promise ? await result1 : result1;
     if(canChange === false) {

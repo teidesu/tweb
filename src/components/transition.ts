@@ -1,5 +1,6 @@
 import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
 import {dispatchHeavyAnimationEvent} from '@hooks/useHeavyAnimationCheck';
+import nthChild from '@helpers/dom/nthChild';
 import whichChild from '@helpers/dom/whichChild';
 import cancelEvent from '@helpers/dom/cancelEvent';
 import ListenerSetter from '@helpers/listenerSetter';
@@ -253,7 +254,7 @@ const TransitionSlider = (options: TransitionSliderOptions) => {
 
     // console.log('selectTab id:', id);
 
-    const to = content.children[id] as HTMLElement;
+    const to = nthChild(content, id) as HTMLElement;
 
     if(!liteMode.isAvailable('animations') || (prevId === -1 && !animateFirst)) {
       animate = false;
