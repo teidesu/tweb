@@ -1,5 +1,6 @@
 import {readFileSync} from 'fs';
 import {createTestClient, AccountSeed} from './harness';
+import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
 
 const ENABLED = process.env.TG_API_TEST === '1';
 const seedPath = process.env.TG_API_SEED;
@@ -774,5 +775,47 @@ describeOrSkip('unread counter races', () => {
     // Started with 3 mentions, all 3 read in the topic → parent should drop to 0.
     expect(topic.unread_mentions_count).toBe(0);
     expect(dialog.unread_mentions_count).toBe(0);
+  }, 30_000);
+
+  test('Burst dedup: sequential temp-mid reads sharing a server id issue one server call', async() => {
+    const m: any = client.managers.appMessagesManager;
+    const idsManager: any = client.managers.appMessagesIdsManager;
+    const channelId = 999000010;
+    const peerId = -channelId;
+    makeChannel(channelId, 'Burst Test');
+
+    const {historyStorage} = injectDialog(peerId as any, channelId, {
+      unreadCount: 6188,
+      topServerMid: 10000,
+      readInboxServerMid: 9969
+    });
+
+    const baseMid = (sid: number) => idsManager.generateMessageId(sid, channelId);
+    pendingServerReads = [];
+
+    // Fast send burst: each sent message gets a temp mid sharing the integer part
+    // of the last real mid (N.0001, N.0002, …); all map to the same server max_id.
+    const real = baseMid(9980);
+
+    const p1 = m.readHistory({peerId, maxId: real + 0.0001, force: true});
+    expect(pendingServerReads.length).toBe(1); // first read goes to the server
+
+    // Resolve it so readPromise clears, mimicking the ~370ms RTT between sends —
+    // the readPromise guard no longer covers the next call.
+    pendingServerReads.shift()!();
+    await p1;
+
+    // Next message in the burst, different temp mid, same server id → no server call.
+    const p2 = m.readHistory({peerId, maxId: real + 0.0002, force: true});
+    expect(pendingServerReads.length).toBe(0);
+    await p2;
+
+    // A genuinely higher server id must still hit the wire.
+    const p3 = m.readHistory({peerId, maxId: baseMid(9990), force: true});
+    expect(pendingServerReads.length).toBe(1);
+    expect(getServerMessageId(historyStorage.triedToReadMaxId)).toBe(9990);
+    pendingServerReads.forEach((r) => r());
+    pendingServerReads = [];
+    await p3;
   }, 30_000);
 });

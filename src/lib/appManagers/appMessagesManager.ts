@@ -6375,7 +6375,11 @@ export class AppMessagesManager extends AppManager {
     // user can scroll into messages whose mid <= a previously-read maxId
     // (e.g. messages loaded later, or scrolling up after a fast jump to bottom).
     // Without this, the unread counter "freezes" mid-scroll on high-volume chats.
-    const skipServerCall = historyStorage.triedToReadMaxId >= maxId || !!historyStorage.readPromise;
+    // Compare at server-id granularity: temp outgoing mids sharing one integer
+    // part (`N.0001`, `N.0002`) all map to the same server max_id, so comparing
+    // raw mids would re-issue identical reads during a fast send burst.
+    const skipServerCall = getServerMessageId(historyStorage.triedToReadMaxId) >= getServerMessageId(maxId) ||
+      !!historyStorage.readPromise;
 
     let apiPromise: Promise<any>;
     if(monoforumThreadId) {
