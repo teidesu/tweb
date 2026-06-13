@@ -36,6 +36,17 @@ type UpdatesState = {
 
 const SYNC_DELAY = 6;
 
+// pts the update expects to be applied at; pts-bearing updates without pts_count
+// (e.g. updateReadChannelInbox) are zero-span, so ptsBefore === pts
+function getUpdatePtsBefore(update: Update): number {
+  const pts = (update as Update.updateNewMessage).pts;
+  if(pts === undefined) {
+    return undefined;
+  }
+
+  return pts - ((update as Update.updateNewMessage).pts_count || 0);
+}
+
 class ApiUpdatesManager {
   public updatesState: UpdatesState = {
     pendingPtsUpdates: [],
@@ -124,7 +135,7 @@ class ApiUpdatesManager {
     let goodIndex = 0;
     for(let i = 0, length = curState.pendingPtsUpdates.length; i < length; ++i) {
       const update = curState.pendingPtsUpdates[i];
-      curPts += update.pts_count;
+      curPts += update.pts_count || 0;
       if(curPts >= update.pts) {
         goodPts = update.pts;
         goodIndex = i;
@@ -232,14 +243,26 @@ class ApiUpdatesManager {
       }
 
       case 'updatesCombined':
-      case 'updates':
+      case 'updates': {
         this.appUsersManager.saveApiUsers(updateMessage.users, options.override);
         this.appChatsManager.saveApiChats(updateMessage.chats, options.override);
 
-        updateMessage.updates.forEach((update: Update) => {
+        // sort the pts updates before applying bc server sometimes bundles them out-of-order,
+        // to avoid false pts gaps and unnecessary getChannelDifferences
+        const updates = (updateMessage.updates as Update[]).slice().sort((a, b) => {
+          const aPts = getUpdatePtsBefore(a);
+          const bPts = getUpdatePtsBefore(b);
+          if(aPts === undefined && bPts === undefined) return 0;
+          if(aPts === undefined) return -1;
+          if(bPts === undefined) return 1;
+          return aPts - bPts;
+        });
+
+        updates.forEach((update) => {
           this.processUpdate(update, processOpts);
         });
         break;
+      }
 
       default:
         log.warn('unknown update message', updateMessage);
