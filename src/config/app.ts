@@ -25,6 +25,7 @@ const App = {
   langPackCode: 'en',
   baseDcId: 2 as TrueDcId,
   suffix: '🌸',
+  wsSuffix: 'k', // must be a real Telegram client prefix
   threads,
   lottieWorkers: threads,
   cryptoWorkers: threads,
