@@ -46,6 +46,11 @@ export type SlicedArraySerialized<T extends ItemType> = {
   slices: SliceSerialized<T>[]
 };
 
+export type SlicedArrayPersisted<T extends ItemType> = {
+  values: T[],
+  end: SliceEnd
+}[];
+
 export default class SlicedArray<T extends ItemType> {
   public slices: Slice<T>[]/*  = [[7,6,5],[4,3,2],[1,0,-1]] */;
   private sliceConstructor: SliceConstructor<T>;
@@ -424,6 +429,23 @@ export default class SlicedArray<T extends ItemType> {
 
   public deleteSlice(slice: Slice<T>) {
     indexOfAndSplice(this.slices, slice);
+  }
+
+  public serialize(filterValue?: (value: T) => boolean): SlicedArrayPersisted<T> {
+    const slices: SlicedArrayPersisted<T> = [];
+    for(const slice of this.slices) {
+      slice.getEnds(); // derive lazily-computed end flags before reading them
+      let values: T[] = Array.from(slice);
+      if(filterValue) {
+        values = values.filter(filterValue);
+      }
+
+      if(values.length) {
+        slices.push({values, end: slice.end});
+      }
+    }
+
+    return slices;
   }
 
   public toJSON() {

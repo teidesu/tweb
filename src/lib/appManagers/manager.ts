@@ -11,6 +11,7 @@ import type {RootScope} from '@lib/rootScope';
 import type DialogsStorage from '@lib/storages/dialogs';
 import type FiltersStorage from '@lib/storages/filters';
 import type MonoforumDialogsStorage from '@lib/storages/monoforumDialogs';
+import type MessagesPersistentStorage from '@lib/storages/messagesPersistent';
 import type PeersStorage from '@lib/storages/peers';
 import type ThumbsStorage from '@lib/storages/thumbs';
 import type {ApiUpdatesManager} from '@appManagers/apiUpdatesManager';
@@ -118,6 +119,7 @@ export class AppManager {
   protected appGiftsManager: AppGiftsManager;
   protected appGamesManager: AppGamesManager;
   protected monoforumDialogsStorage: MonoforumDialogsStorage;
+  protected messagesPersistentStorage: MessagesPersistentStorage;
   protected appPromoManager: AppPromoManager;
   protected appAccountManager: AppAccountManager;
 

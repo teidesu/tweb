@@ -1,6 +1,7 @@
 import type {Chat} from '@layer';
 import type {Dialog} from '@appManagers/appMessagesManager';
 import type {User} from '@appManagers/appUsersManager';
+import type {MessagesPersistedRecord} from '@lib/storages/messagesPersistent';
 import {AccountDatabase, getDatabaseState, getOldDatabaseState} from '@config/databases/state';
 import AppStorage from '@lib/storage';
 import {ActiveAccountNumber} from '@lib/accounts/types';
@@ -8,11 +9,12 @@ import {ActiveAccountNumber} from '@lib/accounts/types';
 export type StoragesStorages = {
   users: AppStorage<Record<UserId, User>, AccountDatabase>,
   chats: AppStorage<Record<ChatId, Chat>, AccountDatabase>,
-  dialogs: AppStorage<Record<PeerId, Dialog>, AccountDatabase>
+  dialogs: AppStorage<Record<PeerId, Dialog>, AccountDatabase>,
+  messages: AppStorage<Record<PeerId, MessagesPersistedRecord>, AccountDatabase>
 };
 
 export default function createStorages(accountNumber: ActiveAccountNumber) {
-  const names: (keyof StoragesStorages)[] = ['users', 'chats', 'dialogs'];
+  const names: (keyof StoragesStorages)[] = ['users', 'chats', 'dialogs', 'messages'];
   const storages: StoragesStorages = {} as any;
   for(const name of names) {
     // @ts-ignore

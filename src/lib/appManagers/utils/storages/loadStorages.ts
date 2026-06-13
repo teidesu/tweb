@@ -1,6 +1,7 @@
 import type {Chat} from '@layer';
 import type {Dialog} from '@appManagers/appMessagesManager';
 import type {User} from '@appManagers/appUsersManager';
+import type {MessagesPersistedRecord} from '@lib/storages/messagesPersistent';
 import type {StoragesStorages} from '@appManagers/utils/storages/createStorages';
 import type {ResetStoragesPromise} from '@appManagers/appStateManager';
 import type AppStorage from '@lib/storage';
@@ -25,7 +26,8 @@ export default async function loadStorages(accountNumber: number, storages: Stor
   const storagesResults: {
     users: User[],
     chats: Chat[],
-    dialogs: Dialog[]
+    dialogs: Dialog[],
+    messages: MessagesPersistedRecord[]
   } = {} as any;
   const arr = await Promise.all(storagesPromises);
   for(let i = 0, length = storagesKeys.length; i < length; ++i) {

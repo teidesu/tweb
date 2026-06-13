@@ -57,6 +57,7 @@ import {AppManager} from '@appManagers/manager';
 import AppGiftsManager from '@appManagers/appGiftsManager';
 import AppGamesManager from '@appManagers/appGamesManager';
 import MonoforumDialogsStorage from '@lib/storages/monoforumDialogs';
+import MessagesPersistentStorage from '@lib/storages/messagesPersistent';
 import AppPromoManager from '@appManagers/appPromoManager';
 import AppAccountManager from '@appManagers/appAccountManager';
 
@@ -122,6 +123,7 @@ export default function createManagers(
     appGiftsManager: new AppGiftsManager,
     appGamesManager: new AppGamesManager,
     monoforumDialogsStorage: new MonoforumDialogsStorage,
+    messagesPersistentStorage: new MessagesPersistentStorage,
     appPromoManager: new AppPromoManager,
     appAccountManager: new AppAccountManager
   };

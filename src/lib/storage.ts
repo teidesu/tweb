@@ -373,6 +373,10 @@ export default class AppStorage<
     catch{}
   }
 
+  public isSavingFrozen() {
+    return this.savingFreezed;
+  }
+
   public async unfreezeAsync(callback: () => Promise<unknown>) {
     const prevFreezed = this.savingFreezed;
     this.savingFreezed = false;

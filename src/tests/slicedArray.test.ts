@@ -145,6 +145,50 @@ describe('Slicing', () => {
   });
 });
 
+describe('Serializing', () => {
+  test('Serializes slices with derived end flags', () => {
+    const sliced = new SlicedArray<number>();
+    sliced.insertSlice([5, 4, 3]);
+    sliced.first.setEnd(SliceEnd.Bottom);
+    sliced.insertSlice([1, 0]);
+    sliced.last.setEnd(SliceEnd.Top);
+
+    const serialized = sliced.serialize();
+    expect(serialized).toEqual([
+      {values: [5, 4, 3], end: SliceEnd.Bottom},
+      {values: [1, 0], end: SliceEnd.Top}
+    ]);
+  });
+
+  test('Filters values and drops empty slices', () => {
+    const sliced = new SlicedArray<number>();
+    sliced.insertSlice([5, 4.0001, 4]);
+    sliced.insertSlice([2.0001]);
+
+    const isTemp = (v: number) => v > Math.floor(v);
+    const serialized = sliced.serialize((v) => !isTemp(v));
+    expect(serialized).toEqual([
+      {values: [5, 4], end: SliceEnd.None}
+    ]);
+  });
+
+  test('Round-trips through insertSlice + setEnd', () => {
+    const sliced = new SlicedArray<number>();
+    sliced.insertSlice([9, 8, 7]);
+    sliced.first.setEnd(SliceEnd.Bottom);
+    sliced.insertSlice([3, 2]);
+
+    const restored = new SlicedArray<number>();
+    for(const {values, end} of sliced.serialize()) {
+      const inserted = restored.insertSlice(values);
+      if(end & SliceEnd.Top) inserted.setEnd(SliceEnd.Top);
+      if(end & SliceEnd.Bottom) inserted.setEnd(SliceEnd.Bottom);
+    }
+
+    expect(restored.serialize()).toEqual(sliced.serialize());
+  });
+});
+
 describe('offsetIdOffset', () => {
   const sliced = new SlicedArray<number>();
   const values = [5, 4, 3, 2, 1];

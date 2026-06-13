@@ -82,6 +82,7 @@ import RepayRequestHandler, {RepayRequest} from '@appManagers/utils/repayRequest
 import getPhotoInput from '@appManagers/utils/photos/getPhotoInput';
 import {BatchProcessor} from '@helpers/sortedList';
 import {increment, MonoforumDialog} from '@lib/storages/monoforumDialogs';
+import type {MessagesPersistedHistory, MessagesPersistedRecord} from '@lib/storages/messagesPersistent';
 import formatStarsAmount from '@appManagers/utils/payments/formatStarsAmount';
 import {makeMessageMediaInputForSuggestedPost} from '@appManagers/utils/messages/makeMessageMediaInput';
 import createObservedState, {wrapObject} from '@helpers/createObservedState';
@@ -234,6 +235,10 @@ const processAfter = (cb: () => void) => {
   // setTimeout(cb, 0);
   cb();
 };
+
+// * newest mids persisted per history (main or thread); a few screens' worth — enough for an
+// * instant cold-open render, scrollback beyond it is refetched. Tunable.
+const MAX_PERSISTED_MESSAGES_PER_HISTORY = 200;
 
 const passHistoryStorageProperties: Set<keyof HistoryStorage> = new Set([
   '_maxId',
@@ -561,6 +566,12 @@ export class AppMessagesManager extends AppManager {
 
   private deletedMessages: Set<string> = new Set();
 
+  // peers whose in-memory state is complete relative to the persisted (IDB) one;
+  // only such peers are allowed to be flushed back, otherwise a partial
+  // in-memory state could overwrite a rich persisted record
+  private persistHydratedPeers: Set<PeerId>;
+  private hydratingPersistedPeerId: PeerId;
+
   private maxSeenId = 0;
 
   public migratedFromTo: {[peerId: PeerId]: PeerId} = {};
@@ -795,6 +806,7 @@ export class AppMessagesManager extends AppManager {
       const peerId = chatId.toPeerId(true);
       if(!enabled) {
         delete this.threadsStorage[peerId];
+        this.markPeerHistoryDirty(peerId);
 
         for(const key in this.pinnedMessages) {
           if(+key === peerId && key.startsWith(peerId + '_')) {
@@ -849,6 +861,7 @@ export class AppMessagesManager extends AppManager {
       this.uploadFilePromises = {};
     }
 
+    this.persistHydratedPeers = new Set();
     this.messagesStorageByPeerId = {};
     this.groupedMessagesStorage = {};
     this.scheduledMessagesStorage = {};
@@ -4239,6 +4252,10 @@ export class AppMessagesManager extends AppManager {
       });
     }
 
+    if(storage.type === 'history' && storage.peerId !== GLOBAL_HISTORY_PEER_ID) {
+      this.markPeerHistoryDirty(storage.peerId);
+    }
+
     return storage?.set(mid, message);
   }
 
@@ -4258,6 +4275,10 @@ export class AppMessagesManager extends AppManager {
         key: joinDeepPath(storage.key, mid),
         accountNumber: this.getAccountNumber()
       });
+    }
+
+    if(storage.type === 'history' && storage.peerId !== GLOBAL_HISTORY_PEER_ID) {
+      this.markPeerHistoryDirty(storage.peerId);
     }
 
     return storage?.delete(mid);
@@ -4294,7 +4315,168 @@ export class AppMessagesManager extends AppManager {
   }
 
   public getHistoryMessagesStorage(peerId: PeerId) {
+    this.hydratePersistedPeer(peerId);
+    return this.getHistoryMessagesStorageNoHydrate(peerId);
+  }
+
+  public getHistoryMessagesStorageNoHydrate(peerId: PeerId) {
     return this.messagesStorageByPeerId[peerId] ??= this.createMessageStorage(peerId, 'history');
+  }
+
+  private markPeerHistoryDirty(peerId: PeerId) {
+    if(peerId === this.hydratingPersistedPeerId || !this.persistHydratedPeers?.has(peerId)) {
+      return;
+    }
+
+    this.messagesPersistentStorage.markDirty(peerId);
+  }
+
+  private hydratePersistedPeer(peerId: PeerId) {
+    if(
+      !peerId || // also covers GLOBAL_HISTORY_PEER_ID
+      this.messagesPersistentStorage.isFrozen() || // don't hydrate while bulk-loading dialogs (storage is frozen for the same scope)
+      !this.persistHydratedPeers ||
+      this.persistHydratedPeers.has(peerId) ||
+      !this.messagesPersistentStorage.isLoaded()
+    ) {
+      return;
+    }
+
+    this.persistHydratedPeers.add(peerId);
+
+    const record = this.messagesPersistentStorage.getRecord(peerId);
+    if(!record) {
+      return;
+    }
+
+    const previousHydrating = this.hydratingPersistedPeerId;
+    this.hydratingPersistedPeerId = peerId;
+    try {
+      if(record.messages.length) {
+        this.saveMessages(record.messages);
+      }
+
+      if(record.history) {
+        this.hydratePersistedHistory(this.getHistoryStorage(peerId), record.history);
+      }
+
+      for(const threadId in record.threads || {}) {
+        this.hydratePersistedHistory(this.getHistoryStorage(peerId, +threadId), record.threads[threadId]);
+      }
+    } finally {
+      this.hydratingPersistedPeerId = previousHydrating;
+    }
+
+    this.messagesPersistentStorage.markDirty(peerId); // * bump accessedAt for the LRU cap
+  }
+
+  private hydratePersistedHistory(historyStorage: HistoryStorage, persisted: MessagesPersistedHistory) {
+    const topMid = historyStorage.maxId;
+    for(const {values, end} of persisted.slices) {
+      const inserted = historyStorage.history.insertSlice(values);
+      if(!inserted) {
+        continue;
+      }
+
+      if(end & SliceEnd.Top) {
+        inserted.setEnd(SliceEnd.Top);
+      }
+
+      // * bottom-ness must be re-derived: the chat may have advanced while we were away,
+      // * so trust the persisted bottom end only when the slice reaches the current top message
+      if(end & SliceEnd.Bottom && topMid && inserted.includes(topMid)) {
+        inserted.setEnd(SliceEnd.Bottom);
+      }
+    }
+
+    if(persisted.count) {
+      historyStorage.count = Math.max(historyStorage.count || 0, persisted.count);
+    }
+
+    historyStorage.maxOutId ??= persisted.maxOutId;
+    historyStorage.readMaxId ??= persisted.readMaxId;
+    historyStorage.readOutboxMaxId ??= persisted.readOutboxMaxId;
+  }
+
+  public serializePeerForPersistence(peerId: PeerId): MessagesPersistedRecord | undefined {
+    if(!this.persistHydratedPeers?.has(peerId)) {
+      return;
+    }
+
+    // stopgap cache (see MessagesPersistentStorage) — bound per-history size so a heavy peer can't
+    // grow the persisted blob unboundedly; the message bodies we persist are exactly the mids that
+    // survive this cap, so slices and bodies stay consistent
+    const survivingMids = new Set<number>();
+    const serializeHistory = (historyStorage: HistoryStorage): MessagesPersistedHistory => {
+      const allSlices = historyStorage.history?.serialize((mid) => !isTempId(mid));
+      if(!allSlices?.length) {
+        return;
+      }
+
+      const slices: MessagesPersistedHistory['slices'] = [];
+      let kept = 0;
+      for(const slice of allSlices) { // * slices + values are newest-first
+        if(kept >= MAX_PERSISTED_MESSAGES_PER_HISTORY) {
+          break;
+        }
+
+        const room = MAX_PERSISTED_MESSAGES_PER_HISTORY - kept;
+        let {values, end} = slice;
+        if(values.length > room) {
+          values = values.slice(0, room); // * keep the newest `room`
+          end &= ~SliceEnd.Top; // * we dropped the older tail, so this slice no longer reaches the top
+        }
+
+        for(const mid of values) {
+          survivingMids.add(mid);
+        }
+        slices.push({values, end});
+        kept += values.length;
+      }
+
+      return {
+        slices,
+        count: historyStorage.count,
+        maxOutId: historyStorage.maxOutId,
+        readMaxId: historyStorage.readMaxId,
+        readOutboxMaxId: historyStorage.readOutboxMaxId
+      };
+    };
+
+    const mainStorage = this.historiesStorage[peerId];
+    const history = mainStorage && serializeHistory(mainStorage);
+
+    let threads: MessagesPersistedRecord['threads'];
+    const threadsStorages = this.threadsStorage[peerId];
+    for(const threadId in threadsStorages || {}) {
+      if(isTempId(+threadId)) {
+        continue;
+      }
+
+      const serialized = serializeHistory(threadsStorages[threadId]);
+      if(serialized) {
+        (threads ??= {})[threadId] = serialized;
+      }
+    }
+
+    const messages: MyMessage[] = [];
+    this.messagesStorageByPeerId[peerId]?.forEach((message) => {
+      if(
+        !survivingMids.has(message.mid) ||
+        message.pFlags?.is_outgoing ||
+        (message as Message.message).pending
+      ) {
+        return;
+      }
+
+      messages.push(message);
+    });
+
+    if(!messages.length && !history && !threads) {
+      return;
+    }
+
+    return {peerId, messages, history: history || undefined, threads, accessedAt: Date.now()};
   }
 
   public getLogsMessagesStorage(peerId: PeerId) {
@@ -4726,6 +4908,8 @@ export class AppMessagesManager extends AppManager {
   }
 
   public flushStoragesByPeerId(peerId: PeerId) {
+    this.messagesPersistentStorage.deletePeer(peerId);
+
     [
       this.historiesStorage[peerId],
       this.searchesStorage[peerId],
@@ -6970,11 +7154,14 @@ export class AppMessagesManager extends AppManager {
     // * using proxy to catch only outside calls
     let ignoreSliceCalls = false;
     const observeKey = historyStorage.searchHistory ? 'searchHistory' : 'history';
+    const persistPeerId = (options.type === 'history' || options.type === 'replies') ? options.peerId : undefined;
     const observed = createObservedState(historyStorage, {
       onSet: ({prop, value, oldValue, state}) => {
         if(!passHistoryStorageProperties.has(prop as keyof HistoryStorage)) {
           return;
         }
+
+        persistPeerId && this.markPeerHistoryDirty(persistPeerId);
 
         MTProtoMessagePort.getInstance<false>().invokeVoid('mirror', {
           name: 'historyStorage',
@@ -7001,6 +7188,8 @@ export class AppMessagesManager extends AppManager {
                 array[idx] = arg.unwrapped;
               }
             });
+
+            persistPeerId && this.markPeerHistoryDirty(persistPeerId);
 
             // console.log('history', method, args, result, state);
             MTProtoMessagePort.getInstance<false>().invokeVoid('mirror', {
@@ -7034,6 +7223,8 @@ export class AppMessagesManager extends AppManager {
             return;
           }
 
+          persistPeerId && this.markPeerHistoryDirty(persistPeerId);
+
           // console.log('slice call', method, args, result, state);
           MTProtoMessagePort.getInstance<false>().invokeVoid('mirror', {
             name: 'historyStorage',
@@ -7052,6 +7243,13 @@ export class AppMessagesManager extends AppManager {
   }
 
   public getHistoryStorage(peerId: PeerId, threadId?: number) {
+    this.hydratePersistedPeer(peerId);
+    return this.getHistoryStorageNoHydrate(peerId, threadId);
+  }
+
+  // * for dialog-metadata maintenance paths that touch many peers at once;
+  // * their mutations (unshift of top_message, scalar sets) merge safely with a later hydration
+  public getHistoryStorageNoHydrate(peerId: PeerId, threadId?: number) {
     if(threadId) {
       // threadId = this.getLocalMessageId(threadId);
       return (this.threadsStorage[peerId] ??= {})[threadId] ??= this.createHistoryStorage({type: 'replies', peerId, threadId});
@@ -8373,6 +8571,10 @@ export class AppMessagesManager extends AppManager {
 
     if(canViewHistory !== hasHistory) {
       delete this.historiesStorage[peerId];
+      if(!canViewHistory) {
+        this.messagesPersistentStorage.deletePeer(peerId);
+      }
+
       this.rootScope.dispatchEvent('history_forbidden', peerId);
 
       if(historyStorage) {

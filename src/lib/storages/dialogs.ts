@@ -963,8 +963,8 @@ export default class DialogsStorage extends AppManager {
   private getDialogMessageForState(dialog: AnyDialog) {
     const {peerId} = dialog;
     const threadId = isSavedDialog(dialog) ? dialog.savedPeerId : undefined;
-    const historyStorage = this.appMessagesManager.getHistoryStorage(peerId, threadId);
-    const messagesStorage = this.appMessagesManager.getHistoryMessagesStorage(peerId);
+    const historyStorage = this.appMessagesManager.getHistoryStorageNoHydrate(peerId, threadId);
+    const messagesStorage = this.appMessagesManager.getHistoryMessagesStorageNoHydrate(peerId);
     const history = historyStorage.history.slice;
     let incomingMessage: MyMessage;
     for(let i = 0, length = history.length; i < length; ++i) {
@@ -1161,7 +1161,7 @@ export default class DialogsStorage extends AppManager {
 
     // * drop 'you joined this channel' service message
     if(this.appPeersManager.isBroadcast(peerId)) {
-      const historyStorage = this.appMessagesManager.getHistoryStorage(peerId);
+      const historyStorage = this.appMessagesManager.getHistoryStorageNoHydrate(peerId);
       const mid = historyStorage?.channelJoinedMid;
       if(mid) {
         historyStorage.channelJoinedMid = undefined;
@@ -1239,7 +1239,7 @@ export default class DialogsStorage extends AppManager {
         const topMessage = this.appMessagesManager.getMessageByPeer(peerId, topMid) as MyMessage;
         if(!topMid || (topPendingMessage && (!topMessage || topPendingMessage?.date > topMessage?.date))) {
           dialog.top_message = topMid = topPendingMid;
-          this.appMessagesManager.getHistoryStorage(peerId, dialogKey)._maxId = topPendingMid;
+          this.appMessagesManager.getHistoryStorageNoHydrate(peerId, dialogKey)._maxId = topPendingMid;
         }
       }
 
@@ -1509,7 +1509,7 @@ export default class DialogsStorage extends AppManager {
       }
     }
 
-    const historyStorage = this.appMessagesManager.getHistoryStorage(peerId, topicId);
+    const historyStorage = this.appMessagesManager.getHistoryStorageNoHydrate(peerId, topicId);
     const slice = historyStorage.history.slice;
     if(!mid) {
 

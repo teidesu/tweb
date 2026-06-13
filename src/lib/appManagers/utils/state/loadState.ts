@@ -125,7 +125,7 @@ function StateWriter(log: ReturnType<typeof logger>) {
       w.state[key] = value;
     });
 
-    const r: (keyof StoragesResults)[] = ['chats', 'dialogs', 'users'];
+    const r: (keyof StoragesResults)[] = ['chats', 'dialogs', 'users', 'messages'];
     for(const key of r) {
       resetStorages.set(key, []);
     }
