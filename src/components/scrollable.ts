@@ -51,6 +51,26 @@ const scrollsIntersector = new IntersectionObserver((entries) => {
 
 const SCROLL_THROTTLE = /* IS_ANDROID ? 200 :  */24;
 
+// Aligns the thumb overlay to the scroller's padding box (not border box —
+// transparent border insets like the chat topbar/input reservation must keep
+// confining the track). The two elements are siblings, so they share a
+// containing block and offset* coordinates line up. Returns the new geometry
+// cache key.
+export function syncThumbContainerGeometry(container: HTMLElement, thumbContainer: HTMLElement, lastGeometry: string): string {
+  const top = container.offsetTop + container.clientTop;
+  const left = container.offsetLeft + container.clientLeft;
+  const geometry = `${top},${left},${container.clientWidth},${container.clientHeight}`;
+  if(geometry !== lastGeometry) {
+    const {style} = thumbContainer;
+    style.top = top + 'px';
+    style.left = left + 'px';
+    style.width = container.clientWidth + 'px';
+    style.height = container.clientHeight + 'px';
+  }
+
+  return geometry;
+}
+
 function throttleMeasurement(callback: () => void): number {
   if(!IS_OVERLAY_SCROLL_SUPPORTED()) {
     return requestAnimationFrame(callback);
@@ -104,6 +124,9 @@ export class ScrollableBase {
   protected removeHeavyAnimationListener: () => void;
   protected addedScrollListener: boolean;
 
+  protected resizeObserver: ResizeObserver;
+  protected mutationObserver: MutationObserver;
+
   constructor(
     public el?: HTMLElement,
     logPrefix = '',
@@ -145,8 +168,16 @@ export class ScrollableBase {
       return;
     }
 
-    window.addEventListener('resize', this.onScroll, {passive: true});
+    window.addEventListener('resize', this.invalidateMeasurements, {passive: true});
     this.addScrollListener();
+
+    // ResizeObserver covers the container's own box, MutationObserver covers
+    // content changes that only affect scrollSize — together they invalidate
+    // the measurement caches so scroll frames never have to read layout
+    this.resizeObserver = new ResizeObserver(this.invalidateMeasurements);
+    this.resizeObserver.observe(this.container);
+    this.mutationObserver = new MutationObserver(this.invalidateMeasurements);
+    this.mutationObserver.observe(this.container, {childList: true, subtree: true});
 
     this.removeHeavyAnimationListener = useHeavyAnimationCheck(() => {
       this.isHeavyAnimationInProgress = true;
@@ -170,9 +201,14 @@ export class ScrollableBase {
       return;
     }
 
-    window.removeEventListener('resize', this.onScroll);
+    window.removeEventListener('resize', this.invalidateMeasurements);
+    this.resizeObserver.disconnect();
+    this.resizeObserver = undefined;
+    this.mutationObserver.disconnect();
+    this.mutationObserver = undefined;
     if(this.thumb) {
-      this.thumb.removeEventListener('mousedown', this.onMouseMove);
+      this.thumb.removeEventListener('mousedown', this.onMouseDown);
+      this.container.removeEventListener('mouseenter', this.onContainerMouseEnter);
       window.removeEventListener('mousemove', this.onMouseMove);
       window.removeEventListener('mouseup', this.onMouseUp);
     }
@@ -184,6 +220,7 @@ export class ScrollableBase {
 
   public destroy() {
     this.removeListeners();
+    this.thumbContainer?.remove();
     this.onAdditionalScroll = undefined;
     this.onScrolledTop = undefined;
     this.onScrolledBottom = undefined;
@@ -191,7 +228,6 @@ export class ScrollableBase {
 
   public prepend(...elements: (string | Node)[]) {
     const prependTo = this.splitUp || this.padding || this.container;
-    this.thumb && /* prependTo === this.container &&  */elements.unshift(this.thumbContainer);
     prependTo.prepend(...elements);
     this.onSizeChange();
   }
@@ -226,16 +262,24 @@ export class ScrollableBase {
     }
 
     // if(this.onScrollMeasure || ((this.scrollLocked || (!this.onScrolledTop && !this.onScrolledBottom)) && !this.splitUp && !this.onAdditionalScroll)) return;
-    if((!this.onScrolledTop && !this.onScrolledBottom) && !this.splitUp && !this.onAdditionalScroll) return;
+    if((!this.onScrolledTop && !this.onScrolledBottom) && !this.splitUp && !this.onAdditionalScroll && !this.thumb) return;
+
+    // cache scroll position to avoid forced reflows if the layout is dirty in the throttled measure
+    this.capturedScrollPosition = this.scrollPosition;
+
     if(this.onScrollMeasure) return;
     this.onScrollMeasure = throttleMeasurement(() => {
       this.onScrollMeasure = 0;
 
-      const scrollPosition = this.scrollPosition;
+      if(this.sizesDirty) {
+        this.refreshMeasurements();
+      }
+
+      const scrollPosition = this.capturedScrollPosition;
       this.lastScrollDirection = this.lastScrollPosition === scrollPosition ? 0 : (this.lastScrollPosition < scrollPosition ? 1 : -1); // * 1 - bottom, -1 - top
       this.lastScrollPosition = scrollPosition;
 
-      this.updateThumb(scrollPosition);
+      this.updateThumb(scrollPosition, false);
 
       // lastScrollDirection check is useless here, every callback should decide on its own
       if(this.onAdditionalScroll/*  && this.lastScrollDirection !== 0 */) {
@@ -248,8 +292,64 @@ export class ScrollableBase {
     });
   };
 
-  public updateThumb(scrollPosition = this.scrollPosition) {
+  protected lastThumbGeometry = '';
+  protected cachedScrollSize = -1;
+  protected cachedClientSize = -1;
+  protected sizesDirty = true;
+  protected capturedScrollPosition = 0;
+
+  protected refreshMeasurements() {
+    // ! all layout reads are here and only run when something invalidated,
+    // ! to avoid accidental reflows from re-reading height/width
+    this.sizesDirty = false;
+    this.cachedScrollSize = this.container[this.scrollSizeProperty];
+    this.cachedClientSize = this.container[this.clientSizeProperty];
+    if(this.thumb && this.thumbContainer.parentElement) {
+      this.lastThumbGeometry = syncThumbContainerGeometry(this.container, this.thumbContainer, this.lastThumbGeometry);
+    }
+  }
+
+  public invalidateMeasurements = () => {
+    this.sizesDirty = true;
+    this.onScroll();
+  };
+
+  // The thumb overlays the scroller from outside, as a sibling: any descendant
+  // (even position: sticky) rides the macOS rubber-band overscroll bounce
+  // together with the content, while a sibling stays pinned. The container may
+  // not be in the DOM yet (callers often append it themselves), so attachment
+  // is re-asserted lazily — on every thumb update and on hover, the only
+  // moments the thumb is visible.
+  protected ensureThumbAttached() {
+    if(!this.container.parentElement) {
+      this.thumbContainer.remove();
+      this.lastThumbGeometry = '';
+      return false;
+    }
+
+    // adjacency (not mere presence) is required by the :hover sibling selector
+    if(this.container.nextElementSibling !== this.thumbContainer) {
+      this.container.after(this.thumbContainer);
+      // an attach/move means the container's offsets may have changed too
+      this.sizesDirty = true;
+    }
+
+    return true;
+  }
+
+  protected onContainerMouseEnter = () => {
+    this.updateThumb();
+  };
+
+  // fresh = re-read layout: the default for external callers (they signal a
+  // change we can't observe synchronously); scroll measures pass false and
+  // consume the caches
+  public updateThumb(scrollPosition = this.scrollPosition, fresh = true) {
     if(IS_OVERLAY_SCROLL_SUPPORTED() || !this.thumb) {
+      return;
+    }
+
+    if(!this.ensureThumbAttached()) {
       return;
     }
 
@@ -257,8 +357,14 @@ export class ScrollableBase {
     // tracks the scroll position without lag
     this.thumbTransitionCleanup?.();
 
-    const scrollSize = this.container[this.scrollSizeProperty];
-    const clientSize = this.container[this.clientSizeProperty];
+    if(fresh || this.sizesDirty) {
+      this.refreshMeasurements();
+    }
+
+    const scrollSize = this.cachedScrollSize;
+    const clientSize = this.cachedClientSize;
+    // Safari reports out-of-bounds positions during rubber-band overscroll
+    scrollPosition = Math.max(0, Math.min(scrollPosition, scrollSize - clientSize));
     const trackSize = clientSize - (this.getThumbTrackInsetEnd?.() ?? 0);
     const divider = scrollSize / trackSize / 0.75;
     const thumbSize = Math.max(20, trackSize / divider);
@@ -317,8 +423,10 @@ export class ScrollableBase {
   protected onMouseMove = (e: MouseEvent) => {
     cancelEvent(e);
 
-    const contentHeight = this.scrollSize;
-    const viewportHeight = this.clientSize;
+    // caches are fresh here: the thumb is only draggable while visible, and
+    // visibility implies a recent updateThumb
+    const contentHeight = this.cachedScrollSize;
+    const viewportHeight = this.cachedClientSize;
     const trackHeight = viewportHeight - (this.getThumbTrackInsetEnd?.() ?? 0);
     const scrollbarSize = this.thumb.offsetHeight;
     const maxScrollTop = contentHeight - viewportHeight;
@@ -347,9 +455,7 @@ export class ScrollableBase {
   };
 
   public onSizeChange() {
-    if(!IS_OVERLAY_SCROLL_SUPPORTED() && this.thumb) {
-      this.onScroll();
-    }
+    this.invalidateMeasurements();
   }
 
   public getDistanceToEnd() {
@@ -382,11 +488,13 @@ export class ScrollableBase {
   }
 
   get firstElementChild() {
-    return this.thumb ? this.thumbContainer.nextElementSibling : this.container.firstElementChild;
+    return this.container.firstElementChild;
   }
 
   public setScrollPositionSilently(value: number) {
     this.lastScrollPosition = value;
+    // a pending measure must not consume a position captured before the jump
+    this.capturedScrollPosition = value;
     this.ignoreNextScrollEvent();
 
     this.scrollPosition = value;
@@ -403,7 +511,6 @@ export class ScrollableBase {
   }
 
   public replaceChildren(...args: (string | Node)[]) {
-    this.thumb && args.unshift(this.thumbContainer);
     this.container.replaceChildren(...args);
   }
 }
@@ -443,9 +550,10 @@ export default class Scrollable extends ScrollableBase {
       this.thumb = document.createElement('div');
       this.thumb.classList.add('scrollable-thumb');
       this.thumbContainer.append(this.thumb);
-      this.container.prepend(this.thumbContainer);
 
       this.thumb.addEventListener('mousedown', this.onMouseDown);
+      this.container.addEventListener('mouseenter', this.onContainerMouseEnter);
+      this.ensureThumbAttached();
     }
 
     this.container.classList.add('scrollable-y');
@@ -457,10 +565,12 @@ export default class Scrollable extends ScrollableBase {
 
   public attachBorderListeners(setClassOn = this.container) {
     const cb = this.onAdditionalScroll;
+    // runs from the scroll measure: lastScrollPosition and the caches were
+    // refreshed right before
     this.onAdditionalScroll = () => {
       cb?.();
-      setClassOn.classList.toggle('scrolled-start', !this.scrollPosition);
-      setClassOn.classList.toggle('scrolled-end', this.isScrolledToEnd);
+      setClassOn.classList.toggle('scrolled-start', !this.lastScrollPosition);
+      setClassOn.classList.toggle('scrolled-end', this.cachedScrollSize - Math.round(this.lastScrollPosition + this.cachedClientSize) <= 1);
     };
 
     setClassOn.classList.add('scrolled-start', 'scrolled-end', 'scrollable-y-bordered');
@@ -479,12 +589,20 @@ export default class Scrollable extends ScrollableBase {
       return;
     }
 
-    const {scrollSize, scrollPosition, clientSize} = this;
+    if(this.sizesDirty) {
+      this.refreshMeasurements();
+    }
+
+    // lastScrollPosition is in sync: the scroll measure updates it right
+    // before calling here, external callers (force-checking after a content
+    // load) come after a measure or a silent set
+    const scrollSize = this.cachedScrollSize;
+    const scrollPosition = this.lastScrollPosition;
     if(!scrollSize) { // незачем вызывать триггеры если блок пустой или не виден
       return;
     }
 
-    const maxScrollPosition = scrollSize - clientSize;
+    const maxScrollPosition = scrollSize - this.cachedClientSize;
 
     // this.log('checkForTriggers:', scrollTop, maxScrollTop);
 

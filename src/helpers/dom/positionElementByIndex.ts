@@ -1,3 +1,4 @@
+import nthChild from '@helpers/dom/nthChild';
 import whichChild from '@helpers/dom/whichChild';
 
 export default function positionElementByIndex(element: HTMLElement, container: HTMLElement, pos: number, prevPos?: number) {
@@ -11,10 +12,12 @@ export default function positionElementByIndex(element: HTMLElement, container: 
     pos += 1;
   }
 
+  // index in the same coordinates as whichChild — thumb siblings excluded
+  const before = pos ? nthChild(container, pos) : undefined;
   if(!pos) {
     container.prepend(element);
-  } else if(container.childElementCount > pos) {
-    container.insertBefore(element, container.children[pos]);
+  } else if(before) {
+    container.insertBefore(element, before);
   } else {
     container.append(element);
   }
