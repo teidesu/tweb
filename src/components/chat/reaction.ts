@@ -35,19 +35,16 @@ const CLASS_NAME = 'reaction';
 const TAG_NAME = CLASS_NAME + '-element';
 
 export enum ReactionLayoutType {
-  Inline = 'inline',
   Block = 'block',
   Tag = 'tag'
 };
 
 export const REACTIONS_SIZE: {[key in ReactionLayoutType]: number} = {
-  [ReactionLayoutType.Inline]: 14,
-  [ReactionLayoutType.Block]: 22,
-  [ReactionLayoutType.Tag]: 22,
+  [ReactionLayoutType.Block]: 18,
+  [ReactionLayoutType.Tag]: 18,
 };
 
 export const REACTIONS_DISPLAY_COUNTER_AT: {[key in ReactionLayoutType]?: number} = {
-  [ReactionLayoutType.Inline]: 2,
   [ReactionLayoutType.Block]: 4,
 };
 
@@ -295,8 +292,8 @@ export default class ReactionElement extends HTMLElement {
       // `);
       this.insertAdjacentHTML('beforeend', `
         <div class="reaction-tag-background"></div>
-        <svg class="reaction-tag-svg" width="43" height="30" viewBox="0 0 43 30" xmlns="http://www.w3.org/2000/svg">
-          <path class="reaction-tag-svg-path" d="M40.8317 12.0432L34.9967 4.08636C33.1129 1.51761 30.1181 0 26.9326 0H7C3.13401 0 0 3.13401 0 7V23C0 26.866 3.13401 30 7 30H26.9326C30.1181 30 33.1129 28.4824 34.9967 25.9136L40.8317 17.9568C42.1223 16.1969 42.1223 13.8031 40.8317 12.0432Z" />
+        <svg class="reaction-tag-svg" width="31.5333" height="22" viewBox="0 0 31.5333 22" xmlns="http://www.w3.org/2000/svg">
+          <path class="reaction-tag-svg-path" d="M29.9432 8.8317L25.6642 2.9967C24.2828 1.1129 22.0866 0 19.7506 0H5.1333C2.2983 0 0 2.2983 0 5.1333V16.8667C0 19.7017 2.2983 22 5.1333 22H19.7506C22.0866 22 24.2828 20.8871 25.6642 19.0033L29.9432 13.1683C30.8897 11.8777 30.8897 10.1223 29.9432 8.8317Z" />
         </svg>
         <div class="reaction-tag-dot"></div>
       `);
@@ -436,7 +433,7 @@ export default class ReactionElement extends HTMLElement {
     let setTitle = false;
     if (force || title || reactionCount.count >= displayOn! || (this.type === ReactionLayoutType.Block && !this.canRenderAvatars)) {
       if (!this.counter) {
-        this.counter = document.createElement(this.type === ReactionLayoutType.Inline ? 'i' : 'span');
+        this.counter = document.createElement('span');
         this.counter.classList.add(CLASS_NAME + '-counter');
       }
 
@@ -481,7 +478,7 @@ export default class ReactionElement extends HTMLElement {
 
     if (!this.stackedAvatars) {
       this.stackedAvatars = new StackedAvatars({
-        avatarSize: 24,
+        avatarSize: 18,
         middleware: this.middleware,
       });
 
@@ -492,7 +489,6 @@ export default class ReactionElement extends HTMLElement {
   }
 
   public setIsChosen(isChosen = this.reactionCount.chosen_order !== undefined) {
-    if (this.type === ReactionLayoutType.Inline) return;
     const wasChosen = this.classList.contains('is-chosen') && !this.classList.contains('backwards');
     if (wasChosen !== isChosen) {
       SetTransition({
@@ -506,10 +502,8 @@ export default class ReactionElement extends HTMLElement {
 
   public fireAroundAnimation(waitPromise?: Promise<any>) {
     let add = 0;
-    if (this.type === ReactionLayoutType.Inline) {
+    if (this.type === ReactionLayoutType.Block || this.type === ReactionLayoutType.Tag) {
       add = 14;
-    } else if (this.type === ReactionLayoutType.Block || this.type === ReactionLayoutType.Tag) {
-      add = 18;
     }
 
     return ReactionElement?.fireAroundAnimation({
