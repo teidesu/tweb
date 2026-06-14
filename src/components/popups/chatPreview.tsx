@@ -33,7 +33,7 @@ export type ChatPreviewOptions = {
 /**
  * Build a preview anchor from a dialog row. Anchors to the LEFT COLUMN's right edge
  * (instead of the row's own right edge) so the 8px gap from the sidebar is constant
- * regardless of the row's internal padding. Shared by Shift+Click and the context-menu
+ * regardless of the row's internal padding. Shared by Alt+Click and the context-menu
  * "Preview" entry — both want the popup pinned the same way.
  */
 export function chatPreviewAnchorFromDialogRow(li: HTMLElement): ChatPreviewAnchor {
@@ -59,7 +59,7 @@ const MARGIN = 8;
 export default function showChatPreviewPopup(options: ChatPreviewOptions): void {
   if (!options.peerId || options.peerId === NULL_PEER_ID) return;
 
-  // Shift+clicking through several dialogs in a row should swap the preview, not stack them.
+  // Alt+clicking through several dialogs in a row should swap the preview, not stack them.
   PopupElement.getPopups(CHAT_PREVIEW_POPUP_KIND).forEach((p) => p.hide());
 
   const [show, setShow] = createSignal(true);
@@ -136,7 +136,7 @@ export default function showChatPreviewPopup(options: ChatPreviewOptions): void 
 
       // Viewport resize moves the anchored dialog row underneath us — the popup was
       // positioned for the old layout and would float over the wrong target. Close instead
-      // of trying to re-anchor; the user can Shift+Click again in the new layout.
+      // of trying to re-anchor; the user can Alt+Click again in the new layout.
       listenerSetter.add(window)('resize', () => handle.hide());
     });
 
@@ -149,6 +149,9 @@ export default function showChatPreviewPopup(options: ChatPreviewOptions): void 
     function positionFromAnchor(anchor: ChatPreviewAnchor) {
       if (!anchor) return;
       let ax: number, ay: number, rectLeft: number;
+      // A bare {x, y} is a pointer position (Alt+click) — the popup centres on the cursor and
+      // floats over the chatlist. The rect-based anchors instead dock it beside the row.
+      let fromPointer = false;
       if (anchor instanceof HTMLElement) {
         const r = anchor.getBoundingClientRect();
         ax = r.right;
@@ -162,6 +165,7 @@ export default function showChatPreviewPopup(options: ChatPreviewOptions): void 
         ax = anchor.x;
         ay = anchor.y;
         rectLeft = anchor.x;
+        fromPointer = true;
       }
 
       const vw = window.innerWidth || document.documentElement.clientWidth;
@@ -187,18 +191,31 @@ export default function showChatPreviewPopup(options: ChatPreviewOptions): void 
         left = Math.max(MARGIN, (vw - width) / 2);
         top = Math.max(MARGIN, (vh - height) / 2);
       } else {
-        left = ax + MARGIN;
-        top = ay - height / 2;
-
         // Keep the popup fully on-screen, clamping against the *fitted* size. Headless/
         // zero-size measurements fall through to the natural anchor offset instead of
         // collapsing to a negative coordinate.
         const maxLeft = vw > MARGIN * 2 ? vw - width - MARGIN : Infinity;
         const maxTop = vh > MARGIN * 2 ? vh - height - MARGIN : Infinity;
-        if (left > maxLeft) {
-          const fromLeft = rectLeft - width - MARGIN;
-          left = Math.max(MARGIN, fromLeft);
+
+        if (fromPointer) {
+          // Pointer anchor: pop over the chatlist towards the lower-right of the cursor, so
+          // the pointer sits at the popup's top-left corner. Flip up (pointer at bottom-left)
+          // when there's no room below — but never let the popup sit *under* the pointer.
+          left = ax + MARGIN;
+          top = ay + MARGIN;
+          if (top > maxTop) top = ay - height - MARGIN;
+        } else {
+          // Rect anchor: sit it to the right of the row, beside the column.
+          left = ax + MARGIN;
+          top = ay - height / 2;
+          if (left > maxLeft) {
+            const fromLeft = rectLeft - width - MARGIN;
+            left = Math.max(MARGIN, fromLeft);
+          }
         }
+
+        if (left < MARGIN) left = MARGIN;
+        if (left > maxLeft) left = maxLeft;
         if (top < MARGIN) top = MARGIN;
         if (top > maxTop) top = maxTop;
       }

@@ -118,7 +118,7 @@ export default class Chat extends EventListenerBase<{
   public noForwards: boolean;
 
   /**
-   * Preview mode (Shift+Click on a dialog). The chat renders messages and background
+   * Preview mode (Alt+Click on a dialog). The chat renders messages and background
    * but performs no side effects — no readHistory / readMessages / incrementMessageViews,
    * and no global background swap (the preview popup paints its own).
    */

@@ -79,7 +79,7 @@ import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId'
 import { AppChatFoldersTab } from '@components/solidJsTabs/tabs';
 import eachTimeout from '@helpers/eachTimeout';
 import PopupSharedFolderInvite from '@components/popups/sharedFolderInvite';
-import showChatPreviewPopup, { chatPreviewAnchorFromDialogRow } from '@components/popups/chatPreview';
+import showChatPreviewPopup from '@components/popups/chatPreview';
 import showLimitPopup from '@components/popups/limit';
 import StoriesList from '@components/stories/list';
 import { render } from 'solid-js/web';
@@ -1852,7 +1852,7 @@ export class AppDialogsManager {
     // the chat is switched on click (mouseup), prefetching on mousedown buys
     // the press-to-release time for the initial history request
     list.addEventListener('mousedown', (e) => {
-      if (e.button !== 0 || e.shiftKey || e.ctrlKey || e.metaKey) {
+      if (e.button !== 0 || e.altKey || e.ctrlKey || e.metaKey) {
         return;
       }
 
@@ -1943,17 +1943,16 @@ export class AppDialogsManager {
         return;
       }
 
-      // Shift+click → floating chat preview (tdesktop-style). Bypasses chat selection and
+      // Alt+click → floating chat preview (tdesktop-style). Bypasses chat selection and
       // forum-tab toggling. Ctrl/Cmd (new-tab) takes precedence and is handled below.
-      // Snapshot the anchor *now* — virtual scroll reuses DOM nodes and may yank this
-      // element offscreen by the time the popup constructor runs.
-      if (e.shiftKey && !e.ctrlKey && !e.metaKey && !autonomous) {
+      // Anchored at the pointer so the popup pops over the chatlist where the click landed.
+      if (e.altKey && !e.ctrlKey && !e.metaKey && !autonomous) {
         showChatPreviewPopup({
           peerId: monoforumParentPeerId || peerId,
           monoforumThreadId: monoforumParentPeerId ? peerId : undefined,
           threadId,
           lastMsgId,
-          anchor: chatPreviewAnchorFromDialogRow(elem),
+          anchor: { x: e.clientX, y: e.clientY },
         });
         cancelEvent(e);
         return;
@@ -1970,7 +1969,7 @@ export class AppDialogsManager {
         linkedChat?.admin_rights?.pFlags?.manage_direct_messages &&
         !elem.dataset.isAllChats &&
         !lastMsgId &&
-        !e.shiftKey
+        !e.altKey
       ) {
         this.toggleForumTabByPeerId(peerId).then(() => {
           if (appImManager.chat?.peerId?.toChatId() !== linkedChat?.id && !mediaSizes.isLessThanFloatingLeftSidebar) openChat();
@@ -1979,7 +1978,7 @@ export class AppDialogsManager {
       }
 
 
-      if (peer?._ === 'user' && peer?.pFlags?.bot_forum_view && !lastMsgId && !threadId && !elem.dataset.isAllChats && !e.shiftKey) {
+      if (peer?._ === 'user' && peer?.pFlags?.bot_forum_view && !lastMsgId && !threadId && !elem.dataset.isAllChats && !e.altKey) {
         this.toggleForumTabByPeerId(peerId).then(() => {
           if (appImManager.chat?.peerId?.toUserId() !== peer.id && !mediaSizes.isLessThanFloatingLeftSidebar) openChat();
         });
@@ -1987,7 +1986,7 @@ export class AppDialogsManager {
       }
 
       const isForum = !!elem.querySelector('.is-forum');
-      if (isForum && !e.shiftKey && !lastMsgId) {
+      if (isForum && !e.altKey && !lastMsgId) {
         this.toggleForumTabByPeerId(peerId, undefined, false);
         return;
       }
