@@ -62,7 +62,7 @@ const BackgroundColor = () => {
     } else {
       const rgba = hexaToRgba(hex);
       const settings = themeController.getThemeSettings(theme!);
-      const hsla = highlightingColor(rgba);
+      const hsla = highlightingColor(rgba, themeController.getAccentHue());
 
       let wallPaper: WallPaper = {
         _: 'wallPaperNoFile',

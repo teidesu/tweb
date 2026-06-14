@@ -362,7 +362,7 @@ function resolveTransition(
 function computeHighlightingHsla(built: BuiltContent): string | undefined {
   if (!built.gradientCanvas && !built.image) return;
   const pixel = built.image ? averageColorFromImage(built.image) : averageColorFromCanvas(built.gradientCanvas!);
-  return highlightingColor(Array.from(pixel) as any);
+  return highlightingColor(Array.from(pixel) as any, themeControllerSingleton.getAccentHue());
 }
 
 function createSlotEl(): HTMLDivElement {

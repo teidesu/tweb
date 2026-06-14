@@ -1,11 +1,19 @@
 import { rgbaToHsla } from '@helpers/color';
+import clamp from '@helpers/number/clamp';
 
-// * https://github.com/TelegramMessenger/Telegram-iOS/blob/3d062fff78cc6b287c74e6171f855a3500c0156d/submodules/TelegramPresentationData/Sources/PresentationData.swift#L453
-export default function highlightingColor(rgba: [number, number, number, number?]) {
+// Match Android's `bubbleSelectedOverlay` (Theme.java): force a vivid highlight regardless
+// of how muted the wallpaper is, so the jump-to-message flash stays contrasty. The previous
+// Telegram-iOS formula only nudged saturation, which washed out on low-saturation wallpapers.
+const SATURATION_BOOST = 60;
+
+export default function highlightingColor(rgba: [number, number, number, number?], fallbackHue?: number) {
   let { h, s, l } = rgbaToHsla(rgba[0], rgba[1], rgba[2]);
-  if (s > 0) {
-    s = Math.min(100, s + 5 + 0.1 * (100 - s));
+  // achromatic wallpaper has no hue to keep — borrow the theme accent so the forced
+  // saturation doesn't turn a grey background into a red flash
+  if (s <= 0 && fallbackHue !== undefined) {
+    h = fallbackHue;
   }
+  s = clamp(s + SATURATION_BOOST, 0, 100);
   l = Math.max(0, l * .65);
 
   const hsla = `hsla(${h}, ${s}%, ${l}%, .4)`;

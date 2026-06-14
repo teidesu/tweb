@@ -200,7 +200,7 @@ export class AppBackgroundTab {
             return;
           }
 
-          const hsla = highlightingColor(Array.from(pixel) as any);
+          const hsla = highlightingColor(Array.from(pixel) as any, themeController.getAccentHue());
 
           if (hadSettings) {
             // applyNewTheme handed us a plain, mutable settings object (part of the themes

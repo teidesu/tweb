@@ -291,6 +291,15 @@ export class ThemeController {
     }
   }
 
+  // Current resolved accent hue (after accent-preset/cloud-theme overrides), used as the
+  // fallback hue for highlightingColor() on achromatic wallpapers.
+  public getAccentHue() {
+    const rgb = getComputedStyle(document.documentElement).getPropertyValue('--primary-color-rgb').trim();
+    if (!rgb) return undefined;
+    const [r, g, b] = rgb.split(',').map(Number);
+    return rgbaToHsla(r, g, b).h;
+  }
+
   public applyHighlightingColor({
     hsla,
     element = document.documentElement,
