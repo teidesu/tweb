@@ -1,10 +1,13 @@
 hi so this is an experimental attempt at making a fully-featured *desktop* telegram client based on webk.
 
+preview: [tweb.tei.pet](https://tweb.tei.pet)  
+upstream: [morethanwords/tweb](https://github.com/morethanwords/tweb)
+
 this fork is primarily focused on ui/ux improvements, code cleanup, and making the app *feel* more like a native desktop app. this might end up being nothing in the future, but it also might become the "inugram desktop" kind of thing.
 
 this fork is unofficial and is not affiliated with nor endorsed by telegram llc.
 
-below is the original readme
+below is the original(ish) readme
 
 --- 
 
@@ -21,13 +24,13 @@ This will install all the needed dependencies.
 
 
 #### Running web-server
-Just run `pnpm start` to start the web server and the livereload task.
+Just run `pnpm dev` to start the web server and the livereload task.
 Open http://localhost:8080/ in your browser.
 
 
 #### Running in production
 
-Run `node build` to build the minimized production version of the app. Copy `public` folder contents to your web server.
+Run `node build` to build the minimized production version of the app. Copy `dist` folder contents to your web server.
 
 ### Running in docker
 

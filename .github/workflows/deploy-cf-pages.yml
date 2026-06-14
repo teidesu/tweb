@@ -3,6 +3,9 @@ name: Deploy to Cloudflare Pages
 on:
   push:
     branches: [master]
+    paths-ignore:
+      - '*.md'
+      - 'snapshot-server'
   workflow_dispatch:
 
 concurrency:
