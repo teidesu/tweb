@@ -182,6 +182,10 @@ body.is-pinned-audio-shown, body.is-calling.forwards {
 		padding-inline-start: 1rem;
 		max-width: 100%;
 		overflow: hidden;
+
+		@include respond-to(no-floating-left-sidebar) {
+			padding-inline-start: .5rem;
+		}
 	}
 
 	.person {
@@ -191,6 +195,10 @@ body.is-pinned-audio-shown, body.is-calling.forwards {
 
 		&-avatar {
 			flex: 0 0 auto;
+
+			@include respond-to(no-floating-left-sidebar) {
+				display: none;
+			}
 		}
 
 		.bottom {
