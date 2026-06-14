@@ -5,7 +5,7 @@ import type CallInstance from '@lib/calls/callInstance';
 import animationIntersector from '@components/animationIntersector';
 import appSidebarLeft, { LEFT_COLUMN_ACTIVE_CLASSNAME } from '@components/sidebarLeft';
 import appSidebarRight, { RIGHT_COLUMN_ACTIVE_CLASSNAME } from '@components/sidebarRight';
-import { openEmoticonsPanel } from '@components/sidebarRight/tabs/emoticons';
+import { restoreEsgSidebar } from '@components/sidebarRight/tabs/emoticons';
 import mediaSizes, { ScreenSize } from '@helpers/mediaSizes';
 import { isRightColumnFloating } from '@helpers/updateColumnWidths';
 import { logger, LogTypes } from '@lib/logger';
@@ -399,7 +399,7 @@ export class AppImManager extends EventListenerBase<{
         // restore the persisted right column state when a chat opens (docked layout only)
         const [appSettings] = useAppSettings();
         if (appSettings.esgInSidebar && mediaSizes.activeScreen === ScreenSize.large) {
-          openEmoticonsPanel(false, false);
+          restoreEsgSidebar(chat.isBroadcast);
         } else if (appSettings.rightColumnShown && !isShown) {
           appSidebarRight.toggleSidebar(true, false, false);
         }
@@ -424,7 +424,7 @@ export class AppImManager extends EventListenerBase<{
       }
 
       if (appSettings.esgInSidebar) {
-        openEmoticonsPanel(false, false);
+        restoreEsgSidebar(this.chat.isBroadcast);
       } else if (appSettings.rightColumnShown) {
         appSidebarRight.toggleSidebar(true, false, false);
       }

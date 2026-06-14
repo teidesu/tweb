@@ -26,6 +26,12 @@ export default class AppEmoticonsTab extends SliderSuperTab {
     this.close();
   }
 
+  // close without resetting the persisted preference (e.g. swapped for the
+  // profile on a channel — the panel must return on the next regular chat)
+  public markTransient() {
+    this.transient = true;
+  }
+
   protected onClose() {
     if (!this.transient) {
       setAppSettings('esgInSidebar', false);
@@ -57,14 +63,30 @@ export function closeEmoticonsPanel() {
   appSidebarRight.getTab(AppEmoticonsTab)?.close();
 }
 
-export function replaceEmoticonsPanelWithProfile() {
+export function replaceEmoticonsPanelWithProfile(persist = true) {
   const tab = appSidebarRight.getTab(AppEmoticonsTab);
   if (!tab) {
     return false;
+  }
+
+  if (!persist) {
+    tab.markTransient();
   }
 
   appSidebarRight.sharedMediaTab.openInstant().then(() => {
     appSidebarRight.removeTabFromHistory(tab);
   });
   return true;
+}
+
+// Restore the docked sidebar to its persisted state for a chat: the ESG panel on
+// chats with a composer, the profile on channels (which have none) — like tdesktop.
+export function restoreEsgSidebar(isBroadcast: boolean) {
+  if (isBroadcast) {
+    if (!replaceEmoticonsPanelWithProfile(false)) {
+      appSidebarRight.toggleSidebar(true, false, false);
+    }
+  } else {
+    openEmoticonsPanel(false, false);
+  }
 }

@@ -526,14 +526,7 @@ export class EmoticonsDropdown extends DropdownHover {
       return;
     }
 
-    const stickersTab = this.getTab(StickersTab);
-    const gifsTab = this.getTab(GifsTab);
-    const rights: {[tabId: number]: ChatRights} = {
-      ...(stickersTab && { [stickersTab.tabId]: 'send_stickers' }),
-      ...(gifsTab && { [gifsTab.tabId]: 'send_gifs' }),
-    };
-
-    const action = rights[id];
+    const action = this.getTabRights()[id];
     // rights are unknown until the first async checkRights — don't gate the
     // initial (restored) tab selection, checkRights corrects it if needed
     if (action && !this.rights[action] && !this.init) {
@@ -551,6 +544,21 @@ export class EmoticonsDropdown extends DropdownHover {
     this.searchButton.classList.toggle('hide', this.tabId === this.getTab(EmojiTab)?.tabId);
     this.deleteBtn.classList.toggle('hide', this.tabId !== this.getTab(EmojiTab)?.tabId);
   };
+
+  private getTabRights() {
+    const stickersTab = this.getTab(StickersTab);
+    const gifsTab = this.getTab(GifsTab);
+    const rights: {[tabId: number]: ChatRights} = {
+      ...(stickersTab && { [stickersTab.tabId]: 'send_stickers' }),
+      ...(gifsTab && { [gifsTab.tabId]: 'send_gifs' }),
+    };
+    return rights;
+  }
+
+  private isTabAllowed(tabId: number) {
+    const action = this.getTabRights()[tabId];
+    return !action || !!this.rights[action];
+  }
 
   private checkRights = async() => {
     this.managers ??= rootScope.managers;
@@ -577,9 +585,14 @@ export class EmoticonsDropdown extends DropdownHover {
     }
 
     const emojiTab = this.getTab(EmojiTab);
-    const active = this.tabsEl.querySelector('.active');
-    if (active && whichChild(active) !== (emojiTab?.tabId + 1) && (!this.rights['send_stickers'] || !this.rights['send_gifs'])) {
-      this.selectTab(emojiTab.tabId, false);
+    if (!this.isStandalone && emojiTab) {
+      // restore preferred tab when the new chat allows it
+      const preferredTabId = this.tabs[appSettings.esgSelectedTab] ? appSettings.esgSelectedTab : emojiTab.tabId;
+      const targetTabId = this.isTabAllowed(preferredTabId) ? preferredTabId : emojiTab.tabId;
+      const active = this.tabsEl.querySelector('.active');
+      if (active && whichChild(active) !== targetTabId + 1) {
+        this.selectTab(targetTabId, false);
+      }
     }
 
     emojiTab?.toggleCustomCategory();
