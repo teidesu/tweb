@@ -1122,7 +1122,7 @@
       }
 
       .bubbles-group-avatar {
-        transform: translate3d(calc(2.5rem * var(--reflect)), 0, 0) scale3d(.76, .76, 1);
+        transform: translate3d(calc(2.5rem * var(--reflect)), 0, 0);
       }
     }
 

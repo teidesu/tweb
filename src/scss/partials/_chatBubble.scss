@@ -4,11 +4,7 @@
 @use "chatVariables" as *;
 
 @keyframes bubbleSelected {
-  0% {
-    opacity: 0;
-  }
-
-  25% {
+  0%, 25% {
     opacity: 1;
   }
 
@@ -216,49 +212,24 @@
     }
   }
 
-  &.is-highlighted,
-  &.is-selected,
-  /* .bubbles.is-selecting */ & {
-    &:after {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      /* top: 0;
-      bottom: 0; */
-      top: -#{$bubble-overflow};
-      bottom: -#{$bubble-overflow};
-      content: " ";
-      z-index: -1;
-    }
+  // Lazily-created highlight tint overlay (reply-jump pulse + selection), opacity driven by
+  // WAAPI from messageHighlight.ts. Replaces the old dueling .is-highlighted/.is-selected
+  // ::after animations.
+  > .bubble-highlight {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: -#{$bubble-overflow};
+    bottom: -#{$bubble-overflow};
+    width: 100vw;
+    z-index: -1;
+    opacity: 0;
+    pointer-events: none;
+    background-color: var(--message-highlighting-color);
   }
 
-  /* &.is-highlighted, &.is-selected {
-    &:not(.is-group-last):after {
-      height: calc(100% + #{$bubble-overflow}) !important;
-    }
-
-    & + &:not(.is-group-last) {
-      &:after {
-        top: .125rem !important;
-        height: calc(100% - #{$bubble-overflow}) !important;
-      }
-    }
-  } */
-
-  // ! if turn this on, there will be an empty space
-  /* &.is-highlighted, &.is-selected {
-    &.is-group-last:after {
-      bottom: #{$bubble-overflow} !important;
-    }
-  } */
-
-  &.is-highlighted:after {
-    //background-color: rgba(0, 132, 255, .3);
-    background-color: var(--message-highlighting-color);
-
-    body:not(.animation-level-0) & {
-      animation: bubbleSelected 2s linear;
-    }
+  &.is-multiple-documents > .bubble-highlight {
+    display: none;
   }
 
   &.is-first-unread {
@@ -283,40 +254,18 @@
       position: relative;
     }
 
-    &.is-highlighted,
-    &.is-selected {
-      &:after {
-        top: calc(#{$bubble-overflow} + 30px);
-      }
+    > .bubble-highlight {
+      top: calc(#{$bubble-overflow} + 30px);
     }
   }
 
-  &.is-selected {
-    &:after {
-      background-color: var(--message-highlighting-color);
-    }
-
-    body:not(.animation-level-0) & {
-      &:after {
-        animation: fade-in-opacity .2s linear forwards;
-      }
-
-      &.backwards:after {
-        animation: fade-in-backwards-opacity .2s linear forwards;
-      }
-    }
-  }
-
-  //&.is-highlighted:after, &.is-first-unread:before, &.is-selected:after {
-  &:after,
   &:before {
     width: 100vw;
     display: block;
   }
 
   &.is-multiple-documents {
-    &:before,
-    &:after {
+    &:before {
       display: none;
     }
 
@@ -667,7 +616,7 @@
   &.is-group-last {
     margin-bottom: #{$bubble-margin-big};
 
-    &:after {
+    > .bubble-highlight {
       bottom: -#{$bubble-overflow-big};
     }
 
@@ -679,7 +628,7 @@
   }
 
   &.is-group-first {
-    &:after {
+    > .bubble-highlight {
       top: -#{$bubble-overflow-big};
     }
   }
@@ -1516,17 +1465,11 @@
           background-color: var(--message-highlighting-color);
         }
 
-        body:not(.animation-level-0) & {
+        // snap in (.document-selection defaults to opacity 1), fade out on deselect
+        body:not(.animation-level-0) &.backwards {
           .document-selection/* ,
           .document-wrapper:before */ {
-            animation: fade-in-opacity .2s linear forwards;
-          }
-
-          &.backwards {
-            .document-selection/* ,
-            .document-wrapper:before */ {
-              animation: fade-in-backwards-opacity .2s linear forwards;
-            }
+            animation: fade-in-backwards-opacity .2s linear forwards;
           }
         }
       }
@@ -3179,7 +3122,7 @@
   .bubble.is-group-last {
     // margin-bottom: 0;
 
-    &:after,
+    > .bubble-highlight,
     .document-container.is-last .document-selection {
       bottom: #{-$bubble-overflow};
     }

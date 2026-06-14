@@ -9,6 +9,7 @@ import CheckboxField from '@components/checkboxField';
 import PopupDeleteMessages from '@components/popups/deleteMessages';
 import showForwardPopup from '@components/popups/forward';
 import SetTransition from '@components/singleTransition';
+import { setMessageSelected } from '@components/chat/messageHighlight';
 import ListenerSetter from '@helpers/listenerSetter';
 import showSendNowPopup from '@components/popups/sendNow';
 import appNavigationController, { NavigationItem } from '@components/appNavigationController';
@@ -329,19 +330,14 @@ export class AppSelection extends EventListenerBase<{
       if (this.isSelecting) { // ! avoid breaking animation on start
         if (this.isElementShouldBeSelected(element)) {
           checkboxField.input.checked = true;
-          element.classList.add('is-selected');
+          this.setElementSelected(element, true, false);
         }
       }
 
       this.appendCheckbox(element, checkboxField);
     } else if (hasCheckbox) {
       this.getCheckboxInputFromElement(element).parentElement!.remove();
-      SetTransition({
-        element,
-        className: 'is-selected',
-        forwards: false,
-        duration: 200,
-      });
+      this.setElementSelected(element, false);
     }
 
     return true;
@@ -458,6 +454,22 @@ export class AppSelection extends EventListenerBase<{
     this.doNotAnimate = undefined;
   }
 
+  // document-container / grouped-item keep their bespoke selection visuals (doc tint, album
+  // item scale) via the is-selected class; plain bubbles route through the unified highlight
+  // overlay so reply-jump highlight and selection can't fight over the same tint.
+  protected setElementSelected(element: HTMLElement, selected: boolean, animate = true) {
+    if (element.classList.contains('document-container') || element.classList.contains('grouped-item')) {
+      if (selected && !animate) {
+        element.classList.add('is-selected');
+      } else {
+        SetTransition({ element, className: 'is-selected', forwards: selected, duration: 200 });
+      }
+      return;
+    }
+
+    setMessageSelected(element, selected, animate);
+  }
+
   protected updateElementSelection(element: HTMLElement, isSelected: boolean) {
     this.toggleElementCheckbox(element, true);
     const input = this.getCheckboxInputFromElement(element);
@@ -465,12 +477,7 @@ export class AppSelection extends EventListenerBase<{
 
     this.toggleSelection();
     this.updateContainer();
-    SetTransition({
-      element,
-      className: 'is-selected',
-      forwards: isSelected,
-      duration: 200,
-    });
+    this.setElementSelected(element, isSelected);
   }
 
   public isMidSelected(peerId: PeerId, mid: number) {

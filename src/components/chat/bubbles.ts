@@ -19,6 +19,7 @@ import mediaSizes from '@helpers/mediaSizes';
 import { IS_ANDROID, IS_APPLE, IS_FIREFOX, IS_MOBILE, IS_SAFARI } from '@environment/userAgent';
 import I18n, { FormatterArguments, i18n, langPack, LangPackKey, UNSUPPORTED_LANG_PACK_KEY, _i18n } from '@lib/langPack';
 import { fireMessageEffectByBubble, MessageRender } from '@components/chat/messageRender';
+import { pulseMessageHighlight } from '@components/chat/messageHighlight';
 import LazyLoadQueue from '@components/lazyLoadQueue';
 import ListenerSetter from '@helpers/listenerSetter';
 import showChatToast from '@components/chat/chatToast';
@@ -4406,18 +4407,7 @@ export default class ChatBubbles {
   }
 
   public highlightBubble(element: HTMLElement) {
-    const datasetKey = 'highlightTimeout';
-    if (element.dataset[datasetKey]) {
-      clearTimeout(+element.dataset[datasetKey]);
-      element.classList.remove('is-highlighted');
-      void element.offsetWidth; // reflow
-    }
-
-    element.classList.add('is-highlighted');
-    element.dataset[datasetKey] = '' + setTimeout(() => {
-      element.classList.remove('is-highlighted');
-      delete element.dataset[datasetKey];
-    }, 2000);
+    pulseMessageHighlight(element);
   }
 
   private createDateBubble(timestamp: number, date: Date = new Date(timestamp * 1000)) {

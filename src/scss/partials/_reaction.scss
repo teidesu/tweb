@@ -78,7 +78,7 @@
     color: var(--counter-color);
 
     &:has(.stacked-avatars) {
-      padding: 0 0.125rem 0 0.3125rem;
+      padding: 0 0.0625rem 0 0.3125rem;
     }
 
     @include hover() {

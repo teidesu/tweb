@@ -1515,9 +1515,13 @@ export class AppImManager extends EventListenerBase<{
 
             if (forReply) {
               const bubble = chat.bubbles.getBubble(message.peerId!, message.mid);
+              // skip centering for the bottommost to avoid interfering with cancelBubblesShift
+              const skipScroll = bubble && bubble === chat.bubbles.getLastBubble() && chat.bubbles.scrollable.isScrolledToEnd;
               await chat.input.initMessageReply(chat.input.getChatInputReplyToFromMessage(message));
               if (bubble) {
-                chat.bubbles.scrollToBubble(bubble, 'center');
+                if (!skipScroll) {
+                  chat.bubbles.scrollToBubble(bubble, 'center');
+                }
                 chat.bubbles.highlightBubble(bubble);
               } else {
                 chat.setMessageId({

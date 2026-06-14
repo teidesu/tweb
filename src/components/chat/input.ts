@@ -13,6 +13,7 @@ import PopupNewMedia, { getCurrentNewMediaPopup } from '@components/popups/newMe
 import { toast, toastNew } from '@components/toast';
 import { MessageEntity, DraftMessage, WebPage, Message, UserFull, AttachMenuPeerType, BotMenuButton, MessageMedia, InputReplyTo, Chat as MTChat, User, ChatFull, Dialog, PhotoSize, Photo, Document, TextWithEntities, GlobalPrivacySettings } from '@layer';
 import StickersHelper from '@components/chat/stickersHelper';
+import { cancelMessageHighlight } from '@components/chat/messageHighlight';
 import ChatInputPlate from '@components/chat/controlPlate';
 import PopupSendGift from '@components/popups/sendGift';
 import ButtonIcon from '@components/buttonIcon';
@@ -4779,6 +4780,9 @@ export default class ChatInput {
   }
 
   public setReplyTo(replyTo: ChatInputReplyTo) {
+    if (!replyTo) { // cancelling the reply resets the cmd+up highlight immediately
+      cancelMessageHighlight();
+    }
     const { replyToMsgId, replyToQuote, replyToPollOption, replyToPeerId, replyToStoryId, replyToMonoforumPeerId } = replyTo || {};
     this.replyToMsgId = replyToMsgId;
     this.replyToStoryId = replyToStoryId;
