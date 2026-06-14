@@ -3028,11 +3028,6 @@ export default class ChatInput {
       this.isFocused = true;
       // this.updateSendBtn();
 
-      if ((this.chat.type === ChatType.Chat || this.chat.type === ChatType.Discussion) &&
-        this.chat.bubbles.scrollable.loadedAll.bottom) {
-        this.managers.appMessagesManager.readAllHistory(this.chat.peerId, this.chat.threadId);
-      }
-
       this.onFocusChange?.(true);
     });
 
