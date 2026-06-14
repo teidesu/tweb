@@ -73,8 +73,8 @@ export default function showChatPreviewPopup(options: ChatPreviewOptions): void 
 
   function Inner() {
     const context = useContext(PopupContext);
-    const middleware = untrack(() => context.middlewareHelper).get();
-    const managers = untrack(() => context.managers);
+    const middleware = untrack(() => context!.middlewareHelper).get();
+    const managers = untrack(() => context!.managers);
     const listenerSetter = new ListenerSetter();
 
     const chat = new Chat(appImManager, managers, false, {sharedMedia: true});
@@ -117,7 +117,7 @@ export default function showChatPreviewPopup(options: ChatPreviewOptions): void 
     });
 
     onMount(() => {
-      positionFromAnchor(options.anchor);
+      positionFromAnchor(options.anchor!);
 
       // setPeer triggers Chat.init() synchronously on the first call, which builds the
       // ChatInput tree (including the chat-input-control plate). After this returns the
@@ -237,13 +237,13 @@ export default function showChatPreviewPopup(options: ChatPreviewOptions): void 
       observer.observe(plateCenter, {attributes: true, attributeFilter: ['class'], subtree: true, childList: true});
       middleware.onDestroy(() => observer.disconnect());
 
-      const setLabel = (key: LangPackKey) => replaceContent(btn, i18n(key));
+      const setLabel = (key: LangPackKey) => replaceContent(btn, i18n(key)!);
       setLabel('MarkAsRead'); // placeholder until we resolve the actual state
 
       const refresh = async() => {
         const dialog = await getDialog();
         if(!dialog || !middleware()) return;
-        const unread = await managers.appMessagesManager.isDialogUnread(dialog);
+        const unread = await managers.appMessagesManager!.isDialogUnread(dialog);
         if(!middleware()) return;
         setLabel(unread ? 'MarkAsRead' : 'MarkAsUnread');
       };
@@ -259,32 +259,32 @@ export default function showChatPreviewPopup(options: ChatPreviewOptions): void 
       attachClickEvent(btn, async() => {
         const dialog = await getDialog();
         if(!dialog) return;
-        const isUnread = await managers.appMessagesManager.isDialogUnread(dialog);
+        const isUnread = await managers.appMessagesManager!.isDialogUnread(dialog);
         // Same branching as `DialogsContextMenu.onUnreadClick` — keeps mono-forum, thread and
         // regular dialogs behaving consistently with the rest of the app.
         if(options.monoforumThreadId) {
-          managers.appMessagesManager.markDialogUnread({
+          managers.appMessagesManager!.markDialogUnread({
             peerId: options.peerId,
             monoforumThreadId: options.monoforumThreadId,
             read: isUnread
           });
         } else if(isUnread) {
           if(!options.threadId) {
-            managers.appMessagesManager.markDialogUnread({peerId: options.peerId, read: true});
+            managers.appMessagesManager!.markDialogUnread({peerId: options.peerId, read: true});
           } else {
             const topMessage = (dialog as any).top_message;
             if(topMessage) {
-              managers.appMessagesManager.readHistory({peerId: options.peerId, maxId: topMessage, threadId: options.threadId});
+              managers.appMessagesManager!.readHistory({peerId: options.peerId, maxId: topMessage, threadId: options.threadId});
             }
           }
         } else if(!options.threadId) {
-          managers.appMessagesManager.markDialogUnread({peerId: options.peerId});
+          managers.appMessagesManager!.markDialogUnread({peerId: options.peerId});
         }
       }, {listenerSetter});
     }
 
     function getDialog() {
-      return managers.dialogsStorage.getAnyDialog(
+      return managers.dialogsStorage!.getAnyDialog(
         options.peerId,
         (options.threadId || options.monoforumThreadId) ?? undefined
       );

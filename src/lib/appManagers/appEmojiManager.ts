@@ -46,7 +46,7 @@ export class AppEmojiManager extends AppManager {
   private recent: {native?: string[], custom?: DocId[]} = {};
   private getRecentEmojisPromises: {native?: Promise<string[]>, custom?: Promise<DocId[]>} = {};
 
-  private getCustomEmojiDocumentsPromise: Promise<any>;
+  private getCustomEmojiDocumentsPromise: Promise<any> | undefined;
   private getCustomEmojiDocumentPromises: Map<DocId, CancellablePromise<MyDocument>> = new Map();
 
   private emojiGroups: {[type in EmojiGroupType]?: MaybePromise<{group: EmojiGroup, document: MyDocument}[]>} = {};
@@ -212,7 +212,7 @@ export class AppEmojiManager extends AppManager {
       emojis = filterUnique(flatten(Array.from(set)));
       emojis.length = Math.min(40, emojis.length);
     } else {
-      emojis = this.recent.native.concat(AppEmojiManager.POPULAR_EMOJI).slice(0, RECENT_MAX_LENGTH);
+      emojis = this.recent.native!.concat(AppEmojiManager.POPULAR_EMOJI).slice(0, RECENT_MAX_LENGTH);
       emojis = filterUnique(emojis);
     }
 
@@ -316,9 +316,9 @@ export class AppEmojiManager extends AppManager {
           type: 'customEmoji',
           docId: doc.id
         });
-      });
+      }) as MyDocument[];
     }, () => {
-      return new Array(docIds.length).fill(undefined);
+      return new Array(docIds.length).fill(undefined) as MyDocument[];
     });
   }
 
@@ -341,7 +341,7 @@ export class AppEmojiManager extends AppManager {
             const docId = ids[idx];
             const deferred = this.getCustomEmojiDocumentPromises.get(docId);
             this.getCustomEmojiDocumentPromises.delete(docId);
-            deferred.resolve(doc);
+            deferred!.resolve!(doc);
           });
         });
 

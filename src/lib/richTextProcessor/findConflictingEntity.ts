@@ -17,8 +17,8 @@ export default function findConflictingEntity(
   return currentEntities.find((currentEntity) => {
     const {offset, length} = currentEntity;
     if(SINGLE_ENTITIES.has(currentEntity._)) {
-      singleStart = offset;
-      singleEnd = singleStart + length;
+      singleStart = offset!;
+      singleEnd = singleStart + length!;
       singleType = currentEntity._;
     }
 
@@ -26,8 +26,8 @@ export default function findConflictingEntity(
 
     if(singleStart !== -1) {
       if(
-        newEntity.offset >= singleStart &&
-        newEntity.offset < singleEnd &&
+        newEntity.offset! >= singleStart &&
+        newEntity.offset! < singleEnd &&
         !PASS_SINGLE_CONFLICTING_ENTITIES.has(newEntity._) &&
         !isQuoteException
       ) {
@@ -46,8 +46,8 @@ export default function findConflictingEntity(
       return false;
     }
 
-    const isConflictingOffset = newEntity.offset >= offset &&
-      (newEntity.length + newEntity.offset) <= (length + offset);
+    const isConflictingOffset = newEntity.offset! >= offset! &&
+      (newEntity.length! + newEntity.offset!) <= (length! + offset!);
 
     return isConflictingOffset;
   });

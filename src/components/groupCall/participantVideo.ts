@@ -22,7 +22,7 @@ export default class GroupCallParticipantVideoElement {
   private info: HTMLElement;
   private left: HTMLElement;
   private right: HTMLElement;
-  private header: HTMLElement;
+  private header: HTMLElement | undefined;
   private groupCallParticipantMutedIcon: GroupCallParticipantMutedIcon;
   private groupCallParticipantStatus: GroupCallParticipantStatusElement;
 
@@ -72,7 +72,7 @@ export default class GroupCallParticipantVideoElement {
   public setParticipant(participant: GroupCallParticipant, type: GroupCallParticipantVideoType, video: HTMLVideoElement) {
     let peerTitleElement: HTMLElement;
     if(participant.pFlags.self) {
-      peerTitleElement = i18n('VoiceChat.Status.You');
+      peerTitleElement = i18n('VoiceChat.Status.You')!;
       peerTitleElement.classList.add('peer-title');
     } else {
       this.peerTitle = new PeerTitle({

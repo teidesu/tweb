@@ -13,7 +13,7 @@ export default function fixLocalOffer(options: {
   // mids?: string[]
 }) {
   const {offer, data} = options;
-  const sdp = parseSdp(offer.sdp);
+  const sdp = parseSdp(offer.sdp!);
   let hasMunged = false;
 
   if(!options.skipAddingMulticast) {
@@ -89,7 +89,7 @@ export default function fixLocalOffer(options: {
       const newSdp = new SDPBuilder().addSsrcEntry(entry, newData).finalize();
 
       const newChannel = parseSdp(newSdp).media[0];
-      arr[idx] = newChannel;
+      arr![idx!] = newChannel;
 
       hasMunged = true;
     }

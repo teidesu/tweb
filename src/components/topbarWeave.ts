@@ -22,7 +22,7 @@ export class WeavingState {
 
   private createGradient() {
     this.shader = (ctx, left, top, right, bottom) => {
-      ctx.fillStyle = WeavingState.getGradientFromType(ctx, this.type, this.state, left, top, right, bottom);
+      ctx.fillStyle = WeavingState.getGradientFromType(ctx, this.type, this.state, left, top, right, bottom)!;
     };
   }
 
@@ -60,7 +60,7 @@ export class WeavingState {
     };
 
     const a = map[type];
-    for(const [states, colors] of a) {
+    for(const [states, colors] of a!) {
       if(states.includes(state)) {
         for(const [offset, color] of colors) {
           gradient.addColorStop(offset, color);
@@ -80,7 +80,7 @@ export default class TopbarWeave {
 
   private allStates: Map<WeavingCallType, Map<WeavingCallState, WeavingState>>;
   private type: WeavingCallType;
-  private previousState: WeavingState;
+  private previousState: WeavingState | null;
   private currentState: WeavingState;
   private progressToState: number;
 
@@ -96,8 +96,8 @@ export default class TopbarWeave {
   private container: HTMLDivElement;
   private canvas: HTMLCanvasElement;
 
-  private resizeHandler: number;
-  private raf: number;
+  private resizeHandler: number | null;
+  private raf: number | null;
 
   private lbd: LineBlobDrawable;
   private lbd1: LineBlobDrawable;
@@ -132,7 +132,7 @@ export default class TopbarWeave {
 
     this.type = 'group';
     this.previousState = null;
-    this.currentState = this.states.get(GROUP_CALL_STATE.CONNECTING);
+    this.currentState = this.states!.get(GROUP_CALL_STATE.CONNECTING)!;
     this.progressToState = 1.0;
   }
 
@@ -172,7 +172,7 @@ export default class TopbarWeave {
 
     const {canvas} = this;
     const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx!.clearRect(0, 0, canvas.width, canvas.height);
   }
 
   private setSize() {
@@ -290,7 +290,7 @@ export default class TopbarWeave {
     const top2 = 6 * amplitude2 * scale;
 
     const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx!.clearRect(0, 0, canvas.width, canvas.height);
 
     lbd.minRadius = 0;
     lbd.maxRadius = (2 + 2 * amplitude) * scale;
@@ -312,7 +312,7 @@ export default class TopbarWeave {
       let state: WeavingState;
       if(i === 0) {
         alpha = 1 - progressToState;
-        state = previousState;
+        state = (previousState as WeavingState);
         // previousState.setToPaint(paint);
       } else {
         alpha = previousState ? progressToState : 1;
@@ -348,8 +348,8 @@ export default class TopbarWeave {
     }
 
     this.type = type;
-    this.previousState = animated ? currentState : null;
-    this.currentState = this.states.get(state);
+    this.previousState = (animated ? currentState : null)!;
+    this.currentState = this.states!.get(state)!;
     this.progressToState = this.previousState ? 0.0 : 1.0;
   };
 

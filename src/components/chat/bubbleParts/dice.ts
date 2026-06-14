@@ -12,7 +12,7 @@ export default function wrapDice(context: BubbleContext) {
   context.bubble.dataset.dice = emoticon;
 
   const isSlot = emoticon === '🎰';
-  const stickerSet = context.bubbles.managers.appStickersManager.getStickerSetByDice(emoticon);
+  const stickerSet = context.bubbles.managers.appStickersManager!.getStickerSetByDice(emoticon);
   const getDocument = (index: number) => stickerSet.then(({documents}) => documents[index] as MyDocument);
 
   const size = makeMediaSize(512, 512);
@@ -74,18 +74,18 @@ export default function wrapDice(context: BubbleContext) {
 
       const shouldHide = (isSlotOption(index) || index === backgroundWinIndex) && play;
 
-      const playerPromise = context.bubbles.wrapSticker(context, {
+      const playerPromise = (context.bubbles.wrapSticker(context, {
         ...commonOptions,
         doc: promise as Promise<MyDocument>,
         container: div,
         noFadeIn: shouldHide
-      }).then(({render}) => render as Promise<RLottiePlayer>);
+      }) as unknown as Promise<{render: Promise<RLottiePlayer>}>).then(({render}) => render);
 
       // * keep frame the last child
       if(isSlotOption(index) || spinningIndexes.includes(index)) {
-        context.attachmentDiv.insertBefore(div, context.attachmentDiv.lastElementChild);
+        context.attachmentDiv!.insertBefore(div, context.attachmentDiv!.lastElementChild);
       } else {
-        context.attachmentDiv.append(div);
+        context.attachmentDiv!.append(div);
       }
 
       if(shouldHide) {
@@ -99,8 +99,8 @@ export default function wrapDice(context: BubbleContext) {
       return wrapPart(index, promise);
     });
 
-    context.attachmentDiv.style.width = context.bubbleContainer.style.minWidth;
-    context.attachmentDiv.style.height = context.bubbleContainer.style.minHeight;
+    context.attachmentDiv!.style.width = context.bubbleContainer.style.minWidth;
+    context.attachmentDiv!.style.height = context.bubbleContainer.style.minHeight;
 
     if(!play) {
       return;
@@ -140,9 +140,9 @@ export default function wrapDice(context: BubbleContext) {
         const replaceBackground = () => {
           const backgroundPart = parts.find(({index}) => index === backgroundIndex);
           const backgroundWinPart = parts.find(({index}) => index === backgroundWinIndex);
-          backgroundPart.div.replaceWith(backgroundWinPart.div);
-          backgroundWinPart.div.classList.remove('hide');
-          backgroundWinPart.player.play();
+          backgroundPart!.div.replaceWith(backgroundWinPart!.div);
+          backgroundWinPart!.div.classList.remove('hide');
+          backgroundWinPart!.player.play();
         };
         let left = 3;
         spinningParts.forEach(({player, div}, lookForIndex) => {
@@ -178,19 +178,17 @@ export default function wrapDice(context: BubbleContext) {
   const result = context.bubbles.wrapSticker(context, {
     ...commonOptions,
     doc: getDocument(value),
-    container: context.attachmentDiv
+    container: context.attachmentDiv!
   });
 
   if(unknown) {
-    const loopedPlayerPromise = result.then(({render}) => {
-      return render as Promise<RLottiePlayer>;
-    });
+    const loopedPlayerPromise = (result as unknown as Promise<{render: Promise<RLottiePlayer>}>).then(({render}) => render);
 
     context.releaseDice = async(value) => {
       context.releaseDice = undefined;
 
       const doc = await getDocument(value);
-      context.attachmentDiv.dataset.docId = doc.id + '';
+      context.attachmentDiv!.dataset.docId = doc.id + '';
       const player = await wrapSticker({
         doc,
         div: document.createElement('div'),

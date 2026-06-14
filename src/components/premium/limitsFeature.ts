@@ -9,10 +9,10 @@ export default class LimitsFeature {
   public async construct(options: {limits: PremiumPromoFeature['content'], managers: AppManagers}) {
     this.limits = document.createElement('div');
     this.limits.classList.add('limits-list');
-    const promises = options.limits.map(async(limit, index) => {
+    const promises = options.limits!.map(async(limit, index) => {
       const [free, premium] = limit.limitType ? await Promise.all([
-        options.managers.apiManager.getLimit(limit.limitType, false),
-        options.managers.apiManager.getLimit(limit.limitType, true)
+        options.managers.apiManager!.getLimit(limit.limitType, false),
+        options.managers.apiManager!.getLimit(limit.limitType, true)
       ]) : [];
 
       const limitTextContainer = document.createElement('div');
@@ -24,10 +24,10 @@ export default class LimitsFeature {
       limitContainer.classList.add('limit');
       const limitTitle = document.createElement('div');
       limitTitle.classList.add('limit-title');
-      _i18n(limitTitle, limit.titleLangKey, limit.titleLangArgs);
+      _i18n(limitTitle, limit.titleLangKey!, limit.titleLangArgs);
       const limitSubtitle = document.createElement('div');
       limitSubtitle.classList.add('limit-subtitle');
-      _i18n(limitSubtitle, limit.subtitleLangKey, limit.subtitleLangArgs);
+      _i18n(limitSubtitle, limit.subtitleLangKey!, limit.subtitleLangArgs);
       const limitLine = new LimitLine({
         limitFree: free ?? limit.free,
         limitPremium: premium ?? limit.premium,

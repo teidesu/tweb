@@ -26,7 +26,7 @@ export default class MediaProgressLine extends RangeSelector {
   protected currentTimeElement?: HTMLDivElement;
   protected currentSegmentElement?: HTMLDivElement;
 
-  protected progressRAF: number;
+  protected progressRAF: number | undefined;
 
   protected media: HTMLMediaElement;
   protected streamable: boolean;
@@ -40,7 +40,7 @@ export default class MediaProgressLine extends RangeSelector {
   // protected lastOnPlayCurrentTime: number;
 
   protected unobserveResize?: () => void;
-  protected activeSegmentIdx: number;
+  protected activeSegmentIdx: number | undefined;
   protected hoverRAF: number;
 
   constructor(protected options: {
@@ -87,7 +87,7 @@ export default class MediaProgressLine extends RangeSelector {
     }
 
     this.media = media;
-    this.streamable = streamable;
+    this.streamable = streamable!;
     if(!media.paused || media.currentTime > 0) {
       this.onPlay();
     }
@@ -116,7 +116,7 @@ export default class MediaProgressLine extends RangeSelector {
 
   protected initResizeObserver() {
     this.unobserveResize?.();
-    this.unobserveResize = observeResize(this.filledContainer, () => {
+    this.unobserveResize = observeResize(this.filledContainer!, () => {
       this.setTimestampsClipPath();
     });
   }
@@ -155,7 +155,7 @@ export default class MediaProgressLine extends RangeSelector {
     this.options.onPointerOut?.();
 
     if(this.filledContainer) {
-      this.toggleSegment(this.activeSegmentIdx, false);
+      this.toggleSegment((this.activeSegmentIdx as number), false);
       this.activeSegmentIdx = undefined;
     }
   }
@@ -192,11 +192,11 @@ export default class MediaProgressLine extends RangeSelector {
     this.currentSegmentElement = document.createElement('div');
     this.currentTimeInfoElement.classList.add('media-progress-line__current-segment');
 
-    this.currentTimeInfoElement.append(...[
+    this.currentTimeInfoElement.append(...([
       this.options.appendToTimeElement,
       this.currentSegmentElement,
       this.currentTimeElement
-    ].filter(Boolean));
+    ].filter(Boolean) as (string | Node)[]));
 
     this.filledContainer.append(this.filled, this.filledLoad);
 
@@ -207,8 +207,8 @@ export default class MediaProgressLine extends RangeSelector {
   }
 
   protected clearTimeAndSegment() {
-    this.currentTimeElement.textContent = '';
-    this.currentSegmentElement.textContent = '';
+    this.currentTimeElement!.textContent = '';
+    this.currentSegmentElement!.textContent = '';
   }
 
   protected updateTimeAndSegment(x: number, width: number) {
@@ -222,12 +222,12 @@ export default class MediaProgressLine extends RangeSelector {
     }
 
     const formattedTime = toHHMMSS(x / width * this.media.duration | 0);
-    this.currentTimeElement.textContent = formattedTime;
+    this.currentTimeElement!.textContent = formattedTime;
 
     if(this.segments?.length > 0) {
       const segment = this.segments.find((segment) => segment.left <= x && x <= segment.right);
-      const timestamp = this.options.videoTimestamps?.find((timestamp) => timestamp.time === segment.time);
-      this.currentSegmentElement.textContent = limitSymbols(timestamp?.text || '', 24, 27);
+      const timestamp = this.options.videoTimestamps?.find((timestamp) => timestamp.time === segment!.time);
+      this.currentSegmentElement!.textContent = limitSymbols(timestamp?.text || '', 24, 27);
     }
 
     const infoBcr = this.currentTimeInfoElement.getBoundingClientRect();
@@ -248,7 +248,7 @@ export default class MediaProgressLine extends RangeSelector {
 
     this.wrapProgressLinesInContainer();
 
-    const bcr = this.filledContainer.getBoundingClientRect();
+    const bcr = this.filledContainer!.getBoundingClientRect();
     const totalWidth = bcr.width;
 
     const segments = this.segments = this.getTimestampSegments(totalWidth);
@@ -281,7 +281,7 @@ export default class MediaProgressLine extends RangeSelector {
 
     document.body.append(this.clipPathSvg);
 
-    this.filledContainer.style.clipPath = `url(#${clipPathId})`;
+    this.filledContainer!.style.clipPath = `url(#${clipPathId})`;
   }
 
   protected getTimestampSegments(totalWidth: number) {
@@ -349,7 +349,7 @@ export default class MediaProgressLine extends RangeSelector {
     const r = () => {
       this.setProgress();
 
-      this.progressRAF = this.media.paused ? undefined : window.requestAnimationFrame(r);
+      this.progressRAF = (this.media.paused ? undefined : window.requestAnimationFrame(r))!;
     };
 
     if(this.progressRAF) {

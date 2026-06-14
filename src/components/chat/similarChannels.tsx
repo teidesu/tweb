@@ -39,7 +39,7 @@ export function SimilarPeer(props: {
     canvas = document.createElement('canvas');
     canvas.width = 20;
     canvas.height = 20;
-    context = canvas.getContext('2d', {alpha: false, willReadFrequently: true});
+    context = canvas.getContext('2d', {alpha: false, willReadFrequently: true})!;
   }
 
   const [color, setColor] = createSignal<string>();
@@ -79,7 +79,7 @@ export function SimilarPeer(props: {
     promises.push(peerTitle.update({peerId: untrack(() => props.peerId)}));
     nameElement = peerTitle.element;
   } else {
-    nameElement = i18n('MoreSimilar');
+    nameElement = i18n('MoreSimilar')!;
   }
   nameElement.classList.add('similar-channels-channel-name');
 
@@ -102,7 +102,7 @@ export function SimilarPeer(props: {
     >
       {props.isLast ? (
         <>
-          {`+${props.count - props.defaultLimit}`}
+          {`+${props.count! - props.defaultLimit!}`}
           {!untrack(() => props.premium) && icon}
         </>
       ) : (
@@ -157,9 +157,9 @@ export default function SimilarChannels(props: {
   const getDetails = async() => {
     const r = apiManagerProxy.isPremiumFeaturesHidden();
     const results = await Promise.all([
-      rootScope.managers.acknowledged.appChatsManager.getChannelRecommendations(props.chatId),
-      rootScope.managers.acknowledged.apiManager.getLimit('recommendedChannels', false),
-      rootScope.managers.acknowledged.apiManager.getLimit('recommendedChannels', true),
+      rootScope.managers.acknowledged!.appChatsManager!.getChannelRecommendations(props.chatId),
+      rootScope.managers.acknowledged!.apiManager!.getLimit('recommendedChannels', false),
+      rootScope.managers.acknowledged!.apiManager!.getLimit('recommendedChannels', true),
       {cached: !(r instanceof Promise), result: Promise.resolve(r)}
     ]);
 
@@ -207,7 +207,7 @@ export default function SimilarChannels(props: {
     const promises: Promise<any>[] = [];
     let ref: HTMLDivElement;
     const list = (
-      <div ref={ref} class="similar-channels-list">
+      <div ref={ref!} class="similar-channels-list">
         <For each={(messagesChats.chats as Chat.channel[]).slice(0, defaultLimit)}>
           {(chat, idx) => {
             const isLast = hasMore && idx() === defaultLimit - 1;
@@ -216,7 +216,7 @@ export default function SimilarChannels(props: {
                 peerId={chat.id.toPeerId(true)}
                 promises={promises}
                 isLast={isLast}
-                ref={(el) => rendered.set(el, isLast ? undefined : chat)}
+                ref={(el) => rendered.set(el, (isLast ? undefined : chat)!)}
                 count={count}
                 defaultLimit={defaultLimit}
                 premium={untrack(premium)}
@@ -228,8 +228,8 @@ export default function SimilarChannels(props: {
       </div>
     );
 
-    const detach = attachClickEvent(ref, (e) => {
-      const target = findUpClassName(e.target, 'similar-channels-channel');
+    const detach = attachClickEvent(ref!, (e) => {
+      const target = findUpClassName(e.target!, 'similar-channels-channel');
       if(!target) {
         return;
       }
@@ -266,8 +266,8 @@ export default function SimilarChannels(props: {
       anchor.classList.add('primary');
 
       const {close} = showTooltip({
-        element: target.querySelector('.similar-channels-channel-avatar-stack, .similar-channels-channel-avatar'),
-        container: target.parentElement,
+        element: target.querySelector('.similar-channels-channel-avatar-stack, .similar-channels-channel-avatar')!,
+        container: target.parentElement!,
         vertical: 'top',
         textElement: i18n(
           'SimilarChannels.Unlock',

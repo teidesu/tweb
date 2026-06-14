@@ -120,7 +120,7 @@ const ThemeSection = () => {
   // accent preset, auto-night) dispatches `theme_changed`.
   const readThemeState = () => {
     const theme = themeController.getTheme();
-    return {id: String(theme.id ?? ''), name: theme.name};
+    return {id: String(theme!.id ?? ''), name: theme!.name};
   };
   const [themeState, setThemeState] = createSignal(readThemeState(), {
     equals: (a, b) => a.id === b.id && a.name === b.name
@@ -197,10 +197,10 @@ const AccentPickerRow = () => {
 
   const computeState = () => {
     const theme = themeController.getTheme();
-    const base = themeController.getBaseThemeForName(theme.name);
+    const base = themeController.getBaseThemeForName(theme!.name);
     const presets = getAccentPresetsForBase(base);
     const isTinted = base === 'baseThemeTinted';
-    let activeId = String(theme.id ?? '');
+    let activeId = String(theme!.id ?? '');
     // Tinted factory state has theme.id === '' but the same accent/bubble values as the blue
     // base preset — surface that to the picker so blue reads as active right after install/reset.
     if(isTinted && activeId === '' && presets.length) {

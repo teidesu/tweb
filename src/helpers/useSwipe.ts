@@ -24,16 +24,16 @@ export default function swipe(element: HTMLElement, args: Accessor<SwipeDirectiv
   const isCleaned = useIsCleaned();
 
   let isDragging = false;
-  let initialX: number, initialY: number;
+  let initialX: number, initialY: number | undefined;
 
   const getDiffPointer = (e: PointerEvent) => [
     e.clientX - initialX,
-    e.clientY - initialY
+    e.clientY - initialY!
   ] as const;
 
   const getDiffTouch = (e: TouchEvent) => [
     e.changedTouches[0].clientX - initialX,
-    e.changedTouches[0].clientY - initialY
+    e.changedTouches[0].clientY - initialY!
   ] as const;
 
   function handleStart(e: PointerEvent | TouchEvent, x: number, y: number) {
@@ -46,8 +46,8 @@ export default function swipe(element: HTMLElement, args: Accessor<SwipeDirectiv
     onStart?.(e);
 
     if(globalCursor) {
-      document.body.style.setProperty('cursor', globalCursor(), 'important');
-      element.style.setProperty('cursor', globalCursor(), 'important');
+      document.body.style.setProperty('cursor', globalCursor()!, 'important');
+      element.style.setProperty('cursor', globalCursor()!, 'important');
     }
   }
 
@@ -85,7 +85,7 @@ export default function swipe(element: HTMLElement, args: Accessor<SwipeDirectiv
 
     isDragging = false;
     isRAFing = false;
-    initialX = initialY = undefined;
+    initialX = (initialY = undefined)!;
   }
 
   element.addEventListener('pointerdown', (e) => {

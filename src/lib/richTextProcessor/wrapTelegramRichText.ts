@@ -11,7 +11,7 @@ export default function wrapTelegramRichText(
   richText: RichText,
   options?: Options
 ): TextWithEntities {
-  const textWithEntities = wrapTextWithEntities(processRichText(richText, options));
+  const textWithEntities = wrapTextWithEntities(processRichText(richText, options!));
 
   // if(!options) {
   //   return textWithEntities;
@@ -61,7 +61,7 @@ function processRichText(richText: RichText, options: Options): TextWithEntities
         for(const entity of partResult.entities) {
           entities.push({
             ...entity,
-            offset: entity.offset + text.length
+            offset: entity.offset! + text.length
           });
         }
         text += partResult.text;

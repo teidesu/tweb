@@ -72,7 +72,7 @@ export default class PopupChooseGift extends PopupElement<{
     actions.loadNext();
 
     const isGiftSelected = (gift: MyStarGift) => {
-      if(this.selectedCollectionId && gift.saved.collection_id?.includes(this.selectedCollectionId)) {
+      if(this.selectedCollectionId && gift.saved!.collection_id?.includes(this.selectedCollectionId)) {
         return !deselected().includes(gift);
       }
       return selected().includes(gift);
@@ -100,7 +100,7 @@ export default class PopupChooseGift extends PopupElement<{
                 scrollParent={scrollableRef}
                 selected={isGiftSelected}
                 onClick={(clickedItem) => {
-                  if(this.selectedCollectionId && clickedItem.saved.collection_id?.includes(this.selectedCollectionId)) {
+                  if(this.selectedCollectionId && clickedItem.saved!.collection_id?.includes(this.selectedCollectionId)) {
                     const idx = deselected().indexOf(clickedItem);
                     if(idx !== -1) {
                       setDeselected(deselected().filter((it, i) => i !== idx));

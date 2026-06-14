@@ -90,26 +90,26 @@ function primeFactors(pqBytes: Uint8Array | number[]) {
   do {
     const m = factors.pop();
 
-    if(m.eq(bigInt.one))
+    if(m!.eq(bigInt.one))
       continue;
 
-    if(m.isPrime(true)) {
-      primes.push(m);
+    if(m!.isPrime(true)) {
+      primes.push(m!);
 
       // Remove the prime from the other factors
       for(let i = 0; i < factors.length; ++i) {
         let k = factors[i];
-        if(k.mod(m).isZero()) {
+        if(k.mod(m!).isZero()) {
           do
-            k = k.divide(m);
-          while(k.mod(m).isZero());
+            k = k.divide(m!);
+          while(k.mod(m!).isZero());
           factors[i] = k;
         }
       }
     } else {
       // factor = m.lesser(100) ? bigInt(PollardRho(m.toJSNumber())) : this.brentPollardFactor(m);
-      factor = BrentPollardFactor(m);
-      factors.push(m.divide(factor));
+      factor = BrentPollardFactor(m!);
+      factors.push(m!.divide(factor));
       factors.push(factor);
     }
   } while(factors.length);

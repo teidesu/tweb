@@ -16,8 +16,8 @@ export default class LazyLoadQueueBase {
   protected queue: Array<LazyLoadElementBase> = [];
   protected inProcess: Set<LazyLoadElementBase> = new Set();
 
-  protected lockPromise: Promise<void> = null;
-  protected unlockResolve: () => void = null;
+  protected lockPromise: Promise<void> | null = null;
+  protected unlockResolve: (() => void) | null = null;
 
   protected log = logger('LL', LogTypes.Error);
   protected processQueue: () => void;
@@ -55,7 +55,7 @@ export default class LazyLoadQueueBase {
     if(!this.unlockResolve) return;
 
     this.unlockResolve();
-    this.unlockResolve = this.lockPromise = null;
+    this.unlockResolve = (this.lockPromise = null)!;
 
     this.processQueue();
   }
@@ -104,7 +104,7 @@ export default class LazyLoadQueueBase {
     this.processQueue();
   }
 
-  protected _processQueue(item?: LazyLoadElementBase) {
+  protected _processQueue(item?: LazyLoadElementBase | null) {
     if(!this.queue.length || this.lockPromise || (this.parallelLimit > 0 && this.inProcess.size >= this.parallelLimit)) return;
 
     // console.log('_processQueue start');

@@ -29,7 +29,7 @@ export default function createTopPeersList({
     clickable: !!onFound
   });
 
-  const promise = rootScope.managers.appUsersManager.getTopPeers('correspondents').then((peers) => {
+  const promise = rootScope.managers.appUsersManager!.getTopPeers('correspondents').then((peers) => {
     if(!middleware()) return;
 
     if(modifyPeers) {

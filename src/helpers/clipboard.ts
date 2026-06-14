@@ -18,18 +18,18 @@ function fallbackCopyTextToClipboard(text: string, html?: string) {
   textArea.focus();
   if(html) {
     const selection = window.getSelection();
-    selection.removeAllRanges();
+    selection!.removeAllRanges();
     const range = document.createRange();
-    range.setStartBefore(textArea.firstChild);
-    range.setEndAfter(textArea.lastChild);
-    selection.addRange(range);
+    range.setStartBefore(textArea.firstChild!);
+    range.setEndAfter(textArea.lastChild!);
+    selection!.addRange(range);
   } else {
     (textArea as HTMLTextAreaElement).select();
   }
 
   try {
     document.execCommand('copy');
-    window.getSelection().removeAllRanges();
+    window.getSelection()!.removeAllRanges();
   } catch(err) {
     console.error('unable to copy', err);
   }

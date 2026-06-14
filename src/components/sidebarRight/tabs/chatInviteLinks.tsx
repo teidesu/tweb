@@ -40,7 +40,7 @@ const ChatInviteLinks: Component = () => {
     const loadPromises: Promise<any>[] = [];
     const middleware = tab.middlewareHelper.get();
     const [chat, chatFull] = await Promise.all([
-      tab.managers.appChatsManager.getChat(chatId),
+      tab.managers.appChatsManager!.getChat(chatId),
       p.chatFull
     ]);
 
@@ -56,15 +56,15 @@ const ChatInviteLinks: Component = () => {
 
       caption = document.createElement('div');
       caption.classList.add('caption');
-      caption.append(i18n('ChannelLinkInfo'));
+      caption.append(i18n('ChannelLinkInfo')!);
     }
 
     const wrapInviteTitle = (invite: ChatInvite) => {
-      return invite.title ? wrapEmojiText(invite.title) : wrapPlainText(invite.link.split('://').pop());
+      return invite.title ? wrapEmojiText(invite.title) : wrapPlainText(invite.link.split('://').pop()!);
     };
 
     let inviteLink: ChatInviteLink,
-      menuInvite: ChatInvite,
+      menuInvite: ChatInvite | undefined,
       menuItem: K,
       primaryInvite: ChatInvite,
       chatInviteLinkTab: InstanceType<typeof AppChatInviteLinkTab>;
@@ -99,7 +99,7 @@ const ChatInviteLinks: Component = () => {
           tab.slider.removeTabFromHistory(chatInviteLinkTab);
         }
       },
-      verify: () => menuInvite && !menuInvite.pFlags.revoked
+      verify: () => !!(menuInvite && !menuInvite.pFlags.revoked)
     }, {
       icon: 'delete',
       className: 'danger',
@@ -117,7 +117,7 @@ const ChatInviteLinks: Component = () => {
 
         const invite = _menuItem?.invite || primaryInvite;
 
-        const chatInvite = await tab.managers.appChatInvitesManager.editExportedChatInvite({
+        const chatInvite = await tab.managers.appChatInvitesManager!.editExportedChatInvite({
           chatId: chatId,
           link: invite.link,
           revoked: true
@@ -151,7 +151,7 @@ const ChatInviteLinks: Component = () => {
       text: 'DeleteLink',
       onClick: actions.deleteLink = () => {
         const _menuItem = menuItem;
-        tab.managers.appChatInvitesManager.deleteExportedChatInvite(
+        tab.managers.appChatInvitesManager!.deleteExportedChatInvite(
           chatId,
           _menuItem.invite.link
         ).then(() => {
@@ -207,7 +207,7 @@ const ChatInviteLinks: Component = () => {
             if(primaryInvite) {
               section.content.prepend(row.container);
             } else {
-              section.content.firstElementChild.after(row.container);
+              section.content.firstElementChild!.after(row.container);
             }
           });
           editTab.open({chatId: chatId});
@@ -218,7 +218,7 @@ const ChatInviteLinks: Component = () => {
       }
     }
 
-    let adminsLinks: SettingSection;
+    let adminsLinks!: SettingSection;
     if(!adminId) {
       const section = adminsLinks = new SettingSection({name: 'LinksCreatedByOtherAdmins'});
 
@@ -246,16 +246,16 @@ const ChatInviteLinks: Component = () => {
             }
           });
 
-          dom.lastMessageSpan.append(i18n('InviteLinkCount', [admin.invites_count]));
+          dom.lastMessageSpan.append(i18n('InviteLinkCount', [admin.invites_count])!);
         });
 
         attachClickEvent(chatlist, (e) => {
-          const target = findUpClassName(e.target, 'chatlist-chat');
+          const target = findUpClassName(e.target!, 'chatlist-chat');
           if(!target) {
             return;
           }
 
-          const peerId = target.dataset.peerId.toPeerId();
+          const peerId = target.dataset.peerId!.toPeerId();
           const adminTab = tab.slider.createTab(AppChatInviteLinksTab);
           adminTab.open({
             chatId: chatId,
@@ -290,12 +290,12 @@ const ChatInviteLinks: Component = () => {
         });
 
         const toggle = toggleDisability(btn, true);
-        await tab.managers.appChatInvitesManager.deleteRevokedExportedChatInvites(chatId, adminId);
+        await tab.managers.appChatInvitesManager!.deleteRevokedExportedChatInvites(chatId, adminId);
         toggle();
 
         Array.from(section.content.children).forEach((el) => {
           const cache = invitesMap.get(el as HTMLElement);
-          cache.destroy(true);
+          cache!.destroy(true);
         });
         onRevokedLinksUpdate();
       }, {listenerSetter: tab.listenerSetter});
@@ -305,8 +305,8 @@ const ChatInviteLinks: Component = () => {
     }
 
     tab.scrollable.append(...[
-      stickerContainer,
-      caption,
+      stickerContainer!,
+      caption!,
       inviteLinkSection.container,
       additionalLinks.container,
       adminsLinks?.container,
@@ -316,7 +316,7 @@ const ChatInviteLinks: Component = () => {
     const openLink = (invite: ChatInvite) => {
       const detailTab = chatInviteLinkTab = tab.slider.createTab(AppChatInviteLinkTab);
       detailTab.eventListener.addEventListener('close', () => {
-        chatInviteLinkTab = menuItem = menuInvite = undefined;
+        chatInviteLinkTab = (menuItem = (menuInvite = undefined)!)!;
       });
       detailTab.open({
         chatId: chatId,
@@ -328,12 +328,12 @@ const ChatInviteLinks: Component = () => {
     };
 
     attachClickEvent(tab.scrollable.container, (e) => {
-      const container = findUpClassName(e.target, 'is-link');
+      const container = findUpClassName(e.target!, 'is-link');
       if(!container) {
         return;
       }
 
-      menuItem = invitesMap.get(container);
+      menuItem = invitesMap.get(container)!;
       menuInvite = menuItem.invite;
       openLink(menuInvite);
     }, {listenerSetter: tab.listenerSetter});
@@ -342,20 +342,20 @@ const ChatInviteLinks: Component = () => {
       buttons: menuButtons,
       listenTo: tab.scrollable.container,
       findElement: (e) => {
-        const container = findUpClassName(e.target, 'is-link');
+        const container = findUpClassName(e.target!, 'is-link');
         if(container) {
-          menuItem = invitesMap.get(container);
+          menuItem = invitesMap.get(container)!;
           menuInvite = menuItem.invite;
         }
 
         return container;
       },
-      onClose: () => menuItem = menuInvite = undefined,
+      onClose: () => menuItem = (menuInvite = undefined)!,
       middleware,
       listenerSetter: tab.listenerSetter
     });
 
-    const loadAnimationPromise = stickerContainer && p.animationData.then(async(cb) => {
+    const loadAnimationPromise = stickerContainer! && (p.animationData as Exclude<typeof p.animationData, false>).then(async(cb) => {
       const player = await cb({
         container: stickerContainer,
         loop: true,
@@ -382,15 +382,15 @@ const ChatInviteLinks: Component = () => {
         priceElement = StarsAmount({
           stars: invite.subscription_pricing.amount
         }) as HTMLElement;
-        subtitleRight = i18n('Stars.Subscriptions.PerMonth');
+        subtitleRight = i18n('Stars.Subscriptions.PerMonth')!;
       }
 
       const row = new UsernameRow(
         true,
         invite.subscription_pricing ? 'link_paid' : undefined,
         invite.subscription_pricing ? 'green' : undefined,
-        priceElement,
-        subtitleRight
+        priceElement!,
+        subtitleRight!
       );
       row.title.replaceChildren(wrapInviteTitle(invite));
 
@@ -419,55 +419,55 @@ const ChatInviteLinks: Component = () => {
         const time = tsNow(true);
         const expireDate = invite.expire_date;
         const isExpired = expireDate && expireDate <= time;
-        const isLimit = joined && joined >= invite.usage_limit;
+        const isLimit = joined && joined >= invite.usage_limit!;
         const timeLeft = expireDate ? Math.max(0, expireDate - time) : undefined;
 
         if(invite.pFlags.revoked) {
           elements.push(
-            i18n('InviteLink.JoinedRevoked'),
-            i18n('ExportedInvitation.Status.Revoked')
+            i18n('InviteLink.JoinedRevoked')!,
+            i18n('ExportedInvitation.Status.Revoked')!
           );
 
           row.media.dataset.color = 'archive';
           if(circle) {
-            circle.parentElement.remove();
+            circle.parentElement!.remove();
             circle = undefined;
           }
           onClean?.();
         } else {
           if(joined) {
-            elements.push(i18n('InviteLink.JoinedNew', [joined]));
+            elements.push(i18n('InviteLink.JoinedNew', [joined])!);
 
             if(isLimit) {
-              elements.push(i18n('InviteLinks.LimitReached'));
+              elements.push(i18n('InviteLinks.LimitReached')!);
               row.media.dataset.color = 'red';
             } else if(invite.usage_limit) {
-              elements.push(i18n('PeopleJoinedRemaining', [invite.usage_limit - joined]));
+              elements.push(i18n('PeopleJoinedRemaining', [invite.usage_limit - joined])!);
             } else if(requested) {
-              elements.push(i18n('JoinRequests', [requested]));
+              elements.push(i18n('JoinRequests', [requested])!);
             }
           } else if(requested) {
-            elements.push(i18n('JoinRequests', [requested]));
+            elements.push(i18n('JoinRequests', [requested])!);
           } else if(invite.usage_limit && !isExpired) {
-            elements.push(i18n('CanJoin', [invite.usage_limit]));
+            elements.push(i18n('CanJoin', [invite.usage_limit])!);
           } else {
-            elements.push(i18n(isExpired ? 'InviteLink.JoinedRevoked' : 'Chat.VoiceChat.JoinLink.Participants_ZeroValueHolder'));
+            elements.push(i18n(isExpired ? 'InviteLink.JoinedRevoked' : 'Chat.VoiceChat.JoinLink.Participants_ZeroValueHolder')!);
           }
         }
 
         if(!invite.pFlags.revoked && expireDate) {
           if(!isExpired) {
-            elements.push(i18n('InviteLink.Sticker.TimeLeft', [wrapLeftDuration(timeLeft)]));
+            elements.push(i18n('InviteLink.Sticker.TimeLeft', [wrapLeftDuration(timeLeft!)])!);
           } else {
             row.media.dataset.color = 'red';
-            elements.push(i18n('ExportedInvitation.Status.Expired'));
+            elements.push(i18n('ExportedInvitation.Status.Expired')!);
             onClean?.();
           }
         }
 
         if(!invite.pFlags.revoked && ((expireDate && !isExpired) || (invite.usage_limit && !isLimit))) {
           const limitProgress = invite.usage_limit ? joined / invite.usage_limit : undefined;
-          const timeProgress = expireDate ? 1 - timeLeft / (expireDate - (invite.start_date || invite.date)) : undefined;
+          const timeProgress = expireDate ? 1 - timeLeft! / (expireDate - (invite.start_date || invite.date)) : undefined;
           const progress = Math.max(limitProgress ?? 0, timeProgress ?? 0);
 
           const color1 = hexToRgb(customProperties.getProperty('green-color'));
@@ -483,7 +483,7 @@ const ChatInviteLinks: Component = () => {
 
             if(isExpired) {
               const c = () => {
-                _circle.parentElement.remove();
+                _circle.parentElement!.remove();
               };
 
               const _circle = circle;
@@ -500,7 +500,7 @@ const ChatInviteLinks: Component = () => {
       const cache: K = {row, invite, update, destroy};
       invitesMap.set(row.container, cache);
 
-      let circle: SVGCircleElement, totalLength = 146.70338439941406;
+      let circle: SVGCircleElement | undefined, totalLength = 146.70338439941406;
       if((invite.expire_date || invite.usage_limit) && isActiveInvite(invite)) {
         if(invite.expire_date) {
           onClean = () => {
@@ -517,7 +517,7 @@ const ChatInviteLinks: Component = () => {
           </svg>
         `);
 
-        circle = row.media.lastElementChild.firstElementChild as any;
+        circle = row.media.lastElementChild!.firstElementChild as any;
       }
 
       update();

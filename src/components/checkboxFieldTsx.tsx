@@ -38,10 +38,10 @@ export default function CheckboxFieldTsx(props: {
 
   subscribeOn(checkboxField.input)('change', () => {
     setChecked(checkboxField.input.checked);
-    untrack(() => props.onChange(checked()));
+    untrack(() => props.onChange!(checked()));
   });
 
-  attachClassName(checkboxField.label, () => props.class);
+  attachClassName(checkboxField.label, () => props.class!);
 
   return checkboxField.label;
 }

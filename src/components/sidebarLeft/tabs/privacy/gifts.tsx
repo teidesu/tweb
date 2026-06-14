@@ -139,7 +139,7 @@ const PrivacyGifts: Component = () => {
         } : undefined
       };
 
-      const promise = tab.managers.appPrivacyManager.setGlobalPrivacySettings(settings);
+      const promise = tab.managers.appPrivacyManager!.setGlobalPrivacySettings(settings);
       tab.eventListener.dispatchEvent('privacy', promise);
       return promise;
     });

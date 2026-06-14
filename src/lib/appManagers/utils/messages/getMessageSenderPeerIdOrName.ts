@@ -9,7 +9,7 @@ export default function getMessageSenderPeerIdOrName(message: MyMessage) {
     };
   } else {
     return {
-      fromName: getFwdFromName((message as Message.message).fwd_from)
+      fromName: getFwdFromName((message as Message.message).fwd_from!)
     };
   }
 }

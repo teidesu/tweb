@@ -113,7 +113,7 @@ export default class PopupPremium extends PopupElement {
     return Promise.all(order.map(async(feature) => {
       const f = PREMIUM_FEATURES[feature];
 
-      let content = f.content;
+      let content = f!.content;
       if(content) {
         content = await Promise.all(content.map(async(c) => {
           return {
@@ -125,7 +125,7 @@ export default class PopupPremium extends PopupElement {
 
       const video = premiumPromo.videos[premiumPromo.video_sections.indexOf(feature)];
       const ff = {
-        ...(await this.prepareArguments(f)),
+        ...(await this.prepareArguments(f!)),
         ...f,
         ...{content},
         video
@@ -138,11 +138,11 @@ export default class PopupPremium extends PopupElement {
 
   private async initTabs() {
     const [premiumPromo, appConfig] = await Promise.all([
-      this.managers.appPaymentsManager.getPremiumPromo(),
-      this.managers.apiManager.getAppConfig()
+      this.managers.appPaymentsManager!.getPremiumPromo(),
+      this.managers.apiManager!.getAppConfig()
     ]);
 
-    const order = this.filterOrder(premiumPromo, appConfig.premium_promo_order);
+    const order = this.filterOrder(premiumPromo, appConfig.premium_promo_order!);
 
     const isPremiumActive = rootScope.premium;
     this.props = {
@@ -154,9 +154,9 @@ export default class PopupPremium extends PopupElement {
       appConfig,
       isPremiumActive,
       gift: this.gift,
-      peerId: this.peerId || this.stack?.peerId,
+      peerId: (this.peerId || this.stack?.peerId)!,
       emojiStatusId: this.emojiStatusId,
-      isOut: this.isOut || this.stack?.isOut,
+      isOut: (this.isOut || this.stack?.isOut)!,
       type: this.gift ? 'gift' : 'premium',
       stack: this.stack,
       listenerSetter: this.listenerSetter
@@ -198,7 +198,7 @@ export default class PopupPremium extends PopupElement {
   }
 
   private selectFeature = async(feature: PremiumPromoFeatureType) => {
-    this.selectedFeature = this.props.features.find((f) => f.feature === feature);
+    this.selectedFeature = this.props.features.find((f) => f.feature === feature)!;
     await this.featureSlideTab.setCarouselSlide(feature);
     this.updateActionLayout(this.selectedFeature);
   };
@@ -222,7 +222,7 @@ export default class PopupPremium extends PopupElement {
 
   private createActionButton() {
     if(this.props.type === 'gift') {
-      if(this.giftDetails.isOutbound || !this.giftDetails.isUnclaimed) {
+      if(this.giftDetails!.isOutbound || !this.giftDetails!.isUnclaimed) {
         return;
       }
     }
@@ -231,13 +231,13 @@ export default class PopupPremium extends PopupElement {
     this.actionButtonContainer = document.createElement('div');
     this.actionButtonContainer.classList.add('action-button-container');
     this.actionButton = Button(`btn-primary popup-gift-premium-confirm action-button shimmer`);
-    this.actionButton.append(this.actionButtonText.element);
+    this.actionButton.append(this.actionButtonText.element!);
 
     let callback: () => void;
     if(this.props.type === 'gift') {
       callback = () => {
         const gift = this.props.gift as PaymentsCheckedGiftCode;
-        PopupGiftLink.applyGiftCode(gift.slug, this.actionButton, this);
+        PopupGiftLink.applyGiftCode(gift.slug!, this.actionButton, this);
       };
     } else {
       callback = () => {
@@ -288,7 +288,7 @@ export default class PopupPremium extends PopupElement {
     }
 
     if(this.props.type === 'gift') {
-      const {isOutbound, isUnclaimed} = this.giftDetails;
+      const {isOutbound, isUnclaimed} = this.giftDetails!;
       if(!isOutbound && isUnclaimed) {
         this.actionButtonText.compareAndUpdate({
           key: 'GiftPremiumActivateForFree'

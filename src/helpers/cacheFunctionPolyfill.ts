@@ -9,7 +9,7 @@ Function.prototype.cache = function(thisArg, ...args: any[]) {
     return cached.result;
   }
 
-  const result = this.apply(thisArg, args as any);
+  const result = this.apply(thisArg!, args as any);
 
   cache.set(this, cached = {
     result,

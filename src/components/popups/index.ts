@@ -85,11 +85,11 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
   protected btnCloseAnimatedIcon: HTMLElement;
   protected btnConfirm: HTMLButtonElement;
   protected body: HTMLElement;
-  protected buttonsEl: HTMLElement;
+  protected buttonsEl: HTMLElement | undefined;
 
   protected isConfirmationNeededOnClose: PopupOptions['isConfirmationNeededOnClose'];
 
-  protected navigationItem: NavigationItem;
+  protected navigationItem: NavigationItem | undefined;
 
   protected listenerSetter: ListenerSetter;
 
@@ -148,7 +148,7 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
     this.listenerSetter = new ListenerSetter();
     this.managers = PopupElement.MANAGERS;
 
-    this.confirmShortcutIsSendShortcut = options.confirmShortcutIsSendShortcut;
+    this.confirmShortcutIsSendShortcut = options.confirmShortcutIsSendShortcut!;
 
     if(options.closable) {
       this.btnClose = ButtonIcon('', {noRipple: true});
@@ -175,14 +175,14 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
       }, {listenerSetter: this.listenerSetter});
     }
 
-    this.withoutOverlay = options.withoutOverlay;
+    this.withoutOverlay = options.withoutOverlay!;
     if(this.withoutOverlay) {
       this.element.classList.add('no-overlay');
     }
 
     if(options.overlayClosable) {
       attachClickEvent(this.element, (e: MouseEvent) => {
-        if(findUpClassName(e.target, 'popup-container') || !(e.target as HTMLElement).isConnected) {
+        if(findUpClassName(e.target!, 'popup-container') || !(e.target as HTMLElement).isConnected) {
           return;
         }
 
@@ -194,7 +194,7 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
       this.btnConfirm = document.createElement('button');
       this.btnConfirm.classList.add('btn-primary', 'btn-color-primary');
       if(options.withConfirm !== true) {
-        this.btnConfirm.append(i18n(options.withConfirm));
+        this.btnConfirm.append(i18n(options.withConfirm)!);
       }
       this.header.append(this.btnConfirm);
       // ripple(this.btnConfirm);
@@ -235,7 +235,7 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
     }
 
     this.btnConfirmOnEnter = this.btnConfirm;
-    this.setButtons(options.buttons);
+    this.setButtons(options.buttons!);
 
     this.element.append(this.container);
 
@@ -267,11 +267,11 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
       if(b.text) {
         button.append(b.text);
       } else if(b.langKey) {
-        button.append(i18n(b.langKey, b.langArgs));
+        button.append(i18n(b.langKey, b.langArgs)!);
       }
 
       if(b.iconLeft || b.iconRight) {
-        const i = Icon(b.iconLeft || b.iconRight, 'popup-button-icon', b.iconLeft ? 'left' : 'right');
+        const i = Icon((b.iconLeft || b.iconRight)!, 'popup-button-icon', b.iconLeft ? 'left' : 'right');
         button.classList.add('with-icon');
         if(b.iconLeft) button.prepend(i);
         else button.append(i);
@@ -280,7 +280,7 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
       attachClickEvent(button, async(e) => {
         let result = b.callback?.(e);
         if(result !== undefined && result instanceof Promise) {
-          const toggle = toggleDisability([b.element], true);
+          const toggle = toggleDisability([b.element!], true);
           try {
             result = await result;
           } catch(err) {
@@ -305,7 +305,7 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
     if(!this.btnConfirmOnEnter && buttons.length === 2) {
       const button = buttons.find((button) => !button.isCancel);
       if(button) {
-        this.btnConfirmOnEnter = button.element;
+        this.btnConfirmOnEnter = button.element!;
       }
     }
 
@@ -425,7 +425,7 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
       overlayCounter.isOverlayActive = false;
     }
 
-    appNavigationController.removeItem(this.navigationItem);
+    appNavigationController.removeItem((this.navigationItem as NavigationItem));
     this.navigationItem = undefined;
 
     indexOfAndSplice(PopupElement.POPUPS, this);

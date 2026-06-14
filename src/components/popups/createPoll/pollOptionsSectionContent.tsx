@@ -44,7 +44,7 @@ export const PollOptionsSectionContent = (props: {
 
   const context = useCreatePollContext();
 
-  const rawMappedItems = mapArray(() => context.store.pollOptions, (option): MappedItem => ({
+  const rawMappedItems = mapArray(() => context!.store.pollOptions, (option): MappedItem => ({
     type: 'mappedItem',
     id: idSeed++,
     option
@@ -55,13 +55,13 @@ export const PollOptionsSectionContent = (props: {
   const optionsLeft = createMemo(() => Math.max(0, maxOptions() - mappedItems().length));
 
   const visibleOptionsLeft = createMemo(() => {
-    if(context.store.pollOptions.length === 2 && !checkOptionHasValue(context.store.pollOptions[0])) {
+    if(context!.store.pollOptions.length === 2 && !checkOptionHasValue(context!.store.pollOptions[0])) {
       return maxOptions();
     }
 
     return (
       optionsLeft() +
-      (context.store.pollOptions.length && checkOptionHasValue(lastItem(context.store.pollOptions)) ? 0 : 1)
+      (context!.store.pollOptions.length && checkOptionHasValue(lastItem(context!.store.pollOptions)!) ? 0 : 1)
     );
   });
 
@@ -72,7 +72,7 @@ export const PollOptionsSectionContent = (props: {
     items: mappedItems,
     getId: item => item.id,
     onReorder: (newItems) => {
-      context.setStore('pollOptions', newItems.map(item => item.option));
+      context!.setStore('pollOptions', newItems.map(item => item.option));
     }
   });
 
@@ -119,7 +119,7 @@ export const PollOptionsSectionContent = (props: {
   const onAdd = () => {
     if(optionsLeft() === 0) return;
     blurActiveElement();
-    context.setStore('pollOptions', context.store.pollOptions.length, {
+    context!.setStore('pollOptions', context!.store.pollOptions.length, {
       text: '',
       entities: []
     });
@@ -176,7 +176,7 @@ const PollOptionFullField = (props: {
   sortable: ReturnType<typeof createSortableList>;
   optionsLeft: number;
 }) => {
-  const {store, setStore} = useCreatePollContext();
+  const {store, setStore} = useCreatePollContext()!;
   const middleware = createMiddleware().get();
 
   const [container, setContainer] = createSignal<HTMLElement>();
@@ -189,7 +189,7 @@ const PollOptionFullField = (props: {
   });
 
   const noIcon = createMemo(() => store.pollOptions.length === 2 && !props.mappedItem.option.text && props.index === 0);
-  const isAdd = createMemo(() => props.index === store.pollOptions.length - 1 && !checkOptionHasValue(lastItem(store.pollOptions)));
+  const isAdd = createMemo(() => props.index === store.pollOptions.length - 1 && !checkOptionHasValue(lastItem(store.pollOptions)!));
   const canBeReordered = createMemo(() => !noIcon() && !isAdd());
 
   const noEmojiPicker = createMemo(() => isAdd() && !checkOptionHasValue(props.mappedItems[0].option));
@@ -200,12 +200,12 @@ const PollOptionFullField = (props: {
   createEffect(() => {
     if(!container() || !canBeReordered()) return;
 
-    props.sortable.itemRef(props.mappedItem.id)(container());
+    props.sortable.itemRef(props.mappedItem.id)(container()!);
   });
 
   const onRadioClick = () => {
     batch(() => {
-      setStore('pollOptions', (option) => option.checked, 'checked', false);
+      setStore('pollOptions', (option) => !!option.checked, 'checked', false);
       setStore('pollOptions', props.index, 'checked', true);
     });
   };
@@ -269,7 +269,7 @@ const PollOptionFullField = (props: {
           if(noIcon()) return;
           for(const item of props.mappedItems.slice(props.index + 1)) {
             if(!item.inputField?.value) {
-              focusInput(item.inputField?.input);
+              focusInput(item.inputField?.input!);
               return;
             }
           }
@@ -281,7 +281,7 @@ const PollOptionFullField = (props: {
             setStore('pollOptions', prev => prev.filter((_, i) => i !== props.index));
           }
 
-          focusInput(props.mappedItems[Math.max(0, props.index - 1)]?.inputField?.input);
+          focusInput(props.mappedItems[Math.max(0, props.index - 1)]?.inputField?.input!);
         }}
         onClickOverride={focusToEmptyInputCallback()}
         onFocus={focusToEmptyInputCallback()}

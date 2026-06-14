@@ -65,15 +65,15 @@ const Row = (props: {children: JSX.Element} & Partial<{
     </RowContext.Provider>
   ));
 
-  let openContextMenu: ReturnType<typeof createContextMenu>['open'];
+  let openContextMenu: ReturnType<typeof createContextMenu>['open'] | undefined;
   const ref = createMemo(() => {
     return props.contextMenu ? (container: HTMLElement) => {
       const listenerSetter = new ListenerSetter();
       const {open} = createContextMenu({
-        ...props.contextMenu,
+        ...props.contextMenu!,
         listenTo: container,
         listenerSetter
-      });
+      } as any);
 
       openContextMenu = open;
 
@@ -103,11 +103,11 @@ const Row = (props: {children: JSX.Element} & Partial<{
         'row-grid': !!store.rightContent,
         'with-midtitle': !!store.midtitle,
         ...(props.classList || {}),
-        [props.class]: !!props.class
+        [props.class as string]: !!props.class
       }}
       onClick={
         (typeof(props.clickable) !== 'boolean' && props.clickable) ||
-        (props.contextMenu ? openContextMenu : undefined)
+        (props.contextMenu ? openContextMenu! : undefined)
       }
       noRipple={!haveRipple()}
     >
@@ -133,7 +133,7 @@ Row.RowPart = (props: {
       <div
         class={classNames(
           'row-' + props.class,
-          useContext(RowContext).noWrap && 'no-wrap'
+          useContext(RowContext)!.noWrap && 'no-wrap'
         )}
         dir="auto"
       >
@@ -176,12 +176,12 @@ Row.Title = (props: {
   titleRightSecondary?: boolean
 }) => {
   const context = useContext(RowContext);
-  return context.register('title', (
+  return context!.register('title', (
     <Row.Row
       class="title"
       additionalClass={props.class}
       left={props.children}
-      right={props.titleRight || context.store.checkboxFieldToggle}
+      right={props.titleRight || context!.store.checkboxFieldToggle}
       rightSecondary={props.titleRightSecondary}
     />
   ));
@@ -190,7 +190,7 @@ Row.Title = (props: {
 Row.Midtitle = (props: {
   children: JSX.Element
 }) => {
-  return useContext(RowContext).register('midtitle', (
+  return useContext(RowContext)!.register('midtitle', (
     <Row.Row
       class="midtitle"
       left={props.children}
@@ -203,7 +203,7 @@ Row.Subtitle = (props: {
   class?: string,
   subtitleRight?: JSX.Element
 }) => {
-  return useContext(RowContext).register('subtitle', (
+  return useContext(RowContext)!.register('subtitle', (
     <Row.Row
       class="subtitle"
       additionalClass={props.class}
@@ -217,14 +217,14 @@ Row.Icon = (props: {
   icon: Icon,
   class?: string
 }) => {
-  return useContext(RowContext).register('icon', (
+  return useContext(RowContext)!.register('icon', (
     <IconTsx icon={props.icon} class={classNames('row-icon', props.class)} />
   ));
 };
 
 Row.RightContent = (inProps: JSX.HTMLAttributes<HTMLDivElement>) => {
   const [props, restProps] = splitProps(inProps, ['class']);
-  return useContext(RowContext).register('rightContent', (
+  return useContext(RowContext)!.register('rightContent', (
     <div class={classNames('row-right', props.class)} {...restProps} />
   ));
 };
@@ -232,19 +232,19 @@ Row.RightContent = (inProps: JSX.HTMLAttributes<HTMLDivElement>) => {
 Row.CheckboxField = (props: {
   children: JSX.Element
 }) => {
-  return useContext(RowContext).register('checkboxField', props.children);
+  return useContext(RowContext)!.register('checkboxField', props.children);
 };
 
 Row.RadioField = (props: {
   children: JSX.Element
 }) => {
-  return useContext(RowContext).register('radioField', props.children);
+  return useContext(RowContext)!.register('radioField', props.children);
 };
 
 Row.CheckboxFieldToggle = (props: {
   children: JSX.Element
 }) => {
-  return useContext(RowContext).register('checkboxFieldToggle', props.children);
+  return useContext(RowContext)!.register('checkboxFieldToggle', props.children);
 };
 
 Row.Media = (inProps: JSX.HTMLAttributes<HTMLDivElement> & {
@@ -254,7 +254,7 @@ Row.Media = (inProps: JSX.HTMLAttributes<HTMLDivElement> & {
 }) => {
   const [props, restProps] = splitProps(inProps, ['children', 'size', 'class']);
 
-  return useContext(RowContext).register('media', (
+  return useContext(RowContext)!.register('media', (
     <div
       class={classNames(
         'row-media',

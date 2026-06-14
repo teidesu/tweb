@@ -79,7 +79,7 @@ export default class PopupReassignBoost extends PopupPeer {
         previous?.forEach((peerId, index) => {
           previosIndexes.set(peerId, index);
         });
-        const current = filterUnique(selected().map((myBoost) => getPeerId(myBoost.peer)).reverse());
+        const current = filterUnique(selected().map((myBoost) => getPeerId(myBoost.peer!)).reverse());
         current.sort((a, b) => (previosIndexes.get(a) ?? 0) - (previosIndexes.get(b) ?? 0));
         return current;
       });
@@ -140,7 +140,7 @@ export default class PopupReassignBoost extends PopupPeer {
       );
     };
 
-    this.description.before(
+    this.description!.before(
       Avatars() as HTMLElement,
       (<div class={`${className}-title`}>{i18n('Boost.Replace')}</div>) as HTMLElement
     );
@@ -151,7 +151,7 @@ export default class PopupReassignBoost extends PopupPeer {
       middleware: this.middlewareHelper.get(),
       appendTo: this.body,
       onChange: (length) => {
-        setSelected(this.selector.getSelected().map((key) => map.get(key as any as string)));
+        setSelected(this.selector.getSelected().map((key) => map.get(key as any as string)) as MyBoost[]);
         setCount(length);
       },
       onFirstRender: () => {
@@ -171,11 +171,11 @@ export default class PopupReassignBoost extends PopupPeer {
             clearInterval(interval);
           });
 
-          const expirationSpan = i18n('BoostsExpiration', [1, formatFullSentTime(myBoost.expires, undefined, true)]);
+          const expirationSpan = i18n('BoostsExpiration', [1, formatFullSentTime(myBoost!.expires, undefined, true)]);
 
           const [timestamp, setTimestamp] = createSignal(tsNow(true));
           const leftTime = createMemo<number>((prev) => {
-            const left = Math.max(0, (myBoost.cooldown_until_date || 0) - timestamp());
+            const left = Math.max(0, (myBoost!.cooldown_until_date || 0) - timestamp());
             if(!left && prev !== undefined) {
               clearInterval(interval);
             }
@@ -185,9 +185,9 @@ export default class PopupReassignBoost extends PopupPeer {
 
           leftTimes.set(key as any as string, leftTime);
 
-          const interval: number = leftTime() ? window.setInterval(() => {
+          const interval: number = (leftTime() ? window.setInterval(() => {
             setTimestamp(tsNow(true));
-          }, 1e3) : undefined;
+          }, 1e3) : undefined)!;
 
           return (
             <span>
@@ -202,7 +202,7 @@ export default class PopupReassignBoost extends PopupPeer {
         createRoot((dispose) => {
           this.middlewareHelper.get().onDestroy(dispose);
           createEffect(() => {
-            dialogElement.container.classList.toggle('is-unavailable', !!leftTime());
+            dialogElement.container.classList.toggle('is-unavailable', !!leftTime!());
           });
         });
       }
@@ -211,11 +211,11 @@ export default class PopupReassignBoost extends PopupPeer {
     const _add = this.selector.add.bind(this.selector);
     this.selector.add = (...args) => {
       const element = this.selector.getElementByKey(args[0].key as any);
-      if(element.classList.contains('is-unavailable')) {
+      if(element!.classList.contains('is-unavailable')) {
         toastNew({
           langPackKey: 'Boost.Reassign.Wait',
           langPackArguments: [
-            i18n('MoreBoosts', [this.appConfig.boosts_per_sent_gift ?? 1]),
+            i18n('MoreBoosts', [this.appConfig.boosts_per_sent_gift ?? 1])!,
             anchorCallback(() => {
               hideToast();
               this.hideWithCallback(() => {
@@ -231,7 +231,7 @@ export default class PopupReassignBoost extends PopupPeer {
     };
 
     const keys = this.myBoosts.my_boosts.map((myBoost) => {
-      const peerId = getPeerId(myBoost.peer);
+      const peerId = getPeerId(myBoost.peer!);
       if(peerId === this.peerId) {
         return;
       }
@@ -251,12 +251,12 @@ export default class PopupReassignBoost extends PopupPeer {
       const toggle = toggleDisability(this.btnConfirm, true);
       try {
         const slots = selected().map((myBoost) => myBoost.slot);
-        const uniquePeers = filterUnique(selected().map((myBoost) => getPeerId(myBoost.peer)));
-        await this.managers.appBoostsManager.applyBoost(this.peerId, slots);
+        const uniquePeers = filterUnique(selected().map((myBoost) => getPeerId(myBoost.peer!)));
+        await this.managers.appBoostsManager!.applyBoost(this.peerId, slots);
         this.hide();
         toastNew({
           langPackKey: 'BoostingReassignedFromPlural',
-          langPackArguments: [slots.length, i18n('BoostingFromOtherChannel', [uniquePeers.length])]
+          langPackArguments: [slots.length, i18n('BoostingFromOtherChannel', [uniquePeers.length])!]
         });
       } catch(err) {
         console.error('error replacing boosts', err);
@@ -282,7 +282,7 @@ export default class PopupReassignBoost extends PopupPeer {
       toggleDisability(this.btnConfirm, !count());
     });
 
-    this.description.append(
+    this.description!.append(
       i18n(
         'Boost.Reassign.Description',
         [
@@ -296,10 +296,10 @@ export default class PopupReassignBoost extends PopupPeer {
                 });
               })
             ]
-          ),
-          i18n('Boost.Additional', [this.appConfig.boosts_per_sent_gift ?? 1])
+          )!,
+          i18n('Boost.Additional', [this.appConfig.boosts_per_sent_gift ?? 1])!
         ]
-      )
+      )!
     );
 
     this.footer.append(this.btnConfirm);

@@ -22,20 +22,20 @@ export default class GifsTab extends EmoticonsTabC<any, Awaited<ReturnType<AppGi
       noMenu: true,
       searchFetcher: async(value) => {
         if(!value) return {documents: [], nextOffset: ''};
-        return this.managers.appGifsManager.searchGifs(this.query = value);
+        return this.managers.appGifsManager!.searchGifs(this.query = value);
       },
       groupFetcher: async(group) => {
         if(group?._ !== 'emojiGroup') return {documents: [], nextOffset: ''};
-        return this.managers.appGifsManager.searchGifs(this.query = group.emoticons.join(''));
+        return this.managers.appGifsManager!.searchGifs(this.query = group.emoticons.join(''));
       },
-      processSearchResult: async({data: {documents: gifs, nextOffset}, searching, grouping}) => {
+      processSearchResult: (async({data: {documents: gifs, nextOffset}, searching, grouping}: {data: Awaited<ReturnType<AppGifsManager['searchGifs']>>, searching: boolean, grouping: boolean}) => {
         if(!gifs || (!searching && !grouping)) {
           return;
         }
 
         if(!gifs.length) {
           const span = i18n('NoGIFsFound');
-          span.classList.add('emoticons-not-found');
+          span!.classList.add('emoticons-not-found');
           return span;
         }
 
@@ -53,7 +53,7 @@ export default class GifsTab extends EmoticonsTabC<any, Awaited<ReturnType<AppGi
             return;
           }
 
-          this.managers.appGifsManager.searchGifs(this.query, nextOffset).then(({documents, nextOffset: newNextOffset}) => {
+          this.managers.appGifsManager!.searchGifs(this.query, nextOffset).then(({documents, nextOffset: newNextOffset}) => {
             if(!middleware()) {
               return;
             }
@@ -71,7 +71,7 @@ export default class GifsTab extends EmoticonsTabC<any, Awaited<ReturnType<AppGi
         });
 
         return container;
-      },
+      }) as any,
       searchNoLoader: true,
       searchPlaceholder: 'SearchGIFs',
       searchType: 'gifs'
@@ -85,7 +85,7 @@ export default class GifsTab extends EmoticonsTabC<any, Awaited<ReturnType<AppGi
   private createMasonry(middleware: Middleware) {
     const gifsContainer = document.createElement('div');
     gifsContainer.classList.add('gifs-masonry');
-    const detachClickEvent = attachClickEvent(gifsContainer, this.emoticonsDropdown.onMediaClick);
+    const detachClickEvent = attachClickEvent(gifsContainer, this.emoticonsDropdown.onMediaClick! as any);
     const masonry = new GifsMasonry(gifsContainer, this.animationGroup, this.scrollable);
 
     middleware.onDestroy(() => {
@@ -103,8 +103,8 @@ export default class GifsTab extends EmoticonsTabC<any, Awaited<ReturnType<AppGi
     this.categoriesContainer.append(container);
     const preloader = putPreloader(this.content, true);
 
-    this.managers.appGifsManager.getGifs().then((docs) => {
-      masonry.addBatch(docs);
+    this.managers.appGifsManager!.getGifs().then((docs) => {
+      masonry.addBatch(docs!);
       preloader.remove();
     });
 
@@ -116,6 +116,6 @@ export default class GifsTab extends EmoticonsTabC<any, Awaited<ReturnType<AppGi
       isGif: true
     });
 
-    this.init = undefined;
+    this.init = undefined as any;
   }
 }

@@ -9,7 +9,7 @@ export default function detectLanguage(text: string): Promise<TranslatableLangua
     worker.addEventListener('message', (e) => {
       const {lang} = e.data;
       const promise = promises.shift();
-      promise.resolve(lang);
+      promise!.resolve!(lang);
     });
 
     promises = [];

@@ -65,12 +65,12 @@ export default class ReactionsElement extends HTMLElement {
   private isPlaceholder: boolean;
   private type: ReactionLayoutType;
   private sorted: ReactionElement[];
-  private onConnectCallback: () => void;
+  private onConnectCallback: (() => void) | undefined;
   private managers: AppManagers;
   private middleware: Middleware;
   private middlewareHelpers: Map<ReactionElement, MiddlewareHelper>;
   public customEmojiRenderer: CustomEmojiRendererElement;
-  private customEmojiRendererMiddlewareHelper: MiddlewareHelper;
+  private customEmojiRendererMiddlewareHelper: MiddlewareHelper | undefined;
   private animationGroup: AnimationItemGroup;
   private lazyLoadQueue: LazyLoadQueue;
   private forceCounter: boolean;
@@ -99,8 +99,8 @@ export default class ReactionsElement extends HTMLElement {
 
   disconnectedCallback() {
     const set = REACTIONS_ELEMENTS.get(this.key);
-    set.delete(this);
-    if(!set.size) {
+    set!.delete(this);
+    if(!set!.size) {
       REACTIONS_ELEMENTS.delete(this.key);
     }
   }
@@ -165,9 +165,9 @@ export default class ReactionsElement extends HTMLElement {
     this.key = this.context.peerId + '_' + this.context.mid;
     this.middleware = middleware;
     this.isPlaceholder = isPlaceholder;
-    this.animationGroup = animationGroup;
-    this.lazyLoadQueue = lazyLoadQueue;
-    this.forceCounter = forceCounter;
+    this.animationGroup = animationGroup!;
+    this.lazyLoadQueue = lazyLoadQueue!;
+    this.forceCounter = forceCounter!;
 
     this.setType(type);
 
@@ -236,9 +236,9 @@ export default class ReactionsElement extends HTMLElement {
       const found = counts.some((reactionCount) => reactionsEqual(reactionCount.reaction, reaction));
       if(!found) {
         const middlewareHelper = this.middlewareHelpers.get(reactionElement);
-        middlewareHelper.destroy();
+        middlewareHelper!.destroy();
         this.middlewareHelpers.delete(reactionElement);
-        arr.splice(idx, 1);
+        arr!.splice(idx!, 1);
         reactionElement.remove();
       }
     });
@@ -246,12 +246,12 @@ export default class ReactionsElement extends HTMLElement {
     let animationShouldHaveDelay = false;
     const totalReactions = counts.reduce((acc, c) => acc + c.count, 0);
     const canRenderAvatars = reactions &&
-      (!!reactions.pFlags.can_see_list || this.context.peerId.isUser()) &&
-      totalReactions < REACTIONS_DISPLAY_COUNTER_AT[this.type];
+      (!!reactions.pFlags.can_see_list || this.context.peerId!.isUser()) &&
+      totalReactions < REACTIONS_DISPLAY_COUNTER_AT[this.type]!;
     const customEmojiElements: ReturnType<ReactionElement['render']>[] = new Array(counts.length);
     let paidReactionElement: ReactionElement, pendingPaidReaction: PendingPaidReaction;
     this.sorted = counts.map((reactionCount, idx, arr) => {
-      let reactionElement: ReactionElement = this.sorted.find((reactionElement) => reactionsEqual(reactionElement.reactionCount.reaction, reactionCount.reaction));
+      let reactionElement: ReactionElement = this.sorted.find((reactionElement) => reactionsEqual(reactionElement.reactionCount.reaction, reactionCount.reaction))!;
       if(!reactionElement) {
         const middlewareHelper = this.middleware.create();
         reactionElement = new ReactionElement();
@@ -268,23 +268,23 @@ export default class ReactionsElement extends HTMLElement {
         pendingPaidReaction = pending;
       }
 
-      const recentReactions = reactions.recent_reactions ?
-        reactions.recent_reactions.filter((reaction) => reactionsEqual(reaction.reaction, reactionCount.reaction)) :
+      const recentReactions = reactions!.recent_reactions ?
+        reactions!.recent_reactions.filter((reaction) => reactionsEqual(reaction.reaction, reactionCount.reaction)) :
         [];
       const wasUnread = reactionElement.isUnread;
       const isUnread = recentReactions.some((reaction) => reaction.pFlags.unread);
       reactionElement.reactionCount = {
         ...reactionCount,
-        count: reactionCount.count + (pending?.count?.() ?? 0)
+        count: reactionCount.count + ((pending as PendingPaidReaction | undefined)?.count?.() ?? 0)
       };
-      reactionElement.setCanRenderAvatars(canRenderAvatars);
+      reactionElement.setCanRenderAvatars(canRenderAvatars!);
       const customEmojiElement = reactionElement.render(this.isPlaceholder);
       reactionElement.renderCounter(this.forceCounter);
       reactionElement.renderAvatars(recentReactions);
       reactionElement.isUnread = isUnread;
       reactionElement.setIsChosen(
         isPaidReaction ?
-          !!pending || reactions.top_reactors.some((reactor) => reactor.pFlags.my && reactor.count) :
+          !!pending || reactions!.top_reactors!.some((reactor) => reactor.pFlags.my && reactor.count) :
           undefined
       );
 
@@ -302,12 +302,12 @@ export default class ReactionsElement extends HTMLElement {
       positionElementByIndex(element, this, idx);
     });
 
-    if(pendingPaidReaction) {
-      const {width} = paidReactionElement.getBoundingClientRect();
-      paidReactionElement.style.setProperty('--width', width + 'px');
-      paidReactionElement.setPaidReactionCounter(pendingPaidReaction.count());
-      if(!paidReactionElement.classList.contains('effect-active')) {
-        paidReactionElement.classList.add('effect-active');
+    if(pendingPaidReaction!) {
+      const {width} = paidReactionElement!.getBoundingClientRect();
+      paidReactionElement!.style.setProperty('--width', width + 'px');
+      paidReactionElement!.setPaidReactionCounter(pendingPaidReaction.count());
+      if(!paidReactionElement!.classList.contains('effect-active')) {
+        paidReactionElement!.classList.add('effect-active');
         pendingPaidReaction.abortController.signal.addEventListener('abort', () => {
           paidReactionElement.classList.remove('effect-active');
           paidReactionElement.querySelectorAll('.reaction-sticker-activate').forEach((it) => it.remove());
@@ -328,11 +328,11 @@ export default class ReactionsElement extends HTMLElement {
 
       if(!map.size) {
         if(this.customEmojiRenderer) {
-          this.customEmojiRendererMiddlewareHelper.destroy();
+          this.customEmojiRendererMiddlewareHelper!.destroy();
           this.customEmojiRenderer.remove();
           this.customEmojiRenderer =
-            this.customEmojiRendererMiddlewareHelper =
-            undefined;
+            (this.customEmojiRendererMiddlewareHelper =
+            undefined)!;
         }
 
         return;
@@ -365,7 +365,7 @@ export default class ReactionsElement extends HTMLElement {
         this.handleChangedResults(changedResults, waitPromise, animationShouldHaveDelay);
       } else {
         this.onConnectCallback = () => {
-          this.handleChangedResults(changedResults, waitPromise, animationShouldHaveDelay);
+          this.handleChangedResults(changedResults!, waitPromise, animationShouldHaveDelay);
         };
       }
     }

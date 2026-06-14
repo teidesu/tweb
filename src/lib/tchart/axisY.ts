@@ -17,7 +17,7 @@ export type TChartAxisYItem = {
     strLeft?: string,
     numRight?: number,
     strRight?: string
-  } & {[key in TChartAxisYItem['oProp'] | TChartAxisYItem['yProp']]: number}
+  } & {[key in NonNullable<TChartAxisYItem['oProp'] | TChartAxisYItem['yProp']>]: number}
 };
 
 export default class TAxisY {
@@ -33,7 +33,7 @@ export default class TAxisY {
 
   constructor(opts: TChartUnitOptions) {
     this.opts = opts;
-    this.ctx = opts.ctx;
+    this.ctx = opts.ctx!;
     this.uuid = 1;
     this.items = {};
 
@@ -59,7 +59,7 @@ export default class TAxisY {
   }
 
   deleteItem = (state: TChartState) => {
-    delete this.items[state.id];
+    delete this.items[state.id!];
   };
 
   render(opacity: number) {
@@ -69,7 +69,7 @@ export default class TAxisY {
       calcDataRight = this.calcAxisData('y1_1', 'y2_1');
 
       // left axis is main, if both need animation priority goes to left
-      if((calcDataRight.needAnimation && !calcDataLeft.needAnimation) || this.opts.state['o_0'] < 1) {
+      if((calcDataRight.needAnimation && !calcDataLeft.needAnimation) || this.opts.state!['o_0']! < 1) {
         this.updateAxisState('y1_1', 'y2_1', 'numRight', calcDataRight, calcDataLeft, calcDataRight);
       } else {
         this.updateAxisState('y1_0', 'y2_0', 'numLeft', calcDataLeft, calcDataLeft, calcDataRight);
@@ -84,26 +84,26 @@ export default class TAxisY {
 
   calcAxisData(y1Name: 'y1' | `y1_${number}`, y2Name: 'y2' | `y2_${number}`) {
     const state = this.opts.state;
-    const pTop = this.opts.settings.PADD[0];
-    const pBottom = this.opts.settings.PADD[2];
-    const linesCount = Math.floor(this.opts.settings.Y_AXIS_RANGE);
+    const pTop = this.opts.settings!.PADD[0];
+    const pBottom = this.opts.settings!.PADD[2];
+    const linesCount = Math.floor(this.opts.settings!.Y_AXIS_RANGE);
     let withAnimation = false;
 
-    const y1AnimItem = this.opts.animator.get(y1Name);
-    const y2AnimItem = this.opts.animator.get(y2Name);
-    const y1 = y1AnimItem ? y1AnimItem.end : state[y1Name];
-    const y2 = y2AnimItem ? y2AnimItem.end : state[y2Name];
+    const y1AnimItem = this.opts.animator!.get(y1Name);
+    const y2AnimItem = this.opts.animator!.get(y2Name);
+    const y1 = y1AnimItem ? y1AnimItem.end : state![y1Name];
+    const y2 = y2AnimItem ? y2AnimItem.end : state![y2Name];
 
-    const yRealStep = Math.round((y2 - y1) / this.opts.settings.Y_AXIS_RANGE);
+    const yRealStep = Math.round((y2! - y1!) / this.opts.settings!.Y_AXIS_RANGE);
     const yRealStart = y1;
 
-    const yCurRange = state[y2Name] - state[y1Name];
-    const changeSpeedFirst = state[y1Name] > y1 ? state[y1Name] / y1 : y1 / state[y1Name];
-    const changeSpeedLast = state[y2Name] > y2 ? state[y2Name] / y2 : y2 / state[y2Name];
+    const yCurRange = state![y2Name]! - state![y1Name]!;
+    const changeSpeedFirst = state![y1Name]! > y1! ? state![y1Name]! / y1! : y1! / state![y1Name]!;
+    const changeSpeedLast = state![y2Name]! > y2! ? state![y2Name]! / y2! : y2! / state![y2Name]!;
 
-    const yEndRange = y2 - y1;
-    const yScaleCur = (this.opts.state.dims.axisYLines.h - pTop - pBottom) / yCurRange;
-    const yScaleEnd = (this.opts.state.dims.axisYLines.h - pTop - pBottom) / yEndRange;
+    const yEndRange = y2! - y1!;
+    const yScaleCur = (this.opts.state!.dims!.axisYLines.h - pTop - pBottom) / yCurRange;
+    const yScaleEnd = (this.opts.state!.dims!.axisYLines.h - pTop - pBottom) / yEndRange;
 
     if(changeSpeedFirst > 1.05 || changeSpeedLast > 1.05 || this.forceUpdate) {
       withAnimation = true;
@@ -133,27 +133,27 @@ export default class TAxisY {
   ) {
     const opts = this.opts;
     const settings = opts.settings;
-    const dpi = opts.settings.dpi;
+    const dpi = opts.settings!.dpi;
     const state = opts.state;
-    const pTop = opts.settings.PADD[0];
-    const pBottom = opts.settings.PADD[2];
-    const pLeft = opts.settings.PADD[3];
-    const pRight = opts.settings.PADD[1];
+    const pTop = opts.settings!.PADD[0];
+    const pBottom = opts.settings!.PADD[2];
+    const pLeft = opts.settings!.PADD[3];
+    const pRight = opts.settings!.PADD[1];
     const animator = opts.animator;
     let item: TChartAxisYItem;
-    const linesCount = Math.floor(opts.settings.Y_AXIS_RANGE);
+    const linesCount = Math.floor(opts.settings!.Y_AXIS_RANGE);
     let startedAtLeastOne = false;
-    const dims = this.opts.state.dims.axisYLines;
+    const dims = this.opts.state!.dims!.axisYLines;
 
     if(baseData.needAnimation) {
       this.animationInProgress = true;
     }
 
     for(let i = 0; i <= linesCount; ++i) {
-      const numReal = baseData.yRealStart + Math.round(baseData.yRealStep * i);
-      const numRealLeft = leftData.yRealStart + Math.round(leftData.yRealStep * i);
-      const numRealRight = rightData.yRealStart + Math.round(rightData.yRealStep * i);
-      const formatter = getFormatter('yTickFormatter', opts.data, state.zoomMorph) as any as typeof yTickFormatter;
+      const numReal = baseData.yRealStart! + Math.round(baseData.yRealStep * i);
+      const numRealLeft = leftData.yRealStart! + Math.round(leftData.yRealStep * i);
+      const numRealRight = rightData.yRealStart! + Math.round(rightData.yRealStep * i);
+      const formatter = getFormatter('yTickFormatter', opts.data!, state!.zoomMorph!) as any as typeof yTickFormatter;
 
       const numDisplayLeftStr = formatter(numRealLeft, leftData.yRealStep);
 
@@ -165,10 +165,10 @@ export default class TAxisY {
       const numDisplayRightStr = formatter(Math.max(numRealRight, 0), rightData.yRealStep, true /* , this.opts.state['e_0']*/ );
 
       if(baseData.needAnimation) {
-        const oldFrom = dims.t + dims.h - pBottom - (numReal - baseData.y1) * baseData.yScaleEnd;
-        const oldTo = dims.t + dims.h - pBottom - (this.items[i][numName] - baseData.y1) * baseData.yScaleEnd;
-        const newFrom = dims.t + dims.h - pBottom - (numReal - state[y1Name]) * baseData.yScaleCur;
-        const newTo = dims.t + dims.h - pBottom - (numReal - baseData.y1) * baseData.yScaleEnd;
+        const oldFrom = dims.t + dims.h - pBottom - (numReal - baseData.y1!) * baseData.yScaleEnd;
+        const oldTo = dims.t + dims.h - pBottom - (this.items[i][numName]! - baseData.y1!) * baseData.yScaleEnd;
+        const newFrom = dims.t + dims.h - pBottom - (numReal - state![y1Name]!) * baseData.yScaleCur;
+        const newTo = dims.t + dims.h - pBottom - (numReal - baseData.y1!) * baseData.yScaleEnd;
 
         // if stays on the same pos - no animation
         if(Math.abs(oldTo - newTo) < 1) {
@@ -194,24 +194,24 @@ export default class TAxisY {
               id: `t_${this.uuid}`
             }
           };
-          item.state[item.oProp] = 1;
-          item.state[item.yProp] = oldFrom;
-          this.items[item.state.id] = item;
+          item.state![item.oProp!] = 1;
+          item.state![item.yProp!] = oldFrom;
+          this.items[item.state!.id] = item;
 
-          animator.add([{
-            prop: item.oProp,
+          animator!.add([{
+            prop: item.oProp!,
             state: item.state,
             end: 0,
             duration: this.noAnimation ? 0 : 200,
             tween: 'linear',
             group: {top: true}
           }, {
-            prop: item.yProp,
+            prop: item.yProp!,
             state: item.state,
             end: oldTo,
             duration: this.noAnimation ? 0 : (!this.forceUpdate ? 500 : 333),
             fixed: !this.forceUpdate,
-            tween: !this.forceUpdate ? 'exp' : null,
+            tween: (!this.forceUpdate ? 'exp' : null)!,
             speed: 0.18,
             group: {top: true},
             cbEnd: this.deleteItem
@@ -235,33 +235,33 @@ export default class TAxisY {
               strRight: numDisplayRightStr
             }
           }
-          item.state[item.oProp] = 0;
-          item.state[item.yProp] = newFrom;
-          this.items[item.state.id] = item;
+          item.state![item.oProp!] = 0;
+          item.state![item.yProp!] = newFrom;
+          this.items[item.state!.id] = item;
 
           const props: TChartAnimationProperty<typeof item['state']>[] = [{
-            prop: item.oProp,
+            prop: (item.oProp! as never),
             state: item.state,
             end: 1,
             duration: this.noAnimation ? 0 : 200,
             tween: 'linear',
             group: {top: true}
           }, {
-            prop: item.yProp,
+            prop: (item.yProp! as never),
             state: item.state,
             end: newTo,
             duration: this.noAnimation ? 0 : (!this.forceUpdate ? 500 : 333),
             fixed: !this.forceUpdate,
-            tween: !this.forceUpdate ? 'exp' : null,
+            tween: (!this.forceUpdate ? 'exp' : null)!,
             speed: 0.18,
             group: {top: true},
             cbEnd: (state) => {
-              this.items[state.id] = {
-                numLeft: state.numLeft,
-                strLeft: state.strLeft,
-                numRight: state.numRight,
-                strRight: state.strRight,
-                y: state[`yy_${state.id as number}`]
+              this.items[state!.id] = {
+                numLeft: state!.numLeft,
+                strLeft: state!.strLeft!,
+                numRight: state!.numRight,
+                strRight: state!.strRight!,
+                y: state![`yy_${state!.id as number}`]
               }
 
               clearTimeout(this.animationEndTimeout);
@@ -271,7 +271,7 @@ export default class TAxisY {
             }
           }];
 
-          animator.add(props);
+          animator!.add(props);
         }
       } else {
         if(this.items[i] && this.items[i].animated) {
@@ -279,17 +279,17 @@ export default class TAxisY {
           this.items[i].strLeft = numDisplayLeftStr;
           this.items[i].numRight = numRealRight;
           this.items[i].strRight = numDisplayRightStr;
-          this.items[i].state.numLeft = numRealLeft;
-          this.items[i].state.strLeft = numDisplayLeftStr;
-          this.items[i].state.numRight = numRealRight;
-          this.items[i].state.strRight = numDisplayRightStr;
+          this.items[i].state!.numLeft = numRealLeft;
+          this.items[i].state!.strLeft = numDisplayLeftStr;
+          this.items[i].state!.numRight = numRealRight;
+          this.items[i].state!.strRight = numDisplayRightStr;
         } else {
           this.items[i] = {
             numLeft: numRealLeft,
             strLeft: numDisplayLeftStr,
             numRight: numRealRight,
             strRight: numDisplayRightStr,
-            y: dims.t + dims.h - pBottom - (numReal - baseData.y1) * baseData.yScaleEnd
+            y: dims.t + dims.h - pBottom - (numReal - baseData.y1!) * baseData.yScaleEnd
           };
         }
       }
@@ -303,14 +303,14 @@ export default class TAxisY {
   }
 
   renderState(opacity: number) {
-    const dpi = this.opts.settings.dpi;
-    const dimsLeft = this.opts.state.dims.axisYLeft;
-    const dimsRight = this.opts.state.dims.axisYRight;
-    const dimsLines = this.opts.state.dims.axisYLines;
-    const ys = this.opts.data.ys;
+    const dpi = this.opts.settings!.dpi;
+    const dimsLeft = this.opts.state!.dims!.axisYLeft;
+    const dimsRight = this.opts.state!.dims!.axisYRight;
+    const dimsLines = this.opts.state!.dims!.axisYLines;
+    const ys = this.opts.data!.ys;
 
-    this.ctx.font = `${this.opts.settings.FONT.normal} ${11 * dpi}px ${this.opts.settings.FONT.family}`;
-    this.ctx.strokeStyle = this.opts.settings.COLORS.grid;
+    this.ctx.font = `${this.opts.settings!.FONT.normal} ${11 * dpi}px ${this.opts.settings!.FONT.family}`;
+    this.ctx.strokeStyle = this.opts.settings!.COLORS.grid;
     this.ctx.lineWidth = 1 * dpi;
     this.ctx.lineCap = 'square';
     // @ts-ignore
@@ -321,29 +321,29 @@ export default class TAxisY {
 
       let o: number, y: number;
       if(item.animated) {
-        y = item.state[item.yProp];
-        o = item.state[item.oProp];
+        y = item.state![item.yProp!];
+        o = item.state![item.oProp!];
       } else {
-        y = item.y;
+        y = item.y!;
         o = 1;
       }
 
       if((y - 6) >= 0 && (y - 16) <= dimsLeft.h) {
-        this.ctx.globalAlpha = o  * (this.opts.pairY ? this.opts.state['o_0'] : 1) * opacity;
+        this.ctx.globalAlpha = o  * (this.opts.pairY ? this.opts.state!['o_0'] : 1)! * opacity;
         this.ctx.textAlign = 'left';
 
         if(this.opts.pairY) {
-          this.ctx.fillStyle = this.isDarkMode ? ys[0].colors_n[1] : ys[0].colors_d[1];
+          this.ctx.fillStyle = this.isDarkMode ? ys![0].colors_n[1] : ys![0].colors_d[1];
         } else {
-          this.ctx.fillStyle = this.opts.settings.COLORS.axis.y;
+          this.ctx.fillStyle = this.opts.settings!.COLORS.axis.y;
         }
 
         this.ctx.fillText(item.strLeft, dimsLeft.l * dpi, (y - 7) * dpi);
 
         if(this.opts.pairY) {
-          this.ctx.globalAlpha = o * this.opts.state['o_1'] * opacity;
+          this.ctx.globalAlpha = o * this.opts.state!['o_1']! * opacity;
           this.ctx.textAlign = 'right';
-          this.ctx.fillStyle = this.isDarkMode ? ys[1].colors_n[1] : ys[1].colors_d[1];
+          this.ctx.fillStyle = this.isDarkMode ? ys![1].colors_n[1] : ys![1].colors_d[1];
 
           this.ctx.fillText(item.strRight, (dimsRight.l + dimsRight.w) * dpi, (y - 7) * dpi);
         }

@@ -4,7 +4,7 @@ import {render} from 'solid-js/web';
 import type SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
 
 
-type Args<ObservedAttribute extends string, Props, Controls extends Object = {}> = {
+type Args<ObservedAttribute extends string, Props extends Object, Controls extends Object = {}> = {
   name: string;
   component: CustomElementComponent<ObservedAttribute, Props, Controls>;
   observedAttributes?: ObservedAttribute[];
@@ -18,10 +18,10 @@ export type PassedProps<Props extends Object = {}> = Props & {
 type AttributesRecord<ObservedAttribute extends string> = Record<ObservedAttribute, string | undefined | null>;
 type MutableStore<T extends Object> = T;
 
-type CustomElementComponent<ObservedAttribute extends string, Props, Controls = {}> =
+type CustomElementComponent<ObservedAttribute extends string, Props extends Object, Controls = {}> =
   (props: PassedProps<MutableStore<Props>>, attributes: MutableStore<AttributesRecord<ObservedAttribute>>, controls: Controls) => JSX.Element;
 
-export type DefinedSolidElement<ObservedAttribute extends string = string, Props extends Object = {}, Controls = {}> = ReturnType<typeof defineSolidElement<Props, ObservedAttribute, Controls>>;
+export type DefinedSolidElement<ObservedAttribute extends string = string, Props extends Object = {}, Controls extends Object = {}> = ReturnType<typeof defineSolidElement<Props, ObservedAttribute, Controls>>;
 
 /**
  * Defines an HMR capable custom element with solid-js rendering
@@ -65,7 +65,7 @@ export type DefinedSolidElement<ObservedAttribute extends string = string, Props
  * // Use internal methods through the `controls` property
  * el.controls.someAction();
  */
-export default function defineSolidElement<Props extends Object, ObservedAttribute extends string, Controls = {}>({
+export default function defineSolidElement<Props extends Object, ObservedAttribute extends string, Controls extends Object = {}>({
   name,
   component,
   observedAttributes = [],
@@ -203,7 +203,7 @@ export default function defineSolidElement<Props extends Object, ObservedAttribu
       const ComponentToMount = SolidElement.Component;
 
       this.initStores();
-      if(savedAttributes) Object.assign(this.attributesStore, savedAttributes);
+      if(savedAttributes!) Object.assign(this.attributesStore, savedAttributes);
 
       const Wrapper = this.HotReloadGuard || ((props: ParentProps) => <>{props.children}</>);
 

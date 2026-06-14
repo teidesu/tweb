@@ -298,7 +298,7 @@ export function millerRabin(x: number[], b: number[]): Bool {
   if (!equalsInt(mr_a, 1) && !equals(mr_a, mr_x1)) {
     j = 1
     //$off
-    while (j <= s - 1 && !equals(mr_a, mr_x1)) {
+    while (j <= s! - 1 && !equals(mr_a, mr_x1)) {
       squareMod_(mr_a, x)
       if (equalsInt(mr_a, 1)) {
         return 0
@@ -1307,7 +1307,7 @@ export function str2bigInt(
       if (s.length == 0) break
     }
     //$off
-    if (x.length < minSize) {
+    if (x.length < minSize!) {
       //$off
       y = new Array(minSize)
       copy_(y, x)
@@ -1332,7 +1332,7 @@ export function str2bigInt(
 
   for (k = x.length; k > 0 && !x[k - 1]; k--); //strip off leading zeros
   //$off
-  k = minSize > k + 1 ? minSize : k + 1
+  k = (minSize! > k + 1 ? minSize : k + 1)!
   //$off
   y = new Array(k)
   //$off

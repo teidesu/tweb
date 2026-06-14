@@ -27,7 +27,7 @@ export default class AppGamesManager extends AppManager {
       method: 'messages.setGameScore',
       params: {
         peer: this.appPeersManager.getInputPeerById(peerId),
-        id: getServerMessageId(mid),
+        id: getServerMessageId(mid)!,
         user_id: this.appUsersManager.getUserInput(userId),
         score,
         edit_message: editMessage,
@@ -45,7 +45,7 @@ export default class AppGamesManager extends AppManager {
       method: 'messages.getGameHighScores',
       params: {
         peer: this.appPeersManager.getInputPeerById(peerId),
-        id: getServerMessageId(mid),
+        id: getServerMessageId(mid)!,
         user_id: this.appUsersManager.getUserInput(userId)
       },
       processResult: (highScores) => {

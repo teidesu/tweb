@@ -74,8 +74,8 @@ export class AnimationItemNested implements AnimationItemWrapper {
 export default class DotRenderer implements AnimationItemWrapper {
   private static createdIndex = -1;
 
-  private static imageSpoilerInstance: DotRenderer;
-  private static textSpoilerInstance: DotRenderer;
+  private static imageSpoilerInstance: DotRenderer | undefined;
+  private static textSpoilerInstance: DotRenderer | undefined;
 
   private static createdImageSpoilers = new WeakMap<HTMLCanvasElement, ReturnType<(typeof DotRenderer)['create']>>();
 
@@ -192,7 +192,7 @@ export default class DotRenderer implements AnimationItemWrapper {
     // dotRenderer.renderFirstFrame();
 
     const dpr = window.devicePixelRatio;
-    const {canvas, rotate, flipX, flipY} = this.createTargetCanvas(width, height, dpr);
+    const {canvas, rotate, flipX, flipY} = this.createTargetCanvas(width!, height!, dpr);
     const context = canvas.getContext('2d');
 
     let revealAnimation: {
@@ -213,10 +213,10 @@ export default class DotRenderer implements AnimationItemWrapper {
 
       if(isRevealed) return;
 
-      context.clearRect(0, 0, width, height);
+      context!.clearRect(0, 0, width, height);
 
       if(!revealAnimation) {
-        context.drawImage(instance.canvas, x, y, width, height, 0, 0, width, height);
+        context!.drawImage(instance.canvas, x, y, width, height, 0, 0, width, height);
       } else {
         const {
           progress,
@@ -229,18 +229,18 @@ export default class DotRenderer implements AnimationItemWrapper {
 
         // Zoom (push) the particles
         const scaledProgress = progress ** 2 /* * Math.sqrt(progress) */ * 0.5;
-        context.drawImage(instance.canvas,
+        context!.drawImage(instance.canvas,
           x + transformedCoords.x * scaledProgress, y + transformedCoords.y * scaledProgress, width * (1 - scaledProgress), height * (1 - scaledProgress),
           0, 0, width, height
         );
 
         // Draw a clipping circle growing from where the user clicked
-        drawClippingCircle(context, progress, transformedCoords, maxDist, instance.dpr);
+        drawClippingCircle(context!, progress, transformedCoords, maxDist, instance.dpr);
         drawClippingCircle(underLyingCtx, progress, underlyingCanvasClickCoords, maxDistUnderlyingCanvas, instance.dpr);
       }
 
       if(config?.color) {
-        applyColorOnContext(context, '#' + config.color.toString(16), 0, 0, width, height);
+        applyColorOnContext(context!, '#' + config.color.toString(16), 0, 0, width, height);
       }
     };
 
@@ -293,7 +293,7 @@ export default class DotRenderer implements AnimationItemWrapper {
         Math.hypot(rectX, bcr.height - rectY),
         Math.hypot(bcr.width - rectX, bcr.height - rectY),
       );
-      const maxDist = distToMargin * instance.dpr + 50;
+      const maxDist = distToMargin * instance!.dpr + 50;
 
       revealAnimation = {
         underlyingCanvasClickCoords: {
@@ -301,12 +301,12 @@ export default class DotRenderer implements AnimationItemWrapper {
           y: rectY * underLyingCanvas.height / bcr.height
         },
         transformedCoords: {
-          x: transX * instance.dpr,
-          y: transY * instance.dpr
+          x: transX * instance!.dpr,
+          y: transY * instance!.dpr
         },
         maxDist,
         maxDistUnderlyingCanvas: maxDist / canvas.width * underLyingCanvas.width,
-        underLyingCtx: underLyingCanvas.getContext('2d'),
+        underLyingCtx: underLyingCanvas.getContext('2d')!,
         progress: 0
       };
 
@@ -318,7 +318,7 @@ export default class DotRenderer implements AnimationItemWrapper {
           draw()
         },
         {
-          onEnd: () => void deferred.resolve(),
+          onEnd: () => void deferred.resolve!(),
           easing: simpleEasing
         }
       );
@@ -337,12 +337,12 @@ export default class DotRenderer implements AnimationItemWrapper {
     return result;
   }
 
-  private static connection: SpoilerRendererConnection;
+  private static connection: SpoilerRendererConnection | undefined;
   private static connectionUsers = 0; // media targets + overlay targets
   private static mediaInited = false;
   private static textInited = false;
   private static mediaWorkerReady: CancellablePromise<void>;
-  private static textWorkerReady: CancellablePromise<void>;
+  private static textWorkerReady: CancellablePromise<void> | undefined;
 
   private static getShaderURLs() {
     return {
@@ -355,9 +355,9 @@ export default class DotRenderer implements AnimationItemWrapper {
     ++this.connectionUsers;
     return this.connection ??= retainSpoilerRenderer((message) => {
       if(message.type === 'media-inited') {
-        this.mediaWorkerReady?.resolve();
+        this.mediaWorkerReady?.resolve!();
       } else if(message.type === 'text-inited') {
-        this.textWorkerReady?.resolve();
+        this.textWorkerReady?.resolve!();
       }
     });
   }
@@ -368,7 +368,7 @@ export default class DotRenderer implements AnimationItemWrapper {
     this.connection.release();
     this.connection = undefined;
     this.mediaInited = this.textInited = false;
-    this.mediaWorkerReady = this.textWorkerReady = undefined;
+    this.mediaWorkerReady = (this.textWorkerReady = undefined)!;
   }
 
   private static initMediaSim() {
@@ -377,7 +377,7 @@ export default class DotRenderer implements AnimationItemWrapper {
 
     this.mediaWorkerReady = deferredPromise<void>();
     const dpr = window.devicePixelRatio;
-    this.connection.postMessage({
+    this.connection!.postMessage({
       type: 'media-init',
       width: IMAGE_SPOILER_SIZE,
       height: IMAGE_SPOILER_SIZE,
@@ -393,7 +393,7 @@ export default class DotRenderer implements AnimationItemWrapper {
 
     this.textWorkerReady = deferredPromise<void>();
     const dpr = Math.min(2, window.devicePixelRatio);
-    this.connection.postMessage({
+    this.connection!.postMessage({
       type: 'text-init',
       width: TEXT_SPOILER_WIDTH,
       height: TEXT_SPOILER_HEIGHT,
@@ -422,11 +422,11 @@ export default class DotRenderer implements AnimationItemWrapper {
     const flipX = (index % 4) === 2;
     const flipY = (index % 4) === 3;
 
-    const transforms: string[] = [
+    const transforms: string[] = ([
       rotate && 'rotate(180deg)',
       flipX && 'scaleX(-1)',
       flipY && 'scaleY(-1)'
-    ].filter(Boolean);
+    ].filter(Boolean)! as string[]);
     if(transforms.length) {
       canvas.style.transform = transforms.join(' ');
     }
@@ -450,7 +450,7 @@ export default class DotRenderer implements AnimationItemWrapper {
     const connection = this.retainConnection();
     this.initMediaSim();
     const dpr = window.devicePixelRatio;
-    const {canvas, rotate, flipX, flipY} = this.createTargetCanvas(width, height, dpr);
+    const {canvas, rotate, flipX, flipY} = this.createTargetCanvas(width!, height!, dpr);
     const id = this.createdIndex;
 
     const simSize = IMAGE_SPOILER_SIZE * dpr;
@@ -527,10 +527,10 @@ export default class DotRenderer implements AnimationItemWrapper {
 
       animateValue(0, 1, duration,
         (v) => {
-          drawClippingCircle(underLyingCtx, v, underlyingCanvasClickCoords, maxDistUnderlyingCanvas, dpr);
+          drawClippingCircle(underLyingCtx!, v, underlyingCanvasClickCoords, maxDistUnderlyingCanvas, dpr);
         },
         {
-          onEnd: () => void deferred.resolve(),
+          onEnd: () => void deferred.resolve!(),
           easing: simpleEasing
         }
       );

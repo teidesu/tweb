@@ -50,7 +50,7 @@ export class SlicedCachedFetcher<T> {
     if(remainingLimit && !dontFetch) {
       const lastCachedItem = lastItem(result);
       // adding + 1 to include the last cached item for the slices to merge
-      const cachedOffsetId = lastCachedItem ? (BigInt(lastItem(result)) + BigInt(1)).toString() : undefined;
+      const cachedOffsetId = lastCachedItem ? (BigInt(lastItem(result)!) + BigInt(1)).toString() : undefined;
 
       const additionalLimit = lastCachedItem ? 1 : 0;
       const fetchLimit = remainingLimit + additionalLimit;

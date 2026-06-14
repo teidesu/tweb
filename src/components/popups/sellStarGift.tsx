@@ -49,15 +49,15 @@ export default class PopupSellStarGift extends PopupElement<{
     safeAssign(this, options);
 
     this.btnConfirmI18n = new I18n.IntlElement({key: 'StarGiftSellButton'})
-    this.btnConfirm.replaceChildren(this.btnConfirmI18n.element)
+    this.btnConfirm.replaceChildren(this.btnConfirmI18n.element!)
 
     this.construct()
   }
 
   protected async construct() {
     const [appConfig, floorPrice] = await Promise.all([
-      this.managers.apiManager.getAppConfig(),
-      this.managers.appGiftsManager.getFloorPrice(this.gift.raw.title)
+      this.managers.apiManager!.getAppConfig(),
+      this.managers.appGiftsManager!.getFloorPrice(this.gift.raw.title!)
     ])
     this.appendSolid(() => this._construct({appConfig, floorPrice}));
     this.show()
@@ -72,7 +72,7 @@ export default class PopupSellStarGift extends PopupElement<{
     } else if(this.gift.resellPriceStars) {
       setSellAmount(String(this.gift.resellPriceStars))
     } else if(floorPrice) {
-      setSellAmount(String(bigInt.min(floorPrice, appConfig.stars_stargift_resale_amount_max)))
+      setSellAmount(String(bigInt.min(floorPrice, appConfig.stars_stargift_resale_amount_max!)))
     }
 
     const [loading, setLoading] = createSignal(false);
@@ -85,12 +85,12 @@ export default class PopupSellStarGift extends PopupElement<{
         const nanoton = parseNanotonFromDecimal(sellAmount$);
         const min = appConfig.ton_stargift_resale_amount_min;
         const max = appConfig.ton_stargift_resale_amount_max;
-        if(nanoton.lt(min)) {
-          return ['StarGiftMinSellAmountTon', [formatNanoton(min)]]
+        if(nanoton.lt(min!)) {
+          return ['StarGiftMinSellAmountTon', [formatNanoton(min!)]]
         }
 
-        if(nanoton.gt(max)) {
-          return ['StarGiftMaxSellAmountTon', [formatNanoton(max)]]
+        if(nanoton.gt(max!)) {
+          return ['StarGiftMaxSellAmountTon', [formatNanoton(max!)]]
         }
 
         return undefined
@@ -100,11 +100,11 @@ export default class PopupSellStarGift extends PopupElement<{
       const min = appConfig.stars_stargift_resale_amount_min;
       const max = appConfig.stars_stargift_resale_amount_max;
 
-      if(value < min) {
+      if(value < min!) {
         return ['StarGiftMinSellAmountStars', [min]]
       }
 
-      if(value > max) {
+      if(value > max!) {
         return ['StarGiftMaxSellAmountStars', [max]]
       }
 
@@ -115,16 +115,16 @@ export default class PopupSellStarGift extends PopupElement<{
       if(ton()) {
         const nanoton = parseNanotonFromDecimal(sellAmount());
         const commission = appConfig.ton_stargift_resale_commission_permille;
-        const nanotonAfter = nanoton.multiply(commission).divide(1000).toString();
+        const nanotonAfter = nanoton.multiply(commission!).divide(1000).toString();
         return formatNanoton(nanotonAfter, 2);
       }
 
       const value = +sellAmount();
       const commission = appConfig.stars_stargift_resale_commission_permille;
-      return Math.floor(value * (commission / 1000));
+      return Math.floor(value * (commission! / 1000));
     })
 
-    const percentage = () => (ton() ? appConfig.ton_stargift_resale_commission_permille : appConfig.stars_stargift_resale_commission_permille) / 10;
+    const percentage = () => (ton() ? appConfig.ton_stargift_resale_commission_permille : appConfig.stars_stargift_resale_commission_permille)! / 10;
 
     createEffect(on(() => [inputError(), sellAmount()], ([error, sellAmount]) => {
       this.btnConfirm.toggleAttribute('disabled', !!error || (!sellAmount && !this.allowUnlist))
@@ -154,7 +154,7 @@ export default class PopupSellStarGift extends PopupElement<{
           }
         }
 
-        this.managers.appGiftsManager.updateResalePrice(this.gift.input, amount).then(() => {
+        this.managers.appGiftsManager!.updateResalePrice(this.gift.input!, amount).then(() => {
           this.dispatchEvent('finish', amount === null ? 'unlist' : 'list')
           this.hide()
         }).catch(() => {

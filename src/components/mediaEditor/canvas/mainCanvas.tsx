@@ -12,13 +12,13 @@ import {onCleanup, onMount, Show} from 'solid-js';
 
 export default function MainCanvas() {
   let container: HTMLDivElement;
-  const {editorState, mediaType} = useMediaEditorContext();
+  const {editorState, mediaType} = useMediaEditorContext()!;
 
   useFinalTransform();
 
   onMount(() => {
     const listener = () => {
-      const bcr = container.getBoundingClientRect();
+      const bcr = container!.getBoundingClientRect();
       editorState.canvasSize = [bcr.width, bcr.height];
     };
     listener();
@@ -29,7 +29,7 @@ export default function MainCanvas() {
   });
 
   return (
-    <div ref={container} class="media-editor__main-canvas">
+    <div ref={container!} class="media-editor__main-canvas">
       <Show when={editorState.canvasSize}>
         <ImageCanvas />
         <Show when={editorState.isReady}>

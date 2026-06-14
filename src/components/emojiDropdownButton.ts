@@ -19,7 +19,7 @@ const createEmojiDropdownButton = ({
   inputField: InputField,
   class?: string,
   onEmoticonsDropdown?: (emoticonsDropdown: EmoticonsDropdown) => void
-} & Pick<ConstructorParameters<typeof EmoticonsDropdown>[0], 'customParentElement' | 'getOpenPosition' | 'animationGroup'>) => createRoot((dispose) => {
+} & Pick<NonNullable<ConstructorParameters<typeof EmoticonsDropdown>[0]>, 'customParentElement' | 'getOpenPosition' | 'animationGroup'>) => createRoot((dispose) => {
   let button: HTMLButtonElement;
   Button.Icon({
     icon: 'smile',
@@ -44,7 +44,7 @@ const createEmojiDropdownButton = ({
       insertRichTextAsHTML(
         inputField.input,
         emoji.emoji,
-        entity ? [entity] : undefined
+        (entity ? [entity] : undefined)!
       );
     }
   });
@@ -54,7 +54,7 @@ const createEmojiDropdownButton = ({
     ...rest
   });
 
-  emoticonsDropdown.attachButtonListener(button, createListenerSetter());
+  emoticonsDropdown.attachButtonListener(button!, createListenerSetter());
   emoticonsDropdown.getElement().classList.add(styles.EmoticonsDropdown);
   emoticonsDropdown.setTextColor('primary-text-color');
 
@@ -63,7 +63,7 @@ const createEmojiDropdownButton = ({
     emoticonsDropdown?.hideAndDestroy();
   });
 
-  return {button, dispose};
+  return {button: button!, dispose};
 });
 
 export default createEmojiDropdownButton;

@@ -37,7 +37,7 @@ const AttachMenuButton = defineSolidElement({
     createEffect(() => {
       if(!loadingContainer()) return;
 
-      const clean = attachClickEvent(loadingContainer(), (e) => {
+      const clean = attachClickEvent(loadingContainer()!, (e) => {
         e.stopPropagation();
         props.onCancel?.();
       });
@@ -65,7 +65,7 @@ const AttachMenuButton = defineSolidElement({
             />
             <ProgressCircleSVG
               class={styles.Loader}
-              progress={props.loadingProgress}
+              progress={props.loadingProgress!}
               strokeThickness={1 / 10}
               stroke='currentColor'
               animate

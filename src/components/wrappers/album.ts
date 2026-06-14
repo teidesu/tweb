@@ -35,14 +35,14 @@ export default function wrapAlbum({messages, media, attachmentDiv, middleware, u
   const items: {size: PhotoSize.photoSize, media: Photo.photo | Document.document, message: Message.message}[] = [];
 
   // !lowest msgID will be the FIRST in album
-  for(const message of media || messages) {
+  for(const message of (media || messages)!) {
     const isMessage = !!messages;
     const media = isMessage ? getMediaFromMessage(message as Message.message, true) : message;
 
     const size: any = media._ === 'photo' ?
       choosePhotoSize(media, 480, 480) :
       {w: (media as Document.document).w, h: (media as Document.document).h};
-    items.push({size, media: media as any, message: isMessage ? message as Message.message : undefined});
+    items.push({size, media: media as any, message: (isMessage ? message as Message.message : undefined)!});
   }
 
   /* // * pending
@@ -92,7 +92,7 @@ export default function wrapAlbum({messages, media, attachmentDiv, middleware, u
         middleware,
         size,
         loadPromises,
-        autoDownloadSize: autoDownload.photo,
+        autoDownloadSize: autoDownload!.photo,
         managers,
         uploadingFileName: uploadingFileName?.[idx]
       });
@@ -106,7 +106,7 @@ export default function wrapAlbum({messages, media, attachmentDiv, middleware, u
         withTail: false,
         isOut,
         lazyLoadQueue,
-        middleware,
+        middleware: middleware!,
         loadPromises,
         autoDownload,
         managers,
@@ -121,7 +121,7 @@ export default function wrapAlbum({messages, media, attachmentDiv, middleware, u
 
     if(hasSpoiler) {
       const promise = (thumbPromise || Promise.resolve()).then(async() => {
-        if(!middleware()) {
+        if(!middleware!()) {
           return;
         }
 
@@ -130,18 +130,18 @@ export default function wrapAlbum({messages, media, attachmentDiv, middleware, u
         const itemHeight = +height.slice(0, -1) / 100 * containerHeight;
         const container = await wrapMediaSpoiler({
           media,
-          animationGroup,
-          middleware,
+          animationGroup: animationGroup!,
+          middleware: middleware!,
           width: itemWidth,
           height: itemHeight,
           sensitive
         });
 
-        if(!middleware()) {
+        if(!middleware!()) {
           return;
         }
 
-        mediaDiv.append(container);
+        mediaDiv.append(container!);
       });
 
       loadPromises?.push(promise);

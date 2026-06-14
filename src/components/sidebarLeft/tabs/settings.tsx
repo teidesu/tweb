@@ -150,7 +150,7 @@ const Settings = () => {
 
     if(subTab instanceof SliderSuperTabEventable && item.getInitArgs) {
       (subTab as SliderSuperTabEventable).eventListener.addEventListener('destroyAfter', (promise) => {
-        item.args = promise.then(() => item.getInitArgs() as any);
+        item.args = promise.then(() => item.getInitArgs!() as any);
       });
     }
   };
@@ -164,7 +164,7 @@ const Settings = () => {
   const getAuthorizations = (overwrite?: boolean) => {
     if(getAuthorizationsPromise && !overwrite) return getAuthorizationsPromise;
 
-    const promise = getAuthorizationsPromise = rootScope.managers.appAccountManager.getAuthorizations()
+    const promise = getAuthorizationsPromise = rootScope.managers.appAccountManager!.getAuthorizations()
     .finally(() => {
       if(getAuthorizationsPromise === promise) {
         getAuthorizationsPromise = undefined;
@@ -196,7 +196,7 @@ const Settings = () => {
       authorizations = undefined;
       updateActiveSessions(true);
     }, {once: true});
-    subTab.open({authorizations});
+    subTab.open({authorizations: authorizations!});
   };
 
   // ── Premium section. Signal-backed so `<Show>` re-evaluates when the

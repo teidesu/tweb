@@ -80,7 +80,7 @@ function WebPageMedia(props: {
   const _className = `${className}-preview`;
   const withDocument = props.hasDocument && `${_className}-with-document`;
   if(props.content) {
-    props.content.classList.add(...[_className, withDocument].filter(Boolean));
+    props.content.classList.add(...[_className, withDocument].filter(Boolean) as string[]);
   }
 
   return (
@@ -100,10 +100,10 @@ export default function WebPageBox(props: {
   minContent?: boolean,
   clickable?: boolean
 }) {
-  const viewButton = WebPageFooter(props.footer);
-  const siteName = WebPageName(props.name);
+  const viewButton = WebPageFooter(props.footer!);
+  const siteName = WebPageName(props.name!);
   const titleDiv = WebPageTitle(props.title);
-  const previewResizer = WebPageMedia(props.media);
+  const previewResizer = WebPageMedia(props.media!);
 
   const contentDiv = (
     <div class={classNames(`${className}-content`, props.media?.hasDocument && 'has-document', props.minContent && 'min-content')}>

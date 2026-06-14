@@ -78,7 +78,7 @@ const PrivacyAndSecurity: Component = () => {
   const [newChatsHidden, setNewChatsHidden] = createSignal(false);
   const [sensitiveHidden, setSensitiveHidden] = createSignal(true);
 
-  const updateActiveWebsites = (promise = tab.managers.appSeamlessLoginManager.getWebAuthorizations()) => {
+  const updateActiveWebsites = (promise = tab.managers.appSeamlessLoginManager!.getWebAuthorizations()) => {
     return promise.then((authorizations) => {
       websitesRow.freezed = false;
       websites = authorizations;
@@ -90,8 +90,8 @@ const PrivacyAndSecurity: Component = () => {
   const updatePasskeys = () => {
     passkeyRow.freezed = true;
     return Promise.all([
-      tab.managers.apiManager.getAppConfig(),
-      tab.managers.appAccountManager.getPasskeys()
+      tab.managers.apiManager!.getAppConfig(),
+      tab.managers.appAccountManager!.getPasskeys()
     ]).then(([appConfig, passkeysResult]) => {
       passkeyRow.freezed = false;
       [passkeys, setPasskeys] = createStore(passkeysResult.passkeys);
@@ -126,9 +126,9 @@ const PrivacyAndSecurity: Component = () => {
     };
 
     confirmationPopup(options).then(() => {
-      const [info, payment] = options.checkboxes.map((c) => c.checkboxField.checked);
+      const [info, payment] = options.checkboxes!.map((c) => c.checkboxField!.checked);
       const toggle = toggleDisability([clearButton], true);
-      tab.managers.appPaymentsManager.clearSavedInfo(info, payment).then(() => {
+      tab.managers.appPaymentsManager!.clearSavedInfo(info, payment).then(() => {
         if(!info && !payment) {
           return;
         }
@@ -147,7 +147,7 @@ const PrivacyAndSecurity: Component = () => {
         langKey: 'Delete',
         callback: () => {
           const toggle = toggleDisability([deleteButton], true);
-          tab.managers.appDraftsManager.clearAllDrafts().then(() => {
+          tab.managers.appDraftsManager!.clearAllDrafts().then(() => {
             toggle();
           });
         },
@@ -189,7 +189,7 @@ const PrivacyAndSecurity: Component = () => {
             if(passwordState.pFlags.has_password) {
               tab.slider.createTab(AppTwoStepVerificationEnterPasswordTab).open({state: passwordState});
             } else if(passwordState.email_unconfirmed_pattern) {
-              tab.managers.passwordManager.resendPasswordEmail();
+              tab.managers.passwordManager!.resendPasswordEmail();
               tab.slider.createTab(AppTwoStepVerificationEmailConfirmationTab).open({
                 state: passwordState,
                 email: wrapEmailPattern(passwordState.email_unconfirmed_pattern),
@@ -238,7 +238,7 @@ const PrivacyAndSecurity: Component = () => {
           icon: 'email',
           clickable: () => {
             tab.slider.createTab(ChangeLoginEmailTab).open({
-              isInitialSetup: passwordState.login_email_pattern.includes(' ')
+              isInitialSetup: passwordState.login_email_pattern!.includes(' ')
             });
           },
           listenerSetter: tab.listenerSetter
@@ -320,9 +320,9 @@ const PrivacyAndSecurity: Component = () => {
 
         const setBlockedCount = (count: number) => {
           if(count) {
-            replaceContent(blockedUsersRow.subtitle, i18n('PrivacySettingsController.UserCount', [count]));
+            replaceContent(blockedUsersRow.subtitle, i18n('PrivacySettingsController.UserCount', [count])!);
           } else {
-            replaceContent(blockedUsersRow.subtitle, i18n('BlockedEmpty', [count]));
+            replaceContent(blockedUsersRow.subtitle, i18n('BlockedEmpty', [count])!);
           }
         };
 
@@ -336,7 +336,7 @@ const PrivacyAndSecurity: Component = () => {
         });
 
         const updateBlocked = () => {
-          tab.managers.appUsersManager.getBlocked().then((res) => {
+          tab.managers.appUsersManager!.getBlocked().then((res) => {
             blockedUsersRow.freezed = false;
             setBlockedCount(res.count);
             blockedPeerIds = res.peerIds;
@@ -345,9 +345,9 @@ const PrivacyAndSecurity: Component = () => {
 
         updateBlocked();
 
-        tab.managers.passwordManager.getState().then((state) => {
+        tab.managers.passwordManager!.getState().then((state) => {
           passwordState = state;
-          replaceContent(twoFactorRow.subtitle, i18n(state.pFlags.has_password ? 'PrivacyAndSecurity.Item.On' : 'PrivacyAndSecurity.Item.Off'));
+          replaceContent(twoFactorRow.subtitle, i18n(state.pFlags.has_password ? 'PrivacyAndSecurity.Item.On' : 'PrivacyAndSecurity.Item.Off')!);
           twoFactorRow.freezed = false;
 
           if(state.login_email_pattern) {
@@ -361,10 +361,10 @@ const PrivacyAndSecurity: Component = () => {
 
         let passcodeEnabled: boolean;
         const setPasscodeEnabledState = (enabled?: boolean) => {
-          passcodeEnabled = enabled;
-          replaceContent(passcodeLockRow.subtitle, i18n(enabled ? 'PrivacyAndSecurity.Item.On' : 'PrivacyAndSecurity.Item.Off'));
+          passcodeEnabled = enabled!;
+          replaceContent(passcodeLockRow.subtitle, i18n(enabled ? 'PrivacyAndSecurity.Item.On' : 'PrivacyAndSecurity.Item.Off')!);
         };
-        tab.managers.appStateManager.getState().then((state) => {
+        tab.managers.appStateManager!.getState().then((state) => {
           passcodeLockRow.freezed = false;
           setPasscodeEnabledState(state.settings?.passcode?.enabled || false);
         });
@@ -378,14 +378,14 @@ const PrivacyAndSecurity: Component = () => {
 
         function updateAutoDeleteRow() {
           autoDeleteMessagesRow.subtitle.replaceChildren(
-            !autoDeletePeriod ?
+            (!autoDeletePeriod ?
               i18n('Off') :
-              findExistingOrCreateCustomOption(autoDeletePeriod).label()
+              findExistingOrCreateCustomOption(autoDeletePeriod).label())!
           );
         }
 
         (async() => {
-          autoDeletePeriod = await tab.managers.appPrivacyManager.getDefaultAutoDeletePeriod();
+          autoDeletePeriod = await tab.managers.appPrivacyManager!.getDefaultAutoDeletePeriod();
           updateAutoDeleteRow();
           autoDeleteMessagesRow.freezed = false;
         })();
@@ -507,7 +507,7 @@ const PrivacyAndSecurity: Component = () => {
         const createPremiumTitle = (langKey: LangPackKey) => {
           const fragment = document.createDocumentFragment();
           const icon = Icon('star', 'privacy-premium-icon');
-          fragment.append(i18n(langKey), icon);
+          fragment.append(i18n(langKey)!, icon);
           const onPremium = () => {
             icon.classList.toggle('hide', !rootScope.premium);
           };
@@ -556,7 +556,7 @@ const PrivacyAndSecurity: Component = () => {
           const getLangKeyForMessagesPrivacy = (globalPrivacy: GlobalPrivacySettings.globalPrivacySettings): LangPackKey => {
             if(!rootScope.premium) return map[PrivacyType.Everybody];
 
-            if(+globalPrivacy.noncontact_peers_paid_stars) return 'PrivacySettingsController.Paid';
+            if(+globalPrivacy.noncontact_peers_paid_stars!) return 'PrivacySettingsController.Paid';
 
             if(globalPrivacy.pFlags.new_noncontact_peers_require_premium) return 'Privacy.ContactsAndPremium';
 
@@ -566,12 +566,12 @@ const PrivacyAndSecurity: Component = () => {
           if(!key.startsWith('inputPrivacy')) {
             p.globalPrivacy.then((globalPrivacy) => {
               const langKey = getLangKeyForMessagesPrivacy(globalPrivacy);
-              row.subtitle.replaceChildren(i18n(langKey));
+              row.subtitle.replaceChildren(i18n(langKey)!);
             });
             return;
           }
 
-          tab.managers.appPrivacyManager.getPrivacy(key as InputPrivacyKey['_']).then((rules) => {
+          tab.managers.appPrivacyManager!.getPrivacy(key as InputPrivacyKey['_']).then((rules) => {
             const details = getPrivacyRulesDetails(rules);
             let langKey = map[details.type];
             if(details.type === PrivacyType.Nobody && details.allowMiniApps) {
@@ -585,7 +585,7 @@ const PrivacyAndSecurity: Component = () => {
             const allowLength = details.allowPeers.users.length + details.allowPeers.chats.length;
 
             const s = i18n(langKey);
-            row.subtitle.replaceChildren(s);
+            row.subtitle.replaceChildren(s!);
             if(disallowLength || allowLength) {
               row.subtitle.append(` (${[-disallowLength, allowLength ? '+' + allowLength : 0].filter(Boolean).join(', ')})`);
             }
@@ -600,8 +600,8 @@ const PrivacyAndSecurity: Component = () => {
           callRow,
           linkAccountRow,
           groupChatsAddRow,
-          voicesRow,
-          messagesRow,
+          voicesRow!,
+          messagesRow!,
           birthdayRow,
           giftsRow,
           savedMusicRow
@@ -628,7 +628,7 @@ const PrivacyAndSecurity: Component = () => {
         tab.eventListener.addEventListener('destroy', async() => {
           destroyed = true;
           if(enabled === undefined || enabled === checkboxField.checked) return;
-          return tab.managers.appPrivacyManager.setGlobalPrivacySettings({
+          return tab.managers.appPrivacyManager!.setGlobalPrivacySettings({
             _: 'globalPrivacySettings',
             pFlags: {
               ...(await p.globalPrivacy).pFlags,
@@ -687,7 +687,7 @@ const PrivacyAndSecurity: Component = () => {
 
           pendingChange = true;
 
-          tab.managers.appPrivacyManager.setContentSettings({
+          tab.managers.appPrivacyManager!.setContentSettings({
             sensitive_enabled: newEnabled
           }).catch(() => {
             toastNew({langPackKey: 'Error.AnError'});

@@ -12,7 +12,7 @@ export default function listenMessagePort(
     onConnect?.(listenPort);
   };
 
-  messagePort.setOnPortDisconnect(onDisconnect);
+  messagePort.setOnPortDisconnect(onDisconnect!);
 
   if(typeof(SharedWorkerGlobalScope) !== 'undefined') {
     (ctx as any as SharedWorkerGlobalScope).addEventListener('connect', (e) => attachPort(e.source, e.source));

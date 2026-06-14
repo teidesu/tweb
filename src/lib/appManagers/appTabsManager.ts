@@ -19,7 +19,7 @@ export class AppTabsManager {
 
     port.addEventListener('tabState', (state, source) => {
       const tab = this.tabs.get(source);
-      tab.state = state;
+      tab!.state = state;
 
       this.onTabStateChange();
 
@@ -36,7 +36,7 @@ export class AppTabsManager {
   public addTab(source: MessageEventSource) {
     const tab: Tab = {
       source,
-      state: undefined
+      state: (undefined as unknown as TabState)
     };
 
     this.tabs.set(source, tab);

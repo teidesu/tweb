@@ -63,7 +63,7 @@ export default function wrapAttachBotIcon({
       const svg = doc.firstElementChild as HTMLElement;
       (iconElement as any).svg = svg;
       (iconElement as any).set = set;
-      return set();
+      return (await set())!;
     }
   });
 

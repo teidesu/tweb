@@ -7,15 +7,15 @@ import {useMediaEditorContext} from '@components/mediaEditor/context';
 
 export default function FinishButton(props: {onClick: () => void}) {
   let container: HTMLDivElement;
-  const {canFinish} = useMediaEditorContext();
+  const {canFinish} = useMediaEditorContext()!;
 
   onMount(() => {
-    ripple(container);
+    ripple(container!);
   });
 
   return (
     <div
-      ref={container}
+      ref={container!}
       onClick={props.onClick}
       class="media-editor__finish-button"
       classList={{

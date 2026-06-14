@@ -43,7 +43,7 @@ export class GroupCallParticipantContextMenu {
     this.buttons = [{
       icon: 'gc_microphoneoff',
       text: 'VoiceChat.MutePeer',
-      verify: () => this.canManageCall && this.participant.pFlags.can_self_unmute,
+      verify: () => (this.canManageCall && this.participant.pFlags.can_self_unmute)!,
       onClick: () => this.toggleParticipantMuted(true)
     }, {
       icon: 'gc_microphone',
@@ -58,7 +58,7 @@ export class GroupCallParticipantContextMenu {
     }, {
       icon: 'gc_microphone',
       text: 'VoiceChat.UnmuteForMe',
-      verify: () => !this.canManageCall && this.participant.pFlags.muted_by_you,
+      verify: () => (!this.canManageCall && this.participant.pFlags.muted_by_you)!,
       onClick: () => this.toggleParticipantMuted(false)
     }, {
       icon: 'newprivate',
@@ -69,19 +69,19 @@ export class GroupCallParticipantContextMenu {
       icon: 'deleteuser',
       className: 'danger',
       text: 'VoiceChat.RemovePeer',
-      verify: () => this.managers.appChatsManager.hasRights(this.chatId, 'ban_users'),
+      verify: () => this.managers.appChatsManager!.hasRights(this.chatId, 'ban_users'),
       onClick: async() => {
         confirmationPopup({
           peerId: this.targetPeerId,
           title: new PeerTitle({peerId: this.targetPeerId}).element,
-          descriptionLangKey: await this.managers.appChatsManager.isBroadcast(this.chatId) ? 'VoiceChat.RemovePeer.Confirm.Channel' : 'VoiceChat.RemovePeer.Confirm',
+          descriptionLangKey: await this.managers.appChatsManager!.isBroadcast(this.chatId) ? 'VoiceChat.RemovePeer.Confirm.Channel' : 'VoiceChat.RemovePeer.Confirm',
           descriptionLangArgs: [new PeerTitle({peerId: this.targetPeerId}).element],
           button: {
             langKey: 'VoiceChat.RemovePeer.Confirm.OK',
             isDanger: true
           }
         }).then(() => {
-          this.managers.appChatsManager.kickFromChat(this.chatId, this.targetPeerId);
+          this.managers.appChatsManager!.kickFromChat(this.chatId, this.targetPeerId);
         }, noop);
       }
     }];
@@ -97,7 +97,7 @@ export class GroupCallParticipantContextMenu {
     attachContextMenuListener({
       element: options.onContextElement,
       callback: async(e) => {
-        const li = findUpClassName(e.target, 'group-call-participant');
+        const li = findUpClassName(e.target!, 'group-call-participant');
         if(!li) {
           return;
         }
@@ -108,17 +108,17 @@ export class GroupCallParticipantContextMenu {
 
         cancelEvent(e);
 
-        const peerId = this.targetPeerId = li.dataset.peerId.toPeerId();
-        this.participant = await this.instance.getParticipantByPeerId(peerId);
+        const peerId = this.targetPeerId = li.dataset.peerId!.toPeerId();
+        this.participant = (await this.instance.getParticipantByPeerId(peerId))!;
         if(this.participant.pFlags.self) {
           return;
         }
 
-        this.canManageCall = await this.managers.appChatsManager.hasRights(this.chatId, 'manage_call');
+        this.canManageCall = await this.managers.appChatsManager!.hasRights(this.chatId, 'manage_call');
 
         await filterAsync(this.buttons, async(button) => {
           const good = await button.verify(peerId);
-          button.element.classList.toggle('hide', !good);
+          button.element!.classList.toggle('hide', !good);
           return good;
         });
 
@@ -221,7 +221,7 @@ export default class GroupCallParticipantsElement {
     const scrollableLoader = new ScrollableLoader({
       scrollable,
       getPromise: () => {
-        return this.managers.appGroupCallsManager.getGroupCallParticipants(this.instance.id).then(({participants, isEnd}) => {
+        return this.managers.appGroupCallsManager!.getGroupCallParticipants(this.instance.id).then(({participants, isEnd}) => {
           participants.forEach((participant) => {
             this.updateParticipant(participant);
           });

@@ -84,15 +84,15 @@ const PowerSaving = () => {
           checkboxFields.setNestedCounter(field, disable ? 0 : undefined);
         }
 
-        field.checkboxField.input.classList.toggle('is-fake-disabled', disable);
-        field.row.toggleDisability(disable);
+        field.checkboxField!.input.classList.toggle('is-fake-disabled', disable);
+        field.row!.toggleDisability(disable);
       });
     };
 
     tab.listenerSetter.add(formEl)('change', async() => {
       const liteMode: StateSettings['liteMode'] = {} as any;
       fields.forEach((field) => {
-        const checked = field.checkboxField.checked;
+        const checked = field.checkboxField!.checked;
         liteMode[field.key] = field.key === 'all' ? checked : !checked;
       });
 

@@ -23,7 +23,7 @@ export default class Sortable {
   private siblings: HTMLElement[];
   private swipeHandler: SwipeHandler;
   private startScrollPos: number;
-  private addScrollPos: number;
+  private addScrollPos: number | undefined;
 
   private list: HTMLElement;
   private middleware: Middleware;
@@ -82,7 +82,7 @@ export default class Sortable {
       const diff = yDiff;
       const toEnd = diff > 0;
       const elementEndPos = toEnd ? this.elementRect.bottom : this.elementRect.top;
-      const clientY = elementEndPos + diff - this.addScrollPos;
+      const clientY = elementEndPos + diff - this.addScrollPos!;
       // console.log(clientY, this.scrollableRect.top, elementEndPos, diff, this.addScrollPos, toEnd);
       let change = 2;
       if((clientY + (toEnd ? 0 : this.elementRect.height)) >= this.scrollableRect.bottom/*  && diff < this.maxY */) {
@@ -90,7 +90,7 @@ export default class Sortable {
       } else if((clientY - (toEnd ? this.elementRect.height : 0)) <= this.scrollableRect.top/*  && diff > this.minY */) {
         change *= -1;
       } else {
-        change = undefined;
+        change = (undefined as unknown as number);
       }
 
       if(change !== undefined) {
@@ -104,7 +104,7 @@ export default class Sortable {
       return false;
     }
 
-    this.element = this.getSortableTarget(e.target as HTMLElement);
+    this.element = this.getSortableTarget(e.target as HTMLElement)! as unknown as HTMLElement;
     return !!this.element/*  && pause(150).then(() => true) */;
   };
 
@@ -163,14 +163,14 @@ export default class Sortable {
     });
 
     this.element =
-      this.siblings =
-      this.elementRect =
-      this.containerRect =
-      this.minY =
-      this.maxY =
-      this.startScrollPos =
-      this.addScrollPos =
-      undefined;
+      (this.siblings =
+      (this.elementRect =
+      (this.containerRect =
+      (this.minY =
+      (this.maxY =
+      (this.startScrollPos =
+      (this.addScrollPos =
+      undefined)!)!)!)!)!)!)!;
 
     // cancelClick = true;
 
@@ -186,9 +186,9 @@ export default class Sortable {
       return;
     }
 
-    let child = findUpAsChild(target as HTMLElement, this.list);
+    let child = findUpAsChild(target as unknown as {parentElement: HTMLElement}, this.list) as HTMLElement | null;
     if(child && child.classList.contains('cant-sort')) {
-      child = undefined;
+      child = null;
     }
 
     return child;

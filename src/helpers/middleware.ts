@@ -26,7 +26,7 @@ const MIDDLEWARE_ERROR = makeError('MIDDLEWARE');
 export class MiddlewareHelper {
   private details = createDetails();
   private onDestroyCallbacks: VoidFunction[] = [];
-  private parent: MiddlewareHelper;
+  private parent: MiddlewareHelper | undefined;
   private destroyed: boolean;
 
   public clean() {

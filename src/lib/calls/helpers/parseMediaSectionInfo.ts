@@ -16,7 +16,7 @@ export default function parseMediaSectionInfo(sdp: SDP, channel: SDPMediaSection
 
   if(!clientInfo.fingerprint) { // support Firefox
     const line = sdp.session.lines.find((line) => line.parsed?.key === 'fingerprint');
-    clientInfo.fingerprint = line.parsed.value;
+    clientInfo.fingerprint = line!.parsed!.value;
   }
 
   const telegramSourceGroups = parseSourceGroups(clientInfo['ssrc-group']);

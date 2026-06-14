@@ -23,7 +23,7 @@ function rotationFromMove(amount: number) {
 }
 
 export default function RotationWheel() {
-  const {editorState, mediaState, actions} = useMediaEditorContext();
+  const {editorState, mediaState, actions} = useMediaEditorContext()!;
 
   const isCropping = () => editorState.currentTab === 'crop';
 
@@ -72,7 +72,7 @@ export default function RotationWheel() {
     }
 
     const swipeHandler = new SwipeHandler({
-      element: swiperEl,
+      element: swiperEl!,
       onStart() {
         initialScale = mediaState.scale;
         currentDiff = movedDiff();
@@ -245,7 +245,7 @@ export default function RotationWheel() {
       <ButtonIconTsx onClick={withCurrentOwner(rotateLeft)} class="media-editor__rotation-wheel-button" icon="rotate" />
       <div class="media-editor__rotation-wheel-swiper-wrapper">
         <div
-          ref={swiperEl}
+          ref={swiperEl!}
           style={{['--moved']: moved() + movedDiff() + 'px'}}
           class="media-editor__rotation-wheel-swiper"
         >

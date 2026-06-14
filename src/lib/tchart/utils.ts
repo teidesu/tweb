@@ -35,7 +35,7 @@ export function simplifyData(tp: any, x: number[], ys: TChartData['ys'], xScale:
         optX[xInd] = x[i];
         xInd++;
       } else {
-        cnt++;
+        cnt!++;
       }
 
       // calc avg y per column that fits inside same x in pixels
@@ -43,7 +43,7 @@ export function simplifyData(tp: any, x: number[], ys: TChartData['ys'], xScale:
         const visColInd = visibleCols[j];
         optYs[visColInd] = optYs[visColInd] || {y: []};
         const prevOptY = optYs[visColInd].y[xInd - 1];
-        const curY = ys[visColInd].y[i];
+        const curY = ys![visColInd].y[i];
         if(prevOptY === undefined) {
           optYs[visColInd].y[xInd - 1] = curY;
         } else {
@@ -51,10 +51,10 @@ export function simplifyData(tp: any, x: number[], ys: TChartData['ys'], xScale:
         }
         if(xInd > 1) {
           if(notTheSame) {
-            optYs[visColInd].y[xInd - 2] /= cnt;
+            optYs[visColInd].y[xInd - 2] /= cnt!;
           }
           if(i === xInd2) {
-            optYs[visColInd].y[xInd - 1] /= cnt;
+            optYs[visColInd].y[xInd - 1] /= cnt!;
           }
         }
       }
@@ -192,17 +192,17 @@ export function getFormatter(formatterName: 'xRangeFormatter' | 'xTickFormatter'
     'statsFormat(\'hour\')': (value) => statsFormatMin(value, data),
     'statsFormat(\'5min\')': (value) => statsFormatMin(value, data),
     'statsFormatTooltipValue': yTooltipFormatter,
-    'statsTooltipFormat(\'week\')': (value) => data.getLabelDate(value),
-    'statsTooltipFormat(\'day\')': (value) => data.getLabelDate(value),
-    'statsTooltipFormat(\'hour\')': (value) => data.getLabelTime(value),
-    'statsTooltipFormat(\'5min\')': (value) => data.getLabelTime(value),
+    'statsTooltipFormat(\'week\')': (value) => data.getLabelDate!(value),
+    'statsTooltipFormat(\'day\')': (value) => data.getLabelDate!(value),
+    'statsTooltipFormat(\'hour\')': (value) => data.getLabelTime!(value),
+    'statsTooltipFormat(\'5min\')': (value) => data.getLabelTime!(value),
     'null': (value) => '' + value
   };
 
   let formatter = map[f] || map['null'];
   if(f === 'null') {
     const m: Record<string, Formatter> = {
-      xRangeFormatter: (value) => data.getLabelDate(value, {isShort: false, isMonthShort: false}),
+      xRangeFormatter: (value) => data.getLabelDate!(value, {isShort: false, isMonthShort: false}),
       yTickFormatter: yTickFormatter as any
     };
 
@@ -329,7 +329,7 @@ export function roundRange(y1: number, y2: number, cnt?: number, refRange?: Roun
   const calc = (d: number) => {
     const power = curPower * d;
     const min = Math.floor(y1 / power) * power;
-    const max = min + cnt * Math.ceil((y2 - min) * scale / power) * power;
+    const max = min + cnt! * Math.ceil((y2 - min) * scale / power) * power;
 
     return {
       good: max <= maxLevel && min >= minLevel,
@@ -340,7 +340,7 @@ export function roundRange(y1: number, y2: number, cnt?: number, refRange?: Roun
     };
   };
 
-  const scale = 1 / cnt;
+  const scale = 1 / cnt!;
   const step = (y2 - y1) * scale;
   let curPower = Math.max(Math.pow(10, Math.floor(Math.log10(step))), 1);
   const minLevel = y1 - step * 0.5;

@@ -30,13 +30,13 @@ export function getTransition(
     return {
       ...transition,
       duration: transition.duration[('' + forwards) as keyof TransitionDurationFull],
-      keyframes
+      keyframes: keyframes!
     };
   }
 
   return {
     ...transition as Transition<TransitionDurationShort>,
-    keyframes
+    keyframes: keyframes!
   };
 }
 

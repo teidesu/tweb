@@ -10,7 +10,7 @@ import extractEmojiFromFilterTitle, {ExtractEmojiFromFilterTitleResult} from '@c
 import {i18n} from '@lib/langPack';
 
 export function getFolderTitle(filter: MyDialogFilter) {
-  let cleanTitle: ExtractEmojiFromFilterTitleResult;
+  let cleanTitle!: ExtractEmojiFromFilterTitleResult;
 
   const titleRest = filter.id === FOLDER_ID_ALL ? {
     name: i18n('FilterAllChats')

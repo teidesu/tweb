@@ -19,8 +19,8 @@ export function OverlayedIcon(icons: (Icon | IconWithClass)[], className?: strin
   const getIcon = (icon: Icon | IconWithClass) => icon instanceof Object ? icon.icon : icon;
   const getClasses = (icon: Icon | IconWithClass) => icon instanceof Object ? [icon.className] : [];
 
-  span.append(Icon(getIcon(icons[0]), ...getClasses(icons[0])));
-  span.append(...icons.slice(1).map(icon => Icon(getIcon(icon), 'overlayed-icon__floating-icon', ...getClasses(icon))));
+  span.append(Icon(getIcon(icons[0]), ...getClasses(icons[0]) as string[]));
+  span.append(...icons.slice(1).map(icon => Icon(getIcon(icon), 'overlayed-icon__floating-icon', ...getClasses(icon) as string[])));
 
   return span;
 }

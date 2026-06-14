@@ -248,7 +248,7 @@ function buildPresetWallpaper(preset: AccentPreset): WallPaper.wallPaper | undef
       ...(wp.dark ? {dark: true as const} : {})
     },
     access_hash: '',
-    document: undefined,
+    document: undefined!,
     id: PRESET_WALLPAPER_ID_PREFIX + preset.id,
     slug: 'pattern',
     settings: {

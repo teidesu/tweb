@@ -81,7 +81,7 @@ export default function applyReplacements(object: {
   };
 
   const iterateIt = (it: LottieShape['it']) => {
-    for(const smth of it) {
+    for(const smth of it!) {
       checkSmth(smth);
     }
   };

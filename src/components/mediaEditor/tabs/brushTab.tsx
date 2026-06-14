@@ -14,7 +14,7 @@ const brushSizeMin = 2;
 const brushSizeMax = 32;
 
 export default function BrushTab() {
-  const {editorState, mediaType} = useMediaEditorContext();
+  const {editorState, mediaType} = useMediaEditorContext()!;
 
   const savedBrushColors = {
     pen: createStoredColor(['colorByBrush', 'pen'], '#fe4438'),
@@ -150,7 +150,7 @@ export default function BrushTab() {
 }
 
 function createSyncedBrushProp<T extends keyof MediaEditorState['currentBrush']>(key: T, getter: () => MediaEditorState['currentBrush'][T]) {
-  const {editorState} = useMediaEditorContext();
+  const {editorState} = useMediaEditorContext()!;
 
   editorState.currentBrush[key] = getter();
 

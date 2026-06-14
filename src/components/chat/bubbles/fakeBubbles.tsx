@@ -16,9 +16,9 @@ export function FakeBubbles(props: {
   let container!: HTMLDivElement;
 
   onMount(() => {
-    themeController.applyTheme(themeController.getTheme(), container);
+    themeController.applyTheme(themeController.getTheme()!, container);
     subscribeOn(rootScope)('theme_changed', () => {
-      themeController.applyTheme(themeController.getTheme(), container);
+      themeController.applyTheme(themeController.getTheme()!, container);
     })
   })
 

@@ -131,14 +131,14 @@ Tabs.Simple = (props: {
   let tabs: HTMLDivElement, content: HTMLDivElement;
   const ret = (
     <Tabs>
-      <Tabs.Menu ref={tabs} class={`${className}-tabs`}>
+      <Tabs.Menu ref={tabs!} class={`${className}-tabs`}>
         <For each={props.menu}>{(item) => {
           return (
             <Tabs.MenuTab class={`${className}-tab`}>{item}</Tabs.MenuTab>
           );
         }}</For>
       </Tabs.Menu>
-      <Tabs.Content ref={content} class={classNames(`${className}-contents`)}>
+      <Tabs.Content ref={content!} class={classNames(`${className}-contents`)}>
         <For each={props.content}>{(item, index) => {
           return (
             <Tabs.ContentTab class={`${className}-content`} hide={index() !== props.tab()}>{item}</Tabs.ContentTab>
@@ -154,8 +154,8 @@ Tabs.Simple = (props: {
   });
 
   const selectTab = horizontalMenu(
-    tabs,
-    content,
+    tabs!,
+    content!,
     (tab) => {
       props.onChange(tab);
     },

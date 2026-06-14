@@ -7,7 +7,7 @@ import styles from './styles.module.scss';
 
 export const EmojiButtonWithOpacity = (inProps: Omit<EmojiDropdownButtonProps, 'onToggle'>) => {
   const [props, restProps] = splitProps(inProps, ['class'])
-  const {forceFocused, useSetForceFocused} = useSimpleFormFieldContext();
+  const {forceFocused, useSetForceFocused} = useSimpleFormFieldContext()!;
 
   const setForceFocused = useSetForceFocused();
 

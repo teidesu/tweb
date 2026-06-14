@@ -51,17 +51,17 @@ export function formatPhoneNumber(originalStr: string): {
 
   let prefixCountry: PrefixCountry;
   for(let i = phoneCode.length - 1; i >= 0; --i) { // lookup for country by prefix
-    prefixCountry = prefixes.get(phoneCode.slice(0, i + 1));
+    prefixCountry = prefixes.get(phoneCode.slice(0, i + 1))!;
     if(prefixCountry) {
       break;
     }
   }
 
-  if(!prefixCountry) {
+  if(!prefixCountry!) {
     return {
       formatted: str,
-      country: undefined,
-      code: undefined,
+      country: (undefined as unknown as HelpCountry.helpCountry),
+      code: (undefined as unknown as HelpCountryCode.helpCountryCode),
       leftPattern: ''
     };
   }

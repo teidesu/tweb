@@ -38,8 +38,8 @@ export default class MusicListenTracker {
   // `ranges` holds the merged covered intervals (seconds), `rangeStart` is the open interval's start
   // (-1 when none), `lastPosition` is the last observed playback position (used to close ranges
   // across seeks/stop).
-  private session: MusicListenSession;
-  private pauseTimeout: number;
+  private session: MusicListenSession | undefined;
+  private pauseTimeout: number | undefined;
 
   constructor(private onReport: (inputDoc: InputDocument.inputDocument, listenedDuration: number) => void) {}
 
@@ -59,7 +59,7 @@ export default class MusicListenTracker {
 
     // A different track started — finalize the previous listen and begin a fresh one.
     this.finish();
-    this.startSession(inputDoc, details.media);
+    this.startSession(inputDoc, details.media!);
   }
 
   // Settles the current listen and reports it (when long enough), then clears it. Called when a

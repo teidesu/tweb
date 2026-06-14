@@ -5,7 +5,7 @@ import useIsNightTheme from '@hooks/useIsNightTheme';
 
 let signal: Signal<HelpPeerColorOption[]>;
 export default function useProfileColors() {
-  return signal ??= createSignal<HelpPeerColorOption[]>();
+  return signal! ??= (createSignal<HelpPeerColorOption[]>() as Signal<HelpPeerColorOption[]>);
 }
 
 export function usePeerProfileAppearance(peerId: PeerId): Accessor<{

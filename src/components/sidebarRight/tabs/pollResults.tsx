@@ -22,7 +22,7 @@ export default class AppPollResultsTab extends SliderSuperTab {
     this.container.id = 'poll-results-container';
     this.container.classList.add('chatlist-container');
 
-    const poll = await this.managers.appPollsManager.getPoll((message.media as MessageMedia.messageMediaPoll).poll.id);
+    const poll = await this.managers.appPollsManager!.getPoll((message.media as MessageMedia.messageMediaPoll).poll.id);
 
     this.setTitle(poll.poll.pFlags.quiz ? 'PollResults.Title.Quiz' : 'PollResults.Title.Poll');
 
@@ -30,14 +30,14 @@ export default class AppPollResultsTab extends SliderSuperTab {
       <div class="sidebar-header__rows">
         {this.title}
         <div class="sidebar-header__subtitle">
-          {i18n('Chat.Poll.MembersVoted', [poll.results.total_voters])}
+          {i18n('Chat.Poll.MembersVoted', [poll.results.total_voters!])}
         </div>
       </div>
     ) as HTMLElement);
 
     const percents = getRoundedPercentsFromResults(poll.results);
 
-    const getSections = () => poll.results.results.map((result, idx) => {
+    const getSections = () => poll.results.results!.map((result, idx) => {
       if(!result.voters) {
         return;
       }
@@ -70,7 +70,7 @@ export default class AppPollResultsTab extends SliderSuperTab {
       const load = async() => {
         if(answer._ !== 'pollAnswer') return;
 
-        const votesList = await this.managers.appPollsManager.getVotes(
+        const votesList = await this.managers.appPollsManager!.getVotes(
           message,
           answer.option,
           offset,
@@ -90,7 +90,7 @@ export default class AppPollResultsTab extends SliderSuperTab {
             },
             dontSetActive: true
           });
-          dom.lastMessageSpan.parentElement.remove();
+          dom.lastMessageSpan.parentElement!.remove();
           const {dateEl, timeEl} = formatFullSentTimeRaw(vote.date);
           dom.containerEl.append((
             <span class="vote-time-container disable-hover">
@@ -104,7 +104,7 @@ export default class AppPollResultsTab extends SliderSuperTab {
         setLoader((value) => {
           value.count = votesList.count;
           limit = 20;
-          if(!(offset = votesList.next_offset)) {
+          if(!(offset = votesList.next_offset!)) {
             value.loadMore = undefined;
           }
 
@@ -115,7 +115,7 @@ export default class AppPollResultsTab extends SliderSuperTab {
       };
 
       const [loader, setLoader] = createLoadableList({loadMore: load});
-      loader().loadMore();
+      loader().loadMore!();
 
       return (
         <Section
@@ -126,7 +126,7 @@ export default class AppPollResultsTab extends SliderSuperTab {
           <Show when={!!loader().loadMore}>
             <MoreButton
               count={loader().count - loader().rendered.length}
-              callback={() => loader().loadMore()}
+              callback={() => loader().loadMore!()}
             />
           </Show>
         </Section>

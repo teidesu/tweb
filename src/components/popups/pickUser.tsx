@@ -105,7 +105,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
   if(typeof(options.multiSelect) === 'boolean') {
     multiSelect = options.multiSelect ? 'enabled' : 'disabled';
   } else {
-    multiSelect = options.multiSelect;
+    multiSelect = options.multiSelect!;
   }
   multiSelect ||= 'disabled';
 
@@ -115,11 +115,11 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
   const [canGoBack, setCanGoBack] = createSignal(false);
   const [multiSelectMode, setMultiSelectMode] = createSignal<AppSelectPeers['multiSelect']>(multiSelect);
 
-  let selector: AppSelectPeers;
+  let selector: AppSelectPeers | undefined;
   let forumSelector: AppSelectPeers | undefined;
   let transition: ReturnType<typeof TransitionSlider> | undefined;
   let forumNavigationItem: NavigationItem | undefined;
-  let btnConfirm: HTMLButtonElement;
+  let btnConfirm!: HTMLButtonElement;
   let isMonoforum = false;
   const selected: Array<PopupPickUserSelectedItem> = [];
 
@@ -139,7 +139,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
 
     busy = true;
     try {
-      const res = _onSelect(selected);
+      const res = _onSelect!(selected);
       if(res instanceof Promise) {
         await res;
       }
@@ -182,12 +182,12 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
   const onBackClick = () => {
     if(forumSelector) {
       const selected = forumSelector.getSelected();
-      selector.removeBatch(selector.getSelected(), false);
-      selector.setMultiSelectMode(forumSelector.multiSelect);
-      selector.addInitial(selected);
+      selector!.removeBatch(selector!.getSelected(), false);
+      selector!.setMultiSelectMode(forumSelector.multiSelect);
+      selector!.addInitial(selected);
     }
 
-    transition?.(selector.container);
+    transition?.(selector!.container);
     if(forumNavigationItem) {
       appNavigationController.removeItem(forumNavigationItem);
       forumNavigationItem = undefined;
@@ -207,9 +207,9 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
     const fsMiddlewareHelper = middleware.create();
     const fsMiddleware = fsMiddlewareHelper.get();
     const deferred = deferredPromise<void>();
-    let offsetIndex: number, lastQuery: string, firstRender = true;
+    let offsetIndex: number | undefined, lastQuery: string, firstRender = true;
     isMonoforum = _isMonoforum;
-    const selected = selector.getSelected();
+    const selected = selector!.getSelected();
     const fs = forumSelector = new AppSelectPeers({
       middleware: fsMiddleware,
       appendTo: tabsContainer,
@@ -222,7 +222,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
       onChange: (length, changes) => {
         changes.forEach(({key, add}) => onSingleSelect(fs, key, add));
       },
-      getMoreCustom: async(q, middleware) => {
+      getMoreCustom: (async(q: string, middleware: () => boolean) => {
         if(lastQuery !== q) {
           offsetIndex = undefined;
           lastQuery = q;
@@ -231,13 +231,13 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
         const limit = 20;
         let result: Awaited<ReturnType<DialogsStorage['getDialogs']> | ReturnType<MonoforumDialogsStorage['getDialogs']>>;
         if(_isMonoforum) {
-          result = await managers.monoforumDialogsStorage.getDialogs({
+          result = await managers.monoforumDialogsStorage!.getDialogs({
             parentPeerId: peerId,
             limit,
             offsetIndex
           });
         } else {
-          result = await managers.dialogsStorage.getDialogs({
+          result = await managers.dialogsStorage!.getDialogs({
             query: q,
             filterId: peerId,
             limit,
@@ -250,21 +250,21 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
           return;
         }
 
-        offsetIndex = getDialogIndex(result.dialogs[result.dialogs.length - 1]);
+        offsetIndex = getDialogIndex(result.dialogs![result.dialogs!.length - 1])!;
 
         return {
           result: _isMonoforum ?
-            result.dialogs.map((dialog) => dialog.peerId) as any :
-            result.dialogs.map((forumTopic) => (forumTopic as ForumTopic.forumTopic).id),
+            result.dialogs!.map((dialog) => dialog.peerId) as any :
+            result.dialogs!.map((forumTopic) => (forumTopic as ForumTopic.forumTopic).id),
           isEnd: result.isEnd
         };
-      },
+      }) as any,
       renderResultsFunc: async(threadIds, append) => {
         if(firstRender) {
           firstRender = false;
 
           if(apiManagerProxy.isBotforum(peerId)) {
-            threadIds.unshift(undefined);
+            threadIds.unshift(undefined!);
           }
         }
 
@@ -273,7 +273,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
         });
         const elements = await Promise.all(promises);
         elements.forEach((element) => {
-          const sel = fs.selected.has(element.dataset.peerId);
+          const sel = fs.selected.has(element.dataset.peerId!);
           element.prepend(fs.checkbox(sel));
         });
         fs.list[!append ? 'append' : 'prepend'](...elements);
@@ -291,12 +291,12 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
       //   night
       // },
       onFirstRender: () => {
-        deferred.resolve();
+        deferred.resolve!();
       },
       noSearch: _isMonoforum && !selected.length
     });
 
-    fs.setMultiSelectMode(selector.multiSelect);
+    fs.setMultiSelectMode(selector!.multiSelect);
     fs.addInitial(selected);
     fs.container.classList.add('tabs-tab');
     fs.container.middlewareHelper = fsMiddlewareHelper;
@@ -329,7 +329,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
     afterElement.after(mount);
     let scrollableContext: ScrollableContextValue;
 
-    const sectionContainer = selector.selectorSearch.section.container;
+    const sectionContainer = selector!.selectorSearch.section.container;
     const unobserve = observeResize(sectionContainer, () => {
       mount.style.top = sectionContainer.offsetHeight + 'px';
     });
@@ -348,8 +348,8 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
       };
 
       fastSmoothScroll({
-        container: selector.scrollable.container,
-        element: selector.section.container,
+        container: selector!.scrollable.container,
+        element: selector!.section.container,
         position: 'start',
         getElementPosition: ({elementPosition}) => elementPosition -
           mount.offsetHeight -
@@ -369,7 +369,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
         onClick: async() => {
           const filterId = +(target.dataset.filterId || 0);
           const available = REAL_FOLDERS.has(filterId) ||
-            (await rootScope.managers.filtersStorage.isFilterIdAvailable(filterId) ?? true);
+            (await rootScope.managers.filtersStorage!.isFilterIdAvailable(filterId) ?? true);
           if(!available) {
             showLimitPopup('folders');
             return false;
@@ -379,7 +379,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
             await new Promise<void>((resolve) => scrollToStart(resolve));
           }
 
-          selector.setFolderId(filterId);
+          selector!.setFolderId(filterId);
           prevId = id;
         },
         prevId,
@@ -400,7 +400,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
           queueMicrotask(async() => {
             const first = ref.firstElementChild as HTMLElement;
             if(first) await onTabClick(first, 0);
-            deferred.resolve();
+            deferred.resolve!();
           });
         },
         onClick: (e) => {
@@ -419,7 +419,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
 
     lateMiddleware.onClean(dispose);
 
-    selector.onSearchChange = (query) => {
+    selector!.onSearchChange = (query) => {
       mount.classList.toggle('is-collapsed', !!query);
     };
 
@@ -427,7 +427,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
   };
 
   function Inner() {
-    context = useContext(PopupContext);
+    context = useContext(PopupContext)!;
     managers = untrack(() => context.managers);
     middleware = untrack(() => context.middlewareHelper.get());
     night = untrack(() => context.night);
@@ -439,7 +439,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
       appendTo: tabsContainer,
       onChange: (length, changes) => {
         btnConfirm?.classList.toggle('is-visible', !!length);
-        changes.forEach(({key, add}) => onSingleSelect(selector, key, add));
+        changes.forEach(({key, add}) => onSingleSelect((selector as AppSelectPeers), key, add));
         options.onChange?.(length, changes);
       },
       onSelect: async(peerId, adding, e) => {
@@ -450,15 +450,15 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
           (
             apiManagerProxy.isForum(peerId) ||
             apiManagerProxy.isBotforum(peerId) ||
-            (_isMonoforum = (
-              await managers.appPeersManager.canManageDirectMessages(peerId) &&
-              await managers.appPeersManager.isMonoforum(peerId)
-            ))
+            (_isMonoforum = ((
+              await managers.appPeersManager!.canManageDirectMessages(peerId) &&
+              await managers.appPeersManager!.isMonoforum(peerId)
+            )! as boolean))
           )
         ) {
           createForumSelector({
             peerId,
-            placeholder: options.placeholder,
+            placeholder: options.placeholder!,
             isMonoforum: _isMonoforum
           });
           return false;
@@ -466,10 +466,10 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
       },
       onFirstRender: () => {
         setShow(true);
-        selector.checkForTriggers();
+        selector!.checkForTriggers();
 
-        if(!IS_TOUCH_SUPPORTED && selector.inputSearch) {
-          selector.inputSearch.input.focus();
+        if(!IS_TOUCH_SUPPORTED && selector!.inputSearch) {
+          selector!.inputSearch.input.focus();
         }
       },
       noPlaceholder: true,
@@ -517,9 +517,9 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
         const topPeerElements = group.list.querySelectorAll<HTMLElement>('.chatlist-chat');
 
         topPeerElements.forEach((el) => {
-          const peerId = el.dataset.peerId.toPeerId();
-          const sel = selector.selected.has(peerId);
-          el.prepend(selector.checkbox(sel, 'white'));
+          const peerId = el.dataset.peerId!.toPeerId();
+          const sel = selector!.selected.has(peerId);
+          el.prepend(selector!.checkbox(sel, 'white'));
         });
       });
     }
@@ -538,13 +538,13 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
         onTransitionEnd: (id) => {
           if(!id) {
             (Array.from(tabsContainer.children) as HTMLElement[]).forEach((el) => {
-              if(el !== selector.container) {
+              if(el !== selector!.container) {
                 (el as any).middlewareHelper?.destroy();
                 el.remove();
               }
             });
           } else {
-            selector.clearInput();
+            selector!.clearInput();
           }
         }
       });
@@ -552,7 +552,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
     }
 
     Promise.all(loadPromises).then(() => {
-      selector.loadFirst();
+      selector!.loadFirst();
     });
 
     return tabsContainer;
@@ -654,7 +654,7 @@ export async function showPickUser2Popup<T extends boolean = false>({
       },
       filterPeerTypeBy,
       chatRightsActions,
-      titleLangKey,
+      titleLangKey: titleLangKey!,
       exceptSelf,
       onClose: () => {
         if(!resolved) {
@@ -664,7 +664,7 @@ export async function showPickUser2Popup<T extends boolean = false>({
     });
 
     if(limit) {
-      popup.selector?.setLimit(limit, limitCallback);
+      popup.selector?.setLimit(limit, limitCallback!);
     }
   });
 }

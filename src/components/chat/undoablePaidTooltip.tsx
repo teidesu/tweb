@@ -73,7 +73,7 @@ export default function showUndoablePaidTooltip(props: {
     const circumference = radius * 2 * Math.PI;
 
     const countdown = new AnimatedCounter({reverse: false});
-    createEffect(() => countdown.setCount(secondsLeft()));
+    createEffect(() => countdown.setCount(secondsLeft()!));
 
     const {hide} = showChatToast({
       animation: 'fade',
@@ -81,7 +81,7 @@ export default function showUndoablePaidTooltip(props: {
       closeOnPeerChange: false,
       class: classNames('paid-reaction-tooltip', props.wider && 'paid-reaction-tooltip--a-little-wider'),
       title: title.element,
-      textElement: subtitle.element,
+      textElement: subtitle.element!,
       rightElement: (
         <span
           class="tooltip-undo"

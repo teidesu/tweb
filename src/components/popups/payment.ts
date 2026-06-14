@@ -77,7 +77,7 @@ export function PaymentButton(options: {
   const textEl = options.textEl ?? new I18n.IntlElement({key: options.key ?? 'PaymentInfo.Done'});
   const key = textEl.key;
   const payButton = Button('btn-primary btn-color-primary payment-item-pay');
-  payButton.append(textEl.element);
+  payButton.append(textEl.element!);
   attachClickEvent(payButton, async() => {
     const result = options.onClick();
     if(!(result instanceof Promise)) {
@@ -204,7 +204,7 @@ export default class PopupPayment extends PopupElement<{
     boost?: Boost,
     giftPeerId?: PeerId,
     noShowIfStars?: boolean,
-    purpose?: ConstructorParameters<typeof PopupStars>[0]['purpose']
+    purpose?: NonNullable<ConstructorParameters<typeof PopupStars>[0]>['purpose']
   }) {
     super('popup-payment', {
       closable: true,
@@ -254,7 +254,7 @@ export default class PopupPayment extends PopupElement<{
     };
 
     const {paymentForm, message} = this;
-    if(paymentForm._ === 'payments.paymentFormStarGift') {
+    if(paymentForm!._ === 'payments.paymentFormStarGift') {
       throw new Error('not implemented');
     }
 
@@ -271,14 +271,14 @@ export default class PopupPayment extends PopupElement<{
       (
         mediaInvoice ?
           !!mediaInvoice.receipt_msg_id || mediaInvoice.extended_media?._ === 'messageExtendedMedia' :
-          paymentForm._ === 'payments.paymentReceipt'
+          paymentForm!._ === 'payments.paymentReceipt'
       );
-    const isTest = mediaInvoice ? mediaInvoice.pFlags.test : paymentForm.invoice.pFlags.test;
-    const isStars = paymentForm._ === 'payments.paymentFormStars';
+    const isTest = mediaInvoice ? mediaInvoice.pFlags.test : paymentForm!.invoice.pFlags.test;
+    const isStars = paymentForm!._ === 'payments.paymentFormStars';
 
     const photo = mediaInvoice ? mediaInvoice.photo : (paymentForm as PaymentsPaymentForm.paymentsPaymentForm).photo;
-    const title = mediaInvoice ? mediaInvoice.title : paymentForm.title;
-    const description = mediaInvoice ? mediaInvoice.description : paymentForm.description;
+    const title = mediaInvoice ? mediaInvoice.title : paymentForm!.title;
+    const description = mediaInvoice ? mediaInvoice.description : paymentForm!.description;
 
     _i18n(this.title, isReceipt ? 'PaymentReceipt' : 'PaymentCheckout');
     if(isTest) {
@@ -354,18 +354,18 @@ export default class PopupPayment extends PopupElement<{
       passwordState,
       providerPeerTitle
     ] = await Promise.all([
-      !isReceipt && savedInfo && this.managers.appPaymentsManager.validateRequestedInfo(inputInvoice, savedInfo).catch((err: ApiError) => {
+      !isReceipt && savedInfo && this.managers.appPaymentsManager!.validateRequestedInfo(inputInvoice, savedInfo).catch((err: ApiError) => {
         console.error('validateRequestedInfo', err, savedInfo);
         // savedInfo = undefined;
-        return undefined as PaymentsValidatedRequestedInfo;
+        return undefined as unknown as PaymentsValidatedRequestedInfo;
       }),
-      savedCredentials && this.managers.passwordManager.getState(),
+      savedCredentials && this.managers.passwordManager!.getState(),
       wrapPeerTitle({peerId: isStars ? NULL_PEER_ID : (paymentForm as PaymentsPaymentForm.paymentsPaymentForm).provider_id.toPeerId()})
     ]);
 
     // console.log(paymentForm, lastRequestedInfo);
 
-    await peerTitle.update({peerId: paymentForm.bot_id.toPeerId()});
+    await peerTitle.update({peerId: paymentForm!.bot_id.toPeerId()});
     preloaderContainer.remove();
     this.element.classList.remove('is-loading');
 
@@ -373,14 +373,14 @@ export default class PopupPayment extends PopupElement<{
       return paymentsWrapCurrencyAmount(amount, currency, skipSymbol, USE_NATIVE_SYMBOL, true);
     };
 
-    const {invoice} = paymentForm;
+    const {invoice} = paymentForm!;
     const currency = invoice.currency;
 
     const isRecurring = invoice.pFlags.recurring && !isReceipt;
     const hasTerms = !!invoice.terms_url;
 
-    await peerTitle.update({peerId: paymentForm.bot_id.toPeerId()});
-    const peerTitle2 = isRecurring || hasTerms ? await wrapPeerTitle({peerId: paymentForm.bot_id.toPeerId()}) : undefined;
+    await peerTitle.update({peerId: paymentForm!.bot_id.toPeerId()});
+    const peerTitle2 = isRecurring || hasTerms ? await wrapPeerTitle({peerId: paymentForm!.bot_id.toPeerId()}) : undefined;
     preloaderContainer.remove();
     this.element.classList.remove('is-loading');
 
@@ -442,7 +442,7 @@ export default class PopupPayment extends PopupElement<{
       getTipsAmount = () => +inputRightNumber.value.replace(/\D/g, '');
 
       const setInputValue = (amount: string | number) => {
-        amount = Math.min(+amount, +invoice.max_tip_amount);
+        amount = Math.min(+amount, +invoice.max_tip_amount!);
         const wrapped = wrapAmount(amount, true);
 
         inputRightNumber.value = wrapped;
@@ -470,7 +470,7 @@ export default class PopupPayment extends PopupElement<{
       }
 
       tipsLabel.label.addEventListener('mousedown', (e) => {
-        if(!findUpAsChild(e.target as HTMLElement, input)) {
+        if(!findUpAsChild(((e.target as HTMLElement)! as { parentElement: HTMLElement; }), input)) {
           placeCaretAtEnd(input);
         }
       });
@@ -495,7 +495,7 @@ export default class PopupPayment extends PopupElement<{
         tipsEl.classList.add(tipsClassName);
 
         const tipClassName = tipsClassName + '-tip';
-        const tipButtons = invoice.suggested_tip_amounts.map((tipAmount) => {
+        const tipButtons = invoice.suggested_tip_amounts!.map((tipAmount) => {
           const button = Button(tipClassName, {noRipple: true});
           button.textContent = wrapAmount(tipAmount);
 
@@ -511,7 +511,7 @@ export default class PopupPayment extends PopupElement<{
         };
 
         attachClickEvent(tipsEl, (e) => {
-          const tipEl = findUpClassName(e.target, tipClassName);
+          const tipEl = findUpClassName(e.target!, tipClassName);
           if(!tipEl) {
             return;
           }
@@ -539,7 +539,7 @@ export default class PopupPayment extends PopupElement<{
         tipsEl.append(...tipButtons);
         pricesElements.push(tipsEl);
       } else {
-        setInputValue((paymentForm as PaymentsPaymentReceipt.paymentsPaymentReceipt).tip_amount);
+        setInputValue((paymentForm as PaymentsPaymentReceipt.paymentsPaymentReceipt).tip_amount!);
       }
     } else {
       setTotal();
@@ -555,7 +555,7 @@ export default class PopupPayment extends PopupElement<{
     const setRowIcon = async(row: Row, icon?: string) => {
       const img = document.createElement('img');
       img.classList.add('media-photo');
-      await renderImageFromUrlPromise(img, getPaymentBrandIconPath(icon));
+      await renderImageFromUrlPromise(img, getPaymentBrandIconPath(icon!)!);
       let container = row.media;
       if(!container) {
         container = row.createMedia('small');
@@ -572,7 +572,7 @@ export default class PopupPayment extends PopupElement<{
       row.title.textContent = textContent;
       if(!textContent) {
         const e = I18n.weakMap.get(row.subtitle.firstElementChild as HTMLElement) as I18n.IntlElement;
-        row.title.append(i18n(e.key));
+        row.title.append(i18n(e.key!)!);
       }
 
       row.subtitle.classList.toggle('hide', !textContent);
@@ -653,25 +653,25 @@ export default class PopupPayment extends PopupElement<{
     const setShippingTitle = invoice.pFlags.shipping_address_requested ? (shippingAddress?: PaymentShippingAddress) => {
       if(!shippingAddress) {
         shippingMethodRow.subtitle.classList.add('hide');
-        replaceContent(shippingMethodRow.title, i18n('PaymentShippingAddress'));
+        replaceContent(shippingMethodRow.title, i18n('PaymentShippingAddress')!);
         return;
       }
 
       const postAddress = shippingAddress.shipping_address;
       setRowTitle(shippingAddressRow, [
-        postAddress.city,
-        postAddress.street_line1,
-        postAddress.street_line2
+        postAddress!.city,
+        postAddress!.street_line1,
+        postAddress!.street_line2
       ].filter(Boolean).join(', '));
 
-      shippingMethodRow.container.classList.toggle('hide', !lastRequestedInfo?.shipping_options && !isReceipt);
+      shippingMethodRow.container.classList.toggle('hide', !(lastRequestedInfo as PaymentsValidatedRequestedInfo.paymentsValidatedRequestedInfo | undefined)?.shipping_options && !isReceipt);
     } : undefined;
 
     const setShippingInfo = (info: PaymentRequestedInfo) => {
       setShippingTitle && setShippingTitle?.(info);
-      shippingNameRow && setRowTitle(shippingNameRow, info.name);
-      shippingEmailRow && setRowTitle(shippingEmailRow, info.email);
-      shippingPhoneRow && setRowTitle(shippingPhoneRow, info.phone && ('+' + formatPhoneNumber(info.phone).formatted));
+      shippingNameRow && setRowTitle(shippingNameRow, info.name!);
+      shippingEmailRow && setRowTitle(shippingEmailRow, info.email!);
+      shippingPhoneRow && setRowTitle(shippingPhoneRow, (info.phone && ('+' + formatPhoneNumber(info.phone).formatted))!);
     };
 
     if(!isReceipt) {
@@ -691,7 +691,7 @@ export default class PopupPayment extends PopupElement<{
 
     if(invoice.pFlags.shipping_address_requested) {
       const setShippingOption = (shippingOption?: ShippingOption) => {
-        const scrollSaver = new ScrollSaver(this.scrollable, undefined, true);
+        const scrollSaver = new ScrollSaver(this.scrollable, undefined!, true);
         scrollSaver.save();
         if(lastShippingPricesElements) {
           lastShippingPricesElements.forEach((node) => node.remove());
@@ -719,7 +719,7 @@ export default class PopupPayment extends PopupElement<{
           }
         }
 
-        lastShippingPricesElements.forEach((element) => l.parentElement.insertBefore(element, l));
+        lastShippingPricesElements.forEach((element) => l.parentElement!.insertBefore(element, l));
 
         setTotal();
         scrollSaver.restore();
@@ -729,7 +729,7 @@ export default class PopupPayment extends PopupElement<{
       shippingAddressRow = PopupPayment.createRow({
         icon: 'location',
         titleLangKey: 'PaymentShippingAddress',
-        clickable: !isReceipt && onShippingAddressClick.bind(null, undefined)
+        clickable: !isReceipt && onShippingAddressClick!.bind(null, undefined)
       });
 
       let lastShippingPricesElements: HTMLElement[];
@@ -740,7 +740,7 @@ export default class PopupPayment extends PopupElement<{
           PopupElement.createPopup(
             PopupPaymentShippingMethods,
             paymentForm as PaymentsPaymentForm,
-            lastRequestedInfo,
+            (lastRequestedInfo! as PaymentsValidatedRequestedInfo.paymentsValidatedRequestedInfo),
             lastShippingOption
           ).addEventListener('finish', (shippingOption) => {
             setShippingOption(shippingOption);
@@ -760,7 +760,7 @@ export default class PopupPayment extends PopupElement<{
       shippingNameRow = PopupPayment.createRow({
         icon: 'newprivate',
         titleLangKey: 'PaymentCheckoutName',
-        clickable: !isReceipt && onShippingAddressClick.bind(null, 'name')
+        clickable: !isReceipt && onShippingAddressClick!.bind(null, 'name')
       });
     }
 
@@ -768,7 +768,7 @@ export default class PopupPayment extends PopupElement<{
       shippingEmailRow = PopupPayment.createRow({
         icon: 'mention',
         titleLangKey: 'PaymentShippingEmailPlaceholder',
-        clickable: !isReceipt && onShippingAddressClick.bind(null, 'email')
+        clickable: !isReceipt && onShippingAddressClick!.bind(null, 'email')
       });
     }
 
@@ -776,7 +776,7 @@ export default class PopupPayment extends PopupElement<{
       shippingPhoneRow = PopupPayment.createRow({
         icon: 'phone',
         titleLangKey: 'PaymentCheckoutPhoneNumber',
-        clickable: !isReceipt && onShippingAddressClick.bind(null, 'phone')
+        clickable: !isReceipt && onShippingAddressClick!.bind(null, 'phone')
       });
     }
 
@@ -787,23 +787,23 @@ export default class PopupPayment extends PopupElement<{
     const rows = [
       methodRow,
       providerRow,
-      shippingAddressRow,
-      shippingMethodRow,
-      shippingNameRow,
-      shippingEmailRow,
-      shippingPhoneRow
+      shippingAddressRow!,
+      shippingMethodRow!,
+      shippingNameRow!,
+      shippingEmailRow!,
+      shippingPhoneRow!
     ].filter(Boolean);
 
     const acceptTermsCheckboxField = !isReceipt && (isRecurring || hasTerms) && new CheckboxField({
       text: isRecurring ? 'Payments.Recurrent.Accept' : 'Payments.Terms.Accept',
-      textArgs: [wrapRichText(invoice.terms_url), peerTitle2]
+      textArgs: [wrapRichText(invoice.terms_url!), peerTitle2]
     });
 
     const acceptTermsRow = acceptTermsCheckboxField && PopupPayment.createRow({
       checkboxField: acceptTermsCheckboxField
     });
 
-    const recurringElements = acceptTermsCheckboxField ? [document.createElement('hr'), acceptTermsRow.container] : [];
+    const recurringElements = acceptTermsCheckboxField ? [document.createElement('hr'), (acceptTermsRow as Exclude<typeof acceptTermsRow, false>).container] : [];
 
     this.scrollable.append(...[
       document.createElement('hr'),
@@ -812,7 +812,7 @@ export default class PopupPayment extends PopupElement<{
     ].filter(Boolean));
 
     // /
-    let popupPaymentVerification: PopupPaymentVerification, lastTmpPasword: AccountTmpPassword;
+    let popupPaymentVerification: PopupPaymentVerification | undefined, lastTmpPasword: AccountTmpPassword | undefined;
     const onClick = () => {
       const missingInfo = invoice.pFlags.name_requested && !savedInfo?.name ? 'name' : (invoice.pFlags.email_requested && !savedInfo?.email ? 'email' : (invoice.pFlags.phone_requested && !savedInfo?.phone ? 'phone' : undefined));
       if(invoice.pFlags.shipping_address_requested) {
@@ -834,7 +834,7 @@ export default class PopupPayment extends PopupElement<{
           return;
         }
 
-        Promise.resolve(passwordState ?? this.managers.passwordManager.getState()).then((_passwordState) => {
+        Promise.resolve(passwordState ?? this.managers.passwordManager!.getState()).then((_passwordState) => {
           PopupElement.createPopup(
             PopupPaymentCardConfirmation,
             savedCredentials.title,
@@ -860,7 +860,7 @@ export default class PopupPayment extends PopupElement<{
       return Promise.resolve().then(async() => {
         const credentials: InputPaymentCredentials = lastTmpPasword ? {
           _: 'inputPaymentCredentialsSaved',
-          id: savedCredentials.id,
+          id: savedCredentials!.id,
           tmp_password: lastTmpPasword.tmp_password
         } : {
           _: 'inputPaymentCredentials',
@@ -875,10 +875,10 @@ export default class PopupPayment extends PopupElement<{
 
         try {
           this.result = 'pending';
-          const paymentResult = await this.managers.appPaymentsManager.sendPaymentForm(
+          const paymentResult = await this.managers.appPaymentsManager!.sendPaymentForm(
             inputInvoice,
             (paymentForm as PaymentsPaymentForm).form_id,
-            lastRequestedInfo?.id,
+            (lastRequestedInfo as PaymentsValidatedRequestedInfo.paymentsValidatedRequestedInfo)?.id!,
             lastShippingOption?.id,
             credentials,
             getTipsAmount()
@@ -898,12 +898,12 @@ export default class PopupPayment extends PopupElement<{
               onConfirmed();
             });
             await new Promise<void>((resolve, reject) => {
-              popupPaymentVerification.addEventListener('close', () => {
+              popupPaymentVerification!.addEventListener('close', () => {
                 popupPaymentVerification = undefined;
                 if(confirmed) {
                   resolve();
                 } else {
-                  const err = makeError(undefined, 'payment not finished');
+                  const err = makeError(undefined!, 'payment not finished');
                   (err as ApiError).handled = true;
                   reject(err);
                   this.result = 'failed';
@@ -958,10 +958,10 @@ export default class PopupPayment extends PopupElement<{
   public static async create(options: ConstructorParameters<typeof PopupPayment>[0]) {
     let promise: Promise<PaymentsPaymentForm | PaymentsPaymentReceipt>;
     if(!options.paymentForm && !options.transaction && !options.noPaymentForm) {
-      if(options.isReceipt) promise = rootScope.managers.appPaymentsManager.getPaymentReceipt(options.message.peerId, (options.message.media as MessageMedia.messageMediaInvoice).receipt_msg_id || (options.inputInvoice as InputInvoice.inputInvoiceMessage).msg_id);
-      else promise = rootScope.managers.appPaymentsManager.getPaymentForm(options.inputInvoice);
+      if(options.isReceipt) promise = rootScope.managers.appPaymentsManager!.getPaymentReceipt(options.message!.peerId!, (options.message!.media as MessageMedia.messageMediaInvoice).receipt_msg_id || (options.inputInvoice as InputInvoice.inputInvoiceMessage).msg_id);
+      else promise = rootScope.managers.appPaymentsManager!.getPaymentForm(options.inputInvoice!);
     } else {
-      promise = Promise.resolve(options.paymentForm);
+      promise = (Promise.resolve(options.paymentForm)! as Promise<PaymentsPaymentForm | PaymentsPaymentReceipt>);
     }
 
     const paymentForm = await promise;
@@ -979,15 +979,15 @@ export default class PopupPayment extends PopupElement<{
   }
 
   public static createRow(options: ConstructorParameters<typeof Row>[0]) {
-    if(options.titleLangKey) {
-      options.subtitleLangKey = options.titleLangKey;
+    if(options!.titleLangKey) {
+      options!.subtitleLangKey = options!.titleLangKey;
     }
 
-    options.noWrap = true;
+    options!.noWrap = true;
     const row = new Row(options);
     row.container.classList.add(className + '-row');
 
-    if(options.titleLangKey && !options.title) {
+    if(options!.titleLangKey && !options!.title) {
       row.subtitle.classList.add('hide');
     }
 
@@ -999,14 +999,14 @@ export default class PopupPayment extends PopupElement<{
     let str: string;
     let icon: string;
     if('title' in card) {
-      brand = card.title.split(' ').shift();
+      brand = card.title.split(' ').shift()!;
       str = card.title;
-      icon = card.icon;
+      icon = card.icon!;
     } else {
       brand = detectUnifiedCardBrand(card.cardNumber);
       str = brand + ' *' + card.cardNumber.split(' ').pop();
     }
 
-    return {brand, str, icon};
+    return {brand, str, icon: icon!};
   }
 }

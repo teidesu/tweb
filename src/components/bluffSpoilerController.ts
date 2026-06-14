@@ -8,10 +8,10 @@ import type {SpoilerRendererSimInit} from '@components/spoilerRenderer.worker';
 export default class BluffSpoilerController {
   private static log = logger('bluff-spoiler');
 
-  private static latestMaskURL: string; // a data: URL — self-contained, no revocation lifecycle
+  private static latestMaskURL: string | undefined; // a data: URL — self-contained, no revocation lifecycle
   private static maskProperty = CSS.supports('mask-image', 'none') ? 'mask-image' : '-webkit-mask-image';
   private static appliedMaskURLs = new WeakMap<HTMLElement, string>();
-  private static connection: SpoilerRendererConnection;
+  private static connection: SpoilerRendererConnection | undefined;
   private static encoding = false;
   private static lastDrawTime: number = 0;
   private static DRAW_INTERVAL = 4 * (1000 / 60); // Once in 4 frames (considering 60fps) to avoid performance issues
@@ -20,7 +20,7 @@ export default class BluffSpoilerController {
   private static workerSimInited = false;
   private static activeElements = new Set<HTMLElement>();
 
-  private static reconnectIntervalId: number;
+  private static reconnectIntervalId: number | undefined;
   private static allWeakRefs: WeakRef<HTMLElement>[] = [];
   private static reconnectCallbacks = new WeakMap<HTMLElement, (el: HTMLElement) => void>();
   private static RECONNECT_INTERVAL = 250;
@@ -136,7 +136,7 @@ export default class BluffSpoilerController {
         const animations = animationIntersector.getAnimations(el);
         const reconnectCallback = this.reconnectCallbacks.get(el);
         if(!animations?.length && el.isConnected) {
-          reconnectCallback(el);
+          reconnectCallback!(el);
           this.log('Reconnected element');
         }
 

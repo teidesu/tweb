@@ -67,7 +67,7 @@ const PasscodeLockScreen: Component<{
     const lockIcon = props.fromLockIcon;
     if(lockIcon) (async() => {
       const lockIconRect = lockIcon.getBoundingClientRect();
-      const rect = passwordMonkeyContainer.getBoundingClientRect();
+      const rect = passwordMonkeyContainer!.getBoundingClientRect();
 
       lockIcon.style.setProperty('--x', (rect.left + (rect.width / 2)) + 'px');
       lockIcon.style.setProperty('--y', (rect.top + (rect.height / 2)) + 'px');
@@ -187,13 +187,13 @@ const PasscodeLockScreen: Component<{
 
 
   return (
-    <div ref={container} class={styles.Container}>
+    <div ref={container!} class={styles.Container}>
       <Background gradientRendererRef={(value) => void(store.gradientRenderer = value)} />
       <div class={styles.Card}>
         <PasswordMonkeyTsx
           hidden={store.isMonkeyHidden}
-          ref={passwordMonkeyContainer}
-          passwordInputField={passwordInputField}
+          ref={passwordMonkeyContainer!}
+          passwordInputField={passwordInputField!}
         />
         <Space amount="1.125rem" />
         <form action="" onSubmit={onSubmit}>
@@ -215,7 +215,7 @@ const PasscodeLockScreen: Component<{
         <div class={styles.Description}>
           {
             i18n(
-              totalAccounts() > 1 ? // Gonna be `false` when undefined
+              totalAccounts()! > 1 ? // Gonna be `false` when undefined
                 'PasscodeLock.ForgotPasscode.MultipleAccounts' :
                 'PasscodeLock.ForgotPasscode.OneAccount',
               [

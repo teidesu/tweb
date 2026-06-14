@@ -26,7 +26,7 @@ export default function formatDuration(duration: number, showLast = 2) {
   const s = 1;
   let t = s;
   p.forEach((o, idx) => {
-    t = Math.round(t * o.m);
+    t = Math.round(t * o.m!);
 
     if(duration < t) {
       return;
@@ -35,7 +35,7 @@ export default function formatDuration(duration: number, showLast = 2) {
     let dd = duration / t;
     if(idx !== (p.length - 1)) {
       const modulus = p[idx === (p.length - 1) ? idx : idx + 1].m;
-      dd %= modulus;
+      dd %= modulus!;
     }
 
     d.push({

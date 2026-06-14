@@ -87,7 +87,7 @@ export default class VideoPlayer extends ControlsHover {
   protected useGlobalVolume: VolumeSelector['useGlobalVolume'];
   public volumeSelector: VolumeSelector;
   protected isPlaying: boolean;
-  protected shouldEnableSoundOnClick: () => boolean;
+  protected shouldEnableSoundOnClick: (() => boolean) | undefined;
 
   protected previewParams: Parameters<typeof createPreview>[0];
   protected previewVisible: Accessor<boolean>;
@@ -144,24 +144,24 @@ export default class VideoPlayer extends ControlsHover {
     this.video.classList.add('ckin__video');
     this.wrapper = container ?? document.createElement('div');
     this.wrapper.classList.add('ckin__player');
-    this.live = live;
+    this.live = live!;
     this.canPause = !live;
     this.canSeek = !live;
-    this._width = width;
-    this._height = height;
+    this._width = width!;
+    this._height = height!;
 
     this.onMenuToggle = onMenuToggle;
     this.onTimePreviewToggle = onTimePreviewToggle;
     this.onPip = onPip;
     this.onPipClose = onPipClose;
-    this.onVolumeChange = onVolumeChange;
-    this.onFullScreen = onFullScreen;
-    this.onFullScreenToPip = onFullScreenToPip;
+    this.onVolumeChange = onVolumeChange!;
+    this.onFullScreen = onFullScreen!;
+    this.onFullScreenToPip = onFullScreenToPip!;
 
-    this.listenKeyboardEvents = listenKeyboardEvents;
+    this.listenKeyboardEvents = listenKeyboardEvents!;
     this.hadContainer = !!container;
-    this.useGlobalVolume = useGlobalVolume;
-    this.shouldEnableSoundOnClick = shouldEnableSoundOnClick;
+    this.useGlobalVolume = useGlobalVolume!;
+    this.shouldEnableSoundOnClick = shouldEnableSoundOnClick!;
 
     if(storyboard) {
       [this.previewVisible, this.previewSetVisible] = createSignal(false);
@@ -196,13 +196,13 @@ export default class VideoPlayer extends ControlsHover {
     });
 
     if(!this.hadContainer) {
-      video.parentNode.insertBefore(this.wrapper, video);
+      video.parentNode!.insertBefore(this.wrapper, video);
       this.wrapper.appendChild(video);
     }
 
     this.skin = 'default';
 
-    this.stylePlayer(duration);
+    this.stylePlayer(duration!);
 
     if(this.skin === 'default' && !live) {
       const controls = this.controls = this.wrapper.querySelector('.default__controls.ckin__controls') as HTMLDivElement;
@@ -299,14 +299,14 @@ export default class VideoPlayer extends ControlsHover {
     if(live) wrapper.classList.add(`${skin}-live`);
 
     const html = this.buildControls();
-    wrapper.insertAdjacentHTML('beforeend', html);
+    wrapper.insertAdjacentHTML('beforeend', html!);
     let timeDuration: HTMLElement;
 
     const onPlayCallbacks: (() => void)[] = [], onPauseCallbacks: (() => void)[] = [];
     if(skin === 'default') {
       if(this.canPause) {
         const mainToggle = this.mainToggle = Button(`${skin}__button--big toggle`, {noRipple: true, icon: 'play'});
-        wrapper.firstElementChild.after(mainToggle);
+        wrapper.firstElementChild!.after(mainToggle);
       }
 
       const leftControls = wrapper.querySelector('.left-controls') as HTMLElement;
@@ -320,7 +320,7 @@ export default class VideoPlayer extends ControlsHover {
 
       const rightControls = wrapper.querySelector('.right-controls') as HTMLElement;
       if(!live) {
-        this.playbackRateButton = createPlaybackRateButton({skin: this.skin, onMenuToggle: this.onMenuToggle});
+        this.playbackRateButton = createPlaybackRateButton({skin: this.skin, onMenuToggle: this.onMenuToggle!});
       }
       if(!IS_MOBILE && document.pictureInPictureEnabled) {
         this.pipButton = ButtonIcon(`pip ${skin}__button`, {noRipple: true});
@@ -347,9 +347,9 @@ export default class VideoPlayer extends ControlsHover {
 
       volumeSelector.btn.classList.remove('btn-icon');
       if(timeElapsed) {
-        timeElapsed.parentElement.before(volumeSelector.btn);
+        timeElapsed.parentElement!.before(volumeSelector.btn);
       } else {
-        leftControls.lastElementChild.before(volumeSelector.btn);
+        leftControls.lastElementChild!.before(volumeSelector.btn);
       }
 
       this.toggles.forEach((button) => {
@@ -481,7 +481,7 @@ export default class VideoPlayer extends ControlsHover {
       });
 
       if(live) {
-        this.liveEl = i18n('Rtmp.MediaViewer.Live');
+        this.liveEl = i18n('Rtmp.MediaViewer.Live')!;
         this.liveEl.classList.add('controls-live');
         leftControls.prepend(this.liveEl);
       }
@@ -497,7 +497,7 @@ export default class VideoPlayer extends ControlsHover {
       onPauseCallbacks.forEach((cb) => cb());
     });
 
-    if(timeDuration) {
+    if(timeDuration!) {
       if(video.duration || initDuration) {
         timeDuration.textContent = toHHMMSS(Math.round(video.duration || initDuration));
       } else {
@@ -538,7 +538,7 @@ export default class VideoPlayer extends ControlsHover {
       clearTimeout(timeout);
       this.onPipClose?.();
     };
-    const listener = this.listenerSetter.add(e.target)('pause', onPause, {once: true}) as any as Listener;
+    const listener = this.listenerSetter.add(e.target!)('pause', onPause, {once: true}) as any as Listener;
     const timeout = setTimeout(() => {
       this.listenerSetter.remove(listener);
     }, this.debouncePipTime);
@@ -546,7 +546,7 @@ export default class VideoPlayer extends ControlsHover {
 
   protected onEnterPictureInPicture = (e: Event) => {
     this.debouncedPip(true);
-    this.listenerSetter.add(e.target)('leavepictureinpicture', this.onEnterPictureInPictureLeave, {once: true});
+    this.listenerSetter.add(e.target!)('leavepictureinpicture', this.onEnterPictureInPictureLeave, {once: true});
   };
 
   protected onLeavePictureInPicture = () => {
@@ -718,10 +718,10 @@ export default class VideoPlayer extends ControlsHover {
       this.onTimePreviewToggle =
       this.onPip =
       this.onVolumeChange =
-      this.onFullScreen =
-      this.onFullScreenToPip =
-      this.shouldEnableSoundOnClick =
-      undefined;
+      (this.onFullScreen =
+      (this.onFullScreenToPip =
+      (this.shouldEnableSoundOnClick =
+      undefined)!)!)!;
 
     this.progress?.cleanup();
 
@@ -742,11 +742,11 @@ export default class VideoPlayer extends ControlsHover {
         noRipple: true
       }
     });
-    this.wrapper.querySelector('.right-controls').prepend(this.liveMenuButton);
+    this.wrapper.querySelector('.right-controls')!.prepend(this.liveMenuButton);
   }
 
   public updateLiveViewersCount(count: number) {
-    this.wrapper.querySelector('.left-controls-watching').replaceChildren(i18n('Rtmp.Watching', [numberThousandSplitterForWatching(Math.max(1, count))]));
+    this.wrapper.querySelector('.left-controls-watching')!.replaceChildren(i18n('Rtmp.Watching', [numberThousandSplitterForWatching(Math.max(1, count))])!);
   }
 
   get inPip() {

@@ -53,7 +53,7 @@ export default class ReplyKeyboard extends DropdownHover {
     this.attachButtonListener(this.btnHover, this.listenerSetter);
     this.listenerSetter.add(rootScope)('history_reply_markup', async({peerId}) => {
       if(this.peerId === peerId) {
-        if(this.checkAvailability() && this.isActive()) {
+        if((this.checkAvailability() as any) && this.isActive()) {
           await this.render();
         }
 
@@ -83,7 +83,7 @@ export default class ReplyKeyboard extends DropdownHover {
 
   private onBodyTouchStart = (e: TouchEvent) => {
     const target = e.touches[0].target as HTMLElement;
-    if(!findUpAsChild(target, this.element) && target !== this.btnHover) {
+    if(!findUpAsChild((target! as { parentElement: HTMLElement; }), this.element) && target !== this.btnHover) {
       cancelEvent(e);
       this.toggle(false);
     }
@@ -100,7 +100,7 @@ export default class ReplyKeyboard extends DropdownHover {
   }
 
   private async getReplyMarkup(): Promise<ReplyMarkup> {
-    return this.chatInput.chat.historyStorageNoThreadId.replyMarkup ?? {
+    return this.chatInput.chat.historyStorageNoThreadId!.replyMarkup ?? {
       _: 'replyKeyboardHide',
       pFlags: {}
     };
@@ -116,7 +116,7 @@ export default class ReplyKeyboard extends DropdownHover {
 
     const dispose = render(() => (
       <ReplyMarkupLayout>
-        <For each={replyMarkup.rows}>
+        <For each={replyMarkup!.rows}>
           {(row) => (
             <ReplyMarkupLayout.Row class={ReplyKeyboard.BASE_CLASS + '-row'}>
               <For each={row.buttons}>

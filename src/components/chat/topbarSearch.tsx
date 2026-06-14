@@ -84,7 +84,7 @@ const renderHistoryResult = ({middleware, peerId, fromSavedDialog, messages, que
         middleware
       },
       loadPromises,
-      threadId: fromSavedDialog ? ((message as Message.message).saved_peer_id ? getPeerId((message as Message.message).saved_peer_id) : rootScope.myId) : undefined,
+      threadId: fromSavedDialog ? ((message as Message.message).saved_peer_id ? getPeerId((message as Message.message).saved_peer_id!) : rootScope.myId) : undefined,
       autonomous: true
     });
 
@@ -125,12 +125,12 @@ const createSearchLoader = (options: LoadOptions) => {
     };
 
     const key = getHistoryStorageKey({type: getHistoryStorageType(requestHistoryOptions), ...requestHistoryOptions});
-    rootScope.managers.appMessagesManager.toggleHistoryKeySubscription(key, true);
+    rootScope.managers.appMessagesManager!.toggleHistoryKeySubscription(key, true);
     onCleanup(() => {
-      rootScope.managers.appMessagesManager.toggleHistoryKeySubscription(key, false);
+      rootScope.managers.appMessagesManager!.toggleHistoryKeySubscription(key, false);
     });
 
-    const result = await rootScope.managers.appMessagesManager.getHistory(requestHistoryOptions);
+    const result = await rootScope.managers.appMessagesManager!.getHistory(requestHistoryOptions);
     if(!middleware()) {
       return;
     }
@@ -138,7 +138,7 @@ const createSearchLoader = (options: LoadOptions) => {
     let messages: Message.message[];
     if(result.messages) {
       messages = result.messages as Message.message[];
-      nextRate = result.nextRate;
+      nextRate = result.nextRate!;
     } else {
       messages = result.history.map((mid) => apiManagerProxy.getMessageByPeer(peerId, mid)) as Message.message[];
     }
@@ -175,7 +175,7 @@ const createParticipantsLoader = (options: LoadOptions) => {
     }
     loading = true;
 
-    const result = await rootScope.managers.appProfileManager.getParticipants({
+    const result = await rootScope.managers.appProfileManager!.getParticipants({
       id: peerId.toChatId(),
       filter: {_: 'channelParticipantsSearch', q: query},
       limit: 30,
@@ -356,13 +356,13 @@ export default function TopbarSearch(props: {
   const [messages, setMessages] = createSignal<(Message.message | Message.messageService)[]>();
   const [sendersPeerIds, setSendersPeerIds] = createSignal<PeerId[]>();
   const [loadMore, setLoadMore] = createSignal<() => Promise<void>>();
-  const [target, setTarget] = createSignal<HTMLElement>(undefined, {equals: false});
+  const [target, setTarget] = createSignal<HTMLElement>(undefined!, {equals: false});
   const [filteringSender, setFilteringSender] = createSignal<boolean>(false);
   const [filterPeerId, setFilterPeerId] = createSignal<PeerId>();
   const [senderInputEntity, setSenderInputEntity] = createSignal<HTMLElement>();
-  const [savedReactionTags, setSavedReactionTags] = createSignal<SavedReactionTag[]>(undefined, {equals: false});
+  const [savedReactionTags, setSavedReactionTags] = createSignal<SavedReactionTag[]>(undefined!, {equals: false});
   const [reactionsElement, setReactionsElement] = createSignal<ReactionsElement>();
-  const [reaction, setReaction] = createSignal<Reaction>(undefined, {equals: false});
+  const [reaction, setReaction] = createSignal<Reaction>(undefined!, {equals: false});
   const [searchType, setSearchType] = createSignal<SearchType>(DEFAULT_SEARCH_TYPE);
   const [showingSmallResults, setShowingSmallResults] = createSignal(false);
   const choosingSender = createMemo(() => filteringSender() && !filterPeerId());
@@ -387,11 +387,11 @@ export default function TopbarSearch(props: {
 
   if(props.onActive) {
     createEffect(() => {
-      props.onActive(isActive(), shouldShowReactions(), isSmallScreen());
+      props.onActive!(isActive(), shouldShowReactions(), isSmallScreen());
     });
 
     onCleanup(() => {
-      props.onActive(false, false, isSmallScreen());
+      props.onActive!(false, false, isSmallScreen());
     });
   }
 
@@ -401,10 +401,10 @@ export default function TopbarSearch(props: {
 
   // * full search replacement
   createEffect(() => {
-    inputSearch.onChange(inputSearch.value = props.query());
+    inputSearch.onChange!(inputSearch.value = props.query!());
     setFilteringSender(!!props.filterPeerId());
     setFilterPeerId(props.filterPeerId());
-    setReaction(props.reaction());
+    setReaction(props.reaction!());
 
     onMount(() => {
       placeCaretAtEnd(inputSearch.input);
@@ -519,7 +519,7 @@ export default function TopbarSearch(props: {
   const fromWidth = getTextWidth(fromText, FontFull);
   const fromSpan = (<span class={classNames('topbar-search-input-from', shouldShowFromPlaceholder() && 'is-visible')}>{fromText}</span>);
   inputSearch.container.append(fromSpan as HTMLElement);
-  createEffect<HTMLElement>((_element) => {
+  createEffect<HTMLElement | undefined>((_element) => {
     const filtering = filteringSender();
     const _isHashtag = isHashtag();
     if(_element) {
@@ -568,7 +568,7 @@ export default function TopbarSearch(props: {
   }) => {
     const middleware = createMiddleware().get();
     const entity = untrack(() => AppSelectPeers.renderEntity({
-      key: props.peerId,
+      key: props.peerId!,
       title: props.title,
       fallbackIcon: props.fallbackIcon,
       middleware,
@@ -578,14 +578,14 @@ export default function TopbarSearch(props: {
 
     if(props.active !== undefined) {
       createEffect(() => {
-        entity.element.classList.toggle('active', props.active());
+        entity.element.classList.toggle('active', props.active!());
       });
     }
 
     if(props.onClick) {
       const detach = attachClickEvent(entity.element, (e) => {
         cancelEvent(e);
-        props.onClick();
+        props.onClick!();
       }, {cancelMouseDown: true});
       onCleanup(detach);
     }
@@ -650,7 +650,7 @@ export default function TopbarSearch(props: {
       }
     }
 
-    setSenderInputEntity(element);
+    setSenderInputEntity(element!);
   });
 
   const MIN_HEIGHT = 43;
@@ -660,7 +660,7 @@ export default function TopbarSearch(props: {
     // let _target = scrollableDiv.querySelector<HTMLElement>('.active');
     let _target = target();
     if(!_target) {
-      _target = scrollableDiv.querySelector<HTMLElement>('.chatlist-chat');
+      _target = scrollableDiv!.querySelector<HTMLElement>('.chatlist-chat')!;
       setTarget(_target);
       return;
     }
@@ -678,7 +678,7 @@ export default function TopbarSearch(props: {
     // set scroll position to center
     const top = _target.offsetTop;
     const clientHeight = MAX_HEIGHT;
-    scrollableDiv.scrollTop = top - clientHeight / 2 + _target.clientHeight / 2;
+    scrollableDiv!.scrollTop = top - clientHeight / 2 + _target.clientHeight / 2;
 
     setTarget(_target);
   };
@@ -702,7 +702,7 @@ export default function TopbarSearch(props: {
 
   const b = inputSearch.clearBtn.previousSibling;
   let inputSearchTools: HTMLDivElement;
-  (<div ref={inputSearchTools} class="topbar-search-input-tools">
+  (<div ref={inputSearchTools!} class="topbar-search-input-tools">
     {!isSmallScreen() && (
       <>
         <ArrowButton direction="up" />
@@ -711,7 +711,7 @@ export default function TopbarSearch(props: {
     )}
     {inputSearch.clearBtn}
   </div>);
-  b.after(inputSearchTools);
+  b!.after(inputSearchTools!);
 
   const updateChatSearchContext = (searchType: SearchType, query: string) => {
     appImManager.chat.setMessageId({
@@ -725,7 +725,7 @@ export default function TopbarSearch(props: {
   };
 
   // * search
-  createEffect<Partial<{searchType: SearchType, query: string}>>((prev) => {
+  createEffect<Partial<{searchType: SearchType, query: string}> | undefined>((prev) => {
     if(props.noList) return;
 
     prev ||= {};
@@ -742,23 +742,23 @@ export default function TopbarSearch(props: {
     // * reset search if it's not a hashtag anymore
     if(_searchType && !query) {
       setSearchType();
-      updateChatSearchContext(undefined, undefined);
+      updateChatSearchContext(undefined, undefined!);
       return;
     }
 
     setLoadMore(() => undefined as any);
     setMessages();
     setSendersPeerIds();
-    setTarget();
+    setTarget(undefined as unknown as HTMLElement);
 
     const loader = (isSender ? createParticipantsLoader : createSearchLoader)({
       middleware,
       peerId,
-      threadId,
+      threadId: threadId!,
       monoforumThreadId: props.chat.monoforumThreadId,
       query,
       fromPeerId,
-      reaction: _reaction,
+      reaction: (_reaction! as Reaction | undefined),
       searchType: _searchType
     });
 
@@ -767,7 +767,7 @@ export default function TopbarSearch(props: {
     let ref: HTMLDivElement;
     const list = (
       <div
-        ref={ref}
+        ref={ref!}
         class={classNames(!untrack(isSmallScreen) && 'topbar-search-left-chatlist', 'chatlist', isEmpty() && 'is-empty')}
       >
         {isEmpty() ? (
@@ -798,13 +798,13 @@ export default function TopbarSearch(props: {
     const onLoad = (firstElement?: HTMLElement) => {
       if(first) {
         inputSearch.toggleLoading(false);
-        setList({element: ref, type: isSender ? 'senders' : 'messages'});
-        scrollableDiv.scrollTop = 0;
+        setList({element: ref!, type: isSender ? 'senders' : 'messages'});
+        scrollableDiv!.scrollTop = 0;
         first = false;
 
         // * jump to first target
         if(untrack(isSmallScreen) && !isSender) {
-          setTarget(untrack(messages) && firstElement);
+          setTarget((untrack(messages) && firstElement) as HTMLElement);
         }
       }
     };
@@ -839,7 +839,7 @@ export default function TopbarSearch(props: {
     );
 
     inputSearch.toggleLoading(true);
-    untrack(() => loader().loadMore());
+    untrack(() => loader().loadMore!());
     return current;
   });
 
@@ -854,15 +854,15 @@ export default function TopbarSearch(props: {
         }
 
         if(choosingSender()) {
-          const peerId = sendersPeerIds()[idx];
+          const peerId = sendersPeerIds()![idx];
           batch(() => {
             setFilterPeerId(peerId);
-            inputSearch.onChange(inputSearch.value = '');
+            inputSearch.onChange!(inputSearch.value = '');
           });
           return;
         }
 
-        const previousActive = target.parentElement.querySelector('.active');
+        const previousActive = target.parentElement!.querySelector('.active');
         if(previousActive) {
           previousActive.classList.remove('active');
         }
@@ -871,7 +871,7 @@ export default function TopbarSearch(props: {
 
         setShowingSmallResults(false);
 
-        const message = messages()[idx];
+        const message = messages()![idx];
         deferSideEffect(() => {
           appImManager.chat.setMessageId({
             lastMsgId: message.mid,
@@ -909,7 +909,7 @@ export default function TopbarSearch(props: {
   subscribeOn(rootScope)('saved_tags', onSavedTags);
 
   // * render saved reaction tags
-  createEffect<HTMLElement>((previousLock) => {
+  createEffect<HTMLElement | undefined>((previousLock) => {
     const tags = savedReactionTags();
     const element = reactionsElement();
     if(!tags || !element) {
@@ -925,7 +925,7 @@ export default function TopbarSearch(props: {
     const _reaction = reaction();
     let chosenReactionCount: ReactionCount;
     if(_reaction) {
-      const reactionCount = reactionsContext.reactions.results.find((reactionCount) => reactionsEqual(reactionCount.reaction, _reaction));
+      const reactionCount = reactionsContext.reactions!.results.find((reactionCount) => reactionsEqual(reactionCount.reaction, _reaction));
       if(reactionCount) {
         chosenReactionCount = reactionCount;
         reactionCount.chosen_order = 0;
@@ -935,11 +935,11 @@ export default function TopbarSearch(props: {
     previousLock?.remove();
     element.update(reactionsContext);
 
-    if(chosenReactionCount) {
+    if(chosenReactionCount!) {
       const reactionElement = element.getSorted().find((element) => reactionsEqual(element.reactionCount.reaction, _reaction));
       fastSmoothScroll({
-        container: reactionsScrollableDiv,
-        element: reactionElement,
+        container: reactionsScrollableDiv!,
+        element: reactionElement!,
         position: 'center',
         axis: 'x'
       });
@@ -963,7 +963,7 @@ export default function TopbarSearch(props: {
       const allReactionsSticker = document.createElement('div');
       allReactionsSticker.classList.add('reaction-sticker', 'reaction-sticker-icon');
       allReactionsSticker.append(Icon(icon));
-      reaction.lastElementChild.before(allReactionsSticker);
+      reaction.lastElementChild!.before(allReactionsSticker);
 
       element.prepend(reaction);
       return reaction;
@@ -974,7 +974,7 @@ export default function TopbarSearch(props: {
   createEffect(() => {
     if(props.peerId !== rootScope.myId) {
       setReactionsElement();
-      setSavedReactionTags();
+      setSavedReactionTags(undefined as unknown as SavedReactionTag[]);
       return;
     }
 
@@ -997,7 +997,7 @@ export default function TopbarSearch(props: {
 
     // * reactions listener
     const detach = attachClickEvent(reactionsElement, (e) => {
-      const reactionElement = findUpClassName(e.target, 'reaction-tag') as ReactionElement;
+      const reactionElement = findUpClassName(e.target!, 'reaction-tag') as ReactionElement;
       if(!reactionElement) {
         return;
       }
@@ -1011,7 +1011,7 @@ export default function TopbarSearch(props: {
       const {reaction} = reactionCount;
       setReaction((prev) => {
         if(reactionsEqual(prev, reaction)) {
-          return;
+          return undefined as unknown as Reaction;
         }
 
         return reaction;
@@ -1022,7 +1022,7 @@ export default function TopbarSearch(props: {
     onCleanup(detach);
 
     const get = () => {
-      rootScope.managers.appReactionsManager.getSavedReactionTags(props.threadId).then((tags) => {
+      rootScope.managers.appReactionsManager!.getSavedReactionTags(props.threadId).then((tags) => {
         // await pause(1000);
         if(!realMiddleware()) {
           return;
@@ -1083,7 +1083,7 @@ export default function TopbarSearch(props: {
       return;
     }
 
-    updateChatSearchContext(undefined, undefined);
+    updateChatSearchContext(undefined, undefined!);
   });
 
   // * mobile search
@@ -1097,7 +1097,7 @@ export default function TopbarSearch(props: {
 
     const footerElement = SearchFooter({
       index,
-      count: totalCount,
+      count: totalCount as Accessor<number>,
       pickUserBtn,
       pickDateBtn,
       resultsShown: shouldShowResults,
@@ -1120,7 +1120,7 @@ export default function TopbarSearch(props: {
 
     SearchMobileButtons({
       index,
-      count: totalCount,
+      count: totalCount as Accessor<number>,
       chat: props.chat,
       onArrowButtonClick
     });
@@ -1135,7 +1135,7 @@ export default function TopbarSearch(props: {
       value ??= !!(calculateReactionsHeight() || calculateSearchTypesHeight());
       props.chat.topbar.container.classList.toggle('search-top-active', value);
       resultsElement.classList.toggle('search-top-active', value);
-      if(value) container.after(topElement);
+      if(value) container!.after(topElement);
       else topElement.remove();
     };
 
@@ -1178,7 +1178,7 @@ export default function TopbarSearch(props: {
     let height: number;
     if(!length) {
       height = MIN_HEIGHT;
-    } else if(list().type === 'senders') {
+    } else if(list()!.type === 'senders') {
       height = 1 + paddingVertical + length * 48;
     } else {
       height = 1 + paddingVertical + length * 56;
@@ -1210,7 +1210,7 @@ export default function TopbarSearch(props: {
       ref={(element) => {
         const detach = attachClickEvent(element, (e) => {
           cancelEvent(e);
-          inputSearch.onChange(inputSearch.value = '');
+          inputSearch.onChange!(inputSearch.value = '');
           setFilteringSender(true);
           placeCaretAtEnd(inputSearch.input, true);
         }, {cancelMouseDown: true});
@@ -1225,7 +1225,7 @@ export default function TopbarSearch(props: {
       onClick={() => {
         showDatePickerPopup({
           initDate: new Date(),
-          onPick: props.onDatePick
+          onPick: props.onDatePick!
         });
       }}
     />
@@ -1234,7 +1234,7 @@ export default function TopbarSearch(props: {
   let scrollableDiv: HTMLDivElement;
   const scrollable = (
     <Scrollable
-      ref={scrollableDiv}
+      ref={scrollableDiv!}
       class={!isSmallScreen() ? 'topbar-search-left-results topbar-search-left-collapsable' : undefined}
       style={!isSmallScreen() && calculateResultsHeight() ? {height: calculateResultsHeight() + 'px'} : undefined}
       onScrolledBottom={() => {
@@ -1250,7 +1250,7 @@ export default function TopbarSearch(props: {
 
   let reactionsScrollableDiv: HTMLDivElement;
   const reactionsScrollable = (
-    <Scrollable axis="x" ref={reactionsScrollableDiv} class="topbar-search-left-reactions-scrollable">
+    <Scrollable axis="x" ref={reactionsScrollableDiv!} class="topbar-search-left-reactions-scrollable">
       <div class="topbar-search-left-reactions-padding"></div>
       {reactionsElement()}
       <div class="topbar-search-left-reactions-padding"></div>
@@ -1259,7 +1259,7 @@ export default function TopbarSearch(props: {
 
   let searchTypesScrollableDiv: HTMLDivElement;
   const searchTypesScrollable = (
-    <Scrollable axis="x" ref={searchTypesScrollableDiv} class="topbar-search-left-reactions-scrollable">
+    <Scrollable axis="x" ref={searchTypesScrollableDiv!} class="topbar-search-left-reactions-scrollable">
       <div class="topbar-search-left-reactions-padding"></div>
       <div class="topbar-search-left-search-types">
         {SEARCH_TYPES.map((type) => (<SearchTypeEntity type={type} />))}
@@ -1270,7 +1270,7 @@ export default function TopbarSearch(props: {
 
   let container: HTMLDivElement;
   return (
-    <div ref={container} class="topbar-search-container">
+    <div ref={container!} class="topbar-search-container">
       <div
         class={classNames('topbar-search-left-container', isActive() && 'is-focused')}
         // style={calculateHeight() ? {height: calculateHeight() + 'px'} : undefined}

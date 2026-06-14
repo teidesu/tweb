@@ -42,8 +42,8 @@ export default function groupCallActiveIcon(isActive = false) {
 
     const progress = easeInOutSine((time - startTime) % DURATION, 0, 1, DURATION);
 
-    context.clearRect(0, 0, SIZE, SIZE);
-    context.fillStyle = isActive && !mediaSizes.isMobile ? customProperties.getProperty('primary-color') : '#fff';
+    context!.clearRect(0, 0, SIZE, SIZE);
+    context!.fillStyle = isActive && !mediaSizes.isMobile ? customProperties.getProperty('primary-color') : '#fff';
 
     for(let i = 0; i < LENGTH; ++i) {
       const x = START_X + (i * WIDTH) + (i * MARGIN);
@@ -63,7 +63,7 @@ export default function groupCallActiveIcon(isActive = false) {
       height *= DPR;
       const y = (SIZE - height) / 2;
 
-      roundRect(context, x, y, WIDTH, height, RADIUS, true);
+      roundRect(context!, x, y, WIDTH, height, RADIUS, true);
     }
 
     return true;

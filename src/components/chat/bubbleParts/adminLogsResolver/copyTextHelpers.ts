@@ -24,7 +24,7 @@ export type CopyTextResult = {
 
 export function getDateTextForCopy(timestamp: number): string {
   const date = makeDateFromTimestamp(timestamp);
-  const dateElement = formatDate(date, {withTime: true});
+  const dateElement = formatDate(date, {withTime: true})!;
   return dateElement.textContent || '';
 }
 
@@ -44,7 +44,7 @@ export function extractBanChanges(
 
   const channel = apiManagerProxy.getChat(channelId);
 
-  const removeDefaultRights = (rights: ChatBannedRights.chatBannedRights) =>
+  const removeDefaultRights = (rights?: ChatBannedRights.chatBannedRights) =>
     channel?._ === 'channel' && rights ?
       removeChatBannedRightsFromParticipant(channel, rights) :
       rights;
@@ -59,8 +59,8 @@ export function extractBanChanges(
   );
 
   // yes, they need to be inversed here
-  const removed = diff.new.map(key => participantRightsMap[key]).filter(Boolean).map(key => I18n.format(key, true));
-  const added = diff.old.map(key => participantRightsMap[key]).filter(Boolean).map(key => I18n.format(key, true));
+  const removed = diff.new.map(key => participantRightsMap[key]).filter(Boolean).map(key => I18n.format(key!, true));
+  const added = diff.old.map(key => participantRightsMap[key]).filter(Boolean).map(key => I18n.format(key!, true));
 
   return {isBanned, participantPeerId, participantUser, username, added, removed};
 }
@@ -90,8 +90,8 @@ export function extractDefaultRightsChanges(
 ) {
   const diff = diffFlags(action.prev_banned_rights?.pFlags, action.new_banned_rights?.pFlags);
 
-  const added = diff.old.map(key => participantRightsMap[key]).filter(Boolean).map(key => I18n.format(key, true));
-  const removed = diff.new.map(key => participantRightsMap[key]).filter(Boolean).map(key => I18n.format(key, true));
+  const added = diff.old.map(key => participantRightsMap[key]).filter(Boolean).map(key => I18n.format(key!, true));
+  const removed = diff.new.map(key => participantRightsMap[key]).filter(Boolean).map(key => I18n.format(key!, true));
 
   return {added, removed};
 }
@@ -103,7 +103,7 @@ export function getMessageTextForCopy(message: Message) {
 
   return prepareTextWithEntitiesForCopying({
     text: message.message,
-    entities: message.entities
+    entities: message.entities!
   });
 }
 

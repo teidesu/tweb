@@ -30,18 +30,19 @@ export const EmojiDropdownButton = (props: EmojiDropdownButtonProps) => {
         const cloned = cloneDOMRect(rect);
         cloned.top = rect.bottom + 8;
         return cloned;
-      }
+      },
+      animationGroup: undefined!
     });
 
-    attachClassName(button, () => props.class);
+    attachClassName(button, () => props.class!);
 
     button.tabIndex = -1;
 
-    subscribeOn(emoticonsDropdown)('open', () => {
+    subscribeOn(emoticonsDropdown!)('open', () => {
       props.onToggle?.(true);
     });
 
-    subscribeOn(emoticonsDropdown)('close', () => {
+    subscribeOn(emoticonsDropdown!)('close', () => {
       props.onToggle?.(false);
     });
 

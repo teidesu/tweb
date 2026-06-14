@@ -84,11 +84,11 @@ export default class PrivacySection {
 
     if(options.myContactsAndPremium) {
       const rr = r.find((r) => r.type === PrivacyType.Contacts);
-      rr.langKey = 'PrivacyMessagesContactsAndPremium';
+      rr!.langKey = 'PrivacyMessagesContactsAndPremium';
     }
 
     if(options.skipTypes) {
-      r = r.filter((r) => !options.skipTypes.includes(r.type));
+      r = r.filter((r) => !options.skipTypes!.includes(r.type));
     }
 
     const random = randomLong();
@@ -129,10 +129,10 @@ export default class PrivacySection {
     if(!options.noExceptions) {
       const section = this.exceptionsSection = new SettingSection({name: 'PrivacyExceptions', caption: 'PrivacySettingsController.PeerInfo'});
 
-      this.exceptions = new Map([[
+      this.exceptions = (new Map([[
         'disallow',
         {
-          titleLangKey: options.exceptionTexts[0],
+          titleLangKey: options.exceptionTexts![0],
           key: 'disallow',
           row: null,
           icon: 'deleteuser',
@@ -142,14 +142,14 @@ export default class PrivacySection {
       ], [
         'allow',
         {
-          titleLangKey: options.exceptionTexts[1],
+          titleLangKey: options.exceptionTexts![1],
           key: 'allow',
           row: null,
           icon: 'adduser',
           subtitleLangKey: 'PrivacySettingsController.AddUsers',
           clickable: true
         }
-      ]]);
+      ]]) as any)!;
 
       this.exceptions.forEach((exception) => {
         exception.row = new Row(exception);
@@ -164,12 +164,12 @@ export default class PrivacySection {
               title: exception.titleLangKey,
               placeholder: 'PrivacyModal.Search.Placeholder',
               takeOut: (newPeerIds, newExtras) => {
-                _peerIds.length = 0;
-                _peerIds.push(...newPeerIds);
+                _peerIds!.length = 0;
+                _peerIds!.push(...newPeerIds);
                 _extras.clear();
                 if(newExtras) for(const e of newExtras) _extras.add(e);
                 exception.row.subtitle.replaceChildren(
-                  ...this.generateStr(this.splitPeersByType(newPeerIds), _extras)
+                  ...this.generateStr(this.splitPeersByType(newPeerIds), _extras) as (string | Node)[]
                 );
                 this.onRadioChange(this.type);
               },
@@ -197,7 +197,7 @@ export default class PrivacySection {
       this.setRadio(PrivacyType.Contacts);
     }, 0); */
 
-    const promise = (options.inputKey ? managers.appPrivacyManager.getPrivacy(options.inputKey) : Promise.resolve()).then((rules) => {
+    const promise = (options.inputKey ? managers.appPrivacyManager!.getPrivacy(options.inputKey) : Promise.resolve()).then((rules) => {
       const details = rules ? getPrivacyRulesDetails(rules) : undefined;
       const originalType = options.privacyType || details?.type;
 
@@ -206,17 +206,17 @@ export default class PrivacySection {
         this.extras = {};
         ['allow' as const, 'disallow' as const].forEach((k) => {
           const arr = [];
-          const from = k === 'allow' ? details.allowPeers : details.disallowPeers;
+          const from = k === 'allow' ? details!.allowPeers : details!.disallowPeers;
           arr.push(...from.users.map((id) => id.toPeerId()));
           arr.push(...from.chats.map((id) => id.toPeerId(true)));
           this.peerIds[k] = arr;
           const extras = this.extras[k] = new Set<string>();
-          if(options.allowMiniApps && (k === 'allow' ? details.allowMiniApps : details.disallowMiniApps)) {
+          if(options.allowMiniApps && (k === 'allow' ? details!.allowMiniApps : details!.disallowMiniApps)) {
             extras.add('miniapps');
           }
-          const s = this.exceptions.get(k).row.subtitle;
+          const s = this.exceptions.get(k)!.row.subtitle;
           s.replaceChildren();
-          s.append(...this.generateStr(from, extras));
+          s.append(...this.generateStr(from, extras) as (string | Node)[]);
         });
       }
 
@@ -228,10 +228,10 @@ export default class PrivacySection {
               return;
             }
 
-            row.radioField.locked = locked;
+            row.radioField.locked = locked!;
           });
 
-          this.setRadio(this.isLocked() ? PrivacyType.Everybody : originalType);
+          this.setRadio((this.isLocked() ? PrivacyType.Everybody : originalType)!);
           if(this.exceptionsSection) {
             this.exceptionsSection.container.classList.toggle('hide', locked);
           }
@@ -240,7 +240,7 @@ export default class PrivacySection {
         toggleLock();
         options.tab.listenerSetter.add(rootScope)('premium_toggle', toggleLock);
       } else {
-        this.setRadio(this.isLocked() ? PrivacyType.Everybody : originalType);
+        this.setRadio((this.isLocked() ? PrivacyType.Everybody : originalType)!);
       }
 
       options.tab.eventListener.addEventListener('destroy', this.onTabDestroy, {once: true});
@@ -285,7 +285,7 @@ export default class PrivacySection {
         'inputPrivacyValueAllowBots' | 'inputPrivacyValueDisallowBots'
       ]>);
       for(const [k, chatKey, usersKey, botsKey] of a) {
-        if(this.exceptions.get(k).row.container.classList.contains('hide')) {
+        if(this.exceptions.get(k)!.row.container.classList.contains('hide')) {
           continue;
         }
 
@@ -302,7 +302,7 @@ export default class PrivacySection {
         if(splitted.users.length) {
           rules.push({
             _: usersKey,
-            users: await Promise.all(splitted.users.map((id) => rootScope.managers.appUsersManager.getUserInput(id)))
+            users: await Promise.all(splitted.users.map((id) => rootScope.managers.appUsersManager!.getUserInput(id)))
           });
         }
 
@@ -312,10 +312,10 @@ export default class PrivacySection {
       }
     }
 
-    rootScope.managers.appPrivacyManager.setPrivacy(this.options.inputKey, rules);
+    rootScope.managers.appPrivacyManager!.setPrivacy(this.options.inputKey, rules);
   };
 
-  private replaceCaption(caption: PrivacySectionStr = this.isLocked() ? this.options.premiumCaption : this.options.captions[this.type]) {
+  private replaceCaption(caption: PrivacySectionStr = (this.isLocked() ? this.options.premiumCaption : this.options.captions![this.type])!) {
     const captionElement = this.radioSection.caption;
     if(!caption) {
       captionElement.replaceChildren();
@@ -334,8 +334,8 @@ export default class PrivacySection {
     this.replaceCaption();
 
     if(this.exceptions) {
-      this.exceptions.get('allow').row.container.classList.toggle('hide', this.type === PrivacyType.Everybody);
-      this.exceptions.get('disallow').row.container.classList.toggle('hide', this.type === PrivacyType.Nobody);
+      this.exceptions.get('allow')!.row.container.classList.toggle('hide', this.type === PrivacyType.Everybody);
+      this.exceptions.get('disallow')!.row.container.classList.toggle('hide', this.type === PrivacyType.Nobody);
     }
 
     this.options.onRadioChange && this.options.onRadioChange(value);
@@ -344,7 +344,7 @@ export default class PrivacySection {
   public setRadio(type: PrivacySection['type']) {
     const row = this.radioRows.get(type);
     this.onRadioChange(type);
-    row.radioField.input.checked = true;
+    row!.radioField.input.checked = true;
   }
 
   private splitPeersByType(peerIds: PeerId[]) {
@@ -362,10 +362,10 @@ export default class PrivacySection {
       return [i18n('PrivacySettingsController.AddUsers')];
     }
 
-    return join([
+    return join(([
       peers.users.length ? i18n('Users', [peers.users.length]) : null,
       peers.chats.length ? i18n('Chats', [peers.chats.length]) : null,
       hasMiniApps ? i18n('PrivacyMiniApps') : null
-    ].filter(Boolean), false);
+    ].filter(Boolean)! as (string | Node)[]), false);
   }
 }

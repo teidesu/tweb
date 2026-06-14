@@ -13,7 +13,7 @@ export default function getUniqueCustomEmojisFromMessage(message: Message) {
     docIds.push(...filtered.map((entity) => entity.document_id));
   };
 
-  iterateEntities((message as Message.message).entities);
+  iterateEntities((message as Message.message).entities!);
 
   const reactions = (message as Message.message).reactions;
   if(reactions) {

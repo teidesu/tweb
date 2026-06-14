@@ -42,6 +42,6 @@ export class AutonomousMonoforumThreadList extends AutonomousDialogListBase<Mono
   }
 
   protected dialogsFetcher(offsetIndex: number, limit: number) {
-    return this.managers.monoforumDialogsStorage.getDialogs({parentPeerId: this.peerId, limit, offsetIndex});
+    return this.managers.monoforumDialogsStorage!.getDialogs({parentPeerId: this.peerId, limit, offsetIndex});
   }
 }

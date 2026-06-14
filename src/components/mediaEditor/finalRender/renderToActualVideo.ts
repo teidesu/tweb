@@ -65,7 +65,7 @@ export default async function renderToActualVideo({
     mediaState: {videoCropStart, videoCropLength, videoMuted, videoThumbnailPosition},
     getMediaBlob,
     dontCreatePreview
-  } = context;
+  } = context!;
 
   const {media: {video}} = renderingPayload;
 
@@ -77,12 +77,12 @@ export default async function renderToActualVideo({
   // back up the trim UI's reactive clamp so the produced clip is always valid.
   const AVATAR_MAX_FPS = 30;
   const AVATAR_MAX_DURATION = 10;
-  const minEncodeInterval = context.isVideoAvatarMode ? 1 / AVATAR_MAX_FPS : 0;
+  const minEncodeInterval = context!.isVideoAvatarMode ? 1 / AVATAR_MAX_FPS : 0;
 
-  video.muted = true;
-  const startTime = video.duration * videoCropStart;
-  const rawEndTime = video.duration * (videoCropStart + videoCropLength);
-  const endTime = context.isVideoAvatarMode ? Math.min(rawEndTime, startTime + AVATAR_MAX_DURATION) : rawEndTime;
+  video!.muted = true;
+  const startTime = video!.duration * videoCropStart;
+  const rawEndTime = video!.duration * (videoCropStart + videoCropLength);
+  const endTime = context!.isVideoAvatarMode ? Math.min(rawEndTime, startTime + AVATAR_MAX_DURATION) : rawEndTime;
 
   const creationProgress = createSignal(0);
   const [progress, setProgress] = creationProgress;
@@ -93,7 +93,7 @@ export default async function renderToActualVideo({
   [thumbnailCanvas.width, thumbnailCanvas.height] = snapToViewport(scaledWidth / scaledHeight, Math.min(scaledWidth, THUMBNAIL_MAX_SIZE), Math.min(scaledHeight, THUMBNAIL_MAX_SIZE));
   const thumbnailCtx = thumbnailCanvas.getContext('2d');
 
-  const thumbnailTime = videoThumbnailPosition * video.duration;
+  const thumbnailTime = videoThumbnailPosition * video!.duration;
   // The encode loop tracks clip-relative time (mediaTime - startTime), so the
   // in-loop cover capture must compare against the clip-relative cover time;
   // the out-of-loop fallback seeks the source video to `thumbnailTime` directly.
@@ -101,7 +101,7 @@ export default async function renderToActualVideo({
 
   let
     currentVideoFrameDeferred: CancellablePromise<number>,
-    encodingPausedDeferred: CancellablePromise<void>,
+    encodingPausedDeferred: CancellablePromise<void> | undefined,
     lastTime = 0,
     lastEncodedTime = -Infinity,
     frameCallbackId: number,
@@ -133,7 +133,7 @@ export default async function renderToActualVideo({
   listenerSetter.add(window)('blur', () => {
     log('window focus changed', 'blurred');
     encodingPausedDeferred = deferredPromise();
-    currentVideoFrameDeferred?.reject(ThrowReason.EncodingPaused);
+    currentVideoFrameDeferred?.reject!(ThrowReason.EncodingPaused);
   });
 
   async function initMuxerAndEncoder() {
@@ -141,7 +141,7 @@ export default async function renderToActualVideo({
 
     let audioBuffer: AudioBuffer, mediaBlob: Blob;
 
-    if(!videoMuted && await supportsAudioEncoding() && (mediaBlob = await getMediaBlob())) try {
+    if(!videoMuted && await supportsAudioEncoding() && (mediaBlob = (await getMediaBlob())!)) try {
       audioBuffer = await extractAudioFragment(mediaBlob, startTime, endTime);
     } catch{}
 
@@ -153,7 +153,7 @@ export default async function renderToActualVideo({
     const videoSource = new EncodedVideoPacketSource('avc');
     output.addVideoTrack(videoSource);
 
-    const audioSource = audioBuffer ? new EncodedAudioPacketSource('opus') : undefined;
+    const audioSource = audioBuffer! ? new EncodedAudioPacketSource('opus') : undefined;
     if(audioSource) output.addAudioTrack(audioSource);
 
     await output.start();
@@ -173,7 +173,7 @@ export default async function renderToActualVideo({
     // Profile video avatars: clamp the bitrate so a ~10s clip stays under the
     // server's profile-video size limit (~2MB). The generic editor bitrate
     // (6-20 Mbps) would produce multi-MB files the server rejects/re-encodes.
-    if(context.isVideoAvatarMode) {
+    if(context!.isVideoAvatarMode) {
       const AVATAR_MAX_BITRATE = 1.5e6;
       codecAndBitrate.bitrate = Math.min(codecAndBitrate.bitrate, AVATAR_MAX_BITRATE);
     }
@@ -187,16 +187,16 @@ export default async function renderToActualVideo({
     return {
       output,
       encoder,
-      audioBuffer,
+      audioBuffer: audioBuffer!,
       addAudioChunk: (chunk: EncodedAudioChunk, meta?: EncodedAudioChunkMetadata) =>
-        audioSource.add(EncodedPacket.fromEncodedChunk(chunk), meta),
+        audioSource!.add(EncodedPacket.fromEncodedChunk(chunk), meta),
       waitForVideoPackets: () => videoAddChain
     };
   }
 
   function drawToTexture() {
     gl.bindTexture(gl.TEXTURE_2D, renderingPayload.texture);
-    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, video);
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, video as TexImageSource);
   }
 
   async function initStickerRenderers() {
@@ -207,10 +207,10 @@ export default async function renderToActualVideo({
         const stickerType = layer.sticker?.sticker;
         let renderer: StickerFrameByFrameRenderer;
 
-        if(stickerType === StickerType.Static) renderer = new ImageStickerFrameByFrameRenderer();
+        if(stickerType === StickerType.Static) renderer = (new ImageStickerFrameByFrameRenderer() as StickerFrameByFrameRenderer);
         if(stickerType === StickerType.Lottie) renderer = new LottieStickerFrameByFrameRenderer();
-        if(stickerType === StickerType.WebM) renderer = new VideoStickerFrameByFrameRenderer();
-        if(!renderer) return;
+        if(stickerType === StickerType.WebM) renderer = (new VideoStickerFrameByFrameRenderer() as StickerFrameByFrameRenderer);
+        if(!renderer!) return;
 
         renderers.set(layer.id, renderer);
         await renderer.init(layer.sticker!, STICKER_SIZE * layer.scale * pixelRatio);
@@ -229,33 +229,33 @@ export default async function renderToActualVideo({
 
     const callback = (mediaTime: number) => {
       drawToTexture();
-      video.pause();
+      video!.pause();
 
-      currentVideoFrameDeferred.resolve(mediaTime);
+      currentVideoFrameDeferred.resolve!(mediaTime);
     };
 
     if(frameNo === 0) callback(0);
     else {
-      frameCallbackId = video.requestVideoFrameCallback((_, {mediaTime}) => void callback(mediaTime));
-      if(video.paused) await video.play();
+      frameCallbackId = video!.requestVideoFrameCallback((_, {mediaTime}) => void callback(mediaTime));
+      if(video!.paused) await video!.play();
     }
 
     let mediaTime: number;
     try {
       mediaTime = await currentVideoFrameDeferred;
     } catch(e: unknown) {
-      video.pause();
+      video!.pause();
       if(e === ThrowReason.Canceled || canceled) throw ThrowReason.Canceled;
       if(e === ThrowReason.EncodingPaused && encodingPausedDeferred) {
         await encodingPausedDeferred;
         log('paused case was playing', lastTime + startTime);
         const deferred = deferredPromise<void>();
 
-        listenerSetter.add(video)('seeked', () => {
-          deferred.resolve();
+        listenerSetter.add(video!)('seeked', () => {
+          deferred.resolve!();
         }, {once: true});
 
-        video.currentTime = lastTime + startTime;
+        video!.currentTime = lastTime + startTime;
 
         await deferred;
       }
@@ -297,7 +297,7 @@ export default async function renderToActualVideo({
     // Save the thumbnail if it's more or less in the same frame as the current time
     if(!drewThumbnail && thumbnailTimeInClip - 0.5 / EXPECTED_FPS <= currentTime && currentTime <= thumbnailTimeInClip + 0.5 / EXPECTED_FPS) {
       drewThumbnail = true;
-      thumbnailCtx.drawImage(resultCanvas, 0, 0, thumbnailCanvas.width, thumbnailCanvas.height);
+      thumbnailCtx!.drawImage(resultCanvas, 0, 0, thumbnailCanvas.width, thumbnailCanvas.height);
     }
   }
 
@@ -322,10 +322,10 @@ export default async function renderToActualVideo({
     ctx.drawImage(brushCanvas, 0, 0);
 
     scaledLayers.forEach((layer) => {
-      if(layer.type === 'text') drawTextLayer(context, ctx, layer);
+      if(layer.type === 'text') drawTextLayer(context!, ctx, layer);
       if(layer.type === 'sticker' && renderers.has(layer.id)) {
         const renderer = renderers.get(layer.id);
-        drawStickerLayer(context, ctx, layer, renderer.getRenderedFrame(), renderer.getRatio());
+        drawStickerLayer(context!, ctx, layer, renderer!.getRenderedFrame(), renderer!.getRatio());
       }
     });
 
@@ -358,8 +358,8 @@ export default async function renderToActualVideo({
     Array.from(renderers.values()).forEach((renderer) => renderer.destroy());
     listenerSetter.removeAll();
     cancelAnimationFrame(progressRAF);
-    video.src = '';
-    video.load();
+    video!.src = '';
+    video!.load();
   }
 
   setProgress(0);
@@ -371,10 +371,10 @@ export default async function renderToActualVideo({
 
     const finishCanceled = () => {
       try {
-        video.cancelVideoFrameCallback?.(frameCallbackId);
+        video!.cancelVideoFrameCallback?.(frameCallbackId);
       } catch{}
       try {
-        video.pause();
+        video!.pause();
       } catch{}
       if(encoder) {
         try {
@@ -392,8 +392,8 @@ export default async function renderToActualVideo({
 
     try {
       const firstFrameSeekDeferred = deferredPromise<void>();
-      video.currentTime = video.duration * videoCropStart;
-      video.addEventListener('seeked', () => void firstFrameSeekDeferred.resolve(), {once: true});
+      video!.currentTime = video!.duration * videoCropStart;
+      video!.addEventListener('seeked', () => void firstFrameSeekDeferred.resolve!(), {once: true});
 
       const initResults = await raceCancel(Promise.all([
         initMuxerAndEncoder(),
@@ -416,14 +416,14 @@ export default async function renderToActualVideo({
           return false;
         }
 
-        if(video.currentTime >= endTime - VIDEO_COMPARISON_ERROR) {
+        if(video!.currentTime >= endTime - VIDEO_COMPARISON_ERROR) {
           done = true;
-          currentVideoFrameDeferred?.resolve(endTime);
+          currentVideoFrameDeferred?.resolve!(endTime);
         }
         return !done;
       });
 
-      while(video.currentTime < endTime - VIDEO_COMPARISON_ERROR) {
+      while(video!.currentTime < endTime - VIDEO_COMPARISON_ERROR) {
         throwIfCanceled();
 
         try {
@@ -437,17 +437,17 @@ export default async function renderToActualVideo({
           if(e === ThrowReason.Canceled || canceled) throw ThrowReason.Canceled;
           if(typeof e !== 'number') break;
 
-          if(e === ThrowReason.EncodingPaused) await raceCancel(encodingPausedDeferred);
+          if(e === ThrowReason.EncodingPaused) await raceCancel((encodingPausedDeferred as Promise<void>));
           else if(e === ThrowReason.TimeLoopback) break;
         }
 
-        updateProgress(clamp((video.currentTime - startTime) / (endTime - startTime), 0, 1));
+        updateProgress(clamp((video!.currentTime - startTime) / (endTime - startTime), 0, 1));
         frameNo++;
       }
 
       done = true;
-      video.cancelVideoFrameCallback(frameCallbackId);
-      video.pause();
+      video!.cancelVideoFrameCallback(frameCallbackId);
+      video!.pause();
       throwIfCanceled();
 
       // const endrendering = performance.now();
@@ -455,10 +455,10 @@ export default async function renderToActualVideo({
       if(!drewThumbnail) {
         const deferred = deferredPromise<void>();
 
-        video.addEventListener('seeked', () => {
-          deferred.resolve();
+        video!.addEventListener('seeked', () => {
+          deferred.resolve!();
         }, {once: true});
-        video.currentTime = thumbnailTime;
+        video!.currentTime = thumbnailTime;
 
         await raceCancel(Promise.race([deferred, delay(2_000)])); // just in case you know
         throwIfCanceled();
@@ -466,7 +466,7 @@ export default async function renderToActualVideo({
         drawToTexture();
         await renderFrame({frameNo: 0, timestamp: 0, appendToMuxer: false, encoder});
 
-        thumbnailCtx.drawImage(resultCanvas, 0, 0, thumbnailCanvas.width, thumbnailCanvas.height);
+        thumbnailCtx!.drawImage(resultCanvas, 0, 0, thumbnailCanvas.width, thumbnailCanvas.height);
       }
 
       if(audioBuffer) await raceCancel(encodeAndMuxAudio(audioBuffer, addAudioChunk));
@@ -487,10 +487,10 @@ export default async function renderToActualVideo({
 
       setProgress(1);
 
-      const thumbBlob = await new Promise<Blob>(resolve => thumbnailCanvas.toBlob(resolve));
+      const thumbBlob = await new Promise<Blob>(resolve => thumbnailCanvas.toBlob((resolve! as BlobCallback)));
 
       resolve({
-        blob: new Blob([buffer], {type: 'video/mp4'}),
+        blob: new Blob([buffer!], {type: 'video/mp4'}),
         hasSound: !!audioBuffer,
         thumb: {
           blob: thumbBlob,
@@ -520,7 +520,7 @@ export default async function renderToActualVideo({
   return {
     preview,
     isVideo: true,
-    videoDuration: video.duration,
+    videoDuration: video!.duration,
     getResult: () => {
       return result ?? resultPromise;
     },
@@ -528,8 +528,8 @@ export default async function renderToActualVideo({
       if(canceled) return;
       canceled = true;
       // unblock anything awaiting these so the pipeline aborts immediately
-      canceledDeferred.reject(ThrowReason.Canceled);
-      currentVideoFrameDeferred?.reject(ThrowReason.Canceled);
+      canceledDeferred.reject!(ThrowReason.Canceled);
+      currentVideoFrameDeferred?.reject!(ThrowReason.Canceled);
       encodingPausedDeferred?.resolve?.();
     },
     creationProgress

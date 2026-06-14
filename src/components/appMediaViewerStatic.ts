@@ -71,9 +71,9 @@ export default class AppMediaViewerStatic extends AppMediaViewerBase<never, 'for
 
   onForwardClick = () => {
     const target = this.target;
-    if(target.mid) {
+    if(target!.mid) {
       showForwardPopup({
-        [target.peerId]: [target.mid]
+        [target!.peerId]: [target!.mid]
       }, undefined, undefined, () => {
         return this.close();
       });
@@ -90,12 +90,12 @@ export default class AppMediaViewerStatic extends AppMediaViewerBase<never, 'for
     }
 
     appImManager.setInnerPeer({
-      peerId: this.target.peerId
+      peerId: this.target!.peerId
     });
   };
 
   onDownloadClick = wrapAsyncClickHandler(async() => {
-    await appDownloadManager.downloadToDisc({media: this.target.media, queueId: appImManager.chat.bubbles.lazyLoadQueue.queueId});
+    await appDownloadManager.downloadToDisc({media: this.target!.media, queueId: appImManager.chat.bubbles.lazyLoadQueue!.queueId});
   });
 
   public openMedia({allTargets, index, ...rest}: OpenMediaArgs) {
@@ -109,7 +109,7 @@ export default class AppMediaViewerStatic extends AppMediaViewerBase<never, 'for
       target: rest.element,
       ...rest
     });
-    Object.assign(this.target, {
+    Object.assign(this.target!, {
       media: rest.media,
       element: rest.element,
       fromId: rest.fromId,

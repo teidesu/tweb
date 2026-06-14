@@ -8,7 +8,7 @@ export default class TelInputField extends InputField {
   private pasted = false;
   // Country-code-aware value computed in the `paste` handler and applied on the
   // `input` that follows (see the paste handler for why we can't do it inline).
-  private pastedValue: string;
+  private pastedValue: string | undefined;
   public lastValue = '';
 
   constructor(options: InputFieldOptions & {
@@ -39,7 +39,7 @@ export default class TelInputField extends InputField {
           letterSpacing = 0;
         }
 
-        telEl.style.setProperty('--letter-spacing', letterSpacing + 'px');
+        telEl.style.setProperty('--letter-spacing', letterSpacing! + 'px');
       }
 
       const originalFunc = this.setValueSilently.bind(this);
@@ -87,7 +87,7 @@ export default class TelInputField extends InputField {
 
       // console.log(formatted, country);
 
-      options.onInput && options.onInput(formattedPhoneNumber);
+      options.onInput && options.onInput(formattedPhoneNumber!);
     });
 
     telEl.addEventListener('paste', (e) => {
@@ -105,7 +105,7 @@ export default class TelInputField extends InputField {
       // still the pre-paste content. We can't apply it now: `preventDefault()` does
       // NOT stop a contentEditable from inserting the raw clipboard text, so instead
       // we stash it and overwrite the field in the `input` handler that fires next.
-      if(clipboard.trimStart().startsWith('+') || pastedDigits.startsWith('00')) {
+      if(clipboard!.trimStart().startsWith('+') || pastedDigits.startsWith('00')) {
         // Full international number — it carries its own country code, so it REPLACES
         // the field. '+66' + paste '+66809716338' -> '+66809716338' (no doubled '66').
         this.pastedValue = '+' + (pastedDigits.startsWith('00') ? pastedDigits.slice(2) : pastedDigits);

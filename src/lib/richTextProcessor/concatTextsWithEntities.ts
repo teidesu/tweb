@@ -9,7 +9,7 @@ export function concatTextsWithEntities(items: TextWithEntities.textWithEntities
 
   for(const item of items) {
     const entities = item.entities?.map(entity => ({
-      ...entity, offset: entity.offset + result.text.length
+      ...entity, offset: entity.offset! + result.text.length
     })) ?? [];
 
     result.entities.push(...entities);

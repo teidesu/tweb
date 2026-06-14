@@ -58,13 +58,13 @@ export default class SendMenu {
     }, {
       icon: 'online',
       text: 'Schedule.SendWhenOnline',
-      onClick: this.options.onSendWhenOnlineClick,
-      verify: async() => this.type === 'schedule' && (await this.options.canSendWhenOnline?.()) && !this.isPaid
+      onClick: this.options.onSendWhenOnlineClick!,
+      verify: async() => this.type === 'schedule' && !!( await this.options.canSendWhenOnline?.()) && !this.isPaid
     }, {
       icon: 'crossround',
       text: 'Effect.Remove',
       danger: true,
-      onClick: () => this.options.onEffect(undefined),
+      onClick: () => this.options.onEffect!(undefined!),
       verify: () => !!this.options.effect?.()
     }];
   }
@@ -93,8 +93,8 @@ export default class SendMenu {
 
         cancelEvent(e);
         await Promise.all(buttons.map(async(button) => {
-          const result = await button.verify();
-          button.element.classList.toggle('hide', !result);
+          const result = await button.verify!();
+          button.element!.classList.toggle('hide', !result);
         }));
 
         const middlewareHelper = getMiddleware();
@@ -120,9 +120,9 @@ export default class SendMenu {
                 return;
               }
 
-              const availableEffects = await rootScope.managers.appReactionsManager.getAvailableEffects();
+              const availableEffects = await rootScope.managers.appReactionsManager!.getAvailableEffects();
               const availableEffect = availableEffects.find((effect) => effect.effect_sticker_id === stickerDocId);
-              this.options.onEffect(availableEffect.id);
+              this.options.onEffect!(availableEffect!.id);
             },
             getOpenPosition: (hasMenu) => ChatContextMenu.getReactionsOpenPosition(reactionsMenu, hasMenu),
             isEffects: true
@@ -133,7 +133,7 @@ export default class SendMenu {
           // const menuPadding = ChatContextMenu.getReactionsMenuPadding(reactionsMenuPosition);
         }
 
-        const reactionsCallbacks = reactionsMenu && ChatContextMenu.appendReactionsMenu({element: element, reactionsMenu, reactionsMenuPosition});
+        const reactionsCallbacks = reactionsMenu! && ChatContextMenu.appendReactionsMenu({element: element, reactionsMenu, reactionsMenuPosition});
 
         this.options.onToggle?.(true);
         contextMenuController.openBtnMenu(element, () => {

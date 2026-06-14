@@ -157,7 +157,7 @@ class RLottieWorker {
     };
 
     resolveReady();
-    readyPromise = undefined;
+    readyPromise = (undefined as unknown as Promise<void>);
   };
 }
 
@@ -206,7 +206,7 @@ rlottieMessagePort.addMultipleEventsListeners({
       console.log('sticker decode:', performance.now() - perf); */
 
       const match = json.match(/"fr":\s*?(\d+?),/);
-      const frameRate = +match?.[1] || DEFAULT_FPS;
+      const frameRate = +match?.[1]! || DEFAULT_FPS;
 
       // console.log('Rendering sticker:', reqId, frameRate, 'now rendered:', Object.keys(items).length);
 

@@ -46,9 +46,9 @@ const dateFormat = (() => {
     ); */
 
     // Allow setting the utc/gmt argument via the mask
-    const maskSlice = mask.slice(0, 4);
+    const maskSlice = mask!.slice(0, 4);
     if(maskSlice === "UTC:" || maskSlice === "GMT:") {
-      mask = mask.slice(4);
+      mask = mask!.slice(4);
       utc = true;
       if(maskSlice === "GMT:") {
         gmt = true;
@@ -120,7 +120,7 @@ const dateFormat = (() => {
         gmt ?
         "GMT" : utc ?
         "UTC" : (String(date).match(timezone) || [""])
-        .pop()
+        .pop()!
         .replace(timezoneClip, "")
         .replace(/GMT\+0000/g, "UTC"),
       o: () =>
@@ -140,7 +140,7 @@ const dateFormat = (() => {
       N: () => N(),
     };
 
-    return mask.replace(token, (match) => {
+    return mask!.replace(token, (match) => {
       if(match in flags) {
         // @ts-ignore
         return flags[match]();

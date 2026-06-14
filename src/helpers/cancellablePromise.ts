@@ -6,7 +6,7 @@ export interface CancellablePromise<T> extends Promise<T> {
   cancel?: (reason?: any) => void,
 
   notify?: (...args: any[]) => void,
-  notifyAll?: (...args: any[]) => void,
+  notifyAll?: ((...args: any[]) => void) | null,
   lastNotify?: any,
   listeners?: Array<(...args: any[]) => void>,
   addNotifyListener?: (callback: (...args: any[]) => void) => void,
@@ -41,20 +41,20 @@ const deferredHelper = {
     if(this.isFulfilled || this.isRejected) return;
 
     this.isFulfilled = true;
-    this._resolve(value);
-    this.onFinish();
+    this._resolve!(value);
+    this.onFinish!();
   },
 
   reject: function(...args) {
     if(this.isRejected || this.isFulfilled) return;
 
     this.isRejected = true;
-    this._reject(...args);
-    this.onFinish();
+    this._reject!(...args);
+    this.onFinish!();
   },
 
   onFinish: function() {
-    this.notify = this.notifyAll = this.lastNotify = null;
+    this.notify = (this.notifyAll = (this.lastNotify = null)!)!;
     if(this.listeners) this.listeners.length = 0;
 
     if(this.cancel) {
@@ -70,14 +70,14 @@ export default function deferredPromise<T>() {
   });
 
   Object.assign(deferred, deferredHelper);
-  deferred._resolve = resolve;
-  deferred._reject = reject;
+  deferred._resolve = resolve!;
+  deferred._reject = reject!;
 
   return deferred;
 }
 
 export function bindPromiseToDeferred<T>(promise: Promise<T>, deferred: CancellablePromise<T>) {
-  promise.then(deferred.resolve.bind(deferred), deferred.reject.bind(deferred));
+  promise.then(deferred.resolve!.bind(deferred), deferred.reject!.bind(deferred));
 }
 
 (self as any).deferredPromise = deferredPromise;

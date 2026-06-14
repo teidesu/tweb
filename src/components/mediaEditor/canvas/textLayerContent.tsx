@@ -10,18 +10,18 @@ import {modifyMutable, reconcile} from 'solid-js/store';
 
 
 export default function TextLayerContent(props: ResizableLayerProps) {
-  const {editorState, mediaState, actions} = useMediaEditorContext();
+  const {editorState, mediaState, actions} = useMediaEditorContext()!;
 
   if(!props.layer.textInfo) return;
 
   const onFocus = () => {
     batch(() => {
       editorState.selectedResizableLayer = props.layer.id;
-      modifyMutable(editorState.currentTextLayerInfo, reconcile(props.layer.textInfo));
+      modifyMutable(editorState.currentTextLayerInfo, reconcile(props.layer.textInfo!));
     });
   };
 
-  const fontInfo = () => fontInfoMap[props.layer.textInfo.font];
+  const fontInfo = () => fontInfoMap[props.layer.textInfo!.font];
 
   function deleteThisLayer() {
     const layers = mediaState.resizableLayers;
@@ -41,7 +41,7 @@ export default function TextLayerContent(props: ResizableLayerProps) {
   }
 
   function updateBackground() {
-    contentEditable.childNodes.forEach((childNode) => {
+    contentEditable!.childNodes.forEach((childNode) => {
       if(childNode instanceof HTMLDivElement && !childNode.hasAttributes()) {
         childNode.querySelectorAll('*').forEach((element) => {
           const node = document.createTextNode(element.textContent);
@@ -53,46 +53,46 @@ export default function TextLayerContent(props: ResizableLayerProps) {
         childNode.replaceWith(div);
       }
     });
-    if(!contentEditable.textContent) {
-      contentEditable.innerHTML = '<div></div>';
+    if(!contentEditable!.textContent) {
+      contentEditable!.innerHTML = '<div></div>';
 
       // Firefox cursor reset
-      const child = contentEditable.children[0];
+      const child = contentEditable!.children[0];
       const range = document.createRange();
       const sel = window.getSelection();
 
       range.setStart(child, 0);
       range.collapse(true);
 
-      sel.removeAllRanges();
-      sel.addRange(range);
+      sel!.removeAllRanges();
+      sel!.addRange(range);
     }
 
     // Firefox puts the cursor outside the inner divs and messes up everything
     const selection = window.getSelection();
-    if(selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      if(range.startContainer === contentEditable && range.startOffset === 0) {
+    if(selection!.rangeCount > 0) {
+      const range = selection!.getRangeAt(0);
+      if(range.startContainer === contentEditable! && range.startOffset === 0) {
         const innerDiv = contentEditable.children[0];
         const innerDivRange = document.createRange();
         innerDivRange.selectNodeContents(innerDiv);
         innerDivRange.collapse(false); // Collapse to the end of the inner div
 
-        selection.removeAllRanges();
-        selection.addRange(innerDivRange);
+        selection!.removeAllRanges();
+        selection!.addRange(innerDivRange);
       }
     }
 
-    container.querySelector('.media-editor__text-layer-background')?.remove();
-    const lines = getLinesRenderingInfo(contentEditable, props.layer.textInfo.alignment);
+    container!.querySelector('.media-editor__text-layer-background')?.remove();
+    const lines = getLinesRenderingInfo(contentEditable!, props.layer.textInfo!.alignment);
     const path = createTextBackgroundPath(lines);
 
-    if(props.layer.textInfo.style === 'background') updateBackgroundStyle(container, path.join(' '), props.layer.textInfo);
-    if(props.layer.textInfo.style === 'outline') updateOutlineStyle(container, contentEditable, props.layer.textInfo);
+    if(props.layer.textInfo!.style === 'background') updateBackgroundStyle(container!, path.join(' '), props.layer.textInfo!);
+    if(props.layer.textInfo!.style === 'outline') updateOutlineStyle(container!, contentEditable!, props.layer.textInfo!);
 
     props.layer.textRenderingInfo =  {
-      width: container.clientWidth,
-      height: container.clientHeight,
+      width: container!.clientWidth,
+      height: container!.clientHeight,
       path,
       lines
     };
@@ -100,10 +100,10 @@ export default function TextLayerContent(props: ResizableLayerProps) {
 
   function selectAll() {
     const range = document.createRange();
-    range.selectNodeContents(contentEditable.children[0]);
+    range.selectNodeContents(contentEditable!.children[0]);
     const selection = window.getSelection();
-    selection.removeAllRanges();
-    selection.addRange(range);
+    selection!.removeAllRanges();
+    selection!.addRange(range);
   }
 
   createEffect(() => {
@@ -121,7 +121,7 @@ export default function TextLayerContent(props: ResizableLayerProps) {
   createEffect(() => {
     if(isThisLayerSelected()) {
       onCleanup(() => {
-        if(!contentEditable.innerText.trim()) {
+        if(!contentEditable!.innerText.trim()) {
           deleteThisLayer();
         }
       })
@@ -136,7 +136,7 @@ export default function TextLayerContent(props: ResizableLayerProps) {
   );
 
   onMount(() => {
-    container.addEventListener('dragstart', (e: Event) => {
+    container!.addEventListener('dragstart', (e: Event) => {
       e.preventDefault();
     });
   });
@@ -145,8 +145,8 @@ export default function TextLayerContent(props: ResizableLayerProps) {
   let contentEditable: HTMLDivElement;
 
   const color = () => {
-    if(props.layer.textInfo.style === 'normal') return props.layer.textInfo.color;
-    return getContrastColor(props.layer.textInfo.color);
+    if(props.layer.textInfo!.style === 'normal') return props.layer.textInfo!.color;
+    return getContrastColor(props.layer.textInfo!.color);
   };
 
   const intialContent = (() => {
@@ -157,7 +157,7 @@ export default function TextLayerContent(props: ResizableLayerProps) {
 
   const children = (
     <div
-      ref={container}
+      ref={container!}
       class="media-editor__text-layer"
       classList={{
         'media-editor__text-layer--with-bg': props.layer.textInfo.style === 'background'
@@ -171,7 +171,7 @@ export default function TextLayerContent(props: ResizableLayerProps) {
       }}
     >
       <div
-        ref={contentEditable}
+        ref={contentEditable!}
         class="media-editor__text-layer-layout"
         contenteditable
         onInput={() => updateBackground()}

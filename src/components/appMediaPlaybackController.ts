@@ -33,7 +33,7 @@ export type MediaItem = {mid: number, peerId: PeerId};
 
 const SHOULD_USE_SAFARI_FIX = (() => {
   try {
-    return IS_SAFARI && +navigator.userAgent.match(/ Version\/(\d+)/)[1] < 14;
+    return IS_SAFARI && +navigator.userAgent.match(/ Version\/(\d+)/)![1] < 14;
   } catch(err) {
     return false;
   }
@@ -115,8 +115,8 @@ export class AppMediaPlaybackController extends EventListenerBase<{
   private media: Map<PeerId, Map<number, HTMLMediaElement>> = new Map();
   private scheduled: AppMediaPlaybackController['media'] = new Map();
   private mediaDetails: Map<HTMLMediaElement, MediaDetails> = new Map();
-  private playingMedia: HTMLMediaElement;
-  private playingMediaType: PlaybackMediaType;
+  private playingMedia: HTMLMediaElement | undefined;
+  private playingMediaType: PlaybackMediaType | undefined;
 
   private waitingMediaForLoad: Map<PeerId, Map<number, CancellablePromise<void>>> = new Map();
   private waitingScheduledMediaForLoad: AppMediaPlaybackController['waitingMediaForLoad'] = new Map();
@@ -154,7 +154,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
     audio: 1
   };
 
-  private pip: HTMLVideoElement;
+  private pip: HTMLVideoElement | undefined;
   private managers: AppManagers;
   private skipMediaPlayEvent: boolean;
 
@@ -169,7 +169,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
     this.managers = managers;
     this.musicListenTracker = new MusicListenTracker((inputDoc, listenedDuration) => {
       // Fire-and-forget analytics — swallow errors (e.g. a stale file_reference) so they don't surface.
-      this.managers.appMessagesManager.reportMusicListen(inputDoc, listenedDuration).catch(() => {});
+      this.managers.appMessagesManager!.reportMusicListen(inputDoc, listenedDuration).catch(() => {});
     });
     this.container = document.createElement('div');
     // this.container.style.cssText = 'position: absolute; top: -10000px; left: -10000px;';
@@ -190,7 +190,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
 
       for(const action in actions) {
         try {
-          navigator.mediaSession.setActionHandler(action as MediaSessionAction, actions[action as MediaSessionAction]);
+          navigator.mediaSession.setActionHandler(action as MediaSessionAction, actions[action as MediaSessionAction]!);
         } catch(err) {
           console.warn('MediaSession action is not supported:', action);
         }
@@ -245,7 +245,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
           this[_key] = value;
           if(this.playingMedia && (key !== 'loop' || this.playingMediaType === 'audio') && key !== 'round') {
             if(key === 'volume' || key === 'muted' || key === 'boost') {
-              this.applyVolumeToMedia(this.playingMedia, this.getVolumeForType(this.playingMediaType), this.muted, this.playingMediaType);
+              this.applyVolumeToMedia(this.playingMedia, this.getVolumeForType((this.playingMediaType as PlaybackMediaType)), this.muted, (this.playingMediaType as PlaybackMediaType));
             } else {
               // @ts-ignore
               this.playingMedia[key] = value;
@@ -263,11 +263,11 @@ export class AppMediaPlaybackController extends EventListenerBase<{
     Object.defineProperties(this, properties);
 
     this.addEventListener('play', (details) => {
-      if(details.doc.type === 'round') {
+      if(details!.doc.type === 'round') {
         animationIntersector.toggleMediaPause(false);
       }
 
-      this.musicListenTracker.onPlay(details);
+      this.musicListenTracker.onPlay(details!);
     });
 
     this.addEventListener('pause', () => {
@@ -394,20 +394,20 @@ export class AppMediaPlaybackController extends EventListenerBase<{
 
   public seekTo = (details: MediaSessionActionDetails, media = this.playingMedia) => {
     if(media) {
-      setCurrentTime(media, details.seekTime);
+      setCurrentTime(media, details.seekTime!);
     }
   };
 
   public addMedia(args: AddMediaArgs): HTMLMediaElement {
     const {message, autoload, clean, doc: docOverride, slot} = args;
     const {peerId, mid} = message;
-    const storageKey = mid + (slot ?? 0);
+    const storageKey = mid! + (slot ?? 0);
 
     const isScheduled = !!message.pFlags.is_scheduled;
     const s = isScheduled ? this.scheduled : this.media;
-    let storage = s.get(message.peerId);
+    let storage = s.get(message.peerId!);
     if(!storage) {
-      s.set(message.peerId, storage = new Map());
+      s.set(message.peerId!, storage = new Map());
     }
 
     let media = storage.get(storageKey);
@@ -426,8 +426,8 @@ export class AppMediaPlaybackController extends EventListenerBase<{
     }
 
     const details: MediaDetails = {
-      peerId,
-      mid,
+      peerId: peerId!,
+      mid: mid!,
       storageKey,
       docId: doc.id,
       doc,
@@ -450,7 +450,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
 
     if(doc.type !== 'audio' && message?.pFlags.media_unread && message.fromId !== rootScope.myId) {
       media.addEventListener('timeupdate', () => {
-        this.managers.appMessagesManager.readMessages(peerId, [mid]);
+        this.managers.appMessagesManager!.readMessages(peerId!, [mid!]);
       }, {once: true});
     }
 
@@ -470,12 +470,12 @@ export class AppMediaPlaybackController extends EventListenerBase<{
 
     const deferred = deferredPromise<void>();
     if(autoload) {
-      deferred.resolve();
+      deferred.resolve!();
     } else {
       const w = message.pFlags.is_scheduled ? this.waitingScheduledMediaForLoad : this.waitingMediaForLoad;
-      let waitingStorage = w.get(peerId);
+      let waitingStorage = w.get(peerId!);
       if(!waitingStorage) {
-        w.set(peerId, waitingStorage = new Map());
+        w.set(peerId!, waitingStorage = new Map());
       }
 
       waitingStorage.set(storageKey, deferred);
@@ -508,7 +508,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
 
   private onMediaDocumentLoad = async(media: HTMLMediaElement) => {
     const details = this.mediaDetails.get(media);
-    const doc = await this.managers.appDocsManager.getDoc(details.docId);
+    const doc = await this.managers.appDocsManager!.getDoc(details!.docId);
     if(doc.type === 'audio' && doc.supportsStreaming && SHOULD_USE_SAFARI_FIX) {
       this.handleSafariStreamable(media);
     }
@@ -574,7 +574,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
     const storageKey = mid + (slot ?? 0);
     const promise = storage.get(storageKey);
     if(promise) {
-      promise.resolve();
+      promise.resolve!();
       storage.delete(storageKey);
 
       if(!storage.size) {
@@ -601,7 +601,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
       return;
     }
 
-    await onMediaLoad(playingMedia, undefined, false); // have to wait for load, otherwise on macOS won't set
+    await onMediaLoad((playingMedia as HTMLMediaElement), undefined, false); // have to wait for load, otherwise on macOS won't set
 
     const doc = getMediaFromMessage(message, true) as MyDocument;
     if(!doc) return; // live
@@ -635,7 +635,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
       }
     } else if(isVoice) {
       const peerId = message.fromId || message.peerId;
-      const peerPhoto = await this.managers.appPeersManager.getPeerPhoto(peerId);
+      const peerPhoto = await this.managers.appPeersManager!.getPeerPhoto(peerId!);
       if(peerPhoto) {
         // const result = this.managers.appAvatarsManager.loadAvatar(peerId, peerPhoto, 'photo_small');
         // if(result.cached) {
@@ -656,14 +656,14 @@ export class AppMediaPlaybackController extends EventListenerBase<{
         // }
       }
 
-      title = await getPeerTitle({peerId, plainText: true, onlyFirstName: false});
+      title = await getPeerTitle({peerId: peerId!, plainText: true, onlyFirstName: false});
       artist = I18n.format(doc.type === 'voice' ? 'AttachAudio' : 'AttachRound', true);
     }
 
     if(!isVoice) {
       const attribute = doc.attributes.find((attribute) => attribute._ === 'documentAttributeAudio') as DocumentAttribute.documentAttributeAudio;
-      title = attribute?.title ?? doc.file_name;
-      artist = attribute?.performer;
+      title = (attribute?.title ?? doc.file_name)!;
+      artist = attribute?.performer!;
     }
 
     if(!artwork.length) {
@@ -711,7 +711,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
 
   private getMessageByMedia(media: HTMLMediaElement): Message.message {
     const details = this.mediaDetails.get(media);
-    return details?.message;
+    return details?.message!;
     // const {peerId, mid} = details;
     // const message = details.isScheduled ?
     //   this.managers.appMessagesManager.getScheduledMessageByPeer(peerId, mid) :
@@ -749,9 +749,9 @@ export class AppMediaPlaybackController extends EventListenerBase<{
   }
 
   private onPlay = (e?: Event) => {
-    const media = e.target as HTMLMediaElement;
+    const media = e!.target as HTMLMediaElement;
     const details = this.mediaDetails.get(media);
-    const {peerId, mid} = details;
+    const {peerId, mid} = details!;
 
     // console.log('appMediaPlaybackController: video playing', this.currentPeerId, this.playingMedia, media);
 
@@ -787,12 +787,12 @@ export class AppMediaPlaybackController extends EventListenerBase<{
             }
           }
 
-          if(jumpLength !== undefined) {
+          if(jumpLength! !== undefined) {
             break;
           }
         }
 
-        if(jumpLength) {
+        if(jumpLength!) {
           this.go(jumpLength, false);
         } else if(!listLoader.repositionTo?.(mid, peerId)) {
           this.setTargets({peerId, mid});
@@ -888,7 +888,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
    * master `volume`.
    */
   public getGlobalSliderVolume() {
-    return this.getVolumeForType(this.playingMediaType);
+    return this.getVolumeForType((this.playingMediaType as PlaybackMediaType));
   }
 
   /**
@@ -965,7 +965,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
       media.autoplay = true;
     } */
 
-    media.play();
+    media!.play();
 
     setTimeout(() => {
       this.resolveWaitingForLoadMedia(peerId, mid, isScheduled);
@@ -987,7 +987,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
 
   private bindBrowserCallback(cb: (video: HTMLVideoElement, details: MediaSessionActionDetails) => void) {
     const handler: MediaSessionActionHandler = (details) => {
-      cb(this.pip, details);
+      cb((this.pip as HTMLVideoElement), details);
     };
 
     return handler;
@@ -1007,7 +1007,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
   };
 
   public previous = () => {
-    if(this.seekToStart(this.playingMedia)) {
+    if(this.seekToStart((this.playingMedia as HTMLMediaElement))) {
       return;
     }
 
@@ -1062,7 +1062,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
         loadWhenLeft: 5,
         processItem: (message: Message.message) => {
           this.addMedia({message, autoload: false});
-          return {peerId: message.peerId, mid: message.mid};
+          return {peerId: message.peerId!, mid: message.mid!};
         },
         onJump: (item, older) => {
           this.playItem(item);
@@ -1082,7 +1082,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
       const reverse = this.searchContext.folderId !== undefined ? false : true;
       listLoader.setSearchContext(this.searchContext);
       if(prev) {
-        listLoader.setTargets(prev, next, reverse);
+        listLoader.setTargets(prev, next!, reverse);
       } else {
         listLoader.reverse = reverse;
       }
@@ -1161,12 +1161,12 @@ export class AppMediaPlaybackController extends EventListenerBase<{
       this.pauseMediaInOtherTabs();
     }
 
-    this.willBePlayed(undefined);
-    if(media) this.setMedia(media, message, standalone);
+    this.willBePlayed(undefined!);
+    if(media) this.setMedia(media, message!, standalone);
     else this.playingMedia = undefined;
     this.toggleSwitchers(false);
 
-    this.dispatchEvent('singleMedia', media);
+    this.dispatchEvent('singleMedia', media!);
 
     return (playPaused = wasPlaying) => {
       this.toggleSwitchers(true);

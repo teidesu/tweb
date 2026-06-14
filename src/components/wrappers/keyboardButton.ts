@@ -54,7 +54,7 @@ export function getKeyboardButtonHandler({
   const refCallbacks: ((ref: HTMLElement) => void)[] = [(ref) => {
     buttonEl = ref;
   }];
-  const classNamesArr: string[] = [className].filter(Boolean);
+  const classNamesArr: string[] = ([className].filter(Boolean)! as string[]);
 
   const {peerId} = chat;
   const messageMedia = message?.media;
@@ -80,7 +80,7 @@ export function getKeyboardButtonHandler({
       refCallbacks.push((ref) => {
         anchor.getAttributeNames().forEach((name) => {
           if(name !== 'class') {
-            ref.setAttribute(name, anchor.getAttribute(name));
+            ref.setAttribute(name, anchor.getAttribute(name)!);
           }
         });
       });
@@ -96,7 +96,7 @@ export function getKeyboardButtonHandler({
 
         let promise: Promise<PeerId>;
         if(button.pFlags.same_peer) promise = Promise.resolve(peerId);
-        else promise = rootScope.managers.appInlineBotsManager.checkSwitchReturn(botId).then((peerId) => {
+        else promise = rootScope.managers.appInlineBotsManager!.checkSwitchReturn(botId!).then((peerId) => {
           if(peerId) {
             return peerId;
           }
@@ -111,23 +111,23 @@ export function getKeyboardButtonHandler({
               inlineQueryPeerTypeMegagroup: 'groups'
             };
 
-            types = button.peer_types.map((type) => map[type._]);
+            types = (button.peer_types.map((type) => map[type._])! as TelegramChoosePeerType[]);
           }
 
-          return showPickUser3Popup(types, ['send_inline']);
+          return showPickUser3Popup(types!, ['send_inline']);
         });
 
         promise.then(async(chosenPeerId) => {
           const threadId = peerId === chosenPeerId ? chat.threadId : undefined;
           await chat.appImManager.setInnerPeer({peerId: chosenPeerId, threadId});
-          rootScope.managers.appInlineBotsManager.switchInlineQuery(chosenPeerId, threadId, botId, button.query);
+          rootScope.managers.appInlineBotsManager!.switchInlineQuery(chosenPeerId, threadId!, botId!, button.query);
         });
       };
       break;
     }
 
     case 'keyboardButtonBuy': {
-      const mediaInvoice = messageMedia._ === 'messageMediaInvoice' ? messageMedia : undefined;
+      const mediaInvoice = messageMedia!._ === 'messageMediaInvoice' ? messageMedia : undefined;
       if(mediaInvoice?.extended_media) {
         return;
       }
@@ -136,7 +136,7 @@ export function getKeyboardButtonHandler({
       icon = 'card';
 
       if(mediaInvoice?.receipt_msg_id) {
-        text = i18n('Message.ReplyActionButtonShowReceipt');
+        text = i18n('Message.ReplyActionButtonShowReceipt')!;
         classNamesArr.push('is-receipt');
       }
 
@@ -192,7 +192,7 @@ export function getKeyboardButtonHandler({
 
     case 'keyboardButtonCallback': {
       onClick = () => {
-        rootScope.managers.appInlineBotsManager.callbackButtonClick(peerId, messageMid, button)
+        rootScope.managers.appInlineBotsManager!.callbackButtonClick(peerId, messageMid!, button)
         .then((callbackAnswer) => {
           if(typeof callbackAnswer.message === 'string' && callbackAnswer.message.length) {
             if(callbackAnswer.pFlags.alert) {
@@ -222,9 +222,9 @@ export function getKeyboardButtonHandler({
         // The bubble's data-mid is patched in place — re-read it so we use the
         // server mid instead of the captured temp one.
         const bubble = findUpClassName(buttonEl, 'bubble');
-        const currentMid = bubble && +bubble.dataset.mid;
+        const currentMid = bubble && +bubble.dataset.mid!;
         const target = (currentMid && currentMid !== message.mid ?
-          chat.getMessageByPeer(message.peerId, currentMid) as Message.message :
+          chat.getMessageByPeer(message.peerId!, currentMid) as Message.message :
           undefined) || message;
         chat.appImManager.playGame(target);
       };
@@ -243,7 +243,7 @@ export function getKeyboardButtonHandler({
             suggestedUsername: peerType.suggested_username,
             onCreate: async({name, username}) => {
               try {
-                const createBotResult = await rootScope.managers.appBotsManager.createManagedBot({
+                const createBotResult = await rootScope.managers.appBotsManager!.createManagedBot({
                   managerId: peerId,
                   botName: name,
                   username: username
@@ -267,11 +267,11 @@ export function getKeyboardButtonHandler({
 
                 const user = createBotResult.user;
 
-                await rootScope.managers.appMessagesManager.sendBotRequestedPeer(
+                await rootScope.managers.appMessagesManager!.sendBotRequestedPeer(
                   peerId,
                   button.button_id,
                   [user.id.toPeerId()],
-                  {mid: messageMid}
+                  {mid: messageMid!}
                 );
 
                 return true;
@@ -291,11 +291,11 @@ export function getKeyboardButtonHandler({
           return;
         }
 
-        rootScope.managers.appMessagesManager.sendBotRequestedPeer(
+        rootScope.managers.appMessagesManager!.sendBotRequestedPeer(
           peerId,
           button.button_id,
           requestedPeerIds,
-          {mid: messageMid}
+          {mid: messageMid!}
         ).catch((err: ApiError) => {
           if(err.type === 'CHAT_ADMIN_INVITE_REQUIRED') {
             toastNew({
@@ -321,7 +321,7 @@ export function getKeyboardButtonHandler({
     default: {
       if(!message) {
         onClick = () => {
-          rootScope.managers.appMessagesManager.sendText({peerId, text: button.text});
+          rootScope.managers.appMessagesManager!.sendText({peerId, text: button.text});
         };
       }
 
@@ -335,7 +335,7 @@ export function getKeyboardButtonHandler({
     else if(button.style.pFlags.bg_danger) bg = 'danger';
     else if(button.style.pFlags.bg_primary) bg = 'primary';
 
-    if(bg) {
+    if(bg!) {
       classNamesArr.push(
         'reply-markup-button-bg',
         `reply-markup-button-bg-${bg}`
@@ -356,7 +356,7 @@ export function getKeyboardButtonHandler({
       wrapCustomEmoji({
         docIds: [button.style.icon],
         ...wrapOptions,
-        textColor: bg ? 'white' : wrapOptions.textColor,
+        textColor: bg! ? 'white' : wrapOptions!.textColor,
         customEmojiSize
       }),
       ' '
@@ -365,12 +365,12 @@ export function getKeyboardButtonHandler({
 
   return {
     text,
-    onClick,
-    icon,
+    onClick: onClick!,
+    icon: icon!,
     as,
     classNames: classNamesArr,
     refCallbacks,
-    bg
+    bg: bg!
   };
 }
 
@@ -390,7 +390,7 @@ export default function wrapKeyboardButton(options: {
   return ReplyMarkupLayout.Button({
     children: handler.text,
     class: classNames(...handler.classNames),
-    onClick: _onClick ? (e) => (_onClick(), handler.onClick(e)) : handler.onClick,
+    onClick: (_onClick ? (e) => (_onClick(), handler.onClick!(e)) : handler.onClick)!,
     icon: handler.icon,
     ref: (ref) => {
       handler.refCallbacks.forEach((cb) => cb(ref));

@@ -9,7 +9,7 @@ import {HistoryItem, useMediaEditorContext} from '@components/mediaEditor/contex
 import {processHistoryItem} from '@components/mediaEditor/utils';
 
 export default function Topbar(props: {onClose: () => void; onFinish: () => void}) {
-  const {canFinish, mediaState, editorState} = useMediaEditorContext();
+  const {canFinish, mediaState, editorState} = useMediaEditorContext()!;
 
   let doneButton: HTMLDivElement;
 
@@ -41,7 +41,7 @@ export default function Topbar(props: {onClose: () => void; onFinish: () => void
   }
 
   onMount(() => {
-    ripple(doneButton);
+    ripple(doneButton!);
 
     const removeListener = addShortcutListener(['Ctrl+KeyZ', 'Ctrl+Shift+KeyZ', 'Ctrl+KeyY'], (combo) => {
       if(combo === 'Ctrl+KeyZ') {
@@ -63,7 +63,7 @@ export default function Topbar(props: {onClose: () => void; onFinish: () => void
         <ButtonIconTsx disabled={!mediaState.redoHistory.length} onClick={onRedo} icon="redo" />
       </div>
       <div
-        ref={doneButton}
+        ref={doneButton!}
         class="media-editor__topbar-done"
         classList={{
           'media-editor__topbar-done--disabled': !canFinish()

@@ -7,7 +7,7 @@ import showPickUserPopup from '@components/popups/pickUser';
 import getMediaFromMessage from '@appManagers/utils/messages/getMediaFromMessage';
 import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
 import {copyTextToClipboard} from '@helpers/clipboard';
-import {i18n, join} from '@lib/langPack';
+import {FormatterArguments, i18n, join} from '@lib/langPack';
 import {useAppConfig, useIsFrozen} from '@stores/appState';
 import {Message, User} from '@layer';
 import {createMemo, createRoot, Show} from 'solid-js';
@@ -29,7 +29,7 @@ async function resolveChatRightsActions(peerIdMids: {[fromPeerId: PeerId]: numbe
   const messagesPromises = Object.keys(peerIdMids).map((peerId) => {
     const mids = peerIdMids[peerId as any as number];
     return mids.map((mid) => {
-      return rootScope.managers.appMessagesManager.getMessageByPeer(peerId.toPeerId(), mid);
+      return rootScope.managers.appMessagesManager!.getMessageByPeer(peerId.toPeerId(), mid);
     });
   });
 
@@ -111,11 +111,11 @@ export default async function showForwardPopup(
     const fromPeerIdStr = Object.keys(peerIdMids)[0];
     const fromPeerId = fromPeerIdStr.toPeerId();
     const mid = peerIdMids[fromPeerIdStr as any as number][0];
-    const firstMessage = await rootScope.managers.appMessagesManager.getMessageByPeer(fromPeerId, mid) as Message.message;
+    const firstMessage = await rootScope.managers.appMessagesManager!.getMessageByPeer(fromPeerId, mid) as Message.message;
     canCopyLink = !!firstMessage?.pFlags?.post;
   }
 
-  const {message_length_max: MAX_MESSAGE_LENGTH} = await rootScope.managers.apiManager.getConfig();
+  const {message_length_max: MAX_MESSAGE_LENGTH} = await rootScope.managers.apiManager!.getConfig();
 
   const listenerSetter = new ListenerSetter();
   const sendMenuMiddleware = getMiddleware();
@@ -166,10 +166,10 @@ export default async function showForwardPopup(
   });
 
   const handleCopyLink = async() => {
-    const fromPeerIdStr = Object.keys(peerIdMids)[0];
+    const fromPeerIdStr = Object.keys(peerIdMids!)[0];
     const fromPeerId = fromPeerIdStr.toPeerId();
-    const mid = peerIdMids[fromPeerIdStr as any as number][0];
-    const username = await rootScope.managers.appPeersManager.getPeerUsername(fromPeerId);
+    const mid = peerIdMids![fromPeerIdStr as any as number][0];
+    const username = await rootScope.managers.appPeersManager!.getPeerUsername(fromPeerId);
     const msgId = getServerMessageId(mid);
     let url = 'https://t.me/';
     if(username) {
@@ -202,7 +202,7 @@ export default async function showForwardPopup(
     let success: boolean;
     if(openChat) {
       await appImManager.setInnerPeer({peerId, threadId, monoforumThreadId});
-      appImManager.chat.input.initMessagesForward(peerIdMids);
+      appImManager.chat.input.initMessagesForward(peerIdMids!);
     } else {
       const result = await ChatInput.sendMessageWithForward({
         inputField,
@@ -224,7 +224,7 @@ export default async function showForwardPopup(
       success = !!result;
     }
 
-    return success;
+    return success!;
   };
 
   const updateSendMenuPeerParams = () => {
@@ -276,10 +276,10 @@ export default async function showForwardPopup(
         if(peerIds.length !== 1) return false;
         const peerId = peerIds[0];
         if(peerId === rootScope.myId || !peerId.isUser()) return false;
-        if(!(await rootScope.managers.appUsersManager.isUserOnlineVisible(peerId.toUserId()))) {
+        if(!(await rootScope.managers.appUsersManager!.isUserOnlineVisible(peerId.toUserId()))) {
           return false;
         }
-        const user = await rootScope.managers.appUsersManager.getUser(peerId.toUserId()) as User.user;
+        const user = await rootScope.managers.appUsersManager!.getUser(peerId.toUserId()) as User.user;
         if(user?.pFlags?.bot) return false;
         return user?.status?._ !== 'userStatusOnline';
       },
@@ -344,13 +344,13 @@ export default async function showForwardPopup(
         });
         toastNew({
           langPackKey: messageCount === 1 ? 'FwdMessageTo' : 'FwdMessagesTo',
-          langPackArguments: peerTitles.length ? [join(boldPeerTitles)] : [i18n('FwdMessagesToChats', [sentToPeerIds.size])]
+          langPackArguments: (peerTitles.length ? [join(boldPeerTitles)] : [i18n('FwdMessagesToChats', [sentToPeerIds.size])]) as FormatterArguments
         });
       }
 
       // * deselect failed
       if(!openChat && succeeded.length !== chosen.length) {
-        handle.selector.removeBatch(succeeded.map(({key}) => key));
+        handle.selector!.removeBatch(succeeded.map(({key}) => key));
         throw new Error();
       }
     };
@@ -362,7 +362,7 @@ export default async function showForwardPopup(
     containerProps: {ref: (el) => popupContainerEl = el},
     onSelect,
     onChange: () => {
-      const selected = handle.selector.getSelected() ?? [];
+      const selected = handle.selector!.getSelected() ?? [];
       const peerIds = selected.filter((k): k is PeerId => k.isPeerId());
       starsState.set('selectedPeers', peerIds);
       updateSendMenuPeerParams();
@@ -377,7 +377,7 @@ export default async function showForwardPopup(
     ...(useIsFrozen() && {
       getMoreCustom: async() => {
         const appConfig = useAppConfig();
-        const peer = await rootScope.managers.appUsersManager.resolveUsername(appConfig.freeze_appeal_url.split('/').pop());
+        const peer = await rootScope.managers.appUsersManager!.resolveUsername(appConfig.freeze_appeal_url!.split('/').pop()!);
         return {
           result: [peer.id.toPeerId(peer._ !== 'user')],
           isEnd: true

@@ -42,7 +42,7 @@ export default class MovableElement extends EventListenerBase<{
   private _height: number;
 
   private swipeHandler: SwipeHandler;
-  private handlers: HTMLElement[];
+  private handlers: HTMLElement[] | undefined;
   private overlay: HTMLElement;
 
   constructor(options: MovableElementOptions) {
@@ -114,7 +114,7 @@ export default class MovableElement extends EventListenerBase<{
       startHeight: number,
       startExtraHeight: number,
       startExtraWidth: number,
-      resizingSide: ResizeSide;
+      resizingSide: ResizeSide | undefined;
     const swipeHandler = this.swipeHandler = new SwipeHandler({
       element: this.element,
       onSwipe: (xDiff, yDiff, e) => {
@@ -299,8 +299,8 @@ export default class MovableElement extends EventListenerBase<{
 
   public set state(state: MovableState) {
     const {top, left, width, height} = state;
-    this.top = top;
-    this.left = left;
+    this.top = top!;
+    this.left = left!;
     this.width = width;
     this.height = height;
     this.onResize();

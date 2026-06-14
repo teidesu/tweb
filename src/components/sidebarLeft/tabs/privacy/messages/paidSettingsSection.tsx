@@ -20,7 +20,7 @@ const PaidSettingsSection: Component<{
   const [tab, {AppAddMembersTab}] = useSuperTab();
   const {i18n, join, Row} = useHotReloadGuard();
 
-  const {commissionPercents, willReceiveDollars} = useStarsCommissionAndWithdrawalPrice(() => props.store.stars);
+  const {commissionPercents, willReceiveDollars} = useStarsCommissionAndWithdrawalPrice(() => props.store.stars!);
 
   const onExceptionsClick = () => {
     tab.slider.createTab(AppAddMembersTab).open({
@@ -31,20 +31,20 @@ const PaidSettingsSection: Component<{
       takeOut: (newPeerIds) => {
         props.setStore('chosenPeers', newPeerIds);
       },
-      selectedPeerIds: [...props.store.chosenPeers]
+      selectedPeerIds: [...props.store.chosenPeers!]
     });
   };
 
 
   const chosenPeersLabel = () => {
-    if(!props.store.chosenPeers.length) return i18n('PrivacySettingsController.AddUsers');
+    if(!props.store.chosenPeers!.length) return i18n('PrivacySettingsController.AddUsers');
 
     const {users, chats} = props.chosenPeersByType;
 
-    return join([
+    return join(([
       users.length ? i18n('Users', [users.length]) : null,
       chats.length ? i18n('Chats', [chats.length]) : null
-    ].filter(Boolean), false);
+    ].filter(Boolean)! as (string | Node)[]), false);
   };
 
   return (
@@ -72,7 +72,7 @@ const PaidSettingsSection: Component<{
               willReceiveDollars()
             ]}
           >
-            <StarRangeInput value={props.store.stars} onChange={props.setStore.bind(null, 'stars')} />
+            <StarRangeInput value={props.store.stars!} onChange={props.setStore.bind(null, 'stars')} />
           </Section>
 
           <Section name="PrivacyExceptions" caption="PaidMessages.RemoveFeeDescription">

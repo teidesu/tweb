@@ -10,7 +10,7 @@ export default function whichChild(elem: Node, countNonElements?: boolean) {
   }
 
   let i = 0, element = elem as Element;
-  while((element = element.previousElementSibling) !== null) {
+  while((element = element.previousElementSibling!) !== null) {
     if(!isScrollableThumbContainer(element)) ++i;
   }
   return i;

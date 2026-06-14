@@ -36,11 +36,11 @@ export default class AppStatisticsManager extends AppManager {
   private processPublicForwards = (statsPublicForwards: StatsPublicForwards) => {
     this.appPeersManager.saveApiPeers(statsPublicForwards);
     statsPublicForwards.forwards.forEach((publicForward) => {
-      (publicForward as PublicForward.publicForwardMessage).message = this.appMessagesManager.saveMessage((publicForward as PublicForward.publicForwardMessage).message);
-      (publicForward as PublicForward.publicForwardStory).story = (publicForward as PublicForward.publicForwardStory).story && this.appStoriesManager.saveStoryItem(
+      (publicForward as PublicForward.publicForwardMessage).message = this.appMessagesManager.saveMessage((publicForward as PublicForward.publicForwardMessage).message)!;
+      (publicForward as PublicForward.publicForwardStory).story = ((publicForward as PublicForward.publicForwardStory).story && this.appStoriesManager.saveStoryItem(
         (publicForward as PublicForward.publicForwardStory).story,
         this.appStoriesManager.getPeerStoriesCache(this.appPeersManager.getPeerId((publicForward as PublicForward.publicForwardStory).peer))
-      );
+      ))!;
     });
     return statsPublicForwards;
   };
@@ -62,7 +62,7 @@ export default class AppStatisticsManager extends AppManager {
 
         return {
           stats,
-          dcId: options.dcId
+          dcId: options.dcId!
         };
       },
       options
@@ -111,8 +111,8 @@ export default class AppStatisticsManager extends AppManager {
       method: 'stats.getMessagePublicForwards',
       params: {
         channel: this.appChatsManager.getChannelInput(params.peerId.toChatId()),
-        msg_id: getServerMessageId(params.mid),
-        offset: params.offset,
+        msg_id: getServerMessageId(params.mid)!,
+        offset: params.offset!,
         limit: params.limit
       },
       processResult: this.processPublicForwards,
@@ -127,7 +127,7 @@ export default class AppStatisticsManager extends AppManager {
       params: {
         channel: this.appChatsManager.getChannelInput(params.peerId.toChatId()),
         dark: params.dark,
-        msg_id: getServerMessageId(params.mid)
+        msg_id: getServerMessageId(params.mid!)!
       },
       processResult: (stats) => {
         return {
@@ -146,7 +146,7 @@ export default class AppStatisticsManager extends AppManager {
       params: {
         peer: this.appPeersManager.getInputPeerById(params.peerId),
         dark: params.dark,
-        id: params.storyId
+        id: params.storyId!
       },
       processResult: (stats) => {
         return {
@@ -171,7 +171,7 @@ export default class AppStatisticsManager extends AppManager {
         peer: this.appPeersManager.getInputPeerById(params.peerId),
         id: params.id,
         limit: params.limit,
-        offset: params.offset
+        offset: params.offset!
       },
       processResult: this.processPublicForwards,
       options

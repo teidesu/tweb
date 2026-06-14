@@ -100,13 +100,13 @@ const QuestionAndDescription = () => {
   const {maxQuestionLength, maxDescriptionLength} = useCreatePollLimits();
   const supportsMedia = useSupportsMedia();
 
-  const questionError = useMaxLengthError(() => context.store.question, maxQuestionLength);
+  const questionError = useMaxLengthError(() => context!.store.question, maxQuestionLength);
 
   const questionInput = new InputField({
     canWrapCustomEmojis: true,
     onRawInput: () => {
       const {value, entities} = getRichValueWithCaret(questionInput.input);
-      context.setStore({
+      context!.setStore({
         question: value,
         questionEntities: entities
       });
@@ -121,7 +121,7 @@ const QuestionAndDescription = () => {
     withLinebreaks: true,
     onRawInput: () => {
       const {value, entities} = getRichValueWithCaret(descriptionInput.input);
-      context.setStore({
+      context!.setStore({
         description: value,
         descriptionEntities: entities
       });
@@ -133,7 +133,7 @@ const QuestionAndDescription = () => {
   return (
     <>
       <SimpleFormField
-        value={context.store.question}
+        value={context!.store.question}
         class={classNames(styles.flexFull, styles.formField)}
         withEndButtonIcon
         withMinHeight
@@ -158,7 +158,7 @@ const QuestionAndDescription = () => {
       <Space amount='1rem' class={styles.flexFull} />
 
       <SimpleFormField
-        value={context.store.description}
+        value={context!.store.description}
         class={classNames(styles.flexFull, styles.formField)}
         withEndButtonIcon
         withMinHeight
@@ -175,7 +175,7 @@ const QuestionAndDescription = () => {
         <Show when={supportsMedia('photo') || supportsMedia('video')}>
           <SimpleFormField.WithAutoLengthCounter
             maxLength={maxDescriptionLength()}
-            first={!context.store.descriptionAttachment}
+            first={!context!.store.descriptionAttachment}
             last
             withFixedIcon
           >
@@ -187,9 +187,9 @@ const QuestionAndDescription = () => {
                 ...(supportsMedia('gif') ? ['gif'] as const : []) // GIF is additional to photo
               ]}
               imgClass={styles.mediaAttachmentImage}
-              attachedMedia={context.store.descriptionAttachment}
+              attachedMedia={context!.store.descriptionAttachment}
               onAttach={(value) => {
-                context.setStore('descriptionAttachment', value);
+                context!.setStore('descriptionAttachment', value);
               }}
             />
           </SimpleFormField.WithAutoLengthCounter>
@@ -222,7 +222,7 @@ const BodyContent = () => {
 
           <Space amount='0.5rem' />
 
-          <PollOptionsSectionContent scrollable={scrollable()} />
+          <PollOptionsSectionContent scrollable={scrollable()!} />
         </div>
       </div>
 

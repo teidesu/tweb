@@ -19,7 +19,7 @@ function formatValueByPattern(
   if(!pattern) {
     return {
       value: value,
-      selection: null as typeof options,
+      selection: null as unknown as typeof options,
       autocorrectComplete: !!value
     };
   }
@@ -33,8 +33,8 @@ function formatValueByPattern(
   let f = options.selectionStart === 0 ? 0 : null;
   let d = options.selectionEnd === 0 ? 0 : null;
   const p = () => {
-    if(f === null && (i + 1) >= options.selectionStart) f = accumulateLengths(c) + (pushRest ? s.length : 0);
-    if(d === null && (i + 1) >= options.selectionEnd) d = accumulateLengths(c) + (pushRest ? s.length : 0);
+    if(f === null && (i + 1) >= options.selectionStart!) f = accumulateLengths(c) + (pushRest ? s.length : 0);
+    if(d === null && (i + 1) >= options.selectionEnd!) d = accumulateLengths(c) + (pushRest ? s.length : 0);
   };
   const m = (e: number) => {
     if(e > 0) {

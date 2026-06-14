@@ -4,7 +4,7 @@ import {subscribeOn} from '@helpers/solid/subscribeOn';
 import {NULL_PEER_ID} from '@appManagers/constants';
 
 export function useCurrentRtmpCall() {
-  const [call, setCall] = createSignal<RtmpCallInstance>(rtmpCallsController.currentCall, {equals: false});
+  const [call, setCall] = createSignal<RtmpCallInstance>(rtmpCallsController.currentCall!, {equals: false});
   const [peerId, setPeerId] = createSignal<PeerId>(NULL_PEER_ID);
 
   subscribeOn(rtmpCallsController)('currentCallChanged', (call) => {

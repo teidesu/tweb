@@ -68,23 +68,23 @@ const ChatFolders: Component = () => {
         else if(pFlags.broadcasts) k = 'FilterAllChannels';
         else if(pFlags.bots) k = 'FilterAllBots';
 
-        if(k) {
-          d.push(i18n(k));
+        if(k!) {
+          d.push(i18n(k)!);
         }
       }
 
       if(!d.length) {
-        const folder = await tab.managers.dialogsStorage.getFolderDialogs(filter.id);
+        const folder = await tab.managers.dialogsStorage!.getFolderDialogs(filter.id);
         let chats = 0, channels = 0, groups = 0;
-        await Promise.all(folder.map(async(dialog) => {
-          if(await tab.managers.appPeersManager.isAnyGroup(dialog.peerId)) ++groups;
-          else if(await tab.managers.appPeersManager.isBroadcast(dialog.peerId)) ++channels;
+        await Promise.all(folder!.map(async(dialog) => {
+          if(await tab.managers.appPeersManager!.isAnyGroup(dialog.peerId!)) ++groups;
+          else if(await tab.managers.appPeersManager!.isBroadcast(dialog.peerId!)) ++channels;
           else ++chats;
         }));
 
-        if(chats) d.push(i18n('Chats', [chats]));
-        if(channels) d.push(i18n('Channels', [channels]));
-        if(groups) d.push(i18n('Groups', [groups]));
+        if(chats) d.push(i18n('Chats', [chats])!);
+        if(channels) d.push(i18n('Channels', [channels])!);
+        if(groups) d.push(i18n('Groups', [groups])!);
       }
     }
 
@@ -106,7 +106,7 @@ const ChatFolders: Component = () => {
         if(!filtersRendered[filter.id] && filter.id !== FOLDER_ID_ALL) {
           const initArgs = AppEditFolderTab.getInitArgs();
           attachClickEvent(row.container, async() => {
-            const filter = await tab.managers.filtersStorage.getFilter(filterId);
+            const filter = await tab.managers.filtersStorage!.getFilter(filterId);
             tab.slider.createTab(AppEditFolderTab).open({...initArgs, initFilter: filter});
           }, {listenerSetter: tab.listenerSetter});
         }
@@ -130,7 +130,7 @@ const ChatFolders: Component = () => {
       const localId = (filter as MyDialogFilter).localId;
       if(localId !== undefined) {
         // ! header will be at 0 index
-        positionElementByIndex(div, div.parentElement || container, localId);
+        positionElementByIndex(div, (div.parentElement || container)!, localId);
       } else if(container) {
         container.append(div);
       }
@@ -146,8 +146,8 @@ const ChatFolders: Component = () => {
 
   const canCreateFolder = async() => {
     const [limit, filters] = await Promise.all([
-      tab.managers.apiManager.getLimit('folders'),
-      tab.managers.filtersStorage.getDialogFilters()
+      tab.managers.apiManager!.getLimit('folders'),
+      tab.managers.filtersStorage!.getDialogFilters()
     ]);
 
     const filtersLength = filters.filter((filter) => !REAL_FOLDERS.has(filter.id)).length;
@@ -155,7 +155,7 @@ const ChatFolders: Component = () => {
   };
 
   const getSuggestedFilters = () => {
-    return tab.managers.filtersStorage.getSuggestedDialogsFilters().then(async(suggestedFilters) => {
+    return tab.managers.filtersStorage!.getSuggestedDialogsFilters().then(async(suggestedFilters) => {
       setSuggestedHidden(!suggestedFilters.length);
       Array.from(suggestedContent.children).slice(1).forEach((el) => el.remove());
 
@@ -179,7 +179,7 @@ const ChatFolders: Component = () => {
           f.excludePeerIds = [];
           f.pinnedPeerIds = [];
 
-          tab.managers.filtersStorage.createDialogFilter(f, true).then(() => {
+          tab.managers.filtersStorage!.createDialogFilter(f, true).then(() => {
             row.container.remove();
             setSuggestedHidden(suggestedContent.childElementCount === 1);
           }).finally(() => {
@@ -244,7 +244,7 @@ const ChatFolders: Component = () => {
     tab.listenerSetter.add(rootScope)('filter_update', async(filter) => {
       const filterRendered = filtersRendered[filter.id];
       if(filterRendered) {
-        await renderFolder(filter, null, filterRendered);
+        await renderFolder(filter, null as unknown as HTMLElement, filterRendered);
       } else if(filter.id !== FOLDER_ID_ARCHIVE) {
         await renderFolder(filter, list, undefined, true);
       }
@@ -269,7 +269,7 @@ const ChatFolders: Component = () => {
       order.filter((filterId) => !!filtersRendered[filterId]).forEach((filterId, idx) => {
         const filterRendered = filtersRendered[filterId];
         const container = filterRendered.container;
-        positionElementByIndex(container, container.parentElement, idx + 1); // ! + 1 due to header
+        positionElementByIndex(container, container.parentElement!, idx + 1); // ! + 1 due to header
       });
     });
 
@@ -309,7 +309,7 @@ const ChatFolders: Component = () => {
           indexOfAndSplice(order, FOLDER_ID_ALL);
         }
 
-        tab.managers.filtersStorage.updateDialogFiltersOrder(order);
+        tab.managers.filtersStorage!.updateDialogFiltersOrder(order);
       },
       scrollable: tab.scrollable
     });

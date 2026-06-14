@@ -9,7 +9,7 @@ export default function isForwardOfForward(message: Message) {
   }
 
   const fwdFromName = getFwdFromName(fwdFrom);
-  const fwdFromId = getPeerId(fwdFrom.from_id);
+  const fwdFromId = getPeerId(fwdFrom.from_id!);
   return !!(fwdFromName && (fwdFromId || (fwdFrom.from_name && fwdFrom.saved_from_name && fwdFrom.from_name !== fwdFrom.saved_from_name))) ||
     !!(fwdFrom.saved_from_id/*  && getPeerId(fwdFrom.saved_from_id) !== fwdFromId */);
 }

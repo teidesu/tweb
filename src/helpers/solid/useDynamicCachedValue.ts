@@ -17,17 +17,17 @@ export default function useDynamicCachedValue<T>(cacheKey: Accessor<string>, fac
     if(!entry) {
       entry = {count: 0, factory};
       entry.value = createRoot((dispose) => {
-        entry.dispose = dispose;
+        entry!.dispose = dispose;
         return factory();
       });
       cache.set(currentKey, entry);
     }
 
-    ++entry.count;
+    ++entry.count!;
 
     onCleanup(() => {
-      if(!--entry.count) {
-        entry.dispose();
+      if(!--entry.count!) {
+        entry.dispose!();
         cache.delete(currentKey);
       }
     });

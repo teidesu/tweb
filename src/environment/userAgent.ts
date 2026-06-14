@@ -6,7 +6,7 @@ export const IS_ANDROID = navigator.userAgent.toLowerCase().indexOf('android') !
 export const IS_CHROMIUM = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
 export const CHROMIUM_VERSION = (() => {
   try {
-    return +navigator.userAgent.match(/Chrom(?:e|ium)\/(.+?)(?:\s|\.)/)[1];
+    return +navigator.userAgent.match(/Chrom(?:e|ium)\/(.+?)(?:\s|\.)/)![1];
   } catch(err) {
   }
 })();

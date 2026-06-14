@@ -17,7 +17,7 @@ type Props = {
   onChange?: (type: ChatType) => void;
 };
 
-const langKeyMap: Record<ChatType, LangPackKey> = {
+const langKeyMap: Record<NonNullable<ChatType>, LangPackKey> = {
   'all': 'AllChats',
   'users': 'UsersOnly',
   'groups': 'GroupsOnly',
@@ -34,7 +34,7 @@ const ChatTypeMenu = defineSolidElement({
     const options: ButtonMenuItemOptions[] = keys.map(key => ({
       id: key,
       emptyIcon: true,
-      text: langKeyMap[key],
+      text: langKeyMap[key!],
       onClick: () => {
         props.selected = key;
         props.onChange?.(key);

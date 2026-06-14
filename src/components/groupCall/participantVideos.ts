@@ -51,24 +51,24 @@ export default class GroupCallParticipantsVideoElement extends ControlsHover {
     listenerSetter.add(this.instance)('pinned', (source) => {
       this.participantsElements.forEach((map) => {
         map.forEach((element) => {
-          this.setElementDisplay(element, source);
+          this.setElementDisplay(element, source!);
         });
       });
     });
 
     attachClickEvent(this.container, (e) => {
-      const container = findUpClassName(e.target, 'group-call-participant-video-container');
+      const container = findUpClassName(e.target!, 'group-call-participant-video-container');
       if(!container) {
         return;
       }
 
       const element = this.containers.get(container);
-      if(this.instance.pinnedSource === element.source) {
+      if(this.instance.pinnedSource === element!.source) {
         this.instance.unpinAll();
         return;
       }
 
-      this.instance.pinSource(element.source);
+      this.instance.pinSource(element!.source);
     }, {listenerSetter});
 
     this.setInstance(this.instance);
@@ -135,12 +135,12 @@ export default class GroupCallParticipantsVideoElement extends ControlsHover {
         this.container.prepend(element.container);
       } else {
         participantElements.delete(type);
-        element.container.remove();
+        element!.container.remove();
 
         if(!participantElements.size) {
           this.participantsElements.delete(peerId);
-          this.containers.delete(element.container);
-          element.destroy();
+          this.containers.delete(element!.container);
+          element!.destroy();
         }
       }
 

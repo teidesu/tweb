@@ -54,7 +54,7 @@ export default class AutocompletePeerHelper extends AutocompleteHelper {
       }
 
       this.init();
-      this.init = null;
+      this.init = null!;
     }
 
     if(data.length) {

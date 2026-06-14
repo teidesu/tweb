@@ -180,7 +180,7 @@ export default class CallInstance extends CallInstanceBase<{
 
   public createdParticipantEntries: boolean;
   public release: () => Promise<void>;
-  public _connectionState: CALL_STATE;
+  public _connectionState: CALL_STATE | undefined;
 
   public createdAt: number;
   public connectedAt: number;
@@ -193,7 +193,7 @@ export default class CallInstance extends CallInstanceBase<{
   public wasTryingToJoin: boolean;
 
   private managers: AppManagers;
-  private hangUpTimeout: number;
+  private hangUpTimeout: number | undefined;
 
   private joined: boolean;
   private p2pConnectionState: RTCPeerConnectionState;
@@ -202,12 +202,12 @@ export default class CallInstance extends CallInstanceBase<{
 
   private decryptQueue: Uint8Array[];
 
-  private getEmojisFingerprintPromise: Promise<CallInstance['emojisFingerprint']>;
+  private getEmojisFingerprintPromise: Promise<CallInstance['emojisFingerprint']> | undefined;
   private emojisFingerprint: [string, string, string, string];
 
   // Live tgcalls v2 P2P engine state; undefined until joinPhoneCall, cleared by
   // stopPhoneCall. `!this.p2p` means the engine is not running.
-  private p2p: State;
+  private p2p: State | undefined;
 
   // CallInstanceBase hook for mid-call device swap. We walk our single
   // RTCPeerConnection's senders and rebind whichever is currently shipping
@@ -558,7 +558,7 @@ export default class CallInstance extends CallInstanceBase<{
 
     const call = this.call as PhoneCall.phoneCallRequested;
     const g_a_hash = call.g_a_hash;
-    this.managers.appCallsManager.generateDh().then(async(dh) => {
+    this.managers.appCallsManager!.generateDh().then(async(dh) => {
       this.dh = { // ! it is correct
         g_a_hash,
         b: dh.a,
@@ -567,13 +567,13 @@ export default class CallInstance extends CallInstanceBase<{
         p: dh.p
       };
 
-      return this.managers.apiManager.invokeApi('phone.acceptCall', {
-        peer: await this.managers.appCallsManager.getCallInput(this.id),
+      return this.managers.apiManager!.invokeApi('phone.acceptCall', {
+        peer: await this.managers.appCallsManager!.getCallInput(this.id),
         protocol: this.protocol,
-        g_b: this.dh.g_b
+        g_b: this.dh.g_b!
       });
     }).then(async(phonePhoneCall) => {
-      await this.managers.appCallsManager.savePhonePhoneCall(phonePhoneCall);
+      await this.managers.appCallsManager!.savePhonePhoneCall(phonePhoneCall);
     }).catch((err) => {
       this.log.error('accept call error', err);
       this.hangUp('phoneCallDiscardReasonHangup');
@@ -585,21 +585,21 @@ export default class CallInstance extends CallInstanceBase<{
     const dh = this.dh as DiffieHellmanInfo.a;
 
     this.overrideConnectionState(CALL_STATE.EXCHANGING_KEYS);
-    const {key, key_fingerprint} = await this.managers.appCallsManager.computeKey(
+    const {key, key_fingerprint} = await this.managers.appCallsManager!.computeKey(
       (call as PhoneCall.phoneCallAccepted).g_b,
       dh.a,
       dh.p
     );
 
-    const phonePhoneCall = await this.managers.apiManager.invokeApi('phone.confirmCall', {
-      peer: await this.managers.appCallsManager.getCallInput(id),
+    const phonePhoneCall = await this.managers.apiManager!.invokeApi('phone.confirmCall', {
+      peer: await this.managers.appCallsManager!.getCallInput(id),
       protocol: protocol,
       g_a: dh.g_a,
       key_fingerprint: key_fingerprint
     });
 
     this.encryptionKey = key;
-    await this.managers.appCallsManager.savePhonePhoneCall(phonePhoneCall);
+    await this.managers.appCallsManager!.savePhonePhoneCall(phonePhoneCall);
     this.joinCall();
   }
 
@@ -670,8 +670,8 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   private async sendSignalingRaw(packet: number[] | Uint8Array) {
-    await this.managers.apiManager.invokeApi('phone.sendSignalingData', {
-      peer: await this.managers.appCallsManager.getCallInput(this.id),
+    await this.managers.apiManager!.invokeApi('phone.sendSignalingData', {
+      peer: await this.managers.appCallsManager!.getCallInput(this.id),
       data: packet instanceof Uint8Array ? packet : new Uint8Array(packet)
     });
   }
@@ -739,8 +739,8 @@ export default class CallInstance extends CallInstanceBase<{
     return this.getEmojisFingerprintPromise = apiManagerProxy.invokeCrypto(
       'get-emojis-fingerprint',
       this.encryptionKey,
-      this.dh.g_a
-    ).then((codePoints) => {
+      this.dh.g_a!
+    )!.then((codePoints) => {
       this.getEmojisFingerprintPromise = undefined;
       return this.emojisFingerprint = codePoints.map(
         (codePoints) => emojiFromCodePoints(codePoints)
@@ -749,7 +749,7 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   public overrideConnectionState(state?: CALL_STATE) {
-    this._connectionState = state;
+    this._connectionState = state!;
     this.dispatchEvent('state', this.connectionState);
   }
 
@@ -789,7 +789,7 @@ export default class CallInstance extends CallInstanceBase<{
     }
 
     if(discardReason && !discardedByOtherParty) {
-      await this.managers.appCallsManager.discardCall(this.id, this.duration, discardReason, hasVideo);
+      await this.managers.appCallsManager!.discardCall(this.id, this.duration, discardReason, hasVideo);
     }
   }
 
@@ -1619,10 +1619,10 @@ export default class CallInstance extends CallInstanceBase<{
         const contents = localDescription?.sdp ?
           this.parseAnswerContents(localDescription.sdp, pendingRemoteNegotiation.contents, this.getMediaMids()) : [];
 
-        this.updateRemoteMediaStateFromOffer(contents);
+        this.updateRemoteMediaStateFromOffer((contents! as P2PMediaContent[]));
         this.log('send local answer negotiation', {
           exchangeId: pendingRemoteNegotiation.exchangeId,
-          contents: summarizeContents(contents),
+          contents: summarizeContents((contents! as P2PMediaContent[])),
           sdp: localDescription?.sdp ? summarizeSdp(localDescription.sdp) : undefined,
           transceivers: this.summarizeTransceivers()
         });
@@ -1630,7 +1630,7 @@ export default class CallInstance extends CallInstanceBase<{
         this.sendCallSignalingData({
           '@type': 'NegotiateChannels',
           'exchangeId': pendingRemoteNegotiation.exchangeId,
-          contents
+          'contents': (contents! as P2PMediaContent[])
         });
 
         if(this.shouldSendLocalOfferAfterRemoteAnswer()) {

@@ -57,9 +57,9 @@ export async function wrapReplyMedia({
 }: WrapReplyMediaOptions): Promise<{setMedia: boolean, isRound: boolean}> {
   loadPromises ??= [];
 
-  let messageMedia: MessageMedia | WebPage.webPage = storyItem?.media ||
+  let messageMedia: MessageMedia | WebPage.webPage = ((storyItem?.media ||
     (message as Message.message)?.media ||
-    (replyHeader?._ === 'messageReplyHeader' && replyHeader.reply_media);
+    (replyHeader?._ === 'messageReplyHeader' && replyHeader.reply_media))! as MessageMedia | WebPage.webPage);
 
   if(messageMedia?._ === 'messageMediaStory') {
     storyItem = messageMedia.story as StoryItem.storyItem;
@@ -72,9 +72,9 @@ export async function wrapReplyMedia({
   }
 
   messageMedia = (messageMedia as MessageMedia.messageMediaWebPage).webpage as WebPage.webPage || messageMedia;
-  const photo = (messageMedia as MessageMedia.messageMediaPhoto).photo as Photo.photo;
-  const document = (messageMedia as MessageMedia.messageMediaDocument).document as Document.document;
-  const spoiler = (messageMedia as MessageMedia.messageMediaPhoto | MessageMedia.messageMediaDocument)?.pFlags?.spoiler;
+  const photo = (messageMedia as unknown as MessageMedia.messageMediaPhoto).photo as Photo.photo;
+  const document = (messageMedia as unknown as MessageMedia.messageMediaDocument).document as Document.document;
+  const spoiler = (messageMedia as unknown as MessageMedia.messageMediaPhoto | MessageMedia.messageMediaDocument)?.pFlags?.spoiler;
 
   if(!photo && !(document && document.thumbs?.length)) {
     return {setMedia, isRound};
@@ -102,7 +102,7 @@ export async function wrapReplyMedia({
       lazyLoadQueue: lazyLoadQueue || undefined,
       noPlayButton: true,
       noInfo: true,
-      middleware,
+      middleware: middleware!,
       loadPromises,
       withoutPreloader: true,
       videoSize: document.video_thumbs[0] as Extract<VideoSize, VideoSize.videoSize>,
@@ -132,10 +132,10 @@ export async function wrapReplyMedia({
           width: size,
           height: size,
           multiply: 0.1,
-          middleware,
-          animationGroup
+          middleware: middleware!,
+          animationGroup: animationGroup!
         });
-        mediaEl.append(spoilerEl);
+        mediaEl.append(spoilerEl!);
       }
 
       setMedia = true;
@@ -180,7 +180,7 @@ export async function wrapReplyDivAndCaption(options: {
     replaceContent(titleEl, wrappedTitle);
   } else if(options.isStoryExpired) {
     const icon = Icon('bomb', 'expired-story-icon');
-    titleEl.append(icon, i18n('ExpiredStory'));
+    titleEl.append(icon, i18n('ExpiredStory')!);
   }
 
   const isMessageReply = replyHeader?._ === 'messageReplyHeader';
@@ -193,7 +193,7 @@ export async function wrapReplyDivAndCaption(options: {
   }
 
   if(isMessageReply && replyHeader.poll_option && message?._ === 'message' && message.media?._ === 'messageMediaPoll') {
-    const pollOption = message.media.poll.answers.find(answer => answer._ === 'pollAnswer' && compareUint8Arrays(replyHeader.poll_option, answer.option));
+    const pollOption = message.media.poll.answers.find(answer => answer._ === 'pollAnswer' && compareUint8Arrays(replyHeader.poll_option!, answer.option));
     if(pollOption) {
       quoteIcon = Icon('checkround_filled');
       quote ??= {
@@ -225,10 +225,10 @@ export async function wrapReplyDivAndCaption(options: {
 
     replaceContent(subtitleEl, wrappedSubtitle || '');
   } else if(storyItem && options.storyItem) {
-    subtitleEl.replaceChildren(i18n('Story'));
+    subtitleEl.replaceChildren(i18n('Story')!);
   } else if(options.isStoryExpired) {
     const icon = Icon('bomb', 'expired-story-icon');
-    subtitleEl.replaceChildren(icon, i18n('ExpiredStory'));
+    subtitleEl.replaceChildren(icon, i18n('ExpiredStory')!);
   } else if(quote) {
     const fragment = wrapRichText(limitSymbols(quote.text, 200), {
       ...options,
@@ -239,7 +239,7 @@ export async function wrapReplyDivAndCaption(options: {
     });
 
     subtitleEl.classList.add('with-icon');
-    subtitleEl.replaceChildren(...[quoteIcon, fragment].filter(Boolean));
+    subtitleEl.replaceChildren(...([quoteIcon, fragment].filter(Boolean) as Node[]));
   } else if(message) {
     const fragment = await wrapMessageForReply(options);
     subtitleEl.replaceChildren(fragment);

@@ -47,9 +47,9 @@ export default class PopupGiftLink extends PopupElement {
   }
 
   private _construct(dotsCanvas: HTMLElement) {
-    const isUsed = !!this.checkedGiftCode.used_date;
+    const isUsed = !!this.checkedGiftCode!.used_date;
     const titleLangKey: LangPackKey = isUsed ? 'BoostingUsedGiftLink' : 'BoostingGiftLink';
-    this.title.replaceChildren(i18n(titleLangKey));
+    this.title.replaceChildren(i18n(titleLangKey)!);
 
     const url = this.isInChat && !isUsed ? '' : 'https://t.me/giftcode/' + this.slug;
 
@@ -58,9 +58,9 @@ export default class PopupGiftLink extends PopupElement {
       listenerSetter: this.listenerSetter,
       url,
       noRightButton: !url,
-      onClick: !url && (() => {
+      onClick: (!url ? (() => {
         toastNew({langPackKey: 'BoostingOnlyRecipientCode'});
-      })
+      }) : undefined)
     });
 
     if(dotsCanvas) {
@@ -79,20 +79,20 @@ export default class PopupGiftLink extends PopupElement {
       />
     );
 
-    const isGiveaway = this.checkedGiftCode.pFlags.via_giveaway;
+    const isGiveaway = this.checkedGiftCode!.pFlags.via_giveaway;
 
-    const fromPeerId = getPeerId(this.checkedGiftCode.from_id);
-    const toPeerId = this.checkedGiftCode.to_id && getPeerId(this.checkedGiftCode.to_id);
+    const fromPeerId = getPeerId(this.checkedGiftCode!.from_id!);
+    const toPeerId = this.checkedGiftCode!.to_id && getPeerId(this.checkedGiftCode!.to_id);
 
-    const giveawayAnchor = this.checkedGiftCode.giveaway_msg_id || isGiveaway ? document.createElement('a') : undefined;
+    const giveawayAnchor = this.checkedGiftCode!.giveaway_msg_id || isGiveaway ? document.createElement('a') : undefined;
     if(giveawayAnchor) {
       giveawayAnchor.href = '#';
-      giveawayAnchor.append(i18n('BoostingIncompleteGiveaway'));
+      giveawayAnchor.append(i18n('BoostingIncompleteGiveaway')!);
       attachClickEvent(giveawayAnchor, () => {
         this.hideWithCallback(() => {
           appImManager.setInnerPeer({
             peerId: fromPeerId,
-            lastMsgId: this.checkedGiftCode.giveaway_msg_id
+            lastMsgId: this.checkedGiftCode!.giveaway_msg_id
           });
         });
       }, {listenerSetter: this.listenerSetter});
@@ -107,9 +107,9 @@ export default class PopupGiftLink extends PopupElement {
     let content: [LangPackKey, JSX.Element][] = [
       ['BoostingFrom', makePeer(fromPeerId)],
       ['BoostingTo', toPeerId ? makePeer(toPeerId) : i18n('BoostingNoRecipient')],
-      ['BoostingGift', i18n('BoostingTelegramPremiumFor', [formatDaysDuration(this.checkedGiftCode.days)])],
-      !this.isInChat && ['BoostingReason', reasonValue],
-      ['BoostingDate', formatFullSentTime(this.checkedGiftCode.date, undefined, true)]
+      ['BoostingGift', i18n('BoostingTelegramPremiumFor', [formatDaysDuration(this.checkedGiftCode!.days)!])],
+      ((!this.isInChat && ['BoostingReason', reasonValue])! as [LangPackKey, JSX.Element]),
+      ['BoostingDate', formatFullSentTime(this.checkedGiftCode!.date, undefined, true)]
     ];
     content = content.filter(Boolean);
 
@@ -124,7 +124,7 @@ export default class PopupGiftLink extends PopupElement {
     const ret = (
       <div class="popup-gift-link-wrapper">
         <div class="popup-gift-link-header">
-          <img ref={img} class="popup-gift-link-image" />
+          <img ref={img!} class="popup-gift-link-image" />
           <div class="popup-gift-link-title">{i18n(titleLangKey)}</div>
           <div class="popup-gift-link-subtitle">
             {
@@ -142,8 +142,8 @@ export default class PopupGiftLink extends PopupElement {
         {(!this.isInChat || !isUsed) && (
           <div class="popup-gift-link-share">
             {isUsed ?
-              i18n('BoostingUsedLinkDate', [formatFullSentTime(this.checkedGiftCode.used_date, undefined, true)]) :
-              this.isInChat && !this.checkedGiftCode.slug ?
+              i18n('BoostingUsedLinkDate', [formatFullSentTime(this.checkedGiftCode!.used_date!, undefined, true)]) :
+              this.isInChat && !this.checkedGiftCode!.slug ?
                 i18n('BoostingLinkNotActivated') :
                 i18n(toPeerId ? 'Giveaway.SendLinkToFriend' : 'Giveaway.SendLinkToAnyone', [shareLink])
             }
@@ -152,10 +152,10 @@ export default class PopupGiftLink extends PopupElement {
       </div>
     );
 
-    renderImageFromUrl(img, `assets/img/premium-star${window.devicePixelRatio > 1 ? '@2x' : ''}.png`);
+    renderImageFromUrl(img!, `assets/img/premium-star${window.devicePixelRatio > 1 ? '@2x' : ''}.png`);
 
     const canUseLink = !this.isInChat && !isUsed;
-    this.btnConfirm.append(i18n(!canUseLink ? 'OK' : 'BoostingUseLink'));
+    this.btnConfirm.append(i18n(!canUseLink ? 'OK' : 'BoostingUseLink')!);
     this.btnConfirm.classList.add('popup-boosts-button');
     this.footer.append(this.btnConfirm);
     this.body.after(this.footer);
@@ -174,7 +174,7 @@ export default class PopupGiftLink extends PopupElement {
   }
 
   private async construct() {
-    this.checkedGiftCode ??= await this.managers.appPaymentsManager.checkGiftCode(this.slug);
+    this.checkedGiftCode ??= await this.managers.appPaymentsManager!.checkGiftCode(this.slug);
     if(shouldDisplayGiftCodeAsGift(this.checkedGiftCode)) {
       this.destroy();
       PopupPremium.show({
@@ -220,13 +220,13 @@ export default class PopupGiftLink extends PopupElement {
   public static async applyGiftCode(slug: string, button: HTMLElement, popup: PopupElement) {
     const toggle = toggleDisability(button, true);
     try {
-      await PopupElement.MANAGERS.appPaymentsManager.applyGiftCode(slug);
+      await PopupElement.MANAGERS.appPaymentsManager!.applyGiftCode(slug);
       popup.hide();
       toastNew({langPackKey: 'GiftLink.UseSuccess'});
     } catch(err) {
       if((err as ApiError).type.includes('PREMIUM_SUB_ACTIVE_UNTIL_')) {
         popup.hide();
-        const timestamp = +(err as ApiError).type.split('_').pop();
+        const timestamp = +(err as ApiError).type.split('_').pop()!;
         let button: Parameters<typeof confirmationPopup>[0]['button'];
         confirmationPopup({
           titleLangKey: 'GiftPremiumActivateErrorTitle',
@@ -234,7 +234,7 @@ export default class PopupGiftLink extends PopupElement {
           descriptionLangArgs: [
             formatFullSentTime(timestamp),
             anchorCallback(() => {
-              simulateClickEvent(button.element);
+              simulateClickEvent(button.element!);
               popup.hide();
               this.shareGiftLink('https://t.me/giftcode/' + slug);
             })

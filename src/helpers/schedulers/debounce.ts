@@ -17,7 +17,7 @@ export default function debounce<F extends AnyFunction>(
   shouldRunLast = true
 ): DebounceReturnType<F> {
   let waitingTimeout: number;
-  let waitingPromise: Promise<Awaited<ReturnType<F>>>, resolve: (result: any) => void, reject: () => void;
+  let waitingPromise: Promise<Awaited<ReturnType<F>>>, resolve: (result: any) => void, reject: (() => void) | undefined;
   let hadNewCall = false;
 
   const invoke = (args: Parameters<F>) => {
@@ -38,7 +38,7 @@ export default function debounce<F extends AnyFunction>(
     if(waitingTimeout) {
       clearTimeout(waitingTimeout);
       hadNewCall = true;
-      reject();
+      reject!();
       waitingPromise = new Promise((_resolve, _reject) => (resolve = _resolve, reject = _reject));
     } else if(shouldRunFirst) {
       invoke(args);
@@ -53,7 +53,7 @@ export default function debounce<F extends AnyFunction>(
 
       // if debounce was called during invoking
       if(waitingTimeout === _waitingTimeout) {
-        waitingTimeout = waitingPromise = resolve = reject = undefined;
+        waitingTimeout = (waitingPromise = (resolve = (reject = undefined)!)!)!;
         hadNewCall = false;
       }
     }, ms);
@@ -66,8 +66,8 @@ export default function debounce<F extends AnyFunction>(
   debounce.clearTimeout = () => {
     if(waitingTimeout) {
       ctx.clearTimeout(waitingTimeout);
-      reject();
-      waitingTimeout = waitingPromise = resolve = reject = undefined;
+      reject!();
+      waitingTimeout = (waitingPromise = (resolve = (reject = undefined)!)!)!;
       hadNewCall = false;
     }
   };

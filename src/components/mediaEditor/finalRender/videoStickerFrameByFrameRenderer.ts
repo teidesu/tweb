@@ -16,7 +16,7 @@ import {FRAMES_PER_SECOND} from '@components/mediaEditor/finalRender/constants';
 export default class VideoStickerFrameByFrameRenderer implements StickerFrameByFrameRenderer {
   private duration: number = 0;
   private currentDeferredFrame: CancellablePromise<void>;
-  private video: HTMLVideoElement;
+  private video: HTMLVideoElement | null;
 
   private middleware = getMiddleware();
 
@@ -39,7 +39,7 @@ export default class VideoStickerFrameByFrameRenderer implements StickerFrameByF
     this.duration = video.duration;
 
     video.addEventListener('seeked', () => {
-      this.currentDeferredFrame?.resolve();
+      this.currentDeferredFrame?.resolve!();
     });
   }
 
@@ -50,16 +50,16 @@ export default class VideoStickerFrameByFrameRenderer implements StickerFrameByF
   async renderFrame(frame: number) {
     if(IS_FIREFOX) return;
     this.currentDeferredFrame = deferredPromise<void>();
-    this.video.currentTime = (1 / FRAMES_PER_SECOND) * frame;
+    this.video!.currentTime = (1 / FRAMES_PER_SECOND) * frame;
     await this.currentDeferredFrame;
   }
 
   getRatio() {
-    return this.video.videoWidth / this.video.videoHeight;
+    return this.video!.videoWidth / this.video!.videoHeight;
   }
 
   getRenderedFrame() {
-    return this.video;
+    return this.video as CanvasImageSource;
   }
 
   destroy() {

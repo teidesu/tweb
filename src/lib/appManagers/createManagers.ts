@@ -101,7 +101,7 @@ export default function createManagers(
     thumbsStorage: new ThumbsStorage,
     networkerFactory: new NetworkerFactory,
     rootScope: new RootScope,
-    authorizer: undefined as Authorizer,
+    authorizer: undefined as unknown as Authorizer,
     dcConfigurator: new DcConfigurator,
     timeManager: new TimeManager,
     appStoragesManager: appStoragesManager,
@@ -143,7 +143,7 @@ export default function createManagers(
 
     if(manager.setManagersAndAccountNumber) {
       manager.setManagersAndAccountNumber(managers as any, accountNumber);
-      delete manager.setManagersAndAccountNumber;
+      delete (manager as any).setManagersAndAccountNumber;
     }
 
     // @ts-ignore

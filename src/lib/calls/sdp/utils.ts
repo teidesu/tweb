@@ -14,7 +14,7 @@ export function parseSdp(str: string) {
     }
   }
 
-  let sessionSection: SDPSessionSection = null, lines: SDPLine[] = [];
+  let sessionSection: SDPSessionSection | null = null, lines: SDPLine[] = [];
   const mediaSections: SDPMediaSection[] = [];
   str.split(/\r?\n/).forEach((lineStr) => {
     if(!isIncorrectSdpLine(lineStr)) {
@@ -29,7 +29,7 @@ export function parseSdp(str: string) {
   });
 
   createSection();
-  return new SDP(sessionSection, mediaSections);
+  return new SDP((sessionSection as unknown as SDPSessionSection), mediaSections);
 }
 
 export function isIncorrectSdpLine(str: string) {
@@ -49,7 +49,7 @@ export function addSimulcast(sdp: SDP) {
         generator = new UniqueNumberGenerator(2, 4294967295);
       }
 
-      const originalSsrcs = section.attributes.get('ssrc-group').get('FID').value.split(' ');
+      const originalSsrcs = section.attributes.get('ssrc-group').get('FID').value!.split(' ');
       const lines = section.lines;
       originalSsrcs.forEach((ssrc) => generator.add(+ssrc)); // fix possible duplicates
       const ssrcs = [originalSsrcs[0], generator.generate(), generator.generate()];
@@ -78,5 +78,5 @@ export function addSimulcast(sdp: SDP) {
     }
   });
 
-  return !!generator;
+  return !!generator!;
 }

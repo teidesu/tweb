@@ -19,7 +19,7 @@ export default class DashedCircle {
 
   constructor() {
     this.canvas = document.createElement('canvas');
-    this.context = this.canvas.getContext('2d');
+    this.context = this.canvas.getContext('2d')!;
     this.dpr = window.devicePixelRatio;
   }
 

@@ -12,19 +12,19 @@ const _useLockScreenShortcut = () => {
   const [locked, setLocked] = createSignal(PasscodeLockScreenController.getIsLocked());
 
   const [enabled, {mutate: mutateEnabled}] = createResource(() =>
-    rootScope.managers.appStateManager.getState().then(state =>
+    rootScope.managers.appStateManager!.getState().then(state =>
       state.settings?.passcode?.enabled || false
     )
   );
 
   const [shortcutEnabled, {mutate: mutateShortcutEnabled}] = createResource(() =>
-    rootScope.managers.appStateManager.getState().then(state =>
+    rootScope.managers.appStateManager!.getState().then(state =>
       state?.settings?.passcode?.lockShortcutEnabled || false
     )
   );
 
   const [shortcutKeys, {mutate: mutateShortcutKeys}] = createResource(() =>
-    rootScope.managers.appStateManager.getState().then(state =>
+    rootScope.managers.appStateManager!.getState().then(state =>
       state?.settings?.passcode?.lockShortcut || []
     )
   );
@@ -50,7 +50,7 @@ const _useLockScreenShortcut = () => {
 
     if(!shortcutKeys()?.length) return;
 
-    const combo = [...shortcutKeys(), 'KeyL'].join('+');
+    const combo = [...shortcutKeys()!, 'KeyL'].join('+');
 
     const isShiftLockShortcut = combo === 'Shift+KeyL';
     appImManager.isShiftLockShortcut = isShiftLockShortcut;
@@ -87,7 +87,7 @@ const useLockScreenShortcut = () => {
     _useLockScreenShortcut();
   });
 
-  return {dispose};
+  return {dispose: dispose!};
 };
 
 export default useLockScreenShortcut;

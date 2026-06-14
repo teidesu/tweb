@@ -56,7 +56,7 @@ export default async function renderToImage({
   // whether to compress further (heavy photo → lower quality) or stay near-lossless.
   const result = await new Promise<MediaEditorFinalResultPayload>((resolve) =>
     resultCanvas.toBlob(blob => resolve({
-      blob,
+      blob: blob!,
       hasSound: false
     }), imageType, imageQuality)
   );

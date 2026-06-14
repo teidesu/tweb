@@ -101,15 +101,15 @@ export default class StickersTabCategory<Item extends StickersTabCategoryItem, A
       menuTab.append(menuTabPadding);
     }
 
-    if(title) container.append(title);
+    if(title!) container.append(title);
     container.append(items);
 
     this.elements = {
       container,
-      title,
+      title: title!,
       items,
-      menuTab,
-      menuTabPadding
+      menuTab: menuTab!,
+      menuTabPadding: menuTabPadding!
     } as any;
     this.id = options.id;
     this.items = [];

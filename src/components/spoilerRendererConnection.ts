@@ -21,7 +21,7 @@ const log = logger('spoiler-renderer');
 type Underlying = {port: MessagePort | Worker, dispose: () => void};
 
 const messageListeners = new Set<(message: SpoilerRendererOutMessage) => void>();
-let connection: Underlying;
+let connection: Underlying | undefined;
 let users = 0;
 let failed = false;
 let pagehideListenerAdded = false;
@@ -76,7 +76,7 @@ export function retainSpoilerRenderer(onMessage?: (message: SpoilerRendererOutMe
   let released = false;
   return {
     postMessage: (message, transfer) => {
-      if(!released) connection?.port.postMessage(message, transfer);
+      if(!released) connection?.port.postMessage(message, transfer!);
     },
     release: () => {
       if(released) return;

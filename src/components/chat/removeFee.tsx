@@ -49,7 +49,7 @@ function RemoveFeePlateBody(props: {
         ) as unknown as HTMLElement;
 
         const text = i18n('PaidMessages.UserPaysForMessagesNotice', [peerTitle.element, inlineStars]);
-        text.classList.add('pinned-' + className + '-text', 'text-overflow-no-wrap');
+        text!.classList.add('pinned-' + className + '-text', 'text-overflow-no-wrap');
 
         return (
           <div class={'pinned-' + className + '-content'}>
@@ -100,14 +100,14 @@ export default function createChatRemoveFeePlate(
   const setPeerId = async(peerId: PeerId) => {
     if(chat.isMonoforum && chat.canManageDirectMessages && chat.monoforumThreadId) {
       const {ackedChat, ackedDialog} = await namedPromises({
-        ackedChat: managers.acknowledged.appChatsManager.getChat(peerId.toChatId()),
-        ackedDialog: managers.acknowledged.monoforumDialogsStorage.getDialogByParent(peerId, chat.monoforumThreadId)
+        ackedChat: managers.acknowledged!.appChatsManager!.getChat(peerId.toChatId()),
+        ackedDialog: managers.acknowledged!.monoforumDialogsStorage!.getDialogByParent(peerId, chat.monoforumThreadId)
       });
 
       return {
         cached: ackedChat.cached && ackedDialog.cached,
         result: callbackify(Promise.all([ackedChat.result, ackedDialog.result]), ([chatPeer, dialog]) => {
-          const starsCharged = chatPeer?._ === 'channel' && +chatPeer.send_paid_messages_stars;
+          const starsCharged = chatPeer?._ === 'channel' && +chatPeer.send_paid_messages_stars!;
           if(!starsCharged || dialog?.pFlags?.nopaid_messages_exception) return hide;
           return () => show({peerId, starsCharged, monoforumThreadId: chat.monoforumThreadId});
         })
@@ -119,12 +119,12 @@ export default function createChatRemoveFeePlate(
       result: Promise.resolve(hide)
     };
 
-    const ackedFullUser = await managers.acknowledged.appProfileManager.getProfile(peerId.toUserId());
+    const ackedFullUser = await managers.acknowledged!.appProfileManager!.getProfile(peerId.toUserId());
 
     return {
       cached: ackedFullUser.cached,
       result: callbackify(ackedFullUser.result, (fullUser) => {
-        const starsCharged = +fullUser?.settings?.charge_paid_message_stars;
+        const starsCharged = +fullUser?.settings?.charge_paid_message_stars!;
         if(!starsCharged) return hide;
         return () => show({peerId, starsCharged});
       })
@@ -147,7 +147,7 @@ type OpenRemoveFeePopupArgs = {
 
 export async function openRemoveFeePopup({peerId, parentPeerId, managers, requirePayment}: OpenRemoveFeePopupArgs) {
   const userId = peerId.toUserId();
-  const revenue = !requirePayment ? await managers.appUsersManager.getPaidMessagesRevenue({userId, parentPeerId}) : undefined;
+  const revenue = !requirePayment ? await managers.appUsersManager!.getPaidMessagesRevenue({userId, parentPeerId}) : undefined;
 
   const shouldRefund = await confirmationPopup({
     titleLangKey: requirePayment ? 'PaidMessages.ChargeFee' : 'PaidMessages.RemoveFee',
@@ -162,5 +162,5 @@ export async function openRemoveFeePopup({peerId, parentPeerId, managers, requir
     }
   });
 
-  await managers.appUsersManager.toggleNoPaidMessagesException({userId, refundCharged: shouldRefund, parentPeerId, requirePayment});
+  await managers.appUsersManager!.toggleNoPaidMessagesException({userId, refundCharged: shouldRefund!, parentPeerId, requirePayment});
 }

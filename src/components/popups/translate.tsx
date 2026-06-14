@@ -25,18 +25,18 @@ export default function showTranslatePopup(options: {
 
   function Inner() {
     const context = useContext(PopupContext);
-    const middleware = untrack(() => context.middlewareHelper).get();
+    const middleware = untrack(() => context!.middlewareHelper).get();
 
     let scrollableContext: ScrollableContextValue;
 
     const peerTranslation = usePeerTranslation(options.peerId);
 
-    let originalTextWithEntities: TextWithEntities = options.textWithEntities;
+    let originalTextWithEntities: TextWithEntities = options.textWithEntities!;
     if(options.message) {
       originalTextWithEntities = {
         _: 'textWithEntities',
         text: options.message.message,
-        entities: options.message.totalEntities
+        entities: options.message.totalEntities!
       };
     }
 
@@ -49,7 +49,7 @@ export default function showTranslatePopup(options: {
       let div: HTMLDivElement;
       const ret = (
         <div
-          ref={div}
+          ref={div!}
           class={classNames('popup-translate-text', 'spoilers-container', props.limited && 'is-limited')}
           dir="auto"
         >
@@ -58,18 +58,18 @@ export default function showTranslatePopup(options: {
       );
 
       const onClick = (e: MouseEvent) => {
-        const callback = div && onMediaCaptionClick(div, e);
+        const callback = div! && onMediaCaptionClick(div, e);
         if(!callback) {
           return;
         }
 
         div.removeEventListener('click', onClick, {capture: true});
         deferredCloseCallbacks.push(callback);
-        context.hide();
+        context!.hide();
       };
 
-      div.addEventListener('click', onClick, {capture: true});
-      onCleanup(() => div.removeEventListener('click', onClick, {capture: true}));
+      div!.addEventListener('click', onClick, {capture: true});
+      onCleanup(() => div!.removeEventListener('click', onClick, {capture: true}));
       return ret;
     };
 
@@ -111,7 +111,7 @@ export default function showTranslatePopup(options: {
       );
     };
 
-    const preloader = putPreloader(undefined, true);
+    const preloader = putPreloader(undefined!, true);
 
     const [loading, setLoading] = createSignal(true);
     const loadPromises: Promise<void>[] = [];

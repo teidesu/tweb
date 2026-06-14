@@ -20,7 +20,7 @@ const LottieAnimation: Component<{
   const div = (
     <div
       classList={{
-        [props.class]: !!props.class
+        [props.class!]: !!props.class
       }}
       style={{
         '--size': props.size + 'px'

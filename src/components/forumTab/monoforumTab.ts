@@ -38,7 +38,7 @@ export class MonoforumTab extends ForumTab {
 
     this.xd = autonomousList;
 
-    appDialogsManager.setListClickListener({list, onFound: null, withContext: true});
+    appDialogsManager.setListClickListener({list, onFound: null as any, withContext: true});
     this.scrollable.append(list);
     autonomousList.bindScrollable();
 
@@ -54,7 +54,7 @@ export class MonoforumTab extends ForumTab {
 
     this.listenerSetter.add(rootScope)('dialogs_multiupdate', (dialogs) => {
       for(const [, {dialog}] of dialogs) {
-        if(isDialog(dialog) && dialog.peerId === this.peerId) {
+        if(isDialog(dialog!) && dialog.peerId === this.peerId) {
           this.updateAllChatsDialog(dialog);
         }
       }
@@ -90,17 +90,17 @@ export class MonoforumTab extends ForumTab {
           dialog: true,
           wrapOptions: {middleware}
         }),
-        dialogs: this.managers.monoforumDialogsStorage.getDialogs({parentPeerId: peerId, limit: 1})
+        dialogs: this.managers.monoforumDialogsStorage!.getDialogs({parentPeerId: peerId, limit: 1})
       }));
 
       this.title.append(peerTitle);
-      this.subtitle.append(this.dialogsCountI18nEl = i18n('ChannelDirectMessages.ThreadsCount', [dialogs ? dialogs.count + '' : '~']))
+      this.subtitle.append((this.dialogsCountI18nEl = i18n('ChannelDirectMessages.ThreadsCount', [dialogs ? dialogs.count + '' : '~'])!)!!)
     } catch{}
   }
 
   private async updateDialogsCount() {
     if(!this.dialogsCountI18nEl) return;
-    const {count} = await this.managers.monoforumDialogsStorage.getDialogs({parentPeerId: this.peerId, limit: 1});
-    this.dialogsCountI18nEl.replaceWith(i18n('ChannelDirectMessages.ThreadsCount', [count + '']));
+    const {count} = await this.managers.monoforumDialogsStorage!.getDialogs({parentPeerId: this.peerId, limit: 1});
+    this.dialogsCountI18nEl.replaceWith(i18n('ChannelDirectMessages.ThreadsCount', [count + ''])!);
   }
 }

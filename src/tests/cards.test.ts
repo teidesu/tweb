@@ -23,9 +23,9 @@ describe('Card number', () => {
     ];
 
     data.forEach(([cardNumber, code]) => {
-      const result = validateCardNumber(cardNumber);
+      const result = validateCardNumber(cardNumber!);
       if(code) {
-        expect(result.code).toEqual(code);
+        expect(result!.code).toEqual(code);
       } else {
         expect(result).toEqual(null);
       }

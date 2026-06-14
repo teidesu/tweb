@@ -71,7 +71,7 @@ describe('Inserting', () => {
 
     expect(slices.length).toEqual(totalArrays);
 
-    returnedSlice = sliced.insertSlice(values.slice(0, -valuesPerArray + 1));
+    returnedSlice = sliced.insertSlice(values.slice(0, -valuesPerArray + 1))!;
 
     expect(slices.length).toEqual(1);
   });
@@ -105,7 +105,7 @@ describe('Slicing', () => {
   }
   values.sort((a, b) => b - a);
   const slice = sliced.insertSlice(values);
-  slice.setEnd(SliceEnd.Bottom);
+  slice!.setEnd(SliceEnd.Bottom);
 
   const addOffset = 40;
   const limit = 40;
@@ -120,7 +120,7 @@ describe('Slicing', () => {
 
   describe('Positive addOffset', () => {
     test('From the start', () => {
-      const {slice} = sliced.sliceMe(0, addOffset, limit);
+      const {slice} = sliced.sliceMe(0, addOffset, limit)!;
       expect([...slice]).toEqual(values.slice(addOffset, addOffset + limit));
     });
 
@@ -128,7 +128,7 @@ describe('Slicing', () => {
       r((idx) => {
         const value = values[idx] || 1;
         idx += 1; // because is it inclusive
-        const {slice} = sliced.sliceMe(value, addOffset, limit);
+        const {slice} = sliced.sliceMe(value, addOffset, limit)!;
         expect([...slice]).toEqual(values.slice(idx + addOffset, idx + addOffset + limit));
       });
     });
@@ -137,11 +137,11 @@ describe('Slicing', () => {
   test('Add bottom end slice and slice from it', () => {
     const value = (VALUES_LENGTH + 1) * INCREMENTOR;
     const slice = sliced.insertSlice([value]);
-    slice.setEnd(SliceEnd.Bottom);
+    slice!.setEnd(SliceEnd.Bottom);
 
     const result = sliced.sliceMe(value, 0, limit);
 
-    expect([...result.slice]).toEqual([]);
+    expect([...result!.slice]).toEqual([]);
   });
 });
 
@@ -181,8 +181,8 @@ describe('Serializing', () => {
     const restored = new SlicedArray<number>();
     for(const {values, end} of sliced.serialize()) {
       const inserted = restored.insertSlice(values);
-      if(end & SliceEnd.Top) inserted.setEnd(SliceEnd.Top);
-      if(end & SliceEnd.Bottom) inserted.setEnd(SliceEnd.Bottom);
+      if(end & SliceEnd.Top) inserted!.setEnd(SliceEnd.Top);
+      if(end & SliceEnd.Bottom) inserted!.setEnd(SliceEnd.Bottom);
     }
 
     expect(restored.serialize()).toEqual(sliced.serialize());
@@ -193,83 +193,83 @@ describe('offsetIdOffset', () => {
   const sliced = new SlicedArray<number>();
   const values = [5, 4, 3, 2, 1];
   const slice = sliced.insertSlice(values);
-  slice.setEnd(SliceEnd.Both);
+  slice!.setEnd(SliceEnd.Both);
 
   describe('No addOffset', () => {
     test('Hit', () => {
-      const result = sliced.sliceMe(slice[1], 0, 2);
-      expect(result.offsetIdOffset).toEqual(2);
-      expect([...result.slice]).toEqual(values.slice(2, 2 + 2));
+      const result = sliced.sliceMe(slice![1], 0, 2);
+      expect(result!.offsetIdOffset).toEqual(2);
+      expect([...result!.slice]).toEqual(values.slice(2, 2 + 2));
     });
 
     test('Hit start', () => {
-      const result = sliced.sliceMe(slice[0], 0, 2);
-      expect(result.offsetIdOffset).toEqual(1);
-      expect([...result.slice]).toEqual(values.slice(1, 1 + 2));
+      const result = sliced.sliceMe(slice![0], 0, 2);
+      expect(result!.offsetIdOffset).toEqual(1);
+      expect([...result!.slice]).toEqual(values.slice(1, 1 + 2));
     });
 
     test('Hit end', () => {
-      const result = sliced.sliceMe(slice[sliced.length - 1], 0, 2);
-      expect(result.offsetIdOffset).toEqual(slice.length);
-      expect([...result.slice]).toEqual(values.slice(slice.length, slice.length + 2));
+      const result = sliced.sliceMe(slice![sliced.length - 1], 0, 2);
+      expect(result!.offsetIdOffset).toEqual(slice!.length);
+      expect([...result!.slice]).toEqual(values.slice(slice!.length, slice!.length + 2));
     });
 
     test('No hit', () => {
-      const result = sliced.sliceMe(slice[1] + 0.1, 0, 2);
-      expect(result.offsetIdOffset).toEqual(1);
-      expect([...result.slice]).toEqual(values.slice(1, 1 + 2));
+      const result = sliced.sliceMe(slice![1] + 0.1, 0, 2);
+      expect(result!.offsetIdOffset).toEqual(1);
+      expect([...result!.slice]).toEqual(values.slice(1, 1 + 2));
     });
 
     test('No hit start', () => {
-      const result = sliced.sliceMe(slice[0] + 0.1, 0, 2);
-      expect(result.offsetIdOffset).toEqual(0);
-      expect([...result.slice]).toEqual(values.slice(0, 0 + 2));
+      const result = sliced.sliceMe(slice![0] + 0.1, 0, 2);
+      expect(result!.offsetIdOffset).toEqual(0);
+      expect([...result!.slice]).toEqual(values.slice(0, 0 + 2));
     });
 
     test('No hit end', () => {
-      const result = sliced.sliceMe(slice[sliced.length - 1] - 0.1, 0, 2);
-      expect(result.offsetIdOffset).toEqual(slice.length);
-      expect([...result.slice]).toEqual(values.slice(slice.length, slice.length + 2));
+      const result = sliced.sliceMe(slice![sliced.length - 1] - 0.1, 0, 2);
+      expect(result!.offsetIdOffset).toEqual(slice!.length);
+      expect([...result!.slice]).toEqual(values.slice(slice!.length, slice!.length + 2));
     });
   });
 
   describe('Positive addOffset', () => {
     test('Hit', () => {
-      const result = sliced.sliceMe(slice[1], 1, 2);
-      expect(result.offsetIdOffset).toEqual(2);
-      expect([...result.slice]).toEqual(values.slice(3, 3 + 2));
+      const result = sliced.sliceMe(slice![1], 1, 2);
+      expect(result!.offsetIdOffset).toEqual(2);
+      expect([...result!.slice]).toEqual(values.slice(3, 3 + 2));
     });
 
     test('No hit', () => {
-      const result = sliced.sliceMe(slice[1] + 0.1, 1, 2);
-      expect(result.offsetIdOffset).toEqual(1);
-      expect([...result.slice]).toEqual(values.slice(2, 2 + 2));
+      const result = sliced.sliceMe(slice![1] + 0.1, 1, 2);
+      expect(result!.offsetIdOffset).toEqual(1);
+      expect([...result!.slice]).toEqual(values.slice(2, 2 + 2));
     });
   });
 
   describe('Negative addOffset', () => {
     test('Hit', () => {
-      const result = sliced.sliceMe(slice[1], -1, 2);
-      expect(result.offsetIdOffset).toEqual(2);
-      expect([...result.slice]).toEqual(values.slice(1, 1 + 2));
+      const result = sliced.sliceMe(slice![1], -1, 2);
+      expect(result!.offsetIdOffset).toEqual(2);
+      expect([...result!.slice]).toEqual(values.slice(1, 1 + 2));
     });
 
     test('Hit start', () => {
-      const result = sliced.sliceMe(slice[0], -1, 2);
-      expect(result.offsetIdOffset).toEqual(1);
-      expect([...result.slice]).toEqual(values.slice(0, 0 + 2));
+      const result = sliced.sliceMe(slice![0], -1, 2);
+      expect(result!.offsetIdOffset).toEqual(1);
+      expect([...result!.slice]).toEqual(values.slice(0, 0 + 2));
     });
 
     test('No hit', () => {
-      const result = sliced.sliceMe(slice[1] + 0.1, -1, 2);
-      expect(result.offsetIdOffset).toEqual(1);
-      expect([...result.slice]).toEqual(values.slice(0, 0 + 2));
+      const result = sliced.sliceMe(slice![1] + 0.1, -1, 2);
+      expect(result!.offsetIdOffset).toEqual(1);
+      expect([...result!.slice]).toEqual(values.slice(0, 0 + 2));
     });
 
     test('No hit start', () => {
-      const result = sliced.sliceMe(slice[0] + 0.1, -1, 2);
-      expect(result.offsetIdOffset).toEqual(0);
-      expect([...result.slice]).toEqual(values.slice(0, 0 + 1));
+      const result = sliced.sliceMe(slice![0] + 0.1, -1, 2);
+      expect(result!.offsetIdOffset).toEqual(0);
+      expect([...result!.slice]).toEqual(values.slice(0, 0 + 1));
     });
   });
 });

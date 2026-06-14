@@ -127,7 +127,7 @@ function spawnImageCanvas({
   [imageCanvas.width, imageCanvas.height] = size;
 
   const ctx = imageCanvas.getContext('2d');
-  ctx.drawImage(source, 0, 0, imageCanvas.width, imageCanvas.height);
+  ctx!.drawImage(source, 0, 0, imageCanvas.width, imageCanvas.height);
 
   imageCanvas.style.position = 'fixed';
 

@@ -24,8 +24,8 @@ export interface ConvertOpusTask extends Modify<ConvertWebPTask, {type: 'convert
 }
 
 export class OpusDecodeController {
-  private worker: Worker;
-  private wavWorker: Worker;
+  private worker: Worker | null;
+  private wavWorker: Worker | null;
   private sampleRate = 48000;
   private tasks: Array<Task> = [];
   private keepAlive = false;
@@ -45,7 +45,7 @@ export class OpusDecodeController {
       this.log('[WAV] got message:', data);
       if(data && data.page) {
         const bytes = data.page;
-        this.onTaskEnd(this.tasks.shift(), bytes);
+        this.onTaskEnd(this.tasks.shift()!, bytes);
       }
     });
   }
@@ -60,14 +60,14 @@ export class OpusDecodeController {
       this.log('[DECODER] got message', data);
       if(data.type === 'done') {
         // this.log('[DECODER] send done to wav');
-        this.wavWorker.postMessage({command: 'done'});
+        this.wavWorker!.postMessage({command: 'done'});
 
         if(data.waveform) {
           this.tasks[0].waveform = data.waveform;
         }
       } else { // e.data contains decoded buffers as float32 values
         // this.log('[DECODER] send encode to wav');
-        this.wavWorker.postMessage({
+        this.wavWorker!.postMessage({
           command: 'encode',
           buffers: e.data
         }, IS_SAFARI ? undefined : data.map((typedArray: Uint8Array) => typedArray.buffer));
@@ -115,13 +115,13 @@ export class OpusDecodeController {
   }
 
   public executeNewTask(task: Task) {
-    this.worker.postMessage({
+    this.worker!.postMessage({
       command: 'init',
       decoderSampleRate: this.sampleRate,
       outputBufferSampleRate: this.sampleRate
     });
 
-    this.wavWorker.postMessage({
+    this.wavWorker!.postMessage({
       command: 'init',
       wavBitDepth: 16,
       wavSampleRate: this.sampleRate
@@ -130,11 +130,11 @@ export class OpusDecodeController {
     // console.log('sending command to worker:', task);
     // setTimeout(() => {
     this.log('[DECODER] send decode');
-    this.worker.postMessage({
+    this.worker!.postMessage({
       command: 'decode',
       pages: task.pages,
       waveform: task.withWaveform
-    }, IS_SAFARI ? undefined : [task.pages.buffer]);
+    }, (IS_SAFARI ? undefined : [task.pages.buffer]) as Transferable[]);
     // }, 1e3);
 
     task.timeout = window.setTimeout(() => {
@@ -146,7 +146,7 @@ export class OpusDecodeController {
         this.loadWavWorker();
       }
 
-      this.onTaskEnd(this.tasks.shift());
+      this.onTaskEnd(this.tasks.shift()!);
     }, 10e3);
   }
 

@@ -67,7 +67,7 @@ function AnyStateWriter<S>(log: ReturnType<typeof logger>, keys: string[], init:
   const replaceState = (_state: S) => {
     pushedKeys.clear();
     state = _state;
-    (Object.keys(state) as any as Array<keyof S>).forEach((key) => pushedKeys.add(key));
+    (Object.keys(state as object) as Array<keyof S>).forEach((key) => pushedKeys.add(key));
   };
 
   let state: S = {} as any;
@@ -216,7 +216,7 @@ const STATE_STEPS = {
       });
     }
 
-    return {oldVersion};
+    return {oldVersion: oldVersion!};
   },
   CHANGED_AUTH: async(writer: ReturnType<typeof StateWriter>) => {
     const [authKeyFingerprint, baseDcAuthKey] = await Promise.all([
@@ -289,7 +289,7 @@ async function loadStateForAccount(accountNumber: ActiveAccountNumber): Promise<
     oldVersion,
     resetStorages: writer.resetStorages,
     common: commonWriter.state,
-    userId: accountData.userId
+    userId: accountData.userId!
   };
 }
 
@@ -374,7 +374,7 @@ async function loadOldState(): Promise<LoadStateResult> {
     oldVersion,
     resetStorages: writer.resetStorages,
     common: commonWriter.state,
-    userId: typeof(auth) === 'number' ? auth : (auth?.id ? +auth.id : undefined)
+    userId: (typeof(auth) === 'number' ? auth : (auth?.id ? +auth.id : undefined))!
   };
 }
 
@@ -426,7 +426,7 @@ async function moveAccessKeysToMultiAccountFormat() {
 }
 
 async function moveStoragesToMultiAccountFormat() {
-  const storages = createStorages(undefined);
+  const storages = createStorages(undefined!);
   const storagesNew = createStorages(1);
   const [users, chats, dialogs] = await Promise.all([
     storages.users.getAll(),

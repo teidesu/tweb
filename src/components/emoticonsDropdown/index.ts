@@ -86,7 +86,7 @@ const renderEmojiDropdownElement = (): HTMLDivElement => {
     ['delete justify-self-end', 'deleteleft', -1]
   ];
   const d = div.firstElementChild as HTMLDivElement;
-  d.firstElementChild.append(...a.map(([className, icon, tabId]) => {
+  d.firstElementChild!.append(...a.map(([className, icon, tabId]) => {
     const button = ButtonIcon(`${icon} menu-horizontal-div-item emoji-tabs-${className}`, {noRipple: true});
     button.dataset.tab = '' + tabId;
     return button;
@@ -110,7 +110,7 @@ export class EmoticonsDropdown extends DropdownHover {
 
   private selectTab: ReturnType<typeof horizontalMenu>;
 
-  private savedRange: Range;
+  private savedRange: Range | undefined;
   private tabsToRender: EmoticonsTab[] = [];
   private managers: AppManagers;
 
@@ -126,7 +126,7 @@ export class EmoticonsDropdown extends DropdownHover {
 
   public animationGroup: AnimationItemGroup;
 
-  private dockedContainer: HTMLElement;
+  private dockedContainer: HTMLElement | undefined;
 
   constructor(options: {
     customParentElement?: HTMLElement | (() => HTMLElement),
@@ -187,7 +187,7 @@ export class EmoticonsDropdown extends DropdownHover {
         reparentElement(this.element, this.chatInput.chatInput);
       }
 
-      this.savedRange = this.getGoodRange();
+      this.savedRange = this.getGoodRange()!;
 
       this.lazyLoadQueue.lock();
       // this.lazyLoadQueue.unlock();
@@ -275,7 +275,7 @@ export class EmoticonsDropdown extends DropdownHover {
       // floating-only state (nav item, click-out listener, hover ignores)
       this.clearTimeout('toggle');
       this.clearTimeout('done');
-      appNavigationController.removeItem(this.navigationItem);
+      appNavigationController.removeItem(this.navigationItem!);
       this.navigationItem = undefined;
       this.detachClickEvent?.();
       this.detachClickEvent = undefined;
@@ -375,7 +375,7 @@ export class EmoticonsDropdown extends DropdownHover {
       animationIntersector.checkAnimations(false, this.animationGroup);
     });
 
-    this.searchButton = this.element.querySelector('.emoji-tabs-search');
+    this.searchButton = this.element.querySelector('.emoji-tabs-search')!;
     this.listenerSetter.add(this.searchButton)('click', () => {
       if(this.tabId === this.getTab(StickersTab)?.tabId) {
         if(!appSidebarRight.isTabExists(AppStickersTab)) {
@@ -388,7 +388,7 @@ export class EmoticonsDropdown extends DropdownHover {
       }
     });
 
-    this.deleteBtn = this.element.querySelector('.emoji-tabs-delete');
+    this.deleteBtn = this.element.querySelector('.emoji-tabs-delete')!;
     attachClickEvent(this.deleteBtn, (e) => {
       cancelEvent(e);
       const input = this.chatInput.messageInput;
@@ -396,7 +396,7 @@ export class EmoticonsDropdown extends DropdownHover {
       let range = RichInputHandler.getInstance().getSavedRange(input);
       if(!range) {
         range = document.createRange();
-        range.setStartAfter(input.lastChild);
+        range.setStartAfter(input.lastChild!);
       }
 
       const newRange = range.cloneRange();
@@ -407,12 +407,12 @@ export class EmoticonsDropdown extends DropdownHover {
         if(offset) {
           newStartNode = node;
         } else {
-          newStartNode = node.previousSibling;
+          newStartNode = node.previousSibling!;
           if(!newStartNode) {
             return;
           }
 
-          while(newStartNode.nodeType === newStartNode.TEXT_NODE && !newStartNode.nodeValue && (newStartNode = newStartNode.previousSibling)) {
+          while(newStartNode.nodeType === newStartNode.TEXT_NODE && !newStartNode.nodeValue && (newStartNode = newStartNode.previousSibling!)) {
 
           }
 
@@ -424,16 +424,16 @@ export class EmoticonsDropdown extends DropdownHover {
         if(newStartNode.nodeType === newStartNode.ELEMENT_NODE && (newStartNode as any).tagName === 'IMG') {
           newRange.selectNode(newStartNode);
         } else {
-          const text = [...newStartNode.textContent];
+          const text = [...newStartNode.textContent!];
           let t: string;
           if(offset) {
             let length = 0;
-            t = text.find((text) => (length += text.length, length >= offset));
+            t = text.find((text) => (length += text.length, length >= offset))!;
           } else {
             t = text.pop() || '';
           }
 
-          const newOffset = offset ? offset - t.length : newStartNode.textContent.length - t.length;
+          const newOffset = offset ? offset - t.length : newStartNode.textContent!.length - t.length;
           newRange.setStart(newStartNode, newOffset);
         }
       }
@@ -501,7 +501,7 @@ export class EmoticonsDropdown extends DropdownHover {
     onPeerChanged();
 
     const ret = super.init();
-    this.init = undefined;
+    this.init = undefined!;
     return ret;
   }
 
@@ -565,14 +565,14 @@ export class EmoticonsDropdown extends DropdownHover {
     const actions = Object.keys(this.rights) as ChatRights[];
 
     const rights = await Promise.all(actions.map((action) => {
-      return this.managers.appMessagesManager.canSendToPeer(peerId, threadId, action);
+      return this.managers.appMessagesManager!.canSendToPeer(peerId, threadId, action);
     }));
 
     actions.forEach((action, idx) => {
       this.rights[action] = rights[idx];
     });
 
-    if(this.init) {
+    if((this as {init?: Function}).init) {
       return;
     }
 
@@ -596,10 +596,10 @@ export class EmoticonsDropdown extends DropdownHover {
     let jumpedTo = -1;
 
     const scrollToTab = (tab: typeof prevTab, f?: boolean) => {
-      const m = tab.menuScroll || menuScroll;
+      const m = tab!.menuScroll || menuScroll;
       if(m) {
         m.scrollIntoViewNew({
-          element: tab.elements.menuTab,
+          element: tab!.elements.menuTab,
           position: 'center',
           axis: 'x',
           getElementPosition: f ? ({elementPosition}) => {
@@ -618,10 +618,10 @@ export class EmoticonsDropdown extends DropdownHover {
       let f = false;
       if(prevTab) {
         prevTab.elements.menuTab.classList.remove('active');
-        if(prevTab.menuScroll && prevTab.menuScroll !== tab.menuScroll) {
+        if(prevTab.menuScroll && prevTab.menuScroll !== tab!.menuScroll) {
           f = true;
           // scroll to first
-          prevTab.menuScroll.container.parentElement.classList.remove('active');
+          prevTab.menuScroll.container.parentElement!.classList.remove('active');
           prevTab.menuScroll.scrollIntoViewNew({
             element: prevTab.menuScroll.firstElementChild as HTMLElement,
             forceDirection: scroll ? undefined : FocusDirection.Static,
@@ -632,12 +632,12 @@ export class EmoticonsDropdown extends DropdownHover {
         }
       }
 
-      tab.elements.menuTab.classList.add('active');
+      tab!.elements.menuTab.classList.add('active');
 
-      if(tab.menuScroll) {
-        tab.menuScroll.container.parentElement.classList.add('active');
-        scroll && menuScroll.scrollIntoViewNew({
-          element: tab.menuScroll.container.parentElement,
+      if(tab!.menuScroll) {
+        tab!.menuScroll.container.parentElement!.classList.add('active');
+        scroll && menuScroll!.scrollIntoViewNew({
+          element: tab!.menuScroll.container.parentElement!,
           position: 'center',
           axis: 'x',
           ...scrollOptions
@@ -658,9 +658,9 @@ export class EmoticonsDropdown extends DropdownHover {
         return;
       }
 
-      emoticons.scrollable.scrollPosition = tab.elements.container.offsetTop + 1;
+      emoticons.scrollable.scrollPosition = tab!.elements.container.offsetTop + 1;
       const s = emoticons.menuScroll.container;
-      const e = tab.elements.menuTab;
+      const e = tab!.elements.menuTab;
       s.scrollLeft = e.offsetLeft - s.clientWidth / 2 + e.offsetWidth / 2;
       setActive(tab, false);
     };
@@ -680,12 +680,12 @@ export class EmoticonsDropdown extends DropdownHover {
       }
 
       const tab = emoticons.getCategoryByContainer(target);
-      if(!tab.elements.menuTab) {
+      if(!tab!.elements.menuTab) {
         return;
       }
 
       const which = whichChild(target);
-      if(!stuck && (which || tab.menuScroll)) {
+      if(!stuck && (which || tab!.menuScroll)) {
         return;
       }
 
@@ -701,7 +701,7 @@ export class EmoticonsDropdown extends DropdownHover {
           return;
         }
 
-        target = target.firstElementChild.firstElementChild as HTMLElement;
+        target = target.firstElementChild!.firstElementChild as HTMLElement;
       }
 
       const which = whichChild(target);
@@ -718,8 +718,8 @@ export class EmoticonsDropdown extends DropdownHover {
       }
 
       let offsetTop = 0, additionalOffset = 0;
-      if(which > 0 || tab.menuScroll) {
-        const element = tab.elements.container;
+      if(which > 0 || tab!.menuScroll) {
+        const element = tab!.elements.container;
         additionalOffset = 1;
         offsetTop = element.offsetTop + additionalOffset; // * due to stickyIntersector
       }
@@ -728,7 +728,7 @@ export class EmoticonsDropdown extends DropdownHover {
 
       scrollingToContent = true;
       scrollable.scrollIntoViewNew({
-        element: offsetTop ? tab.elements.container : scrollable.firstElementChild as HTMLElement,
+        element: offsetTop ? tab!.elements.container : scrollable.firstElementChild as HTMLElement,
         position: 'start',
         axis: 'y',
         getElementPosition: offsetTop ? ({elementPosition}) => elementPosition + additionalOffset : undefined,
@@ -805,8 +805,8 @@ export class EmoticonsDropdown extends DropdownHover {
 
   private getGoodRange() {
     const sel = document.getSelection();
-    if(sel.rangeCount && document.activeElement === this.chatInput?.messageInput) {
-      return sel.getRangeAt(0);
+    if(sel!.rangeCount && document.activeElement === this.chatInput?.messageInput) {
+      return sel!.getRangeAt(0);
     }
   }
 

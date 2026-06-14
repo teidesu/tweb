@@ -16,7 +16,7 @@ export default function insertInDescendSortedArray<T extends {[smth in K]?: numb
   if(pos !== -1) {
     const prev = array[pos - 1];
     const next = array[pos + 1];
-    if((!prev || cmp(getProperty(prev), sortProperty) >= 0) && (!next || cmp(getProperty(next), sortProperty) <= 0)) {
+    if((!prev || cmp(getProperty(prev)!, sortProperty!) >= 0) && (!next || cmp(getProperty(next)!, sortProperty!) <= 0)) {
       // console.warn('same pos', pos, sortProperty, prev, next);
       return pos;
     }
@@ -25,14 +25,14 @@ export default function insertInDescendSortedArray<T extends {[smth in K]?: numb
   }
 
   const len = array.length;
-  if(!len || cmp(sortProperty, getProperty(array[len - 1])) <= 0) {
+  if(!len || cmp(sortProperty!, getProperty(array[len - 1])!) <= 0) {
     return array.push(element) - 1;
-  } else if(cmp(sortProperty, getProperty(array[0])) >= 0) {
+  } else if(cmp(sortProperty!, getProperty(array[0])!) >= 0) {
     array.unshift(element);
     return 0;
   } else {
     for(let i = 0; i < len; i++) {
-      if(cmp(sortProperty, getProperty(array[i])) > 0) {
+      if(cmp(sortProperty!, getProperty(array[i])!) > 0) {
         array.splice(i, 0, element);
         return i;
       }

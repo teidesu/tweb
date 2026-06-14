@@ -35,7 +35,7 @@ export default class InlineHelper extends AutocompleteHelper {
   private lazyLoadQueue: LazyLoadQueue;
   private gifsMasonry: GifsMasonry;
   private superStickerRenderer: SuperStickerRenderer;
-  private onChangeScreen: () => void;
+  private onChangeScreen: (() => void) | undefined;
   public checkQuery: ReturnType<typeof debounce<InlineHelper['_checkQuery']>>;
 
   constructor(
@@ -53,8 +53,8 @@ export default class InlineHelper extends AutocompleteHelper {
         if(!target) return false; // can happen when there is only button
         const {peerId, botId, queryId} = this.list.dataset;
         return this.chat.input.getReadyToSend(() => {
-          const queryAndResultIds = generateQId(queryId, (target as HTMLElement).dataset.resultId);
-          this.managers.appInlineBotsManager.sendInlineResult(peerId.toPeerId(), botId, queryAndResultIds, {
+          const queryAndResultIds = generateQId(queryId!, (target as HTMLElement).dataset.resultId!);
+          this.managers.appInlineBotsManager!.sendInlineResult(peerId!.toPeerId(), botId!, queryAndResultIds, {
             ...this.chat.getMessageSendingParams(),
             clearDraft: true
           });
@@ -85,7 +85,7 @@ export default class InlineHelper extends AutocompleteHelper {
   public _checkQuery = async(peerId: PeerId, username: string, query: string, canSendInline: boolean) => {
     const middleware = this.controller.getMiddleware();
 
-    const peer = await this.managers.appUsersManager.resolveUsername(username);
+    const peer = await this.managers.appUsersManager!.resolveUsername(username);
     if(!middleware()) {
       throw 'PEER_CHANGED';
     }
@@ -101,7 +101,7 @@ export default class InlineHelper extends AutocompleteHelper {
 
       if(this.init) {
         this.init();
-        this.init = null;
+        this.init = null as unknown as () => void;
       }
 
       this.container.classList.add('cant-send');
@@ -111,14 +111,14 @@ export default class InlineHelper extends AutocompleteHelper {
 
     const botId = peer.id;
 
-    const renderPromise = this.managers.appInlineBotsManager.getInlineResults(peerId, botId, query).then((botResults) => {
+    const renderPromise = this.managers.appInlineBotsManager!.getInlineResults(peerId, botId, query).then((botResults) => {
       if(!middleware()) {
         throw 'PEER_CHANGED';
       }
 
       if(this.init) {
         this.init();
-        this.init = null;
+        this.init = null as unknown as () => void;
       }
 
       const list = this.list.cloneNode() as HTMLElement;
@@ -126,7 +126,7 @@ export default class InlineHelper extends AutocompleteHelper {
       list.dataset.botId = '' + botId;
       list.dataset.queryId = '' + botResults.query_id;
 
-      const gifsMasonry = new GifsMasonry(null, ANIMATION_GROUP, this.scrollable, false);
+      const gifsMasonry = new GifsMasonry(null as unknown as HTMLElement, ANIMATION_GROUP, this.scrollable, false);
 
       this.lazyLoadQueue.clear();
       this.superStickerRenderer.clear();
@@ -149,16 +149,16 @@ export default class InlineHelper extends AutocompleteHelper {
         list.append(container);
 
         if(!isGallery) {
-          preview.classList.add('empty');
-          setInnerHTML(preview, wrapEmojiText([...item.title.trim()][0]));
+          preview!.classList.add('empty');
+          setInnerHTML(preview!, wrapEmojiText([...item.title!.trim()][0]));
 
           const title = document.createElement('div');
           title.classList.add('inline-helper-result-title');
-          setInnerHTML(title, wrapEmojiText(item.title));
+          setInnerHTML(title, wrapEmojiText(item.title!));
 
           const description = document.createElement('div');
           description.classList.add('inline-helper-result-description');
-          setInnerHTML(description, wrapRichText(item.description, {
+          setInnerHTML(description, wrapRichText(item.description!, {
             noCommands: true,
             noLinks: true
           }));
@@ -175,7 +175,7 @@ export default class InlineHelper extends AutocompleteHelper {
 
         if(item._ === 'botInlineResult') {
           // (preview || container).style.backgroundColor = '#ff00ff';
-          if(item.thumb && item.thumb.mime_type.indexOf('image/') === 0) {
+          if(item.thumb && item.thumb.mime_type!.indexOf('image/') === 0) {
             let mediaContainer: HTMLElement;
             if(preview) {
               mediaContainer = document.createElement('div');
@@ -195,10 +195,10 @@ export default class InlineHelper extends AutocompleteHelper {
                   location: {
                     _: 'inputWebFileLocation',
                     access_hash: (item.thumb as WebDocument.webDocument).access_hash,
-                    url: item.thumb.url
+                    url: item.thumb!.url
                   },
-                  size: item.thumb.size,
-                  mimeType: item.thumb.mime_type
+                  size: item.thumb!.size,
+                  mimeType: item.thumb!.mime_type
                 }).then((blob) => {
                   const image = new Image();
                   image.classList.add('media-photo');
@@ -261,7 +261,7 @@ export default class InlineHelper extends AutocompleteHelper {
         this.container.style.setProperty('width', isGallery ? `${Math.min(botResults.results.length, 4) * 25}%` : '', 'important'); */
 
         const parent = this.list.parentElement;
-        parent.textContent = '';
+        parent!.textContent = '';
         const switchTo = botResults.switch_pm || botResults.switch_webview;
         if(switchTo) {
           const btnSwitchTo = Button('btn-primary btn-secondary btn-primary-transparent primary');
@@ -269,7 +269,7 @@ export default class InlineHelper extends AutocompleteHelper {
           attachClickEvent(btnSwitchTo, async(e) => {
             if(switchTo._ === 'inlineBotSwitchPM') {
               await this.chat.appImManager.setInnerPeer({peerId});
-              this.managers.appInlineBotsManager.switchToPM(peerId, botId, switchTo.start_param);
+              this.managers.appInlineBotsManager!.switchToPM(peerId, botId, switchTo.start_param);
             } else {
               this.chat.openWebApp({
                 botId,
@@ -280,9 +280,9 @@ export default class InlineHelper extends AutocompleteHelper {
               });
             }
           });
-          parent.append(btnSwitchTo);
+          parent!.append(btnSwitchTo);
         }
-        parent.append(this.list = list);
+        parent!.append(this.list = list);
         this.container.classList.remove('cant-send');
 
         this.gifsMasonry?.detach();
@@ -325,8 +325,8 @@ export default class InlineHelper extends AutocompleteHelper {
       managers: this.managers
     });
 
-    const span = i18n(POSTING_NOT_ALLOWED_MAP['send_inline']);
-    span.classList.add('inline-helper-cant-send');
-    this.container.append(span);
+    const span = i18n(POSTING_NOT_ALLOWED_MAP['send_inline']!);
+    span!.classList.add('inline-helper-cant-send');
+    this.container.append(span!);
   }
 }

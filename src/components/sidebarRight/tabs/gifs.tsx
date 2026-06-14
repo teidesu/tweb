@@ -23,7 +23,7 @@ const Gifs: Component = () => {
   let nextOffset = '';
   let loadedAll = false;
   let gifBotPeerId: PeerId;
-  let searchPromise: ReturnType<AppInlineBotsManager['getInlineResults']>;
+  let searchPromise: ReturnType<AppInlineBotsManager['getInlineResults']> | null;
 
   const reset = () => {
     searchPromise = null;
@@ -36,11 +36,11 @@ const Gifs: Component = () => {
     if(searchPromise || loadedAll) return;
 
     if(!gifBotPeerId) {
-      gifBotPeerId = (await tab.managers.appUsersManager.resolveUsername('gif')).id.toPeerId(false);
+      gifBotPeerId = (await tab.managers.appUsersManager!.resolveUsername('gif')).id.toPeerId(false);
     }
 
     try {
-      searchPromise = tab.managers.appInlineBotsManager.getInlineResults(NULL_PEER_ID, gifBotPeerId, query, nextOffset);
+      searchPromise = tab.managers.appInlineBotsManager!.getInlineResults(NULL_PEER_ID, gifBotPeerId, query, nextOffset);
       const {results, next_offset} = await searchPromise;
 
       if(inputSearch.value !== query) {
@@ -48,7 +48,7 @@ const Gifs: Component = () => {
       }
 
       searchPromise = null;
-      nextOffset = next_offset;
+      nextOffset = next_offset!;
       if(newSearch) {
         gifsDiv.replaceChildren();
       }
@@ -72,11 +72,11 @@ const Gifs: Component = () => {
   };
 
   const onGifsClick = async(e: MouseEvent | TouchEvent) => {
-    const target = findUpClassName(e.target, 'gif');
+    const target = findUpClassName(e.target!, 'gif');
     if(!target) return;
 
     const fileId = target.dataset.docId;
-    if(await appImManager.chat.input.sendMessageWithDocument({document: fileId, target})) {
+    if(await appImManager.chat.input.sendMessageWithDocument({document: fileId!, target})) {
       if(mediaSizes.isMobile) {
         appSidebarRight.onCloseBtnClick();
       }

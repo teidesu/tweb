@@ -198,12 +198,12 @@ export class UiNotificationsManager {
 
     rootScope.addEventListener('dialogs_multiupdate', () => {
       // unregisterTopMsgs()
-      this.topMessagesDeferred.resolve();
+      this.topMessagesDeferred.resolve!();
     }, {once: true});
 
     webPushApiManager.addEventListener('push_notification_click', async(notificationData) => {
       if(notificationData.p) { // * decrypt push notification
-        notificationData = await apiManagerProxy.pushSingleManager.decryptPush(notificationData.p, notificationData.keyIdBase64);
+        notificationData = await apiManagerProxy.pushSingleManager.decryptPush(notificationData.p, notificationData.keyIdBase64!);
         notificationData = await apiManagerProxy.serviceMessagePort.invoke('fillPushObject', notificationData);
       }
 
@@ -227,7 +227,7 @@ export class UiNotificationsManager {
         return;
       }
 
-      const peerId = notificationData.custom && notificationData.custom.peerId.toPeerId();
+      const peerId = notificationData.custom && notificationData.custom.peerId!.toPeerId();
       if(!peerId) {
         return;
       }
@@ -237,18 +237,18 @@ export class UiNotificationsManager {
         const chatId = peerId.isAnyChat() ? peerId.toChatId() : undefined;
         let channelId: ChatId;
         if(chatId) {
-          if(!(await managers.appChatsManager.hasChat(chatId))) {
+          if(!(await managers.appChatsManager!.hasChat(chatId))) {
             return;
           }
 
-          channelId = await managers.appChatsManager.isChannel(chatId) ? chatId : undefined;
+          channelId = (await managers.appChatsManager!.isChannel(chatId) ? chatId : undefined)!;
         }
 
-        if(!chatId && !(await managers.appUsersManager.hasUser(peerId.toUserId()))) {
+        if(!chatId && !(await managers.appUsersManager!.hasUser(peerId.toUserId()))) {
           return;
         }
 
-        const lastMsgId = await managers.appMessagesIdsManager.generateMessageId(+notificationData.custom.msg_id, channelId);
+        const lastMsgId = await managers.appMessagesIdsManager!.generateMessageId(+notificationData.custom.msg_id, channelId!);
 
         appImManager.setInnerPeer({
           peerId,
@@ -290,30 +290,30 @@ export class UiNotificationsManager {
     accountNumber
   }: NotificationBuildTaskPayload) {
     const peerId = message.peerId;
-    const isAnyChat = peerId.isAnyChat();
+    const isAnyChat = peerId!.isAnyChat();
     const notification: NotifyOptions = {};
     const account = this.accounts.get(accountNumber);
     const [peerString, isForum = false] = await Promise.all([
-      account.managers.appPeersManager.getPeerString(peerId),
-      isAnyChat && account.managers.appPeersManager.isForum(peerId)
+      account!.managers.appPeersManager!.getPeerString(peerId!),
+      isAnyChat && account!.managers.appPeersManager!.isForum(peerId!)
     ]);
     let notificationMessage: string;
     let wrappedMessage = false;
 
     const isLocked = PasscodeLockScreenController.getIsLocked();
 
-    if(peerTypeNotifySettings.show_previews && !isLocked) {
-      if(message._ === 'message' && message.fwd_from && fwdCount > 1) {
-        notificationMessage = I18n.format('Notifications.Forwarded', true, [fwdCount]);
+    if(peerTypeNotifySettings!.show_previews && !isLocked) {
+      if(message._ === 'message' && message.fwd_from && fwdCount! > 1) {
+        notificationMessage = I18n.format('Notifications.Forwarded', true, [fwdCount!]);
       } else {
-        notificationMessage = await wrapMessageForReply({message, plain: true, managers: account.managers});
+        notificationMessage = await wrapMessageForReply({message, plain: true, managers: account!.managers});
 
         const reaction = peerReaction?.reaction;
         if(reaction && reaction._ !== 'reactionEmpty') {
           let emoticon = (reaction as Reaction.reactionEmoji).emoticon;
           if(!emoticon) {
-            const doc = await account.managers.appEmojiManager.getCustomEmojiDocument((reaction as Reaction.reactionCustomEmoji).document_id);
-            emoticon = doc.stickerEmojiRaw;
+            const doc = await account!.managers.appEmojiManager!.getCustomEmojiDocument((reaction as Reaction.reactionCustomEmoji).document_id);
+            emoticon = doc.stickerEmojiRaw!;
           }
 
           const langPackKey: LangPackKey = /* isAnyChat ? 'Notification.Group.Reacted' :  */'Notification.Contact.Reacted';
@@ -342,22 +342,22 @@ export class UiNotificationsManager {
 
     const peerTitleOptions/* : Partial<Parameters<typeof getPeerTitle>[0]> */ = {
       plainText: true as const,
-      managers: account.managers
+      managers: account!.managers
     };
 
     const threadId = isForum ? getMessageThreadId(message, {isForum}) : undefined;
     const notificationFromPeerId = peerReaction ? getPeerId(peerReaction.peer_id) : message.fromId;
-    const peerTitle = notification.title = await getPeerTitle({...peerTitleOptions, peerId, threadId: threadId, managers: account.managers, useManagers: true});
+    const peerTitle = notification.title = await getPeerTitle({...peerTitleOptions, peerId: peerId!, threadId: threadId, managers: account!.managers, useManagers: true});
     if(isForum) {
-      const peerTitle = await getPeerTitle({...peerTitleOptions, peerId});
+      const peerTitle = await getPeerTitle({...peerTitleOptions, peerId: peerId!});
       notification.title += ` (${peerTitle})`;
 
       if(wrappedMessage && notificationFromPeerId !== message.peerId) {
-        notificationMessage = await getPeerTitle({...peerTitleOptions, peerId: notificationFromPeerId, managers: account.managers, useManagers: true}) +
+        notificationMessage = await getPeerTitle({...peerTitleOptions, peerId: notificationFromPeerId!, managers: account!.managers, useManagers: true}) +
           ': ' + notificationMessage;
       }
     } else if(isAnyChat && notificationFromPeerId !== message.peerId) {
-      notification.title = await getPeerTitle({...peerTitleOptions, peerId: notificationFromPeerId, managers: account.managers, useManagers: true}) +
+      notification.title = await getPeerTitle({...peerTitleOptions, peerId: notificationFromPeerId!, managers: account!.managers, useManagers: true}) +
         ' @ ' +
         notification.title;
     }
@@ -366,7 +366,7 @@ export class UiNotificationsManager {
       let name = user.first_name;
       if(user.last_name) name += ' ' + user.last_name;
 
-      name = limitSymbols(name, 12, 15);
+      name = limitSymbols(name!, 12, 15);
       return wrapPlainText(name);
     }
 
@@ -374,7 +374,7 @@ export class UiNotificationsManager {
     const hasMoreThanOneAccount = (await AccountController.getTotalAccounts()) > 1;
     if((hasMoreThanOneAccount && isOtherTabActive) || isDifferentAccount) {
       // ' ➜ '
-      notification.title += ' \u279C ' + wrapUserName(await account.managers.appUsersManager.getSelf());
+      notification.title += ' \u279C ' + wrapUserName(await account!.managers.appUsersManager!.getSelf());
     }
 
     notification.title = wrapPlainText(notification.title);
@@ -389,18 +389,18 @@ export class UiNotificationsManager {
 
         window.open(url, '_blank');
       } else {
-        appImManager.setInnerPeer({peerId, lastMsgId: message.mid, threadId});
+        appImManager.setInnerPeer({peerId: peerId!, lastMsgId: message.mid, threadId});
       }
     };
 
     notification.message = notificationMessage;
-    notification.key = `msg_${accountNumber}_${message.peerId}_${message.mid}`;
+    notification.key = `msg_${accountNumber}_${message.peerId!}_${message.mid!}`;
     notification.tag = peerString;
     notification.silent = true;// message.pFlags.silent || false;
 
-    notification.image = !isLocked ? await createNotificationImage(account.managers, peerId, peerTitle) : undefined;
+    notification.image = !isLocked ? await createNotificationImage(account!.managers, peerId!, peerTitle) : undefined;
     if(!peerReaction) { // ! WARNING, message can be already read
-      message = await account.managers.appMessagesManager.getMessageByPeer(message.peerId, message.mid);
+      message = (await account!.managers.appMessagesManager!.getMessageByPeer(message.peerId!, message.mid!))!;
       if(!message || !message.pFlags.unread) return;
     }
 
@@ -425,7 +425,7 @@ export class UiNotificationsManager {
 
     const result = await this.notify(notification, pushData);
     if(result && await apiManagerProxy.pushSingleManager.isRegistered()) {
-      webPushApiManager.ignorePushByMid(peerId, message.mid);
+      webPushApiManager.ignorePushByMid(peerId!, message.mid!);
     }
   }
 
@@ -438,7 +438,7 @@ export class UiNotificationsManager {
       managers: createProxiedManagersForAccount(accountNumber)
     };
     this.accounts.set(accountNumber, account);
-    account.managers.apiUpdatesManager.attach();
+    account.managers.apiUpdatesManager!.attach();
   }
 
   public constructAndStartAll() {
@@ -483,7 +483,7 @@ export class UiNotificationsManager {
     this.log('start');
 
     this.updateLocalSettings();
-    rootScope.managers.appStateManager.getState().then(() => {
+    rootScope.managers.appStateManager!.getState().then(() => {
       if(this.stopped) {
         return;
       }
@@ -551,10 +551,10 @@ export class UiNotificationsManager {
     canvas.height = canvas.width;
 
     const ctx = canvas.getContext('2d');
-    ctx.beginPath();
-    ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, 2 * Math.PI, false);
-    ctx.fillStyle = '#3390ec';
-    ctx.fill();
+    ctx!.beginPath();
+    ctx!.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, 2 * Math.PI, false);
+    ctx!.fillStyle = '#3390ec';
+    ctx!.fill();
 
     let fontSize = 24;
     let str = '' + count;
@@ -569,11 +569,11 @@ export class UiNotificationsManager {
 
     fontSize *= window.devicePixelRatio;
 
-    ctx.font = `700 ${fontSize}px ${FontFamily}`;
-    ctx.textBaseline = 'middle';
-    ctx.textAlign = 'center';
-    ctx.fillStyle = 'white';
-    ctx.fillText(str, canvas.width / 2, canvas.height * .5625);
+    ctx!.font = `700 ${fontSize}px ${FontFamily}`;
+    ctx!.textBaseline = 'middle';
+    ctx!.textAlign = 'center';
+    ctx!.fillStyle = 'white';
+    ctx!.fillText(str, canvas.width / 2, canvas.height * .5625);
 
     /* const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height); */
@@ -613,7 +613,7 @@ export class UiNotificationsManager {
       return;
     }
 
-    this.prevFavicon = href;
+    this.prevFavicon = href!;
     this.faviconElements.forEach((element, idx, arr) => {
       const link = element.cloneNode() as HTMLLinkElement;
       link.dataset.href ||= link.href;
@@ -644,7 +644,7 @@ export class UiNotificationsManager {
     const now = tsNow();
     if(this.settings.volume > 0 && this.settings.sound && !data.noIncrement) {
       this.testSound(this.settings.volume);
-      this.soundsPlayed[data.tag] = now;
+      this.soundsPlayed[data.tag!] = now;
     }
 
     if(!this.notificationsUiSupport ||
@@ -687,18 +687,18 @@ export class UiNotificationsManager {
       }
 
       // throw new Error('test');
-      notification = new Notification(data.title, notificationOptions);
+      notification = new Notification(data.title!, notificationOptions);
     } catch(e) {
       try {
         const registration = await navigator.serviceWorker.ready;
-        await registration.showNotification(data.title, notificationOptions);
+        await registration.showNotification(data.title!, notificationOptions);
         const notifications = await registration.getNotifications({tag: notificationOptions.tag});
         notification = notifications[notifications.length - 1];
       } catch(err) {
         this.log.error('creating push error', err, data, notificationOptions);
       }
 
-      if(!notification) {
+      if(!notification!) {
         this.notificationsUiSupport = false;
         webPushApiManager.setLocalNotificationsDisabled();
         return;

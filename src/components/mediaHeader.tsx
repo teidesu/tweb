@@ -72,7 +72,7 @@ MediaHeader.Sticker = function MediaHeaderSticker(props: MediaHeaderStickerProps
           size={size()}
           lottieLoader={lottieLoader}
           restartOnClick
-          name={props.name}
+          name={props.name!}
           onPromise={(promise) => {
             promise.then(props.onReady);
           }}

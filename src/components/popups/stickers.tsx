@@ -56,8 +56,8 @@ export default function showStickersPopup(
 
   function Inner() {
     const context = useContext(PopupContext);
-    const middleware = untrack(() => context.middlewareHelper).get();
-    const managers = untrack(() => context.managers);
+    const middleware = untrack(() => context!.middlewareHelper).get();
+    const managers = untrack(() => context!.managers);
     const listenerSetter = new ListenerSetter();
 
     let scrollableEl!: HTMLDivElement;
@@ -84,7 +84,7 @@ export default function showStickersPopup(
       let add: boolean;
       if(sets.length === 1) {
         const firstSet = sets[0];
-        buttonAppend = i18n(isEmojis ? 'EmojiCount' : 'Stickers', [firstSet.count]);
+        buttonAppend = i18n(isEmojis ? 'EmojiCount' : 'Stickers', [firstSet.count])!;
         add = !firstSet.installed_date;
       } else {
         const installed = sets.filter((set) => set.installed_date);
@@ -96,7 +96,7 @@ export default function showStickersPopup(
           add = true;
           count = sets.length - installed.length;
         }
-        buttonAppend = i18n('EmojiPackCount', [count]);
+        buttonAppend = i18n('EmojiPackCount', [count])!;
       }
 
       setIsAdd(add);
@@ -127,7 +127,7 @@ export default function showStickersPopup(
         });
 
         setUpdateAdded = (added) => {
-          headerRow.buttonRight.replaceChildren(i18n(added ? 'Stickers.SearchAdded' : 'Stickers.SearchAdd'));
+          headerRow.buttonRight.replaceChildren(i18n(added ? 'Stickers.SearchAdded' : 'Stickers.SearchAdd')!);
           headerRow.buttonRight.classList.toggle('active', added);
         };
 
@@ -139,31 +139,31 @@ export default function showStickersPopup(
       itemsContainer.classList.add('sticker-set-stickers');
       container.append(itemsContainer);
 
-      return {container, headerRow, updateAdded: setUpdateAdded, itemsContainer};
+      return {container, headerRow: headerRow!, updateAdded: setUpdateAdded!, itemsContainer};
     };
 
     const onStickersClick = async(e: MouseEvent) => {
       if(!chatInput.chat.peerId) return;
 
-      const target = findUpClassName(e.target, 'sticker-set-sticker') || findUpClassName(e.target, 'custom-emoji');
+      const target = findUpClassName(e.target!, 'sticker-set-sticker') || findUpClassName(e.target!, 'custom-emoji');
       if(!target) return;
 
       const docId = target.dataset.docId;
       let emoji: {docId: DocId, emoji: string};
       if(isEmojis) {
-        emoji = {docId, emoji: target.dataset.stickerEmoji};
+        emoji = {docId: docId!, emoji: target.dataset.stickerEmoji!};
         if(!chatInput.emoticonsDropdown.canUseEmoji(emoji, true)) return;
       }
 
       const shouldHide = isEmojis ?
-        chatInput.onEmojiSelected(emoji, false) :
-        await appImManager.chat.input.sendMessageWithDocument({document: docId, target});
+        chatInput.onEmojiSelected(emoji!, false) :
+        await appImManager.chat.input.sendMessageWithDocument({document: docId!, target});
       if(shouldHide) handle.hide();
     };
 
     const loadStickerSet = async() => {
       const inputs = toArray(stickerSetInput);
-      const setsPromises = inputs.map((input) => managers.appStickersManager.getStickerSet(input));
+      const setsPromises = inputs.map((input) => managers.appStickersManager!.getStickerSet(input));
       let rawSets = await Promise.all(setsPromises);
       if(!middleware()) return;
       let firstSet = rawSets[0];
@@ -202,7 +202,7 @@ export default function showStickersPopup(
 
         if(headerRow) {
           attachClickEvent(headerRow.buttonRight, () => {
-            managers.appStickersManager.toggleStickerSet(set.set);
+            managers.appStickersManager!.toggleStickerSet(set.set);
           }, {listenerSetter});
         }
 
@@ -336,10 +336,10 @@ export default function showStickersPopup(
         <PopupElement.Body>
           <PopupElement.Scrollable
             ref={scrollableEl}
-            class={!isLoaded() && 'is-loading'}
+            class={((!isLoaded() && 'is-loading')! as string | undefined)}
             withBorders="top"
           >
-            <Show when={isLoaded()} fallback={putPreloader(undefined, true)}>
+            <Show when={isLoaded()} fallback={putPreloader(undefined!, true)}>
               {containers()}
             </Show>
           </PopupElement.Scrollable>
@@ -349,7 +349,7 @@ export default function showStickersPopup(
             noRipple
             color={isLoaded() ? (isAdd() ? 'primary' : 'danger') : 'secondary'}
             callback={async() => {
-              await managers.appStickersManager.toggleStickerSets(
+              await managers.appStickersManager!.toggleStickerSets(
                 rawSetsRef.map((set) => set.set)
               );
             }}

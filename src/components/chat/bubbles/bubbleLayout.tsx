@@ -10,7 +10,7 @@ import ReplyMarkupLayout from '@components/chat/bubbleParts/replyMarkupLayout';
 function ViaUsername(props: { botId: BotId }) {
   const [resource, ctx] = createResource(async() => {
     const via = document.createElement('span');
-    via.innerText = '@' + (await rootScope.managers.appPeersManager.getPeerUsername(props.botId.toPeerId()));
+    via.innerText = '@' + (await rootScope.managers.appPeersManager!.getPeerUsername(props.botId.toPeerId()));
     via.classList.add('peer-title');
     return via
   })
@@ -38,7 +38,7 @@ export function BubbleLayout(props: {
     <span class="is-via">
       <I18nTsx key="ViaBot" />
       {' '}
-      <ViaUsername botId={props.via.toPeerId()} />
+      <ViaUsername botId={props.via!.toPeerId()} />
     </span>
   )
 
@@ -78,7 +78,7 @@ export function BubbleLayout(props: {
           {props.attachment}
           {(props.text || props.content) && (
             <div class={classNames('message spoilers-container', props.attachment && 'mt-shorter')}>
-              {props.content ?? wrapRichText(props.text, {entities: props.textEntities})}
+              {props.content ?? wrapRichText(props.text!, {entities: props.textEntities})}
             </div>
           )}
           {props.tail && generateTail()}

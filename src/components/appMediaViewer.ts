@@ -46,8 +46,8 @@ type AppMediaViewerTargetType = {
 
 export const onMediaCaptionClick = (caption: HTMLElement, e: MouseEvent) => {
   const a = findUpTag(e.target, 'A');
-  const spoiler = findUpClassName(e.target, 'spoiler');
-  const quoteDiv = findUpClassName(e.target, 'quote-like-collapsable');
+  const spoiler = findUpClassName(e.target!, 'spoiler');
+  const quoteDiv = findUpClassName(e.target!, 'quote-like-collapsable');
   const isSpoilerVisible = caption.classList.contains('is-spoiler-visible');
   if(quoteDiv && !a && (!spoiler || isSpoilerVisible)) {
     if(onQuoteClick(e, quoteDiv)) {
@@ -86,8 +86,8 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
 
   constructor(protected local?: boolean, sponsored?: boolean) {
     super(new SearchListLoader({
-      processItem: (item) => {
-        const isForDocument = this.searchContext.inputFilter._ === 'inputMessagesFilterDocument';
+      processItem: ((item: any) => {
+        const isForDocument = this.searchContext!.inputFilter._ === 'inputMessagesFilterDocument';
         const {mid, peerId} = item;
         const media = getMediaFromMessage(item, true);
 
@@ -97,8 +97,8 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
           return;
         }
 
-        return {element: null as HTMLElement, mid, peerId};
-      }
+        return {element: null as unknown as HTMLElement, mid: mid!, peerId: peerId!};
+      }) as any
     }), ['delete', 'forward'], sponsored ? 60 : 0);
 
     this.listLoader.onEmptied = () => {
@@ -112,7 +112,7 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
     this.content.caption = document.createElement('div');
     this.content.caption.classList.add(MEDIA_VIEWER_CLASSNAME + '-caption', 'spoilers-container'/* , 'media-viewer-stub' */);
 
-    let captionTimeout: number;
+    let captionTimeout: number | undefined;
     const setCaptionTimeout = () => {
       if(captionTimeout) {
         clearTimeout(captionTimeout);
@@ -174,7 +174,7 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
     const onClick = (e: MouseEvent) => {
       const callback = onMediaCaptionClick(this.content.caption, e);
       if(callback) {
-        this.close().then(() => {
+        this.close()!.then(() => {
           this.content.caption.removeEventListener('click', onClick, {capture: true});
           callback();
         });
@@ -198,12 +198,12 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
   } */
 
   protected getMessageByPeer(peerId: PeerId, mid: number) {
-    return this.searchContext.isScheduled ? this.managers.appMessagesManager.getScheduledMessageByPeer(peerId, mid) : this.managers.appMessagesManager.getMessageByPeer(peerId, mid);
+    return this.searchContext!.isScheduled ? this.managers.appMessagesManager!.getScheduledMessageByPeer(peerId, mid) : this.managers.appMessagesManager!.getMessageByPeer(peerId, mid);
   }
 
   onPrevClick = async(target: AppMediaViewerTargetType) => {
     this.openMedia({
-      message: this.local ? target.message : await this.getMessageByPeer(target.peerId, target.mid),
+      message: (this.local ? target.message : await this.getMessageByPeer(target.peerId, target.mid))!,
       index: target.index,
       target: target.element,
       fromRight: -1
@@ -212,7 +212,7 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
 
   onNextClick = async(target: AppMediaViewerTargetType) => {
     this.openMedia({
-      message: this.local ? target.message : await this.getMessageByPeer(target.peerId, target.mid),
+      message: (this.local ? target.message : await this.getMessageByPeer(target.peerId, target.mid))!,
       index: target.index,
       target: target.element,
       fromRight: 1
@@ -235,7 +235,7 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
         return;
       }
 
-      await this.managers.appChatsManager.editPhoto(target.peerId.toChatId());
+      await this.managers.appChatsManager!.editPhoto(target!.peerId.toChatId());
       this.target = {element: this.content.media} as any;
       this.close();
       return;
@@ -243,8 +243,8 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
 
     PopupElement.createPopup(
       PopupDeleteMessages,
-      target.peerId,
-      [target.mid],
+      target!.peerId,
+      [target!.mid],
       ChatType.Chat,
       () => {
         this.target = {element: this.content.media} as any;
@@ -255,22 +255,22 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
 
   onForwardClick = () => {
     const target = this.target;
-    if(target.mid) {
+    if(target!.mid) {
       // appSidebarRight.forwardTab.open([target.mid]);
       showForwardPopup({
-        [target.peerId]: [target.mid]
-      }, () => {
+        [target!.peerId]: [target!.mid]
+      }, (() => {
         return this.close();
-      });
+      }) as any);
     }
   };
 
   onAuthorClick = async(e: MouseEvent) => {
-    let {mid, peerId, message} = this.target;
+    let {mid, peerId, message} = this.target!;
     if(mid && mid !== Number.MAX_SAFE_INTEGER) {
-      const threadId = this.searchContext.threadId;
+      const threadId = this.searchContext!.threadId;
       message ||= await this.getMessageByPeer(peerId, mid);
-      this.close(e)
+      this.close(e)!
       // .then(() => mediaSizes.isMobile ? appSidebarRight.sharedMediaTab.closeBtn.click() : Promise.resolve())
       .then(async() => {
         if(mediaSizes.isMobile) {
@@ -281,7 +281,7 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
         }
 
         appImManager.setInnerPeer({
-          peerId: message.peerId,
+          peerId: message!.peerId!,
           lastMsgId: mid,
           threadId
         });
@@ -291,20 +291,20 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
 
   onDownloadClick = async(_: any, docId?: DocId) => {
     if(docId) {
-      const doc = await this.managers.appDocsManager.getDoc(docId);
-      appDownloadManager.downloadToDisc({media: doc, queueId: appImManager.chat.bubbles.lazyLoadQueue.queueId});
+      const doc = await this.managers.appDocsManager!.getDoc(docId);
+      appDownloadManager.downloadToDisc({media: doc, queueId: appImManager.chat.bubbles.lazyLoadQueue!.queueId});
       return;
     }
-    const {message, index} = this.target;
-    const media = getMediaFromMessage(message, true, index);
+    const {message, index} = this.target!;
+    const media = getMediaFromMessage(message!, true, index);
     if(!media) return;
-    appDownloadManager.downloadToDisc({media, queueId: appImManager.chat.bubbles.lazyLoadQueue.queueId});
+    appDownloadManager.downloadToDisc({media, queueId: appImManager.chat.bubbles.lazyLoadQueue!.queueId});
   };
 
   private setCaption(message: MyMessage) {
     const isSponsored = !!(message as Message.message).pFlags.sponsored;
     if(isSponsored) {
-      this.author.nameEl.append(i18n('SponsoredMessageAd'));
+      this.author.nameEl.append(i18n('SponsoredMessageAd')!);
     }
 
     const media = getMediaFromMessage(message, true);
@@ -323,7 +323,7 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
       html = document.createElement('div');
       hasCaption = true;
       const b = document.createElement('b');
-      b.append(wrapEmojiText(sponsoredMessage.title));
+      b.append(wrapEmojiText(sponsoredMessage!.title));
       html.append(
         b,
         '\n',
@@ -331,26 +331,26 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
       );
 
       const button = Button('btn-primary media-viewer-caption-button', {noRipple: true});
-      button.append(wrapEmojiText(sponsoredMessage.button_text));
+      button.append(wrapEmojiText(sponsoredMessage!.button_text));
       this.content.caption.append(button);
       this.content.caption.classList.add('has-button');
 
       attachClickEvent(button, () => {
-        this.close().then(() => {
+        this.close()!.then(() => {
           appImManager.onSponsoredBoxClick(message as Message.message);
         });
       });
     } else if(hasCaption = !!(message as Message.message).message) {
       html = TranslatableMessage({
-        peerId: message.peerId,
+        peerId: message.peerId!,
         message: message as Message.message,
-        middleware: this.content.mover.middlewareHelper.get(),
+        middleware: this.content.mover.middlewareHelper!.get(),
         richTextOptions
       });
       this.saveTimestamps(html, loadPromises);
     }
 
-    setInnerHTML(this.content.caption.firstElementChild, html);
+    setInnerHTML(this.content.caption.firstElementChild!, html!);
     this.content.caption.classList.toggle('hide', !hasCaption);
     // this.content.container.classList.toggle('with-caption', !!caption);
   }
@@ -364,7 +364,7 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
     const timestampElements = Array.from(messageContent.querySelectorAll('.timestamp[data-timestamp]'));
 
     this.videoTimestamps = timestampElements.map((element) => ({
-      time: +(element as HTMLElement).dataset.timestamp,
+      time: +(element as HTMLElement).dataset.timestamp!,
       text: this.extractTimestampText(element)
     }));
   }
@@ -377,8 +377,8 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
 
       const text = current.textContent;
 
-      const shouldBreak = text.includes('\n');
-      result.push(text.split('\n')[0].trim());
+      const shouldBreak = text!.includes('\n');
+      result.push(text!.split('\n')[0].trim());
 
       if(shouldBreak) break;
       current = current.nextSibling;
@@ -416,22 +416,22 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
     if(this.setMoverPromise) return this.setMoverPromise;
 
     const mid = message.mid;
-    const fromId = (message as Message.message).fwd_from && !message.fromId ? getFwdFromName((message as Message.message).fwd_from) : message.fromId;
+    const fromId = (message as Message.message).fwd_from && !message.fromId ? getFwdFromName((message as Message.message).fwd_from!) : message.fromId;
     const media = getMediaFromMessage(message, true, index);
 
     const isSponsored = !!(message as Message.message).pFlags.sponsored || !message.fromId;
     const noAuthor = isSponsored;
-    const noForwards = await this.managers.appPeersManager.noForwards(message.peerId);
+    const noForwards = await this.managers.appPeersManager!.noForwards(message.peerId!);
     const isServiceMessage = message._ === 'messageService';
-    const cantForwardMessage = isServiceMessage || noAuthor || !(await this.managers.appMessagesManager.canForward(message));
+    const cantForwardMessage = isServiceMessage || noAuthor || !(await this.managers.appMessagesManager!.canForward(message));
     const cantDownloadMessage = (isServiceMessage ? noForwards : cantForwardMessage && !isSponsored) || !canSaveMessageMedia(message, noForwards);
     const action = isServiceMessage ? (message as Message.messageService).action : undefined;
     const isChatPhotoEdit = !!action &&
       (action._ === 'messageActionChannelEditPhoto' || action._ === 'messageActionChatEditPhoto') &&
-      message.peerId.isAnyChat();
+      message.peerId!.isAnyChat();
     const cantDeleteMessage = isChatPhotoEdit ?
-      !(await this.managers.appChatsManager.hasRights(message.peerId.toChatId(), 'change_info')) :
-      !(await this.managers.appMessagesManager.canDeleteMessage(message));
+      !(await this.managers.appChatsManager!.hasRights(message.peerId!.toChatId(), 'change_info')) :
+      !(await this.managers.appMessagesManager!.canDeleteMessage(message));
     this.deleteAsChatPhoto = isChatPhotoEdit && !cantDeleteMessage;
     const a: [(HTMLElement | ButtonMenuItemOptionsVerifiable)[], boolean][] = [
       [[this.buttons.forward, this.btnMenuForward], cantForwardMessage],
@@ -457,7 +457,7 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
     const promise = super._openMedia({
       media: media as MyPhoto | MyDocument,
       timestamp: message.date,
-      fromId,
+      fromId: fromId!,
       fromRight,
       target,
       reverse,
@@ -468,10 +468,10 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
       noAuthor
       /* , needLoadMore */
     });
-    this.target.mid = mid;
-    this.target.peerId = message.peerId;
-    this.target.message = message;
-    this.target.index = index;
+    this.target!.mid = mid!;
+    this.target!.peerId = message.peerId!;
+    this.target!.message = message;
+    this.target!.index = index;
 
     // Animated avatar (a profile/chat photo with video_sizes — e.g. a group /
     // channel avatar-change service message): overlay the looping video on the
@@ -496,6 +496,6 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
   }
 
   public static isMediaCompatibleForDocumentViewer(media: MyPhoto | MyDocument) {
-    return (media._ === 'photo' || MEDIA_MIME_TYPES_SUPPORTED.has(media.mime_type) && media.size <= MAX_FILE_SAVE_SIZE);
+    return (media._ === 'photo' || MEDIA_MIME_TYPES_SUPPORTED.has(media.mime_type!) && media.size! <= MAX_FILE_SAVE_SIZE);
   }
 }

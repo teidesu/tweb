@@ -16,7 +16,7 @@ export function FloatingStarsBalance(props: {
 }) {
   const balance = useStars();
   const balanceTon = useStars(true);
-  const [appConfig] = createResource(() => rootScope.managers.apiManager.getAppConfig());
+  const [appConfig] = createResource(() => rootScope.managers.apiManager!.getAppConfig());
 
   const converted = () => {
     const rate = appConfig.latest?.ton_usd_rate;

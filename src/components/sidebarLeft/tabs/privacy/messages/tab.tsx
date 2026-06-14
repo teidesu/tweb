@@ -26,13 +26,13 @@ const MessagesTab = () => {
 
   const [store, setStore, {isPaid, hasChanges, chosenPeersByType}] = useStateStore({
     isReady,
-    globalPrivacy,
+    globalPrivacy: globalPrivacy as any,
     currentOption, currentAllowedChats, currentAllowedUsers
   });
 
   const saveAllSettings = useSaveSettings({
     store,
-    globalPrivacy,
+    globalPrivacy: globalPrivacy as any,
     isPaid,
     hasChanges,
     chosenPeersByType
@@ -66,7 +66,7 @@ const MessagesTab = () => {
         store={store}
         setStore={setStore}
         chosenPeersByType={chosenPeersByType()}
-        exitAnimationPromise={exitAnimationPromise()}
+        exitAnimationPromise={exitAnimationPromise()!}
       />
     </Show>
   );

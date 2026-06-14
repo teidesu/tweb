@@ -29,7 +29,7 @@ export function splitMarkupNames(markup: string) {
   return markup.split('-').slice(1).map((str) => str.split(/\d/, 1)[0]) as MarkdownType[];
 }
 
-export function createMarkdownCache(input: HTMLElement): MarkdownCache {
+export function createMarkdownCache(input: HTMLElement): MarkdownCache | undefined {
   return;
 
   const cache: MarkdownCache = {
@@ -91,7 +91,7 @@ export function undoRedo(input: HTMLElement, e: Event, type: 'undo' | 'redo', ne
 
     let sameHTMLTimes = 0;
     do {
-      document.execCommand(type, false, null);
+      document.execCommand(type, false, null as unknown as string);
       const currentHTML = input.innerHTML;
       if(html === currentHTML) {
         if(++sameHTMLTimes > 2) { // * unlink, removeFormat (а может и нет, случай: заболдить подчёркнутый текст (выделить ровно его), попробовать отменить)
@@ -154,10 +154,10 @@ export function applyMarkdown({input, type, href, dateSuffix}: {input: HTMLEleme
 
     if(type === 'quote') {
       const selection = document.getSelection();
-      if(selection.rangeCount && getCharAfterRange(selection.getRangeAt(0)) === '\n') {
+      if(selection!.rangeCount && getCharAfterRange(selection!.getRangeAt(0)) === '\n') {
         const toLeft = false;
-        selection.modify(
-          selection.isCollapsed ? 'move' : 'extend',
+        selection!.modify(
+          selection!.isCollapsed ? 'move' : 'extend',
           toLeft ? 'backward' : 'forward', 'character'
         );
       }
@@ -221,7 +221,7 @@ export function applyMarkdown({input, type, href, dateSuffix}: {input: HTMLEleme
 
       executed.push(document.execCommand('unlink', false, null));
       executed.push(document.execCommand('removeFormat', false, null));
-      executed.push(typeof(command) === 'function' ? command() : document.execCommand(command, false, null));
+      executed.push(typeof(command) === 'function' ? command() : document.execCommand(command, false, null as unknown as string));
 
       //if(type === 'monospace') {
         executed.push(document.execCommand('styleWithCSS', false, 'false'));
@@ -274,7 +274,7 @@ export function applyMarkdown({input, type, href, dateSuffix}: {input: HTMLEleme
       //   executed.push(this.resetCurrentFormatting());
       // }
 
-      executed.push(typeof(command) === 'function' ? command() : document.execCommand(command, false, null));
+      executed.push(typeof(command) === 'function' ? command() : document.execCommand(command, false, null as unknown as string));
     }
   } else  */{
     if(cantCombine.some((type) => hasMarkup[type]?.partly) && type === 'link') {
@@ -283,7 +283,7 @@ export function applyMarkdown({input, type, href, dateSuffix}: {input: HTMLEleme
       executed.push(resetLinkFormatting());
     }
 
-    executed.push(typeof(command) === 'function' ? command() : document.execCommand(command, false, null));
+    executed.push(typeof(command) === 'function' ? command() : document.execCommand(command, false, null as unknown as string));
   }
 
   executed.push(document.execCommand('styleWithCSS', false, 'false'));
@@ -335,7 +335,7 @@ export function processCurrentFormatting(
     if(
       NO_INNER_QUOTES &&
       markup.includes('quote') &&
-      element.parentElement.closest('[data-markup*="quote"]') &&
+      element.parentElement!.closest('[data-markup*="quote"]') &&
       toggling?.type !== 'quote'
       // element.parentElement.closest('[style*="quote"]')
     ) {
@@ -404,10 +404,10 @@ export function processCurrentFormatting(
     if(toggling) {
       let goodTypes: MarkdownType[];
       if(cantCombine.includes(toggling.type)) { // * filter out other formatting when adding monospace, etc
-        goodTypes = splitMarkupNames(markup)
+        goodTypes = splitMarkupNames(markup!)
         .filter((type) => type === 'quote' || type === toggling.type);
       } else { // * filter out monospace, etc when adding bold
-        goodTypes = splitMarkupNames(markup)
+        goodTypes = splitMarkupNames(markup!)
         .filter((type) => canCombine.includes(type));
       }
 
@@ -432,7 +432,7 @@ export function processCurrentFormatting(
   const processQuotes = () => {
     (input.querySelectorAll(quoteSelectorByData) as NodeListOf<HTMLElement>)
     .forEach((element) => {
-      const isRealQuote = !element.parentElement.closest(quoteSelectorByData);
+      const isRealQuote = !element.parentElement!.closest(quoteSelectorByData);
       if(isRealQuote) element.classList.add(...quoteClasses);
       else element.classList.remove(...quoteClasses);
       delete element.dataset.brokenQuote;
@@ -458,9 +458,9 @@ export function processCurrentFormatting(
 
       const {markup} = element.dataset;
       if(canReallyBeQuote) {
-        element.style.fontFamily = markup;
+        element.style.fontFamily = markup!;
       } else {
-        const goodTypes = splitMarkupNames(markup);
+        const goodTypes = splitMarkupNames(markup!);
         indexOfAndSplice(goodTypes, 'quote');
         if(goodTypes.length) {
           element.dataset.markup = joinMarkupNames(goodTypes);
@@ -483,7 +483,7 @@ export function processCurrentFormatting(
 }
 
 export function resetCurrentFormatting() {
-  return document.execCommand('removeFormat', false, null);
+  return document.execCommand('removeFormat', false, null as unknown as string);
 }
 
 export function resetCurrentFontFormatting() {
@@ -491,7 +491,7 @@ export function resetCurrentFontFormatting() {
 }
 
 export function resetLinkFormatting() {
-  return document.execCommand('unlink', false, null);
+  return document.execCommand('unlink', false, null as unknown as string);
 }
 
 export function handleMarkdownShortcut(input: HTMLElement, e: KeyboardEvent) {

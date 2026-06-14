@@ -66,8 +66,8 @@ export default function FolderItem(props: FolderItemProps) {
     }
 
     // re-measure on digit-count change
-    props.notifications.count;
-    setClipPath(iconWrapRef && badgeRef && buildBadgeCutoutClipPath(iconWrapRef, badgeRef));
+    props.notifications!.count;
+    setClipPath(iconWrapRef! && badgeRef && buildBadgeCutoutClipPath(iconWrapRef, badgeRef));
   });
 
   const hasCustomIcon = () => props.iconDocId || props.emojiIcon;
@@ -83,7 +83,7 @@ export default function FolderItem(props: FolderItemProps) {
     const fragment = wrapFolderTitle(props.title, middleware, true);
 
     createEffect(() => {
-      const renderer: CustomEmojiRendererElement = span.querySelector('custom-emoji-renderer-element');
+      const renderer: CustomEmojiRendererElement = span.querySelector('custom-emoji-renderer-element')!;
       renderer?.setTextColor(props.selected ? 'primary-color' : 'folders-sidebar-item-color')
     });
 
@@ -103,7 +103,7 @@ export default function FolderItem(props: FolderItemProps) {
       }}
       class="folders-sidebar__folder-item"
       classList={{
-        [props.class]: !!props.class,
+        [props.class!]: !!props.class,
         'folders-sidebar__folder-item--selected': props.selected
       }}
       {...(props.id !== undefined ?
@@ -113,7 +113,7 @@ export default function FolderItem(props: FolderItemProps) {
       onClick={props.onClick}
     >
       <div
-        ref={iconWrapRef}
+        ref={iconWrapRef!}
         class="folders-sidebar__folder-item-icon-wrap"
         style={{'clip-path': clipPath(), '-webkit-clip-path': clipPath()}}
       >
@@ -141,10 +141,10 @@ export default function FolderItem(props: FolderItemProps) {
           ref={(el) => badgeRef = el}
           class="folders-sidebar__folder-item-badge"
           tag="div"
-          color={props.notifications.muted/*  && !props.selected */ ? 'gray' : 'primary'}
+          color={props.notifications!.muted/*  && !props.selected */ ? 'gray' : 'primary'}
           size={18}
         >
-          {'' + props.notifications.count}
+          {'' + props.notifications!.count}
         </Badge>
       </Show>
     </div>

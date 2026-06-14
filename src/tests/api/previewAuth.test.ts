@@ -231,7 +231,7 @@ describeOrSkip('preview auth', () => {
         userId: seed.userId,
         dcId: seed.dcId,
         authKeys: {},
-        timeOffset: timeOffset ?? undefined
+        timeOffset: timeOffset! ?? undefined
       };
       // re-read account2 — Phase 3.5 authorized more DCs after the earlier snapshot
       const account2Final: any = await sessionStorage.get('account2' as any);

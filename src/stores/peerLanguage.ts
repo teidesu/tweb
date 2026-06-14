@@ -25,7 +25,7 @@ type T = {
 
 let state: T, setState: SetStoreFunction<T>, myLanguages: Accessor<Set<TranslatableLanguageISO>>;
 let _createStore = () => {
-  _createStore = undefined;
+  _createStore = undefined!;
   [state, setState] = createStore({});
 
   createRoot(() => {
@@ -34,7 +34,7 @@ let _createStore = () => {
       const myLanguages = new Set(
         appSettings.translations.doNotTranslate.concat(
           navigator.language.split('-')[0] as TranslatableLanguageISO,
-          I18n.langCodeNormalized()
+          I18n.langCodeNormalized()!
         )
       );
 
@@ -69,7 +69,7 @@ function createEmpty(): TT {
   return {
     messages: {},
     languages: {},
-    language: undefined,
+    language: undefined!,
     total: 0,
     totalForeign: 0
   };

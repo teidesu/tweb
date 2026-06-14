@@ -162,7 +162,7 @@ async function handlePushNotificationObject(obj: PushNotificationObject) {
       getter.get('push_lang'),
       getWindowClients()
     ]);
-    _lang = lang;
+    _lang = lang!;
 
     const nowTime = Date.now();
     if(
@@ -180,7 +180,7 @@ async function handlePushNotificationObject(obj: PushNotificationObject) {
       throw 'supress push notification because some instance is alive';
     }
 
-    const notificationPromise = fireNotification(obj, settings, lang);
+    const notificationPromise = fireNotification(obj, settings!, lang!);
     await notificationPromise.catch((err) => {
       log.error('push notification error', err, copy);
       throw err;
@@ -194,7 +194,7 @@ async function handlePushNotificationObject(obj: PushNotificationObject) {
 
     const tag = 'fix';
     const notificationPromise = ctx.registration.showNotification('Telegram Web', {
-      body: _lang.push_message_error,
+      body: _lang!.push_message_error,
       icon: NOTIFICATION_ICON_PATH,
       tag,
       badge: NOTIFICATION_BADGE_PATH,
@@ -214,7 +214,7 @@ async function handlePushNotificationObject(obj: PushNotificationObject) {
 (ctx as any).handlePushNotificationObject = handlePushNotificationObject;
 
 function onPushEvent(event: PushEvent) {
-  const obj: EncryptedPushNotificationObject | PushNotificationObject = event.data.json();
+  const obj: EncryptedPushNotificationObject | PushNotificationObject = event.data!.json();
   if(!('p' in obj)) {
     event.waitUntil(handlePushNotificationObject(obj));
     return;
@@ -251,7 +251,7 @@ function onPushEvent(event: PushEvent) {
     return;
   }
 
-  const keyIdBase64 = keysIdsBase64[keyIndex];
+  const keyIdBase64 = keysIdsBase64![keyIndex];
   emptyNotification.accountNumber = keyIndex + 1 as ActiveAccountNumber;
   emptyNotification.p = p;
   emptyNotification.keyIdBase64 = keyIdBase64;
@@ -267,7 +267,7 @@ function onPushEvent(event: PushEvent) {
 
 async function isPasscodeLocked() {
   return Promise.race([
-    pause(1000).then(() => undefined as boolean),
+    pause(1000).then(() => undefined as unknown as boolean),
     Promise.all([
       DeferredIsUsingPasscode.isUsingPasscode(),
       EncryptionKeyStore.get()
@@ -318,7 +318,7 @@ function onNotificationClick(event: NotificationEvent) {
 
       // * verify account number
       const url = new URL(client.url);
-      if((+url.searchParams.get(CURRENT_ACCOUNT_QUERY_PARAM) || 1) !== data.accountNumber) {
+      if((+url.searchParams.get(CURRENT_ACCOUNT_QUERY_PARAM)! || 1) !== data.accountNumber) {
         continue;
       }
 
@@ -333,7 +333,7 @@ function onNotificationClick(event: NotificationEvent) {
     }
 
     if(ctx.clients.openWindow) {
-      const url = new URL(settings.baseUrl || defaultBaseUrl);
+      const url = new URL(settings!.baseUrl || defaultBaseUrl);
       if(data.accountNumber && data.accountNumber > 1) { // * set account number
         url.searchParams.set(CURRENT_ACCOUNT_QUERY_PARAM, data.accountNumber + '');
       }
@@ -348,7 +348,7 @@ function onNotificationClick(event: NotificationEvent) {
 }
 
 const notifications: Set<Notification> = new Set();
-let pendingNotification: PushNotificationObject;
+let pendingNotification: PushNotificationObject | undefined;
 function pushToNotifications(notification: Notification) {
   if(!notifications.has(notification)) {
     notifications.add(notification);
@@ -412,7 +412,7 @@ export function fillPushObject(obj: PushNotificationObject) {
     }
   }
 
-  obj.custom.peerId = '' + peerId;
+  obj.custom.peerId = '' + peerId!;
   return obj;
 }
 
@@ -437,15 +437,15 @@ function fireNotification(
 
   if(settings?.nopreview || !obj.loc_key) {
     title = 'Telegram';
-    body = lang.push_message_nopreview;
+    body = lang.push_message_nopreview!;
     tag = 'unknown_peer';
   }
 
   const actions: (Omit<NotificationAction, 'action'> & {action: PushNotificationObject['action']})[] = [
-    userInvisibleIsSupported() && {
+    ((userInvisibleIsSupported() && {
       action: 'mute1d',
       title: lang.push_action_mute1d
-    }/* , {
+    })! as Omit<NotificationAction, 'action'> & { action: PushNotificationObject['action']; })/* , {
     action: 'push_settings',
     title: lang.push_action_settings || 'Settings'
   } */];
@@ -455,7 +455,7 @@ function fireNotification(
     icon: NOTIFICATION_ICON_PATH,
     tag,
     data: obj,
-    actions: actions.filter(Boolean),
+    actions: (actions.filter(Boolean)! as NotificationAction[] | undefined),
     badge: NOTIFICATION_BADGE_PATH,
     silent: obj.custom.silent === '1'
   };

@@ -29,7 +29,7 @@ export class CryptoMessagePort<Master extends boolean = false> extends SuperMess
     const payload = {method, args};
     const listeners = this.listeners['invoke'];
     if(listeners?.size) { // already in worker
-      const callback = listeners.values().next().value.callback;
+      const callback = listeners.values().next().value!.callback;
       if(this.readyPromise) {
         return this.readyPromise.then(() => callback(payload) as any);
       }

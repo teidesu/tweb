@@ -17,9 +17,9 @@ export default class AutocompleteHelper extends EventListenerBase<{
   protected hidden = true;
   public container: HTMLElement;
   protected list: HTMLElement;
-  protected resetTarget: () => void;
-  protected attach: () => void;
-  protected detach: () => void;
+  protected resetTarget?: () => void;
+  protected attach?: () => void;
+  protected detach?: () => void;
   protected init?(): void;
 
   protected controller: AutocompleteHelperController;
@@ -28,7 +28,7 @@ export default class AutocompleteHelper extends EventListenerBase<{
   protected getNavigationList?: () => HTMLElement;
   protected waitForKey?: string[];
 
-  protected navigationItem: NavigationItem;
+  protected navigationItem?: NavigationItem;
 
   // * helpers in this set are allowed to remain visible alongside this one
   public siblings: Set<AutocompleteHelper> = new Set();

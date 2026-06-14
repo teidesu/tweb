@@ -1,4 +1,4 @@
-export default function getCharAfterRange(range: Range): string {
+export default function getCharAfterRange(range: Range): string | undefined {
   // Создаем новый диапазон
   const newRange = document.createRange();
 
@@ -13,12 +13,12 @@ export default function getCharAfterRange(range: Range): string {
   const nextTextNode = findNextTextNode(range.endContainer);
   if(nextTextNode) {
     newRange.setStart(nextTextNode, 0);
-    newRange.setEnd(nextTextNode, Math.min(nextTextNode.nodeValue.length, 1));
+    newRange.setEnd(nextTextNode, Math.min(nextTextNode.nodeValue!.length, 1));
     return newRange.toString();
   }
 }
 
-function findNextTextNode(node: Node): Text {
+function findNextTextNode(node: Node): Text | undefined {
   while(node && !node.nextSibling) {
     node = node.parentNode!;
   }
@@ -28,7 +28,7 @@ function findNextTextNode(node: Node): Text {
   }
 }
 
-function findFirstTextNode(node: Node): Text {
+function findFirstTextNode(node: Node): Text | undefined {
   if(node.nodeType === Node.TEXT_NODE) {
     return node as Text;
   }

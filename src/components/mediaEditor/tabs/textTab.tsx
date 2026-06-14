@@ -17,7 +17,7 @@ const textSizeMin = 16;
 const textSizeMax = 64;
 
 export default function TextTab() {
-  const {editorState} = useMediaEditorContext();
+  const {editorState} = useMediaEditorContext()!;
 
   const [savedColor, setSavedColor] = createStoredColor('textColor', textLayerInfoDefaults.color);
 
@@ -145,7 +145,7 @@ export default function TextTab() {
 }
 
 function createSyncedLayerInfoProp<T extends keyof TextLayerInfo>(key: T, getter: () => TextLayerInfo[T]) {
-  const {editorState} = useMediaEditorContext();
+  const {editorState} = useMediaEditorContext()!;
 
   editorState.currentTextLayerInfo[key] = getter();
 

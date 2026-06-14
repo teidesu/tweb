@@ -163,8 +163,8 @@ export type LockScreenHotReloadGuardContextValue = Pick<
   | 'PasswordMonkey'
 >;
 
-export const SolidJSHotReloadGuardContext = createContext<SolidJSHotReloadGuardContextValue>(null);
-export const LockScreenHotReloadGuardContext = createContext<LockScreenHotReloadGuardContextValue>(null);
+export const SolidJSHotReloadGuardContext = createContext<SolidJSHotReloadGuardContextValue>(null as unknown as SolidJSHotReloadGuardContextValue);
+export const LockScreenHotReloadGuardContext = createContext<LockScreenHotReloadGuardContextValue>(null as unknown as LockScreenHotReloadGuardContextValue);
 
 /**
  * If importing a module causes the page to reload when you make changes in your SolidJS component

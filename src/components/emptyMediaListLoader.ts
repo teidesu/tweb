@@ -38,12 +38,12 @@ export class EmptyMediaListLoader extends ListLoader<MediaItem, Message.message>
   }
 
   public setOptions(options: MediaListLoaderOptions) {
-    this.processItem = options.processItem;
+    this.processItem = options.processItem!;
     this.loadCount = options.loadCount ?? 50;
     this.loadWhenLeft = options.loadWhenLeft ?? 20;
-    this.onJump = options.onJump;
+    this.onJump = options.onJump!;
     this.onEmptied = options.onEmptied;
-    this.onLoadedMore = options.onLoadedMore;
+    this.onLoadedMore = options.onLoadedMore!;
   }
 
   public goRound(_length: number, _dispatchJump?: boolean): void {

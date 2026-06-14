@@ -46,8 +46,8 @@ const [store, setStore] = createStore({
   isMobile: false,
   isFloatingLeftSidebar: false,
   isLessThanFloatingLeftSidebar: false,
-  active: undefined as MediaTypeSizes,
-  activeScreen: undefined as ScreenSize
+  active: undefined as unknown as MediaTypeSizes,
+  activeScreen: undefined as unknown as ScreenSize
 });
 
 class MediaSizes extends EventListenerBase<{

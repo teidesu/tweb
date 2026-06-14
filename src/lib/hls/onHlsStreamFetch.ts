@@ -17,10 +17,10 @@ export async function onHlsStreamFetch(event: FetchEvent, inParams: string, sear
 
   try {
     const {docId, dcId, size, mimeType}: HlsStreamUrlParams = JSON.parse(decodeURIComponent(inParams));
-    const range = parseRange(event.request.headers.get('Range'));
+    const range = parseRange(event.request.headers.get('Range')!);
 
     const client = await ctx.clients.get(event.clientId);
-    const accountNumber = getCurrentAccountFromURL(client.url);
+    const accountNumber = getCurrentAccountFromURL(client!.url);
 
 
     const [lowerBound, upperBound] = range;
@@ -38,7 +38,7 @@ export async function onHlsStreamFetch(event: FetchEvent, inParams: string, sear
 
     const resultingBuffer = filePart.slice(lowerBound - alignedLowerBound, upperBound - alignedLowerBound + 1);
 
-    deferred.resolve(
+    deferred.resolve!(
       new Response(resultingBuffer, {
         status: 206,
         statusText: 'Partial Content',
@@ -46,7 +46,7 @@ export async function onHlsStreamFetch(event: FetchEvent, inParams: string, sear
       })
     );
   } catch(e) {
-    deferred.resolve(get500ErrorResponse());
+    deferred.resolve!(get500ErrorResponse());
     swLog.error(e);
   }
 }

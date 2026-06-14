@@ -84,7 +84,7 @@ export class DcConfigurator {
       oooohLetMeLive = (getEnvironment().IS_SAFARI && IS_WEB_WORKER && typeof(SocketProxied) !== 'undefined') /* || true */ ? SocketProxied : Socket;
     }
 
-    return new TcpObfuscated(oooohLetMeLive, dcId, chosenServer, logSuffix, retryTimeout);
+    return new TcpObfuscated(oooohLetMeLive, dcId, chosenServer!, logSuffix, retryTimeout);
   };
 
   private transportHTTP = (dcId: DcId, connectionType: ConnectionType, premium?: boolean) => {
@@ -108,7 +108,7 @@ export class DcConfigurator {
     }
 
     const logSuffix = connectionType === 'upload' ? '-U' : connectionType === 'download' ? '-D' : '';
-    return new HTTP(dcId, chosenServer, logSuffix);
+    return new HTTP(dcId, chosenServer!, logSuffix);
   };
 
   public chooseServer(
@@ -142,11 +142,11 @@ export class DcConfigurator {
       let transport: MTTransport;
 
       if(import.meta.env.VITE_MTPROTO_HAS_WS && import.meta.env.VITE_MTPROTO_HAS_HTTP) {
-        transport = (transportType === 'websocket' ? this.transportSocket : this.transportHTTP)(dcId, connectionType, premium);
+        transport = (transportType === 'websocket' ? this.transportSocket : this.transportHTTP)(dcId, connectionType, premium)!;
       } else if(!import.meta.env.VITE_MTPROTO_HTTP) {
-        transport = this.transportSocket(dcId, connectionType, premium);
+        transport = this.transportSocket(dcId, connectionType, premium)!;
       } else {
-        transport = this.transportHTTP(dcId, connectionType, premium);
+        transport = this.transportHTTP(dcId, connectionType, premium)!;
       }
 
       if(!transport) {

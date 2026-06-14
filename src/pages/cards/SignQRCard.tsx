@@ -90,7 +90,7 @@ export default function SignQRCard(_props: {spec: Spec}) {
     const {canvas} = await paintQrCode({
       data: url,
       size: QR_SIZE,
-      host: stickerHost,
+      host: stickerHost!,
       background: surfaceColor,
       foreground: textColor,
       logoColor: primaryColor,
@@ -112,7 +112,7 @@ export default function SignQRCard(_props: {spec: Spec}) {
       }, 500);
       preloader = undefined;
     } else {
-      Array.from(stickerHost.children).slice(0, -1).forEach((el) => el.remove());
+      Array.from(stickerHost!.children).slice(0, -1).forEach((el) => el.remove());
     }
 
     lastDrawnToken = token;
@@ -134,26 +134,26 @@ export default function SignQRCard(_props: {spec: Spec}) {
   async function iterate(QRCodeStyling: any, isLoop: boolean): Promise<boolean> {
     try {
       const userIds = await AccountController.getUserIds();
-      let loginToken = await managers.apiManager.invokeApi('auth.exportLoginToken', {
+      let loginToken = await managers.apiManager!.invokeApi('auth.exportLoginToken', {
         api_id: App.id,
         api_hash: App.hash,
-        except_ids: userIds.map((userId) => userId.toUserId())
+        except_ids: userIds.map((userId) => userId!.toUserId())
       }, {ignoreErrors: true});
 
       if(loginToken._ === 'auth.loginTokenMigrateTo') {
         if(!options.dcId) {
           options.dcId = loginToken.dc_id as DcId;
-          managers.apiManager.setBaseDcId(loginToken.dc_id);
+          managers.apiManager!.setBaseDcId(loginToken.dc_id);
         }
 
-        loginToken = await managers.apiManager.invokeApi('auth.importLoginToken', {
+        loginToken = await managers.apiManager!.invokeApi('auth.importLoginToken', {
           token: loginToken.token
         }, options) as AuthLoginToken.authLoginToken;
       }
 
       if(loginToken._ === 'auth.loginTokenSuccess') {
         const authorization = loginToken.authorization as any as AuthAuthorization.authAuthorization;
-        await managers.apiManager.setUser(authorization.user);
+        await managers.apiManager!.setUser(authorization.user);
         toIm();
         return true;
       }
@@ -166,7 +166,7 @@ export default function SignQRCard(_props: {spec: Spec}) {
 
       if(isLoop) {
         const timestamp = Date.now() / 1000;
-        const diff = loginToken.expires - timestamp - await managers.timeManager.getServerTimeOffset();
+        const diff = loginToken.expires - timestamp - await managers.timeManager!.getServerTimeOffset();
         await pause(diff > FETCH_INTERVAL ? 1e3 * FETCH_INTERVAL : 1e3 * diff | 0);
       }
     } catch(err) {
@@ -193,9 +193,9 @@ export default function SignQRCard(_props: {spec: Spec}) {
   /* ---------- lifecycle ---------- */
 
   onMount(async() => {
-    managers.appStateManager.pushToState('authState', {_: 'authStateSignQr'});
+    managers.appStateManager!.pushToState('authState', {_: 'authStateSignQr'});
 
-    preloader = putPreloader(stickerHost, true);
+    preloader = putPreloader(stickerHost!, true);
 
     const [{default: QRCodeStyling}] = await Promise.all([
       import('qr-code-styling' as any)
@@ -223,7 +223,7 @@ export default function SignQRCard(_props: {spec: Spec}) {
       inputWrapper={false}
       header={
         <MediaHeader>
-          <MediaHeader.Sticker ref={stickerHost} class={styles.qrContainer} size={QR_SIZE}/>
+          <MediaHeader.Sticker ref={stickerHost!} class={styles.qrContainer} size={QR_SIZE}/>
           <MediaHeader.Title>{i18n('Login.QR.Title')}</MediaHeader.Title>
           <MediaHeader.Subtitle class="secondary">{i18n('Login.QR.Subtitle')}</MediaHeader.Subtitle>
         </MediaHeader>

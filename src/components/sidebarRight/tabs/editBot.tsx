@@ -26,9 +26,9 @@ const EditBot: Component = () => {
     const inputFields: InputField[] = [];
 
     const [bioMaxLength, user, botInfo] = await Promise.all([
-      tab.managers.apiManager.getLimit('bio'),
-      tab.managers.appUsersManager.getUser(botId),
-      tab.managers.appProfileManager.getBotInfo(botId)
+      tab.managers.apiManager!.getLimit('bio'),
+      tab.managers.appUsersManager!.getUser(botId),
+      tab.managers.appProfileManager!.getBotInfo(botId)
     ]);
 
     let firstNameInputField: InputField;
@@ -110,7 +110,7 @@ const EditBot: Component = () => {
 
           const {error} = usernameInputField;
           const isPurchase = error?.type === 'USERNAME_PURCHASE_AVAILABLE';
-          setUsername(isPurchase ? usernameInputField.value : undefined);
+          setUsername((isPurchase ? usernameInputField.value : undefined)!);
         },
         availableText: 'EditProfile.Username.Available',
         takenText: 'EditProfile.Username.Taken',
@@ -124,7 +124,7 @@ const EditBot: Component = () => {
       const {setUsername, element: p} = purchaseUsernameCaption();
 
       caption.append(
-        i18n('EditBot.Username.Caption'),
+        i18n('EditBot.Username.Caption')!,
         p
       );
 
@@ -150,7 +150,7 @@ const EditBot: Component = () => {
 
       const promises: Promise<any>[] = [];
 
-      const profilePromise = tab.managers.appProfileManager.setBotInfo(
+      const profilePromise = tab.managers.appProfileManager!.setBotInfo(
         botId,
         firstNameInputField.value,
         aboutInputField.value
@@ -166,12 +166,12 @@ const EditBot: Component = () => {
         const filePromise = fileFn();
         const videoPromise = videoFn?.();
         promises.push(Promise.all([filePromise, videoPromise]).then(([file, video]) => {
-          return tab.managers.appProfileManager.uploadProfilePhoto({file, video, videoStartTs, botId});
+          return tab.managers.appProfileManager!.uploadProfilePhoto({file, video, videoStartTs, botId});
         }));
       }
 
       if(usernameInputField.isValidToChange()) {
-        promises.push(tab.managers.appUsersManager.updateUsername(usernameInputField.value));
+        promises.push(tab.managers.appUsersManager!.updateUsername(usernameInputField.value));
       }
 
       Promise.race(promises).finally(() => {

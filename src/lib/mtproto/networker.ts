@@ -93,7 +93,7 @@ type InitConnectionParams = {
 };
 
 // const TEST_RESEND_RPC: string = 'upload.file';
-const TEST_RESEND_RPC: string = undefined;
+const TEST_RESEND_RPC: string | undefined = undefined;
 let TESTING_RESENDING_RPC = !!TEST_RESEND_RPC;
 const TEST_NO_ACKS = false;
 const TEST_HTTP_DROPPING_REQUESTS = import.meta.env.VITE_MTPROTO_HAS_HTTP && false;
@@ -158,14 +158,14 @@ export default class MTPNetworker {
   private nextReq: number = 0;
 
   // HTTP-only
-  private longPollInterval: number;
-  private longPollPending: number;
+  private longPollInterval: number | undefined;
+  private longPollPending: number | undefined;
   private checkConnectionRetryAt: number;
-  private checkConnectionTimeout: number;
+  private checkConnectionTimeout: number | undefined;
   private checkConnectionPeriod = 0;
   private sleepAfter: number;
   private offline = false;
-  private sendingLongPoll: boolean;
+  private sendingLongPoll: boolean | undefined;
 
   private seqNo: number;
   private prevSessionId: Uint8Array;
@@ -189,19 +189,19 @@ export default class MTPNetworker {
 
   public activeRequests = 0;
 
-  public onDrain: () => void;
-  private onDrainTimeout: number;
+  public onDrain: (() => void) | undefined;
+  private onDrainTimeout: number | undefined;
 
   public transport: MTTransport;
 
   // WS-only
-  private pingDelayDisconnectDeferred: CancellablePromise<string>;
+  private pingDelayDisconnectDeferred: CancellablePromise<string> | undefined;
   // private pingPromise: Promise<void>;
   // private pingInterval: number;
   private lastPingTime: number;
   // private lastPingRealTime: number;
   private lastPingStartTime: number;
-  private lastPingDelayDisconnectId: string;
+  private lastPingDelayDisconnectId: string | undefined;
 
   private delays: typeof delays[keyof typeof delays];
   // private getNewTimeOffset: boolean;
@@ -279,17 +279,17 @@ export default class MTPNetworker {
 
     if(sentMessage.container) {
       let deleted = false;
-      forEachReverse(sentMessage.inner, (innerSentMessageId, idx) => {
+      forEachReverse(sentMessage.inner!, (innerSentMessageId, idx) => {
         const innerSentMessage = this.updateSentMessage(innerSentMessageId);
         if(!innerSentMessage) {
-          sentMessage.inner.splice(idx, 1);
+          sentMessage.inner!.splice(idx!, 1);
           deleted = true;
         } else {
-          sentMessage.inner[idx] = innerSentMessage.msg_id;
+          sentMessage.inner![idx!] = innerSentMessage.msg_id;
         }
       });
 
-      if(deleted && !sentMessage.inner.length) {
+      if(deleted && !sentMessage.inner!.length) {
         log('deleted container', sentMessage);
         return;
       }
@@ -378,7 +378,7 @@ export default class MTPNetworker {
 
   public wrapApiCall(method: string, params: any = {}, options: InvokeApiOptions = {}): Promise<any> {
     if(this.usingPfs && !this.authKey.wrappedBinding) {
-      const promise = this.authKey.wrapBindPromise ??= this.wrapBindAuthKeyCall(this.authKey.expiresAt);
+      const promise = this.authKey.wrapBindPromise ??= this.wrapBindAuthKeyCall(this.authKey.expiresAt!);
       return promise.then(() => {
         return this.wrapApiCall(method, params, options);
       });
@@ -507,7 +507,7 @@ export default class MTPNetworker {
       // this.clearPing();
     }
 
-    this.transport = transport;
+    this.transport = transport!;
     if(!transport) {
       return;
     }
@@ -611,7 +611,7 @@ export default class MTPNetworker {
     this.lastPingDelayDisconnectId = undefined;
 
     if(deferred) {
-      deferred.reject();
+      deferred.reject!();
     }
   }
 
@@ -649,7 +649,7 @@ export default class MTPNetworker {
 
     const log = this.log.bindPrefix('sendPingDelayDisconnect');
     log.debug(`ping, timeout=${timeoutTime}, lastPingTime=${this.lastPingTime}, msgId=${options.messageId}, pingId=${pingId}`);
-    const rejectTimeout = ctx.setTimeout(deferred.reject.bind(deferred), timeoutTime);
+    const rejectTimeout = ctx.setTimeout(deferred.reject!.bind(deferred), timeoutTime);
 
     const onResolved = (reason: string) => {
       clearTimeout(rejectTimeout);
@@ -896,7 +896,7 @@ export default class MTPNetworker {
           const {deferred} = sentMessage;
           delete sentMessages[msgId];
           delete this.pendingMessages[msgId];
-          shouldResolve ? deferred.resolve() : deferred.reject();
+          shouldResolve ? deferred!.resolve!() : deferred!.reject!();
         }
       });
     });
@@ -904,7 +904,7 @@ export default class MTPNetworker {
 
   // тут можно сделать таймаут и выводить дисконнект
   private pushMessage(message: MTMessage, options: MTMessageOptions) {
-    let promise: CancellablePromise<void>;
+    let promise!: CancellablePromise<void>;
     if(!options.notContentRelated || options.noResponse) {
       promise = deferredPromise();
     }
@@ -912,7 +912,7 @@ export default class MTPNetworker {
     this.sentMessages[message.msg_id] = Object.assign(
       message,
       options,
-      promise ? {deferred: promise} : undefined
+      (promise as CancellablePromise<void> | undefined) ? {deferred: promise} : undefined
     );
 
     this.pendingMessages[message.msg_id] = 0;
@@ -925,7 +925,7 @@ export default class MTPNetworker {
       options.messageId = message.msg_id;
     }
 
-    return promise;
+    return promise!;
   }
 
   public attachPromise(promise: Promise<any>, message: MTMessage) {
@@ -969,7 +969,7 @@ export default class MTPNetworker {
       this.onDrainTimeout = ctx.setTimeout(() => {
         this.onDrainTimeout = undefined;
         this.log('drain');
-        this.onDrain();
+        this.onDrain!();
       }, DRAIN_TIMEOUT);
     }
   }
@@ -1021,7 +1021,7 @@ export default class MTPNetworker {
 
     const value = delay ? Date.now() + delay : 0;
     if(sentMessage.container) {
-      for(const innerMsgId of sentMessage.inner) {
+      for(const innerMsgId of sentMessage.inner!) {
         this.pushResend(innerMsgId, delay);
       }
 
@@ -1093,7 +1093,7 @@ export default class MTPNetworker {
         msg_ids: msgIds
       }, options);
 
-      const sentMessage = this.sentMessages[options.messageId];
+      const sentMessage = this.sentMessages[options.messageId!];
       msgIds.forEach((msgId) => {
         this.sentResendReq.set(msgId, sentMessage);
       });
@@ -1149,7 +1149,7 @@ export default class MTPNetworker {
           log.warn('length overflow', message, messages);
           lengthOverflow = true;
 
-          if(outMessage) { // if it's not a first message
+          if(outMessage!) { // if it's not a first message
             break;
           }
         }
@@ -1176,7 +1176,7 @@ export default class MTPNetworker {
 
     if(import.meta.env.VITE_MTPROTO_HAS_HTTP) {
       if(!import.meta.env.VITE_MTPROTO_HAS_WS || this.transport instanceof HTTP) {
-        if(hasApiCall && !hasHttpWait) {
+        if(hasApiCall! && !hasHttpWait!) {
           const options: MTMessageOptions = {...HTTP_WAIT_OPTIONS, noSchedule: true};
           this.wrapMtpCall('http_wait', {
             max_delay: 500,
@@ -1184,7 +1184,7 @@ export default class MTPNetworker {
             max_wait: 3000
           }, options);
 
-          const message = this.sentMessages[options.messageId];
+          const message = this.sentMessages[options.messageId!];
           messages.push(message);
           delete this.pendingMessages[message.msg_id]
           log('appended http_wait', message.msg_id);
@@ -1209,14 +1209,14 @@ export default class MTPNetworker {
 
       this.sentMessages[outMessage.msg_id] = container.message;
     } else {
-      this.sentMessages[outMessage.msg_id] = outMessage;
+      this.sentMessages[outMessage!.msg_id] = outMessage!;
     }
 
-    const promise = this.sendEncryptedRequest(outMessage);
+    const promise = this.sendEncryptedRequest(outMessage!);
 
     if(import.meta.env.VITE_MTPROTO_HAS_HTTP) {
       if(!import.meta.env.VITE_MTPROTO_HAS_WS || this.transport instanceof HTTP) {
-        this.handleSentEncryptedRequestHTTP(promise, outMessage, noResponseMsgs);
+        this.handleSentEncryptedRequestHTTP(promise, outMessage!, noResponseMsgs!);
       }
     }
 
@@ -1240,8 +1240,8 @@ export default class MTPNetworker {
     const innerMessages = messages.map((message, i) => {
       container.storeLong(message.msg_id, 'CONTAINER[' + i + '][msg_id]');
       container.storeInt(message.seq_no, 'CONTAINER[' + i + '][seq_no]');
-      container.storeInt(message.body.length, 'CONTAINER[' + i + '][bytes]');
-      container.storeRawBytes(message.body, 'CONTAINER[' + i + '][body]');
+      container.storeInt(message.body!.length, 'CONTAINER[' + i + '][bytes]');
+      container.storeRawBytes(message.body!, 'CONTAINER[' + i + '][body]');
       return message.msg_id;
     });
 
@@ -1306,7 +1306,7 @@ export default class MTPNetworker {
   }
 
   private async getEncryptedOutput(message: MTMessage, v1?: boolean) {
-    const messageLength = message.body.length;
+    const messageLength = message.body!.length;
     const data = new TLSerialization({
       startMaxLength: messageLength + 2048
     });
@@ -1323,7 +1323,7 @@ export default class MTPNetworker {
     data.storeInt(message.seq_no, 'seq_no');
 
     data.storeInt(messageLength, 'message_data_length');
-    data.storeRawBytes(message.body, 'message_data');
+    data.storeRawBytes(message.body!, 'message_data');
 
     let paddingLength = (16 - (data.getOffset() % 16)) + 16 * (1 + nextRandomUint(8) % 5);
     if(v1) {
@@ -1618,7 +1618,7 @@ export default class MTPNetworker {
       }
     }
 
-    this.scheduleRequest(delay);
+    this.scheduleRequest(delay!);
   }
 
   /**
@@ -1627,8 +1627,8 @@ export default class MTPNetworker {
   private processResentReqMessage(messageId: MTLong) {
     const resendRequestMessage = this.sentResendReq.get(messageId);
     if(resendRequestMessage) {
-      resendRequestMessage.resending.delete(messageId);
-      if(!resendRequestMessage.resending.size) {
+      resendRequestMessage.resending!.delete(messageId);
+      if(!resendRequestMessage.resending!.size) {
         delete this.sentMessages[resendRequestMessage.msg_id];
       }
 
@@ -1657,7 +1657,7 @@ export default class MTPNetworker {
         log('clean canCleanup', msgId);
         delete sentMessages[msgId];
       } else if(message.container) {
-        for(const innerMsgId of message.inner) {
+        for(const innerMsgId of message.inner!) {
           if(sentMessages[innerMsgId]) {
             log(`clean failed, found item=${innerMsgId} in container=${msgId}`);
             notEmpty = true;
@@ -1759,7 +1759,7 @@ export default class MTPNetworker {
 
     log.debug('process message', message, messageId, packetTime ? Date.now() - packetTime : undefined);
 
-    this.pingDelayDisconnectDeferred?.resolve('any message');
+    this.pingDelayDisconnectDeferred?.resolve!('any message');
 
     // let changedTimeOffset: boolean;
     // if(this.getNewTimeOffset) {
@@ -1850,7 +1850,7 @@ export default class MTPNetworker {
         this.lastServerMessages.add(messageId);
         if(this.lastServerMessages.size > 100) {
           const first = this.lastServerMessages.values().next().value;
-          this.lastServerMessages.delete(first);
+          this.lastServerMessages.delete(first!);
         }
 
         this.processMessage(message.body, message.msg_id, sessionId);
@@ -1930,7 +1930,7 @@ export default class MTPNetworker {
 
       case 'rpc_result': {
         if(TEST_RESEND_RPC && message.result._ === TEST_RESEND_RPC && TESTING_RESENDING_RPC) {
-          TESTING_RESENDING_RPC = undefined;
+          TESTING_RESENDING_RPC = (undefined as unknown as boolean);
           this.reqResend(messageId);
           break;
         }
@@ -1949,10 +1949,10 @@ export default class MTPNetworker {
           if(result._ === 'rpc_error') {
             const error = this.processError(result);
             log('rpc error', result, sentMessage, error);
-            deferred?.reject(error);
+            deferred?.reject!(error);
           } else {
             log('rpc result', result, sentMessage/* , Date.now() - sentMessage.sentTime, sentMessage.sentTime */);
-            deferred?.resolve(result);
+            deferred?.resolve!(result);
 
             if(sentMessage.isAPI && !this.connectionInited) {
               this.connectionInited = true;
@@ -1981,7 +1981,7 @@ export default class MTPNetworker {
         if(this.lastPingDelayDisconnectId === pingId) {
           const deferred = this.pingDelayDisconnectDeferred;
           if(deferred) {
-            deferred.resolve('pong');
+            deferred.resolve!('pong');
           } else {
             log('ping deferred deleted', pingId);
           }

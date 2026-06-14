@@ -4,7 +4,7 @@ export default function fixFirefoxSvg(text: string) {
     text = text.slice(svgIndex);
   }
 
-  const [_, __, width, height] = text.match(/viewBox="(.+?)"/)[1].split(' ');
+  const [_, __, width, height] = text.match(/viewBox="(.+?)"/)![1].split(' ');
   text = text.replace(/>/, ` width="${width}" height="${height}">`).replace(/[^\x00-\x7F]/g, '');
   return text;
 }

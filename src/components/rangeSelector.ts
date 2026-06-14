@@ -10,7 +10,7 @@ export default class RangeSelector {
 
   public mousedown = false;
   protected rect: DOMRect;
-  protected _removeListeners: () => void;
+  protected _removeListeners: (() => void) | null;
 
   private events: Partial<{
     // onMouseMove: ProgressLine['onMouseMove'],

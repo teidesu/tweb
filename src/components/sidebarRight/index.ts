@@ -94,7 +94,7 @@ export class AppSidebarRight extends SidebarSlider {
       const idx = this.historyTabIds.indexOf(previousTab);
 
       if(this._selectTab.getFrom() === previousTab.container) {
-        this._selectTab.setFrom(tab?.container);
+        this._selectTab.setFrom(tab?.container!);
       }
 
       if(tab) {
@@ -116,10 +116,10 @@ export class AppSidebarRight extends SidebarSlider {
         previousTab.container.remove();
       }
     } else {
-      this.tabsContainer.prepend(tab.container);
+      this.tabsContainer.prepend(tab!.container);
     }
 
-    this.sharedMediaTab = tab;
+    this.sharedMediaTab = tab!;
   }
 
   public onCloseTab(id: number, animate: boolean, isNavigation?: boolean) {
@@ -152,7 +152,7 @@ export class AppSidebarRight extends SidebarSlider {
       willChange = true;
     }
 
-    if(!willChange) return Promise.resolve();
+    if(!willChange!) return Promise.resolve();
 
     if(persist && !isRightColumnFloating()) {
       setAppSettings('rightColumnShown', !active);

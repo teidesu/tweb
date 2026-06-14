@@ -14,8 +14,8 @@ import AutocompleteHelperController from '@components/chat/autocompleteHelperCon
 
 export default class StickersHelper extends AutocompleteHelper {
   private scrollable: Scrollable;
-  private onChangeScreen: () => void;
-  private listenerSetter: ListenerSetter;
+  private onChangeScreen: (() => void) | undefined;
+  private listenerSetter: ListenerSetter | undefined;
 
   constructor(
     appendTo: HTMLElement,
@@ -48,7 +48,7 @@ export default class StickersHelper extends AutocompleteHelper {
         mediaSizes.removeEventListener('changeScreen', this.onChangeScreen);
         this.onChangeScreen = undefined;
 
-        this.listenerSetter.removeAll();
+        this.listenerSetter!.removeAll();
         this.listenerSetter = undefined;
       }
 
@@ -60,7 +60,7 @@ export default class StickersHelper extends AutocompleteHelper {
     const middleware = this.getMiddleware();
 
     preloadAnimatedEmojiSticker(emoticon);
-    this.managers.appStickersManager.getStickersByEmoticon({
+    this.managers.appStickersManager!.getStickersByEmoticon({
       emoticon,
       includeOurStickers: true,
       includeServerStickers: this.chat.appSettings.stickers.suggest === 'all'
@@ -71,7 +71,7 @@ export default class StickersHelper extends AutocompleteHelper {
 
       if(this.init) {
         this.init();
-        this.init = null;
+        this.init = null as unknown as () => void;
       }
 
       const container = this.list.cloneNode() as HTMLElement;

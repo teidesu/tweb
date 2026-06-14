@@ -17,7 +17,7 @@ const useIsConfirmationNeededOnClose = ({descriptionLangKey, hasChanges, saveAll
   return async() => {
     if(!hasChanges()) return;
 
-    const saveButton: PopupPeerOptions['buttons'][number] = {
+    const saveButton: NonNullable<PopupPeerOptions['buttons']>[number] = {
       langKey: 'Save'
     };
 

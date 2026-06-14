@@ -7,10 +7,10 @@ import PasswordInputField from '@components/passwordInputField';
 import PopupPeer, {PopupPeerOptions} from '@components/popups/peer';
 
 export async function passwordPopup<Result>(options: Omit<PopupPeerOptions, 'inputField'> & {
-  button?: Omit<PopupPeerOptions['buttons'][0], 'callback'>;
+  button?: Omit<NonNullable<PopupPeerOptions['buttons']>[0], 'callback'>;
   callback: (inputCheckPassword: InputCheckPasswordSRP) => Promise<Result>;
 }) {
-  let state = await rootScope.managers.passwordManager.getState();
+  let state = await rootScope.managers.passwordManager!.getState();
 
   const passwordInputField = new PasswordInputField({
     labelText: state.hint ?? '',
@@ -26,11 +26,11 @@ export async function passwordPopup<Result>(options: Omit<PopupPeerOptions, 'inp
     langKey: options.button?.langKey ?? 'Confirm',
     langArgs: options.button?.langArgs ?? [],
     callback: async() => {
-      buttonOptions.element.disabled = true
+      buttonOptions.element!.disabled = true
       try {
-        const inputCheckPassword = await rootScope.managers.passwordManager.getInputCheckPassword(passwordInputField.value, state);
+        const inputCheckPassword = await rootScope.managers.passwordManager!.getInputCheckPassword(passwordInputField.value, state);
         const result = await options.callback(inputCheckPassword);
-        deferred.resolve(result);
+        deferred.resolve!(result);
         resolved = true;
         return true
       } catch(err) {
@@ -42,10 +42,10 @@ export async function passwordPopup<Result>(options: Omit<PopupPeerOptions, 'inp
         } else {
           passwordInputField.setState(InputState.Error, 'Error.AnError')
         }
-        state = await rootScope.managers.passwordManager.getState();
+        state = await rootScope.managers.passwordManager!.getState();
         return false
       } finally {
-        buttonOptions.element.disabled = false
+        buttonOptions.element!.disabled = false
       }
     }
   }
@@ -58,7 +58,7 @@ export async function passwordPopup<Result>(options: Omit<PopupPeerOptions, 'inp
 
   popup.addEventListener('closeAfterTimeout', () => {
     if(!resolved) {
-      deferred.reject();
+      deferred.reject!();
     }
   });
 

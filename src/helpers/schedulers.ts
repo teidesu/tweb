@@ -40,8 +40,8 @@ export function fastRafConventional(callback: NoneToVoidFunction) {
 
     requestAnimationFrame(() => {
       processing = true;
-      for(let i = 0; i < fastRafConventionalCallbacks.length; ++i) {
-        fastRafConventionalCallbacks[i]();
+      for(let i = 0; i < fastRafConventionalCallbacks!.length; ++i) {
+        fastRafConventionalCallbacks![i]();
       }
 
       fastRafConventionalCallbacks = undefined;
@@ -54,7 +54,7 @@ export function fastRafConventional(callback: NoneToVoidFunction) {
   }
 }
 
-let rafPromise: Promise<void>;
+let rafPromise: Promise<void> | undefined;
 export function fastRafPromise() {
   if(rafPromise) return rafPromise;
 

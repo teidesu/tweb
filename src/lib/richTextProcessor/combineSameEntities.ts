@@ -36,13 +36,13 @@ export default function combineSameEntities(entities: MessageEntity[]) {
         return CAN_COMBINE_ENTITIES.has(e._) &&
           _i !== i &&
           e._ === entity._ &&
-          (e.offset - entity.length) === entity.offset &&
+          (e.offset! - entity.length!) === entity.offset &&
           (verifyFunc?.(entity, e) ?? true);
       });
 
       if(nextEntityIdx !== -1) {
         const nextEntity = entities[nextEntityIdx];
-        entity.length += nextEntity.length;
+        entity.length! += nextEntity.length!;
         entities.splice(nextEntityIdx, 1);
       }
     } while(nextEntityIdx !== -1);

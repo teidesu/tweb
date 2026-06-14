@@ -13,7 +13,7 @@ export default class CustomEmojiElement extends HTMLElement {
   public renderer: CustomEmojiRendererElement;
   public player: RLottiePlayer | HTMLVideoElement;
   public paused: boolean;
-  public syncedPlayer: SyncedPlayer;
+  public syncedPlayer: SyncedPlayer | undefined;
   public clean: boolean;
   public lastChildWas: Node;
   public savedChildren: Node[];
@@ -30,7 +30,7 @@ export default class CustomEmojiElement extends HTMLElement {
   }
 
   public get docId() {
-    return this.dataset.docId;
+    return this.dataset.docId as DocId;
   }
 
   public set docId(docId: DocId) {
@@ -95,7 +95,7 @@ export default class CustomEmojiElement extends HTMLElement {
     }
 
     this.middlewareHelper?.clean();
-    this.readyPromise?.reject();
+    this.readyPromise?.reject!();
 
     if(this.renderer) {
       const elements = this.renderer.customEmojis.get(this.docId);
@@ -122,10 +122,10 @@ export default class CustomEmojiElement extends HTMLElement {
     CustomEmojiRendererElement.globalLazyLoadQueue?.delete({div: this});
 
     /* this.disconnectedCallback =  */this.elements =
-      this.renderer =
-      this.player =
-      this.syncedPlayer =
-      undefined;
+      (this.renderer =
+      (this.player =
+      (this.syncedPlayer =
+      undefined)!)!)!;
   }
 
   public pause() {

@@ -149,7 +149,7 @@ export default class AppStorage<
       }
     }
 
-    deferred.resolve();
+    deferred.resolve!();
 
     if(set.size) {
       this.saveThrottled();
@@ -183,7 +183,7 @@ export default class AppStorage<
       }
     }
 
-    deferred.resolve();
+    deferred.resolve!();
 
     if(set.size) {
       this.deleteThrottled();
@@ -218,7 +218,7 @@ export default class AppStorage<
         const deferred = this.getPromises.get(key);
         if(deferred) {
           // deferred.reject(error);
-          deferred.resolve(undefined);
+          deferred.resolve!(undefined!);
           this.getPromises.delete(key);
         }
       }
@@ -247,7 +247,7 @@ export default class AppStorage<
 
   public async get<T extends keyof Storage>(key: T, useCache = true): Promise<Storage[T]> {
     if(this.cache.hasOwnProperty(key) && useCache) {
-      return this.getFromCache(key);
+      return this.getFromCache(key)!;
     } else if(this.useStorage) {
       const r = this.getPromises.get(key);
       if(r) return r as any;
@@ -261,6 +261,7 @@ export default class AppStorage<
     }/*  else {
       throw 'something went wrong';
     } */
+    return undefined as unknown as Storage[T];
   }
 
   public async getAll(): Promise<any[]> {
@@ -298,7 +299,7 @@ export default class AppStorage<
     for(const key in obj) {
       if(obj.hasOwnProperty(key)) {
         const value = obj[key];
-        this.setToCache(key, value);
+        this.setToCache(key, value!);
 
         // let perf = /* DEBUG */false ? performance.now() : 0;
         // value = JSON.stringify(value);
@@ -403,7 +404,7 @@ export default class AppStorage<
       if(!enabled) {
         storage.keysToSet.clear();
         storage.keysToDelete.clear();
-        storage.getPromises.forEach((deferred) => deferred.resolve(undefined));
+        storage.getPromises.forEach((deferred) => deferred.resolve!(undefined));
         storage.getPromises.clear();
       } else {
         return storage.set(storage.cache);

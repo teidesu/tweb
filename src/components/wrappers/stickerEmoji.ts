@@ -12,7 +12,7 @@ export default async function wrapStickerEmoji(options: Modify<Parameters<typeof
     div,
     managers = rootScope.managers
   } = options;
-  const doc = await managers.appStickersManager.getAnimatedEmojiSticker(emoji);
+  const doc = await managers.appStickersManager!.getAnimatedEmojiSticker(emoji!);
   if(!doc) {
     div.classList.add('media-sticker-wrapper');
     throw new Error('no sticker');

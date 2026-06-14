@@ -86,7 +86,7 @@ function testElement(element: HTMLElement) {
     text = element.textContent;
     textLength = text.length;
     from = /* parseFloat(element.getAttribute(attributeName)) ||  */50;
-    multiplier = from > 0 && from / 100;
+    multiplier = ((from > 0 && from / 100)! as number | undefined);
 
     let fontSize = element.dataset.fontSize;
     if(fontSize && +fontSize) fontSize += 'px';
@@ -100,38 +100,38 @@ function testElement(element: HTMLElement) {
     // const perf = performance.now();
     elementWidth = getElementWidth(element);
     // console.log('testMiddleEllipsis get offsetWidth:', performance.now() - perf, font);
-    mapped = {text, textLength, from, multiplier, font, textWidth, elementWidth};
-    map.set(element, mapped);
+    mapped = {text, textLength, from, multiplier: multiplier!, font, textWidth, elementWidth: elementWidth!};
+    map.set(element, mapped!);
 
     // console.log('[MEE] testElement map set', element);
   }
 
   const newElementWidth = getElementWidth(element);
   const widthChanged = firstTime || elementWidth !== newElementWidth;
-  !firstTime && widthChanged && (mapped.elementWidth = elementWidth = newElementWidth);
+  !firstTime && widthChanged && (mapped!.elementWidth = elementWidth = newElementWidth);
 
   if(widthChanged) {
-    if(textWidth > elementWidth) {
-      element.setAttribute('title', text);
+    if(textWidth! > elementWidth!) {
+      element.setAttribute('title', text!);
       let smallerText = text;
       let smallerWidth = elementWidth;
-      while(smallerText.length > 3) {
-        const smallerTextLength = smallerText.length;
+      while(smallerText!.length > 3) {
+        const smallerTextLength = smallerText!.length;
         const half = multiplier &&
           clamp(multiplier * smallerTextLength << 0, 1, smallerTextLength - 2) ||
-          Math.max(smallerTextLength + from - 1, 1);
-        const half1 = smallerText.substr(0, half).replace(/\s*$/, '');
-        const half2 = smallerText.substr(half + 1).replace(/^\s*/, '');
+          Math.max(smallerTextLength + from! - 1, 1);
+        const half1 = smallerText!.substr(0, half).replace(/\s*$/, '');
+        const half2 = smallerText!.substr(half + 1).replace(/^\s*/, '');
         smallerText = half1 + half2;
-        smallerWidth = getTextWidth(smallerText + ellipsis, font);
-        if(smallerWidth < elementWidth) {
+        smallerWidth = getTextWidth(smallerText + ellipsis, font!);
+        if(smallerWidth < elementWidth!) {
           element.textContent = half1 + ellipsis + half2;
           break;
         }
       }
 
       // * set new width after cutting text
-      mapped.elementWidth = getElementWidth(element);
+      mapped!.elementWidth = getElementWidth(element);
       // mapped.textWidth = smallerWidth;
     } else {
       element.removeAttribute('title');
@@ -145,7 +145,7 @@ export class MiddleEllipsisElement extends HTMLElement {
   connectedCallback() {
     // console.log('[MEE]: connectedCallback before', map.has(this), testQueue.has(this), map.size, this.textContent, map);
 
-    map.set(this, null);
+    map.set(this, null as unknown as {text: string; textLength: number; from: number; multiplier: number; font: string; textWidth: number; elementWidth: number});
     if(this.dataset.sizeType || (this as any).getSize) {
       testElement(this);
     } else {

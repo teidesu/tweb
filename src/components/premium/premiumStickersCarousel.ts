@@ -9,7 +9,7 @@ import {Document} from '@layer';
 
 export default class PremiumStickersCarousel {
   private superStickerRenderer: SuperStickerRenderer;
-  private ignoreUnmount: boolean;
+  private ignoreUnmount: boolean | undefined;
   private stickersMiddlewareHelper: MiddlewareHelper;
   private destroyed: boolean;
 
@@ -109,7 +109,7 @@ export default class PremiumStickersCarousel {
 
   private async initStickersCarousel(options: {topSection: HTMLElement; managers: AppManagers}) {
     options.topSection.classList.add('no-padding');
-    const stickers = await options.managers.appStickersManager.getPromoPremiumStickers();
+    const stickers = await options.managers.appStickersManager!.getPromoPremiumStickers();
     this.stickersMiddlewareHelper = getMiddleware();
     this.lazyLoadQueue = new LazyLoadQueue();
     this.superStickerRenderer = new SuperStickerRenderer({

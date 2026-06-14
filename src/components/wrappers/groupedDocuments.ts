@@ -123,10 +123,10 @@ export default async function wrapGroupedDocuments({
         }
       }
 
-      setInnerHTML(messageDiv, fragment);
+      setInnerHTML(messageDiv!, fragment);
     }
 
-    if(factCheckBox && messageDiv && isLast) {
+    if(factCheckBox && messageDiv! && isLast) {
       messageDiv.append(factCheckBox);
     }
 
@@ -142,7 +142,7 @@ export default async function wrapGroupedDocuments({
       }
     }
 
-    wrapper.append(...[div, messageDiv].filter(Boolean));
+    wrapper.append(...[div, messageDiv!].filter(Boolean));
     container.append(wrapper);
     return container;
   });
@@ -154,5 +154,5 @@ export default async function wrapGroupedDocuments({
     bubble.classList.add('is-multiple-documents', 'is-grouped');
   }
 
-  return nameContainer;
+  return nameContainer!;
 }

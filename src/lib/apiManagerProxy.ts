@@ -123,18 +123,18 @@ class ApiManagerProxy extends MTProtoMessagePort {
   private tabState: TabState;
   private allTabStates: TabState[];
 
-  public share: ShareData;
+  public share: ShareData | undefined;
 
   public serviceMessagePort: ServiceMessagePort<true>;
   private lastServiceWorker: ServiceWorker;
 
-  private pingServiceWorkerPromise: CancellablePromise<void>;
+  private pingServiceWorkerPromise: CancellablePromise<void> | undefined;
 
   private processMirrorTaskMap: {
     [type in keyof Mirrors]?: (payload: MirrorTaskPayload) => void | boolean
   };
 
-  private appConfig: MaybePromise<MTAppConfig>;
+  private appConfig: MaybePromise<MTAppConfig> | undefined;
 
   private closeMTProtoWorker = noop;
 
@@ -152,7 +152,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
     super();
 
     this.mirrors = {
-      state: undefined,
+      state: (undefined as unknown as State),
       thumbs: {},
       stickerThumbs: {},
       availableReactions: undefined,
@@ -170,7 +170,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
         if(!payload.key) { // * mirroring all messages at once
           for(const key in payload.value) {
             for(const mid in payload.value[key]) {
-              this.processMirrorTaskMap.messages({
+              this.processMirrorTaskMap.messages!({
                 name: payload.name,
                 accountNumber: payload.accountNumber,
                 key: joinDeepPath(key, mid),
@@ -185,8 +185,8 @@ class ApiManagerProxy extends MTProtoMessagePort {
         const message = payload.value as Message.message | Message.messageService;
         let mid: number, groupedId: string;
         if(message) {
-          mid = message.mid;
-          groupedId = (message as Message.message).grouped_id;
+          mid = message.mid!;
+          groupedId = (message as Message.message).grouped_id!;
         } else {
           const [key, _mid] = splitDeepPath(payload.key);
           mid = +_mid;
@@ -195,7 +195,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
             return;
           }
 
-          groupedId = (previousMessage as Message.message).grouped_id;
+          groupedId = (previousMessage as Message.message).grouped_id!;
         }
 
         if(!groupedId) {
@@ -269,7 +269,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
           // @ts-ignore
           (historyStorage.searchHistory || historyStorage.history).slices[+smth1][smth2](...payload.value);
         } else if(property === 'history' || property === 'searchHistory') {
-          let slicedArray: SlicedArray<any> = historyStorage.searchHistory || historyStorage.history;
+          let slicedArray: SlicedArray<any> = (historyStorage.searchHistory || historyStorage.history)!;
           if(!slicedArray) {
             slicedArray = property === 'searchHistory' ? createHistoryStorageSearchSlicedArray() : new SlicedArray();
             setHistoryStorage(property, slicedArray);
@@ -352,7 +352,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
         const {accountNumber} = payload;
         const managers = createProxiedManagersForAccount(accountNumber);
         const peerId = payload.callerId.toPeerId();
-        const peer = await managers.appPeersManager.getPeer(peerId);
+        const peer = await managers.appPeersManager!.getPeer(peerId);
         const title = await getPeerTitle({peerId: peerId, managers, plainText: true, limitSymbols: 20, useManagers: true});
 
         const notification = new Notification(title, {
@@ -484,7 +484,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
     });
 
     window.addEventListener('online', () => {
-      rootScope.managers.networkerFactory.forceReconnectTimeout();
+      rootScope.managers.networkerFactory!.forceReconnectTimeout();
     });
 
     rootScope.addEventListener('logging_out', ({accountNumber, migrateTo}) => {
@@ -522,7 +522,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
     shouldDelete: boolean
   ) {
     const [historyStorage, setHistoryStorage] = value;
-    const slicedArray: SlicedArray<any> = historyStorage.searchHistory || historyStorage.history;
+    const slicedArray: SlicedArray<any> = (historyStorage.searchHistory || historyStorage.history)!;
     slicedArray.slices.splice(0, Infinity);
     const slice = slicedArray.constructSlice();
     // slice.setEnd(SliceEnd.Bottom);
@@ -571,8 +571,8 @@ class ApiManagerProxy extends MTProtoMessagePort {
   }
 
   public onLanguageChange = (language: string) => {
-    rootScope.managers.all.networkerFactory.setLanguage(language);
-    rootScope.managers.appAttachMenuBotsManager.onLanguageChange();
+    rootScope.managers.all!.networkerFactory!.setLanguage(language);
+    rootScope.managers.appAttachMenuBotsManager!.onLanguageChange();
   };
 
   public sendEnvironment() {
@@ -604,11 +604,11 @@ class ApiManagerProxy extends MTProtoMessagePort {
     };
     const onLoad = () => {
       onFinish();
-      promise.resolve();
+      promise.resolve!();
     };
     const onError = () => {
       onFinish();
-      promise.reject();
+      promise.reject!();
     };
     iframe.addEventListener('load', onLoad);
     iframe.addEventListener('error', onError);
@@ -661,7 +661,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
 
       const url = new URL(window.location.href);
       const FIX_KEY = 'swfix';
-      const swfix = +url.searchParams.get(FIX_KEY) || 0;
+      const swfix = +url.searchParams.get(FIX_KEY)! || 0;
       if(registration.active && !navigator.serviceWorker.controller) {
         if(swfix >= 3) {
           throw new Error('no controller');
@@ -680,12 +680,12 @@ class ApiManagerProxy extends MTProtoMessagePort {
       }
 
       const sw = registration.installing || registration.waiting || registration.active;
-      sw.addEventListener('statechange', (e) => {
+      sw!.addEventListener('statechange', (e) => {
         this.log('SW statechange', e);
       });
 
       const controller = navigator.serviceWorker.controller || registration.installing || registration.waiting || registration.active;
-      this.attachServiceWorker(controller);
+      this.attachServiceWorker(controller!);
 
       if(import.meta.env.VITE_MTPROTO_SW) {
         this.onWorkerFirstMessage(controller);
@@ -731,9 +731,9 @@ class ApiManagerProxy extends MTProtoMessagePort {
       this.log.warn('controllerchange');
 
       const controller = worker.controller;
-      this.attachServiceWorker(controller);
+      this.attachServiceWorker(controller!);
 
-      controller.addEventListener('error', (e) => {
+      controller!.addEventListener('error', (e) => {
         this.log.error('controller error:', e);
       });
     });
@@ -817,11 +817,11 @@ class ApiManagerProxy extends MTProtoMessagePort {
       Worker,
       typeof(SharedWorker) !== 'undefined' && SharedWorker
     ].filter(Boolean);
-    originals.forEach((w) => window[w.name as any] = new Proxy(w, workerHandler));
+    originals.forEach((w) => window[(w as typeof Worker).name as any] = new Proxy(w, workerHandler));
 
     const worker = _createWorker();
 
-    originals.forEach((w) => window[w.name as any] = w as any);
+    originals.forEach((w) => window[(w as typeof Worker).name as any] = w as any);
 
     const originalUrl = (worker as any).url;
 
@@ -1022,12 +1022,12 @@ class ApiManagerProxy extends MTProtoMessagePort {
   }
 
   public getAvailableReactions() {
-    return this.mirrors.availableReactions ||= rootScope.managers.appReactionsManager.getAvailableReactions();
+    return this.mirrors.availableReactions ||= rootScope.managers.appReactionsManager!.getAvailableReactions();
   }
 
   public getReaction(reaction: string) {
     return callbackify(this.getAvailableReactions(), (availableReactions) => {
-      return availableReactions.find((availableReaction) => availableReaction.reaction === reaction);
+      return availableReactions!.find((availableReaction) => availableReaction.reaction === reaction);
     });
   }
 
@@ -1047,8 +1047,8 @@ class ApiManagerProxy extends MTProtoMessagePort {
     const storage = this.mirrors.groupedMessages[message.grouped_id];
     let minMid = Number.MAX_SAFE_INTEGER;
     for(const [mid, message] of storage) {
-      if(message.mid < minMid) {
-        minMid = message.mid;
+      if(message.mid! < minMid) {
+        minMid = message.mid!;
       }
     }
 
@@ -1097,7 +1097,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
 
   public getPeerForAccount(peerId: PeerId, accountNumber: ActiveAccountNumber) {
     const managers = createProxiedManagersForAccount(accountNumber);
-    return managers.appPeersManager.getPeer(peerId);
+    return managers.appPeersManager!.getPeer(peerId);
   }
 
   public getPeer(peerId: PeerId) {
@@ -1144,7 +1144,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
   public loadAvatar(peerId: PeerId, photo: UserProfilePhoto.userProfilePhoto | ChatPhoto.chatPhoto, size: PeerPhotoSize, accountNumber?: ActiveAccountNumber) {
     if(accountNumber && accountNumber !== getCurrentAccount()) {
       const managers = createProxiedManagersForAccount(accountNumber);
-      return managers.appAvatarsManager.loadAvatar(peerId, photo, size);
+      return managers.appAvatarsManager!.loadAvatar(peerId, photo, size);
     }
 
     const saved = this.mirrors.avatars[peerId] ??= {};
@@ -1152,7 +1152,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
       return saved[size];
     }
 
-    const promise = saved[size] = rootScope.managers.appAvatarsManager.loadAvatar(peerId, photo, size);
+    const promise = saved[size] = (rootScope.managers.appAvatarsManager!.loadAvatar(peerId, photo, size)! as string | Promise<string> | undefined);
     // Don't permanently cache a failed (undefined) video load — allow a retry.
     // (Successful loads overwrite this entry with the URL via the 'mirror' message.)
     if(size === 'photo_video' || size === 'photo_video_full') {
@@ -1170,7 +1170,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
     }
 
     if(!this.appConfig) {
-      const promise = rootScope.managers.apiManager.getAppConfig().then((appConfig) => {
+      const promise = rootScope.managers.apiManager!.getAppConfig().then((appConfig) => {
         if(this.appConfig === promise) {
           this.appConfig = appConfig;
         }
@@ -1203,7 +1203,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
     for(let i = 1; i <= totalAccounts; i++) {
       const accountNumber = i as ActiveAccountNumber;
       const managers = createProxiedManagersForAccount(accountNumber);
-      hasSomeonePremium ||= await managers.rootScope.getPremium();
+      hasSomeonePremium ||= await managers.rootScope!.getPremium();
       if(hasSomeonePremium) break;
     }
 
@@ -1239,7 +1239,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
     }
 
     const mirror = this.mirrors[name] ??= {} as any;
-    setDeepProperty(mirror, key, value, true);
+    setDeepProperty(mirror, key!, value, true);
   };
 
   public async setInterval(callback: () => void, ms: number) {

@@ -15,7 +15,7 @@ export const AdminStreamPopup = ({peerId}: {peerId: PeerId}) => {
   const [rtmpDataLoading, setRtmpDataLoading] = createSignal(true);
 
   onMount(() => {
-    rootScope.managers.appGroupCallsManager.fetchRtmpUrl(peerId).then(async(data) => {
+    rootScope.managers.appGroupCallsManager!.fetchRtmpUrl(peerId).then(async(data) => {
       setRtmpUrl(data.url);
       setRtmpKey(data.key);
       setRtmpDataLoading(false);

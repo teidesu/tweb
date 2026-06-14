@@ -14,10 +14,10 @@ export default function prepareAlbum(options: {
   const layout = layouter.layout();
 
   const widthItem = layout.find((item) => item.sides & RectPart.Right);
-  const width = widthItem.geometry.width + widthItem.geometry.x;
+  const width = widthItem!.geometry.width + widthItem!.geometry.x;
 
   const heightItem = layout.find((item) => item.sides & RectPart.Bottom);
-  const height = heightItem.geometry.height + heightItem.geometry.y;
+  const height = heightItem!.geometry.height + heightItem!.geometry.y;
 
   const container = options.container;
   container.style.width = width + 'px';

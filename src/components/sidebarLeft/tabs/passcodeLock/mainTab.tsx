@@ -29,7 +29,7 @@ const getHintParams = (tab: SliderSuperTab, title: LangPackKey) => ({
   appendTo: tab.scrollable.container,
   duration: 2500,
   from: 'bottom',
-  textElement: i18n(title),
+  textElement: i18n(title)!,
   icon: 'premium_lock',
   class: styles.Hint,
   canCloseOnPeerChange: false
@@ -40,7 +40,7 @@ const MainTab = () => {
   const promiseCollector = usePromiseCollector();
 
   const [enabled, {mutate: mutateEnabled}] = createResource(() => {
-    const promise = rootScope.managers.appStateManager.getState().then(state =>
+    const promise = rootScope.managers.appStateManager!.getState().then(state =>
       state.settings?.passcode?.enabled || false
     );
     promiseCollector.collect(promise);
@@ -98,7 +98,7 @@ const NoPasscodeContent = () => {
         otherTab.slider.sliceTabsUntilTab(AppPasscodeLockTab, otherTab);
         otherTab.close();
 
-        setQuizHint(getHintParams(tab, 'PasscodeLock.PasscodeHasBeenSet'));
+        setQuizHint(getHintParams(tab, 'PasscodeLock.PasscodeHasBeenSet')!);
       },
       buttonText: 'PasscodeLock.SetPasscode',
       inputLabel: 'PasscodeLock.ReEnterPasscode'
@@ -149,18 +149,18 @@ const PasscodeSetContent: Component<{
   const [autoCloseRowEl, setAutoCloseRowEl] = createSignal<HTMLElement>();
   const [isOpen, setIsOpen] = createSignal(false);
 
-  const [lockTimeout, {mutate: mutateLockTimeout}] = createResource(() => rootScope.managers.appStateManager.getState().then(state =>
+  const [lockTimeout, {mutate: mutateLockTimeout}] = createResource(() => rootScope.managers.appStateManager!.getState().then(state =>
     state?.settings?.passcode?.autoLockTimeoutMins || 0
   ));
 
   const [shortcutEnabled, {mutate: mutateShortcutEnabled}] = createResource(() =>
-    rootScope.managers.appStateManager.getState().then(state =>
+    rootScope.managers.appStateManager!.getState().then(state =>
       state?.settings?.passcode?.lockShortcutEnabled || false
     )
   );
 
   const [shortcutKeys, {mutate: mutateShortcutKeys}] = createResource(() =>
-    rootScope.managers.appStateManager.getState().then(state =>
+    rootScope.managers.appStateManager!.getState().then(state =>
       state?.settings?.passcode?.lockShortcut || []
     )
   );
@@ -188,8 +188,8 @@ const PasscodeSetContent: Component<{
   }
 
   function setLockTimeout(value: number | null) {
-    mutateLockTimeout(value);
-    setAppSettings('passcode', 'autoLockTimeoutMins', value);
+    mutateLockTimeout(value as number | undefined);
+    setAppSettings('passcode', 'autoLockTimeoutMins', value!);
   }
 
   onCleanup(() => {
@@ -221,7 +221,7 @@ const PasscodeSetContent: Component<{
         otherTab.slider.sliceTabsUntilTab(AppPasscodeLockTab, otherTab);
         otherTab.close();
 
-        setQuizHint(getHintParams(tab, 'PasscodeLock.PasscodeHasBeenChanged'));
+        setQuizHint(getHintParams(tab, 'PasscodeLock.PasscodeHasBeenChanged')!);
       },
       buttonText: 'PasscodeLock.SetPasscode',
       inputLabel: 'PasscodeLock.ReEnterPasscode'
@@ -243,7 +243,7 @@ const PasscodeSetContent: Component<{
       tab.close();
       setQuizHint(getHintParams(
         tab.slider.getTab(AppPrivacyAndSecurityTab), 'PasscodeLock.PasscodeHasBeenDisabled'
-      ));
+      )!);
     })
     .catch(() => {});
   };
@@ -290,7 +290,7 @@ const PasscodeSetContent: Component<{
                 options={options}
                 onChange={setLockTimeout}
                 isOpen={isOpen()}
-                parent={autoCloseRowEl()}
+                parent={autoCloseRowEl()!}
               />
             </Row.RightContent>
           </Row>

@@ -11,24 +11,24 @@ export default class TFade {
 
   constructor(opts: TChartUnitOptions) {
     this.opts = opts;
-    this.ctx = opts.ctx;
+    this.ctx = opts.ctx!;
 
     if(this.opts.graphStyle !== 'area') {
       this.$fadeTop = document.createElement('canvas');
-      this.ctxFadeTop = this.$fadeTop.getContext('2d');
+      this.ctxFadeTop = this.$fadeTop.getContext('2d')!;
 
       if(this.opts.graphStyle !== 'bar') {
         this.$fadeBottom = document.createElement('canvas');
-        this.ctxFadeBottom = this.$fadeBottom.getContext('2d');
+        this.ctxFadeBottom = this.$fadeBottom.getContext('2d')!;
       }
     }
   }
 
   onResize() {
-    const dpi = this.opts.settings.dpi;
-    const dimsTop = this.opts.state.dims.fadeTop;
-    const dimsBottom = this.opts.state.dims.fadeBottom;
-    const backgroundRgbJoined = this.opts.settings.COLORS.backgroundRgb.join(', ');
+    const dpi = this.opts.settings!.dpi;
+    const dimsTop = this.opts.state!.dims!.fadeTop;
+    const dimsBottom = this.opts.state!.dims!.fadeBottom;
+    const backgroundRgbJoined = this.opts.settings!.COLORS.backgroundRgb.join(', ');
 
     if(this.opts.graphStyle !== 'area') {
       const gradientTop = this.ctxFadeTop.createLinearGradient(0, 0, 0, dimsTop.h * dpi);
@@ -57,9 +57,9 @@ export default class TFade {
   }
 
   render() {
-    const dpi = this.opts.settings.dpi;
-    const dimsTop = this.opts.state.dims.fadeTop;
-    const dimsBottom = this.opts.state.dims.fadeBottom;
+    const dpi = this.opts.settings!.dpi;
+    const dimsTop = this.opts.state!.dims!.fadeTop;
+    const dimsBottom = this.opts.state!.dims!.fadeBottom;
 
     this.$fadeTop && this.ctx.drawImage(this.$fadeTop, dimsTop.l * dpi, dimsTop.t * dpi);
     this.$fadeBottom && this.ctx.drawImage(this.$fadeBottom, dimsBottom.l * dpi, dimsBottom.t * dpi);

@@ -105,7 +105,7 @@ export default async function movToVideo(
   await conversion.execute();
 
   return {
-    blob: new Blob([output.target.buffer], {type: 'video/mp4'}),
+    blob: new Blob([output.target.buffer!], {type: 'video/mp4'}),
     width,
     height,
     duration

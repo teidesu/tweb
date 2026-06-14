@@ -20,7 +20,7 @@ const promises = possible.map(([mime, data]) => {
   const promise = new Promise<string>((resolve) => {
     img.onload = img.onerror = () => {
       const supported = img.height === 2;
-      resolve(supported ? mime : undefined);
+      resolve((supported ? mime : undefined)!);
     };
   });
   img.src = data;

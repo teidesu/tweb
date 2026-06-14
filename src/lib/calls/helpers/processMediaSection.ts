@@ -9,7 +9,7 @@ export default function processMediaSection(sdp: SDP, media: SDP['media'][0]) {
 
   const mediaType: Exclude<typeof media['mediaType'], 'application'> = media.mediaType as any;
   const entry: Ssrc = {
-    source: sectionInfo.source,
+    source: (sectionInfo.source! as number),
     sourceGroups: sectionInfo.sourceGroups,
     type: mediaType
   };
@@ -33,7 +33,7 @@ export default function processMediaSection(sdp: SDP, media: SDP['media'][0]) {
   const payload: JoinGroupCallJsonPayload = {
     'fingerprints': [sectionInfo.fingerprint],
     'pwd': sectionInfo.pwd,
-    'ssrc': sectionInfo.source,
+    'ssrc': (sectionInfo.source! as number | undefined),
     'ssrc-groups': sectionInfo.sourceGroups || [],
     'ufrag': sectionInfo.ufrag
   };

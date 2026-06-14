@@ -14,7 +14,7 @@ export function getPriceChangedActionMessageLangParams(action: MessageAction.mes
   const allowedDirectMessages = action?.pFlags?.broadcast_messages_allowed;
 
   if(isBroadcast) {
-    const peerTitleResult = peerTitle();
+    const peerTitleResult = peerTitle!();
     const langPackKey: LangPackKey = allowedDirectMessages ?
       (isFree ? 'PaidMessages.ChannelPriceChangedFree' : 'PaidMessages.ChannelPriceChanged') :
       'PaidMessages.ChannelPriceDisabled';

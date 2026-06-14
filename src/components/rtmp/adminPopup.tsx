@@ -48,7 +48,7 @@ export class RtmpStartStreamPopup extends PopupElement {
       this.header.append(this.btnMore);
     }
 
-    this.title.append(active ? i18n('Rtmp.StreamPopup.TitleSettings') : i18n('Rtmp.StreamPopup.Title'));
+    this.title.append((active ? i18n('Rtmp.StreamPopup.TitleSettings') : i18n('Rtmp.StreamPopup.Title'))!);
     // if(!document.documentElement.classList.contains('night')) {
     //   this.element.classList.remove('night')
     // }
@@ -94,7 +94,7 @@ export class RtmpStartStreamPopup extends PopupElement {
   }
 
   private _fetchData(revoke = false) {
-    this.managers.appGroupCallsManager.fetchRtmpUrl(this.props.peerId, revoke).then(({url, key}) => {
+    this.managers.appGroupCallsManager!.fetchRtmpUrl(this.props.peerId, revoke).then(({url, key}) => {
       this._setUrl(url);
       this._setKey(key);
       this._setLoading(false);
@@ -109,12 +109,12 @@ export class RtmpStartStreamPopup extends PopupElement {
   private _onStreamStart() {
     this.forceHide();
     if(this.props.active) {
-      this.props.onEndStream();
+      this.props.onEndStream!();
       return;
     }
     const peerId = this.props.peerId;
     const chatId = peerId.toChatId();
-    this.managers.appGroupCallsManager.createGroupCall(
+    this.managers.appGroupCallsManager!.createGroupCall(
       chatId,
       undefined,
       undefined,

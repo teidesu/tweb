@@ -207,8 +207,8 @@ function resizeableImage(originalImage: HTMLImageElement, canvas?: HTMLCanvasEle
     currentTouch.x = e.pageX || e.touches && e.touches[0].pageX;
     currentTouch.y = e.pageY || e.touches && e.touches[0].pageY;
 
-    let left = currentTouch.x - (event_state.mouse_x - event_state.container_left);
-    let top = currentTouch.y - (event_state.mouse_y - event_state.container_top);
+    let left = currentTouch.x - (event_state.mouse_x! - event_state.container_left!);
+    let top = currentTouch.y - (event_state.mouse_y! - event_state.container_top!);
     const w = container.offsetWidth;
     const h = container.offsetHeight;
 
@@ -224,11 +224,11 @@ function resizeableImage(originalImage: HTMLImageElement, canvas?: HTMLCanvasEle
   }
 
   function crop() {
-    canvas.width = cropWidth;
-    canvas.height = cropHeight;
+    canvas!.width = cropWidth;
+    canvas!.height = cropHeight;
 
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(originalImage,
+    const ctx = canvas!.getContext('2d');
+    ctx!.drawImage(originalImage,
       cropLeft, cropTop,
       cropWidth, cropHeight,
       0, 0,

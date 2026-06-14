@@ -106,7 +106,7 @@ export default function ButtonMenuToggle({
   const canDeleteTextElementsOnClose = buttons.filter((button) => !button.textElement);
   const previousButtons = buttons.slice();
 
-  let element: HTMLElement, closeTimeout: number, tempId = 0;
+  let element: HTMLElement, closeTimeout: number | undefined, tempId = 0;
   ButtonMenuToggleHandler({
     el: button,
     onOpen: async(e) => {
@@ -126,12 +126,12 @@ export default function ButtonMenuToggle({
         return;
       }
 
-      const newButtons = filteredButtons.slice().filter((button) => !previousButtons.includes(button));
+      const newButtons = (filteredButtons as ButtonMenuItemOptionsVerifiable[]).slice().filter((button) => !previousButtons.includes(button));
       previousButtons.push(...newButtons);
       canDeleteTextElementsOnClose.push(...newButtons.filter((button) => !button.textElement));
 
       const _element = element = await ButtonMenu({
-        buttons: filteredButtons,
+        buttons: filteredButtons as ButtonMenuItemOptionsVerifiable[],
         listenerSetter
       });
       if(_tempId !== tempId) return;

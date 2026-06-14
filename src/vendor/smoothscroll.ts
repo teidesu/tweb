@@ -326,8 +326,8 @@ export default function polyfill() {
     smoothScroll.call(
       w,
       d.body,
-      ~~options.left + (w.scrollX || w.pageXOffset),
-      ~~options.top + (w.scrollY || w.pageYOffset),
+      ~~options.left! + (w.scrollX || w.pageXOffset),
+      ~~options.top! + (w.scrollY || w.pageYOffset),
       options.scrollTime
     );
   };
@@ -399,8 +399,8 @@ export default function polyfill() {
     }
 
     this.scroll({
-      left: ~~options.left + this.scrollLeft,
-      top: ~~options.top + this.scrollTop,
+      left: ~~options.left! + this.scrollLeft,
+      top: ~~options.top! + this.scrollTop,
       behavior: options.behavior as any,
       scrollTime: options.scrollTime
     } as any);

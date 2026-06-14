@@ -7,7 +7,7 @@ import {AppManager} from '@appManagers/manager';
 import getDocumentInput from '@appManagers/utils/docs/getDocumentInput';
 
 export default class AppGifsManager extends AppManager {
-  private gifs: MaybePromise<Document.document[]>;
+  private gifs: MaybePromise<Document.document[]> | undefined;
   // private TEST_REFERENCE = false;
 
   protected after() {
@@ -22,7 +22,7 @@ export default class AppGifsManager extends AppManager {
 
   private async onGifsUpdated() {
     const gifs = await this.getGifs(true);
-    this.rootScope.dispatchEvent('gifs_updated', gifs);
+    this.rootScope.dispatchEvent('gifs_updated', (gifs as Document.document[]));
   }
 
   public getGifs(overwrite?: boolean) {
@@ -30,17 +30,17 @@ export default class AppGifsManager extends AppManager {
       this.gifs = undefined;
     }
 
-    return this.gifs ??= this.apiManager.invokeApi('messages.getSavedGifs').then((res) => {
+    return this.gifs! ??= this.apiManager.invokeApi('messages.getSavedGifs').then((res) => {
       assumeType<MessagesSavedGifs.messagesSavedGifs>(res);
       const referenceContext: ReferenceContext = {type: 'savedGifs'};
-      this.gifs = res.gifs.map((doc) => {
+      this.gifs = (res.gifs.map((doc) => {
         // if(this.TEST_REFERENCE) {
         //   (doc as Document.document).file_reference[0] = 5;
         // }
         return this.appDocsManager.saveDoc(doc, referenceContext);
-      }).filter(Boolean);
+      }).filter(Boolean) as MaybePromise<Document.document[]> | undefined);
       // this.TEST_REFERENCE = false;
-      return this.gifs;
+      return this.gifs!;
     });
   }
 
@@ -71,17 +71,17 @@ export default class AppGifsManager extends AppManager {
 
     let limitReached = false;
     if(!unsave) {
-      gifs.unshift(doc);
-      const spliced = gifs.splice(limit, gifs.length - limit);
+      gifs!.unshift(doc);
+      const spliced = gifs!.splice(limit, gifs!.length - limit);
       limitReached = spliced.length > 0;
     }
 
-    this.rootScope.dispatchEvent('gifs_updated', gifs);
+    this.rootScope.dispatchEvent('gifs_updated', (gifs as Document.document[]));
     this.rootScope.dispatchEvent('gif_updated', {saved: !unsave, document: doc, limitReached});
 
     return this.apiManager.invokeApi('messages.saveGif', {
       id: getDocumentInput(doc),
-      unsave
+      unsave: unsave!
     }).then(() => {
       if(unsave) {
         this.onGifsUpdated();

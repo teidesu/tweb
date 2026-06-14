@@ -30,7 +30,7 @@ export default function RangeInput(props: {
       classList={{
         'media-editor__range-input--passive': props.passiveLabel,
         'media-editor__range-input--has-value': !props.passiveLabel && !!props.value,
-        'media-editor__range-input--bright-shadow': brightShadow()
+        'media-editor__range-input--bright-shadow': (brightShadow()! as boolean | undefined)
       }}
       style={{
         '--color': props.color,
@@ -58,7 +58,7 @@ export default function RangeInput(props: {
             props.onChange(newValue);
           }}
           onChange={() => {
-            props.onChangeFinish?.(prevValue, props.value);
+            props.onChangeFinish?.(prevValue!, props.value);
             prevValue = null;
           }}
         />

@@ -63,7 +63,7 @@ export default class PopupWebAppPreparedMessage extends PopupElement<{
                 return false
               },
               chatRightsActions: ['send_inline']
-            }).catch(() => undefined as PeerId);
+            }).catch(() => undefined as unknown as PeerId);
 
             if(!chosenPeerId) {
               return false;
@@ -71,7 +71,7 @@ export default class PopupWebAppPreparedMessage extends PopupElement<{
 
             await appImManager.setInnerPeer({peerId: chosenPeerId});
             const queryAndResultIds = generateQId(this.message.query_id, this.message.result.id);
-            await this.managers.appInlineBotsManager.sendInlineResult(chosenPeerId, this.botId, queryAndResultIds, {
+            await this.managers.appInlineBotsManager!.sendInlineResult(chosenPeerId, this.botId, queryAndResultIds, {
               inlineResult: this.message.result,
               ...appImManager.chat.getMessageSendingParams(),
               clearDraft: true
@@ -119,7 +119,7 @@ export default class PopupWebAppPreparedMessage extends PopupElement<{
       case 'botInlineMessageMediaAuto':
       case 'botInlineMessageMediaWebPage':
         text = sendMessage.message;
-        entities = sendMessage.entities;
+        entities = sendMessage.entities!;
         break;
     }
 
@@ -128,7 +128,7 @@ export default class PopupWebAppPreparedMessage extends PopupElement<{
     if(result._ === 'botInlineMediaResult' || result.thumb) {
       attachmentDiv = document.createElement('div');
       attachmentDiv.classList.add('attachment');
-      if(text) {
+      if(text!) {
         attachmentDiv.classList.add('no-brb');
         bubbleClass += ' with-media-tail';
       } else {
@@ -142,7 +142,7 @@ export default class PopupWebAppPreparedMessage extends PopupElement<{
 
         wrapPhoto({
           photo: result.photo as MyPhoto,
-          container: attachmentDiv,
+          container: attachmentDiv!,
           withTail: true,
           isOut: true,
           middleware: this.middlewareHelper.get()
@@ -162,7 +162,7 @@ export default class PopupWebAppPreparedMessage extends PopupElement<{
 
           setAttachmentSize({
             photo: doc,
-            element: attachmentDiv,
+            element: attachmentDiv!,
             boxWidth: boxSize.width,
             boxHeight: boxSize.height
           });
@@ -171,7 +171,7 @@ export default class PopupWebAppPreparedMessage extends PopupElement<{
 
           wrapSticker({
             doc,
-            div: attachmentDiv,
+            div: attachmentDiv!,
             middleware: this.middlewareHelper.get(),
             play: true,
             liteModeKey: 'stickers_chat',
@@ -193,7 +193,7 @@ export default class PopupWebAppPreparedMessage extends PopupElement<{
                 document: doc
               }
             } as Message.message,
-            container: attachmentDiv,
+            container: attachmentDiv!,
             middleware: this.middlewareHelper.get(),
             boxWidth: mediaSizes.active.regular.width,
             boxHeight: mediaSizes.active.regular.height,
@@ -237,12 +237,12 @@ export default class PopupWebAppPreparedMessage extends PopupElement<{
           });
         }
       }
-    } else if(result._ === 'botInlineResult' && result.thumb && result.thumb.mime_type.indexOf('image/') === 0) {
+    } else if(result._ === 'botInlineResult' && result.thumb && result.thumb.mime_type!.indexOf('image/') === 0) {
       bubbleClass += ' photo';
 
       wrapPhoto({
         photo: result.thumb,
-        container: attachmentDiv,
+        container: attachmentDiv!,
         withTail: true,
         isOut: true,
         middleware: this.middlewareHelper.get()
@@ -256,14 +256,14 @@ export default class PopupWebAppPreparedMessage extends PopupElement<{
             class={classNames(css.bubble, bubbleClass)}
             justMedia={justMedia}
             contentStyle={bubbleContainerStyle}
-            text={text}
-            textEntities={entities}
+            text={text!}
+            textEntities={entities!}
             out
             tail={!justMedia}
             via={this.botId}
             group="single"
-            attachment={attachmentDiv}
-            content={contentDiv}
+            attachment={attachmentDiv!}
+            content={contentDiv!}
             replyMarkup={result.send_message?.reply_markup as ReplyMarkup.replyInlineMarkup}
           />
         </FakeBubbles>

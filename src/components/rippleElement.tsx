@@ -16,9 +16,9 @@ export default function RippleElement<T extends ValidComponent>(props: DynamicPr
   createRenderEffect(() => {
     if(!local.noRipple) {
       const ret = ripple(el, undefined, 'no');
-      setRippleElement(ret.element);
+      setRippleElement(ret!.element);
       onCleanup(() => {
-        ret.dispose();
+        ret!.dispose();
         setRippleElement();
       });
     }

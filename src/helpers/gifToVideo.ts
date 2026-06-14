@@ -27,7 +27,7 @@ export default async function gifToVideo(blob: Blob, onProgress?: (progress: num
 }> {
   const decoder = new ImageDecoder({data: await blob.arrayBuffer(), type: 'image/gif', preferAnimation: true});
   await decoder.tracks.ready;
-  const frameCount = decoder.tracks.selectedTrack.frameCount;
+  const frameCount = decoder.tracks.selectedTrack!.frameCount;
 
   const {image: firstFrame} = await decoder.decode({frameIndex: 0});
   // * H.264 requires even dimensions
@@ -45,7 +45,7 @@ export default async function gifToVideo(blob: Blob, onProgress?: (progress: num
     for(let i = 0; i < frameCount; ++i) {
       const {image} = await decoder.decode({frameIndex: i});
       const frameDuration = image.duration || 1e5; // gifs with no delay play at ~10fps
-      ctx.drawImage(image, 0, 0, width, height);
+      ctx!.drawImage(image, 0, 0, width, height);
       image.close();
 
       const videoFrame = new VideoFrame(canvas, {

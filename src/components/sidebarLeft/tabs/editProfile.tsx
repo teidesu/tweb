@@ -55,7 +55,7 @@ const EditProfileTab = () => {
 
   return (
     <Show when={data()}>
-      <EditProfileForm data={data()} focusOn={payload.focusOn} />
+      <EditProfileForm data={data()!} focusOn={payload.focusOn} />
     </Show>
   );
 };
@@ -115,7 +115,7 @@ const EditProfileForm = (props: {data: FormData, focusOn?: string}) => {
   const openPersonalChannelPicker = async() => {
     let channelIds: ChatId[];
     try {
-      channelIds = await tab.managers.appProfileManager.getAdminedPersonalChannels();
+      channelIds = await tab.managers.appProfileManager!.getAdminedPersonalChannels();
     } catch(err) {
       console.error('getAdminedPersonalChannels error:', err);
       toastNew({langPackKey: 'Error.AnError'});
@@ -160,7 +160,7 @@ const EditProfileForm = (props: {data: FormData, focusOn?: string}) => {
 
     const promises: Promise<any>[] = [];
 
-    promises.push(tab.managers.appProfileManager.updateProfile(
+    promises.push(tab.managers.appProfileManager!.updateProfile(
       firstNameInputField.value,
       lastNameInputField.value,
       bioInputField.value
@@ -178,18 +178,18 @@ const EditProfileForm = (props: {data: FormData, focusOn?: string}) => {
       // collapse lock) for the duration of the upload.
       trackAvatarUpload(rootScope.myId, {file: filePromise, video: videoPromise});
       promises.push(Promise.all([filePromise, videoPromise]).then(([file, video]) => {
-        return tab.managers.appProfileManager.uploadProfilePhoto({file, video, videoStartTs});
+        return tab.managers.appProfileManager!.uploadProfilePhoto({file, video, videoStartTs});
       }, () => {
         // swallow cancellation/upload errors so Promise.race below doesn't reject the whole save
       }));
     }
 
     if(usernameInputField.isValidToChange()) {
-      promises.push(tab.managers.appUsersManager.updateUsername(usernameInputField.value));
+      promises.push(tab.managers.appUsersManager!.updateUsername(usernameInputField.value));
     }
 
     if(isPersonalChannelChanged()) {
-      promises.push(tab.managers.appProfileManager.updatePersonalChannel(personalChannelId() || undefined));
+      promises.push(tab.managers.appProfileManager!.updatePersonalChannel(personalChannelId() || undefined));
     }
 
     Promise.race(promises).finally(() => {
@@ -294,7 +294,7 @@ const EditProfileForm = (props: {data: FormData, focusOn?: string}) => {
           peerId: rootScope.myId,
           peer: user,
           listenerSetter: tab.listenerSetter,
-          usernameInputField,
+          usernameInputField: usernameInputField!,
           middleware: tab.middlewareHelper.get()
         });
         return section.container;
@@ -328,7 +328,7 @@ const UsernameSection = (props: {
     props.editPeer.handleChange();
     const error = inputField.error;
     const isPurchase = error?.type === 'USERNAME_PURCHASE_AVAILABLE';
-    props.onPurchaseUsernameChange(isPurchase ? inputField.value : undefined);
+    props.onPurchaseUsernameChange((isPurchase ? inputField.value : undefined)!);
   };
 
   const inputField = new UsernameInputField({
@@ -346,7 +346,7 @@ const UsernameSection = (props: {
 
   const captionContent = (() => {
     const fragment = document.createDocumentFragment();
-    fragment.append(props.purchaseEl, i18n('UsernameHelp'));
+    fragment.append(props.purchaseEl, i18n('UsernameHelp')!);
     return fragment;
   })();
 

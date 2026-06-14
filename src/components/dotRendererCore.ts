@@ -83,9 +83,9 @@ export default class DotRendererCore {
 
   private context: WebGL2RenderingContext;
   private reset = true;
-  private buffer: WebGLBuffer[];
+  private buffer: WebGLBuffer[] | null;
   private bufferParticlesCount: number;
-  private program: WebGLProgram;
+  private program: WebGLProgram | null;
   private timeHandle: WebGLUniformLocation;
   private deltaTimeHandle: WebGLUniformLocation;
   private sizeHandle: WebGLUniformLocation;
@@ -144,12 +144,12 @@ export default class DotRendererCore {
       .then((response) => response.text())
       .then((text) => DotRendererCore.shaderTexts[url] = text + '\n//' + Math.random());
     return callbackify(shaderTextResult, (shaderText) => {
-      this.context.shaderSource(shader, shaderText);
-      this.context.compileShader(shader);
-      if(!this.context.getShaderParameter(shader, this.context.COMPILE_STATUS)) {
-        throw 'compile shader error:\n' + this.context.getShaderInfoLog(shader);
+      this.context.shaderSource(shader!, shaderText);
+      this.context.compileShader(shader!);
+      if(!this.context.getShaderParameter(shader!, this.context.COMPILE_STATUS)) {
+        throw 'compile shader error:\n' + this.context.getShaderInfoLog(shader!);
       }
-      return shader;
+      return shader!;
     });
   }
 
@@ -205,7 +205,7 @@ export default class DotRendererCore {
       ((config.color >> 8) & 0xff) / 0xff,
       (config.color & 0xff) / 0xff
     );
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer[this.bufferIndex]);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer![this.bufferIndex]);
     gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 24, 0);
     gl.enableVertexAttribArray(0);
     gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 24, 8);
@@ -214,7 +214,7 @@ export default class DotRendererCore {
     gl.enableVertexAttribArray(2);
     gl.vertexAttribPointer(3, 1, gl.FLOAT, false, 24, 20);
     gl.enableVertexAttribArray(3);
-    gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, this.buffer[1 - this.bufferIndex]);
+    gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, this.buffer![1 - this.bufferIndex]);
     gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 24, 0);
     gl.enableVertexAttribArray(0);
     gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 24, 8);
@@ -248,21 +248,21 @@ export default class DotRendererCore {
     gl.deleteShader(vertexShader);
     gl.deleteShader(fragmentShader);
 
-    this.timeHandle = gl.getUniformLocation(program, 'time');
-    this.deltaTimeHandle = gl.getUniformLocation(program, 'deltaTime');
-    this.sizeHandle = gl.getUniformLocation(program, 'size');
-    this.resetHandle = gl.getUniformLocation(program, 'reset');
-    this.radiusHandle = gl.getUniformLocation(program, 'r');
-    this.seedHandle = gl.getUniformLocation(program, 'seed');
-    this.noiseScaleHandle = gl.getUniformLocation(program, 'noiseScale');
-    this.noiseSpeedHandle = gl.getUniformLocation(program, 'noiseSpeed');
-    this.dampingMultHandle = gl.getUniformLocation(program, 'dampingMult');
-    this.velocityMultHandle = gl.getUniformLocation(program, 'velocityMult');
-    this.forceMultHandle = gl.getUniformLocation(program, 'forceMult');
-    this.longevityHandle = gl.getUniformLocation(program, 'longevity');
-    this.maxVelocityHandle = gl.getUniformLocation(program, 'maxVelocity');
-    this.noiseMovementHandle = gl.getUniformLocation(program, 'noiseMovement');
-    this.colorHandle = gl.getUniformLocation(program, 'color');
+    this.timeHandle = gl.getUniformLocation(program, 'time')!;
+    this.deltaTimeHandle = gl.getUniformLocation(program, 'deltaTime')!;
+    this.sizeHandle = gl.getUniformLocation(program, 'size')!;
+    this.resetHandle = gl.getUniformLocation(program, 'reset')!;
+    this.radiusHandle = gl.getUniformLocation(program, 'r')!;
+    this.seedHandle = gl.getUniformLocation(program, 'seed')!;
+    this.noiseScaleHandle = gl.getUniformLocation(program, 'noiseScale')!;
+    this.noiseSpeedHandle = gl.getUniformLocation(program, 'noiseSpeed')!;
+    this.dampingMultHandle = gl.getUniformLocation(program, 'dampingMult')!;
+    this.velocityMultHandle = gl.getUniformLocation(program, 'velocityMult')!;
+    this.forceMultHandle = gl.getUniformLocation(program, 'forceMult')!;
+    this.longevityHandle = gl.getUniformLocation(program, 'longevity')!;
+    this.maxVelocityHandle = gl.getUniformLocation(program, 'maxVelocity')!;
+    this.noiseMovementHandle = gl.getUniformLocation(program, 'noiseMovement')!;
+    this.colorHandle = gl.getUniformLocation(program, 'color')!;
 
     gl.clearColor(0, 0, 0, 0);
     gl.viewport(0, 0, this.canvas.width, this.canvas.height);

@@ -86,7 +86,7 @@ export function createProfileGiftsStore(props: {
     const id = ++nextReqId
     const collectionId = store.chosenCollection === ALL_COLLECTIONS_ID ? undefined : store.chosenCollection
     const [res, canManageGifts] = await Promise.all([
-      rootScope.managers.appGiftsManager.getProfileGifts({
+      rootScope.managers.appGiftsManager!.getProfileGifts({
         peerId: props.peerId,
         offset: currentOffset,
         sort: store.sort,
@@ -104,7 +104,7 @@ export function createProfileGiftsStore(props: {
     ]);
 
     if(id !== nextReqId) return;
-    currentOffset = res.next;
+    currentOffset = res.next!;
     batch(() => {
       if(!fetchedCanManageGifts) {
         fetchedCanManageGifts = true;
@@ -188,7 +188,7 @@ export function createProfileGiftsStore(props: {
         if(deletingChosenCollection) {
           setStore('chosenCollection', ALL_COLLECTIONS_ID)
         }
-        setStore('collections', store.collections.filter((it) => it.collection_id !== collectionId))
+        setStore('collections', store.collections!.filter((it) => it.collection_id !== collectionId))
       })
 
       if(deletingChosenCollection) {
@@ -201,7 +201,7 @@ export function createProfileGiftsStore(props: {
       let needReload = options?.reload ?? needSwitch
 
       batch(() => {
-        const newArray = store.collections.slice();
+        const newArray = store.collections!.slice();
         const idx = newArray.findIndex((it) => it.collection_id === collection.collection_id);
         if(idx !== -1) {
           newArray[idx] = collection;
@@ -226,11 +226,11 @@ export function createProfileGiftsStore(props: {
       const chosenCollection$ = store.chosenCollection;
       const currentIndex =
         chosenCollection$ === ALL_COLLECTIONS_ID ? -1 :
-        collections$.findIndex((it) => it.collection_id === chosenCollection$);
+        collections$!.findIndex((it) => it.collection_id === chosenCollection$);
       const newIndex = currentIndex + direction;
-      if(newIndex < -1 || newIndex >= collections$.length) return false
+      if(newIndex < -1 || newIndex >= collections$!.length) return false
 
-      const newCollectionId = newIndex === -1 ? ALL_COLLECTIONS_ID : collections$[newIndex].collection_id
+      const newCollectionId = newIndex === -1 ? ALL_COLLECTIONS_ID : collections$![newIndex].collection_id
       if(setCollectionOverride) {
         setCollectionOverride(newCollectionId)
       } else {
@@ -268,23 +268,23 @@ export function createProfileGiftsStore(props: {
       for(let i = 0; i < items.length; i++) {
         const item = items[i];
         const shouldBePinned = event.gifts.some((it) => inputStarGiftEquals(item, it))
-        const wasPinned = !!item.saved.pFlags.pinned_to_top
+        const wasPinned = !!item.saved!.pFlags.pinned_to_top
 
         if(shouldBePinned !== wasPinned) {
           items[i] = {...item} // force re-render
-          setBooleanFlag(items[i].saved.pFlags, 'pinned_to_top', shouldBePinned)
+          setBooleanFlag(items[i].saved!.pFlags, 'pinned_to_top', shouldBePinned)
         }
       }
 
       items.sort((a, b) => {
-        if(a.saved.pFlags.pinned_to_top && !b.saved.pFlags.pinned_to_top) return -1;
-        if(!a.saved.pFlags.pinned_to_top && b.saved.pFlags.pinned_to_top) return 1;
-        if(a.saved.pFlags.pinned_to_top && b.saved.pFlags.pinned_to_top) {
+        if(a.saved!.pFlags.pinned_to_top && !b.saved!.pFlags.pinned_to_top) return -1;
+        if(!a.saved!.pFlags.pinned_to_top && b.saved!.pFlags.pinned_to_top) return 1;
+        if(a.saved!.pFlags.pinned_to_top && b.saved!.pFlags.pinned_to_top) {
           const idxA = event.gifts.findIndex((it) => inputStarGiftEquals(a, it))
           const idxB = event.gifts.findIndex((it) => inputStarGiftEquals(b, it))
           return idxA - idxB
         };
-        return b.saved.date - a.saved.date;
+        return b.saved!.date - a.saved!.date;
       })
       setStore('items', items);
     })

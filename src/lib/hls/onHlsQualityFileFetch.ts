@@ -28,16 +28,16 @@ export async function onHlsQualityFileFetch(event: FetchEvent, params: string, s
     const docId = params;
 
     const client = await ctx.clients.get(event.clientId);
-    const accountNumber = getCurrentAccountFromURL(client.url);
+    const accountNumber = getCurrentAccountFromURL(client!.url);
 
     const result = await requestSynchronizer.performRequest(
       getHlsQualityCacheFilename(docId),
       () => fetchAndProcessQualityFile(docId, accountNumber)
     );
 
-    deferred.resolve(new Response(result));
+    deferred.resolve!(new Response(result));
   } catch(e) {
-    deferred.resolve(get500ErrorResponse());
+    deferred.resolve!(get500ErrorResponse());
     swLog.error(e);
   }
 }
@@ -87,8 +87,8 @@ async function replaceQualityFileWithLocalURLs(fileString: string, accountNumber
   const params: HlsStreamUrlParams = {
     docId: targetDocId,
     dcId: doc.dc_id,
-    size: doc.size,
-    mimeType: doc.mime_type
+    size: doc.size!,
+    mimeType: doc.mime_type!
   };
   const pathname = `hls_stream/${encodeURIComponent(JSON.stringify(params))}`;
 

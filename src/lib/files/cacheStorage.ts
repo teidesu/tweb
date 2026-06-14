@@ -61,12 +61,12 @@ export type CacheStorageDbName = keyof typeof cacheStorageDbConfig;
 
 export default class CacheStorageController implements FileStorage {
   private static STORAGES: CacheStorageController[] = [];
-  private openDbPromise: Promise<Cache>;
+  private openDbPromise: Promise<Cache> | undefined;
   private config: CacheStorageDbConfigEntry;
 
   private useStorage = true;
 
-  private static disabledPromise: CancellablePromise<void>;
+  private static disabledPromise: CancellablePromise<void> | undefined;
 
   private static disabledPromisesByKey: Map<string, CancellablePromise<void>> = new Map();
 
@@ -81,7 +81,7 @@ export default class CacheStorageController implements FileStorage {
       this.useStorage = CacheStorageController.STORAGES[0].useStorage;
     }
 
-    this.config = Object.entries(cacheStorageDbConfig).find(([name]) => name === dbName)?.[1];
+    this.config = Object.entries(cacheStorageDbConfig).find(([name]) => name === dbName)?.[1]!;
 
     this.openDatabase();
     CacheStorageController.STORAGES.push(this);
@@ -104,7 +104,7 @@ export default class CacheStorageController implements FileStorage {
     const result = await cryptoMessagePort.invokeCryptoNew({
       method: 'aes-local-encrypt',
       args: [{
-        key,
+        key: key!,
         data: dataAsBuffer
       }],
       transfer: [dataAsBuffer.buffer]
@@ -122,7 +122,7 @@ export default class CacheStorageController implements FileStorage {
     const result = await cryptoMessagePort.invokeCryptoNew({
       method: 'aes-local-decrypt',
       args: [{
-        key,
+        key: key!,
         encryptedData: dataAsBuffer
       }],
       transfer: [dataAsBuffer.buffer]
@@ -139,7 +139,7 @@ export default class CacheStorageController implements FileStorage {
     // Note: even if initially there was one disabled promise, another one could be added while we are waiting
 
     let disabledPromises: CancellablePromise<void>[];
-    while((disabledPromises = this.getDisabledPromises()).length) {
+    while((disabledPromises = (this.getDisabledPromises()! as CancellablePromise<void>[])).length) {
       await Promise.all(disabledPromises);
     }
   }
@@ -180,7 +180,7 @@ export default class CacheStorageController implements FileStorage {
         await Promise.all(slice.map(async(key) => {
           const response = await cache.match(key);
 
-          const callbackResult = callback({request: key, response, cache});
+          const callbackResult = callback({request: key, response: response!, cache});
           if(callbackResult instanceof Promise) await callbackResult;
         }));
 
@@ -344,7 +344,7 @@ export default class CacheStorageController implements FileStorage {
 
   public static temporarilyToggle(enabled: boolean) {
     if(enabled) {
-      this.disabledPromise?.resolve();
+      this.disabledPromise?.resolve!();
       this.disabledPromise = undefined;
     } else if(!this.disabledPromise) {
       this.disabledPromise = deferredPromise();
@@ -355,7 +355,7 @@ export default class CacheStorageController implements FileStorage {
     const hadPromise = this.disabledPromisesByKey.has(name);
 
     if(enabled) {
-      this.disabledPromisesByKey.get(name)?.resolve();
+      this.disabledPromisesByKey.get(name)?.resolve!();
       this.disabledPromisesByKey.delete(name);
     } else if(!hadPromise) {
       this.disabledPromisesByKey.set(name, deferredPromise());

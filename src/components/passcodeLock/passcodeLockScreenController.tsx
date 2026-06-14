@@ -13,7 +13,7 @@ import StaticUtilityClass from '@lib/staticUtilityClass';
 
 
 export default class PasscodeLockScreenController extends StaticUtilityClass {
-  private static mountedElement: HTMLDivElement;
+  private static mountedElement: HTMLDivElement | undefined;
   private static dispose?: () => void;
 
   private static appStartupDeferred = deferredPromise<void>();
@@ -65,8 +65,8 @@ export default class PasscodeLockScreenController extends StaticUtilityClass {
       await isLockedCallback();
       await this.lock();
     } else {
-      this.appStartupDeferred.resolve();
-      this.appStartupDeferred = undefined;
+      this.appStartupDeferred.resolve!();
+      this.appStartupDeferred = undefined as unknown as ReturnType<typeof deferredPromise<void>>;
     }
   }
 
@@ -85,7 +85,7 @@ export default class PasscodeLockScreenController extends StaticUtilityClass {
 
     this.isLocked = true;
 
-    if(this.appStartupDeferred) {
+    if(this.appStartupDeferred as unknown) {
       this.savedHash = window.location.hash;
       window.location.hash = '';
     }
@@ -122,20 +122,20 @@ export default class PasscodeLockScreenController extends StaticUtilityClass {
 
     if(shouldAnimateIn) {
       doubleRaf().then(async() => {
-        this.mountedElement.classList.remove('passcode-lock-screen--hidden');
+        this.mountedElement!.classList.remove('passcode-lock-screen--hidden');
 
         if(!clonedLockIcon) pause(200).then(() => {
-          onAnimationEnd();
+          onAnimationEnd!();
         });
       });
     }
   }
 
   private static cloneLockIcon(icon?: HTMLElement) {
-    const clonedLockIcon = icon.cloneNode(true) as HTMLElement;
+    const clonedLockIcon = icon!.cloneNode(true) as HTMLElement;
     clonedLockIcon.classList.add('passcode-lock-screen__animated-lock-icon');
 
-    const rect = icon.getBoundingClientRect();
+    const rect = icon!.getBoundingClientRect();
 
     clonedLockIcon.style.setProperty('--x', (rect.left + rect.width / 2) + 'px');
     clonedLockIcon.style.setProperty('--y', (rect.top + rect.height / 2) + 'px');
@@ -170,8 +170,8 @@ export default class PasscodeLockScreenController extends StaticUtilityClass {
       else next();
     })();
 
-    this.appStartupDeferred?.resolve();
-    this.appStartupDeferred = undefined;
+    this.appStartupDeferred?.resolve!();
+    this.appStartupDeferred = undefined as unknown as ReturnType<typeof deferredPromise<void>>;
   }
 }
 

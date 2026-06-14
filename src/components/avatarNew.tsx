@@ -85,7 +85,7 @@ const onAvatarStoriesUpdate = ({peerId}: {peerId: PeerId}) => {
 
 rootScope.addEventListener('avatar_update', onAvatarUpdate);
 rootScope.addEventListener('peer_title_edit', async(data) => {
-  if(!data.threadId && (await rootScope.managers.appAvatarsManager.isAvatarCached(data.peerId))) return;
+  if(!data.threadId && (await rootScope.managers.appAvatarsManager!.isAvatarCached(data.peerId))) return;
 
   onAvatarUpdate(data);
 });
@@ -100,11 +100,11 @@ rootScope.addEventListener('story_new', onAvatarStoriesUpdate);
 
 const getStoriesSegments = async(peerId: PeerId, storyId?: number): Promise<AckedResult<StoriesSegments>> => {
   if(storyId) {
-    const storyUnreadType = await rootScope.managers.appStoriesManager.getUnreadType(peerId, storyId);
+    const storyUnreadType = await rootScope.managers.appStoriesManager!.getUnreadType(peerId, storyId);
 
     const segments: StoriesSegments = [{
       length: 1,
-      type: storyUnreadType
+      type: (storyUnreadType as 'unread' | 'close' | 'read')
     }];
 
     return {
@@ -113,7 +113,7 @@ const getStoriesSegments = async(peerId: PeerId, storyId?: number): Promise<Acke
     };
   }
 
-  return rootScope.managers.acknowledged.appStoriesManager.getPeerStoriesSegments(peerId);
+  return rootScope.managers.acknowledged!.appStoriesManager!.getPeerStoriesSegments(peerId) as unknown as AckedResult<StoriesSegments>;
 };
 
 const createUnreadGradient = (context: CanvasRenderingContext2D, size: number, dpr: number) => {
@@ -157,7 +157,7 @@ async function loadAvatarVideoOverlay(
   // playback can begin at that frame, matching the static cover.
   const [url, videoStartTs] = await Promise.all([
     Promise.resolve(apiManagerProxy.loadAvatar(peerId, photo, videoSize)),
-    rootScope.managers.appAvatarsManager.getAvatarVideoStartTs(peerId, photo, videoSize === 'photo_video_full').catch((): number => undefined)
+    rootScope.managers.appAvatarsManager!.getAvatarVideoStartTs(peerId, photo, videoSize === 'photo_video_full').catch((): number | undefined => undefined)
   ]);
   if(!url || !middleware()) return undefined;
 
@@ -217,7 +217,7 @@ export function wrapPhotoToAvatar(
   const cacheContext = apiManagerProxy.getCacheContext(photo as any, photoSize?.type);
   return wrapPhoto({
     container: avatarElem.node,
-    message: null,
+    message: null as unknown as undefined,
     photo,
     boxHeight: boxSize,
     boxWidth: boxSize,
@@ -275,7 +275,7 @@ export function StoriesSegments(props: {
   isStoryFolded?: Accessor<boolean>,
 }) {
   const [storiesSegments, setStoriesSegments] = createSignal<StoriesSegments>();
-  const storyDimensions: Accessor<ReturnType<typeof calculateSegmentsDimensions>> = createMemo((previousDimensions) => {
+  const storyDimensions = createMemo((previousDimensions) => {
     if(storiesSegments() === undefined) {
       return;
     }
@@ -285,7 +285,7 @@ export function StoriesSegments(props: {
     }
 
     return calculateSegmentsDimensions(props.size as number);
-  });
+  }) as Accessor<ReturnType<typeof calculateSegmentsDimensions>>;
   const storiesCircle = createMemo(() => {
     // if(isStoryFolded()) {
     //   return;
@@ -300,8 +300,8 @@ export function StoriesSegments(props: {
     if(props.isStoryFolded !== undefined || props.simple) {
       const status = createMemo(() => {
         const segments = storiesSegments();
-        const firstCloseSegment = segments.find((segment) => segment.type === 'close');
-        const segment = firstCloseSegment || segments.find((segment) => segment.type === 'unread') || segments[0];
+        const firstCloseSegment = segments!.find((segment) => segment.type === 'close');
+        const segment = firstCloseSegment || segments!.find((segment) => segment.type === 'unread') || segments![0];
         return segment.type;
       });
 
@@ -349,14 +349,14 @@ export function StoriesSegments(props: {
       height: dimensions.totalSvgSize
     });
 
-    let unreadGradient: CanvasGradient, closeGradient: CanvasGradient;
+    let unreadGradient: CanvasGradient, closeGradient: CanvasGradient | undefined;
     canvas.style.setProperty('--offset', `${(dimensions.totalSvgSize - dimensions.size) / -2}px`);
     canvas.classList.add('avatar-stories-svg');
 
     const render = () => {
       const segments = storiesSegments();
-      const firstCloseSegment = segments.find((segment) => segment.type === 'close');
-      let sections = segments.map((segment) => segmentToSection(segment, !!firstCloseSegment));
+      const firstCloseSegment = segments!.find((segment) => segment.type === 'close');
+      let sections = segments!.map((segment) => segmentToSection(segment, !!firstCloseSegment));
       const totalLength = sections.reduce((sum, section) => sum + section.length, 0);
       if(totalLength > 30) {
         sections = sections.map((section) => ({
@@ -372,7 +372,7 @@ export function StoriesSegments(props: {
     createEffect(on(
       [isNightTheme, storiesSegments],
       () => {
-        unreadGradient = closeGradient = undefined;
+        unreadGradient = (closeGradient = undefined)!;
         render();
       }
     ));
@@ -428,7 +428,7 @@ export const AvatarNew = (props: {
   const [isSubscribed, setIsSubscribed] = createSignal(false);
   const {setStoriesSegments, storyDimensions, storiesCircle} = StoriesSegments({
     size: props.size as number,
-    colors: props.storyColors,
+    colors: props.storyColors!,
     isStoryFolded: props.isStoryFolded
   });
 
@@ -452,7 +452,7 @@ export const AvatarNew = (props: {
     const imgH = mediaElement.naturalHeight;
 
     const ctx = canvas.getContext('2d');
-    ctx.drawImage(
+    ctx!.drawImage(
       mediaElement,
       imgW * 0.75, imgH * 0.75, imgW * 0.25, imgH * 0.25,
       0, 0, smallSize, smallSize
@@ -466,15 +466,15 @@ export const AvatarNew = (props: {
   const myId = rootScope.myId;
   const managers = rootScope.managers;
   const middlewareHelper = props.wrapOptions?.middleware ? props.wrapOptions.middleware.create() : getMiddleware();
-  let addedToQueue = false, lastRenderPromise: ReturnType<typeof _render>;
+  let addedToQueue = false, lastRenderPromise: ReturnType<typeof _render> | undefined;
 
   onCleanup(() => {
     lastRenderPromise = undefined;
     middlewareHelper.destroy();
-    readyPromise.resolve();
+    readyPromise.resolve!();
     cleanLastKey();
 
-    (props.lazyLoadQueue as LazyLoadQueue)?.delete({div: node});
+    (props.lazyLoadQueue as LazyLoadQueue)?.delete({div: node!});
   });
 
   // const owner = getOwner();
@@ -482,17 +482,17 @@ export const AvatarNew = (props: {
   const _setMedia = (media?: JSX.Element) => {
     setMedia(media);
     setReady(true);
-    readyPromise.resolve();
-    readyThumbPromise.resolve();
+    readyPromise.resolve!();
+    readyThumbPromise.resolve!();
   };
 
   const _setThumb = (thumb?: JSX.Element) => {
     setThumb(thumb);
     setReady(true);
-    readyThumbPromise.resolve();
+    readyThumbPromise.resolve!();
   };
 
-  const getKey = () => getAvatarQueueKey(props.peerId, props.threadId);
+  const getKey = () => getAvatarQueueKey(props.peerId!, props.threadId);
   const cleanLastKey = () => {
     if(!lastKey) {
       return;
@@ -500,7 +500,7 @@ export const AvatarNew = (props: {
 
     const set = believeMe.get(lastKey);
     if(set) {
-      set.delete(this);
+      set.delete(this!);
       if(!set.size) {
         believeMe.delete(lastKey);
       }
@@ -531,7 +531,7 @@ export const AvatarNew = (props: {
     // playing the previous peer's video.
     const finalSizeForClear: PeerPhotoSize = props.isBig ? 'photo_big' : 'photo_small';
     if(size === finalSizeForClear) setVideo();
-    const result = apiManagerProxy.loadAvatar(peerId, photo, size, props.accountNumber);
+    const result = apiManagerProxy.loadAvatar(peerId!, photo, size, props.accountNumber);
     const loadPromise = result;
     const cached = !(result instanceof Promise);
 
@@ -558,8 +558,8 @@ export const AvatarNew = (props: {
           return;
         }
 
-        renderThumbPromise = res.loadThumbPromise || res.loadPromise;
-        thumbImage = res.thumbImage;
+        renderThumbPromise = res!.loadThumbPromise || res!.loadPromise;
+        thumbImage = res!.thumbImage;
       } else if(photo.stripped_thumb) {
         thumbElement = thumbImage = document.createElement('img');
         thumbImage.className = 'avatar-photo avatar-photo-thumbnail';
@@ -596,7 +596,7 @@ export const AvatarNew = (props: {
     }
 
     const renderPromise = callbackify(loadPromise, (url) => {
-      const result = renderImageFromUrl(image, url, undefined, useCache, props.processImageOnLoad);
+      const result = renderImageFromUrl(image, url!, undefined, useCache, props.processImageOnLoad);
       callbackify(result, callback);
       return result instanceof Promise ? result : Promise.resolve(result);
     });
@@ -628,7 +628,7 @@ export const AvatarNew = (props: {
         // Big profile avatar gets the full-quality video ('u'); chat list /
         // topbar use the small preview ('p') to save bandwidth.
         const videoSize: PeerPhotoSize = props.isBig ? 'photo_video_full' : 'photo_video';
-        loadAvatarVideoOverlay(peerId, photo, node, middleware, videoSize).then((videoElement) => {
+        loadAvatarVideoOverlay(peerId!, photo, node!, middleware, videoSize).then((videoElement) => {
           if(!middleware() || !videoElement) return;
           setVideo(videoElement);
         });
@@ -638,8 +638,8 @@ export const AvatarNew = (props: {
     return {
       cached,
       loadPromise: renderPromise,
-      loadThumbPromise: cached ? renderPromise : renderThumbPromise || Promise.resolve(),
-      thumbImage,
+      loadThumbPromise: cached ? renderPromise : renderThumbPromise! || Promise.resolve(),
+      thumbImage: thumbImage!,
       thumbElement,
       image,
       element
@@ -671,10 +671,10 @@ export const AvatarNew = (props: {
     setIcon(icon);
     setAbbreviature(abbreviature);
     setColor(color);
-    setIsForum(isForum);
-    setIsTopic(isTopic);
-    setIsSubscribed(isSubscribed);
-    setIsMonoforum(isMonoforum);
+    setIsForum(!!isForum);
+    setIsTopic(!!isTopic);
+    setIsSubscribed(!!isSubscribed);
+    setIsMonoforum(!!isMonoforum);
     setStoriesSegments(storiesSegments);
   };
 
@@ -683,7 +683,7 @@ export const AvatarNew = (props: {
       return;
     }
 
-    const segments = await (await getStoriesSegments(props.peerId, props.storyId)).result;
+    const segments = await (await getStoriesSegments(props.peerId!, props.storyId)).result;
     if(lastRenderPromise) {
       const result = await lastRenderPromise;
       await result?.loadThumbPromise;
@@ -728,12 +728,12 @@ export const AvatarNew = (props: {
     }
 
     // * fix monoforum
-    if(threadId && apiManagerProxy.isMonoforum(peerId)) {
+    if(threadId && apiManagerProxy.isMonoforum(peerId!)) {
       peerId = threadId;
       threadId = undefined;
     }
 
-    const peer = props.peer ?? apiManagerProxy.getPeer(peerId);
+    const peer = props.peer ?? apiManagerProxy.getPeer(peerId!);
     if(title) {
       const color = getPeerAvatarColorByPeer(peer);
       const abbr = wrapAbbreviation(title);
@@ -745,17 +745,17 @@ export const AvatarNew = (props: {
     }
 
     if(threadId) {
-      const topic = await managers.dialogsStorage.getForumTopic(peerId, threadId);
+      const topic = await managers.dialogsStorage!.getForumTopic(peerId!, threadId);
       set({isTopic: true});
 
       return wrapTopicIcon({
         ...wrapOptions,
         middleware,
-        topic,
+        topic: topic!,
         lazyLoadQueue: false
       }).then((icon) => {
         _setMedia(icon);
-        return undefined as ReturnType<typeof putAvatar>;
+        return undefined as unknown as ReturnType<typeof putAvatar>;
       });
     }
 
@@ -763,34 +763,34 @@ export const AvatarNew = (props: {
       return;
     }
 
-    if(peerId !== NULL_PEER_ID && peerId.isUser() && (peer as User.user)?.pFlags?.deleted) {
+    if(peerId !== NULL_PEER_ID && peerId!.isUser() && (peer as User.user)?.pFlags?.deleted) {
       set({color: 'archive', icon: 'deletedaccount'});
       return;
     }
 
     const _isForum = !!(peer as Chat.channel)?.pFlags?.forum;
     const _isSubscribed = props.isSubscribed ?? !!(peer as Chat.channel)?.subscription_until_date;
-    const storiesSegmentsResult = withStories && ((peer as User.user | Chat.channel)?.stories_max_id || storyId) && await getStoriesSegments(peerId, storyId);
-    const storiesSegments = storiesSegmentsResult?.cached ? await storiesSegmentsResult.result : undefined;
+    const storiesSegmentsResult = withStories && ((peer as User.user | Chat.channel)?.stories_max_id || storyId) && await getStoriesSegments(peerId!, storyId);
+    const storiesSegments = storiesSegmentsResult && (storiesSegmentsResult as AckedResult<StoriesSegments>).cached ? await (storiesSegmentsResult as AckedResult<StoriesSegments>).result : undefined;
     if(!middleware()) {
       return;
     }
 
     const size: PeerPhotoSize = isBig ? 'photo_big' : 'photo_small';
 
-    const linkedMonoforumPeer = peer?._ === 'channel' && peer.pFlags?.monoforum && peer.linked_monoforum_id ? await managers.appChatsManager.getChat(peer.linked_monoforum_id.toPeerId?.()) : undefined;
+    const linkedMonoforumPeer = peer?._ === 'channel' && peer.pFlags?.monoforum && peer.linked_monoforum_id ? await managers.appChatsManager!.getChat(peer.linked_monoforum_id.toPeerId?.()) : undefined;
 
     const photo = getPeerPhoto(linkedMonoforumPeer || peer);
     const avatarAvailable = !!photo;
     const avatarRendered = avatarAvailable && !!media(); // if avatar isn't available, let's reset it
     const sameAccount = props.accountNumber === getCurrentAccount();
-    let isAvatarCached = sameAccount && avatarAvailable && apiManagerProxy.isAvatarCached(peerId, size);
+    let isAvatarCached = sameAccount && avatarAvailable && apiManagerProxy.isAvatarCached(peerId!, size);
     // A big avatar's photo_big often isn't cached on first open, but the small
     // thumb usually is (loaded by the chat list). Treat it as cached so we render
     // that thumb instantly instead of flashing the colour placeholder while
     // photo_big downloads (the visible "blink" when opening/switching profiles).
     if(!isAvatarCached && isBig && avatarAvailable && sameAccount) {
-      isAvatarCached = apiManagerProxy.isAvatarCached(peerId, 'photo_small');
+      isAvatarCached = apiManagerProxy.isAvatarCached(peerId!, 'photo_small');
     }
     if(!middleware()) {
       return;
@@ -800,11 +800,11 @@ export const AvatarNew = (props: {
     if(!avatarRendered && !isAvatarCached) {
       let color: string;
       if(peerId && (peerId !== myId || !isDialog)) {
-        color = getPeerAvatarColorByPeer(peer);
+        color = getPeerAvatarColorByPeer(peer)!;
       }
 
       if(peerId === REPLIES_PEER_ID) {
-        set({color, icon: 'reply_filled'});
+        set({color: color!, icon: 'reply_filled'});
         return;
       }
 
@@ -816,7 +816,7 @@ export const AvatarNew = (props: {
       const abbr = /* title ? wrapAbbreviation(title) :  */getPeerInitials(peer);
       set({
         abbreviature: documentFragmentToNodes(abbr),
-        color,
+        color: color!,
         isForum: _isForum,
         isSubscribed: _isSubscribed,
         isMonoforum: !!linkedMonoforumPeer,
@@ -839,7 +839,7 @@ export const AvatarNew = (props: {
       const changeSegments = !!storiesSegments;
       const changeForum = _isForum !== isForum();
       const changeIsSubcribed = _isSubscribed !== isSubscribed();
-      promise.then(({loadThumbPromise}) => loadThumbPromise).then(() => {
+      promise.then((result) => result?.loadThumbPromise).then(() => {
         if(!middleware()) {
           return;
         }
@@ -894,7 +894,7 @@ export const AvatarNew = (props: {
     }
 
     if(_props?.peerId !== undefined && props.peerId !== _props.peerId) {
-      node.dataset.peerId = '' + _props.peerId;
+      node!.dataset.peerId = '' + _props.peerId;
     }
 
     if(_props) Object.assign(props, _props);
@@ -902,7 +902,7 @@ export const AvatarNew = (props: {
     const middleware = middlewareHelper.get();
 
     if(props.lazyLoadQueue) {
-      if(!seen.has(props.peerId)) {
+      if(!seen.has(props.peerId!)) {
         if(addedToQueue) return;
         addedToQueue = true;
 
@@ -915,9 +915,9 @@ export const AvatarNew = (props: {
         set.add(ret);
 
         props.lazyLoadQueue.push({
-          div: node,
+          div: node!,
           load: () => {
-            seen.add(props.peerId);
+            seen.add(props.peerId!);
             return render();
           }
         });
@@ -930,11 +930,11 @@ export const AvatarNew = (props: {
 
         return processResult(result);
       } else if(addedToQueue) {
-        props.lazyLoadQueue.delete({div: node});
+        props.lazyLoadQueue.delete({div: node!});
       }
     }
 
-    seen.add(props.peerId);
+    seen.add(props.peerId!);
 
     const promise = lastRenderPromise = _render();
 
@@ -963,7 +963,7 @@ export const AvatarNew = (props: {
 
   if(props.onStoriesStatus) {
     createEffect(() => {
-      props.onStoriesStatus(!!storyDimensions());
+      props.onStoriesStatus!(!!storyDimensions());
     });
   }
 
@@ -996,7 +996,7 @@ export const AvatarNew = (props: {
 
   const inner = (
     <>
-      {icon() && Icon(icon(), 'avatar-icon', 'avatar-icon-' + icon())}
+      {icon() && Icon(icon()!, 'avatar-icon', 'avatar-icon-' + icon())}
       {thumb()}
       {[media(), abbreviature()].find(Boolean)}
       {video()}
@@ -1044,7 +1044,7 @@ export const AvatarNew = (props: {
   let node: HTMLDivElement;
   const element = (
     <div
-      ref={node}
+      ref={node!}
       class={`avatar avatar-like avatar-${props.size} avatar-gradient ${props.class ?? ''}`}
       classList={classList()}
       data-color={color()}
@@ -1063,7 +1063,7 @@ export const AvatarNew = (props: {
     ready,
     readyPromise,
     readyThumbPromise,
-    node,
+    node: node!,
     render,
     setIcon,
     setStoriesSegments,

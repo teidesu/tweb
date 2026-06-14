@@ -37,7 +37,7 @@ export default class SidebarSlider {
 
     this.tabs ??= new Map();
 
-    this.tabsContainer = this.sidebarEl.querySelector('.sidebar-slider');
+    this.tabsContainer = this.sidebarEl.querySelector('.sidebar-slider')!;
     this._selectTab = TransitionSlider({
       content: this.tabsContainer,
       type: 'navigation',
@@ -77,7 +77,7 @@ export default class SidebarSlider {
 
     // console.log('sidebar-close-button click:', this.historyTabIDs);
     const closingId = this.historyTabIds.pop(); // pop current
-    this.onCloseTab(closingId, animate, isNavigation);
+    this.onCloseTab(closingId!, animate!, isNavigation);
 
     const tab = this.historyTabIds[this.historyTabIds.length - 1];
     this._selectTab(tab !== undefined ? (tab instanceof SliderSuperTab ? tab.container : tab) : (this.canHideFirst ? -1 : 0), animate);
@@ -131,7 +131,7 @@ export default class SidebarSlider {
       return false;
     }
 
-    const tab: SliderSuperTab = id instanceof SliderSuperTab ? id : this.tabs.get(id);
+    const tab: SliderSuperTab = (id instanceof SliderSuperTab ? id : this.tabs.get(id))!;
     this.onOpenTab && await this.onOpenTab();
 
     if(tab) {
@@ -156,7 +156,7 @@ export default class SidebarSlider {
 
   public removeTabFromHistory(id: number | SliderSuperTab) {
     indexOfAndSplice(this.historyTabIds, id);
-    this.onCloseTab(id, undefined);
+    this.onCloseTab(id, undefined!);
   }
 
   public closeAllTabs() {
@@ -164,7 +164,7 @@ export default class SidebarSlider {
     for(let i = this.historyTabIds.length - 1; i >= 0; --i) {
       const tabId = this.historyTabIds[i];
       const tab = tabId instanceof SliderSuperTab ? tabId : this.tabs.get(tabId);
-      tab.close();
+      tab!.close();
     }
     return hasTabs;
   }
@@ -200,7 +200,7 @@ export default class SidebarSlider {
       this.onTabsCountChange?.();
     }
 
-    const tab: SliderSuperTab = id instanceof SliderSuperTab ? id : this.tabs.get(id);
+    const tab: SliderSuperTab = (id instanceof SliderSuperTab ? id : this.tabs.get(id))!;
     if(tab) {
       try {
         // @ts-ignore
@@ -245,7 +245,7 @@ export default class SidebarSlider {
       return this.historyTabIds[this.historyTabIds.length - 1] as T;
     }
 
-    const tab = new ctor(doNotAppend ? undefined : this, destroyable);
+    const tab = new ctor((doNotAppend ? undefined : this)!, destroyable);
     tab.managers = this.managers;
     return tab;
   }

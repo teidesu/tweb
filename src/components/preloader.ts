@@ -17,7 +17,7 @@ export default class ProgressivePreloader {
   private tempId = 0;
   public detached = true;
 
-  public promise: CancellablePromise<any> = null;
+  public promise: CancellablePromise<any> | null = null;
 
   public isUpload = false;
   private cancelable = true;
@@ -78,7 +78,7 @@ export default class ProgressivePreloader {
   }
 
   public construct() {
-    this.construct = null;
+    this.construct = null!;
 
     this.constructContainer();
 
@@ -126,7 +126,7 @@ export default class ProgressivePreloader {
       this.preloader.classList.add('preloader-swing');
     }
 
-    this.circle = this.preloader.firstElementChild.firstElementChild.firstElementChild as SVGCircleElement;
+    this.circle = this.preloader.firstElementChild!.firstElementChild!.firstElementChild as SVGCircleElement;
 
     if(this.cancelable) {
       attachClickEvent(this.preloader, this.onClick);
@@ -154,7 +154,7 @@ export default class ProgressivePreloader {
     this.setProgress(0);
   }
 
-  public attachPromise(promise: CancellablePromise<any>) {
+  public attachPromise(promise: CancellablePromise<any> | null) {
     if(this.isUpload && this.promise) return;
 
     this.promise = promise;
@@ -163,7 +163,7 @@ export default class ProgressivePreloader {
     const startTime = Date.now();
 
     const onEnd = (err: Error) => {
-      promise.notify = promise.notifyAll = null;
+      promise!.notify = (promise!.notifyAll = null)!;
 
       if(tempId !== this.tempId) {
         return;
@@ -189,7 +189,7 @@ export default class ProgressivePreloader {
         }
       } else {
         if(this.tryAgainOnFail) {
-          this.attach(this.preloader.parentElement);
+          this.attach(this.preloader.parentElement!);
           fastRaf(() => {
             this.setManual();
           });
@@ -198,14 +198,14 @@ export default class ProgressivePreloader {
         }
       }
 
-      this.promise = promise = null;
+      this.promise = (promise = null)!;
     };
 
-    promise
-    .then(() => onEnd(null))
+    promise!
+    .then(() => onEnd(null as unknown as Error))
     .catch((err) => onEnd(err));
 
-    promise.addNotifyListener?.((details: {done: number, total: number}) => {
+    promise!.addNotifyListener?.((details: {done: number, total: number}) => {
       /* if(details.done >= details.total) {
         onEnd();
       } */

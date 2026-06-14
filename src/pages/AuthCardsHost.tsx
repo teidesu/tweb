@@ -79,7 +79,7 @@ export default function AuthCardsHost(): JSX.Element {
 
   async function back(): Promise<void> {
     await sessionStorage.set({should_animate_main: 1});
-    const prevAccount = getValidatedAccount(await sessionStorage.get('previous_account'));
+    const prevAccount = getValidatedAccount((await sessionStorage.get('previous_account'))!);
     await sessionStorage.delete('previous_account');
 
     if(hostEl) {

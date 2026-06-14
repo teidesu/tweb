@@ -24,8 +24,8 @@ type UpdatesState = {
     seqAwaiting?: number,
     ptsAwaiting?: boolean,
     timeout: number
-  },
-  syncLoading: Promise<void>,
+  } | null,
+  syncLoading: Promise<void> | null,
 
   seq?: number,
   pts?: number,
@@ -38,7 +38,7 @@ const SYNC_DELAY = 6;
 
 // pts the update expects to be applied at; pts-bearing updates without pts_count
 // (e.g. updateReadChannelInbox) are zero-span, so ptsBefore === pts
-function getUpdatePtsBefore(update: Update): number {
+function getUpdatePtsBefore(update: Update): number | undefined {
   const pts = (update as Update.updateNewMessage).pts;
   if(pts === undefined) {
     return undefined;
@@ -89,8 +89,8 @@ class ApiUpdatesManager {
 
   private popPendingSeqUpdate() {
     const state = this.updatesState;
-    const nextSeq = state.seq + 1;
-    const pendingUpdatesData = state.pendingSeqUpdates[nextSeq];
+    const nextSeq = state.seq! + 1;
+    const pendingUpdatesData = state.pendingSeqUpdates![nextSeq];
     if(!pendingUpdatesData) {
       return false;
     }
@@ -101,10 +101,10 @@ class ApiUpdatesManager {
     }
 
     state.seq = pendingUpdatesData.seq;
-    if(pendingUpdatesData.date && state.date < pendingUpdatesData.date) {
+    if(pendingUpdatesData.date && state.date! < pendingUpdatesData.date) {
       state.date = pendingUpdatesData.date;
     }
-    delete state.pendingSeqUpdates[nextSeq];
+    delete state.pendingSeqUpdates![nextSeq];
 
     if(!this.popPendingSeqUpdate() &&
       state.syncPending?.seqAwaiting &&
@@ -135,8 +135,8 @@ class ApiUpdatesManager {
     let goodIndex = 0;
     for(let i = 0, length = curState.pendingPtsUpdates.length; i < length; ++i) {
       const update = curState.pendingPtsUpdates[i];
-      curPts += update.pts_count || 0;
-      if(curPts >= update.pts) {
+      curPts! += update.pts_count || 0;
+      if(curPts! >= update.pts) {
         goodPts = update.pts;
         goodIndex = i;
       }
@@ -307,9 +307,9 @@ class ApiUpdatesManager {
     this.clearStatePendingSync(updatesState);
 
     const promise = this.apiManager.invokeApi('updates.getDifference', {
-      pts: updatesState.pts,
+      pts: updatesState.pts!,
       pts_total_limit: first /* && false  */? /* 50 */1200 : undefined,
-      date: updatesState.date,
+      date: updatesState.date!,
       qts: -1
     }, {
       timeout: 0x7fffffff
@@ -352,7 +352,7 @@ class ApiUpdatesManager {
           this.saveUpdate({
             _: 'updateNewMessage',
             message: apiMessage,
-            pts: updatesState.pts,
+            pts: updatesState.pts!,
             pts_count: 0
           });
         });
@@ -410,7 +410,7 @@ class ApiUpdatesManager {
     const promise = this.apiManager.invokeApi('updates.getChannelDifference', {
       channel: this.appChatsManager.getChannelInput(channelId),
       filter: {_: 'channelMessagesFilterEmpty'},
-      pts: channelState.pts,
+      pts: channelState.pts!,
       limit: 1000
     }, {timeout: 0x7fffffff}).then((differenceResult) => {
       log('diff result', differenceResult)
@@ -444,7 +444,7 @@ class ApiUpdatesManager {
         this.saveUpdate({
           _: 'updateNewChannelMessage',
           message: apiMessage,
-          pts: channelState.pts,
+          pts: channelState.pts!,
           pts_count: 0
         });
       });
@@ -481,7 +481,7 @@ class ApiUpdatesManager {
     state.syncLoading = promise;
     !channelId && this.rootScope.dispatchEvent('state_synchronizing');
 
-    promise.then(() => {
+    promise!.then(() => {
       state.syncLoading = null;
       !channelId && this.rootScope.dispatchEvent('state_synchronized');
     }, () => {
@@ -504,7 +504,7 @@ class ApiUpdatesManager {
 
   public getChannelState(channelId: ChatId, pts?: number) {
     if(this.channelStates[channelId] === undefined) {
-      this.addChannelState(channelId, pts);
+      this.addChannelState(channelId, pts!);
     }
 
     return this.channelStates[channelId];
@@ -519,7 +519,7 @@ class ApiUpdatesManager {
     switch(update._) {
       case 'updateNewChannelMessage':
       case 'updateEditChannelMessage':
-        channelId = this.appPeersManager.getPeerId(update.message.peer_id).toChatId();
+        channelId = this.appPeersManager.getPeerId(update.message.peer_id!).toChatId();
         break;
       /* case 'updateDeleteChannelMessages':
         channelId = update.channel_id;
@@ -538,9 +538,9 @@ class ApiUpdatesManager {
     }
 
     const {pts, pts_count} = update as Update.updateNewMessage;
-    const curState = channelId ? this.getChannelState(channelId, pts) : this.updatesState;
+    const curState = channelId! ? this.getChannelState(channelId, pts) : this.updatesState;
 
-    const log = this.log.bindPrefix(`processUpdate${channelId ? `-${channelId}` : ''}`);
+    const log = this.log.bindPrefix(`processUpdate${channelId! ? `-${channelId}` : ''}`);
     log('process', curState.pts, copy(update));
 
     if(curState.syncLoading && !options.ignoreSyncLoading) {
@@ -554,7 +554,7 @@ class ApiUpdatesManager {
       if(!curState.lastPtsUpdateTime ||
           curState.lastPtsUpdateTime < (Date.now() - SYNC_DELAY)) {
         log.warn('channel too long, get diff');
-        this.getChannelDifference(channelId);
+        this.getChannelDifference(channelId!);
       }
       return false;
     }
@@ -573,14 +573,14 @@ class ApiUpdatesManager {
           toPeerId.isUser() && !this.appUsersManager.hasUser(toPeerId) && (reason = 'toPeer User') ||
           toPeerId.isAnyChat() && !this.appChatsManager.hasChat(toPeerId.toChatId()) && (reason = 'toPeer Chat')) {
         log.warn('not enough data for message update', toPeerId, reason, message);
-        if(channelId && this.appChatsManager.hasChat(channelId)) {
+        if(channelId! && this.appChatsManager.hasChat(channelId)) {
           this.getChannelDifference(channelId);
         } else {
           this.forceGetDifference();
         }
         return false;
       }
-    } else if(channelId && !this.appChatsManager.hasChat(channelId)) {
+    } else if(channelId! && !this.appChatsManager.hasChat(channelId)) {
       log('skipping update, missing channel');
       return false;
     }
@@ -589,9 +589,9 @@ class ApiUpdatesManager {
     let popSeq: boolean;
 
     if(pts) {
-      const newPts = curState.pts + (pts_count || 0);
+      const newPts = curState.pts! + (pts_count || 0);
       if(newPts < pts) {
-        log.warn('pts hole', curState, update, channelId && this.appChatsManager.getChat(channelId));
+        log.warn('pts hole', curState, update, channelId! && this.appChatsManager.getChat(channelId));
         curState.pendingPtsUpdates.push(update as Update.updateNewMessage);
         if(!curState.syncPending && !curState.syncLoading) {
           curState.syncPending = {
@@ -618,7 +618,7 @@ class ApiUpdatesManager {
         return false;
       }
 
-      if(pts > curState.pts) {
+      if(pts > curState.pts!) {
         curState.pts = pts;
         popPts = true;
 
@@ -628,19 +628,19 @@ class ApiUpdatesManager {
         return false;
       }
 
-      if(channelId && options.date && this.updatesState.date < options.date) {
+      if(channelId! && options.date && this.updatesState.date! < options.date) {
         this.updatesState.date = options.date;
       }
-    } else if(!channelId && options.seq > 0) {
+    } else if(!channelId! && options.seq! > 0) {
       const seq = options.seq;
       const seqStart = options.seqStart || seq;
 
-      if(seqStart !== curState.seq + 1) {
-        if(seqStart > curState.seq) {
+      if(seqStart !== curState.seq! + 1) {
+        if(seqStart! > curState.seq!) {
           log.warn('seq hole', curState, curState.syncPending?.seqAwaiting);
 
-          curState.pendingSeqUpdates[seqStart] ??= {seq, date: options.date, updates: []};
-          curState.pendingSeqUpdates[seqStart].updates.push(update);
+          curState.pendingSeqUpdates![seqStart!] ??= {seq: seq!, date: options.date!, updates: []};
+          curState.pendingSeqUpdates![seqStart!].updates.push(update);
 
           if(!curState.syncPending) {
             curState.syncPending = {
@@ -657,7 +657,7 @@ class ApiUpdatesManager {
           }
 
           if(!curState.syncPending.seqAwaiting ||
-            curState.syncPending.seqAwaiting < seqStart) {
+            curState.syncPending.seqAwaiting < seqStart!) {
             curState.syncPending.seqAwaiting = seqStart;
           }
           return false;
@@ -666,7 +666,7 @@ class ApiUpdatesManager {
 
       if(curState.seq !== seq) {
         curState.seq = seq;
-        if(options.date && curState.date < options.date) {
+        if(options.date && curState.date! < options.date) {
           curState.date = options.date;
         }
 
@@ -676,9 +676,9 @@ class ApiUpdatesManager {
 
     this.saveUpdate(update);
 
-    if(popPts) {
-      this.popPendingPtsUpdate(channelId);
-    } else if(popSeq) {
+    if(popPts!) {
+      this.popPendingPtsUpdate(channelId!);
+    } else if(popSeq!) {
       this.popPendingSeqUpdate();
     }
   }

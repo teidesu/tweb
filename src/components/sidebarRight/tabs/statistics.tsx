@@ -131,14 +131,14 @@ export const createLoadableList = <T extends any = any>(props: Partial<LoadableL
 
 export const MoreButton = (props: {
   count: number,
-  callback: Parameters<typeof Button>[0]['onClick'],
+  callback: NonNullable<Parameters<typeof Button>[0]>['onClick'],
   key?: LangPackKey
 }) => {
   return (
     <Button
       text={props.key || 'PollResults.LoadMore'}
       textArgs={[props.count]}
-      onClick={(e) => props.callback(e)}
+      onClick={(e) => props.callback!(e)}
       class="btn btn-primary btn-transparent primary"
       icon="down"
     />
@@ -239,7 +239,7 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
   private isStory: boolean;
 
   protected onOpenAfterTimeout(): void {
-    this.openPromise.resolve();
+    this.openPromise.resolve!();
   }
 
   private _construct(
@@ -268,7 +268,7 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
         }
       });
 
-      return dateElement.element.textContent;
+      return dateElement.element!.textContent;
     };
 
     const getLabelTime: TChartData['getLabelTime'] = (value: number) => {
@@ -281,7 +281,7 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
         }
       });
 
-      return dateElement.element.textContent;
+      return dateElement.element!.textContent;
     };
 
     const makeColors = () => {
@@ -310,7 +310,7 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
         0.4
       );
 
-      const colors: ConstructorParameters<typeof TChart>[0]['settings']['COLORS'] = {
+      const colors: NonNullable<ConstructorParameters<typeof TChart>[0]['settings']>['COLORS'] = {
         primary: customProperties.getProperty('primary-color'),
         secondary: customProperties.getProperty('secondary-color'),
         background: surface,
@@ -374,12 +374,12 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
 
         const zoomToken = statsGraph.zoom_token;
         const tChart = _TChart.render({
-          container,
+          container: container!,
           data: {
             ...data,
             ...addOptions,
             x_on_zoom: zoomToken ? async(x) => {
-              const statsGraph = await this.managers.appStatisticsManager.loadAsyncGraph(zoomToken, x, this.dcId);
+              const statsGraph = await this.managers.appStatisticsManager!.loadAsyncGraph(zoomToken, x, this.dcId);
               if(statsGraph._ === 'statsGraphError') {
                 return;
               }
@@ -410,11 +410,11 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
 
         const setStyles = () => {
           const p: [property: string, value: string][] = [
-            ['primary-color', colors.primary],
+            ['primary-color', colors.primary!],
             ['background-color', colors.background],
             ['background-color-rgb', colors.backgroundRgb.join(', ')],
             ['text-color', colors.text],
-            ['secondary-color', colors.secondary],
+            ['secondary-color', colors.secondary!],
             ['font-family', FontFamily]
           ];
 
@@ -435,8 +435,8 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
       const captionElement = document.createElement('div');
       titleElement.classList.add('statistics-title');
       const t = i18n(title);
-      t.classList.add('statistics-title-text');
-      titleElement.append(t);
+      t!.classList.add('statistics-title-text');
+      titleElement.append(t!);
       // let zoomOutElement: HTMLElement;
       // if(graph.zoomToken || graph.isPercentage) {
       //   zoomOutElement = document.createElement('div');
@@ -447,7 +447,7 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
       let container: HTMLDivElement;
       return (
         <Section name={titleElement} nameRight={captionElement}>
-          <div class="statistics-chart" ref={container}></div>
+          <div class="statistics-chart" ref={container!}></div>
         </Section>
       );
     };
@@ -484,7 +484,7 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
           <StatisticsOverviewItems items={overviewItems} />
         </Section>
         <For each={graphs}>{renderGraph}</For>
-        {recentPosts.length && <Section ref={postsContainer} name="RecentPosts">
+        {recentPosts.length && <Section ref={postsContainer!} name="RecentPosts">
           {recentPosts.map(({container}) => container)}
         </Section>}
         <For each={[topPosters, topAdmins, topInviters]}>{(topPeers, idx) => {
@@ -519,9 +519,9 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
                   const storyId = target.dataset.storyId;
                   if(storyId) {
                     createStoriesViewerWithPeer({
-                      target: () => target.querySelector('.avatar'),
-                      peerId: target.dataset.peerId.toPeerId(),
-                      id: +target.dataset.storyId
+                      target: ((() => target.querySelector('.avatar') as unknown as Accessor<Element> | undefined)! as unknown as Accessor<Element> | undefined),
+                      peerId: target.dataset.peerId!.toPeerId(),
+                      id: +target.dataset.storyId!
                     });
                     return false;
                   }
@@ -537,20 +537,20 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
           <Show when={!!publicForwards().loadMore}>
             <MoreButton
               count={publicForwards().count - publicForwards().rendered.length}
-              callback={() => publicForwards().loadMore()}
+              callback={() => publicForwards().loadMore!()}
             />
           </Show>
         </Section>}
       </>
     );
 
-    if(postsContainer) {
+    if(postsContainer!) {
       const map: Map<HTMLElement, PostInteractionCounters> = new Map();
       recentPosts.forEach(({container, postInteractionCounters}) => {
         map.set(container, postInteractionCounters);
       });
 
-      const findTarget = (e: MouseEvent | TouchEvent) => findUpClassName(e.target, 'statistics-post');
+      const findTarget = (e: MouseEvent | TouchEvent) => findUpClassName(e.target!, 'statistics-post');
       let counters: PostInteractionCounters;
 
       const onOpenClick = () => {
@@ -562,7 +562,7 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
       };
 
       attachClickEvent(postsContainer, (e) => {
-        counters = map.get(findTarget(e));
+        counters = map.get(findTarget(e))!;
         if(!counters) {
           return;
         }
@@ -600,7 +600,7 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
         listenerSetter: this.listenerSetter,
         findElement: (e) => {
           const target = findTarget(e);
-          counters = map.get(target);
+          counters = map.get(target)!;
           return target;
         },
         middleware: this.middlewareHelper.get()
@@ -670,22 +670,22 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
         setStoriesSegments([{length: 1, type: 'unread'}]);
         row.container.dataset.storyId = '' + storyItem.id;
       } else {
-        row.container.dataset.mid = '' + message.mid;
+        row.container.dataset.mid = '' + message!.mid;
       }
 
       mediaEl.append(node);
       await readyThumbPromise;
       row.title.append(await wrapPeerTitle({peerId}));
-      row.subtitle.append(formatFullSentTime(message?.date || storyItem?.date));
+      row.subtitle.append(formatFullSentTime((message?.date || storyItem?.date)!));
       row.applyMediaElement(mediaEl, 'abitbigger');
     } else if(postInteractionCounters._ === 'postInteractionCountersMessage') {
       container.classList.add('statistics-post-message');
       message ||= this.messages.get(postInteractionCounters.msg_id);
       const isMediaSet = await wrapReplyDivAndCaption({
         titleEl: row.subtitle,
-        title: formatFullSentTime(message.date),
+        title: formatFullSentTime(message!.date),
         subtitleEl: row.title,
-        message,
+        message: message!,
         mediaEl,
         middleware,
         withoutMediaType: true
@@ -701,8 +701,8 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
     } else {
       container.classList.add('statistics-post-story');
       storyItem ||= this.stories.get(postInteractionCounters.story_id);
-      row.title.append(i18n('Story'));
-      row.subtitle.append(formatFullSentTime(storyItem.date));
+      row.title.append(i18n('Story')!);
+      row.subtitle.append(formatFullSentTime(storyItem!.date));
 
       const border = document.createElement('div');
       border.classList.add('avatar-stories-simple', 'is-unread');
@@ -711,7 +711,7 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
       await createRoot((dispose) => {
         middleware.onDestroy(dispose);
         const {ready, div} = wrapStoryMedia({
-          storyItem,
+          storyItem: storyItem!,
           peerId: this.chatId.toPeerId(true),
           forPreview: true,
           noInfo: true,
@@ -724,7 +724,7 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
         createEffect(() => {
           if(ready()) {
             mediaEl.append(div);
-            deferred.resolve();
+            deferred.resolve!();
           }
         });
 
@@ -741,7 +741,7 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
     const peerId = peer._ === 'message' ? peer.peerId : peer.user_id.toPeerId(false);
     const loadPromises: Promise<any>[] = [];
     const {dom} = appDialogsManager.addDialogNew({
-      peerId: peerId,
+      peerId: peerId!,
       container: false,
       rippleEnabled: true,
       avatarSize: 'abitbigger',
@@ -755,24 +755,24 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
     let toJoin: Node[];
     if(peer._ === 'message') {
       toJoin = [
-        await getChatMembersString(peerId.toChatId()),
-        i18n('Views', [formatNumber(peer.views, 1)])
+        (await getChatMembersString(peerId!.toChatId()))!,
+        i18n('Views', [formatNumber(peer.views!, 1)])!
       ];
       dom.listEl.dataset.mid = '' + peer.mid;
     } else if(peer._ === 'statsGroupTopPoster') {
       toJoin = [
-        peer.messages && i18n('messages', [peer.messages]),
-        peer.avg_chars && i18n('CharactersPerMessage', [i18n('Characters', [peer.avg_chars])])
+        ((peer.messages && i18n('messages', [peer.messages]))! as Node),
+        ((peer.avg_chars && i18n('CharactersPerMessage', [i18n('Characters', [peer.avg_chars]!)!]))! as Node)
       ];
     } else if(peer._ === 'statsGroupTopAdmin') {
       toJoin = [
-        peer.deleted && i18n('Deletions', [peer.deleted]),
-        peer.banned && i18n('Bans', [peer.banned]),
-        peer.kicked && i18n('Restrictions', [peer.kicked])
+        ((peer.deleted && i18n('Deletions', [peer.deleted]))! as Node),
+        ((peer.banned && i18n('Bans', [peer.banned]))! as Node),
+        ((peer.kicked && i18n('Restrictions', [peer.kicked]))! as Node)
       ];
     } else {
       toJoin = [
-        peer.invitations && i18n('Invitations', [peer.invitations])
+        ((peer.invitations && i18n('Invitations', [peer.invitations]))! as Node)
       ];
     }
 
@@ -790,9 +790,9 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
       const message = publicForward.message as Message.message;
       return this.renderRecentPost({
         _: 'postInteractionCountersMessage',
-        forwards: message.forwards,
-        msg_id: message.mid,
-        views: message.views,
+        forwards: message.forwards!,
+        msg_id: message.mid!,
+        views: message.views!,
         reactions: message.reactions ? message.reactions.results.reduce((acc, v) => acc + v.count, 0) : 0
       }, message.peerId, message);
     }
@@ -816,31 +816,31 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
     const peerId = this.chatId.toPeerId(true);
     const manager = this.managers.appStatisticsManager;
     const loadLimit = 100;
-    const func = this.isBroadcast ? manager.getBroadcastStats : (this.isMegagroup ? manager.getMegagroupStats : (this.isStory ? manager.getStoryStats : manager.getMessageStats));
-    const postPromise = this.isMessage ? this.managers.appMessagesManager.reloadMessage(peerId, this.mid) : undefined;
-    const postPublicForwardsPromise = this.isMessage ? manager.getMessagePublicForwards({peerId, mid: this.mid, limit: loadLimit}) : undefined;
-    const storyPromise = this.isStory ? this.managers.appStoriesManager.getStoryById(peerId, this.storyId) : undefined;
-    const storyPublicForwardsPromise = this.isStory ? manager.getStoryPublicForwards({peerId, id: this.storyId, limit: loadLimit}) : undefined;
-    const {stats, dcId} = await func({
+    const func = this.isBroadcast ? manager!.getBroadcastStats : (this.isMegagroup ? manager!.getMegagroupStats : (this.isStory ? manager!.getStoryStats : manager!.getMessageStats));
+    const postPromise = this.isMessage ? this.managers.appMessagesManager!.reloadMessage(peerId, this.mid) : undefined;
+    const postPublicForwardsPromise = this.isMessage ? manager!.getMessagePublicForwards({peerId, mid: this.mid, limit: loadLimit}) : undefined;
+    const storyPromise = this.isStory ? this.managers.appStoriesManager!.getStoryById(peerId, this.storyId) : undefined;
+    const storyPublicForwardsPromise = this.isStory ? manager!.getStoryPublicForwards({peerId, id: this.storyId, limit: loadLimit}) : undefined;
+    const {stats, dcId} = (await func({
       peerId,
       dark: themeController.isNight(),
       storyId: this.storyId,
       mid: this.mid
-    });
+    }))!;
     this.stats = stats;
-    this.dcId = dcId;
+    this.dcId = dcId!;
 
     const promises: PromiseLike<any>[] = [];
     for(const key in stats) {
       const value = stats[key as keyof typeof stats] as any as StatsGraph;
       if(value._ === 'statsGraphAsync') {
-        const promise = manager.loadAsyncGraph(
+        const promise = manager!.loadAsyncGraph(
           value.token,
           undefined,
           dcId
         ).then((statsGraph) => {
           if(statsGraph._ === 'statsGraphError') {
-            delete stats[key as keyof typeof stats];
+            delete (stats as any)[key];
             return;
           }
 
@@ -848,7 +848,7 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
         });
         promises.push(promise);
       } else if(value._ === 'statsGraphError') {
-        delete stats[key as keyof typeof stats];
+        delete (stats as any)[key];
       }
     }
 
@@ -856,17 +856,17 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
     recentPosts.forEach((postInteractionCounters) => {
       let promise: PromiseLike<any>;
       if(postInteractionCounters._ === 'postInteractionCountersMessage') {
-        promise = this.managers.appMessagesManager.reloadMessage(peerId, postInteractionCounters.msg_id)
+        promise = this.managers.appMessagesManager!.reloadMessage(peerId, postInteractionCounters.msg_id)
         .then((message) => {
           if(!message) {
             indexOfAndSplice(recentPosts, postInteractionCounters);
             return;
           }
 
-          this.messages.set(message.mid, message as Message.message);
+          this.messages.set(message.mid!, message as Message.message);
         });
       } else {
-        promise = this.managers.appStoriesManager.getStoryById(peerId, postInteractionCounters.story_id)
+        promise = this.managers.appStoriesManager!.getStoryById(peerId, postInteractionCounters.story_id)
         .then((storyItem) => {
           if(!storyItem) {
             indexOfAndSplice(recentPosts, postInteractionCounters);
@@ -895,25 +895,25 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
 
       if(message) {
         assumeType<Message.message>(message);
-        this.messages.set(message.mid, message);
-        const totalPublicForwards = messagePublicForwards.count;
-        stats.views = makeAbsStats(message.views);
+        this.messages.set(message.mid!, message);
+        const totalPublicForwards = messagePublicForwards!.count;
+        stats.views = makeAbsStats(message.views!);
         stats.reactions = makeAbsStats(message.reactions ? message.reactions.results.reduce((acc, v) => acc + v.count, 0) : 0);
         stats.public_shares = makeAbsStats(totalPublicForwards);
-        stats.private_shares = makeAbsStats(message.forwards - totalPublicForwards, true);
+        stats.private_shares = makeAbsStats(message.forwards! - totalPublicForwards, true);
 
         setF((value) => (value.count = totalPublicForwards, value));
 
         let offset: string;
         const r = async(statsPublicForwards: StatsPublicForwards.statsPublicForwards) => {
-          offset = statsPublicForwards.next_offset;
+          offset = statsPublicForwards.next_offset!;
 
           const promises = statsPublicForwards.forwards.map(this.renderPublicForward);
           const rendered = await Promise.all(promises);
           setF((value) => {
-            value.rendered.push(...rendered.map(({container}) => container));
+            value.rendered.push(...rendered.map((r) => r!.container));
             value.loadMore = offset ? () => {
-              return manager.getMessagePublicForwards({
+              return manager!.getMessagePublicForwards({
                 peerId,
                 mid: this.mid,
                 limit: loadLimit,
@@ -924,29 +924,29 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
           });
         };
 
-        await r(messagePublicForwards);
+        await r(messagePublicForwards!);
       } else {
-        const totalPublicForwards = storyPublicForwards.count;
-        const storyViews = storyItem.views;
-        stats.views = makeAbsStats(storyViews.views_count);
-        stats.reactions = makeAbsStats(storyViews.reactions_count || 0);
+        const totalPublicForwards = storyPublicForwards!.count;
+        const storyViews = storyItem!.views;
+        stats.views = makeAbsStats(storyViews!.views_count);
+        stats.reactions = makeAbsStats(storyViews!.reactions_count || 0);
         stats.public_shares = makeAbsStats(totalPublicForwards);
-        stats.private_shares = makeAbsStats(Math.abs((storyViews.forwards_count || 0) - totalPublicForwards), true);
+        stats.private_shares = makeAbsStats(Math.abs((storyViews!.forwards_count || 0) - totalPublicForwards), true);
 
         setF((value) => (value.count = totalPublicForwards, value));
 
         let offset: string;
         const r = async(statsPublicForwards: StatsPublicForwards.statsPublicForwards) => {
-          offset = statsPublicForwards.next_offset;
+          offset = statsPublicForwards.next_offset!;
 
           const promises = statsPublicForwards.forwards.map(this.renderPublicForward);
           const rendered = await Promise.all(promises);
           setF((value) => {
-            value.rendered.push(...rendered.map(({container}) => container));
+            value.rendered.push(...rendered.map((r) => r!.container));
             value.loadMore = offset ? () => {
-              return manager.getStoryPublicForwards({
+              return manager!.getStoryPublicForwards({
                 peerId,
-                id: storyItem.id,
+                id: storyItem!.id,
                 limit: loadLimit,
                 offset
               }).then(r);
@@ -955,7 +955,7 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
           });
         };
 
-        await r(storyPublicForwards);
+        await r(storyPublicForwards!);
       }
 
       return f;
@@ -999,8 +999,8 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
     this.container.classList.add('statistics-container');
 
     this.chatId = chatId;
-    this.mid = mid;
-    this.storyId = storyId;
+    this.mid = mid!;
+    this.storyId = storyId!;
     this.messages = new Map();
     this.stories = new Map();
     this.openPromise = deferredPromise<void>();
@@ -1010,8 +1010,8 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
     } else if(storyId) {
       this.isStory = true;
     } else {
-      this.isBroadcast = await this.managers.appChatsManager.isBroadcast(chatId);
-      this.isMegagroup = await this.managers.appChatsManager.isMegagroup(chatId);
+      this.isBroadcast = await this.managers.appChatsManager!.isBroadcast(chatId);
+      this.isMegagroup = await this.managers.appChatsManager!.isMegagroup(chatId);
     }
 
     this.setTitle(this.isBroadcast ? 'Statistics' : (this.isMegagroup ? 'GroupStats.Title' : (this.isStory ? 'StoryStatistics' : 'PostStatistics')));
@@ -1033,18 +1033,18 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
       isFullSize: true
     });
 
-    this.scrollable.append(element);
+    this.scrollable.append(element!);
     promise.then(async([_, __, loaded]) => {
       const div = document.createElement('div');
       this.scrollable.append(div);
-      const dispose = render(() => this._construct(...loaded), div);
+      const dispose = render(() => this._construct(...loaded as Parameters<typeof this._construct>), div);
       this.eventListener.addEventListener('destroy', dispose);
 
       if(liteMode.isAvailable('animations')) {
         const keyframes: Keyframe[] = [{opacity: '1'}, {opacity: '0'}];
         const options: KeyframeAnimationOptions = {duration: 200, fill: 'forwards', easing: 'ease-in-out'};
         const animations = [
-          element.animate(keyframes, options),
+          element!.animate(keyframes, options),
           div.animate(keyframes.slice().reverse(), options)
         ];
 

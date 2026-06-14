@@ -37,10 +37,10 @@ export default class ChatSendAs {
   private avatar: ReturnType<typeof avatarNew>;
   private container: HTMLElement;
   private closeBtn: HTMLElement;
-  private btnMenu: HTMLElement;
+  private btnMenu: HTMLElement | undefined;
   private sendAsPeers: {peerId: PeerId, needPremium?: boolean}[];
   private sendAsPeerId: PeerId;
-  private updatingPromise: ReturnType<ChatSendAs['updateManual']>;
+  private updatingPromise: ReturnType<ChatSendAs['updateManual']> | undefined;
   private middlewareHelper: ReturnType<typeof getMiddleware>;
   private listenerSetter: ListenerSetter;
   private peerId: PeerId;
@@ -71,7 +71,7 @@ export default class ChatSendAs {
 
     const sendAsButtons: ButtonMenuItemOptions[] = [{
       text: this.forPaidReaction ? 'SendReactionAsTitle' : 'SendMessageAsTitle',
-      onClick: undefined
+      onClick: undefined!
     }];
 
     this.buttons = [];
@@ -116,10 +116,10 @@ export default class ChatSendAs {
         onSendAsMenuToggle(true);
       },
       onOpen: (e, btnMenu) => {
-        sendAsButtons[0].element.classList.add('btn-menu-item-header');
+        sendAsButtons[0].element!.classList.add('btn-menu-item-header');
         this.btnMenu = btnMenu as any;
-        this.btnMenu.classList.add('scrollable', 'scrollable-y', 'new-message-send-as-menu');
-        this.btnMenu.append(...this.buttons.map((button) => button.element));
+        this.btnMenu!.classList.add('scrollable', 'scrollable-y', 'new-message-send-as-menu');
+        this.btnMenu!.append(...this.buttons.map((button) => button.element!));
       },
       onClose: () => {
         onSendAsMenuToggle(false);
@@ -133,7 +133,7 @@ export default class ChatSendAs {
   }
 
   private async updateButtons(peers: ChatSendAs['sendAsPeers']) {
-    const promises: Promise<ButtonMenuItemOptions>[] = peers.map(async(sendAsPeer, idx) => {
+    const promises: Promise<ButtonMenuItemOptions>[] = (peers.map(async(sendAsPeer, idx) => {
       const textElement = document.createElement('div');
 
       const {peerId: sendAsPeerId, needPremium} = sendAsPeer;
@@ -141,11 +141,11 @@ export default class ChatSendAs {
       const subtitle = document.createElement('div');
       subtitle.classList.add('btn-menu-item-subtitle');
       if(sendAsPeerId.isUser()) {
-        subtitle.append(i18n('Chat.SendAs.PersonalAccount'));
+        subtitle.append(i18n('Chat.SendAs.PersonalAccount')!);
       } else if(sendAsPeerId === this.peerId && (apiManagerProxy.getPeer(this.peerId) as Chat.channel).pFlags.megagroup) {
-        subtitle.append(i18n('VoiceChat.DiscussionGroup'));
+        subtitle.append(i18n('VoiceChat.DiscussionGroup')!);
       } else {
-        subtitle.append(await getChatMembersString(sendAsPeerId.toChatId()));
+        subtitle.append((await getChatMembersString(sendAsPeerId.toChatId()))!);
       }
 
       const title = document.createElement('div');
@@ -187,12 +187,12 @@ export default class ChatSendAs {
           }
 
           if(!this.forPaidReaction) {
-            this.managers.appMessagesManager.saveDefaultSendAs(currentPeerId, sendAsPeerId);
+            this.managers.appMessagesManager!.saveDefaultSendAs(currentPeerId, sendAsPeerId);
           }
         } : undefined,
         textElement
       };
-    });
+    })! as Promise<ButtonMenuItemOptions>[]);
 
     const buttons = await Promise.all(promises);
     const btnMenu = ButtonMenuSync({buttons}/* , this.listenerSetter */);
@@ -209,19 +209,19 @@ export default class ChatSendAs {
         avatar.node.classList.add('active');
       }
 
-      button.element.prepend(avatar.node);
+      button.element!.prepend(avatar.node);
     });
 
     this.buttons = buttons;
 
     // if already opened
-    this.btnMenu?.append(...this.buttons.map((button) => button.element));
+    this.btnMenu?.append(...this.buttons.map((button) => button.element!));
   }
 
   private async updateAvatar(sendAsPeerId: PeerId, skipAnimation?: boolean) {
     const previousAvatar = this.avatar;
     if(previousAvatar) {
-      if(previousAvatar.node.dataset.peerId.toPeerId() === sendAsPeerId) {
+      if(previousAvatar.node.dataset.peerId!.toPeerId() === sendAsPeerId) {
         return;
       }
     }
@@ -274,16 +274,16 @@ export default class ChatSendAs {
     if(this.forPaidReaction) {
       return Promise.resolve({
         cached: true,
-        result: Promise.resolve(this.defaultPeerId)
+        result: Promise.resolve(this.defaultPeerId!)
       });
     }
 
-    return this.managers.acknowledged.appProfileManager.getChannelFull(this.peerId.toChatId()).then((acked) => {
+    return this.managers.acknowledged!.appProfileManager!.getChannelFull(this.peerId.toChatId()).then((acked) => {
       return {
         cached: acked.cached,
         result: acked.result.then((channelFull) => {
           return channelFull.default_send_as ? getPeerId(channelFull.default_send_as) : undefined
-        })
+        }) as Promise<PeerId>
       };
     });
   }
@@ -292,12 +292,12 @@ export default class ChatSendAs {
     const peerId = this.peerId;
 
     const {isChannel, isMonoforum} = await namedPromises({
-      isChannel: this.managers.appPeersManager.isChannel(peerId),
-      isMonoforum: this.managers.appPeersManager.isMonoforum(peerId)
+      isChannel: this.managers.appPeersManager!.isChannel(peerId),
+      isMonoforum: this.managers.appPeersManager!.isMonoforum(peerId)
     });
 
     if(this.updatingPromise || !isChannel || isMonoforum) {
-      return;
+      return undefined!;
     }
 
     const middleware = this.middlewareHelper.get(() => {
@@ -323,7 +323,7 @@ export default class ChatSendAs {
       if(!middleware()) return;
 
       Promise.all([
-        this.managers.appChatsManager.getSendAs(chatId, this.forPaidReaction),
+        this.managers.appChatsManager!.getSendAs(chatId, this.forPaidReaction),
         apiManagerProxy.isPremiumFeaturesHidden()
       ]).then(([sendAsPeers, isPremiumFeaturesHidden]) => {
         if(!middleware()) return;
@@ -371,7 +371,7 @@ export default class ChatSendAs {
       }
 
       return callback;
-    });
+    })! as Promise<() => void>;
 
     updatingPromise.finally(() => {
       if(this.updatingPromise === updatingPromise) {
@@ -382,6 +382,8 @@ export default class ChatSendAs {
     if(!auto) {
       return updatingPromise;
     }
+
+    return undefined!;
   }
 
   public update(skipAnimation?: boolean) {
@@ -396,7 +398,7 @@ export default class ChatSendAs {
 
     this.middlewareHelper.clean();
     this.updatingPromise = undefined;
-    this.peerId = peerId;
+    this.peerId = peerId!;
   }
 
   public getSendAsPeerId() {

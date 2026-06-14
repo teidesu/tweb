@@ -129,7 +129,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
   canAutoplay ??= /* doc.sticker ||  */(
     (
       doc.type !== 'video' || (
-        doc.size <= MAX_VIDEO_AUTOPLAY_SIZE &&
+        doc.size! <= MAX_VIDEO_AUTOPLAY_SIZE &&
         !isGroupedItem
       )
     ) && (doc.type === 'gif' ? liteMode.isAvailable('gif') : liteMode.isAvailable('video'))
@@ -144,7 +144,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
 
     let needPlayButton = false;
     if(doc.type !== 'gif') {
-      spanTime.innerText = toHHMMSS(doc.duration, false);
+      spanTime.innerText = toHHMMSS(doc.duration!, false);
 
       if(!noPlayButton && doc.type !== 'round') {
         if(canAutoplay && !noAutoDownload) {
@@ -166,7 +166,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
 
       if(!canAutoplay && !noPlayButton) {
         needPlayButton = true;
-        noAutoDownload = undefined;
+        noAutoDownload = (undefined as unknown as boolean);
       }
     }
 
@@ -220,8 +220,8 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
   if(doc.type === 'round') {
     const divRound = document.createElement('div');
     divRound.classList.add('media-round', 'z-depth-1');
-    divRound.dataset.mid = '' + message.mid;
-    divRound.dataset.peerId = '' + message.peerId;
+    divRound.dataset.mid = '' + message!.mid;
+    divRound.dataset.peerId = '' + message!.peerId;
     (divRound as any).message = message;
 
     const size = mediaSizes.active.round;
@@ -242,16 +242,16 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
     circle.style.strokeDasharray = roundVideoCircumference + ' ' + roundVideoCircumference;
     circle.style.strokeDashoffset = '' + roundVideoCircumference;
 
-    const isUnread = message.pFlags.media_unread;
+    const isUnread = message!.pFlags.media_unread;
     if(isUnread) {
       divRound.classList.add('is-unread');
     }
 
     const canvas = document.createElement('canvas');
     canvas.classList.add('video-round-canvas');
-    canvas.width = canvas.height = doc.w/*  * window.devicePixelRatio */;
+    canvas.width = (canvas.height = doc.w!)!/*  * window.devicePixelRatio */;
 
-    divRound.prepend(canvas, spanTime);
+    divRound.prepend(canvas, spanTime!);
     divRound.append(video);
     container?.append(divRound);
 
@@ -278,7 +278,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
       };
 
       const onFrame = () => {
-        ctx.drawImage(globalVideo, 0, 0);
+        ctx!.drawImage(globalVideo, 0, 0);
 
         const offset = roundVideoCircumference - globalVideo.currentTime / globalVideo.duration * roundVideoCircumference;
         circle.style.strokeDashoffset = '' + offset;
@@ -300,7 +300,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
           onFrame();
         }
 
-        spanTime.firstChild.nodeValue = toHHMMSS(globalVideo.duration - globalVideo.currentTime, false);
+        spanTime.firstChild!.nodeValue = toHHMMSS(globalVideo.duration - globalVideo.currentTime, false);
       };
 
       const throttledTimeUpdate = throttle(() => {
@@ -341,7 +341,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
         setIsPaused(true);
 
         setCurrentTime(video, 0);
-        spanTime.firstChild.nodeValue = toHHMMSS(globalVideo.duration, false);
+        spanTime.firstChild!.nodeValue = toHHMMSS(globalVideo.duration, false);
 
         if(globalVideo.currentTime) {
           setCurrentTime(globalVideo, 0);
@@ -373,8 +373,8 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
             inputFilter: {_: 'inputMessagesFilterEmpty'},
             useSearch: false
           })) {
-            const [prev, next] = !hadSearchContext ? [] : findMediaTargets(divRound, message.mid/* , searchContext.useSearch */);
-            appMediaPlaybackController.setTargets({peerId: message.peerId, mid: message.mid}, prev, next);
+            const [prev, next] = !hadSearchContext ? [] : findMediaTargets(divRound, message.mid!/* , searchContext.useSearch */);
+            appMediaPlaybackController.setTargets({peerId: message.peerId!, mid: message.mid!}, prev, next);
           }
 
           safePlay(globalVideo);
@@ -396,7 +396,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
       }
     };
 
-    if(message.pFlags.is_outgoing) {
+    if(message!.pFlags.is_outgoing) {
       // ! WARNING ! just to type-check
       (divRound as any as AudioElement).onLoad = onLoad;
       divRound.dataset.isOutgoing = '1';
@@ -407,7 +407,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
     video.autoplay = true; // для safari
   }
 
-  let photoRes: Awaited<ReturnType<typeof wrapPhoto>>;
+  let photoRes!: Awaited<ReturnType<typeof wrapPhoto>>;
   if(message || onlyPreview || withPreview) {
     photoRes = await wrapPhoto({
       photo: doc,
@@ -447,9 +447,9 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
 
     if(withTail) {
       const foreignObject = (photoRes.images.thumb || photoRes.images.full).parentElement;
-      video.width = +foreignObject.getAttributeNS(null, 'width');
-      video.height = +foreignObject.getAttributeNS(null, 'height');
-      foreignObject.append(video);
+      video.width = +foreignObject!.getAttributeNS(null, 'width')!;
+      video.height = +foreignObject!.getAttributeNS(null, 'height')!;
+      foreignObject!.append(video);
     }
   } else if(!noPreview) { // * gifs masonry
     const gotThumb = getMediaThumbIfNeeded({
@@ -468,10 +468,10 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
         },
         images: {
           thumb: thumbImage,
-          full: null
+          full: null as unknown as HTMLImageElement | HTMLVideoElement
         },
-        preloader: null,
-        aspecter: null
+        preloader: null as unknown as ProgressivePreloader,
+        aspecter: null as unknown as HTMLElement
       };
 
       loadPromises?.push(gotThumb.loadPromise);
@@ -506,8 +506,8 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
       isUpload: true
     });
     preloader.attachPromise(appDownloadManager.getUpload(uploadingFileName));
-    preloader.attach(container, false);
-    noAutoDownload = undefined;
+    preloader.attach(container!, false);
+    noAutoDownload = (undefined as unknown as boolean);
 
     // * autoplay is suppressed while the upload is in progress, and the bubble
     // * isn't re-rendered on send — resume playback once the upload completes
@@ -517,7 +517,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
         video.play().catch(noop);
       }, noop);
     }
-  } else if(!cacheContext.downloaded && !supportsStreaming && !withoutPreloader) {
+  } else if(!cacheContext!.downloaded && !supportsStreaming && !withoutPreloader) {
     preloader = new ProgressivePreloader({
       attachMethod: 'prepend'
     });
@@ -534,8 +534,8 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
       return;
     }
 
-    if(video.error.code !== 4) {
-      console.error('Error ' + video.error.code + '; details: ' + video.error.message);
+    if(video.error!.code !== 4) {
+      console.error('Error ' + video.error!.code + '; details: ' + video.error!.message);
     }
 
     if(preloader && !uploadingFileName) {
@@ -543,17 +543,17 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
     }
 
     if(!renderDeferred.isFulfilled) {
-      renderDeferred.resolve();
+      renderDeferred.resolve!();
     }
   }, {once: true});
 
-  if(doc.type === 'video' && spanTime) {
+  if(doc.type === 'video' && spanTime!) {
     const onTimeUpdate = () => {
       if(!video.duration) {
         return;
       }
 
-      spanTime.firstChild.nodeValue = toHHMMSS(video.duration - video.currentTime, false);
+      spanTime.firstChild!.nodeValue = toHHMMSS(video.duration - video.currentTime, false);
     };
 
     const throttledTimeUpdate = throttle(() => {
@@ -562,7 +562,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
 
     video.addEventListener('timeupdate', throttledTimeUpdate);
 
-    if(spanPlay) {
+    if(spanPlay!) {
       video.addEventListener('timeupdate', () => {
         sequentialDom.mutateElement(spanPlay, () => {
           spanPlay.remove();
@@ -597,13 +597,13 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
         });
 
         if(preloader) {
-          preloader.attach(container, false, promise);
+          preloader.attach(container!, false, promise);
         }
       } else if(supportsStreaming) {
         if(noAutoDownload) {
           loadPromise = Promise.reject(makeError('NO_AUTO_DOWNLOAD'));
         } else if(!cacheContext.downloaded && preloader) { // * check for uploading video
-          preloader.attach(container, false, null);
+          preloader.attach(container!, false, undefined);
           video.addEventListener(IS_SAFARI ? 'timeupdate' : 'canplay', () => {
             preloader.detach();
           }, {once: true});
@@ -613,19 +613,19 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
 
     if(!noAutoDownload && loadPhotoThumbFunc) {
       loadPhotoThumbFunc();
-      loadPhotoThumbFunc = null;
+      loadPhotoThumbFunc = false;
     }
 
-    noAutoDownload = undefined;
+    noAutoDownload = (undefined as unknown as boolean);
 
     loadPromise.then(async() => {
       if(middleware && !middleware()) {
-        renderDeferred.resolve();
+        renderDeferred.resolve!();
         return;
       }
 
       if(doc.type === 'round') {
-        appMediaPlaybackController.resolveWaitingForLoadMedia(message.peerId, message.mid, message.pFlags.is_scheduled);
+        appMediaPlaybackController.resolveWaitingForLoadMedia(message!.peerId!, message!.mid!, message!.pFlags.is_scheduled);
       }
 
       getCacheContext();
@@ -639,7 +639,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
           if(previousIcon) previousIcon.replaceWith(newIcon);
           else spanTime.append(newIcon);
         }
-        renderDeferred.reject(err);
+        renderDeferred.reject!(err);
       };
       const onMediaLoadPromise = onMediaLoad(video);
       const videoLeakPromise = handleVideoLeak(video, onMediaLoadPromise);
@@ -666,11 +666,11 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
         if(altDoc) {
           videoLeakPromise.then(() => {
             video.pause();
-            renderDeferred.resolve();
+            renderDeferred.resolve!();
           });
           setCurrentTime(video, 0.0001);
         } else {
-          renderDeferred.resolve();
+          renderDeferred.resolve!();
         }
 
         onLoad?.();
@@ -685,7 +685,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
           const source = document.createElement('source');
           source.src = context.url;
           // source.type = type;
-          source.width = width;
+          source.width = width!;
           return source;
         });
 
@@ -699,14 +699,14 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
     return {download: loadPromise, render: Promise.all([loadPromise, renderDeferred])};
   };
 
-  if(preloader && !uploadingFileName) {
+  if(preloader! && !uploadingFileName) {
     preloader.setDownloadFunction(load);
   }
 
-  container && ((container as any).preloader = preloader);
+  container && ((container as any).preloader = preloader!);
 
   if(doc.type === 'gif' && !canAutoplay) {
-    attachClickEvent(container, (e) => {
+    attachClickEvent(container!, (e) => {
       cancelEvent(e);
       spanPlay?.remove();
       load();
@@ -714,7 +714,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
   } else {
     res.loadPromise = !lazyLoadQueue ?
       (await load()).render :
-      (lazyLoadQueue.push({div: container, load: () => load().then(({render}) => render)}), Promise.resolve());
+      (lazyLoadQueue.push({div: container!, load: () => load().then(({render}) => render)}), Promise.resolve());
   }
 
   if(res.thumb) {
@@ -786,7 +786,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
     //   updateIcon(video.muted);
     // };
 
-    let releaseSingleMedia: ReturnType<AppMediaPlaybackController['setSingleMedia']>/* , _onAnotherSingleMedia: () => void */;
+    let releaseSingleMedia: ReturnType<AppMediaPlaybackController['setSingleMedia']> | undefined/* , _onAnotherSingleMedia: () => void */;
     // const detachClickEvent = attachClickEvent(button, (e) => {
     //   cancelEvent(e);
     //   toggle();
@@ -803,8 +803,8 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
       }
     };
 
-    container.classList.add('media-video-container', 'media-video-mini');
-    observer.observe(video, onIntersection);
+    container!.classList.add('media-video-container', 'media-video-mini');
+    observer!.observe(video, onIntersection);
 
     const destroyPlayer = () => {
       debouncedDestroy.clearTimeout();
@@ -820,20 +820,20 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
       videoPlayer.unmount();
       videoPlayer.cleanup();
       videoPlayer = undefined;
-      setShowControlsOn.classList.remove('show-controls');
+      setShowControlsOn!.classList.remove('show-controls');
     };
 
     const debouncedDestroy = debounce(destroyPlayer, 1000, false, true);
 
-    let videoPlayer: VideoPlayer, releasePromise: CancellablePromise<void>/* , changedVolume = false */;
-    container.onMiniVideoMouseMove = (e: MouseEvent) => {
+    let videoPlayer: VideoPlayer | undefined, releasePromise: CancellablePromise<void>/* , changedVolume = false */;
+    container!.onMiniVideoMouseMove = (e: MouseEvent) => {
       if(videoPlayer) {
         return;
       }
 
       const toggleReleasePromise = (active: boolean) => {
         if(active) releasePromise = deferredPromise();
-        else releasePromise?.resolve();
+        else releasePromise?.resolve!();
       };
 
       const onLock = (active: boolean) => {
@@ -864,7 +864,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
             newValue = turnedObserverOn = true;
           }
 
-          if(newValue !== turnedObserverOn && newValue !== undefined) {
+          if(newValue! !== turnedObserverOn && newValue! !== undefined) {
             appMediaPlaybackController.dispatchEvent('toggleVideoAutoplaySound', newValue);
           }
 
@@ -889,7 +889,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
       videoPlayer.volumeSelector.setVolume({muted: !turnedObserverOn, volume: video.volume});
 
       videoPlayer.addEventListener('toggleControls', (show) => {
-        setShowControlsOn.classList.toggle('show-controls', show);
+        setShowControlsOn!.classList.toggle('show-controls', show);
         if(show) {
           debouncedDestroy.clearTimeout();
         } else {
@@ -935,8 +935,8 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
     middleware.onClean(() => {
       // detachClickEvent();
       releaseSingleMedia?.();
-      observer.unobserve(video, onIntersection);
-      delete container.onMiniVideoMouseMove;
+      observer!.unobserve(video, onIntersection);
+      delete container!.onMiniVideoMouseMove;
       appMediaPlaybackController.removeEventListener('toggleVideoAutoplaySound', onAutoplaySound);
       // appMediaPlaybackController.removeEventListener('singleMedia', onSingleMedia);
       appMediaPlaybackController.removeEventListener('playbackParams', onPlaybackMediaParams);

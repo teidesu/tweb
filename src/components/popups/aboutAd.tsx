@@ -25,7 +25,7 @@ export default function showAboutAdPopup() {
     }],
     caption: {
       title: i18n('RevenueSharingAdsInfo4Title'),
-      subtitle: i18n('RevenueSharingAdsInfo4Subtitle2', [i18n('RevenueSharingAdsInfo4SubtitleLearnMore1')])
+      subtitle: i18n('RevenueSharingAdsInfo4Subtitle2', [i18n('RevenueSharingAdsInfo4SubtitleLearnMore1')!])
     },
     buttons: [{
       text: i18n('RevenueSharingAdsAlertButton')

@@ -18,7 +18,7 @@ import {lerp} from '@helpers/lerp';
 export default function Toolbar(props: {onFinish: () => void; onClose: () => void}) {
   let toolbar: HTMLDivElement;
 
-  const {editorState, actions} = useMediaEditorContext();
+  const {editorState, actions} = useMediaEditorContext()!;
 
   const [move, setMove] = createSignal(0);
   const [isCollapsed, setIsCollapsed] = createSignal(false);
@@ -77,29 +77,29 @@ export default function Toolbar(props: {onFinish: () => void; onClose: () => voi
       }
     }
 
-    container().addEventListener('input', () => {
+    container()!.addEventListener('input', () => {
       resetMove();
     });
 
-    toolbar.addEventListener('touchstart', (e) => {
+    toolbar!.addEventListener('touchstart', (e) => {
       startDrag(e.touches[0].clientY);
     });
-    toolbar.addEventListener('touchmove', (e) => {
+    toolbar!.addEventListener('touchmove', (e) => {
       dragMove(e.touches[0].clientY);
     });
-    toolbar.addEventListener('touchend', (e) => {
+    toolbar!.addEventListener('touchend', (e) => {
       dragEnd();
     });
-    toolbar.addEventListener('mousedown', (e) => {
+    toolbar!.addEventListener('mousedown', (e) => {
       startDrag(e.clientY);
     });
-    toolbar.addEventListener('mousemove', (e) => {
+    toolbar!.addEventListener('mousemove', (e) => {
       dragMove(e.clientY);
     });
-    toolbar.addEventListener('mouseup', (e) => {
+    toolbar!.addEventListener('mouseup', (e) => {
       dragEnd();
     });
-    toolbar.addEventListener('mouseout', (e) => {
+    toolbar!.addEventListener('mouseout', (e) => {
       dragEnd();
     });
   });
@@ -108,7 +108,7 @@ export default function Toolbar(props: {onFinish: () => void; onClose: () => voi
     const observer = new ResizeObserver(() => {
       setContainerHeight(container()?.clientHeight || 0);
     });
-    observer.observe(container());
+    observer.observe(container()!);
     onCleanup(() => observer.disconnect());
   });
 
@@ -133,18 +133,18 @@ export default function Toolbar(props: {onFinish: () => void; onClose: () => voi
   createEffect(() => {
     if(editorState.renderingPayload && shouldHide()) {
       (async() => {
-        toolbar.style.transition = '.2s';
+        toolbar!.style.transition = '.2s';
         await doubleRaf();
         setShouldHide(false);
         await delay(200);
-        toolbar.style.removeProperty('transition');
+        toolbar!.style.removeProperty('transition');
       })();
     }
   });
 
   const totalMove = () => extraMove() + move();
 
-  const style = createMemo((): JSX.CSSProperties => {
+  const style = createMemo((): JSX.CSSProperties | undefined => {
     if(isMobile()) return {
       'opacity': editorState.isAdjusting ? 0 : 1,
       'transform': shouldHide() ?
@@ -155,7 +155,7 @@ export default function Toolbar(props: {onFinish: () => void; onClose: () => voi
 
   return (
     <div
-      ref={toolbar}
+      ref={toolbar!}
       class="media-editor__toolbar"
       style={style()}
     >

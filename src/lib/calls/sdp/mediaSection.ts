@@ -8,12 +8,12 @@ export default class SDPMediaSection {
   #lines: Array<SDPLine>;
   #mediaLine: SDPLine;
   #attributes: SDPAttributes;
-  #direction: SDPMediaDirection;
+  #direction: SDPMediaDirection | null;
 
   constructor(lines: Array<SDPLine>) {
     this.#lines = lines;
     this.#mediaLine = lines[0];
-    this.#attributes = this.#direction = null;
+    this.#attributes = (this.#direction = null)!;
   }
 
   public get lines() {

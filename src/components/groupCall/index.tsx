@@ -401,7 +401,7 @@ export default class PopupGroupCall extends PopupElement {
   };
 
   private onMoreClick = async() => {
-    const canManage = await this.managers.appChatsManager.hasRights(this.instance.chatId, 'manage_call');
+    const canManage = await this.managers.appChatsManager!.hasRights(this.instance.chatId, 'manage_call');
     showCallSettingsPopup({mode: 'groupCall', instance: this.instance, canManage});
   };
 
@@ -410,7 +410,7 @@ export default class PopupGroupCall extends PopupElement {
       this.instance.hangUp(discard);
     };
 
-    if(await this.managers.appChatsManager.hasRights(this.instance.chatId, 'manage_call')) {
+    if(await this.managers.appChatsManager!.hasRights(this.instance.chatId, 'manage_call')) {
       PopupElement.createPopup(PopupPeer, 'popup-end-video-chat', {
         titleLangKey: 'VoiceChat.End.Title',
         descriptionLangKey: 'VoiceChat.End.Text',
@@ -420,7 +420,7 @@ export default class PopupGroupCall extends PopupElement {
         buttons: [{
           langKey: 'VoiceChat.End.OK',
           callback: (e, checkboxes) => {
-            hangUp(!!checkboxes.size);
+            hangUp(!!checkboxes!.size);
           },
           isDanger: true
         }]
@@ -478,7 +478,7 @@ export default class PopupGroupCall extends PopupElement {
     this.btnInvite.classList.toggle('hide', isBig);
     this.btnShowColumn.classList.toggle('hide', !isBig);
 
-    if(buttons) {
+    if(buttons!) {
       // window.requestAnimationFrame(() => {
       buttons.forEach((element) => {
         element.style.opacity = '';

@@ -160,7 +160,7 @@ function useShouldAnimate({list, scrollAmount, hostHeight, itemHeight, onScrollS
 
       const diff = prevIdx - currentIdx;
 
-      if(typeof prevDiff === 'undefined') {
+      if(typeof prevDiff! === 'undefined') {
         prevDiff = diff;
         continue;
       }
@@ -179,7 +179,7 @@ function useShouldAnimate({list, scrollAmount, hostHeight, itemHeight, onScrollS
     setShouldAnimate(!allChangedTheSameAmount);
 
     if(allChangedTheSameAmount) {
-      onScrollShift(prevDiff * itemHeight());
+      onScrollShift(prevDiff! * itemHeight());
     }
 
     return current;

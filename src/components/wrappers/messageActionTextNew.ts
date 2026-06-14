@@ -14,7 +14,7 @@ export default async function wrapMessageActionTextNew(options: WrapMessageActio
 
 export default async function wrapMessageActionTextNew(options: WrapMessageActionTextOptions): Promise<string | HTMLElement> {
   try {
-    return await wrapMessageActionTextNewUnsafe(options);
+    return (await wrapMessageActionTextNewUnsafe(options))!;
   } catch(err) {
     console.error('wrapMessageActionTextNewUnsafe error:', err);
     return options.plain ? '' : document.createElement('span');

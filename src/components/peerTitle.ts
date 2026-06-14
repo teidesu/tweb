@@ -125,7 +125,7 @@ export default class PeerTitle {
       const inner = document.createElement('span');
       inner.classList.add('peer-title-inner');
       hasInner = true;
-      setInnerHTML(inner, title);
+      setInnerHTML(inner, title!);
 
       const fragment = document.createDocumentFragment();
       const emojiText = document.createElement('span');
@@ -136,25 +136,25 @@ export default class PeerTitle {
       setInnerHTML(this.element, fragment);
     } else if(this.options.asAllChats === 'monoforum') {
       const element = i18n('AllChats');
-      replaceContent(this.element, element);
+      replaceContent(this.element, element!);
     } else if(peerId === rootScope.myId && this.options.dialog) {
       let element: HTMLElement;
       if(this.options.meAsNotes) {
-        element = i18n(this.options.onlyFirstName ? 'MyNotesShort' : 'MyNotes');
+        element = i18n(this.options.onlyFirstName ? 'MyNotesShort' : 'MyNotes')!;
       } else {
-        element = i18n(this.options.onlyFirstName ? 'Saved' : 'SavedMessages');
+        element = i18n(this.options.onlyFirstName ? 'Saved' : 'SavedMessages')!;
       }
 
       replaceContent(this.element, element);
     } else if(peerId === HIDDEN_PEER_ID) {
-      replaceContent(this.element, i18n(this.options.onlyFirstName ? 'AuthorHiddenShort' : 'AuthorHidden'));
+      replaceContent(this.element, i18n(this.options.onlyFirstName ? 'AuthorHiddenShort' : 'AuthorHidden')!);
     } else {
       if(threadId) {
         const [topic, isForum, isBotforum, isMonoforum] = await Promise.all([
-          rootScope.managers.dialogsStorage.getForumTopic(peerId, threadId),
-          rootScope.managers.appPeersManager.isForum(peerId),
-          rootScope.managers.appPeersManager.isBotforum(peerId),
-          rootScope.managers.appPeersManager.isMonoforum(peerId)
+          rootScope.managers.dialogsStorage!.getForumTopic(peerId, threadId),
+          rootScope.managers.appPeersManager!.isForum(peerId),
+          rootScope.managers.appPeersManager!.isBotforum(peerId),
+          rootScope.managers.appPeersManager!.isMonoforum(peerId)
         ]);
 
         // * fix monoforum
@@ -162,7 +162,7 @@ export default class PeerTitle {
           peerId = threadId;
           threadId = undefined;
         } else if(!topic && (isForum || isBotforum)) {
-          rootScope.managers.dialogsStorage.getForumTopicById(peerId, threadId).then((forumTopic) => {
+          rootScope.managers.dialogsStorage!.getForumTopicById(peerId, threadId).then((forumTopic) => {
             if(!forumTopic && this.options.threadId === threadId) {
               this.options.threadId = undefined;
               this.update({threadId: undefined});
@@ -177,14 +177,14 @@ export default class PeerTitle {
             }
           });
 
-          setInnerHTML(this.element, i18n('Loading'));
+          setInnerHTML(this.element, i18n('Loading')!);
           this.setHasInner(false);
           return;
         }
       }
 
       const getTopicIconPromise = threadId && this.options.withIcons ?
-        rootScope.managers.dialogsStorage.getForumTopic(peerId, threadId).then((topic) => wrapTopicIcon({...(this.options.wrapOptions ?? {}), topic})) :
+        rootScope.managers.dialogsStorage!.getForumTopic(peerId, threadId).then((topic) => wrapTopicIcon({...(this.options.wrapOptions ?? {}), topic: topic!})) :
         undefined;
 
       const [title, icons, topicIcon] = await Promise.all([
@@ -218,18 +218,18 @@ export default class PeerTitle {
         setElementContent(
           [topicIcon, createInnerTitleSpan()].filter(Boolean)
         );
-      } else if(icons?.elements?.length || icons?.botVerification) {
+      } else if(icons && (icons.elements?.length || icons.botVerification)) {
         setElementContent(
           [
             icons.botVerification, topicIcon, createInnerTitleSpan(), ...(icons.elements ?? [])
-          ].filter(Boolean)
+          ].filter(Boolean) as HTMLElement[]
         );
       } else {
         setInnerHTML(this.element, title);
       }
     }
 
-    this.setHasInner(hasInner);
+    this.setHasInner(hasInner!);
   }
 }
 

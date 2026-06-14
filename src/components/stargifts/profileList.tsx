@@ -20,7 +20,7 @@ import Button from '@components/buttonTsx';
 
 import styles from '@components/stargifts/profileList.module.scss';
 import {ALL_COLLECTIONS_ID, createProfileGiftsStore, StarGiftsProfileActions, StarGiftsProfileStore} from '@components/stargifts/profileStore';
-import {Chat, StarGiftCollection, User} from '@layer';
+import {Chat, InputSavedStarGift, StarGiftCollection, User} from '@layer';
 import {unwrap} from 'solid-js/store';
 import PopupChooseGift from '@components/popups/chooseGiftPopup';
 import {MyStarGift} from '@appManagers/appGiftsManager';
@@ -52,9 +52,9 @@ async function openCreateCollectionPopup({actions, peerId}: {
     return
   }
 
-  const collection = await rootScope.managers.apiManager.invokeApi('payments.createStarGiftCollection', {
+  const collection = await rootScope.managers.apiManager!.invokeApi('payments.createStarGiftCollection', {
     title: inputField.value,
-    peer: await rootScope.managers.appPeersManager.getInputPeerById(peerId),
+    peer: await rootScope.managers.appPeersManager!.getInputPeerById(peerId),
     stargift: []
   })
 
@@ -89,7 +89,7 @@ async function openRenameCollectionPopup({actions, collection, peerId}: {
 
   if(inputField.value === collection.title) return
 
-  const newCollection = await rootScope.managers.appGiftsManager.updateCollection({
+  const newCollection = await rootScope.managers.appGiftsManager!.updateCollection({
     peerId,
     collectionId: collection.collection_id,
     title: inputField.value
@@ -115,11 +115,11 @@ async function openAddGiftsPopup({actions, collectionId, peerId}: {
 
   if(!result) return
 
-  const collection = await rootScope.managers.appGiftsManager.updateCollection({
+  const collection = await rootScope.managers.appGiftsManager!.updateCollection({
     peerId,
     collectionId,
-    add: result.selected.map((it) => it.input),
-    delete: result.deselected.map((it) => it.input)
+    add: result.selected.map((it) => it.input) as InputSavedStarGift[],
+    delete: result.deselected.map((it) => it.input) as InputSavedStarGift[]
   })
 
   actions.updateCollection(collection)
@@ -146,7 +146,7 @@ export function profileStarGiftsButtonMenu(props: {
 
   function toggleFilter(filter: ToggleableFilter) {
     const payload: SetFiltersPayload = {
-      [filter]: !props.store[filter]
+      [filter]: !props.store![filter]
     }
 
     const nextStore = {...props.store, ...payload}
@@ -167,25 +167,25 @@ export function profileStarGiftsButtonMenu(props: {
       }
     }
 
-    props.actions.setFilters(payload)
+    props.actions!.setFilters(payload)
   }
   return [
     {
       icon: 'sort_date',
       text: 'StarGiftSortByDate',
-      onClick: () => props.actions.setFilters({sort: 'date'}),
+      onClick: () => props.actions!.setFilters({sort: 'date'}),
       verify: () => props.verify() && props.store?.sort === 'value'
     },
     {
       icon: 'sort_price',
       text: 'StarGiftSortByValue',
-      onClick: () => props.actions.setFilters({sort: 'value'}),
+      onClick: () => props.actions!.setFilters({sort: 'value'}),
       verify: () => props.verify() && props.store?.sort === 'date'
     },
     {
       icon: 'folder',
       text: 'StarGiftCollectionsAdd',
-      onClick: () => openCreateCollectionPopup({actions: props.actions, peerId: props.peerId}),
+      onClick: () => openCreateCollectionPopup({actions: props.actions!, peerId: props.peerId}),
       verify: () => props.verify() && props.store != null && props.store.canManageGifts
     },
     {
@@ -335,7 +335,7 @@ export function StarGiftsProfileTab(props: {
               profilePeerId={props.peerId}
               canManageGifts={store.canManageGifts}
               profileCollections={store.collections ? unwrap(store.collections) : undefined}
-              scrollParent={props.scrollParent}
+              scrollParent={props.scrollParent!}
               autoplay={false}
               onClick={(item) => {
                 PopupElement.createPopup(PopupStarGiftInfo, {gift: item});
@@ -371,12 +371,12 @@ export function StarGiftsProfileTab(props: {
                 icon: 'link',
                 text: 'CopyLink',
                 onClick: async() => {
-                  const username = await rootScope.managers.appPeersManager.getPeerUsername(props.peerId)
+                  const username = await rootScope.managers.appPeersManager!.getPeerUsername(props.peerId)
                   copyTextToClipboard(`https://t.me/${username}/c/${id}`)
                   toastNew({langPackKey: 'LinkCopied'})
                 },
                 verify: async() => {
-                  const username = await rootScope.managers.appPeersManager.getPeerUsername(props.peerId)
+                  const username = await rootScope.managers.appPeersManager!.getPeerUsername(props.peerId)
                   return !!username
                 }
               }
@@ -393,7 +393,7 @@ export function StarGiftsProfileTab(props: {
                   icon: 'edit',
                   text: 'StarGiftCollectionsRename',
                   onClick: () => {
-                    const collection = store.collections.find((it) => it.collection_id === id)
+                    const collection = store.collections!.find((it) => it.collection_id === id)
                     if(!collection) return
                     openRenameCollectionPopup({actions, collection, peerId: props.peerId})
                   }
@@ -403,7 +403,7 @@ export function StarGiftsProfileTab(props: {
                   text: 'Delete',
                   danger: true,
                   onClick: async() => {
-                    const collection = store.collections.find((it) => it.collection_id === id)
+                    const collection = store.collections!.find((it) => it.collection_id === id)
                     if(!collection) return
                     await confirmationPopup({
                       titleLangKey: 'StarGiftCollectionsDeleteTitle',
@@ -414,9 +414,9 @@ export function StarGiftsProfileTab(props: {
                         isDanger: true
                       }
                     })
-                    rootScope.managers.apiManager.invokeApi('payments.deleteStarGiftCollection', {
+                    rootScope.managers.apiManager!.invokeApi('payments.deleteStarGiftCollection', {
                       collection_id: id,
-                      peer: await rootScope.managers.appPeersManager.getInputPeerById(props.peerId)
+                      peer: await rootScope.managers.appPeersManager!.getInputPeerById(props.peerId)
                     })
                     actions.deleteCollection(id)
                   }

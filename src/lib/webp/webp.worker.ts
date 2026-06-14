@@ -33,7 +33,7 @@ function processTasks() {
         type: 'convertWebp',
         payload: {
           fileName,
-          bytes: convertedBytes
+          bytes: convertedBytes!
         }
       });
 

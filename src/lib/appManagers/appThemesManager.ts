@@ -37,7 +37,7 @@ export default class AppThemesManager extends AppManager {
     let slug: string;
     if(wallPaper._ !== 'wallPaperNoFile') {
       slug = wallPaper.slug;
-      wallPaper.document = this.appDocsManager.saveDoc(wallPaper.document, {type: 'wallPaper', wallPaperId: wallPaper.id});
+      wallPaper.document = this.appDocsManager.saveDoc(wallPaper.document, {type: 'wallPaper', wallPaperId: wallPaper.id})!;
     }
 
     // if(oldWallPaper) {
@@ -46,7 +46,7 @@ export default class AppThemesManager extends AppManager {
     this.wallPapers[wallPaper.id] = wallPaper;
     // }
 
-    if(slug) {
+    if(slug!) {
       this.wallPapersBySlug[slug] = wallPaper;
     }
 
@@ -94,7 +94,7 @@ export default class AppThemesManager extends AppManager {
       }
 
       theme.settings.forEach((themeSettings) => {
-        themeSettings.wallpaper = this.saveWallPaper(themeSettings.wallpaper);
+        themeSettings.wallpaper = this.saveWallPaper(themeSettings.wallpaper!);
       });
     });
   }

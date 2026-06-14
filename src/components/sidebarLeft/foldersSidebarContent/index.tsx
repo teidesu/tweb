@@ -63,7 +63,7 @@ export function FoldersSidebarContent(props: {
 
   async function _onClick(folderId: number) {
     const index = folderItems.findIndex(({filter}) => filter.id === folderId);
-    if(!(await onClick()(index, false))) {
+    if(!(await onClick()!(index, false))) {
       return false;
     }
 
@@ -89,7 +89,7 @@ export function FoldersSidebarContent(props: {
       AppEditFolderTab,
       managers: rootScope.managers,
       className: 'folders-sidebar__folder-item',
-      listenTo: folderItemsContainer
+      listenTo: folderItemsContainer!
     });
 
     // Mirror the chat-background gradient into our own canvas — cheap stand-in for
@@ -101,7 +101,7 @@ export function FoldersSidebarContent(props: {
     const unsubscribeRenderer = appChatBackground.onActiveGradientRendererChange((renderer, meta) => {
       detachMirror?.();
       detachMirror = undefined;
-      if(renderer && backgroundCanvas) {
+      if(renderer && backgroundCanvas!) {
         detachMirror = renderer.attachMirror(backgroundCanvas);
         setHasGradient(true);
       } else {
@@ -121,7 +121,7 @@ export function FoldersSidebarContent(props: {
     const selectedItem = folderItemRefs[selectedFolderId()];
     if(!selectedItem) return;
 
-    const containerRect = folderItemsContainer.getBoundingClientRect();
+    const containerRect = folderItemsContainer!.getBoundingClientRect();
     const itemRect = selectedItem.getBoundingClientRect();
     const offset = itemRect.top + itemRect.height / 2 - containerRect.top;
     const MARGIN_PX = 50;
@@ -139,14 +139,14 @@ export function FoldersSidebarContent(props: {
         !hasGradient() && 'folders-sidebar__background--no-gradient',
         isDarkPattern() && 'folders-sidebar__background--dark-pattern'
       )}>
-        <canvas ref={backgroundCanvas} class="folders-sidebar__background-gradient" />
+        <canvas ref={backgroundCanvas!} class="folders-sidebar__background-gradient" />
         <div class="folders-sidebar__background-tint" />
       </div>
       <FolderItem ref={setMenuTarget} class="folders-sidebar__menu-button is-first" icon="menu" />
 
       <div class="folders-sidebar__scrollable-position">
         <Scrollable
-          ref={folderItemsContainer}
+          ref={folderItemsContainer!}
           class="folders-sidebar__scrollable no-scrollbar"
           onScroll={updateCanShowAddFolders}
           withBorders="both"
@@ -162,7 +162,7 @@ export function FoldersSidebarContent(props: {
               <FolderItem
                 {...folderItem}
                 {...getFolderTitle(folderItem.filter)}
-                ref={(el) => setFolderItemRefs({[id]: el})}
+                ref={(el) => setFolderItemRefs({[id]: el!})}
                 selected={isSelected(id)}
                 onClick={() => _onClick(id)}
               />

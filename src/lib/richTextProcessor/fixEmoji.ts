@@ -12,11 +12,11 @@ export default function fixEmoji(text: string, entities?: MessageEntity[]) {
 
       offset += length;
       entities.forEach((entity) => {
-        const end = entity.offset + entity.length;
+        const end = entity.offset! + entity.length!;
         if(end === offset) { // current entity
-          entity.length += length;
+          entity.length! += length;
         } else if(end > offset) {
-          entity.offset += length;
+          entity.offset! += length;
         }
       });
     }

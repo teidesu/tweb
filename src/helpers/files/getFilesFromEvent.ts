@@ -36,9 +36,9 @@ export default async function getFilesFromEvent(e: ClipboardEvent | DragEvent, o
     }
   };
 
-  if(e instanceof DragEvent && e.dataTransfer.files && !e.dataTransfer.items) {
-    for(let i = 0; i < e.dataTransfer.files.length; i++) {
-      const file = e.dataTransfer.files[i];
+  if(e instanceof DragEvent && e.dataTransfer!.files && !e.dataTransfer!.items) {
+    for(let i = 0; i < e.dataTransfer!.files.length; i++) {
+      const file = e.dataTransfer!.files[i];
       files.push(onlyTypes ? file.type : file);
     }
   } else {

@@ -40,7 +40,7 @@ const BlockedUsers = () => {
     (dialogElement.container as any).dialogElement = dialogElement;
     const {dom} = dialogElement;
 
-    const user = await tab.managers.appUsersManager.getUser(peerId.toUserId());
+    const user = await tab.managers.appUsersManager!.getUser(peerId.toUserId());
     if(!user) {
       return;
     }
@@ -57,7 +57,7 @@ const BlockedUsers = () => {
 
   onMount(() => {
     tab.container.classList.add('blocked-users-container');
-    captionEl.parentElement.prepend(captionEl);
+    captionEl.parentElement!.prepend(captionEl);
     tab.scrollable.container.classList.add('chatlist-container');
 
     const btnAdd = ButtonCorner({icon: 'add', className: 'is-visible'});
@@ -69,7 +69,7 @@ const BlockedUsers = () => {
         peerType: ['contacts'],
         placeholder: 'BlockModal.Search.Placeholder',
         onSelect: (chosen) => {
-          tab.managers.appUsersManager.toggleBlock(chosen[0].peerId, true);
+          tab.managers.appUsersManager!.toggleBlock(chosen[0].peerId, true);
         }
       });
     }, {listenerSetter: tab.listenerSetter});
@@ -80,8 +80,8 @@ const BlockedUsers = () => {
 
     let target: HTMLElement;
     const onUnblock = () => {
-      const peerId = target.dataset.peerId.toPeerId();
-      tab.managers.appUsersManager.toggleBlock(peerId, false);
+      const peerId = target.dataset.peerId!.toPeerId();
+      tab.managers.appUsersManager!.toggleBlock(peerId, false);
     };
 
     const element = menuElement = ButtonMenuSync({
@@ -138,7 +138,7 @@ const BlockedUsers = () => {
       }
 
       loading = true;
-      tab.managers.appUsersManager.getBlocked(list.childElementCount, LOAD_COUNT).then((res) => {
+      tab.managers.appUsersManager!.getBlocked(list.childElementCount, LOAD_COUNT).then((res) => {
         for(const peerId of res.peerIds) {
           add(peerId, true);
         }

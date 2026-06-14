@@ -5,7 +5,7 @@ export default function textToSvgURL(text: string) {
   return new Promise<string>((resolve) => {
     const reader = new FileReader();
     reader.onload = (e) => {
-      resolve(e.target.result as string);
+      resolve(e.target!.result as string);
     };
     reader.readAsDataURL(blob);
   });

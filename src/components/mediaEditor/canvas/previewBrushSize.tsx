@@ -6,7 +6,7 @@ import {useMediaEditorContext} from '@components/mediaEditor/context';
 
 
 const PreviewBrushSize = () => {
-  const {editorState} = useMediaEditorContext();
+  const {editorState} = useMediaEditorContext()!;
 
   return (
     <Show when={editorState.previewBrushSize}>

@@ -29,7 +29,7 @@ interface MonthOption {
 
 export async function saveMyBirthday(date: Birthday | null) {
   try {
-    await rootScope.managers.appProfileManager.setMyBirthday(date);
+    await rootScope.managers.appProfileManager!.setMyBirthday(date);
     return true;
   } catch(error) {
     console.error(error);
@@ -40,7 +40,7 @@ export async function saveMyBirthday(date: Birthday | null) {
 
 export async function suggestUserBirthday(userId: UserId, date: Birthday) {
   try {
-    await rootScope.managers.appProfileManager.suggestUserBirthday(userId, date);
+    await rootScope.managers.appProfileManager!.suggestUserBirthday(userId, date);
     return true;
   } catch(error) {
     console.error(error);
@@ -56,7 +56,7 @@ export default async function showBirthdayPopup(props: {
   fromSuggestion?: boolean
   onSave: (date: Birthday | null) => MaybePromise<boolean>
 }) {
-  const privacy = props.suggestForPeer ? null : await rootScope.managers.appPrivacyManager.getPrivacy('inputPrivacyKeyBirthday');
+  const privacy = props.suggestForPeer ? null : await rootScope.managers.appPrivacyManager!.getPrivacy('inputPrivacyKeyBirthday');
   const isContactsOnly = !privacy || (
     privacy.length === 2 &&
     privacy[0]._ === 'privacyValueAllowContacts' &&
@@ -118,7 +118,7 @@ export default async function showBirthdayPopup(props: {
 
       const valueNum = Number(cleanValue);
       const daysInMonth = month$ ? daysPerMonth()[month$.value - 1] : 31;
-      if(yearField.value === String(nowYear) && month$.value === nowMonth && valueNum > nowDay) {
+      if(yearField.value === String(nowYear) && month$!.value === nowMonth && valueNum > nowDay) {
         dayField.setValueSilently(nowDay.toString());
         setDay(nowDay);
       } else if(valueNum > daysInMonth) {
@@ -139,7 +139,7 @@ export default async function showBirthdayPopup(props: {
     const {open: openMonthsMenu, close: closeMonthsMenu} = createButtonMenuSelect<MonthOption>({
       class: styles.monthMenu,
       direction: 'bottom-center',
-      get value() { return month() ? [month()] : [] },
+      get value() { return month() ? [month()!] : [] },
       onValueChange: (value) => {
         setMonth(value[0])
         monthField.input.focus()
@@ -185,7 +185,7 @@ export default async function showBirthdayPopup(props: {
         } else if(valueNum >= nowYear) {
           yearField.setValueSilently(nowYear.toString());
           setYear(nowYear);
-          if(month() && month().value > nowMonth) {
+          if(month() && month()!.value > nowMonth) {
             setMonth(monthOptions[nowMonth - 1])
           }
         } else {
@@ -263,7 +263,7 @@ export default async function showBirthdayPopup(props: {
           </Show>
         </PopupElement.Body>
         <PopupElement.Footer class={styles.popupFooter}>
-          <Show when={props.fromSuggestion && props.initialDate.year}>
+          <Show when={props.fromSuggestion && props.initialDate!.year}>
             <PopupElement.FooterButton
               langKey="BirthdayPopup.HideYear"
               color="secondary"
@@ -291,7 +291,7 @@ export default async function showBirthdayPopup(props: {
               props.suggestForPeer ? 'BirthdayPopup.Suggest' : 'Save'}
             callback={async() => {
               if(!day() || !month()) return;
-              await props.onSave({_: 'birthday', day: day(), month: month().value, year: year()});
+              await props.onSave({_: 'birthday', day: day()!, month: month()!.value, year: year()});
               return true;
             }}
           />

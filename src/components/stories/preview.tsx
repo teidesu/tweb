@@ -18,9 +18,9 @@ const pollStories = () => {
   const promises: PromiseLike<any>[] = [];
   wrappedStories.forEach((map, peerId) => {
     const ids = [...map.keys()];
-    const promise = rootScope.managers.appStoriesManager.getStoriesById(peerId, ids, true).then(() => {
+    const promise = rootScope.managers.appStoriesManager!.getStoriesById(peerId, ids, true).then(() => {
       ids.forEach((id) => {
-        if(!map.get(id).mounted) {
+        if(!map.get(id)!.mounted) {
           map.delete(id);
           if(!map.size) {
             wrappedStories.delete(peerId);
@@ -87,7 +87,7 @@ export const wrapStoryMedia = (props: {
   const middleware = createMiddleware().get();
 
   let div: HTMLDivElement;
-  const container = <div ref={div} {...(props.containerProps || {})}></div>;
+  const container = <div ref={div!} {...(props.containerProps || {})}></div>;
 
   const setChildrenClassName = (wrapped: {images: {thumb: HTMLElement, full: HTMLElement}}, className: string) => {
     [
@@ -103,7 +103,7 @@ export const wrapStoryMedia = (props: {
       const photo = (messageMedia as MessageMedia.messageMediaDocument).document as Document.document || (messageMedia as MessageMedia.messageMediaPhoto).photo as Photo.photo;
       const result = wrapPhoto({
         ...props,
-        container: div,
+        container: div!,
         photo,
         middleware,
         ...(props.forPreview && {
@@ -142,7 +142,7 @@ export const wrapStoryMedia = (props: {
       const altDocument = messageMedia.alt_documents?.[0] as Document.document; // Supposedly there is only one alt document for stories
       const result = wrapVideo({
         ...props,
-        container: div,
+        container: div!,
         doc: document,
         altDoc: altDocument,
         // ignoreStreaming: true,
@@ -209,7 +209,7 @@ export const wrapStoryMedia = (props: {
     }
   }
 
-  return {container, div, media, mediaResult, thumb, ready};
+  return {container, div: div!, media, mediaResult: mediaResult!, thumb, ready};
 };
 
 export const StoryPreview = (props: {
@@ -222,32 +222,32 @@ export const StoryPreview = (props: {
     delete props.loadPromises;
   }
 
-  const loadPromise: CancellablePromise<void> = loadPromises && deferredPromise();
+  const loadPromise: CancellablePromise<void> = (loadPromises && deferredPromise())!;
   loadPromises?.push(loadPromise);
   loadPromises = undefined;
 
-  const [storyItem, setStoryItem] = createSignal<StoryItem.storyItem>(undefined, {equals: false});
+  const [storyItem, setStoryItem] = createSignal<StoryItem.storyItem>(undefined!, {equals: false});
   const [f, setF] = createSignal<JSX.Element>();
 
-  rootScope.managers.acknowledged.appStoriesManager.getStoryById(props.peerId, props.storyId)
+  rootScope.managers.acknowledged!.appStoriesManager!.getStoryById(props.peerId, props.storyId)
   .then(async(result) => {
     if(!result.cached) {
-      loadPromise?.resolve();
+      loadPromise?.resolve!();
     }
 
     const storyItem = await result.result;
-    setStoryItem(storyItem);
+    setStoryItem(storyItem!);
   });
 
   const onStoryItem = (storyItem: StoryItem.storyItem) => {
     if(!storyItem) {
       props.onExpiredStory?.();
-      loadPromise.resolve();
+      loadPromise.resolve!();
       return;
     }
 
     onCleanup(() => {
-      loadPromise?.reject();
+      loadPromise?.reject!();
     });
 
     // catchError(() => {
@@ -270,7 +270,7 @@ export const StoryPreview = (props: {
       on(
         () => ready(),
         () => {
-          loadPromise?.resolve();
+          loadPromise?.resolve!();
           setF(container);
         },
         {defer: true}

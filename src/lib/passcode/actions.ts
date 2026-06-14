@@ -99,7 +99,7 @@ export function usePasscodeActions() {
     await apiManagerProxy.invoke('toggleUsingPasscode', {isUsingPasscode: false});
     await apiManagerProxy.serviceMessagePort.invoke('toggleUsingPasscode', {type: 'full', isUsingPasscode: false});
 
-    EncryptionKeyStore.save(null);
+    EncryptionKeyStore.save(null as unknown as CryptoKey | undefined);
     DeferredIsUsingPasscode.resolveDeferred(false);
 
     await enableCacheStorages();

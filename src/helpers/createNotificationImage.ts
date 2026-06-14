@@ -14,15 +14,15 @@ export default async function createNotificationImage(
   peerId: PeerId,
   peerTitle: string
 ) {
-  const peerPhoto = await managers.appPeersManager.getPeerPhoto(peerId);
+  const peerPhoto = await managers.appPeersManager!.getPeerPhoto(peerId);
   if(peerPhoto) {
-    const url = await managers.appAvatarsManager.loadAvatar(peerId, peerPhoto, 'photo_small');
+    const url = await managers.appAvatarsManager!.loadAvatar(peerId, peerPhoto, 'photo_small');
     return url;
   }
 
   if(!avatarCanvas) {
     avatarCanvas = document.createElement('canvas');
-    avatarContext = avatarCanvas.getContext('2d');
+    avatarContext = avatarCanvas.getContext('2d')!;
 
     const SIZE = 54;
     const dpr = 1;
@@ -34,11 +34,11 @@ export default async function createNotificationImage(
     avatarContext.clearRect(0, 0, avatarCanvas.width, avatarCanvas.height);
   }
 
-  const peer = await managers.appPeersManager.getPeer(peerId);
+  const peer = await managers.appPeersManager!.getPeer(peerId);
   const color = getPeerAvatarColorByPeer(peer);
-  let gradient = avatarGradients[color];
+  let gradient = avatarGradients[color!];
   if(!gradient) {
-    gradient = avatarGradients[color] = avatarContext.createLinearGradient(avatarCanvas.width / 2, 0, avatarCanvas.width / 2, avatarCanvas.height);
+    gradient = avatarGradients[color!] = avatarContext.createLinearGradient(avatarCanvas.width / 2, 0, avatarCanvas.width / 2, avatarCanvas.height);
 
     const colorTop = customProperties.getProperty(`peer-avatar-${color}-top`);
     const colorBottom = customProperties.getProperty(`peer-avatar-${color}-bottom`);
@@ -51,7 +51,7 @@ export default async function createNotificationImage(
   drawCircle(avatarContext, avatarCanvas.width / 2, avatarCanvas.height / 2, avatarCanvas.width / 2);
   avatarContext.fill();
 
-  const fontSize = 20 * avatarCanvas.dpr;
+  const fontSize = 20 * avatarCanvas.dpr!;
   const abbreviation = getAbbreviation(peerTitle);
 
   avatarContext.font = `700 ${fontSize}px ${FontFamily}`;

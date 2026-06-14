@@ -41,15 +41,15 @@ export function StarGiftBubble(props: {
           <div class={/* @once */ styles.uniqueGiftProps}>
             <I18nTsx class={/* @once */ styles.uniqueGiftPropName} key="StarGiftModel" />
             <div class={/* @once */ styles.uniqueGiftPropValue}>
-              {props.gift.collectibleAttributes.model.name}
+              {props.gift.collectibleAttributes!.model.name}
             </div>
             <I18nTsx class={/* @once */ styles.uniqueGiftPropName} key="StarGiftBackdrop" />
             <div class={/* @once */ styles.uniqueGiftPropValue}>
-              {props.gift.collectibleAttributes.backdrop.name}
+              {props.gift.collectibleAttributes!.backdrop.name}
             </div>
             <I18nTsx class={/* @once */ styles.uniqueGiftPropName} key="StarGiftPattern" />
             <div class={/* @once */ styles.uniqueGiftPropValue}>
-              {props.gift.collectibleAttributes.pattern.name}
+              {props.gift.collectibleAttributes!.pattern.name}
             </div>
           </div>
         </div>
@@ -83,7 +83,7 @@ export function StarGiftBubble(props: {
         <I18nTsx
           key="StarGiftDefaultMessageConvertableOut"
           args={[
-            <PeerTitleTsx peerId={props.ownerId} />,
+            <PeerTitleTsx peerId={props.ownerId!} />,
             `${props.gift.raw.convert_stars}`
           ]}
         />
@@ -95,7 +95,7 @@ export function StarGiftBubble(props: {
     ) : (
       <I18nTsx
         key="StarGiftDefaultMessageOut"
-        args={<PeerTitleTsx peerId={props.ownerId} />}
+        args={<PeerTitleTsx peerId={props.ownerId!} />}
       />
     );
   });
@@ -176,20 +176,20 @@ export function UniqueStarGiftWebPageBox(props: {
   return (
     <div
       class={/* @once */ styles.webPageBox}
-      onClick={(evt) => simulateClickEvent(evt.target.closest('.webpage-quote'))}
+      onClick={(evt) => simulateClickEvent(evt.target.closest('.webpage-quote')!)}
     >
       <StarGiftBackdrop
         class={/* @once */ styles.webPageBackdrop}
         canvasClass={/* @once */ styles.webPageBackdropCanvas}
-        backdrop={props.gift.collectibleAttributes.backdrop}
-        patternEmoji={props.gift.collectibleAttributes.pattern.document as MyDocument}
+        backdrop={props.gift.collectibleAttributes!.backdrop}
+        patternEmoji={props.gift.collectibleAttributes!.pattern.document as MyDocument}
       />
       <StickerTsx
         class={/* @once */ styles.webPageSticker}
         width={120}
         height={120}
         extraOptions={props.wrapStickerOptions}
-        sticker={props.gift.collectibleAttributes.model.document as MyDocument}
+        sticker={props.gift.collectibleAttributes!.model.document as MyDocument}
       />
     </div>
   )

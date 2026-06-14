@@ -23,7 +23,7 @@ export default function createComponentContext<
           // console.log('resolved', kind, resolved(), untrack(() => children(() => store[kind]))());
         });
         // setStore(kind as any, element as any);
-        onCleanup(() => setStore(kind as any, undefined));
+        onCleanup(() => setStore(kind as any, undefined!));
         return undefined;
         // return element;
       };

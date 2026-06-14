@@ -162,6 +162,6 @@ export default function getProxiedManagers() {
 
   proxied = createProxyProxy({}, getCurrentAccount(), false);
   proxied.acknowledged = createProxyProxy({}, getCurrentAccount(), true);
-  proxied.all = createProxyProxy({}, undefined, false);
+  proxied.all = createProxyProxy({}, undefined!, false);
   return proxied;
 }

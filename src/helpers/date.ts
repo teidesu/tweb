@@ -132,9 +132,9 @@ export function formatFullSentTimeRaw(timestamp: number, options: {
 
   let dateEl: HTMLElement;
   if(!options.noToday && diff < ONE_DAY && date.getDate() === time.getDate()) { // if the same day
-    dateEl = i18n(options.capitalize ? 'Date.Today' : 'Peer.Status.Today');
+    dateEl = i18n(options.capitalize ? 'Date.Today' : 'Peer.Status.Today')!;
   } else if(!options.noToday && diff > 0 && diff < (ONE_DAY * 2) && new Date(date.getTime() - ONE_DAY * 1000).getDate() === time.getDate()) { // yesterday
-    dateEl = i18n(options.capitalize ? 'Yesterday' : 'Peer.Status.Yesterday');
+    dateEl = i18n(options.capitalize ? 'Yesterday' : 'Peer.Status.Yesterday')!;
 
     if(options.capitalize) {
       dateEl.style.textTransform = 'capitalize';
@@ -148,7 +148,7 @@ export function formatFullSentTimeRaw(timestamp: number, options: {
         year: 'numeric',
         ...(options.combined ? formatTimeOptions : {})
       }
-    }).element;
+    }).element!;
     // dateStr = months[time.getMonth()].slice(0, 3) + ' ' + time.getDate() + ', ' + time.getFullYear();
   } else {
     dateEl = new I18n.IntlDateElement({
@@ -158,7 +158,7 @@ export function formatFullSentTimeRaw(timestamp: number, options: {
         day: 'numeric',
         ...(options.combined ? formatTimeOptions : {})
       }
-    }).element;
+    }).element!;
     // dateStr = months[time.getMonth()].slice(0, 3) + ' ' + time.getDate();
   }
 
@@ -172,7 +172,7 @@ export function formatFullSentTime(timestamp: number, capitalize = true, noToday
   });
 
   const fragment = document.createDocumentFragment();
-  fragment.append(dateEl, ' ', i18n('ScheduleController.at'), ' ', timeEl);
+  fragment.append(dateEl, ' ', i18n('ScheduleController.at')!, ' ', timeEl!);
   return fragment;
 }
 
@@ -302,7 +302,7 @@ export function fillTipDates(query: string, dates: DateData[]) {
   }
 
   let matches: any[];
-  if((matches = shortDate.exec(q)) !== null) {
+  if((matches = shortDate.exec(q)!) !== null) {
     const g1 = matches[1];
     const g2 = matches[3];
     const k = parseInt(g1);
@@ -327,7 +327,7 @@ export function fillTipDates(query: string, dates: DateData[]) {
     return;
   }
 
-  if((matches = longDate.exec(q)) !== null) {
+  if((matches = longDate.exec(q)!) !== null) {
     const g1 = matches[1];
     const g2 = matches[3];
     const g3 = matches[5];
@@ -364,7 +364,7 @@ export function fillTipDates(query: string, dates: DateData[]) {
     return;
   }
 
-  if((matches = monthYearOrDayPattern.exec(q)) !== null) {
+  if((matches = monthYearOrDayPattern.exec(q)!) !== null) {
     const g1 = matches[1];
     const g2 = matches[2];
     const month = getMonth(g1);
@@ -382,7 +382,7 @@ export function fillTipDates(query: string, dates: DateData[]) {
     }
   }
 
-  if((matches = yearOrDayAndMonthPattern.exec(q)) !== null) {
+  if((matches = yearOrDayAndMonthPattern.exec(q)!) !== null) {
     const g1 = matches[1];
     const g2 = matches[2];
     const month = getMonth(g2);
@@ -399,7 +399,7 @@ export function fillTipDates(query: string, dates: DateData[]) {
     }
   }
 
-  if((matches = monthPattern.exec(q)) !== null) {
+  if((matches = monthPattern.exec(q)!) !== null) {
     const g1 = matches[1];
     const month = getMonth(g1);
     if(month >= 0) {
@@ -410,7 +410,7 @@ export function fillTipDates(query: string, dates: DateData[]) {
     }
   }
 
-  if((matches = yearPattern.exec(q)) !== null) {
+  if((matches = yearPattern.exec(q)!) !== null) {
     let selectedYear = +matches[0];
     const currentYear = new Date().getFullYear();
     if(selectedYear < minYear) {

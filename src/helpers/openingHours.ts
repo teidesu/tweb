@@ -17,7 +17,7 @@ class Period {
     const hours = (time - min) / 60 % 24;
     const rightNow = new Date();
     rightNow.setHours(hours, min);
-    const str = formatTime(rightNow).textContent;
+    const str = formatTime(rightNow)!.textContent;
     if(time > ONE_DAY_MINUTES && includeNextDay) {
       return I18n.format('BusinessHoursNextDay', true, [str]);
     }

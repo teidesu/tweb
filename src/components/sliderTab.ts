@@ -36,7 +36,7 @@ export default class SliderSuperTab {
   public managers: AppManagers;
   public middlewareHelper: MiddlewareHelper;
 
-  public isConfirmationNeededOnClose: () => void | boolean | Promise<any>; // should return boolean instantly or `Promise` from `confirmationPopup`
+  public isConfirmationNeededOnClose: (() => void | boolean | Promise<any>) | undefined; // should return boolean instantly or `Promise` from `confirmationPopup`
 
   constructor(slider: SidebarSlider, destroyable?: boolean) {
     this._constructor(slider, destroyable);
@@ -93,10 +93,10 @@ export default class SliderSuperTab {
   public onSidebarHide?(persist: boolean): void;
 
   public async initTab(...args: Parameters<typeof this['init']>) {
-    if(this.init) {
+    if(this.init as any) {
       try {
         const result = this.init(...args);
-        this.init = null;
+        this.init = null as any;
 
         if(result instanceof Promise) {
           await result;
@@ -126,7 +126,7 @@ export default class SliderSuperTab {
   }
 
   protected setTitle(key: LangPackKey) {
-    this.title.replaceChildren(i18n(key));
+    this.title.replaceChildren(i18n(key)!);
   }
 }
 

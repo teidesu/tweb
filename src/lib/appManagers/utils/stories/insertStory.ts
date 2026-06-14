@@ -10,7 +10,7 @@ export default function insertStory(array: any[], storyItem: StoryItem, onlyId: 
       valueToInsert,
       (_storyItem) => {
         const storyId = onlyId ? _storyItem as number : (_storyItem as StoryItem).id;
-        const pinnedIndex = onlyId ? pinnedToTop.get(storyId) : (_storyItem as StoryItem.storyItem).pinnedIndex;
+        const pinnedIndex = onlyId ? pinnedToTop!.get(storyId) : (_storyItem as StoryItem.storyItem).pinnedIndex;
         return pinnedIndex !== undefined ? 0xFFFFFFFF - pinnedIndex : storyId;
       }
     );

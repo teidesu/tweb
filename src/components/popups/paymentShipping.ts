@@ -90,9 +90,9 @@ export default class PopupPaymentShipping extends PopupElement<{
       if(invoice.pFlags.phone_requested) telInputField = new TelInputField({required: true, validate: validatePhone});
 
       receiverSection.content.append(...[
-        nameInputField,
-        emailInputField,
-        telInputField
+        nameInputField!,
+        emailInputField!,
+        telInputField!
       ].filter(Boolean).map((inputField) => inputField.container));
     }
 
@@ -105,9 +105,9 @@ export default class PopupPaymentShipping extends PopupElement<{
       subtitleLangKey: 'PaymentShippingSaveInfo'
     });
 
-    (receiverSection || addressSection).content.append(saveRow.container);
+    (receiverSection! || addressSection!).content.append(saveRow.container);
 
-    this.scrollable.append(...[addressSection, receiverSection].filter(Boolean).map((section) => section.container));
+    this.scrollable.append(...[addressSection!, receiverSection!].filter(Boolean).map((section) => section.container));
 
     const payButton = PaymentButton({
       key: 'PaymentInfo.Done',
@@ -131,7 +131,7 @@ export default class PopupPaymentShipping extends PopupElement<{
         };
 
         try {
-          const requestedInfo = await this.managers.appPaymentsManager.validateRequestedInfo(this.inputInvoice, data, saveCheckboxField?.checked);
+          const requestedInfo = await this.managers.appPaymentsManager!.validateRequestedInfo(this.inputInvoice, data, saveCheckboxField?.checked);
 
           this.dispatchEvent('finish', {
             shippingAddress: data,
@@ -168,29 +168,29 @@ export default class PopupPaymentShipping extends PopupElement<{
     if(savedInfo) {
       const shippingAddress = savedInfo.shipping_address;
       if(shippingAddress) {
-        address1InputField.value = shippingAddress.street_line1;
-        address2InputField.value = shippingAddress.street_line2;
-        cityInputField.value = shippingAddress.city;
-        stateInputField.value = shippingAddress.state;
-        countryInputField.selectCountryByIso2(shippingAddress.country_iso2);
-        postcodeInputField.value = shippingAddress.post_code;
+        address1InputField!.value = shippingAddress.street_line1;
+        address2InputField!.value = shippingAddress.street_line2;
+        cityInputField!.value = shippingAddress.city;
+        stateInputField!.value = shippingAddress.state;
+        countryInputField!.selectCountryByIso2(shippingAddress.country_iso2);
+        postcodeInputField!.value = shippingAddress.post_code;
       }
 
-      savedInfo.name && nameInputField && (nameInputField.value = savedInfo.name);
-      savedInfo.email && emailInputField && (emailInputField.value = savedInfo.email);
-      savedInfo.phone && telInputField && (telInputField.value = savedInfo.phone);
+      savedInfo.name && nameInputField! && (nameInputField.value = savedInfo.name);
+      savedInfo.email && emailInputField! && (emailInputField.value = savedInfo.email);
+      savedInfo.phone && telInputField! && (telInputField.value = savedInfo.phone);
     }
 
     const {validate} = handleInputFieldsOnChange([
-      address1InputField,
-      address2InputField,
-      cityInputField,
-      stateInputField,
-      countryInputField,
-      postcodeInputField,
-      nameInputField,
-      emailInputField,
-      telInputField
+      address1InputField!,
+      address2InputField!,
+      cityInputField!,
+      stateInputField!,
+      countryInputField!,
+      postcodeInputField!,
+      nameInputField!,
+      emailInputField!,
+      telInputField!
     ].filter(Boolean), (valid) => {
       payButton.disabled = !valid;
     });
@@ -202,14 +202,14 @@ export default class PopupPaymentShipping extends PopupElement<{
     let focusField: InputField;
     if(this.focus) {
       const focusMap: {[field in ShippingFocusField]?: InputField} = {
-        name: nameInputField,
-        email: emailInputField,
-        phone: telInputField
+        name: nameInputField!,
+        email: emailInputField!,
+        phone: telInputField!
       };
 
-      focusField = focusMap[this.focus];
+      focusField = focusMap[this.focus]!;
     } else {
-      focusField = address1InputField;
+      focusField = address1InputField!;
     }
 
     if(focusField) {

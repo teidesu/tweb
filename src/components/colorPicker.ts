@@ -59,7 +59,7 @@ export default class ColorPicker {
   } = {} as any;
   private hexInputField: InputField;
   private rgbInputField: InputField;
-  public onChange: (color: ReturnType<ColorPicker['getCurrentColor']>) => void;
+  public onChange: ((color: ReturnType<ColorPicker['getCurrentColor']>) => void) | undefined;
 
 
   constructor({
@@ -119,14 +119,14 @@ export default class ColorPicker {
 
     this.elements.box = pickerBox;
     this.elements.boxDragger = pickerBox.lastElementChild as SVGSVGElement;
-    this.elements.saturation = pickerBox.querySelector(`#color-picker-saturation-${id}`);
-    this.elements.boxRect = pickerBox.querySelector(`#color-picker-box-rect-${id}`);
+    this.elements.saturation = pickerBox.querySelector(`#color-picker-saturation-${id}`)!;
+    this.elements.boxRect = pickerBox.querySelector(`#color-picker-box-rect-${id}`)!;
 
     this.elements.sliders = slider;
 
     this.elements.hue = slider.firstElementChild as SVGSVGElement;
     this.elements.hueDragger = this.elements.hue.lastElementChild as any;
-    this.elements.hueRect = slider.querySelector(`#color-picker-hue-rect-${id}`);
+    this.elements.hueRect = slider.querySelector(`#color-picker-hue-rect-${id}`)!;
 
     this.hexInputField = new InputField({plainText: true, label: 'Appearance.Color.Hex'});
     this.rgbInputField = new InputField({plainText: true, label: 'Appearance.Color.RGB'});
@@ -256,7 +256,7 @@ export default class ColorPicker {
         color = hexaToHsla(color);
       } else {
         const rgb = color.match(/[.?\d]+/g);
-        color = rgbaToHsla(+rgb[0], +rgb[1], +rgb[2], rgb[3] === undefined ? 1 : +rgb[3]);
+        color = rgbaToHsla(+rgb![0], +rgb![1], +rgb![2], rgb![3] === undefined ? 1 : +rgb![3]);
       }
     }
 
@@ -332,7 +332,7 @@ export default class ColorPicker {
     this.elements.hueDragger.setAttributeNS(null, 'x', (percents * 100) + '%');
     this.elements.hueDragger.setAttributeNS(null, 'fill', hsla);
 
-    this.elements.saturation.lastElementChild.setAttributeNS(null, 'stop-color', hsla);
+    this.elements.saturation.lastElementChild!.setAttributeNS(null, 'stop-color', hsla);
 
     if(update) {
       this.updatePicker();

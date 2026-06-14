@@ -4,7 +4,7 @@ export function averageColorFromCanvas(canvas: HTMLCanvasElement) {
   const context = canvas.getContext('2d');
 
   const pixel = new Array(4).fill(0);
-  const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+  const pixels = context!.getImageData(0, 0, canvas.width, canvas.height).data;
   const pixelsLength = pixels.length / 4;
   for(let i = 0; i < pixels.length; i += 4) {
     // const alphaPixel = pixels[i + 3];
@@ -38,7 +38,7 @@ export function averageColorFromImageSource(imageSource: CanvasImageSource, widt
   }
 
   const context = canvas.getContext('2d');
-  context.drawImage(imageSource, 0, 0, width, height, 0, 0, canvas.width, canvas.height);
+  context!.drawImage(imageSource, 0, 0, width, height, 0, 0, canvas.width, canvas.height);
   return averageColorFromCanvas(canvas);
 }
 

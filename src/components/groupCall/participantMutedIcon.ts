@@ -10,10 +10,10 @@ export default class GroupCallParticipantMutedIcon extends SuperRLottieIcon<{
     super({
       width: 32,
       height: 32,
-      getPart: (state, prevState) => {
+      getPart: (state, prevState?) => {
         const states = GROUP_CALL_PARTICIPANT_MUTED_STATE;
 
-        let index: number;
+        let index!: number;
         switch(state) {
           case states.HAND:
             index = 3;
@@ -26,7 +26,7 @@ export default class GroupCallParticipantMutedIcon extends SuperRLottieIcon<{
             break;
         }
 
-        return this.getItem().getPart(index);
+        return this.getItem().getPart(index)!;
       },
       getColor: colored ? (state, prevState) => {
         return getColorByMutedState(state);

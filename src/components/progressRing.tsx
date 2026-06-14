@@ -102,6 +102,6 @@ export function createProgressRing(opts: Omit<ProgressRingProps, 'progress' | 'r
       circleRef: (c) => circle = c
     });
 
-    return {element, circle, setProgress, destroy: dispose};
+    return {element: element!, circle: circle!, setProgress, destroy: dispose};
   });
 }

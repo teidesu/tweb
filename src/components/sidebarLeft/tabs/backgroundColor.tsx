@@ -39,7 +39,7 @@ const BackgroundColor = () => {
 
   const setActive = () => {
     const active = grid.querySelector('.active');
-    const background = themeController.getThemeSettings(theme);
+    const background = themeController.getThemeSettings(theme!);
     const wallPaper = background?.wallpaper;
     const color = wallPaper?.settings?.background_color;
     // `background_color` is a number; swatches store data-color as "#rrggbb", so format + pad it
@@ -61,7 +61,7 @@ const BackgroundColor = () => {
       colorPicker.setColor(hex);
     } else {
       const rgba = hexaToRgba(hex);
-      const settings = themeController.getThemeSettings(theme);
+      const settings = themeController.getThemeSettings(theme!);
       const hsla = highlightingColor(rgba);
 
       let wallPaper: WallPaper = {
@@ -77,7 +77,7 @@ const BackgroundColor = () => {
 
       // On tinted base, blend the picked solid color toward the iOS Dark Blue palette so
       // single-color picks from "Set Color" land in the navy family same as Chat Wallpaper grid.
-      if(theme.name === 'tinted') {
+      if(theme!.name === 'tinted') {
         wallPaper = blendWallpaperForTinted(wallPaper, settings.accent_color);
       }
 
@@ -120,10 +120,10 @@ const BackgroundColor = () => {
 
     // mirror legacy onOpen()
     setTimeout(() => {
-      const settings = themeController.getThemeSettings(theme);
+      const settings = themeController.getThemeSettings(theme!);
       const color = settings?.wallpaper?.settings?.background_color;
 
-      const isColored = !!color && settings.wallpaper._ === 'wallPaperNoFile';
+      const isColored = !!color && settings.wallpaper!._ === 'wallPaperNoFile';
 
       // * set active if type is color
       if(isColored) {

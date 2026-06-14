@@ -42,7 +42,7 @@ export default class AppStateManager {
 
     const first = splitDeepPath(key)[0] as keyof State;
     if(first === 'settings') {
-      rootScope.dispatchEvent('settings_updated', {key, value, settings: this.state.settings});
+      rootScope.dispatchEvent('settings_updated', {key, value, settings: this.state.settings!});
     }
 
     return this.pushToState(first, this.state[first]);

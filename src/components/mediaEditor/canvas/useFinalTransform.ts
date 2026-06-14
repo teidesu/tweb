@@ -16,7 +16,7 @@ export type FinalTransform = {
 };
 
 export default function useFinalTransform() {
-  const {editorState, mediaState} = useMediaEditorContext();
+  const {editorState, mediaState} = useMediaEditorContext()!;
 
   const cropOffset = useCropOffset();
 
@@ -73,7 +73,7 @@ export default function useFinalTransform() {
 
   const cropTrnsl = createMemo(() => {
     if(!editorState.canvasSize || !additionalImageScales()) return;
-    const {fromCroppedScale} = additionalImageScales();
+    const {fromCroppedScale} = additionalImageScales()!;
 
     return mediaState.translation.map((x) => x * fromCroppedScale - x) as NumberPair;
   });
@@ -81,7 +81,7 @@ export default function useFinalTransform() {
   const cropTranslation = createMemo(() => {
     if(!editorState.canvasSize || !additionalImageScales()) return;
     const [, h] = editorState.canvasSize;
-    const {fromCroppedScale} = additionalImageScales();
+    const {fromCroppedScale} = additionalImageScales()!;
 
     return lerpArray(
       mediaState.translation.map((x) => x * fromCroppedScale - x),
@@ -95,9 +95,9 @@ export default function useFinalTransform() {
 
   function updatePrevValues() {
     if(!additionalImageScales() || !cropTrnsl()) return;
-    const {toCropScale, fromCroppedScale, snappedImageScale} = additionalImageScales();
+    const {toCropScale, fromCroppedScale, snappedImageScale} = additionalImageScales()!;
     prevScale = toCropScale * snappedImageScale * fromCroppedScale;
-    prevTranslation = cropTrnsl();
+    prevTranslation = cropTrnsl()!;
   }
 
   createEffect(
@@ -115,9 +115,9 @@ export default function useFinalTransform() {
     on(() => editorState.canvasSize, () => {
       if(!editorState.canvasSize || !additionalImageScales()) return;
       const prevSize = editorState.canvasSize;
-      const {toCropScale, fromCroppedScale, snappedImageScale} = additionalImageScales();
+      const {toCropScale, fromCroppedScale, snappedImageScale} = additionalImageScales()!;
       prevScale = toCropScale * snappedImageScale * fromCroppedScale;
-      prevTranslation = cropTrnsl();
+      prevTranslation = cropTrnsl()!;
 
       onCleanup(() => {
         batch(() => {
@@ -133,17 +133,17 @@ export default function useFinalTransform() {
     on(prevCanvasSize, () => {
       if(!prevCanvasSize || !prevAdditionalScale()) return;
       const currentSize = editorState.canvasSize;
-      const {toCropScale, fromCroppedScale, snappedImageScale} = additionalImageScales();
+      const {toCropScale, fromCroppedScale, snappedImageScale} = additionalImageScales()!;
       const currentAdditionalScale = toCropScale * snappedImageScale * fromCroppedScale;
 
       const scaleToChange = getSnappedViewportsScale(
         mediaState.currentImageRatio,
-        currentSize[0],
-        currentSize[1],
-        prevCanvasSize()[0],
-        prevCanvasSize()[1]
+        currentSize![0],
+        currentSize![1],
+        prevCanvasSize()![0],
+        prevCanvasSize()![1]
       );
-      const counterScale = prevAdditionalScale() / currentAdditionalScale;
+      const counterScale = prevAdditionalScale()! / currentAdditionalScale;
 
       const totalScale = scaleToChange * counterScale;
 
@@ -164,7 +164,7 @@ export default function useFinalTransform() {
     const payload = editorState.renderingPayload;
     if(!payload) return;
 
-    let {fromCroppedScale, toCropScale, snappedImageScale} = additionalImageScales();
+    let {fromCroppedScale, toCropScale, snappedImageScale} = additionalImageScales()!;
 
     toCropScale *= lerp(fromCroppedScale, 1, editorState.cropTabAnimationProgress);
 
@@ -179,7 +179,7 @@ export default function useFinalTransform() {
       t.flip = mediaState.flip,
       t.rotation = mediaState.rotation,
       t.scale = mediaState.scale * editorState.pixelRatio * snappedImageScale * toCropScale;
-      t.translation = [cropTranslation()[0] + mediaState.translation[0], cropTranslation()[1] + mediaState.translation[1]].map(
+      t.translation = [cropTranslation()![0] + mediaState.translation[0], cropTranslation()![1] + mediaState.translation[1]].map(
         (v) => v * editorState.pixelRatio
       ) as NumberPair
     }));

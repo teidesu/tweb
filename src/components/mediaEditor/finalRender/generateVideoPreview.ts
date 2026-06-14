@@ -17,12 +17,13 @@ export async function generateVideoPreview({scaledWidth, scaledHeight}: Args) {
 
   const {
     editorState: {
-      canvasSize: [cw, ch], imageCanvas, brushCanvas, currentTab, stickersLayersInfo, finalTransform: {scale}
+      canvasSize, imageCanvas, brushCanvas, currentTab, stickersLayersInfo, finalTransform: {scale}
     },
     mediaState: {
       resizableLayers, rotation
     }
-  } = context;
+  } = context!;
+  const [cw, ch] = canvasSize!;
 
   const processPoint = useProcessPoint(false);
   const cropOffset = useCropOffset();
@@ -43,8 +44,8 @@ export async function generateVideoPreview({scaledWidth, scaledHeight}: Args) {
   const previewCtx = previewCanvas.getContext('2d');
   const mirrorCtx = mirrorCanvas.getContext('2d');
 
-  mirrorCtx.drawImage(imageCanvas, 0, 0, cw, ch);
-  mirrorCtx.drawImage(brushCanvas, 0, 0, cw, ch);
+  mirrorCtx!.drawImage(imageCanvas!, 0, 0, cw, ch);
+  mirrorCtx!.drawImage(brushCanvas!, 0, 0, cw, ch);
 
   const processedLayers = unwrap(resizableLayers).map(layer => ({
     ...layer,
@@ -58,7 +59,7 @@ export async function generateVideoPreview({scaledWidth, scaledHeight}: Args) {
   }));
 
   processedLayers.forEach((layer) => {
-    if(layer.type === 'text') drawTextLayer(context, mirrorCtx, layer, false);
+    if(layer.type === 'text') drawTextLayer(context!, mirrorCtx!, layer, false);
 
     if(layer.type === 'sticker') {
       const {container} = stickersLayersInfo[layer.id];
@@ -74,25 +75,25 @@ export async function generateVideoPreview({scaledWidth, scaledHeight}: Args) {
         ratio = stickerChild.videoWidth / stickerChild.videoHeight;
       else return;
 
-      drawStickerLayer(context, mirrorCtx, layer, stickerChild, ratio, false);
+      drawStickerLayer(context!, mirrorCtx!, layer, stickerChild, ratio, false);
     }
   });
 
   if(isCropping) {
-    previewCtx.drawImage(
+    previewCtx!.drawImage(
       mirrorCanvas,
       cropOffset().left + (cropOffset().width - previewWidth) / 2, cropOffset().top + (cropOffset().height - previewHeight) / 2, previewWidth, previewHeight,
       0, 0, previewWidth, previewHeight
     );
   } else {
-    previewCtx.drawImage(
+    previewCtx!.drawImage(
       mirrorCanvas,
       (cw - previewWidth) / 2, (ch - previewHeight) / 2, previewWidth, previewHeight,
       0, 0, previewWidth, previewHeight
     );
   }
 
-  const previewBlob = await new Promise<Blob>((resolve) => previewCanvas.toBlob(resolve));
+  const previewBlob = await new Promise<Blob>((resolve) => previewCanvas.toBlob((resolve! as BlobCallback)));
 
   return previewBlob;
 }

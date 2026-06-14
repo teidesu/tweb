@@ -41,7 +41,7 @@ const needBlur = (wallPaper: WallPaper, respectPattern = true) => {
 };
 
 const getWallPaperKey = (wallPaper: WallPaper) => '' + wallPaper.id;
-const getWallPaperKeyFromTheme = (theme: AppTheme) => '' + (getWallPaperKey(themeController.getThemeSettings(theme)?.wallpaper) || '');
+const getWallPaperKeyFromTheme = (theme: AppTheme) => '' + (getWallPaperKey(themeController.getThemeSettings(theme)?.wallpaper!) || '');
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Static utility surface — kept on `AppBackgroundTab` so callers reaching it
@@ -119,7 +119,7 @@ export class AppBackgroundTab {
           transition="instant"
           width={size.width}
           height={size.height}
-          onReady={() => deferred.resolve()}
+          onReady={() => deferred.resolve!()}
         />
       ), media);
       return deferred;
@@ -156,9 +156,9 @@ export class AppBackgroundTab {
     if(doc) {
       download = appDownloadManager.downloadMediaURL({
         media: doc,
-        queueId: appImManager.chat.bubbles ? appImManager.chat.bubbles.lazyLoadQueue.queueId : 0
+        queueId: appImManager.chat.bubbles ? appImManager.chat.bubbles.lazyLoadQueue!.queueId : 0
       });
-      deferred.addNotifyListener = download.addNotifyListener.bind(download);
+      deferred.addNotifyListener = download.addNotifyListener!.bind(download);
       deferred.cancel = download.cancel;
     } else {
       download = Promise.resolve();
@@ -166,18 +166,18 @@ export class AppBackgroundTab {
 
     download.then(async() => {
       if(!middleware()) {
-        deferred.resolve();
+        deferred.resolve!();
         return;
       }
 
       const hadSettings = !!themeSettings;
-      themeSettings ??= themeController.getThemeSettings(themeController.getTheme());
+      themeSettings ??= themeController.getThemeSettings(themeController.getTheme()!);
       // Chat Wallpaper tab grid clicks (and uploads) land here without a pre-blended wallpaper —
       // applyNewTheme would have already blended its argument, so it's safe to skip when the
       // caller passed an explicit themeSettings (which it does only from applyNewTheme). For
       // direct invocations on tinted base, run the same per-accent dark blend so wallpaper picks
       // sit in the Dark Blue palette like cloud-theme picks do.
-      if(!hadSettings && themeController.getTheme().name === 'tinted') {
+      if(!hadSettings && themeController.getTheme()!.name === 'tinted') {
         wallPaper = blendWallpaperForTinted(wallPaper, themeSettings.accent_color);
       }
       const onReady = (url?: string) => {
@@ -193,10 +193,10 @@ export class AppBackgroundTab {
         const slug = (wallPaper as WallPaper.wallPaper).slug;
         Promise.all([
           getPixelPromise,
-          ChatBackgroundStore.saveWallPaperToCache(slug, url)
+          ChatBackgroundStore.saveWallPaperToCache(slug, url!)
         ]).then(([pixel]) => {
           if(!middleware()) {
-            deferred.resolve();
+            deferred.resolve!();
             return;
           }
 
@@ -205,8 +205,8 @@ export class AppBackgroundTab {
           if(hadSettings) {
             // applyNewTheme handed us a plain, mutable settings object (part of the themes
             // array it persists itself right after) — mutate it in place.
-            themeSettings.wallpaper = wallPaper;
-            themeSettings.highlightingColor = hsla;
+            themeSettings!.wallpaper = wallPaper;
+            themeSettings!.highlightingColor = hsla;
           } else {
             // Chat Wallpaper tab (grid click / upload): there's no pre-built settings object, so
             // `themeSettings` is a readonly Solid store node and assigning to it is silently
@@ -220,7 +220,7 @@ export class AppBackgroundTab {
             slug,
             backgroundUrl: url,
             broadcastEvent: true
-          }).then(deferred.resolve.bind(deferred));
+          }).then(deferred.resolve!.bind(deferred));
         });
       };
 
@@ -229,12 +229,12 @@ export class AppBackgroundTab {
         return;
       }
 
-      const cacheContext = await rootScope.managers.thumbsStorage.getCacheContext(doc);
+      const cacheContext = await rootScope.managers.thumbsStorage!.getCacheContext(doc);
       if(needBlur(wallPaper)) {
         setTimeout(() => {
           ChatBackgroundStore.blurWallPaperImage(cacheContext.url).then((url) => {
             if(!middleware()) {
-              deferred.resolve();
+              deferred.resolve!();
               return;
             }
 
@@ -273,12 +273,12 @@ const ChatBackground = () => {
   const grid = document.createElement('div');
   grid.classList.add('search-super-content-media-grid');
 
-  const getActiveThemeSettings = () => themeController.getThemeSettings(getTheme());
+  const getActiveThemeSettings = () => themeController.getThemeSettings(getTheme()!);
 
   const blurCheckboxField = new CheckboxField({
     text: 'ChatBackground.Blur',
     name: 'blur',
-    checked: needBlur(getActiveThemeSettings()?.wallpaper, false)
+    checked: needBlur(getActiveThemeSettings()?.wallpaper!, false)
   });
 
   const toggleBlurCheckbox = () => {
@@ -289,7 +289,7 @@ const ChatBackground = () => {
   const changeWallPaperBlur = async(wallPaper: WallPaper, blur: boolean) => {
     (wallPaper.settings ??= {_: 'wallPaperSettings', pFlags: {}}).pFlags.blur = blur || undefined;
     const [appSettings] = useAppSettings();
-    await rootScope.managers.appStateManager.pushToState('settings', unwrap(appSettings));
+    await rootScope.managers.appStateManager!.pushToState('settings', unwrap(appSettings));
   };
 
   const setBackgroundDocument = async(
@@ -305,7 +305,7 @@ const ChatBackground = () => {
 
   const setActive = () => {
     const active = grid.querySelector('.active');
-    const target = elementsByKey.get(getWallPaperKeyFromTheme(getTheme()));
+    const target = elementsByKey.get(getWallPaperKeyFromTheme(getTheme()!));
     if(active === target) return;
 
     toggleBlurCheckbox();
@@ -340,7 +340,7 @@ const ChatBackground = () => {
       wallPapersByElement.set(container, wallPaper);
       elementsByKey.set(key, container);
 
-      if(getWallPaperKeyFromTheme(getTheme()) === key) {
+      if(getWallPaperKeyFromTheme(getTheme()!) === key) {
         container.classList.add('active');
       }
 
@@ -370,23 +370,23 @@ const ChatBackground = () => {
         file = new File([blob], file.name.replace(/\.png$/, '.jpg'), {type: mimeType});
       }
 
-      const wallPaper = await rootScope.managers.appDocsManager.prepareWallPaperUpload(file);
+      const wallPaper = await rootScope.managers.appDocsManager!.prepareWallPaperUpload(file);
       // Seed ChatBackgroundStore with the local blob URL so the picker thumbnail
       // (which now goes through `<ChatBackground>` → ChatBackgroundStore.getBackground)
       // resolves the in-progress upload preview without trying to hit the network.
       const uploadDoc = (wallPaper as WallPaper.wallPaper).document as Document.document;
       if(uploadDoc) {
-        const cacheContext = await rootScope.managers.thumbsStorage.getCacheContext(uploadDoc);
+        const cacheContext = await rootScope.managers.thumbsStorage!.getCacheContext(uploadDoc);
         ChatBackgroundStore.setBackgroundUrlToCache({
           slug: (wallPaper as WallPaper.wallPaper).slug,
           url: cacheContext.url
         });
       }
-      const uploadPromise = rootScope.managers.appDocsManager.uploadWallPaper(wallPaper.id);
+      const uploadPromise = rootScope.managers.appDocsManager!.uploadWallPaper(wallPaper.id);
       const uploadDeferred: CancellablePromise<any> = appDownloadManager.getNewDeferredForUpload(file.name, uploadPromise);
 
       const deferred = deferredPromise<void>();
-      deferred.addNotifyListener = uploadDeferred.addNotifyListener.bind(uploadDeferred);
+      deferred.addNotifyListener = uploadDeferred.addNotifyListener!.bind(uploadDeferred);
       deferred.cancel = uploadDeferred.cancel;
 
       uploadDeferred.then((wallPaper) => {
@@ -396,8 +396,8 @@ const ChatBackground = () => {
         const newKey = getWallPaperKey(wallPaper);
         elementsByKey.set(newKey, container);
 
-        setBackgroundDocument(wallPaper).then(deferred.resolve.bind(deferred), deferred.reject.bind(deferred));
-      }, deferred.reject.bind(deferred));
+        setBackgroundDocument(wallPaper).then(deferred.resolve!.bind(deferred), deferred.reject!.bind(deferred));
+      }, deferred.reject!.bind(deferred));
 
       const key = getWallPaperKey(wallPaper);
       deferred.catch(() => {
@@ -410,7 +410,7 @@ const ChatBackground = () => {
         tryAgainOnFail: false
       });
 
-      const {container} = await addWallPaper(wallPaper, false);
+      const {container} = (await addWallPaper(wallPaper, false))!;
       clicked.add(key);
 
       preloader.attach(container, false, deferred);
@@ -423,34 +423,34 @@ const ChatBackground = () => {
     // and re-applies the background itself (applyNewTheme → setBackgroundDocument →
     // applyCurrentTheme), so we just refresh the blur checkbox once it settles.
     themeController.resetActiveTheme().then(() => {
-      blurCheckboxField.setValueSilently(needBlur(getActiveThemeSettings()?.wallpaper, false));
+      blurCheckboxField.setValueSilently(needBlur(getActiveThemeSettings()?.wallpaper!, false));
     });
   };
 
   const onGridClick = (e: MouseEvent | TouchEvent) => {
-    const target = findUpClassName(e.target, 'grid-item') as HTMLElement;
+    const target = findUpClassName(e.target!, 'grid-item') as HTMLElement;
     if(!target) return;
 
     const wallPaper = wallPapersByElement.get(target);
-    if(wallPaper._ === 'wallPaperNoFile') {
-      setBackgroundDocument(wallPaper);
+    if(wallPaper!._ === 'wallPaperNoFile') {
+      setBackgroundDocument(wallPaper!);
       return;
     }
 
-    const key = getWallPaperKey(wallPaper);
+    const key = getWallPaperKey(wallPaper!);
     if(clicked.has(key)) return;
     clicked.add(key);
 
-    const doc = wallPaper.document as MyDocument;
+    const doc = wallPaper!.document as MyDocument;
     const preloader = new ProgressivePreloader({
       cancelable: true,
       tryAgainOnFail: false
     });
 
     const load = async() => {
-      const promise = setBackgroundDocument(wallPaper);
-      const cacheContext = await rootScope.managers.thumbsStorage.getCacheContext(doc);
-      if(!cacheContext.url || needBlur(wallPaper)) {
+      const promise = setBackgroundDocument(wallPaper!);
+      const cacheContext = await rootScope.managers.thumbsStorage!.getCacheContext(doc);
+      if(!cacheContext.url || needBlur(wallPaper!)) {
         preloader.attach(target, true, promise);
       }
     };
@@ -489,7 +489,7 @@ const ChatBackground = () => {
   // Always refresh from the server: keep the cache warm for the next open, and build now if the
   // cache wasn't there yet (first-ever open, before any preload). The list is stable within a
   // session, so when we already built from cache we keep that grid rather than rebuilding.
-  const [wallPapersResource] = createResource(() => rootScope.managers.appThemesManager.getWallPapers());
+  const [wallPapersResource] = createResource(() => rootScope.managers.appThemesManager!.getWallPapers());
 
   createEffect(on(wallPapersResource, (wallPapers) => {
     if(!wallPapers) return;
@@ -505,7 +505,7 @@ const ChatBackground = () => {
     tab.container.classList.add('background-container', 'background-image-container');
 
     listenerSetter.add(blurCheckboxField.input)('change', async() => {
-      await changeWallPaperBlur(getActiveThemeSettings().wallpaper, blurCheckboxField.checked);
+      await changeWallPaperBlur(getActiveThemeSettings().wallpaper!, blurCheckboxField.checked);
 
       // wait for the animation end before re-applying — matches legacy timing
       setTimeout(() => {
@@ -513,11 +513,11 @@ const ChatBackground = () => {
         if(!active) return;
 
         const wallpaper = wallPapersByElement.get(active);
-        if((wallpaper as WallPaper.wallPaper).pFlags.pattern || wallpaper._ === 'wallPaperNoFile') {
+        if((wallpaper as WallPaper.wallPaper).pFlags.pattern || wallpaper!._ === 'wallPaperNoFile') {
           return;
         }
 
-        setBackgroundDocument(wallpaper);
+        setBackgroundDocument(wallpaper!);
       }, 100);
     });
   });

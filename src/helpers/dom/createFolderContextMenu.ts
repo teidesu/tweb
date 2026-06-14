@@ -23,7 +23,7 @@ export default function createFolderContextMenu({
 }) {
   async function openSettingsForFilter(filterId: number) {
     if(REAL_FOLDERS.has(filterId)) return;
-    const filter = await managers.filtersStorage.getFilter(filterId);
+    const filter = await managers.filtersStorage!.getFilter(filterId);
 
     appSidebarLeft.closeTabsBefore(() => {
       appSidebarLeft.createTab(_AppEditFolderTab).open({..._AppEditFolderTab.getInitArgs(), initFilter: filter});
@@ -52,9 +52,9 @@ export default function createFolderContextMenu({
       icon: 'readchats',
       text: 'MarkAllAsRead',
       onClick: () => {
-        managers.dialogsStorage.markFolderAsRead(clickFilterId);
+        managers.dialogsStorage!.markFolderAsRead(clickFilterId);
       },
-      verify: async() => !!(await managers.dialogsStorage.getFolderUnreadCount(clickFilterId)).unreadCount
+      verify: async() => !!(await managers.dialogsStorage!.getFolderUnreadCount(clickFilterId)).unreadCount
     }, {
       icon: 'delete',
       className: 'danger',
@@ -65,9 +65,9 @@ export default function createFolderContextMenu({
       verify: () => clickFilterId !== FOLDER_ID_ALL
     }],
     listenTo,
-    findElement: (e) => findUpClassName(e.target, className),
+    findElement: (e) => findUpClassName(e.target!, className),
     onOpen: (e, target) => {
-      clickFilterId = +target.dataset.filterId;
+      clickFilterId = +target.dataset.filterId!;
     }
   });
 

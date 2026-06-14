@@ -130,7 +130,7 @@ export default function createContextMenu<T extends ButtonMenuItemOptionsVerifia
     }
 
     const _element = element = await ButtonMenu({
-      buttons: filteredButtons,
+      buttons: filteredButtons as T[],
       listenerSetter
     });
     _element.classList.add('contextmenu');
@@ -159,5 +159,5 @@ export default function createContextMenu<T extends ButtonMenuItemOptionsVerifia
     attachClickEvent(listenTo, open, {listenerSetter: attachListenerSetter});
   }
 
-  return {element, destroy, open};
+  return {element: element!, destroy, open};
 }

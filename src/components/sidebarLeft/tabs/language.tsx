@@ -75,13 +75,13 @@ const TranslateSection = () => {
       </RowTsx>
       {appSettings.translations.enabled && (<RowTsx
         clickable={async() => {
-          const languages = await pickLanguage(true, doNotTranslate());
-          setAppSettings('translations', 'doNotTranslate', languages);
+          const languages = await pickLanguage(true, doNotTranslate() as TranslatableLanguageISO[]);
+          setAppSettings('translations', 'doNotTranslate', languages as any);
         }}
       >
         <RowTsx.Title
           titleRight={doNotTranslate().length < 3 ?
-            join(doNotTranslate().map((lang) => i18n(`Language.${lang}`)), false) :
+            join((doNotTranslate().map((lang) => i18n(`Language.${lang!}`))! as (string | Node)[]), false) :
             i18n('Languages', [doNotTranslate().length])
           }
           titleRightSecondary
@@ -103,7 +103,7 @@ const LanguageListSection = () => {
   let containerEl!: HTMLDivElement;
 
   promiseCollector.collect((async() => {
-    const langs1 = await rootScope.managers.apiManager.invokeApiCacheable('langpack.getLanguages', {
+    const langs1 = await rootScope.managers.apiManager!.invokeApiCacheable('langpack.getLanguages', {
       lang_pack: 'web'
     });
     // macos langpack disabled in legacy tab — kept the structure for parity

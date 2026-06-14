@@ -5,7 +5,7 @@ let outCanvas: HTMLCanvasElement,
 export default function computeLockColor(canvas: HTMLCanvasElement) {
   if(!outCanvas) {
     outCanvas = document.createElement('canvas');
-    outContext = outCanvas.getContext('2d');
+    outContext = outCanvas.getContext('2d')!;
   }
 
   const context = canvas.getContext('2d');
@@ -15,7 +15,7 @@ export default function computeLockColor(canvas: HTMLCanvasElement) {
   const skipx = (canvas.width - width) / 2;
   const margin = 0/*  * (canvas.dpr ?? 1) */;
   const skipy = canvas.height - height - margin;
-  const imageData = context.getImageData(skipx, skipy, width, height).data;
+  const imageData = context!.getImageData(skipx, skipy, width, height).data;
   let sr = 0, sg = 0, sb = 0, sa = 0;
   for(let i = 0; i < imageData.length; i += 4) {
     sr += imageData[i];

@@ -6,6 +6,6 @@ export default function getDocumentInputFileLocation(doc: Document.document, thu
     id: doc.id,
     access_hash: doc.access_hash,
     file_reference: doc.file_reference,
-    thumb_size: thumbSize
+    thumb_size: thumbSize!
   };
 }

@@ -51,7 +51,7 @@ type InstantViewContextValue = {
 const InstantViewContext = createContext<InstantViewContextValue>();
 
 function onClick(context: InstantViewContextValue, e: MouseEvent) {
-  const anchor = findUpClassName(e.target, 'anchor-url') as HTMLAnchorElement;
+  const anchor = findUpClassName(e.target!, 'anchor-url') as HTMLAnchorElement;
   // if(anchor) {
   //   cancelEvent(e);
   //   context.openNewPage(anchor.href);
@@ -83,7 +83,7 @@ export function InstantView(props: {
     scrollToAnchor: (anchor, instantly) => {
       const forceDuration = instantly ? 0 : undefined;
       if(!anchor) {
-        fastSmoothScrollToStart(scrollableRef, 'y', forceDuration);
+        fastSmoothScrollToStart(scrollableRef!, 'y', forceDuration);
         return;
       }
 
@@ -95,12 +95,12 @@ export function InstantView(props: {
           break;
         }
 
-        value.details.get(detailsElement)(true);
-        detailsElement = detailsElement.parentElement;
+        value.details.get(detailsElement)!(true);
+        detailsElement = detailsElement.parentElement!;
       } while(true);
 
       fastSmoothScroll({
-        container: scrollableRef,
+        container: scrollableRef!,
         element,
         position: 'start',
         forceDuration
@@ -132,7 +132,7 @@ export function InstantView(props: {
     }
 
     queueMicrotask(() => {
-      value.scrollToAnchor(anchor, _firstAnchor);
+      value.scrollToAnchor(anchor!, _firstAnchor);
     });
   });
 
@@ -148,7 +148,7 @@ export function InstantView(props: {
         }}
       >
         <InstantViewContext.Provider value={value}>
-          <Scrollable ref={scrollableRef}>
+          <Scrollable ref={scrollableRef!}>
             <div
               dir={props.page.pFlags.rtl ? 'auto' : undefined}
               class={classNames(styles.InstantView, 'text-overflow-wrap')}
@@ -166,7 +166,7 @@ export function InstantView(props: {
                 class={classNames(styles.InstantViewFooter, 'secondary')}
               >
                 <Show when={props.page.views}>
-                  {i18n('Views', [props.page.views])}
+                  {i18n('Views', [props.page.views!])}
                   {` • `}
                 </Show>
                 <a
@@ -175,10 +175,10 @@ export function InstantView(props: {
                   onClick={async(e) => {
                     cancelEvent(e);
                     value.collapse();
-                    const user = await rootScope.managers.appUsersManager.resolveUserByUsername('@previews');
+                    const user = await rootScope.managers.appUsersManager!.resolveUserByUsername('@previews');
                     const startParam = `webpage${value.webPageId}`;
                     appImManager.setInnerPeer({
-                      peerId: user.id.toPeerId(false),
+                      peerId: user!.id.toPeerId(false),
                       startParam
                     });
                   }}
@@ -263,14 +263,14 @@ function prepareMediaForViewer(
     media,
     caption
   };
-  context.media.push(item);
+  context!.media.push(item);
 
   onCleanup(() => {
-    indexOfAndSplice(context.media, item);
+    indexOfAndSplice(context!.media, item);
   });
 
   return onMediaClick.bind(null, {
-    context,
+    context: context!,
     ref,
     hotReloadGuard,
     webPageId,
@@ -293,7 +293,7 @@ async function onMediaClick({
 }) {
   const {rootScope, AppMediaViewer, I18n} = hotReloadGuard;
   const promises = context.media.map(async({ref, media, caption}, index) => {
-    const message = await rootScope.managers.appMessagesManager.generateStandaloneOutgoingMessage(NULL_PEER_ID);
+    const message = await rootScope.managers.appMessagesManager!.generateStandaloneOutgoingMessage(NULL_PEER_ID);
     message.media = media._ === 'photo' ?
       {_: 'messageMediaPhoto', pFlags: {}, photo: media} :
       {_: 'messageMediaDocument', pFlags: {video: true}, document: media};
@@ -318,7 +318,7 @@ async function onMediaClick({
       message.message = addingString + message.message;
       message.totalEntities ||= [];
       message.totalEntities.forEach((entity) => {
-        entity.offset += addingString.length;
+        entity.offset! += addingString.length;
       });
       message.totalEntities.unshift({
         _: 'messageEntityTextUrl',
@@ -347,12 +347,12 @@ async function onMediaClick({
   new AppMediaViewer(true)
   .setSearchContext({peerId: NULL_PEER_ID, inputFilter: {_: 'inputMessagesFilterEmpty'}, useSearch: false})
   .openMedia({
-    message: target.message,
-    target: target.element,
+    message: target!.message!,
+    target: target!.element,
     fromRight: 0,
     reverse: false,
-    prevTargets: targets.slice(0, target.index),
-    nextTargets: targets.slice(target.index + 1)
+    prevTargets: targets.slice(0, target!.index),
+    nextTargets: targets.slice(target!.index! + 1)
   });
 }
 
@@ -446,7 +446,7 @@ function Block(props: {
     case 'pageBlockPhoto': {
       const context = useContext(InstantViewContext);
       const {PhotoTsx} = useHotReloadGuard();
-      const photo = unwrap(context.page.photos.find((photo) => photo.id === block.photo_id)) as Photo.photo;
+      const photo = unwrap(context!.page.photos.find((photo) => photo.id === block.photo_id)) as Photo.photo;
       let ref: HTMLDivElement, onClick: () => void;
       return (
         <>
@@ -468,7 +468,7 @@ function Block(props: {
     case 'pageBlockVideo': {
       const context = useContext(InstantViewContext);
       const {VideoTsx} = useHotReloadGuard();
-      const doc = unwrap(context.page.documents.find((doc) => doc.id === block.video_id)) as Document.document;
+      const doc = unwrap(context!.page.documents.find((doc) => doc.id === block.video_id)) as Document.document;
       let ref: HTMLDivElement, onClick: () => void;
       return (
         <>
@@ -492,7 +492,7 @@ function Block(props: {
     case 'pageBlockAudio': {
       const context = useContext(InstantViewContext);
       const {DocumentTsx} = useHotReloadGuard();
-      const doc = unwrap(context.page.documents.find((doc) => doc.id === block.audio_id)) as Document.document;
+      const doc = unwrap(context!.page.documents.find((doc) => doc.id === block.audio_id)) as Document.document;
 
       const message: Message.message = {
         _: 'message',
@@ -524,7 +524,7 @@ function Block(props: {
     }
     case 'pageBlockChannel': {
       const {PeerTitleTsx, appImManager} = useHotReloadGuard();
-      const {collapse} = useContext(InstantViewContext);
+      const {collapse} = useContext(InstantViewContext)!;
       const peerId = block.channel.id.toPeerId(true);
       return (
         <div
@@ -550,7 +550,7 @@ function Block(props: {
             styles.Padding,
             styles.AuthorDate,
             'secondary',
-            useContext(InstantViewContext).page.pFlags.rtl && 'text-right'
+            useContext(InstantViewContext)!.page.pFlags.rtl && 'text-right'
           )}
         >
           <Show when={!isRichTextEmpty(block.author)}>
@@ -566,7 +566,7 @@ function Block(props: {
       return (
         <div
           class={styles.Anchor}
-          id={useContext(InstantViewContext).randomId + block.name}
+          id={useContext(InstantViewContext)!.randomId + block.name}
         />
       );
     case 'pageBlockTable': {
@@ -611,7 +611,7 @@ function Block(props: {
           <For each={block.articles}>{(article, idx) => {
             const wrapped = wrapUrl('tg://iv?url=' + encodeURIComponent(article.url));
             const photo = article.photo_id ?
-              unwrap(useContext(InstantViewContext).page.photos.find((photo) => photo.id === article.photo_id)) :
+              unwrap(useContext(InstantViewContext)!.page.photos.find((photo) => photo.id === article.photo_id)) :
               undefined;
             return (
               <>
@@ -629,18 +629,18 @@ function Block(props: {
                   attr:onclick={wrapped.onclick + '(this)'}
                 >
                   <div class={classNames(styles.RelatedArticleTitle, 'text-bold')}>
-                    <RichTextRenderer text={{_: 'textPlain', text: article.title}} />
+                    <RichTextRenderer text={{_: 'textPlain', text: article.title!}} />
                   </div>
                   <div class={styles.RelatedArticleDescription}>
-                    <RichTextRenderer text={{_: 'textPlain', text: article.description}} />
+                    <RichTextRenderer text={{_: 'textPlain', text: article.description!}} />
                   </div>
                   <div class={classNames(styles.RelatedArticleAuthor, 'secondary')}>
                     <Show when={article.author}>
-                      <RichTextRenderer text={{_: 'textPlain', text: article.author}} />
+                      <RichTextRenderer text={{_: 'textPlain', text: article.author!}} />
                       {` • `}
                     </Show>
                     <Show when={article.published_date}>
-                      <span dir="auto">{formatFullSentTime(article.published_date, true)}</span>
+                      <span dir="auto">{formatFullSentTime(article.published_date!, true)}</span>
                     </Show>
                   </div>
                   <Show when={photo}>
@@ -664,7 +664,7 @@ function Block(props: {
       const {PhotoTsx} = useHotReloadGuard();
       const isFullWidth = block.pFlags?.full_width;
       const posterPhoto = block.poster_photo_id ?
-        unwrap(context.page.photos.find((photo) => photo.id === block.poster_photo_id)) as Photo.photo :
+        unwrap(context!.page.photos.find((photo) => photo.id === block.poster_photo_id)) as Photo.photo :
         undefined;
 
       const [height, setHeight] = createSignal(0);
@@ -683,7 +683,7 @@ function Block(props: {
         }
 
         createEffect(() => {
-          if(!context.ready) {
+          if(!context!.ready) {
             return;
           }
 
@@ -706,16 +706,16 @@ function Block(props: {
             return;
           }
 
-          const scrollSaver = context.savingScroll ? undefined : new ScrollSaver(scrollableContext, undefined, false);
+          const scrollSaver = context!.savingScroll ? undefined : new ScrollSaver(scrollableContext!, undefined!, false);
           if(scrollSaver) {
-            context.savingScroll = true;
+            context!.savingScroll = true;
             scrollSaver.save();
           }
 
           setHeight(height);
           if(scrollSaver) queueMicrotask(() => {
             queueMicrotask(() => {
-              context.savingScroll = false;
+              context!.savingScroll = false;
               scrollSaver.restore();
             });
           });
@@ -743,10 +743,10 @@ function Block(props: {
               '--height': height() && height() + 'px'
             }}
           >
-            <Show when={!webView} fallback={webView.iframe}>
+            <Show when={!webView} fallback={webView!.iframe}>
               <Show when={posterPhoto}>
                 <PhotoTsx
-                  photo={posterPhoto}
+                  photo={posterPhoto!}
                   withoutPreloader
                 />
               </Show>
@@ -760,7 +760,7 @@ function Block(props: {
       const context = useContext(InstantViewContext);
       const {Row, PhotoTsx} = useHotReloadGuard();
       const authorPhoto = block.author_photo_id ?
-        unwrap(context.page.photos.find((photo) => photo.id === block.author_photo_id)) as Photo.photo :
+        unwrap(context!.page.photos.find((photo) => photo.id === block.author_photo_id)) as Photo.photo :
         undefined;
 
       return (
@@ -776,7 +776,7 @@ function Block(props: {
             <Row.Media size="abitbigger">
               <PhotoTsx
                 class={styles.PostAuthorPhoto}
-                photo={authorPhoto}
+                photo={authorPhoto!}
                 withoutPreloader
                 boxWidth={42}
                 boxHeight={42}
@@ -860,7 +860,7 @@ function Block(props: {
       );
     case 'pageBlockDetails': {
       const [open, setOpen] = createSignal(!!block.pFlags.open);
-      const detailsMap = useContext(InstantViewContext).details;
+      const detailsMap = useContext(InstantViewContext)!.details;
       return (
         <div
           ref={(ref) => {detailsMap.set(ref, setOpen)}}
@@ -899,21 +899,21 @@ function Block(props: {
       const map: Map<HTMLDivElement, {width: number, height: number}> = new Map();
       const ret = (
         <div
-          ref={ref}
+          ref={ref!}
           class={classNames(styles.Collage, styles.Media)}
         >
           <For each={block.items}>{(item) => {
             let ref: HTMLDivElement;
             const ret = (
               <div
-                ref={ref}
+                ref={ref!}
                 class={styles.CollageItem}
               >
                 <Block
                   block={item}
                   paddings={props.paddings}
                   onSize={(size) => {
-                    map.set(ref, size);
+                    map.set(ref!, size);
                   }}
                 />
               </div>
@@ -927,13 +927,13 @@ function Block(props: {
       createEffect(() => {
         const sizes = Array.from(map.values()).map(({width, height}) => ({w: width, h: height}));
         const {width, height} = prepareAlbum({
-          container: ref,
+          container: ref!,
           items: sizes,
           maxWidth: 400,
           minWidth: 100,
           spacing: 2
         });
-        _onMediaResult(ref, width, height, props.paddings);
+        _onMediaResult(ref!, width, height, props.paddings);
         // console.warn('collage map', map, ref.childElementCount);
       });
 
@@ -958,7 +958,7 @@ function isRichTextEmpty(text: RichText) {
 }
 
 function RichTextRenderer(props: {text: RichText}) {
-  const {webPageId, page, randomId, customEmojiRenderer} = useContext(InstantViewContext);
+  const {webPageId, page, randomId, customEmojiRenderer} = useContext(InstantViewContext)!;
   const {text, entities} = wrapTelegramRichText(
     props.text,
     {webPageId, url: page.url, randomId}

@@ -60,10 +60,10 @@ export function MediaEditor(props: MediaEditorProps) {
 
   onMount(() => {
     (async() => {
-      overlay.classList.add('media-editor__overlay--hidden');
+      overlay!.classList.add('media-editor__overlay--hidden');
       await doubleRaf();
-      overlay.focus();
-      overlay.classList.remove('media-editor__overlay--hidden');
+      overlay!.focus();
+      overlay!.classList.remove('media-editor__overlay--hidden');
     })();
 
     const navigationItem: NavigationItem = {
@@ -83,7 +83,7 @@ export function MediaEditor(props: MediaEditorProps) {
     if(!editorState.imageCanvas) return;
 
     (async() =>{
-      await props.onCanvasReady(editorState.imageCanvas);
+      await props.onCanvasReady(editorState.imageCanvas!);
       editorState.isReady = true;
     })();
   });
@@ -94,7 +94,7 @@ export function MediaEditor(props: MediaEditorProps) {
   });
 
   async function performClose(hasGif = false) {
-    overlay.classList.add('media-editor__overlay--hidden');
+    overlay!.classList.add('media-editor__overlay--hidden');
     await delay(200);
     props.onClose(hasGif);
   }
@@ -120,7 +120,7 @@ export function MediaEditor(props: MediaEditorProps) {
 
   return (
     <MediaEditorContext.Provider value={contextValue}>
-      <div ref={overlay} class="media-editor__overlay night">
+      <div ref={overlay!} class="media-editor__overlay night">
         <div class="media-editor__container">
           {(() => {
             // Need to be inside context

@@ -15,13 +15,13 @@ export default class TSwitchers {
   constructor(opts: TChartUnitOptions) {
     this.opts = opts;
     this.isTouch = isTouchDevice();
-    this.enabled = opts.data.ys.length;
+    this.enabled = opts.data!.ys!.length;
 
-    if(this.enabled === 1 && !opts.data.forceLegend) {
-      opts.$parent.style.display = 'none';
+    if(this.enabled === 1 && !opts.data!.forceLegend) {
+      opts.$parent!.style.display = 'none';
     }
 
-    this.switchers = opts.data.ys.map((item, ind, arr) => {
+    this.switchers = opts.data!.ys!.map((item, ind, arr) => {
       const $div = document.createElement('div');
       $div.className = 'tchart--switcher';
 
@@ -31,14 +31,14 @@ export default class TSwitchers {
         $div.classList.add('tchart--switcher__last');
       }
 
-      if(opts.state[`e_${ind}`]) {
+      if(opts.state![`e_${ind}`]) {
         $div.classList.toggle('tchart--switcher__active');
       } else {
         this.enabled--;
       }
 
       $div.setAttribute('data-label', item.label);
-      opts.$parent.appendChild($div);
+      opts.$parent!.appendChild($div);
 
       const $span = document.createElement('span');
       $span.className = 'tchart--switcher-text';
@@ -47,14 +47,14 @@ export default class TSwitchers {
 
       if(!this.isTouch) {
         $div.addEventListener('mouseenter', () => {
-          if(opts.state[`e_${ind}`]) {
-            opts.additional.onEnter(ind);
+          if(opts.state![`e_${ind}`]) {
+            opts.additional!.onEnter!(ind);
           }
         });
 
         $div.addEventListener('mouseleave', () => {
-          if(opts.state[`e_${ind}`]) {
-            opts.additional.onLeave(ind);
+          if(opts.state![`e_${ind}`]) {
+            opts.additional!.onLeave!(ind);
           }
         });
       }
@@ -78,10 +78,10 @@ export default class TSwitchers {
         }
 
         if(!this.isTouch) {
-          isActive ? opts.additional.onLeave(ind) : opts.additional.onEnter(ind);
+          isActive ? opts.additional!.onLeave!(ind) : opts.additional!.onEnter!(ind);
         }
 
-        opts.additional.onClick(!isActive, ind);
+        opts.additional!.onClick!(!isActive, ind);
       });
 
       let dx: number, dy: number;
@@ -98,9 +98,9 @@ export default class TSwitchers {
           longTapTimer = setTimeout(() => {
             this.preventClick = true;
             if(!this.isTouch) {
-              opts.additional.onEnter(ind);
+              opts.additional!.onEnter!(ind);
             }
-            opts.additional.onLongTap(ind);
+            opts.additional!.onLongTap!(ind);
           }, 500);
         },
         onDragMove: (params) => {
@@ -122,9 +122,9 @@ export default class TSwitchers {
   onResize() {}
 
   updateColors() {
-    const ys = this.opts.data.ys;
+    const ys = this.opts.data!.ys;
     for(let i = 0; i < this.switchers.length; i++) {
-      this.switchers[i].style.color = this.isDarkMode ? ys[i].colors_n[1] : ys[i].colors_d[1];
+      this.switchers[i].style.color = this.isDarkMode ? ys![i].colors_n[1] : ys![i].colors_d[1];
     }
   }
 

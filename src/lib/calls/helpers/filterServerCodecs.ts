@@ -12,14 +12,14 @@ export default function filterServerCodecs(mainChannels: SDPMediaSection[], data
     const extmap = channel.attributes.get('extmap');
     extmap.forEach((extmap) => {
       const id = extmap.key.split('/', 1)[0];
-      out[id] = extmap.value;
+      out[id] = extmap.value!;
     });
 
     return out;
   };
 
   const codecsToPerform: [Codec, 'audio' | 'video'][] = /* flatten([data, dataPresentation].filter(Boolean).map((data) => {
-    return  */['audio' as const, 'video' as const].filter((type) => data[type]).map((type) => ([data[type], type]));
+    return  */(['audio' as const, 'video' as const].filter((type) => data[type]).map((type) => ([data[type], type]))! as [Codec, 'video' | 'audio'][]);
   // }));
 
   codecsToPerform.forEach(([codec, type]) => {
@@ -31,7 +31,7 @@ export default function filterServerCodecs(mainChannels: SDPMediaSection[], data
     const extmap = performExtmap(channel);
     forEachReverse(codec['rtp-hdrexts'], (value, index, arr) => {
       if(extmap[value.id] !== value.uri) {
-        arr.splice(index, 1);
+        arr!.splice(index!, 1);
         log('filtered extmap', value, index, type);
       }
     });

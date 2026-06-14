@@ -36,7 +36,7 @@ export type RequestWebViewOptions = MessageSendingParams & {
 
 export default class AppAttachMenuBotsManager extends AppManager {
   private attachMenuBots: Map<BotId, AttachMenuBot>;
-  private attachMenuBotsArr: AttachMenuBot[];
+  private attachMenuBotsArr: AttachMenuBot[] | undefined;
 
   protected after() {
     this.clear(true);
@@ -86,8 +86,8 @@ export default class AppAttachMenuBotsManager extends AppManager {
     this.attachMenuBots.set(attachMenuBot.bot_id, attachMenuBot);
     const menuBotIcon = getAttachMenuBotIcon(attachMenuBot);
     if(menuBotIcon) {
-      menuBotIcon.icon = this.appDocsManager.saveDoc(menuBotIcon.icon, {type: 'attachMenuBotIcon', botId: attachMenuBot.bot_id});
-      this.apiFileManager.downloadMedia({media: menuBotIcon.icon});
+      menuBotIcon.icon = this.appDocsManager.saveDoc(menuBotIcon.icon, {type: 'attachMenuBotIcon', botId: attachMenuBot.bot_id})!;
+      this.apiFileManager.downloadMedia({media: menuBotIcon.icon!});
     }
     this.rootScope.dispatchEvent('attach_menu_bot', attachMenuBot);
     return attachMenuBot;
@@ -112,8 +112,8 @@ export default class AppAttachMenuBotsManager extends AppManager {
       appName: botApp.short_name
     };
 
-    botApp.photo = this.appPhotosManager.savePhoto(botApp.photo, referenceContext);
-    botApp.document = this.appDocsManager.saveDoc(botApp.document, referenceContext);
+    botApp.photo = this.appPhotosManager.savePhoto(botApp.photo, referenceContext)!;
+    botApp.document = this.appDocsManager.saveDoc(botApp.document!, referenceContext);
 
     return botApp;
   }
@@ -294,7 +294,7 @@ export default class AppAttachMenuBotsManager extends AppManager {
         hash: 0
       },
       processResult: (messagesBotApp) => {
-        messagesBotApp.app = this.saveBotApp(botId, messagesBotApp.app);
+        messagesBotApp.app = this.saveBotApp(botId, messagesBotApp.app)!;
         return messagesBotApp;
       }
     });

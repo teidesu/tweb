@@ -420,7 +420,7 @@ export default function updateColumnWidths(): void {
 }
 
 export function isRightColumnFloating(): boolean {
-  return last.floats;
+  return last.floats!;
 }
 
 export function installColumnWidthsUpdater(): void {

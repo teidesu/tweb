@@ -1,4 +1,4 @@
-let callback: () => Promise<void>;
+let callback: (() => Promise<void>) | undefined;
 export default function cacheInstallPrompt() {
   window.addEventListener('beforeinstallprompt', (deferredPrompt: any) => {
     callback = async() => {

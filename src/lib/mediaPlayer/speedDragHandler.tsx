@@ -52,7 +52,7 @@ export function SpeedDragHandler(props: InternalSpeedDragHandlerProps) {
   const listenerSetter = new ListenerSetter();
 
   onMount(() => {
-    let initialMousePosition: [number, number];
+    let initialMousePosition: [number, number] | undefined;
     let showTimeout = 0;
     let initialSpeed = 1;
     let additionalSpeed = 0;
@@ -63,8 +63,8 @@ export function SpeedDragHandler(props: InternalSpeedDragHandlerProps) {
       batch(() => {
         setShowSpeed(true);
         setMouseCoords([
-          initialMousePosition[0] - rect.left,
-          initialMousePosition[1] - rect.top
+          initialMousePosition![0] - rect.left,
+          initialMousePosition![1] - rect.top
         ]);
       });
 
@@ -73,7 +73,7 @@ export function SpeedDragHandler(props: InternalSpeedDragHandlerProps) {
       }
 
       window.setTimeout(() => {
-        if(!speedTipRef) return;
+        if(!speedTipRef!) return;
         const speedTipRect = speedTipRef.getBoundingClientRect();
         if(
           speedTipRect.left < rect.left ||
@@ -222,7 +222,7 @@ export function SpeedDragHandler(props: InternalSpeedDragHandlerProps) {
       </div>
 
       <div
-        ref={speedTipRef}
+        ref={speedTipRef!}
         class="speed-drag-handler__speed-tip"
         classList={{
           'speed-drag-handler__speed-tip--visible': !hideSpeedTip() && !IS_MOBILE

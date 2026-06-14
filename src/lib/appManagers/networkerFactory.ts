@@ -16,7 +16,7 @@ import {getEnvironment} from '@environment/utils';
 export class NetworkerFactory extends AppManager {
   private networkers: MTPNetworker[] = [];
   public language = navigator.language || App.langPackCode;
-  public updatesProcessor: (obj: any) => void = null;
+  public updatesProcessor: ((obj: any) => void) | null = null;
   // public onConnectionStatusChange: (status: ConnectionStatusChange) => void = null;
   public akStopped = false;
 

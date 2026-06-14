@@ -10,7 +10,7 @@ import classNames from '@helpers/string/classNames';
 import Scrollable from '@components/scrollable2';
 import fastSmoothScroll from '@helpers/fastSmoothScroll';
 import {IconTsx} from '@components/iconTsx';
-import {ButtonMenuItemOptionsVerifiable, ButtonMenuSync} from '@components/buttonMenu';
+import {ButtonMenuItemOptions, ButtonMenuItemOptionsVerifiable, ButtonMenuSync} from '@components/buttonMenu';
 import {attachContextMenuListener} from '@helpers/dom/attachContextMenuListener';
 import ListenerSetter from '@helpers/listenerSetter';
 import findUpClassName from '@helpers/dom/findUpClassName';
@@ -95,7 +95,7 @@ function BrowserHeaderTab(props: {
   openPageMenu: (e: MouseEvent | TouchEvent) => void,
   index: Accessor<number>
 }) {
-  const [state, actions] = useContext(BrowserContext);
+  const [state, actions] = useContext(BrowserContext)!;
   const isActive = createMemo(() => !state.collapsed && state.page === props.page);
   const transform = createMemo(() => {
     if(!state.collapsed) {
@@ -120,7 +120,7 @@ function BrowserHeaderTab(props: {
         state.pages.indexOf(props.page) === 0 && styles.first
       )}
       style={{
-        '--text-width': props.page.titleWidth() + 26 + 'px',
+        '--text-width': props.page.titleWidth!() + 26 + 'px',
         'z-index': Math.max(1, 4 - props.index()),
         'transform': transform()
       }}
@@ -153,7 +153,7 @@ function BrowserHeaderTab(props: {
 
 function BrowserHeader(props: {
 }) {
-  const [state, actions] = useContext(BrowserContext);
+  const [state, actions] = useContext(BrowserContext)!;
   const needBackButton = createMemo(() => !!state.page.needBackButton);
   const tabMap: Map<string, HTMLDivElement> = new Map();
 
@@ -165,20 +165,20 @@ function BrowserHeader(props: {
     }
 
     fastSmoothScroll({
-      container: scrollableRef,
-      element: tabMap.get(page.id),
+      container: scrollableRef!,
+      element: tabMap.get(page.id!)!,
       position: 'center',
       axis: 'x',
       forceDuration: 200,
       getNormalSize: ({rect}) => {
-        const diff = scrollFromPage.titleWidth() - page.titleWidth();
+        const diff = scrollFromPage.titleWidth!() - page.titleWidth!();
         return rect.width + diff/*  + page.titleWidth */;
       }
     });
   });
 
   const openPageMenu = async(e: MouseEvent | TouchEvent) => {
-    const target = findUpClassName(e.target, styles.BrowserHeaderTab);
+    const target = findUpClassName(e.target!, styles.BrowserHeaderTab);
     if(!target) {
       return;
     }
@@ -187,7 +187,7 @@ function BrowserHeader(props: {
     // smth
     if(e instanceof MouseEvent) e.cancelBubble = true;
 
-    const page = state.pages.find((page) => tabMap.get(page.id) === target);
+    const page = state.pages.find((page) => tabMap.get(page.id!) === target);
     if(!page?.menuButtons) {
       return;
     }
@@ -195,11 +195,11 @@ function BrowserHeader(props: {
     const listenerSetter = new ListenerSetter();
     const copied = page.menuButtons.map((button) => (button = unwrap(button), button.element ? button : copy(button)));
     const buttons = (await filterButtonMenuItems(copied)).map((button) => {
-      button.options = {listenerSetter};
+      button!.options = {listenerSetter};
       return button;
     });
     const element = ButtonMenuSync({
-      buttons,
+      buttons: buttons as ButtonMenuItemOptions[],
       listenerSetter
     });
     element.classList.add('contextmenu');
@@ -218,7 +218,7 @@ function BrowserHeader(props: {
   onMount(() => {
     const listenerSetter = new ListenerSetter();
     attachContextMenuListener({
-      element: scrollableRef,
+      element: scrollableRef!,
       callback: openPageMenu,
       listenerSetter
     });
@@ -246,7 +246,7 @@ function BrowserHeader(props: {
       <BrowserHeaderButton
         onClick={() => {
           if(needBackButton()) {
-            state.page.onBackClick();
+            state.page.onBackClick!();
           } else {
             actions.close(state.page);
           }
@@ -257,7 +257,7 @@ function BrowserHeader(props: {
       <Scrollable
         class={classNames(styles.BrowserHeaderTabsScrollable, state.collapsed && 'disable-hover')}
         axis="x"
-        ref={scrollableRef}
+        ref={scrollableRef!}
         withBorders="manual"
       >
         <div class={styles.BrowserHeaderTabs}>
@@ -265,7 +265,7 @@ function BrowserHeader(props: {
             class={styles.BrowserHeaderSelector}
             style={{
               transform: `translateX(${state.index * 40 + 7 + (state.index >= 1 ? 16 : 0)}px)`,
-              width: state.page.titleWidth() + 16 * 2 + 34 + 'px'
+              width: state.page.titleWidth!() + 16 * 2 + 34 + 'px'
             }}
           >
             <BrowserHeaderTipSvg left />
@@ -277,7 +277,7 @@ function BrowserHeader(props: {
                 <BrowserHeaderTab
                   page={page}
                   openPageMenu={openPageMenu}
-                  ref={(el) => tabMap.set(page.id, el)}
+                  ref={(el) => tabMap.set(page.id!, el)}
                   index={index}
                 />
               );
@@ -408,7 +408,7 @@ function createBrowserStore(props: {
 
       setState({
         pages,
-        ...(newIndex !== undefined && {index: newIndex})
+        ...(newIndex! !== undefined && {index: newIndex})
       });
 
       page.dispose();
@@ -462,7 +462,7 @@ function Browser(props: {
   const minWidth = 328;
   const minHeight = height * (minWidth / width) + additionalHeight;
 
-  const [state, actions] = lastContext = useContext(BrowserContext);
+  const [state, actions] = lastContext = useContext(BrowserContext)!;
   const [movableState, setMovableState] = createSignal<MovableState>({
     width,
     height: height + additionalHeight
@@ -475,7 +475,7 @@ function Browser(props: {
       movableOptions: {
         minWidth,
         minHeight,
-        element: ref,
+        element: ref!,
         verifyTouchTarget: (e, type) => {
           const target = e.target;
           if(type === 'move' && (
@@ -510,15 +510,15 @@ function Browser(props: {
             height: Math.min(688, windowSize.height - 16 * 2)
           });
 
-          ref.style.width = movableState().width + 'px';
-          ref.style.height = movableState().height + 'px';
+          ref!.style.width = movableState().width + 'px';
+          ref!.style.height = movableState().height + 'px';
         });
 
         actions.setCanCollapse(false);
-        ref.classList.add(styles.noMovable);
+        ref!.classList.add(styles.noMovable);
         onCleanup(() => {
           actions.setCanCollapse(true);
-          ref.classList.remove(styles.noMovable);
+          ref!.classList.remove(styles.noMovable);
         });
         return;
       }
@@ -552,7 +552,7 @@ function Browser(props: {
 
   let ref: HTMLDivElement;
   const main = (
-    <div ref={ref} class={classNames(styles.Browser, state.collapsed && styles.collapsed, 'movable-element')}>
+    <div ref={ref!} class={classNames(styles.Browser, state.collapsed && styles.collapsed, 'movable-element')}>
       <BrowserHeader />
       <div
         class={styles.BrowserBody}
@@ -606,22 +606,22 @@ function makeBrowserPage(props: BrowserPageProps): BrowserPageProps {
     icon: 'close',
     text: 'Close',
     onClick: () => {
-      lastContext[1].close(props);
+      lastContext![1].close(props);
     }
   });
   return props;
 }
 
-let lastContext: BrowserContextValue;
+let lastContext: BrowserContextValue | undefined;
 export function openInAppBrowser(page?: BrowserPageProps) {
   if(lastContext) {
-    lastContext[1].add(page);
+    lastContext[1].add(page!);
     lastContext[1].toggleCollapsed(false);
     return;
   }
 
   createRoot((dispose) => {
-    const pages: BrowserPageProps[] = [page];
+    const pages: BrowserPageProps[] = [page!];
 
     const store = createBrowserStore({
       pages: pages.filter(Boolean)
@@ -678,7 +678,7 @@ export async function openWebAppInAppBrowser(options: WebAppLaunchOptions) {
       icon: avatar.node,
       menuButtons: webApp.getMenuButtons(),
       dispose,
-      isConfirmationNeededOnClose: webApp.isConfirmationNeededOnClose,
+      isConfirmationNeededOnClose: webApp.isConfirmationNeededOnClose as () => void | Promise<boolean>,
       content: webApp.body,
       get needBackButton() {
         return needBackButton();
@@ -691,20 +691,20 @@ export async function openWebAppInAppBrowser(options: WebAppLaunchOptions) {
 
     createEffect(() => {
       if(destroy()) {
-        lastContext[1].close(initialState);
+        lastContext![1].close(initialState);
       }
     });
 
-    queueMicrotask(() => deferred.resolve());
+    queueMicrotask(() => deferred.resolve!());
     // const [state, setState] = createStore<BrowserPageProps>(initialState);
     const lastState = lastContext?.[0];
     if(lastState && lastState?.page.isCatalogue) {
-      lastContext[1].replace(initialState, lastContext[0].page);
+      lastContext![1].replace(initialState, lastContext![0].page);
     } else {
       openInAppBrowser(initialState);
     }
 
-    createEffect(on(() => lastContext[0].collapsed, (collapsed) => {
+    createEffect(on(() => lastContext![0].collapsed, (collapsed) => {
       webApp.notifyVisible(!collapsed);
     }))
   });
@@ -741,8 +741,8 @@ export async function openGameInAppBrowser(options: {
   }
 
   const shareMessage = async() => {
-    const mids = await rootScope.managers.appMessagesManager.getMidsByMessage(message);
-    showForwardPopup({[message.peerId]: mids});
+    const mids = await rootScope.managers.appMessagesManager!.getMidsByMessage(message);
+    showForwardPopup({[message.peerId as number]: mids as number[]});
   };
 
   const body = document.createElement('div');
@@ -798,7 +798,7 @@ export async function openGameInAppBrowser(options: {
 
     const lastState = lastContext?.[0];
     if(lastState && lastState?.page.isCatalogue) {
-      lastContext[1].replace(initialState, lastContext[0].page);
+      lastContext![1].replace(initialState, lastContext![0].page);
     } else {
       openInAppBrowser(initialState);
     }
@@ -850,7 +850,7 @@ export async function openCatalogueInAppBrowser() {
       untrack(() => {
         botIds.forEach((botId) => {
           const user = useUser(botId) as User.user;
-          searchIndex.indexObjectArray(botId, [user.first_name, user.last_name, ...getPeerActiveUsernames(user)].filter(Boolean));
+          searchIndex.indexObjectArray(botId, ([user.first_name, user.last_name, ...getPeerActiveUsernames(user)].filter(Boolean)! as string[]));
         });
       });
 
@@ -879,7 +879,7 @@ export async function openCatalogueInAppBrowser() {
         <Loader
           loader={() => {
             return async() => {
-              const result = await rootScope.managers.appUsersManager.getTopPeers('bots_app');
+              const result = await rootScope.managers.appUsersManager!.getTopPeers('bots_app');
               return processBotIds(result.map((user) => user.id.toPeerId(false)));
             };
           }}
@@ -911,8 +911,8 @@ export async function openCatalogueInAppBrowser() {
           loader={() => {
             let offset = '';
             return async() => {
-              const result = await rootScope.managers.appAttachMenuBotsManager.getPopularAppBots(offset, 50);
-              offset = result.nextOffset;
+              const result = await rootScope.managers.appAttachMenuBotsManager!.getPopularAppBots(offset, 50);
+              offset = result.nextOffset!;
               return processBotIds(result.userIds);
             };
           }}
@@ -947,7 +947,7 @@ export async function openCatalogueInAppBrowser() {
               internalLinkProcessor.processWebAppLink({
                 _: INTERNAL_LINK_TYPE.WEB_APP,
                 appname: '',
-                domain: getPeerActiveUsernames(useUser(botId) as User.user)[0]
+                domain: getPeerActiveUsernames(useUser(botId!) as User.user)[0]!
               });
               // lastContext[1].close(initialState);
             }}
@@ -975,7 +975,7 @@ function Loader<T>(props: {
 }) {
   const loader = createMemo(props.loader);
   const [ready, setReady] = createSignal(false);
-  const [rendered, setRendered] = createSignal<JSX.Element[]>(undefined, {equals: false});
+  const [rendered, setRendered] = createSignal<JSX.Element[]>(undefined!, {equals: false});
 
   const loadMore = (first?: boolean) => {
     const _loader = loader();
@@ -997,7 +997,7 @@ function Loader<T>(props: {
       };
 
       let returned = false;
-      const rendered = props.render(result(), () => {
+      const rendered = props.render(result()!, () => {
         if(returned) {
           onReady();
         } else {
@@ -1039,7 +1039,7 @@ export function openInstantViewInAppBrowser({
   anchor?: string // * expect it to be '#name'
 }) {
   if(!cachedPage && anchor) {
-    (lastContext[0].page as BrowserPageProps<InstantViewPageExtraProps>).setAnchor(anchor);
+    (lastContext![0].page as BrowserPageProps<InstantViewPageExtraProps>).setAnchor(anchor);
     return;
   }
 
@@ -1078,8 +1078,8 @@ export function openInstantViewInAppBrowser({
 
   assumeType<Page>(cachedPage);
 
-  const [webPageId, setWebPageId] = createSignal<Long>(_webPageId);
-  const [page, setPageStore] = createStore<Page>(undefined);
+  const [webPageId, setWebPageId] = createSignal<Long>(_webPageId!);
+  const [page, setPageStore] = createStore<Page>(undefined!);
   const [pageResource] = createResource<Page>(async() => {
     if(
       !TEST_PART &&
@@ -1090,10 +1090,10 @@ export function openInstantViewInAppBrowser({
     }
 
     if(TEST_PART) await pause(10000);
-    return rootScope.managers.appWebPagesManager.getWebPage(url)
+    return rootScope.managers.appWebPagesManager!.getWebPage(url)
     .then((webPage) => {
-      setWebPageId(webPage.id);
-      return (webPage as WebPage.webPage).cached_page;
+      setWebPageId(webPage!.id);
+      return (webPage as WebPage.webPage).cached_page!;
     });
   }, {initialValue: cachedPage});
 
@@ -1180,7 +1180,7 @@ export function openInstantViewInAppBrowser({
               anchor={_anchor()}
               needFadeIn={needFadeIn}
               collapse={() => {
-                lastContext[1].toggleCollapsed(true);
+                lastContext![1].toggleCollapsed(true);
               }}
               onReady={waitForReady ? () => queueMicrotask(onReady) : undefined}
             />
@@ -1189,7 +1189,7 @@ export function openInstantViewInAppBrowser({
       ),
 
       url,
-      setAnchor
+      setAnchor: (setAnchor! as Setter<string>)
     };
 
     if(!waitForReady) {

@@ -275,8 +275,8 @@ const logEntriesMap: { [Key in ChannelAdminLogEventAction['_']]: MapCallback<Key
       const peerId = getParticipantPeerId(action.prev_participant || action.new_participant);
 
       const diff = diffFlags(
-        removeDefaultRights(prevBannedParticipant?.banned_rights)?.pFlags,
-        removeDefaultRights(newBannedParticipant?.banned_rights)?.pFlags
+        removeDefaultRights(prevBannedParticipant?.banned_rights!)?.pFlags,
+        removeDefaultRights(newBannedParticipant?.banned_rights!)?.pFlags
       );
 
       return (
@@ -290,11 +290,11 @@ const logEntriesMap: { [Key in ChannelAdminLogEventAction['_']]: MapCallback<Key
               // yes, they need to be inversed here
               removed={
                 diff.new.map(key => participantRightsMap[key])
-                .filter(Boolean).map(key => i18n(key))
+                .filter(Boolean).map(key => i18n(key!))
               }
               added={
                 diff.old.map(key => participantRightsMap[key])
-                .filter(Boolean).map(key => i18n(key))
+                .filter(Boolean).map(key => i18n(key!))
               }
             />
           </Show>
@@ -349,11 +349,11 @@ const logEntriesMap: { [Key in ChannelAdminLogEventAction['_']]: MapCallback<Key
           // yes, they need to be inversed here
           removed={
             diff.new.map(key => participantRightsMap[key])
-            .filter(Boolean).map(key => i18n(key))
+            .filter(Boolean).map(key => i18n(key!))
           }
           added={
             diff.old.map(key => participantRightsMap[key])
-            .filter(Boolean).map(key => i18n(key))
+            .filter(Boolean).map(key => i18n(key!))
           }
         />
       )

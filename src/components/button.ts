@@ -39,13 +39,13 @@ export default function Button<T extends ButtonOptions>(className: string, optio
   }
 
   if(options.text) {
-    button.append(i18n(options.text, options.textArgs));
+    button.append(i18n(options.text, options.textArgs)!);
   }
 
   return button as any;
 }
 
-export function replaceButtonIcon(element: HTMLElement, icon: Icon, oldIcon: Element | false = element.querySelector('.button-icon')) {
+export function replaceButtonIcon(element: HTMLElement, icon: Icon, oldIcon: Element | false = element.querySelector('.button-icon') as Element | false) {
   const newIcon = Icon(icon, 'button-icon');
   if(oldIcon) oldIcon.replaceWith(newIcon);
   else element.append(newIcon);

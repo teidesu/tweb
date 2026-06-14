@@ -55,13 +55,13 @@ const ArchiveDialog = defineSolidElement({
     ripple(props.element, () => true);
 
     controls.openStory = () => {
-      props.state.openArchiveStories(openStoriesTarget());
+      props.state.openArchiveStories(openStoriesTarget()!);
     };
 
     return (
       <>
         <ArchiveAvatar
-          storiesSegments={props.state.segments()}
+          storiesSegments={props.state.segments()!}
           ref={setOpenStoriesTarget}
         />
         <div class="row-row row-title-row">
@@ -74,8 +74,8 @@ const ArchiveDialog = defineSolidElement({
                 <>
                   <PeerTitleItem
                     dialog={dialog}
-                    cachedIsUnread={cachedDialogUnread[dialog.peerId]}
-                    onIsUnreadChange={isUnread => setCachedDialogUnread(dialog.peerId, isUnread)}
+                    cachedIsUnread={cachedDialogUnread[dialog.peerId!]}
+                    onIsUnreadChange={isUnread => setCachedDialogUnread(dialog.peerId!, isUnread)}
                   />
                   {index() !== sortedDialogs().length - 1 && ', '}
                 </>
@@ -125,7 +125,7 @@ function useArchivedDialogsState() {
   let initialPromise: Promise<AckedResult<unknown>>;
 
   const fetchDialogs = async() => {
-    const typedPromise = rootScope.managers.acknowledged.dialogsStorage.getDialogs({
+    const typedPromise = rootScope.managers.acknowledged!.dialogsStorage!.getDialogs({
       filterId: FOLDER_ID_ARCHIVE,
       limit
     });
@@ -142,14 +142,14 @@ function useArchivedDialogsState() {
   const [dialogs, setDialogs] = createSignal<Dialog.dialog[]>([]);
 
   const isReady = createMemo(() => fetchedDialogs.state === 'ready');
-  const fetchedDialogsLength = createMemo(() => isReady() ? fetchedDialogs().dialogs.length : 0);
-  const isEnd = createMemo(() => isReady() && fetchedDialogs().isEnd);
+  const fetchedDialogsLength = createMemo(() => isReady() ? fetchedDialogs()!.dialogs!.length : 0);
+  const isEnd = createMemo(() => isReady() && fetchedDialogs()!.isEnd);
 
-  const sortedDialogs = createMemo(() => [...dialogs()].sort((a, b) => getArchivedDialogIndex(b) - getArchivedDialogIndex(a)));
+  const sortedDialogs = createMemo(() => [...dialogs()].sort((a, b) => getArchivedDialogIndex(b)! - getArchivedDialogIndex(a)!));
 
   createComputed(() => {
     if(fetchedDialogs.state === 'ready') {
-      setDialogs(fetchedDialogs().dialogs.filter(d => isDialog(d)));
+      setDialogs(fetchedDialogs().dialogs!.filter(d => isDialog(d)));
     }
   });
 
@@ -210,10 +210,10 @@ function useDialogEvents({sortedDialogs, setDialogs, isEnd}: UseDialogEventsArgs
     const last = lastItem(sortedDialogs());
     const isEmptyList = !last;
 
-    const bottomIndex = getArchivedDialogIndex(last);
+    const bottomIndex = getArchivedDialogIndex(last!);
     const dialogIndex = getArchivedDialogIndex(dialog);
 
-    return isEmptyList || dialogIndex >= bottomIndex || isEnd();
+    return isEmptyList || dialogIndex! >= bottomIndex! || isEnd();
   };
 
   const addDialog = (dialog: Dialog.dialog) => setDialogs(prev => [
@@ -237,7 +237,7 @@ function useDialogEvents({sortedDialogs, setDialogs, isEnd}: UseDialogEventsArgs
 
   listenerSetter.add(rootScope)('dialogs_multiupdate', (dialogs) => {
     for(const [, {dialog}] of dialogs) {
-      if(!isDialog(dialog)) continue;
+      if(!isDialog(dialog!)) continue;
       updateDialog(dialog);
     }
   });
@@ -271,7 +271,7 @@ function useTotalUnreadCount() {
   const {rootScope} = useHotReloadGuard();
 
   const [totalUnreadCount, {mutate}] = createResource(
-    () => rootScope.managers.dialogsStorage.getFolderUnreadCount(FOLDER_ID_ARCHIVE).then(result => result.unreadCount),
+    () => rootScope.managers.dialogsStorage!.getFolderUnreadCount(FOLDER_ID_ARCHIVE).then(result => result.unreadCount),
     {
       initialValue: 0
     }
@@ -301,7 +301,7 @@ function useStoriesSegments(storiesContextValue: StoriesContextValue) {
 
   const [storiesSegments, setStoriesSegments] = createSignal<StoriesSegments>();
 
-  const fetchStoriesSegmentsByPeerIds = (peerIds: PeerId[]) => rootScope.managers.appStoriesManager.getPeersStoriesSegments(peerIds);
+  const fetchStoriesSegmentsByPeerIds = (peerIds: PeerId[]) => rootScope.managers.appStoriesManager!.getPeersStoriesSegments(peerIds);
 
   const [storiesSegmentsByPeerIds, {refetch}] = createResource(
     storiesPeerIds,
@@ -336,9 +336,9 @@ function useStoriesSegments(storiesContextValue: StoriesContextValue) {
     // Show only one segment per peer
     const newStoriesSegments = storiesSegmentsByPeerIds().map(({segments}) => {
       const segment =
-        segments.find(segment => segment.type === 'close') ||
-        segments.find(segment => segment.type === 'unread') ||
-        segments[0];
+        segments!.find(segment => segment.type === 'close') ||
+        segments!.find(segment => segment.type === 'unread') ||
+        segments![0];
 
       return {
         ...segment,
@@ -369,7 +369,7 @@ function useOpenArchiveStories(storiesContextValue: StoriesContextValue) {
 
     createStoriesViewerWithProvider({
       onExit,
-      target: viewerTarget
+      target: (viewerTarget! as Accessor<Element> | undefined)
     }, {
       peers: cloneCurrentPeers(),
       archive: true
@@ -389,7 +389,7 @@ function PeerTitleItem(props: {
 }) {
   const {PeerTitleTsx, rootScope} = useHotReloadGuard();
 
-  const [isUnread] = createResource(() => props.dialog, (dialog) => rootScope.managers.appMessagesManager.isDialogUnread(dialog));
+  const [isUnread] = createResource(() => props.dialog, (dialog) => rootScope.managers.appMessagesManager!.isDialogUnread(dialog));
 
   createEffect(() => {
     if(isUnread.state !== 'ready') return;
@@ -399,7 +399,7 @@ function PeerTitleItem(props: {
     }
   });
 
-  return <PeerTitleTsx class={props.cachedIsUnread ? styles.unreadPeerTitle : undefined} peerId={props.dialog.peerId} limitSymbols={limitSymbols} />
+  return <PeerTitleTsx class={props.cachedIsUnread ? styles.unreadPeerTitle : undefined} peerId={props.dialog.peerId!} limitSymbols={limitSymbols} />
 };
 
 

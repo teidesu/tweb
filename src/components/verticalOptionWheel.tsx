@@ -1,4 +1,4 @@
-import {createEffect, createMemo, createSignal, For, type JSX, on, onCleanup, untrack} from 'solid-js';
+import {Accessor, createEffect, createMemo, createSignal, For, type JSX, on, onCleanup, untrack} from 'solid-js';
 import {animateValue} from '@helpers/animateValue';
 import {animate} from '@helpers/animation';
 import lastItem from '@helpers/array/lastItem';
@@ -39,7 +39,7 @@ export const VerticalOptionWheel = <V, >(props: {
   const [hasDraggedALittle, setHasDraggedALittle] = createSignal(false);
 
   const scrollTop = useScrollTop(scrollable);
-  const size = useElementSize(scrollable);
+  const size = useElementSize(scrollable as Accessor<Element>);
 
   const isCleaned = useIsCleaned();
 
@@ -171,7 +171,7 @@ export const VerticalOptionWheel = <V, >(props: {
       localScrollable.scrollTop = initialScroll - yDiff;
     },
     onEnd: () => {
-      cancelDeceleration = runDeceleration();
+      cancelDeceleration = runDeceleration()!;
       setIsDragging(false);
       setTimeout(() => {
         setHasDraggedALittle(false);
@@ -203,7 +203,7 @@ export const VerticalOptionWheel = <V, >(props: {
       speed += lastDiffs[i + 1].diff - lastDiffs[i].diff;
     }
 
-    speed = speed * referenceFrameTime / (endTime - lastItem(lastDiffs).time);
+    speed = speed * referenceFrameTime / (endTime - lastItem(lastDiffs)!.time);
 
     let lastTime = performance.now();
     let lastScrollTop = -1;

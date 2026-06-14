@@ -92,7 +92,7 @@ export default class SearchIndex<SearchWhat> {
       if(found) {
         foundChars += queryWordsLength - 1;
         const fullTextLength = fullText.length;
-        if(minChars <= foundChars || fullTextLength <= foundChars) {
+        if(minChars! <= foundChars || fullTextLength <= foundChars) {
           newFoundObjs.push({fullText, fullTextLength/* , totalChars */, what, foundChars});
         }
       }

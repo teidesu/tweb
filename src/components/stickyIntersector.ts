@@ -26,7 +26,7 @@ export default class StickyIntersector {
 
         // Stuck while the sentinel sits above the root's top edge. Otherwise the
         // section is either in view or scrolled past below — both mean not stuck.
-        this.handler(targetInfo.bottom < rootBoundsInfo.top, stickyTarget);
+        this.handler(targetInfo.bottom < rootBoundsInfo!.top, stickyTarget!);
       }
     }, {threshold: 0, root: this.container, rootMargin: this.rootMargin});
 
@@ -36,7 +36,7 @@ export default class StickyIntersector {
       // intersection transitions on fast scrolls — this serves as a backup that
       // clears state when headersObserver missed a sentinel crossing.
       for(const entry of entries) {
-        const stuck = entry.isIntersecting && entry.boundingClientRect.top < entry.rootBounds.top;
+        const stuck = entry.isIntersecting && entry.boundingClientRect.top < entry.rootBounds!.top;
         this.handler(stuck, entry.target as HTMLElement);
       }
     }, {root: this.container, rootMargin: this.rootMargin});

@@ -97,7 +97,7 @@ export default class SuperStickerRenderer {
     this.animated.add(element);
     this.lazyLoadQueue.observe({
       div: element,
-      load: this.processVisible
+      load: this.processVisible as (target?: HTMLElement) => Promise<any>
     });
   }
 
@@ -126,7 +126,7 @@ export default class SuperStickerRenderer {
   private rendererByElement = new WeakMap<HTMLElement, Awaited<Awaited<ReturnType<typeof wrapSticker>>['render']>>();
   private processVisible = async(element: HTMLElement) => {
     const docId = element.dataset.docId;
-    const doc = await this.managers.appDocsManager.getDoc(docId);
+    const doc = await this.managers.appDocsManager!.getDoc(docId!);
 
     const size = mediaSizes.active.esgSticker.width;
 
@@ -139,7 +139,7 @@ export default class SuperStickerRenderer {
       div: element,
       width: size,
       height: size,
-      lazyLoadQueue: null,
+      lazyLoadQueue: null as unknown as LazyLoadQueue,
       group: this.group,
       onlyThumb: false,
       play: true,
@@ -168,7 +168,7 @@ export default class SuperStickerRenderer {
 
   public processInvisible = async(element: HTMLElement) => {
     const docId = element.dataset.docId;
-    const doc = await this.managers.appDocsManager.getDoc(docId);
+    const doc = await this.managers.appDocsManager!.getDoc(docId!);
 
     // console.log('STICKER INvisible:', /* div,  */docId);
     this.checkAnimationContainer(element, false);

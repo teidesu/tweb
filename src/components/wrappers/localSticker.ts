@@ -46,7 +46,7 @@ export default async function wrapLocalSticker({
       return lottieLoader.waitForFirstFrame(animation);
     });
   } else if(emoji) {
-    const doc = await managers.appStickersManager.getAnimatedEmojiSticker(emoji);
+    const doc = await managers.appStickersManager!.getAnimatedEmojiSticker(emoji);
     if(doc) playerPromise = wrapSticker({
       doc,
       div: container,
@@ -62,5 +62,5 @@ export default async function wrapLocalSticker({
     });
   }
 
-  return {container, promise: playerPromise};
+  return {container, promise: playerPromise!};
 }

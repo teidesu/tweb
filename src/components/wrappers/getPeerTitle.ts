@@ -22,7 +22,7 @@ async function getTitleIfMonoforum(chat: Chat, managers?: AppManagers) {
   if(chat?._ !== 'channel' || !chat?.pFlags?.monoforum || !chat.linked_monoforum_id) return;
   const peerId = chat.linked_monoforum_id.toPeerId();
 
-  const linkedChannel = (managers ? await managers.appChatsManager.getChat(peerId.toChatId()) : apiManagerProxy.getChat(peerId.toChatId()));
+  const linkedChannel = (managers ? await managers.appChatsManager!.getChat(peerId.toChatId()) : apiManagerProxy.getChat(peerId.toChatId()));
 
   return linkedChannel?.title;
 }
@@ -45,10 +45,10 @@ export default async function getPeerTitle(options: GetPeerTitleOptions): Promis
 
   let title = '';
   if(peerId.isUser()) {
-    const user = useManagers ? await managers.appUsersManager.getUser(peerId.toUserId()) : apiManagerProxy.getUser(peerId.toUserId());
+    const user = useManagers ? await managers.appUsersManager!.getUser(peerId.toUserId()) : apiManagerProxy.getUser(peerId.toUserId());
     if(user) {
       if(user.pFlags?.bot_forum_view && threadId) {
-        const topic = await managers.dialogsStorage.getForumTopic(peerId, threadId);
+        const topic = await managers.dialogsStorage!.getForumTopic(peerId, threadId);
         title = topic?.title || '';
       } else if(username) {
         const username = getPeerActiveUsernames(user)[0] || '';
@@ -63,12 +63,12 @@ export default async function getPeerTitle(options: GetPeerTitleOptions): Promis
     else title = title.trim();
   } else {
     if(threadId) {
-      const topic = await managers.dialogsStorage.getForumTopic(peerId, threadId);
+      const topic = await managers.dialogsStorage!.getForumTopic(peerId, threadId);
       title = topic?.title || '';
     }
 
     if(!title) {
-      const chat = (useManagers ? await managers.appChatsManager.getChat(peerId.toChatId()) : apiManagerProxy.getChat(peerId.toChatId())) as Chat.chat;
+      const chat = (useManagers ? await managers.appChatsManager!.getChat(peerId.toChatId()) : apiManagerProxy.getChat(peerId.toChatId())) as Chat.chat;
       if(username) {
         const username = getPeerActiveUsernames(chat)[0] || '';
         if(username) title = '@' + username;

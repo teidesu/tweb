@@ -11,7 +11,7 @@ export default class AppPromoManager extends AppManager {
   private promoData: HelpPromoData;
   private myPromoData: MyPromoData;
 
-  private refetchTimeout: number;
+  private refetchTimeout: number | undefined;
   private pendingDismissed = new Set<string>();
 
   public async getPromoData(force = false): Promise<MyPromoData> {

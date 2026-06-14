@@ -29,11 +29,11 @@ export default class TcpObfuscated implements MTTransport {
   private log: ReturnType<typeof logger>;
   public connected = false;
   private lastCloseTime: number;
-  public connection: MTConnection;
+  public connection: MTConnection | undefined;
 
   private autoReconnect = true;
-  private reconnectTimeout: number;
-  private releasingPending: boolean;
+  private reconnectTimeout: number | undefined;
+  private releasingPending: boolean | undefined;
 
   // private debugPayloads: MTPNetworker['debugRequests'] = [];
 
@@ -64,7 +64,7 @@ export default class TcpObfuscated implements MTTransport {
       return;
     }
 
-    this.connection.send(initPayload);
+    this.connection!.send(initPayload);
 
     if(this.networker) {
       this.pending.length = 0; // ! clear queue and reformat messages to container, because if sending simultaneously 10+ messages, connection will die
@@ -120,13 +120,13 @@ export default class TcpObfuscated implements MTTransport {
     }
 
     if(this.networker) {
-      this.networker.setConnectionStatus(ConnectionStatus.Closed, retryAt);
+      this.networker.setConnectionStatus(ConnectionStatus.Closed, retryAt!);
       this.pending.length = 0;
     }
 
     if(this.autoReconnect) {
-      this.log('will try to reconnect after timeout:', needTimeout / 1000);
-      this.reconnectTimeout = ctx.setTimeout(this.reconnect, needTimeout);
+      this.log('will try to reconnect after timeout:', needTimeout! / 1000);
+      this.reconnectTimeout = ctx.setTimeout(this.reconnect, needTimeout!);
     } else {
       this.log('reconnect isn\'t needed');
     }
@@ -264,7 +264,7 @@ export default class TcpObfuscated implements MTTransport {
   public send(body: Uint8Array) {
     this.debug && this.log.debug('-> body length to pending:', body.length);
 
-    const encoded: typeof body = /* this.connected ? this.encodeBody(body) :  */undefined;
+    const encoded: typeof body | undefined = /* this.connected ? this.encodeBody(body) :  */undefined;
 
     // return;
 
@@ -321,7 +321,7 @@ export default class TcpObfuscated implements MTTransport {
         }
 
         // networkStats.addSent(this.dcId, encoded.byteLength);
-        this.connection.send(encoded);
+        this.connection!.send(encoded);
 
         if(!pending.resolve) { // remove if no response needed
           this.pending.splice(i--, 1);

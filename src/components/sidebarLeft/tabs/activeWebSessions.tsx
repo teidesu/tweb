@@ -67,7 +67,7 @@ const ActiveWebSessions: Component = () => {
         });
 
         const toggle = toggleDisability([btnTerminate], true);
-        tab.managers.appSeamlessLoginManager.resetWebAuthorizations().then(() => {
+        tab.managers.appSeamlessLoginManager!.resetWebAuthorizations().then(() => {
           toggle();
           tab.close();
         });
@@ -89,14 +89,14 @@ const ActiveWebSessions: Component = () => {
 
       let leftLength = rows.length;
       attachClickEvent(section.content, async(e) => {
-        const row = findUpClassName(e.target, 'row');
+        const row = findUpClassName(e.target!, 'row');
         if(!row) {
           return;
         }
 
         await confirmationPopup({
           descriptionLangKey: 'TerminateWebSessionText',
-          descriptionLangArgs: [await wrapPeerTitle({peerId: row.dataset.peerId.toPeerId()})],
+          descriptionLangArgs: [await wrapPeerTitle({peerId: row.dataset.peerId!.toPeerId()})],
           button: {
             langKey: 'Disconnect',
             isDanger: true
@@ -105,7 +105,7 @@ const ActiveWebSessions: Component = () => {
 
         const hash = row.dataset.hash;
         row.classList.add('is-disabled');
-        tab.managers.appSeamlessLoginManager.resetWebAuthorization(hash).then(() => {
+        tab.managers.appSeamlessLoginManager!.resetWebAuthorization(hash!).then(() => {
           if(!--leftLength) {
             tab.close();
           } else {

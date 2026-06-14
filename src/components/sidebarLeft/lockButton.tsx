@@ -18,7 +18,7 @@ const LockButton = () => {
   let button: HTMLButtonElement;
   let iconWrapper: HTMLSpanElement;
 
-  let tooltipShowTimeout: number;
+  let tooltipShowTimeout: number | undefined;
 
   const [isTooltipVisible, setIsTooltipVisible] = createSignal(false);
 
@@ -32,8 +32,8 @@ const LockButton = () => {
     if(!isTooltipVisible()) return;
 
     const {close} = showTooltip({
-      element: button,
-      mountOn: button.parentElement,
+      element: button!,
+      mountOn: button!.parentElement!,
       vertical: 'bottom',
       textElement: i18n('PasscodeLock.TapToLock'),
       onClose: () => {},
@@ -46,10 +46,10 @@ const LockButton = () => {
   });
 
   <button
-    ref={button}
+    ref={button!}
     class="btn-icon sidebar-lock-button"
     onClick={() => {
-      PasscodeLockScreenController.lock(iconWrapper, () => {
+      PasscodeLockScreenController.lock(iconWrapper!, () => {
         apiManagerProxy.lock();
         clearTooltipVisible();
       });
@@ -64,12 +64,12 @@ const LockButton = () => {
       clearTooltipVisible();
     }}
   >
-    <span ref={iconWrapper} class="sidebar-lock-button-icon">
+    <span ref={iconWrapper!} class="sidebar-lock-button-icon">
       <LockIcon />
     </span>
   </button>
 
-  return button;
+  return button!;
 };
 
 const createLockButton = () => {
@@ -80,7 +80,7 @@ const createLockButton = () => {
     return LockButton();
   });
 
-  return {element, dispose};
+  return {element, dispose: dispose!};
 };
 
 export default createLockButton;

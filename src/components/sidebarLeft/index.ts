@@ -117,8 +117,8 @@ export class AppSidebarLeft extends SidebarSlider {
   public rect: DOMRect;
 
   private searchGroups: {[k in 'contacts' | 'globalContacts' | 'messages' | 'people' | 'recent']: SearchGroup} = {} as any;
-  public searchSuper: AppSearchSuper;
-  private searchInitResult: SearchInitResult;
+  public searchSuper: AppSearchSuper | undefined;
+  private searchInitResult: SearchInitResult | undefined;
   private get isSearchActive() {
     return useIsLeftSearchActive()[0]();
   }
@@ -142,11 +142,11 @@ export class AppSidebarLeft extends SidebarSlider {
   construct(managers: AppManagers) {
     this.managers = managers;
 
-    this.chatListContainer = document.getElementById('chatlist-container');
+    this.chatListContainer = document.getElementById('chatlist-container')!;
     this.inputSearch = new InputSearch({oldStyle: true});
     (this.inputSearch.input as HTMLInputElement).placeholder = ' ';
     const sidebarHeader = this.sidebarEl.querySelector('.item-main .sidebar-header');
-    sidebarHeader.append(this.inputSearch.container);
+    sidebarHeader!.append(this.inputSearch.container);
 
     this.backBtn = this.sidebarEl.querySelector('.sidebar-back-button') as HTMLButtonElement;
 
@@ -163,7 +163,7 @@ export class AppSidebarLeft extends SidebarSlider {
     // renderFoldersSidebarContent creates the #folders-sidebar element
     // itself and inserts it as the first child of #main-columns.
     renderFoldersSidebarContent(
-      document.getElementById('main-columns'),
+      document.getElementById('main-columns')!,
       this.totalNotificationsCountSidebar,
       SolidJSHotReloadGuardProvider,
       mainMiddleware
@@ -188,15 +188,15 @@ export class AppSidebarLeft extends SidebarSlider {
       });
     });
 
-    this.backBtn.parentElement.insertBefore(this.toolsBtn, this.backBtn);
+    this.backBtn.parentElement!.insertBefore(this.toolsBtn, this.backBtn);
 
-    this.buttonsContainer = this.backBtn.parentElement;
+    this.buttonsContainer = this.backBtn.parentElement!;
 
     this.updateBtn = document.createElement('div');
     this.updateBtn.className = 'btn-circle rp btn-corner z-depth-1 btn-update is-hidden';
     this.updateBtn.tabIndex = -1;
     ripple(this.updateBtn);
-    this.updateBtn.append(i18n('Update'));
+    this.updateBtn.append(i18n('Update')!);
 
     attachClickEvent(this.updateBtn, () => {
       if(this.updateBtn.classList.contains('is-hidden')) {
@@ -206,7 +206,7 @@ export class AppSidebarLeft extends SidebarSlider {
       appNavigationController.reload();
     });
 
-    sidebarHeader.nextElementSibling.append(this.updateBtn);
+    sidebarHeader!.nextElementSibling!.append(this.updateBtn);
 
     this.inputSearch.input.addEventListener('focus', () => this.initSearch(), {once: true});
 
@@ -307,13 +307,13 @@ export class AppSidebarLeft extends SidebarSlider {
     };
 
     const toggleRightButtons = (isPremium: boolean, isUsingPasscode: boolean) => {
-      if(isPremium) sidebarHeader.append(statusBtnIcon);
+      if(isPremium) sidebarHeader!.append(statusBtnIcon);
       else statusBtnIcon.remove();
 
-      if(isUsingPasscode) sidebarHeader.append(lockButton.element);
+      if(isUsingPasscode) sidebarHeader!.append(lockButton.element);
       else lockButton.element.remove();
 
-      sidebarHeader.classList.toggle('is-input-the-last-child', !isPremium && !isUsingPasscode);
+      sidebarHeader!.classList.toggle('is-input-the-last-child', !isPremium && !isUsingPasscode);
     };
 
     appImManager.addEventListener('premium_toggle', onPremium);
@@ -324,7 +324,7 @@ export class AppSidebarLeft extends SidebarSlider {
     const [appSettings] = useAppSettings();
     toggleRightButtons(rootScope.premium, appSettings.passcode?.enabled);
 
-    this.managers.appUsersManager.getTopPeers('correspondents');
+    this.managers.appUsersManager!.getTopPeers('correspondents');
 
     this.initNavigation();
 
@@ -362,7 +362,7 @@ export class AppSidebarLeft extends SidebarSlider {
       this.initSearch().open();
     });
 
-    this.buttonsContainer.parentElement.prepend(this.searchTriggerWhenCollapsed);
+    this.buttonsContainer.parentElement!.prepend(this.searchTriggerWhenCollapsed);
 
     // Visibility lives in JS — drives the `.is-visible` class from the
     // signals that decide whether the icon-only search affordance should
@@ -409,7 +409,7 @@ export class AppSidebarLeft extends SidebarSlider {
     });
 
     const sidebarOverlay = document.querySelector('.sidebar-left-overlay');
-    sidebarOverlay.addEventListener('click', () => {
+    sidebarOverlay!.addEventListener('click', () => {
       this.closeEverythingInside();
     });
 
@@ -465,9 +465,9 @@ export class AppSidebarLeft extends SidebarSlider {
   }
 
   public onCollapsedChange(canShowCtrlFTip = false) {
-    this.chatListContainer.parentElement.classList.toggle('fade', this.isCollapsed());
-    this.chatListContainer.parentElement.classList.toggle('zoom-fade', !this.isCollapsed());
-    appDialogsManager.xd.toggleAvatarUnreadBadges(this.isCollapsed(), undefined);
+    this.chatListContainer.parentElement!.classList.toggle('fade', this.isCollapsed());
+    this.chatListContainer.parentElement!.classList.toggle('zoom-fade', !this.isCollapsed());
+    appDialogsManager.xd.toggleAvatarUnreadBadges(this.isCollapsed(), undefined!);
 
     const [hasFoldersSidebar] = useHasFoldersSidebar();
 
@@ -548,7 +548,7 @@ export class AppSidebarLeft extends SidebarSlider {
         );
       });
       if(!appDialogsManager.forumTab)
-        appDialogsManager.xd?.toggleAvatarUnreadBadges(false, undefined);
+        appDialogsManager.xd?.toggleAvatarUnreadBadges(false, undefined!);
     } else {
       this.sidebarEl.classList.add(
         'force-fixed',
@@ -564,7 +564,7 @@ export class AppSidebarLeft extends SidebarSlider {
           'force-chatlist-thin'
         );
 
-        appDialogsManager.xd.toggleAvatarUnreadBadges(true, undefined);
+        appDialogsManager.xd.toggleAvatarUnreadBadges(true, undefined!);
 
         pause(200).then(() => {
           this.isAnimatingCollapse = false;
@@ -575,7 +575,7 @@ export class AppSidebarLeft extends SidebarSlider {
 
   public showCtrlFTip() {
     const DATE_KEY = 'ctrlf-toast-to-show-again';
-    const showAgain = parseInt(localStorage.getItem(DATE_KEY));
+    const showAgain = parseInt(localStorage.getItem(DATE_KEY)!);
     const now = tsNow(true);
 
     if(showAgain && now < showAgain) return;
@@ -624,9 +624,9 @@ export class AppSidebarLeft extends SidebarSlider {
         this.openArchiveTab();
       },
       verify: async() => {
-        const folder = await this.managers.dialogsStorage.getFolderDialogs(FOLDER_ID_ARCHIVE, false);
-        const hasArchiveStories = await this.managers.appStoriesManager.hasArchive();
-        return !!folder.length || hasArchiveStories || !(await this.managers.dialogsStorage.isDialogsLoaded(FOLDER_ID_ARCHIVE));
+        const folder = await this.managers.dialogsStorage!.getFolderDialogs(FOLDER_ID_ARCHIVE, false);
+        const hasArchiveStories = await this.managers.appStoriesManager!.hasArchive();
+        return !!folder!.length || hasArchiveStories || !(await this.managers.dialogsStorage!.isDialogsLoaded(FOLDER_ID_ARCHIVE));
       }
     };
 
@@ -641,7 +641,7 @@ export class AppSidebarLeft extends SidebarSlider {
         text: 'MultiAccount.More',
         icon: 'more'
       },
-      createSubmenu: (args) => this.createMoreSubmenu(args, closeTabsBefore)
+      createSubmenu: (args) => (this.createMoreSubmenu(args, closeTabsBefore)! as MaybePromise<HTMLElement>)
     });
 
     const newSubmenu = createSubmenuTrigger({
@@ -708,7 +708,7 @@ export class AppSidebarLeft extends SidebarSlider {
         const emptyAttachMenuBots: AttachMenuBot[] = [];
         const attachMenuBots = await Promise.race([
           pause(30).then(() => emptyAttachMenuBots),
-          this.managers.appAttachMenuBotsManager.getAttachMenuBots().catch(() => emptyAttachMenuBots)
+          this.managers.appAttachMenuBotsManager!.getAttachMenuBots().catch(() => emptyAttachMenuBots)
         ]);
         const buttons = filteredButtonsSliced.slice();
         const attachMenuBotsButtons = attachMenuBots.filter((attachMenuBot) => {
@@ -740,7 +740,7 @@ export class AppSidebarLeft extends SidebarSlider {
           let name = user.first_name;
           if(user.last_name) name += ' ' + user.last_name;
 
-          name = limitSymbols(name, 15, 18);
+          name = limitSymbols(name!, 15, 18);
           return wrapEmojiText(name);
         }
 
@@ -761,7 +761,7 @@ export class AppSidebarLeft extends SidebarSlider {
                 peerId,
                 active: true
               },
-              regularText: wrapUserName(user),
+              regularText: wrapUserName(user!),
               onClick: () => {
                 closeTabsBefore(() => {
                   this.createTab(AppMyProfileTab).open();
@@ -796,13 +796,13 @@ export class AppSidebarLeft extends SidebarSlider {
         filteredButtons.splice(0, filteredButtons.length, ...buttons);
       },
       onOpen: () => {
-        moreSubmenu.onOpen();
-        newSubmenu.onOpen();
+        moreSubmenu.onOpen!();
+        newSubmenu.onOpen!();
         btnArchive.element?.append(this.archivedCount);
       },
       onClose: () => {
-        moreSubmenu.onClose();
-        newSubmenu.onClose();
+        moreSubmenu.onClose!();
+        newSubmenu.onClose!();
       },
       noIcon: true
     });
@@ -815,9 +815,9 @@ export class AppSidebarLeft extends SidebarSlider {
       appImManager.goOffline();
 
       const chatListEl = document.querySelector('.chatlist-container')?.firstElementChild;
-      chatListEl.classList.add('chatlist-exit');
+      chatListEl!.classList.add('chatlist-exit');
       await doubleRaf();
-      chatListEl.classList.add('chatlist-exiting');
+      chatListEl!.classList.add('chatlist-exiting');
       await pause(200);
 
       await this.saveEncryptionKeyBeforeSwitchingAccounts();
@@ -832,7 +832,7 @@ export class AppSidebarLeft extends SidebarSlider {
     const openTabs = apiManagerProxy.getOpenTabsCount();
 
     openTabs <= 1 && await sessionStorage.set({
-      encryption_key: await EncryptionKeyStore.getAsBase64()
+      encryption_key: (await EncryptionKeyStore.getAsBase64())!
     });
   }
 
@@ -843,8 +843,8 @@ export class AppSidebarLeft extends SidebarSlider {
   ) {
     const toggleTheme = () => {
       const item = btns[0].element;
-      const icon = item.querySelector('.tgico');
-      const rect = icon.getBoundingClientRect();
+      const icon = item!.querySelector('.tgico');
+      const rect = icon!.getBoundingClientRect();
       themeController.switchTheme(undefined, {
         x: rect.left + rect.width / 2,
         y: rect.top + rect.height / 2
@@ -852,7 +852,7 @@ export class AppSidebarLeft extends SidebarSlider {
     };
 
     const darkModeText = document.createElement('span');
-    darkModeText.append(i18n(themeController.isNight() ? 'DisableDarkMode': 'EnableDarkMode'));
+    darkModeText.append(i18n(themeController.isNight() ? 'DisableDarkMode': 'EnableDarkMode')!);
     const animationsText = document.createElement('span');
 
     const btns: ButtonMenuItemOptionsVerifiable[] = [{
@@ -924,19 +924,19 @@ export class AppSidebarLeft extends SidebarSlider {
         icon?.classList.add('animations-icon-off') :
         icon?.classList.remove('animations-icon-off');
 
-      animationsText.replaceChildren(i18n(enabled ? 'DisableAnimations' : 'EnableAnimations'));
+      animationsText.replaceChildren(i18n(enabled ? 'DisableAnimations' : 'EnableAnimations')!);
     }
 
     const filtered = await filterAsync(btns, (button) => button?.verify ? button.verify() ?? false : true);
     const menu = await ButtonMenu({
-      buttons: filtered
+      buttons: (filtered! as ButtonMenuItemOptions[])
     });
 
     menu.append(getVersionLink());
     menu.classList.add('sidebar-tools-submenu');
 
     const darkModeBtn = btns[0].element;
-    darkModeBtn.addEventListener(CLICK_EVENT_NAME, (e) => {
+    darkModeBtn!.addEventListener(CLICK_EVENT_NAME, (e) => {
       e.stopPropagation();
       toggleTheme();
       pause(20).then(() => contextMenuController.close());
@@ -1138,19 +1138,19 @@ export class AppSidebarLeft extends SidebarSlider {
     const helper = document.createElement('div');
     helper.classList.add('search-helper', 'hide');
     helper.addEventListener('click', (e) => {
-      const target = findUpClassName(e.target, 'selector-user');
+      const target = findUpClassName(e.target!, 'selector-user');
       if(!target) {
         return;
       }
 
       target.classList.remove('selector-user-primary');
       const key = target.dataset.key;
-      if(key.indexOf('date_') === 0) {
-        const [_, minDate, maxDate] = key.split('_');
+      if(key!.indexOf('date_') === 0) {
+        const [_, minDate, maxDate] = key!.split('_');
         selectedMinDate = +minDate;
         selectedMaxDate = +maxDate;
       } else {
-        selectedPeerId = key.toPeerId();
+        selectedPeerId = key!.toPeerId();
       }
 
       target.addEventListener('click', () => {
@@ -1158,12 +1158,12 @@ export class AppSidebarLeft extends SidebarSlider {
       });
 
       this.inputSearch.container.append(target);
-      this.inputSearch.onChange(this.inputSearch.value = '');
+      this.inputSearch.onChange!(this.inputSearch.value = '');
       pickedElements.push(target);
       updatePicked();
     });
 
-    searchSuper.nav.parentElement.append(helper);
+    searchSuper.nav.parentElement!.append(helper);
 
     const renderEntity = (key: PeerId | string, title?: string | HTMLElement) => {
       return AppSelectPeers.renderEntity({
@@ -1178,19 +1178,19 @@ export class AppSidebarLeft extends SidebarSlider {
 
     const unselectEntity = (target: HTMLElement) => {
       const key = target.dataset.key;
-      if(key.indexOf('date_') === 0) {
+      if(key!.indexOf('date_') === 0) {
         selectedMinDate = selectedMaxDate = 0;
       } else {
         selectedPeerId = ''.toPeerId();
       }
 
-      target.middlewareHelper.destroy();
+      target.middlewareHelper!.destroy();
       target.remove();
       indexOfAndSplice(pickedElements, target);
 
       setTimeout(() => {
         updatePicked();
-        this.inputSearch.onChange(this.inputSearch.value);
+        this.inputSearch.onChange!(this.inputSearch.value);
       }, 0);
     };
 
@@ -1238,7 +1238,7 @@ export class AppSidebarLeft extends SidebarSlider {
 
     const updateSearchQuery = ({search: value, chatType}: UpdateSearchQueryArgs) => {
       if(searchSuper.mediaTab.type === 'posts') {
-        searchSuper.globalPostsSearch?.setQuery(value);
+        searchSuper.globalPostsSearch?.setQuery(value!);
         return
       }
 
@@ -1259,9 +1259,9 @@ export class AppSidebarLeft extends SidebarSlider {
 
       const promises: MaybePromise<HTMLElement[]>[] = [];
 
-      if(!selectedMinDate && value.trim()) {
+      if(!selectedMinDate && value!.trim()) {
         const dates: DateData[] = [];
-        fillTipDates(value, dates);
+        fillTipDates(value!, dates);
         const elements = dates.map((dateData) => {
           return renderEntity('date_' + dateData.minDate + '_' + dateData.maxDate, dateData.title);
         });
@@ -1269,19 +1269,19 @@ export class AppSidebarLeft extends SidebarSlider {
         promises.push(elements);
       }
 
-      if(!selectedPeerId && value.trim()) {
+      if(!selectedPeerId && value!.trim()) {
         const middleware = searchSuper.middleware.get();
         const promise = Promise.all([
-          this.managers.dialogsStorage.getDialogs({query: value}).then(({dialogs}) => dialogs.map((d) => d.peerId)),
-          this.managers.appUsersManager.getContactsPeerIds(value, true)
+          this.managers.dialogsStorage!.getDialogs({query: value}).then(({dialogs}) => dialogs!.map((d) => d.peerId)),
+          this.managers.appUsersManager!.getContactsPeerIds(value, true)
         ]).then((results) => {
           if(!middleware()) return;
           const peerIds = new Set(results[0].concat(results[1]).slice(0, 20));
 
-          return [...peerIds].map((peerId) => renderEntity(peerId));
+          return [...peerIds].map((peerId) => renderEntity(peerId!));
         });
 
-        promises.push(promise);
+        promises.push((promise! as MaybePromise<HTMLElement[]>));
       }
 
       Promise.all(promises).then((arrays) => {
@@ -1302,8 +1302,8 @@ export class AppSidebarLeft extends SidebarSlider {
         return;
       }
 
-      const peerId = target.getAttribute('data-peer-id').toPeerId();
-      this.managers.appUsersManager.pushRecentSearch(peerId);
+      const peerId = target.getAttribute('data-peer-id')!.toPeerId();
+      this.managers.appUsersManager!.pushRecentSearch(peerId);
     }, {capture: true});
 
     let first = true;
@@ -1311,7 +1311,7 @@ export class AppSidebarLeft extends SidebarSlider {
     // const transition = Transition.bind(null, searchContainer.parentElement, 150);
     const cleanup = () => {
       pickedElements.forEach((el) => {
-        el.middlewareHelper.destroy();
+        el.middlewareHelper!.destroy();
         el.remove();
       });
       pickedElements.length = 0;
@@ -1334,12 +1334,12 @@ export class AppSidebarLeft extends SidebarSlider {
     };
 
     const transition = TransitionSlider({
-      content: searchContainer.parentElement,
+      content: searchContainer.parentElement!,
       type: 'zoom-fade',
       transitionTime: 150,
       listenerSetter: searchListenerSetter,
       onTransitionStart: (id) => {
-        searchContainer.parentElement.parentElement.classList.toggle('is-search-active', id === 1);
+        searchContainer.parentElement!.parentElement!.classList.toggle('is-search-active', id === 1);
       },
       onTransitionEnd: (id) => {
         if(showUpdateBtnTimeout) clearTimeout(showUpdateBtnTimeout);
@@ -1419,7 +1419,7 @@ export class AppSidebarLeft extends SidebarSlider {
             isDanger: true
           }
         }).then(() => {
-          return this.managers.appUsersManager.clearRecentSearch().then(() => {
+          return this.managers.appUsersManager!.clearRecentSearch().then(() => {
             this.searchGroups.recent.clear();
           });
         });
@@ -1442,7 +1442,7 @@ export class AppSidebarLeft extends SidebarSlider {
 
         selectedPeerId = peerId;
 
-        this.inputSearch.onChange(this.inputSearch.value = '');
+        this.inputSearch.onChange!(this.inputSearch.value = '');
 
         const element = renderEntity(peerId);
         this.inputSearch.container.append(element);
@@ -1465,18 +1465,18 @@ export class AppSidebarLeft extends SidebarSlider {
   private async watchChannelsTabVisibility(listenerSetter: ListenerSetter) {
     const checkChannelsVisiblity = async() => {
       if(!this.searchSuper) return;
-      const dialogs = await this.managers.dialogsStorage.getCachedDialogs();
+      const dialogs = await this.managers.dialogsStorage!.getCachedDialogs();
 
       if(!this.searchSuper) return;
       let hasChannels = false;
       for(const dialog of dialogs) {
-        hasChannels = await this.managers.appPeersManager.isBroadcast(dialog.peerId);
+        hasChannels = await this.managers.appPeersManager!.isBroadcast(dialog.peerId!);
         if(hasChannels) break;
       }
 
       if(!this.searchSuper) return;
       const channelsTab = this.searchSuper.mediaTabs.find((tab) => tab.type === 'channels');
-      channelsTab.menuTab?.classList.toggle('hide', !hasChannels);
+      channelsTab!.menuTab?.classList.toggle('hide', !hasChannels);
     };
 
     checkChannelsVisiblity();
@@ -1552,9 +1552,9 @@ export class AppSidebarLeft extends SidebarSlider {
       localStorage.setItem('should-animate-auth', 'true');
 
       const chatsPageEl = document.querySelector('.page-chats');
-      chatsPageEl.classList.add('main-screen-exit');
+      chatsPageEl!.classList.add('main-screen-exit');
       await doubleRaf();
-      chatsPageEl.classList.add('main-screen-exiting');
+      chatsPageEl!.classList.add('main-screen-exiting');
       await pause(200);
     }
 

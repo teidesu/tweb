@@ -112,7 +112,7 @@ export default abstract class ApiManagerMethods extends AppManager {
     const {params, options, method, overwrite} = o;
 
     const queryJSON = JSON.stringify(params);
-    let cached: HashResult;
+    let cached: HashResult | undefined;
     if(this.hashes[method]) {
       cached = this.hashes[method][queryJSON];
       if(cached) {
@@ -130,7 +130,7 @@ export default abstract class ApiManagerMethods extends AppManager {
       processResult: (result) => {
         if(result._.includes('NotModified')) {
           // this.debug && this.log.warn('NotModified saved!', method, queryJSON);
-          return cached.result;
+          return cached!.result;
         }
 
         if(result.hash/*  || result.messages */) {
@@ -158,7 +158,7 @@ export default abstract class ApiManagerMethods extends AppManager {
   public invokeApiSingle<T extends keyof MethodDeclMap>(method: T, params: MethodDeclMap[T]['req'] = {} as any, options: InvokeApiOptions = {}): Promise<MethodDeclMap[T]['res']> {
     const q = method + '-' + JSON.stringify(params);
     const cache = this.apiPromisesSingle;
-    if(cache[q]) {
+    if(cache[q] as Promise<any> | undefined) {
       return cache[q];
     }
 
@@ -279,7 +279,7 @@ export default abstract class ApiManagerMethods extends AppManager {
     item = cache[queryJSON] = {
       timestamp: Date.now(),
       fulfilled: false,
-      timeout,
+      timeout: timeout!,
       promise,
       params
     };

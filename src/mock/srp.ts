@@ -47,6 +47,6 @@ export const accountPassword: AccountPassword.accountPassword = {
   secure_random,
   pFlags: {},
 
-  new_algo: null,
-  new_secure_algo: null
+  new_algo: null as any,
+  new_secure_algo: null as any
 };

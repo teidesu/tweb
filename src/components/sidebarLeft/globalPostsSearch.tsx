@@ -32,7 +32,7 @@ const renderHistoryResult = (options: {
   const promises = options.messages.map(async(message) => {
     const loadPromises: Promise<any>[] = [];
     const {dom} = appDialogsManager.addDialogAndSetLastMessage({
-      peerId: message.peerId,
+      peerId: message.peerId!,
       container: false,
       avatarSize: 'bigger',
       message,
@@ -73,7 +73,7 @@ export function GlobalPostsSearch(props: {
     const offsetId = lastMessage?.mid || 0
     const offsetPeerId = lastMessage?.peerId || NULL_PEER_ID
 
-    rootScope.managers.appMessagesManager.getHistory({
+    rootScope.managers.appMessagesManager!.getHistory({
       peerId: NULL_PEER_ID,
       inputFilter: {_: 'inputMessagesFilterEmpty'},
       offsetId,
@@ -84,11 +84,11 @@ export function GlobalPostsSearch(props: {
       query: props.query,
       allowStars: allowPaid ? flood()?.stars_amount : 0
     }).then((res) => {
-      if(allowPaid && !res.flood.pFlags.query_is_free) {
+      if(allowPaid && !res.flood!.pFlags.query_is_free) {
         toastNew({
           langPackKey: 'PostsSearch.StarsSpent',
           langPackArguments: [
-            paymentsWrapCurrencyAmount(res.flood.stars_amount, STARS_CURRENCY, false, false, true)
+            paymentsWrapCurrencyAmount(res.flood!.stars_amount, STARS_CURRENCY, false, false, true)
           ]
         })
       }
@@ -97,7 +97,7 @@ export function GlobalPostsSearch(props: {
         setLoading(false);
         return;
       }
-      nextRate = res.nextRate;
+      nextRate = res.nextRate!;
       lastMessage = res.messages[res.messages.length - 1];
       if(res.flood) setFlood(res.flood);
       renderHistoryResult({
@@ -134,7 +134,7 @@ export function GlobalPostsSearch(props: {
 
   const loadFlood = () => {
     const myQuery = props.query
-    rootScope.managers.apiManager.invokeApi('channels.checkSearchPostsFlood', {
+    rootScope.managers.apiManager!.invokeApi('channels.checkSearchPostsFlood', {
       query: myQuery
     }).then((res) => {
       if(myQuery !== props.query) return
@@ -191,7 +191,7 @@ export function GlobalPostsSearch(props: {
       return (
         <I18nTsx
           key="PostsSearch.DescriptionLimited"
-          args={[String(flood().total_daily)]}
+          args={[String(flood()!.total_daily)]}
           class={styles.description}
         />
       )
@@ -219,7 +219,7 @@ export function GlobalPostsSearch(props: {
           class={classNames('btn-primary btn-color-primary', styles.button, styles.buttonPaidSearch)}
           onClick={() => loadMore(true, true)}
         >
-          <I18nTsx key="PostsSearch.SearchFor" args={[paymentsWrapCurrencyAmount(flood().stars_amount, STARS_CURRENCY)]} />
+          <I18nTsx key="PostsSearch.SearchFor" args={[paymentsWrapCurrencyAmount(flood()!.stars_amount, STARS_CURRENCY)]} />
           <I18nTsx key="PostsSearch.FreeUnlocksIn" args={[remainingUntilReset()]} class={styles.remainingUntilReset} />
         </Button>
       )
@@ -246,12 +246,12 @@ export function GlobalPostsSearch(props: {
         <I18nTsx key="PostsSearch.NeedPremium" class={styles.footer} />
       )
     }
-    if(!flood() || flood().remains === 0) return null
+    if(!flood() || flood()!.remains === 0) return null
 
     return (
       <I18nTsx
         key="PostsSearch.FreeSearches"
-        args={[String(flood().remains)]}
+        args={[String(flood()!.remains)]}
         class={styles.footer}
       />
     )

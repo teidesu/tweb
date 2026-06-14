@@ -21,7 +21,7 @@ const setCountries = () => {
 };
 
 let init = () => {
-  init = undefined;
+  init = undefined as unknown as () => void;
   setCountries();
   rootScope.addEventListener('language_apply', () => {
     setCountries();
@@ -46,13 +46,13 @@ export function filterCountries(value: string, excludeVirtual?: boolean) {
     ];
 
     names.filter(Boolean).forEach((name) => {
-      const abbr = name.split(' ').filter((word) => /\w/.test(word)).map((word) => word[0]).join('');
+      const abbr = name!.split(' ').filter((word) => /\w/.test(word)).map((word) => word[0]).join('');
       if(abbr.length > 1) {
         names.push(abbr);
       }
     });
 
-    const good = !!names.filter(Boolean).find((str) => str.toLowerCase().indexOf(value) !== -1)/*  === 0 */;// i.test(c.name);
+    const good = !!names.filter(Boolean).find((str) => str!.toLowerCase().indexOf(value) !== -1)/*  === 0 */;// i.test(c.name);
     return good;
   });
 
@@ -67,7 +67,7 @@ export default class CountryInputField extends InputField {
   private lastCountrySelected: HelpCountry;
   private lastCountryCodeSelected: HelpCountryCode;
 
-  private hideTimeout: number;
+  private hideTimeout: number | undefined;
   private selectWrapper: HTMLElement;
 
   private liMap: Map<string, HTMLLIElement[]>;
@@ -101,7 +101,7 @@ export default class CountryInputField extends InputField {
     const scroll = new Scrollable(selectWrapper);
 
     let initSelect = () => {
-      initSelect = null;
+      initSelect = null as unknown as () => void;
 
       countries.forEach((c) => {
         if(options.noPhoneCodes && VIRTUAL_COUNTRIES.has(c.iso2)) {
@@ -125,8 +125,8 @@ export default class CountryInputField extends InputField {
           }
 
           const el = i18n(c.default_name as any);
-          el.dataset.defaultName = c.default_name;
-          li.append(el);
+          el!.dataset.defaultName = c.default_name;
+          li.append(el!);
 
           if(!options.noPhoneCodes) {
             const span = document.createElement('span');
@@ -195,7 +195,7 @@ export default class CountryInputField extends InputField {
 
     let mouseDownHandlerAttached = false;
     const onMouseDown = (e: MouseEvent) => {
-      if(findUpClassName(e.target, 'input-select')) {
+      if(findUpClassName(e.target!, 'input-select')) {
         return;
       }
       if(e.target === this.input) {
@@ -243,7 +243,7 @@ export default class CountryInputField extends InputField {
         });
       } else if(filtered.size === 1 && key === 'Enter') {
         cancelEvent(e);
-        this.selectCountryByTarget(this.liMap.get([...filtered][0])[0]);
+        this.selectCountryByTarget(this.liMap.get([...filtered][0])![0]);
       }
     };
 
@@ -280,25 +280,25 @@ export default class CountryInputField extends InputField {
   }
 
   public selectCountryByTarget = (target: HTMLElement) => {
-    const defaultName = target.querySelector<HTMLElement>('[data-default-name]').dataset.defaultName;
+    const defaultName = target.querySelector<HTMLElement>('[data-default-name]')!.dataset.defaultName;
     const phoneCodeEl = target.querySelector<HTMLElement>('.phone-code');
     const phoneCode = phoneCodeEl?.innerText;
     const countryCode = phoneCode && phoneCode.replace(/\D/g, '');
 
-    this.value = i18n(defaultName as any);
-    this.lastCountrySelected = countries.find((c) => c.default_name === defaultName);
-    this.lastCountryCodeSelected = countryCode && this.lastCountrySelected.country_codes.find((_countryCode) => _countryCode.country_code === countryCode);
+    this.value = i18n(defaultName as any)!;
+    this.lastCountrySelected = countries.find((c) => c.default_name === defaultName)!;
+    this.lastCountryCodeSelected = ((countryCode && this.lastCountrySelected.country_codes.find((_countryCode) => _countryCode.country_code === countryCode))! as HelpCountryCode.helpCountryCode);
 
     this.options.onCountryChange?.(this.lastCountrySelected, this.lastCountryCodeSelected);
     this.hidePicker();
   }
 
   public selectCountryByIso2(iso2: string) {
-    this.selectCountryByTarget(this.liMap.get(iso2)[0]);
+    this.selectCountryByTarget(this.liMap.get(iso2)![0]);
   }
 
   public override(country: HelpCountry, code: HelpCountryCode, countryName?: string) {
-    this.setValueSilently(country ? i18n(country.default_name as any) : countryName);
+    this.setValueSilently((country ? i18n(country.default_name as any) : countryName)!);
     this.lastCountrySelected = country;
     this.lastCountryCodeSelected = code;
     this.options.onCountryChange?.(this.lastCountrySelected, this.lastCountryCodeSelected);

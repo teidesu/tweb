@@ -12,8 +12,8 @@ import ListenerSetter from '@helpers/listenerSetter';
 export default function showCreateContactPopup(): void {
   function Inner() {
     const context = useContext(PopupContext);
-    const middleware = untrack(() => context.middlewareHelper).get();
-    const managers = untrack(() => context.managers);
+    const middleware = untrack(() => context!.middlewareHelper).get();
+    const managers = untrack(() => context!.managers);
     const listenerSetter = new ListenerSetter();
 
     const nameInputField = new InputField({
@@ -51,10 +51,10 @@ export default function showCreateContactPopup(): void {
     listenerSetter.add(lastNameInputField.input)('input', onInput);
 
     const onConfirm = () => {
-      const promise = managers.appUsersManager.importContact(nameInputField.value, lastNameInputField.value, telInputField.value);
+      const promise = managers.appUsersManager!.importContact(nameInputField.value, lastNameInputField.value, telInputField.value);
 
       promise.then(() => {
-        context.hide();
+        context!.hide();
       }, (err: ApiError) => {
         if(err.type === 'NO_USER') {
           toastNew({langPackKey: 'Contacts.PhoneNumber.NotRegistred'});
@@ -81,11 +81,11 @@ export default function showCreateContactPopup(): void {
       setAvatarNode(editPeer.avatarElem.node);
 
       attachClickEvent(confirmBtn, onConfirm, {listenerSetter});
-      context.setBtnConfirmOnEnter(confirmBtn);
+      context!.setBtnConfirmOnEnter(confirmBtn);
 
-      managers.appUsersManager.getSelf().then((user) => {
+      managers.appUsersManager!.getSelf().then((user) => {
         if(!middleware()) return;
-        const formatted = formatPhoneNumber(user.phone);
+        const formatted = formatPhoneNumber(user.phone!);
         if(formatted.code) {
           telInputField.value = '+' + formatted.code.country_code;
         }

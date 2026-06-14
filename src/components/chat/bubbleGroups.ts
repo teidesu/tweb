@@ -5,7 +5,7 @@ import type Chat from '@components/chat/chat';
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
 import insertInDescendSortedArray from '@helpers/array/insertInDescendSortedArray';
 import positionElementByIndex from '@helpers/dom/positionElementByIndex';
-import {Message, ReplyMarkup} from '@layer';
+import {KeyboardButtonRow, Message, ReplyMarkup} from '@layer';
 import {NULL_PEER_ID, REPLIES_PEER_ID, VERIFICATION_CODES_BOT_ID} from '@appManagers/constants';
 import ChatBubbles, {SERVICE_AS_REGULAR, STICKY_OFFSET} from '@components/chat/bubbles';
 import forEachReverse from '@helpers/array/forEachReverse';
@@ -51,8 +51,8 @@ function insertSomething<T>(to: Array<T>, what: T, sortKey: keyof T, reverse: bo
 function canHaveReplyMarkup(message: Message.message) {
   const replyMarkup = message.reply_markup;
   let replyMarkupRows = replyMarkup?._ === 'replyInlineMarkup' && replyMarkup.rows;
-  replyMarkupRows = replyMarkupRows?.filter?.((row) => row.buttons.length);
-  return !!replyMarkupRows?.length;
+  replyMarkupRows = (replyMarkupRows as KeyboardButtonRow[] | undefined)?.filter((row) => row.buttons.length) as false | KeyboardButtonRow[];
+  return !!(replyMarkupRows as KeyboardButtonRow[] | undefined)?.length;
 }
 
 export class BubbleGroup {
@@ -60,22 +60,22 @@ export class BubbleGroup {
   chat: Chat;
   groups: BubbleGroups;
   items: GroupItem[]; // descend sorted
-  avatarContainer: HTMLElement;
+  avatarContainer: HTMLElement | undefined;
   avatarLoadPromise: Promise<void>;
   avatar: ReturnType<typeof avatarNew>;
   mounted: boolean;
   dateTimestamp: number;
   offset: number;
   middlewareHelper: MiddlewareHelper;
-  dateContainer: ReturnType<ChatBubbles['getDateContainerByTimestamp']>;
+  dateContainer: ReturnType<ChatBubbles['getDateContainerByTimestamp']> | undefined;
 
   constructor(chat: Chat, groups?: BubbleGroups, dateTimestamp?: number) {
     this.container = document.createElement('div');
     this.container.classList.add('bubbles-group');
     this.chat = chat;
-    this.groups = groups;
+    this.groups = groups!;
     this.items = [];
-    this.dateTimestamp = dateTimestamp;
+    this.dateTimestamp = dateTimestamp!;
     this.offset = 0;
     this.middlewareHelper = chat.bubbles.getMiddleware().create();
   }
@@ -83,7 +83,7 @@ export class BubbleGroup {
   getAvatarOptions(message: Message.message | AdminLog) {
     const fwdFrom = isMessage(message) ? message.fwd_from : undefined;
     const fwdFromId = isMessage(message) ? message.fwdFromId : undefined;
-    const fwdFromName = getFwdFromName(fwdFrom);
+    const fwdFromName = getFwdFromName(fwdFrom!);
     const isForwardFromChannel = isMessage(message) && message.from_id && message.from_id._ === 'peerChannel' && message.fromId === fwdFromId;
     const currentPeerId = this.chat.peerId;
 
@@ -121,8 +121,8 @@ export class BubbleGroup {
       return;
     }
 
-    this.avatarContainer.remove();
-    this.avatarLoadPromise = this.avatar = this.avatarContainer = undefined;
+    this.avatarContainer!.remove();
+    this.avatarLoadPromise = (this.avatar = (this.avatarContainer = undefined)!)!;
     --this.offset;
   }
 
@@ -241,7 +241,7 @@ export class BubbleGroup {
 
   insertItem(item: GroupItem) {
     const {items} = this;
-    insertSomething(items, item, this.groups.sortGroupItemsKey, this.groups.reverse = item.reverse);
+    insertSomething(items, item, this.groups.sortGroupItemsKey, (this.groups.reverse = item.reverse!)!!);
 
     item.group = this;
     if(items.length === 1) {
@@ -273,7 +273,7 @@ export class BubbleGroup {
     const {offset, items} = this;
     const {length} = items;
     forEachReverse(items, (item, idx) => {
-      this.mountItem(item, length - 1 - idx, offset);
+      this.mountItem(item, length - 1 - idx!, offset);
     });
 
     if(updateClassNames) {
@@ -412,9 +412,9 @@ export default class BubbleGroups {
       previousSibling.group !== nextSibling.group
     ) {
       const group = nextSibling.group;
-      this.f(nextSibling.group.items);
-      group.onItemUnmount();
-      modifiedGroups.add(previousSibling.group);
+      this.f(nextSibling.group!.items);
+      group!.onItemUnmount();
+      modifiedGroups.add(previousSibling.group!);
       this.groupUngrouped();
     }
 
@@ -453,7 +453,7 @@ export default class BubbleGroups {
       const message = item.message;
       if(message._ === 'channelAdminLogEvent') return;
 
-      const savedPeerId = isMonoforum ? getPeerId(message?.saved_peer_id) : undefined;
+      const savedPeerId = isMonoforum ? getPeerId(message?.saved_peer_id!) : undefined;
       const threadId = isBotforum ? getMessageThreadId(message, {isBotforum: true}) : undefined;
 
       const key = savedPeerId || threadId;
@@ -471,7 +471,7 @@ export default class BubbleGroups {
 
       if(bubbleAddons.chatThreadSeparator) {
         bubbleAddons.chatThreadSeparator.feedProps<false>({
-          index: -i
+          index: -i!
         });
         return;
       }
@@ -484,7 +484,7 @@ export default class BubbleGroups {
         peerId: savedPeerId || this.chat.peerId,
         threadId: savedPeerId ? undefined : threadId,
         lastMsgId: message?.mid,
-        index: -i
+        index: -i!
       });
       item.bubble.classList.add('has-chat-thread-separator');
       item.bubble.prepend(bubbleAddons.chatThreadSeparator);
@@ -518,7 +518,7 @@ export default class BubbleGroups {
     for(; index < length; ++index) {
       const item = items[index];
       item.mounted = false;
-      item.group.removeItem(item);
+      item.group!.removeItem(item);
       --length;
       --index;
     }
@@ -542,7 +542,7 @@ export default class BubbleGroups {
       return;
     }
 
-    item.mid = /* item.groupMid =  */getMid(message);
+    item.mid = /* item.groupMid =  */getMid(message)!;
     item.message = message;
     item.groupMid = this.generateGroupMid(message, item.dateTimestamp);
 
@@ -628,7 +628,7 @@ export default class BubbleGroups {
       }
     }
 
-    return siblingGroupedItem;
+    return siblingGroupedItem!;
   }
 
   addItemToGroup(item: GroupItem, group: BubbleGroup) {
@@ -637,7 +637,7 @@ export default class BubbleGroups {
   }
 
   insertItemToArray(item: GroupItem, array: GroupItem[]) {
-    return insertSomething(array, item, this.sortItemsKey, this.reverse = item.reverse);
+    return insertSomething(array, item, this.sortItemsKey, (this.reverse = item.reverse!)!!);
   }
 
   insertGroup(group: BubbleGroup) {
@@ -690,9 +690,9 @@ export default class BubbleGroups {
     const mid = getMid(message);
     const {dateTimestamp} = this.chat.bubbles.getDateForDateContainer(timestamp);
     const item: GroupItem = {
-      mid,
+      mid: mid!,
       groupMid: this.generateGroupMid(message, dateTimestamp),
-      fromId: this.getMessageFromId(message),
+      fromId: this.getMessageFromId(message)!,
       bubble,
       // timestamp: this.chat.type === 'scheduled' ? +`${(timestamp * 1000 - dateTimestamp) / 1000}.${mid}` : timestamp,
       timestamp,

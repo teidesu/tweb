@@ -42,17 +42,17 @@ export default class TelegramWebView extends EventListenerBase<{
   }
 
   public onMount() {
-    weakMap.set(this.iframe.contentWindow, this.onTelegramWebViewEvent);
+    weakMap.set(this.iframe.contentWindow!, this.onTelegramWebViewEvent);
     if(this.html) {
-      this.iframe.contentWindow.document.open();
-      this.iframe.contentWindow.document.write(this.html);
-      this.iframe.contentWindow.document.close();
+      this.iframe.contentWindow!.document.open();
+      this.iframe.contentWindow!.document.write(this.html);
+      this.iframe.contentWindow!.document.close();
     }
   }
 
   public destroy() {
     this.cleanup();
-    weakMap.delete(this.iframe.contentWindow);
+    weakMap.delete(this.iframe.contentWindow!);
     this.iframe.removeEventListener('load', this.onLoad);
   }
 
@@ -74,7 +74,7 @@ export default class TelegramWebView extends EventListenerBase<{
     }
 
     ++this.lastDispatchedWebViewEvent.count;
-    this.iframe.contentWindow.postMessage(JSON.stringify({
+    this.iframe.contentWindow!.postMessage(JSON.stringify({
       eventType,
       eventData
     }), '*');

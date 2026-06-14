@@ -51,8 +51,8 @@ export class RLottieIconItem implements RLottieIconItemOptions {
   public autoplay: boolean;
   public color: RLottieColor;
   public loadPromise: Promise<void>;
-  public onLoadForPart: () => void;
-  public onLoadForColor: () => void;
+  public onLoadForPart: (() => void) | undefined;
+  public onLoadForColor: (() => void) | undefined;
 
   constructor(public icon: RLottieIcon, options: RLottieIconItemOptions) {
     this.autoplay = false;
@@ -151,7 +151,7 @@ export default class RLottieIcon {
   }
 
   public getItem(name?: LottieAssetName): RLottieIconItem {
-    return !name && this.items.size === 1 ? this.items.values().next().value : this.items.get(name);
+    return !name && this.items.size === 1 ? this.items.values().next().value! : this.items.get(name!)!;
   }
 
   public add(options: Omit<RLottieIconItemOptions, 'player'>) {
@@ -172,8 +172,8 @@ export default class RLottieIcon {
 
     const part = item.getPart(index);
     item.player.playPart({
-      from: liteMode.isAvailable('animations') && !this.skipAnimation ? part.startFrame : part.endFrame,
-      to: part.endFrame,
+      from: liteMode.isAvailable('animations') && !this.skipAnimation ? part!.startFrame : part!.endFrame,
+      to: part!.endFrame,
       callback
     });
   }

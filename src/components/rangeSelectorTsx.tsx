@@ -48,22 +48,22 @@ export default function RangeSelector(props: RangeSelectorProps) {
 
     // using scaleX and width even with vertical because it will be rotated
     if(useTransform) {
-      filledRef.style.transform = `scaleX(${percents})`;
+      filledRef!.style.transform = `scaleX(${percents})`;
     } else if(useProperty) {
-      containerRef.style.setProperty('--progress', '' + percents);
+      containerRef!.style.setProperty('--progress', '' + percents);
     } else {
-      filledRef.style.width = (percents * 100) + '%';
+      filledRef!.style.width = (percents * 100) + '%';
     }
   };
 
   const setProgress = (val: number) => {
-    seekRef.value = '' + val;
-    setFilled(+seekRef.value); // clamp
-    setValue(+seekRef.value);
+    seekRef!.value = '' + val;
+    setFilled(+seekRef!.value); // clamp
+    setValue(+seekRef!.value);
   };
 
   const onInput = () => {
-    const val = +seekRef.value;
+    const val = +seekRef!.value;
     setFilled(val);
     setValue(val);
     props.onScrub?.(val);
@@ -74,16 +74,16 @@ export default function RangeSelector(props: RangeSelectorProps) {
   };
 
   const onMouseDown = (event: GrabEvent) => {
-    setRect(containerRef.getBoundingClientRect());
+    setRect(containerRef!.getBoundingClientRect());
     setMousedown(true);
     scrub(event);
-    containerRef.classList.add('is-focused');
+    containerRef!.classList.add('is-focused');
     props.onMouseDown?.(event);
   };
 
   const onMouseUp = (event: GrabEvent) => {
     setMousedown(false);
-    containerRef.classList.remove('is-focused');
+    containerRef!.classList.remove('is-focused');
     props.onMouseUp?.(event);
   };
 
@@ -131,7 +131,7 @@ export default function RangeSelector(props: RangeSelectorProps) {
       setProgress(props.value);
     }
 
-    removeListeners = attachGrabListeners(containerRef, onMouseDown, onMouseMove, onMouseUp);
+    removeListeners = attachGrabListeners(containerRef!, onMouseDown, onMouseMove, onMouseUp);
   });
 
   onCleanup(() => {

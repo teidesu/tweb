@@ -1,7 +1,7 @@
 import {createEffect, createSignal, For, JSX, createMemo, onCleanup, untrack, createReaction, Show, Switch, Match} from 'solid-js';
 import {Portal} from 'solid-js/web';
 import {createStoriesViewer} from '@components/stories/viewer';
-import {Document, MessageMedia, Photo, StoryItem} from '@layer';
+import {Document, MessageMedia, Photo, StoryAlbum, StoryItem} from '@layer';
 import {wrapStoryMedia} from '@components/stories/preview';
 import getMediaThumbIfNeeded from '@helpers/getStrippedThumbIfNeeded';
 import {StoriesContext, useStories, createStoriesStore, StoriesContextState} from '@components/stories/store';
@@ -69,15 +69,15 @@ class StoriesContextMenu {
       callback: (e) => {
         if(this.init) {
           this.init();
-          this.init = null;
+          this.init = null as any;
         }
 
         let item: HTMLElement;
         try {
-          item = findUpClassName(e.target, 'search-super-item');
+          item = findUpClassName(e.target!, 'search-super-item');
         } catch(e) {}
 
-        if(!item) return;
+        if(!item!) return;
 
         if(e instanceof MouseEvent) e.preventDefault();
         if(this.element.classList.contains('active')) {
@@ -87,14 +87,14 @@ class StoriesContextMenu {
 
         const r = async() => {
           this.target = item;
-          this.peerId = item.dataset.peerId.toPeerId();
-          this.mid = +item.dataset.mid;
-          this.isSelected = selection?.isMidSelected(this.peerId, this.mid);
-          this.storyItem = await rootScope.managers.appStoriesManager.getStoryById(this.peerId, this.mid);
+          this.peerId = item.dataset.peerId!.toPeerId();
+          this.mid = +item.dataset.mid!;
+          this.isSelected = selection?.isMidSelected(this.peerId, this.mid)!;
+          this.storyItem = (await rootScope.managers.appStoriesManager!.getStoryById(this.peerId, this.mid) as StoryItem.storyItem);
 
           const f = await Promise.all(this.buttons.map(async(button) => {
             const good = button.verify ? !!(await button.verify()) : true;
-            button.element.classList.toggle('hide', !good);
+            button.element!.classList.toggle('hide', !good);
             return good;
           }));
 
@@ -126,33 +126,33 @@ class StoriesContextMenu {
     }
     const hasRightsOnSelected = (right: 'send' | 'edit' | 'delete' | 'archive' | 'pin') => {
       const ids = getSelectedIds();
-      return managers.appStoriesManager.hasRightsMany(this.peerId, ids, right);
+      return managers.appStoriesManager!.hasRightsMany(this.peerId, ids, right);
     }
 
     this.buttons = [{
       icon: 'archive',
       text: 'Archive',
-      onClick: () => managers.appStoriesManager.togglePinned(this.peerId, [this.storyItem.id], false).then(() => toastStoryPinnedToProfile(managers, this.peerId, false)),
-      verify: () => !this.state.albumId && this.storyItem?.pFlags.pinned && managers.appStoriesManager.hasRights(this.peerId, this.storyItem.id, 'pin')
+      onClick: () => managers.appStoriesManager!.togglePinned(this.peerId, [this.storyItem.id], false).then(() => toastStoryPinnedToProfile(managers, this.peerId, false)),
+      verify: (() => !this.state.albumId && this.storyItem?.pFlags.pinned && managers.appStoriesManager!.hasRights(this.peerId, this.storyItem.id, 'pin')) as () => Promise<boolean>
     }, {
       icon: 'unarchive',
       text: 'Unarchive',
-      onClick: () => managers.appStoriesManager.togglePinned(this.peerId, [this.storyItem.id], true).then(() => toastStoryPinnedToProfile(managers, this.peerId, true)),
-      verify: () => !this.state.albumId && this.storyItem && !this.storyItem.pFlags.pinned && managers.appStoriesManager.hasRights(this.peerId, this.storyItem.id, 'pin')
+      onClick: () => managers.appStoriesManager!.togglePinned(this.peerId, [this.storyItem.id], true).then(() => toastStoryPinnedToProfile(managers, this.peerId, true)),
+      verify: () => !this.state.albumId && this.storyItem && !this.storyItem.pFlags.pinned && managers.appStoriesManager!.hasRights(this.peerId, this.storyItem.id, 'pin')
     }, {
       icon: 'pin',
       text: 'ChatList.Context.Pin',
-      onClick: () => managers.appStoriesManager.togglePinnedToTop(this.peerId, [this.storyItem.id], true).catch((err: ApiError) => {
+      onClick: () => managers.appStoriesManager!.togglePinnedToTop(this.peerId, [this.storyItem.id], true).catch((err: ApiError) => {
         if(err.type === 'STORY_ID_TOO_MANY') {
-          toastNew({langPackKey: 'StoriesPinLimit', langPackArguments: [+err.message]});
+          toastNew({langPackKey: 'StoriesPinLimit', langPackArguments: [+err.message!]});
         }
       }),
-      verify: () => !this.state.albumId && this.state.pinned && this.storyItem?.pinnedIndex === undefined && managers.appStoriesManager.hasRights(this.peerId, this.storyItem.id, 'pin')
+      verify: () => !this.state.albumId && this.state.pinned && this.storyItem?.pinnedIndex === undefined && managers.appStoriesManager!.hasRights(this.peerId, this.storyItem.id, 'pin')
     }, {
       icon: 'unpin',
       text: 'ChatList.Context.Unpin',
-      onClick: () => managers.appStoriesManager.togglePinnedToTop(this.peerId, [this.storyItem.id], false),
-      verify: () => !this.state.albumId && this.state.pinned && this.storyItem?.pinnedIndex !== undefined && managers.appStoriesManager.hasRights(this.peerId, this.storyItem.id, 'pin')
+      onClick: () => managers.appStoriesManager!.togglePinnedToTop(this.peerId, [this.storyItem.id], false),
+      verify: () => !this.state.albumId && this.state.pinned && this.storyItem?.pinnedIndex !== undefined && managers.appStoriesManager!.hasRights(this.peerId, this.storyItem.id, 'pin')
     }, createSubmenuTrigger({
       options: {
         icon: 'folder',
@@ -161,9 +161,9 @@ class StoriesContextMenu {
       },
       createSubmenu: async() => {
         const selectedIds = getSelectedIds();
-        const selectedStories = await managers.appStoriesManager.getStoriesById(this.peerId, selectedIds);
+        const selectedStories = await managers.appStoriesManager!.getStoriesById(this.peerId, selectedIds);
 
-        const buttons: ButtonMenuItemOptions[] = this.state.peer?.albums.map((album) => {
+        const buttons: ButtonMenuItemOptions[] = this.state.peer?.albums!.map((album) => {
           const checkboxField = new CheckboxField({
             checked: selectedStories.every((story) => {
               return story?._ === 'storyItem' && !!story.albums?.includes(album.album_id);
@@ -179,7 +179,7 @@ class StoriesContextMenu {
             onClick: () => {
               const wasChecked = checkboxField.checked;
               checkboxField.checked = !wasChecked;
-              rootScope.managers.appStoriesManager.updateAlbum(this.peerId, album.album_id, {
+              rootScope.managers.appStoriesManager!.updateAlbum(this.peerId, album.album_id, {
                 [wasChecked ? 'deleteStories' : 'addStories']: selectedIds
               }).catch(() => {
                 checkboxField.checked = wasChecked;
@@ -200,8 +200,8 @@ class StoriesContextMenu {
       onClick: () => {
         const albumId = this.state.albumId;
         const storyIds = getSelectedIds()
-        if(this.selection.isSelecting) this.selection.cancelSelection();
-        rootScope.managers.appStoriesManager.updateAlbum(this.peerId, albumId, {deleteStories: storyIds}).then(() => {
+        if(this.selection!.isSelecting) this.selection!.cancelSelection();
+        rootScope.managers.appStoriesManager!.updateAlbum(this.peerId, albumId!, {deleteStories: storyIds}).then(() => {
           toastNew({langPackKey: 'Stories.Albums.Removed', langPackArguments: [storyIds.length]});
         }).catch(() => {
           toastNew({langPackKey: 'Error.AnError'});
@@ -212,12 +212,12 @@ class StoriesContextMenu {
       icon: 'link',
       text: 'CopyLink',
       onClick: async() => {
-        const username = await rootScope.managers.appPeersManager.getPeerUsername(this.peerId);
+        const username = await rootScope.managers.appPeersManager!.getPeerUsername(this.peerId);
         copyTextToClipboard(`https://t.me/${username}/s/${this.storyItem.id}`);
         toastNew({langPackKey: 'LinkCopied'});
       },
       verify: async() => {
-        const username = await rootScope.managers.appPeersManager.getPeerUsername(this.peerId);
+        const username = await rootScope.managers.appPeersManager!.getPeerUsername(this.peerId);
         return !!username;
       }
     }, {
@@ -236,7 +236,7 @@ class StoriesContextMenu {
         });
       },
       verify: async() => {
-        const username = await rootScope.managers.appPeersManager.getPeerUsername(this.peerId);
+        const username = await rootScope.managers.appPeersManager!.getPeerUsername(this.peerId);
         if(!username) return false;
 
         const story = this.storyItem;
@@ -245,19 +245,19 @@ class StoriesContextMenu {
     }, {
       icon: 'select',
       text: 'Message.Context.Select',
-      onClick: () => this.selection.toggleByElement(this.target),
+      onClick: () => this.selection!.toggleByElement(this.target),
       verify: () => !!this.selection && !this.isSelected && this.state.canEdit
     }, {
       icon: 'select',
       text: 'Message.Context.Selection.Clear',
-      onClick: () => this.selection.cancelSelection(),
+      onClick: () => this.selection!.cancelSelection(),
       verify: () => !!this.selection && this.isSelected
     }, {
       icon: 'delete',
       className: 'danger',
       text: 'Delete',
-      onClick: () => this.selection.onDeleteStoriesClick([this.storyItem.id], this.peerId),
-      verify: () => managers.appStoriesManager.hasRights(this.peerId, this.storyItem.id, 'delete')
+      onClick: () => this.selection!.onDeleteStoriesClick([this.storyItem.id], this.peerId),
+      verify: () => managers.appStoriesManager!.hasRights(this.peerId, this.storyItem.id, 'delete')
     }];
 
     this.element = ButtonMenuSync({buttons: this.buttons, listenerSetter: this.listenerSetter});
@@ -285,7 +285,7 @@ async function openCreateAlbumPopup(peerId: PeerId): Promise<number | undefined>
     return;
   }
 
-  const album = await rootScope.managers.appStoriesManager.createAlbum(peerId, inputField.value);
+  const album = await rootScope.managers.appStoriesManager!.createAlbum(peerId, inputField.value);
   return album.album_id;
 }
 
@@ -294,7 +294,7 @@ function StoriesAlbums(props: {
   onAlbumChange: (albumId: number | undefined) => void,
   peerId: PeerId
 }) {
-  const [stories] = useStories();
+  const [stories] = useStories()!;
   const hasAlbums = () => stories.ready && stories.peer.albums && stories.peer.albums.length > 0;
   const chosenAlbumId = () => stories.albumId === undefined ? ALL_ALBUMS_ID : stories.albumId;
 
@@ -323,7 +323,7 @@ function StoriesAlbums(props: {
           const id = Number(id_);
           if(id === ALL_ALBUMS_ID || id === ADD_ALBUM_ID) return [];
 
-          const album = stories.peer.albums?.find((a) => a.album_id === id);
+          const album = stories.peer.albums?.find((a: StoryAlbum) => a.album_id === id);
           if(!album) return [];
 
           return [
@@ -331,12 +331,12 @@ function StoriesAlbums(props: {
               icon: 'link',
               text: 'CopyLink',
               onClick: async() => {
-                const username = await rootScope.managers.appPeersManager.getPeerUsername(props.peerId);
+                const username = await rootScope.managers.appPeersManager!.getPeerUsername(props.peerId);
                 copyTextToClipboard(`https://t.me/${username}/a/${id}`);
                 toastNew({langPackKey: 'LinkCopied'});
               },
               verify: async() => {
-                const username = await rootScope.managers.appPeersManager.getPeerUsername(props.peerId);
+                const username = await rootScope.managers.appPeersManager!.getPeerUsername(props.peerId);
                 return !!username;
               }
             },
@@ -369,7 +369,7 @@ function StoriesAlbums(props: {
                 }
 
                 if(inputField.value === album.title) return;
-                rootScope.managers.appStoriesManager.updateAlbum(props.peerId, id, {title: inputField.value}).catch(() => {
+                rootScope.managers.appStoriesManager!.updateAlbum(props.peerId, id, {title: inputField.value}).catch(() => {
                   toastNew({langPackKey: 'Error.AnError'});
                 });
               }
@@ -390,7 +390,7 @@ function StoriesAlbums(props: {
                   return;
                 }
 
-                rootScope.managers.appStoriesManager.deleteAlbum(props.peerId, id).catch(() => {
+                rootScope.managers.appStoriesManager!.deleteAlbum(props.peerId, id).catch(() => {
                   toastNew({langPackKey: 'Error.AnError'});
                 });
               }
@@ -432,7 +432,7 @@ async function openAddToAlbumPopup(peerId: PeerId, albumId: number) {
   if(!result) return;
   const {added, removed} = result;
   if(!added.length && !removed.length) return;
-  rootScope.managers.appStoriesManager.updateAlbum(peerId, albumId, {
+  rootScope.managers.appStoriesManager!.updateAlbum(peerId, albumId, {
     addStories: added.length ? added : undefined,
     deleteStories: removed.length ? removed : undefined
   }).catch(() => {
@@ -449,7 +449,7 @@ function StoriesGrid(props: {
   archive?: boolean,
   onSetAlbumAnimated?: (fn: (albumId: number | undefined) => void) => void
 }) {
-  const [stories, actions] = useStories();
+  const [stories, actions] = useStories()!;
   const [viewerId, setViewerId] = createSignal<number>();
   const items = new Map<number, HTMLElement>();
 
@@ -468,19 +468,19 @@ function StoriesGrid(props: {
     };
 
     const target = createMemo(() => {
-      const storyId = stories.peer.stories[stories.peer.index].id;
+      const storyId = stories.peer.stories[stories.peer.index!].id;
       return items.get(storyId);
     });
 
     untrack(() => {
       const peer = stories.peer;
-      const index = peer.stories.findIndex((story) => story.id === id);
+      const index = peer.stories.findIndex((story: StoryItem) => story.id === id);
       actions.set({peer, index});
     });
 
     createStoriesViewer({
       onExit,
-      target,
+      target: target as () => Element,
       splitByDays: true
     });
   });
@@ -529,11 +529,11 @@ function StoriesGrid(props: {
           ignoreCache: true,
           onlyStripped: true
         });
-        const thumb = gotThumb.image as HTMLCanvasElement;
-        element.parentElement.prepend(thumb);
+        const thumb = gotThumb!.image as HTMLCanvasElement;
+        element.parentElement!.prepend(thumb);
 
         // need img for clone animation to work
-        gotThumb.loadPromise.then(() => {
+        gotThumb!.loadPromise.then(() => {
           const img = document.createElement('img');
           img.className = thumb.className;
           img.src = thumb.toDataURL();
@@ -602,9 +602,9 @@ function StoriesGrid(props: {
   const setAlbumIdAnimated = (albumId: number | undefined) => {
     const albums = stories.peer?.albums;
     const oldIndex = stories.albumId === undefined ? -1 :
-      (albums?.findIndex((a) => a.album_id === stories.albumId) ?? -1);
+      (albums?.findIndex((a: StoryAlbum) => a.album_id === stories.albumId) ?? -1);
     const newIndex = albumId === undefined ? -1 :
-      (albums?.findIndex((a) => a.album_id === albumId) ?? -1);
+      (albums?.findIndex((a: StoryAlbum) => a.album_id === albumId) ?? -1);
     const dir = newIndex > oldIndex ? 1 : newIndex < oldIndex ? -1 : 0;
 
     const scrollable = props.scrollable.container;
@@ -666,7 +666,7 @@ function StoriesGrid(props: {
               <ButtonTsx
                 class="btn-primary btn-color-primary btn-control"
                 text="Stories.Albums.AddToAlbum"
-                onClick={() => openAddToAlbumPopup(props.peerId, stories.albumId)}
+                onClick={() => openAddToAlbumPopup(props.peerId, stories.albumId!)}
               />
             </div>
           </Match>
@@ -718,10 +718,10 @@ function StoriesSelectionToolbar(props: {
           icon="crossround"
           class="search-super-selection-remove btn-icon"
           onClick={() => {
-            const mids = props.selection.selectedMids.get(props.peerId);
+            const mids = props.selection.selectedMids.get(props.peerId!);
             if(mids?.size) {
               const count = mids.size;
-              rootScope.managers.appStoriesManager.updateAlbum(props.peerId, props.albumId, {deleteStories: [...mids]}).then(() => {
+              rootScope.managers.appStoriesManager!.updateAlbum(props.peerId!, props.albumId!, {deleteStories: [...mids]}).then(() => {
                 toastNew({langPackKey: 'Stories.Albums.Removed', langPackArguments: [count]});
               }).catch(() => {
                 toastNew({langPackKey: 'Error.AnError'});
@@ -742,7 +742,7 @@ function StoriesSelectionToolbar(props: {
         <ButtonTsx
           icon={props.selection.isStoriesArchive ? 'unarchive' : 'archive'}
           class="search-super-selection-pin btn-icon"
-          onClick={() => props.selection.onPinStoriesClick(undefined, props.selection.isStoriesArchive)}
+          onClick={() => props.selection.onPinStoriesClick(undefined!, props.selection.isStoriesArchive)}
         />
       </Show>
       <Show when={!props.selection.cantDelete()}>
@@ -758,8 +758,8 @@ function StoriesSelectionToolbar(props: {
   if(props.mount) {
     createEffect(() => {
       const selecting = props.selection.selecting();
-      props.mount.classList.toggle('is-selecting', selecting);
-      props.mount.classList.toggle('backwards', !selecting);
+      props.mount!.classList.toggle('is-selecting', selecting);
+      props.mount!.classList.toggle('backwards', !selecting);
     });
     return <Portal mount={props.mount}>{content}</Portal>;
   }
@@ -879,7 +879,7 @@ export function StoriesProfileList(props: {
             if(selection) {
               attachClickEvent(containerRef, (e) => {
                 if(selection.isSelecting) {
-                  const item = findUpClassName(e.target, 'search-super-item');
+                  const item = findUpClassName(e.target!, 'search-super-item');
                   if(!item) return;
                   cancelClickOrNextIfNotClick(e);
                   selection.toggleByElement(item);
@@ -890,7 +890,7 @@ export function StoriesProfileList(props: {
           }}
           peerId={props.peerId}
           selection={selection}
-          pinned={props.pinned}
+          pinned={props.pinned!}
           archive={props.archive}
           onSetAlbumAnimated={(fn) => setAlbumAnimated = fn}
         />

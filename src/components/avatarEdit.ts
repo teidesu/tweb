@@ -50,7 +50,7 @@ export async function mediaEditorResultToAvatarPayload(
     if(!resultPayload.thumb) return undefined;
     const videoStartTs = computeVideoStartTs(editorResult);
     return {
-      file: () => appDownloadManager.upload(resultPayload.thumb.blob, namePrefix + '-cover.jpg'),
+      file: () => appDownloadManager.upload(resultPayload.thumb!.blob, namePrefix + '-cover.jpg'),
       video: () => appDownloadManager.upload(resultPayload.blob, namePrefix + '.mp4'),
       videoStartTs
     };
@@ -103,21 +103,21 @@ async function handleAvatarEditorResult(opts: {
 
   let file: InputFile, video: InputFile;
   try {
-    [file, video] = await Promise.all([filePromise, videoPromise]);
+    [file, video!] = await Promise.all([filePromise, videoPromise]) as [InputFile, InputFile];
   } catch{
     return; // cancelled or upload failed
   }
 
   if(mode === 'self') {
-    await managers.appProfileManager.uploadProfilePhoto({
+    await managers.appProfileManager!.uploadProfilePhoto({
       file, video, videoStartTs: payload.videoStartTs
     });
   } else if(mode === 'fallback') {
-    await managers.appProfileManager.uploadProfilePhoto({
+    await managers.appProfileManager!.uploadProfilePhoto({
       file, video, videoStartTs: payload.videoStartTs, fallback: true
     });
   } else {
-    await managers.appProfileManager.uploadContactProfilePhoto({
+    await managers.appProfileManager!.uploadContactProfilePhoto({
       userId: mode.userId,
       file, video, videoStartTs: payload.videoStartTs,
       // "Set photo for X" (personal photo, only the current user sees it) needs
@@ -263,7 +263,7 @@ export default class AvatarEdit {
 
   public clear() {
     const ctx = this.canvas.getContext('2d');
-    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    ctx!.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 }
 
@@ -302,9 +302,9 @@ async function finishFromResult({result: editorResult, canvas, onChange}: Finish
   [canvas.width, canvas.height] = [width, height];
 
   const ctx = canvas.getContext('2d');
-  ctx.drawImage(img, 0, 0, width, height);
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-  ctx.fillRect(0, 0, width, height);
+  ctx!.drawImage(img, 0, 0, width, height);
+  ctx!.fillStyle = 'rgba(0, 0, 0, 0.3)';
+  ctx!.fillRect(0, 0, width, height);
 
   // Doing this now prevents the avatar blinking to the old one
   onChange({
@@ -363,13 +363,13 @@ async function finishFromVideoResult({
     const [width, height] = snapToViewport(1, editorResult.width, editorResult.height);
     [canvas.width, canvas.height] = [width, height];
     const ctx = canvas.getContext('2d');
-    ctx.drawImage(thumbImg.img, 0, 0, width, height);
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-    ctx.fillRect(0, 0, width, height);
+    ctx!.drawImage(thumbImg.img, 0, 0, width, height);
+    ctx!.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    ctx!.fillRect(0, 0, width, height);
   }
 
   onChange({
-    file: () => appDownloadManager.upload(resultPayload.thumb.blob, 'cover.jpg'),
+    file: () => appDownloadManager.upload(resultPayload.thumb!.blob, 'cover.jpg'),
     video: () => appDownloadManager.upload(resultPayload.blob, 'avatar.mp4'),
     videoStartTs
   });

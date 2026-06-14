@@ -101,7 +101,7 @@ export const createSortableList = <T, >(args: CreateSortableListArgs<T>) => {
 
 const createDragContextValue = <T, >({container, items, getId, onReorder}: CreateSortableListArgs<T>): DragContext<T> => {
   const intialDragState: DragState = {
-    id: null,
+    id: null as unknown as Id,
     isDragging: false,
     startIndex: 0,
     overIndex: 0,
@@ -116,7 +116,7 @@ const createDragContextValue = <T, >({container, items, getId, onReorder}: Creat
     structuredClone(intialDragState)
   );
 
-  const [finishingAnimationState, setFinishingAnimationState] = createStore<FinishingAnimationState>({id: null, shift: 0});
+  const [finishingAnimationState, setFinishingAnimationState] = createStore<FinishingAnimationState>({id: null as unknown as Id, shift: 0});
 
   const scrollAdjustment = createMemo(() => dragState.currentScrollTop - dragState.initialScrollTop);
 
@@ -178,7 +178,7 @@ const useCalculateShift = <T, >(context: DragContext<T>) => {
       }
     }
 
-    if(rect && firstRect && lastRect) {
+    if(rect && firstRect! && lastRect!) {
       shift = Math.max(shift, firstRect.top - rect.top);
       shift = Math.min(shift, lastRect.bottom - rect.bottom);
     }
@@ -424,7 +424,7 @@ const useEndDrag = <T, >(context: DragContext<T>) => {
         setFinishingAnimationState('shift', value);
       }, {
         onEnd: () => {
-          setFinishingAnimationState({id: null, shift: 0});
+          setFinishingAnimationState({id: null as unknown as Id, shift: 0});
         }
       });
     });

@@ -31,8 +31,8 @@ export class AppPeersManager extends AppManager {
   } */
 
   public saveApiPeers(object: {chats?: Chat[], users?: User[]}) {
-    this.appChatsManager.saveApiChats(object.chats);
-    this.appUsersManager.saveApiUsers(object.users);
+    this.appChatsManager.saveApiChats(object.chats!);
+    this.appUsersManager.saveApiUsers(object.users!);
   }
 
   public canPinMessage(peerId: PeerId) {
@@ -183,11 +183,11 @@ export class AppPeersManager extends AppManager {
   }
 
   public isBotforum(peerId?: PeerId): boolean {
-    return peerId?.isUser() && this.appUsersManager.isBotforum(peerId.toChatId());
+    return !!(peerId?.isUser() && this.appUsersManager.isBotforum(peerId.toChatId()));
   }
 
   public canManageBotforumTopics(peerId?: PeerId): boolean {
-    return peerId?.isUser() && this.appUsersManager.canManageBotforumTopics(peerId.toChatId());
+    return !!(peerId?.isUser() && this.appUsersManager.canManageBotforumTopics(peerId.toChatId()));
   }
 
   public canManageDirectMessages(peerId?: PeerId) {

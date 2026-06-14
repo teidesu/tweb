@@ -30,6 +30,6 @@ declare global {
   }
 
   interface Promise<T> {
-    finally: (onfinally?: () => void) => Promise<T>;
+    finally: (onfinally?: (() => void) | null) => Promise<T>;
   }
 }

@@ -22,7 +22,7 @@ export class WebpWorkerController {
 
       const promise = this.convertPromises[payload.fileName];
       if(promise) {
-        payload.bytes ? promise.resolve(payload.bytes) : promise.reject();
+        payload.bytes ? promise.resolve!(payload.bytes) : promise.reject!();
         delete this.convertPromises[payload.fileName];
       }
     });
@@ -31,7 +31,7 @@ export class WebpWorkerController {
   private postMessage(data: ConvertWebPTask) {
     if(this.init) {
       this.init();
-      this.init = null;
+      this.init = null as unknown as () => void;
     }
 
     this.worker.postMessage(data);

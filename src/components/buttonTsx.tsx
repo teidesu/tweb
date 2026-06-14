@@ -27,7 +27,7 @@ const Button = (props: Partial<{
 }> = {}): JSX.Element => {
   let disabled: Accessor<boolean>, setDisabled: Setter<boolean>;
   if(props.disabled !== undefined) {
-    disabled = createMemo(() => props.disabled);
+    disabled = (createMemo(() => props.disabled)! as Accessor<boolean>);
   } else {
     [disabled, setDisabled] = createSignal(false);
   }
@@ -45,9 +45,9 @@ const Button = (props: Partial<{
         props.onlyMobile && 'only-handhelds'
       )}
       disabled={disabled()}
-      onClick={props.onClick && setDisabled ? ((e: any) => {
+      onClick={props.onClick && setDisabled! ? ((e: any) => {
         try {
-          const result = props.onClick(e);
+          const result = props.onClick!(e);
           if(result instanceof Promise) {
             setDisabled(true);
             result.finally(() => {

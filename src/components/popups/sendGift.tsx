@@ -160,7 +160,7 @@ function GiftOptionsPage(props: {
     if(category$ === 'All') return props.giftOptions;
     if(category$ === 'Collectibles') {
       return props.giftOptions.filter((it) =>
-        ((it.raw as StarGift.starGift).availability_remains > 0 && (it.raw as StarGift.starGift).upgrade_stars !== undefined) ||
+        ((it.raw as StarGift.starGift).availability_remains! > 0 && (it.raw as StarGift.starGift).upgrade_stars !== undefined) ||
         it.isResale
       );
     }
@@ -193,8 +193,8 @@ function GiftOptionsPage(props: {
       return
     }
 
-    if(gift.locked_until_date > tsNow(true)) {
-      const result = await rootScope.managers.apiManager.invokeApi('payments.checkCanSendGift', {
+    if(gift.locked_until_date! > tsNow(true)) {
+      const result = await rootScope.managers.apiManager!.invokeApi('payments.checkCanSendGift', {
         gift_id: gift.id
       })
 
@@ -399,7 +399,7 @@ function ResaleOptionsPage(props: {
       }
     }
 
-    const res = await rootScope.managers.appGiftsManager.getResaleOptions({
+    const res = await rootScope.managers.appGiftsManager!.getResaleOptions({
       giftId: props.gift.raw.id,
       sort: sort(),
       attributesHash,
@@ -411,20 +411,20 @@ function ResaleOptionsPage(props: {
 
     if(res.counters) {
       for(const it of res.counters) {
-        countersMap.set(getCounterKey(it.attribute), it.count);
+        countersMap.set(getCounterKey(it.attribute)!, it.count);
       }
     }
 
     if(res.attributes) {
       // ! filter attributes with 0 counts because they dont work server-side
-      setModelOptions(res.attributes.models.filter(it => countersMap.get(getCounterKey(it)) ?? 0 > 0));
-      setPatternOptions(res.attributes.patterns.filter(it => countersMap.get(getCounterKey(it)) ?? 0 > 0));
-      setBackdropOptions(res.attributes.backdrops.filter(it => countersMap.get(getCounterKey(it)) ?? 0 > 0));
-      attributesHash = res.attributesHash;
+      setModelOptions(res.attributes.models.filter(it => countersMap.get(getCounterKey(it)!) ?? 0 > 0));
+      setPatternOptions(res.attributes.patterns.filter(it => countersMap.get(getCounterKey(it)!) ?? 0 > 0));
+      setBackdropOptions(res.attributes.backdrops.filter(it => countersMap.get(getCounterKey(it)!) ?? 0 > 0));
+      attributesHash = res.attributesHash!;
     }
 
     setItems((prev) => [...prev, ...res.items]);
-    offset = res.next;
+    offset = res.next!;
     setTotal(res.count);
     setLoading(false);
   }
@@ -492,7 +492,7 @@ function ResaleOptionsPage(props: {
             <I18nTsx
               class={styles.resaleSubtitle}
               key="StarGiftResaleSubtitle"
-              args={[total() !== null ? numberThousandSplitter(total()) : '...']}
+              args={[total() !== null ? numberThousandSplitter(total()!) : '...']}
             />
           </div>
         </div>
@@ -542,12 +542,12 @@ function ResaleOptionsPage(props: {
               renderOption={(props) => {
                 let stickerRef: HTMLDivElement;
                 onMount(() => {
-                  props.stickerRenderer.renderSticker(props.option.document as any, stickerRef);
-                  props.stickerRenderer.observeAnimated(stickerRef);
+                  props.stickerRenderer!.renderSticker(props.option.document as any, stickerRef!);
+                  props.stickerRenderer!.observeAnimated(stickerRef!);
                 })
                 return (
                   <>
-                    <div class="btn-menu-item-icon" ref={stickerRef} />
+                    <div class="btn-menu-item-icon" ref={stickerRef!} />
                     <div class="btn-menu-item-text">
                       <ButtonMenuSelectText
                         text={props.option.name}
@@ -555,7 +555,7 @@ function ResaleOptionsPage(props: {
                       />
                       <span class={styles.resaleFilterChipCount}>
                         {' '}
-                        {countersMap.get(getCounterKey(props.option)) ?? 0}
+                        {countersMap.get(getCounterKey(props.option)!) ?? 0}
                       </span>
                     </div>
                     {props.chosen && <IconTsx icon="check" class="btn-menu-item-icon-right" />}
@@ -600,7 +600,7 @@ function ResaleOptionsPage(props: {
                     />
                     <span class={styles.resaleFilterChipCount}>
                       {' '}
-                      {countersMap.get(getCounterKey(props.option)) ?? 0}
+                      {countersMap.get(getCounterKey(props.option)!) ?? 0}
                     </span>
                   </div>
                   {props.chosen && <IconTsx icon="check" class="btn-menu-item-icon-right" />}
@@ -631,12 +631,12 @@ function ResaleOptionsPage(props: {
               renderOption={(props) => {
                 let stickerRef: HTMLDivElement;
                 onMount(() => {
-                  props.stickerRenderer.renderSticker(props.option.document as any, stickerRef);
-                  props.stickerRenderer.observeAnimated(stickerRef);
+                  props.stickerRenderer!.renderSticker(props.option.document as any, stickerRef!);
+                  props.stickerRenderer!.observeAnimated(stickerRef!);
                 })
                 return (
                   <>
-                    <div class="btn-menu-item-icon" ref={stickerRef} />
+                    <div class="btn-menu-item-icon" ref={stickerRef!} />
                     <div class="btn-menu-item-text">
                       <ButtonMenuSelectText
                         text={props.option.name}
@@ -644,7 +644,7 @@ function ResaleOptionsPage(props: {
                       />
                       <span class={styles.resaleFilterChipCount}>
                         {' '}
-                        {countersMap.get(getCounterKey(props.option)) ?? 0}
+                        {countersMap.get(getCounterKey(props.option)!) ?? 0}
                       </span>
                     </div>
                     {props.chosen && <IconTsx icon="check" class="btn-menu-item-icon-right" />}
@@ -719,20 +719,20 @@ function StarGiftLimitedProgress(props: {
   gift: StarGift.starGift
 }) {
   // NB: deliberately not reactive, gift won't change
-  const left = i18n('StarGiftLimitedLeft', [props.gift.availability_remains]);
-  left.classList.add(styles.limitedProgressLeft);
+  const left = i18n('StarGiftLimitedLeft', [props.gift.availability_remains!]);
+  left!.classList.add(styles.limitedProgressLeft);
 
-  const progress = 100 * props.gift.availability_remains / props.gift.availability_total;
+  const progress = 100 * props.gift.availability_remains! / props.gift.availability_total!;
 
   return (
     <div class={styles.limitedProgressWrap}>
       <div class={styles.limitedProgressBar}>
-        <div class={styles.limitedProgressProgress} style={{width: `${100 * props.gift.availability_remains / props.gift.availability_total}%`}} />
+        <div class={styles.limitedProgressProgress} style={{width: `${100 * props.gift.availability_remains! / props.gift.availability_total!}%`}} />
         <div class={styles.limitedProgressText} style={{
           'background-image': `linear-gradient(90deg, #fff ${progress}%, var(--secondary-text-color) ${progress}%)`
         }}>
           {left}
-          {i18n('StarGiftLimitedSold2', [props.gift.availability_total - props.gift.availability_remains])}
+          {i18n('StarGiftLimitedSold2', [props.gift.availability_total! - props.gift.availability_remains!])}
         </div>
       </div>
     </div>
@@ -758,23 +758,23 @@ function ChosenGiftPage(props: {
     id: 0,
     peer_id: {_: 'peerUser', user_id: props.peerId.toUserId()},
     date: 0,
-    action: props.chosenGift.type === 'stargift' ? {
+    action: (props.chosenGift.type === 'stargift' ? {
       _: 'messageActionStarGift',
       gift: props.chosenGift.raw,
       pFlags: {}
     } : {
       _: 'messageActionGiftPremium',
       currency: payWithStars() ? STARS_CURRENCY : props.chosenGift.currency,
-      amount: payWithStars() ? props.chosenGift.priceStars : props.chosenGift.price,
+      amount: (payWithStars() ? props.chosenGift.priceStars : props.chosenGift.price)!,
       days: props.chosenGift.months * 30
-    }
+    })!
   }));
 
   async function handleSubmit() {
     setSending(true);
     let invoice: InputInvoice;
     if(props.chosenGift.type === 'stargift') {
-      const peer = await rootScope.managers.appPeersManager.getInputPeerById(props.peerId)
+      const peer = await rootScope.managers.appPeersManager!.getInputPeerById(props.peerId)
       invoice = {
         _: 'inputInvoiceStarGift',
         pFlags: {
@@ -787,7 +787,7 @@ function ChosenGiftPage(props: {
       };
     } else {
       const payWithStars$ = payWithStars();
-      const inputUser = await rootScope.managers.appUsersManager.getUserInput(props.peerId.toUserId());
+      const inputUser = await rootScope.managers.appUsersManager!.getUserInput(props.peerId.toUserId());
       if(payWithStars$) {
         invoice = {
           _: 'inputInvoicePremiumGiftStars',
@@ -869,10 +869,10 @@ function ChosenGiftPage(props: {
               />
             ) : (
               <PremiumGiftBubble
-                title={i18n('ActionGiftPremiumTitle2', [formatMonthsDuration(props.chosenGift.months, false)])}
+                title={i18n('ActionGiftPremiumTitle2', [formatMonthsDuration(props.chosenGift.months, false)!])}
                 subtitle={
                   textWithEntities() ?
-                    wrapRichText(textWithEntities().text, {entities: textWithEntities().entities}) :
+                    wrapRichText(textWithEntities()!.text, {entities: textWithEntities()!.entities}) :
                     i18n('ActionGiftPremiumSubtitle2')
                 }
                 buttonText={i18n('ActionGiftPremiumView')}
@@ -957,7 +957,7 @@ function ChosenGiftPage(props: {
                       key="StarGiftMakeUnique"
                       args={[
                         <StarsStar />,
-                        numberThousandSplitterForStars((props.chosenGift.raw as StarGift.starGift).upgrade_stars)
+                        numberThousandSplitterForStars((props.chosenGift.raw as StarGift.starGift).upgrade_stars!)
                       ]}
                     >
                     </I18nTsx>
@@ -974,7 +974,7 @@ function ChosenGiftPage(props: {
                         gift: props.chosenGift as MyStarGift,
                         descriptionForPeerId: props.peerId
                       }));
-                      a.append(i18n('StarGiftMakeUniqueLink'));
+                      a.append(i18n('StarGiftMakeUniqueLink')!);
                       return a;
                     })()
                   ]}
@@ -997,14 +997,14 @@ function ChosenGiftPage(props: {
               const gift = props.chosenGift.raw as StarGift.starGift;
               let stars = gift.stars;
               if(withUpgrade()) {
-                stars = bigInt(stars as string).add(gift.upgrade_stars).toString();
+                stars = bigInt(stars as string).add(gift.upgrade_stars!).toString();
               }
               return paymentsWrapCurrencyAmount(stars, STARS_CURRENCY);
             }
 
             if(payWithStars()) {
               return paymentsWrapCurrencyAmount(
-                props.chosenGift.priceStars,
+                props.chosenGift.priceStars!,
                 STARS_CURRENCY
               );
             }
@@ -1042,7 +1042,7 @@ export default class PopupSendGift extends PopupElement {
       body: true,
       onBackClick: () => {
         if(this.chosenGift()) {
-          this.setChosenGift(undefined);
+          this.setChosenGift(undefined as any);
         }
       }
     });
@@ -1062,18 +1062,18 @@ export default class PopupSendGift extends PopupElement {
       }
     })
     const [premiumOptions, giftOptions, peer] = await Promise.all([
-      this.peerId.isUser() ? this.managers.appGiftsManager.getPremiumGiftOptions() : [] as MyPremiumGiftOption[],
-      this.managers.appGiftsManager.getStarGiftOptions(),
-      this.managers.appPeersManager.getPeer(this.peerId),
+      this.peerId.isUser() ? this.managers.appGiftsManager!.getPremiumGiftOptions() : [] as MyPremiumGiftOption[],
+      this.managers.appGiftsManager!.getStarGiftOptions(),
+      this.managers.appPeersManager!.getPeer(this.peerId),
       !this.resaleParams && this.peerId !== rootScope.myId && profileStoreActions.loadNext()
     ]);
 
     const [chosenGift, setChosenGift] = createSignal<GiftOption>();
     if(this.resaleParams) {
-      setChosenGift(giftOptions.find((it) => it.raw.id === this.resaleParams.giftId && it.isResale));
+      setChosenGift(giftOptions.find((it) => it.raw.id === this.resaleParams!.giftId && it.isResale));
     }
     this.chosenGift = chosenGift;
-    this.setChosenGift = setChosenGift;
+    this.setChosenGift = (setChosenGift! as Setter<MyStarGift | MyPremiumGiftOption>);
 
     const [currentPage, setCurrentPage] = createSignal(this.resaleParams ? 2 : 0);
 
@@ -1104,7 +1104,7 @@ export default class PopupSendGift extends PopupElement {
           }}
           onTransitionEnd={(id) => {
             if(id === 0) {
-              this.setChosenGift(undefined);
+              this.setChosenGift(undefined as unknown as MyStarGift);
             }
           }}
           currentPage={currentPage()}
@@ -1125,8 +1125,8 @@ export default class PopupSendGift extends PopupElement {
           <Show when={chosenGift() !== undefined && !(chosenGift() as MyStarGift).isResale}>
             <ChosenGiftPage
               peerId={this.peerId}
-              peerName={peer._ === 'user' ? peer.first_name : peer.title}
-              chosenGift={chosenGift()}
+              peerName={(peer._ === 'user' ? peer.first_name : peer.title)!}
+              chosenGift={chosenGift()!}
               onBack={() => setCurrentPage(0)}
               onClose={() => this.hide()}
             />

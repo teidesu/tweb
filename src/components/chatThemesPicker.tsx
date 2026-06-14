@@ -91,7 +91,7 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
   let lastOnFrameNo: ((frameNo: number) => void) | undefined;
 
   const getBaseTheme = (): BaseTheme['_'] =>
-    props.baseTheme?.() ?? themeController.getBaseThemeForName(themeController.getTheme().name);
+    props.baseTheme?.() ?? themeController.getBaseThemeForName(themeController.getTheme()!.name);
 
   // Picks the wallpaper container for the currently-active base theme, with a
   // night fallback so themes that ship only Classic/Night look right when shown
@@ -137,7 +137,7 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
     }
   };
 
-  const scrollable = new ScrollableX(null);
+  const scrollable = new ScrollableX(null as unknown as HTMLElement);
   scrollable.container.classList.add('themes-container');
   // Start hidden so the tiles don't pop in for one frame after the async
   // `getThemes()` resolves. We flip opacity to 1 once `buildThemes` has
@@ -145,7 +145,7 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
   scrollable.container.style.opacity = '0';
   scrollable.container.style.transition = 'opacity .2s ease';
 
-  const [themesPromise] = createResource(() => rootScope.managers.appThemesManager.getThemes());
+  const [themesPromise] = createResource(() => rootScope.managers.appThemesManager!.getThemes());
 
   const buildThemes = async() => {
     const themes = themesPromise();
@@ -163,12 +163,12 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
       const themeId = String(theme.id ?? '');
       const isCurated = themeId === '' || themeId.startsWith('preset:');
 
-      const results = theme.settings
+      const results = theme.settings!
       .filter((themeSettings) => AVAILABLE_BASE_THEMES.has(themeSettings.base_theme._))
       .map((themeSettings) => {
         const shouldBlend = themeSettings.base_theme._ === 'baseThemeTinted' && !isCurated && themeSettings.wallpaper;
-        const wp = shouldBlend ? blendWallpaperForTinted(themeSettings.wallpaper, themeSettings.accent_color) : themeSettings.wallpaper;
-        const result = AppBackgroundTab.addWallPaper(wp, undefined, themeSettings.base_theme._);
+        const wp = shouldBlend ? blendWallpaperForTinted(themeSettings.wallpaper!, themeSettings.accent_color) : themeSettings.wallpaper;
+        const result = AppBackgroundTab.addWallPaper(wp!, undefined, themeSettings.base_theme._);
         // addWallPaper returns undefined for a pattern wallpaper with no colors —
         // skip rather than deref (matches the tinted-fallback guard below).
         if(!result) return undefined;
@@ -181,7 +181,7 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
       // Synthesize a tinted preview from the night entry when the theme ships
       // only Classic/Night, matching applyNewTheme's blend-on-fallback.
       if(!k.wallPaperContainers['baseThemeTinted'] && !isCurated) {
-        const nightEntry = theme.settings.find((s) => s.base_theme._ === 'baseThemeNight');
+        const nightEntry = theme.settings!.find((s) => s.base_theme._ === 'baseThemeNight');
         if(nightEntry?.wallpaper) {
           const blendedWp = blendWallpaperForTinted(nightEntry.wallpaper, nightEntry.accent_color);
           const result = AppBackgroundTab.addWallPaper(blendedWp, undefined, 'baseThemeTinted');
@@ -227,12 +227,12 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
       bubbleIn.classList.add('is-in');
       bubble.classList.add('is-out');
 
-      loadPromises.push(...results.map((result) => result.loadPromise));
+      loadPromises.push(...results.map((result) => result!.loadPromise));
       container.classList.add('theme-container');
 
       await Promise.all(loadPromises);
 
-      if(emoticonContainer) container.append(emoticonContainer);
+      if(emoticonContainer!) container.append(emoticonContainer);
       container.append(bubbleIn, bubble);
 
       return container;
@@ -283,7 +283,7 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
 
   const listenerSetter = new ListenerSetter();
   attachClickEvent(scrollable.container, async(e) => {
-    const container = findUpClassName(e.target, 'theme-container');
+    const container = findUpClassName(e.target!, 'theme-container');
     if(!container) return;
 
     const item = themesMap.get(container);
@@ -303,17 +303,17 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
     item.player.el[0].style.transform = 'scale(2)';
 
     const onFrameNo = lastOnFrameNo = (frameNo) => {
-      if(item.player.maxFrame === frameNo || frameNo === -1) {
-        item.player.el[0].style.transform = '';
-        item.player.removeEventListener('enterFrame', onFrameNo);
+      if(item.player!.maxFrame === frameNo || frameNo === -1) {
+        item.player!.el[0].style.transform = '';
+        item.player!.removeEventListener('enterFrame', onFrameNo);
         if(lastOnFrameNo === onFrameNo) lastOnFrameNo = undefined;
       }
     };
 
     setTimeout(() => {
       if(lastOnFrameNo !== onFrameNo) return;
-      item.player.play();
-      item.player.addEventListener('enterFrame', onFrameNo);
+      item.player!.play();
+      item.player!.addEventListener('enterFrame', onFrameNo);
     }, 250);
   }, {listenerSetter});
 

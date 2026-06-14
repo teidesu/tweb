@@ -14,7 +14,7 @@ export default class LazyLoadQueueIntersector extends LazyLoadQueueBase {
   protected inProcess: Set<LazyLoadElement> = new Set();
 
   public intersector: VisibilityIntersector;
-  protected intersectorTimeout: number;
+  protected intersectorTimeout: number | undefined;
 
   constructor(parallelLimit?: number) {
     super(parallelLimit);

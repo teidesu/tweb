@@ -6,7 +6,7 @@ import {isUsernameValid} from '@lib/richTextProcessor/validators';
 import {AppManagers} from '@lib/managers';
 
 export class UsernameInputField extends InputField {
-  private checkUsernamePromise: Promise<any>;
+  private checkUsernamePromise: Promise<any> | undefined;
   private checkUsernameDebounced: (username: string) => void;
   public options: InputFieldOptions & {
     peerId?: PeerId,
@@ -17,7 +17,7 @@ export class UsernameInputField extends InputField {
     availableText: LangPackKey,
     head?: string
   };
-  public error: ApiError;
+  public error: ApiError | undefined;
 
   constructor(
     options: UsernameInputField['options'],
@@ -66,9 +66,9 @@ export class UsernameInputField extends InputField {
     this.error = undefined;
     let checkPromise: Promise<any>
     if(this.options.peerId) {
-      checkPromise = this.managers.appChatsManager.checkUsername(this.options.peerId.toChatId(), username);
+      checkPromise = this.managers.appChatsManager!.checkUsername(this.options.peerId.toChatId(), username);
     } else {
-      checkPromise = this.managers.appUsersManager.checkUsername(username);
+      checkPromise = this.managers.appUsersManager!.checkUsername(username);
     }
 
     const promise = this.checkUsernamePromise = checkPromise.then((available) => {
@@ -83,7 +83,7 @@ export class UsernameInputField extends InputField {
       if(this.getValue() !== username) return;
 
       this.error = err;
-      switch(this.error.type) {
+      switch(this.error!.type) {
         case 'USERNAME_PURCHASE_AVAILABLE': {
           this.setError(this.options.takenText);
           break;

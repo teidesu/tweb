@@ -14,7 +14,7 @@ export default class GroupCallDescriptionElement {
       key: 'VoiceChat.Status.Connecting'
     });
 
-    this.descriptionIntl.element.classList.add('group-call-description');
+    this.descriptionIntl.element!.classList.add('group-call-description');
   }
 
   public detach() {
@@ -48,8 +48,8 @@ export default class GroupCallDescriptionElement {
         key = 'VoiceChat.Status.Members';
         args = [groupCall?.participants_count ?? 1];
       }
-      this.descriptionIntl.compareAndUpdate({key, args});
-      mount = this.descriptionIntl.element;
+      this.descriptionIntl.compareAndUpdate({key, args: args!});
+      mount = this.descriptionIntl.element!;
     }
 
     // The host (`appendTo`) is sometimes cleared externally — e.g. topbarCall's

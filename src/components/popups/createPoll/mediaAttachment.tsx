@@ -77,12 +77,12 @@ export const MediaAttachment = (props: {
   });
 
   const setStickersDropdownPivot = useStickersDropdown({
-    onStickerClick: ({docId}) => {
+    onStickerClick: ({docId}: {docId: DocId, target: HTMLElement}) => {
       props.onAttach?.({type: 'sticker', docId});
     }
-  });
+  } as any);
 
-  let persistingState: PersistingState;
+  let persistingState: PersistingState | undefined;
 
   const isCleaned = useIsCleaned();
 
@@ -150,7 +150,7 @@ export const MediaAttachment = (props: {
       width: probeVideo.videoWidth,
       height: probeVideo.videoHeight,
       duration: probeVideo.duration,
-      isAnimated,
+      isAnimated: isAnimated!,
       hasSound,
       thumb: {
         url: thumbUrl,
@@ -189,7 +189,7 @@ export const MediaAttachment = (props: {
       animatedCanvasSize: [sourceWidth, sourceHeight],
       mediaType: wasInitiallyVideo ? 'video' : 'image',
       mediaSrc: persistingState.initialObjectUrl,
-      getMediaBlob: async() => persistingState.initialFile,
+      getMediaBlob: async() => persistingState!.initialFile,
       managers: rootScope.managers,
       onEditFinish: handleFinish,
       editingMediaState: persistingState.editingState,
@@ -212,7 +212,7 @@ export const MediaAttachment = (props: {
     persistingState = {
       editingState: editorResult.editingMediaState,
       initialObjectUrl: editorResult.originalSrc,
-      initialFile,
+      initialFile: initialFile!,
       isVideo: false
     };
 
@@ -228,19 +228,19 @@ export const MediaAttachment = (props: {
 
     requestRAF(async() => {
       if(!img() || isCleaned()) {
-        editorResult.animatedPreview.remove();
+        editorResult.animatedPreview!.remove();
         return;
       }
 
       const {promise, cancel} = animateImageToTarget({
-        animatedImg: editorResult.animatedPreview,
-        target: img()
+        animatedImg: editorResult.animatedPreview!,
+        target: img()!
       });
       cancelAnimation = cancel;
 
       await promise.catch(noop);
 
-      editorResult.animatedPreview.remove();
+      editorResult.animatedPreview!.remove();
     });
   };
 
@@ -251,8 +251,8 @@ export const MediaAttachment = (props: {
     persistingState = {
       editingState: editorResult.editingMediaState,
       initialObjectUrl: editorResult.originalSrc,
-      initialFile,
-      isVideo
+      initialFile: initialFile!,
+      isVideo: isVideo!
     };
 
     // No-changes path: behave like the photo flow — no creation overlay or progress,
@@ -279,24 +279,24 @@ export const MediaAttachment = (props: {
     if(editorResult.animatedPreview) {
       requestRAF(async() => {
         if(!videoPreviewImg() || isCleaned()) {
-          editorResult.animatedPreview.remove();
-          animateDeferred.reject();
+          editorResult.animatedPreview!.remove();
+          animateDeferred.reject!();
           return;
         }
 
         const {promise, cancel} = animateImageToTarget({
-          animatedImg: editorResult.animatedPreview,
-          target: videoPreviewImg()
+          animatedImg: editorResult.animatedPreview!,
+          target: videoPreviewImg()!
         });
         cancelAnimation = cancel;
 
-        await promise.catch(() => animateDeferred.reject());
+        await promise.catch(() => animateDeferred.reject!());
 
-        editorResult.animatedPreview.remove();
-        animateDeferred.resolve();
+        editorResult.animatedPreview!.remove();
+        animateDeferred.resolve!();
       });
     } else {
-      animateDeferred.resolve();
+      animateDeferred.resolve!();
     }
 
     let resultPayload: Awaited<ReturnType<MediaEditorFinalResult['getResult']>> | undefined;
@@ -309,7 +309,7 @@ export const MediaAttachment = (props: {
       setCreatingVideoState(undefined);
       props.onAttach?.(undefined);
       persistingState = undefined;
-      editorResult.animatedPreview.remove();
+      editorResult.animatedPreview!.remove();
       return;
     }
 
@@ -358,7 +358,7 @@ export const MediaAttachment = (props: {
       width: editorResult.width,
       height: editorResult.height,
       duration: probeVideo.duration,
-      isAnimated,
+      isAnimated: isAnimated!,
       hasSound: resultPayload.hasSound,
       thumb: {
         url: thumbUrl,
@@ -413,7 +413,7 @@ export const MediaAttachment = (props: {
       width: editorResult.width,
       height: editorResult.height,
       duration: probeVideo.duration,
-      isAnimated,
+      isAnimated: isAnimated!,
       hasSound: resultPayload.hasSound,
       thumb: {
         url: thumbUrl,
@@ -430,19 +430,19 @@ export const MediaAttachment = (props: {
     requestRAF(async() => {
       const target = videoEl();
       if(!target || isCleaned()) {
-        editorResult.animatedPreview.remove();
+        editorResult.animatedPreview!.remove();
         return;
       }
 
       const {promise, cancel} = animateImageToTarget({
-        animatedImg: editorResult.animatedPreview,
+        animatedImg: editorResult.animatedPreview!,
         target
       });
 
       cancelAnimation = cancel;
       await promise.catch(noop);
 
-      editorResult.animatedPreview.remove();
+      editorResult.animatedPreview!.remove();
     });
   };
 
@@ -474,12 +474,12 @@ export const MediaAttachment = (props: {
   });
 
   const setMainMenuOpen = useMenu({
-    pivot: btn,
+    pivot: btn as () => HTMLElement,
     buttons: mainMenuButtons
   });
 
   const setIsPhotoMenuOpen = useMenu({
-    pivot: img,
+    pivot: img as () => HTMLElement,
     buttons: () => [
       {
         icon: 'brush',
@@ -500,7 +500,7 @@ export const MediaAttachment = (props: {
   });
 
   const setIsVideoMenuOpen = useMenu({
-    pivot: videoEl,
+    pivot: videoEl as unknown as () => HTMLElement,
     buttons: () => [
       ...(persistingState ? [{
         icon: 'brush',
@@ -525,7 +525,7 @@ export const MediaAttachment = (props: {
   });
 
   const setIsStickerMenuOpen = useMenu({
-    pivot: stickerEl,
+    pivot: stickerEl as unknown as () => HTMLElement,
     buttons: () => [
       {
         icon: 'replace',
@@ -536,7 +536,7 @@ export const MediaAttachment = (props: {
         icon: 'delete',
         text: 'Remove',
         onClick: () => {
-          props.onAttach(undefined);
+          props.onAttach!(undefined);
         }
       }
     ]

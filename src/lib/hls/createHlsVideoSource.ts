@@ -49,9 +49,9 @@ export function getQualityFilesEntries(altDocs: Document.document[]) {
 
   return Object.entries(videoAttributes).map(([id, attr]) => {
     const {w = FALLBACK_WIDTH, h = FALLBACK_HEIGHT, duration = 0, video_codec: codec} = attr;
-    const {size} = altDocs.find((doc) => doc.id.toString() === id);
+    const {size} = altDocs.find((doc) => doc.id.toString() === id)!;
 
-    const bandwidth = (duration > 0 ? size / duration * 8 : FALLBACK_BANDWIDTH) | 0;
+    const bandwidth = (duration > 0 ? size! / duration * 8 : FALLBACK_BANDWIDTH) | 0;
 
     return {
       id,

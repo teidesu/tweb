@@ -67,11 +67,11 @@ export default function showFeatureDetailsPopup(props: FeatureDetailsPopupProps)
         )}</For>
         <Show when={props.caption}>
           <div class={styles.caption}>
-            <Show when={props.caption.title}>
-              <div class={styles.captionTitle}>{props.caption.title}</div>
+            <Show when={props.caption!.title}>
+              <div class={styles.captionTitle}>{props.caption!.title}</div>
             </Show>
-            <Show when={props.caption.subtitle}>
-              <div class={styles.captionSubtitle}>{props.caption.subtitle}</div>
+            <Show when={props.caption!.subtitle}>
+              <div class={styles.captionSubtitle}>{props.caption!.subtitle}</div>
             </Show>
           </div>
         </Show>

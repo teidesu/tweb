@@ -42,7 +42,7 @@ export default async function createMp4VideoEncoder({width, height, frameRate, o
     finalize: async() => {
       await addChain;
       await output.finalize();
-      return new Blob([output.target.buffer], {type: 'video/mp4'});
+      return new Blob([output.target.buffer!], {type: 'video/mp4'});
     }
   };
 }

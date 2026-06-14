@@ -6,7 +6,7 @@ export function updateStarGift(gift: MyStarGift, update: BroadcastEvents['star_g
   const {unsaved, converted, resalePrice, wearing, addCollectionId, removeCollectionId} = update;
 
   if(unsaved !== undefined) {
-    gift.saved.pFlags.unsaved = unsaved ? true : undefined;
+    gift.saved!.pFlags.unsaved = unsaved ? true : undefined;
   }
   if(converted !== undefined) {
     gift.isConverted = converted;
@@ -42,18 +42,18 @@ export function updateStarGift(gift: MyStarGift, update: BroadcastEvents['star_g
   }
 
   if(addCollectionId !== undefined) {
-    const ids = gift.saved.collection_id ?? [];
+    const ids = gift.saved!.collection_id ?? [];
     if(!ids.includes(addCollectionId)) {
-      gift.saved.collection_id = [...ids, addCollectionId];
+      gift.saved!.collection_id = [...ids, addCollectionId];
     }
   }
 
   if(removeCollectionId !== undefined) {
-    const ids = gift.saved.collection_id;
+    const ids = gift.saved!.collection_id;
     if(ids) {
-      gift.saved.collection_id = ids.filter((id) => id !== removeCollectionId);
-      if(!gift.saved.collection_id.length) {
-        gift.saved.collection_id = undefined;
+      gift.saved!.collection_id = ids.filter((id) => id !== removeCollectionId);
+      if(!gift.saved!.collection_id.length) {
+        gift.saved!.collection_id = undefined;
       }
     }
   }

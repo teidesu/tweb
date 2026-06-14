@@ -78,9 +78,9 @@ export class AppDownloadManager {
 
         const error = makeError('DOWNLOAD_CANCELED');
 
-        this.managers.apiFileManager.cancelDownload(fileName);
+        this.managers.apiFileManager!.cancelDownload(fileName);
 
-        deferred.reject(error);
+        deferred.reject!(error);
         deferred.cancel = noop;
       };
 
@@ -113,11 +113,11 @@ export class AppDownloadManager {
       });
     }
 
-    return download[type] = deferred as any;
+    return download[type!] = deferred as any;
   }
 
   private async confirmBeforeCancelingPollUpload(fileName: string) {
-    const randomId = await this.managers.appPollsManager.getRandomIdByUploadingFileName(fileName);
+    const randomId = await this.managers.appPollsManager!.getRandomIdByUploadingFileName(fileName);
     if(!randomId || !this.showPollCancelConfirmation) return false;
 
     this.showPollCancelConfirmation(randomId);
@@ -127,7 +127,7 @@ export class AppDownloadManager {
 
   public getNewDeferredForUpload<T extends Promise<any>>(fileName: string, promise: T) {
     const deferred: CancellablePromise<Awaited<T>> = this.getNewDeferred<InputFile>(fileName);
-    promise.then(deferred.resolve.bind(deferred), deferred.reject.bind(deferred));
+    promise.then(deferred.resolve!.bind(deferred), deferred.reject!.bind(deferred));
 
     deferred.finally(() => {
       this.clearDownload(fileName);
@@ -142,23 +142,23 @@ export class AppDownloadManager {
       return;
     }
 
-    delete downloads[type];
+    delete downloads[type!];
 
     const length = Object.keys(downloads).length;
-    if(!length || (downloads.main && length === 1)) {
+    if(!length || ((downloads.main as any) && length === 1)) {
       delete this.downloads[fileName];
     }
   }
 
   public getUpload(fileName: string): Awaited<ReturnType<AppMessagesManager['sendFile']>>['promise'] {
-    let deferred: CancellablePromise<any> = this.getDownload(fileName);
+    let deferred: CancellablePromise<any> = this.getDownload(fileName)!;
     if(deferred) {
       return deferred;
     }
 
     deferred = this.getNewDeferred(fileName);
-    this.managers.appMessagesManager.getUploadPromise(fileName)
-    .then(deferred.resolve.bind(deferred), deferred.reject.bind(deferred));
+    this.managers.appMessagesManager!.getUploadPromise(fileName)
+    .then(deferred.resolve!.bind(deferred), deferred.reject!.bind(deferred));
     return deferred;
   }
 
@@ -180,7 +180,7 @@ export class AppDownloadManager {
     if(deferred) return deferred;
 
     deferred = this.getNewDeferred<Blob>(fileName, type);
-    getPromise().then(deferred.resolve.bind(deferred), deferred.reject.bind(deferred));
+    getPromise().then(deferred!.resolve!.bind(deferred), deferred!.reject!.bind(deferred));
     return deferred;
   }
 
@@ -190,7 +190,7 @@ export class AppDownloadManager {
     }
 
     const fileName = getDownloadFileNameFromOptions(options);
-    return this.d(fileName, () => this.managers.apiFileManager.download(options), 'blob') as any;
+    return this.d(fileName, () => this.managers.apiFileManager!.download(options), 'blob') as any;
   }
 
   public downloadMedia(options: DownloadMediaOptions, type: DownloadType = 'blob', promiseBefore?: Promise<any>): DownloadBlob {
@@ -199,11 +199,11 @@ export class AppDownloadManager {
     return this.d(fileName, () => {
       let cb: any;
       if(type === 'url') {
-        cb = this.managers.apiFileManager.downloadMediaURL;
+        cb = this.managers.apiFileManager!.downloadMediaURL;
       } else if(type === 'void'/*  || type === 'disc' */) {
-        cb = this.managers.apiFileManager.downloadMediaVoid;
+        cb = this.managers.apiFileManager!.downloadMediaVoid;
       } else /* if(type === 'blob') */ {
-        cb = this.managers.apiFileManager.downloadMedia;
+        cb = this.managers.apiFileManager!.downloadMedia;
       }
 
       if(promiseBefore) {
@@ -233,7 +233,7 @@ export class AppDownloadManager {
     }
 
     if(!promise) {
-      promise = this.managers.apiFileManager.upload({file, fileName});
+      promise = this.managers.apiFileManager!.upload({file, fileName});
     }
 
     const deferred = this.getNewDeferredForUpload(fileName, promise);
@@ -242,7 +242,7 @@ export class AppDownloadManager {
 
   public getDownload(fileName: string, type?: DownloadType) {
     const d = this.downloads[fileName];
-    return d && d[type];
+    return d && d[type!];
   }
 
   // public addProgressCallback(fileName: string, callback: ProgressCallback) {
@@ -273,7 +273,7 @@ export class AppDownloadManager {
       const docFileName = (options.media as MyDocument).file_name;
       if(docFileName) return docFileName;
       let name = getFileNameByLocation(downloadOptions.location);
-      const ext = MIME_TYPE_EXTENSION_MAP[downloadOptions.mimeType];
+      const ext = MIME_TYPE_EXTENSION_MAP[downloadOptions.mimeType!];
       if(ext) name += '.' + ext;
       return name;
     };
@@ -311,8 +311,8 @@ export class AppDownloadManager {
           const onFinish = (good: boolean) => {
             clearTimeout(timeout);
             apiManagerProxy.serviceMessagePort.removeEventListener('downloadRequestReceived', onDownloadRequestReceived);
-            if(good) deferred.resolve();
-            else deferred.reject();
+            if(good) deferred.resolve!();
+            else deferred.reject!();
           };
 
           const onDownloadRequestReceived = (downloadId: string) => {
@@ -337,7 +337,7 @@ export class AppDownloadManager {
       }
     }
 
-    const promise = this.downloadMedia(options, 'disc', pingPromise);
+    const promise = this.downloadMedia(options, 'disc', pingPromise!);
     // this.downloadsToDisc[cacheFileName] = promise;
 
     if(justAttach) {
@@ -353,10 +353,10 @@ export class AppDownloadManager {
       hadProgress = true;
       element = iframe;
 
-      indexOfAndSplice(promise.listeners, onProgress);
+      indexOfAndSplice(promise.listeners!, onProgress);
     };
 
-    promise.addNotifyListener(onProgress);
+    promise.addNotifyListener!(onProgress);
     promise.then((blob) => {
       if(!blob) {
         return;

@@ -279,7 +279,7 @@ export const DEFAULT_THEME: Theme = {
         pattern: true
       },
       access_hash: '',
-      document: undefined,
+      document: undefined as any,
       id: '',
       slug: 'pattern',
       settings: {
@@ -306,7 +306,7 @@ export const DEFAULT_THEME: Theme = {
         dark: true
       },
       access_hash: '',
-      document: undefined,
+      document: undefined as any,
       id: '',
       slug: 'pattern',
       settings: {
@@ -339,7 +339,7 @@ export const DEFAULT_THEME: Theme = {
         dark: true
       },
       access_hash: '',
-      document: undefined,
+      document: undefined as any,
       id: '',
       slug: 'pattern',
       settings: {
@@ -368,7 +368,7 @@ export const DEFAULT_THEME: Theme = {
         pattern: true
       },
       access_hash: '',
-      document: undefined,
+      document: undefined as any,
       id: '',
       slug: 'pattern',
       settings: {
@@ -402,7 +402,7 @@ const makeDefaultAppTheme = (name: AppTheme['name']): AppTheme => {
   return {
     ...DEFAULT_THEME,
     name,
-    settings: DEFAULT_THEME.settings.map((s) => ({
+    settings: DEFAULT_THEME.settings!.map((s) => ({
       ...s,
       highlightingColor: DEFAULT_HIGHLIGHTING_COLORS[s.base_theme._] ?? ''
     }))

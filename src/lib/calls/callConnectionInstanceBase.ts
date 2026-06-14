@@ -21,7 +21,7 @@ export default abstract class CallConnectionInstanceBase {
     audio: Ssrc,
     video?: Ssrc,
   };
-  protected negotiating: Promise<void>;
+  protected negotiating: Promise<void> | undefined;
   protected log: ReturnType<typeof logger>;
 
   constructor(options: CallConnectionInstanceOptions) {
@@ -35,7 +35,7 @@ export default abstract class CallConnectionInstanceBase {
   }
 
   public createPeerConnection(config?: RTCConfiguration) {
-    return this.connection || (this.connection = createPeerConnection(config, this.log.bindPrefix('connection')).connection);
+    return this.connection || (this.connection = createPeerConnection(config!, this.log.bindPrefix('connection')).connection);
   }
 
   public createDataChannel(dict?: RTCDataChannelInit) {
@@ -77,7 +77,7 @@ export default abstract class CallConnectionInstanceBase {
       return promise;
     }
 
-    return this.negotiating = this.negotiateInternal().finally(() => {
+    return this.negotiating = this.negotiateInternal()!.finally(() => {
       this.negotiating = undefined;
     });
   }

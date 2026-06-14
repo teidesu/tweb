@@ -33,11 +33,11 @@ const EditContact: Component = () => {
     const userId = peerId.toUserId();
     tab.container.classList.add('edit-peer-container', 'edit-contact-container');
     const [isContact, privacy] = await Promise.all([
-      tab.managers.appUsersManager.isContact(userId),
-      tab.managers.appPrivacyManager.getPrivacy('inputPrivacyKeyPhoneNumber')
+      tab.managers.appUsersManager!.isContact(userId),
+      tab.managers.appPrivacyManager!.getPrivacy('inputPrivacyKeyPhoneNumber')
     ]);
     const isNew = !isContact;
-    tab.title.replaceChildren(i18n(isNew ? 'AddContactTitle' : 'Edit'));
+    tab.title.replaceChildren(i18n(isNew ? 'AddContactTitle' : 'Edit')!);
 
     let nameInputField: InputField;
     let lastNameInputField: InputField;
@@ -56,8 +56,8 @@ const EditContact: Component = () => {
     // "Update Photo" back to "Set Photo" once the custom photo is removed.
     async function buildPhotoSection(): Promise<HTMLElement> {
       const [user, fullUser] = await Promise.all([
-        tab.managers.appUsersManager.getUser(userId),
-        tab.managers.appProfileManager.getProfile(userId)
+        tab.managers.appUsersManager!.getUser(userId),
+        tab.managers.appProfileManager!.getProfile(userId)
       ]);
       const hasPersonal = !!fullUser?.personal_photo;
       const firstName = user.first_name || '';
@@ -111,7 +111,7 @@ const EditContact: Component = () => {
               button: {langKey: 'Reset', isDanger: true}
             });
           } catch{ return; }
-          await tab.managers.appProfileManager.uploadContactProfilePhoto({userId, save: true});
+          await tab.managers.appProfileManager!.uploadContactProfilePhoto({userId, save: true});
           toastNew({langPackKey: 'UserInfo.PhotoResetToast'});
           refreshPhotoSection();
         }, {listenerSetter: tab.listenerSetter});
@@ -128,7 +128,7 @@ const EditContact: Component = () => {
       // the cached full user is stale (re-populated by the updateUser local update with
       // the old personal_photo), so getProfile() alone would keep the wrong Set/Update
       // label + Reset-button visibility. refreshFullPeer drops the cache + refetches.
-      await tab.managers.appProfileManager.refreshFullPeer(peerId);
+      await tab.managers.appProfileManager!.refreshFullPeer(peerId);
       if(!old.isConnected) return; // tab closed while the fresh profile loaded
       const fresh = await buildPhotoSection();
       if(!old.isConnected) return;
@@ -156,7 +156,7 @@ const EditContact: Component = () => {
       });
 
       if(userId) {
-        const user = await tab.managers.appUsersManager.getUser(userId);
+        const user = await tab.managers.appUsersManager!.getUser(userId);
 
         if(isNew) {
           nameInputField.setDraftValue(user.first_name);
@@ -174,7 +174,7 @@ const EditContact: Component = () => {
         // getProfile (not getCachedFullUser): resetting a personal photo deletes
         // the cached full user, so a cached lookup here returns undefined and
         // crashes on reopen ("Cannot read properties of undefined (reading 'note')").
-        const fullUser = await tab.managers.appProfileManager.getProfile(userId);
+        const fullUser = await tab.managers.appProfileManager!.getProfile(userId);
         noteInputField = new InputFieldEmoji({
           label: 'ContactNoteRow',
           name: 'contact-note',
@@ -194,7 +194,7 @@ const EditContact: Component = () => {
             clickable: () => {
               showBirthdayPopup({
                 suggestForPeer: peerId,
-                onSave: (it) => suggestUserBirthday(userId, it)
+                onSave: (it) => suggestUserBirthday(userId, it!)
               });
             }
           });
@@ -224,14 +224,14 @@ const EditContact: Component = () => {
             return;
           }
 
-          tab.managers.appMessagesManager.togglePeerMute({peerId});
+          tab.managers.appMessagesManager!.togglePeerMute({peerId});
         });
 
         tab.listenerSetter.add(rootScope)('notify_settings', async(update) => {
           if(update.peer._ !== 'notifyPeer') return;
           const peerId = getPeerId(update.peer.peer);
           if(peerId === peerId) {
-            const enabled = !(await tab.managers.appNotificationsManager.isMuted(update.notify_settings));
+            const enabled = !(await tab.managers.appNotificationsManager!.isMuted(update.notify_settings));
             if(enabled !== notificationsCheckboxField.checked) {
               notificationsCheckboxField.checked = enabled;
             }
@@ -246,7 +246,7 @@ const EditContact: Component = () => {
 
         const profileSubtitleDiv = document.createElement('div');
         profileSubtitleDiv.classList.add('profile-subtitle');
-        profileSubtitleDiv.append(i18n('EditContact.OriginalName'));
+        profileSubtitleDiv.append(i18n('EditContact.OriginalName')!);
 
         tab.scrollable.append(div, profileNameDiv, profileSubtitleDiv);
         section.content.append(inputWrapper);
@@ -258,7 +258,7 @@ const EditContact: Component = () => {
             listenerSetter: tab.listenerSetter
           });
 
-          const enabled = !(await tab.managers.appNotificationsManager.isPeerLocalMuted({peerId, respectType: false}));
+          const enabled = !(await tab.managers.appNotificationsManager!.isPeerLocalMuted({peerId, respectType: false}));
           notificationsCheckboxField.checked = enabled;
 
           section.content.append(notificationsRow.container);
@@ -267,7 +267,7 @@ const EditContact: Component = () => {
             section.content.append(suggestBirthdayRow.container);
           }
         } else {
-          const user = await tab.managers.appUsersManager.getUser(userId);
+          const user = await tab.managers.appUsersManager!.getUser(userId);
 
           const phoneRow = new Row({
             icon: 'phone',
@@ -304,7 +304,7 @@ const EditContact: Component = () => {
             callback: () => {
               const toggle = toggleDisability([btnDelete], true);
 
-              tab.managers.appUsersManager.deleteContacts([userId]).then(() => {
+              tab.managers.appUsersManager!.deleteContacts([userId]).then(() => {
                 tab.close();
               }, () => {
                 toggle();
@@ -341,16 +341,16 @@ const EditContact: Component = () => {
       editPeer.nextBtn.disabled = true;
 
       try {
-        await tab.managers.appUsersManager.addContact(
+        await tab.managers.appUsersManager!.addContact(
           userId,
           nameInputField.value,
           lastNameInputField.value,
-          (await tab.managers.appUsersManager.getUser(userId)).phone,
+          (await tab.managers.appUsersManager!.getUser(userId)).phone!,
           sharePhoneCheckboxField?.checked
         );
 
         if(noteInputField.isChanged()) {
-          await tab.managers.appProfileManager.updateUserNote(userId, noteInputField.richValue);
+          await tab.managers.appProfileManager!.updateUserNote(userId, noteInputField.richValue);
         }
       } catch(error) {
         console.error(error);

@@ -19,7 +19,7 @@ export default class SDPAttributes {
     const attributesMap: Map<string, Array<string>> = new Map();
     attributes.#lines.forEach((line) => {
       if(line.key === 'a') {
-        const {key, value} = line.parsed;
+        const {key, value} = line.parsed!;
 
         let linesArray = attributesMap.get(key);
         if(!linesArray) {

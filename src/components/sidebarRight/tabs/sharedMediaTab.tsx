@@ -69,7 +69,7 @@ export default class AppSharedMediaTab extends SliderSuperTab {
     if(this.peerId === peerId && this.threadId === threadId) return false;
 
     this.peerId = peerId;
-    this.threadId = threadId;
+    this.threadId = threadId!;
     this.noProfile ??= peerId === rootScope.myId;
     this.peerChanged = true;
 
@@ -125,7 +125,7 @@ export default class AppSharedMediaTab extends SliderSuperTab {
 
   public static async open(slider: SidebarSlider, peerId: PeerId, noProfile?: boolean) {
     const tab = slider.createTab(AppSharedMediaTab, true);
-    tab.noProfile = noProfile;
+    tab.noProfile = noProfile!;
     tab.isFirst = true;
     tab.setPeer(peerId);
     (await tab.fillProfileElements())();

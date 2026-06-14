@@ -14,8 +14,8 @@ export default class ChatBotCommands extends AutocompletePeerHelper {
     chatInput: ChatInput,
     private managers: AppManagers
   ) {
-    super(appendTo, undefined, CLASS_NAME, (target) => {
-      const innerHTML = target.querySelector(`.${AutocompletePeerHelper.BASE_CLASS_LIST_ELEMENT}-name`).innerHTML;
+    super(appendTo, undefined!, CLASS_NAME, (target) => {
+      const innerHTML = target.querySelector(`.${AutocompletePeerHelper.BASE_CLASS_LIST_ELEMENT}-name`)!.innerHTML;
       return chatInput.getReadyToSend(() => {
         chatInput.messageInput.innerHTML = innerHTML;
         chatInput.sendMessage(true);
@@ -31,7 +31,7 @@ export default class ChatBotCommands extends AutocompletePeerHelper {
     }
 
     this.userId = userId;
-    return callbackify(this.managers.appProfileManager.getProfile(userId), (full) => {
+    return callbackify(this.managers.appProfileManager!.getProfile(userId), (full) => {
       if(!middleware()) return;
       const filtered = processPeerFullForCommands(userId.toPeerId(false), full);
 

@@ -69,8 +69,8 @@ export const useAutoLock = ({getPort, getIsLocked, onLock}: UseAutoLockArgs) => 
     toggleUninteruptableActivity: (source: MessageEventSource, activity: string, active: boolean) => {
       if(!uninteruptableActivitiesMap.has(source)) uninteruptableActivitiesMap.set(source, new Set());
 
-      if(active) uninteruptableActivitiesMap.get(source).add(activity);
-      else uninteruptableActivitiesMap.get(source).delete(activity);
+      if(active) uninteruptableActivitiesMap.get(source)!.add(activity);
+      else uninteruptableActivitiesMap.get(source)!.delete(activity);
 
       updateActivities();
     },

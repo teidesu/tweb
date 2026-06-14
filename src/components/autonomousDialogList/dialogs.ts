@@ -42,7 +42,7 @@ export class AutonomousDialogList extends AutonomousDialogListBase<Dialog> {
           element.HotReloadGuard = SolidJSHotReloadGuardProvider;
 
           element.feedProps({
-            state: this.archiveDialogState.state
+            state: this.archiveDialogState!.state
           });
 
           return element;
@@ -60,8 +60,8 @@ export class AutonomousDialogList extends AutonomousDialogListBase<Dialog> {
 
     this.listenerSetter.add(rootScope)('peer_typings', async({peerId, typings}) => {
       const [dialog, isForum] = await Promise.all([
-        this.managers.appMessagesManager.getDialogOnly(peerId),
-        this.managers.appPeersManager.isForum(peerId)
+        this.managers.appMessagesManager!.getDialogOnly(peerId),
+        this.managers.appPeersManager!.isForum(peerId)
       ]);
 
       if(!dialog || isForum) return;
@@ -84,8 +84,8 @@ export class AutonomousDialogList extends AutonomousDialogListBase<Dialog> {
         return;
       }
 
-      const status = await this.managers.appUsersManager.getUserStatus(userId);
-      const online = status?._ === 'userStatusOnline';
+      const status = await this.managers.appUsersManager!.getUserStatus(userId);
+      const online = (status as any)?._ === 'userStatusOnline';
       this.setOnlineStatus(dom.avatarEl.node, online);
     });
 
@@ -108,7 +108,7 @@ export class AutonomousDialogList extends AutonomousDialogListBase<Dialog> {
       }
 
       for(const [peerId, {dialog, topics}] of dialogs) {
-        if(!isDialog(dialog)) {
+        if(!isDialog(dialog!)) {
           continue;
         }
 
@@ -123,7 +123,7 @@ export class AutonomousDialogList extends AutonomousDialogListBase<Dialog> {
       }
 
       this.deleteDialogByKey(this.getDialogKey(dialog));
-      this.appDialogsManager.processContact?.(dialog.peerId);
+      this.appDialogsManager.processContact?.(dialog.peerId!);
     });
 
     this.listenerSetter.add(rootScope)('dialog_unread', ({dialog}) => {
@@ -158,7 +158,7 @@ export class AutonomousDialogList extends AutonomousDialogListBase<Dialog> {
 
     this.listenerSetter.add(rootScope)('filter_update', async(filter) => {
       if(this.isActive && filter.id === this.filterId && !REAL_FOLDERS.has(filter.id)) {
-        const dialogs = await this.managers.dialogsStorage.getCachedDialogs(true);
+        const dialogs = await this.managers.dialogsStorage!.getCachedDialogs(true);
         await this.validateListForFilter();
         for(let i = 0, length = dialogs.length; i < length; ++i) {
           const dialog = dialogs[i];
@@ -206,7 +206,7 @@ export class AutonomousDialogList extends AutonomousDialogListBase<Dialog> {
 
   public generateScrollable(filter: Parameters<AppDialogsManager['addFilter']>[0]) {
     const filterId = filter.id;
-    const scrollable = new Scrollable(null, 'CL', 500);
+    const scrollable = new Scrollable(null as any, 'CL', 500);
     scrollable.container.dataset.filterId = '' + filterId;
 
     const indexKey = getDialogIndexKey(filter.localId);
@@ -280,7 +280,7 @@ export class AutonomousDialogList extends AutonomousDialogListBase<Dialog> {
    */
   public async validateListForFilter() {
     this.sortedList.getAllDialogElementsMap().forEach(async(_, key) => {
-      const dialog = await rootScope.managers.appMessagesManager.getDialogOnly(key);
+      const dialog = await rootScope.managers.appMessagesManager!.getDialogOnly(key);
       if(!this.testDialogForFilter(dialog)) {
         this.deleteDialog(dialog);
       }
@@ -315,12 +315,12 @@ export class AutonomousDialogList extends AutonomousDialogListBase<Dialog> {
     }
 
     SetTransition({
-      element: dom.callIcon.canvas,
+      element: dom.callIcon!.canvas,
       className: 'is-visible',
       forwards: visible,
       duration: BADGE_TRANSITION_TIME,
       onTransitionEnd: visible ? undefined : () => {
-        dom.callIcon.canvas.remove();
+        dom.callIcon!.canvas.remove();
         dom.callIcon = undefined;
         listEl.classList.remove('has-group-call-icon');
       },
@@ -368,8 +368,8 @@ export class AutonomousDialogList extends AutonomousDialogListBase<Dialog> {
       const unreadContent = dom.unreadBadge?.textContent;
       if(
         !unreadContent ||
-        dom.unreadBadge.classList.contains('backwards') ||
-        dom.unreadBadge.classList.contains('dialog-pinned-icon')
+        dom.unreadBadge!.classList.contains('backwards') ||
+        dom.unreadBadge!.classList.contains('dialog-pinned-icon')
       ) {
         return;
       }
@@ -377,9 +377,9 @@ export class AutonomousDialogList extends AutonomousDialogListBase<Dialog> {
       const isUnreadAvatarBadgeMounted = !!dom.unreadAvatarBadge;
       dialogElement.createUnreadAvatarBadge();
       dialogElement.toggleBadgeByKey('unreadAvatarBadge', true, isUnreadAvatarBadgeMounted);
-      dom.unreadAvatarBadge.textContent = unreadContent;
-      const unreadAvatarBadgeClassList = dom.unreadAvatarBadge.classList;
-      const unreadBadgeClassList = dom.unreadBadge.classList;
+      dom.unreadAvatarBadge!.textContent = unreadContent;
+      const unreadAvatarBadgeClassList = dom.unreadAvatarBadge!.classList;
+      const unreadBadgeClassList = dom.unreadBadge!.classList;
       reuseClassNames.forEach((className) => {
         unreadAvatarBadgeClassList.toggle(className, unreadBadgeClassList.contains(className));
       });
@@ -391,11 +391,11 @@ export class AutonomousDialogList extends AutonomousDialogListBase<Dialog> {
   }
 
   public getDialogKeyFromElement(element: HTMLElement) {
-    return +element.dataset.peerId;
+    return +element.dataset.peerId!;
   }
 
   public getDialogFromElement(element: HTMLElement) {
-    return rootScope.managers.appMessagesManager.getDialogOnly(element.dataset.peerId.toPeerId());
+    return rootScope.managers.appMessagesManager!.getDialogOnly(element.dataset.peerId!.toPeerId());
   }
 
   protected canUpdateDialog(dialog: Dialog): boolean {

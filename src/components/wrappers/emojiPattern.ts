@@ -36,7 +36,7 @@ export default async function wrapEmojiPattern({
   if(typeof docId  === 'object') {
     doc = docId;
   } else {
-    const result = await rootScope.managers.acknowledged.appEmojiManager.getCustomEmojiDocument(docId);
+    const result = await rootScope.managers.acknowledged!.appEmojiManager!.getCustomEmojiDocument(docId);
     if(!result.cached) onCacheStatus?.(false);
     doc = await result.result;
   }
@@ -54,7 +54,7 @@ export default async function wrapEmojiPattern({
     exportLoad: 2,
     useCache: false
   }).then(({load, downloaded}) => {
-    onCacheStatus?.(downloaded);
+    onCacheStatus?.((downloaded! as boolean));
     return load();
   }).then((result) => {
     const image = (result as HTMLImageElement[])[0];
@@ -73,10 +73,10 @@ export default async function wrapEmojiPattern({
     canvas.width = canvasWidth * dpr;
     canvas.height = canvasHeight * dpr;
     positions.forEach(([x, y, size, alpha]) => {
-      ctx.globalAlpha = alpha;
-      ctx.drawImage(image, x * dpr, y * dpr, size * dpr, size * dpr);
+      ctx!.globalAlpha = alpha;
+      ctx!.drawImage(image, x * dpr, y * dpr, size * dpr, size * dpr);
     });
-    ctx.globalAlpha = 1;
+    ctx!.globalAlpha = 1;
 
     if(useHighlightingColor) {
       color = '#ffffff';
@@ -84,7 +84,7 @@ export default async function wrapEmojiPattern({
       color = customProperties.getProperty('message-out-primary-color');
     }
 
-    applyColorOnContext(ctx, color, 0, 0, canvas.width, canvas.height);
+    applyColorOnContext(ctx!, color!, 0, 0, canvas.width, canvas.height);
     if(container) container.prepend(canvas);
     return canvas;
   }).catch(noop) as Promise<HTMLCanvasElement>;

@@ -23,7 +23,7 @@ export const InputFieldTsx = <T extends typeof InputField>(inProps: InputFieldTs
 
   const [, options] = splitProps(props, ['class', 'value', 'InputFieldClass', 'errorLabel', 'errorLabelOptions', 'disabled'])
 
-  const obj = new props.InputFieldClass(options)
+  const obj = new (props.InputFieldClass as typeof InputField)(options)
   props.instanceRef?.(obj as InstanceOf<T>)
 
   createEffect(on(
@@ -39,7 +39,7 @@ export const InputFieldTsx = <T extends typeof InputField>(inProps: InputFieldTs
     ([error, options], prev) => {
       if(!error && !prev) return // Prevent setting error first render
 
-      if(error !== undefined) obj.setError(error, options)
+      if(error !== undefined) obj.setError(error as LangPackKey, options)
       else obj.setState(InputState.Neutral)
     }
   ))
@@ -57,7 +57,7 @@ export const InputFieldTsx = <T extends typeof InputField>(inProps: InputFieldTs
     () => [props.label, props.labelOptions] as const,
     ([value, options]) => {
       if(value !== obj.label?.textContent) {
-        obj.label.replaceChildren(i18n(value, options))
+        obj.label.replaceChildren(i18n(value!, options)!)
       }
     }
   ))

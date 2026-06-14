@@ -1,4 +1,4 @@
-import {batch, Component, createEffect, createMemo, createSignal} from 'solid-js';
+import {Accessor, batch, Component, createEffect, createMemo, createSignal} from 'solid-js';
 
 import clamp from '@helpers/number/clamp';
 import swipe, {SwipeDirectiveArgs} from '@helpers/useSwipe'; swipe; // keep
@@ -21,12 +21,12 @@ const MOVE_ACTIVATION_THRESHOLD_PX = 2;
 const VIDEO_AVATAR_MAX_DURATION_SEC = 10;
 
 const VideoControls: Component<{}> = () => {
-  const {editorState, mediaState, actions, isVideoAvatarMode} = useMediaEditorContext();
+  const {editorState, mediaState, actions, isVideoAvatarMode} = useMediaEditorContext()!;
 
   const [cropper, setCropper] = createSignal<HTMLDivElement>();
   const [isDraggingSomething, setIsDraggingSomething] = createSignal(false);
 
-  const cropperSize = useElementSize(cropper);
+  const cropperSize = useElementSize(cropper as unknown as Accessor<Element>);
   const strippedWidth = () => cropperSize.width - 2 * HANDLE_WIDTH_PX;
 
   const shouldShowTime = () => isDraggingSomething() && (swiping === 'left' || swiping === 'right');
@@ -92,7 +92,7 @@ const VideoControls: Component<{}> = () => {
   ;
 
   useVideoControlsCanvas({
-    getCanvas: () => canvas,
+    getCanvas: () => canvas!,
     size: cropperSize
   });
 
@@ -200,18 +200,18 @@ const VideoControls: Component<{}> = () => {
 
   const handleCursorMove = (e: PointerEvent | TouchEvent) => {
     editorState.isPlaying = false;
-    actions.setVideoTime(clamp(getPositionInCropper(e, cropper()), mediaState.videoCropStart, mediaState.videoCropStart + mediaState.videoCropLength));
+    actions.setVideoTime(clamp(getPositionInCropper(e, cropper()!), mediaState.videoCropStart, mediaState.videoCropStart + mediaState.videoCropLength));
   };
 
   const onMiddlePartClick = (e: MouseEvent) => {
     if(!cropper() || isDraggingSomething()) return;
 
-    actions.setVideoTime(clamp(getPositionInCropper(e, cropper()), mediaState.videoCropStart, mediaState.videoCropStart + mediaState.videoCropLength));
+    actions.setVideoTime(clamp(getPositionInCropper(e, cropper()!), mediaState.videoCropStart, mediaState.videoCropStart + mediaState.videoCropLength));
   };
 
   const showMutedTooltip = (el: HTMLElement) => showTooltip({
     element: el,
-    mountOn: el.parentElement.parentElement.parentElement,
+    mountOn: el.parentElement!.parentElement!.parentElement!,
     vertical: 'top',
     textElement: i18n('MediaEditor.VideoMutedTooltip'),
     lighter: true,
@@ -254,7 +254,7 @@ const VideoControls: Component<{}> = () => {
 
         <div class={styles.Frames}>
           <div ref={setCropper} class={styles.Cropper}>
-            <canvas ref={canvas} class={styles.Images} width={cropperSize.width} height={cropperSize.height} />
+            <canvas ref={canvas!} class={styles.Images} width={cropperSize.width} height={cropperSize.height} />
 
             <div class={`${styles.CropperBg} ${styles.CropperBgLeft}`} />
             <div class={`${styles.CropperBg} ${styles.CropperBgRight}`} />
@@ -274,7 +274,7 @@ const VideoControls: Component<{}> = () => {
 
           <TimeStick swipe={cursorSwipeArgs} />
           <ThumbnailTrack
-            cropper={cropper()}
+            cropper={cropper()!}
             isDraggingSomething={isDraggingSomething()}
             hidden={shouldShowTime()}
           />
@@ -306,13 +306,13 @@ const ThumbnailTrack: Component<{
   isDraggingSomething: boolean;
   hidden: boolean;
 }> = (props) => {
-  const {actions, editorState, mediaState, isVideoAvatarMode} = useMediaEditorContext();
+  const {actions, editorState, mediaState, isVideoAvatarMode} = useMediaEditorContext()!;
 
   const [ghostThumbnailPosition, setGhostThumbnailPosition] = createSignal<number>();
 
   const [isDragging, setIsDragging] = createSignal(false);
 
-  const isGhostThumbnailVisible = createMemo(() => !props.isDraggingSomething && !isDragging() && !isNaN(ghostThumbnailPosition()));
+  const isGhostThumbnailVisible = createMemo(() => !props.isDraggingSomething && !isDragging() && !isNaN(ghostThumbnailPosition()!));
 
   // Video avatars: the cover frame becomes video_start_ts, so it must stay
   // inside the trimmed clip — clamp the placed position to the crop range.
@@ -329,7 +329,7 @@ const ThumbnailTrack: Component<{
     mediaState.videoThumbnailPosition = coverPosition(e);
   };
 
-  let canPreviewFrame = false, previewFrameTimeout: number;
+  let canPreviewFrame = false, previewFrameTimeout: number | undefined;
 
   const onPointerMove = (e: PointerEvent | TouchEvent) => {
     if(!props.cropper || editorState.isPlaying || props.isDraggingSomething) return;

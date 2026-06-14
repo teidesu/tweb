@@ -4,7 +4,7 @@ import generatePhotoForExtendedMediaPreview from '@appManagers/utils/photos/gene
 
 export default function getMediaFromMessage(message: Message | StoryItem.storyItem, onlyInner: true, index?: number): Photo.photo | Document.document;
 export default function getMediaFromMessage(message: Message | StoryItem.storyItem, onlyInner?: false, index?: number): Photo.photo | Document.document | Game.game | WebPage.webPage;
-export default function getMediaFromMessage(message: Message | StoryItem.storyItem, onlyInner = false, index?: number): Photo.photo | Document.document | Game.game | WebPage.webPage {
+export default function getMediaFromMessage(message: Message | StoryItem.storyItem, onlyInner = false, index?: number): Photo.photo | Document.document | Game.game | WebPage.webPage | undefined {
   if(!message) return;
 
   let media: any;

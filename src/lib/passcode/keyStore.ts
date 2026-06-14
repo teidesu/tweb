@@ -1,4 +1,4 @@
-import deferredPromise from '@helpers/cancellablePromise';
+import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
 import StaticUtilityClass from '@lib/staticUtilityClass';
 
 
@@ -24,8 +24,8 @@ export default class EncryptionKeyStore extends StaticUtilityClass {
 
   public static save(key?: CryptoKey) {
     this.key = key || null;
-    this.deferred?.resolve();
-    this.deferred = undefined;
+    this.deferred?.resolve!();
+    this.deferred = undefined as unknown as CancellablePromise<void>;
   }
 
   /**

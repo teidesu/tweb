@@ -60,7 +60,7 @@ export default class ReadMetricsTracker {
   private screenActive = true;
   private paused = false;
   private pausedSince = 0;
-  private timeout: number;
+  private timeout: number | undefined;
 
   constructor(private onFinalize: (finalized: FinalizedReadMetric) => void) {}
 

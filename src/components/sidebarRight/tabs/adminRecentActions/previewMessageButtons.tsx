@@ -20,11 +20,11 @@ export const PreviewMessageButtons = (props: {
 
   const getNonEmpty = (message: Message) => message && (message._ === 'message' || message._ === 'messageService') ? message : undefined;
 
-  const nonEmptyAdded = createMemo(() => getNonEmpty(props.added));
-  const nonEmptyRemoved = createMemo(() => getNonEmpty(props.removed));
+  const nonEmptyAdded = createMemo(() => getNonEmpty(props.added!));
+  const nonEmptyRemoved = createMemo(() => getNonEmpty(props.removed!));
 
   const onClick = async(message: MyMessage) => {
-    const newMessage = await rootScope.managers.appMessagesManager.saveLogsMessage(props.channelId.toPeerId(true), message);
+    const newMessage = await rootScope.managers.appMessagesManager!.saveLogsMessage(props.channelId.toPeerId(true), message);
 
     appImManager.setPeer({
       peerId: props.channelId.toPeerId(true),
@@ -37,13 +37,13 @@ export const PreviewMessageButtons = (props: {
     <Show when={nonEmptyAdded() || nonEmptyRemoved()}>
       <div class={styles.Container}>
         <Show when={nonEmptyAdded() && props.addedKey}>
-          <Button class={`interactable ${styles.Button} ${styles.added}`} onClick={() => onClick(nonEmptyAdded())}>
-            <I18nTsx key={props.addedKey} />
+          <Button class={`interactable ${styles.Button} ${styles.added}`} onClick={() => onClick(nonEmptyAdded()!)}>
+            <I18nTsx key={props.addedKey!} />
           </Button>
         </Show>
         <Show when={nonEmptyRemoved() && props.removedKey}>
-          <Button class={`interactable ${styles.Button} ${styles.removed}`} onClick={() => onClick(nonEmptyRemoved())}>
-            <I18nTsx key={props.removedKey} />
+          <Button class={`interactable ${styles.Button} ${styles.removed}`} onClick={() => onClick(nonEmptyRemoved()!)}>
+            <I18nTsx key={props.removedKey!} />
           </Button>
         </Show>
       </div>

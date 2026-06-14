@@ -71,17 +71,17 @@ export default class EventListenerBase<Listeners extends EventListenerListeners>
   }
 
   public _constructor(reuseResults?: boolean): any {
-    this.reuseResults = reuseResults;
+    this.reuseResults = reuseResults!;
     this.listeners = {};
     this.listenerResults = {};
   }
 
   public addEventListener<T extends keyof Listeners>(name: T, callback: Listeners[T], options?: boolean | AddEventListenerOptions) {
-    const listenerObject: ListenerObject<Listeners[T]> = {callback, options};
+    const listenerObject: ListenerObject<Listeners[T]> = {callback, options: options!};
     (this.listeners[name] ??= new Set()).add(listenerObject); // ! add before because if you don't, you won't be able to delete it from callback
 
     if(this.listenerResults.hasOwnProperty(name)) {
-      callback(...this.listenerResults[name]);
+      callback(...this.listenerResults[name]!);
 
       if((options as AddEventListenerOptions)?.once) {
         this.listeners[name].delete(listenerObject);
@@ -96,7 +96,7 @@ export default class EventListenerBase<Listeners extends EventListenerListeners>
     [name in keyof Listeners]?: Listeners[name]
   }) {
     for(const i in obj) {
-      this.addEventListener(i, obj[i]);
+      this.addEventListener(i, obj[i]!);
     }
   }
 
@@ -149,7 +149,7 @@ export default class EventListenerBase<Listeners extends EventListenerListeners>
       this.listenerResults[name] = args;
     }
 
-    const results: Array<SuperReturnType<Listeners[typeof name]>> = collectResults && [];
+    const results: Array<SuperReturnType<Listeners[typeof name]>> = ((collectResults && [])! as SuperReturnType<Listeners[T]>[]);
 
     const listeners = this.listeners[name];
     for(const listener of listeners || []) {

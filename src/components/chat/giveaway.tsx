@@ -43,9 +43,9 @@ export function DelimiterWithText(props: {langKey: LangPackKey}) {
 
 export async function onGiveawayClick(message: Message.message) {
   const giveaway = message.media as MessageMedia.messageMediaGiveaway | MessageMedia.messageMediaGiveawayResults;
-  const giveawayInfo = await rootScope.managers.appPaymentsManager.getGiveawayInfo(message.peerId, message.mid);
+  const giveawayInfo = await rootScope.managers.appPaymentsManager!.getGiveawayInfo(message.peerId!, message.mid!);
   const d = document.createDocumentFragment();
-  const duration = formatMonthsDuration(giveaway.months, true);
+  const duration = formatMonthsDuration(giveaway.months!, true);
   const giveawayPeerId = (message as Message.message).fwdFromId || message.peerId;
 
   const isMediaResults = giveaway._ === 'messageMediaGiveawayResults';
@@ -63,13 +63,13 @@ export async function onGiveawayClick(message: Message.message) {
   let subtitleKey: LangPackKey = 'Giveaway.Info';
   const subtitleArgs: FormatterArguments = [
     formatDate(isResults ? giveawayInfo.finish_date : giveaway.until_date),
-    i18n('Giveaway.Info.Users', [quantity]),
+    i18n('Giveaway.Info.Users', [quantity])!,
     await wrapPeerTitle({peerId: giveawayPeerId})
   ];
 
   if(additionalPeersLength) {
     subtitleKey += '.Several';
-    subtitleArgs.push(i18n('Giveaway.Info.OtherChannels', [additionalPeersLength]));
+    subtitleArgs.push(i18n('Giveaway.Info.OtherChannels', [additionalPeersLength])!);
   }
   if(onlyNewSubscribers) {
     subtitleKey += '.Date';
@@ -111,7 +111,7 @@ export async function onGiveawayClick(message: Message.message) {
 
     if(additionalPeersLength) {
       subsubtitleKey += '.Multi';
-      subsubtitleArgs.push(i18n('Giveaway.Info.OtherChannels', [additionalPeersLength]));
+      subsubtitleArgs.push(i18n('Giveaway.Info.OtherChannels', [additionalPeersLength])!);
     }
 
     if(!isParticipating && giveawayInfo.start_date) {
@@ -132,23 +132,23 @@ export async function onGiveawayClick(message: Message.message) {
       giveaway.stars || quantity,
       await wrapPeerTitle({peerId: giveawayPeerId}),
       quantity,
-      duration
+      duration!
     ]
   );
 
   const subtitle = i18n(subtitleKey as LangPackKey, subtitleArgs);
-  const subsubtitle = i18n(subsubtitleKey as LangPackKey, subsubtitleArgs);
+  const subsubtitle = i18n(subsubtitleKey as LangPackKey, subsubtitleArgs!);
 
-  if(subsubtitleAtTop || isRefunded) {
-    subsubtitle.classList.add('popup-description-framed');
+  if(subsubtitleAtTop! || isRefunded) {
+    subsubtitle!.classList.add('popup-description-framed');
   }
 
   if(isRefunded) {
-    subsubtitle.classList.add('popup-description-danger');
+    subsubtitle!.classList.add('popup-description-danger');
   }
 
   d.append(...[
-    ...(subsubtitleAtTop ? [
+    ...(subsubtitleAtTop! ? [
       subsubtitle,
       document.createElement('br')
     ] : []),
@@ -160,7 +160,7 @@ export async function onGiveawayClick(message: Message.message) {
         await wrapPeerTitle({peerId: giveawayPeerId}),
         quantity,
         wrapEmojiText(giveaway.prize_description),
-        i18n('Giveaway.AlsoPrizes2', [quantity])
+        i18n('Giveaway.AlsoPrizes2', [quantity])!
       ]),
       document.createElement('br'),
       document.createElement('br')
@@ -170,12 +170,12 @@ export async function onGiveawayClick(message: Message.message) {
       ' ',
       i18n('BoostingGiveawayUsedLinksPlural', [giveawayInfo.activated_count])
     ] : []),
-    ...(!subsubtitleAtTop ? [
+    ...(!subsubtitleAtTop! ? [
       document.createElement('br'),
       document.createElement('br'),
       subsubtitle
     ] : [])
-  ].filter(Boolean));
+  ].filter(Boolean) as (string | Node)[]);
 
   await confirmationPopup({
     titleLangKey: isResults ? 'BoostingGiveawayEnd' : 'BoostingGiveAwayAbout',
@@ -189,7 +189,7 @@ export async function onGiveawayClick(message: Message.message) {
   });
 
   if(isWinner) {
-    PopupElement.createPopup(PopupGiftLink, giveawayInfo.gift_code_slug);
+    PopupElement.createPopup(PopupGiftLink, giveawayInfo.gift_code_slug!);
   }
 }
 
@@ -207,24 +207,24 @@ export default function Giveaway(props: {
     const span = document.createElement('span');
     span.classList.add('bubble-giveaway-country');
     const country = I18n.countriesList.find((country) => country.iso2 === iso2);
-    span.append(wrapEmojiText(getCountryEmoji(iso2) + ' ' + (country.name || country.default_name)));
+    span.append(wrapEmojiText(getCountryEmoji(iso2) + ' ' + (country!.name || country!.default_name)));
     return span;
   });
 
-  const headerDuration = formatMonthsDuration(giveaway.months, true);
+  const headerDuration = formatMonthsDuration(giveaway.months!, true);
   let header: JSX.Element;
   if(isResults) {
     let a: HTMLAnchorElement;
     (
       <a
-        ref={a}
+        ref={a!}
         class="bubble-giveaway-link"
         data-saved-from={`${giveaway.channel_id.toPeerId(true)}_${giveaway.launch_msg_id}`}
       />
     );
     header = (
       <>
-        {i18n('Giveaway.Results.Subtitle', [giveaway.winners_count, a])}
+        {i18n('Giveaway.Results.Subtitle', [giveaway.winners_count, a!])}
       </>
     );
   } else {
@@ -234,14 +234,14 @@ export default function Giveaway(props: {
         {wrapEmojiText(giveaway.prize_description)}
         <DelimiterWithText langKey="Giveaway.With" />
         {giveaway.stars ?
-          i18n('Giveaway.WithStars', [giveaway.quantity, i18n('Giveaway.WithStars.Stars', [+giveaway.stars])]) :
-          i18n(+quantity > 1 ? 'Giveaway.WithSubscriptionsPlural' : 'Giveaway.WithSubscriptionsSingle', [headerDuration])}
+          i18n('Giveaway.WithStars', [giveaway.quantity, i18n('Giveaway.WithStars.Stars', [+giveaway.stars])!]) :
+          i18n(+quantity > 1 ? 'Giveaway.WithSubscriptionsPlural' : 'Giveaway.WithSubscriptionsSingle', [headerDuration!])}
       </>
     ) : (
       <>
         {i18n(giveaway.stars ? 'BoostingStarsGiveawayMsgInfoPlural1' : 'BoostingGiveawayMsgInfoPlural1', [quantity])}
         <br/>
-        {i18n(giveaway.stars ? 'BoostingStarsGiveawayMsgInfoPlural2' : 'BoostingGiveawayMsgInfoPlural2', [giveaway.stars ? giveaway.quantity : headerDuration])}
+        {i18n(giveaway.stars ? 'BoostingStarsGiveawayMsgInfoPlural2' : 'BoostingGiveawayMsgInfoPlural2', [(giveaway.stars ? giveaway.quantity : headerDuration)!])}
       </>
     );
   }
@@ -312,7 +312,7 @@ export default function Giveaway(props: {
   let stickerDiv: HTMLDivElement;
   const ret = (
     <div class={classNames('bubble-giveaway', 'no-select', 'disable-hover', isResults && 'bubble-giveaway-results')}>
-      <div ref={stickerDiv} class="bubble-giveaway-sticker">
+      <div ref={stickerDiv!} class="bubble-giveaway-sticker">
         <div class={classNames('bubble-giveaway-sticker-counter', giveaway.stars && 'bubble-giveaway-sticker-counter-stars')}>
           {giveaway.stars && <IconTsx icon="star" />}
           {giveaway.stars ? ` ${quantity}` : `X${quantity}`}
@@ -329,8 +329,8 @@ export default function Giveaway(props: {
       <div class="bubble-giveaway-row">
         <div class="bubble-giveaway-row-title">
           {isResults && giveaway.stars ?
-            i18n(giveaway.winners_count > 1 ? 'Giveaway.Results.Stars.Winners.Single' : 'Giveaway.Results.Stars.Winners.Single', [i18n('Giveaway.Results.Stars.Winners.Stars', [quantity])]) :
-            i18n(isResults ? 'Giveaway.Results.Footer' : 'BoostingWinnersDate', [quantity, giveaway.stars])}
+            i18n(giveaway.winners_count > 1 ? 'Giveaway.Results.Stars.Winners.Single' : 'Giveaway.Results.Stars.Winners.Single', [i18n('Giveaway.Results.Stars.Winners.Stars', [quantity])!]) :
+            i18n(isResults ? 'Giveaway.Results.Footer' : 'BoostingWinnersDate', [quantity, giveaway.stars!])}
         </div>
         {!isResults && formatFullSentTime(giveaway.until_date)}
       </div>
@@ -346,13 +346,13 @@ export default function Giveaway(props: {
     loop: false,
     autoplay: liteMode.isAvailable('stickers_chat')
   }).then(({container, promise}) => {
-    stickerDiv.style.position = 'relative';
-    stickerDiv.style.width = stickerDiv.style.height = size + 'px';
-    stickerDiv.append(container);
+    stickerDiv!.style.position = 'relative';
+    stickerDiv!.style.width = stickerDiv!.style.height = size + 'px';
+    stickerDiv!.append(container);
     return promise;
   });
 
-  props.loadPromises.push(promise);
+  props.loadPromises!.push(promise);
 
   return ret;
 }

@@ -43,7 +43,7 @@ const SuggestedPostActionContent = defineSolidElement({
     const savedPeerId = () => props.message.saved_peer_id && getPeerId(props.message.saved_peer_id);
     const chargedPeerId = () => savedPeerId() !== rootScope.myId ? savedPeerId() : undefined;
 
-    const awardedStars = () => props.action?._ === 'messageActionSuggestedPostSuccess' && props.action.price.amount;
+    const awardedStars = () => props.action?._ === 'messageActionSuggestedPostSuccess' ? props.action.price.amount : undefined;
 
     const chargedPrice = () => props.action?._ === 'messageActionSuggestedPostApproval' && props.action.price ?
       <I18nTsx
@@ -72,7 +72,7 @@ const SuggestedPostActionContent = defineSolidElement({
           <Match when={props.action?._ === 'messageActionSuggestedPostRefund'}>
             <I18nTsx
               key='SuggestedPosts.Refund'
-              args={[<PeerTitleTsx peerId={savedPeerId()} onlyFirstName limitSymbols={LIMIT_SYMBOLS} />]}
+              args={[<PeerTitleTsx peerId={savedPeerId()!} onlyFirstName limitSymbols={LIMIT_SYMBOLS} />]}
             />
           </Match>
           <Match when={props.action?._ === 'messageActionSuggestedPostApproval' && props.action?.pFlags?.balance_too_low}>
@@ -92,7 +92,7 @@ const SuggestedPostActionContent = defineSolidElement({
               key='SuggestedPosts.PostSuccess'
               args={[
                 makeEmoji('✅'),
-                <I18nTsx key='Stars' args={[numberThousandSplitterForStars(awardedStars())]} />
+                <I18nTsx key='Stars' args={[numberThousandSplitterForStars((awardedStars()!))]} />
               ]}
             />
           </Match>
@@ -101,18 +101,18 @@ const SuggestedPostActionContent = defineSolidElement({
 
       <Show when={suggestedPost()?.price || suggestedPost()?.schedule_date}>
         <div class={styles.Grid}>
-          <Show when={suggestedPost().price}>
+          <Show when={suggestedPost()!.price}>
             <div class={styles.GridLabel}><I18nTsx key='SuggestedPosts.Price' /></div>
             <div class={styles.GridValue}>
               <I18nTsx
-                key={suggestedPost().price._ === 'starsTonAmount' ? 'SuggestedPosts.TONAmount' : 'Stars'}
-                args={[numberThousandSplitterForStars(suggestedPost().price.amount)]}
+                key={suggestedPost()!.price!._ === 'starsTonAmount' ? 'SuggestedPosts.TONAmount' : 'Stars'}
+                args={[numberThousandSplitterForStars(suggestedPost()!.price!.amount)]}
               />
             </div>
           </Show>
-          <Show when={suggestedPost().schedule_date}>
+          <Show when={suggestedPost()!.schedule_date}>
             <div class={styles.GridLabel}><I18nTsx key='SuggestedPosts.Time' /></div>
-            <div class={styles.GridValue}>{formatFullSentTime(suggestedPost().schedule_date)}</div>
+            <div class={styles.GridValue}>{formatFullSentTime(suggestedPost()!.schedule_date!)}</div>
           </Show>
         </div>
       </Show>
@@ -128,7 +128,7 @@ const SuggestedPostActionContent = defineSolidElement({
           <I18nTsx
             class={styles.Subtitle}
             key={wasPublished() ? 'SuggestedPosts.AgreementReached.Published' : 'SuggestedPosts.AgreementReached.ToBePublished'}
-            args={[makeEmoji('📅'), formatFullSentTime(props.action.schedule_date)]}
+            args={[makeEmoji('📅'), formatFullSentTime(props.action.schedule_date!)]}
           />
 
           <Show when={props.action.price}>
@@ -136,20 +136,20 @@ const SuggestedPostActionContent = defineSolidElement({
               class={styles.Subtitle}
               key={chargedPeerId() ? 'SuggestedPosts.AgreementReached.HasBeenCharged' : 'SuggestedPosts.AgreementReached.YouHaveBeenCharged'}
               args={chargedPeerId() ?
-                [makeEmoji('💰'), <PeerTitleTsx peerId={chargedPeerId()} onlyFirstName limitSymbols={LIMIT_SYMBOLS} />, chargedPrice()] :
+                [makeEmoji('💰'), <PeerTitleTsx peerId={chargedPeerId()!} onlyFirstName limitSymbols={LIMIT_SYMBOLS} />, chargedPrice()] :
                 [makeEmoji('💰'), chargedPrice()]}
             />
 
             <I18nTsx
               class={styles.Subtitle}
               key='SuggestedPosts.AgreementReached.WillReceive'
-              args={[makeEmoji('⏳'), <PeerTitleTsx peerId={props.message.peerId} limitSymbols={LIMIT_SYMBOLS} />, '' + SUGGESTED_POST_WAIT_FOR_REWARD_HOURS]}
+              args={[makeEmoji('⏳'), <PeerTitleTsx peerId={props.message.peerId!} limitSymbols={LIMIT_SYMBOLS} />, '' + SUGGESTED_POST_WAIT_FOR_REWARD_HOURS]}
             />
 
             <I18nTsx
               class={styles.Subtitle}
               key='SuggestedPosts.AgreementReached.WillBeRefunded'
-              args={[makeEmoji('🔄'), <PeerTitleTsx peerId={props.message.peerId} limitSymbols={LIMIT_SYMBOLS} />, '' + SUGGESTED_POST_WAIT_FOR_REWARD_HOURS]}
+              args={[makeEmoji('🔄'), <PeerTitleTsx peerId={props.message.peerId!} limitSymbols={LIMIT_SYMBOLS} />, '' + SUGGESTED_POST_WAIT_FOR_REWARD_HOURS]}
             />
           </Show>
         </>

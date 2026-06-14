@@ -73,7 +73,7 @@ export function factorizeSmallPQ(pq: bigInt.BigInteger) {
   return g;
 }
 
-export function factorizeBiqPQ(pqBytes: Uint8Array | number[]): [Uint8Array, Uint8Array] {
+export function factorizeBiqPQ(pqBytes: Uint8Array | number[]): [Uint8Array, Uint8Array] | undefined {
   let q: bigInt.BigInteger,
     p: bigInt.BigInteger,
     b: bigInt.BigInteger;
@@ -112,16 +112,16 @@ export function factorizeBiqPQ(pqBytes: Uint8Array | number[]): [Uint8Array, Uin
   }
 
   if(found) {
-    q = pq.divide(p);
-    if(p.compare(q) > 0) {
-      [p, q] = [q, p];
+    q = pq.divide(p!);
+    if(p!.compare(q) > 0) {
+      [p, q] = [q, p!];
     }
 
-    return [bigIntToBytes(p), bigIntToBytes(q)];
+    return [bigIntToBytes(p!), bigIntToBytes(q)];
   }
 }
 
-export default function factorizeTdlibPQ(pqBytes: Uint8Array | number[]): [Uint8Array, Uint8Array] {
+export default function factorizeTdlibPQ(pqBytes: Uint8Array | number[]): [Uint8Array, Uint8Array] | undefined {
   const size = pqBytes.length;
   if(size > 8 || (size === 8 && (pqBytes[0] & 128) != 0)) {
     return factorizeBiqPQ(pqBytes);

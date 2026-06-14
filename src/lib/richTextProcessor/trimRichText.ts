@@ -11,7 +11,7 @@ export default function trimRichText(text: string, entities: MessageEntity[]) {
 
   if(diff) {
     entities.forEach((entity) => {
-      entity.offset = Math.max(0, entity.offset - diff);
+      entity.offset = Math.max(0, entity.offset! - diff);
     });
   }
 
@@ -23,8 +23,8 @@ export default function trimRichText(text: string, entities: MessageEntity[]) {
 
   if(diff) {
     entities.forEach((entity) => {
-      if((entity.offset + entity.length) > text.length) {
-        entity.length = text.length - entity.offset;
+      if((entity.offset! + entity.length!) > text.length) {
+        entity.length = text.length - entity.offset!;
       }
     });
   }

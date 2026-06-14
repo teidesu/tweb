@@ -64,7 +64,7 @@ export default class PopupStarReaction extends PopupElement {
 
     const sendText = new I18n.IntlElement({key: 'PaidReaction.Send'});
 
-    this.btnConfirm.append(sendText.element);
+    this.btnConfirm.append(sendText.element!);
     replaceButtonIcon(this.btnConfirm, 'star');
 
     const sendAsContainer = document.createElement('div');
@@ -88,7 +88,7 @@ export default class PopupStarReaction extends PopupElement {
     let defaultSendAsPeerId: PeerId;
     const myReactor = topSenders().find((sender) => sender.pFlags.my);
     if(myReactor) {
-      defaultSendAsPeerId = getPeerId(myReactor.peer_id);
+      defaultSendAsPeerId = getPeerId(myReactor.peer_id!);
     } else {
       defaultSendAsPeerId = rootScope.myId;
     }
@@ -96,7 +96,7 @@ export default class PopupStarReaction extends PopupElement {
     const starsCount = () => {
       const value$ = starsSliderValue();
       const v = easeOutCircApply(1 - value$, 1);
-      return Math.max(1, Math.round((1 - v) * maximumStars));
+      return Math.max(1, Math.round((1 - v) * maximumStars!));
     };
 
     attachClickEvent(this.btnConfirm, () => {
@@ -146,9 +146,9 @@ export default class PopupStarReaction extends PopupElement {
 
     // * modify privacy
     if(myReactor) createEffect(on(sendAsPeerId, (sendAsPeerId$) => {
-      this.managers.appReactionsManager.togglePaidReactionPrivacy(
-        message.peerId,
-        message.mid,
+      this.managers.appReactionsManager!.togglePaidReactionPrivacy(
+        message.peerId!,
+        message.mid!,
         sendAsPeerId$
       );
     }, {defer: true}));
@@ -167,11 +167,11 @@ export default class PopupStarReaction extends PopupElement {
       const existing = topSenders().find((sender) => sender.pFlags.my);
       const sendAsPeerId$ = sendAsPeerId();
       const anonymous = sendAsPeerId$ === SEND_PAID_REACTION_ANONYMOUS_PEER_ID;
-      const peerId: Peer = anonymous ? undefined : (
+      const peerId: Peer = (anonymous ? undefined : (
         sendAsPeerId$ === rootScope.myId ?
           {_: 'peerUser', user_id: rootScope.myId} :
           {_: 'peerChannel', channel_id: sendAsPeerId$}
-      );
+      ))!;
 
       const reactor: MessageReactor = {
         _: 'messageReactor',
@@ -187,7 +187,7 @@ export default class PopupStarReaction extends PopupElement {
 
     const topSendersWithMe = createMemo(() => {
       const topSenders$ = topSenders();
-      findAndSplice(topSenders$, (sender) => sender.pFlags.my);
+      findAndSplice(topSenders$, (sender) => sender.pFlags.my!);
       topSenders$.push(mySender());
       return topSenders$.sort((a, b) => b.count - a.count).slice(0, 3);
     });
@@ -200,7 +200,7 @@ export default class PopupStarReaction extends PopupElement {
     );
 
     const renderSender = (sender: MessageReactor.messageReactor) => {
-      const peerId = getPeerId(sender.peer_id);
+      const peerId = getPeerId(sender.peer_id!);
       const anonymous = sender.pFlags.anonymous;
       let ret = (
         <div
@@ -296,8 +296,8 @@ export default class PopupStarReaction extends PopupElement {
   private async construct() {
     const [peerTitle, message, privacy] = await Promise.all([
       wrapPeerTitle({peerId: this.peerId}),
-      rootScope.managers.appMessagesManager.getMessageByPeer(this.peerId, this.mid),
-      rootScope.managers.appReactionsManager.getPaidReactionPrivacy()
+      rootScope.managers.appMessagesManager!.getMessageByPeer(this.peerId, this.mid),
+      rootScope.managers.appReactionsManager!.getPaidReactionPrivacy()
     ]);
 
     this.appendSolid(() => this._construct({

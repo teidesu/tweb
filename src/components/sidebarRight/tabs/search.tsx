@@ -43,11 +43,11 @@ const PrivateSearch: Component = () => {
     !!(peerId === rootScope.myId && threadId)
   );
 
-  if(!_peerId) {
-    _query = query;
+  if(!_peerId!) {
+    _query = query!;
     _peerId = peerId;
-    _threadId = threadId;
-    _onDatePick = onDatePick;
+    _threadId = threadId!;
+    _onDatePick = onDatePick!;
 
     btnPickDate.classList.toggle('hide', !_onDatePick);
     if(_onDatePick) {

@@ -146,7 +146,7 @@ export class ReferencesStorage extends AppManager {
   private contexts: Map<ReferenceBytes, ReferenceContexts> = new Map();
   // private references: Map<ReferenceBytes, number[]> = new Map();
   private links: {[hex: string]: ReferenceBytes} = {};
-  private refreshEmojiesSoundsPromise: Promise<any>;
+  private refreshEmojiesSoundsPromise: Promise<any> | undefined;
 
   constructor() {
     super();
@@ -201,12 +201,12 @@ export class ReferencesStorage extends AppManager {
       reference = this.getReferenceByLink(reference) || reference,
       this.contexts.get(reference)
     );
-    return [contexts, reference];
+    return [contexts!, reference];
   }
 
   public getContext(reference: ReferenceBytes): [ReferenceContext, ReferenceBytes] {
     const contexts = this.getContexts(reference);
-    return contexts[0] ? [contexts[0].values().next().value, contexts[1]] : undefined;
+    return contexts[0] ? [contexts[0].values().next().value!, contexts[1]] : (undefined as unknown as [ReferenceContext, Uint8Array<ArrayBufferLike> | number[]]);
   }
 
   public deleteContext(reference: ReferenceBytes, context: ReferenceContext, contexts?: ReferenceContexts) {

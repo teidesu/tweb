@@ -51,20 +51,20 @@ export function transferStarGiftConfirmationPopup(options: {
     const rows: TableRow[] = [
       ['StarGiftModel', (
         <AttributeValue
-          name={collectibleAttributes.model.name}
-          rarity={collectibleAttributes.model.rarity}
+          name={collectibleAttributes!.model.name}
+          rarity={collectibleAttributes!.model.rarity}
         />
       )],
       ['StarGiftBackdrop', (
         <AttributeValue
-          name={collectibleAttributes.backdrop.name}
-          rarity={collectibleAttributes.backdrop.rarity}
+          name={collectibleAttributes!.backdrop.name}
+          rarity={collectibleAttributes!.backdrop.rarity}
         />
       )],
       ['StarGiftPattern', (
         <AttributeValue
-          name={collectibleAttributes.pattern.name}
-          rarity={collectibleAttributes.pattern.rarity}
+          name={collectibleAttributes!.pattern.name}
+          rarity={collectibleAttributes!.pattern.rarity}
         />
       )]
     ];
@@ -72,7 +72,7 @@ export function transferStarGiftConfirmationPopup(options: {
     if(gift.value_amount) {
       rows.push([
         'StarGiftValue',
-        `~${paymentsWrapCurrencyAmount(gift.value_amount, gift.value_currency)}`
+        `~${paymentsWrapCurrencyAmount(gift.value_amount, gift.value_currency!)}`
       ]);
     }
 
@@ -85,16 +85,16 @@ export function transferStarGiftConfirmationPopup(options: {
       let amountAfterComission: HTMLElement
 
       if(options.fromOffer.price._ === 'starsTonAmount') {
-        amount = i18n('SuggestedPosts.TONAmount', [formatNanoton(options.fromOffer.price.amount, 2)])
+        amount = i18n('SuggestedPosts.TONAmount', [formatNanoton(options.fromOffer.price.amount, 2)])!
         const commission = appConfig.ton_stargift_resale_commission_permille;
-        const nanotonAfter = bigInt(options.fromOffer.price.amount as number).multiply(commission).divide(1000).toString()
-        amountAfterComission = i18n('SuggestedPosts.TONAmount', [formatNanoton(nanotonAfter, 2)])
+        const nanotonAfter = bigInt(options.fromOffer.price.amount as number).multiply(commission!).divide(1000).toString()
+        amountAfterComission = i18n('SuggestedPosts.TONAmount', [formatNanoton(nanotonAfter, 2)])!
       } else {
-        amount = i18n('Stars', [numberThousandSplitterForStars(options.fromOffer.price.amount)])
+        amount = i18n('Stars', [numberThousandSplitterForStars(options.fromOffer.price.amount)])!
         const commission = appConfig.stars_stargift_resale_commission_permille;
         amountAfterComission = i18n('Stars', [numberThousandSplitterForStars(Math.floor(
-          Number(options.fromOffer.price.amount) * (commission / 1000))
-        )])
+          Number(options.fromOffer.price.amount) * (commission! / 1000))
+        )])!
       }
 
       return (
@@ -118,7 +118,7 @@ export function transferStarGiftConfirmationPopup(options: {
         args={[
           getCollectibleName(options.gift.raw as StarGift.starGiftUnique),
           <PeerTitleTsx peerId={options.recipient} onlyFirstName />,
-          i18n('Stars', [numberThousandSplitterForStars(options.gift.saved.transfer_stars)])
+          i18n('Stars', [numberThousandSplitterForStars(options.gift.saved!.transfer_stars!)])
         ]}
       />
     )
@@ -143,7 +143,7 @@ export function transferStarGiftConfirmationPopup(options: {
     return (
       <I18nTsx
         key="StarGiftTransferFullFor"
-        args={[paymentsWrapCurrencyAmount(options.gift.saved.transfer_stars, STARS_CURRENCY)]}
+        args={[paymentsWrapCurrencyAmount(options.gift.saved!.transfer_stars!, STARS_CURRENCY)]}
       />
     )
   }
@@ -199,10 +199,10 @@ export default function transferStarGift(gift: MyStarGift, toPeerId?: PeerId): P
   const raw = gift.raw as StarGift.starGiftUnique;
 
   const now = tsNow(true);
-  if(saved.can_transfer_at !== undefined && saved.can_transfer_at > now) {
+  if(saved!.can_transfer_at !== undefined && saved!.can_transfer_at > now) {
     toastNew({
       langPackKey: 'StarGiftTransferCooldown',
-      langPackArguments: [wrapFormattedDuration(formatDuration(saved.can_transfer_at - now, 2))]
+      langPackArguments: [wrapFormattedDuration(formatDuration(saved!.can_transfer_at - now, 2))]
     });
     return Promise.resolve(false);
   }
@@ -231,17 +231,17 @@ export default function transferStarGift(gift: MyStarGift, toPeerId?: PeerId): P
           button: {
             langKey: 'Confirm'
           },
-          callback: (password) => rootScope.managers.apiManager.invokeApi('payments.getStarGiftWithdrawalUrl', {
-            stargift: input,
+          callback: (password) => rootScope.managers.apiManager!.invokeApi('payments.getStarGiftWithdrawalUrl', {
+            stargift: input!,
             password: password
           })
         })
 
         safeWindowOpen(url.url);
 
-        deferred.resolve(true);
+        deferred.resolve!(true);
       } catch(e) {
-        deferred.resolve(false);
+        deferred.resolve!(false);
       }
       return
     }
@@ -250,16 +250,16 @@ export default function transferStarGift(gift: MyStarGift, toPeerId?: PeerId): P
       gift,
       recipient: peerId,
       handleSubmit: async() => {
-        const inputPeer = await rootScope.managers.appPeersManager.getInputPeerById(peerId);
+        const inputPeer = await rootScope.managers.appPeersManager!.getInputPeerById(peerId);
 
         if(Number(saved?.transfer_stars ?? '0') === 0) {
-          await rootScope.managers.appGiftsManager.transferStarGift(gift.input, peerId, gift.ownerId);
-          deferred.resolve(true)
+          await rootScope.managers.appGiftsManager!.transferStarGift(gift.input!, peerId, gift.ownerId);
+          deferred.resolve!(true)
         } else {
           const popup = await PopupPayment.create({
             inputInvoice: {
               _: 'inputInvoiceStarGiftTransfer',
-              stargift: gift.input,
+              stargift: gift.input!,
               to_id: inputPeer
             },
             noShowIfStars: true
@@ -271,14 +271,14 @@ export default function transferStarGift(gift: MyStarGift, toPeerId?: PeerId): P
                 rootScope.dispatchEvent('star_gift_list_update', {peerId: gift.ownerId});
               }
               rootScope.dispatchEvent('star_gift_list_update', {peerId});
-              deferred.resolve(true);
+              deferred.resolve!(true);
             } else {
-              deferred.resolve(false);
+              deferred.resolve!(false);
             }
           });
         }
       },
-      handleCancel: () => deferred.resolve(false)
+      handleCancel: () => deferred.resolve!(false)
     })
   }
 
@@ -298,12 +298,12 @@ export default function transferStarGift(gift: MyStarGift, toPeerId?: PeerId): P
     titleLangKey: 'StarGiftTransferTo',
     onClose: () => {
       if(!peerSelectorResolved) {
-        deferred.resolve(false);
+        deferred.resolve!(false);
       }
     }
   });
 
-  if(saved.can_export_at !== undefined && saved.can_export_at < now) {
+  if(saved!.can_export_at !== undefined && saved!.can_export_at < now) {
     const fragmentRow = new Row({
       titleLangKey: 'StarGiftFragmentTransferItem',
       icon: 'ton',
@@ -312,7 +312,7 @@ export default function transferStarGift(gift: MyStarGift, toPeerId?: PeerId): P
         popup.hide();
       }
     });
-    popup.selector.list.before(fragmentRow.container);
+    popup.selector!.list.before(fragmentRow.container);
   }
 
   return deferred;

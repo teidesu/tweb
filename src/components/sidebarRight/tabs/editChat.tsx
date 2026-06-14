@@ -77,22 +77,22 @@ const EditChat: Component = () => {
       appConfig,
       availableReactions
     } = await namedPromises({
-      chatFull: tab.managers.appProfileManager.getChatFull(chatId, true),
-      chat: tab.managers.appChatsManager.getChat(chatId) as Promise<Chat.chat | Chat.channel>,
-      isBroadcast: tab.managers.appChatsManager.isBroadcast(chatId),
-      isChannel: tab.managers.appChatsManager.isChannel(chatId),
-      isBroadcastGroup: tab.managers.appChatsManager.isBroadcastGroup(chatId),
-      canChangeType: tab.managers.appChatsManager.hasRights(chatId, 'change_type'),
-      canChangePermissions: tab.managers.appChatsManager.hasRights(chatId, 'change_permissions'),
-      canToggleForum: tab.managers.appChatsManager.hasRights(chatId, 'toggle_forum'),
-      canManageAdmins: tab.managers.appChatsManager.hasRights(chatId, 'change_permissions'),
-      canChangeInfo: tab.managers.appChatsManager.hasRights(chatId, 'change_info'),
-      canDeleteChat: tab.managers.appChatsManager.hasRights(chatId, 'delete_chat'),
-      canPostMessages: tab.managers.appChatsManager.hasRights(chatId, 'post_messages'),
-      canManageInviteLinks: tab.managers.appChatsManager.hasRights(chatId, 'invite_links'),
-      canInviteUsers: tab.managers.appChatsManager.hasRights(chatId, 'invite_users'),
-      appConfig: tab.managers.apiManager.getAppConfig(),
-      availableReactions: tab.managers.appReactionsManager.getAvailableReactions()
+      chatFull: tab.managers.appProfileManager!.getChatFull(chatId, true),
+      chat: tab.managers.appChatsManager!.getChat(chatId) as Promise<Chat.chat | Chat.channel>,
+      isBroadcast: tab.managers.appChatsManager!.isBroadcast(chatId),
+      isChannel: tab.managers.appChatsManager!.isChannel(chatId),
+      isBroadcastGroup: tab.managers.appChatsManager!.isBroadcastGroup(chatId),
+      canChangeType: tab.managers.appChatsManager!.hasRights(chatId, 'change_type'),
+      canChangePermissions: tab.managers.appChatsManager!.hasRights(chatId, 'change_permissions'),
+      canToggleForum: tab.managers.appChatsManager!.hasRights(chatId, 'toggle_forum'),
+      canManageAdmins: tab.managers.appChatsManager!.hasRights(chatId, 'change_permissions'),
+      canChangeInfo: tab.managers.appChatsManager!.hasRights(chatId, 'change_info'),
+      canDeleteChat: tab.managers.appChatsManager!.hasRights(chatId, 'delete_chat'),
+      canPostMessages: tab.managers.appChatsManager!.hasRights(chatId, 'post_messages'),
+      canManageInviteLinks: tab.managers.appChatsManager!.hasRights(chatId, 'invite_links'),
+      canInviteUsers: tab.managers.appChatsManager!.hasRights(chatId, 'invite_users'),
+      appConfig: tab.managers.apiManager!.getAppConfig(),
+      availableReactions: tab.managers.appReactionsManager!.getAvailableReactions()
     });
 
     tab.scrollable.replaceChildren();
@@ -104,14 +104,14 @@ const EditChat: Component = () => {
 
     tab.listenerSetter.add(rootScope)('chat_update', async(updatedChatId) => {
       if(chatId === updatedChatId) {
-        chat = await tab.managers.appChatsManager.getChat(chatId) as typeof chat;
+        chat = await tab.managers.appChatsManager!.getChat(chatId) as typeof chat;
         chatUpdateListeners['basic'].forEach((callback) => callback());
       }
     });
 
     tab.listenerSetter.add(rootScope)('chat_full_update', async(updatedChatId) => {
       if(chatId === updatedChatId) {
-        chatFull = await tab.managers.appProfileManager.getChatFull(updatedChatId);
+        chatFull = await tab.managers.appProfileManager!.getChatFull(updatedChatId);
         chatUpdateListeners['full'].forEach((callback) => callback());
       }
     });
@@ -189,7 +189,7 @@ const EditChat: Component = () => {
             key = username ? 'TypePublicGroup' : 'TypePrivateGroup';
           }
 
-          chatTypeRow.subtitle.replaceChildren(i18n(key));
+          chatTypeRow.subtitle.replaceChildren(i18n(key)!);
         };
 
         setChatTypeSubtitle();
@@ -269,12 +269,12 @@ const EditChat: Component = () => {
           if(chatAvailableReactions._ === 'chatReactionsSome') {
             const length = chatAvailableReactions.reactions.length;
             if(length === availableReactionsLength) {
-              replaceContent(reactionsRow.subtitle, i18n('ReactionsAll'));
+              replaceContent(reactionsRow.subtitle, i18n('ReactionsAll')!);
             } else {
               reactionsRow.subtitle.textContent = length + '/' + availableReactionsLength;
             }
           } else {
-            replaceContent(reactionsRow.subtitle, i18n(chatAvailableReactions._ === 'chatReactionsAll' ? 'ReactionsAll' : 'Checkbox.Disabled'));
+            replaceContent(reactionsRow.subtitle, i18n(chatAvailableReactions._ === 'chatReactionsAll' ? 'ReactionsAll' : 'Checkbox.Disabled')!);
           }
         };
 
@@ -300,7 +300,7 @@ const EditChat: Component = () => {
           const linkedMonoforumChat = chat.linked_monoforum_id ? apiManagerProxy.getChat(chat.linked_monoforum_id) : undefined;
 
           if(linkedMonoforumChat?._ !== 'channel') {
-            replaceContent(directMessagesRow.subtitle, i18n('ChannelDirectMessages.Settings.Off'));
+            replaceContent(directMessagesRow.subtitle, i18n('ChannelDirectMessages.Settings.Off')!);
             return;
           }
 
@@ -308,9 +308,9 @@ const EditChat: Component = () => {
 
           replaceContent(
             directMessagesRow.subtitle,
-            starsAmount ?
+            (starsAmount ?
               i18n('Stars', [numberThousandSplitterForStars(starsAmount)]) :
-              i18n('ChannelDirectMessages.Settings.Free')
+              i18n('ChannelDirectMessages.Settings.Free'))!
           );
         };
 
@@ -348,9 +348,9 @@ const EditChat: Component = () => {
 
         const setPermissionsLength = () => {
           const permissions = flags.reduce((acc, f) => acc + +hasRights(chat, f, (chat as Chat.chat).default_banned_rights), 0) + '/' + flags.length;
-          const paid = !!+(chat as Chat.channel)?.send_paid_messages_stars ? I18n.format('PrivacySettingsController.Paid', true) : undefined;
+          const paid = !!+(chat as Chat.channel)?.send_paid_messages_stars! ? I18n.format('PrivacySettingsController.Paid', true) : undefined;
           permissionsRow.subtitle.innerHTML = '';
-          permissionsRow.subtitle.append(...join([permissions, paid].filter(Boolean)));
+          permissionsRow.subtitle.append(...join(([permissions, paid].filter(Boolean)! as (string | Node)[])));
         };
 
         setPermissionsLength();
@@ -367,7 +367,7 @@ const EditChat: Component = () => {
             constructor: AppChatDiscussionTab,
             getInitArgs: () => ({
               chatId: chatId,
-              linkedChatId: (chatFull as ChatFull.channelFull).linked_chat_id
+              linkedChatId: (chatFull as ChatFull.channelFull).linked_chat_id!
             }),
             slider: tab.slider
           },
@@ -380,7 +380,7 @@ const EditChat: Component = () => {
           if(linkedChatId) {
             el = await wrapPeerTitle({peerId: linkedChatId.toPeerId(true)});
           } else {
-            el = i18n('PeerInfo.Discussion.Add');
+            el = i18n('PeerInfo.Discussion.Add')!;
           }
 
           if(!isBroadcast) {
@@ -393,7 +393,7 @@ const EditChat: Component = () => {
         await setSubtitle();
         addChatUpdateListener(setSubtitle, 'full');
 
-        section.caption.replaceChildren(i18n('DiscussionInfo'));
+        section.caption.replaceChildren(i18n('DiscussionInfo')!);
         section.content.append(discussionRow.container);
       }
 
@@ -419,7 +419,7 @@ const EditChat: Component = () => {
 
       if(
         canToggleForum &&
-        (chat.participants_count >= appConfig.forum_upgrade_participants_min || (chat as Chat.channel).pFlags.forum) &&
+        (chat.participants_count! >= appConfig.forum_upgrade_participants_min! || (chat as Chat.channel).pFlags.forum) &&
         !isBroadcast
       ) {
         const topicsRow = new Row({
@@ -438,7 +438,7 @@ const EditChat: Component = () => {
 
         const setTopics = () => {
           const isForum = !!(chat as Chat.channel).pFlags.forum;
-          editPeer.avatarElem.node.parentElement.classList.toggle('is-forum', isForum);
+          editPeer.avatarElem.node.parentElement!.classList.toggle('is-forum', isForum);
           topicsRow.checkboxField.setValueSilently(isForum);
 
           // const linkedChatId = (chatFull as ChatFull.channelFull).linked_chat_id;
@@ -451,7 +451,7 @@ const EditChat: Component = () => {
           }
 
           const value = topicsRow.checkboxField.checked;
-          const promise = handleChannelsTooMuch(() => tab.managers.appChatsManager.toggleForum(chatId, value));
+          const promise = handleChannelsTooMuch(() => tab.managers.appChatsManager!.toggleForum(chatId, value));
           topicsRow.disableWithPromise(promise);
         });
 
@@ -459,7 +459,7 @@ const EditChat: Component = () => {
         addChatUpdateListener(setTopics);
         addChatUpdateListener(setTopics, 'full');
 
-        section.caption.replaceChildren(i18n('ForumToggleDescription'));
+        section.caption.replaceChildren(i18n('ForumToggleDescription')!);
         section.content.append(topicsRow.container);
       }
 
@@ -474,16 +474,16 @@ const EditChat: Component = () => {
 
         const id = chatId;
         if(chatNameInputField.isValidToChange()) {
-          promises.push(tab.managers.appChatsManager.editTitle(id, chatNameInputField.value));
+          promises.push(tab.managers.appChatsManager!.editTitle(id, chatNameInputField.value));
         }
 
         if(descriptionInputField.isValidToChange()) {
-          promises.push(tab.managers.appChatsManager.editAbout(id, descriptionInputField.value));
+          promises.push(tab.managers.appChatsManager!.editAbout(id, descriptionInputField.value));
         }
 
         if(editPeer.uploadAvatar) {
           promises.push(editPeer.uploadAvatar.file().then((inputFile) => {
-            return tab.managers.appChatsManager.editPhoto(id, inputFile);
+            return tab.managers.appChatsManager!.editPhoto(id, inputFile);
           }));
         }
 
@@ -518,7 +518,7 @@ const EditChat: Component = () => {
           if(participants?._ === 'chatParticipants') {
             count = participants.participants.filter(isParticipantAdmin).length;
           } else {
-            count = (chatFull as ChatFull.channelFull).admins_count;
+            count = (chatFull as ChatFull.channelFull).admins_count!;
           }
 
           count ||= 1;
@@ -578,7 +578,7 @@ const EditChat: Component = () => {
           if(kickedCount) {
             removedUsersRow.subtitle.textContent = numberThousandSplitter(kickedCount);
           } else {
-            removedUsersRow.subtitle.replaceChildren(i18n('NoBlockedUsers'));
+            removedUsersRow.subtitle.replaceChildren(i18n('NoBlockedUsers')!);
           }
         };
 
@@ -601,11 +601,11 @@ const EditChat: Component = () => {
         }),
         icon: 'premium_translate',
         clickable: (e) => {
-          if(((chat as Chat.channel).level ?? 0) < appConfig.channel_autotranslation_level_min) {
+          if(((chat as Chat.channel).level ?? 0) < appConfig.channel_autotranslation_level_min!) {
             toastNew({
               langPackKey: 'ChannelAutotranslationLevelMin',
               langPackArguments: [
-                appConfig.channel_autotranslation_level_min,
+                appConfig.channel_autotranslation_level_min!,
                 anchorCallback(() => {
                   hideToast();
                   PopupElement.createPopup(PopupBoost, peerId);
@@ -619,7 +619,7 @@ const EditChat: Component = () => {
 
       tab.listenerSetter.add(r.checkboxField.input)('change', () => {
         const toggle = r.toggleDisability(true);
-        tab.managers.appChatsManager.toggleAutotranslation(chatId, r.checkboxField.checked)
+        tab.managers.appChatsManager!.toggleAutotranslation(chatId, r.checkboxField.checked)
         .catch(() => {
           r.checkboxField.setValueSilently(false);
         }).finally(toggle);
@@ -649,14 +649,14 @@ const EditChat: Component = () => {
 
       tab.listenerSetter.add(signMessagesCheckboxField.input)('change', () => {
         const toggle = signMessagesCheckboxField.toggleDisability(true);
-        tab.managers.appChatsManager.toggleSignatures(chatId, signMessagesCheckboxField.checked, signMessagesCheckboxField.checked && showProfilesCheckboxField.checked).then(() => {
+        tab.managers.appChatsManager!.toggleSignatures(chatId, signMessagesCheckboxField.checked, signMessagesCheckboxField.checked && showProfilesCheckboxField.checked).then(() => {
           toggle();
         });
       });
 
       tab.listenerSetter.add(showProfilesCheckboxField.input)('change', () => {
         const toggle = showProfilesCheckboxField.toggleDisability(true);
-        tab.managers.appChatsManager.toggleSignatures(chatId, signMessagesCheckboxField.checked, showProfilesCheckboxField.checked).then(() => {
+        tab.managers.appChatsManager!.toggleSignatures(chatId, signMessagesCheckboxField.checked, showProfilesCheckboxField.checked).then(() => {
           toggle();
         });
       });
@@ -665,7 +665,7 @@ const EditChat: Component = () => {
         signMessagesCheckboxField.setValueSilently(!!(chat as Chat.channel).pFlags.signatures);
         showProfilesCheckboxField.setValueSilently(signMessagesCheckboxField.checked && !!(chat as Chat.channel).pFlags.signature_profiles);
         row2.container.classList.toggle('hide', !signMessagesCheckboxField.checked);
-        section.caption.replaceChildren(i18n(showProfilesCheckboxField.checked ? 'ChannelSignProfilesInfo' : 'ChannelSignMessagesInfo'));
+        section.caption.replaceChildren(i18n(showProfilesCheckboxField.checked ? 'ChannelSignProfilesInfo' : 'ChannelSignMessagesInfo')!);
       };
 
       const row2 = CreateRowFromCheckboxField(showProfilesCheckboxField);
@@ -690,7 +690,7 @@ const EditChat: Component = () => {
         tab.listenerSetter.add(showChatHistoryCheckboxField.input)('change', () => {
           const toggle = showChatHistoryCheckboxField.toggleDisability(true);
           const value = !showChatHistoryCheckboxField.checked;
-          handleChannelsTooMuch(() => tab.managers.appChatsManager.togglePreHistoryHidden(chatId, value))
+          handleChannelsTooMuch(() => tab.managers.appChatsManager!.togglePreHistoryHidden(chatId, value))
           .catch((err) => {
             console.error('togglePreHistoryHidden error:', err);
             showChatHistoryCheckboxField.setValueSilently(value);

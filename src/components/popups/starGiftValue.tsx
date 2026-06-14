@@ -209,7 +209,7 @@ export default class PopupStarGiftValue extends PopupElement {
           {value.fragment_listed_count && (
             <Button
               class="rp-overflow btn-transparent primary"
-              onClick={() => safeWindowOpen(value.fragment_listed_url)}
+              onClick={() => safeWindowOpen(value.fragment_listed_url!)}
             >
               <I18nTsx
                 key="StarGiftViewResaleFragment"

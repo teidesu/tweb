@@ -17,8 +17,8 @@ export function handleShareStory(options: {
       const preparedPaymentResult = await PaidMessagesInterceptor.prepareStarsForPayment({messageCount: 1, peerId});
       if(preparedPaymentResult === PAYMENT_REJECTED) throw new Error();
 
-      const inputPeer = await rootScope.managers.appPeersManager.getInputPeerById(storyPeerId);
-      rootScope.managers.appMessagesManager.sendOther({
+      const inputPeer = await rootScope.managers.appPeersManager!.getInputPeerById(storyPeerId);
+      rootScope.managers.appMessagesManager!.sendOther({
         peerId,
         inputMedia: {
           _: 'inputMediaStory',

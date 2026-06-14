@@ -40,7 +40,7 @@ const PasswordMonkeyTsx: Component<{
       }}
       style={{'--size': props.size + 'px'}}
     >
-      {monkey().container}
+      {monkey()!.container}
 
       {/* Prevent the monkey blinking when reloading the page */}
       <Show when={!monkeyLoaded()}>

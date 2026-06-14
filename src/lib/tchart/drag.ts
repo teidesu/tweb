@@ -74,7 +74,7 @@ export default class TDrag {
     delete this.prevDx;
     delete this.prevDy;
 
-    const cancelDrag = this.opts.onDragStart({
+    const cancelDrag = this.opts.onDragStart!({
       pageX: this.x,
       pageY: this.y,
       isTouch: this.isTouch

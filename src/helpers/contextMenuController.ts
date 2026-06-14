@@ -14,7 +14,7 @@ type AdditionalMenuItem = {
 
 class ContextMenuController extends OverlayClickHandler {
   protected additionalMenus: AdditionalMenuItem[] = [];
-  protected menuOpenTarget: HTMLElement;
+  protected menuOpenTarget: HTMLElement | undefined;
 
   constructor() {
     super('menu', true);
@@ -62,8 +62,8 @@ class ContextMenuController extends OverlayClickHandler {
     for(const item of allMenus) {
       if(item.triggerElement && !isFartherThan(item.triggerElement, 40)) break;
 
-      if(isFartherThan(item.element, item.level === 0 ? 100 : 40)) {
-        this.closeAndRemoveMenu(item);
+      if(isFartherThan((item.element as HTMLElement), item.level === 0 ? 100 : 40)) {
+        this.closeAndRemoveMenu((item! as AdditionalMenuItem));
       } else {
         break;
       }
@@ -137,8 +137,8 @@ class ContextMenuController extends OverlayClickHandler {
 
     super.open(element);
 
-    this.element.classList.add('active', 'was-open');
-    this.menuOpenTarget = triggerElement ?? this.element.parentElement;
+    this.element!.classList.add('active', 'was-open');
+    this.menuOpenTarget = (triggerElement ?? this.element!.parentElement)!;
     this.menuOpenTarget?.classList.add('menu-open');
 
     if(onClose) {
@@ -162,7 +162,7 @@ class ContextMenuController extends OverlayClickHandler {
       close: () => {
         element.classList.remove('active');
         pause(400).then(() => element.remove());
-        onClose();
+        onClose!();
       }
     });
     if(this.shouldApplyNight(triggerElement)) {

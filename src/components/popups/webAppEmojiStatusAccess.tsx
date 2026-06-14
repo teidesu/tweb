@@ -78,7 +78,7 @@ export default class PopupWebAppEmojiStatusAccess extends PopupElement<{
         <PeerTitleTsx peerId={rootScope.myId} />
 
         <StickerTsx
-          ref={stickerRef}
+          ref={stickerRef!}
           class={/* @once */ css.chipSticker}
           autoStyle
           sticker={sticker()}
@@ -90,15 +90,15 @@ export default class PopupWebAppEmojiStatusAccess extends PopupElement<{
           height={20}
           onRender={(player) => {
             if(this.sticker) return
-            stickerRef.classList.remove(css.switch);
+            stickerRef!.classList.remove(css.switch);
 
             assumeType<RLottiePlayer>(player);
             player.playOrRestart();
             player.addEventListener('enterFrame', (frameNo) => {
               if(frameNo === player.maxFrame) {
                 player.stop(false);
-                stickerRef.classList.add(css.switch)
-                stickerRef.addEventListener('transitionend', () => {
+                stickerRef!.classList.add(css.switch)
+                stickerRef!.addEventListener('transitionend', () => {
                   setSticker(randomItemExcept(this.defaultStatusEmojis, sticker()));
                 }, {once: true});
               }

@@ -263,7 +263,7 @@ export const createDeferredSortedVirtualList = <T, >(args: CreateDeferredSortedV
   }));
 
   <VerticalVirtualList
-    ref={list}
+    ref={list!}
     itemHeight={itemSize}
     list={fullItems()}
     forceHostHeight={!wasAtLeastOnceFetched()}
@@ -317,7 +317,7 @@ export const createDeferredSortedVirtualList = <T, >(args: CreateDeferredSortedV
         >
           <InnerItem
             id={props.item?.id}
-            value={props.item?.value}
+            value={props.item?.value!}
             top={props.top}
             animating={props.animating}
           />
@@ -332,7 +332,7 @@ export const createDeferredSortedVirtualList = <T, >(args: CreateDeferredSortedV
   return {
     dispose,
 
-    list,
+    list: list!,
 
     setTotalCount,
 

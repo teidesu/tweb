@@ -63,13 +63,13 @@ const TwoStepVerificationEnterPassword: Component = () => {
         getStateInterval = window.setInterval(getState, 10e3);
       }
 
-      return tab.managers.passwordManager.getState().then((_state) => {
+      return tab.managers.passwordManager!.getState().then((_state) => {
         state = _state;
 
         if(state.hint) {
           setInnerHTML(passwordInputField.label, wrapEmojiText(state.hint));
         } else {
-          replaceContent(passwordInputField.label, i18n('LoginPassword'));
+          replaceContent(passwordInputField.label, i18n('LoginPassword')!);
         }
       });
     };
@@ -86,7 +86,7 @@ const TwoStepVerificationEnterPassword: Component = () => {
       const preloader = putPreloader(btnContinue);
 
       const plainPassword = passwordInputField.value;
-      tab.managers.passwordManager.check(passwordInputField.value, state).then((auth) => {
+      tab.managers.passwordManager!.check(passwordInputField.value, state).then((auth) => {
         if(auth._ === 'auth.authorization') {
           clearInterval(getStateInterval);
           if(monkey) monkey.remove();

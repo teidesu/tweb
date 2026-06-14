@@ -62,13 +62,13 @@ const SimpleFormField = (inProps: ParentProps<{
   const {value: forceError, useSetter: useSetForceError} = useForceState();
 
   const contextValue: SimpleFormFieldContextValue = {
-    input,
-    setInput,
-    offsetElement,
-    setOffsetElement,
-    value: () => props.value,
+    input: (input! as Accessor<HTMLInputElement>),
+    setInput: (setInput! as Setter<HTMLInputElement>),
+    offsetElement: (offsetElement! as Accessor<HTMLElement>),
+    setOffsetElement: (setOffsetElement! as Setter<HTMLElement>),
+    value: () => props.value!,
     get onChange() {
-      return props.onChange;
+      return props.onChange!;
     },
     forceFocused,
     useSetForceFocused,
@@ -118,15 +118,15 @@ SimpleFormField.Input = (inProps: {
   return (
     <input
       ref={(el) => batch(() => {
-        context.setInput(el);
-        context.setOffsetElement(el);
+        context!.setInput(el);
+        context!.setOffsetElement(el);
         if(props.ref instanceof Function) props.ref(el);
       })}
       class={classNames(styles.Input, props.class)}
-      value={context.value()}
+      value={context!.value()}
       onInput={(e) => {
-        context.onChange(e.currentTarget.value)
-        if(props.forceFieldValue) context.input().value = context.value();
+        context!.onChange(e.currentTarget.value)
+        if(props.forceFieldValue) context!.input().value = context!.value();
       }}
       {...restProps}
     />
@@ -140,7 +140,7 @@ SimpleFormField.InputStub = (props: ParentProps<{
 
   return (
     <div
-      ref={context.setOffsetElement}
+      ref={context!.setOffsetElement}
       class={classNames(styles.InputStub, props.class)}
     >
       {props.children}
@@ -158,12 +158,12 @@ SimpleFormField.Label = (props: ParentProps<{
   const [noTransition, setNoTransition] = createSignal(true);
 
   onMount(() => {
-    if(props.forceOffset || !context.offsetElement()) return;
-    const parentElement = context.offsetElement().parentElement;
+    if(props.forceOffset || !context!.offsetElement()) return;
+    const parentElement = context!.offsetElement().parentElement;
     if(!parentElement) return;
 
     const rect = parentElement.getBoundingClientRect();
-    const inputRect = context.offsetElement().getBoundingClientRect();
+    const inputRect = context!.offsetElement().getBoundingClientRect();
     setOffset(inputRect.left - rect.left);
   });
 
@@ -177,7 +177,7 @@ SimpleFormField.Label = (props: ParentProps<{
     <div
       class={styles.Label}
       classList={{
-        [styles.active]: props.active || !!context.value(),
+        [styles.active]: props.active || !!context!.value(),
         [styles.noTransition]: noTransition()
       }}
       style={{
@@ -246,9 +246,9 @@ SimpleFormField.WithAutoLengthCounter = (inProps: WithAutoLengthCounterProps) =>
 
   const context = useSimpleFormFieldContext();
 
-  const {shouldShowLengthLeft, lengthLeft, hasError} = useMaxLengthError(context.value, () => props.maxLength);
+  const {shouldShowLengthLeft, lengthLeft, hasError} = useMaxLengthError(context!.value, () => props.maxLength);
 
-  const setForceError = context.useSetForceError();
+  const setForceError = context!.useSetForceError();
   createEffect(() => {
     setForceError(hasError());
   });

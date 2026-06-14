@@ -7,7 +7,7 @@ import {useCreatePollLimits} from './useCreatePollLimits';
 
 
 export const useCanSubmit = () => {
-  const {store} = useCreatePollContext();
+  const {store} = useCreatePollContext()!;
   const {maxOptions, maxQuestionLength, maxDescriptionLength, maxOptionLength, maxExplanationLength} = useCreatePollLimits();
 
   return createMemo(() => {
@@ -16,7 +16,7 @@ export const useCanSubmit = () => {
     if(store.description.length > maxDescriptionLength()) return false;
 
     const trimmedOptions = [...store.pollOptions];
-    if(!checkOptionHasValue(lastItem(trimmedOptions))) trimmedOptions.pop();
+    if(!checkOptionHasValue(lastItem(trimmedOptions)!)) trimmedOptions.pop();
 
     if(trimmedOptions.length < 2) return false;
     if(trimmedOptions.some((option) => !option.text)) return false;
@@ -57,7 +57,7 @@ export const getFinalPayload = (context: CreatePollContextValue): CreatePollPayl
     cloned.timeLimit = undefined;
   }
 
-  if(cloned.pollOptions.length && !checkOptionHasValue(lastItem(cloned.pollOptions))) {
+  if(cloned.pollOptions.length && !checkOptionHasValue(lastItem(cloned.pollOptions)!)) {
     cloned.pollOptions.pop();
   }
 
@@ -83,7 +83,7 @@ export const hasMeaningfulChanges = (store: CreatePollStore) => {
 };
 
 export const useSupportsMedia = () => {
-  const {supportedMediaTypes, canEncodeVideo} = useCreatePollContext();
+  const {supportedMediaTypes, canEncodeVideo} = useCreatePollContext()!;
   return (mediaType: SupportedMediaType) => {
     if(!supportedMediaTypes().includes(mediaType)) return false;
     // GIFs and videos also requires the editor's encoder to be supported by the browser.

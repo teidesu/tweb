@@ -66,5 +66,5 @@ export default function acquireStream(
     }
   };
 
-  return {promise, dispose};
+  return {promise: (promise! as Promise<MediaStream>), dispose};
 }

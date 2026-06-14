@@ -34,8 +34,8 @@ export default class PopupPaymentCardConfirmation extends PopupElement<{
       key: 'Checkout.PasswordEntry.Pay',
       onClick: async() => {
         try {
-          const inputCheckPassword = await this.managers.passwordManager.getInputCheckPassword(passwordInputField.value, passwordState);
-          const tmpPassword = await this.managers.passwordManager.getTmpPassword(inputCheckPassword, 60);
+          const inputCheckPassword = await this.managers.passwordManager!.getInputCheckPassword(passwordInputField.value, passwordState);
+          const tmpPassword = await this.managers.passwordManager!.getTmpPassword(inputCheckPassword, 60);
 
           this.dispatchEvent('finish', tmpPassword);
           this.hide();

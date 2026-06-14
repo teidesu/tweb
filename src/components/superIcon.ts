@@ -57,7 +57,7 @@ export class SuperRLottieIcon<Options extends {
 
     const item = part.item;
     item.initFrame = part.endFrame;
-    item.color = color;
+    item.color = (color! as RLottieColor);
 
     const promises = [...this.items.values()].map((item) => item.load());
     return Promise.all(promises).then(noop);

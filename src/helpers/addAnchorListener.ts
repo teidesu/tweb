@@ -29,9 +29,9 @@ export default function addAnchorListener<
   noCancelEvent?: boolean
 }) {
   (window as any)[(options.protocol ? options.protocol + '_' : '') + options.name] = (element?: HTMLAnchorElement, e?: Event) => {
-    !options.noCancelEvent && cancelEvent(null);
+    !options.noCancelEvent && cancelEvent(undefined);
 
-    let href = element.href;
+    let href = element!.href;
     if(!href) {
       return;
     }
@@ -49,9 +49,9 @@ export default function addAnchorListener<
     if(!options.noPathnameParams) pathnameParams = new URL(href).pathname.split('/').slice(1);
     if(!options.noUriParams) uriParams = parseUriParams(href);
 
-    const masked = element.href !== wrapUrl(element.textContent).url && element.getAttribute('safe') === null;
+    const masked = element!.href !== wrapUrl(element!.textContent).url && element!.getAttribute('safe') === null;
     const result = options.callback({
-      ...{pathnameParams, uriParams} as Params,
+      ...{pathnameParams: pathnameParams!, uriParams} as Params,
       element,
       masked,
       event: e || window.event

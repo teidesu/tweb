@@ -34,7 +34,7 @@ export function createPosterFromVideo(video: HTMLVideoElement): ReturnType<typeo
       video.onseeked = () => {
         createPosterFromMedia(video).then(resolve);
 
-        video.onseeked = undefined;
+        video.onseeked = undefined as unknown as null;
       };
 
       setCurrentTime(video, 0);

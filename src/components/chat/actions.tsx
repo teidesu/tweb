@@ -55,8 +55,8 @@ function ActionsPlateBody(props: {
                   onClick={() => action.onClick()}
                 >
                   {(() => {
-                    const text = i18n(LANG_KEY_MAP[action.key]);
-                    text.classList.add('pinned-actions-button-text');
+                    const text = i18n(LANG_KEY_MAP[action.key]!);
+                    text!.classList.add('pinned-actions-button-text');
                     return text;
                   })()}
                 </div>
@@ -98,7 +98,7 @@ export default function createChatActionsPlate(
   const actions: ActionDef[] = [{
     key: 'autoarchived',
     onClick: async() => {
-      const promise = managers.appMessagesManager.editPeerFolders([currentPeerId], 0);
+      const promise = managers.appMessagesManager!.editPeerFolders([currentPeerId!], 0);
       freeze(promise);
     }
   }, {
@@ -118,20 +118,20 @@ export default function createChatActionsPlate(
     key: 'report_spam',
     onClick: async() => {
       const peerId = currentPeerId;
-      if(peerId.isUser()) {
-        actions.find((action) => action.key === 'block_contact').onClick();
+      if(peerId!.isUser()) {
+        actions.find((action) => action.key === 'block_contact')!.onClick();
       } else {
         await confirmationPopup({
           titleLangKey: 'Chat.Confirm.ReportSpam.Header',
-          descriptionLangKey: await managers.appPeersManager.isBroadcast(peerId) ?
+          descriptionLangKey: await managers.appPeersManager!.isBroadcast(peerId!) ?
             'Chat.Confirm.ReportSpam.Channel' :
             'Chat.Confirm.ReportSpam.Group',
           button: {langKey: 'ReportChat'}
         });
 
         const promise = Promise.all([
-          managers.appMessagesManager.reportSpam(peerId),
-          managers.appChatsManager.leave(peerId.toChatId())
+          managers.appMessagesManager!.reportSpam(peerId!),
+          managers.appChatsManager!.leave(peerId!.toChatId())
         ]);
         freeze(promise);
       }
@@ -141,9 +141,9 @@ export default function createChatActionsPlate(
 
   const onClose = () => {
     if(currentPeerId !== undefined) {
-      managers.appProfileManager.hidePeerSettingsBar(currentPeerId);
+      managers.appProfileManager!.hidePeerSettingsBar(currentPeerId);
     }
-    unset(currentPeerId);
+    unset(currentPeerId!);
   };
 
   const plate = createTopbarPlate({
@@ -178,7 +178,7 @@ export default function createChatActionsPlate(
 
   const setPeerId = (peerId: PeerId) => {
     return Promise.all([
-      managers.acknowledged.appProfileManager.getPeerSettings(peerId)
+      managers.acknowledged!.appProfileManager!.getPeerSettings(peerId)
     ]).then(([peerSettingsAcked]) => {
       return {
         cached: peerSettingsAcked.cached,

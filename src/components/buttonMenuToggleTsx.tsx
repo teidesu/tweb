@@ -10,7 +10,7 @@ export const ButtonMenuToggleTsx = (props: ButtonMenuToggleProps) => {
   const [, rest] = splitProps(props, ['class'])
   const res = ButtonMenuToggle(rest)
 
-  attachClassName(res, () => props.class)
+  attachClassName(res, () => props.class!)
 
   return res
 }

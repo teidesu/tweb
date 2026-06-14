@@ -48,7 +48,7 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
       el = (e.target as HTMLElement).closest(s) as HTMLElement;
     }
 
-    return el && (!checkForParent || findUpAsChild(el, listenTo)) ? el : undefined;
+    return el && (!checkForParent || findUpAsChild((el! as { parentElement: HTMLElement; }), listenTo)) ? el : undefined;
   };
 
   const managers = rootScope.managers;
@@ -107,7 +107,7 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
 
       const stickerEmoji = document.createElement('div');
       stickerEmoji.classList.add(className + '-emoji');
-      stickerEmoji.append(wrapEmojiText(doc.stickerEmojiRaw));
+      stickerEmoji.append(wrapEmojiText(doc.stickerEmojiRaw!));
 
       if(effectThumb) {
         const margin = (size * STICKER_EFFECT_MULTIPLIER - size) / 3 * (isOut ? 1 : -1);
@@ -120,7 +120,7 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
 
       const overflowElement = findUpClassName(mediaContainer, 'scrollable');
       const visibleRect = getVisibleRect(mediaContainer, overflowElement, true, mediaRect);
-      if(visibleRect.overflow.vertical || visibleRect.overflow.horizontal) {
+      if(visibleRect!.overflow.vertical || visibleRect!.overflow.horizontal) {
         stickerContainer.classList.add('is-overflow');
       }
 
@@ -237,18 +237,18 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
       document.removeEventListener('mousemove', onMousePreMove);
 
       container = document.createElement('div');
-      container.classList.add(className, additionalClass);
+      container.classList.add(className, additionalClass!);
       hasViewer = true;
 
       const middleware = _middleware.get();
-      const doc = await managers.appDocsManager.getDoc(docId);
+      const doc = await managers.appDocsManager!.getDoc(docId);
       if(!middleware()) return;
 
       let result: Awaited<ReturnType<typeof doThatSticker>>;
       try {
         result = await doThatSticker({
           doc,
-          mediaContainer,
+          mediaContainer: mediaContainer!,
           middleware,
           lockGroups: true
         });
@@ -295,7 +295,7 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
       _middleware.clean();
       const middleware = _middleware.get();
 
-      const doc = await managers.appDocsManager.getDoc(docId);
+      const doc = await managers.appDocsManager!.getDoc(docId);
       if(!middleware()) return;
 
       let r: Awaited<ReturnType<typeof doThatSticker>>;
@@ -322,7 +322,7 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
         duration: switchDuration,
         onTransitionEnd: () => {
           _previousTransformer.remove();
-          _previousTransformer.middlewareHelper.destroy();
+          _previousTransformer.middlewareHelper!.destroy();
         }
       });
 
@@ -341,7 +341,7 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
     };
 
     const onMousePreMove = (e: MouseEvent) => {
-      if(!findUpAsChild(e.target as HTMLElement, mediaContainer)) {
+      if(!findUpAsChild(((e.target as HTMLElement)! as { parentElement: HTMLElement; }), mediaContainer!)) {
         onMouseUp();
       }
     };
@@ -378,7 +378,7 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
     document.addEventListener('mousemove', onMousePreMove);
     document.addEventListener('mouseup', onMouseUp, {once: true, capture: true});
     const unmountInterval = setInterval(() => {
-      if(!isInDOM(mediaContainer)) {
+      if(!isInDOM(mediaContainer!)) {
         onMouseUp();
       }
     }, 100);

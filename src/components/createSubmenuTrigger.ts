@@ -72,7 +72,7 @@ export default function createSubmenuTrigger({
       content.classList.add('submenu-label');
       const text = document.createElement('span');
       text.classList.add('submenu-label-text');
-      text.append(options.regularText ?? i18n(options.text));
+      text.append((options.regularText ?? i18n(options.text!))!);
       content.append(text, Icon('arrowhead'));
       return content;
     },

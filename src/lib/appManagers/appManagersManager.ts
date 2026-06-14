@@ -27,7 +27,7 @@ type StateManagersByAccount = Record<ActiveAccountNumber, AppStateManager>;
 type ThreadedSharedWorker = {
   urls: string[],
   attached: number,
-  promise: CancellablePromise<void>,
+  promise: CancellablePromise<void> | undefined,
   superMessagePort?: SuperMessagePort<any, any, any>,
   threads: number
 };
@@ -43,7 +43,7 @@ export class AppManagersManager {
   private _isServiceWorkerOnline: boolean;
 
   private serviceMessagePort: ServiceMessagePort<true>;
-  private _serviceMessagePort: MessagePort
+  private _serviceMessagePort: MessagePort | undefined
 
   constructor() {
     this._isServiceWorkerOnline = CAN_USE_SERVICE_WORKER;
@@ -66,8 +66,8 @@ export class AppManagersManager {
         threads
       };
 
-      this.threadedSharedWorkers[type].promise.then(() => {
-        this.threadedSharedWorkers[type].promise = undefined;
+      this.threadedSharedWorkers[type].promise!.then(() => {
+        this.threadedSharedWorkers[type]!.promise = undefined;
       });
     }
 
@@ -117,18 +117,18 @@ export class AppManagersManager {
     port.addEventListener('threadedPort', (type, source, event) => {
       const threadedWorker = this.threadedSharedWorkers[type];
       const port = event.ports[0];
-      if(threadedWorker.attached >= threadedWorker.urls.length) {
+      if(threadedWorker!.attached >= threadedWorker!.urls.length) {
         port.close();
         return;
       }
 
-      ++threadedWorker.attached;
-      threadedWorker.superMessagePort.attachPort(port);
-      threadedWorker.promise?.resolve();
+      ++threadedWorker!.attached;
+      threadedWorker!.superMessagePort!.attachPort(port);
+      threadedWorker!.promise?.resolve!();
     });
 
     port.addEventListener('createProxyWorkerURLs', ({originalUrl, blob, type}) => {
-      const {urls, threads} = this.threadedSharedWorkers[type];
+      const {urls, threads} = this.threadedSharedWorkers[type]!;
       let length = urls.length;
       if(!length) {
         urls.push(originalUrl);
@@ -169,7 +169,7 @@ export class AppManagersManager {
         // is imported into the main realm and cryptoMessagePort short-circuits
         // same-realm callers via invokeCryptoNew's early-out. There's nothing
         // to wait for and the threadedPort handshake never resolves, so skip.
-        Modes.noWorker ? Promise.resolve() : this.threadedSharedWorkers.crypto.promise
+        Modes.noWorker ? Promise.resolve() : this.threadedSharedWorkers.crypto!.promise
       ]);
 
       const managers = await createManagers(
@@ -209,7 +209,7 @@ export class AppManagersManager {
 
   public onServiceWorkerPort(event: MessageEvent<any>) {
     if(this.serviceMessagePort) {
-      this.serviceMessagePort.detachPort(this._serviceMessagePort);
+      this.serviceMessagePort.detachPort((this._serviceMessagePort as Window | MessagePort | ServiceWorker | Worker | ServiceWorkerContainer));
       this._serviceMessagePort = undefined;
     } else {
       this.serviceMessagePort = new ServiceMessagePort();
@@ -231,9 +231,9 @@ export class AppManagersManager {
           });
         },
         requestRtmpPart(payload) {
-          return callbackify(appManagersManager.getManagersByAccount(), (managersByAccount) => {
+          return callbackify(appManagersManager.getManagersByAccount(), async(managersByAccount) => {
             const {request, dcId, accountNumber} = payload;
-            return managersByAccount[accountNumber].appGroupCallsManager.fetchRtmpPart(request, dcId);
+            return (await managersByAccount[accountNumber].appGroupCallsManager.fetchRtmpPart(request, dcId))!;
           });
         },
         requestDoc(payload) {

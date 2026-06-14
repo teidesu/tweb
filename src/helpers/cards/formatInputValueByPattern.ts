@@ -9,8 +9,8 @@ export default function formatInputValueByPattern(options: {
   const {value: originalValue, getPattern, deleting, input} = options;
   const pushRest = !deleting && !!originalValue.length;
   const result = formatValueByPattern(getPattern, originalValue, {
-    selectionStart: input ? (input as HTMLInputElement).selectionStart : 0,
-    selectionEnd: input ? (input as HTMLInputElement).selectionEnd : 0
+    selectionStart: (input ? (input as HTMLInputElement).selectionStart : 0)!,
+    selectionEnd: (input ? (input as HTMLInputElement).selectionEnd : 0)!
   }, pushRest)
   const {value, selection} = result;
 

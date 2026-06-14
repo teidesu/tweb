@@ -17,10 +17,10 @@ export default function wrapJoinVoiceChatAnchor(message: Message.messageService)
   // the dead-link error UX — via `inputGroupCallInviteMessage`, the canonical
   // form for joining from a service message (see tdesktop
   // window_session_controller.cpp:993 and calls_group_call.cpp:4254).
-  if(message.peerId.isUser()) {
+  if(message.peerId!.isUser()) {
     const inviteInput: InputGroupCall.inputGroupCallInviteMessage = {
       _: 'inputGroupCallInviteMessage',
-      msg_id: getServerMessageId(message.mid)
+      msg_id: getServerMessageId(message.mid!)!
     };
 
     const a = document.createElement('a');
@@ -49,7 +49,7 @@ export default function wrapJoinVoiceChatAnchor(message: Message.messageService)
   }
 
   const {onclick, url} = wrapUrl(
-    `tg://voicechat?chat_id=${message.peerId.toChatId()}&id=${call.id}&access_hash=${call.access_hash}`
+    `tg://voicechat?chat_id=${message.peerId!.toChatId()}&id=${call.id}&access_hash=${call.access_hash}`
   );
   if(!onclick) {
     return document.createElement('span');

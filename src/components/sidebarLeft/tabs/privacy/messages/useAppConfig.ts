@@ -10,7 +10,7 @@ const useAppConfig = () => {
   const promiseCollector = usePromiseCollector();
 
   return createResource(() => {
-    const promise = rootScope.managers.apiManager.getAppConfig();
+    const promise = rootScope.managers.apiManager!.getAppConfig();
     promiseCollector.collect(promise);
     return promise;
   });

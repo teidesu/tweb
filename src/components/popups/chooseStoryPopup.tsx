@@ -82,7 +82,7 @@ export default class PopupChooseStory extends PopupElement<{
 
       actions.load();
 
-      selection.toggleSelection(true, true);
+      selection!.toggleSelection(true, true);
 
       // auto-select stories already in the album as they load
       const originalIds = new Set<number>();
@@ -91,8 +91,8 @@ export default class PopupChooseStory extends PopupElement<{
         for(const story of stories) {
           if(story._ === 'storyItem' && story.albums?.includes(this.albumId) && !originalIds.has(story.id)) {
             originalIds.add(story.id);
-            if(!selection.isMidSelected(this.peerId, story.id)) {
-              selection.toggleMid(this.peerId, story.id);
+            if(!selection!.isMidSelected(this.peerId, story.id)) {
+              selection!.toggleMid(this.peerId, story.id);
             }
           }
         }
@@ -103,7 +103,7 @@ export default class PopupChooseStory extends PopupElement<{
       };
 
       this.getResult = () => {
-        const currentMids = selection.selectedMids.get(this.peerId);
+        const currentMids = selection!.selectedMids.get(this.peerId);
         const current = currentMids ? new Set(currentMids) : new Set<number>();
         const added: number[] = [];
         const removed: number[] = [];
@@ -116,11 +116,11 @@ export default class PopupChooseStory extends PopupElement<{
         return {added, removed};
       };
 
-      createEffect(on(selection.count, () => {
+      createEffect(on(selection!.count, () => {
         const {added, removed} = this.getResult();
         const changed = added.length || removed.length;
         if(confirmButton.element) {
-          replaceContent(confirmButton.element, i18n('Confirm'));
+          replaceContent(confirmButton.element, i18n('Confirm')!);
           confirmButton.element.toggleAttribute('disabled', changed === 0 && !originalIds.size);
         }
       }));

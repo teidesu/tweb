@@ -20,8 +20,8 @@ const QuickReaction = () => {
 
   promiseCollector.collect((async() => {
     const [quickReaction, availableReactions] = await Promise.all([
-      rootScope.managers.appReactionsManager.getQuickReaction(),
-      rootScope.managers.appReactionsManager.getAvailableReactions()
+      rootScope.managers.appReactionsManager!.getQuickReaction(),
+      rootScope.managers.appReactionsManager!.getAvailableReactions()
     ]);
 
     const reactions = availableReactions.filter((reaction) => !reaction.pFlags.inactive);
@@ -56,7 +56,7 @@ const QuickReaction = () => {
     });
 
     const form = RadioFormFromRows(rows, (value) => {
-      rootScope.managers.appReactionsManager.setDefaultReaction({_: 'reactionEmoji', emoticon: value});
+      rootScope.managers.appReactionsManager!.setDefaultReaction({_: 'reactionEmoji', emoticon: value});
     });
 
     containerEl.replaceChildren(form);

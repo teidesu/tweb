@@ -101,7 +101,7 @@ export default function wrapGeo({
     }
 
     container.classList.add('shimmer');
-    container.prepend(svgPlaceholder);
+    container.prepend(svgPlaceholder!);
 
     const newWrapOptions: WrapSomethingOptions = {
       ...wrapOptions,
@@ -159,7 +159,7 @@ export default function wrapGeo({
       onRenderFinish: () => {
         if(_wrapTempId !== wrapTempId) return;
         container.classList.remove('shimmer');
-        svgPlaceholder.remove();
+        svgPlaceholder!.remove();
         oldImageContainer?.remove();
       },
       loadPromises,
@@ -176,7 +176,7 @@ export default function wrapGeo({
   wrapGeo(messageMedia, loadPromises);
 
   let liveExpiration = isLive ? (date + (messageMedia as MessageMedia.messageMediaGeoLive).period) * 1000 : undefined;
-  const isLiveExpired = isLive && Date.now() >= liveExpiration;
+  const isLiveExpired = isLive && Date.now() >= liveExpiration!;
 
   const ret: WrapGeoResult = {
     canHaveTail: undefined,
@@ -212,16 +212,16 @@ export default function wrapGeo({
   }
 
   if(isVenue) {
-    title.append(wrapEmojiText((messageMedia as MessageMedia.messageMediaVenue).title));
-    address.append(wrapEmojiText((messageMedia as MessageMedia.messageMediaVenue).address));
+    title!.append(wrapEmojiText((messageMedia as MessageMedia.messageMediaVenue).title));
+    address!.append(wrapEmojiText((messageMedia as MessageMedia.messageMediaVenue).address));
   } else if(isLive && !isLiveExpired) {
-    title.classList.add('disable-hover');
-    address.classList.add('disable-hover');
-    footer.classList.add('is-live');
+    title!.classList.add('disable-hover');
+    address!.classList.add('disable-hover');
+    footer!.classList.add('is-live');
 
     const updatedI18n = new I18n.IntlElement();
-    title.append(i18n('AttachLiveLocation'));
-    address.append(updatedI18n.element);
+    title!.append(i18n('AttachLiveLocation')!);
+    address!.append(updatedI18n.element!);
 
     const timer = document.createElement('div');
     timer.classList.add('geo-footer-timer');
@@ -231,18 +231,18 @@ export default function wrapGeo({
     const circumference = radius * 2 * Math.PI;
 
     const timerTextI18n = new I18n.IntlElement();
-    timer.append(timerTextI18n.element);
+    timer.append(timerTextI18n.element!);
     timer.insertAdjacentHTML('beforeend', `
       <svg class="geo-footer-timer-svg" width="${size}px" height="${size}px">
         <circle cx="${size / 2}" cy="${size / 2}" r="${radius}" class="geo-footer-timer-circle" transform="rotate(-90, ${size / 2}, ${size / 2})" stroke-dasharray="${circumference} ${circumference}"></circle>
       </svg>
     `);
-    const timerCircle = timer.lastElementChild.firstElementChild as SVGCircleElement;
+    const timerCircle = timer.lastElementChild!.firstElementChild as SVGCircleElement;
     const timerShadowCircle = timerCircle.cloneNode(true) as SVGCircleElement;
     timerShadowCircle.classList.add('geo-footer-timer-circle-shadow');
-    timer.lastElementChild.append(timerShadowCircle);
+    timer.lastElementChild!.append(timerShadowCircle);
 
-    footer.append(timer);
+    footer!.append(timer);
 
     let lastData: GeoLiveUpdate = {
       messageMedia: messageMedia as MessageMedia.messageMediaGeoLive,
@@ -288,7 +288,7 @@ export default function wrapGeo({
         langPackKey = 'LocationUpdatedJustNow';
       } else {
         langPackKey = 'UpdatedMinutes';
-        langPackArgs = [Math.floor((tsNow(true) - newEditDate) / 60)];
+        langPackArgs = [Math.floor((tsNow(true) - newEditDate!) / 60)];
       }
 
       const timeLeft = (liveExpiration - Date.now()) / 1000;
@@ -297,7 +297,7 @@ export default function wrapGeo({
 
       updatedI18n.compareAndUpdate({
         key: langPackKey,
-        args: langPackArgs
+        args: langPackArgs!
       });
 
       timerTextI18n.compareAndUpdate({

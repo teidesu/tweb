@@ -46,7 +46,7 @@ export default class LiveWaveform {
   constructor(opts: LiveWaveformOptions = {}) {
     this.element = document.createElement('canvas');
     this.element.classList.add('voice-recording-waveform');
-    this.ctx = this.element.getContext('2d');
+    this.ctx = this.element.getContext('2d')!;
     this.activeColorVar = opts.activeColorVar || '--primary-color';
     this.inactiveColorVar = opts.inactiveColorVar || '--secondary-color';
 
@@ -180,7 +180,7 @@ export default class LiveWaveform {
     // 30% (matches how the standard voice-message bubble draws unplayed bars).
     const hasProgress = this.progress != null;
     const progressPx = hasProgress ?
-      startX + Math.max(0, Math.min(1, this.progress)) * totalWidth :
+      startX + Math.max(0, Math.min(1, this.progress!)) * totalWidth :
       Infinity;
 
     for(let i = 0; i < this.peaks.length; ++i) {

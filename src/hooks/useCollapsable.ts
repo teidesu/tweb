@@ -59,7 +59,7 @@ export function useCollapsable(props: {
     cancelAnimationByKey(props.container());
   };
 
-  let animation: CancellablePromise<void>, animationOpening: boolean;
+  let animation: CancellablePromise<void> | undefined, animationOpening: boolean;
   const onScrolled = () => {
     return;
 
@@ -111,7 +111,7 @@ export function useCollapsable(props: {
     }
 
     const wasProgress = progress();
-    props.container().classList.add(props.skipAnimationClassName);
+    props.container().classList.add(props.skipAnimationClassName!);
 
     // if user starts to scroll down when it's being opened
     if(delta > 0 && animation && animationOpening) {

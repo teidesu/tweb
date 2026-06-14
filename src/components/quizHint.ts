@@ -17,13 +17,13 @@ const hideQuizHint = (element: HTMLElement, onHide: () => void, timeout: number)
     element.remove();
 
     if(prevQuizHint === element && prevQuizHintOnHide === onHide && prevQuizHintTimeout === timeout) {
-      prevQuizHint = prevQuizHintOnHide = null;
+      prevQuizHint = (prevQuizHintOnHide = null)!;
       prevQuizHintTimeout = 0;
     }
   }, 200);
 };
 
-let prevQuizHint: HTMLElement, prevQuizHintOnHide: () => void, prevQuizHintTimeout: number;
+let prevQuizHint: HTMLElement, prevQuizHintOnHide: (() => void) | null, prevQuizHintTimeout: number;
 let isListenerSet = false;
 export const setQuizHint = (options: {
   textElement: HTMLElement | DocumentFragment,
@@ -38,7 +38,7 @@ export const setQuizHint = (options: {
   canCloseOnPeerChange?: boolean
 }) => {
   if(prevQuizHint) {
-    hideQuizHint(prevQuizHint, prevQuizHintOnHide, prevQuizHintTimeout);
+    hideQuizHint(prevQuizHint, prevQuizHintOnHide!, prevQuizHintTimeout);
   }
 
   const element = document.createElement('div');
@@ -67,12 +67,12 @@ export const setQuizHint = (options: {
     container.classList.add('has-right-text');
   }
 
-  container.append(...[
+  container.append(...([
     options.icon && Icon(options.icon, 'quiz-hint-icon'),
-    titleEl,
+    titleEl!,
     textEl,
-    textRightEl
-  ].filter(Boolean));
+    textRightEl!
+  ].filter(Boolean) as (string | Node)[]));
   element.append(container);
 
   setInnerHTML(textEl, options.textElement);
@@ -82,12 +82,12 @@ export const setQuizHint = (options: {
   element.classList.add('active');
 
   const hide = () => {
-    hideQuizHint(element, options.onHide, timeout);
+    hideQuizHint(element, options.onHide!, timeout);
   };
 
   prevQuizHint = element;
-  prevQuizHintOnHide = options.onHide;
-  const timeout = prevQuizHintTimeout = options.duration && window.setTimeout(hide, options.duration);
+  prevQuizHintOnHide = options.onHide!;
+  const timeout = prevQuizHintTimeout = (options.duration && window.setTimeout(hide, options.duration))!;
 
   options.canCloseOnPeerChange ??= true;
   if(!options.canCloseOnPeerChange)
@@ -97,7 +97,7 @@ export const setQuizHint = (options: {
     isListenerSet = true;
     appImManager.addEventListener('peer_changed', () => {
       if(prevQuizHint && prevQuizHint.dataset.dontCloseOnPeerChange !== '1') {
-        hideQuizHint(prevQuizHint, prevQuizHintOnHide, prevQuizHintTimeout);
+        hideQuizHint(prevQuizHint, prevQuizHintOnHide!, prevQuizHintTimeout);
       }
     });
   }

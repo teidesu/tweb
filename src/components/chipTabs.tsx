@@ -17,7 +17,7 @@ interface ChipTabsContextValue {
   updateCurrent: () => void
 }
 
-const ChipTabsContext = createContext<ChipTabsContextValue>(null);
+const ChipTabsContext = createContext<ChipTabsContextValue>(null!);
 
 export function ChipTab(props: {
   class?: string
@@ -25,11 +25,11 @@ export function ChipTab(props: {
   value: string
 }) {
   const ctx = useContext(ChipTabsContext);
-  onCleanup(() => fastRaf(ctx.updateCurrent));
+  onCleanup(() => fastRaf(ctx!.updateCurrent));
   return (
     <div
-      class={classNames(styles.chip, ctx.value === props.value && styles.active, props.class)}
-      onClick={(event: MouseEvent) => ctx.onClick(event, props.value)}
+      class={classNames(styles.chip, ctx!.value === props.value && styles.active, props.class)}
+      onClick={(event: MouseEvent) => ctx!.onClick(event, props.value)}
       data-value={props.value}
     >
       {props.children}
@@ -107,7 +107,7 @@ export function ChipTabs(props: {
         threshold: 1
       });
 
-      observer.observe(scrollable.parentElement);
+      observer.observe(scrollable.parentElement!);
 
       onCleanup(() => observer.disconnect());
     })
@@ -123,12 +123,12 @@ export function ChipTabs(props: {
           chosenElement = target;
         },
         buttons: [],
-        filterButtons: async() => {
-          const buttons = await props.contextMenuButtons(chosenElement.dataset.value)
+        filterButtons: (async() => {
+          const buttons = await props.contextMenuButtons!(chosenElement.dataset.value!)
           return filterAsync(buttons, async(button) => {
             return button?.verify ? (await button.verify()) ?? false : true;
           })
-        }
+        }) as (buttons: ButtonMenuItemOptionsVerifiable[]) => Promise<ButtonMenuItemOptionsVerifiable[]>
       })
     })
   }

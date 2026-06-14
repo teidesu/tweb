@@ -15,7 +15,7 @@ import SDP from '@lib/calls/sdp';
 import SDPMediaSection from '@lib/calls/sdp/mediaSection';
 import {WebRTCLineType} from '@lib/calls/sdpBuilder';
 import {UpdateGroupCallConnectionData} from '@lib/calls/types';
-import {InputGroupCall} from '@layer';
+import {GroupCallParticipantVideoSourceGroup, InputGroupCall} from '@layer';
 
 export default class GroupCallConnectionInstance extends CallConnectionInstanceBase {
   private groupCall: GroupCallInstance;
@@ -48,7 +48,7 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
     type: Extract<GroupCallConnectionType, 'presentation'>,
   };
 
-  private updateConstraintsInterval: number;
+  private updateConstraintsInterval: number | undefined;
   public negotiateThrottled: () => void;
 
   private managers: AppManagers;
@@ -157,14 +157,14 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
         const channel = channels[entry.type];
         if(!channel) return;
 
-        description.setEntrySource(entry, channel.sourceGroups || channel.source);
+        description.setEntrySource(entry, (channel.sourceGroups || channel.source) as number | GroupCallParticipantVideoSourceGroup[]);
         description.setEntryPeerId(entry, rootScope.myId);
       }
     });
 
     // overwrite ssrc with audio in video params
-    if(params !== useChannel.params) {
-      const data: JoinGroupCallJsonPayload = JSON.parse(useChannel.params.data);
+    if(params !== useChannel!.params) {
+      const data: JoinGroupCallJsonPayload = JSON.parse(useChannel!.params.data);
       // data.ssrc = source || data.ssrc - 1; // audio channel can be missed in screensharing
       if(source) data.ssrc = source;
       else delete data.ssrc;
@@ -192,11 +192,11 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
     const stripCallback = (o: typeof options): typeof options =>
       o.type === 'main' ? {...o, e2eRebuildBlock: undefined} : o;
     const maxRetries = 5;
-    let update: Awaited<ReturnType<typeof this.managers.appGroupCallsManager.joinGroupCall>>;
+    let update: Awaited<ReturnType<NonNullable<typeof this.managers.appGroupCallsManager>['joinGroupCall']>>;
     let activeOptions = options;
     for(let attempt = 0; ; attempt++) {
       try {
-        update = await this.managers.appGroupCallsManager.joinGroupCall(groupCallId, params, stripCallback(activeOptions));
+        update = await this.managers.appGroupCallsManager!.joinGroupCall(groupCallId, params, stripCallback(activeOptions));
         break;
       } catch(err) {
         const msg = (err as {type?: string} | Error & {type?: string})?.type ??
@@ -221,7 +221,7 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
 
     const data: UpdateGroupCallConnectionData = JSON.parse(update.params.data);
 
-    data.audio = data.audio || groupCall.connections.main.description.audio;
+    data.audio = data.audio || groupCall.connections.main!.description.audio;
     description.setData(data);
     filterServerCodecs(mainChannels, data);
 
@@ -230,7 +230,7 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
 
   protected async negotiateInternal() {
     const {connection, description} = this;
-    const isNewConnection = connection.iceConnectionState === 'new' && !description.getEntryByMid('0').source;
+    const isNewConnection = connection.iceConnectionState === 'new' && !description.getEntryByMid('0')!.source;
     const log = this.log.bindPrefix('startNegotiation');
     log('start');
 
@@ -290,7 +290,7 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
       // attachment). Leave such mids in the bundle as-is; Chrome's
       // generated SDP for them is already valid.
       if(entry && entry.shouldBeSkipped(isAnswer)) {
-        arr.splice(idx, 1);
+        arr!.splice(idx!, 1);
         entriesToDelete.push(entry);
       }
     });
@@ -306,9 +306,9 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
 
     const entries = localSdp.media.map((section) => {
       const mid = section.mid;
-      let entry = description.getEntryByMid(mid);
+      let entry = description.getEntryByMid(mid!);
       if(!entry) {
-        entry = new ConferenceEntry(mid, section.mediaType);
+        entry = new ConferenceEntry(mid!, section.mediaType);
         entry.setDirection('inactive');
       }
 

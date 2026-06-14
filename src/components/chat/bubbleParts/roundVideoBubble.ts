@@ -56,19 +56,19 @@ export function wrapRoundVideoBubble({
   const bubbleAudioClassNames = ['can-have-tail', 'voice-message'];
   const selectorsToHideWhenCollapsed = ['.topic-name-button-container', '.reply', '.bubble-name-forwarded'];
 
-  const getBubblesContainer = () => bubble.closest('.bubbles');
+  const getBubblesContainer = () => bubble.closest('.bubbles')!;
 
   let hasAddedTranscription = false;
   let isTranscribeDisabled = false;
 
-  let animatedCanvas: HTMLCanvasElement;
+  let animatedCanvas: HTMLCanvasElement | undefined;
 
   async function drawCurrentFrame() {
     if(!animatedCanvas) return;
 
     const currentFrameVideo = mediaContainer.querySelector('.media-video') as HTMLVideoElement;
     const currentFrameCanvas = mediaContainer.querySelector('.video-round-canvas') as HTMLCanvasElement;
-    const ctx = animatedCanvas.getContext('2d');
+    const ctx = animatedCanvas.getContext('2d')!;
 
     const globalMedia = await globalMediaDeferred;
     if(!animatedCanvas) return;
@@ -90,7 +90,7 @@ export function wrapRoundVideoBubble({
 
   async function hideAudio() {
     const coords = insideBubbleContainerCoords();
-    const initialThumbBcr = audioMessageContainer.querySelector('.audio-thumb')?.getBoundingClientRect();
+    const initialThumbBcr = audioMessageContainer.querySelector('.audio-thumb')!.getBoundingClientRect();
     const initialThumbLeft = coords.x(initialThumbBcr.left + initialThumbBcr.width / 2);
     const initialThumbTop = coords.y(initialThumbBcr.top + initialThumbBcr.height / 2);
     const initialThumbSize = initialThumbBcr.width;
@@ -106,12 +106,12 @@ export function wrapRoundVideoBubble({
 
     drawCurrentFrame()
 
-    animatedCanvas.style.left = initialThumbLeft + 'px';
-    animatedCanvas.style.top = initialThumbTop + 'px';
-    animatedCanvas.style.width = initialThumbSize + 'px';
-    animatedCanvas.style.height = initialThumbSize + 'px';
-    animatedCanvas.style.borderRadius = '50%';
-    getBubblesContainer().append(animatedCanvas);
+    animatedCanvas!.style.left = initialThumbLeft + 'px';
+    animatedCanvas!.style.top = initialThumbTop + 'px';
+    animatedCanvas!.style.width = initialThumbSize + 'px';
+    animatedCanvas!.style.height = initialThumbSize + 'px';
+    animatedCanvas!.style.borderRadius = '50%';
+    getBubblesContainer().append(animatedCanvas!);
 
     transcribe.style.removeProperty('display');
 
@@ -154,10 +154,10 @@ export function wrapRoundVideoBubble({
         const targetTop = coords.y(targetBcr.top + targetBcr.height / 2);
         const targetSize = targetBcr.width;
 
-        animatedCanvas.style.left = lerp(initialThumbLeft, targetLeft, progress) + 'px';
-        animatedCanvas.style.top = lerp(initialThumbTop, targetTop, progress) + 'px';
-        animatedCanvas.style.width = lerp(initialThumbSize, targetSize, progress) + 'px';
-        animatedCanvas.style.height = lerp(initialThumbSize, targetSize, progress) + 'px';
+        animatedCanvas!.style.left = lerp(initialThumbLeft, targetLeft, progress) + 'px';
+        animatedCanvas!.style.top = lerp(initialThumbTop, targetTop, progress) + 'px';
+        animatedCanvas!.style.width = lerp(initialThumbSize, targetSize, progress) + 'px';
+        animatedCanvas!.style.height = lerp(initialThumbSize, targetSize, progress) + 'px';
 
         content.style.height = lerp(initialHeight, targetHeight, progress) + 'px';
         content.style.width = lerp(initialWidth, targetWidth, progress) + 'px';
@@ -175,7 +175,7 @@ export function wrapRoundVideoBubble({
       {
         easing: simpleEasing,
         onEnd: () => {
-          animatedCanvas.remove();
+          animatedCanvas!.remove();
           animatedCanvas = undefined;
 
           audioMessageContainer.style.display = 'none';
@@ -222,11 +222,11 @@ export function wrapRoundVideoBubble({
       const transcribedText = document.createElement('div');
       transcribedText.classList.add('video-transcribed-text');
       try {
-        const transcribeResult = await rootScope.managers.appMessagesManager.transcribeAudio(message, true);
+        const transcribeResult = await rootScope.managers.appMessagesManager!.transcribeAudio(message, true);
         if(!transcribeResult.text) throw '';
         transcribedText.innerText = transcribeResult.text;
       } catch(err) {
-        transcribedText.append(i18n('Chat.Voice.Transribe.Error'));
+        transcribedText.append(i18n('Chat.Voice.Transribe.Error')!);
       }
       audioMessageContainer.append(transcribedText);
       transcribedText.append(audioSentTime);
@@ -331,15 +331,15 @@ export function wrapRoundVideoBubble({
         ANIMATION_TIME,
         (progress) => {
           const coords = insideBubbleContainerCoords();
-          const targetBcr = audioMessageContainer.querySelector('.audio-thumb')?.getBoundingClientRect();
+          const targetBcr = audioMessageContainer.querySelector('.audio-thumb')!.getBoundingClientRect();
           const targetLeft = coords.x(targetBcr.left + targetBcr.width / 2);
           const targetTop = coords.y(targetBcr.top + targetBcr.height / 2);
           const targetSize = targetBcr.width;
 
-          animatedCanvas.style.left = lerp(initialLeft, targetLeft, progress) + 'px';
-          animatedCanvas.style.top = lerp(initialTop, targetTop, progress) + 'px';
-          animatedCanvas.style.width = lerp(initialSize, targetSize, progress) + 'px';
-          animatedCanvas.style.height = lerp(initialSize, targetSize, progress) + 'px';
+          animatedCanvas!.style.left = lerp(initialLeft, targetLeft, progress) + 'px';
+          animatedCanvas!.style.top = lerp(initialTop, targetTop, progress) + 'px';
+          animatedCanvas!.style.width = lerp(initialSize, targetSize, progress) + 'px';
+          animatedCanvas!.style.height = lerp(initialSize, targetSize, progress) + 'px';
 
           content.style.height = lerp(initialHeight, targetHeight, progress) + 'px';
           content.style.width = lerp(initialWidth, targetWidth, progress) + 'px';
@@ -357,24 +357,24 @@ export function wrapRoundVideoBubble({
           onEnd: async() => {
             isTranscribeDisabled = false;
 
-            animatedCanvas.style.opacity = '1';
-            animatedCanvas.style.transition = '.2s';
+            animatedCanvas!.style.opacity = '1';
+            animatedCanvas!.style.transition = '.2s';
 
             content.style.removeProperty('overflow');
             bubbleTail?.style.removeProperty('transform');
 
             await doubleRaf();
-            animatedCanvas.style.opacity = '0';
+            animatedCanvas!.style.opacity = '0';
             await pause(200);
-            animatedCanvas.remove();
+            animatedCanvas!.remove();
             content.style.removeProperty('width');
             content.style.removeProperty('height');
             content.style.removeProperty('border-radius');
             audioMessageContainer.style.removeProperty('width');
             audioMessageContainer.style.removeProperty('height');
 
-            animatedCanvas.style.removeProperty('transition');
-            animatedCanvas.style.removeProperty('opacity');
+            animatedCanvas!.style.removeProperty('transition');
+            animatedCanvas!.style.removeProperty('opacity');
 
             bubbleTail?.style.removeProperty('transition');
           }
@@ -398,7 +398,7 @@ export function wrapRoundVideoBubble({
 
     const audioElement = await wrapDocument({
       message: message as any,
-      middleware: bubble.middlewareHelper.get(),
+      middleware: bubble.middlewareHelper!.get(),
       customAudioToTextButton: closeButton,
       shouldWrapAsVoice: true,
       globalMedia,

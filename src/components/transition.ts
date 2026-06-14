@@ -191,9 +191,9 @@ const TransitionSlider = (options: TransitionSliderOptions) => {
   }
 
   const onTransitionEndCallbacks: Map<HTMLElement, Function> = new Map();
-  let animationDeferred: CancellablePromise<void>;
+  let animationDeferred: CancellablePromise<void> | undefined;
   // let animationStarted = 0;
-  let from: HTMLElement = null;
+  let from: HTMLElement | null = null;
 
   if(withAnimationListener) {
     const listenerName = animationFunction ? 'transitionend' : 'animationend';
@@ -217,7 +217,7 @@ const TransitionSlider = (options: TransitionSliderOptions) => {
       if(!animationDeferred && isHeavy) return;
 
       if(animationDeferred) {
-        animationDeferred.resolve();
+        animationDeferred.resolve!();
         animationDeferred = undefined;
       }
 
@@ -228,7 +228,7 @@ const TransitionSlider = (options: TransitionSliderOptions) => {
       if(once) {
         if(listenerSetter) listenerSetter.removeManual(content, listenerName, onEndEvent);
         else content.removeEventListener(listenerName, onEndEvent/* , {capture: false} */);
-        from = animationDeferred = undefined;
+        from = (animationDeferred = undefined)!;
         onTransitionEndCallbacks.clear();
       }
     };
@@ -312,7 +312,7 @@ const TransitionSlider = (options: TransitionSliderOptions) => {
       // prevTabContent.classList.remove('active');
     } else {
       if(animationFunction) {
-        onTransitionEndCallback = animationFunction(to, from, toRight);
+        onTransitionEndCallback = animationFunction(to, (from as HTMLElement), toRight);
       } else {
         to.classList.add('active');
       }

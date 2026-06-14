@@ -34,7 +34,7 @@ export function TranslatableMessageTsx(props: {
   const [textWithEntities, setTextWithEntities] = createSignal<TextWithEntities>();
   const translation = usePeerTranslation(props.peerId);
   const deferred = deferredPromise<void>();
-  let originalText: TextWithEntities = props.textWithEntities;
+  let originalText: TextWithEntities = props.textWithEntities!;
   let first = true, hadText = false;
 
   const dontShowOriginalFirst = props.enabled;
@@ -42,11 +42,11 @@ export function TranslatableMessageTsx(props: {
   container.classList.add('translatable-message');
 
   if(props.message) {
-    processMessageForTranslation(props.peerId, props.message.mid);
+    processMessageForTranslation(props.peerId, props.message.mid!);
     originalText = {
       _: 'textWithEntities',
       text: props.message.message,
-      entities: props.message.totalEntities
+      entities: props.message.totalEntities!
     };
   }
 
@@ -55,22 +55,22 @@ export function TranslatableMessageTsx(props: {
   }
 
   const translate = (lang: string, onlyCache?: boolean) => {
-    return modifyAckedPromise(rootScope.managers.acknowledged.appTranslationsManager.translateText({
+    return modifyAckedPromise(rootScope.managers.acknowledged!.appTranslationsManager!.translateText({
       ...(props.message ? {
-        peerId: props.message.peerId,
-        mid: props.message.mid
+        peerId: props.message.peerId!,
+        mid: props.message.mid!
       } : {
         text: props.textWithEntities
       }),
       lang,
       onlyCache
-    }));
+    } as any));
   };
 
   const summarizeText = (lang?: string) => {
-    return modifyAckedPromise(rootScope.managers.acknowledged.appTranslationsManager.summarizeText({
+    return modifyAckedPromise(rootScope.managers.acknowledged!.appTranslationsManager!.summarizeText({
       peerId: props.peerId,
-      mid: props.message.mid,
+      mid: props.message!.mid!,
       lang
     }));
   };
@@ -87,7 +87,7 @@ export function TranslatableMessageTsx(props: {
 
     props.observer.observe(props.observeElement, onVisible);
     onCleanup(() => {
-      props.observer.unobserve(props.observeElement, onVisible);
+      props.observer!.unobserve(props.observeElement!, onVisible);
     });
   }
 
@@ -171,7 +171,7 @@ export function TranslatableMessageTsx(props: {
 
       const set = () => {
         if(!middleware()) return;
-        deferred.resolve();
+        deferred.resolve!();
 
         if(props.onFragment) {
           wrapped = props.onFragment(wrapped);

@@ -26,7 +26,7 @@ export function useFlagFilters({channelId, isBroadcast}: UseFlagFiltersArgs) {
   };
 
   const [adminsResource] = createResource(channelId, (id) =>
-    rootScope.managers.appProfileManager.getChannelParticipants({
+    rootScope.managers.appProfileManager!.getChannelParticipants({
       id,
       filter: {_: 'channelParticipantsAdmins'},
       offset: 0,
@@ -49,7 +49,7 @@ export function useFlagFilters({channelId, isBroadcast}: UseFlagFiltersArgs) {
     if(!adminsResource()) return null;
 
     const length = adminIds().length;
-    const count = adminsResource().count || length;
+    const count = adminsResource()!.count || length;
     return count - length > 0 ? count - length : null;
   });
 

@@ -132,16 +132,16 @@ const NewGroup: Component = () => {
           address: userLocationAddress,
           megagroup: true
         };
-        promise = handleChannelsTooMuch(() => tab.managers.appChatsManager.createChannel(options))
+        promise = handleChannelsTooMuch(() => tab.managers.appChatsManager!.createChannel(options))
         .then(async(chatId) => {
           if(uploadAvatar) {
             uploadAvatar.file().then((inputFile) => {
-              tab.managers.appChatsManager.editPhoto(chatId, inputFile);
+              tab.managers.appChatsManager!.editPhoto(chatId, inputFile);
             });
           }
 
           const missingInvitees = peerIds.length ?
-            await tab.managers.appChatsManager.inviteToChannel(chatId, peerIds) :
+            await tab.managers.appChatsManager!.inviteToChannel(chatId, peerIds) :
             [];
           return {chatId, missingInvitees};
         });
@@ -152,17 +152,17 @@ const NewGroup: Component = () => {
             title: groupTitle,
             about: ''
           };
-          promise = handleChannelsTooMuch(() => tab.managers.appChatsManager.createChannel(options))
+          promise = handleChannelsTooMuch(() => tab.managers.appChatsManager!.createChannel(options))
           .then((chatId) => ({chatId, missingInvitees: [] as MissingInvitee[]}));
 
           if(peerIds.length) {
             promise = promise.then(({chatId}) => {
-              return tab.managers.appChatsManager.inviteToChannel(chatId, userIds)
+              return tab.managers.appChatsManager!.inviteToChannel(chatId, userIds)
               .then((missingInvitees) => ({chatId, missingInvitees}));
             });
           }
         } else {
-          promise = tab.managers.appChatsManager.createChat(
+          promise = tab.managers.appChatsManager!.createChat(
             groupTitle,
             userIds
           );
@@ -171,7 +171,7 @@ const NewGroup: Component = () => {
         promise = promise.then((result) => {
           if(uploadAvatar) {
             uploadAvatar.file().then((inputFile) => {
-              tab.managers.appChatsManager.editPhoto(result.chatId, inputFile);
+              tab.managers.appChatsManager!.editPhoto(result.chatId, inputFile);
             });
           }
 
@@ -212,7 +212,7 @@ const NewGroup: Component = () => {
     tab.scrollable.append(section.container, chatsSection.container);
 
     if(isGeoChat) {
-      tab.title.replaceChildren(i18n('NearbyCreateGroup'));
+      tab.title.replaceChildren(i18n('NearbyCreateGroup')!);
       groupLocationInputField.container.classList.remove('hide');
       groupLocationInputField.setValueSilently(I18n.format('Loading', true));
       startLocating();
@@ -220,8 +220,8 @@ const NewGroup: Component = () => {
       groupLocationInputField.container.classList.add('hide');
     }
 
-    const usersPromise = Promise.all(peerIds.map((peerId) => tab.managers.appUsersManager.getUser(peerId.toUserId())));
-    const myUserPromise = tab.managers.appUsersManager.getSelf();
+    const usersPromise = Promise.all(peerIds.map((peerId) => tab.managers.appUsersManager!.getUser(peerId.toUserId())));
+    const myUserPromise = tab.managers.appUsersManager!.getSelf();
 
     const a = usersPromise.then((users) => {
       users.forEach((user) => {
@@ -253,7 +253,7 @@ const NewGroup: Component = () => {
       groupNameInputField.setDraftValue(title);
     }
 
-    promiseCollector.collect(Promise.all([a, setTitlePromise]));
+    promiseCollector.collect(Promise.all([a, setTitlePromise!]));
   });
 
   onCleanup(() => {

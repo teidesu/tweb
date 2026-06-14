@@ -30,9 +30,9 @@ class LocalStorage<Storage extends Record<string, any>> {
 
   public get<T extends keyof Storage>(key: T, useCache = true): Storage[T] {
     if(this.cache.hasOwnProperty(key) && useCache) {
-      return this.cache[key];
+      return this.cache[key]!;
     } else if(this.useStorage) {
-      let value: Storage[T];
+      let value: Storage[T] | undefined;
       try {
         value = localStorage.getItem(this.prefix + (key as string)) as any;
       } catch(err) {
@@ -42,7 +42,7 @@ class LocalStorage<Storage extends Record<string, any>> {
 
       if(value !== null) {
         try {
-          value = JSON.parse(value);
+          value = JSON.parse((value as string));
         } catch(err) {
           // console.error(err);
         }
@@ -50,7 +50,7 @@ class LocalStorage<Storage extends Record<string, any>> {
         value = undefined;
       }
 
-      return value;
+      return value!;
     } else {
       throw makeError('STORAGE_OFFLINE');
     }
@@ -163,7 +163,7 @@ export default class LocalStorageController<Storage extends Record<string, any>>
   private encryptedStorage: EncryptedStorageLayer<CommonDatabase>;
 
   private encryptableKeys: Set<keyof Storage>;
-  private encryptionDeferred: CancellablePromise<void>;
+  private encryptionDeferred: CancellablePromise<void> | undefined;
 
   constructor(encryptableKeys: (keyof Storage)[] = []) {
     LocalStorageController.STORAGES.push(this);
@@ -300,7 +300,7 @@ export default class LocalStorageController<Storage extends Record<string, any>>
 
     await Promise.all(filteredEntries.map(([key]) => this.localStorageProxy('delete', key)));
 
-    this.encryptionDeferred?.resolve();
+    this.encryptionDeferred?.resolve!();
     this.encryptionDeferred = undefined;
   }
 
@@ -312,7 +312,7 @@ export default class LocalStorageController<Storage extends Record<string, any>>
     const encryptedStorage = await this.getEncryptedStorage();
     await encryptedStorage.reEncrypt();
 
-    this.encryptionDeferred?.resolve();
+    this.encryptionDeferred?.resolve!();
     this.encryptionDeferred = undefined;
   }
 
@@ -331,7 +331,7 @@ export default class LocalStorageController<Storage extends Record<string, any>>
     await this.localStorageProxy('set', data);
     await encryptedStorage.clear();
 
-    this.encryptionDeferred?.resolve();
+    this.encryptionDeferred?.resolve!();
     this.encryptionDeferred = undefined;
   }
 }

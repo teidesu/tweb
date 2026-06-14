@@ -57,8 +57,8 @@ export default class TAnimator {
 
       delta = cur - item.lastStart;
 
-      param.duration *= this.state.speed;
-      param.delay *= this.state.speed;
+      param.duration *= this.state.speed!;
+      param.delay! *= this.state.speed!;
 
       item.cbEnd = param.cbEnd;
       item.state = param.state;
@@ -115,9 +115,9 @@ export default class TAnimator {
       let newVal: number;
       if(per < 1) {
         if(item.tween === 'exp') {
-          newVal = curVal + (item.end - curVal) * item.speed;
+          newVal = curVal + (item.end - curVal) * item.speed!;
         } else {
-          newVal = easing(item.start, item.end, per, item.tween);
+          newVal = easing(item.start, item.end, per, item.tween!);
         }
       } else {
         newVal = item.end;
@@ -136,7 +136,7 @@ export default class TAnimator {
     // Remove animations that are done
     let j = 0;
     while(j < done.length) {
-      this.queue[done[j]].cbEnd && this.queue[done[j]].cbEnd(this.queue[done[j]].state);
+      this.queue[done[j]].cbEnd && this.queue[done[j]].cbEnd!(this.queue[done[j]].state);
       delete this.queue[done[j]];
       j++;
     }

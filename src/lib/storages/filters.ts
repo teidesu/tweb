@@ -77,7 +77,7 @@ export default class FiltersStorage extends AppManager {
     });
 
     return this.appStateManager.getState().then((state) => {
-      const filtersArr = this.prependFilters(state.filtersArr);
+      const filtersArr = this.prependFilters(state.filtersArr!);
       filtersArr.map((filter) => {
         this.saveDialogFilter(filter, false, true);
       });
@@ -100,7 +100,7 @@ export default class FiltersStorage extends AppManager {
     findAndSplice(filters, (filter) => (filter as MyDialogFilter).id === FOLDER_ID_ARCHIVE);
     filters.splice(/* 1 */filters[0] === allChatsFilter ? 1 : 0, 0, archiveFilter);
 
-    this.localId = START_LOCAL_ID;
+    this.localId = START_LOCAL_ID!;
     filters.forEach((filter) => {
       delete filter.localId;
     });
@@ -143,7 +143,7 @@ export default class FiltersStorage extends AppManager {
       }
     }
 
-    this.localId = START_LOCAL_ID;
+    this.localId = START_LOCAL_ID!;
   };
 
   private onUpdateDialogFilter = (update: Update.updateDialogFilter) => {
@@ -184,7 +184,7 @@ export default class FiltersStorage extends AppManager {
       order.splice(order[0] === FOLDER_ID_ALL ? 1 : 0, 0, FOLDER_ID_ARCHIVE);
     }
 
-    this.localId = START_LOCAL_ID;
+    this.localId = START_LOCAL_ID!;
     order.forEach((filterId) => {
       const filter = this.filters[filterId];
       delete filter.localId;
@@ -208,21 +208,21 @@ export default class FiltersStorage extends AppManager {
     const {peerId} = dialog;
 
     if(REAL_FOLDERS.has(filter.id)) {
-      return dialog.folder_id === filter.id && this.dialogsStorage.canSaveDialog(peerId, dialog);
+      return dialog.folder_id === filter.id && this.dialogsStorage.canSaveDialog(peerId!, dialog);
     }
 
     // * check whether dialog exists
-    if(!this.appMessagesManager.getDialogOnly(peerId)) {
+    if(!this.appMessagesManager.getDialogOnly(peerId!)) {
       return false;
     }
 
     // exclude_peers
-    if((filter as DialogFilter.dialogFilter).excludePeerIds?.includes(peerId)) {
+    if((filter as DialogFilter.dialogFilter).excludePeerIds?.includes(peerId!)) {
       return false;
     }
 
     // include_peers
-    if((filter as DialogFilter.dialogFilter).includePeerIds?.includes(peerId)) {
+    if((filter as DialogFilter.dialogFilter).includePeerIds?.includes(peerId!)) {
       return true;
     }
 
@@ -243,22 +243,22 @@ export default class FiltersStorage extends AppManager {
     }
 
     // exclude_muted
-    if(pFlags.exclude_muted && this.appNotificationsManager.isPeerLocalMuted({peerId}) && !(dialog.unread_mentions_count && dialog.unread_count)) {
+    if(pFlags.exclude_muted && this.appNotificationsManager.isPeerLocalMuted({peerId: peerId!}) && !(dialog.unread_mentions_count && dialog.unread_count)) {
       return false;
     }
 
-    if(this.appPeersManager.isAnyChat(peerId)) {
+    if(this.appPeersManager.isAnyChat(peerId!)) {
       // broadcasts
-      if(pFlags.broadcasts && this.appPeersManager.isBroadcast(peerId)) {
+      if(pFlags.broadcasts && this.appPeersManager.isBroadcast(peerId!)) {
         return true;
       }
 
       // groups
-      if(pFlags.groups && this.appPeersManager.isAnyGroup(peerId)) {
+      if(pFlags.groups && this.appPeersManager.isAnyGroup(peerId!)) {
         return true;
       }
     } else {
-      const userId = peerId.toUserId();
+      const userId = peerId!.toUserId();
 
       // bots
       if(this.appUsersManager.isBot(userId)) {
@@ -308,12 +308,12 @@ export default class FiltersStorage extends AppManager {
   public async toggleDialogPin(peerId: PeerId, filterId: number) {
     const filter = this.filters[filterId];
 
-    const index = filter.pinnedPeerIds.indexOf(peerId);
+    const index = filter.pinnedPeerIds!.indexOf(peerId);
     const wasPinned = index !== -1;
 
     if(wasPinned) {
       filter.pinned_peers.splice(index, 1);
-      filter.pinnedPeerIds.splice(index, 1);
+      filter.pinnedPeerIds!.splice(index, 1);
     }
 
     if(!wasPinned) {
@@ -322,7 +322,7 @@ export default class FiltersStorage extends AppManager {
       }
 
       filter.pinned_peers.unshift(this.appPeersManager.getInputPeerById(peerId));
-      filter.pinnedPeerIds.unshift(peerId);
+      filter.pinnedPeerIds!.unshift(peerId);
     }
 
     return this.updateDialogFilter(filter);
@@ -348,7 +348,7 @@ export default class FiltersStorage extends AppManager {
 
       if(prepend) {
         const f = Object.values(this.filters);
-        const order = f.sort((a, b) => a.localId - b.localId).map((filter) => filter.id);
+        const order = f.sort((a, b) => a.localId! - b.localId!).map((filter) => filter.id);
         indexOfAndSplice(order, filter.id);
         indexOfAndSplice(order, FOLDER_ID_ARCHIVE);
         order.splice(order[0] === FOLDER_ID_ALL ? 1 : 0, 0, filter.id);
@@ -385,10 +385,10 @@ export default class FiltersStorage extends AppManager {
   }
 
   private filterIncludedPinnedPeers(filter: MyDialogFilter) {
-    forEachReverse(filter.includePeerIds, (peerId, idx) => {
-      if(filter.pinnedPeerIds.includes(peerId)) {
-        filter.include_peers.splice(idx, 1);
-        filter.includePeerIds.splice(idx, 1);
+    forEachReverse(filter.includePeerIds!, (peerId, idx) => {
+      if(filter.pinnedPeerIds!.includes(peerId)) {
+        filter.include_peers.splice(idx!, 1);
+        filter.includePeerIds!.splice(idx!, 1);
       }
     });
   }
@@ -475,7 +475,7 @@ export default class FiltersStorage extends AppManager {
   public async getDialogFilters(overwrite = false): Promise<MyDialogFilter[]> {
     const keys = Object.keys(this.filters);
     if(keys.length > PREPENDED_FILTERS && !overwrite) {
-      return keys.map((filterId) => this.filters[filterId]).sort((a, b) => a.localId - b.localId);
+      return keys.map((filterId) => this.filters[filterId]).sort((a, b) => a.localId! - b.localId!);
     }
 
     const messagesDialogFilters = await this.apiManager.invokeApiSingle('messages.getDialogFilters');
@@ -505,7 +505,7 @@ export default class FiltersStorage extends AppManager {
       this.filterIncludedPinnedPeers(filter);
 
       filter.include_peers = filter.pinned_peers.concat(filter.include_peers);
-      filter.includePeerIds = filter.pinnedPeerIds.concat(filter.includePeerIds);
+      filter.includePeerIds = filter.pinnedPeerIds!.concat(filter.includePeerIds!);
     }
 
     const oldFilter = this.filters[filter.id];

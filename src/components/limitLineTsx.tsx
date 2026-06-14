@@ -49,7 +49,7 @@ export function LimitLineTsx(props: {
 
   function updateHintPosition() {
     const hintWidth = hintRef.clientWidth; // ! not bounding rect so transform is not applied
-    const parentWidth = hintRef.parentElement.getBoundingClientRect().width;
+    const parentWidth = hintRef.parentElement!.getBoundingClientRect().width;
 
     const progress$ = progress()
     let sliderTipPosition = progress$ * parentWidth
@@ -137,7 +137,7 @@ export function LimitLineTsx(props: {
 
     if(props.filledProgressElement) {
       onMount(() => {
-        range.container.querySelector('.progress-line__filled').appendChild(props.filledProgressElement);
+        range.container.querySelector('.progress-line__filled')!.appendChild(props.filledProgressElement!);
       })
     }
   } else {

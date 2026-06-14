@@ -9,10 +9,10 @@ export default class GroupCallMicrophoneIconMini extends SuperRLottieIcon<{
 }> {
   constructor(colored?: boolean, skipAnimation?: boolean, size?: number) {
     super({
-      width: size,
-      height: size,
+      width: size!,
+      height: size!,
       getPart: (state) => {
-        return this.getItem().getPart(state ? 'unmute' : 'mute');
+        return this.getItem().getPart(state ? 'unmute' : 'mute')!;
       },
       getColor: colored ? (state) => {
         return state ? [255, 255, 255] : [158, 158, 158];

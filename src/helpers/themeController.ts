@@ -238,7 +238,7 @@ export class ThemeController {
   }
 
   private setWorkerThemeParams() {
-    rootScope.managers.apiManager.setThemeParams({
+    rootScope.managers.apiManager!.setThemeParams({
       _: 'dataJSON',
       data: JSON.stringify(this.getThemeParamsForWebView())
     });
@@ -301,7 +301,7 @@ export class ThemeController {
     if(!hsla) {
       hsla = 'hsla(85.5319, 36.9171%, 40.402%, .4)';
       const theme = this.getTheme();
-      const themeSettings = this.getThemeSettings(theme);
+      const themeSettings = this.getThemeSettings(theme!);
       if(themeSettings?.highlightingColor) {
         hsla = themeSettings.highlightingColor;
       }
@@ -327,7 +327,7 @@ export class ThemeController {
     document.documentElement.classList.toggle('night', isNight);
     this.setThemeColor();
     const theme = this.getTheme();
-    this.applyTheme(theme);
+    this.applyTheme(theme!);
 
     let style = this.styleElement;
     if(!style) {
@@ -338,7 +338,7 @@ export class ThemeController {
     const e = document.createElement('div');
     // Mirror the active theme into .night when current is already dark (night/tinted) so menus
     // that opt into `.night` match the active palette instead of the static 'night' base.
-    this.applyTheme(isNight ? theme : this.getTheme('night'), e, true);
+    this.applyTheme((isNight ? theme : this.getTheme('night'))!, e, true);
     style.textContent = `.night {${e.style.cssText}}`;
 
     this.applyHighlightingColor();
@@ -463,7 +463,7 @@ export class ThemeController {
   }
 
   public isNight() {
-    return this.isNightThemeName(this.getTheme()?.name);
+    return this.isNightThemeName(this.getTheme()?.name!);
   }
 
   public isNightThemeName(name: AppTheme['name']) {
@@ -515,7 +515,7 @@ export class ThemeController {
           if(!appliedColors.has(name as AppColorName)) {
             this.applyAppColor({
               name: name as AppColorName,
-              hex: colorMap[fallbackName][name as AppColorName],
+              hex: colorMap[fallbackName]![name as AppColorName]!,
               mixColor: defaultMixColor,
               ...options
             });
@@ -551,7 +551,7 @@ export class ThemeController {
     const hsla = rgbaToHsla(...rgb);
 
     const resolvedName: AppTheme['name'] = themeName ?? (isNight ? 'night' : 'day');
-    mixColor ??= hexToRgb(colorMap[resolvedName]['surface-color']);
+    mixColor ??= hexToRgb(colorMap[resolvedName]!['surface-color']!);
     const lightenedRgb = mixColors(rgb, mixColor, lightenAlpha);
 
     const darkenedHsla: typeof hsla = {
@@ -561,10 +561,10 @@ export class ThemeController {
 
     const properties: [string, string][] = [
       [name, hex],
-      appColor.rgb && [name + '-rgb', rgb.join(',')],
-      appColor.light && ['light-' + name, `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${lightenAlpha})`],
-      appColor.lightFilled && ['light-filled-' + name, rgbaToHexa(lightenedRgb)],
-      appColor.dark && ['dark-' + name, `hsl(${darkenedHsla.h}, ${darkenedHsla.s}%, ${darkenedHsla.l}%)`]
+      ((appColor.rgb && [name + '-rgb', rgb.join(',')])! as [string, string]),
+      ((appColor.light && ['light-' + name, `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${lightenAlpha})`])! as [string, string]),
+      ((appColor.lightFilled && ['light-filled-' + name, rgbaToHexa(lightenedRgb)])! as [string, string]),
+      ((appColor.dark && ['dark-' + name, `hsl(${darkenedHsla.h}, ${darkenedHsla.s}%, ${darkenedHsla.l}%)`])! as [string, string])
       // appColor.darkFilled && ['dark-' + name, `hsl(${darkenedHsla.h}, ${darkenedHsla.s}%, ${darkenedHsla.l}%)`]
     ];
 
@@ -584,13 +584,13 @@ export class ThemeController {
   // background-document download all reuse the cloud-theme codepath.
   public applyAccentPreset(preset: AccentPreset) {
     const currentTheme = this.getTheme();
-    const baseTheme = this.getBaseThemeForName(currentTheme.name);
+    const baseTheme = this.getBaseThemeForName(currentTheme!.name);
     const settings = presetToThemeSettings(preset, baseTheme);
     // iOS dayColorPresets have `wallpaper: nil` — those presets only swap accent + bubbles
     // and keep the current wallpaper. Mirror that here: setBackgroundDocument requires a
     // WallPaper, so fall back to the current AppTheme's wallpaper when the preset omits one.
     if(!settings.wallpaper) {
-      settings.wallpaper = this.getThemeSettings(currentTheme)?.wallpaper;
+      settings.wallpaper = this.getThemeSettings(currentTheme!)?.wallpaper;
     }
     const synthetic: Theme = {
       _: 'theme',
@@ -609,20 +609,20 @@ export class ThemeController {
   // bundled day/night/light/tinted look without nuking unrelated state.
   public resetActiveTheme() {
     const currentTheme = this.getTheme();
-    const defaultTheme = SETTINGS_INIT.themes.find((t) => t.name === currentTheme.name);
+    const defaultTheme = SETTINGS_INIT.themes.find((t) => t.name === currentTheme!.name);
     if(!defaultTheme) return Promise.resolve();
     return this.applyNewTheme({...defaultTheme, settings: defaultTheme.settings});
   }
 
   public async applyNewTheme(theme: Theme) {
     const currentTheme = this.getTheme();
-    const themeName = currentTheme.name;
+    const themeName = currentTheme!.name;
     const isNight = this.isNightThemeName(themeName);
     const baseTheme = this.getBaseThemeForName(themeName);
     const [appSettings] = useAppSettings();
     const themes = appSettings.themes.slice();
-    const themeSettings = theme.settings.find((s) => s.base_theme._ === baseTheme) ??
-      theme.settings.find((s) => s.base_theme._ === (isNight ? 'baseThemeNight' : 'baseThemeClassic'));
+    const themeSettings = theme.settings!.find((s) => s.base_theme._ === baseTheme) ??
+      theme.settings!.find((s) => s.base_theme._ === (isNight ? 'baseThemeNight' : 'baseThemeClassic'));
     // Wallpaper handling on tinted (Dark Blue):
     // - Curated sources (factory reset DEFAULT_THEME, accent-color picker presets) ship pre-dark
     //   gradients designed for the tinted palette — pass through verbatim.
@@ -637,21 +637,21 @@ export class ThemeController {
     // (accent preset). Server cloud themes carry numeric/hash ids.
     const themeId = String(theme.id ?? '');
     const isCurated = themeId === '' || themeId.startsWith('preset:');
-    let effectiveWallpaper = themeSettings.wallpaper;
+    let effectiveWallpaper = themeSettings!.wallpaper;
     if(themeName === 'tinted' && !isCurated && effectiveWallpaper) {
-      effectiveWallpaper = blendWallpaperForTinted(effectiveWallpaper, themeSettings.accent_color);
+      effectiveWallpaper = blendWallpaperForTinted(effectiveWallpaper, themeSettings!.accent_color);
     }
 
     // Preserve every base entry from the cloud theme (mirrors iOS' `[TelegramThemeSettings]`).
     // Only the entry matching the current base gets the (optionally tinted-blended) wallpaper.
     // The matching entry is the same object that setBackgroundDocument will mutate to fill in
     // `highlightingColor` once the wallpaper's average color is computed.
-    const newSettings: AppTheme['settings'] = theme.settings.map((s) => ({
+    const newSettings: AppTheme['settings'] = theme.settings!.map((s) => ({
       ...s,
-      wallpaper: s.base_theme._ === themeSettings.base_theme._ ? effectiveWallpaper : s.wallpaper,
+      wallpaper: s.base_theme._ === themeSettings!.base_theme._ ? effectiveWallpaper : s.wallpaper,
       highlightingColor: ''
     }));
-    const targetSettings = newSettings.find((s) => s.base_theme._ === themeSettings.base_theme._);
+    const targetSettings = newSettings.find((s) => s.base_theme._ === themeSettings!.base_theme._);
 
     const newAppTheme: AppTheme = {
       ...theme,
@@ -659,8 +659,8 @@ export class ThemeController {
       settings: newSettings
     };
 
-    await this.AppBackgroundTab.setBackgroundDocument(effectiveWallpaper, targetSettings);
-    let idx = themes.indexOf(currentTheme);
+    await this.AppBackgroundTab.setBackgroundDocument(effectiveWallpaper!, targetSettings);
+    let idx = themes.indexOf(currentTheme!);
     if(idx < 0) idx = themes.findIndex((t) => t.name === themeName);
     if(idx < 0) {
       themes.push(newAppTheme);
@@ -684,7 +684,7 @@ export class ThemeController {
   public getThemeSettings(theme: AppTheme, isNight?: boolean): AppThemeSettings;
   public getThemeSettings(theme: Theme, isNight?: boolean): ThemeSettings;
   public getThemeSettings(theme: Theme | AppTheme, isNight?: boolean): ThemeSettings | AppThemeSettings;
-  public getThemeSettings(theme: Theme | AppTheme, isNight?: boolean): ThemeSettings | AppThemeSettings {
+  public getThemeSettings(theme: Theme | AppTheme, isNight?: boolean): ThemeSettings | AppThemeSettings | undefined {
     if(!theme?.settings) return undefined;
     // Legacy state may have stored a single ThemeSettings object instead of an array;
     // pass it through unchanged so reads keep working until the next save migrates it.
@@ -706,8 +706,8 @@ export class ThemeController {
     const theme = this.getTheme();
     const [appSettings, setAppSettings] = useAppSettings();
     const themes = appSettings.themes.slice();
-    let idx = themes.indexOf(theme);
-    if(idx < 0) idx = themes.findIndex((t) => t.name === theme.name);
+    let idx = themes.indexOf(theme!);
+    if(idx < 0) idx = themes.findIndex((t) => t.name === theme!.name);
     if(idx < 0) return Promise.resolve();
 
     const t = themes[idx];
@@ -734,7 +734,7 @@ export class ThemeController {
     const themeSettings = this.getThemeSettings(theme, isNight);
     const baseColors = colorMap[themeName] || colorMap[isNight ? 'night' : 'day'];
 
-    let hsvTemp1 = rgbToHsv(...hexToRgb(baseColors['primary-color'])); // primary base
+    let hsvTemp1 = rgbToHsv(...hexToRgb(baseColors!['primary-color']!)); // primary base
     let hsvTemp2 = rgbToHsv(...getRgbColorFromTelegramColor(themeSettings.accent_color)); // new primary
 
     // For 'tinted' (Dark Blue / iOS nightAccent) the surface palette is *fully* derived from the
@@ -784,7 +784,7 @@ export class ThemeController {
     const newAccentRgb = tintedAccentRgb ?? changeColorAccent(
       hsvTemp1,
       hsvTemp2,
-      hexToRgb(baseColors['primary-color']),
+      hexToRgb(baseColors!['primary-color']!),
       !isNight
     );
     const newAccentHex = rgbaToHexa(newAccentRgb);
@@ -827,11 +827,11 @@ export class ThemeController {
     }
 
     const messageLightenAlpha = isNight ? 1 : 0.12;
-    const baseMessageColor = hexToRgb(baseColors['message-out-primary-color']);
+    const baseMessageColor = hexToRgb(baseColors!['message-out-primary-color']!);
     hsvTemp1 = rgbToHsv(...baseMessageColor);
     // Use the iOS-derived surface for tinted so message-out-background-color and downstream
     // computations sit on the same surface as the chat panels.
-    const surfaceForMessage = tintedSurfaceRgb ?? hexToRgb(baseColors['surface-color']);
+    const surfaceForMessage = tintedSurfaceRgb ?? hexToRgb(baseColors!['surface-color']!);
     const baseMessageOutBackgroundColor = mixColors(baseMessageColor, surfaceForMessage, messageLightenAlpha);
 
     const firstColor = getRgbColorFromTelegramColor(themeSettings.message_colors[0]);

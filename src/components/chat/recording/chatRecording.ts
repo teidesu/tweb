@@ -52,8 +52,8 @@ const CLASS_NAME = 'chat-input';
 export default class ChatRecording {
   private recorder: any;
   private videoRecorder: NativeVideoRecorder;
-  private waveformAnalyser: VoiceWaveformAnalyser;
-  private liveWaveformAnalyser: LiveWaveformAnalyser;
+  private waveformAnalyser?: VoiceWaveformAnalyser;
+  private liveWaveformAnalyser?: LiveWaveformAnalyser;
   public active = false;
   // Which recorder is currently active during a recording session. When not
   // recording, the user's persisted `recordingMediaType` setting dictates the
@@ -64,24 +64,24 @@ export default class ChatRecording {
   private recordCanceled = false;
   private recordStartTime = 0;
   private recordAccumulatedMs = 0;
-  private recordingOverlayListener: Listener;
-  private recordingNavigationItem: NavigationItem;
+  private recordingOverlayListener?: Listener;
+  private recordingNavigationItem?: NavigationItem;
   private voiceRecordingPanel: VoiceRecordingPanel;
-  private videoRecordingPanel: VideoRecordingPanelHandle;
-  private playbackAudio: HTMLAudioElement;
-  private playbackObjectUrl: string;
-  private playbackRafId: number;
-  private voiceMenuClickGuard: (e: MouseEvent) => void;
+  private videoRecordingPanel?: VideoRecordingPanelHandle;
+  private playbackAudio?: HTMLAudioElement;
+  private playbackObjectUrl?: string;
+  private playbackRafId?: number;
+  private voiceMenuClickGuard?: (e: MouseEvent) => void;
   // Recorded blob URL used for paused-preview playback inside the round video
   // panel. Revoked on stop() / send / cancel to release the captured frames.
-  private videoPlaybackObjectUrl: string;
+  private videoPlaybackObjectUrl?: string;
   // Audio tap for the live waveform during video recording. The MediaRecorder
   // doesn't expose PCM, so we open a parallel AudioContext on a CLONE of the
   // stream's audio track (tapping the original track that MediaRecorder is
   // recording starves both consumers → silent recording + flat waveform).
-  private videoAudioContext: AudioContext;
-  private videoWaveformStream: MediaStream;
-  private videoPlaybackRafId: number;
+  private videoAudioContext?: AudioContext;
+  private videoWaveformStream?: MediaStream;
+  private videoPlaybackRafId?: number;
   // Set when a video recording hits VIDEO_RECORD_MAX_MS: recording stops at the
   // cap and switches to the paused-preview state (iOS-style) — the user can
   // preview + send/discard but cannot record further (resume is blocked).
@@ -93,7 +93,7 @@ export default class ChatRecording {
   // menu, so the click that ends the press doesn't also start a recording.
   private recordModeLongPressed = false;
 
-  private releaseMediaPlayback: () => void;
+  private releaseMediaPlayback?: () => void;
 
   constructor(private input: ChatInput) {
     this.constructRecorder();
@@ -224,7 +224,7 @@ export default class ChatRecording {
         opusDecodeController.setKeepAlive(false);
 
         // тут objectURL ставится уже с audio/wav
-        this.input.managers.appMessagesManager.sendFile({
+        this.input.managers.appMessagesManager!.sendFile({
           ...sendingParams,
           file: dataBlob,
           isVoiceMessage: true,
@@ -292,7 +292,7 @@ export default class ChatRecording {
         // sendFile with isRoundMessage=true so the documentAttributeVideo flag
         // gets `round_message=true` (see appMessagesManager.sendFile).
         const objectURL = URL.createObjectURL(blob);
-        this.input.managers.appMessagesManager.sendFile({
+        this.input.managers.appMessagesManager!.sendFile({
           ...sendingParams,
           file: blob,
           isRoundMessage: true,
@@ -404,7 +404,7 @@ export default class ChatRecording {
       this.liveWaveformAnalyser?.setPaused(false);
       this.waveformAnalyser?.setPaused(false);
       // Restore the live camera feed (reveals on its first frame).
-      this.videoRecordingPanel?.startLivePreview(this.videoRecorder.stream);
+      this.videoRecordingPanel?.startLivePreview(this.videoRecorder.stream!);
       this.startVideoRecordingTimerLoop();
     } else {
       this.recordAccumulatedMs += Date.now() - this.recordStartTime;
@@ -702,12 +702,12 @@ export default class ChatRecording {
 
     audio.addEventListener('play', () => {
       this.voiceRecordingPanel?.setPlaying(true);
-      cancelAnimationFrame(this.playbackRafId);
+      cancelAnimationFrame(this.playbackRafId!);
       this.playbackRafId = requestAnimationFrame(onTick);
     });
     audio.addEventListener('pause', () => {
       this.voiceRecordingPanel?.setPlaying(false);
-      cancelAnimationFrame(this.playbackRafId);
+      cancelAnimationFrame(this.playbackRafId!);
     });
     audio.addEventListener('ended', () => {
       this.voiceRecordingPanel?.setPlaying(false);
@@ -715,7 +715,7 @@ export default class ChatRecording {
       // colour after playback — same look as the just-paused state.
       this.voiceRecordingPanel?.setPlaybackProgress(undefined);
       this.voiceRecordingPanel?.setTimer(this.formatRecordingTimer(this.recordAccumulatedMs));
-      cancelAnimationFrame(this.playbackRafId);
+      cancelAnimationFrame(this.playbackRafId!);
     });
 
     if(seekProgress != null) {
@@ -946,7 +946,7 @@ export default class ChatRecording {
 
     let restricted = false;
     if(!isAnyChat) {
-      const userFull = await this.input.managers.appProfileManager.getProfile(this.input.chat.peerId.toUserId());
+      const userFull = await this.input.managers.appProfileManager!.getProfile(this.input.chat.peerId.toUserId());
       if(userFull?.pFlags.voice_messages_forbidden) {
         toastNew({
           langPackKey: 'Chat.SendVoice.PrivacyError',
@@ -1003,7 +1003,7 @@ export default class ChatRecording {
       };
 
       this.recordingOverlayListener = this.input.listenerSetter.add(document.body)('mousedown', (e) => {
-        if(!findUpClassName(e.target, CLASS_NAME) && !findUpClassName(e.target, 'popup-cancel-record')) {
+        if(!findUpClassName(e.target!, CLASS_NAME) && !findUpClassName(e.target!, 'popup-cancel-record')) {
           cancelEvent(e);
           showDiscardPopup();
         }
@@ -1119,7 +1119,7 @@ export default class ChatRecording {
     // Pipe the live camera into the 360x360 preview and reveal the circle only
     // once the first frame is actually painted — revealing immediately would
     // fade in a black circle while the camera spins up.
-    this.videoRecordingPanel?.startLivePreview(this.videoRecorder.stream);
+    this.videoRecordingPanel?.startLivePreview(this.videoRecorder.stream!);
 
     // Live waveform: tap the captured audio track through a throwaway
     // AudioContext (MediaRecorder gives us no PCM). Mirror the voice flow —
@@ -1147,9 +1147,9 @@ export default class ChatRecording {
       // input or the discard popup are allowed; everything else opens the
       // discard confirmation.
       if(
-        !findUpClassName(e.target, CLASS_NAME) &&
-        !findUpClassName(e.target, 'popup-cancel-record') &&
-        !findUpClassName(e.target, 'video-recording-stage') // clicking the preview circle isn't "outside"
+        !findUpClassName(e.target!, CLASS_NAME) &&
+        !findUpClassName(e.target!, 'popup-cancel-record') &&
+        !findUpClassName(e.target!, 'video-recording-stage') // clicking the preview circle isn't "outside"
       ) {
         cancelEvent(e);
         showDiscardPopup();

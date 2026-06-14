@@ -60,11 +60,11 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
     }
 
     if(plain) {
-      parts.push(part);
+      parts.push(part!);
     } else {
       const el = document.createElement('span');
       if(typeof(part) === 'string') el.innerHTML = part;
-      else el.append(part);
+      else el.append(part!);
       parts.push(el);
     }
   };
@@ -72,7 +72,7 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
   const managers = options.managers || rootScope.managers;
   const appMessagesManager = managers.appMessagesManager;
 
-  const getMyId = () => options.managers ? options.managers.rootScope.getMyId() : rootScope.myId;
+  const getMyId = () => options.managers ? options.managers.rootScope!.getMyId() : rootScope.myId;
 
   const isRestricted = isMessageRestricted(message as any);
   const isSelfDestructingMedia = !!((message as Message.message).media as MessageMedia.messageMediaPhoto)?.ttl_seconds;
@@ -90,10 +90,10 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
     let usingFullGrouped = true;
     if(message.grouped_id) {
       if(usingMids) {
-        const mids = await appMessagesManager.getMidsByMessage(message);
+        const mids = await appMessagesManager!.getMidsByMessage(message);
         if(usingMids.length === mids.length) {
           for(const mid of mids) {
-            if(!usingMids.includes(mid)) {
+            if(!usingMids.includes(mid!)) {
               usingFullGrouped = false;
               break;
             }
@@ -104,7 +104,7 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
       }
 
       if(usingFullGrouped) {
-        const groupedText = await appMessagesManager.getGroupedText(message.grouped_id);
+        const groupedText = await appMessagesManager!.getGroupedText(message.grouped_id);
         options.text = groupedText?.message || '';
         entities = groupedText?.totalEntities || [];
 
@@ -125,7 +125,7 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
       addPart(
         `SelfDestructingOnMobile.${langPackKeyPart}${!media ? '.Expired' : (out ? '.You' : '')}`,
         undefined,
-        [!out && await wrapPeerTitle({peerId: (message as Message.message).fromId})]
+        [(!out && await wrapPeerTitle({peerId: (message as Message.message).fromId})) as HTMLElement]
       );
       options.text = '';
       entities = [];
@@ -137,13 +137,13 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
       switch(media?._) {
         case 'messageMediaPhoto':
           if(isSelfDestructingMedia) {
-            await addSelfDestructingMediaPart('Photo', media.photo);
+            await addSelfDestructingMediaPart('Photo', media.photo!);
           } else {
             addPart('AttachPhoto');
           }
           break;
         case 'messageMediaDice':
-          addPart(undefined, plain ? media.emoticon : wrapEmojiText(media.emoticon));
+          addPart(undefined!, plain ? media.emoticon : wrapEmojiText(media.emoticon));
           break;
         case 'messageMediaVenue': {
           options.text = media.title;
@@ -160,12 +160,12 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
           const pre = '📊' + ' ';
           if(plain) {
             const f = pre + media.poll.question.text;
-            addPart(undefined, f);
+            addPart(undefined!, f);
           } else {
             const textWithEntities = wrapTextWithEntities(media.poll.question);
             const fragment = wrapRichText(textWithEntities.text, {...someRichTextOptions, entities: textWithEntities.entities});
             fragment.prepend(wrapEmojiText(pre));
-            addPart(undefined, fragment);
+            addPart(undefined!, fragment);
           }
           break;
         case 'messageMediaContact':
@@ -173,7 +173,7 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
           break;
         case 'messageMediaGame': {
           const f = '🎮' + ' ' + media.game.title;
-          addPart(undefined, plain ? f : wrapEmojiText(f));
+          addPart(undefined!, plain ? f : wrapEmojiText(f));
           break;
         }
         case 'messageMediaDocument': {
@@ -203,7 +203,7 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
             const i = parts.length;
             if(document.stickerEmojiRaw) {
               const f = document.stickerEmojiRaw + ' ';
-              addPart(undefined, plain ? f : wrapEmojiText(f));
+              addPart(undefined!, plain ? f : wrapEmojiText(f));
             }
 
             addPart('AttachSticker');
@@ -221,9 +221,9 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
           } else if(document.type === 'audio') {
             const attribute = document.attributes.find((attribute) => attribute._ === 'documentAttributeAudio' && (attribute.title || attribute.performer)) as DocumentAttribute.documentAttributeAudio;
             const f = '🎵' + ' ' + (attribute ? [attribute.title, attribute.performer].filter(Boolean).join(' - ') : document.file_name);
-            addPart(undefined, plain ? f : wrapEmojiText(f));
+            addPart(undefined!, plain ? f : wrapEmojiText(f));
           } else {
-            addPart(undefined, plain ? document.file_name : wrapEmojiText(document.file_name));
+            addPart(undefined!, plain ? document.file_name : wrapEmojiText(document.file_name!));
           }
 
           break;
@@ -231,9 +231,9 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
 
         case 'messageMediaInvoice': {
           if(media.extended_media?._ === 'messageExtendedMediaPreview') {
-            addPart(undefined, plain ? media.description : wrapEmojiText(media.description));
+            addPart(undefined!, plain ? media.description : wrapEmojiText(media.description));
           } else {
-            addPart(undefined, plain ? media.title : wrapEmojiText(media.title));
+            addPart(undefined!, plain ? media.title : wrapEmojiText(media.title));
           }
 
           break;
@@ -270,7 +270,7 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
 
         case 'messageMediaGiveaway': {
           const date = formatDate(new Date(media.until_date * 1000));
-          addPart('Giveaway.ToBeSelectedFull', undefined, [i18n('Giveaway.ToBeSelected', [media.quantity, plain ? date.textContent : date])]);
+          addPart('Giveaway.ToBeSelectedFull', undefined, [i18n('Giveaway.ToBeSelected', [media.quantity, (plain ? date!.textContent : date)!])!]);
           break;
         }
 
@@ -292,8 +292,8 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
 
           if(!plain) {
             i += 2;
-            addPart(undefined, Icon('star', 'xtr-icon'));
-            addPart(undefined, ' ');
+            addPart(undefined!, Icon('star', 'xtr-icon'));
+            addPart(undefined!, ' ');
           }
 
           const length = photos.length + videos.length;
@@ -310,7 +310,7 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
         }
 
         case 'messageMediaToDo': {
-          addPart(undefined, plain ? media.todo.title.text : wrapEmojiText(media.todo.title.text, false, media.todo.title.entities));
+          addPart(undefined!, plain ? media.todo.title.text : wrapEmojiText(media.todo.title.text, false, media.todo.title.entities));
           break;
         }
 
@@ -341,12 +341,12 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
     });
 
     if(actionWrapped) {
-      addPart(undefined, actionWrapped);
+      addPart(undefined!, actionWrapped);
     }
   }
 
   if(isRestricted) {
-    options.text = getRestrictionReason((message as Message.message).restriction_reason).text;
+    options.text = getRestrictionReason((message as Message.message).restriction_reason!)!.text;
     entities = [];
   }
 
@@ -376,7 +376,7 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
       }
 
       const messagePeerId = (message as Message.message).peerId;
-      const shouldHideCode = [SERVICE_PEER_ID, VERIFICATION_CODES_BOT_ID].includes(messagePeerId);
+      const shouldHideCode = [SERVICE_PEER_ID, VERIFICATION_CODES_BOT_ID].includes(messagePeerId!);
       const codeRegex = messagePeerId === SERVICE_PEER_ID ? /[\d\-]{5,7}/ : /[\d\-]{3,8}/;
 
       if(shouldHideCode &&
@@ -386,7 +386,7 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
           entities = entities.slice();
           entities.push({
             _: 'messageEntitySpoiler',
-            offset: match.index,
+            offset: match.index!,
             length: match[0].length
           });
 
@@ -397,10 +397,10 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
       let what: DocumentFragment | HTMLElement;
       if(options.canTranslate) {
         what = TranslatableMessage({
-          peerId: (message as Message.message).peerId,
+          peerId: (message as Message.message).peerId!,
           message: message as Message.message,
           richTextOptions: someRichTextOptions,
-          middleware: options.middleware,
+          middleware: options.middleware!,
           onTextWithEntities: (textWithEntities) => {
             return {
               ...textWithEntities,

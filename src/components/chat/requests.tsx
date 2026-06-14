@@ -76,7 +76,7 @@ export default function createChatRequestsPlate(
     if(currentPeerId !== undefined) {
       chat.setAppState('hideChatJoinRequests', currentPeerId, Date.now());
     }
-    unset(currentPeerId);
+    unset(currentPeerId!);
   };
 
   const plate = createTopbarPlate({
@@ -116,7 +116,7 @@ export default function createChatRequestsPlate(
 
   const setPeerId = (peerId: PeerId) => {
     return Promise.all([
-      managers.acknowledged.appProfileManager.getProfileByPeerId(peerId)
+      managers.acknowledged!.appProfileManager!.getProfileByPeerId(peerId)
     ]).then(([peerFullAcked]) => {
       return {
         cached: peerFullAcked.cached,
@@ -127,7 +127,7 @@ export default function createChatRequestsPlate(
             return set(
               peerId,
               recentRequesters.slice(0, 3).map((userId) => userId.toPeerId(false)),
-              (peerFull as ChatFull.channelFull).requests_pending
+              (peerFull as ChatFull.channelFull).requests_pending!
             );
           } else {
             return set(peerId, [], 0);

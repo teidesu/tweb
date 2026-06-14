@@ -28,7 +28,7 @@ export default class SDP {
 
   public get bundle() {
     const bundleLine = this.session.lines.find((line) => line.parsed?.key === 'group');
-    return bundleLine.value.split(' ').slice(1);
+    return bundleLine!.value.split(' ').slice(1);
   }
 
   toString() {

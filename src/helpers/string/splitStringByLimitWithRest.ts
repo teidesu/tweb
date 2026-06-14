@@ -3,7 +3,7 @@ export default function splitStringByLimitWithRest(str: string, separator: strin
   const out: string[] = [];
 
   while(limit > 0 && splitted.length) {
-    out.push(splitted.shift());
+    out.push(splitted.shift()!);
     --limit;
   }
 

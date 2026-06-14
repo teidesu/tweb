@@ -5,12 +5,12 @@ import StaticUtilityClass from '@lib/staticUtilityClass';
 
 export default class DeferredIsUsingPasscode extends StaticUtilityClass {
   private static deferred = deferredPromise<void>();
-  private static value: boolean;
+  private static value: boolean | undefined;
 
   public static resolveDeferred(value: boolean) {
     this.value = value;
-    this.deferred?.resolve();
-    this.deferred = undefined;
+    this.deferred?.resolve!();
+    this.deferred = undefined!;
   }
 
   public static async isUsingPasscode() {

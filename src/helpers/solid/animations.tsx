@@ -55,7 +55,7 @@ export default function Animated(props: {
     <Dynamic
       component={SimpleAnimation}
       keyframes={ANIMATIONS[props.type]}
-      mode={props.mode}
+      mode={props.mode!}
       appear={props.appear}
       noItemClass={props.noItemClass}
       itemClass={props.itemClass}

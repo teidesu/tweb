@@ -50,7 +50,7 @@ function LivePlateBody(props: {
       const inputGroupCall = (fullPeer as ChatFull.channelFull)?.call;
       if(!inputGroupCall) return;
 
-      const fullCall = await rootScope.managers.appGroupCallsManager.getGroupCallFull(
+      const fullCall = await rootScope.managers.appGroupCallsManager!.getGroupCallFull(
         (inputGroupCall as InputGroupCall.inputGroupCall).id
       );
       return fullCall && (fullCall as GroupCall.groupCall).pFlags.rtmp_stream ?
@@ -71,7 +71,7 @@ function LivePlateBody(props: {
   });
 
   createEffect<PeerId>((wasPeerId) => {
-    if(!peerChat() || !(peerChat() as MTChat.channel).pFlags.broadcast) return;
+    if(!peerChat() || !(peerChat() as MTChat.channel).pFlags.broadcast) return undefined!;
 
     if(wasPeerId !== props.peerId()) setWatching();
 
@@ -88,7 +88,7 @@ function LivePlateBody(props: {
   return (
     <Show when={shouldShow()}>
       <TopbarLive
-        watching={watching()}
+        watching={watching()!}
         actionButton={
           <TopbarPlate.ActionButton
             onClick={() => appImManager.joinLiveStream(props.peerId())}

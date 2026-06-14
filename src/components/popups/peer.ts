@@ -30,7 +30,7 @@ export type PopupPeerOptions = Omit<PopupOptions, 'buttons' | 'title'> & Partial
   old: boolean
 }>;
 export default class PopupPeer extends PopupElement {
-  protected description: HTMLParagraphElement;
+  protected description: HTMLParagraphElement | undefined;
   private inputField?: InputField;
 
   constructor(private className: string, options: PopupPeerOptions = {}) {
@@ -56,7 +56,7 @@ export default class PopupPeer extends PopupElement {
 
     if(!options.noTitle) {
       if(options.titleLangKey || !options.title) {
-        this.title.append(i18n(options.titleLangKey || 'AppName', options.titleLangArgs));
+        this.title.append(i18n(options.titleLangKey || 'AppName', options.titleLangArgs)!);
       } else if(options.title instanceof HTMLElement || options.title instanceof DocumentFragment) {
         this.title.append(options.title);
       } else this.title.innerText = options.title || '';
@@ -67,7 +67,7 @@ export default class PopupPeer extends PopupElement {
     if(options.descriptionLangKey || options.description || options.descriptionRaw) {
       const p = this.description = document.createElement('p');
       p.classList.add('popup-description');
-      if(options.descriptionLangKey) p.append(i18n(options.descriptionLangKey, options.descriptionLangArgs));
+      if(options.descriptionLangKey) p.append(i18n(options.descriptionLangKey, options.descriptionLangArgs)!);
       else if(options.description && options.description !== true) setInnerHTML(p, options.description);
       else if(options.descriptionRaw) p.append(wrapEmojiText(options.descriptionRaw));
 
@@ -77,8 +77,8 @@ export default class PopupPeer extends PopupElement {
     if(options.inputField) {
       this.inputField = options.inputField;
       fragment.append(options.inputField.container);
-      const button = options.buttons.find((button) => !button.isCancel);
-      toggleDisability([button.element], !options.inputField.isValid());
+      const button = options.buttons!.find((button) => !button.isCancel);
+      toggleDisability([button!.element!], !options.inputField.isValid());
     }
 
     if(options.checkboxes) {
@@ -91,14 +91,14 @@ export default class PopupPeer extends PopupElement {
         fragment.append(checkboxField.label);
       });
 
-      options.buttons.forEach((button) => {
+      options.buttons!.forEach((button) => {
         if(button.callback) {
           const original = button.callback;
           button.callback = (e) => {
             const c: Set<LangPackKey> = new Set();
-            options.checkboxes.forEach((o) => {
-              if(o.checkboxField.checked) {
-                c.add(o.text);
+            options.checkboxes!.forEach((o) => {
+              if(o.checkboxField!.checked) {
+                c.add(o.text!);
               }
             });
             original(e, c);
@@ -108,18 +108,18 @@ export default class PopupPeer extends PopupElement {
         const checkbox = button.onlyWithCheckbox;
         if(checkbox) {
           const onChange = () => {
-            toggleDisability([button.element], !checkbox.checkboxField.checked);
+            toggleDisability([button.element!], !checkbox.checkboxField!.checked);
           };
-          this.listenerSetter.add(checkbox.checkboxField.input)('change', onChange);
+          this.listenerSetter.add(checkbox.checkboxField!.input)('change', onChange);
           onChange();
         }
       });
     }
 
     if(options.inputField) {
-      const button = options.buttons.find((button) => !button.isCancel);
+      const button = options.buttons!.find((button) => !button.isCancel);
       this.listenerSetter.add(options.inputField.input)('input', () => {
-        toggleDisability([button.element], !options.inputField.isValid());
+        toggleDisability([button!.element!], !options.inputField!.isValid());
       });
     }
 

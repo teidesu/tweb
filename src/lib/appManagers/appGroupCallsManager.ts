@@ -31,7 +31,7 @@ export type JoinGroupCallJsonPayload = {
     hash: string;
   }[];
   pwd: string;
-  ssrc: number;
+  ssrc?: number;
   'ssrc-groups': GroupCallParticipantVideoSourceGroup.groupCallParticipantVideoSourceGroup[];
   ufrag: string;
 };
@@ -72,7 +72,7 @@ export class AppGroupCallsManager extends AppManager {
 
     this.apiUpdatesManager.addMultipleEventsListeners({
       updateGroupCall: (update) => {
-        this.saveGroupCall(update.call, this.appPeersManager.getPeerId(update.peer));
+        this.saveGroupCall(update.call, this.appPeersManager.getPeerId(update.peer!));
       },
 
       updateGroupCallParticipants: (update) => {
@@ -552,7 +552,7 @@ export class AppGroupCallsManager extends AppManager {
       assumeType<ApiError>(error);
 
       if(error.type?.indexOf('CALL_MIGRATE') === 0) {
-        const dcId = +error.type.match(/^(CALL_MIGRATE_)(\d+)/)[2] as DcId;
+        const dcId = +error.type.match(/^(CALL_MIGRATE_)(\d+)/)![2] as DcId;
         return this._fetchRtmpState(call, retry, dcId);
       }
 

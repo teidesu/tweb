@@ -11,8 +11,8 @@ const [reservedStars, setReservedStars] = createSignal<number>(0);
 const [tonBalance, setTonBalance] = createSignal<Long>();
 const [reservedTonBalance, setReservedTonBalance] = createSignal<number>(0);
 
-const fetchStars = () => rootScope.managers.appPaymentsManager.getStarsStatus(true).then((starsStatus) => setStars(formatStarsAmount(starsStatus.balance)));
-const fetchTonBalance = () => rootScope.managers.appPaymentsManager.getStarsStatusTon(true).then((starsStatus) => setTonBalance(starsStatus.balance.amount));
+const fetchStars = () => rootScope.managers.appPaymentsManager!.getStarsStatus(true).then((starsStatus) => setStars(formatStarsAmount(starsStatus.balance)));
+const fetchTonBalance = () => rootScope.managers.appPaymentsManager!.getStarsStatusTon(true).then((starsStatus) => setTonBalance(starsStatus.balance.amount));
 
 export function prefetchStars(middleware: Middleware) {
   return createRoot((dispose) => {
@@ -63,7 +63,7 @@ function _useStars(ton: boolean) {
       if(ton) {
         return bigInt(tonBalance() as string).minus(reservedTonBalance()).toString();
       }
-      return +stars() - +reservedStars();
+      return +stars()! - +reservedStars();
     });
   })();
 }

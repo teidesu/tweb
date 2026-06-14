@@ -116,13 +116,13 @@ export default class Shimmer {
     text: Shimmer['text']
   }> = {}) {
     this.canvas = dict.canvas ?? document.createElement('canvas');
-    this.ctx = this.canvas.getContext('2d');
+    this.ctx = this.canvas.getContext('2d')!;
     this.font = dict.font ?? this.font;
     this.lightSpread = dict.lightSpread ?? this.lightSpread;
     this.inc = dict.inc ?? this.inc;
     this.animations = dict.animations ?? this.animations;
     this.text = dict.text ?? this.text;
-    this.fillStyle = dict.fillStyle;
+    this.fillStyle = dict.fillStyle!;
 
     this.canvas.classList.add('shimmer-canvas');
   }

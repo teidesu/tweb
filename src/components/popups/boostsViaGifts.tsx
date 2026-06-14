@@ -59,10 +59,10 @@ export const BoostsConfirmButton = (props: {
   boosts: Accessor<number>
 }) => {
   let s: HTMLSpanElement, ssss: HTMLSpanElement;
-  const ss = (<span ref={s} class="popup-boosts-button-text">{i18n(props.langKey(), props.langArgs?.())}</span>);
-  const sss = (<span ref={ssss} class={classNames('popup-boosts-button-badge', !props.boosts() && 'hide')}><IconTsx icon="boost" class="popup-boosts-button-badge-icon" />{props.boosts()}</span>);
+  const ss = (<span ref={s!} class="popup-boosts-button-text">{i18n(props.langKey(), props.langArgs?.())}</span>);
+  const sss = (<span ref={ssss!} class={classNames('popup-boosts-button-badge', !props.boosts() && 'hide')}><IconTsx icon="boost" class="popup-boosts-button-badge-icon" />{props.boosts()}</span>);
   props.button.classList.add('popup-boosts-button');
-  props.button.append(s, ssss);
+  props.button.append(s!, ssss!);
 };
 
 export default class PopupBoostsViaGifts extends PopupElement {
@@ -118,7 +118,7 @@ export default class PopupBoostsViaGifts extends PopupElement {
         generateStep: (value) => ['' + value, value],
         onValue: (value) => {
           if(stars()) {
-            setStarsWinner(starsOption().winners.find((winner) => winner.users === value));
+            setStarsWinner(starsOption().winners.find((winner) => winner.users === value)!);
           } else {
             setSubscriptionsCount(value);
           }
@@ -149,7 +149,7 @@ export default class PopupBoostsViaGifts extends PopupElement {
         range.setSteps(steps, stepValues.indexOf(focusValue));
       });
     } else {
-      setSubscriptionsCount(this.prepaidGiveaway.quantity);
+      setSubscriptionsCount(this.prepaidGiveaway!.quantity);
     }
 
     const radioOptions: ConstructorParameters<typeof CheckboxField>[0] = {
@@ -224,7 +224,7 @@ export default class PopupBoostsViaGifts extends PopupElement {
             initial: specificPeerIds()
           });
 
-          popup.selector.setLimit(this.subscribersLimit, () => {
+          popup.selector!.setLimit(this.subscribersLimit, () => {
             toastNew({langPackKey: 'Giveaway.MaximumSubscribers', langPackArguments: [this.subscribersLimit]});
           });
         },
@@ -262,7 +262,7 @@ export default class PopupBoostsViaGifts extends PopupElement {
         createRow.subtitle.classList.toggle('is-flex', !showTitles);
         if(!showTitles) {
           createRow.subtitle.replaceChildren(
-            i18n(peerIds.length > 2 ? 'Recipient' : 'BoostsViaGifts.CreateSubtitle', [peerIds.length]),
+            i18n(peerIds.length > 2 ? 'Recipient' : 'BoostsViaGifts.CreateSubtitle', [peerIds.length])!,
             createNextIcon()
           );
         } else {
@@ -348,19 +348,19 @@ export default class PopupBoostsViaGifts extends PopupElement {
         onCloseAfterTimeout: () => toggle()
       });
 
-      popup.selector.setLimit(this.channelsLimit, () => {
+      popup.selector!.setLimit(this.channelsLimit, () => {
         toastNew({langPackKey: 'BoostingSelectUpToWarningChannelsPlural', langPackArguments: [this.channelsLimit]});
       });
 
-      const _add = popup.selector.add.bind(popup.selector);
-      let ignorePrivatePeerId: PeerId;
-      popup.selector.add = (options) => {
+      const _add = popup.selector!.add.bind(popup.selector);
+      let ignorePrivatePeerId: PeerId | undefined;
+      popup.selector!.add = (options) => {
         const peerId = options.key.toPeerId();
         const chat = apiManagerProxy.getChat(peerId.toChatId());
         if(
           !getPeerActiveUsernames(chat)[0] &&
           ignorePrivatePeerId !== peerId &&
-          popup.selector.getSelected().length < this.channelsLimit
+          popup.selector!.getSelected().length < this.channelsLimit
         ) {
           confirmationPopup({
             titleLangKey: 'BoostingGiveawayPrivateChannel',
@@ -370,8 +370,8 @@ export default class PopupBoostsViaGifts extends PopupElement {
             }
           }).then(() => {
             ignorePrivatePeerId = peerId;
-            popup.selector.add({key: peerId});
-            popup.selector.toggleElementCheckboxByKey(peerId, true);
+            popup.selector!.add({key: peerId});
+            popup.selector!.toggleElementCheckboxByKey(peerId, true);
             ignorePrivatePeerId = undefined;
           });
           return false;
@@ -384,13 +384,13 @@ export default class PopupBoostsViaGifts extends PopupElement {
     const getCountriesSubtitle = () => {
       return (
         <span class="primary is-flex">
-          {i18n(countries() ? 'BoostingFromCountriesCount' : 'BoostingFromAllCountries', [countries()?.length])} {createNextIcon()}
+          {i18n(countries() ? 'BoostingFromCountriesCount' : 'BoostingFromAllCountries', [countries()?.length!])} {createNextIcon()}
         </span>
       ) as HTMLElement;
     };
 
     const onCountriesClick = (e: MouseEvent) => {
-      const container = findUpClassName(e.target, 'row');
+      const container = findUpClassName(e.target!, 'row');
       const checkbox = container.querySelector('.checkbox-field-input') as HTMLInputElement;
 
       if(!checkbox.checked) {
@@ -403,21 +403,21 @@ export default class PopupBoostsViaGifts extends PopupElement {
         renderResultsFunc: (iso2s) => {
           iso2s.forEach((iso2) => {
             const country = lastFiltered.get(iso2 as any as string);
-            const emoji = getCountryEmoji(country.iso2);
+            const emoji = getCountryEmoji(country!.iso2);
             const title = document.createDocumentFragment();
             const emojiContainer = document.createElement('span');
             emojiContainer.classList.add('selector-countries-emoji');
             emojiContainer.append(wrapEmojiText(emoji))
-            title.append(emojiContainer, ' ', i18n(country.default_name as any));
+            title.append(emojiContainer, ' ', i18n(country!.default_name as any)!);
             const row = new Row({
               title,
               clickable: true,
               havePadding: true
             });
 
-            row.container.append(popup.selector.checkbox(popup.selector.selected.has(iso2)));
+            row.container.append(popup.selector!.checkbox(popup.selector!.selected.has(iso2)));
             row.container.dataset.peerId = '' + iso2;
-            popup.selector.list.append(row.container);
+            popup.selector!.list.append(row.container);
           });
         },
         placeholder: 'Search',
@@ -441,24 +441,24 @@ export default class PopupBoostsViaGifts extends PopupElement {
         noPlaceholder: true
       });
 
-      const _add = popup.selector.add.bind(popup.selector);
-      popup.selector.add = ({key, scroll}) => {
+      const _add = popup.selector!.add.bind(popup.selector);
+      popup.selector!.add = ({key, scroll}) => {
         const country = I18n.countriesList.find((country) => country.iso2 === key);
         const ret = _add({
           key: key,
-          title: i18n(country.default_name as any),
+          title: i18n(country!.default_name as any),
           scroll
         });
         if(isObject(ret)) {
-          ret.avatar.render({peerTitle: getCountryEmoji(country.iso2)});
+          ret.avatar.render({peerTitle: getCountryEmoji(country!.iso2)});
         }
         return ret;
       };
 
-      popup.selector.searchSection.container.classList.add('is-countries');
-      popup.selector.container.classList.add('is-countries');
-      popup.selector.addInitial(countries());
-      popup.selector.setLimit(this.countriesLimit, () => {
+      popup.selector!.searchSection.container.classList.add('is-countries');
+      popup.selector!.container.classList.add('is-countries');
+      popup.selector!.addInitial(countries()!);
+      popup.selector!.setLimit(this.countriesLimit, () => {
         toastNew({langPackKey: 'BoostingSelectUpToWarningCountriesPlural', langPackArguments: [this.countriesLimit]});
       });
     };
@@ -521,7 +521,7 @@ export default class PopupBoostsViaGifts extends PopupElement {
             caption={stars() ? 'BoostingStarsQuantityPrizesInfo' : 'BoostsViaGifts.QuantitySubtitle'}
             captionOld={true}
           >
-            {range.container}
+            {range!.container}
           </Section>
         )}
         <Section name="BoostsViaGifts.Channels">
@@ -531,14 +531,14 @@ export default class PopupBoostsViaGifts extends PopupElement {
             peerTitle.element.classList.add('text-bold');
             let subtitleElement: HTMLSpanElement;
             (
-              <span ref={subtitleElement}>
+              <span ref={subtitleElement!}>
                 {idx() === 0 && i18n('BoostsViaGifts.ChannelSubscription', [boosts()])}
                 {idx() !== 0 && getChatMembersString(peerId.toChatId(), undefined, undefined, true) as HTMLElement}
               </span>
             );
             const row = new Row({
               title: peerTitle.element,
-              subtitle: subtitleElement,
+              subtitle: subtitleElement!,
               ...(peerId !== this.peerId && {
                 clickable: (e) => {
                   row.openContextMenu(e);
@@ -623,7 +623,7 @@ export default class PopupBoostsViaGifts extends PopupElement {
       <>
         <Section
           caption={additionalPrizes() ? 'BoostsViaGifts.AdditionalPrizesSubtitle' : (stars() ? 'BoostingStarsGiveawayAdditionPrizeHint' : 'BoostsViaGifts.AdditionalPrizesSubtitleOff')}
-          captionArgs={additionalPrizes() ? (stars () ? [
+          captionArgs={((additionalPrizes() ? (stars () ? [
             i18n(
               additionalPrize() ? 'BoostsViaGifts.AdditionalStarsPrizesDetailedWith' : 'BoostsViaGifts.AdditionalStarsPrizesDetailed',
               [starsOption().stars, count(), additionalPrize()].filter(Boolean)
@@ -631,9 +631,9 @@ export default class PopupBoostsViaGifts extends PopupElement {
           ] : [
             i18n(
               additionalPrize() ? 'BoostsViaGifts.AdditionalPrizesDetailedWith' : 'BoostsViaGifts.AdditionalPrizesDetailed',
-              [subscriptionsCount(), additionalPrize(), formatMonthsDuration(option().months, true)].filter(Boolean)
+             ( [subscriptionsCount(), additionalPrize(), formatMonthsDuration(option()!.months, true)].filter(Boolean!) as FormatterArguments | undefined)!
             )
-          ]) : undefined}
+          ]) : undefined)! as FormatterArguments | undefined)}
           captionOld={true}
         >
           {new Row({
@@ -679,14 +679,14 @@ export default class PopupBoostsViaGifts extends PopupElement {
     const ret = (
       <>
         <Section noDelimiter={true}>
-          <div class="popup-boosts-star-container"><img class="popup-boosts-star" ref={img} /></div>
+          <div class="popup-boosts-star-container"><img class="popup-boosts-star" ref={img!} /></div>
           <div class="popup-boosts-title">{i18n('BoostsViaGifts.Title')}</div>
-          <div class="popup-boosts-subtitle">{i18n(isPrepaid() && this.prepaidGiveaway._ === 'prepaidGiveaway' ? 'BoostingGetMoreBoosts' : 'BoostingGetMoreBoosts2')}</div>
-          {isPrepaid() && prepaidRowContainer}
+          <div class="popup-boosts-subtitle">{i18n(isPrepaid() && this.prepaidGiveaway!._ === 'prepaidGiveaway' ? 'BoostingGetMoreBoosts' : 'BoostingGetMoreBoosts2')}</div>
+          {isPrepaid() && prepaidRowContainer!}
           {!isPrepaid() && (
             <form>
-              {createRowContainer}
-              {starsRowContainer}
+              {createRowContainer!}
+              {starsRowContainer!}
             </form>
           )}
         </Section>
@@ -705,7 +705,7 @@ export default class PopupBoostsViaGifts extends PopupElement {
       </>
     );
 
-    renderImageFromUrl(img, `assets/img/premiumboostsstar${window.devicePixelRatio > 1 ? '@2x' : ''}.png`);
+    renderImageFromUrl(img!, `assets/img/premiumboostsstar${window.devicePixelRatio > 1 ? '@2x' : ''}.png`);
 
     BoostsConfirmButton({
       button: this.btnConfirm,
@@ -717,7 +717,7 @@ export default class PopupBoostsViaGifts extends PopupElement {
     this.footer.classList.add('abitlarger');
 
     const createGiveawayStoreInput = async(): Promise<InputStorePaymentPurpose> => {
-      const peers = await Promise.all(peerIds().map((peerId) => this.managers.appPeersManager.getInputPeerById(peerId)));
+      const peers = await Promise.all(peerIds().map((peerId) => this.managers.appPeersManager!.getInputPeerById(peerId)));
 
       const common = {
         pFlags: {
@@ -745,17 +745,17 @@ export default class PopupBoostsViaGifts extends PopupElement {
         ...option(),
         ...common,
         _: 'inputStorePaymentPremiumGiveaway'
-      };
+      } as InputStorePaymentPurpose;
     };
 
     const createSpecificStoreInput = async(): Promise<InputStorePaymentPurpose> => {
-      const {amount, currency} = option();
-      const users = await Promise.all(specificPeerIds().map((peerId) => this.managers.appUsersManager.getUserInput(peerId.toUserId())));
+      const {amount, currency} = option()!;
+      const users = await Promise.all(specificPeerIds().map((peerId) => this.managers.appUsersManager!.getUserInput(peerId.toUserId())));
       return {
         _: 'inputStorePaymentPremiumGiftCode',
         amount,
         currency,
-        boost_peer: await this.managers.appPeersManager.getInputPeerById(this.peerId),
+        boost_peer: await this.managers.appPeersManager!.getInputPeerById(this.peerId),
         users
       };
     };
@@ -767,22 +767,22 @@ export default class PopupBoostsViaGifts extends PopupElement {
         button: {langKey: 'Start'}
       });
 
-      return this.managers.appPaymentsManager.launchPrepaidGiveaway(
+      return this.managers.appPaymentsManager!.launchPrepaidGiveaway(
         this.peerId,
-        this.prepaidGiveaway.id,
+        this.prepaidGiveaway!.id,
         purpose
       );
     };
 
     const continueWithCreating = async(purpose: InputStorePaymentPurpose) => {
-      const inputInvoice: InputInvoice = purpose._ === 'inputStorePaymentStarsGiveaway' ? {
+      const inputInvoice: InputInvoice = ((purpose._ === 'inputStorePaymentStarsGiveaway' ? {
         _: 'inputInvoiceStars',
         purpose
       } : {
         _: 'inputInvoicePremiumGiftCode',
         purpose,
         option: option()
-      };
+      })! as InputInvoice);
 
       const popup = await PopupPayment.create({inputInvoice});
       await new Promise<void>((resolve, reject) => {
@@ -823,9 +823,9 @@ export default class PopupBoostsViaGifts extends PopupElement {
 
   private async construct() {
     const [giftCodeOptions, appConfig, starsOptions] = await Promise.all([
-      this.managers.appPaymentsManager.getPremiumGiftCodeOptions(this.peerId),
-      this.managers.apiManager.getAppConfig(),
-      this.managers.appPaymentsManager.getStarsGiveawayOptions()
+      this.managers.appPaymentsManager!.getPremiumGiftCodeOptions(this.peerId),
+      this.managers.apiManager!.getAppConfig(),
+      this.managers.appPaymentsManager!.getStarsGiveawayOptions()
     ]);
     this.premiumGiftCodeOptions = giftCodeOptions;
     this.appConfig = appConfig;

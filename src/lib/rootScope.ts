@@ -278,11 +278,11 @@ export class RootScope extends EventListenerBase<BroadcastEventsListeners> {
     this.dispatchEvent = (e, ...args) => {
       super.dispatchEvent(e, ...args);
       (async() => {
-        const accountNumber = this.managers ? await this.managers.apiManager.getAccountNumber() : undefined;
+        const accountNumber = this.managers ? await this.managers.apiManager!.getAccountNumber() : undefined;
         MTProtoMessagePort.getInstance().invokeVoid('event', {
           name: e as string,
           args,
-          accountNumber
+          accountNumber: accountNumber!
         });
       })();
     };

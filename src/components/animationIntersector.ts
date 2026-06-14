@@ -63,7 +63,7 @@ export class AnimationIntersector {
             continue;
           }
 
-          const animation = this.byGroups[group as AnimationItemGroup].find((p) => p.el === target);
+          const animation = this.byGroups[group as AnimationItemGroup]!.find((p) => p.el === target);
           if(!animation) {
             continue;
           }
@@ -136,7 +136,7 @@ export class AnimationIntersector {
   public getAnimations(element: HTMLElement) {
     const found: AnimationItem[] = [];
     for(const group in this.byGroups) {
-      for(const player of this.byGroups[group as AnimationItemGroup]) {
+      for(const player of this.byGroups[group as AnimationItemGroup]!) {
         if(player.el === element) {
           found.push(player);
         }
@@ -241,7 +241,7 @@ export class AnimationIntersector {
 
       const animations = this.byGroups[group];
 
-      forEachReverse(animations, (animation) => {
+      forEachReverse(animations!, (animation) => {
         this.checkAnimation(animation, blurred, destroy);
       });
     }
@@ -341,8 +341,8 @@ export class AnimationIntersector {
     this.byPlayer.forEach((animationItem, animation) => {
       if(animationItem.liteModeKey === liteModeKey) {
         changed = true;
-        animation.autoplay = play ? animation._autoplay : false;
-        animation.loop = play ? appSettings.stickers.loop && animation._loop : false;
+        animation.autoplay = (play ? animation._autoplay : false)!;
+        animation.loop = (play ? appSettings.stickers.loop && animation._loop : false)!;
       }
     });
 
@@ -361,7 +361,7 @@ export class AnimationIntersector {
         animation.loop = loop;
 
         // if(animation._autoplay && animation.autoplay !== animation._autoplay) {
-        animation.autoplay = animation._autoplay;
+        animation.autoplay = animation._autoplay!;
         // }
       }
     });

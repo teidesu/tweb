@@ -22,9 +22,9 @@ const PasskeyItem = (passkey: Passkey) => {
   const {rootScope, wrapEmojiText, wrapAdaptiveCustomEmoji, Row, i18n, confirmationPopup, formatDate} = useHotReloadGuard();
   const [disabled, setDisabled] = createSignal(false);
   const subtitle = () => {
-    const created = i18n('Privacy.Passkey.Created', [formatDate(new Date(passkey.date * 1000), {withTime: true})]);
+    const created = i18n('Privacy.Passkey.Created', [formatDate(new Date(passkey.date * 1000), {withTime: true})!]);
     if(!passkey.last_usage_date) return created;
-    const lastUsed = i18n('Privacy.Passkey.LastUsage', [formatDate(new Date(passkey.last_usage_date * 1000), {withTime: true})]);
+    const lastUsed = i18n('Privacy.Passkey.LastUsage', [formatDate(new Date(passkey.last_usage_date * 1000), {withTime: true})!]);
     return [created, ' • ', lastUsed];
   };
   return (
@@ -45,7 +45,7 @@ const PasskeyItem = (passkey: Passkey) => {
             });
 
             setDisabled(true);
-            rootScope.managers.appAccountManager.deletePasskey(passkey.id).finally(() => {
+            rootScope.managers.appAccountManager!.deletePasskey(passkey.id).finally(() => {
               tab.payload.setPasskeys((passkeys) => {
                 const arr = [...passkeys];
                 findAndSplice(arr, (item) => item.id === passkey.id);
@@ -65,7 +65,7 @@ const PasskeyItem = (passkey: Passkey) => {
       <Show when={passkey.software_emoji_id}>
         <Row.Media size="abitbigger">
           {wrapAdaptiveCustomEmoji({
-            docId: passkey.software_emoji_id,
+            docId: passkey.software_emoji_id!,
             size: 42,
             wrapOptions: {
               middleware: createMiddleware().get()
@@ -113,7 +113,7 @@ const PasskeysTab = () => {
         <Show
           when={
             IS_WEB_AUTHN_SUPPORTED &&
-            tab.payload.passkeys.length < appConfig.passkeys_account_passkeys_max
+            tab.payload.passkeys.length < appConfig.passkeys_account_passkeys_max!
           }
         >
           <Button

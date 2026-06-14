@@ -49,13 +49,13 @@ async function clearOldCacheInWatchedStorages({onStorageError}: ClearOldCacheInW
 
     try {
       await cacheStorage.minimalBlockingIterateResponses(async({request, cache, response}) => {
-        const cachedTimeSeconds = parseInt(response.headers.get(HTTPHeaderNames.cachedTime)) || 0;
+        const cachedTimeSeconds = parseInt(response.headers.get(HTTPHeaderNames.cachedTime)!) || 0;
 
         if(cachedTimeSeconds < referenceTimeSeconds) { // drops existing entries with no time header
           log(`deleteing cache from ${storageName}:`, request.url, {cachedTimeSeconds, referenceTimeSeconds});
           await cache.delete(request);
         } else {
-          const contentLength = parseInt(response.headers.get(HTTPHeaderNames.contentLength)) || 0;
+          const contentLength = parseInt(response.headers.get(HTTPHeaderNames.contentLength)!) || 0;
           totalSize += contentLength;
 
           collectedForThisStorage.push({request, response, timeSeconds: cachedTimeSeconds, size: contentLength, storageName});

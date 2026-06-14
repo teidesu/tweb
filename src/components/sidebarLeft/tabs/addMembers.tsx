@@ -28,7 +28,7 @@ const AddMembersTab = () => {
       if(sel.isPeerId()) peerIds.push(sel.toPeerId());
       else extras.add(sel as string);
     }
-    const result = takeOut(peerIds, extras);
+    const result = takeOut!(peerIds, extras);
 
     if(skippable && !(result instanceof Promise)) {
       tab.close();
@@ -43,9 +43,9 @@ const AddMembersTab = () => {
   const selector = new AppSelectPeers({
     middleware: tab.middlewareHelper.get(),
     appendTo: tab.content,
-    onChange: skippable ? null : (length) => {
+    onChange: (skippable ? null : (length) => {
       nextBtn.classList.toggle('is-visible', !!length);
-    },
+    })!,
     peerType: [isPrivacy ? 'dialogs' : 'contacts'],
     placeholder,
     exceptSelf: isPrivacy,
@@ -89,7 +89,7 @@ const AddMembersTab = () => {
 
     selector.scrollable.append(
       categoriesSection.container,
-      selector.scrollable.container.lastElementChild
+      selector.scrollable.container.lastElementChild!
     );
   }
 

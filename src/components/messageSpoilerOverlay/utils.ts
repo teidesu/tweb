@@ -58,7 +58,7 @@ export function getTimeForDist(dist: number) {
 export function toDOMRectArray(list: DOMRectList) {
   const result: DOMRect[] = [];
   for(let i = 0; i < list.length; i++) {
-    result.push(list.item(i));
+    result.push(list.item(i)!);
   }
   return result;
 }
@@ -105,12 +105,12 @@ export async function waitResizeToBePainted(resizeEntry: ResizeObserverEntry) {
       Math.abs(targetRect.width - entryRect.width) < GENEROUS_COMPARISON_ERROR &&
       Math.abs(targetRect.height - entryRect.height) < GENEROUS_COMPARISON_ERROR
     ) {
-      deferred.resolve();
+      deferred.resolve!();
       resizeLog('Resize was painted after attempts :>> ', attempts);
       return;
     }
 
-    return attempts++ < RESIZE_PAINT_CHECK_ATTEMPTS || deferred.reject();
+    return attempts++ < RESIZE_PAINT_CHECK_ATTEMPTS || deferred.reject!();
   });
 
   return deferred;
@@ -159,7 +159,7 @@ export function computeFinalBackgroundColor(element: HTMLElement) {
       const rgba = parseRgba(bgColor);
       color = blendColors(rgba, color);
     }
-    element = element.parentElement;
+    element = element.parentElement!;
   }
 
   return color.a === 1 ? `rgb(${color.r}, ${color.g}, ${color.b})` : undefined;

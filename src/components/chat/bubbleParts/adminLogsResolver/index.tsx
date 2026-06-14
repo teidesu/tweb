@@ -273,7 +273,7 @@ const adminLogsMap: { [Key in ChannelAdminLogEventAction['_']]: MapCallback<Key>
               <Space amount='0.5rem' />
               <Reply
                 colorPeerId={peerId}
-                title={i18n('AdminRecentActions.PreviousDescription')}
+                title={i18n('AdminRecentActions.PreviousDescription')!}
                 text={action.prev_value}
               />
             </MinimalBubbleMessageContent>
@@ -323,7 +323,7 @@ const adminLogsMap: { [Key in ChannelAdminLogEventAction['_']]: MapCallback<Key>
               <Show when={action.prev_value}>
                 <Reply
                   colorPeerId={peerId}
-                  title={i18n('AdminRecentActions.PreviousLink')}
+                  title={i18n('AdminRecentActions.PreviousLink')!}
                   text={`https://t.me/${action.prev_value}`}
                 />
               </Show>
@@ -378,8 +378,8 @@ const adminLogsMap: { [Key in ChannelAdminLogEventAction['_']]: MapCallback<Key>
       type: 'default' as const,
       message: action.new_message,
       colorPeerId: peerId,
-      originalMessage: isMessage(action.prev_message) ? action.prev_message : null,
-      ServiceContent: () => i18n(key, [makePeerTitle(peerId)]),
+      originalMessage: isMessage(action.prev_message) ? action.prev_message : undefined,
+      ServiceContent: () => i18n(key, [makePeerTitle(peerId)])!,
       getCopyText: () => createMessageWithPreviousCopyText(
         event.date,
         peerId,
@@ -422,7 +422,7 @@ const adminLogsMap: { [Key in ChannelAdminLogEventAction['_']]: MapCallback<Key>
 
       const channel = apiManagerProxy.getChat(channelId);
 
-      const removeDefaultRights = (rights: ChatBannedRights.chatBannedRights) =>
+      const removeDefaultRights = (rights?: ChatBannedRights.chatBannedRights) =>
         channel?._ === 'channel' && rights ?
           removeChatBannedRightsFromParticipant(channel, rights) :
           rights;
@@ -439,10 +439,10 @@ const adminLogsMap: { [Key in ChannelAdminLogEventAction['_']]: MapCallback<Key>
 
       // yes, they need to be inversed here
       const removed = diff.new.map(key => participantRightsMap[key])
-      .filter(Boolean).map(key => i18n(key))
+      .filter(Boolean).map(key => i18n(key!))
 
       const added = diff.old.map(key => participantRightsMap[key])
-      .filter(Boolean).map(key => i18n(key))
+      .filter(Boolean).map(key => i18n(key!))
 
 
       return (
@@ -560,10 +560,10 @@ const adminLogsMap: { [Key in ChannelAdminLogEventAction['_']]: MapCallback<Key>
       const diff = diffFlags(action.prev_banned_rights?.pFlags, action.new_banned_rights?.pFlags);
 
       const added = diff.old.map(key => participantRightsMap[key])
-      .filter(Boolean).map(key => i18n(key))
+      .filter(Boolean).map(key => i18n(key!))
 
       const removed = diff.new.map(key => participantRightsMap[key])
-      .filter(Boolean).map(key => i18n(key))
+      .filter(Boolean).map(key => i18n(key!))
 
       return (
         <>
@@ -690,7 +690,7 @@ const adminLogsMap: { [Key in ChannelAdminLogEventAction['_']]: MapCallback<Key>
     const pinned = !!action.new_topic;
     const key: LangPackKey = pinned ? 'AdminLog.TopicPinned' : 'AdminLog.TopicUnpinned';
     const topic = action.new_topic ? action.new_topic : action.prev_topic;
-    return makeTopicServiceEntry(key, topic, peerId, event, makePeerTitle);
+    return makeTopicServiceEntry(key, topic!, peerId, event, makePeerTitle);
   },
   'channelAdminLogEventActionToggleAntiSpam': ({action, peerId, makePeerTitle, event}) =>
     makeToggleServiceEntry(

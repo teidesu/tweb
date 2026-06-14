@@ -5,7 +5,7 @@ import {Document} from '@layer';
 import {StickerFrameByFrameRenderer} from '@components/mediaEditor/finalRender/types';
 
 export default class ImageStickerFrameByFrameRenderer implements StickerFrameByFrameRenderer {
-  private image: HTMLImageElement;
+  private image: HTMLImageElement | null;
 
   async init(doc: Document.document) {
     const blob = await appDownloadManager.downloadMedia({
@@ -18,7 +18,7 @@ export default class ImageStickerFrameByFrameRenderer implements StickerFrameByF
     const deferred = deferredPromise<void>();
 
     image.addEventListener('load', () => {
-      deferred.resolve();
+      deferred.resolve!();
     });
 
     await deferred;
@@ -29,13 +29,13 @@ export default class ImageStickerFrameByFrameRenderer implements StickerFrameByF
   }
 
   getRatio() {
-    return this.image.naturalWidth / this.image.naturalHeight;
+    return this.image!.naturalWidth / this.image!.naturalHeight;
   }
 
   async renderFrame() {}
 
   getRenderedFrame() {
-    return this.image;
+    return this.image!;
   }
 
   destroy() {

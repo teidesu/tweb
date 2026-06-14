@@ -10,7 +10,7 @@ export const TransitionGroup: FlowComponent<{
   const observeElement = (element: Element, callback: () => void) => {
     const transition = props.transitions.get(element);
     createEffect((prev) => {
-      const t = transition();
+      const t = transition!();
       if(prev || t) {
         if(!t) {
           callback();

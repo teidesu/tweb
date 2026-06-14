@@ -50,14 +50,14 @@ export class AppUsersManager extends AppManager {
   private users: {[userId: UserId]: User};
   private usernames: {[username: string]: PeerId};
   private contactsIndex: SearchIndex<UserId>;
-  private contactsFillPromise: CancellablePromise<AppUsersManager['contactsList']>;
+  private contactsFillPromise: CancellablePromise<AppUsersManager['contactsList']> | undefined;
   private contactsList: Set<UserId>;
   private updatedContactsList: boolean;
 
   private getTopPeersPromises: {[type in TopPeerType]?: Promise<MyTopPeer[]>};
 
   private defaultEmojiStatuses: MaybePromise<AccountEmojiStatuses>;
-  private recentEmojiStatuses: MaybePromise<AccountEmojiStatuses>;
+  private recentEmojiStatuses: MaybePromise<AccountEmojiStatuses> | undefined;
 
   private requirementsToContactPromises: Map<UserId, CancellablePromise<RequirementToContact>>;
   private requirementsToContactProcessing: boolean;
@@ -180,7 +180,7 @@ export class AppUsersManager extends AppManager {
 
           if(!this.contactsFillPromise) {
             this.contactsFillPromise = deferredPromise();
-            this.contactsFillPromise.resolve(this.contactsList);
+            this.contactsFillPromise.resolve!(this.contactsList);
           }
         }
       }
@@ -330,7 +330,7 @@ export class AppUsersManager extends AppManager {
         this.contactsFillPromise = promise;
       }
 
-      promise.resolve(this.contactsList);
+      promise.resolve!(this.contactsList);
     }, () => {
       this.updatedContactsList = false;
     });
@@ -403,12 +403,12 @@ export class AppUsersManager extends AppManager {
     }
 
     const arr: string[] = [
-      user.first_name,
-      user.last_name,
-      user.phone,
-      ...getPeerActiveUsernames(user),
+      user.first_name!,
+      user.last_name!,
+      user.phone!,
+      ...getPeerActiveUsernames(user) as string[],
       // user.pFlags.self ? I18n.format('SavedMessages', true) : '',
-      user.pFlags.self ? 'Saved Messages' : ''
+      ((((((((user.pFlags.self ? 'Saved Messages' : '')! as string)! as string)! as string)! as string))))
     ];
 
     return arr.filter(Boolean).join(' ');
@@ -441,9 +441,9 @@ export class AppUsersManager extends AppManager {
           return status2 - status1;
         });
       } else if(sortBy === 'rating') {
-        if(!query.trim().replace(/@/g, '')) contactsList = topPeers.map((peer) => peer.id.toUserId());
+        if(!query!.trim().replace(/@/g, '')) contactsList = (topPeers as MyTopPeer[]).map((peer) => peer.id.toUserId());
         else {
-          const ratingMap = new Map<UserId, number>(topPeers.map((peer) => [peer.id.toUserId(), peer.rating]));
+          const ratingMap = new Map<UserId, number>((topPeers as MyTopPeer[]).map((peer) => [peer.id.toUserId(), peer.rating]));
           contactsList.sort((userId1, userId2) => {
             const rating1 = ratingMap.get(userId1) || 0;
             const rating2 = ratingMap.get(userId2) || 0;
@@ -455,7 +455,7 @@ export class AppUsersManager extends AppManager {
       const myUserId = this.userId;
       indexOfAndSplice(contactsList, myUserId);
       if(includeSaved) {
-        if(this.testSelfSearch(query)) {
+        if(this.testSelfSearch(query!)) {
           contactsList.unshift(myUserId);
         }
       }
@@ -521,7 +521,7 @@ export class AppUsersManager extends AppManager {
       return;
     }
 
-    const cleanedUsernames = usernames.map((username) => cleanUsername(username));
+    const cleanedUsernames = usernames.map((username) => cleanUsername(username!));
     if(save) {
       cleanedUsernames.forEach((searchUsername) => {
         this.usernames[searchUsername] = peer.id.toPeerId(peer._ !== 'user');
@@ -539,7 +539,7 @@ export class AppUsersManager extends AppManager {
       (oldPeer as MTUser.user).username !== (peer as MTUser.user).username ||
       !deepEqual((oldPeer as MTUser.user).usernames, (peer as MTUser.user).usernames)
     ) {
-      this.modifyUsernamesCache(oldPeer, false);
+      this.modifyUsernamesCache(oldPeer!, false);
       this.modifyUsernamesCache(peer, true);
 
       return true;
@@ -599,7 +599,7 @@ export class AppUsersManager extends AppManager {
       user.sortName = oldUser.sortName;
     }
 
-    this.saveUserStatus(user.status);
+    this.saveUserStatus(user.status!);
 
     if((user as User).photo?._ === 'userProfilePhotoEmpty') {
       delete (user as User).photo;
@@ -706,7 +706,7 @@ export class AppUsersManager extends AppManager {
 
   public getUserStatusForSort(status: User['status'] | UserId) {
     if(typeof(status) !== 'object') {
-      const user = this.getUser(status);
+      const user = this.getUser(status!);
       status = user?.status;
     }
 
@@ -838,7 +838,7 @@ export class AppUsersManager extends AppManager {
     return {
       _: 'inputUser',
       user_id: id,
-      access_hash: user.access_hash
+      access_hash: user.access_hash!
     };
   }
 
@@ -852,7 +852,7 @@ export class AppUsersManager extends AppManager {
     return {
       _: 'inputPeerUser',
       user_id: id,
-      access_hash: user.access_hash
+      access_hash: user.access_hash!
     };
   }
 
@@ -861,9 +861,9 @@ export class AppUsersManager extends AppManager {
 
     return {
       _: 'inputMediaContact',
-      first_name: user.first_name,
-      last_name: user.last_name,
-      phone_number: user.phone,
+      first_name: user.first_name!,
+      last_name: user.last_name!,
+      phone_number: user.phone!,
       vcard: '',
       user_id: id
     };
@@ -1236,7 +1236,7 @@ export class AppUsersManager extends AppManager {
     });
   }
 
-  public getRequirementToContact(userId: UserId, onlyCached?: boolean): MaybePromise<RequirementToContact> {
+  public getRequirementToContact(userId: UserId, onlyCached?: boolean): MaybePromise<RequirementToContact> | undefined {
     const user = this.getUser(userId);
     const empty: RequirementToContact = {_: 'requirementToContactEmpty'};
     if(!user) {
@@ -1320,7 +1320,7 @@ export class AppUsersManager extends AppManager {
 
           const userId = userIds[index];
           const promise = this.requirementsToContactPromises.get(userId);
-          promise.resolve(requirement);
+          promise!.resolve!(requirement);
           this.requirementsToContactPromises.delete(userId);
         });
       }).finally(() => {

@@ -110,8 +110,8 @@ export class AppCallsManager extends AppManager {
     const call = this.getCall(id);
     return {
       _: 'inputPhoneCall',
-      id: call.id,
-      access_hash: call.access_hash
+      id: call!.id,
+      access_hash: call!.access_hash
     };
   }
 

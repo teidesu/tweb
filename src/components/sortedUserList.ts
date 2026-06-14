@@ -46,7 +46,7 @@ export default class SortedUserList extends SortedList<SortedUser> {
     middleware: Middleware
   }) {
     super({
-      getIndex: options.getIndex || ((element) => element.id.isAnyChat() ? 0 : this.managers.appUsersManager.getUserStatusForSort(element.id)),
+      getIndex: options.getIndex || ((element) => element.id.isAnyChat() ? 0 : this.managers.appUsersManager!.getUserStatusForSort(element.id)),
       onDelete: (element) => {
         element.dialogElement.remove();
         this.onListLengthChange?.();
@@ -54,13 +54,13 @@ export default class SortedUserList extends SortedList<SortedUser> {
       onUpdate: options.onUpdate || (async(element) => {
         if(element.id.isAnyChat()) {
           const status = await getChatMembersString(element.id.toChatId(), this.managers);
-          replaceContent(element.dom.lastMessageSpan, status);
+          replaceContent(element.dom.lastMessageSpan, status!);
         } else {
-          const status = getUserStatusString(await this.managers.appUsersManager.getUser(element.id));
+          const status = getUserStatusString(await this.managers.appUsersManager!.getUser(element.id));
           replaceContent(element.dom.lastMessageSpan, status);
 
           const rank = this.ranks.get(element.id);
-          element.dialogElement.titleRight.replaceChildren(...(rank ? [wrapParticipantRank(rank)] : []));
+          element.dialogElement.titleRight.replaceChildren(...(rank ? [wrapParticipantRank(rank) as Node] : []));
         }
       }),
       onSort: (element, idx) => {
@@ -87,7 +87,7 @@ export default class SortedUserList extends SortedList<SortedUser> {
         });
 
         const rank = this.ranks.get(base.id);
-        dialogElement.titleRight.replaceChildren(...[rank ? wrapParticipantRank(rank) : undefined].filter(Boolean));
+        dialogElement.titleRight.replaceChildren(...([rank ? wrapParticipantRank(rank) : undefined].filter(Boolean) as Node[]));
 
         (base as SortedUser).dom = dialogElement.dom;
         (base as SortedUser).dialogElement = dialogElement;

@@ -30,8 +30,8 @@ export default function useAutoDownloadSettings(
     }
 
     if(appSettings.autoDownload.photo[type]) photoSizeMax = appSettings.autoDownloadNew.photo_size_max;
-    if(appSettings.autoDownload.video[type]) videoSizeMax = appSettings.autoDownloadNew.video_size_max;
-    if(appSettings.autoDownload.file[type]) fileSizeMax = appSettings.autoDownloadNew.file_size_max;
+    if(appSettings.autoDownload.video[type]) videoSizeMax = appSettings.autoDownloadNew.video_size_max!;
+    if(appSettings.autoDownload.file[type]) fileSizeMax = appSettings.autoDownloadNew.file_size_max!;
   }
 
   return {

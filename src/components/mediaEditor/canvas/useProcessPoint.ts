@@ -4,9 +4,9 @@ import {useMediaEditorContext} from '@components/mediaEditor/context';
 import {NumberPair} from '@components/mediaEditor/types';
 
 export default function useProcessPoint(densityAware = true) {
-  const {editorState} = useMediaEditorContext();
+  const {editorState} = useMediaEditorContext()!;
 
-  const size = createMemo(() => editorState.canvasSize.map((x) => x * editorState.pixelRatio));
+  const size = createMemo(() => editorState.canvasSize!.map((x) => x * editorState.pixelRatio));
 
   return (point: NumberPair) => {
     const [w, h] = size();

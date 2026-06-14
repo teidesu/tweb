@@ -27,7 +27,7 @@ export class PasswordManager extends AppManager {
       let currentHashPromise: Promise<InputCheckPasswordSRP>;
       let newHashPromise: Promise<Uint8Array>;
       const params: AccountUpdatePasswordSettings = {
-        password: null,
+        password: null as any,
         new_settings: {
           _: 'account.passwordInputSettings',
           hint: settings.hint,

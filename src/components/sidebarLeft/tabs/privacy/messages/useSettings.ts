@@ -17,13 +17,13 @@ const useSettings = () => {
 
 
   const [privacyRules] = createResource(() => {
-    const promise = rootScope.managers.appPrivacyManager.getPrivacy(privacyRulesInputKey);
+    const promise = rootScope.managers.appPrivacyManager!.getPrivacy(privacyRulesInputKey);
     promiseCollector.collect(promise);
     return promise;
   });
 
   const [globalPrivacy] = createResource(() => {
-    const promise = rootScope.managers.appPrivacyManager.getGlobalPrivacySettings();
+    const promise = rootScope.managers.appPrivacyManager!.getGlobalPrivacySettings();
     promiseCollector.collect(promise);
     return promise;
   });
@@ -34,9 +34,9 @@ const useSettings = () => {
   const currentOption = () => {
     if(!isPremium()) return MessagesPrivacyOption.Everybody;
 
-    if(globalPrivacy().noncontact_peers_paid_stars) return MessagesPrivacyOption.Paid;
+    if(globalPrivacy()!.noncontact_peers_paid_stars) return MessagesPrivacyOption.Paid;
 
-    if(globalPrivacy().pFlags.new_noncontact_peers_require_premium) return MessagesPrivacyOption.ContactsAndPremium;
+    if(globalPrivacy()!.pFlags.new_noncontact_peers_require_premium) return MessagesPrivacyOption.ContactsAndPremium;
 
     return MessagesPrivacyOption.Everybody;
   };

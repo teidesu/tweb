@@ -42,7 +42,7 @@ export default function attachFloatingButtonMenu({
     } catch{}
 
     if(
-      !menu ||
+      !menu! ||
       opened ||
       currentRequestId !== requestId ||
       !hovered ||

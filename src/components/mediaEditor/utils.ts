@@ -63,13 +63,13 @@ export function processHistoryItem(item: HistoryItem, mediaState: any) {
   let obj = mediaState;
 
   while(path.length > 1)
-    obj = obj[path.pop()];
+    obj = obj[path.pop()!];
 
   let key = path.pop();
 
   if(obj instanceof Array) {
     key = key as number;
-    if(item.findBy) key = obj.findIndex((value) => value?.id === item.findBy.id);
+    if(item.findBy) key = obj.findIndex((value) => value?.id === item.findBy!.id);
     if(key === -1) key = obj.length;
 
     if(item.newValue === HistoryItem.RemoveArrayItem)
@@ -79,7 +79,7 @@ export function processHistoryItem(item: HistoryItem, mediaState: any) {
     else
       obj[key] = item.oldValue;
   } else {
-    obj[key] = item.oldValue;
+    obj[key!] = item.oldValue;
   }
 }
 

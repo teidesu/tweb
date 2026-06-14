@@ -52,7 +52,7 @@ export default class CheckboxField {
       this.toggleDisability(true);
     }
 
-    this.listenerSetter = options.listenerSetter;
+    this.listenerSetter = options.listenerSetter!;
 
     const input = this.input = document.createElement('input');
     input.classList.add('checkbox-field-input');
@@ -83,12 +83,12 @@ export default class CheckboxField {
           }
         }
 
-        rootScope.managers.appStateManager.setByKey(options.stateKey, value);
+        rootScope.managers.appStateManager!.setByKey(options.stateKey!, value);
       };
 
       !loaded && apiManagerProxy.getState().then((state) => {
         loaded = true;
-        const stateValue = getDeepProperty(state, options.stateKey);
+        const stateValue = getDeepProperty(state, options.stateKey!);
         let checked: boolean;
         if(options.stateValues) {
           checked = options.stateValues.indexOf(stateValue) === 1;
@@ -154,7 +154,7 @@ export default class CheckboxField {
       label.append(box);
     }
 
-    if(span) {
+    if(span!) {
       label.append(span);
     }
 

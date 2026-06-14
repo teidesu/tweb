@@ -93,7 +93,7 @@ function ButtonMenuSelectInner<T>(props: {
     const results: FilteredOption[] = [];
 
     for(const option of options) {
-      const optionText = props.optionSearchText(option);
+      const optionText = props.optionSearchText!(option);
       const cleanOptionText = cleanForSearch(optionText);
 
       const cleanIndex = cleanOptionText.indexOf(cleanSearch);
@@ -135,10 +135,10 @@ function ButtonMenuSelectInner<T>(props: {
   let scrollable: HTMLDivElement;
   const lazyLoadQueue = props.needStickerRenderer ? new LazyLoadQueue() : undefined;
   const stickerRenderer = props.needStickerRenderer ? new SuperStickerRenderer({
-    regularLazyLoadQueue: lazyLoadQueue,
+    regularLazyLoadQueue: lazyLoadQueue!,
     group: 'none',
     managers: rootScope.managers,
-    intersectionObserverInit: {root: scrollable},
+    intersectionObserverInit: {root: scrollable!},
     visibleRenderOptions: {
       play: false,
       width: 20,
@@ -153,7 +153,7 @@ function ButtonMenuSelectInner<T>(props: {
     lazyLoadQueue?.clear();
   });
 
-  let inputEl: HTMLInputElement;
+  let inputEl!: HTMLInputElement;
   onMount(() => doubleRaf().then(() => inputEl?.focus()))
 
   return (
@@ -164,10 +164,10 @@ function ButtonMenuSelectInner<T>(props: {
           <input
             type="text"
             class="btn-menu-item-input"
-            placeholder={i18n('Search').textContent}
+            placeholder={i18n('Search')!.textContent}
             value={search()}
             onInput={e => setSearch(e.currentTarget.value)}
-            ref={inputEl}
+            ref={inputEl!}
           />
         </div>
         <div class="btn-menu-search-delimiter" />
@@ -176,7 +176,7 @@ function ButtonMenuSelectInner<T>(props: {
         class="btn-menu-search-scrollable"
         style={{height: `${10 + Math.min(1 + filteredOptions().length, 7.5) * 32}px`}}
       >
-        <Scrollable axis="y" ref={scrollable}>
+        <Scrollable axis="y" ref={scrollable!}>
           <Show when={!props.single}>
             <div
               class="btn-menu-item"
@@ -233,7 +233,7 @@ export function createButtonMenuSelect<T>(props: ComponentProps<typeof ButtonMen
   direction: ButtonMenuDirection
 }) {
   let dispose: () => void;
-  let closeTimeout: number;
+  let closeTimeout: number | undefined;
   let tempId = 0;
   let opened = false
 
@@ -307,7 +307,7 @@ export function ButtonMenuSelect<T>(props: Parameters<typeof createButtonMenuSel
 
   const {open} = createButtonMenuSelect(props)
 
-  createEffect(on(children, (el: HTMLElement) => {
+  createEffect(on(children as () => HTMLElement, (el: HTMLElement) => {
     if(!el) return
     const clean = attachClickEvent(el, (evt) => {
       if((evt.target as HTMLElement).closest('.btn-menu')) return;

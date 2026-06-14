@@ -104,12 +104,12 @@ export async function insertRichTextAsHTML(input: HTMLElement, text: string, ent
   input.querySelectorAll<HTMLElement>('.pc').forEach((el) => {
     el.contentEditable = 'false';
   });
-  if(textNode) {
+  if(textNode!) {
     const {nodeValue} = textNode;
-    if(nodeValue === textNodeValue) {
+    if(nodeValue === textNodeValue!) {
       textNode.remove();
     } else {
-      (textNode as CharacterData).replaceData(nodeValue.indexOf(textNodeValue), textNodeValue.length, '');
+      (textNode as CharacterData).replaceData(nodeValue!.indexOf(textNodeValue!), textNodeValue!.length, '');
     }
   }
   // restore();
@@ -159,7 +159,7 @@ let init = () => {
 
     const noLinebreaks = !!input.dataset.noLinebreaks;
     e.preventDefault();
-    let text: string, entities: MessageEntity[];
+    let text: string, entities!: MessageEntity[];
 
     // @ts-ignore
     let plainText: string = (e.originalEvent || e).clipboardData.getData('text/plain').replace(/\r/g, '');
@@ -282,10 +282,10 @@ let init = () => {
         const richValueSplitted = richValue.value.split('');
         forEachReverse(richValueSplitted, (char, index, arr) => {
           if(char === '\n') {
-            arr.splice(index, 1);
+            arr!.splice(index!, 1);
             richValue.entities.forEach((entity) => {
-              if(entity.offset >= index) {
-                entity.offset -= 1;
+              if(entity.offset! >= index!) {
+                entity.offset! -= 1;
               }
             });
           }
@@ -300,8 +300,8 @@ let init = () => {
           plainTextLength += line.length;
           richValueSplitted.splice(plainTextLength, 0, '\n');
           richValue.entities.forEach((entity) => {
-            if(entity.offset > (plainTextLength - lineIndex + 1)) {
-              entity.offset += 1;
+            if(entity.offset! > (plainTextLength - lineIndex + 1)) {
+              entity.offset! += 1;
             }
           });
 
@@ -339,10 +339,10 @@ let init = () => {
       findAndSpliceAll(entities, (entity) => ignoreEntities.has(entity._));
     }
 
-    insertRichTextAsHTML(input, text, entities, peerId);
+    insertRichTextAsHTML(input, text!, entities!, peerId);
   });
 
-  init = null;
+  init = null!;
 };
 
 // ! it doesn't respect symbols other than strongs
@@ -474,8 +474,8 @@ export default class InputField {
     this.container = document.createElement('div');
     this.container.classList.add('input-field');
 
-    this.required = options.required;
-    this.validate = options.validate;
+    this.required = options.required!;
+    this.validate = options.validate!;
 
     if(options.maxLength !== undefined && options.showLengthOn === undefined) {
       options.showLengthOn = Math.min(40, Math.round(options.maxLength / 3));
@@ -483,7 +483,7 @@ export default class InputField {
 
     const {placeholder, maxLength, showLengthOn, name, plainText, canBeEdited = true, autocomplete, withBorder, allowStartingSpace, canHaveFormatting, canWrapCustomEmojis} = options;
     const label = options.label || options.labelText;
-    this.allowStartingSpace = allowStartingSpace;
+    this.allowStartingSpace = allowStartingSpace!;
 
     const onInputCallbacks: Array<() => void> = [];
     let input: HTMLElement;
@@ -508,7 +508,7 @@ export default class InputField {
 
       input.addEventListener('mousedown', (e) => {
         const selection = document.getSelection();
-        if(!selection.isCollapsed) {
+        if(!selection!.isCollapsed) {
           return;
         }
 
@@ -523,8 +523,8 @@ export default class InputField {
 
         const range = document.createRange();
         range.setStartAfter(focusOnNext ? placeholder : placeholder.previousSibling ?? placeholder);
-        selection.removeAllRanges();
-        selection.addRange(range);
+        selection!.removeAllRanges();
+        selection!.addRange(range);
       });
 
       if(canHaveFormatting) {
@@ -645,7 +645,7 @@ export default class InputField {
 
         // this.onLengthChange && this.onLengthChange(inputLength, isError);
 
-        if(isError || diff <= showLengthOn) {
+        if(isError || diff <= showLengthOn!) {
           this.setLabel();
           labelEl.append(` (${maxLength - inputLength})`);
           if(!showingLength) showingLength = true;
@@ -671,7 +671,7 @@ export default class InputField {
 
     if(options.onRawInput) {
       onInputCallbacks.push(() => {
-        options.onRawInput(this.value);
+        options.onRawInput!(this.value);
       });
     }
 
@@ -704,7 +704,7 @@ export default class InputField {
     if(this.options.labelText) {
       setInnerHTML(this.label, this.options.labelText);
     } else {
-      this.label.append(i18n(this.options.label, this.options.labelOptions));
+      this.label.append(i18n(this.options.label!, this.options.labelOptions)!);
     }
     this.label.style.visibility = this.label.textContent ? 'visible' : 'hidden';
   }
@@ -784,7 +784,7 @@ export default class InputField {
   public setState(state: InputState, label?: LangPackKey, labelOptions?: any[]) {
     if(label) {
       this.label.textContent = '';
-      this.label.append(i18n(label, labelOptions ?? this.options.labelOptions));
+      this.label.append(i18n(label, labelOptions ?? this.options.labelOptions)!);
       this.label.style.visibility = 'visible';
     } else {
       this.setLabel();

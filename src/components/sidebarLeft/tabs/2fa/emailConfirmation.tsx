@@ -49,7 +49,7 @@ const TwoStepVerificationEmailConfirmation: Component = () => {
   };
 
   const freeze = (disable: boolean) => {
-    toggleDisability([btnChange, btnResend].filter(Boolean), disable);
+    toggleDisability([btnChange!, btnResend].filter(Boolean), disable);
     codeInputField.disabled = disable;
   };
 
@@ -63,8 +63,8 @@ const TwoStepVerificationEmailConfirmation: Component = () => {
       freeze(true);
 
       const promise = forPasswordReset ?
-      tab.managers.passwordManager.confirmPasswordResetEmail('' + code) :
-        tab.managers.passwordManager.confirmPasswordEmail('' + code)
+      tab.managers.passwordManager!.confirmPasswordResetEmail('' + code) :
+        tab.managers.passwordManager!.confirmPasswordEmail('' + code)
 
       promise.then((value) => {
         goNext();
@@ -75,14 +75,14 @@ const TwoStepVerificationEmailConfirmation: Component = () => {
             codeInputField.error = true;
             codeInputField.value = ''
             errorLabel.classList.remove('hidden');
-            replaceContent(errorLabel, i18n('TwoStepAuth.RecoveryCodeInvalid'));
+            replaceContent(errorLabel, i18n('TwoStepAuth.RecoveryCodeInvalid')!);
             break;
 
           case 'EMAIL_HASH_EXPIRED':
             codeInputField.error = true;
             codeInputField.value = ''
             errorLabel.classList.remove('hidden');
-            replaceContent(errorLabel, i18n('TwoStepAuth.RecoveryCodeExpired'));
+            replaceContent(errorLabel, i18n('TwoStepAuth.RecoveryCodeExpired')!);
             break;
 
           default:
@@ -105,7 +105,7 @@ const TwoStepVerificationEmailConfirmation: Component = () => {
 
   const onChangeClick = () => {
     freeze(true);
-    tab.managers.passwordManager.cancelPasswordEmail().then((value) => {
+    tab.managers.passwordManager!.cancelPasswordEmail().then((value) => {
       tab.slider.sliceTabsUntilTab(AppTwoStepVerificationEmailTab, tab);
       tab.close();
     }, () => {
@@ -117,8 +117,8 @@ const TwoStepVerificationEmailConfirmation: Component = () => {
     freeze(true);
     const d = putPreloader(btnResend);
     const promise = forPasswordReset ?
-      tab.managers.passwordManager.requestRecovery() :
-      tab.managers.passwordManager.resendPasswordEmail()
+      tab.managers.passwordManager!.requestRecovery() :
+      tab.managers.passwordManager!.resendPasswordEmail()
 
     promise.catch((err) => {
       console.error(err)
@@ -150,7 +150,7 @@ const TwoStepVerificationEmailConfirmation: Component = () => {
         {codeInputField.container}
         <div ref={errorLabel} class="error-label hidden" />
         <Show when={!forPasswordReset}>
-          <Button ref={btnChange} class="btn-primary btn-primary-transparent primary" text="TwoStepAuth.EmailCodeChangeEmail" onClick={onChangeClick} />
+          <Button ref={btnChange!} class="btn-primary btn-primary-transparent primary" text="TwoStepAuth.EmailCodeChangeEmail" onClick={onChangeClick} />
         </Show>
         <Button ref={btnResend} class="btn-primary btn-secondary btn-primary-transparent primary" text="ResendCode" onClick={onResendClick} />
         {resetLink?.container}

@@ -19,9 +19,9 @@ export default function memoizeAsyncWithTTL<Callback extends(...args: any[]) => 
 
   const cachedResultsMap = new Map<any, ReturnType<Callback>>;
 
-  return (...args: Args) => {
+  return ((...args: Args) => {
     const key = getKeyFromArgs(args);
-    if(cachedResultsMap.has(key)) return cachedResultsMap.get(key);
+    if(cachedResultsMap.has(key)) return cachedResultsMap.get(key)!;
 
     const promise = callback(...args).finally(() => {
       self.setTimeout(() => {
@@ -32,5 +32,5 @@ export default function memoizeAsyncWithTTL<Callback extends(...args: any[]) => 
     cachedResultsMap.set(key, promise);
 
     return promise;
-  };
+  }) as unknown as Callback;
 }

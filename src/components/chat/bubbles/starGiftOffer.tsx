@@ -54,13 +54,13 @@ export function StarGiftOfferBubble(props: {
     >
       <div class={/* @once */ styles.giftWrap}>
         <StarGiftBackdrop
-          backdrop={props.gift.collectibleAttributes.backdrop}
-          patternEmoji={props.gift.collectibleAttributes.pattern.document as MyDocument}
+          backdrop={props.gift.collectibleAttributes!.backdrop}
+          patternEmoji={props.gift.collectibleAttributes!.pattern.document as MyDocument}
           small
           canvasClass={/* @once */ styles.giftBackdropCanvas}
         />
         <StickerTsx
-          sticker={props.gift.collectibleAttributes.model.document as MyDocument}
+          sticker={props.gift.collectibleAttributes!.model.document as MyDocument}
           width={48}
           height={48}
           autoStyle
@@ -114,15 +114,15 @@ export function StarGiftOfferReplyMarkup(props: {
       }
     });
 
-    await rootScope.managers.appGiftsManager.resolveGiftOffer(props.message.id, 'reject');
+    await rootScope.managers.appGiftsManager!.resolveGiftOffer(props.message.id, 'reject');
   };
   const onAcceptClick = () => {
     transferStarGiftConfirmationPopup({
       gift: props.gift,
-      recipient: props.message.peerId,
+      recipient: props.message.peerId!,
       fromOffer: props.message.action as MessageAction.messageActionStarGiftPurchaseOffer,
       handleSubmit: async() => {
-        await rootScope.managers.appGiftsManager.resolveGiftOffer(props.message.id, 'accept');
+        await rootScope.managers.appGiftsManager!.resolveGiftOffer(props.message.id, 'accept');
       }
     });
   };

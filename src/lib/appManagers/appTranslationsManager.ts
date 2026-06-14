@@ -82,10 +82,10 @@ export default class AppTranslationsManager extends AppManager {
         doingKeys.forEach((key) => {
           const deferred = doingMap.get(key) as CancellablePromise<TextWithEntities>;
           map.delete(key);
-          deferred.reject(err);
+          deferred.reject!(err);
         });
 
-        return undefined as MessagesTranslatedText;
+        return undefined as unknown as MessagesTranslatedText;
       });
 
       if(result) result.result.forEach((textWithEntities, idx) => {
@@ -94,7 +94,7 @@ export default class AppTranslationsManager extends AppManager {
         const deferred = doingMap.get(key) as CancellablePromise<TextWithEntities>;
         if(noCaching) map.delete(key);
         else map.set(key, textWithEntities);
-        deferred.resolve(textWithEntities);
+        deferred.resolve!(textWithEntities);
       });
     });
   }
@@ -106,9 +106,9 @@ export default class AppTranslationsManager extends AppManager {
     }
 
     const map = batch.messages.get(peerId);
-    const promise = this.batchTranslation<number>(lang, map, (mids) => ({
+    const promise = this.batchTranslation<number>(lang, map!, (mids) => ({
       peer: this.appPeersManager.getInputPeerById(peerId),
-      id: mids.map((mid) => getServerMessageId(mid))
+      id: (mids.map((mid) => getServerMessageId(mid))! as number[] | undefined)
     }));
     promise && batch.messagesPromises.set(peerId, promise);
     promise?.then(() => {
@@ -205,22 +205,22 @@ export default class AppTranslationsManager extends AppManager {
     mid: number,
     lang?: string
   }) {
-    let promise = ((this.summaries[peerId] ??= {})[mid] ??= {})[lang];
+    let promise = ((this.summaries[peerId] ??= {})[mid] ??= {})[lang!];
     if(promise) {
       return promise;
     }
 
-    this.summaries[peerId][mid][lang] = promise = this.apiManager.invokeApi('messages.summarizeText', {
+    this.summaries[peerId][mid][lang!] = promise = this.apiManager.invokeApi('messages.summarizeText', {
       peer: this.appPeersManager.getInputPeerById(peerId),
-      id: getServerMessageId(mid),
+      id: getServerMessageId(mid)!,
       to_lang: lang
     })/* .then(() => {
       throw makeError('SUMMARY_FLOOD_PREMIUM');
     }) */;
 
     promise.then((textWithEntities) => {
-      if(this.summaries[peerId][mid][lang] === promise) {
-        this.summaries[peerId][mid][lang] = textWithEntities;
+      if(this.summaries[peerId][mid][lang!] === promise) {
+        this.summaries[peerId][mid][lang!] = textWithEntities;
       }
     });
 

@@ -19,16 +19,16 @@ const ArchivedTab: Component = () => {
   const filterId: REAL_FOLDER_ID = FOLDER_ID_ARCHIVE;
   const wasFilterId = appDialogsManager.filterId;
 
-  let disposeStories: () => void;
-  let resizeStoriesContainer: () => void;
-  let autonomousDialogList: AutonomousDialogList;
+  let disposeStories: (() => void) | undefined;
+  let resizeStoriesContainer: (() => void) | undefined;
+  let autonomousDialogList: AutonomousDialogList | undefined;
 
   const renderStories = () => {
     disposeStories = render(() => {
       return StoriesList({
         foldInto: tab.title,
         setScrolledOn: tab.container,
-        getScrollable: () => autonomousDialogList.scrollable.container,
+        getScrollable: () => autonomousDialogList!.scrollable.container,
         listenWheelOn: tab.content,
         archive: true,
         offsetX: -64,
@@ -36,7 +36,7 @@ const ArchivedTab: Component = () => {
           resizeStoriesContainer = callback;
         },
         onExpand: () => {
-          const container = autonomousDialogList.scrollable.container;
+          const container = autonomousDialogList!.scrollable.container;
           tab.container.classList.add('scrolled-start');
           fastSmoothScrollToStart(container, 'y');
         }
@@ -70,12 +70,12 @@ const ArchivedTab: Component = () => {
     disposeStories?.();
     disposeStories = undefined;
     resizeStoriesContainer = undefined;
-    autonomousDialogList.destroy();
+    autonomousDialogList!.destroy();
     autonomousDialogList = undefined;
   };
 
   tab.container.id = 'chats-archived-container';
-  tab.title.replaceChildren(i18n('ArchivedChats'));
+  tab.title.replaceChildren(i18n('ArchivedChats')!);
 
   tab.header.classList.add('can-have-forum');
   tab.content.classList.add('can-have-forum');
@@ -84,7 +84,7 @@ const ArchivedTab: Component = () => {
 
   if(!appDialogsManager.xds[filterId]) {
     const {ul, scrollable} = appDialogsManager.l({
-      title: undefined,
+      title: undefined as any,
       id: filterId,
       localId: FOLDER_ID_ARCHIVE
     });

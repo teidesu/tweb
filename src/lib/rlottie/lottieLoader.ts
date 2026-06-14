@@ -57,7 +57,7 @@ export type LottieAssetName =
 ;
 
 export class LottieLoader {
-  private loadPromise: Promise<void> = !IS_WEB_ASSEMBLY_SUPPORTED ? Promise.reject(makeError('NO_WASM')) : undefined;
+  private loadPromise: Promise<void> | undefined = !IS_WEB_ASSEMBLY_SUPPORTED ? Promise.reject(makeError('NO_WASM')) : undefined;
   private loaded = false;
 
   private players: {[reqId: number]: RLottiePlayer} = {};
@@ -186,15 +186,15 @@ export class LottieLoader {
 
     if(params.sync) {
       const cacheName = RLottiePlayer.CACHE.generateName(
-        params.name,
-        params.width,
-        params.height,
-        params.color,
-        params.toneIndex
+        params.name!,
+        params.width!,
+        params.height!,
+        params.color!,
+        params.toneIndex!
       );
       const players = this.playersByCacheName[cacheName];
       if(players?.size) {
-        return Promise.resolve(players.entries().next().value[0]);
+        return Promise.resolve(players.entries().next().value![0]);
       }
     }
 
@@ -271,12 +271,12 @@ export class LottieLoader {
 
     const playersByCacheName = cacheName ? this.playersByCacheName[cacheName] ??= new Set() : undefined;
     if(cacheName) {
-      playersByCacheName.add(player);
+      playersByCacheName!.add(player);
     }
 
     player.addEventListener('destroy', () => {
       this.onDestroy(reqId);
-      if(playersByCacheName.delete(player) && !playersByCacheName.size) {
+      if(playersByCacheName!.delete(player) && !playersByCacheName!.size) {
         delete this.playersByCacheName[cacheName];
       }
     });

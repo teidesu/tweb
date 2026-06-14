@@ -39,7 +39,7 @@ export function pickLanguage<T extends boolean>(
     peerType: ['custom'],
     renderResultsFunc: (iso2s) => {
       iso2s.forEach((iso2) => {
-        const [name, translated] = map.get(iso2 as any as string);
+        const [name, translated] = map.get(iso2 as any as string)!;
         const row = new Row({
           title: translated,
           subtitle: name,
@@ -48,10 +48,10 @@ export function pickLanguage<T extends boolean>(
         });
 
         if(multi) {
-          row.container.append(popup.selector.checkbox(popup.selector.selected.has(iso2)));
+          row.container.append(popup.selector!.checkbox(popup.selector!.selected.has(iso2)));
         }
         row.container.dataset.peerId = '' + iso2;
-        popup.selector.list.append(row.container);
+        popup.selector!.list.append(row.container);
       });
     },
     placeholder: 'Search',
@@ -64,21 +64,21 @@ export function pickLanguage<T extends boolean>(
     },
     onSelect: (results) => {
       const keys = results.map(({key}) => key);
-      deferred.resolve(multi ? keys as any : keys[0]);
+      deferred.resolve!(multi ? keys as any : keys[0]);
     },
     multiSelect: multi,
     titleLangKey: 'Telegram.LanguageViewController',
     checkboxSide: 'left',
     noPlaceholder: true,
-    onClose: () => deferred.reject(),
+    onClose: () => deferred.reject!(),
     footerButtonProps: {
       children: i18n('Save')
     }
   });
 
   if(selected) {
-    const _add = popup.selector.add.bind(popup.selector);
-    popup.selector.add = ({key, scroll}) => {
+    const _add = popup.selector!.add.bind(popup.selector);
+    popup.selector!.add = ({key, scroll}) => {
       const ret = _add({
         key: key,
         title: i18n(`Language.${key as TranslatableLanguageISO}`),
@@ -88,7 +88,7 @@ export function pickLanguage<T extends boolean>(
       return ret;
     };
 
-    popup.selector.addInitial(selected);
+    popup.selector!.addInitial(selected);
   }
 
   return deferred as any;
@@ -114,7 +114,7 @@ function TranslationPlateBody(props: {
   const isPremium = usePremium();
 
   createEffect(() => {
-    i.compareAndUpdate({args: [i18n(`Language.${peerTranslation().peerLanguage()}`)]});
+    i.compareAndUpdate({args: [i18n(`Language.${peerTranslation().peerLanguage()!}` as any)!]});
   });
 
   createEffect(() => props.setHidden(!peerTranslation().shouldShow()));
@@ -135,7 +135,7 @@ function TranslationPlateBody(props: {
       textElement: i.element,
       onClick: () => {
         const [_, setAppSettings] = useAppSettings();
-        setAppSettings('translations', 'doNotTranslate', (arr) => [...arr, peerTranslation().peerLanguage()]);
+        setAppSettings('translations', 'doNotTranslate', (arr) => [...arr, peerTranslation().peerLanguage()!]);
       },
       verify: isPremium,
       separatorDown: true
@@ -149,7 +149,7 @@ function TranslationPlateBody(props: {
             'TranslationBarHiddenChannel' :
             'TranslationBarHidden'
         });
-        props.managers.appTranslationsManager.togglePeerTranslations(props.peerId(), true);
+        props.managers.appTranslationsManager!.togglePeerTranslations(props.peerId(), true);
       }
     }],
     listenerSetter
@@ -171,7 +171,7 @@ function TranslationPlateBody(props: {
         {Icon('premium_translate', 'pinned-translation-primary-button-icon')}
         {peerTranslation().enabled() ?
           i18n('ShowOriginalButton') :
-          i18n('TranslateToButton', [i18n(`Language.${peerTranslation().language()}`)])
+          i18n('TranslateToButton', [i18n(`Language.${peerTranslation().language()}`)!])
         }
       </TopbarPlate.PrimaryButton>
       {menu}

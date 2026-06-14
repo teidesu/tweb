@@ -37,7 +37,7 @@ export default class BrushPainter {
   static defaultBlurAmount = 10;
 
   constructor({targetCanvas, imageCanvas, blurAmount = BrushPainter.defaultBlurAmount}: BrushPainterOptions) {
-    this.targetCtx = targetCanvas.getContext('2d');
+    this.targetCtx = targetCanvas.getContext('2d')!;
     this.imageCanvas = imageCanvas;
     this.blurAmount = blurAmount;
 
@@ -56,9 +56,9 @@ export default class BrushPainter {
       this.blurredLineCanvas.height =
         targetCanvas.height;
 
-    this.cacheCtx = this.cacheCanvas.getContext('2d');
-    this.blurredImageCtx = this.blurredImageCanvas.getContext('2d');
-    this.blurredLineCtx = this.blurredLineCanvas.getContext('2d');
+    this.cacheCtx = this.cacheCanvas.getContext('2d')!;
+    this.blurredImageCtx = this.blurredImageCanvas.getContext('2d')!;
+    this.blurredLineCtx = this.blurredLineCanvas.getContext('2d')!;
   }
 
   previewLine(line: BrushDrawnLine, shouldFinish = false) {
@@ -172,7 +172,7 @@ export default class BrushPainter {
 
     const deferred = deferredPromise<void>();
     animateValue(0.1, arrowLength, 120, (length) => this.drawArrowHead(ctx, line, length), {
-      onEnd: () => deferred.resolve()
+      onEnd: () => deferred.resolve!()
     });
     await deferred;
   }

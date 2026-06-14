@@ -93,9 +93,9 @@ function createSharedState(self: User.user, peerId: PeerId = rootScope.myId, ove
     () => (peerId === rootScope.myId && !username()) || undefined,
     async() => {
       try {
-        const rules = await rootScope.managers.appPrivacyManager.getPrivacy('inputPrivacyKeyAddedByPhone');
+        const rules = await rootScope.managers.appPrivacyManager!.getPrivacy('inputPrivacyKeyAddedByPhone');
         if(rules.some((rule) => rule._ === 'privacyValueAllowAll')) return undefined; // phone-discovery on → t.me/+phone is enough
-        const token = await rootScope.managers.appUsersManager.exportContactToken();
+        const token = await rootScope.managers.appUsersManager!.exportContactToken();
         return token?.url;
       } catch{
         return undefined; // any failure → fall back to the codeLink, never break profileUrl
@@ -111,7 +111,7 @@ function createSharedState(self: User.user, peerId: PeerId = rootScope.myId, ove
     if(overrideUrl) return overrideUrl;
     const tokenUrl = contactTokenUrl();
     if(tokenUrl) return tokenUrl;
-    if(username()) return buildTelegramUserQrUrl(username());
+    if(username()) return buildTelegramUserQrUrl(username()!);
     if(peerId.isUser()) return `https://t.me/+${(self as User.user).phone ?? ''}`;
     return `https://t.me/c/${peerId.toChatId()}`;
   });
@@ -136,7 +136,7 @@ function createSharedState(self: User.user, peerId: PeerId = rootScope.myId, ove
 
   // Mirror of the cloud-themes list so the popup can resolve the active theme's
   // wallpaper without re-fetching what the picker already loaded.
-  const [allThemes] = createResource(() => rootScope.managers.appThemesManager.getThemes());
+  const [allThemes] = createResource(() => rootScope.managers.appThemesManager!.getThemes());
 
   // Base theme drives both the popup background and the picker thumbnails;
   // honors the popup-local night-mode toggle (without touching the global theme).
@@ -160,7 +160,7 @@ function createSharedState(self: User.user, peerId: PeerId = rootScope.myId, ove
       return {
         theme,
         wallPaper: s?.wallpaper,
-        wallpaperStops: getWallPaperColors(s?.wallpaper)
+        wallpaperStops: getWallPaperColors(s?.wallpaper!)
       };
     };
     if(!id) return resolve(DEFAULT_THEME);
@@ -441,7 +441,7 @@ function TopSection(props: {
     // @username for public peers; else the user's first name or the chat title
     // (channels/groups have `title`, not `first_name`).
     const text = username() ?
-      '@' + username().toUpperCase() :
+      '@' + username()!.toUpperCase() :
       (self.first_name || (self as unknown as Chat.channel).title || '');
     if(text) {
       ctx.save();
@@ -639,15 +639,15 @@ function invertLayer(
   tmp.width = w;
   tmp.height = h;
   const tctx = tmp.getContext('2d');
-  tctx.drawImage(src, sx, sy, sw, sh, 0, 0, w, h);
-  const image = tctx.getImageData(0, 0, w, h);
+  tctx!.drawImage(src, sx, sy, sw, sh, 0, 0, w, h);
+  const image = tctx!.getImageData(0, 0, w, h);
   const d = image.data;
   for(let i = 0; i < d.length; i += 4) {
     d[i] = 255 - d[i];
     d[i + 1] = 255 - d[i + 1];
     d[i + 2] = 255 - d[i + 2];
   }
-  tctx.putImageData(image, 0, 0);
+  tctx!.putImageData(image, 0, 0);
   return tmp;
 }
 
@@ -988,8 +988,8 @@ function FooterSlot(props: {shared: QrPopupShared, getBlob: () => Blob | undefin
  */
 export default async function showMyQrCodePopup(peerId: PeerId = rootScope.myId, options?: {url?: string}) {
   const self = peerId === rootScope.myId ?
-    await rootScope.managers.appUsersManager.getSelf() :
-    await rootScope.managers.appPeersManager.getPeer(peerId);
+    await rootScope.managers.appUsersManager!.getSelf() :
+    await rootScope.managers.appPeersManager!.getPeer(peerId);
   if(!self) return;
 
   createPopup(() => {

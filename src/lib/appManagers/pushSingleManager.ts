@@ -25,8 +25,8 @@ export type PushKey = {
 
 export class PushSingleManager {
   private log: ReturnType<typeof logger>;
-  private registeredDevice: PushSubscriptionNotify;
-  private keys: Promise<PushKey[]>;
+  private registeredDevice: PushSubscriptionNotify | undefined;
+  private keys: Promise<PushKey[]> | undefined;
   public name: string;
 
   constructor() {
@@ -51,7 +51,7 @@ export class PushSingleManager {
 
   private async getKeyForAccountNumber(accountNumber: ActiveAccountNumber, isUsingPasscode: boolean): Promise<PushKey> {
     const accountData = await AccountController.get(accountNumber);
-    const key = isUsingPasscode ? bytesFromHex(accountData.push_key) : new Uint8Array();
+    const key = isUsingPasscode ? bytesFromHex(accountData.push_key!) : new Uint8Array();
     const keyHash = key.length ? await CryptoWorker.invokeCrypto('sha1', key) : new Uint8Array(),
       keyId = keyHash.slice(-8);
 
@@ -65,7 +65,7 @@ export class PushSingleManager {
   }
 
   public getKeysIdsBase64(): Promise<string[]> {
-    return this.getKeys().then((keys) => keys.map((key) => key.idBase64));
+    return this.getKeys().then((keys) => keys.map((key) => key.idBase64!));
   }
 
   public registerAgain() {
@@ -121,7 +121,7 @@ export class PushSingleManager {
       token: tokenData.tokenValue,
       other_uids: userIds,
       app_sandbox: false,
-      secret: undefined,
+      secret: (undefined as unknown as Uint8Array<ArrayBufferLike>),
       no_muted: true
     };
 

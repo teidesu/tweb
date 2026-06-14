@@ -24,7 +24,7 @@ const getPhoto = (media: MessageMedia | InputMedia | undefined): Photo.photo | u
 
 const getVideoDocument = (media: MessageMedia | InputMedia | undefined): Document.document | undefined => {
   return media?._ === 'messageMediaDocument' &&
-    media.document?._ === 'document' && ['video', 'gif'].includes(media.document.type) ?
+    media.document?._ === 'document' && ['video', 'gif'].includes(media.document.type!) ?
       unwrap(media.document) :
       undefined;
 };
@@ -34,7 +34,7 @@ export type GetStickerMediaResult = {
   document: Document.document | undefined;
 };
 
-const getStickerMedia = (media: MessageMedia | InputMedia | undefined): GetStickerMediaResult => {
+const getStickerMedia = (media: MessageMedia | InputMedia | undefined): GetStickerMediaResult | undefined => {
   if(media?._ === 'messageMediaDocument' && media.document?._ === 'document' && media.document.sticker) {
     return {media: unwrap(media), document: unwrap(media.document)};
   }
@@ -57,7 +57,7 @@ export function usePollDerivedProps({props, pollOptions, chosenIndexes, newOptio
   const {rootScope} = useHotReloadGuard();
   const {maxOptions} = useCreatePollLimits();
 
-  const [timeOffset] = createResource(() => rootScope.managers.timeManager.getServerTimeOffset());
+  const [timeOffset] = createResource(() => rootScope.managers.timeManager!.getServerTimeOffset());
 
   const question = () => props.poll.question;
   const descriptionText = () => props.message.message;
@@ -70,7 +70,7 @@ export function usePollDerivedProps({props, pollOptions, chosenIndexes, newOptio
   const showWhoVoted = createMemo(() => !!props.poll.pFlags.public_voters);
   const closed = createMemo(() => !!props.poll.pFlags.closed);
   const hideResults = createMemo(() => !!props.poll.pFlags.hide_results_until_close && !closed() && !props.poll.pFlags.creator);
-  const closesAtTimestamp = createMemo(() => timeOffset.state === 'ready' ? props.poll.close_date - timeOffset() : 0);
+  const closesAtTimestamp = createMemo(() => timeOffset.state === 'ready' ? props.poll.close_date! - timeOffset() : 0);
 
   const votersCount = createMemo(() => props.results?.total_voters ?? 0);
   const recentVoters = createMemo(() => props.results?.recent_voters?.map(peer => getPeerId(peer)) ?? []);
@@ -97,9 +97,9 @@ export function usePollDerivedProps({props, pollOptions, chosenIndexes, newOptio
   const getOverridenMessage = (): Message.message => ({
     ...unwrap(props.message),
     media: {
-      _: 'messageMediaPoll',
       ...unwrap(props.media),
       // On poll_update, only the poll and results are updated, not the message itself
+      _: 'messageMediaPoll' as const,
       poll: unwrap(props.poll),
       results: unwrap(props.results)
     }
@@ -127,7 +127,7 @@ export function usePollDerivedProps({props, pollOptions, chosenIndexes, newOptio
     );
   };
 
-  const getResultForOption = (initialIdx: number): PollOptionResult => {
+  const getResultForOption = (initialIdx: number): PollOptionResult | undefined => {
     if(!isShowingResult()) return undefined;
     const result = props.results?.results?.[initialIdx];
     return {

@@ -136,7 +136,7 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
   /**
    * If it fails the first time to compute the rects, try again after some time
   */
-  let failTimeout: number;
+  let failTimeout: number | undefined;
   createEffect(() => {
     if(spanRects().length) return;
 
@@ -244,7 +244,7 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
 
   function resetBeforeResize() {
     if(useWorker) overlayHandle?.clear();
-    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+    else ctx!.clearRect(0, 0, canvas.width, canvas.height);
     setSpanRects([]);
   }
 
@@ -257,10 +257,10 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
 
     const rect = props.parentElement.getBoundingClientRect();
 
-    offScreenCanvas.width =
+    offScreenCanvas!.width =
     canvas.width = rect.width * dpr();
 
-    offScreenCanvas.height =
+    offScreenCanvas!.height =
     canvas.height = rect.height * dpr();
   }
 
@@ -316,9 +316,9 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
 
     // the worker mirrors the same curve for the pixels; the signal animation below
     // keeps driving the visibility class and the click guards
-    overlayHandle?.unwrap(clickCoordinates(), maxDist(), getTimeForDist(maxDist()));
+    overlayHandle?.unwrap(clickCoordinates()!, maxDist()!, getTimeForDist(maxDist()!));
 
-    cancelAnimation = animateValue(0, 1, getTimeForDist(maxDist()), setUnwrapProgress, {
+    cancelAnimation = animateValue(0, 1, getTimeForDist(maxDist()!), setUnwrapProgress, {
       easing: UnwrapEasing,
       onEnd: () => {
         unwrapTimeout = window.setTimeout(() => {
@@ -379,7 +379,7 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
   }
 
   function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx!.clearRect(0, 0, canvas.width, canvas.height);
     drawSpoilerRects();
     drawClippingCircle();
   }
@@ -404,19 +404,19 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
       const dw = rect.width;
       const dh = rect.height;
 
-      ctx.fillStyle = rect.color || bg;
+      ctx!.fillStyle = rect.color || bg;
       // ctx.fillStyle = 'red';
-      ctx.fillRect(...timesDpr(x, y, dw, dh));
+      ctx!.fillRect(...timesDpr(x, y, dw, dh));
 
       if(!sourceCanvas) continue;
 
-      offScreenCtx.clearRect(...timesDpr(x, y, dw, dh));
+      offScreenCtx!.clearRect(...timesDpr(x, y, dw, dh));
       if(!initialCoords) {
-        drawImageFromSource(offScreenCtx, sourceCanvas, ...timesDpr(x, y, dw, dh, x, y, dw, dh));
+        drawImageFromSource(offScreenCtx!, sourceCanvas, ...timesDpr(x, y, dw, dh, x, y, dw, dh));
       } else {
         const scaledProgress = progress ** 2 /* * Math.sqrt(progress) */ * 0.4;
         drawImageFromSource(
-          offScreenCtx,
+          offScreenCtx!,
           sourceCanvas,
           ...timesDpr(
             x + (initialCoords[0] - x) * scaledProgress,
@@ -431,14 +431,14 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
         );
       }
 
-      offScreenCtx.globalCompositeOperation = 'source-atop';
+      offScreenCtx!.globalCompositeOperation = 'source-atop';
 
-      offScreenCtx.fillStyle = particleColor();
-      offScreenCtx.fillRect(...timesDpr(x, y, dw, dh));
+      offScreenCtx!.fillStyle = particleColor();
+      offScreenCtx!.fillRect(...timesDpr(x, y, dw, dh));
 
-      offScreenCtx.globalCompositeOperation = 'source-over';
+      offScreenCtx!.globalCompositeOperation = 'source-over';
 
-      ctx.drawImage(offScreenCanvas, ...timesDpr(x, y, dw, dh, x, y, dw, dh));
+      ctx!.drawImage(offScreenCanvas!, ...timesDpr(x, y, dw, dh, x, y, dw, dh));
     }
   }
 
@@ -449,16 +449,16 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
 
     const progress = unwrapProgress();
 
-    ctx.save();
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.fillStyle = 'white';
-    ctx.shadowBlur = radius / 3.5 * dpr() * progress;
-    ctx.shadowColor = 'white';
-    ctx.beginPath();
-    ctx.arc(...timesDpr(initialCoords[0], initialCoords[1], radius * progress), 0, 2 * Math.PI);
-    ctx.fill();
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.restore();
+    ctx!.save();
+    ctx!.globalCompositeOperation = 'destination-out';
+    ctx!.fillStyle = 'white';
+    ctx!.shadowBlur = radius / 3.5 * dpr() * progress;
+    ctx!.shadowColor = 'white';
+    ctx!.beginPath();
+    ctx!.arc(...timesDpr(initialCoords[0], initialCoords[1], radius * progress), 0, 2 * Math.PI);
+    ctx!.fill();
+    ctx!.globalCompositeOperation = 'source-over';
+    ctx!.restore();
   }
 
   return <>{canvas}</>;

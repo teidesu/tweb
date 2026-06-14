@@ -45,7 +45,7 @@ const ChatDiscussion: Component = () => {
 
   const setDiscussionGroup = async(id: ChatId, groupId: ChatId) => {
     return handleChannelsTooMuch(() => {
-      return tab.managers.appChatsManager.setDiscussionGroup(id, groupId);
+      return tab.managers.appChatsManager!.setDiscussionGroup(id, groupId);
     });
   };
 
@@ -78,7 +78,7 @@ const ChatDiscussion: Component = () => {
 
     const toggle = toggleDisability([btnUnlink], true);
     try {
-      await setDiscussionGroup(isBroadcast ? chatId : _linkedChatId, undefined);
+      await setDiscussionGroup(isBroadcast ? chatId : _linkedChatId, undefined!);
     } catch(err) {
 
     }
@@ -95,19 +95,19 @@ const ChatDiscussion: Component = () => {
     promiseCollector.collect((async() => {
       const p = {
         animationData: lottieLoader.loadAnimationFromURLManually('UtyanDiscussion'),
-        chats: tab.managers.appChatsManager.getGroupsForDiscussion()
+        chats: tab.managers.appChatsManager!.getGroupsForDiscussion()
       };
 
       const [_isBroadcast, chat, linkedChat] = await Promise.all([
-        tab.managers.appChatsManager.isBroadcast(chatId),
-        tab.managers.appChatsManager.getChat(chatId) as Promise<Chat.channel | Chat.chat>,
-        linkedChatId && tab.managers.appChatsManager.getChat(linkedChatId) as Promise<Chat.channel | Chat.chat>
+        tab.managers.appChatsManager!.isBroadcast(chatId),
+        tab.managers.appChatsManager!.getChat(chatId) as Promise<Chat.channel | Chat.chat>,
+        linkedChatId && tab.managers.appChatsManager!.getChat(linkedChatId) as Promise<Chat.channel | Chat.chat>
       ]);
 
       isBroadcast = _isBroadcast;
       canChangeInfo = hasRights(chat, 'change_info');
 
-      tab.title.replaceChildren(i18n(isBroadcast ? 'DiscussionController.Channel.Title' : 'DiscussionController.Group.Title'));
+      tab.title.replaceChildren(i18n(isBroadcast ? 'DiscussionController.Channel.Title' : 'DiscussionController.Group.Title')!);
       tab.container.classList.add('chat-folders-container', 'chat-discussion-container');
 
       setIsBroadcastSig(isBroadcast);
@@ -126,12 +126,12 @@ const ChatDiscussion: Component = () => {
 
       let busy = false;
       attachClickEvent(chatlist, async(e) => {
-        const el = findUpClassName(e.target, 'chatlist-chat');
+        const el = findUpClassName(e.target!, 'chatlist-chat');
         if(!el) {
           return;
         }
 
-        const peerId = el.dataset.peerId.toPeerId();
+        const peerId = el.dataset.peerId!.toPeerId();
 
         if(linkedChatId) {
           appImManager.setInnerPeer({peerId});
@@ -142,7 +142,7 @@ const ChatDiscussion: Component = () => {
           return;
         }
 
-        if(await tab.managers.appPeersManager.isForum(peerId)) {
+        if(await tab.managers.appPeersManager!.isForum(peerId)) {
           toastNew({langPackKey: 'ChannelTopicsDiscussionForbidden'});
           shake(el);
           return;
@@ -153,26 +153,26 @@ const ChatDiscussion: Component = () => {
           i18n('Discussion.Set.Modal.Text.PublicChannelPublicGroup', [
             await wrapPeerTitle({peerId}),
             await wrapPeerTitle({peerId: chatId.toPeerId(true)})
-          ])
+          ])!
         );
 
         const [isPublicGroup, isPublicChannel, groupChatFull] = await Promise.all([
-          tab.managers.appChatsManager.isPublic(peerId.toChatId()),
-          tab.managers.appChatsManager.isPublic(chatId),
-          tab.managers.appProfileManager.getChatFull(peerId.toChatId())
+          tab.managers.appChatsManager!.isPublic(peerId.toChatId()),
+          tab.managers.appChatsManager!.isPublic(chatId),
+          tab.managers.appProfileManager!.getChatFull(peerId.toChatId())
         ]);
 
         const br = document.createElement('br');
         if(!isPublicChannel) {
-          d.append(br.cloneNode(), br.cloneNode(), i18n('Discussion.Set.PrivateChannel'));
+          d.append(br.cloneNode(), br.cloneNode(), i18n('Discussion.Set.PrivateChannel')!);
         }
 
         if(!isPublicGroup) {
-          d.append(br.cloneNode(), br.cloneNode(), i18n('Discussion.Set.PrivateGroup'));
+          d.append(br.cloneNode(), br.cloneNode(), i18n('Discussion.Set.PrivateGroup')!);
         }
 
         if(groupChatFull._ === 'chatFull' || groupChatFull.pFlags.hidden_prehistory) {
-          d.append(br.cloneNode(), br.cloneNode(), i18n('DiscussionLinkGroupAlertHistory'));
+          d.append(br.cloneNode(), br.cloneNode(), i18n('DiscussionLinkGroupAlertHistory')!);
         }
 
         await confirmationPopup({
@@ -214,7 +214,7 @@ const ChatDiscussion: Component = () => {
           Promise.resolve([])
       ).then((chats) => {
         if(linkedChatId && !chats.some((chat) => chat.id === linkedChatId)) {
-          chats.push(linkedChat);
+          chats.push((linkedChat! as Chat));
         }
 
         const promises = chats.map((chat) => {
@@ -235,7 +235,7 @@ const ChatDiscussion: Component = () => {
           if(username) {
             dom.lastMessageSpan.textContent = '@' + username;
           } else {
-            dom.lastMessageSpan.append(i18n(isBroadcast ? 'DiscussionController.PrivateGroup' : 'DiscussionController.PrivateChannel'));
+            dom.lastMessageSpan.append(i18n(isBroadcast ? 'DiscussionController.PrivateGroup' : 'DiscussionController.PrivateChannel')!);
           }
 
           return Promise.all(loadPromises);
@@ -252,7 +252,7 @@ const ChatDiscussion: Component = () => {
         }
 
         (Array.from(chatlist.children) as HTMLElement[]).forEach((el) => {
-          const _chatId = el.dataset.peerId.toChatId();
+          const _chatId = el.dataset.peerId!.toChatId();
           el.classList.toggle('hide', linkedChatId ? linkedChatId !== _chatId : false);
         });
         setUnlinkHidden(!linkedChatId || !canChangeInfo);
@@ -271,8 +271,8 @@ const ChatDiscussion: Component = () => {
           return;
         }
 
-        const channelFull = await tab.managers.appProfileManager.getChannelFull(updatedChatId);
-        linkedChatId = channelFull.linked_chat_id;
+        const channelFull = await tab.managers.appProfileManager!.getChannelFull(updatedChatId);
+        linkedChatId = channelFull.linked_chat_id!;
         update();
       });
 

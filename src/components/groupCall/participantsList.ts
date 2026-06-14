@@ -28,17 +28,17 @@ export default class GroupCallParticipantsList extends SortedList<SortedParticip
 
   constructor(private instance: GroupCallInstance) {
     super({
-      getIndex: async(element) => (await this.instance.getParticipantByPeerId(element.id)).date,
+      getIndex: async(element) => (await this.instance.getParticipantByPeerId(element.id))!.date,
       onDelete: (element) => {
         element.dom.listEl.remove();
         this.onElementDestroy(element);
       },
       onUpdate: async(element) => {
         const participant = await this.instance.getParticipantByPeerId(element.id);
-        const state = getGroupCallParticipantMutedState(participant);
+        const state = getGroupCallParticipantMutedState(participant!);
 
         element.mutedIcon.setState(state);
-        element.status.setState(state, participant);
+        element.status.setState(state, participant!);
       },
       onSort: (element, idx) => {
         positionElementByIndex(element.dom.listEl, this.list, idx);

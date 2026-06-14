@@ -24,7 +24,7 @@ export const AvatarGroup = (props: {
   peerIds: PeerId[];
 }) => {
   const {AvatarNewTsx} = useHotReloadGuard();
-  const contextProps = usePollMessageContentProps();
+  const contextProps = usePollMessageContentProps()!;
 
   return (
     <div class={styles.avatarGroup}>
@@ -55,7 +55,7 @@ export const Explanation = (props: LocalTextWithEntities & {
   pollViewerPayload?: DataPollViewerIdxDirectivePayload;
 }) => {
   const {TranslatableMessageTsx, DocumentTsx} = useHotReloadGuard();
-  const contextProps = usePollMessageContentProps();
+  const contextProps = usePollMessageContentProps()!;
 
   const middleware = createMiddleware().get();
 
@@ -80,7 +80,7 @@ export const Explanation = (props: LocalTextWithEntities & {
             <Switch>
               <Match when={props.photo}>
                 <PhotoTsx
-                  photo={props.photo}
+                  photo={props.photo!}
                   loadPromises={unwrap(contextProps.loadPromises)}
                   autoDownloadSize={contextProps.autoDownload?.photo}
                   uploadingFileName={contextProps.uploadingFileNames?.explanation}
@@ -88,7 +88,7 @@ export const Explanation = (props: LocalTextWithEntities & {
               </Match>
               <Match when={props.video}>
                 <VideoTsx
-                  doc={props.video}
+                  doc={props.video!}
                   loadPromises={unwrap(contextProps.loadPromises)}
                   group={contextProps.animationGroup}
                   autoDownload={unwrap(contextProps.autoDownload)}
@@ -101,7 +101,7 @@ export const Explanation = (props: LocalTextWithEntities & {
                 />
               </Match>
               <Match when={props.geo}>
-                <GeoPreview class={styles.geo} geo={props.geo} />
+                <GeoPreview class={styles.geo} geo={props.geo!} />
               </Match>
             </Switch>
           </div>
@@ -164,7 +164,7 @@ export const PollVotes = (props: CommonProps & { votersCount: number }) => {
 };
 
 export const AutoStartedConfetti = (props: { onEnd: () => void }) => {
-  let ref: ConfettiRef;
+  let ref!: ConfettiRef;
 
   onMount(() => {
     ref?.create({
@@ -185,7 +185,7 @@ export const GeoPreview = (props: {
   geo: MessageMedia.messageMediaGeo | MessageMedia.messageMediaVenue;
 }) => {
   const {wrapGeo} = useHotReloadGuard();
-  const contextProps = usePollMessageContentProps();
+  const contextProps = usePollMessageContentProps()!;
 
   let attachmentDiv: HTMLDivElement;
 

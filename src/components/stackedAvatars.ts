@@ -18,7 +18,7 @@ export default class StackedAvatars {
     avatarSize: StackedAvatars['avatarSize'],
     middleware: Middleware
   }) {
-    this.lazyLoadQueue = options.lazyLoadQueue;
+    this.lazyLoadQueue = options.lazyLoadQueue!;
     this.avatarSize = options.avatarSize;
     this.middlewareHelper = options.middleware.create();
 
@@ -47,11 +47,11 @@ export default class StackedAvatars {
         avatarContainer.classList.add(AVATAR_CONTAINER_CLASS_NAME);
         avatarContainer.middlewareHelper = this.middlewareHelper.get().create();
       } else {
-        avatarContainer.middlewareHelper.clean();
+        avatarContainer.middlewareHelper!.clean();
       }
 
       const avatarElem = avatarNew({
-        middleware: avatarContainer.middlewareHelper.get(),
+        middleware: avatarContainer.middlewareHelper!.get(),
         size: this.avatarSize,
         isDialog: false,
         lazyLoadQueue: this.lazyLoadQueue,
@@ -72,7 +72,7 @@ export default class StackedAvatars {
 
     // if were 3 and became 2
     (Array.from(children) as HTMLElement[]).slice(peerIds.length).forEach((el) => {
-      el.middlewareHelper.destroy();
+      el.middlewareHelper!.destroy();
       el.remove();
     });
 

@@ -79,7 +79,7 @@ export default async function computeSRP(password: string, state: AccountPasswor
     return padArray(/* (isBigEndian ? bytes.reverse() : bytes) */bytes, 256);
   }
 
-  const B = bigIntFromBytes(state.srp_B);
+  const B = bigIntFromBytes(state.srp_B!);
 
   const pForHash = padArray(bigIntToBytes(p), 256);
   const gForHash = padArray(bigIntToBytes(g), 256);
@@ -151,7 +151,7 @@ export default async function computeSRP(password: string, state: AccountPasswor
 
   const out: InputCheckPasswordSRP.inputCheckPasswordSRP = {
     _: 'inputCheckPasswordSRP',
-    srp_id: state.srp_id,
+    srp_id: state.srp_id!,
     A: new Uint8Array(a_for_hash),
     M1
   };

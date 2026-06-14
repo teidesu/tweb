@@ -14,7 +14,7 @@ export class InviteLink {
   public textElement: HTMLDivElement;
   public button: HTMLButtonElement;
   public buttonText: HTMLSpanElement;
-  public onButtonClick: () => void;
+  public onButtonClick: (() => void) | undefined;
 
   public url: string;
 
@@ -35,7 +35,7 @@ export class InviteLink {
     noRightButton?: boolean,
     onClick?: () => void
   }) {
-    this.onButtonClick = onButtonClick;
+    this.onButtonClick = onButtonClick!;
 
     const linkContainer = this.container = document.createElement('div');
     linkContainer.classList.add('invite-link-container');
@@ -59,7 +59,7 @@ export class InviteLink {
       attachClickEvent(rightButton, () => this.copyLink(), {listenerSetter});
     }
 
-    if(rightButton) rightButton.classList.add('invite-link-menu');
+    if(rightButton!) rightButton.classList.add('invite-link-menu');
 
     if(!button && button !== false) {
       button = Button('', {text: 'ShareLink'});
@@ -79,7 +79,7 @@ export class InviteLink {
     ripple(link);
     link.append(...[
       text,
-      rightButton
+      rightButton!
     ].filter(Boolean));
 
     linkContainer.append(link, button || '');

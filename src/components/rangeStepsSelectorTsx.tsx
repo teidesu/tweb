@@ -33,6 +33,7 @@ export default function RangeStepsSelector<T = any>(props: {
     // }
 
     // return values.map((value) => props.generateStep!(value));
+    return undefined!;
   });
 
   const maxIndex = createMemo(() => Math.max(steps().length - 1, 0));

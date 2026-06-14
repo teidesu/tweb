@@ -27,7 +27,7 @@ export const FlagFilters = (props: {
   const filtersControls = () => props.filtersControls;
 
   const onCommit = () => {
-    props.onCommit(filtersControls().getCommittedReady());
+    props.onCommit(filtersControls().getCommittedReady()!);
   };
 
   const onSubmit = (e: Event) => {

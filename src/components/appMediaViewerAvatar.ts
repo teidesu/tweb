@@ -60,7 +60,7 @@ export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete
   private async computeCanDelete(): Promise<boolean> {
     if(this.peerId === rootScope.myId) return true;
     if(this.peerId.isAnyChat()) {
-      return this.managers.appChatsManager.hasRights(this.peerId.toChatId(), 'change_info');
+      return this.managers.appChatsManager!.hasRights(this.peerId.toChatId(), 'change_info');
     }
     return false;
   }
@@ -83,14 +83,14 @@ export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete
 
   onDownloadClick = () => {
     appDownloadManager.downloadToDisc({
-      media: this.target.photo,
-      queueId: appImManager.chat.bubbles.lazyLoadQueue.queueId
+      media: this.target!.photo!,
+      queueId: appImManager.chat.bubbles.lazyLoadQueue!.queueId
     });
   };
 
   onDeleteClick = async() => {
     const peerId = this.peerId;
-    const photoId = this.target.photoId;
+    const photoId = this.target!.photoId;
     try {
       await confirmationPopup({
         titleLangKey: 'Delete',
@@ -105,9 +105,9 @@ export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete
     }
 
     if(peerId.isUser()) {
-      await this.managers.appProfileManager.deletePhotos([photoId as string]);
+      await this.managers.appProfileManager!.deletePhotos([photoId as string]);
     } else {
-      await this.managers.appChatsManager.editPhoto(peerId.toChatId());
+      await this.managers.appChatsManager!.editPhoto(peerId.toChatId());
     }
 
     this.target = {element: this.content.media} as any;
@@ -130,7 +130,7 @@ export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete
     if(this.setMoverPromise) return this.setMoverPromise;
 
     const [photo, canDelete] = await Promise.all([
-      this.managers.appPhotosManager.getPhoto(photoId),
+      this.managers.appPhotosManager!.getPhoto(photoId),
       this.getCanDelete()
     ]);
 
@@ -151,8 +151,8 @@ export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete
       prevTargets,
       nextTargets
     });
-    this.target.photoId = photo.id;
-    this.target.photo = photo;
+    this.target!.photoId = photo.id;
+    this.target!.photo = photo;
 
     // Animated profile photo — overlay a looping muted video on top of the
     // static image once the open/move animation has settled.

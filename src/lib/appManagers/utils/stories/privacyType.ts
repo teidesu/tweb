@@ -20,5 +20,5 @@ export default function getStoryPrivacyType(story: StoryItem.storyItem) {
     }
   }
 
-  return privacyType;
+  return privacyType!;
 }

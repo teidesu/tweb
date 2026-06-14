@@ -55,8 +55,8 @@ export default async function handleVideoLeak(
 
   const bindPromise = (promise: Promise<any>) => {
     promise.then(
-      deferred.resolve.bind(deferred),
-      deferred.reject.bind(deferred)
+      deferred.resolve!.bind(deferred),
+      deferred.reject!.bind(deferred)
     );
   };
 
@@ -74,7 +74,7 @@ export default async function handleVideoLeak(
     video.getVideoPlaybackQuality().totalVideoFrames ||
     video.readyState > video.HAVE_METADATA // * video can lose metadata on timeupdate if has no next chunk
   ) {
-    deferred.resolve();
+    deferred.resolve!();
     return;
   }
 

@@ -37,7 +37,7 @@ export class AppNavigationController {
   private popping: boolean;
   private modificationQueue: Array<() => void>;
   private modificationBusy: boolean;
-  private modificationResolve: () => void;
+  private modificationResolve: (() => void) | undefined;
   public onHashChange: () => void;
 
   constructor() {
@@ -100,7 +100,7 @@ export class AppNavigationController {
       }
     };
 
-    if(event.destination.index > navigation.currentEntry.index) {
+    if(event.destination.index > navigation.currentEntry!.index) {
       log('ignoring forward navigation');
       cancelEvent(event);
       event.intercept();
@@ -150,7 +150,7 @@ export class AppNavigationController {
 
     let hash = url.hash;
     // * don't set old hash if we're going back
-    if(event.destination.index < navigation.currentEntry.index) {
+    if(event.destination.index < navigation.currentEntry!.index) {
       hash = this.currentHash;
       fixHashIfNeeded();
     }
@@ -285,7 +285,7 @@ export class AppNavigationController {
   }
 
   private handleItem(item: NavigationItem, wasIndex = this.navigations.indexOf(item)) {
-    const good = item.onPop(!this.manual ? false : undefined);
+    const good = item.onPop((!this.manual ? false : undefined)!);
     this.debug && this.log('popstate, navigation:', item, this.navigations);
     if(good === false) { // insert item on the same place, because .push can have different index if new item has appeared
       this.spliceItems(Math.min(this.navigations.length, wasIndex), 0, item);

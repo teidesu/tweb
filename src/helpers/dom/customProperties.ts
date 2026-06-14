@@ -6,7 +6,7 @@ export type CustomProperty = string;
 
 export class CustomProperties {
   private cache: {[k in CustomProperty]?: [string, string]};
-  private computedStyle: CSSStyleDeclaration;
+  private computedStyle: CSSStyleDeclaration | undefined;
   private nightComputedStyle: CSSStyleDeclaration;
   private nightElement: HTMLElement;
 
@@ -71,7 +71,7 @@ export class CustomProperties {
       size = +value.replace('px', '');
     }
 
-    return size;
+    return size!;
   }
 
   public setPropertyCache(name: CustomProperty, value: string, night?: boolean) {

@@ -7,9 +7,9 @@ export function purchaseUsernameCaption() {
   const p = document.createElement('div');
   const a = setBlankToAnchor(document.createElement('a'));
   const purchaseText = i18n('Username.Purchase', [a]);
-  purchaseText.classList.add('username-purchase-help');
+  purchaseText!.classList.add('username-purchase-help');
   p.append(
-    purchaseText,
+    purchaseText!,
     document.createElement('br'),
     document.createElement('br')
   );

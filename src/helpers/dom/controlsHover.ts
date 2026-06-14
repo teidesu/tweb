@@ -36,7 +36,7 @@ export default class ControlsHover extends EventListenerBase<{
 
     if(IS_TOUCH_SUPPORTED) {
       listenerSetter.add(element)('click', (e) => {
-        if(this.ignoreClickClassName && findUpClassName(e.target, this.ignoreClickClassName)) {
+        if(this.ignoreClickClassName && findUpClassName(e.target!, this.ignoreClickClassName)) {
           return;
         }
 
@@ -66,7 +66,7 @@ export default class ControlsHover extends EventListenerBase<{
         // those elements live outside the player, so hiding here would yank them from
         // under the cursor and bounce mouseenter↔mouseleave forever.
         const showOnLeaveClassNames = Array.isArray(this.showOnLeaveToClassName) ? this.showOnLeaveToClassName : [this.showOnLeaveToClassName];
-        if(e.relatedTarget && showOnLeaveClassNames.some((className) => className && findUpClassName(e.relatedTarget, className))) {
+        if(e.relatedTarget && showOnLeaveClassNames.some((className) => className && findUpClassName(e.relatedTarget!, className))) {
           this.showControls(false);
           return;
         }

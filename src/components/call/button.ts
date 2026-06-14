@@ -42,9 +42,9 @@ export default function makeButton(className: string, listenerSetter: ListenerSe
     div.classList.add(_className + '-container', 'call-button-container');
 
     const textEl = typeof(options.text) === 'string' ? i18n(options.text) : options.text;
-    textEl.classList.add(_className + '-text', 'call-button-text');
+    textEl!.classList.add(_className + '-text', 'call-button-text');
 
-    div.append(buttonDiv, textEl);
+    div.append(buttonDiv, textEl!);
 
     ret = div;
   }

@@ -95,22 +95,22 @@ export default function AuthCodeCard(props: {spec: Spec}) {
     codeInputField.disabled = true;
 
     const params: AuthSignIn = {
-      phone_number: sentCode.phone_number,
+      phone_number: sentCode.phone_number!,
       phone_code_hash: sentCode.phone_code_hash,
       phone_code: code
     };
 
-    managers.apiManager.invokeApi('auth.signIn', params, {ignoreErrors: true}).then(async(response) => {
+    managers.apiManager!.invokeApi('auth.signIn', params, {ignoreErrors: true}).then(async(response) => {
       switch(response._) {
         case 'auth.authorization':
-          await managers.apiManager.setUser(response.user);
+          await managers.apiManager!.setUser(response.user);
           toIm();
           break;
         case 'auth.authorizationSignUpRequired':
           navigate({
             name: 'signUp',
             payload: {
-              phone_number: sentCode.phone_number,
+              phone_number: sentCode.phone_number!,
               phone_code_hash: sentCode.phone_code_hash
             }
           });
@@ -128,12 +128,12 @@ export default function AuthCodeCard(props: {spec: Spec}) {
           break;
         case 'PHONE_CODE_EXPIRED':
           codeInputField.error = true;
-          replaceContent(codeInputErrorLabel, i18n('PHONE_CODE_EXPIRED'));
+          replaceContent(codeInputErrorLabel, i18n('PHONE_CODE_EXPIRED')!);
           break;
         case 'PHONE_CODE_EMPTY':
         case 'PHONE_CODE_INVALID':
           codeInputField.error = true;
-          replaceContent(codeInputErrorLabel, i18n('PHONE_CODE_INVALID'));
+          replaceContent(codeInputErrorLabel, i18n('PHONE_CODE_INVALID')!);
           break;
         default:
           codeInputField.error = true;
@@ -181,8 +181,8 @@ export default function AuthCodeCard(props: {spec: Spec}) {
   /* ---------- email reset flow ---------- */
 
   function handleResetEmail() {
-    managers.apiManager.invokeApi('auth.resetLoginEmail', {
-      phone_number: sentCode.phone_number,
+    managers.apiManager!.invokeApi('auth.resetLoginEmail', {
+      phone_number: sentCode.phone_number!,
       phone_code_hash: sentCode.phone_code_hash
     }).then((code) => {
       if(code._ === 'auth.sentCode') {
@@ -238,7 +238,7 @@ export default function AuthCodeCard(props: {spec: Spec}) {
           SimpleConfirmationPopup.show({
             titleLangKey: 'Login.ResetEmail.Title',
             descriptionLangKey: 'Login.ResetEmail.Text',
-            descriptionArgs: [wrapFormattedDuration(formatDuration(type.reset_available_period, 2))],
+            descriptionArgs: [wrapFormattedDuration(formatDuration(type.reset_available_period!, 2))],
             button: {langKey: 'Login.ResetEmail.Title'}
           }).then(() => handleResetEmail());
         })
@@ -295,7 +295,7 @@ export default function AuthCodeCard(props: {spec: Spec}) {
 
     setSentTypeContent(i18n(key, args));
 
-    managers.appStateManager.pushToState('authState', {_: 'authStateAuthCode', sentCode});
+    managers.appStateManager!.pushToState('authState', {_: 'authStateAuthCode', sentCode});
 
     rebuildAnimation().catch(() => {});
   }

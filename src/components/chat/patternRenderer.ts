@@ -148,22 +148,22 @@ export default class ChatBackgroundPatternRenderer {
     let imageWidth = source.width, imageHeight = source.height;
     // let patternHeight = 1480 * canvas.dpr;
     // if(+canvas.dataset.originalHeight !== height) patternHeight *= .6875;
-    const patternHeight = (500 + (windowSize.height / 2.5)) * canvas.dpr;
+    const patternHeight = (500 + (windowSize.height / 2.5)) * canvas.dpr!;
     const ratio = patternHeight / imageHeight;
     imageWidth *= ratio;
     imageHeight = patternHeight;
 
     if(this.options.mask) {
-      context.fillStyle = '#000';
-      context.fillRect(0, 0, width, height);
-      context.globalCompositeOperation = 'destination-out';
+      context!.fillStyle = '#000';
+      context!.fillRect(0, 0, width, height);
+      context!.globalCompositeOperation = 'destination-out';
     } else {
-      context.globalCompositeOperation = 'source-over';
+      context!.globalCompositeOperation = 'source-over';
     }
 
     const d = (y: number) => {
       for(let x = 0; x < width; x += imageWidth) {
-        context.drawImage(source, x, y, imageWidth, imageHeight);
+        context!.drawImage(source, x, y, imageWidth, imageHeight);
       }
     };
 

@@ -108,9 +108,9 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
     if(options.subtitle || options.subtitleLangKey) {
       const subtitle = this.subtitle;
       if(options.subtitleLangKey) {
-        subtitle.append(i18n(options.subtitleLangKey, options.subtitleLangArgs));
+        subtitle.append(i18n(options.subtitleLangKey, options.subtitleLangArgs)!);
       } else {
-        setContent(subtitle, options.subtitle);
+        setContent(subtitle, options.subtitle!);
       }
 
       if(options.noWrap) subtitle.classList.add('no-wrap');
@@ -153,7 +153,7 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
           options.checkboxKeys ??= ['Checkbox.Enabled', 'Checkbox.Disabled'];
           const [enabledKey, disabledKey] = options.checkboxKeys;
           const onChange = () => {
-            replaceContent(this.subtitle, i18n(this.checkboxField.checked ? enabledKey : disabledKey));
+            replaceContent(this.subtitle, i18n(this.checkboxField.checked ? enabledKey : disabledKey)!);
           };
 
           if(options.listenerSetter) options.listenerSetter.add(this.checkboxField.input)('change', onChange);
@@ -162,7 +162,7 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
       }
 
       const i = options.radioField || options.checkboxField;
-      i.label.classList.add('disable-hover');
+      i!.label.classList.add('disable-hover');
     }
 
     if(options.title || options.titleLangKey || options.titleRight || options.titleRightSecondary) {
@@ -180,7 +180,7 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
       if(options.title) {
         setContent(this.title, options.title);
       } else if(options.titleLangKey) {
-        this.title.append(i18n(options.titleLangKey, options.titleLangArgs));
+        this.title.append(i18n(options.titleLangKey, options.titleLangArgs)!);
       }
 
       c.append(this.title);
@@ -234,7 +234,7 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
         //   args = [args];
         // }
 
-        const tab = options.navigationTab.slider.createTab(options.navigationTab.constructor as any);
+        const tab = options.navigationTab!.slider.createTab(options.navigationTab!.constructor as any);
         tab.open(args);
 
         const eventListener = (tab as SliderSuperTabEventable).eventListener;
@@ -332,7 +332,7 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
   private createMidtitle() {
     const midtitle = document.createElement('div');
     midtitle.classList.add('row-midtitle');
-    this.subtitle.parentElement.insertBefore(midtitle, this.subtitle);
+    this.subtitle.parentElement!.insertBefore(midtitle, this.subtitle);
     return midtitle;
   }
 
@@ -417,7 +417,7 @@ export const RadioFormFromValues = (values: {
   });
 
   const form = RadioFormFromRows(rows, onChange);
-  if(checkedRadioField) {
+  if(checkedRadioField!) {
     if(fireInit) checkedRadioField.checked = true;
     else checkedRadioField.setValueSilently(true);
   }

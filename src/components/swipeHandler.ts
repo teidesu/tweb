@@ -102,7 +102,7 @@ export default class SwipeHandler {
   private listenerOptions: ListenerOptions;
   private setCursorTo: HTMLElement;
 
-  private isMouseDown: boolean;
+  private isMouseDown: boolean | undefined;
   private tempId: number;
 
   private hadMove: boolean;
@@ -156,7 +156,7 @@ export default class SwipeHandler {
       this.listenerSetter.add(this.element)('mousedown', this.handleStart, this.listenerOptions);
       this.listenerSetter.add(attachGlobalListenerTo)('mouseup', this.reset);
 
-      if(this.onZoom || this.onDoubleClick) {
+      if((this.onZoom as any) || (this.onDoubleClick as any)) {
         this.listenerSetter.add(this.element)('wheel', this.handleWheel, WHEEL_OPTIONS);
       }
     } else {
@@ -215,12 +215,12 @@ export default class SwipeHandler {
     this.hadMove = false;
     this.xAdded = this.yAdded = 0;
     this.xDown =
-      this.yDown =
-      this.eventUp =
-      this.isMouseDown =
-      undefined;
+      (this.yDown =
+      (this.eventUp =
+      (this.isMouseDown =
+      undefined)!)!)!;
 
-    if(this.onZoom) {
+    if(this.onZoom as any) {
       this.initialDistance = 0;
       this.initialTouchCenter = {
         x: windowSize.width / 2,
@@ -323,7 +323,7 @@ export default class SwipeHandler {
     if(this.withDelay && !IS_TOUCH_SUPPORTED) {
       const options = {...MOUSE_MOVE_OPTIONS, once: true};
       const deferred = deferredPromise<void>();
-      const cb = () => deferred.resolve();
+      const cb = () => deferred.resolve!();
       const listener = this.listenerSetter.add(attachGlobalListenerTo)('mousemove', cb, options) as any as Listener;
 
       await Promise.race([
@@ -331,7 +331,7 @@ export default class SwipeHandler {
         deferred
       ]);
 
-      deferred.resolve();
+      deferred.resolve!();
       this.listenerSetter.remove(listener);
 
       if(this.tempId !== tempId) {
@@ -416,7 +416,7 @@ export default class SwipeHandler {
 
   protected handleWheel = (e: WheelEvent) => {
     if(!this.hadMove && this.verifyTouchTarget) {
-      const result = this.verifyTouchTarget(e);
+      const result = this.verifyTouchTarget((e! as EE));
       if(result !== undefined && !result) {
         this.reset(e);
         return;
@@ -460,7 +460,7 @@ export default class SwipeHandler {
     }
     const {x, y} = this.initialDragOffset;
     this.releaseWheelDrag(e);
-    this.dispatchOnSwipe(x, y, e, (dx, dy) => {
+    this.dispatchOnSwipe(x, y, (e! as EE), (dx, dy) => {
       this.isDragCanceled = {x: dx, y: dy};
     });
   };
@@ -468,8 +468,8 @@ export default class SwipeHandler {
   protected onWheelCapture = (e: WheelEvent) => {
     if(this.hadMove) return;
     this.log('wheel capture');
-    this.handleStart(e);
-    this.setHadMove(e);
+    this.handleStart((e! as EE));
+    this.setHadMove((e! as EE));
     this.initialTouchCenter = {x: e.x, y: e.y};
   };
 

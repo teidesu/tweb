@@ -130,10 +130,10 @@ function scrollWithJs(options: ScrollOptions): Promise<void> {
 
   switch(position) {
     case 'start':
-      path = elementPosition - margin;
+      path = elementPosition - margin!;
       break;
     case 'end':
-      path = elementRect[rectEndKey] /* + (elementSize - elementRect[sizeKey]) */ - containerRect[rectEndKey] + margin;
+      path = elementRect[rectEndKey] /* + (elementSize - elementRect[sizeKey]) */ - containerRect[rectEndKey] + margin!;
       break;
     // 'nearest' is not supported yet
     case 'nearest':
@@ -150,7 +150,7 @@ function scrollWithJs(options: ScrollOptions): Promise<void> {
           return scrollWithJs(options);
         }
 
-        path = elementPosition - margin;
+        path = elementPosition - margin!;
       }
 
       // * check if the scroll is possible at all
@@ -184,15 +184,15 @@ function scrollWithJs(options: ScrollOptions): Promise<void> {
     return Promise.resolve();
   }
 
-  let jumpToScrollPosition: number;
+  let jumpToScrollPosition: number | undefined;
   if(axis === 'y') {
     if(forceDirection === undefined) {
-      if(path > maxDistance) {
-        jumpToScrollPosition = scrollPosition += path - maxDistance;
-        path = maxDistance;
-      } else if(path < -maxDistance) {
-        jumpToScrollPosition = scrollPosition += path + maxDistance;
-        path = -maxDistance;
+      if(path > maxDistance!) {
+        jumpToScrollPosition = scrollPosition += path - maxDistance!;
+        path = maxDistance!;
+      } else if(path < -maxDistance!) {
+        jumpToScrollPosition = scrollPosition += path + maxDistance!;
+        path = -maxDistance!;
       }
     }/*  else if(forceDirection === FocusDirection.Up) { // * not tested yet
       container.scrollTop = offsetTop + container.scrollTop + maxDistance;

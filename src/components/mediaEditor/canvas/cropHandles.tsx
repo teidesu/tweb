@@ -15,7 +15,7 @@ import {modifyMutable, produce} from 'solid-js/store';
 const MAX_SCALE = 20;
 
 export default function CropHandles() {
-  const {editorState, mediaState, isEditingForAvatar, isEditingForumAvatar} = useMediaEditorContext();
+  const {editorState, mediaState, isEditingForAvatar, isEditingForumAvatar} = useMediaEditorContext()!;
 
   const isCropping = () => editorState.currentTab === 'crop';
 
@@ -91,21 +91,21 @@ export default function CropHandles() {
 
   onMount(() => {
     const multipliers = [
-      {el: leftTopHandle, left: -1, top: -1},
-      {el: rightTopHandle, left: 1, top: -1},
-      {el: leftBottomHandle, left: -1, top: 1},
-      {el: rightBottomHandle, left: 1, top: 1},
+      {el: leftTopHandle!, left: -1, top: -1},
+      {el: rightTopHandle!, left: 1, top: -1},
+      {el: leftBottomHandle!, left: -1, top: 1},
+      {el: rightBottomHandle!, left: 1, top: 1},
 
-      {el: leftHandle, left: -1, top: 0},
-      {el: topHandle, left: 0, top: -1},
-      {el: rightHandle, left: 1, top: 0},
-      {el: bottomHandle, left: 0, top: 1}
+      {el: leftHandle!, left: -1, top: 0},
+      {el: topHandle!, left: 0, top: -1},
+      {el: rightHandle!, left: 1, top: 0},
+      {el: bottomHandle!, left: 0, top: 1}
     ];
 
     let boundDiff: NumberPair;
     let initialScale: number;
     let initialTranslation: NumberPair;
-    let firstTarget: EventTarget;
+    let firstTarget: EventTarget | undefined;
 
     const resizeSwipeHandlers = multipliers.map(({el, left, top}) => {
       return new SwipeHandler({
@@ -176,7 +176,7 @@ export default function CropHandles() {
                   fixed && top === 0 ? -yDiff / 2 : top === -1 ? yDiff : 0
                 ]
               ]
-            });
+            })!;
           const halfImageWidth = (imageMaxX - imageMinX) / 2,
             halfImageHeight = (imageMaxY - imageMinY) / 2;
           const imageCenter = [imageMinX + halfImageWidth, imageMinY + halfImageHeight];
@@ -249,21 +249,21 @@ export default function CropHandles() {
     });
 
     const translationSwipeHandler = new SwipeHandler({
-      element: cropArea,
+      element: cropArea!,
       onStart() {
         initialTranslation = mediaState.translation;
         editorState.isMoving = true;
       },
       onSwipe(xDiff, yDiff, e) {
         if(!firstTarget) firstTarget = e.target;
-        if(firstTarget !== cropArea) return;
+        if(firstTarget !== cropArea!) return;
 
         const {cropMinX, cropMaxX, cropMinY, cropMaxY, imageMinX, imageMaxX, imageMinY, imageMaxY} =
           getConvenientPositioning({
             scale: mediaState.scale,
             rotation: mediaState.rotation,
             translation: [initialTranslation[0] + xDiff, initialTranslation[1] + yDiff]
-          });
+          })!;
 
         boundDiff = [0, 0];
 
@@ -284,7 +284,7 @@ export default function CropHandles() {
         boundDiff = [boundDiff[0] / resistance, boundDiff[1] / resistance];
       },
       onReset() {
-        if(firstTarget !== cropArea) return (firstTarget = undefined);
+        if(firstTarget !== cropArea!) return (firstTarget = undefined);
         firstTarget = undefined;
 
         const prevTranslation = mediaState.translation;
@@ -307,7 +307,7 @@ export default function CropHandles() {
       zoomBy(e.deltaY);
     };
 
-    cropArea.addEventListener('wheel', wheelListener);
+    cropArea!.addEventListener('wheel', wheelListener);
 
     onCleanup(() => {
       resizeSwipeHandlers.forEach((handler) => handler.removeListeners());
@@ -323,7 +323,7 @@ export default function CropHandles() {
         scale: mediaState.scale * zoomFactor,
         rotation: mediaState.rotation,
         translation: mediaState.translation
-      });
+      })!;
 
     const halfImageWidth = (imageMaxX - imageMinX) / 2,
       halfImageHeight = (imageMaxY - imageMinY) / 2;
@@ -403,7 +403,7 @@ export default function CropHandles() {
       />
 
       <div
-        ref={cropArea}
+        ref={cropArea!}
         class="media-editor__crop-handles"
         classList={{
           'media-editor__crop-handles--hidden': !isCropping()
@@ -420,16 +420,16 @@ export default function CropHandles() {
         <div class="media-editor__crop-handles-line-v" style={{left: '33%'}} />
         <div class="media-editor__crop-handles-line-v" style={{left: '66%'}} />
 
-        <div ref={leftHandle} class="media-editor__crop-handles-side media-editor__crop-handles-side--w" />
-        <div ref={topHandle} class="media-editor__crop-handles-side media-editor__crop-handles-side--n" />
-        <div ref={rightHandle} class="media-editor__crop-handles-side media-editor__crop-handles-side--e" />
-        <div ref={bottomHandle} class="media-editor__crop-handles-side media-editor__crop-handles-side--s" />
+        <div ref={leftHandle!} class="media-editor__crop-handles-side media-editor__crop-handles-side--w" />
+        <div ref={topHandle!} class="media-editor__crop-handles-side media-editor__crop-handles-side--n" />
+        <div ref={rightHandle!} class="media-editor__crop-handles-side media-editor__crop-handles-side--e" />
+        <div ref={bottomHandle!} class="media-editor__crop-handles-side media-editor__crop-handles-side--s" />
 
-        <div ref={leftTopHandle} class="media-editor__crop-handles-circle media-editor__crop-handles-circle--nw" />
-        <div ref={rightTopHandle} class="media-editor__crop-handles-circle media-editor__crop-handles-circle--ne" />
-        <div ref={leftBottomHandle} class="media-editor__crop-handles-circle media-editor__crop-handles-circle--sw" />
+        <div ref={leftTopHandle!} class="media-editor__crop-handles-circle media-editor__crop-handles-circle--nw" />
+        <div ref={rightTopHandle!} class="media-editor__crop-handles-circle media-editor__crop-handles-circle--ne" />
+        <div ref={leftBottomHandle!} class="media-editor__crop-handles-circle media-editor__crop-handles-circle--sw" />
         <div
-          ref={rightBottomHandle}
+          ref={rightBottomHandle!}
           class="media-editor__crop-handles-circle media-editor__crop-handles-circle--se"
         />
       </div>
@@ -445,7 +445,7 @@ const SpotlightMask = (props: {
   height: number;
   roundness?: number;
 }) => {
-  const {editorState} = useMediaEditorContext();
+  const {editorState} = useMediaEditorContext()!;
 
   return (
     <>
@@ -457,7 +457,7 @@ const SpotlightMask = (props: {
       />
       <svg class="media-editor__spotlight-mask-svg" width="0" height="0">
         <mask id={props.id}>
-          <rect x="0" y="0" width={editorState.canvasSize?.[0] + 1} height={editorState.canvasSize?.[1] + 1} fill="white"/>
+          <rect x="0" y="0" width={editorState.canvasSize?.[0]! + 1} height={editorState.canvasSize?.[1]! + 1} fill="white"/>
           <rect
             x={props.left}
             y={props.top}

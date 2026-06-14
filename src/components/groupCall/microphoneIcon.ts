@@ -24,7 +24,7 @@ export default class GroupCallMicrophoneIcon extends SuperRLottieIcon<{
             break;
         }
 
-        return this.getItem().getPart(partName);
+        return this.getItem().getPart(partName)!;
       }
     });
 

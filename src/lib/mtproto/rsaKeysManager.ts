@@ -77,7 +77,7 @@ export class RSAKeysManager {
     [hex: string]: RSAPublicKeyHex
   } = {};
   private prepared = false;
-  private preparePromise: Promise<void> = null;
+  private preparePromise: Promise<void> | null = null;
 
   constructor() {
     if(Modes.test) {

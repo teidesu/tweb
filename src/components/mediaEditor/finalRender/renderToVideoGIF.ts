@@ -41,7 +41,7 @@ export default async function renderToVideoGIF({
   const owner = getOwner();
   const context = useMediaEditorContext();
 
-  const {editorState: {pixelRatio}, dontCreatePreview} = context;
+  const {editorState: {pixelRatio}, dontCreatePreview} = context!;
 
   const creationProgress = createSignal(0);
   const [, setProgress] = creationProgress;
@@ -73,10 +73,10 @@ export default async function renderToVideoGIF({
     ctx.drawImage(brushCanvas, 0, 0);
 
     scaledLayers.forEach((layer) => {
-      if(layer.type === 'text') drawTextLayer(context, ctx, layer);
+      if(layer.type === 'text') drawTextLayer(context!, ctx, layer);
       if(layer.type === 'sticker' && renderers.has(layer.id)) {
         const renderer = renderers.get(layer.id);
-        drawStickerLayer(context, ctx, layer, renderer.getRenderedFrame(), renderer.getRatio());
+        drawStickerLayer(context!, ctx, layer, renderer!.getRenderedFrame(), renderer!.getRatio());
       }
     });
 
@@ -118,10 +118,10 @@ export default async function renderToVideoGIF({
           const stickerType = layer.sticker?.sticker;
           let renderer: StickerFrameByFrameRenderer;
 
-          if(stickerType === StickerType.Static) renderer = new ImageStickerFrameByFrameRenderer();
+          if(stickerType === StickerType.Static) renderer = (new ImageStickerFrameByFrameRenderer() as StickerFrameByFrameRenderer);
           if(stickerType === StickerType.Lottie) renderer = new LottieStickerFrameByFrameRenderer();
-          if(stickerType === StickerType.WebM) renderer = new VideoStickerFrameByFrameRenderer();
-          if(!renderer) return;
+          if(stickerType === StickerType.WebM) renderer = (new VideoStickerFrameByFrameRenderer() as StickerFrameByFrameRenderer);
+          if(!renderer!) return;
 
           renderers.set(layer.id, renderer);
           await renderer.init(layer.sticker!, STICKER_SIZE * layer.scale * pixelRatio);
@@ -173,7 +173,7 @@ export default async function renderToVideoGIF({
     cancel: () => {
       if(canceled) return;
       canceled = true;
-      canceledDeferred.reject(CANCELED);
+      canceledDeferred.reject!(CANCELED);
     },
     creationProgress
   };

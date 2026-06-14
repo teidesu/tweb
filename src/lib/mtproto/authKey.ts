@@ -1,7 +1,7 @@
 
 export class MTAuthKey {
   public wrappedBinding: boolean;
-  public wrapBindPromise: Promise<any>;
+  public wrapBindPromise?: Promise<any>;
 
   /**
    * @param key uint8[256]

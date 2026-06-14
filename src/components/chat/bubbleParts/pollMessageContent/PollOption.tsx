@@ -55,9 +55,9 @@ export const PollOption = (props: {
   result?: PollOptionResult;
 }) => {
   const {TranslatableMessageTsx} = useHotReloadGuard()
-  const contextProps = usePollMessageContentProps();
+  const contextProps = usePollMessageContentProps()!;
 
-  let clickableAreaElement: HTMLDivElement;
+  let clickableAreaElement: HTMLDivElement | undefined;
 
   const isShowingResult = createMemo(() => !!props.result);
 
@@ -72,7 +72,7 @@ export const PollOption = (props: {
   const canShowPercentageCheckbox = createMemo(() => (
     isShowingResult() && canShowPercentage() &&
     // Show a checkbox when the option is chosen in poll mode, or always when in quiz mode with check and cross marks
-    (props.result.chosen || props.hasCorrectAnswer)
+    (props.result!.chosen || props.hasCorrectAnswer)
   ));
 
   // So it waits a little bit for the spinner to disappear
@@ -157,13 +157,13 @@ export const PollOption = (props: {
             richTextOptions={{middleware: createMiddleware().get(), loadPromises: unwrap(contextProps.loadPromises)}}
           />
         </div>
-        <Show when={isShowingResult() && props.result.voters}>
+        <Show when={isShowingResult() && props.result!.voters}>
           <div class={styles.labelStats}>
             <div class={styles.labelNumber}>
-              {formatNumber(props.result.voters, 1)}
+              {formatNumber(props.result!.voters, 1)}
             </div>
-            <Show when={props.result.peerIds?.length > 0}>
-              <AvatarGroup peerIds={props.result.peerIds} />
+            <Show when={props.result!.peerIds?.length > 0}>
+              <AvatarGroup peerIds={props.result!.peerIds} />
             </Show>
           </div>
         </Show>
@@ -171,10 +171,10 @@ export const PollOption = (props: {
         <Transition name='fade-2'>
           <Show when={isShowingResult() && canShowPercentage() && !props.hideResults}>
             <PollProgressLine
-              progress={(props.result.percent || 0) / 100}
+              progress={(props.result!.percent || 0) / 100}
               canAnimate={canAnimate()}
               hasCorrectAnswer={props.hasCorrectAnswer}
-              correct={props.result.correct}
+              correct={props.result!.correct}
             />
           </Show>
         </Transition>
@@ -193,12 +193,12 @@ export const PollOption = (props: {
           />
         </Show>
         <Transition name='fade-2'>
-          <Show when={canShowPercentageCheckbox() && props.hasCorrectAnswer && props.result.chosen && !props.hideResults}>
+          <Show when={canShowPercentageCheckbox() && props.hasCorrectAnswer && props.result!.chosen && !props.hideResults}>
             <div
               class={styles.chosenCheckboxDot}
               classList={{
-                [styles.correct]: !contextProps.isOutgoing && props.result.correct,
-                [styles.wrong]: !contextProps.isOutgoing && !props.result.correct
+                [styles.correct]: !contextProps.isOutgoing && props.result!.correct,
+                [styles.wrong]: !contextProps.isOutgoing && !props.result!.correct
               }}
             />
           </Show>
@@ -209,11 +209,11 @@ export const PollOption = (props: {
               round={!props.allowMultipleAnswers}
               class={styles.chosenCheckbox}
               classList={{
-                [styles.correct]: !contextProps.isOutgoing && props.hasCorrectAnswer && props.result.correct,
-                [styles.wrong]: !contextProps.isOutgoing && props.hasCorrectAnswer && !props.result.correct
+                [styles.correct]: !contextProps.isOutgoing && props.hasCorrectAnswer && props.result!.correct,
+                [styles.wrong]: !contextProps.isOutgoing && props.hasCorrectAnswer && !props.result!.correct
               }}
               checked
-              cross={props.hasCorrectAnswer ? !props.result.correct : undefined}
+              cross={props.hasCorrectAnswer ? !props.result!.correct : undefined}
               isOutgoing={contextProps.isOutgoing}
             />
           </Show>
@@ -229,7 +229,7 @@ export const PollOption = (props: {
           <Switch>
             <Match when={props.photo}>
               <PhotoTsx
-                photo={props.photo}
+                photo={props.photo!}
                 boxWidth={boxSize}
                 boxHeight={boxSize}
                 loadPromises={unwrap(contextProps.loadPromises)}
@@ -240,23 +240,23 @@ export const PollOption = (props: {
             <Match when={props.sticker}>
               <StickerPreview
                 class='poll-option-sticker'
-                doc={props.sticker.document}
+                doc={props.sticker!.document}
                 animationGroup={contextProps.animationGroup}
                 width={boxSize}
                 height={boxSize}
                 stickerOptions={{
                   liteModeKey: 'stickers_chat',
                   withThumb: true,
-                  noPremium: props.sticker.media.pFlags.nopremium
+                  noPremium: props.sticker!.media!.pFlags.nopremium
                 }}
               />
             </Match>
             <Match when={props.geo}>
-              <GeoPreview class={styles.pollOptionGeo} geo={props.geo} />
+              <GeoPreview class={styles.pollOptionGeo} geo={props.geo!} />
             </Match>
             <Match when={props.video}>
               <VideoTsx
-                doc={props.video}
+                doc={props.video!}
                 loadPromises={unwrap(contextProps.loadPromises)}
                 group={contextProps.animationGroup}
                 autoDownload={unwrap(contextProps.autoDownload)}
@@ -271,7 +271,7 @@ export const PollOption = (props: {
                 uploadingFileName={props.uploadingFileName}
               />
               <div class={styles.pollOptionMediaDim}>
-                <Show when={props.video.type === 'gif'} fallback={
+                <Show when={props.video!.type === 'gif'} fallback={
                   <div class={styles.pollOptionMediaPlay}>
                     <IconTsx icon='play' />
                   </div>
@@ -296,7 +296,7 @@ const PollProgressLine = (inProps: JSX.HTMLAttributes<HTMLDivElement> & {
   hasCorrectAnswer?: boolean;
   correct?: boolean;
 }) => {
-  const contextProps = usePollMessageContentProps();
+  const contextProps = usePollMessageContentProps()!;
 
   const [props, restProps] = splitProps(inProps, ['class', 'classList', 'progress', 'canAnimate', 'hasCorrectAnswer', 'correct']);
 

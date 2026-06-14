@@ -66,7 +66,7 @@ const EditChatInviteLink: Component = () => {
 
       let chatInvite: ChatInvite;
       if(invite) {
-        const result = await tab.managers.appChatInvitesManager.editExportedChatInvite({
+        const result = await tab.managers.appChatInvitesManager!.editExportedChatInvite({
           chatId,
           link: invite.link,
           expireDate,
@@ -77,7 +77,7 @@ const EditChatInviteLink: Component = () => {
 
         chatInvite = result.invite as ChatInvite;
       } else {
-        chatInvite = await tab.managers.appChatInvitesManager.exportChatInvite({
+        chatInvite = await tab.managers.appChatInvitesManager!.exportChatInvite({
           chatId,
           title,
           requestNeeded,
@@ -95,8 +95,8 @@ const EditChatInviteLink: Component = () => {
       nameInputField.setOriginalValue(invite.title);
     }
 
-    const isBroadcastChat = await tab.managers.appChatsManager.isBroadcast(chatId);
-    const appConfig = await tab.managers.apiManager.getAppConfig();
+    const isBroadcastChat = await tab.managers.appChatsManager!.isBroadcast(chatId);
+    const appConfig = await tab.managers.apiManager!.getAppConfig();
 
     if(isBroadcastChat) {
       const row = new Row({
@@ -115,11 +115,11 @@ const EditChatInviteLink: Component = () => {
       wrapper.classList.add('input-wrapper');
       const inputField = paidLinkInputField = InputStarsField({
         label: 'InviteLink.Subscription.Placeholder',
-        max: appConfig.stars_subscription_amount_max,
+        max: appConfig.stars_subscription_amount_max!,
         middleware: tab.middlewareHelper.get(),
         onValue: (stars) => {
           rightLabel.replaceChildren(...(stars ? [
-            i18n('InviteLink.Subscription.Price', ['$' + (appConfig.stars_usd_sell_rate_x1000 / 1000 * stars / 100).toFixed(2)])
+            i18n('InviteLink.Subscription.Price', ['$' + (appConfig.stars_usd_sell_rate_x1000! / 1000 * stars / 100).toFixed(2)])!
           ] : []));
         }
       });
@@ -153,7 +153,7 @@ const EditChatInviteLink: Component = () => {
           return [
             ...values.map(range.generateStep),
             ['∞', undefined]
-          ];
+          ] as any[];
         },
         onValue: (value) => {
           if(!value) {
@@ -206,7 +206,7 @@ const EditChatInviteLink: Component = () => {
 
       const setExpiry = (timestamp?: number) => {
         if(!timestamp) {
-          row.titleRight.replaceChildren(i18n('EditInvitation.Never'));
+          row.titleRight.replaceChildren(i18n('EditInvitation.Never')!);
         } else {
           row.titleRight.replaceChildren(formatFullSentTime(timestamp));
         }
@@ -230,7 +230,7 @@ const EditChatInviteLink: Component = () => {
           return [
             ...values.map(range.generateStep),
             ['∞', undefined]
-          ];
+          ] as any[];
         },
         onValue: (value) => {
           setNumber(value);
@@ -254,7 +254,7 @@ const EditChatInviteLink: Component = () => {
           setCustomNumber(stepValues[0]);
         }
 
-        if(!findUpAsChild(e.target as HTMLElement, input)) {
+        if(!findUpAsChild(((e.target as HTMLElement)! as { parentElement: HTMLElement; }), input)) {
           placeCaretAtEnd(input);
         }
       });
@@ -287,7 +287,7 @@ const EditChatInviteLink: Component = () => {
         }
 
         if(!value) {
-          row.titleRight.replaceChildren(i18n('EditInvitation.Unlimited'));
+          row.titleRight.replaceChildren(i18n('EditInvitation.Unlimited')!);
         } else {
           inputRightNumber.value = '' + value;
           row.titleRight.replaceChildren(input);
@@ -313,7 +313,7 @@ const EditChatInviteLink: Component = () => {
       });
 
       if(invite) {
-        approveNewMembersCheckboxField.checked = invite?.pFlags?.request_needed;
+        approveNewMembersCheckboxField.checked = invite?.pFlags?.request_needed!;
       }
     }
 

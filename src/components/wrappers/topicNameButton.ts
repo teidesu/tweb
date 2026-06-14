@@ -25,7 +25,7 @@ export default async function wrapTopicNameButton(
     const avatar = avatarNew({
       peerId: options.peerId,
       isDialog: true,
-      middleware: options.wrapOptions.middleware,
+      middleware: options.wrapOptions!.middleware!,
       size: 30
     });
 
@@ -37,7 +37,7 @@ export default async function wrapTopicNameButton(
 
     options.withIcons = false;
   } else {
-    element = wrapTopicThreadAnchor({peerId, threadId, lastMsgId});
+    element = wrapTopicThreadAnchor({peerId: peerId!, threadId: threadId!, lastMsgId: lastMsgId!});
   }
 
   element.classList.add('topic-name', 'topic-name-button');

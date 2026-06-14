@@ -16,12 +16,12 @@ export default class LazyLoadQueueRepeat extends LazyLoadQueueIntersector {
       const {target, visible} = item;
 
       const queueItem = this.elementsMap.get(target);
-      queueItem.visible = visible;
+      queueItem!.visible = visible;
 
       if(visible) {
-        queueItem.wasSeen = true;
-        if(!this.queue.includes(queueItem)) {
-          this.queue.push(queueItem);
+        queueItem!.wasSeen = true;
+        if(!this.queue.includes(queueItem!)) {
+          this.queue.push(queueItem!);
         }
       } else {
         indexOfAndSplice(this.queue, queueItem);

@@ -17,8 +17,8 @@ export function IntersectionObserverTsx(props: {
 
   createEffect(() => {
     const child = childrenEl()
-    observer.observe(child)
-    onCleanup(() => observer.unobserve(child))
+    observer.observe(child!)
+    onCleanup(() => observer.unobserve(child!))
   })
 
   return <>{props.children}</>

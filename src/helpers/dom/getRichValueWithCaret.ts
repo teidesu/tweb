@@ -47,7 +47,7 @@ export function getCaretPos(field: Node) {
     }
   }
 
-  return {node: selNode, offset: selOffset};
+  return {node: selNode!, offset: selOffset!};
 }
 
 export default function getRichValueWithCaret(
@@ -58,9 +58,9 @@ export default function getRichValueWithCaret(
   const lines: string[] = [];
   const line: string[] = [];
 
-  const {node: selNode, offset: selOffset} = !(field instanceof DocumentFragment) && withCaret && getCaretPos(field);
+  const {node: selNode, offset: selOffset} = (!(field instanceof DocumentFragment) && withCaret && getCaretPos(field)) as {node: Node; offset: number};
 
-  const entities: MessageEntity[] = withEntities ? [] : undefined;
+  const entities: MessageEntity[] = (withEntities ? [] : undefined)!;
   const offset = {offset: 0};
   if(field instanceof DocumentFragment) {
     let curChild = field.firstChild as HTMLElement;
@@ -104,7 +104,7 @@ export default function getRichValueWithCaret(
         continue;
       }
 
-      entity.length = conflictingEntity.offset - entity.offset;
+      entity.length = conflictingEntity.offset! - entity.offset!;
       if(entity.length <= 0) {
         entities.splice(i--, 1);
       }

@@ -79,7 +79,7 @@ export class AppDocsManager extends AppManager {
     }
   };
 
-  public saveDoc(doc: Document, context?: ReferenceContext, altDocuments?: Document[]): MyDocument {
+  public saveDoc(doc: Document, context?: ReferenceContext, altDocuments?: Document[]): MyDocument | undefined {
     if(!doc || doc._ === 'documentEmpty') {
       return;
     }
@@ -98,7 +98,7 @@ export class AppDocsManager extends AppManager {
     // }
 
     if(altDocuments) {
-      const saved = altDocuments.map((altDoc) => this.saveDoc(altDoc, context)).filter(Boolean);
+      const saved = altDocuments.map((altDoc) => this.saveDoc(altDoc, context)).filter(Boolean) as Document.document[];
       this.altDocsByMainMediaDocument[doc.id] = saved;
       altDocuments.splice(0, altDocuments.length, ...saved);
     }
@@ -107,7 +107,7 @@ export class AppDocsManager extends AppManager {
 
     if(doc.file_reference) { // * because we can have a new object w/o the file_reference while sending
       safeReplaceArrayInObject('file_reference', oldDoc, doc);
-      this.referencesStorage.saveContext(doc.file_reference, context);
+      this.referencesStorage.saveContext(doc.file_reference, context!);
     }
 
     // console.log('saveDoc', apiDoc, this.docs[apiDoc.id]);
@@ -179,7 +179,7 @@ export class AppDocsManager extends AppManager {
 
           if(attribute.stickerset) {
             if(attribute.stickerset._ === 'inputStickerSetEmpty') {
-              delete attribute.stickerset;
+              delete (attribute as any).stickerset;
             } else if(attribute.stickerset._ === 'inputStickerSetID') {
               doc.stickerSetInput = attribute.stickerset;
             }
@@ -266,7 +266,7 @@ export class AppDocsManager extends AppManager {
     if(
       appManagersManager.isServiceWorkerOnline &&
       (
-        (doc.type === 'gif' && doc.size > 8e6) ||
+        (doc.type === 'gif' && doc.size! > 8e6) ||
         doc.type === 'audio' ||
         doc.type === 'video'
       )/*  || doc.mime_type.indexOf('video/') === 0 */
@@ -357,7 +357,7 @@ export class AppDocsManager extends AppManager {
       file_name: file.name
     };
 
-    document = this.saveDoc(document);
+    document = (this.saveDoc(document) as Document.document);
 
     const cacheContext = this.thumbsStorage.setCacheContextURL(document, undefined, URL.createObjectURL(file), file.size);
 
@@ -393,8 +393,8 @@ export class AppDocsManager extends AppManager {
         }
       }).then((wallPaper) => {
         assumeType<WallPaper.wallPaper>(wallPaper);
-        wallPaper.document = this.saveDoc(wallPaper.document);
-        this.thumbsStorage.setCacheContextURL(wallPaper.document, undefined, cacheContext.url, cacheContext.downloaded);
+        wallPaper.document = (this.saveDoc(wallPaper.document) as Document);
+        this.thumbsStorage.setCacheContextURL(wallPaper.document! as any, undefined, cacheContext.url, cacheContext.downloaded);
 
         return wallPaper;
       });

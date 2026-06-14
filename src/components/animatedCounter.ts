@@ -124,7 +124,7 @@ export class AnimatedCounter {
         }
       } else {
         const text = (this.prefix || '') + texts.join('');
-        width = calculateWidth(text);
+        width = calculateWidth!(text);
       }
 
       this.container.style.setProperty('--width', width + 'px');

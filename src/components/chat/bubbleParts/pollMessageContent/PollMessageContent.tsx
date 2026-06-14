@@ -176,7 +176,7 @@ export const PollMessageContent =
       wrappedAddOption
     } = usePollMutations({
       getOverridenMessage,
-      isShowingResult,
+      isShowingResult: isShowingResult as () => boolean,
       initialIdxFromShuffledIdx,
       newOption,
       onSuccess: resetInteractiveState
@@ -195,12 +195,12 @@ export const PollMessageContent =
       };
 
       if(descriptionPhoto() || descriptionVideo()) {
-        media.push(descriptionPhoto() || descriptionVideo());
+        media.push((descriptionPhoto() || descriptionVideo())!);
         indexes.description = idxSeed++;
       }
 
       if(explanationPhoto() || explanationVideo()) {
-        media.push(explanationPhoto() || explanationVideo());
+        media.push((explanationPhoto() || explanationVideo())!);
         indexes.explanation = idxSeed++;
       }
 
@@ -208,7 +208,7 @@ export const PollMessageContent =
         const photo = getPhotoForOption(idx);
         const video = getVideoForOption(idx);
         if(photo || video) {
-          media.push(photo || video);
+          media.push((photo || video)!);
           indexes.options.set(idx, idxSeed++);
         }
       });
@@ -275,17 +275,17 @@ export const PollMessageContent =
 
     createEffect(() => {
       if(!descriptionElement()) return;
-      attachSpoilerOverlay(descriptionElement(), props);
+      attachSpoilerOverlay(descriptionElement()!, props);
     });
 
     // ----- Imperative controls -----
     props.controls.openMediaViewer = (idx: number) => {
       const getTarget = (idx: number): AppMediaViewerStaticTargetType => ({
         media: mediaViewerPayload().media[idx],
-        element: elementByIndexMap.get(idx)?.querySelector('.media-video, .media-photo'),
-        fromId: props.message.fromId,
+        element: elementByIndexMap.get(idx)?.querySelector('.media-video, .media-photo')!,
+        fromId: props.message.fromId!,
         timestamp: props.message.date,
-        peerId: props.message.peerId,
+        peerId: props.message.peerId!,
         mid: props.message.mid
       });
 
@@ -327,7 +327,7 @@ export const PollMessageContent =
               <Switch>
                 <Match when={descriptionPhoto()}>
                   <PhotoTsx
-                    photo={descriptionPhoto()}
+                    photo={descriptionPhoto()!}
                     loadPromises={unwrap(props.loadPromises)}
                     autoDownloadSize={props.autoDownload?.photo}
                     lazyLoadQueue={unwrap(props.lazyLoadQueue)}
@@ -336,7 +336,7 @@ export const PollMessageContent =
                 </Match>
                 <Match when={descriptionVideo()}>
                   <VideoTsx
-                    doc={descriptionVideo()}
+                    doc={descriptionVideo()!}
                     loadPromises={unwrap(props.loadPromises)}
                     group={props.animationGroup}
                     autoDownload={unwrap(props.autoDownload)}
@@ -351,7 +351,7 @@ export const PollMessageContent =
                 <Match when={descriptionGeo()}>
                   <GeoPreview
                     class={styles.geo}
-                    geo={descriptionGeo()}
+                    geo={descriptionGeo()!}
                   />
                 </Match>
               </Switch>
@@ -377,7 +377,7 @@ export const PollMessageContent =
           <div ref={setDescriptionElement} class={styles.description}>
             <TranslatableMessageTsx
               peerId={props.peerId}
-              textWithEntities={{_: 'textWithEntities', text: descriptionText(), entities: unwrap(descriptionEntities())}}
+              textWithEntities={{_: 'textWithEntities', text: descriptionText(), entities: unwrap(descriptionEntities())!}}
               richTextOptions={{middleware: createMiddleware().get(), loadPromises: unwrap(props.loadPromises)}}
             />
           </div>
@@ -408,8 +408,8 @@ export const PollMessageContent =
 
         <Show when={explanationToggled()}>
           <Explanation
-            text={props.results?.solution}
-            entities={props.results?.solution_entities}
+            text={props.results!.solution!}
+            entities={props.results!.solution_entities!}
             photo={explanationPhoto()}
             video={explanationVideo()}
             document={explanationDocument()}

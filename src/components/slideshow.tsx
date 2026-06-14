@@ -29,13 +29,13 @@ export default function Slideshow<T>(props: SlideshowProps<T>) {
   const [isSwiping, setIsSwiping] = createSignal(false);
   const [noTransition, setNoTransition] = createSignal(false);
 
-  const getCount = () => props.items.length;
+  const getCount = () => props.items!.length;
 
   let width = 0, x = 0, lastDiffX = 0, minX = 0;
 
   onMount(() => {
     swipeHandler = new SwipeHandler({
-      element: container,
+      element: container!,
       onSwipe: (xDiff, yDiff) => {
         xDiff *= -1;
 
@@ -44,7 +44,7 @@ export default function Slideshow<T>(props: SlideshowProps<T>) {
         if(lastX > 0) lastX = 0;
         else if(lastX < minX) lastX = minX;
 
-        itemsContainer.style.transform = TRANSLATE_TEMPLATE.replace('{x}', lastX + 'px');
+        itemsContainer!.style.transform = TRANSLATE_TEMPLATE.replace('{x}', lastX + 'px');
         return false;
       },
       verifyTouchTarget: (e) => {
@@ -52,16 +52,16 @@ export default function Slideshow<T>(props: SlideshowProps<T>) {
         return true;
       },
       onFirstSwipe: () => {
-        const rect = itemsContainer.getBoundingClientRect();
+        const rect = itemsContainer!.getBoundingClientRect();
         width = rect.width;
         minX = -width * (getCount() - 1);
-        x = rect.left - container.getBoundingClientRect().left;
+        x = rect.left - container!.getBoundingClientRect().left;
 
-        itemsContainer.style.transform = TRANSLATE_TEMPLATE.replace('{x}', x + 'px');
+        itemsContainer!.style.transform = TRANSLATE_TEMPLATE.replace('{x}', x + 'px');
 
         setIsSwiping(true);
         setNoTransition(true);
-        void itemsContainer.offsetLeft; // reflow
+        void itemsContainer!.offsetLeft; // reflow
       },
       onReset: () => {
         const addIndex = Math.ceil(Math.abs(lastDiffX) / (width / SCALE)) * (lastDiffX >= 0 ? 1 : -1);
@@ -91,7 +91,7 @@ export default function Slideshow<T>(props: SlideshowProps<T>) {
 
   createEffect(() => {
     const i = index();
-    if(itemsContainer) {
+    if(itemsContainer!) {
       itemsContainer.style.transform = TRANSLATE_TEMPLATE.replace('{x}', `${-i * 100}%`);
     }
   });
@@ -103,7 +103,7 @@ export default function Slideshow<T>(props: SlideshowProps<T>) {
     const target = e.target as HTMLElement;
     if(findUpClassName(target, styles.Arrow)) return;
 
-    const rect = container.getBoundingClientRect();
+    const rect = container!.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const isLeft = x < (rect.width / 3);
     const isRight = x > (rect.width * 2 / 3);
@@ -137,7 +137,7 @@ export default function Slideshow<T>(props: SlideshowProps<T>) {
 
   return (
     <div
-      ref={container}
+      ref={container!}
       class={classNames(
         styles.Slideshow,
         isSwiping() && styles.IsSwiping,
@@ -148,7 +148,7 @@ export default function Slideshow<T>(props: SlideshowProps<T>) {
       onClick={handleClick}
     >
       <div
-        ref={itemsContainer}
+        ref={itemsContainer!}
         class={styles.Items}
       >
         <For each={props.items}>{(item, i) => (

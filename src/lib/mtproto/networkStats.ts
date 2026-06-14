@@ -27,7 +27,7 @@ export class NetworkStats {
       for(let i = 0; i < awaitingLength; ++i) {
         const awaiting = awaitingChunks[i];
         if(length >= awaiting.length) {
-          awaiting.deferred.resolve();
+          awaiting.deferred.resolve!();
           break;
         }
       }

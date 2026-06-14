@@ -77,9 +77,9 @@ export const AppNotificationsTab =
 
 export function getEditProfileInitArgs(): Omit<EditProfileTabPayload, 'focusOn'> {
   return {
-    bioMaxLength: rootScope.managers.apiManager.getLimit('bio'),
-    user: rootScope.managers.appUsersManager.getSelf(),
-    userFull: rootScope.managers.appProfileManager.getProfile(rootScope.myId.toUserId())
+    bioMaxLength: rootScope.managers.apiManager!.getLimit('bio'),
+    user: rootScope.managers.appUsersManager!.getSelf(),
+    userFull: rootScope.managers.appProfileManager!.getProfile(rootScope.myId.toUserId())
   };
 }
 
@@ -524,9 +524,9 @@ export const AppGroupPermissionsTab =
   });
 
 const getPrivacyAndSecurityInitArgs = (fromTab: SliderSuperTab) => ({
-  appConfig: fromTab.managers.apiManager.getAppConfig(),
-  globalPrivacy: fromTab.managers.appPrivacyManager.getGlobalPrivacySettings(),
-  webAuthorizations: fromTab.managers.appSeamlessLoginManager.getWebAuthorizations()
+  appConfig: fromTab.managers.apiManager!.getAppConfig(),
+  globalPrivacy: fromTab.managers.appPrivacyManager!.getGlobalPrivacySettings(),
+  webAuthorizations: fromTab.managers.appSeamlessLoginManager!.getWebAuthorizations()
 });
 
 type AppPrivacyAndSecurityTabPayload = ReturnType<typeof getPrivacyAndSecurityInitArgs>;
@@ -602,7 +602,7 @@ export const AppEditChatTab =
 function getChatFoldersInitArgs() {
   return {
     animationData: lottieLoader.loadAnimationFromURLManually('Folders_1'),
-    filters: rootScope.managers.filtersStorage.getDialogFilters()
+    filters: rootScope.managers.filtersStorage!.getDialogFilters()
   };
 }
 

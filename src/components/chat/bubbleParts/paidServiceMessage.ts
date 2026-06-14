@@ -31,14 +31,14 @@ export default function addPaidServiceMessage({isAnyGroup, bubble, message, our,
     const totalStars = paidStars * messageCount;
 
     const i18nElement = repayRequest ?
-      i18n('PaidMessages.FailedToPayForMessage', [messageCount, i18n('Stars', [totalStars])]) :
+      i18n('PaidMessages.FailedToPayForMessage', [messageCount, i18n('Stars', [totalStars])!]) :
       our ?
-        i18n('PaidMessages.YouPaidToSendMessages', [messageCount, i18n('Stars', [totalStars])]) :
-        i18n('PaidMessages.YouReceivedStarsFrom', [await wrapPeerTitle({peerId: peerId, onlyFirstName: true}), i18n('Stars', [totalStars])])
+        i18n('PaidMessages.YouPaidToSendMessages', [messageCount, i18n('Stars', [totalStars])!]) :
+        i18n('PaidMessages.YouReceivedStarsFrom', [await wrapPeerTitle({peerId: peerId, onlyFirstName: true}), i18n('Stars', [totalStars])!])
 
-    i18nElement.classList.add('service-msg-i18n-element');
+    i18nElement!.classList.add('service-msg-i18n-element');
 
-    paidServiceMessage.append(i18nElement);
+    paidServiceMessage.append(i18nElement!);
 
     bubble.prepend(paidServiceMessage);
   })();

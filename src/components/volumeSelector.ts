@@ -18,7 +18,7 @@ export default class VolumeSelector extends RangeSelector {
   protected vertical: boolean;
   protected media: HTMLMediaElement;
   protected useGlobalVolume: 'auto' | 'no-init';
-  protected onVolumeChange: (type: 'global' | 'click') => void;
+  protected onVolumeChange: ((type: 'global' | 'click') => void) | undefined;
   protected ignoreGlobalEvents: boolean;
 
   constructor(options: {
@@ -62,7 +62,7 @@ export default class VolumeSelector extends RangeSelector {
     btn.classList.add('btn-icon', className);
 
     attachClickEvent(btn, (e) => {
-      if(!findUpClassName(e.target, className + '__icon') && e.target !== this.btn) {
+      if(!findUpClassName(e.target!, className + '__icon') && e.target !== this.btn) {
         return;
       }
 

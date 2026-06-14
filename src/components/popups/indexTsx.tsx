@@ -101,7 +101,7 @@ export const useSnitchedPopupContext = () => {
 
   return {
     SnitchPopupContext: () => {
-      context = useContext(PopupContext);
+      context = useContext(PopupContext)!;
       return <></>;
     },
     popupContext: () => context
@@ -220,7 +220,7 @@ const PopupElement = (props: {
     setTimeout(() => {
       setHiding(false);
       middlewareHelper.destroy();
-      controllerContext.dispose(); // * call it here for the content
+      controllerContext!.dispose(); // * call it here for the content
       MarkupTooltip.getInstance().hide();
 
       if(!withoutOverlay) {
@@ -254,7 +254,7 @@ const PopupElement = (props: {
 
   if(props.btnConfirmOnEnter) {
     createEffect(() => {
-      setBtnConfirmOnEnter(props.btnConfirmOnEnter());
+      setBtnConfirmOnEnter(props.btnConfirmOnEnter!());
     });
   }
 
@@ -277,7 +277,7 @@ const PopupElement = (props: {
     night,
     confirmShortcutIsSendShortcut,
     get btnConfirmOnEnter() { return btnConfirmOnEnter(); },
-    setBtnConfirmOnEnter: props.btnConfirmOnEnter ? noop as typeof setBtnConfirmOnEnter : setBtnConfirmOnEnter,
+    setBtnConfirmOnEnter: ((props.btnConfirmOnEnter ? noop as typeof setBtnConfirmOnEnter : setBtnConfirmOnEnter)! as Setter<HTMLElement>),
     isConfirmationNeededOnClose,
     closable: props.closable || false,
     get element() { return popupElement(); },
@@ -300,7 +300,7 @@ const PopupElement = (props: {
         callback = hide;
       }
 
-      if(callback) {
+      if(callback!) {
         doubleRaf().then(callback);
       }
     }));
@@ -310,7 +310,7 @@ const PopupElement = (props: {
     }, 0);
   }
 
-  let mouseDownTarget: Element;
+  let mouseDownTarget: Element | undefined;
 
   return (
     <PopupContext.Provider value={value}>
@@ -372,7 +372,7 @@ PopupElement.Header = (props: {
   class?: string,
   children?: JSX.Element
 }) => {
-  return useContext(PopupContext).register('header', (
+  return useContext(PopupContext)!.register('header', (
     <div class={classNames('popup-header', props.class)}>
       {props.children}
     </div>
@@ -396,7 +396,7 @@ PopupElement.Title = (props: {
     return props.children;
   };
 
-  return context.register('title', (
+  return context!.register('title', (
     <Show when={titleContent()}>
       <div class={classNames('popup-title', props.class)} dir="auto">
         {titleContent()}
@@ -416,11 +416,11 @@ PopupElement.CloseButton = (props: {
     if(props.canGoBack && props.onBackClick) {
       props.onBackClick()
     } else {
-      context.hide();
+      context!.hide();
     }
   };
 
-  return context.register('closeButton', (
+  return context!.register('closeButton', (
     <button
       class={classNames('btn-icon popup-close', props.class)}
       onClick={handleClick}
@@ -436,7 +436,7 @@ PopupElement.Body = (props: {
   children: JSX.Element,
   class?: string
 }) => {
-  return useContext(PopupContext).register('body', (
+  return useContext(PopupContext)!.register('body', (
     <div class={classNames('popup-body', props.class)}>
       {props.children}
     </div>
@@ -445,10 +445,10 @@ PopupElement.Body = (props: {
 
 PopupElement.Scrollable = (props: Parameters<typeof Scrollable>[0]) => {
   const context = useContext(PopupContext);
-  return context.register('body', (
+  return context!.register('body', (
     <Scrollable
       contextRef={(ref) => {
-        context.scrollableRef = ref;
+        context!.scrollableRef = ref;
         props.contextRef?.(ref);
       }}
       {...props}
@@ -466,7 +466,7 @@ PopupElement.Footer = (props: {
   floating?: boolean,
   sticky?: boolean
 }) => {
-  return useContext(PopupContext).register('footer', (
+  return useContext(PopupContext)!.register('footer', (
     <div
       class={classNames(
         'popup-footer popup-footer-abitlarger',
@@ -530,7 +530,7 @@ PopupElement.Button = (props: {
   const [disabled, setDisabled] = createSignal(false);
 
   const handleClick = async(e: MouseEvent) => {
-    if(context.destroyed) return;
+    if(context!.destroyed) return;
     let result = props.callback?.(e);
     if(result !== undefined && result instanceof Promise) {
       setDisabled(true);
@@ -550,23 +550,23 @@ PopupElement.Button = (props: {
       return;
     }
 
-    context.hide();
+    context!.hide();
   };
 
   onMount(() => {
     createEffect(() => {
       if(props.confirm) {
-        context.setBtnConfirmOnEnter(ref);
+        context!.setBtnConfirmOnEnter(ref);
 
         onCleanup(() => {
-          context.setBtnConfirmOnEnter();
+          context!.setBtnConfirmOnEnter(undefined!);
         });
       }
     });
   });
 
   let ref: HTMLButtonElement;
-  return context.registerButton(props, (
+  return context!.registerButton(props, (
     <Button
       class={classNames(
         !props.noDefaultClass && 'popup-button btn',
@@ -594,7 +594,7 @@ PopupElement.Buttons = (props: {
   children?: JSX.Element
 }) => {
   const context = useContext(PopupContext);
-  return context.register('buttons', (
+  return context!.register('buttons', (
     <div class={classNames('popup-buttons', props.class)}>
       {props.children}
     </div>

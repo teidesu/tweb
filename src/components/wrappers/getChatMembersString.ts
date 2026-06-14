@@ -34,9 +34,9 @@ export default function getChatMembersString(
   }
 
   if(onlySync) {
-    return _getChatMembersString(chat, undefined);
+    return _getChatMembersString(chat, undefined!);
   }
 
-  const result = chatFull || managers.appProfileManager.getCachedFullChat(chatId);
+  const result = chatFull || managers.appProfileManager!.getCachedFullChat(chatId);
   return callbackify(result, (chatFull) => _getChatMembersString(chat, chatFull));
 }

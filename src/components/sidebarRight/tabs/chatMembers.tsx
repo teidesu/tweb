@@ -24,11 +24,11 @@ const ChatMembers: Component = () => {
   let selector: AppSelectPeers;
 
   promiseCollector.collect((async() => {
-    const chat = await tab.managers.appChatsManager.getChat(chatId) as Chat.channel | Chat.chat;
-    const isBroadcast = await tab.managers.appChatsManager.isBroadcast(chatId);
-    const channelFull = await tab.managers.appProfileManager.getChannelFull(chatId).catch(() => undefined as ChatFull.channelFull);
+    const chat = await tab.managers.appChatsManager!.getChat(chatId) as Chat.channel | Chat.chat;
+    const isBroadcast = await tab.managers.appChatsManager!.isBroadcast(chatId);
+    const channelFull = await tab.managers.appProfileManager!.getChannelFull(chatId).catch(() => undefined as unknown as ChatFull.channelFull);
     tab.container.classList.add('edit-peer-container', 'chat-members-container');
-    tab.title.replaceChildren(i18n(isBroadcast ? 'PeerInfo.Subscribers' : 'GroupMembers'));
+    tab.title.replaceChildren(i18n(isBroadcast ? 'PeerInfo.Subscribers' : 'GroupMembers')!);
 
     const canAddMembers = hasRights(chat, 'invite_users');
     const addBtn = ButtonCorner({icon: 'addmember_filled', className: 'is-visible'});
@@ -43,7 +43,7 @@ const ChatMembers: Component = () => {
 
     const participantsCount = (chat as Chat.chat).participants_count;
     const canHideMembers = !isBroadcast &&
-      participantsCount >= ((await tab.managers.apiManager.getAppConfig()).hidden_members_group_size_min || 0) &&
+      participantsCount >= ((await tab.managers.apiManager!.getAppConfig()).hidden_members_group_size_min || 0) &&
       hasRights(chat, 'just_admin');
 
     const {selector: _selector, loadPromise} = createSelectorForParticipants({
@@ -81,7 +81,7 @@ const ChatMembers: Component = () => {
           return;
         }
 
-        const promise = handleChannelsTooMuch(() => tab.managers.appChatsManager.toggleParticipantsHidden(chatId, _checked))
+        const promise = handleChannelsTooMuch(() => tab.managers.appChatsManager!.toggleParticipantsHidden(chatId, _checked))
         .catch((err) => {
           console.error('toggleParticipantsHidden error', err);
           row.checkboxField.setValueSilently(!_checked);
@@ -91,7 +91,7 @@ const ChatMembers: Component = () => {
 
       section.content.append(row.container);
 
-      selector.scrollable.append(section.container, selector.scrollable.container.lastElementChild);
+      selector.scrollable.append(section.container, selector.scrollable.container.lastElementChild!);
     }
 
     createParticipantContextMenu({

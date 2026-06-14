@@ -68,7 +68,7 @@ class ChatBackgroundStore extends StaticUtilityClass {
         throw err;
       }
 
-      const wallPaper = await managers.appThemesManager.getWallPaperBySlug(slug);
+      const wallPaper = await managers.appThemesManager!.getWallPaperBySlug(slug);
       let url = await appDownloadManager.downloadMediaURL({
         media: (wallPaper as WallPaper.wallPaper).document as Document.document
       });
@@ -122,7 +122,7 @@ class ChatBackgroundStore extends StaticUtilityClass {
   ) {
     let wallPapers: WallPaper[];
     try {
-      wallPapers = await managers.appThemesManager.getWallPapers();
+      wallPapers = await managers.appThemesManager!.getWallPapers();
     } catch(err) {
       return; // best-effort prefetch — give up silently if the list can't be fetched
     }

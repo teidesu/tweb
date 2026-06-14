@@ -34,7 +34,7 @@ export default function BusinessHours(props: {
     title: true,
     titleRight: (
       <span
-        ref={switchElement}
+        ref={switchElement!}
         class={classNames('business-hours-switch-time', showInMyTimezone() === undefined && 'hide')}
       >
         {showInMyTimezone() !== undefined && i18n(showInMyTimezone() ? 'BusinessHoursProfileSwitchMy' : 'BusinessHoursProfileSwitchLocal')}
@@ -43,7 +43,7 @@ export default function BusinessHours(props: {
     subtitleLangKey: 'BusinessHoursProfile',
     subtitleRight: true,
     clickable: (e) => {
-      if(findUpAsChild(e.target as HTMLElement, switchElement)) {
+      if(findUpAsChild(((e.target as HTMLElement)! as { parentElement: HTMLElement; }), switchElement!)) {
         setShowInMyTimezone((value) => !value);
         runWithOwner(owner, () => {
           update();
@@ -61,7 +61,7 @@ export default function BusinessHours(props: {
         icon: 'copy',
         text: 'Copy',
         onClick: () => {
-          copyTextToClipboard(text());
+          copyTextToClipboard(text()!);
           toastNew({langPackKey: 'BusinessHoursCopied'});
         }
       }]
@@ -72,11 +72,11 @@ export default function BusinessHours(props: {
   const updateContainerStyles = () => {
     let height: number;
     if(expanded() && !is24x7()) {
-      const rect = row.container.querySelector('.business-hours').getBoundingClientRect();
+      const rect = row.container.querySelector('.business-hours')!.getBoundingClientRect();
       height = rect.height;
     }
 
-    row.container.style.paddingBottom = height ? `${7 + 3 + height}px` : '';
+    row.container.style.paddingBottom = height! ? `${7 + 3 + height}px` : '';
     row.container.classList.toggle('is-expanded', expanded());
   };
 
@@ -168,7 +168,7 @@ export default function BusinessHours(props: {
 
     const daysFormattedToUse = _showInMyTimezone ? myDaysFormatted : localDaysFormatted;
 
-    row.title.replaceChildren(i18n(openNow ? 'BusinessHoursProfileNowOpen' : 'BusinessHoursProfileNowClosed'));
+    row.title.replaceChildren(i18n(openNow ? 'BusinessHoursProfileNowOpen' : 'BusinessHoursProfileNowClosed')!);
     row.title.classList.toggle('green', openNow);
     row.title.classList.toggle('danger', !openNow);
 

@@ -15,7 +15,7 @@ export function isSavingLottiePreview(doc: MyDocument, toneIndex: number | strin
 let sharedCanvas: HTMLCanvasElement, sharedContext: CanvasRenderingContext2D;
 const createCanvas = () => {
   rootScope.addEventListener('theme_changed', () => {
-    rootScope.managers.thumbsStorage.clearColoredStickerThumbs();
+    rootScope.managers.thumbsStorage!.clearColoredStickerThumbs();
 
     for(const key in savingLottiePreview) {
       const [, toneIndex] = key.split('-');
@@ -26,7 +26,7 @@ const createCanvas = () => {
   });
 
   sharedCanvas = document.createElement('canvas');
-  sharedContext = sharedCanvas.getContext('2d');
+  sharedContext = sharedCanvas.getContext('2d')!;
 };
 
 export async function saveLottiePreview(doc: MyDocument, canvas: HTMLCanvasElement, toneIndex: number | string) {
@@ -41,7 +41,7 @@ export async function saveLottiePreview(doc: MyDocument, canvas: HTMLCanvasEleme
     height
   };
 
-  const thumb = await rootScope.managers.thumbsStorage.getStickerCachedThumb(doc.id, toneIndex);
+  const thumb = await rootScope.managers.thumbsStorage!.getStickerCachedThumb(doc.id, toneIndex);
   if(savingLottiePreview[key] !== saving) {
     return;
   }
@@ -63,7 +63,7 @@ export async function saveLottiePreview(doc: MyDocument, canvas: HTMLCanvasEleme
   }
 
   const promise = new Promise<Blob>((resolve) => {
-    canvas.toBlob((blob) => resolve(blob));
+    canvas.toBlob((blob) => resolve(blob!));
   });
 
   const blob = await promise;
@@ -77,5 +77,5 @@ export async function saveLottiePreview(doc: MyDocument, canvas: HTMLCanvasEleme
     return;
   }
 
-  rootScope.managers.thumbsStorage.saveStickerPreview(doc.id, blob, width, height, toneIndex);
+  rootScope.managers.thumbsStorage!.saveStickerPreview(doc.id, blob, width, height, toneIndex);
 }

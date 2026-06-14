@@ -95,10 +95,10 @@ export default class UsernamesSection extends SettingSection {
       onElementCreate: (base) => {
         const username = _usernames.find((username) => username.username === base.id);
         const row = new UsernameRow();
-        row.title.textContent = '@' + username.username;
+        row.title.textContent = '@' + username!.username;
 
-        const editable = !!username.pFlags.editable;
-        const active = !!username.pFlags.active;
+        const editable = !!username!.pFlags.editable;
+        const active = !!username!.pFlags.active;
 
         if(editable) row.container.dataset.editable = '1';
 
@@ -114,7 +114,7 @@ export default class UsernamesSection extends SettingSection {
     });
 
     const changeActive = (row: Row, active: boolean) => {
-      row.subtitle.replaceChildren(i18n(row.container.dataset.editable ? (botId ? 'UsernameLinkBotUsername' : 'UsernameLinkEditable') : (active ? 'UsernameLinkActive' : 'UsernameLinkInactive')));
+      row.subtitle.replaceChildren(i18n(row.container.dataset.editable ? (botId ? 'UsernameLinkBotUsername' : 'UsernameLinkEditable') : (active ? 'UsernameLinkActive' : 'UsernameLinkInactive'))!);
       row.container.classList.toggle('active', active);
       row.toggleSorting(active);
     };
@@ -134,7 +134,7 @@ export default class UsernamesSection extends SettingSection {
         } else {
           const element = sortedList.get(username.username);
           sortedList.update(username.username, element);
-          changeActive(element.row, !!username.pFlags.active);
+          changeActive(element!.row, !!username.pFlags.active);
         }
       });
 
@@ -148,7 +148,7 @@ export default class UsernamesSection extends SettingSection {
         return;
       }
 
-      const peer = await managers.appPeersManager.getPeer(peerId);
+      const peer = await managers.appPeersManager!.getPeer(peerId);
       applyUsernames((peer as User.user).usernames);
     });
 
@@ -159,7 +159,7 @@ export default class UsernamesSection extends SettingSection {
         return;
       }
 
-      const container = findUpAsChild(e.target as HTMLElement, list);
+      const container = findUpAsChild(((e.target as HTMLElement)! as { parentElement: HTMLElement; }), list) as HTMLElement | null;
       if(!container) {
         return;
       }
@@ -197,9 +197,9 @@ export default class UsernamesSection extends SettingSection {
       }
 
       const newActive = !active;
-      const promise = managers.appUsernamesManager.toggleUsername({
+      const promise = managers.appUsernamesManager!.toggleUsername({
         peerId,
-        username,
+        username: username!,
         active: newActive
       });
 
@@ -227,7 +227,7 @@ export default class UsernamesSection extends SettingSection {
         // sortedList.update(username.username);
 
         const usernames = _usernames.filter((username) => username.pFlags.active).map((username) => username.username);
-        managers.appUsernamesManager.reorderUsernames({peerId, order: usernames});
+        managers.appUsernamesManager!.reorderUsernames({peerId, order: usernames});
       }
     });
 

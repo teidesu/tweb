@@ -16,7 +16,7 @@ export default function wrapStickerToRow({doc, row, size, managers}: {
     media.classList.add('hide');
   }
 
-  const loadPromises: Promise<any>[] = previousMedia ? [] : undefined;
+  const loadPromises: Promise<any>[] = (previousMedia ? [] : undefined)!;
 
   const _size = size === 'small' ? 32 : 48;
   const result = wrapSticker({

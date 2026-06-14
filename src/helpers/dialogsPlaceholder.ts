@@ -14,7 +14,7 @@ export default class DialogsPlaceholder {
   private ctx: CanvasRenderingContext2D;
   private shimmer: Shimmer;
   private tempId: number;
-  private detachTime: number;
+  private detachTime: number | undefined;
 
   private length: number;
   private dialogHeight: number;
@@ -37,8 +37,8 @@ export default class DialogsPlaceholder {
   }[];
 
   private getRectFrom: () => Pick<DOMRectEditable, 'width' | 'height'>;
-  private onRemove: () => void;
-  private blockScrollable: Scrollable;
+  private onRemove: (() => void) | undefined;
+  private blockScrollable: Scrollable | undefined;
 
   private night: boolean;
   private noSecondLine: boolean;
@@ -56,11 +56,11 @@ export default class DialogsPlaceholder {
     night: boolean
   }> = {}) {
     this.shimmer = new Shimmer();
-    this.shimmer.night = this.night = sizes.night;
+    this.shimmer.night = (this.night = sizes.night!)!;
     this.tempId = 0;
     this.canvas = document.createElement('canvas');
     this.canvas.classList.add('dialogs-placeholder-canvas');
-    this.ctx = this.canvas.getContext('2d');
+    this.ctx = this.canvas.getContext('2d')!;
 
     this.generatedValues = [];
     this.avatarSize = sizes.avatarSize ?? 54;
@@ -73,7 +73,7 @@ export default class DialogsPlaceholder {
     this.lineBorderRadius = 6;
     this.lineMarginVertical = sizes.lineMarginVertical ?? 8;
     this.statusWidth = sizes.statusWidth ?? 24;
-    this.noSecondLine = sizes.noSecondLine;
+    this.noSecondLine = sizes.noSecondLine!;
   }
 
   public attach({container, rect, getRectFrom, onRemove, blockScrollable}: {
@@ -86,9 +86,9 @@ export default class DialogsPlaceholder {
     const {canvas} = this;
 
     this.detachTime = undefined;
-    this.onRemove = onRemove;
+    this.onRemove = onRemove!;
     this.getRectFrom = typeof(getRectFrom) === 'function' ? getRectFrom : (getRectFrom || container).getBoundingClientRect.bind(getRectFrom || container);
-    if(this.blockScrollable = blockScrollable) {
+    if(this.blockScrollable = blockScrollable!) {
       blockScrollable.container.style.overflowY = 'hidden';
     }
 
@@ -225,7 +225,7 @@ export default class DialogsPlaceholder {
 
     shimmer.settings({
       canvas,
-      fillStyle: pattern
+      fillStyle: pattern!
     });
 
     const middleware = () => {
@@ -284,18 +284,18 @@ export default class DialogsPlaceholder {
     patternCanvas.width = canvas.width;
     patternCanvas.height = canvas.height;
 
-    patternContext.fillStyle = customProperties.getProperty('surface-color', this.night);
-    patternContext.fillRect(0, 0, patternCanvas.width, patternCanvas.height);
+    patternContext!.fillStyle = customProperties.getProperty('surface-color', this.night);
+    patternContext!.fillRect(0, 0, patternCanvas.width, patternCanvas.height);
 
-    patternContext.fillStyle = '#000';
-    patternContext.globalCompositeOperation = 'destination-out';
+    patternContext!.fillStyle = '#000';
+    patternContext!.globalCompositeOperation = 'destination-out';
 
-    const dialogHeight = this.dialogHeight = this.totalHeight * dpr;
-    const gapVertical = this.gapVertical * dpr;
+    const dialogHeight = this.dialogHeight = this.totalHeight * dpr!;
+    const gapVertical = this.gapVertical * dpr!;
     let gapVerticalSum = 0;
     const length = this.length = Math.ceil(canvas.height / dialogHeight);
     for(let i = 0; i < length; ++i) {
-      this.drawChat(patternContext, i, i * dialogHeight + gapVerticalSum);
+      this.drawChat(patternContext!, i, i * dialogHeight + gapVerticalSum);
       gapVerticalSum += gapVertical;
     }
 
@@ -308,7 +308,7 @@ export default class DialogsPlaceholder {
       generatedValues = this.generatedValues[i] = {
         firstLineWidth: 40 + Math.random() * 100, // 120
         secondLineWidth: this.noSecondLine ? 0 : 120 + Math.random() * 130, // 240
-        statusWidth: this.statusWidth ? this.statusWidth + Math.random() * 16 : undefined
+        statusWidth: (this.statusWidth ? this.statusWidth + Math.random() * 16 : undefined)!
       };
     }
 
@@ -320,7 +320,7 @@ export default class DialogsPlaceholder {
 
     const {canvas} = ctx;
     const {dpr} = canvas;
-    y /= dpr;
+    y /= dpr!;
 
     const {
       avatarSize,
@@ -342,6 +342,6 @@ export default class DialogsPlaceholder {
     // roundRect(ctx, marginLeft, y + marginVertical + avatarSize - lineHeight - lineMarginVertical, secondLineWidth, lineHeight, lineBorderRadius, true);
     secondLineWidth && roundRect(ctx, marginLeft, y + this.totalHeight - marginVertical - lineHeight - lineMarginVertical, secondLineWidth, lineHeight, lineBorderRadius, true);
 
-    statusWidth && roundRect(ctx, canvas.width / dpr - 24 - statusWidth, y + marginVertical + lineMarginVertical, statusWidth, lineHeight, lineBorderRadius, true);
+    statusWidth && roundRect(ctx, canvas.width / dpr! - 24 - statusWidth, y + marginVertical + lineMarginVertical, statusWidth, lineHeight, lineBorderRadius, true);
   }
 }

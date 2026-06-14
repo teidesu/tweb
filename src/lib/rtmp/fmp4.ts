@@ -227,7 +227,7 @@ export async function generateFmp4Segment(params: Fmp4SegmentOptions) {
 
     if(opusTrackId === tfhd.track_ID) {
       const flacFrames = await reencodeOpusToFlac({
-        decodeOpus,
+        decodeOpus: decodeOpus!,
         samples,
         chunk: chunkU8
       });

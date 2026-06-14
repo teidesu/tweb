@@ -13,8 +13,8 @@ export default class SDPAttributeInner {
     this.#lines = lines;
     this.#prefix = prefix;
     this.#missed = missed;
-    this.#nestedMap = missed ? new Map() : null;
-    this.#keys = missed ? [] : null;
+    this.#nestedMap = (missed ? new Map() : null)!;
+    this.#keys = (missed ? [] : null)!;
   }
 
   public get lines() {

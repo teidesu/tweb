@@ -19,9 +19,9 @@ const ChatRequests: Component = () => {
   const chatId = tab.payload;
 
   promiseCollector.collect((async() => {
-    const isBroadcast = await tab.managers.appChatsManager.isBroadcast(chatId);
+    const isBroadcast = await tab.managers.appChatsManager!.isBroadcast(chatId);
     tab.container.classList.add('edit-peer-container', 'chat-members-container', 'chat-requests-container');
-    tab.title.replaceChildren(i18n(isBroadcast ? 'SubscribeRequests' : 'MemberRequests'));
+    tab.title.replaceChildren(i18n(isBroadcast ? 'SubscribeRequests' : 'MemberRequests')!);
 
     const {importersMap, deleteImporter, load} = getImportersLoader({
       chatId,
@@ -38,7 +38,7 @@ const ChatRequests: Component = () => {
       peerId: chatId.toPeerId(true),
       peerType: ['custom'],
       getMoreCustom: load,
-      getSubtitleForElement: (peerId) => i18n('RequestedToJoinAt', [formatFullSentTime(importersMap.get(peerId)?.date)]),
+      getSubtitleForElement: (peerId) => i18n('RequestedToJoinAt', [formatFullSentTime(importersMap.get(peerId)?.date!)])!,
       processElementAfter: (peerId, dialogElement) => {
         const buttons = document.createElement('div');
         buttons.classList.add('chatlist-chat-buttons');
@@ -58,11 +58,11 @@ const ChatRequests: Component = () => {
         return;
       }
 
-      const peerId = target.dataset.peerId.toPeerId();
+      const peerId = target.dataset.peerId!.toPeerId();
       const dialogElement = dialogElements.get(peerId);
 
-      const addButton = findUpClassName(e.target, 'btn-color-primary');
-      const dismissButton = findUpClassName(e.target, 'btn-transparent');
+      const addButton = findUpClassName(e.target!, 'btn-color-primary');
+      const dismissButton = findUpClassName(e.target!, 'btn-transparent');
       const add = addButton ? true : (dismissButton ? false : undefined);
 
       if(add === undefined) {
@@ -70,9 +70,9 @@ const ChatRequests: Component = () => {
         return;
       }
 
-      const toggle = dialogElement.toggleDisability(true);
+      const toggle = dialogElement!.toggleDisability(true);
       try {
-        await tab.managers.appChatsManager.hideChatJoinRequest(chatId, peerId, add);
+        await tab.managers.appChatsManager!.hideChatJoinRequest(chatId, peerId, add);
         ++changedLength;
         selector.deletePeerId(peerId);
         dialogElements.delete(peerId);

@@ -90,7 +90,7 @@ export function createVideoRecordingPanel(): VideoRecordingPanelHandle {
     // Bumped on each startLivePreview()/reset() so a pending "reveal on first
     // frame" callback from a superseded session is ignored.
     let liveToken = 0;
-    let clearVideoTimer: number;
+    let clearVideoTimer: number | undefined;
 
     // Capture the real DOM nodes via refs (set synchronously while the body
     // runs); the component's return value is the HMR wrapper, not the <div>.
@@ -132,7 +132,7 @@ export function createVideoRecordingPanel(): VideoRecordingPanelHandle {
       previewVideo.muted = true;
       previewVideo.play().catch(() => {});
 
-      let safety: number;
+      let safety: number | undefined;
       const reveal = () => {
         if(safety) {
           clearTimeout(safety); // don't let the safety net fire after a real reveal
@@ -170,7 +170,7 @@ export function createVideoRecordingPanel(): VideoRecordingPanelHandle {
     };
 
     return {
-      element,
+      element: element!,
       get previewVideo() {
         return previewVideo;
       },

@@ -247,7 +247,7 @@ class SuperMessagePort<
       } else {
         window.addEventListener('beforeunload', () => {
           const task = this.createTask('close', undefined);
-          this.postMessage(undefined, task);
+          this.postMessage(undefined!, task);
         });
       }
     }
@@ -378,7 +378,7 @@ class SuperMessagePort<
     this.pending.forEach((portTasks, port) => {
       let tasks: Task[] = portTasks;
       if(USE_BATCHING) {
-        let batchTask: BatchTask;
+        let batchTask: BatchTask | undefined;
         tasks = [];
         portTasks.forEach((task) => {
           if(task.transfer) {
@@ -386,11 +386,11 @@ class SuperMessagePort<
             tasks.push(task);
           } else {
             if(!batchTask) {
-              batchTask = this.createTask('batch', []);
-              tasks.push(batchTask);
+              batchTask = this.createTask('batch', []) as BatchTask;
+              tasks.push(batchTask!);
             }
 
-            batchTask.payload.push(task);
+            batchTask!.payload.push(task);
           }
         });
       }
@@ -484,7 +484,7 @@ class SuperMessagePort<
   };
 
   protected processPingTask = (task: PingTask, source: MessageEventSource, event: MessageEvent) => {
-    this.pushTask(this.createTask('pong', undefined), event.source);
+    this.pushTask(this.createTask('pong', undefined), event.source!);
   };
 
   protected processPongTask = (task: PongTask, source: MessageEventSource, event: MessageEvent) => {
@@ -525,7 +525,7 @@ class SuperMessagePort<
 
     this.requestedLocks.set(id, source);
     navigator.locks.request(id, () => {
-      this.processCloseTask(undefined, source, undefined);
+      this.processCloseTask(undefined!, source, undefined!);
       this.requestedLocks.delete(id);
     });
   };
@@ -570,7 +570,7 @@ class SuperMessagePort<
 
       isPromise = result instanceof Promise;
 
-      if(ackTask) {
+      if(ackTask!) {
         const cached = !isPromise;
         ackTask.payload.cached = cached;
         if(cached) ackTask.payload.result = result;
@@ -586,30 +586,30 @@ class SuperMessagePort<
       }
 
       if(result instanceof SuperMessagePort.TransferableResult) {
-        resultTask.transfer = result.transferables;
+        resultTask!.transfer = result.transferables;
         result = result.value;
       }
 
-      resultTaskPayload.result = result;
+      resultTaskPayload!.result = result;
     } catch(error) {
       this.log.error('worker task error:', error, task);
       if(innerTask.void) {
         return;
       }
 
-      if(ackTask && ackTask.payload.cached) {
+      if(ackTask! && ackTask.payload.cached) {
         ackTask.payload.error = error;
         this.pushTask(ackTask, source);
         return;
       }
 
-      resultTaskPayload.error = error;
+      resultTaskPayload!.error = error;
     }
 
-    this.pushTask(resultTask, source);
+    this.pushTask(resultTask!, source);
   };
 
-  protected createTask<T extends Task['type'], K extends Task = Parameters<TaskMap[T]>[0]>(type: T, payload: K['payload'], transfer?: Transferable[]): K {
+  protected createTask<T extends Task['type'], K extends Task = Parameters<NonNullable<TaskMap[T]>>[0]>(type: T, payload: K['payload'], transfer?: Transferable[]): K {
     return {
       type,
       payload,
@@ -628,9 +628,9 @@ class SuperMessagePort<
   }
 
   protected pushTask(task: Task, port?: SendPort) {
-    let tasks = this.pending.get(port);
+    let tasks = this.pending.get(port!);
     if(!tasks) {
-      this.pending.set(port, tasks = []);
+      this.pending.set(port!, tasks = []);
     }
 
     tasks.push(task);
@@ -659,7 +659,7 @@ class SuperMessagePort<
     });
 
     if(timeout) {
-      const awaiting = this.awaiting[task.id];
+      const awaiting = this.awaiting[task!.id];
       setTimeout(() => {
         // also remove the entry, otherwise it leaks and the stuck-invoke
         // watchdog keeps reporting it forever

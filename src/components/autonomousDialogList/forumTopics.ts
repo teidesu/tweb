@@ -30,7 +30,7 @@ export class AutonomousForumTopicList extends AutonomousDialogListBase<ForumTopi
         return;
       }
 
-      const dialog = await this.managers.dialogsStorage.getForumTopic(peerId, threadId);
+      const dialog = await this.managers.dialogsStorage!.getForumTopic(peerId, threadId);
 
       if(!dialog) return;
 
@@ -58,7 +58,7 @@ export class AutonomousForumTopicList extends AutonomousDialogListBase<ForumTopi
         return;
       }
 
-      this.appDialogsManager.setUnreadMessagesN({dialog, dialogElement: this.getDialogElement(this.getDialogKey(dialog))});
+      this.appDialogsManager.setUnreadMessagesN({dialog, dialogElement: this.getDialogElement(this.getDialogKey(dialog))!});
     });
 
     this.listenerSetter.add(rootScope)('dialog_notify_settings', async(dialog) => {
@@ -69,16 +69,16 @@ export class AutonomousForumTopicList extends AutonomousDialogListBase<ForumTopi
       if(isDialog(dialog)) {
         const all = this.sortedList.getAllDialogElementsMap();
         const entries = [...all.entries()];
-        const promises = entries.map(([id]) => this.managers.dialogsStorage.getForumTopic(this.peerId, id));
+        const promises = entries.map(([id]) => this.managers.dialogsStorage!.getForumTopic(this.peerId, id));
         const topics = await Promise.all(promises);
         entries.forEach(([id, element], idx) => {
-          this.appDialogsManager.setUnreadMessagesN({dialog: topics[idx], dialogElement: element}); // возможно это не нужно, но нужно менять is-muted
+          this.appDialogsManager.setUnreadMessagesN({dialog: topics[idx]!, dialogElement: element}); // возможно это не нужно, но нужно менять is-muted
         });
 
         return;
       }
 
-      this.appDialogsManager.setUnreadMessagesN({dialog, dialogElement: this.getDialogElement(this.getDialogKey(dialog))}); // возможно это не нужно, но нужно менять is-muted
+      this.appDialogsManager.setUnreadMessagesN({dialog, dialogElement: this.getDialogElement(this.getDialogKey(dialog))!}); // возможно это не нужно, но нужно менять is-muted
     });
 
     this.listenerSetter.add(rootScope)('dialog_drop', (dialog) => {
@@ -107,11 +107,11 @@ export class AutonomousForumTopicList extends AutonomousDialogListBase<ForumTopi
   }
 
   public getDialogKeyFromElement(element: HTMLElement) {
-    return +element.dataset.threadId;
+    return +element.dataset.threadId!;
   }
 
   public getDialogFromElement(element: HTMLElement) {
-    return this.managers.dialogsStorage.getForumTopic(+element.dataset.peerId, +element.dataset.threadId);
+    return this.managers.dialogsStorage!.getForumTopic(+element.dataset.peerId!, +element.dataset.threadId!) as Promise<ForumTopic>;
   }
 
   protected getFilterId() {

@@ -19,7 +19,7 @@ export async function reencodeOpusToFlac(params: OpusReencodeOptions) {
   const {decodeOpus, chunk, samples} = params;
   const samplesPerFrame = 2048;
 
-  let pcms: Int16Array[][] = null;
+  let pcms: Int16Array[][] | null = null;
   let pendingPcmsCount = 0;
   let totalPcmCount = 0;
 
@@ -31,7 +31,7 @@ export async function reencodeOpusToFlac(params: OpusReencodeOptions) {
     const frame = encodeFlacFrame({
       index: flacFrames.length,
       blockSize,
-      pcms
+      pcms: pcms!
     });
     pendingPcmsCount -= blockSize;
 

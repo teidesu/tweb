@@ -13,7 +13,7 @@ import useProcessPoint from '@components/mediaEditor/canvas/useProcessPoint';
 
 
 function drawAdjustedImage(gl: WebGLRenderingContext, payload: RenderingPayload) {
-  const {mediaState} = useMediaEditorContext();
+  const {mediaState} = useMediaEditorContext()!;
 
   if(!payload) return;
 
@@ -33,7 +33,7 @@ function drawAdjustedImage(gl: WebGLRenderingContext, payload: RenderingPayload)
 }
 
 export default function BrushCanvas() {
-  const {editorState, mediaState, actions, mediaSrc, mediaType} = useMediaEditorContext();
+  const {editorState, mediaState, actions, mediaSrc, mediaType} = useMediaEditorContext()!;
 
   const [fullImageGLPayload, setFullImageGLPayload] = createSignal<RenderingPayload>();
 
@@ -62,8 +62,8 @@ export default function BrushCanvas() {
       style={{
         'opacity': editorState.isAdjusting ? 0 : 1
       }}
-      width={editorState.canvasSize?.[0] * editorState.pixelRatio}
-      height={editorState.canvasSize?.[1] * editorState.pixelRatio}
+      width={editorState.canvasSize?.[0]! * editorState.pixelRatio}
+      height={editorState.canvasSize?.[1]! * editorState.pixelRatio}
     ></canvas>
   ) as HTMLCanvasElement;
   const ctx = canvas.getContext('2d');
@@ -72,8 +72,8 @@ export default function BrushCanvas() {
 
   const fullImageMultiplier = () =>
     Math.min(
-      editorState.canvasSize?.[0] / editorState.mediaSize?.[0],
-      editorState.canvasSize?.[1] / editorState.mediaSize?.[1]
+      editorState.canvasSize?.[0]! / editorState.mediaSize?.[0]!,
+      editorState.canvasSize?.[1]! / editorState.mediaSize?.[1]!
     ) * 2 * editorState.pixelRatio;
 
   const fullImageCanvas = (<canvas width={editorState.mediaSize?.[0]} height={editorState.mediaSize?.[1]} />) as HTMLCanvasElement;
@@ -82,11 +82,11 @@ export default function BrushCanvas() {
   });
 
   const fullBrushesCanvas = (
-    <canvas width={editorState.mediaSize?.[0] * fullImageMultiplier()} height={editorState.mediaSize?.[1] * fullImageMultiplier()} />
+    <canvas width={editorState.mediaSize?.[0]! * fullImageMultiplier()} height={editorState.mediaSize?.[1]! * fullImageMultiplier()} />
   ) as HTMLCanvasElement;
 
   let brushPainter = new BrushPainter({
-    imageCanvas: editorState.imageCanvas,
+    imageCanvas: editorState.imageCanvas!,
     targetCanvas: canvas
   });
 
@@ -95,16 +95,16 @@ export default function BrushCanvas() {
   onMount(async() => {
     if(mediaType !== 'image') return;
     const middleware = createMiddleware().get();
-    setFullImageGLPayload(await initWebGL({gl, mediaSrc, mediaType, videoTime: 0, middleware}));
+    setFullImageGLPayload(await initWebGL({gl: gl!, mediaSrc, mediaType, videoTime: 0, middleware}));
   });
 
   onCleanup(() => {
-    cleanupWebGl(gl);
+    cleanupWebGl(gl!);
   });
 
   createEffect(() => {
     const payload = fullImageGLPayload();
-    drawAdjustedImage(gl, payload);
+    drawAdjustedImage(gl!, payload!);
   });
 
   createEffect(on(fullImageGLPayload, () => {
@@ -115,7 +115,7 @@ export default function BrushCanvas() {
   createEffect(
     on(() => editorState.canvasSize, () => {
       brushPainter = new BrushPainter({
-        imageCanvas: editorState.imageCanvas,
+        imageCanvas: editorState.imageCanvas!,
         targetCanvas: canvas
       });
       redraw();
@@ -138,17 +138,17 @@ export default function BrushCanvas() {
   createEffect(() => {
     if(editorState.isMoving) {
       const transform = editorState.finalTransform;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.save();
+      ctx!.clearRect(0, 0, canvas.width, canvas.height);
+      ctx!.save();
 
-      ctx.translate(transform.translation[0] + canvas.width / 2, transform.translation[1] + canvas.height / 2);
-      ctx.rotate(transform.rotation);
-      ctx.scale(transform.scale, transform.scale);
+      ctx!.translate(transform.translation[0] + canvas.width / 2, transform.translation[1] + canvas.height / 2);
+      ctx!.rotate(transform.rotation);
+      ctx!.scale(transform.scale, transform.scale);
 
-      const [w, h] = editorState.mediaSize;
-      ctx.drawImage(fullBrushesCanvas, -(w / 2), -(h / 2), w, h);
+      const [w, h] = editorState.mediaSize!;
+      ctx!.drawImage(fullBrushesCanvas, -(w / 2), -(h / 2), w, h);
 
-      ctx.restore();
+      ctx!.restore();
     } else {
       redraw();
       redrawFull();
@@ -168,8 +168,8 @@ export default function BrushCanvas() {
       points: line.points.map(
         (point) =>
           [
-            (point[0] + editorState.mediaSize?.[0] / 2) * fullImageMultiplier(),
-            (point[1] + editorState.mediaSize?.[1] / 2) * fullImageMultiplier()
+            (point[0] + editorState.mediaSize?.[0]! / 2) * fullImageMultiplier(),
+            (point[1] + editorState.mediaSize?.[1]! / 2) * fullImageMultiplier()
           ] as NumberPair
       )
     };
@@ -216,13 +216,13 @@ export default function BrushCanvas() {
   });
 
   onMount(() => {
-    let initialPosition: NumberPair;
+    let initialPosition: NumberPair | undefined;
     let points: NumberPair[] = [];
 
     let builtUpDistance = 0;
 
     function saveLastLine() {
-      mediaState.brushDrawnLines.push(lastLine());
+      mediaState.brushDrawnLines.push(lastLine()!);
       actions.pushToHistory({
         path: ['brushDrawnLines', mediaState.brushDrawnLines.length - 1],
         newValue: lastLine(),
@@ -230,7 +230,7 @@ export default function BrushCanvas() {
       });
 
       fullBrushPainter.updateBlurredImage();
-      fullBrushPainter.drawLine(processLineForFullImage(lastLine()));
+      fullBrushPainter.drawLine(processLineForFullImage(lastLine()!));
       resetLastLine();
       brushPainter.saveLastLine();
 
@@ -245,9 +245,9 @@ export default function BrushCanvas() {
       const point = normalizePoint(initialPosition);
       points = [point];
 
-      setLastLine((prev) => ({...prev, points}));
+      setLastLine((prev) => ({...prev, points}) as BrushDrawnLine);
       brushPainter.updateBlurredImage();
-      brushPainter.previewLine(processLine(lastLine()));
+      brushPainter.previewLine(processLine(lastLine()!));
 
       editorState.selectedResizableLayer = undefined;
     }
@@ -276,27 +276,27 @@ export default function BrushCanvas() {
       element: canvas,
       cursor: '',
       onSwipe: (xDiff, yDiff, _e) => {
-        const point = normalizePoint([initialPosition[0] + xDiff, initialPosition[1] + yDiff]);
+        const point = normalizePoint([initialPosition![0] + xDiff, initialPosition![1] + yDiff]);
 
         if(points.length > 0) {
           const lastPoint = points[points.length - 1];
           builtUpDistance += distance(processPoint(lastPoint), processPoint(point));
         }
-        if(builtUpDistance < Math.min(lastLine().size, 12) * editorState.pixelRatio && points.length > 1) {
+        if(builtUpDistance < Math.min(lastLine()!.size, 12) * editorState.pixelRatio && points.length > 1) {
           points[points.length - 1] = point;
         } else {
           points.push(point);
           builtUpDistance = 0;
         }
 
-        setLastLine((prev) => ({...prev, points}));
-        brushPainter.previewLine(processLine(lastLine()));
+        setLastLine((prev) => ({...prev, points}) as BrushDrawnLine);
+        brushPainter.previewLine(processLine(lastLine()!));
       },
       onReset() {
         (async() => {
           builtUpDistance = 0;
-          if(lastLine().brush === 'arrow') {
-            await brushPainter.animateArrowBrush(processLine(lastLine()));
+          if(lastLine()!.brush === 'arrow') {
+            await brushPainter.animateArrowBrush(processLine(lastLine()!));
           }
           saveLastLine();
         })();

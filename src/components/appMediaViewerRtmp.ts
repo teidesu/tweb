@@ -27,7 +27,7 @@ import shareUrlToPeers from '@components/popups/shareUrl';
 const REJOIN_INTERVAL = 15000;
 
 export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', never> {
-  static activeInstance: AppMediaViewerRtmp;
+  static activeInstance: AppMediaViewerRtmp | undefined;
   static previousPeerId: PeerId = NULL_PEER_ID;
   static previousCapture: string;
 
@@ -81,7 +81,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
 
     this.listenerSetter.add(apiManagerProxy.serviceMessagePort)('rtmpStreamDestroyed', (callId) => {
       if(rtmpCallsController.currentCall?.call.id === callId) {
-        this.retryLoadStream(this.videoPlayer.video, 'was destroyed');
+        this.retryLoadStream(this.videoPlayer!.video, 'was destroyed');
       }
     });
   }
@@ -113,14 +113,14 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
 
     const chat = apiManagerProxy.getChat(chatId);
     if(!getPeerActiveUsernames(chat)[0]) {
-      const chatFull = await this.managers.appProfileManager.getChatFull(chatId);
+      const chatFull = await this.managers.appProfileManager!.getChatFull(chatId);
       this.shareUrl = (chatFull.exported_invite as ExportedChatInvite.chatInviteExported)?.link;
     } else {
       this.shareUrl = getRtmpShareUrl(this.peerId);
     }
 
     await this._openMedia({
-      media: rtmpCallsController.currentCall.inputCall,
+      media: rtmpCallsController.currentCall!.inputCall,
       mediaThumbnail: params.peerId === AppMediaViewerRtmp.previousPeerId ? AppMediaViewerRtmp.previousCapture : undefined,
       timestamp: 0,
       fromId: params.peerId,
@@ -130,7 +130,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
 
         const getCall = () => rtmpCallsController.currentCall;
 
-        player.updateLiveViewersCount(getCall().call.participants_count);
+        player.updateLiveViewersCount(getCall()!.call.participants_count);
         if(!IS_SAFARI || params.isAdmin) {
           player.setupLiveMenu([{
             icon: 'volume_up',
@@ -145,14 +145,14 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
           }, {
             icon: 'radioon',
             text: 'Rtmp.MediaViewer.Menu.StartRecording',
-            verify: () => getCall()?.admin && !getCall().call.pFlags.record_video_active,
+            verify: () => !!(getCall()?.admin && !getCall()!.call.pFlags.record_video_active),
             onClick: () => PopupElement.createPopup(RtmpRecordPopup).show()
           }, {
             icon: 'radiooff',
             text: 'Rtmp.MediaViewer.Menu.StopRecording',
-            verify: () => getCall()?.admin && getCall().call.pFlags.record_video_active,
+            verify: () => !!(getCall()?.admin && getCall()!.call.pFlags.record_video_active),
             onClick: () => {
-              this.managers.appGroupCallsManager.stopRecording(getCall().inputCall).catch(() => {
+              this.managers.appGroupCallsManager!.stopRecording(getCall()!.inputCall).catch(() => {
                 toastNew({
                   langPackKey: 'Error.AnError'
                 });
@@ -161,7 +161,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
           }, {
             icon: 'settings',
             text: 'Rtmp.MediaViewer.Menu.StreamSettings',
-            verify: () => getCall()?.admin,
+            verify: () => !!getCall()?.admin,
             onClick: () => {
               PopupElement.createPopup(RtmpStartStreamPopup, {
                 peerId: this.peerId,
@@ -173,7 +173,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
             icon: 'crossround',
             text: 'Rtmp.MediaViewer.Menu.EndLiveStream',
             danger: true,
-            verify: () => getCall()?.admin,
+            verify: () => !!getCall()?.admin,
             onClick: () => this.close(undefined, true)
           }]);
         }
@@ -231,7 +231,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
           this.preloaderRtmp.detach();
         }
 
-        this.videoPlayer.liveEl.classList.add('is-not-buffering');
+        this.videoPlayer!.liveEl.classList.add('is-not-buffering');
 
         if(params.isAdmin) {
           SetTransition({
@@ -249,7 +249,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
           duration: 300
         });
 
-        rtmpCallsController.currentCall.state = RTMP_STATE.PLAYING;
+        rtmpCallsController.currentCall!.state = RTMP_STATE.PLAYING;
       },
       onBuffering: this.showLoader
     });
@@ -284,7 +284,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
       }
     }
 
-    this.videoPlayer?.lockControls(visible ? true : undefined);
+    this.videoPlayer?.lockControls((visible ? true : undefined)!);
     SetTransition({
       element: this.adminPanel,
       className: 'admin-hidden',
@@ -294,7 +294,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
   }
 
   private showLoader = () => {
-    this.videoPlayer.video.parentElement.classList.add('is-buffering');
+    this.videoPlayer!.video.parentElement!.classList.add('is-buffering');
 
     if(!this.preloaderTemplate.parentElement) {
       const thumbnail = this.content.mover.querySelector('canvas.canvas-thumbnail, .thumbnail-avatar') as HTMLElement;
@@ -306,11 +306,11 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
     const liveEl = this.content.mover.querySelector('.controls-live') as HTMLElement;
     liveEl.classList.remove('is-not-buffering');
 
-    rtmpCallsController.currentCall.state = RTMP_STATE.BUFFERING;
+    rtmpCallsController.currentCall!.state = RTMP_STATE.BUFFERING;
   };
 
   private retryLoadStream(video: HTMLVideoElement, reason: string) {
-    const tempId = ++this.retryTempId;
+    const tempId = ++this.retryTempId!;
     const log = this.log.bindPrefix(`retryLoadStream-${tempId}-${reason}`);
     const myCallId = rtmpCallsController.currentCall?.call.id;
     if(!myCallId) {
@@ -400,7 +400,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
 
     clearTimeout(this.retryTimeout);
     clearTimeout(this.rejoinInterval);
-    ++this.retryTempId;
+    ++this.retryTempId!;
 
     if(this.videoPlayer) {
       try {
@@ -437,7 +437,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
   public static async getShareUrl(chatId: ChatId) {
     const chat = apiManagerProxy.getChat(chatId);
     if(!getPeerActiveUsernames(chat)[0]) {
-      const chatFull = await rootScope.managers.appProfileManager.getChatFull(chatId);
+      const chatFull = await rootScope.managers.appProfileManager!.getChatFull(chatId);
       return (chatFull.exported_invite as ExportedChatInvite.chatInviteExported)?.link;
     } else {
       return getRtmpShareUrl(chatId.toPeerId(true));

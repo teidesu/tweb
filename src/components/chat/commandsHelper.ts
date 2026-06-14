@@ -6,7 +6,7 @@ import SearchIndex from '@lib/searchIndex';
 import {AppManagers} from '@lib/managers';
 
 export function processPeerFullForCommands(peerId: PeerId, full: ChatFull.chatFull | ChatFull.channelFull | UserFull.userFull, query?: string) {
-  const botInfos: BotInfo.botInfo[] = [].concat(full.bot_info);
+  const botInfos: BotInfo.botInfo[] = ([] as BotInfo.botInfo[]).concat(full.bot_info as BotInfo.botInfo[]);
   let index: SearchIndex<string>;
 
   if(query !== undefined) {
@@ -39,14 +39,14 @@ export function processPeerFullForCommands(peerId: PeerId, full: ChatFull.chatFu
   });
 
   let out: T[];
-  if(!index) {
+  if(!index!) {
     out = [...commands.values()];
   } else {
-    const found = index.search(query);
-    out = Array.from(found).map((command) => commands.get(command));
+    const found = index.search(query!);
+    out = (Array.from(found).map((command) => commands.get(command))! as { peerId: PeerId; name: string; description: string; index: number; command: string; }[]);
   }
 
-  out = out.sort((a, b) => commands.get(a.command).index - commands.get(b.command).index);
+  out = out.sort((a, b) => commands.get(a.command)!.index - commands.get(b.command)!.index);
 
   return out;
 }
@@ -62,7 +62,7 @@ export default class CommandsHelper extends AutocompletePeerHelper {
       controller,
       'commands-helper',
       (target) => {
-        const innerHTML = target.querySelector(`.${AutocompletePeerHelper.BASE_CLASS_LIST_ELEMENT}-name`).innerHTML;
+        const innerHTML = target.querySelector(`.${AutocompletePeerHelper.BASE_CLASS_LIST_ELEMENT}-name`)!.innerHTML;
         return chatInput.getReadyToSend(() => {
           chatInput.messageInput.innerHTML = innerHTML;
           chatInput.sendMessage(true);
@@ -72,12 +72,12 @@ export default class CommandsHelper extends AutocompletePeerHelper {
   }
 
   public async checkQuery(query: string, peerId: PeerId) {
-    if(!(await this.managers.appUsersManager.isBot(peerId))) {
+    if(!(await this.managers.appUsersManager!.isBot(peerId))) {
       return false;
     }
 
     const middleware = this.controller.getMiddleware();
-    this.managers.appProfileManager.getProfileByPeerId(peerId).then((full) => {
+    this.managers.appProfileManager!.getProfileByPeerId(peerId).then((full) => {
       if(!middleware()) {
         return;
       }

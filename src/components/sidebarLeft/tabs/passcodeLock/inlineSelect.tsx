@@ -24,7 +24,7 @@ const InlineSelect: Component<{
 
   const [valueLabel, setValueLabel] = createSignal<JSX.Element>(); // Doesn't work without intermediary signal
   createEffect(() => {
-    setValueLabel(value()());
+    setValueLabel(value()!());
   });
 
   const isSelected = createSelector(() => props.value);
@@ -51,7 +51,7 @@ const InlineSelect: Component<{
       return;
     }
 
-    const valueRect = valueEl.getBoundingClientRect();
+    const valueRect = valueEl!.getBoundingClientRect();
     const selectRect = selectEl.getBoundingClientRect();
     const selectedOptionRect = selectOptionEl.getBoundingClientRect();
 
@@ -114,7 +114,7 @@ const InlineSelect: Component<{
     if(!toCheck.every(Boolean)) return;
 
     const isOutside = toCheck.every((el) => {
-      const rect = el.getBoundingClientRect();
+      const rect = el!.getBoundingClientRect();
       const max = Math.max(
         rect.left - e.clientX,
         e.clientX - rect.right,
@@ -132,7 +132,7 @@ const InlineSelect: Component<{
 
   return (
     <>
-      <div ref={valueEl} class={styles.Value}>
+      <div ref={valueEl!} class={styles.Value}>
         {valueLabel()}
       </div>
 

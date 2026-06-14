@@ -19,7 +19,7 @@ export class SimpleConfirmationPopup extends PopupElement {
 
     const description = document.createElement('p');
     description.classList.add('popup-description');
-    description.append(i18n(options.descriptionLangKey, options.descriptionArgs));
+    description.append(i18n(options.descriptionLangKey, options.descriptionArgs)!);
     this.header.after(description);
   }
 
@@ -34,7 +34,7 @@ export class SimpleConfirmationPopup extends PopupElement {
 
       const buttons = addCancelButton([options.button])
       const cancelButton = buttons.find((button) => button.isCancel);
-      cancelButton.callback = () => {
+      cancelButton!.callback = () => {
         if(!resolved) {
           reject();
           resolved = true;

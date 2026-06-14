@@ -81,7 +81,7 @@ port.addMultipleEventsListeners({
       resetStorages.set('users', [userId]);
     }
 
-    appStateManager.resetStoragesPromise.resolve({
+    appStateManager.resetStoragesPromise.resolve!({
       storages: resetStorages,
       refetch: refetchStorages,
       callback: async() => {
@@ -183,7 +183,7 @@ port.addMultipleEventsListeners({
     const isUsingPasscode = await DeferredIsUsingPasscode.isUsingPasscode();
     if(isUsingPasscode) {
       if(!isLocked) {
-        await port.invoke('saveEncryptionKey', await EncryptionKeyStore.get(), undefined, source);
+        await port.invoke('saveEncryptionKey', (await EncryptionKeyStore.get())!, undefined, source);
       }
       return isLocked;
     }

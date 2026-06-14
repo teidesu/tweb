@@ -53,7 +53,7 @@ export async function wrapChatInviteTitle(
       },
       date: 0,
       id: 0,
-      photo: undefined,
+      photo: undefined as any,
       title: ''
     },
     wrapOptions: {
@@ -125,7 +125,7 @@ export default class PopupJoinChatInvite extends PopupPeer {
   }
 
   public static import(hash: string) {
-    rootScope.managers.appChatInvitesManager.importChatInvite(hash)
+    rootScope.managers.appChatInvitesManager!.importChatInvite(hash)
     .then((chatId) => {
       this.openChat(chatId);
     }, (error) => {
@@ -138,7 +138,7 @@ export default class PopupJoinChatInvite extends PopupPeer {
   public static async open(hash: string, chatInvite: ChatInvite) {
     if(chatInvite._ === 'chatInviteAlready') {
       // load missing chat
-      await rootScope.managers.appChatInvitesManager.checkChatInvite(hash);
+      await rootScope.managers.appChatInvitesManager!.checkChatInvite(hash);
       this.openChat(chatInvite.chat.id);
     } else if(chatInvite._ === 'chatInvitePeek') {
       this.openChat(chatInvite.chat.id);
@@ -169,17 +169,17 @@ export default class PopupJoinChatInvite extends PopupPeer {
     // avatarElem.setAttribute('peer', '' + -fakeChat.id);
 
     if(chatInvite.about) {
-      this.description.replaceChildren(wrapEmojiText(chatInvite.about));
+      this.description!.replaceChildren(wrapEmojiText(chatInvite.about));
     } else {
-      this.description.remove();
+      this.description!.remove();
       this.description = undefined;
     }
 
     const isBroadcast = chatInvite.pFlags.broadcast;
     const peopleCount = i18n(isBroadcast ? 'Subscribers' : 'Members', [numberThousandSplitter(chatInvite.participants_count)]);
-    peopleCount.classList.add('chat-participants-count');
+    peopleCount!.classList.add('chat-participants-count');
 
-    this.body.append(...[avatarElem.node, title, peopleCount, this.description].filter(Boolean));
+    this.body.append(...[avatarElem.node, title, peopleCount, this.description].filter(Boolean) as (string | Node)[]);
 
     if(chatInvite.pFlags.request_needed) {
       const caption = document.createElement('div');

@@ -6,7 +6,7 @@ import Modes from '@config/modes';
 import transportController from '@lib/mtproto/transports/controller';
 // import networkStats from '@lib/mtproto/networkStats';
 
-const TEST_DROPPING_REQUESTS: TrueDcId = undefined;
+const TEST_DROPPING_REQUESTS: TrueDcId | undefined = undefined;
 
 // telegram's load balancer sometimes returns 400 when the request landed on a broken upstream or something,
 // even if the content itself is actually perfectly valid, so we need to retry a few times

@@ -30,10 +30,10 @@ export const AddOption = (props: {
   onEnter: () => void;
   isPending?: boolean;
 }) => {
-  const contextProps = usePollMessageContentProps();
+  const contextProps = usePollMessageContentProps()!;
 
   const chatRights = useChatRights({
-    peerId: () => contextProps.message.peerId,
+    peerId: () => contextProps.message.peerId!,
     rights: () => ['send_photos', 'send_stickers', 'send_gifs', 'send_videos'],
     getRight: (key) => contextProps.canSend(key)
   })
@@ -66,7 +66,7 @@ export const AddOption = (props: {
   });
 
   inputField.input.classList.add(styles.inputFieldInput);
-  inputField.placeholder.classList.add(...[styles.inputFieldPlaceholder, contextProps.isOutgoing ? styles.outgoing : null].filter(Boolean));
+  inputField.placeholder.classList.add(...([styles.inputFieldPlaceholder, contextProps.isOutgoing ? styles.outgoing : null].filter(Boolean) as string[]));
 
   inputField.input.addEventListener('keydown', (e) => {
     if(e.key === 'Enter') {

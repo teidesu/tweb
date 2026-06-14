@@ -154,9 +154,9 @@ export const useToggleDialogInFilter = ({dialog, onNewDialog, isInFilter}: UseTo
     hasRequestInProgress = true;
 
     try {
-      await (isInFilter(filter) ? removeFromFilter(unwrapped, dialog().peerId) : addToFilter(unwrapped, dialog().peerId));
-      const newDialog = await rootScope.managers.dialogsStorage.getAnyDialog(dialog().peerId);
-      if(!isDialog(newDialog)) return;
+      await (isInFilter(filter) ? removeFromFilter(unwrapped, dialog().peerId!) : addToFilter(unwrapped, dialog().peerId!));
+      const newDialog = await rootScope.managers.dialogsStorage!.getAnyDialog(dialog().peerId!);
+      if(!isDialog(newDialog!)) return;
       onNewDialog(newDialog);
     } catch{} finally {
       hasRequestInProgress = false;
@@ -194,7 +194,7 @@ export const createSearchableFolders = ({folderItems, search, isSelected, setSel
   const visibleFoldersCount = sortedFolders.filter(({src, finderResult}) => {
     if(finderResult.score >= MIN_FUZZY_SCORE) {
       createEffect(() => {
-        if(isSelected(src.filter.id)) src.element.scrollIntoView({block: 'center'});
+        if(isSelected(src.filter.id)) src.element!.scrollIntoView({block: 'center'});
       });
 
       highlightTextNodes(src.charSpansGroups, finderResult.found);
@@ -218,7 +218,7 @@ type UseTooltipHintArgs = {
 };
 
 export const useTooltipHint = ({pivot}: UseTooltipHintArgs) => {
-  let closeTooltip = noop;
+  let closeTooltip: typeof noop | undefined = noop;
 
   setTimeout(() => {
     closeTooltip = undefined;

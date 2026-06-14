@@ -50,8 +50,8 @@ const useStateStore = ({
   });
 
   const chosenPeersByType = (): ChosenPeersByType => ({
-    chats: store.chosenPeers.filter(peer => peer.isAnyChat()).map(peer => peer.toChatId()),
-    users: store.chosenPeers.filter(peer => peer.isUser())
+    chats: store.chosenPeers!.filter(peer => peer.isAnyChat()).map(peer => peer.toChatId()),
+    users: store.chosenPeers!.filter(peer => peer.isUser())
   });
 
 

@@ -55,8 +55,8 @@ export function createTopbarPlates(
     live,
     translation,
     sponsored,
-    all,
-    mount: (host) => host.append(...all.map((plate) => plate.container)),
-    destroy: () => all.forEach((plate) => plate.destroy())
+    all: (all! as TopbarPlateController[]),
+    mount: (host) => host.append(...all.map((plate) => plate!.container)),
+    destroy: () => all.forEach((plate) => plate!.destroy())
   };
 }

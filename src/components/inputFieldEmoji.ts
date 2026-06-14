@@ -19,7 +19,7 @@ export class InputFieldEmoji extends InputField {
     })
 
     const {button, dispose} = createEmojiDropdownButton({
-      inputField: this,
+      inputField: this as InputField,
       class: classNames(
         styles.EmojiButton,
         this.options.withLinebreaks && styles.multiline
@@ -44,7 +44,7 @@ export class InputFieldEmoji extends InputField {
         cloned.top = rect.top + rect.height / 2;
         return cloned;
       }
-    });
+    } as any);
     this.dispose = dispose;
     this.input.after(button);
   }

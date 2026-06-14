@@ -12,23 +12,23 @@ export default function compareNodes(node1: ChildNode, node1Offset: number, node
     const parents: HTMLElement[] = [];
     let parentElement = node1.parentElement;
     do {
-      parents.push(parentElement);
-    } while(parentElement = parentElement.parentElement);
+      parents.push(parentElement!);
+    } while(parentElement = parentElement!.parentElement);
 
     parentElement = node2.parentElement;
     do {
-      if(parents.includes(parentElement)) {
+      if(parents.includes(parentElement!)) {
         break;
       }
-    } while(parentElement = parentElement.parentElement);
+    } while(parentElement = parentElement!.parentElement);
 
     const commonAncestorContainer = parentElement;
     // const range = document.createRange();
     // range.setStart(node1, 0);
     // range.setEnd(node2, node2.textContent.length);
     // const {commonAncestorContainer} = range;
-    node1 = findUpAsChild(node1 as HTMLElement, commonAncestorContainer as HTMLElement);
-    node2 = findUpAsChild(node2 as HTMLElement, commonAncestorContainer as HTMLElement);
+    node1 = (findUpAsChild(((node1 as HTMLElement) as { parentElement: HTMLElement; })!, commonAncestorContainer as HTMLElement) as ChildNode);
+    node2 = (findUpAsChild(((node2 as HTMLElement) as { parentElement: HTMLElement; })!, commonAncestorContainer as HTMLElement) as ChildNode);
     diff = whichChild(node1, true) - whichChild(node2, true);
   }
 

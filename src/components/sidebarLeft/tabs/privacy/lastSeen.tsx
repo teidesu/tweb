@@ -20,7 +20,7 @@ const PrivacyLastSeen: Component = () => {
     tab.container.classList.add('privacy-tab', 'privacy-last-seen');
 
     const canHideReadTime = () => {
-      return privacySection.type !== PrivacyType.Everybody || !!privacySection.peerIds.disallow.length;
+      return privacySection.type !== PrivacyType.Everybody || !!privacySection.peerIds.disallow!.length;
     };
 
     const caption: LangPackKey = 'PrivacySettingsController.LastSeenDescription';
@@ -57,7 +57,7 @@ const PrivacyLastSeen: Component = () => {
           return;
         }
 
-        const promise = tab.managers.appPrivacyManager.setGlobalPrivacySettings({
+        const promise = tab.managers.appPrivacyManager!.setGlobalPrivacySettings({
           _: 'globalPrivacySettings',
           pFlags: {
             ...globalPrivacy.pFlags,
@@ -92,7 +92,7 @@ const PrivacyLastSeen: Component = () => {
 
       const onPremium = () => {
         section.content.replaceChildren(createButton());
-        section.caption.replaceChildren(i18n(rootScope.premium ? 'PrivacyLastSeenPremiumInfoForPremium' : 'PrivacyLastSeenPremiumInfo'));
+        section.caption.replaceChildren(i18n(rootScope.premium ? 'PrivacyLastSeenPremiumInfoForPremium' : 'PrivacyLastSeenPremiumInfo')!);
       };
 
       onPremium();

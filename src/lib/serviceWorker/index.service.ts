@@ -32,10 +32,10 @@ export const log = logger('SW', LogTypes.Error | LogTypes.Debug | LogTypes.Log |
 const ctx = self as any as ServiceWorkerGlobalScope;
 
 // #if !MTPROTO_SW
-let _mtprotoMessagePort: MessagePort;
+let _mtprotoMessagePort: MessagePort | undefined;
 export const getMtprotoMessagePort = () => _mtprotoMessagePort;
 
-let _cryptoMessagePort: MessagePort;
+let _cryptoMessagePort: MessagePort | undefined;
 
 export const invokeVoidAll: ServiceMessagePort['invokeVoid'] = (...args) => {
   getWindowClients().then((windowClients) => {

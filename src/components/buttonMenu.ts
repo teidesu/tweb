@@ -82,7 +82,7 @@ export function ButtonMenuItem(options: ButtonMenuItemOptions) {
   const el = document.createElement('div');
   const iconSplitted = icon?.split(' ');
   el.className = 'btn-menu-item rp-overflow' +
-    (iconSplitted?.length > 1 ? ' ' + iconSplitted.slice(1).join(' ') : '') +
+    (iconSplitted?.length! > 1 ? ' ' + iconSplitted!.slice(1).join(' ') : '') +
     (className ? ' ' + className : '') +
     (options.danger ? ' danger' : '');
 
@@ -105,8 +105,8 @@ export function ButtonMenuItem(options: ButtonMenuItemOptions) {
   if(!textElement) {
     textElement = options.textElement = text ? i18n(text, options.textArgs) : document.createElement('span');
     if(options.regularText) {
-      setInnerHTML(textElement, options.regularText);
-      textElement.dir = '';
+      setInnerHTML(textElement!, options.regularText);
+      textElement!.dir = '';
     }
   }
 
@@ -141,8 +141,8 @@ export function ButtonMenuItem(options: ButtonMenuItemOptions) {
     el.append(avatar.node);
   }
 
-  textElement.classList.add('btn-menu-item-text');
-  el.append(textElement);
+  textElement!.classList.add('btn-menu-item-text');
+  el.append(textElement!);
 
   if(options.new) {
     const badge = document.createElement('span');
@@ -157,7 +157,7 @@ export function ButtonMenuItem(options: ButtonMenuItemOptions) {
   onClick && attachClickEvent(el, /* CLICK_EVENT_NAME !== 'click' || keepOpen ? */ /* async */(e) => {
     cancelEvent(e);
 
-    const menu = findUpClassName(e.target, 'btn-menu');
+    const menu = findUpClassName(e.target!, 'btn-menu');
     if(menu && !menu.classList.contains('active')) {
       return;
     }
@@ -256,19 +256,19 @@ export function ButtonMenuSync({listenerSetter, buttons, radioGroups}: {
       const elements = buttons.filter((button) => button.radioGroup === group.name);
 
       const hr = document.createElement('hr');
-      elements[0].element.replaceWith(hr);
+      elements[0].element!.replaceWith(hr);
 
-      const container = RadioForm(elements.map((e, idx) => {
-        const input = e.checkboxField.input;
+      const container = RadioForm((elements.map((e, idx) => {
+        const input = e.checkboxField!.input;
         input.type = 'radio';
         input.name = group.name;
         input.value = '' + +(idx === group.checked);
         input.checked = idx === group.checked;
         return {
           container: e.element,
-          input: e.checkboxField.input
+          input: e.checkboxField!.input
         };
-      }), group.onChange);
+      })! as { container: HTMLElement; input: HTMLInputElement; }[]), group.onChange);
 
       hr.before(container);
       container.append(hr);

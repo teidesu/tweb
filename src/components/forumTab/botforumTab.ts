@@ -45,9 +45,9 @@ export class BotforumTab extends ForumTab {
     const list = autonomousList.sortedList.list;
     autonomousList.bindScrollable();
 
-    this.xd = autonomousList;
+    this.xd = autonomousList as any;
 
-    appDialogsManager.setListClickListener({list, onFound: null, withContext: true});
+    appDialogsManager.setListClickListener({list, onFound: null as unknown as undefined, withContext: true});
     this.scrollable.append(list);
 
 
@@ -72,7 +72,7 @@ export class BotforumTab extends ForumTab {
 
     this.listenerSetter.add(rootScope)('dialogs_multiupdate', (dialogs) => {
       for(const [peerId, {dialog, topics}] of dialogs) {
-        if(isDialog(dialog) && dialog.peerId === this.peerId) {
+        if(isDialog(dialog!) && dialog.peerId === this.peerId) {
           this.updateAllChatsDialog(dialog);
         }
         if(peerId === this.peerId && topics?.size) {
@@ -121,14 +121,14 @@ export class BotforumTab extends ForumTab {
           dialog: true,
           wrapOptions: {middleware}
         }),
-        dialogs: this.managers.dialogsStorage.getDialogs({
+        dialogs: this.managers.dialogsStorage!.getDialogs({
           filterId: this.peerId,
           limit: 1
         })
       }));
 
       this.title.append(peerTitle);
-      this.subtitle.append(this.dialogsCountI18nEl = this.getTopicsCountI18n(dialogs ? dialogs.count : null));
+      this.subtitle.append((this.dialogsCountI18nEl = this.getTopicsCountI18n(dialogs ? dialogs.count : null)!)!!);
     } catch{}
   }
 
@@ -142,7 +142,7 @@ export class BotforumTab extends ForumTab {
 
   private updateDialogsCount = asyncThrottle(async() => {
     if(!this.dialogsCountI18nEl) return;
-    const {count} = await this.managers.dialogsStorage.getDialogs({filterId: this.peerId, limit: 1});
-    this.dialogsCountI18nEl.replaceWith(this.dialogsCountI18nEl = this.getTopicsCountI18n(count));
+    const {count} = await this.managers.dialogsStorage!.getDialogs({filterId: this.peerId, limit: 1});
+    this.dialogsCountI18nEl.replaceWith((this.dialogsCountI18nEl = this.getTopicsCountI18n(count)!)!!);
   }, 0);
 }

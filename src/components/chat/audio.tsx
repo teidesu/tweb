@@ -151,12 +151,12 @@ export default function createChatAudio(
   // Click on the central content (title/subtitle) → open the source chat /
   // saved music tab. Clicks anywhere else on the plate do nothing.
   attachClickEvent(plate.container, (e) => {
-    if(!findUpClassName(e.target, 'pinned-container-content')) {
+    if(!findUpClassName(e.target!, 'pinned-container-content')) {
       return;
     }
 
-    const mid = +plate.container.dataset.mid;
-    const peerId = plate.container.dataset.peerId.toPeerId();
+    const mid = +plate.container.dataset.mid!;
+    const peerId = plate.container.dataset.peerId!.toPeerId();
     const savedMusicDocId = plate.container.dataset.savedMusicDocId;
     if(savedMusicDocId) {
       const prevTab = appSidebarRight.getTab(AppSavedMusicTab);
@@ -210,16 +210,16 @@ export default function createChatAudio(
     repeatEl.classList.toggle('active', playbackParams.loop || playbackParams.round);
   };
 
-  const onMediaPlay = ({doc, message, media, playbackParams, isSavedMusic, isSlotted}: ReturnType<AppMediaPlaybackController['getPlayingDetails']>) => {
+  const onMediaPlay = ({doc, message, media, playbackParams, isSavedMusic, isSlotted}: NonNullable<ReturnType<AppMediaPlaybackController['getPlayingDetails']>>) => {
     let titleVal: JSX.Element, subtitleVal: JSX.Element;
     const isMusic = doc.type !== 'voice' && doc.type !== 'round';
     if(!isMusic) {
-      titleVal = new PeerTitle({peerId: message.fromId, fromName: getFwdFromName(message.fwd_from)}).element;
+      titleVal = new PeerTitle({peerId: message.fromId, fromName: getFwdFromName(message.fwd_from!)}).element;
       subtitleVal = formatFullSentTime(message.date);
     } else {
-      const audioAttribute = doc.attributes.find((attr) => attr._ === 'documentAttributeAudio') as DocumentAttribute.documentAttributeAudio;
+      const audioAttribute = doc.attributes.find((attr: DocumentAttribute) => attr._ === 'documentAttributeAudio') as DocumentAttribute.documentAttributeAudio;
       titleVal = audioAttribute?.performer ? wrapEmojiText(audioAttribute.performer) : i18n('AudioUnknownArtist');
-      subtitleVal = wrapEmojiText(audioAttribute?.title ?? doc.file_name);
+      subtitleVal = wrapEmojiText(audioAttribute?.title ?? doc.file_name!);
     }
 
     // Slotted media (e.g. poll description / explanation audio) is played in
@@ -231,7 +231,7 @@ export default function createChatAudio(
     volumeSelector.setMaxVolume(isMusic ? 1 : 2);
     volumeSelector.setGlobalVolume();
 
-    progressLine.setMedia({media, duration: duration = doc.duration});
+    progressLine.setMedia({media, duration: duration = doc.duration!});
     toggleDisability([prevEl, nextEl], !message.peerId);
     // Visually mute the next button for slotted playback — there's no
     // next track to advance to. The click handler is a safe no-op on the
@@ -271,7 +271,7 @@ export default function createChatAudio(
   listenerSetter.add(appMediaPlaybackController)('play', () => toggleActivity(true));
   listenerSetter.add(appMediaPlaybackController)('pause', () => toggleActivity(false));
   listenerSetter.add(appMediaPlaybackController)('stop', () => toggleActivity(false));
-  listenerSetter.add(appMediaPlaybackController)('play', onMediaPlay);
+  listenerSetter.add(appMediaPlaybackController)('play', onMediaPlay as any);
   listenerSetter.add(appMediaPlaybackController)('pause', onPause);
   listenerSetter.add(appMediaPlaybackController)('stop', onStop);
   listenerSetter.add(appMediaPlaybackController)('playbackParams', onPlaybackParams);

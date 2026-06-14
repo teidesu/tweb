@@ -19,8 +19,8 @@ export default function getDownloadMediaDetails(options: DownloadMediaOptions) {
     if(options.fileName) downloadOptions.fileName = options.fileName;
   }
 
-  downloadOptions.downloadId = options.downloadId;
+  downloadOptions!.downloadId = options.downloadId;
 
-  const fileName = getDownloadFileNameFromOptions(downloadOptions);
-  return {fileName, downloadOptions};
+  const fileName = getDownloadFileNameFromOptions(downloadOptions!);
+  return {fileName, downloadOptions: downloadOptions!};
 }

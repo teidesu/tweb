@@ -11,7 +11,7 @@ import {useCropOffset} from './useCropOffset';
 
 
 function drawAdjustedImage(gl: WebGLRenderingContext) {
-  const {editorState, mediaState} = useMediaEditorContext();
+  const {editorState, mediaState} = useMediaEditorContext()!;
 
   const payload = editorState.renderingPayload;
   if(!payload) return;
@@ -29,12 +29,12 @@ function drawAdjustedImage(gl: WebGLRenderingContext) {
 }
 
 export default function ImageCanvas() {
-  const {editorState, mediaState, mediaSrc, mediaType, actions, isEditingForAvatar} = useMediaEditorContext();
+  const {editorState, mediaState, mediaSrc, mediaType, actions, isEditingForAvatar} = useMediaEditorContext()!;
 
   const cropOffset = useCropOffset();
 
   const canvas = (
-    <canvas width={editorState.canvasSize[0] * editorState.pixelRatio} height={editorState.canvasSize[1] * editorState.pixelRatio} />
+    <canvas width={editorState.canvasSize![0] * editorState.pixelRatio} height={editorState.canvasSize![1] * editorState.pixelRatio} />
   ) as HTMLCanvasElement;
 
   const gl = canvas.getContext('webgl', {
@@ -43,16 +43,16 @@ export default function ImageCanvas() {
 
   editorState.imageCanvas = canvas;
 
-  const ownedDrawAdjustedImage = withCurrentOwner(() => drawAdjustedImage(gl));
+  const ownedDrawAdjustedImage = withCurrentOwner(() => drawAdjustedImage(gl!));
 
   const ownedInitVideoPlayback = withCurrentOwner(() =>
-    initVideoPlayback({gl, drawAdjustedImage: ownedDrawAdjustedImage})
+    initVideoPlayback({gl: gl!, drawAdjustedImage: ownedDrawAdjustedImage})
   );
 
   const middleware = createMiddleware().get();
 
   async function init() {
-    const payload = await initWebGL({gl, mediaSrc, mediaType, videoTime: mediaState.currentVideoTime, middleware});
+    const payload = await initWebGL({gl: gl!, mediaSrc, mediaType, videoTime: mediaState.currentVideoTime, middleware});
 
     batch(() => {
       editorState.renderingPayload = payload;
@@ -107,11 +107,11 @@ export default function ImageCanvas() {
   });
 
   createEffect(() => {
-    drawAdjustedImage(gl);
+    drawAdjustedImage(gl!);
   });
 
   onCleanup(() => {
-    cleanupWebGl(gl);
+    cleanupWebGl(gl!);
   });
 
   return <>{canvas}</>;

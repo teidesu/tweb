@@ -40,9 +40,9 @@ const SuggestPostPopupContent = defineSolidElement({
 
     const [stars, setStars] = createSignal(props.initialStars ? props.initialStars + '' : '');
     const [publishingTimestamp, setPublishingTimestamp] = createSignal<number>(
-      props.initialTimestamp && props.initialTimestamp * 1000 > Date.now() + SUGGEST_CHANGE_MIN_DELAY_MINUTES * 60 * 1000 ?
+      (props.initialTimestamp && props.initialTimestamp * 1000 > Date.now() + SUGGEST_CHANGE_MIN_DELAY_MINUTES * 60 * 1000 ?
         props.initialTimestamp :
-        undefined
+        undefined)!
     );
 
     const [appConfig] = useAppConfig();
@@ -66,8 +66,8 @@ const SuggestPostPopupContent = defineSolidElement({
       if(hasErrors()) return;
 
       props.onFinish({
-        stars: +stars() || undefined,
-        timestamp: publishingTimestamp() || undefined
+        stars: (+stars() || undefined)!,
+        timestamp: (publishingTimestamp() || undefined)!
       });
     };
 
@@ -75,7 +75,7 @@ const SuggestPostPopupContent = defineSolidElement({
       <SimpleFormField
         value={stars()}
         onChange={onChange}
-        isError={isBadPrice()}
+        isError={(isBadPrice()! as boolean | undefined)}
       >
         <SimpleFormField.SideContent first>
           {currencyStarIcon({class: commonStyles.Icon})}
@@ -115,7 +115,7 @@ const SuggestPostPopupContent = defineSolidElement({
       <button
         use:ripple
         class="btn-primary btn-color-primary btn-large"
-        disabled={hasErrors()}
+        disabled={(hasErrors()! as boolean | undefined)}
         onClick={onFinish}
       >
         <I18nTsx key='SuggestedPosts.MakeAnOffer' />

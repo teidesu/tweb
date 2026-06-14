@@ -36,9 +36,9 @@ const SuggestedPostAcceptWithTimePopupContent = defineSolidElement({
     const onFinish = () => {
       if(isFinishing) return;
       isFinishing = true;
-      rootScope.managers.monoforumDialogsStorage.toggleSuggestedPostApproval({
+      rootScope.managers.monoforumDialogsStorage!.toggleSuggestedPostApproval({
         parentPeerId: props.peerId,
-        messageId: props.message.mid,
+        messageId: props.message.mid!,
         scheduleTimestamp: publishTimestamp()
       });
       props.onFinish();
@@ -53,8 +53,8 @@ const SuggestedPostAcceptWithTimePopupContent = defineSolidElement({
             <I18nTsx
               key='SuggestedPosts.AcceptOfferDescription.ForAdminPaid'
               args={[
-                <PeerTitleTsx peerId={props.message.fromId} />,
-                <I18nTsx key='Stars' args={[numberThousandSplitterForStars(props.offeredStars * commission())]} />,
+                <PeerTitleTsx peerId={props.message.fromId!} />,
+                <I18nTsx key='Stars' args={[numberThousandSplitterForStars(props.offeredStars! * commission())]} />,
                 formattedCommission(),
                 SUGGESTED_POST_WAIT_FOR_REWARD_HOURS + ''
               ]}
@@ -63,7 +63,7 @@ const SuggestedPostAcceptWithTimePopupContent = defineSolidElement({
           <Match when>
             <I18nTsx
               key='SuggestedPosts.AcceptOfferDescription.ForAdmin'
-              args={[<PeerTitleTsx peerId={props.message.fromId} />]}
+              args={[<PeerTitleTsx peerId={props.message.fromId!} />]}
             />
           </Match>
         </Switch>
@@ -73,7 +73,7 @@ const SuggestedPostAcceptWithTimePopupContent = defineSolidElement({
 
       <PublishTimeField
         noTimeLangKey='SuggestedPosts.PublishingTime.PublishNow'
-        value={publishTimestamp()}
+        value={publishTimestamp()!}
         onChange={setPublishTimestamp}
       />
 

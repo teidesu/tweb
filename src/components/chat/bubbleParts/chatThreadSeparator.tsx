@@ -43,10 +43,10 @@ const createIntersectorRoot = (rootElement: HTMLElement) => createRoot((dispose)
       const element = entry.target as HTMLElement;
       if(!map.has(element)) return;
 
-      const targetMapValue = map.get(element);
+      const targetMapValue = map.get(element)!;
       const [, setState] = targetMapValue.signal;
 
-      const floating = entry.boundingClientRect.bottom < entry.rootBounds.top;
+      const floating = entry.boundingClientRect.bottom < entry.rootBounds!.top;
 
       setState({floating});
 
@@ -60,7 +60,7 @@ const createIntersectorRoot = (rootElement: HTMLElement) => createRoot((dispose)
 
         if(sortedMapValues[i + 1] === targetMapValue) {
           setCurrent({
-            nextIntersectionRatio: entry.boundingClientRect.bottom < entry.rootBounds.bottom ? entry.intersectionRatio : 1
+            nextIntersectionRatio: entry.boundingClientRect.bottom < entry.rootBounds!.bottom ? entry.intersectionRatio : 1
           });
         }
       }
@@ -147,14 +147,14 @@ const ChatThreadSeparator = defineSolidElement({
     const {appImManager, PeerTitleTsx} = useHotReloadGuard();
     attachHotClassName(props.element, styles.Container);
 
-    let clickTriggerEl: HTMLElement;
-    let scaledEl: HTMLElement;
+    let clickTriggerEl!: HTMLElement;
+    let scaledEl: HTMLElement | undefined;
 
     const [serviceMsg, setServiceMsg] = createSignal<HTMLElement>();
 
     const state = useIntersector({
       bubbles: props.bubbles,
-      element: serviceMsg,
+      element: serviceMsg as Accessor<HTMLElement>,
       index: () => props.index
     });
 

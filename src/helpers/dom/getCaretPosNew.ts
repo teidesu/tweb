@@ -3,13 +3,13 @@ import findUpAsChild from '@helpers/dom/findUpAsChild';
 export default function getCaretPosNew(input: HTMLElement, anchor?: boolean): ReturnType<typeof getCaretPosF> & {selection: Selection} {
   const selection = document.getSelection();
   // let {focusNode: node, focusOffset: offset} = selection;
-  const node = selection[anchor ? 'anchorNode' : 'focusNode'];
-  const offset = selection[anchor ? 'anchorOffset' : 'focusOffset'];
-  if(!findUpAsChild(node, input) && node !== input) {
+  const node = selection![anchor ? 'anchorNode' : 'focusNode'];
+  const offset = selection![anchor ? 'anchorOffset' : 'focusOffset'];
+  if(!findUpAsChild((node! as { parentElement: HTMLElement; }), input) && node !== input) {
     return {selection} as any;
   }
 
-  return {...getCaretPosF(input, node, offset), selection};
+  return {...getCaretPosF(input, node!, offset), selection: selection!};
 }
 
 export function getCaretPosF(input: HTMLElement, node: Node, offset: number) {

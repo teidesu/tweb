@@ -29,7 +29,7 @@ export default function getStreamCached() {
   }) => {
     const {isScreen, constraints} = options;
     const cache = _cache[isScreen ? 'screen' : 'main'];
-    let promise: Promise<MediaStream> = cache[constraints.audio ? 'audio' : 'video'];
+    let promise: Promise<MediaStream> = cache[constraints.audio ? 'audio' : 'video']!;
 
     if(!promise) {
       promise = (isScreen ? getScreenStream : getStream)(constraints, (options as any).muted);

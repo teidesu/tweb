@@ -74,9 +74,9 @@ export default class LineBlobDrawable {
       // ctx.globalAlpha = 0.5;
       // ctx.lineWidth = 1;
 
-      ctx.beginPath();
-      ctx.moveTo(right, bottom);
-      ctx.lineTo(left, bottom);
+      ctx!.beginPath();
+      ctx!.moveTo(right, bottom);
+      ctx!.lineTo(left, bottom);
 
       const {radius, radiusNext, N} = this;
       for(let i = 0; i <= N; i++) {
@@ -84,7 +84,7 @@ export default class LineBlobDrawable {
           const progress = this.progress[i];
           const r1 = radius[i] * (1.0 - progress) + radiusNext[i] * progress;
           const y = (top - r1) * progressToPinned + pinnedTop * (1.0 - progressToPinned);
-          ctx.lineTo(left, y);
+          ctx!.lineTo(left, y);
         } else {
           const progress = this.progress[i - 1];
           const r1 = radius[i - 1] * (1.0 - progress) + radiusNext[i - 1] * progress;
@@ -96,17 +96,17 @@ export default class LineBlobDrawable {
 
           const y1 = (top - r1) * progressToPinned + pinnedTop * (1.0 - progressToPinned);
           const y2 = (top - r2) * progressToPinned + pinnedTop * (1.0 - progressToPinned);
-          ctx.bezierCurveTo(cx, y1, cx, y2, x2, y2);
+          ctx!.bezierCurveTo(cx, y1, cx, y2, x2, y2);
           if(i === N) {
-            ctx.lineTo(right, bottom);
+            ctx!.lineTo(right, bottom);
           }
         }
       }
 
       // ctx.scale(1.0, 1.0);
-      paint(ctx);
-      ctx.fill();
-      ctx.closePath();
+      paint(ctx!);
+      ctx!.fill();
+      ctx!.closePath();
     }
   }
 }

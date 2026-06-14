@@ -1,6 +1,6 @@
 export default function getSelectedText(): string {
   if(window.getSelection) {
-    return window.getSelection().toString();
+    return window.getSelection()!.toString();
     // @ts-ignore
   } else if(document.selection) {
     // @ts-ignore

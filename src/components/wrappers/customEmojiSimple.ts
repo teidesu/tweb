@@ -16,7 +16,7 @@ export function wrapAdaptiveCustomEmoji(options: {
   }
 
   const loadPromise = (async() => {
-    const doc = await rootScope.managers.appEmojiManager.getCustomEmojiDocument(docId);
+    const doc = await rootScope.managers.appEmojiManager!.getCustomEmojiDocument(docId);
     await wrapSticker({
       doc,
       div: container,

@@ -248,19 +248,19 @@ function loadReactionGeneric(): Promise<{layersPositions: ComputedFrameTransform
 
 export default class ReactionElement extends HTMLElement {
   private type: ReactionLayoutType;
-  private counter: HTMLElement;
+  private counter: HTMLElement | undefined;
   public stickerContainer: HTMLElement;
-  private stackedAvatars: StackedAvatars;
+  private stackedAvatars: StackedAvatars | undefined;
   private canRenderAvatars: boolean;
   private _reactionCount: ReactionCount;
-  public wrapStickerPromise: Awaited<ReturnType<typeof wrapSticker>>['render'];
+  public wrapStickerPromise: Awaited<ReturnType<typeof wrapSticker>>['render'] | undefined;
   public managers: AppManagers;
   public middleware: Middleware;
   private customEmojiElement: CustomEmojiElement;
   public hasAroundAnimation: Promise<void>;
   public isUnread: boolean;
   private hasTitle: boolean;
-  private paidReactionCounter: AnimatedCounter;
+  private paidReactionCounter: AnimatedCounter | undefined;
 
   constructor() {
     super();
@@ -326,17 +326,17 @@ export default class ReactionElement extends HTMLElement {
     if(reaction._ === 'reactionEmoji') {
       const availableReaction = apiManagerProxy.getReaction(reaction.emoticon);
       return callbackify(availableReaction, (availableReaction) => {
-        if(!availableReaction.center_icon) {
+        if(!availableReaction!.center_icon) {
           this.stickerContainer.classList.add('is-static');
         } else {
           this.stickerContainer.classList.add('is-regular');
         }
 
-        if(availableReaction.pFlags.inactive) {
+        if(availableReaction!.pFlags.inactive) {
           this.classList.add('is-inactive');
         }
 
-        const doc = availableReaction.center_icon ?? availableReaction.static_icon;
+        const doc = availableReaction!.center_icon ?? availableReaction!.static_icon;
         this.renderDoc(doc);
 
         // customEmojiElement.static = true;
@@ -422,10 +422,10 @@ export default class ReactionElement extends HTMLElement {
     let title: string;
     if(this.type === ReactionLayoutType.Tag) {
       const tag = savedReactionTags.find((tag) => reactionsEqual(tag.reaction, this.reactionCount.reaction));
-      title = tag?.title;
+      title = tag?.title!;
     }
 
-    return title;
+    return title!;
   }
 
   public renderCounter(force?: boolean, title: string | HTMLElement = this.findTitle()) {
@@ -434,7 +434,7 @@ export default class ReactionElement extends HTMLElement {
     const reactionCount = this.reactionCount;
 
     let setTitle = false;
-    if(force || title || reactionCount.count >= displayOn || (this.type === ReactionLayoutType.Block && !this.canRenderAvatars)) {
+    if(force || title || reactionCount.count >= displayOn! || (this.type === ReactionLayoutType.Block && !this.canRenderAvatars)) {
       if(!this.counter) {
         this.counter = document.createElement(this.type === ReactionLayoutType.Inline ? 'i' : 'span');
         this.counter.classList.add(CLASS_NAME + '-counter');
@@ -470,7 +470,7 @@ export default class ReactionElement extends HTMLElement {
       return;
     }
 
-    if(this.reactionCount.count >= REACTIONS_DISPLAY_COUNTER_AT[this.type] || !this.canRenderAvatars) {
+    if(this.reactionCount.count >= REACTIONS_DISPLAY_COUNTER_AT[this.type]! || !this.canRenderAvatars) {
       if(this.stackedAvatars) {
         this.stackedAvatars.container.remove();
         this.stackedAvatars = undefined;
@@ -532,7 +532,7 @@ export default class ReactionElement extends HTMLElement {
   public static fireAroundAnimation(options: {
     waitPromise?: Promise<any>
     cache?: {
-      hasAroundAnimation: ReactionElement['hasAroundAnimation'],
+      hasAroundAnimation: ReactionElement['hasAroundAnimation'] | undefined,
       wrapStickerPromise?: ReactionElement['wrapStickerPromise']
     },
     reaction: Reaction,
@@ -548,7 +548,7 @@ export default class ReactionElement extends HTMLElement {
     textColor?: string,
     scrollable?: Scrollable
   }) {
-    if(options.cache.hasAroundAnimation || !liteMode.isAvailable('effects_reactions')) {
+    if(options.cache!.hasAroundAnimation || !liteMode.isAvailable('effects_reactions')) {
       return;
     }
 
@@ -575,12 +575,12 @@ export default class ReactionElement extends HTMLElement {
       div && div.classList.add(CLASS_NAME + '-sticker-activate');
 
       const genericEffectSize = options.sizes.genericEffectSize;
-      const isGenericMasked = genericEffect && sticker.sticker !== StickerType.Lottie;
+      const isGenericMasked = genericEffect && sticker!.sticker !== StickerType.Lottie;
 
       const textColor = options.textColor || 'primary-text-color';
 
       const aroundParams: Parameters<typeof wrapStickerAnimation>[0] = {
-        doc: genericEffect || availableReaction?.around_animation,
+        doc: (genericEffect || availableReaction?.around_animation)!,
         size: genericEffect ? genericEffectSize : options.sizes.effectSize,
         target: options.stickerContainer,
         side: 'center',
@@ -597,12 +597,12 @@ export default class ReactionElement extends HTMLElement {
         skipRatio: 1,
         autoplay: false,
         middleware: options.middleware,
-        container: div,
+        container: div!,
         noCache: true
       }, assetName) : wrapStickerAnimation(aroundParams).stickerPromise;
       const genericResult = genericEffect && wrapStickerAnimation({
         ...aroundParams,
-        doc: isGenericMasked ? aroundParams.doc : sticker,
+        doc: (isGenericMasked ? aroundParams.doc : sticker)!,
         size: genericEffectSize,
         stickerSize: size,
         loopEffect: true,
@@ -610,7 +610,7 @@ export default class ReactionElement extends HTMLElement {
       });
       const stickerResult = (!genericEffect || isGenericMasked) && !onlyAround && wrapSticker({
         div: div || document.createElement('div'),
-        doc: sticker || availableReaction.center_icon,
+        doc: sticker || availableReaction!.center_icon,
         width: size,
         height: size,
         withThumb: false,
@@ -628,7 +628,7 @@ export default class ReactionElement extends HTMLElement {
 
       return Promise.all([
         genericEffect ?
-          genericResult.stickerPromise :
+          genericResult!.stickerPromise :
           stickerResult,
 
         aroundResult,
@@ -645,29 +645,30 @@ export default class ReactionElement extends HTMLElement {
 
         const deferred = deferredPromise<void>();
         const remove = () => {
-          deferred.resolve();
+          deferred.resolve!();
           // return;
           // if(!isInDOM(div)) return;
-          iconPlayer?.remove();
+          iconPlayer && (iconPlayer as RLottiePlayer).remove();
           div?.remove();
           options.stickerContainer.classList.remove('has-animation');
         };
 
         if(genericEffect) {
-          const canvas = iconPlayer.canvas[0];
+          const _iconPlayer = iconPlayer as RLottiePlayer;
+          const canvas = _iconPlayer.canvas[0];
           canvas.classList.add('hide');
-          const context = iconPlayer.contexts[0];
+          const context = _iconPlayer.contexts[0];
           const dpr = canvas.dpr;
-          const newCanvasSize = genericEffectSize * dpr;
+          const newCanvasSize = genericEffectSize * dpr!;
           const size = canvas.width;
-          genericResult.animationDiv.append(canvas);
-          genericResult.animationDiv.style.transform = 'scaleX(-1)';
+          genericResult!.animationDiv.append(canvas);
+          genericResult!.animationDiv.style.transform = 'scaleX(-1)';
 
           const maskedMedia = maskedSticker?.[0];
           const isMaskedVideo = maskedMedia instanceof HTMLVideoElement;
 
-          iconPlayer.addEventListener('firstFrame', () => {
-            iconPlayer.setSize(newCanvasSize, newCanvasSize);
+          _iconPlayer.addEventListener('firstFrame', () => {
+            _iconPlayer.setSize(newCanvasSize, newCanvasSize);
             canvas.classList.remove('hide');
 
             if(isMaskedVideo) {
@@ -678,9 +679,9 @@ export default class ReactionElement extends HTMLElement {
           let frameNo = 0;
           const scale = newCanvasSize / 512;
 
-          const {layersPositions, op} = reactionGeneric;
+          const {layersPositions, op} = reactionGeneric!;
 
-          iconPlayer.overrideRender = (frame) => {
+          _iconPlayer.overrideRender = (frame: any) => {
             if(isGenericMasked) {
               frame = maskedMedia as any as HTMLCanvasElement;
             }
@@ -706,9 +707,9 @@ export default class ReactionElement extends HTMLElement {
                 flippedY = y < 0/*  && false */;
               }
 
-              let [x, y] = transformations.translation;
-              x = (x + transformations.anchor[0]) * scale - Math.abs(scaledWidth) / 2;
-              y = (y + transformations.anchor[1]) * scale - Math.abs(scaledHeight) / 2;
+              let [x, y] = transformations.translation!;
+              x = (x + transformations.anchor![0]) * scale - Math.abs(scaledWidth) / 2;
+              y = (y + transformations.anchor![1]) * scale - Math.abs(scaledHeight) / 2;
 
               if(flippedX || flippedY) {
                 savedContext = true;
@@ -761,8 +762,8 @@ export default class ReactionElement extends HTMLElement {
 
         !genericEffect && iconPlayer.addEventListener('enterFrame', (frameNo) => {
           if(frameNo === iconPlayer.maxFrame) {
-            if(options.cache.wrapStickerPromise) { // wait for fade in animation
-              options.cache.wrapStickerPromise.then(() => {
+            if(options.cache!.wrapStickerPromise) { // wait for fade in animation
+              options.cache!.wrapStickerPromise.then(() => {
                 setTimeout(removeOnFrame, 1e3);
               });
             } else {
@@ -782,10 +783,10 @@ export default class ReactionElement extends HTMLElement {
       });
     };
 
-    const onEmoticon = (sticker: Document.document, emoticon: string = sticker.stickerEmojiRaw) => {
+    const onEmoticon = (sticker: Document.document, emoticon: string = sticker.stickerEmojiRaw!) => {
       return callbackifyAll([
         apiManagerProxy.getReaction(emoticon),
-        sticker ? options.managers.appReactionsManager.getRandomGenericAnimation() : undefined
+        sticker ? options.managers!.appReactionsManager!.getRandomGenericAnimation() : undefined
       ], ([
         availableReaction,
         genericEffect
@@ -802,7 +803,7 @@ export default class ReactionElement extends HTMLElement {
 
     let promise: Promise<void>;
     if(reaction._ === 'reactionEmoji') {
-      promise = onEmoticon(undefined, reaction.emoticon);
+      promise = onEmoticon(undefined!, reaction.emoticon);
     } else if(reaction._ === 'reactionPaid') {
       promise = Promise.resolve()
       onAvailableReaction({
@@ -810,19 +811,19 @@ export default class ReactionElement extends HTMLElement {
         assetName: `StarReactionEffect${getUnsafeRandomInt(1, 3)}` as LottieAssetName
       })
     } else {
-      promise = callbackify(options.managers.appEmojiManager.getCustomEmojiDocument(reaction.document_id), (doc) => {
+      promise = callbackify(options.managers.appEmojiManager!.getCustomEmojiDocument(reaction.document_id), (doc) => {
         return onEmoticon(doc);
       });
     }
 
     options.middleware.onDestroy(() => {
-      options.cache.hasAroundAnimation = undefined;
+      options.cache!.hasAroundAnimation = undefined;
     });
 
-    options.cache.hasAroundAnimation = promise;
+    options.cache!.hasAroundAnimation = promise;
     promise.finally(() => {
-      if(options.cache.hasAroundAnimation === promise) {
-        options.cache.hasAroundAnimation = undefined;
+      if(options.cache!.hasAroundAnimation === promise) {
+        options.cache!.hasAroundAnimation = undefined;
       }
     });
   }

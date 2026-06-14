@@ -23,7 +23,7 @@ const ChannelDirectMessages = () => {
   const linkedChat = chat.linked_monoforum_id ? apiManagerProxy.getChat(chat.linked_monoforum_id) : undefined;
 
   const initialEnabled = !!linkedChat;
-  const initialStars = linkedChat?._ === 'channel' ? +linkedChat.send_paid_messages_stars || 0 : 0
+  const initialStars = linkedChat?._ === 'channel' ? +linkedChat.send_paid_messages_stars! || 0 : 0
 
   const [enabled, setEnabled] = createSignal(initialEnabled);
   const [stars, setStars] = createSignal(initialStars);
@@ -39,7 +39,7 @@ const ChannelDirectMessages = () => {
     isSaving = true;
 
     try {
-      await rootScope.managers.appChatsManager.updateChannelPaidMessagesPrice(
+      await rootScope.managers.appChatsManager!.updateChannelPaidMessagesPrice(
         chat.id,
         enabled() ? stars() : 0,
         enabled()

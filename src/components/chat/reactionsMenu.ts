@@ -94,9 +94,9 @@ export class ChatReactionsMenu {
     this.size = options.size ?? REACTION_SIZE;
     this.openSide = options.openSide ?? 'bottom';
     this.getOpenPosition = options.getOpenPosition;
-    this.noMoreButton = options.noMoreButton;
-    this.isTags = options.isTags;
-    this.isEffects = options.isEffects;
+    this.noMoreButton = options.noMoreButton!;
+    this.isTags = options.isTags!;
+    this.isEffects = options.isEffects!;
 
     this.middlewareHelper.get().onDestroy(() => {
       this.listenerSetter.removeAll();
@@ -120,8 +120,8 @@ export class ChatReactionsMenu {
           })
         ]
       );
-      description.classList.add(REACTIONS_CLASS_NAME + '-description');
-      widthContainer.append(description);
+      description!.classList.add(REACTIONS_CLASS_NAME + '-description');
+      widthContainer.append(description!);
     }
 
     const reactionsContainer = this.container = document.createElement('div');
@@ -155,7 +155,7 @@ export class ChatReactionsMenu {
     }
 
     attachClickEvent(reactionsContainer, (e) => {
-      const reactionDiv = findUpClassName(e.target, REACTION_CLASS_NAME);
+      const reactionDiv = findUpClassName(e.target!, REACTION_CLASS_NAME);
       if(!reactionDiv) return;
 
       const players = this.reactionsMap.get(reactionDiv);
@@ -223,7 +223,7 @@ export class ChatReactionsMenu {
   private async prepareReactions(message?: Message.message | Message.messageService) {
     const middleware = this.middlewareHelper.get();
     const availableReactionsResult = apiManagerProxy.getAvailableReactions();
-    const peerAvailableReactionsResult = await this.managers.acknowledged.appReactionsManager.getAvailableReactionsByMessage(message);
+    const peerAvailableReactionsResult = await this.managers.acknowledged!.appReactionsManager!.getAvailableReactionsByMessage(message);
     const cached = !(availableReactionsResult instanceof Promise) && peerAvailableReactionsResult.cached;
     const renderPromise = callbackifyAll([
       peerAvailableReactionsResult.result,
@@ -239,7 +239,7 @@ export class ChatReactionsMenu {
 
       this.reactions = peerAvailableReactions.reactions;
       this.noPacks = this.noSearch = peerAvailableReactions.type !== 'chatReactionsAll';
-      return this.renderReactions(peerAvailableReactions, availableReactions);
+      return this.renderReactions(peerAvailableReactions, (availableReactions as AvailableReaction.availableReaction[]));
     });
 
     return [cached, renderPromise] as const;
@@ -247,7 +247,7 @@ export class ChatReactionsMenu {
 
   private async prepareEffects() {
     const middleware = this.middlewareHelper.get();
-    const availableEffects = await this.managers.acknowledged.appReactionsManager.getAvailableEffects();
+    const availableEffects = await this.managers.acknowledged!.appReactionsManager!.getAvailableEffects();
     const {cached} = availableEffects;
     const renderPromise = callbackify(
       availableEffects.result,
@@ -274,9 +274,9 @@ export class ChatReactionsMenu {
   public async init(message?: Message.message | Message.messageService) {
     let cached: boolean, renderPromise: Promise<() => void>;
     if(this.isEffects) {
-      [cached, renderPromise] = await this.prepareEffects();
+      [cached, renderPromise!] = await this.prepareEffects() as unknown as readonly [boolean, Promise<() => void>];
     } else {
-      [cached, renderPromise] = await this.prepareReactions(message);
+      [cached, renderPromise!] = await this.prepareReactions(message) as unknown as readonly [boolean, Promise<() => void>];
     }
 
     if(cached) {
@@ -317,7 +317,7 @@ export class ChatReactionsMenu {
     let docId = (reaction as Reaction.reactionCustomEmoji).document_id;
     if(!docId) {
       const availableReaction = this.availableReactions.find((_reaction) => _reaction.reaction === (reaction as Reaction.reactionEmoji).emoticon);
-      docId = availableReaction.select_animation.id;
+      docId = availableReaction!.select_animation.id;
     }
 
     return docId;
@@ -328,13 +328,13 @@ export class ChatReactionsMenu {
   };
 
   private loadTags = () => {
-    const reactionsPromise = this.managers.appReactionsManager.getTagReactions()
+    const reactionsPromise = this.managers.appReactionsManager!.getTagReactions()
     .then(this.reactionsToDocIds);
     return [reactionsPromise];
   };
 
   private loadEffects = () => {
-    const reactionsPromise = this.managers.appReactionsManager.getAvailableEffects()
+    const reactionsPromise = this.managers.appReactionsManager!.getAvailableEffects()
     .then((availableEffects) => {
       return availableEffects.filter((availableEffect) => {
         return !!availableEffect.effect_animation_id;
@@ -348,7 +348,7 @@ export class ChatReactionsMenu {
     // const topReactionsPromise = this.managers.appReactionsManager.getTopReactions()
     .then(this.reactionsToDocIds);
 
-    const allRecentReactionsPromise = this.managers.appReactionsManager.getRecentReactions()
+    const allRecentReactionsPromise = this.managers.appReactionsManager!.getRecentReactions()
     .then(this.reactionsToDocIds);
 
     const topReactionsSlicedPromise = topReactionsPromise.then((docIds) => this.noPacks ? docIds : docIds.slice(0, 16));
@@ -364,7 +364,7 @@ export class ChatReactionsMenu {
       return filterUnique(recentDocIds);
     });
 
-    return [topReactionsSlicedPromise, recentReactionsPromise].filter(Boolean);
+    return [topReactionsSlicedPromise, recentReactionsPromise].filter(Boolean) as Promise<(string | number)[]>[];
   };
 
   private onMoreClick = (e: MouseEvent) => {
@@ -377,15 +377,15 @@ export class ChatReactionsMenu {
       noPacks: this.noPacks,
       noSearch: this.noSearch,
       managers: this.managers,
-      mainSets: this.isTags ? this.loadTags : (this.isEffects ? this.loadEffects : this.loadReactions),
+      mainSets: (this.isTags ? this.loadTags : (this.isEffects ? this.loadEffects : this.loadReactions))!,
       additionalLocalStickerSet: this.isEffects ? async() => {
-        const availableEffects = await this.managers.appReactionsManager.getAvailableEffects();
-        return (await this.splitAvailableEffects(availableEffects)).localStickerSet;
+        const availableEffects = await this.managers.appReactionsManager!.getAvailableEffects();
+        return (await this.splitAvailableEffects(availableEffects)).localStickerSet!;
       } : undefined,
       onClick: async(emoji) => {
         if(emoji.docId && emoji.emoji) {
           const availableReactions = await apiManagerProxy.getAvailableReactions();
-          const hasNativeReaction = availableReactions.find((_reaction) => _reaction.select_animation?.id === emoji.docId);
+          const hasNativeReaction = availableReactions!.find((_reaction) => _reaction.select_animation?.id === emoji.docId);
           if(hasNativeReaction) {
             emoji.emoji = hasNativeReaction.reaction;
             delete emoji.docId;
@@ -407,7 +407,7 @@ export class ChatReactionsMenu {
           };
         }
 
-        deferred.resolve(reaction);
+        deferred.resolve!(reaction);
         emoticonsDropdown.hideAndDestroy();
       },
       freeCustomEmoji: this.freeCustomEmoji,
@@ -416,14 +416,14 @@ export class ChatReactionsMenu {
         // element.style.setProperty('--width', element.offsetWidth + 'px');
         if(canShrink) {
           const container = element.querySelector<HTMLElement>('.emoticons-categories-container');
-          element.style.setProperty('--height', container.offsetHeight + 'px');
+          element.style.setProperty('--height', container!.offsetHeight + 'px');
         }
       },
       searchFetcher: this.isEffects ? async(q) => {
-        const availableEffects = await this.managers.appReactionsManager.searchAvailableEffects({q});
+        const availableEffects = await this.managers.appReactionsManager!.searchAvailableEffects({q});
         return this.splitAvailableEffects(availableEffects);
       } : async(q) => {
-        const emojis = await this.managers.appEmojiManager.prepareAndSearchEmojis({q, limit: Infinity, minChars: 1, addCustom: true});
+        const emojis = await this.managers.appEmojiManager!.prepareAndSearchEmojis({q, limit: Infinity, minChars: 1, addCustom: true});
         return {
           emojis: emojis.filter((emoji) => {
             if(!emoji.docId) {
@@ -439,7 +439,7 @@ export class ChatReactionsMenu {
         };
       },
       groupFetcher: this.isEffects ? async(emojiGroup) => {
-        const availableEffects = await this.managers.appReactionsManager.searchAvailableEffects({emoticon: (emojiGroup as EmojiGroup.emojiGroup).emoticons});
+        const availableEffects = await this.managers.appReactionsManager!.searchAvailableEffects({emoticon: (emojiGroup as EmojiGroup.emojiGroup).emoticons});
         return this.splitAvailableEffects(availableEffects);
       } : undefined,
       showLocks: this.isEffects
@@ -462,17 +462,17 @@ export class ChatReactionsMenu {
     const deferred = deferredPromise<Reaction>();
     this.onFinish(deferred);
     emoticonsDropdown.addEventListener('closed', () => {
-      deferred.resolve(undefined);
+      deferred.resolve!(undefined!);
       emoticonsDropdown.hideAndDestroy();
     });
 
     emoticonsDropdown.onButtonClick();
   };
 
-  private async splitAvailableEffects(availableEffects: AvailableEffect[]): ReturnType<EmojiTab['searchFetcher']> {
+  private async splitAvailableEffects(availableEffects: AvailableEffect[]): Promise<Awaited<ReturnType<NonNullable<EmojiTab['searchFetcher']>>>> {
     const [stickers, customEmojis] = partition(availableEffects, (availableEffect) => !availableEffect.effect_animation_id);
     const docIds = stickers.map((availableEffect) => availableEffect.effect_sticker_id);
-    const docs = await Promise.all(docIds.map((docId) => this.managers.appDocsManager.getDoc(docId)));
+    const docs = await Promise.all(docIds.map((docId) => this.managers.appDocsManager!.getDoc(docId)));
     return {
       emojis: customEmojis.map((availableEffect) => {
         return {
@@ -508,7 +508,7 @@ export class ChatReactionsMenu {
     }
 
     const players: ChatReactionsMenuPlayers = {
-      selectWrapper,
+      selectWrapper: selectWrapper!,
       appearWrapper,
       reaction
     };
@@ -572,12 +572,12 @@ export class ChatReactionsMenu {
 
       loadPromises.push(promise);
     } else if(!canUseAnimations || !availableReaction) {
-      delete options.needFadeIn;
-      delete options.withThumb;
+      delete (options as {needFadeIn?: boolean}).needFadeIn;
+      delete (options as {withThumb?: boolean}).withThumb;
 
       const wrap = () => {
         wrapSticker({
-          doc,
+          doc: doc!,
           div: appearWrapper,
           liteModeKey: false,
           play: availableReaction === undefined ? true : undefined,
@@ -587,11 +587,11 @@ export class ChatReactionsMenu {
 
       let doc = availableReaction?.static_icon, delay = false;
       if(!doc) {
-        const result = await this.managers.acknowledged.appEmojiManager.getCustomEmojiDocument((reaction as Reaction.reactionCustomEmoji).document_id);
+        const result = await this.managers.acknowledged!.appEmojiManager!.getCustomEmojiDocument((reaction as Reaction.reactionCustomEmoji).document_id);
         if(result.cached) {
           doc = await result.result;
         } else {
-          delete options.loadPromises;
+          delete (options as {loadPromises?: any}).loadPromises;
           delay = true;
           result.result.then((_doc) => (doc = _doc, wrap()));
         }
@@ -631,7 +631,7 @@ export class ChatReactionsMenu {
 
       const selectLoadPromise = wrapSticker({
         doc: availableReaction.select_animation,
-        div: selectWrapper,
+        div: selectWrapper!,
         liteModeKey: false,
         ...options
       }).then(({render}) => render).then((player) => {
@@ -642,7 +642,7 @@ export class ChatReactionsMenu {
     }
 
     scaleContainer.append(appearWrapper);
-    selectWrapper && scaleContainer.append(selectWrapper);
+    selectWrapper! && scaleContainer.append(selectWrapper);
     reactionDiv.append(scaleContainer);
     // this.scrollable.append(reactionDiv);
 
@@ -685,7 +685,7 @@ export class ChatReactionsMenu {
   // }
 
   private onMouseMove = (e: MouseEvent) => {
-    const reactionDiv = findUpClassName(e.target, REACTION_CLASS_NAME);
+    const reactionDiv = findUpClassName(e.target!, REACTION_CLASS_NAME);
     if(!reactionDiv) {
       return;
     }

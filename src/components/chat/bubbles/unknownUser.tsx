@@ -28,13 +28,13 @@ export function UnknownUserBubble(props: {
   peerSettings?: PeerSettings
 }) {
   const countryName = () => {
-    const country = I18n.countriesList.find((it) => it.iso2 === props.peerSettings.phone_country);
+    const country = I18n.countriesList.find((it) => it.iso2 === props.peerSettings!.phone_country);
     return country?.name ?? country?.default_name;
   };
 
   const registrationDate = () => {
-    const m = props.peerSettings.registration_month.match(/^(\d{2})\.(\d{4})$/);
-    if(!m) return props.peerSettings.registration_month;
+    const m = props.peerSettings!.registration_month!.match(/^(\d{2})\.(\d{4})$/);
+    if(!m) return props.peerSettings!.registration_month;
 
     const [, month, year] = m;
     return monthsLocalized[Number(month) - 1] + ' ' + year;
@@ -42,7 +42,7 @@ export function UnknownUserBubble(props: {
 
   const [commonChats] = createResource(() => {
     if(!props.userFull.common_chats_count) return;
-    return rootScope.managers.appUsersManager.getCommonChats(props.peerId.toUserId(), 3, 0);
+    return rootScope.managers.appUsersManager!.getCommonChats(props.peerId.toUserId(), 3, 0);
   });
 
   const Footer = (props: {
@@ -75,18 +75,18 @@ export function UnknownUserBubble(props: {
         </div>
         <div class={/* @once */ styles.table}>
           <div class={/* @once */ styles.tableLeft}>
-            {props.peerSettings.phone_country && <I18nTsx key="UnknownUserPhoneNumber" />}
-            {props.peerSettings.registration_month && <I18nTsx key="UnknownUserRegistrationDate" />}
+            {props.peerSettings!.phone_country && <I18nTsx key="UnknownUserPhoneNumber" />}
+            {props.peerSettings!.registration_month && <I18nTsx key="UnknownUserRegistrationDate" />}
             {props.userFull.common_chats_count && <I18nTsx key="UnknownUserSharedGroups" />}
           </div>
           <div class={/* @once */ styles.tableRight}>
-            {props.peerSettings.phone_country && (
+            {props.peerSettings!.phone_country && (
               <div class={/* @once */ styles.phoneCountry}>
-                {wrapEmojiText(getCountryEmoji(props.peerSettings.phone_country))}
+                {wrapEmojiText(getCountryEmoji(props.peerSettings!.phone_country))}
                 {countryName()}
               </div>
             )}
-            {props.peerSettings.registration_month && registrationDate()}
+            {props.peerSettings!.registration_month && registrationDate()}
             {props.userFull.common_chats_count && (
               <div
                 class={/* @once */ styles.commonChats}
@@ -123,7 +123,7 @@ export function UnknownUserBubble(props: {
                 textColor: 'white'
               }
             }).container}
-            text={wrapRichText(props.userFull.bot_verification.description)}
+            text={wrapRichText(props.userFull.bot_verification!.description)}
           />
         )}
       </div>

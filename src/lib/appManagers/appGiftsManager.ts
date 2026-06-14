@@ -18,8 +18,8 @@ export interface MyStarGift {
   isUpgradedBySender?: boolean,
   isResale?: boolean,
   isWearing?: boolean,
-  resellPriceStars?: Long,
-  resellPriceTon?: Long,
+  resellPriceStars?: Long | null,
+  resellPriceTon?: Long | null,
   resellOnlyTon?: boolean,
   collectibleAttributes?: {
     model: StarGiftAttribute.starGiftAttributeModel,
@@ -58,13 +58,13 @@ function mapPremiumOptions(premiumOptions: PremiumGiftCodeOption.premiumGiftCode
 
     if(map.has(option.months)) {
       const oldOption = map.get(option.months);
-      if(oldOption.currency === STARS_CURRENCY) {
-        oldOption.priceStars = oldOption.price;
-        oldOption.price = option.amount;
-        oldOption.currency = option.currency;
-        oldOption.raw = option;
+      if(oldOption!.currency === STARS_CURRENCY) {
+        oldOption!.priceStars = oldOption!.price;
+        oldOption!.price = option.amount;
+        oldOption!.currency = option.currency;
+        oldOption!.raw = option;
       } else if(option.currency === STARS_CURRENCY) {
-        oldOption.priceStars = option.amount;
+        oldOption!.priceStars = option.amount;
       }
       continue;
     }
@@ -79,7 +79,7 @@ function mapPremiumOptions(premiumOptions: PremiumGiftCodeOption.premiumGiftCode
     });
   }
 
-  const threePrice = bigInt(map.get(3).price as number);
+  const threePrice = bigInt(map.get(3)!.price as number);
   const calcDiscount = (option: MyPremiumGiftOption, mul: number) => {
     const optionPrice = option.price;
     const rawPrice = threePrice.multiply(mul);
@@ -88,14 +88,14 @@ function mapPremiumOptions(premiumOptions: PremiumGiftCodeOption.premiumGiftCode
     option.discountPercent = rawPrice.subtract(optionPrice).toJSNumber() / rawPrice.toJSNumber() * 100;
   }
 
-  calcDiscount(map.get(6), 2);
-  calcDiscount(map.get(12), 4);
+  calcDiscount(map.get(6)!, 2);
+  calcDiscount(map.get(12)!, 4);
 
   return [
     map.get(3),
     map.get(6),
     map.get(12)
-  ];
+  ] as MyPremiumGiftOption[];
 }
 
 export default class AppGiftsManager extends AppManager {
@@ -163,7 +163,7 @@ export default class AppGiftsManager extends AppManager {
       return {
         type: 'stargift',
         raw: gift,
-        sticker: this.appDocsManager.saveDoc(gift.sticker)
+        sticker: this.appDocsManager.saveDoc(gift.sticker)!
       };
     } else {
       let attrModel: StarGiftAttribute.starGiftAttributeModel;
@@ -174,14 +174,14 @@ export default class AppGiftsManager extends AppManager {
       for(const attr of gift.attributes) {
         switch(attr._) {
           case 'starGiftAttributeModel':
-            attr.document = this.appDocsManager.saveDoc(attr.document);
+            attr.document = this.appDocsManager.saveDoc(attr.document)!;
             attrModel = attr;
             break;
           case 'starGiftAttributeBackdrop':
             attrBackdrop = attr;
             break;
           case 'starGiftAttributePattern':
-            attr.document = this.appDocsManager.saveDoc(attr.document);
+            attr.document = this.appDocsManager.saveDoc(attr.document)!;
             attrPatern = attr;
             break;
           case 'starGiftAttributeOriginalDetails':
@@ -206,17 +206,17 @@ export default class AppGiftsManager extends AppManager {
       return {
         type: 'stargift',
         raw: gift,
-        sticker: this.appDocsManager.saveDoc(attrModel.document),
+        sticker: this.appDocsManager.saveDoc(attrModel!.document)!,
         collectibleAttributes: {
-          model: attrModel,
-          backdrop: attrBackdrop,
-          pattern: attrPatern,
-          original: attrOrig
+          model: attrModel!,
+          backdrop: attrBackdrop!,
+          pattern: attrPatern!,
+          original: attrOrig!
         },
         resellPriceStars,
         resellPriceTon,
         resellOnlyTon: gift.pFlags.resale_ton_only,
-        ownerId: getPeerId(gift.owner_id),
+        ownerId: getPeerId(gift.owner_id!),
         input: {_:'inputSavedStarGiftSlug', slug: gift.slug},
         isWearing: gift.slug === this.wearingGiftSlug
       };
@@ -240,7 +240,7 @@ export default class AppGiftsManager extends AppManager {
       from_id: isIncomingGift ? message.peer_id : {_: 'peerUser', user_id: this.rootScope.myId},
       date: message.date,
       gift,
-      message: action._ === 'messageActionStarGift' ? action.message : baseWrap.collectibleAttributes.original?.message,
+      message: action._ === 'messageActionStarGift' ? action.message : baseWrap.collectibleAttributes!.original?.message,
       msg_id: action._ === 'messageActionStarGift' && action.pFlags.prepaid_upgrade ? action.gift_msg_id : message.id,
       convert_stars: gift._ === 'starGift' ? gift.convert_stars : undefined,
       upgrade_stars: gift._ === 'starGift' ? gift.upgrade_stars : undefined,
@@ -265,7 +265,7 @@ export default class AppGiftsManager extends AppManager {
       saved,
       input: {
         _: 'inputSavedStarGiftUser',
-        msg_id: saved.msg_id
+        msg_id: saved.msg_id!
       }
     };
   }
@@ -333,14 +333,14 @@ export default class AppGiftsManager extends AppManager {
       wrapped.push({
         ...this.wrapGift(it.gift),
         ownerId: params.peerId,
-        input: isUser ? {
+        input: ((isUser ? {
           _: 'inputSavedStarGiftUser',
           msg_id: it.msg_id
         } : {
           _: 'inputSavedStarGiftChat',
           peer: inputPeer,
           saved_id: it.saved_id
-        },
+        })! as InputSavedStarGift | undefined),
         isIncoming: params.peerId.isUser() && this.rootScope.myId === params.peerId,
         saved: it
       });
@@ -358,7 +358,7 @@ export default class AppGiftsManager extends AppManager {
     }
 
     if(!params.offset) {
-      this.pinnedGiftsByPeer.set(params.peerId, wrapped.filter((it) => it.saved?.pFlags.pinned_to_top).map((it) => it.input));
+      this.pinnedGiftsByPeer.set(params.peerId, (wrapped.filter((it) => it.saved?.pFlags.pinned_to_top).map((it) => it.input)! as InputSavedStarGift[]));
     }
 
     return {
@@ -376,7 +376,7 @@ export default class AppGiftsManager extends AppManager {
     });
 
     if(res._ === 'payments.starGiftsNotModified') {
-      return this.cachedStarGiftOptions;
+      return this.cachedStarGiftOptions!;
     }
 
     this.cachedStarGiftOptionsHash = res.hash;
@@ -429,7 +429,7 @@ export default class AppGiftsManager extends AppManager {
     for(const attribute of attrs) {
       switch(attribute._) {
         case 'starGiftAttributeModel': {
-          attribute.document = this.appDocsManager.saveDoc(attribute.document);
+          attribute.document = this.appDocsManager.saveDoc(attribute.document)!;
           models.push(attribute);
           break;
         }
@@ -440,7 +440,7 @@ export default class AppGiftsManager extends AppManager {
         }
 
         case 'starGiftAttributePattern': {
-          attribute.document = this.appDocsManager.saveDoc(attribute.document);
+          attribute.document = this.appDocsManager.saveDoc(attribute.document)!;
           patterns.push(attribute);
           break;
         }
@@ -551,17 +551,17 @@ export default class AppGiftsManager extends AppManager {
       sort_by_price: params.sort === 'price',
       attributes: params.filters,
       attributes_hash: params.attributesHash,
-      offset: params.offset,
+      offset: params.offset!,
       limit: 51 // divisible by 3 for even grid
     })
 
     this.appPeersManager.saveApiPeers(res);
 
     const wrappedGifts: MyStarGift[] = res.gifts.map((it) => this.wrapGift(it));
-    const ownedGifts = wrappedGifts.filter((it) => getPeerId((it.raw as StarGift.starGiftUnique).owner_id) === this.rootScope.myId);
+    const ownedGifts = wrappedGifts.filter((it) => getPeerId((it.raw as StarGift.starGiftUnique).owner_id!) === this.rootScope.myId);
     if(ownedGifts.length > 0) {
       const savedGifts = await this.apiManager.invokeApiSingle('payments.getSavedStarGift', {
-        stargift: ownedGifts.map((it) => it.input)
+        stargift: (ownedGifts.map((it) => it.input)! as InputSavedStarGift[])
       }).catch((): null => null)
       if(savedGifts) {
         this.appPeersManager.saveApiPeers(savedGifts);
@@ -603,8 +603,8 @@ export default class AppGiftsManager extends AppManager {
           // need price in stars. we cant refetch the gift directly so estimate it based on rates
 
           const appConfig = await this.apiManager.getAppConfig();
-          const usd = nanotonToJsNumber(price.amount) * appConfig.ton_usd_rate;
-          const stars = usd / (appConfig.stars_usd_sell_rate_x1000 / 100) * 1000;
+          const usd = nanotonToJsNumber(price.amount) * appConfig.ton_usd_rate!;
+          const stars = usd / (appConfig.stars_usd_sell_rate_x1000! / 100) * 1000;
           prices.push({
             _: 'starsAmount',
             amount: Math.round(stars),

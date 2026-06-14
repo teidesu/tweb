@@ -32,7 +32,7 @@ export default function ColorPicker(props: {
   colorKey?: string; // Just for reaction, not used to access anything
   previousColor?: string;
 }) {
-  const {actions} = useMediaEditorContext();
+  const {actions} = useMediaEditorContext()!;
 
   const [collapsed, setCollapsed] = createSignal(colorPickerSwatches.includes(props.value));
   const [collapsing, setCollapsing] = createSignal(false);
@@ -117,13 +117,13 @@ export default function ColorPicker(props: {
   });
 
   onMount(() => {
-    setContainerSize(sizeContainer.clientWidth);
+    setContainerSize(sizeContainer!.clientWidth);
 
     const observer = new ResizeObserver(() => {
-      setContainerSize(sizeContainer.clientWidth);
+      setContainerSize(sizeContainer!.clientWidth);
     });
 
-    observer.observe(sizeContainer);
+    observer.observe(sizeContainer!);
 
     onCleanup(() => {
       observer.disconnect();
@@ -167,5 +167,5 @@ export default function ColorPicker(props: {
     )
   );
 
-  return <div ref={sizeContainer}>{colorPicker.container}</div>;
+  return <div ref={sizeContainer!}>{colorPicker.container}</div>;
 }

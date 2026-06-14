@@ -34,7 +34,7 @@ const LoadingDialogSkeleton: Component<{
     <div
       class={`${styles.Container} loading-dialog-skeleton`}
       classList={{
-        [props.class]: !!props.class,
+        [props.class as string]: !!props.class,
         [styles['size' + props.size]]: true,
         [styles.noAvatar]: props.noAvatar,
         [styles.shimmer]: animating()

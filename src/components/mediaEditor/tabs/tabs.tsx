@@ -20,7 +20,7 @@ const config: ConfigItem[] = [
 export const mediaEditorTabsOrder = config.map((item) => item.key);
 
 export default function Tabs() {
-  const {editorState} = useMediaEditorContext();
+  const {editorState} = useMediaEditorContext()!;
 
   const [noTransition, setNoTransition] = createSignal(true);
 
@@ -44,8 +44,8 @@ export default function Tabs() {
     const activeTab = tabs.find((tab) => tab.key === editorState.currentTab);
     if(activeTab) {
       const targetBR = activeTab.element.getBoundingClientRect();
-      const containerBR = container.getBoundingClientRect();
-      underline.style.setProperty('--left', targetBR.left + targetBR.width / 2 - containerBR.left + 'px');
+      const containerBR = container!.getBoundingClientRect();
+      underline!.style.setProperty('--left', targetBR.left + targetBR.width / 2 - containerBR.left + 'px');
 
       if(untrack(noTransition)) {
         requestRAF(() => {
@@ -56,10 +56,10 @@ export default function Tabs() {
   });
 
   return (
-    <div ref={container} class="media-editor__tabs">
+    <div ref={container!} class="media-editor__tabs">
       {tabs.map((tab) => tab.element)}
       <div
-        ref={underline}
+        ref={underline!}
         class="media-editor__tabs-underline"
         classList={{'media-editor__tabs-underline--no-transition': noTransition()}}
       />

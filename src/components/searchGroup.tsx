@@ -77,7 +77,7 @@ export function createSearchGroup(options: {
   const list = appDialogsManager.createChatList();
   let container: HTMLDivElement;
   let nameEl: HTMLDivElement;
-  let placeholder: HTMLElement;
+  let placeholder: HTMLElement | undefined;
 
   createRoot((dispose) => {
     <Section
@@ -121,12 +121,12 @@ export function createSearchGroup(options: {
   }
 
   const group = {
-    container,
+    container: container!,
     list,
-    nameEl,
+    nameEl: nameEl!,
     autonomous,
     noIcons,
-    createPlaceholder: undefined as () => HTMLElement,
+    createPlaceholder: undefined as unknown as () => HTMLElement,
     get placeholder() {
       return placeholder;
     },

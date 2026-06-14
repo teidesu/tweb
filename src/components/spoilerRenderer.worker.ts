@@ -183,11 +183,11 @@ const drawMediaTarget = (sim: Sim, target: MediaTarget, dpr: number) => {
 };
 
 const getUnwrapProgress = (unwrap: OverlayTarget['unwrap']) => {
-  const linear = Math.min((Date.now() - unwrap.startTime) / unwrap.duration, 1);
-  return unwrap.from + (unwrap.to - unwrap.from) * unwrap.easing(linear);
+  const linear = Math.min((Date.now() - unwrap!.startTime) / unwrap!.duration, 1);
+  return unwrap!.from + (unwrap!.to - unwrap!.from) * unwrap!.easing(linear);
 };
 
-const isUnwrapSettled = (unwrap: OverlayTarget['unwrap']) => (Date.now() - unwrap.startTime) >= unwrap.duration;
+const isUnwrapSettled = (unwrap: OverlayTarget['unwrap']) => (Date.now() - unwrap!.startTime) >= unwrap!.duration;
 
 const drawOverlayTarget = (sim: Sim | undefined, target: OverlayTarget) => {
   const {canvas, context, scratch, scratchContext, dpr, rects, backgroundColor, particleColor} = target;
@@ -238,14 +238,14 @@ const drawOverlayTarget = (sim: Sim | undefined, target: OverlayTarget) => {
     context.drawImage(scratch, x * dpr, y * dpr, dw * dpr, dh * dpr, x * dpr, y * dpr, dw * dpr, dh * dpr);
   }
 
-  if(coords && unwrap.maxDist) {
+  if(coords && unwrap!.maxDist) {
     context.save();
     context.globalCompositeOperation = 'destination-out';
     context.fillStyle = 'white';
-    context.shadowBlur = unwrap.maxDist / 3.5 * dpr * progress;
+    context.shadowBlur = unwrap!.maxDist / 3.5 * dpr * progress;
     context.shadowColor = 'white';
     context.beginPath();
-    context.arc(coords[0] * dpr, coords[1] * dpr, unwrap.maxDist * progress * dpr, 0, 2 * Math.PI);
+    context.arc(coords[0] * dpr, coords[1] * dpr, unwrap!.maxDist * progress * dpr, 0, 2 * Math.PI);
     context.fill();
     context.globalCompositeOperation = 'source-over';
     context.restore();
@@ -275,7 +275,7 @@ const frame = () => {
   // the text simulation feeds the bluff masks and the bubble overlays
   const textDprsNeeded = new Set<number>();
   ports.forEach((state) => {
-    if(state.bluffPlaying) textDprsNeeded.add(state.textDpr);
+    if(state.bluffPlaying) textDprsNeeded.add(state.textDpr!);
     for(const target of state.overlayTargets.values()) {
       if(isOverlayTargetActive(target)) textDprsNeeded.add(target.dpr);
     }
@@ -305,7 +305,7 @@ const frame = () => {
   ports.forEach((state) => {
     for(const target of state.mediaTargets.values()) {
       if(isMediaTargetActive(target)) {
-        mediaDprsNeeded.add(state.mediaDpr);
+        mediaDprsNeeded.add(state.mediaDpr!);
         break;
       }
     }
@@ -313,11 +313,11 @@ const frame = () => {
   mediaDprsNeeded.forEach((dpr) => mediaSims.get(dpr)?.core.draw());
 
   ports.forEach((state) => {
-    const mediaSim = mediaSims.get(state.mediaDpr);
+    const mediaSim = mediaSims.get(state.mediaDpr!);
     if(mediaSim) {
       state.mediaTargets.forEach((target) => {
         if(!isMediaTargetActive(target)) return;
-        drawMediaTarget(mediaSim, target, state.mediaDpr);
+        drawMediaTarget(mediaSim, target, state.mediaDpr!);
       });
     }
 
@@ -380,7 +380,7 @@ let encodeContext: ImageBitmapRenderingContext;
 const encodeBitmap = (state: PortState, bitmap: ImageBitmap) => {
   if(!encodeCanvas || encodeCanvas.width !== bitmap.width || encodeCanvas.height !== bitmap.height) {
     encodeCanvas = new OffscreenCanvas(bitmap.width, bitmap.height);
-    encodeContext = encodeCanvas.getContext('bitmaprenderer');
+    encodeContext = encodeCanvas.getContext('bitmaprenderer')!;
   }
 
   encodeContext.transferFromImageBitmap(bitmap);
@@ -429,7 +429,7 @@ const handleMessage = (state: PortState, message: SpoilerRendererInMessage | Ima
     case 'media-attach': {
       state.mediaTargets.set(message.id, {
         canvas: message.canvas,
-        context: message.canvas.getContext('2d'),
+        context: message.canvas.getContext('2d')!,
         x: message.x,
         y: message.y,
         color: message.color
@@ -473,9 +473,9 @@ const handleMessage = (state: PortState, message: SpoilerRendererInMessage | Ima
       const scratch = new OffscreenCanvas(message.canvas.width, message.canvas.height);
       state.overlayTargets.set(message.id, {
         canvas: message.canvas,
-        context: message.canvas.getContext('2d'),
+        context: message.canvas.getContext('2d')!,
         scratch,
-        scratchContext: scratch.getContext('2d'),
+        scratchContext: scratch.getContext('2d')!,
         dpr: message.dpr,
         rects: [],
         backgroundColor: 'transparent',
@@ -585,5 +585,5 @@ const setupPort = (port: Port & {onmessage?: any, addEventListener?: any}) => {
 if(typeof(DedicatedWorkerGlobalScope) !== 'undefined' && self instanceof DedicatedWorkerGlobalScope) {
   setupPort(ctx);
 } else {
-  (self as any as SharedWorkerGlobalScope).onconnect = (event) => setupPort(event.ports[0]);
+  (self as any as SharedWorkerGlobalScope).onconnect = (event) => setupPort((event.ports[0]! as Port & { onmessage?: any; addEventListener?: any; }));
 }

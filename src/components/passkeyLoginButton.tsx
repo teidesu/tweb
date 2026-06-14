@@ -12,7 +12,7 @@ import {TrueDcId} from '@types';
 import Button from '@components/buttonTsx';
 import {toastNew} from '@components/toast';
 
-let _fetchPasskeyOptionPromise: Promise<[TrueDcId, AuthPasskeyLoginOptions]>;
+let _fetchPasskeyOptionPromise: Promise<[TrueDcId, AuthPasskeyLoginOptions]> | undefined;
 
 export default function PasskeyLoginButton(props: {
   disabled?: boolean
@@ -31,8 +31,8 @@ export default function PasskeyLoginButton(props: {
     }
 
     _fetchPasskeyOptionPromise ||= Promise.all([
-      rootScope.managers.apiManager.getBaseDcId(),
-      rootScope.managers.appAccountManager.initPasskeyLogin()
+      rootScope.managers.apiManager!.getBaseDcId(),
+      rootScope.managers.appAccountManager!.initPasskeyLogin()
     ]);
 
     return _fetchPasskeyOptionPromise.then(([dcId, passkeyLoginOptions]) => {
@@ -59,8 +59,8 @@ export default function PasskeyLoginButton(props: {
         return;
       }
 
-      await rootScope.managers.apiManager.setBaseDcId(dcId);
-      await rootScope.managers.appAccountManager.finishPasskeyLogin(
+      await rootScope.managers.apiManager!.setBaseDcId(dcId);
+      await rootScope.managers.appAccountManager!.finishPasskeyLogin(
         inputPasskeyCredential,
         passkeyInitDcId === dcId ? undefined : passkeyInitDcId
       );

@@ -63,7 +63,7 @@ export default function wrapStickerAnimation({
   animationDiv.style.width = size + 'px';
   animationDiv.style.height = size + 'px';
 
-  let animation: RLottiePlayer;
+  let animation: RLottiePlayer | undefined;
   const unmountAnimation = () => {
     if(NO_UNMOUNT) {
       return;
@@ -74,7 +74,7 @@ export default function wrapStickerAnimation({
     animation = undefined;
     a?.remove();
     animationDiv.remove();
-    onScroll && scrollable.container.removeEventListener('scroll', onScroll);
+    onScroll && scrollable!.container.removeEventListener('scroll', onScroll);
     if(a) {
       onUnmount?.();
     }
@@ -108,7 +108,7 @@ export default function wrapStickerAnimation({
 
     animation = _animation;
     animation.addEventListener('enterFrame', (frameNo) => {
-      if((!loopEffect && frameNo === animation.maxFrame) || !isInDOM(target)) {
+      if((!loopEffect && frameNo === animation!.maxFrame) || !isInDOM(target)) {
         unmountAnimation();
       }
     });
@@ -181,7 +181,7 @@ export default function wrapStickerAnimation({
 
   if(relativeEffect) {
     animationDiv.classList.add('is-relative');
-    target.parentElement.append(animationDiv);
+    target.parentElement!.append(animationDiv);
   } else {
     emojiAnimationContainer.append(animationDiv);
   }

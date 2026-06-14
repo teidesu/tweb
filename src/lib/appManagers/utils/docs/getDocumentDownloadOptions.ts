@@ -16,7 +16,7 @@ export default function getDocumentDownloadOptions(
 
   let mimeType: MTMimeType;
   if(thumb?._ === 'photoSize') {
-    mimeType = doc.sticker ? 'image/webp' : (doc.mime_type.startsWith('image/') ? doc.mime_type : 'image/jpeg');
+    mimeType = (doc.sticker ? 'image/webp' : (doc.mime_type!.startsWith('image/') ? doc.mime_type : 'image/jpeg'))!;
   } else {
     mimeType = doc.mime_type || 'application/octet-stream';
   }

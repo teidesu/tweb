@@ -6,8 +6,8 @@ export type ConfirmationPopupRejectReason = 'canceled' | 'closed';
 
 // type PopupConfirmationOptions = Pick<PopupPeerOptions, 'titleLangKey'>;
 export type PopupConfirmationOptions = PopupPeerOptions & {
-  button: PopupPeerOptions['buttons'][0],
-  checkbox?: PopupPeerOptions['checkboxes'][0],
+  button: NonNullable<PopupPeerOptions['buttons']>[0],
+  checkbox?: NonNullable<PopupPeerOptions['checkboxes']>[0],
   inputField?: PopupPeerOptions['inputField'],
   rejectWithReason?: boolean,
   className?: string;
@@ -19,17 +19,17 @@ export default function confirmationPopup<T extends PopupConfirmationOptions>(
 ): Promise<T['checkboxes'] extends PopupPeerCheckboxOptions[] ? Array<boolean> : (T['checkbox'] extends PopupPeerCheckboxOptions ? boolean : void)> {
   return new Promise<any>((resolve, reject: (reason?: ConfirmationPopupRejectReason) => void) => {
     const {button, checkbox, rejectWithReason} = options;
-    button.callback = (e, set) => {
+    button.callback = (e: MouseEvent, set: any) => {
       if(checkbox || !set) {
         resolve(set ? !!set.size : undefined);
       } else {
-        resolve(options.checkboxes.map((checkbox) => set.has(checkbox.text)));
+        resolve(options.checkboxes!.map((checkbox) => set.has(checkbox.text)));
       }
     };
 
     const buttons = addCancelButton(options.buttons || [button]);
     const cancelButton = buttons.find((button) => button.isCancel);
-    cancelButton.callback = () => {
+    cancelButton!.callback = () => {
       reject(rejectWithReason ? 'canceled' : undefined);
     };
 

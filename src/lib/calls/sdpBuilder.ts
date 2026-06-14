@@ -25,7 +25,7 @@ export function fixMediaLineType(mediaType: WebRTCLineType) {
   return mediaType === 'screencast' ? 'video' : mediaType;
 }
 
-export function performCandidate(c: GroupCallConnectionTransport['candidates'][0]) {
+export function performCandidate(c: NonNullable<GroupCallConnectionTransport['candidates']>[0]) {
   const arr: string[] = [];
   arr.push('a=candidate:');
   arr.push(`${c.foundation} ${c.component} ${c.protocol.toUpperCase()} ${c.priority} ${c.ip} ${c.port} typ ${c.type}`);
@@ -51,7 +51,7 @@ type ConferenceData = UpdateGroupCallConnectionData | LocalConferenceDescription
 // https://tools.ietf.org/id/draft-ietf-rtcweb-sdp-08.html
 // https://datatracker.ietf.org/doc/html/draft-roach-mmusic-unified-plan-00
 export class SDPBuilder extends StringFromLineBuilder {
-  public addCandidate(c: GroupCallConnectionTransport['candidates'][0]) {
+  public addCandidate(c: NonNullable<GroupCallConnectionTransport['candidates']>[0]) {
     return this.add(performCandidate(c));
   }
 
@@ -181,7 +181,7 @@ export class SDPBuilder extends StringFromLineBuilder {
       );
     }
 
-    const payloadTypes = !isApplication ? codec['payload-types'] : [{id: 5000} as PayloadType];
+    const payloadTypes = !isApplication ? codec!['payload-types'] : [{id: 5000} as PayloadType];
     const ids = payloadTypes.map((type) => type.id);
     add(
       generateMediaFirstLine(type, port, ids),
@@ -210,7 +210,7 @@ export class SDPBuilder extends StringFromLineBuilder {
     this.addTransport(transport);
 
     if(!isApplication) {
-      const hdrexts = codec['rtp-hdrexts'];
+      const hdrexts = codec!['rtp-hdrexts'];
       if(hdrexts?.length) {
         hdrexts.forEach((hdrext) => {
           add(`a=extmap:${hdrext.id} ${hdrext.uri}`);
@@ -465,11 +465,11 @@ export class SDPBuilder extends StringFromLineBuilder {
     }).map((entry) => entry.mid));
     const seenBundledMids = new Set<string>();
     const bundledMids = rawBundledMids.filter((mid) => {
-      if(seenBundledMids.has(mid)) {
+      if(seenBundledMids.has(mid!)) {
         return false;
       }
 
-      seenBundledMids.add(mid);
+      seenBundledMids.add(mid!);
       return true;
     });
 

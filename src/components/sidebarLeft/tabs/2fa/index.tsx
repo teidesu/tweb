@@ -30,7 +30,7 @@ const TwoStepVerification: Component = () => {
       buttons: [{
         langKey: 'Disable',
         callback: () => {
-          tab.managers.passwordManager.updateSettings({currentPassword: plainPassword}).then(() => {
+          tab.managers.passwordManager!.updateSettings({currentPassword: plainPassword}).then(() => {
             tab.slider.sliceTabsUntilTab(AppSettingsTab, tab);
             tab.close();
           });

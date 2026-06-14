@@ -16,7 +16,7 @@ export function StarGiftTransferPreview(props: {
     <div class={classNames(styles.graph, props.class)}>
       <div class={/* @once */ styles.giftWrap}>
         <StarGiftBackdrop
-          backdrop={props.gift.collectibleAttributes?.backdrop}
+          backdrop={props.gift.collectibleAttributes?.backdrop!}
           patternEmoji={props.gift.collectibleAttributes?.pattern.document as MyDocument}
           small
           canvasClass={/* @once */ styles.giftBackdropCanvas}

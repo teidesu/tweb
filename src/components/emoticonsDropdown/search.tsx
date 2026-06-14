@@ -45,19 +45,19 @@ function addSearchCategories(props: {
     let element: HTMLDivElement, stickerContainer: HTMLDivElement;
     const ret = (
       <div
-        ref={element}
+        ref={element!}
         class="emoticons-search-input-category"
         classList={{active: selected() === group}}
         title={group.title}
         onClick={[onEmojiGroupClick, group]}
       >
-        <div ref={stickerContainer} class="emoticons-search-input-category-sticker"></div>
+        <div ref={stickerContainer!} class="emoticons-search-input-category-sticker"></div>
       </div>
     );
 
     wrapSticker({
       doc: document,
-      div: stickerContainer,
+      div: stickerContainer!,
       width: 24,
       height: 24,
       group: props.animatedItemGroup,
@@ -94,7 +94,7 @@ function addSearchCategories(props: {
     </Scrollable>
   );
 
-  inputSearch.input.after(scrollableContainer);
+  inputSearch.input.after(scrollableContainer!);
 
   inputSearch.currentPlaceholder.classList.remove('will-animate');
 
@@ -120,13 +120,13 @@ function addSearchCategories(props: {
   });
 
   createEffect(on(selected, (selected) => {
-    props.onGroup(selected);
+    props.onGroup(selected!);
     if(!selected) {
       fastSmoothScrollToStart(scrollableContainer, 'x');
     }
   }, {defer: true}));
 
-  rootScope.managers.appEmojiManager.getEmojiGroups(props.type === 'stickers' ? 'stickers' : 'esg').then(setEmojiGroups);
+  rootScope.managers.appEmojiManager!.getEmojiGroups(props.type === 'stickers' ? 'stickers' : 'esg').then(setEmojiGroups);
 }
 
 export default function EmoticonsSearch(props: {
@@ -134,7 +134,7 @@ export default function EmoticonsSearch(props: {
   placeholder?: LangPackKey,
   loading?: Accessor<boolean>,
   onValue: (value: string) => void,
-  onFocusChange?: ConstructorParameters<typeof InputSearch>[0]['onFocusChange'],
+  onFocusChange?: NonNullable<ConstructorParameters<typeof InputSearch>[0]>['onFocusChange'],
   onGroup?: (group: EmojiGroup) => void,
   animatedItemGroup?: AnimationItemGroup,
   categoryColor?: WrapSomethingOptions['textColor']
@@ -163,7 +163,7 @@ export default function EmoticonsSearch(props: {
 
   if(props.loading) {
     createEffect(() => {
-      inputSearch.toggleLoading(debounced() || props.loading());
+      inputSearch.toggleLoading(debounced() || props.loading!());
     });
   }
 

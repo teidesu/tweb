@@ -1,4 +1,4 @@
-export default function findUpAsChild<T extends {parentElement: HTMLElement}>(el: T, parent: HTMLElement): T {
+export default function findUpAsChild<T extends {parentElement: HTMLElement}>(el: T, parent: HTMLElement): T | null {
   if(!el) return null;
   if(el.parentElement === parent) return el;
 

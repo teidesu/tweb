@@ -37,11 +37,11 @@ export default class LottieStickerFrameByFrameRenderer implements StickerFrameBy
 
     animation.addEventListener('ready', () => {
       this.frameCount = animation.maxFrame + 1;
-      deferred.resolve();
+      deferred.resolve!();
     });
 
     animation.addEventListener('enterFrame', () => {
-      this.currentDeferredFrame?.resolve();
+      this.currentDeferredFrame?.resolve!();
     });
 
     await deferred;

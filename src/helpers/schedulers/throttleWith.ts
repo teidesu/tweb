@@ -8,7 +8,7 @@ export default function throttleWith<F extends AnyToVoidFunction>(
   shouldRunFirst = false
 ) {
   let isPending: boolean;
-  let waiting: number;
+  let waiting: number | undefined;
   let args: Parameters<F>;
 
   const ret = (..._args: Parameters<F>) => {

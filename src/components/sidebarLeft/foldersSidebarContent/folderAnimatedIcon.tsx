@@ -44,7 +44,7 @@ export default function FolderAnimatedIcon(props: {
 
     if(docId) (async() => {
       try {
-        const doc = await props.managers.appEmojiManager.getCustomEmojiDocument(docId);
+        const doc = await props.managers.appEmojiManager!.getCustomEmojiDocument(docId);
 
         if(!doc) {
           props.onFail?.();
@@ -55,7 +55,7 @@ export default function FolderAnimatedIcon(props: {
 
         const promise = await wrapSticker({
           doc,
-          div: iconContainer(),
+          div: iconContainer()!,
           group: 'none',
           width: props.size,
           height: props.size,

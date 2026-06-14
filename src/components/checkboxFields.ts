@@ -81,13 +81,13 @@ export default class CheckboxFields<K extends CheckboxFieldsField = CheckboxFiel
       clickable: info.nested ? (e) => {
         if(
           this.round ?
-            !findUpAsChild(e.target as HTMLElement, rightContent) && e.target !== rightContent :
-            findUpAsChild(e.target as HTMLElement, row.checkboxField.label)
+            !findUpAsChild(((e.target as HTMLElement)! as { parentElement: HTMLElement; }), rightContent) && e.target !== rightContent :
+            findUpAsChild(((e.target as HTMLElement)! as { parentElement: HTMLElement; }), row.checkboxField.label)
         ) {
           if(row.checkboxField.input.disabled) {
             const checked = row.checkboxField.checked;
-            info.nested.forEach((field) => {
-              field.checkboxField.checked = !checked;
+            info.nested!.forEach((field) => {
+              field.checkboxField!.checked = !checked;
             });
           } else {
             row.checkboxField.checked = !row.checkboxField.checked;
@@ -101,16 +101,16 @@ export default class CheckboxFields<K extends CheckboxFieldsField = CheckboxFiel
         accordion.classList.toggle('is-expanded');
         this.onExpand?.(info as K);
       } : undefined,
-      rightContent
+      rightContent: rightContent!
     });
 
     row.container.classList.add('accordion-row');
 
     if(info.restrictionText) {
       if(!info.nestedTo) {
-        const circle = info.checkboxField.label.lastElementChild.firstElementChild;
-        circle.classList.add('with-lock');
-        circle.append(Icon('premium_lock', 'checkbox-caption-lock'));
+        const circle = info.checkboxField.label.lastElementChild!.firstElementChild;
+        circle!.classList.add('with-lock');
+        circle!.append(Icon('premium_lock', 'checkbox-caption-lock'));
       }
 
       info.checkboxField.input.disabled = true;
@@ -129,7 +129,7 @@ export default class CheckboxFields<K extends CheckboxFieldsField = CheckboxFiel
       const _info = info;
       info.nested.forEach((info) => {
         info.nestedTo ??= _info;
-        container.append(...this.createField(info, true).nodes);
+        container.append(...this.createField(info, true)!.nodes);
       });
       nodes.push(container);
 
@@ -139,7 +139,7 @@ export default class CheckboxFields<K extends CheckboxFieldsField = CheckboxFiel
 
       row.container.classList.add('accordion-toggler');
       if(this.round) {
-        rightContent.append(Icon(this.rightButtonIcon), ' ', nestedCounter, ' ', accordionIcon);
+        rightContent!.append(Icon(this.rightButtonIcon), ' ', nestedCounter, ' ', accordionIcon);
         row.container.classList.add('accordion-toggler-round');
       } else {
         row.title.append(' ', nestedCounter, ' ', accordionIcon);
@@ -156,8 +156,8 @@ export default class CheckboxFields<K extends CheckboxFieldsField = CheckboxFiel
     if(info.toggleWith || info.nestedTo) {
       const processToggleWith = info.toggleWith ? (info: CheckboxFieldsField) => {
         const {toggleWith, nested} = info;
-        const value = info.checkboxField.checked;
-        const arr = value ? toggleWith.checked : toggleWith.unchecked;
+        const value = info.checkboxField!.checked;
+        const arr = value ? toggleWith!.checked : toggleWith!.unchecked;
         if(!arr) {
           return;
         }
@@ -168,13 +168,13 @@ export default class CheckboxFields<K extends CheckboxFieldsField = CheckboxFiel
             return;
           }
 
-          info.checkboxField.setValueSilently(value);
+          info.checkboxField!.setValueSilently(value);
           if(info.nestedTo && !nested) {
             this.setNestedCounter(info.nestedTo);
           }
 
           if(info.toggleWith) {
-            processToggleWith(info);
+            processToggleWith!(info);
           }
         });
 
@@ -184,9 +184,9 @@ export default class CheckboxFields<K extends CheckboxFieldsField = CheckboxFiel
       } : undefined;
 
       const processNestedTo = info.nestedTo ? () => {
-        const length = this.getNestedCheckedLength(info.nestedTo);
-        info.nestedTo.checkboxField.setValueSilently(length === info.nestedTo.nested.length);
-        this.setNestedCounter(info.nestedTo, length);
+        const length = this.getNestedCheckedLength(info.nestedTo!);
+        info.nestedTo!.checkboxField!.setValueSilently(length === info.nestedTo!.nested!.length);
+        this.setNestedCounter(info.nestedTo!, length);
       } : undefined;
 
       this.listenerSetter.add(info.checkboxField.input)('change', () => {
@@ -196,7 +196,7 @@ export default class CheckboxFields<K extends CheckboxFieldsField = CheckboxFiel
       });
     } else if(this.onAnyChange && !info.nested) {
       this.listenerSetter.add(info.checkboxField.input)('change', () => {
-        this.onAnyChange();
+        this.onAnyChange!();
       });
     }
 
@@ -206,10 +206,10 @@ export default class CheckboxFields<K extends CheckboxFieldsField = CheckboxFiel
   }
 
   protected getNestedCheckedLength(info: CheckboxFieldsField) {
-    return info.nested.reduce((acc, v) => acc + +v.checkboxField.checked, 0);
+    return info.nested!.reduce((acc, v) => acc + +v.checkboxField!.checked, 0);
   }
 
   public setNestedCounter(info: CheckboxFieldsField, count = this.getNestedCheckedLength(info)) {
-    info.nestedCounter.textContent = this.round ? '' + info.nested.length : `${count}/${info.nested.length}`;
+    info.nestedCounter!.textContent = this.round ? '' + info.nested!.length : `${count}/${info.nested!.length}`;
   }
 }

@@ -11,7 +11,7 @@ export function NoForwardsRequestContent(props: {
   return (
     <ServiceBubbleDescription>
       <ServiceBubbleDescription.Title>
-        {i18n(`EnableSharingRequested${props.peerTitle ? '' : '.You'}`, [props.peerTitle])}
+        {i18n(`EnableSharingRequested${props.peerTitle ? '' : '.You'}`, [props.peerTitle!])}
       </ServiceBubbleDescription.Title>
       <ServiceBubbleDescription.List
         type="check"
@@ -34,8 +34,8 @@ export function NoForwardsRequestReplyMarkup(props: {
   chat: Chat
 }) {
   const callback = (accept: boolean) => {
-    props.chat.managers.appProfileManager.toggleNoForwards(
-      props.message.peerId,
+    props.chat.managers.appProfileManager!.toggleNoForwards(
+      props.message.peerId!,
       !accept,
       props.message.mid
     );

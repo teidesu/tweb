@@ -6,8 +6,8 @@ import {i18n, LangPackKey} from '@lib/langPack';
 
 export default class CallDescriptionElement {
   private container: HTMLElement;
-  private state: CALL_STATE;
-  private interval: number;
+  private state: CALL_STATE | undefined;
+  private interval: number | undefined;
 
   constructor(private appendTo: HTMLElement) {
     this.container = document.createElement('div');
@@ -64,7 +64,7 @@ export default class CallDescriptionElement {
           break;
       }
 
-      element = i18n(langPackKey);
+      element = i18n(langPackKey)!;
       if(this.interval !== undefined) {
         clearInterval(this.interval);
         this.interval = undefined;

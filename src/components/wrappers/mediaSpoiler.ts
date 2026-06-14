@@ -39,7 +39,7 @@ export function toggleMediaSpoiler(options: {
     onTransitionEnd: () => {
       if(reveal && destroyAfter) {
         mediaSpoiler.remove();
-        mediaSpoiler.middlewareHelper.destroy();
+        mediaSpoiler.middlewareHelper!.destroy();
       }
     }
   });
@@ -104,9 +104,9 @@ export function onMediaSpoilerClick(options: {
       checkbox: {
         text: 'SensitiveContentRemember'
       }
-    }).then((remember) => {
+    }).then((remember: any) => {
       if(remember) {
-        rootScope.managers.appPrivacyManager.setContentSettings({sensitive_enabled: true});
+        rootScope.managers.appPrivacyManager!.setContentSettings({sensitive_enabled: true});
         clearSensitiveSpoilers();
         return
       }
@@ -117,8 +117,8 @@ export function onMediaSpoilerClick(options: {
     return;
   }
 
-  const video = mediaSpoiler.parentElement.querySelector('video');
-  if(video && !mediaSpoiler.parentElement.querySelector('.video-play')) {
+  const video = mediaSpoiler.parentElement!.querySelector('video');
+  if(video && !mediaSpoiler.parentElement!.querySelector('.video-play')) {
     video.autoplay = true;
     safePlay(video);
   }
@@ -182,12 +182,12 @@ export default async function wrapMediaSpoiler(
   const {container, readyResult} = wrapMediaSpoilerWithImage({
     ...options,
     image
-  });
+  })!;
 
   if(sensitive) {
     const div = document.createElement('div');
     div.classList.add('sensitive-content-warning');
-    div.replaceChildren(Icon('eyecross_outline'), i18n('18Plus'));
+    div.replaceChildren(Icon('eyecross_outline'), i18n('18Plus')!);
     container.prepend(div);
     container.dataset.isSensitive = 'true';
     sensitiveSpoilers.add(container);

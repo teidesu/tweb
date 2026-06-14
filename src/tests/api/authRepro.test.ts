@@ -38,6 +38,6 @@ test.skipIf(process.env.TG_API_TEST !== '1')('auth key handshake', async() => {
   });
 
   const auth = await authorizer.auth(2 as DcId, false);
-  console.log('auth ok, key id', auth.authKey.id);
+  console.log('auth ok, key id', auth.authKey!.id);
   expect(auth.authKey).toBeTruthy();
 }, 60_000);

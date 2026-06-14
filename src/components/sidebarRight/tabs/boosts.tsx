@@ -94,16 +94,16 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
     const isMaxLevel = boostsStatus.next_level_boosts === undefined;
     const progress = isMaxLevel ?
       1 :
-      (boostsStatus.boosts - boostsStatus.current_level_boosts) / (boostsStatus.next_level_boosts - boostsStatus.current_level_boosts);
+      (boostsStatus.boosts - boostsStatus.current_level_boosts) / (boostsStatus.next_level_boosts! - boostsStatus.current_level_boosts);
 
     limitLine.setProgress(
       progress,
       '' + boostsStatus.boosts,
       {
-        from1: i18n('BoostsLevel', [boostsStatus.level]),
-        to1: i18n('BoostsLevel', [boostsStatus.level + 1]),
-        from2: i18n('BoostsLevel', [boostsStatus.level]),
-        to2: i18n('BoostsLevel', [boostsStatus.level + 1])
+        from1: i18n('BoostsLevel', [boostsStatus.level])!,
+        to1: i18n('BoostsLevel', [boostsStatus.level + 1])!,
+        from2: i18n('BoostsLevel', [boostsStatus.level])!,
+        to2: i18n('BoostsLevel', [boostsStatus.level + 1])!
       }
     );
 
@@ -127,7 +127,7 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
     }, {listenerSetter: this.listenerSetter});
 
     const noBoostersHint = i18n('NoBoostersHint');
-    noBoostersHint.classList.add('boosts-no-boosters');
+    noBoostersHint!.classList.add('boosts-no-boosters');
 
     let tabs: HTMLDivElement, content: HTMLDivElement;
 
@@ -155,7 +155,7 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
             <Show when={!!props.list.loadMore}>
               <MoreButton
                 count={props.list.count - props.list.rendered.length}
-                callback={() => props.list.loadMore()}
+                callback={() => props.list.loadMore!()}
                 key={props.moreKey}
               />
             </Show>
@@ -179,7 +179,7 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
             includeZeroValue: true
           }, {
             title: 'PremiumSubscribers',
-            value: boostsStatus.premium_audience,
+            value: boostsStatus.premium_audience!,
             includeZeroValue: true,
             describePercentage: true
           }, {
@@ -188,7 +188,7 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
             includeZeroValue: true
           }, {
             title: 'BoostsToLevel',
-            value: makeAbsStats(boostsStatus.next_level_boosts - boostsStatus.boosts)
+            value: makeAbsStats(boostsStatus.next_level_boosts! - boostsStatus.boosts)
           }]} />
         </Section>
         {this.canCreateGiveaway && prepaidGiveaways().length && (
@@ -218,12 +218,12 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
           </Section>
         )}
         <Section class="boosts-users-container">
-          <Tabs.Menu ref={tabs} class="boosts-users-tabs">
+          <Tabs.Menu ref={tabs!} class="boosts-users-tabs">
             <MenuTab key="BoostingBoostsCount" count={boostsList().count} />
             {showGifts() && <MenuTab key="BoostingGiftsCount" count={giftsBoostsList().count} />}
           </Tabs.Menu>
-          <Tabs.Content ref={content} class="boosts-users-contents" onClick={async(e) => {
-            const target = findUpClassName(e.target, 'row');
+          <Tabs.Content ref={content!} class="boosts-users-contents" onClick={async(e) => {
+            const target = findUpClassName(e.target!, 'row');
             const boost = this.targets.get(target);
             if(!boost) {
               return;
@@ -255,11 +255,11 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
             const slug = boost.used_gift_slug;
             const peerId = boost.user_id?.toPeerId(false);
             if(peerId && !boost.pFlags.gift && !boost.pFlags.unclaimed && !boost.pFlags.giveaway) {
-              appImManager.setInnerPeer({peerId: boost.user_id.toPeerId(false)});
+              appImManager.setInnerPeer({peerId: boost.user_id!.toPeerId(false)});
             } else if(peerId && peerId !== rootScope.myId) {
               PopupElement.createPopup(
                 PopupGiftLink,
-                slug,
+                slug!,
                 undefined,
                 {
                   _: 'payments.checkedGiftCode',
@@ -268,7 +268,7 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
                   days: getBoostsDays(boost.date, boost.expires),
                   pFlags: {via_giveaway: boost.pFlags.giveaway || undefined},
                   users: [],
-                  from_id: await this.managers.appPeersManager.getOutputPeer(this.peerId),
+                  from_id: await this.managers.appPeersManager!.getOutputPeer(this.peerId),
                   giveaway_msg_id: boost.giveaway_msg_id,
                   slug,
                   to_id: peerId.toUserId(),
@@ -295,7 +295,7 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
       </>
     );
 
-    const selectTab = horizontalMenu(tabs, content, (index) => {
+    const selectTab = horizontalMenu(tabs!, content!, (index) => {
       setTab(index);
     }, undefined, undefined, undefined, this.listenerSetter);
     selectTab(tab());
@@ -323,21 +323,21 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
       title = await wrapPeerTitle({peerId});
       title.classList.add('boosts-user-name');
     } else if(boost.stars) {
-      title = i18n('Stars', [boost.stars]);
+      title = i18n('Stars', [boost.stars])!;
     } else {
-      title = i18n(boost.pFlags.unclaimed ? 'BoostingUnclaimed' : 'BoostingToBeDistributed');
+      title = i18n(boost.pFlags.unclaimed ? 'BoostingUnclaimed' : 'BoostingToBeDistributed')!;
     }
 
     let subtitle: HTMLElement;
     if(peerId || boost.stars) {
-      subtitle = i18n('BoostsExpiration', [boosts, formatFullSentTime(boost.expires, undefined, true)]);
+      subtitle = i18n('BoostsExpiration', [boosts, formatFullSentTime(boost.expires, undefined, true)])!;
     } else {
       subtitle = document.createElement('span');
       subtitle.append(
-        ...joinElementsWith([
+        ...(joinElementsWith([
           i18n('BoostingShortMonths', [months]),
           formatFullSentTime(boost.expires, undefined, true)
-        ], ' • ')
+        ], ' • ') as (string | Node)[])
       );
     }
 
@@ -347,7 +347,7 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
       rightContent.classList.add('boosts-user-badge-right', 'boosts-user-badge');
       rightContent.append(
         Icon(boost.pFlags.giveaway ? 'gift_premium' : 'gift'),
-        i18n(boost.pFlags.giveaway ? 'BoostingGiveaway' : 'BoostingGift')
+        i18n(boost.pFlags.giveaway ? 'BoostingGiveaway' : 'BoostingGift')!
       );
 
       rightContent.classList.toggle('is-gift', !boost.pFlags.giveaway && !!boost.pFlags.gift);
@@ -358,7 +358,7 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
       subtitle,
       clickable: true,
       noWrap: true,
-      rightContent
+      rightContent: rightContent!
     });
 
     if(peerId) {
@@ -366,7 +366,7 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
     }
 
     row.title.classList.add('boosts-user-title');
-    row.title.append(...[title, badge].filter(Boolean));
+    row.title.append(...[title, badge!].filter(Boolean));
     const media = row.createMedia('abitbigger');
     const avatar = avatarNew({
       peerId,
@@ -397,7 +397,7 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
     this.container.classList.add('boosts-container');
 
     this.peerId = peerId;
-    this.isBroadcast = await this.managers.appPeersManager.isBroadcast(peerId);
+    this.isBroadcast = await this.managers.appPeersManager!.isBroadcast(peerId);
     this.targets = new Map();
 
     this.setTitle('Boosts');
@@ -408,7 +408,7 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
       const loadMore = async() => {
         const limit = isFirst ? 20 : 100;
         isFirst = false;
-        const boostsList = await this.managers.appBoostsManager.getBoostsList({peerId, offset, limit, gifts});
+        const boostsList = await this.managers.appBoostsManager!.getBoostsList({peerId, offset, limit, gifts});
         if(!middleware()) return;
 
         const promises = boostsList.boosts.map(this.renderBoost);
@@ -416,7 +416,7 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
 
         setF((value) => {
           value.count = boostsList.count;
-          offset = boostsList.next_offset;
+          offset = boostsList.next_offset!;
           if(!offset) {
             value.loadMore = undefined;
           }
@@ -437,11 +437,11 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
     });
 
     const [boostsStatus, appConfig, _, __, canCreateGiveaway] = await Promise.all([
-      this.managers.appBoostsManager.getBoostsStatus(peerId),
-      this.managers.apiManager.getAppConfig(),
-      boostsList().loadMore(),
-      giftsBoostsList().loadMore(),
-      this.managers.appChatsManager.hasRights(peerId.toChatId(), 'create_giveaway')
+      this.managers.appBoostsManager!.getBoostsStatus(peerId),
+      this.managers.apiManager!.getAppConfig(),
+      boostsList().loadMore!(),
+      giftsBoostsList().loadMore!(),
+      this.managers.appChatsManager!.hasRights(peerId.toChatId(), 'create_giveaway')
     ]);
 
     this.canCreateGiveaway = canCreateGiveaway;

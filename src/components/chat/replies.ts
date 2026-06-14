@@ -24,7 +24,7 @@ rootScope.addEventListener('replies_updated', (message) => {
 export default class RepliesElement extends HTMLElement {
   public message: Message.message;
   public type: 'footer' | 'beside';
-  public loadPromises: Promise<any>[];
+  public loadPromises: Promise<any>[] | undefined;
   public lazyLoadQueue: LazyLoadQueue;
   public stackedAvatars: StackedAvatars;
   public text: I18n.IntlElement;
@@ -48,13 +48,13 @@ export default class RepliesElement extends HTMLElement {
     const replies = this.message.replies;
 
     if(this.type === 'footer') {
-      let leftPart: HTMLElement;
+      let leftPart: HTMLElement | null;
       if(this.firstElementChild) {
         leftPart = this.firstElementChild as HTMLElement;
       }
 
       if(replies?.recent_repliers) {
-        if(leftPart && !leftPart.classList.contains('replies-footer-avatars')) {
+        if(leftPart! && !leftPart.classList.contains('replies-footer-avatars')) {
           this.replaceChildren();
           leftPart = null;
         }
@@ -73,12 +73,12 @@ export default class RepliesElement extends HTMLElement {
 
         this.stackedAvatars.render(replies.recent_repliers.map((peer) => getPeerId(peer)), this.loadPromises);
       } else {
-        if(leftPart && !leftPart.classList.contains(_tgico('comments'))) {
+        if(leftPart! && !leftPart.classList.contains(_tgico('comments'))) {
           leftPart.remove();
           leftPart = null;
         }
 
-        if(!leftPart) {
+        if(!leftPart!) {
           leftPart = Icon('comments', 'replies-footer-icon', 'replies-footer-icon-comments');
         }
       }
@@ -128,7 +128,7 @@ export default class RepliesElement extends HTMLElement {
         this.append(textSpan, iconSpan, rippleContainer);
       }
 
-      replaceContent(textSpan, text.element);
+      replaceContent(textSpan, text.element!);
     } else {
       this.classList.add('bubble-beside-button');
       this.innerHTML = `<span class="replies-beside-text">${replies?.replies ? formatNumber(replies.replies, 0) : ''}</span>`;
@@ -136,8 +136,8 @@ export default class RepliesElement extends HTMLElement {
     }
 
     if(replies && !this.updated && !this.message.pFlags.is_outgoing) {
-      this.managers.appMessagesManager.subscribeRepliesThread(this.message.peerId, this.message.mid);
-      this.managers.appMessagesManager.updateMessage(this.message.peerId, this.message.mid, 'replies_updated');
+      this.managers.appMessagesManager!.subscribeRepliesThread(this.message.peerId!, this.message.mid!);
+      this.managers.appMessagesManager!.updateMessage(this.message.peerId!, this.message.mid!, 'replies_updated');
       this.updated = true;
     }
 

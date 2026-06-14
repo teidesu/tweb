@@ -5,9 +5,9 @@ import {NumberPair} from '@components/mediaEditor/types';
 
 
 export default function useNormalizePoint() {
-  const {editorState} = useMediaEditorContext();
+  const {editorState} = useMediaEditorContext()!;
 
-  const size = createMemo(() => editorState.canvasSize.map((x) => x * editorState.pixelRatio));
+  const size = createMemo(() => editorState.canvasSize!.map((x) => x * editorState.pixelRatio));
 
   return (point: NumberPair) => {
     const transform = editorState.finalTransform;

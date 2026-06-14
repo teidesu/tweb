@@ -34,7 +34,7 @@ export type WrapReplyOptions = WrapPinnedContainerOptions & {
 
 export default function wrapReply(options: WrapReplyOptions) {
   const replyContainer = new ReplyContainer('reply');
-  const fillPromise = replyContainer.fill(options);
+  const fillPromise = replyContainer.fill!(options);
 
   replyContainer.container.classList.add('quote-like', 'quote-like-hoverable', 'quote-like-border');
   setDirection(replyContainer.container);
@@ -76,7 +76,7 @@ export default function wrapReply(options: WrapReplyOptions) {
       wrapEmojiPattern({
         docId,
         container: replyContainer.container,
-        middleware: options.middleware,
+        middleware: options.middleware!,
         color: emojiColor,
         colorAsOut: options.colorAsOut,
         useHighlightingColor: options.useHighlightingColor,
@@ -105,7 +105,7 @@ export default function wrapReply(options: WrapReplyOptions) {
       replyContainer.container.classList.add('has-collectible');
       replyContainer.container.appendChild(div);
 
-      rootScope.managers.appEmojiManager.getCustomEmojiDocument(color.gift_emoji_id).then((doc) => {
+      rootScope.managers.appEmojiManager!.getCustomEmojiDocument(color.gift_emoji_id).then((doc) => {
         if(options.middleware && !options.middleware()) return;
         if(!doc) return;
 

@@ -136,7 +136,7 @@ const EditTopic: Component = () => {
     // title is set by the scaffold (function of threadId)
 
     if(threadId) {
-      topic = originalTopic = copy(await tab.managers.dialogsStorage.getForumTopic(peerId, threadId));
+      topic = (originalTopic = copy(await tab.managers.dialogsStorage!.getForumTopic(peerId, threadId)!)!)!;
     }
 
     {
@@ -171,7 +171,7 @@ const EditTopic: Component = () => {
         required: true
       });
 
-      if(topic) {
+      if(topic!) {
         nameInputField.setOriginalValue(topic.title, true);
       }
 
@@ -181,7 +181,7 @@ const EditTopic: Component = () => {
       attachClickEvent(confirmBtn, () => {
         const toggle = toggleDisability([confirmBtn], true);
         if(threadId) {
-          tab.managers.appMessagesManager.editForumTopic({
+          tab.managers.appMessagesManager!.editForumTopic({
             peerId,
             topicId: threadId,
             title: nameInputField.value,
@@ -193,10 +193,10 @@ const EditTopic: Component = () => {
             toggle();
           });
         } else {
-          tab.managers.appMessagesManager.createForumTopic({
+          tab.managers.appMessagesManager!.createForumTopic({
             peerId,
             iconColor: TOPIC_COLORS[colorIndex],
-            iconEmojiId: topic.icon_emoji_id,
+            iconEmojiId: topic.icon_emoji_id!,
             title: nameInputField.value
           }).then((threadId) => {
             tab.close();
@@ -233,11 +233,11 @@ const EditTopic: Component = () => {
         isStandalone: true,
         noRegularEmoji: true,
         mainSets: () => {
-          return tab.managers.appStickersManager.getLocalStickerSet('inputStickerSetEmojiDefaultTopicIcons')
+          return tab.managers.appStickersManager!.getLocalStickerSet('inputStickerSetEmojiDefaultTopicIcons')
           .then((messagesStickerSet) => messagesStickerSet.documents.map((doc) => doc.id));
         },
         onClick: (emoji) => {
-          emojiTab.setActive(!emoji.docId ? {emoji: undefined, docId: undefined} : emoji);
+          emojiTab.setActive(((!emoji.docId ? {emoji: undefined, docId: undefined} : emoji)! as { docId?: DocId; emoji: string; } | undefined));
           setIcon(emoji.docId);
         }
       });
@@ -280,12 +280,12 @@ const EditTopic: Component = () => {
       const section = new SettingSection({caption: 'EditTopicHideInfo'});
 
       const checkboxField = new CheckboxField({
-        checked: !(topic as ForumTopic.forumTopic).pFlags.hidden,
+        checked: !(topic! as ForumTopic.forumTopic).pFlags.hidden,
         text: 'EditTopicHide'
       });
 
       tab.listenerSetter.add(checkboxField.input)('change', () => {
-        const promise = tab.managers.appMessagesManager.editForumTopic({
+        const promise = tab.managers.appMessagesManager!.editForumTopic({
           peerId,
           topicId: threadId,
           hidden: !checkboxField.checked

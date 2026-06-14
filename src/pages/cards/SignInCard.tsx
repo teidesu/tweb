@@ -81,7 +81,7 @@ export default function SignInCard(_props: {spec: Spec}) {
           !country ||
           !code || (
           lastCountrySelected !== country &&
-            lastCountryCodeSelected.country_code !== code.country_code
+            lastCountryCodeSelected!.country_code !== code.country_code
         )
       )) {
         overriding = true;
@@ -116,7 +116,7 @@ export default function SignInCard(_props: {spec: Spec}) {
     );
 
     const phone_number = telInputField.value;
-    managers.apiManager.invokeApi('auth.sendCode', {
+    managers.apiManager!.invokeApi('auth.sendCode', {
       phone_number,
       api_id: App.id,
       api_hash: App.hash,
@@ -128,7 +128,7 @@ export default function SignInCard(_props: {spec: Spec}) {
       if(code._ === 'auth.sentCodeSuccess') {
         const {authorization} = code;
         if(authorization._ === 'auth.authorization') {
-          await managers.apiManager.setUser(authorization.user);
+          await managers.apiManager!.setUser(authorization.user);
           toIm();
           return;
         }
@@ -144,7 +144,7 @@ export default function SignInCard(_props: {spec: Spec}) {
       switch(err.type) {
         case 'PHONE_NUMBER_INVALID':
           telInputField.setError();
-          replaceContent(telInputField.label, i18n('Login.PhoneLabelInvalid'));
+          replaceContent(telInputField.label, i18n('Login.PhoneLabelInvalid')!);
           telEl.classList.add('error');
           setNextContent(i18n('Login.Next'));
           break;
@@ -159,7 +159,7 @@ export default function SignInCard(_props: {spec: Spec}) {
   /* ---------- DC pre-warm cascade ---------- */
 
   function tryAgain() {
-    managers.apiManager.invokeApi('help.getNearestDc').then((nearestDcResult) => {
+    managers.apiManager!.invokeApi('help.getNearestDc').then((nearestDcResult) => {
       if(cancelled) return nearestDcResult;
 
       const langPack = commonStateStorage.getFromCache('langPack');
@@ -174,12 +174,12 @@ export default function SignInCard(_props: {spec: Spec}) {
 
       let promise: Promise<any>;
       if(nearestDcResult.nearest_dc !== nearestDcResult.this_dc) {
-        promise = managers.apiManager.getNetworkerVoid(nearestDcResult.nearest_dc).then(() => {
+        promise = managers.apiManager!.getNetworkerVoid(nearestDcResult.nearest_dc).then(() => {
           done.push(nearestDcResult.nearest_dc);
         });
       }
 
-      (promise || Promise.resolve()).then(() => {
+      (promise! || Promise.resolve()).then(() => {
         if(cancelled) return;
 
         done.forEach((dcId) => dcs.delete(dcId));
@@ -198,7 +198,7 @@ export default function SignInCard(_props: {spec: Spec}) {
           // ! если одновременно запросить все нетворкеры, не будет проходить запрос на код
           setTimeout(() => {
             if(cancelled) return;
-            managers.apiManager.getNetworkerVoid(dcId).finally(g);
+            managers.apiManager!.getNetworkerVoid(dcId).finally(g);
           }, 3000);
         };
 
@@ -218,7 +218,7 @@ export default function SignInCard(_props: {spec: Spec}) {
 
   let cancelFocus: (() => void) | undefined;
   onMount(() => {
-    managers.appStateManager.pushToState('authState', {_: 'authStateSignIn'});
+    managers.appStateManager!.pushToState('authState', {_: 'authStateSignIn'});
 
     if(!IS_TOUCH_SUPPORTED) {
       cancelFocus = focusWhenConnected(telEl, () => !cancelled);

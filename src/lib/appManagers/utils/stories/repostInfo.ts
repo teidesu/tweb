@@ -10,5 +10,5 @@ export default function getStoryRepostInfo(story: StoryItem.storyItem) {
     }
   }
 
-  return {fwdFrom, mediaAreaChannelPost};
+  return {fwdFrom, mediaAreaChannelPost: mediaAreaChannelPost!};
 }

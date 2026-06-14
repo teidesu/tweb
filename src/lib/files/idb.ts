@@ -108,7 +108,7 @@ export class IDB {
     let finished = false;
     setTimeout(() => {
       if(!finished) {
-        request.onerror(makeError('IDB_CREATE_TIMEOUT') as any as Event);
+        request.onerror!(makeError('IDB_CREATE_TIMEOUT') as any as Event);
       }
     }, 3000);
 
@@ -175,7 +175,7 @@ export class IDB {
             createObjectStore(db, store);
           } else {
             const txn = target.transaction;
-            const os = txn.objectStore(store.name);
+            const os = txn!.objectStore(store.name);
             createIndexes(os, store);
           }
 
@@ -278,7 +278,7 @@ class IDBStorage<T extends Database<any>, StoreName extends string = T['stores']
     // return Promise.resolve();
     const isArray = Array.isArray(entryName);
     if(!isArray) {
-      entryName = [].concat(entryName);
+      entryName = ([] as string[]).concat(entryName as string);
     }
 
     return this.getObjectStore('readwrite', (objectStore) => {
@@ -396,10 +396,10 @@ class IDBStorage<T extends Database<any>, StoreName extends string = T['stores']
     const isArray = Array.isArray(entryName);
     if(!isArray) {
       if(!entryName) {
-        return undefined;
+        return undefined as any;
       }
 
-      entryName = [].concat(entryName);
+      entryName = ([] as string[]).concat(entryName as string);
     } else if(!entryName.length) {
       return Promise.resolve([]) as any;
     }
@@ -466,7 +466,7 @@ class IDBStorage<T extends Database<any>, StoreName extends string = T['stores']
 
     const callbackResult = callback(transaction.objectStore(storeName), onComplete, onError);
     const isArray = Array.isArray(callbackResult);
-    const requests: IDBRequest[] = isArray ? callbackResult : [].concat(callbackResult) as any;
+    const requests: IDBRequest[] = isArray ? callbackResult as IDBRequest[] : ([] as IDBRequest[]).concat(callbackResult as IDBRequest);
 
     if(waitForTransactionComplete) {
       return promise;

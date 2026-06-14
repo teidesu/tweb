@@ -23,7 +23,7 @@ export default class FeaturesCarousel {
   private managers: AppManagers;
   private dotsContainer: HTMLDivElement;
   public controlsContainer: HTMLDivElement;
-  public slideIndex: number;
+  public slideIndex: number | undefined;
   private header: HTMLElement;
   private carouselItemsContainer: HTMLDivElement;
   private premiumPromo: HelpPremiumPromo;
@@ -52,8 +52,8 @@ export default class FeaturesCarousel {
         subtitle.classList.add('carousel-item-content-subtitle');
         const bottomSection = document.createElement('div');
         bottomSection.classList.add('carousel-item-content-bottom-section');
-        title.append(i18n(feature.titleLangKey, feature.titleLangArgs));
-        subtitle.append(i18n(feature.subtitleLangKey, feature.subtitleLangArgs));
+        title.append(i18n(feature.titleLangKey, feature.titleLangArgs)!);
+        subtitle.append(i18n(feature.subtitleLangKey, feature.subtitleLangArgs)!);
         bottomSection.append(title);
         bottomSection.append(subtitle);
         container.append(bottomSection);
@@ -123,7 +123,7 @@ export default class FeaturesCarousel {
     slideTopSectionContainer.removeEventListener('scroll', this.scrollListener);
     slideTopSectionContainer.removeAttribute('style');
     if(feature.videoPosition) {
-      await this.appendVideo(featureIndex, this.carouselItems[featureIndex].querySelector('.device-frame'));
+      await this.appendVideo(featureIndex, this.carouselItems[featureIndex].querySelector('.device-frame')!);
     } else {
       if(feature.type !== 'premium-stickers') {
         slideTopSectionContainer.addEventListener('scroll', this.scrollListener);
@@ -155,8 +155,8 @@ export default class FeaturesCarousel {
             aboveTopSection.classList.add('above-top-section');
             aboveTopSection.prepend(stories.avatar.node);
             const title = i18n(feature.titleLangKey);
-            title.classList.add('above-top-section-title');
-            aboveTopSection.append(title);
+            title!.classList.add('above-top-section-title');
+            aboveTopSection.append(title!);
             this.carouselItems[featureIndex].prepend(aboveTopSection);
             this.carouselItems[featureIndex].classList.add('upgraded-stories');
             slideTopSectionContainer.append(stories.features);
@@ -189,7 +189,7 @@ export default class FeaturesCarousel {
       headerText.remove();
       headerText = document.createElement('div');
       headerText.classList.add('popup-title');
-      headerText.append(i18n(this.features[featureIndex].headerLangKey));
+      headerText.append(i18n(this.features[featureIndex].headerLangKey!)!);
       this.header.append(headerText);
     }
 
@@ -294,7 +294,7 @@ export default class FeaturesCarousel {
     const doc = this.features[featureIndex].video;
     if(!doc) {
       return {
-        video: undefined as HTMLVideoElement,
+        video: undefined as unknown as HTMLVideoElement,
         loadPromise: new Promise(() => {})
       };
     }
@@ -336,7 +336,7 @@ export default class FeaturesCarousel {
       });
     }
 
-    if(shimmer) {
+    if(shimmer!) {
       wrappedVideo.loadPromise.then(() => {
         shimmer.remove();
         premiumIcon.remove();

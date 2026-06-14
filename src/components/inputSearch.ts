@@ -19,8 +19,8 @@ export default class InputSearch {
 
   public prevValue = '';
   public timeout = 0;
-  public onChange: (value: string) => void;
-  public onClear: (e?: MouseEvent, wasEmpty?: boolean) => void;
+  public onChange: ((value: string) => void) | undefined;
+  public onClear: ((e?: MouseEvent, wasEmpty?: boolean) => void) | undefined;
   public onDebounce: (start: boolean) => void;
   public onBack: () => void;
   public onEnter: (value: string) => void;
@@ -31,7 +31,7 @@ export default class InputSearch {
 
   private listenerSetter: ListenerSetter;
   private debounceTime: number;
-  private verifyDebounce: (value: string, prevValue: string) => boolean;
+  private verifyDebounce: ((value: string, prevValue: string) => boolean) | undefined;
 
   private alwaysShowClear: boolean;
   private arrowBack: boolean;
@@ -69,15 +69,15 @@ export default class InputSearch {
       this.container.classList.add('old-style');
     }
 
-    this.onChange = options.onChange;
-    this.onClear = options.onClear;
-    this.onDebounce = options.onDebounce;
-    this.onBack = options.onBack;
-    this.onEnter = options.onEnter;
+    this.onChange = options.onChange!;
+    this.onClear = options.onClear!;
+    this.onDebounce = options.onDebounce!;
+    this.onBack = options.onBack!;
+    this.onEnter = options.onEnter!;
     this.debounceTime = options.debounceTime ?? 300;
-    this.verifyDebounce = options.verifyDebounce;
-    this.alwaysShowClear = options.alwaysShowClear;
-    this.noPlaceholderAnimation = options.noPlaceholderAnimation;
+    this.verifyDebounce = options.verifyDebounce!;
+    this.alwaysShowClear = options.alwaysShowClear!;
+    this.noPlaceholderAnimation = options.noPlaceholderAnimation!;
 
     const input = this.input = this.inputField.input as HTMLInputElement;
     input.classList.add('input-search-input');
@@ -110,7 +110,7 @@ export default class InputSearch {
 
     this.container.append(searchIcon, clearBtn);
 
-    this.setArrowBack(options.arrowBack);
+    this.setArrowBack(options.arrowBack!);
   }
 
   public setArrowBack = (arrowBack: boolean) => {
@@ -189,11 +189,11 @@ export default class InputSearch {
       });
     }
 
-    this.currentPlaceholder = i18n(langPackKey, args);
-    this.currentPlaceholder.classList.add(...[
+    this.currentPlaceholder = i18n(langPackKey, args)!;
+    this.currentPlaceholder.classList.add(...([
       'input-search-placeholder',
       !this.noPlaceholderAnimation && 'will-animate'
-    ].filter(Boolean));
+    ].filter(Boolean) as string[]));
     this.container.append(this.currentPlaceholder);
   };
 
@@ -215,7 +215,7 @@ export default class InputSearch {
     this.clearTimeout(true);
     this.timeout = window.setTimeout(() => {
       this.onDebounce?.(false);
-      this.onChange(value);
+      this.onChange!(value);
     }, this.debounceTime);
   };
 

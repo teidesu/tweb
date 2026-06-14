@@ -33,7 +33,7 @@ export async function showCreateStarGiftOfferPopup(options: {
   onFinish?: (result: 'created' | 'cancel') => void
 }) {
   const gift = options.gift.raw as StarGift.starGiftUnique;
-  const peerTitle = await wrapPeerTitle({peerId: getPeerId(gift.owner_id), onlyFirstName: true})
+  const peerTitle = await wrapPeerTitle({peerId: getPeerId(gift.owner_id!), onlyFirstName: true})
   const [show, setShow] = createSignal(true);
 
   return createPopup(() => {
@@ -74,8 +74,8 @@ export async function showCreateStarGiftOfferPopup(options: {
       }
 
       try {
-        await rootScope.managers.appGiftsManager.createGiftOffer({
-          peerId: getPeerId(gift.owner_id),
+        await rootScope.managers.appGiftsManager!.createGiftOffer({
+          peerId: getPeerId(gift.owner_id!),
           slug: gift.slug,
           amount: starsAmount,
           duration: offerDuration()
@@ -99,13 +99,13 @@ export async function showCreateStarGiftOfferPopup(options: {
 
     const limits = createMemo(() => {
       const minStars = gift.offer_min_stars;
-      const maxStars = Math.max(minStars * 2, appConfig.stars_stargift_resale_amount_max);
+      const maxStars = Math.max(minStars! * 2, appConfig.stars_stargift_resale_amount_max!);
 
-      const minStarsUsd = appConfig.stars_usd_sell_rate_x1000 / 1000 * minStars / 100;
-      const minTonFromStars = parseNanotonFromDecimal(String(minStarsUsd / appConfig.ton_usd_rate));
-      const minTonFromConfig = bigInt(appConfig.ton_stargift_resale_amount_min);
+      const minStarsUsd = appConfig.stars_usd_sell_rate_x1000! / 1000 * minStars! / 100;
+      const minTonFromStars = parseNanotonFromDecimal(String(minStarsUsd / appConfig.ton_usd_rate!));
+      const minTonFromConfig = bigInt(appConfig.ton_stargift_resale_amount_min!);
       const minTon = bigInt.max(minTonFromStars, minTonFromConfig);
-      const maxTon = bigInt.max(minTon.multiply(2), appConfig.ton_stargift_resale_amount_max);
+      const maxTon = bigInt.max(minTon.multiply(2), appConfig.ton_stargift_resale_amount_max!);
       return {minStars, maxStars, minTon, maxTon};
     })
 
@@ -130,7 +130,7 @@ export async function showCreateStarGiftOfferPopup(options: {
 
       const value = +offerAmount$;
 
-      if(value < minStars) {
+      if(value < minStars!) {
         return ['StarGiftMinSellAmountStars', [minStars]];
       }
 

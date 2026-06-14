@@ -7,7 +7,7 @@ toastsContainer.classList.add('toasts-container');
 
 const toastEl = document.createElement('div');
 toastEl.classList.add('toast');
-let timeout: number;
+let timeout: number | undefined;
 
 const x = new OverlayClickHandler('toast');
 x.addEventListener('toggle', (open) => {
@@ -59,5 +59,5 @@ export function toastNew(options: Partial<{
   langPackArguments: FormatterArguments,
   onClose: () => void
 }>) {
-  toast(i18n(options.langPackKey, options.langPackArguments), options.onClose);
+  toast(i18n(options.langPackKey!, options.langPackArguments)!, options.onClose);
 }

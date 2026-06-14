@@ -32,7 +32,7 @@ function validateCompleteCardNumber(card: string) {
 }
 
 function validateExpiry(year: number, month: number, options?: PatternValidationOptions & {date?: Date}) {
-  const date = options.date || new Date();
+  const date = options!.date || new Date();
   const _year = year < 100 ? date.getFullYear() % 100 : date.getFullYear();
   const nextMonth = date.getMonth() + 1;
 
@@ -71,7 +71,7 @@ function makeCardNumberError(str: string, length: number, ignoreIncomplete: bool
 
 export function validateCardNumber(str: string, options: PatternValidationOptions = {}) {
   const {sanitized, minLength} = getCardInfoByNumber(str);
-  return makeCardNumberError(sanitized, minLength, options.ignoreIncomplete);
+  return makeCardNumberError(sanitized, minLength, options.ignoreIncomplete!);
 }
 
 export function validateCardExpiry(str: string, options: Parameters<typeof validateExpiry>[2] = {}) {
@@ -79,7 +79,7 @@ export function validateCardExpiry(str: string, options: Parameters<typeof valid
   const [monthStr, yearStr = ''] = sanitized;
   const [month, year] = [monthStr, yearStr].map((str) => +str);
   const s = yearStr.length === 2 ? year % 100 : year;
-  return yearStr.length < 2 || yearStr.length === 3 ? (options.ignoreIncomplete ? null : makeValidationError('incomplete')) : makeValidationError(validateExpiry(s, month, options));
+  return yearStr.length < 2 || yearStr.length === 3 ? (options.ignoreIncomplete ? null : makeValidationError('incomplete')) : makeValidationError(validateExpiry(s, month, options)!);
 }
 
 export function validateAnyIncomplete(formatted: ReturnType<typeof formatInputValueByPattern>, str: string, options: PatternValidationOptions = {}) {

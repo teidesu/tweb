@@ -10,8 +10,8 @@ export default class Obfuscation {
   /* private enc: aesjs.ModeOfOperation.ModeOfOperationCTR;
   private dec: aesjs.ModeOfOperation.ModeOfOperationCTR; */
 
-  private id: number;
-  private idPromise: Promise<Obfuscation['id']>;
+  private id: number | undefined;
+  private idPromise: Promise<Obfuscation['id']> | undefined;
   private process: (data: Uint8Array, operation: 'encrypt' | 'decrypt') => ReturnType<Obfuscation['_process']>;
 
   // private cryptoEncKey: CryptoKey;
@@ -153,7 +153,7 @@ export default class Obfuscation {
   private _process = (data: Uint8Array, operation: 'encrypt' | 'decrypt') => {
     return cryptoMessagePort.invokeCryptoNew({
       method: 'aes-ctr-process',
-      args: [{id: this.id, data, operation}],
+      args: [{id: (this.id as number), data, operation}],
       transfer: [data.buffer]
     }) as Promise<Uint8Array>;
   };
@@ -184,7 +184,7 @@ export default class Obfuscation {
     this.idPromise = undefined;
 
     const id = await idPromise;
-    cryptoMessagePort.invokeCrypto('aes-ctr-destroy', id);
+    cryptoMessagePort.invokeCrypto('aes-ctr-destroy', (id as number));
   }
 
   public destroy() {

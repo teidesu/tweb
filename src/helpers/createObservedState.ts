@@ -92,8 +92,8 @@ export default function createObservedState<T extends object>(
       const value = Reflect.get(target, prop, receiver);
 
       // автоматически отдаём обёрнутый history
-      if(observe[prop as string]) {
-        return wrapObject(value, observe[prop as string], stateProxy);
+      if(observe![prop as string]) {
+        return wrapObject(value, observe![prop as string], stateProxy);
       }
       return value;
     },
@@ -109,7 +109,7 @@ export default function createObservedState<T extends object>(
 
       // если подменяют history — переоборачиваем
       const nextValue =
-        observe[prop as string] ? wrapObject(value, observe[prop as string], stateProxy) : value;
+        observe![prop as string] ? wrapObject(value, observe![prop as string], stateProxy) : value;
 
       const ok = Reflect.set(target, prop, nextValue, receiver);
 

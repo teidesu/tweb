@@ -82,9 +82,9 @@ export default class Chat extends EventListenerBase<{
   public topbar: ChatTopbar;
   public bubbles: ChatBubbles;
   public input: ChatInput;
-  public selection: ChatSelection;
+  public selection: ChatSelection | undefined;
   public contextMenu: ChatContextMenu;
-  public search: ChatSearch;
+  public search: ChatSearch | undefined;
 
   private priceChangedInterceptor: PriceChangedInterceptor;
 
@@ -105,14 +105,14 @@ export default class Chat extends EventListenerBase<{
   public chatPaddingTop: Signal<number>;
   public chatPaddingBottom: Signal<number>;
 
-  public setPeerPromise: Promise<void>;
+  public setPeerPromise: Promise<void> | null;
   public peerChanged: boolean;
 
   public log: ReturnType<typeof logger>;
 
   public type: ChatType;
   public messagesStorageKey: MessagesStorageKey;
-  public disposeHistoryStorage: () => void;
+  public disposeHistoryStorage: (() => void) | undefined;
   public isStandalone: boolean;
 
   public noForwards: boolean;
@@ -131,12 +131,12 @@ export default class Chat extends EventListenerBase<{
    */
   public onPreviewClose?: () => void;
 
-  public inited: boolean;
+  public inited: boolean | undefined;
 
   public isRestricted: boolean;
   public autoDownload: ChatAutoDownloadSettings;
 
-  public sharedMediaTab: AppSharedMediaTab;
+  public sharedMediaTab: AppSharedMediaTab | undefined;
   public sharedMediaTabs: AppSharedMediaTab[];
 
   public isBot: boolean;
@@ -169,8 +169,8 @@ export default class Chat extends EventListenerBase<{
 
   public searchSignal: ReturnType<typeof createUnifiedSignal<Parameters<Chat['initSearch']>[0]>>;
 
-  public currentTheme: Parameters<typeof themeController['getThemeSettings']>[0];
-  public currentWallPaper: WallPaper;
+  public currentTheme: Parameters<typeof themeController['getThemeSettings']>[0] | undefined;
+  public currentWallPaper: WallPaper | undefined;
   public preferredBackgroundTransition?: ChatBackgroundTransition;
 
   /**
@@ -207,7 +207,7 @@ export default class Chat extends EventListenerBase<{
    */
   private backgroundHidden = false;
 
-  public ignoreSearchCleaning: boolean;
+  public ignoreSearchCleaning: boolean | undefined;
 
   public stars: Accessor<Long>;
   public appState: ReturnType<typeof useAppState>[0];
@@ -418,7 +418,7 @@ export default class Chat extends EventListenerBase<{
   public applyContainerTheme() {
     if(!this.container) return;
     const newTheme = this.currentTheme ?? themeController.getTheme();
-    themeController.applyTheme(newTheme, this.container);
+    themeController.applyTheme(newTheme!, this.container);
   }
 
   public publishBackground(
@@ -543,7 +543,7 @@ export default class Chat extends EventListenerBase<{
           // reveal (it'll fire late via `bubblesRevealCalled`); apply theme inline so bubbles
           // mount against the new vars even before the wallpaper fades in.
           themeOwnedByCallbacks = true;
-          deferred.resolve(applyTheme);
+          deferred.resolve!(applyTheme);
         }
       }, deferRevealCb);
 
@@ -551,7 +551,7 @@ export default class Chat extends EventListenerBase<{
         if(!deferred.isFulfilled) {
           // Cached path: wallpaper fully staged. `applyTheme` is bundled into the reveal —
           // resolve with `noop` so `callbacks.forEach` doesn't apply it ahead of the slot flip.
-          deferred.resolve(noop);
+          deferred.resolve!(noop);
         } else {
           // Subsequent publishes (night toggle, peer details change): canvas
           // already settled, just apply theme inline now that it's painted.
@@ -571,25 +571,25 @@ export default class Chat extends EventListenerBase<{
 
     const update = () => {
       const _fullPeer = fullPeer();
-      let wallPaper: WallPaper;
+      let wallPaper: WallPaper | undefined;
       let theme: Chat['currentTheme'];
 
       if(_fullPeer) {
-        wallPaper = unwrap((_fullPeer as ChatFull.channelFull).wallpaper);
+        wallPaper = unwrap((_fullPeer as ChatFull.channelFull).wallpaper)!;
         const emoticon = (_fullPeer as ChatFull.channelFull).theme_emoticon ||
           ((_fullPeer as UserFull.userFull).theme as ChatTheme.chatTheme)?.emoticon ||
           (wallPaper && wallPaper.settings?.emoticon);
 
-        theme = unwrap(getThemeByEmoticon(emoticon));
+        theme = unwrap(getThemeByEmoticon(emoticon!))!;
         if(emoticon && theme) {
           wallPaper = undefined;
         }
       }
 
-      this.currentTheme = theme;
-      this.currentWallPaper = wallPaper;
+      this.currentTheme = theme!;
+      this.currentWallPaper = wallPaper!;
 
-      log('updating', _fullPeer, theme, wallPaper);
+      log('updating', _fullPeer, theme!, wallPaper!);
       publish();
 
       createEffect(on(isNightTheme, update, {defer: true}));
@@ -729,15 +729,15 @@ export default class Chat extends EventListenerBase<{
           isAnonymousSending,
           canManageDirectMessages
         } = await namedPromises({
-          starsAmount: this.managers.appChatsManager.getStarsAmount(chatId),
-          isAnonymousSending: this.managers.appMessagesManager.isAnonymousSending(peerId),
-          canManageDirectMessages: this.managers.appPeersManager.canManageDirectMessages(peerId)
+          starsAmount: this.managers.appChatsManager!.getStarsAmount(chatId),
+          isAnonymousSending: this.managers.appMessagesManager!.isAnonymousSending(peerId),
+          canManageDirectMessages: this.managers.appPeersManager!.canManageDirectMessages(peerId)
         });
 
         if(peerId === this.peerId) {
-          this.canManageDirectMessages = canManageDirectMessages;
+          this.canManageDirectMessages = (canManageDirectMessages! as boolean);
           this.isAnonymousSending = isAnonymousSending;
-          this.updateStarsAmount(starsAmount);
+          this.updateStarsAmount(starsAmount!);
         }
       }
     });
@@ -813,18 +813,18 @@ export default class Chat extends EventListenerBase<{
 
       const [needSearch, setNeedSearch] = createSignal(false);
       const [query, setQuery] = createSignal('', {equals: false});
-      const [filterPeerId, setFilterPeerId] = createSignal<PeerId>(undefined, {equals: false});
-      const [reaction, setReaction] = createSignal<Reaction>(undefined, {equals: false});
+      const [filterPeerId, setFilterPeerId] = createSignal<PeerId>(undefined!, {equals: false});
+      const [reaction, setReaction] = createSignal<Reaction>(undefined!, {equals: false});
       createEffect<HTMLElement>((topbarSearch) => {
         if(!needSearch()) {
           if(!topbarSearch) {
-            return;
+            return undefined as unknown as HTMLElement;
           }
 
           animateElements(topbarSearch, false).then(() => {
-            topbarSearch.remove();
+            topbarSearch!.remove();
           });
-          return;
+          return undefined as unknown as HTMLElement;
         }
 
         topbarSearch = untrack(() => TopbarSearch({
@@ -871,9 +871,9 @@ export default class Chat extends EventListenerBase<{
 
       createEffect(() => {
         const s = this.searchSignal();
-        setQuery(s?.query);
-        setFilterPeerId(s?.filterPeerId);
-        setReaction(s?.reaction);
+        setQuery(s?.query as string);
+        setFilterPeerId(s?.filterPeerId as PeerId);
+        setReaction(s?.reaction as Reaction);
         setNeedSearch(!!s);
       });
     });
@@ -888,25 +888,25 @@ export default class Chat extends EventListenerBase<{
   public destroy() {
     // const perf = performance.now();
 
-    this.destroyPromise?.resolve();
+    this.destroyPromise?.resolve!();
     this.destroySharedMediaTab();
     this.topbar?.destroy();
     this.bubbles?.destroy();
     this.input?.destroy();
     this.contextMenu?.destroy();
-    this.selection?.attachListeners(undefined, undefined);
+    this.selection?.attachListeners(undefined!, undefined!);
     this.destroyMiddlewareHelper.destroy();
 
     this.topbar =
-      this.bubbles =
-      this.input =
-      this.contextMenu =
-      this.selection =
-      undefined;
+      (this.bubbles =
+      (this.input =
+      (this.contextMenu =
+      (this.selection =
+      undefined)!)!)!)!;
 
     this.container?.remove();
 
-    this.changeHistoryStorageKey(undefined, undefined);
+    this.changeHistoryStorageKey(undefined!, undefined!);
 
     // this.log.error('Chat destroy time:', performance.now() - perf);
   }
@@ -969,25 +969,25 @@ export default class Chat extends EventListenerBase<{
       chat,
       canManageDirectMessages
     } = await m(namedPromises({
-      noForwards: this.managers.appPeersManager.noForwards(peerId),
-      isRestricted: this.managers.appPeersManager.isPeerRestricted(peerId),
+      noForwards: this.managers.appPeersManager!.noForwards(peerId),
+      isRestricted: this.managers.appPeersManager!.isPeerRestricted(peerId),
       isLikeGroup: this._isLikeGroup(peerId),
-      isRealGroup: this.managers.appPeersManager.isAnyGroup(peerId),
-      isMegagroup: this.managers.appPeersManager.isMegagroup(peerId),
-      isBroadcast: this.managers.appPeersManager.isBroadcast(peerId),
-      isChannel: this.managers.appPeersManager.isChannel(peerId),
-      isBot: this.managers.appPeersManager.isBot(peerId),
-      isAnonymousSending: this.managers.appMessagesManager.isAnonymousSending(peerId),
-      isUserBlocked: peerId.isUser() && this.managers.appProfileManager.isCachedUserBlocked(peerId),
+      isRealGroup: this.managers.appPeersManager!.isAnyGroup(peerId),
+      isMegagroup: this.managers.appPeersManager!.isMegagroup(peerId),
+      isBroadcast: this.managers.appPeersManager!.isBroadcast(peerId),
+      isChannel: this.managers.appPeersManager!.isChannel(peerId),
+      isBot: this.managers.appPeersManager!.isBot(peerId),
+      isAnonymousSending: this.managers.appMessagesManager!.isAnonymousSending(peerId),
+      isUserBlocked: peerId.isUser() && this.managers.appProfileManager!.isCachedUserBlocked(peerId),
       isPremiumRequired: this.isPremiumRequiredToContact(peerId),
-      starsAmount: this.managers.acknowledged.appPeersManager.getStarsAmount(peerId),
+      starsAmount: this.managers.acknowledged!.appPeersManager!.getStarsAmount(peerId),
       chat: peerId.isAnyChat() && this.peer as MTChat,
-      canManageDirectMessages: this.managers.appPeersManager.canManageDirectMessages(peerId)
+      canManageDirectMessages: this.managers.appPeersManager!.canManageDirectMessages(peerId)
     }, this.log));
 
     // ! WARNING: TEMPORARY, HAVE TO GET TOPIC
     if(isForum && threadId) {
-      await m(this.managers.dialogsStorage.getForumTopicOrReload(peerId, threadId));
+      await m(this.managers.dialogsStorage!.getForumTopicOrReload(peerId, threadId));
     }
 
     this.noForwards = noForwards;
@@ -1000,11 +1000,11 @@ export default class Chat extends EventListenerBase<{
     this.isForum = isForum;
     this.isAllMessagesForum = isForum && !threadId;
     this.isAnonymousSending = isAnonymousSending;
-    this.isUserBlocked = isUserBlocked;
+    this.isUserBlocked = isUserBlocked!;
     this.isPremiumRequired = isPremiumRequired;
-    this.isMonoforum = !!(chat?._ === 'channel' && chat?.pFlags?.monoforum);
+    this.isMonoforum = !!((chat as MTChat.channel)?._ === 'channel' && (chat as MTChat.channel)?.pFlags?.monoforum);
     this.isBotforum = isBotforum;
-    this.canManageDirectMessages = canManageDirectMessages;
+    this.canManageDirectMessages = (canManageDirectMessages! as boolean);
     this.canManageBotforumTopics = canManageBotforumTopics;
 
     if(starsAmount.cached) {
@@ -1015,7 +1015,7 @@ export default class Chat extends EventListenerBase<{
         if(!middleware()) {
           return;
         }
-        this.updateStarsAmount(starsAmount);
+        this.updateStarsAmount(starsAmount!);
       });
     }
 
@@ -1037,7 +1037,9 @@ export default class Chat extends EventListenerBase<{
     if(!this.excludeParts.sharedMedia) {
       this.sharedMediaTab = appSidebarRight.createSharedMediaTab();
       this.sharedMediaTabs.push(this.sharedMediaTab);
-      const linkedMonoforumId = (chat?._ === 'channel' && chat.pFlags?.monoforum && chat.linked_monoforum_id)?.toPeerId?.(true);
+      const _chat = chat as MTChat.channel | undefined;
+      const _linkedMonoforumIdRaw = _chat?._ === 'channel' && _chat.pFlags?.monoforum && _chat.linked_monoforum_id;
+      const linkedMonoforumId = (_linkedMonoforumIdRaw as ChatId | undefined)?.toPeerId?.(true);
       this.sharedMediaTab.setPeer(this.monoforumThreadId || linkedMonoforumId || peerId, threadId);
     }
 
@@ -1073,7 +1075,7 @@ export default class Chat extends EventListenerBase<{
     } else if(!this.inited) {
       if(this.init) {
         this.init(/* peerId */);
-        this.init = null;
+        this.init = null as unknown as () => void;
       }
 
       this.inited = true;
@@ -1083,10 +1085,10 @@ export default class Chat extends EventListenerBase<{
     if(!samePeer) {
       this.appImManager.dispatchEvent('peer_changing', this);
       this.peerIdSignal[1](this.peerId = peerId || NULL_PEER_ID);
-      this.threadId = threadId;
-      this.monoforumThreadId = monoforumThreadId;
-      this.isTemporaryThread = isTempId(threadId);
-      this.noInput = [ChatType.Static, ChatType.Logs].includes(type);
+      this.threadId = threadId!;
+      this.monoforumThreadId = monoforumThreadId!;
+      this.isTemporaryThread = isTempId(threadId!);
+      this.noInput = [ChatType.Static, ChatType.Logs].includes(type!);
       this.middlewareHelper.clean();
       // A fresh peer change always shows the chat next, so its background must publish normally;
       // the off-screen suppression only guards a stale load from a peer we've already left.
@@ -1117,7 +1119,7 @@ export default class Chat extends EventListenerBase<{
         promise = this.publishBackground('auto');
       }
 
-      callbackify(promise, () => {
+      callbackify(promise!, () => {
         // the docked ESG panel undocks on hide, sliding an emptied column looks broken
         const animate = appSidebarRight.isTabExists(AppEmoticonsTab) ? false : undefined;
         appSidebarRight.toggleSidebar(false, animate, false);
@@ -1169,13 +1171,13 @@ export default class Chat extends EventListenerBase<{
     }
 
     const bubblesSetPeerPromise = this.bubbles.setPeer({...options, samePeer, sameSearch});
-    const setPeerPromise = this.setPeerPromise = bubblesSetPeerPromise.then((result) => {
+    const setPeerPromise = this.setPeerPromise = (bubblesSetPeerPromise.then((result) => {
       return result.promise;
     }).catch(noop).finally(() => {
       if(this.setPeerPromise === setPeerPromise) {
         this.setPeerPromise = null;
       }
-    });
+    }) as Promise<void> | null);
 
     return bubblesSetPeerPromise;
   }
@@ -1191,9 +1193,9 @@ export default class Chat extends EventListenerBase<{
       this.historyStorage = useHistoryStorage(key);
       this.historyStorageNoThreadId = useHistoryStorage(keyNoThreadId);
 
-      this.managers.appMessagesManager.toggleHistoryKeySubscription(key, true);
+      this.managers.appMessagesManager!.toggleHistoryKeySubscription(key, true);
       onCleanup(() => {
-        this.managers.appMessagesManager.toggleHistoryKeySubscription(key, false);
+        this.managers.appMessagesManager!.toggleHistoryKeySubscription(key, false);
       });
 
       return dispose;
@@ -1307,7 +1309,7 @@ export default class Chat extends EventListenerBase<{
   }
 
   public async getMidsByMid(peerId: PeerId, mid: number) {
-    return this.managers.appMessagesManager.getMidsByMessage(this.getMessageByPeer(peerId, mid));
+    return this.managers.appMessagesManager!.getMidsByMessage(this.getMessageByPeer(peerId, mid)!);
   }
 
   public getHistoryStorage(ignoreThreadId?: boolean) {
@@ -1326,16 +1328,16 @@ export default class Chat extends EventListenerBase<{
   }
 
   public hasMessages() {
-    const {history} = this.getHistoryStorage(true);
-    return !!history.length;
+    const {history} = this.getHistoryStorage(true)!;
+    return !!history!.length;
   }
 
   public getDialogOrTopic() {
-    return this.managers.dialogsStorage.getAnyDialog(this.peerId, (this.isForum || this.type === ChatType.Saved) && this.threadId);
+    return this.managers.dialogsStorage!.getAnyDialog(this.peerId, (((this.isForum || this.type === ChatType.Saved) && this.threadId)! as number | undefined));
   }
 
   public getHistoryMaxId() {
-    return this.getHistoryStorage().maxId;
+    return this.getHistoryStorage()!.maxId;
   }
 
   // * used to define need of avatars
@@ -1346,8 +1348,8 @@ export default class Chat extends EventListenerBase<{
     if(this.type === ChatType.Logs) return true;
 
     const {isBotforum, isLikeGroup} = await namedPromises({
-      isLikeGroup: this.managers.appPeersManager.isLikeGroup(peerId),
-      isBotforum: this.managers.appPeersManager.isBotforum(peerId)
+      isLikeGroup: this.managers.appPeersManager!.isLikeGroup(peerId),
+      isBotforum: this.managers.appPeersManager!.isBotforum(peerId)
     });
 
     return !isBotforum && isLikeGroup;
@@ -1369,22 +1371,22 @@ export default class Chat extends EventListenerBase<{
       return Promise.resolve(false);
     }
 
-    return this.managers.appMessagesManager.canSendToPeer(this.peerId, this.threadId, action);
+    return this.managers.appMessagesManager!.canSendToPeer(this.peerId, this.threadId, action);
   }
 
   public isStartButtonNeeded() {
     return Promise.all([
-      this.managers.appPeersManager.isBot(this.peerId),
-      this.managers.appMessagesManager.getDialogOnly(this.peerId),
+      this.managers.appPeersManager!.isBot(this.peerId),
+      this.managers.appMessagesManager!.getDialogOnly(this.peerId),
       this.getHistoryStorage(true),
-      this.peerId.isUser() ? this.managers.appProfileManager.isCachedUserBlocked(this.peerId.toUserId()) : undefined,
-      this.managers.appPeersManager.isBotforum(this.peerId)
+      this.peerId.isUser() ? this.managers.appProfileManager!.isCachedUserBlocked(this.peerId.toUserId()) : undefined,
+      this.managers.appPeersManager!.isBotforum(this.peerId)
     ]).then(([isBot, dialog, historyStorage, isUserBlocked, isBotforum]) => {
       if(!isBot || isVerificationBot(this.peerId) || isBotforum) {
         return false;
       }
 
-      return (!dialog && !historyStorage.history.length) || isUserBlocked;
+      return (!dialog && !historyStorage!.history!.length) || isUserBlocked;
     });
   }
 
@@ -1393,7 +1395,7 @@ export default class Chat extends EventListenerBase<{
       return Promise.resolve(false);
     }
 
-    return this.managers.appUsersManager.getRequirementToContact(peerId.toUserId(), true)
+    return this.managers.appUsersManager!.getRequirementToContact(peerId.toUserId(), true)
     .then((requirement) => requirement?._ === 'requirementToContactPremium');
   }
 
@@ -1453,8 +1455,8 @@ export default class Chat extends EventListenerBase<{
     const fwdFrom = (message as Message.message).fwd_from;
     if(
       is &&
-      fwdFrom.saved_from_id &&
-      this.type === ChatType.Saved ? getPeerId(fwdFrom.saved_from_id) === this.threadId : false
+      fwdFrom!.saved_from_id &&
+      this.type === ChatType.Saved ? getPeerId(fwdFrom!.saved_from_id) === this.threadId : false
       // getPeerId(fwdFrom.saved_from_id) === (this.type === ChatType.Saved ? this.threadId : this.peerId)
     ) {
       is = false;
@@ -1489,7 +1491,7 @@ export default class Chat extends EventListenerBase<{
     }
 
     const [canGiftPremium, isPremiumPurchaseBlocked] = await Promise.all([
-      this.managers.appProfileManager.canGiftPremium(this.peerId.toUserId()),
+      this.managers.appProfileManager!.canGiftPremium(this.peerId.toUserId()),
       apiManagerProxy.isPremiumPurchaseBlocked()
     ]);
 
@@ -1503,7 +1505,7 @@ export default class Chat extends EventListenerBase<{
   }
 
   public async sendReaction(options: SendReactionOptions) {
-    const isPaidReaction = options.reaction._ === 'reactionPaid';
+    const isPaidReaction = options.reaction!._ === 'reactionPaid';
     const count = options.count ?? 1;
     if(isPaidReaction) {
       const key = getPendingPaidReactionKey(options.message as Message.message);
@@ -1533,16 +1535,16 @@ export default class Chat extends EventListenerBase<{
         const [sendTime, setSendTime] = createSignal(0);
         const abortController = new AbortController();
         abortController.signal.addEventListener('abort', () => {
-          clearTimeout(pending.sendTimeout);
-          pending.setSendTime(0);
+          clearTimeout(pending!.sendTimeout);
+          pending!.setSendTime(0);
           PENDING_PAID_REACTIONS.delete(key);
 
           if(abortController.signal.reason !== PENDING_PAID_REACTION_SENT_ABORT_REASON) {
-            setReservedStars((reservedStars) => reservedStars - pending.count());
+            setReservedStars((reservedStars) => reservedStars - pending!.count());
           }
 
           rootScope.dispatchEventSingle('messages_reactions', [{
-            message: this.getMessageByPeer(options.message.peerId, options.message.mid) as Message.message,
+            message: this.getMessageByPeer(options.message.peerId!, options.message.mid!) as Message.message,
             changedResults: [],
             removedResults: []
           }]);
@@ -1565,7 +1567,7 @@ export default class Chat extends EventListenerBase<{
       pending.sendTimeout = window.setTimeout(() => {
         const count = pending.count();
         pending.abortController.abort(PENDING_PAID_REACTION_SENT_ABORT_REASON);
-        this.managers.appReactionsManager.sendReaction({
+        this.managers.appReactionsManager!.sendReaction({
           ...options,
           count
         });
@@ -1584,7 +1586,7 @@ export default class Chat extends EventListenerBase<{
       }
     }
 
-    const messageReactions = await this.managers.appReactionsManager.sendReaction({
+    const messageReactions = await this.managers.appReactionsManager!.sendReaction({
       ...options,
       count: isPaidReaction ? 0 : count,
       onlyReturn: isPaidReaction
@@ -1609,19 +1611,19 @@ export default class Chat extends EventListenerBase<{
 
   public async getAutoDeletePeriod(): Promise<AckedResult<number>> {
     try {
-      const dialog = await this.managers.dialogsStorage.getDialogOnly(this.peerId);
+      const dialog = await this.managers.dialogsStorage!.getDialogOnly(this.peerId);
       if(dialog) return {
         cached: true,
-        result: Promise.resolve(dialog.ttl_period)
+        result: (Promise.resolve(dialog.ttl_period)! as Promise<number>)
       };
 
       const fullPeer = this.peerId.isUser() ?
-        await this.managers.acknowledged.appProfileManager.getProfile(this.peerId.toUserId()) :
-        await this.managers.acknowledged.appProfileManager.getChatFull(this.peerId.toChatId());
+        await this.managers.acknowledged!.appProfileManager!.getProfile(this.peerId.toUserId()) :
+        await this.managers.acknowledged!.appProfileManager!.getChatFull(this.peerId.toChatId());
 
       return {
         cached: fullPeer.cached,
-        result: fullPeer.result.then((fullPeer) => fullPeer.ttl_period)
+        result: (fullPeer.result.then((fullPeer) => fullPeer.ttl_period)! as Promise<number>)
       }
     } catch{
       return {
@@ -1645,7 +1647,7 @@ export default class Chat extends EventListenerBase<{
       descriptionLangKey: this.isBroadcast ? 'AutoDeleteMessages.InfoChannel' : 'AutoDeleteMessages.InfoChat',
       period: autoDeletePeriod,
       onFinish: (period) => {
-        this.managers.appPrivacyManager.setAutoDeletePeriodFor(this.peerId, period);
+        this.managers.appPrivacyManager!.setAutoDeletePeriodFor(this.peerId, period);
       }
     }).show();
   }
@@ -1657,8 +1659,8 @@ export default class Chat extends EventListenerBase<{
     if(this.peerId.isUser()) return true;
 
     const {chat, isMonoforum}  = await namedPromises({
-      chat: this.managers.appChatsManager.getChat(this.peerId.toChatId()),
-      isMonoforum: this.managers.appChatsManager.isMonoforum(this.peerId.toChatId())
+      chat: this.managers.appChatsManager!.getChat(this.peerId.toChatId()),
+      isMonoforum: this.managers.appChatsManager!.isMonoforum(this.peerId.toChatId())
     });
 
     return !isMonoforum && hasRights(chat, 'change_info');

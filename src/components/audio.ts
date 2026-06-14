@@ -145,7 +145,7 @@ function createWaveformBars(waveform: Uint8Array, duration: number) {
     container.append(svg);
   }
 
-  return {svg, container, availW};
+  return {svg: svg!, container: container!, availW};
 }
 
 async function wrapVoiceMessage(audioEl: AudioElement) {
@@ -161,7 +161,7 @@ async function wrapVoiceMessage(audioEl: AudioElement) {
   let waveform = (doc.attributes.find((attribute) => attribute._ === 'documentAttributeAudio') as DocumentAttribute.documentAttributeAudio)?.waveform || new Uint8Array([]);
   waveform = decodeWaveform(waveform.slice(0, 63));
 
-  const {svg, container: svgContainer, availW} = createWaveformBars(waveform, doc.duration);
+  const {svg, container: svgContainer, availW} = createWaveformBars(waveform, doc.duration!);
 
   let fakeSvgContainer: HTMLElement;
   if(svgContainer) {
@@ -174,7 +174,7 @@ async function wrapVoiceMessage(audioEl: AudioElement) {
   waveformContainer.classList.add('audio-waveform-container');
 
   if(svgContainer) {
-    waveformContainer.append(svgContainer, fakeSvgContainer);
+    waveformContainer.append(svgContainer, fakeSvgContainer!);
   }
 
   const timeDiv = document.createElement('div');
@@ -227,11 +227,11 @@ async function wrapVoiceMessage(audioEl: AudioElement) {
             }
           });
 
-          audioEl.managers.appMessagesManager.transcribeAudio(message).catch(noop);
+          audioEl.managers.appMessagesManager!.transcribeAudio(message).catch(noop);
         }
       } else if(audioEl.transcriptionState === 2) {
         // Hide transcription
-        speechTextDiv.classList.add('hide');
+        speechTextDiv!.classList.add('hide');
         speechRecognitionIcon.classList.remove(_tgico('up'));
         speechRecognitionIcon.classList.add(_tgico('transcribe'));
         audioEl.transcriptionState = 0;
@@ -333,8 +333,8 @@ async function wrapVoiceMessage(audioEl: AudioElement) {
 
     return () => {
       progress?.remove();
-      progress = null;
-      audio = null;
+      progress = null as any;
+      audio = null as any;
     };
   };
 
@@ -362,7 +362,7 @@ async function wrapAudio(audioEl: AudioElement) {
     if(withTime) {
       parts.push(formatFullSentTime(message.date));
     } else if(!parts.length) {
-      parts.push(formatBytes(doc.size));
+      parts.push(formatBytes(doc.size!)!);
     }
 
     if(audioEl.showSender) {
@@ -389,7 +389,7 @@ async function wrapAudio(audioEl: AudioElement) {
   if(isVoice) {
     middleEllipsisEl.append(await wrapSenderToPeer(message));
   } else {
-    setInnerHTML(middleEllipsisEl, wrapEmojiText(audioAttribute?.title ?? doc.file_name));
+    setInnerHTML(middleEllipsisEl, wrapEmojiText((audioAttribute?.title ?? doc.file_name)!));
   }
 
   titleEl.append(middleEllipsisEl);
@@ -414,7 +414,7 @@ async function wrapAudio(audioEl: AudioElement) {
     audioEl.addAudioListener('ended', () => {
       audioEl.classList.remove('audio-show-progress');
       // Reset subtitle
-      subtitleDiv.lastChild.replaceWith(descriptionEl);
+      subtitleDiv.lastChild!.replaceWith(descriptionEl);
       launched = false;
     });
 
@@ -424,7 +424,7 @@ async function wrapAudio(audioEl: AudioElement) {
         launched = true;
 
         if(progressLine) {
-          subtitleDiv.lastChild.replaceWith(progressLine.container);
+          subtitleDiv.lastChild!.replaceWith(progressLine.container);
         }
       }
     };
@@ -438,7 +438,7 @@ async function wrapAudio(audioEl: AudioElement) {
     return () => {
       progressLine.removeListeners();
       progressLine.container.remove();
-      progressLine = null;
+      progressLine = null as any;
     };
   };
 
@@ -483,25 +483,25 @@ export const findMediaTargets = (anchor: HTMLElement, anchorMid: number/* , useS
     elements = elements.filter((element) => element === anchor || element.matches(':not([data-to-be-skipped="1"])'));
     const idx = elements.indexOf(anchor);
 
-    const mediaItems: MediaItem[] = elements.map((element) => ({peerId: element.dataset.peerId.toPeerId(), mid: +element.dataset.mid}));
+    const mediaItems: MediaItem[] = elements.map((element) => ({peerId: element.dataset.peerId!.toPeerId(), mid: +element.dataset.mid!}));
 
     prev = mediaItems.slice(0, idx);
     next = mediaItems.slice(idx + 1);
   }
   // }
 
-  if((next.length && next[0].mid < anchorMid) || (prev.length && prev[prev.length - 1].mid > anchorMid)) {
-    [prev, next] = [next.reverse(), prev.reverse()];
+  if((next!.length && next![0].mid < anchorMid) || (prev!.length && prev![prev!.length - 1].mid > anchorMid)) {
+    [prev, next] = [next!.reverse(), prev!.reverse()];
   }
 
   // prev = next = undefined;
 
-  return [prev, next];
+  return [prev!, next!];
 };
 
 export default class AudioElement extends HTMLElement {
   public audio: HTMLMediaElement;
-  public preloader: ProgressivePreloader;
+  public preloader: ProgressivePreloader | null;
   public message: Message.message;
   /**
    * Optional pre-extracted document. When set, it overrides extraction
@@ -534,10 +534,10 @@ export default class AudioElement extends HTMLElement {
   public middleware: Middleware;
 
   private listenerSetter = new ListenerSetter();
-  private onTypeDisconnect: () => void;
-  public onLoad: (autoload?: boolean) => void;
+  private onTypeDisconnect: (() => void) | null;
+  public onLoad: ((autoload?: boolean) => void) | undefined;
   public readyPromise: CancellablePromise<void>;
-  public load: (shouldPlay: boolean, controlledAutoplay?: boolean) => void;
+  public load: ((shouldPlay: boolean, controlledAutoplay?: boolean) => void) | undefined;
 
   public async render() {
     this.classList.add('audio');
@@ -554,7 +554,7 @@ export default class AudioElement extends HTMLElement {
 
     const getDurationStr = () => {
       const duration = this.audio && this.audio.readyState >= this.audio.HAVE_CURRENT_DATA ? this.audio.duration : doc.duration;
-      return toHHMMSS(duration | 0);
+      return toHHMMSS(duration! | 0);
     };
 
     this.innerHTML = `
@@ -587,20 +587,20 @@ export default class AudioElement extends HTMLElement {
 
     this.middleware.onDestroy(() => this.destroy());
 
-    const onLoad = this.onLoad = (autoload: boolean) => {
+    const onLoad = this.onLoad = (autoload?: boolean) => {
       this.onLoad = undefined;
 
       const audio = this.audio ??= appMediaPlaybackController.addMedia({
         message: this.message,
-        autoload,
+        autoload: autoload!,
         doc: this.doc,
         slot: this.mediaSlot
       }) as HTMLMediaElement;
 
       const readyPromise = this.readyPromise = deferredPromise<void>();
-      if(this.audio.readyState >= this.audio.HAVE_CURRENT_DATA) readyPromise.resolve();
+      if(this.audio.readyState >= this.audio.HAVE_CURRENT_DATA) readyPromise.resolve!();
       else {
-        this.addAudioListener('canplay', () => readyPromise.resolve(), {once: true});
+        this.addAudioListener('canplay', () => readyPromise.resolve!(), {once: true});
       }
 
       this.onTypeDisconnect = onTypeLoad();
@@ -644,7 +644,7 @@ export default class AudioElement extends HTMLElement {
       const imgs: HTMLElement[] = [];
       const wrapped = await wrapPhoto({
         photo: doc,
-        message: null,
+        message: null as any,
         container: toggle,
         boxWidth: 48,
         boxHeight: 48,
@@ -661,7 +661,7 @@ export default class AudioElement extends HTMLElement {
     }
 
     if(!isOutgoing) {
-      let preloader: ProgressivePreloader = this.preloader;
+      let preloader: ProgressivePreloader = (this.preloader as ProgressivePreloader);
 
       const autoDownload = doc.type !== 'audio'/*  || !this.noAutoDownload */;
       onLoad(autoDownload);
@@ -673,7 +673,7 @@ export default class AudioElement extends HTMLElement {
           return;
         }
 
-        appMediaPlaybackController.resolveWaitingForLoadMedia(this.message.peerId, this.message.mid, this.message.pFlags.is_scheduled, this.mediaSlot);
+        appMediaPlaybackController.resolveWaitingForLoadMedia(this.message.peerId!, this.message.mid!, this.message.pFlags.is_scheduled, this.mediaSlot);
 
         this.onDownloadInit(shouldPlay);
 
@@ -685,19 +685,19 @@ export default class AudioElement extends HTMLElement {
             const onPlay = () => {
               const preloader = constructDownloadPreloader(false);
               const deferred = deferredPromise<void>();
-              deferred.notifyAll({done: 75, total: 100});
+              deferred.notifyAll!({done: 75, total: 100});
               deferred.catch(() => {
                 this.audio.pause();
-                appMediaPlaybackController.willBePlayed(undefined);
+                appMediaPlaybackController.willBePlayed(undefined!);
               });
               deferred.cancel = () => {
                 deferred.cancel = noop;
-                deferred.reject(makeError('CANCELED'));
+                deferred.reject!(makeError('CANCELED'));
               };
               preloader.attach(downloadDiv, false, deferred);
 
               pauseListener = this.addAudioListener('pause', () => {
-                deferred.cancel();
+                deferred.cancel!();
               }, {once: true}) as any;
 
               this.onDownloadInit(shouldPlay);
@@ -726,7 +726,7 @@ export default class AudioElement extends HTMLElement {
 
               if(!shouldPlay) {
                 download.then(() => {
-                  this.readyPromise.resolve();
+                  this.readyPromise.resolve!();
                 });
               }
 
@@ -760,7 +760,7 @@ export default class AudioElement extends HTMLElement {
           // release loaded audio
           if(!controlledAutoplay && appMediaPlaybackController.willBePlayedMedia === this.audio) {
             safePlay(this.audio);
-            appMediaPlaybackController.willBePlayed(undefined);
+            appMediaPlaybackController.willBePlayed(undefined!);
           }
           // }, 10e3);
         });
@@ -824,8 +824,8 @@ export default class AudioElement extends HTMLElement {
     const loaderFactoryChanged = this.listLoaderFactory && appMediaPlaybackController.getListLoaderFactory() !== this.listLoaderFactory;
     if(searchContextChanged || loaderFactoryChanged) {
       const thisTarget = this.dataset.toBeSkipped ? this.audio.parentElement : this;
-      const [prev, next] = !hadSearchContext ? [] : findMediaTargets(thisTarget, this.message.mid/* , this.searchContext.useSearch */);
-      appMediaPlaybackController.setTargets({peerId: this.message.peerId, mid: this.message.mid}, prev, next, this.listLoaderFactory);
+      const [prev, next] = !hadSearchContext ? [] : findMediaTargets(thisTarget!, this.message.mid!/* , this.searchContext.useSearch */);
+      appMediaPlaybackController.setTargets({peerId: this.message.peerId!, mid: this.message.mid!}, prev, next, this.listLoaderFactory);
     }
   }
 
@@ -857,12 +857,12 @@ export default class AudioElement extends HTMLElement {
     }
 
     if(this.readyPromise) {
-      this.readyPromise.reject();
+      this.readyPromise.reject!();
     }
 
     if(this.listenerSetter) {
       this.listenerSetter.removeAll();
-      this.listenerSetter = null;
+      this.listenerSetter = null as any;
     }
 
     if(this.preloader) {

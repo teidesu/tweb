@@ -62,7 +62,7 @@ function StarGiftGridItem(props: {
           verify: () => raw._ === 'starGiftUnique',
           onClick: () => {
             showSharingPicker2Popup().then(({peerId, threadId, monoforumThreadId}) => {
-              rootScope.managers.appMessagesManager.sendText({peerId, threadId, replyToMonoforumPeerId: monoforumThreadId, text: 'https://t.me/nft/' + (raw as StarGift.starGiftUnique).slug});
+              rootScope.managers.appMessagesManager!.sendText({peerId, threadId, replyToMonoforumPeerId: monoforumThreadId, text: 'https://t.me/nft/' + (raw as StarGift.starGiftUnique).slug});
               appImManager.setInnerPeer({peerId, threadId, monoforumThreadId});
             });
           }
@@ -72,7 +72,7 @@ function StarGiftGridItem(props: {
           text: saved?.pFlags.pinned_to_top ? 'StarGiftUnpin' : 'StarGiftPin',
           verify: () => isEditableUniqueGift,
           onClick: () => {
-            rootScope.managers.appGiftsManager.togglePinnedGift(input, profilePeerId);
+            rootScope.managers.appGiftsManager!.togglePinnedGift(input!, profilePeerId);
           }
         },
         {
@@ -113,8 +113,8 @@ function StarGiftGridItem(props: {
                 onClick: () => {
                   const wasChecked = checkboxField.checked;
                   checkboxField.checked = !wasChecked;
-                  rootScope.managers.appGiftsManager.updateCollection({
-                    peerId: props.profilePeerId,
+                  rootScope.managers.appGiftsManager!.updateCollection({
+                    peerId: props.profilePeerId!,
                     collectionId: collection.collection_id,
                     [wasChecked ? 'delete' : 'add']: [input]
                   }).catch(() => {
@@ -138,16 +138,16 @@ function StarGiftGridItem(props: {
           onClick: async() => {
             if(isWearing) {
               if(profilePeerId === rootScope.myId) {
-                rootScope.managers.appUsersManager.updateEmojiStatus({_: 'emojiStatusEmpty'});
+                rootScope.managers.appUsersManager!.updateEmojiStatus({_: 'emojiStatusEmpty'});
               } else {
-                rootScope.managers.apiManager.invokeApiSingleProcess({
+                rootScope.managers.apiManager!.invokeApiSingleProcess({
                   method: 'channels.updateEmojiStatus',
                   params: {
-                    channel: await rootScope.managers.appChatsManager.getChannelInput(profilePeerId.toChatId()),
+                    channel: await rootScope.managers.appChatsManager!.getChannelInput(profilePeerId.toChatId()),
                     emoji_status: {_: 'emojiStatusEmpty'}
                   }
                 }).then((updates) => {
-                  rootScope.managers.apiUpdatesManager.processUpdateMessage(updates);
+                  rootScope.managers.apiUpdatesManager!.processUpdateMessage(updates);
                 }).catch(() => {
                   toastNew({langPackKey: 'Error.AnError'});
                 });
@@ -158,11 +158,11 @@ function StarGiftGridItem(props: {
           }
         },
         {
-          icon: saved.pFlags.unsaved ? 'eye' : 'eyecross_outline',
-          text: saved.pFlags.unsaved ? 'Show' : 'Hide',
+          icon: saved!.pFlags.unsaved ? 'eye' : 'eyecross_outline',
+          text: saved!.pFlags.unsaved ? 'Show' : 'Hide',
           verify: () => isIncoming || isEditableUniqueGift,
           onClick: () => {
-            rootScope.managers.appGiftsManager.toggleGiftHidden(input, !saved.pFlags.unsaved);
+            rootScope.managers.appGiftsManager!.toggleGiftHidden(input!, !saved!.pFlags.unsaved);
           }
         }
       ];
@@ -178,8 +178,8 @@ function StarGiftGridItem(props: {
   })
 
   const isPinned = () => props.item.saved?.pFlags.pinned_to_top;
-  const isPremium = () => props.view === 'list' && props.item.raw._ === 'starGift' && props.item.raw.pFlags.require_premium && props.item.raw.availability_remains > 0;
-  const isLocked = () => props.view === 'list' && props.item.raw._ === 'starGift' && props.item.raw.locked_until_date > tsNow(true);
+  const isPremium = () => props.view === 'list' && props.item.raw._ === 'starGift' && props.item.raw.pFlags.require_premium && props.item.raw.availability_remains! > 0;
+  const isLocked = () => props.view === 'list' && props.item.raw._ === 'starGift' && props.item.raw.locked_until_date! > tsNow(true);
 
   return (
     <div
@@ -272,9 +272,9 @@ function StarGiftGridItem(props: {
 
       {props.view === 'profile' && props.item.raw._ === 'starGift' && !props.hasSelection && (
         <div class={/* @once */ styles.itemFrom}>
-          {props.item.saved.from_id && !props.item.saved.pFlags.name_hidden ? (
+          {props.item.saved!.from_id && !props.item.saved!.pFlags.name_hidden ? (
             <AvatarNewTsx
-              peerId={getPeerId(props.item.saved.from_id)}
+              peerId={getPeerId(props.item.saved!.from_id)}
               size={20}
             />
           ) : (
@@ -299,7 +299,7 @@ function StarGiftGridItem(props: {
           return (
             <StarGiftBadge
               class={/* @once */ styles.badgeUnique}
-              backdropAttr={props.item.collectibleAttributes.backdrop}
+              backdropAttr={props.item.collectibleAttributes!.backdrop}
             >
               {isPinned() || props.view === 'resale' ? `#${gift.num}` : i18n('StarGiftLimitedBadgeNum', [formatNumber(gift.availability_total, 1)])}
             </StarGiftBadge>
@@ -333,7 +333,7 @@ function StarGiftGridItem(props: {
         if(props.item.raw.availability_total) {
           return (
             <StarGiftBadge>
-              {props.view === 'list' ? i18n('StarGiftLimitedBadge') : i18n('StarGiftLimitedBadgeNum', [formatNumber(gift.availability_total, 1)])}
+              {props.view === 'list' ? i18n('StarGiftLimitedBadge') : i18n('StarGiftLimitedBadgeNum', [formatNumber(gift.availability_total!, 1)])}
             </StarGiftBadge>
           )
         }

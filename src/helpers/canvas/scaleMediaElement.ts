@@ -12,7 +12,7 @@ export default function scaleMediaElement<T extends {
 }>(options: T): Promise<T['toDataURL'] extends true ? {url: string, size: MediaSize} : {blob: Blob, size: MediaSize}> {
   return new Promise(async(resolve) => {
     const canvas = document.createElement('canvas');
-    const size = options.size ?? options.mediaSize.aspectFitted(options.boxSize);
+    const size = options.size ?? options.mediaSize!.aspectFitted(options.boxSize!);
     const dpr = window.devicePixelRatio && 1;
     canvas.width = size.width * dpr;
     canvas.height = size.height * dpr;
@@ -25,7 +25,7 @@ export default function scaleMediaElement<T extends {
       source = options.media;
     }
 
-    ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+    ctx!.drawImage(source, 0, 0, canvas.width, canvas.height);
 
     if(IS_IMAGE_BITMAP_SUPPORTED) {
       (source as ImageBitmap)?.close();

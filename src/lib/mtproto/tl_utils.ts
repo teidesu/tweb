@@ -16,10 +16,10 @@ import ulongFromInts from '@helpers/long/ulongFromInts';
 import {safeBigInt} from '@helpers/bigInt/bigIntConstants';
 import {bigIntToSigned, bigIntToUnsigned} from '@helpers/bigInt/bigIntConversion';
 
-const boolFalse = +Schema.API.constructors.find((c) => c.predicate === 'boolFalse').id;
-const boolTrue = +Schema.API.constructors.find((c) => c.predicate === 'boolTrue').id;
-const vector = +Schema.API.constructors.find((c) => c.predicate === 'vector').id;
-export const gzipPacked = +Schema.MTProto.constructors.find((c) => c.predicate === 'gzip_packed').id;
+const boolFalse = +Schema.API.constructors.find((c) => c.predicate === 'boolFalse')!.id;
+const boolTrue = +Schema.API.constructors.find((c) => c.predicate === 'boolTrue')!.id;
+const vector = +Schema.API.constructors.find((c) => c.predicate === 'vector')!.id;
+export const gzipPacked = +Schema.MTProto.constructors.find((c) => c.predicate === 'gzip_packed')!.id;
 
 // * using slice to have a new buffer, otherwise the buffer will be copied to main thread
 const sliceMethod: 'slice' | 'subarray' = 'slice'; // subarray
@@ -334,7 +334,7 @@ class TLSerialization {
     const schema = this.mtproto ? Schema.MTProto : Schema.API;
     const predicate = obj['_'];
     let isBare = false;
-    const constructorData: MTProtoConstructor = schema.constructors.find((c) => c.predicate === predicate);
+    const constructorData: MTProtoConstructor = schema.constructors.find((c) => c.predicate === predicate)!;
 
     if(isBare = (type.charAt(0) === '%')) {
       type = type.substr(1);
@@ -371,7 +371,7 @@ class TLSerialization {
         // * commented to avoid using 'flags' property
         // if(!(obj[fieldBit[0]] & (1 << +fieldBit[1]))) {
         if(condType[1] === 'true' ? pFlags?.[param.name] : obj[param.name] !== undefined) {
-          flagsHandler[fieldBit[0]].flags |= 1 << +fieldBit[1];
+          flagsHandler![fieldBit[0]].flags |= 1 << +fieldBit[1];
         } else {
           continue;
         }
@@ -389,19 +389,19 @@ class TLSerialization {
       }
 
       const result = this.storeObject(
-        isFlagHandler ? flagsHandler[param.name].flags : obj[param.name],
+        isFlagHandler ? flagsHandler![param.name].flags : obj[param.name],
         type,
         field + '[' + param.name + ']'
       );
 
       if(isFlagHandler) {
-        flagsHandler[param.name].offset = result as number;
+        flagsHandler![param.name].offset = result as number;
       }
     }
 
-    for(const paramName in flagsHandler) {
+    for(const paramName in flagsHandler!) {
       const {flags, offset} = flagsHandler[paramName];
-      this.intView[offset] = flags;
+      this.intView[offset!] = flags;
     }
   }
 }
@@ -415,7 +415,7 @@ class TLDeserialization<FetchLongAs extends Long> {
   private byteView: Uint8Array;
 
   // this.debug =
-  private mtproto: boolean = false;
+  private mtproto?: boolean = false;
   private debug: boolean;
 
   constructor(buffer: ArrayBuffer | Uint8Array, options: Partial<{override: any, mtproto: true, debug: true}> = {}) {
@@ -666,12 +666,12 @@ class TLDeserialization<FetchLongAs extends Long> {
     }
 
     const schema = this.mtproto ? Schema.MTProto : Schema.API;
-    let constructorData: MTProtoConstructor = null;
+    let constructorData: MTProtoConstructor | null = null;
     let fallback = false;
 
     if(type.charAt(0) === '%') {
       const checkType = type.substr(1);
-      constructorData = schema.constructors.find((c) => c.type === checkType);
+      constructorData = schema.constructors.find((c) => c.type === checkType)!;
       if(!constructorData) {
         throw new Error('Constructor not found for type: ' + type);
       }
@@ -732,7 +732,7 @@ class TLDeserialization<FetchLongAs extends Long> {
 
         }
 
-        throw new Error('Constructor not found: ' + constructorCmp + ' ' + int1 + ' ' + int2 + ' ' + field);
+        throw new Error('Constructor not found: ' + constructorCmp + ' ' + int1! + ' ' + int2! + ' ' + field);
       }
     }
 

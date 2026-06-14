@@ -1,4 +1,5 @@
 import {EmoticonsDropdown} from '@components/emoticonsDropdown';
+import {AnimationItemGroup} from '@components/animationIntersector';
 import StickersTab from '@components/emoticonsDropdown/tabs/stickers';
 import rootScope from '@lib/rootScope';
 import findUpTag from '@helpers/dom/findUpTag';
@@ -22,19 +23,19 @@ const createStickersDropdown = ({
   pivot: HTMLElement,
   onStickerClick: (payload: StickerClickPayload) => void,
   onEmoticonsDropdown?: (emoticonsDropdown: EmoticonsDropdown) => void
-} & Pick<ConstructorParameters<typeof EmoticonsDropdown>[0], 'customParentElement' | 'animationGroup'>) => createRoot((dispose) => {
+} & {customParentElement?: HTMLElement | (() => HTMLElement), animationGroup?: AnimationItemGroup}) => createRoot((dispose) => {
   const stickersTab = new StickersTab(rootScope.managers);
 
   const emoticonsDropdown = new EmoticonsDropdown({
     tabsToRender: [stickersTab],
-    customParentElement: document.body,
+    customParentElement: document.body!,
     getOpenPosition: () => {
       const rect = pivot.getBoundingClientRect();
       const cloned = cloneDOMRect(rect);
       cloned.top = rect.bottom + 8;
       return cloned;
     },
-    ...rest
+    ...(rest as {animationGroup?: AnimationItemGroup})
   });
 
   // Override the default media click handler from StickersTab so callers
@@ -67,8 +68,10 @@ const createStickersDropdown = ({
 });
 
 export type UseStickersDropdownOptions = {
-  onStickerClick: (payload: StickerClickPayload) => void
-} & Pick<ConstructorParameters<typeof EmoticonsDropdown>[0], 'customParentElement' | 'animationGroup'>;
+  onStickerClick: (payload: StickerClickPayload) => void,
+  customParentElement?: HTMLElement | (() => HTMLElement),
+  animationGroup?: AnimationItemGroup
+};
 
 /**
  * Returns a setter that opens a stickers dropdown anchored to the supplied pivot element.

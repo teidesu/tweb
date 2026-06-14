@@ -49,7 +49,7 @@ export default function SpeakersAndCamera() {
   // checkbox-with-no-loading-state today, and showing it briefly OFF before
   // flipping back ON would look like a flicker.
   promiseCollector.collect(
-    rootScope.managers.appAccountManager.getAuthorizations()
+    rootScope.managers.appAccountManager!.getAuthorizations()
     .then((res) => {
       const cur = res.authorizations.find((a) => a.pFlags?.current);
       setCurrentAuth(cur);
@@ -112,7 +112,7 @@ export default function SpeakersAndCamera() {
       ...auth,
       pFlags: {...auth.pFlags, call_requests_disabled: checked ? undefined : true}
     });
-    rootScope.managers.appAccountManager.changeAuthorizationSettings(
+    rootScope.managers.appAccountManager!.changeAuthorizationSettings(
       auth.hash,
       {callRequestsDisabled: !checked}
     ).catch((err) => {

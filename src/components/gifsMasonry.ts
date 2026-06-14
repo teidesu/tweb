@@ -6,6 +6,7 @@ import {doubleRaf} from '@helpers/schedulers';
 import {AppManagers} from '@lib/managers';
 import rootScope from '@lib/rootScope';
 import LazyLoadQueueRepeat2 from '@components/lazyLoadQueueRepeat2';
+import LazyLoadQueue from '@components/lazyLoadQueue';
 import wrapVideo from '@components/wrappers/video';
 import noop from '@helpers/noop';
 import {MiddlewareHelper, getMiddleware} from '@helpers/middleware';
@@ -52,7 +53,7 @@ export default class GifsMasonry {
 
     this.timeout = window.setTimeout(() => {
       this.timeout = 0;
-      this.scrollPromise.resolve();
+      this.scrollPromise.resolve!();
       // animationIntersector.checkAnimations(false, group);
     }, 150);
   };
@@ -79,18 +80,18 @@ export default class GifsMasonry {
 
     const load = () => {
       const docId = div.dataset.docId;
-      const promise = Promise.all([this.managers.appDocsManager.getDoc(docId), this.scrollPromise]).then(async([doc]) => {
+      const promise = Promise.all([this.managers.appDocsManager!.getDoc(docId!), this.scrollPromise]).then(async([doc]) => {
         if(!this.lazyLoadQueue.intersector.isVisible(div)) {
           this.processInvisibleDiv(div);
           return;
         }
 
-        div.middlewareHelper.clean();
-        const middleware = div.middlewareHelper.get().create().get();
+        div.middlewareHelper!.clean();
+        const middleware = div.middlewareHelper!.get().create().get();
         const res = await wrapVideo({
           doc,
           container: div as HTMLDivElement,
-          lazyLoadQueue: null,
+          lazyLoadQueue: null as unknown as LazyLoadQueue,
           // lazyLoadQueue: EmoticonsDropdown.lazyLoadQueue,
           group: this.group,
           noInfo: true,
@@ -143,7 +144,7 @@ export default class GifsMasonry {
         return;
       }
 
-      div.middlewareHelper.clean();
+      div.middlewareHelper!.clean();
     });
   };
 
@@ -161,7 +162,7 @@ export default class GifsMasonry {
     this.addBatch(docs);
     for(let i = 0, length = docs.length; i < length; ++i) {
       const element = this.map.get(docs[i].id);
-      positionElementByIndex(element, this.element, i);
+      positionElementByIndex(element!, this.element, i);
     }
   }
 
@@ -186,7 +187,7 @@ export default class GifsMasonry {
     wrapVideo({
       doc,
       container: div as HTMLDivElement,
-      lazyLoadQueue: null,
+      lazyLoadQueue: null as unknown as LazyLoadQueue,
       noInfo: true,
       onlyPreview: true,
       middleware: div.middlewareHelper.get()
@@ -197,7 +198,7 @@ export default class GifsMasonry {
     const div = this.map.get(docId);
     if(div) {
       div.remove();
-      div.middlewareHelper.destroy();
+      div.middlewareHelper!.destroy();
       this.map.delete(docId);
     }
   }

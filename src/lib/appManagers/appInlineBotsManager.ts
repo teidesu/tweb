@@ -53,11 +53,11 @@ export class AppInlineBotsManager extends AppManager {
 
       botResults.results.forEach((result) => {
         if(result._ === 'botInlineMediaResult') {
-          result.document = this.appDocsManager.saveDoc(result.document);
-          result.photo = this.appPhotosManager.savePhoto(result.photo);
+          result.document = this.appDocsManager.saveDoc(result.document!);
+          result.photo = this.appPhotosManager.savePhoto(result.photo!);
         } else {
-          result.content = this.appWebDocsManager.saveWebDocument(result.content);
-          result.thumb = this.appWebDocsManager.saveWebDocument(result.thumb);
+          result.content = this.appWebDocsManager.saveWebDocument(result.content!);
+          result.thumb = this.appWebDocsManager.saveWebDocument(result.thumb!);
         }
 
         this.inlineResults[generateQId(queryId, result.id)] = result;
@@ -225,7 +225,7 @@ export class AppInlineBotsManager extends AppManager {
   public callbackButtonClick(peerId: PeerId, mid: number, button?: any, game?: boolean) {
     return this.apiManager.invokeApi('messages.getBotCallbackAnswer', {
       peer: this.appPeersManager.getInputPeerById(peerId),
-      msg_id: getServerMessageId(mid),
+      msg_id: getServerMessageId(mid)!,
       data: button?.data,
       game
     }, {/* timeout: 1,  */stopTime: -1, noErrorBox: true});
@@ -289,7 +289,7 @@ export class AppInlineBotsManager extends AppManager {
                 title: inlineResult.title || '',
                 description: inlineResult.description || '',
                 photo: gamePhoto,
-                document: gameDocument
+                document: gameDocument!
               }
             };
             break;
@@ -397,14 +397,14 @@ export class AppInlineBotsManager extends AppManager {
               shipping_address_requested: sendMessage.pFlags.shipping_address_requested,
               test: sendMessage.pFlags.test
             },
-            start_param: undefined
+            start_param: (undefined as unknown as string)
           };
 
           break;
         }
       }
 
-      if(!inputMedia && messageMedia) {
+      if(!inputMedia && messageMedia!) {
         inputMedia = {
           _: 'messageMediaPending',
           messageMedia

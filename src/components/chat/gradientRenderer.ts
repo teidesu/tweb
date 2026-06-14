@@ -55,10 +55,10 @@ export default class ChatBackgroundGradientRenderer {
   private _mirrors = new Set<CanvasRenderingContext2D>();
 
   // private _addedScrollListener: boolean;
-  private _animatingToNextPosition: boolean;
-  private _nextPositionTail: number;
-  private _nextPositionTails: number;
-  private _nextPositionLeft: number;
+  private _animatingToNextPosition: boolean | undefined;
+  private _nextPositionTail: number | undefined;
+  private _nextPositionTails: number | undefined;
+  private _nextPositionLeft: number | undefined;
 
   constructor() {
     const diff = this._tails / this._curve[this._curve.length - 1];
@@ -171,19 +171,19 @@ export default class ChatBackgroundGradientRenderer {
       done = value >= 1;
       const transitionValue = easeOutQuadApply(value, 1);
       const nextPositionTail = this._nextPositionTail ?? 0;
-      const tail = this._nextPositionTail = this._nextPositionTails * transitionValue;
+      const tail = this._nextPositionTail = this._nextPositionTails! * transitionValue;
       const diff = tail - nextPositionTail;
       if(diff) {
-        this._nextPositionLeft -= diff;
+        this._nextPositionLeft! -= diff;
         this.changeTailAndDraw(-diff);
       }
     } else {
       const frames = this._frames;
-      id = frames.shift();
+      id = frames.shift()!;
       done = !frames.length;
     }
 
-    if(id) {
+    if(id!) {
       this.drawImageData(id);
     }
 
@@ -306,7 +306,7 @@ export default class ChatBackgroundGradientRenderer {
     //   this._onWheelRAF = undefined;
     // }
 
-    const colors = el.getAttribute('data-colors').split(',');
+    const colors = el.getAttribute('data-colors')!.split(',');
     this._colors = colors.map((color) => {
       return this.hexToRgb(color);
     });
@@ -315,11 +315,11 @@ export default class ChatBackgroundGradientRenderer {
       this._hc = document.createElement('canvas');
       this._hc.width = this._width;
       this._hc.height = this._height;
-      this._hctx = this._hc.getContext('2d', {alpha: false});
+      this._hctx = this._hc.getContext('2d', {alpha: false})!;
     }
 
     this._canvas = el;
-    this._ctx = this._canvas.getContext('2d', {alpha: false});
+    this._ctx = this._canvas.getContext('2d', {alpha: false})!;
     this.update();
   }
 
@@ -349,18 +349,18 @@ export default class ChatBackgroundGradientRenderer {
     canvas.width = this._width;
     canvas.height = this._height;
     const ctx = canvas.getContext('2d', {alpha: false});
-    this._mirrors.add(ctx);
+    this._mirrors.add(ctx!);
 
     if(this._colors?.length >= 2 && this._hc) {
-      ctx.drawImage(this._hc, 0, 0, this._width, this._height);
+      ctx!.drawImage(this._hc, 0, 0, this._width, this._height);
     } else if(this._colors?.length) {
       const color = this._colors[0];
-      ctx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
-      ctx.fillRect(0, 0, this._width, this._height);
+      ctx!.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
+      ctx!.fillRect(0, 0, this._width, this._height);
     }
 
     return () => {
-      this._mirrors.delete(ctx);
+      this._mirrors.delete(ctx!);
     };
   }
 
@@ -388,7 +388,7 @@ export default class ChatBackgroundGradientRenderer {
       const inc = this._incrementalCurve[i];
       let value = (curve[i - 1] ?? tail) + inc;
 
-      if(+value.toFixed(2) > tails && nextPhaseOnIdx === undefined) {
+      if(+value.toFixed(2) > tails && nextPhaseOnIdx! === undefined) {
         nextPhaseOnIdx = i;
         value %= tails;
       }
@@ -396,8 +396,8 @@ export default class ChatBackgroundGradientRenderer {
       curve.push(value);
     }
 
-    const currentPhaseCurve = curve.slice(0, nextPhaseOnIdx);
-    const nextPhaseCurve = nextPhaseOnIdx !== undefined ? curve.slice(nextPhaseOnIdx) : [];
+    const currentPhaseCurve = curve.slice(0, nextPhaseOnIdx!);
+    const nextPhaseCurve = nextPhaseOnIdx! !== undefined ? curve.slice(nextPhaseOnIdx) : [];
 
     [currentPhaseCurve, nextPhaseCurve].forEach((curve, idx, curves) => {
       const last = curve[curve.length - 1];

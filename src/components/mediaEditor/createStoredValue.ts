@@ -45,9 +45,9 @@ export function createStoredValue<T>({key, defaultValue, validate, skipSaving = 
   const throttledSave = asyncThrottle(async() => {
     try {
       if(key instanceof Array) {
-        await setAppSettings('mediaEditor', ...key, value());
+        await setAppSettings('mediaEditor', ...key, value()!);
       } else {
-        await setAppSettings('mediaEditor', key, value());
+        await setAppSettings('mediaEditor', key, value()!);
       }
     } catch{ }
   }, 0);

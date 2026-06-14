@@ -27,7 +27,7 @@ function Preview(props: PreviewProps) {
   createEffect<StoryboardFrame>((prevFrame) => {
     const storyboard = props.storyboard();
     if(!props.visible() || !storyboard) {
-      return;
+      return undefined as unknown as StoryboardFrame;
     }
 
     const time = props.time();
@@ -37,10 +37,10 @@ function Preview(props: PreviewProps) {
       return prevFrame;
     }
 
-    const {width, height} = canvasRef;
-    const context = canvasRef.getContext('2d');
-    context.clearRect(0, 0, width, height);
-    context.drawImage(
+    const {width, height} = canvasRef!;
+    const context = canvasRef!.getContext('2d');
+    context!.clearRect(0, 0, width, height);
+    context!.drawImage(
       storyboard.image,
       frame.left,
       frame.top,
@@ -58,7 +58,7 @@ function Preview(props: PreviewProps) {
   let canvasRef: HTMLCanvasElement;
   return (
     <canvas
-      ref={canvasRef}
+      ref={canvasRef!}
       // class={classNames(styles.PreviewCanvas, props.visible() && styles.Visible)}
       width={props.storyboard()?.frameWidth}
       height={props.storyboard()?.frameHeight}

@@ -26,7 +26,7 @@ export default function createLoopingMutedVideo(url: string, className?: string,
     v.play().catch(() => {});
   };
 
-  const seekTo = startTime > 0 ? startTime : 0;
+  const seekTo = startTime! > 0 ? startTime : 0;
 
   if(seekTo) {
     // Don't autoplay from 0 — seek to video_start_ts first (once the duration is

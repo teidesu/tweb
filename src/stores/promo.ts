@@ -9,7 +9,7 @@ let _loaded = false
 export function usePendingSuggestions() {
   if(!_loaded) {
     _loaded = true;
-    rootScope.managers.appPromoManager.getPromoData()
+    rootScope.managers.appPromoManager!.getPromoData()
 
     rootScope.addEventListener('promo_data_update', (data) => {
       setPromoData(reconcile(data));

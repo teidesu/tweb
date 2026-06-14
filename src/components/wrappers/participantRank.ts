@@ -9,5 +9,5 @@ export default function wrapParticipantRank(rank: Parameters<typeof getParticipa
 
   return typeof(rank) === 'number' ?
     i18n(!rank ? 'Chat.ChannelBadge' : (rank === 1 ? 'Chat.OwnerBadge' : 'ChatAdmin')) :
-    wrapEmojiText(rank);
+    wrapEmojiText(rank!);
 }

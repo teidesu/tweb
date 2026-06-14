@@ -25,26 +25,26 @@ export default class DownloadStorage implements FileStorage {
     };
 
     const serviceMessagePort = appManagersManager.getServiceMessagePort();
-    const promise = serviceMessagePort.invoke('download', {
+    const promise = serviceMessagePort!.invoke('download', {
       headers,
       id: downloadId
     });
 
     const deferred = deferredPromise<void>();
     deferred.cancel = () => {
-      deferred.reject(makeError('DOWNLOAD_CANCELED'));
+      deferred.reject!(makeError('DOWNLOAD_CANCELED'));
     };
 
     deferred.catch(() => {
-      appManagersManager.getServiceMessagePort().invoke('downloadCancel', downloadId);
+      appManagersManager.getServiceMessagePort()!.invoke('downloadCancel', downloadId);
     });
 
-    promise.then(deferred.resolve.bind(deferred), deferred.reject.bind(deferred));
+    promise.then(deferred.resolve!.bind(deferred), deferred.reject!.bind(deferred));
 
     return {
       deferred,
       getWriter: () => {
-        return new DownloadWriter(serviceMessagePort, downloadId);
+        return new DownloadWriter(serviceMessagePort!, downloadId);
       }
     };
   }

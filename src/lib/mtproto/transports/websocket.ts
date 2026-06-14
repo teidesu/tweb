@@ -14,10 +14,10 @@ export default class Socket extends EventListenerBase<{
   message: (buffer: ArrayBuffer) => any,
   close: () => void,
 }> implements MTConnection {
-  private ws: WebSocket;
+  private ws: WebSocket | undefined;
   private log: ReturnType<typeof logger>;
   private debug = Modes.debug && false;
-  private connectionTimeout: number;
+  private connectionTimeout: number | undefined;
 
   constructor(protected dcId: number, protected url: string, logSuffix: string) {
     super();
@@ -114,6 +114,6 @@ export default class Socket extends EventListenerBase<{
   public send = (body: Uint8Array) => {
     this.debug && this.log.debug('-> body length to send:', body.length);
 
-    this.ws.send(body);
+    this.ws!.send(body);
   };
 }

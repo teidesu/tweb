@@ -291,7 +291,7 @@ export const StorageQuota = (props: Props) => {
 
   const onClearCachedFiles = wrapAsyncClickHandler(async() => {
     const formattedSize = tryFormatBytes(cachedFilesSizes.state === 'ready' ? cachedFilesSizes()?.totalSize : null);
-    if(!(await getConfirmation(getClearCachedFilesArgs(formattedSize)))) return;
+    if(!(await getConfirmation(getClearCachedFilesArgs(formattedSize!)))) return;
 
     cachedFilesSizesActions.mutate(getZeroedCollectedCachedFilesSizes());
 
@@ -304,7 +304,7 @@ export const StorageQuota = (props: Props) => {
 
   const onClearCachedVideoStreamChunks = wrapAsyncClickHandler(async() => {
     const formattedSize = tryFormatBytes(cachedVideoStreamChunksSize.state === 'ready' ? cachedVideoStreamChunksSize() : null);
-    if(!(await getConfirmation(getClearStreamChunksArgs(formattedSize)))) return;
+    if(!(await getConfirmation(getClearStreamChunksArgs(formattedSize!)))) return;
 
     cachedVideoStreamChunksSizeActions.mutate(0);
 
@@ -335,7 +335,7 @@ export const StorageQuota = (props: Props) => {
     <Section name='StorageQuota.Title' caption='StorageQuota.Caption'>
       <Row>
         <Row.Title><I18nTsx key='StorageQuota.CachedFiles' /></Row.Title>
-        <Row.Subtitle><SizeWithFallback resource={cachedFilesSizes} value={cachedFilesSizes()?.totalSize} /></Row.Subtitle>
+        <Row.Subtitle><SizeWithFallback resource={cachedFilesSizes} value={cachedFilesSizes()?.totalSize!} /></Row.Subtitle>
         <Row.RightContent>
           <div>
             <Button class={btnClass} onClick={onClearCachedFiles}>
@@ -348,32 +348,32 @@ export const StorageQuota = (props: Props) => {
       <Row>
         <Row.Icon icon='image' />
         <Row.Title><I18nTsx key='StorageQuota.Images' /></Row.Title>
-        <Row.Subtitle><SizeWithFallback resource={cachedFilesSizes} value={cachedFilesSizes()?.collectedSizeByTypes['images']} /></Row.Subtitle>
+        <Row.Subtitle><SizeWithFallback resource={cachedFilesSizes} value={cachedFilesSizes()?.collectedSizeByTypes['images']!} /></Row.Subtitle>
       </Row>
 
       <Row>
         <Row.Icon icon='play' />
         <Row.Title><I18nTsx key='StorageQuota.VideoFiles' /></Row.Title>
-        <Row.Subtitle><SizeWithFallback resource={cachedFilesSizes} value={cachedFilesSizes()?.collectedSizeByTypes['videos']} /></Row.Subtitle>
+        <Row.Subtitle><SizeWithFallback resource={cachedFilesSizes} value={cachedFilesSizes()?.collectedSizeByTypes['videos']!} /></Row.Subtitle>
       </Row>
 
       <Row>
         <Row.Icon icon='stickers_face' />
         <Row.Title><I18nTsx key='StorageQuota.StickersEmoji' /></Row.Title>
-        <Row.Subtitle><SizeWithFallback resource={cachedFilesSizes} value={cachedFilesSizes()?.collectedSizeByTypes['stickers']} /></Row.Subtitle>
+        <Row.Subtitle><SizeWithFallback resource={cachedFilesSizes} value={cachedFilesSizes()?.collectedSizeByTypes['stickers']!} /></Row.Subtitle>
       </Row>
 
       <Row>
         <Row.Icon icon='limit_file' />
         <Row.Title><I18nTsx key='StorageQuota.Other' /></Row.Title>
-        <Row.Subtitle><SizeWithFallback resource={cachedFilesSizes} value={cachedFilesSizes()?.collectedSizeByTypes['other']} /></Row.Subtitle>
+        <Row.Subtitle><SizeWithFallback resource={cachedFilesSizes} value={cachedFilesSizes()?.collectedSizeByTypes['other']!} /></Row.Subtitle>
       </Row>
 
       <Space amount='1rem' />
 
       <Row>
         <Row.Title><I18nTsx key='StorageQuota.CachedStreamChunks' /></Row.Title>
-        <Row.Subtitle><SizeWithFallback resource={cachedVideoStreamChunksSize} value={cachedVideoStreamChunksSize()} /></Row.Subtitle>
+        <Row.Subtitle><SizeWithFallback resource={cachedVideoStreamChunksSize} value={cachedVideoStreamChunksSize()!} /></Row.Subtitle>
         <Row.RightContent>
           <Button class={btnClass} onClick={onClearCachedVideoStreamChunks}>
             <I18nTsx key='StorageQuota.Clear' />

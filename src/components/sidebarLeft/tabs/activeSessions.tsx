@@ -55,8 +55,8 @@ const ActiveSessions: Component = () => {
         caption: 'ClearOtherSessionsHelp'
       });
 
-      const auth = findAndSplice(authorizations, (auth) => auth.pFlags.current);
-      const session = Session(auth);
+      const auth = findAndSplice(authorizations, (auth) => auth.pFlags.current!);
+      const session = Session(auth!);
 
       section.content.append(session.container);
 
@@ -69,7 +69,7 @@ const ActiveSessions: Component = () => {
               isDanger: true,
               callback: () => {
                 const toggle = toggleDisability([btnTerminate], true);
-                tab.managers.apiManager.invokeApi('auth.resetAuthorizations').then((value) => {
+                tab.managers.apiManager!.invokeApi('auth.resetAuthorizations').then((value) => {
                   btnTerminate.remove();
                   otherSection.container.remove();
                 }, onError).finally(() => {
@@ -112,7 +112,7 @@ const ActiveSessions: Component = () => {
           langKey: 'Terminate',
           isDanger: true,
           callback: () => {
-            tab.managers.appAccountManager.resetAuthorization(hash)
+            tab.managers.appAccountManager!.resetAuthorization(hash!)
             .then((value) => {
               if(value) {
                 target.remove();
@@ -140,7 +140,7 @@ const ActiveSessions: Component = () => {
     attachContextMenuListener({
       element: tab.scrollable.container,
       callback: (e) => {
-        target = findUpClassName(e.target, 'row');
+        target = findUpClassName(e.target!, 'row');
         if(!target || target.dataset.hash === '0') {
           return;
         }
@@ -155,7 +155,7 @@ const ActiveSessions: Component = () => {
     });
 
     attachClickEvent(tab.scrollable.container, (e) => {
-      target = findUpClassName(e.target, 'row');
+      target = findUpClassName(e.target!, 'row');
       if(!target || target.dataset.hash === '0') {
         return;
       }

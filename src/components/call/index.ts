@@ -84,11 +84,11 @@ export default class PopupCall extends PopupElement {
   // and crossfade in/out on state change. Pre-warming all of them means the
   // newly-revealed canvas already has a live, moving gradient — no "static
   // until first tick" pop during the fade.
-  private gradientRenderers: Record<GradientStateKey, ChatBackgroundGradientRenderer>;
+  private gradientRenderers: Record<GradientStateKey, ChatBackgroundGradientRenderer> | undefined;
   private gradientCanvases: Record<GradientStateKey, HTMLCanvasElement>;
   private gradientCancels: Partial<Record<GradientStateKey, () => void>>;
   private gradientState: GradientStateKey;
-  private gradientHideTimeout: number;
+  private gradientHideTimeout: number | undefined;
 
   private videoContainers: {
     input?: HTMLElement,
@@ -203,12 +203,12 @@ export default class PopupCall extends PopupElement {
     this.partyMutedState = document.createElement('div');
     this.partyMutedState.classList.add(className + '-party-state');
     const stateText = i18n('VoipUserMicrophoneIsOff', [new PeerTitle({peerId, onlyFirstName: true, limitSymbols: 18}).element]);
-    stateText.classList.add(className + '-party-state-text');
+    stateText!.classList.add(className + '-party-state-text');
     const mutedIcon = new GroupCallMicrophoneIconMini(false, true, 36);
     mutedIcon.setState(false, false);
     this.partyMutedState.append(
       mutedIcon.container,
-      stateText
+      stateText!
     );
 
     this.partyStates.append(this.partyMutedState);
@@ -424,7 +424,7 @@ export default class PopupCall extends PopupElement {
     });
 
     const microphoneIcon = this.microphoneIcon = new GroupCallMicrophoneIconMini(true, true, 36);
-    btnMute.firstElementChild.append(microphoneIcon.container);
+    btnMute.firstElementChild!.append(microphoneIcon.container);
 
     // btnVideo.classList.add('disabled');
     // btnScreen.classList.add('disabled');
@@ -502,8 +502,8 @@ export default class PopupCall extends PopupElement {
       }
 
       const big = Object.values(this.videoContainers).find((container) => !container.classList.contains('small'));
-      big.classList.add('small');
-      big.style.cssText = container.style.cssText;
+      big!.classList.add('small');
+      big!.style.cssText = container.style.cssText;
       container.classList.remove('small');
       container.style.cssText = '';
 
@@ -549,7 +549,7 @@ export default class PopupCall extends PopupElement {
 
     const isMuted = instance.isMuted;
     const onFrame = () => {
-      this.btnMute.firstElementChild.classList.toggle('active', isMuted);
+      this.btnMute.firstElementChild!.classList.toggle('active', isMuted);
     };
 
     const player = this.microphoneIcon.getItem().player;
@@ -563,10 +563,10 @@ export default class PopupCall extends PopupElement {
     });
 
     const isSharingVideo = instance.isSharingVideo;
-    this.btnVideo.firstElementChild.classList.toggle('active', isSharingVideo);
+    this.btnVideo.firstElementChild!.classList.toggle('active', isSharingVideo);
 
     const isSharingScreen = instance.isSharingScreen;
-    this.btnScreen.firstElementChild.classList.toggle('active', isSharingScreen);
+    this.btnScreen.firstElementChild!.classList.toggle('active', isSharingScreen);
 
     const outputState = instance.getMediaState('output');
 
@@ -638,7 +638,7 @@ export default class PopupCall extends PopupElement {
     Object.values(this.videoContainers).forEach((container) => {
       const isSmall = container.classList.contains('small');
       if(isSmall) {
-        const video = container.querySelector('video');
+        const video = container.querySelector('video')!;
         const popupWidth = this.movablePanel.state;
         const MAX_WIDTH_PX = 240;
         const MAX_HEIGHT_PX = 240;

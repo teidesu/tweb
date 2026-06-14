@@ -47,7 +47,7 @@ function compareRangeSlices<T>(a: T[], b: T[], compare: (a: T, b: T) => number) 
 
   const aFirst = a[0], aLast = lastItem(a), bFirst = b[0], bLast = lastItem(b);
 
-  if(compare(aLast, bFirst) < 0) return -1; // a is before b
-  else if(compare(bLast, aFirst) < 0) return 1; // b is before a
+  if(compare(aLast!, bFirst) < 0) return -1; // a is before b
+  else if(compare(bLast!, aFirst) < 0) return 1; // b is before a
   else return 0; // ranges overlap
 }

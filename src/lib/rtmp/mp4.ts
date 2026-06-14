@@ -71,35 +71,35 @@ export function parseMp4Samples(trak: any) {
       }
     } else if(i < lastSampleInChunk) {
       /* the sample is still in the current chunk */
-      sample.chunkIdx = chunkIdx;
-      sample.chunkRunIdx = chunkRunIdx;
+      sample.chunkIdx = chunkIdx!;
+      sample.chunkRunIdx = chunkRunIdx!;
     } else {
       /* the sample is in the next chunk */
-      chunkIdx++;
-      sample.chunkIdx = chunkIdx;
+      chunkIdx!++;
+      sample.chunkIdx = chunkIdx!;
       offsetInChunk = 0;
-      if(chunkIdx <= lastChunkInRun) {
+      if(chunkIdx! <= lastChunkInRun!) {
         /* stay in the same entry of the first_chunk table */
         /* chunk_run_index unmodified */
       } else {
-        chunkRunIdx++;
+        chunkRunIdx!++;
         /* Is there another entry in the first_chunk table ? */
-        if(chunkRunIdx + 1 < stsc.entry_count) {
+        if(chunkRunIdx! + 1 < stsc.entry_count) {
           /* The last chunk in the run is the chunk before the next first chunk */
-          lastChunkInRun = stsc.entries[chunkRunIdx + 1].first_chunk - 1;
+          lastChunkInRun = stsc.entries[chunkRunIdx! + 1].first_chunk - 1;
         } else {
           /* There is only one entry in the table, it is valid for all future chunks*/
           lastChunkInRun = Infinity;
         }
       }
 
-      sample.chunkRunIdx = chunkRunIdx;
-      lastSampleInChunk += stsc.entries[chunkRunIdx].samples_per_chunk;
+      sample.chunkRunIdx = chunkRunIdx!;
+      lastSampleInChunk += stsc.entries[chunkRunIdx!].samples_per_chunk;
     }
 
-    sample.descriptionIndex = stsc.entries[chunkRunIdx].sample_description_index - 1;
+    sample.descriptionIndex = stsc.entries[chunkRunIdx!].sample_description_index - 1;
     sample.offset = stco.chunk_offsets[sample.chunkIdx - 1] + offsetInChunk;
-    offsetInChunk += sample.size;
+    offsetInChunk! += sample.size;
 
     /* setting dts, cts, duration and rap flags */
     if(i > lastSampleInSttsRun) {

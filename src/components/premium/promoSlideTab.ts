@@ -1,4 +1,4 @@
-import {LangPackKey, i18n} from '@lib/langPack';
+import {FormatterArguments, LangPackKey, i18n} from '@lib/langPack';
 import Row from '@components/row';
 import {PREMIUM_FEATURES_COLORS, PremiumPromoFeature} from '@components/premium/featuresConfig';
 import TransitionSlider from '@components/transition';
@@ -45,20 +45,20 @@ export function premiumOptionsForm<T extends PremiumSubscriptionOption | Premium
   const isGiftCode = periodOptions[0]._ === 'premiumGiftCodeOption';
   const shortestOption = periodOptions.slice().sort((a, b) => a.months - b.months)[0];
   const wrapCurrency = (amount: number | string) => paymentsWrapCurrencyAmount(amount, shortestOption.currency, false, true, true);
-  const keys: {[key: number]: LangPackKey} = isGiftCode ? undefined : {
+  const keys: {[key: number]: LangPackKey} = (isGiftCode ? undefined : {
     12: 'PremiumTierAnnual',
     6: 'PremiumTierSemiannual',
     1: 'PremiumTierMonthly'
-  };
+  })!;
 
   const rows = periodOptions.map((option, idx) => {
     const amountPerUser = +option.amount / (isGiftCode ? (option as PremiumGiftCodeOption).users : 1);
     let title = keys ? i18n(keys[option.months] || 'Months', [option.months]) : formatMonthsDuration(option.months, false);
     let subtitle: HTMLElement;
     if(isGiftCode) {
-      subtitle = i18n('Multiplier', [wrapCurrency(amountPerUser), users]);
+      subtitle = i18n('Multiplier', [wrapCurrency(amountPerUser), users])!;
     } else if(option !== shortestOption) {
-      subtitle = i18n('PricePerMonth', [wrapCurrency(+option.amount / option.months)]);
+      subtitle = i18n('PricePerMonth', [wrapCurrency(+option.amount / option.months)])!;
     }
 
     if(option !== shortestOption) {
@@ -68,7 +68,7 @@ export function premiumOptionsForm<T extends PremiumSubscriptionOption | Premium
       const shortestAmount = +shortestOption.amount * option.months / shortestOption.months;
       const discount = Math.round((1 - +option.amount / shortestAmount) * 100);
       badge.textContent = '-' + discount + '%';
-      span.append(badge, discountInTitle ? title : subtitle);
+      span.append(badge, (discountInTitle ? title : subtitle!)!);
       if(discountInTitle) {
         title = span;
       } else {
@@ -87,7 +87,7 @@ export function premiumOptionsForm<T extends PremiumSubscriptionOption | Premium
       title,
       checkboxField,
       clickable: true,
-      subtitle,
+      subtitle: subtitle!,
       rightTextContent: wrapCurrency(isGiftCode ? amountPerUser * users : option.amount)
     });
 
@@ -119,7 +119,7 @@ export function getGiftDetails(options: PopupPremiumProps) {
 
   let fromPeerId: PeerId, toPeerId: PeerId;
   if(gift._ === 'payments.checkedGiftCode') {
-    fromPeerId = getPeerId(gift.from_id) || options.peerId;
+    fromPeerId = getPeerId(gift.from_id!) || options.peerId;
   } else {
     fromPeerId = options.isOut ? rootScope.myId : options.peerId;
   }
@@ -156,7 +156,7 @@ export default class PromoSlideTab {
       this.createHeading(),
       options.type === 'premium' && !options.isPremiumActive && this.createOptionsForm(),
       this.createFeaturesContainer()
-    ])).filter(Boolean));
+    ])).filter(Boolean) as (string | Node)[]);
     options.container.classList.add('fixed-size');
   }
 
@@ -181,9 +181,9 @@ export default class PromoSlideTab {
           'GiftModal.Title.You',
           [
             await wrapPeerTitle({...wrapTitleOptions, peerId: toPeerId}),
-            giftText
+            giftText!
           ]
-        );
+        )!;
       } else {
         title = i18n(
           fromPeerId ?
@@ -192,18 +192,18 @@ export default class PromoSlideTab {
           [
             fromPeerId && await wrapPeerTitle({...wrapTitleOptions, peerId: fromPeerId}),
             giftText
-          ].filter(Boolean)
-        );
+          ].filter(Boolean) as FormatterArguments
+        )!;
       }
 
       if(isOutbound) {
         description = i18n(
           'TelegramPremiumUserGiftedPremiumOutboundDialogSubtitle',
           [await wrapPeerTitle({...wrapTitleOptions, peerId: toPeerId})]
-        );
+        )!;
       } else {
         if(gift._ === 'messageActionGiftPremium') {
-          description = i18n('TelegramPremiumUserGiftedPremiumDialogSubtitle');
+          description = i18n('TelegramPremiumUserGiftedPremiumDialogSubtitle')!;
         } else {
           const url = 'https://t.me/giftcode/' + gift.slug;
 
@@ -215,7 +215,7 @@ export default class PromoSlideTab {
 
           let text: HTMLElement;
           if(!isUnclaimed) {
-            text = i18n('BoostingLinkUsed');
+            text = i18n('BoostingLinkUsed')!;
           } else {
             text = i18n(
               'GiftCode.ShareReceived',
@@ -225,7 +225,7 @@ export default class PromoSlideTab {
                   PopupGiftLink.shareGiftLink(url);
                 })
               ]
-            );
+            )!;
           }
 
           description = document.createElement('div');
@@ -236,30 +236,30 @@ export default class PromoSlideTab {
       headingTextTitle.classList.add('smaller-text');
       const [peerTitle, doc] = await Promise.all([
         wrapPeerTitle({peerId: this.options.peerId}),
-        rootScope.managers.appEmojiManager.getCustomEmojiDocument(this.options.emojiStatusId)
+        rootScope.managers.appEmojiManager!.getCustomEmojiDocument(this.options.emojiStatusId)
       ]);
       if(doc.stickerSetInput) {
-        const stickerset = await rootScope.managers.appStickersManager.getStickerSet(doc.stickerSetInput);
+        const stickerset = await rootScope.managers.appStickersManager!.getStickerSet(doc.stickerSetInput);
         title = i18n('TelegramPremiumPeerTitleEmojiStatus', [
           peerTitle,
           anchorCallback(() => {
-            showStickersPopup(doc.stickerSetInput, true)
+            showStickersPopup(doc.stickerSetInput!, true)
           }),
           stickerset.set.title
-        ])
+        ])!
       } else {
-        title = i18n('TelegramPremiumPeerTitleEmojiStatusNoPack', [peerTitle])
+        title = i18n('TelegramPremiumPeerTitleEmojiStatusNoPack', [peerTitle])!
       }
-      description = i18n('TelegramPremiumPeerSubtitleEmojiStatus');
+      description = i18n('TelegramPremiumPeerSubtitleEmojiStatus')!;
     } else if(this.options.peerId) {
       headingTextTitle.classList.add('smaller-text');
       title = i18n('TelegramPremiumPeerTitle', [
         await wrapPeerTitle({peerId: this.options.peerId})
-      ])
-      description = i18n('TelegramPremiumPeerSubtitle');
+      ])!
+      description = i18n('TelegramPremiumPeerSubtitle')!;
     } else {
-      title = this.options.isPremiumActive ? i18n('TelegramPremiumSubscribedTitle') : i18n('Premium.Boarding.Title');
-      description = this.options.isPremiumActive ? i18n('TelegramPremiumSubscribedSubtitle') : i18n('Premium.Boarding.Info');
+      title = (this.options.isPremiumActive ? i18n('TelegramPremiumSubscribedTitle') : i18n('Premium.Boarding.Title'))!;
+      description = (this.options.isPremiumActive ? i18n('TelegramPremiumSubscribedSubtitle') : i18n('Premium.Boarding.Info'))!;
     }
 
     headingTextTitle.append(title);
@@ -274,7 +274,7 @@ export default class PromoSlideTab {
     featuresContainer.append(...[
       ...this.createFeatures(this.options.features, this.options.order),
       this.options.type === 'premium' && this.options.premiumPromo.status_text && this.createStatusText()
-    ].filter(Boolean));
+    ].filter(Boolean) as (string | Node)[]);
     return featuresContainer;
   }
 
@@ -283,7 +283,7 @@ export default class PromoSlideTab {
     premiumImageContainer.classList.add('popup-premium-header-image-container');
     if(this.options.emojiStatusId) {
       premiumImageContainer.classList.add('is-emoji-status')
-      const doc = await rootScope.managers.appEmojiManager.getCustomEmojiDocument(this.options.emojiStatusId);
+      const doc = await rootScope.managers.appEmojiManager!.getCustomEmojiDocument(this.options.emojiStatusId);
       await wrapSticker({
         doc,
         div: premiumImageContainer,
@@ -339,27 +339,27 @@ export default class PromoSlideTab {
     return order.map((type, idx) => {
       const f = features.find((feature) => feature.feature === type);
       const row = new Row({
-        titleLangKey: f.titleLangKey,
-        titleLangArgs: f.titleLangArgs,
-        subtitleLangKey: f.subtitleLangKey,
-        subtitleLangArgs: f.subtitleLangArgs,
+        titleLangKey: f!.titleLangKey,
+        titleLangArgs: f!.titleLangArgs,
+        subtitleLangKey: f!.subtitleLangKey,
+        subtitleLangArgs: f!.subtitleLangArgs,
         clickable: async() => {
           this.transition(1);
-          await this.selectFeature(f.feature);
+          await this.selectFeature(f!.feature);
         }
       });
 
       const media = row.createMedia('small');
       media.classList.add('premium-promo-tab-icon');
-      media.append(Icon(f.icon));
+      media.append(Icon(f!.icon));
       const color = PREMIUM_FEATURES_COLORS[idx] ?? lastItem(PREMIUM_FEATURES_COLORS);
       media.style.backgroundColor = color;
 
-      if(f.new) {
+      if(f!.new) {
         const badge = i18n('New');
-        badge.classList.add('row-title-badge');
-        row.title.append(badge);
-        badge.style.backgroundColor = color;
+        badge!.classList.add('row-title-badge');
+        row.title.append(badge!);
+        badge!.style.backgroundColor = color;
       }
 
       return row.container;

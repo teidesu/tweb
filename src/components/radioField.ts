@@ -9,7 +9,7 @@ export default class RadioField {
   public input: HTMLInputElement;
   public label: HTMLLabelElement;
   public main: HTMLElement;
-  public lockIcon: HTMLElement;
+  public lockIcon: HTMLElement | undefined;
 
   constructor(options: {
     text?: string,
@@ -39,11 +39,11 @@ export default class RadioField {
 
       if(options.stateKey) {
         apiManagerProxy.getState().then((state) => {
-          input.checked = getDeepProperty(state, options.stateKey) === getValueForState();
+          input.checked = getDeepProperty(state, options.stateKey!) === getValueForState();
         });
 
         input.addEventListener('change', () => {
-          rootScope.managers.appStateManager.setByKey(options.stateKey, getValueForState());
+          rootScope.managers.appStateManager!.setByKey(options.stateKey!, getValueForState());
         });
       }
     }

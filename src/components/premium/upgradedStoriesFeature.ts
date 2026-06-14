@@ -20,7 +20,7 @@ export default class UpgradedStoriesFeature {
     const features = document.createElement('div');
     features.classList.add('story-features-list');
     this.features = features;
-    options.features.forEach((f) => {
+    options.features!.forEach((f) => {
       const feature = document.createElement('div');
       feature.classList.add('story-feature');
       const row = new Row({
@@ -33,7 +33,7 @@ export default class UpgradedStoriesFeature {
         clickable: false
       });
 
-      row.container.style.setProperty('--custom-icon-color', f.iconColor);
+      row.container.style.setProperty('--custom-icon-color', f.iconColor!);
       feature.append(row.container);
       features.append(feature);
     });

@@ -5,15 +5,15 @@ export default function asyncThrottle<Callback extends(...args: any[]) => Promis
 ) {
   type Args = Parameters<Callback>;
 
-  let lastArgs: Args;
-  let timeoutId: number;
+  let lastArgs: Args | undefined;
+  let timeoutId: number | undefined;
   let wasCalledWhileRunning = false;
 
   function runAfterTimeout() {
     timeoutId = self.setTimeout(() => {
       wasCalledWhileRunning = false; // reset before executing callback
 
-      callback(...lastArgs)?.then(() => {
+      callback(...lastArgs!)?.then(() => {
         timeoutId = undefined;
         if(wasCalledWhileRunning) runAfterTimeout();
       });

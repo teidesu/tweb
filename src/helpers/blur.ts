@@ -38,10 +38,10 @@ function processBlurNext(
 
   const ctx = canvas.getContext('2d', {alpha: false});
   if(IS_CANVAS_FILTER_SUPPORTED) {
-    ctx.filter = `blur(${radius}px)`;
-    ctx.drawImage(img, -radius * 2, -radius * 2, canvas.width + radius * 4, canvas.height + radius * 4);
+    ctx!.filter = `blur(${radius}px)`;
+    ctx!.drawImage(img, -radius * 2, -radius * 2, canvas.width + radius * 4, canvas.height + radius * 4);
   } else {
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    ctx!.drawImage(img, 0, 0, canvas.width, canvas.height);
     fastBlurFunc(ctx, 0, 0, canvas.width, canvas.height, radius, iterations);
   }
 
@@ -97,7 +97,7 @@ export default function blur(dataUri: string, radius: number = RADIUS, iteration
     canvas.width = cached.canvas.width;
     canvas.height = cached.canvas.height;
     cached.promise.then(() => {
-      canvas.getContext('2d').drawImage(cached.canvas, 0, 0, canvas.width, canvas.height);
+      canvas.getContext('2d')!.drawImage(cached!.canvas, 0, 0, canvas.width, canvas.height);
     });
   }
 

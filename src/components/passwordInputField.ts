@@ -18,8 +18,8 @@ export class PasswordInputHelpers {
     stealthy.classList.add('stealthy');
     stealthy.tabIndex = -1;
     stealthy.type = 'password';
-    input.parentElement.prepend(stealthy);
-    input.parentElement.insertBefore(stealthy.cloneNode(), input.nextSibling);
+    input.parentElement!.prepend(stealthy);
+    input.parentElement!.insertBefore(stealthy.cloneNode(), input.nextSibling);
 
     /* if(IS_SAFARI && !IS_MOBILE_SAFARI) {
       input.setAttribute('readonly', '');

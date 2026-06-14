@@ -135,7 +135,7 @@ export default class StreamManager {
       stream,
       track,
       kind,
-      streamAnalyser: kind === 'audio' ? new AudioStreamAnalyser(context, stream) : undefined
+      streamAnalyser: (kind === 'audio' ? new AudioStreamAnalyser(context, stream) : undefined)!
     });
 
     if(kind === 'audio' && this.interval) {
@@ -211,7 +211,7 @@ export default class StreamManager {
     }
   }
 
-  public getAmplitude = (item: StreamAudioItem): StreamAmplitude => {
+  public getAmplitude = (item: StreamAudioItem): StreamAmplitude | undefined => {
     const {streamAnalyser, stream, track, source, type} = item;
     const analyser = streamAnalyser.analyser;
     if(!analyser) return;
@@ -239,7 +239,7 @@ export default class StreamManager {
     }
 
     StreamManager.ANALYSER_LISTENER.dispatchEvent('amplitude', {
-      amplitudes,
+      amplitudes: (amplitudes! as StreamAmplitude[]),
       type: all ? 'all' : 'input'
     });
   };
@@ -337,7 +337,7 @@ export default class StreamManager {
       }
 
       // try { // ! don't use await here. it will wait for adding track and fake one won't be visible in startNegotiation.
-      /* await  */sender.replaceTrack(track).catch((err) => {
+      /* await  */sender.replaceTrack(track!).catch((err) => {
         this.log.error(err);
       });
       // } catch(err) {

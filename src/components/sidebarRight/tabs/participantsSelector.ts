@@ -10,7 +10,7 @@ export function createSelectorForTab(options: ConstructorParameters<typeof AppSe
     placeholder: 'SearchPlaceholder',
     meAsSaved: false,
     onFirstRender: () => {
-      deferred.resolve();
+      deferred.resolve!();
     }
   });
 

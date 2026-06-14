@@ -15,7 +15,7 @@ type Args = {
 };
 
 export default function useVideoControlsCanvas({getCanvas, size}: Args) {
-  const {editorState, mediaSrc} = useMediaEditorContext();
+  const {editorState, mediaSrc} = useMediaEditorContext()!;
 
   createEffect(() => {
     const media = editorState.renderingPayload?.media;
@@ -33,8 +33,8 @@ export default function useVideoControlsCanvas({getCanvas, size}: Args) {
 
     onCleanup(() => {
       cleaned = true;
-      deferred?.resolve();
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      deferred?.resolve!();
+      ctx!.clearRect(0, 0, canvas.width, canvas.height);
     });
 
     const middleware = createMiddleware().get();
@@ -46,7 +46,7 @@ export default function useVideoControlsCanvas({getCanvas, size}: Args) {
       if(cleaned) return;
 
       video.addEventListener('seeked', () => {
-        deferred?.resolve();
+        deferred?.resolve!();
       });
 
       const [chunkWidth, chunkHeight] = snapToViewport(ratio, size.width, size.height);
@@ -58,7 +58,7 @@ export default function useVideoControlsCanvas({getCanvas, size}: Args) {
         await deferred;
         if(cleaned) return;
 
-        ctx.drawImage(video, x, 0, chunkWidth, chunkHeight);
+        ctx!.drawImage(video, x, 0, chunkWidth, chunkHeight);
 
         const fade = document.createElement('div');
 

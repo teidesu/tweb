@@ -41,7 +41,7 @@ export default class AppChatInvitesManager extends AppManager {
       (chatInvite as ChatInvite.chatInvite).photo = this.appPhotosManager.savePhoto(
         (chatInvite as ChatInvite.chatInvite).photo,
         {type: 'chatInvite', hash}
-      );
+      )!;
     }
 
     return chatInvite;
@@ -141,7 +141,7 @@ export default class AppChatInvitesManager extends AppManager {
   public deleteRevokedExportedChatInvites(chatId: ChatId, adminId?: UserId) {
     return this.apiManager.invokeApi('messages.deleteRevokedExportedChatInvites', {
       peer: this.appChatsManager.getInputPeer(chatId),
-      admin_id: this.appUsersManager.getUserInput(adminId)
+      admin_id: this.appUsersManager.getUserInput(adminId!)
     });
   }
 

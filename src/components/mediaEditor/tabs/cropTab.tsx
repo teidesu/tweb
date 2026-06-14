@@ -47,7 +47,7 @@ function Item(
 }
 
 export default function CropTab() {
-  const {editorState, mediaState, actions, isEditingForAvatar} = useMediaEditorContext();
+  const {editorState, mediaState, actions, isEditingForAvatar} = useMediaEditorContext()!;
 
   const isActive = (what?: string) => editorState.fixedImageRatioKey === what;
 

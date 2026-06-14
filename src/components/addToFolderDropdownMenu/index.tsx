@@ -1,4 +1,4 @@
-import {createComputed, createEffect, createMemo, createSelector, createSignal, For, onCleanup, onMount, Show} from 'solid-js';
+import {Accessor, createComputed, createEffect, createMemo, createSelector, createSignal, For, onCleanup, onMount, Setter, Show} from 'solid-js';
 import {IS_MOBILE} from '@environment/userAgent';
 import {CLICK_EVENT_NAME} from '@helpers/dom/clickEvent';
 import {Dialog} from '@layer';
@@ -34,7 +34,7 @@ const AddToFolderDropdownMenu = defineSolidElement({
     //
     props.element.classList.add('btn-menu', styles.Container);
 
-    let infoIcon: HTMLElement, label: HTMLDivElement, thumb: HTMLDivElement;
+    let infoIcon: HTMLElement, label!: HTMLDivElement, thumb: HTMLDivElement;
 
     const [search, setSearch] = createSignal('');
     const [selected, setSelected] = createSignal<number>();
@@ -42,10 +42,10 @@ const AddToFolderDropdownMenu = defineSolidElement({
 
     const isInFilter = createSelector(
       () => props.dialog,
-      (filter: MyDialogFilter, dialog) => !!dialog?.[`index_${filter.localId}`]
+      (filter: MyDialogFilter, dialog) => !!dialog?.[`index_${filter.localId!}`]
     );
 
-    const selectedFilter = createMemo(() => selectableFolders()[selected()]?.filter);
+    const selectedFilter = createMemo(() => selectableFolders()[selected()!]?.filter);
     const isSelected = createSelector(() => selectedFilter()?.id);
 
     const renderAsScrollable = createMemo(() => props.filters.length > HAVE_SCROLL_WHEN_ABOVE);
@@ -74,14 +74,14 @@ const AddToFolderDropdownMenu = defineSolidElement({
       setSelected
     });
 
-    const {showHint, closeAndDisableTooltip} = useTooltipHint({pivot: () => infoIcon});
+    const {showHint, closeAndDisableTooltip} = useTooltipHint({pivot: () => infoIcon!});
     controls.closeTooltip = closeAndDisableTooltip;
 
     const onInputKeyDown = useInputKeydown({
       search,
       setSearch,
-      selected,
-      setSelected,
+      selected: selected as Accessor<number>,
+      setSelected: setSelected as Setter<number>,
       selectedFilter,
       currentFilter: props.currentFilter,
       onToggle: toggleDialogInFilter,
@@ -144,7 +144,7 @@ const AddToFolderDropdownMenu = defineSolidElement({
           <Show when={!searchableFolders().visibleFoldersCount}>
             {(() => {
               const el = i18n('AddToFolderEmptySearchResult');
-              el.classList.add(styles.EmptySearchTip);
+              el!.classList.add(styles.EmptySearchTip);
               return el;
             })()}
           </Show>
@@ -153,10 +153,10 @@ const AddToFolderDropdownMenu = defineSolidElement({
               <div ref={label} class={styles.Label} onPointerEnter={showHint}>
                 {(() => {
                   const el = i18n('AddToFolderSearch');
-                  el.classList.add(styles.LabelText);
+                  el!.classList.add(styles.LabelText);
                   return el;
                 })()}
-                <IconTsx ref={infoIcon} icon='info' />
+                <IconTsx ref={infoIcon!} icon='info' />
               </div>
             </Show>
 

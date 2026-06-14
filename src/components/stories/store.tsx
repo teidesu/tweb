@@ -134,9 +134,9 @@ export const createStoriesStore = (props: {
     loop?: boolean,
     offsetIndex = state.index,
     offsetPeer = state.peers[offsetIndex]
-  ): ChangeStoryParams => {
+  ): ChangeStoryParams | undefined => {
     const offset = next ? 1 : -1;
-    const newStoryIndex = offsetPeer.index + offset;
+    const newStoryIndex = offsetPeer.index! + offset;
     const isPeerEnd = next ? newStoryIndex >= offsetPeer.stories.length : newStoryIndex < 0;
     const isLastPeer = next ? offsetIndex >= (state.peers.length - 1) : offsetIndex <= 0;
     if(!isPeerEnd) {
@@ -179,22 +179,22 @@ export const createStoriesStore = (props: {
     storyDuration: 0,
     width: 0,
     height: 0,
-    pinned: props.pinned,
-    archive: props.archive,
+    pinned: props.pinned!,
+    archive: props.archive!,
     stealthMode: {_: 'storiesStealthMode'},
     peers: props.peers || [],
     get peer() {
       return state.peers[state.index];
     },
     freezedSorting: new Set(),
-    getNearestStory,
+    getNearestStory: getNearestStory as any,
     albumId: props.initialAlbumId as number | undefined,
     loaded: false,
     canEdit: false
   };
 
   let loadState: string;
-  let loadPromise: Promise<boolean>;
+  let loadPromise: Promise<boolean> | undefined;
   const albumCache = new Map<number | undefined, AlbumCacheItem>();
   const [state, setState] = createStore(initialState);
   const singlePeerId = props.peerId || (props.peers && props.peers[0].peerId);
@@ -233,9 +233,9 @@ export const createStoriesStore = (props: {
       ...getNearestStories(true, 3, false),
       ...getNearestStories(false, 3, false)
     ].forEach((params) => {
-      const storyItem = params.peer.stories[params.index];
+      const storyItem = params.peer.stories[params.index!];
       if(storyItem?._ === 'storyItemSkipped') {
-        rootScope.managers.appStoriesManager.getStoryById(params.peer.peerId, storyItem.id);
+        rootScope.managers.appStoriesManager!.getStoryById(params.peer.peerId, storyItem.id);
       }
     });
   };
@@ -252,15 +252,15 @@ export const createStoriesStore = (props: {
           let promise: ReturnType<AppStoriesManager['getPinnedStories']> | ReturnType<AppStoriesManager['getStoriesArchive']> | ReturnType<AppStoriesManager['getAlbumStories']>;
           let albumsPromise: ReturnType<AppStoriesManager['getAlbums']>;
           if(state.albumId !== undefined) {
-            promise = rootScope.managers.appStoriesManager.getAlbumStories(peerId, state.albumId, loadCount, offsetId);
-            albumsPromise = !offsetId ? rootScope.managers.appStoriesManager.getAlbums(peerId) : undefined;
+            promise = rootScope.managers.appStoriesManager!.getAlbumStories(peerId, state.albumId, loadCount, offsetId);
+            albumsPromise = (!offsetId ? rootScope.managers.appStoriesManager!.getAlbums(peerId) : undefined)!;
           } else if(pinned) {
-            promise = rootScope.managers.appStoriesManager.getPinnedStories(peerId, loadCount, offsetId);
-            albumsPromise = !offsetId ? rootScope.managers.appStoriesManager.getAlbums(peerId) : undefined;
+            promise = rootScope.managers.appStoriesManager!.getPinnedStories(peerId, loadCount, offsetId);
+            albumsPromise = (!offsetId ? rootScope.managers.appStoriesManager!.getAlbums(peerId) : undefined)!;
           } else {
-            promise = rootScope.managers.appStoriesManager.getStoriesArchive(peerId, loadCount, offsetId);
+            promise = rootScope.managers.appStoriesManager!.getStoriesArchive(peerId, loadCount, offsetId);
           }
-          return Promise.all([promise, albumsPromise]).then(([{count, stories: storyItems}, albums]) => {
+          return Promise.all([promise, albumsPromise!]).then(([{count, stories: storyItems}, albums]) => {
             if(!offsetId && !reload) {
               const peer: StoriesContextPeerState = {
                 index: 0,
@@ -286,7 +286,7 @@ export const createStoriesStore = (props: {
           });
         }
 
-        return rootScope.managers.appStoriesManager.getPeerStories(peerId).then((peerStories) => {
+        return rootScope.managers.appStoriesManager!.getPeerStories(peerId).then((peerStories) => {
           addPeerStories([peerStories]);
           setState('loaded', true);
           props.onLoad?.(true);
@@ -294,7 +294,7 @@ export const createStoriesStore = (props: {
         });
       }
 
-      return rootScope.managers.appStoriesManager.getAllStories(
+      return rootScope.managers.appStoriesManager!.getAllStories(
         loadState ? true : undefined,
         loadState,
         archive
@@ -345,7 +345,7 @@ export const createStoriesStore = (props: {
 
     pause: (hideInterface) => {
       setState({paused: true, playAfterGesture: hideInterface && !state.paused});
-      actions.toggleInterface(hideInterface);
+      actions.toggleInterface(hideInterface!);
     },
 
     play: (storyDuration = state.storyDuration) => {
@@ -425,7 +425,7 @@ export const createStoriesStore = (props: {
         } else if(type === 'viewer') {
           forEachReverse(postponedPositions, (data, idx) => {
             if(data.position && data.position.type !== currentListType) {
-              postponedPositions.splice(idx, 1);
+              postponedPositions.splice(idx!, 1);
               onStoriesPosition(data, true);
             }
           });
@@ -663,8 +663,8 @@ export const createStoriesStore = (props: {
     }
 
     const promise = albumId === undefined ?
-      rootScope.managers.appStoriesManager.getPinnedStoriesCacheSnapshot(singlePeerId) :
-      rootScope.managers.appStoriesManager.getAlbumStoriesCacheSnapshot(singlePeerId, albumId)
+      rootScope.managers.appStoriesManager!.getPinnedStoriesCacheSnapshot(singlePeerId) :
+      rootScope.managers.appStoriesManager!.getAlbumStoriesCacheSnapshot(singlePeerId, albumId)
 
     promise.then((snapshot) => {
       if(active) {
@@ -747,7 +747,7 @@ export const createStoriesStore = (props: {
       if(!(story as StoryItem.storyItem).pFlags.pinned) {
         onStoryDeleted({peerId, id: story.id});
       } else {
-        onStoryNew({peerId, story, cacheType: StoriesCacheType.Pinned, maxReadId: peer.maxReadId});
+        onStoryNew({peerId, story, cacheType: StoriesCacheType.Pinned, maxReadId: peer.maxReadId!});
       }
 
       return;
@@ -766,7 +766,7 @@ export const createStoriesStore = (props: {
       }
 
       if(storyIndex === -1) {
-        onStoryNew({peerId, story, cacheType: StoriesCacheType.Pinned, maxReadId: peer.maxReadId});
+        onStoryNew({peerId, story, cacheType: StoriesCacheType.Pinned, maxReadId: peer.maxReadId!});
       } else {
         setState('peers', peerIndex, 'stories', reconcile(((stories) => {
           stories = stories.slice();
@@ -780,7 +780,7 @@ export const createStoriesStore = (props: {
 
     if(storyIndex === -1) {
       if(props.archive && singlePeerId && modifiedArchive) {
-        onStoryNew({peerId, story, cacheType: StoriesCacheType.Archive, maxReadId: peer.maxReadId});
+        onStoryNew({peerId, story, cacheType: StoriesCacheType.Archive, maxReadId: peer.maxReadId!});
       }
 
       return;
@@ -843,8 +843,8 @@ export const createStoriesStore = (props: {
 
       setState('peers', peerIndex, 'count', (count) => count + 1);
 
-      if(insertedAt <= currentStoryIndex) {
-        setState('peers', peerIndex, 'index', (index) => index + 1);
+      if(insertedAt! <= currentStoryIndex!) {
+        setState('peers', peerIndex, 'index', (index) => index! + 1);
       }
     });
   };
@@ -884,8 +884,8 @@ export const createStoriesStore = (props: {
 
       setState('peers', peerIndex, 'count', (count) => count - 1);
 
-      if(peer.index >= storyIndex) {
-        setState('peers', peerIndex, 'index', peer.index - 1);
+      if(peer.index! >= storyIndex) {
+        setState('peers', peerIndex, 'index', peer.index! - 1);
       }
     });
   };
@@ -1002,13 +1002,13 @@ export const createStoriesStore = (props: {
     }
   }
 
-  rootScope.managers.appStoriesManager.getStealthMode().then(onStealthMode);
+  rootScope.managers.appStoriesManager!.getStealthMode().then(onStealthMode);
 
   if(singlePeerId) {
     if(singlePeerId === rootScope.myId) {
       setState({canEdit: true});
     } else if(singlePeerId.isAnyChat()) {
-      rootScope.managers.appChatsManager.hasRights(singlePeerId.toChatId(), 'edit_stories').then((canEdit) => {
+      rootScope.managers.appChatsManager!.hasRights(singlePeerId.toChatId(), 'edit_stories').then((canEdit) => {
         setState({canEdit});
       });
     }

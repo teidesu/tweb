@@ -22,7 +22,7 @@ export default class SDPLine {
         if(key === 'a') {
           const result = splitStringByLimitWithRest(value, ':', 1);
           value = result[0];
-          this.#parsed = result.length === 1 ? new SDPAttributeSplitted(value as any, null) : new SDPAttributeSplitted(value as any, result[1]);
+          this.#parsed = result.length === 1 ? new SDPAttributeSplitted(value as any, null as unknown as string) : new SDPAttributeSplitted(value as any, result[1]);
         }
       }
     } else {

@@ -51,7 +51,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
 
   protected postponedEvents: {cb: AnyFunction, args: any[]}[];
 
-  public getContainerSize: Category['getContainerSize'];
+  public getContainerSize: Category['getContainerSize'] | undefined;
 
   public middlewareHelper: MiddlewareHelper;
   private disposeSearch: () => void;
@@ -141,15 +141,15 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
       const searching = createMemo(() => !!query());
 
       const [loadedData, setLoadedData] = createSignal<T>();
-      const [data] = createResource(query, this.searchFetcher);
+      const [data] = createResource(query, this.searchFetcher!);
       const [groupData] = this.groupFetcher ? createResource(group, this.groupFetcher) : [];
       const [element] = createResource(() => {
         return {
-          data: loadedData(),
+          data: loadedData() as T,
           grouping: !!untrack(group),
           searching: untrack(searching)
         };
-      }, this.processSearchResult);
+      }, this.processSearchResult!);
 
       const loading = this.searchNoLoader ? undefined : createMemo(() => searching() && element.loading);
       const shouldMoveSearch = createMemo(() => focused() || searching() || !!group());
@@ -160,15 +160,15 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
         children: Animated({
           type: 'cross-fade',
           get children() {
-            return shouldUseContainer();
+            return shouldUseContainer() as Element;
           }
         })
       });
 
       createEffect(() => {
         const useData = group() ? groupData : data;
-        if(!useData.loading) {
-          setLoadedData(() => useData());
+        if(!useData!.loading) {
+          setLoadedData(() => useData!() as T);
         }
       });
 
@@ -216,7 +216,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
 
     const category: Category = new StickersTabCategory({
       id: '' + stickerSet?.id,
-      title,
+      title: title!,
       overflowElement: this.content,
       getContainerSize: () => {
         let width: number, height: number;
@@ -232,7 +232,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
           // width = esgWidth === undefined ? windowSize.width : esgWidth;
         }
 
-        return {width: width - styles.padding, height};
+        return {width: width - styles.padding, height: height!};
       },
       styles,
       noMenuTab,
@@ -328,7 +328,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
 
     const category = this.createCategory({
       stickerSet: hasId ? {id} as any : undefined,
-      title: title && i18n(title),
+      title: ((title && i18n(title))! as HTMLElement | DocumentFragment | undefined),
       isLocal: true,
       noMenuTab,
       styles

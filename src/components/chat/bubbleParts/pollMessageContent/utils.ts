@@ -65,7 +65,7 @@ export const attachSpoilerOverlay = (descriptionElement: HTMLDivElement, props: 
     if(isCleaned() || !descriptionElement.querySelector('.spoiler-text')) return;
 
     const spoilerOverlay = createMessageSpoilerOverlay({
-      mid: props.message.mid,
+      mid: props.message.mid!,
       messageElement: descriptionElement,
       animationGroup: props.animationGroup || 'none'
     }, HotReloadGuard);

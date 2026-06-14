@@ -6,12 +6,12 @@ export default function createCanvasStream({width = 0, height = 0, image}: Parti
   stream.getVideoTracks()[0].enabled = true;
   const context = canvas.getContext('2d');
   if(image) {
-    context.drawImage(image, 0, 0, width, height);
-    context.globalAlpha = 0.5;
-    context.fillStyle = '#000';
-    context.fillRect(0, 0, width, height);
+    context!.drawImage(image, 0, 0, width, height);
+    context!.globalAlpha = 0.5;
+    context!.fillStyle = '#000';
+    context!.fillRect(0, 0, width, height);
   } else {
-    context.fillRect(0, 0, width, height);
+    context!.fillRect(0, 0, width, height);
   }
   return stream;
 }

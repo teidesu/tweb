@@ -181,14 +181,14 @@ export default function createChatPinnedMessage(
       onClick: () => {
         PopupElement.createPopup(PopupPinMessage, chat.peerId, pinnedMid, true);
       },
-      verify: () => managers.appPeersManager.canPinMessage(chat.peerId)
+      verify: () => managers.appPeersManager!.canPinMessage(chat.peerId)
     }, {
       icon: 'eyecross_outline',
       text: 'Popup.Unpin.HideTitle',
       onClick: () => {
         PopupElement.createPopup(PopupPinMessage, chat.peerId, 0, true);
       },
-      verify: async() => !(await managers.appPeersManager.canPinMessage(chat.peerId))
+      verify: async() => !(await managers.appPeersManager!.canPinMessage(chat.peerId))
     }],
     listenerSetter,
     icon: 'pin'
@@ -198,7 +198,7 @@ export default function createChatPinnedMessage(
   const btnUnpin = ButtonIcon('close pinned-message-unpin');
   attachClickEvent(btnUnpin, async(e) => {
     cancelEvent(e);
-    const canPin = await managers.appPeersManager.canPinMessage(chat.peerId);
+    const canPin = await managers.appPeersManager!.canPinMessage(chat.peerId);
     PopupElement.createPopup(
       PopupPinMessage,
       chat.peerId,
@@ -377,7 +377,7 @@ export default function createChatPinnedMessage(
 
       let gotRest = false;
       const promises = [
-        managers.appMessagesManager.getHistory({
+        managers.appMessagesManager!.getHistory({
           peerId: chat.peerId,
           inputFilter: {_: 'inputMessagesFilterPinned'},
           offsetId: mid,
@@ -392,7 +392,7 @@ export default function createChatPinnedMessage(
       ];
 
       if(!pinnedMaxMid) {
-        const promise = managers.appMessagesManager.getPinnedMessage(
+        const promise = managers.appMessagesManager!.getPinnedMessage(
           chat.peerId,
           chat.threadId
         ).then((p) => {
@@ -401,7 +401,7 @@ export default function createChatPinnedMessage(
 
           if(!gotRest && correctAfter) {
             mids = [pinnedMaxMid];
-            count = p.count;
+            count = p.count!;
             pinnedIndex = 0;
             pinnedMid = mids[0];
             setPinnedMessageDebounced();
@@ -420,7 +420,7 @@ export default function createChatPinnedMessage(
         backLimited = history.length;
       }
 
-      offsetIndex = Math.max(0, result.offsetIdOffset) ? result.offsetIdOffset - backLimited : 0;
+      offsetIndex = Math.max(0, result.offsetIdOffset!) ? result.offsetIdOffset! - backLimited : 0;
       const oldCount = count;
       const oldPinnedMid = pinnedMid;
       mids = history.slice();
@@ -544,16 +544,16 @@ export default function createChatPinnedMessage(
       writeMediaTo.classList.add('pinned-message-media');
       const loadPromises: Promise<any>[] = [];
       const isMediaSet = await wrapReplyDivAndCaption({
-        titleEl: null,
+        titleEl: null!,
         subtitleEl: writeTo,
-        message,
+        message: message!,
         mediaEl: writeMediaTo,
         loadPromises,
         animationGroup: chat.animationGroup,
-        isSensitive: chat.isSensitive || isMessageSensitive(message),
+        isSensitive: chat.isSensitive || isMessageSensitive(message!),
         textColor: 'primary-text-color',
-        canTranslate: !message.pFlags.out,
-        middleware: animatedSubtitle.getRow(pinnedIndex).middlewareHelper.get()
+        canTranslate: !message!.pFlags.out,
+        middleware: animatedSubtitle.getRow(pinnedIndex).middlewareHelper!.get()
       });
 
       await Promise.all(loadPromises);
@@ -577,7 +577,7 @@ export default function createChatPinnedMessage(
 
       pinnedMessageBorder.render(count, count - pinnedIndex - 1);
       wasPinnedIndex = pinnedIndex;
-      plate.container.dataset.mid = '' + message.mid;
+      plate.container.dataset.mid = '' + message!.mid;
       updateActionButton(message as Message.message);
     } else {
       plateSetHidden(true);
@@ -618,7 +618,7 @@ export default function createChatPinnedMessage(
     if(onCallClick) {
       buttonText = I18n.format('PinnedJoinCall', true);
       newBtn = createCustomActionButton({
-        text: i18n('PinnedJoinCall'),
+        text: i18n('PinnedJoinCall')!,
         onClick: onCallClick
       });
     } else {
@@ -642,7 +642,7 @@ export default function createChatPinnedMessage(
             onClick: handler.onClick,
             as: handler.as
           });
-          handler.refCallbacks.forEach((cb) => cb(newBtn));
+          handler.refCallbacks.forEach((cb) => cb(newBtn!));
           customButtonMiddleware = middleware;
         } else {
           middleware.destroy();
@@ -659,7 +659,7 @@ export default function createChatPinnedMessage(
       const BUTTON_PADDING_X = 32;
       const BUTTON_MAX_WIDTH = 160;
       const TEXT_TO_BUTTON_GAP = 8;
-      const textWidth = getTextWidth(buttonText, FontFullBold);
+      const textWidth = getTextWidth(buttonText!, FontFullBold);
       const buttonWidth = Math.min(Math.ceil(textWidth) + BUTTON_PADDING_X, BUTTON_MAX_WIDTH) - 48;
       plate.container.style.setProperty('--action-button-width', `${buttonWidth + TEXT_TO_BUTTON_GAP}px`);
     }

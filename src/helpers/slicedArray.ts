@@ -222,11 +222,11 @@ export default class SlicedArray<T extends ItemType> {
     if(upperIndex !== -1 && -1 !== lowerIndex) {
 
     } else if(upperIndex !== -1) {  // ([1, 2, 3] | [1, 2, 3, 4, 5]) -> [1, 2, 3, 4, 5]
-      const sliced = slice.slice(foundSlice.length - upperIndex);
-      foundSlice.push(...sliced);
+      const sliced = slice.slice(foundSlice!.length - upperIndex);
+      foundSlice!.push(...sliced);
     } else if(lowerIndex !== -1) {  // ([1, 2, 3] | [-1, 0, 1]) -> [-1, 0, 1, 2, 3]
       const sliced = slice.slice(0, slice.length - lowerIndex - 1);
-      foundSlice.unshift(...sliced);
+      foundSlice!.unshift(...sliced);
     } else {
       let insertIndex = 0;
       for(const length = this.slices.length; insertIndex < length; ++insertIndex) { // * maybe should iterate from the end, could be faster ?
@@ -317,8 +317,8 @@ export default class SlicedArray<T extends ItemType> {
     }
   }
 
-  public findSliceOffset(maxId: T): ReturnType<SlicedArray<T>['findOffsetInSlice']> & {sliceIndex: number} {
-    let slice: Slice<T>;
+  public findSliceOffset(maxId: T): ReturnType<SlicedArray<T>['findOffsetInSlice']> & {sliceIndex: number} | undefined {
+    let slice!: Slice<T>;
     for(let i = 0; i < this.slices.length; ++i) {
       slice = this.slices[i];
 

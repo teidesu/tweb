@@ -37,7 +37,7 @@ export class AppPhotosManager extends AppManager {
     const oldPhoto = this.photos[photo.id];
     if(photo.file_reference) { // * because we can have a new object w/o the file_reference while sending
       safeReplaceArrayInObject('file_reference', oldPhoto, photo);
-      this.referencesStorage.saveContext(photo.file_reference, context);
+      this.referencesStorage.saveContext(photo.file_reference, context!);
     }
 
     if(photo.sizes?.length) {
@@ -69,7 +69,7 @@ export class AppPhotosManager extends AppManager {
     }, {cacheSeconds: 60}).then((photosResult) => {
       this.appUsersManager.saveApiUsers(photosResult.users);
       const photoIds = photosResult.photos.map((photo, idx) => {
-        photosResult.photos[idx] = this.savePhoto(photo, {type: 'profilePhoto', peerId: userId.toPeerId()});
+        photosResult.photos[idx] = this.savePhoto(photo, {type: 'profilePhoto', peerId: userId.toPeerId()})!;
         return photo.id;
       });
 

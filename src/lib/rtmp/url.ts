@@ -14,7 +14,7 @@ export function getRtmpShareUrl(peerId: PeerId) {
   if(chat._ !== 'channel') throw new Error('Not a channel');
 
   if(chat.username || chat.usernames?.length) {
-    const username = chat.username || chat.usernames[0];
+    const username = chat.username || chat.usernames![0];
     return `https://t.me/${username}?livestream`;
   }
 

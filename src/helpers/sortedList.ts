@@ -14,7 +14,7 @@ let id = 0;
 
 export class BatchProcessor<Item extends any = any> {
   protected queue: MaybePromise<Item>[];
-  protected promise: Promise<void>;
+  protected promise: Promise<void> | undefined;
 
   protected middlewareHelper: MiddlewareHelper;
   protected log: ReturnType<typeof logger>;

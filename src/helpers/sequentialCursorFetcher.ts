@@ -8,7 +8,7 @@ export class SequentialCursorFetcher<T> {
   private fetchedItemsCount = 0;
   private neededCount = 0;
 
-  private cursor: T;
+  private cursor: T | undefined;
 
   private isFetching = false;
 

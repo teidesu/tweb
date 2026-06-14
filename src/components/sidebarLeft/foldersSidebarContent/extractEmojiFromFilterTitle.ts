@@ -9,7 +9,7 @@ export type ExtractEmojiFromFilterTitleResult = {
 };
 
 function canBeRemoved(len: number, entity: MessageEntity.messageEntityCustomEmoji  | MessageEntity.messageEntityEmoji) {
-  return entity.offset === 0 || entity.offset + entity.length === len;
+  return entity.offset === 0 || entity.offset! + entity.length! === len;
 }
 
 export default function extractEmojiFromFilterTitle(textWithEntities: TextWithEntities.textWithEntities): ExtractEmojiFromFilterTitleResult {
@@ -26,7 +26,7 @@ export default function extractEmojiFromFilterTitle(textWithEntities: TextWithEn
 
   const resultingTextWithEntities: TextWithEntities.textWithEntities = {
     _: 'textWithEntities',
-    text: (text.slice(0, emojiEntity.offset) + text.slice(emojiEntity.offset + emojiEntity.length)).trim(),
+    text: (text.slice(0, emojiEntity.offset) + text.slice(emojiEntity.offset! + emojiEntity.length!)).trim(),
     entities: []
   };
 
@@ -34,11 +34,11 @@ export default function extractEmojiFromFilterTitle(textWithEntities: TextWithEn
   let emoji: string;
 
   if(emojiEntity._ === 'messageEntityCustomEmoji') docId = emojiEntity.document_id;
-  if(emojiEntity._ === 'messageEntityEmoji') emoji = text.slice(emojiEntity.offset, emojiEntity.offset + emojiEntity.length);
+  if(emojiEntity._ === 'messageEntityEmoji') emoji = text.slice(emojiEntity.offset, emojiEntity.offset! + emojiEntity.length!);
 
   return {
     text: resultingTextWithEntities,
-    docId,
-    emoji
+    docId: docId!,
+    emoji: emoji!
   };
 }

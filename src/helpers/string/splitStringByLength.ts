@@ -17,7 +17,7 @@ export default function splitStringByLength(str: string, maxLength: number) {
       part = part.slice(0, maxLength);
     }
 
-    lastSliceStartIndex = end;
+    lastSliceStartIndex = end!;
     length = 0;
     out[_arrayIndex] = (out[_arrayIndex] || '') + part;
   };

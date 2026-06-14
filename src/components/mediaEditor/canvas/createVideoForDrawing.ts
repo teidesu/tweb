@@ -49,8 +49,8 @@ export default async function createVideoForDrawing(mediaSrc: string, options: O
 
     if(waitToSeek) {
       const deferred = deferredPromise<void>();
-      video.addEventListener('seeked', () => void deferred.resolve(), {once: true});
-      timeout = self.setTimeout(() => deferred.resolve(), 500); // just in case
+      video.addEventListener('seeked', () => void deferred.resolve!(), {once: true});
+      timeout = self.setTimeout(() => deferred.resolve!(), 500); // just in case
 
       video.currentTime = video.duration * currentTime;
 

@@ -40,7 +40,7 @@ export default function addSuggestedPostServiceMessage({bubble, message, peerId,
     const fakeServiceMessage = document.createElement('div');
     fakeServiceMessage.classList.add('service-msg');
 
-    let peerTitle: PeerTitle;
+    let peerTitle!: PeerTitle;
     if(checkIfNotMePosted({message, peerId, canManageDirectMessages})) {
       peerTitle = new PeerTitle;
       loadPromises.push(

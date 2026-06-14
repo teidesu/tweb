@@ -29,7 +29,7 @@ export default class PopupPaymentShippingMethods extends PopupElement<{
   private d() {
     const section = new SettingSection({name: 'PaymentCheckoutShippingMethod', noDelimiter: true, noShadow: true});
 
-    const rows = this.requestedInfo.shipping_options.map((shippingOption) => {
+    const rows = this.requestedInfo.shipping_options!.map((shippingOption) => {
       return new Row({
         radioField: new RadioField({
           text: shippingOption.title,
@@ -49,7 +49,7 @@ export default class PopupPaymentShippingMethods extends PopupElement<{
     });
 
     if(this.shippingOption) {
-      rows.find((row) => row.radioField.input.value === this.shippingOption.id).radioField.checked = true;
+      rows.find((row) => row.radioField.input.value === this.shippingOption.id)!.radioField.checked = true;
     } else {
       rows[0].radioField.checked = true;
     }
@@ -61,7 +61,7 @@ export default class PopupPaymentShippingMethods extends PopupElement<{
     const payButton = PaymentButton({
       key: 'PaymentInfo.Done',
       onClick: () => {
-        this.dispatchEvent('finish', this.requestedInfo.shipping_options.find((option) => option.id === lastShippingId));
+        this.dispatchEvent('finish', this.requestedInfo.shipping_options!.find((option) => option.id === lastShippingId)!);
         this.hide();
       }
     });

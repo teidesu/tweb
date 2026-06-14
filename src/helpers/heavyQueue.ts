@@ -27,7 +27,7 @@ export default function addHeavyTask<T extends HeavyQueue<T>>(queue: T, method: 
 function processHeavyQueue() {
   if(!processingQueue) {
     const queue = heavyQueue.shift();
-    timedChunk(queue).finally(() => {
+    timedChunk(queue!).finally(() => {
       processingQueue = false;
       if(heavyQueue.length) {
         processHeavyQueue();
@@ -38,7 +38,7 @@ function processHeavyQueue() {
 
 function timedChunk<T extends HeavyQueue<T>>(queue: HeavyQueue<T>) {
   if(!queue.items.length) {
-    queue.promise.resolve([] as any);
+    queue.promise!.resolve!([] as any);
     return Promise.resolve([]);
   }
 
@@ -51,7 +51,7 @@ function timedChunk<T extends HeavyQueue<T>>(queue: HeavyQueue<T>) {
 
       do {
         await getHeavyAnimationPromise();
-        const possiblePromise = queue.process.apply(queue.context, todo.shift());
+        const possiblePromise = queue.process.apply(queue.context, todo.shift()!);
         let realResult: typeof results[0];
         // @ts-ignore
         if(possiblePromise instanceof Promise) {
@@ -78,5 +78,5 @@ function timedChunk<T extends HeavyQueue<T>>(queue: HeavyQueue<T>) {
 
     fastRaf(f);
     // setTimeout(f, 25);
-  }).then(queue.promise.resolve.bind(queue.promise), queue.promise.reject.bind(queue.promise));
+  }).then(queue.promise!.resolve!.bind(queue.promise), queue.promise!.reject!.bind(queue.promise));
 }

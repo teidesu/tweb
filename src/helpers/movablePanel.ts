@@ -5,7 +5,7 @@ import mediaSizes, {ScreenSize} from '@helpers/mediaSizes';
 import safeAssign from '@helpers/object/safeAssign';
 
 export default class MovablePanel {
-  #movable: MovableElement;
+  #movable: MovableElement | undefined;
   private listenerSetter: ListenerSetter;
   private previousState: MovableState;
   private onResize: () => void;

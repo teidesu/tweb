@@ -42,7 +42,7 @@ export default function createVideo({
       originalSrc = newValue;
 
       if(newValue.startsWith('hls/')) {
-        initVideoHls({video, src: newValue, middleware: middleware});
+        initVideoHls({video, src: newValue, middleware: middleware!});
       } else {
         video.setAttribute('src', newValue);
       }

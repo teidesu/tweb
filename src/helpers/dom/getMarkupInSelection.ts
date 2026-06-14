@@ -6,16 +6,16 @@ export default function getMarkupInSelection<T extends MarkdownType>(types: T[],
   const result: Record<T, ResultByType> = {} as Record<T, ResultByType>;
   types.forEach((tag) => result[tag] = {elements: [], fully: false, partly: false, textLength: 0});
   const selection = window.getSelection();
-  if(selection.isCollapsed) {
+  if(selection!.isCollapsed) {
     return result;
   }
 
-  const range = selection.getRangeAt(0);
+  const range = selection!.getRangeAt(0);
   const commonAncestor = range.commonAncestorContainer;
   const root = commonAncestor.nodeType === commonAncestor.ELEMENT_NODE ?
     commonAncestor as HTMLElement :
     (commonAncestor as ChildNode).parentElement;
-  let contentEditable = root.closest('[contenteditable="true"]');
+  let contentEditable = root!.closest('[contenteditable="true"]');
   if(!contentEditable) {
     if(ignoreNoContentEditable) {
       contentEditable = root;
@@ -25,20 +25,20 @@ export default function getMarkupInSelection<T extends MarkdownType>(types: T[],
   }
 
   const treeWalker = document.createTreeWalker(
-    contentEditable,
+    contentEditable!,
     NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
     {acceptNode: (node) => range.intersectsNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT}
   );
 
   let nodes = 0, node: Node, textLength = 0;
-  while(node = treeWalker.nextNode()) {
+  while(node = treeWalker.nextNode()!) {
     ++nodes;
 
     const element = node.nodeType === node.ELEMENT_NODE ? node as HTMLElement : node.parentElement;
 
     let value = node.nodeValue;
     if(!value) {
-      const alt = element.dataset.stickerEmoji || (element as HTMLImageElement).alt;
+      const alt = element!.dataset.stickerEmoji || (element as HTMLImageElement).alt;
       value = alt;
     }
 
@@ -46,9 +46,9 @@ export default function getMarkupInSelection<T extends MarkdownType>(types: T[],
     textLength += valueLength;
     for(const type of types) {
       const tag = markdownTags[type];
-      const matches = element.closest(tag.match);
+      const matches = element!.closest(tag.match);
       if(matches) {
-        result[type].elements.push(element);
+        result[type].elements.push(element!);
         result[type].textLength += valueLength;
       }
     }

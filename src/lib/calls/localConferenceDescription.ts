@@ -64,7 +64,7 @@ export class ConferenceEntry {
       source = sourceGroups[0].sources[0];
     }
 
-    this.sourceGroups = sourceGroups;
+    this.sourceGroups = sourceGroups!;
     return this.source = source;
   }
 
@@ -73,7 +73,7 @@ export class ConferenceEntry {
   }
 }
 
-export function generateSsrc(type: WebRTCLineType, source: number | GroupCallParticipantVideoSourceGroup[], endpoint?: string): Ssrc {
+export function generateSsrc(type: WebRTCLineType, source: number | GroupCallParticipantVideoSourceGroup[], endpoint?: string): Ssrc | undefined {
   let sourceGroups: GroupCallParticipantVideoSourceGroup[];
   if(Array.isArray(source)) {
     if(!source[0]) return;
@@ -85,7 +85,7 @@ export function generateSsrc(type: WebRTCLineType, source: number | GroupCallPar
     endpoint,
     type,
     source,
-    sourceGroups
+    sourceGroups: sourceGroups!
   };
 }
 

@@ -39,24 +39,24 @@ export default function showStarsRatingPopup(props: {
   } = props.userFull;
 
   const isPersonal = props.user.id === rootScope.myId;
-  const pendingStars = Number(futureRating?.stars ?? 0) - Number(currentRating.stars);
+  const pendingStars = Number(futureRating?.stars ?? 0) - Number(currentRating!.stars);
 
   const [isFuture, setIsFuture] = createSignal(false);
   const rating = () => isFuture() ? futureRating : currentRating;
-  const isNegativeLevel = () => rating().level < 0;
+  const isNegativeLevel = () => rating()!.level < 0;
 
   createPopup(() => {
     const progress = createMemo(() => {
       const rating$ = rating();
-      const isMaxLevel = rating$.next_level_stars === undefined;
-      const isNegativeLevel = rating$.level < 0;
+      const isMaxLevel = rating$!.next_level_stars === undefined;
+      const isNegativeLevel = rating$!.level < 0;
       if(isNegativeLevel) {
         return 0.5;
       } else if(isMaxLevel) {
         return 1;
       } else {
-        return (Number(rating$.stars) - Number(rating$.current_level_stars)) /
-          (Number(rating$.next_level_stars) - Number(rating$.current_level_stars));
+        return (Number(rating$!.stars) - Number(rating$!.current_level_stars)) /
+          (Number(rating$!.next_level_stars) - Number(rating$!.current_level_stars));
       }
     });
 
@@ -69,16 +69,16 @@ export default function showStarsRatingPopup(props: {
           <LimitLineTsx
             class={classNames(styles.limitLine, isNegativeLevel() && styles.limitLineNegative)}
             progress={progress()}
-            progressFrom={isNegativeLevel() ? i18n('StarsRating.Negative') : i18n('StarsRating.Level', [rating().level])}
-            progressTo={isNegativeLevel() ? <div /> : i18n('StarsRating.Level', [rating().level + 1])}
+            progressFrom={isNegativeLevel() ? i18n('StarsRating.Negative') : i18n('StarsRating.Level', [rating()!.level])}
+            progressTo={isNegativeLevel() ? <div /> : i18n('StarsRating.Level', [rating()!.level + 1])}
             reverse={isNegativeLevel()}
             hint={isNegativeLevel() && !isPersonal ? undefined : (
               <div class={styles.hint}>
-                {formatNumber(Number(rating().stars))}
-                {rating().next_level_stars && !isNegativeLevel() && (
+                {formatNumber(Number(rating()!.stars))}
+                {rating()!.next_level_stars && !isNegativeLevel() && (
                   <span class={styles.nextLevelStars}>
                     {' '}
-                    / {formatNumber(Number(rating().next_level_stars))}
+                    / {formatNumber(Number(rating()!.next_level_stars))}
                   </span>
                 )}
               </div>
@@ -92,8 +92,8 @@ export default function showStarsRatingPopup(props: {
               key={isPersonal ? 'StarsRating.NegativeDescriptionMy' : 'StarsRating.NegativeDescription'}
               class={classNames(styles.description, styles.negativeDescription)}
               args={isPersonal ?
-                [Math.abs(Number(rating().stars)).toString()] :
-                [wrapEmojiText(props.user.first_name)]
+                [Math.abs(Number(rating()!.stars)).toString()] :
+                [wrapEmojiText(props.user.first_name!)]
               }
             />
           </Show>
@@ -106,7 +106,7 @@ export default function showStarsRatingPopup(props: {
                     <I18nTsx
                       key="StarsRating.PendingDescription"
                       args={[
-                        wrapFormattedDuration(formatDuration(futureRatingDate - Date.now() / 1000, 1)),
+                        wrapFormattedDuration(formatDuration(futureRatingDate! - Date.now() / 1000, 1)),
                         pendingStars.toString()
                       ]}
                     />
@@ -121,7 +121,7 @@ export default function showStarsRatingPopup(props: {
                     <I18nTsx
                       key="StarsRating.FutureDescription"
                       args={[
-                        wrapFormattedDuration(formatDuration(futureRatingDate - Date.now() / 1000, 1)),
+                        wrapFormattedDuration(formatDuration(futureRatingDate! - Date.now() / 1000, 1)),
                         pendingStars.toString()
                       ]}
                     />
@@ -139,7 +139,7 @@ export default function showStarsRatingPopup(props: {
           <I18nTsx
             key={isPersonal ? 'StarsRating.SubtitleMy' : 'StarsRating.Subtitle'}
             class={styles.subtitle}
-            args={[wrapEmojiText(props.user.first_name)]}
+            args={[wrapEmojiText(props.user.first_name!)]}
           />
 
           <div class={styles.list}>

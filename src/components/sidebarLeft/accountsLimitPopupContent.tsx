@@ -31,7 +31,7 @@ export default function AccountsLimitPopupContent(props: {onCancel: () => void; 
         })()}
         {(() => {
           const increaseLimitButton = Button('popup-button btn primary');
-          increaseLimitButton.append(i18n('IncreaseLimit'), PlusOneSvg() as HTMLElement);
+          increaseLimitButton.append(i18n('IncreaseLimit')!, PlusOneSvg() as HTMLElement);
           increaseLimitButton.addEventListener('click', props.onSubmit);
 
           return increaseLimitButton;

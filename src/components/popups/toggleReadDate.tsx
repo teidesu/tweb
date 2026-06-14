@@ -43,12 +43,12 @@ export default class PopupToggleReadDate extends PopupElement {
           <div class="popup-toggle-read-date-title">{props.title}</div>
           <div class="popup-toggle-read-date-subtitle">{props.text}</div>
           <button
-            ref={button}
+            ref={button!}
             class={'btn-primary btn-color-primary popup-toggle-read-date-button' + (props.isPremium ? ' popup-gift-premium-confirm shimmer' : '')}
             onClick={() => {
               const result = props.onClick();
               if(result instanceof Promise) {
-                toggleDisability(button, true);
+                toggleDisability(button!, true);
               }
             }}
           >
@@ -74,7 +74,7 @@ export default class PopupToggleReadDate extends PopupElement {
         lockedText: 'PremiumLastSeenText1Locked',
         buttonText1: 'PremiumLastSeenButton1',
         onClick: async() => {
-          await this.managers.appPrivacyManager.setPrivacy(
+          await this.managers.appPrivacyManager!.setPrivacy(
             'inputPrivacyKeyStatusTimestamp',
             [{_: 'inputPrivacyValueAllowAll'}]
           );
@@ -91,8 +91,8 @@ export default class PopupToggleReadDate extends PopupElement {
         lockedText: 'PremiumReadText1Locked',
         buttonText1: 'PremiumReadButton1',
         onClick: async() => {
-          const globalPrivacy = await this.managers.appPrivacyManager.getGlobalPrivacySettings();
-          await this.managers.appPrivacyManager.setGlobalPrivacySettings({
+          const globalPrivacy = await this.managers.appPrivacyManager!.getGlobalPrivacySettings();
+          await this.managers.appPrivacyManager!.setGlobalPrivacySettings({
             _: 'globalPrivacySettings',
             pFlags: {
               ...globalPrivacy.pFlags,
@@ -116,18 +116,18 @@ export default class PopupToggleReadDate extends PopupElement {
           {this.stickerContainer}
         </div>
         <Part
-          title={i18n(details.title1)}
-          text={i18n(this.isPremiumPurchaseBlocked ? details.lockedText : details.text1, [this.titles[0]])}
-          buttonText={details.buttonText1}
-          onClick={details.onClick}
+          title={i18n(details!.title1)}
+          text={i18n(this.isPremiumPurchaseBlocked ? details!.lockedText : details!.text1, [this.titles[0]])}
+          buttonText={details!.buttonText1}
+          onClick={details!.onClick}
         />
         {!this.isPremiumPurchaseBlocked && (
           <>
             <DelimiterWithText langKey="PremiumOr" />
             <Part
-              title={i18n(details.title2)}
-              text={i18n(details.text2, [this.titles[1]])}
-              buttonText={details.buttonText2}
+              title={i18n(details!.title2)}
+              text={i18n(details!.text2, [this.titles[1]])}
+              buttonText={details!.buttonText2}
               onClick={() => {
                 this.hide();
                 PopupPremium.show();

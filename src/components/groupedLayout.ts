@@ -385,7 +385,7 @@ class ComplexLayouter {
       }
     }
 
-    let optimalAttempt: Attempt = null;
+    let optimalAttempt: Attempt | null = null;
     let optimalDiff = 0;
     for(const attempt of attempts) {
       const {heights, lineCounts: counts} = attempt;
@@ -410,8 +410,8 @@ class ComplexLayouter {
       }
     }
 
-    const optimalCounts = optimalAttempt.lineCounts;
-    const optimalHeights = optimalAttempt.heights;
+    const optimalCounts = optimalAttempt!.lineCounts;
+    const optimalHeights = optimalAttempt!.heights;
     const rowCount = optimalCounts.length;
 
     let index = 0;

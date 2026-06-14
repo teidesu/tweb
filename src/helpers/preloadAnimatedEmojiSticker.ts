@@ -7,7 +7,7 @@ import {getMiddleware} from '@helpers/middleware';
 import {saveLottiePreview} from '@helpers/saveLottiePreview';
 
 export default function preloadAnimatedEmojiSticker(emoji: string, width?: number, height?: number) {
-  return rootScope.managers.appStickersManager.preloadAnimatedEmojiSticker(emoji).then(({doc}) => {
+  return rootScope.managers.appStickersManager!.preloadAnimatedEmojiSticker(emoji).then(({doc}) => {
     if(!doc) {
       return;
     }
@@ -18,7 +18,7 @@ export default function preloadAnimatedEmojiSticker(emoji: string, width?: numbe
       const toneIndex = getEmojiToneIndex(emoji);
       const middlewareHelper = getMiddleware();
       const animation = await lottieLoader.loadAnimationWorker({
-        container: undefined,
+        container: (undefined as unknown as HTMLElement | HTMLElement[]),
         animationData: blob,
         width: width ?? mediaSize.width,
         height: height ?? mediaSize.height,

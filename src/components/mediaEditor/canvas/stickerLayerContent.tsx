@@ -9,7 +9,7 @@ import {ResizableLayerProps} from '@components/mediaEditor/types';
 import {ResizableContainer} from '@components/mediaEditor/canvas/resizableLayers';
 
 export default function StickerLayerContent(props: ResizableLayerProps) {
-  const {editorState, canImageResultInGIF} = useMediaEditorContext();
+  const {editorState, canImageResultInGIF} = useMediaEditorContext()!;
 
   let container: HTMLDivElement;
 
@@ -17,8 +17,8 @@ export default function StickerLayerContent(props: ResizableLayerProps) {
     const middleware = createMiddleware();
 
     wrapSticker({
-      div: container,
-      doc: props.layer.sticker,
+      div: container!,
+      doc: props.layer.sticker!,
       group: 'none',
       width: 500,
       height: 500,
@@ -28,7 +28,7 @@ export default function StickerLayerContent(props: ResizableLayerProps) {
       middleware: middleware.get()
     });
 
-    editorState.stickersLayersInfo[props.layer.id] = {container};
+    editorState.stickersLayersInfo[props.layer.id] = {container: container!};
 
     onCleanup(() => {
       middleware.destroy();
@@ -36,7 +36,7 @@ export default function StickerLayerContent(props: ResizableLayerProps) {
   });
 
   const children = (
-    <div ref={container} class="media-editor__sticker-layer-content" />
+    <div ref={container!} class="media-editor__sticker-layer-content" />
   ); // Needs to be rendered here for hot reload to work properly
 
   return (

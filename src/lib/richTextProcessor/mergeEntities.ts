@@ -20,9 +20,9 @@ export default function mergeEntities(currentEntities: MessageEntity[], newEntit
     let entity = currentEntities[i];
     if(entity._ === 'messageEntityEmoji') {
       const nextEntity = currentEntities[i + 1];
-      if(nextEntity /* && nextEntity._ !== 'messageEntityCaret' */ && nextEntity.offset < (entity.offset + entity.length)) {
+      if(nextEntity /* && nextEntity._ !== 'messageEntityCaret' */ && nextEntity.offset! < (entity.offset! + entity.length!)) {
         entity = currentEntities[i] = {...entity};
-        entity.length = nextEntity.offset - entity.offset;
+        entity.length = nextEntity.offset! - entity.offset!;
       }
     }
   }

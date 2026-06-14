@@ -62,8 +62,8 @@ if(IS_PREVIEW && typeof(window) !== 'undefined') {
     }
   });
 
-  window.setTimeout = ((callback: StoredTimer['callback'], delay?: number, ...args: any[]) => set('timeout', callback, delay, args)) as any;
-  window.setInterval = ((callback: StoredTimer['callback'], delay?: number, ...args: any[]) => set('interval', callback, delay, args)) as any;
+  window.setTimeout = ((callback: StoredTimer['callback'], delay?: number, ...args: any[]) => set('timeout', callback, delay!, args)) as any;
+  window.setInterval = ((callback: StoredTimer['callback'], delay?: number, ...args: any[]) => set('interval', callback, delay!, args)) as any;
   window.clearTimeout = window.clearInterval = clear as any;
 
   window.requestIdleCallback = ((callback: IdleRequestCallback) => {

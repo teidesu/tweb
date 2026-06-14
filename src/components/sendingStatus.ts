@@ -42,7 +42,7 @@ export function setSendingStatus(
     }
   }
 
-  if(!className) {
+  if(!className!) {
     container.textContent = '';
     container.classList.add('hide');
     return;

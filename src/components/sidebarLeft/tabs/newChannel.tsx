@@ -47,11 +47,11 @@ const NewChannel = () => {
         about,
         broadcast: true
       };
-      handleChannelsTooMuch(() => tab.managers.appChatsManager.createChannel(options))
+      handleChannelsTooMuch(() => tab.managers.appChatsManager!.createChannel(options))
       .then((channelId) => {
         if(uploadAvatar) {
           uploadAvatar.file().then((inputFile) => {
-            tab.managers.appChatsManager.editPhoto(channelId, inputFile);
+            tab.managers.appChatsManager!.editPhoto(channelId, inputFile);
           });
         }
 

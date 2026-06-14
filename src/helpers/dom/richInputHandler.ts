@@ -18,7 +18,7 @@ export default class RichInputHandler {
   private listenerSetter: ListenerSetter;
 
   private lastNode: Node;
-  private lastOffset: number;
+  private lastOffset: number | undefined;
   private savedRanges: WeakMap<HTMLElement, Range>;
 
   private log: ReturnType<typeof logger>;
@@ -49,16 +49,16 @@ export default class RichInputHandler {
 
   private get input() {
     const selection = document.getSelection();
-    const {anchorNode: node} = selection;
+    const {anchorNode: node} = selection!;
     if(!node) return;
-    return ((node as HTMLElement).closest ? node as HTMLElement : node.parentElement).closest<HTMLElement>('[contenteditable="true"]');
+    return ((node as HTMLElement).closest ? node as HTMLElement : node.parentElement)!.closest<HTMLElement>('[contenteditable="true"]');
   }
 
   private saveRangeForElement(element: HTMLElement) {
     if(element && (element.isContentEditable || element.tagName === 'INPUT')) {
       const selection = document.getSelection();
-      if(selection.rangeCount) {
-        this.savedRanges.set(element as HTMLElement, document.getSelection().getRangeAt(0));
+      if(selection!.rangeCount) {
+        this.savedRanges.set(element as HTMLElement, document.getSelection()!.getRangeAt(0));
       }
     }
   }
@@ -69,7 +69,7 @@ export default class RichInputHandler {
   };
 
   private onFocusOut = (e: FocusEvent) => {
-    this.lastNode = this.lastOffset = undefined;
+    this.lastNode = (this.lastOffset = undefined)!;
   };
 
   private findPreviousSmthIndex(input: HTMLElement, node: ChildNode, something?: NodeListOf<Element>) {
@@ -134,7 +134,7 @@ export default class RichInputHandler {
         } else if(!moved) {
           break;
         } else {
-          if((!this.getFiller(node as HTMLElement).classList.contains('input-filler-text') && idx !== smthIndex) || c.offset === BOM.length) {
+          if((!this.getFiller(node as HTMLElement)!.classList.contains('input-filler-text') && idx !== smthIndex) || c.offset === BOM.length) {
             move(!toLeft);
           }
 
@@ -147,7 +147,7 @@ export default class RichInputHandler {
   private onSelectionChange = (e: Event) => {
     const {input} = this;
     if(!input) {
-      this.setSelectionClassName(document.getSelection());
+      this.setSelectionClassName(document.getSelection()!);
       return;
     }
 
@@ -177,7 +177,7 @@ export default class RichInputHandler {
       //   toLeft = (lastNode.nodeValue === BOM ? whichChild(getFiller(lastNode), true) : whichChild(findUpAsChild(lastNode as any, getFiller(node).parentElement), true)) > childIndex;
       // }
 
-      const toLeft = compareNodes(node, offset, this.lastNode as ChildNode, this.lastOffset) < 0;
+      const toLeft = compareNodes(node, offset, this.lastNode as ChildNode, (this.lastOffset as number)) < 0;
 
       // const childNodes = Array.from(node.parentElement.childNodes);
       // if(toLeft) {
@@ -230,12 +230,12 @@ export default class RichInputHandler {
         this.lastNode,
         this.lastOffset,
         node === this.lastNode,
-        whichChild(this.getFiller(node)),
-        whichChild(this.getFiller(this.lastNode)),
+        whichChild(this.getFiller(node)!),
+        whichChild(this.getFiller(this.lastNode)!),
         toLeft,
         selection,
         document.getSelection(),
-        document.getSelection().getRangeAt(0),
+        document.getSelection()!.getRangeAt(0),
         node?.parentNode,
         this.lastNode?.parentNode
       );
@@ -251,7 +251,7 @@ export default class RichInputHandler {
       // }
     } while(true);
 
-    this.lastNode = this.lastOffset = undefined;
+    this.lastNode = (this.lastOffset = undefined)!;
 
     // if(offset === BOM.length) {
     //   setCaretAt(parent);
@@ -269,8 +269,8 @@ export default class RichInputHandler {
     }
 
     const selection = window.getSelection();
-    selection.removeAllRanges();
-    selection.addRange(range);
+    selection!.removeAllRanges();
+    selection!.addRange(range);
 
     return true;
   }
@@ -293,9 +293,9 @@ export default class RichInputHandler {
 
   private fixBuggedCaret() {
     const selection = document.getSelection();
-    const range = selection.getRangeAt(0);
-    selection.removeAllRanges();
-    selection.addRange(range);
+    const range = selection!.getRangeAt(0);
+    selection!.removeAllRanges();
+    selection!.addRange(range);
   }
 
   public onBeforeInput = (e: Pick<InputEvent, 'inputType'>) => {
@@ -309,7 +309,7 @@ export default class RichInputHandler {
     const caretPos = this.getCaretPosN();
     let {node, offset, selection, move} = caretPos;
     log('beforeinput', e, node, offset, selection, caretPos);
-    this.lastNode = this.lastOffset = undefined;
+    this.lastNode = (this.lastOffset = undefined)!;
 
     if(e.inputType.startsWith('delete')) { // delete current BOM
       addInputCallback(() => {
@@ -367,7 +367,7 @@ export default class RichInputHandler {
       }
     } else if(e.inputType.startsWith('insert')) { // clear current BOM
       if((node as HTMLElement)?.classList?.contains('input-something')/*  || (node.textContent === BOM && offset === BOM.length) */) {
-        node = node.previousSibling.firstChild;
+        node = node.previousSibling!.firstChild!;
         const range = selection.getRangeAt(0);
         range.setStart(node, 0);
         range.setEnd(node, 0);
@@ -426,7 +426,7 @@ export default class RichInputHandler {
 
           // fix case when focused somehow on span instead of text node
           if(node && node.nodeType === node.ELEMENT_NODE) {
-            node = node.firstChild;
+            node = node.firstChild!;
             log.warn('fixing focus on span');
           }
 
@@ -436,13 +436,13 @@ export default class RichInputHandler {
             // (node as ChildNode).replaceWith(this.messageInput.querySelector('.lol'));
 
             const parentElement = node.parentElement;
-            parentElement.classList.replace('input-filler', 'input-filler-text');
-            const childNodesLength = parentElement.childNodes.length;
+            parentElement!.classList.replace('input-filler', 'input-filler-text');
+            const childNodesLength = parentElement!.childNodes.length;
             addInputCallback(() => {
-              const newChildNodesLength = parentElement.childNodes.length;
+              const newChildNodesLength = parentElement!.childNodes.length;
               if(newChildNodesLength > 1/*  && newChildNodesLength !== childNodesLength */) {
                 log('inserting line break, remove');
-                node = Array.from(parentElement.childNodes).find((node) => node.nodeValue === BOM);
+                node = Array.from(parentElement!.childNodes).find((node) => node.nodeValue === BOM)!;
                 (parentElement as any).t = node;
                 // node?.remove();
 
@@ -452,7 +452,7 @@ export default class RichInputHandler {
                 // range.setEnd(n, n.nodeValue.length);
               } else if(node.nodeValue !== BOM) {
                 log('inserting line break, deleteData');
-                (node as CharacterData).deleteData(node.nodeValue.indexOf(BOM), BOM.length);
+                (node as CharacterData).deleteData(node.nodeValue!.indexOf(BOM), BOM.length);
                 // node = document.createTextNode(BOM);
               }
 
@@ -584,7 +584,7 @@ export default class RichInputHandler {
           // }, 1000);
 
           addInputCallback(() => {
-            (node as CharacterData).deleteData(node.nodeValue.indexOf(BOM), BOM.length);
+            (node as CharacterData).deleteData(node.nodeValue!.indexOf(BOM), BOM.length);
             if(!node.nodeValue) {
               node.remove();
             }
@@ -594,7 +594,7 @@ export default class RichInputHandler {
         }
 
         if(selection.isCollapsed && false) {
-          node.parentElement.replaceWith(node);
+          node.parentElement!.replaceWith(node);
           // const textNode = document.createTextNode(BOM);
           // (node.parentNode as any as ChildNode).after(textNode);
           // setCaretAt(textNode.nextSibling);
@@ -612,15 +612,15 @@ export default class RichInputHandler {
       } else if(e.inputType === 'insertLineBreak' &&
         node &&
         node.nodeType === node.TEXT_NODE &&
-        node.nodeValue.length === offset) {
+        node.nodeValue!.length === offset) {
         log('inserting line break');
         // const appendix = '\x01';
 
-        input.querySelectorAll<HTMLElement>('.input-something').forEach((el) => {
+        input!.querySelectorAll<HTMLElement>('.input-something').forEach((el) => {
           el.contentEditable = 'inherit';
         });
         addInputCallback(() => {
-          input.querySelectorAll<HTMLElement>('.input-something').forEach((el) => {
+          input!.querySelectorAll<HTMLElement>('.input-something').forEach((el) => {
             el.contentEditable = 'false';
           });
         });
@@ -688,12 +688,12 @@ export default class RichInputHandler {
 
     // // have to ignore line up and down
     if(key === 'ArrowDown' || key === 'ArrowUp') {
-      this.lastNode = this.lastOffset = undefined;
+      this.lastNode = (this.lastOffset = undefined)!;
     } else {
       const {node, offset} = this.getCaretPosN();
       this.lastNode = node/* getFiller(node) */, this.lastOffset = offset;
       if(this.lastNode === this.input) {
-        this.lastNode = this.lastOffset = undefined;
+        this.lastNode = (this.lastOffset = undefined)!;
       }
     }
 
@@ -720,8 +720,8 @@ export default class RichInputHandler {
       let needed = false;
 
       // if(!(previousSibling as HTMLElement)?.classList?.contains('input-filler') && isCustomFillerNeededBySiblingNode(previousSibling)) {
-      if(!(nextSibling as HTMLElement)?.classList?.contains('input-filler') && isCustomFillerNeededBySiblingNode(nextSibling)) {
-        needed = c(previousSibling) || c(nextSibling);
+      if(!(nextSibling as HTMLElement)?.classList?.contains('input-filler') && isCustomFillerNeededBySiblingNode(nextSibling!)) {
+        needed = c(previousSibling!) || c(nextSibling!);
       }
 
       if(!needed) {
@@ -736,7 +736,7 @@ export default class RichInputHandler {
   }
 
   private getCaretPosN() {
-    const ret = getCaretPosNew(this.input);
+    const ret = getCaretPosNew(this.input!);
     // const {node} = ret;
     // if((node as HTMLElement)?.classList?.contains('input-something')) {
     //   ret.node = node.previousSibling;
@@ -773,7 +773,7 @@ export default class RichInputHandler {
 
   private removePossibleBOMSiblingsByNode(node: ChildNode) {
     const {previousSibling, nextSibling} = node;
-    this.removePossibleBOMSiblings(previousSibling, nextSibling);
+    this.removePossibleBOMSiblings(previousSibling!, nextSibling!);
   };
 
   private processEmptiedFillers(input: HTMLElement) {
@@ -810,9 +810,9 @@ export default class RichInputHandler {
       if(el.textContent !== BOM) {
         el.classList.replace('input-filler', 'input-filler-text');
         const t = (el as any).t as ChildNode;
-        const bomNode = Array.from(el.childNodes).find((node) => node.nodeType === node.TEXT_NODE && node.nodeValue.includes(BOM));
+        const bomNode = Array.from(el.childNodes).find((node) => node.nodeType === node.TEXT_NODE && node.nodeValue!.includes(BOM));
         if(bomNode && !t?.nodeValue) {
-          const idx = bomNode.nodeValue.indexOf(BOM);
+          const idx = bomNode.nodeValue!.indexOf(BOM);
           if(idx !== -1) {
             (bomNode as CharacterData).deleteData(idx, BOM.length);
           }
@@ -854,10 +854,10 @@ export default class RichInputHandler {
       'moving cursor',
       left,
       focusNodeBefore,
-      focusNodeBefore.nodeType === focusNodeBefore.ELEMENT_NODE ? focusNodeBefore : focusNodeBefore.parentElement,
+      focusNodeBefore!.nodeType === focusNodeBefore!.ELEMENT_NODE ? focusNodeBefore : focusNodeBefore!.parentElement,
       focusOffsetBefore,
       focusNodeAfter,
-      focusNodeAfter.nodeType === focusNodeAfter.ELEMENT_NODE ? focusNodeAfter : focusNodeAfter.parentElement,
+      focusNodeAfter!.nodeType === focusNodeAfter!.ELEMENT_NODE ? focusNodeAfter : focusNodeAfter!.parentElement,
       focusOffsetAfter
     );
   }
@@ -866,12 +866,12 @@ export default class RichInputHandler {
     const {input} = this;
 
     // do not wrap fillers into spans
-    const fillers = input.querySelectorAll<HTMLElement>('.input-filler');
+    const fillers = input!.querySelectorAll<HTMLElement>('.input-filler');
     // fillers.forEach((el) => {
     //   el.contentEditable = 'false';
     // });
 
-    const smths = input.querySelectorAll<HTMLElement>('.input-something');
+    const smths = input!.querySelectorAll<HTMLElement>('.input-something');
     smths.forEach((el) => {
       el.contentEditable = 'inherit';
     });
@@ -885,7 +885,7 @@ export default class RichInputHandler {
         el.contentEditable = 'false';
       });
 
-      this.removeExtraBOMs(input);
+      this.removeExtraBOMs(input!);
     };
   }
 

@@ -59,9 +59,9 @@ export class ChatPermissions extends CheckboxFields<PermissionsCheckboxFieldsFie
     const peerId = options.chatId.toPeerId(true);
     const chat = this.chat = apiManagerProxy.getChat(options.chatId) as Chat.chat | Chat.channel;
     const isForum = apiManagerProxy.isForum(peerId);
-    const defaultBannedRights = this.defaultBannedRights = chat.default_banned_rights;
-    const rights = this.rights = options.participant ? combineParticipantBannedRights(chat as Chat.channel, options.participant.banned_rights) : defaultBannedRights;
-    this.untilDate = rights.until_date || BANNED_RIGHTS_UNTIL_FOREVER;
+    const defaultBannedRights = this.defaultBannedRights = chat.default_banned_rights!;
+    const rights = this.rights = (options.participant ? combineParticipantBannedRights(chat as Chat.channel, options.participant.banned_rights) : defaultBannedRights)!;
+    this.untilDate = rights!.until_date || BANNED_RIGHTS_UNTIL_FOREVER;
 
     const mediaNested: PermissionsCheckboxFieldsField[] = [
       {flags: ['send_photos'], text: 'UserRestrictionsSendPhotos', exceptionText: 'UserRestrictionsNoSendPhotos'},
@@ -80,7 +80,7 @@ export class ChatPermissions extends CheckboxFields<PermissionsCheckboxFieldsFie
       {flags: ['send_media'], text: 'UserRestrictionsSendMedia', exceptionText: 'UserRestrictionsNoSendMedia', nested: mediaNested},
       {flags: ['invite_users'], text: 'UserRestrictionsInviteUsers', exceptionText: 'UserRestrictionsNoInviteUsers'},
       {flags: ['pin_messages'], text: 'UserRestrictionsPinMessages', exceptionText: 'UserRestrictionsNoPinMessages'},
-      isForum && {flags: ['manage_topics'], text: 'CreateTopicsPermission', exceptionText: 'UserRestrictionsNoChangeInfo'},
+      ((isForum && {flags: ['manage_topics'], text: 'CreateTopicsPermission', exceptionText: 'UserRestrictionsNoChangeInfo'})! as PermissionsCheckboxFieldsField),
       {flags: ['change_info'], text: 'UserRestrictionsChangeInfo', exceptionText: 'UserRestrictionsNoChangeInfo'}
     ];
     v = v.filter(Boolean);
@@ -95,14 +95,14 @@ export class ChatPermissions extends CheckboxFields<PermissionsCheckboxFieldsFie
     });
 
     mediaNested.forEach((info) => info.nestedTo = map.send_media);
-    map.send_media.toggleWith = {unchecked: mediaNested, checked: mediaNested};
-    map.embed_links.toggleWith = {checked: [map.send_plain]};
-    map.send_plain.toggleWith = {unchecked: [map.embed_links]};
+    map.send_media!.toggleWith = {unchecked: mediaNested, checked: mediaNested};
+    map.embed_links!.toggleWith = {checked: [map.send_plain!]};
+    map.send_plain!.toggleWith = {unchecked: [map.embed_links!]};
 
     this.fields = v;
 
     for(const info of this.fields) {
-      if(!options.forChat && defaultBannedRights.pFlags[info.flags[0] as keyof typeof defaultBannedRights['pFlags']]) {
+      if(!options.forChat && defaultBannedRights!.pFlags[info.flags[0] as keyof typeof defaultBannedRights['pFlags']]) {
         info.restrictionText = 'UserRestrictionsDisabled';
       } else if(getPeerActiveUsernames(chat as Chat.channel)[0] && (info.flags.includes('pin_messages') || info.flags.includes('change_info'))) {
         info.restrictionText = options.participant ? 'UserRestrictionsDisabled' : 'EditCantEditPermissionsPublic';
@@ -114,12 +114,12 @@ export class ChatPermissions extends CheckboxFields<PermissionsCheckboxFieldsFie
         continue;
       }
 
-      const {nodes} = this.createField(info);
+      const {nodes} = this.createField(info)!;
       options.appendTo.append(...nodes);
     }
 
     this.fields.forEach((field) => {
-      field.checkboxField.listenerSetter.add(field.checkboxField.input)('change', () => {
+      field.checkboxField!.listenerSetter.add(field.checkboxField!.input)('change', () => {
         this.options?.onSomethingChanged?.();
       });
     });
@@ -141,7 +141,7 @@ export class ChatPermissions extends CheckboxFields<PermissionsCheckboxFieldsFie
       'send_media'
     ]);
     for(const info of this.fields) {
-      const banned = !info.checkboxField.checked;
+      const banned = !info.checkboxField!.checked;
       if(!banned) {
         continue;
       }
@@ -200,36 +200,36 @@ export class ChatAdministratorRights extends CheckboxFields<AdministratorRightsC
     const chat = options.chat as Chat.chat | Chat.channel;
     const isBroadcast = !!(chat as Chat.channel).pFlags.broadcast;
     const isForum = !!(chat as Chat.channel).pFlags.forum;
-    const rights = this.rights = options.participant ? options.participant.admin_rights : undefined;
+    const rights = this.rights = (options.participant ? options.participant.admin_rights : undefined)!;
 
-    const manageMessagesNested: AdministratorRightsCheckboxFieldsField[] = isBroadcast && [
+    const manageMessagesNested: AdministratorRightsCheckboxFieldsField[] = ((isBroadcast && [
       {flags: ['post_messages'], text: 'EditAdminPostMessages'},
       {flags: ['edit_messages'], text: 'EditAdminEditMessages'},
       {flags: ['delete_messages'], text: 'EditAdminDeleteMessages'}
-    ];
+    ])! as AdministratorRightsCheckboxFieldsField[]);
 
-    const manageStoriesNested: AdministratorRightsCheckboxFieldsField[] = isBroadcast && [
+    const manageStoriesNested: AdministratorRightsCheckboxFieldsField[] = ((isBroadcast && [
       {flags: ['post_stories'], text: 'AdminRights.PostStories'},
       {flags: ['edit_stories'], text: 'AdminRights.EditStories'},
       {flags: ['delete_stories'], text: 'AdminRights.DeleteStories'}
-    ];
+    ])! as AdministratorRightsCheckboxFieldsField[]);
 
     const isCreator = isParticipantCreator(options.participant);
     const manageMessagesNestedKey: ChatRights = 'post_messages_nested' as any;
     const manageStoriesNestedKey: ChatRights = 'post_stories_nested' as any;
     let v: AdministratorRightsCheckboxFieldsField[] = [
       {flags: ['change_info'], text: isBroadcast ? 'EditAdminChangeChannelInfo' : 'EditAdminChangeGroupInfo'},
-      isBroadcast && {flags: [manageMessagesNestedKey], text: 'AdminRights.ManageMessages', nested: manageMessagesNested},
-      isBroadcast && {flags: [manageStoriesNestedKey], text: 'AdminRights.ManageStories', nested: manageStoriesNested},
-      !isBroadcast && {flags: ['delete_messages'], text: isBroadcast ? 'EditAdminDeleteMessages' : 'EditAdminGroupDeleteMessages'},
-      !isBroadcast && {flags: ['ban_users'], text: 'EditAdminBanUsers'},
-      !isBroadcast && {flags: ['invite_users'], text: 'EditAdminAddUsersViaLink'},
-      !isBroadcast && {flags: ['pin_messages'], text: 'EditAdminPinMessages'},
-      isForum && {flags: ['manage_topics'], text: 'ManageTopicsPermission'},
+      ((isBroadcast && {flags: [manageMessagesNestedKey], text: 'AdminRights.ManageMessages', nested: manageMessagesNested})! as AdministratorRightsCheckboxFieldsField),
+      ((isBroadcast && {flags: [manageStoriesNestedKey], text: 'AdminRights.ManageStories', nested: manageStoriesNested})! as AdministratorRightsCheckboxFieldsField),
+      ((!isBroadcast && {flags: ['delete_messages'], text: isBroadcast ? 'EditAdminDeleteMessages' : 'EditAdminGroupDeleteMessages'})! as AdministratorRightsCheckboxFieldsField),
+      ((!isBroadcast && {flags: ['ban_users'], text: 'EditAdminBanUsers'})! as AdministratorRightsCheckboxFieldsField),
+      ((!isBroadcast && {flags: ['invite_users'], text: 'EditAdminAddUsersViaLink'})! as AdministratorRightsCheckboxFieldsField),
+      ((!isBroadcast && {flags: ['pin_messages'], text: 'EditAdminPinMessages'})! as AdministratorRightsCheckboxFieldsField),
+      ((isForum && {flags: ['manage_topics'], text: 'ManageTopicsPermission'})! as AdministratorRightsCheckboxFieldsField),
       {flags: ['manage_call'], text: isBroadcast ? 'StartVoipChatPermission' : 'Channel.EditAdmin.ManageCalls'},
-      isBroadcast && {flags: ['invite_users'], text: 'Channel.EditAdmin.PermissionInviteSubscribers'},
-      isBroadcast && {flags: ['manage_direct_messages'], text: 'Channel.EditAdmin.ManageDirectMessages'},
-      !isBroadcast && {flags: ['anonymous'], text: 'EditAdminSendAnonymously', checked: rights ? undefined : false},
+      ((isBroadcast && {flags: ['invite_users'], text: 'Channel.EditAdmin.PermissionInviteSubscribers'})! as AdministratorRightsCheckboxFieldsField),
+      ((isBroadcast && {flags: ['manage_direct_messages'], text: 'Channel.EditAdmin.ManageDirectMessages'})! as AdministratorRightsCheckboxFieldsField),
+      ((!isBroadcast && {flags: ['anonymous'], text: 'EditAdminSendAnonymously', checked: rights ? undefined : false})! as AdministratorRightsCheckboxFieldsField),
       {flags: ['add_admins'], text: 'EditAdminAddAdmins', checked: rights ? undefined : isCreator}
     ];
 
@@ -245,12 +245,12 @@ export class ChatAdministratorRights extends CheckboxFields<AdministratorRightsC
 
     if(manageMessagesNested) {
       manageMessagesNested.forEach((info) => info.nestedTo = map[manageMessagesNestedKey]);
-      map[manageMessagesNestedKey].toggleWith = {unchecked: manageMessagesNested, checked: manageMessagesNested};
+      map[manageMessagesNestedKey]!.toggleWith = {unchecked: manageMessagesNested, checked: manageMessagesNested};
     }
 
     if(manageStoriesNested) {
       manageStoriesNested.forEach((info) => info.nestedTo = map[manageStoriesNestedKey]);
-      map[manageStoriesNestedKey].toggleWith = {unchecked: manageStoriesNested, checked: manageStoriesNested};
+      map[manageStoriesNestedKey]!.toggleWith = {unchecked: manageStoriesNested, checked: manageStoriesNested};
     }
 
     this.fields = v;
@@ -273,12 +273,12 @@ export class ChatAdministratorRights extends CheckboxFields<AdministratorRightsC
         continue;
       }
 
-      const {nodes} = this.createField(info);
+      const {nodes} = this.createField(info)!;
       options.appendTo.append(...nodes);
     }
 
     this.fields.forEach((field) => {
-      field.checkboxField.listenerSetter.add(field.checkboxField.input)('change', () => {
+      field.checkboxField!.listenerSetter.add(field.checkboxField!.input)('change', () => {
         this.options?.onSomethingChanged?.();
       });
     });
@@ -291,7 +291,7 @@ export class ChatAdministratorRights extends CheckboxFields<AdministratorRightsC
     };
 
     for(const info of this.fields) {
-      if(!info.checkboxField.checked) {
+      if(!info.checkboxField!.checked) {
         continue;
       }
 
@@ -369,7 +369,7 @@ export const createSolidTabState = <StateStore extends object>({tab, save, unsav
   tab.isConfirmationNeededOnClose = async() => {
     if(!hasChanges() || saving()) return;
 
-    const saveButton: PopupPeerOptions['buttons'][number] = unsavedConfirmationProps.button || {
+    const saveButton: NonNullable<PopupPeerOptions['buttons']>[number] = unsavedConfirmationProps.button || {
       langKey: 'Save'
     };
 

@@ -3,7 +3,7 @@ import type {PeerType} from '@appManagers/appPeersManager';
 import {FormatterArguments, LangPackKey} from '@lib/langPack';
 import rootScope from '@lib/rootScope';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
-import PopupPeer, {PopupPeerButtonCallbackCheckboxes, PopupPeerOptions} from '@components/popups/peer';
+import PopupPeer, {PopupPeerButtonCallback, PopupPeerButtonCallbackCheckboxes, PopupPeerOptions} from '@components/popups/peer';
 
 export default class PopupDeleteDialog {
   constructor(
@@ -20,7 +20,7 @@ export default class PopupDeleteDialog {
   private async construct() {
     let {peerId, peerType, onSelect, threadId, monoforumParentPeerId} = this;
 
-    const isSavedDialog = await rootScope.managers.appPeersManager.isSavedDialog(peerId, threadId);
+    const isSavedDialog = await rootScope.managers.appPeersManager!.isSavedDialog(peerId, threadId);
     // if(isSavedDialog) {
     //   peerId = threadId;
     // }
@@ -33,7 +33,7 @@ export default class PopupDeleteDialog {
 
     const managers = PopupElement.MANAGERS;
     if(peerType === undefined) {
-      peerType = await managers.appPeersManager.getDialogType(monoforumParentPeerId || peerId, monoforumParentPeerId ? peerId : threadId);
+      peerType = await managers.appPeersManager!.getDialogType(monoforumParentPeerId || peerId, monoforumParentPeerId ? peerId : threadId);
     }
 
     /* const callbackFlush = (checked: PopupPeerButtonCallbackCheckboxes) => {
@@ -42,11 +42,11 @@ export default class PopupDeleteDialog {
     }; */
 
     const callbackLeave = (e: MouseEvent, checked: PopupPeerButtonCallbackCheckboxes, flush = checkboxes && !!checked.size) => {
-      let promise = managers.appChatsManager.leave(peerId.toChatId());
+      let promise = managers.appChatsManager!.leave(peerId.toChatId());
 
       if(flush) {
         promise = promise.then(() => {
-          return managers.appMessagesManager.flushHistory({peerId});
+          return managers.appMessagesManager!.flushHistory({peerId});
         }) as any;
       }
 
@@ -57,16 +57,16 @@ export default class PopupDeleteDialog {
       let promise: Promise<any>;
 
       if(monoforumParentPeerId) {
-        promise = managers.appMessagesManager.flushHistory({peerId: monoforumParentPeerId, justClear: false, revoke: true, monoforumThreadId: peerId});
+        promise = managers.appMessagesManager!.flushHistory({peerId: monoforumParentPeerId, justClear: false, revoke: true, monoforumThreadId: peerId});
       } else if(isSavedDialog) {
-        promise = managers.appMessagesManager.flushHistory({peerId, justClear: false, revoke: true, threadOrSavedId: threadId});
+        promise = managers.appMessagesManager!.flushHistory({peerId, justClear: false, revoke: true, threadOrSavedId: threadId});
       } else if(threadId) {
-        promise = managers.appMessagesManager.flushHistory({peerId, justClear: false, revoke: true, threadOrSavedId: threadId});
+        promise = managers.appMessagesManager!.flushHistory({peerId, justClear: false, revoke: true, threadOrSavedId: threadId});
       } else if(peerId.isUser()) {
-        promise = managers.appMessagesManager.flushHistory({peerId, justClear: false, revoke: checkboxes ? !!checked.size : undefined});
+        promise = managers.appMessagesManager!.flushHistory({peerId, justClear: false, revoke: checkboxes ? !!checked.size : undefined});
       } else {
         if(checked.size) {
-          promise = managers.appChatsManager.delete(peerId.toChatId());
+          promise = managers.appChatsManager!.delete(peerId.toChatId());
         } else {
           return callbackLeave(e, checked);
         }
@@ -83,13 +83,13 @@ export default class PopupDeleteDialog {
       checkboxes: PopupPeerOptions['checkboxes'];
     switch(peerType) {
       case 'channel': {
-        if(/* actionType === 'delete' &&  */await managers.appChatsManager.hasRights(peerId.toChatId(), 'delete_chat')) {
+        if(/* actionType === 'delete' &&  */await managers.appChatsManager!.hasRights(peerId.toChatId(), 'delete_chat')) {
           title = 'ChannelDeleteMenu';
           description = 'AreYouSureDeleteAndExitChannel';
           buttons = [{
             langKey: 'ChannelDeleteMenu',
             isDanger: true,
-            callback: callbackDelete
+            callback: callbackDelete as PopupPeerButtonCallback
           }];
 
           checkboxes = [{
@@ -102,7 +102,7 @@ export default class PopupDeleteDialog {
           buttons = [{
             langKey: 'LeaveChannel',
             isDanger: true,
-            callback: callbackLeave
+            callback: callbackLeave as PopupPeerButtonCallback
           }];
         }
 
@@ -116,7 +116,7 @@ export default class PopupDeleteDialog {
         buttons = [{
           langKey: 'LeaveMonoforum',
           isDanger: true,
-          callback: callbackLeave
+          callback: callbackLeave as PopupPeerButtonCallback
         }];
         break;
       }
@@ -141,7 +141,7 @@ export default class PopupDeleteDialog {
         buttons = [{
           langKey: 'DeleteChatUser',
           isDanger: true,
-          callback: callbackDelete
+          callback: callbackDelete as PopupPeerButtonCallback
         }];
         break;
       }
@@ -153,7 +153,7 @@ export default class PopupDeleteDialog {
         buttons = [{
           langKey: 'DeleteChatUser',
           isDanger: true,
-          callback: callbackDelete
+          callback: callbackDelete as PopupPeerButtonCallback
         }];
 
         checkboxes = [{
@@ -172,7 +172,7 @@ export default class PopupDeleteDialog {
         buttons = [{
           langKey: 'DeleteChatUser',
           isDanger: true,
-          callback: callbackDelete
+          callback: callbackDelete as PopupPeerButtonCallback
         }];
 
         break;
@@ -185,7 +185,7 @@ export default class PopupDeleteDialog {
         buttons = [{
           langKey: 'DeleteChatUser',
           isDanger: true,
-          callback: callbackDelete
+          callback: callbackDelete as PopupPeerButtonCallback
         }];
 
         break;
@@ -202,15 +202,15 @@ export default class PopupDeleteDialog {
           buttons = [{
             langKey: 'Delete',
             isDanger: true,
-            callback: callbackDelete
+            callback: callbackDelete as PopupPeerButtonCallback
           }];
-        } else if(/* actionType === 'delete' &&  */await managers.appChatsManager.hasRights(peerId.toChatId(), 'delete_chat')) {
+        } else if(/* actionType === 'delete' &&  */await managers.appChatsManager!.hasRights(peerId.toChatId(), 'delete_chat')) {
           title = 'DeleteMegaMenu';
           description = 'AreYouSureDeleteAndExit';
           buttons = [{
             langKey: 'DeleteMegaMenu',
             isDanger: true,
-            callback: callbackDelete
+            callback: callbackDelete as PopupPeerButtonCallback
           }];
 
           checkboxes = [{
@@ -223,7 +223,7 @@ export default class PopupDeleteDialog {
           buttons = [{
             langKey: 'DeleteChatUser',
             isDanger: true,
-            callback: (e, checkboxes) => callbackLeave(e, checkboxes, true)
+            callback: (e, checkboxes) => callbackLeave(e, checkboxes!, true)
           }];
         }
 
@@ -235,9 +235,9 @@ export default class PopupDeleteDialog {
       peerId,
       threadId,
       titleLangKey: title,
-      titleLangArgs: titleArgs,
+      titleLangArgs: titleArgs!,
       descriptionLangKey: description,
-      descriptionLangArgs: descriptionArgs,
+      descriptionLangArgs: descriptionArgs!,
       buttons,
       checkboxes
     }).show();

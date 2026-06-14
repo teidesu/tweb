@@ -19,5 +19,5 @@ export function runWithHotReloadGuard<T>(fn: () => T): T {
 
   dispose();
 
-  return result;
+  return result!;
 }

@@ -147,17 +147,17 @@ export class AppProfileManager extends AppManager {
       if(userFull.personal_photo) {
         userFull.personal_photo = this.appPhotosManager.savePhoto(userFull.personal_photo, {type: 'profilePhoto', peerId});
       }
-      userFull.wallpaper = this.appThemesManager.saveWallPaper(userFull.wallpaper);
+      userFull.wallpaper = this.appThemesManager.saveWallPaper(userFull.wallpaper!);
 
       const referenceContext: ReferenceContext = {type: 'userFull', userId: peerId.toUserId()};
 
       const botInfo = userFull.bot_info;
       if(botInfo) {
-        botInfo.description_document = this.appDocsManager.saveDoc(botInfo.description_document, referenceContext);
-        botInfo.description_photo = this.appPhotosManager.savePhoto(botInfo.description_photo, referenceContext);
+        botInfo.description_document = this.appDocsManager.saveDoc(botInfo.description_document!, referenceContext);
+        botInfo.description_photo = this.appPhotosManager.savePhoto(botInfo.description_photo!, referenceContext);
       }
 
-      userFull.business_intro = this.appBusinessManager.saveBusinessIntro(peerId.toUserId(), userFull.business_intro);
+      userFull.business_intro = this.appBusinessManager.saveBusinessIntro(peerId.toUserId(), userFull.business_intro!);
 
       if(userFull.personal_channel_message) {
         userFull.personal_channel_message = this.appMessagesIdsManager.generateMessageId(
@@ -176,7 +176,7 @@ export class AppProfileManager extends AppManager {
       }
 
       if(fullChat._ === 'channelFull') {
-        fullChat.wallpaper = this.appThemesManager.saveWallPaper(fullChat.wallpaper);
+        fullChat.wallpaper = this.appThemesManager.saveWallPaper(fullChat.wallpaper!);
       }
 
       if(fullChat.call) {
@@ -359,7 +359,7 @@ export class AppProfileManager extends AppManager {
         chat_id: id
       },
       processResult: (result) => {
-        return this.saveFullPeerResult(peerId, result) as ChatFull.chatFull;
+        return this.saveFullPeerResult(peerId, result) as unknown as ChatFull.chatFull;
       }
     });
   }
@@ -413,7 +413,7 @@ export class AppProfileManager extends AppManager {
       }
 
       let {participants} = chatParticipants;
-      if(filter._ === 'channelParticipantsAdmins') {
+      if(filter!._ === 'channelParticipantsAdmins') {
         participants = participants.filter((participant) => {
           return isParticipantAdmin(participant);
         });
@@ -475,9 +475,9 @@ export class AppProfileManager extends AppManager {
 
     const result = this.apiManager.invokeApiCacheable('channels.getParticipants', {
       channel: this.appChatsManager.getChannelInput(id),
-      filter,
-      offset,
-      limit,
+      filter: filter!,
+      offset: offset!,
+      limit: limit!,
       hash: '0'
     }, {cacheSeconds: 60, syncIfHasResult: true});
 
@@ -493,7 +493,7 @@ export class AppProfileManager extends AppManager {
       }
     }
 
-    return callbackifyAll([result, sendAsPeersResult], ([result, sendAsPeers]) => {
+    return callbackifyAll([result, sendAsPeersResult!], ([result, sendAsPeers]) => {
       this.appPeersManager.saveApiPeers(result as ChannelsChannelParticipants.channelsChannelParticipants);
 
       const q = (filter as ChannelParticipantsFilter.channelParticipantsAdmins).q;
@@ -525,7 +525,7 @@ export class AppProfileManager extends AppManager {
         sendAsParticipants.unshift(channelParticipant, myParticipant);
 
         const participants = (result as ChannelsChannelParticipants.channelsChannelParticipants).participants.slice();
-        const sendAsFiltered = this.filterParticipantsByQuery(sendAsParticipants, q);
+        const sendAsFiltered = this.filterParticipantsByQuery(sendAsParticipants, q!);
         if(
           (sendAsFiltered.includes(channelParticipant) || !q?.trim()) &&
           !participants.some((p) => getParticipantPeerId(p) === peerId)
@@ -549,7 +549,7 @@ export class AppProfileManager extends AppManager {
         } as ChannelsChannelParticipants.channelsChannelParticipants;
       }
 
-      if(MANUALLY_FILTER.has(filter._) && q?.trim()) {
+      if(MANUALLY_FILTER.has(filter!._) && q?.trim()) {
         return {
           ...result,
           participants: this.filterParticipantsByQuery(
@@ -590,7 +590,7 @@ export class AppProfileManager extends AppManager {
         channel: this.appChatsManager.getChannelInput(id)
       },
       processResult: (result) => {
-        return this.saveFullPeerResult(peerId, result) as ChatFull.channelFull;
+        return this.saveFullPeerResult(peerId, result) as unknown as ChatFull.channelFull;
       },
       processError: (error) => {
         switch(error.type) {
@@ -644,7 +644,7 @@ export class AppProfileManager extends AppManager {
       });
 
       const peerIds = Array.from(index.search(query));
-      peerIds.sort((a, b) => ratingMap.get(b) - ratingMap.get(a));
+      peerIds.sort((a, b) => ratingMap.get(b)! - ratingMap.get(a)!);
       return peerIds;
     };
 
@@ -655,7 +655,7 @@ export class AppProfileManager extends AppManager {
         filter: {
           _: 'channelParticipantsMentions',
           q: query,
-          top_msg_id: getServerMessageId(threadId)
+          top_msg_id: getServerMessageId(threadId!)
         },
         limit: 50,
         offset: 0
@@ -671,7 +671,7 @@ export class AppProfileManager extends AppManager {
     return Promise.all([
       // [],
       global ? [] as MyTopPeer[] : this.appUsersManager.getTopPeers('bots_inline').catch(() => [] as MyTopPeer[]),
-      promise,
+      promise!,
       global && this.appUsersManager.getContactsPeerIds(query, false, 'rating', 30)
     ]).then(([botsInlineTopPeers, chatMembers, searchResults]) => {
       if(searchResults) {
@@ -684,7 +684,7 @@ export class AppProfileManager extends AppManager {
       const convertPeerIds = (peerIds: PeerId[]) => peerIds ? peerIds.map((peerId) => ({id: peerId, rating: 0})) : [];
       const peers = botsInlineTopPeers.concat(
         convertPeerIds(chatMembers),
-        convertPeerIds(searchResults)
+        convertPeerIds((searchResults! as number[]))
       );
 
       return processUserIds(peers);
@@ -958,7 +958,7 @@ export class AppProfileManager extends AppManager {
       }
 
       if(this.appChatsManager.isMegagroup(id)) {
-        if((chatFull as ChatFull.channelFull).participants_count <= 100) {
+        if((chatFull as ChatFull.channelFull).participants_count! <= 100) {
           const channelParticipantsResult = this.getChannelParticipants({
             id,
             filter: {_: 'channelParticipantsRecent'},
@@ -1165,9 +1165,9 @@ export class AppProfileManager extends AppManager {
     }
 
     const cancelAction = () => {
-      delete typing.timeout;
+      delete typing!.timeout;
       // typings.findAndSplice((t) => t === typing);
-      const idx = typings.indexOf(typing);
+      const idx = typings.indexOf(typing!);
       if(idx !== -1) {
         typings.splice(idx, 1);
       }
@@ -1276,7 +1276,7 @@ export class AppProfileManager extends AppManager {
       this.dialogsStorage.setDialogToState(dialog);
     }
 
-    this.rootScope.dispatchEvent('auto_delete_period_update', {peerId, period: update.ttl_period});
+    this.rootScope.dispatchEvent('auto_delete_period_update', {peerId, period: update.ttl_period!});
   };
 
   public setMyBirthday(date: Birthday | null) {

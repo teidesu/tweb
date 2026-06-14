@@ -45,12 +45,12 @@ ReplyMarkupLayout.Row = (props: {
   children: JSX.Element,
   class?: string
 }) => {
-  const context = useContext(Context);
+  const context = useContext(Context)!;
   const [elements, setElements] = createSignal<JSX.Element[]>([]);
-  let ref: HTMLDivElement;
+  let ref!: HTMLDivElement;
   const value: RowContextValue = {
     get isLast() {
-      return context.elements()[context.elements().length - 1] === ref;
+      return context.elements()[context!.elements().length - 1] === ref!;
     },
     elements
   };
@@ -79,10 +79,10 @@ ReplyMarkupLayout.Button = (props: {
   ref?: Ref<HTMLElement>,
   as?: 'button' | 'a'
 }) => {
-  const rowContext = useContext(RowContext);
+  const rowContext = useContext(RowContext)!;
   let ref: HTMLElement;
   const isFirst = createMemo(() => rowContext.elements()[0] === ref);
-  const isLast = createMemo(() => rowContext.elements()[rowContext.elements().length - 1] === ref);
+  const isLast = createMemo(() => rowContext.elements()[rowContext!.elements().length - 1] === ref);
   return (
     <RippleElement
       component={props.as || 'button'}
@@ -99,7 +99,7 @@ ReplyMarkupLayout.Button = (props: {
       onClick={props.onClick}
     >
       <Show when={props.icon}>
-        <IconTsx icon={props.icon} class="reply-markup-button-icon" />
+        <IconTsx icon={props.icon!} class="reply-markup-button-icon" />
       </Show>
       <span class={classNames('reply-markup-button-text', props.textClass)}>
         {props.children}
@@ -125,7 +125,7 @@ ReplyMarkupLayout.Inline = (props: {
               {(button) => {
                 return wrapKeyboardButton({
                   button,
-                  chat: props.chat,
+                  chat: props.chat!,
                   message: props.message,
                   wrapOptions: props.wrapOptions
                 });
@@ -155,6 +155,6 @@ export function createInlineReplyMarkup(options: {
       wrapOptions={options.wrapOptions}
     />
   ), container);
-  options.wrapOptions.middleware.onDestroy(dispose);
+  options.wrapOptions!.middleware!.onDestroy(dispose);
   return container.firstElementChild as HTMLDivElement || container as unknown as HTMLDivElement;
 }

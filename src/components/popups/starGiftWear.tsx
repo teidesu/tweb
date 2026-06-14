@@ -52,8 +52,8 @@ export default class PopupStarGiftWear extends PopupElement {
           {gift._ === 'starGiftUnique' && (
             <StarGiftBackdrop
               class={/* @once */ styles.backdrop}
-              backdrop={collectibleAttributes.backdrop}
-              patternEmoji={collectibleAttributes.pattern.document as MyDocument}
+              backdrop={collectibleAttributes!.backdrop}
+              patternEmoji={collectibleAttributes!.pattern.document as MyDocument}
             />
           )}
           <ButtonIconTsx
@@ -131,21 +131,21 @@ export default class PopupStarGiftWear extends PopupElement {
 
     attachClickEvent(this.btnConfirm, async() => {
       const promise = this.peerId === rootScope.myId ?
-        rootScope.managers.appUsersManager.updateEmojiStatus({
+        rootScope.managers.appUsersManager!.updateEmojiStatus({
           _: 'inputEmojiStatusCollectible',
           collectible_id: this.gift.raw.id
         }) :
-        rootScope.managers.apiManager.invokeApiSingleProcess({
+        rootScope.managers.apiManager!.invokeApiSingleProcess({
           method: 'channels.updateEmojiStatus',
           params: {
-            channel: await rootScope.managers.appChatsManager.getChannelInput(this.peerId.toChatId()),
+            channel: await rootScope.managers.appChatsManager!.getChannelInput(this.peerId.toChatId()),
             emoji_status: {
               _: 'inputEmojiStatusCollectible',
               collectible_id: this.gift.raw.id
             }
           }
         }).then((updates) => {
-          rootScope.managers.apiUpdatesManager.processUpdateMessage(updates);
+          rootScope.managers.apiUpdatesManager!.processUpdateMessage(updates);
         });
 
       promise.then(() => {

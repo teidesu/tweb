@@ -51,7 +51,7 @@ function _usePeerTranslation(peerId: PeerId) {
     const _fullPeer = fullPeer();
     if(
       (!_fullPeer || _fullPeer.pFlags.translations_disabled) ||
-      appSettings.translations.doNotTranslate.includes(peerLanguage())
+      appSettings.translations.doNotTranslate.includes(peerLanguage()!)
     ) {
       return false;
     }
@@ -64,7 +64,7 @@ function _usePeerTranslation(peerId: PeerId) {
     language: (): TranslatableLanguageISO => (appSettings.translations.peers[peerId] || I18n.langCodeNormalized()) as any,
     setLanguage: (lang: string) => setAppSettings('translations', 'peers', peerId, lang),
     enabled: createMemo(() => !!(canTranslate() && appSettings.translations.enabled && appSettings.translations.enabledPeers[peerId]) && shouldShow()),
-    toggle: (enabled: boolean) => setAppSettings('translations', 'enabledPeers', peerId, enabled ? true : undefined),
+    toggle: (enabled: boolean) => setAppSettings('translations', 'enabledPeers', peerId, (enabled ? true : undefined)!),
     shouldShow,
     canTranslate,
     areTranslationsAvailable

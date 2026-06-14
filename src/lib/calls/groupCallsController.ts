@@ -34,17 +34,17 @@ export function makeSsrcsFromParticipant(participant: GroupCallParticipant) {
 };
 
 export function makeSsrcFromParticipant(participant: GroupCallParticipant, type: WebRTCLineType, source?: number | GroupCallParticipantVideoSourceGroup[], endpoint?: string): Ssrc {
-  return generateSsrc(type, source, endpoint);
+  return generateSsrc(type, source!, endpoint)!;
 }
 
 export function generateSelfVideo(source: Ssrc, audioSource?: number): GroupCallParticipantVideo {
-  return source && {
+  return (source && {
     _: 'groupCallParticipantVideo',
     pFlags: {},
     endpoint: '',
     source_groups: source.sourceGroups,
     audio_source: audioSource
-  };
+  }) as GroupCallParticipantVideo;
 }
 
 export class GroupCallsController extends EventListenerBase<{
@@ -108,7 +108,7 @@ export class GroupCallsController extends EventListenerBase<{
 
     let streamManager: StreamManager;
     if(rejoin) {
-      streamManager = this.currentGroupCall.connections.main.streamManager;
+      streamManager = this.currentGroupCall.connections.main!.streamManager;
     } else {
       streamManager = await createMainStreamManager(muted, joinVideo);
     }
@@ -154,14 +154,14 @@ export class GroupCallsController extends EventListenerBase<{
 
       currentGroupCall.addEventListener('state', (state) => {
         if(this.currentGroupCall === currentGroupCall && state === GROUP_CALL_STATE.CLOSED) {
-          this.setCurrentGroupCall(null);
+          this.setCurrentGroupCall(null as any);
           this.stopConnectingSound();
           this.audioAsset.play({name: 'end'});
           rootScope.dispatchEvent('chat_update', currentGroupCall.chatId);
         }
       });
 
-      currentGroupCall.groupCall = await this.managers.appGroupCallsManager.getGroupCallFull(groupCallId);
+      currentGroupCall.groupCall = await this.managers.appGroupCallsManager!.getGroupCallFull(groupCallId);
 
       const connectionInstance = currentGroupCall.createConnectionInstance({
         streamManager,
@@ -212,7 +212,7 @@ export class GroupCallsController extends EventListenerBase<{
             if(!currentGroupCall.joined) {
               currentGroupCall.joined = true;
               this.audioAsset.play({name: 'start'});
-              this.managers.appGroupCallsManager.getGroupCallParticipants(groupCallId);
+              this.managers.appGroupCallsManager!.getGroupCallParticipants(groupCallId);
             }
 
             break;
@@ -277,8 +277,8 @@ export class GroupCallsController extends EventListenerBase<{
   }): Promise<GroupCallInstance> {
     // Step 1: create empty conference (flags=0). Returns updates carrying the
     // new inputGroupCall.
-    const emptyUpdates = await this.managers.appCallsManager.createEmptyConferenceCall();
-    this.managers.apiUpdatesManager.processUpdateMessage(emptyUpdates);
+    const emptyUpdates = await this.managers.appCallsManager!.createEmptyConferenceCall();
+    this.managers.apiUpdatesManager!.processUpdateMessage(emptyUpdates);
     const input = this.findInputGroupCallFromUpdates(emptyUpdates);
     if(!input || input._ !== 'inputGroupCall') {
       throw new Error('startConference: no inputGroupCall in createConferenceCall(flags=0) response');
@@ -427,7 +427,7 @@ export class GroupCallsController extends EventListenerBase<{
 
     instance.addEventListener('state', (state) => {
       if(this.currentGroupCall === instance && state === GROUP_CALL_STATE.CLOSED) {
-        this.setCurrentGroupCall(null);
+        this.setCurrentGroupCall(null as any);
         this.stopConnectingSound();
         this.audioAsset.play({name: 'end'});
         void opts.worker.terminate().catch((): undefined => undefined);
@@ -438,9 +438,9 @@ export class GroupCallsController extends EventListenerBase<{
     // the access_hash is still unknown — we hydrate after joinGroupCall echoes
     // back the real updateGroupCall with id+access_hash.
     if(opts.input && opts.input._ === 'inputGroupCall') {
-      instance.groupCall = await this.managers.appGroupCallsManager
+      instance.groupCall = (await this.managers.appGroupCallsManager!
       .getGroupCallFull(opts.input.id)
-      .catch((): GroupCallInstance['groupCall'] => undefined);
+      .catch((): GroupCallInstance['groupCall'] | undefined => undefined))!;
     }
 
     const connectionInstance = instance.createConnectionInstance({
@@ -487,7 +487,7 @@ export class GroupCallsController extends EventListenerBase<{
       if(iceConnectionState === 'connected' && !instance.joined) {
         instance.joined = true;
         this.audioAsset.play({name: 'start'});
-        void this.managers.appGroupCallsManager.getGroupCallParticipants(instance.id)
+        void this.managers.appGroupCallsManager!.getGroupCallParticipants(instance.id)
         .catch((err) => this.log.warn('getGroupCallParticipants on connect failed', err));
       }
     });
@@ -539,10 +539,10 @@ export class GroupCallsController extends EventListenerBase<{
   private async fetchLastConferenceBlock(input: InputGroupCall): Promise<Uint8Array | undefined> {
     // sub_chain_id 0 is the block chain. offset=-1, limit=1 fetches the tip
     // (see schema: phone.getGroupCallChainBlocks → Updates).
-    const updates = await this.managers.appCallsManager.getGroupCallChainBlocks(input, 0, -1, 1);
+    const updates = await this.managers.appCallsManager!.getGroupCallChainBlocks(input, 0, -1, 1);
     // Surface the embedded updates through the normal pipeline so any side
     // effects (e.g. updateGroupCall) are applied to local state.
-    this.managers.apiUpdatesManager.processUpdateMessage(updates);
+    this.managers.apiUpdatesManager!.processUpdateMessage(updates);
     const blocks = this.extractBlocksFromUpdates(updates);
     if(blocks.length === 0) return undefined;
     return blocks[blocks.length - 1];

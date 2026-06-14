@@ -79,13 +79,13 @@ const GroupPermissions: Component = () => {
     solidState.setInitial({rights: chatPermissions.takeOut()});
 
     saveCallbacks.push(() => {
-      return tab.managers.appChatsManager.editChatDefaultBannedRights(chatId, chatPermissions.takeOut());
+      return tab.managers.appChatsManager!.editChatDefaultBannedRights(chatId, chatPermissions.takeOut());
     });
 
     if(isChannel) {
       const {default: createChargeForMessagesSection} = await import('./chargeForMessasgesSection');
 
-      const initialStars = +chat.send_paid_messages_stars || 0;
+      const initialStars = +chat.send_paid_messages_stars! || 0;
       solidState.setInitial({stars: initialStars});
 
       const {element, dispose, promise} = createChargeForMessagesSection(
@@ -106,11 +106,11 @@ const GroupPermissions: Component = () => {
         const {stars} = solidState.store;
 
         if(initialStars === stars) return;
-        return tab.managers.appChatsManager.updateChannelPaidMessagesPrice(chat.id, stars);
+        return tab.managers.appChatsManager!.updateChannelPaidMessagesPrice(chat.id, stars!);
       });
     }
 
-    const chatFull = await tab.managers.appProfileManager.getChatFull(chatId);
+    const chatFull = await tab.managers.appProfileManager!.getChatFull(chatId);
 
     {
       let lastValue: number;
@@ -118,17 +118,17 @@ const GroupPermissions: Component = () => {
         generateStep: (value) => {
           let t: HTMLElement;
           if(!value) {
-            t = i18n('SlowmodeOff');
+            t = i18n('SlowmodeOff')!;
           } else {
             const hours = Math.floor(value / 3600);
             const minutes = Math.floor(value / 60) % 60;
             const seconds = value % 60;
             if(hours) {
-              t = i18n('SlowmodeHours', [hours]);
+              t = i18n('SlowmodeHours', [hours])!;
             } else if(minutes) {
-              t = i18n('SlowmodeMinutes', [minutes]);
+              t = i18n('SlowmodeMinutes', [minutes])!;
             } else {
-              t = i18n('SlowmodeSeconds', [seconds]);
+              t = i18n('SlowmodeSeconds', [seconds])!;
             }
           }
 
@@ -162,7 +162,7 @@ const GroupPermissions: Component = () => {
         const {value} = range;
         if(value !== initialValue) {
           return handleChannelsTooMuch(() => {
-            return tab.managers.appChatsManager.toggleSlowMode(chatId, value);
+            return tab.managers.appChatsManager!.toggleSlowMode(chatId, value);
           });
         }
       });
@@ -187,7 +187,7 @@ const GroupPermissions: Component = () => {
           return;
         }
 
-        return tab.managers.appChatsManager.setBoostsToUnblockRestrictions(
+        return tab.managers.appChatsManager!.setBoostsToUnblockRestrictions(
           chatId,
           boostsUnrestrict
         );
@@ -198,7 +198,7 @@ const GroupPermissions: Component = () => {
       const channel = chat as Chat.channel;
       const flags = channel.pFlags;
       if(flags.creator && flags.megagroup && !flags.gigagroup) {
-        const config = await tab.managers.apiManager.getConfig();
+        const config = await tab.managers.apiManager!.getConfig();
         const participantsCount = (chatFull as ChatFull.channelFull).participants_count ||
           channel.participants_count || 0;
         if(participantsCount >= config.megagroup_size_max - 1000) {
@@ -242,13 +242,13 @@ const GroupPermissions: Component = () => {
         let participant = participants.get(peerId);
         if(!participant) {
           try {
-            participant = await tab.managers.appProfileManager.getParticipant(chatId, peerId) as typeof participant;
+            participant = await tab.managers.appProfileManager!.getParticipant(chatId, peerId) as unknown as typeof participant;
           } catch(err) {
             return;
           }
         }
 
-        openUserPermissionsTab(tab.slider, chatId, participant);
+        openUserPermissionsTab(tab.slider, chatId, participant!);
       };
 
       exceptionsAdd.append(addExceptionRow.container);
@@ -260,13 +260,13 @@ const GroupPermissions: Component = () => {
         const target = findUpTag(e.target, DIALOG_LIST_ELEMENT_TAG);
         if(!target) return;
 
-        const peerId = target.dataset.peerId.toPeerId();
+        const peerId = target.dataset.peerId!.toPeerId();
         openPermissions(peerId);
       }, {listenerSetter: tab.listenerSetter});
 
       const setSubtitle = async(dom: DialogDom, participant: ChannelParticipant.channelParticipantBanned) => {
         const bannedRights = participant.banned_rights;
-        const defaultBannedRights = ((await tab.managers.appChatsManager.getChat(chatId)) as Chat.channel).default_banned_rights;
+        const defaultBannedRights = ((await tab.managers.appChatsManager!.getChat(chatId)) as Chat.channel).default_banned_rights;
 
         const cantWhat: LangPackKey[] = [];
         chatPermissions.fields.forEach((info) => {
@@ -281,10 +281,10 @@ const GroupPermissions: Component = () => {
         const el = dom.lastMessageSpan as HTMLElement;
 
         if(cantWhat.length) {
-          el.replaceChildren(...join(cantWhat.map((t) => i18n(t)), false));
+          el.replaceChildren(...join((cantWhat.map((t) => i18n(t))! as (string | Node)[]), false));
           el.classList.toggle('hide', !cantWhat.length);
         } else {
-          el.replaceChildren(i18n('UserRestrictionsBy', [await wrapPeerTitle({peerId: participant.kicked_by.toPeerId(false)})]));
+          el.replaceChildren(i18n('UserRestrictionsBy', [await wrapPeerTitle({peerId: participant.kicked_by.toPeerId(false)})])!);
           el.classList.remove('hide');
         }
       };
@@ -348,7 +348,7 @@ const GroupPermissions: Component = () => {
 
       const setLength = () => {
         const el = i18n(exceptionsCount ? 'Permissions.ExceptionsCount' : 'Permissions.NoExceptions', [exceptionsCount]);
-        replaceContent(addExceptionRow.subtitle, el);
+        replaceContent(addExceptionRow.subtitle, el!);
       };
 
       let exceptionsCount = 0;
@@ -358,7 +358,7 @@ const GroupPermissions: Component = () => {
         loader = new ScrollableLoader({
           scrollable: tab.scrollable,
           getPromise: () => {
-            return tab.managers.appProfileManager.getChannelParticipants({
+            return tab.managers.appProfileManager!.getChannelParticipants({
               id: chatId,
               filter: {_: 'channelParticipantsBanned', q: ''},
               limit: LOAD_COUNT,
@@ -379,7 +379,7 @@ const GroupPermissions: Component = () => {
         return loader.load();
       };
 
-      if(await tab.managers.appChatsManager.isChannel(chatId)) {
+      if(await tab.managers.appChatsManager!.isChannel(chatId)) {
         await setLoader();
       } else {
         setLength();

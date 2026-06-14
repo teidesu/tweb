@@ -12,7 +12,7 @@ export default function SelectedEffect(props: {
   const [element, setElement] = createSignal<JSX.Element>();
   const lastElement = createMemo<JSX.Element>((prev) => element() || prev);
   const [availableEffects] = createResource(async() => {
-    return rootScope.managers.appReactionsManager.getAvailableEffects();
+    return rootScope.managers.appReactionsManager!.getAvailableEffects();
   });
 
   createEffect(async() => {
@@ -22,17 +22,17 @@ export default function SelectedEffect(props: {
       return;
     }
 
-    const availableEffect = availableEffects().find((availableEffect) => availableEffect.id === effect);
+    const availableEffect = availableEffects()!.find((availableEffect) => availableEffect.id === effect);
 
     let ref: HTMLDivElement;
-    const element = (<div class="btn-send-effect" ref={ref}></div>);
+    const element = (<div class="btn-send-effect" ref={ref!}></div>);
 
     const middlewareHelper = createMiddleware();
     const middleware = middlewareHelper.get();
     const loadPromises: Promise<any>[] = [];
     wrapSticker({
-      doc: await rootScope.managers.appDocsManager.getDoc(availableEffect.static_icon_id),
-      div: ref,
+      doc: await rootScope.managers.appDocsManager!.getDoc(availableEffect!.static_icon_id!),
+      div: ref!,
       middleware,
       loadPromises,
       width: 20,
@@ -48,7 +48,7 @@ export default function SelectedEffect(props: {
     fireMessageEffect({
       isOut: true,
       effectId: effect,
-      element: ref,
+      element: ref!,
       middleware
     });
   });

@@ -32,10 +32,10 @@ const SuggestedPostReplyMarkupContent = defineSolidElement({
     const {commission, formattedCommission} = useFormattedCommission();
 
     const onAcceptClick = async() => {
-      const canManageDirectMessages = await rootScope.managers.appPeersManager.canManageDirectMessages(props.message.peerId);
+      const canManageDirectMessages = await rootScope.managers.appPeersManager!.canManageDirectMessages(props.message.peerId);
       const stars = props.message.suggested_post?.price?._ === 'starsAmount' && +props.message.suggested_post?.price?.amount || undefined;
       let scheduleDate = props.message.suggested_post?.schedule_date || undefined;
-      if(scheduleDate * 1000 < Date.now()) scheduleDate = undefined;
+      if(scheduleDate && scheduleDate * 1000 < Date.now()) scheduleDate = undefined;
 
       if(canManageDirectMessages && !scheduleDate) {
         new SuggestedPostAcceptWithTimePopup({
@@ -65,22 +65,22 @@ const SuggestedPostReplyMarkupContent = defineSolidElement({
           button: {langKey: 'SuggestedPosts.Accept'}
         });
 
-        await rootScope.managers.monoforumDialogsStorage.toggleSuggestedPostApproval({
-          parentPeerId: props.message.peerId,
-          messageId: props.message.mid
+        await rootScope.managers.monoforumDialogsStorage!.toggleSuggestedPostApproval({
+          parentPeerId: props.message.peerId!,
+          messageId: props.message.mid!
         });
       } catch{ }
     };
 
     const onRejectClick = () => {
       new SuggestedPostRejectPopup({
-        peerId: props.message.peerId,
-        messageId: props.message.mid
+        peerId: props.message.peerId!,
+        messageId: props.message.mid!
       }).show();
     };
 
     const onSuggestChangesClick = () => {
-      props.chat.input.initSuggestPostChange(props.message.mid);
+      props.chat.input.initSuggestPostChange(props.message.mid!);
     };
 
     return (

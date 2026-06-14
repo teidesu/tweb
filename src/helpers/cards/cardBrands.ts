@@ -107,7 +107,7 @@ export const detectCardBrand = cacheCallback((card: string = '') => {
     }
   });
 
-  return brand || 'unknown';
+  return brand! || 'unknown';
 });
 
 export function cardBrandToUnifiedBrand(brand: string) {

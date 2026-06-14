@@ -8,7 +8,7 @@ export default class AppBusinessManager extends AppManager {
       return;
     }
 
-    intro.sticker = this.appDocsManager.saveDoc(intro.sticker, {type: 'userFull', userId});
+    intro.sticker = this.appDocsManager.saveDoc(intro.sticker!, {type: 'userFull', userId});
     return intro;
   }
 

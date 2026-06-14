@@ -31,7 +31,7 @@ const SuggestedPostRejectPopupContent = defineSolidElement({
     const onFinish = () => {
       if(isFinishing || tooLong()) return;
       isFinishing = true;
-      rootScope.managers.monoforumDialogsStorage.toggleSuggestedPostApproval({
+      rootScope.managers.monoforumDialogsStorage!.toggleSuggestedPostApproval({
         parentPeerId: props.peerId,
         messageId: props.messageId,
         reject: true,

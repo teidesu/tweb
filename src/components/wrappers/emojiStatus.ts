@@ -21,9 +21,9 @@ export default async function wrapEmojiStatus({
   const {middleware, animationGroup, textColor} = wrapOptions;
   const container = document.createElement('span');
   container.classList.add('emoji-status');
-  const result = await rootScope.managers.acknowledged.appEmojiManager.getCustomEmojiDocument(emojiStatus.document_id);
+  const result = await rootScope.managers.acknowledged!.appEmojiManager!.getCustomEmojiDocument(emojiStatus.document_id);
   const wrap = async(doc: Document.document) => {
-    if(!middleware()) return;
+    if(!middleware!()) return;
     const loadPromises: Promise<any>[] = [];
 
     const attribute = doc.attributes.find((attr) => attr._ === 'documentAttributeCustomEmoji') as DocumentAttribute.documentAttributeCustomEmoji;
@@ -46,7 +46,7 @@ export default async function wrapEmojiStatus({
       // group: 'none'
     });
 
-    if(!middleware()) return;
+    if(!middleware!()) return;
     await Promise.all(loadPromises);
   };
 
@@ -59,7 +59,7 @@ export default async function wrapEmojiStatus({
     container.style.setProperty('--sparkles-color', rgbIntToHex(emojiStatus.center_color));
   }
 
-  if(!middleware()) {
+  if(!middleware!()) {
     return container;
   }
 

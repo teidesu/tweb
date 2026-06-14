@@ -96,7 +96,7 @@ export default class RLottiePlayer extends EventListenerBase<{
 
   private frInterval: number;
   private frThen: number;
-  private rafId: number;
+  private rafId: number | undefined;
 
   // private caching = false;
   // private removed = false;
@@ -124,7 +124,7 @@ export default class RLottiePlayer extends EventListenerBase<{
   private renderedFirstFrame: boolean;
 
   private raw: boolean;
-  private clearCacheOnRafId: number;
+  private clearCacheOnRafId: number | undefined;
 
   constructor({el, options}: {
     el: RLottiePlayer['el'],
@@ -147,21 +147,21 @@ export default class RLottiePlayer extends EventListenerBase<{
     this._autoplay = this.autoplay;
 
     // ! :(
-    this.initFrame = options.initFrame;
+    this.initFrame = options.initFrame!;
     this.color = options.color;
     this.textColor = options.textColor;
-    this.name = options.name;
-    this.skipFirstFrameRendering = options.skipFirstFrameRendering;
-    this.toneIndex = options.toneIndex;
+    this.name = options.name!;
+    this.skipFirstFrameRendering = options.skipFirstFrameRendering!;
+    this.toneIndex = options.toneIndex!;
     this.raw = false;
-    this.liteModeKey = options.liteModeKey;
+    this.liteModeKey = options.liteModeKey!;
 
     if(this.name) {
       this.cacheName = RLottiePlayer.CACHE.generateName(
         this.name,
         this.width,
         this.height,
-        this.color,
+        this.color!,
         this.toneIndex
       );
     }
@@ -178,7 +178,7 @@ export default class RLottiePlayer extends EventListenerBase<{
       skipRatio = 0.5;
     }
 
-    this.skipDelta = skipRatio !== undefined ? 1 / skipRatio | 0 : 1;
+    this.skipDelta = skipRatio! !== undefined ? 1 / skipRatio | 0 : 1;
 
     // options.needUpscale = true;
 
@@ -219,7 +219,7 @@ export default class RLottiePlayer extends EventListenerBase<{
       });
     }
 
-    this.contexts = this.canvas.map((canvas) => canvas.getContext('2d'));
+    this.contexts = (this.canvas.map((canvas) => canvas.getContext('2d'))! as CanvasRenderingContext2D[]);
 
     if(!IS_IMAGE_BITMAP_SUPPORTED || this.raw) {
       this.imageData = new ImageData(this.width, this.height);
@@ -421,7 +421,7 @@ export default class RLottiePlayer extends EventListenerBase<{
 
       // this.context.putImageData(new ImageData(frame, this.width, this.height), 0, 0);
       this.contexts.forEach((context, idx) => {
-        cachedSource = this.cache.framesNew.get(frameNo);
+        cachedSource = this.cache.framesNew.get(frameNo)!;
         if(!(frame instanceof Uint8ClampedArray)) {
           cachedSource = frame;
         } else if(idx > 0) {
@@ -432,7 +432,7 @@ export default class RLottiePlayer extends EventListenerBase<{
           const c = document.createElement('canvas');
           c.width = context.canvas.width;
           c.height = context.canvas.height;
-          c.getContext('2d').putImageData(this.imageData, 0, 0);
+          c.getContext('2d')!.putImageData(this.imageData, 0, 0);
           this.cache.framesNew.set(frameNo, c);
           cachedSource = c;
         }
@@ -457,7 +457,7 @@ export default class RLottiePlayer extends EventListenerBase<{
 
       this.dispatchEvent('enterFrame', frameNo);
     } catch(err) {
-      console.error('RLottiePlayer renderFrame error:', err/* , frame */, this, cachedSource);
+      console.error('RLottiePlayer renderFrame error:', err/* , frame */, this, cachedSource!);
       this.autoplay = false;
       this.pause();
     }

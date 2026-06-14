@@ -85,7 +85,7 @@ export class RtmpCallsController extends EventListenerBase<{
     }
 
     this._currentCall?.cleanup();
-    this.dispatchEvent('currentCallChanged', this._currentCall = value);
+    this.dispatchEvent('currentCallChanged', (this._currentCall = value!)!!);
   }
 
   private onGroupCallUpdate = (update: GroupCall) => {
@@ -131,7 +131,7 @@ export class RtmpCallsController extends EventListenerBase<{
     const ssrc = this.randomSsrc();
     const data = this.getJoinPayload(ssrc);
 
-    const chat = await this.managers.appProfileManager.getChatFull(chatId);
+    const chat = await this.managers.appProfileManager!.getChatFull(chatId);
     if(chat._ !== 'channelFull') {
       throw new Error('Not a chat');
     }
@@ -141,12 +141,12 @@ export class RtmpCallsController extends EventListenerBase<{
       throw new Error('No call id');
     }
 
-    const call = await this.managers.appGroupCallsManager.getGroupCallFull(callId);
+    const call = await this.managers.appGroupCallsManager!.getGroupCallFull(callId);
     if(call._ !== 'groupCall') {
       throw new Error('Not a group call');
     }
 
-    const update = await this.managers.appGroupCallsManager.joinGroupCall(callId, data, {type: 'main'});
+    const update = await this.managers.appGroupCallsManager!.joinGroupCall(callId, data, {type: 'main'});
     const updateData = JSON.parse(update.params.data);
     if(updateData.rtmp !== true) {
       throw new Error('Not an rtmp call');
@@ -174,13 +174,13 @@ export class RtmpCallsController extends EventListenerBase<{
 
     this.currentCall = undefined;
     apiManagerProxy.serviceMessagePort.invokeVoid('leaveRtmpCall', [currentCall.call.id, true]);
-    await this.managers.appGroupCallsManager.hangUp(currentCall.call.id, discard ? true : currentCall.ssrc);
+    await this.managers.appGroupCallsManager!.hangUp(currentCall.call.id, discard ? true : currentCall.ssrc);
   }
 
   public async isCurrentCallDead(checkJoined = false, triedRejoin = false): Promise<'dead' | 'dying' | 'alive'> {
     if(!this.currentCall) return 'dead';
 
-    const state = await this.managers.appGroupCallsManager.fetchRtmpState(this.currentCall.inputCall);
+    const state = await this.managers.appGroupCallsManager!.fetchRtmpState(this.currentCall.inputCall);
     if(!checkJoined) return state.channels.length === 0 ? 'dead' : 'alive';
 
     // check if we are joined by trying to fetch a part
@@ -188,7 +188,7 @@ export class RtmpCallsController extends EventListenerBase<{
     if(!unified) return 'dead';
     try {
       const time = this.currentCall.lastKnownTime === '0' ? unified.last_timestamp_ms : this.currentCall.lastKnownTime;
-      await this.managers.appGroupCallsManager.fetchRtmpPart({
+      await this.managers.appGroupCallsManager!.fetchRtmpPart({
         _: 'inputGroupCallStream',
         call: this.currentCall.inputCall,
         video_channel: RTMP_UNIFIED_CHANNEL_ID,
@@ -215,7 +215,7 @@ export class RtmpCallsController extends EventListenerBase<{
     if(!this.currentCall) return;
     this.currentCall.ssrc = this.randomSsrc();
     const data = this.getJoinPayload(this.currentCall.ssrc);
-    await this.managers.appGroupCallsManager.joinGroupCall(this.currentCall.call.id, data, {type: 'main'});
+    await this.managers.appGroupCallsManager!.joinGroupCall(this.currentCall.call.id, data, {type: 'main'});
   }
 }
 

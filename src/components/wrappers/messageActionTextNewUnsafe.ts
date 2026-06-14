@@ -127,12 +127,12 @@ export async function wrapTopicIcon(options: WrapTopicIconOptions): Promise<stri
   }
 
   return options.plain ?
-    rootScope.managers.appEmojiManager.getCustomEmojiDocument(iconEmojiId).then((doc) => doc.stickerEmojiRaw) :
+    rootScope.managers.appEmojiManager!.getCustomEmojiDocument(iconEmojiId).then((doc) => doc.stickerEmojiRaw!) :
     wrapCustomEmojiAwaited({
       ...options,
       docIds: [iconEmojiId]
     }).then((fragment) => {
-      fragment.lastElementChild.classList.add('topic-icon');
+      fragment.lastElementChild!.classList.add('topic-icon');
       return fragment;
     });
 }
@@ -149,7 +149,7 @@ async function wrapMessageActionTopicIconAndName(options: WrapMessageActionTextO
   const action = ((options.message as Message.messageService).action as MessageAction.messageActionTopicCreate);
   const span = document.createElement('span');
   span.classList.add('topic-name');
-  span.append(await wrapMessageActionTopicIcon(options), wrapSomeText(action.title, options.plain));
+  span.append(await wrapMessageActionTopicIcon(options), wrapSomeText(action.title, options.plain!));
   return span;
 }
 
@@ -159,16 +159,16 @@ export function wrapMessageGiveawayResults(action: MessageAction.messageActionGi
 
   const setCombined = (addLangPackKey: LangPackKey, addArgs?: FormatterArguments) => {
     args = [
-      plain ?
+      (plain ?
         I18n.format(langPackKey, true, args as FormatterArguments) :
-        i18n(langPackKey, args as FormatterArguments)
+        i18n(langPackKey, args as FormatterArguments))!
     ];
 
     langPackKey = 'Giveaway.Results.Combined';
     args.push(
-      plain ?
+      (plain ?
         I18n.format(addLangPackKey, true, addArgs) :
-        i18n(addLangPackKey, addArgs)
+        i18n(addLangPackKey, addArgs))!
     );
   };
 
@@ -184,8 +184,8 @@ export function wrapMessageGiveawayResults(action: MessageAction.messageActionGi
 
 export default async function wrapMessageActionTextNewUnsafe(options: WrapMessageActionTextOptions) {
   const {plain, message, noLinks} = options;
-  const element: HTMLElement = plain ? undefined : document.createElement('span');
-  const action = 'action' in message && message.action;
+  const element: HTMLElement = (plain ? undefined : document.createElement('span'))!;
+  const action = ('action' in message && message.action) as MessageAction;
 
   // this.log('message action:', action);
 
@@ -211,7 +211,7 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
     };
 
     const wrapTruncatedText = (text: string, entities: MessageEntity[] | undefined, maxLength: number) => {
-      const truncated = truncateTextWithEntities(text, entities, maxLength);
+      const truncated = truncateTextWithEntities(text, entities!, maxLength);
 
       if(plain) {
         return wrapPlainText(truncated.text, truncated.entities);
@@ -245,7 +245,7 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
       case 'messageActionPhoneCall': {
         _ += '.' + (action as any).type;
 
-        args = [wrapCallDuration(action.duration, plain)];
+        args = [wrapCallDuration(action.duration!, plain)];
         break;
       }
 
@@ -254,7 +254,7 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
 
         args = [];
         if(!_.endsWith('You') && !message.pFlags.post) {
-          args.push(getNameDivHTML(message.fromId, plain));
+          args.push(getNameDivHTML(message.fromId!, plain!));
         }
 
         if(action.duration !== undefined) {
@@ -277,7 +277,7 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
         indexOfAndSplice(peerIds, myId);
 
         langPackKey = a as LangPackKey;
-        args = peerIds.map((peerId) => getNameDivHTML(peerId, plain));
+        args = peerIds.map((peerId) => getNameDivHTML(peerId!, plain!));
         args.push(noLinks ? '' : wrapJoinVoiceChatAnchor(message as any));
         break;
       }
@@ -297,7 +297,7 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
           args = [];
         } else if(hasDuration) {
           langPackKey = 'Chat.Service.ConferenceCall.Ended';
-          args = [wrapCallDuration(action.duration, plain)];
+          args = [wrapCallDuration(action.duration!, plain)];
         } else {
           langPackKey = isOut ?
             'Chat.Service.ConferenceCall.Outgoing' :
@@ -314,14 +314,14 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
         const tomorrowDate = new Date(today);
         tomorrowDate.setDate(tomorrowDate.getDate() + 1);
 
-        const isBroadcast = await managers.appPeersManager.isBroadcast(message.peerId);
+        const isBroadcast = await managers.appPeersManager!.isBroadcast(message.peerId!);
         langPackKey = isBroadcast ? 'ChatList.Service.VoiceChatScheduled.Channel' : 'ChatList.Service.VoiceChatScheduled';
         args = [];
         const myId = rootScope.myId;
         if(message.fromId === myId) {
           langPackKey += 'You';
         } else if(!isBroadcast) {
-          args.push(getNameDivHTML(message.fromId, plain));
+          args.push(getNameDivHTML(message.fromId!, plain!));
         }
 
         let k: LangPackKey;
@@ -339,12 +339,12 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
               month: '2-digit',
               year: '2-digit'
             }
-          }).element);
+          }).element!);
         }
 
-        _args.push(formatTime(date));
+        _args.push(formatTime(date)!);
         const t = i18n(k, _args);
-        args.push(t);
+        args.push(t!);
 
         break;
       }
@@ -354,7 +354,7 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
         if(message.fromId === myId) {
           _ += 'You';
         } else {
-          args = [getNameDivHTML(message.fromId, plain)];
+          args = [getNameDivHTML(message.fromId!, plain!)];
         }
 
         break;
@@ -364,18 +364,18 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
         const fromMe = message.fromId === rootScope.myId;
         args = [];
         if(!fromMe) {
-          args.push(getNameDivHTML(message.fromId, plain));
+          args.push(getNameDivHTML(message.fromId!, plain!));
         }
         args.push('' + action.score);
 
         let gameTitle: string | undefined;
         if(message.reply_to_mid) {
-          const gameMessage = await managers.appMessagesManager.getMessageByPeer(message.peerId, message.reply_to_mid);
+          const gameMessage = await managers.appMessagesManager!.getMessageByPeer(message.peerId!, message.reply_to_mid);
           const media = (gameMessage as Message.message)?.media;
           if(media?._ === 'messageMediaGame' && media.game?._ === 'game') {
             gameTitle = media.game.title;
           } else if(!gameMessage) {
-            managers.appMessagesManager.fetchMessageReplyTo(message);
+            managers.appMessagesManager!.fetchMessageReplyTo(message);
           }
         }
 
@@ -399,17 +399,17 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
 
       case 'messageActionPinMessage': {
         const peerId = message.peerId;
-        const pinnedMessage = await managers.appMessagesManager.getMessageByPeer(peerId, message.reply_to_mid);
+        const pinnedMessage = await managers.appMessagesManager!.getMessageByPeer(peerId!, message.reply_to_mid!);
 
         args = [
-          getNameDivHTML(message.fromId, plain)
+          getNameDivHTML(message.fromId!, plain!)
         ];
 
         if(!pinnedMessage/*  || true */) {
           langPackKey = 'ActionPinnedNoText';
 
           if(message.reply_to_mid) { // refresh original message
-            managers.appMessagesManager.fetchMessageReplyTo(message);
+            managers.appMessagesManager!.fetchMessageReplyTo(message);
           }
         } else {
           args.push(wrapLinkToMessage({
@@ -422,19 +422,19 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
       }
 
       case 'messageActionChatJoinedByRequest': {
-        const isBroadcast = await managers.appPeersManager.isBroadcast(message.peerId);
+        const isBroadcast = await managers.appPeersManager!.isBroadcast(message.peerId!);
         if(message.pFlags.out) {
           langPackKey = isBroadcast ? 'RequestToJoinChannelApproved' : 'RequestToJoinGroupApproved';
         } else {
           langPackKey = isBroadcast ? 'ChatService.UserJoinedChannelByRequest' : 'ChatService.UserJoinedGroupByRequest';
-          args = [getNameDivHTML(message.fromId, plain)];
+          args = [getNameDivHTML(message.fromId!, plain!)];
         }
         break;
       }
 
       case 'messageActionGiveawayLaunch': {
         langPackKey = action.stars ? 'BoostingStarsGiveawayJustStarted' : 'BoostingGiveawayJustStarted';
-        args = [getNameDivHTML(message.fromId, plain)];
+        args = [getNameDivHTML(message.fromId!, plain!)];
 
         if(action.stars) {
           args.unshift(+action.stars);
@@ -452,7 +452,7 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
       case 'messageActionChatJoinedByLink':
       case 'messageActionChannelEditVideo':
       case 'messageActionChannelDeletePhoto': {
-        args = [getNameDivHTML(message.fromId, plain)];
+        args = [getNameDivHTML(message.fromId!, plain!)];
         break;
       }
 
@@ -461,7 +461,7 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
         langPackKey = isOutgoing ?
           'Action.YouSuggestedProfilePhoto' :
           'Action.SuggestedProfilePhoto';
-        args = isOutgoing ? [getNameDivHTML(message.peerId, plain)] : [getNameDivHTML(message.fromId, plain)];
+        args = isOutgoing ? [getNameDivHTML(message.peerId!, plain!)] : [getNameDivHTML(message.fromId!, plain!)];
         break;
       }
 
@@ -469,10 +469,10 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
       case 'messageActionChatEditTitle': {
         args = [];
         if(action._ === 'messageActionChatEditTitle') {
-          args.push(getNameDivHTML(message.fromId, plain));
+          args.push(getNameDivHTML(message.fromId!, plain!));
         }
 
-        args.push(wrapSomeText(action.title, plain));
+        args.push(wrapSomeText(action.title!, plain!));
         break;
       }
 
@@ -482,10 +482,10 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
         const users = (action as MessageAction.messageActionChatAddUser).users ||
           [(action as MessageAction.messageActionChatDeleteUser).user_id];
 
-        args = [getNameDivHTML(message.fromId, plain)];
+        args = [getNameDivHTML(message.fromId!, plain!)];
 
         const peerIds = users.map((userId) => userId.toPeerId(false));
-        args.push(getSeveralNameDivHTML(peerIds, plain));
+        args.push(getSeveralNameDivHTML(peerIds, plain!));
         break;
       }
 
@@ -520,17 +520,17 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
         const isRecurringUsed = action.pFlags.recurring_used;
         langPackKey = isRecurringUsed ? 'Chat.Service.PaymentSentRecurringUsedNoTitle' : (isRecurringInit ? 'Chat.Service.PaymentSentRecurringInitNoTitle' : 'Chat.Service.PaymentSent1NoTitle');
         const price = paymentsWrapCurrencyAmount(action.total_amount, action.currency, undefined, undefined, plain);
-        args = [price, getNameDivHTML(message.peerId, plain)];
+        args = [price, getNameDivHTML(message.peerId!, plain!)];
 
         if(message.reply_to_mid) {
           const replyTo = message.reply_to as MessageReplyHeader.messageReplyHeader;
-          const invoiceMessage = await managers.appMessagesManager.getMessageByPeer(
-            replyTo?.reply_to_peer_id ? getPeerId(replyTo.reply_to_peer_id) : message.peerId,
+          const invoiceMessage = await managers.appMessagesManager!.getMessageByPeer(
+            (replyTo?.reply_to_peer_id ? getPeerId(replyTo.reply_to_peer_id) : message.peerId)!,
             message.reply_to_mid
           );
 
           if(!invoiceMessage) {
-            managers.appMessagesManager.fetchMessageReplyTo(message);
+            managers.appMessagesManager!.fetchMessageReplyTo(message);
           } else {
             langPackKey = isRecurringUsed ? 'Chat.Service.PaymentSentRecurringUsed' : (isRecurringInit ? 'Chat.Service.PaymentSentRecurringInit' : 'Chat.Service.PaymentSent1');
             args.push(wrapLinkToMessage({
@@ -551,7 +551,7 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
 
       case 'messageActionPaymentRefunded': {
         const price = paymentsWrapCurrencyAmount(action.total_amount, action.currency, undefined, undefined, plain);
-        args = [getNameDivHTML(message.fromId, plain), price];
+        args = [getNameDivHTML(message.fromId!, plain!), price];
         langPackKey = 'Chat.Service.Refund';
         break;
       }
@@ -559,7 +559,7 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
       case 'messageActionSetMessagesTTL': {
         args = [];
 
-        const isBroadcast = await managers.appPeersManager.isBroadcast(message.peerId);
+        const isBroadcast = await managers.appPeersManager!.isBroadcast(message.peerId!);
         if(action.period) {
           if(isBroadcast) {
             langPackKey = 'ActionTTLChannelChanged';
@@ -567,7 +567,7 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
             langPackKey = 'ActionTTLYouChanged';
           } else {
             langPackKey = 'ActionTTLChanged';
-            args.push(await getNameDivHTML(message.fromId, plain));
+            args.push(await getNameDivHTML(message.fromId!, plain!));
           }
 
           let duration: ReturnType<typeof wrapCallDuration>;
@@ -583,7 +583,7 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
               args.push(action.period / (ONE_DAY * 30) | 0);
             }
 
-            duration = plain ? I18n.format(key, true, args) : i18n(key, args);
+            duration = (plain ? I18n.format(key, true, args) : i18n(key, args))!;
           } else {
             duration = wrapCallDuration(action.period, plain);
           }
@@ -596,7 +596,7 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
             langPackKey = 'ActionTTLYouDisabled';
           } else {
             langPackKey = 'ActionTTLDisabled';
-            args.push(getNameDivHTML(message.fromId, plain));
+            args.push(getNameDivHTML(message.fromId!, plain!));
           }
         }
         break;
@@ -605,26 +605,26 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
       case 'messageActionTopicEdit': {
         let iconElement: (typeof args)[0];
         let titleElement: typeof iconElement;
-        let authorElement: ReturnType<typeof getNameDivHTML>;
+        let authorElement!: ReturnType<typeof getNameDivHTML>;
         const isMe = !!message.pFlags.out;
         const isIconChanged = action.icon_emoji_id !== undefined;
-        const isIconRemoved = isIconChanged && !+action.icon_emoji_id;
+        const isIconRemoved = isIconChanged && !+action.icon_emoji_id!;
         const isTitleChanged = action.title !== undefined;
         const isHiddenChanged = action.hidden !== undefined;
 
         if(!isMe) {
-          authorElement = getNameDivHTML(message.fromId, plain);
+          authorElement = getNameDivHTML(message.fromId!, plain!);
         }
 
         if(isTitleChanged) {
-          titleElement = wrapSomeText(action.title, plain);
+          titleElement = wrapSomeText(action.title!, plain!);
         }
 
         if(isIconChanged && !isIconRemoved) {
           iconElement = wrapMessageActionTopicIcon(options);
         }
 
-        args = authorElement ? [authorElement] : [];
+        args = authorElement !== undefined ? [authorElement] : [];
 
         if(action.closed) {
           langPackKey = isMe ? 'Chat.Service.Group.TopicEdited.You.Paused' : 'Chat.Service.Group.TopicEdited.Paused';
@@ -632,7 +632,7 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
           langPackKey = isMe ? 'Chat.Service.Group.TopicEdited.You.Resumed' : 'Chat.Service.Group.TopicEdited.Resumed';
         } else if(isIconRemoved && isTitleChanged) {
           langPackKey = isMe ? 'Chat.Service.TopicEdited.You.Mixed.IconRemoved' : 'Chat.Service.TopicEdited.Mixed.IconRemoved';
-          args.push(titleElement);
+          args.push(titleElement!);
         } else if(isIconChanged && isTitleChanged) {
           langPackKey = isMe ? 'Chat.Service.TopicEdited.You.Mixed' : 'Chat.Service.TopicEdited.Mixed';
           args.push(wrapMessageActionTopicIconAndName(options));
@@ -640,10 +640,10 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
           langPackKey = isMe ? 'Chat.Service.Group.TopicEdited.You.Icon.Removed' : 'Chat.Service.Group.TopicEdited.Icon.Removed';
         } else if(isTitleChanged) {
           langPackKey = isMe ? 'Chat.Service.Group.TopicEdited.You.Title' : 'Chat.Service.Group.TopicEdited.Title';
-          args.push(titleElement);
+          args.push(titleElement!);
         } else if(isIconChanged) {
           langPackKey = isMe ? 'Chat.Service.Group.TopicEdited.You.Icon' : 'Chat.Service.Group.TopicEdited.Icon';
-          args.push(iconElement);
+          args.push(iconElement!);
         } else if(isHiddenChanged) {
           langPackKey = isMe ?
             (action.hidden ? 'Chat.Service.Group.TopicEdited.You.Hided' : 'Chat.Service.Group.TopicEdited.You.Unhided') :
@@ -661,18 +661,18 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
 
       case 'messageActionSetChatTheme': {
         const isMe = !!message.pFlags.out;
-        let authorElement: ReturnType<typeof getNameDivHTML>;
+        let authorElement!: ReturnType<typeof getNameDivHTML>;
         if(!isMe) {
-          authorElement = getNameDivHTML(message.fromId, plain);
+          authorElement = getNameDivHTML(message.fromId!, plain!);
         }
 
-        args = authorElement ? [authorElement] : [];
+        args = authorElement !== undefined ? [authorElement] : [];
 
         const theme = action.theme;
         if(theme._ === 'chatThemeUniqueGift') {
           // * unsupported now
         } else if(theme.emoticon) {
-          args.push(wrapSomeText(theme.emoticon, plain));
+          args.push(wrapSomeText(theme.emoticon, plain!));
           langPackKey = isMe ? 'ChatThemeChangedYou' : 'ChatThemeChangedTo';
         } else {
           langPackKey = isMe ? 'ChatThemeDisabledYou' : 'ChatThemeDisabled';
@@ -694,21 +694,21 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
           langPackKey = 'BoostingReceivedGiftNoName';
           if(action.boost_peer) {
             langPackKey = 'BoostingReceivedGiftFrom';
-            args = [getNameDivHTML(getPeerId(action.boost_peer), plain)];
+            args = [getNameDivHTML(getPeerId(action.boost_peer), plain!)];
           }
 
           break;
         }
 
         const isMe = !!message.pFlags.out && !isGiftCode;
-        let authorElement: ReturnType<typeof getNameDivHTML>;
+        let authorElement!: ReturnType<typeof getNameDivHTML>;
         if(!isMe) {
-          authorElement = getNameDivHTML(message.fromId, plain);
+          authorElement = getNameDivHTML(message.fromId!, plain!);
         }
 
-        args = authorElement ? [authorElement] : [];
+        args = authorElement !== undefined ? [authorElement] : [];
 
-        args.push(paymentsWrapCurrencyAmount(action.amount, action.currency, false, true, plain));
+        args.push(paymentsWrapCurrencyAmount(action.amount!, action.currency!, false, true, plain));
 
         langPackKey = isMe ? 'ActionGiftOutbound' : 'ActionGiftInbound';
 
@@ -717,15 +717,15 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
 
       case 'messageActionWebViewDataSent': {
         langPackKey = 'ActionBotWebViewData';
-        args = [wrapSomeText(action.text, plain)];
+        args = [wrapSomeText(action.text, plain!)];
         break;
       }
 
       case 'messageActionRequestedPeer': {
         langPackKey = 'Chat.Service.PeerRequested';
         args = [
-          getSeveralNameDivHTML(action.peers.map((peer) => getPeerId(peer)), plain),
-          getNameDivHTML(message.peerId, plain)
+          getSeveralNameDivHTML(action.peers.map((peer) => getPeerId(peer)), plain!),
+          getNameDivHTML(message.peerId!, plain!)
         ];
         break;
       }
@@ -738,9 +738,9 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
       }
 
       case 'messageActionSetChatWallPaper': {
-        const isUser = message.peerId.isUser();
+        const isUser = message.peerId!.isUser();
         args = [
-          getNameDivHTML(isUser ? message.peerId : message.fromId, plain)
+          getNameDivHTML((isUser ? message.peerId : message.fromId)!, plain!)
         ];
 
         if(isUser) {
@@ -763,7 +763,7 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
           break;
         }
 
-        const isBroadcast = await managers.appPeersManager.isBroadcast(message.peerId);
+        const isBroadcast = await managers.appPeersManager!.isBroadcast(message.peerId!);
         if(isBroadcast) {
           langPackKey = 'ActionSetWallpaperForThisChannel';
           break;
@@ -777,8 +777,8 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
       }
 
       case 'messageActionPaidMessagesPrice': {
-        const isBroadcast = await managers.appChatsManager.isBroadcast(message.fromId?.toChatId());
-        const result = await getPriceChangedActionMessageLangParams(action, isBroadcast, () => getNameDivHTML(message.fromId, plain));
+        const isBroadcast = await managers.appChatsManager!.isBroadcast(message.fromId?.toChatId()!);
+        const result = await getPriceChangedActionMessageLangParams(action, isBroadcast, () => getNameDivHTML(message.fromId!, plain!));
         langPackKey = result.langPackKey;
         args = result.args;
         break;
@@ -798,7 +798,7 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
           args = [(action.gift as StarGift.starGift).stars];
         } else {
           langPackKey = action.pFlags.upgrade_separate ? 'StarGiftSentMessagePrepaidIncoming' : 'StarGiftSentMessageIncoming';
-          args = [getNameDivHTML(message.fromId, plain), (action.gift as StarGift.starGift).stars];
+          args = [getNameDivHTML(message.fromId!, plain!), (action.gift as StarGift.starGift).stars];
         }
         break;
       case 'messageActionStarGiftUnique':
@@ -815,44 +815,44 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
           } else {
             langPackKey = message.pFlags.out ? 'ActionGiftTransferredOutbound' : 'ActionGiftTransferredInbound';
           }
-          args = [getNameDivHTML(message.peerId, plain)];
+          args = [getNameDivHTML(message.peerId!, plain!)];
         }
         break;
 
       case 'messageActionTodoAppendTasks': {
-        let listMsg = await managers.appMessagesManager.getMessageByPeer(message.peerId, message.reply_to_mid);
+        let listMsg = await managers.appMessagesManager!.getMessageByPeer(message.peerId!, message.reply_to_mid!);
         if(!listMsg) {
-          listMsg = await managers.appMessagesManager.fetchMessageReplyTo(message) as Message.message;
+          listMsg = await managers.appMessagesManager!.fetchMessageReplyTo(message) as Message.message;
         }
 
         icon = Icon('checklist_add');
 
-        if(listMsg?._ === 'message' && listMsg.media._ === 'messageMediaToDo') {
+        if(listMsg?._ === 'message' && listMsg.media!._ === 'messageMediaToDo') {
           if(action.list.length === 1) {
             langPackKey = `ChecklistAddedTask${message.pFlags.out ? 'You' : ''}`;
             args = [
-              message.pFlags.out ? undefined : getNameDivHTML(message.fromId, plain),
-              wrapSomeText(action.list[0].title.text, plain, action.list[0].title.entities),
-              wrapSomeText(listMsg.media.todo.title.text, plain, listMsg.media.todo.title.entities)
+              (message.pFlags.out ? undefined : getNameDivHTML(message.fromId!, plain!))!,
+              wrapSomeText(action.list[0].title.text, plain!, action.list[0].title.entities),
+              wrapSomeText(listMsg.media.todo.title.text, plain!, listMsg.media.todo.title.entities)
             ];
           } else {
             langPackKey = `ChecklistAddedTaskMany${message.pFlags.out ? 'You' : ''}`;
             args = [
-              message.pFlags.out ? undefined : getNameDivHTML(message.fromId, plain),
-              joinTexts(action.list.map((it) => wrapSomeText(it.title.text, plain, it.title.entities)), TODO_JOIN_OPTIONS),
-              wrapSomeText(listMsg.media.todo.title.text, plain, listMsg.media.todo.title.entities)
+              (message.pFlags.out ? undefined : getNameDivHTML(message.fromId!, plain!))!,
+              joinTexts(action.list.map((it) => wrapSomeText(it.title.text, plain!, it.title.entities)), TODO_JOIN_OPTIONS),
+              wrapSomeText(listMsg.media.todo.title.text, plain!, listMsg.media.todo.title.entities)
             ];
           }
         }
         break;
       }
       case 'messageActionTodoCompletions': {
-        let listMsg = await managers.appMessagesManager.getMessageByPeer(message.peerId, message.reply_to_mid);
+        let listMsg = await managers.appMessagesManager!.getMessageByPeer(message.peerId!, message.reply_to_mid!);
         if(!listMsg) {
-          listMsg = await managers.appMessagesManager.fetchMessageReplyTo(message) as Message.message;
+          listMsg = await managers.appMessagesManager!.fetchMessageReplyTo(message) as Message.message;
         }
 
-        if(listMsg?._ === 'message' && listMsg.media._ === 'messageMediaToDo') {
+        if(listMsg?._ === 'message' && listMsg.media!._ === 'messageMediaToDo') {
           const list = listMsg.media.todo;
           const itemsMap = new Map<number, TextWithEntities>();
           for(const it of list.list) {
@@ -866,8 +866,8 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
             icon = Icon('checklist_undone');
             langPackKey = `ChecklistMarkedUndone${message.pFlags.out ? 'You' : ''}`;
             args = [
-              message.pFlags.out ? undefined : getNameDivHTML(message.fromId, plain),
-              joinTexts(incompleted.map((it) => wrapSomeText(it.text, plain, it.entities)), TODO_JOIN_OPTIONS)
+              (message.pFlags.out ? undefined : getNameDivHTML(message.fromId!, plain!))!,
+              joinTexts(incompleted.map((it) => wrapSomeText(it!.text, plain!, it!.entities)), TODO_JOIN_OPTIONS)
             ];
             break;
           }
@@ -876,8 +876,8 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
             icon = Icon('checklist_done');
             langPackKey = `ChecklistMarkedDone${message.pFlags.out ? 'You' : ''}`;
             args = [
-              message.pFlags.out ? undefined : getNameDivHTML(message.fromId, plain),
-              joinTexts(completed.map((it) => wrapSomeText(it.text, plain, it.entities)), TODO_JOIN_OPTIONS)
+              (message.pFlags.out ? undefined : getNameDivHTML(message.fromId!, plain!))!,
+              joinTexts(completed.map((it) => wrapSomeText(it!.text, plain!, it!.entities)), TODO_JOIN_OPTIONS)
             ];
             break;
           }
@@ -885,9 +885,9 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
           icon = Icon('checklist_done');
           langPackKey = `ChecklistMarkedMixed${message.pFlags.out ? 'You' : ''}`;
           args = [
-            message.pFlags.out ? undefined : getNameDivHTML(message.fromId, plain),
-            joinTexts(completed.map((it) => wrapSomeText(it.text, plain, it.entities)), TODO_JOIN_OPTIONS),
-            joinTexts(incompleted.map((it) => wrapSomeText(it.text, plain, it.entities)), TODO_JOIN_OPTIONS)
+            (message.pFlags.out ? undefined : getNameDivHTML(message.fromId!, plain!))!,
+            joinTexts(completed.map((it) => wrapSomeText(it!.text, plain!, it!.entities)), TODO_JOIN_OPTIONS),
+            joinTexts(incompleted.map((it) => wrapSomeText(it!.text, plain!, it!.entities)), TODO_JOIN_OPTIONS)
           ];
         }
 
@@ -915,7 +915,7 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
       }
       case 'messageActionSuggestedPostSuccess': {
         langPackKey = 'SuggestedPosts.PostSuccess';
-        args = [wrapEmojiText('✅'), i18n('Stars', [numberThousandSplitterForStars(action.price.amount)])];
+        args = [wrapEmojiText('✅'), i18n('Stars', [numberThousandSplitterForStars(action.price.amount)])!];
         break;
       }
       case 'messageActionSuggestedPostRefund': {
@@ -924,15 +924,15 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
       }
       case 'messageActionSuggestBirthday': {
         langPackKey = message.pFlags.out ? 'BirthdaySuggestOutgoing' : 'BirthdaySuggestIncoming';
-        args = [getNameDivHTML(message.peerId, plain)];
+        args = [getNameDivHTML(message.peerId!, plain!)];
 
         break
       }
       case 'messageActionStarGiftPurchaseOffer': {
         langPackKey = message.pFlags.out ? 'StarGiftOffer.Outgoing' : 'StarGiftOffer.Incoming';
         args = [
-          getNameDivHTML(message.peerId, plain),
-          i18n('Stars', [numberThousandSplitterForStars(action.price.amount)]),
+          getNameDivHTML(message.peerId!, plain!),
+          i18n('Stars', [numberThousandSplitterForStars(action.price.amount)])!,
           getCollectibleName(action.gift as StarGift.starGiftUnique)
         ];
         break;
@@ -944,31 +944,31 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
           langPackKey = message.pFlags.out ? 'StarGiftOffer.RejectedFullOutgoing' : 'StarGiftOffer.RejectedFullIncoming';
         }
         args = [
-          getNameDivHTML(message.peerId, plain),
-          i18n('Stars', [numberThousandSplitterForStars(action.price.amount)]),
+          getNameDivHTML(message.peerId!, plain!),
+          i18n('Stars', [numberThousandSplitterForStars(action.price.amount)])!,
           getCollectibleName(action.gift as StarGift.starGiftUnique)
         ];
         break;
       case 'messageActionNewCreatorPending': {
         langPackKey = 'Chat.Service.NewCreatorPending';
         args = [
-          getNameDivHTML(action.new_creator_id.toPeerId(), plain),
-          getNameDivHTML(message.fromId, plain)
+          getNameDivHTML(action.new_creator_id.toPeerId(), plain!),
+          getNameDivHTML(message.fromId!, plain!)
         ];
         break;
       }
       case 'messageActionChangeCreator': {
         langPackKey = 'Chat.Service.ChangeCreator';
         args = [
-          getNameDivHTML(message.fromId, plain),
-          getNameDivHTML(action.new_creator_id.toPeerId(), plain)
+          getNameDivHTML(message.fromId!, plain!),
+          getNameDivHTML(action.new_creator_id.toPeerId(), plain!)
         ];
         break;
       }
       case 'messageActionBoostApply': {
         langPackKey = 'UserBoostedGroup';
         args = [
-          getNameDivHTML(message.fromId, plain),
+          getNameDivHTML(message.fromId!, plain!),
           action.boosts
         ];
         break;
@@ -979,7 +979,7 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
         } else {
           langPackKey = `Chat.Service.NoForwardsToggle${message.pFlags.out ? '.You' : ''}.${action.new_value ? 'Enabled' : 'Disabled'}` as const;
         }
-        args = [getNameDivHTML(message.fromId, plain)];
+        args = [getNameDivHTML(message.fromId!, plain!)];
         break;
       }
       case 'messageActionNoForwardsRequest': {
@@ -987,7 +987,7 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
           langPackKey = 'EnableSharingRequested.Expired';
         } else {
           langPackKey = `Chat.Service.NoForwardsRequest${message.pFlags.out ? '.You' : ''}.${action.new_value ? 'Enable' : 'Disable'}` as const;
-          args = [getNameDivHTML(message.fromId, plain)];
+          args = [getNameDivHTML(message.fromId!, plain!)];
         }
         break;
       }
@@ -999,7 +999,7 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
           args = [truncatedAnswerText];
         } else {
           langPackKey = 'Chat.Poll.OptionAdded';
-          args = [getNameDivHTML(message.fromId, plain), truncatedAnswerText];
+          args = [getNameDivHTML(message.fromId!, plain!), truncatedAnswerText];
         }
         break;
       }
@@ -1010,13 +1010,13 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
           args = [truncatedAnswerText];
         } else {
           langPackKey = 'Chat.Poll.OptionDeleted';
-          args = [getNameDivHTML(message.fromId, plain), truncatedAnswerText];
+          args = [getNameDivHTML(message.fromId!, plain!), truncatedAnswerText];
         }
         break;
       }
       case 'messageActionManagedBotCreated': {
         langPackKey = 'CreateBot.BotWasCreated';
-        args = [getNameDivHTML(action.bot_id.toPeerId(), plain)];
+        args = [getNameDivHTML(action.bot_id.toPeerId(), plain!)];
         break;
       }
       default:
@@ -1024,26 +1024,26 @@ export default async function wrapMessageActionTextNewUnsafe(options: WrapMessag
         break;
     }
 
-    if(!langPackKey) {
+    if(!langPackKey!) {
       langPackKey = langPack[_];
       if(langPackKey === undefined) {
         langPackKey = '[' + _ + ']' as any;
       }
     }
 
-    const waited = args && await Promise.all(args);
+    const waited = args! && await Promise.all(args);
 
     if(plain) {
-      return I18n.format(langPackKey, true, waited);
+      return I18n.format(langPackKey!, true, waited);
     } else {
       // if(waited && noLinks) {
       //   waited = waited.map((arg) => arg instanceof HTMLAnchorElement ? arg.textContent : arg);
       // }
 
-      const res = _i18n(element, langPackKey, waited);
+      const res = _i18n(element, langPackKey!, waited);
       if(icon) {
         icon.classList.add('message-action-icon')
-        res.prepend(icon);
+        res!.prepend(icon);
       }
       return res;
     }

@@ -64,7 +64,7 @@ const AdminRecentActionsTab = () => {
   // const fetchLogs = async(offsetId?: AdminLog['id']) => offsetId ? [] : [...Array.from({length: 400}, () => [...savedLogs.map(o => ({...o}))])].flat()
 
   const fetchLogs = (offsetId?: AdminLog['id']) =>
-    rootScope.managers.appChatsManager.getAdminLogs({
+    rootScope.managers.appChatsManager!.getAdminLogs({
       channelId: tab.payload.channelId,
       search: committedFilters()?.search,
       admins: committedFilters()?.admins,
@@ -95,7 +95,7 @@ const AdminRecentActionsTab = () => {
     reachedTheEnd = false;
 
     batch(() => {
-      setLogs(initialLogs() || []);
+      setLogs((initialLogs() || []) as AdminLog[]);
       setToggledLogs(new Set<AdminLog>);
     });
     savedScrollTop = tab.scrollable.container.scrollTop;
@@ -114,11 +114,11 @@ const AdminRecentActionsTab = () => {
       return;
     }
 
-    const newLogsIds = new Set(newLogs.map(log => String(log.id)));
+    const newLogsIds = new Set(newLogs.map(log => String(log!.id)));
 
     setLogs([
       ...logs().filter(log => !newLogsIds.has(String(log.id))), // just in case
-      ...newLogs
+      ...newLogs as AdminLog[]
     ]);
   }, fetchThrottleTimeout);
 
@@ -269,14 +269,14 @@ const AdminRecentActionsTab = () => {
                 <Show when={entry()}>
                   <LogEntry
                     peerTitle={<PeerTitleTsx peerId={log().user_id.toPeerId()} limitSymbols={limitPeerTitleSymbols} />}
-                    message={<Dynamic component={entry().Message} />}
+                    message={<Dynamic component={entry()!.Message} />}
                     date={new Date(log().date * 1000)}
-                    icon={groupToIconMap[entry().group]}
+                    icon={groupToIconMap[entry()!.group]}
                     onExpandedChange={() => onToggle(log())}
                     expanded={isExpanded(log())}
-                    expandableContent={entry().ExpandableContent && (
+                    expandableContent={entry()!.ExpandableContent && (
                       <ErrorBoundary fallback={<></>}>
-                        <Dynamic component={entry().ExpandableContent} />
+                        <Dynamic component={entry()!.ExpandableContent} />
                       </ErrorBoundary>
                     )}
                     onPeerTitleClick={useParticipantClickHandler(log().user_id.toPeerId())}

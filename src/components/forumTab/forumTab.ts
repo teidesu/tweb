@@ -27,7 +27,7 @@ export class ForumTab extends SliderSuperTabEventable {
   protected subtitle: HTMLElement;
 
   public peerId: PeerId;
-  private firstTime: boolean;
+  private firstTime: boolean | undefined;
 
   protected log: ReturnType<typeof logger>;
 
@@ -148,7 +148,7 @@ export class ForumTab extends SliderSuperTabEventable {
   }
 
   public async triggerAsyncInit() {
-    this.triggerAsyncInit = undefined;
+    this.triggerAsyncInit = undefined as unknown as () => Promise<void>;
 
     return this.asyncInit();
   }

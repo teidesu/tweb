@@ -24,7 +24,7 @@ export const TopicName = (props: {
   return (
     <Show when={topic()}>
       <div class={styles.Container}>
-        {icon()} {topic().title}
+        {icon()} {topic()!.title}
       </div>
     </Show>
   );

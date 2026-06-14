@@ -18,7 +18,7 @@ let isAnimating = false;
 let heavyAnimationPromise: CancellablePromise<void> = deferredPromise<void>();
 let promisesInQueue = 0;
 
-heavyAnimationPromise.resolve();
+heavyAnimationPromise.resolve!();
 
 const log = console.log.bind(console.log, '[HEAVY-ANIMATION]:');
 
@@ -65,7 +65,7 @@ function onHeavyAnimationEnd() {
   isAnimating = false;
   promisesInQueue = 0;
   eventListener.dispatchEvent(ANIMATION_END_EVENT);
-  heavyAnimationPromise.resolve();
+  heavyAnimationPromise.resolve!();
 
   DEBUG && log('end');
 }

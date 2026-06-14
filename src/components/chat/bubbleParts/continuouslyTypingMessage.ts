@@ -92,11 +92,11 @@ function processNodeTree({root, prevPosition}: ProcessNodeTreeArgs) {
 
   for(const node of allNodes) {
     if(node.nodeType === Node.TEXT_NODE) {
-      nodeContents.set(node, node.textContent);
+      nodeContents.set(node, node.textContent!);
 
-      node.textContent = node.textContent.slice(0, Math.max(0, prevPosition - position + 1));
+      node.textContent = node.textContent!.slice(0, Math.max(0, prevPosition - position + 1));
 
-      position += nodeContents.get(node).length;
+      position += nodeContents.get(node)!.length;
     } else if(node instanceof Element && position > prevPosition) {
       node.classList.add(styles.hidden);
     }
@@ -147,15 +147,15 @@ function typeNext({result, setLastTextNode, onEnd, nodeContents, length}: TypeNe
       result.currentNodeIdx++;
       node.classList.remove(styles.hidden);
     } else if(node.nodeType === Node.TEXT_NODE) {
-      const typedLength = node.textContent.length;
+      const typedLength = node.textContent!.length;
       const finalContent = nodeContents.get(node);
 
-      const leftOverLength = Math.max(0, typedLength + length - finalContent.length);
+      const leftOverLength = Math.max(0, typedLength + length - finalContent!.length);
 
       const start = typedLength;
       const end = start + length - leftOverLength;
 
-      node.textContent += finalContent.slice(start, end);
+      node.textContent += finalContent!.slice(start, end);
 
       length = leftOverLength;
       result.currentPosition += end - start;
@@ -284,7 +284,7 @@ function registerAnimationInvalidation(scrollable: HTMLElement) {
 
     registeredScrollables.set(scrollable, value);
   } else {
-    value = registeredScrollables.get(scrollable);
+    value = registeredScrollables.get(scrollable)!;
   }
 
   value.count++;

@@ -19,7 +19,7 @@ export default function getViewportSlice({
 }) {
   // const perf = performance.now();
   overflowRect ??= overflowElement.getBoundingClientRect();
-  elements ??= Array.from(overflowElement.querySelectorAll<HTMLElement>(selector));
+  elements! ??= Array.from(overflowElement.querySelectorAll<HTMLElement>(selector!));
 
   if(extraSize) {
     overflowRect = {
@@ -34,7 +34,7 @@ export default function getViewportSlice({
     visible: typeof invisibleTop = [],
     invisibleBottom: typeof invisibleTop = [];
   let foundVisible = false;
-  for(const element of elements) {
+  for(const element of elements!) {
     const rect = element.getBoundingClientRect();
     const visibleRect = getVisibleRect(element, overflowElement, false, rect, overflowRect);
 

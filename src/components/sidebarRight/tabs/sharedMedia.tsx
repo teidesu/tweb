@@ -41,7 +41,7 @@ const SharedMedia: Component = () => {
   const {HotReloadGuard, apiManagerProxy, appImManager} = useHotReloadGuard();
 
   const getHistoryStorage = (peerId: PeerId, threadId?: number) => {
-    return (historiesStorage[peerId] ??= {})[threadId] ??= {};
+    return (historiesStorage[peerId] ??= {})[threadId!] ??= {};
   };
 
   const setQuery = () => {
@@ -60,7 +60,7 @@ const SharedMedia: Component = () => {
     const isAnyChat = tab.peerId.isAnyChat();
     const [canViewMembers, hasInviteRights] = await Promise.all([
       isAnyChat ? tab.searchSuper.canViewMembers() : false,
-      isAnyChat ? tab.managers.appChatsManager.hasRights(tab.peerId.toChatId(), 'invite_users') : false
+      isAnyChat ? tab.managers.appChatsManager!.hasRights(tab.peerId.toChatId(), 'invite_users') : false
     ]);
 
     return () => {
@@ -75,10 +75,10 @@ const SharedMedia: Component = () => {
     const isSavedDialog = !!(peerId === rootScope.myId && threadId);
     const usePeerId = isSavedDialog ? threadId : peerId;
     const {isForum, isBotforum, isBroadcast, isBot, peerTitle} = await namedPromises({
-      isForum: tab.managers.appPeersManager.isForum(usePeerId),
-      isBotforum: tab.managers.appPeersManager.isBotforum(usePeerId),
-      isBroadcast: tab.managers.appPeersManager.isBroadcast(usePeerId),
-      isBot: tab.managers.appPeersManager.isBot(usePeerId),
+      isForum: tab.managers.appPeersManager!.isForum(usePeerId),
+      isBotforum: tab.managers.appPeersManager!.isBotforum(usePeerId),
+      isBroadcast: tab.managers.appPeersManager!.isBroadcast(usePeerId),
+      isBot: tab.managers.appPeersManager!.isBot(usePeerId),
       peerTitle: wrapPeerTitle({
         peerId,
         threadId: isSavedDialog ? undefined : threadId,
@@ -105,7 +105,7 @@ const SharedMedia: Component = () => {
       titleI18n.compareAndUpdate({
         key: titleKey
       });
-      sharedMediaTitle.replaceChildren(peerTitle);
+      sharedMediaTitle!.replaceChildren(peerTitle);
       btnMenu.classList.toggle('hide', !tab.isFirst || isSavedDialog || peerId !== rootScope.myId);
     };
   };
@@ -118,12 +118,12 @@ const SharedMedia: Component = () => {
     if(useIsFrozen()) {
       show = false;
     } else if(peerId.isUser()) {
-      show = peerId !== rootScope.myId && await tab.managers.appUsersManager.canEdit(peerId.toUserId());
+      show = peerId !== rootScope.myId && await tab.managers.appUsersManager!.canEdit(peerId.toUserId());
     } else {
       const chatId = peerId.toChatId();
       const isTopic = tab.threadId && apiManagerProxy.isForum(peerId);
       if(isTopic) {
-        show = await tab.managers.dialogsStorage.canManageTopic(await tab.managers.dialogsStorage.getForumTopic(peerId, tab.threadId));
+        show = await tab.managers.dialogsStorage!.canManageTopic((await tab.managers.dialogsStorage!.getForumTopic(peerId, tab.threadId))!);
       } else {
         const chat = apiManagerProxy.getChat(chatId);
         show = hasRights(chat, 'change_info');
@@ -200,12 +200,12 @@ const SharedMedia: Component = () => {
   };
 
   const _renderNewMessage = (message: Message.message | Message.messageService, peerId = message.peerId, threadId?: number) => {
-    const historyStorage = historiesStorage[peerId]?.[threadId];
+    const historyStorage = historiesStorage[peerId!]?.[threadId!];
     if(!historyStorage) return;
 
     for(const mediaTab of tab.searchSuper.mediaTabs) {
       const inputFilter = mediaTab.inputFilter;
-      const history = historyStorage[inputFilter];
+      const history = historyStorage[inputFilter!];
       if(!history) {
         continue;
       }
@@ -219,7 +219,7 @@ const SharedMedia: Component = () => {
             !history.some((m) => m.mid === message.mid);
         });
       } else {
-        filtered = tab.searchSuper.filterMessagesByType([message], inputFilter);
+        filtered = tab.searchSuper.filterMessagesByType([message], inputFilter!);
       }
 
       if(!filtered.length) {
@@ -228,17 +228,17 @@ const SharedMedia: Component = () => {
 
       const toInsert = filtered
       .filter((message) => !history.find((m) => m.mid === message.mid && m.peerId === message.peerId))
-      .map((message) => ({mid: message.mid, peerId: message.peerId}));
+      .map((message) => ({mid: message.mid!, peerId: message.peerId!}));
       history.unshift(...toInsert);
 
       if(
         (mediaTab.type === 'saved' ? tab.peerId === threadId : tab.peerId === peerId) &&
-        tab.searchSuper.usedFromHistory[inputFilter] !== -1 &&
+        tab.searchSuper.usedFromHistory[inputFilter!] !== -1 &&
         tab.threadId === threadId
       ) {
-        tab.searchSuper.usedFromHistory[inputFilter] += filtered.length;
+        tab.searchSuper.usedFromHistory[inputFilter!]! += filtered.length;
         tab.searchSuper.performSearchResult({messages: filtered, mediaTab, append: false}).then((length) => {
-          tab.searchSuper.setCounter(mediaTab.type, tab.searchSuper.counters[mediaTab.type] + length);
+          tab.searchSuper.setCounter(mediaTab.type, tab.searchSuper.counters[mediaTab.type]! + length);
         });
       }
     }
@@ -246,7 +246,7 @@ const SharedMedia: Component = () => {
 
   const renderNewMessage = async(message: Message.message | Message.messageService) => {
     const {peerId} = message;
-    const isForum = await tab.managers.appPeersManager.isForum(peerId);
+    const isForum = await tab.managers.appPeersManager!.isForum(peerId!);
     const threadId = getMessageThreadId(message, {isForum});
 
     _renderNewMessage(message);
@@ -266,7 +266,7 @@ const SharedMedia: Component = () => {
       for(const mediaTab of tab.searchSuper.mediaTabs) {
         const inputFilter = mediaTab.inputFilter;
 
-        const history = historyStorage[inputFilter];
+        const history = historyStorage[inputFilter!];
         if(!history) continue;
 
         const isGood = mediaTab.type === 'saved' ?
@@ -279,24 +279,24 @@ const SharedMedia: Component = () => {
         }
 
         if(isGood) {
-          const container = tab.searchSuper.tabs[inputFilter];
+          const container = tab.searchSuper.tabs[inputFilter!];
           const div = container.querySelector(`[data-mid="${mid}"][data-peer-id="${peerId}"]`) as HTMLElement;
           if(div) {
-            if(tab.searchSuper.selection.isSelecting) {
-              tab.searchSuper.selection.toggleByElement(div);
+            if(tab.searchSuper.selection!.isSelecting) {
+              tab.searchSuper.selection!.toggleByElement(div);
             }
 
             const divs = container.querySelectorAll<HTMLElement>('[data-mid][data-peer-id]');
             const idx = Array.from(divs).indexOf(div);
             div.remove();
 
-            if(idx !== -1 && tab.searchSuper.usedFromHistory[inputFilter] >= (idx + 1)) {
-              --tab.searchSuper.usedFromHistory[inputFilter];
+            if(idx !== -1 && tab.searchSuper.usedFromHistory[inputFilter!]! >= (idx + 1)) {
+              --tab.searchSuper.usedFromHistory[inputFilter!]!;
             }
 
             tab.searchSuper.setCounter(
               mediaTab.type,
-              tab.searchSuper.counters[mediaTab.type] - 1
+              tab.searchSuper.counters[mediaTab.type]! - 1
             );
           } else {
             notFound.add(mediaTab);
@@ -308,13 +308,13 @@ const SharedMedia: Component = () => {
       }
     }
 
-    const filters = Array.from(notFound).map((mediaTab) => ({_: mediaTab.inputFilter}));
+    const filters = Array.from(notFound).map((mediaTab) => ({_: mediaTab.inputFilter!}));
     if(!filters.length) {
       return;
     }
 
     const middleware = tab.searchSuper.middleware.get();
-    tab.searchSuper.getSearchCounters(filters).then((counters) => {
+    tab.searchSuper.getSearchCounters(filters!).then((counters) => {
       if(!middleware()) {
         return;
       }
@@ -370,21 +370,21 @@ const SharedMedia: Component = () => {
     element.classList.add('transition-item');
 
     title ??= tab.title.cloneNode() as any;
-    title.append(titleInner);
+    title!.append(titleInner!);
 
     let subtitle: HTMLElement;
     if(noCounter) {
-      element.append(title);
+      element.append(title!);
     } else {
       const rows = document.createElement('div');
       rows.classList.add('sidebar-header__rows');
       subtitle = document.createElement('div');
       subtitle.classList.add('sidebar-header__subtitle');
-      rows.append(title, subtitle);
+      rows.append(title!, subtitle);
       element.append(rows);
     }
 
-    return {element, title, subtitle};
+    return {element, title, subtitle: subtitle!};
   };
 
   const titleI18n = new I18n.IntlElement();
@@ -408,7 +408,7 @@ const SharedMedia: Component = () => {
       canEdit: () => {
         if(tab.peerId === rootScope.myId) return true;
         if(tab.peerId.isAnyChat()) {
-          return tab.managers.appChatsManager.hasRights(tab.peerId.toChatId(), 'edit_stories');
+          return tab.managers.appChatsManager!.hasRights(tab.peerId.toChatId(), 'edit_stories');
         }
         return false;
       }
@@ -458,7 +458,7 @@ const SharedMedia: Component = () => {
     item[2] = new I18n.IntlElement({key: 'Loading'});
     const element = document.createElement('div');
     element.classList.add('transition-item');
-    element.append(item[2].element);
+    element.append(item[2].element!);
     return element;
   }));
 
@@ -547,11 +547,11 @@ const SharedMedia: Component = () => {
   attachClickEvent(editBtn, async() => {
     let editTab: InstanceType<typeof AppEditChatTab> | InstanceType<typeof AppEditContactTab> | InstanceType<typeof AppEditTopicTab> | InstanceType<typeof AppEditBotTab>;
     const {peerId, threadId} = tab;
-    if(threadId && await tab.managers.appPeersManager.isForum(peerId)) {
+    if(threadId && await tab.managers.appPeersManager!.isForum(peerId)) {
       editTab = tab.slider.createTab(AppEditTopicTab)
     } else if(peerId.isAnyChat()) {
       editTab = tab.slider.createTab(AppEditChatTab);
-    } else if(await tab.managers.appUsersManager.isBot(peerId)) {
+    } else if(await tab.managers.appUsersManager!.isBot(peerId)) {
       editTab = tab.slider.createTab(AppEditBotTab);
     } else {
       editTab = tab.slider.createTab(AppEditContactTab);
@@ -665,7 +665,7 @@ const SharedMedia: Component = () => {
         return;
       }
 
-      item[2].compareAndUpdate({key: item[1], args: [length]});
+      item[2]!.compareAndUpdate({key: item[1], args: [length]});
     },
     openSavedDialogsInner: !tab.isFirst,
     slider: tab.slider,

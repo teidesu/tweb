@@ -20,7 +20,7 @@ export default class SelectorSearch {
   public input: HTMLInputElement;
   public gradient: HTMLElement;
   private selectedScrollable: Scrollable;
-  private capturedRects: Map<HTMLElement, DOMRect>;
+  private capturedRects: Map<HTMLElement, DOMRect> | undefined;
   private flipElements: Set<HTMLElement>;
   private middlewareHelper: MiddlewareHelper;
   private chipsMap: Map<string, HTMLElement>;
@@ -68,7 +68,7 @@ export default class SelectorSearch {
       let target = e.target as HTMLElement;
       target = findUpClassName(target, 'selector-user');
       if(!target) return;
-      let key: string | PeerId = target.dataset.key;
+      let key: string | PeerId = target.dataset.key!;
       key = key.isPeerId() ? key.toPeerId() : key;
       options.onChipClick(key);
     });
@@ -235,7 +235,7 @@ export default class SelectorSearch {
     const cleanup = () => {
       if(div) {
         div.remove();
-        div.middlewareHelper.destroy();
+        div.middlewareHelper!.destroy();
       }
 
       onRemoved?.();
@@ -371,13 +371,13 @@ export default class SelectorSearch {
     if(key.isPeerId()) {
       if(title === undefined) {
         const peerTitle = new PeerTitle();
-        promises.push(peerTitle.update({peerId: key.toPeerId(), threadId, dialog: meAsSaved}));
+        promises.push(peerTitle.update({peerId: key.toPeerId(), threadId: threadId!, dialog: meAsSaved}));
         title = peerTitle.element;
       }
 
       avatarEl.render({
         peerId: key.toPeerId(),
-        threadId
+        threadId: threadId!
       });
 
       promises.push(avatarEl.readyThumbPromise);

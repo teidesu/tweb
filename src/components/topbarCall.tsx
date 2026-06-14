@@ -223,7 +223,7 @@ export default function createTopbarCall(managers: AppManagers): TopbarCallContr
     if(!inst) state = GROUP_CALL_STATE.CLOSED;
     else if(inst instanceof GroupCallInstance) state = inst.state;
     else if(inst instanceof RtmpCallInstance) state = convertRtmpStateToGroupState(inst.state);
-    else state = convertCallStateToGroupState(inst.connectionState, muted);
+    else state = convertCallStateToGroupState(inst.connectionState, muted!);
 
     const isClosed = state === GROUP_CALL_STATE.CLOSED;
     if((!document.body.classList.contains('is-calling') || isChangingInstance) || isClosed) {
@@ -252,7 +252,7 @@ export default function createTopbarCall(managers: AppManagers): TopbarCallContr
     toggleActivity(true);
 
     setStateClass(state);
-    setTitle(inst);
+    setTitle(inst!);
     if(inst instanceof GroupCallInstance) {
       if(inst.chatId) {
         // Legacy voice chat bound to a chat — show the chat's avatar.

@@ -39,7 +39,7 @@ export const PeerTitleTsx = (props: {
     }
   );
 
-  attachClassName(peerTitle.element, () => props.class);
+  attachClassName(peerTitle.element, () => props.class!);
 
   return (
     <>

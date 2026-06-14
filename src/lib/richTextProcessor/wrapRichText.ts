@@ -174,14 +174,14 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
 
     // * check whether text was sliced
     // TODO: consider about moving it to other function
-    if(entity.offset >= textLength) {
+    if(entity.offset! >= textLength) {
       if(entity._ !== 'messageEntityCaret') { // * can set caret to the end
         continue;
       }
-    } else if((entity.offset + entity.length) > textLength) {
+    } else if((entity.offset! + entity.length!) > textLength) {
       entity = copy(entity);
       // entity.length = entity.offset + entity.length - textLength;
-      entity.length = textLength - entity.offset;
+      entity.length = textLength - entity.offset!;
     }
 
     if(entity.length) {
@@ -191,23 +191,23 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
     let nextEntity = entities[nasty.i + 1];
 
     const startOffset = entity.offset;
-    const endOffset = startOffset + entity.length;
+    const endOffset = startOffset! + entity.length!;
     const endPartOffset = Math.min(endOffset, nextEntity?.offset ?? 0xFFFF);
     const fullEntityText = nasty.text.slice(startOffset, endOffset);
     const sliced = nasty.text.slice(startOffset, endPartOffset);
     let partText = sliced;
 
-    if(nasty.usedLength < startOffset) {
-      (lastElement || fragment).append(nasty.text.slice(nasty.usedLength, startOffset));
+    if(nasty.usedLength < startOffset!) {
+      (lastElement! || fragment).append(nasty.text.slice(nasty.usedLength, startOffset));
     }
 
-    if(lastElement) {
+    if(lastElement!) {
       lastElement = fragment;
     }
 
     nasty.usedLength = endPartOffset;
 
-    let element: HTMLElement,
+    let element!: HTMLElement,
       property: 'alt',
       usedText = false,
       processingBlockElement = false;
@@ -292,7 +292,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
           header.classList.add('code-header');
           const headerName = document.createElement('span');
           headerName.classList.add('code-header-name');
-          headerName.append(languageName || i18n('CopyCode'));
+          headerName.append((languageName || i18n('CopyCode'))!);
           const headerWrapButton = Icon('menu', 'code-header-button', 'code-header-toggle-wrap');
           header.append(headerName, headerWrapButton, Icon('copy', 'code-header-button', 'code-header-copy'));
 
@@ -310,13 +310,13 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
             element.textContent = fullEntityText;
           }
 
-          let lastInnerEntityIndex = findIndexFrom(entities, (n) => n.offset >= endOffset, nasty.i + 1);
+          let lastInnerEntityIndex = findIndexFrom(entities, (n) => n.offset! >= endOffset, nasty.i + 1);
           if(lastInnerEntityIndex === -1) lastInnerEntityIndex = entities.length - 1;
           else lastInnerEntityIndex -= 1;
           nasty.i = lastInnerEntityIndex;
           nasty.usedLength = endOffset;
           nasty.lastEntity = entities[lastInnerEntityIndex];
-          nextEntity = undefined;
+          nextEntity = (undefined as unknown as MessageEntity);
           processingBlockElement = true;
         } else if(!options.noTextFormat) {
           element = document.createElement('code');
@@ -361,7 +361,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
 
       case 'messageEntityAnchor': {
         element = document.createElement('span');
-        element.id = entity.name;
+        element.id = entity.name!;
         break;
       }
 
@@ -384,7 +384,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
             bot = command.slice(atPos + 1);
             command = command.slice(0, atPos);
           } else {
-            bot = options.fromBot;
+            bot = options.fromBot!;
           }
 
           element = document.createElement('a');
@@ -402,10 +402,10 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
           break;
         }
 
-        while(nextEntity?._ === 'messageEntityEmoji' && nextEntity.offset < endOffset) {
+        while(nextEntity?._ === 'messageEntityEmoji' && nextEntity.offset! < endOffset) {
           ++nasty.i;
           nasty.lastEntity = nextEntity;
-          nasty.usedLength += nextEntity.length;
+          nasty.usedLength += nextEntity.length!;
           nextEntity = entities[nasty.i + 1];
         }
 
@@ -468,7 +468,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
           for(const version in EmojiVersions) {
             if(version) {
               const emojiData = EmojiVersions[version as EMOJI_VERSION];
-              if(emojiData.hasOwnProperty(entity.unicode) && !EMOJI_VERSIONS_SUPPORTED[version as EMOJI_VERSION]) {
+              if(emojiData.hasOwnProperty(entity.unicode!) && !EMOJI_VERSIONS_SUPPORTED[version as EMOJI_VERSION]) {
                 isSupported = false;
                 break;
               }
@@ -529,7 +529,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
 
         if(options.doubleLinebreak === nasty.i) {
           options.doubleLinebreak = undefined;
-          (element || fragment).append('\n\n');
+          (element! || fragment).append('\n\n');
           usedText = true;
         }
         // if(options.noLinebreaks) {
@@ -547,11 +547,11 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
           // let inner: string;
           let url: string = (entity as MessageEntity.messageEntityTextUrl).url || fullEntityText;
           let masked = false;
-          let onclick: string;
+          let onclick: string | undefined;
 
           const wrapped = wrapUrl(url, (entity as MessageEntity.messageEntityTextUrl).safe);
           url = wrapped.url;
-          onclick = wrapped.onclick;
+          onclick = wrapped.onclick!;
 
           if(options.whitelistedDomains) {
             try {
@@ -675,7 +675,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
             nasty.usedLength += endOffset - endPartOffset;
           }
           let n: MessageEntity;
-          for(; n = entities[nasty.i + 1], n && n.offset < endOffset;) {
+          for(; n = entities[nasty.i + 1], n && n.offset! < endOffset;) {
             // nasty.usedLength += n.length;
             ++nasty.i;
             nasty.lastEntity = n;
@@ -714,7 +714,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
       }
 
       case 'messageEntityTimestamp': {
-        if(!options.maxMediaTimestamp || entity.time > options.maxMediaTimestamp) {
+        if(!options.maxMediaTimestamp || entity.time! > options.maxMediaTimestamp) {
           break;
         }
 
@@ -810,7 +810,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
           // * ? because of layer migration
           if(entity.pFlags?.collapsed/*  || true */) {
             const dispose = makeQuoteCollapsable(element);
-            options.middleware.onClean(dispose);
+            options.middleware!.onClean(dispose);
           }
         }
 
@@ -826,7 +826,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
       let foundNextLinebreakIndex = -1;
       for(let i = nasty.i; i < length; ++i) {
         const n = entities[i];
-        if(n._ === 'messageEntityLinebreak' && n.offset >= endOffset) {
+        if(n._ === 'messageEntityLinebreak' && n.offset! >= endOffset) {
           foundNextLinebreakIndex = i;
           break;
         }
@@ -838,9 +838,9 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
 
       if(!options.wrappingDraft && endOffset < nasty.text.length) {
         // * ignore inner linebreak if found and double next linebreak
-        if(!element.parentElement) {
+        if(!element!.parentElement) {
           const container = document.createElement('div');
-          container.append(element);
+          container.append(element!);
           fragment.append(container);
         }
 
@@ -848,7 +848,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
           let lastInnerLinebreakIndex = -1;
           for(let i = nasty.i; i < length; ++i) {
             const n = entities[i];
-            if(n.offset >= endOffset) {
+            if(n.offset! >= endOffset) {
               break;
             }
 
@@ -887,26 +887,26 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
     }
 
     if(!usedText && partText) {
-      if(element) {
-        if(property) {
+      if(element!) {
+        if(property!) {
           // @ts-ignore
           element[property] = partText;
         } else {
           element.append(partText);
         }
       } else {
-        (element || fragment).append(partText);
+        fragment.append(partText);
       }
     }
 
-    if(element && !element.parentNode) {
-      (lastElement || fragment).append(element);
+    if(element! && !element.parentNode) {
+      (lastElement! || fragment).append(element);
     }
 
-    while(nextEntity && nextEntity.offset < endOffset) {
+    while(nextEntity && nextEntity.offset! < endOffset) {
       ++nasty.i;
 
-      (element || fragment).append(wrapRichText(nasty.text, {
+      (element! || fragment).append(wrapRichText(nasty.text, {
         ...options,
         voodoo: true
       }));
@@ -920,13 +920,13 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
 
     if(nasty.usedLength <= endOffset) {
       if(nasty.usedLength < endOffset) {
-        (element || fragment).append(nasty.text.slice(nasty.usedLength, endOffset));
+        (element! || fragment).append(nasty.text.slice(nasty.usedLength, endOffset));
         nasty.usedLength = endOffset;
       }
 
       lastElement = fragment;
       nasty.lastEntity = undefined;
-    } else if(entity.length > partText.length && element) {
+    } else if(entity.length! > partText.length && element!) {
       lastElement = element;
     } else {
       lastElement = fragment;
@@ -938,11 +938,11 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
   }
 
   if(nasty.lastEntity) {
-    nasty.usedLength = nasty.lastEntity.offset + nasty.lastEntity.length;
+    nasty.usedLength = nasty.lastEntity.offset! + nasty.lastEntity.length!;
   }
 
   if(nasty.usedLength < textLength) {
-    (lastElement || fragment).append(nasty.text.slice(nasty.usedLength));
+    (lastElement! || fragment).append(nasty.text.slice(nasty.usedLength));
   }
 
   if((!options.wrappingDraft || options.customEmojiRenderer) && customEmojis.size) {
@@ -961,7 +961,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
       lazyLoadQueue: options.lazyLoadQueue,
       onlyThumb: options.wrappingDraft
     });
-    options.loadPromises?.push(loadPromise);
+    options.loadPromises?.push(loadPromise!);
     // recordPromise(loadPromise, 'render emojis: ' + docIds.length);
   }
 
@@ -1013,8 +1013,8 @@ export function insertCustomFillers(elements: Iterable<HTMLElement>) {
 
   for(const element of elements) {
     const {previousSibling, nextSibling} = element;
-    check(element, previousSibling, 'before');
-    check(element, nextSibling, 'after');
+    check(element, previousSibling!, 'before');
+    check(element, nextSibling!, 'after');
   }
 }
 

@@ -12,7 +12,7 @@ export const participantAdminPredicates: Set<(ChannelParticipant | ChatParticipa
 ]);
 
 export const isParticipantCreator = (participant: ChatParticipant | ChannelParticipant | undefined) =>
-  participantCreatorPredicates.has(participant?._);
+  participantCreatorPredicates.has(participant?._!);
 
 export const isParticipantAdmin = (participant: ChatParticipant | ChannelParticipant | undefined) =>
-  participantAdminPredicates.has(participant?._);
+  participantAdminPredicates.has(participant?._!);

@@ -1,4 +1,5 @@
 import {
+  Document,
   HelpPremiumPromo,
   InputInvoice,
   InputPaymentCredentials,
@@ -16,9 +17,9 @@ import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId'
 import formatStarsAmount from '@appManagers/utils/payments/formatStarsAmount';
 
 export default class AppPaymentsManager extends AppManager {
-  private premiumPromo: MaybePromise<HelpPremiumPromo>;
-  private starsStatus: MaybePromise<PaymentsStarsStatus>;
-  private starsStatusTon: MaybePromise<PaymentsStarsStatus>;
+  private premiumPromo: MaybePromise<HelpPremiumPromo> | undefined;
+  private starsStatus: MaybePromise<PaymentsStarsStatus> | undefined;
+  private starsStatusTon: MaybePromise<PaymentsStarsStatus> | undefined;
 
   protected after() {
     // * reset premium promo
@@ -42,7 +43,7 @@ export default class AppPaymentsManager extends AppManager {
     return {
       _: 'inputInvoiceMessage',
       peer: this.appPeersManager.getInputPeerById(peerId),
-      msg_id: getServerMessageId(mid)
+      msg_id: getServerMessageId(mid)!
     };
   }
 
@@ -53,7 +54,7 @@ export default class AppPaymentsManager extends AppManager {
     }).then((paymentForm) => {
       if(paymentForm._ !== 'payments.paymentFormStarGift') {
         this.appPeersManager.saveApiPeers(paymentForm);
-        paymentForm.photo = this.appWebDocsManager.saveWebDocument(paymentForm.photo);
+        paymentForm.photo = this.appWebDocsManager.saveWebDocument(paymentForm.photo!);
       }
 
       return paymentForm;
@@ -63,10 +64,10 @@ export default class AppPaymentsManager extends AppManager {
   public getPaymentReceipt(peerId: PeerId, mid: number) {
     return this.apiManager.invokeApi('payments.getPaymentReceipt', {
       peer: this.appPeersManager.getInputPeerById(peerId),
-      msg_id: getServerMessageId(mid)
+      msg_id: getServerMessageId(mid)!
     }).then((paymentForm) => {
       this.appPeersManager.saveApiPeers(paymentForm);
-      paymentForm.photo = this.appWebDocsManager.saveWebDocument(paymentForm.photo);
+      paymentForm.photo = this.appWebDocsManager.saveWebDocument(paymentForm.photo!);
 
       return paymentForm;
     });
@@ -123,7 +124,7 @@ export default class AppPaymentsManager extends AppManager {
         this.appPeersManager.saveApiPeers(helpPremiumPromo);
         helpPremiumPromo.videos = helpPremiumPromo.videos.map((doc) => {
           return this.appDocsManager.saveDoc(doc, {type: 'premiumPromo'});
-        });
+        }) as Document[];
 
         return this.premiumPromo = helpPremiumPromo;
       }
@@ -168,7 +169,7 @@ export default class AppPaymentsManager extends AppManager {
       method: 'payments.getGiveawayInfo',
       params: {
         peer: this.appPeersManager.getInputPeerById(peerId),
-        msg_id: getServerMessageId(mid)
+        msg_id: getServerMessageId(mid)!
       }
     });
   }
@@ -208,7 +209,7 @@ export default class AppPaymentsManager extends AppManager {
         transaction.extended_media.forEach((messageMedia) => {
           this.appMessagesManager.saveMessageMedia(
             {media: messageMedia},
-            {type: 'starsTransaction', peerId, mid: transaction.msg_id}
+            {type: 'starsTransaction', peerId, mid: transaction.msg_id!}
           );
         });
       }
@@ -276,7 +277,7 @@ export default class AppPaymentsManager extends AppManager {
       params: {
         // peer: this.appPeersManager.getInputPeerById(peerId),
         peer: this.appPeersManager.getInputPeerById(this.rootScope.myId),
-        offset,
+        offset: offset!,
         missing_balance: missingBalance
       },
       processResult: this.saveStarsStatus

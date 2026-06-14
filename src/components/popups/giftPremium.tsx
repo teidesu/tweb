@@ -20,7 +20,7 @@ export default async function showGiftPremiumPopup(peerId: PeerId, giftOptions: 
 
   function Inner() {
     const context = useContext(PopupContext);
-    const managers = untrack(() => context.managers);
+    const managers = untrack(() => context!.managers);
     const listenerSetter = new ListenerSetter();
 
     const shortestOption = giftOptions.slice().sort((a, b) => a.months - b.months)[0];
@@ -28,7 +28,7 @@ export default async function showGiftPremiumPopup(peerId: PeerId, giftOptions: 
       paymentsWrapCurrencyAmount(amount, shortestOption.currency, false, true, true);
 
     const rows = giftOptions.map((giftOption, idx) => {
-      let subtitle: HTMLElement = i18n('PricePerMonth', [wrapCurrency(+giftOption.amount / giftOption.months)]);
+      let subtitle: HTMLElement = i18n('PricePerMonth', [wrapCurrency(+giftOption.amount / giftOption.months)])!;
       if(giftOption !== shortestOption) {
         const span = document.createElement('span');
         const badge = document.createElement('span');
@@ -78,7 +78,7 @@ export default async function showGiftPremiumPopup(peerId: PeerId, giftOptions: 
     });
 
     const giftButton = Button('btn-primary popup-gift-premium-confirm shimmer');
-    giftButton.append(buttonText.element);
+    giftButton.append(buttonText.element!);
 
     attachClickEvent(giftButton, async() => {
       const giftOption = getSelectedOption();
@@ -90,11 +90,11 @@ export default async function showGiftPremiumPopup(peerId: PeerId, giftOptions: 
             _: 'inputStorePaymentPremiumGiftCode',
             amount: giftOption.amount,
             currency: giftOption.currency,
-            users: [await managers.appUsersManager.getUserInput(peerId.toUserId())]
+            users: [await managers.appUsersManager!.getUserInput(peerId.toUserId())]
           }
         }
       });
-      context.hide();
+      context!.hide();
     }, {listenerSetter});
 
     onCleanup(() => listenerSetter.removeAll());
@@ -104,7 +104,7 @@ export default async function showGiftPremiumPopup(peerId: PeerId, giftOptions: 
     titleEl.classList.add(styles.title);
 
     const subtitleEl = i18n('GiftTelegramPremiumDescription', [peerTitleEl]);
-    subtitleEl.classList.add(styles.subtitle);
+    subtitleEl!.classList.add(styles.subtitle);
 
     return (
       <>

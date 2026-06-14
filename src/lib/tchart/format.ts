@@ -15,15 +15,15 @@ export function statsFormatDayHourFull(value: number, data: TChartData) {
     utcDiff = new Date().getTimezoneOffset() * 60e3;
   }
 
-  return data.getLabelTime(86400e3 + +value * 3600e3 + utcDiff);
+  return data.getLabelTime!(86400e3 + +value * 3600e3 + utcDiff);
 }
 
 export function statsFormatDay(value: number, data: TChartData) {
-  return data.getLabelDate(value, {isShort: true, displayYear: false});
+  return data.getLabelDate!(value, {isShort: true, displayYear: false});
 }
 
 export function statsFormatMin(value: number, data: TChartData) {
-  return data.getLabelTime(value);
+  return data.getLabelTime!(value);
 }
 
 export function statsFormatText(value: number | string) {
@@ -64,5 +64,5 @@ export function getLabelDate(
 }
 
 export function getLabelTime(value: number) {
-  return new Date(value).toString().match(/(\d+:\d+):/)[1];
+  return new Date(value).toString().match(/(\d+:\d+):/)![1];
 }

@@ -3,9 +3,9 @@ import getPeerId from '@appManagers/utils/peers/getPeerId';
 
 export default function getPeerIdsFromMessage(message: Message.message | Message.messageService) {
   const peerIds: number[] = [
-    message.fromId,
-    message.viaBotId,
-    (message as Message.message).fwdFromId
+    message.fromId!,
+    message.viaBotId!,
+    (message as Message.message).fwdFromId!
   ];
 
   const media = (message as Message.message).media;
@@ -41,7 +41,7 @@ export default function getPeerIdsFromMessage(message: Message.message | Message
 
   const topReactors = ((message as Message.message).reactions)?.top_reactors;
   if(topReactors?.length) {
-    peerIds.push(...topReactors.map((reactor) => getPeerId(reactor.peer_id)));
+    peerIds.push(...topReactors.map((reactor) => getPeerId(reactor.peer_id!)));
   }
 
   const action = (message as Message.messageService).action;
@@ -61,7 +61,7 @@ export default function getPeerIdsFromMessage(message: Message.message | Message
     peerIds.push(...chatIds.filter(Boolean).map((chatId) => chatId.toPeerId(true)));
 
     const peers: Peer[] = [
-      (action as MessageAction.messageActionGiftCode | MessageAction.messageActionPrizeStars).boost_peer,
+      (action as MessageAction.messageActionGiftCode | MessageAction.messageActionPrizeStars).boost_peer!,
       ...(action as MessageAction.messageActionRequestedPeer).peers || [],
       (action as MessageAction.messageActionGeoProximityReached).from_id,
       (action as MessageAction.messageActionGeoProximityReached).to_id
@@ -83,7 +83,7 @@ export default function getPeerIdsFromMessage(message: Message.message | Message
   if(replyHeader) {
     peerIds.push(...[
       (replyHeader as MessageReplyHeader.messageReplyHeader).reply_to_peer_id
-    ].filter(Boolean).map((peer) => getPeerId(peer)));
+    ].filter(Boolean).map((peer) => getPeerId(peer!)));
   }
 
   [
@@ -91,10 +91,10 @@ export default function getPeerIdsFromMessage(message: Message.message | Message
     (replyHeader as MessageReplyHeader.messageReplyHeader)?.reply_from
   ].filter(Boolean).forEach((fwdHeader) => {
     peerIds.push(...[
-      fwdHeader.from_id,
-      fwdHeader.saved_from_id,
-      fwdHeader.saved_from_peer
-    ].filter(Boolean).map((peer) => getPeerId(peer)));
+      fwdHeader!.from_id,
+      fwdHeader!.saved_from_id,
+      fwdHeader!.saved_from_peer
+    ].filter(Boolean).map((peer) => getPeerId(peer!)));
   });
 
   return new Set(peerIds.filter(Boolean));

@@ -41,19 +41,19 @@ function setAutoDownloadSubtitle(row: Row, settings: AutoDownloadPeerTypeSetting
     const isAll = enabledKeys.length === peerKeys.length;
     if(sizeMax !== undefined) {
       key = isAll ? 'AutoDownloadUpToOnAllChats' : 'AutoDownloadOnUpToFor';
-      args.push(formatBytes(sizeMax));
+      args.push(formatBytes(sizeMax)!);
     } else {
       key = isAll ? 'AutoDownloadOnAllChats' : 'AutoDownloadOnFor';
     }
 
     if(!isAll) {
       const fragment = document.createElement('span');
-      fragment.append(...join(enabledKeys.map((key) => i18n(key)), true, false));
+      fragment.append(...join(enabledKeys.map((key) => i18n(key!)) as (Node | string)[], true, false));
       args.push(fragment);
     }
   }
 
-  replaceContent(row.subtitle, i18n(key, args));
+  replaceContent(row.subtitle, i18n(key, args)!);
 }
 
 const DataAndStorage: Component = () => {

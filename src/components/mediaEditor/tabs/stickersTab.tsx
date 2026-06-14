@@ -23,14 +23,14 @@ import {getStickerSetInputById} from '@lib/appManagers/utils/stickers/getSticker
 export default function StickersTab() {
   const {wrapStickerSetThumb, EmoticonsSearch} = useHotReloadGuard();
   const context = useMediaEditorContext();
-  const {container, scrollAmount} = useContext(TabContentContext);
+  const {container, scrollAmount} = useContext(TabContentContext)!;
 
-  const {managers, editorState, mediaState, actions} = context;
+  const {managers, editorState, mediaState, actions} = context!;
 
   const normalizePoint = useNormalizePoint();
 
-  const [recentStickers] = createResource(() => managers.appStickersManager.getRecentStickersStickers());
-  const [stickerSets] = createResource(() => managers.appStickersManager.getAllStickers());
+  const [recentStickers] = createResource(() => managers.appStickersManager!.getRecentStickersStickers());
+  const [stickerSets] = createResource(() => managers.appStickersManager!.getAllStickers());
   const [filteredStickers, setFilteredStickers] = createSignal<Document.document[]>();
 
   const [search, setSearch] = createSignal('');
@@ -74,7 +74,7 @@ export default function StickersTab() {
       const middleware = createMiddleware();
 
       wrapStickerSetThumb({
-        container: renderContainer,
+        container: renderContainer!,
         group: 'none',
         autoplay: true,
         width: 30,
@@ -91,7 +91,7 @@ export default function StickersTab() {
 
     return (
       <div
-        ref={renderContainer}
+        ref={renderContainer!}
         class="media-editor__stickers-set-thumb"
         classList={{
           'media-editor__stickers-set-thumb--active': isActive()
@@ -105,16 +105,16 @@ export default function StickersTab() {
     let container: HTMLDivElement;
 
     onMount(() => {
-      stickerRenderer.renderSticker(props.doc, container);
-      stickerRenderer.observeAnimated(container);
+      stickerRenderer.renderSticker(props.doc, container!);
+      stickerRenderer.observeAnimated(container!);
     });
 
     function onClick() {
-      const id = context.resizableLayersSeed++;
+      const id = context!.resizableLayersSeed++;
       const transform = editorState.finalTransform;
       const newLayer = {
         id,
-        position: normalizePoint([editorState.canvasSize[0] / 2, editorState.canvasSize[1] / 2]),
+        position: normalizePoint([editorState.canvasSize![0] / 2, editorState.canvasSize![1] / 2]),
         rotation: -transform.rotation,
         scale: 1 / transform.scale,
         type: 'sticker',
@@ -136,7 +136,7 @@ export default function StickersTab() {
       });
     }
 
-    return <div ref={container} class="media-editor__stickers-grid-item" onClick={onClick} />;
+    return <div ref={container!} class="media-editor__stickers-grid-item" onClick={onClick} />;
   }
 
   function StickerSetLabel(props: {set: StickerSet.stickerSet}) {
@@ -144,29 +144,29 @@ export default function StickersTab() {
 
     createEffect(() => {
       if(intersectionObserver()) {
-        intersectionObserver().observe(label);
+        intersectionObserver()!.observe(label!);
         onCleanup(() => {
-          intersectionObserver()?.unobserve(label);
+          intersectionObserver()?.unobserve(label!);
         });
       }
     });
 
     return (
-      <div ref={label} data-set-id={props.set.id} class="media-editor__label">
+      <div ref={label!} data-set-id={props.set.id} class="media-editor__label">
         {wrapEmojiText(props.set.title)}
       </div>
     );
   }
 
   function StickerSetSection(props: {set: StickerSet.stickerSet}) {
-    const [stickers] = createResource(() => managers.appStickersManager.getStickerSet(getStickerSetInputById(props.set)));
+    const [stickers] = createResource(() => managers.appStickersManager!.getStickerSet(getStickerSetInputById(props.set)));
 
     return (
       <Show when={stickers()}>
         <Space amount="16px" />
         <StickerSetLabel set={props.set} />
         <div class="media-editor__stickers-grid">
-          <For each={stickers().documents}>{(doc) => <Sticker doc={doc as Document.document} />}</For>
+          <For each={stickers()!.documents}>{(doc) => <Sticker doc={doc as Document.document} />}</For>
         </div>
       </Show>
     );
@@ -176,11 +176,11 @@ export default function StickersTab() {
     let thumbsListScrollable: HTMLDivElement;
 
     onMount(() => {
-      document.querySelector('.media-editor__tabs')?.append(thumbsListScrollable);
-      new ScrollableX(thumbsListScrollable);
+      document.querySelector('.media-editor__tabs')?.append(thumbsListScrollable!);
+      new ScrollableX(thumbsListScrollable!);
     });
     onCleanup(() => {
-      thumbsListScrollable.remove();
+      thumbsListScrollable!.remove();
     });
 
     const visible = () => stickerSets() && !filteredStickers();
@@ -190,7 +190,7 @@ export default function StickersTab() {
         'media-editor__stickers-thumb-list-scrollable--hidden': !visible(),
         'media-editor__stickers-thumb-list-scrollable--has-scroll': scrollAmount() > 8
       }}
-      ref={thumbsListScrollable}
+      ref={thumbsListScrollable!}
     >
       <div class="media-editor__stickers-thumb-list">
         <Show when={recentStickers()?.length}>
@@ -235,27 +235,27 @@ export default function StickersTab() {
 
   createEffect(() => {
     if(intersectionObserver() && recentLabel()) {
-      intersectionObserver().observe(recentLabel());
+      intersectionObserver()!.observe(recentLabel()!);
       onCleanup(() => {
-        intersectionObserver()?.unobserve(recentLabel());
+        intersectionObserver()?.unobserve(recentLabel()!);
       });
     }
   });
 
   createEffect(async() => {
     if(search()) {
-      setFilteredStickers(await managers.appStickersManager.searchStickers(search()));
+      setFilteredStickers(await managers.appStickersManager!.searchStickers(search()));
       return;
     }
     if(group()) {
       const g = group();
-      if(g._ === 'emojiGroupPremium') {
-        setFilteredStickers(await managers.appStickersManager.getPremiumStickers());
+      if(g!._ === 'emojiGroupPremium') {
+        setFilteredStickers(await managers.appStickersManager!.getPremiumStickers());
         return;
       }
       setFilteredStickers(
-        await managers.appStickersManager.getStickersByEmoticon({
-          emoticon: g.emoticons,
+        await managers.appStickersManager!.getStickersByEmoticon({
+          emoticon: g!.emoticons,
           includeServerStickers: true
         })
       );
@@ -291,7 +291,7 @@ export default function StickersTab() {
       {/* TODO: Favorties */}
       <Space amount="16px" />
 
-      <Show when={recentStickers()?.length > 0 && !filteredStickers()}>
+      <Show when={recentStickers()?.length! > 0 && !filteredStickers()}>
         <div ref={setRecentLabel} class="media-editor__label" data-set-id="recent">
           {i18n('MediaEditor.RecentlyUsed')}
         </div>
@@ -308,7 +308,7 @@ export default function StickersTab() {
       </Show>
 
       <Show when={stickerSets() && !filteredStickers()}>
-        <For each={stickerSets().sets}>{(set) => <StickerSetSection set={set} />}</For>
+        <For each={stickerSets()!.sets}>{(set) => <StickerSetSection set={set} />}</For>
       </Show>
     </>
   );

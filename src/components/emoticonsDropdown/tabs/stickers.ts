@@ -34,30 +34,30 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
       managers,
       searchFetcher: async(value) => {
         if(!value) return [];
-        return this.managers.appStickersManager.searchStickers(value);
+        return this.managers.appStickersManager!.searchStickers(value);
       },
       groupFetcher: async(group) => {
         if(!group) return [];
 
         if(group._ === 'emojiGroupPremium') {
-          return this.managers.appStickersManager.getPremiumStickers();
+          return this.managers.appStickersManager!.getPremiumStickers();
         }
 
-        return this.managers.appStickersManager.getStickersByEmoticon({emoticon: group.emoticons, includeServerStickers: true});
+        return this.managers.appStickersManager!.getStickersByEmoticon({emoticon: group.emoticons, includeServerStickers: true});
       },
-      processSearchResult: async({data: stickers, searching, grouping}) => {
+      processSearchResult: (async({data: stickers, searching, grouping}) => {
         if(!stickers || (!searching && !grouping)) {
           return;
         }
 
         if(!stickers.length) {
           const span = i18n('NoStickersFound');
-          span.classList.add('emoticons-not-found');
+          span!.classList.add('emoticons-not-found');
           return span;
         }
 
         const container = this.categoriesContainer.cloneNode(false) as HTMLElement;
-        const category = this.createCategory({styles: EmoticonsTabStyles.Stickers});
+        const category = this.createCategory({styles: EmoticonsTabStyles.Stickers!});
         const promise = StickersTab.categoryAppendStickers(
           this,
           this.stickerRenderer,
@@ -81,7 +81,7 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
         }
 
         return container;
-      },
+      }) as (result: {data: MyDocument[]; searching: boolean; grouping: boolean}) => Promise<HTMLElement>,
       // searchNoLoader: true,
       searchPlaceholder: 'SearchStickers',
       searchType: 'stickers'
@@ -102,7 +102,7 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
 
   private onCategoryVisibility = ({target, visible}: OnVisibilityChangeItem) => {
     const category = this.categoriesMap.get(target);
-    StickersTab._onCategoryVisibility(category, visible);
+    StickersTab._onCategoryVisibility(category!, visible);
   };
 
   public init() {
@@ -137,15 +137,15 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
       if(findUpClassName(target, 'category-title')) {
         const container = findUpClassName(target, 'emoji-category');
         const category = this.categoriesMap.get(container);
-        if(category.local) {
+        if(category!.local) {
           return;
         }
 
-        showStickersPopup(getStickerSetInputById(category.set), false, this.emoticonsDropdown.chatInput);
+        showStickersPopup(getStickerSetInputById(category!.set!), false, this.emoticonsDropdown.chatInput);
         return;
       }
 
-      this.emoticonsDropdown.onMediaClick(e);
+      this.emoticonsDropdown.onMediaClick((e! as { target: EventTarget | Element; }));
     });
 
     this.menuOnClickResult = EmoticonsDropdown.menuOnClick(this, this.menu, this.scrollable, this.menuScroll);
@@ -180,7 +180,7 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
       id: 'faved',
       title: 'FavoriteStickers',
       icon: 'savedmessages',
-      styles: EmoticonsTabStyles.Stickers
+      styles: EmoticonsTabStyles.Stickers!
     });
     // favedCategory.elements.menuTab.classList.add('active');
 
@@ -188,7 +188,7 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
       id: 'recent',
       title: 'Stickers.Recent',
       icon: 'recent',
-      styles: EmoticonsTabStyles.Stickers
+      styles: EmoticonsTabStyles.Stickers!
     });
     recentCategory.limit = 20;
 
@@ -202,24 +202,24 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
           langKey: 'Clear'
         }
       }).then(() => {
-        this.managers.appStickersManager.clearRecentStickers();
+        this.managers.appStickersManager!.clearRecentStickers();
       }, noop);
     });
 
     const promises = [
       Promise.all([
-        this.managers.apiManager.getLimit('favedStickers'),
-        this.managers.appStickersManager.getFavedStickersStickers()
+        this.managers.apiManager!.getLimit('favedStickers'),
+        this.managers.appStickersManager!.getFavedStickersStickers()
       ]).then(([limit, stickers]) => {
         this.setFavedLimit(limit);
-        onCategoryStickers(favedCategory, stickers);
+        onCategoryStickers(favedCategory, (stickers as Document.document[]));
       }),
 
-      this.managers.appStickersManager.getRecentStickersStickers().then((stickers) => {
-        onCategoryStickers(recentCategory, stickers);
+      this.managers.appStickersManager!.getRecentStickersStickers().then((stickers) => {
+        onCategoryStickers(recentCategory, (stickers as Document.document[]));
       }),
 
-      this.managers.appStickersManager.getAllStickers().then((res) => {
+      this.managers.appStickersManager!.getAllStickers().then((res) => {
         for(const set of (res as MessagesAllStickers.messagesAllStickers).sets) {
           StickersTab.renderStickerSet(this, this.stickerRenderer, set, false);
         }
@@ -298,7 +298,7 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
     });
 
     rootScope.addEventListener('app_config', () => {
-      this.managers.apiManager.getLimit('favedStickers').then((limit) => {
+      this.managers.apiManager!.getLimit('favedStickers').then((limit) => {
         this.setFavedLimit(limit);
       });
     });
@@ -306,10 +306,10 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
     mediaSizes.addEventListener('resize', this.resizeCategories);
 
     this.attachHelpers({
-      verifyRecent: (target) => !!findUpAsChild(target, this.categories['recent'].elements.items)
+      verifyRecent: (target) => !!findUpAsChild((target! as { parentElement: HTMLElement; }), this.categories['recent'].elements.items)
     });
 
-    this.init = null;
+    this.init = null!;
   }
 
   public deleteCategory(category: StickersTabCategory<StickersTabItem>) {
@@ -363,11 +363,11 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
   }
 
   public unshiftRecentSticker(doc: MyDocument) {
-    this.managers.appStickersManager.saveRecentSticker(doc.id);
+    this.managers.appStickersManager!.saveRecentSticker(doc.id);
   }
 
   public deleteRecentSticker(doc: MyDocument) {
-    this.managers.appStickersManager.saveRecentSticker(doc.id, true);
+    this.managers.appStickersManager!.saveRecentSticker(doc.id, true);
   }
 
   public setTyping = (cancel = false) => {
@@ -421,7 +421,7 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
       }).filter(Boolean);
 
       if(isVisible) {
-        category.elements.items.append(...elements);
+        category.elements.items.append(...elements as HTMLElement[]);
       }
     });
   }
@@ -435,11 +435,11 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
     const category = tab.createCategory({
       stickerSet: set,
       title: wrapEmojiText(set.title),
-      styles: EmoticonsTabStyles.Stickers
+      styles: EmoticonsTabStyles.Stickers!
     });
     const {menuTabPadding} = category.elements;
 
-    const promise = tab.managers.appStickersManager.getStickerSet(getStickerSetInputById(set));
+    const promise = tab.managers.appStickersManager!.getStickerSet(getStickerSetInputById(set));
     this.categoryAppendStickers(
       tab,
       stickerRenderer,

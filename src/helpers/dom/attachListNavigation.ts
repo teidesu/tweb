@@ -72,8 +72,8 @@ export default function attachListNavigation({
 
   const getNextTargetX = (currentTarget: Element, isNext: boolean): Element => {
     let nextTarget: Element;
-    if(isNext) nextTarget = currentTarget[PROPERTY_NEXT] || list[PROPERTY_FIRST];
-    else nextTarget = currentTarget[PROPERTY_PREV] || list[PROPERTY_LAST];
+    if(isNext) nextTarget = (currentTarget[PROPERTY_NEXT] || list[PROPERTY_FIRST])!;
+    else nextTarget = (currentTarget[PROPERTY_PREV] || list[PROPERTY_LAST])!;
 
     return nextTarget;
   };
@@ -85,12 +85,12 @@ export default function attachListNavigation({
 
     let nextTarget = currentTarget[property] || list[endProperty];
     while(nextTarget !== currentTarget) {
-      const targetRect = nextTarget.getBoundingClientRect();
+      const targetRect = nextTarget!.getBoundingClientRect();
       if(targetRect.x === currentRect.x && targetRect.y !== currentRect.y) {
         break;
       }
 
-      nextTarget = nextTarget[property] || list[endProperty];
+      nextTarget = nextTarget![property] || list[endProperty];
     }
 
     return nextTarget;
@@ -99,7 +99,7 @@ export default function attachListNavigation({
   let handleArrowKey: (currentTarget: Element, key: ArrowKey) => Element;
   if(type === 'xy') { // flex-direction: row; flex-wrap: wrap;
     handleArrowKey = (currentTarget, key) => {
-      if(key === 'ArrowUp' || key === 'ArrowDown') return getNextTargetY(currentTarget, key === 'ArrowDown');
+      if(key === 'ArrowUp' || key === 'ArrowDown') return getNextTargetY(currentTarget, key === 'ArrowDown')!;
       else return getNextTargetX(currentTarget, key === 'ArrowRight');
     };
   } else { // flex-direction: row | column;
@@ -111,7 +111,7 @@ export default function attachListNavigation({
     if(!keyNames.has(key as any)) {
       if(key === 'Enter' || (type !== 'xy' && key === 'Tab')) {
         cancelEvent(e);
-        fireSelect(getCurrentTarget());
+        fireSelect(getCurrentTarget()!);
       }
 
       return;
@@ -121,7 +121,7 @@ export default function attachListNavigation({
 
     if(list.childElementCount > 1) {
       let currentTarget = getCurrentTarget();
-      currentTarget = handleArrowKey(currentTarget, key as any);
+      currentTarget = handleArrowKey(currentTarget!, key as any);
       setCurrentTarget(currentTarget, true);
     }
   };
@@ -130,7 +130,7 @@ export default function attachListNavigation({
   list.classList.add('navigable-list');
 
   const onMouseMove = (e: MouseEvent) => {
-    const target = findUpAsChild(e.target as HTMLElement, list) as HTMLElement;
+    const target = findUpAsChild(((e.target as HTMLElement)! as { parentElement: HTMLElement; }), list) as HTMLElement;
     if(!target) {
       return;
     }
@@ -141,13 +141,13 @@ export default function attachListNavigation({
   const onClick = (e: Event) => {
     cancelEvent(e); // cancel keyboard closening
 
-    const target = findUpAsChild(e.target as HTMLElement, list) as HTMLElement;
+    const target = findUpAsChild(((e.target as HTMLElement)! as { parentElement: HTMLElement; }), list) as HTMLElement;
     if(!target) {
       return;
     }
 
     setCurrentTarget(target, false);
-    fireSelect(getCurrentTarget());
+    fireSelect(getCurrentTarget()!);
   };
 
   const fireSelect = async(target: Element) => {
@@ -157,7 +157,7 @@ export default function attachListNavigation({
     }
   };
 
-  let attached = false, detachClickEvent: () => void;
+  let attached = false, detachClickEvent: (() => void) | undefined;
   const attach = () => {
     if(attached) return;
     attached = true;
@@ -176,19 +176,19 @@ export default function attachListNavigation({
     document.removeEventListener(HANDLE_EVENT, onKeyDown, {capture: true});
     list.removeEventListener('mousemove', onMouseMove);
     if(cancelMouseDown) list.removeEventListener('mousedown', cancelEvent);
-    detachClickEvent();
+    detachClickEvent!();
     detachClickEvent = undefined;
   };
 
   const resetTarget = () => {
     if(waitForKeySet) return;
-    setCurrentTarget(list[PROPERTY_FIRST], false);
+    setCurrentTarget(list[PROPERTY_FIRST]!, false);
   };
 
   if(waitForKeySet) {
     const _onKeyDown = onKeyDown;
     onKeyDown = (e) => {
-      if(waitForKeySet.has(e.key)) {
+      if(waitForKeySet!.has(e.key)) {
         cancelEvent(e);
 
         document.removeEventListener(HANDLE_EVENT, onKeyDown, {capture: true});

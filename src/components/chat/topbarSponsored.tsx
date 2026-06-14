@@ -41,7 +41,7 @@ function SponsoredPlateBody(props: {
     if(peerId$ === NULL_PEER_ID || !peerId$.isUser()) return;
     if(!props.chat.isBot) return;
 
-    props.managers.appMessagesManager.getSponsoredMessage(peerId$)
+    props.managers.appMessagesManager!.getSponsoredMessage(peerId$)
     .then((m) => {
       if(props.peerId() !== peerId$) return;
 
@@ -54,8 +54,8 @@ function SponsoredPlateBody(props: {
 
   const photo = () => {
     const m = message();
-    if(m.photo) return m.photo as MyPhoto;
-    if(m.media && m.media._ === 'messageMediaPhoto') return m.media.photo as MyPhoto;
+    if(m!.photo) return m!.photo as MyPhoto;
+    if(m!.media && m!.media._ === 'messageMediaPhoto') return m!.media.photo as MyPhoto;
     return undefined;
   };
 
@@ -66,17 +66,17 @@ function SponsoredPlateBody(props: {
       <RippleElement
         component="div"
         class={/* @once */ classNames(styles.container, 'quote-like-hoverable', 'overflow-hidden')}
-        onClick={() => appImManager.onSponsoredMessageClick(message())}
+        onClick={() => appImManager.onSponsoredMessageClick(message()!)}
         ref={(el) => {
           createContextMenu({
             listenTo: el,
             buttons: getSponsoredMessageButtons({
               message: message(),
               handleReportAd: () => {
-                showAdReport(message(), () => props.setHidden(false));
+                showAdReport(message()!, () => props.setHidden(false));
               },
               handleCopy: () => {
-                copyTextToClipboard(message().message);
+                copyTextToClipboard(message()!.message);
               }
             }),
             middleware
@@ -87,7 +87,7 @@ function SponsoredPlateBody(props: {
           <div class={/* @once */ classNames(styles.photoWrap, 'disable-hover')}>
             <PhotoTsx
               class={/* @once */ styles.photo}
-              photo={photo()}
+              photo={photo()!}
               boxWidth={32}
               boxHeight={32}
               withoutPreloader
@@ -98,10 +98,10 @@ function SponsoredPlateBody(props: {
           <div class="text-bold">
             <I18nTsx class="primary" key="SponsoredMessageAd" />
             {' '}
-            {wrapEmojiText(message().title)}
+            {wrapEmojiText(message()!.title)}
           </div>
           <div class="pre-wrap">
-            {wrapRichText(message().message, {entities: message().entities})}
+            {wrapRichText(message()!.message, {entities: message()!.entities})}
           </div>
         </div>
       </RippleElement>

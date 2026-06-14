@@ -143,7 +143,7 @@ async function resolveFromPeer(
   managers: AppManagers
 ): Promise<{theme?: ChatBackgroundTheme, wallPaper?: WallPaper}> {
   if(!peerId.isUser()) return {};
-  const full = await managers.appProfileManager.getCachedFullUser(peerId.toUserId());
+  const full = await managers.appProfileManager!.getCachedFullUser(peerId.toUserId());
   if(full?.wallpaper) return {wallPaper: full.wallpaper};
   if(full?.theme) {
     const themeEmoticon = 'emoticon' in full.theme ? full.theme.emoticon : undefined;
@@ -170,8 +170,8 @@ function resolveBackgroundSync(
   return untrack(() => {
     const globalTheme = themeController.getTheme();
     const theme = options.theme ?? globalTheme;
-    const wallPaper = options.wallPaper ?? themeController.getThemeSettings(theme).wallpaper;
-    return {theme, wallPaper};
+    const wallPaper = options.wallPaper ?? themeController.getThemeSettings(theme!).wallpaper;
+    return {theme, wallPaper} as ResolvedBackground;
   });
 }
 

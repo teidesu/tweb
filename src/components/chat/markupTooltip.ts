@@ -31,14 +31,14 @@ export default class MarkupTooltip {
   private linkBackButton: HTMLElement;
   private linkApplyButton: HTMLButtonElement;
   private linkDelimiter: HTMLElement;
-  private hideTimeout: number;
+  private hideTimeout: number | undefined;
   private addedListener = false;
   private waitingForMouseUp = false;
   private linkInput: HTMLInputElement;
   private savedRange: Range;
   private mouseUpCounter: number = 0;
-  private input: HTMLElement;
-  private linkInputFocusTimeout: number;
+  private input: HTMLElement | undefined;
+  private linkInputFocusTimeout: number | undefined;
   // private log: ReturnType<typeof logger>;
 
   public static showDatePickerPopup: typeof showDatePickerPopup;
@@ -98,7 +98,7 @@ export default class MarkupTooltip {
       } else {
         button.addEventListener('mousedown', (e) => {
           cancelEvent(e);
-          applyMarkdown({input: this.input, type});
+          applyMarkdown({input: (this.input as HTMLElement), type});
           this.cancelClosening();
 
           /* this.mouseUpCounter = 0;
@@ -206,7 +206,7 @@ export default class MarkupTooltip {
           // }
 
           applyMarkdown({
-            input,
+            input: input!,
             type: 'date',
             dateSuffix: timestamp ? '' + timestamp : undefined
           });
@@ -252,7 +252,7 @@ export default class MarkupTooltip {
     if(url && !matchUrlProtocol(url)) {
       url = 'https://' + url;
     }
-    applyMarkdown({input: this.input, type: 'link', href: url});
+    applyMarkdown({input: (this.input as HTMLElement), type: 'link', href: url});
     setTimeout(() => {
       this.hide();
     }, 0);
@@ -264,19 +264,19 @@ export default class MarkupTooltip {
 
   private resetSelection(range: Range = this.savedRange) {
     const selection = window.getSelection();
-    selection.removeAllRanges();
-    selection.addRange(range);
+    selection!.removeAllRanges();
+    selection!.addRange(range);
     this.input?.focus();
   }
 
-  private saveRange(selection: Selection = document.getSelection()) {
+  private saveRange(selection: Selection = document.getSelection()!) {
     return this.savedRange = selection.getRangeAt(0);
   }
 
   public hide() {
     // return;
 
-    if(this.init) return;
+    if(this.init as any) return;
 
     this.input = undefined;
     this.container.classList.remove('is-visible');
@@ -343,12 +343,12 @@ export default class MarkupTooltip {
 
   private setTooltipPosition(isLinkToggle = false) {
     const selection = document.getSelection();
-    const range = selection.getRangeAt(0);
+    const range = selection!.getRangeAt(0);
 
-    const rowsWrapper = findUpClassName(this.input, 'simple-message-input-container') ||
-      findUpClassName(this.input, 'rows-wrapper') ||
-      findUpClassName(this.input, 'input-message-container') ||
-      findUpClassName(this.input, 'input-field') ||
+    const rowsWrapper = findUpClassName(this.input!, 'simple-message-input-container') ||
+      findUpClassName(this.input!, 'rows-wrapper') ||
+      findUpClassName(this.input!, 'input-message-container') ||
+      findUpClassName(this.input!, 'input-field') ||
       this.input?.closest('[data-markup-tooltip-host]');
 
     if(!rowsWrapper) return;
@@ -359,13 +359,13 @@ export default class MarkupTooltip {
     const bodyRect = document.body.getBoundingClientRect();
     const selectionRect = range.getBoundingClientRect();
     const inputRect = rowsWrapper.getBoundingClientRect();
-    const sizesRect = currentTools.getBoundingClientRect();
+    const sizesRect = currentTools!.getBoundingClientRect();
 
     this.container.style.maxWidth = inputRect.width + 'px';
 
     const visibleRect = getVisibleRect(
-      undefined,
-      this.input,
+      undefined!,
+      (this.input as HTMLElement),
       false,
       selectionRect
     );
@@ -401,7 +401,7 @@ export default class MarkupTooltip {
   public show() {
     if(this.init) {
       this.init();
-      this.init = null;
+      this.init = null as any;
     }
 
     if(isSelectionEmpty()) {
@@ -421,7 +421,7 @@ export default class MarkupTooltip {
 
     this.setActiveMarkupButton();
 
-    const canFormat = this.input.getAttribute('can-format');
+    const canFormat = this.input!.getAttribute('can-format');
     const allowedTypes = canFormat ?
       new Set(canFormat.split(',').filter(Boolean) as MarkupTooltipTypes[]) :
       null;
@@ -550,7 +550,7 @@ export default class MarkupTooltip {
             return;
           }
 
-          this.saveRange(selection);
+          this.saveRange(selection!);
           this.setMouseUpEvent();
           /* document.addEventListener('touchend', (e) => {
             cancelEvent(e);
@@ -570,7 +570,7 @@ export default class MarkupTooltip {
 
     document.addEventListener('beforeinput', (e) => {
       if(e.inputType === 'historyRedo' || e.inputType === 'historyUndo') {
-        e.target.addEventListener('input', () => this.setActiveMarkupButton(), {once: true});
+        e.target!.addEventListener('input', () => this.setActiveMarkupButton(), {once: true});
       }
     });
   }

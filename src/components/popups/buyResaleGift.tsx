@@ -59,8 +59,8 @@ export default class PopupBuyResaleGift extends PopupElement<{
           langKey: 'StarGiftResaleBuyConfirm',
           langArgs: [
               ton ?
-                paymentsWrapCurrencyAmount(this.gift.resellPriceTon, TON_CURRENCY) :
-                paymentsWrapCurrencyAmount(this.gift.resellPriceStars, STARS_CURRENCY)
+                paymentsWrapCurrencyAmount(this.gift.resellPriceTon!, TON_CURRENCY) :
+                paymentsWrapCurrencyAmount(this.gift.resellPriceStars!, STARS_CURRENCY)
           ],
           callback: async() => {
             const popup = await PopupPayment.create({
@@ -68,7 +68,7 @@ export default class PopupBuyResaleGift extends PopupElement<{
                 _: 'inputInvoiceStarGiftResale',
                 pFlags: {ton: ton ? true : undefined},
                 slug: gift.slug,
-                to_id: await rootScope.managers.appPeersManager.getInputPeerById(this.recipientId)
+                to_id: await rootScope.managers.appPeersManager!.getInputPeerById(this.recipientId)
               },
               noShowIfStars: true,
               purpose: 'stargift'
@@ -132,8 +132,8 @@ export default class PopupBuyResaleGift extends PopupElement<{
                 &nbsp;#{numberThousandSplitter(gift.num)}
               </span>,
               ton() ?
-                paymentsWrapCurrencyAmount(this.gift.resellPriceTon, TON_CURRENCY, false, false, true) :
-                paymentsWrapCurrencyAmount(this.gift.resellPriceStars, STARS_CURRENCY, false, false, true),
+                paymentsWrapCurrencyAmount(this.gift.resellPriceTon!, TON_CURRENCY, false, false, true) :
+                paymentsWrapCurrencyAmount(this.gift.resellPriceStars!, STARS_CURRENCY, false, false, true),
               this.recipientId !== rootScope.myId && <PeerTitleTsx peerId={this.recipientId} />
             ]}
           />

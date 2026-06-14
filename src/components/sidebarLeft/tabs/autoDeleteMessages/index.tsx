@@ -24,7 +24,7 @@ const AutoDeleteMessages = () => {
   const initialPeriod = findMatchingCustomOption(tab.payload.period)?.value || tab.payload.period;
 
   const defaultOptions: Option[] = getDefaultOptions({
-    offLabel: () => resolveFirst(() => <I18nTsx key='Off' />, item => item instanceof Element)()
+    offLabel: () => resolveFirst(() => <I18nTsx key='Off' />, item => item instanceof Element)()!
   });
 
   const [period, setPeriod] = createSignal(initialPeriod);
@@ -56,7 +56,7 @@ const AutoDeleteMessages = () => {
     if(!hasChanges()) return;
 
     try {
-      await rootScope.managers.appPrivacyManager.setDefaultAutoDeletePeriod(period());
+      await rootScope.managers.appPrivacyManager!.setDefaultAutoDeletePeriod(period());
       tab.payload.onSaved(period());
     } finally {
       tab.close();

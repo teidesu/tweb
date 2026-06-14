@@ -26,19 +26,19 @@ export default class GroupCallParticipantStatusElement {
 
     let element2: HTMLElement, actionClassName: string;
     if(state === states.MUTED_FOR_ME) {
-      element2 = i18n('VoiceChat.Status.MutedForYou');
+      element2 = i18n('VoiceChat.Status.MutedForYou')!;
       actionClassName = 'is-muted';
     } else if(state === states.UNMUTED) {
-      element2 = i18n('VoiceChat.Status.Speaking');
+      element2 = i18n('VoiceChat.Status.Speaking')!;
       actionClassName = 'is-speaking';
     } else if(state === states.HAND) {
-      element2 = i18n('VoiceChat.Status.WantsSpeak');
+      element2 = i18n('VoiceChat.Status.WantsSpeak')!;
       actionClassName = 'is-waiting';
     } else if(participant.about && !icons.length) {
       setInnerHTML(this.container, wrapEmojiText(participant.about));
       return;
     } else {
-      element2 = i18n('VoiceChat.Status.Listening');
+      element2 = i18n('VoiceChat.Status.Listening')!;
       actionClassName = 'is-listening';
     }
 

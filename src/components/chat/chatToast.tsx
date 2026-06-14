@@ -16,7 +16,7 @@ type CurrentToast = {
   closeOnPeerChange: boolean
 };
 
-let current: CurrentToast;
+let current: CurrentToast | undefined;
 let isListenerSet = false;
 
 /**

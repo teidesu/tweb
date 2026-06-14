@@ -86,10 +86,10 @@ const InputFieldMessage = (props: InputFieldMessageProps) => {
           (props.btnProps?.ref as any)(ref);
         }}
         primaryFilled
-        class={classNames(_additionalClass, props.btnProps.class)}
+        class={classNames(_additionalClass, props.btnProps!.class)}
         noRipple
       >
-        <div ref={contentWrapper} class={contentClass}>
+        <div ref={contentWrapper!} class={contentClass}>
           {inner()}
         </div>
       </Button>;
@@ -101,12 +101,12 @@ const InputFieldMessage = (props: InputFieldMessageProps) => {
       queueMicrotask(() => {
         const last = contentWrapper?.lastElementChild as HTMLElement | null;
         if(!last?.offsetWidth) return;
-        const style = getComputedStyle(btnConfirm);
+        const style = getComputedStyle(btnConfirm!);
         const padding = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
         const minWidth = parseFloat(style.minWidth) || 0;
         const currentWidth = Math.max(last.offsetWidth + padding, minWidth);
         if(prevWidth !== undefined && prevWidth !== currentWidth && liteMode.isAvailable('animations')) {
-          btnConfirm.animate([
+          btnConfirm!.animate([
             {width: prevWidth + 'px'},
             {width: currentWidth + 'px'}
           ], {
@@ -142,7 +142,7 @@ const InputFieldMessage = (props: InputFieldMessageProps) => {
       props.listenerSetter.add(inputField.input)('input', throttle(() => {
         const {value} = getRichValueWithCaret(inputField.input);
         const trimmed = value.trim();
-        props.onInput(!!trimmed, trimmed ? value.length : 0);
+        props.onInput!(!!trimmed, trimmed ? value.length : 0);
       }, 120, true));
     }
   }
@@ -162,7 +162,7 @@ const InputFieldMessage = (props: InputFieldMessageProps) => {
       emoticonsDropdown.getElement().style.transformOrigin = '0 100%';
     },
     getOpenPosition: () => {
-      const rect = container.getBoundingClientRect();
+      const rect = container!.getBoundingClientRect();
       const cloned = cloneDOMRect(rect);
       cloned.left = rect.left;
       cloned.top = rect.top - 420 - 8;
@@ -176,7 +176,7 @@ const InputFieldMessage = (props: InputFieldMessageProps) => {
 
   let container: HTMLDivElement;
   return (
-    <div ref={container} class={additionalClass + '-container'}>
+    <div ref={container!} class={additionalClass + '-container'}>
       {emojiButton}
       <div class={classNames('input-message-container', additionalClass + '-inputs')}>
         {inputField.input}

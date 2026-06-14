@@ -42,7 +42,7 @@ export default class EncryptedStorageLayer<T extends Database<any>> implements S
 
   private log: Logger;
 
-  private loadingDataPromise: Promise<unknown>;
+  private loadingDataPromise: Promise<unknown> | undefined;
 
   private constructor(private db: T, private encryptedStoreName: T['stores'][number]['encryptedName']) {
     this.storage = new IDBStorage(db, encryptedStoreName);
@@ -50,7 +50,7 @@ export default class EncryptedStorageLayer<T extends Database<any>> implements S
   }
 
   public static getInstance<T extends Database<any>>(db: T, encryptedStoreName: T['stores'][number]['encryptedName']): EncryptedStorageLayer<T> {
-    const key = this.getStorageKey(db.name, encryptedStoreName);
+    const key = this.getStorageKey(db.name, encryptedStoreName!);
     if(this.instances.has(key)) return this.instances.get(key) as EncryptedStorageLayer<T>;
 
     const instance = new EncryptedStorageLayer(db, encryptedStoreName);
@@ -71,7 +71,7 @@ export default class EncryptedStorageLayer<T extends Database<any>> implements S
     const result = await cryptoMessagePort.invokeCryptoNew({
       method: 'aes-local-encrypt',
       args: [{
-        key,
+        key: key!,
         data: dataAsBuffer
       }],
       transfer: [dataAsBuffer.buffer]
@@ -86,7 +86,7 @@ export default class EncryptedStorageLayer<T extends Database<any>> implements S
     const result = await cryptoMessagePort.invokeCryptoNew({
       method: 'aes-local-decrypt',
       args: [{
-        key,
+        key: key!,
         encryptedData: data
       }],
       transfer: [data.buffer]
@@ -121,7 +121,7 @@ export default class EncryptedStorageLayer<T extends Database<any>> implements S
 
 
     const encryptedData = await EncryptedStorageLayer.encrypt(this.data);
-    const encryptedDataSize = encryptedData.length;
+    const encryptedDataSize = encryptedData!.length;
 
     const encryptionTime = performance.now();
 

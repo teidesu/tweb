@@ -44,10 +44,10 @@ export const PlaybackRateButton = (options: {
     ButtonMenuToggleHandler({
       el: button,
       onOpen: options.onPlaybackRateMenuToggle ? () => {
-        options.onPlaybackRateMenuToggle(true);
+        options.onPlaybackRateMenuToggle!(true);
       } : undefined,
       onClose: options.onPlaybackRateMenuToggle ? () => {
-        options.onPlaybackRateMenuToggle(false);
+        options.onPlaybackRateMenuToggle!(false);
       } : undefined
     });
     setIcon();

@@ -14,7 +14,7 @@ export default function onQuoteClick(
   const isTruncated = quoteDiv.classList.contains('is-truncated');
   const isExpanded = quoteDiv.classList.contains('is-expanded');
   const isGood = isTruncated || isExpanded;
-  if(isGood && window.getSelection().isCollapsed) {
+  if(isGood && window.getSelection()!.isCollapsed) {
     cancelEvent(e);
 
     if(createScrollSaver) {
@@ -44,7 +44,7 @@ export default function onQuoteClick(
         })
       ]) : Promise.resolve();
 
-      animateSomethingWithScroll(animationPromise, scrollable, scrollSaver);
+      animateSomethingWithScroll(animationPromise, scrollable!, scrollSaver);
     }
 
     quoteDiv.classList.toggle('is-expanded');

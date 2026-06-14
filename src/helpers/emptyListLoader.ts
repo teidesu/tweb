@@ -1,6 +1,6 @@
 import ListLoader from '@helpers/listLoader';
 
-export default class EmptyListLoader<T> extends ListLoader<T, any> {
+export default class EmptyListLoader<T extends {}> extends ListLoader<T, any> {
   constructor() {
     super({
       loadMore: () => {

@@ -63,8 +63,8 @@ export type SendReactionOptions = {
 export type ReactionsContext = Pick<Message.message, 'peerId' | 'mid' | 'reactions'>;
 
 export class AppReactionsManager extends AppManager {
-  private availableReactions: AvailableReaction[];
-  private availableEffects: MaybePromise<AvailableEffect[]>;
+  private availableReactions: AvailableReaction[] | undefined;
+  private availableEffects: MaybePromise<AvailableEffect[]> | undefined;
   private sendReactionPromises: Map<string, Promise<any>>;
   // private lastSendingTimes: Map<string, number>;
   private reactions: {[key in 'recent' | 'top' | 'tags']?: Reaction[]};
@@ -103,7 +103,7 @@ export class AppReactionsManager extends AppManager {
     this.apiUpdatesManager.addMultipleEventsListeners({
       updateSavedReactionTags: ({tags, savedPeerId}) => {
         if(!tags) {
-          if(this.savedReactionsTags.get(savedPeerId)) {
+          if(this.savedReactionsTags.get(savedPeerId!)) {
             Promise.resolve(this.getSavedReactionTags(savedPeerId, true)).then((tags) => {
               this.apiUpdatesManager.processLocalUpdate({_: 'updateSavedReactionTags', tags, savedPeerId});
             });
@@ -112,7 +112,7 @@ export class AppReactionsManager extends AppManager {
           return;
         }
 
-        this.setSavedReactionTags(savedPeerId, tags);
+        this.setSavedReactionTags(savedPeerId!, tags);
       },
       updatePaidReactionPrivacy: this.onUpdatePaidReactionPrivacy
     });
@@ -162,7 +162,7 @@ export class AppReactionsManager extends AppManager {
               continue;
             }
 
-            reaction[key] = this.appDocsManager.saveDoc(reaction[key], REFERENCE_CONTEXT);
+            reaction[key] = (this.appDocsManager.saveDoc(reaction[key], REFERENCE_CONTEXT) as Document.document);
           }
         }
 
@@ -200,7 +200,7 @@ export class AppReactionsManager extends AppManager {
       ], ([topReactions, quickReaction]) => {
         const p: PeerAvailableReactions = {type: 'chatReactionsAll', reactions: topReactions};
         if(unshiftQuickReaction) {
-          this.unshiftQuickReactionInner(p, quickReaction);
+          this.unshiftQuickReactionInner(p, quickReaction!);
         }
         return p;
       });
@@ -246,11 +246,11 @@ export class AppReactionsManager extends AppManager {
       const p: PeerAvailableReactions = {
         type: chatAvailableReactions._,
         reactions: filteredChatReactions,
-        trulyAll
+        trulyAll: trulyAll!
       };
 
       if(chatAvailableReactions._ === 'chatReactionsAll' && unshiftQuickReaction) {
-        this.unshiftQuickReactionInner(p, quickReaction);
+        this.unshiftQuickReactionInner(p, quickReaction!);
       }
 
       if(chatFull._ === 'channelFull' && chatFull.pFlags.paid_reactions_available) {
@@ -345,18 +345,18 @@ export class AppReactionsManager extends AppManager {
     if(!message) {
       peerId = NULL_PEER_ID;
     } else if(message._ === 'messageService') {
-      peerId = message.peerId;
+      peerId = message.peerId!;
     } else {
-      peerId = (
+      peerId = ((
         message.fwd_from?.channel_post &&
-        this.appPeersManager.isMegagroup(message.peerId) &&
+        this.appPeersManager.isMegagroup(message.peerId!) &&
         message.fromId === message.fwdFromId &&
         message.fromId
-      ) || message.peerId;
+      ) || message.peerId)!;
     }
 
     if(peerId === this.appPeersManager.peerId) {
-      const {reactions} = message;
+      const {reactions} = message!;
       if(!reactions || reactions.pFlags.reactions_as_tags) {
         return callbackify(this.getTagReactions(), (reactions) => {
           const p: PeerAvailableReactions = {type: 'chatReactionsAll', reactions};
@@ -408,7 +408,7 @@ export class AppReactionsManager extends AppManager {
   }
 
   public getReactionCached(reaction: string) {
-    return this.availableReactions.find((availableReaction) => availableReaction.reaction === reaction);
+    return this.availableReactions!.find((availableReaction) => availableReaction.reaction === reaction);
   }
 
   public getReaction(reaction: string) {
@@ -421,7 +421,7 @@ export class AppReactionsManager extends AppManager {
     return this.apiManager.invokeApiSingleProcess({
       method: 'messages.getMessagesReactions',
       params: {
-        id: mids.map((mid) => getServerMessageId(mid)),
+        id: (mids.map((mid) => getServerMessageId(mid))! as number[]),
         peer: this.appPeersManager.getInputPeerById(peerId)
       },
       processResult: (updates) => {
@@ -438,7 +438,7 @@ export class AppReactionsManager extends AppManager {
       method: 'messages.getMessageReactionsList',
       params: {
         peer: this.appPeersManager.getInputPeerById(peerId),
-        id: getServerMessageId(mid),
+        id: getServerMessageId(mid)!,
         limit,
         reaction,
         offset
@@ -476,20 +476,20 @@ export class AppReactionsManager extends AppManager {
     sendAsPeerId,
     count
   }: SendReactionOptions): Promise<MessageReactions> {
-    if(reaction._ === 'availableReaction') {
+    if(reaction!._ === 'availableReaction') {
       reaction = {
         _: 'reactionEmoji',
-        emoticon: reaction.reaction
+        emoticon: reaction!.reaction
       };
     }
 
-    const isPaidReaction = reaction._ === 'reactionPaid';
+    const isPaidReaction = reaction!._ === 'reactionPaid';
     const [limit, paidReactionPrivacy] = await Promise.all([
       this.apiManager.getLimit('reactions'),
       isPaidReaction && this.getPaidReactionPrivacy()
     ]);
 
-    message = this.appMessagesManager.getMessageByPeer(message.peerId, message.mid) as Message.message;
+    message = this.appMessagesManager.getMessageByPeer(message.peerId!, message.mid!) as Message.message;
 
     // const lastSendingTimeKey = message.peerId + '_' + message.mid;
     // const lastSendingTime = this.lastSendingTimes.get(lastSendingTimeKey);
@@ -507,7 +507,7 @@ export class AppReactionsManager extends AppManager {
     if(sendAsPeerId) {
       myPeer = this.appPeersManager.getOutputPeer(sendAsPeerId);
     } else {
-      myPeer = this.appMessagesManager.generateFromId(peerId) ?? this.appPeersManager.getOutputPeer(peerId);
+      myPeer = this.appMessagesManager.generateFromId(peerId!) ?? this.appPeersManager.getOutputPeer(peerId!);
     }
     const myPeerId = this.appPeersManager.getPeerId(myPeer);
 
@@ -516,7 +516,7 @@ export class AppReactionsManager extends AppManager {
       delete reactionCount.chosen_order;
 
       if(reactionsEqual(reaction as Reaction, reactionCount.reaction)) {
-        reaction = undefined as Reaction;
+        reaction = undefined as unknown as Reaction;
       }
 
       if(!reactionCount.count) {
@@ -534,13 +534,13 @@ export class AppReactionsManager extends AppManager {
       }
 
       if(!reactions.results.length) {
-        reactions = undefined;
+        reactions = (undefined as unknown as MessageReactions.messageReactions);
       }
     };
 
     const canSeeList = message.reactions?.pFlags?.can_see_list ||
-      !this.appPeersManager.isBroadcast(message.peerId) ||
-      message.peerId.isUser();
+      !this.appPeersManager.isBroadcast(message.peerId!) ||
+      message.peerId!.isUser();
     if(!message.reactions) {
       message.reactions = {
         _: 'messageReactions',
@@ -554,15 +554,15 @@ export class AppReactionsManager extends AppManager {
 
     let reactions = /* onlyLocal ? message.reactions :  */copy(message.reactions);
     const chosenReactions = reactions.results.filter((reactionCount) => reactionCount.chosen_order !== undefined && reactionCount.chosen_order >= 0);
-    chosenReactions.sort((a, b) => b.chosen_order - a.chosen_order);
+    chosenReactions.sort((a, b) => b.chosen_order! - a.chosen_order!);
     const unsetReactions: ReactionCount[] = [];
     const chosenReactionIdx = chosenReactions.findIndex((reactionCount) => reactionsEqual(reactionCount.reaction, reaction as Reaction));
     if(chosenReactionIdx !== -1) unsetReactions.push(...chosenReactions.splice(chosenReactionIdx, 1));
     unsetReactions.push(...chosenReactions.splice(limit - +(chosenReactionIdx === -1)));
     unsetReactions.forEach((reactionCount) => {
       chosenReactions.forEach((chosenReactionCount) => {
-        if(chosenReactionCount.chosen_order > reactionCount.chosen_order) {
-          --chosenReactionCount.chosen_order;
+        if(chosenReactionCount.chosen_order! > reactionCount.chosen_order!) {
+          --chosenReactionCount.chosen_order!;
         }
       });
 
@@ -597,23 +597,23 @@ export class AppReactionsManager extends AppManager {
         reactionCount = {
           _: 'reactionCount',
           count: 0,
-          reaction
+          reaction: reaction!
         };
 
         if(isPaidReaction) {
-          reactions.results.unshift(reactionCount);
+          reactions.results.unshift(reactionCount!);
           reactionCountIdx = 0;
         } else {
-          reactionCountIdx = reactions.results.push(reactionCount) - 1;
+          reactionCountIdx = reactions.results.push(reactionCount!) - 1;
         }
       }
 
       if(isPaidReaction) {
-        reactionCount.count += count;
+        reactionCount.count += count!;
         reactionCount.chosen_order = -1;
 
         reactions.top_reactors ??= [];
-        let topReactor = findAndSplice(reactions.top_reactors, (topReactor) => topReactor.pFlags.my);
+        let topReactor = findAndSplice(reactions.top_reactors, (topReactor) => topReactor.pFlags.my!);
         if(!topReactor) {
           topReactor = {
             _: 'messageReactor',
@@ -630,9 +630,9 @@ export class AppReactionsManager extends AppManager {
             myPeerId = SEND_PAID_REACTION_ANONYMOUS_PEER_ID;
           } else if(topReactor.peer_id) {
             myPeerId = this.appPeersManager.getPeerId(topReactor.peer_id);
-          } else if(paidReactionPrivacy._ === 'paidReactionPrivacyPeer') {
-            myPeerId = this.appPeersManager.getPeerId(paidReactionPrivacy.peer);
-          } else if(paidReactionPrivacy._ === 'paidReactionPrivacyDefault') {
+          } else if((paidReactionPrivacy as any)._ === 'paidReactionPrivacyPeer') {
+            myPeerId = this.appPeersManager.getPeerId((paidReactionPrivacy as any).peer);
+          } else if((paidReactionPrivacy as any)._ === 'paidReactionPrivacyDefault') {
             myPeerId = this.appPeersManager.peerId;
           } else {
             myPeerId = SEND_PAID_REACTION_ANONYMOUS_PEER_ID;
@@ -647,13 +647,13 @@ export class AppReactionsManager extends AppManager {
 
         topReactor.peer_id = this.appPeersManager.getOutputPeer(myPeerId);
 
-        topReactor.count += count;
+        topReactor.count += count!;
         insertInDescendSortedArray(reactions.top_reactors, topReactor, 'count');
         topReactor.pFlags.top = reactions.top_reactors.indexOf(topReactor) < 3 || undefined;
       } else {
         ++reactionCount.count;
-        reactionCount.chosen_order = chosenReactions.length ? chosenReactions[0].chosen_order + 1 : 0;
-        chosenReactions.unshift(reactionCount);
+        reactionCount.chosen_order = chosenReactions.length ? chosenReactions[0].chosen_order! + 1 : 0;
+        chosenReactions.unshift(reactionCount!);
       }
 
       if(!reactions.recent_reactions && canSeeList) {
@@ -663,15 +663,15 @@ export class AppReactionsManager extends AppManager {
       if(reactions.recent_reactions) {
         const peerReaction: MessagePeerReaction = {
           _: 'messagePeerReaction',
-          reaction,
+          reaction: reaction!,
           peer_id: myPeer,
           pFlags: {},
           date: tsNow(true)
         };
 
-        if(!this.appPeersManager.isMegagroup(peerId) && false) {
-          reactions.recent_reactions.push(peerReaction);
-          reactions.recent_reactions = reactions.recent_reactions.slice(-3);
+        if(!this.appPeersManager.isMegagroup(peerId!) && false) {
+          reactions.recent_reactions!.push(peerReaction);
+          reactions.recent_reactions = reactions.recent_reactions!.slice(-3);
         } else {
           reactions.recent_reactions.unshift(peerReaction);
           reactions.recent_reactions = reactions.recent_reactions.slice(0, 3);
@@ -723,7 +723,7 @@ export class AppReactionsManager extends AppManager {
     });
 
     if(onlyLocalWithUpdate) {
-      return;
+      return undefined as unknown as MessageReactions;
     }
 
     const onUpdates = (updates: Updates) => {
@@ -734,9 +734,9 @@ export class AppReactionsManager extends AppManager {
         const editMessageUpdate = updates.updates[editMessageUpdateIdx] as Update.updateEditMessage | Update.updateEditChannelMessage;
         updates.updates[editMessageUpdateIdx] = {
           _: 'updateMessageReactions',
-          msg_id: msgId,
-          peer: this.appPeersManager.getOutputPeer(peerId),
-          reactions: (editMessageUpdate.message as Message.message).reactions,
+          msg_id: msgId!,
+          peer: this.appPeersManager.getOutputPeer(peerId!),
+          reactions: (editMessageUpdate.message as Message.message).reactions!,
           pts: editMessageUpdate.pts,
           pts_count: editMessageUpdate.pts_count
         };
@@ -744,12 +744,12 @@ export class AppReactionsManager extends AppManager {
 
       this.apiUpdatesManager.processUpdateMessage(updates);
       if(isPaidReaction) this.apiUpdatesManager.processPaidMessageUpdate({
-        paidStars: count,
+        paidStars: count!,
         wereStarsReserved: true
       });
     };
 
-    const msgId = getServerMessageId(mid);
+    const msgId = getServerMessageId(mid!);
     if(isPaidReaction) {
       const currentTime = tsNow(true);
 
@@ -758,19 +758,19 @@ export class AppReactionsManager extends AppManager {
       const randomId = uniqueId.toString();
 
       this.apiManager.invokeApi('messages.sendPaidReaction', {
-        count,
-        msg_id: msgId,
-        peer: this.appPeersManager.getInputPeerById(peerId),
+        count: count!,
+        msg_id: msgId!,
+        peer: this.appPeersManager.getInputPeerById(peerId!),
         random_id: randomId,
-        private: this.peerIdToPaidReactionPrivacy(sendAsPeerId)
+        private: this.peerIdToPaidReactionPrivacy(sendAsPeerId!)
       }).then(onUpdates);
-      return;
+      return undefined as unknown as MessageReactions;
     }
 
     const promiseKey = [peerId, mid].join('-');
     const promise = this.apiManager.invokeApi('messages.sendReaction', {
-      peer: this.appPeersManager.getInputPeerById(peerId),
-      msg_id: msgId,
+      peer: this.appPeersManager.getInputPeerById(peerId!),
+      msg_id: msgId!,
       reaction: chosenReactions.map((reactionCount) => reactionCount.reaction).reverse()
     }).then(onUpdates).catch((err: ApiError) => {
       if(err.type === 'REACTION_INVALID' && this.sendReactionPromises.get(promiseKey) === promise) {
@@ -788,6 +788,7 @@ export class AppReactionsManager extends AppManager {
     });
 
     this.sendReactionPromises.set(promiseKey, promise);
+    return undefined as unknown as MessageReactions;
   }
 
   public getRandomGenericAnimation() {
@@ -809,7 +810,7 @@ export class AppReactionsManager extends AppManager {
 
   public getSavedReactionTags(savedPeerId?: PeerId, overwrite?: boolean): MaybePromise<SavedReactionTag[]> {
     const {savedReactionsTags} = this;
-    const cache = savedReactionsTags.get(savedPeerId);
+    const cache = savedReactionsTags.get(savedPeerId!);
     if(cache && !overwrite) {
       return cache;
     }
@@ -819,7 +820,7 @@ export class AppReactionsManager extends AppManager {
       hash: 0
     }).then((messagesSavedReactionTags) => {
       const tags = (messagesSavedReactionTags as MessagesSavedReactionTags.messagesSavedReactionTags).tags || [];
-      if(savedReactionsTags.get(savedPeerId) === promise) {
+      if(savedReactionsTags.get(savedPeerId!) === promise) {
         // for(const tag of tags) {
         //   const {historyStorage} = this.appMessagesManager.processRequestHistoryOptions({
         //     peerId: peerId || this.appPeersManager.peerId,
@@ -829,13 +830,13 @@ export class AppReactionsManager extends AppManager {
         //   historyStorage.count = tag.count;
         // }
 
-        this.setSavedReactionTags(savedPeerId, tags);
+        this.setSavedReactionTags(savedPeerId!, tags);
       }
 
       return this.getSavedReactionTags(savedPeerId);
     });
 
-    savedReactionsTags.set(savedPeerId, promise);
+    savedReactionsTags.set(savedPeerId!, promise);
     return promise;
   }
 
@@ -843,8 +844,8 @@ export class AppReactionsManager extends AppManager {
     await this.apiManager.invokeApi('messages.updateSavedReactionTag', {reaction, title});
     const tags = await this.getSavedReactionTags();
     const tag = tags.find((tag) => reactionsEqual(tag.reaction, reaction));
-    if(title) tag.title = title;
-    else delete tag.title;
+    if(title) tag!.title = title;
+    else delete tag!.title;
     this.apiUpdatesManager.processLocalUpdate({_: 'updateSavedReactionTags', tags});
   }
 
@@ -858,7 +859,7 @@ export class AppReactionsManager extends AppManager {
       processResult: (availableEffects) => {
         assumeType<MessagesAvailableEffects.messagesAvailableEffects>(availableEffects);
         availableEffects.documents.forEach((doc, idx, arr) => {
-          arr[idx] = this.appDocsManager.saveDoc(doc, AVAILABLE_EFFECTS_REFERENCE_CONTEXT);
+          arr[idx] = (this.appDocsManager.saveDoc(doc, AVAILABLE_EFFECTS_REFERENCE_CONTEXT) as Document);
         });
 
         availableEffects.effects.forEach((availableEffect) => {
@@ -901,11 +902,11 @@ export class AppReactionsManager extends AppManager {
         message,
         changedResults,
         removedResults,
-        savedPeerId: this.appPeersManager.getPeerId(message.saved_peer_id)
+        savedPeerId: this.appPeersManager.getPeerId(message.saved_peer_id!)
       });
     }
 
-    const tags = this.savedReactionsTags.get(savedPeerId);
+    const tags = this.savedReactionsTags.get(savedPeerId!);
     if(!tags) {
       return;
     }
@@ -1008,17 +1009,17 @@ export class AppReactionsManager extends AppManager {
       privacy = {_: 'paidReactionPrivacyPeer', peer: this.appPeersManager.getInputPeerById(peerId)};
     }
 
-    return privacy;
+    return privacy!;
   }
 
   public togglePaidReactionPrivacy(peerId: PeerId, mid: number, sendAsPeerId: PeerId) {
     return this.apiManager.invokeApi('messages.togglePaidReactionPrivacy', {
       peer: this.appPeersManager.getInputPeerById(peerId),
-      msg_id: getServerMessageId(mid),
+      msg_id: getServerMessageId(mid)!,
       private: this.peerIdToPaidReactionPrivacy(sendAsPeerId)
     }).then(() => {
       this.sendReaction({
-        message: this.appMessagesManager.getMessageByPeer(peerId, mid),
+        message: this.appMessagesManager.getMessageByPeer(peerId, mid)!,
         count: 0,
         onlyLocalWithUpdate: true,
         reaction: {_: 'reactionPaid'},

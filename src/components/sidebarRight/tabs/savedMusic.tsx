@@ -26,7 +26,7 @@ async function createFakeMessage(doc: MyDocument, peerId: PeerId, mid: number): 
     _: 'message',
     id: mid,
     mid: mid,
-    peer_id: await rootScope.managers.appPeersManager.getOutputPeer(peerId),
+    peer_id: await rootScope.managers.appPeersManager!.getOutputPeer(peerId),
     peerId: peerId,
     fromId: peerId,
     date: doc.date,
@@ -80,7 +80,7 @@ function SavedMusicContent(props: {
           lazyLoadQueue,
           autoDownloadSize: 0,
           getSize: () => 320,
-          ...(playingDocId === doc.id && playingDetails.media && playingDetails.isSavedMusic ? {globalMedia: playingDetails.media} : {})
+          ...(playingDocId === doc.id && playingDetails!.media && playingDetails!.isSavedMusic ? {globalMedia: playingDetails!.media} : {})
         }) as AudioElement;
         div.classList.add('audio-48', 'search-super-item');
         div.listLoaderFactory = loaderFactory;
@@ -105,7 +105,7 @@ function SavedMusicContent(props: {
     loadWhenLeft: 5,
     processItem: (message: Message.message) => {
       appMediaPlaybackController.addMedia({message, autoload: false, clean: false});
-      return {peerId: message.peerId, mid: message.mid};
+      return {peerId: message.peerId!, mid: message.mid!};
     }
   });
 
@@ -122,8 +122,8 @@ function SavedMusicContent(props: {
         onClick: async() => {
           const msg = contextMenuTarget?.message;
           if(!msg) return;
-          await rootScope.managers.appMessagesManager.saveMessages([msg]);
-          showForwardPopup({[msg.peerId]: [msg.mid]});
+          await rootScope.managers.appMessagesManager!.saveMessages([msg]);
+          showForwardPopup({[msg.peerId as number]: [msg.mid!]});
         }
       }, {
         icon: 'download',
@@ -195,7 +195,7 @@ class SavedMusicListLoader extends ListLoader<MediaItem, Message.message> implem
           return {count: this.count ?? 0, items: []};
         }
 
-        const result = await rootScope.managers.appProfileManager.getSavedMusic(peerId.toUserId(), this.offset, loadCount);
+        const result = await rootScope.managers.appProfileManager!.getSavedMusic(peerId.toUserId(), this.offset, loadCount);
         const docs = result.documents as MyDocument[];
 
         this.offset += docs.length;
@@ -240,7 +240,7 @@ class SavedMusicListLoader extends ListLoader<MediaItem, Message.message> implem
   }
 
   private async loadTailChunk(offset: number, count: number): Promise<TailEntry[]> {
-    const result = await rootScope.managers.appProfileManager.getSavedMusic(
+    const result = await rootScope.managers.appProfileManager!.getSavedMusic(
       this.peerId.toUserId(),
       offset,
       count
@@ -434,10 +434,10 @@ class SavedMusicListLoader extends ListLoader<MediaItem, Message.message> implem
   }
 
   public setOptions(options: MediaListLoaderOptions) {
-    this.processItem = options.processItem;
+    this.processItem = options.processItem!;
     this.loadCount = options.loadCount ?? 50;
     this.loadWhenLeft = options.loadWhenLeft ?? 20;
-    this.onJump = options.onJump;
+    this.onJump = options.onJump!;
     this.onEmptied = options.onEmptied;
 
     const callerOnLoadedMore = options.onLoadedMore;

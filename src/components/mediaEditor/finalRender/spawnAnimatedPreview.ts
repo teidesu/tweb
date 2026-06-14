@@ -25,7 +25,7 @@ export default async function spawnAnimatedPreview({
 
   const isCropping = currentTab === 'crop';
 
-  const bcr = imageCanvas.getBoundingClientRect();
+  const bcr = imageCanvas!.getBoundingClientRect();
   const animatedImg = new Image();
   animatedImg.src = await apiManagerProxy.invoke('createObjectURL', previewBlob);
   animatedImg.style.position = 'fixed';
@@ -49,7 +49,7 @@ export default async function spawnAnimatedPreview({
 
   const deferred = deferredPromise<void>();
 
-  animatedImg.addEventListener('load', () => deferred.resolve())
+  animatedImg.addEventListener('load', () => deferred.resolve!())
 
   await Promise.race([delay(500), deferred]);
 

@@ -18,7 +18,7 @@ export default function wrapUrl(url: string, safe?: boolean) {
     const u = new URL(url);
     let prefix = tgMeMatch[1];
     if(prefix && T_ME_PREFIXES.has(tgMeMatch[1])) {
-      prefix = undefined;
+      prefix = (undefined as unknown as string);
     }
 
     if(prefix) {
@@ -71,7 +71,7 @@ export default function wrapUrl(url: string, safe?: boolean) {
             throw 'unsafe';
           }
 
-          out.url = decodeURIComponent(new URL(url).searchParams.get('url'));
+          out.url = decodeURIComponent(new URL(url).searchParams.get('url')!);
         } catch(err) {
           onclick = undefined;
         }
@@ -82,7 +82,7 @@ export default function wrapUrl(url: string, safe?: boolean) {
     url = 'tg://unsafe_url?url=' + encodeURIComponent(url);
   } */
 
-  if(!(window as any)[onclick]) {
+  if(!(window as any)[onclick!]) {
     onclick = undefined;
   }
 

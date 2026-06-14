@@ -23,8 +23,8 @@ export function getSearchStorageFilterKey({
     inputFilter ??= {_: 'inputMessagesFilterEmpty'};
   }
 
-  const filter: SearchStorageFilterKey = inputFilter?._;
-  return [filter, hashtagType !== 'this' && hashtagType, query, reactionsPart].filter(Boolean).join('_');
+  const filter: SearchStorageFilterKey = inputFilter?._!;
+  return [filter, hashtagType !== 'this' && hashtagType, query, reactionsPart!].filter(Boolean).join('_');
 }
 
 export function getHistoryStorageType(options: RequestHistoryOptions): HistoryStorage['type'] {

@@ -90,7 +90,7 @@ export default class ListenerSetter {
       }
     }
 
-    if(listener) {
+    if(listener!) {
       this.remove(listener);
     }
   }

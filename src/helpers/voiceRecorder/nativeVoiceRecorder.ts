@@ -77,7 +77,7 @@ export default class NativeVoiceRecorder {
   private workletNode: AudioWorkletNode;
   private encoder: AudioEncoder;
   private writer: OggOpusWriter;
-  private workletUrl: string;
+  private workletUrl: string | undefined;
   private encoderTimestampUs = 0;
   private opusHeadCaptured = false;
   public notifySamples: (samples: Float32Array) => void;

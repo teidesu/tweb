@@ -82,16 +82,16 @@ class P extends PopupPeer {
         langKey: 'Cancel',
         isCancel: true
       }]),
-      descriptionLangKey: options.isPremium === undefined ? options.strings.descriptionLocked : (options.isPremium ? options.strings.descriptionPremium : options.strings.description),
+      descriptionLangKey: options.isPremium === undefined ? options.strings!.descriptionLocked : (options.isPremium ? options.strings!.descriptionPremium : options.strings!.description),
       descriptionLangArgs: options.isPremium ? [options.limitPremium] : [options.limit, options.limitPremium],
-      titleLangKey: options.strings.title,
+      titleLangKey: options.strings!.title,
       body: !!options.popupRef
     });
 
     const limit = new LimitLine({
       limitPremium: options.limitPremium,
       hint: {
-        icon: options.strings.icon,
+        icon: options.strings!.icon,
         content: '' + (options.isPremium ? options.limitPremium : options.limit)
       }
     });
@@ -103,7 +103,7 @@ class P extends PopupPeer {
       limitLine?.remove();
     }
 
-    this.description.before(limit.container);
+    this.description!.before(limit.container);
 
     // if(options.isPremium === false) {
     //   this.buttons.pop().element.remove();
@@ -125,12 +125,12 @@ export default async function showLimitPopup(
   const feature: PremiumPromoFeatureType = 'double_limits';
 
   const [appConfig, limit, limitPremium] = await Promise.all([
-    rootScope.managers.apiManager.getAppConfig(),
-    ...[false, true].map((v) => rootScope.managers.apiManager.getLimit(type, v))
+    rootScope.managers.apiManager!.getAppConfig(),
+    ...[false, true].map((v) => rootScope.managers.apiManager!.getLimit(type, v))
   ]);
   const isLocked = appConfig.premium_purchase_blocked;
   const popup = new P({
-    isPremium: isLocked ? undefined : rootScope.premium,
+    isPremium: (isLocked ? undefined : rootScope.premium)!,
     limit,
     limitPremium,
     // feature: featureMap[type]

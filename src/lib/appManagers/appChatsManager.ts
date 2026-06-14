@@ -33,7 +33,7 @@ const TEST_SPONSORED = false;
 export type MySponsoredPeer = Omit<SponsoredPeer, 'peer'> & {peer: PeerId};
 
 export type AdminLog = ChannelAdminLogEvent.channelAdminLogEvent;
-export type AdminLogFilterFlags = ChannelsGetAdminLog['events_filter']['pFlags'];
+export type AdminLogFilterFlags = NonNullable<ChannelsGetAdminLog['events_filter']>['pFlags'];
 
 type FetchAdminLogsArgs = {
   channelId: ChatId;
@@ -156,7 +156,7 @@ export class AppChatsManager extends AppManager {
     }
 
     if((chat as Chat.channel).photo?._ === 'chatPhotoEmpty') {
-      delete (chat as Chat.channel).photo;
+      delete (chat as any).photo;
     }
 
     const changedUsername = this.appUsersManager.setUsernameToCache(chat, oldChat);
@@ -361,7 +361,7 @@ export class AppChatsManager extends AppManager {
     const chat = this.getChat(chatId);
     if(chat?._ !== 'channel') return;
 
-    return !chat.admin_rights && +chat.send_paid_messages_stars || undefined;
+    return !chat.admin_rights && +chat.send_paid_messages_stars! || undefined;
   }
 
   public isPublic(id: ChatId) {
@@ -424,7 +424,7 @@ export class AppChatsManager extends AppManager {
 
     const arr: string[] = [
       chat.title,
-      ...getPeerActiveUsernames(chat)
+      ...getPeerActiveUsernames(chat) as string[]
     ];
 
     return arr.filter(Boolean).join(' ');
@@ -741,8 +741,8 @@ export class AppChatsManager extends AppManager {
       _: 'updateChannelParticipant',
       channel_id: id,
       date: timestamp,
-      actor_id: undefined,
-      qts: undefined,
+      actor_id: (undefined as unknown as string | number),
+      qts: (undefined as unknown as number),
       user_id: peerId,
       prev_participant: wasChannel ? prevParticipant as ChannelParticipant : undefined,
       new_participant: newParticipant,
@@ -770,14 +770,14 @@ export class AppChatsManager extends AppManager {
       chatId: id,
       wasChannel,
       prevParticipant: participant,
-      newParticipant: Object.keys(bannedRights.pFlags).length ? {
+      newParticipant: (Object.keys(bannedRights.pFlags).length ? {
         _: 'channelParticipantBanned',
         date: timestamp,
         banned_rights: bannedRights,
         kicked_by: this.appUsersManager.getSelf().id,
         peer: this.appPeersManager.getOutputPeer(peerId),
         pFlags: bannedRights.pFlags.view_messages ? {left: true} : {}
-      } : undefined
+      } : undefined)!
     });
 
     this.apiUpdatesManager.processLocalUpdate(update);
@@ -980,7 +980,7 @@ export class AppChatsManager extends AppManager {
     }).then(() => {
       const channelFull = this.appProfileManager.getCachedFullChat(id) as ChatFull.channelFull;
       const newOrWasGroupId = groupId || channelFull.linked_chat_id;
-      const groupChannelFull = this.appProfileManager.getCachedFullChat(newOrWasGroupId) as ChatFull.channelFull;
+      const groupChannelFull = this.appProfileManager.getCachedFullChat(newOrWasGroupId!) as ChatFull.channelFull;
       if(channelFull) {
         channelFull.linked_chat_id = groupId;
       }
@@ -990,7 +990,7 @@ export class AppChatsManager extends AppManager {
       }
 
       if(channelFull) this.rootScope.dispatchEvent('chat_full_update', id);
-      if(groupChannelFull) this.rootScope.dispatchEvent('chat_full_update', newOrWasGroupId);
+      if(groupChannelFull) this.rootScope.dispatchEvent('chat_full_update', newOrWasGroupId!);
     });
   }
 
@@ -1013,12 +1013,12 @@ export class AppChatsManager extends AppManager {
   }
 
   public getChannelRecommendations(chatId?: ChatId) {
-    const result = this.recommendations[chatId];
+    const result = this.recommendations[chatId!];
     if(result) {
       return result;
     }
 
-    const promise = this.recommendations[chatId] = this.apiManager.invokeApiSingleProcess({
+    const promise = this.recommendations[chatId!] = this.apiManager.invokeApiSingleProcess({
       method: 'channels.getChannelRecommendations',
       params: {
         channel: chatId ? this.getChannelInput(chatId) : undefined
@@ -1026,8 +1026,8 @@ export class AppChatsManager extends AppManager {
       processResult: (messagesChats) => {
         this.saveApiChats(messagesChats.chats);
 
-        if(this.recommendations[chatId] === promise) {
-          this.recommendations[chatId] = messagesChats;
+        if(this.recommendations[chatId!] === promise) {
+          this.recommendations[chatId!] = messagesChats;
         }
 
         return messagesChats;

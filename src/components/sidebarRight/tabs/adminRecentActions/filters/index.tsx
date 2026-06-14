@@ -31,12 +31,12 @@ export const Filters = (props: FiltersProps) => {
 
 
   const onReset = () => batch(() => {
-    props.onCommit(null);
+    props.onCommit!(null);
     props.onClose?.();
   });
 
   const onCommit = (committedFilters?: CommittedFilters | null) => batch(() => {
-    props.onCommit(committedFilters);
+    props.onCommit!(committedFilters!);
     props.onClose?.();
   });
 

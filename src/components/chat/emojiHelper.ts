@@ -15,9 +15,9 @@ import rootScope from '@lib/rootScope';
 
 export default class EmojiHelper extends AutocompleteHelper {
   private scrollable: ScrollableX;
-  private innerList: HTMLElement;
+  private innerList: HTMLElement | undefined;
   // * set when the helper is suggesting custom emoji for a regular emoji typed before the caret
-  private emoticon: string;
+  private emoticon: string | undefined;
   private stickersHelper: StickersHelper;
 
   constructor(
@@ -33,7 +33,7 @@ export default class EmojiHelper extends AutocompleteHelper {
       onSelect: (target) => {
         chatInput.onEmojiSelected(getEmojiFromElement(target as any), true, this.emoticon);
       },
-      getNavigationList: () => this.innerList
+      getNavigationList: () => this.innerList as HTMLElement
     });
 
     this.container.classList.add('emoji-helper');
@@ -121,7 +121,7 @@ export default class EmojiHelper extends AutocompleteHelper {
       }
 
       this.init();
-      this.init = null;
+      this.init = null as unknown as () => void;
     }
 
     if(!emojis.length) {
@@ -152,7 +152,7 @@ export default class EmojiHelper extends AutocompleteHelper {
     const middleware = this.getMiddleware();
     this.emoticon = undefined;
     const q = query.replace(/^:/, '');
-    this.managers.appEmojiManager.prepareAndSearchEmojis({q, addCustom: true}).then(async(emojis) => {
+    this.managers.appEmojiManager!.prepareAndSearchEmojis({q, addCustom: true}).then(async(emojis) => {
       if(!middleware()) {
         return;
       }
@@ -181,7 +181,7 @@ export default class EmojiHelper extends AutocompleteHelper {
   public checkEmoticon(emoticon: string) {
     const middleware = this.getMiddleware();
     this.emoticon = emoticon;
-    this.managers.appEmojiManager.searchCustomEmoji(emoticon).then((emojiList) => {
+    this.managers.appEmojiManager!.searchCustomEmoji(emoticon).then((emojiList) => {
       if(!middleware()) {
         return;
       }

@@ -42,7 +42,7 @@ export default function setAttachmentSize({
   // }
 
   if(!photoSize && !size) {
-    photoSize = choosePhotoSize(photo, boxWidth, boxHeight, undefined, pushDocumentSize);
+    photoSize = choosePhotoSize(photo!, boxWidth, boxHeight, undefined, pushDocumentSize);
   }
   // console.log('setAttachmentSize', photo, photo.sizes[0].bytes, div);
 
@@ -66,7 +66,7 @@ export default function setAttachmentSize({
   boxSize = size = size.aspect(boxSize, noZoom);
 
   let isFit = true;
-  if(!noMinSize && (!isDocument || ['video', 'gif'].includes(photo.type) || _isWebDocument)) {
+  if(!noMinSize && (!isDocument || ['video', 'gif'].includes(photo.type!) || _isWebDocument)) {
     const minSideSize = MIN_SIDE_SIZE;
     if(boxSize.width < minSideSize && boxSize.height < minSideSize) { // make at least one side this big
       boxSize = size = size.aspectCovered(makeMediaSize(minSideSize, minSideSize));
@@ -77,7 +77,7 @@ export default function setAttachmentSize({
         message.factcheck ||
         message.reply_to_mid ||
         (message.media as MessageMedia.messageMediaWebPage).webpage ||
-        (message.replies && message.replies.pFlags.comments && message.replies.channel_id.toChatId() !== REPLIES_HIDDEN_CHANNEL_ID)
+        (message.replies && message.replies.pFlags.comments && message.replies.channel_id!.toChatId() !== REPLIES_HIDDEN_CHANNEL_ID)
       )
     ) { // make sure that bubble block is human-readable
       if(boxSize.width < EXPAND_TEXT_WIDTH) {

@@ -43,7 +43,7 @@ const ShortcutBuilder: Component<{
   };
 
   return (
-    <div class={styles.Container} classList={{[props.class]: !!props.class}}>
+    <div class={styles.Container} classList={{[props.class!]: !!props.class}}>
       <div class={styles.KeysContainer}>
         {shortcutKeys.map((key, idx, array) => (
           <button

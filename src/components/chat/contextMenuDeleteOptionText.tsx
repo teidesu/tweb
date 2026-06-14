@@ -30,7 +30,7 @@ export const ContextMenuDeleteOptionText = defineSolidElement({
         </div>
         <div class={styles.Subtitle}>
           <IconTsx class={styles.Icon} icon='fire' />
-          <RemainingTime finishTimestamp={props.dateTimestamp + props.ttlPeriod}>
+          <RemainingTime finishTimestamp={props.dateTimestamp + props.ttlPeriod!}>
             {(time) => {
               return <I18nTsx key='AutoDeletesIn' args={[time()]} />
             }}

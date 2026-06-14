@@ -8,7 +8,7 @@ import {useCropOffset} from '@components/mediaEditor/canvas/useCropOffset';
 
 
 export function animateToNewRotationOrRatio(newRotation: number) {
-  const {editorState, mediaState} = useMediaEditorContext();
+  const {editorState, mediaState} = useMediaEditorContext()!;
   if(!editorState.mediaSize) return;
 
   const cropOffset = useCropOffset();

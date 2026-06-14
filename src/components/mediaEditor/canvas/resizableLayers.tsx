@@ -26,7 +26,7 @@ type ProcessedLayer = {
 
 export default function ResizableLayers() {
   const context = useMediaEditorContext();
-  const {editorState, mediaState, actions} = context;
+  const {editorState, mediaState, actions} = context!;
   const isTextTab = () => editorState.currentTab === 'text';
   const canClick = () => ['stickers', 'text', 'adjustments'].includes(editorState.currentTab);
 
@@ -57,7 +57,7 @@ export default function ResizableLayers() {
   const normalizePoint = useNormalizePoint();
 
   function addLayer(e: MouseEvent) {
-    if(e.target !== container) return;
+    if(e.target !== container!) return;
     if(editorState.selectedResizableLayer) {
       editorState.selectedResizableLayer = undefined;
       return;
@@ -69,7 +69,7 @@ export default function ResizableLayers() {
     const transform = editorState.finalTransform;
 
     const newResizableLayer = {
-      id: context.resizableLayersSeed++,
+      id: context!.resizableLayersSeed++,
       position: normalizePoint([e.clientX - bcr.left, e.clientY - bcr.top]),
       rotation: -transform.rotation,
       scale: 1 / transform.scale,
@@ -103,7 +103,7 @@ export default function ResizableLayers() {
       }}
     >
       <div
-        ref={container}
+        ref={container!}
         class="media-editor__resizable-layers-inner"
         onClick={withCurrentOwner(addLayer)}
         style={{
@@ -128,7 +128,7 @@ export default function ResizableLayers() {
 }
 
 export function ResizableContainer(props: ParentProps<ResizableLayerProps>) {
-  const {editorState, mediaState} = useMediaEditorContext();
+  const {editorState, mediaState} = useMediaEditorContext()!;
 
   const isMobile = useIsMobile();
   const processPoint = useProcessPoint(false);
@@ -160,22 +160,22 @@ export function ResizableContainer(props: ParentProps<ResizableLayerProps>) {
 
   onMount(() => {
     useResizeHandles({
-      container,
-      leftBottomEl: () => store.leftBottomEl,
-      leftTopEl: () => store.leftTopEl,
-      rightBottomEl: () => store.rightBottomEl,
-      rightTopEl: () => store.rightTopEl,
+      container: container!,
+      leftBottomEl: () => store.leftBottomEl!,
+      leftTopEl: () => store.leftTopEl!,
+      rightBottomEl: () => store.rightBottomEl!,
+      rightTopEl: () => store.rightTopEl!,
 
       layer: props.layer,
       diff: store.diff,
       processedLayer
     });
 
-    useContextMenu({container, layer: props.layer});
+    useContextMenu({container: container!, layer: props.layer});
 
-    const unobserve = observeResize(container, () => {
-      store.containerWidth = container.clientWidth;
-      store.containerHeight = container.clientHeight;
+    const unobserve = observeResize(container!, () => {
+      store.containerWidth = container!.clientWidth;
+      store.containerHeight = container!.clientHeight;
     });
 
     onCleanup(() => {
@@ -195,7 +195,7 @@ export function ResizableContainer(props: ParentProps<ResizableLayerProps>) {
       onClick={() => {
         editorState.selectedResizableLayer = props.layer.id;
       }}
-      ref={container}
+      ref={container!}
     >
       {props.children}
 
@@ -275,12 +275,12 @@ function useResizeHandles({
   layer,
   processedLayer
 }: UseResizeArgs) {
-  const {editorState, mediaState} = useMediaEditorContext();
+  const {editorState, mediaState} = useMediaEditorContext()!;
 
   const normalizePoint = useNormalizePoint();
 
 
-  let firstTarget: EventTarget;
+  let firstTarget: EventTarget | undefined;
   let swipeStarted = false;
 
   const multipliers = [
@@ -368,7 +368,7 @@ type UseContextMenuArgs = {
 }
 
 function useContextMenu({container, layer}: UseContextMenuArgs) {
-  const {editorState, mediaState, actions} = useMediaEditorContext();
+  const {editorState, mediaState, actions} = useMediaEditorContext()!;
 
   function onClick() {
     const layers = mediaState.resizableLayers;

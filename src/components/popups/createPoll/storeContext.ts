@@ -160,7 +160,7 @@ export const createPollStoreContextValue = (extra: CreatePollContextExtra): Crea
 
     const firstChecked = untrack(() => store.pollOptions.findIndex((option) => option.checked));
 
-    setStore('pollOptions', (option) => option.checked, 'checked', false);
+    setStore('pollOptions', (option) => option.checked as boolean, 'checked', false);
 
     if(firstChecked !== -1) {
       setStore('pollOptions', firstChecked, 'checked', true);
@@ -174,7 +174,7 @@ export const createPollStoreContextValue = (extra: CreatePollContextExtra): Crea
       track(() => option.text);
     }
 
-    if(store.pollOptions.length && store.pollOptions.length < maxOptions() && checkOptionHasValue(lastItem(store.pollOptions))) {
+    if(store.pollOptions.length && store.pollOptions.length < maxOptions() && checkOptionHasValue(lastItem(store.pollOptions)!)) {
       setStore('pollOptions', store.pollOptions.length, {
         text: '',
         entities: []

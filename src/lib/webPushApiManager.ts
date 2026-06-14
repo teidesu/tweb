@@ -81,7 +81,7 @@ export class WebPushApiManager extends EventListenerBase<{
 
     return navigator.serviceWorker.ready.then((reg) => {
       return reg.pushManager.getSubscription().then((subscription) => {
-        return this.makeTokenData(subscription);
+        return this.makeTokenData(subscription!);
       }).catch((err) => {
         this.log.error('error during getSubscription()', err);
       });
@@ -90,7 +90,7 @@ export class WebPushApiManager extends EventListenerBase<{
 
   public subscribe = (): Promise<PushSubscriptionNotify | void> => {
     if(!this.isAvailable) {
-      return;
+      return undefined as unknown as Promise<void>;
     }
 
     this.log('subscribing');
@@ -215,7 +215,7 @@ export class WebPushApiManager extends EventListenerBase<{
     navigator.serviceWorker.ready.then(this.isAliveNotify);
   }
 
-  private makeTokenData(subscription: PushSubscription): PushSubscriptionNotify {
+  private makeTokenData(subscription: PushSubscription): PushSubscriptionNotify | undefined {
     if(!subscription) {
       return;
     }

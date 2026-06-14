@@ -7,9 +7,9 @@ function preparePrint() {
   const chatClone = chat.cloneNode(true) as HTMLElement;
   chatClone.querySelectorAll('.chat-input').forEach((element) => element.remove());
   const bubbles = chatClone.querySelector('.bubbles');
-  const bubblesInner = bubbles.querySelector('.bubbles-inner');
-  bubbles.replaceChildren(bubblesInner);
-  const video = bubbles.querySelectorAll<HTMLVideoElement>('video');
+  const bubblesInner = bubbles!.querySelector('.bubbles-inner');
+  bubbles!.replaceChildren(bubblesInner!);
+  const video = bubbles!.querySelectorAll<HTMLVideoElement>('video');
   video.forEach((video) => (video.muted = true));
   const printable = document.createElement('div');
   printable.setAttribute('id', 'printable');

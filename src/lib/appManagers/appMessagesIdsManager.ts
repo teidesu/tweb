@@ -20,7 +20,7 @@ export class AppMessagesIdsManager {
       return messageId;
     }
 
-    messageId = getServerMessageId(messageId);
+    messageId = getServerMessageId(messageId)!;
     // let localStart = this.channelLocals[channelId];
     const localStart = MESSAGE_ID_OFFSET;
     // if(!localStart) {
@@ -33,7 +33,7 @@ export class AppMessagesIdsManager {
   }
 
   public incrementMessageId(messageId: number, increment: number) {
-    return this.generateMessageId(getServerMessageId(messageId) + increment, isLegacyMessageId(messageId) ? 0 : 1);
+    return this.generateMessageId(getServerMessageId(messageId)! + increment, isLegacyMessageId(messageId) ? 0 : 1);
   }
 
   public getMessageIdInfo(mid: number, channelId?: ChatId) {
@@ -53,13 +53,13 @@ export class AppMessagesIdsManager {
     for(let i = 0, length = mids.length; i < length; ++i) {
       const mid = mids[i];
       const {messageId, channelId} = this.getMessageIdInfo(mid, _channelId);
-      if(!prevItem || prevItem[0] !== channelId) {
-        prevItem = [channelId, {mids: [], messageIds: []}];
+      if(!prevItem! || prevItem[0] !== channelId) {
+        prevItem = [channelId!, {mids: [], messageIds: []}];
         out.push(prevItem);
       }
 
       prevItem[1].mids.push(mid);
-      prevItem[1].messageIds.push(messageId);
+      prevItem[1].messageIds.push(messageId!);
     }
 
     return out;

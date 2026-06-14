@@ -102,7 +102,7 @@ export function isNativeVideoRecorderSupported(): boolean {
 export default class NativeVideoRecorder {
   // Raw camera+mic stream — the chat input renders this in the preview circle
   // and taps its audio for the waveform. NOT what gets recorded (see canvas).
-  public stream: MediaStream;
+  public stream: MediaStream | undefined;
   public state: State = 'inactive';
   public mimeType: string;
 
@@ -118,7 +118,7 @@ export default class NativeVideoRecorder {
     facingMode: 'user' | 'environment';
   };
 
-  private mediaRecorder: MediaRecorder;
+  private mediaRecorder: MediaRecorder | undefined;
   private chunks: Blob[] = [];
   // Guards emitResult() so the blob is sent once — onstop and the stop()-error
   // fallback can otherwise both fire.
@@ -128,16 +128,16 @@ export default class NativeVideoRecorder {
   // PREVIEW_MIME_CANDIDATES). Only created when the sent container (mp4) can't
   // produce mid-stream playable data; when the sent file is already a
   // streamable webm we timeslice the main recorder and read its chunks instead.
-  private previewRecorder: MediaRecorder;
+  private previewRecorder: MediaRecorder | undefined;
   private previewChunks: Blob[] = [];
   private previewMimeType: string;
   private snapshotContainer: string; // container of getSnapshot()'s blobs
 
   // Square-crop pipeline.
-  private drawVideo: HTMLVideoElement;     // plays `stream`, source for the canvas
-  private canvas: HTMLCanvasElement;       // width×height square, encoded as-is
-  private canvasCtx: CanvasRenderingContext2D;
-  private canvasStream: MediaStream;       // canvas.captureStream() — video only
+  private drawVideo: HTMLVideoElement | undefined;     // plays `stream`, source for the canvas
+  private canvas: HTMLCanvasElement | undefined;       // width×height square, encoded as-is
+  private canvasCtx: CanvasRenderingContext2D | undefined;
+  private canvasStream: MediaStream | undefined;       // canvas.captureStream() — video only
   private drawing = false;
   // Holds the in-flight / active camera+mic acquire. dispose() (called from
   // releaseStream()) stops its tracks even if getUserMedia resolves DURING the
@@ -234,7 +234,7 @@ export default class NativeVideoRecorder {
     this.drawCroppedFrame();
     this.startDrawLoop();
 
-    this.mimeType = pickMimeType();
+    this.mimeType = pickMimeType()!;
     try {
       this.canvasStream = this.canvas.captureStream(this.config.frameRate);
       const videoTrack = this.canvasStream.getVideoTracks()[0];
@@ -275,7 +275,7 @@ export default class NativeVideoRecorder {
       if(mainIsStreamable) {
         this.snapshotContainer = this.mimeType;
       } else {
-        this.previewMimeType = pickPreviewMimeType();
+        this.previewMimeType = pickPreviewMimeType()!;
         if(this.previewMimeType) {
           this.previewRecorder = new MediaRecorder(recordStream, {
             mimeType: this.previewMimeType,
@@ -379,8 +379,8 @@ export default class NativeVideoRecorder {
         let bright = false;
         try {
           this.drawCroppedFrame();
-          const sw = Math.min(16, this.canvas.width);
-          const data = this.canvasCtx.getImageData(0, 0, sw, sw).data;
+          const sw = Math.min(16, this.canvas!.width);
+          const data = this.canvasCtx!.getImageData(0, 0, sw, sw).data;
           let sum = 0;
           for(let i = 0; i < data.length; i += 4) sum += data[i] + data[i + 1] + data[i + 2];
           bright = sum / (sw * sw * 3) > 10; // 0..255 avg luminance

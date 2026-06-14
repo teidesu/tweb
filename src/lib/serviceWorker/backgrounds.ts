@@ -11,7 +11,7 @@ const backgroundsCache = new CacheStorageController('cachedBackgrounds');
  * Need the image element to fetch the background so the browser waits it, to avoid the background blinking when refreshing the page while the screen is locked
  */
 export function onBackgroundsFetch(event: FetchEvent) {
-  const url = event.request.url.match(/backgrounds.*/)[0];
+  const url = event.request.url.match(/backgrounds.*/)![0];
   if(!url) {
     event.respondWith(get500ErrorResponse());
     return;
@@ -22,7 +22,7 @@ export function onBackgroundsFetch(event: FetchEvent) {
 
   (async() => {
     const blob = await backgroundsCache.getFile(url, 'blob');
-    deferred.resolve(new Response(blob, {
+    deferred.resolve!(new Response(blob, {
       status: 200
     }));
   })();

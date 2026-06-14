@@ -23,7 +23,7 @@ const createSizeRoot = (element: Accessor<Element>) => createRoot(dispose => {
 
     setStore(pickKeys(element().getBoundingClientRect(), ['width', 'height']));
 
-    let callback: () => void, isQueued = false;
+    let callback: (() => void) | undefined, isQueued = false;
 
     const resizeObserver = new ResizeObserver(([entry]) => {
       const boxSize = entry.borderBoxSize[0];

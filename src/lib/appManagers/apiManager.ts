@@ -63,7 +63,7 @@ export class ApiManager extends ApiManagerMethods {
 
   private cachedExportPromise: {[x: number]: Promise<unknown>};
   private gettingNetworkers: {[dcIdAndType: string]: Promise<MTPNetworker>};
-  private baseDcId: DcId;
+  private baseDcId: DcId | undefined;
 
   private afterMessageTempIds: {
     [tempId: string]: {
@@ -132,7 +132,7 @@ export class ApiManager extends ApiManagerMethods {
 
         if((transport as TcpObfuscated).connection) {
           const url = constructTelegramWebSocketUrl(dcId, connectionType, isPremium);
-          (transport as TcpObfuscated).changeUrl(url);
+          (transport as TcpObfuscated).changeUrl(url!);
         }
       });
     });
@@ -206,7 +206,7 @@ export class ApiManager extends ApiManagerMethods {
     this.iterateNetworkers((info) => {
       const transportType = this.getTransportType(info.connectionType);
       const transport = this.chooseServer(info.dcId, info.connectionType, transportType);
-      this.changeNetworkerTransport(info.networker, transport);
+      this.changeNetworkerTransport(info.networker, transport!);
     });
   }
 
@@ -327,7 +327,7 @@ export class ApiManager extends ApiManagerMethods {
         if(await DeferredIsUsingPasscode.isUsingPasscode()) {
           // Keep the screen unlocked even if the user logs out
           await sessionStorage.set({
-            encryption_key: await EncryptionKeyStore.getAsBase64()
+            encryption_key: (await EncryptionKeyStore.getAsBase64())!
           });
         }
       }
@@ -412,11 +412,11 @@ export class ApiManager extends ApiManagerMethods {
         }
 
         if(networkers.length < maxNetworkers && onlineRequests) { // * if all instances are busy and can create a new one
-          networker = undefined;
-        } else if(onlineNetworker) {
+          networker = (undefined as unknown as MTPNetworker);
+        } else if(onlineNetworker!) {
           networker = onlineNetworker;
         } else { // * if all instances are offline
-          networker = minNetworker;
+          networker = minNetworker!;
         }
       }
 
@@ -426,8 +426,8 @@ export class ApiManager extends ApiManagerMethods {
     }
 
     let getKey = this.generateNetworkerGetKey(dcId, transportType, connectionType);
-    if(this.gettingNetworkers[getKey]) {
-      return this.gettingNetworkers[getKey];
+    if(this.gettingNetworkers[getKey] as unknown) {
+      return this.gettingNetworkers[getKey]!;
     }
 
     const ak: DcAuthKey = `dc${dcId}_auth_key` as any;
@@ -471,8 +471,8 @@ export class ApiManager extends ApiManagerMethods {
         try { // if no saved state
           [permanent, temporary] = await Promise.all([this.authorizer.auth(dcId, false), this.authorizer.auth(dcId, true)]);
 
-          authKeyHex = bytesToHex(permanent.authKey.key);
-          serverSaltHex = bytesToHex(permanent.serverSalt);
+          authKeyHex = bytesToHex(permanent.authKey!.key);
+          serverSaltHex = bytesToHex(permanent.serverSalt!);
 
           AccountController.update(this.getAccountNumber(), {
             [ak]: authKeyHex,
@@ -484,18 +484,18 @@ export class ApiManager extends ApiManagerMethods {
       }
 
       if(!error) {
-        const auth = temporary ?? permanent;
+        const auth = temporary! ?? permanent!;
         networker = this.networkerFactory.getNetworker({
           dcId,
-          permAuthKey: permanent.authKey,
-          authKey: auth.authKey,
-          serverSalt: auth.serverSalt,
+          permAuthKey: permanent!.authKey!,
+          authKey: auth.authKey!,
+          serverSalt: auth.serverSalt!,
           isFileDownload: connectionType === 'download',
           isFileUpload: connectionType === 'upload'
         });
 
-        if(temporary) onTransport = async() => {
-          await networker.wrapBindAuthKeyCall(temporary.authKey.expiresAt);
+        if(temporary!) onTransport = async() => {
+          await networker.wrapBindAuthKeyCall(temporary.authKey!.expiresAt!);
           // await networker.wrapApiCall('help.getConfig', {});
           // await pause(1000000);
         };
@@ -505,10 +505,10 @@ export class ApiManager extends ApiManagerMethods {
       const newTransportType = this.getTransportType(connectionType);
       if(newTransportType !== transportType) {
         getKey = this.generateNetworkerGetKey(dcId, newTransportType, connectionType);
-        transport.destroy();
+        transport!.destroy();
         DcConfigurator.removeTransport(this.dcConfigurator.chosenServers, transport);
 
-        if(networker) {
+        if(networker!) {
           transport = this.chooseServer(dcId, connectionType, newTransportType);
         }
 
@@ -526,11 +526,11 @@ export class ApiManager extends ApiManagerMethods {
         throw error;
       }
 
-      this.changeNetworkerTransport(networker, transport);
+      this.changeNetworkerTransport(networker!, transport!);
       // onTransport && await onTransport?.();
-      networkers.unshift(networker);
-      this.setOnDrainIfNeeded(networker);
-      return networker;
+      networkers.unshift(networker!);
+      this.setOnDrainIfNeeded(networker!);
+      return networker!;
     });
   }
 
@@ -615,7 +615,7 @@ export class ApiManager extends ApiManagerMethods {
       if(!error) {
         error = makeError('ERROR_EMPTY');
       } else if(!isObject(error)) {
-        error = makeError(undefined, error);
+        error = makeError(undefined!, error);
       }
 
       if((error.code === 401 && error.type === 'SESSION_REVOKED') ||
@@ -665,7 +665,7 @@ export class ApiManager extends ApiManagerMethods {
 
       if(prepareTempMessageId) {
         this.afterMessageTempIds[prepareTempMessageId] = {
-          messageId: (options as MTMessage).messageId,
+          messageId: (options as MTMessage).messageId!,
           promise: deferred
         };
       }
@@ -699,7 +699,7 @@ export class ApiManager extends ApiManagerMethods {
 
           return this.cachedExportPromise[dcId].then(() => performRequest());
         } else if(error.code === 303) {
-          const newDcId = +error.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_|STATS_MIGRATE_)(\d+)/)[2] as DcId;
+          const newDcId = +error.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_|STATS_MIGRATE_)(\d+)/)![2] as DcId;
           if(newDcId !== dcId) {
             if(options.dcId) {
               options.dcId = newDcId;
@@ -710,7 +710,7 @@ export class ApiManager extends ApiManagerMethods {
             return this.invokeApi(method, params, options);
           }
         } else if(error.code === 400 && error.type.indexOf('FILE_MIGRATE') === 0) {
-          const newDcId = +error.type.match(/^(FILE_MIGRATE_)(\d+)/)[2] as DcId;
+          const newDcId = +error.type.match(/^(FILE_MIGRATE_)(\d+)/)![2] as DcId;
           if(newDcId !== dcId) {
             options.dcId = newDcId;
             return this.invokeApi(method, params, options);
@@ -733,7 +733,7 @@ export class ApiManager extends ApiManagerMethods {
               this.appStateManager.getState()
             ]).then(([appConfig, state]) => {
               const timestamp = tsNow(true);
-              const shouldShowToast = (timestamp - (state.shownUploadSpeedTimestamp || 0)) >= appConfig.upload_premium_speedup_notify_period;
+              const shouldShowToast = (timestamp - (state.shownUploadSpeedTimestamp || 0)) >= appConfig.upload_premium_speedup_notify_period!;
               if(!shouldShowToast) {
                 return;
               }
@@ -754,7 +754,7 @@ export class ApiManager extends ApiManagerMethods {
 
           return pause(waitTime/* (waitTime + 5) */ * 1000).then(() => performRequest());
         } else if(!options.rawError && ['MSG_WAIT_FAILED', 'MSG_WAIT_TIMEOUT'].includes(error.type)) {
-          const after = this.afterMessageTempIds[afterMessageId];
+          const after = this.afterMessageTempIds[afterMessageId!];
 
           afterMessageId = undefined;
           delete options.afterMessageId;
@@ -783,7 +783,7 @@ export class ApiManager extends ApiManagerMethods {
     }
 
     let p: Promise<MTPNetworker>;
-    if(dcId = (options.dcId || this.baseDcId)) {
+    if(dcId = ((options.dcId || this.baseDcId) as number)) {
       p = this.getNetworker(dcId, options);
     } else {
       p = this.getBaseDcId().then((baseDcId) => this.getNetworker(dcId = baseDcId, options));
@@ -795,9 +795,9 @@ export class ApiManager extends ApiManagerMethods {
       cachedNetworker.attachPromise(deferred, options as MTMessage);
       return promise;
     })
-    .then(deferred.resolve.bind(deferred))
+    .then(deferred.resolve!.bind(deferred))
     .catch(rejectPromise)
-    .catch(deferred.reject.bind(deferred));
+    .catch(deferred.reject!.bind(deferred));
 
     return deferred;
   }

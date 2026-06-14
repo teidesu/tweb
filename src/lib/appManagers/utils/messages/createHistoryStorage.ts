@@ -11,14 +11,14 @@ export default function createHistoryStorage(options: Parameters<typeof getHisto
     type,
     key,
     count: null,
-    _maxId: undefined,
+    _maxId: (undefined as unknown as number),
     get maxId() {
       const maxId = historyStorage._maxId;
       if(maxId) {
         return maxId;
       }
 
-      const first = historyStorage.history.first;
+      const first = historyStorage.history!.first;
       if(first.isEnd(SliceEnd.Bottom)) {
         return first[0];
       }

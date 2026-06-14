@@ -11,10 +11,10 @@ import filterChatPhotosMessages from '@helpers/filterChatPhotosMessages';
 import ListLoader, {ListLoaderOptions} from '@helpers/listLoader';
 
 export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}> extends ListLoader<Item, Message.message> {
-  public searchContext: MediaSearchContext;
-  public onEmptied: () => void;
+  public searchContext: MediaSearchContext | undefined;
+  public onEmptied: (() => void) | undefined;
 
-  private otherSideLoader: SearchListLoader<Item>;
+  private otherSideLoader: SearchListLoader<Item> | undefined;
   private managers: AppManagers;
 
   constructor(options: Omit<ListLoaderOptions<Item, Message.message>, 'loadMore'> & {
@@ -26,13 +26,13 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
       ...options,
       loadMore: async(anchor, older, loadCount) => {
         const backLimit = older ? 0 : loadCount;
-        let offsetId = anchor?.mid ?? this.searchContext.maxId;
+        let offsetId = anchor?.mid ?? this.searchContext!.maxId;
 
-        if(!older) offsetId = await this.managers.appMessagesIdsManager.incrementMessageId(offsetId, 1);
+        if(!older) offsetId = await this.managers.appMessagesIdsManager!.incrementMessageId(offsetId, 1);
 
-        const peerId = this.searchContext.peerId || anchor?.peerId;
+        const peerId = this.searchContext!.peerId || anchor?.peerId;
 
-        return this.managers.appMessagesManager.getHistory({
+        return this.managers.appMessagesManager!.getHistory({
           ...this.searchContext,
           peerId,
           offsetId,
@@ -44,29 +44,29 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
             this.log('loaded more media by maxId:', maxId, value, older, this.reverse);
           } */
 
-          if(this.searchContext.inputFilter._ === 'inputMessagesFilterChatPhotos') {
+          if(this.searchContext!.inputFilter._ === 'inputMessagesFilterChatPhotos') {
             filterChatPhotosMessages(value);
           }
 
           if(value.nextRate) {
-            this.searchContext.nextRate = value.nextRate;
+            this.searchContext!.nextRate = value.nextRate;
           }
 
           if(!value.messages) {
-            value.messages = value.history.map((mid) => apiManagerProxy.getMessageByPeer(peerId, mid));
+            value.messages = (value.history.map((mid) => apiManagerProxy.getMessageByPeer(peerId, mid))! as MyMessage[] | undefined);
           }
 
-          return {count: value.count, items: value.messages};
+          return {count: value.count, items: value.messages as unknown as Item[]};
         });
       },
-      processItem: async(message) => {
-        const filtered = await this.filterMids([message.mid]);
+      processItem: (async(message: Message.message) => {
+        const filtered = await this.filterMids([message.mid!]);
         if(!filtered.length) {
-          return;
+          return undefined!;
         }
 
-        return options.processItem(message);
-      }
+        return options.processItem!(message) as Promise<Item>;
+      }) as any
     });
 
     this.managers ??= rootScope.managers;
@@ -87,9 +87,9 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
   }
 
   protected async filterMids(mids: number[]) {
-    const storageKey: MessagesStorageKey = `${this.searchContext.peerId}_${this.searchContext.isScheduled ? 'scheduled' : 'history'}`;
-    let filtered = (await this.managers.appMessagesManager.filterMessagesByInputFilterFromStorage(this.searchContext.inputFilter._, mids, storageKey, mids.length)) as Message.message[];
-    if(this.searchContext.skipSensitive) {
+    const storageKey: MessagesStorageKey = `${this.searchContext!.peerId}_${this.searchContext!.isScheduled ? 'scheduled' : 'history'}`;
+    let filtered = (await this.managers.appMessagesManager!.filterMessagesByInputFilterFromStorage(this.searchContext!.inputFilter._, mids, storageKey, mids.length)) as Message.message[];
+    if(this.searchContext!.skipSensitive) {
       filtered = filtered.filter((message) => !isMessageSensitive(message));
     }
     return filtered;
@@ -103,8 +103,8 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
       }
     };
 
-    forEachReverse(this.previous, filter);
-    forEachReverse(this.next, filter);
+    forEachReverse(this.previous, filter as (value: Item, index?: number, array?: Item[]) => void);
+    forEachReverse(this.next, filter as (value: Item, index?: number, array?: Item[]) => void);
 
     if(this.current && shouldBeDeleted(this.current)) {
       this.current = undefined;
@@ -120,7 +120,7 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
 
   protected onHistoryMultiappend = async(message: Message.message | Message.messageService) => {
     const {searchContext} = this;
-    if(searchContext.folderId !== undefined) {
+    if(searchContext!.folderId !== undefined) {
       return;
     }
 
@@ -129,11 +129,11 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
       return;
     }
 
-    if(message.peerId !== searchContext.peerId) {
+    if(message.peerId !== searchContext!.peerId) {
       return;
     }
 
-    const filtered = await this.filterMids([message.mid]);
+    const filtered = await this.filterMids([message.mid!]);
     if(this.searchContext !== searchContext) return;
     const targets = (await Promise.all(filtered.map((message) => this.processItem(message)))).filter(Boolean);
     if(this.searchContext !== searchContext) return;
@@ -237,8 +237,8 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
         }
 
         // if other side is loaded too will start from its begin
-        if((length > 0 && (this.otherSideLoader.searchContext.maxId === 1 || this.otherSideLoader.loadedAllDown)) ||
-          (length < 0 && (this.otherSideLoader.searchContext.maxId === 0 || this.otherSideLoader.loadedAllUp))) {
+        if((length > 0 && (this.otherSideLoader.searchContext!.maxId === 1 || this.otherSideLoader.loadedAllDown)) ||
+          (length < 0 && (this.otherSideLoader.searchContext!.maxId === 0 || this.otherSideLoader.loadedAllUp))) {
           return this.otherSideLoader.goToOtherEnd(length);
         }
 
@@ -280,10 +280,10 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
       this.searchContext?.useSearch !== false/*  &&
       (this.reverse ? this.loadedAllUp : this.loadedAllDown) */) {
       const reverse = this.loadedAllUp;
-      this.otherSideLoader.setSearchContext({
+      this.otherSideLoader.setSearchContext(({
         ...this.searchContext,
         maxId: reverse ? 1 : 0
-      });
+      } as SearchSuperContext));
 
       // these 'reverse' are different, not a mistake here.
       this.otherSideLoader.reverse = this.reverse;

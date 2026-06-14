@@ -27,7 +27,7 @@ export default class FeatureSlideTab {
   private initFeaturesTab(options: FeatureSlideTabOptions) {
     const tab = document.createElement('div');
     tab.classList.add('premium-feature-tab');
-    options.header.querySelector('.popup-close').replaceWith(this.backBtn);
+    options.header.querySelector('.popup-close')!.replaceWith(this.backBtn);
     tab.append(options.header);
     this.featureCarousel = new FeaturesCarousel({
       ...options,

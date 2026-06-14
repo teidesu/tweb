@@ -11,7 +11,7 @@ export function toastStoryPinnedToProfile(managers: AppManagers, peerId: PeerId,
   if(peerId.isUser()) {
     return toastNew({langPackKey: pin ? 'StoryPinnedToProfile' : 'StoryArchivedFromProfile'});
   } else {
-    managers.appChatsManager.isBroadcast(peerId.toChatId()).then((isBroadcast) => {
+    managers.appChatsManager!.isBroadcast(peerId.toChatId()).then((isBroadcast) => {
       let key: LangPackKey;
       if(isBroadcast) {
         key = pin ? 'StoryPinnedToChannel' : 'StoryArchivedFromChannel';
@@ -55,7 +55,7 @@ export class StoriesSelection extends AppSelection {
       getElementFromTarget: (target) => {
         let el: HTMLElement = target;
         while(el && !el.classList.contains('search-super-item')) {
-          el = el.parentElement;
+          el = el.parentElement!;
         }
         return el;
       },
@@ -64,8 +64,8 @@ export class StoriesSelection extends AppSelection {
       lookupBetweenElementsQuery: '.search-super-item'
     });
 
-    this.isStoriesArchive = options.isArchive;
-    this.forPicker = options.forPicker;
+    this.isStoriesArchive = options.isArchive!;
+    this.forPicker = options.forPicker!;
     this.mainContainer = options.container;
 
     const [selecting, setSelecting] = createSignal(false);
@@ -94,7 +94,7 @@ export class StoriesSelection extends AppSelection {
     if(!size && !forceSelection) return;
 
     const peerId = this.selectedMids.keys().next().value;
-    const r = await this.managers.appStoriesManager.cantPinDeleteStories(peerId, Array.from(this.selectedMids.get(peerId)));
+    const r = await this.managers.appStoriesManager!.cantPinDeleteStories(peerId!, Array.from(this.selectedMids.get(peerId!)!));
     this._setCount(this.length());
     this._setCantPin(r.cantPin);
     this._setCantDelete(r.cantDelete);
@@ -114,8 +114,8 @@ export class StoriesSelection extends AppSelection {
   }
 
   public toggleByElement = (element: HTMLElement) => {
-    const mid = +element.dataset.mid;
-    const peerId = element.dataset.peerId.toPeerId();
+    const mid = +element.dataset.mid!;
+    const peerId = element.dataset.peerId!.toPeerId();
 
     if(!this.toggleMid(peerId, mid)) {
       return;
@@ -135,7 +135,7 @@ export class StoriesSelection extends AppSelection {
 
   public onDeleteStoriesClick = async(ids?: number[], peerId?: PeerId) => {
     peerId ??= this.getSelectedStoriesPeerId();
-    ids ||= [...this.selectedMids.get(peerId)];
+    ids ||= [...this.selectedMids.get(peerId)!];
     await confirmationPopup({
       titleLangKey: ids.length === 1 ? 'DeleteStoryTitle' : 'DeleteStoriesTitle',
       descriptionLangKey: ids.length === 1 ? 'DeleteStorySubtitle' : 'DeleteStoriesSubtitle',
@@ -146,13 +146,13 @@ export class StoriesSelection extends AppSelection {
       }
     });
     this.cancelSelection();
-    this.managers.appStoriesManager.deleteStories(peerId, ids);
+    this.managers.appStoriesManager!.deleteStories(peerId, ids);
   };
 
   public onPinStoriesClick = (ids: number[], pin: boolean, peerId?: PeerId) => {
     peerId ??= this.getSelectedStoriesPeerId();
-    ids ||= [...this.selectedMids.get(peerId)];
-    const promise = this.managers.appStoriesManager.togglePinned(peerId, ids, pin);
+    ids ||= [...this.selectedMids.get(peerId)!];
+    const promise = this.managers.appStoriesManager!.togglePinned(peerId, ids, pin);
     this.cancelSelection();
     promise.then(async() => {
       if(ids.length === 1) {
@@ -162,7 +162,7 @@ export class StoriesSelection extends AppSelection {
         if(peerId.isUser()) {
           key = pin ? 'StorySavedTitle' : 'StoryArchived';
         } else {
-          const isBroadcast = await this.managers.appChatsManager.isBroadcast(peerId.toChatId());
+          const isBroadcast = await this.managers.appChatsManager!.isBroadcast(peerId.toChatId());
           if(isBroadcast) {
             key = pin ? 'StorySavedChannelTitle' : 'StoryChannelArchived';
           } else {
@@ -177,12 +177,12 @@ export class StoriesSelection extends AppSelection {
 
   public onPinStoriesToTopClick = (ids?: number[], pin: boolean = true, peerId?: PeerId) => {
     peerId ??= this.getSelectedStoriesPeerId();
-    ids ||= [...this.selectedMids.get(peerId)];
-    const promise = this.managers.appStoriesManager.togglePinnedToTop(peerId, ids, pin);
+    ids ||= [...this.selectedMids.get(peerId)!];
+    const promise = this.managers.appStoriesManager!.togglePinnedToTop(peerId, ids, pin);
     this.cancelSelection();
     promise.catch((err: ApiError) => {
       if(err.type === 'STORY_ID_TOO_MANY') {
-        toastNew({langPackKey: 'StoriesPinLimit', langPackArguments: [+err.message]});
+        toastNew({langPackKey: 'StoriesPinLimit', langPackArguments: [+err.message!]});
       }
     });
   };

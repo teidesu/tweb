@@ -21,7 +21,7 @@ const caption: LangPackKey = 'PrivacySettingsController.ProfilePhoto.CustomHelp'
 function buildFallbackSection(tab: SliderSuperTabEventable) {
   let avatarMiddleware: MiddlewareHelper;
   let uploadPreloader: ProgressivePreloader;
-  let uploadProgress: CancellablePromise<any>;
+  let uploadProgress: CancellablePromise<any> | undefined;
 
   const renderRemoveAvatar = (fallback: Photo.photo | undefined) => {
     avatarMiddleware?.destroy();
@@ -50,14 +50,14 @@ function buildFallbackSection(tab: SliderSuperTabEventable) {
     // An in-flight upload owns the row (progress + cancel) — don't disturb it.
     if(uploadProgress) return;
 
-    const userFull = await tab.managers.appProfileManager.getProfile(rootScope.myId.toUserId());
+    const userFull = await tab.managers.appProfileManager!.getProfile(rootScope.myId.toUserId());
     const fallback = (userFull as UserFull.userFull)?.fallback_photo as Photo.photo | undefined;
     const hasFallback = !!fallback;
 
     removeRow.container.classList.toggle('hide', !hasFallback);
     fallbackRow.title.replaceChildren(i18n(hasFallback ?
       'PrivacySettingsController.UpdatePublicPhoto' :
-      'PrivacySettingsController.SetPublicPhoto'));
+      'PrivacySettingsController.SetPublicPhoto')!);
 
     renderRemoveAvatar(hasFallback ? fallback : undefined);
   };
@@ -104,13 +104,13 @@ function buildFallbackSection(tab: SliderSuperTabEventable) {
       });
     } catch{ return; }
 
-    await tab.managers.appProfileManager.clearFallbackProfilePhoto();
+    await tab.managers.appProfileManager!.clearFallbackProfilePhoto();
     refreshFallback();
   };
 
   const onRemoveRowClick = () => {
     if(uploadProgress) {
-      uploadProgress.cancel();
+      uploadProgress.cancel!();
       return;
     }
 

@@ -48,7 +48,7 @@ export function useParticipantClickHandler(peerId: PeerId) {
 
   return wrapAsyncClickHandler(async() => {
     try {
-      const participant = await rootScope.managers.appProfileManager.getParticipant(tab.payload.channelId, peerId);
+      const participant = await rootScope.managers.appProfileManager!.getParticipant(tab.payload.channelId, peerId);
 
       openUserPermissionsTab(
         tab.slider,

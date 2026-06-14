@@ -15,12 +15,12 @@ let cachedPromise: Promise<LangPayload | undefined>;
 let appliedAlready = false;
 
 function getLang() {
-  return cachedPromise ||= rootScope.managers.apiManager.getConfig().then(async(config) => {
+  return cachedPromise ||= rootScope.managers.apiManager!.getConfig().then(async(config) => {
     if(config.suggested_lang_code === I18n.getLastRequestedLangCode()) {
       return undefined;
     }
     const [strings] = await Promise.all([
-      I18n.getStrings(config.suggested_lang_code, [KEY]),
+      I18n.getStrings(config.suggested_lang_code!, [KEY]),
       I18n.getCacheLangPackAndApply()
     ]);
     return {config, strings};
@@ -59,7 +59,7 @@ export default function LanguageChangeButton(): JSX.Element {
     const payload = await getLang();
     if(!payload) return;
 
-    suggestedLangCode = payload.config.suggested_lang_code;
+    suggestedLangCode = payload.config.suggested_lang_code!;
     const text = formatSuggestedText(payload.strings);
     await loadFonts({text: [text]});
 

@@ -37,19 +37,19 @@ export default class ChatDragAndDrop {
 
     const dropHeader = document.createElement('div');
     dropHeader.classList.add('drop-header', 'disable-hover');
-    dropHeader.append(i18n(options.header, options.headerArgs));
+    dropHeader.append(i18n(options.header, options.headerArgs)!);
 
     let dropSubtitle: HTMLElement;
     if(options.subtitle) {
       dropSubtitle = document.createElement('div');
       dropSubtitle.classList.add('drop-subtitle', 'disable-hover');
-      dropSubtitle.append(i18n(options.subtitle));
+      dropSubtitle.append(i18n(options.subtitle)!);
     }
 
     this.svg.append(this.path);
     this.outlineWrapper.append(this.svg);
 
-    this.container.append(...[dropIcon, dropHeader, dropSubtitle, this.outlineWrapper].filter(Boolean));
+    this.container.append(...[dropIcon!, dropHeader, dropSubtitle!, this.outlineWrapper].filter(Boolean));
     appendTo.append(this.container);
 
     this.container.addEventListener('dragover', this.onDragOver);
@@ -72,7 +72,7 @@ export default class ChatDragAndDrop {
   };
 
   destroy() {
-    delete this.options;
+    delete (this as any).options;
     this.container.remove();
     this.container.removeEventListener('dragover', this.onDragOver);
     this.container.removeEventListener('dragleave', this.onDragLeave);

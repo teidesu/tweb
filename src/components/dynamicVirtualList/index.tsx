@@ -367,7 +367,7 @@ export const DynamicVirtualList = <T, El extends HTMLElement>(
     if(!props.onNearBottom) return;
 
     if(scrollTop() + clientHeight() >= height() - props.nearBottomThreshold) {
-      untrack(() => props.onNearBottom());
+      untrack(() => props.onNearBottom!());
     }
   })
 

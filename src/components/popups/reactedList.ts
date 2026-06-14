@@ -42,10 +42,10 @@ export async function processDialogElementForReaction({
     stickerContainer.classList.add('reacted-list-reaction-icon');
 
     if(reaction._ === 'reactionEmoji') {
-      const availableReaction = await rootScope.managers.appReactionsManager.getReaction(reaction.emoticon);
+      const availableReaction = await rootScope.managers.appReactionsManager!.getReaction(reaction.emoticon);
 
       wrapSticker({
-        doc: availableReaction.static_icon,
+        doc: availableReaction!.static_icon,
         div: stickerContainer,
         width: 24,
         height: 24,
@@ -71,7 +71,7 @@ export async function processDialogElementForReaction({
     fragment.append(span, c);
     replaceContent(dom.lastMessageSpan, fragment);
   } else {
-    const user = await rootScope.managers.appUsersManager.getUser(peerId.toUserId());
+    const user = await rootScope.managers.appUsersManager!.getUser(peerId.toUserId());
     replaceContent(dom.lastMessageSpan, getUserStatusString(user));
   }
 }
@@ -87,9 +87,9 @@ export default class PopupReactedList extends PopupElement {
 
   private async init() {
     const middleware = this.middlewareHelper.get();
-    const message = await this.managers.appMessagesManager.getGroupsFirstMessage(this.message);
+    const message = await this.managers.appMessagesManager!.getGroupsFirstMessage(this.message);
     if(!middleware()) return;
-    const canViewReadParticipants = await this.managers.appMessagesManager.canViewMessageReadParticipants(message);
+    const canViewReadParticipants = await this.managers.appMessagesManager!.canViewMessageReadParticipants(message);
     if(!middleware()) return;
     // this.body.append(generateDelimiter());
 
@@ -109,7 +109,7 @@ export default class PopupReactedList extends PopupElement {
       }
     };
 
-    newMessage.reactions.results = newMessage.reactions.results.map((reactionCount) => {
+    newMessage.reactions!.results = newMessage.reactions!.results.map((reactionCount) => {
       const _reactionCount: ReactionCount = {
         ...reactionCount,
         chosen_order: undefined
@@ -138,18 +138,18 @@ export default class PopupReactedList extends PopupElement {
     const loaders: Map<HTMLElement, ScrollableLoader> = new Map();
 
     let hasAllReactions = false;
-    if(newMessage.reactions.results.length) {
-      const reaction = this.createFakeReaction('reactions', newMessage.reactions.results.reduce((acc, r) => acc + r.count, 0));
+    if(newMessage.reactions!.results.length) {
+      const reaction = this.createFakeReaction('reactions', newMessage.reactions!.results.reduce((acc, r) => acc + r.count, 0));
 
       reactionsElement.prepend(reaction);
-      newMessage.reactions.results.unshift(reaction.reactionCount);
+      newMessage.reactions!.results.unshift(reaction.reactionCount);
       hasAllReactions = true;
     }
 
     let hasReadParticipants = false;
     if(canViewReadParticipants) {
       try {
-        const readUserIds = await this.managers.appMessagesManager.getMessageReadParticipants(message.peerId, message.mid);
+        const readUserIds = await this.managers.appMessagesManager!.getMessageReadParticipants(message.peerId!, message.mid!);
         if(!middleware()) return;
         if(!readUserIds.length) {
           throw '';
@@ -158,7 +158,7 @@ export default class PopupReactedList extends PopupElement {
         const reaction = this.createFakeReaction('checks', readUserIds.length);
 
         reactionsElement.prepend(reaction);
-        newMessage.reactions.results.unshift(reaction.reactionCount);
+        newMessage.reactions!.results.unshift(reaction.reactionCount);
         hasReadParticipants = true;
       } catch(err) {
 
@@ -169,7 +169,7 @@ export default class PopupReactedList extends PopupElement {
       reactionsElement.append(reactionsElement.customEmojiRenderer);
     }
 
-    newMessage.reactions.results.forEach((reactionCount) => {
+    newMessage.reactions!.results.forEach((reactionCount) => {
       const scrollable = new Scrollable(undefined);
       scrollable.container.classList.add('tabs-tab');
 
@@ -198,15 +198,15 @@ export default class PopupReactedList extends PopupElement {
       const skipReadParticipants = (reactionCount.reaction as any) !== 'checks';
       const skipReactionsList = (reactionCount.reaction as any) === 'checks';
       if(['checks', 'reactions'].includes(reactionCount.reaction as any)) {
-        reactionCount.reaction = undefined;
+        reactionCount.reaction = (undefined as unknown as Reaction);
       }
 
       let nextOffset: string;
       const loader = new ScrollableLoader({
         scrollable,
         getPromise: async() => {
-          const result = await this.managers.appMessagesManager.getMessageReactionsListAndReadParticipants(message, undefined, reactionCount.reaction, nextOffset, skipReadParticipants, skipReactionsList);
-          nextOffset = result.nextOffset;
+          const result = await this.managers.appMessagesManager!.getMessageReactionsListAndReadParticipants(message, undefined, reactionCount.reaction, nextOffset, skipReadParticipants, skipReactionsList);
+          nextOffset = result.nextOffset!;
 
           await Promise.all(result.combined.map(async({peerId, reaction, date}) => {
             const dialogElement = appDialogsManager.addDialogNew({
@@ -223,8 +223,8 @@ export default class PopupReactedList extends PopupElement {
 
             await processDialogElementForReaction({
               dialogElement,
-              date,
-              isMine: message.pFlags.out,
+              date: date!,
+              isMine: message.pFlags.out!,
               middleware,
               peerId,
               reaction
@@ -256,7 +256,7 @@ export default class PopupReactedList extends PopupElement {
       reaction.setIsChosen(true);
 
       const loader = loaders.get(tabContent);
-      loader.load();
+      loader!.load();
     }, undefined, undefined, undefined, this.listenerSetter);
 
     // selectTab(hasAllReactions && hasReadParticipants ? 1 : 0, false);

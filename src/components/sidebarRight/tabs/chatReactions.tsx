@@ -24,10 +24,10 @@ const ChatReactionsTab: Component = () => {
   onMount(() => {
     promiseCollector.collect((async() => {
       const [availableReactions, chatFull] = await Promise.all([
-        tab.managers.appReactionsManager.getActiveAvailableReactions(),
-        tab.managers.appProfileManager.getChatFull(chatId)
+        tab.managers.appReactionsManager!.getActiveAvailableReactions(),
+        tab.managers.appProfileManager!.getChatFull(chatId)
       ]);
-      const isBroadcast = await tab.managers.appChatsManager.isBroadcast(chatId);
+      const isBroadcast = await tab.managers.appChatsManager!.isBroadcast(chatId);
 
       let _chatReactions = chatFull.available_reactions ?? {_: 'chatReactionsNone'};
       let chatReactions = _chatReactions;
@@ -186,7 +186,7 @@ const ChatReactionsTab: Component = () => {
           }
         }
 
-        tab.managers.appChatsManager.setChatAvailableReactions(chatId, chatReactions);
+        tab.managers.appChatsManager!.setChatAvailableReactions(chatId, chatReactions);
         _chatReactions = chatReactions;
       };
 

@@ -52,11 +52,11 @@ export default function showReportAdPopup(
     const [activeSection, setActiveSection] = createSignal<RenderedSection>();
 
     function renderSection(result: ChooseOrComment, prevText?: string): RenderedSection {
-      const [option, setOption] = createSignal<SponsoredMessageReportOption | MessageReportOption>(undefined, {equals: false});
+      const [option, setOption] = createSignal<SponsoredMessageReportOption | MessageReportOption>(undefined!, {equals: false});
       const [data] = createResource(() => option()?.option, (option) => report(option));
 
       const onReport = (hasReported: boolean) => {
-        context.hide();
+        context!.hide();
         onAdHide?.();
         toastNew({langPackKey: type === 'ad' ? (hasReported ? 'Ads.Reported' : 'AdHidden') : 'Reported2'});
       };
@@ -83,14 +83,14 @@ export default function showReportAdPopup(
             rendered
           ]);
         });
-        setOption(); // reset for another click
+        setOption(undefined!); // reset for another click
       });
 
       const [transition, setTransition] = createSignal(false);
 
       let timeout: number;
       const onTransition = (e: TransitionEvent) => {
-        if(e.target !== container) {
+        if(e.target !== container!) {
           return;
         }
 
@@ -125,7 +125,7 @@ export default function showReportAdPopup(
           required: !result.pFlags.optional
         });
 
-        [maxHeight, setMaxHeight] = createSignal<number>();
+        [maxHeight!, setMaxHeight!] = createSignal(undefined as unknown as number);
       } else {
         maxHeight = () => 48 * result.options.length;
       }
@@ -134,13 +134,13 @@ export default function showReportAdPopup(
       const activeHeight = createMemo(() => {
         const section = activeSection();
         const height = section?.maxHeight();
-        return height && section.isComment && !isComment ? height - 64 : height;
+        return height && section!.isComment && !isComment ? height - 64 : height;
       });
 
       const inner = isComment ? (
         <>
-          {stickerDiv}
-          {inputField.container}
+          {stickerDiv!}
+          {inputField!.container}
         </>
       ) : (
         <For each={result.options}>
@@ -157,7 +157,7 @@ export default function showReportAdPopup(
 
       (
         <Section
-          ref={container}
+          ref={container!}
           name={'title' in result ? wrapEmojiText(result.title) : undefined}
           caption={type === 'ad' ? 'ReportAdLearnMore' : (isComment ? 'ReportInfo' : undefined)}
           captionRef={(ref) => caption = ref}
@@ -173,14 +173,14 @@ export default function showReportAdPopup(
         </Section>
       );
 
-      transitions.set(container, transition);
-      onCleanup(() => transitions.delete(container));
+      transitions.set(container!, transition);
+      onCleanup(() => transitions.delete(container!));
 
       if(isComment) {
         const [disabled, setDisabled] = createSignal(false);
         (
           <Button
-            ref={sendButton}
+            ref={sendButton!}
             disabled={disabled()}
             class="btn-primary btn-color-primary popup-report-ad-send-button"
             text="Report2Send"
@@ -204,14 +204,14 @@ export default function showReportAdPopup(
           setMaxHeight((inputField.value ? inputField.container.offsetHeight : 54) + 142 + 147);
         };
 
-        inputField.input.addEventListener('input', onChange);
+        inputField!.input.addEventListener('input', onChange);
         onChange();
 
-        caption.classList.add('popup-report-ad-comment-caption')
-        caption.after(sendButton);
+        caption!.classList.add('popup-report-ad-comment-caption')
+        caption!.after(sendButton!);
       }
 
-      return {container, transition, maxHeight, prevText, readyPromise, isComment};
+      return {container: container!, transition, maxHeight, prevText: prevText!, readyPromise, isComment};
     }
 
     setSections([
@@ -229,7 +229,7 @@ export default function showReportAdPopup(
 
     let container: HTMLDivElement;
     const body = (
-      <div ref={container} class="popup-report-ad-tabs tabs-container">
+      <div ref={container!} class="popup-report-ad-tabs tabs-container">
         <TransitionGroup transitions={transitions}>
           {sections().map(({container}) => container)}
         </TransitionGroup>
@@ -237,7 +237,7 @@ export default function showReportAdPopup(
     );
 
     const transition = TransitionSlider({
-      content: container,
+      content: container!,
       type: 'tabs',
       transitionTime: 150,
       animateFirst: false,
@@ -246,12 +246,12 @@ export default function showReportAdPopup(
       }
     });
 
-    const prevText = createMemo<string>((prev) => activeSection()?.prevText ?? prev);
+    const prevText = createMemo<string>((prev) => (activeSection()?.prevText ?? prev)!);
 
     const titleKey: LangPackKey = type === 'ad' ? 'ReportAd' : 'ReportChat';
     let titleRef: HTMLDivElement;
     const title = (
-      <div ref={titleRef} class="transition slide-fade">
+      <div ref={titleRef!} class="transition slide-fade">
         <div class="transition-item">{i18n(titleKey)}</div>
         <div class="transition-item">
           <div class="popup-report-ad-header-rows">
@@ -263,7 +263,7 @@ export default function showReportAdPopup(
     );
 
     const headerTransition = TransitionSlider({
-      content: titleRef,
+      content: titleRef!,
       type: 'slide-fade',
       transitionTime: 400,
       isHeavy: false
@@ -308,7 +308,7 @@ export function showAdReport(
 ) {
   showReportAdPopup(
     'ad',
-    (option) => rootScope.managers.appMessagesManager.reportSponsoredMessage(sponsoredMessage.random_id, option),
+    (option) => rootScope.managers.appMessagesManager!.reportSponsoredMessage(sponsoredMessage.random_id, option),
     onAdHide
   );
 }
@@ -316,14 +316,14 @@ export function showAdReport(
 export function showMessageReport(peerId: PeerId, mids: number[]) {
   showReportAdPopup(
     'message',
-    (option, text) => rootScope.managers.appMessagesManager.reportMessages(peerId, mids, option, text)
+    (option, text) => rootScope.managers.appMessagesManager!.reportMessages(peerId, mids, option, text)
   );
 }
 
 export function showStoryReport(peerId: PeerId, ids: number[], onFinish?: () => void) {
   showReportAdPopup(
     'story',
-    (option, text) => rootScope.managers.appStoriesManager.report(peerId, ids, option, text),
+    (option, text) => rootScope.managers.appStoriesManager!.report(peerId, ids, option, text),
     onFinish
   );
 }

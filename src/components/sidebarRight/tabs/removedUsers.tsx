@@ -22,8 +22,8 @@ const RemovedUsers: Component = () => {
   let selector: AppSelectPeers;
 
   promiseCollector.collect((async() => {
-    const chat = await tab.managers.appChatsManager.getChat(chatId) as Chat.channel | Chat.chat;
-    const isBroadcast = await tab.managers.appChatsManager.isBroadcast(chatId);
+    const chat = await tab.managers.appChatsManager!.getChat(chatId) as Chat.channel | Chat.chat;
+    const isBroadcast = await tab.managers.appChatsManager!.isBroadcast(chatId);
     tab.container.classList.add('edit-peer-container', 'removed-users-container');
 
     const canChangePermissions = hasRights(chat, 'change_permissions');
@@ -36,8 +36,8 @@ const RemovedUsers: Component = () => {
         peerType: ['channelParticipants'],
         peerId: chatId.toPeerId(true),
         onSelect: (chosen) => {
-          const participant = popup.selector.participants.get(chosen[0].peerId);
-          tab.managers.appChatsManager.kickFromChat(chatId, participant);
+          const participant = popup.selector!.participants.get(chosen[0].peerId);
+          tab.managers.appChatsManager!.kickFromChat(chatId, participant!);
         },
         placeholder: 'SearchPlaceholder'
       });
@@ -49,11 +49,11 @@ const RemovedUsers: Component = () => {
       middleware: tab.middlewareHelper.get(),
       peerId: chatId.toPeerId(true),
       channelParticipantsFilter: (q) => ({_: 'channelParticipantsKicked', q}),
-      channelParticipantsUpdateFilter: (participant) => participant?._ === 'channelParticipantBanned' && participant.pFlags.left,
+      channelParticipantsUpdateFilter: (participant) => !!(participant?._ === 'channelParticipantBanned' && participant.pFlags.left),
       getSubtitleForElement: async(peerId) => {
         const participant = selector.participants.get(peerId);
         const kickedBy = (participant as ChannelParticipant.channelParticipantBanned).kicked_by.toPeerId(false);
-        return i18n('UserRemovedBy', [await wrapPeerTitle({peerId: kickedBy})]);
+        return i18n('UserRemovedBy', [await wrapPeerTitle({peerId: kickedBy})])!;
       }
     });
 
@@ -64,10 +64,10 @@ const RemovedUsers: Component = () => {
       caption: isBroadcast ? 'NoBlockedChannel2' : 'NoBlockedGroup2'
     });
 
-    section.container.firstElementChild.remove();
+    section.container.firstElementChild!.remove();
     const hr = selector.scrollable.container.querySelector('.gradient-delimiter');
     hr?.remove();
-    selector.scrollable.append(section.container, selector.scrollable.container.lastElementChild);
+    selector.scrollable.append(section.container, selector.scrollable.container.lastElementChild!);
 
     createParticipantContextMenu({
       listenTo: selector.scrollable.container,

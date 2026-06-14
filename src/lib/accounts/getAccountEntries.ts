@@ -22,19 +22,19 @@ export async function getAccountEntries(): Promise<AccountEntry[]> {
       return {
         accountNumber,
         peerId: rootScope.myId,
-        user: await rootScope.managers.appUsersManager.getSelf(),
+        user: await rootScope.managers.appUsersManager!.getSelf(),
         active
       };
     }
 
     const [accountData, user] = await Promise.all([
       AccountController.get(accountNumber),
-      createProxiedManagersForAccount(accountNumber).appUsersManager.getSelf()
+      createProxiedManagersForAccount(accountNumber).appUsersManager!.getSelf()
     ]);
 
     return {
       accountNumber,
-      peerId: accountData.userId?.toPeerId(),
+      peerId: accountData.userId?.toPeerId()!,
       user,
       active
     };

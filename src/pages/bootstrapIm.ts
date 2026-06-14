@@ -22,7 +22,7 @@ export async function bootstrapIm(): Promise<void> {
   if(bootstrapped) return;
   bootstrapped = true;
 
-  await rootScope.managers.appStateManager.pushToState('authState', {_: 'authStateSignedIn'});
+  await rootScope.managers.appStateManager!.pushToState('authState', {_: 'authStateSignedIn'});
 
   const pageChatsEl = document.getElementById('page-chats');
   if(pageChatsEl) pageChatsEl.style.display = '';

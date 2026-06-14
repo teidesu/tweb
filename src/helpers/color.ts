@@ -62,11 +62,11 @@ export function rgbaToHsla(r: number, g: number, b: number, a: number = 1): Colo
         h = (r - g) / d + 4;
         break;
     }
-    h /= 6;
+    h! /= 6;
   }
 
   return {
-    h: h * 360,
+    h: h! * 360,
     s: s * 100,
     l: l * 100,
     a
@@ -115,7 +115,7 @@ export function hslaToRgba(h: number, s: number, l: number, a: number): ColorRgb
 
 export function hslaStringToRgba(hsla: string) {
   const splitted = hsla.slice(5, -1).split(', ');
-  const alpha = +splitted.pop();
+  const alpha = +splitted.pop()!;
   const arr = splitted.map((val) => {
     if(val.endsWith('%')) {
       return +val.slice(0, -1);

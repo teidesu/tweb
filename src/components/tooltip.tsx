@@ -11,7 +11,7 @@ const tooltipOverlayClickHandler = new OverlayClickHandler(undefined, true);
 export default function showTooltip({
   element,
   class: className,
-  container = element.parentElement,
+  container = element.parentElement!,
   vertical,
   textElement,
   subtitleElement,
@@ -53,8 +53,10 @@ export default function showTooltip({
     const [getRect, setRect] = createSignal<DOMRect>();
 
     const getStyle = (): JSX.CSSProperties => {
+      const cr = containerRect as DOMRect;
+      const er = elementRect as DOMRect;
       const css: JSX.CSSProperties = {
-        'max-width': Math.min(containerRect.width - paddingX * 2, 320) + 'px'
+        'max-width': Math.min(cr.width - paddingX * 2, 320) + 'px'
       };
 
       const rect = getRect();
@@ -62,17 +64,17 @@ export default function showTooltip({
         return css;
       }
 
-      const minX = Math.min(containerRect.left + paddingX, containerRect.right);
-      const maxX = Math.max(containerRect.left, containerRect.right - Math.min(containerRect.width, rect.width) - paddingX);
+      const minX = Math.min(cr.left + paddingX, cr.right);
+      const maxX = Math.max(cr.left, cr.right - Math.min(cr.width, rect.width) - paddingX);
 
-      const centerX = elementRect.left + (elementRect.width - rect.width) / 2;
+      const centerX = er.left + (er.width - rect.width) / 2;
       const left = clamp(centerX, minX, maxX);
       const verticalOffset = 12;
-      if(vertical === 'top') css.top = (centerVertically ? elementRect.top + elementRect.height / 2 : elementRect.top) - rect.height - verticalOffset + offsetY + 'px';
-      else css.top = elementRect.bottom + verticalOffset + 'px';
+      if(vertical === 'top') css.top = (centerVertically ? er.top + er.height / 2 : er.top) - rect.height - verticalOffset + offsetY + 'px';
+      else css.top = er.bottom + verticalOffset + 'px';
       css.left = left + 'px';
 
-      const notchCenterX = elementRect.left + (elementRect.width - 19) / 2;
+      const notchCenterX = er.left + (er.width - 19) / 2;
       css['--notch-offset'] = notchCenterX - left + 'px';
 
       return css;
@@ -81,9 +83,9 @@ export default function showTooltip({
     let div: HTMLDivElement;
     const tooltip = (
       <div
-        ref={div}
+        ref={div!}
         class={classNames('tooltip', 'tooltip-' + vertical, icon && 'tooltip-with-icon', className, lighter && 'tooltip-lighter')}
-        style={!relative && getStyle()}
+        style={((!relative && getStyle())! as string | JSX.CSSProperties | undefined)}
       >
         <div class="tooltip-part tooltip-background"></div>
         <span class="tooltip-part tooltip-notch"></span>
@@ -105,10 +107,10 @@ export default function showTooltip({
     </Portal>
 
     onMount(() => {
-      !relative && setRect(div.getBoundingClientRect());
-      div.classList.add('mounted');
+      !relative && setRect(div!.getBoundingClientRect());
+      div!.classList.add('mounted');
       SetTransition({
-        element: div,
+        element: div!,
         className: 'is-visible',
         duration: 200,
         useRafs: 2,
@@ -125,7 +127,7 @@ export default function showTooltip({
       closed = true;
       clearTimeout(timeout);
       SetTransition({
-        element: div,
+        element: div!,
         className: 'is-visible',
         duration: 200,
         forwards: false,
@@ -153,5 +155,5 @@ export default function showTooltip({
     });
   });
 
-  return {close};
+  return {close: close!};
 }

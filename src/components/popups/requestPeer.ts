@@ -55,7 +55,7 @@ export default async function selectRequestPeers({
   } else {
     let commonChatIds: ChatId[];
     if(isRequestingGroup) {
-      const messagesChats = await rootScope.managers.appUsersManager.getCommonChats(requestingPeerId, 100);
+      const messagesChats = await rootScope.managers.appUsersManager!.getCommonChats(requestingPeerId, 100);
       commonChatIds = messagesChats.chats.map((chat) => chat.id);
     }
 
@@ -111,7 +111,7 @@ export default async function selectRequestPeers({
           i18n(
             isRequestingUser ? 'RequestPeer.MultipleLimit.Users' : (isRequestingChannel ? 'RequestPeer.MultipleLimit.Channels' : 'RequestPeer.MultipleLimit.Groups'),
             [button.max_quantity]
-          )
+          )!
         ]
       });
     },

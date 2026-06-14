@@ -52,7 +52,7 @@ export const PollSettingsSectionContent = () => {
     withLinebreaks: true,
     onRawInput: () => {
       const {value, entities} = getRichValueWithCaret(explanationInput.input);
-      context.setStore({
+      context!.setStore({
         explanation: value,
         explanationEntities: entities
       });
@@ -69,38 +69,38 @@ export const PollSettingsSectionContent = () => {
   };
 
   const handleSettingsFlag = <T extends BooleanSettingKey>(flag: T) => () => {
-    context.setStore(flag, prev => !prev);
+    context!.setStore(flag!, prev => !prev);
   };
 
   usePollDurationMenu({
     open: isDurationMenuOpen,
-    container: pollDurationRowElement,
+    container: (pollDurationRowElement! as Accessor<HTMLElement>),
     onOptionClick: (duration) => {
-      context.setStore('timeLimit', {type: 'duration', duration});
+      context!.setStore('timeLimit', {type: 'duration', duration});
     },
     onCustomTimestamp: (timestamp) => {
-      context.setStore('timeLimit', {type: 'timestamp', timestamp});
+      context!.setStore('timeLimit', {type: 'timestamp', timestamp});
     },
     onClose: () => setIsDurationMenuOpen(false)
   });
 
   return (
     <>
-      <Show when={!context.isBroadcast()}>
+      <Show when={!context!.isBroadcast()}>
         <SettingsOption
           title='NewPoll.ShowWhoVoted'
           subtitle='NewPoll.ShowWhoVotedSubtitle'
           mediaStyle={getGradientStyle(0)}
           icon='eye1'
-          checked={context.store.showWhoVoted}
+          checked={context!.store.showWhoVoted}
           onClick={() => {
-            if(context.store.showWhoVoted) {
-              context.setStore({
+            if(context!.store.showWhoVoted) {
+              context!.setStore({
                 allowAddingOptions: false,
                 showWhoVoted: false
               });
             } else {
-              context.setStore({
+              context!.setStore({
                 showWhoVoted: true
               });
             }
@@ -112,17 +112,17 @@ export const PollSettingsSectionContent = () => {
         subtitle='NewPoll.AllowMultipleAnswersSubtitle'
         mediaStyle={getGradientStyle(1)}
         icon='poll_multiple_answers'
-        checked={context.store.allowMultipleAnswers}
+        checked={context!.store.allowMultipleAnswers}
         onClick={handleSettingsFlag('allowMultipleAnswers')}
       />
-      <Show when={!context.isBroadcast()}>
+      <Show when={!context!.isBroadcast()}>
         <SettingsOption
           title='NewPoll.AllowAddingOptions'
           subtitle='NewPoll.AllowAddingOptionsSubtitle'
           mediaStyle={getGradientStyle(2)}
           icon='checklist_add'
-          checked={context.store.allowAddingOptions}
-          disabled={context.store.hasCorrectAnswer || !context.store.showWhoVoted}
+          checked={context!.store.allowAddingOptions}
+          disabled={context!.store.hasCorrectAnswer || !context!.store.showWhoVoted}
           onClick={handleSettingsFlag('allowAddingOptions')}
         />
       </Show>
@@ -131,7 +131,7 @@ export const PollSettingsSectionContent = () => {
         subtitle='NewPoll.AllowRevotingSubtitle'
         mediaStyle={getGradientStyle(3)}
         icon='flip'
-        checked={context.store.allowRevoting}
+        checked={context!.store.allowRevoting}
         onClick={handleSettingsFlag('allowRevoting')}
       />
       <SettingsOption
@@ -139,24 +139,24 @@ export const PollSettingsSectionContent = () => {
         subtitle='NewPoll.ShuffleOptionsSubtitle'
         mediaStyle={getGradientStyle(4)}
         icon='replace'
-        checked={context.store.shuffleOptions}
+        checked={context!.store.shuffleOptions}
         onClick={handleSettingsFlag('shuffleOptions')}
       />
       <SettingsOption
         title='NewPoll.SetCorrectAnswer'
-        subtitle={context.store.allowMultipleAnswers ? 'NewPoll.SetMultipleCorrectAnswerSubtitle' : 'NewPoll.SetCorrectAnswerSubtitle'}
+        subtitle={context!.store.allowMultipleAnswers ? 'NewPoll.SetMultipleCorrectAnswerSubtitle' : 'NewPoll.SetCorrectAnswerSubtitle'}
         mediaStyle={getGradientStyle(5)}
         icon='checklist_done'
-        checked={context.store.hasCorrectAnswer}
+        checked={context!.store.hasCorrectAnswer}
         onClick={() => {
-          if(!context.store.hasCorrectAnswer) {
-            context.setStore({
+          if(!context!.store.hasCorrectAnswer) {
+            context!.setStore({
               hasCorrectAnswer: true,
               allowAddingOptions: false,
               allowRevoting: false
             });
           } else {
-            context.setStore({
+            context!.setStore({
               hasCorrectAnswer: false
             });
           }
@@ -167,13 +167,13 @@ export const PollSettingsSectionContent = () => {
         subtitle='NewPoll.LimitDurationSubtitle'
         mediaStyle={getGradientStyle(6)}
         icon='timer'
-        checked={context.store.durationLimited}
+        checked={context!.store.durationLimited}
         onClick={handleSettingsFlag('durationLimited')}
       />
       <HeightTransition
         onAfterEnter={() => limitDurationExtraElement()?.scrollIntoView({behavior: 'smooth', block: 'center'})}
       >
-        <Show when={context.store.durationLimited}>
+        <Show when={context!.store.durationLimited}>
           <div ref={setLimitDurationExtraElement} style={{overflow: !isDurationMenuOpen() ? 'hidden' : undefined}}>
             <Space amount='0.25rem' />
             <div class={styles.smallerHrWrapper}>
@@ -186,10 +186,10 @@ export const PollSettingsSectionContent = () => {
                   <I18nTsx key='NewPoll.PollDuration' />
                 </Row.Title>
                 <Row.RightContent class={styles.pollDuration}>
-                  <Show when={context.store.timeLimit?.type === 'duration' && context.store.timeLimit.duration} keyed>
+                  <Show when={context!.store.timeLimit?.type === 'duration' && context!.store.timeLimit.duration} keyed>
                     {(duration) => wrapFormattedDuration(formatDuration(duration))}
                   </Show>
-                  <Show when={context.store.timeLimit?.type === 'timestamp' && context.store.timeLimit.timestamp} keyed>
+                  <Show when={context!.store.timeLimit?.type === 'timestamp' && context!.store.timeLimit.timestamp} keyed>
                     {(timestamp) => formatTimeInSpan(timestamp)}
                   </Show>
                 </Row.RightContent>
@@ -204,7 +204,7 @@ export const PollSettingsSectionContent = () => {
               </Row.Subtitle>
               <Row.RightContent>
                 <StaticSwitch
-                  checked={context.store.hideResults}
+                  checked={context!.store.hideResults}
                 />
               </Row.RightContent>
             </Row>
@@ -213,12 +213,12 @@ export const PollSettingsSectionContent = () => {
       </HeightTransition>
 
       <HeightTransition onAfterEnter={() => explanationElement()?.scrollIntoView({behavior: 'smooth', block: 'center'})}>
-        <Show when={context.store.hasCorrectAnswer}>
+        <Show when={context!.store.hasCorrectAnswer}>
           <div ref={setExplanationElement} style={{overflow: 'hidden'}}>
             <Space amount='1rem' />
 
             <SimpleFormField
-              value={context.store.explanation}
+              value={context!.store.explanation}
               class={classNames(styles.flexFull, styles.formField)}
               withEndButtonIcon
               withMinHeight
@@ -235,7 +235,7 @@ export const PollSettingsSectionContent = () => {
               <Show when={supportsMedia('photo') || supportsMedia('video')}>
                 <SimpleFormField.WithAutoLengthCounter
                   maxLength={maxExplanationLength()}
-                  first={!context.store.explanationAttachment}
+                  first={!context!.store.explanationAttachment}
                   last
                   withFixedIcon
                 >
@@ -247,9 +247,9 @@ export const PollSettingsSectionContent = () => {
                       ...(supportsMedia('gif') ? ['gif'] as const : []) // GIF is additional to photo
                     ]}
                     imgClass={styles.mediaAttachmentImage}
-                    attachedMedia={context.store.explanationAttachment}
+                    attachedMedia={context!.store.explanationAttachment}
                     onAttach={(value) => {
-                      context.setStore('explanationAttachment', value);
+                      context!.setStore('explanationAttachment', value);
                     }}
                   />
                 </SimpleFormField.WithAutoLengthCounter>

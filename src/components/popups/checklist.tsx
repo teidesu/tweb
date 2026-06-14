@@ -40,8 +40,8 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
 
   function Inner() {
     const context = useContext(PopupContext);
-    const middleware = untrack(() => context.middlewareHelper).get();
-    const managers = untrack(() => context.managers);
+    const middleware = untrack(() => context!.middlewareHelper).get();
+    const managers = untrack(() => context!.managers);
     const listenerSetter = new ListenerSetter();
 
     onCleanup(() => listenerSetter.removeAll());
@@ -64,7 +64,7 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
 
     let btnConfirmEl!: HTMLButtonElement;
 
-    managers.apiManager.getAppConfig().then((appConfig) => {
+    managers.apiManager!.getAppConfig().then((appConfig) => {
       if(!middleware()) return;
 
       const itemLengthMax = appConfig.todo_item_length_max ?? 255;
@@ -130,14 +130,14 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
       };
 
       handleConfirm = async() => {
-        let promise: Promise<any>;
+        let promise!: Promise<any>;
         if(appending) {
           const maxId = editMessage?.media.todo.list.reduce((max, item) => Math.max(max, item.id), 0) ?? 0;
           const newItems = items().filter((v) => !v.existing);
 
-          promise = managers.appMessagesManager.appendTodo({
+          promise = managers.appMessagesManager!.appendTodo({
             peerId: chat.peerId,
-            mid: editMessage.mid,
+            mid: editMessage!.mid!,
             tasks: newItems.map((v, idx) => {
               const richValue = getRichValueWithCaret(v.field.input, true, false);
               return {
@@ -185,7 +185,7 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
           };
 
           if(editMessage) {
-            promise = managers.appMessagesManager.editMessage(editMessage, editMessage.message, {
+            promise = managers.appMessagesManager!.editMessage(editMessage, editMessage.message, {
               newMedia: inputMedia
             });
           } else {
@@ -196,9 +196,9 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
 
             sendingParams.confirmedPaymentResult = preparedPaymentResult;
 
-            context.hide();
+            context!.hide();
 
-            managers.appMessagesManager.sendOther({
+            managers.appMessagesManager!.sendOther({
               ...sendingParams,
               inputMedia
             });
@@ -211,11 +211,11 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
           }
         }
 
-        if(promise) {
+        if(promise! as unknown) {
           setPending(true);
           promise.then(() => {
             setPending(false);
-            context.hide();
+            context!.hide();
           }).catch(() => {
             setPending(false);
             toastNew({langPackKey: 'Error.AnError'});
@@ -240,7 +240,7 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
       attachClickEvent(btnConfirmEl, () => {
         handleConfirm?.();
       }, {listenerSetter});
-      context.setBtnConfirmOnEnter(btnConfirmEl);
+      context!.setBtnConfirmOnEnter(btnConfirmEl);
     });
 
     return (
@@ -259,7 +259,7 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
         <PopupElement.Scrollable>
           <Show when={titleInput()}>
             <Section class={css.titleSection} noShadow noDelimiter>
-              {titleInput().container}
+              {titleInput()!.container}
             </Section>
             <Section name="Checklist">
               <For each={items()}>

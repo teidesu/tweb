@@ -9,7 +9,7 @@ import EventListenerBase from '@helpers/eventListenerBase';
 export default class OverlayClickHandler extends EventListenerBase<{
   toggle: (open: boolean) => void
 }> {
-  protected element: HTMLElement;
+  protected element: HTMLElement | undefined;
   protected overlay: HTMLElement;
   protected listenerOptions: AddEventListenerOptions;
 
@@ -28,7 +28,7 @@ export default class OverlayClickHandler extends EventListenerBase<{
 
     if(this.element) {
       const isRoot = this.element === document.body;
-      if(!isRoot && findUpAsChild(e.target as HTMLElement, this.element)) {
+      if(!isRoot && findUpAsChild(((e.target as HTMLElement)! as { parentElement: HTMLElement; }), this.element)) {
         return;
       }
     }
@@ -89,7 +89,7 @@ export default class OverlayClickHandler extends EventListenerBase<{
       if(isRoot) {
         this.element.append(this.overlay);
       } else {
-        this.element.parentElement.insertBefore(this.overlay, this.element);
+        this.element.parentElement!.insertBefore(this.overlay, this.element);
       }
     }
 

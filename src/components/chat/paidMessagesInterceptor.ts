@@ -133,7 +133,7 @@ export default class PaidMessagesInterceptor {
   public static async prepareStarsForPayment(args: {messageCount: number, peerId: PeerId}): Promise<PreparedPaymentResult> {
     const {peerId, messageCount} = args;
 
-    const starsAmount = await rootScope.managers.appPeersManager.getStarsAmount(peerId);
+    const starsAmount = await rootScope.managers.appPeersManager!.getStarsAmount(peerId);
 
     if(!starsAmount) return;
 
@@ -160,7 +160,7 @@ export default class PaidMessagesInterceptor {
 
     if(withDontShowAgain)
     {
-      const {dontShowPaidMessageWarningFor = []} = await rootScope.managers.appStateManager.getState();
+      const {dontShowPaidMessageWarningFor = []} = await rootScope.managers.appStateManager!.getState();
       const shouldShowWarning = !dontShowPaidMessageWarningFor.includes(peerId);
 
       if(!shouldShowWarning) return UserConfirmationResult.Skipped;
@@ -220,13 +220,13 @@ export default class PaidMessagesInterceptor {
     this.pendingUndoableMessage.softReset();
 
     this.pendingUndoableMessage.signal.addEventListener('abort', () => {
-      this.managers.appMessagesManager.cancelQueuedPaidMessages(peerId);
+      this.managers.appMessagesManager!.cancelQueuedPaidMessages(peerId);
       this.pendingUndoableMessage.resetGlobalReserved();
       this.pendingUndoableMessage.reset();
     });
 
     this.pendingUndoableMessage.timeoutId = self.setTimeout(() => {
-      this.managers.appMessagesManager.sendQueuedPaidMessages(peerId);
+      this.managers.appMessagesManager!.sendQueuedPaidMessages(peerId);
       this.pendingUndoableMessage.reset();
     }, SEND_PAID_WITH_STARS_DELAY);
   }

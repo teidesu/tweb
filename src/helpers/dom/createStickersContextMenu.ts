@@ -42,17 +42,17 @@ export default function createStickersContextMenu({
 }) {
   let target: HTMLElement, doc: MyDocument;
   const verifyFavoriteSticker = async(toAdd: boolean) => {
-    const favedStickers = await (isGif ? rootScope.managers.acknowledged.appGifsManager.getGifs() : rootScope.managers.acknowledged.appStickersManager.getFavedStickersStickers());
+    const favedStickers = await (isGif ? rootScope.managers.acknowledged!.appGifsManager!.getGifs() : rootScope.managers.acknowledged!.appStickersManager!.getFavedStickersStickers());
     if(!favedStickers.cached) {
       return false;
     }
 
-    const found = (await favedStickers.result).some((_doc) => _doc.id === doc.id);
+    const found = (await favedStickers.result)!.some((_doc) => _doc.id === doc.id);
     return toAdd ? !found : found;
   };
 
   const updateEmojiStatus = (emojiStatus: EmojiStatus) => {
-    rootScope.managers.appUsersManager.updateEmojiStatus(emojiStatus).then(() => {
+    rootScope.managers.appUsersManager!.updateEmojiStatus(emojiStatus).then(() => {
       toastNew({langPackKey: 'SetAsEmojiStatusInfo'});
     });
   };
@@ -65,14 +65,14 @@ export default function createStickersContextMenu({
     });
   };
 
-  let buttons: ButtonMenuItemOptionsVerifiable[] = isEmojis ? [{
+  let buttons: ButtonMenuItemOptionsVerifiable[] = ((isEmojis ? [{
     icon: 'copy',
     text: 'Copy',
     onClick: () => {
       if(doc) {
-        copyTextToClipboard(doc.stickerEmojiRaw, target.outerHTML);
+        copyTextToClipboard(doc.stickerEmojiRaw!, target.outerHTML);
       } else {
-        copyTextToClipboard(getEmojiFromElement(target).emoji);
+        copyTextToClipboard(getEmojiFromElement(target)!.emoji);
       }
     }
   }, {
@@ -97,34 +97,34 @@ export default function createStickersContextMenu({
   }, {
     icon: 'delete',
     text: 'DeleteFromRecent',
-    onClick: () => rootScope.managers.appEmojiManager.deleteRecentEmoji(getEmojiFromElement(target)),
+    onClick: () => rootScope.managers.appEmojiManager!.deleteRecentEmoji((getEmojiFromElement(((target as unknown as AppEmoji)! as unknown as HTMLElement))!)),
     verify: () => verifyRecent?.(target) ?? false
   }] : [{
     icon: 'stickers',
     text: 'Context.ViewStickerSet',
-    onClick: () => showStickersPopup(doc.stickerSetInput, false, chatInput),
+    onClick: () => showStickersPopup(doc.stickerSetInput!, false, chatInput),
     verify: () => !isPack && !isGif
   }, {
     icon: isGif ? 'gifs' : 'favourites',
     text: isGif ? 'SaveToGIFs' : 'AddToFavorites',
-    onClick: () => isGif ? rootScope.managers.appGifsManager.saveGif(doc.id, false) : rootScope.managers.appStickersManager.faveSticker(doc.id, false),
+    onClick: () => isGif ? rootScope.managers.appGifsManager!.saveGif(doc.id, false) : rootScope.managers.appStickersManager!.faveSticker(doc.id, false),
     verify: () => verifyFavoriteSticker(true)
   }, {
     icon: isGif ? 'crossgif' : 'crossstar',
     text: isGif ? 'Message.Context.RemoveGif' : 'DeleteFromFavorites',
-    onClick: () => isGif ? rootScope.managers.appGifsManager.saveGif(doc.id, true) : rootScope.managers.appStickersManager.faveSticker(doc.id, true),
+    onClick: () => isGif ? rootScope.managers.appGifsManager!.saveGif(doc.id, true) : rootScope.managers.appStickersManager!.faveSticker(doc.id, true),
     verify: () => verifyFavoriteSticker(false)
   }, {
     icon: 'delete',
     text: 'DeleteFromRecent',
-    onClick: () => rootScope.managers.appStickersManager.saveRecentSticker(doc.id, true),
+    onClick: () => rootScope.managers.appStickersManager!.saveRecentSticker(doc.id, true),
     verify: () => verifyRecent?.(target) ?? false
   }, {
     icon: 'edit',
     text: 'Chat.Send.WithCaption',
     onClick: () => {
       onSend?.();
-      PopupElement.createPopup(PopupNewMedia, chatInput.chat, [], 'media', false, doc);
+      PopupElement.createPopup(PopupNewMedia, chatInput!.chat, [], 'media', false, doc);
     },
     verify: () => !!(isGif && chatInput && chatInput.chat.peerId)
   }, {
@@ -132,7 +132,7 @@ export default function createStickersContextMenu({
     text: 'Chat.Send.WithoutSound',
     onClick: () => {
       onSend?.();
-      return chatInput.emoticonsDropdown.sendDocId({
+      return chatInput!.emoticonsDropdown.sendDocId({
         document: doc.id,
         clearDraft: false,
         silent: true,
@@ -143,9 +143,9 @@ export default function createStickersContextMenu({
   }, {
     icon: 'schedule',
     text: 'Chat.Send.ScheduledMessage',
-    onClick: () => chatInput.scheduleSending(() => chatInput.sendMessageWithDocument({document: doc, target})),
+    onClick: () => chatInput!.scheduleSending(() => chatInput!.sendMessageWithDocument({document: doc, target})),
     verify: () => chatInput && !!chatInput.chat.peerId && !chatInput.chat.starsAmount
-  }];
+  }])! as ButtonMenuItemOptionsVerifiable[]);
 
   if(canHaveEmojiTimer) buttons = [{
     text: 'SetEmojiStatusUntil1Hour',
@@ -178,15 +178,15 @@ export default function createStickersContextMenu({
           target = findUpClassName(target, 'emoji') || findUpClassName(target, 'custom-emoji');
         }
       } else if(isGif) {
-        target = findUpClassName(e.target, 'gif');
+        target = findUpClassName(e.target!, 'gif');
       } else {
-        target = findUpClassName(e.target, 'media-sticker-wrapper');
+        target = findUpClassName(e.target!, 'media-sticker-wrapper');
       }
 
       return target;
     },
     onOpen: async() => {
-      doc = await rootScope.managers.appDocsManager.getDoc(target.dataset.docId);
+      doc = await rootScope.managers.appDocsManager!.getDoc(target.dataset.docId!);
       return onOpen?.();
     },
     onClose,

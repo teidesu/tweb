@@ -26,14 +26,14 @@ const MyStories: Component = () => {
   let stickerContainer!: HTMLDivElement;
   let placeholder: HTMLDivElement;
   let storiesContainer!: HTMLDivElement;
-  let storiesActions: StoriesContextActions;
-  let selection: StoriesSelection;
+  let storiesActions: StoriesContextActions | undefined;
+  let selection: StoriesSelection | undefined;
   let setAlbum: (albumId: number | undefined, skipAnimation?: boolean) => void;
   let state: StoriesContextState;
 
   const showPlaceholder = !(isArchive && !chatId);
   const [archiveCaption, setArchiveCaption] = createSignal<LangPackKey>(
-    isArchive && !chatId ? 'ProfileStoriesArchiveHint' : undefined
+    (isArchive && !chatId ? 'ProfileStoriesArchiveHint' : undefined)!
   );
 
   const openArchive = () => {
@@ -63,7 +63,7 @@ const MyStories: Component = () => {
         listenerSetter: tab.listenerSetter,
         withSelection: true,
         onCountChange: (length) => {
-          if(placeholder) {
+          if(placeholder!) {
             placeholder.classList.toggle('hide', length > 0);
           }
         },
@@ -73,7 +73,7 @@ const MyStories: Component = () => {
       });
 
       storiesActions = actions;
-      selection = selection_;
+      selection = selection_!;
       setAlbum = setAlbum_;
       (tab as any).setAlbum = setAlbum_;
       state = state_;
@@ -81,7 +81,7 @@ const MyStories: Component = () => {
     });
 
     tab.scrollable.onScrolledBottom = () => {
-      storiesActions.load();
+      storiesActions!.load();
     };
 
     const menuBtn = ButtonMenuToggle({
@@ -100,14 +100,14 @@ const MyStories: Component = () => {
           icon: 'select',
           text: 'Message.Context.Select',
           onClick: () => {
-            selection.toggleSelection(true, true);
+            selection!.toggleSelection(true, true);
           },
           verify: () => !!(selection && !selection.isSelecting)
         }, {
           icon: 'select',
           text: 'Message.Context.Selection.Clear',
           onClick: () => {
-            selection.cancelSelection();
+            selection!.cancelSelection();
           },
           verify: () => !!selection?.isSelecting
         }
@@ -129,11 +129,11 @@ const MyStories: Component = () => {
 
         return lottieLoader.waitForFirstFrame(player);
       }),
-      chatId && tab.managers.appChatsManager.isBroadcast(chatId).then((isBroadcast) => {
+      chatId && tab.managers.appChatsManager!.isBroadcast(chatId).then((isBroadcast) => {
         setArchiveCaption(isBroadcast ? 'ProfileStoriesArchiveChannelHint' : 'ProfileStoriesArchiveGroupHint');
       }),
 
-      loadPromise
+      loadPromise!
     ]));
   });
 
@@ -144,7 +144,7 @@ const MyStories: Component = () => {
       </Show>
       <div ref={storiesContainer} class="search-super" />
       <Show when={showPlaceholder}>
-        <div ref={placeholder} class="my-stories-placeholder hide">
+        <div ref={placeholder!} class="my-stories-placeholder hide">
           <div ref={stickerContainer} class="sticker-container" />
           <div class="caption">{i18n('MyStories.Subtitle')}</div>
           <Button

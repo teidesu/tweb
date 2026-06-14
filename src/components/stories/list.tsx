@@ -43,13 +43,13 @@ function _StoriesList(props: {
   onExpand?: () => void
 }) {
   type PeerStories = typeof stories['peers'][0];
-  const [stories, actions] = useStories();
+  const [stories, actions] = useStories()!;
   const [viewerPeer, setViewerPeer] = createSignal<PeerStories>();
   const [containerRect, setContainerRect] = createSignal<DOMRect>();
   const [hasTransition, setHasTransition] = createSignal(true); // to make it smooth when resizing the left sidebar
 
   const maxStackedItems = createMemo(() =>
-    containerRect()?.width > SMALL_SIDEBAR_WIDTH ? STACKED_LENGTH : 1
+    containerRect()?.width! > SMALL_SIDEBAR_WIDTH ? STACKED_LENGTH : 1
   );
 
   const peers = createMemo(() => {
@@ -61,7 +61,7 @@ function _StoriesList(props: {
   });
 
   let toRect: DOMRect, fromRect: DOMRect;
-  const myIndex = createMemo(() => peers().findIndex((peer) => peer.peerId === rootScope.myId));
+  const myIndex = createMemo(() => peers().findIndex((peer: PeerStories) => peer.peerId === rootScope.myId));
   const spaceEvenly = createMemo(() => {
     const rect = containerRect();
     if(rect && rect.width > (peers().length * ITEM_WIDTH)) {
@@ -93,7 +93,7 @@ function _StoriesList(props: {
       return item?.querySelector('.avatar');
     });
 
-    createStoriesViewer({onExit, target});
+    createStoriesViewer({onExit, target: (target! as Accessor<Element> | undefined)});
   });
 
   const onItemClick = (peer: PeerStories, e?: MouseEvent) => {
@@ -133,8 +133,8 @@ function _StoriesList(props: {
       const isOut = isItemOut(index, _indexes);
       const fromLeft = fromRect.left + containerPadding;
       const left = fromLeft + index * ITEM_WIDTH + marginEvenly * (index + 1);
-      const realLeft = rect.left + containerPadding + index * ITEM_WIDTH + marginEvenly * (index + 1);
-      if(realLeft > rect.right) {
+      const realLeft = rect!.left + containerPadding + index * ITEM_WIDTH + marginEvenly * (index + 1);
+      if(realLeft > rect!.right) {
         return;
       }
 
@@ -192,7 +192,7 @@ function _StoriesList(props: {
         ref={(el) => (items.set(peer, el), itemsTarget.set(el, peer))}
         class={styles.ListItem}
         classList={{
-          [styles.isRead]: !isMyStory && peer.maxReadId && peer.maxReadId >= peer.stories[peer.stories.length - 1].id,
+          [styles.isRead]: !!(!isMyStory && peer.maxReadId && peer.maxReadId >= peer.stories[peer.stories.length - 1].id),
           [styles.isMasked]: (() => {
             const movement = calculateMovement();
             return movement && !movement.isOut && !movement.isLastIn;
@@ -224,9 +224,9 @@ function _StoriesList(props: {
     const value = progress();
 
     const scrollableX = !scrolling && getMenuScrollable();
-    if(scrollableX?.scrollLeft) {
+    if(scrollableX && (scrollableX as HTMLElement).scrollLeft) {
       scrolling = true;
-      fastSmoothScrollToStart(scrollableX, 'x').then(() => {
+      fastSmoothScrollToStart((scrollableX as HTMLElement), 'x').then(() => {
         scrolling = false;
       });
     }
@@ -256,7 +256,7 @@ function _StoriesList(props: {
     )
   );
 
-  const getMenuScrollable = () => container.firstElementChild as HTMLElement;
+  const getMenuScrollable = () => container!.firstElementChild as HTMLElement;
 
   // * lock horizontal scroll when folded
   createEffect(() => {
@@ -277,8 +277,8 @@ function _StoriesList(props: {
 
   const onResize = () => {
     toRect = props.foldInto.getBoundingClientRect();
-    fromRect = props.foldInto.parentElement.getBoundingClientRect();
-    setContainerRect(props.foldInto.parentElement.parentElement.getBoundingClientRect());
+    fromRect = props.foldInto.parentElement!.getBoundingClientRect();
+    setContainerRect(props.foldInto.parentElement!.parentElement!.getBoundingClientRect());
   };
   subscribeOn(mediaSizes)('resize', onResize);
   onResize();
@@ -304,7 +304,7 @@ function _StoriesList(props: {
 
   const {folded, unfold, fold, isTransition, progress, STATE_UNFOLDED} = useCollapsable({
     scrollable: props.getScrollable,
-    container: () => container,
+    container: () => container!,
     listenWheelOn: props.listenWheelOn,
     shouldIgnore: () => !peers().length,
     canUnfold: () => IS_TOUCH_SUPPORTED,
@@ -313,7 +313,7 @@ function _StoriesList(props: {
 
   const r = (
     <div
-      ref={container}
+      ref={container!}
       class={styles.ListContainer}
       style={calculateMovement()}
     >
@@ -332,7 +332,7 @@ function _StoriesList(props: {
 
   onMount(() => {
     const toggleMute = async(mute: boolean) => {
-      rootScope.managers.appNotificationsManager.toggleStoriesMute(peer.peerId, mute);
+      rootScope.managers.appNotificationsManager!.toggleStoriesMute(peer.peerId, mute);
 
       toastNew({
         langPackKey: mute ? 'NotificationsStoryMutedHint' : 'NotificationsStoryUnmutedHint',
@@ -341,7 +341,7 @@ function _StoriesList(props: {
     };
 
     const toggleHidden = async(hidden: boolean) => {
-      rootScope.managers.appStoriesManager.toggleStoriesHidden(peer.peerId, hidden);
+      rootScope.managers.appStoriesManager!.toggleStoriesHidden(peer.peerId, hidden);
 
       toastNew({
         langPackKey: hidden ? 'StoriesMovedToContacts' : 'StoriesMovedToDialogs',
@@ -389,13 +389,13 @@ function _StoriesList(props: {
         icon: 'mute',
         text: 'NotificationsStoryMute2',
         onClick: () => toggleMute(true),
-        verify: () => !isSelf && rootScope.managers.appNotificationsManager.isPeerStoriesMuted(peer.peerId).then((isMuted) => !isMuted),
+        verify: () => !isSelf && rootScope.managers.appNotificationsManager!.isPeerStoriesMuted(peer.peerId).then((isMuted) => !isMuted),
         multiline: true
       }, {
         icon: 'unmute',
         text: 'NotificationsStoryUnmute2',
         onClick: () => toggleMute(false),
-        verify: () => !isSelf && rootScope.managers.appNotificationsManager.isPeerStoriesMuted(peer.peerId),
+        verify: () => !isSelf && rootScope.managers.appNotificationsManager!.isPeerStoriesMuted(peer.peerId),
         multiline: true
       }, {
         icon: 'eyecross_outline',
@@ -404,7 +404,7 @@ function _StoriesList(props: {
           const {peerId} = peer;
           showStoriesStealthModePopup({
             onActivate: () => {
-              const peer = peers().find((p) => p.peerId === peerId);
+              const peer = peers().find((p: PeerStories) => p.peerId === peerId);
               if(!peer) {
                 return;
               }
@@ -424,17 +424,17 @@ function _StoriesList(props: {
         onClick: () => toggleHidden(false),
         verify: () => !isSelf && !!props.archive
       }],
-      listenTo: container,
+      listenTo: container!,
       middleware: createMiddleware().get(),
       findElement: (e) => {
-        return !folded() && findUpClassName(e.target, styles.ListItem);
+        return (!folded() && findUpClassName(e.target!, styles.ListItem)) as HTMLElement;
       },
       onOpen: (e, target) => {
-        peer = itemsTarget.get(target as HTMLDivElement);
+        peer = itemsTarget.get(target as HTMLDivElement)!;
         isSelf = peer.peerId === rootScope.myId;
       },
       onClose: () => {
-        peer = undefined;
+        peer = undefined as any;
       }
     });
   });

@@ -1,7 +1,7 @@
 import {useMediaEditorContext} from '@components/mediaEditor/context';
 
 export function useCropOffset() {
-  const {editorState} = useMediaEditorContext();
+  const {editorState} = useMediaEditorContext()!;
 
   return () => {
     const {canvasSize} = editorState;

@@ -96,9 +96,9 @@ export class ScrollableBase {
   public lastScrollPosition: number = 0;
   public lastScrollDirection: number = 0;
 
-  public onAdditionalScroll: () => void;
-  public onScrolledTop: () => void;
-  public onScrolledBottom: () => void;
+  public onAdditionalScroll: (() => void) | undefined;
+  public onScrolledTop: (() => void) | undefined;
+  public onScrolledBottom: (() => void) | undefined | null;
 
   public isHeavyAnimationInProgress = false;
   protected needCheckAfterAnimation = false;
@@ -121,11 +121,11 @@ export class ScrollableBase {
   // input helper surplus) — the track must not extend behind the overlay.
   public getThumbTrackInsetEnd?: () => number;
 
-  protected removeHeavyAnimationListener: () => void;
+  protected removeHeavyAnimationListener: (() => void) | undefined;
   protected addedScrollListener: boolean;
 
-  protected resizeObserver: ResizeObserver;
-  protected mutationObserver: MutationObserver;
+  protected resizeObserver: ResizeObserver | undefined;
+  protected mutationObserver: MutationObserver | undefined;
 
   constructor(
     public el?: HTMLElement,
@@ -202,9 +202,9 @@ export class ScrollableBase {
     }
 
     window.removeEventListener('resize', this.invalidateMeasurements);
-    this.resizeObserver.disconnect();
+    this.resizeObserver!.disconnect();
     this.resizeObserver = undefined;
-    this.mutationObserver.disconnect();
+    this.mutationObserver!.disconnect();
     this.mutationObserver = undefined;
     if(this.thumb) {
       this.thumb.removeEventListener('mousedown', this.onMouseDown);
@@ -577,7 +577,7 @@ export default class Scrollable extends ScrollableBase {
   }
 
   public setVirtualContainer(el?: HTMLElement) {
-    this.splitUp = el;
+    this.splitUp = el!;
     this.log('setVirtualContainer:', el, this);
   }
 

@@ -32,7 +32,7 @@ export default function parseMarkdown(raw: string, currentEntities: MessageEntit
 
     const conflictingEntity = findConflictingEntity(
       currentEntities,
-      adjustOffset || adjustLength ? {...entity/* , offset: entity.offset + adjustOffset */, length: entity.length + adjustLength + adjustOffset} : entity,
+      adjustOffset || adjustLength ? {...entity/* , offset: entity.offset + adjustOffset */, length: entity.length! + adjustLength + adjustOffset} : entity,
       true
     );
 
@@ -43,9 +43,9 @@ export default function parseMarkdown(raw: string, currentEntities: MessageEntit
 
   const newTextParts: string[] = [];
   let rawOffset = 0, match: RegExpMatchArray;
-  while(match = raw.match(MARKDOWN_REG_EXP)) {
+  while(match = raw.match(MARKDOWN_REG_EXP)!) {
     const matchWhitespace = match[1] || '';
-    const matchIndexAfterWhitespace = match.index + matchWhitespace.length;
+    const matchIndexAfterWhitespace = match.index! + matchWhitespace.length;
     const matchValueAfterWhitespace = match[0].slice(matchWhitespace.length);
     const matchIndex = rawOffset + matchIndexAfterWhitespace;
     const possibleNextRawOffset = matchIndex + matchValueAfterWhitespace.length;
@@ -165,8 +165,8 @@ export default function parseMarkdown(raw: string, currentEntities: MessageEntit
     const rawOffsetDiff = rawOffset - possibleNextRawOffset;
     if(rawOffsetDiff) {
       currentEntities.forEach((entity) => {
-        if(entity.offset >= matchIndex) {
-          entity.offset += rawOffsetDiff;
+        if(entity.offset! >= matchIndex) {
+          entity.offset! += rawOffsetDiff;
         }
       });
     }
@@ -195,7 +195,7 @@ export default function parseMarkdown(raw: string, currentEntities: MessageEntit
     let diff = length - newText.length;
     if(diff) {
       currentEntities.forEach((entity) => {
-        entity.offset = Math.max(0, entity.offset - diff);
+        entity.offset = Math.max(0, entity.offset! - diff);
       });
     }
 
@@ -205,8 +205,8 @@ export default function parseMarkdown(raw: string, currentEntities: MessageEntit
     length = newText.length;
     if(diff) {
       currentEntities.forEach((entity) => {
-        if((entity.offset + entity.length) > length) {
-          entity.length = length - entity.offset;
+        if((entity.offset! + entity.length!) > length) {
+          entity.length = length - entity.offset!;
         }
       });
     }

@@ -38,7 +38,7 @@ export default class ChatSearch {
 
   private foundCount = 0;
   private selectedIndex = 0;
-  private setPeerPromise: Promise<any>;
+  private setPeerPromise: Promise<any> | null;
   private listenerSetter: ListenerSetter;
   private navigationItem: NavigationItem;
 
@@ -83,7 +83,7 @@ export default class ChatSearch {
         const value = this.inputSearch.value;
         this.foundCountEl.classList.toggle('empty', !value);
         if(!this.foundCount) {
-          replaceContent(this.foundCountEl, value ? i18n('NoResult') : '');
+          replaceContent(this.foundCountEl, (value ? i18n('NoResult') : '')!);
           this.results.classList.remove('active');
           this.chat.bubbles.container.classList.remove('search-results-active');
           this.chat.bubbles.updateGoDownVisibility();
@@ -127,13 +127,13 @@ export default class ChatSearch {
 
     this.footer.append(this.foundCountEl, this.dateBtn, this.controls);
 
-    this.topbar.container.parentElement.insertBefore(this.footer, chat.input.chatInput);
+    this.topbar.container.parentElement!.insertBefore(this.footer, chat.input.chatInput);
 
     // Append container
     this.element.append(this.backBtn, this.inputSearch.container);
 
     this.topbar.container.classList.add('hide-pinned');
-    this.topbar.container.parentElement.append(this.element);
+    this.topbar.container.parentElement!.append(this.element);
 
     this.inputSearch.input.focus();
 
@@ -179,8 +179,8 @@ export default class ChatSearch {
   private selectResult(elem: HTMLElement) {
     if(this.setPeerPromise) return this.setPeerPromise;
 
-    const peerId = elem.dataset.peerId.toPeerId();
-    const lastMsgId = +elem.dataset.mid || undefined;
+    const peerId = elem.dataset.peerId!.toPeerId();
+    const lastMsgId = +elem.dataset.mid! || undefined;
 
     const index = whichChild(elem);
 
@@ -203,7 +203,7 @@ export default class ChatSearch {
     const res = this.chat.setPeer({peerId, lastMsgId});
     this.setPeerPromise = ((res instanceof Promise ? res : Promise.resolve(res)) as Promise<any>).then(() => {
       this.selectedIndex = index;
-      replaceContent(this.foundCountEl, i18n('Of', [index + 1, this.foundCount]));
+      replaceContent(this.foundCountEl, i18n('Of', [index + 1, this.foundCount])!);
 
       const renderedCount = this.searchGroup.list.childElementCount;
       if(this.selectedIndex >= (renderedCount - 6)) {

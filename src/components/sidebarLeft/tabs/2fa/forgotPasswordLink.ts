@@ -22,7 +22,7 @@ export class ForgotPasswordLink {
   private forEmail: boolean;
   private allowReset: boolean;
 
-  private updateTimeout: number;
+  private updateTimeout: number | undefined;
 
   public container: HTMLDivElement;
 
@@ -44,7 +44,7 @@ export class ForgotPasswordLink {
   private handleCancel = () => {
     if(this.pending) return;
     this.pending = true;
-    this.managers.passwordManager.declinePasswordReset()
+    this.managers.passwordManager!.declinePasswordReset()
     .then(() => {
       this.state.pending_reset_date = undefined;
       this.update();
@@ -61,7 +61,7 @@ export class ForgotPasswordLink {
     const canReset = this.state.pending_reset_date && this.state.pending_reset_date < tsNow(true)
 
     if(this.state.pFlags.has_recovery && !this.forEmail && !canReset) {
-      this.managers.passwordManager.requestRecovery().then((res) => {
+      this.managers.passwordManager!.requestRecovery().then((res) => {
         this.tab.slider.createTab(AppTwoStepVerificationEmailConfirmationTab).open({
           email: wrapEmailPattern(res.email_pattern),
           length: 6,
@@ -87,7 +87,7 @@ export class ForgotPasswordLink {
         if(this.pending) return;
         this.pending = true;
 
-        this.managers.passwordManager.resetPassword()
+        this.managers.passwordManager!.resetPassword()
         .then((result) => {
           switch(result._) {
             case 'account.resetPasswordFailedWait':
@@ -134,7 +134,7 @@ export class ForgotPasswordLink {
         this.container.replaceChildren(i18n('ResetPassword.RequestPending', [
           wrapFormattedDuration(formatDuration(diff, 2)),
           anchorCallback(this.handleCancel)
-        ]))
+        ])!)
       }
 
       this.updateTimeout = ctx.setTimeout(() => {
@@ -147,7 +147,7 @@ export class ForgotPasswordLink {
         canReset ? 'ResetPassword.Action' :
         this.forEmail ? 'TroubleEmail' : 'ForgotPassword',
         [anchorCallback(this.handleReset)]
-      ));
+      )!);
     }
   }
 

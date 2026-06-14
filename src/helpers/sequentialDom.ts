@@ -58,8 +58,8 @@ class SequentialDom {
       this.scheduled = true;
 
       this.raf(() => {
-        this.promises.read && this.promises.read.resolve();
-        this.promises.write && this.promises.write.resolve();
+        this.promises.read && this.promises.read.resolve!();
+        this.promises.write && this.promises.write.resolve!();
 
         this.scheduled = false;
         this.promises = {};

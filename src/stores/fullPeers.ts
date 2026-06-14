@@ -11,7 +11,7 @@ const [state, setState] = createStore<{[peerId: PeerId]: PeerFull}>({});
 const expirations = new Map<PeerId, number>();
 
 const requestFullPeer = (peerId: PeerId, overwrite?: boolean) => {
-  rootScope.managers.appProfileManager.getProfileByPeerId(
+  rootScope.managers.appProfileManager!.getProfileByPeerId(
     peerId,
     overwrite
   ).then((fullPeer) => {

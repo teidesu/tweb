@@ -57,7 +57,7 @@ export async function selectTarget({
 }: SelectTargetArgs) {
   if(onClick) {
     const tabContent = content && nthChild(content, id) as HTMLDivElement;
-    const result1 = onClick(id, tabContent, animate, isUserClick);
+    const result1 = onClick(id, tabContent!, animate, isUserClick);
     const canChange = result1 instanceof Promise ? await result1 : result1;
     if(canChange === false) {
       return;
@@ -78,7 +78,7 @@ export async function selectTarget({
     if(!noOverflow && !isFirstAndAtStart) {
       fastSmoothScroll({
         container: containerEl,
-        element: target.parentElement.children[id] as HTMLElement,
+        element: target.parentElement!.children[id] as HTMLElement,
         position: 'center',
         forceDirection: animate ? undefined : FocusDirection.Static,
         forceDuration: transitionTime,
@@ -97,7 +97,7 @@ export async function selectTarget({
 
   const mutateCallback = animate ? fastRaf : (cb: () => void) => cb();
 
-  const prev = tabs.querySelector(tabs.firstElementChild.tagName.toLowerCase() + '.active') as HTMLElement;
+  const prev = tabs.querySelector(tabs.firstElementChild!.tagName.toLowerCase() + '.active') as HTMLElement;
   if(prev) {
     mutateCallback(() => {
       prev.classList.remove('active');
@@ -110,13 +110,13 @@ export async function selectTarget({
     const selector = '.menu-horizontal-div-item-background';
     mutateCallback(() => {
       const indicator = target.querySelector(selector) as HTMLElement;
-      const currentIndicator = target.parentElement.children[prevId]?.querySelector(selector) as HTMLElement;
+      const currentIndicator = target.parentElement!.children[prevId]?.querySelector(selector) as HTMLElement;
       if(!indicator || !currentIndicator) return;
 
       currentIndicator.classList.remove('animate');
       indicator.classList.remove('animate');
 
-      const shiftLeft = currentIndicator.parentElement.offsetLeft - indicator.parentElement.offsetLeft;
+      const shiftLeft = currentIndicator.parentElement!.offsetLeft - indicator.parentElement!.offsetLeft;
       const clientWidth = indicator.clientWidth;
       const scaleFactor = currentIndicator.clientWidth / clientWidth;
       indicator.style.transform = `translate3d(${shiftLeft}px, 0, 0)`;
@@ -200,7 +200,7 @@ export function horizontalMenu(
 
   attachClickEvent(tabs, (e) => {
     let target = e.target as HTMLElement;
-    target = findUpAsChild(target, tabs);
+    target = (findUpAsChild((target as { parentElement: HTMLElement; })!, tabs) as HTMLElement);
     if(!target) return false;
 
     let id: number;

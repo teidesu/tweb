@@ -7,7 +7,7 @@ export default class DownloadWriter implements StreamWriter {
     private serviceMessagePort: ServiceMessagePort<true>,
     private downloadId: string
   ) {
-    this.serviceMessagePort = appManagersManager.getServiceMessagePort();
+    this.serviceMessagePort = appManagersManager.getServiceMessagePort()!;
   }
 
   public async write(part: Uint8Array, offset?: number) {
@@ -18,6 +18,6 @@ export default class DownloadWriter implements StreamWriter {
   }
 
   public finalize(saveToStorage?: boolean): Promise<Blob> {
-    return this.serviceMessagePort.invoke('downloadFinalize', this.downloadId).then(() => undefined as Blob);
+    return this.serviceMessagePort.invoke('downloadFinalize', this.downloadId).then(() => undefined as unknown as Blob);
   }
 }

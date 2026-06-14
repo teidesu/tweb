@@ -39,20 +39,20 @@ export class MTTransportController extends EventListenerBase<{
     const dcConfigurator = this.dcConfigurator ??= new DcConfigurator();
     const timeout = 2000;
     const transports: {[k in TransportType]?: MTTransport} = this.transports = {
-      https: dcConfigurator.chooseServer(App.baseDcId, 'client', 'https', false),
-      websocket: dcConfigurator.chooseServer(App.baseDcId, 'client', 'websocket', false)
+      https: dcConfigurator.chooseServer(App.baseDcId, 'client', 'https', false)!,
+      websocket: dcConfigurator.chooseServer(App.baseDcId, 'client', 'websocket', false)!
     };
 
     const httpPromise = deferredPromise<boolean>();
     ((this.transports.https as HTTP)._send(new Uint8Array(), 'no-cors') as any as Promise<any>)
-    .then(() => httpPromise.resolve(true), () => httpPromise.resolve(false));
-    setTimeout(() => httpPromise.resolve(false), timeout);
+    .then(() => httpPromise.resolve!(true), () => httpPromise.resolve!(false));
+    setTimeout(() => httpPromise.resolve!(false), timeout);
 
     const websocketPromise = deferredPromise<boolean>();
     const socket = transports.websocket as TcpObfuscated;
     socket.setAutoReconnect(false);
-    socket.connection.addEventListener('close', () => websocketPromise.resolve(false), {once: true});
-    socket.connection.addEventListener('open', () => websocketPromise.resolve(true), {once: true});
+    socket.connection!.addEventListener('close', () => websocketPromise.resolve!(false), {once: true});
+    socket.connection!.addEventListener('open', () => websocketPromise.resolve!(true), {once: true});
     setTimeout(() => {
       if(websocketPromise.isFulfilled || websocketPromise.isRejected) {
         return;
@@ -62,19 +62,19 @@ export class MTTransportController extends EventListenerBase<{
         socket.connection.close();
       }
 
-      websocketPromise.resolve(false);
+      websocketPromise.resolve!(false);
     }, timeout);
 
     const [isHttpAvailable, isWebSocketAvailable] = await Promise.all([httpPromise, websocketPromise]);
 
     for(const transportType in transports) {
       const transport = transports[transportType as TransportType];
-      transport.destroy();
+      transport!.destroy();
     }
 
     const result = {
-      https: isHttpAvailable || this.opened.get('https') > 0,
-      websocket: isWebSocketAvailable || this.opened.get('websocket') > 0
+      https: isHttpAvailable || this.opened.get('https')! > 0,
+      websocket: isWebSocketAvailable || this.opened.get('websocket')! > 0
     };
 
     // result.websocket = false;

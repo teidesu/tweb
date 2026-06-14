@@ -54,10 +54,10 @@ export class AppAvatarsManager extends AppManager {
 
     if(size === 'photo_video' || size === 'photo_video_full') {
       const quality = size === 'photo_video_full' ? 'full' : 'preview';
-      const promise = saved[size] = this.loadAvatarVideo(peerId, photo, quality, size);
+      const promise = saved[size] = (this.loadAvatarVideo(peerId, photo, quality, size)! as string | Promise<string> | undefined);
       // Don't keep a failed (undefined) video load cached — let it retry next time
       // (e.g. once the full photo's video_sizes is available).
-      promise.then((url) => {
+      (promise as Promise<string>).then((url) => {
         if(!url && saved[size] === promise) {
           delete saved[size];
         }

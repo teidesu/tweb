@@ -32,9 +32,9 @@ export default function choosePhotoSize(
   if(pushDocumentSize && sizes && photo._ !== 'photo') {
     sizes = sizes.concat({
       _: 'photoSize',
-      w: photo.w,
-      h: photo.h,
-      size: photo.size,
+      w: photo.w!,
+      h: photo.h!,
+      size: photo.size!,
       type: THUMB_TYPE_FULL
     });
   }
@@ -46,7 +46,7 @@ export default function choosePhotoSize(
 
       bestPhotoSize = photoSize;
 
-      const size = calcImageInBox(photoSize.w, photoSize.h, boxWidth, boxHeight);
+      const size = calcImageInBox(photoSize.w!, photoSize.h!, boxWidth, boxHeight);
       if(size.width >= boxWidth || size.height >= boxHeight) {
         break;
       }

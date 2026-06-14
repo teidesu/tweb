@@ -28,11 +28,11 @@ export default class DropdownHover extends EventListenerBase<{
   protected inited: boolean;
   protected ignoreMouseOut: Set<IgnoreMouseOutType>;
   protected ignoreButtons: Set<HTMLElement>;
-  protected navigationItem: NavigationItem;
+  protected navigationItem: NavigationItem | undefined;
   protected ignoreOutClickClassName: string;
   protected suppressOutClick: boolean;
   protected timeouts: {[type in DropdownHoverTimeoutType]?: number};
-  protected detachClickEvent: () => void;
+  protected detachClickEvent: (() => void) | undefined;
 
   constructor(options: {
     element: DropdownHover['element'],
@@ -107,8 +107,8 @@ export default class DropdownHover extends EventListenerBase<{
   };
 
   protected isOutClickTarget(target: HTMLElement) {
-    return !findUpAsChild(target, this.element) &&
-      !Array.from(this.ignoreButtons).some((button) => findUpAsChild(target, button) || target === button) &&
+    return !findUpAsChild((target! as { parentElement: HTMLElement; }), this.element) &&
+      !Array.from(this.ignoreButtons).some((button) => findUpAsChild((target! as { parentElement: HTMLElement; }), button) || target === button) &&
       this.ignoreMouseOut.size <= 1 &&
       (!this.ignoreOutClickClassName || !findUpClassName(target, this.ignoreOutClickClassName));
   }
@@ -144,7 +144,7 @@ export default class DropdownHover extends EventListenerBase<{
     }
 
     const toElement = (e as any).toElement as HTMLElement;
-    if(toElement && findUpAsChild(toElement, this.element)) {
+    if(toElement && findUpAsChild((toElement! as { parentElement: HTMLElement; }), this.element)) {
       return;
     }
 
@@ -193,7 +193,7 @@ export default class DropdownHover extends EventListenerBase<{
     if(this.init) {
       if(willBeActive) {
         this.init();
-        this.init = null;
+        (this as {init: Function | null}).init = null;
       } else {
         return;
       }
@@ -244,7 +244,7 @@ export default class DropdownHover extends EventListenerBase<{
 
       this.element.classList.remove('active');
 
-      appNavigationController.removeItem(this.navigationItem);
+      appNavigationController.removeItem((this.navigationItem as NavigationItem));
       this.detachClickEvent?.();
       this.detachClickEvent = undefined;
 

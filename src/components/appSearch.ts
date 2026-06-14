@@ -17,14 +17,14 @@ export default class AppSearch {
   private loadedCount = -1;
   private foundCount = -1;
 
-  private searchPromise: Promise<void> = null;
+  private searchPromise: Promise<void> | null = null;
   private searchTimeout: number = 0;
 
   private query = '';
 
-  private listsContainer: HTMLDivElement = null;
+  private listsContainer: HTMLDivElement | null = null;
 
-  private peerId: PeerId; // 0 - means global
+  private peerId: PeerId | undefined; // 0 - means global
   private threadId = 0;
 
   private scrollable: Scrollable;
@@ -95,7 +95,7 @@ export default class AppSearch {
   }
 
   public beginSearch(peerId?: PeerId, threadId = 0, query = '') {
-    this.peerId = peerId;
+    this.peerId = peerId!;
     this.threadId = threadId;
 
     if(this.query !== query) {
@@ -123,7 +123,7 @@ export default class AppSearch {
 
     const middleware = this.middlewareHelper.get();
 
-    return this.searchPromise = rootScope.managers.appMessagesManager.getHistory({
+    return this.searchPromise = rootScope.managers.appMessagesManager!.getHistory({
       peerId: this.peerId,
       query,
       inputFilter: {_: 'inputMessagesFilterEmpty'},
@@ -146,20 +146,20 @@ export default class AppSearch {
       let {count, messages, history} = res;
 
       if(!messages) {
-        messages = res.messages = history.map((mid) => apiManagerProxy.getMessageByPeer(this.peerId, mid));
+        messages = (res.messages = history.map((mid) => apiManagerProxy.getMessageByPeer((this.peerId as number), mid)!))!;
       }
 
-      if(messages.length && messages[0].mid === this.minMsgId) {
-        messages.shift();
+      if(messages!.length && messages![0].mid === this.minMsgId) {
+        messages!.shift();
       }
 
       const searchGroup = this.searchGroups.messages;
 
-      messages.forEach((message) => {
+      messages!.forEach((message) => {
         try {
           const peerId = this.peerId ? message.fromId : message.peerId;
           appDialogsManager.addDialogAndSetLastMessage({
-            peerId: this.fromSavedDialog ? rootScope.myId : peerId,
+            peerId: (this.fromSavedDialog ? rootScope.myId : peerId)!,
             container: this.scrollable/* searchGroup.list */,
             avatarSize: 'bigger',
             meAsSaved: false,
@@ -169,7 +169,7 @@ export default class AppSearch {
             wrapOptions: {
               middleware
             },
-            threadId: this.fromSavedDialog ? ((message as Message.message).saved_peer_id ? getPeerId((message as Message.message).saved_peer_id) : rootScope.myId) : undefined
+            threadId: this.fromSavedDialog ? ((message as Message.message).saved_peer_id ? getPeerId((message as Message.message).saved_peer_id!) : rootScope.myId) : undefined
           });
         } catch(err) {
           console.error('[appSearch] render search result', err);
@@ -178,18 +178,18 @@ export default class AppSearch {
 
       searchGroup.toggle();
 
-      this.minMsgId = messages.length && messages[messages.length - 1].mid;
+      this.minMsgId = (messages.length && messages[messages.length - 1].mid)!;
 
       if(this.loadedCount === -1) {
         this.loadedCount = 0;
       }
-      this.loadedCount += messages.length;
+      this.loadedCount += messages!.length;
 
       if(this.foundCount === -1) {
         this.foundCount = count;
 
         if(searchGroup.nameEl) {
-          replaceContent(searchGroup.nameEl, i18n(count ? 'Chat.Search.MessagesFound' : 'Chat.Search.NoMessagesFound', [count]));
+          replaceContent(searchGroup.nameEl, i18n(count ? 'Chat.Search.MessagesFound' : 'Chat.Search.NoMessagesFound', [count])!);
         }
 
         this.onSearch?.(this.foundCount);

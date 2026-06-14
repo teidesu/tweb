@@ -3,7 +3,7 @@ export default function documentFragmentToNodes(fragment: DocumentFragment) {
   let node = fragment.firstChild;
   let i = 0;
   while(node) {
-    nodes[i++] = node.nodeType === node.TEXT_NODE ? node.nodeValue : node;
+    nodes[i++] = (node.nodeType === node.TEXT_NODE ? node.nodeValue : node)!;
     node = node.nextSibling;
   }
   return nodes;

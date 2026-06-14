@@ -36,7 +36,7 @@ export default async function createStarGiftUpgradePopup(props: {
     preview,
     peerTitle
   ] = await Promise.all([
-    rootScope.managers.appGiftsManager.getUpgradePreview(props.gift.raw.id),
+    rootScope.managers.appGiftsManager!.getUpgradePreview(props.gift.raw.id),
     props.descriptionForPeerId ? wrapPeerTitle({peerId: props.descriptionForPeerId}) : undefined
   ]);
 
@@ -65,13 +65,13 @@ export default async function createStarGiftUpgradePopup(props: {
       PopupPayment.create({
         inputInvoice: {
           _: 'inputInvoiceStarGiftPrepaidUpgrade',
-          hash: props.gift.saved?.prepaid_upgrade_hash,
-          peer: await rootScope.managers.appPeersManager.getInputPeerById(props.descriptionForPeerId)
+          hash: props.gift.saved?.prepaid_upgrade_hash!,
+          peer: await rootScope.managers.appPeersManager!.getInputPeerById(props.descriptionForPeerId)
         },
         noShowIfStars: true
       }).then((popup) => {
         popup.addEventListener('finish', (result) => {
-          deferred.resolve(result === 'paid');
+          deferred.resolve!(result === 'paid');
         });
       });
       return deferred;
@@ -80,8 +80,8 @@ export default async function createStarGiftUpgradePopup(props: {
     upgradePromise = deferredPromise<boolean>();
 
     if(freeUpgrade) {
-      await rootScope.managers.appGiftsManager.upgradeStarGift(
-        props.gift.input,
+      await rootScope.managers.appGiftsManager!.upgradeStarGift(
+        props.gift.input!,
         keepInfoSignal[0]()
       );
       return upgradePromise
@@ -90,7 +90,7 @@ export default async function createStarGiftUpgradePopup(props: {
     PopupPayment.create({
       inputInvoice: {
         _: 'inputInvoiceStarGiftUpgrade',
-        stargift: props.gift.input,
+        stargift: props.gift.input!,
         pFlags: {
           keep_original_details: keepInfoSignal[0]() ? true : undefined
         }
@@ -99,7 +99,7 @@ export default async function createStarGiftUpgradePopup(props: {
     }).then((popup) => {
       popup.addEventListener('finish', (result) => {
         if(result !== 'paid') {
-          upgradePromise.resolve(false);
+          upgradePromise!.resolve!(false);
         }
       });
     });
@@ -146,7 +146,7 @@ export default async function createStarGiftUpgradePopup(props: {
       const model$ = model();
 
       wrapSticker({
-        doc: model$.document as MyDocument,
+        doc: model$!.document as MyDocument,
         div: stickerContainer,
         width: 120,
         height: 120,
@@ -173,7 +173,7 @@ export default async function createStarGiftUpgradePopup(props: {
         gift: event.gift,
         upgradeAnimation: preview
       })
-      upgradePromise.resolve(true)
+      upgradePromise.resolve!(true)
     })
 
     let stickerContainer!: HTMLDivElement;
@@ -185,8 +185,8 @@ export default async function createStarGiftUpgradePopup(props: {
             <div class="popup-star-gift-upgrade-header">
               <StarGiftBackdrop
                 class="popup-star-gift-upgrade-backdrop"
-                backdrop={backdrop()}
-                patternEmoji={pattern().document as MyDocument}
+                backdrop={backdrop()!}
+                patternEmoji={pattern()!.document as MyDocument}
               />
               <ButtonIconTsx
                 class="popup-star-gift-upgrade-close"
@@ -201,7 +201,7 @@ export default async function createStarGiftUpgradePopup(props: {
                 {i18n(props.descriptionForPeerId ? 'StarGiftUpgradeTitleFor' : 'StarGiftUpgradeTitle')}
               </div>
               <div class="popup-star-gift-upgrade-subtitle">
-                {i18n(props.descriptionForPeerId ? 'StarGiftUpgradeSubtitleFor' : 'StarGiftUpgradeSubtitle', [peerTitle])}
+                {i18n(props.descriptionForPeerId ? 'StarGiftUpgradeSubtitleFor' : 'StarGiftUpgradeSubtitle', [peerTitle!])}
               </div>
             </div>
             <div class="popup-star-gift-upgrade-body">
@@ -212,7 +212,7 @@ export default async function createStarGiftUpgradePopup(props: {
                   <I18nTsx
                     class="popup-star-gift-upgrade-feature-text"
                     key={props.descriptionForPeerId ? 'StarGiftUpgradeUniqueTextPrepaid' : 'StarGiftUpgradeUniqueText'}
-                    args={props.descriptionForPeerId ? [peerTitle.cloneNode(true)] : []}
+                    args={props.descriptionForPeerId ? [peerTitle!.cloneNode(true)] : []}
                   />
                 </div>
               </div>
@@ -223,7 +223,7 @@ export default async function createStarGiftUpgradePopup(props: {
                   <I18nTsx
                     class="popup-star-gift-upgrade-feature-text"
                     key={props.descriptionForPeerId ? 'StarGiftUpgradeTransferableTextPrepaid' : 'StarGiftUpgradeTransferableText'}
-                    args={props.descriptionForPeerId ? [peerTitle.cloneNode(true)] : []}
+                    args={props.descriptionForPeerId ? [peerTitle!.cloneNode(true)] : []}
                   />
                 </div>
               </div>
@@ -234,7 +234,7 @@ export default async function createStarGiftUpgradePopup(props: {
                   <I18nTsx
                     class="popup-star-gift-upgrade-feature-text"
                     key={props.descriptionForPeerId ? 'StarGiftUpgradeTradableTextPrepaid' : 'StarGiftUpgradeTradableText'}
-                    args={props.descriptionForPeerId ? [peerTitle.cloneNode(true)] : []}
+                    args={props.descriptionForPeerId ? [peerTitle!.cloneNode(true)] : []}
                   />
                 </div>
               </div>

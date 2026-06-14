@@ -10,11 +10,11 @@ export default class SelectionSaver {
     }
 
     const selection = document.getSelection();
-    if(!selection.rangeCount) {
+    if(!selection!.rangeCount) {
       return;
     }
 
-    this.range = selection.getRangeAt(0);
+    this.range = selection!.getRangeAt(0);
   }
 
   public restore(focus?: boolean) {
@@ -24,8 +24,8 @@ export default class SelectionSaver {
     }
 
     const selection = window.getSelection();
-    selection.removeAllRanges();
-    selection.addRange(this.range);
+    selection!.removeAllRanges();
+    selection!.addRange(this.range);
     focus && this.input?.focus();
   }
 }

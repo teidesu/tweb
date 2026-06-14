@@ -10,9 +10,9 @@ type Args = {
 };
 
 export default function initVideoPlayback({gl, drawAdjustedImage}: Args) {
-  const {editorState, mediaState, actions} = useMediaEditorContext();
+  const {editorState, mediaState, actions} = useMediaEditorContext()!;
   const {renderingPayload} = editorState;
-  const video = renderingPayload.media.video;
+  const video = renderingPayload!.media.video;
 
   if(!video) return;
 
@@ -29,7 +29,7 @@ export default function initVideoPlayback({gl, drawAdjustedImage}: Args) {
     if(!pendingSeek) return;
     pendingSeek = false;
 
-    gl.bindTexture(gl.TEXTURE_2D, renderingPayload.texture);
+    gl.bindTexture(gl.TEXTURE_2D, renderingPayload!.texture);
     gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, video);
 
     drawAdjustedImage();
@@ -75,12 +75,12 @@ export default function initVideoPlayback({gl, drawAdjustedImage}: Args) {
     ;
 
     function frameCallback() {
-      gl.bindTexture(gl.TEXTURE_2D, renderingPayload.texture);
-      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, video);
+      gl.bindTexture(gl.TEXTURE_2D, renderingPayload!.texture);
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, video!);
 
       drawAdjustedImage();
 
-      frameCallbackId = video.requestVideoFrameCallback(() => frameCallback());
+      frameCallbackId = video!.requestVideoFrameCallback(() => frameCallback());
     }
 
     const timeout = self.setTimeout(() => {

@@ -13,7 +13,7 @@ if(!IS_SAFARI) CAN_USE_TRANSFERABLES = true;
 else {
   try {
     const match = navigator.userAgent.match(/Version\/(.+?) /);
-    CAN_USE_TRANSFERABLES = +match[1] >= 14;
+    CAN_USE_TRANSFERABLES = +match![1] >= 14;
   } catch(err) {
     CAN_USE_TRANSFERABLES = false;
   }

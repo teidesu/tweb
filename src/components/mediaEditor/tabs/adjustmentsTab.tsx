@@ -15,7 +15,7 @@ import {createEffect, createMemo, createSignal, on, onCleanup, Show} from 'solid
 const ADJUST_TIMEOUT = 800;
 
 export default function AdjustmentsTab() {
-  const {editorState, mediaState, actions, mediaType, canImageResultInGIF, isVideoAvatarMode} = useMediaEditorContext();
+  const {editorState, mediaState, actions, mediaType, canImageResultInGIF, isVideoAvatarMode} = useMediaEditorContext()!;
 
   const isMobile = useIsMobile();
   const cropOffset = useCropOffset();
@@ -32,9 +32,9 @@ export default function AdjustmentsTab() {
     getResultSize({
       imageWidth: editorState.mediaSize[0],
       scale: mediaState.scale,
-      newRatio: mediaState.currentImageRatio || editorState.mediaRatio,
+      newRatio: (mediaState.currentImageRatio || editorState.mediaRatio)!,
       videoType: mediaType === 'video' ? 'video' : 'gif',
-      imageRatio: editorState.mediaRatio,
+      imageRatio: editorState.mediaRatio!,
       cropOffset: !cropOffset().width ? {width: 1, height: 1} : cropOffset()
     }) : [0, 0]
   );
@@ -93,7 +93,7 @@ export default function AdjustmentsTab() {
         createEffect(
           on(showGhost, () => {
             if(!container() || !isMobile() || !showGhost()) return;
-            const bcr = container().getBoundingClientRect();
+            const bcr = container()!.getBoundingClientRect();
             const div = (
               <div
                 class="night media-editor__inherit-color"

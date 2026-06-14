@@ -5,7 +5,7 @@ export default class ScrollableLoader {
   public loading = false;
   private scrollable: Scrollable;
   private getPromise: () => Promise<boolean>;
-  private promise: Promise<any>;
+  private promise: Promise<any> | undefined;
   private loaded = false;
 
   constructor(options: {

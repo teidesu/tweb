@@ -75,7 +75,7 @@ export default class PopupAvatar extends PopupElement {
       this.hide();
 
       this.canvas.toBlob((blob) => {
-        this.blob = blob; // save blob to send after reg
+        this.blob = blob!; // save blob to send after reg
         this.darkenCanvas();
         this.resolve();
       }, 'image/jpeg', 1);
@@ -106,7 +106,7 @@ export default class PopupAvatar extends PopupElement {
 
   public darkenCanvas() {
     const ctx = this.canvas.getContext('2d');
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    ctx!.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    ctx!.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
 }

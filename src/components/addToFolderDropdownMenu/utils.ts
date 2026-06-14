@@ -14,13 +14,13 @@ import styles from '@components/addToFolderDropdownMenu/styles.module.scss';
 export const log = logger('AddToFolderDropdownMenu', LogTypes.Debug);
 
 export async function fetchDialogFilters() {
-  const filters = await rootScope.managers.filtersStorage.getDialogFilters();
+  const filters = await rootScope.managers.filtersStorage!.getDialogFilters();
 
   return filters
   .filter(filter => filter.id !== FOLDER_ID_ARCHIVE && filter.id !== FOLDER_ID_ALL)
   .sort((a, b) => {
     if(!a.id || !b.id) return 0;
-    return a?.localId - b?.localId;
+    return a?.localId! - b?.localId!;
   });
 }
 
@@ -35,16 +35,16 @@ export async function addToFilter(filter: MyDialogFilter, peerId: PeerId) {
     filter.exclude_peers = filter.exclude_peers?.filter(inputPeer => p(getPeerId(inputPeer)) !== p(peerId));
   }
 
-  const hasPinned = filter.pinnedPeerIds.find(pinnedPeerId => p(pinnedPeerId) === p(peerId));
+  const hasPinned = filter.pinnedPeerIds!.find(pinnedPeerId => p(pinnedPeerId) === p(peerId));
 
   if(!hasPinned) {
     filter.includePeerIds = [...(filter.includePeerIds || []).filter(includedPeerId => p(includedPeerId) !== p(peerId)), peerId];
-    filter.include_peers = [...(filter.include_peers || []).filter(inputPeer => p(getPeerId(inputPeer)) !== p(peerId)), await rootScope.managers.appPeersManager.getInputPeerById(peerId)];
+    filter.include_peers = [...(filter.include_peers || []).filter(inputPeer => p(getPeerId(inputPeer)) !== p(peerId)), await rootScope.managers.appPeersManager!.getInputPeerById(peerId)];
   }
 
   log.debug('addToFilter after', filter);
 
-  await rootScope.managers.filtersStorage.updateDialogFilter(filter);
+  await rootScope.managers.filtersStorage!.updateDialogFilter(filter);
 }
 
 export async function removeFromFilter(filter: MyDialogFilter, peerId: PeerId) {
@@ -59,12 +59,12 @@ export async function removeFromFilter(filter: MyDialogFilter, peerId: PeerId) {
 
   if(filter._ === 'dialogFilter') {
     filter.excludePeerIds = [...(filter.excludePeerIds || []).filter(excludedPeerId => p(excludedPeerId) !== p(peerId)), peerId];
-    filter.exclude_peers = [...(filter.exclude_peers || []).filter(inputPeer => p(getPeerId(inputPeer)) !== p(peerId)), await rootScope.managers.appPeersManager.getInputPeerById(peerId)];
+    filter.exclude_peers = [...(filter.exclude_peers || []).filter(inputPeer => p(getPeerId(inputPeer)) !== p(peerId)), await rootScope.managers.appPeersManager!.getInputPeerById(peerId)];
   }
 
   log.debug('removeFromFilter after', filter);
 
-  await rootScope.managers.filtersStorage.updateDialogFilter(filter);
+  await rootScope.managers.filtersStorage!.updateDialogFilter(filter);
 }
 
 export function wrapFolderTitleInSpan(title: TextWithEntities.textWithEntities, middleware: Middleware) {
@@ -73,7 +73,7 @@ export function wrapFolderTitleInSpan(title: TextWithEntities.textWithEntities, 
 
   span.append(fragment);
 
-  const renderer: CustomEmojiRendererElement = span.querySelector('custom-emoji-renderer-element');
+  const renderer: CustomEmojiRendererElement = span.querySelector('custom-emoji-renderer-element')!;
   renderer?.setTextColor('primary-text-color');
 
   const treeWalker = document.createTreeWalker(span, NodeFilter.SHOW_TEXT);
@@ -88,7 +88,7 @@ export function wrapFolderTitleInSpan(title: TextWithEntities.textWithEntities, 
   for(const node of nodes) {
     const fragment = document.createDocumentFragment();
 
-    const charSpans = node.nodeValue.split('').map(char => {
+    const charSpans = node.nodeValue!.split('').map(char => {
       const charSpan = document.createElement('span');
       charSpan.innerText = char;
       return charSpan;
@@ -97,7 +97,7 @@ export function wrapFolderTitleInSpan(title: TextWithEntities.textWithEntities, 
     charSpansGroups.push(charSpans);
     fragment.append(...charSpans);
 
-    node.parentNode.replaceChild(fragment, node);
+    node.parentNode!.replaceChild(fragment, node);
   }
 
   return {

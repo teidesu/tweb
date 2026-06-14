@@ -23,7 +23,7 @@ function _ripple(
   elem: HTMLElement,
   prepend: boolean | 'no' = true,
   callback: (id: number) => Promise<boolean | void> = () => Promise.resolve(),
-  onEnd: (id: number) => void = null,
+  onEnd: (id: number) => void = null!,
   attachListenerTo = elem
 ) {
   // return;
@@ -42,7 +42,7 @@ function _ripple(
     elem[prepend ? 'prepend' : 'append'](r);
   }
 
-  let handler: () => void, lastHandler: typeof handler;
+  let handler: (() => void) | null, lastHandler: typeof handler;
   // let animationEndPromise: Promise<number>;
   const drawRipple = (clientX: number, clientY: number) => {
     const startTime = Date.now();
@@ -83,8 +83,8 @@ function _ripple(
       }
 
       if(!IS_TOUCH_SUPPORTED) {
-        window.removeEventListener('contextmenu', handler);
-        window.removeEventListener('mousemove', handler);
+        window.removeEventListener('contextmenu', handler!);
+        window.removeEventListener('mousemove', handler!);
       }
 
       handler = null;
@@ -168,8 +168,8 @@ function _ripple(
         findUpClassName(e.target as HTMLElement, 'c-ripple') !== r
     ) && (
       attachListenerTo === elem ||
-        !findUpAsChild(e.target as HTMLElement, attachListenerTo)
-    ) && !findUpClassName(e.target, 'checkbox-field');
+        !findUpAsChild(((e.target as HTMLElement)! as { parentElement: HTMLElement; }), attachListenerTo)
+    ) && !findUpClassName(e.target!, 'checkbox-field');
   };
 
   // TODO: rename this variable
@@ -232,8 +232,8 @@ function _ripple(
 
       const {clientX, clientY} = e;
       drawRipple(clientX, clientY);
-      window.addEventListener('mouseup', handler, {once: true, passive: true});
-      window.addEventListener('contextmenu', handler, {once: true, passive: true});
+      window.addEventListener('mouseup', handler!, {once: true, passive: true});
+      window.addEventListener('contextmenu', handler!, {once: true, passive: true});
     };
 
     attachListenerTo.addEventListener('mousedown', onMouseDown, {passive: true});
@@ -254,7 +254,7 @@ export default function ripple(elem: HTMLElement, accessor?: Accessor<boolean>, 
       if(value === undefined || value) {
         const ret = _ripple(elem, prepend);
         onCleanup(() => {
-          ret.dispose();
+          ret!.dispose();
         });
       }
     });

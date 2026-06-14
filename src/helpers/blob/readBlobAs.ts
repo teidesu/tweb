@@ -10,7 +10,7 @@ export default function readBlobAs(blob: Blob, method: 'readAsArrayBuffer' | 're
     const reader = new FileReader();
     reader.addEventListener('loadend', (e) => {
       // console.log(`readBlobAs [${id}] ${method} time ${performance.now() - perf}`);
-      resolve(e.target.result);
+      resolve(e.target!.result);
     });
     reader[method](blob);
   });

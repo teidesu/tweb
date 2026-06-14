@@ -118,11 +118,11 @@ export default class SortedDialogList {
     if(key === this.virtualFilterId && key !== rootScope.myId) return 0;
 
     if(this.monoforumParentPeerId) {
-      const dialog = await this.managers.monoforumDialogsStorage.getDialogByParent(this.monoforumParentPeerId, key);
-      return getDialogIndex(dialog);
+      const dialog = await this.managers.monoforumDialogsStorage!.getDialogByParent(this.monoforumParentPeerId, key);
+      return getDialogIndex(dialog!);
     }
 
-    return this.managers.dialogsStorage.getDialogIndex(
+    return this.managers.dialogsStorage!.getDialogIndex(
       this.virtualFilterId ?? key,
       this.indexKey,
       this.virtualFilterId ? key : undefined
@@ -151,7 +151,7 @@ export default class SortedDialogList {
       monoforumParentPeerId: key !== this.monoforumParentPeerId ? this.monoforumParentPeerId : undefined,
       asAllChats: this.getAsAllChats(key),
       meAsSaved: !this.monoforumParentPeerId,
-      wrapOptions: undefined
+      wrapOptions: (undefined as unknown as WrapSomethingOptions)
     };
 
     return {options, loadPromises};
@@ -191,7 +191,7 @@ export default class SortedDialogList {
       this.monoforumParentPeerId
     ) return;
 
-    const dialog = await this.managers.dialogsStorage.getDialogOnly(key);
+    const dialog = await this.managers.dialogsStorage!.getDialogOnly(key);
     if(!dialog) return;
 
     return dialog.ttl_period || undefined;
@@ -207,18 +207,18 @@ export default class SortedDialogList {
 
   public async add(key: any) {
     const item = await this.createItemForKey(key);
-    this.virtualList.addItems([item]);
+    this.virtualList.addItems([(item! as DeferredSortedVirtualListItem<SortedDialogListItem>)]);
     // this.virtualList.setTotalCount(prev => prev + 1);
   }
 
   public async addPinned(key: any) {
     const item = await this.createItemForKey(key);
-    this.virtualList.addPinnedItems([item]);
+    this.virtualList.addPinnedItems([(item! as DeferredSortedVirtualListItem<SortedDialogListItem>)]);
   }
 
   public async ensurePinned(key: any) {
     const item = await this.createItemForKey(key);
-    this.virtualList.ensurePinnedItems([item]);
+    this.virtualList.ensurePinnedItems([(item! as DeferredSortedVirtualListItem<SortedDialogListItem>)]);
   }
 
   public removePinned(key: any) {
@@ -252,7 +252,7 @@ export default class SortedDialogList {
     .map(([key, value]) => value?.type === 'dialog' ? [key, value.value] as [any, DialogElement] : null)
     .filter(Boolean);
 
-    return new Map(filteredEntries);
+    return new Map(filteredEntries as [any, DialogElement][]);
   }
 
   public getSortedItems() {
@@ -261,7 +261,7 @@ export default class SortedDialogList {
 
   public async update(key: any) {
     const index = await this.getIndexForKey(key);
-    this.virtualList.updateItem(key, index);
+    this.virtualList.updateItem(key, index!);
   }
 
   public itemsLength() {

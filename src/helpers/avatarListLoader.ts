@@ -24,11 +24,11 @@ export default class AvatarListLoader<Item extends {photoId: Photo.photo['id']}>
           return Promise.resolve({count, items: []});
         }
 
-        return this.managers.appPhotosManager.getUserPhotos(this.peerId, maxId, loadCount).then((value) => {
+        return this.managers.appPhotosManager!.getUserPhotos(this.peerId, maxId, loadCount).then((value) => {
           const items = value.photos
           .filter((photoId) => photoId !== this.fallbackPhotoId)
           .map((photoId) => {
-            return {element: null as HTMLElement, photoId} as any;
+            return {element: null as unknown as HTMLElement, photoId} as any;
           });
 
           let count = value.count;
@@ -37,7 +37,7 @@ export default class AvatarListLoader<Item extends {photoId: Photo.photo['id']}>
             if(count !== undefined) count += 1;
             // Append the public photo once, after the last real page.
             if(!this.fallbackAppended && value.photos.length < loadCount) {
-              items.push({element: null as HTMLElement, photoId: this.fallbackPhotoId} as any);
+              items.push({element: null as unknown as HTMLElement, photoId: this.fallbackPhotoId} as any);
               this.fallbackAppended = true;
             }
           }
@@ -49,6 +49,6 @@ export default class AvatarListLoader<Item extends {photoId: Photo.photo['id']}>
 
     this.loadedAllUp = true;
     this.peerId = options.peerId;
-    this.fallbackPhotoId = options.fallbackPhotoId;
+    this.fallbackPhotoId = options.fallbackPhotoId!;
   }
 }

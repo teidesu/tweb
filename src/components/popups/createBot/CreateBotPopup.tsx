@@ -91,7 +91,7 @@ const CreateBotPopup = (props: CreateBotPopupProps) => {
 
       const fullUsername = value + USERNAME_SUFFIX;
 
-      const result = await rootScope.managers.appBotsManager.checkUsername(fullUsername);
+      const result = await rootScope.managers.appBotsManager!.checkUsername(fullUsername);
       if(cancelled) return;
 
       if(usernameValue() !== value) return; // out-of-date result

@@ -112,7 +112,7 @@ export default async function wrapDocument({
   uploadingFileName ??= message?.uploadingFileName?.[0];
   if(doc.type === 'audio' || doc.type === 'voice' || doc.type === 'round') {
     const audioElement = new AudioElement();
-    audioElement.withTime = withTime;
+    audioElement.withTime = withTime!;
     audioElement.message = message;
     if(docOverride) audioElement.doc = docOverride;
     if(slot !== undefined) {
@@ -123,9 +123,9 @@ export default async function wrapDocument({
       audioElement.listLoaderFactory = emptyMediaListLoaderFactory;
     }
     audioElement.noAutoDownload = noAutoDownload;
-    audioElement.lazyLoadQueue = lazyLoadQueue;
-    audioElement.loadPromises = loadPromises;
-    audioElement.uploadingFileName = uploadingFileName;
+    audioElement.lazyLoadQueue = lazyLoadQueue!;
+    audioElement.loadPromises = loadPromises!;
+    audioElement.uploadingFileName = uploadingFileName!;
     audioElement.shouldWrapAsVoice = shouldWrapAsVoice;
     audioElement.customAudioToTextButton = customAudioToTextButton;
     audioElement.middleware = middleware;
@@ -151,7 +151,7 @@ export default async function wrapDocument({
   const extSplitted = doc.file_name ? doc.file_name.split('.') : '';
   let ext = '';
   ext = extSplitted.length > 1 && Array.isArray(extSplitted) ?
-    clearBadCharsAndTrim(extSplitted.pop().split(' ', 1)[0].toLowerCase()) :
+    clearBadCharsAndTrim(extSplitted.pop()!.split(' ', 1)[0].toLowerCase()) :
     'file';
 
   const docDiv = document.createElement('div');
@@ -172,20 +172,20 @@ export default async function wrapDocument({
 
   cacheContext = getCacheContext();
   let hasThumb = false;
-  if((doc.thumbs?.length || (message.pFlags.is_outgoing && cacheContext.url && doc.type === 'photo'))/*  && doc.mime_type !== 'image/gif' */) {
+  if((doc.thumbs?.length || (message.pFlags.is_outgoing && cacheContext!.url && doc.type === 'photo'))/*  && doc.mime_type !== 'image/gif' */) {
     docDiv.classList.add('document-with-thumb');
     hasThumb = true;
 
     const imgs: (HTMLImageElement | HTMLCanvasElement | HTMLVideoElement)[] = [];
     // ! WARNING, use thumbs for check when thumb will be generated for media
-    if(message.pFlags.is_outgoing && ['photo', 'video'].includes(doc.type) && cacheContext.url) {
-      icoDiv.innerHTML = `<img src="${cacheContext.url}">`;
+    if(message.pFlags.is_outgoing && ['photo', 'video'].includes(doc.type!) && cacheContext!.url) {
+      icoDiv.innerHTML = `<img src="${cacheContext!.url}">`;
       imgs.push(icoDiv.firstElementChild as HTMLImageElement);
     } else {
       const perf = performance.now();
       const wrapped = await wrapPhoto({
         photo: doc,
-        message: null,
+        message: null as any,
         container: icoDiv,
         boxWidth: 54,
         boxHeight: 54,
@@ -214,10 +214,10 @@ export default async function wrapDocument({
   const descriptionEl = document.createElement('div');
   descriptionEl.classList.add('document-description');
   const bytesContainer = document.createElement('span');
-  const bytesEl = formatBytes(doc.size);
+  const bytesEl = formatBytes(doc.size!);
   const bytesJoiner = ' / ';
 
-  const descriptionParts: (HTMLElement | string | DocumentFragment)[] = [bytesEl];
+  const descriptionParts: (HTMLElement | string | DocumentFragment)[] = [bytesEl!];
 
   if(withTime) {
     descriptionParts.push(formatFullSentTime(message.date));
@@ -229,14 +229,14 @@ export default async function wrapDocument({
 
   if(!withTime && !showSender) {
     const b = document.createElement('span');
-    const bytesMaxEl = formatBytes(doc.size);
-    b.append(bytesJoiner, bytesMaxEl);
+    const bytesMaxEl = formatBytes(doc.size!);
+    b.append(bytesJoiner, bytesMaxEl!);
     b.style.visibility = 'hidden';
     descriptionParts.push(b);
   }
 
   docDiv.innerHTML = `
-  ${(cacheContext.downloaded && !uploadingFileName) || !message.mid || !hasThumb ? '' : `<div class="document-download"></div>`}
+  ${(cacheContext!.downloaded && !uploadingFileName) || !message.mid || !hasThumb ? '' : `<div class="document-download"></div>`}
   <div class="document-name"></div>
   <div class="document-size"></div>
   `;
@@ -271,17 +271,17 @@ export default async function wrapDocument({
     return docDiv;
   }
 
-  const canSaveToCache = doc.size <= MAX_FILE_SAVE_SIZE;
+  const canSaveToCache = doc.size! <= MAX_FILE_SAVE_SIZE;
 
-  let downloadDiv: HTMLElement, preloader: ProgressivePreloader = null;
+  let downloadDiv: HTMLElement | null, preloader: ProgressivePreloader | null = null;
   const onLoad = () => {
     docDiv.classList.remove('downloading');
 
-    if(/* !hasThumb ||  */(doc.size > MAX_FILE_SAVE_SIZE && !uploadingFileName)) {
-      preloader.setManual();
-      preloader.attach(downloadDiv);
-      preloader.preloader.classList.add('manual');
-      preloader.setDownloadFunction(load);
+    if(/* !hasThumb ||  */(doc.size! > MAX_FILE_SAVE_SIZE && !uploadingFileName)) {
+      preloader!.setManual();
+      preloader!.attach((downloadDiv as Element));
+      preloader!.preloader.classList.add('manual');
+      preloader!.setDownloadFunction(load);
       return;
     }
 
@@ -309,7 +309,7 @@ export default async function wrapDocument({
     docDiv.classList.add('downloading');
 
     const sizeContainer = document.createElement('span');
-    const _bytesContainer = formatBytes(doc.size);
+    const _bytesContainer = formatBytes(doc.size!);
     sizeContainer.style.position = 'absolute';
     sizeContainer.style.left = '0';
     promise.then(onLoad, noop).finally(() => {
@@ -325,11 +325,11 @@ export default async function wrapDocument({
     let d = format(0);
     bytesContainer.style.visibility = 'hidden';
     // bytesContainer.replaceWith(sizeContainer);
-    sizeContainer.append(d, bytesJoiner, _bytesContainer);
-    bytesContainer.parentElement.append(sizeContainer);
-    promise.addNotifyListener((progress: Progress) => {
+    sizeContainer.append(d!, bytesJoiner, _bytesContainer!);
+    bytesContainer.parentElement!.append(sizeContainer);
+    promise.addNotifyListener!((progress: Progress) => {
       const _d = format(progress.done);
-      d.replaceWith(_d);
+      d!.replaceWith(_d!);
       d = _d;
     });
   };
@@ -340,16 +340,16 @@ export default async function wrapDocument({
     const doc = (docDiv as any).doc;
     // const doc = await managers.appDocsManager.getDoc(docDiv.dataset.docId);
     let download: CancellablePromise<any>;
-    const queueId = appImManager.chat.bubbles ? appImManager.chat.bubbles.lazyLoadQueue.queueId : undefined;
+    const queueId = appImManager.chat.bubbles ? appImManager.chat.bubbles.lazyLoadQueue!.queueId : undefined;
     if(!save) {
       download = appDownloadManager.downloadToDisc({media: doc, queueId}, true);
     } else if(doc.type === 'pdf' && false) {
-      const canOpenAfter = /* managers.appDocsManager.downloading.has(doc.id) ||  */!preloader || preloader.detached;
+      const canOpenAfter = /* managers.appDocsManager.downloading.has(doc.id) ||  */!preloader || preloader!.detached;
       download = appDownloadManager.downloadMediaURL({media: doc, queueId});
       if(canOpenAfter) {
         download.then(() => {
           setTimeout(async() => { // wait for preloader animation end
-            const url = (getCacheContext()).url;
+            const url = (getCacheContext())!.url;
             window.open(url);
           }, liteMode.isAvailable('animations') ? 250 : 0);
         });
@@ -379,13 +379,13 @@ export default async function wrapDocument({
     });
 
     if(downloadDiv) {
-      preloader.attach(downloadDiv, true, download);
+      preloader!.attach(downloadDiv, true, download);
       addByteProgress(download);
     }
   };
 
   const {fileName: downloadFileName} = getDownloadMediaDetails({media: doc, downloadId: '1'});
-  if(await managers.apiFileManager.isDownloading(downloadFileName)) {
+  if(await managers.apiFileManager!.isDownloading(downloadFileName)) {
     downloadDiv = docDiv.querySelector('.document-download') || icoDiv;
     const promise = appDownloadManager.downloadToDisc({media: doc}, true);
 
@@ -393,7 +393,7 @@ export default async function wrapDocument({
     preloader.attach(downloadDiv, false, promise);
     preloader.setDownloadFunction(load);
     addByteProgress(promise);
-  } else if(!cacheContext.downloaded || uploadingFileName) {
+  } else if(!cacheContext!.downloaded || uploadingFileName) {
     downloadDiv = docDiv.querySelector('.document-download') || icoDiv;
     preloader = new ProgressivePreloader({
       isUpload: !!uploadingFileName
@@ -405,7 +405,7 @@ export default async function wrapDocument({
       preloader.attach(downloadDiv);
       preloader.setDownloadFunction(load);
 
-      if(autoDownloadSize !== undefined && autoDownloadSize >= doc.size) {
+      if(autoDownloadSize !== undefined && autoDownloadSize >= doc.size!) {
         simulateClickEvent(preloader.preloader);
       }
     } else {
@@ -417,7 +417,7 @@ export default async function wrapDocument({
   }
 
   attachClickEvent(docDiv, (e) => {
-    if(findUpClassName(e.target, 'time')) { // prevent downloading by clicking on time
+    if(findUpClassName(e.target!, 'time')) { // prevent downloading by clicking on time
       return;
     }
 

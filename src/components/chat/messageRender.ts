@@ -4,7 +4,7 @@ import {getFullDate} from '@helpers/date/getFullDate';
 import setInnerHTML from '@helpers/dom/setInnerHTML';
 import {Middleware} from '@helpers/middleware';
 import formatNumber from '@helpers/number/formatNumber';
-import {AvailableEffect, Message, MessageReplyHeader} from '@layer';
+import {AvailableEffect, Message, MessageReplyHeader, StoryItem} from '@layer';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
 import I18n, {i18n, _i18n, LangPackKey} from '@lib/langPack';
 import apiManagerProxy from '@lib/apiManagerProxy';
@@ -29,6 +29,7 @@ import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
 import numberThousandSplitter, {numberThousandSplitterForStars} from '@helpers/number/numberThousandSplitter';
 import {makeTime} from '@components/chat/utils';
 import {formatNanoton} from '@helpers/paymentsWrapCurrencyAmount';
+import {AckedResult} from '@lib/superMessagePort';
 
 const NBSP = '&nbsp;';
 
@@ -47,7 +48,7 @@ const makeScheduleRepeatPeriod = (period: number) => {
   const entry = SCHEDULE_REPEAT_MAP.find((e) => e.period >= period) ?? SCHEDULE_REPEAT_MAP[SCHEDULE_REPEAT_MAP.length - 1];
   const span = document.createElement('span');
   span.classList.add('time-repeat', 'time-part');
-  span.append(i18n(entry.key, entry.args));
+  span.append(i18n(entry.key, entry.args)!);
   return span;
 };
 
@@ -74,21 +75,21 @@ const makeEffect = (props: {
 
   span.dataset.effectId = '' + props.docId;
 
-  rootScope.managers.acknowledged.appReactionsManager.getAvailableEffect(props.docId)
+  rootScope.managers.acknowledged!.appReactionsManager!.getAvailableEffect(props.docId!)
   .then(async(result) => {
     if(!result.cached) {
-      deferred.resolve();
+      deferred.resolve!();
     }
 
     const availableEffect = await result.result;
     if(!availableEffect) {
-      deferred.resolve();
+      deferred.resolve!();
       return;
     }
 
     const loadPromises: Promise<any>[] = [];
     wrapSticker({
-      doc: await rootScope.managers.appDocsManager.getDoc(availableEffect.static_icon_id),
+      doc: await rootScope.managers.appDocsManager!.getDoc(availableEffect.static_icon_id!),
       div: span,
       middleware: props.middleware,
       loadPromises,
@@ -98,7 +99,7 @@ const makeEffect = (props: {
 
     Promise.all(loadPromises).then(async() => {
       if(result.cached) {
-        deferred.resolve();
+        deferred.resolve!();
       }
 
       // * preload effect
@@ -117,7 +118,7 @@ const makeEffect = (props: {
 
 const getDocForEffect = async(availableEffect: AvailableEffect) => {
   const isPremiumEffect = !availableEffect.effect_animation_id;
-  const doc = await rootScope.managers.appDocsManager.getDoc(isPremiumEffect ? availableEffect.effect_sticker_id : availableEffect.effect_animation_id);
+  const doc = await rootScope.managers.appDocsManager!.getDoc((isPremiumEffect ? availableEffect.effect_sticker_id : availableEffect.effect_animation_id)!);
   return {isPremiumEffect, doc, thumb: getStickerEffectThumb(doc)};
 };
 
@@ -136,8 +137,8 @@ export const fireMessageEffect = ({e, isOut, element, middleware, scrollable, ef
 
   element.dataset.playing = '1';
 
-  rootScope.managers.appReactionsManager.getAvailableEffect(effectId).then(async(availableEffect) => {
-    const {doc, thumb: fullThumb} = await getDocForEffect(availableEffect);
+  rootScope.managers.appReactionsManager!.getAvailableEffect(effectId).then(async(availableEffect) => {
+    const {doc, thumb: fullThumb} = await getDocForEffect(availableEffect!);
     if(!middleware()) return;
 
     const {animationDiv} = wrapStickerAnimation({
@@ -176,7 +177,7 @@ export const fireMessageEffectByBubble = ({timeEffect, bubble, e, scrollable}: {
     e,
     scrollable,
     effectId,
-    middleware: bubble.middlewareHelper.get()
+    middleware: bubble.middlewareHelper!.get()
   });
 };
 
@@ -219,7 +220,7 @@ export namespace MessageRender {
     // let hasReactions: boolean;
 
     const fwdFrom = isMessage && message.fwd_from;
-    const time: HTMLElement = /* isSponsored ? undefined :  */makeTime(date, includeDate);
+    const time: HTMLElement = /* isSponsored ? undefined :  */makeTime(date, includeDate)!;
 
     let title = /* isSponsored ? undefined :  */getFullDate(new Date(message.date * 1000));
     if(isMessage) {
@@ -318,7 +319,7 @@ export namespace MessageRender {
     if(title) inner.title = title;
 
     let clonedArgs = args;
-    if(editedSpan) {
+    if(editedSpan!) {
       clonedArgs[clonedArgs.indexOf(editedSpan)] = makeEdited();
     }
     // if(sponsoredSpan) {
@@ -329,10 +330,10 @@ export namespace MessageRender {
     //   _reactionsElement.init(reactionsMessage, 'inline');
     //   _reactionsElement.render();
     // }
-    if(repeatSpan) {
-      clonedArgs[clonedArgs.indexOf(repeatSpan)] = makeScheduleRepeatPeriod((message as Message.message).schedule_repeat_period);
+    if(repeatSpan!) {
+      clonedArgs[clonedArgs.indexOf(repeatSpan)] = makeScheduleRepeatPeriod((message as Message.message).schedule_repeat_period!);
     }
-    if(effectSpan) {
+    if(effectSpan!) {
       clonedArgs[clonedArgs.indexOf(effectSpan)] = makeEffect({
         docId: (message as Message.message).effect,
         middleware: options.middleware,
@@ -348,7 +349,7 @@ export namespace MessageRender {
           a;
     });
     if(time) {
-      clonedArgs[clonedArgs.length - 1] = makeTime(date, includeDate); // clone time
+      clonedArgs[clonedArgs.length - 1] = makeTime(date, includeDate)!; // clone time
     }
     inner.append(...clonedArgs);
 
@@ -372,8 +373,8 @@ export namespace MessageRender {
     const repliesFooter = new RepliesElement();
     repliesFooter.message = message;
     repliesFooter.type = isFooter ? 'footer' : 'beside';
-    repliesFooter.loadPromises = loadPromises;
-    repliesFooter.lazyLoadQueue = lazyLoadQueue;
+    repliesFooter.loadPromises = loadPromises!;
+    repliesFooter.lazyLoadQueue = lazyLoadQueue!;
     repliesFooter.middlewareHelper = middleware.create();
     repliesFooter.init();
     bubbleContainer.append(repliesFooter);
@@ -396,10 +397,10 @@ export namespace MessageRender {
   }) => {
     const isReplacing = !bubbleContainer;
     if(isReplacing) {
-      bubbleContainer = bubble.querySelector('.bubble-content');
+      bubbleContainer = bubble.querySelector('.bubble-content') as HTMLElement;
     }
 
-    const currentReplyDiv = isReplacing ? bubbleContainer.querySelector('.reply') as HTMLElement : null;
+    const currentReplyDiv = isReplacing ? bubbleContainer!.querySelector('.reply') as HTMLElement : null;
     const replyTo = message.reply_to;
     if(!replyTo) {
       currentReplyDiv?.remove();
@@ -417,8 +418,8 @@ export namespace MessageRender {
           message.peerId
       );
 
-    const originalMessage = !isStoryReply && apiManagerProxy.getMessageByPeer(replyToPeerId, message.reply_to_mid);
-    const originalStory = isStoryReply && await rootScope.managers.acknowledged.appStoriesManager.getStoryById(replyToPeerId, replyTo.story_id);
+    const originalMessage = !isStoryReply && apiManagerProxy.getMessageByPeer(replyToPeerId!, message.reply_to_mid!);
+    const originalStory = isStoryReply && await rootScope.managers.acknowledged!.appStoriesManager!.getStoryById(replyToPeerId!, replyTo.story_id);
     let originalPeerTitle: string | HTMLElement | DocumentFragment;
 
     let isReplyFromAnotherPeer = false;
@@ -426,9 +427,9 @@ export namespace MessageRender {
 
     if(!fromUpdate) {
       if(isStoryReply) {
-        needUpdate.push(forUpdate = {replyToPeerId, replyStoryId: replyTo.story_id, mid: message.mid, peerId: message.peerId, logId});
+        needUpdate.push(forUpdate = {replyToPeerId: replyToPeerId!, replyStoryId: replyTo.story_id, mid: message.mid!, peerId: message.peerId!, logId});
       } else {
-        needUpdate.push(forUpdate = {replyToPeerId, replyMid: message.reply_to_mid, mid: message.mid, peerId: message.peerId, logId});
+        needUpdate.push(forUpdate = {replyToPeerId: replyToPeerId!, replyMid: message.reply_to_mid, mid: message.mid!, peerId: message.peerId!, logId});
       }
 
       middleware.onClean(() => {
@@ -437,12 +438,12 @@ export namespace MessageRender {
     }
 
     if(isStoryReply) {
-      if(!originalStory.cached) {
-        rootScope.managers.appMessagesManager.fetchMessageReplyTo(message);
+      if(!(originalStory as AckedResult<StoryItem.storyItem | undefined>).cached) {
+        rootScope.managers.appMessagesManager!.fetchMessageReplyTo(message);
         // needUpdate.push(forUpdate = {replyToPeerId, replyStoryId: replyTo.story_id, mid: message.mid, peerId: message.peerId});
-        originalPeerTitle = i18n('Loading');
+        originalPeerTitle = i18n('Loading')!;
       } else {
-        titlePeerId = replyToPeerId;
+        titlePeerId = replyToPeerId!;
         originalPeerTitle = new PeerTitle({
           peerId: titlePeerId,
           dialog: false,
@@ -454,7 +455,7 @@ export namespace MessageRender {
       // from different peer
       if(replyTo.reply_from) {
         isReplyFromAnotherPeer = true;
-        titlePeerId = getPeerId(replyTo.reply_from?.from_id || replyTo.reply_to_peer_id);
+        titlePeerId = getPeerId((replyTo.reply_from?.from_id || replyTo.reply_to_peer_id)!);
         originalPeerTitle = new PeerTitle({
           peerId: titlePeerId || undefined,
           dialog: false,
@@ -463,28 +464,28 @@ export namespace MessageRender {
           fromName: getFwdFromName(replyTo.reply_from)
         }).element;
       } else if(replyTo.reply_to_msg_deleted) {
-        originalPeerTitle = i18n('DeletedMessage');
+        originalPeerTitle = i18n('DeletedMessage')!;
       } else {
         // needUpdate.push(forUpdate = {replyToPeerId, replyMid: message.reply_to_mid, mid: message.mid, peerId: message.peerId});
-        rootScope.managers.appMessagesManager.fetchMessageReplyTo(message);
+        rootScope.managers.appMessagesManager!.fetchMessageReplyTo(message);
 
-        originalPeerTitle = i18n('Loading');
+        originalPeerTitle = i18n('Loading')!;
       }
     } else {
       isReplyFromAnotherPeer = !!replyTo.reply_from;
       const originalMessageFwdFromId = (originalMessage as Message.message).fwdFromId;
-      titlePeerId = message.fwdFromId && message.fwdFromId === originalMessageFwdFromId ?
+      titlePeerId = (message.fwdFromId && message.fwdFromId === originalMessageFwdFromId ?
         message.fwdFromId :
-        originalMessageFwdFromId || originalMessage.fromId;
-      setColorPeerId = message.fwdFromId && message.fwdFromId === originalMessageFwdFromId ?
+        originalMessageFwdFromId || originalMessage.fromId)!;
+      setColorPeerId = (message.fwdFromId && message.fwdFromId === originalMessageFwdFromId ?
         undefined :
-        originalMessage.fromId;
+        originalMessage.fromId)!;
       originalPeerTitle = new PeerTitle({
         peerId: titlePeerId,
         dialog: false,
         onlyFirstName: false,
         plainText: false,
-        fromName: !titlePeerId ? getFwdFromName((originalMessage as Message.message).fwd_from) : undefined
+        fromName: !titlePeerId ? getFwdFromName((originalMessage as Message.message).fwd_from!) : undefined
       }).element;
     }
 
@@ -512,11 +513,11 @@ export namespace MessageRender {
       }
     }
 
-    const isStoryExpired = isStoryReply && originalStory.cached && !(await originalStory.result);
+    const isStoryExpired = isStoryReply && (originalStory as AckedResult<StoryItem.storyItem | undefined>).cached && !(await (originalStory as AckedResult<StoryItem.storyItem | undefined>).result);
     const {container, fillPromise} = wrapReply({
       title: originalPeerTitle,
       animationGroup: chat.animationGroup,
-      message: originalMessage || (isReplyFromAnotherPeer ? {
+      message: ((originalMessage || (isReplyFromAnotherPeer ? {
         _: 'message',
         pFlags: {},
         id: 0,
@@ -524,10 +525,10 @@ export namespace MessageRender {
         message: '',
         peer_id: undefined,
         media: (replyTo as MessageReplyHeader.messageReplyHeader).reply_media
-      } : undefined),
+      } : undefined))! as Message.message | Message.messageService | undefined),
       isStoryExpired,
-      storyItem: originalStory?.cached && await originalStory.result,
-      setColorPeerId: setColorPeerId || titlePeerId,
+      storyItem: ((originalStory as AckedResult<StoryItem.storyItem | undefined> | undefined)?.cached && await (originalStory as AckedResult<StoryItem.storyItem | undefined>).result) as StoryItem.storyItem | undefined,
+      setColorPeerId: setColorPeerId! || titlePeerId!,
       textColor: 'primary-text-color',
       isQuote: !isStoryReply ? replyTo.pFlags.quote : undefined,
       middleware,
@@ -549,7 +550,7 @@ export namespace MessageRender {
       });
       currentReplyDiv.replaceWith(container);
     } else {
-      appendCallback(container);
+      appendCallback!(container);
     }
     // bubbleContainer.insertBefore(, nameContainer);
     bubble.classList.add('is-reply');

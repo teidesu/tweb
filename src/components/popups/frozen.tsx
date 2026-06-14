@@ -10,11 +10,11 @@ const TEST = false;
 export default function showFrozenPopup() {
   const appConfig = useAppConfig();
   const url = TEST ? 'https://t.me/telegram' : appConfig.freeze_appeal_url;
-  const untilDate = TEST ? Date.now() + 86400e3 : appConfig.freeze_until_date * 1000;
-  const username = url.split('/').pop();
+  const untilDate = TEST ? Date.now() + 86400e3 : appConfig.freeze_until_date! * 1000;
+  const username = url!.split('/').pop();
 
   const onClick = () => {
-    appImManager.openUrl(url);
+    appImManager.openUrl(url!);
   };
 
   const anchor = anchorCallback(onClick, true);
@@ -27,7 +27,7 @@ export default function showFrozenPopup() {
       {
         icon: 'hourglass',
         title: i18n('Frozen.Appeal.Title'),
-        subtitle: i18n('Frozen.Appeal.Subtitle', [anchor, formatDate(new Date(untilDate), {withTime: true})])
+        subtitle: i18n('Frozen.Appeal.Subtitle', [anchor, formatDate(new Date(untilDate), {withTime: true})!])
       }
     ],
     sticker: {

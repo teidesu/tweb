@@ -8,6 +8,7 @@ import DeferredIsUsingPasscode from '@lib/passcode/deferredIsUsingPasscode';
 import StaticUtilityClass from '@lib/staticUtilityClass';
 
 import {AccountSessionData, ActiveAccountNumber} from '@lib/accounts/types';
+import type {UserAuth} from '@appManagers/constants';
 import {MAX_ACCOUNTS} from '@lib/accounts/constants';
 import bytesToHex from '@helpers/bytes/bytesToHex';
 import randomize from '@helpers/array/randomize';
@@ -135,11 +136,11 @@ export class AccountController extends StaticUtilityClass {
     }
 
     accountData['auth_key_fingerprint'] && set('auth_key_fingerprint', accountData['auth_key_fingerprint']);
-    set('user_auth', accountData['userId'] && {
+    set('user_auth', (accountData['userId'] && {
       date: tsNow(true),
       id: accountData.userId,
       dcID: accountData.dcId || 0
-    });
+    }) as UserAuth | undefined);
     set('dc', accountData.dcId);
 
     await Promise.all([

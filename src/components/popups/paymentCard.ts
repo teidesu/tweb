@@ -92,8 +92,8 @@ export class InputFieldCorrected extends InputField {
       this.setValueSilently(transformedValue);
 
       if(result.selection) {
-        (this.input as HTMLInputElement).selectionStart = result.selection.selectionStart;
-        (this.input as HTMLInputElement).selectionEnd = result.selection.selectionEnd;
+        (this.input as HTMLInputElement).selectionStart = result.selection.selectionStart!;
+        (this.input as HTMLInputElement).selectionEnd = result.selection.selectionEnd!;
       }
     }
 
@@ -122,7 +122,7 @@ export class InputFieldCorrected extends InputField {
     t: any = {},
     justReturn?: boolean
   ) {
-    let result: ReturnType<InputFieldCorrected['options']['validateMethod']>;
+    let result: ReturnType<NonNullable<InputFieldCorrected['options']['validateMethod']>>;
     if(this.options.validateMethod) {
       result = this.options.validateMethod?.(value, t);
     } else {
@@ -130,7 +130,7 @@ export class InputFieldCorrected extends InputField {
     }
 
     if(result?.code) {
-      const langPackKey: LangPackKey = this.options.errorKeys?.[result.code];
+      const langPackKey: LangPackKey = this.options.errorKeys?.[result.code]!;
       !justReturn && this.setState(InputState.Error, langPackKey);
       return false;
     }
@@ -185,15 +185,15 @@ export function createCountryZipFields(country?: boolean, zip?: boolean) {
       plainText: true,
       inputMode: 'numeric',
       autocomplete: 'postal-code',
-      formatMethod: (/* ...args */) => {
+      formatMethod: ((/* ...args */) => {
         const {country} = countryInputField.getSelected();
         const iso2 = country?.iso2;
         return cardFormattingPatterns.postalCodeFromCountry(iso2 && iso2.toUpperCase());
-      }
+      }) as typeof cardFormattingPatterns['cardNumber']
     });
   }
 
-  return {countryInputField, postcodeInputField};
+  return {countryInputField: countryInputField!, postcodeInputField: postcodeInputField!};
 }
 
 export type PaymentsNativeProvider = 'stripe' | 'smartglocal';
@@ -272,9 +272,9 @@ export default class PopupPaymentCard extends PopupElement<{
     const savedCard = this.savedCard;
     const cardSection = new SettingSection({name: 'PaymentInfo.Card.Title', noDelimiter: true, noShadow: true});
 
-    const nativeParams: PaymentsNativeParams = JSON.parse(this.paymentForm.native_params.data);
+    const nativeParams: PaymentsNativeParams = JSON.parse(this.paymentForm.native_params!.data);
 
-    let lastBrand: string, brandIconTempId = 0, lastBrandImg: HTMLImageElement;
+    let lastBrand: string, brandIconTempId = 0, lastBrandImg: HTMLImageElement | undefined;
     const setBrandIcon = (brand: string) => {
       if(lastBrand === brand) {
         return;
@@ -326,7 +326,7 @@ export default class PopupPaymentCard extends PopupElement<{
       }
     });
 
-    let nameInputField: InputField;
+    let nameInputField!: InputField;
     if(nativeParams.need_cardholder_name) nameInputField = new InputField({
       label: 'Checkout.NewCard.CardholderNamePlaceholder',
       maxLength: 255,
@@ -334,7 +334,7 @@ export default class PopupPaymentCard extends PopupElement<{
       autocomplete: 'cc-name'
     });
 
-    const formatted = formatPhoneNumber(this.user.phone);
+    const formatted = formatPhoneNumber(this.user.phone!);
     const expireInputField = new InputFieldCorrected({
       label: 'SecureId.Identity.Placeholder.ExpiryDate',
       plainText: true,
@@ -381,7 +381,7 @@ export default class PopupPaymentCard extends PopupElement<{
       cardInputField,
       expireInputField,
       cvcInputField,
-      nameInputField
+      nameInputField!
     ].filter(Boolean);
     switchFocusOrder.forEach((inputField) => {
       const onKeyDown = (e: KeyboardEvent) => {
@@ -459,9 +459,9 @@ export default class PopupPaymentCard extends PopupElement<{
       saveRow.container.classList.add('is-disabled');
     }
 
-    (billingSection || cardSection).content.append(saveRow.container);
+    (billingSection! || cardSection).content.append(saveRow.container);
 
-    this.scrollable.append(...[cardSection, billingSection].filter(Boolean).map((s) => s.container));
+    this.scrollable.append(...[cardSection, billingSection!].filter(Boolean).map((s) => s.container));
 
     const payButton = PaymentButton({
       key: 'PaymentInfo.Done',
@@ -530,7 +530,7 @@ export default class PopupPaymentCard extends PopupElement<{
             headers: {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
-              'X-PUBLIC-TOKEN': nativeParams.public_token
+              'X-PUBLIC-TOKEN': nativeParams.public_token!
             },
             body: JSON.stringify(params)
           });
@@ -550,14 +550,14 @@ export default class PopupPaymentCard extends PopupElement<{
           out = {type: 'card', token: json.data.token}
         }
 
-        this.dispatchEvent('finish', {token: out, card: data});
+        this.dispatchEvent('finish', {token: out!, card: data});
         this.hide();
       }
     });
 
     const inputFields = ([
       cardInputField,
-      nameInputField,
+      nameInputField!,
       expireInputField,
       cvcInputField,
       countryInputField,
@@ -572,7 +572,7 @@ export default class PopupPaymentCard extends PopupElement<{
       cardInputField.value = savedCard.cardNumber;
       expireInputField.value = savedCard.expiryFull;
       cvcInputField.value = savedCard.cvc;
-      nameInputField && (nameInputField.value = savedCard.cardholderName);
+      nameInputField! && (nameInputField.value = savedCard.cardholderName);
       countryInputField && (countryInputField.value = savedCard.country);
       postcodeInputField && (postcodeInputField.value = savedCard.zip);
     }

@@ -37,7 +37,7 @@ function wrapCharacterRegExpFactory(regExp: RegExp, optional?: boolean) {
     const makeCharacter = optional ? makeOptionalCharacter : makeRequiredCharacter;
     if(match) {
       const result = match[0];
-      return makeCharacter(result, match.index + result.length);
+      return makeCharacter(result, match.index! + result.length);
     }
 
     return makeCharacter('', str.length);

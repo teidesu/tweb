@@ -138,7 +138,7 @@ export default function Scrollable(props: {
 
       // lastScrollDirection check is useless here, every callback should decide on its own
       if(true/*  && lastScrollDirection !== 0 */) {
-        onScrollCallbacks().forEach((callback) => callback());
+        onScrollCallbacks().forEach((callback) => callback!());
       }
 
       checkForTriggers();
@@ -380,7 +380,7 @@ export default function Scrollable(props: {
   };
 
   if(props.contextRef) {
-    untrack(() => props.contextRef)(value);
+    untrack(() => props.contextRef)!(value);
   }
 
   const resolvedChildren = children(() => {
@@ -432,7 +432,7 @@ export default function Scrollable(props: {
           (props.withBorders === 'bottom' || props.withBorders === 'both') && 'scrollable-y-bordered-bottom'
         ] : [])
       )}
-      onScroll={!ignoreScrollEvent() && onScroll}
+      onScroll={(!ignoreScrollEvent() && onScroll) || undefined}
       classList={props.classList}
       style={props.style}
       onWheel={(axis === 'x' && !IS_TOUCH_SUPPORTED && onWheel) || undefined}

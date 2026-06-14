@@ -30,7 +30,7 @@ setInterval(() => {
 
     for(const taskId in promises) {
       const promise = promises[taskId];
-      promise.reject();
+      promise.reject!();
     }
 
     deferredPromises.delete(messagePort);
@@ -56,7 +56,7 @@ class Stream {
     this.inUse = 0;
 
     // ! если грузить очень большое видео чанками по 512Кб в мобильном Safari, то стрим не запустится
-    this.limitPart = info.size > (75 * 1024 * 1024) ? STREAM_CHUNK_UPPER_LIMIT : STREAM_CHUNK_MIDDLE_LIMIT;
+    this.limitPart = info.size! > (75 * 1024 * 1024) ? STREAM_CHUNK_UPPER_LIMIT : STREAM_CHUNK_MIDDLE_LIMIT;
     this.destroyDebounced = debounce(this.destroy, 150000, false, true);
   }
 
@@ -65,7 +65,7 @@ class Stream {
     streams.delete(this.id);
     serviceMessagePort.invokeVoid('cancelFilePartRequests', {
       docId: Stream.getDocId(this.info),
-      accountNumber: this.info.accountNumber
+      accountNumber: this.info.accountNumber!
     }, getMtprotoMessagePort());
   };
 
@@ -82,15 +82,15 @@ class Stream {
       dcId: this.info.dcId,
       offset: alignedOffset,
       limit,
-      accountNumber: this.info.accountNumber
+      accountNumber: this.info.accountNumber!
     };
 
     const taskId = JSON.stringify(payload);
 
     const mtprotoMessagePort = getMtprotoMessagePort();
-    let promises = deferredPromises.get(mtprotoMessagePort);
+    let promises = deferredPromises.get((mtprotoMessagePort as MessagePort));
     if(!promises) {
-      deferredPromises.set(mtprotoMessagePort, promises = {});
+      deferredPromises.set((mtprotoMessagePort as MessagePort), promises = {});
     }
 
     let deferred = promises[taskId];
@@ -103,12 +103,12 @@ class Stream {
     deferred = promises[taskId] = deferredPromise();
 
     serviceMessagePort.invoke('requestFilePart', payload, undefined, mtprotoMessagePort, undefined, 60e3)
-    .then(deferred.resolve.bind(deferred), deferred.reject.bind(deferred)).finally(() => {
+    .then(deferred.resolve!.bind(deferred), deferred.reject!.bind(deferred)).finally(() => {
       if(promises[taskId] === deferred) {
         delete promises[taskId];
 
         if(!Object.keys(promises).length) {
-          deferredPromises.delete(mtprotoMessagePort);
+          deferredPromises.delete((mtprotoMessagePort as MessagePort));
         }
       }
     });
@@ -175,8 +175,8 @@ class Stream {
   }
 
   private preloadChunks(offset: number, end: number) {
-    if(end > this.info.size) {
-      end = this.info.size;
+    if(end > this.info.size!) {
+      end = this.info.size!;
     }
 
     if(!offset) { // load last chunk for bounds
@@ -191,7 +191,7 @@ class Stream {
   public requestRange(range: StreamRange) {
     this.destroyDebounced();
 
-    const possibleResponse = responseForSafariFirstRange(range, this.info.mimeType, this.info.size);
+    const possibleResponse = responseForSafariFirstRange(range, this.info.mimeType!, this.info.size!);
     if(possibleResponse) {
       return possibleResponse;
     }
@@ -208,7 +208,7 @@ class Stream {
     const alignedOffset = alignOffset(offset, limit);
 
     if(!end) {
-      end = Math.min(offset + limit, this.info.size - 1);
+      end = Math.min(offset + limit, this.info.size! - 1);
     }
 
     let overflow: number;
@@ -218,11 +218,11 @@ class Stream {
 
     const parts = Promise.all([
       this.requestFilePart(alignedOffset, limit),
-      overflow && this.requestFilePart(alignedOffset + limit, limit)
+      overflow! && this.requestFilePart(alignedOffset + limit, limit)
     ]);
 
     return parts.then((parts) => {
-      let ab = bufferConcats(...parts.filter(Boolean));
+      let ab = bufferConcats(...parts.filter(Boolean) as Uint8Array[]);
       // log.debug('[stream] requestFilePart result:', result);
 
       // if(isSafari) {
@@ -276,7 +276,7 @@ class Stream {
   }
 
   private static getId(info: DownloadOptions): StreamId {
-    return `${info.accountNumber}-${this.getDocId(info)}`;
+    return `${info.accountNumber!}-${this.getDocId(info)}` as StreamId;
   }
 
   private static getDocId(info: DownloadOptions) {
@@ -290,7 +290,7 @@ function parseInfo(params: string) {
 
 export default function onStreamFetch(event: FetchEvent, params: string, search: string) {
   async function performRequest() {
-    const range = parseRange(event.request.headers.get('Range'));
+    const range = parseRange(event.request.headers.get('Range')!);
     const info = parseInfo(params);
 
     const client = await ctx.clients.get(event.clientId);
@@ -324,7 +324,7 @@ export function toggleStreamInUse({url, inUse, accountNumber}: {url: string, inU
   stream.toggleInUse(inUse);
 }
 
-function responseForSafariFirstRange(range: StreamRange, mimeType: string, size: number): Response {
+function responseForSafariFirstRange(range: StreamRange, mimeType: string, size: number): Response | null {
   if(range[0] === 0 && range[1] === 1) {
     return new Response(new Uint8Array(2).buffer, {
       status: 206,

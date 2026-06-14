@@ -50,7 +50,7 @@ export const cryptoMethodsRegistry = {
   },
   'aes-ctr-process': ({id, data, operation}: {id: number, data: Uint8Array, operation: 'encrypt' | 'decrypt'}) => {
     const ctrs = aesCTRs.get(id);
-    return ctr256(operation === 'encrypt' ? ctrs.enc : ctrs.dec, data);
+    return ctr256(operation === 'encrypt' ? ctrs!.enc : ctrs!.dec, data);
   },
   'aes-ctr-destroy': (id: number) => {
     const ctrs = aesCTRs.get(id);

@@ -25,8 +25,8 @@ export default function getResultTransform({
     mediaState: {scale, translation, rotation, flip, currentImageRatio}
   } = context;
 
-  const initialCanvasWidth = canvasSize[0];
-  const initialCanvasHeight = canvasSize[1];
+  const initialCanvasWidth = canvasSize![0];
+  const initialCanvasHeight = canvasSize![1];
 
   const imageRatio = imageWidth / imageHeight;
 

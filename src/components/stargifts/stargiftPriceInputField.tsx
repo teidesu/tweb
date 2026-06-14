@@ -61,13 +61,13 @@ export function StarGiftPriceInputField(props: {
   createEffect(on(() => [props.ton, props.value], ([ton, valueStr]) => {
     if(ton) {
       const float = Number(valueStr);
-      const usd = appConfig.ton_usd_rate * float;
+      const usd = appConfig.ton_usd_rate! * float;
       inputRef.setApproxText(`≈${paymentsWrapCurrencyAmount(usd * 100, 'USD')}`);
       return;
     }
 
     const value = +valueStr;
-    const usd = appConfig.stars_usd_sell_rate_x1000 / 1000 * value / 100;
+    const usd = appConfig.stars_usd_sell_rate_x1000! / 1000 * value / 100;
     inputRef.setApproxText(`≈${paymentsWrapCurrencyAmount(usd * 100, 'USD')}`);
   }));
 

@@ -12,7 +12,7 @@ export type ListLoaderOptions<T extends {}, P extends {}> = {
 
 export type ListLoaderResult<T extends {}> = {count: number, items: any[]};
 export default class ListLoader<T extends {}, P extends {}> {
-  public current: T;
+  public current: T | undefined;
   public previous: T[] = [];
   public next: T[] = [];
   public count: number;
@@ -28,8 +28,8 @@ export default class ListLoader<T extends {}, P extends {}> {
 
   protected loadedAllUp = false;
   protected loadedAllDown = false;
-  protected loadPromiseUp: Promise<void>;
-  protected loadPromiseDown: Promise<void>;
+  protected loadPromiseUp: Promise<void> | null;
+  protected loadPromiseDown: Promise<void> | null;
 
   constructor(options: ListLoaderOptions<T, P>) {
     safeAssign(this, options);
@@ -68,7 +68,7 @@ export default class ListLoader<T extends {}, P extends {}> {
     let items: T[], item: T;
     if(length > 0) {
       items = this.next.splice(0, length);
-      item = items.pop();
+      item = items.pop()!;
       if(!item) {
         return;
       }
@@ -77,7 +77,7 @@ export default class ListLoader<T extends {}, P extends {}> {
       this.previous.push(...items);
     } else {
       items = this.previous.splice(Math.max(0, this.previous.length + length), -length);
-      item = items.shift();
+      item = items.shift()!;
       if(!item) {
         return;
       }
@@ -101,8 +101,8 @@ export default class ListLoader<T extends {}, P extends {}> {
   }
 
   protected unsetCurrent(toPrevious: boolean) {
-    if(toPrevious) this.previous.push(this.current);
-    else this.next.unshift(this.current);
+    if(toPrevious) this.previous.push((this.current as T));
+    else this.next.unshift((this.current as T));
 
     this.current = undefined;
   }
@@ -145,14 +145,14 @@ export default class ListLoader<T extends {}, P extends {}> {
     let promise = older ? this.loadPromiseDown : this.loadPromiseUp;
     if(promise) return promise;
 
-    let anchor: T;
+    let anchor!: T;
     if(older) {
-      anchor = this.reverse ? this.previous[0] : this.next[this.next.length - 1];
+      anchor = this.reverse ? this.previous[0]! : this.next[this.next.length - 1]!;
     } else {
-      anchor = this.reverse ? this.next[this.next.length - 1] : this.previous[0];
+      anchor = this.reverse ? this.next[this.next.length - 1]! : this.previous[0]!;
     }
 
-    anchor ??= this.current;
+    anchor ??= this.current!;
     promise = this.loadMore(anchor, older, this.loadCount).then(async(result) => {
       if((older ? this.loadPromiseDown : this.loadPromiseUp) !== promise) {
         return;

@@ -47,7 +47,7 @@ export default function showMutePopup(peerId: PeerId, threadId?: number) {
           <PopupElement.Button
             langKey="ChatList.Context.Mute"
             callback={() => {
-              rootScope.managers.appMessagesManager.mutePeer({
+              rootScope.managers.appMessagesManager!.mutePeer({
                 peerId,
                 muteUntil: time === -1 ? MUTE_UNTIL : tsNow(true) + time,
                 threadId

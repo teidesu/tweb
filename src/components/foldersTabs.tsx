@@ -40,9 +40,9 @@ export default function FoldersTabs(props: {
         <Badge
           tag="div"
           size={20}
-          color={item.notifications.muted ? 'gray' : 'primary'}
+          color={item.notifications!.muted ? 'gray' : 'primary'}
         >
-          {item.notifications.count}
+          {item.notifications!.count}
         </Badge>
       </Tabs.MenuTab>
     );

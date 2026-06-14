@@ -58,6 +58,6 @@ export default function topicAvatar(color: number, content: string) {
   (clone.firstElementChild as HTMLElement).style.fill = `url(#${gradientId})`;
   // (clone.firstElementChild as HTMLElement).style.stroke = `var(--peer-avatar-${color}-filled)`;
   (clone.firstElementChild as HTMLElement).style.stroke = strokeColor;
-  clone.lastElementChild.append(wrapAbbreviation(content, true));
+  clone.lastElementChild!.append(wrapAbbreviation(content, true));
   return clone;
 }

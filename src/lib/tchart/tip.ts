@@ -15,7 +15,7 @@ export default class TTip {
   private tooltipOnHover: boolean;
   private points: HTMLElement[];
   private drag: TDrag;
-  private canvasPos: {x: number; y: number;};
+  private canvasPos?: {x: number; y: number;};
   private dx: number;
   private dy: number;
   private tp: string;
@@ -32,10 +32,10 @@ export default class TTip {
   private $tipScrollerWrapper: HTMLElement;
   private $tipScroller: HTMLElement;
   private bodyTimeout: number;
-  private detailCallbacks: any[];
-  private prevXInd: number;
+  private detailCallbacks?: any[];
+  private prevXInd?: number;
   private isDarkMode: boolean;
-  private lastCurPieItemInd: number;
+  private lastCurPieItemInd?: number;
   private lastTipTop: number;
   private lastTipLeft: number;
   private tipH: number;
@@ -53,12 +53,12 @@ export default class TTip {
     this.shown = false;
 
     this.isTouch = isTouchDevice();
-    this.$canvas = opts.$canvas;
+    this.$canvas = opts.$canvas!;
     this.cache = {};
 
     this.$tip = document.createElement('div');
     this.$tip.className = 'tchart--tip';
-    opts.$parent.appendChild(this.$tip);
+    opts.$parent!.appendChild(this.$tip);
 
     this.$tipDt = document.createElement('h6');
     this.$tipDt.className = 'tchart--tip-header';
@@ -87,13 +87,13 @@ export default class TTip {
     this.$tipScroller.addEventListener('scroll', this.updateTipScrollClasses);
 
     this.labels = [];
-    opts.data.ys.forEach((item) => {
+    opts.data!.ys!.forEach((item) => {
       this.labels.push(this.addLabel(item));
     });
 
-    if(opts.graphStyle === 'bar' && opts.data.ys.length > 1) {
+    if(opts.graphStyle === 'bar' && opts.data!.ys!.length > 1) {
       this.allLabel = this.addLabel({
-        label: opts.settings.ALL_LABEL,
+        label: opts.settings!.ALL_LABEL,
         outside: true
       });
     }
@@ -105,19 +105,19 @@ export default class TTip {
       });
     }
 
-    this.tooltipOnHover = this.isTouch ? false : opts.data.tooltipOnHover;
+    this.tooltipOnHover = this.isTouch ? false : opts.data!.tooltipOnHover;
 
     if(opts.graphStyle !== 'bar') {
       this.$line = document.createElement('div');
       this.$line.className = 'tchart--line';
-      opts.$parent.appendChild(this.$line);
+      opts.$parent!.appendChild(this.$line);
 
       this.$lineFill = document.createElement('div');
       this.$lineFill.className = 'tchart--line-fill';
       this.$line.appendChild(this.$lineFill);
 
       if(opts.graphStyle !== 'area') {
-        this.points = opts.data.ys.map(() => {
+        this.points = opts.data!.ys!.map(() => {
           const $el = document.createElement('span');
           $el.className = 'tchart--line-point';
           this.$line.appendChild($el);
@@ -125,8 +125,8 @@ export default class TTip {
         });
       }
     } else {
-      opts.state.barInd = -1;
-      opts.state.barO = 0;
+      opts.state!.barInd = -1;
+      opts.state!.barO = 0;
     }
 
     if(!this.tooltipOnHover) {
@@ -137,7 +137,7 @@ export default class TTip {
           this.dx = params.pageX - this.canvasPos.x;
           this.dy = params.pageY - this.canvasPos.y;
 
-          const dims = this.opts.state.dims.tip;
+          const dims = this.opts.state!.dims!.tip;
           this.tp = this.getTp(this.dx, this.dy - dims.t, params.isTouch);
 
           delete this.prevXInd;
@@ -179,7 +179,7 @@ export default class TTip {
         this.dx = e.pageX - this.canvasPos.x;
         this.dy = e.pageY - this.canvasPos.y;
 
-        const dims = this.opts.state.dims.tip;
+        const dims = this.opts.state!.dims!.tip;
         this.tp = this.getTp(this.dx, this.dy - dims.t, this.isTouch);
 
         if(this.tp) {
@@ -215,7 +215,7 @@ export default class TTip {
   }
 
   onResize(rect?: any) {
-    const dims = this.opts.state.dims.tip;
+    const dims = this.opts.state!.dims!.tip;
 
     if(this.$line) {
       const dh = this.opts.graphStyle === 'area' ? 25 : 16;
@@ -224,7 +224,7 @@ export default class TTip {
       this.$line.style.height = dims.h + 'px';
 
       this.$lineFill.style.top = dh + 'px';
-      this.$lineFill.style.bottom = (this.opts.settings.PADD[2] + 1) + 'px';
+      this.$lineFill.style.bottom = (this.opts.settings!.PADD[2] + 1) + 'px';
     }
 
     this.render();
@@ -242,20 +242,20 @@ export default class TTip {
 
   onTipClick = (e: Event) => {
     if(this.prevXInd === undefined) return;
-    if(!this.opts.additional.onClick) return;
-    if(!this.opts.data.hasDetail) return;
-    if(this.opts.state.zoomMode || this.opts.state.zoomModeSpecial) return;
+    if(!this.opts.additional!.onClick) return;
+    if(!this.opts.data!.hasDetail) return;
+    if(this.opts.state!.zoomMode || this.opts.state!.zoomModeSpecial) return;
 
     e.stopPropagation();
 
     if(this.$tip.classList.contains('tchart--tip__loading')) return;
 
-    const x = this.opts.data.x[this.prevXInd];
+    const x = this.opts.data!.x![this.prevXInd];
 
     // area case
-    if(!this.opts.data.detailsFunc) {
+    if(!this.opts.data!.detailsFunc) {
       this.toggle(false, true);
-      this.opts.additional.onClick(true, x);
+      this.opts.additional!.onClick(true, x);
       return;
     }
 
@@ -264,14 +264,14 @@ export default class TTip {
 
     if(this.cache[x]) {
       this.toggle(false, true);
-      this.opts.additional.onClick(true, x, this.cache[x]);
+      this.opts.additional!.onClick(true, x, this.cache[x]);
       this.$tip.classList.remove('tchart--tip__loading');
       return;
     }
 
     this.abortDetailCallbacks();
 
-    const dataPromise = this.opts.data.detailsFunc(x);
+    const dataPromise = this.opts.data!.detailsFunc(x);
 
     this.detailCallbacks = this.detailCallbacks || [];
 
@@ -285,7 +285,7 @@ export default class TTip {
       }
 
       this.toggle(false, true);
-      this.opts.additional.onClick(true, x, val);
+      this.opts.additional!.onClick!(true, x, val);
       this.cache[x] = val;
     };
 
@@ -305,11 +305,11 @@ export default class TTip {
   };
 
   updateColors() {
-    const ys = this.opts.data.ys;
+    const ys = this.opts.data!.ys;
 
     this.labels.forEach((item, ind) => {
-      this.points && (this.points[ind].style.borderColor = this.isDarkMode ? ys[ind].colors_n[0] : ys[ind].colors_d[0]);
-      item.$value.style.color = this.isDarkMode ? ys[ind].colors_n[2] : ys[ind].colors_d[2];
+      this.points && (this.points[ind].style.borderColor = this.isDarkMode ? ys![ind].colors_n[0] : ys![ind].colors_d[0]);
+      item.$value.style.color = this.isDarkMode ? ys![ind].colors_n[2] : ys![ind].colors_d[2];
     });
 
     if(this.allLabel) {
@@ -318,7 +318,7 @@ export default class TTip {
 
     if(this.$lineFill) {
       // this.$lineFill.style.backgroundColor = 'rgba(var(--tchart-background-color-rgb), 0.1)';
-      this.$lineFill.style.backgroundColor = this.opts.settings.COLORS.grid;
+      this.$lineFill.style.backgroundColor = this.opts.settings!.COLORS.grid;
     }
   }
 
@@ -327,7 +327,7 @@ export default class TTip {
     this.updateColors();
   }
 
-  addLabel(item: Partial<Pick<TChartData['ys'][0], 'label' | 'outside'>>) {
+  addLabel(item: Partial<Pick<NonNullable<TChartData['ys']>[0], 'label' | 'outside'>>) {
     const $row = document.createElement('div');
     $row.className = 'tchart--tip-row';
     if(item.outside) {
@@ -342,7 +342,7 @@ export default class TTip {
     $row.appendChild($label);
 
     const $labelText = document.createTextNode('');
-    $labelText.nodeValue = item.label;
+    $labelText.nodeValue = item.label ?? null;
     $label.appendChild($labelText);
 
     let $perText: Text;
@@ -370,20 +370,20 @@ export default class TTip {
       $valueText: $valueText,
       $label: $label,
       $labelText: $labelText,
-      $per: $per,
-      $perText: $perText
+      $per: $per!,
+      $perText: $perText!
     };
   }
 
   getTp(x: number, y: number, isTouch?: boolean) {
-    if(this.opts.graphStyle === 'area' && this.opts.state.zoomMode) {
-      const dims = this.opts.state.dims.graph;
+    if(this.opts.graphStyle === 'area' && this.opts.state!.zoomMode) {
+      const dims = this.opts.state!.dims!.graph;
       const cx = dims.w / 2;
       const cy = dims.h / 2;
       const dist = Math.pow((cy - y) * (cy - y) + (x - cx) * (x - cx), 0.5);
-      return dist <= this.opts.settings.PIE_RADIUS ? 'graph' : '';
+      return dist <= this.opts.settings!.PIE_RADIUS ? 'graph' : '';
     } else {
-      const dims = this.opts.state.dims.tip;
+      const dims = this.opts.state!.dims!.tip;
       if(y < 0 || y > dims.h) return '';
       return 'graph';
     }
@@ -406,7 +406,7 @@ export default class TTip {
     const dx = e.pageX - this.canvasPos.x;
     const dy = e.pageY - this.canvasPos.y;
 
-    const dims = this.opts.state.dims.tip;
+    const dims = this.opts.state!.dims!.tip;
     const tp = this.getTp(dx, dy - dims.t, false);
 
     this.onMouseLeave();
@@ -419,7 +419,7 @@ export default class TTip {
 
     if(enabled && !this.shown) {
       this.$tip.classList.add('tchart--tip__visible');
-      if(this.opts.data.hasDetail && !(this.opts.state.zoomMode || this.opts.state.zoomModeSpecial)) {
+      if(this.opts.data!.hasDetail && !(this.opts.state!.zoomMode || this.opts.state!.zoomModeSpecial)) {
         this.$tip.classList.add('tchart--tip__has-zoom');
       } else {
         this.$tip.classList.remove('tchart--tip__has-zoom');
@@ -432,13 +432,13 @@ export default class TTip {
     if(!enabled && this.shown) {
       delete this.lastCurPieItemInd;
 
-      if(opts.graphStyle === 'area' && state.zoomMode) {
+      if(opts.graphStyle === 'area' && state!.zoomMode) {
         const animProps: TChartAnimationProperty[] = [];
-        for(let i = 0; i < state.pieAngles.length; i++) {
-          const pieItem = state.pieAngles[i];
+        for(let i = 0; i < state!.pieAngles!.length; i++) {
+          const pieItem = state!.pieAngles![i];
           animProps.push({
             prop: `pieInd_${pieItem.ind}`,
-            state: opts.state,
+            state: opts.state!,
             end: 0,
             duration: 350,
             tween: 'exp',
@@ -446,13 +446,13 @@ export default class TTip {
             group: {top: true}
           });
         }
-        opts.animator.add(animProps);
+        opts.animator!.add(animProps);
       }
 
       if(shiftHide) {
         this.$tip.classList.add('tchart--tip__shiftHide');
         this.lastTipTop -= 12;
-        this.lastTipLeft = this.lastTipLeft < this.opts.state.dims.tip.w / 2 ? this.lastTipLeft - 12 : this.lastTipLeft + 12;
+        this.lastTipLeft = this.lastTipLeft < this.opts.state!.dims!.tip.w / 2 ? this.lastTipLeft - 12 : this.lastTipLeft + 12;
         this.$tip.style.transform = 'translate(' + this.lastTipLeft + 'px,' + this.lastTipTop + 'px)';
         this.$tip.style.webkitTransform = 'translate(' + this.lastTipLeft + 'px,' + this.lastTipTop + 'px)';
       }
@@ -466,7 +466,7 @@ export default class TTip {
 
       // add to animaion query request to disable tooltip selection overlay
       if(this.opts.graphStyle === 'bar') {
-        this.opts.animator.add([{
+        this.opts.animator!.add([{
           prop: 'barInd',
           state: this.opts.state,
           end: -1,
@@ -500,21 +500,21 @@ export default class TTip {
     const opts = this.opts;
     const state = opts.state;
     const settings = this.opts.settings;
-    const pTop = settings.PADD[0];
-    const pRight = settings.PADD[1];
-    const pBottom = settings.PADD[2];
-    const pLeft = settings.PADD[3];
-    const dims = state.dims.graph;
-    const dimsTip = state.dims.tip;
+    const pTop = settings!.PADD[0];
+    const pRight = settings!.PADD[1];
+    const pBottom = settings!.PADD[2];
+    const pLeft = settings!.PADD[3];
+    const dims = state!.dims!.graph;
+    const dimsTip = state!.dims!.tip;
     const cx = dims.w / 2;
     const cy = dims.h / 2;
-    const formatter = getFormatter('yTooltipFormatter', opts.data, state.zoomMorph);
+    const formatter = getFormatter('yTooltipFormatter', opts.data!, state!.zoomMorph!);
     let ang = Math.atan2(cy - this.dy + dims.t, this.dx - cx);
     ang = ang < 0 ? Math.PI * 2 + ang : ang;
 
     let curPieItem: TChartAngle;
-    for(let i = 0; i < state.pieAngles.length; i++) {
-      const pieItem = state.pieAngles[i];
+    for(let i = 0; i < state!.pieAngles!.length; i++) {
+      const pieItem = state!.pieAngles![i];
       if(ang <= pieItem.st && ang >= pieItem.ed) {
         curPieItem = pieItem;
       }
@@ -524,21 +524,21 @@ export default class TTip {
       }
     }
 
-    if(this.lastCurPieItemInd !== curPieItem.ind) {
+    if(this.lastCurPieItemInd !== curPieItem!.ind) {
       const animProps: TChartAnimationProperty[] = [];
-      for(let i = 0; i < state.pieAngles.length; i++) {
-        const pieItem = state.pieAngles[i];
+      for(let i = 0; i < state!.pieAngles!.length; i++) {
+        const pieItem = state!.pieAngles![i];
         animProps.push({
           prop: `pieInd_${pieItem.ind}`,
-          state: opts.state,
-          end: pieItem === curPieItem ? 1 : 0,
+          state: opts.state!,
+          end: pieItem === curPieItem! ? 1 : 0,
           duration: 350,
           tween: 'exp',
           speed: 0.2,
           group: {top: true}
         });
       }
-      opts.animator.add(animProps);
+      opts.animator!.add(animProps);
     }
 
 
@@ -547,10 +547,10 @@ export default class TTip {
       item.$row.style.display = 'none';
     });
 
-    this.pieLabel.$labelText.nodeValue = curPieItem.label;
-    this.pieLabel.$valueText.nodeValue = !isNaN(curPieItem.value) ? formatter(curPieItem.value) : 'n/a';
+    this.pieLabel.$labelText.nodeValue = curPieItem!.label;
+    this.pieLabel.$valueText.nodeValue = !isNaN(curPieItem!.value) ? formatter(curPieItem!.value) : 'n/a';
 
-    this.pieLabel.$value.style.color = curPieItem.color;
+    this.pieLabel.$value.style.color = curPieItem!.color;
     this.$tip.classList.add('tchart--tip__piemode');
     this.$line && this.$line.classList.add('tchart--line__piemode');
 
@@ -569,7 +569,7 @@ export default class TTip {
     this.$tip.style.transform = 'translate(' + (left << 0) + 'px,' + (top << 0) + 'px)';
     this.$tip.style.webkitTransform = 'translate(' + (left << 0) + 'px,' + (top << 0) + 'px)';
 
-    this.lastCurPieItemInd = curPieItem.ind;
+    this.lastCurPieItemInd = curPieItem!.ind;
 
     this.updateTipScrollClasses();
   }
@@ -580,26 +580,26 @@ export default class TTip {
     const opts = this.opts;
     const state = opts.state;
     const settings = this.opts.settings;
-    const pTop = settings.PADD[0];
-    const pRight = settings.PADD[1];
-    const pBottom = settings.PADD[2];
-    const pLeft = settings.PADD[3];
+    const pTop = settings!.PADD[0];
+    const pRight = settings!.PADD[1];
+    const pBottom = settings!.PADD[2];
+    const pLeft = settings!.PADD[3];
     let $el: HTMLElement;
     let y1: number, y2: number;
     let itemsVisible = 0;
-    const dims = this.opts.state.dims.tip;
-    const formatter = getFormatter('yTooltipFormatter', opts.data, state.zoomMorph);
+    const dims = this.opts.state!.dims!.tip;
+    const formatter = getFormatter('yTooltipFormatter', opts.data!, state!.zoomMorph!);
 
-    const zoomMorph = state.zoomMorph === undefined ? 0 : state.zoomMorph;
-    const offsetForBarGraphMain = opts.graphStyle === 'bar' || opts.graphStyle === 'step' ? this.opts.data.mainPeriodLen : 0;
-    const offsetForBarGraphScale = offsetForBarGraphMain * (1 - zoomMorph);
+    const zoomMorph = state!.zoomMorph === undefined ? 0 : state!.zoomMorph;
+    const offsetForBarGraphMain = opts.graphStyle === 'bar' || opts.graphStyle === 'step' ? this.opts.data!.mainPeriodLen : 0;
+    const offsetForBarGraphScale = offsetForBarGraphMain! * (1 - zoomMorph);
 
     this.abortDetailCallbacks();
 
     this.$tip.classList.remove('tchart--tip__error');
     this.$tip.classList.remove('tchart--tip__loading');
 
-    if(opts.graphStyle === 'area' && state.zoomMode) {
+    if(opts.graphStyle === 'area' && state!.zoomMode) {
       this.renderPieTooltip(params);
       return;
     } else {
@@ -609,13 +609,13 @@ export default class TTip {
     }
 
     const constrainedDx = Math.max(Math.min(this.dx, dims.w - 1), 0);
-    const x = state.x1 + (state.x2 - state.x1 + offsetForBarGraphScale) * ((constrainedDx - pLeft) / (dims.w - pRight - pLeft));
-    const xPos = getXIndex(opts.data.x, x);
+    const x = state!.x1! + (state!.x2! - state!.x1! + offsetForBarGraphScale) * ((constrainedDx - pLeft) / (dims.w - pRight - pLeft));
+    const xPos = getXIndex(opts.data!.x!, x);
     let xInd = (opts.graphStyle === 'bar' || opts.graphStyle === 'step' ? Math.floor(xPos) : Math.round(xPos));
 
     // prevent out of canvas points
     if(opts.graphStyle !== 'bar' && opts.graphStyle !== 'step') {
-      const lx = (opts.data.x[xInd] - state.x1) / (state.x2 - state.x1 + offsetForBarGraphScale);
+      const lx = (opts.data!.x![xInd] - state!.x1!) / (state!.x2! - state!.x1! + offsetForBarGraphScale);
       const cx = ((lx * (dims.w - pLeft - pRight) + pLeft) << 0);
       if(cx < 0) {
         xInd++
@@ -624,11 +624,11 @@ export default class TTip {
         xInd--;
       }
     } else {
-      if(this.opts.state.zoomMode || this.opts.state.zoomModeSpecial) {
-        if(xInd < opts.state.detailInd1) {
+      if(this.opts.state!.zoomMode || this.opts.state!.zoomModeSpecial) {
+        if(xInd < opts.state!.detailInd1!) {
           xInd++;
         }
-        if(xInd > opts.state.detailInd2) {
+        if(xInd > opts.state!.detailInd2!) {
           xInd--;
         }
       }
@@ -638,7 +638,7 @@ export default class TTip {
     // add to anitaion query request to redraw graph
     // it will notice barInd: xInd and draw needed selection
     if(opts.graphStyle === 'bar') {
-      opts.animator.add([{
+      opts.animator!.add([{
         prop: 'barInd',
         state: opts.state,
         end: xInd,
@@ -662,7 +662,7 @@ export default class TTip {
 
 
       this.labels.forEach((item, ind) => {
-        const display = opts.state[`e_${ind}`] && !isNaN(opts.data.ys[ind].y[xInd]) ? 'block' : 'none';
+        const display = opts.state![`e_${ind}`] && !isNaN(opts.data!.ys![ind].y[xInd]) ? 'block' : 'none';
         item.$row.style.display = display;
         this.points && (this.points[ind].style.display = display);
         itemsVisible += display === 'block' ? 1 : 0;
@@ -683,24 +683,24 @@ export default class TTip {
 
       let xw = 0;
       if(opts.graphStyle === 'step') {
-        if(this.opts.state.zoomMode) {
-          xw = opts.data.detailPeriodLen;
+        if(this.opts.state!.zoomMode) {
+          xw = opts.data!.detailPeriodLen!;
         } else {
-          xw = opts.data.mainPeriodLen;
+          xw = opts.data!.mainPeriodLen!;
         }
       }
 
-      const lx = (opts.data.x[xInd] - state.x1 + xw / 2) / (state.x2 - state.x1 + offsetForBarGraphScale);
+      const lx = (opts.data!.x![xInd] - state!.x1! + xw / 2) / (state!.x2! - state!.x1! + offsetForBarGraphScale);
       const cx = ((lx * (dims.w - pLeft - pRight) + pLeft) << 0);
 
       this.$line && (this.$line.style.transform = 'translateX(' + cx + 'px)');
       this.$line && (this.$line.style.webkitTransform = 'translateX(' + cx + 'px)');
 
-      this.$tipDtText.nodeValue = opts.data.dates[xInd];
+      this.$tipDtText.nodeValue = opts.data!.dates![xInd];
 
       let sumAll = 0;
-      opts.data.ys.forEach((item, ind) => {
-        if(opts.state[`e_${ind}`] && !isNaN(item.y[xInd])) {
+      opts.data!.ys!.forEach((item, ind) => {
+        if(opts.state![`e_${ind}`] && !isNaN(item.y[xInd])) {
           this.labels[ind].$valueText.nodeValue = formatter(item.y[xInd]);
           sumAll += item.y[xInd] || 0
 
@@ -708,11 +708,11 @@ export default class TTip {
             $el = this.points[ind];
 
             if(opts.pairY) {
-              y1 = state[`y1_${ind}`] as number;
-              y2 = state[`y2_${ind}`] as number;
+              y1 = state![`y1_${ind}`] as number;
+              y2 = state![`y2_${ind}`] as number;
             } else {
-              y1 = state['y1'] as number;
-              y2 = state['y2'] as number;
+              y1 = state!['y1'] as number;
+              y2 = state!['y2'] as number;
             }
 
             const y = (item.y[xInd] - y1) / (y2 - y1);
@@ -746,7 +746,7 @@ export default class TTip {
 
       // calc max labels and values width
       this.labels.forEach((item, ind) => {
-        const isVisible = opts.state[`e_${ind}`] && !isNaN(opts.data.ys[ind].y[xInd]);
+        const isVisible = opts.state![`e_${ind}`] && !isNaN(opts.data!.ys![ind].y[xInd]);
         if(isVisible) {
           const labelWidth = item.$label.offsetWidth;
           if(labelWidth > this.maxLabelWidth) {
@@ -798,13 +798,13 @@ export default class TTip {
       top = Math.min(Math.max(this.dy - this.tipH / 2, dims.t + pTop), dims.t + dims.h - this.tipH - pBottom);
     }
 
-    left = Math.min(Math.max(left, pLeft / 2), dims.w - this.tipW - pRight / 2);
+    left = Math.min(Math.max(left!, pLeft / 2), dims.w - this.tipW - pRight / 2);
 
-    this.$tip.style.transform = 'translate(' + (left << 0) + 'px,' + (top << 0) + 'px)';
-    this.$tip.style.webkitTransform = 'translate(' + (left << 0) + 'px,' + (top << 0) + 'px)';
+    this.$tip.style.transform = 'translate(' + (left << 0) + 'px,' + (top! << 0) + 'px)';
+    this.$tip.style.webkitTransform = 'translate(' + (left << 0) + 'px,' + (top! << 0) + 'px)';
 
     this.lastTipLeft = left << 0;
-    this.lastTipTop = top << 0;
+    this.lastTipTop = top! << 0;
 
     this.prevXInd = xInd;
 
@@ -836,8 +836,8 @@ export default class TTip {
     const perInt: number[] = [];
     let maxLen = 2;
 
-    opts.data.ys.forEach((item, ind) => {
-      if(opts.state[`e_${ind}`]) {
+    opts.data!.ys!.forEach((item, ind) => {
+      if(opts.state![`e_${ind}`]) {
         perInt[ind] = Math.max(Math.round(100 * item.y[xInd] / sumAll), 0);
 
         if(isNaN(item.y[xInd]) || sumAll === 0) {
@@ -850,8 +850,8 @@ export default class TTip {
       }
     });
 
-    opts.data.ys.forEach((item, ind) => {
-      if(opts.state[`e_${ind}`]) {
+    opts.data!.ys!.forEach((item, ind) => {
+      if(opts.state![`e_${ind}`]) {
         const percentageWidth = (maxLen * 8 + 17); // with right padding
         this.labels[ind].$label.style.transform = 'translateX(' + percentageWidth + 'px)';
         this.labels[ind].$label.style.webkitTransform = 'translateX(' + percentageWidth + 'px)';

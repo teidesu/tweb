@@ -37,7 +37,7 @@ export default class LazyLoadQueue extends LazyLoadQueueIntersector {
   };
 
   protected getItem() {
-    return findAndSplice(this.queue, (item) => item.wasSeen);
+    return findAndSplice(this.queue, (item) => item.wasSeen!);
   }
 
   public async processItem(item: LazyLoadElement) {

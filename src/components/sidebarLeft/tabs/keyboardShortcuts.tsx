@@ -72,7 +72,7 @@ const ShortcutRow = (props: {action: LangPackKey, hint?: LangPackKey, keys: JSX.
       {i18n(props.action)}
     </Row.Title>
     <Show when={props.hint}>
-      <Row.Subtitle>{i18n(props.hint)}</Row.Subtitle>
+      <Row.Subtitle>{i18n(props.hint!)}</Row.Subtitle>
     </Show>
   </Row>
 );
@@ -115,7 +115,7 @@ const SendShortcutRow = () => {
           onClose={() => setIsOpen(false)}
           options={options}
           onChange={(value) => setAppSettings('sendShortcut', value)}
-          parent={rowEl()}
+          parent={rowEl()!}
         />
       </Row.RightContent>
     </Row>
@@ -249,7 +249,7 @@ const MediaEditorSection = () => (
 
 const OtherSection = () => {
   const [passcode] = createResource(() =>
-    rootScope.managers.appStateManager.getState().then((state) => state?.settings?.passcode)
+    rootScope.managers.appStateManager!.getState().then((state) => state?.settings?.passcode)
   );
 
   const lockKeys = () => {
@@ -268,7 +268,7 @@ const OtherSection = () => {
             when={lockKeys()}
             fallback={<span class={styles.or}>—</span>}
           >
-            <KeyCombo keys={lockKeys()} />
+            <KeyCombo keys={lockKeys()!} />
           </Show>
         }
       />

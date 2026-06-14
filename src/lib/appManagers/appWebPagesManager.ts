@@ -6,7 +6,7 @@
  */
 
 import {ReferenceContext} from '@lib/storages/references';
-import {WebPage} from '@layer';
+import {Document, Photo, WebPage} from '@layer';
 import safeReplaceObject from '@helpers/object/safeReplaceObject';
 import {AppManager} from '@appManagers/manager';
 import findAndSplice from '@helpers/array/findAndSplice';
@@ -56,7 +56,7 @@ export class AppWebPagesManager extends AppManager {
 
     mediaContext ??= {
       type: 'webPage',
-      url: apiWebPage.url
+      url: apiWebPage.url!
     };
 
     if(apiWebPage._ === 'webPage') {
@@ -91,7 +91,7 @@ export class AppWebPagesManager extends AppManager {
         switch(attribute._) {
           case 'webPageAttributeStory': {
             const cache = this.appStoriesManager.getPeerStoriesCache(this.appPeersManager.getPeerId(attribute.peer));
-            attribute.story = this.appStoriesManager.saveStoryItem(attribute.story, cache);
+            attribute.story = this.appStoriesManager.saveStoryItem(attribute.story!, cache);
             break;
           }
         }
@@ -101,19 +101,19 @@ export class AppWebPagesManager extends AppManager {
       if(cachedPage) {
         cachedPage.photos = cachedPage.photos?.map((photo) => {
           return this.appPhotosManager.savePhoto(photo, mediaContext);
-        }).filter(Boolean);
+        }).filter(Boolean) as Photo[];
 
         cachedPage.documents = cachedPage.documents?.map((doc) => {
           return this.appDocsManager.saveDoc(doc, mediaContext);
-        }).filter(Boolean);
+        }).filter(Boolean) as Document[];
 
         if(apiWebPage.photo) {
-          findAndSplice(cachedPage.photos, (photo) => photo.id === apiWebPage.photo.id);
+          findAndSplice(cachedPage.photos, (photo) => photo.id === apiWebPage.photo!.id);
           cachedPage.photos.push(apiWebPage.photo);
         }
 
         if(apiWebPage.document) {
-          findAndSplice(cachedPage.documents, (doc) => doc.id === apiWebPage.document.id);
+          findAndSplice(cachedPage.documents, (doc) => doc.id === apiWebPage.document!.id);
           cachedPage.documents.push(apiWebPage.document);
         }
 
@@ -124,7 +124,7 @@ export class AppWebPagesManager extends AppManager {
         });
       }
 
-      if(!photoTypeSet.has(apiWebPage.type) &&
+      if(!photoTypeSet.has(apiWebPage.type!) &&
         !apiWebPage.description &&
         apiWebPage.photo) {
         apiWebPage.type = 'photo';

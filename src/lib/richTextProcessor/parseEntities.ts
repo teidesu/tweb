@@ -19,8 +19,8 @@ export default function parseEntities(text: string) {
   let rawOffset = 0;
   // var start = tsNow()
   FULL_REG_EXP.lastIndex = 0;
-  while(match = raw.match(FULL_REG_EXP)) {
-    matchIndex = rawOffset + match.index;
+  while(match = raw.match(FULL_REG_EXP)!) {
+    matchIndex = rawOffset + match.index!;
 
     // console.log('parseEntities match:', match);
 
@@ -60,7 +60,7 @@ export default function parseEntities(text: string) {
           url = (match[5] ? '' : 'http://') + match[4];
         }
 
-        if(url) {
+        if(url!) {
           entities.push({
             _: 'messageEntityUrl',
             offset: matchIndex,
@@ -113,8 +113,8 @@ export default function parseEntities(text: string) {
       });
     }
 
-    raw = raw.substr(match.index + match[0].length);
-    rawOffset += match.index + match[0].length;
+    raw = raw.substr(match.index! + match[0].length);
+    rawOffset += match.index! + match[0].length;
   }
 
   // if (entities.length) {

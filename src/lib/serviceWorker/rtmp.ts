@@ -83,7 +83,7 @@ class RtmpStream {
   private _bufferSize: number;
   private _dcId: DcId;
 
-  private _clock: number;
+  private _clock: number | undefined;
 
   private _initChunk?: Fmp4InitChunkInfo;
   private _lastChunkSeq: number;
@@ -133,8 +133,8 @@ class RtmpStream {
       chunk: iso,
       seq: seq,
       timestamp: bigInt(seq).multiply(this._chunkTime),
-      opusTrackId: this._initChunk.opusTrackId,
-      decodeOpus: IS_SAFARI && this.decodeOpus
+      opusTrackId: this._initChunk!.opusTrackId,
+      decodeOpus: (IS_SAFARI && this.decodeOpus) as unknown as ((chunk: Uint8Array) => Promise<OpusDecodedAudio>) | undefined
     });
   }
 
@@ -208,7 +208,7 @@ class RtmpStream {
     if(this._opusDecoder !== undefined && !ignoreExisting) {
       this._opusDecoder.free();
     }
-    const decoder = new OpusDecoder(this._initChunk.opusInitOptions);
+    const decoder = new OpusDecoder(this._initChunk!.opusInitOptions);
     this._decoderInitPromise = decoder.ready;
     await this._decoderInitPromise;
     this._opusDecoder = decoder;
@@ -220,7 +220,7 @@ class RtmpStream {
       await this.initOpusDecoder();
     }
 
-    return this._opusDecoder.decodeFrame(chunk);
+    return this._opusDecoder!.decodeFrame(chunk);
   }
 
   private hasEnoughBuffer() {
@@ -229,7 +229,7 @@ class RtmpStream {
 
   private sendBufferToController(controller: ReadableStreamDefaultController<Uint8Array>) {
     this._log('sending buffer to controller');
-    controller.enqueue(this._initChunk.data);
+    controller.enqueue(this._initChunk!.data);
     for(const chunk of this._buffer) {
       if(!chunk.segment) break;
       controller.enqueue(chunk.segment);
@@ -279,9 +279,9 @@ class RtmpStream {
           assumeType<ApiError>(e);
           log('error', e.type, nextTime.toString());
 
-          const retry = async(delay: number) => {
+          const retry = async(delay: number): Promise<BufferedChunk> => {
             await pause(delay);
-            if(shouldSkip()) return;
+            if(shouldSkip()) return undefined as unknown as BufferedChunk;
             return fetchChunk(true);
           };
 
@@ -291,7 +291,7 @@ class RtmpStream {
             }
 
             const state = await this.fetchState();
-            if(shouldSkip()) return;
+            if(shouldSkip()) return undefined as unknown as BufferedChunk;
             const channel = this.findChannel(state); // * will throw an error if channel not found
             const delay = nextTime.minus(bigInt(channel.last_timestamp_ms as number)).add(this._chunkTime).toJSNumber();
             if(delay < 0) {
@@ -360,8 +360,8 @@ class RtmpStream {
       for(const chunk of newChunks) {
         await this.prepareChunkForFlushing(chunk);
 
-        const waiters = this._hlsWaitingForChunk.get(chunk.seq) || [];
-        this._hlsWaitingForChunk.delete(chunk.seq);
+        const waiters = this._hlsWaitingForChunk.get(chunk.seq!) || [];
+        this._hlsWaitingForChunk.delete(chunk.seq!);
         log(`sending chunk to waiters time=${chunk.time} seq=${chunk.seq}`);
 
         for(const waiter of waiters) {
@@ -430,7 +430,7 @@ class RtmpStream {
 
     const retry = () => {
       if(retries > 3) {
-        promise.reject(new Error('Failed to fetch state'));
+        promise.reject!(new Error('Failed to fetch state'));
         return;
       }
 
@@ -450,7 +450,7 @@ class RtmpStream {
         accountNumber: this.accountNumber
       }).then((state) => {
         clearTimeout(timeout);
-        promise.resolve(state);
+        promise.resolve!(state);
       }).catch((e) => {
         this._log.error('error fetching state', e);
         retries++;
@@ -517,7 +517,7 @@ class RtmpStream {
 
     const [state] = await Promise.all([
       this.fetchState(),
-      floodRelease.get(this.call.id) && pause(Math.max(0, floodRelease.get(this.call.id) - Date.now()))
+      floodRelease.get(this.call.id) && pause(Math.max(0, floodRelease.get(this.call.id)! - Date.now()))
     ]);
     if(!check()) return;
 
@@ -574,14 +574,14 @@ class RtmpStream {
   /**
    * @returns whether the request should be retried
    */
-  private handleError(error: any): boolean {
+  private handleError(error: any): boolean | undefined {
     if(this._destroyed) return false;
     const log = this._log.bindPrefix('handleError');
 
     if(typeof(error) === 'object' && error && typeof(error.type) === 'string') {
       assumeType<ApiError>(error);
       if(error.type.startsWith('FLOOD_WAIT')) {
-        const wait = +error.type.split('_').pop();
+        const wait = +error.type.split('_').pop()!;
         floodRelease.set(this.call.id, Date.now() + wait * 1000);
         this.start();
         return true;
@@ -761,18 +761,18 @@ class RtmpStream {
     if(chunk && chunk.segment) return chunk.segment;
 
     // either we're not ready yet or the chunk is too old
-    if(this._buffer.length && seq < this._buffer[0].seq) {
+    if(this._buffer.length && seq < this._buffer[0].seq!) {
       log('hls chunk to old', seq);
       log(this._buffer);
-      return;
+      return undefined as unknown as Uint8Array;
     }
 
     return new Promise<Uint8Array>((resolve, reject) => {
       const interval = ctx.setInterval(() => {
-        if(this._buffer.length && seq < this._buffer[0].seq) {
+        if(this._buffer.length && seq < this._buffer[0].seq!) {
           // chunk is now too old
           log('hls chunk fetch timeout', seq);
-          resolve(undefined);
+          resolve(undefined!);
         }
       }, this._chunkTime ?? 500);
       const rejectWrap = (err: unknown) => {
@@ -789,7 +789,7 @@ class RtmpStream {
         }
 
         clearInterval(interval);
-        resolve(chunk);
+        resolve(chunk!);
       });
       this._pendingRejects.push(rejectWrap);
 
@@ -810,7 +810,7 @@ async function getRtmpFetchResponse(event: FetchEvent, params: string, search: s
   // }
 
   const client = await ctx.clients.get(event.clientId);
-  const accountNumber = getCurrentAccountFromURL(client.url);
+  const accountNumber = getCurrentAccountFromURL(client!.url);
 
   if(!pending) {
     log('creating rtmp stream', call.id);
