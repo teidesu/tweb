@@ -2163,12 +2163,16 @@ export class AppDialogsManager {
     }
 
     // set it before content so won't have bug in appSearch
-    if (isSearch && lastMessage) {
-      dom.listEl.dataset.mid = '' + lastMessage.mid;
+    // gate on `_lastMessage` (explicitly passed search match), not the post-fallback
+    // `lastMessage`: a `topMessage` fallback (e.g. unsetTyping re-render) must not stamp a
+    // jump target onto a reused main-list row, else clicking it focuses+highlights that mid
+    // instead of opening at the unread divider
+    if (isSearch && _lastMessage) {
+      dom.listEl.dataset.mid = '' + _lastMessage.mid;
 
-      const replyTo = lastMessage.reply_to as MessageReplyHeader.messageReplyHeader;
+      const replyTo = _lastMessage.reply_to as MessageReplyHeader.messageReplyHeader;
       if (replyTo?.pFlags?.forum_topic) {
-        dom.listEl.dataset.threadId = '' + getMessageThreadId(lastMessage);
+        dom.listEl.dataset.threadId = '' + getMessageThreadId(_lastMessage);
       }
     }
 
