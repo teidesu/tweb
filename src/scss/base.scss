@@ -124,9 +124,9 @@
   --section-box-shadow: 0px 1px 4px 0px var(--section-box-shadow-color);
   --section-box-shadow-big: 0px 1px 8px 0px var(--section-box-shadow-big-color);
   --column-box-shadow: 0px 0px 4px 0px var(--column-box-shadow-color);
-  --font-regular: "Roboto", -apple-system, apple color emoji, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-  --font-monospace: 'Roboto Mono', monospace;
-  --font-rounded: -ui-rounded, "Numbers Rounded", "Roboto", "Helvetica Neue", sans-serif;
+  --font-regular: "Inter", sans-serif;
+  --font-monospace: 'Iosevka Web', monospace;
+  --font-rounded: -ui-rounded, "Numbers Rounded", "Inter", sans-serif;
   --font-weight-bold: 500;
   --font-weight-normal: 400;
   --font-weight: var(--font-weight-normal);
@@ -218,6 +218,10 @@
   --passcode-lock-screen-z-index: 100000;
 
   --star-golden-color: #fecf16;
+}
+
+@supports (font-variation-settings: normal) {
+  :root { font-family: "InterVariable", sans-serif; font-optical-sizing: auto; }
 }
 
 :root {

@@ -132,6 +132,7 @@ export default function TextTab() {
 
       <div class="media-editor__label">{i18n('MediaEditor.Font')}</div>
 
+      {fontButton('Inter', 'inter')}
       {fontButton(i18n('MediaEditor.Fonts.Roboto'), 'roboto')}
       {fontButton(i18n('MediaEditor.Fonts.SuezOne'), 'suez')}
       {fontButton(i18n('MediaEditor.Fonts.FugazOne'), 'fugaz')}

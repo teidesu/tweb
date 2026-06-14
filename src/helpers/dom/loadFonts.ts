@@ -15,7 +15,7 @@ const cache: {
 const fonts: {[type in FontType]: string} = {
   text: FontFamilyName,
   icons: TGICO_CLASS,
-  monospace: 'Roboto Mono',
+  monospace: 'Iosevka Web',
 };
 
 export default function loadFonts(types: {[type in FontType]?: string[] | 'all'} = {

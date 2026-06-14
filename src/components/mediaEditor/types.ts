@@ -36,7 +36,7 @@ export type TextRenderingInfoLine = {
   content: string;
 };
 
-export type FontKey = 'roboto' | 'suez' | 'bubbles' | 'playwrite' | 'chewy' | 'courier' | 'fugaz' | 'sedan';
+export type FontKey = 'inter' | 'roboto' | 'suez' | 'bubbles' | 'playwrite' | 'chewy' | 'courier' | 'fugaz' | 'sedan';
 
 export type TextLayerInfo = {
   color: string;

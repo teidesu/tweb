@@ -122,6 +122,11 @@ export function checkIfHasAnimatedStickers(layers: ResizableLayer[]) {
 };
 
 export const fontInfoMap: Record<FontKey, FontInfo> = {
+  inter: {
+    fontFamily: '\'Inter\'',
+    fontWeight: 500,
+    baseline: 0.75,
+  },
   roboto: {
     fontFamily: '\'Roboto\'',
     fontWeight: 500,
@@ -168,7 +173,7 @@ export const textLayerInfoDefaults: TextLayerInfo = {
   alignment: 'left',
   style: 'outline',
   color: '#ffffff',
-  font: 'roboto',
+  font: 'inter',
   size: 40,
 };
 
