@@ -67,6 +67,7 @@ export default async function wrapDocument({
   globalMedia,
   doc: docOverride,
   slot,
+  modifyBubble,
 }: {
   message: Message.message,
   middleware: Middleware,
@@ -101,7 +102,12 @@ export default async function wrapDocument({
    * AudioElement / `appMediaPlaybackController.addMedia`. See
    * `AddMediaArgs.slot`.
    */
-  slot?: number
+  slot?: number,
+  /**
+   * Wraps transcription show/hide DOM mutations so the chat keeps scroll
+   * pinned to the bottom. Set by bubbles (`this.modifyBubble`).
+   */
+  modifyBubble?: (callback: VoidFunction) => void
 }): Promise<HTMLElement> {
   fontWeight ??= 500;
   sizeType ??= '' as any;
@@ -128,6 +134,7 @@ export default async function wrapDocument({
     audioElement.uploadingFileName = uploadingFileName!;
     audioElement.shouldWrapAsVoice = shouldWrapAsVoice;
     audioElement.customAudioToTextButton = customAudioToTextButton;
+    audioElement.modifyBubble = modifyBubble;
     audioElement.middleware = middleware;
 
     audioElement.audio = globalMedia as any;

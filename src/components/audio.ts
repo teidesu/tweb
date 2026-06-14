@@ -196,13 +196,17 @@ async function wrapVoiceMessage(audioEl: AudioElement) {
 
     speechRecognitionDiv.onclick = () => {
       const speechTextDiv = (findUpClassName(audioEl, 'document-wrapper') || findUpClassName(audioEl, 'quote-text')).querySelector<HTMLElement>('.audio-transcribed-text');
+      // pin scroll to the bottom when toggling visibility resizes the bubble
+      const modify = audioEl.modifyBubble ?? ((callback: VoidFunction) => callback());
       if (audioEl.transcriptionState === 0) {
         if (speechTextDiv) {
-          speechTextDiv.classList.remove('hide');
-          speechRecognitionIcon.classList.remove(_tgico('transcribe'));
-          speechRecognitionIcon.classList.add(_tgico('up'));
-          // TODO: State to enum
-          audioEl.transcriptionState = 2;
+          modify(() => {
+            speechTextDiv.classList.remove('hide');
+            speechRecognitionIcon.classList.remove(_tgico('transcribe'));
+            speechRecognitionIcon.classList.add(_tgico('up'));
+            // TODO: State to enum
+            audioEl.transcriptionState = 2;
+          });
         } else {
           const message = audioEl.message;
           if (message.pFlags.is_outgoing) {
@@ -231,10 +235,12 @@ async function wrapVoiceMessage(audioEl: AudioElement) {
         }
       } else if (audioEl.transcriptionState === 2) {
         // Hide transcription
-        speechTextDiv!.classList.add('hide');
-        speechRecognitionIcon.classList.remove(_tgico('up'));
-        speechRecognitionIcon.classList.add(_tgico('transcribe'));
-        audioEl.transcriptionState = 0;
+        modify(() => {
+          speechTextDiv!.classList.add('hide');
+          speechRecognitionIcon.classList.remove(_tgico('up'));
+          speechRecognitionIcon.classList.add(_tgico('transcribe'));
+          audioEl.transcriptionState = 0;
+        });
       }
     };
 
@@ -531,6 +537,7 @@ export default class AudioElement extends HTMLElement {
   public uploadingFileName: string;
   public shouldWrapAsVoice?: boolean;
   public customAudioToTextButton?: HTMLElement;
+  public modifyBubble?: (callback: VoidFunction) => void;
   public listLoaderFactory?: MediaListLoaderFactory;
   public middleware: Middleware;
 

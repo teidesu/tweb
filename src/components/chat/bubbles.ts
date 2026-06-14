@@ -1084,13 +1084,12 @@ export default class ChatBubbles {
         return;
       }
 
-      // const scrollSaver = this.createScrollSaver(false);
-      // scrollSaver.save();
-
       const speechTextDiv = bubble.querySelector('.document-wrapper, .quote-text.has-document') as HTMLElement;
       const speechRecognitionIcon = audioElement.querySelector('.audio-to-text-button span');
       const speechRecognitionLoader = audioElement.querySelector('.loader');
-      if (speechTextDiv && speechRecognitionIcon) {
+      if (!speechTextDiv || !speechRecognitionIcon) return;
+
+      this.modifyBubble(() => {
         let transcribedText = speechTextDiv.querySelector('.audio-transcribed-text');
         if (!transcribedText) {
           transcribedText = document.createElement('div');
@@ -1132,9 +1131,7 @@ export default class ChatBubbles {
         }
 
         audioElement.transcriptionState = 2;
-      }
-
-      // scrollSaver.restore();
+      });
     });
 
     this.listenerSetter.add(rootScope)('grouped_edit', ({ peerId, messages, deletedMids }) => {
@@ -7639,6 +7636,7 @@ export default class ChatBubbles {
                 },
                 fontSize: this.chat.appSettings.messagesTextSize,
                 canTranscribeVoice: true,
+                modifyBubble: this.modifyBubble,
               });
               preview!.append(docDiv);
               props.media!.hasDocument = true;
@@ -8073,6 +8071,7 @@ export default class ChatBubbles {
               translatableParams,
               factCheckBox: factCheckBox!,
               isOut,
+              modifyBubble: this.modifyBubble,
             });
 
             const bubbleBackground = document.createElement('div');

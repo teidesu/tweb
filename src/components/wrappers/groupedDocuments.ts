@@ -33,6 +33,7 @@ export default async function wrapGroupedDocuments({
   translatableParams,
   factCheckBox,
   isOut,
+  modifyBubble,
 }: {
   albumMustBeRenderedFull: boolean,
   middleware: Middleware,
@@ -55,7 +56,8 @@ export default async function wrapGroupedDocuments({
   canTranscribeVoice?: boolean,
   translatableParams: Parameters<typeof TranslatableMessage>[0],
   factCheckBox?: HTMLElement,
-  isOut?: boolean
+  isOut?: boolean,
+  modifyBubble?: (callback: VoidFunction) => void
 }) {
   let nameContainer: HTMLElement;
   const { peerId } = message;
@@ -79,6 +81,7 @@ export default async function wrapGroupedDocuments({
       fontSize,
       canTranscribeVoice,
       isOut,
+      modifyBubble,
     });
 
     const container = document.createElement('div');
