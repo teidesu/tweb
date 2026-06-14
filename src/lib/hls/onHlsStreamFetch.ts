@@ -38,7 +38,7 @@ export async function onHlsStreamFetch(event: FetchEvent, inParams: string, sear
 
     const resultingBuffer = filePart.slice(lowerBound - alignedLowerBound, upperBound - alignedLowerBound + 1);
 
-    deferred.resolve!(
+    deferred.resolve(
       new Response(resultingBuffer, {
         status: 206,
         statusText: 'Partial Content',
@@ -46,7 +46,7 @@ export async function onHlsStreamFetch(event: FetchEvent, inParams: string, sear
       })
     );
   } catch(e) {
-    deferred.resolve!(get500ErrorResponse());
+    deferred.resolve(get500ErrorResponse());
     swLog.error(e);
   }
 }

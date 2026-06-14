@@ -71,11 +71,11 @@ function summarizeParams(method: string, params: any): string {
     const pick: Record<string, any> = {};
     const keys = Object.keys(params).slice(0, 5);
     for(const k of keys) {
-      const v = (params as any)[k];
+      const v = (params)[k];
       if(v == null) pick[k] = v;
       else if(typeof v === 'object') {
         if(Array.isArray(v)) pick[k] = `[len=${v.length}]`;
-        else if((v as any)._) pick[k] = (v as any)._;
+        else if((v)._) pick[k] = (v)._;
         else pick[k] = '{…}';
       } else {
         const s = String(v);

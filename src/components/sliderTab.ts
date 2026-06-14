@@ -126,7 +126,7 @@ export default class SliderSuperTab {
   }
 
   protected setTitle(key: LangPackKey) {
-    this.title.replaceChildren(i18n(key)!);
+    this.title.replaceChildren(i18n(key));
   }
 }
 

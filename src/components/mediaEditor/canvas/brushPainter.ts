@@ -172,7 +172,7 @@ export default class BrushPainter {
 
     const deferred = deferredPromise<void>();
     animateValue(0.1, arrowLength, 120, (length) => this.drawArrowHead(ctx, line, length), {
-      onEnd: () => deferred.resolve!()
+      onEnd: () => deferred.resolve()
     });
     await deferred;
   }

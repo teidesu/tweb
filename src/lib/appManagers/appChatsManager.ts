@@ -807,7 +807,7 @@ export class AppChatsManager extends AppManager {
     if(this.isChannel(id)) return this.kickFromChannel(id, participant as ChannelParticipant);
     else return this.deleteChatUser(
       id,
-      isObject(participant) ? getParticipantPeerId(participant) : (participant as PeerId).toUserId()
+      isObject(participant) ? getParticipantPeerId(participant) : (participant).toUserId()
     );
   }
 

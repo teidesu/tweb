@@ -58,7 +58,7 @@ export default class RichInputHandler {
     if(element && (element.isContentEditable || element.tagName === 'INPUT')) {
       const selection = document.getSelection();
       if(selection!.rangeCount) {
-        this.savedRanges.set(element as HTMLElement, document.getSelection()!.getRangeAt(0));
+        this.savedRanges.set(element, document.getSelection()!.getRangeAt(0));
       }
     }
   }

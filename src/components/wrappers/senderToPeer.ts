@@ -15,10 +15,10 @@ export default async function wrapSenderToPeer(message: MyMessage) {
       await wrapPeerTitle({
         ...getMessageSenderPeerIdOrName(message),
         dialog: message.peerId === rootScope.myId
-      }))!
+      }))
   );
 
-  if(await rootScope.managers.appPeersManager!.isAnyGroup(message.peerId!) || fromMe) {
+  if(await rootScope.managers.appPeersManager.isAnyGroup(message.peerId!) || fromMe) {
     const peerTitle = await wrapPeerTitle({peerId: message.peerId});
     senderTitle.append(' ➝ ', peerTitle);
   }

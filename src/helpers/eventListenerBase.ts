@@ -149,7 +149,7 @@ export default class EventListenerBase<Listeners extends EventListenerListeners>
       this.listenerResults[name] = args;
     }
 
-    const results: Array<SuperReturnType<Listeners[typeof name]>> = ((collectResults && [])! as SuperReturnType<Listeners[T]>[]);
+    const results: Array<SuperReturnType<Listeners[typeof name]>> = ((collectResults && []) as SuperReturnType<Listeners[T]>[]);
 
     const listeners = this.listeners[name];
     for(const listener of listeners || []) {

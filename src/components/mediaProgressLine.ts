@@ -8,6 +8,7 @@ import appMediaPlaybackController from '@components/appMediaPlaybackController';
 import {VideoTimestamp} from '@components/appMediaViewerBase';
 import RangeSelector from '@components/rangeSelector';
 import {observeResize} from '@components/resizeObserver';
+import {isTruthy} from '../helpers/isTruthy';
 
 const MIN_VIDEO_TIMESTAMP_SEGMENT_WIDTH = 7; // -2px padding will be 5px
 
@@ -196,7 +197,7 @@ export default class MediaProgressLine extends RangeSelector {
       this.options.appendToTimeElement,
       this.currentSegmentElement,
       this.currentTimeElement
-    ].filter(Boolean) as (string | Node)[]));
+    ].filter(isTruthy)));
 
     this.filledContainer.append(this.filled, this.filledLoad);
 

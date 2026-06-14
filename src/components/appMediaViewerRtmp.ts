@@ -113,7 +113,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
 
     const chat = apiManagerProxy.getChat(chatId);
     if(!getPeerActiveUsernames(chat)[0]) {
-      const chatFull = await this.managers.appProfileManager!.getChatFull(chatId);
+      const chatFull = await this.managers.appProfileManager.getChatFull(chatId);
       this.shareUrl = (chatFull.exported_invite as ExportedChatInvite.chatInviteExported)?.link;
     } else {
       this.shareUrl = getRtmpShareUrl(this.peerId);
@@ -152,7 +152,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
             text: 'Rtmp.MediaViewer.Menu.StopRecording',
             verify: () => !!(getCall()?.admin && getCall()!.call.pFlags.record_video_active),
             onClick: () => {
-              this.managers.appGroupCallsManager!.stopRecording(getCall()!.inputCall).catch(() => {
+              this.managers.appGroupCallsManager.stopRecording(getCall()!.inputCall).catch(() => {
                 toastNew({
                   langPackKey: 'Error.AnError'
                 });
@@ -437,7 +437,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
   public static async getShareUrl(chatId: ChatId) {
     const chat = apiManagerProxy.getChat(chatId);
     if(!getPeerActiveUsernames(chat)[0]) {
-      const chatFull = await rootScope.managers.appProfileManager!.getChatFull(chatId);
+      const chatFull = await rootScope.managers.appProfileManager.getChatFull(chatId);
       return (chatFull.exported_invite as ExportedChatInvite.chatInviteExported)?.link;
     } else {
       return getRtmpShareUrl(chatId.toPeerId(true));

@@ -35,7 +35,7 @@ const NotifySection = (props: {
       return;
     }
 
-    const muted = await rootScope.managers.appNotificationsManager!.isMuted(_notifySettings);
+    const muted = await rootScope.managers.appNotificationsManager.isMuted(_notifySettings);
     setEnabled(!muted);
     setShowPreviews(!!_notifySettings.show_previews);
 
@@ -46,7 +46,7 @@ const NotifySection = (props: {
     const mute = !enabled();
     const _showPreviews = showPreviews();
     const _notifySettings = notifySettings();
-    const isMuted = await rootScope.managers.appNotificationsManager!.isMuted(_notifySettings!);
+    const isMuted = await rootScope.managers.appNotificationsManager.isMuted(_notifySettings!);
     if(
       mute === isMuted &&
       _showPreviews === _notifySettings!.show_previews
@@ -58,7 +58,7 @@ const NotifySection = (props: {
     inputSettings._ = 'inputPeerNotifySettings';
     inputSettings.mute_until = mute ? MUTE_UNTIL : 0;
     inputSettings.show_previews = _showPreviews;
-    rootScope.managers.appNotificationsManager!.updateNotifySettings(
+    rootScope.managers.appNotificationsManager.updateNotifySettings(
       inputNotifyPeer,
       inputSettings
     );
@@ -71,7 +71,7 @@ const NotifySection = (props: {
     }
   });
 
-  const ret = rootScope.managers.appNotificationsManager!.getNotifySettings(inputNotifyPeer);
+  const ret = rootScope.managers.appNotificationsManager.getNotifySettings(inputNotifyPeer);
   (ret instanceof Promise ? ret : Promise.resolve(ret)).then((_notifySettings) => {
     if(!notifySettings()) {
       setNotifySettings(_notifySettings);
@@ -99,13 +99,13 @@ const NotifySection = (props: {
 const OtherSection = () => {
   const [contactJoined, setContactJoined] = createSignal(true);
   const owner = getOwner();
-  rootScope.managers.appNotificationsManager!.getContactSignUpNotification().then((enabled) => {
+  rootScope.managers.appNotificationsManager.getContactSignUpNotification().then((enabled) => {
     setContactJoined(enabled);
 
     runWithOwner(owner, () => onCleanup(() => {
       const _enabled = contactJoined();
       if(_enabled !== enabled) {
-        rootScope.managers.appNotificationsManager!.setContactSignUpNotification(!_enabled);
+        rootScope.managers.appNotificationsManager.setContactSignUpNotification(!_enabled);
       }
     }));
   });

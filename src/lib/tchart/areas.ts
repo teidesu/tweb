@@ -92,15 +92,15 @@ export default class TAreas {
     let fullyVisibleInd = 0;
     let hasUnfocusedColumns = false;
     for(i = 0; i < ysLen; i++) {
-      o = mini ? state![`om_${i}`] : state![`o_${i}`];
+      o = (mini ? state![`om_${i}`] : state![`o_${i}`])!;
 
       hasUnfocusedColumns = hasUnfocusedColumns || state![`f_${i}`]! < 1;
 
-      if(o! < 1 && o! > 0) {
+      if(o < 1 && o > 0) {
         textToCenter = o!;
       }
 
-      if(o! > 0) {
+      if(o > 0) {
         visibleCols.push(i);
         opacityCols.push(o);
 
@@ -128,7 +128,7 @@ export default class TAreas {
       prevY[j] = 0;
       totalPerX[j] = 0;
       for(i = 0; i < colsLen; i++) {
-        totalPerX[j] += (optYs![visibleCols[i]].y[j] || 0) * opacityCols[i]!;
+        totalPerX[j] += (optYs![visibleCols[i]].y[j] || 0) * opacityCols[i];
       }
       if(totalPerX[j] === 0) {
         hasGapsInData = true;
@@ -176,18 +176,18 @@ export default class TAreas {
 
         let tmp: number;
         for(j = xInd1RealCeil; j <= xInd2RealFloor; j++) {
-          tmp = (tmpY[j] || 0) * opacityCols[i]!;
+          tmp = (tmpY[j] || 0) * opacityCols[i];
           totalPerItem[i] += tmp;
           totalForAll += tmp;
         }
 
         // partly visible data from left side
-        tmp = ((xInd1RealCeil - xInd1Real) * (tmpY[xInd1RealFloor] || 0)) * opacityCols[i]!;
+        tmp = ((xInd1RealCeil - xInd1Real) * (tmpY[xInd1RealFloor] || 0)) * opacityCols[i];
         totalPerItem[i] += tmp;
         totalForAll += tmp;
 
         // partly visible data from right side
-        tmp = ((xInd2Real - xInd2RealFloor) * (tmpY[xInd2RealCeil] || 0)) * opacityCols[i]!;
+        tmp = ((xInd2Real - xInd2RealFloor) * (tmpY[xInd2RealCeil] || 0)) * opacityCols[i];
         totalPerItem[i] += tmp;
         totalForAll += tmp;
       }
@@ -247,15 +247,15 @@ export default class TAreas {
     let colInd = 0;
 
     for(i = 0; i < ysLen; i++) {
-      o = mini ? state![`om_${i}`] : state![`o_${i}`];
+      o = (mini ? state![`om_${i}`] : state![`o_${i}`])!;
 
-      if(o! <= 0) {
+      if(o <= 0) {
         continue;
       }
 
       y = optYs![i].y;
 
-      const k = o! * yScale;
+      const k = o * yScale;
 
       ctx!.fillStyle = this.isDarkMode ? ys![i].colors_n[0] : ys![i].colors_d[0];
       ctx!.globalAlpha = state![`f_${i}`]! * 0.9 + 0.1;
@@ -396,7 +396,8 @@ export default class TAreas {
               } else {
                 if(!cTop) {
                   cTop = true;
-                  const sc = (cx! - xjprev!) / (xj - xjprev!);
+                  // @ts-expect-error use before assigned
+                  const sc = (cx! - xjprev) / (xj - xjprev);
                   sy1 = syprev!;
                   const sy2 = hBottom - prevY[j] - curH;
                   res = calcTrans(cx!, sy1 + sc * (sy2 - sy1), angles![colInd].ed, 0);
@@ -484,7 +485,7 @@ export default class TAreas {
 
       // texts
       if(!mini && zoomMorph > 0 && angles![colInd].percentageText) {
-        const opacity = Math.pow(morph, this.opts.state!.zoomDir === 1 ? 4 : 20) * o! * (state![`f_${i}`]! * 0.9 + 0.1);
+        const opacity = Math.pow(morph, this.opts.state!.zoomDir === 1 ? 4 : 20) * o * (state![`f_${i}`]! * 0.9 + 0.1);
         let fontSize = Math.max(Math.min(angles![colInd].percentage * 2, 26), 10);
         const rad = settings!.PIE_RADIUS;
         let offset = rad * 2 / 3;
@@ -494,7 +495,8 @@ export default class TAreas {
 
         let sx = 0;
         let sy = 0;
-        if(selectionOffset! && fullyVisibleCount > 1) {
+        // @ts-expect-error use before assigned
+        if(selectionOffset && fullyVisibleCount > 1) {
           sx = cosVal * selectionOffset * 8 * dpi;
           sy = -sinVal * selectionOffset * 8 * dpi;
         }
@@ -504,7 +506,8 @@ export default class TAreas {
         ctx!.globalAlpha = opacity;
 
         if(angles![colInd].percentage < opts.data!.pieLabelsPercentages.hoverOnly) {
-          ctx!.globalAlpha = selectionOffset! * opacity;
+          // @ts-expect-error use before assigned
+          ctx!.globalAlpha = selectionOffset * opacity;
         }
 
         if(isOutboard) {
@@ -516,8 +519,10 @@ export default class TAreas {
 
           const lx1 = cx! + sx + (cosVal * (rad - 1)) * dpi;
           const ly1 = cy! + sy - (sinVal * (rad - 1)) * dpi;
-          const lx2 = cx! + sx + (cosVal * (rad + 6 * (1 - selectionOffset!) - 1)) * dpi;
-          const ly2 = cy! + sy - (sinVal * (rad + 6 * (1 - selectionOffset!) - 1)) * dpi;
+          // @ts-expect-error use before assigned
+          const lx2 = cx! + sx + (cosVal * (rad + 6 * (1 - selectionOffset) - 1)) * dpi;
+          // @ts-expect-error use before assigned
+          const ly2 = cy! + sy - (sinVal * (rad + 6 * (1 - selectionOffset) - 1)) * dpi;
 
           ctx!.beginPath();
           ctx!.moveTo(lx1, ly1);

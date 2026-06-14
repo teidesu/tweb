@@ -31,7 +31,7 @@ export const StickerPreview = (props: StickerPreviewProps) => {
     const middleware = createMiddleware().get();
 
     (async() => {
-      const doc = props.doc ?? await rootScope.managers.appDocsManager!.getDoc(props.docId!);
+      const doc = props.doc ?? await rootScope.managers.appDocsManager.getDoc(props.docId!);
       if(!middleware()) return;
 
       wrapSticker({

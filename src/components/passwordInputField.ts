@@ -44,7 +44,7 @@ export class PasswordInputHelpers {
     this.passwordVisible = !this.passwordVisible;
 
     this.toggleVisible.replaceChildren(Icon(this.passwordVisible ? 'eye2' : 'eye1'));
-    (this.input as HTMLInputElement).type = this.passwordVisible ? 'text' : 'password';
+    (this.input).type = this.passwordVisible ? 'text' : 'password';
     this.onVisibilityClickAdditional?.();
   };
 }

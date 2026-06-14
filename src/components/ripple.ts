@@ -168,7 +168,7 @@ function _ripple(
         findUpClassName(e.target as HTMLElement, 'c-ripple') !== r
     ) && (
       attachListenerTo === elem ||
-        !findUpAsChild(((e.target as HTMLElement)! as { parentElement: HTMLElement; }), attachListenerTo)
+        !findUpAsChild(((e.target as HTMLElement) as { parentElement: HTMLElement; }), attachListenerTo)
     ) && !findUpClassName(e.target!, 'checkbox-field');
   };
 

@@ -49,15 +49,15 @@ export default class PopupSellStarGift extends PopupElement<{
     safeAssign(this, options);
 
     this.btnConfirmI18n = new I18n.IntlElement({key: 'StarGiftSellButton'})
-    this.btnConfirm.replaceChildren(this.btnConfirmI18n.element!)
+    this.btnConfirm.replaceChildren(this.btnConfirmI18n.element)
 
     this.construct()
   }
 
   protected async construct() {
     const [appConfig, floorPrice] = await Promise.all([
-      this.managers.apiManager!.getAppConfig(),
-      this.managers.appGiftsManager!.getFloorPrice(this.gift.raw.title!)
+      this.managers.apiManager.getAppConfig(),
+      this.managers.appGiftsManager.getFloorPrice(this.gift.raw.title!)
     ])
     this.appendSolid(() => this._construct({appConfig, floorPrice}));
     this.show()
@@ -154,7 +154,7 @@ export default class PopupSellStarGift extends PopupElement<{
           }
         }
 
-        this.managers.appGiftsManager!.updateResalePrice(this.gift.input!, amount).then(() => {
+        this.managers.appGiftsManager.updateResalePrice(this.gift.input!, amount).then(() => {
           this.dispatchEvent('finish', amount === null ? 'unlist' : 'list')
           this.hide()
         }).catch(() => {

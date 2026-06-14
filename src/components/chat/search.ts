@@ -83,7 +83,7 @@ export default class ChatSearch {
         const value = this.inputSearch.value;
         this.foundCountEl.classList.toggle('empty', !value);
         if(!this.foundCount) {
-          replaceContent(this.foundCountEl, (value ? i18n('NoResult') : '')!);
+          replaceContent(this.foundCountEl, (value ? i18n('NoResult') : ''));
           this.results.classList.remove('active');
           this.chat.bubbles.container.classList.remove('search-results-active');
           this.chat.bubbles.updateGoDownVisibility();
@@ -203,7 +203,7 @@ export default class ChatSearch {
     const res = this.chat.setPeer({peerId, lastMsgId});
     this.setPeerPromise = ((res instanceof Promise ? res : Promise.resolve(res)) as Promise<any>).then(() => {
       this.selectedIndex = index;
-      replaceContent(this.foundCountEl, i18n('Of', [index + 1, this.foundCount])!);
+      replaceContent(this.foundCountEl, i18n('Of', [index + 1, this.foundCount]));
 
       const renderedCount = this.searchGroup.list.childElementCount;
       if(this.selectedIndex >= (renderedCount - 6)) {

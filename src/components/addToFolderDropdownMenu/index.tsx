@@ -144,7 +144,7 @@ const AddToFolderDropdownMenu = defineSolidElement({
           <Show when={!searchableFolders().visibleFoldersCount}>
             {(() => {
               const el = i18n('AddToFolderEmptySearchResult');
-              el!.classList.add(styles.EmptySearchTip);
+              el.classList.add(styles.EmptySearchTip);
               return el;
             })()}
           </Show>
@@ -153,7 +153,7 @@ const AddToFolderDropdownMenu = defineSolidElement({
               <div ref={label} class={styles.Label} onPointerEnter={showHint}>
                 {(() => {
                   const el = i18n('AddToFolderSearch');
-                  el!.classList.add(styles.LabelText);
+                  el.classList.add(styles.LabelText);
                   return el;
                 })()}
                 <IconTsx ref={infoIcon!} icon='info' />

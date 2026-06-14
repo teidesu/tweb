@@ -131,7 +131,7 @@ export default class PopupPaymentShipping extends PopupElement<{
         };
 
         try {
-          const requestedInfo = await this.managers.appPaymentsManager!.validateRequestedInfo(this.inputInvoice, data, saveCheckboxField?.checked);
+          const requestedInfo = await this.managers.appPaymentsManager.validateRequestedInfo(this.inputInvoice, data, saveCheckboxField?.checked);
 
           this.dispatchEvent('finish', {
             shippingAddress: data,

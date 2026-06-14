@@ -79,7 +79,7 @@ class SomethingGetter<T extends Database<any>, Storage extends Record<string, an
       return this.cache[key];
     }
 
-    const promise = this.storage.get(key as string) as Promise<Storage[T]>;
+    const promise = this.storage.get(key as string);
     return promise.then((value) => value, () => undefined as Storage[T]).then((value) => {
       if(this.cache.hasOwnProperty(key)) {
         return this.cache[key];
@@ -87,7 +87,7 @@ class SomethingGetter<T extends Database<any>, Storage extends Record<string, an
 
       value ??= this.getDefault(key);
 
-      return this.cache[key] = value;
+      return this.cache[key] = value as Storage[T];
     });
   }
 
@@ -445,7 +445,7 @@ function fireNotification(
     ((userInvisibleIsSupported() && {
       action: 'mute1d',
       title: lang.push_action_mute1d
-    })! as Omit<NotificationAction, 'action'> & { action: PushNotificationObject['action']; })/* , {
+    }) as Omit<NotificationAction, 'action'> & { action: PushNotificationObject['action']; })/* , {
     action: 'push_settings',
     title: lang.push_action_settings || 'Settings'
   } */];
@@ -455,7 +455,7 @@ function fireNotification(
     icon: NOTIFICATION_ICON_PATH,
     tag,
     data: obj,
-    actions: (actions.filter(Boolean)! as NotificationAction[] | undefined),
+    actions: (actions.filter(Boolean) as NotificationAction[] | undefined),
     badge: NOTIFICATION_BADGE_PATH,
     silent: obj.custom.silent === '1'
   };

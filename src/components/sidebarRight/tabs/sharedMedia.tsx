@@ -60,7 +60,7 @@ const SharedMedia: Component = () => {
     const isAnyChat = tab.peerId.isAnyChat();
     const [canViewMembers, hasInviteRights] = await Promise.all([
       isAnyChat ? tab.searchSuper.canViewMembers() : false,
-      isAnyChat ? tab.managers.appChatsManager!.hasRights(tab.peerId.toChatId(), 'invite_users') : false
+      isAnyChat ? tab.managers.appChatsManager.hasRights(tab.peerId.toChatId(), 'invite_users') : false
     ]);
 
     return () => {
@@ -75,10 +75,10 @@ const SharedMedia: Component = () => {
     const isSavedDialog = !!(peerId === rootScope.myId && threadId);
     const usePeerId = isSavedDialog ? threadId : peerId;
     const {isForum, isBotforum, isBroadcast, isBot, peerTitle} = await namedPromises({
-      isForum: tab.managers.appPeersManager!.isForum(usePeerId),
-      isBotforum: tab.managers.appPeersManager!.isBotforum(usePeerId),
-      isBroadcast: tab.managers.appPeersManager!.isBroadcast(usePeerId),
-      isBot: tab.managers.appPeersManager!.isBot(usePeerId),
+      isForum: tab.managers.appPeersManager.isForum(usePeerId),
+      isBotforum: tab.managers.appPeersManager.isBotforum(usePeerId),
+      isBroadcast: tab.managers.appPeersManager.isBroadcast(usePeerId),
+      isBot: tab.managers.appPeersManager.isBot(usePeerId),
       peerTitle: wrapPeerTitle({
         peerId,
         threadId: isSavedDialog ? undefined : threadId,
@@ -118,12 +118,12 @@ const SharedMedia: Component = () => {
     if(useIsFrozen()) {
       show = false;
     } else if(peerId.isUser()) {
-      show = peerId !== rootScope.myId && await tab.managers.appUsersManager!.canEdit(peerId.toUserId());
+      show = peerId !== rootScope.myId && await tab.managers.appUsersManager.canEdit(peerId.toUserId());
     } else {
       const chatId = peerId.toChatId();
       const isTopic = tab.threadId && apiManagerProxy.isForum(peerId);
       if(isTopic) {
-        show = await tab.managers.dialogsStorage!.canManageTopic((await tab.managers.dialogsStorage!.getForumTopic(peerId, tab.threadId))!);
+        show = await tab.managers.dialogsStorage.canManageTopic((await tab.managers.dialogsStorage.getForumTopic(peerId, tab.threadId))!);
       } else {
         const chat = apiManagerProxy.getChat(chatId);
         show = hasRights(chat, 'change_info');
@@ -246,7 +246,7 @@ const SharedMedia: Component = () => {
 
   const renderNewMessage = async(message: Message.message | Message.messageService) => {
     const {peerId} = message;
-    const isForum = await tab.managers.appPeersManager!.isForum(peerId!);
+    const isForum = await tab.managers.appPeersManager.isForum(peerId!);
     const threadId = getMessageThreadId(message, {isForum});
 
     _renderNewMessage(message);
@@ -314,7 +314,7 @@ const SharedMedia: Component = () => {
     }
 
     const middleware = tab.searchSuper.middleware.get();
-    tab.searchSuper.getSearchCounters(filters!).then((counters) => {
+    tab.searchSuper.getSearchCounters(filters).then((counters) => {
       if(!middleware()) {
         return;
       }
@@ -408,7 +408,7 @@ const SharedMedia: Component = () => {
       canEdit: () => {
         if(tab.peerId === rootScope.myId) return true;
         if(tab.peerId.isAnyChat()) {
-          return tab.managers.appChatsManager!.hasRights(tab.peerId.toChatId(), 'edit_stories');
+          return tab.managers.appChatsManager.hasRights(tab.peerId.toChatId(), 'edit_stories');
         }
         return false;
       }
@@ -458,7 +458,7 @@ const SharedMedia: Component = () => {
     item[2] = new I18n.IntlElement({key: 'Loading'});
     const element = document.createElement('div');
     element.classList.add('transition-item');
-    element.append(item[2].element!);
+    element.append(item[2].element);
     return element;
   }));
 
@@ -547,11 +547,11 @@ const SharedMedia: Component = () => {
   attachClickEvent(editBtn, async() => {
     let editTab: InstanceType<typeof AppEditChatTab> | InstanceType<typeof AppEditContactTab> | InstanceType<typeof AppEditTopicTab> | InstanceType<typeof AppEditBotTab>;
     const {peerId, threadId} = tab;
-    if(threadId && await tab.managers.appPeersManager!.isForum(peerId)) {
+    if(threadId && await tab.managers.appPeersManager.isForum(peerId)) {
       editTab = tab.slider.createTab(AppEditTopicTab)
     } else if(peerId.isAnyChat()) {
       editTab = tab.slider.createTab(AppEditChatTab);
-    } else if(await tab.managers.appUsersManager!.isBot(peerId)) {
+    } else if(await tab.managers.appUsersManager.isBot(peerId)) {
       editTab = tab.slider.createTab(AppEditBotTab);
     } else {
       editTab = tab.slider.createTab(AppEditContactTab);

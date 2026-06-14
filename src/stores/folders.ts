@@ -21,7 +21,7 @@ async function getNotificationCountForFilter(filterId: number, managers: AppMana
     unreadUnmutedCount,
     unreadCount,
     unreadMentionsCount
-  } = await managers.dialogsStorage!.getFolderUnreadCount(filterId);
+  } = await managers.dialogsStorage.getFolderUnreadCount(filterId);
 
   return {
     count: filterId === FOLDER_ID_ALL ? unreadUnmutedCount : unreadCount,
@@ -34,7 +34,7 @@ async function getFolderItemsInOrder(folderItems: StoredFolder[], managers: AppM
 
   const filtersPromises = folderItems
   .filter((item) => item.id)
-  .map((item) => managers.filtersStorage!.getFilter(item.id));
+  .map((item) => managers.filtersStorage.getFilter(item.id));
 
   const filtersArr = (
     await Promise.all(filtersPromises)
@@ -88,7 +88,7 @@ const useFoldersStore = createRoot(() => {
   async function makeFolderItemPayload(filter: MyDialogFilter): Promise<StoredFolder> {
     const [notifications, folder] = await Promise.all([
       getNotificationCountForFilter(filter.id, rootScope.managers),
-      rootScope.managers.dialogsStorage!.getFolder(filter.id)
+      rootScope.managers.dialogsStorage.getFolder(filter.id)
     ]);
 
     return {
@@ -199,7 +199,7 @@ const useFoldersStore = createRoot(() => {
         return;
       }
 
-      const isFolderAvailable = await rootScope.managers.filtersStorage!.isFilterIdAvailable(selectedFolderId());
+      const isFolderAvailable = await rootScope.managers.filtersStorage.isFilterIdAvailable(selectedFolderId());
       if(!isFolderAvailable) {
         setSelectedFolderId(FOLDER_ID_ALL);
       }

@@ -28,7 +28,7 @@ export class AgeVerificationPopup extends PopupElement {
   _switchedToWebApp = false;
 
   private async construct() {
-    const appConfig = await this.managers.apiManager!.getAppConfig();
+    const appConfig = await this.managers.apiManager.getAppConfig();
     this.appendSolidBody(() => this._construct({appConfig}));
   }
 
@@ -41,7 +41,7 @@ export class AgeVerificationPopup extends PopupElement {
     }
 
     const handleVerify = async() => {
-      const bot = await this.managers.appUsersManager!.resolveUserByUsername(
+      const bot = await this.managers.appUsersManager.resolveUserByUsername(
         appConfig.verify_age_bot_username ?? 'TelegramAge'
       );
       this._switchedToWebApp = true;
@@ -72,12 +72,12 @@ export class AgeVerificationPopup extends PopupElement {
   static create(): Promise<boolean> {
     const promise = deferredPromise<boolean>();
     const popup = PopupElement.createPopup(AgeVerificationPopup, {
-      onVerify: (verified) => promise.resolve!(verified)
+      onVerify: (verified) => promise.resolve(verified)
     });
 
     popup.addEventListener('close', () => {
       if(!popup._switchedToWebApp) {
-        promise.resolve!(false);
+        promise.resolve(false);
       }
     });
     popup.show();

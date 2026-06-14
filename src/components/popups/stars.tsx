@@ -170,7 +170,7 @@ export function getStarsTransactionTitle(transaction: StarsTransaction) {
 
 export function getExamplesAnchor(hide: (callback: () => void) => void) {
   let loading = false;
-  const popularAppBotsPromise = rootScope.managers.appAttachMenuBotsManager!.getPopularAppBots();
+  const popularAppBotsPromise = rootScope.managers.appAttachMenuBotsManager.getPopularAppBots();
   const anchor = anchorCallback(async() => {
     if(loading) return;
     loading = true;
@@ -192,7 +192,7 @@ export function getExamplesAnchor(hide: (callback: () => void) => void) {
       titleLangKey: 'SearchAppsExamples'
     });
   });
-  anchor.append(i18n('GiftStarsSubtitleLinkName')!);
+  anchor.append(i18n('GiftStarsSubtitleLinkName'));
   return anchor;
 }
 
@@ -611,14 +611,14 @@ export default class PopupStars extends PopupElement {
                     amount: option.amount,
                     currency: option.currency,
                     stars: option.stars,
-                    user_id: await this.managers.appUsersManager!.getUserInput(this.giftPeerId.toUserId())
+                    user_id: await this.managers.appUsersManager.getUserInput(this.giftPeerId.toUserId())
                   } : {
                     _: 'inputStorePaymentStarsTopup',
                     amount: option.amount,
                     currency: option.currency,
                     stars: option.stars,
                     spend_purpose_peer: this.spendPurposePeerId && this.spendPurposePeerId !== rootScope.myId ?
-                      await this.managers.appPeersManager!.getInputPeerById(this.spendPurposePeerId) :
+                      await this.managers.appPeersManager.getInputPeerById(this.spendPurposePeerId) :
                       undefined
                   };
 
@@ -627,7 +627,7 @@ export default class PopupStars extends PopupElement {
                     purpose
                   };
                   try {
-                    const paymentForm = await this.managers.appPaymentsManager!.getPaymentForm(inputInvoice);
+                    const paymentForm = await this.managers.appPaymentsManager.getPaymentForm(inputInvoice);
                     const popup = await PopupPayment.create({
                       inputInvoice,
                       paymentForm
@@ -676,7 +676,7 @@ export default class PopupStars extends PopupElement {
         }
 
         loading = true;
-        const starsStatus = await this.managers.appPaymentsManager!.getStarsTransactions(offset, inbound, this.ton);
+        const starsStatus = await this.managers.appPaymentsManager.getStarsTransactions(offset, inbound, this.ton);
         if(!middleware()) return;
 
         const promises = (starsStatus.history || []).map(this.renderTransaction);
@@ -717,7 +717,7 @@ export default class PopupStars extends PopupElement {
     const middleware = this.middlewareHelper.get();
     let subscriptionsOffset: string;
     const loadMoreSubscriptions = async() => {
-      const starsStatus = await this.managers.appPaymentsManager!.getStarsSubscriptions(subscriptionsOffset);
+      const starsStatus = await this.managers.appPaymentsManager.getStarsSubscriptions(subscriptionsOffset);
       if(!middleware()) {
         return;
       }
@@ -838,19 +838,19 @@ export default class PopupStars extends PopupElement {
         return img;
       })(),
       this.peerId || this.paymentForm?.bot_id || this.giftPeerId ? wrapPeerTitle({peerId: this.peerId || this.giftPeerId || this.paymentForm.bot_id.toPeerId(false)}) : undefined,
-      this.giftPeerId ? this.managers.appPaymentsManager!.getStarsGiftOptions(this.giftPeerId.toUserId()) : this.managers.appPaymentsManager!.getStarsTopupOptions(),
+      this.giftPeerId ? this.managers.appPaymentsManager.getStarsGiftOptions(this.giftPeerId.toUserId()) : this.managers.appPaymentsManager.getStarsTopupOptions(),
       this.giftPeerId && (async() => {
         const avatar = avatarNew({peerId: this.giftPeerId, size: 100, middleware: this.middlewareHelper.get()});
         await avatar.readyThumbPromise;
         avatar.node.classList.add('popup-stars-gift-avatar');
         return avatar.node;
       })(),
-      this.managers.apiManager!.getAppConfig(),
+      this.managers.apiManager.getAppConfig(),
       this.itemPrice && prefetchStars(this.middlewareHelper.get())
     ]);
     this.options = options;
     this.appConfig = appConfig;
-    this.appendSolid(() => this._construct(image, peerTitle, (avatar! as HTMLElement | undefined)));
+    this.appendSolid(() => this._construct(image, peerTitle, (avatar as HTMLElement | undefined)));
     this.addEventListener('close', () => {
       if(!this.toppedUp && this.onCancel) {
         this.onCancel();

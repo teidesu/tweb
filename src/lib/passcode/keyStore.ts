@@ -24,7 +24,7 @@ export default class EncryptionKeyStore extends StaticUtilityClass {
 
   public static save(key?: CryptoKey) {
     this.key = key || null;
-    this.deferred?.resolve!();
+    this.deferred?.resolve();
     this.deferred = undefined as unknown as CancellablePromise<void>;
   }
 

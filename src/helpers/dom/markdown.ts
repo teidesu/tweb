@@ -318,6 +318,7 @@ export function processCurrentFormatting(
   const quoteClasses = ['quote', 'quote-block', 'quote-like', 'quote-like-icon', 'quote-like-border'];
   // const perf = performance.now();
   // * add styles
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   const add = () => (input.querySelectorAll('[style*="font-family"]') as NodeListOf<HTMLElement>)
   .forEach((element) => {
     if(element.style.caretColor) { // cleared blockquote
@@ -366,6 +367,7 @@ export function processCurrentFormatting(
   });
 
   // * remove styles
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   const remove = () => (input.querySelectorAll('.is-markup') as NodeListOf<HTMLElement>)
   .forEach((element) => {
     const fontFamily = element.style.fontFamily;
@@ -430,6 +432,7 @@ export function processCurrentFormatting(
   });
 
   const processQuotes = () => {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     (input.querySelectorAll(quoteSelectorByData) as NodeListOf<HTMLElement>)
     .forEach((element) => {
       const isRealQuote = !element.parentElement!.closest(quoteSelectorByData);
@@ -438,6 +441,7 @@ export function processCurrentFormatting(
       delete element.dataset.brokenQuote;
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     (input.querySelectorAll(`.${quoteClasses[0]}:not(${quoteSelectorByData})`) as NodeListOf<HTMLElement>)
     .forEach((element) => {
       element.classList.remove(...quoteClasses);
@@ -448,6 +452,7 @@ export function processCurrentFormatting(
   // * fix case when browser decides to mess up the quote
   // * rely on the browser's ability to set font-family correctly
   const fixQuotes = () => {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     (input.querySelectorAll(`${quoteSelectorByData}:not(${quoteSelectorByStyle})`) as NodeListOf<HTMLElement>)
     .forEach((element) => {
       // * need to check the length because 'every' will return true if the array is empty

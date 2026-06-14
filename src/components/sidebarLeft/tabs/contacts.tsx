@@ -43,7 +43,7 @@ const Contacts: Component = () => {
     tab.scrollable.onScrolledBottom = null;
     listsContainer.replaceChildren();
 
-    tab.managers.appUsersManager!.getContactsPeerIds(query, undefined, 'online').then((contacts) => {
+    tab.managers.appUsersManager.getContactsPeerIds(query, undefined, 'online').then((contacts) => {
       if(!middleware()) {
         return;
       }
@@ -95,7 +95,7 @@ const Contacts: Component = () => {
     });
 
     tab.listenerSetter.add(rootScope)('contacts_update', async(userId) => {
-      const isContact = await tab.managers.appUsersManager!.isContact(userId);
+      const isContact = await tab.managers.appUsersManager.isContact(userId);
       const peerId = userId.toPeerId();
       if(isContact) sortedUserList.add(peerId);
       else sortedUserList.delete(peerId);

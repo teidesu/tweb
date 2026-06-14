@@ -19,7 +19,7 @@ export default function filterServerCodecs(mainChannels: SDPMediaSection[], data
   };
 
   const codecsToPerform: [Codec, 'audio' | 'video'][] = /* flatten([data, dataPresentation].filter(Boolean).map((data) => {
-    return  */(['audio' as const, 'video' as const].filter((type) => data[type]).map((type) => ([data[type], type]))! as [Codec, 'video' | 'audio'][]);
+    return  */(['audio' as const, 'video' as const].filter((type) => data[type]).map((type) => ([data[type], type])) as [Codec, 'video' | 'audio'][]);
   // }));
 
   codecsToPerform.forEach(([codec, type]) => {

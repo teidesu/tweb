@@ -60,7 +60,7 @@ export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete
   private async computeCanDelete(): Promise<boolean> {
     if(this.peerId === rootScope.myId) return true;
     if(this.peerId.isAnyChat()) {
-      return this.managers.appChatsManager!.hasRights(this.peerId.toChatId(), 'change_info');
+      return this.managers.appChatsManager.hasRights(this.peerId.toChatId(), 'change_info');
     }
     return false;
   }
@@ -105,9 +105,9 @@ export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete
     }
 
     if(peerId.isUser()) {
-      await this.managers.appProfileManager!.deletePhotos([photoId as string]);
+      await this.managers.appProfileManager.deletePhotos([photoId as string]);
     } else {
-      await this.managers.appChatsManager!.editPhoto(peerId.toChatId());
+      await this.managers.appChatsManager.editPhoto(peerId.toChatId());
     }
 
     this.target = {element: this.content.media} as any;
@@ -130,7 +130,7 @@ export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete
     if(this.setMoverPromise) return this.setMoverPromise;
 
     const [photo, canDelete] = await Promise.all([
-      this.managers.appPhotosManager!.getPhoto(photoId),
+      this.managers.appPhotosManager.getPhoto(photoId),
       this.getCanDelete()
     ]);
 
@@ -158,11 +158,11 @@ export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete
     // static image once the open/move animation has settled.
     this.videoAvatarCleanup?.();
     this.videoAvatarCleanup = undefined;
-    if((photo as Photo.photo).video_sizes?.length) {
+    if((photo).video_sizes?.length) {
       Promise.resolve(ret).then(() => {
         // Bail if the viewer navigated to a different photo while opening.
         if(this.target?.photoId !== photo.id || !this.content.mover) return;
-        this.videoAvatarCleanup = overlayAvatarVideoOnMover(this.content.mover, photo as Photo.photo);
+        this.videoAvatarCleanup = overlayAvatarVideoOnMover(this.content.mover, photo);
       });
     }
 

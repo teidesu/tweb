@@ -9,7 +9,7 @@ export default class DeferredIsUsingPasscode extends StaticUtilityClass {
 
   public static resolveDeferred(value: boolean) {
     this.value = value;
-    this.deferred?.resolve!();
+    this.deferred?.resolve();
     this.deferred = undefined!;
   }
 

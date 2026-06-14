@@ -150,7 +150,7 @@ export default function showCallSettingsPopup(options: CallSettingsPopupOptions)
       setJoinMuted(checked);
       // Optimistic UI: server echoes via updateGroupCall and the
       // subscription above reconciles if it disagrees.
-      rootScope.managers.appGroupCallsManager!.toggleGroupCallSettings(
+      rootScope.managers.appGroupCallsManager.toggleGroupCallSettings(
         groupCallInstance.id,
         {joinMuted: checked}
       ).catch((err) => {
@@ -169,10 +169,10 @@ export default function showCallSettingsPopup(options: CallSettingsPopupOptions)
       const {appGroupCallsManager, appProfileManager} = rootScope.managers;
       let link: string;
       try {
-        link = await appGroupCallsManager!.exportGroupCallInvite(groupCallInstance.id, true);
+        link = await appGroupCallsManager.exportGroupCallInvite(groupCallInstance.id, true);
       } catch(err) {
         try {
-          link = await appProfileManager!.getChatInviteLink(groupCallInstance.chatId);
+          link = await appProfileManager.getChatInviteLink(groupCallInstance.chatId);
         } catch(fallbackErr) {
           console.error('share invite: both exports failed', err, fallbackErr);
           toastNew({langPackKey: 'Error.AnError'});

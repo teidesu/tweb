@@ -35,10 +35,10 @@ import wrapSentTime from '@components/wrappers/sentTime';
 import {Middleware} from '@helpers/middleware';
 
 rootScope.addEventListener('document_downloading', (docId) => {
-  const elements = Array.from(document.querySelectorAll(`.document[data-doc-id="${docId}"]`)) as HTMLElement[];
+  const elements = Array.from(document.querySelectorAll(`.document[data-doc-id="${docId}"]`));
   elements.forEach((element) => {
     if(element.querySelector('.preloader-container.manual')) {
-      simulateClickEvent(element);
+      simulateClickEvent(element as HTMLElement);
     }
   });
 });
@@ -217,7 +217,7 @@ export default async function wrapDocument({
   const bytesEl = formatBytes(doc.size!);
   const bytesJoiner = ' / ';
 
-  const descriptionParts: (HTMLElement | string | DocumentFragment)[] = [bytesEl!];
+  const descriptionParts: (HTMLElement | string | DocumentFragment)[] = [bytesEl];
 
   if(withTime) {
     descriptionParts.push(formatFullSentTime(message.date));
@@ -230,7 +230,7 @@ export default async function wrapDocument({
   if(!withTime && !showSender) {
     const b = document.createElement('span');
     const bytesMaxEl = formatBytes(doc.size!);
-    b.append(bytesJoiner, bytesMaxEl!);
+    b.append(bytesJoiner, bytesMaxEl);
     b.style.visibility = 'hidden';
     descriptionParts.push(b);
   }
@@ -325,11 +325,11 @@ export default async function wrapDocument({
     let d = format(0);
     bytesContainer.style.visibility = 'hidden';
     // bytesContainer.replaceWith(sizeContainer);
-    sizeContainer.append(d!, bytesJoiner, _bytesContainer!);
+    sizeContainer.append(d, bytesJoiner, _bytesContainer);
     bytesContainer.parentElement!.append(sizeContainer);
-    promise.addNotifyListener!((progress: Progress) => {
+    promise.addNotifyListener((progress: Progress) => {
       const _d = format(progress.done);
-      d!.replaceWith(_d!);
+      d.replaceWith(_d);
       d = _d;
     });
   };
@@ -385,7 +385,7 @@ export default async function wrapDocument({
   };
 
   const {fileName: downloadFileName} = getDownloadMediaDetails({media: doc, downloadId: '1'});
-  if(await managers.apiFileManager!.isDownloading(downloadFileName)) {
+  if(await managers.apiFileManager.isDownloading(downloadFileName)) {
     downloadDiv = docDiv.querySelector('.document-download') || icoDiv;
     const promise = appDownloadManager.downloadToDisc({media: doc}, true);
 

@@ -77,7 +77,7 @@ export default class DropdownHover extends EventListenerBase<{
         }, TOGGLE_TIMEOUT);
       });
 
-      attachClickEvent(button, onClick ? (e) => onClick(button, e as MouseEvent) : this.onButtonClick.bind(this, button), {listenerSetter});
+      attachClickEvent(button, onClick ? (e) => onClick(button, e) : this.onButtonClick.bind(this, button), {listenerSetter});
     }
   }
 
@@ -107,8 +107,8 @@ export default class DropdownHover extends EventListenerBase<{
   };
 
   protected isOutClickTarget(target: HTMLElement) {
-    return !findUpAsChild((target! as { parentElement: HTMLElement; }), this.element) &&
-      !Array.from(this.ignoreButtons).some((button) => findUpAsChild((target! as { parentElement: HTMLElement; }), button) || target === button) &&
+    return !findUpAsChild((target as { parentElement: HTMLElement; }), this.element) &&
+      !Array.from(this.ignoreButtons).some((button) => findUpAsChild((target as { parentElement: HTMLElement; }), button) || target === button) &&
       this.ignoreMouseOut.size <= 1 &&
       (!this.ignoreOutClickClassName || !findUpClassName(target, this.ignoreOutClickClassName));
   }
@@ -144,7 +144,7 @@ export default class DropdownHover extends EventListenerBase<{
     }
 
     const toElement = (e as any).toElement as HTMLElement;
-    if(toElement && findUpAsChild((toElement! as { parentElement: HTMLElement; }), this.element)) {
+    if(toElement && findUpAsChild((toElement as { parentElement: HTMLElement; }), this.element)) {
       return;
     }
 

@@ -152,7 +152,7 @@ interface SortedDialog extends SortedElementBase<PeerId> {
 
 function setPromiseMiddleware<T extends {[smth in K as K]?: CancellablePromise<void>}, K extends keyof T>(obj: T, key: K) {
   const oldPromise: CancellablePromise<void> = obj[key] as any;
-  oldPromise?.reject!();
+  oldPromise?.reject();
 
   // @ts-ignore
   const deferred = obj[key] = deferredPromise<void>();
@@ -736,7 +736,7 @@ export class AppDialogsManager {
 
       const available = wasFilterId === -1 ||
         REAL_FOLDERS.has(id) ||
-        (await rootScope.managers.filtersStorage!.isFilterIdAvailable(id) ?? true);
+        (await rootScope.managers.filtersStorage.isFilterIdAvailable(id) ?? true);
       if(!available) {
         showLimitPopup('folders');
         return false;
@@ -900,7 +900,7 @@ export class AppDialogsManager {
         }
 
         this.setUnreadMessagesN({
-          dialog: await this.managers.dialogsStorage!.getDialogOnly(folder.id),
+          dialog: await this.managers.dialogsStorage.getDialogOnly(folder.id),
           dialogElement
         });
       }
@@ -930,7 +930,7 @@ export class AppDialogsManager {
       };
 
       for(const element of this.lastActiveElements) {
-        if(!appImManager.isSamePeer((getOptionsForElement(element)! as { peerId: PeerId; threadId?: number; monoforumThreadId?: PeerId; type?: ChatType; }), options)) {
+        if(!appImManager.isSamePeer((getOptionsForElement(element) as { peerId: PeerId; threadId?: number; monoforumThreadId?: PeerId; type?: ChatType; }), options)) {
           this.setDialogActive(element, false);
         }
       }
@@ -946,7 +946,7 @@ export class AppDialogsManager {
 
         const optionsForElement = getOptionsForElement(element);
         if(
-          appImManager.isSamePeer((optionsForElement! as { peerId: PeerId; threadId?: number; monoforumThreadId?: PeerId; type?: ChatType; }), options) ||
+          appImManager.isSamePeer((optionsForElement as { peerId: PeerId; threadId?: number; monoforumThreadId?: PeerId; type?: ChatType; }), options) ||
           apiManagerProxy.isBotforum(optionsForElement.peerId!) && optionsForElement.peerId === options.peerId
         ) {
           this.setDialogActive(element, true);
@@ -984,8 +984,8 @@ export class AppDialogsManager {
 
       const r = await Promise.all(order.map(async(filterId) => {
         const [indexKey, filter] = await Promise.all([
-          this.managers.dialogsStorage!.getDialogIndexKeyByFilterId(filterId),
-          this.managers.filtersStorage!.getFilter(filterId)
+          this.managers.dialogsStorage.getDialogIndexKeyByFilterId(filterId),
+          this.managers.filtersStorage.getFilter(filterId)
         ]);
 
         return {indexKey, filter};
@@ -1072,7 +1072,7 @@ export class AppDialogsManager {
     if(haveFilters) {
       await addFilters(filtersArr!);
     } else {
-      addFiltersPromise = this.managers.filtersStorage!.getDialogFilters().then(addFilters);
+      addFiltersPromise = this.managers.filtersStorage.getDialogFilters().then(addFilters);
     }
 
     this.doNotRenderChatList = true;
@@ -1090,7 +1090,7 @@ export class AppDialogsManager {
       onClick!(0, false);
     }
 
-    (addFiltersPromise as unknown) && await wrapPromiseWithMiddleware(addFiltersPromise!);
+    (addFiltersPromise as unknown) && await wrapPromiseWithMiddleware(addFiltersPromise);
 
     this.renderStories();
     this.doNotRenderChatList = undefined;
@@ -1105,10 +1105,10 @@ export class AppDialogsManager {
 
     haveFilters && this.showFiltersPromise && await wrapPromiseWithMiddleware(this.showFiltersPromise);
 
-    this.managers.appNotificationsManager!.getNotifyPeerTypeSettings();
+    this.managers.appNotificationsManager.getNotifyPeerTypeSettings();
 
     // await (await m(loadDialogsPromise)).renderPromise.catch(noop);
-    this.managers.appMessagesManager!.fillConversations();
+    this.managers.appMessagesManager.fillConversations();
 
     if(!this.suggestionContainer) {
       this.suggestionContainer = document.createElement('div');
@@ -1130,8 +1130,8 @@ export class AppDialogsManager {
 
     if(!REAL_FOLDERS.has(filterId)) {
       Promise.all([
-        this.managers.filtersStorage!.getFilter(filterId),
-        this.managers.apiManager!.getAppConfig()
+        this.managers.filtersStorage.getFilter(filterId),
+        this.managers.apiManager.getAppConfig()
         // promise.then(({renderPromise}) => renderPromise).catch(() => {})
       ]).then(([filter, appConfig]) => {
         if(TEST_TOP_NOTIFICATION ? false : filter?._ !== 'dialogFilterChatlist' || this.filterId !== filterId) {
@@ -1155,7 +1155,7 @@ export class AppDialogsManager {
           fetching = true;
           const promise = TEST_TOP_NOTIFICATION ?
             Promise.resolve(TEST_TOP_NOTIFICATION()) :
-            this.managers.filtersStorage!.getChatlistUpdates(filterId);
+            this.managers.filtersStorage.getChatlistUpdates(filterId);
           promise.catch(() => undefined as unknown as ChatlistsChatlistUpdates)
           .then((chatlistUpdates) => {
             if(this.filterId !== filterId || this.filtersRendered[filterId] !== filterRendered) {
@@ -1173,10 +1173,10 @@ export class AppDialogsManager {
               const topNotification = filterRendered.topNotification;
 
               const tt = i18n('ChatsNew', [length]);
-              tt!.classList.add('primary');
-              const t = i18n('ChatList.SharedFolder.Title', [tt!]);
-              topNotification!.title.replaceChildren(t!);
-              topNotification!.subtitle.replaceChildren(i18n('ChatList.SharedFolder.Subtitle')!);
+              tt.classList.add('primary');
+              const t = i18n('ChatList.SharedFolder.Title', [tt]);
+              topNotification!.title.replaceChildren(t);
+              topNotification!.subtitle.replaceChildren(i18n('ChatList.SharedFolder.Subtitle'));
             }
 
             this.toggleTopNotification(filterRendered, !!length);
@@ -1230,7 +1230,7 @@ export class AppDialogsManager {
           icon: 'hide',
           text: 'HideAboveTheList',
           onClick: () => {
-            this.managers.filtersStorage!.hideChatlistUpdates(filterRendered.id).then(() => {
+            this.managers.filtersStorage.hideChatlistUpdates(filterRendered.id).then(() => {
               if(this.filterId === filterRendered.id) {
                 this.fetchChatlistUpdates?.();
               }
@@ -1450,7 +1450,7 @@ export class AppDialogsManager {
       });
 
       attachClickEvent(button, async() => {
-        const filter = await this.managers.filtersStorage!.getFilter(this.filterId);
+        const filter = await this.managers.filtersStorage.getFilter(this.filterId);
         appSidebarLeft.createTab(AppEditFolderTab).open({...AppEditFolderTab.getInitArgs(), initFilter: filter});
       });
 
@@ -1463,14 +1463,14 @@ export class AppDialogsManager {
   }
 
   private updateContactsLength(updatePartClassName: boolean) {
-    return this.updateContactsLengthPromise ??= this.managers.appUsersManager!.getContacts().then((users) => {
+    return this.updateContactsLengthPromise ??= this.managers.appUsersManager.getContacts().then((users) => {
       const subtitle = this.emptyDialogsPlaceholderSubtitle;
       if(subtitle) {
         let key: LangPackKey, args: FormatterArguments;
 
         if(users.length/*  && false */) {
           key = 'ChatList.Main.EmptyPlaceholder.Subtitle';
-          args = [i18n('Contacts.Count', [users.length])!];
+          args = [i18n('Contacts.Count', [users.length])];
         } else {
           key = 'ChatList.Main.EmptyPlaceholder.SubtitleNoContacts';
           args = [];
@@ -1535,7 +1535,7 @@ export class AppDialogsManager {
 
     section.container.classList.add('sidebar-left-contacts-section', 'hide');
 
-    this.managers.appUsersManager!.getContactsPeerIds(undefined, undefined, 'online').then((contacts) => {
+    this.managers.appUsersManager.getContactsPeerIds(undefined, undefined, 'online').then((contacts) => {
       let ready = false;
       const onListLengthChange = () => {
         if(ready) {
@@ -1563,7 +1563,7 @@ export class AppDialogsManager {
 
         promise.then((arr) => {
           arr.forEach((peerId) => {
-            sortedUserList.add(peerId!);
+            sortedUserList.add(peerId);
           });
         });
 
@@ -1599,8 +1599,8 @@ export class AppDialogsManager {
 
   private verifyPeerIdForContacts = async(peerId: PeerId) => {
     const [isContact, dialog] = await Promise.all([
-      this.managers.appPeersManager!.isContact(peerId),
-      this.managers.appMessagesManager!.getDialogOnly(peerId)
+      this.managers.appPeersManager.isContact(peerId),
+      this.managers.appMessagesManager.getDialogOnly(peerId)
     ]);
 
     return isContact && !dialog;
@@ -1676,11 +1676,11 @@ export class AppDialogsManager {
       forwards,
       useRafs,
       onTransitionEnd: () => {
-        deferred.resolve!();
+        deferred.resolve();
       }
     });
 
-    dispatchHeavyAnimationEvent(deferred, duration).then(() => deferred.resolve!());
+    dispatchHeavyAnimationEvent(deferred, duration).then(() => deferred.resolve());
   }
 
   public hasForumOpenFor(peerId: PeerId) {
@@ -1707,7 +1707,7 @@ export class AppDialogsManager {
     const history = appSidebarLeft.getHistory();
     const lastTab = history[history.length - 1];
 
-    const dialog = await managers.dialogsStorage!.getDialogOnly(peerId);
+    const dialog = await managers.dialogsStorage.getDialogOnly(peerId);
     const viewAsMessages = dialog && !!dialog.pFlags.view_forum_as_messages;
     if(viewAsMessages) {
       const isSamePeer = appImManager.chat?.peerId === peerId;
@@ -1791,14 +1791,14 @@ export class AppDialogsManager {
       let offsetId: number, backLimit: number;
       // an unread chat opens around the first unread message, not at the bottom
       if(!options.threadId && !options.monoforumThreadId) {
-        const dialog = await this.managers.appMessagesManager!.getDialogOnly(options.peerId);
+        const dialog = await this.managers.appMessagesManager.getDialogOnly(options.peerId);
         if(dialog?.unread_count && dialog.read_inbox_max_id) {
           offsetId = dialog.read_inbox_max_id;
           backLimit = Math.min(40, windowSize.height / 40 | 0);
         }
       }
 
-      await this.managers.appMessagesManager!.getHistory({
+      await this.managers.appMessagesManager.getHistory({
         ...options,
         offsetId: offsetId!,
         backLimit: backLimit!,
@@ -2155,11 +2155,11 @@ export class AppDialogsManager {
     if(!lastMessage && !draftMessage/*  || (lastMessage._ === 'messageService' && !lastMessage.rReply) */) {
       const withNoMessagesText = apiManagerProxy.isBotforum(peerId!);
 
-      dom.lastMessageSpan.replaceChildren(...(withNoMessagesText ? [i18n('NoMessagesYet')!] : []));
+      dom.lastMessageSpan.replaceChildren(...(withNoMessagesText ? [i18n('NoMessagesYet')] : []));
       dom.lastTimeSpan.replaceChildren();
       delete dom.listEl.dataset.mid;
 
-      promise.resolve!();
+      promise.resolve();
       return;
     }
 
@@ -2244,14 +2244,14 @@ export class AppDialogsManager {
       if(draftMessage) {
         const span = document.createElement('span');
         span.classList.add('danger');
-        span.append(i18n('Draft')!, ': ');
+        span.append(i18n('Draft'), ': ');
         willPrepend.unshift(span);
       } else if(peerId!.isAnyChat() && peerId !== lastMessage!.fromId && !(lastMessage as Message.messageService).action) {
         const span = document.createElement('span');
         span.classList.add('primary-text');
 
         if(lastMessage!.fromId === rootScope.myId) {
-          span.append(i18n('FromYou')!);
+          span.append(i18n('FromYou'));
           willPrepend.unshift(span);
         } else {
           // str = sender.first_name || sender.last_name || sender.username;
@@ -2334,10 +2334,10 @@ export class AppDialogsManager {
 
     if(lastMessage || draftMessage/*  && lastMessage._ !== 'draftMessage' */) {
       const date = draftMessage ? Math.max(draftMessage.date, lastMessage?.date || 0) : lastMessage!.date;
-      replaceContent(dom.lastTimeSpan, formatDateAccordingToTodayNew(new Date(date * 1000))!);
+      replaceContent(dom.lastTimeSpan, formatDateAccordingToTodayNew(new Date(date * 1000)));
     } else dom.lastTimeSpan.textContent = '';
 
-    promise.resolve!();
+    promise.resolve();
   }
 
   public setUnreadMessagesN(options: Parameters<AppDialogsManager['setUnreadMessages']>[0]) {
@@ -2369,11 +2369,11 @@ export class AppDialogsManager {
 
     const {peerId} = dialog;
     const promises = Promise.all([
-      this.managers.appNotificationsManager!.isPeerLocalMuted({peerId: peerId!, respectType: true, threadId: isTopic ? dialog.id : undefined}),
+      this.managers.appNotificationsManager.isPeerLocalMuted({peerId: peerId!, respectType: true, threadId: isTopic ? dialog.id : undefined}),
       !isSaved ? this.getLastMessageForDialog(dialog) : undefined,
-      isTopic || isSaved ? !!dialog.pFlags.pinned : this.managers.dialogsStorage!.isDialogPinned(peerId!, this.filterId),
-      this.managers.appMessagesManager!.isDialogUnread(dialog),
-      peerId!.isAnyChat() && !isTopic ? this.managers.acknowledged!.dialogsStorage!.getForumUnreadCount(peerId!, true).then((result) => {
+      isTopic || isSaved ? !!dialog.pFlags.pinned : this.managers.dialogsStorage.isDialogPinned(peerId!, this.filterId),
+      this.managers.appMessagesManager.isDialogUnread(dialog),
+      peerId!.isAnyChat() && !isTopic ? this.managers.acknowledged.dialogsStorage.getForumUnreadCount(peerId!, true).then((result) => {
         if(result.cached) {
           return result.result;
         } else {
@@ -2481,7 +2481,7 @@ export class AppDialogsManager {
       dialogElement.createReactionsBadge();
     }
 
-    const hasPollVotesBadge = isSaved || isMonoforumThread ? false : !!(dialog as Dialog | ForumTopic).unread_poll_votes_count;
+    const hasPollVotesBadge = isSaved || isMonoforumThread ? false : !!(dialog).unread_poll_votes_count;
     const isPollVotesBadgeMounted = !!dom.pollVotesBadge;
     if(hasPollVotesBadge) {
       dialogElement.createPollVotesBadge();
@@ -2506,7 +2506,7 @@ export class AppDialogsManager {
       ['pinnedBadge', hasPinnedBadge, isPinnedBadgeMounted],
       ['unreadBadge', hasUnreadBadge, isUnreadBadgeMounted],
       ['unreadAvatarBadge', hasUnreadAvatarBadge, isUnreadAvatarBadgeMounted],
-      ['mentionsBadge', (hasMentionsBadge! as boolean), isMentionsBadgeMounted],
+      ['mentionsBadge', (hasMentionsBadge as boolean), isMentionsBadgeMounted],
       ['reactionsBadge', hasReactionsBadge, isReactionsBadgeMounted],
       ['pollVotesBadge', hasPollVotesBadge, isPollVotesBadgeMounted]
     ];
@@ -2521,7 +2521,7 @@ export class AppDialogsManager {
     });
 
     if(!hasUnreadBadge) {
-      deferred.resolve!();
+      deferred.resolve();
       return;
     }
 
@@ -2566,14 +2566,14 @@ export class AppDialogsManager {
     //   }
     // }
 
-    deferred.resolve!();
+    deferred.resolve();
   }
 
   private async getDialog(dialog: AnyDialog | PeerId, {threadOrSavedId, monoforumParentPeerId}: GetDialogOptions = {}) {
     if(typeof(dialog) !== 'object') {
       let originalDialog: AnyDialog | MonoforumDialog;
       if(monoforumParentPeerId) {
-        originalDialog = (await this.managers.monoforumDialogsStorage!.getDialogByParent(monoforumParentPeerId, dialog))!;
+        originalDialog = (await this.managers.monoforumDialogsStorage.getDialogByParent(monoforumParentPeerId, dialog))!;
 
         if(!originalDialog) return {
           peerId: dialog || NULL_PEER_ID,
@@ -2581,7 +2581,7 @@ export class AppDialogsManager {
         } as MonoforumDialog;
       } else if(threadOrSavedId) {
         if(dialog === rootScope.myId) {
-          originalDialog = (await this.managers.dialogsStorage!.getAnyDialog(dialog, threadOrSavedId))!;
+          originalDialog = (await this.managers.dialogsStorage.getAnyDialog(dialog, threadOrSavedId))!;
           if(!originalDialog) {
             const peerId = dialog || NULL_PEER_ID;
             return {
@@ -2590,7 +2590,7 @@ export class AppDialogsManager {
             } as any as SavedDialog;
           }
         } else {
-          originalDialog = (await this.managers.dialogsStorage!.getForumTopic(dialog, threadOrSavedId))!;
+          originalDialog = (await this.managers.dialogsStorage.getForumTopic(dialog, threadOrSavedId))!;
           if(!originalDialog) {
             const peerId = dialog || NULL_PEER_ID;
             return {
@@ -2600,12 +2600,12 @@ export class AppDialogsManager {
           }
         }
       } else {
-        originalDialog = await this.managers.appMessagesManager!.getDialogOnly(dialog);
+        originalDialog = await this.managers.appMessagesManager.getDialogOnly(dialog);
         if(!originalDialog) {
           const peerId = dialog || NULL_PEER_ID;
           return {
             peerId,
-            peer: await this.managers.appPeersManager!.getOutputPeer(peerId),
+            peer: await this.managers.appPeersManager.getOutputPeer(peerId),
             pFlags: {}
           } as any as Dialog;
         }
@@ -2614,7 +2614,7 @@ export class AppDialogsManager {
       return originalDialog;
     }
 
-    return dialog as AnyDialog;
+    return dialog;
   }
 
   public addListDialog(options: Parameters<AppDialogsManager['addDialogNew']>[0] & InitDialogAdditionalOptions) {
@@ -2646,7 +2646,7 @@ export class AppDialogsManager {
       }
 
       if(peerId !== rootScope.myId && isUser) {
-        promises.push(this.managers.appUsersManager!.getUserStatus(peerId.toUserId()).then((status) => {
+        promises.push(this.managers.appUsersManager.getUserStatus(peerId.toUserId()).then((status) => {
           if(status && (status as any)._ === 'userStatusOnline') {
             this.xd.setOnlineStatus(dialogElement.dom.avatarEl.node, true);
           }
@@ -2740,7 +2740,7 @@ export class AppDialogsManager {
         popup = p;
       }
     }).then(() => {
-      this.managers.appMessagesManager!.cancelPendingMessage(randomId).then((wasCanceled) => {
+      this.managers.appMessagesManager.cancelPendingMessage(randomId).then((wasCanceled) => {
         if(!wasCanceled) {
           onSent();
         }

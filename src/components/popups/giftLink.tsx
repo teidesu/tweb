@@ -49,7 +49,7 @@ export default class PopupGiftLink extends PopupElement {
   private _construct(dotsCanvas: HTMLElement) {
     const isUsed = !!this.checkedGiftCode!.used_date;
     const titleLangKey: LangPackKey = isUsed ? 'BoostingUsedGiftLink' : 'BoostingGiftLink';
-    this.title.replaceChildren(i18n(titleLangKey)!);
+    this.title.replaceChildren(i18n(titleLangKey));
 
     const url = this.isInChat && !isUsed ? '' : 'https://t.me/giftcode/' + this.slug;
 
@@ -87,7 +87,7 @@ export default class PopupGiftLink extends PopupElement {
     const giveawayAnchor = this.checkedGiftCode!.giveaway_msg_id || isGiveaway ? document.createElement('a') : undefined;
     if(giveawayAnchor) {
       giveawayAnchor.href = '#';
-      giveawayAnchor.append(i18n('BoostingIncompleteGiveaway')!);
+      giveawayAnchor.append(i18n('BoostingIncompleteGiveaway'));
       attachClickEvent(giveawayAnchor, () => {
         this.hideWithCallback(() => {
           appImManager.setInnerPeer({
@@ -107,8 +107,8 @@ export default class PopupGiftLink extends PopupElement {
     let content: [LangPackKey, JSX.Element][] = [
       ['BoostingFrom', makePeer(fromPeerId)],
       ['BoostingTo', toPeerId ? makePeer(toPeerId) : i18n('BoostingNoRecipient')],
-      ['BoostingGift', i18n('BoostingTelegramPremiumFor', [formatDaysDuration(this.checkedGiftCode!.days)!])],
-      ((!this.isInChat && ['BoostingReason', reasonValue])! as [LangPackKey, JSX.Element]),
+      ['BoostingGift', i18n('BoostingTelegramPremiumFor', [formatDaysDuration(this.checkedGiftCode!.days)])],
+      ((!this.isInChat && ['BoostingReason', reasonValue]) as [LangPackKey, JSX.Element]),
       ['BoostingDate', formatFullSentTime(this.checkedGiftCode!.date, undefined, true)]
     ];
     content = content.filter(Boolean);
@@ -155,7 +155,7 @@ export default class PopupGiftLink extends PopupElement {
     renderImageFromUrl(img!, `assets/img/premium-star${window.devicePixelRatio > 1 ? '@2x' : ''}.png`);
 
     const canUseLink = !this.isInChat && !isUsed;
-    this.btnConfirm.append(i18n(!canUseLink ? 'OK' : 'BoostingUseLink')!);
+    this.btnConfirm.append(i18n(!canUseLink ? 'OK' : 'BoostingUseLink'));
     this.btnConfirm.classList.add('popup-boosts-button');
     this.footer.append(this.btnConfirm);
     this.body.after(this.footer);
@@ -174,7 +174,7 @@ export default class PopupGiftLink extends PopupElement {
   }
 
   private async construct() {
-    this.checkedGiftCode ??= await this.managers.appPaymentsManager!.checkGiftCode(this.slug);
+    this.checkedGiftCode ??= await this.managers.appPaymentsManager.checkGiftCode(this.slug);
     if(shouldDisplayGiftCodeAsGift(this.checkedGiftCode)) {
       this.destroy();
       PopupPremium.show({
@@ -220,7 +220,7 @@ export default class PopupGiftLink extends PopupElement {
   public static async applyGiftCode(slug: string, button: HTMLElement, popup: PopupElement) {
     const toggle = toggleDisability(button, true);
     try {
-      await PopupElement.MANAGERS.appPaymentsManager!.applyGiftCode(slug);
+      await PopupElement.MANAGERS.appPaymentsManager.applyGiftCode(slug);
       popup.hide();
       toastNew({langPackKey: 'GiftLink.UseSuccess'});
     } catch(err) {

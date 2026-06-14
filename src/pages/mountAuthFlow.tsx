@@ -23,7 +23,7 @@ import {CardSpec, navigateAuth} from '@/pages/authFlow';
  */
 export type MountAuthFlowState = Exclude<AuthState, AuthState.signedIn>;
 
-let activeDispose: (() => void) | null = (import.meta.hot?.data as any)?.activeDispose ?? null;
+let activeDispose: (() => void) | null = (import.meta.hot?.data)?.activeDispose ?? null;
 
 export function mountAuthFlow(authState: MountAuthFlowState): () => void {
   // Auth flow can only mount once at a time — clean up any previous instance.
@@ -47,10 +47,10 @@ export function mountAuthFlow(authState: MountAuthFlowState): () => void {
     dispose();
     root.remove();
     activeDispose = null;
-    if(import.meta.hot) (import.meta.hot.data as any).activeDispose = null;
+    if(import.meta.hot) (import.meta.hot.data).activeDispose = null;
   };
 
-  if(import.meta.hot) (import.meta.hot.data as any).activeDispose = activeDispose;
+  if(import.meta.hot) (import.meta.hot.data).activeDispose = activeDispose;
 
   return activeDispose;
 }

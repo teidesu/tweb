@@ -32,14 +32,14 @@ export default class DownloadStorage implements FileStorage {
 
     const deferred = deferredPromise<void>();
     deferred.cancel = () => {
-      deferred.reject!(makeError('DOWNLOAD_CANCELED'));
+      deferred.reject(makeError('DOWNLOAD_CANCELED'));
     };
 
     deferred.catch(() => {
       appManagersManager.getServiceMessagePort()!.invoke('downloadCancel', downloadId);
     });
 
-    promise.then(deferred.resolve!.bind(deferred), deferred.reject!.bind(deferred));
+    promise.then(deferred.resolve.bind(deferred), deferred.reject.bind(deferred));
 
     return {
       deferred,

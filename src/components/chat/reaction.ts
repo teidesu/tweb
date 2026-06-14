@@ -645,10 +645,10 @@ export default class ReactionElement extends HTMLElement {
 
         const deferred = deferredPromise<void>();
         const remove = () => {
-          deferred.resolve!();
+          deferred.resolve();
           // return;
           // if(!isInDOM(div)) return;
-          iconPlayer && (iconPlayer as RLottiePlayer).remove();
+          iconPlayer && (iconPlayer).remove();
           div?.remove();
           options.stickerContainer.classList.remove('has-animation');
         };
@@ -786,7 +786,7 @@ export default class ReactionElement extends HTMLElement {
     const onEmoticon = (sticker: Document.document, emoticon: string = sticker.stickerEmojiRaw!) => {
       return callbackifyAll([
         apiManagerProxy.getReaction(emoticon),
-        sticker ? options.managers!.appReactionsManager!.getRandomGenericAnimation() : undefined
+        sticker ? options.managers!.appReactionsManager.getRandomGenericAnimation() : undefined
       ], ([
         availableReaction,
         genericEffect
@@ -811,7 +811,7 @@ export default class ReactionElement extends HTMLElement {
         assetName: `StarReactionEffect${getUnsafeRandomInt(1, 3)}` as LottieAssetName
       })
     } else {
-      promise = callbackify(options.managers.appEmojiManager!.getCustomEmojiDocument(reaction.document_id), (doc) => {
+      promise = callbackify(options.managers.appEmojiManager.getCustomEmojiDocument(reaction.document_id), (doc) => {
         return onEmoticon(doc);
       });
     }

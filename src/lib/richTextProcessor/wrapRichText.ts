@@ -292,7 +292,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
           header.classList.add('code-header');
           const headerName = document.createElement('span');
           headerName.classList.add('code-header-name');
-          headerName.append((languageName || i18n('CopyCode'))!);
+          headerName.append((languageName || i18n('CopyCode')));
           const headerWrapButton = Icon('menu', 'code-header-button', 'code-header-toggle-wrap');
           header.append(headerName, headerWrapButton, Icon('copy', 'code-header-button', 'code-header-copy'));
 
@@ -529,7 +529,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
 
         if(options.doubleLinebreak === nasty.i) {
           options.doubleLinebreak = undefined;
-          (element! || fragment).append('\n\n');
+          (element || fragment).append('\n\n');
           usedText = true;
         }
         // if(options.noLinebreaks) {
@@ -777,7 +777,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
                 return dispose;
               });
 
-              options.middleware.onClean(dispose!);
+              options.middleware.onClean(dispose);
             } else {
               const result = formatRelativeTime(entity.date, tsNow(true));
               updateText(I18n.format(result.key, true, result.args));
@@ -838,9 +838,9 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
 
       if(!options.wrappingDraft && endOffset < nasty.text.length) {
         // * ignore inner linebreak if found and double next linebreak
-        if(!element!.parentElement) {
+        if(!element.parentElement) {
           const container = document.createElement('div');
-          container.append(element!);
+          container.append(element);
           fragment.append(container);
         }
 
@@ -887,7 +887,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
     }
 
     if(!usedText && partText) {
-      if(element!) {
+      if(element) {
         if(property!) {
           // @ts-ignore
           element[property] = partText;
@@ -899,14 +899,15 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
       }
     }
 
-    if(element! && !element.parentNode) {
-      (lastElement! || fragment).append(element);
+    if(element && !element.parentNode) {
+      // @ts-expect-error use before assigned
+      (lastElement || fragment).append(element);
     }
 
     while(nextEntity && nextEntity.offset! < endOffset) {
       ++nasty.i;
 
-      (element! || fragment).append(wrapRichText(nasty.text, {
+      (element || fragment).append(wrapRichText(nasty.text, {
         ...options,
         voodoo: true
       }));
@@ -920,13 +921,13 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
 
     if(nasty.usedLength <= endOffset) {
       if(nasty.usedLength < endOffset) {
-        (element! || fragment).append(nasty.text.slice(nasty.usedLength, endOffset));
+        (element || fragment).append(nasty.text.slice(nasty.usedLength, endOffset));
         nasty.usedLength = endOffset;
       }
 
       lastElement = fragment;
       nasty.lastEntity = undefined;
-    } else if(entity.length! > partText.length && element!) {
+    } else if(entity.length! > partText.length && element) {
       lastElement = element;
     } else {
       lastElement = fragment;

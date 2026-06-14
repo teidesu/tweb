@@ -95,6 +95,7 @@ import namedPromises from '@helpers/namedPromises';
 import callbackifyAll from '@helpers/callbackifyAll';
 import {createBotforumTopicFromAction} from './utils/dialogs/createBotforumTopicFromAction';
 import {AttachedMedia, CreatePollPayload} from '@components/popups/createPoll/storeContext';
+import {isTruthy} from '../../helpers/isTruthy';
 
 // console.trace('include');
 // TODO: если удалить диалог находясь в папке, то он не удалится из папки и будет виден в настройках
@@ -855,7 +856,7 @@ export class AppMessagesManager extends AppManager {
   public clear = (init?: boolean) => {
     if(this.middleware) {
       this.middleware.clean();
-      this.waitingTranscriptions.forEach((promise) => promise.reject!());
+      this.waitingTranscriptions.forEach((promise) => promise.reject());
     } else {
       this.middleware = getMiddleware();
       this.uploadFilePromises = {};
@@ -1039,7 +1040,7 @@ export class AppMessagesManager extends AppManager {
           pFlags: {}
         };
 
-        sentDeferred.resolve!(inputMedia);
+        sentDeferred.resolve(inputMedia);
       } else if(file instanceof File || file instanceof Blob) {
         try {
           const uploadMediaPromise = this.uploadMediaFile({
@@ -1057,7 +1058,7 @@ export class AppMessagesManager extends AppManager {
             }
           });
 
-          uploadMediaPromise.then((inputMedia) => sentDeferred.resolve!(inputMedia), (e) => sentDeferred.reject!(e));
+          uploadMediaPromise.then((inputMedia) => sentDeferred.resolve(inputMedia), (e) => sentDeferred.reject(e));
         } catch{
           this.revertMessageEdit(message.mid!);
         }
@@ -1109,7 +1110,7 @@ export class AppMessagesManager extends AppManager {
   }
 
   public syncSentAndUploadPromises({sentDeferred, uploadFileDeferred, file}: SyncSentAndUploadPromisesArgs) {
-    uploadFileDeferred.addNotifyListener!((progress: Progress) => {
+    uploadFileDeferred.addNotifyListener((progress: Progress) => {
       sentDeferred.notifyAll!(progress);
     });
 
@@ -1667,7 +1668,7 @@ export class AppMessagesManager extends AppManager {
           };
         }
 
-        sentDeferred.resolve!(inputMedia);
+        sentDeferred.resolve(inputMedia);
       } else if(file instanceof File || file instanceof Blob) {
         const load = () => {
           if(!uploaded || message?.error) {
@@ -1683,10 +1684,10 @@ export class AppMessagesManager extends AppManager {
 
               message && this.cancelPendingMessage(message.random_id!);
               this.setTyping(peerId!, {_: 'sendMessageCancelAction'}, undefined, options.threadId);
-              sentDeferred.reject!(err);
+              sentDeferred.reject(err);
             });
 
-            uploadPromise.addNotifyListener!((progress: Progress) => {
+            uploadPromise.addNotifyListener((progress: Progress) => {
               /* if(DEBUG) {
                 this.log('upload progress', progress);
               } */
@@ -1766,7 +1767,7 @@ export class AppMessagesManager extends AppManager {
               }
             }
 
-            sentDeferred.resolve!(inputMedia);
+            sentDeferred.resolve(inputMedia);
           }, (error: ApiError) => {
             toggleError(error);
           });
@@ -1875,8 +1876,8 @@ export class AppMessagesManager extends AppManager {
 
         const messagePromise = message.promise as CancellablePromise<void>;
         sentDeferred.then(
-          () => messagePromise.resolve!(),
-          (err) => messagePromise.reject!(err)
+          () => messagePromise.resolve(),
+          (err) => messagePromise.reject(err)
         );
       };
 
@@ -1887,7 +1888,7 @@ export class AppMessagesManager extends AppManager {
           send,
           cancel: () => {
             this.cancelPendingMessage(message.random_id!);
-            (message.promise as CancellablePromise<void>)?.reject!();
+            (message.promise as CancellablePromise<void>)?.reject();
           }
         });
       } else {
@@ -2205,7 +2206,7 @@ export class AppMessagesManager extends AppManager {
         threadId: options.threadId,
         sendAsPeerId: options.sendAsPeerId,
         useTempMediaId: isSingleMessageForAlbum,
-        groupedMessage: ((isSingleMessageForAlbum && firstMessage)! as Message.message | undefined),
+        groupedMessage: ((isSingleMessageForAlbum && firstMessage) as Message.message | undefined),
         groupId,
         stars: options.stars,
         processAfter,
@@ -2233,7 +2234,7 @@ export class AppMessagesManager extends AppManager {
       const message = results[0].message;
       message.media = this.generateOutgoingPaidMedia(results, options.stars);
       this.mediaTempMap[message.id] = preserveMediaTempId;
-      message.uploadingFileName = (results.map(({uploadingFileName}) => uploadingFileName)! as string[] | undefined);
+      message.uploadingFileName = (results.map(({uploadingFileName}) => uploadingFileName) as string[] | undefined);
     }
 
     if(options.clearDraft) {
@@ -2295,7 +2296,7 @@ export class AppMessagesManager extends AppManager {
               wereStarsReserved: options.confirmedPaymentResult?.canUndo!
             });
 
-            deferred.resolve!();
+            deferred.resolve();
           }, (error: ApiError) => {
             const repayRequest = this.repayRequestHandler.tryRegisterRequest({
               error,
@@ -2309,7 +2310,7 @@ export class AppMessagesManager extends AppManager {
             });
 
             results.forEach(({message}) => toggleError(message, error, repayRequest));
-            deferred.reject!(error);
+            deferred.reject(error);
           });
         }
       });
@@ -2320,7 +2321,7 @@ export class AppMessagesManager extends AppManager {
     const promises: Promise<InputSingleMedia>[] = (results.map(async({message, send}) => {
       let inputMedia: InputMedia;
       try {
-        inputMedia = await send() as InputMedia;
+        inputMedia = await send();
       } catch(err) {
         const isUploadCanceled = (err as ApiError).type === 'UPLOAD_CANCELED';
         if(isUploadCanceled && !isSingleMessageForAlbum) {
@@ -2381,7 +2382,7 @@ export class AppMessagesManager extends AppManager {
       }
 
       return inputSingleMedia;
-    })! as Promise<InputSingleMedia.inputSingleMedia>[]);
+    }) as Promise<InputSingleMedia.inputSingleMedia>[]);
 
     return Promise.all(promises).then((inputs) => {
       inputs = inputs.filter(Boolean);
@@ -2776,7 +2777,7 @@ export class AppMessagesManager extends AppManager {
       const storages: HistoryStorage[] = ([
         this.getHistoryStorage(peerId),
         options.threadId ? this.getHistoryStorage(peerId, options.threadId) : undefined
-      ].filter(Boolean)! as HistoryStorage[]);
+      ].filter(isTruthy));
 
       for(const storage of storages) {
         storage.history!.unshift(messageId);
@@ -2936,7 +2937,7 @@ export class AppMessagesManager extends AppManager {
       via_bot_id: options.viaBotId,
       reply_markup: options.replyMarkup,
       replies: this.generateReplies(peerId, options.replyTo),
-      views: ((isBroadcast && 1)! as number | undefined),
+      views: ((isBroadcast && 1) as number | undefined),
       pending: true,
       effect: options.effect,
       paid_message_stars: options.confirmedPaymentResult?.starsAmount || undefined,
@@ -3292,7 +3293,7 @@ export class AppMessagesManager extends AppManager {
   private generateOutgoingPaidMedia(messages: {media?: MessageMedia}[], stars: number): MessageMedia.messageMediaPaidMedia {
     return {
       _: 'messageMediaPaidMedia',
-      extended_media: (messages.map(({media}) => ({_: 'messageExtendedMedia', media}))! as MessageExtendedMedia[]),
+      extended_media: (messages.map(({media}) => ({_: 'messageExtendedMedia', media})) as MessageExtendedMedia[]),
       stars_amount: '' + stars
     };
   }
@@ -3892,8 +3893,8 @@ export class AppMessagesManager extends AppManager {
 
     const send = () => this.apiManager.invokeApiAfter('messages.forwardMessages', {
       from_peer: this.appPeersManager.getInputPeerById(fromPeerId),
-      id: (mids.map((mid) => getServerMessageId(mid))! as number[]),
-      random_id: (newMessages.map((message) => message.random_id)! as (string | number)[]),
+      id: (mids.map((mid) => getServerMessageId(mid)) as number[]),
+      random_id: (newMessages.map((message) => message.random_id) as (string | number)[]),
       to_peer: this.appPeersManager.getInputPeerById(peerId!),
       with_my_score: options.withMyScore,
       silent: options.silent,
@@ -3983,7 +3984,7 @@ export class AppMessagesManager extends AppManager {
       return this.forwardMessagesInner({
         ...options,
         peerId,
-        fromPeerId: (_channelId ? channelId!.toPeerId(true) : this.getMessageByPeer(fromPeerId, mids[0]!)!.peerId)!,
+        fromPeerId: (_channelId ? channelId!.toPeerId(true) : this.getMessageByPeer(fromPeerId, mids[0])!.peerId)!,
         mids
       });
     });
@@ -4581,7 +4582,7 @@ export class AppMessagesManager extends AppManager {
         promise = obj.promise;
       }
 
-      log.warn({peerId, throttled: !!promise!, sentRequest: obj?.sentRequest});
+      log.warn({peerId, throttled: !!promise, sentRequest: obj?.sentRequest});
 
       if(promise as CancellablePromise<Dialog> | undefined) {
         return promise;
@@ -4595,7 +4596,7 @@ export class AppMessagesManager extends AppManager {
     }
 
     if(this.reloadConversationsPromise) {
-      return promise! || this.reloadConversationsPromise;
+      return promise || this.reloadConversationsPromise;
     }
 
     log('creating throttled promise');
@@ -4613,7 +4614,7 @@ export class AppMessagesManager extends AppManager {
             this.reloadConversationsPeers.delete(peerId);
           }
 
-          obj.promise.resolve!(undefined!);
+          obj.promise.resolve(undefined!);
         }
       };
 
@@ -4654,7 +4655,7 @@ export class AppMessagesManager extends AppManager {
           }
 
           const obj = reloadConversationsPeers.get(peerId);
-          obj!.promise.resolve!(dialog as Dialog);
+          obj!.promise.resolve(dialog as Dialog);
           reloadConversationsPeers.delete(peerId);
         });
       }, (err) => {
@@ -4669,7 +4670,7 @@ export class AppMessagesManager extends AppManager {
       });
     });
 
-    return promise! || this.reloadConversationsPromise;
+    return promise || this.reloadConversationsPromise;
   }
 
   public doFlushHistory({
@@ -4746,7 +4747,7 @@ export class AppMessagesManager extends AppManager {
           messages: deletedMids,
           pts: undefined,
           pts_count: undefined
-        })! as unknown as Update));
+        }) as unknown as Update));
       }
 
       if(!affectedHistory.offset) {
@@ -4898,7 +4899,7 @@ export class AppMessagesManager extends AppManager {
           const c = this.reloadConversationsPeers.get(peerId);
           if(c) {
             this.reloadConversationsPeers.delete(peerId);
-            c.promise.resolve!(undefined!);
+            c.promise.resolve(undefined!);
           }
         }
 
@@ -4943,7 +4944,7 @@ export class AppMessagesManager extends AppManager {
     const needSingleMessages = this.needSingleMessages.get(peerId);
     if(needSingleMessages) {
       for(const [mid, promise] of needSingleMessages) {
-        promise.resolve!((this.generateEmptyMessage(mid) as Message.message | Message.messageService));
+        promise.resolve((this.generateEmptyMessage(mid) as Message.message | Message.messageService));
       }
 
       needSingleMessages.clear();
@@ -5241,7 +5242,7 @@ export class AppMessagesManager extends AppManager {
     // storage.generateIndex(message);
     const myId = this.appPeersManager.peerId;
 
-    const fwdHeader = isMessage && (message as Message.message).fwd_from;
+    const fwdHeader = isMessage && (message).fwd_from;
 
     message.peerId = peerId;
     if(peerId === myId/*  && !message.from_id && !message.fwd_from */) {
@@ -5320,7 +5321,7 @@ export class AppMessagesManager extends AppManager {
     }
 
     if(!isMessage && message.action) {
-      const action = message.action as MessageAction;
+      const action = message.action;
       const suffix = message.fromId === this.appUsersManager.getSelf().id ? 'You' : '';
       let migrateFrom: PeerId, migrateTo: PeerId;
 
@@ -5670,7 +5671,7 @@ export class AppMessagesManager extends AppManager {
   public reportMessages(peerId: PeerId, mids: number[], option: Uint8Array, message?: string) {
     return this.apiManager.invokeApiSingle('messages.report', {
       peer: this.appPeersManager.getInputPeerById(peerId),
-      id: (mids.map((mid) => getServerMessageId(mid))! as number[]),
+      id: (mids.map((mid) => getServerMessageId(mid)) as number[]),
       option,
       message: message!
     });
@@ -5680,7 +5681,7 @@ export class AppMessagesManager extends AppManager {
     return this.apiManager.invokeApiSingle('channels.reportSpam', {
       channel: this.appChatsManager.getChannelInput(peerId.toChatId()),
       participant: this.appPeersManager.getInputPeerById(participantPeerId),
-      id: (mids.map((mid) => getServerMessageId(mid))! as number[])
+      id: (mids.map((mid) => getServerMessageId(mid)) as number[])
     });
   }
 
@@ -6233,7 +6234,7 @@ export class AppMessagesManager extends AppManager {
 
   public filterMessagesByInputFilterFromStorage(inputFilter: MyInputMessagesFilter, history: number[], storage: MessagesStorage | MessagesStorageKey, limit: number) {
     const _storage = this.getMessagesStorage(storage);
-    return filterMessagesByInputFilter({inputFilter, messages: (history.map((mid) => _storage.get(mid))! as (Message.message | Message.messageService)[]), limit});
+    return filterMessagesByInputFilter({inputFilter, messages: (history.map((mid) => _storage.get(mid)) as (Message.message | Message.messageService)[]), limit});
   }
 
   public subscribeRepliesThread(peerId: PeerId, mid: number) {
@@ -6398,7 +6399,7 @@ export class AppMessagesManager extends AppManager {
           obj.topics ??= new Map();
 
         if(isObject) {
-          map.set(threadOrSavedId, dialog as ForumTopic | SavedDialog);
+          map.set(threadOrSavedId, dialog);
         } else {
           map.set(threadOrSavedId, undefined!);
         }
@@ -6459,7 +6460,7 @@ export class AppMessagesManager extends AppManager {
       const messageId = getServerMessageId(mid);
       // filter outgoing messages
       return this.appMessagesIdsManager.generateMessageId(messageId!, channelId) === mid && messageId;
-    }).filter(Boolean);
+    }).filter(isTruthy);
 
     const onError = (error: ApiError) => {
       // the messages are already removed locally and can't be restored from here —
@@ -6475,7 +6476,7 @@ export class AppMessagesManager extends AppManager {
     if(channelId) {
       promise = this.apiManager.invokeApi('channels.deleteMessages', {
         channel: this.appChatsManager.getChannelInput(channelId),
-        id: (serverMessageIds! as number[])
+        id: (serverMessageIds)
       }).then((affectedMessages) => {
         this.apiUpdatesManager.processLocalUpdate({
           _: 'updateDeleteChannelMessages',
@@ -6488,7 +6489,7 @@ export class AppMessagesManager extends AppManager {
     } else {
       promise = this.apiManager.invokeApi('messages.deleteMessages', {
         revoke,
-        id: (serverMessageIds! as number[])
+        id: (serverMessageIds)
       }).then((affectedMessages) => {
         this.apiUpdatesManager.processLocalUpdate({
           _: 'updateDeleteMessages',
@@ -6814,7 +6815,7 @@ export class AppMessagesManager extends AppManager {
       }
     }).finally(() => {
       delete this.goToNextMentionPromises[key];
-    })! as Promise<number>);
+    }) as Promise<number>);
   }
 
   // When the user has navigated through every known unread item, decide how to
@@ -6843,7 +6844,7 @@ export class AppMessagesManager extends AppManager {
     .then((messages) => {
       this.mergeHistoryResult({
         slicedArray,
-        historyResult: messages!,
+        historyResult: messages,
         offsetId: maxId === 1 ? 0 : maxId,
         limit,
         addOffset,
@@ -6926,7 +6927,7 @@ export class AppMessagesManager extends AppManager {
     const hadUnreadMentions = !!dialog?.unread_mentions_count;
     const hadUnreadReactions = !!dialog?.unread_reactions_count;
 
-    msgIds = (msgIds.map((mid) => getServerMessageId(mid))! as number[]);
+    msgIds = (msgIds.map((mid) => getServerMessageId(mid)) as number[]);
     let promise: Promise<any>, update: Update.updateChannelReadMessagesContents | Update.updateReadMessagesContents;
     if(peerId.isAnyChat() && this.appPeersManager.isChannel(peerId)) {
       const channelId = peerId.toChatId();
@@ -7975,7 +7976,7 @@ export class AppMessagesManager extends AppManager {
     // console.trace(dT(), 'edit message', message)
 
     const oldMessage: Message = this.getMessageFromStorage(storage, mid)!;
-    const newMessage = this.modifyMessage(oldMessage!, () => {
+    const newMessage = this.modifyMessage(oldMessage, () => {
       this.saveMessages([message], {storage});
       const newMessage: Message = this.getMessageFromStorage(storage, mid)!;
       // if(newMessage?._ === 'message' && oldMessage?._ === 'message' && oldMessage.uploadingFileName) {
@@ -8019,9 +8020,9 @@ export class AppMessagesManager extends AppManager {
 
     let dispatchEditEvent = true;
     // no sense in dispatching message_edit since only reactions have changed
-    if(oldMessage && !deepEqual(oldMessage.reactions, (newMessage as Message.message | Message.messageService).reactions)) {
-      const newReactions = (newMessage as Message.message | Message.messageService).reactions;
-      (newMessage as Message.message | Message.messageService).reactions = oldMessage.reactions;
+    if(oldMessage && !deepEqual(oldMessage.reactions, (newMessage).reactions)) {
+      const newReactions = (newMessage).reactions;
+      (newMessage).reactions = oldMessage.reactions;
       this.apiUpdatesManager.processLocalUpdate({
         _: 'updateMessageReactions',
         peer: this.appPeersManager.getOutputPeer(peerId),
@@ -8804,7 +8805,7 @@ export class AppMessagesManager extends AppManager {
     const key = `${peerId}_${mid}`;
     const waitingPromise = this.waitingTranscriptions.get(key);
     if(!update.pFlags.pending && waitingPromise) {
-      waitingPromise.resolve!({
+      waitingPromise.resolve({
         _: 'messages.transcribedAudio',
         pFlags: {},
         text,
@@ -8885,7 +8886,7 @@ export class AppMessagesManager extends AppManager {
       }
 
       return message;
-    })! as Promise<Message.message>);
+    }) as Promise<Message.message>);
 
     return promise;
   }
@@ -8986,7 +8987,7 @@ export class AppMessagesManager extends AppManager {
     } : {
       _: 'inputNotifyPeer',
       peer
-    })!, settings);
+    }), settings);
   }
 
   public togglePeerMute({peerId, mute, threadId}: {peerId: PeerId, mute?: boolean, threadId?: number}) {
@@ -9046,9 +9047,9 @@ export class AppMessagesManager extends AppManager {
       this.getHistoryStorage(peerId),
       threadId ? this.getHistoryStorage(peerId, threadId) : undefined
     ]
-    .filter(Boolean)
+    .filter(isTruthy)
     .forEach((storage) => {
-      storage!.history!.delete(tempId);
+      storage.history!.delete(tempId);
     });
 
     // this.log('pending', randomID, historyStorage.pending)
@@ -9083,7 +9084,7 @@ export class AppMessagesManager extends AppManager {
       for(const name in callbacks) {
         const {deferred, callback} = callbacks[name];
         // this.log(`finalizePendingMessageCallbacks: will invoke ${name} callback`);
-        callback!(message).then(deferred!.resolve!.bind(deferred), deferred!.reject!.bind(deferred));
+        callback!(message).then(deferred!.resolve.bind(deferred), deferred!.reject.bind(deferred));
       }
 
       delete this.tempFinalizeCallbacks[tempId];
@@ -9309,7 +9310,7 @@ export class AppMessagesManager extends AppManager {
 
     return this.apiManager.invokeApiSingle('messages.getMessagesViews', {
       peer: this.appPeersManager.getInputPeerById(peerId),
-      id: (mids.map((mid) => getServerMessageId(mid))! as number[]),
+      id: (mids.map((mid) => getServerMessageId(mid)) as number[]),
       increment: true
     }).then((views) => {
       this.appPeersManager.saveApiPeers(views);
@@ -9403,7 +9404,7 @@ export class AppMessagesManager extends AppManager {
   public sendScheduledMessages(peerId: PeerId, mids: number[]) {
     return this.apiManager.invokeApi('messages.sendScheduledMessages', {
       peer: this.appPeersManager.getInputPeerById(peerId),
-      id: (mids.map((mid) => getServerMessageId(mid))! as number[])
+      id: (mids.map((mid) => getServerMessageId(mid)) as number[])
     }).then((updates) => {
       this.apiUpdatesManager.processUpdateMessage(updates);
     });
@@ -9420,7 +9421,7 @@ export class AppMessagesManager extends AppManager {
 
     return this.apiManager.invokeApi('messages.deleteScheduledMessages', {
       peer: this.appPeersManager.getInputPeerById(peerId),
-      id: (mids.map((mid) => getServerMessageId(mid))! as number[])
+      id: (mids.map((mid) => getServerMessageId(mid)) as number[])
     }).then((updates) => {
       this.apiUpdatesManager.processUpdateMessage(updates);
     }, (error: ApiError) => {
@@ -9627,7 +9628,7 @@ export class AppMessagesManager extends AppManager {
         //   }
         // }
 
-        const mids = historyResult!.messages.map((message) => message.mid!) as number[];
+        const mids = historyResult!.messages.map((message) => message.mid!);
 
         return {
           count: (historyResult as MessagesMessages.messagesMessagesSlice).count ?? historyStorage!.count,
@@ -9805,7 +9806,7 @@ export class AppMessagesManager extends AppManager {
       slice = searchSlicedArray.insertSlice(full)!;
       hadSlice = !!slice;
     } else {
-      slice = slicedArray.insertSlice((mids! as number[]))!;
+      slice = slicedArray.insertSlice((mids as number[]))!;
       hadSlice = !!slice;
       slice ||= slicedArray.slice;
     }
@@ -10003,7 +10004,7 @@ export class AppMessagesManager extends AppManager {
           addSlice.unshift(last[lastLength - 1]);
         }
 
-        historyStorage.history!.insertSlice((addSlice! as number[]));
+        historyStorage.history!.insertSlice((addSlice as number[]));
 
         this.log('inserted thread service start message', peerId, options.threadId, threadServiceMid);
       }
@@ -10338,7 +10339,7 @@ export class AppMessagesManager extends AppManager {
             _: 'inputMessageID',
             id: getServerMessageId(mid)
           };
-        })! as InputMessage[]);
+        }) as InputMessage[]);
 
         let promise: Promise<MethodDeclMap['channels.getMessages']['res'] | MethodDeclMap['messages.getMessages']['res']>;
         const channelId = this.appPeersManager.isChannel(peerId) ? peerId.toChatId() : undefined;
@@ -10367,7 +10368,7 @@ export class AppMessagesManager extends AppManager {
 
             const mid = this.appMessagesIdsManager.generateMessageId(message.id, channelId);
             const promise = map.get(mid);
-            promise!.resolve!(message as MyMessage);
+            promise!.resolve(message as MyMessage);
             map.delete(mid);
           }
 
@@ -10375,7 +10376,7 @@ export class AppMessagesManager extends AppManager {
             for(const [mid, promise] of map) {
               const deletedPeerId = peerId.isAnyChat() && isLegacyMessageId(mid) ? GLOBAL_HISTORY_PEER_ID : peerId;
               this.deletedMessages.add(`${deletedPeerId}_${mid}`);
-              promise.resolve!((this.generateEmptyMessage(mid) as Message.message | Message.messageService));
+              promise.resolve((this.generateEmptyMessage(mid) as Message.message | Message.messageService));
             }
           }
         }).finally(() => {
@@ -10453,14 +10454,14 @@ export class AppMessagesManager extends AppManager {
     });
 
     if(!toRequest.length) {
-      deferred.resolve!();
+      deferred.resolve();
     } else {
       this.apiManager.invokeApi('messages.getExtendedMedia', {
         peer: this.appPeersManager.getInputPeerById(peerId),
-        id: (toRequest.map((mid) => getServerMessageId(mid))! as number[])
+        id: (toRequest.map((mid) => getServerMessageId(mid)) as number[])
       }).then((updates) => {
         this.apiUpdatesManager.processUpdateMessage(updates);
-        deferred.resolve!();
+        deferred.resolve();
       });
     }
 
@@ -10512,7 +10513,7 @@ export class AppMessagesManager extends AppManager {
         });
 
         if(this.isMessageIsTopMessage(message)) {
-          this.rootScope.dispatchEvent('dialogs_multiupdate', (new Map([[peerId!, {dialog: this.getDialogOnly(peerId!)}]]))!);
+          this.rootScope.dispatchEvent('dialogs_multiupdate', (new Map([[peerId!, {dialog: this.getDialogOnly(peerId!)}]])));
         }
       }
 
@@ -10777,7 +10778,7 @@ export class AppMessagesManager extends AppManager {
 
   public canForward(message: Message.message | Message.messageService) {
     return message?._ === 'message' &&
-      !(message as Message.message).pFlags.noforwards &&
+      !(message).pFlags.noforwards &&
       !(message.media as MessageMedia.messageMediaPhoto)?.ttl_seconds &&
       !this.appPeersManager.noForwards(message.peerId!);
   }
@@ -10968,7 +10969,7 @@ export class AppMessagesManager extends AppManager {
       try {
         const result = await this.apiManager.invokeApi('messages.getFactCheck', {
           peer: this.appPeersManager.getInputPeerById(peerId),
-          msg_id: (mids.map((mid) => getServerMessageId(mid))! as number[])
+          msg_id: (mids.map((mid) => getServerMessageId(mid)) as number[])
         });
 
         result.forEach((factCheck, idx) => {
@@ -10982,13 +10983,13 @@ export class AppMessagesManager extends AppManager {
           }
 
           const promise = midsMap.get(mid);
-          promise!.resolve!(factCheck);
+          promise!.resolve(factCheck);
           midsMap.delete(mid);
         });
       } catch(err) {
         mids.forEach((mid) => {
           const promise = midsMap.get(mid);
-          promise!.reject!(err);
+          promise!.reject(err);
           midsMap.delete(mid);
         });
       }
@@ -11222,7 +11223,7 @@ export class AppMessagesManager extends AppManager {
       const incompletedItems = new Map<number, TodoCompletion>();
 
       for(const [{taskId, oldItem, action}, promise] of list) {
-        promise.resolve!();
+        promise.resolve();
 
         if(action === 'complete') {
           incompletedIds.delete(taskId);

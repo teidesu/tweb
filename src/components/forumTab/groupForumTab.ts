@@ -52,7 +52,7 @@ export class GroupForumTab extends ForumTab {
           appSidebarLeft.createTab(AppEditTopicTab).open({peerId: this.peerId});
         },
         separatorDown: true,
-        verify: () => this.managers.appChatsManager!.hasRights(this.peerId.toChatId(), 'manage_topics')
+        verify: () => this.managers.appChatsManager.hasRights(this.peerId.toChatId(), 'manage_topics')
       }, {
         icon: 'info',
         text: 'ForumTopic.Context.Info',
@@ -71,7 +71,7 @@ export class GroupForumTab extends ForumTab {
         icon: 'adduser',
         text: 'ForumTopic.Context.AddMember',
         onClick: () => {},
-        verify: () => false && this.managers.appChatsManager!.hasRights(this.peerId.toChatId(), 'invite_users')
+        verify: () => false && this.managers.appChatsManager.hasRights(this.peerId.toChatId(), 'invite_users')
       }, {
         icon: 'logout',
         danger: true,
@@ -82,7 +82,7 @@ export class GroupForumTab extends ForumTab {
           });
         },
         separator: true,
-        verify: async() => !!(await this.managers.appMessagesManager!.getDialogOnly(this.peerId))
+        verify: async() => !!(await this.managers.appMessagesManager.getDialogOnly(this.peerId))
       }]
     });
 
@@ -114,9 +114,9 @@ export class GroupForumTab extends ForumTab {
     const middleware = this.middlewareHelper.get();
     const peerId = this.peerId;
 
-    this.managers.apiUpdatesManager!.subscribeToChannelUpdates(this.peerId.toChatId());
+    this.managers.apiUpdatesManager.subscribeToChannelUpdates(this.peerId.toChatId());
     middleware.onDestroy(() => {
-      this.managers.apiUpdatesManager!.unsubscribeFromChannelUpdates(this.peerId.toChatId());
+      this.managers.apiUpdatesManager.unsubscribeFromChannelUpdates(this.peerId.toChatId());
     });
 
     const peerTitlePromise = wrapPeerTitle({
@@ -162,7 +162,7 @@ export class GroupForumTab extends ForumTab {
     const chat = appImManager.chat;
     const peerId = this.peerId;
     this._close();
-    await this.managers.appChatsManager!.toggleViewForumAsMessages(peerId.toChatId(), true);
+    await this.managers.appChatsManager.toggleViewForumAsMessages(peerId.toChatId(), true);
     appImManager[chat?.peerId === peerId ? 'setPeer' : 'setInnerPeer'](this.getOptionsForMessages());
   };
 }

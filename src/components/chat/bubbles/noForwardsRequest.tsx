@@ -34,7 +34,7 @@ export function NoForwardsRequestReplyMarkup(props: {
   chat: Chat
 }) {
   const callback = (accept: boolean) => {
-    props.chat.managers.appProfileManager!.toggleNoForwards(
+    props.chat.managers.appProfileManager.toggleNoForwards(
       props.message.peerId!,
       !accept,
       props.message.mid

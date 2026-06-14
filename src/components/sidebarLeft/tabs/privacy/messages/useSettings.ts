@@ -17,13 +17,13 @@ const useSettings = () => {
 
 
   const [privacyRules] = createResource(() => {
-    const promise = rootScope.managers.appPrivacyManager!.getPrivacy(privacyRulesInputKey);
+    const promise = rootScope.managers.appPrivacyManager.getPrivacy(privacyRulesInputKey);
     promiseCollector.collect(promise);
     return promise;
   });
 
   const [globalPrivacy] = createResource(() => {
-    const promise = rootScope.managers.appPrivacyManager!.getGlobalPrivacySettings();
+    const promise = rootScope.managers.appPrivacyManager.getGlobalPrivacySettings();
     promiseCollector.collect(promise);
     return promise;
   });

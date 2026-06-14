@@ -126,7 +126,7 @@ function addSearchCategories(props: {
     }
   }, {defer: true}));
 
-  rootScope.managers.appEmojiManager!.getEmojiGroups(props.type === 'stickers' ? 'stickers' : 'esg').then(setEmojiGroups);
+  rootScope.managers.appEmojiManager.getEmojiGroups(props.type === 'stickers' ? 'stickers' : 'esg').then(setEmojiGroups);
 }
 
 export default function EmoticonsSearch(props: {

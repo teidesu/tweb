@@ -20,7 +20,7 @@ export function shouldIgnoreVideoError(e: ErrorEvent) {
       if(originalSrc.includes('stream/')) {
         srcPromise = originalSrc + '?_crbug1250841';
       } else {
-        srcPromise = rootScope.managers.appDocsManager!.fixChromiumMp4(originalSrc);
+        srcPromise = rootScope.managers.appDocsManager.fixChromiumMp4(originalSrc);
       }
 
       callbackify(srcPromise, (src) => {

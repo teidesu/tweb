@@ -74,7 +74,7 @@ export const PollSettingsSectionContent = () => {
 
   usePollDurationMenu({
     open: isDurationMenuOpen,
-    container: (pollDurationRowElement! as Accessor<HTMLElement>),
+    container: (pollDurationRowElement as Accessor<HTMLElement>),
     onOptionClick: (duration) => {
       context!.setStore('timeLimit', {type: 'duration', duration});
     },

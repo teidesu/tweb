@@ -340,7 +340,7 @@ export default class AppGiftsManager extends AppManager {
           _: 'inputSavedStarGiftChat',
           peer: inputPeer,
           saved_id: it.saved_id
-        })! as InputSavedStarGift | undefined),
+        }) as InputSavedStarGift | undefined),
         isIncoming: params.peerId.isUser() && this.rootScope.myId === params.peerId,
         saved: it
       });
@@ -358,7 +358,7 @@ export default class AppGiftsManager extends AppManager {
     }
 
     if(!params.offset) {
-      this.pinnedGiftsByPeer.set(params.peerId, (wrapped.filter((it) => it.saved?.pFlags.pinned_to_top).map((it) => it.input)! as InputSavedStarGift[]));
+      this.pinnedGiftsByPeer.set(params.peerId, (wrapped.filter((it) => it.saved?.pFlags.pinned_to_top).map((it) => it.input) as InputSavedStarGift[]));
     }
 
     return {
@@ -561,7 +561,7 @@ export default class AppGiftsManager extends AppManager {
     const ownedGifts = wrappedGifts.filter((it) => getPeerId((it.raw as StarGift.starGiftUnique).owner_id!) === this.rootScope.myId);
     if(ownedGifts.length > 0) {
       const savedGifts = await this.apiManager.invokeApiSingle('payments.getSavedStarGift', {
-        stargift: (ownedGifts.map((it) => it.input)! as InputSavedStarGift[])
+        stargift: (ownedGifts.map((it) => it.input) as InputSavedStarGift[])
       }).catch((): null => null)
       if(savedGifts) {
         this.appPeersManager.saveApiPeers(savedGifts);

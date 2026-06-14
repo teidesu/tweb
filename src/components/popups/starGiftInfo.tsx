@@ -563,14 +563,14 @@ export default class PopupStarGiftInfo extends PopupElement {
             icon: event.wearing ? 'crown' : 'crownoff',
             textElement: (event.wearing ?
               i18n('SetAsEmojiStatusInfo') :
-              i18n('StarGiftWearStopped', [getCollectibleName(gift as StarGift.starGiftUnique)]))!
+              i18n('StarGiftWearStopped', [getCollectibleName(gift as StarGift.starGiftUnique)]))
           });
         }
       }
     })
 
     this.listenerSetter.add(rootScope)('emoji_status_change', async() => {
-      const self = await rootScope.managers.appUsersManager!.getSelf();
+      const self = await rootScope.managers.appUsersManager.getSelf();
       const wearingGiftId = self?.emoji_status?._ === 'emojiStatusCollectible' ? self.emoji_status.collectible_id : null;
       setIsWearing(wearingGiftId === gift.id);
     })
@@ -594,7 +594,7 @@ export default class PopupStarGiftInfo extends PopupElement {
     const toggleGiftHidden = () => {
       if(loading) return;
       loading = true;
-      this.managers.appGiftsManager!.toggleGiftHidden(input!, !saved!.pFlags.unsaved).then(() => {
+      this.managers.appGiftsManager.toggleGiftHidden(input!, !saved!.pFlags.unsaved).then(() => {
         this.hide();
       });
     }
@@ -798,7 +798,7 @@ export default class PopupStarGiftInfo extends PopupElement {
               text="StarGiftConvertButton"
               textArgs={[saved.convert_stars]}
               onClick={() => {
-                rootScope.managers.appGiftsManager!.convertGift(input!)
+                rootScope.managers.appGiftsManager.convertGift(input!)
                 .then(() => {
                   this.hide()
                 }).catch(() => {
@@ -814,7 +814,7 @@ export default class PopupStarGiftInfo extends PopupElement {
         rows.push([
           'StarGiftAvailability',
           i18n('StarGiftAvailabilityValue2', [
-            numberThousandSplitter((gift as StarGift.starGift).availability_remains ?? 0),
+            numberThousandSplitter((gift).availability_remains ?? 0),
             numberThousandSplitter(gift.availability_total!)
           ])
         ]);
@@ -902,7 +902,7 @@ export default class PopupStarGiftInfo extends PopupElement {
 
     const handleShare = () => {
       showSharingPicker2Popup().then(({peerId, threadId, monoforumThreadId}) => {
-        rootScope.managers.appMessagesManager!.sendText({peerId, threadId, replyToMonoforumPeerId: monoforumThreadId, text: 'https://t.me/nft/' + (gift as StarGift.starGiftUnique).slug});
+        rootScope.managers.appMessagesManager.sendText({peerId, threadId, replyToMonoforumPeerId: monoforumThreadId, text: 'https://t.me/nft/' + (gift as StarGift.starGiftUnique).slug});
         appImManager.setInnerPeer({peerId, threadId, monoforumThreadId});
         this.hide();
       });
@@ -914,16 +914,16 @@ export default class PopupStarGiftInfo extends PopupElement {
       if(isListed() && !changePrice) {
         await confirmationPopup({
           titleLangKey: 'StarGiftUnlistTitle',
-          titleLangArgs: [getCollectibleName(gift as StarGift.starGiftUnique)],
+          titleLangArgs: [getCollectibleName(gift)],
           descriptionLangKey: 'StarGiftUnlistText',
           button: {
             langKey: 'StarGiftUnlistConfirm'
           }
         });
-        await this.managers.appGiftsManager!.updateResalePrice(input!, null);
+        await this.managers.appGiftsManager.updateResalePrice(input!, null);
         createSnackbar({
           icon: 'tag_alt_crossed',
-          textElement: i18n('StarGiftResaleRemoved', [getCollectibleName(gift as StarGift.starGiftUnique)])!
+          textElement: i18n('StarGiftResaleRemoved', [getCollectibleName(gift)])
         })
         return
       }
@@ -944,8 +944,8 @@ export default class PopupStarGiftInfo extends PopupElement {
             icon: result === 'list' ? 'tag_alt' : 'tag_alt_crossed',
             textElement: i18n(
               result === 'list' ? 'StarGiftResaleListed' : 'StarGiftResaleRemoved',
-              [getCollectibleName(gift as StarGift.starGiftUnique)]
-            )!
+              [getCollectibleName(gift)]
+            )
           })
         }
       })
@@ -965,7 +965,7 @@ export default class PopupStarGiftInfo extends PopupElement {
     onMount(() => {
       if(isEditableUniqueGift) {
         // ! preload options for resale floor price
-        this.managers.appGiftsManager!.getStarGiftOptions().catch(() => {})
+        this.managers.appGiftsManager.getStarGiftOptions().catch(() => {})
       }
 
       wrapSticker({
@@ -1030,7 +1030,7 @@ export default class PopupStarGiftInfo extends PopupElement {
                 verify: () => isEditableUniqueGift,
                 onClick: () => {
                   if(ownerPeerId === undefined) return;
-                  this.managers.appGiftsManager!.togglePinnedGift(input!, ownerPeerId).then(() => {
+                  this.managers.appGiftsManager.togglePinnedGift(input!, ownerPeerId).then(() => {
                     this.hide();
                   });
                 }
@@ -1149,16 +1149,16 @@ export default class PopupStarGiftInfo extends PopupElement {
                   if(ownerPeerId === undefined) return;
                   if(isWearing()) {
                     if(ownerPeerId === rootScope.myId) {
-                      rootScope.managers.appUsersManager!.updateEmojiStatus({_: 'emojiStatusEmpty'});
+                      rootScope.managers.appUsersManager.updateEmojiStatus({_: 'emojiStatusEmpty'});
                     } else {
-                      rootScope.managers.apiManager!.invokeApiSingleProcess({
+                      rootScope.managers.apiManager.invokeApiSingleProcess({
                         method: 'channels.updateEmojiStatus',
                         params: {
-                          channel: await rootScope.managers.appChatsManager!.getChannelInput(ownerPeerId.toChatId()),
+                          channel: await rootScope.managers.appChatsManager.getChannelInput(ownerPeerId.toChatId()),
                           emoji_status: {_: 'emojiStatusEmpty'}
                         }
                       }).then((updates) => {
-                        rootScope.managers.apiUpdatesManager!.processUpdateMessage(updates);
+                        rootScope.managers.apiUpdatesManager.processUpdateMessage(updates);
                       }).catch(() => {
                         toastNew({langPackKey: 'Error.AnError'});
                       });
@@ -1211,7 +1211,7 @@ export default class PopupStarGiftInfo extends PopupElement {
     this.header.remove();
     const gift = this.gift.raw;
     const [value, canManageGifts] = await Promise.all([
-      gift._ === 'starGiftUnique' ? this.managers.appGiftsManager!.getGiftValue(gift.slug) : Promise.resolve(null),
+      gift._ === 'starGiftUnique' ? this.managers.appGiftsManager.getGiftValue(gift.slug) : Promise.resolve(null),
       this.gift.ownerId !== undefined ? getCanManagePeerGifts(this.gift.ownerId) : Promise.resolve(false)
     ]);
     this.appendSolid(() => this._construct({value, canManageGifts}));
@@ -1224,7 +1224,7 @@ export default class PopupStarGiftInfo extends PopupElement {
           this.gift.resellOnlyTon ?
             paymentsWrapCurrencyAmount(this.gift.resellPriceTon!, TON_CURRENCY) :
             paymentsWrapCurrencyAmount(this.gift.resellPriceStars!, STARS_CURRENCY)
-        ])!
+        ])
       )
 
       if(this.gift.resellOnlyTon) {
@@ -1232,12 +1232,12 @@ export default class PopupStarGiftInfo extends PopupElement {
         const span = i18n('StarGiftResaleStarsAmount', [
           paymentsWrapCurrencyAmount(this.gift.resellPriceStars!, STARS_CURRENCY)
         ])
-        span!.classList.add('popup-star-gift-info-resale-stars-amount');
-        this.btnConfirm.append(span!);
+        span.classList.add('popup-star-gift-info-resale-stars-amount');
+        this.btnConfirm.append(span);
       }
     } else if(this.canUpgrade) {
       this.btnConfirm.replaceChildren(
-        i18n(this.gift.saved?.prepaid_upgrade_hash ? 'StarGiftGiftUpgrade' : 'StarGiftStatusUpgrade')!,
+        i18n(this.gift.saved?.prepaid_upgrade_hash ? 'StarGiftGiftUpgrade' : 'StarGiftStatusUpgrade'),
         Icon('arrow_up_circle_fill')
       )
     }

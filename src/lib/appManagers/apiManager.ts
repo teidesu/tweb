@@ -162,7 +162,7 @@ export class ApiManager extends ApiManagerMethods {
           networkers.forEach((networker, idx, arr) => {
             callback({
               networker,
-              dcId: +dcId as DcId,
+              dcId: +dcId,
               connectionType: connectionType as ConnectionType,
               transportType: transportType as TransportType,
               index: idx,
@@ -241,9 +241,9 @@ export class ApiManager extends ApiManagerMethods {
     }
 
     AccountController.update(this.getAccountNumber(), {
-      date: (userAuth as UserAuth).date,
-      userId: (userAuth as UserAuth).id,
-      dcId: (userAuth as UserAuth).dcID as TrueDcId
+      date: (userAuth).date,
+      userId: (userAuth).id,
+      dcId: (userAuth).dcID as TrueDcId
     });
   }
 
@@ -427,7 +427,7 @@ export class ApiManager extends ApiManagerMethods {
 
     let getKey = this.generateNetworkerGetKey(dcId, transportType, connectionType);
     if(this.gettingNetworkers[getKey] as unknown) {
-      return this.gettingNetworkers[getKey]!;
+      return this.gettingNetworkers[getKey];
     }
 
     const ak: DcAuthKey = `dc${dcId}_auth_key` as any;
@@ -699,7 +699,7 @@ export class ApiManager extends ApiManagerMethods {
 
           return this.cachedExportPromise[dcId].then(() => performRequest());
         } else if(error.code === 303) {
-          const newDcId = +error.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_|STATS_MIGRATE_)(\d+)/)![2] as DcId;
+          const newDcId = +error.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_|STATS_MIGRATE_)(\d+)/)![2];
           if(newDcId !== dcId) {
             if(options.dcId) {
               options.dcId = newDcId;
@@ -710,7 +710,7 @@ export class ApiManager extends ApiManagerMethods {
             return this.invokeApi(method, params, options);
           }
         } else if(error.code === 400 && error.type.indexOf('FILE_MIGRATE') === 0) {
-          const newDcId = +error.type.match(/^(FILE_MIGRATE_)(\d+)/)![2] as DcId;
+          const newDcId = +error.type.match(/^(FILE_MIGRATE_)(\d+)/)![2];
           if(newDcId !== dcId) {
             options.dcId = newDcId;
             return this.invokeApi(method, params, options);
@@ -795,9 +795,9 @@ export class ApiManager extends ApiManagerMethods {
       cachedNetworker.attachPromise(deferred, options as MTMessage);
       return promise;
     })
-    .then(deferred.resolve!.bind(deferred))
+    .then(deferred.resolve.bind(deferred))
     .catch(rejectPromise)
-    .catch(deferred.reject!.bind(deferred));
+    .catch(deferred.reject.bind(deferred));
 
     return deferred;
   }

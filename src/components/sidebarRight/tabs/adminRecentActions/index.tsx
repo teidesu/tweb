@@ -64,7 +64,7 @@ const AdminRecentActionsTab = () => {
   // const fetchLogs = async(offsetId?: AdminLog['id']) => offsetId ? [] : [...Array.from({length: 400}, () => [...savedLogs.map(o => ({...o}))])].flat()
 
   const fetchLogs = (offsetId?: AdminLog['id']) =>
-    rootScope.managers.appChatsManager!.getAdminLogs({
+    rootScope.managers.appChatsManager.getAdminLogs({
       channelId: tab.payload.channelId,
       search: committedFilters()?.search,
       admins: committedFilters()?.admins,

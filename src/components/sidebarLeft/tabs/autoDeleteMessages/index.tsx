@@ -56,7 +56,7 @@ const AutoDeleteMessages = () => {
     if(!hasChanges()) return;
 
     try {
-      await rootScope.managers.appPrivacyManager!.setDefaultAutoDeletePeriod(period());
+      await rootScope.managers.appPrivacyManager.setDefaultAutoDeletePeriod(period());
       tab.payload.onSaved(period());
     } finally {
       tab.close();

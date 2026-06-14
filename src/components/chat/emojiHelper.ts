@@ -152,7 +152,7 @@ export default class EmojiHelper extends AutocompleteHelper {
     const middleware = this.getMiddleware();
     this.emoticon = undefined;
     const q = query.replace(/^:/, '');
-    this.managers.appEmojiManager!.prepareAndSearchEmojis({q, addCustom: true}).then(async(emojis) => {
+    this.managers.appEmojiManager.prepareAndSearchEmojis({q, addCustom: true}).then(async(emojis) => {
       if(!middleware()) {
         return;
       }
@@ -181,7 +181,7 @@ export default class EmojiHelper extends AutocompleteHelper {
   public checkEmoticon(emoticon: string) {
     const middleware = this.getMiddleware();
     this.emoticon = emoticon;
-    this.managers.appEmojiManager!.searchCustomEmoji(emoticon).then((emojiList) => {
+    this.managers.appEmojiManager.searchCustomEmoji(emoticon).then((emojiList) => {
       if(!middleware()) {
         return;
       }

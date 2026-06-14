@@ -102,16 +102,16 @@ export default class PopupStarsPay extends PopupElement<{
         result = Promise.reject(makeError('BALANCE_TOO_LOW'));
         // result = Promise.resolve();
       } else if(this.subscription) {
-        result = this.managers.appPaymentsManager!.changeStarsSubscription(
+        result = this.managers.appPaymentsManager.changeStarsSubscription(
           this.subscription.id,
           !this.subscription.pFlags.canceled
         );
       } else {
-        const balance = await this.managers.appPaymentsManager![isTon ? 'getStarsStatusTon' : 'getStarsStatus']();
+        const balance = await this.managers.appPaymentsManager[isTon ? 'getStarsStatusTon' : 'getStarsStatus']();
         if(bigInt(balance.balance.amount as number).lt(itemPrice)) {
           result = Promise.reject(makeError('BALANCE_TOO_LOW'));
         } else {
-          result = this.managers.appPaymentsManager!.sendStarsForm(
+          result = this.managers.appPaymentsManager.sendStarsForm(
             this.inputInvoice,
             ((paymentForm as PaymentsPaymentForm.paymentsPaymentFormStars)?.form_id || this.chatInvite.subscription_form_id)!
           );
@@ -173,7 +173,7 @@ export default class PopupStarsPay extends PopupElement<{
       return;
     }
 
-    this.paymentForm = await this.managers.appPaymentsManager!.getPaymentForm(this.inputInvoice) as PaymentsPaymentForm.paymentsPaymentFormStars;
+    this.paymentForm = await this.managers.appPaymentsManager.getPaymentForm(this.inputInvoice) as PaymentsPaymentForm.paymentsPaymentFormStars;
   }
 
   public setPaymentForm(paymentForm: PopupStarsPay['paymentForm']) {
@@ -208,18 +208,18 @@ export default class PopupStarsPay extends PopupElement<{
     }
 
     if(this.isReceipt) {
-      this.btnConfirm.append(i18n('OK')!);
+      this.btnConfirm.append(i18n('OK'));
     } else if(this.chatInvite) {
-      this.btnConfirm.append(i18n('Stars.Subscribe.Button')!);
+      this.btnConfirm.append(i18n('Stars.Subscribe.Button'));
       const terms = i18n('Stars.Subscribe.Terms');
-      terms!.classList.add('popup-footer-caption');
-      this.btnConfirm.after(terms!);
+      terms.classList.add('popup-footer-caption');
+      this.btnConfirm.after(terms);
     } else if(this.subscription) {
       if(this.subscription.pFlags.canceled) {
-        this.btnConfirm.append(i18n('Stars.Subscription.Renew')!);
+        this.btnConfirm.append(i18n('Stars.Subscription.Renew'));
       } else {
         this.btnConfirm.className = 'btn-primary btn-secondary btn-primary-transparent danger';
-        this.btnConfirm.append(i18n('Stars.Subscription.Cancel')!);
+        this.btnConfirm.append(i18n('Stars.Subscription.Cancel'));
       }
 
       if(this.subscription.until_date > tsNow(true)) {
@@ -227,12 +227,12 @@ export default class PopupStarsPay extends PopupElement<{
         if((chat as Chat.channel).pFlags.left) {
           const btnFulfill = document.createElement('button');
           btnFulfill.classList.add('btn-primary', 'btn-color-primary');
-          btnFulfill.append(i18n('Stars.Subscription.Fulfill')!);
+          btnFulfill.append(i18n('Stars.Subscription.Fulfill'));
           btnFulfill.style.marginTop = '.5rem';
           attachClickEvent(btnFulfill, async() => {
             const toggle = toggleDisability([this.btnConfirm, btnFulfill], true);
             try {
-              await this.managers.appPaymentsManager!.fulfillStarsSubscription(this.subscription.id);
+              await this.managers.appPaymentsManager.fulfillStarsSubscription(this.subscription.id);
               hidePopupsWithCallback(() => {
                 appImManager.setInnerPeer({peerId: this.peerId});
               });
@@ -245,7 +245,7 @@ export default class PopupStarsPay extends PopupElement<{
         }
       }
     } else {
-      this.btnConfirm.append(i18n('Stars.ConfirmPurchaseButton', [amount])!);
+      this.btnConfirm.append(i18n('Stars.ConfirmPurchaseButton', [amount]));
       replaceButtonIcon(this.btnConfirm, 'star');
     }
 
@@ -266,7 +266,7 @@ export default class PopupStarsPay extends PopupElement<{
       const title1 = new PeerTitle();
       title1.update({peerId: this.peerId, wrapOptions: {middleware: this.middlewareHelper.get()}});
       (subtitle as DocumentFragment).append(
-        i18n(this.isOutGift ? 'ActionGiftStarsSubtitle' : 'ActionGiftStarsSubtitleYou', [title1.element])!,
+        i18n(this.isOutGift ? 'ActionGiftStarsSubtitle' : 'ActionGiftStarsSubtitleYou', [title1.element]),
         ' ',
         anchor
       );
@@ -287,10 +287,10 @@ export default class PopupStarsPay extends PopupElement<{
       title = i18n('StarsConfirmPurchaseTitle');
       subtitle = i18n(this.peerId.isUser() ? 'Stars.Unlock.FromBot' : 'Stars.Unlock', [
         (photos.length && videos.length ?
-          i18n('Stars.Unlock.Media', [multiplePhotosLang!, multipleVideosLang!]) :
-          (photos.length || videos.length) === 1 ? i18n(photos.length ? 'Stars.Unlock.Photo' : 'Stars.Unlock.Video') : (photos.length ? multiplePhotosLang : multipleVideosLang))!,
+          i18n('Stars.Unlock.Media', [multiplePhotosLang, multipleVideosLang]) :
+          (photos.length || videos.length) === 1 ? i18n(photos.length ? 'Stars.Unlock.Photo' : 'Stars.Unlock.Video') : (photos.length ? multiplePhotosLang : multipleVideosLang)),
         _title,
-        i18n('Stars.Unlock.Stars', [amount])!
+        i18n('Stars.Unlock.Stars', [amount])
       ]);
     } else if(this.transaction && this.transaction.pFlags.reaction) {
       title = i18n('StarsReactionTitle');
@@ -316,7 +316,7 @@ export default class PopupStarsPay extends PopupElement<{
     } else if(this.chatInvite) {
       title = i18n('Stars.Subscribe.Title');
       _title.style.display = 'inline';
-      subtitle = i18n('Stars.Subscribe.Description', [_title, i18n('Stars.Unlock.Stars', [amount])!]);
+      subtitle = i18n('Stars.Subscribe.Description', [_title, i18n('Stars.Unlock.Stars', [amount])]);
     } else if(this.subscription) {
       title = i18n('Stars.Subscription');
       subtitle = i18n('Stars.Subscription.Fee', [StarsAmount({stars: amount}) as HTMLElement]);
@@ -380,7 +380,7 @@ export default class PopupStarsPay extends PopupElement<{
         ['Stars.Subscription.Renews', formatFullSentTime(this.subscription.until_date)]
       ];
     } else if(this.transaction?.giveaway_post_id) {
-      (messageAnchor as HTMLAnchorElement).replaceChildren(i18n('BoostingGiveaway')!);
+      (messageAnchor as HTMLAnchorElement).replaceChildren(i18n('BoostingGiveaway'));
       tableContent = [
         ['BoostingFrom', tablePeer],
         (this.transaction.id && ['BoostingTo', makeTablePeer(rootScope.myId)]) as TableRow,
@@ -436,7 +436,7 @@ export default class PopupStarsPay extends PopupElement<{
                   (messageMedia as MessageMedia.messageMediaDocument).document as Document.document;
               });
 
-              const message = await this.managers.appMessagesManager!.generateStandaloneOutgoingMessage(this.peerId);
+              const message = await this.managers.appMessagesManager.generateStandaloneOutgoingMessage(this.peerId);
               message.media = {
                 _: 'messageMediaPaidMedia',
                 extended_media: extendedMedia.map((messageMedia) => {
@@ -567,7 +567,7 @@ export default class PopupStarsPay extends PopupElement<{
       })()
     ]);
     this.body.classList.toggle('is-receipt', this.isReceipt);
-    this.appendSolid(() => this._construct(image, title!, media, link));
+    this.appendSolid(() => this._construct(image, title, media, link));
     if(this.noShowIfStars) {
       this.onConfirm();
     } else {

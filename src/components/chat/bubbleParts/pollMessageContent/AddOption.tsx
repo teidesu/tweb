@@ -17,6 +17,7 @@ import {Transition} from 'solid-transition-group';
 import {usePollMessageContentProps} from './context';
 import styles from './styles.module.scss';
 import {NewOptionValues, spinnerThickness, useChatRights} from './utils';
+import {isTruthy} from '../../../../helpers/isTruthy';
 
 keepMe(ripple);
 
@@ -66,7 +67,7 @@ export const AddOption = (props: {
   });
 
   inputField.input.classList.add(styles.inputFieldInput);
-  inputField.placeholder.classList.add(...([styles.inputFieldPlaceholder, contextProps.isOutgoing ? styles.outgoing : null].filter(Boolean) as string[]));
+  inputField.placeholder.classList.add(...([styles.inputFieldPlaceholder, contextProps.isOutgoing ? styles.outgoing : null].filter(isTruthy)));
 
   inputField.input.addEventListener('keydown', (e) => {
     if(e.key === 'Enter') {

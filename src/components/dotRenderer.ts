@@ -14,6 +14,7 @@ import {retainSpoilerRenderer, SpoilerRendererConnection} from '@components/spoi
 import type {SpoilerOverlayUpdate} from '@components/spoilerRenderer.worker';
 import {animateValue, simpleEasing} from '@helpers/animateValue';
 import {CancellablePromise} from '@helpers/cancellablePromise';
+import {isTruthy} from '../helpers/isTruthy';
 
 const SHADER_URLS: DotRendererShaderURLs = {
   vertex: 'assets/img/spoiler_vertex.glsl',
@@ -318,7 +319,7 @@ export default class DotRenderer implements AnimationItemWrapper {
           draw()
         },
         {
-          onEnd: () => void deferred.resolve!(),
+          onEnd: () => void deferred.resolve(),
           easing: simpleEasing
         }
       );
@@ -355,9 +356,9 @@ export default class DotRenderer implements AnimationItemWrapper {
     ++this.connectionUsers;
     return this.connection ??= retainSpoilerRenderer((message) => {
       if(message.type === 'media-inited') {
-        this.mediaWorkerReady?.resolve!();
+        this.mediaWorkerReady?.resolve();
       } else if(message.type === 'text-inited') {
-        this.textWorkerReady?.resolve!();
+        this.textWorkerReady?.resolve();
       }
     });
   }
@@ -426,7 +427,7 @@ export default class DotRenderer implements AnimationItemWrapper {
       rotate && 'rotate(180deg)',
       flipX && 'scaleX(-1)',
       flipY && 'scaleY(-1)'
-    ].filter(Boolean)! as string[]);
+    ].filter(isTruthy));
     if(transforms.length) {
       canvas.style.transform = transforms.join(' ');
     }
@@ -530,7 +531,7 @@ export default class DotRenderer implements AnimationItemWrapper {
           drawClippingCircle(underLyingCtx!, v, underlyingCanvasClickCoords, maxDistUnderlyingCanvas, dpr);
         },
         {
-          onEnd: () => void deferred.resolve!(),
+          onEnd: () => void deferred.resolve(),
           easing: simpleEasing
         }
       );

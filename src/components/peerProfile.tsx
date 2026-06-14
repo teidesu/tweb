@@ -181,7 +181,7 @@ const PeerProfile = (props: {
 
   if(value.peerId.isUser() && value.peerId !== rootScope.myId) {
     const refreshCurrentUser = () => {
-      rootScope.managers.appUsersManager!.getApiUsers([value.peerId.toUserId()]);
+      rootScope.managers.appUsersManager.getApiUsers([value.peerId.toUserId()]);
     };
 
     // * refresh user online status
@@ -459,7 +459,7 @@ PeerProfile.PinnedGifts = () => {
       return;
     }
 
-    return rootScope.managers.appGiftsManager!.getPinnedGifts(peerId);
+    return rootScope.managers.appGiftsManager.getPinnedGifts(peerId);
   });
   const [elements] = createResource(pinnedGifts, async(gifts) => {
     context!.onPinnedGiftsChange?.(gifts);
@@ -553,7 +553,7 @@ PeerProfile.PersonalChannel = () => {
 
     const TEST = false;
     const isCached = !!apiManagerProxy.getMessageByPeer(peerId, mid!) && !TEST;
-    const messagePromise = rootScope.managers.appMessagesManager!.reloadMessage(peerId, mid!);
+    const messagePromise = rootScope.managers.appMessagesManager.reloadMessage(peerId, mid!);
     const readyPromise = messagePromise.then(async(message) => {
       TEST && await pause(1000);
       await appDialogsManager.setLastMessageN({
@@ -800,11 +800,11 @@ PeerProfile.Birthday = () => {
       }
     }).element;
 
-    if(isToday()) el!.prepend(wrapEmojiText('🎂 '));
+    if(isToday()) el.prepend(wrapEmojiText('🎂 '));
 
     if(birthday$.year) {
       const years = differenceInYears(date, new Date());
-      el!.append(i18n('BirthdayYearsOld', [years])!);
+      el.append(i18n('BirthdayYearsOld', [years]));
     }
 
     return el;
@@ -1011,7 +1011,7 @@ PeerProfile.Link = () => {
     if(usernames.length) {
       return {
         url: 't.me/' + usernames[0],
-        also: getUsernamesAlso((usernames! as string[]))
+        also: getUsernamesAlso((usernames as string[]))
       };
     }
 
@@ -1059,7 +1059,7 @@ PeerProfile.BusinessHours = () => {
   const context = useContext(PeerProfileContext);
   const {rootScope, BusinessHours} = useHotReloadGuard();
   const [timezonesList] = createResource(() => {
-    return rootScope.managers.apiManager!.getTimezonesList() as Promise<HelpTimezonesList.helpTimezonesList>;
+    return rootScope.managers.apiManager.getTimezonesList() as Promise<HelpTimezonesList.helpTimezonesList>;
   });
   const [hours, setHours] = createSignal<BusinessWorkHours>();
   const [timezones, setTimezones] = createSignal<Timezone[]>();
@@ -1157,7 +1157,7 @@ PeerProfile.Notifications = () => {
   };
 
   const [muted, {refetch}] = createResource(() => {
-    return rootScope.managers.appNotificationsManager!.isPeerLocalMuted({
+    return rootScope.managers.appNotificationsManager.isPeerLocalMuted({
       ...options,
       respectType: false
     });
@@ -1176,7 +1176,7 @@ PeerProfile.Notifications = () => {
           <CheckboxFieldTsx
             checked={!muted()}
             onChange={(checked) => {
-              rootScope.managers.appMessagesManager!.togglePeerMute({
+              rootScope.managers.appMessagesManager.togglePeerMute({
                 peerId: context!.peerId,
                 threadId: context!.threadId,
                 mute: !checked
@@ -1267,7 +1267,7 @@ PeerProfile.BotPermissions = () => {
       return null;
     }
 
-    return rootScope.managers.appBotsManager!.readBotInternalStorage(
+    return rootScope.managers.appBotsManager.readBotInternalStorage(
       context!.peerId,
       'locationPermission'
     );
@@ -1291,7 +1291,7 @@ PeerProfile.BotPermissions = () => {
               <CheckboxFieldTsx
                 checked={canManageEmojiStatus()}
                 onChange={(checked) => {
-                  rootScope.managers.appBotsManager!.toggleEmojiStatusPermission(
+                  rootScope.managers.appBotsManager.toggleEmojiStatusPermission(
                     context!.peerId,
                     checked
                   );
@@ -1309,7 +1309,7 @@ PeerProfile.BotPermissions = () => {
               <CheckboxFieldTsx
                 checked={locationPermission() === 'true'}
                 onChange={(checked) => {
-                  rootScope.managers.appBotsManager!.writeBotInternalStorage(
+                  rootScope.managers.appBotsManager.writeBotInternalStorage(
                     context!.peerId,
                     'locationPermission',
                     String(checked)

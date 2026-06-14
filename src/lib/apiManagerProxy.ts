@@ -174,7 +174,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
                 name: payload.name,
                 accountNumber: payload.accountNumber,
                 key: joinDeepPath(key, mid),
-                value: payload.value[key][mid] as any
+                value: payload.value[key][mid]
               });
             }
           }
@@ -224,7 +224,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
 
       peers: (payload) => {
         if(payload.key) {
-          reconcilePeer(payload.key.toPeerId(), payload.value as any);
+          reconcilePeer(payload.key.toPeerId(), payload.value);
         } else {
           reconcilePeers(payload.value);
         }
@@ -352,7 +352,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
         const {accountNumber} = payload;
         const managers = createProxiedManagersForAccount(accountNumber);
         const peerId = payload.callerId.toPeerId();
-        const peer = await managers.appPeersManager!.getPeer(peerId);
+        const peer = await managers.appPeersManager.getPeer(peerId);
         const title = await getPeerTitle({peerId: peerId, managers, plainText: true, limitSymbols: 20, useManagers: true});
 
         const notification = new Notification(title, {
@@ -484,7 +484,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
     });
 
     window.addEventListener('online', () => {
-      rootScope.managers.networkerFactory!.forceReconnectTimeout();
+      rootScope.managers.networkerFactory.forceReconnectTimeout();
     });
 
     rootScope.addEventListener('logging_out', ({accountNumber, migrateTo}) => {
@@ -571,8 +571,8 @@ class ApiManagerProxy extends MTProtoMessagePort {
   }
 
   public onLanguageChange = (language: string) => {
-    rootScope.managers.all!.networkerFactory!.setLanguage(language);
-    rootScope.managers.appAttachMenuBotsManager!.onLanguageChange();
+    rootScope.managers.all.networkerFactory.setLanguage(language);
+    rootScope.managers.appAttachMenuBotsManager.onLanguageChange();
   };
 
   public sendEnvironment() {
@@ -604,11 +604,11 @@ class ApiManagerProxy extends MTProtoMessagePort {
     };
     const onLoad = () => {
       onFinish();
-      promise.resolve!();
+      promise.resolve();
     };
     const onError = () => {
       onFinish();
-      promise.reject!();
+      promise.reject();
     };
     iframe.addEventListener('load', onLoad);
     iframe.addEventListener('error', onError);
@@ -1022,7 +1022,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
   }
 
   public getAvailableReactions() {
-    return this.mirrors.availableReactions ||= rootScope.managers.appReactionsManager!.getAvailableReactions();
+    return this.mirrors.availableReactions ||= rootScope.managers.appReactionsManager.getAvailableReactions();
   }
 
   public getReaction(reaction: string) {
@@ -1097,7 +1097,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
 
   public getPeerForAccount(peerId: PeerId, accountNumber: ActiveAccountNumber) {
     const managers = createProxiedManagersForAccount(accountNumber);
-    return managers.appPeersManager!.getPeer(peerId);
+    return managers.appPeersManager.getPeer(peerId);
   }
 
   public getPeer(peerId: PeerId) {
@@ -1144,7 +1144,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
   public loadAvatar(peerId: PeerId, photo: UserProfilePhoto.userProfilePhoto | ChatPhoto.chatPhoto, size: PeerPhotoSize, accountNumber?: ActiveAccountNumber) {
     if(accountNumber && accountNumber !== getCurrentAccount()) {
       const managers = createProxiedManagersForAccount(accountNumber);
-      return managers.appAvatarsManager!.loadAvatar(peerId, photo, size);
+      return managers.appAvatarsManager.loadAvatar(peerId, photo, size);
     }
 
     const saved = this.mirrors.avatars[peerId] ??= {};
@@ -1152,7 +1152,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
       return saved[size];
     }
 
-    const promise = saved[size] = (rootScope.managers.appAvatarsManager!.loadAvatar(peerId, photo, size)! as string | Promise<string> | undefined);
+    const promise = saved[size] = (rootScope.managers.appAvatarsManager.loadAvatar(peerId, photo, size) as string | Promise<string> | undefined);
     // Don't permanently cache a failed (undefined) video load — allow a retry.
     // (Successful loads overwrite this entry with the URL via the 'mirror' message.)
     if(size === 'photo_video' || size === 'photo_video_full') {
@@ -1170,7 +1170,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
     }
 
     if(!this.appConfig) {
-      const promise = rootScope.managers.apiManager!.getAppConfig().then((appConfig) => {
+      const promise = rootScope.managers.apiManager.getAppConfig().then((appConfig) => {
         if(this.appConfig === promise) {
           this.appConfig = appConfig;
         }
@@ -1203,7 +1203,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
     for(let i = 1; i <= totalAccounts; i++) {
       const accountNumber = i as ActiveAccountNumber;
       const managers = createProxiedManagersForAccount(accountNumber);
-      hasSomeonePremium ||= await managers.rootScope!.getPremium();
+      hasSomeonePremium ||= await managers.rootScope.getPremium();
       if(hasSomeonePremium) break;
     }
 

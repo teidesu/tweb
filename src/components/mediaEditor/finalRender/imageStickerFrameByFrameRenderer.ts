@@ -18,7 +18,7 @@ export default class ImageStickerFrameByFrameRenderer implements StickerFrameByF
     const deferred = deferredPromise<void>();
 
     image.addEventListener('load', () => {
-      deferred.resolve!();
+      deferred.resolve();
     });
 
     await deferred;

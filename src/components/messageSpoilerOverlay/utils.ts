@@ -105,12 +105,12 @@ export async function waitResizeToBePainted(resizeEntry: ResizeObserverEntry) {
       Math.abs(targetRect.width - entryRect.width) < GENEROUS_COMPARISON_ERROR &&
       Math.abs(targetRect.height - entryRect.height) < GENEROUS_COMPARISON_ERROR
     ) {
-      deferred.resolve!();
+      deferred.resolve();
       resizeLog('Resize was painted after attempts :>> ', attempts);
       return;
     }
 
-    return attempts++ < RESIZE_PAINT_CHECK_ATTEMPTS || deferred.reject!();
+    return attempts++ < RESIZE_PAINT_CHECK_ATTEMPTS || deferred.reject();
   });
 
   return deferred;

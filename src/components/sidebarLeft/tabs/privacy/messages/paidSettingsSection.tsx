@@ -8,6 +8,7 @@ import {MessagesTabStateStore, TRANSITION_TIME} from '@components/sidebarLeft/ta
 import StarRangeInput from '@components/sidebarLeft/tabs/privacy/messages/starsRangeInput';
 import useStarsCommissionAndWithdrawalPrice from '@components/sidebarLeft/tabs/privacy/messages/useStarsCommissionAndWithdrawalPrice';
 import {ChosenPeersByType} from '@components/sidebarLeft/tabs/privacy/messages/useStateStore';
+import {isTruthy} from '../../../../../helpers/isTruthy';
 
 
 const PaidSettingsSection: Component<{
@@ -44,7 +45,7 @@ const PaidSettingsSection: Component<{
     return join(([
       users.length ? i18n('Users', [users.length]) : null,
       chats.length ? i18n('Chats', [chats.length]) : null
-    ].filter(Boolean)! as (string | Node)[]), false);
+    ].filter(isTruthy)), false);
   };
 
   return (

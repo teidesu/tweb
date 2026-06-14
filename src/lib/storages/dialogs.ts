@@ -40,6 +40,7 @@ import {isDialog, isSavedDialog, isForumTopic} from '@appManagers/utils/dialogs/
 import getDialogKey from '@appManagers/utils/dialogs/getDialogKey';
 import getDialogThreadId from '@appManagers/utils/dialogs/getDialogThreadId';
 import {isTempId} from '@appManagers/utils/messages/isTempId';
+import {isTruthy} from '../../helpers/isTruthy';
 
 export enum FilterType {
   Folder,
@@ -475,7 +476,7 @@ export default class DialogsStorage extends AppManager {
     return !this.appNotificationsManager.isPeerLocalMuted({
       peerId: dialog.peerId!,
       respectType: true,
-      threadId: isForumTopic(dialog) ? (dialog as ForumTopic).id : undefined
+      threadId: isForumTopic(dialog) ? (dialog).id : undefined
     });
   }
 
@@ -1577,8 +1578,8 @@ export default class DialogsStorage extends AppManager {
     }
 
     const {peerId, id: threadId} = topic;
-    const isIconChanged = topic.icon_emoji_id !== (oldTopic as ForumTopic).icon_emoji_id;
-    const isTitleChanged = topic.title !== (oldTopic as ForumTopic).title;
+    const isIconChanged = topic.icon_emoji_id !== (oldTopic).icon_emoji_id;
+    const isTitleChanged = topic.title !== (oldTopic).title;
     const isChanged = isIconChanged || isTitleChanged;
 
     if(isIconChanged) {
@@ -1701,8 +1702,8 @@ export default class DialogsStorage extends AppManager {
       return {
         dialogs,
         count: loadedAll ? curDialogStorage!.length : this.getFolder(filterId).count,
-        isTopEnd: ((curDialogStorage!.length && ((dialogs[0] && dialogs[0] === curDialogStorage![0]) || this.getDialogIndex(curDialogStorage![0], indexKey!)! < offsetIndex!))! as boolean),
-        isEnd: ((((isServerSearchSupported ? false : query) || loadedAll) && (offset + limit) >= curDialogStorage!.length)! as boolean)
+        isTopEnd: ((curDialogStorage!.length && ((dialogs[0] && dialogs[0] === curDialogStorage![0]) || this.getDialogIndex(curDialogStorage![0], indexKey)! < offsetIndex!)) as boolean),
+        isEnd: ((((isServerSearchSupported ? false : query) || loadedAll) && (offset + limit) >= curDialogStorage!.length) as boolean)
       };
     }
 
@@ -1834,7 +1835,7 @@ export default class DialogsStorage extends AppManager {
 
       const fullfillLeft = () => {
         for(const topicId in promises) {
-          promises[topicId].resolve!(undefined!);
+          promises[topicId].resolve(undefined!);
           cache.deletedTopics.add(+topicId);
         }
       };
@@ -1871,7 +1872,7 @@ export default class DialogsStorage extends AppManager {
 
         messagesForumTopics.topics.forEach((forumTopic) => {
           if(isForumTopic(forumTopic as ForumTopic)) {
-            promises[forumTopic.id]?.resolve!(forumTopic as ForumTopic);
+            promises[forumTopic.id]?.resolve(forumTopic as ForumTopic);
             delete promises[forumTopic.id];
           }
         });
@@ -1929,7 +1930,7 @@ export default class DialogsStorage extends AppManager {
         (topic as ForumTopic).peer = peer;
         topic.id = this.appMessagesIdsManager.generateMessageId(topic.id, (peer as Peer.peerChannel).channel_id);
         return topic;
-      }).filter(Boolean)! as MTForumTopic[]);
+      }).filter(isTruthy));
 
       return result;
     });
@@ -2041,7 +2042,7 @@ export default class DialogsStorage extends AppManager {
       });
 
       return dialog.peerId ? dialog : undefined;
-    })! as Promise<SavedDialog>;
+    }) as Promise<SavedDialog>;
   }
 
   // * SAVED SECTION END
@@ -2114,7 +2115,7 @@ export default class DialogsStorage extends AppManager {
           this.handleDialogUnpinning(dialog, folder_id);
         }
 
-        (dialog as Dialog).folder_id = folder_id as REAL_FOLDER_ID;
+        (dialog).folder_id = folder_id as REAL_FOLDER_ID;
         this.generateIndexForDialog(dialog);
         this.pushDialog({dialog}); // need for simultaneously updatePinnedDialogs
       }

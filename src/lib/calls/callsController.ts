@@ -119,7 +119,7 @@ export class CallsController extends EventListenerBase<{
             break;
           }
 
-          const {key, key_fingerprint} = await this.managers.appCallsManager!.computeKey(g_a, dh.b!, dh.p!);
+          const {key, key_fingerprint} = await this.managers.appCallsManager.computeKey(g_a, dh.b!, dh.p!);
           if(call.key_fingerprint !== key_fingerprint) {
             this.log.error('Incorrect key fingerprint', call.key_fingerprint, key_fingerprint, g_a, dh);
             instance.hangUp('phoneCallDiscardReasonDisconnect');
@@ -231,7 +231,7 @@ export class CallsController extends EventListenerBase<{
   public async startCallInternal(userId: UserId, isVideo: boolean) {
     this.log('p2pStartCallInternal', userId, isVideo);
 
-    const fullInfo = await this.managers.appProfileManager!.getProfile(userId);
+    const fullInfo = await this.managers.appProfileManager.getProfile(userId);
     if(!fullInfo) return;
 
     const {video_calls_available} = fullInfo.pFlags;
@@ -256,10 +256,10 @@ export class CallsController extends EventListenerBase<{
     });
 
     // return;
-    this.managers.appCallsManager!.generateDh().then(async(dh) => {
+    this.managers.appCallsManager.generateDh().then(async(dh) => {
       call.dh = dh;
 
-      return this.managers.appCallsManager!.requestCall(userId, call.protocol, call.dh.g_a_hash!, isVideo && video_calls_available);
+      return this.managers.appCallsManager.requestCall(userId, call.protocol, call.dh.g_a_hash!, isVideo && video_calls_available);
     }).then((phoneCall) => {
       call.overrideConnectionState(CALL_STATE.PENDING);
       call.setPhoneCall(phoneCall);

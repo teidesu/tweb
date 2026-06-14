@@ -156,14 +156,14 @@ function BirthdaySetupSuggestion() {
   const emoji = () => wrapEmojiText('🎂');
 
   const onDismissed = () => {
-    rootScope.managers.appPromoManager!.dismissSuggestion(BIRTHDAY_SETUP_SUGGESTION_KEY);
+    rootScope.managers.appPromoManager.dismissSuggestion(BIRTHDAY_SETUP_SUGGESTION_KEY);
   };
 
   const onClick = () => {
     showBirthdayPopup({
       onSave: (async(date: Birthday | null) => {
         if(await saveMyBirthday(date)) {
-          rootScope.managers.appPromoManager!.dismissSuggestion(BIRTHDAY_SETUP_SUGGESTION_KEY);
+          rootScope.managers.appPromoManager.dismissSuggestion(BIRTHDAY_SETUP_SUGGESTION_KEY);
           return;
         }
         return false;
@@ -186,12 +186,12 @@ function PasskeySetupSuggestion() {
   const emoji = () => wrapEmojiText('🔑');
 
   const onDismissed = () => {
-    rootScope.managers.appPromoManager!.dismissSuggestion(PASSKEY_SETUP_KEY);
+    rootScope.managers.appPromoManager.dismissSuggestion(PASSKEY_SETUP_KEY);
   };
 
   const onClick = () => {
     showPasskeyPopup(() => {
-      rootScope.managers.appPromoManager!.dismissSuggestion(PASSKEY_SETUP_KEY);
+      rootScope.managers.appPromoManager.dismissSuggestion(PASSKEY_SETUP_KEY);
     });
   };
 
@@ -226,8 +226,8 @@ export function renderPendingSuggestion(toElement: HTMLElement) {
       const pendingSuggestions$ = pendingSuggestions();
       if(pendingSuggestions$.has(EMAIL_SETUP_KEY) || pendingSuggestions$.has(EMAIL_SETUP_KEY_NOSKIP)) {
         Promise.all([
-          rootScope.managers.appPromoManager!.getPromoData(true),
-          rootScope.managers.passwordManager!.getState()
+          rootScope.managers.appPromoManager.getPromoData(true),
+          rootScope.managers.passwordManager.getState()
         ]).then(([data, passwordState]) => {
           if(passwordState.login_email_pattern && !passwordState.email_unconfirmed_pattern) {
             return;
@@ -240,7 +240,7 @@ export function renderPendingSuggestion(toElement: HTMLElement) {
               purpose: {_: 'emailVerifyPurposeLoginChange'},
               onDismiss: () => {
                 if(!noskip) {
-                  rootScope.managers.appPromoManager!.dismissSuggestion(EMAIL_SETUP_KEY);
+                  rootScope.managers.appPromoManager.dismissSuggestion(EMAIL_SETUP_KEY);
                 }
               },
               onSuccess: () => {

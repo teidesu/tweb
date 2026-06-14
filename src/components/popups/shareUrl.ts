@@ -47,7 +47,7 @@ export default function shareUrlToPeers(options: ShareUrlOptions): void {
         });
         if(preparedPayment === PAYMENT_REJECTED) continue;
 
-        rootScope.managers.appMessagesManager!.sendText({
+        rootScope.managers.appMessagesManager.sendText({
           peerId,
           threadId,
           text: options.url,

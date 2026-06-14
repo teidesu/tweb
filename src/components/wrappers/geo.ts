@@ -175,7 +175,7 @@ export default function wrapGeo({
   setAnchorURL(geo);
   wrapGeo(messageMedia, loadPromises);
 
-  let liveExpiration = isLive ? (date + (messageMedia as MessageMedia.messageMediaGeoLive).period) * 1000 : undefined;
+  let liveExpiration = isLive ? (date + (messageMedia).period) * 1000 : undefined;
   const isLiveExpired = isLive && Date.now() >= liveExpiration!;
 
   const ret: WrapGeoResult = {
@@ -212,16 +212,16 @@ export default function wrapGeo({
   }
 
   if(isVenue) {
-    title!.append(wrapEmojiText((messageMedia as MessageMedia.messageMediaVenue).title));
-    address!.append(wrapEmojiText((messageMedia as MessageMedia.messageMediaVenue).address));
+    title!.append(wrapEmojiText((messageMedia).title));
+    address!.append(wrapEmojiText((messageMedia).address));
   } else if(isLive && !isLiveExpired) {
     title!.classList.add('disable-hover');
     address!.classList.add('disable-hover');
     footer!.classList.add('is-live');
 
     const updatedI18n = new I18n.IntlElement();
-    title!.append(i18n('AttachLiveLocation')!);
-    address!.append(updatedI18n.element!);
+    title!.append(i18n('AttachLiveLocation'));
+    address!.append(updatedI18n.element);
 
     const timer = document.createElement('div');
     timer.classList.add('geo-footer-timer');
@@ -231,7 +231,7 @@ export default function wrapGeo({
     const circumference = radius * 2 * Math.PI;
 
     const timerTextI18n = new I18n.IntlElement();
-    timer.append(timerTextI18n.element!);
+    timer.append(timerTextI18n.element);
     timer.insertAdjacentHTML('beforeend', `
       <svg class="geo-footer-timer-svg" width="${size}px" height="${size}px">
         <circle cx="${size / 2}" cy="${size / 2}" r="${radius}" class="geo-footer-timer-circle" transform="rotate(-90, ${size / 2}, ${size / 2})" stroke-dasharray="${circumference} ${circumference}"></circle>
@@ -245,7 +245,7 @@ export default function wrapGeo({
     footer!.append(timer);
 
     let lastData: GeoLiveUpdate = {
-      messageMedia: messageMedia as MessageMedia.messageMediaGeoLive,
+      messageMedia: messageMedia,
       date,
       editDate
     };

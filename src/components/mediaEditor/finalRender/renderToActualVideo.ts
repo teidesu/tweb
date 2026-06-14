@@ -133,7 +133,7 @@ export default async function renderToActualVideo({
   listenerSetter.add(window)('blur', () => {
     log('window focus changed', 'blurred');
     encodingPausedDeferred = deferredPromise();
-    currentVideoFrameDeferred?.reject!(ThrowReason.EncodingPaused);
+    currentVideoFrameDeferred?.reject(ThrowReason.EncodingPaused);
   });
 
   async function initMuxerAndEncoder() {
@@ -213,7 +213,7 @@ export default async function renderToActualVideo({
         if(!renderer!) return;
 
         renderers.set(layer.id, renderer);
-        await renderer.init(layer.sticker!, STICKER_SIZE * layer.scale * pixelRatio);
+        await renderer.init(layer.sticker, STICKER_SIZE * layer.scale * pixelRatio);
       })
     );
   }
@@ -231,7 +231,7 @@ export default async function renderToActualVideo({
       drawToTexture();
       video!.pause();
 
-      currentVideoFrameDeferred.resolve!(mediaTime);
+      currentVideoFrameDeferred.resolve(mediaTime);
     };
 
     if(frameNo === 0) callback(0);
@@ -252,7 +252,7 @@ export default async function renderToActualVideo({
         const deferred = deferredPromise<void>();
 
         listenerSetter.add(video!)('seeked', () => {
-          deferred.resolve!();
+          deferred.resolve();
         }, {once: true});
 
         video!.currentTime = lastTime + startTime;
@@ -393,7 +393,7 @@ export default async function renderToActualVideo({
     try {
       const firstFrameSeekDeferred = deferredPromise<void>();
       video!.currentTime = video!.duration * videoCropStart;
-      video!.addEventListener('seeked', () => void firstFrameSeekDeferred.resolve!(), {once: true});
+      video!.addEventListener('seeked', () => void firstFrameSeekDeferred.resolve(), {once: true});
 
       const initResults = await raceCancel(Promise.all([
         initMuxerAndEncoder(),
@@ -418,7 +418,7 @@ export default async function renderToActualVideo({
 
         if(video!.currentTime >= endTime - VIDEO_COMPARISON_ERROR) {
           done = true;
-          currentVideoFrameDeferred?.resolve!(endTime);
+          currentVideoFrameDeferred?.resolve(endTime);
         }
         return !done;
       });
@@ -456,7 +456,7 @@ export default async function renderToActualVideo({
         const deferred = deferredPromise<void>();
 
         video!.addEventListener('seeked', () => {
-          deferred.resolve!();
+          deferred.resolve();
         }, {once: true});
         video!.currentTime = thumbnailTime;
 
@@ -487,7 +487,7 @@ export default async function renderToActualVideo({
 
       setProgress(1);
 
-      const thumbBlob = await new Promise<Blob>(resolve => thumbnailCanvas.toBlob((resolve! as BlobCallback)));
+      const thumbBlob = await new Promise<Blob>(resolve => thumbnailCanvas.toBlob((resolve as BlobCallback)));
 
       resolve({
         blob: new Blob([buffer!], {type: 'video/mp4'}),
@@ -528,8 +528,8 @@ export default async function renderToActualVideo({
       if(canceled) return;
       canceled = true;
       // unblock anything awaiting these so the pipeline aborts immediately
-      canceledDeferred.reject!(ThrowReason.Canceled);
-      currentVideoFrameDeferred?.reject!(ThrowReason.Canceled);
+      canceledDeferred.reject(ThrowReason.Canceled);
+      currentVideoFrameDeferred?.reject(ThrowReason.Canceled);
       encodingPausedDeferred?.resolve?.();
     },
     creationProgress

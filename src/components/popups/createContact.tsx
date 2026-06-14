@@ -51,7 +51,7 @@ export default function showCreateContactPopup(): void {
     listenerSetter.add(lastNameInputField.input)('input', onInput);
 
     const onConfirm = () => {
-      const promise = managers.appUsersManager!.importContact(nameInputField.value, lastNameInputField.value, telInputField.value);
+      const promise = managers.appUsersManager.importContact(nameInputField.value, lastNameInputField.value, telInputField.value);
 
       promise.then(() => {
         context!.hide();
@@ -83,7 +83,7 @@ export default function showCreateContactPopup(): void {
       attachClickEvent(confirmBtn, onConfirm, {listenerSetter});
       context!.setBtnConfirmOnEnter(confirmBtn);
 
-      managers.appUsersManager!.getSelf().then((user) => {
+      managers.appUsersManager.getSelf().then((user) => {
         if(!middleware()) return;
         const formatted = formatPhoneNumber(user.phone!);
         if(formatted.code) {

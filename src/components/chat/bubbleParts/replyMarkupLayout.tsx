@@ -50,7 +50,7 @@ ReplyMarkupLayout.Row = (props: {
   let ref!: HTMLDivElement;
   const value: RowContextValue = {
     get isLast() {
-      return context.elements()[context!.elements().length - 1] === ref!;
+      return context.elements()[context.elements().length - 1] === ref;
     },
     elements
   };
@@ -82,7 +82,7 @@ ReplyMarkupLayout.Button = (props: {
   const rowContext = useContext(RowContext)!;
   let ref: HTMLElement;
   const isFirst = createMemo(() => rowContext.elements()[0] === ref);
-  const isLast = createMemo(() => rowContext.elements()[rowContext!.elements().length - 1] === ref);
+  const isLast = createMemo(() => rowContext.elements()[rowContext.elements().length - 1] === ref);
   return (
     <RippleElement
       component={props.as || 'button'}

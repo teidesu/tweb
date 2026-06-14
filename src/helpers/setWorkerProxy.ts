@@ -9,12 +9,12 @@ export function makeWorkerURL(url: string | URL) {
     const params = new URLSearchParams(location.search);
     params.forEach((value, key) => {
       if(key === CURRENT_ACCOUNT_QUERY_PARAM) return;
-      (url as URL).searchParams.set(key, value);
+      (url).searchParams.set(key, value);
     });
   }
 
   // exclude useless params
-  (url as URL).searchParams.delete('swfix');
+  (url).searchParams.delete('swfix');
 
   return url;
 }
@@ -32,7 +32,7 @@ export default function setWorkerProxy() {
     Worker,
     typeof(SharedWorker) !== 'undefined' && SharedWorker
   ].filter(Boolean).forEach((w) => {
-    window[(w as any).name as any] = new Proxy(w as any, workerHandler);
+    window[(w as any).name] = new Proxy(w as any, workerHandler);
   });
 }
 

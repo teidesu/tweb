@@ -26,7 +26,7 @@ export function openEmojiStatusPicker(options: {
     noRegularEmoji: true,
     managers: managers,
     mainSets: () => {
-      const defaultStatuses = managers.appStickersManager!.getLocalStickerSet('inputStickerSetEmojiDefaultStatuses')
+      const defaultStatuses = managers.appStickersManager.getLocalStickerSet('inputStickerSetEmojiDefaultStatuses')
       .then((stickerSet) => {
         return stickerSet.documents.map((doc) => doc.id);
       });
@@ -41,9 +41,9 @@ export function openEmojiStatusPicker(options: {
       return [
         Promise.all([
           defaultStatuses,
-          managers.appUsersManager!.getRecentEmojiStatuses().then(convertEmojiStatuses),
-          managers.appUsersManager!.getDefaultEmojiStatuses().then(convertEmojiStatuses),
-          managers.appEmojiManager!.getRecentEmojis('custom')
+          managers.appUsersManager.getRecentEmojiStatuses().then(convertEmojiStatuses),
+          managers.appUsersManager.getDefaultEmojiStatuses().then(convertEmojiStatuses),
+          managers.appEmojiManager.getRecentEmojis('custom')
         ]).then((arrays) => {
           return filterUnique(flatten(arrays));
         })
@@ -67,7 +67,7 @@ export function openEmojiStatusPicker(options: {
         options.onChosen?.()
       }
 
-      managers.appUsersManager!.updateEmojiStatus(emojiStatus);
+      managers.appUsersManager.updateEmojiStatus(emojiStatus);
     },
     canHaveEmojiTimer: true
   });

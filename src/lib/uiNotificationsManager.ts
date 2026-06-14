@@ -25,7 +25,7 @@ import limitSymbols from '@helpers/string/limitSymbols';
 import apiManagerProxy, {NotificationBuildTaskPayload} from '@lib/apiManagerProxy';
 import commonStateStorage from '@lib/commonStateStorage';
 import type {ActiveAccountNumber} from '@lib/accounts/types';
-import {createProxiedManagersForAccount, ProxiedManagers} from '@lib/getProxiedManagers';
+import {CombinedManagers, createProxiedManagersForAccount, ProxiedManagers} from '@lib/getProxiedManagers';
 import AccountController from '@lib/accounts/accountController';
 import {createAppURLForAccount} from '@lib/accounts/createAppURLForAccount';
 import createNotificationImage from '@helpers/createNotificationImage';
@@ -198,7 +198,7 @@ export class UiNotificationsManager {
 
     rootScope.addEventListener('dialogs_multiupdate', () => {
       // unregisterTopMsgs()
-      this.topMessagesDeferred.resolve!();
+      this.topMessagesDeferred.resolve();
     }, {once: true});
 
     webPushApiManager.addEventListener('push_notification_click', async(notificationData) => {
@@ -237,18 +237,18 @@ export class UiNotificationsManager {
         const chatId = peerId.isAnyChat() ? peerId.toChatId() : undefined;
         let channelId: ChatId;
         if(chatId) {
-          if(!(await managers.appChatsManager!.hasChat(chatId))) {
+          if(!(await managers.appChatsManager.hasChat(chatId))) {
             return;
           }
 
-          channelId = (await managers.appChatsManager!.isChannel(chatId) ? chatId : undefined)!;
+          channelId = (await managers.appChatsManager.isChannel(chatId) ? chatId : undefined)!;
         }
 
-        if(!chatId && !(await managers.appUsersManager!.hasUser(peerId.toUserId()))) {
+        if(!chatId && !(await managers.appUsersManager.hasUser(peerId.toUserId()))) {
           return;
         }
 
-        const lastMsgId = await managers.appMessagesIdsManager!.generateMessageId(+notificationData.custom.msg_id, channelId!);
+        const lastMsgId = await managers.appMessagesIdsManager.generateMessageId(+notificationData.custom.msg_id, channelId!);
 
         appImManager.setInnerPeer({
           peerId,
@@ -294,8 +294,8 @@ export class UiNotificationsManager {
     const notification: NotifyOptions = {};
     const account = this.accounts.get(accountNumber);
     const [peerString, isForum = false] = await Promise.all([
-      account!.managers.appPeersManager!.getPeerString(peerId!),
-      isAnyChat && account!.managers.appPeersManager!.isForum(peerId!)
+      account!.managers.appPeersManager.getPeerString(peerId!),
+      isAnyChat && account!.managers.appPeersManager.isForum(peerId!)
     ]);
     let notificationMessage: string;
     let wrappedMessage = false;
@@ -312,7 +312,7 @@ export class UiNotificationsManager {
         if(reaction && reaction._ !== 'reactionEmpty') {
           let emoticon = (reaction as Reaction.reactionEmoji).emoticon;
           if(!emoticon) {
-            const doc = await account!.managers.appEmojiManager!.getCustomEmojiDocument((reaction as Reaction.reactionCustomEmoji).document_id);
+            const doc = await account!.managers.appEmojiManager.getCustomEmojiDocument((reaction as Reaction.reactionCustomEmoji).document_id);
             emoticon = doc.stickerEmojiRaw!;
           }
 
@@ -374,7 +374,7 @@ export class UiNotificationsManager {
     const hasMoreThanOneAccount = (await AccountController.getTotalAccounts()) > 1;
     if((hasMoreThanOneAccount && isOtherTabActive) || isDifferentAccount) {
       // ' ➜ '
-      notification.title += ' \u279C ' + wrapUserName(await account!.managers.appUsersManager!.getSelf());
+      notification.title += ' \u279C ' + wrapUserName(await account!.managers.appUsersManager.getSelf());
     }
 
     notification.title = wrapPlainText(notification.title);
@@ -400,7 +400,7 @@ export class UiNotificationsManager {
 
     notification.image = !isLocked ? await createNotificationImage(account!.managers, peerId!, peerTitle) : undefined;
     if(!peerReaction) { // ! WARNING, message can be already read
-      message = (await account!.managers.appMessagesManager!.getMessageByPeer(message.peerId!, message.mid!))!;
+      message = (await account!.managers.appMessagesManager.getMessageByPeer(message.peerId!, message.mid!))!;
       if(!message || !message.pFlags.unread) return;
     }
 
@@ -438,7 +438,7 @@ export class UiNotificationsManager {
       managers: createProxiedManagersForAccount(accountNumber)
     };
     this.accounts.set(accountNumber, account);
-    account.managers.apiUpdatesManager!.attach();
+    account.managers.apiUpdatesManager.attach();
   }
 
   public constructAndStartAll() {
@@ -483,7 +483,7 @@ export class UiNotificationsManager {
     this.log('start');
 
     this.updateLocalSettings();
-    rootScope.managers.appStateManager!.getState().then(() => {
+    rootScope.managers.appStateManager.getState().then(() => {
       if(this.stopped) {
         return;
       }

@@ -200,7 +200,7 @@ export function horizontalMenu(
 
   attachClickEvent(tabs, (e) => {
     let target = e.target as HTMLElement;
-    target = (findUpAsChild((target as { parentElement: HTMLElement; })!, tabs) as HTMLElement);
+    target = (findUpAsChild((target as { parentElement: HTMLElement; }), tabs) as HTMLElement);
     if(!target) return false;
 
     let id: number;

@@ -125,8 +125,8 @@ export default async function showLimitPopup(
   const feature: PremiumPromoFeatureType = 'double_limits';
 
   const [appConfig, limit, limitPremium] = await Promise.all([
-    rootScope.managers.apiManager!.getAppConfig(),
-    ...[false, true].map((v) => rootScope.managers.apiManager!.getLimit(type, v))
+    rootScope.managers.apiManager.getAppConfig(),
+    ...[false, true].map((v) => rootScope.managers.apiManager.getLimit(type, v))
   ]);
   const isLocked = appConfig.premium_purchase_blocked;
   const popup = new P({

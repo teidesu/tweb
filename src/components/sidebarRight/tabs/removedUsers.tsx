@@ -22,8 +22,8 @@ const RemovedUsers: Component = () => {
   let selector: AppSelectPeers;
 
   promiseCollector.collect((async() => {
-    const chat = await tab.managers.appChatsManager!.getChat(chatId) as Chat.channel | Chat.chat;
-    const isBroadcast = await tab.managers.appChatsManager!.isBroadcast(chatId);
+    const chat = await tab.managers.appChatsManager.getChat(chatId) as Chat.channel | Chat.chat;
+    const isBroadcast = await tab.managers.appChatsManager.isBroadcast(chatId);
     tab.container.classList.add('edit-peer-container', 'removed-users-container');
 
     const canChangePermissions = hasRights(chat, 'change_permissions');
@@ -37,7 +37,7 @@ const RemovedUsers: Component = () => {
         peerId: chatId.toPeerId(true),
         onSelect: (chosen) => {
           const participant = popup.selector!.participants.get(chosen[0].peerId);
-          tab.managers.appChatsManager!.kickFromChat(chatId, participant!);
+          tab.managers.appChatsManager.kickFromChat(chatId, participant!);
         },
         placeholder: 'SearchPlaceholder'
       });
@@ -53,7 +53,7 @@ const RemovedUsers: Component = () => {
       getSubtitleForElement: async(peerId) => {
         const participant = selector.participants.get(peerId);
         const kickedBy = (participant as ChannelParticipant.channelParticipantBanned).kicked_by.toPeerId(false);
-        return i18n('UserRemovedBy', [await wrapPeerTitle({peerId: kickedBy})])!;
+        return i18n('UserRemovedBy', [await wrapPeerTitle({peerId: kickedBy})]);
       }
     });
 

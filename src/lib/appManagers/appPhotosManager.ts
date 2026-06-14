@@ -109,6 +109,6 @@ export class AppPhotosManager extends AppManager {
   } */
 
   public getPhoto(photoId: any/* MyPhoto | string */): MyPhoto {
-    return isObject(photoId) ? photoId as MyPhoto : this.photos[photoId as any as string];
+    return isObject(photoId) ? photoId as MyPhoto : this.photos[photoId as string];
   }
 }

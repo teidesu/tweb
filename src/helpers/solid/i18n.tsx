@@ -16,7 +16,7 @@ export function I18nTsx(props: {
     args: args()
   })
 
-  attachClassName(el.element!, () => props.class!);
+  attachClassName(el.element, () => props.class!);
 
   createEffect(on(() => [props.key, args()] as const, ([key, args], _prev) => {
     el.update({key, args});

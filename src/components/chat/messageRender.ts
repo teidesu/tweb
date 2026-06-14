@@ -48,7 +48,7 @@ const makeScheduleRepeatPeriod = (period: number) => {
   const entry = SCHEDULE_REPEAT_MAP.find((e) => e.period >= period) ?? SCHEDULE_REPEAT_MAP[SCHEDULE_REPEAT_MAP.length - 1];
   const span = document.createElement('span');
   span.classList.add('time-repeat', 'time-part');
-  span.append(i18n(entry.key, entry.args)!);
+  span.append(i18n(entry.key, entry.args));
   return span;
 };
 
@@ -75,21 +75,21 @@ const makeEffect = (props: {
 
   span.dataset.effectId = '' + props.docId;
 
-  rootScope.managers.acknowledged!.appReactionsManager!.getAvailableEffect(props.docId!)
+  rootScope.managers.acknowledged.appReactionsManager.getAvailableEffect(props.docId!)
   .then(async(result) => {
     if(!result.cached) {
-      deferred.resolve!();
+      deferred.resolve();
     }
 
     const availableEffect = await result.result;
     if(!availableEffect) {
-      deferred.resolve!();
+      deferred.resolve();
       return;
     }
 
     const loadPromises: Promise<any>[] = [];
     wrapSticker({
-      doc: await rootScope.managers.appDocsManager!.getDoc(availableEffect.static_icon_id!),
+      doc: await rootScope.managers.appDocsManager.getDoc(availableEffect.static_icon_id!),
       div: span,
       middleware: props.middleware,
       loadPromises,
@@ -99,7 +99,7 @@ const makeEffect = (props: {
 
     Promise.all(loadPromises).then(async() => {
       if(result.cached) {
-        deferred.resolve!();
+        deferred.resolve();
       }
 
       // * preload effect
@@ -118,7 +118,7 @@ const makeEffect = (props: {
 
 const getDocForEffect = async(availableEffect: AvailableEffect) => {
   const isPremiumEffect = !availableEffect.effect_animation_id;
-  const doc = await rootScope.managers.appDocsManager!.getDoc((isPremiumEffect ? availableEffect.effect_sticker_id : availableEffect.effect_animation_id)!);
+  const doc = await rootScope.managers.appDocsManager.getDoc((isPremiumEffect ? availableEffect.effect_sticker_id : availableEffect.effect_animation_id)!);
   return {isPremiumEffect, doc, thumb: getStickerEffectThumb(doc)};
 };
 
@@ -137,7 +137,7 @@ export const fireMessageEffect = ({e, isOut, element, middleware, scrollable, ef
 
   element.dataset.playing = '1';
 
-  rootScope.managers.appReactionsManager!.getAvailableEffect(effectId).then(async(availableEffect) => {
+  rootScope.managers.appReactionsManager.getAvailableEffect(effectId).then(async(availableEffect) => {
     const {doc, thumb: fullThumb} = await getDocForEffect(availableEffect!);
     if(!middleware()) return;
 
@@ -220,7 +220,7 @@ export namespace MessageRender {
     // let hasReactions: boolean;
 
     const fwdFrom = isMessage && message.fwd_from;
-    const time: HTMLElement = /* isSponsored ? undefined :  */makeTime(date, includeDate)!;
+    const time: HTMLElement = /* isSponsored ? undefined :  */makeTime(date, includeDate);
 
     let title = /* isSponsored ? undefined :  */getFullDate(new Date(message.date * 1000));
     if(isMessage) {
@@ -419,7 +419,7 @@ export namespace MessageRender {
       );
 
     const originalMessage = !isStoryReply && apiManagerProxy.getMessageByPeer(replyToPeerId!, message.reply_to_mid!);
-    const originalStory = isStoryReply && await rootScope.managers.acknowledged!.appStoriesManager!.getStoryById(replyToPeerId!, replyTo.story_id);
+    const originalStory = isStoryReply && await rootScope.managers.acknowledged.appStoriesManager.getStoryById(replyToPeerId!, replyTo.story_id);
     let originalPeerTitle: string | HTMLElement | DocumentFragment;
 
     let isReplyFromAnotherPeer = false;
@@ -439,7 +439,7 @@ export namespace MessageRender {
 
     if(isStoryReply) {
       if(!(originalStory as AckedResult<StoryItem.storyItem | undefined>).cached) {
-        rootScope.managers.appMessagesManager!.fetchMessageReplyTo(message);
+        rootScope.managers.appMessagesManager.fetchMessageReplyTo(message);
         // needUpdate.push(forUpdate = {replyToPeerId, replyStoryId: replyTo.story_id, mid: message.mid, peerId: message.peerId});
         originalPeerTitle = i18n('Loading')!;
       } else {
@@ -467,7 +467,7 @@ export namespace MessageRender {
         originalPeerTitle = i18n('DeletedMessage')!;
       } else {
         // needUpdate.push(forUpdate = {replyToPeerId, replyMid: message.reply_to_mid, mid: message.mid, peerId: message.peerId});
-        rootScope.managers.appMessagesManager!.fetchMessageReplyTo(message);
+        rootScope.managers.appMessagesManager.fetchMessageReplyTo(message);
 
         originalPeerTitle = i18n('Loading')!;
       }

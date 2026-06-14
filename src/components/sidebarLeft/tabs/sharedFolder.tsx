@@ -64,7 +64,7 @@ const SharedFolder: Component = () => {
         key: 'SharedFolder.Edit.Description',
         args: [
           descriptionTitle,
-          i18n('Chats', [length!])!
+          i18n('Chats', [length!])
         ]
       });
 
@@ -89,7 +89,7 @@ const SharedFolder: Component = () => {
 
   const renderResults = async(peerIds: PeerId[]) => {
     const promises = peerIds.map(async(peerId) => {
-      const peer = await tab.managers.appPeersManager!.getPeer(peerId);
+      const peer = await tab.managers.appPeersManager.getPeer(peerId);
 
       const dialogElement = appDialogsManager.addDialogNew({
         peerId,
@@ -152,7 +152,7 @@ const SharedFolder: Component = () => {
     caption = document.createElement('div');
     caption.classList.add('caption');
     descriptionI18n = new I18n.IntlElement();
-    caption.append(descriptionI18n.element!);
+    caption.append(descriptionI18n.element);
     stickerContainer = document.createElement('div');
     stickerContainer.classList.add('sticker-container');
     confirmBtn = ButtonIcon('check btn-confirm hide blue');
@@ -181,7 +181,7 @@ const SharedFolder: Component = () => {
           className: 'danger',
           text: 'DeleteLink',
           onClick: () => {
-            tab.managers.filtersStorage!.deleteExportedInvite(
+            tab.managers.filtersStorage.deleteExportedInvite(
               filter.id,
               chatlistInvite.url
             ).then(() => {
@@ -222,7 +222,7 @@ const SharedFolder: Component = () => {
       const combinedPeerIds = filterUnique(selectedPeers.concat(filter.includePeerIds!));
 
       promiseCollector.collect((async() => {
-        const peers = await Promise.all(combinedPeerIds.map((peerId) => tab.managers.appPeersManager!.getPeer(peerId)));
+        const peers = await Promise.all(combinedPeerIds.map((peerId) => tab.managers.appPeersManager.getPeer(peerId)));
         const ratings: Map<typeof peers[0], number> = new Map();
         const peerIds: Map<typeof peers[0], PeerId> = new Map();
         const peersMap: Map<PeerId, typeof peers[0]> = new Map();
@@ -241,12 +241,12 @@ const SharedFolder: Component = () => {
           ratings.set(peer, rating);
         });
         peers.sort((a, b) => ratings.get(b)! - ratings.get(a)!);
-        selector.renderResultsFunc((peers.map((peer) => peerIds.get(peer))! as number[]));
+        selector.renderResultsFunc((peers.map((peer) => peerIds.get(peer)) as number[]));
 
         const _add = selector.add.bind(selector);
         selector.add = (options) => {
           const peerId = options.key.toPeerId();
-          const dialogElement = elementMap.get(peerId as PeerId);
+          const dialogElement = elementMap.get(peerId);
           const {container} = dialogElement!;
           if(container.classList.contains('cant-select')) {
             let langPackKey: LangPackKey;
@@ -280,7 +280,7 @@ const SharedFolder: Component = () => {
 
     attachClickEvent(confirmBtn, () => {
       const toggle = toggleDisability([confirmBtn], true);
-      tab.managers.filtersStorage!.editExportedInvite(
+      tab.managers.filtersStorage.editExportedInvite(
         filter.id,
         chatlistInvite.url,
         [...selector.selected] as PeerId[],

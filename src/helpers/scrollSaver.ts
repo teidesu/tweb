@@ -54,6 +54,7 @@ export default class ScrollSaver {
 
     const {container} = this;
     const containerRect = container.getBoundingClientRect();
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const bubbles = Array.from(container.querySelectorAll(this.query)) as HTMLElement[];
     const elements: ScrollSaver['elements'] = [];
     for(const bubble of bubbles) {

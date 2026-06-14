@@ -43,7 +43,7 @@ export default function BusinessHours(props: {
     subtitleLangKey: 'BusinessHoursProfile',
     subtitleRight: true,
     clickable: (e) => {
-      if(findUpAsChild(((e.target as HTMLElement)! as { parentElement: HTMLElement; }), switchElement!)) {
+      if(findUpAsChild(((e.target as HTMLElement) as { parentElement: HTMLElement; }), switchElement!)) {
         setShowInMyTimezone((value) => !value);
         runWithOwner(owner, () => {
           update();
@@ -168,7 +168,7 @@ export default function BusinessHours(props: {
 
     const daysFormattedToUse = _showInMyTimezone ? myDaysFormatted : localDaysFormatted;
 
-    row.title.replaceChildren(i18n(openNow ? 'BusinessHoursProfileNowOpen' : 'BusinessHoursProfileNowClosed')!);
+    row.title.replaceChildren(i18n(openNow ? 'BusinessHoursProfileNowOpen' : 'BusinessHoursProfileNowClosed'));
     row.title.classList.toggle('green', openNow);
     row.title.classList.toggle('danger', !openNow);
 

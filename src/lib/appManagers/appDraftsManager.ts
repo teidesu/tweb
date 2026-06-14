@@ -276,11 +276,11 @@ export class AppDraftsManager extends AppManager {
         };
 
         if(replyTo.reply_to_peer_id && !isObject(replyTo.reply_to_peer_id)) {
-          params.reply_to!.reply_to_peer_id = this.appPeersManager.getInputPeerById(replyTo.reply_to_peer_id);
+          params.reply_to.reply_to_peer_id = this.appPeersManager.getInputPeerById(replyTo.reply_to_peer_id);
         }
 
         if(replyTo.monoforum_peer_id && !isObject(replyTo.monoforum_peer_id)) {
-          params.reply_to!.monoforum_peer_id = this.appPeersManager.getInputPeerById(replyTo.monoforum_peer_id);
+          params.reply_to.monoforum_peer_id = this.appPeersManager.getInputPeerById(replyTo.monoforum_peer_id);
         }
       } else if(monoforumThreadId) {
         params.reply_to = {

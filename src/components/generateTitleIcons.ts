@@ -67,7 +67,7 @@ export default async function generateTitleIcons({
           } else if(emojiStatus._ === 'emojiStatusCollectible') {
             if(busy) return;
             busy = true;
-            const gift = await rootScope.managers.appGiftsManager!.getGiftBySlug(emojiStatus.slug);
+            const gift = await rootScope.managers.appGiftsManager.getGiftBySlug(emojiStatus.slug);
             PopupElement.createPopup(PopupStarGiftInfo, {gift});
             busy = false;
           } else {
@@ -108,7 +108,7 @@ export default async function generateTitleIcons({
 
   if(peer?._ === 'channel' && peer.pFlags?.monoforum && !noDirectMessagesBadge) {
     const span = document.createElement('span');
-    span.append(i18n('ChannelDirectMessages.Badge')!);
+    span.append(i18n('ChannelDirectMessages.Badge'));
     span.classList.add('peer-title-direct-badge');
     elements.push(span);
   }

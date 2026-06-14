@@ -28,9 +28,9 @@ export async function onHlsPlaylistFetch(event: FetchEvent, params: string, sear
     const videoSource = createHlsVideoSource(altDocs);
     if(!videoSource) throw new Error('Failed to create video source for hls streaming');
 
-    deferred.resolve!(new Response(videoSource));
+    deferred.resolve(new Response(videoSource));
   } catch(e) {
-    deferred.resolve!(get500ErrorResponse());
+    deferred.resolve(get500ErrorResponse());
     swLog.error(e);
   }
 }

@@ -3,8 +3,8 @@ import deferredPromise from '@helpers/cancellablePromise';
 export default function makeAction<T>(promise: Promise<T>) {
   const deferred = deferredPromise<T>();
   promise.then(
-    deferred.resolve!.bind(deferred),
-    deferred.reject!.bind(deferred)
+    deferred.resolve.bind(deferred),
+    deferred.reject.bind(deferred)
   );
 
   deferred.finally(() => {

@@ -103,7 +103,7 @@ const stories: PremiumPromoFeature = {
   }]
 };
 
-const wrapGetLimitArgument = (limitType: ApiLimitType) => (managers: AppManagers) => managers.apiManager!.getLimit(limitType, true).then((limit) => [limit]);
+const wrapGetLimitArgument = (limitType: ApiLimitType) => (managers: AppManagers) => managers.apiManager.getLimit(limitType, true).then((limit) => [limit]);
 
 const doubleLimits: PremiumPromoFeature = {
   feature: 'double_limits',
@@ -113,7 +113,7 @@ const doubleLimits: PremiumPromoFeature = {
   headerLangKey: 'Premium.Boarding.Double.Title',
   _subtitleLangArgs: (managers) => Promise.all(
     (['channels', 'folders', 'pin', 'links'] as ApiLimitType[]).map((type) => {
-      return managers.apiManager!.getLimit(type, true);
+      return managers.apiManager.getLimit(type, true);
     })
   ),
   type: 'limits',
@@ -215,12 +215,12 @@ export const PREMIUM_FEATURES: {[type in PremiumPromoFeatureType]?: PremiumPromo
     feature: 'more_upload',
     icon: 'premium_filesize',
     titleLangKey: 'Premium.Boarding.FileSize.Title',
-    _titleLangArgs: (managers) => managers.apiManager!.getLimit('uploadFileParts', true).then((parts) => [formatParts(parts)!]),
+    _titleLangArgs: (managers) => managers.apiManager.getLimit('uploadFileParts', true).then((parts) => [formatParts(parts)]),
     subtitleLangKey: 'Premium.Boarding.FileSize.Info',
     _subtitleLangArgs: (managers) => Promise.all(
       [false, true].map(async(isPremium) => {
-        const parts = await managers.apiManager!.getLimit('uploadFileParts', isPremium);
-        return formatParts(parts)!;
+        const parts = await managers.apiManager.getLimit('uploadFileParts', isPremium);
+        return formatParts(parts);
       })
     )
   },

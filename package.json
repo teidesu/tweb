@@ -16,7 +16,7 @@
     "generate-icons": "node ./scripts/generate_icons.js",
     "change-version": "node ./scripts/change_version.js",
     "apply-new-lang": "node ./scripts/apply_new_lang.js",
-    "lint": "eslint \"src/**/**.ts\"",
+    "lint": "eslint \"src/**/**.{ts,tsx}\"",
     "format-lang": "node ./scripts/format_lang.js"
   },
   "devDependencies": {

@@ -69,7 +69,7 @@ const ActiveSessions: Component = () => {
               isDanger: true,
               callback: () => {
                 const toggle = toggleDisability([btnTerminate], true);
-                tab.managers.apiManager!.invokeApi('auth.resetAuthorizations').then((value) => {
+                tab.managers.apiManager.invokeApi('auth.resetAuthorizations').then((value) => {
                   btnTerminate.remove();
                   otherSection.container.remove();
                 }, onError).finally(() => {
@@ -112,7 +112,7 @@ const ActiveSessions: Component = () => {
           langKey: 'Terminate',
           isDanger: true,
           callback: () => {
-            tab.managers.appAccountManager!.resetAuthorization(hash!)
+            tab.managers.appAccountManager.resetAuthorization(hash!)
             .then((value) => {
               if(value) {
                 target.remove();

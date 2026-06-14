@@ -80,7 +80,7 @@ const EditFolder: Component = () => {
 
   const onCreateOpen = () => {
     // this.caption.style.display = '';
-    tab.title.replaceChildren(i18n('FilterNew')!);
+    tab.title.replaceChildren(i18n('FilterNew'));
     menuBtn.classList.add('hide');
     confirmBtn.classList.remove('hide');
 
@@ -92,7 +92,7 @@ const EditFolder: Component = () => {
 
   const onEditOpen = () => {
     const _tempId = ++tempId;
-    tab.title.replaceChildren(i18n(type === 'create' ? 'FilterNew' : 'FilterHeaderEdit')!);
+    tab.title.replaceChildren(i18n(type === 'create' ? 'FilterNew' : 'FilterHeaderEdit'));
 
     if(type === 'edit') {
       menuBtn.classList.remove('hide');
@@ -125,10 +125,10 @@ const EditFolder: Component = () => {
 
       // filter peers where we're kicked
       const hasPeer = async(peerId: PeerId) => {
-        return !!(await tab.managers.appMessagesManager!.getDialogOnly(peerId)) || (peerId.isUser() ? (await tab.managers.appUsersManager!.getUser(peerId.toUserId()))._ === 'user' : false);
+        return !!(await tab.managers.appMessagesManager.getDialogOnly(peerId)) || (peerId.isUser() ? (await tab.managers.appUsersManager.getUser(peerId.toUserId()))._ === 'user' : false);
       };
 
-      const filtered = await filterAsync(peers, (peerId) => hasPeer(peerId)) as number[];
+      const filtered = await filterAsync(peers, (peerId) => hasPeer(peerId));
       peers.length = 0;
       peers.push(...filtered);
 
@@ -137,7 +137,7 @@ const EditFolder: Component = () => {
       const renderMore = async(_length: number) => {
         const peerIds = peers.splice(0, _length);
         const filtered = await filterAsync(peerIds, async(peerId) => {
-          return peerId.isUser() ? true : !!await tab.managers.appMessagesManager!.getDialogOnly(peerId);
+          return peerId.isUser() ? true : !!await tab.managers.appMessagesManager.getDialogOnly(peerId);
         });
 
         if(_tempId !== tempId) return;
@@ -145,7 +145,7 @@ const EditFolder: Component = () => {
         const loadPromises: Promise<any>[] = [];
         const containers = filtered.map((peerId) => {
           const dialogElement = appDialogsManager.addDialogNew({
-            peerId: peerId!,
+            peerId: peerId,
             rippleEnabled: false,
             meAsSaved: true,
             avatarSize: 'small',
@@ -167,7 +167,7 @@ const EditFolder: Component = () => {
 
         if(showMore) {
           if(peers.length) {
-            showMore.lastElementChild!.replaceWith(i18n('FilterShowMoreChats', [peers.length])!);
+            showMore.lastElementChild!.replaceWith(i18n('FilterShowMoreChats', [peers.length]));
             showMore.classList.remove('hide');
           } else {
             showMore.remove();
@@ -183,7 +183,7 @@ const EditFolder: Component = () => {
           showMoreClicked[key] = true;
           renderMore(Infinity);
         }, {listenerSetter: tab.listenerSetter});
-        showMore.append(i18n('FilterShowMoreChats', [peers.length])!);
+        showMore.append(i18n('FilterShowMoreChats', [peers.length]));
       }
 
       return renderMore(showMoreClicked[key] ? Infinity : 4).then(() => {
@@ -264,7 +264,7 @@ const EditFolder: Component = () => {
   tab.container.classList.add('edit-folder-container');
   const caption = document.createElement('div');
   caption.classList.add('caption');
-  caption.append(i18n('FilterIncludeExcludeInfo')!);
+  caption.append(i18n('FilterIncludeExcludeInfo'));
   const stickerContainer = document.createElement('div');
   stickerContainer.classList.add('sticker-container');
 
@@ -446,13 +446,13 @@ const EditFolder: Component = () => {
 
     let promise: Promise<DialogFilter>;
     if(!filter.id) {
-      promise = tab.managers.filtersStorage!.createDialogFilter(filter);
+      promise = tab.managers.filtersStorage.createDialogFilter(filter);
     } else {
       if(closeAfter) {
         postponeFilterUpdate = true;
       }
 
-      promise = tab.managers.filtersStorage!.updateDialogFilter(filter);
+      promise = tab.managers.filtersStorage.updateDialogFilter(filter);
     }
 
     return promise.then((dialogFilter) => {
@@ -498,14 +498,14 @@ const EditFolder: Component = () => {
   });
 
   const reloadMissingPromises: Promise<any>[] = type! === 'edit' ? [
-    tab.managers.filtersStorage!.reloadMissingPeerIds(filter!.id, 'pinned_peers'),
-    tab.managers.filtersStorage!.reloadMissingPeerIds(filter!.id, 'include_peers'),
-    tab.managers.filtersStorage!.reloadMissingPeerIds(filter!.id, 'exclude_peers')
+    tab.managers.filtersStorage.reloadMissingPeerIds(filter!.id, 'pinned_peers'),
+    tab.managers.filtersStorage.reloadMissingPeerIds(filter!.id, 'include_peers'),
+    tab.managers.filtersStorage.reloadMissingPeerIds(filter!.id, 'exclude_peers')
   ] : [];
 
   promiseCollector.collect(Promise.all([
-    tab.managers.apiManager!.getLimit('chatlistInvites'),
-    tab.managers.apiManager!.getLimit('chatlistInvites', true),
+    tab.managers.apiManager.getLimit('chatlistInvites'),
+    tab.managers.apiManager.getLimit('chatlistInvites', true),
 
     loadAnimationPromise = p.animationData.then(async(cb) => {
       const player = await cb({
@@ -531,7 +531,7 @@ const EditFolder: Component = () => {
       onCreateOpen();
     }
 
-    tab.managers.filtersStorage!.getExportedInvites(filter.id).catch((err: ApiError) => {
+    tab.managers.filtersStorage.getExportedInvites(filter.id).catch((err: ApiError) => {
       if(err.type === 'FILTER_NOT_SUPPORTED') {
         return [] as ExportedChatlistInvite[];
       }
@@ -562,9 +562,9 @@ const EditFolder: Component = () => {
         const title = chatlistInvite.title && chatlistInvite.title !== filter.title.text ?
           wrapEmojiText(chatlistInvite.title) :
           chatlistInvite.url.replace(/(.+?):\/\//, '');
-        const subtitle = i18n('SharedFolder.Includes', [i18n('Chats', [chatlistInvite.peers.length])!]);
+        const subtitle = i18n('SharedFolder.Includes', [i18n('Chats', [chatlistInvite.peers.length])]);
         row.title.replaceChildren(title);
-        row.subtitle.replaceChildren(subtitle!);
+        row.subtitle.replaceChildren(subtitle);
       };
 
       const wrapLink = (chatlistInvite: ExportedChatlistInvite) => {
@@ -599,7 +599,7 @@ const EditFolder: Component = () => {
           text: 'Delete',
           onClick: () => {
             const chatlistInvite = map.get(target);
-            tab.managers.filtersStorage!.deleteExportedInvite(
+            tab.managers.filtersStorage.deleteExportedInvite(
               filter.id,
               chatlistInvite!.url
             ).then(() => {
@@ -658,7 +658,7 @@ const EditFolder: Component = () => {
           return;
         }
 
-        tab.managers.filtersStorage!.exportChatlistInvite({
+        tab.managers.filtersStorage.exportChatlistInvite({
           ...filter,
           _: 'dialogFilterChatlist',
           ...({pFlags: filter._ === 'dialogFilter' ? {has_my_invites: true} : filter.pFlags})
@@ -697,7 +697,7 @@ const EditFolder: Component = () => {
 
       attachClickEvent(content, (e) => {
         const target = findUpClassName(e.target!, 'row');
-        const chatlistInvite = map.get(target as HTMLElement);
+        const chatlistInvite = map.get(target);
         if(!chatlistInvite) {
           return;
         }

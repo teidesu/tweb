@@ -249,7 +249,7 @@ const MediaEditorSection = () => (
 
 const OtherSection = () => {
   const [passcode] = createResource(() =>
-    rootScope.managers.appStateManager!.getState().then((state) => state?.settings?.passcode)
+    rootScope.managers.appStateManager.getState().then((state) => state?.settings?.passcode)
   );
 
   const lockKeys = () => {

@@ -53,7 +53,7 @@ export class AutonomousDialogListBase<T extends PossibleDialog = PossibleDialog>
   protected log: ReturnType<typeof logger>;
   protected placeholderOptions: ConstructorParameters<typeof DialogsPlaceholder>[0];
 
-  protected cursorFetcher = new SequentialCursorFetcher((cursor: number | undefined) => this.loadDialogs(cursor!));
+  protected cursorFetcher = new SequentialCursorFetcher((cursor: number | undefined) => this.loadDialogs(cursor));
   protected hasReachedTheEnd = false;
 
   protected skipMigrated = true;
@@ -73,7 +73,7 @@ export class AutonomousDialogListBase<T extends PossibleDialog = PossibleDialog>
     this.cursorFetcher.setCursor(last?.index);
 
     // Make sure the current request is canceled so the cursor is not overriden to a bigger page
-    this.loadDialogsDeferred?.reject!();
+    this.loadDialogsDeferred?.reject();
   }
 
   constructor({appDialogsManager}: BaseConstructorArgs) {
@@ -175,13 +175,13 @@ export class AutonomousDialogListBase<T extends PossibleDialog = PossibleDialog>
   private loadDialogsDeferred: CancellablePromise<SequentialCursorFetcherResult<number>> | undefined;
 
   private async loadDialogs(offsetIndex?: number) {
-    this.loadDialogsDeferred?.reject!();
+    this.loadDialogsDeferred?.reject();
     const deferred = this.loadDialogsDeferred = deferredPromise();
 
     this.loadDialogsInner({offsetIndex, canFinish: () => !deferred.isRejected})
     .then(
-      deferred.resolve!.bind(deferred),
-      deferred.reject!.bind(deferred)
+      deferred.resolve.bind(deferred),
+      deferred.reject.bind(deferred)
     )
     .finally(() => {
       this.placeholder?.detach(this.sortedList?.itemsLength() || 0);
@@ -224,7 +224,7 @@ export class AutonomousDialogListBase<T extends PossibleDialog = PossibleDialog>
   public async preloadDialogs() {
     const filterId = this.getFilterId();
 
-    await this.managers.acknowledged!.dialogsStorage!.getDialogs({
+    await this.managers.acknowledged.dialogsStorage.getDialogs({
       offsetIndex: 0,
       limit: this.guessLoadCount(),
       filterId,
@@ -235,7 +235,7 @@ export class AutonomousDialogListBase<T extends PossibleDialog = PossibleDialog>
   }
 
   protected async dialogsFetcher(offsetIndex: number, limit: number): Promise<{dialogs: PossibleDialog[], count: number, isEnd: boolean}> {
-    const ackedResult = await this.managers.acknowledged!.dialogsStorage!.getDialogs({
+    const ackedResult = await this.managers.acknowledged.dialogsStorage.getDialogs({
       offsetIndex,
       limit,
       filterId: this.getFilterId(),
@@ -290,7 +290,7 @@ export class AutonomousDialogListBase<T extends PossibleDialog = PossibleDialog>
     this.loadedDialogsAtLeastOnce = true;
     this.hasReachedTheEnd = !!result.isEnd;
 
-    this.sortedList.addDeferredItems(items! as any, result.count || 0);
+    this.sortedList.addDeferredItems(items as any, result.count || 0);
 
     if(removePlaceholder) this.placeholder?.detach(this.sortedList.itemsLength());
 
@@ -356,7 +356,7 @@ export class AutonomousDialogListBase<T extends PossibleDialog = PossibleDialog>
   public clear() {
     this.sortedList.clear();
     this.placeholder?.remove();
-    this.loadDialogsDeferred?.reject!();
+    this.loadDialogsDeferred?.reject();
     this.loadDialogsDeferred = undefined;
     this.cursorFetcher.reset();
     this.hasReachedTheEnd = false;

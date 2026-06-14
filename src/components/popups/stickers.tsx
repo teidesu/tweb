@@ -127,7 +127,7 @@ export default function showStickersPopup(
         });
 
         setUpdateAdded = (added) => {
-          headerRow.buttonRight.replaceChildren(i18n(added ? 'Stickers.SearchAdded' : 'Stickers.SearchAdd')!);
+          headerRow.buttonRight.replaceChildren(i18n(added ? 'Stickers.SearchAdded' : 'Stickers.SearchAdd'));
           headerRow.buttonRight.classList.toggle('active', added);
         };
 
@@ -163,7 +163,7 @@ export default function showStickersPopup(
 
     const loadStickerSet = async() => {
       const inputs = toArray(stickerSetInput);
-      const setsPromises = inputs.map((input) => managers.appStickersManager!.getStickerSet(input));
+      const setsPromises = inputs.map((input) => managers.appStickersManager.getStickerSet(input));
       let rawSets = await Promise.all(setsPromises);
       if(!middleware()) return;
       let firstSet = rawSets[0];
@@ -202,14 +202,14 @@ export default function showStickersPopup(
 
         if(headerRow) {
           attachClickEvent(headerRow.buttonRight, () => {
-            managers.appStickersManager!.toggleStickerSet(set.set);
+            managers.appStickersManager.toggleStickerSet(set.set);
           }, {listenerSetter});
         }
 
         updateAddedMap[set.set.id] = setUpdateAdded;
 
         let divs: (HTMLElement | DocumentFragment)[];
-        const docs = set.documents.filter((doc) => doc?._ === 'document') as Document.document[];
+        const docs = set.documents.filter((doc) => doc?._ === 'document');
         if(isEmojis) {
           const fragment = wrapCustomEmoji({
             docIds: docs.map((doc) => doc.id),
@@ -336,7 +336,7 @@ export default function showStickersPopup(
         <PopupElement.Body>
           <PopupElement.Scrollable
             ref={scrollableEl}
-            class={((!isLoaded() && 'is-loading')! as string | undefined)}
+            class={((!isLoaded() && 'is-loading') as string | undefined)}
             withBorders="top"
           >
             <Show when={isLoaded()} fallback={putPreloader(undefined!, true)}>
@@ -349,7 +349,7 @@ export default function showStickersPopup(
             noRipple
             color={isLoaded() ? (isAdd() ? 'primary' : 'danger') : 'secondary'}
             callback={async() => {
-              await managers.appStickersManager!.toggleStickerSets(
+              await managers.appStickersManager.toggleStickerSets(
                 rawSetsRef.map((set) => set.set)
               );
             }}

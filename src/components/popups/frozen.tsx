@@ -27,7 +27,7 @@ export default function showFrozenPopup() {
       {
         icon: 'hourglass',
         title: i18n('Frozen.Appeal.Title'),
-        subtitle: i18n('Frozen.Appeal.Subtitle', [anchor, formatDate(new Date(untilDate), {withTime: true})!])
+        subtitle: i18n('Frozen.Appeal.Subtitle', [anchor, formatDate(new Date(untilDate), {withTime: true})])
       }
     ],
     sticker: {

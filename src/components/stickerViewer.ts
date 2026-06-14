@@ -241,7 +241,7 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
       hasViewer = true;
 
       const middleware = _middleware.get();
-      const doc = await managers.appDocsManager!.getDoc(docId);
+      const doc = await managers.appDocsManager.getDoc(docId);
       if(!middleware()) return;
 
       let result: Awaited<ReturnType<typeof doThatSticker>>;
@@ -295,7 +295,7 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
       _middleware.clean();
       const middleware = _middleware.get();
 
-      const doc = await managers.appDocsManager!.getDoc(docId);
+      const doc = await managers.appDocsManager.getDoc(docId);
       if(!middleware()) return;
 
       let r: Awaited<ReturnType<typeof doThatSticker>>;
@@ -341,7 +341,7 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
     };
 
     const onMousePreMove = (e: MouseEvent) => {
-      if(!findUpAsChild(((e.target as HTMLElement)! as { parentElement: HTMLElement; }), mediaContainer!)) {
+      if(!findUpAsChild(((e.target as HTMLElement) as { parentElement: HTMLElement; }), mediaContainer!)) {
         onMouseUp();
       }
     };

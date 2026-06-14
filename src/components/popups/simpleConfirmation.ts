@@ -19,7 +19,7 @@ export class SimpleConfirmationPopup extends PopupElement {
 
     const description = document.createElement('p');
     description.classList.add('popup-description');
-    description.append(i18n(options.descriptionLangKey, options.descriptionArgs)!);
+    description.append(i18n(options.descriptionLangKey, options.descriptionArgs));
     this.header.after(description);
   }
 

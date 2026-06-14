@@ -54,7 +54,7 @@ export default class InlineHelper extends AutocompleteHelper {
         const {peerId, botId, queryId} = this.list.dataset;
         return this.chat.input.getReadyToSend(() => {
           const queryAndResultIds = generateQId(queryId!, (target as HTMLElement).dataset.resultId!);
-          this.managers.appInlineBotsManager!.sendInlineResult(peerId!.toPeerId(), botId!, queryAndResultIds, {
+          this.managers.appInlineBotsManager.sendInlineResult(peerId!.toPeerId(), botId!, queryAndResultIds, {
             ...this.chat.getMessageSendingParams(),
             clearDraft: true
           });
@@ -85,7 +85,7 @@ export default class InlineHelper extends AutocompleteHelper {
   public _checkQuery = async(peerId: PeerId, username: string, query: string, canSendInline: boolean) => {
     const middleware = this.controller.getMiddleware();
 
-    const peer = await this.managers.appUsersManager!.resolveUsername(username);
+    const peer = await this.managers.appUsersManager.resolveUsername(username);
     if(!middleware()) {
       throw 'PEER_CHANGED';
     }
@@ -111,7 +111,7 @@ export default class InlineHelper extends AutocompleteHelper {
 
     const botId = peer.id;
 
-    const renderPromise = this.managers.appInlineBotsManager!.getInlineResults(peerId, botId, query).then((botResults) => {
+    const renderPromise = this.managers.appInlineBotsManager.getInlineResults(peerId, botId, query).then((botResults) => {
       if(!middleware()) {
         throw 'PEER_CHANGED';
       }
@@ -216,7 +216,7 @@ export default class InlineHelper extends AutocompleteHelper {
           }
         } else {
           const media = item.document as MyDocument || item.photo as MyPhoto;
-          if((['sticker', 'gif'] as MyDocument['type'][]).includes((media as MyDocument)?.type) && isGallery) {
+          if((['sticker', 'gif'] as MyDocument['type'][]).includes((media)?.type) && isGallery) {
             assumeType<MyDocument>(media);
 
             if(media.type === 'gif') {
@@ -269,7 +269,7 @@ export default class InlineHelper extends AutocompleteHelper {
           attachClickEvent(btnSwitchTo, async(e) => {
             if(switchTo._ === 'inlineBotSwitchPM') {
               await this.chat.appImManager.setInnerPeer({peerId});
-              this.managers.appInlineBotsManager!.switchToPM(peerId, botId, switchTo.start_param);
+              this.managers.appInlineBotsManager.switchToPM(peerId, botId, switchTo.start_param);
             } else {
               this.chat.openWebApp({
                 botId,
@@ -326,7 +326,7 @@ export default class InlineHelper extends AutocompleteHelper {
     });
 
     const span = i18n(POSTING_NOT_ALLOWED_MAP['send_inline']!);
-    span!.classList.add('inline-helper-cant-send');
-    this.container.append(span!);
+    span.classList.add('inline-helper-cant-send');
+    this.container.append(span);
   }
 }

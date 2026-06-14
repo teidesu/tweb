@@ -29,7 +29,7 @@ interface MonthOption {
 
 export async function saveMyBirthday(date: Birthday | null) {
   try {
-    await rootScope.managers.appProfileManager!.setMyBirthday(date);
+    await rootScope.managers.appProfileManager.setMyBirthday(date);
     return true;
   } catch(error) {
     console.error(error);
@@ -40,7 +40,7 @@ export async function saveMyBirthday(date: Birthday | null) {
 
 export async function suggestUserBirthday(userId: UserId, date: Birthday) {
   try {
-    await rootScope.managers.appProfileManager!.suggestUserBirthday(userId, date);
+    await rootScope.managers.appProfileManager.suggestUserBirthday(userId, date);
     return true;
   } catch(error) {
     console.error(error);
@@ -56,7 +56,7 @@ export default async function showBirthdayPopup(props: {
   fromSuggestion?: boolean
   onSave: (date: Birthday | null) => MaybePromise<boolean>
 }) {
-  const privacy = props.suggestForPeer ? null : await rootScope.managers.appPrivacyManager!.getPrivacy('inputPrivacyKeyBirthday');
+  const privacy = props.suggestForPeer ? null : await rootScope.managers.appPrivacyManager.getPrivacy('inputPrivacyKeyBirthday');
   const isContactsOnly = !privacy || (
     privacy.length === 2 &&
     privacy[0]._ === 'privacyValueAllowContacts' &&

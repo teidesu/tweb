@@ -144,7 +144,7 @@ export class AppStickersManager extends AppManager {
         includeServerStickers: true
       }).then((docs) => {
         if(!docs.length) throw 'NO_STICKERS';
-        this.greetingStickers = docs.slice() as Document.document[];
+        this.greetingStickers = docs.slice();
         this.greetingStickers.sort((a, b) => Math.random() - Math.random());
       });
     }
@@ -451,7 +451,7 @@ export class AppStickersManager extends AppManager {
 
     const shouldRemove = !stickerSet.set.installed_date;
     map.forEach((keywords, docId) => {
-      index.indexObjectArray(docId as DocId, shouldRemove ? [] : keywords);
+      index.indexObjectArray(docId, shouldRemove ? [] : keywords);
     });
   }
 
@@ -477,7 +477,7 @@ export class AppStickersManager extends AppManager {
       _: 'messages.stickerSet',
       set: res.set,
       packs: res.packs,
-      documents: res.documents as Document[],
+      documents: res.documents,
       keywords: res.keywords
     };
 
@@ -857,7 +857,7 @@ export class AppStickersManager extends AppManager {
     const entities = parseEntities(query);
     const emojiEntities = entities
     .filter((entity) => entity._ === 'messageEntityEmoji' || entity._ === 'messageEntityCustomEmoji')
-    .map((entity) => query.slice(entity.offset!, entity.offset! + entity.length!));
+    .map((entity) => query.slice(entity.offset, entity.offset! + entity.length!));
 
     let emojis: string[] = emojiEntities;
     if(!emojis.length) {

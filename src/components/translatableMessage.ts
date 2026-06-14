@@ -55,7 +55,7 @@ export function TranslatableMessageTsx(props: {
   }
 
   const translate = (lang: string, onlyCache?: boolean) => {
-    return modifyAckedPromise(rootScope.managers.acknowledged!.appTranslationsManager!.translateText({
+    return modifyAckedPromise(rootScope.managers.acknowledged.appTranslationsManager.translateText({
       ...(props.message ? {
         peerId: props.message.peerId!,
         mid: props.message.mid!
@@ -68,7 +68,7 @@ export function TranslatableMessageTsx(props: {
   };
 
   const summarizeText = (lang?: string) => {
-    return modifyAckedPromise(rootScope.managers.acknowledged!.appTranslationsManager!.summarizeText({
+    return modifyAckedPromise(rootScope.managers.acknowledged.appTranslationsManager.summarizeText({
       peerId: props.peerId,
       mid: props.message!.mid!,
       lang
@@ -171,7 +171,7 @@ export function TranslatableMessageTsx(props: {
 
       const set = () => {
         if(!middleware()) return;
-        deferred.resolve!();
+        deferred.resolve();
 
         if(props.onFragment) {
           wrapped = props.onFragment(wrapped);

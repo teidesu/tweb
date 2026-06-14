@@ -31,12 +31,12 @@ export default function PasskeyLoginButton(props: {
     }
 
     _fetchPasskeyOptionPromise ||= Promise.all([
-      rootScope.managers.apiManager!.getBaseDcId(),
-      rootScope.managers.appAccountManager!.initPasskeyLogin()
+      rootScope.managers.apiManager.getBaseDcId(),
+      rootScope.managers.appAccountManager.initPasskeyLogin()
     ]);
 
     return _fetchPasskeyOptionPromise.then(([dcId, passkeyLoginOptions]) => {
-      passkeyInitDcId = (dcId || undefined) as TrueDcId;
+      passkeyInitDcId = (dcId || undefined);
       passkeyOptionJSON = passkeyLoginOptions.options.data;
       setVisible(true);
     });
@@ -59,8 +59,8 @@ export default function PasskeyLoginButton(props: {
         return;
       }
 
-      await rootScope.managers.apiManager!.setBaseDcId(dcId);
-      await rootScope.managers.appAccountManager!.finishPasskeyLogin(
+      await rootScope.managers.apiManager.setBaseDcId(dcId);
+      await rootScope.managers.appAccountManager.finishPasskeyLogin(
         inputPasskeyCredential,
         passkeyInitDcId === dcId ? undefined : passkeyInitDcId
       );

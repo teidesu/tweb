@@ -421,7 +421,7 @@ export class AppReactionsManager extends AppManager {
     return this.apiManager.invokeApiSingleProcess({
       method: 'messages.getMessagesReactions',
       params: {
-        id: (mids.map((mid) => getServerMessageId(mid))! as number[]),
+        id: (mids.map((mid) => getServerMessageId(mid)) as number[]),
         peer: this.appPeersManager.getInputPeerById(peerId)
       },
       processResult: (updates) => {
@@ -597,14 +597,14 @@ export class AppReactionsManager extends AppManager {
         reactionCount = {
           _: 'reactionCount',
           count: 0,
-          reaction: reaction!
+          reaction: reaction
         };
 
         if(isPaidReaction) {
-          reactions.results.unshift(reactionCount!);
+          reactions.results.unshift(reactionCount);
           reactionCountIdx = 0;
         } else {
-          reactionCountIdx = reactions.results.push(reactionCount!) - 1;
+          reactionCountIdx = reactions.results.push(reactionCount) - 1;
         }
       }
 
@@ -653,7 +653,7 @@ export class AppReactionsManager extends AppManager {
       } else {
         ++reactionCount.count;
         reactionCount.chosen_order = chosenReactions.length ? chosenReactions[0].chosen_order! + 1 : 0;
-        chosenReactions.unshift(reactionCount!);
+        chosenReactions.unshift(reactionCount);
       }
 
       if(!reactions.recent_reactions && canSeeList) {
@@ -663,7 +663,7 @@ export class AppReactionsManager extends AppManager {
       if(reactions.recent_reactions) {
         const peerReaction: MessagePeerReaction = {
           _: 'messagePeerReaction',
-          reaction: reaction!,
+          reaction: reaction,
           peer_id: myPeer,
           pFlags: {},
           date: tsNow(true)

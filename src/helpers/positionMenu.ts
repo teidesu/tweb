@@ -139,7 +139,7 @@ export function positionFloatingMenu(
   menu.style.top = top + 'px';
   menu.style.transformOrigin = `${originX} ${originY}`;
 
-  return `${side}-${alignment}` as FloatingMenuDirection;
+  return `${side}-${alignment}`;
 }
 
 export function getMenuTopPositionForStartDirection(triggerBcr: DOMRect, menu: HTMLElement, offset: [number, number]) {

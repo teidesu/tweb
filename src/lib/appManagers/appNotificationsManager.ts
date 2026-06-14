@@ -339,7 +339,7 @@ export class AppNotificationsManager extends AppManager {
     const threadId = isTopic ? this.appMessagesIdsManager.generateMessageId(peer.top_msg_id, (peer.peer as Peer.peerChannel).channel_id) : undefined;
     this.savePeerSettings({
       key,
-      peerId: (peerId! as number | undefined),
+      peerId: (peerId as number | undefined),
       threadId,
       settings: update.notify_settings
     });

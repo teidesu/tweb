@@ -31,10 +31,10 @@ const ChatAdministrators: Component = () => {
     tab.container.classList.add('edit-peer-container', 'chat-administrators-container');
 
     const [chat, isBroadcast, chatFull, appConfig] = await Promise.all([
-      tab.managers.appChatsManager!.getChat(chatId),
-      tab.managers.appChatsManager!.isBroadcast(chatId),
-      tab.managers.appProfileManager!.getChatFull(chatId),
-      tab.managers.apiManager!.getAppConfig()
+      tab.managers.appChatsManager.getChat(chatId),
+      tab.managers.appChatsManager.isBroadcast(chatId),
+      tab.managers.appProfileManager.getChatFull(chatId),
+      tab.managers.apiManager.getAppConfig()
     ]);
 
     const canAddAdmins = hasRights(chat, 'add_admins');
@@ -72,14 +72,14 @@ const ChatAdministrators: Component = () => {
       getSubtitleForElement: async(peerId) => {
         const participant = selector.participants.get(peerId);
         if(participant!._ === 'channelParticipantCreator' || participant!._ === 'chatParticipantCreator') {
-          return i18n('ChannelCreator')!;
+          return i18n('ChannelCreator');
         }
 
         const promotedBy = (
           (participant as ChannelParticipant.channelParticipantAdmin).promoted_by ||
           (participant as ChatParticipant.chatParticipantAdmin).inviter_id
         ).toPeerId(false);
-        return i18n('EditAdminPromotedBy', [await wrapPeerTitle({peerId: promotedBy})])!;
+        return i18n('EditAdminPromotedBy', [await wrapPeerTitle({peerId: promotedBy})]);
       },
       onSelect: (peerId) => {
         const participant = selector.participants.get(peerId);
@@ -119,7 +119,7 @@ const ChatAdministrators: Component = () => {
           return;
         }
 
-        const promise = handleChannelsTooMuch(() => tab.managers.appChatsManager!.toggleAntiSpam(chatId, _checked))
+        const promise = handleChannelsTooMuch(() => tab.managers.appChatsManager.toggleAntiSpam(chatId, _checked))
         .catch((err) => {
           console.error('toggleAntiSpam error', err);
           row.checkboxField.setValueSilently(!_checked);

@@ -11,6 +11,6 @@ export default function showSendNowPopup(peerId: PeerId, mids: number[], onConfi
     }
   }).then(() => {
     onConfirm?.();
-    rootScope.managers.appMessagesManager!.sendScheduledMessages(peerId, mids);
+    rootScope.managers.appMessagesManager.sendScheduledMessages(peerId, mids);
   }, () => {});
 }

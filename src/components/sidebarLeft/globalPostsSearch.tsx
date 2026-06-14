@@ -73,7 +73,7 @@ export function GlobalPostsSearch(props: {
     const offsetId = lastMessage?.mid || 0
     const offsetPeerId = lastMessage?.peerId || NULL_PEER_ID
 
-    rootScope.managers.appMessagesManager!.getHistory({
+    rootScope.managers.appMessagesManager.getHistory({
       peerId: NULL_PEER_ID,
       inputFilter: {_: 'inputMessagesFilterEmpty'},
       offsetId,
@@ -134,7 +134,7 @@ export function GlobalPostsSearch(props: {
 
   const loadFlood = () => {
     const myQuery = props.query
-    rootScope.managers.apiManager!.invokeApi('channels.checkSearchPostsFlood', {
+    rootScope.managers.apiManager.invokeApi('channels.checkSearchPostsFlood', {
       query: myQuery
     }).then((res) => {
       if(myQuery !== props.query) return

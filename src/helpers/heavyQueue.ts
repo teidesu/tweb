@@ -14,7 +14,7 @@ let processingQueue = false;
 
 export default function addHeavyTask<T extends HeavyQueue<T>>(queue: T, method: 'push' | 'unshift' = 'push') {
   if(!queue.items.length) {
-    return Promise.resolve([]) as typeof promise;
+    return Promise.resolve([]) as unknown as typeof promise;
   }
 
   const promise = queue.promise = deferredPromise();
@@ -38,7 +38,7 @@ function processHeavyQueue() {
 
 function timedChunk<T extends HeavyQueue<T>>(queue: HeavyQueue<T>) {
   if(!queue.items.length) {
-    queue.promise!.resolve!([] as any);
+    queue.promise!.resolve([] as any);
     return Promise.resolve([]);
   }
 
@@ -78,5 +78,5 @@ function timedChunk<T extends HeavyQueue<T>>(queue: HeavyQueue<T>) {
 
     fastRaf(f);
     // setTimeout(f, 25);
-  }).then(queue.promise!.resolve!.bind(queue.promise), queue.promise!.reject!.bind(queue.promise));
+  }).then(queue.promise!.resolve.bind(queue.promise), queue.promise!.reject.bind(queue.promise));
 }

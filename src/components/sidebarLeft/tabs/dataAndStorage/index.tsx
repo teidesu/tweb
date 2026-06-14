@@ -20,6 +20,7 @@ import {StorageQuota, StorageQuotaControls} from './storageQuota';
 import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
 import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
 import {AppAutoDownloadFileTab, AppAutoDownloadPhotoTab, AppAutoDownloadVideoTab, type AppDataAndStorageTab} from '@components/solidJsTabs/tabs';
+import {isTruthy} from '../../../../helpers/isTruthy';
 
 const AUTO_DOWNLOAD_FOR_KEYS: {[k in keyof AutoDownloadPeerTypeSettings]: LangPackKey} = {
   contacts: 'AutoDownloadContacts',
@@ -34,26 +35,26 @@ function setAutoDownloadSubtitle(row: Row, settings: AutoDownloadPeerTypeSetting
 
   settings = unwrap(settings);
   const peerKeys = Object.keys(settings) as (keyof typeof AUTO_DOWNLOAD_FOR_KEYS)[];
-  const enabledKeys = peerKeys.map((key) => settings[key] ? AUTO_DOWNLOAD_FOR_KEYS[key] : undefined).filter(Boolean);
+  const enabledKeys = peerKeys.map((key) => settings[key] ? AUTO_DOWNLOAD_FOR_KEYS[key] : undefined).filter(isTruthy);
   if(!enabledKeys.length || sizeMax === 0) {
     key = 'AutoDownloadOff';
   } else {
     const isAll = enabledKeys.length === peerKeys.length;
     if(sizeMax !== undefined) {
       key = isAll ? 'AutoDownloadUpToOnAllChats' : 'AutoDownloadOnUpToFor';
-      args.push(formatBytes(sizeMax)!);
+      args.push(formatBytes(sizeMax));
     } else {
       key = isAll ? 'AutoDownloadOnAllChats' : 'AutoDownloadOnFor';
     }
 
     if(!isAll) {
       const fragment = document.createElement('span');
-      fragment.append(...join(enabledKeys.map((key) => i18n(key!)) as (Node | string)[], true, false));
+      fragment.append(...join(enabledKeys.map((key) => i18n(key)) as (Node | string)[], true, false));
       args.push(fragment);
     }
   }
 
-  replaceContent(row.subtitle, i18n(key, args)!);
+  replaceContent(row.subtitle, i18n(key, args));
 }
 
 const DataAndStorage: Component = () => {

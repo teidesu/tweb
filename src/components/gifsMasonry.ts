@@ -14,7 +14,7 @@ import positionElementByIndex from '@helpers/dom/positionElementByIndex';
 
 export default class GifsMasonry {
   public lazyLoadQueue: LazyLoadQueueRepeat2;
-  private scrollPromise: CancellablePromise<void> = Promise.resolve();
+  private scrollPromise?: CancellablePromise<void>;
   private timeout: number = 0;
   private managers: AppManagers;
   private middlewareHelper: MiddlewareHelper;
@@ -53,7 +53,7 @@ export default class GifsMasonry {
 
     this.timeout = window.setTimeout(() => {
       this.timeout = 0;
-      this.scrollPromise.resolve!();
+      this.scrollPromise!.resolve();
       // animationIntersector.checkAnimations(false, group);
     }, 150);
   };
@@ -80,7 +80,7 @@ export default class GifsMasonry {
 
     const load = () => {
       const docId = div.dataset.docId;
-      const promise = Promise.all([this.managers.appDocsManager!.getDoc(docId!), this.scrollPromise]).then(async([doc]) => {
+      const promise = Promise.all([this.managers.appDocsManager.getDoc(docId!), this.scrollPromise]).then(async([doc]) => {
         if(!this.lazyLoadQueue.intersector.isVisible(div)) {
           this.processInvisibleDiv(div);
           return;
@@ -126,7 +126,7 @@ export default class GifsMasonry {
   }
 
   public processInvisibleDiv = (div: HTMLElement) => {
-    return this.scrollPromise.then(async() => {
+    return this.scrollPromise?.then(async() => {
       // return;
 
       if(this.lazyLoadQueue.intersector.isVisible(div)) {
@@ -186,7 +186,7 @@ export default class GifsMasonry {
 
     wrapVideo({
       doc,
-      container: div as HTMLDivElement,
+      container: div,
       lazyLoadQueue: null as unknown as LazyLoadQueue,
       noInfo: true,
       onlyPreview: true,

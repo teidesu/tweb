@@ -172,7 +172,7 @@ export function formatFullSentTime(timestamp: number, capitalize = true, noToday
   });
 
   const fragment = document.createDocumentFragment();
-  fragment.append(dateEl, ' ', i18n('ScheduleController.at')!, ' ', timeEl!);
+  fragment.append(dateEl, ' ', i18n('ScheduleController.at'), ' ', timeEl!);
   return fragment;
 }
 

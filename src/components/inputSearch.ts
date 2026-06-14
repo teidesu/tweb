@@ -8,6 +8,7 @@ import InputField from '@components/inputField';
 import ProgressivePreloader from '@components/preloader';
 import SetTransition from '@components/singleTransition';
 import classNames from '@helpers/string/classNames';
+import {isTruthy} from '../helpers/isTruthy';
 
 export default class InputSearch {
   public container: HTMLElement;
@@ -94,7 +95,7 @@ export default class InputSearch {
     attachClickEvent(clearBtn, this.onClearClick, {listenerSetter: this.listenerSetter, cancelMouseDown: true});
 
     if(options.placeholder) {
-      (input as HTMLInputElement).placeholder = ' ';
+      (input).placeholder = ' ';
       this.setPlaceholder(options.placeholder);
     }
 
@@ -193,7 +194,7 @@ export default class InputSearch {
     this.currentPlaceholder.classList.add(...([
       'input-search-placeholder',
       !this.noPlaceholderAnimation && 'will-animate'
-    ].filter(Boolean) as string[]));
+    ].filter(isTruthy)));
     this.container.append(this.currentPlaceholder);
   };
 

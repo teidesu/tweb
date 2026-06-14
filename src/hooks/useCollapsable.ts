@@ -59,7 +59,7 @@ export function useCollapsable(props: {
     cancelAnimationByKey(props.container());
   };
 
-  let animation: CancellablePromise<void> | undefined, animationOpening: boolean;
+  let animation: Promise<void> | undefined, animationOpening: boolean;
   const onScrolled = () => {
     return;
 
@@ -85,7 +85,7 @@ export function useCollapsable(props: {
       }
 
       if(isWheel) {
-        const type = classifier.push(e as WheelEvent);
+        const type = classifier.push(e);
         if(type === 'inertia') {
           return;
         }

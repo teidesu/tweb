@@ -136,7 +136,7 @@ export class Authorizer {
     header.storeLong(this.timeManager.generateId(), 'msg_id');
     header.storeInt(requestLength, 'request_length');
 
-    const headerArray = header.getBytes(true) as Uint8Array;
+    const headerArray = header.getBytes(true);
     const resultArray = new Uint8Array(headerArray.byteLength + requestLength);
     resultArray.set(headerArray);
     resultArray.set(requestArray, headerArray.length);
@@ -541,7 +541,7 @@ export class Authorizer {
     try {
       var authKey = await CryptoWorker.invokeCrypto('mod-pow', auth.gA!, auth.b, auth.dhPrime!);
     } catch(err) {
-      throw authKey!;
+      throw new Error('mod-pow error', {cause: err});
     }
 
     const authKeyHash = await CryptoWorker.invokeCrypto('sha1', authKey),
@@ -590,7 +590,7 @@ export class Authorizer {
       }
     }
 
-    return auth as AuthOptions;
+    return auth;
   }
 
   private getTransportType = () => {
@@ -639,7 +639,7 @@ export class Authorizer {
 
   public auth(dcId: DcId, temp: boolean) {
     const key = `${dcId}_${temp}` as const;
-    return this.cached[key]! ??= (this._auth(dcId, temp) as Promise<AuthOptions>).catch((err) => {
+    return this.cached[key] ??= (this._auth(dcId, temp) as Promise<AuthOptions>).catch((err) => {
       delete this.cached[key];
       throw err;
     });

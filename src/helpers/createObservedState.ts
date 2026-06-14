@@ -33,7 +33,7 @@ export function wrapObject(obj: any, observing: ObserveMethodsOptions, stateProx
   if(!obj || typeof(obj) !== 'object') return obj;
 
   // Не переоборачивать, если уже проксирован
-  if((obj as any).__wrapped) return obj;
+  if((obj).__wrapped) return obj;
   const wrappers = new Map<string | symbol, Function>();
 
   const proxy = new Proxy(obj, {
@@ -124,8 +124,8 @@ export default function createObservedState<T extends object>(
 
   // первичная обёртка history (если нужно сразу)
   for(const key in observe) {
-    observe[key as string].key = key;
-    (state as any)[key] = wrapObject((state as any)[key], observe[key as string], stateProxy);
+    observe[key].key = key;
+    (state as any)[key] = wrapObject((state as any)[key], observe[key], stateProxy);
   }
 
   return stateProxy as T;

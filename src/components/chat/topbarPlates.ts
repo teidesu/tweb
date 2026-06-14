@@ -18,6 +18,7 @@ import createChatLivePlate, {ChatLivePlate} from '@components/chat/topbarLive/co
 import createChatTranslationPlate, {ChatTranslationPlate} from '@components/chat/translation';
 import createChatSponsoredPlate, {ChatSponsoredPlate} from '@components/chat/topbarSponsored';
 import {TopbarPlateController} from '@components/chat/topbarPlate';
+import {isTruthy} from '../../helpers/isTruthy';
 
 export type TopbarPlates = {
   requests: ChatRequestsPlate,
@@ -46,7 +47,7 @@ export function createTopbarPlates(
   const sponsored = createChatSponsoredPlate(topbar, chat, managers);
 
   // Order matches the visual stack inside `floatingPlatesWrapper`.
-  const all = [requests, actions, live, translation, removeFee, sponsored].filter(Boolean);
+  const all = [requests, actions, live, translation, removeFee, sponsored].filter(isTruthy);
 
   return {
     requests,
@@ -55,8 +56,8 @@ export function createTopbarPlates(
     live,
     translation,
     sponsored,
-    all: (all! as TopbarPlateController[]),
-    mount: (host) => host.append(...all.map((plate) => plate!.container)),
-    destroy: () => all.forEach((plate) => plate!.destroy())
+    all: (all as TopbarPlateController[]),
+    mount: (host) => host.append(...all.map((plate) => plate.container)),
+    destroy: () => all.forEach((plate) => plate.destroy())
   };
 }

@@ -183,13 +183,13 @@ export default class THandle {
     }
 
     if(tp === 'start') {
-      x2 = state!.x2;
-      x1 = Math.min(Math.max(_x1 + per, state!.xg1!), x2! - this.minRange!);
+      x2 = state!.x2!;
+      x1 = Math.min(Math.max(_x1 + per, state!.xg1!), x2 - this.minRange!);
     }
 
     if(tp === 'end') {
-      x1 = state!.x1;
-      x2 = Math.max(Math.min(_x2 + per, state!.xg2!), x1! + this.minRange!);
+      x1 = state!.x1!;
+      x2 = Math.max(Math.min(_x2 + per, state!.xg2!), x1 + this.minRange!);
     }
 
     if(state!.x1 === x1 && state!.x2 === x2) return;

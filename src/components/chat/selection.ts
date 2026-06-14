@@ -39,6 +39,7 @@ import confirmationPopup from '@components/confirmationPopup';
 import {makeFullMid} from '@components/chat/bubbles';
 import {ChatType} from './chatType';
 import ChatInputPlate from '@components/chat/controlPlate';
+import {isTruthy} from '../../helpers/isTruthy';
 
 const accumulateMapSet = (map: Map<any, Set<number>>) => {
   return [...map.values()].reduce((acc, v) => acc + v.size, 0);
@@ -203,7 +204,7 @@ export class AppSelection extends EventListenerBase<{
       if((selecting && !isSelected) || (!selecting && isSelected)) {
         if((this.toggleByElement as unknown as boolean | undefined) && checkBetween) {
           if(accumulateMapSet(seen) < 2) {
-            if(findUpAsChild((element! as { parentElement: HTMLElement; }), firstTarget)) {
+            if(findUpAsChild((element as { parentElement: HTMLElement; }), firstTarget)) {
               firstTarget = element;
             }
           }
@@ -274,7 +275,7 @@ export class AppSelection extends EventListenerBase<{
     this.listenerSetter.add(document)('mouseup', onMouseUp, documentListenerOptions);
   };
 
-  private getElementsBetween = (first: HTMLElement, last: HTMLElement) => {
+  private getElementsBetween = (first: HTMLElement, last: HTMLElement): HTMLElement[] => {
     if(first === last) {
       return [];
     }
@@ -289,7 +290,7 @@ export class AppSelection extends EventListenerBase<{
       return [];
     }
 
-    const elements = Array.from(parent.querySelectorAll(this.lookupBetweenElementsQuery)) as HTMLElement[];
+    const elements = Array.from(parent.querySelectorAll(this.lookupBetweenElementsQuery));
     let firstIndex = elements.indexOf(first);
     let lastIndex = elements.indexOf(last);
 
@@ -301,7 +302,7 @@ export class AppSelection extends EventListenerBase<{
 
     // console.log('getElementsBetween', first, last, slice, firstIndex, lastIndex, isHigher);
 
-    return slice;
+    return slice as HTMLElement[];
   };
 
   protected isElementShouldBeSelected(element: HTMLElement) {
@@ -361,7 +362,7 @@ export class AppSelection extends EventListenerBase<{
 
     for(const [peerId, mids] of this.selectedMids) {
       const storageKey = this.getStorageKey(peerId);
-      const r = await this.managers.appMessagesManager!.cantForwardDeleteMids(storageKey, Array.from(mids));
+      const r = await this.managers.appMessagesManager.cantForwardDeleteMids(storageKey, Array.from(mids));
       cantForward ||= r.cantForward;
       cantDelete ||= r.cantDelete;
 
@@ -383,7 +384,7 @@ export class AppSelection extends EventListenerBase<{
     const selectedMessagesPromises: Promise<Message.message | Message.messageService>[] = [];
     this.selectedMids.forEach((mids, peerId) => {
       const storageKey = this.getStorageKey(peerId);
-      const p = Array.from(mids).map((mid) => this.managers.appMessagesManager!.getMessageFromStorage(storageKey, mid));
+      const p = Array.from(mids).map((mid) => this.managers.appMessagesManager.getMessageFromStorage(storageKey, mid));
       selectedMessagesPromises.push(...p as Promise<Message.message | Message.messageService>[]);
     });
     return Promise.all(selectedMessagesPromises);
@@ -590,6 +591,7 @@ export class SearchSelection extends AppSelection {
     const ret = super.toggleSelection(toggleCheckboxes, forceSelection);
 
     if(ret && toggleCheckboxes) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       const elements = Array.from(this.searchSuper.tabsContainer.querySelectorAll('.search-super-item')) as HTMLElement[];
       elements.forEach((element) => {
         this.toggleElementCheckbox(element, this.isSelecting);
@@ -617,7 +619,7 @@ export class SearchSelection extends AppSelection {
 
   protected onUpdateContainer = (cantForward: boolean, cantDelete: boolean) => {
     const length = this.length();
-    replaceContent(this.selectionCountEl, i18n('messages', [length])!);
+    replaceContent(this.selectionCountEl, i18n('messages', [length]));
     this.selectionGotoBtn.classList.toggle('hide', length !== 1);
     this.selectionForwardBtn.classList.toggle('hide', cantForward);
     this.selectionDeleteBtn && this.selectionDeleteBtn.classList.toggle('hide', cantDelete);
@@ -709,7 +711,7 @@ export class SearchSelection extends AppSelection {
           this.selectionGotoBtn,
           this.selectionForwardBtn,
           this.selectionDeleteBtn
-        ].filter(Boolean) as HTMLElement[]));
+        ].filter(isTruthy)));
 
         const transitionElement = this.selectionContainer;
         transitionElement.style.opacity = '0';
@@ -1024,7 +1026,7 @@ export default class ChatSelection extends AppSelection {
 
   protected onUpdateContainer = (cantForward: boolean, cantDelete: boolean, cantSend: boolean) => {
     this.cantDeleteSelected = cantDelete;
-    replaceContent(this.selectionCountEl, i18n('messages', [this.length()])!);
+    replaceContent(this.selectionCountEl, i18n('messages', [this.length()]));
     this.selectionSendNowBtn?.toggleAttribute('disabled', cantSend);
     this.selectionForwardBtn?.toggleAttribute('disabled', cantForward);
     this.selectionDeleteBtn?.toggleAttribute('disabled', cantDelete);

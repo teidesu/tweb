@@ -10,6 +10,7 @@ import {Document, Photo, WebPage} from '@layer';
 import safeReplaceObject from '@helpers/object/safeReplaceObject';
 import {AppManager} from '@appManagers/manager';
 import findAndSplice from '@helpers/array/findAndSplice';
+import {isTruthy} from '../../helpers/isTruthy';
 
 const photoTypeSet = new Set(['photo', 'video', 'gif', 'document']);
 
@@ -101,11 +102,11 @@ export class AppWebPagesManager extends AppManager {
       if(cachedPage) {
         cachedPage.photos = cachedPage.photos?.map((photo) => {
           return this.appPhotosManager.savePhoto(photo, mediaContext);
-        }).filter(Boolean) as Photo[];
+        }).filter(isTruthy);
 
         cachedPage.documents = cachedPage.documents?.map((doc) => {
           return this.appDocsManager.saveDoc(doc, mediaContext);
-        }).filter(Boolean) as Document[];
+        }).filter(isTruthy);
 
         if(apiWebPage.photo) {
           findAndSplice(cachedPage.photos, (photo) => photo.id === apiWebPage.photo!.id);

@@ -28,7 +28,7 @@ export default class OverlayClickHandler extends EventListenerBase<{
 
     if(this.element) {
       const isRoot = this.element === document.body;
-      if(!isRoot && findUpAsChild(((e.target as HTMLElement)! as { parentElement: HTMLElement; }), this.element)) {
+      if(!isRoot && findUpAsChild(((e.target as HTMLElement) as { parentElement: HTMLElement; }), this.element)) {
         return;
       }
     }

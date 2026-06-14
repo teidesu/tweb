@@ -409,7 +409,7 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
       lastDay.setHours(23, 59, 59, 999);
 
       try {
-        const result = await rootScope.managers.appMessagesManager!.getSearchResultsCalendar({
+        const result = await rootScope.managers.appMessagesManager.getSearchResultsCalendar({
           peerId: opts.peerId,
           threadId: opts.threadId,
           filter: {_: opts.mediaFilter || 'inputMessagesFilterPhotoVideo'} as MessagesFilter,
@@ -489,7 +489,7 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
       const out: Array<{name: string, weekend: boolean}> = [];
       for(let i = 0; i < 7; ++i) {
         out.push({
-          name: new I18n.IntlDateElement({date: cursor, options: {weekday: 'narrow'}}).element!.textContent,
+          name: new I18n.IntlDateElement({date: cursor, options: {weekday: 'narrow'}}).element.textContent,
           weekend: isWeekend(cursor)
         });
         cursor.setDate(cursor.getDate() + 1);
@@ -531,13 +531,13 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
         if(sendDate.getFullYear() !== today.getFullYear()) {
           dateOptions.year = 'numeric';
         }
-        args.push(new I18n.IntlDateElement({date: sendDate, options: dateOptions}).element!);
+        args.push(new I18n.IntlDateElement({date: sendDate, options: dateOptions}).element);
       }
 
       args.push(new I18n.IntlDateElement({
         date: sendDate,
         options: {minute: '2-digit', hour: '2-digit'}
-      }).element!);
+      }).element);
 
       return i18n(key, args);
     });
@@ -859,7 +859,7 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
             suggestPostStyles.center,
             !isMinTimeCaptionVisible() && 'hide'
           )}>
-            {i18n(opts.minSendDateLangKey ?? 'SuggestedPosts.PublishingTime.MinSendTime', [formatTime(opts.minTimeDate!)!])}
+            {i18n(opts.minSendDateLangKey ?? 'SuggestedPosts.PublishingTime.MinSendTime', [formatTime(opts.minTimeDate!)])}
           </div>
         </Show>
 

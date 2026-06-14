@@ -543,7 +543,7 @@ export default class Chat extends EventListenerBase<{
           // reveal (it'll fire late via `bubblesRevealCalled`); apply theme inline so bubbles
           // mount against the new vars even before the wallpaper fades in.
           themeOwnedByCallbacks = true;
-          deferred.resolve!(applyTheme);
+          deferred.resolve(applyTheme);
         }
       }, deferRevealCb);
 
@@ -551,7 +551,7 @@ export default class Chat extends EventListenerBase<{
         if(!deferred.isFulfilled) {
           // Cached path: wallpaper fully staged. `applyTheme` is bundled into the reveal —
           // resolve with `noop` so `callbacks.forEach` doesn't apply it ahead of the slot flip.
-          deferred.resolve!(noop);
+          deferred.resolve(noop);
         } else {
           // Subsequent publishes (night toggle, peer details change): canvas
           // already settled, just apply theme inline now that it's painted.
@@ -729,9 +729,9 @@ export default class Chat extends EventListenerBase<{
           isAnonymousSending,
           canManageDirectMessages
         } = await namedPromises({
-          starsAmount: this.managers.appChatsManager!.getStarsAmount(chatId),
-          isAnonymousSending: this.managers.appMessagesManager!.isAnonymousSending(peerId),
-          canManageDirectMessages: this.managers.appPeersManager!.canManageDirectMessages(peerId)
+          starsAmount: this.managers.appChatsManager.getStarsAmount(chatId),
+          isAnonymousSending: this.managers.appMessagesManager.isAnonymousSending(peerId),
+          canManageDirectMessages: this.managers.appPeersManager.canManageDirectMessages(peerId)
         });
 
         if(peerId === this.peerId) {
@@ -888,7 +888,7 @@ export default class Chat extends EventListenerBase<{
   public destroy() {
     // const perf = performance.now();
 
-    this.destroyPromise?.resolve!();
+    this.destroyPromise?.resolve();
     this.destroySharedMediaTab();
     this.topbar?.destroy();
     this.bubbles?.destroy();
@@ -969,25 +969,25 @@ export default class Chat extends EventListenerBase<{
       chat,
       canManageDirectMessages
     } = await m(namedPromises({
-      noForwards: this.managers.appPeersManager!.noForwards(peerId),
-      isRestricted: this.managers.appPeersManager!.isPeerRestricted(peerId),
+      noForwards: this.managers.appPeersManager.noForwards(peerId),
+      isRestricted: this.managers.appPeersManager.isPeerRestricted(peerId),
       isLikeGroup: this._isLikeGroup(peerId),
-      isRealGroup: this.managers.appPeersManager!.isAnyGroup(peerId),
-      isMegagroup: this.managers.appPeersManager!.isMegagroup(peerId),
-      isBroadcast: this.managers.appPeersManager!.isBroadcast(peerId),
-      isChannel: this.managers.appPeersManager!.isChannel(peerId),
-      isBot: this.managers.appPeersManager!.isBot(peerId),
-      isAnonymousSending: this.managers.appMessagesManager!.isAnonymousSending(peerId),
-      isUserBlocked: peerId.isUser() && this.managers.appProfileManager!.isCachedUserBlocked(peerId),
+      isRealGroup: this.managers.appPeersManager.isAnyGroup(peerId),
+      isMegagroup: this.managers.appPeersManager.isMegagroup(peerId),
+      isBroadcast: this.managers.appPeersManager.isBroadcast(peerId),
+      isChannel: this.managers.appPeersManager.isChannel(peerId),
+      isBot: this.managers.appPeersManager.isBot(peerId),
+      isAnonymousSending: this.managers.appMessagesManager.isAnonymousSending(peerId),
+      isUserBlocked: peerId.isUser() && this.managers.appProfileManager.isCachedUserBlocked(peerId),
       isPremiumRequired: this.isPremiumRequiredToContact(peerId),
-      starsAmount: this.managers.acknowledged!.appPeersManager!.getStarsAmount(peerId),
+      starsAmount: this.managers.acknowledged.appPeersManager.getStarsAmount(peerId),
       chat: peerId.isAnyChat() && this.peer as MTChat,
-      canManageDirectMessages: this.managers.appPeersManager!.canManageDirectMessages(peerId)
+      canManageDirectMessages: this.managers.appPeersManager.canManageDirectMessages(peerId)
     }, this.log));
 
     // ! WARNING: TEMPORARY, HAVE TO GET TOPIC
     if(isForum && threadId) {
-      await m(this.managers.dialogsStorage!.getForumTopicOrReload(peerId, threadId));
+      await m(this.managers.dialogsStorage.getForumTopicOrReload(peerId, threadId));
     }
 
     this.noForwards = noForwards;
@@ -1193,9 +1193,9 @@ export default class Chat extends EventListenerBase<{
       this.historyStorage = useHistoryStorage(key);
       this.historyStorageNoThreadId = useHistoryStorage(keyNoThreadId);
 
-      this.managers.appMessagesManager!.toggleHistoryKeySubscription(key, true);
+      this.managers.appMessagesManager.toggleHistoryKeySubscription(key, true);
       onCleanup(() => {
-        this.managers.appMessagesManager!.toggleHistoryKeySubscription(key, false);
+        this.managers.appMessagesManager.toggleHistoryKeySubscription(key, false);
       });
 
       return dispose;
@@ -1309,7 +1309,7 @@ export default class Chat extends EventListenerBase<{
   }
 
   public async getMidsByMid(peerId: PeerId, mid: number) {
-    return this.managers.appMessagesManager!.getMidsByMessage(this.getMessageByPeer(peerId, mid)!);
+    return this.managers.appMessagesManager.getMidsByMessage(this.getMessageByPeer(peerId, mid)!);
   }
 
   public getHistoryStorage(ignoreThreadId?: boolean) {
@@ -1333,7 +1333,7 @@ export default class Chat extends EventListenerBase<{
   }
 
   public getDialogOrTopic() {
-    return this.managers.dialogsStorage!.getAnyDialog(this.peerId, (((this.isForum || this.type === ChatType.Saved) && this.threadId)! as number | undefined));
+    return this.managers.dialogsStorage.getAnyDialog(this.peerId, (((this.isForum || this.type === ChatType.Saved) && this.threadId) as number | undefined));
   }
 
   public getHistoryMaxId() {
@@ -1348,8 +1348,8 @@ export default class Chat extends EventListenerBase<{
     if(this.type === ChatType.Logs) return true;
 
     const {isBotforum, isLikeGroup} = await namedPromises({
-      isLikeGroup: this.managers.appPeersManager!.isLikeGroup(peerId),
-      isBotforum: this.managers.appPeersManager!.isBotforum(peerId)
+      isLikeGroup: this.managers.appPeersManager.isLikeGroup(peerId),
+      isBotforum: this.managers.appPeersManager.isBotforum(peerId)
     });
 
     return !isBotforum && isLikeGroup;
@@ -1371,16 +1371,16 @@ export default class Chat extends EventListenerBase<{
       return Promise.resolve(false);
     }
 
-    return this.managers.appMessagesManager!.canSendToPeer(this.peerId, this.threadId, action);
+    return this.managers.appMessagesManager.canSendToPeer(this.peerId, this.threadId, action);
   }
 
   public isStartButtonNeeded() {
     return Promise.all([
-      this.managers.appPeersManager!.isBot(this.peerId),
-      this.managers.appMessagesManager!.getDialogOnly(this.peerId),
+      this.managers.appPeersManager.isBot(this.peerId),
+      this.managers.appMessagesManager.getDialogOnly(this.peerId),
       this.getHistoryStorage(true),
-      this.peerId.isUser() ? this.managers.appProfileManager!.isCachedUserBlocked(this.peerId.toUserId()) : undefined,
-      this.managers.appPeersManager!.isBotforum(this.peerId)
+      this.peerId.isUser() ? this.managers.appProfileManager.isCachedUserBlocked(this.peerId.toUserId()) : undefined,
+      this.managers.appPeersManager.isBotforum(this.peerId)
     ]).then(([isBot, dialog, historyStorage, isUserBlocked, isBotforum]) => {
       if(!isBot || isVerificationBot(this.peerId) || isBotforum) {
         return false;
@@ -1395,7 +1395,7 @@ export default class Chat extends EventListenerBase<{
       return Promise.resolve(false);
     }
 
-    return this.managers.appUsersManager!.getRequirementToContact(peerId.toUserId(), true)
+    return this.managers.appUsersManager.getRequirementToContact(peerId.toUserId(), true)
     .then((requirement) => requirement?._ === 'requirementToContactPremium');
   }
 
@@ -1491,7 +1491,7 @@ export default class Chat extends EventListenerBase<{
     }
 
     const [canGiftPremium, isPremiumPurchaseBlocked] = await Promise.all([
-      this.managers.appProfileManager!.canGiftPremium(this.peerId.toUserId()),
+      this.managers.appProfileManager.canGiftPremium(this.peerId.toUserId()),
       apiManagerProxy.isPremiumPurchaseBlocked()
     ]);
 
@@ -1567,7 +1567,7 @@ export default class Chat extends EventListenerBase<{
       pending.sendTimeout = window.setTimeout(() => {
         const count = pending.count();
         pending.abortController.abort(PENDING_PAID_REACTION_SENT_ABORT_REASON);
-        this.managers.appReactionsManager!.sendReaction({
+        this.managers.appReactionsManager.sendReaction({
           ...options,
           count
         });
@@ -1586,7 +1586,7 @@ export default class Chat extends EventListenerBase<{
       }
     }
 
-    const messageReactions = await this.managers.appReactionsManager!.sendReaction({
+    const messageReactions = await this.managers.appReactionsManager.sendReaction({
       ...options,
       count: isPaidReaction ? 0 : count,
       onlyReturn: isPaidReaction
@@ -1611,19 +1611,19 @@ export default class Chat extends EventListenerBase<{
 
   public async getAutoDeletePeriod(): Promise<AckedResult<number>> {
     try {
-      const dialog = await this.managers.dialogsStorage!.getDialogOnly(this.peerId);
+      const dialog = await this.managers.dialogsStorage.getDialogOnly(this.peerId);
       if(dialog) return {
         cached: true,
-        result: (Promise.resolve(dialog.ttl_period)! as Promise<number>)
+        result: (Promise.resolve(dialog.ttl_period) as Promise<number>)
       };
 
       const fullPeer = this.peerId.isUser() ?
-        await this.managers.acknowledged!.appProfileManager!.getProfile(this.peerId.toUserId()) :
-        await this.managers.acknowledged!.appProfileManager!.getChatFull(this.peerId.toChatId());
+        await this.managers.acknowledged.appProfileManager.getProfile(this.peerId.toUserId()) :
+        await this.managers.acknowledged.appProfileManager.getChatFull(this.peerId.toChatId());
 
       return {
         cached: fullPeer.cached,
-        result: (fullPeer.result.then((fullPeer) => fullPeer.ttl_period)! as Promise<number>)
+        result: (fullPeer.result.then((fullPeer) => fullPeer.ttl_period) as Promise<number>)
       }
     } catch{
       return {
@@ -1647,7 +1647,7 @@ export default class Chat extends EventListenerBase<{
       descriptionLangKey: this.isBroadcast ? 'AutoDeleteMessages.InfoChannel' : 'AutoDeleteMessages.InfoChat',
       period: autoDeletePeriod,
       onFinish: (period) => {
-        this.managers.appPrivacyManager!.setAutoDeletePeriodFor(this.peerId, period);
+        this.managers.appPrivacyManager.setAutoDeletePeriodFor(this.peerId, period);
       }
     }).show();
   }
@@ -1659,8 +1659,8 @@ export default class Chat extends EventListenerBase<{
     if(this.peerId.isUser()) return true;
 
     const {chat, isMonoforum}  = await namedPromises({
-      chat: this.managers.appChatsManager!.getChat(this.peerId.toChatId()),
-      isMonoforum: this.managers.appChatsManager!.isMonoforum(this.peerId.toChatId())
+      chat: this.managers.appChatsManager.getChat(this.peerId.toChatId()),
+      isMonoforum: this.managers.appChatsManager.isMonoforum(this.peerId.toChatId())
     });
 
     return !isMonoforum && hasRights(chat, 'change_info');

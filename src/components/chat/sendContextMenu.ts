@@ -120,7 +120,7 @@ export default class SendMenu {
                 return;
               }
 
-              const availableEffects = await rootScope.managers.appReactionsManager!.getAvailableEffects();
+              const availableEffects = await rootScope.managers.appReactionsManager.getAvailableEffects();
               const availableEffect = availableEffects.find((effect) => effect.effect_sticker_id === stickerDocId);
               this.options.onEffect!(availableEffect!.id);
             },

@@ -20,7 +20,7 @@ export default class PopupDeleteDialog {
   private async construct() {
     let {peerId, peerType, onSelect, threadId, monoforumParentPeerId} = this;
 
-    const isSavedDialog = await rootScope.managers.appPeersManager!.isSavedDialog(peerId, threadId);
+    const isSavedDialog = await rootScope.managers.appPeersManager.isSavedDialog(peerId, threadId);
     // if(isSavedDialog) {
     //   peerId = threadId;
     // }
@@ -33,7 +33,7 @@ export default class PopupDeleteDialog {
 
     const managers = PopupElement.MANAGERS;
     if(peerType === undefined) {
-      peerType = await managers.appPeersManager!.getDialogType(monoforumParentPeerId || peerId, monoforumParentPeerId ? peerId : threadId);
+      peerType = await managers.appPeersManager.getDialogType(monoforumParentPeerId || peerId, monoforumParentPeerId ? peerId : threadId);
     }
 
     /* const callbackFlush = (checked: PopupPeerButtonCallbackCheckboxes) => {
@@ -42,11 +42,11 @@ export default class PopupDeleteDialog {
     }; */
 
     const callbackLeave = (e: MouseEvent, checked: PopupPeerButtonCallbackCheckboxes, flush = checkboxes && !!checked.size) => {
-      let promise = managers.appChatsManager!.leave(peerId.toChatId());
+      let promise = managers.appChatsManager.leave(peerId.toChatId());
 
       if(flush) {
         promise = promise.then(() => {
-          return managers.appMessagesManager!.flushHistory({peerId});
+          return managers.appMessagesManager.flushHistory({peerId});
         }) as any;
       }
 
@@ -57,16 +57,16 @@ export default class PopupDeleteDialog {
       let promise: Promise<any>;
 
       if(monoforumParentPeerId) {
-        promise = managers.appMessagesManager!.flushHistory({peerId: monoforumParentPeerId, justClear: false, revoke: true, monoforumThreadId: peerId});
+        promise = managers.appMessagesManager.flushHistory({peerId: monoforumParentPeerId, justClear: false, revoke: true, monoforumThreadId: peerId});
       } else if(isSavedDialog) {
-        promise = managers.appMessagesManager!.flushHistory({peerId, justClear: false, revoke: true, threadOrSavedId: threadId});
+        promise = managers.appMessagesManager.flushHistory({peerId, justClear: false, revoke: true, threadOrSavedId: threadId});
       } else if(threadId) {
-        promise = managers.appMessagesManager!.flushHistory({peerId, justClear: false, revoke: true, threadOrSavedId: threadId});
+        promise = managers.appMessagesManager.flushHistory({peerId, justClear: false, revoke: true, threadOrSavedId: threadId});
       } else if(peerId.isUser()) {
-        promise = managers.appMessagesManager!.flushHistory({peerId, justClear: false, revoke: checkboxes ? !!checked.size : undefined});
+        promise = managers.appMessagesManager.flushHistory({peerId, justClear: false, revoke: checkboxes ? !!checked.size : undefined});
       } else {
         if(checked.size) {
-          promise = managers.appChatsManager!.delete(peerId.toChatId());
+          promise = managers.appChatsManager.delete(peerId.toChatId());
         } else {
           return callbackLeave(e, checked);
         }
@@ -83,7 +83,7 @@ export default class PopupDeleteDialog {
       checkboxes: PopupPeerOptions['checkboxes'];
     switch(peerType) {
       case 'channel': {
-        if(/* actionType === 'delete' &&  */await managers.appChatsManager!.hasRights(peerId.toChatId(), 'delete_chat')) {
+        if(/* actionType === 'delete' &&  */await managers.appChatsManager.hasRights(peerId.toChatId(), 'delete_chat')) {
           title = 'ChannelDeleteMenu';
           description = 'AreYouSureDeleteAndExitChannel';
           buttons = [{
@@ -204,7 +204,7 @@ export default class PopupDeleteDialog {
             isDanger: true,
             callback: callbackDelete as PopupPeerButtonCallback
           }];
-        } else if(/* actionType === 'delete' &&  */await managers.appChatsManager!.hasRights(peerId.toChatId(), 'delete_chat')) {
+        } else if(/* actionType === 'delete' &&  */await managers.appChatsManager.hasRights(peerId.toChatId(), 'delete_chat')) {
           title = 'DeleteMegaMenu';
           description = 'AreYouSureDeleteAndExit';
           buttons = [{

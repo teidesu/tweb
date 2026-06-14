@@ -466,7 +466,7 @@ class IDBStorage<T extends Database<any>, StoreName extends string = T['stores']
 
     const callbackResult = callback(transaction.objectStore(storeName), onComplete, onError);
     const isArray = Array.isArray(callbackResult);
-    const requests: IDBRequest[] = isArray ? callbackResult as IDBRequest[] : ([] as IDBRequest[]).concat(callbackResult as IDBRequest);
+    const requests: IDBRequest[] = isArray ? callbackResult : ([] as IDBRequest[]).concat(callbackResult);
 
     if(waitForTransactionComplete) {
       return promise;

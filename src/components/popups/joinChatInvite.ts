@@ -17,7 +17,7 @@ import PopupPeer from '@components/popups/peer';
 
 const getJoinLangKey = (chatInvite: ChatInvite.chatInvite | ChatInvite.chatInvitePeek): LangPackKey => {
   if(chatInvite._ === 'chatInvitePeek') {
-    const chat = (chatInvite as ChatInvite.chatInvitePeek).chat as Chat.channel | Chat.chat;
+    const chat = (chatInvite).chat as Chat.channel | Chat.chat;
     return (chat as Chat.channel).pFlags.broadcast ? 'JoinByPeekChannelTitle' : 'JoinByPeekGroupTitle';
   }
 
@@ -125,7 +125,7 @@ export default class PopupJoinChatInvite extends PopupPeer {
   }
 
   public static import(hash: string) {
-    rootScope.managers.appChatInvitesManager!.importChatInvite(hash)
+    rootScope.managers.appChatInvitesManager.importChatInvite(hash)
     .then((chatId) => {
       this.openChat(chatId);
     }, (error) => {
@@ -138,7 +138,7 @@ export default class PopupJoinChatInvite extends PopupPeer {
   public static async open(hash: string, chatInvite: ChatInvite) {
     if(chatInvite._ === 'chatInviteAlready') {
       // load missing chat
-      await rootScope.managers.appChatInvitesManager!.checkChatInvite(hash);
+      await rootScope.managers.appChatInvitesManager.checkChatInvite(hash);
       this.openChat(chatInvite.chat.id);
     } else if(chatInvite._ === 'chatInvitePeek') {
       this.openChat(chatInvite.chat.id);
@@ -177,7 +177,7 @@ export default class PopupJoinChatInvite extends PopupPeer {
 
     const isBroadcast = chatInvite.pFlags.broadcast;
     const peopleCount = i18n(isBroadcast ? 'Subscribers' : 'Members', [numberThousandSplitter(chatInvite.participants_count)]);
-    peopleCount!.classList.add('chat-participants-count');
+    peopleCount.classList.add('chat-participants-count');
 
     this.body.append(...[avatarElem.node, title, peopleCount, this.description].filter(Boolean) as (string | Node)[]);
 

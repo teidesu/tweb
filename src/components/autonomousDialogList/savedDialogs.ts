@@ -60,6 +60,6 @@ export class AutonomousSavedDialogList extends AutonomousDialogListBase<SavedDia
   }
 
   public getDialogFromElement(element: HTMLElement) {
-    return rootScope.managers.dialogsStorage!.getAnyDialog(element.dataset.peerId!.toPeerId(), element.dataset.threadId!.toPeerId()) as Promise<SavedDialog>;
+    return rootScope.managers.dialogsStorage.getAnyDialog(element.dataset.peerId!.toPeerId(), element.dataset.threadId!.toPeerId()) as Promise<SavedDialog>;
   }
 }

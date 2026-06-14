@@ -611,7 +611,7 @@ export default class MTPNetworker {
     this.lastPingDelayDisconnectId = undefined;
 
     if(deferred) {
-      deferred.reject!();
+      deferred.reject();
     }
   }
 
@@ -649,7 +649,7 @@ export default class MTPNetworker {
 
     const log = this.log.bindPrefix('sendPingDelayDisconnect');
     log.debug(`ping, timeout=${timeoutTime}, lastPingTime=${this.lastPingTime}, msgId=${options.messageId}, pingId=${pingId}`);
-    const rejectTimeout = ctx.setTimeout(deferred.reject!.bind(deferred), timeoutTime);
+    const rejectTimeout = ctx.setTimeout(deferred.reject.bind(deferred), timeoutTime);
 
     const onResolved = (reason: string) => {
       clearTimeout(rejectTimeout);
@@ -896,7 +896,7 @@ export default class MTPNetworker {
           const {deferred} = sentMessage;
           delete sentMessages[msgId];
           delete this.pendingMessages[msgId];
-          shouldResolve ? deferred!.resolve!() : deferred!.reject!();
+          shouldResolve ? deferred!.resolve() : deferred!.reject();
         }
       });
     });
@@ -925,7 +925,7 @@ export default class MTPNetworker {
       options.messageId = message.msg_id;
     }
 
-    return promise!;
+    return promise;
   }
 
   public attachPromise(promise: Promise<any>, message: MTMessage) {
@@ -1981,7 +1981,7 @@ export default class MTPNetworker {
         if(this.lastPingDelayDisconnectId === pingId) {
           const deferred = this.pingDelayDisconnectDeferred;
           if(deferred) {
-            deferred.resolve!('pong');
+            deferred.resolve('pong');
           } else {
             log('ping deferred deleted', pingId);
           }

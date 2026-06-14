@@ -92,12 +92,12 @@ export default class LimitLine {
       if(options.limitFree === undefined) {
         _i18n(left, 'LimitFree');
       } else {
-        left.append(i18n('LimitFree')!, '' + options.limitFree);
+        left.append(i18n('LimitFree'), '' + options.limitFree);
       }
 
       if(options.color !== undefined) right.style.setProperty('--limit-background', options.color);
       limit.append(right);
-      right.append(i18n('LimitPremium')!, '' + options.limitPremium);
+      right.append(i18n('LimitPremium'), '' + options.limitPremium);
     }
 
     limit.append(left, right);

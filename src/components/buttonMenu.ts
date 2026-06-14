@@ -105,8 +105,8 @@ export function ButtonMenuItem(options: ButtonMenuItemOptions) {
   if(!textElement) {
     textElement = options.textElement = text ? i18n(text, options.textArgs) : document.createElement('span');
     if(options.regularText) {
-      setInnerHTML(textElement!, options.regularText);
-      textElement!.dir = '';
+      setInnerHTML(textElement, options.regularText);
+      textElement.dir = '';
     }
   }
 
@@ -141,8 +141,8 @@ export function ButtonMenuItem(options: ButtonMenuItemOptions) {
     el.append(avatar.node);
   }
 
-  textElement!.classList.add('btn-menu-item-text');
-  el.append(textElement!);
+  textElement.classList.add('btn-menu-item-text');
+  el.append(textElement);
 
   if(options.new) {
     const badge = document.createElement('span');
@@ -214,7 +214,7 @@ export function ButtonMenuItem(options: ButtonMenuItemOptions) {
   const ret: HTMLElement[] = [options.element = el];
 
   if(options.separator) {
-    ret[options.separatorDown ? 'push' : 'unshift'](options.separator as HTMLElement);
+    ret[options.separatorDown ? 'push' : 'unshift'](options.separator);
   }
 
   return ret.filter(Boolean);
@@ -268,7 +268,7 @@ export function ButtonMenuSync({listenerSetter, buttons, radioGroups}: {
           container: e.element,
           input: e.checkboxField!.input
         };
-      })! as { container: HTMLElement; input: HTMLInputElement; }[]), group.onChange);
+      }) as { container: HTMLElement; input: HTMLInputElement; }[]), group.onChange);
 
       hr.before(container);
       container.append(hr);

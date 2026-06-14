@@ -66,9 +66,9 @@ export class UsernameInputField extends InputField {
     this.error = undefined;
     let checkPromise: Promise<any>
     if(this.options.peerId) {
-      checkPromise = this.managers.appChatsManager!.checkUsername(this.options.peerId.toChatId(), username);
+      checkPromise = this.managers.appChatsManager.checkUsername(this.options.peerId.toChatId(), username);
     } else {
-      checkPromise = this.managers.appUsersManager!.checkUsername(username);
+      checkPromise = this.managers.appUsersManager.checkUsername(username);
     }
 
     const promise = this.checkUsernamePromise = checkPromise.then((available) => {

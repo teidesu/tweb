@@ -11,7 +11,7 @@ export function toastStoryPinnedToProfile(managers: AppManagers, peerId: PeerId,
   if(peerId.isUser()) {
     return toastNew({langPackKey: pin ? 'StoryPinnedToProfile' : 'StoryArchivedFromProfile'});
   } else {
-    managers.appChatsManager!.isBroadcast(peerId.toChatId()).then((isBroadcast) => {
+    managers.appChatsManager.isBroadcast(peerId.toChatId()).then((isBroadcast) => {
       let key: LangPackKey;
       if(isBroadcast) {
         key = pin ? 'StoryPinnedToChannel' : 'StoryArchivedFromChannel';
@@ -94,7 +94,7 @@ export class StoriesSelection extends AppSelection {
     if(!size && !forceSelection) return;
 
     const peerId = this.selectedMids.keys().next().value;
-    const r = await this.managers.appStoriesManager!.cantPinDeleteStories(peerId!, Array.from(this.selectedMids.get(peerId!)!));
+    const r = await this.managers.appStoriesManager.cantPinDeleteStories(peerId!, Array.from(this.selectedMids.get(peerId!)!));
     this._setCount(this.length());
     this._setCantPin(r.cantPin);
     this._setCantDelete(r.cantDelete);
@@ -104,6 +104,7 @@ export class StoriesSelection extends AppSelection {
     const ret = super.toggleSelection(toggleCheckboxes, forceSelection || this.forPicker);
 
     if(ret && toggleCheckboxes) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       const elements = Array.from(this.mainContainer.querySelectorAll('.search-super-item')) as HTMLElement[];
       elements.forEach((element) => {
         this.toggleElementCheckbox(element, this.isSelecting);
@@ -146,13 +147,13 @@ export class StoriesSelection extends AppSelection {
       }
     });
     this.cancelSelection();
-    this.managers.appStoriesManager!.deleteStories(peerId, ids);
+    this.managers.appStoriesManager.deleteStories(peerId, ids);
   };
 
   public onPinStoriesClick = (ids: number[], pin: boolean, peerId?: PeerId) => {
     peerId ??= this.getSelectedStoriesPeerId();
     ids ||= [...this.selectedMids.get(peerId)!];
-    const promise = this.managers.appStoriesManager!.togglePinned(peerId, ids, pin);
+    const promise = this.managers.appStoriesManager.togglePinned(peerId, ids, pin);
     this.cancelSelection();
     promise.then(async() => {
       if(ids.length === 1) {
@@ -162,7 +163,7 @@ export class StoriesSelection extends AppSelection {
         if(peerId.isUser()) {
           key = pin ? 'StorySavedTitle' : 'StoryArchived';
         } else {
-          const isBroadcast = await this.managers.appChatsManager!.isBroadcast(peerId.toChatId());
+          const isBroadcast = await this.managers.appChatsManager.isBroadcast(peerId.toChatId());
           if(isBroadcast) {
             key = pin ? 'StorySavedChannelTitle' : 'StoryChannelArchived';
           } else {
@@ -178,7 +179,7 @@ export class StoriesSelection extends AppSelection {
   public onPinStoriesToTopClick = (ids?: number[], pin: boolean = true, peerId?: PeerId) => {
     peerId ??= this.getSelectedStoriesPeerId();
     ids ||= [...this.selectedMids.get(peerId)!];
-    const promise = this.managers.appStoriesManager!.togglePinnedToTop(peerId, ids, pin);
+    const promise = this.managers.appStoriesManager.togglePinnedToTop(peerId, ids, pin);
     this.cancelSelection();
     promise.catch((err: ApiError) => {
       if(err.type === 'STORY_ID_TOO_MANY') {

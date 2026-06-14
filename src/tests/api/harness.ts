@@ -38,7 +38,7 @@ export async function createTestClient(opts: CreateTestClientOpts) {
     );
   }
 
-  const accountNumber = (opts.accountNumber ?? 1) as 1 | 2 | 3 | 4;
+  const accountNumber = (opts.accountNumber ?? 1);
   step('polyfills + DeferredIsUsingPasscode');
   await import('@lib/polyfill');
   await import('@helpers/peerIdPolyfill');
@@ -73,7 +73,7 @@ export async function createTestClient(opts: CreateTestClientOpts) {
   // worker normally hydrates this from the main thread; in node we seed defaults
   (stateManager as any).state = JSON.parse(JSON.stringify(STATE_INIT));
 
-  stateManager.resetStoragesPromise.resolve!({
+  stateManager.resetStoragesPromise.resolve({
     storages: new Map(),
     refetch: false,
     callback: async() => {}

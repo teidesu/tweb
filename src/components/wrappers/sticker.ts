@@ -272,10 +272,10 @@ export default async function wrapSticker({doc, div, middleware, loadStickerMidd
             div.append(thumbImage);
           }
 
-          loadThumbPromise.resolve!();
+          loadThumbPromise.resolve();
         });
       } else {
-        loadThumbPromise.resolve!();
+        loadThumbPromise.resolve();
       }
     };
 
@@ -331,10 +331,10 @@ export default async function wrapSticker({doc, div, middleware, loadStickerMidd
         // if(liteMode.isAvailable('animations') && !isCustomEmoji) path.setAttributeNS(null, 'fill', 'url(#g)');
         div.forEach((div, idx) => div.append(idx > 0 ? svg.cloneNode(true) : svg));
         haveThumbCached = true;
-        loadThumbPromise.resolve!();
+        loadThumbPromise.resolve();
       } else if(toneIndex <= 0) {
         const r = () => {
-          (div as HTMLElement[]).forEach((div) => {
+          (div).forEach((div) => {
             const thumbImage = new Image();
             const url = getPreviewURLFromThumb(doc, thumb as PhotoSize.photoStrippedSize, true);
             renderImageFromUrl(thumbImage, url, () => afterRender(div, thumbImage), useCache);
@@ -347,29 +347,29 @@ export default async function wrapSticker({doc, div, middleware, loadStickerMidd
         } else {
           haveThumbCached = true;
           webpWorkerController.convert('main-' + doc.id, thumb.bytes).then((bytes) => {
-            managers.appDocsManager!.saveWebPConvertedStrippedThumb(doc.id, bytes);
+            managers.appDocsManager.saveWebPConvertedStrippedThumb(doc.id, bytes);
             (thumb as PhotoSize.photoStrippedSize).bytes = bytes;
             doc.pFlags.stickerThumbConverted = true;
 
-            if((middleware && !middleware()) || !isEmptyContainer((div as HTMLElement[])[0])) {
-              loadThumbPromise.resolve!();
+            if((middleware && !middleware()) || !isEmptyContainer((div)[0])) {
+              loadThumbPromise.resolve();
               return;
             }
 
             r();
-          }).catch(() => loadThumbPromise.resolve!());
+          }).catch(() => loadThumbPromise.resolve());
         }
       }
     } else if(((stickerType === StickerType.Lottie && toneIndex <= 0) || stickerType === StickerType.WebM) && (withThumb || onlyThumb)) {
       const load = async() => {
-        if(!isEmptyContainer((div as HTMLElement[])[0]) || (middleware && !middleware())) {
-          loadThumbPromise.resolve!();
+        if(!isEmptyContainer((div)[0]) || (middleware && !middleware())) {
+          loadThumbPromise.resolve();
           return;
         }
 
         const r = (div: HTMLElement, thumbImage: HTMLElement, url: string) => {
           if(!isEmptyContainer(div) || (middleware && !middleware())) {
-            loadThumbPromise.resolve!();
+            loadThumbPromise.resolve();
             return;
           }
 
@@ -378,7 +378,7 @@ export default async function wrapSticker({doc, div, middleware, loadStickerMidd
         };
 
         getCacheContext();
-        (div as HTMLElement[]).forEach((div) => {
+        (div).forEach((div) => {
           if(cacheContext.url) {
             r(div, new Image(), cacheContext.url);
           } else if('bytes' in thumb) {
@@ -399,7 +399,7 @@ export default async function wrapSticker({doc, div, middleware, loadStickerMidd
 
       if(lazyLoadQueue && onlyThumb) {
         lazyLoadQueue.push({div: div[0], load});
-        loadThumbPromise.resolve!();
+        loadThumbPromise.resolve();
         return ret;
       } else {
         load();
@@ -432,7 +432,7 @@ export default async function wrapSticker({doc, div, middleware, loadStickerMidd
       }
 
       const animation = await lottieLoader.loadAnimationWorker({
-        container: (div as HTMLElement[])[0],
+        container: (div)[0],
         loop,
         autoplay: play,
         animationData: blob,
@@ -470,12 +470,12 @@ export default async function wrapSticker({doc, div, middleware, loadStickerMidd
 
       const setLockColor = willHaveLock ? () => {
         const lockUrl = locksUrls[doc.id] ??= computeLockColor(animation.canvas[0]);
-        (div as HTMLElement[]).forEach((div) => div.style.setProperty('--lock-url', `url(${lockUrl})`));
+        (div).forEach((div) => div.style.setProperty('--lock-url', `url(${lockUrl})`));
       } : undefined;
 
       const onFirstFrame = (container: HTMLElement, canvas: HTMLCanvasElement) => {
         let element = getThumbFromContainer(container);
-        element = ((element !== canvas && element as HTMLElement)! as HTMLElement);
+        element = ((element !== canvas && element) as HTMLElement);
         if(needFadeIn !== false) {
           needFadeIn = (needFadeIn || !element || element.tagName === 'svg') && liteMode.isAvailable('animations');
         }
@@ -522,14 +522,14 @@ export default async function wrapSticker({doc, div, middleware, loadStickerMidd
         }
 
         if(!isCustomEmoji) {
-          (div as HTMLElement[]).forEach((container, idx) => {
+          (div).forEach((container, idx) => {
             onFirstFrame(container, animation.canvas[idx]);
           });
         }
       }, {once: true});
 
       if(emoji) {
-        managers.appStickersManager!.preloadAnimatedEmojiStickerAnimation(emoji);
+        managers.appStickersManager.preloadAnimatedEmojiStickerAnimation(emoji);
       }
 
       return animation;
@@ -545,7 +545,7 @@ export default async function wrapSticker({doc, div, middleware, loadStickerMidd
         return cachePromise as typeof promise;
       }
 
-      const d = isSingleVideo ? (div as HTMLElement[]).slice(0, 1) : div as HTMLElement[];
+      const d = isSingleVideo ? (div).slice(0, 1) : div;
       const media: HTMLElement[] = d.map(() => {
         let media: HTMLElement;
         if(asStatic) {
@@ -584,9 +584,9 @@ export default async function wrapSticker({doc, div, middleware, loadStickerMidd
         return media;
       });
 
-      const thumbImage = (div as HTMLElement[]).map((div, idx) => {
+      const thumbImage = (div).map((div, idx) => {
         const thumb = getThumbFromContainer(div);
-        return (thumb as HTMLElement) !== media[idx] && thumb;
+        return (thumb) !== media[idx] && thumb;
       }) as HTMLElement[];
       if(needFadeIn !== false) {
         needFadeIn = (needFadeIn || !downloaded || (asStatic ? thumbImage[0] : (!thumbImage[0] || thumbImage[0].tagName === 'svg'))) && liteMode.isAvailable('animations');
@@ -720,7 +720,7 @@ export default async function wrapSticker({doc, div, middleware, loadStickerMidd
 
           getCacheContext();
           let lastPromise: Promise<any>;
-          (div as HTMLElement[]).forEach((div, idx) => {
+          (div).forEach((div, idx) => {
             const _media = media[idx];
             const cb = () => onLoad(div, _media, thumbImage[idx]);
             if(_media) lastPromise = renderImageFromUrlPromise(_media, cacheContext.url, useCache);
@@ -844,7 +844,7 @@ export async function fireStickerEffect({e, container, doc, managers, middleware
 }
 
 function attachStickerEffectHandler(options: Omit<Parameters<typeof fireStickerEffect>[0], 'e'>) {
-  options.managers.appStickersManager!.preloadSticker(options.doc.id, true);
+  options.managers.appStickersManager.preloadSticker(options.doc.id, true);
 
   const detach = attachClickEvent(options.container, (e) => {
     fireStickerEffect({...options, e});

@@ -75,7 +75,7 @@ const SuggestPostPopupContent = defineSolidElement({
       <SimpleFormField
         value={stars()}
         onChange={onChange}
-        isError={(isBadPrice()! as boolean | undefined)}
+        isError={(isBadPrice() as boolean | undefined)}
       >
         <SimpleFormField.SideContent first>
           {currencyStarIcon({class: commonStyles.Icon})}
@@ -115,7 +115,7 @@ const SuggestPostPopupContent = defineSolidElement({
       <button
         use:ripple
         class="btn-primary btn-color-primary btn-large"
-        disabled={(hasErrors()! as boolean | undefined)}
+        disabled={(hasErrors() as boolean | undefined)}
         onClick={onFinish}
       >
         <I18nTsx key='SuggestedPosts.MakeAnOffer' />

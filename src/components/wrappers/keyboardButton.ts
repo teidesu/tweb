@@ -20,6 +20,7 @@ import confirmationPopup from '@components/confirmationPopup';
 import SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
 import {wrapFormattedDuration} from './wrapDuration';
 import formatDuration from '@helpers/formatDuration';
+import {isTruthy} from '../../helpers/isTruthy';
 
 export type KeyboardButtonHandler = {
   text: DocumentFragment | HTMLElement,
@@ -54,7 +55,7 @@ export function getKeyboardButtonHandler({
   const refCallbacks: ((ref: HTMLElement) => void)[] = [(ref) => {
     buttonEl = ref;
   }];
-  const classNamesArr: string[] = ([className].filter(Boolean)! as string[]);
+  const classNamesArr: string[] = ([className].filter(isTruthy));
 
   const {peerId} = chat;
   const messageMedia = message?.media;
@@ -96,7 +97,7 @@ export function getKeyboardButtonHandler({
 
         let promise: Promise<PeerId>;
         if(button.pFlags.same_peer) promise = Promise.resolve(peerId);
-        else promise = rootScope.managers.appInlineBotsManager!.checkSwitchReturn(botId!).then((peerId) => {
+        else promise = rootScope.managers.appInlineBotsManager.checkSwitchReturn(botId!).then((peerId) => {
           if(peerId) {
             return peerId;
           }
@@ -111,7 +112,7 @@ export function getKeyboardButtonHandler({
               inlineQueryPeerTypeMegagroup: 'groups'
             };
 
-            types = (button.peer_types.map((type) => map[type._])! as TelegramChoosePeerType[]);
+            types = (button.peer_types.map((type) => map[type._]) as TelegramChoosePeerType[]);
           }
 
           return showPickUser3Popup(types!, ['send_inline']);
@@ -120,7 +121,7 @@ export function getKeyboardButtonHandler({
         promise.then(async(chosenPeerId) => {
           const threadId = peerId === chosenPeerId ? chat.threadId : undefined;
           await chat.appImManager.setInnerPeer({peerId: chosenPeerId, threadId});
-          rootScope.managers.appInlineBotsManager!.switchInlineQuery(chosenPeerId, threadId!, botId!, button.query);
+          rootScope.managers.appInlineBotsManager.switchInlineQuery(chosenPeerId, threadId!, botId!, button.query);
         });
       };
       break;
@@ -192,7 +193,7 @@ export function getKeyboardButtonHandler({
 
     case 'keyboardButtonCallback': {
       onClick = () => {
-        rootScope.managers.appInlineBotsManager!.callbackButtonClick(peerId, messageMid!, button)
+        rootScope.managers.appInlineBotsManager.callbackButtonClick(peerId, messageMid!, button)
         .then((callbackAnswer) => {
           if(typeof callbackAnswer.message === 'string' && callbackAnswer.message.length) {
             if(callbackAnswer.pFlags.alert) {
@@ -243,7 +244,7 @@ export function getKeyboardButtonHandler({
             suggestedUsername: peerType.suggested_username,
             onCreate: async({name, username}) => {
               try {
-                const createBotResult = await rootScope.managers.appBotsManager!.createManagedBot({
+                const createBotResult = await rootScope.managers.appBotsManager.createManagedBot({
                   managerId: peerId,
                   botName: name,
                   username: username
@@ -267,7 +268,7 @@ export function getKeyboardButtonHandler({
 
                 const user = createBotResult.user;
 
-                await rootScope.managers.appMessagesManager!.sendBotRequestedPeer(
+                await rootScope.managers.appMessagesManager.sendBotRequestedPeer(
                   peerId,
                   button.button_id,
                   [user.id.toPeerId()],
@@ -291,7 +292,7 @@ export function getKeyboardButtonHandler({
           return;
         }
 
-        rootScope.managers.appMessagesManager!.sendBotRequestedPeer(
+        rootScope.managers.appMessagesManager.sendBotRequestedPeer(
           peerId,
           button.button_id,
           requestedPeerIds,
@@ -321,7 +322,7 @@ export function getKeyboardButtonHandler({
     default: {
       if(!message) {
         onClick = () => {
-          rootScope.managers.appMessagesManager!.sendText({peerId, text: button.text});
+          rootScope.managers.appMessagesManager.sendText({peerId, text: button.text});
         };
       }
 

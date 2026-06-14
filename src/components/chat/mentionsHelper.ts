@@ -33,7 +33,7 @@ export default class MentionsHelper extends AutocompletePeerHelper {
     if(query.length !== trimmed.length) return false;
 
     const middleware = this.controller.getMiddleware();
-    this.managers.appProfileManager!.getMentions(
+    this.managers.appProfileManager.getMentions(
       peerId && peerId.toChatId(),
       trimmed,
       topMsgId,
@@ -46,7 +46,7 @@ export default class MentionsHelper extends AutocompletePeerHelper {
       // const username = trimmed.slice(1).toLowerCase();
 
       const p = peerIds.map(async(peerId) => {
-        const user = await this.managers.appUsersManager!.getUser(peerId);
+        const user = await this.managers.appUsersManager.getUser(peerId);
         const usernames = getPeerActiveUsernames(user);
         // if(usernames.length && usernames.some((_username) => _username.toLowerCase() === username)) { // hide full matched suggestion
         //   return;

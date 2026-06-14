@@ -60,7 +60,7 @@ export default class StickersHelper extends AutocompleteHelper {
     const middleware = this.getMiddleware();
 
     preloadAnimatedEmojiSticker(emoticon);
-    this.managers.appStickersManager!.getStickersByEmoticon({
+    this.managers.appStickersManager.getStickersByEmoticon({
       emoticon,
       includeOurStickers: true,
       includeServerStickers: this.chat.appSettings.stickers.suggest === 'all'
@@ -89,7 +89,7 @@ export default class StickersHelper extends AutocompleteHelper {
         ready = new Promise<void>((resolve) => {
           const promises: Promise<any>[] = [];
           stickers.forEach((sticker) => {
-            container.append(superStickerRenderer.renderSticker(sticker as MyDocument, undefined, promises));
+            container.append(superStickerRenderer.renderSticker(sticker, undefined, promises));
           });
 
           (Promise.all(promises) as Promise<any>).finally(resolve);

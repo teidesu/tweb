@@ -114,7 +114,7 @@ export function StarGiftOfferReplyMarkup(props: {
       }
     });
 
-    await rootScope.managers.appGiftsManager!.resolveGiftOffer(props.message.id, 'reject');
+    await rootScope.managers.appGiftsManager.resolveGiftOffer(props.message.id, 'reject');
   };
   const onAcceptClick = () => {
     transferStarGiftConfirmationPopup({
@@ -122,7 +122,7 @@ export function StarGiftOfferReplyMarkup(props: {
       recipient: props.message.peerId!,
       fromOffer: props.message.action as MessageAction.messageActionStarGiftPurchaseOffer,
       handleSubmit: async() => {
-        await rootScope.managers.appGiftsManager!.resolveGiftOffer(props.message.id, 'accept');
+        await rootScope.managers.appGiftsManager.resolveGiftOffer(props.message.id, 'accept');
       }
     });
   };

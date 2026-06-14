@@ -22,7 +22,7 @@ export class WebpWorkerController {
 
       const promise = this.convertPromises[payload.fileName];
       if(promise) {
-        payload.bytes ? promise.resolve!(payload.bytes) : promise.reject!();
+        payload.bytes ? promise.resolve(payload.bytes) : promise.reject();
         delete this.convertPromises[payload.fileName];
       }
     });

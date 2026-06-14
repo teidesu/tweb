@@ -339,7 +339,7 @@ let init = () => {
       findAndSpliceAll(entities, (entity) => ignoreEntities.has(entity._));
     }
 
-    insertRichTextAsHTML(input, text!, entities!, peerId);
+    insertRichTextAsHTML(input, text!, entities, peerId);
   });
 
   init = null!;
@@ -704,7 +704,7 @@ export default class InputField {
     if(this.options.labelText) {
       setInnerHTML(this.label, this.options.labelText);
     } else {
-      this.label.append(i18n(this.options.label!, this.options.labelOptions)!);
+      this.label.append(i18n(this.options.label!, this.options.labelOptions));
     }
     this.label.style.visibility = this.label.textContent ? 'visible' : 'hidden';
   }
@@ -784,7 +784,7 @@ export default class InputField {
   public setState(state: InputState, label?: LangPackKey, labelOptions?: any[]) {
     if(label) {
       this.label.textContent = '';
-      this.label.append(i18n(label, labelOptions ?? this.options.labelOptions)!);
+      this.label.append(i18n(label, labelOptions ?? this.options.labelOptions));
       this.label.style.visibility = 'visible';
     } else {
       this.setLabel();

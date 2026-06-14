@@ -31,7 +31,7 @@ describeOrSkip(`Bug 5 e2e: botforum (@${username}) topic read on account A`, () 
       } as any);
       const user = resolved.users.find((u: any) => u._ === 'user');
       const userId = user.id as number;
-      const peerId = userId as PeerId;
+      const peerId = userId;
       const inputPeerUser = {_: 'inputPeerUser', user_id: userId, access_hash: user.access_hash};
 
       console.log('[botforum]', {id: userId, bot_forum_view: !!user?.pFlags?.bot_forum_view});
@@ -80,7 +80,7 @@ describeOrSkip(`Bug 5 e2e: botforum (@${username}) topic read on account A`, () 
       // Apply server response into local state. For messages.forumTopics
       // applyDialogs needs the forum peerId as the second arg (used by
       // processTopics → addChannelState).
-      client.managers.dialogsStorage.applyDialogs({...topicsRes, _: 'messages.forumTopics'} as any, peerId);
+      client.managers.dialogsStorage.applyDialogs({...topicsRes, _: 'messages.forumTopics'}, peerId);
 
       // Pull topic history so messages land in storage
       const history: any = await client.apiManager.invokeApi('messages.getReplies' as any, {

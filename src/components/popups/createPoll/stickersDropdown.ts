@@ -28,7 +28,7 @@ const createStickersDropdown = ({
 
   const emoticonsDropdown = new EmoticonsDropdown({
     tabsToRender: [stickersTab],
-    customParentElement: document.body!,
+    customParentElement: document.body,
     getOpenPosition: () => {
       const rect = pivot.getBoundingClientRect();
       const cloned = cloneDOMRect(rect);

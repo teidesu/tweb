@@ -39,7 +39,7 @@ export default function Button<T extends ButtonOptions>(className: string, optio
   }
 
   if(options.text) {
-    button.append(i18n(options.text, options.textArgs)!);
+    button.append(i18n(options.text, options.textArgs));
   }
 
   return button as any;

@@ -12,7 +12,7 @@ export function getEditFolderInitArgs() {
 }
 
 export async function deleteFolder(filterId: number) {
-  const filter = await rootScope.managers.filtersStorage!.getFilter(filterId);
+  const filter = await rootScope.managers.filtersStorage.getFilter(filterId);
   if(filter?._ === 'dialogFilterChatlist' && !filter.pFlags.has_my_invites) {
     PopupElement.createPopup(PopupSharedFolderInvite, {
       filter,
@@ -31,7 +31,7 @@ export async function deleteFolder(filterId: number) {
     }
   });
 
-  return rootScope.managers.filtersStorage!.updateDialogFilter(
+  return rootScope.managers.filtersStorage.updateDialogFilter(
     {
       _: 'dialogFilter',
       id: filterId

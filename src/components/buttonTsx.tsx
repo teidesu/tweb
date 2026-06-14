@@ -27,7 +27,7 @@ const Button = (props: Partial<{
 }> = {}): JSX.Element => {
   let disabled: Accessor<boolean>, setDisabled: Setter<boolean>;
   if(props.disabled !== undefined) {
-    disabled = (createMemo(() => props.disabled)! as Accessor<boolean>);
+    disabled = (createMemo(() => props.disabled) as Accessor<boolean>);
   } else {
     [disabled, setDisabled] = createSignal(false);
   }

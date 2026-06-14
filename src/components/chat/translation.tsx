@@ -64,13 +64,13 @@ export function pickLanguage<T extends boolean>(
     },
     onSelect: (results) => {
       const keys = results.map(({key}) => key);
-      deferred.resolve!(multi ? keys as any : keys[0]);
+      deferred.resolve(multi ? keys as any : keys[0]);
     },
     multiSelect: multi,
     titleLangKey: 'Telegram.LanguageViewController',
     checkboxSide: 'left',
     noPlaceholder: true,
-    onClose: () => deferred.reject!(),
+    onClose: () => deferred.reject(),
     footerButtonProps: {
       children: i18n('Save')
     }
@@ -114,7 +114,7 @@ function TranslationPlateBody(props: {
   const isPremium = usePremium();
 
   createEffect(() => {
-    i.compareAndUpdate({args: [i18n(`Language.${peerTranslation().peerLanguage()!}` as any)!]});
+    i.compareAndUpdate({args: [i18n(`Language.${peerTranslation().peerLanguage()!}` as any)]});
   });
 
   createEffect(() => props.setHidden(!peerTranslation().shouldShow()));
@@ -149,7 +149,7 @@ function TranslationPlateBody(props: {
             'TranslationBarHiddenChannel' :
             'TranslationBarHidden'
         });
-        props.managers.appTranslationsManager!.togglePeerTranslations(props.peerId(), true);
+        props.managers.appTranslationsManager.togglePeerTranslations(props.peerId(), true);
       }
     }],
     listenerSetter
@@ -171,7 +171,7 @@ function TranslationPlateBody(props: {
         {Icon('premium_translate', 'pinned-translation-primary-button-icon')}
         {peerTranslation().enabled() ?
           i18n('ShowOriginalButton') :
-          i18n('TranslateToButton', [i18n(`Language.${peerTranslation().language()}`)!])
+          i18n('TranslateToButton', [i18n(`Language.${peerTranslation().language()}`)])
         }
       </TopbarPlate.PrimaryButton>
       {menu}

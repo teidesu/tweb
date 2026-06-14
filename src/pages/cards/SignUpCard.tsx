@@ -87,7 +87,7 @@ export default function SignUpCard(props: {spec: Spec}) {
       if(!uploadAvatar) return resolve();
 
       uploadAvatar().then((inputFile) => {
-        managers.appProfileManager!.uploadProfilePhoto(inputFile).then(resolve, reject);
+        managers.appProfileManager.uploadProfilePhoto(inputFile).then(resolve, reject);
       }, reject);
     });
   }
@@ -116,10 +116,10 @@ export default function SignUpCard(props: {spec: Spec}) {
 
     setSignUpKey('PleaseWait');
 
-    managers.apiManager!.invokeApi('auth.signUp', params).then(async(response) => {
+    managers.apiManager.invokeApi('auth.signUp', params).then(async(response) => {
       switch(response._) {
         case 'auth.authorization':
-          await managers.apiManager!.setUser(response.user);
+          await managers.apiManager.setUser(response.user);
           sendAvatar().finally(() => {
             toIm();
           });
@@ -143,7 +143,7 @@ export default function SignUpCard(props: {spec: Spec}) {
   /* ---------- lifecycle ---------- */
 
   onMount(() => {
-    managers.appStateManager!.pushToState('authState', {
+    managers.appStateManager.pushToState('authState', {
       _: 'authStateSignUp',
       authCode: props.spec.payload
     });

@@ -44,7 +44,7 @@ export default function FolderAnimatedIcon(props: {
 
     if(docId) (async() => {
       try {
-        const doc = await props.managers.appEmojiManager!.getCustomEmojiDocument(docId);
+        const doc = await props.managers.appEmojiManager.getCustomEmojiDocument(docId);
 
         if(!doc) {
           props.onFail?.();

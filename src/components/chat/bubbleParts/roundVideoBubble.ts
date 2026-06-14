@@ -222,11 +222,11 @@ export function wrapRoundVideoBubble({
       const transcribedText = document.createElement('div');
       transcribedText.classList.add('video-transcribed-text');
       try {
-        const transcribeResult = await rootScope.managers.appMessagesManager!.transcribeAudio(message, true);
+        const transcribeResult = await rootScope.managers.appMessagesManager.transcribeAudio(message, true);
         if(!transcribeResult.text) throw '';
         transcribedText.innerText = transcribeResult.text;
       } catch(err) {
-        transcribedText.append(i18n('Chat.Voice.Transribe.Error')!);
+        transcribedText.append(i18n('Chat.Voice.Transribe.Error'));
       }
       audioMessageContainer.append(transcribedText);
       transcribedText.append(audioSentTime);

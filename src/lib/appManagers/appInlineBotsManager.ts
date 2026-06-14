@@ -275,8 +275,8 @@ export class AppInlineBotsManager extends AppManager {
             let gameDocument: Document;
 
             if(inlineResult._ === 'botInlineMediaResult') {
-              if(inlineResult.photo) gamePhoto = inlineResult.photo as Photo;
-              if(inlineResult.document) gameDocument = inlineResult.document as Document;
+              if(inlineResult.photo) gamePhoto = inlineResult.photo;
+              if(inlineResult.document) gameDocument = inlineResult.document;
             }
 
             messageMedia = {

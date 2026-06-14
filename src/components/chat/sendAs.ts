@@ -141,11 +141,11 @@ export default class ChatSendAs {
       const subtitle = document.createElement('div');
       subtitle.classList.add('btn-menu-item-subtitle');
       if(sendAsPeerId.isUser()) {
-        subtitle.append(i18n('Chat.SendAs.PersonalAccount')!);
+        subtitle.append(i18n('Chat.SendAs.PersonalAccount'));
       } else if(sendAsPeerId === this.peerId && (apiManagerProxy.getPeer(this.peerId) as Chat.channel).pFlags.megagroup) {
-        subtitle.append(i18n('VoiceChat.DiscussionGroup')!);
+        subtitle.append(i18n('VoiceChat.DiscussionGroup'));
       } else {
-        subtitle.append((await getChatMembersString(sendAsPeerId.toChatId()))!);
+        subtitle.append((await getChatMembersString(sendAsPeerId.toChatId())));
       }
 
       const title = document.createElement('div');
@@ -187,12 +187,12 @@ export default class ChatSendAs {
           }
 
           if(!this.forPaidReaction) {
-            this.managers.appMessagesManager!.saveDefaultSendAs(currentPeerId, sendAsPeerId);
+            this.managers.appMessagesManager.saveDefaultSendAs(currentPeerId, sendAsPeerId);
           }
         } : undefined,
         textElement
       };
-    })! as Promise<ButtonMenuItemOptions>[]);
+    }) as Promise<ButtonMenuItemOptions>[]);
 
     const buttons = await Promise.all(promises);
     const btnMenu = ButtonMenuSync({buttons}/* , this.listenerSetter */);
@@ -278,7 +278,7 @@ export default class ChatSendAs {
       });
     }
 
-    return this.managers.acknowledged!.appProfileManager!.getChannelFull(this.peerId.toChatId()).then((acked) => {
+    return this.managers.acknowledged.appProfileManager.getChannelFull(this.peerId.toChatId()).then((acked) => {
       return {
         cached: acked.cached,
         result: acked.result.then((channelFull) => {
@@ -292,8 +292,8 @@ export default class ChatSendAs {
     const peerId = this.peerId;
 
     const {isChannel, isMonoforum} = await namedPromises({
-      isChannel: this.managers.appPeersManager!.isChannel(peerId),
-      isMonoforum: this.managers.appPeersManager!.isMonoforum(peerId)
+      isChannel: this.managers.appPeersManager.isChannel(peerId),
+      isMonoforum: this.managers.appPeersManager.isMonoforum(peerId)
     });
 
     if(this.updatingPromise || !isChannel || isMonoforum) {
@@ -323,7 +323,7 @@ export default class ChatSendAs {
       if(!middleware()) return;
 
       Promise.all([
-        this.managers.appChatsManager!.getSendAs(chatId, this.forPaidReaction),
+        this.managers.appChatsManager.getSendAs(chatId, this.forPaidReaction),
         apiManagerProxy.isPremiumFeaturesHidden()
       ]).then(([sendAsPeers, isPremiumFeaturesHidden]) => {
         if(!middleware()) return;
@@ -371,7 +371,7 @@ export default class ChatSendAs {
       }
 
       return callback;
-    })! as Promise<() => void>;
+    }) as Promise<() => void>;
 
     updatingPromise.finally(() => {
       if(this.updatingPromise === updatingPromise) {

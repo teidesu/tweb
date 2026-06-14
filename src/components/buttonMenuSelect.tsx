@@ -164,10 +164,10 @@ function ButtonMenuSelectInner<T>(props: {
           <input
             type="text"
             class="btn-menu-item-input"
-            placeholder={i18n('Search')!.textContent}
+            placeholder={i18n('Search').textContent}
             value={search()}
             onInput={e => setSearch(e.currentTarget.value)}
-            ref={inputEl!}
+            ref={inputEl}
           />
         </div>
         <div class="btn-menu-search-delimiter" />

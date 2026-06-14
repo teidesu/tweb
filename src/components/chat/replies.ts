@@ -15,6 +15,7 @@ import Icon from '@components/icon';
 const TAG_NAME = 'replies-element';
 
 rootScope.addEventListener('replies_updated', (message) => {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   (Array.from(document.querySelectorAll(TAG_NAME + `[data-post-key="${message.peerId}_${message.mid}"]`)) as RepliesElement[]).forEach((element) => {
     element.message = message;
     element.render();
@@ -128,7 +129,7 @@ export default class RepliesElement extends HTMLElement {
         this.append(textSpan, iconSpan, rippleContainer);
       }
 
-      replaceContent(textSpan, text.element!);
+      replaceContent(textSpan, text.element);
     } else {
       this.classList.add('bubble-beside-button');
       this.innerHTML = `<span class="replies-beside-text">${replies?.replies ? formatNumber(replies.replies, 0) : ''}</span>`;
@@ -136,8 +137,8 @@ export default class RepliesElement extends HTMLElement {
     }
 
     if(replies && !this.updated && !this.message.pFlags.is_outgoing) {
-      this.managers.appMessagesManager!.subscribeRepliesThread(this.message.peerId!, this.message.mid!);
-      this.managers.appMessagesManager!.updateMessage(this.message.peerId!, this.message.mid!, 'replies_updated');
+      this.managers.appMessagesManager.subscribeRepliesThread(this.message.peerId!, this.message.mid!);
+      this.managers.appMessagesManager.updateMessage(this.message.peerId!, this.message.mid!, 'replies_updated');
       this.updated = true;
     }
 

@@ -67,7 +67,7 @@ const events: A = {
 
       cancel: (reason) => {
         log('cancel', id, reason);
-        promise.reject!(DOWNLOAD_ERROR);
+        promise.reject(DOWNLOAD_ERROR);
       }
     }, strategy);
 
@@ -117,7 +117,7 @@ const events: A = {
 
     item.log('finalize');
 
-    item.promise.resolve!();
+    item.promise.resolve();
     // return item.controller.terminate();
     // return item.writer.close();
     return item.controller.close();
@@ -131,7 +131,7 @@ const events: A = {
 
     item.log('cancel');
 
-    item.promise.reject!();
+    item.promise.reject();
     // return item.controller.error();
     // return item.writer.abort();
     return item.controller.error();
@@ -164,7 +164,7 @@ function onDownloadFetch(event: FetchEvent, params: string) {
     return response;
   });
 
-  event.respondWith((promise! as Response | PromiseLike<Response>));
+  event.respondWith((promise as Response | PromiseLike<Response>));
 }
 
 function cancelAllDownloads() {

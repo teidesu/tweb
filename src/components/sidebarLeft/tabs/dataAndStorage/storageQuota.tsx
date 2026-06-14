@@ -291,7 +291,7 @@ export const StorageQuota = (props: Props) => {
 
   const onClearCachedFiles = wrapAsyncClickHandler(async() => {
     const formattedSize = tryFormatBytes(cachedFilesSizes.state === 'ready' ? cachedFilesSizes()?.totalSize : null);
-    if(!(await getConfirmation(getClearCachedFilesArgs(formattedSize!)))) return;
+    if(!(await getConfirmation(getClearCachedFilesArgs(formattedSize)))) return;
 
     cachedFilesSizesActions.mutate(getZeroedCollectedCachedFilesSizes());
 
@@ -304,7 +304,7 @@ export const StorageQuota = (props: Props) => {
 
   const onClearCachedVideoStreamChunks = wrapAsyncClickHandler(async() => {
     const formattedSize = tryFormatBytes(cachedVideoStreamChunksSize.state === 'ready' ? cachedVideoStreamChunksSize() : null);
-    if(!(await getConfirmation(getClearStreamChunksArgs(formattedSize!)))) return;
+    if(!(await getConfirmation(getClearStreamChunksArgs(formattedSize)))) return;
 
     cachedVideoStreamChunksSizeActions.mutate(0);
 

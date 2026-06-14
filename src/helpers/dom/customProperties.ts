@@ -28,7 +28,7 @@ export class CustomProperties {
     this.cache = {};
 
     for(const i in cache) {
-      this.getProperty(i as CustomProperty);
+      this.getProperty(i);
     }
   };
 

@@ -430,7 +430,7 @@ class RtmpStream {
 
     const retry = () => {
       if(retries > 3) {
-        promise.reject!(new Error('Failed to fetch state'));
+        promise.reject(new Error('Failed to fetch state'));
         return;
       }
 
@@ -450,7 +450,7 @@ class RtmpStream {
         accountNumber: this.accountNumber
       }).then((state) => {
         clearTimeout(timeout);
-        promise.resolve!(state);
+        promise.resolve(state);
       }).catch((e) => {
         this._log.error('error fetching state', e);
         retries++;

@@ -75,7 +75,7 @@ export class PasswordManager extends AppManager {
     return this.getInputCheckPassword(password, state).then((inputCheckPassword) => {
       // console.log('SRP', inputCheckPassword);
       return this.apiManager.invokeApi('auth.checkPassword', {
-        password: inputCheckPassword as InputCheckPasswordSRP.inputCheckPasswordSRP
+        password: inputCheckPassword
       }, options).then((auth) => {
         if(auth._ === 'auth.authorization') {
           this.apiManager.setUser(auth.user);

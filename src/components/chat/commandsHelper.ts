@@ -43,7 +43,7 @@ export function processPeerFullForCommands(peerId: PeerId, full: ChatFull.chatFu
     out = [...commands.values()];
   } else {
     const found = index.search(query!);
-    out = (Array.from(found).map((command) => commands.get(command))! as { peerId: PeerId; name: string; description: string; index: number; command: string; }[]);
+    out = (Array.from(found).map((command) => commands.get(command)) as { peerId: PeerId; name: string; description: string; index: number; command: string; }[]);
   }
 
   out = out.sort((a, b) => commands.get(a.command)!.index - commands.get(b.command)!.index);
@@ -72,12 +72,12 @@ export default class CommandsHelper extends AutocompletePeerHelper {
   }
 
   public async checkQuery(query: string, peerId: PeerId) {
-    if(!(await this.managers.appUsersManager!.isBot(peerId))) {
+    if(!(await this.managers.appUsersManager.isBot(peerId))) {
       return false;
     }
 
     const middleware = this.controller.getMiddleware();
-    this.managers.appProfileManager!.getProfileByPeerId(peerId).then((full) => {
+    this.managers.appProfileManager.getProfileByPeerId(peerId).then((full) => {
       if(!middleware()) {
         return;
       }

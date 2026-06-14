@@ -72,7 +72,7 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
   const managers = options.managers || rootScope.managers;
   const appMessagesManager = managers.appMessagesManager;
 
-  const getMyId = () => options.managers ? options.managers.rootScope!.getMyId() : rootScope.myId;
+  const getMyId = () => options.managers ? options.managers.rootScope.getMyId() : rootScope.myId;
 
   const isRestricted = isMessageRestricted(message as any);
   const isSelfDestructingMedia = !!((message as Message.message).media as MessageMedia.messageMediaPhoto)?.ttl_seconds;
@@ -90,10 +90,10 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
     let usingFullGrouped = true;
     if(message.grouped_id) {
       if(usingMids) {
-        const mids = await appMessagesManager!.getMidsByMessage(message);
+        const mids = await appMessagesManager.getMidsByMessage(message);
         if(usingMids.length === mids.length) {
           for(const mid of mids) {
-            if(!usingMids.includes(mid!)) {
+            if(!usingMids.includes(mid)) {
               usingFullGrouped = false;
               break;
             }
@@ -104,7 +104,7 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
       }
 
       if(usingFullGrouped) {
-        const groupedText = await appMessagesManager!.getGroupedText(message.grouped_id);
+        const groupedText = await appMessagesManager.getGroupedText(message.grouped_id);
         options.text = groupedText?.message || '';
         entities = groupedText?.totalEntities || [];
 
@@ -270,7 +270,7 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
 
         case 'messageMediaGiveaway': {
           const date = formatDate(new Date(media.until_date * 1000));
-          addPart('Giveaway.ToBeSelectedFull', undefined, [i18n('Giveaway.ToBeSelected', [media.quantity, (plain ? date!.textContent : date)!])!]);
+          addPart('Giveaway.ToBeSelectedFull', undefined, [i18n('Giveaway.ToBeSelected', [media.quantity, (plain ? date.textContent : date)])]);
           break;
         }
 

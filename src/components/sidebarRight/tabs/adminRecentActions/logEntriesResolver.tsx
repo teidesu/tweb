@@ -22,6 +22,7 @@ import {participantRightsMap} from '@components/sidebarRight/tabs/adminRecentAct
 import {PreviewMessageButtons} from '@components/sidebarRight/tabs/adminRecentActions/previewMessageButtons';
 import {TopicName} from '@components/sidebarRight/tabs/adminRecentActions/topicName';
 import {diffFlags, getPhoto, useParticipantClickHandler} from '@components/sidebarRight/tabs/adminRecentActions/utils';
+import {isTruthy} from '../../../../helpers/isTruthy';
 
 
 export type GroupType =
@@ -290,11 +291,11 @@ const logEntriesMap: { [Key in ChannelAdminLogEventAction['_']]: MapCallback<Key
               // yes, they need to be inversed here
               removed={
                 diff.new.map(key => participantRightsMap[key])
-                .filter(Boolean).map(key => i18n(key!))
+                .filter(isTruthy).map(key => i18n(key))
               }
               added={
                 diff.old.map(key => participantRightsMap[key])
-                .filter(Boolean).map(key => i18n(key!))
+                .filter(isTruthy).map(key => i18n(key))
               }
             />
           </Show>
@@ -349,11 +350,11 @@ const logEntriesMap: { [Key in ChannelAdminLogEventAction['_']]: MapCallback<Key
           // yes, they need to be inversed here
           removed={
             diff.new.map(key => participantRightsMap[key])
-            .filter(Boolean).map(key => i18n(key!))
+            .filter(isTruthy).map(key => i18n(key))
           }
           added={
             diff.old.map(key => participantRightsMap[key])
-            .filter(Boolean).map(key => i18n(key!))
+            .filter(isTruthy).map(key => i18n(key))
           }
         />
       )

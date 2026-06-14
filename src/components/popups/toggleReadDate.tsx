@@ -74,7 +74,7 @@ export default class PopupToggleReadDate extends PopupElement {
         lockedText: 'PremiumLastSeenText1Locked',
         buttonText1: 'PremiumLastSeenButton1',
         onClick: async() => {
-          await this.managers.appPrivacyManager!.setPrivacy(
+          await this.managers.appPrivacyManager.setPrivacy(
             'inputPrivacyKeyStatusTimestamp',
             [{_: 'inputPrivacyValueAllowAll'}]
           );
@@ -91,8 +91,8 @@ export default class PopupToggleReadDate extends PopupElement {
         lockedText: 'PremiumReadText1Locked',
         buttonText1: 'PremiumReadButton1',
         onClick: async() => {
-          const globalPrivacy = await this.managers.appPrivacyManager!.getGlobalPrivacySettings();
-          await this.managers.appPrivacyManager!.setGlobalPrivacySettings({
+          const globalPrivacy = await this.managers.appPrivacyManager.getGlobalPrivacySettings();
+          await this.managers.appPrivacyManager.setGlobalPrivacySettings({
             _: 'globalPrivacySettings',
             pFlags: {
               ...globalPrivacy.pFlags,

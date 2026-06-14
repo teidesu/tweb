@@ -23,6 +23,7 @@ import {isMessage, linkColor} from '@components/chat/utils';
 import {MinimalBubbleMessageContent} from '@components/chat/bubbleParts/minimalBubbleMessageContent';
 import {Reply} from '@components/chat/bubbleParts/adminLogsResolver/reply';
 import {CopyTextResult, createMessageCopyText, createMessageWithPreviousCopyText, createMultiLineCopyText, createPreviousValueCopyText, createSimpleServiceCopyText, createTwoPeerCopyText, extractAdminChanges, extractBanChanges, extractDefaultRightsChanges, formatDurationAsText, getDateTextForCopy, getMessageTextForCopy} from '@components/chat/bubbleParts/adminLogsResolver/copyTextHelpers';
+import {isTruthy} from '../../../../helpers/isTruthy';
 
 
 type RenderArgs = {
@@ -273,7 +274,7 @@ const adminLogsMap: { [Key in ChannelAdminLogEventAction['_']]: MapCallback<Key>
               <Space amount='0.5rem' />
               <Reply
                 colorPeerId={peerId}
-                title={i18n('AdminRecentActions.PreviousDescription')!}
+                title={i18n('AdminRecentActions.PreviousDescription')}
                 text={action.prev_value}
               />
             </MinimalBubbleMessageContent>
@@ -323,7 +324,7 @@ const adminLogsMap: { [Key in ChannelAdminLogEventAction['_']]: MapCallback<Key>
               <Show when={action.prev_value}>
                 <Reply
                   colorPeerId={peerId}
-                  title={i18n('AdminRecentActions.PreviousLink')!}
+                  title={i18n('AdminRecentActions.PreviousLink')}
                   text={`https://t.me/${action.prev_value}`}
                 />
               </Show>
@@ -379,7 +380,7 @@ const adminLogsMap: { [Key in ChannelAdminLogEventAction['_']]: MapCallback<Key>
       message: action.new_message,
       colorPeerId: peerId,
       originalMessage: isMessage(action.prev_message) ? action.prev_message : undefined,
-      ServiceContent: () => i18n(key, [makePeerTitle(peerId)])!,
+      ServiceContent: () => i18n(key, [makePeerTitle(peerId)]),
       getCopyText: () => createMessageWithPreviousCopyText(
         event.date,
         peerId,
@@ -439,10 +440,10 @@ const adminLogsMap: { [Key in ChannelAdminLogEventAction['_']]: MapCallback<Key>
 
       // yes, they need to be inversed here
       const removed = diff.new.map(key => participantRightsMap[key])
-      .filter(Boolean).map(key => i18n(key!))
+      .filter(isTruthy).map(key => i18n(key))
 
       const added = diff.old.map(key => participantRightsMap[key])
-      .filter(Boolean).map(key => i18n(key!))
+      .filter(isTruthy).map(key => i18n(key))
 
 
       return (
@@ -560,10 +561,10 @@ const adminLogsMap: { [Key in ChannelAdminLogEventAction['_']]: MapCallback<Key>
       const diff = diffFlags(action.prev_banned_rights?.pFlags, action.new_banned_rights?.pFlags);
 
       const added = diff.old.map(key => participantRightsMap[key])
-      .filter(Boolean).map(key => i18n(key!))
+      .filter(isTruthy).map(key => i18n(key))
 
       const removed = diff.new.map(key => participantRightsMap[key])
-      .filter(Boolean).map(key => i18n(key!))
+      .filter(isTruthy).map(key => i18n(key))
 
       return (
         <>

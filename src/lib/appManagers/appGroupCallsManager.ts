@@ -498,7 +498,7 @@ export class AppGroupCallsManager extends AppManager {
     // Attach the resolved call ref so invitee paths (slug / inviteMessage)
     // can rewrite their placeholder instance.id without a separate lookup.
     // For id-form joins this is the same call we already knew about.
-    const groupCallUpdate = (updates as Updates.updates).updates.find((u) => u._ === 'updateGroupCall') as Update.updateGroupCall | undefined;
+    const groupCallUpdate = (updates as Updates.updates).updates.find((u) => u._ === 'updateGroupCall');
     if(groupCallUpdate && groupCallUpdate.call._ !== 'groupCallDiscarded') {
       // Keep the id in its native (fetchLong) form — number for small ids,
       // string for large — so it stays === the manager's cache key.
@@ -552,7 +552,7 @@ export class AppGroupCallsManager extends AppManager {
       assumeType<ApiError>(error);
 
       if(error.type?.indexOf('CALL_MIGRATE') === 0) {
-        const dcId = +error.type.match(/^(CALL_MIGRATE_)(\d+)/)![2] as DcId;
+        const dcId = +error.type.match(/^(CALL_MIGRATE_)(\d+)/)![2];
         return this._fetchRtmpState(call, retry, dcId);
       }
 

@@ -93,7 +93,7 @@ export async function generateVideoPreview({scaledWidth, scaledHeight}: Args) {
     );
   }
 
-  const previewBlob = await new Promise<Blob>((resolve) => previewCanvas.toBlob((resolve! as BlobCallback)));
+  const previewBlob = await new Promise<Blob>((resolve) => previewCanvas.toBlob((resolve as BlobCallback)));
 
   return previewBlob;
 }

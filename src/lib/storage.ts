@@ -149,7 +149,7 @@ export default class AppStorage<
       }
     }
 
-    deferred.resolve!();
+    deferred.resolve();
 
     if(set.size) {
       this.saveThrottled();
@@ -183,7 +183,7 @@ export default class AppStorage<
       }
     }
 
-    deferred.resolve!();
+    deferred.resolve();
 
     if(set.size) {
       this.deleteThrottled();
@@ -218,7 +218,7 @@ export default class AppStorage<
         const deferred = this.getPromises.get(key);
         if(deferred) {
           // deferred.reject(error);
-          deferred.resolve!(undefined!);
+          deferred.resolve(undefined!);
           this.getPromises.delete(key);
         }
       }
@@ -404,7 +404,7 @@ export default class AppStorage<
       if(!enabled) {
         storage.keysToSet.clear();
         storage.keysToDelete.clear();
-        storage.getPromises.forEach((deferred) => deferred.resolve!(undefined));
+        storage.getPromises.forEach((deferred) => deferred.resolve(undefined));
         storage.getPromises.clear();
       } else {
         return storage.set(storage.cache);

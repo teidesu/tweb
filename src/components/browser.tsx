@@ -56,6 +56,7 @@ import cancelEvent from '@helpers/dom/cancelEvent';
 import clamp from '@helpers/number/clamp';
 import windowSize from '@helpers/windowSize';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
+import {isTruthy} from '../helpers/isTruthy';
 
 type BrowserPageProps<T = {}> = T & {
   title: string, // plain text
@@ -195,7 +196,7 @@ function BrowserHeader(props: {
     const listenerSetter = new ListenerSetter();
     const copied = page.menuButtons.map((button) => (button = unwrap(button), button.element ? button : copy(button)));
     const buttons = (await filterButtonMenuItems(copied)).map((button) => {
-      button!.options = {listenerSetter};
+      button.options = {listenerSetter};
       return button;
     });
     const element = ButtonMenuSync({
@@ -695,7 +696,7 @@ export async function openWebAppInAppBrowser(options: WebAppLaunchOptions) {
       }
     });
 
-    queueMicrotask(() => deferred.resolve!());
+    queueMicrotask(() => deferred.resolve());
     // const [state, setState] = createStore<BrowserPageProps>(initialState);
     const lastState = lastContext?.[0];
     if(lastState && lastState?.page.isCatalogue) {
@@ -741,7 +742,7 @@ export async function openGameInAppBrowser(options: {
   }
 
   const shareMessage = async() => {
-    const mids = await rootScope.managers.appMessagesManager!.getMidsByMessage(message);
+    const mids = await rootScope.managers.appMessagesManager.getMidsByMessage(message);
     showForwardPopup({[message.peerId as number]: mids as number[]});
   };
 
@@ -850,7 +851,7 @@ export async function openCatalogueInAppBrowser() {
       untrack(() => {
         botIds.forEach((botId) => {
           const user = useUser(botId) as User.user;
-          searchIndex.indexObjectArray(botId, ([user.first_name, user.last_name, ...getPeerActiveUsernames(user)].filter(Boolean)! as string[]));
+          searchIndex.indexObjectArray(botId, ([user.first_name, user.last_name, ...getPeerActiveUsernames(user)].filter(isTruthy)));
         });
       });
 
@@ -879,7 +880,7 @@ export async function openCatalogueInAppBrowser() {
         <Loader
           loader={() => {
             return async() => {
-              const result = await rootScope.managers.appUsersManager!.getTopPeers('bots_app');
+              const result = await rootScope.managers.appUsersManager.getTopPeers('bots_app');
               return processBotIds(result.map((user) => user.id.toPeerId(false)));
             };
           }}
@@ -911,7 +912,7 @@ export async function openCatalogueInAppBrowser() {
           loader={() => {
             let offset = '';
             return async() => {
-              const result = await rootScope.managers.appAttachMenuBotsManager!.getPopularAppBots(offset, 50);
+              const result = await rootScope.managers.appAttachMenuBotsManager.getPopularAppBots(offset, 50);
               offset = result.nextOffset!;
               return processBotIds(result.userIds);
             };
@@ -1090,7 +1091,7 @@ export function openInstantViewInAppBrowser({
     }
 
     if(TEST_PART) await pause(10000);
-    return rootScope.managers.appWebPagesManager!.getWebPage(url)
+    return rootScope.managers.appWebPagesManager.getWebPage(url)
     .then((webPage) => {
       setWebPageId(webPage!.id);
       return (webPage as WebPage.webPage).cached_page!;
@@ -1189,7 +1190,7 @@ export function openInstantViewInAppBrowser({
       ),
 
       url,
-      setAnchor: (setAnchor! as Setter<string>)
+      setAnchor: (setAnchor as Setter<string>)
     };
 
     if(!waitForReady) {

@@ -511,7 +511,7 @@ export class EmoticonsDropdown extends DropdownHover {
 
   public scrollTo(tab: EmoticonsTab, element: HTMLElement) {
     tab.scrollable.scrollIntoViewNew({
-      element: element as HTMLElement,
+      element: element,
       axis: 'y',
       position: 'start',
       getElementPosition: tab.scrollable.container === element ? () => -element.scrollTop : undefined,
@@ -522,7 +522,7 @@ export class EmoticonsDropdown extends DropdownHover {
   private onSelectTabClick = (id: number, _tabContent?: HTMLDivElement, _animate?: boolean, isUserClick?: boolean) => {
     if(this.tabId === id) {
       const {tab} = this;
-      this.scrollTo(tab, tab.scrollable.container as HTMLElement);
+      this.scrollTo(tab, tab.scrollable.container);
       return;
     }
 
@@ -565,7 +565,7 @@ export class EmoticonsDropdown extends DropdownHover {
     const actions = Object.keys(this.rights) as ChatRights[];
 
     const rights = await Promise.all(actions.map((action) => {
-      return this.managers.appMessagesManager!.canSendToPeer(peerId, threadId, action);
+      return this.managers.appMessagesManager.canSendToPeer(peerId, threadId, action);
     }));
 
     actions.forEach((action, idx) => {

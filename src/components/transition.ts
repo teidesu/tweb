@@ -217,7 +217,7 @@ const TransitionSlider = (options: TransitionSliderOptions) => {
       if(!animationDeferred && isHeavy) return;
 
       if(animationDeferred) {
-        animationDeferred.resolve!();
+        animationDeferred.resolve();
         animationDeferred = undefined;
       }
 

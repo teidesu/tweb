@@ -56,7 +56,7 @@ export default class PopupPeer extends PopupElement {
 
     if(!options.noTitle) {
       if(options.titleLangKey || !options.title) {
-        this.title.append(i18n(options.titleLangKey || 'AppName', options.titleLangArgs)!);
+        this.title.append(i18n(options.titleLangKey || 'AppName', options.titleLangArgs));
       } else if(options.title instanceof HTMLElement || options.title instanceof DocumentFragment) {
         this.title.append(options.title);
       } else this.title.innerText = options.title || '';
@@ -67,7 +67,7 @@ export default class PopupPeer extends PopupElement {
     if(options.descriptionLangKey || options.description || options.descriptionRaw) {
       const p = this.description = document.createElement('p');
       p.classList.add('popup-description');
-      if(options.descriptionLangKey) p.append(i18n(options.descriptionLangKey, options.descriptionLangArgs)!);
+      if(options.descriptionLangKey) p.append(i18n(options.descriptionLangKey, options.descriptionLangArgs));
       else if(options.description && options.description !== true) setInnerHTML(p, options.description);
       else if(options.descriptionRaw) p.append(wrapEmojiText(options.descriptionRaw));
 

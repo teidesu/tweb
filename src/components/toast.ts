@@ -59,5 +59,5 @@ export function toastNew(options: Partial<{
   langPackArguments: FormatterArguments,
   onClose: () => void
 }>) {
-  toast(i18n(options.langPackKey!, options.langPackArguments)!, options.onClose);
+  toast(i18n(options.langPackKey!, options.langPackArguments), options.onClose);
 }

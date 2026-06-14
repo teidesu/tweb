@@ -12,12 +12,12 @@ export default class RtmpDescriptionElement {
       key: 'VoiceChat.Status.Connecting'
     });
 
-    this.descriptionIntl.element!.classList.add('rtmp-description');
+    this.descriptionIntl.element.classList.add('rtmp-description');
     this.liveTextElement = i18n('Rtmp.MediaViewer.Live')!;
   }
 
   public detach() {
-    this.descriptionIntl.element!.remove();
+    this.descriptionIntl.element.remove();
     this.liveTextElement.remove();
   }
 
@@ -36,8 +36,8 @@ export default class RtmpDescriptionElement {
       args: args!
     });
 
-    if(!this.descriptionIntl.element!.parentElement) {
-      this.appendTo.append(this.descriptionIntl.element!);
+    if(!this.descriptionIntl.element.parentElement) {
+      this.appendTo.append(this.descriptionIntl.element);
     }
 
     if(!this.liveTextElement.parentElement) {

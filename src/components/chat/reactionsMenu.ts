@@ -33,6 +33,7 @@ import partition from '@helpers/array/partition';
 import {PAID_REACTION_EMOJI_DOCID} from '@lib/customEmoji/constants';
 import {StarsStar} from '@components/popups/stars';
 import {cleanEmoji} from '@lib/richTextProcessor/fixEmoji';
+import {isTruthy} from '../../helpers/isTruthy';
 
 const REACTIONS_CLASS_NAME = 'btn-menu-reactions';
 const REACTION_CLASS_NAME = REACTIONS_CLASS_NAME + '-reaction';
@@ -120,8 +121,8 @@ export class ChatReactionsMenu {
           })
         ]
       );
-      description!.classList.add(REACTIONS_CLASS_NAME + '-description');
-      widthContainer.append(description!);
+      description.classList.add(REACTIONS_CLASS_NAME + '-description');
+      widthContainer.append(description);
     }
 
     const reactionsContainer = this.container = document.createElement('div');
@@ -223,7 +224,7 @@ export class ChatReactionsMenu {
   private async prepareReactions(message?: Message.message | Message.messageService) {
     const middleware = this.middlewareHelper.get();
     const availableReactionsResult = apiManagerProxy.getAvailableReactions();
-    const peerAvailableReactionsResult = await this.managers.acknowledged!.appReactionsManager!.getAvailableReactionsByMessage(message);
+    const peerAvailableReactionsResult = await this.managers.acknowledged.appReactionsManager.getAvailableReactionsByMessage(message);
     const cached = !(availableReactionsResult instanceof Promise) && peerAvailableReactionsResult.cached;
     const renderPromise = callbackifyAll([
       peerAvailableReactionsResult.result,
@@ -247,7 +248,7 @@ export class ChatReactionsMenu {
 
   private async prepareEffects() {
     const middleware = this.middlewareHelper.get();
-    const availableEffects = await this.managers.acknowledged!.appReactionsManager!.getAvailableEffects();
+    const availableEffects = await this.managers.acknowledged.appReactionsManager.getAvailableEffects();
     const {cached} = availableEffects;
     const renderPromise = callbackify(
       availableEffects.result,
@@ -328,18 +329,18 @@ export class ChatReactionsMenu {
   };
 
   private loadTags = () => {
-    const reactionsPromise = this.managers.appReactionsManager!.getTagReactions()
+    const reactionsPromise = this.managers.appReactionsManager.getTagReactions()
     .then(this.reactionsToDocIds);
     return [reactionsPromise];
   };
 
   private loadEffects = () => {
-    const reactionsPromise = this.managers.appReactionsManager!.getAvailableEffects()
+    const reactionsPromise = this.managers.appReactionsManager.getAvailableEffects()
     .then((availableEffects) => {
       return availableEffects.filter((availableEffect) => {
         return !!availableEffect.effect_animation_id;
       }).map((availableEffect) => availableEffect.effect_sticker_id);
-    }) as Promise<DocId[]>;
+    });
     return [reactionsPromise];
   };
 
@@ -348,7 +349,7 @@ export class ChatReactionsMenu {
     // const topReactionsPromise = this.managers.appReactionsManager.getTopReactions()
     .then(this.reactionsToDocIds);
 
-    const allRecentReactionsPromise = this.managers.appReactionsManager!.getRecentReactions()
+    const allRecentReactionsPromise = this.managers.appReactionsManager.getRecentReactions()
     .then(this.reactionsToDocIds);
 
     const topReactionsSlicedPromise = topReactionsPromise.then((docIds) => this.noPacks ? docIds : docIds.slice(0, 16));
@@ -364,7 +365,7 @@ export class ChatReactionsMenu {
       return filterUnique(recentDocIds);
     });
 
-    return [topReactionsSlicedPromise, recentReactionsPromise].filter(Boolean) as Promise<(string | number)[]>[];
+    return [topReactionsSlicedPromise, recentReactionsPromise].filter(isTruthy);
   };
 
   private onMoreClick = (e: MouseEvent) => {
@@ -377,9 +378,9 @@ export class ChatReactionsMenu {
       noPacks: this.noPacks,
       noSearch: this.noSearch,
       managers: this.managers,
-      mainSets: (this.isTags ? this.loadTags : (this.isEffects ? this.loadEffects : this.loadReactions))!,
+      mainSets: (this.isTags ? this.loadTags : (this.isEffects ? this.loadEffects : this.loadReactions)),
       additionalLocalStickerSet: this.isEffects ? async() => {
-        const availableEffects = await this.managers.appReactionsManager!.getAvailableEffects();
+        const availableEffects = await this.managers.appReactionsManager.getAvailableEffects();
         return (await this.splitAvailableEffects(availableEffects)).localStickerSet!;
       } : undefined,
       onClick: async(emoji) => {
@@ -407,7 +408,7 @@ export class ChatReactionsMenu {
           };
         }
 
-        deferred.resolve!(reaction);
+        deferred.resolve(reaction);
         emoticonsDropdown.hideAndDestroy();
       },
       freeCustomEmoji: this.freeCustomEmoji,
@@ -420,10 +421,10 @@ export class ChatReactionsMenu {
         }
       },
       searchFetcher: this.isEffects ? async(q) => {
-        const availableEffects = await this.managers.appReactionsManager!.searchAvailableEffects({q});
+        const availableEffects = await this.managers.appReactionsManager.searchAvailableEffects({q});
         return this.splitAvailableEffects(availableEffects);
       } : async(q) => {
-        const emojis = await this.managers.appEmojiManager!.prepareAndSearchEmojis({q, limit: Infinity, minChars: 1, addCustom: true});
+        const emojis = await this.managers.appEmojiManager.prepareAndSearchEmojis({q, limit: Infinity, minChars: 1, addCustom: true});
         return {
           emojis: emojis.filter((emoji) => {
             if(!emoji.docId) {
@@ -439,7 +440,7 @@ export class ChatReactionsMenu {
         };
       },
       groupFetcher: this.isEffects ? async(emojiGroup) => {
-        const availableEffects = await this.managers.appReactionsManager!.searchAvailableEffects({emoticon: (emojiGroup as EmojiGroup.emojiGroup).emoticons});
+        const availableEffects = await this.managers.appReactionsManager.searchAvailableEffects({emoticon: (emojiGroup as EmojiGroup.emojiGroup).emoticons});
         return this.splitAvailableEffects(availableEffects);
       } : undefined,
       showLocks: this.isEffects
@@ -462,7 +463,7 @@ export class ChatReactionsMenu {
     const deferred = deferredPromise<Reaction>();
     this.onFinish(deferred);
     emoticonsDropdown.addEventListener('closed', () => {
-      deferred.resolve!(undefined!);
+      deferred.resolve(undefined!);
       emoticonsDropdown.hideAndDestroy();
     });
 
@@ -472,7 +473,7 @@ export class ChatReactionsMenu {
   private async splitAvailableEffects(availableEffects: AvailableEffect[]): Promise<Awaited<ReturnType<NonNullable<EmojiTab['searchFetcher']>>>> {
     const [stickers, customEmojis] = partition(availableEffects, (availableEffect) => !availableEffect.effect_animation_id);
     const docIds = stickers.map((availableEffect) => availableEffect.effect_sticker_id);
-    const docs = await Promise.all(docIds.map((docId) => this.managers.appDocsManager!.getDoc(docId)));
+    const docs = await Promise.all(docIds.map((docId) => this.managers.appDocsManager.getDoc(docId)));
     return {
       emojis: customEmojis.map((availableEffect) => {
         return {
@@ -587,7 +588,7 @@ export class ChatReactionsMenu {
 
       let doc = availableReaction?.static_icon, delay = false;
       if(!doc) {
-        const result = await this.managers.acknowledged!.appEmojiManager!.getCustomEmojiDocument((reaction as Reaction.reactionCustomEmoji).document_id);
+        const result = await this.managers.acknowledged.appEmojiManager.getCustomEmojiDocument((reaction as Reaction.reactionCustomEmoji).document_id);
         if(result.cached) {
           doc = await result.result;
         } else {

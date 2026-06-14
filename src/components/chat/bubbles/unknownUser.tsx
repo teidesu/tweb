@@ -42,7 +42,7 @@ export function UnknownUserBubble(props: {
 
   const [commonChats] = createResource(() => {
     if(!props.userFull.common_chats_count) return;
-    return rootScope.managers.appUsersManager!.getCommonChats(props.peerId.toUserId(), 3, 0);
+    return rootScope.managers.appUsersManager.getCommonChats(props.peerId.toUserId(), 3, 0);
   });
 
   const Footer = (props: {

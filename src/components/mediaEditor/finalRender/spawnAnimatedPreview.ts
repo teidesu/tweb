@@ -49,7 +49,7 @@ export default async function spawnAnimatedPreview({
 
   const deferred = deferredPromise<void>();
 
-  animatedImg.addEventListener('load', () => deferred.resolve!())
+  animatedImg.addEventListener('load', () => deferred.resolve())
 
   await Promise.race([delay(500), deferred]);
 

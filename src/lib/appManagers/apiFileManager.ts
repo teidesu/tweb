@@ -66,7 +66,7 @@ export type DownloadMediaOptions = {
   downloadId?: string
 };
 
-type DownloadPromise = CancellablePromise<Blob>;
+type DownloadPromise = CancellablePromise<Blob> | Promise<Blob>;
 
 export type MyUploadFile = UploadFile.uploadFile | UploadWebFile.uploadWebFile;
 
@@ -317,7 +317,7 @@ export class ApiFileManager extends AppManager {
     let canceled = false;
     for(let i = 0, length = promises.length; i < length; ++i) {
       const promise = promises[i];
-      if(promise && !promise.isRejected && !promise.isFulfilled) {
+      if(promise && 'cancel' in promise && !promise.isRejected && !promise.isFulfilled) {
         promise.cancel!();
         canceled = true;
       }
@@ -330,7 +330,7 @@ export class ApiFileManager extends AppManager {
     const set = this.requestFilePartReferences.get(reference);
     if(set) {
       for(const promise of set) {
-        promise.reject!(makeError('DOWNLOAD_CANCELED'));
+        promise.reject(makeError('DOWNLOAD_CANCELED'));
       }
     }
   }
@@ -543,7 +543,7 @@ export class ApiFileManager extends AppManager {
   // * will handle file deletion from the other side
   private useReference<T>(reference: ReferenceBytes, promise: Promise<T>) {
     const deferred = deferredPromise<T>();
-    promise.then(deferred.resolve!.bind(deferred), deferred.reject!.bind(deferred));
+    promise.then(deferred.resolve.bind(deferred), deferred.reject.bind(deferred));
 
     let set = this.requestFilePartReferences.get(reference);
     if(!set) {
@@ -574,7 +574,7 @@ export class ApiFileManager extends AppManager {
   }) {
     checkCancel?.();
 
-    const reference = (context as InvokeApiWithReferenceContext).file_reference;
+    const reference = (context).file_reference;
     const invoke = async(): Promise<T> => {
       checkCancel?.(); // do not remove async, because checkCancel will throw an error
 
@@ -605,7 +605,7 @@ export class ApiFileManager extends AppManager {
           // }
 
           return this.refreshReference(
-            context as InvokeApiWithReferenceContext,
+            context,
             reference,
             referenceUsedHex!
           ).then(invoke);
@@ -634,11 +634,11 @@ export class ApiFileManager extends AppManager {
 
       this.referencesStorage.refreshReference(reference).then((reference) => {
         if(hex === bytesToHex(reference)) {
-          deferred.reject!(makeError('REFERENCE_IS_NOT_REFRESHED'));
+          deferred.reject(makeError('REFERENCE_IS_NOT_REFRESHED'));
         }
 
-        deferred.resolve!(reference);
-      }, deferred.reject!.bind(deferred));
+        deferred.resolve(reference);
+      }, deferred.reject.bind(deferred));
     }
 
     return deferred;
@@ -741,7 +741,7 @@ export class ApiFileManager extends AppManager {
         }
 
         p.error = error;
-        p.deferred.reject!(error);
+        p.deferred.reject(error);
       }
     };
 
@@ -766,7 +766,7 @@ export class ApiFileManager extends AppManager {
       const {deferred} = item;
       const _errorHandler = errorHandler.bind(null, item);
 
-      deferred.cancel = () => deferred.reject!(makeError('DOWNLOAD_CANCELED'));
+      deferred.cancel = () => deferred.reject(makeError('DOWNLOAD_CANCELED'));
       deferred.catch((error) => {
         _errorHandler(error);
         item.writer?.truncate?.();
@@ -808,7 +808,7 @@ export class ApiFileManager extends AppManager {
       attach(downloadPrepared, fileName);
 
       if(cachePrepared!) { // cancel cache too
-        downloadPrepared.deferred.catch((err) => cachePrepared.deferred.reject!(err));
+        downloadPrepared.deferred.catch((err) => cachePrepared.deferred.reject(err));
       }
 
       // this.downloadToDiscPromises[cacheFileName] = deferred;
@@ -846,11 +846,11 @@ export class ApiFileManager extends AppManager {
         await writer.write(arr);
         checkCancel();
 
-        downloadPrepared.deferred.resolve!(await writer.finalize());
+        downloadPrepared.deferred.resolve(await writer.finalize());
       }
 
       if(cachePrepared) {
-        cachePrepared.deferred.resolve!(blob);
+        cachePrepared.deferred.resolve(blob);
       }
     }).catch(async(err: ApiError) => {
       if(options.onlyCache) {
@@ -883,7 +883,7 @@ export class ApiFileManager extends AppManager {
       const throttledDispatchProgress = throttle(dispatchProgress, 50, true);
 
       let done = 0;
-      let _writePromise: CancellablePromise<void> = Promise.resolve(),
+      let _writePromise: CancellablePromise<void> | Promise<void> = Promise.resolve(),
         _offset = 0;
       const superpuper = async() => {
         if(_offset && _offset > size) {
@@ -961,7 +961,7 @@ export class ApiFileManager extends AppManager {
             checkCancel();
           }
 
-          writeDeferred.resolve!();
+          writeDeferred.resolve();
 
           if(isFinal) {
             const saveToStorage = done <= MAX_FILE_SAVE_SIZE;
@@ -972,12 +972,12 @@ export class ApiFileManager extends AppManager {
               }
 
               const result = writer.finalize(saveToStorage);
-              deferred.resolve!(result);
+              deferred.resolve(result);
             });
           }
         } catch(err) {
           errorHandler(null as unknown as typeof cachePrepared, err as ApiError);
-          writeDeferred.resolve!();
+          writeDeferred.resolve();
         }
       };
 
@@ -1072,7 +1072,7 @@ export class ApiFileManager extends AppManager {
 
     const deferred = deferredPromise<typeof resultInputFile>();
     if(totalParts > this.maxUploadParts) {
-      deferred.reject!(makeError('FILE_TOO_BIG'));
+      deferred.reject(makeError('FILE_TOO_BIG'));
       return deferred;
     }
 
@@ -1082,7 +1082,7 @@ export class ApiFileManager extends AppManager {
         this.log.error('up error', error);
       }
 
-      deferred.reject!(error);
+      deferred.reject(error);
       canceled = true;
       errorHandler = noop;
     };
@@ -1129,10 +1129,10 @@ export class ApiFileManager extends AppManager {
 
               ++doneParts;
               const progress: Progress = {done: Math.min(doneParts * partSize, fileSize), offset, total: fileSize, fileName: fileName!};
-              deferred.notify!(progress);
+              deferred.notify(progress);
 
               if(doneParts >= totalParts) {
-                deferred.resolve!(resultInputFile);
+                deferred.resolve(resultInputFile);
                 resolved = true;
               }
             }, errorHandler);
@@ -1172,7 +1172,7 @@ export class ApiFileManager extends AppManager {
       if(canceled) return;
       const r = it.next();
       if(r.done || canceled) return;
-      (r.value as Promise<void>).then(process);
+      (r.value).then(process);
     };
 
     const maxRequests = Infinity;

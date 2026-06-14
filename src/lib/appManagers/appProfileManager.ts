@@ -24,6 +24,7 @@ import callbackifyAll from '@helpers/callbackifyAll';
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
 import {PEER_FULL_TTL} from '@appManagers/constants';
 import {isParticipantAdmin} from '@lib/appManagers/utils/chats/isParticipantAdmin';
+import {isTruthy} from '../../helpers/isTruthy';
 
 export type UserTyping = Partial<{userId: UserId, action: SendMessageAction, timeout: number}>;
 
@@ -228,7 +229,7 @@ export class AppProfileManager extends AppManager {
         id: this.appUsersManager.getUserInput(id)
       },
       processResult: (usersUserFull) => {
-        return this.saveFullPeerResult(peerId, usersUserFull) as UserFull;
+        return this.saveFullPeerResult(peerId, usersUserFull);
       }
     });
   }
@@ -256,7 +257,7 @@ export class AppProfileManager extends AppManager {
     const referenceContext: ReferenceContext = {type: 'savedMusic', userId};
     const documents = result.documents
     .map((doc) => this.appDocsManager.saveDoc(doc, referenceContext))
-    .filter(Boolean);
+    .filter(isTruthy);
 
     return {count: result.count, documents};
   }
@@ -325,7 +326,7 @@ export class AppProfileManager extends AppManager {
           profile.profile_photo,
           profile.fallback_photo,
           profile.personal_photo
-        ].filter((photo) => photo?._ === 'photo') as Photo.photo[];
+        ].filter((photo) => photo?._ === 'photo');
         const shownId = this.appPeersManager.getPeerPhoto(peerId)?.photo_id;
         return (shownId && candidates.find((photo) => photo.id === shownId)) || candidates[0];
       }

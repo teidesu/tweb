@@ -181,14 +181,14 @@ export default function createChatPinnedMessage(
       onClick: () => {
         PopupElement.createPopup(PopupPinMessage, chat.peerId, pinnedMid, true);
       },
-      verify: () => managers.appPeersManager!.canPinMessage(chat.peerId)
+      verify: () => managers.appPeersManager.canPinMessage(chat.peerId)
     }, {
       icon: 'eyecross_outline',
       text: 'Popup.Unpin.HideTitle',
       onClick: () => {
         PopupElement.createPopup(PopupPinMessage, chat.peerId, 0, true);
       },
-      verify: async() => !(await managers.appPeersManager!.canPinMessage(chat.peerId))
+      verify: async() => !(await managers.appPeersManager.canPinMessage(chat.peerId))
     }],
     listenerSetter,
     icon: 'pin'
@@ -198,7 +198,7 @@ export default function createChatPinnedMessage(
   const btnUnpin = ButtonIcon('close pinned-message-unpin');
   attachClickEvent(btnUnpin, async(e) => {
     cancelEvent(e);
-    const canPin = await managers.appPeersManager!.canPinMessage(chat.peerId);
+    const canPin = await managers.appPeersManager.canPinMessage(chat.peerId);
     PopupElement.createPopup(
       PopupPinMessage,
       chat.peerId,
@@ -377,7 +377,7 @@ export default function createChatPinnedMessage(
 
       let gotRest = false;
       const promises = [
-        managers.appMessagesManager!.getHistory({
+        managers.appMessagesManager.getHistory({
           peerId: chat.peerId,
           inputFilter: {_: 'inputMessagesFilterPinned'},
           offsetId: mid,
@@ -392,7 +392,7 @@ export default function createChatPinnedMessage(
       ];
 
       if(!pinnedMaxMid) {
-        const promise = managers.appMessagesManager!.getPinnedMessage(
+        const promise = managers.appMessagesManager.getPinnedMessage(
           chat.peerId,
           chat.threadId
         ).then((p) => {
@@ -600,7 +600,7 @@ export default function createChatPinnedMessage(
   function updateActionButton(message?: Message.message) {
     const oldBtn = actionContainer.querySelector(
       '.pinned-container-action-button:not(.is-leaving)'
-    ) as HTMLElement | null;
+    );
     const oldMiddleware = customButtonMiddleware;
     customButtonMiddleware = undefined;
 
@@ -618,7 +618,7 @@ export default function createChatPinnedMessage(
     if(onCallClick) {
       buttonText = I18n.format('PinnedJoinCall', true);
       newBtn = createCustomActionButton({
-        text: i18n('PinnedJoinCall')!,
+        text: i18n('PinnedJoinCall'),
         onClick: onCallClick
       });
     } else {

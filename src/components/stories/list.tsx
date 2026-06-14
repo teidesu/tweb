@@ -93,7 +93,7 @@ function _StoriesList(props: {
       return item?.querySelector('.avatar');
     });
 
-    createStoriesViewer({onExit, target: (target! as Accessor<Element> | undefined)});
+    createStoriesViewer({onExit, target: (target as Accessor<Element> | undefined)});
   });
 
   const onItemClick = (peer: PeerStories, e?: MouseEvent) => {
@@ -224,9 +224,9 @@ function _StoriesList(props: {
     const value = progress();
 
     const scrollableX = !scrolling && getMenuScrollable();
-    if(scrollableX && (scrollableX as HTMLElement).scrollLeft) {
+    if(scrollableX && (scrollableX).scrollLeft) {
       scrolling = true;
-      fastSmoothScrollToStart((scrollableX as HTMLElement), 'x').then(() => {
+      fastSmoothScrollToStart((scrollableX), 'x').then(() => {
         scrolling = false;
       });
     }
@@ -332,7 +332,7 @@ function _StoriesList(props: {
 
   onMount(() => {
     const toggleMute = async(mute: boolean) => {
-      rootScope.managers.appNotificationsManager!.toggleStoriesMute(peer.peerId, mute);
+      rootScope.managers.appNotificationsManager.toggleStoriesMute(peer.peerId, mute);
 
       toastNew({
         langPackKey: mute ? 'NotificationsStoryMutedHint' : 'NotificationsStoryUnmutedHint',
@@ -341,7 +341,7 @@ function _StoriesList(props: {
     };
 
     const toggleHidden = async(hidden: boolean) => {
-      rootScope.managers.appStoriesManager!.toggleStoriesHidden(peer.peerId, hidden);
+      rootScope.managers.appStoriesManager.toggleStoriesHidden(peer.peerId, hidden);
 
       toastNew({
         langPackKey: hidden ? 'StoriesMovedToContacts' : 'StoriesMovedToDialogs',
@@ -389,13 +389,13 @@ function _StoriesList(props: {
         icon: 'mute',
         text: 'NotificationsStoryMute2',
         onClick: () => toggleMute(true),
-        verify: () => !isSelf && rootScope.managers.appNotificationsManager!.isPeerStoriesMuted(peer.peerId).then((isMuted) => !isMuted),
+        verify: () => !isSelf && rootScope.managers.appNotificationsManager.isPeerStoriesMuted(peer.peerId).then((isMuted) => !isMuted),
         multiline: true
       }, {
         icon: 'unmute',
         text: 'NotificationsStoryUnmute2',
         onClick: () => toggleMute(false),
-        verify: () => !isSelf && rootScope.managers.appNotificationsManager!.isPeerStoriesMuted(peer.peerId),
+        verify: () => !isSelf && rootScope.managers.appNotificationsManager.isPeerStoriesMuted(peer.peerId),
         multiline: true
       }, {
         icon: 'eyecross_outline',

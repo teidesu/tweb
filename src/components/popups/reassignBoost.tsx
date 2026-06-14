@@ -215,7 +215,7 @@ export default class PopupReassignBoost extends PopupPeer {
         toastNew({
           langPackKey: 'Boost.Reassign.Wait',
           langPackArguments: [
-            i18n('MoreBoosts', [this.appConfig.boosts_per_sent_gift ?? 1])!,
+            i18n('MoreBoosts', [this.appConfig.boosts_per_sent_gift ?? 1]),
             anchorCallback(() => {
               hideToast();
               this.hideWithCallback(() => {
@@ -252,11 +252,11 @@ export default class PopupReassignBoost extends PopupPeer {
       try {
         const slots = selected().map((myBoost) => myBoost.slot);
         const uniquePeers = filterUnique(selected().map((myBoost) => getPeerId(myBoost.peer!)));
-        await this.managers.appBoostsManager!.applyBoost(this.peerId, slots);
+        await this.managers.appBoostsManager.applyBoost(this.peerId, slots);
         this.hide();
         toastNew({
           langPackKey: 'BoostingReassignedFromPlural',
-          langPackArguments: [slots.length, i18n('BoostingFromOtherChannel', [uniquePeers.length])!]
+          langPackArguments: [slots.length, i18n('BoostingFromOtherChannel', [uniquePeers.length])]
         });
       } catch(err) {
         console.error('error replacing boosts', err);
@@ -296,10 +296,10 @@ export default class PopupReassignBoost extends PopupPeer {
                 });
               })
             ]
-          )!,
-          i18n('Boost.Additional', [this.appConfig.boosts_per_sent_gift ?? 1])!
+          ),
+          i18n('Boost.Additional', [this.appConfig.boosts_per_sent_gift ?? 1])
         ]
-      )!
+      )
     );
 
     this.footer.append(this.btnConfirm);

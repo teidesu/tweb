@@ -26,7 +26,7 @@ async function createFakeMessage(doc: MyDocument, peerId: PeerId, mid: number): 
     _: 'message',
     id: mid,
     mid: mid,
-    peer_id: await rootScope.managers.appPeersManager!.getOutputPeer(peerId),
+    peer_id: await rootScope.managers.appPeersManager.getOutputPeer(peerId),
     peerId: peerId,
     fromId: peerId,
     date: doc.date,
@@ -122,7 +122,7 @@ function SavedMusicContent(props: {
         onClick: async() => {
           const msg = contextMenuTarget?.message;
           if(!msg) return;
-          await rootScope.managers.appMessagesManager!.saveMessages([msg]);
+          await rootScope.managers.appMessagesManager.saveMessages([msg]);
           showForwardPopup({[msg.peerId as number]: [msg.mid!]});
         }
       }, {
@@ -195,8 +195,8 @@ class SavedMusicListLoader extends ListLoader<MediaItem, Message.message> implem
           return {count: this.count ?? 0, items: []};
         }
 
-        const result = await rootScope.managers.appProfileManager!.getSavedMusic(peerId.toUserId(), this.offset, loadCount);
-        const docs = result.documents as MyDocument[];
+        const result = await rootScope.managers.appProfileManager.getSavedMusic(peerId.toUserId(), this.offset, loadCount);
+        const docs = result.documents;
 
         this.offset += docs.length;
 
@@ -240,12 +240,12 @@ class SavedMusicListLoader extends ListLoader<MediaItem, Message.message> implem
   }
 
   private async loadTailChunk(offset: number, count: number): Promise<TailEntry[]> {
-    const result = await rootScope.managers.appProfileManager!.getSavedMusic(
+    const result = await rootScope.managers.appProfileManager.getSavedMusic(
       this.peerId.toUserId(),
       offset,
       count
     );
-    const docs = result.documents as MyDocument[];
+    const docs = result.documents;
     const entries: TailEntry[] = [];
 
     for(const doc of docs) {

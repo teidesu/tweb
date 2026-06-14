@@ -4,6 +4,7 @@ import classNames from '@helpers/string/classNames';
 import {IconTsx} from '@components/iconTsx';
 import {Ripple} from '@components/rippleTsx';
 import {Dynamic} from 'solid-js/web';
+import {isTruthy} from '../../helpers/isTruthy';
 
 const className = 'webpage';
 
@@ -80,7 +81,7 @@ function WebPageMedia(props: {
   const _className = `${className}-preview`;
   const withDocument = props.hasDocument && `${_className}-with-document`;
   if(props.content) {
-    props.content.classList.add(...[_className, withDocument].filter(Boolean) as string[]);
+    props.content.classList.add(...[_className, withDocument].filter(isTruthy));
   }
 
   return (

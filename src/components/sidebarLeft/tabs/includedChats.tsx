@@ -32,7 +32,7 @@ const IncludedChats: Component = () => {
   const dialogsByFilters: Map<MyDialogFilter, Set<PeerId>> = new Map();
 
   const renderResults = async(peerIds: PeerId[]) => {
-    await tab.managers.appUsersManager!.getContacts();
+    await tab.managers.appUsersManager.getContacts();
     const promises = peerIds.map(async(peerId) => {
       const dialogElement = appDialogsManager.addDialogNew({
         peerId: peerId,
@@ -230,7 +230,7 @@ const IncludedChats: Component = () => {
       });
 
       (filter as DialogFilter.dialogFilter)[type === 'included' ? 'includePeerIds' : 'excludePeerIds'] = peerIds;
-      (filter as DialogFilter.dialogFilter)[type === 'included' ? 'include_peers' : 'exclude_peers'] = await Promise.all(peerIds.map((peerId) => tab.managers.appPeersManager!.getInputPeerById(peerId)));
+      (filter as DialogFilter.dialogFilter)[type === 'included' ? 'include_peers' : 'exclude_peers'] = await Promise.all(peerIds.map((peerId) => tab.managers.appPeersManager.getInputPeerById(peerId)));
 
       onSetFilter(filter);
       tab.close();
@@ -244,15 +244,15 @@ const IncludedChats: Component = () => {
 
     promiseCollector.collect((async() => {
       await Promise.all([
-        tab.managers.filtersStorage!.getDialogFilters().then(async(filters) => {
+        tab.managers.filtersStorage.getDialogFilters().then(async(filters) => {
           await Promise.all(filters.filter((filter) => !REAL_FOLDERS.has(filter.id)).map(async(filter) => {
-            const dialogs = await tab.managers.dialogsStorage!.getFolderDialogs(filter.id);
+            const dialogs = await tab.managers.dialogsStorage.getFolderDialogs(filter.id);
             const peerIds = dialogs!.map((d) => d.peerId);
-            dialogsByFilters.set(filter, ((new Set(peerIds))! as Set<number>));
+            dialogsByFilters.set(filter, ((new Set(peerIds)) as Set<number>));
           }));
         }),
 
-        tab.managers.apiManager!.getAppConfig().then((appConfig) => {
+        tab.managers.apiManager.getAppConfig().then((appConfig) => {
           onAppConfig(appConfig);
         })
       ]);

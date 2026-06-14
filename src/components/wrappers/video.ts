@@ -53,7 +53,7 @@ export const USE_VIDEO_OBSERVER = false;
 let roundVideoCircumference = 0;
 mediaSizes.addEventListener('changeScreen', (from, to) => {
   if(to === ScreenSize.mobile || from === ScreenSize.mobile) {
-    const elements = Array.from(document.querySelectorAll('.media-round .progress-ring')) as SVGSVGElement[];
+    const elements = Array.from(document.querySelectorAll('.media-round .progress-ring'));
     const width = mediaSizes.active.round.width;
     const halfSize = width / 2;
     const radius = getProgressRingRadius(width);
@@ -543,7 +543,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
     }
 
     if(!renderDeferred.isFulfilled) {
-      renderDeferred.resolve!();
+      renderDeferred.resolve();
     }
   }, {once: true});
 
@@ -620,7 +620,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
 
     loadPromise.then(async() => {
       if(middleware && !middleware()) {
-        renderDeferred.resolve!();
+        renderDeferred.resolve();
         return;
       }
 
@@ -639,7 +639,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
           if(previousIcon) previousIcon.replaceWith(newIcon);
           else spanTime.append(newIcon);
         }
-        renderDeferred.reject!(err);
+        renderDeferred.reject(err);
       };
       const onMediaLoadPromise = onMediaLoad(video);
       const videoLeakPromise = handleVideoLeak(video, onMediaLoadPromise);
@@ -666,11 +666,11 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
         if(altDoc) {
           videoLeakPromise.then(() => {
             video.pause();
-            renderDeferred.resolve!();
+            renderDeferred.resolve();
           });
           setCurrentTime(video, 0.0001);
         } else {
-          renderDeferred.resolve!();
+          renderDeferred.resolve();
         }
 
         onLoad?.();
@@ -833,7 +833,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
 
       const toggleReleasePromise = (active: boolean) => {
         if(active) releasePromise = deferredPromise();
-        else releasePromise?.resolve!();
+        else releasePromise?.resolve();
       };
 
       const onLock = (active: boolean) => {

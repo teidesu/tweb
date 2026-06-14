@@ -130,7 +130,7 @@ export default function attachListNavigation({
   list.classList.add('navigable-list');
 
   const onMouseMove = (e: MouseEvent) => {
-    const target = findUpAsChild(((e.target as HTMLElement)! as { parentElement: HTMLElement; }), list) as HTMLElement;
+    const target = findUpAsChild(((e.target as HTMLElement) as { parentElement: HTMLElement; }), list) as HTMLElement;
     if(!target) {
       return;
     }
@@ -141,7 +141,7 @@ export default function attachListNavigation({
   const onClick = (e: Event) => {
     cancelEvent(e); // cancel keyboard closening
 
-    const target = findUpAsChild(((e.target as HTMLElement)! as { parentElement: HTMLElement; }), list) as HTMLElement;
+    const target = findUpAsChild(((e.target as HTMLElement) as { parentElement: HTMLElement; }), list) as HTMLElement;
     if(!target) {
       return;
     }

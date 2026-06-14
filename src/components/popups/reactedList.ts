@@ -42,7 +42,7 @@ export async function processDialogElementForReaction({
     stickerContainer.classList.add('reacted-list-reaction-icon');
 
     if(reaction._ === 'reactionEmoji') {
-      const availableReaction = await rootScope.managers.appReactionsManager!.getReaction(reaction.emoticon);
+      const availableReaction = await rootScope.managers.appReactionsManager.getReaction(reaction.emoticon);
 
       wrapSticker({
         doc: availableReaction!.static_icon,
@@ -71,7 +71,7 @@ export async function processDialogElementForReaction({
     fragment.append(span, c);
     replaceContent(dom.lastMessageSpan, fragment);
   } else {
-    const user = await rootScope.managers.appUsersManager!.getUser(peerId.toUserId());
+    const user = await rootScope.managers.appUsersManager.getUser(peerId.toUserId());
     replaceContent(dom.lastMessageSpan, getUserStatusString(user));
   }
 }
@@ -87,9 +87,9 @@ export default class PopupReactedList extends PopupElement {
 
   private async init() {
     const middleware = this.middlewareHelper.get();
-    const message = await this.managers.appMessagesManager!.getGroupsFirstMessage(this.message);
+    const message = await this.managers.appMessagesManager.getGroupsFirstMessage(this.message);
     if(!middleware()) return;
-    const canViewReadParticipants = await this.managers.appMessagesManager!.canViewMessageReadParticipants(message);
+    const canViewReadParticipants = await this.managers.appMessagesManager.canViewMessageReadParticipants(message);
     if(!middleware()) return;
     // this.body.append(generateDelimiter());
 
@@ -149,7 +149,7 @@ export default class PopupReactedList extends PopupElement {
     let hasReadParticipants = false;
     if(canViewReadParticipants) {
       try {
-        const readUserIds = await this.managers.appMessagesManager!.getMessageReadParticipants(message.peerId!, message.mid!);
+        const readUserIds = await this.managers.appMessagesManager.getMessageReadParticipants(message.peerId!, message.mid!);
         if(!middleware()) return;
         if(!readUserIds.length) {
           throw '';
@@ -205,7 +205,7 @@ export default class PopupReactedList extends PopupElement {
       const loader = new ScrollableLoader({
         scrollable,
         getPromise: async() => {
-          const result = await this.managers.appMessagesManager!.getMessageReactionsListAndReadParticipants(message, undefined, reactionCount.reaction, nextOffset, skipReadParticipants, skipReactionsList);
+          const result = await this.managers.appMessagesManager.getMessageReactionsListAndReadParticipants(message, undefined, reactionCount.reaction, nextOffset, skipReadParticipants, skipReactionsList);
           nextOffset = result.nextOffset!;
 
           await Promise.all(result.combined.map(async({peerId, reaction, date}) => {

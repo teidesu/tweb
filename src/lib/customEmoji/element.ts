@@ -95,7 +95,7 @@ export default class CustomEmojiElement extends HTMLElement {
     }
 
     this.middlewareHelper?.clean();
-    this.readyPromise?.reject!();
+    this.readyPromise?.reject();
 
     if(this.renderer) {
       const elements = this.renderer.customEmojis.get(this.docId);

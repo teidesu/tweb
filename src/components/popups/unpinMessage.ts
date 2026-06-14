@@ -16,19 +16,19 @@ export default class PopupPinMessage {
 
     const managers = PopupElement.MANAGERS;
 
-    const canUnpin = await managers.appPeersManager!.canPinMessage(peerId);
+    const canUnpin = await managers.appPeersManager.canPinMessage(peerId);
 
     const callback = (e: MouseEvent, checked: PopupPeerButtonCallbackCheckboxes, oneSide?: boolean, silent?: boolean) => {
       setTimeout(() => { // * костыль, потому что document.elementFromPoint вернёт popup-peer пока он будет закрываться
         let promise: Promise<any>;
         if(unpin && !mid) {
           if(canUnpin) {
-            promise = managers.appMessagesManager!.unpinAllMessages(peerId);
+            promise = managers.appMessagesManager.unpinAllMessages(peerId);
           } else {
-            promise = managers.appMessagesManager!.hidePinnedMessages(peerId);
+            promise = managers.appMessagesManager.hidePinnedMessages(peerId);
           }
         } else {
-          promise = managers.appMessagesManager!.updatePinnedMessage(peerId, mid, unpin, silent, oneSide);
+          promise = managers.appMessagesManager.updatePinnedMessage(peerId, mid, unpin, silent, oneSide);
         }
 
         if(onConfirm) {
@@ -43,7 +43,7 @@ export default class PopupPinMessage {
         if(canUnpin) {
           title = 'Popup.Unpin.AllTitle';
           description = 'Chat.UnpinAllMessagesConfirmation';
-          descriptionArgs = ['' + ((await managers.appMessagesManager!.getPinnedMessagesCount(peerId)) || 1)];
+          descriptionArgs = ['' + ((await managers.appMessagesManager.getPinnedMessagesCount(peerId)) || 1)];
         } else {
           title = 'Popup.Unpin.HideTitle';
           description = 'Popup.Unpin.HideDescription';
@@ -69,7 +69,7 @@ export default class PopupPinMessage {
           callback: (e, checked) => callback(e, checked!, false, !checked!.size)
         });
 
-        if(await managers.appChatsManager!.isBroadcast(peerId.toChatId())) {
+        if(await managers.appChatsManager.isBroadcast(peerId.toChatId())) {
           description = 'PinMessageAlertChannel';
         } else {
           description = 'PinMessageAlert';

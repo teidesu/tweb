@@ -82,7 +82,7 @@ export default class AppTranslationsManager extends AppManager {
         doingKeys.forEach((key) => {
           const deferred = doingMap.get(key) as CancellablePromise<TextWithEntities>;
           map.delete(key);
-          deferred.reject!(err);
+          deferred.reject(err);
         });
 
         return undefined as unknown as MessagesTranslatedText;
@@ -94,7 +94,7 @@ export default class AppTranslationsManager extends AppManager {
         const deferred = doingMap.get(key) as CancellablePromise<TextWithEntities>;
         if(noCaching) map.delete(key);
         else map.set(key, textWithEntities);
-        deferred.resolve!(textWithEntities);
+        deferred.resolve(textWithEntities);
       });
     });
   }
@@ -108,7 +108,7 @@ export default class AppTranslationsManager extends AppManager {
     const map = batch.messages.get(peerId);
     const promise = this.batchTranslation<number>(lang, map!, (mids) => ({
       peer: this.appPeersManager.getInputPeerById(peerId),
-      id: (mids.map((mid) => getServerMessageId(mid))! as number[] | undefined)
+      id: (mids.map((mid) => getServerMessageId(mid)) as number[] | undefined)
     }));
     promise && batch.messagesPromises.set(peerId, promise);
     promise?.then(() => {

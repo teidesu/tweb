@@ -85,7 +85,7 @@ const onAvatarStoriesUpdate = ({peerId}: {peerId: PeerId}) => {
 
 rootScope.addEventListener('avatar_update', onAvatarUpdate);
 rootScope.addEventListener('peer_title_edit', async(data) => {
-  if(!data.threadId && (await rootScope.managers.appAvatarsManager!.isAvatarCached(data.peerId))) return;
+  if(!data.threadId && (await rootScope.managers.appAvatarsManager.isAvatarCached(data.peerId))) return;
 
   onAvatarUpdate(data);
 });
@@ -100,7 +100,7 @@ rootScope.addEventListener('story_new', onAvatarStoriesUpdate);
 
 const getStoriesSegments = async(peerId: PeerId, storyId?: number): Promise<AckedResult<StoriesSegments>> => {
   if(storyId) {
-    const storyUnreadType = await rootScope.managers.appStoriesManager!.getUnreadType(peerId, storyId);
+    const storyUnreadType = await rootScope.managers.appStoriesManager.getUnreadType(peerId, storyId);
 
     const segments: StoriesSegments = [{
       length: 1,
@@ -113,7 +113,7 @@ const getStoriesSegments = async(peerId: PeerId, storyId?: number): Promise<Acke
     };
   }
 
-  return rootScope.managers.acknowledged!.appStoriesManager!.getPeerStoriesSegments(peerId) as unknown as AckedResult<StoriesSegments>;
+  return rootScope.managers.acknowledged.appStoriesManager.getPeerStoriesSegments(peerId) as unknown as AckedResult<StoriesSegments>;
 };
 
 const createUnreadGradient = (context: CanvasRenderingContext2D, size: number, dpr: number) => {
@@ -157,7 +157,7 @@ async function loadAvatarVideoOverlay(
   // playback can begin at that frame, matching the static cover.
   const [url, videoStartTs] = await Promise.all([
     Promise.resolve(apiManagerProxy.loadAvatar(peerId, photo, videoSize)),
-    rootScope.managers.appAvatarsManager!.getAvatarVideoStartTs(peerId, photo, videoSize === 'photo_video_full').catch((): number | undefined => undefined)
+    rootScope.managers.appAvatarsManager.getAvatarVideoStartTs(peerId, photo, videoSize === 'photo_video_full').catch((): number | undefined => undefined)
   ]);
   if(!url || !middleware()) return undefined;
 
@@ -284,7 +284,7 @@ export function StoriesSegments(props: {
       return previousDimensions;
     }
 
-    return calculateSegmentsDimensions(props.size as number);
+    return calculateSegmentsDimensions(props.size);
   }) as Accessor<ReturnType<typeof calculateSegmentsDimensions>>;
   const storiesCircle = createMemo(() => {
     // if(isStoryFolded()) {
@@ -471,7 +471,7 @@ export const AvatarNew = (props: {
   onCleanup(() => {
     lastRenderPromise = undefined;
     middlewareHelper.destroy();
-    readyPromise.resolve!();
+    readyPromise.resolve();
     cleanLastKey();
 
     (props.lazyLoadQueue as LazyLoadQueue)?.delete({div: node!});
@@ -482,14 +482,14 @@ export const AvatarNew = (props: {
   const _setMedia = (media?: JSX.Element) => {
     setMedia(media);
     setReady(true);
-    readyPromise.resolve!();
-    readyThumbPromise.resolve!();
+    readyPromise.resolve();
+    readyThumbPromise.resolve();
   };
 
   const _setThumb = (thumb?: JSX.Element) => {
     setThumb(thumb);
     setReady(true);
-    readyThumbPromise.resolve!();
+    readyThumbPromise.resolve();
   };
 
   const getKey = () => getAvatarQueueKey(props.peerId!, props.threadId);
@@ -745,7 +745,7 @@ export const AvatarNew = (props: {
     }
 
     if(threadId) {
-      const topic = await managers.dialogsStorage!.getForumTopic(peerId!, threadId);
+      const topic = await managers.dialogsStorage.getForumTopic(peerId!, threadId);
       set({isTopic: true});
 
       return wrapTopicIcon({
@@ -771,14 +771,14 @@ export const AvatarNew = (props: {
     const _isForum = !!(peer as Chat.channel)?.pFlags?.forum;
     const _isSubscribed = props.isSubscribed ?? !!(peer as Chat.channel)?.subscription_until_date;
     const storiesSegmentsResult = withStories && ((peer as User.user | Chat.channel)?.stories_max_id || storyId) && await getStoriesSegments(peerId!, storyId);
-    const storiesSegments = storiesSegmentsResult && (storiesSegmentsResult as AckedResult<StoriesSegments>).cached ? await (storiesSegmentsResult as AckedResult<StoriesSegments>).result : undefined;
+    const storiesSegments = storiesSegmentsResult && (storiesSegmentsResult).cached ? await (storiesSegmentsResult).result : undefined;
     if(!middleware()) {
       return;
     }
 
     const size: PeerPhotoSize = isBig ? 'photo_big' : 'photo_small';
 
-    const linkedMonoforumPeer = peer?._ === 'channel' && peer.pFlags?.monoforum && peer.linked_monoforum_id ? await managers.appChatsManager!.getChat(peer.linked_monoforum_id.toPeerId?.()) : undefined;
+    const linkedMonoforumPeer = peer?._ === 'channel' && peer.pFlags?.monoforum && peer.linked_monoforum_id ? await managers.appChatsManager.getChat(peer.linked_monoforum_id.toPeerId?.()) : undefined;
 
     const photo = getPeerPhoto(linkedMonoforumPeer || peer);
     const avatarAvailable = !!photo;

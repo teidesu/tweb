@@ -7,10 +7,10 @@ export default class AppGamesManager extends AppManager {
   public saveGame(game: Game, mediaContext?: ReferenceContext): Game {
     if(!game || game._ !== 'game') return game;
     if(game.photo) {
-      game.photo = this.appPhotosManager.savePhoto(game.photo as Photo, mediaContext) || game.photo;
+      game.photo = this.appPhotosManager.savePhoto(game.photo, mediaContext) || game.photo;
     }
     if(game.document) {
-      game.document = this.appDocsManager.saveDoc(game.document as Document, mediaContext) || game.document;
+      game.document = this.appDocsManager.saveDoc(game.document, mediaContext) || game.document;
     }
     return game;
   }

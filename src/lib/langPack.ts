@@ -17,6 +17,7 @@ import {createSignal} from 'solid-js';
 import commonStateStorage from '@lib/commonStateStorage';
 import Icon from '@components/icon';
 import currencyStarIcon from '@components/currencyStarIcon';
+import {isTruthy} from '../helpers/isTruthy';
 
 export const langPack: {[actionType: string]: LangPackKey} = {
   'messageActionChatCreate': 'ActionCreateGroup',
@@ -156,7 +157,7 @@ namespace I18n {
 
     if(haveToUpdate) {
       cachedDateTimeFormats.clear();
-      const elements = Array.from(document.querySelectorAll(`.i18n`)) as HTMLElement[];
+      const elements = Array.from(document.querySelectorAll(`.i18n`));
       elements.forEach((element) => {
         const instance = weakMap.get(element);
 
@@ -195,17 +196,17 @@ namespace I18n {
     web = true;
     const managers = rootScope.managers;
     return Promise.all([
-      managers.appLangPackManager!.getLangPack(langCode, web ? 'web' : App.langPack, ignoreCache),
-      !web && managers.appLangPackManager!.getLangPack(langCode, 'android', ignoreCache),
+      managers.appLangPackManager.getLangPack(langCode, web ? 'web' : App.langPack, ignoreCache),
+      !web && managers.appLangPackManager.getLangPack(langCode, 'android', ignoreCache),
       import('../lang'),
       import('../langSign'),
-      managers.appLangPackManager!.getCountriesList(langCode, ignoreCache),
+      managers.appLangPackManager.getCountriesList(langCode, ignoreCache),
       polyfillPromise
     ]);
   }
 
   export function getStrings(langCode: string, strings: string[]) {
-    return rootScope.managers.appLangPackManager!.getStrings(langCode, strings);
+    return rootScope.managers.appLangPackManager.getStrings(langCode, strings);
   }
 
   export function formatLocalStrings(strings: any, pushTo: LangPackString[] = []) {
@@ -240,7 +241,7 @@ namespace I18n {
       });
 
       if(!TEST_LOCAL) pushLocal();
-      strings = strings.concat(...[langPack1.strings, langPack2 && (langPack2 as unknown as LangPackDifference).strings].filter(Boolean) as LangPackString[][]);
+      strings = strings.concat(...[langPack1.strings, langPack2 && (langPack2 as unknown as LangPackDifference).strings].filter(isTruthy));
       if(TEST_LOCAL) pushLocal();
 
       langPack1.strings = strings;
@@ -314,9 +315,9 @@ namespace I18n {
 
     if(lastAppliedLangCode !== currentLangCode) {
       if(lastAppliedLangCode && rootScope.myId) {
-        rootScope.managers.appReactionsManager!.resetAvailableReactions();
-        rootScope.managers.appUsersManager!.indexMyself();
-        rootScope.managers.dialogsStorage!.indexMyDialog();
+        rootScope.managers.appReactionsManager.resetAvailableReactions();
+        rootScope.managers.appUsersManager.indexMyself();
+        rootScope.managers.dialogsStorage.indexMyDialog();
       }
 
       lastAppliedLangCode = currentLangCode;
@@ -325,7 +326,7 @@ namespace I18n {
       rootScope.dispatchEvent('language_change', currentLangCode);
     }
 
-    const elements = Array.from(document.querySelectorAll(`.i18n`)) as HTMLElement[];
+    const elements = Array.from(document.querySelectorAll(`.i18n`));
     elements.forEach((element) => {
       const instance = weakMap.get(element);
 
@@ -506,7 +507,7 @@ namespace I18n {
     } */
   }
 
-  export const weakMap: WeakMap<HTMLElement, IntlElementBase<IntlElementBaseOptions>> = new WeakMap();
+  export const weakMap: WeakMap<Element, IntlElementBase<IntlElementBaseOptions>> = new WeakMap();
 
   export type IntlElementBaseOptions = {
     element?: HTMLElement,
@@ -514,7 +515,7 @@ namespace I18n {
   };
 
   abstract class IntlElementBase<Options extends IntlElementBaseOptions> {
-    public element: IntlElementBaseOptions['element'];
+    public element: HTMLElement;
     public property: IntlElementBaseOptions['property'];
 
     constructor(options?: Options) {
@@ -549,14 +550,14 @@ namespace I18n {
       safeAssign(this, options);
 
       if(!this.key) {
-        this.element!.replaceChildren();
+        this.element.replaceChildren();
         return;
       }
 
       if(this.property === 'innerHTML') {
-        this.element!.replaceChildren(...format(this.key, false, this.args) as any);
+        this.element.replaceChildren(...format(this.key, false, this.args) as any);
         if(this.args?.length) {
-          this.element!.normalize();
+          this.element.normalize();
         }
       } else {
         // @ts-ignore
@@ -564,7 +565,7 @@ namespace I18n {
         const formatted = format(this.key, true, this.args);
 
         // * hasOwnProperty won't work here
-        if(v === undefined) this.element!.dataset[this.property!] = formatted;
+        if(v === undefined) this.element.dataset[this.property!] = formatted;
         else (this.element as HTMLInputElement)[this.property!] = formatted;
       }
     }
@@ -610,7 +611,7 @@ namespace I18n {
 
     constructor(options: IntlDateElementOptions) {
       super({...options, property: options.property ?? 'textContent'});
-      setDirection(this.element!);
+      setDirection(this.element);
 
       if(options?.date) {
         this.update(options);
@@ -641,15 +642,15 @@ namespace I18n {
     }
   }
 
-  export function i18n(key: LangPackKey, args?: FormatterArguments) {
+  export function i18n(key: LangPackKey, args?: FormatterArguments): HTMLElement {
     return new IntlElement({key, args}).element;
   }
 
-  export function i18n_(options: IntlElementOptions) {
+  export function i18n_(options: IntlElementOptions): HTMLElement {
     return new IntlElement(options).element;
   }
 
-  export function _i18n(element: HTMLElement, key: LangPackKey, args?: FormatterArguments, property?: IntlElementOptions['property']) {
+  export function _i18n(element: HTMLElement, key: LangPackKey, args?: FormatterArguments, property?: IntlElementOptions['property']): HTMLElement {
     return new IntlElement({element, key, args, property}).element;
   }
 }
@@ -670,7 +671,7 @@ export function joinElementsWith<T>(
   elements: T[],
   joiner: T | string | ((isLast: boolean) => T)
 ): T[] {
-  const arr = elements.slice(0, 1) as T[];
+  const arr = elements.slice(0, 1);
   for(let i = 1; i < elements.length; ++i) {
     const isLast = (elements.length - 1) === i;
     arr.push(typeof(joiner) === 'function' ? (joiner as any)(isLast) : joiner);
@@ -690,7 +691,7 @@ export function join(elements: (Node | string)[], useLast = true, plain?: boolea
     return plain ? I18n.format(langPackKey, true) : i18n(langPackKey);
   });
 
-  return plain ? joined.join('') : (joined! as string | (string | Node)[]);
+  return plain ? joined.join('') : (joined as string | (string | Node)[]);
 }
 
 export async function handleUpdateLangPack(update: {difference: LangPackDifference}) {
@@ -767,7 +768,7 @@ export function handleStateCleared() {
 
 export async function checkLangPackForUpdates() {
   const storedLangPack = await I18n.getCacheLangPack();
-  const difference = await rootScope.managers.appLangPackManager!.getDifference(storedLangPack.lang_code, storedLangPack.version);
+  const difference = await rootScope.managers.appLangPackManager.getDifference(storedLangPack.lang_code, storedLangPack.version);
   if(difference.version > storedLangPack.version) {
     return handleUpdateLangPack({difference});
   }

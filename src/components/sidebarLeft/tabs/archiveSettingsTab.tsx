@@ -23,7 +23,7 @@ export default function ArchiveSettingsTab() {
   const promiseCollector = usePromiseCollector();
 
   const [globalPrivacy] = createResource(() => {
-    const promise = rootScope.managers.appPrivacyManager!.getGlobalPrivacySettings();
+    const promise = rootScope.managers.appPrivacyManager.getGlobalPrivacySettings();
     promiseCollector.collect(promise);
     return promise;
   });
@@ -70,7 +70,7 @@ export default function ArchiveSettingsTab() {
     setBooleanFlag(settings!.pFlags, 'keep_archived_folders', store.keepArchivedUnmutedChats ? true : store.keepArchiveFromFolders);
     setBooleanFlag(settings!.pFlags, 'archive_and_mute_new_noncontact_peers', store.archiveNonContactChats);
 
-    await rootScope.managers.appPrivacyManager!.setGlobalPrivacySettings(settings!);
+    await rootScope.managers.appPrivacyManager.setGlobalPrivacySettings(settings!);
 
     tab.close();
   });

@@ -125,7 +125,7 @@ function useArchivedDialogsState() {
   let initialPromise: Promise<AckedResult<unknown>>;
 
   const fetchDialogs = async() => {
-    const typedPromise = rootScope.managers.acknowledged!.dialogsStorage!.getDialogs({
+    const typedPromise = rootScope.managers.acknowledged.dialogsStorage.getDialogs({
       filterId: FOLDER_ID_ARCHIVE,
       limit
     });
@@ -271,7 +271,7 @@ function useTotalUnreadCount() {
   const {rootScope} = useHotReloadGuard();
 
   const [totalUnreadCount, {mutate}] = createResource(
-    () => rootScope.managers.dialogsStorage!.getFolderUnreadCount(FOLDER_ID_ARCHIVE).then(result => result.unreadCount),
+    () => rootScope.managers.dialogsStorage.getFolderUnreadCount(FOLDER_ID_ARCHIVE).then(result => result.unreadCount),
     {
       initialValue: 0
     }
@@ -301,7 +301,7 @@ function useStoriesSegments(storiesContextValue: StoriesContextValue) {
 
   const [storiesSegments, setStoriesSegments] = createSignal<StoriesSegments>();
 
-  const fetchStoriesSegmentsByPeerIds = (peerIds: PeerId[]) => rootScope.managers.appStoriesManager!.getPeersStoriesSegments(peerIds);
+  const fetchStoriesSegmentsByPeerIds = (peerIds: PeerId[]) => rootScope.managers.appStoriesManager.getPeersStoriesSegments(peerIds);
 
   const [storiesSegmentsByPeerIds, {refetch}] = createResource(
     storiesPeerIds,
@@ -369,7 +369,7 @@ function useOpenArchiveStories(storiesContextValue: StoriesContextValue) {
 
     createStoriesViewerWithProvider({
       onExit,
-      target: (viewerTarget! as Accessor<Element> | undefined)
+      target: (viewerTarget as Accessor<Element> | undefined)
     }, {
       peers: cloneCurrentPeers(),
       archive: true
@@ -389,7 +389,7 @@ function PeerTitleItem(props: {
 }) {
   const {PeerTitleTsx, rootScope} = useHotReloadGuard();
 
-  const [isUnread] = createResource(() => props.dialog, (dialog) => rootScope.managers.appMessagesManager!.isDialogUnread(dialog));
+  const [isUnread] = createResource(() => props.dialog, (dialog) => rootScope.managers.appMessagesManager.isDialogUnread(dialog));
 
   createEffect(() => {
     if(isUnread.state !== 'ready') return;

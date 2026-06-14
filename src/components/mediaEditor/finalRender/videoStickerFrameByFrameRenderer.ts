@@ -39,7 +39,7 @@ export default class VideoStickerFrameByFrameRenderer implements StickerFrameByF
     this.duration = video.duration;
 
     video.addEventListener('seeked', () => {
-      this.currentDeferredFrame?.resolve!();
+      this.currentDeferredFrame?.resolve();
     });
   }
 

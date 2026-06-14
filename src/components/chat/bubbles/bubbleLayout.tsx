@@ -10,7 +10,7 @@ import ReplyMarkupLayout from '@components/chat/bubbleParts/replyMarkupLayout';
 function ViaUsername(props: { botId: BotId }) {
   const [resource, ctx] = createResource(async() => {
     const via = document.createElement('span');
-    via.innerText = '@' + (await rootScope.managers.appPeersManager!.getPeerUsername(props.botId.toPeerId()));
+    via.innerText = '@' + (await rootScope.managers.appPeersManager.getPeerUsername(props.botId.toPeerId()));
     via.classList.add('peer-title');
     return via
   })

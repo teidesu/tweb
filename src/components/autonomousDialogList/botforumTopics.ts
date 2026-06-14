@@ -27,7 +27,7 @@ export class AutonomousBotforumTopicList extends AutonomousDialogListBase<ForumT
         return;
       }
 
-      const dialog = await this.managers.dialogsStorage!.getForumTopic(peerId, threadId);
+      const dialog = await this.managers.dialogsStorage.getForumTopic(peerId, threadId);
 
       if(!dialog) return;
 
@@ -86,7 +86,7 @@ export class AutonomousBotforumTopicList extends AutonomousDialogListBase<ForumT
       if(isDialog(dialog)) {
         const all = this.sortedList.getAllDialogElementsMap();
         const entries = [...all.entries()];
-        const promises = entries.map(([id]) => this.managers.dialogsStorage!.getForumTopic(this.peerId, id));
+        const promises = entries.map(([id]) => this.managers.dialogsStorage.getForumTopic(this.peerId, id));
         const topics = await Promise.all(promises);
         entries.forEach(([id, element], idx) => {
           this.appDialogsManager.setUnreadMessagesN({dialog: topics[idx]!, dialogElement: element}); // возможно это не нужно, но нужно менять is-muted
@@ -108,7 +108,7 @@ export class AutonomousBotforumTopicList extends AutonomousDialogListBase<ForumT
   }
 
   public getDialogFromElement(element: HTMLElement) {
-    return this.managers.dialogsStorage!.getForumTopic(+element.dataset.peerId!, +element.dataset.threadId!) as unknown as Promise<ForumTopic>;
+    return this.managers.dialogsStorage.getForumTopic(+element.dataset.peerId!, +element.dataset.threadId!) as unknown as Promise<ForumTopic>;
   }
 
   protected getFilterId() {

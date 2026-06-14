@@ -746,7 +746,7 @@ export default class VideoPlayer extends ControlsHover {
   }
 
   public updateLiveViewersCount(count: number) {
-    this.wrapper.querySelector('.left-controls-watching')!.replaceChildren(i18n('Rtmp.Watching', [numberThousandSplitterForWatching(Math.max(1, count))])!);
+    this.wrapper.querySelector('.left-controls-watching')!.replaceChildren(i18n('Rtmp.Watching', [numberThousandSplitterForWatching(Math.max(1, count))]));
   }
 
   get inPip() {

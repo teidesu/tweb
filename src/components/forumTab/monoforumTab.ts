@@ -90,17 +90,17 @@ export class MonoforumTab extends ForumTab {
           dialog: true,
           wrapOptions: {middleware}
         }),
-        dialogs: this.managers.monoforumDialogsStorage!.getDialogs({parentPeerId: peerId, limit: 1})
+        dialogs: this.managers.monoforumDialogsStorage.getDialogs({parentPeerId: peerId, limit: 1})
       }));
 
       this.title.append(peerTitle);
-      this.subtitle.append((this.dialogsCountI18nEl = i18n('ChannelDirectMessages.ThreadsCount', [dialogs ? dialogs.count + '' : '~'])!)!!)
+      this.subtitle.append((this.dialogsCountI18nEl = i18n('ChannelDirectMessages.ThreadsCount', [dialogs ? dialogs.count + '' : '~'])!))
     } catch{}
   }
 
   private async updateDialogsCount() {
     if(!this.dialogsCountI18nEl) return;
-    const {count} = await this.managers.monoforumDialogsStorage!.getDialogs({parentPeerId: this.peerId, limit: 1});
-    this.dialogsCountI18nEl.replaceWith(i18n('ChannelDirectMessages.ThreadsCount', [count + ''])!);
+    const {count} = await this.managers.monoforumDialogsStorage.getDialogs({parentPeerId: this.peerId, limit: 1});
+    this.dialogsCountI18nEl.replaceWith(i18n('ChannelDirectMessages.ThreadsCount', [count + '']));
   }
 }

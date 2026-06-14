@@ -231,7 +231,7 @@ export default function transferStarGift(gift: MyStarGift, toPeerId?: PeerId): P
           button: {
             langKey: 'Confirm'
           },
-          callback: (password) => rootScope.managers.apiManager!.invokeApi('payments.getStarGiftWithdrawalUrl', {
+          callback: (password) => rootScope.managers.apiManager.invokeApi('payments.getStarGiftWithdrawalUrl', {
             stargift: input!,
             password: password
           })
@@ -239,9 +239,9 @@ export default function transferStarGift(gift: MyStarGift, toPeerId?: PeerId): P
 
         safeWindowOpen(url.url);
 
-        deferred.resolve!(true);
+        deferred.resolve(true);
       } catch(e) {
-        deferred.resolve!(false);
+        deferred.resolve(false);
       }
       return
     }
@@ -250,11 +250,11 @@ export default function transferStarGift(gift: MyStarGift, toPeerId?: PeerId): P
       gift,
       recipient: peerId,
       handleSubmit: async() => {
-        const inputPeer = await rootScope.managers.appPeersManager!.getInputPeerById(peerId);
+        const inputPeer = await rootScope.managers.appPeersManager.getInputPeerById(peerId);
 
         if(Number(saved?.transfer_stars ?? '0') === 0) {
-          await rootScope.managers.appGiftsManager!.transferStarGift(gift.input!, peerId, gift.ownerId);
-          deferred.resolve!(true)
+          await rootScope.managers.appGiftsManager.transferStarGift(gift.input!, peerId, gift.ownerId);
+          deferred.resolve(true)
         } else {
           const popup = await PopupPayment.create({
             inputInvoice: {
@@ -271,14 +271,14 @@ export default function transferStarGift(gift: MyStarGift, toPeerId?: PeerId): P
                 rootScope.dispatchEvent('star_gift_list_update', {peerId: gift.ownerId});
               }
               rootScope.dispatchEvent('star_gift_list_update', {peerId});
-              deferred.resolve!(true);
+              deferred.resolve(true);
             } else {
-              deferred.resolve!(false);
+              deferred.resolve(false);
             }
           });
         }
       },
-      handleCancel: () => deferred.resolve!(false)
+      handleCancel: () => deferred.resolve(false)
     })
   }
 
@@ -298,7 +298,7 @@ export default function transferStarGift(gift: MyStarGift, toPeerId?: PeerId): P
     titleLangKey: 'StarGiftTransferTo',
     onClose: () => {
       if(!peerSelectorResolved) {
-        deferred.resolve!(false);
+        deferred.resolve(false);
       }
     }
   });

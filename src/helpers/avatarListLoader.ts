@@ -24,7 +24,7 @@ export default class AvatarListLoader<Item extends {photoId: Photo.photo['id']}>
           return Promise.resolve({count, items: []});
         }
 
-        return this.managers.appPhotosManager!.getUserPhotos(this.peerId, maxId, loadCount).then((value) => {
+        return this.managers.appPhotosManager.getUserPhotos(this.peerId, maxId, loadCount).then((value) => {
           const items = value.photos
           .filter((photoId) => photoId !== this.fallbackPhotoId)
           .map((photoId) => {

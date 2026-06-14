@@ -277,7 +277,7 @@ const PopupElement = (props: {
     night,
     confirmShortcutIsSendShortcut,
     get btnConfirmOnEnter() { return btnConfirmOnEnter(); },
-    setBtnConfirmOnEnter: ((props.btnConfirmOnEnter ? noop as typeof setBtnConfirmOnEnter : setBtnConfirmOnEnter)! as Setter<HTMLElement>),
+    setBtnConfirmOnEnter: ((props.btnConfirmOnEnter ? noop as typeof setBtnConfirmOnEnter : setBtnConfirmOnEnter) as Setter<HTMLElement>),
     isConfirmationNeededOnClose,
     closable: props.closable || false,
     get element() { return popupElement(); },

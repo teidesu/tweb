@@ -7,7 +7,7 @@ import {toastNew} from '@components/toast';
 import showFeatureDetailsPopup from '@components/popups/featureDetails';
 
 export async function createPasskey() {
-  const registrationOptions = await rootScope.managers.appAccountManager!.initPasskeyRegistration();
+  const registrationOptions = await rootScope.managers.appAccountManager.initPasskeyRegistration();
   const publicKeyCredentialCreationOptions = PublicKeyCredential.parseCreationOptionsFromJSON(JSON.parse(registrationOptions.options.data).publicKey);
 
   // if(IS_BETA) {
@@ -20,7 +20,7 @@ export async function createPasskey() {
 
   try {
     const credential = await navigator.credentials.create({publicKey: publicKeyCredentialCreationOptions});
-    const passkey = await rootScope.managers.appAccountManager!.registerPasskey(getInputPasskeyCredential(credential as PublicKeyCredential));
+    const passkey = await rootScope.managers.appAccountManager.registerPasskey(getInputPasskeyCredential(credential as PublicKeyCredential));
     toastNew({langPackKey: 'Passkey.Created'});
     return passkey;
   } catch(err) {

@@ -9,7 +9,7 @@ export default function getUniqueCustomEmojisFromMessage(message: Message) {
       return;
     }
 
-    const filtered = entities.filter((entity) => entity._ === 'messageEntityCustomEmoji') as MessageEntity.messageEntityCustomEmoji[];
+    const filtered = entities.filter((entity) => entity._ === 'messageEntityCustomEmoji');
     docIds.push(...filtered.map((entity) => entity.document_id));
   };
 

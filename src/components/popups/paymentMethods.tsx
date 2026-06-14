@@ -25,7 +25,7 @@ export default class PopupPaymentMethods extends PopupElement {
 
     this.promise = deferredPromise();
     this.addEventListener('closeAfterTimeout', () => {
-      this.promise.reject!();
+      this.promise.reject();
     });
     this.construct();
   }
@@ -45,12 +45,12 @@ export default class PopupPaymentMethods extends PopupElement {
         checkboxField: new CheckboxField({round: true, checked}),
         clickable: () => {
           this.hide();
-          this.promise.resolve!(onClick());
+          this.promise.resolve(onClick());
         }
       });
     };
 
-    const newCardRow = createRow(i18n('PaymentMethodNewCard')!, () => {
+    const newCardRow = createRow(i18n('PaymentMethodNewCard'), () => {
       return PopupElement.createPopup(
         PopupPaymentCard,
         this.paymentForm,

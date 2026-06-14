@@ -109,15 +109,15 @@ async function handleAvatarEditorResult(opts: {
   }
 
   if(mode === 'self') {
-    await managers.appProfileManager!.uploadProfilePhoto({
+    await managers.appProfileManager.uploadProfilePhoto({
       file, video, videoStartTs: payload.videoStartTs
     });
   } else if(mode === 'fallback') {
-    await managers.appProfileManager!.uploadProfilePhoto({
+    await managers.appProfileManager.uploadProfilePhoto({
       file, video, videoStartTs: payload.videoStartTs, fallback: true
     });
   } else {
-    await managers.appProfileManager!.uploadContactProfilePhoto({
+    await managers.appProfileManager.uploadContactProfilePhoto({
       userId: mode.userId,
       file, video, videoStartTs: payload.videoStartTs,
       // "Set photo for X" (personal photo, only the current user sees it) needs

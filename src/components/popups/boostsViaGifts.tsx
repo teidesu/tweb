@@ -42,6 +42,7 @@ import {StarsStackedStars} from '@components/popups/stars';
 import numberThousandSplitter, {numberThousandSplitterForStars} from '@helpers/number/numberThousandSplitter';
 import paymentsWrapCurrencyAmount from '@helpers/paymentsWrapCurrencyAmount';
 import flatten from '@helpers/array/flatten';
+import {isTruthy} from '../../helpers/isTruthy';
 
 export const BoostsBadge = (props: {boosts: number}) => {
   return (
@@ -262,7 +263,7 @@ export default class PopupBoostsViaGifts extends PopupElement {
         createRow.subtitle.classList.toggle('is-flex', !showTitles);
         if(!showTitles) {
           createRow.subtitle.replaceChildren(
-            i18n(peerIds.length > 2 ? 'Recipient' : 'BoostsViaGifts.CreateSubtitle', [peerIds.length])!,
+            i18n(peerIds.length > 2 ? 'Recipient' : 'BoostsViaGifts.CreateSubtitle', [peerIds.length]),
             createNextIcon()
           );
         } else {
@@ -408,7 +409,7 @@ export default class PopupBoostsViaGifts extends PopupElement {
             const emojiContainer = document.createElement('span');
             emojiContainer.classList.add('selector-countries-emoji');
             emojiContainer.append(wrapEmojiText(emoji))
-            title.append(emojiContainer, ' ', i18n(country!.default_name as any)!);
+            title.append(emojiContainer, ' ', i18n(country!.default_name as any));
             const row = new Row({
               title,
               clickable: true,
@@ -631,7 +632,7 @@ export default class PopupBoostsViaGifts extends PopupElement {
           ] : [
             i18n(
               additionalPrize() ? 'BoostsViaGifts.AdditionalPrizesDetailedWith' : 'BoostsViaGifts.AdditionalPrizesDetailed',
-             ( [subscriptionsCount(), additionalPrize(), formatMonthsDuration(option()!.months, true)].filter(Boolean!) as FormatterArguments | undefined)!
+              ( [subscriptionsCount(), additionalPrize(), formatMonthsDuration(option()!.months, true)].filter(isTruthy) as FormatterArguments | undefined)
             )
           ]) : undefined)! as FormatterArguments | undefined)}
           captionOld={true}
@@ -717,7 +718,7 @@ export default class PopupBoostsViaGifts extends PopupElement {
     this.footer.classList.add('abitlarger');
 
     const createGiveawayStoreInput = async(): Promise<InputStorePaymentPurpose> => {
-      const peers = await Promise.all(peerIds().map((peerId) => this.managers.appPeersManager!.getInputPeerById(peerId)));
+      const peers = await Promise.all(peerIds().map((peerId) => this.managers.appPeersManager.getInputPeerById(peerId)));
 
       const common = {
         pFlags: {
@@ -750,12 +751,12 @@ export default class PopupBoostsViaGifts extends PopupElement {
 
     const createSpecificStoreInput = async(): Promise<InputStorePaymentPurpose> => {
       const {amount, currency} = option()!;
-      const users = await Promise.all(specificPeerIds().map((peerId) => this.managers.appUsersManager!.getUserInput(peerId.toUserId())));
+      const users = await Promise.all(specificPeerIds().map((peerId) => this.managers.appUsersManager.getUserInput(peerId.toUserId())));
       return {
         _: 'inputStorePaymentPremiumGiftCode',
         amount,
         currency,
-        boost_peer: await this.managers.appPeersManager!.getInputPeerById(this.peerId),
+        boost_peer: await this.managers.appPeersManager.getInputPeerById(this.peerId),
         users
       };
     };
@@ -767,7 +768,7 @@ export default class PopupBoostsViaGifts extends PopupElement {
         button: {langKey: 'Start'}
       });
 
-      return this.managers.appPaymentsManager!.launchPrepaidGiveaway(
+      return this.managers.appPaymentsManager.launchPrepaidGiveaway(
         this.peerId,
         this.prepaidGiveaway!.id,
         purpose
@@ -782,7 +783,7 @@ export default class PopupBoostsViaGifts extends PopupElement {
         _: 'inputInvoicePremiumGiftCode',
         purpose,
         option: option()
-      })! as InputInvoice);
+      }) as InputInvoice);
 
       const popup = await PopupPayment.create({inputInvoice});
       await new Promise<void>((resolve, reject) => {
@@ -823,9 +824,9 @@ export default class PopupBoostsViaGifts extends PopupElement {
 
   private async construct() {
     const [giftCodeOptions, appConfig, starsOptions] = await Promise.all([
-      this.managers.appPaymentsManager!.getPremiumGiftCodeOptions(this.peerId),
-      this.managers.apiManager!.getAppConfig(),
-      this.managers.appPaymentsManager!.getStarsGiveawayOptions()
+      this.managers.appPaymentsManager.getPremiumGiftCodeOptions(this.peerId),
+      this.managers.apiManager.getAppConfig(),
+      this.managers.appPaymentsManager.getStarsGiveawayOptions()
     ]);
     this.premiumGiftCodeOptions = giftCodeOptions;
     this.appConfig = appConfig;

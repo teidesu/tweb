@@ -79,18 +79,18 @@ export default autoDownloadTab((tab) => {
   const value = Math.sqrt(Math.sqrt((sizeMax! - MIN) / MAX_RANGE));
   const upTo = new I18n.IntlElement({
     key: 'AutodownloadSizeLimitUpTo',
-    args: [formatBytes(sizeMax!)!]
+    args: [formatBytes(sizeMax!)]
   });
   const range = new RangeSettingSelector('AutoDownloadMaxFileSize', 0.01, value, 0, 1, false);
   range.onChange = (value) => {
     const sizeMax = (value ** 4 * MAX_RANGE + MIN) | 0;
 
-    upTo.compareAndUpdate({args: [formatBytes(sizeMax)!]});
+    upTo.compareAndUpdate({args: [formatBytes(sizeMax)]});
 
     debouncedSave(sizeMax);
   };
 
-  range.valueContainer.append(upTo.element!);
+  range.valueContainer.append(upTo.element);
 
   section.content.append(range.container);
 

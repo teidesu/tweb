@@ -21,7 +21,7 @@ export default function showPriceChangedTooltip({chat, starsAmount, onResend}: S
     mountOn: chat.bubbles.container,
     relative: true,
     vertical: 'top',
-    textElement: i18n('PaidMessages.PriceChanged', [i18n('Stars', [starsAmount])!]),
+    textElement: i18n('PaidMessages.PriceChanged', [i18n('Stars', [starsAmount])]),
     rightElement: (
       <Button
         class={`btn ${styles.Button}`}

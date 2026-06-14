@@ -21,7 +21,7 @@ export default async function wrapEmojiStatus({
   const {middleware, animationGroup, textColor} = wrapOptions;
   const container = document.createElement('span');
   container.classList.add('emoji-status');
-  const result = await rootScope.managers.acknowledged!.appEmojiManager!.getCustomEmojiDocument(emojiStatus.document_id);
+  const result = await rootScope.managers.acknowledged.appEmojiManager.getCustomEmojiDocument(emojiStatus.document_id);
   const wrap = async(doc: Document.document) => {
     if(!middleware!()) return;
     const loadPromises: Promise<any>[] = [];

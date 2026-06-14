@@ -78,10 +78,10 @@ export type AuthFlowContextValue = {
  * `navigateAuth()`.
  */
 const [currentCard, setCurrentCard] = (() => {
-  const stored = (import.meta.hot?.data as any)?.currentCardSignal as Signal<CardSpec | null> | undefined;
+  const stored = (import.meta.hot?.data)?.currentCardSignal as Signal<CardSpec | null> | undefined;
   if(stored) return stored;
   const pair = createRoot(() => createSignal<CardSpec | null>(null));
-  if(import.meta.hot) (import.meta.hot.data as any).currentCardSignal = pair;
+  if(import.meta.hot) (import.meta.hot.data).currentCardSignal = pair;
   return pair;
 })();
 

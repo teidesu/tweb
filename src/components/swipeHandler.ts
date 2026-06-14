@@ -323,7 +323,7 @@ export default class SwipeHandler {
     if(this.withDelay && !IS_TOUCH_SUPPORTED) {
       const options = {...MOUSE_MOVE_OPTIONS, once: true};
       const deferred = deferredPromise<void>();
-      const cb = () => deferred.resolve!();
+      const cb = () => deferred.resolve();
       const listener = this.listenerSetter.add(attachGlobalListenerTo)('mousemove', cb, options) as any as Listener;
 
       await Promise.race([
@@ -331,7 +331,7 @@ export default class SwipeHandler {
         deferred
       ]);
 
-      deferred.resolve!();
+      deferred.resolve();
       this.listenerSetter.remove(listener);
 
       if(this.tempId !== tempId) {
@@ -416,7 +416,7 @@ export default class SwipeHandler {
 
   protected handleWheel = (e: WheelEvent) => {
     if(!this.hadMove && this.verifyTouchTarget) {
-      const result = this.verifyTouchTarget((e! as EE));
+      const result = this.verifyTouchTarget((e as EE));
       if(result !== undefined && !result) {
         this.reset(e);
         return;
@@ -460,7 +460,7 @@ export default class SwipeHandler {
     }
     const {x, y} = this.initialDragOffset;
     this.releaseWheelDrag(e);
-    this.dispatchOnSwipe(x, y, (e! as EE), (dx, dy) => {
+    this.dispatchOnSwipe(x, y, (e as EE), (dx, dy) => {
       this.isDragCanceled = {x: dx, y: dy};
     });
   };
@@ -468,8 +468,8 @@ export default class SwipeHandler {
   protected onWheelCapture = (e: WheelEvent) => {
     if(this.hadMove) return;
     this.log('wheel capture');
-    this.handleStart((e! as EE));
-    this.setHadMove((e! as EE));
+    this.handleStart((e as EE));
+    this.setHadMove((e as EE));
     this.initialTouchCenter = {x: e.x, y: e.y};
   };
 

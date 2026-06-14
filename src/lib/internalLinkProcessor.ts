@@ -92,7 +92,7 @@ export class InternalLinkProcessor {
           this.managers.appMessagesManager.sendText(peerId, '/' + command);
         }); */
 
-        return this.managers.appMessagesManager!.sendText({
+        return this.managers.appMessagesManager.sendText({
           peerId: appImManager.chat.peerId,
           text: '/' + command + (bot ? '@' + bot : '')
         });
@@ -721,7 +721,7 @@ export class InternalLinkProcessor {
             const tab = appSidebarLeft.createTab(AppEditProfileTab);
             return tab.open({...getEditProfileInitArgs(), focusOn: pathnameParams[1]});
           case 'edit/birthday':
-            return this.managers.appProfileManager!.getProfile(rootScope.myId).then((userFull) => {
+            return this.managers.appProfileManager.getProfile(rootScope.myId).then((userFull) => {
               showBirthdayPopup({
                 initialDate: userFull.birthday,
                 fromProfile: true,
@@ -798,14 +798,14 @@ export class InternalLinkProcessor {
     const userId = link.channel.toUserId();
 
     const {chat, isBotforum, user} = await namedPromises({
-      chat: this.managers.appChatsManager!.getChat(chatId),
-      isBotforum: this.managers.appUsersManager!.isBotforum(userId),
-      user: this.managers.appUsersManager!.getUser(userId)
+      chat: this.managers.appChatsManager.getChat(chatId),
+      isBotforum: this.managers.appUsersManager.isBotforum(userId),
+      user: this.managers.appUsersManager.getUser(userId)
     });
 
     if(!chat && !isBotforum) {
       try {
-        await this.managers.appChatsManager!.resolveChannel(chatId);
+        await this.managers.appChatsManager.resolveChannel(chatId);
       } catch(err) {
         toastNew({langPackKey: 'LinkNotFound'});
         throw err;
@@ -830,7 +830,7 @@ export class InternalLinkProcessor {
   };
 
   public processJoinChatLink = (link: InternalLink.InternalLinkJoinChat) => {
-    return this.managers.appChatInvitesManager!.checkChatInvite(link.invite).then(async(chatInvite) => {
+    return this.managers.appChatInvitesManager.checkChatInvite(link.invite).then(async(chatInvite) => {
       if(chatInvite!._ === 'chatInviteAlready' ||
         chatInvite!._ === 'chatInvitePeek'/*  && chatInvite.expires > tsNow(true) */) {
         appImManager.setInnerPeer({
@@ -876,7 +876,7 @@ export class InternalLinkProcessor {
     };
 
     if(link.livestream !== undefined) {
-      const peer = await this.managers.appUsersManager!.resolveUsername(link.domain!);
+      const peer = await this.managers.appUsersManager.resolveUsername(link.domain!);
       const peerId = peer.id.toPeerId(true);
       await openPeerId(peerId);
       return appImManager.joinLiveStream(peerId);
@@ -903,7 +903,7 @@ export class InternalLinkProcessor {
   };
 
   public processUserPhoneNumberLink = (link: InternalLink.InternalLinkUserPhoneNumber) => {
-    return this.managers.appUsersManager!.resolvePhone(link.phone).then((user) => {
+    return this.managers.appUsersManager.resolvePhone(link.phone).then((user) => {
       return appImManager.setInnerPeer({
         peerId: user.id.toPeerId(false),
         text: link.text
@@ -916,8 +916,8 @@ export class InternalLinkProcessor {
   };
 
   public processInvoiceLink = (link: InternalLink.InternalLinkInvoice) => {
-    return this.managers.appPaymentsManager!.getInputInvoiceBySlug(link.slug).then((inputInvoice) => {
-      return this.managers.appPaymentsManager!.getPaymentForm(inputInvoice).then((paymentForm) => {
+    return this.managers.appPaymentsManager.getInputInvoiceBySlug(link.slug).then((inputInvoice) => {
+      return this.managers.appPaymentsManager.getPaymentForm(inputInvoice).then((paymentForm) => {
         // const message: Message.message = {
         //   _: 'message',
         //   date: 0,
@@ -945,7 +945,7 @@ export class InternalLinkProcessor {
 
   public processAttachMenuBotLink = async(link: InternalLink.InternalLinkAttachMenuBot) => {
     const botUsername = link.attach || link.domain || (link.nestedLink as InternalLink.InternalLinkMessage).domain;
-    const user = await this.managers.appUsersManager!.resolveUserByUsername(botUsername).catch(() => undefined as unknown as User.user);
+    const user = await this.managers.appUsersManager.resolveUserByUsername(botUsername).catch(() => undefined as unknown as User.user);
 
     let processInternalLinkResult: any;
     if(link.attach !== undefined) {
@@ -983,10 +983,10 @@ export class InternalLinkProcessor {
 
       const filteredTypes = choose.filter((type) => {
         const peerTypePredicate = verifyMap[type!];
-        return attachMenuBot!.peer_types!.some((peerType) => peerType._ === peerTypePredicate);
+        return attachMenuBot.peer_types!.some((peerType) => peerType._ === peerTypePredicate);
       });
 
-      const chosenPeerId = await showPickUser3Popup((filteredTypes! as TelegramChoosePeerType[] | undefined));
+      const chosenPeerId = await showPickUser3Popup((filteredTypes as TelegramChoosePeerType[] | undefined));
       await appImManager.setInnerPeer({peerId: chosenPeerId});
     }
 
@@ -994,7 +994,7 @@ export class InternalLinkProcessor {
   };
 
   public processWebAppLink = async(link: InternalLink.InternalLinkWebApp) => {
-    const user = await this.managers.appUsersManager!.resolveUserByUsername(link.domain).catch(() => undefined as unknown as User.user);
+    const user = await this.managers.appUsersManager.resolveUserByUsername(link.domain).catch(() => undefined as unknown as User.user);
     if(!user) {
       toastNew({langPackKey: 'Alert.UserDoesntExists'});
       return;
@@ -1030,7 +1030,7 @@ export class InternalLinkProcessor {
 
     let messagesBotApp: MessagesBotApp;
     try {
-      messagesBotApp = await this.managers.appAttachMenuBotsManager!.getBotApp(botId, link.appname);
+      messagesBotApp = await this.managers.appAttachMenuBotsManager.getBotApp(botId, link.appname);
     } catch(err) {
       if((err as ApiError).type === 'BOT_APP_INVALID') {
         toastNew({langPackKey: 'Alert.BotAppDoesntExist'});
@@ -1066,7 +1066,7 @@ export class InternalLinkProcessor {
   public processListLink = async(link: InternalLink.InternalLinkAddList) => {
     let chatlistInvite: ChatlistsChatlistInvite;
     try {
-      chatlistInvite = await this.managers.filtersStorage!.checkChatlistInvite(link.slug);
+      chatlistInvite = await this.managers.filtersStorage.checkChatlistInvite(link.slug);
     } catch(err) {
       if((err as ApiError).type === 'INVITE_SLUG_EXPIRED') {
         toastNew({langPackKey: 'SharedFolder.Link.Expired'});
@@ -1092,7 +1092,7 @@ export class InternalLinkProcessor {
 
     let peer: User.user | Chat;
     try {
-      peer = await this.managers.appUsersManager!.resolveUsername(link.domain);
+      peer = await this.managers.appUsersManager.resolveUsername(link.domain);
     } catch(err) {
       if((err as ApiError).type === 'USERNAME_NOT_OCCUPIED') {
         toastNew({langPackKey: 'NoUsernameFound'});
@@ -1104,7 +1104,7 @@ export class InternalLinkProcessor {
     }
 
     const peerId = peer.id.toPeerId(peer._ !== 'user');
-    const storyItem = await this.managers.appStoriesManager!.getStoryById(peerId, +link.story);
+    const storyItem = await this.managers.appStoriesManager.getStoryById(peerId, +link.story);
     if(!storyItem) {
       toastNew({langPackKey: 'NoStoryFound'});
       return;
@@ -1119,7 +1119,7 @@ export class InternalLinkProcessor {
   public processBoostLink = async(link: InternalLink.InternalLinkBoost) => {
     let peerId = link.channel ? link.channel.toPeerId(true) : undefined;
     if(peerId === undefined) {
-      const chat = await this.managers.appUsersManager!.resolveUsername(link.domain!) as Chat;
+      const chat = await this.managers.appUsersManager.resolveUsername(link.domain!) as Chat;
       peerId = chat.id.toPeerId(true);
     }
 
@@ -1140,7 +1140,7 @@ export class InternalLinkProcessor {
   };
 
   public processBusinessChatLink = async(link: InternalLink.InternalLinkBusinessChat) => {
-    const resolved = await this.managers.appBusinessManager!.resolveBusinessChatLink(link.slug);
+    const resolved = await this.managers.appBusinessManager.resolveBusinessChatLink(link.slug);
     appImManager.setInnerPeer({
       peerId: resolved.peerId,
       text: resolved.message,
@@ -1194,7 +1194,7 @@ export class InternalLinkProcessor {
   };
 
   public processUniqueStarGiftLink = async(link: InternalLink.InternalLinkUniqueStarGift) => {
-    const gift = await this.managers.appGiftsManager!.getGiftBySlug(link.slug).catch(noop);
+    const gift = await this.managers.appGiftsManager.getGiftBySlug(link.slug).catch(noop);
     if(!gift) {
       toastNew({langPackKey: 'Error.AnError'});
       return;
@@ -1204,7 +1204,7 @@ export class InternalLinkProcessor {
   };
 
   public processStarGiftCollectionLink = async(link: InternalLink.InternalLinkStarGiftCollection) => {
-    const peer = await this.managers.appUsersManager!.resolveUsername(link.domain);
+    const peer = await this.managers.appUsersManager.resolveUsername(link.domain);
     const peerId = peer.id.toPeerId(peer._ !== 'user');
     if(peerId === rootScope.myId) {
       // own gifts live in My Profile, not in the Saved Messages shared media
@@ -1224,7 +1224,7 @@ export class InternalLinkProcessor {
   };
 
   public processStoryAlbumLink = async(link: InternalLink.InternalLinkStoryAlbum) => {
-    const peer = await this.managers.appUsersManager!.resolveUsername(link.domain);
+    const peer = await this.managers.appUsersManager.resolveUsername(link.domain);
     const peerId = peer.id.toPeerId(peer._ !== 'user');
     const albumId = +link.id;
 

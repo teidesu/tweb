@@ -70,7 +70,7 @@ export default class TSwitchers {
         if(isActive && this.enabled === 1) {
           $div.classList.add('tchart--switcher__denied');
 
-          clearTimeout(this.timeout!);
+          clearTimeout(this.timeout);
           this.timeout = setTimeout(() => {
             $div.classList.remove('tchart--switcher__denied');
           }, 500);

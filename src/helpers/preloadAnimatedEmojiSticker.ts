@@ -7,7 +7,7 @@ import {getMiddleware} from '@helpers/middleware';
 import {saveLottiePreview} from '@helpers/saveLottiePreview';
 
 export default function preloadAnimatedEmojiSticker(emoji: string, width?: number, height?: number) {
-  return rootScope.managers.appStickersManager!.preloadAnimatedEmojiSticker(emoji).then(({doc}) => {
+  return rootScope.managers.appStickersManager.preloadAnimatedEmojiSticker(emoji).then(({doc}) => {
     if(!doc) {
       return;
     }

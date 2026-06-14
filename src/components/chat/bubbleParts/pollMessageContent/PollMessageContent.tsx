@@ -408,8 +408,8 @@ export const PollMessageContent =
 
         <Show when={explanationToggled()}>
           <Explanation
-            text={props.results!.solution!}
-            entities={props.results!.solution_entities!}
+            text={props.results.solution!}
+            entities={props.results.solution_entities!}
             photo={explanationPhoto()}
             video={explanationVideo()}
             document={explanationDocument()}

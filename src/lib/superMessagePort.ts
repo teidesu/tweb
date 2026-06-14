@@ -386,11 +386,11 @@ class SuperMessagePort<
             tasks.push(task);
           } else {
             if(!batchTask) {
-              batchTask = this.createTask('batch', []) as BatchTask;
-              tasks.push(batchTask!);
+              batchTask = this.createTask('batch', []) as unknown as BatchTask;
+              tasks.push(batchTask);
             }
 
-            batchTask!.payload.push(task);
+            batchTask.payload.push(task);
           }
         });
       }

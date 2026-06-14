@@ -194,7 +194,7 @@ function GiftOptionsPage(props: {
     }
 
     if(gift.locked_until_date! > tsNow(true)) {
-      const result = await rootScope.managers.apiManager!.invokeApi('payments.checkCanSendGift', {
+      const result = await rootScope.managers.apiManager.invokeApi('payments.checkCanSendGift', {
         gift_id: gift.id
       })
 
@@ -399,7 +399,7 @@ function ResaleOptionsPage(props: {
       }
     }
 
-    const res = await rootScope.managers.appGiftsManager!.getResaleOptions({
+    const res = await rootScope.managers.appGiftsManager.getResaleOptions({
       giftId: props.gift.raw.id,
       sort: sort(),
       attributesHash,
@@ -720,7 +720,7 @@ function StarGiftLimitedProgress(props: {
 }) {
   // NB: deliberately not reactive, gift won't change
   const left = i18n('StarGiftLimitedLeft', [props.gift.availability_remains!]);
-  left!.classList.add(styles.limitedProgressLeft);
+  left.classList.add(styles.limitedProgressLeft);
 
   const progress = 100 * props.gift.availability_remains! / props.gift.availability_total!;
 
@@ -767,14 +767,14 @@ function ChosenGiftPage(props: {
       currency: payWithStars() ? STARS_CURRENCY : props.chosenGift.currency,
       amount: (payWithStars() ? props.chosenGift.priceStars : props.chosenGift.price)!,
       days: props.chosenGift.months * 30
-    })!
+    })
   }));
 
   async function handleSubmit() {
     setSending(true);
     let invoice: InputInvoice;
     if(props.chosenGift.type === 'stargift') {
-      const peer = await rootScope.managers.appPeersManager!.getInputPeerById(props.peerId)
+      const peer = await rootScope.managers.appPeersManager.getInputPeerById(props.peerId)
       invoice = {
         _: 'inputInvoiceStarGift',
         pFlags: {
@@ -787,7 +787,7 @@ function ChosenGiftPage(props: {
       };
     } else {
       const payWithStars$ = payWithStars();
-      const inputUser = await rootScope.managers.appUsersManager!.getUserInput(props.peerId.toUserId());
+      const inputUser = await rootScope.managers.appUsersManager.getUserInput(props.peerId.toUserId());
       if(payWithStars$) {
         invoice = {
           _: 'inputInvoicePremiumGiftStars',
@@ -869,7 +869,7 @@ function ChosenGiftPage(props: {
               />
             ) : (
               <PremiumGiftBubble
-                title={i18n('ActionGiftPremiumTitle2', [formatMonthsDuration(props.chosenGift.months, false)!])}
+                title={i18n('ActionGiftPremiumTitle2', [formatMonthsDuration(props.chosenGift.months, false)])}
                 subtitle={
                   textWithEntities() ?
                     wrapRichText(textWithEntities()!.text, {entities: textWithEntities()!.entities}) :
@@ -974,7 +974,7 @@ function ChosenGiftPage(props: {
                         gift: props.chosenGift as MyStarGift,
                         descriptionForPeerId: props.peerId
                       }));
-                      a.append(i18n('StarGiftMakeUniqueLink')!);
+                      a.append(i18n('StarGiftMakeUniqueLink'));
                       return a;
                     })()
                   ]}
@@ -1062,9 +1062,9 @@ export default class PopupSendGift extends PopupElement {
       }
     })
     const [premiumOptions, giftOptions, peer] = await Promise.all([
-      this.peerId.isUser() ? this.managers.appGiftsManager!.getPremiumGiftOptions() : [] as MyPremiumGiftOption[],
-      this.managers.appGiftsManager!.getStarGiftOptions(),
-      this.managers.appPeersManager!.getPeer(this.peerId),
+      this.peerId.isUser() ? this.managers.appGiftsManager.getPremiumGiftOptions() : [] as MyPremiumGiftOption[],
+      this.managers.appGiftsManager.getStarGiftOptions(),
+      this.managers.appPeersManager.getPeer(this.peerId),
       !this.resaleParams && this.peerId !== rootScope.myId && profileStoreActions.loadNext()
     ]);
 
@@ -1073,7 +1073,7 @@ export default class PopupSendGift extends PopupElement {
       setChosenGift(giftOptions.find((it) => it.raw.id === this.resaleParams!.giftId && it.isResale));
     }
     this.chosenGift = chosenGift;
-    this.setChosenGift = (setChosenGift! as Setter<MyStarGift | MyPremiumGiftOption>);
+    this.setChosenGift = (setChosenGift as Setter<MyStarGift | MyPremiumGiftOption>);
 
     const [currentPage, setCurrentPage] = createSignal(this.resaleParams ? 2 : 0);
 

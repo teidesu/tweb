@@ -12,6 +12,7 @@ import rootScope from '@lib/rootScope';
 import {getCountryEmoji} from '@vendor/emoji';
 import InputField, {InputFieldOptions} from '@components/inputField';
 import Scrollable from '@components/scrollable';
+import {isTruthy} from '../helpers/isTruthy';
 
 let countries: HelpCountry.helpCountry[];
 const setCountries = () => {
@@ -45,14 +46,14 @@ export function filterCountries(value: string, excludeVirtual?: boolean) {
       c.iso2
     ];
 
-    names.filter(Boolean).forEach((name) => {
-      const abbr = name!.split(' ').filter((word) => /\w/.test(word)).map((word) => word[0]).join('');
+    names.filter(isTruthy).forEach((name) => {
+      const abbr = name.split(' ').filter((word) => /\w/.test(word)).map((word) => word[0]).join('');
       if(abbr.length > 1) {
         names.push(abbr);
       }
     });
 
-    const good = !!names.filter(Boolean).find((str) => str!.toLowerCase().indexOf(value) !== -1)/*  === 0 */;// i.test(c.name);
+    const good = !!names.filter(isTruthy).find((str) => str.toLowerCase().indexOf(value) !== -1)/*  === 0 */;// i.test(c.name);
     return good;
   });
 
@@ -125,8 +126,8 @@ export default class CountryInputField extends InputField {
           }
 
           const el = i18n(c.default_name as any);
-          el!.dataset.defaultName = c.default_name;
-          li.append(el!);
+          el.dataset.defaultName = c.default_name;
+          li.append(el);
 
           if(!options.noPhoneCodes) {
             const span = document.createElement('span');

@@ -93,9 +93,9 @@ function createSharedState(self: User.user, peerId: PeerId = rootScope.myId, ove
     () => (peerId === rootScope.myId && !username()) || undefined,
     async() => {
       try {
-        const rules = await rootScope.managers.appPrivacyManager!.getPrivacy('inputPrivacyKeyAddedByPhone');
+        const rules = await rootScope.managers.appPrivacyManager.getPrivacy('inputPrivacyKeyAddedByPhone');
         if(rules.some((rule) => rule._ === 'privacyValueAllowAll')) return undefined; // phone-discovery on → t.me/+phone is enough
-        const token = await rootScope.managers.appUsersManager!.exportContactToken();
+        const token = await rootScope.managers.appUsersManager.exportContactToken();
         return token?.url;
       } catch{
         return undefined; // any failure → fall back to the codeLink, never break profileUrl
@@ -112,7 +112,7 @@ function createSharedState(self: User.user, peerId: PeerId = rootScope.myId, ove
     const tokenUrl = contactTokenUrl();
     if(tokenUrl) return tokenUrl;
     if(username()) return buildTelegramUserQrUrl(username()!);
-    if(peerId.isUser()) return `https://t.me/+${(self as User.user).phone ?? ''}`;
+    if(peerId.isUser()) return `https://t.me/+${(self).phone ?? ''}`;
     return `https://t.me/c/${peerId.toChatId()}`;
   });
 
@@ -136,7 +136,7 @@ function createSharedState(self: User.user, peerId: PeerId = rootScope.myId, ove
 
   // Mirror of the cloud-themes list so the popup can resolve the active theme's
   // wallpaper without re-fetching what the picker already loaded.
-  const [allThemes] = createResource(() => rootScope.managers.appThemesManager!.getThemes());
+  const [allThemes] = createResource(() => rootScope.managers.appThemesManager.getThemes());
 
   // Base theme drives both the popup background and the picker thumbnails;
   // honors the popup-local night-mode toggle (without touching the global theme).
@@ -546,7 +546,7 @@ function TopSection(props: {
   let avatarObserver: MutationObserver | undefined;
   const attachAvatarPhotoListener = () => {
     if(!avatarHost) return;
-    const photo = avatarHost.querySelector('img.avatar-photo') as HTMLImageElement | null;
+    const photo = avatarHost.querySelector('img.avatar-photo') as HTMLImageElement;
     if(!photo) return;
     if(photo.complete && photo.naturalWidth > 0) {
       paint();
@@ -730,7 +730,7 @@ function drawAvatar(ctx: CanvasRenderingContext2D, host: HTMLElement, cx: number
   ctx.fill();
   ctx.restore();
 
-  const photo = host.querySelector('img.avatar-photo') as HTMLImageElement | null;
+  const photo = host.querySelector('img.avatar-photo') as HTMLImageElement;
   if(photo && photo.complete && photo.naturalWidth > 0) {
     ctx.save();
     ctx.beginPath();
@@ -758,7 +758,7 @@ function drawAvatar(ctx: CanvasRenderingContext2D, host: HTMLElement, cx: number
   // transparent, not the fill) and renders the initials as a bare text node (no
   // `.avatar-abbreviation` class). So read the resolved gradient off
   // `background-image` and the initials off the element's text.
-  const avatarEl = host.querySelector('.avatar') as HTMLElement | null;
+  const avatarEl = host.querySelector('.avatar');
   const cs = avatarEl ? window.getComputedStyle(avatarEl) : null;
   ctx.save();
   ctx.beginPath();
@@ -857,7 +857,7 @@ function PopupThemeApplier(props: {
 }) {
   let sentinel!: HTMLDivElement;
   onMount(() => {
-    const container = sentinel.closest('.popup') as HTMLElement | null;
+    const container = sentinel.closest('.popup') as HTMLElement;
     if(!container) return;
     createEffect(() => {
       const theme = props.theme();
@@ -988,8 +988,8 @@ function FooterSlot(props: {shared: QrPopupShared, getBlob: () => Blob | undefin
  */
 export default async function showMyQrCodePopup(peerId: PeerId = rootScope.myId, options?: {url?: string}) {
   const self = peerId === rootScope.myId ?
-    await rootScope.managers.appUsersManager!.getSelf() :
-    await rootScope.managers.appPeersManager!.getPeer(peerId);
+    await rootScope.managers.appUsersManager.getSelf() :
+    await rootScope.managers.appPeersManager.getPeer(peerId);
   if(!self) return;
 
   createPopup(() => {

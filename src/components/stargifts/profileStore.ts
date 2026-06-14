@@ -86,7 +86,7 @@ export function createProfileGiftsStore(props: {
     const id = ++nextReqId
     const collectionId = store.chosenCollection === ALL_COLLECTIONS_ID ? undefined : store.chosenCollection
     const [res, canManageGifts] = await Promise.all([
-      rootScope.managers.appGiftsManager!.getProfileGifts({
+      rootScope.managers.appGiftsManager.getProfileGifts({
         peerId: props.peerId,
         offset: currentOffset,
         sort: store.sort,

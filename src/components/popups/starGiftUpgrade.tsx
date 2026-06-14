@@ -36,7 +36,7 @@ export default async function createStarGiftUpgradePopup(props: {
     preview,
     peerTitle
   ] = await Promise.all([
-    rootScope.managers.appGiftsManager!.getUpgradePreview(props.gift.raw.id),
+    rootScope.managers.appGiftsManager.getUpgradePreview(props.gift.raw.id),
     props.descriptionForPeerId ? wrapPeerTitle({peerId: props.descriptionForPeerId}) : undefined
   ]);
 
@@ -66,12 +66,12 @@ export default async function createStarGiftUpgradePopup(props: {
         inputInvoice: {
           _: 'inputInvoiceStarGiftPrepaidUpgrade',
           hash: props.gift.saved?.prepaid_upgrade_hash!,
-          peer: await rootScope.managers.appPeersManager!.getInputPeerById(props.descriptionForPeerId)
+          peer: await rootScope.managers.appPeersManager.getInputPeerById(props.descriptionForPeerId)
         },
         noShowIfStars: true
       }).then((popup) => {
         popup.addEventListener('finish', (result) => {
-          deferred.resolve!(result === 'paid');
+          deferred.resolve(result === 'paid');
         });
       });
       return deferred;
@@ -80,7 +80,7 @@ export default async function createStarGiftUpgradePopup(props: {
     upgradePromise = deferredPromise<boolean>();
 
     if(freeUpgrade) {
-      await rootScope.managers.appGiftsManager!.upgradeStarGift(
+      await rootScope.managers.appGiftsManager.upgradeStarGift(
         props.gift.input!,
         keepInfoSignal[0]()
       );
@@ -99,7 +99,7 @@ export default async function createStarGiftUpgradePopup(props: {
     }).then((popup) => {
       popup.addEventListener('finish', (result) => {
         if(result !== 'paid') {
-          upgradePromise!.resolve!(false);
+          upgradePromise!.resolve(false);
         }
       });
     });
@@ -173,7 +173,7 @@ export default async function createStarGiftUpgradePopup(props: {
         gift: event.gift,
         upgradeAnimation: preview
       })
-      upgradePromise.resolve!(true)
+      upgradePromise.resolve(true)
     })
 
     let stickerContainer!: HTMLDivElement;

@@ -22,7 +22,7 @@ export default class AppPollResultsTab extends SliderSuperTab {
     this.container.id = 'poll-results-container';
     this.container.classList.add('chatlist-container');
 
-    const poll = await this.managers.appPollsManager!.getPoll((message.media as MessageMedia.messageMediaPoll).poll.id);
+    const poll = await this.managers.appPollsManager.getPoll((message.media as MessageMedia.messageMediaPoll).poll.id);
 
     this.setTitle(poll.poll.pFlags.quiz ? 'PollResults.Title.Quiz' : 'PollResults.Title.Poll');
 
@@ -70,7 +70,7 @@ export default class AppPollResultsTab extends SliderSuperTab {
       const load = async() => {
         if(answer._ !== 'pollAnswer') return;
 
-        const votesList = await this.managers.appPollsManager!.getVotes(
+        const votesList = await this.managers.appPollsManager.getVotes(
           message,
           answer.option,
           offset,

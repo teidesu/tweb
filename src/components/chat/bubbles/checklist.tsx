@@ -85,7 +85,7 @@ export function ChecklistBubble(props: {
 
     const wasCompleted = completionsById()[id];
 
-    rootScope.managers.appMessagesManager!.updateTodo({
+    rootScope.managers.appMessagesManager.updateTodo({
       peerId: props.chat.peerId,
       mid: props.message.mid!,
       taskId: id,

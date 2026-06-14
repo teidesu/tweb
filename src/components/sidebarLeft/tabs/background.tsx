@@ -79,7 +79,7 @@ export class AppBackgroundTab {
   ) {
     const colors = getColorsFromWallPaper(wallPaper);
     const hasFile = wallPaper._ === 'wallPaper';
-    const isPattern = hasFile && !!(wallPaper as WallPaper.wallPaper).pFlags.pattern;
+    const isPattern = hasFile && !!(wallPaper).pFlags.pattern;
     if((hasFile && isPattern && !colors)) {
       return;
     }
@@ -119,7 +119,7 @@ export class AppBackgroundTab {
           transition="instant"
           width={size.width}
           height={size.height}
-          onReady={() => deferred.resolve!()}
+          onReady={() => deferred.resolve()}
         />
       ), media);
       return deferred;
@@ -158,7 +158,7 @@ export class AppBackgroundTab {
         media: doc,
         queueId: appImManager.chat.bubbles ? appImManager.chat.bubbles.lazyLoadQueue!.queueId : 0
       });
-      deferred.addNotifyListener = download.addNotifyListener!.bind(download);
+      deferred.addNotifyListener = download.addNotifyListener.bind(download);
       deferred.cancel = download.cancel;
     } else {
       download = Promise.resolve();
@@ -166,7 +166,7 @@ export class AppBackgroundTab {
 
     download.then(async() => {
       if(!middleware()) {
-        deferred.resolve!();
+        deferred.resolve();
         return;
       }
 
@@ -196,7 +196,7 @@ export class AppBackgroundTab {
           ChatBackgroundStore.saveWallPaperToCache(slug, url!)
         ]).then(([pixel]) => {
           if(!middleware()) {
-            deferred.resolve!();
+            deferred.resolve();
             return;
           }
 
@@ -220,7 +220,7 @@ export class AppBackgroundTab {
             slug,
             backgroundUrl: url,
             broadcastEvent: true
-          }).then(deferred.resolve!.bind(deferred));
+          }).then(deferred.resolve.bind(deferred));
         });
       };
 
@@ -229,12 +229,12 @@ export class AppBackgroundTab {
         return;
       }
 
-      const cacheContext = await rootScope.managers.thumbsStorage!.getCacheContext(doc);
+      const cacheContext = await rootScope.managers.thumbsStorage.getCacheContext(doc);
       if(needBlur(wallPaper)) {
         setTimeout(() => {
           ChatBackgroundStore.blurWallPaperImage(cacheContext.url).then((url) => {
             if(!middleware()) {
-              deferred.resolve!();
+              deferred.resolve();
               return;
             }
 
@@ -289,7 +289,7 @@ const ChatBackground = () => {
   const changeWallPaperBlur = async(wallPaper: WallPaper, blur: boolean) => {
     (wallPaper.settings ??= {_: 'wallPaperSettings', pFlags: {}}).pFlags.blur = blur || undefined;
     const [appSettings] = useAppSettings();
-    await rootScope.managers.appStateManager!.pushToState('settings', unwrap(appSettings));
+    await rootScope.managers.appStateManager.pushToState('settings', unwrap(appSettings));
   };
 
   const setBackgroundDocument = async(
@@ -370,23 +370,23 @@ const ChatBackground = () => {
         file = new File([blob], file.name.replace(/\.png$/, '.jpg'), {type: mimeType});
       }
 
-      const wallPaper = await rootScope.managers.appDocsManager!.prepareWallPaperUpload(file);
+      const wallPaper = await rootScope.managers.appDocsManager.prepareWallPaperUpload(file);
       // Seed ChatBackgroundStore with the local blob URL so the picker thumbnail
       // (which now goes through `<ChatBackground>` → ChatBackgroundStore.getBackground)
       // resolves the in-progress upload preview without trying to hit the network.
-      const uploadDoc = (wallPaper as WallPaper.wallPaper).document as Document.document;
+      const uploadDoc = (wallPaper).document as Document.document;
       if(uploadDoc) {
-        const cacheContext = await rootScope.managers.thumbsStorage!.getCacheContext(uploadDoc);
+        const cacheContext = await rootScope.managers.thumbsStorage.getCacheContext(uploadDoc);
         ChatBackgroundStore.setBackgroundUrlToCache({
-          slug: (wallPaper as WallPaper.wallPaper).slug,
+          slug: (wallPaper).slug,
           url: cacheContext.url
         });
       }
-      const uploadPromise = rootScope.managers.appDocsManager!.uploadWallPaper(wallPaper.id);
+      const uploadPromise = rootScope.managers.appDocsManager.uploadWallPaper(wallPaper.id);
       const uploadDeferred: CancellablePromise<any> = appDownloadManager.getNewDeferredForUpload(file.name, uploadPromise);
 
       const deferred = deferredPromise<void>();
-      deferred.addNotifyListener = uploadDeferred.addNotifyListener!.bind(uploadDeferred);
+      deferred.addNotifyListener = uploadDeferred.addNotifyListener.bind(uploadDeferred);
       deferred.cancel = uploadDeferred.cancel;
 
       uploadDeferred.then((wallPaper) => {
@@ -396,8 +396,8 @@ const ChatBackground = () => {
         const newKey = getWallPaperKey(wallPaper);
         elementsByKey.set(newKey, container);
 
-        setBackgroundDocument(wallPaper).then(deferred.resolve!.bind(deferred), deferred.reject!.bind(deferred));
-      }, deferred.reject!.bind(deferred));
+        setBackgroundDocument(wallPaper).then(deferred.resolve.bind(deferred), deferred.reject.bind(deferred));
+      }, deferred.reject.bind(deferred));
 
       const key = getWallPaperKey(wallPaper);
       deferred.catch(() => {
@@ -428,7 +428,7 @@ const ChatBackground = () => {
   };
 
   const onGridClick = (e: MouseEvent | TouchEvent) => {
-    const target = findUpClassName(e.target!, 'grid-item') as HTMLElement;
+    const target = findUpClassName(e.target!, 'grid-item');
     if(!target) return;
 
     const wallPaper = wallPapersByElement.get(target);
@@ -449,9 +449,9 @@ const ChatBackground = () => {
 
     const load = async() => {
       const promise = setBackgroundDocument(wallPaper!);
-      const cacheContext = await rootScope.managers.thumbsStorage!.getCacheContext(doc);
+      const cacheContext = await rootScope.managers.thumbsStorage.getCacheContext(doc);
       if(!cacheContext.url || needBlur(wallPaper!)) {
-        preloader.attach(target, true, promise);
+        preloader.attach(target, true, promise as any);
       }
     };
 
@@ -489,7 +489,7 @@ const ChatBackground = () => {
   // Always refresh from the server: keep the cache warm for the next open, and build now if the
   // cache wasn't there yet (first-ever open, before any preload). The list is stable within a
   // session, so when we already built from cache we keep that grid rather than rebuilding.
-  const [wallPapersResource] = createResource(() => rootScope.managers.appThemesManager!.getWallPapers());
+  const [wallPapersResource] = createResource(() => rootScope.managers.appThemesManager.getWallPapers());
 
   createEffect(on(wallPapersResource, (wallPapers) => {
     if(!wallPapers) return;

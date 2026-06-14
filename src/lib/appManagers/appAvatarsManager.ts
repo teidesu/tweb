@@ -54,7 +54,7 @@ export class AppAvatarsManager extends AppManager {
 
     if(size === 'photo_video' || size === 'photo_video_full') {
       const quality = size === 'photo_video_full' ? 'full' : 'preview';
-      const promise = saved[size] = (this.loadAvatarVideo(peerId, photo, quality, size)! as string | Promise<string> | undefined);
+      const promise = saved[size] = (this.loadAvatarVideo(peerId, photo, quality, size) as string | Promise<string> | undefined);
       // Don't keep a failed (undefined) video load cached — let it retry next time
       // (e.g. once the full photo's video_sizes is available).
       (promise as Promise<string>).then((url) => {
@@ -103,12 +103,12 @@ export class AppAvatarsManager extends AppManager {
   ): Promise<Photo.photo | undefined> {
     if(!photo.pFlags?.has_video) return undefined;
 
-    let fullPhoto: Photo.photo | undefined = this.appPhotosManager.getPhoto(photo.photo_id) as Photo.photo;
+    let fullPhoto: Photo.photo | undefined = this.appPhotosManager.getPhoto(photo.photo_id);
     if(!fullPhoto?.video_sizes?.length) {
       if(peerId.isUser()) {
         const {photos: photoIds} = await this.appPhotosManager.getUserPhotos(peerId, '0', 1);
         if(photoIds?.length) {
-          fullPhoto = this.appPhotosManager.getPhoto(photoIds[0]) as Photo.photo;
+          fullPhoto = this.appPhotosManager.getPhoto(photoIds[0]);
         }
       } else {
         // Chats/channels carry only photo_id on the chatPhoto; the full Photo (with
@@ -116,7 +116,7 @@ export class AppAvatarsManager extends AppManager {
         // and saveFullPeer stores into the photos cache. Without this the topbar /
         // chat-list video avatar never resolved for chats (it only re-fetched for users).
         await this.appProfileManager.getProfileByPeerId(peerId);
-        fullPhoto = this.appPhotosManager.getPhoto(photo.photo_id) as Photo.photo;
+        fullPhoto = this.appPhotosManager.getPhoto(photo.photo_id);
       }
     }
 

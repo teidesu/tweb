@@ -17,7 +17,7 @@ export default async function showStoriesStealthModePopup(props: {
   const appConfig = useAppConfig();
   const isPremium = usePremium();
 
-  const stealthMode = await rootScope.managers.appStoriesManager!.getStealthMode();
+  const stealthMode = await rootScope.managers.appStoriesManager.getStealthMode();
   const getLeftCooldown = () => (stealthMode.cooldown_until_date || 0) - tsNow(true);
 
   const getButton = (): FeatureDetailsButton => {
@@ -40,7 +40,7 @@ export default async function showStoriesStealthModePopup(props: {
         onClick: async() => {
           const needToActivate = (stealthMode.active_until_date || 0) <= tsNow(true);
           if(needToActivate) {
-            await rootScope.managers.appStoriesManager!.activateStealthMode();
+            await rootScope.managers.appStoriesManager.activateStealthMode();
           }
 
           props.onActivate?.();

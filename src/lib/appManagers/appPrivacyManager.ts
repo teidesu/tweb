@@ -45,7 +45,7 @@ export class AppPrivacyManager extends AppManager {
         rules: rules.map((inputRule) => {
           const rule: PrivacyRule = {} as any;
           Object.assign(rule, inputRule);
-          rule._ = convertInputKeyToKey(rule._) as any;
+          rule._ = convertInputKeyToKey(rule._);
           return rule;
         })
       });
@@ -57,7 +57,7 @@ export class AppPrivacyManager extends AppManager {
   }
 
   public getPrivacy(inputKey: InputPrivacyKey['_']) {
-    const privacyKey: PrivacyKey['_'] = convertInputKeyToKey(inputKey) as any;
+    const privacyKey: PrivacyKey['_'] = convertInputKeyToKey(inputKey);
     const rules = this.privacy[privacyKey];
     if(rules) {
       return Promise.resolve(rules);

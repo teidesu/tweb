@@ -360,7 +360,7 @@ export default class PeerProfileAvatars {
     this.peerId = peerId;
     this.middlewareHelper.clean();
 
-    const photo = await this.managers.appPeersManager!.getPeerPhoto(peerId);
+    const photo = await this.managers.appPeersManager.getPeerPhoto(peerId);
     if(!photo && !SHOW_NO_AVATAR) {
       return;
     }
@@ -395,8 +395,8 @@ export default class PeerProfileAvatars {
     this.fallbackPhotoId = undefined;
     this.fallbackAppended = false;
     if(peerId === rootScope.myId && peerId.isUser() && !this.hasNoPhoto) {
-      const userFull = await this.managers.appProfileManager!.getProfile(peerId.toUserId());
-      const fallback = (userFull as UserFull.userFull)?.fallback_photo as Photo.photo;
+      const userFull = await this.managers.appProfileManager.getProfile(peerId.toUserId());
+      const fallback = (userFull)?.fallback_photo as Photo.photo;
       if(fallback?._ === 'photo') this.fallbackPhotoId = fallback.id;
     }
 
@@ -407,7 +407,7 @@ export default class PeerProfileAvatars {
 
         if(peerId.isUser()) {
           const maxId: Photo.photo['id'] = anchor as any;
-          return this.managers.appPhotosManager!.getUserPhotos(peerId, maxId, loadCount).then((value) => {
+          return this.managers.appPhotosManager.getUserPhotos(peerId, maxId, loadCount).then((value) => {
             const items = value.photos.slice();
             let count = value.count;
             if(this.fallbackPhotoId) {
@@ -425,10 +425,10 @@ export default class PeerProfileAvatars {
         } else {
           const promises: [Promise<ChatFull> | ChatFull, ReturnType<AppMessagesManager['getHistory']>] = [] as any;
           if(!listLoader.current) {
-            promises.push(this.managers.appProfileManager!.getChatFull(peerId.toChatId()));
+            promises.push(this.managers.appProfileManager.getChatFull(peerId.toChatId()));
           }
 
-          promises.push(this.managers.appMessagesManager!.getHistory({
+          promises.push(this.managers.appMessagesManager.getHistory({
             peerId,
             offsetId: Number.MAX_SAFE_INTEGER,
             inputFilter: {
@@ -451,11 +451,11 @@ export default class PeerProfileAvatars {
             if(!listLoader.current) {
               const chatFull = result[0];
               const chatPhoto = chatFull?.chat_photo;
-              const message = findAndSplice(messages!, (message) => {
+              const message = findAndSplice(messages, (message) => {
                 return ((message as Message.messageService).action as MessageAction.messageActionChannelEditPhoto).photo!.id === chatPhoto?.id;
               }) as Message.messageService;
 
-              listLoader.current = message || (chatPhoto && await this.managers.appMessagesManager!.generateFakeAvatarMessage(this.peerId, chatPhoto));
+              listLoader.current = message || (chatPhoto && await this.managers.appMessagesManager.generateFakeAvatarMessage(this.peerId, chatPhoto));
             }
 
             // console.log('avatars loaded:', value);
@@ -683,9 +683,9 @@ export default class PeerProfileAvatars {
         color: customProperties.getProperty('primary-text-color'),
         onCacheStatus: (cached) => {
           if(cached) {
-            promise.then(deferred.resolve!.bind(deferred));
+            promise.then(deferred.resolve.bind(deferred));
           } else {
-            deferred.resolve!();
+            deferred.resolve();
           }
         }
       }).then((_canvas) => {
@@ -727,8 +727,8 @@ export default class PeerProfileAvatars {
         isNightTheme,
         () => {
           const promise = renderBackgroundEmoji(backgroundEmojiId!, !!bgColors);
-          if(promise) promise.then(deferred.resolve!.bind(deferred));
-          else deferred.resolve!();
+          if(promise) promise.then(deferred.resolve.bind(deferred));
+          else deferred.resolve();
         }
       ));
     });
@@ -767,7 +767,7 @@ export default class PeerProfileAvatars {
     let photo: Photo.photo;
     if(photoId) {
       photo = typeof(photoId) !== 'object' ?
-        await this.managers.appPhotosManager!.getPhoto(photoId) :
+        await this.managers.appPhotosManager.getPhoto(photoId) :
         (photoId.action as MessageAction.messageActionChannelEditPhoto).photo as Photo.photo;
     }
 

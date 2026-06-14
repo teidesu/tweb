@@ -328,7 +328,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
 
     const category = this.createCategory({
       stickerSet: hasId ? {id} as any : undefined,
-      title: ((title && i18n(title))! as HTMLElement | DocumentFragment | undefined),
+      title: ((title && i18n(title)) as HTMLElement | DocumentFragment | undefined),
       isLocal: true,
       noMenuTab,
       styles

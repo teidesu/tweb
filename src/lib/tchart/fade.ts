@@ -40,7 +40,7 @@ export default class TFade {
       this.ctxFadeTop.fillRect(0, 0, dimsTop.w * dpi, dimsTop.h * dpi);
 
       if(this.opts.graphStyle !== 'bar') {
-        const gradientBottom = this.ctxFadeBottom!.createLinearGradient(0, 0, 0, dimsBottom.h * dpi);
+        const gradientBottom = this.ctxFadeBottom.createLinearGradient(0, 0, 0, dimsBottom.h * dpi);
         gradientBottom.addColorStop(0, `rgba(${backgroundRgbJoined}, 0)`);
         gradientBottom.addColorStop(1, `rgba(${backgroundRgbJoined}, 1)`);
         this.$fadeBottom.width = dimsBottom.w * dpi;

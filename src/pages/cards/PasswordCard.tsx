@@ -64,7 +64,7 @@ export default function PasswordCard(_props: {spec: Spec}) {
       if(resetLoading) return;
       resetLoading = true;
 
-      managers.passwordManager!.requestRecovery().then((res) => {
+      managers.passwordManager.requestRecovery().then((res) => {
         navigate({name: 'emailRecover', payload: {email_pattern: res.email_pattern}});
       }).catch(async(err: ApiError) => {
         if(err.type === 'PASSWORD_RECOVERY_NA') {
@@ -86,7 +86,7 @@ export default function PasswordCard(_props: {spec: Spec}) {
             }
           });
 
-          await managers.appAccountManager!.deleteAccount('Forgot password').then(() => {
+          await managers.appAccountManager.deleteAccount('Forgot password').then(() => {
             navigate({name: 'signIn'});
           }).catch((err: ApiError) => {
             if(err.type === '2FA_RECENT_CONFIRM') {
@@ -117,7 +117,7 @@ export default function PasswordCard(_props: {spec: Spec}) {
       });
     })
   ]);
-  resetLink!.classList.add(styles.forgotLink);
+  resetLink.classList.add(styles.forgotLink);
 
   /* ---------- state polling (session relevance) ---------- */
 
@@ -126,7 +126,7 @@ export default function PasswordCard(_props: {spec: Spec}) {
       getStateInterval = window.setInterval(getState, 10e3);
     }
 
-    return !TEST && managers.passwordManager!.getState().then((_state) => {
+    return !TEST && managers.passwordManager.getState().then((_state) => {
       state = _state;
 
       if(state.hint) {
@@ -155,7 +155,7 @@ export default function PasswordCard(_props: {spec: Spec}) {
     passwordInputField.setValueSilently('' + Math.random()); // prevent saving suggestion
     passwordInputField.setValueSilently(value);
 
-    managers.passwordManager!.check(value, state).then((response) => {
+    managers.passwordManager.check(value, state).then((response) => {
       switch(response._) {
         case 'auth.authorization':
           if(getStateInterval) {
@@ -200,7 +200,7 @@ export default function PasswordCard(_props: {spec: Spec}) {
 
   let cancelFocus: (() => void) | undefined;
   onMount(() => {
-    managers.appStateManager!.pushToState('authState', {_: 'authStatePassword'});
+    managers.appStateManager.pushToState('authState', {_: 'authStatePassword'});
 
     monkey = new PasswordMonkey(passwordInputField, monkeySize);
     monkeyContainer.append(monkey.container);

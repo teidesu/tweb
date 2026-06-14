@@ -25,6 +25,7 @@ import tsNow from '@helpers/tsNow';
 import appManagersManager from '@appManagers/appManagersManager';
 import tryPatchMp4 from '@helpers/fixChromiumMp4';
 import StickerType from '@config/stickerType';
+import {isTruthy} from '../../helpers/isTruthy';
 
 export type MyDocument = Document.document;
 
@@ -98,7 +99,7 @@ export class AppDocsManager extends AppManager {
     // }
 
     if(altDocuments) {
-      const saved = altDocuments.map((altDoc) => this.saveDoc(altDoc, context)).filter(Boolean) as Document.document[];
+      const saved = altDocuments.map((altDoc) => this.saveDoc(altDoc, context)).filter(isTruthy);
       this.altDocsByMainMediaDocument[doc.id] = saved;
       altDocuments.splice(0, altDocuments.length, ...saved);
     }
@@ -394,7 +395,7 @@ export class AppDocsManager extends AppManager {
       }).then((wallPaper) => {
         assumeType<WallPaper.wallPaper>(wallPaper);
         wallPaper.document = (this.saveDoc(wallPaper.document) as Document);
-        this.thumbsStorage.setCacheContextURL(wallPaper.document! as any, undefined, cacheContext.url, cacheContext.downloaded);
+        this.thumbsStorage.setCacheContextURL(wallPaper.document as any, undefined, cacheContext.url, cacheContext.downloaded);
 
         return wallPaper;
       });

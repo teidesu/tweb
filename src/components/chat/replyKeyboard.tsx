@@ -83,7 +83,7 @@ export default class ReplyKeyboard extends DropdownHover {
 
   private onBodyTouchStart = (e: TouchEvent) => {
     const target = e.touches[0].target as HTMLElement;
-    if(!findUpAsChild((target! as { parentElement: HTMLElement; }), this.element) && target !== this.btnHover) {
+    if(!findUpAsChild((target as { parentElement: HTMLElement; }), this.element) && target !== this.btnHover) {
       cancelEvent(e);
       this.toggle(false);
     }

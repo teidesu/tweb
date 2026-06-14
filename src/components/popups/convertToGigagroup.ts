@@ -8,7 +8,7 @@ export default async function showConvertToGigagroupPopup(chatId: ChatId) {
   features.classList.add('popup-description-features');
   (['BroadcastGroupConvertFeature1', 'BroadcastGroupConvertFeature2', 'BroadcastGroupConvertFeature3'] as const).forEach((key) => {
     const li = document.createElement('li');
-    li.append(i18n(key)!);
+    li.append(i18n(key));
     features.append(li);
   });
 
@@ -32,7 +32,7 @@ export default async function showConvertToGigagroupPopup(chatId: ChatId) {
     return;
   }
 
-  const config = await rootScope.managers.apiManager!.getConfig();
-  await rootScope.managers.appChatsManager!.convertToGigagroup(chatId);
+  const config = await rootScope.managers.apiManager.getConfig();
+  await rootScope.managers.appChatsManager.convertToGigagroup(chatId);
   toastNew({langPackKey: 'BroadcastGroupConvertDone', langPackArguments: [config.megagroup_size_max]});
 }

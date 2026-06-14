@@ -64,7 +64,7 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
 
     let btnConfirmEl!: HTMLButtonElement;
 
-    managers.apiManager!.getAppConfig().then((appConfig) => {
+    managers.apiManager.getAppConfig().then((appConfig) => {
       if(!middleware()) return;
 
       const itemLengthMax = appConfig.todo_item_length_max ?? 255;
@@ -135,7 +135,7 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
           const maxId = editMessage?.media.todo.list.reduce((max, item) => Math.max(max, item.id), 0) ?? 0;
           const newItems = items().filter((v) => !v.existing);
 
-          promise = managers.appMessagesManager!.appendTodo({
+          promise = managers.appMessagesManager.appendTodo({
             peerId: chat.peerId,
             mid: editMessage!.mid!,
             tasks: newItems.map((v, idx) => {
@@ -185,7 +185,7 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
           };
 
           if(editMessage) {
-            promise = managers.appMessagesManager!.editMessage(editMessage, editMessage.message, {
+            promise = managers.appMessagesManager.editMessage(editMessage, editMessage.message, {
               newMedia: inputMedia
             });
           } else {
@@ -198,7 +198,7 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
 
             context!.hide();
 
-            managers.appMessagesManager!.sendOther({
+            managers.appMessagesManager.sendOther({
               ...sendingParams,
               inputMedia
             });
@@ -211,7 +211,7 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
           }
         }
 
-        if(promise! as unknown) {
+        if(promise as unknown) {
           setPending(true);
           promise.then(() => {
             setPending(false);

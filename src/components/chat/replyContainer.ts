@@ -18,6 +18,7 @@ import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
 import wrapMediaSpoiler from '@components/wrappers/mediaSpoiler';
 import {isMessageSensitive} from '@appManagers/utils/messages/isMessageRestricted';
 import compareUint8Arrays from '@helpers/bytes/compareUint8Arrays';
+import {isTruthy} from '../../helpers/isTruthy';
 
 const MEDIA_SIZE = 32;
 
@@ -180,7 +181,7 @@ export async function wrapReplyDivAndCaption(options: {
     replaceContent(titleEl, wrappedTitle);
   } else if(options.isStoryExpired) {
     const icon = Icon('bomb', 'expired-story-icon');
-    titleEl.append(icon, i18n('ExpiredStory')!);
+    titleEl.append(icon, i18n('ExpiredStory'));
   }
 
   const isMessageReply = replyHeader?._ === 'messageReplyHeader';
@@ -225,10 +226,10 @@ export async function wrapReplyDivAndCaption(options: {
 
     replaceContent(subtitleEl, wrappedSubtitle || '');
   } else if(storyItem && options.storyItem) {
-    subtitleEl.replaceChildren(i18n('Story')!);
+    subtitleEl.replaceChildren(i18n('Story'));
   } else if(options.isStoryExpired) {
     const icon = Icon('bomb', 'expired-story-icon');
-    subtitleEl.replaceChildren(icon, i18n('ExpiredStory')!);
+    subtitleEl.replaceChildren(icon, i18n('ExpiredStory'));
   } else if(quote) {
     const fragment = wrapRichText(limitSymbols(quote.text, 200), {
       ...options,
@@ -239,7 +240,7 @@ export async function wrapReplyDivAndCaption(options: {
     });
 
     subtitleEl.classList.add('with-icon');
-    subtitleEl.replaceChildren(...([quoteIcon, fragment].filter(Boolean) as Node[]));
+    subtitleEl.replaceChildren(...([quoteIcon, fragment].filter(isTruthy)));
   } else if(message) {
     const fragment = await wrapMessageForReply(options);
     subtitleEl.replaceChildren(fragment);

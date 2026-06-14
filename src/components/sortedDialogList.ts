@@ -11,6 +11,7 @@ import {createDeferredSortedVirtualList, DeferredSortedVirtualListItem} from '@c
 import {LoadingDialogSkeletonSize} from '@components/loadingDialogSkeleton';
 import Scrollable from '@components/scrollable';
 import rootScope from '@lib/rootScope';
+import {isTruthy} from '../helpers/isTruthy';
 
 
 export default class SortedDialogList {
@@ -118,11 +119,11 @@ export default class SortedDialogList {
     if(key === this.virtualFilterId && key !== rootScope.myId) return 0;
 
     if(this.monoforumParentPeerId) {
-      const dialog = await this.managers.monoforumDialogsStorage!.getDialogByParent(this.monoforumParentPeerId, key);
+      const dialog = await this.managers.monoforumDialogsStorage.getDialogByParent(this.monoforumParentPeerId, key);
       return getDialogIndex(dialog!);
     }
 
-    return this.managers.dialogsStorage!.getDialogIndex(
+    return this.managers.dialogsStorage.getDialogIndex(
       this.virtualFilterId ?? key,
       this.indexKey,
       this.virtualFilterId ? key : undefined
@@ -191,7 +192,7 @@ export default class SortedDialogList {
       this.monoforumParentPeerId
     ) return;
 
-    const dialog = await this.managers.dialogsStorage!.getDialogOnly(key);
+    const dialog = await this.managers.dialogsStorage.getDialogOnly(key);
     if(!dialog) return;
 
     return dialog.ttl_period || undefined;
@@ -207,18 +208,18 @@ export default class SortedDialogList {
 
   public async add(key: any) {
     const item = await this.createItemForKey(key);
-    this.virtualList.addItems([(item! as DeferredSortedVirtualListItem<SortedDialogListItem>)]);
+    this.virtualList.addItems([(item as DeferredSortedVirtualListItem<SortedDialogListItem>)]);
     // this.virtualList.setTotalCount(prev => prev + 1);
   }
 
   public async addPinned(key: any) {
     const item = await this.createItemForKey(key);
-    this.virtualList.addPinnedItems([(item! as DeferredSortedVirtualListItem<SortedDialogListItem>)]);
+    this.virtualList.addPinnedItems([(item as DeferredSortedVirtualListItem<SortedDialogListItem>)]);
   }
 
   public async ensurePinned(key: any) {
     const item = await this.createItemForKey(key);
-    this.virtualList.ensurePinnedItems([(item! as DeferredSortedVirtualListItem<SortedDialogListItem>)]);
+    this.virtualList.ensurePinnedItems([(item as DeferredSortedVirtualListItem<SortedDialogListItem>)]);
   }
 
   public removePinned(key: any) {
@@ -250,9 +251,9 @@ export default class SortedDialogList {
 
     const filteredEntries = Array.from(map.entries())
     .map(([key, value]) => value?.type === 'dialog' ? [key, value.value] as [any, DialogElement] : null)
-    .filter(Boolean);
+    .filter(isTruthy);
 
-    return new Map(filteredEntries as [any, DialogElement][]);
+    return new Map(filteredEntries);
   }
 
   public getSortedItems() {

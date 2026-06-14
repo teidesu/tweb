@@ -81,7 +81,7 @@ export default function showUndoablePaidTooltip(props: {
       closeOnPeerChange: false,
       class: classNames('paid-reaction-tooltip', props.wider && 'paid-reaction-tooltip--a-little-wider'),
       title: title.element,
-      textElement: subtitle.element!,
+      textElement: subtitle.element,
       rightElement: (
         <span
           class="tooltip-undo"

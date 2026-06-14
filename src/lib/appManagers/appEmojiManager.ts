@@ -341,7 +341,7 @@ export class AppEmojiManager extends AppManager {
             const docId = ids[idx];
             const deferred = this.getCustomEmojiDocumentPromises.get(docId);
             this.getCustomEmojiDocumentPromises.delete(docId);
-            deferred!.resolve!(doc);
+            deferred!.resolve(doc);
           });
         });
 

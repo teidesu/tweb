@@ -29,7 +29,7 @@ export default async function wrapStickerSetThumb({set, lazyLoadQueue, container
     lazyLoadQueue.push({
       div: container,
       load: async() => {
-        const downloadOptions = await managers.appStickersManager!.getStickerSetThumbDownloadOptions(set);
+        const downloadOptions = await managers.appStickersManager.getStickerSetThumbDownloadOptions(set);
         const promise = appDownloadManager.download(downloadOptions);
 
         const isLottie = downloadOptions.mimeType === 'application/x-tgsticker';
@@ -86,9 +86,9 @@ export default async function wrapStickerSetThumb({set, lazyLoadQueue, container
   let getDocPromise: Promise<Document.document>;
 
   if(set.thumb_document_id) {
-    getDocPromise = managers.appEmojiManager!.getCustomEmojiDocument(set.thumb_document_id);
+    getDocPromise = managers.appEmojiManager.getCustomEmojiDocument(set.thumb_document_id);
   } else {
-    getDocPromise = managers.appStickersManager!.getStickerSet(getStickerSetInputById(set)).then((stickerSet) => stickerSet.documents[0] as Document.document);
+    getDocPromise = managers.appStickersManager.getStickerSet(getStickerSetInputById(set)).then((stickerSet) => stickerSet.documents[0] as Document.document);
   }
 
   const doc = await getDocPromise;

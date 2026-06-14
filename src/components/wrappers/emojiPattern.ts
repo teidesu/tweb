@@ -36,7 +36,7 @@ export default async function wrapEmojiPattern({
   if(typeof docId  === 'object') {
     doc = docId;
   } else {
-    const result = await rootScope.managers.acknowledged!.appEmojiManager!.getCustomEmojiDocument(docId);
+    const result = await rootScope.managers.acknowledged.appEmojiManager.getCustomEmojiDocument(docId);
     if(!result.cached) onCacheStatus?.(false);
     doc = await result.result;
   }
@@ -54,7 +54,7 @@ export default async function wrapEmojiPattern({
     exportLoad: 2,
     useCache: false
   }).then(({load, downloaded}) => {
-    onCacheStatus?.((downloaded! as boolean));
+    onCacheStatus?.((downloaded as boolean));
     return load();
   }).then((result) => {
     const image = (result as HTMLImageElement[])[0];

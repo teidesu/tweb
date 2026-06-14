@@ -12,6 +12,7 @@ import type {UserAuth} from '@appManagers/constants';
 import {MAX_ACCOUNTS} from '@lib/accounts/constants';
 import bytesToHex from '@helpers/bytes/bytesToHex';
 import randomize from '@helpers/array/randomize';
+import {isTruthy} from '../../helpers/isTruthy';
 
 export class AccountController extends StaticUtilityClass {
   static async getTotalAccounts() {
@@ -27,7 +28,7 @@ export class AccountController extends StaticUtilityClass {
   static async getUserIds() {
     const promises = ([1, 2, 3, 4] as const).map((accountNumber) => this.get(accountNumber));
     const allAccountsData = await Promise.all(promises);
-    return allAccountsData.map((accountData) => accountData.userId).filter(Boolean);
+    return allAccountsData.map((accountData) => accountData.userId).filter(isTruthy);
   }
 
   static async get(accountNumber: ActiveAccountNumber, updating?: boolean) {
@@ -103,10 +104,10 @@ export class AccountController extends StaticUtilityClass {
    */
   static async shiftAccounts(upTo: ActiveAccountNumber) {
     for(let i = upTo; i <= MAX_ACCOUNTS; i++) {
-      await sessionStorage.delete(`account${i as ActiveAccountNumber}`);
+      await sessionStorage.delete(`account${i}`);
       if(i < MAX_ACCOUNTS) {
         const toMove = await this.get((i + 1) as ActiveAccountNumber);
-        toMove.userId && (await this.update(i as ActiveAccountNumber, toMove, true));
+        toMove.userId && (await this.update(i, toMove, true));
       }
     }
   }

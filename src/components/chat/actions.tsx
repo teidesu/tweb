@@ -56,7 +56,7 @@ function ActionsPlateBody(props: {
                 >
                   {(() => {
                     const text = i18n(LANG_KEY_MAP[action.key]!);
-                    text!.classList.add('pinned-actions-button-text');
+                    text.classList.add('pinned-actions-button-text');
                     return text;
                   })()}
                 </div>
@@ -98,7 +98,7 @@ export default function createChatActionsPlate(
   const actions: ActionDef[] = [{
     key: 'autoarchived',
     onClick: async() => {
-      const promise = managers.appMessagesManager!.editPeerFolders([currentPeerId!], 0);
+      const promise = managers.appMessagesManager.editPeerFolders([currentPeerId!], 0);
       freeze(promise);
     }
   }, {
@@ -123,15 +123,15 @@ export default function createChatActionsPlate(
       } else {
         await confirmationPopup({
           titleLangKey: 'Chat.Confirm.ReportSpam.Header',
-          descriptionLangKey: await managers.appPeersManager!.isBroadcast(peerId!) ?
+          descriptionLangKey: await managers.appPeersManager.isBroadcast(peerId!) ?
             'Chat.Confirm.ReportSpam.Channel' :
             'Chat.Confirm.ReportSpam.Group',
           button: {langKey: 'ReportChat'}
         });
 
         const promise = Promise.all([
-          managers.appMessagesManager!.reportSpam(peerId!),
-          managers.appChatsManager!.leave(peerId!.toChatId())
+          managers.appMessagesManager.reportSpam(peerId!),
+          managers.appChatsManager.leave(peerId!.toChatId())
         ]);
         freeze(promise);
       }
@@ -141,7 +141,7 @@ export default function createChatActionsPlate(
 
   const onClose = () => {
     if(currentPeerId !== undefined) {
-      managers.appProfileManager!.hidePeerSettingsBar(currentPeerId);
+      managers.appProfileManager.hidePeerSettingsBar(currentPeerId);
     }
     unset(currentPeerId!);
   };
@@ -178,7 +178,7 @@ export default function createChatActionsPlate(
 
   const setPeerId = (peerId: PeerId) => {
     return Promise.all([
-      managers.acknowledged!.appProfileManager!.getPeerSettings(peerId)
+      managers.acknowledged.appProfileManager.getPeerSettings(peerId)
     ]).then(([peerSettingsAcked]) => {
       return {
         cached: peerSettingsAcked.cached,

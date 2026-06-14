@@ -11,10 +11,10 @@ function summarize(params: any) {
   if(!params || typeof params !== 'object') return params;
   const o: any = {};
   for(const k of Object.keys(params).slice(0, 6)) {
-    const v = (params as any)[k];
+    const v = (params)[k];
     if(v == null) o[k] = v;
     else if(Array.isArray(v)) o[k] = `[len=${v.length}]`;
-    else if(typeof v === 'object') o[k] = (v as any)._ || '{…}';
+    else if(typeof v === 'object') o[k] = (v)._ || '{…}';
     else o[k] = String(v).slice(0, 30);
   }
   return o;
@@ -130,7 +130,7 @@ describeOrSkip('server-verified mention reads (issue #380)', () => {
       //    path (the one Bug 6 fixes) actually has the dialog + message present.
       dual.B.managers.dialogsStorage.applyDialogs(bDialogsBefore);
 
-      const groupPeerId = (-createdChatId) as PeerId;
+      const groupPeerId = (-createdChatId);
 
       // 8. Pull the actual chat history (so the mention message lands in
       //    historyMessagesStorage — same as bubbles.ts does on chat open).

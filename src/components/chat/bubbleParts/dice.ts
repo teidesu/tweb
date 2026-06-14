@@ -12,7 +12,7 @@ export default function wrapDice(context: BubbleContext) {
   context.bubble.dataset.dice = emoticon;
 
   const isSlot = emoticon === '🎰';
-  const stickerSet = context.bubbles.managers.appStickersManager!.getStickerSetByDice(emoticon);
+  const stickerSet = context.bubbles.managers.appStickersManager.getStickerSetByDice(emoticon);
   const getDocument = (index: number) => stickerSet.then(({documents}) => documents[index] as MyDocument);
 
   const size = makeMediaSize(512, 512);

@@ -231,13 +231,13 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
         const limit = 20;
         let result: Awaited<ReturnType<DialogsStorage['getDialogs']> | ReturnType<MonoforumDialogsStorage['getDialogs']>>;
         if(_isMonoforum) {
-          result = await managers.monoforumDialogsStorage!.getDialogs({
+          result = await managers.monoforumDialogsStorage.getDialogs({
             parentPeerId: peerId,
             limit,
             offsetIndex
           });
         } else {
-          result = await managers.dialogsStorage!.getDialogs({
+          result = await managers.dialogsStorage.getDialogs({
             query: q,
             filterId: peerId,
             limit,
@@ -291,7 +291,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
       //   night
       // },
       onFirstRender: () => {
-        deferred.resolve!();
+        deferred.resolve();
       },
       noSearch: _isMonoforum && !selected.length
     });
@@ -369,7 +369,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
         onClick: async() => {
           const filterId = +(target.dataset.filterId || 0);
           const available = REAL_FOLDERS.has(filterId) ||
-            (await rootScope.managers.filtersStorage!.isFilterIdAvailable(filterId) ?? true);
+            (await rootScope.managers.filtersStorage.isFilterIdAvailable(filterId) ?? true);
           if(!available) {
             showLimitPopup('folders');
             return false;
@@ -400,12 +400,12 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
           queueMicrotask(async() => {
             const first = ref.firstElementChild as HTMLElement;
             if(first) await onTabClick(first, 0);
-            deferred.resolve!();
+            deferred.resolve();
           });
         },
         onClick: (e) => {
           cancelEvent(e);
-          const target = findUpAttribute(e.target, 'data-filter-id') as HTMLElement;
+          const target = findUpAttribute(e.target, 'data-filter-id');
           if(!target) return;
           const id = whichChild(target);
           onTabClick(target, id);
@@ -451,8 +451,8 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
             apiManagerProxy.isForum(peerId) ||
             apiManagerProxy.isBotforum(peerId) ||
             (_isMonoforum = ((
-              await managers.appPeersManager!.canManageDirectMessages(peerId) &&
-              await managers.appPeersManager!.isMonoforum(peerId)
+              await managers.appPeersManager.canManageDirectMessages(peerId) &&
+              await managers.appPeersManager.isMonoforum(peerId)
             )! as boolean))
           )
         ) {

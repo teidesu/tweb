@@ -35,9 +35,9 @@ export async function onHlsQualityFileFetch(event: FetchEvent, params: string, s
       () => fetchAndProcessQualityFile(docId, accountNumber)
     );
 
-    deferred.resolve!(new Response(result));
+    deferred.resolve(new Response(result));
   } catch(e) {
-    deferred.resolve!(get500ErrorResponse());
+    deferred.resolve(get500ErrorResponse());
     swLog.error(e);
   }
 }

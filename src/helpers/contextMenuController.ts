@@ -63,7 +63,7 @@ class ContextMenuController extends OverlayClickHandler {
       if(item.triggerElement && !isFartherThan(item.triggerElement, 40)) break;
 
       if(isFartherThan((item.element as HTMLElement), item.level === 0 ? 100 : 40)) {
-        this.closeAndRemoveMenu((item! as AdditionalMenuItem));
+        this.closeAndRemoveMenu((item as AdditionalMenuItem));
       } else {
         break;
       }

@@ -11,8 +11,8 @@ export default class LimitsFeature {
     this.limits.classList.add('limits-list');
     const promises = options.limits!.map(async(limit, index) => {
       const [free, premium] = limit.limitType ? await Promise.all([
-        options.managers.apiManager!.getLimit(limit.limitType, false),
-        options.managers.apiManager!.getLimit(limit.limitType, true)
+        options.managers.apiManager.getLimit(limit.limitType, false),
+        options.managers.apiManager.getLimit(limit.limitType, true)
       ]) : [];
 
       const limitTextContainer = document.createElement('div');

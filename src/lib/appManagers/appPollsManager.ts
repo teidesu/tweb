@@ -13,6 +13,7 @@ import {MessageSendingParams, MyMessage} from './appMessagesManager';
 import getDocumentInput from './utils/docs/getDocumentInput';
 import getMessageThreadId from './utils/messages/getMessageThreadId';
 import getPhotoInput from './utils/photos/getPhotoInput';
+import {isTruthy} from '../../helpers/isTruthy';
 
 
 type PollId = Poll['id'];
@@ -318,7 +319,7 @@ export class AppPollsManager extends AppManager {
       const answer = poll.answers[index];
       if(answer?._ !== 'pollAnswer') return;
       return answer.option;
-    }).filter(Boolean)! as Uint8Array<ArrayBufferLike>[]);
+    }).filter(isTruthy));
 
     const updates = await this.apiManager.invokeApi('messages.sendVote', {
       peer: inputPeer,
@@ -507,12 +508,12 @@ export class AppPollsManager extends AppManager {
 
           const doc = this.appDocsManager.saveDoc(uploaded.document!);
 
-          deferred.resolve!({
+          deferred.resolve({
             _: 'inputMediaDocument',
             id: getDocumentInput(doc!),
             pFlags: {}
           });
-        }).catch((e) => deferred.reject!(e));
+        }).catch((e) => deferred.reject(e));
 
         return uploadFileDeferred;
       }
@@ -573,12 +574,12 @@ export class AppPollsManager extends AppManager {
 
           const photo = this.appPhotosManager.savePhoto(media.photo!);
 
-          deferred.resolve!({
+          deferred.resolve({
             _: 'inputMediaPhoto',
             id: getPhotoInput(photo!),
             pFlags: {}
           });
-        }, (e) => deferred.reject!(e));
+        }, (e) => deferred.reject(e));
 
         return uploadFileDeferred;
       }
@@ -598,7 +599,7 @@ export class AppPollsManager extends AppManager {
     const doc = this.appDocsManager.getDoc(media.docId);
 
     const deferred = deferredPromise<InputMedia>();
-    deferred.resolve!({
+    deferred.resolve({
       _: 'inputMediaDocument',
       id: getDocumentInput(doc),
       pFlags: {}
@@ -837,7 +838,7 @@ export class AppPollsManager extends AppManager {
       uploadingMedia.description?.uploadingFileName,
       uploadingMedia.explanation?.uploadingFileName,
       ...Array.from(uploadingMedia.pollOptions.values()).map((attachment) => attachment.uploadingFileName)
-    ].filter(Boolean)! as string[] | undefined);
+    ].filter(Boolean) as string[] | undefined);
 
     message.send = async() => {
       // await pause(12_000);

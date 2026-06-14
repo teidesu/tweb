@@ -81,7 +81,7 @@ port.addMultipleEventsListeners({
       resetStorages.set('users', [userId]);
     }
 
-    appStateManager.resetStoragesPromise.resolve!({
+    appStateManager.resetStoragesPromise.resolve({
       storages: resetStorages,
       refetch: refetchStorages,
       callback: async() => {

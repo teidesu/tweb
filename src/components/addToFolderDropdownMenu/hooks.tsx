@@ -155,7 +155,7 @@ export const useToggleDialogInFilter = ({dialog, onNewDialog, isInFilter}: UseTo
 
     try {
       await (isInFilter(filter) ? removeFromFilter(unwrapped, dialog().peerId!) : addToFilter(unwrapped, dialog().peerId!));
-      const newDialog = await rootScope.managers.dialogsStorage!.getAnyDialog(dialog().peerId!);
+      const newDialog = await rootScope.managers.dialogsStorage.getAnyDialog(dialog().peerId!);
       if(!isDialog(newDialog!)) return;
       onNewDialog(newDialog);
     } catch{} finally {

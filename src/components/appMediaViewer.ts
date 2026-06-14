@@ -198,7 +198,7 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
   } */
 
   protected getMessageByPeer(peerId: PeerId, mid: number) {
-    return this.searchContext!.isScheduled ? this.managers.appMessagesManager!.getScheduledMessageByPeer(peerId, mid) : this.managers.appMessagesManager!.getMessageByPeer(peerId, mid);
+    return this.searchContext!.isScheduled ? this.managers.appMessagesManager.getScheduledMessageByPeer(peerId, mid) : this.managers.appMessagesManager.getMessageByPeer(peerId, mid);
   }
 
   onPrevClick = async(target: AppMediaViewerTargetType) => {
@@ -235,7 +235,7 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
         return;
       }
 
-      await this.managers.appChatsManager!.editPhoto(target!.peerId.toChatId());
+      await this.managers.appChatsManager.editPhoto(target!.peerId.toChatId());
       this.target = {element: this.content.media} as any;
       this.close();
       return;
@@ -291,7 +291,7 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
 
   onDownloadClick = async(_: any, docId?: DocId) => {
     if(docId) {
-      const doc = await this.managers.appDocsManager!.getDoc(docId);
+      const doc = await this.managers.appDocsManager.getDoc(docId);
       appDownloadManager.downloadToDisc({media: doc, queueId: appImManager.chat.bubbles.lazyLoadQueue!.queueId});
       return;
     }
@@ -304,7 +304,7 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
   private setCaption(message: MyMessage) {
     const isSponsored = !!(message as Message.message).pFlags.sponsored;
     if(isSponsored) {
-      this.author.nameEl.append(i18n('SponsoredMessageAd')!);
+      this.author.nameEl.append(i18n('SponsoredMessageAd'));
     }
 
     const media = getMediaFromMessage(message, true);
@@ -421,17 +421,17 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
 
     const isSponsored = !!(message as Message.message).pFlags.sponsored || !message.fromId;
     const noAuthor = isSponsored;
-    const noForwards = await this.managers.appPeersManager!.noForwards(message.peerId!);
+    const noForwards = await this.managers.appPeersManager.noForwards(message.peerId!);
     const isServiceMessage = message._ === 'messageService';
-    const cantForwardMessage = isServiceMessage || noAuthor || !(await this.managers.appMessagesManager!.canForward(message));
+    const cantForwardMessage = isServiceMessage || noAuthor || !(await this.managers.appMessagesManager.canForward(message));
     const cantDownloadMessage = (isServiceMessage ? noForwards : cantForwardMessage && !isSponsored) || !canSaveMessageMedia(message, noForwards);
-    const action = isServiceMessage ? (message as Message.messageService).action : undefined;
+    const action = isServiceMessage ? (message).action : undefined;
     const isChatPhotoEdit = !!action &&
       (action._ === 'messageActionChannelEditPhoto' || action._ === 'messageActionChatEditPhoto') &&
       message.peerId!.isAnyChat();
     const cantDeleteMessage = isChatPhotoEdit ?
-      !(await this.managers.appChatsManager!.hasRights(message.peerId!.toChatId(), 'change_info')) :
-      !(await this.managers.appMessagesManager!.canDeleteMessage(message));
+      !(await this.managers.appChatsManager.hasRights(message.peerId!.toChatId(), 'change_info')) :
+      !(await this.managers.appMessagesManager.canDeleteMessage(message));
     this.deleteAsChatPhoto = isChatPhotoEdit && !cantDeleteMessage;
     const a: [(HTMLElement | ButtonMenuItemOptionsVerifiable)[], boolean][] = [
       [[this.buttons.forward, this.btnMenuForward], cantForwardMessage],
@@ -455,7 +455,7 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
     this.setCaption(message);
 
     const promise = super._openMedia({
-      media: media as MyPhoto | MyDocument,
+      media: media,
       timestamp: message.date,
       fromId: fromId!,
       fromRight,

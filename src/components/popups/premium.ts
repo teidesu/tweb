@@ -138,8 +138,8 @@ export default class PopupPremium extends PopupElement {
 
   private async initTabs() {
     const [premiumPromo, appConfig] = await Promise.all([
-      this.managers.appPaymentsManager!.getPremiumPromo(),
-      this.managers.apiManager!.getAppConfig()
+      this.managers.appPaymentsManager.getPremiumPromo(),
+      this.managers.apiManager.getAppConfig()
     ]);
 
     const order = this.filterOrder(premiumPromo, appConfig.premium_promo_order!);
@@ -231,7 +231,7 @@ export default class PopupPremium extends PopupElement {
     this.actionButtonContainer = document.createElement('div');
     this.actionButtonContainer.classList.add('action-button-container');
     this.actionButton = Button(`btn-primary popup-gift-premium-confirm action-button shimmer`);
-    this.actionButton.append(this.actionButtonText.element!);
+    this.actionButton.append(this.actionButtonText.element);
 
     let callback: () => void;
     if(this.props.type === 'gift') {

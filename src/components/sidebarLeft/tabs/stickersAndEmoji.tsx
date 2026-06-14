@@ -30,8 +30,8 @@ const StickersAndEmoji: Component = () => {
     tab.container.classList.add('stickers-emoji-container');
 
     let p = {
-      allStickers: tab.managers.appStickersManager!.getAllStickers(),
-      quickReaction: tab.managers.appReactionsManager!.getQuickReaction()
+      allStickers: tab.managers.appStickersManager.getAllStickers(),
+      quickReaction: tab.managers.appReactionsManager.getQuickReaction()
     };
 
     const promises: Promise<any>[] = [];
@@ -54,7 +54,7 @@ const StickersAndEmoji: Component = () => {
       };
 
       const setStickersSuggestDescription = () => {
-        suggestStickersRow.titleRight.replaceChildren(i18n(map[appSettings.stickers.suggest])!);
+        suggestStickersRow.titleRight.replaceChildren(i18n(map[appSettings.stickers.suggest]));
       };
 
       setStickersSuggestDescription();
@@ -98,7 +98,7 @@ const StickersAndEmoji: Component = () => {
           if(reaction!._ === 'availableReaction') {
             return reaction!.static_icon;
           } else {
-            return tab.managers.appEmojiManager!.getCustomEmojiDocument(reaction!.document_id);
+            return tab.managers.appEmojiManager.getCustomEmojiDocument(reaction!.document_id);
           }
         }).then((doc) => {
           wrapStickerToRow({
@@ -113,8 +113,8 @@ const StickersAndEmoji: Component = () => {
 
       tab.listenerSetter.add(rootScope)('quick_reaction', () => {
         p = {
-          allStickers: tab.managers.appStickersManager!.getAllStickers(),
-          quickReaction: tab.managers.appReactionsManager!.getQuickReaction()
+          allStickers: tab.managers.appStickersManager.getAllStickers(),
+          quickReaction: tab.managers.appReactionsManager.getQuickReaction()
         };
         renderQuickReaction();
       });
@@ -291,7 +291,7 @@ const StickersAndEmoji: Component = () => {
         middleware: tab.middlewareHelper.get(),
         onSort: (idx, newIdx) => {
           const order = Array.from(stickersContent.children).map((el) => (el as HTMLElement).dataset.id);
-          tab.managers.appStickersManager!.reorderStickerSets((order! as (string | number)[]));
+          tab.managers.appStickersManager.reorderStickerSets((order as (string | number)[]));
         }
       });
 

@@ -562,7 +562,7 @@ export default class AppMediaViewerBase<
       verifyTouchTarget: (e) => {
         // * Fix for seek input
         if(isFullScreen() ||
-          findUpAsChild(((e.target as HTMLElement)! as { parentElement: HTMLElement; }), this.zoomElements.container) ||
+          findUpAsChild(((e.target as HTMLElement) as { parentElement: HTMLElement; }), this.zoomElements.container) ||
           findUpClassName(e.target, 'ckin__controls') ||
           findUpClassName(e.target, 'media-viewer-caption') ||
           (findUpClassName(e.target, 'media-viewer-topbar') && e.type !== 'wheel')) {
@@ -1535,7 +1535,7 @@ export default class AppMediaViewerBase<
 
     const timeout = setTimeout(() => {
       if(!deferred.isFulfilled && !deferred.isRejected) {
-        deferred.resolve!();
+        deferred.resolve();
       }
     }, 1000);
 
@@ -1556,7 +1556,8 @@ export default class AppMediaViewerBase<
       // if(target instanceof HTMLVideoElement) {
       const selector = 'video, img, .canvas-thumbnail';
       const queryFrom = target.matches(selector) ? target.parentElement : target;
-      const elements = Array.from(queryFrom!.querySelectorAll(selector)) as HTMLImageElement[];
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+      const elements = Array.from(queryFrom!.querySelectorAll(selector)) as HTMLElement[];
       if(elements.length) {
         target = elements.pop()!;
         const canvas = document.createElement('canvas');
@@ -1582,7 +1583,7 @@ export default class AppMediaViewerBase<
       // }
 
       if(target.tagName === 'DIV' || findUpAvatar(target)) { // useContainerAsTarget
-        const images = Array.from(target.querySelectorAll('img')) as HTMLImageElement[];
+        const images = Array.from(target.querySelectorAll('img'));
         const image = images.pop();
         if(image) {
           mediaElement = new Image();
@@ -1725,7 +1726,7 @@ export default class AppMediaViewerBase<
         mover.classList.remove('moving', 'active', 'hiding');
         mover.style.cssText = 'display: none;';
 
-        deferred.resolve!();
+        deferred.resolve();
       }, delay);
 
       mover.classList.remove('opening');
@@ -1795,7 +1796,7 @@ export default class AppMediaViewerBase<
       mover.classList.add('active');
       delete mover.dataset.timeout;
 
-      deferred.resolve!();
+      deferred.resolve();
     }, delay);
 
     if(path!) {
@@ -2017,7 +2018,7 @@ export default class AppMediaViewerBase<
       newAvatar.readyThumbPromise,
       wrapTitlePromise
     ]).then(([_, title]) => {
-      replaceContent(this.author.date, (this.live ? i18n('Rtmp.MediaViewer.Streaming') : formatFullSentTime(timestamp))!);
+      replaceContent(this.author.date, (this.live ? i18n('Rtmp.MediaViewer.Streaming') : formatFullSentTime(timestamp)));
       replaceContent(this.author.nameEl, title);
 
       if(oldAvatar?.node && oldAvatar.node.parentElement) {
@@ -2249,7 +2250,7 @@ export default class AppMediaViewerBase<
   protected async loadQualityLevelsDownloadOptions(doc: MyDocument) {
     this.removeQualityOptions();
 
-    const altDocs = await this.managers.appDocsManager!.getAltDocsByDocument(doc.id);
+    const altDocs = await this.managers.appDocsManager.getAltDocsByDocument(doc.id);
     if(!altDocs) return;
 
     const qualityEntries = getQualityFilesEntries(altDocs);
@@ -2270,7 +2271,7 @@ export default class AppMediaViewerBase<
     if(filteredEntries.length <= 1) return;
 
     const options: ButtonMenuItemOptionsVerifiable[] = await Promise.all(filteredEntries.map(async(entry) => {
-      const doc = await this.managers.appDocsManager!.getDoc(entry.id);
+      const doc = await this.managers.appDocsManager.getDoc(entry.id);
       const snappedHeight = snapQualityHeight(entry.h);
 
       return ({
@@ -2445,7 +2446,7 @@ export default class AppMediaViewerBase<
       pushDocumentSize: !!(isDocument && media.w && media.h)
     }).photoSize;
 
-    const isVideoWithPlayer = isLiveStream || (isVideo && (media as MyDocument).type !== 'gif');
+    const isVideoWithPlayer = isLiveStream || (isVideo && (media).type !== 'gif');
     if(isVideoWithPlayer) {
       const currentWidth = parseFloat(container.style.width);
       if(currentWidth > 0 && currentWidth < VIDEO_MIN_WIDTH) {
@@ -2462,7 +2463,7 @@ export default class AppMediaViewerBase<
       }
     }
     if(useContainerAsTarget && !isLiveStream) {
-      const cacheContext = await this.managers.thumbsStorage!.getCacheContext(media, size?.type);
+      const cacheContext = await this.managers.thumbsStorage.getCacheContext(media, size?.type);
       let img: HTMLImageElement | HTMLCanvasElement;
       if(cacheContext.downloaded) {
         img = new Image();
@@ -2519,7 +2520,7 @@ export default class AppMediaViewerBase<
     const getCacheContext = (type = size?.type) => {
       if(isLiveStream) return {url: getRtmpStreamUrl(media)};
       if(isHlsStream && apiManagerProxy.isServiceWorkerOnline()) return {url: getDocumentURL(media as MyDocument, {supportsHlsStreaming: true})};
-      return this.managers.thumbsStorage!.getCacheContext(media, type);
+      return this.managers.thumbsStorage.getCacheContext(media, type);
     };
 
     let setMoverPromise: Promise<void>;
@@ -2788,7 +2789,7 @@ export default class AppMediaViewerBase<
           if(!supportsStreaming) {
             onAnimationEnd.then(async() => {
               if(!(await getCacheContext()).url) {
-                preloader?.attach(mover, true, promise);
+                preloader?.attach(mover, true, promise as any);
               }
             });
           }

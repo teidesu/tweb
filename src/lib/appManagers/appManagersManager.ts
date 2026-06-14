@@ -124,7 +124,7 @@ export class AppManagersManager {
 
       ++threadedWorker!.attached;
       threadedWorker!.superMessagePort!.attachPort(port);
-      threadedWorker!.promise?.resolve!();
+      threadedWorker!.promise?.resolve();
     });
 
     port.addEventListener('createProxyWorkerURLs', ({originalUrl, blob, type}) => {

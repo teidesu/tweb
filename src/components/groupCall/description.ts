@@ -14,7 +14,7 @@ export default class GroupCallDescriptionElement {
       key: 'VoiceChat.Status.Connecting'
     });
 
-    this.descriptionIntl.element!.classList.add('group-call-description');
+    this.descriptionIntl.element.classList.add('group-call-description');
   }
 
   public detach() {

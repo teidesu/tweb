@@ -39,7 +39,7 @@ const ChannelDirectMessages = () => {
     isSaving = true;
 
     try {
-      await rootScope.managers.appChatsManager!.updateChannelPaidMessagesPrice(
+      await rootScope.managers.appChatsManager.updateChannelPaidMessagesPrice(
         chat.id,
         enabled() ? stars() : 0,
         enabled()

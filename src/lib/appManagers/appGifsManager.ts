@@ -5,6 +5,7 @@ import {NULL_PEER_ID} from '@appManagers/constants';
 import {ReferenceContext} from '@lib/storages/references';
 import {AppManager} from '@appManagers/manager';
 import getDocumentInput from '@appManagers/utils/docs/getDocumentInput';
+import {isTruthy} from '../../helpers/isTruthy';
 
 export default class AppGifsManager extends AppManager {
   private gifs: MaybePromise<Document.document[]> | undefined;
@@ -22,7 +23,7 @@ export default class AppGifsManager extends AppManager {
 
   private async onGifsUpdated() {
     const gifs = await this.getGifs(true);
-    this.rootScope.dispatchEvent('gifs_updated', (gifs as Document.document[]));
+    this.rootScope.dispatchEvent('gifs_updated', (gifs));
   }
 
   public getGifs(overwrite?: boolean) {
@@ -33,14 +34,14 @@ export default class AppGifsManager extends AppManager {
     return this.gifs! ??= this.apiManager.invokeApi('messages.getSavedGifs').then((res) => {
       assumeType<MessagesSavedGifs.messagesSavedGifs>(res);
       const referenceContext: ReferenceContext = {type: 'savedGifs'};
-      this.gifs = (res.gifs.map((doc) => {
+      this.gifs = res.gifs.map((doc) => {
         // if(this.TEST_REFERENCE) {
         //   (doc as Document.document).file_reference[0] = 5;
         // }
         return this.appDocsManager.saveDoc(doc, referenceContext);
-      }).filter(Boolean) as MaybePromise<Document.document[]> | undefined);
+      }).filter(isTruthy);
       // this.TEST_REFERENCE = false;
-      return this.gifs!;
+      return this.gifs;
     });
   }
 
@@ -67,16 +68,16 @@ export default class AppGifsManager extends AppManager {
     ]);
 
     const doc = this.appDocsManager.getDoc(docId);
-    findAndSplice(gifs as Document.document[], (_doc) => _doc.id === doc.id);
+    findAndSplice(gifs, (_doc) => _doc.id === doc.id);
 
     let limitReached = false;
     if(!unsave) {
-      gifs!.unshift(doc);
-      const spliced = gifs!.splice(limit, gifs!.length - limit);
+      gifs.unshift(doc);
+      const spliced = gifs.splice(limit, gifs.length - limit);
       limitReached = spliced.length > 0;
     }
 
-    this.rootScope.dispatchEvent('gifs_updated', (gifs as Document.document[]));
+    this.rootScope.dispatchEvent('gifs_updated', (gifs));
     this.rootScope.dispatchEvent('gif_updated', {saved: !unsave, document: doc, limitReached});
 
     return this.apiManager.invokeApi('messages.saveGif', {

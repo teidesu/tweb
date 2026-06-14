@@ -308,7 +308,7 @@ export function showAdReport(
 ) {
   showReportAdPopup(
     'ad',
-    (option) => rootScope.managers.appMessagesManager!.reportSponsoredMessage(sponsoredMessage.random_id, option),
+    (option) => rootScope.managers.appMessagesManager.reportSponsoredMessage(sponsoredMessage.random_id, option),
     onAdHide
   );
 }
@@ -316,14 +316,14 @@ export function showAdReport(
 export function showMessageReport(peerId: PeerId, mids: number[]) {
   showReportAdPopup(
     'message',
-    (option, text) => rootScope.managers.appMessagesManager!.reportMessages(peerId, mids, option, text)
+    (option, text) => rootScope.managers.appMessagesManager.reportMessages(peerId, mids, option, text)
   );
 }
 
 export function showStoryReport(peerId: PeerId, ids: number[], onFinish?: () => void) {
   showReportAdPopup(
     'story',
-    (option, text) => rootScope.managers.appStoriesManager!.report(peerId, ids, option, text),
+    (option, text) => rootScope.managers.appStoriesManager.report(peerId, ids, option, text),
     onFinish
   );
 }

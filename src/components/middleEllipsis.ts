@@ -86,7 +86,7 @@ function testElement(element: HTMLElement) {
     text = element.textContent;
     textLength = text.length;
     from = /* parseFloat(element.getAttribute(attributeName)) ||  */50;
-    multiplier = ((from > 0 && from / 100)! as number | undefined);
+    multiplier = ((from > 0 && from / 100) as number | undefined);
 
     let fontSize = element.dataset.fontSize;
     if(fontSize && +fontSize) fontSize += 'px';
@@ -101,7 +101,7 @@ function testElement(element: HTMLElement) {
     elementWidth = getElementWidth(element);
     // console.log('testMiddleEllipsis get offsetWidth:', performance.now() - perf, font);
     mapped = {text, textLength, from, multiplier: multiplier!, font, textWidth, elementWidth: elementWidth!};
-    map.set(element, mapped!);
+    map.set(element, mapped);
 
     // console.log('[MEE] testElement map set', element);
   }

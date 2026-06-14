@@ -52,9 +52,9 @@ async function openCreateCollectionPopup({actions, peerId}: {
     return
   }
 
-  const collection = await rootScope.managers.apiManager!.invokeApi('payments.createStarGiftCollection', {
+  const collection = await rootScope.managers.apiManager.invokeApi('payments.createStarGiftCollection', {
     title: inputField.value,
-    peer: await rootScope.managers.appPeersManager!.getInputPeerById(peerId),
+    peer: await rootScope.managers.appPeersManager.getInputPeerById(peerId),
     stargift: []
   })
 
@@ -89,7 +89,7 @@ async function openRenameCollectionPopup({actions, collection, peerId}: {
 
   if(inputField.value === collection.title) return
 
-  const newCollection = await rootScope.managers.appGiftsManager!.updateCollection({
+  const newCollection = await rootScope.managers.appGiftsManager.updateCollection({
     peerId,
     collectionId: collection.collection_id,
     title: inputField.value
@@ -115,7 +115,7 @@ async function openAddGiftsPopup({actions, collectionId, peerId}: {
 
   if(!result) return
 
-  const collection = await rootScope.managers.appGiftsManager!.updateCollection({
+  const collection = await rootScope.managers.appGiftsManager.updateCollection({
     peerId,
     collectionId,
     add: result.selected.map((it) => it.input) as InputSavedStarGift[],
@@ -371,12 +371,12 @@ export function StarGiftsProfileTab(props: {
                 icon: 'link',
                 text: 'CopyLink',
                 onClick: async() => {
-                  const username = await rootScope.managers.appPeersManager!.getPeerUsername(props.peerId)
+                  const username = await rootScope.managers.appPeersManager.getPeerUsername(props.peerId)
                   copyTextToClipboard(`https://t.me/${username}/c/${id}`)
                   toastNew({langPackKey: 'LinkCopied'})
                 },
                 verify: async() => {
-                  const username = await rootScope.managers.appPeersManager!.getPeerUsername(props.peerId)
+                  const username = await rootScope.managers.appPeersManager.getPeerUsername(props.peerId)
                   return !!username
                 }
               }
@@ -414,9 +414,9 @@ export function StarGiftsProfileTab(props: {
                         isDanger: true
                       }
                     })
-                    rootScope.managers.apiManager!.invokeApi('payments.deleteStarGiftCollection', {
+                    rootScope.managers.apiManager.invokeApi('payments.deleteStarGiftCollection', {
                       collection_id: id,
-                      peer: await rootScope.managers.appPeersManager!.getInputPeerById(props.peerId)
+                      peer: await rootScope.managers.appPeersManager.getInputPeerById(props.peerId)
                     })
                     actions.deleteCollection(id)
                   }

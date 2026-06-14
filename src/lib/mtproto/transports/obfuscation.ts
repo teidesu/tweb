@@ -155,7 +155,7 @@ export default class Obfuscation {
       method: 'aes-ctr-process',
       args: [{id: (this.id as number), data, operation}],
       transfer: [data.buffer]
-    }) as Promise<Uint8Array>;
+    });
   };
 
   public encode(payload: Uint8Array) {

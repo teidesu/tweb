@@ -105,7 +105,7 @@ export default function wrapReply(options: WrapReplyOptions) {
       replyContainer.container.classList.add('has-collectible');
       replyContainer.container.appendChild(div);
 
-      rootScope.managers.appEmojiManager!.getCustomEmojiDocument(color.gift_emoji_id).then((doc) => {
+      rootScope.managers.appEmojiManager.getCustomEmojiDocument(color.gift_emoji_id).then((doc) => {
         if(options.middleware && !options.middleware()) return;
         if(!doc) return;
 

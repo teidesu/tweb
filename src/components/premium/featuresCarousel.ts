@@ -52,8 +52,8 @@ export default class FeaturesCarousel {
         subtitle.classList.add('carousel-item-content-subtitle');
         const bottomSection = document.createElement('div');
         bottomSection.classList.add('carousel-item-content-bottom-section');
-        title.append(i18n(feature.titleLangKey, feature.titleLangArgs)!);
-        subtitle.append(i18n(feature.subtitleLangKey, feature.subtitleLangArgs)!);
+        title.append(i18n(feature.titleLangKey, feature.titleLangArgs));
+        subtitle.append(i18n(feature.subtitleLangKey, feature.subtitleLangArgs));
         bottomSection.append(title);
         bottomSection.append(subtitle);
         container.append(bottomSection);
@@ -155,8 +155,8 @@ export default class FeaturesCarousel {
             aboveTopSection.classList.add('above-top-section');
             aboveTopSection.prepend(stories.avatar.node);
             const title = i18n(feature.titleLangKey);
-            title!.classList.add('above-top-section-title');
-            aboveTopSection.append(title!);
+            title.classList.add('above-top-section-title');
+            aboveTopSection.append(title);
             this.carouselItems[featureIndex].prepend(aboveTopSection);
             this.carouselItems[featureIndex].classList.add('upgraded-stories');
             slideTopSectionContainer.append(stories.features);
@@ -189,7 +189,7 @@ export default class FeaturesCarousel {
       headerText.remove();
       headerText = document.createElement('div');
       headerText.classList.add('popup-title');
-      headerText.append(i18n(this.features[featureIndex].headerLangKey!)!);
+      headerText.append(i18n(this.features[featureIndex].headerLangKey!));
       this.header.append(headerText);
     }
 

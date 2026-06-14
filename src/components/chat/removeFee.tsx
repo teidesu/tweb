@@ -49,7 +49,7 @@ function RemoveFeePlateBody(props: {
         ) as unknown as HTMLElement;
 
         const text = i18n('PaidMessages.UserPaysForMessagesNotice', [peerTitle.element, inlineStars]);
-        text!.classList.add('pinned-' + className + '-text', 'text-overflow-no-wrap');
+        text.classList.add('pinned-' + className + '-text', 'text-overflow-no-wrap');
 
         return (
           <div class={'pinned-' + className + '-content'}>
@@ -100,8 +100,8 @@ export default function createChatRemoveFeePlate(
   const setPeerId = async(peerId: PeerId) => {
     if(chat.isMonoforum && chat.canManageDirectMessages && chat.monoforumThreadId) {
       const {ackedChat, ackedDialog} = await namedPromises({
-        ackedChat: managers.acknowledged!.appChatsManager!.getChat(peerId.toChatId()),
-        ackedDialog: managers.acknowledged!.monoforumDialogsStorage!.getDialogByParent(peerId, chat.monoforumThreadId)
+        ackedChat: managers.acknowledged.appChatsManager.getChat(peerId.toChatId()),
+        ackedDialog: managers.acknowledged.monoforumDialogsStorage.getDialogByParent(peerId, chat.monoforumThreadId)
       });
 
       return {
@@ -119,7 +119,7 @@ export default function createChatRemoveFeePlate(
       result: Promise.resolve(hide)
     };
 
-    const ackedFullUser = await managers.acknowledged!.appProfileManager!.getProfile(peerId.toUserId());
+    const ackedFullUser = await managers.acknowledged.appProfileManager.getProfile(peerId.toUserId());
 
     return {
       cached: ackedFullUser.cached,
@@ -147,7 +147,7 @@ type OpenRemoveFeePopupArgs = {
 
 export async function openRemoveFeePopup({peerId, parentPeerId, managers, requirePayment}: OpenRemoveFeePopupArgs) {
   const userId = peerId.toUserId();
-  const revenue = !requirePayment ? await managers.appUsersManager!.getPaidMessagesRevenue({userId, parentPeerId}) : undefined;
+  const revenue = !requirePayment ? await managers.appUsersManager.getPaidMessagesRevenue({userId, parentPeerId}) : undefined;
 
   const shouldRefund = await confirmationPopup({
     titleLangKey: requirePayment ? 'PaidMessages.ChargeFee' : 'PaidMessages.RemoveFee',
@@ -162,5 +162,5 @@ export async function openRemoveFeePopup({peerId, parentPeerId, managers, requir
     }
   });
 
-  await managers.appUsersManager!.toggleNoPaidMessagesException({userId, refundCharged: shouldRefund!, parentPeerId, requirePayment});
+  await managers.appUsersManager.toggleNoPaidMessagesException({userId, refundCharged: shouldRefund!, parentPeerId, requirePayment});
 }

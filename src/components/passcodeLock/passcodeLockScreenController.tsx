@@ -65,7 +65,7 @@ export default class PasscodeLockScreenController extends StaticUtilityClass {
       await isLockedCallback();
       await this.lock();
     } else {
-      this.appStartupDeferred.resolve!();
+      this.appStartupDeferred.resolve();
       this.appStartupDeferred = undefined as unknown as ReturnType<typeof deferredPromise<void>>;
     }
   }
@@ -170,7 +170,7 @@ export default class PasscodeLockScreenController extends StaticUtilityClass {
       else next();
     })();
 
-    this.appStartupDeferred?.resolve!();
+    this.appStartupDeferred?.resolve();
     this.appStartupDeferred = undefined as unknown as ReturnType<typeof deferredPromise<void>>;
   }
 }

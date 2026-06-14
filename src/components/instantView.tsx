@@ -175,7 +175,7 @@ export function InstantView(props: {
                   onClick={async(e) => {
                     cancelEvent(e);
                     value.collapse();
-                    const user = await rootScope.managers.appUsersManager!.resolveUserByUsername('@previews');
+                    const user = await rootScope.managers.appUsersManager.resolveUserByUsername('@previews');
                     const startParam = `webpage${value.webPageId}`;
                     appImManager.setInnerPeer({
                       peerId: user!.id.toPeerId(false),
@@ -293,7 +293,7 @@ async function onMediaClick({
 }) {
   const {rootScope, AppMediaViewer, I18n} = hotReloadGuard;
   const promises = context.media.map(async({ref, media, caption}, index) => {
-    const message = await rootScope.managers.appMessagesManager!.generateStandaloneOutgoingMessage(NULL_PEER_ID);
+    const message = await rootScope.managers.appMessagesManager.generateStandaloneOutgoingMessage(NULL_PEER_ID);
     message.media = media._ === 'photo' ?
       {_: 'messageMediaPhoto', pFlags: {}, photo: media} :
       {_: 'messageMediaDocument', pFlags: {video: true}, document: media};
@@ -496,7 +496,7 @@ function Block(props: {
 
       const message: Message.message = {
         _: 'message',
-        id: (Number(block.audio_id) || 0) as number, // Fake ID
+        id: (Number(block.audio_id) || 0), // Fake ID
         peer_id: {_: 'peerUser', user_id: 0},
         date: 0,
         message: '',
@@ -506,7 +506,7 @@ function Block(props: {
           pFlags: {}
         },
         pFlags: {},
-        mid: (Number(block.audio_id) || 0) as number, // Fake MID
+        mid: (Number(block.audio_id) || 0), // Fake MID
         peerId: NULL_PEER_ID
       };
 

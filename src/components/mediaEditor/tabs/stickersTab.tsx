@@ -29,8 +29,8 @@ export default function StickersTab() {
 
   const normalizePoint = useNormalizePoint();
 
-  const [recentStickers] = createResource(() => managers.appStickersManager!.getRecentStickersStickers());
-  const [stickerSets] = createResource(() => managers.appStickersManager!.getAllStickers());
+  const [recentStickers] = createResource(() => managers.appStickersManager.getRecentStickersStickers());
+  const [stickerSets] = createResource(() => managers.appStickersManager.getAllStickers());
   const [filteredStickers, setFilteredStickers] = createSignal<Document.document[]>();
 
   const [search, setSearch] = createSignal('');
@@ -159,7 +159,7 @@ export default function StickersTab() {
   }
 
   function StickerSetSection(props: {set: StickerSet.stickerSet}) {
-    const [stickers] = createResource(() => managers.appStickersManager!.getStickerSet(getStickerSetInputById(props.set)));
+    const [stickers] = createResource(() => managers.appStickersManager.getStickerSet(getStickerSetInputById(props.set)));
 
     return (
       <Show when={stickers()}>
@@ -244,17 +244,17 @@ export default function StickersTab() {
 
   createEffect(async() => {
     if(search()) {
-      setFilteredStickers(await managers.appStickersManager!.searchStickers(search()));
+      setFilteredStickers(await managers.appStickersManager.searchStickers(search()));
       return;
     }
     if(group()) {
       const g = group();
       if(g!._ === 'emojiGroupPremium') {
-        setFilteredStickers(await managers.appStickersManager!.getPremiumStickers());
+        setFilteredStickers(await managers.appStickersManager.getPremiumStickers());
         return;
       }
       setFilteredStickers(
-        await managers.appStickersManager!.getStickersByEmoticon({
+        await managers.appStickersManager.getStickersByEmoticon({
           emoticon: g!.emoticons,
           includeServerStickers: true
         })

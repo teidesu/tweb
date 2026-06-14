@@ -61,7 +61,7 @@ export class ChatPermissions extends CheckboxFields<PermissionsCheckboxFieldsFie
     const isForum = apiManagerProxy.isForum(peerId);
     const defaultBannedRights = this.defaultBannedRights = chat.default_banned_rights!;
     const rights = this.rights = (options.participant ? combineParticipantBannedRights(chat as Chat.channel, options.participant.banned_rights) : defaultBannedRights)!;
-    this.untilDate = rights!.until_date || BANNED_RIGHTS_UNTIL_FOREVER;
+    this.untilDate = rights.until_date || BANNED_RIGHTS_UNTIL_FOREVER;
 
     const mediaNested: PermissionsCheckboxFieldsField[] = [
       {flags: ['send_photos'], text: 'UserRestrictionsSendPhotos', exceptionText: 'UserRestrictionsNoSendPhotos'},
@@ -80,7 +80,7 @@ export class ChatPermissions extends CheckboxFields<PermissionsCheckboxFieldsFie
       {flags: ['send_media'], text: 'UserRestrictionsSendMedia', exceptionText: 'UserRestrictionsNoSendMedia', nested: mediaNested},
       {flags: ['invite_users'], text: 'UserRestrictionsInviteUsers', exceptionText: 'UserRestrictionsNoInviteUsers'},
       {flags: ['pin_messages'], text: 'UserRestrictionsPinMessages', exceptionText: 'UserRestrictionsNoPinMessages'},
-      ((isForum && {flags: ['manage_topics'], text: 'CreateTopicsPermission', exceptionText: 'UserRestrictionsNoChangeInfo'})! as PermissionsCheckboxFieldsField),
+      ((isForum && {flags: ['manage_topics'], text: 'CreateTopicsPermission', exceptionText: 'UserRestrictionsNoChangeInfo'}) as PermissionsCheckboxFieldsField),
       {flags: ['change_info'], text: 'UserRestrictionsChangeInfo', exceptionText: 'UserRestrictionsNoChangeInfo'}
     ];
     v = v.filter(Boolean);
@@ -102,7 +102,7 @@ export class ChatPermissions extends CheckboxFields<PermissionsCheckboxFieldsFie
     this.fields = v;
 
     for(const info of this.fields) {
-      if(!options.forChat && defaultBannedRights!.pFlags[info.flags[0] as keyof typeof defaultBannedRights['pFlags']]) {
+      if(!options.forChat && defaultBannedRights.pFlags[info.flags[0] as keyof typeof defaultBannedRights['pFlags']]) {
         info.restrictionText = 'UserRestrictionsDisabled';
       } else if(getPeerActiveUsernames(chat as Chat.channel)[0] && (info.flags.includes('pin_messages') || info.flags.includes('change_info'))) {
         info.restrictionText = options.participant ? 'UserRestrictionsDisabled' : 'EditCantEditPermissionsPublic';
@@ -206,30 +206,30 @@ export class ChatAdministratorRights extends CheckboxFields<AdministratorRightsC
       {flags: ['post_messages'], text: 'EditAdminPostMessages'},
       {flags: ['edit_messages'], text: 'EditAdminEditMessages'},
       {flags: ['delete_messages'], text: 'EditAdminDeleteMessages'}
-    ])! as AdministratorRightsCheckboxFieldsField[]);
+    ]) as AdministratorRightsCheckboxFieldsField[]);
 
     const manageStoriesNested: AdministratorRightsCheckboxFieldsField[] = ((isBroadcast && [
       {flags: ['post_stories'], text: 'AdminRights.PostStories'},
       {flags: ['edit_stories'], text: 'AdminRights.EditStories'},
       {flags: ['delete_stories'], text: 'AdminRights.DeleteStories'}
-    ])! as AdministratorRightsCheckboxFieldsField[]);
+    ]) as AdministratorRightsCheckboxFieldsField[]);
 
     const isCreator = isParticipantCreator(options.participant);
     const manageMessagesNestedKey: ChatRights = 'post_messages_nested' as any;
     const manageStoriesNestedKey: ChatRights = 'post_stories_nested' as any;
     let v: AdministratorRightsCheckboxFieldsField[] = [
       {flags: ['change_info'], text: isBroadcast ? 'EditAdminChangeChannelInfo' : 'EditAdminChangeGroupInfo'},
-      ((isBroadcast && {flags: [manageMessagesNestedKey], text: 'AdminRights.ManageMessages', nested: manageMessagesNested})! as AdministratorRightsCheckboxFieldsField),
-      ((isBroadcast && {flags: [manageStoriesNestedKey], text: 'AdminRights.ManageStories', nested: manageStoriesNested})! as AdministratorRightsCheckboxFieldsField),
-      ((!isBroadcast && {flags: ['delete_messages'], text: isBroadcast ? 'EditAdminDeleteMessages' : 'EditAdminGroupDeleteMessages'})! as AdministratorRightsCheckboxFieldsField),
-      ((!isBroadcast && {flags: ['ban_users'], text: 'EditAdminBanUsers'})! as AdministratorRightsCheckboxFieldsField),
-      ((!isBroadcast && {flags: ['invite_users'], text: 'EditAdminAddUsersViaLink'})! as AdministratorRightsCheckboxFieldsField),
-      ((!isBroadcast && {flags: ['pin_messages'], text: 'EditAdminPinMessages'})! as AdministratorRightsCheckboxFieldsField),
-      ((isForum && {flags: ['manage_topics'], text: 'ManageTopicsPermission'})! as AdministratorRightsCheckboxFieldsField),
+      ((isBroadcast && {flags: [manageMessagesNestedKey], text: 'AdminRights.ManageMessages', nested: manageMessagesNested}) as AdministratorRightsCheckboxFieldsField),
+      ((isBroadcast && {flags: [manageStoriesNestedKey], text: 'AdminRights.ManageStories', nested: manageStoriesNested}) as AdministratorRightsCheckboxFieldsField),
+      ((!isBroadcast && {flags: ['delete_messages'], text: isBroadcast ? 'EditAdminDeleteMessages' : 'EditAdminGroupDeleteMessages'}) as AdministratorRightsCheckboxFieldsField),
+      ((!isBroadcast && {flags: ['ban_users'], text: 'EditAdminBanUsers'}) as AdministratorRightsCheckboxFieldsField),
+      ((!isBroadcast && {flags: ['invite_users'], text: 'EditAdminAddUsersViaLink'}) as AdministratorRightsCheckboxFieldsField),
+      ((!isBroadcast && {flags: ['pin_messages'], text: 'EditAdminPinMessages'}) as AdministratorRightsCheckboxFieldsField),
+      ((isForum && {flags: ['manage_topics'], text: 'ManageTopicsPermission'}) as AdministratorRightsCheckboxFieldsField),
       {flags: ['manage_call'], text: isBroadcast ? 'StartVoipChatPermission' : 'Channel.EditAdmin.ManageCalls'},
-      ((isBroadcast && {flags: ['invite_users'], text: 'Channel.EditAdmin.PermissionInviteSubscribers'})! as AdministratorRightsCheckboxFieldsField),
-      ((isBroadcast && {flags: ['manage_direct_messages'], text: 'Channel.EditAdmin.ManageDirectMessages'})! as AdministratorRightsCheckboxFieldsField),
-      ((!isBroadcast && {flags: ['anonymous'], text: 'EditAdminSendAnonymously', checked: rights ? undefined : false})! as AdministratorRightsCheckboxFieldsField),
+      ((isBroadcast && {flags: ['invite_users'], text: 'Channel.EditAdmin.PermissionInviteSubscribers'}) as AdministratorRightsCheckboxFieldsField),
+      ((isBroadcast && {flags: ['manage_direct_messages'], text: 'Channel.EditAdmin.ManageDirectMessages'}) as AdministratorRightsCheckboxFieldsField),
+      ((!isBroadcast && {flags: ['anonymous'], text: 'EditAdminSendAnonymously', checked: rights ? undefined : false}) as AdministratorRightsCheckboxFieldsField),
       {flags: ['add_admins'], text: 'EditAdminAddAdmins', checked: rights ? undefined : isCreator}
     ];
 
@@ -263,7 +263,7 @@ export class ChatAdministratorRights extends CheckboxFields<AdministratorRightsC
       const mainFlag = info.flags[0];
       if(!options.canEdit) {
         info.restrictionText = 'EditAdminCantEdit';
-      } else if((isCreator && !CREATOR_EXCEPTIONS.has(mainFlag as ChatRights)) || !hasRights(chat, mainFlag)) {
+      } else if((isCreator && !CREATOR_EXCEPTIONS.has(mainFlag)) || !hasRights(chat, mainFlag)) {
         info.restrictionText = 'EditCantEditPermissions';
       }
     }

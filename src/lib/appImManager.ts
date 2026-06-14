@@ -250,7 +250,7 @@ export class AppImManager extends EventListenerBase<{
       return;
     }
 
-    this.managers.apiManager!.getLimit(limitType, true).then((limitPremium) => {
+    this.managers.apiManager.getLimit(limitType, true).then((limitPremium) => {
       toastNew({
         langPackKey: subtitleKey,
         langPackArguments: [
@@ -330,7 +330,7 @@ export class AppImManager extends EventListenerBase<{
     rootScope.addEventListener('premium_toggle', onPremiumToggle);
 
     onPremiumToggle(rootScope.premium);
-    this.managers.rootScope!.getPremium().then(onPremiumToggle);
+    this.managers.rootScope.getPremium().then(onPremiumToggle);
 
     useHeavyAnimationCheck(() => {
       animationIntersector.setOnlyOnePlayableGroup('lock');
@@ -432,7 +432,7 @@ export class AppImManager extends EventListenerBase<{
 
     // * prefetch some data
     this.addEventListener('peer_changed', () => {
-      this.managers.appReactionsManager!.getPaidReactionPrivacy();
+      this.managers.appReactionsManager.getPaidReactionPrivacy();
     }, {once: true});
 
     rootScope.addEventListener('theme_changed', () => {
@@ -484,7 +484,7 @@ export class AppImManager extends EventListenerBase<{
             }, a.t * 1000);
           });
 
-          this.managers.appMessagesManager!.setTyping(peerId, {
+          this.managers.appMessagesManager.setTyping(peerId, {
             _: 'sendMessageEmojiInteractionSeen',
             emoticon: action.emoticon
           });
@@ -518,7 +518,7 @@ export class AppImManager extends EventListenerBase<{
             PopupPremium.show({feature: 'faster_download'});
           }),
           increaseTimes
-        ])!,
+        ]),
         duration: 10000
       });
     });
@@ -536,7 +536,7 @@ export class AppImManager extends EventListenerBase<{
     });
 
     rootScope.addEventListener('payment_sent', async({peerId, mid, receiptMessage}) => {
-      const message = await this.managers.appMessagesManager!.getMessageByPeer(peerId, mid);
+      const message = await this.managers.appMessagesManager.getMessageByPeer(peerId, mid);
       if(!message) {
         return;
       }
@@ -615,12 +615,12 @@ export class AppImManager extends EventListenerBase<{
 
       const {mid, peerId} = bubble.dataset;
       const message = apiManagerProxy.getMessageByPeer(peerId!.toPeerId(), +mid!);
-      const canForward = await this.managers.appMessagesManager!.canForward(message!);
+      const canForward = await this.managers.appMessagesManager.canForward(message!);
       const entity = ENTITY_ELEMENT_MAP.get(element);
       const timestamp = (entity as MessageEntity.messageEntityFormattedDate).date;
       const date = new Date(timestamp * 1000);
       const dateElement = formatDate(date, {withTime: true});
-      const text = dateElement!.textContent;
+      const text = dateElement.textContent;
 
       const buttons: ButtonMenuItemOptions[] = [{
         icon: 'calendar',
@@ -641,7 +641,7 @@ export class AppImManager extends EventListenerBase<{
             initDate: date,
             withTime: true,
             onPick: (_timestamp: number) => {
-              this.managers.appMessagesManager!.forwardMessages({
+              this.managers.appMessagesManager.forwardMessages({
                 peerId: rootScope.myId,
                 scheduleDate: _timestamp,
                 mids: [message!.mid!],
@@ -655,13 +655,13 @@ export class AppImManager extends EventListenerBase<{
                     hide();
                     this.openScheduled(rootScope.myId);
                   })
-                ]!)!,
+                ]),
                 duration: 5000
               });
             }
           });
         }
-      })! as ButtonMenuItemOptions)];
+      }) as ButtonMenuItemOptions)];
 
       const menu = ButtonMenuSync({buttons: buttons.filter(Boolean)});
       menu.classList.add('contextmenu');
@@ -727,7 +727,7 @@ export class AppImManager extends EventListenerBase<{
     apiManagerProxy.addEventListener('notificationBuild', async(options) => {
       const {accountNumber} = options;
       const managers = createProxiedManagersForAccount(accountNumber);
-      const isForum = await managers.appPeersManager!.isForum(options.message.peerId!);
+      const isForum = await managers.appPeersManager.isForum(options.message.peerId!);
       const threadId = getMessageThreadId(options.message, {isForum});
 
       if(
@@ -834,7 +834,7 @@ export class AppImManager extends EventListenerBase<{
         return;
       }
 
-      const canvases = Array.from(document.querySelectorAll('canvas')) as HTMLCanvasElement[];
+      const canvases = Array.from(document.querySelectorAll('canvas'));
       canvases.forEach((canvas) => {
         const context = canvas.getContext('2d');
         if(!context) {
@@ -848,7 +848,7 @@ export class AppImManager extends EventListenerBase<{
       });
     });
 
-    this.managers.appReactionsManager!.getSavedReactionTags().then((tags) => {
+    this.managers.appReactionsManager.getSavedReactionTags().then((tags) => {
       savedReactionTags.splice(0, savedReactionTags.length, ...tags);
     });
 
@@ -893,7 +893,7 @@ export class AppImManager extends EventListenerBase<{
           const preparedPaymentResult = await PaidMessagesInterceptor.prepareStarsForPayment({messageCount: 1, peerId});
           if(preparedPaymentResult === PAYMENT_REJECTED) throw new Error();
 
-          this.managers.appMessagesManager!.sendText({peerId, text: share.text, confirmedPaymentResult: preparedPaymentResult});
+          this.managers.appMessagesManager.sendText({peerId, text: share.text, confirmedPaymentResult: preparedPaymentResult});
         }
       });
     }
@@ -984,43 +984,43 @@ export class AppImManager extends EventListenerBase<{
     enable: boolean,
     attachMenuBot?: AttachMenuBot
   ) {
-    attachMenuBot = (attachMenuBot ?? await this.managers.appAttachMenuBotsManager!.getAttachMenuBot(botId)) as AttachMenuBot;
+    attachMenuBot = (attachMenuBot ?? await this.managers.appAttachMenuBotsManager.getAttachMenuBot(botId)) as AttachMenuBot;
 
     if(!!attachMenuBot.pFlags.inactive === !enable) {
       return attachMenuBot;
     }
 
-    if(attachMenuBot!.pFlags.inactive) {
+    if(attachMenuBot.pFlags.inactive) {
       // const haveWriteAccess = await this.requestBotAttachPermission(botId, attachMenuBot.pFlags.request_write_access);
       await this.confirmBotWebViewInner({botId, showDisclaimer: true});
       await this.pushBotIdAsConfirmed(botId);
       const haveWriteAccess = true;
 
-      await this.managers.appAttachMenuBotsManager!.toggleBotInAttachMenu(botId, true, haveWriteAccess);
+      await this.managers.appAttachMenuBotsManager.toggleBotInAttachMenu(botId, true, haveWriteAccess);
       // installed
-      delete attachMenuBot!.pFlags.inactive;
+      delete attachMenuBot.pFlags.inactive;
 
       toastNew({
-        langPackKey: attachMenuBot!.pFlags.show_in_attach_menu && attachMenuBot!.pFlags.show_in_side_menu ?
+        langPackKey: attachMenuBot.pFlags.show_in_attach_menu && attachMenuBot.pFlags.show_in_side_menu ?
           'BotAttachMenuShortcatAddedAttachAndSide' : (
-            attachMenuBot!.pFlags.show_in_attach_menu ?
+            attachMenuBot.pFlags.show_in_attach_menu ?
               'BotAttachMenuShortcatAddedAttach' :
               'BotAttachMenuShortcatAddedSide'
           ),
-        langPackArguments: [wrapEmojiText(attachMenuBot!.short_name)]
+        langPackArguments: [wrapEmojiText(attachMenuBot.short_name)]
       });
     } else {
-      await this.managers.appAttachMenuBotsManager!.toggleBotInAttachMenu(botId, false);
-      attachMenuBot!.pFlags.inactive = true;
+      await this.managers.appAttachMenuBotsManager.toggleBotInAttachMenu(botId, false);
+      attachMenuBot.pFlags.inactive = true;
 
       toastNew({
-        langPackKey: attachMenuBot!.pFlags.show_in_attach_menu && attachMenuBot!.pFlags.show_in_side_menu ?
+        langPackKey: attachMenuBot.pFlags.show_in_attach_menu && attachMenuBot.pFlags.show_in_side_menu ?
           'WebApp.AttachRemove.SuccessAll' : (
-            attachMenuBot!.pFlags.show_in_attach_menu ?
+            attachMenuBot.pFlags.show_in_attach_menu ?
               'WebApp.AttachRemove.Success' :
               'WebApp.AttachRemove.SuccessSide'
           ),
-        langPackArguments: [wrapEmojiText(attachMenuBot!.short_name)]
+        langPackArguments: [wrapEmojiText(attachMenuBot.short_name)]
       });
     }
 
@@ -1044,7 +1044,7 @@ export class AppImManager extends EventListenerBase<{
       (options.fromAttachMenu || options.fromSideMenu) */
     ) {
       try {
-        options.attachMenuBot = ((await this.managers.appAttachMenuBotsManager!.getAttachMenuBot(options.botId!))! as AttachMenuBot.attachMenuBot | undefined);
+        options.attachMenuBot = ((await this.managers.appAttachMenuBotsManager.getAttachMenuBot(options.botId!)) as AttachMenuBot.attachMenuBot | undefined);
       } catch(err) {}
     }
 
@@ -1079,7 +1079,7 @@ export class AppImManager extends EventListenerBase<{
 
       const cacheKey = cacheKeyArr.join('-');
 
-      const webViewResultUrl = await this.managers.appAttachMenuBotsManager!.requestWebView(options as RequestWebViewOptions);
+      const webViewResultUrl = await this.managers.appAttachMenuBotsManager.requestWebView(options as RequestWebViewOptions);
       const webAppOptions: Parameters<typeof openWebAppInAppBrowser>[0] = {
         webViewResultUrl,
         webViewOptions: options as RequestWebViewOptions,
@@ -1103,13 +1103,13 @@ export class AppImManager extends EventListenerBase<{
 
   public async playGame(message: Message.message) {
     const media = message.media as MessageMedia.messageMediaGame;
-    const game = media?.game as Game.game;
+    const game = media?.game;
     if(game?._ !== 'game') {
       return;
     }
 
     try {
-      const callbackAnswer = await this.managers.appInlineBotsManager!.callbackButtonClick(
+      const callbackAnswer = await this.managers.appInlineBotsManager.callbackButtonClick(
         message.peerId!,
         message.mid!,
         undefined,
@@ -1194,7 +1194,7 @@ export class AppImManager extends EventListenerBase<{
           return;
         }
 
-        const result = await this.managers.appSeamlessLoginManager!.acceptUrlAuth(
+        const result = await this.managers.appSeamlessLoginManager.acceptUrlAuth(
           url,
           peerId,
           mid,
@@ -1210,7 +1210,7 @@ export class AppImManager extends EventListenerBase<{
       }
     };
 
-    return this.managers.appSeamlessLoginManager!.requestUrlAuth(
+    return this.managers.appSeamlessLoginManager.requestUrlAuth(
       url,
       peerId,
       mid,
@@ -1224,8 +1224,8 @@ export class AppImManager extends EventListenerBase<{
     let appConfig: MTAppConfig, config: Config.config;
     rootScope.addEventListener('app_config', (_appConfig) => appConfig = _appConfig);
     rootScope.addEventListener('config', (_config) => config = _config);
-    this.managers.apiManager!.getAppConfig().then((_appConfig) => appConfig = _appConfig);
-    this.managers.apiManager!.getConfig().then((_config) => config = _config);
+    this.managers.apiManager.getAppConfig().then((_appConfig) => appConfig = _appConfig);
+    this.managers.apiManager.getConfig().then((_config) => config = _config);
 
     const onAuthAnchorClick = (element: HTMLAnchorElement) => {
       if(!appConfig) {
@@ -1301,10 +1301,10 @@ export class AppImManager extends EventListenerBase<{
       lastHelpPeerColors = helpPeerColors;
     };
     rootScope.addEventListener('theme_changed', () => onHelpPeerColors());
-    this.managers.apiManager!.getPeerColors().then(onHelpPeerColors);
+    this.managers.apiManager.getPeerColors().then(onHelpPeerColors);
 
     const [_, setProfileColors] = useProfileColors();
-    this.managers.apiManager!.getPeerProfileColors().then((helpPeerColors) => {
+    this.managers.apiManager.getPeerProfileColors().then((helpPeerColors) => {
       setProfileColors(helpPeerColors.colors);
     });
   }
@@ -1315,7 +1315,7 @@ export class AppImManager extends EventListenerBase<{
       return;
     }
 
-    this.managers.appMessagesManager!.clickSponsoredMessage(sponsoredMessage.random_id);
+    this.managers.appMessagesManager.clickSponsoredMessage(sponsoredMessage.random_id);
   }
 
   public async openStoriesFromAvatar(avatar: HTMLElement) {
@@ -1450,7 +1450,7 @@ export class AppImManager extends EventListenerBase<{
         return;
       } else if(e.altKey && (key === 'ArrowUp' || key === 'ArrowDown')) {
         cancelEvent(e);
-        this.managers.dialogsStorage!.getNextDialog(
+        this.managers.dialogsStorage.getNextDialog(
           this.chat.peerId,
           key === 'ArrowDown',
           appDialogsManager.filterId
@@ -1494,7 +1494,7 @@ export class AppImManager extends EventListenerBase<{
             return;
           }
 
-          this.managers.appMessagesManager!.getFirstMessageToEdit({
+          this.managers.appMessagesManager.getFirstMessageToEdit({
             peerId,
             threadId,
             forReply,
@@ -1666,7 +1666,7 @@ export class AppImManager extends EventListenerBase<{
 
           default: { // peerId
             const peerId = postId ? p.toPeerId(true) : p.toPeerId();
-            this.managers.appPeersManager!.getPeer(peerId).then((peer) => {
+            this.managers.appPeersManager.getPeer(peerId).then((peer) => {
               this.op({
                 peer,
                 lastMsgId: messageId,
@@ -1691,7 +1691,7 @@ export class AppImManager extends EventListenerBase<{
   };
 
   public onSponsoredMessageClick = (message: SponsoredMessage) => {
-    this.managers.appMessagesManager!.clickSponsoredMessage(message.random_id);
+    this.managers.appMessagesManager.clickSponsoredMessage(message.random_id);
     const wrapped = wrapUrl(message.url);
 
     if(wrapped.onclick) {
@@ -1704,7 +1704,7 @@ export class AppImManager extends EventListenerBase<{
   public async open(options: Omit<Parameters<AppImManager['op']>[0], 'peer'> & {peerId: PeerId}) {
     return this.op({
       ...options,
-      peer: await this.managers.appPeersManager!.getPeer(options.peerId)
+      peer: await this.managers.appPeersManager.getPeer(options.peerId)
     });
   }
 
@@ -1730,13 +1730,13 @@ export class AppImManager extends EventListenerBase<{
     const isBotforum = !!(isUser && (options.peer as User.user).pFlags.bot_forum_view);
 
     await Promise.all(keys.map(async(key) => {
-      options[key] &&= await this.managers.appMessagesIdsManager!.generateMessageId(options[key], channelId);
+      options[key] &&= await this.managers.appMessagesIdsManager.generateMessageId(options[key], channelId);
     }));
 
     const migratedTo = (options.peer as MTChat.chat).migrated_to;
     if(migratedTo) {
       const channelId = (migratedTo as InputChannel.inputChannel).channel_id;
-      options.peer = await this.managers.appChatsManager!.getChat(channelId);
+      options.peer = await this.managers.appChatsManager.getChat(channelId);
       peerId = channelId.toPeerId(true);
     }
 
@@ -1755,7 +1755,7 @@ export class AppImManager extends EventListenerBase<{
     // handle t.me/username/thread or t.me/username/messageId
     if(lastMsgId && !threadId) {
       if(isForum) {
-        const message = await this.managers.appMessagesManager!.reloadMessage(peerId, lastMsgId);
+        const message = await this.managers.appMessagesManager.reloadMessage(peerId, lastMsgId);
         if(message) {
           threadId = options.threadId = getMessageThreadId(message, {isForum});
         } else {
@@ -1763,7 +1763,7 @@ export class AppImManager extends EventListenerBase<{
           lastMsgId = options.lastMsgId = undefined;
         }
       } else if(isBotforum) {
-        const topic = await this.managers.dialogsStorage!.getForumTopicById(peerId, lastMsgId);
+        const topic = await this.managers.dialogsStorage.getForumTopicById(peerId, lastMsgId);
         if(topic) {
           threadId = options.threadId = lastMsgId;
           lastMsgId = options.lastMsgId = undefined;
@@ -1772,7 +1772,7 @@ export class AppImManager extends EventListenerBase<{
     }
 
     if(options.call) {
-      const call = await rootScope.managers.appCallsManager!.getCall(options.call);
+      const call = await rootScope.managers.appCallsManager.getCall(options.call);
       rootScope.dispatchEvent('call_update', call!);
     }
 
@@ -1796,7 +1796,7 @@ export class AppImManager extends EventListenerBase<{
   }
 
   public openPremiumBot() {
-    return this.managers.apiManager!.getAppConfig().then((appConfig) => {
+    return this.managers.apiManager.getAppConfig().then((appConfig) => {
       return this.openUsername({userName: appConfig.premium_bot_username!});
     });
   }
@@ -1805,7 +1805,7 @@ export class AppImManager extends EventListenerBase<{
     userName: string
   } & Omit<ChatSetPeerOptions, 'peerId'>) {
     const {userName} = options;
-    return this.managers.appUsersManager!.resolveUsername(userName).then((peer) => {
+    return this.managers.appUsersManager.resolveUsername(userName).then((peer) => {
       return this.op({
         peer,
         ...options
@@ -1828,12 +1828,12 @@ export class AppImManager extends EventListenerBase<{
     threadId: number,
     stack?: ChatSetPeerOptions['stack']
   }) {
-    if(await this.managers.appChatsManager!.isForum(options.peerId.toChatId()) || await this.managers.appPeersManager!.isBotforum(options.peerId)) {
-      await this.managers.dialogsStorage!.getForumTopicOrReload(options.peerId, options.threadId);
+    if(await this.managers.appChatsManager.isForum(options.peerId.toChatId()) || await this.managers.appPeersManager.isBotforum(options.peerId)) {
+      await this.managers.dialogsStorage.getForumTopicOrReload(options.peerId, options.threadId);
       return this.setInnerPeer(options);
     }
 
-    return this.managers.appMessagesManager!.reloadMessage(options.peerId, options.threadId).then(async(message) => {
+    return this.managers.appMessagesManager.reloadMessage(options.peerId, options.threadId).then(async(message) => {
       if(!message) {
         options.lastMsgId = undefined;
       }
@@ -1853,7 +1853,7 @@ export class AppImManager extends EventListenerBase<{
     msgId: number,
     commentId: number
   }) {
-    return this.managers.appMessagesManager!.getDiscussionMessage(options.peerId, options.msgId).then((message) => {
+    return this.managers.appMessagesManager.getDiscussionMessage(options.peerId, options.msgId).then((message) => {
       return this.openThread({
         peerId: message.peerId!,
         lastMsgId: options.commentId,
@@ -1868,7 +1868,7 @@ export class AppImManager extends EventListenerBase<{
       return;
     }
 
-    const userFull = await this.managers.appProfileManager!.getProfile(userId);
+    const userFull = await this.managers.appProfileManager.getProfile(userId);
     if(userFull.pFlags.phone_calls_private) {
       wrapPeerTitle({peerId: userId.toPeerId()}).then((element) => {
         return confirmationPopup({
@@ -1952,16 +1952,16 @@ export class AppImManager extends EventListenerBase<{
 
   public async joinGroupCall(peerId: PeerId, groupCallId?: GroupCallId) {
     const chatId = peerId.toChatId();
-    const hasRights = await this.managers.appChatsManager!.hasRights(chatId, 'manage_call');
+    const hasRights = await this.managers.appChatsManager.hasRights(chatId, 'manage_call');
     const next = async() => {
-      const chatFull = await this.managers.appProfileManager!.getChatFull(chatId);
+      const chatFull = await this.managers.appProfileManager.getChatFull(chatId);
       let call: MyGroupCall;
       if(!chatFull.call) {
         if(!hasRights) {
           return;
         }
 
-        call = await this.managers.appGroupCallsManager!.createGroupCall(chatId);
+        call = await this.managers.appGroupCallsManager.createGroupCall(chatId);
       } else {
         call = chatFull.call as InputGroupCall.inputGroupCall;
       }
@@ -1970,7 +1970,7 @@ export class AppImManager extends EventListenerBase<{
     };
 
     if(groupCallId) {
-      const groupCall = await this.managers.appGroupCallsManager!.getGroupCallFull(groupCallId);
+      const groupCall = await this.managers.appGroupCallsManager.getGroupCallFull(groupCallId);
       if(groupCall._ === 'groupCallDiscarded') {
         if(!hasRights) {
           toastNew({
@@ -2225,7 +2225,7 @@ export class AppImManager extends EventListenerBase<{
       const topbar = this.chat.topbar;
       topbar.pinnedMessage?.setCorrectIndex(0); // * буду молиться богам, чтобы это ничего не сломало, но это исправляет получение пиннеда после анимации
 
-      this.managers.apiFileManager!.setQueueId(this.chat.bubbles.lazyLoadQueue!.queueId);
+      this.managers.apiFileManager.setQueueId(this.chat.bubbles.lazyLoadQueue!.queueId);
     }, liteMode.isAvailable('animations') ? 250 : 0, false, true);
 
     const c: LiteModeKey[] = ['stickers_chat', 'stickers_panel'];
@@ -2661,7 +2661,7 @@ export class AppImManager extends EventListenerBase<{
   }
 
   public updateStatus() {
-    return this.managers.appUsersManager!.updateMyOnlineStatus(this.offline);
+    return this.managers.appUsersManager.updateMyOnlineStatus(this.offline);
   }
 
   public goOffline() {
@@ -2744,7 +2744,7 @@ export class AppImManager extends EventListenerBase<{
 
   public async setPeer(options: Partial<ChatSetInnerPeerOptions> = {}, animate?: boolean): Promise<boolean> {
     options.peerId ??= NULL_PEER_ID;
-    options.peerId = await this.managers.appPeersManager!.getPeerMigratedTo(options.peerId) || options.peerId;
+    options.peerId = await this.managers.appPeersManager.getPeerMigratedTo(options.peerId) || options.peerId;
 
     const {peerId, lastMsgId, threadId} = options;
 
@@ -2753,17 +2753,17 @@ export class AppImManager extends EventListenerBase<{
       const peer = apiManagerProxy.getPeer(peerId);
       const isMin = peer && (peer as User.user).pFlags.min;
       if(isMin && peerId.isUser()) {
-        await this.managers.appUsersManager!.getApiUsers([{
+        await this.managers.appUsersManager.getApiUsers([{
           _: 'inputUserFromMessage',
           msg_id: getServerMessageId(options.stack.mid)!,
-          peer: await this.managers.appPeersManager!.getInputPeerById(options.stack.peerId),
+          peer: await this.managers.appPeersManager.getInputPeerById(options.stack.peerId),
           user_id: peerId.toUserId()
         }]);
       } else if(isMin) {
-        await this.managers.appChatsManager!.resolveChannel({
+        await this.managers.appChatsManager.resolveChannel({
           _: 'inputChannelFromMessage',
           msg_id: getServerMessageId(options.stack.mid)!,
-          peer: await this.managers.appPeersManager!.getInputPeerById(options.stack.peerId),
+          peer: await this.managers.appPeersManager.getInputPeerById(options.stack.peerId),
           channel_id: peerId.toChatId()
         });
       }
@@ -2857,7 +2857,7 @@ export class AppImManager extends EventListenerBase<{
       return;
     }
 
-    peerId = options.peerId = await this.managers.appPeersManager!.getPeerMigratedTo(peerId) || peerId;
+    peerId = options.peerId = await this.managers.appPeersManager.getPeerMigratedTo(peerId) || peerId;
 
     if(!options.type) {
       if(options.threadId) {
@@ -2906,7 +2906,7 @@ export class AppImManager extends EventListenerBase<{
     if(peerId === rootScope.myId) {
       setAppState('settings', 'savedAsForum', !enabled);
     } else {
-      await this.managers.appChatsManager!.toggleViewForumAsMessages(peerId.toChatId(), enabled);
+      await this.managers.appChatsManager.toggleViewForumAsMessages(peerId.toChatId(), enabled);
     }
 
     this.selectTab(APP_TABS.CHATLIST);
@@ -2972,12 +2972,12 @@ export class AppImManager extends EventListenerBase<{
     // log('getting peer typing');
 
     const isUser = peerId.isUser();
-    if(isUser && await this.managers.appUsersManager!.isBot(peerId)) {
+    if(isUser && await this.managers.appUsersManager.isBot(peerId)) {
       // log('a bot');
       return;
     }
 
-    const typings = await this.managers.appProfileManager!.getPeerTypings(peerId, threadId);
+    const typings = await this.managers.appProfileManager.getPeerTypings(peerId, threadId);
     if(!typings?.length) {
       // log('have no typing');
       return;
@@ -3097,10 +3097,10 @@ export class AppImManager extends EventListenerBase<{
     }
 
     const descriptionElement = i18n(langPackKey, args!);
-    descriptionElement!.classList.add('peer-typing-description');
+    descriptionElement.classList.add('peer-typing-description');
 
-    if(container.childElementCount > 1) container.lastElementChild!.replaceWith(descriptionElement!);
-    else container.append(descriptionElement!);
+    if(container.childElementCount > 1) container.lastElementChild!.replaceWith(descriptionElement);
+    else container.append(descriptionElement);
 
     // log('returning typing');
     return container;
@@ -3112,11 +3112,11 @@ export class AppImManager extends EventListenerBase<{
       return {cached: true, result: Promise.resolve(typingEl)};
     }
 
-    const chatFullResult = await this.managers.acknowledged!.appProfileManager!.getChatFull(chatId);
+    const chatFullResult = await this.managers.acknowledged.appProfileManager.getChatFull(chatId);
     const dooo = async(chatFull: ChatFull) => {
       let [subtitle, onlinesResult] = await Promise.all([
         getChatMembersString(chatId, undefined, undefined, undefined, chatFull),
-        this.managers.acknowledged!.appProfileManager!.getOnlines(chatId)
+        this.managers.acknowledged.appProfileManager.getOnlines(chatId)
       ]);
 
       return {
@@ -3125,7 +3125,7 @@ export class AppImManager extends EventListenerBase<{
           if(onlines > 1) {
             const span = document.createElement('span');
 
-            span.append(...join([subtitle!, i18n('OnlineCount', [numberThousandSplitter(onlines)])!], false));
+            span.append(...join([subtitle, i18n('OnlineCount', [numberThousandSplitter(onlines)])], false));
             subtitle = span;
           }
 
@@ -3137,7 +3137,7 @@ export class AppImManager extends EventListenerBase<{
     const result = chatFullResult.result.then(dooo);
     return {
       cached: chatFullResult.cached ? (await result).cached : chatFullResult.cached,
-      result: (result.then((r) => r.result)! as Promise<HTMLElement>)
+      result: (result.then((r) => r.result))
     };
   }
 
@@ -3147,7 +3147,7 @@ export class AppImManager extends EventListenerBase<{
       result: Promise.resolve(undefined as unknown as HTMLElement)
     };
 
-    const user = await this.managers.appUsersManager!.getUser(userId);
+    const user = await this.managers.appUsersManager.getUser(userId);
     if(!user || (user.pFlags.self && !ignoreSelf)) {
       return result;
     }
@@ -3235,7 +3235,7 @@ export class AppImManager extends EventListenerBase<{
   }
 
   public setChoosingStickerTyping(cancel: boolean) {
-    this.managers.appMessagesManager!.setTyping(this.chat.peerId, {_: cancel ? 'sendMessageCancelAction' : 'sendMessageChooseStickerAction'}, undefined, this.chat.threadId);
+    this.managers.appMessagesManager.setTyping(this.chat.peerId, {_: cancel ? 'sendMessageCancelAction' : 'sendMessageChooseStickerAction'}, undefined, this.chat.threadId);
   }
 
   public isSamePeer(options1: {peerId: PeerId, threadId?: number, monoforumThreadId?: PeerId, type?: ChatType}, options2: typeof options1) {
@@ -3248,7 +3248,7 @@ export class AppImManager extends EventListenerBase<{
   }
 
   public giftPremium(peerId: PeerId) {
-    this.managers.appPaymentsManager!.getPremiumGiftCodeOptions().then((giftCodeOptions) => {
+    this.managers.appPaymentsManager.getPremiumGiftCodeOptions().then((giftCodeOptions) => {
       showGiftPremiumPopup(
         peerId,
         giftCodeOptions.filter((option) => option.users === 1 && option.currency !== STARS_CURRENCY)
@@ -3264,15 +3264,15 @@ export class AppImManager extends EventListenerBase<{
       },
       descriptionLangKey: 'AreYouSureShareMyContactInfoBot'
     }).then(() => {
-      return this.managers.appMessagesManager!.sendContact({peerId, contactPeerId: rootScope.myId});
+      return this.managers.appMessagesManager.sendContact({peerId, contactPeerId: rootScope.myId});
     });
   }
 
   public async initGifting() {
-    const appConfig = await this.managers.apiManager!.getAppConfig();
-    const user = await this.managers.appUsersManager!.resolveUsername(appConfig.premium_bot_username!);
+    const appConfig = await this.managers.apiManager.getAppConfig();
+    const user = await this.managers.appUsersManager.resolveUsername(appConfig.premium_bot_username!);
     const peerId = user.id.toPeerId(false);
-    this.managers.appMessagesManager!.sendText({peerId, text: '/gift'});
+    this.managers.appMessagesManager.sendText({peerId, text: '/gift'});
     this.setInnerPeer({peerId});
   }
 
@@ -3290,7 +3290,7 @@ export class AppImManager extends EventListenerBase<{
 
     const animation = !container.classList.contains('custom-emoji') ? lottieLoader.getAnimation(container) : undefined;
     if(animation?.paused) {
-      const doc = await managers.appStickersManager!.getAnimatedEmojiSoundDocument(emoji!);
+      const doc = await managers.appStickersManager.getAnimatedEmojiSoundDocument(emoji!);
       if(doc) {
         const audio = document.createElement('audio');
         audio.style.display = 'none';
@@ -3325,7 +3325,7 @@ export class AppImManager extends EventListenerBase<{
       return true;
     }
 
-    const doc = await managers.appStickersManager!.getAnimatedEmojiSticker(emoji!, true);
+    const doc = await managers.appStickersManager.getAnimatedEmojiSticker(emoji!, true);
     if(!doc) {
       return false;
     }
@@ -3350,7 +3350,7 @@ export class AppImManager extends EventListenerBase<{
       const {peerId, threadId} = this.chat;
 
       const bubble = findUpClassName(container, 'bubble');
-      managers.appMessagesManager!.setTyping(peerId, {
+      managers.appMessagesManager.setTyping(peerId, {
         _: 'sendMessageEmojiInteraction',
         msg_id: getServerMessageId(+bubble.dataset.mid!)!,
         emoticon: emoji!,

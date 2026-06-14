@@ -19,6 +19,7 @@ import classNames from '@helpers/string/classNames';
 import createMiddleware from '@helpers/solid/createMiddleware';
 import {IconTsx} from '@components/iconTsx';
 import {setPeerColorToElement} from '@components/peerColors';
+import {isTruthy} from '../../helpers/isTruthy';
 
 export function getGiftAssetName(days?: number) {
   const months = days === undefined ? days : Math.round(days / 30);
@@ -43,10 +44,10 @@ export function DelimiterWithText(props: {langKey: LangPackKey}) {
 
 export async function onGiveawayClick(message: Message.message) {
   const giveaway = message.media as MessageMedia.messageMediaGiveaway | MessageMedia.messageMediaGiveawayResults;
-  const giveawayInfo = await rootScope.managers.appPaymentsManager!.getGiveawayInfo(message.peerId!, message.mid!);
+  const giveawayInfo = await rootScope.managers.appPaymentsManager.getGiveawayInfo(message.peerId!, message.mid!);
   const d = document.createDocumentFragment();
   const duration = formatMonthsDuration(giveaway.months!, true);
-  const giveawayPeerId = (message as Message.message).fwdFromId || message.peerId;
+  const giveawayPeerId = (message).fwdFromId || message.peerId;
 
   const isMediaResults = giveaway._ === 'messageMediaGiveawayResults';
   const isResults = giveawayInfo._ === 'payments.giveawayInfoResults';
@@ -63,13 +64,13 @@ export async function onGiveawayClick(message: Message.message) {
   let subtitleKey: LangPackKey = 'Giveaway.Info';
   const subtitleArgs: FormatterArguments = [
     formatDate(isResults ? giveawayInfo.finish_date : giveaway.until_date),
-    i18n('Giveaway.Info.Users', [quantity])!,
+    i18n('Giveaway.Info.Users', [quantity]),
     await wrapPeerTitle({peerId: giveawayPeerId})
   ];
 
   if(additionalPeersLength) {
     subtitleKey += '.Several';
-    subtitleArgs.push(i18n('Giveaway.Info.OtherChannels', [additionalPeersLength])!);
+    subtitleArgs.push(i18n('Giveaway.Info.OtherChannels', [additionalPeersLength]));
   }
   if(onlyNewSubscribers) {
     subtitleKey += '.Date';
@@ -111,7 +112,7 @@ export async function onGiveawayClick(message: Message.message) {
 
     if(additionalPeersLength) {
       subsubtitleKey += '.Multi';
-      subsubtitleArgs.push(i18n('Giveaway.Info.OtherChannels', [additionalPeersLength])!);
+      subsubtitleArgs.push(i18n('Giveaway.Info.OtherChannels', [additionalPeersLength]));
     }
 
     if(!isParticipating && giveawayInfo.start_date) {
@@ -132,7 +133,7 @@ export async function onGiveawayClick(message: Message.message) {
       giveaway.stars || quantity,
       await wrapPeerTitle({peerId: giveawayPeerId}),
       quantity,
-      duration!
+      duration
     ]
   );
 
@@ -140,11 +141,11 @@ export async function onGiveawayClick(message: Message.message) {
   const subsubtitle = i18n(subsubtitleKey as LangPackKey, subsubtitleArgs!);
 
   if(subsubtitleAtTop! || isRefunded) {
-    subsubtitle!.classList.add('popup-description-framed');
+    subsubtitle.classList.add('popup-description-framed');
   }
 
   if(isRefunded) {
-    subsubtitle!.classList.add('popup-description-danger');
+    subsubtitle.classList.add('popup-description-danger');
   }
 
   d.append(...[
@@ -160,7 +161,7 @@ export async function onGiveawayClick(message: Message.message) {
         await wrapPeerTitle({peerId: giveawayPeerId}),
         quantity,
         wrapEmojiText(giveaway.prize_description),
-        i18n('Giveaway.AlsoPrizes2', [quantity])!
+        i18n('Giveaway.AlsoPrizes2', [quantity])
       ]),
       document.createElement('br'),
       document.createElement('br')
@@ -175,7 +176,7 @@ export async function onGiveawayClick(message: Message.message) {
       document.createElement('br'),
       subsubtitle
     ] : [])
-  ].filter(Boolean) as (string | Node)[]);
+  ].filter(isTruthy));
 
   await confirmationPopup({
     titleLangKey: isResults ? 'BoostingGiveawayEnd' : 'BoostingGiveAwayAbout',
@@ -234,14 +235,14 @@ export default function Giveaway(props: {
         {wrapEmojiText(giveaway.prize_description)}
         <DelimiterWithText langKey="Giveaway.With" />
         {giveaway.stars ?
-          i18n('Giveaway.WithStars', [giveaway.quantity, i18n('Giveaway.WithStars.Stars', [+giveaway.stars])!]) :
-          i18n(+quantity > 1 ? 'Giveaway.WithSubscriptionsPlural' : 'Giveaway.WithSubscriptionsSingle', [headerDuration!])}
+          i18n('Giveaway.WithStars', [giveaway.quantity, i18n('Giveaway.WithStars.Stars', [+giveaway.stars])]) :
+          i18n(+quantity > 1 ? 'Giveaway.WithSubscriptionsPlural' : 'Giveaway.WithSubscriptionsSingle', [headerDuration])}
       </>
     ) : (
       <>
         {i18n(giveaway.stars ? 'BoostingStarsGiveawayMsgInfoPlural1' : 'BoostingGiveawayMsgInfoPlural1', [quantity])}
         <br/>
-        {i18n(giveaway.stars ? 'BoostingStarsGiveawayMsgInfoPlural2' : 'BoostingGiveawayMsgInfoPlural2', [(giveaway.stars ? giveaway.quantity : headerDuration)!])}
+        {i18n(giveaway.stars ? 'BoostingStarsGiveawayMsgInfoPlural2' : 'BoostingGiveawayMsgInfoPlural2', [(giveaway.stars ? giveaway.quantity : headerDuration)])}
       </>
     );
   }
@@ -329,7 +330,7 @@ export default function Giveaway(props: {
       <div class="bubble-giveaway-row">
         <div class="bubble-giveaway-row-title">
           {isResults && giveaway.stars ?
-            i18n(giveaway.winners_count > 1 ? 'Giveaway.Results.Stars.Winners.Single' : 'Giveaway.Results.Stars.Winners.Single', [i18n('Giveaway.Results.Stars.Winners.Stars', [quantity])!]) :
+            i18n(giveaway.winners_count > 1 ? 'Giveaway.Results.Stars.Winners.Single' : 'Giveaway.Results.Stars.Winners.Single', [i18n('Giveaway.Results.Stars.Winners.Stars', [quantity])]) :
             i18n(isResults ? 'Giveaway.Results.Footer' : 'BoostingWinnersDate', [quantity, giveaway.stars!])}
         </div>
         {!isResults && formatFullSentTime(giveaway.until_date)}

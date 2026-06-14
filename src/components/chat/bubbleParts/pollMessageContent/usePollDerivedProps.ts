@@ -57,7 +57,7 @@ export function usePollDerivedProps({props, pollOptions, chosenIndexes, newOptio
   const {rootScope} = useHotReloadGuard();
   const {maxOptions} = useCreatePollLimits();
 
-  const [timeOffset] = createResource(() => rootScope.managers.timeManager!.getServerTimeOffset());
+  const [timeOffset] = createResource(() => rootScope.managers.timeManager.getServerTimeOffset());
 
   const question = () => props.poll.question;
   const descriptionText = () => props.message.message;

@@ -169,7 +169,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
     this.managers = managers;
     this.musicListenTracker = new MusicListenTracker((inputDoc, listenedDuration) => {
       // Fire-and-forget analytics — swallow errors (e.g. a stale file_reference) so they don't surface.
-      this.managers.appMessagesManager!.reportMusicListen(inputDoc, listenedDuration).catch(() => {});
+      this.managers.appMessagesManager.reportMusicListen(inputDoc, listenedDuration).catch(() => {});
     });
     this.container = document.createElement('div');
     // this.container.style.cssText = 'position: absolute; top: -10000px; left: -10000px;';
@@ -288,7 +288,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
     if(entry) return entry;
 
     try {
-      const AC = (window.AudioContext || (window as any).webkitAudioContext) as typeof AudioContext;
+      const AC = (window.AudioContext || (window as any).webkitAudioContext);
       if(!AC) return undefined;
       if(!this.gainAudioContext) this.gainAudioContext = new AC();
       const ctx = this.gainAudioContext;
@@ -450,7 +450,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
 
     if(doc.type !== 'audio' && message?.pFlags.media_unread && message.fromId !== rootScope.myId) {
       media.addEventListener('timeupdate', () => {
-        this.managers.appMessagesManager!.readMessages(peerId!, [mid!]);
+        this.managers.appMessagesManager.readMessages(peerId!, [mid!]);
       }, {once: true});
     }
 
@@ -470,7 +470,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
 
     const deferred = deferredPromise<void>();
     if(autoload) {
-      deferred.resolve!();
+      deferred.resolve();
     } else {
       const w = message.pFlags.is_scheduled ? this.waitingScheduledMediaForLoad : this.waitingMediaForLoad;
       let waitingStorage = w.get(peerId!);
@@ -508,7 +508,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
 
   private onMediaDocumentLoad = async(media: HTMLMediaElement) => {
     const details = this.mediaDetails.get(media);
-    const doc = await this.managers.appDocsManager!.getDoc(details!.docId);
+    const doc = await this.managers.appDocsManager.getDoc(details!.docId);
     if(doc.type === 'audio' && doc.supportsStreaming && SHOULD_USE_SAFARI_FIX) {
       this.handleSafariStreamable(media);
     }
@@ -574,7 +574,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
     const storageKey = mid + (slot ?? 0);
     const promise = storage.get(storageKey);
     if(promise) {
-      promise.resolve!();
+      promise.resolve();
       storage.delete(storageKey);
 
       if(!storage.size) {
@@ -635,7 +635,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
       }
     } else if(isVoice) {
       const peerId = message.fromId || message.peerId;
-      const peerPhoto = await this.managers.appPeersManager!.getPeerPhoto(peerId!);
+      const peerPhoto = await this.managers.appPeersManager.getPeerPhoto(peerId!);
       if(peerPhoto) {
         // const result = this.managers.appAvatarsManager.loadAvatar(peerId, peerPhoto, 'photo_small');
         // if(result.cached) {

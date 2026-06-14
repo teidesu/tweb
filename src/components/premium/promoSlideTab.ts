@@ -22,6 +22,7 @@ import lastItem from '@helpers/array/lastItem';
 import maybe2x from '@helpers/maybe2x';
 import wrapSticker from '@components/wrappers/sticker';
 import showStickersPopup from '@components/popups/stickers';
+import {isTruthy} from '../../helpers/isTruthy';
 
 type PromoSlideTabOptions = PopupPremiumProps & {
   container: HTMLElement,
@@ -68,7 +69,7 @@ export function premiumOptionsForm<T extends PremiumSubscriptionOption | Premium
       const shortestAmount = +shortestOption.amount * option.months / shortestOption.months;
       const discount = Math.round((1 - +option.amount / shortestAmount) * 100);
       badge.textContent = '-' + discount + '%';
-      span.append(badge, (discountInTitle ? title : subtitle!)!);
+      span.append(badge, (discountInTitle ? title : subtitle!));
       if(discountInTitle) {
         title = span;
       } else {
@@ -156,7 +157,7 @@ export default class PromoSlideTab {
       this.createHeading(),
       options.type === 'premium' && !options.isPremiumActive && this.createOptionsForm(),
       this.createFeaturesContainer()
-    ])).filter(Boolean) as (string | Node)[]);
+    ])).filter(isTruthy));
     options.container.classList.add('fixed-size');
   }
 
@@ -181,7 +182,7 @@ export default class PromoSlideTab {
           'GiftModal.Title.You',
           [
             await wrapPeerTitle({...wrapTitleOptions, peerId: toPeerId}),
-            giftText!
+            giftText
           ]
         )!;
       } else {
@@ -236,10 +237,10 @@ export default class PromoSlideTab {
       headingTextTitle.classList.add('smaller-text');
       const [peerTitle, doc] = await Promise.all([
         wrapPeerTitle({peerId: this.options.peerId}),
-        rootScope.managers.appEmojiManager!.getCustomEmojiDocument(this.options.emojiStatusId)
+        rootScope.managers.appEmojiManager.getCustomEmojiDocument(this.options.emojiStatusId)
       ]);
       if(doc.stickerSetInput) {
-        const stickerset = await rootScope.managers.appStickersManager!.getStickerSet(doc.stickerSetInput);
+        const stickerset = await rootScope.managers.appStickersManager.getStickerSet(doc.stickerSetInput);
         title = i18n('TelegramPremiumPeerTitleEmojiStatus', [
           peerTitle,
           anchorCallback(() => {
@@ -274,7 +275,7 @@ export default class PromoSlideTab {
     featuresContainer.append(...[
       ...this.createFeatures(this.options.features, this.options.order),
       this.options.type === 'premium' && this.options.premiumPromo.status_text && this.createStatusText()
-    ].filter(Boolean) as (string | Node)[]);
+    ].filter(isTruthy));
     return featuresContainer;
   }
 
@@ -283,7 +284,7 @@ export default class PromoSlideTab {
     premiumImageContainer.classList.add('popup-premium-header-image-container');
     if(this.options.emojiStatusId) {
       premiumImageContainer.classList.add('is-emoji-status')
-      const doc = await rootScope.managers.appEmojiManager!.getCustomEmojiDocument(this.options.emojiStatusId);
+      const doc = await rootScope.managers.appEmojiManager.getCustomEmojiDocument(this.options.emojiStatusId);
       await wrapSticker({
         doc,
         div: premiumImageContainer,
@@ -357,9 +358,9 @@ export default class PromoSlideTab {
 
       if(f!.new) {
         const badge = i18n('New');
-        badge!.classList.add('row-title-badge');
-        row.title.append(badge!);
-        badge!.style.backgroundColor = color;
+        badge.classList.add('row-title-badge');
+        row.title.append(badge);
+        badge.style.backgroundColor = color;
       }
 
       return row.container;

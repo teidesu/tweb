@@ -126,12 +126,12 @@ export default function ButtonMenuToggle({
         return;
       }
 
-      const newButtons = (filteredButtons as ButtonMenuItemOptionsVerifiable[]).slice().filter((button) => !previousButtons.includes(button));
+      const newButtons = (filteredButtons).slice().filter((button) => !previousButtons.includes(button));
       previousButtons.push(...newButtons);
       canDeleteTextElementsOnClose.push(...newButtons.filter((button) => !button.textElement));
 
       const _element = element = await ButtonMenu({
-        buttons: filteredButtons as ButtonMenuItemOptionsVerifiable[],
+        buttons: filteredButtons,
         listenerSetter
       });
       if(_tempId !== tempId) return;

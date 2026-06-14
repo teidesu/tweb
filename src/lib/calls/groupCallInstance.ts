@@ -305,7 +305,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
     try {
       // `false` => the manager bailed (no cached groupCall), so the roster sync
       // isn't actually running. Only stamp the watchdog clock on a real fetch.
-      const fetched = await this.managers.appGroupCallsManager!.refreshConferenceParticipants(this.id);
+      const fetched = await this.managers.appGroupCallsManager.refreshConferenceParticipants(this.id);
       if(fetched) {
         this.lastParticipantsRefreshAt = Date.now();
       }
@@ -324,7 +324,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
     // wasn't set during joinConferenceCommon (we didn't have the id yet).
     // Pull from the cache here once it lands.
     if(!this.groupCall) {
-      const cached = await this.managers.appGroupCallsManager!
+      const cached = await this.managers.appGroupCallsManager
       .getGroupCall(this.id)
       .catch((): undefined => undefined);
       if(cached && cached._ === 'groupCall') {
@@ -353,7 +353,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
     await Promise.all([0, 1].map(async(sub) => {
       const subChainId = sub as 0 | 1;
       try {
-        const updates = await this.managers.appCallsManager!.getGroupCallChainBlocks(
+        const updates = await this.managers.appCallsManager.getGroupCallChainBlocks(
           input,
           subChainId,
           this.e2eChainOffsets[subChainId],
@@ -448,11 +448,11 @@ export default class GroupCallInstance extends CallInstanceBase<{
     this.recoveringConferenceSync = true;
     try {
       if(this.groupCall && this.groupCall._ === 'groupCall') {
-        await this.managers.appGroupCallsManager!.saveGroupCall(this.groupCall)
+        await this.managers.appGroupCallsManager.saveGroupCall(this.groupCall)
         .catch((err) => this.log.warn('recoverConferenceSync: saveGroupCall', err));
       }
 
-      const fresh = await this.managers.appGroupCallsManager!.getGroupCallFull(this.id, true)
+      const fresh = await this.managers.appGroupCallsManager.getGroupCallFull(this.id, true)
       .catch((err): undefined => {
         this.log.warn('recoverConferenceSync: getGroupCallFull failed', err);
         return undefined;
@@ -482,7 +482,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
     }
     for(const bytes of messages) {
       try {
-        await this.managers.appCallsManager!.sendConferenceCallBroadcast(input, bytes);
+        await this.managers.appCallsManager.sendConferenceCallBroadcast(input, bytes);
       } catch(err) {
         this.log.error('flushE2eOutbound: sendConferenceCallBroadcast failed', err);
       }
@@ -608,7 +608,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
   }
 
   get participants() {
-    return this.managers.appGroupCallsManager!.getCachedParticipants(this.id);
+    return this.managers.appGroupCallsManager.getCachedParticipants(this.id);
   }
 
   get isSharingScreen() {
@@ -767,9 +767,9 @@ export default class GroupCallInstance extends CallInstanceBase<{
     connectionInstance.closeConnectionAndStream(true);
 
     delete this.participant.presentation;
-    this.managers.appGroupCallsManager!.saveApiParticipant(this.id, this.participant);
+    this.managers.appGroupCallsManager.saveApiParticipant(this.id, this.participant);
 
-    return this.managers.appGroupCallsManager!.leaveGroupCallPresentation(this.id);
+    return this.managers.appGroupCallsManager.leaveGroupCallPresentation(this.id);
   }
 
   public toggleScreenSharing() {
@@ -894,7 +894,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
         d = 0;
       }
 
-      this.managers.appGroupCallsManager!.hangUp(this.id, d);
+      this.managers.appGroupCallsManager.hangUp(this.id, d);
     }
   }
 
@@ -1012,7 +1012,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
       } */
     }
 
-    return this.managers.appGroupCallsManager!.editParticipant(this.id, participant, options);
+    return this.managers.appGroupCallsManager.editParticipant(this.id, participant, options);
   }
 
   public onParticipantUpdate(participant: GroupCallParticipant, doNotDispatchParticipantUpdate?: PeerId) {
@@ -1061,7 +1061,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
     const ssrcs = hasLeft ? [] : makeSsrcsFromParticipant(participant);
 
     if(!hasLeft) {
-      this.participantsSsrcs.set(peerId, (ssrcs! as Ssrc[]));
+      this.participantsSsrcs.set(peerId, (ssrcs));
     } else {
       this.participantsSsrcs.delete(peerId);
     }
@@ -1080,7 +1080,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
         if(changed) this.syncSsrcMapToWorker();
       } else {
         for(const ssrc of ssrcs) {
-          if((ssrc as Ssrc).source) this.registerE2eUserSsrc(userId, (ssrc as Ssrc).source);
+          if((ssrc).source) this.registerE2eUserSsrc(userId, (ssrc).source);
         }
       }
     }
@@ -1090,7 +1090,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
     const modifiedTypes: Set<WebRTCLineType> = new Set();
     oldSsrcs.forEach((oldSsrc) => {
       const oldSource = oldSsrc.source;
-      const newSsrc = ssrcs.find((ssrc) => (ssrc as Ssrc).source === oldSource);
+      const newSsrc = ssrcs.find((ssrc) => (ssrc).source === oldSource);
       if(!newSsrc) {
         this.unpinSource(oldSource);
 
@@ -1103,7 +1103,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
     });
 
     ssrcs.forEach((ssrc) => {
-      const _ssrc = ssrc as Ssrc;
+      const _ssrc = ssrc;
       let entry = description.getEntryBySource(_ssrc.source);
       if(entry) {
         if(entry.direction === 'inactive') {

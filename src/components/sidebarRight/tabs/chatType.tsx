@@ -37,10 +37,10 @@ const ChatType: Component = () => {
   promiseCollector.collect((async() => {
     tab.container.classList.add('edit-peer-container', 'group-type-container');
 
-    const isBroadcast = await tab.managers.appChatsManager!.isBroadcast(chatId);
+    const isBroadcast = await tab.managers.appChatsManager.isBroadcast(chatId);
     const linkedChatId = (chatFull as ChatFull.channelFull).linked_chat_id;
 
-    tab.title.replaceChildren(i18n(isBroadcast ? 'ChannelType' : 'GroupType')!);
+    tab.title.replaceChildren(i18n(isBroadcast ? 'ChannelType' : 'GroupType'));
 
     const section = new SettingSection({
       name: isBroadcast ? 'ChannelType' : 'GroupType'
@@ -114,7 +114,7 @@ const ChatType: Component = () => {
           callback: () => {
             const toggle = toggleDisability([btnRevoke], true);
 
-            tab.managers.appProfileManager!.getChatInviteLink(chatId, true).then((link) => {
+            tab.managers.appProfileManager.getChatInviteLink(chatId, true).then((link) => {
               toggle();
               linkRow.title.textContent = link;
             });
@@ -167,7 +167,7 @@ const ChatType: Component = () => {
 
     publicSection.caption.append(
       p,
-      i18n(isBroadcast ? 'Channel.UsernameAboutChannel' : 'Channel.UsernameAboutGroup')!
+      i18n(isBroadcast ? 'Channel.UsernameAboutChannel' : 'Channel.UsernameAboutGroup')
     );
 
     const usernamesSection = new UsernamesSection({
@@ -193,11 +193,11 @@ const ChatType: Component = () => {
 
     const changePrivacy = async() => {
       const username = getUsername();
-      const channelId = await tab.managers.appChatsManager!.migrateChat(chatId);
+      const channelId = await tab.managers.appChatsManager.migrateChat(chatId);
       if(!username) {
-        return tab.managers.appChatsManager!.makeChannelPrivate(channelId);
+        return tab.managers.appChatsManager.makeChannelPrivate(channelId);
       } else {
-        return tab.managers.appChatsManager!.updateUsername(channelId, username);
+        return tab.managers.appChatsManager.updateUsername(channelId, username);
       }
     };
 
@@ -233,11 +233,11 @@ const ChatType: Component = () => {
           const joinToSendValue = joinToSendRow.checkboxField.checked;
           const joinRequestValue = joinRequestRow.checkboxField.checked;
           const callbacks = [
-            changedJoinToSend && (() => tab.managers.appChatsManager!.toggleJoinToSend(
+            changedJoinToSend && (() => tab.managers.appChatsManager.toggleJoinToSend(
               chatId,
               joinToSendValue
             )),
-            changedJoinRequest && (() => tab.managers.appChatsManager!.toggleJoinRequest(
+            changedJoinRequest && (() => tab.managers.appChatsManager.toggleJoinRequest(
               chatId,
               joinRequestValue
             ))
@@ -334,7 +334,7 @@ const ChatType: Component = () => {
 
       tab.listenerSetter.add(checkboxField.input)('change', () => {
         const toggle = row.toggleDisability(true);
-        tab.managers.appProfileManager!.toggleNoForwards(chatId.toPeerId(true), checkboxField.checked).then(() => {
+        tab.managers.appProfileManager.toggleNoForwards(chatId.toPeerId(true), checkboxField.checked).then(() => {
           toggle();
         });
       });

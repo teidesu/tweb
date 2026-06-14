@@ -13,7 +13,7 @@ export default async function openAvatarViewer(
   prevTargets?: {element: HTMLElement, item: Photo.photo['id'] | Message.messageService}[],
   nextTargets?: typeof prevTargets
 ) {
-  let photo = await rootScope.managers.appProfileManager!.getFullPhoto(peerId);
+  let photo = await rootScope.managers.appProfileManager.getFullPhoto(peerId);
   if(!middleware() || !photo) {
     return;
   }
@@ -27,7 +27,7 @@ export default async function openAvatarViewer(
     const hadMessage = !!message;
     const inputFilter = 'inputMessagesFilterChatPhotos';
     if(!message) {
-      message = await rootScope.managers.appMessagesManager!.getHistory({
+      message = await rootScope.managers.appMessagesManager.getHistory({
         peerId,
         inputFilter: {_: inputFilter},
         offsetId: 0,
@@ -47,7 +47,7 @@ export default async function openAvatarViewer(
       const messagePhoto = (message.action as MessageAction.messageActionChannelEditPhoto).photo;
       if(messagePhoto!.id !== photo.id) {
         if(!hadMessage) {
-          message = await rootScope.managers.appMessagesManager!.generateFakeAvatarMessage(peerId, photo);
+          message = await rootScope.managers.appMessagesManager.generateFakeAvatarMessage(peerId, photo);
         } else {
 
         }
@@ -77,7 +77,7 @@ export default async function openAvatarViewer(
 
   if(photo) {
     if(!isObject(message) && message) {
-      photo = await rootScope.managers.appPhotosManager!.getPhoto(message);
+      photo = await rootScope.managers.appPhotosManager.getPhoto(message);
     }
 
     // The public (fallback) photo is shown as the LAST item on the user's own
@@ -85,8 +85,8 @@ export default async function openAvatarViewer(
     // from it. Self only — fallback_photo isn't sent for other users.
     let fallbackPhotoId: Photo.photo['id'];
     if(peerId === rootScope.myId) {
-      const userFull = await rootScope.managers.appProfileManager!.getProfile(peerId.toUserId());
-      const fallback = (userFull as UserFull.userFull)?.fallback_photo as Photo.photo;
+      const userFull = await rootScope.managers.appProfileManager.getProfile(peerId.toUserId());
+      const fallback = (userFull)?.fallback_photo as Photo.photo;
       if(fallback?._ === 'photo') fallbackPhotoId = fallback.id;
       if(!middleware()) return;
     }

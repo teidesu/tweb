@@ -1,5 +1,6 @@
 import {Message, MessageAction, MessageMedia, MessageReplyHeader, Peer, WebPage, WebPageAttribute} from '@layer';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
+import {isTruthy} from '../../../../helpers/isTruthy';
 
 export default function getPeerIdsFromMessage(message: Message.message | Message.messageService) {
   const peerIds: number[] = [
@@ -83,19 +84,19 @@ export default function getPeerIdsFromMessage(message: Message.message | Message
   if(replyHeader) {
     peerIds.push(...[
       (replyHeader as MessageReplyHeader.messageReplyHeader).reply_to_peer_id
-    ].filter(Boolean).map((peer) => getPeerId(peer!)));
+    ].filter(isTruthy).map((peer) => getPeerId(peer)));
   }
 
   [
     (message as Message.message).fwd_from,
     (replyHeader as MessageReplyHeader.messageReplyHeader)?.reply_from
-  ].filter(Boolean).forEach((fwdHeader) => {
+  ].filter(isTruthy).forEach((fwdHeader) => {
     peerIds.push(...[
-      fwdHeader!.from_id,
-      fwdHeader!.saved_from_id,
-      fwdHeader!.saved_from_peer
-    ].filter(Boolean).map((peer) => getPeerId(peer!)));
+      fwdHeader.from_id,
+      fwdHeader.saved_from_id,
+      fwdHeader.saved_from_peer
+    ].filter(isTruthy).map((peer) => getPeerId(peer)));
   });
 
-  return new Set(peerIds.filter(Boolean));
+  return new Set(peerIds.filter(isTruthy));
 }

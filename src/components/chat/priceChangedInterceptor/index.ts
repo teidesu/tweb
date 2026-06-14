@@ -54,7 +54,7 @@ class PriceChangedInterceptor {
     safeAssign(this, args);
 
     this.getStarsAmountForUser = memoizeAsyncWithTTL(
-      (userId: UserId) => this.managers.appUsersManager!.getStarsAmount(userId, true),
+      (userId: UserId) => this.managers.appUsersManager.getStarsAmount(userId, true),
       (userId) => userId,
       1_000
     );
@@ -69,7 +69,7 @@ class PriceChangedInterceptor {
       const peer = 'peer' in apiCallParams! ? apiCallParams.peer : 'to_peer' in apiCallParams! ? apiCallParams.to_peer : undefined;
       if(!peer || !('allow_paid_stars' in apiCallParams!)) return;
 
-      const peerId = await this.managers.appPeersManager!.getPeerId(peer as InputPeer);
+      const peerId = await this.managers.appPeersManager.getPeerId(peer as InputPeer);
       if(peerId !== this.chat.peerId) return;
 
       const starsAmount = (await this.getAndUpdateStarsAmountIfNecessary(peerId))!;
@@ -90,11 +90,11 @@ class PriceChangedInterceptor {
   }
 
   private async getAndUpdateStarsAmountIfNecessary(peerId: PeerId) {
-    if(!peerId.isUser()) return this.managers.appPeersManager!.getStarsAmount(peerId);
+    if(!peerId.isUser()) return this.managers.appPeersManager.getStarsAmount(peerId);
 
     const starsAmount = await this.getStarsAmountForUser(peerId.toUserId());
 
-    await this.managers.appUsersManager!.updateCachedUserFullStarsAmount(peerId.toUserId(), starsAmount!);
+    await this.managers.appUsersManager.updateCachedUserFullStarsAmount(peerId.toUserId(), starsAmount!);
 
     return starsAmount;
   }
@@ -143,7 +143,7 @@ class PriceChangedInterceptor {
 
     if(preparedPaymentResult === PAYMENT_REJECTED) return;
 
-    await Promise.all(pendingRequests.map(({id}) => this.managers.appMessagesManager!.confirmRepayRequest(id, preparedPaymentResult!)));
+    await Promise.all(pendingRequests.map(({id}) => this.managers.appMessagesManager.confirmRepayRequest(id, preparedPaymentResult!)));
   }
 
   cleanup() {

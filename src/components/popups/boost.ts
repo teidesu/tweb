@@ -40,11 +40,11 @@ export default class PopupBoost extends PopupPeer {
 
   private async construct() {
     let [boostsStatus, myBoosts, appConfig, isPremiumPurchaseBlocked, isBroadcast] = await Promise.all([
-      this.managers.appBoostsManager!.getBoostsStatus(this.peerId).catch(() => undefined as unknown as PremiumBoostsStatus),
-      this.managers.appBoostsManager!.getMyBoosts(),
-      this.managers.apiManager!.getAppConfig(),
+      this.managers.appBoostsManager.getBoostsStatus(this.peerId).catch(() => undefined as unknown as PremiumBoostsStatus),
+      this.managers.appBoostsManager.getMyBoosts(),
+      this.managers.apiManager.getAppConfig(),
       apiManagerProxy.isPremiumPurchaseBlocked(),
-      this.managers.appPeersManager!.isBroadcast(this.peerId)
+      this.managers.appPeersManager.isBroadcast(this.peerId)
     ]);
 
     if(!boostsStatus) {
@@ -93,13 +93,13 @@ export default class PopupBoost extends PopupPeer {
 
     const setTitle = () => {
       if(hasMyBoost) {
-        title.replaceChildren(i18n(isBroadcast ? 'YouBoostedChannel' : 'YouBoostedGroup')!);
+        title.replaceChildren(i18n(isBroadcast ? 'YouBoostedChannel' : 'YouBoostedGroup'));
       } else if(isMaxLevel) {
-        title.replaceChildren(i18n('BoostsMaxLevelReached')!);
+        title.replaceChildren(i18n('BoostsMaxLevelReached'));
       } else if(hasStories) {
-        title.replaceChildren(i18n(isBroadcast ? 'HelpUpgradeChannel' : 'HelpUpgradeGroup')!);
+        title.replaceChildren(i18n(isBroadcast ? 'HelpUpgradeChannel' : 'HelpUpgradeGroup'));
       } else {
-        title.replaceChildren(i18n('Boost.EnableStoriesFor')!);
+        title.replaceChildren(i18n('Boost.EnableStoriesFor'));
       }
     };
 
@@ -108,7 +108,7 @@ export default class PopupBoost extends PopupPeer {
         this.description!.replaceChildren(
           i18n(
             isBroadcast ? 'Boost.DescriptionJustReachedLevel1' : 'Boost.DescriptionJustReachedLevel1.Group'
-          )!
+          )
         );
       } else if(isMaxLevel || (updated && boostsStatus.level > 0)) {
         this.description!.replaceChildren(
@@ -116,9 +116,9 @@ export default class PopupBoost extends PopupPeer {
             isBroadcast ? 'Boost.DescriptionJustReachedLevel' : 'Boost.DescriptionJustReachedLevel.Group',
             [
               boostsStatus.level,
-              i18n('Boost.StoriesCount', [boostsStatus.level + 1])!
+              i18n('Boost.StoriesCount', [boostsStatus.level + 1])
             ]
-          )!
+          )
         );
       } else if(hasStories) {
         this.description!.replaceChildren(
@@ -126,18 +126,18 @@ export default class PopupBoost extends PopupPeer {
             'ChannelNeedBoostsDescriptionForNewFeatures',
             [
               descriptionPeerTitle,
-              i18n('MoreBoosts', [needBoostsForNextLevel])!
+              i18n('MoreBoosts', [needBoostsForNextLevel])
             ]
-          )!
+          )
         );
       } else {
         this.description!.replaceChildren(
           i18n(
             isBroadcast ? 'ChannelNeedBoostsDescriptionLevel1' : 'GroupNeedBoostsDescriptionLevel1',
             [
-              i18n('MoreBoosts', [needBoostsForNextLevel])!
+              i18n('MoreBoosts', [needBoostsForNextLevel])
             ]
-          )!
+          )
         );
       }
     };
@@ -164,10 +164,10 @@ export default class PopupBoost extends PopupPeer {
         progress,
         '' + boostsStatus.boosts,
         {
-          from1: i18n('BoostsLevel', [boostsStatus.level])!,
-          to1: i18n('BoostsLevel', [boostsStatus.level + 1])!,
-          from2: i18n('BoostsLevel', [boostsStatus.level])!,
-          to2: i18n('BoostsLevel', [boostsStatus.level + 1])!
+          from1: i18n('BoostsLevel', [boostsStatus.level]),
+          to1: i18n('BoostsLevel', [boostsStatus.level + 1]),
+          from2: i18n('BoostsLevel', [boostsStatus.level]),
+          to2: i18n('BoostsLevel', [boostsStatus.level + 1])
         }
       );
       setTitle();
@@ -277,14 +277,14 @@ export default class PopupBoost extends PopupPeer {
         }
 
         // const slots = [...givenBoosts, availableBoost].filter(Boolean).map((myBoost) => myBoost.slot);
-        await this.managers.appBoostsManager!.applyBoost(
+        await this.managers.appBoostsManager.applyBoost(
           this.peerId,
           [availableBoost!.slot]
         );
 
         [myBoosts, boostsStatus] = await Promise.all([
-          this.managers.appBoostsManager!.getMyBoosts(),
-          this.managers.appBoostsManager!.getBoostsStatus(this.peerId)
+          this.managers.appBoostsManager.getMyBoosts(),
+          this.managers.appBoostsManager.getBoostsStatus(this.peerId)
         ]);
 
         updated = true;

@@ -61,7 +61,7 @@ const TwoStepVerificationEmail: Component = () => {
     toggleButtons(true);
     const d = putPreloader(btnContinue);
 
-    tab.managers.passwordManager!.updateSettings({
+    tab.managers.passwordManager.updateSettings({
       hint: hint,
       currentPassword: plainPassword,
       newPassword: newPassword,
@@ -97,7 +97,7 @@ const TwoStepVerificationEmail: Component = () => {
         callback: () => {
           toggleButtons(true);
           putPreloader(btnSkip);
-          tab.managers.passwordManager!.updateSettings({
+          tab.managers.passwordManager.updateSettings({
             hint: hint,
             currentPassword: plainPassword,
             newPassword: newPassword,

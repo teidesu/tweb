@@ -47,7 +47,7 @@ const UNMOUNT_PRELOADER = true;
 rootScope.addEventListener('messages_media_read', ({mids, peerId}) => {
   mids.forEach((mid) => {
     const attr = `[data-mid="${mid}"][data-peer-id="${peerId}"]`;
-    (Array.from(document.querySelectorAll(`audio-element.is-unread${attr}, .media-round.is-unread${attr}`)) as AudioElement[]).forEach((elem) => {
+    (Array.from(document.querySelectorAll(`audio-element.is-unread${attr}, .media-round.is-unread${attr}`))).forEach((elem) => {
       elem.classList.remove('is-unread');
     });
   });
@@ -227,7 +227,7 @@ async function wrapVoiceMessage(audioEl: AudioElement) {
             }
           });
 
-          audioEl.managers.appMessagesManager!.transcribeAudio(message).catch(noop);
+          audioEl.managers.appMessagesManager.transcribeAudio(message).catch(noop);
         }
       } else if(audioEl.transcriptionState === 2) {
         // Hide transcription
@@ -362,7 +362,7 @@ async function wrapAudio(audioEl: AudioElement) {
     if(withTime) {
       parts.push(formatFullSentTime(message.date));
     } else if(!parts.length) {
-      parts.push(formatBytes(doc.size!)!);
+      parts.push(formatBytes(doc.size!));
     }
 
     if(audioEl.showSender) {
@@ -479,6 +479,7 @@ export const findMediaTargets = (anchor: HTMLElement, anchorMid: number/* , useS
 
     const selector = selectors.join(', ');
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     let elements = Array.from(container.querySelectorAll(selector)) as HTMLElement[];
     elements = elements.filter((element) => element === anchor || element.matches(':not([data-to-be-skipped="1"])'));
     const idx = elements.indexOf(anchor);
@@ -595,12 +596,12 @@ export default class AudioElement extends HTMLElement {
         autoload: autoload!,
         doc: this.doc,
         slot: this.mediaSlot
-      }) as HTMLMediaElement;
+      });
 
       const readyPromise = this.readyPromise = deferredPromise<void>();
-      if(this.audio.readyState >= this.audio.HAVE_CURRENT_DATA) readyPromise.resolve!();
+      if(this.audio.readyState >= this.audio.HAVE_CURRENT_DATA) readyPromise.resolve();
       else {
-        this.addAudioListener('canplay', () => readyPromise.resolve!(), {once: true});
+        this.addAudioListener('canplay', () => readyPromise.resolve(), {once: true});
       }
 
       this.onTypeDisconnect = onTypeLoad();
@@ -692,7 +693,7 @@ export default class AudioElement extends HTMLElement {
               });
               deferred.cancel = () => {
                 deferred.cancel = noop;
-                deferred.reject!(makeError('CANCELED'));
+                deferred.reject(makeError('CANCELED'));
               };
               preloader.attach(downloadDiv, false, deferred);
 
@@ -726,7 +727,7 @@ export default class AudioElement extends HTMLElement {
 
               if(!shouldPlay) {
                 download.then(() => {
-                  this.readyPromise.resolve!();
+                  this.readyPromise.resolve();
                 });
               }
 
@@ -857,7 +858,7 @@ export default class AudioElement extends HTMLElement {
     }
 
     if(this.readyPromise) {
-      this.readyPromise.reject!();
+      this.readyPromise.reject();
     }
 
     if(this.listenerSetter) {

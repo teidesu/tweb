@@ -28,11 +28,11 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
         const backLimit = older ? 0 : loadCount;
         let offsetId = anchor?.mid ?? this.searchContext!.maxId;
 
-        if(!older) offsetId = await this.managers.appMessagesIdsManager!.incrementMessageId(offsetId, 1);
+        if(!older) offsetId = await this.managers.appMessagesIdsManager.incrementMessageId(offsetId, 1);
 
         const peerId = this.searchContext!.peerId || anchor?.peerId;
 
-        return this.managers.appMessagesManager!.getHistory({
+        return this.managers.appMessagesManager.getHistory({
           ...this.searchContext,
           peerId,
           offsetId,
@@ -53,7 +53,7 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
           }
 
           if(!value.messages) {
-            value.messages = (value.history.map((mid) => apiManagerProxy.getMessageByPeer(peerId, mid))! as MyMessage[] | undefined);
+            value.messages = (value.history.map((mid) => apiManagerProxy.getMessageByPeer(peerId, mid)) as MyMessage[] | undefined);
           }
 
           return {count: value.count, items: value.messages as unknown as Item[]};
@@ -88,7 +88,7 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
 
   protected async filterMids(mids: number[]) {
     const storageKey: MessagesStorageKey = `${this.searchContext!.peerId}_${this.searchContext!.isScheduled ? 'scheduled' : 'history'}`;
-    let filtered = (await this.managers.appMessagesManager!.filterMessagesByInputFilterFromStorage(this.searchContext!.inputFilter._, mids, storageKey, mids.length)) as Message.message[];
+    let filtered = (await this.managers.appMessagesManager.filterMessagesByInputFilterFromStorage(this.searchContext!.inputFilter._, mids, storageKey, mids.length)) as Message.message[];
     if(this.searchContext!.skipSensitive) {
       filtered = filtered.filter((message) => !isMessageSensitive(message));
     }

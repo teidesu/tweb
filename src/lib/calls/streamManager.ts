@@ -232,14 +232,14 @@ export default class StreamManager {
   public analyse = () => {
     const all = this.counter % 3 === 0;
     const filteredItems = all ? this.items : this.items.filter((x) => x.type === 'input');
-    const audioItems = filteredItems.filter((x) => x.kind === 'audio') as StreamAudioItem[];
+    const audioItems = filteredItems.filter((x) => x.kind === 'audio');
     const amplitudes = audioItems.slice(0, GROUP_CALL_AMPLITUDE_ANALYSE_COUNT_MAX).map(this.getAmplitude);
     if(++this.counter >= 1000) {
       this.counter = 0;
     }
 
     StreamManager.ANALYSER_LISTENER.dispatchEvent('amplitude', {
-      amplitudes: (amplitudes! as StreamAmplitude[]),
+      amplitudes: (amplitudes as StreamAmplitude[]),
       type: all ? 'all' : 'input'
     });
   };

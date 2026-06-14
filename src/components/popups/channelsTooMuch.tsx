@@ -26,12 +26,12 @@ export async function handleChannelsTooMuch(getPromise: () => Promise<any>) {
 }
 
 export async function showChannelsTooMuchPopup() {
-  const inactiveChannels = await rootScope.managers.appChatsManager!.getInactiveChannels();
+  const inactiveChannels = await rootScope.managers.appChatsManager.getInactiveChannels();
   const deferred = deferredPromise<void>();
   showLimitPopup('channels', async(popup) => {
     const middlewareHelper = getMiddleware();
     popup.addEventListener('closeAfterTimeout', () => {
-      deferred.reject!();
+      deferred.reject();
       middlewareHelper.destroy();
     });
     const datesMap = new Map<PeerId, number>();
@@ -44,13 +44,13 @@ export async function showChannelsTooMuchPopup() {
           mainButton.element!.replaceChildren(...mainButtonChildren);
           mainButton.callback = mainButtonCallback;
         } else if(value) {
-          mainButton.element!.replaceChildren(i18n('LeaveCommunities', [value])!);
+          mainButton.element!.replaceChildren(i18n('LeaveCommunities', [value]));
           mainButton.callback = async() => {
             const peerIds = selector.getSelected();
             for(const peerId of peerIds) {
-              await rootScope.managers.appChatsManager!.leave(peerId.toChatId());
+              await rootScope.managers.appChatsManager.leave(peerId.toChatId());
             }
-            deferred.resolve!();
+            deferred.resolve();
           };
         }
       },
@@ -69,11 +69,11 @@ export async function showChannelsTooMuchPopup() {
         const date = datesMap.get(peerId);
         const duration = tsNow(true) - date!;
         return i18n('InactiveChannel', [
-          (await rootScope.managers.appPeersManager!.isBroadcast(peerId) ?
+          (await rootScope.managers.appPeersManager.isBroadcast(peerId) ?
             i18n('InactiveChannel.Broadcast') :
-            i18n('InactiveChannel.Group'))!,
+            i18n('InactiveChannel.Group')),
           wrapFormattedDuration(formatDuration(duration, 1))
-        ]) as HTMLElement;
+        ]);
       }
     });
 

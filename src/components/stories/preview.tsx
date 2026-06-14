@@ -18,7 +18,7 @@ const pollStories = () => {
   const promises: PromiseLike<any>[] = [];
   wrappedStories.forEach((map, peerId) => {
     const ids = [...map.keys()];
-    const promise = rootScope.managers.appStoriesManager!.getStoriesById(peerId, ids, true).then(() => {
+    const promise = rootScope.managers.appStoriesManager.getStoriesById(peerId, ids, true).then(() => {
       ids.forEach((id) => {
         if(!map.get(id)!.mounted) {
           map.delete(id);
@@ -229,10 +229,10 @@ export const StoryPreview = (props: {
   const [storyItem, setStoryItem] = createSignal<StoryItem.storyItem>(undefined!, {equals: false});
   const [f, setF] = createSignal<JSX.Element>();
 
-  rootScope.managers.acknowledged!.appStoriesManager!.getStoryById(props.peerId, props.storyId)
+  rootScope.managers.acknowledged.appStoriesManager.getStoryById(props.peerId, props.storyId)
   .then(async(result) => {
     if(!result.cached) {
-      loadPromise?.resolve!();
+      loadPromise?.resolve();
     }
 
     const storyItem = await result.result;
@@ -242,12 +242,12 @@ export const StoryPreview = (props: {
   const onStoryItem = (storyItem: StoryItem.storyItem) => {
     if(!storyItem) {
       props.onExpiredStory?.();
-      loadPromise.resolve!();
+      loadPromise.resolve();
       return;
     }
 
     onCleanup(() => {
-      loadPromise?.reject!();
+      loadPromise?.reject();
     });
 
     // catchError(() => {
@@ -270,7 +270,7 @@ export const StoryPreview = (props: {
       on(
         () => ready(),
         () => {
-          loadPromise?.resolve!();
+          loadPromise?.resolve();
           setF(container);
         },
         {defer: true}

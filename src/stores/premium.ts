@@ -4,7 +4,7 @@ import rootScope from '@lib/rootScope';
 const [premium, setPremium] = createRoot(() => createSignal(rootScope.premium));
 
 const onAuth = () => {
-  rootScope.managers.rootScope!.getPremium().then(setPremium);
+  rootScope.managers.rootScope.getPremium().then(setPremium);
 };
 
 rootScope.addEventListener('premium_toggle', setPremium);

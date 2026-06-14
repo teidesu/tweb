@@ -36,7 +36,7 @@ const SuggestedPostAcceptWithTimePopupContent = defineSolidElement({
     const onFinish = () => {
       if(isFinishing) return;
       isFinishing = true;
-      rootScope.managers.monoforumDialogsStorage!.toggleSuggestedPostApproval({
+      rootScope.managers.monoforumDialogsStorage.toggleSuggestedPostApproval({
         parentPeerId: props.peerId,
         messageId: props.message.mid!,
         scheduleTimestamp: publishTimestamp()

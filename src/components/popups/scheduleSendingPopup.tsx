@@ -13,14 +13,14 @@ import rootScope from '@lib/rootScope';
 
 const DAY = 86400;
 const REPEAT_OPTIONS: {value: number, label: () => HTMLElement}[] = [
-  {value: 0, label: () => i18n('Never')!},
-  {value: DAY, label: () => i18n('Schedule.Repeat.Daily')!},
-  {value: 7 * DAY, label: () => i18n('Schedule.Repeat.Weekly')!},
-  {value: 14 * DAY, label: () => i18n('Schedule.Repeat.Biweekly')!},
-  {value: 30 * DAY, label: () => i18n('Schedule.Repeat.Monthly')!},
-  {value: 91 * DAY, label: () => i18n('Schedule.Repeat.Every3Months')!},
-  {value: 182 * DAY, label: () => i18n('Schedule.Repeat.Every6Months')!},
-  {value: 365 * DAY, label: () => i18n('Schedule.Repeat.Yearly')!}
+  {value: 0, label: () => i18n('Never')},
+  {value: DAY, label: () => i18n('Schedule.Repeat.Daily')},
+  {value: 7 * DAY, label: () => i18n('Schedule.Repeat.Weekly')},
+  {value: 14 * DAY, label: () => i18n('Schedule.Repeat.Biweekly')},
+  {value: 30 * DAY, label: () => i18n('Schedule.Repeat.Monthly')},
+  {value: 91 * DAY, label: () => i18n('Schedule.Repeat.Every3Months')},
+  {value: 182 * DAY, label: () => i18n('Schedule.Repeat.Every6Months')},
+  {value: 365 * DAY, label: () => i18n('Schedule.Repeat.Yearly')}
 ];
 
 export type ScheduleSendingPopupOptions = {

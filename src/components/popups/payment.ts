@@ -77,7 +77,7 @@ export function PaymentButton(options: {
   const textEl = options.textEl ?? new I18n.IntlElement({key: options.key ?? 'PaymentInfo.Done'});
   const key = textEl.key;
   const payButton = Button('btn-primary btn-color-primary payment-item-pay');
-  payButton.append(textEl.element!);
+  payButton.append(textEl.element);
   attachClickEvent(payButton, async() => {
     const result = options.onClick();
     if(!(result instanceof Promise)) {
@@ -354,12 +354,12 @@ export default class PopupPayment extends PopupElement<{
       passwordState,
       providerPeerTitle
     ] = await Promise.all([
-      !isReceipt && savedInfo && this.managers.appPaymentsManager!.validateRequestedInfo(inputInvoice, savedInfo).catch((err: ApiError) => {
+      !isReceipt && savedInfo && this.managers.appPaymentsManager.validateRequestedInfo(inputInvoice, savedInfo).catch((err: ApiError) => {
         console.error('validateRequestedInfo', err, savedInfo);
         // savedInfo = undefined;
         return undefined as unknown as PaymentsValidatedRequestedInfo;
       }),
-      savedCredentials && this.managers.passwordManager!.getState(),
+      savedCredentials && this.managers.passwordManager.getState(),
       wrapPeerTitle({peerId: isStars ? NULL_PEER_ID : (paymentForm as PaymentsPaymentForm.paymentsPaymentForm).provider_id.toPeerId()})
     ]);
 
@@ -470,7 +470,7 @@ export default class PopupPayment extends PopupElement<{
       }
 
       tipsLabel.label.addEventListener('mousedown', (e) => {
-        if(!findUpAsChild(((e.target as HTMLElement)! as { parentElement: HTMLElement; }), input)) {
+        if(!findUpAsChild(((e.target as HTMLElement) as { parentElement: HTMLElement; }), input)) {
           placeCaretAtEnd(input);
         }
       });
@@ -572,7 +572,7 @@ export default class PopupPayment extends PopupElement<{
       row.title.textContent = textContent;
       if(!textContent) {
         const e = I18n.weakMap.get(row.subtitle.firstElementChild as HTMLElement) as I18n.IntlElement;
-        row.title.append(i18n(e.key!)!);
+        row.title.append(i18n(e.key!));
       }
 
       row.subtitle.classList.toggle('hide', !textContent);
@@ -653,7 +653,7 @@ export default class PopupPayment extends PopupElement<{
     const setShippingTitle = invoice.pFlags.shipping_address_requested ? (shippingAddress?: PaymentShippingAddress) => {
       if(!shippingAddress) {
         shippingMethodRow.subtitle.classList.add('hide');
-        replaceContent(shippingMethodRow.title, i18n('PaymentShippingAddress')!);
+        replaceContent(shippingMethodRow.title, i18n('PaymentShippingAddress'));
         return;
       }
 
@@ -834,7 +834,7 @@ export default class PopupPayment extends PopupElement<{
           return;
         }
 
-        Promise.resolve(passwordState ?? this.managers.passwordManager!.getState()).then((_passwordState) => {
+        Promise.resolve(passwordState ?? this.managers.passwordManager.getState()).then((_passwordState) => {
           PopupElement.createPopup(
             PopupPaymentCardConfirmation,
             savedCredentials.title,
@@ -875,7 +875,7 @@ export default class PopupPayment extends PopupElement<{
 
         try {
           this.result = 'pending';
-          const paymentResult = await this.managers.appPaymentsManager!.sendPaymentForm(
+          const paymentResult = await this.managers.appPaymentsManager.sendPaymentForm(
             inputInvoice,
             (paymentForm as PaymentsPaymentForm).form_id,
             (lastRequestedInfo as PaymentsValidatedRequestedInfo.paymentsValidatedRequestedInfo)?.id!,
@@ -904,7 +904,7 @@ export default class PopupPayment extends PopupElement<{
                   resolve();
                 } else {
                   const err = makeError(undefined!, 'payment not finished');
-                  (err as ApiError).handled = true;
+                  (err).handled = true;
                   reject(err);
                   this.result = 'failed';
                 }
@@ -955,13 +955,13 @@ export default class PopupPayment extends PopupElement<{
     this.onContentUpdate();
   }
 
-  public static async create(options: ConstructorParameters<typeof PopupPayment>[0]) {
+  public static async create(options: ConstructorParameters<typeof PopupPayment>[0]): Promise<PopupPayment | PopupStarsPay> {
     let promise: Promise<PaymentsPaymentForm | PaymentsPaymentReceipt>;
     if(!options.paymentForm && !options.transaction && !options.noPaymentForm) {
-      if(options.isReceipt) promise = rootScope.managers.appPaymentsManager!.getPaymentReceipt(options.message!.peerId!, (options.message!.media as MessageMedia.messageMediaInvoice).receipt_msg_id || (options.inputInvoice as InputInvoice.inputInvoiceMessage).msg_id);
-      else promise = rootScope.managers.appPaymentsManager!.getPaymentForm(options.inputInvoice!);
+      if(options.isReceipt) promise = rootScope.managers.appPaymentsManager.getPaymentReceipt(options.message!.peerId!, (options.message!.media as MessageMedia.messageMediaInvoice).receipt_msg_id || (options.inputInvoice as InputInvoice.inputInvoiceMessage).msg_id);
+      else promise = rootScope.managers.appPaymentsManager.getPaymentForm(options.inputInvoice!);
     } else {
-      promise = (Promise.resolve(options.paymentForm)! as Promise<PaymentsPaymentForm | PaymentsPaymentReceipt>);
+      promise = (Promise.resolve(options.paymentForm) as Promise<PaymentsPaymentForm | PaymentsPaymentReceipt>);
     }
 
     const paymentForm = await promise;
@@ -972,7 +972,7 @@ export default class PopupPayment extends PopupElement<{
       paymentForm._ === 'payments.paymentReceiptStars' ||
       paymentForm._ === 'payments.paymentFormStarGift' ? PopupStarsPay : PopupPayment;
 
-    const popup = PopupElement.createPopup(constructor as any, options) as PopupStarsPay | PopupPayment;
+    const popup = PopupElement.createPopup(constructor as typeof PopupStarsPay, options);
     popup.setPaymentForm(paymentForm as any);
 
     return popup;

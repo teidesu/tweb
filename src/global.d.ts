@@ -206,6 +206,6 @@ declare global {
     customEmojiSize?: MediaSize,
     textColor?: ValueOrGetter<CustomProperty>,
     animationGroup?: AnimationItemGroup,
-    managers?: AppManagers
+    managers?: AppManagers | CombinedManagers
   };
 }

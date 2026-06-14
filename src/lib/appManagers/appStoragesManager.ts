@@ -89,7 +89,7 @@ export class AppStoragesManager extends AppManager {
     for(let i = upTo; i <= MAX_ACCOUNTS; i++) {
       await this.clearAllStoresForAccount(i);
       if(i < MAX_ACCOUNTS) {
-        await this.moveAccountStorages((i + 1) as ActiveAccountNumber, i as ActiveAccountNumber);
+        await this.moveAccountStorages((i + 1) as ActiveAccountNumber, i);
       }
     }
   }

@@ -7,6 +7,7 @@
 import Icon from '@components/icon';
 import setInnerHTML from '@helpers/dom/setInnerHTML';
 import appImManager from '@lib/appImManager';
+import {isTruthy} from '../helpers/isTruthy';
 
 const hideQuizHint = (element: HTMLElement, onHide: () => void, timeout: number) => {
   element.classList.remove('active');
@@ -72,7 +73,7 @@ export const setQuizHint = (options: {
     titleEl!,
     textEl,
     textRightEl!
-  ].filter(Boolean) as (string | Node)[]));
+  ].filter(isTruthy)));
   element.append(container);
 
   setInnerHTML(textEl, options.textElement);

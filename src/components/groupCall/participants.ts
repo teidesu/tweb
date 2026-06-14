@@ -69,19 +69,19 @@ export class GroupCallParticipantContextMenu {
       icon: 'deleteuser',
       className: 'danger',
       text: 'VoiceChat.RemovePeer',
-      verify: () => this.managers.appChatsManager!.hasRights(this.chatId, 'ban_users'),
+      verify: () => this.managers.appChatsManager.hasRights(this.chatId, 'ban_users'),
       onClick: async() => {
         confirmationPopup({
           peerId: this.targetPeerId,
           title: new PeerTitle({peerId: this.targetPeerId}).element,
-          descriptionLangKey: await this.managers.appChatsManager!.isBroadcast(this.chatId) ? 'VoiceChat.RemovePeer.Confirm.Channel' : 'VoiceChat.RemovePeer.Confirm',
+          descriptionLangKey: await this.managers.appChatsManager.isBroadcast(this.chatId) ? 'VoiceChat.RemovePeer.Confirm.Channel' : 'VoiceChat.RemovePeer.Confirm',
           descriptionLangArgs: [new PeerTitle({peerId: this.targetPeerId}).element],
           button: {
             langKey: 'VoiceChat.RemovePeer.Confirm.OK',
             isDanger: true
           }
         }).then(() => {
-          this.managers.appChatsManager!.kickFromChat(this.chatId, this.targetPeerId);
+          this.managers.appChatsManager.kickFromChat(this.chatId, this.targetPeerId);
         }, noop);
       }
     }];
@@ -114,7 +114,7 @@ export class GroupCallParticipantContextMenu {
           return;
         }
 
-        this.canManageCall = await this.managers.appChatsManager!.hasRights(this.chatId, 'manage_call');
+        this.canManageCall = await this.managers.appChatsManager.hasRights(this.chatId, 'manage_call');
 
         await filterAsync(this.buttons, async(button) => {
           const good = await button.verify(peerId);
@@ -221,7 +221,7 @@ export default class GroupCallParticipantsElement {
     const scrollableLoader = new ScrollableLoader({
       scrollable,
       getPromise: () => {
-        return this.managers.appGroupCallsManager!.getGroupCallParticipants(this.instance.id).then(({participants, isEnd}) => {
+        return this.managers.appGroupCallsManager.getGroupCallParticipants(this.instance.id).then(({participants, isEnd}) => {
           participants.forEach((participant) => {
             this.updateParticipant(participant);
           });

@@ -29,5 +29,5 @@ export default function getMediaFromMessage(message: Message | StoryItem.storyIt
       (onlyInner ? undefined : (messageMedia as MessageMedia.messageMediaGame).game || messageMedia);
   }
 
-  return media as any;
+  return media;
 }

@@ -219,7 +219,7 @@ export default class RLottiePlayer extends EventListenerBase<{
       });
     }
 
-    this.contexts = (this.canvas.map((canvas) => canvas.getContext('2d'))! as CanvasRenderingContext2D[]);
+    this.contexts = (this.canvas.map((canvas) => canvas.getContext('2d')) as CanvasRenderingContext2D[]);
 
     if(!IS_IMAGE_BITMAP_SUPPORTED || this.raw) {
       this.imageData = new ImageData(this.width, this.height);

@@ -30,7 +30,7 @@ export function animateImageToTarget({animatedImg, target, targetIsRound}: Anima
     },
     {
       onEnd: () => {
-        deferred.resolve!();
+        deferred.resolve();
       }
     }
   );
@@ -40,7 +40,7 @@ export function animateImageToTarget({animatedImg, target, targetIsRound}: Anima
     cancel: (reject?: boolean) => {
       cancelAnimation();
       if(reject) {
-        deferred.reject!();
+        deferred.reject();
       }
     }
   };

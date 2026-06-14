@@ -164,7 +164,7 @@ const Settings = () => {
   const getAuthorizations = (overwrite?: boolean) => {
     if(getAuthorizationsPromise && !overwrite) return getAuthorizationsPromise;
 
-    const promise = getAuthorizationsPromise = rootScope.managers.appAccountManager!.getAuthorizations()
+    const promise = getAuthorizationsPromise = rootScope.managers.appAccountManager.getAuthorizations()
     .finally(() => {
       if(getAuthorizationsPromise === promise) {
         getAuthorizationsPromise = undefined;

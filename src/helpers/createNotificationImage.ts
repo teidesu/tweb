@@ -4,19 +4,20 @@ import {getPeerAvatarColorByPeer} from '@appManagers/utils/peers/getPeerColorByI
 import getAbbreviation from '@lib/richTextProcessor/getAbbreviation';
 import drawCircle from '@helpers/canvas/drawCircle';
 import customProperties from '@helpers/dom/customProperties';
+import {ProxiedManagers} from '../lib/getProxiedManagers';
 
 let avatarCanvas: HTMLCanvasElement;
 let avatarContext: CanvasRenderingContext2D;
 let avatarGradients: Record<string, CanvasGradient>;
 
 export default async function createNotificationImage(
-  managers: AppManagers,
+  managers: ProxiedManagers,
   peerId: PeerId,
   peerTitle: string
 ) {
-  const peerPhoto = await managers.appPeersManager!.getPeerPhoto(peerId);
+  const peerPhoto = await managers.appPeersManager.getPeerPhoto(peerId);
   if(peerPhoto) {
-    const url = await managers.appAvatarsManager!.loadAvatar(peerId, peerPhoto, 'photo_small');
+    const url = await managers.appAvatarsManager.loadAvatar(peerId, peerPhoto, 'photo_small');
     return url;
   }
 
@@ -34,7 +35,7 @@ export default async function createNotificationImage(
     avatarContext.clearRect(0, 0, avatarCanvas.width, avatarCanvas.height);
   }
 
-  const peer = await managers.appPeersManager!.getPeer(peerId);
+  const peer = await managers.appPeersManager.getPeer(peerId);
   const color = getPeerAvatarColorByPeer(peer);
   let gradient = avatarGradients[color!];
   if(!gradient) {

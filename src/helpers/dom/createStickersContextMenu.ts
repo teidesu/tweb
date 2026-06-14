@@ -42,7 +42,7 @@ export default function createStickersContextMenu({
 }) {
   let target: HTMLElement, doc: MyDocument;
   const verifyFavoriteSticker = async(toAdd: boolean) => {
-    const favedStickers = await (isGif ? rootScope.managers.acknowledged!.appGifsManager!.getGifs() : rootScope.managers.acknowledged!.appStickersManager!.getFavedStickersStickers());
+    const favedStickers = await (isGif ? rootScope.managers.acknowledged.appGifsManager.getGifs() : rootScope.managers.acknowledged.appStickersManager.getFavedStickersStickers());
     if(!favedStickers.cached) {
       return false;
     }
@@ -52,7 +52,7 @@ export default function createStickersContextMenu({
   };
 
   const updateEmojiStatus = (emojiStatus: EmojiStatus) => {
-    rootScope.managers.appUsersManager!.updateEmojiStatus(emojiStatus).then(() => {
+    rootScope.managers.appUsersManager.updateEmojiStatus(emojiStatus).then(() => {
       toastNew({langPackKey: 'SetAsEmojiStatusInfo'});
     });
   };
@@ -97,7 +97,7 @@ export default function createStickersContextMenu({
   }, {
     icon: 'delete',
     text: 'DeleteFromRecent',
-    onClick: () => rootScope.managers.appEmojiManager!.deleteRecentEmoji((getEmojiFromElement(((target as unknown as AppEmoji)! as unknown as HTMLElement))!)),
+    onClick: () => rootScope.managers.appEmojiManager.deleteRecentEmoji((getEmojiFromElement(((target as unknown as AppEmoji) as unknown as HTMLElement))!)),
     verify: () => verifyRecent?.(target) ?? false
   }] : [{
     icon: 'stickers',
@@ -107,17 +107,17 @@ export default function createStickersContextMenu({
   }, {
     icon: isGif ? 'gifs' : 'favourites',
     text: isGif ? 'SaveToGIFs' : 'AddToFavorites',
-    onClick: () => isGif ? rootScope.managers.appGifsManager!.saveGif(doc.id, false) : rootScope.managers.appStickersManager!.faveSticker(doc.id, false),
+    onClick: () => isGif ? rootScope.managers.appGifsManager.saveGif(doc.id, false) : rootScope.managers.appStickersManager.faveSticker(doc.id, false),
     verify: () => verifyFavoriteSticker(true)
   }, {
     icon: isGif ? 'crossgif' : 'crossstar',
     text: isGif ? 'Message.Context.RemoveGif' : 'DeleteFromFavorites',
-    onClick: () => isGif ? rootScope.managers.appGifsManager!.saveGif(doc.id, true) : rootScope.managers.appStickersManager!.faveSticker(doc.id, true),
+    onClick: () => isGif ? rootScope.managers.appGifsManager.saveGif(doc.id, true) : rootScope.managers.appStickersManager.faveSticker(doc.id, true),
     verify: () => verifyFavoriteSticker(false)
   }, {
     icon: 'delete',
     text: 'DeleteFromRecent',
-    onClick: () => rootScope.managers.appStickersManager!.saveRecentSticker(doc.id, true),
+    onClick: () => rootScope.managers.appStickersManager.saveRecentSticker(doc.id, true),
     verify: () => verifyRecent?.(target) ?? false
   }, {
     icon: 'edit',
@@ -145,7 +145,7 @@ export default function createStickersContextMenu({
     text: 'Chat.Send.ScheduledMessage',
     onClick: () => chatInput!.scheduleSending(() => chatInput!.sendMessageWithDocument({document: doc, target})),
     verify: () => chatInput && !!chatInput.chat.peerId && !chatInput.chat.starsAmount
-  }])! as ButtonMenuItemOptionsVerifiable[]);
+  }]) as ButtonMenuItemOptionsVerifiable[]);
 
   if(canHaveEmojiTimer) buttons = [{
     text: 'SetEmojiStatusUntil1Hour',
@@ -186,7 +186,7 @@ export default function createStickersContextMenu({
       return target;
     },
     onOpen: async() => {
-      doc = await rootScope.managers.appDocsManager!.getDoc(target.dataset.docId!);
+      doc = await rootScope.managers.appDocsManager.getDoc(target.dataset.docId!);
       return onOpen?.();
     },
     onClose,

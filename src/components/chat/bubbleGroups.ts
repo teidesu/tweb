@@ -241,7 +241,7 @@ export class BubbleGroup {
 
   insertItem(item: GroupItem) {
     const {items} = this;
-    insertSomething(items, item, this.groups.sortGroupItemsKey, (this.groups.reverse = item.reverse!)!!);
+    insertSomething(items, item, this.groups.sortGroupItemsKey, (this.groups.reverse = item.reverse!));
 
     item.group = this;
     if(items.length === 1) {
@@ -637,7 +637,7 @@ export default class BubbleGroups {
   }
 
   insertItemToArray(item: GroupItem, array: GroupItem[]) {
-    return insertSomething(array, item, this.sortItemsKey, (this.reverse = item.reverse!)!!);
+    return insertSomething(array, item, this.sortItemsKey, (this.reverse = item.reverse!));
   }
 
   insertGroup(group: BubbleGroup) {

@@ -323,11 +323,11 @@ function onInstanceDeactivated(reason: InstanceDeactivateReason) {
 
   const header = document.createElement('div');
   header.classList.add('header');
-  header.append(i18n(map[reason].title)!);
+  header.append(i18n(map[reason].title));
 
   const subtitle = document.createElement('div');
   subtitle.classList.add('subtitle');
-  subtitle.append(i18n(map[reason].subtitle)!);
+  subtitle.append(i18n(map[reason].subtitle));
 
   c.append(header, subtitle);
 
@@ -453,7 +453,7 @@ function setDocumentLangPackProperties(langPack: LangPackDifference.langPackDiff
   const [, setHasFoldersSidebar] = useHasFoldersSidebar();
   setHasFoldersSidebar(!!appSettings.tabsInSidebar);
 
-  rootScope.managers.rootScope!.getPremium().then((isPremium) => {
+  rootScope.managers.rootScope.getPremium().then((isPremium) => {
     rootScope.premium = isPremium;
   });
 
@@ -521,7 +521,7 @@ function setDocumentLangPackProperties(langPack: LangPackDifference.langPackDiff
       return;
     }
 
-    rootScope.managers.appStateManager!.pushToState('authState', authState = {_: 'authStateSignImport', data});
+    rootScope.managers.appStateManager.pushToState('authState', authState = {_: 'authStateSignImport', data});
   }
 
   if(params.tgWebAuthToken) {

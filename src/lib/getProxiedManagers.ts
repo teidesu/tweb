@@ -123,20 +123,20 @@ type AllManager<T> = {
 
 type T = Awaited<ReturnType<typeof createManagers>>;
 export type ProxiedManagers = {
-  [name in keyof T]?: ModifyFunctionsToAsync<T[name]>;
+  [name in keyof T]: ModifyFunctionsToAsync<T[name]>;
 };
 
 export type AcknowledgedManagers = {
-  [name in keyof T]?: AcknowledgedManager<T[name]>;
+  [name in keyof T]: AcknowledgedManager<T[name]>;
 };
 
 export type AllManagers = {
-  [name in keyof T]?: AllManager<T[name]>;
+  [name in keyof T]: AllManager<T[name]>;
 };
 
-type CombinedManagers = ProxiedManagers & {
-  acknowledged?: AcknowledgedManagers,
-  all?: AllManagers
+export type CombinedManagers = ProxiedManagers & {
+  acknowledged: AcknowledgedManagers,
+  all: AllManagers
 };
 
 function createProxyProxy(proxied: any, accountNumber: ActiveAccountNumber, ack?: boolean) {
@@ -155,7 +155,7 @@ export function createProxiedManagersForAccount(accountNumber: ActiveAccountNumb
 MOUNT_CLASS_TO.createProxiedManagersForAccount = createProxiedManagersForAccount;
 
 let proxied: CombinedManagers;
-export default function getProxiedManagers() {
+export default function getProxiedManagers(): CombinedManagers {
   if(proxied) {
     return proxied;
   }

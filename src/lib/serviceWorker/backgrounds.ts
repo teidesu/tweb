@@ -22,7 +22,7 @@ export function onBackgroundsFetch(event: FetchEvent) {
 
   (async() => {
     const blob = await backgroundsCache.getFile(url, 'blob');
-    deferred.resolve!(new Response(blob, {
+    deferred.resolve(new Response(blob, {
       status: 200
     }));
   })();

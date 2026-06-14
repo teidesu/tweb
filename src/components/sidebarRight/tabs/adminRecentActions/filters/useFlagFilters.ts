@@ -26,7 +26,7 @@ export function useFlagFilters({channelId, isBroadcast}: UseFlagFiltersArgs) {
   };
 
   const [adminsResource] = createResource(channelId, (id) =>
-    rootScope.managers.appProfileManager!.getChannelParticipants({
+    rootScope.managers.appProfileManager.getChannelParticipants({
       id,
       filter: {_: 'channelParticipantsAdmins'},
       offset: 0,

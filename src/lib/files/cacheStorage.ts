@@ -12,6 +12,7 @@ import MemoryWriter from '@lib/files/memoryWriter';
 import FileStorage from '@lib/files/fileStorage';
 import pause from '@helpers/schedulers/pause';
 import {HTTPHeaderNames} from '@lib/constants';
+import {isTruthy} from '../../helpers/isTruthy';
 
 
 type CacheStorageDbConfigEntry = {
@@ -132,14 +133,14 @@ export default class CacheStorageController implements FileStorage {
   }
 
   private getDisabledPromises() {
-    return [CacheStorageController.disabledPromise, CacheStorageController.disabledPromisesByKey.get(this.dbName)].filter(Boolean);
+    return [CacheStorageController.disabledPromise, CacheStorageController.disabledPromisesByKey.get(this.dbName)].filter(isTruthy);
   }
 
   private async waitToEnable() {
     // Note: even if initially there was one disabled promise, another one could be added while we are waiting
 
     let disabledPromises: CancellablePromise<void>[];
-    while((disabledPromises = (this.getDisabledPromises()! as CancellablePromise<void>[])).length) {
+    while((disabledPromises = (this.getDisabledPromises())).length) {
       await Promise.all(disabledPromises);
     }
   }
@@ -276,7 +277,7 @@ export default class CacheStorageController implements FileStorage {
 
     const response = new Response(blob);
 
-    return this.save({entryName: fileName, response, size: blob.size}).then(() => blob as Blob);
+    return this.save({entryName: fileName, response, size: blob.size}).then(() => blob);
   }
 
   public timeoutOperation<T>(callback: (cache: Cache) => Promise<T>, operationTimeout = defaultOperationTimeout) {
@@ -344,7 +345,7 @@ export default class CacheStorageController implements FileStorage {
 
   public static temporarilyToggle(enabled: boolean) {
     if(enabled) {
-      this.disabledPromise?.resolve!();
+      this.disabledPromise?.resolve();
       this.disabledPromise = undefined;
     } else if(!this.disabledPromise) {
       this.disabledPromise = deferredPromise();
@@ -355,7 +356,7 @@ export default class CacheStorageController implements FileStorage {
     const hadPromise = this.disabledPromisesByKey.has(name);
 
     if(enabled) {
-      this.disabledPromisesByKey.get(name)?.resolve!();
+      this.disabledPromisesByKey.get(name)?.resolve();
       this.disabledPromisesByKey.delete(name);
     } else if(!hadPromise) {
       this.disabledPromisesByKey.set(name, deferredPromise());

@@ -24,7 +24,7 @@ export function wrapFormattedDuration(formatted: ReturnType<typeof formatDuratio
   const elements = formatted.map((d) => i18n(DURATION_LANG_KEYS[d.type], [d.duration]));
 
   const fragment = document.createElement('span');
-  fragment.append(...join((elements! as (string | Node)[]), false));
+  fragment.append(...join((elements as (string | Node)[]), false));
 
   return fragment;
 }

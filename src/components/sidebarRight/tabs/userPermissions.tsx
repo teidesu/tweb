@@ -53,10 +53,10 @@ const UserPermissions: Component = () => {
     tab.container.classList.add('edit-peer-container', 'user-permissions-container');
 
     const [chat, isChannel, isGroup, user] = await Promise.all([
-      tab.managers.appChatsManager!.getChat(chatId) as Promise<Chat.chat | Chat.channel>,
-      tab.managers.appChatsManager!.isChannel(chatId),
-      tab.managers.appPeersManager!.isAnyGroup(chatId.toPeerId(true)),
-      tab.managers.appUsersManager!.getUser(userId)
+      tab.managers.appChatsManager.getChat(chatId) as Promise<Chat.chat | Chat.channel>,
+      tab.managers.appChatsManager.isChannel(chatId),
+      tab.managers.appPeersManager.isAnyGroup(chatId.toPeerId(true)),
+      tab.managers.appUsersManager.getUser(userId)
     ]);
     const isCreator = isParticipantCreator(participant);
     const isAdmin = isParticipantAdmin(participant);
@@ -132,7 +132,7 @@ const UserPermissions: Component = () => {
             _canEditAdmin ?
               (field!.checkboxField!.checked ? 'Channel.Admin.AdminAccess' : 'Channel.Admin.AdminRestricted') :
               'EditAdminCantEdit'
-          )!);
+          ));
         };
 
         onChange();
@@ -144,7 +144,7 @@ const UserPermissions: Component = () => {
           }
 
           const rights = p.takeOut();
-          return tab.managers.appChatsManager!.editAdmin(
+          return tab.managers.appChatsManager.editAdmin(
             chatId,
             participant,
             rights,
@@ -160,7 +160,7 @@ const UserPermissions: Component = () => {
 
         saveCallback = () => {
           const rights = p.takeOut();
-          return tab.managers.appChatsManager!.editBanned(
+          return tab.managers.appChatsManager.editBanned(
             chatId,
             participant,
             rights
@@ -177,7 +177,7 @@ const UserPermissions: Component = () => {
       const section = new SettingSection({
         name: 'EditAdminRank',
         caption: 'EditAdminRankInfo',
-        captionArgs: [i18n(rankKey)!]
+        captionArgs: [i18n(rankKey)]
       });
 
       const inputWrapper = document.createElement('div');
@@ -235,7 +235,7 @@ const UserPermissions: Component = () => {
       ) {
         const btnDelete = Button('btn-primary btn-transparent danger', {icon: 'deleteuser', text: 'Channel.Admin.Dismiss'});
 
-        const removeAdmin = () => tab.managers.appChatsManager!.editAdmin(
+        const removeAdmin = () => tab.managers.appChatsManager.editAdmin(
           chatId,
           participant,
           {_: 'chatAdminRights', pFlags: {}},
@@ -303,7 +303,7 @@ const UserPermissions: Component = () => {
         rowDuration.subtitle.replaceChildren(
           (timestamp === BANNED_RIGHTS_UNTIL_FOREVER ?
            i18n('UserPermissions.Duration.Forever') :
-           formatDate(new Date(timestamp * 1000), {withTime: true}))!
+           formatDate(new Date(timestamp * 1000), {withTime: true}))
         );
       };
 
@@ -334,9 +334,9 @@ const UserPermissions: Component = () => {
         const btnDeleteException = Button('btn-primary btn-transparent danger', {icon: 'delete', text: 'GroupPermission.Delete'});
 
         const clearChannelParticipantBannedRights = () => {
-          return tab.managers.appChatsManager!.clearChannelParticipantBannedRights(
+          return tab.managers.appChatsManager.clearChannelParticipantBannedRights(
             chatId,
-            participant as ChannelParticipant.channelParticipantBanned
+            participant
           );
         };
 
@@ -362,7 +362,7 @@ const UserPermissions: Component = () => {
           }
         });
 
-        await tab.managers.appChatsManager!.kickFromChat(chatId, participant);
+        await tab.managers.appChatsManager.kickFromChat(chatId, participant);
       };
 
       attachClickEvent(btnDelete, async() => {

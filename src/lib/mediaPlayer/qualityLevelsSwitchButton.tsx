@@ -140,9 +140,9 @@ async function getButtonMenuQualityOptions(
   const {default: Hls} = await import('hls.js');
 
   if(hls.levels && hls.levels.length > 0) {
-    deferredLevels.resolve!(hls.levels);
+    deferredLevels.resolve(hls.levels);
   } else hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
-    deferredLevels.resolve!(data.levels);
+    deferredLevels.resolve(data.levels);
   });
 
   const levels = await deferredLevels;

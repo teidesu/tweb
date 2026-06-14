@@ -32,7 +32,7 @@ export function usePollMutations({
 
     const optionIndexes = indexes.map(initialIdxFromShuffledIdx).filter(idx => idx !== -1);
 
-    await rootScope.managers.appPollsManager!.sendVote(getOverridenMessage(), optionIndexes);
+    await rootScope.managers.appPollsManager.sendVote(getOverridenMessage(), optionIndexes);
 
     onSuccess();
   });
@@ -46,7 +46,7 @@ export function usePollMutations({
     const {text, entities, attachment} = unwrap(newOption);
     if(isShowingResult() || !text || attachment?.type === 'pending') return;
 
-    await rootScope.managers.appPollsManager!.addPollAnswer(
+    await rootScope.managers.appPollsManager.addPollAnswer(
       getOverridenMessage(),
       {
         _: 'textWithEntities',

@@ -371,7 +371,7 @@ export default class SlicedArray<T extends ItemType> {
     // const fixHalfBackLimit = add_offset && !(limit / add_offset % 2) && (sliceEnd % 2) ? 1 : 0;
     // sliceEnd += fixHalfBackLimit;
 
-    const sliced = slice.slice(sliceStart, sliceEnd) as Slice<T>;
+    const sliced = slice.slice(sliceStart, sliceEnd);
 
     const topWasMeantToLoad = addOffset < 0 ? limit + addOffset : limit;
     const bottomWasMeantToLoad = Math.abs(addOffset);

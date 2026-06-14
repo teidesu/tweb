@@ -31,7 +31,7 @@ export default class ChatBotCommands extends AutocompletePeerHelper {
     }
 
     this.userId = userId;
-    return callbackify(this.managers.appProfileManager!.getProfile(userId), (full) => {
+    return callbackify(this.managers.appProfileManager.getProfile(userId), (full) => {
       if(!middleware()) return;
       const filtered = processPeerFullForCommands(userId.toPeerId(false), full);
 

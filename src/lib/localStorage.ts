@@ -86,7 +86,7 @@ class LocalStorage<Storage extends Record<string, any>> {
 
   public delete(key: keyof Storage, saveLocal = false) {
     // ! it is needed here
-    key = '' + (key as string);
+    key = String(key);
 
     if(!saveLocal) {
       delete this.cache[key];
@@ -94,7 +94,7 @@ class LocalStorage<Storage extends Record<string, any>> {
 
     // if(this.useStorage) {
     try {
-      localStorage.removeItem(this.prefix + (key as string));
+      localStorage.removeItem(this.prefix + (key as unknown as string));
     } catch(err) {
 
     }
@@ -300,7 +300,7 @@ export default class LocalStorageController<Storage extends Record<string, any>>
 
     await Promise.all(filteredEntries.map(([key]) => this.localStorageProxy('delete', key)));
 
-    this.encryptionDeferred?.resolve!();
+    this.encryptionDeferred?.resolve();
     this.encryptionDeferred = undefined;
   }
 
@@ -312,7 +312,7 @@ export default class LocalStorageController<Storage extends Record<string, any>>
     const encryptedStorage = await this.getEncryptedStorage();
     await encryptedStorage.reEncrypt();
 
-    this.encryptionDeferred?.resolve!();
+    this.encryptionDeferred?.resolve();
     this.encryptionDeferred = undefined;
   }
 
@@ -331,7 +331,7 @@ export default class LocalStorageController<Storage extends Record<string, any>>
     await this.localStorageProxy('set', data);
     await encryptedStorage.clear();
 
-    this.encryptionDeferred?.resolve!();
+    this.encryptionDeferred?.resolve();
     this.encryptionDeferred = undefined;
   }
 }

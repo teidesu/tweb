@@ -224,7 +224,7 @@ export default class ChatRecording {
         opusDecodeController.setKeepAlive(false);
 
         // тут objectURL ставится уже с audio/wav
-        this.input.managers.appMessagesManager!.sendFile({
+        this.input.managers.appMessagesManager.sendFile({
           ...sendingParams,
           file: dataBlob,
           isVoiceMessage: true,
@@ -292,7 +292,7 @@ export default class ChatRecording {
         // sendFile with isRoundMessage=true so the documentAttributeVideo flag
         // gets `round_message=true` (see appMessagesManager.sendFile).
         const objectURL = URL.createObjectURL(blob);
-        this.input.managers.appMessagesManager!.sendFile({
+        this.input.managers.appMessagesManager.sendFile({
           ...sendingParams,
           file: blob,
           isRoundMessage: true,
@@ -946,7 +946,7 @@ export default class ChatRecording {
 
     let restricted = false;
     if(!isAnyChat) {
-      const userFull = await this.input.managers.appProfileManager!.getProfile(this.input.chat.peerId.toUserId());
+      const userFull = await this.input.managers.appProfileManager.getProfile(this.input.chat.peerId.toUserId());
       if(userFull?.pFlags.voice_messages_forbidden) {
         toastNew({
           langPackKey: 'Chat.SendVoice.PrivacyError',
@@ -1031,7 +1031,7 @@ export default class ChatRecording {
 
       this.startRecordingTimerLoop();
     }).catch((e: Error) => {
-      switch(e.name as string) {
+      switch(e.name) {
         case 'NotAllowedError': {
           toastNew({langPackKey: 'NoMicrophoneAccess'});
           break;

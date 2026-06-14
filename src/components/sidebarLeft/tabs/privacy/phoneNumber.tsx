@@ -16,13 +16,13 @@ const PrivacyPhoneNumber: Component = () => {
   });
 
   promiseCollector.collect((async() => {
-    const formatted = '+' + (await tab.managers.appUsersManager!.getSelf()).phone;
+    const formatted = '+' + (await tab.managers.appUsersManager.getSelf()).phone;
     const captionEl = document.createElement('div');
     captionEl.append(
-      i18n('PrivacyPhoneInfo')!,
+      i18n('PrivacyPhoneInfo'),
       document.createElement('br'),
       document.createElement('br'),
-      i18n('PrivacyPhoneInfo4')!,
+      i18n('PrivacyPhoneInfo4'),
       document.createElement('br'),
       anchorCopy({
         mePath: formatted

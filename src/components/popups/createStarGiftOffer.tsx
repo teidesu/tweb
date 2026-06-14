@@ -74,7 +74,7 @@ export async function showCreateStarGiftOfferPopup(options: {
       }
 
       try {
-        await rootScope.managers.appGiftsManager!.createGiftOffer({
+        await rootScope.managers.appGiftsManager.createGiftOffer({
           peerId: getPeerId(gift.owner_id!),
           slug: gift.slug,
           amount: starsAmount,

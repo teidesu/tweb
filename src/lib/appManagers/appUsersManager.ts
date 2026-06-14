@@ -180,7 +180,7 @@ export class AppUsersManager extends AppManager {
 
           if(!this.contactsFillPromise) {
             this.contactsFillPromise = deferredPromise();
-            this.contactsFillPromise.resolve!(this.contactsList);
+            this.contactsFillPromise.resolve(this.contactsList);
           }
         }
       }
@@ -330,7 +330,7 @@ export class AppUsersManager extends AppManager {
         this.contactsFillPromise = promise;
       }
 
-      promise.resolve!(this.contactsList);
+      promise.resolve(this.contactsList);
     }, () => {
       this.updatedContactsList = false;
     });
@@ -408,7 +408,7 @@ export class AppUsersManager extends AppManager {
       user.phone!,
       ...getPeerActiveUsernames(user) as string[],
       // user.pFlags.self ? I18n.format('SavedMessages', true) : '',
-      ((((((((user.pFlags.self ? 'Saved Messages' : '')! as string)! as string)! as string)! as string))))
+      ((((((((user.pFlags.self ? 'Saved Messages' : '') as string)))))))
     ];
 
     return arr.filter(Boolean).join(' ');
@@ -601,8 +601,8 @@ export class AppUsersManager extends AppManager {
 
     this.saveUserStatus(user.status!);
 
-    if((user as User).photo?._ === 'userProfilePhotoEmpty') {
-      delete (user as User).photo;
+    if((user).photo?._ === 'userProfilePhotoEmpty') {
+      delete (user).photo;
     }
 
     // user.sortStatus = user.pFlags.bot ? -1 : this.getUserStatusForSort(user.status);
@@ -1320,7 +1320,7 @@ export class AppUsersManager extends AppManager {
 
           const userId = userIds[index];
           const promise = this.requirementsToContactPromises.get(userId);
-          promise!.resolve!(requirement);
+          promise!.resolve(requirement);
           this.requirementsToContactPromises.delete(userId);
         });
       }).finally(() => {

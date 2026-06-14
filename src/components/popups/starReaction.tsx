@@ -64,7 +64,7 @@ export default class PopupStarReaction extends PopupElement {
 
     const sendText = new I18n.IntlElement({key: 'PaidReaction.Send'});
 
-    this.btnConfirm.append(sendText.element!);
+    this.btnConfirm.append(sendText.element);
     replaceButtonIcon(this.btnConfirm, 'star');
 
     const sendAsContainer = document.createElement('div');
@@ -146,7 +146,7 @@ export default class PopupStarReaction extends PopupElement {
 
     // * modify privacy
     if(myReactor) createEffect(on(sendAsPeerId, (sendAsPeerId$) => {
-      this.managers.appReactionsManager!.togglePaidReactionPrivacy(
+      this.managers.appReactionsManager.togglePaidReactionPrivacy(
         message.peerId!,
         message.mid!,
         sendAsPeerId$
@@ -296,8 +296,8 @@ export default class PopupStarReaction extends PopupElement {
   private async construct() {
     const [peerTitle, message, privacy] = await Promise.all([
       wrapPeerTitle({peerId: this.peerId}),
-      rootScope.managers.appMessagesManager!.getMessageByPeer(this.peerId, this.mid),
-      rootScope.managers.appReactionsManager!.getPaidReactionPrivacy()
+      rootScope.managers.appMessagesManager.getMessageByPeer(this.peerId, this.mid),
+      rootScope.managers.appReactionsManager.getPaidReactionPrivacy()
     ]);
 
     this.appendSolid(() => this._construct({

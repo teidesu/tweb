@@ -85,7 +85,7 @@ export default function showTooltip({
       <div
         ref={div!}
         class={classNames('tooltip', 'tooltip-' + vertical, icon && 'tooltip-with-icon', className, lighter && 'tooltip-lighter')}
-        style={((!relative && getStyle())! as string | JSX.CSSProperties | undefined)}
+        style={((!relative && getStyle()) as string | JSX.CSSProperties | undefined)}
       >
         <div class="tooltip-part tooltip-background"></div>
         <span class="tooltip-part tooltip-notch"></span>

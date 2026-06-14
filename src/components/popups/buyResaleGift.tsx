@@ -68,7 +68,7 @@ export default class PopupBuyResaleGift extends PopupElement<{
                 _: 'inputInvoiceStarGiftResale',
                 pFlags: {ton: ton ? true : undefined},
                 slug: gift.slug,
-                to_id: await rootScope.managers.appPeersManager!.getInputPeerById(this.recipientId)
+                to_id: await rootScope.managers.appPeersManager.getInputPeerById(this.recipientId)
               },
               noShowIfStars: true,
               purpose: 'stargift'

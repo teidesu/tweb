@@ -43,7 +43,7 @@ export default class RadioField {
         });
 
         input.addEventListener('change', () => {
-          rootScope.managers.appStateManager!.setByKey(options.stateKey!, getValueForState());
+          rootScope.managers.appStateManager.setByKey(options.stateKey!, getValueForState());
         });
       }
     }

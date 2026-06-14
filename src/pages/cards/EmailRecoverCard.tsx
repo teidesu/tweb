@@ -39,17 +39,17 @@ export default function EmailRecoverCard(props: {spec: Spec}) {
       replaceContent(codeInputErrorLabel, '');
     },
     onFill: (code) => {
-      managers.passwordManager!.confirmPasswordResetEmail(code).then(() => {
+      managers.passwordManager.confirmPasswordResetEmail(code).then(() => {
         toIm();
       }).catch((err: ApiError) => {
         codeInputField.error = true;
         codeInputField.value = '';
 
         if(err.type === 'CODE_INVALID') {
-          replaceContent(codeInputErrorLabel, i18n('PHONE_CODE_INVALID')!);
+          replaceContent(codeInputErrorLabel, i18n('PHONE_CODE_INVALID'));
         } else {
           console.log('error', err);
-          replaceContent(codeInputErrorLabel, i18n('Error.AnError')!);
+          replaceContent(codeInputErrorLabel, i18n('Error.AnError'));
         }
       });
     }

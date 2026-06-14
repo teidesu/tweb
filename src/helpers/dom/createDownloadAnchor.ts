@@ -19,7 +19,7 @@ export default function createDownloadAnchor(url: string, fileName: string, onRe
     try {
       a.click();
     } catch(e) {
-      window.open(url as string, '_blank');
+      window.open(url, '_blank');
     }
   }
 

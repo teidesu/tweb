@@ -126,7 +126,7 @@ export default class SuperStickerRenderer {
   private rendererByElement = new WeakMap<HTMLElement, Awaited<Awaited<ReturnType<typeof wrapSticker>>['render']>>();
   private processVisible = async(element: HTMLElement) => {
     const docId = element.dataset.docId;
-    const doc = await this.managers.appDocsManager!.getDoc(docId!);
+    const doc = await this.managers.appDocsManager.getDoc(docId!);
 
     const size = mediaSizes.active.esgSticker.width;
 
@@ -168,7 +168,7 @@ export default class SuperStickerRenderer {
 
   public processInvisible = async(element: HTMLElement) => {
     const docId = element.dataset.docId;
-    const doc = await this.managers.appDocsManager!.getDoc(docId!);
+    const doc = await this.managers.appDocsManager.getDoc(docId!);
 
     // console.log('STICKER INvisible:', /* div,  */docId);
     this.checkAnimationContainer(element, false);

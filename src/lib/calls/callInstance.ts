@@ -73,6 +73,7 @@ import {
 import {SDPBuilder} from '@lib/calls/sdpBuilder';
 import StreamManager from '@lib/calls/streamManager';
 import {CallMediaState, DiffieHellmanInfo, P2PMediaContent, P2PMessage} from '@lib/calls/types';
+import {isTruthy} from '../../helpers/isTruthy';
 
 const ICE_CANDIDATE_POOL_SIZE = 10;
 const DEFAULT_AUDIO_MID = '0';
@@ -558,7 +559,7 @@ export default class CallInstance extends CallInstanceBase<{
 
     const call = this.call as PhoneCall.phoneCallRequested;
     const g_a_hash = call.g_a_hash;
-    this.managers.appCallsManager!.generateDh().then(async(dh) => {
+    this.managers.appCallsManager.generateDh().then(async(dh) => {
       this.dh = { // ! it is correct
         g_a_hash,
         b: dh.a,
@@ -567,13 +568,13 @@ export default class CallInstance extends CallInstanceBase<{
         p: dh.p
       };
 
-      return this.managers.apiManager!.invokeApi('phone.acceptCall', {
-        peer: await this.managers.appCallsManager!.getCallInput(this.id),
+      return this.managers.apiManager.invokeApi('phone.acceptCall', {
+        peer: await this.managers.appCallsManager.getCallInput(this.id),
         protocol: this.protocol,
         g_b: this.dh.g_b!
       });
     }).then(async(phonePhoneCall) => {
-      await this.managers.appCallsManager!.savePhonePhoneCall(phonePhoneCall);
+      await this.managers.appCallsManager.savePhonePhoneCall(phonePhoneCall);
     }).catch((err) => {
       this.log.error('accept call error', err);
       this.hangUp('phoneCallDiscardReasonHangup');
@@ -585,21 +586,21 @@ export default class CallInstance extends CallInstanceBase<{
     const dh = this.dh as DiffieHellmanInfo.a;
 
     this.overrideConnectionState(CALL_STATE.EXCHANGING_KEYS);
-    const {key, key_fingerprint} = await this.managers.appCallsManager!.computeKey(
+    const {key, key_fingerprint} = await this.managers.appCallsManager.computeKey(
       (call as PhoneCall.phoneCallAccepted).g_b,
       dh.a,
       dh.p
     );
 
-    const phonePhoneCall = await this.managers.apiManager!.invokeApi('phone.confirmCall', {
-      peer: await this.managers.appCallsManager!.getCallInput(id),
+    const phonePhoneCall = await this.managers.apiManager.invokeApi('phone.confirmCall', {
+      peer: await this.managers.appCallsManager.getCallInput(id),
       protocol: protocol,
       g_a: dh.g_a,
       key_fingerprint: key_fingerprint
     });
 
     this.encryptionKey = key;
-    await this.managers.appCallsManager!.savePhonePhoneCall(phonePhoneCall);
+    await this.managers.appCallsManager.savePhonePhoneCall(phonePhoneCall);
     this.joinCall();
   }
 
@@ -670,8 +671,8 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   private async sendSignalingRaw(packet: number[] | Uint8Array) {
-    await this.managers.apiManager!.invokeApi('phone.sendSignalingData', {
-      peer: await this.managers.appCallsManager!.getCallInput(this.id),
+    await this.managers.apiManager.invokeApi('phone.sendSignalingData', {
+      peer: await this.managers.appCallsManager.getCallInput(this.id),
       data: packet instanceof Uint8Array ? packet : new Uint8Array(packet)
     });
   }
@@ -789,7 +790,7 @@ export default class CallInstance extends CallInstanceBase<{
     }
 
     if(discardReason && !discardedByOtherParty) {
-      await this.managers.appCallsManager!.discardCall(this.id, this.duration, discardReason, hasVideo);
+      await this.managers.appCallsManager.discardCall(this.id, this.duration, discardReason, hasVideo);
     }
   }
 
@@ -1619,10 +1620,10 @@ export default class CallInstance extends CallInstanceBase<{
         const contents = localDescription?.sdp ?
           this.parseAnswerContents(localDescription.sdp, pendingRemoteNegotiation.contents, this.getMediaMids()) : [];
 
-        this.updateRemoteMediaStateFromOffer((contents! as P2PMediaContent[]));
+        this.updateRemoteMediaStateFromOffer((contents));
         this.log('send local answer negotiation', {
           exchangeId: pendingRemoteNegotiation.exchangeId,
-          contents: summarizeContents((contents! as P2PMediaContent[])),
+          contents: summarizeContents((contents)),
           sdp: localDescription?.sdp ? summarizeSdp(localDescription.sdp) : undefined,
           transceivers: this.summarizeTransceivers()
         });
@@ -1630,7 +1631,7 @@ export default class CallInstance extends CallInstanceBase<{
         this.sendCallSignalingData({
           '@type': 'NegotiateChannels',
           'exchangeId': pendingRemoteNegotiation.exchangeId,
-          'contents': (contents! as P2PMediaContent[])
+          'contents': (contents)
         });
 
         if(this.shouldSendLocalOfferAfterRemoteAnswer()) {
@@ -1927,7 +1928,7 @@ export default class CallInstance extends CallInstanceBase<{
     const videoSections = [
       sections.find((section) => section.mid === mids.video),
       sections.find((section) => section.mid === mids.presentation)
-    ].filter(Boolean);
+    ].filter(isTruthy);
     let videoIndex = 0;
 
     return offeredContents.map((content) => {
@@ -1949,7 +1950,7 @@ export default class CallInstance extends CallInstanceBase<{
       }
 
       return acceptedContent;
-    }).filter(Boolean);
+    }).filter(isTruthy);
   }
 
   private shouldKeepRemoteReceiveSection(section: SdpSection) {

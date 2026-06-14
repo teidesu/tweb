@@ -25,7 +25,7 @@ const ChatInviteLinkTab: Component = () => {
   const {chatId, chatInvite, menuButtons, actions, onUpdate} = tab.payload;
 
   promiseCollector.collect((async() => {
-    const isBroadcast = await tab.managers.appChatsManager!.isBroadcast(chatId);
+    const isBroadcast = await tab.managers.appChatsManager.isBroadcast(chatId);
     // default title 'InviteLink' is set by the scaffold; override only for a custom invite title
     if(chatInvite.title) {
       tab.title.replaceChildren(wrapEmojiText(chatInvite.title));
@@ -93,8 +93,8 @@ const ChatInviteLinkTab: Component = () => {
       const usage = chatInvite.usage ?? 0;
       const title = i18n('InviteLink.Observe.Fee.Title', [StarsAmount({stars}) as HTMLElement, usage]);
       const subtitle = i18n('InviteLink.Observe.Fee.Subtitle', ['$' + (usage * +stars * 0.02).toFixed(2)]);
-      row.title.append(title!);
-      row.subtitle.append(subtitle!);
+      row.title.append(title);
+      row.subtitle.append(subtitle);
 
       section.content.append(row.container);
 
@@ -176,7 +176,7 @@ const ChatInviteLinkTab: Component = () => {
         const dialogElement = dialogElements.get(peerId);
         const toggle = dialogElement!.toggleDisability(true);
         try {
-          await tab.managers.appChatsManager!.hideChatJoinRequest(chatId, peerId, add);
+          await tab.managers.appChatsManager.hideChatJoinRequest(chatId, peerId, add);
           dialogElement!.remove();
           dialogElements.delete(peerId);
 
@@ -235,7 +235,7 @@ const ChatInviteLinkTab: Component = () => {
         getSubtitleForElement: (peerId) => formatFullSentTime(importersMap.get(peerId)?.date!),
         sectionNameLangPackKey: i18n('PeopleJoined', [chatInvite.usage]),
         onFirstRender: () => {
-          deferred.resolve!();
+          deferred.resolve();
         },
         managers: tab.managers,
         noSearch: true,
@@ -248,8 +248,8 @@ const ChatInviteLinkTab: Component = () => {
 
       if(chatInvite.usage_limit) {
         const i = i18n('PeopleJoinedRemaining', [chatInvite.usage_limit - chatInvite.usage]);
-        i!.classList.add('sidebar-left-section-name-right');
-        selector.section.title.append(i!);
+        i.classList.add('sidebar-left-section-name-right');
+        selector.section.title.append(i);
       }
 
       promises.push(deferred);

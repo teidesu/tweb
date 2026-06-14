@@ -121,14 +121,14 @@ export class BotforumTab extends ForumTab {
           dialog: true,
           wrapOptions: {middleware}
         }),
-        dialogs: this.managers.dialogsStorage!.getDialogs({
+        dialogs: this.managers.dialogsStorage.getDialogs({
           filterId: this.peerId,
           limit: 1
         })
       }));
 
       this.title.append(peerTitle);
-      this.subtitle.append((this.dialogsCountI18nEl = this.getTopicsCountI18n(dialogs ? dialogs.count : null)!)!!);
+      this.subtitle.append((this.dialogsCountI18nEl = this.getTopicsCountI18n(dialogs ? dialogs.count : null)!));
     } catch{}
   }
 
@@ -142,7 +142,7 @@ export class BotforumTab extends ForumTab {
 
   private updateDialogsCount = asyncThrottle(async() => {
     if(!this.dialogsCountI18nEl) return;
-    const {count} = await this.managers.dialogsStorage!.getDialogs({filterId: this.peerId, limit: 1});
-    this.dialogsCountI18nEl.replaceWith((this.dialogsCountI18nEl = this.getTopicsCountI18n(count)!)!!);
+    const {count} = await this.managers.dialogsStorage.getDialogs({filterId: this.peerId, limit: 1});
+    this.dialogsCountI18nEl.replaceWith((this.dialogsCountI18nEl = this.getTopicsCountI18n(count)!));
   }, 0);
 }

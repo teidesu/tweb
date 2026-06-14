@@ -13,6 +13,7 @@ import {resolveAdminRightFlagI18n} from '@components/sidebarRight/tabs/adminRece
 import {participantRightsMap} from '@components/sidebarRight/tabs/adminRecentActions/participantRightsMap';
 import {diffFlags} from '@components/sidebarRight/tabs/adminRecentActions/utils';
 import {wrapFormattedDuration} from '@components/wrappers/wrapDuration';
+import {isTruthy} from '../../../../helpers/isTruthy';
 
 
 type ApiManagerProxyType = typeof apiManagerProxy;
@@ -24,7 +25,7 @@ export type CopyTextResult = {
 
 export function getDateTextForCopy(timestamp: number): string {
   const date = makeDateFromTimestamp(timestamp);
-  const dateElement = formatDate(date, {withTime: true})!;
+  const dateElement = formatDate(date, {withTime: true});
   return dateElement.textContent || '';
 }
 
@@ -59,8 +60,8 @@ export function extractBanChanges(
   );
 
   // yes, they need to be inversed here
-  const removed = diff.new.map(key => participantRightsMap[key]).filter(Boolean).map(key => I18n.format(key!, true));
-  const added = diff.old.map(key => participantRightsMap[key]).filter(Boolean).map(key => I18n.format(key!, true));
+  const removed = diff.new.map(key => participantRightsMap[key]).filter(isTruthy).map(key => I18n.format(key, true));
+  const added = diff.old.map(key => participantRightsMap[key]).filter(isTruthy).map(key => I18n.format(key, true));
 
   return {isBanned, participantPeerId, participantUser, username, added, removed};
 }
@@ -90,8 +91,8 @@ export function extractDefaultRightsChanges(
 ) {
   const diff = diffFlags(action.prev_banned_rights?.pFlags, action.new_banned_rights?.pFlags);
 
-  const added = diff.old.map(key => participantRightsMap[key]).filter(Boolean).map(key => I18n.format(key!, true));
-  const removed = diff.new.map(key => participantRightsMap[key]).filter(Boolean).map(key => I18n.format(key!, true));
+  const added = diff.old.map(key => participantRightsMap[key]).filter(isTruthy).map(key => I18n.format(key, true));
+  const removed = diff.new.map(key => participantRightsMap[key]).filter(isTruthy).map(key => I18n.format(key, true));
 
   return {added, removed};
 }

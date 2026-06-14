@@ -39,12 +39,12 @@ const Stickers: Component = () => {
 
     const countDiv = document.createElement('div');
     countDiv.classList.add('sticker-set-count');
-    countDiv.append(i18n('Stickers', [set.count])!);
+    countDiv.append(i18n('Stickers', [set.count]));
     details.append(countDiv);
 
     const button = document.createElement('button');
     button.classList.add('btn-primary', 'btn-color-primary', 'sticker-set-button');
-    button.append(i18n(set.installed_date ? 'Stickers.SearchAdded' : 'Stickers.SearchAdd')!);
+    button.append(i18n(set.installed_date ? 'Stickers.SearchAdded' : 'Stickers.SearchAdd'));
 
     if(set.installed_date) {
       button.classList.add('gray');
@@ -63,7 +63,7 @@ const Stickers: Component = () => {
       stickersDiv.append(stickerDiv);
     }
 
-    tab.managers.appStickersManager!.getStickerSet(getStickerSetInputById(set)).then((set) => {
+    tab.managers.appStickersManager.getStickerSet(getStickerSetInputById(set)).then((set) => {
       for(let i = 0; i < count; ++i) {
         const div = stickersDiv.children[i] as HTMLDivElement;
         const doc = set.documents[i];
@@ -115,7 +115,7 @@ const Stickers: Component = () => {
   };
 
   const renderFeatured = () => {
-    return tab.managers.appStickersManager!.getFeaturedStickers().then((coveredSets) => {
+    return tab.managers.appStickersManager.getFeaturedStickers().then((coveredSets) => {
       if(inputSearch.value) {
         return;
       }
@@ -132,7 +132,7 @@ const Stickers: Component = () => {
       return renderFeatured();
     }
 
-    return tab.managers.appStickersManager!.searchStickerSets(query, false).then((coveredSets) => {
+    return tab.managers.appStickersManager.searchStickerSets(query, false).then((coveredSets) => {
       if(inputSearch.value !== query) {
         return;
       }
@@ -177,7 +177,7 @@ const Stickers: Component = () => {
       const id = target.dataset.stickerSet as string;
       const access_hash = target.dataset.access_hash as string;
 
-      const button = findUpClassName(e.target!, 'sticker-set-button') as HTMLElement;
+      const button = findUpClassName(e.target!, 'sticker-set-button');
       const input = getStickerSetInputById({id, access_hash});
       if(button) {
         e.preventDefault();
@@ -185,11 +185,11 @@ const Stickers: Component = () => {
 
         button.setAttribute('disabled', 'true');
 
-        tab.managers.appStickersManager!.getStickerSet(input).then((full) => {
-          tab.managers.appStickersManager!.toggleStickerSet(full.set).then((changed) => {
+        tab.managers.appStickersManager.getStickerSet(input).then((full) => {
+          tab.managers.appStickersManager.toggleStickerSet(full.set).then((changed) => {
             if(changed) {
               button.textContent = '';
-              button.append(i18n(full.set.installed_date ? 'Stickers.SearchAdded' : 'Stickers.SearchAdd')!);
+              button.append(i18n(full.set.installed_date ? 'Stickers.SearchAdded' : 'Stickers.SearchAdd'));
               button.classList.toggle('gray', !!full.set.installed_date);
             }
           }).finally(() => {
@@ -197,7 +197,7 @@ const Stickers: Component = () => {
           });
         });
       } else {
-        tab.managers.appStickersManager!.getStickerSet(input).then((full) => {
+        tab.managers.appStickersManager.getStickerSet(input).then((full) => {
           showStickersPopup(getStickerSetInputByStickerSet(full.set));
         });
       }

@@ -20,7 +20,7 @@ const setAppSettings = ((...args: any[]) => {
     return Promise.resolve();
   }
 
-  return rootScope.managers.appStateManager!.setByKey(joinDeepPath('settings', ...keys), newValue);
+  return rootScope.managers.appStateManager.setByKey(joinDeepPath('settings', ...keys), newValue);
 }) as SetStoreFunctionReturning<StateSettings, Promise<void>>;
 
 const setAppSettingsSilent = (...args: any[]) => {

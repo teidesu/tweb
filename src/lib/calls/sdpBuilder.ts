@@ -12,6 +12,7 @@ import {CallSignalingData, GroupCallConnectionTransport, PayloadType, RtpHdrexts
 import {fromTelegramSource} from '@lib/calls/utils';
 import {getSdpDirection, getSdpPort, SdpSection} from '@lib/calls/p2P/sdpCommon';
 import {logger} from '@lib/logger';
+import {isTruthy} from '../../helpers/isTruthy';
 
 // screencast is for Peer-to-Peer only
 export type WebRTCLineTypeTrue = 'video' | 'audio' | 'application';
@@ -457,7 +458,7 @@ export class SDPBuilder extends StringFromLineBuilder {
       addMedia(mediaEntry, payloadTypes, extensions, section.kind, shouldRejectRemoved, direction);
     };
 
-    const rawBundledMids = (sectionOrder?.map(getBundledOrderedMid).filter(Boolean) || [
+    const rawBundledMids = (sectionOrder?.map(getBundledOrderedMid).filter(isTruthy) || [
       ...entries.filter((entry) => !entry.isRemoved).map((entry) => entry.mid),
       mids.data
     ]).concat(isAnswer ? [] : entries.filter((entry) => {
@@ -465,11 +466,11 @@ export class SDPBuilder extends StringFromLineBuilder {
     }).map((entry) => entry.mid));
     const seenBundledMids = new Set<string>();
     const bundledMids = rawBundledMids.filter((mid) => {
-      if(seenBundledMids.has(mid!)) {
+      if(seenBundledMids.has(mid)) {
         return false;
       }
 
-      seenBundledMids.add(mid!);
+      seenBundledMids.add(mid);
       return true;
     });
 

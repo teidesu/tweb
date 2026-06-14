@@ -37,7 +37,7 @@ export async function loadTexture({gl, mediaSrc, mediaType, videoTime, waitToSee
     image.src = mediaSrc;
 
     const deferred = deferredPromise<void>();
-    image.addEventListener('load', () => void deferred.resolve!());
+    image.addEventListener('load', () => void deferred.resolve());
     await deferred;
 
     media = {

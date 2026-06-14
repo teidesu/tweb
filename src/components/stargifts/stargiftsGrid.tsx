@@ -62,7 +62,7 @@ function StarGiftGridItem(props: {
           verify: () => raw._ === 'starGiftUnique',
           onClick: () => {
             showSharingPicker2Popup().then(({peerId, threadId, monoforumThreadId}) => {
-              rootScope.managers.appMessagesManager!.sendText({peerId, threadId, replyToMonoforumPeerId: monoforumThreadId, text: 'https://t.me/nft/' + (raw as StarGift.starGiftUnique).slug});
+              rootScope.managers.appMessagesManager.sendText({peerId, threadId, replyToMonoforumPeerId: monoforumThreadId, text: 'https://t.me/nft/' + (raw as StarGift.starGiftUnique).slug});
               appImManager.setInnerPeer({peerId, threadId, monoforumThreadId});
             });
           }
@@ -72,7 +72,7 @@ function StarGiftGridItem(props: {
           text: saved?.pFlags.pinned_to_top ? 'StarGiftUnpin' : 'StarGiftPin',
           verify: () => isEditableUniqueGift,
           onClick: () => {
-            rootScope.managers.appGiftsManager!.togglePinnedGift(input!, profilePeerId);
+            rootScope.managers.appGiftsManager.togglePinnedGift(input!, profilePeerId);
           }
         },
         {
@@ -113,7 +113,7 @@ function StarGiftGridItem(props: {
                 onClick: () => {
                   const wasChecked = checkboxField.checked;
                   checkboxField.checked = !wasChecked;
-                  rootScope.managers.appGiftsManager!.updateCollection({
+                  rootScope.managers.appGiftsManager.updateCollection({
                     peerId: props.profilePeerId!,
                     collectionId: collection.collection_id,
                     [wasChecked ? 'delete' : 'add']: [input]
@@ -138,16 +138,16 @@ function StarGiftGridItem(props: {
           onClick: async() => {
             if(isWearing) {
               if(profilePeerId === rootScope.myId) {
-                rootScope.managers.appUsersManager!.updateEmojiStatus({_: 'emojiStatusEmpty'});
+                rootScope.managers.appUsersManager.updateEmojiStatus({_: 'emojiStatusEmpty'});
               } else {
-                rootScope.managers.apiManager!.invokeApiSingleProcess({
+                rootScope.managers.apiManager.invokeApiSingleProcess({
                   method: 'channels.updateEmojiStatus',
                   params: {
-                    channel: await rootScope.managers.appChatsManager!.getChannelInput(profilePeerId.toChatId()),
+                    channel: await rootScope.managers.appChatsManager.getChannelInput(profilePeerId.toChatId()),
                     emoji_status: {_: 'emojiStatusEmpty'}
                   }
                 }).then((updates) => {
-                  rootScope.managers.apiUpdatesManager!.processUpdateMessage(updates);
+                  rootScope.managers.apiUpdatesManager.processUpdateMessage(updates);
                 }).catch(() => {
                   toastNew({langPackKey: 'Error.AnError'});
                 });
@@ -162,7 +162,7 @@ function StarGiftGridItem(props: {
           text: saved!.pFlags.unsaved ? 'Show' : 'Hide',
           verify: () => isIncoming || isEditableUniqueGift,
           onClick: () => {
-            rootScope.managers.appGiftsManager!.toggleGiftHidden(input!, !saved!.pFlags.unsaved);
+            rootScope.managers.appGiftsManager.toggleGiftHidden(input!, !saved!.pFlags.unsaved);
           }
         }
       ];

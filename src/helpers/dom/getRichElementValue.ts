@@ -234,7 +234,7 @@ function checkElementForEntity(
         _: tag.entityName,
         offset: offset.offset,
         length: 0,
-        user_id: (closest as HTMLElement).dataset.follow!.toUserId()
+        user_id: (closest).dataset.follow!.toUserId()
       })).length! += value.length;
     } else if(tag.entityName === 'messageEntityBlockquote') {
       (currentEntities[tag.entityName] ||= pushEntity(entities, {

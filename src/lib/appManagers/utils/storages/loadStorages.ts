@@ -31,7 +31,7 @@ export default async function loadStorages(accountNumber: number, storages: Stor
   } = {} as any;
   const arr = await Promise.all(storagesPromises);
   for(let i = 0, length = storagesKeys.length; i < length; ++i) {
-    storagesResults[storagesKeys[i]] = arr[i] as any;
+    storagesResults[storagesKeys[i]] = arr[i];
   }
 
   arr.splice(0, storagesKeys.length);

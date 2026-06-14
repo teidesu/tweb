@@ -116,7 +116,7 @@ export default function createChatRequestsPlate(
 
   const setPeerId = (peerId: PeerId) => {
     return Promise.all([
-      managers.acknowledged!.appProfileManager!.getProfileByPeerId(peerId)
+      managers.acknowledged.appProfileManager.getProfileByPeerId(peerId)
     ]).then(([peerFullAcked]) => {
       return {
         cached: peerFullAcked.cached,

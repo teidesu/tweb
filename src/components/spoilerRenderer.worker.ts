@@ -585,5 +585,5 @@ const setupPort = (port: Port & {onmessage?: any, addEventListener?: any}) => {
 if(typeof(DedicatedWorkerGlobalScope) !== 'undefined' && self instanceof DedicatedWorkerGlobalScope) {
   setupPort(ctx);
 } else {
-  (self as any as SharedWorkerGlobalScope).onconnect = (event) => setupPort((event.ports[0]! as Port & { onmessage?: any; addEventListener?: any; }));
+  (self as any as SharedWorkerGlobalScope).onconnect = (event) => setupPort((event.ports[0] as Port & { onmessage?: any; addEventListener?: any; }));
 }

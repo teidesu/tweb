@@ -18,7 +18,7 @@ export async function handleMissingInvitees(chatId: ChatId, missingInvitees: Mis
     return;
   }
 
-  const inviteLink = await rootScope.managers.appProfileManager!.getChatInviteLink(chatId);
+  const inviteLink = await rootScope.managers.appProfileManager.getChatInviteLink(chatId);
   const premiumRequireIds: Set<PeerId> = new Set();
   const canInviteAsPremiumIds: Set<PeerId> = new Set();
   const missingInviteeIds = missingInvitees.map((invitee) => {
@@ -49,7 +49,7 @@ export async function handleMissingInvitees(chatId: ChatId, missingInvitees: Mis
 
   let footerButton: HTMLElement;
   const onCountUpdate = (count: number) => {
-    footerButton.replaceChildren(i18n(cantSendMessages ? 'InviteViaLink.Premium.Subscribe' : (count ? 'InviteViaLink.Send' : 'InviteViaLink.Skip'))!);
+    footerButton.replaceChildren(i18n(cantSendMessages ? 'InviteViaLink.Premium.Subscribe' : (count ? 'InviteViaLink.Send' : 'InviteViaLink.Skip')));
   };
   const initial = missingInviteeIds.filter((peerId) => !premiumRequireIds.has(peerId));
   const popup = showPickUserPopup(
@@ -69,7 +69,7 @@ export async function handleMissingInvitees(chatId: ChatId, missingInvitees: Mis
         }
 
         peerIds.forEach((peerId) => {
-          rootScope.managers.appMessagesManager!.sendText({
+          rootScope.managers.appMessagesManager.sendText({
             peerId,
             text: inviteLink
           });
@@ -97,18 +97,18 @@ export async function handleMissingInvitees(chatId: ChatId, missingInvitees: Mis
     container.classList.add('popup-add-members-premium-container');
 
     const subtitle = i18n('InviteViaLink.Premium.Subtitle', [length, title || length]);
-    subtitle!.classList.add('popup-add-members-premium-subtitle');
+    subtitle.classList.add('popup-add-members-premium-subtitle');
 
     container.append(
-      subtitle!
+      subtitle
     );
 
     if(!cantSendMessages) {
       const header = i18n('InviteViaLink.Title');
-      header!.classList.add('popup-add-members-premium-header');
+      header.classList.add('popup-add-members-premium-header');
 
       const subtitle2 = i18n('InviteViaLink.Premium.Subtitle2');
-      subtitle2!.classList.add('popup-add-members-premium-subtitle');
+      subtitle2.classList.add('popup-add-members-premium-subtitle');
 
       const premiumButton = Button(`btn-primary popup-gift-premium-confirm action-button shimmer`, {text: 'InviteViaLink.Premium.Subscribe'});
       attachClickEvent(premiumButton, onPremiumClick);
@@ -116,8 +116,8 @@ export async function handleMissingInvitees(chatId: ChatId, missingInvitees: Mis
       container.append(
         premiumButton,
         DelimiterWithText({langKey: 'PremiumOr'}) as HTMLElement,
-        header!,
-        subtitle2!
+        header,
+        subtitle2
       );
     } else {
       popup.selector!.list.remove();
@@ -128,8 +128,8 @@ export async function handleMissingInvitees(chatId: ChatId, missingInvitees: Mis
     popup.selector!.section.content.prepend(container);
   } else {
     const subtitle = i18n('InviteViaLink.Subtitle', [length, title || length]);
-    subtitle!.classList.add('popup-add-members-subtitle');
-    popup.selector!.section.content.prepend(subtitle!);
+    subtitle.classList.add('popup-add-members-subtitle');
+    popup.selector!.section.content.prepend(subtitle);
   }
 }
 
@@ -143,8 +143,8 @@ export default async function addChatUsers({
   skippable?: boolean
 }) {
   const id = peerId.toChatId();
-  const isChannel = await rootScope.managers.appChatsManager!.isChannel(id);
-  const isBroadcast = await rootScope.managers.appChatsManager!.isBroadcast(id);
+  const isChannel = await rootScope.managers.appChatsManager.isChannel(id);
+  const isBroadcast = await rootScope.managers.appChatsManager.isBroadcast(id);
 
   const showConfirmation = async(peerIds: PeerId[], callback: (e: MouseEvent, checked: PopupPeerButtonCallbackCheckboxes) => void) => {
     let titleLangKey: LangPackKey, titleLangArgs: FormatterArguments,
@@ -158,7 +158,7 @@ export default async function addChatUsers({
         return b;
       }));
       titleLangKey = 'AddMembersAlertTitle';
-      titleLangArgs = [i18n(isBroadcast ? 'Subscribers' : 'Members', [peerIds.length])!];
+      titleLangArgs = [i18n(isBroadcast ? 'Subscribers' : 'Members', [peerIds.length])];
       descriptionLangKey = 'AddMembersAlertCountText';
       descriptionLangArgs = [
         join(titles)
@@ -219,8 +219,8 @@ export default async function addChatUsers({
     takeOut: (peerIds) => {
       showConfirmation(peerIds, (e, checked) => {
         const promise = isChannel ?
-          rootScope.managers.appChatsManager!.inviteToChannel(id, peerIds) :
-          rootScope.managers.appChatsManager!.addChatUser(id, peerIds, checked.size ? undefined : 0);
+          rootScope.managers.appChatsManager.inviteToChannel(id, peerIds) :
+          rootScope.managers.appChatsManager.addChatUser(id, peerIds, checked.size ? undefined : 0);
         promise.then((missingInvitees) => handleMissingInvitees(id, missingInvitees), onError);
         tab.payload.attachToPromise!(promise);
       });

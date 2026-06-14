@@ -37,7 +37,7 @@ export default function TabContent(props: {
     const newElement = (
       <div>
         <div class="media-editor__tab-content-scrollable-content">
-          <TabContentContext.Provider value={{container: (container! as Accessor<HTMLDivElement>), scrollAmount}}>
+          <TabContentContext.Provider value={{container: (container as Accessor<HTMLDivElement>), scrollAmount}}>
             {props.tabs[editorState.currentTab]()}
           </TabContentContext.Provider>
         </div>
@@ -100,7 +100,7 @@ export default function TabContent(props: {
     >
       <div ref={prevElement!}>
         <div class="media-editor__tab-content-scrollable-content">
-          <TabContentContext.Provider value={{container: (container! as Accessor<HTMLDivElement>), scrollAmount}}>{initialTab}</TabContentContext.Provider>
+          <TabContentContext.Provider value={{container: (container as Accessor<HTMLDivElement>), scrollAmount}}>{initialTab}</TabContentContext.Provider>
         </div>
       </div>
     </div>

@@ -114,7 +114,7 @@ export default class UsernamesSection extends SettingSection {
     });
 
     const changeActive = (row: Row, active: boolean) => {
-      row.subtitle.replaceChildren(i18n(row.container.dataset.editable ? (botId ? 'UsernameLinkBotUsername' : 'UsernameLinkEditable') : (active ? 'UsernameLinkActive' : 'UsernameLinkInactive'))!);
+      row.subtitle.replaceChildren(i18n(row.container.dataset.editable ? (botId ? 'UsernameLinkBotUsername' : 'UsernameLinkEditable') : (active ? 'UsernameLinkActive' : 'UsernameLinkInactive')));
       row.container.classList.toggle('active', active);
       row.toggleSorting(active);
     };
@@ -148,7 +148,7 @@ export default class UsernamesSection extends SettingSection {
         return;
       }
 
-      const peer = await managers.appPeersManager!.getPeer(peerId);
+      const peer = await managers.appPeersManager.getPeer(peerId);
       applyUsernames((peer as User.user).usernames);
     });
 
@@ -159,7 +159,7 @@ export default class UsernamesSection extends SettingSection {
         return;
       }
 
-      const container = findUpAsChild(((e.target as HTMLElement)! as { parentElement: HTMLElement; }), list) as HTMLElement | null;
+      const container = findUpAsChild(((e.target as HTMLElement) as { parentElement: HTMLElement; }), list) as HTMLElement | null;
       if(!container) {
         return;
       }
@@ -197,7 +197,7 @@ export default class UsernamesSection extends SettingSection {
       }
 
       const newActive = !active;
-      const promise = managers.appUsernamesManager!.toggleUsername({
+      const promise = managers.appUsernamesManager.toggleUsername({
         peerId,
         username: username!,
         active: newActive
@@ -227,7 +227,7 @@ export default class UsernamesSection extends SettingSection {
         // sortedList.update(username.username);
 
         const usernames = _usernames.filter((username) => username.pFlags.active).map((username) => username.username);
-        managers.appUsernamesManager!.reorderUsernames({peerId, order: usernames});
+        managers.appUsernamesManager.reorderUsernames({peerId, order: usernames});
       }
     });
 

@@ -37,7 +37,7 @@ export function cancelAnimationByKey(key: AnimationInstanceKey) {
   const instance = getAnimationInstance(key);
   if(instance) {
     instance.isCancelled = true;
-    instance.deferred.resolve!();
+    instance.deferred.resolve();
   }
 }
 
@@ -54,7 +54,7 @@ export function animateSingle(tick: Function, key: AnimationInstanceKey, instanc
     if(tick()) {
       animateSingle(tick, key, instance);
     } else {
-      instance.deferred.resolve!();
+      instance.deferred.resolve();
     }
   });
 

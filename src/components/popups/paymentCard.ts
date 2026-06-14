@@ -381,7 +381,7 @@ export default class PopupPaymentCard extends PopupElement<{
       cardInputField,
       expireInputField,
       cvcInputField,
-      nameInputField!
+      nameInputField
     ].filter(Boolean);
     switchFocusOrder.forEach((inputField) => {
       const onKeyDown = (e: KeyboardEvent) => {
@@ -557,7 +557,7 @@ export default class PopupPaymentCard extends PopupElement<{
 
     const inputFields = ([
       cardInputField,
-      nameInputField!,
+      nameInputField,
       expireInputField,
       cvcInputField,
       countryInputField,
@@ -572,7 +572,7 @@ export default class PopupPaymentCard extends PopupElement<{
       cardInputField.value = savedCard.cardNumber;
       expireInputField.value = savedCard.expiryFull;
       cvcInputField.value = savedCard.cvc;
-      nameInputField! && (nameInputField.value = savedCard.cardholderName);
+      nameInputField && (nameInputField.value = savedCard.cardholderName);
       countryInputField && (countryInputField.value = savedCard.country);
       postcodeInputField && (postcodeInputField.value = savedCard.zip);
     }

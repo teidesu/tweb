@@ -12,7 +12,7 @@ export default function SelectedEffect(props: {
   const [element, setElement] = createSignal<JSX.Element>();
   const lastElement = createMemo<JSX.Element>((prev) => element() || prev);
   const [availableEffects] = createResource(async() => {
-    return rootScope.managers.appReactionsManager!.getAvailableEffects();
+    return rootScope.managers.appReactionsManager.getAvailableEffects();
   });
 
   createEffect(async() => {
@@ -31,7 +31,7 @@ export default function SelectedEffect(props: {
     const middleware = middlewareHelper.get();
     const loadPromises: Promise<any>[] = [];
     wrapSticker({
-      doc: await rootScope.managers.appDocsManager!.getDoc(availableEffect!.static_icon_id!),
+      doc: await rootScope.managers.appDocsManager.getDoc(availableEffect!.static_icon_id!),
       div: ref!,
       middleware,
       loadPromises,

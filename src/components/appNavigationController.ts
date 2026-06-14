@@ -100,7 +100,7 @@ export class AppNavigationController {
       }
     };
 
-    if(event.destination.index > navigation.currentEntry!.index) {
+    if(event.destination.index > navigation.currentEntry.index) {
       log('ignoring forward navigation');
       cancelEvent(event);
       event.intercept();
@@ -150,7 +150,7 @@ export class AppNavigationController {
 
     let hash = url.hash;
     // * don't set old hash if we're going back
-    if(event.destination.index < navigation.currentEntry!.index) {
+    if(event.destination.index < navigation.currentEntry.index) {
       hash = this.currentHash;
       fixHashIfNeeded();
     }

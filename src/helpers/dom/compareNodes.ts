@@ -27,8 +27,8 @@ export default function compareNodes(node1: ChildNode, node1Offset: number, node
     // range.setStart(node1, 0);
     // range.setEnd(node2, node2.textContent.length);
     // const {commonAncestorContainer} = range;
-    node1 = (findUpAsChild(((node1 as HTMLElement) as { parentElement: HTMLElement; })!, commonAncestorContainer as HTMLElement) as ChildNode);
-    node2 = (findUpAsChild(((node2 as HTMLElement) as { parentElement: HTMLElement; })!, commonAncestorContainer as HTMLElement) as ChildNode);
+    node1 = (findUpAsChild(((node1 as HTMLElement) as { parentElement: HTMLElement; }), commonAncestorContainer as HTMLElement) as ChildNode);
+    node2 = (findUpAsChild(((node2 as HTMLElement) as { parentElement: HTMLElement; }), commonAncestorContainer as HTMLElement) as ChildNode);
     diff = whichChild(node1, true) - whichChild(node2, true);
   }
 

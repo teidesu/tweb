@@ -12,6 +12,7 @@ import {DownloadOptions, MyUploadFile} from '@appManagers/apiFileManager';
 import {getMtprotoMessagePort, log, serviceMessagePort} from '@lib/serviceWorker/index.service';
 import {ServiceRequestFilePartTaskPayload} from '@lib/serviceWorker/serviceMessagePort';
 import timeout from '@lib/serviceWorker/timeout';
+import {isTruthy} from '../../helpers/isTruthy';
 
 const ctx = self as any as ServiceWorkerGlobalScope;
 
@@ -30,7 +31,7 @@ setInterval(() => {
 
     for(const taskId in promises) {
       const promise = promises[taskId];
-      promise.reject!();
+      promise.reject();
     }
 
     deferredPromises.delete(messagePort);
@@ -103,7 +104,7 @@ class Stream {
     deferred = promises[taskId] = deferredPromise();
 
     serviceMessagePort.invoke('requestFilePart', payload, undefined, mtprotoMessagePort, undefined, 60e3)
-    .then(deferred.resolve!.bind(deferred), deferred.reject!.bind(deferred)).finally(() => {
+    .then(deferred.resolve.bind(deferred), deferred.reject.bind(deferred)).finally(() => {
       if(promises[taskId] === deferred) {
         delete promises[taskId];
 
@@ -222,7 +223,7 @@ class Stream {
     ]);
 
     return parts.then((parts) => {
-      let ab = bufferConcats(...parts.filter(Boolean) as Uint8Array[]);
+      let ab = bufferConcats(...parts.filter(isTruthy));
       // log.debug('[stream] requestFilePart result:', result);
 
       // if(isSafari) {
@@ -276,7 +277,7 @@ class Stream {
   }
 
   private static getId(info: DownloadOptions): StreamId {
-    return `${info.accountNumber!}-${this.getDocId(info)}` as StreamId;
+    return `${info.accountNumber!}-${this.getDocId(info)}`;
   }
 
   private static getDocId(info: DownloadOptions) {

@@ -83,7 +83,7 @@ export default class CheckboxField {
           }
         }
 
-        rootScope.managers.appStateManager!.setByKey(options.stateKey!, value);
+        rootScope.managers.appStateManager.setByKey(options.stateKey!, value);
       };
 
       !loaded && apiManagerProxy.getState().then((state) => {

@@ -157,9 +157,9 @@ export default function SimilarChannels(props: {
   const getDetails = async() => {
     const r = apiManagerProxy.isPremiumFeaturesHidden();
     const results = await Promise.all([
-      rootScope.managers.acknowledged!.appChatsManager!.getChannelRecommendations(props.chatId),
-      rootScope.managers.acknowledged!.apiManager!.getLimit('recommendedChannels', false),
-      rootScope.managers.acknowledged!.apiManager!.getLimit('recommendedChannels', true),
+      rootScope.managers.acknowledged.appChatsManager.getChannelRecommendations(props.chatId),
+      rootScope.managers.acknowledged.apiManager.getLimit('recommendedChannels', false),
+      rootScope.managers.acknowledged.apiManager.getLimit('recommendedChannels', true),
       {cached: !(r instanceof Promise), result: Promise.resolve(r)}
     ]);
 

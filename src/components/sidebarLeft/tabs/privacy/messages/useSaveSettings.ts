@@ -39,7 +39,7 @@ const useSaveSettings = ({store, globalPrivacy, isPaid, hasChanges, chosenPeersB
 
     log('saving settings :>> ', settings);
 
-    const promise = rootScope.managers.appPrivacyManager!.setGlobalPrivacySettings(settings);
+    const promise = rootScope.managers.appPrivacyManager.setGlobalPrivacySettings(settings);
 
     tab.payload.onSaved(promise);
 
@@ -59,13 +59,13 @@ const useSaveSettings = ({store, globalPrivacy, isPaid, hasChanges, chosenPeersB
     });
     if(users.length) rules.push({
       _: 'inputPrivacyValueAllowUsers',
-      users: await Promise.all(users.map((id) => rootScope.managers.appUsersManager!.getUserInput(id)))
+      users: await Promise.all(users.map((id) => rootScope.managers.appUsersManager.getUserInput(id)))
     });
 
 
     log('saving rules :>> ', rules);
 
-    return rootScope.managers.appPrivacyManager!.setPrivacy(privacyRulesInputKey, rules);
+    return rootScope.managers.appPrivacyManager.setPrivacy(privacyRulesInputKey, rules);
   };
 
 

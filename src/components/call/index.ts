@@ -203,12 +203,12 @@ export default class PopupCall extends PopupElement {
     this.partyMutedState = document.createElement('div');
     this.partyMutedState.classList.add(className + '-party-state');
     const stateText = i18n('VoipUserMicrophoneIsOff', [new PeerTitle({peerId, onlyFirstName: true, limitSymbols: 18}).element]);
-    stateText!.classList.add(className + '-party-state-text');
+    stateText.classList.add(className + '-party-state-text');
     const mutedIcon = new GroupCallMicrophoneIconMini(false, true, 36);
     mutedIcon.setState(false, false);
     this.partyMutedState.append(
       mutedIcon.container,
-      stateText!
+      stateText
     );
 
     this.partyStates.append(this.partyMutedState);

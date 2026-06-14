@@ -1,3 +1,5 @@
+import {isTruthy} from '../isTruthy';
+
 type K = boolean;
 export default async function filterAsync<T>(arr: T[], callback: (item: T, idx: number, arr: T[]) => Promise<K> | K) {
   const promises = arr.map(async(item, idx, arr) => {
@@ -6,5 +8,5 @@ export default async function filterAsync<T>(arr: T[], callback: (item: T, idx: 
     }
   });
 
-  return (await Promise.all(promises)).filter(Boolean);
+  return (await Promise.all(promises)).filter(isTruthy);
 }

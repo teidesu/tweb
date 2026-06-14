@@ -1,22 +1,22 @@
 import noop from '@helpers/noop';
 
 export interface CancellablePromise<T> extends Promise<T> {
-  resolve?: (value: T) => void,
-  reject?: (...args: any[]) => void,
+  resolve: (value: T) => void,
+  reject: (...args: any[]) => void,
   cancel?: (reason?: any) => void,
 
-  notify?: (...args: any[]) => void,
-  notifyAll?: ((...args: any[]) => void) | null,
+  notify: (...args: any[]) => void,
+  notifyAll: ((...args: any[]) => void) | null,
   lastNotify?: any,
   listeners?: Array<(...args: any[]) => void>,
-  addNotifyListener?: (callback: (...args: any[]) => void) => void,
+  addNotifyListener: (callback: (...args: any[]) => void) => void,
 
-  isFulfilled?: boolean,
-  isRejected?: boolean,
+  isFulfilled: boolean,
+  isRejected: boolean,
 
-  onFinish?: () => void,
-  _resolve?: (value: T) => void,
-  _reject?: (...args: any[]) => void
+  onFinish: () => void,
+  _resolve: (value: T) => void,
+  _reject: (...args: any[]) => void
 }
 
 const deferredHelper = {
@@ -41,16 +41,16 @@ const deferredHelper = {
     if(this.isFulfilled || this.isRejected) return;
 
     this.isFulfilled = true;
-    this._resolve!(value);
-    this.onFinish!();
+    this._resolve(value);
+    this.onFinish();
   },
 
   reject: function(...args) {
     if(this.isRejected || this.isFulfilled) return;
 
     this.isRejected = true;
-    this._reject!(...args);
-    this.onFinish!();
+    this._reject(...args);
+    this.onFinish();
   },
 
   onFinish: function() {
@@ -65,9 +65,9 @@ const deferredHelper = {
 
 export default function deferredPromise<T>() {
   let resolve: (value: T) => void, reject: (...args: any[]) => void;
-  const deferred: CancellablePromise<T> = new Promise<T>((_resolve, _reject) => {
+  const deferred = new Promise<T>((_resolve, _reject) => {
     resolve = _resolve, reject = _reject;
-  });
+  }) as CancellablePromise<T>;
 
   Object.assign(deferred, deferredHelper);
   deferred._resolve = resolve!;
@@ -77,7 +77,7 @@ export default function deferredPromise<T>() {
 }
 
 export function bindPromiseToDeferred<T>(promise: Promise<T>, deferred: CancellablePromise<T>) {
-  promise.then(deferred.resolve!.bind(deferred), deferred.reject!.bind(deferred));
+  promise.then(deferred.resolve.bind(deferred), deferred.reject.bind(deferred));
 }
 
 (self as any).deferredPromise = deferredPromise;

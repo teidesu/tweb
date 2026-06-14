@@ -24,7 +24,7 @@ export default function SignImportCard(props: {spec: Spec}) {
   let preloaderHostEl!: HTMLDivElement;
 
   onMount(() => {
-    managers.appStateManager!.pushToState('authState', {
+    managers.appStateManager.pushToState('authState', {
       _: 'authStateSignImport',
       data: props.spec.payload
     });
@@ -38,15 +38,15 @@ export default function SignImportCard(props: {spec: Spec}) {
     let nextNav: (() => void | Promise<void>) | undefined;
 
     try {
-      managers.apiManager!.setBaseDcId(dcId);
-      const authorization = await managers.apiManager!.invokeApi('auth.importWebTokenAuthorization', {
+      managers.apiManager.setBaseDcId(dcId);
+      const authorization = await managers.apiManager.invokeApi('auth.importWebTokenAuthorization', {
         api_id: App.id,
         api_hash: App.hash,
         web_auth_token: token
       }, {dcId, ignoreErrors: true});
 
       if(authorization._ === 'auth.authorization') {
-        await managers.apiManager!.setUser(authorization.user);
+        await managers.apiManager.setUser(authorization.user);
         nextNav = () => toIm();
       }
     } catch(err) {

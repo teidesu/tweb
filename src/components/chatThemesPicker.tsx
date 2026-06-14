@@ -14,6 +14,7 @@ import themeController from '@helpers/themeController';
 import liteMode from '@helpers/liteMode';
 import RLottiePlayer from '@lib/rlottie/rlottiePlayer';
 import wrapStickerEmoji from '@components/wrappers/stickerEmoji';
+import {isTruthy} from '../helpers/isTruthy';
 
 type ThemeItem = {
   container: HTMLElement;
@@ -145,7 +146,7 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
   scrollable.container.style.opacity = '0';
   scrollable.container.style.transition = 'opacity .2s ease';
 
-  const [themesPromise] = createResource(() => rootScope.managers.appThemesManager!.getThemes());
+  const [themesPromise] = createResource(() => rootScope.managers.appThemesManager.getThemes());
 
   const buildThemes = async() => {
     const themes = themesPromise();
@@ -176,7 +177,7 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
         solidRoots.push(result.dispose);
         return result;
       })
-      .filter(Boolean);
+      .filter(isTruthy);
 
       // Synthesize a tinted preview from the night entry when the theme ships
       // only Classic/Night, matching applyNewTheme's blend-on-fallback.
@@ -227,7 +228,7 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
       bubbleIn.classList.add('is-in');
       bubble.classList.add('is-out');
 
-      loadPromises.push(...results.map((result) => result!.loadPromise));
+      loadPromises.push(...results.map((result) => result.loadPromise));
       container.classList.add('theme-container');
 
       await Promise.all(loadPromises);
@@ -274,8 +275,8 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
       // Restore the legacy "scroll active tile to centre on variant change"
       // (General Settings only — see recenterOnBaseChange).
       if(props.recenterOnBaseChange) {
-        const active = scrollable.container.querySelector('.active') as HTMLElement | null;
-        if(active) scrollable.scrollIntoViewNew({element: active, position: 'center', axis: 'x'});
+        const active = scrollable.container.querySelector('.active');
+        if(active) scrollable.scrollIntoViewNew({element: active as HTMLElement, position: 'center', axis: 'x'});
       }
     },
     {defer: true}

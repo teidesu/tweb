@@ -58,7 +58,7 @@ export class ChatInviteLink extends InviteLink {
 
     if(this.subtitle) {
       if(!isUsername && chatInvite?.usage) {
-        this.subtitle.replaceChildren(i18n('InviteLink.JoinedNew', [chatInvite.usage])!);
+        this.subtitle.replaceChildren(i18n('InviteLink.JoinedNew', [chatInvite.usage]));
       }
 
       this.subtitle.classList.toggle('hide', isUsername || !chatInvite?.usage);
@@ -80,7 +80,7 @@ export class ChatInviteLink extends InviteLink {
       this.onButtonClick = undefined;
     }
 
-    this.buttonText.replaceChildren(i18n(hasSomething)!);
+    this.buttonText.replaceChildren(i18n(hasSomething));
   }
 }
 
@@ -107,7 +107,7 @@ export function getImportersLoader({
 
     const limit = 50;
     const lastImporter = importers[importers.length - 1];
-    const result = await managers.appChatInvitesManager!.getChatInviteImporters({
+    const result = await managers.appChatInvitesManager.getChatInviteImporters({
       chatId,
       limit,
       link,
@@ -145,9 +145,9 @@ export function getImportersLoader({
 export function getChatInviteLinksInitArgs(chatId: ChatId, adminId?: UserId) {
   return {
     animationData: !adminId && lottieLoader.loadAnimationFromURLManually('UtyanLinks'),
-    invites: rootScope.managers.appChatInvitesManager!.getExportedChatInvites({chatId, adminId}),
-    invitesRevoked: rootScope.managers.appChatInvitesManager!.getExportedChatInvites({chatId, adminId, revoked: true}),
-    adminsInvites: !adminId && hasRights(apiManagerProxy.getChat(chatId), 'change_type') && rootScope.managers.appChatInvitesManager!.getAdminsWithInvites(chatId),
-    chatFull: rootScope.managers.appProfileManager!.getChatFull(chatId)
+    invites: rootScope.managers.appChatInvitesManager.getExportedChatInvites({chatId, adminId}),
+    invitesRevoked: rootScope.managers.appChatInvitesManager.getExportedChatInvites({chatId, adminId, revoked: true}),
+    adminsInvites: !adminId && hasRights(apiManagerProxy.getChat(chatId), 'change_type') && rootScope.managers.appChatInvitesManager.getAdminsWithInvites(chatId),
+    chatFull: rootScope.managers.appProfileManager.getChatFull(chatId)
   };
 }

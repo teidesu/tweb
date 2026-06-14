@@ -108,7 +108,7 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
     if(options.subtitle || options.subtitleLangKey) {
       const subtitle = this.subtitle;
       if(options.subtitleLangKey) {
-        subtitle.append(i18n(options.subtitleLangKey, options.subtitleLangArgs)!);
+        subtitle.append(i18n(options.subtitleLangKey, options.subtitleLangArgs));
       } else {
         setContent(subtitle, options.subtitle!);
       }
@@ -153,7 +153,7 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
           options.checkboxKeys ??= ['Checkbox.Enabled', 'Checkbox.Disabled'];
           const [enabledKey, disabledKey] = options.checkboxKeys;
           const onChange = () => {
-            replaceContent(this.subtitle, i18n(this.checkboxField.checked ? enabledKey : disabledKey)!);
+            replaceContent(this.subtitle, i18n(this.checkboxField.checked ? enabledKey : disabledKey));
           };
 
           if(options.listenerSetter) options.listenerSetter.add(this.checkboxField.input)('change', onChange);
@@ -180,7 +180,7 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
       if(options.title) {
         setContent(this.title, options.title);
       } else if(options.titleLangKey) {
-        this.title.append(i18n(options.titleLangKey, options.titleLangArgs)!);
+        this.title.append(i18n(options.titleLangKey, options.titleLangArgs));
       }
 
       c.append(this.title);

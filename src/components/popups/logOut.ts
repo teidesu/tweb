@@ -10,6 +10,6 @@ export default function showLogOutPopup() {
       isDanger: true
     }
   }).then(() => {
-    rootScope.managers.apiManager!.logOut();
+    rootScope.managers.apiManager.logOut();
   });
 }

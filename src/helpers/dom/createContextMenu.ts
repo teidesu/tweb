@@ -130,7 +130,7 @@ export default function createContextMenu<T extends ButtonMenuItemOptionsVerifia
     }
 
     const _element = element = await ButtonMenu({
-      buttons: filteredButtons as T[],
+      buttons: filteredButtons,
       listenerSetter
     });
     _element.classList.add('contextmenu');

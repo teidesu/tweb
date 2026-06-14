@@ -15,7 +15,7 @@ let cachedPromise: Promise<LangPayload | undefined>;
 let appliedAlready = false;
 
 function getLang() {
-  return cachedPromise ||= rootScope.managers.apiManager!.getConfig().then(async(config) => {
+  return cachedPromise ||= rootScope.managers.apiManager.getConfig().then(async(config) => {
     if(config.suggested_lang_code === I18n.getLastRequestedLangCode()) {
       return undefined;
     }

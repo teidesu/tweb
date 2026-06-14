@@ -124,7 +124,7 @@ export default async function renderToVideoGIF({
           if(!renderer!) return;
 
           renderers.set(layer.id, renderer);
-          await renderer.init(layer.sticker!, STICKER_SIZE * layer.scale * pixelRatio);
+          await renderer.init(layer.sticker, STICKER_SIZE * layer.scale * pixelRatio);
           maxFrames = Math.max(maxFrames, renderer.getTotalFrames());
         }),
         delay(200)
@@ -173,7 +173,7 @@ export default async function renderToVideoGIF({
     cancel: () => {
       if(canceled) return;
       canceled = true;
-      canceledDeferred.reject!(CANCELED);
+      canceledDeferred.reject(CANCELED);
     },
     creationProgress
   };

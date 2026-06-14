@@ -280,7 +280,7 @@ export const MediaAttachment = (props: {
       requestRAF(async() => {
         if(!videoPreviewImg() || isCleaned()) {
           editorResult.animatedPreview!.remove();
-          animateDeferred.reject!();
+          animateDeferred.reject();
           return;
         }
 
@@ -290,13 +290,13 @@ export const MediaAttachment = (props: {
         });
         cancelAnimation = cancel;
 
-        await promise.catch(() => animateDeferred.reject!());
+        await promise.catch(() => animateDeferred.reject());
 
         editorResult.animatedPreview!.remove();
-        animateDeferred.resolve!();
+        animateDeferred.resolve();
       });
     } else {
-      animateDeferred.resolve!();
+      animateDeferred.resolve();
     }
 
     let resultPayload: Awaited<ReturnType<MediaEditorFinalResult['getResult']>> | undefined;

@@ -81,8 +81,8 @@ export default class CheckboxFields<K extends CheckboxFieldsField = CheckboxFiel
       clickable: info.nested ? (e) => {
         if(
           this.round ?
-            !findUpAsChild(((e.target as HTMLElement)! as { parentElement: HTMLElement; }), rightContent) && e.target !== rightContent :
-            findUpAsChild(((e.target as HTMLElement)! as { parentElement: HTMLElement; }), row.checkboxField.label)
+            !findUpAsChild(((e.target as HTMLElement) as { parentElement: HTMLElement; }), rightContent) && e.target !== rightContent :
+            findUpAsChild(((e.target as HTMLElement) as { parentElement: HTMLElement; }), row.checkboxField.label)
         ) {
           if(row.checkboxField.input.disabled) {
             const checked = row.checkboxField.checked;

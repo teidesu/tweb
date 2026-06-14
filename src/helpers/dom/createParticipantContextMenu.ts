@@ -49,7 +49,7 @@ export default function createParticipantContextMenu(options: {
       text: isBroadcast ? 'AddToChannel' : 'AddToGroup',
       onClick: () => {
         if(isBanned) {
-          rootScope.managers.appChatsManager!.addToChat(chatId, participantPeerId)
+          rootScope.managers.appChatsManager.addToChat(chatId, participantPeerId)
           .then((missingInvitees) => {
             handleMissingInvitees(chatId, missingInvitees);
           });
@@ -86,7 +86,7 @@ export default function createParticipantContextMenu(options: {
       text: 'Delete',
       onClick: () => {
         if(isBanned) {
-          rootScope.managers.appChatsManager!.editBanned(
+          rootScope.managers.appChatsManager.editBanned(
             chatId,
             participant,
             {
@@ -108,7 +108,7 @@ export default function createParticipantContextMenu(options: {
       icon: 'delete',
       text: 'KickFromGroup',
       onClick: () => {
-        rootScope.managers.appChatsManager!.kickFromChat(chatId, participantPeerId);
+        rootScope.managers.appChatsManager.kickFromChat(chatId, participantPeerId);
       },
       verify: () => canChangePermissions &&
         participantPeerId !== rootScope.myId &&
@@ -128,10 +128,10 @@ export default function createParticipantContextMenu(options: {
       participantPeerId = target.dataset.peerId!.toPeerId();
       participant = participants.get(participantPeerId)!;
       [chat, isBroadcast, canChangePermissions, canManageAdmins] = await Promise.all([
-        rootScope.managers.appChatsManager!.getChat(chatId) as Promise<typeof chat>,
-        rootScope.managers.appChatsManager!.isBroadcast(chatId),
-        rootScope.managers.appChatsManager!.hasRights(chatId, 'change_permissions'),
-        rootScope.managers.appChatsManager!.hasRights(chatId, 'change_permissions')
+        rootScope.managers.appChatsManager.getChat(chatId) as Promise<typeof chat>,
+        rootScope.managers.appChatsManager.isBroadcast(chatId),
+        rootScope.managers.appChatsManager.hasRights(chatId, 'change_permissions'),
+        rootScope.managers.appChatsManager.hasRights(chatId, 'change_permissions')
       ]);
 
       target.classList.add('menu-open');

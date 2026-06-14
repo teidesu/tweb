@@ -62,10 +62,10 @@ const SimpleFormField = (inProps: ParentProps<{
   const {value: forceError, useSetter: useSetForceError} = useForceState();
 
   const contextValue: SimpleFormFieldContextValue = {
-    input: (input! as Accessor<HTMLInputElement>),
-    setInput: (setInput! as Setter<HTMLInputElement>),
-    offsetElement: (offsetElement! as Accessor<HTMLElement>),
-    setOffsetElement: (setOffsetElement! as Setter<HTMLElement>),
+    input: (input as Accessor<HTMLInputElement>),
+    setInput: (setInput as Setter<HTMLInputElement>),
+    offsetElement: (offsetElement as Accessor<HTMLElement>),
+    setOffsetElement: (setOffsetElement as Setter<HTMLElement>),
     value: () => props.value!,
     get onChange() {
       return props.onChange!;

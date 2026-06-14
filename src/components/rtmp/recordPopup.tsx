@@ -33,7 +33,7 @@ export class RtmpRecordPopup extends PopupElement {
       body: true
     });
 
-    this.title.append(i18n('Rtmp.RecordPopup.Title')!);
+    this.title.append(i18n('Rtmp.RecordPopup.Title'));
     this._dispose = render(() => (
       <RtmpRecordPopupContent onSubmit={this._onSubmit} />
     ), this.body);
@@ -44,7 +44,7 @@ export class RtmpRecordPopup extends PopupElement {
 
   private _onSubmit = (params: CallRecordParams) => {
     this.forceHide();
-    this.managers.appGroupCallsManager!.startRecording(
+    this.managers.appGroupCallsManager.startRecording(
       rtmpCallsController.currentCall!.inputCall,
       params
     ).catch(() => {
@@ -93,7 +93,7 @@ const RtmpRecordPopupContent = (props: RtmpRecordPopupContentProps) => {
           class={cnPopup('-config-name')}
           value={name()}
           onRawInput={setName}
-          labelText={i18n('Rtmp.RecordPopup.RecordingTitle')!.innerText}
+          labelText={i18n('Rtmp.RecordPopup.RecordingTitle').innerText}
           maxLength={TITLE_MAX_LENGTH}
         />
 
@@ -117,7 +117,7 @@ const RtmpRecordPopupContent = (props: RtmpRecordPopupContentProps) => {
             <div class={cnPopup('-preview-wrap')}>
               <img
                 src={imgRecordAudio}
-                alt={i18n('Rtmp.RecordPopup.RecordAudio')!.innerText}
+                alt={i18n('Rtmp.RecordPopup.RecordAudio').innerText}
                 class={classNames(cnPopup('-preview-img'), cnPopup('-preview-img_audio'))}
               />
               <div class={cnPopup('-preview-title')}>
@@ -130,7 +130,7 @@ const RtmpRecordPopupContent = (props: RtmpRecordPopupContentProps) => {
               <div class={cnPopup('-preview-images')}>
                 <img
                   src={imgVideoHorizontal}
-                  alt={i18n('Rtmp.RecordPopup.Horizontal')!.innerText}
+                  alt={i18n('Rtmp.RecordPopup.Horizontal').innerText}
                   classList={{
                     [cnPopup('-preview-img')]: true,
                     [cnPopup('-preview-img_videoH')]: true,
@@ -140,7 +140,7 @@ const RtmpRecordPopupContent = (props: RtmpRecordPopupContentProps) => {
                 />
                 <img
                   src={imgVideoVertical}
-                  alt={i18n('Rtmp.RecordPopup.Vertical')!.innerText}
+                  alt={i18n('Rtmp.RecordPopup.Vertical').innerText}
                   classList={{
                     [cnPopup('-preview-img')]: true,
                     [cnPopup('-preview-img_videoV')]: true,

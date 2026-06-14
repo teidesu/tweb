@@ -6,6 +6,7 @@ import cancelEvent from '@helpers/dom/cancelEvent';
 import classNames from '@helpers/string/classNames';
 import useHeavyAnimationCheck from '@hooks/useHeavyAnimationCheck';
 import {syncThumbContainerGeometry} from '@components/scrollable';
+import {isTruthy} from '../helpers/isTruthy';
 
 const SCROLL_THROTTLE = /* IS_ANDROID ? 200 :  */24;
 
@@ -138,7 +139,7 @@ export default function Scrollable(props: {
 
       // lastScrollDirection check is useless here, every callback should decide on its own
       if(true/*  && lastScrollDirection !== 0 */) {
-        onScrollCallbacks().forEach((callback) => callback!());
+        onScrollCallbacks().forEach((callback) => callback());
       }
 
       checkForTriggers();
@@ -295,7 +296,7 @@ export default function Scrollable(props: {
     }, {capture: true, passive: false, once: true});
   };
 
-  const onScrollCallbacks = createMemo(() => [props.onScroll, props.withBorders && checkEnds].filter(Boolean));
+  const onScrollCallbacks = createMemo(() => [props.onScroll, props.withBorders && checkEnds].filter(isTruthy));
 
   const onThumbMouseMove = (e: MouseEvent) => {
     cancelEvent(e);

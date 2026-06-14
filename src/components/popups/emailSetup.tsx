@@ -62,7 +62,7 @@ export function EnterEmailStep(props: {
     }
 
     setLoading(true);
-    rootScope.managers.appAccountManager!.sendVerifyEmailCode(
+    rootScope.managers.appAccountManager.sendVerifyEmailCode(
       props.purpose,
       email()
     ).then(() => {
@@ -182,7 +182,7 @@ export function EnterCodeStep(props: {
 
   function onSubmit() {
     setLoading(true);
-    rootScope.managers.appAccountManager!.verifyEmail(
+    rootScope.managers.appAccountManager.verifyEmail(
       props.purpose,
       {
         _: 'emailVerificationCode',

@@ -13,6 +13,7 @@ import getChatMembersString from '@components/wrappers/getChatMembersString';
 import wrapParticipantRank from '@components/wrappers/participantRank';
 import getParticipantRank from '@appManagers/utils/chats/getParticipantRank';
 import {Middleware, MiddlewareHelper} from '@helpers/middleware';
+import {isTruthy} from '../helpers/isTruthy';
 
 interface SortedUser extends SortedElementBase<PeerId> {
   dom: DialogDom,
@@ -46,7 +47,7 @@ export default class SortedUserList extends SortedList<SortedUser> {
     middleware: Middleware
   }) {
     super({
-      getIndex: options.getIndex || ((element) => element.id.isAnyChat() ? 0 : this.managers.appUsersManager!.getUserStatusForSort(element.id)),
+      getIndex: options.getIndex || ((element) => element.id.isAnyChat() ? 0 : this.managers.appUsersManager.getUserStatusForSort(element.id)),
       onDelete: (element) => {
         element.dialogElement.remove();
         this.onListLengthChange?.();
@@ -54,9 +55,9 @@ export default class SortedUserList extends SortedList<SortedUser> {
       onUpdate: options.onUpdate || (async(element) => {
         if(element.id.isAnyChat()) {
           const status = await getChatMembersString(element.id.toChatId(), this.managers);
-          replaceContent(element.dom.lastMessageSpan, status!);
+          replaceContent(element.dom.lastMessageSpan, status);
         } else {
-          const status = getUserStatusString(await this.managers.appUsersManager!.getUser(element.id));
+          const status = getUserStatusString(await this.managers.appUsersManager.getUser(element.id));
           replaceContent(element.dom.lastMessageSpan, status);
 
           const rank = this.ranks.get(element.id);
@@ -87,7 +88,7 @@ export default class SortedUserList extends SortedList<SortedUser> {
         });
 
         const rank = this.ranks.get(base.id);
-        dialogElement.titleRight.replaceChildren(...([rank ? wrapParticipantRank(rank) : undefined].filter(Boolean) as Node[]));
+        dialogElement.titleRight.replaceChildren(...([rank ? wrapParticipantRank(rank) : undefined].filter(isTruthy)));
 
         (base as SortedUser).dom = dialogElement.dom;
         (base as SortedUser).dialogElement = dialogElement;

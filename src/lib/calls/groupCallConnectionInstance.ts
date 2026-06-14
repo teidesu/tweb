@@ -196,7 +196,7 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
     let activeOptions = options;
     for(let attempt = 0; ; attempt++) {
       try {
-        update = await this.managers.appGroupCallsManager!.joinGroupCall(groupCallId, params, stripCallback(activeOptions));
+        update = await this.managers.appGroupCallsManager.joinGroupCall(groupCallId, params, stripCallback(activeOptions));
         break;
       } catch(err) {
         const msg = (err as {type?: string} | Error & {type?: string})?.type ??

@@ -57,7 +57,7 @@ const PrivacyLastSeen: Component = () => {
           return;
         }
 
-        const promise = tab.managers.appPrivacyManager!.setGlobalPrivacySettings({
+        const promise = tab.managers.appPrivacyManager.setGlobalPrivacySettings({
           _: 'globalPrivacySettings',
           pFlags: {
             ...globalPrivacy.pFlags,
@@ -92,7 +92,7 @@ const PrivacyLastSeen: Component = () => {
 
       const onPremium = () => {
         section.content.replaceChildren(createButton());
-        section.caption.replaceChildren(i18n(rootScope.premium ? 'PrivacyLastSeenPremiumInfoForPremium' : 'PrivacyLastSeenPremiumInfo')!);
+        section.caption.replaceChildren(i18n(rootScope.premium ? 'PrivacyLastSeenPremiumInfoForPremium' : 'PrivacyLastSeenPremiumInfo'));
       };
 
       onPremium();

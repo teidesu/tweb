@@ -36,11 +36,11 @@ const Gifs: Component = () => {
     if(searchPromise || loadedAll) return;
 
     if(!gifBotPeerId) {
-      gifBotPeerId = (await tab.managers.appUsersManager!.resolveUsername('gif')).id.toPeerId(false);
+      gifBotPeerId = (await tab.managers.appUsersManager.resolveUsername('gif')).id.toPeerId(false);
     }
 
     try {
-      searchPromise = tab.managers.appInlineBotsManager!.getInlineResults(NULL_PEER_ID, gifBotPeerId, query, nextOffset);
+      searchPromise = tab.managers.appInlineBotsManager.getInlineResults(NULL_PEER_ID, gifBotPeerId, query, nextOffset);
       const {results, next_offset} = await searchPromise;
 
       if(inputSearch.value !== query) {

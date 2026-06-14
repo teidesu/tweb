@@ -44,6 +44,7 @@ import SuperStickerRenderer from '@components/emoticonsDropdown/tabs/SuperSticke
 import StickersTab from '@components/emoticonsDropdown/tabs/stickers';
 import {PAID_REACTION_EMOJI_DOCID} from '@lib/customEmoji/constants';
 import {getStickerSetInputById} from '@lib/appManagers/utils/stickers/getStickerSetInput';
+import {isTruthy} from '../../../helpers/isTruthy';
 
 
 const loadedURLs: Set<string> = new Set();
@@ -243,7 +244,7 @@ export default class EmojiTab extends EmoticonsTabC<EmojiTabCategory, {emojis: A
           return options.searchFetcher(value);
         }
 
-        return {emojis: await this.managers.appEmojiManager!.prepareAndSearchEmojis({q: value, limit: Infinity, minChars: 1, addCustom: true})};
+        return {emojis: await this.managers.appEmojiManager.prepareAndSearchEmojis({q: value, limit: Infinity, minChars: 1, addCustom: true})};
       },
       groupFetcher: options.noSearchGroups ? undefined : options.groupFetcher ? options.groupFetcher : async(group) => {
         if(group?._ !== 'emojiGroup') return {emojis: []};
@@ -252,7 +253,7 @@ export default class EmojiTab extends EmoticonsTabC<EmojiTabCategory, {emojis: A
           return options.groupFetcher(group);
         }
 
-        const emojiList = await this.managers.appEmojiManager!.searchCustomEmoji(group.emoticons.join(''));
+        const emojiList = await this.managers.appEmojiManager.searchCustomEmoji(group.emoticons.join(''));
 
         const emojis: AppEmoji[] = [
           ...emojiList.document_id.map((docId) => ({docId, emoji: ''})),
@@ -268,7 +269,7 @@ export default class EmojiTab extends EmoticonsTabC<EmojiTabCategory, {emojis: A
         }
 
         if(!emojis.length && !localStickerSet) {
-          const span = i18n('NoEmojiFound')!;
+          const span = i18n('NoEmojiFound');
           span.classList.add('emoticons-not-found');
           return span;
         }
@@ -527,10 +528,10 @@ export default class EmojiTab extends EmoticonsTabC<EmojiTabCategory, {emojis: A
     const mainSetsResult = this.mainSets?.();
     const promise = Promise.all([
       !this.preloaderDelay ? undefined : pause(this.preloaderDelay),
-      !this.noRegularEmoji && this.managers.appEmojiManager!.getRecentEmojis('native'),
-      !this.isStandalone && this.managers.appEmojiManager!.getRecentEmojis('custom'),
+      !this.noRegularEmoji && this.managers.appEmojiManager.getRecentEmojis('native'),
+      !this.isStandalone && this.managers.appEmojiManager.getRecentEmojis('custom'),
       !this.noPacks && Promise.resolve(apiManagerProxy.isPremiumFeaturesHidden()).then((isPremiumPurchaseHidden) => {
-        return isPremiumPurchaseHidden ? undefined : this.managers.appEmojiManager!.getCustomEmojis();
+        return isPremiumPurchaseHidden ? undefined : this.managers.appEmojiManager.getCustomEmojis();
       }),
       mainSetsResult && Promise.all(Array.isArray(mainSetsResult) ? mainSetsResult : [mainSetsResult]),
       this.additionalSets?.(),
@@ -564,11 +565,11 @@ export default class EmojiTab extends EmoticonsTabC<EmojiTabCategory, {emojis: A
         if(mainSets[1]) recentEmojis = docIdsToCustomEmoji(mainSets[1]);
       }
 
-      if(!recentEmojis! && recent) {
+      if(!recentEmojis && recent) {
         recentEmojis = recent.map((emoji) => ({emoji}));
       }
 
-      if(!recentCustomEmojis! && recentCustom) {
+      if(!recentCustomEmojis && recentCustom) {
         recentCustomEmojis = docIdsToCustomEmoji(recentCustom);
       }
 
@@ -633,8 +634,8 @@ export default class EmojiTab extends EmoticonsTabC<EmojiTabCategory, {emojis: A
         recentCategory.elements.menuTab.after(innerScrollWrapper);
       }
 
-      flatten([(sets as MessagesAllStickers.messagesAllStickers | undefined)?.sets, additionalSets].filter(Boolean) as StickerSet.stickerSet[][]).forEach((set) => {
-        this.renderEmojiSet((set! as StickerSet.stickerSet));
+      flatten([(sets as MessagesAllStickers.messagesAllStickers | undefined)?.sets, additionalSets].filter(isTruthy)).forEach((set) => {
+        this.renderEmojiSet((set));
       });
 
       if(additionalLocalStickerSet) {
@@ -651,7 +652,7 @@ export default class EmojiTab extends EmoticonsTabC<EmojiTabCategory, {emojis: A
     const recentCustomCategory = this.categories[CUSTOM_EMOJI_RECENT_ID];
     this.attachHelpers({
       getTextColor: this.textColor,
-      verifyRecent: (target) => !!(findUpAsChild((target! as { parentElement: HTMLElement; }), recentCustomCategory.elements.items) || findUpAsChild((target! as { parentElement: HTMLElement; }), recentCategory.elements.items)),
+      verifyRecent: (target) => !!(findUpAsChild((target as { parentElement: HTMLElement; }), recentCustomCategory.elements.items) || findUpAsChild((target as { parentElement: HTMLElement; }), recentCategory.elements.items)),
       canHaveEmojiTimer: this.canHaveEmojiTimer
     });
 
@@ -832,7 +833,7 @@ export default class EmojiTab extends EmoticonsTabC<EmojiTabCategory, {emojis: A
     category.setCategoryItemsHeight(set.count);
     container.classList.remove('hide');
 
-    const promise = this.managers.appStickersManager!.getStickerSet(getStickerSetInputById(set));
+    const promise = this.managers.appStickersManager.getStickerSet(getStickerSetInputById(set));
     promise.then(({documents}) => {
       documents.forEach((document) => {
         this.addEmojiToCategory({
@@ -888,7 +889,7 @@ export default class EmojiTab extends EmoticonsTabC<EmojiTabCategory, {emojis: A
     } else {
       element = appendEmoji(emoji!/* .replace(/[\ufe0f\u2640\u2642\u2695]/g, '') *//* , false */);
 
-      if(this.showLocks && !this.canUseEmoji(emoji!, category)) {
+      if(this.showLocks && !this.canUseEmoji(emoji, category)) {
         element.append(Icon('premium_lock', 'premium-sticker-lock'));
       }
     }

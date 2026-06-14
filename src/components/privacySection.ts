@@ -17,6 +17,7 @@ import SettingSection from '@components/settingSection';
 import {AppAddMembersTab} from '@components/solidJsTabs';
 import {SliderSuperTabEventable} from '@components/sliderTab';
 import {hideToast, toastNew} from '@components/toast';
+import {isTruthy} from '../helpers/isTruthy';
 
 type PrivacyKey = InputPrivacyKey['_'];
 
@@ -169,7 +170,7 @@ export default class PrivacySection {
                 _extras.clear();
                 if(newExtras) for(const e of newExtras) _extras.add(e);
                 exception.row.subtitle.replaceChildren(
-                  ...this.generateStr(this.splitPeersByType(newPeerIds), _extras) as (string | Node)[]
+                  ...this.generateStr(this.splitPeersByType(newPeerIds), _extras)
                 );
                 this.onRadioChange(this.type);
               },
@@ -197,7 +198,7 @@ export default class PrivacySection {
       this.setRadio(PrivacyType.Contacts);
     }, 0); */
 
-    const promise = (options.inputKey ? managers.appPrivacyManager!.getPrivacy(options.inputKey) : Promise.resolve()).then((rules) => {
+    const promise = (options.inputKey ? managers.appPrivacyManager.getPrivacy(options.inputKey) : Promise.resolve()).then((rules) => {
       const details = rules ? getPrivacyRulesDetails(rules) : undefined;
       const originalType = options.privacyType || details?.type;
 
@@ -216,7 +217,7 @@ export default class PrivacySection {
           }
           const s = this.exceptions.get(k)!.row.subtitle;
           s.replaceChildren();
-          s.append(...this.generateStr(from, extras) as (string | Node)[]);
+          s.append(...this.generateStr(from, extras));
         });
       }
 
@@ -302,7 +303,7 @@ export default class PrivacySection {
         if(splitted.users.length) {
           rules.push({
             _: usersKey,
-            users: await Promise.all(splitted.users.map((id) => rootScope.managers.appUsersManager!.getUserInput(id)))
+            users: await Promise.all(splitted.users.map((id) => rootScope.managers.appUsersManager.getUserInput(id)))
           });
         }
 
@@ -312,7 +313,7 @@ export default class PrivacySection {
       }
     }
 
-    rootScope.managers.appPrivacyManager!.setPrivacy(this.options.inputKey, rules);
+    rootScope.managers.appPrivacyManager.setPrivacy(this.options.inputKey, rules);
   };
 
   private replaceCaption(caption: PrivacySectionStr = (this.isLocked() ? this.options.premiumCaption : this.options.captions![this.type])!) {
@@ -366,6 +367,6 @@ export default class PrivacySection {
       peers.users.length ? i18n('Users', [peers.users.length]) : null,
       peers.chats.length ? i18n('Chats', [peers.chats.length]) : null,
       hasMiniApps ? i18n('PrivacyMiniApps') : null
-    ].filter(Boolean)! as (string | Node)[]), false);
+    ].filter(isTruthy)), false);
   }
 }

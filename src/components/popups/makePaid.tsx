@@ -89,7 +89,7 @@ export default class PopupMakePaid extends PopupElement {
   }
 
   private async d() {
-    const appConfig = await this.managers.apiManager!.getAppConfig();
+    const appConfig = await this.managers.apiManager.getAppConfig();
     this.appendSolid(() => {
       const inputField = this.inputField = InputStarsField({
         middleware: this.middlewareHelper.get(),

@@ -125,12 +125,12 @@ const createSearchLoader = (options: LoadOptions) => {
     };
 
     const key = getHistoryStorageKey({type: getHistoryStorageType(requestHistoryOptions), ...requestHistoryOptions});
-    rootScope.managers.appMessagesManager!.toggleHistoryKeySubscription(key, true);
+    rootScope.managers.appMessagesManager.toggleHistoryKeySubscription(key, true);
     onCleanup(() => {
-      rootScope.managers.appMessagesManager!.toggleHistoryKeySubscription(key, false);
+      rootScope.managers.appMessagesManager.toggleHistoryKeySubscription(key, false);
     });
 
-    const result = await rootScope.managers.appMessagesManager!.getHistory(requestHistoryOptions);
+    const result = await rootScope.managers.appMessagesManager.getHistory(requestHistoryOptions);
     if(!middleware()) {
       return;
     }
@@ -175,7 +175,7 @@ const createParticipantsLoader = (options: LoadOptions) => {
     }
     loading = true;
 
-    const result = await rootScope.managers.appProfileManager!.getParticipants({
+    const result = await rootScope.managers.appProfileManager.getParticipants({
       id: peerId.toChatId(),
       filter: {_: 'channelParticipantsSearch', q: query},
       limit: 30,
@@ -758,7 +758,7 @@ export default function TopbarSearch(props: {
       monoforumThreadId: props.chat.monoforumThreadId,
       query,
       fromPeerId,
-      reaction: (_reaction! as Reaction | undefined),
+      reaction: (_reaction as Reaction | undefined),
       searchType: _searchType
     });
 
@@ -1022,7 +1022,7 @@ export default function TopbarSearch(props: {
     onCleanup(detach);
 
     const get = () => {
-      rootScope.managers.appReactionsManager!.getSavedReactionTags(props.threadId).then((tags) => {
+      rootScope.managers.appReactionsManager.getSavedReactionTags(props.threadId).then((tags) => {
         // await pause(1000);
         if(!realMiddleware()) {
           return;

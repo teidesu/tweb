@@ -50,7 +50,7 @@ function LivePlateBody(props: {
       const inputGroupCall = (fullPeer as ChatFull.channelFull)?.call;
       if(!inputGroupCall) return;
 
-      const fullCall = await rootScope.managers.appGroupCallsManager!.getGroupCallFull(
+      const fullCall = await rootScope.managers.appGroupCallsManager.getGroupCallFull(
         (inputGroupCall as InputGroupCall.inputGroupCall).id
       );
       return fullCall && (fullCall as GroupCall.groupCall).pFlags.rtmp_stream ?

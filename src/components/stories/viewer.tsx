@@ -102,6 +102,7 @@ import {useAppConfig} from '@stores/appState';
 import {wrapStoriesStealthModeDuration} from '@components/wrappers/wrapDuration';
 import {handleShareStory} from './share';
 import createListenerSetter from '@helpers/solid/createListenerSetter';
+import {isTruthy} from '../../helpers/isTruthy';
 
 export const STORY_DURATION = 5e3;
 const STORY_HEADER_AVATAR_SIZE = 32;
@@ -547,7 +548,7 @@ const renderStoryReaction = async(props: {
   uReaction(null);
   let availableReaction: MaybePromise<AvailableReaction>;
   if(isCustomEmoji) {
-    const result = await rootScope.managers.acknowledged!.appEmojiManager!.getCustomEmojiDocument(reaction.document_id);
+    const result = await rootScope.managers.acknowledged.appEmojiManager.getCustomEmojiDocument(reaction.document_id);
     if(!middleware()) return;
     if(!result.cached) {
       uReaction();
@@ -734,7 +735,7 @@ const StoryMediaArea = (props: {
 
     showNotCenteredTooltip({
       callback: openPost,
-      text: i18n('Story.ViewPost')!
+      text: i18n('Story.ViewPost')
     });
   };
 
@@ -750,7 +751,7 @@ const StoryMediaArea = (props: {
           safeWindowOpen(url);
         }
       },
-      text: i18n('OpenUrlTitle')!
+      text: i18n('OpenUrlTitle')
     });
   };
 
@@ -925,7 +926,7 @@ const Stories = (props: {
           i18n(
             toPeerId === rootScope.myId ? 'StorySharedToSavedMessages' : 'StorySharedTo',
             [await wrapPeerTitle({peerId: toPeerId})]
-          )!
+          )
         )
       },
       onClose: bindOnAnyPopupClose(wasPlaying)
@@ -1075,7 +1076,7 @@ const Stories = (props: {
       setForceReaction(true);
     }
 
-    await rootScope.managers.acknowledged!.appStoriesManager!.sendReaction(
+    await rootScope.managers.acknowledged.appStoriesManager.sendReaction(
       peerId,
       storyId,
       unwrap(reaction as Reaction)
@@ -1278,7 +1279,7 @@ const Stories = (props: {
       setMediaAreas();
       setRepost();
       setStoryMeta(story as StoryItem.storyItemSkipped);
-      rootScope.managers.appStoriesManager!.getStoryById(props.state.peerId, story.id);
+      rootScope.managers.appStoriesManager.getStoryById(props.state.peerId, story.id);
       props.onReady?.();
       return;
     }
@@ -1414,7 +1415,7 @@ const Stories = (props: {
       const sentReaction = story.sent_reaction;
       const isDefault = isDefaultReaction(sentReaction!);
       if(!sentReaction || isDefault) {
-        reactionNode = Icon('reactions_filled', ...(['btn-reaction-icon', isDefault && 'btn-reaction-default'].filter(Boolean) as string[]));
+        reactionNode = Icon('reactions_filled', ...(['btn-reaction-icon', isDefault && 'btn-reaction-default'].filter(isTruthy)));
         uReaction(reactionNode);
       } else {
         const div = document.createElement('div');
@@ -1431,7 +1432,7 @@ const Stories = (props: {
     });
 
     createEffect(() => {
-      if(!(story as StoryItem.storyItem).media_areas?.length) {
+      if(!(story).media_areas?.length) {
         uMediaAreas();
         return;
       }
@@ -1441,13 +1442,13 @@ const Stories = (props: {
       const [allReady, setAllReady] = createSignal(false);
       const [readyCount, setReadyCount] = createSignal(0);
       const mediaAreas = (
-        <For each={(story as StoryItem.storyItem).media_areas}>
+        <For each={(story).media_areas}>
           {(mediaArea) => {
             const [ready, setReady] = createSignal(false);
 
             createReaction(() => {
               setReadyCount((count) => count + 1);
-              if(readyCount() === (story as StoryItem.storyItem).media_areas!.length) {
+              if(readyCount() === (story).media_areas!.length) {
                 setAllReady(true);
               }
             })(ready);
@@ -1546,7 +1547,7 @@ const Stories = (props: {
         setSubtitle(documentFragmentToNodes(wrapped));
       };
 
-      const storyPromise = fwdFromStoryId! && rootScope.managers.acknowledged!.appStoriesManager!.getStoryById(
+      const storyPromise = fwdFromStoryId! && rootScope.managers.acknowledged.appStoriesManager.getStoryById(
         fwdFromPeerId,
         fwdFromStoryId
       ).then(async(ackedResult) => {
@@ -1563,7 +1564,7 @@ const Stories = (props: {
         wrapPeerTitle(peerTitleOptions).then(async(peerTitle) => {
           const title = document.createDocumentFragment();
           if(fwdFromPeerId) {
-            const isBroadcast = await rootScope.managers.appPeersManager!.isBroadcast(fwdFromPeerId);
+            const isBroadcast = await rootScope.managers.appPeersManager.isBroadcast(fwdFromPeerId);
             const icon = Icon(
               isBroadcast ? 'newchannel_filled' : (fwdFromPeerId.isUser() ? 'newprivate_filled' : 'group_filled'),
               'inline-icon',
@@ -1660,7 +1661,7 @@ const Stories = (props: {
 
     const ids = Array.from(pollViewedStoriesSet);
     pollViewedStoriesSet.clear();
-    rootScope.managers.appStoriesManager!.getStoriesById(props.state.peerId, ids, true);
+    rootScope.managers.appStoriesManager.getStoriesById(props.state.peerId, ids, true);
   };
   const pollViewedStoriesSet: Set<number> = new Set();
   let pollViewedStoriesInterval: number;
@@ -1678,11 +1679,11 @@ const Stories = (props: {
 
   const readStories = (maxId: number) => {
     if(viewedStories.size) {
-      rootScope.managers.appStoriesManager!.incrementStoryViews(props.state.peerId, Array.from(viewedStories));
+      rootScope.managers.appStoriesManager.incrementStoryViews(props.state.peerId, Array.from(viewedStories));
       viewedStories.clear();
     }
 
-    rootScope.managers.appStoriesManager!.readStories(props.state.peerId, maxId);
+    rootScope.managers.appStoriesManager.readStories(props.state.peerId, maxId);
   };
 
   const viewedStories: Set<number> = new Set();
@@ -1820,7 +1821,7 @@ const Stories = (props: {
 
   const topMenuOptions: Partial<Parameters<typeof createContextMenu>[0]> = {
     onOpenBefore: async() => {
-      peer = await rootScope.managers.appStoriesManager!.getPeer(props.state.peerId);
+      peer = await rootScope.managers.appStoriesManager.getPeer(props.state.peerId);
       story = currentStory() as StoryItem.storyItem;
       peerId = props.state.peerId;
     },
@@ -1947,7 +1948,7 @@ const Stories = (props: {
   const contentItem = (
     <div
       class={styles.ViewerStoryContentItem}
-      style={((captionOpacity() && {opacity: 1 - captionOpacity() * 0.5})! as string | JSX.CSSProperties | undefined)}
+      style={((captionOpacity() && {opacity: 1 - captionOpacity() * 0.5}) as string | JSX.CSSProperties | undefined)}
     >
       {content()}
     </div>
@@ -1983,13 +1984,13 @@ const Stories = (props: {
       // elements.push(getFullDate(new Date(timestamp * 1000), {shortYear: true}));
       elements.push(<span>{documentFragmentToNodes(formatFullSentTime(timestamp))}</span> as any);
     } else if(first.type === DurationType.Days && first.duration !== 1) {
-      elements.push(formatDateAccordingToTodayNew(new Date(timestamp * 1000))!);
+      elements.push(formatDateAccordingToTodayNew(new Date(timestamp * 1000)));
     } else {
-      elements.push(i18n(key, [first.duration])!);
+      elements.push(i18n(key, [first.duration]));
     }
 
     if(edited) {
-      elements.push(i18n('EditedMessage')!);
+      elements.push(i18n('EditedMessage'));
     }
 
     if(repost()) {
@@ -2018,7 +2019,7 @@ const Stories = (props: {
           appImManager.setInnerPeer({peerId});
         });
       }, {capture: true, passive: false});
-      a.append(i18n('ViewInChat')!);
+      a.append(i18n('ViewInChat'));
     }
 
     setQuizHint({
@@ -2050,7 +2051,7 @@ const Stories = (props: {
           reaction,
           onShareButtonClick,
           onMessageSent: () => {
-            showMessageSentTooltip(i18n('Story.Tooltip.MessageSent')!, props.state.peerId);
+            showMessageSentTooltip(i18n('Story.Tooltip.MessageSent'), props.state.peerId);
           },
           setInputReady
         })
@@ -2066,8 +2067,8 @@ const Stories = (props: {
     }
 
     const [peer, isSubscribed] = await Promise.all([
-      rootScope.managers.appStoriesManager!.getPeer(peerId),
-      rootScope.managers.appStoriesManager!.isSubcribedToPeer(peerId)
+      rootScope.managers.appStoriesManager.getPeer(peerId),
+      rootScope.managers.appStoriesManager.isSubcribedToPeer(peerId)
     ]);
     const isHidden = !!peer.pFlags.stories_hidden;
     return (visible ? !isHidden : isHidden) && isSubscribed;
@@ -2075,7 +2076,7 @@ const Stories = (props: {
 
   const togglePeerHidden = async(hidden: boolean) => {
     const peerId = props.state.peerId;
-    rootScope.managers.appStoriesManager!.toggleStoriesHidden(peerId, hidden);
+    rootScope.managers.appStoriesManager.toggleStoriesHidden(peerId, hidden);
     toastNew({
       langPackKey: hidden ? 'StoriesMovedToContacts' : 'StoriesMovedToDialogs',
       langPackArguments: [await wrapPeerTitle({peerId})]
@@ -2084,7 +2085,7 @@ const Stories = (props: {
 
   const togglePinned = async(pinned: boolean) => {
     const peerId = props.state.peerId;
-    rootScope.managers.appStoriesManager!.togglePinned(peerId, currentStory().id, pinned).then(() => {
+    rootScope.managers.appStoriesManager.togglePinned(peerId, currentStory().id, pinned).then(() => {
       toastNew({
         langPackKey: pinned ?
           (peerId.isUser() ? 'StoryPinnedToProfile' : 'StoryPinnedToPosts') :
@@ -2113,12 +2114,12 @@ const Stories = (props: {
       icon: 'plusround',
       text: 'SaveToPosts',
       onClick: () => togglePinned(true),
-      verify: () => !peerId.isUser() && !(story as StoryItem.storyItem).pFlags?.pinned && rootScope.managers.appStoriesManager!.hasRights(peerId, story.id, 'pin')
+      verify: () => !peerId.isUser() && !(story as StoryItem.storyItem).pFlags?.pinned && rootScope.managers.appStoriesManager.hasRights(peerId, story.id, 'pin')
     }, {
       icon: 'crossround',
       text: 'RemoveFromPosts',
       onClick: () => togglePinned(false),
-      verify: () => !peerId.isUser() && !!(story as StoryItem.storyItem).pFlags?.pinned && rootScope.managers.appStoriesManager!.hasRights(peerId, story.id, 'pin')
+      verify: () => !peerId.isUser() && !!(story as StoryItem.storyItem).pFlags?.pinned && rootScope.managers.appStoriesManager.hasRights(peerId, story.id, 'pin')
     }, {
       icon: 'forward',
       text: 'ShareFile',
@@ -2174,7 +2175,7 @@ const Stories = (props: {
               textElement: i18n('Stories.StealthMode.Activated.Subtitle', [
                 wrapStoriesStealthModeDuration(appConfig.stories_stealth_future_period!),
                 wrapStoriesStealthModeDuration(appConfig.stories_stealth_past_period!)
-              ])!,
+              ]),
               appendTo: storyDiv!,
               from: 'bottom',
               duration: 8000,
@@ -2206,7 +2207,7 @@ const Stories = (props: {
           }, 0);
         });
       },
-      verify: () => rootScope.managers.appProfileManager!.canViewStatistics(peerId)
+      verify: () => rootScope.managers.appProfileManager.canViewStatistics(peerId)
     }, {
       icon: 'delete danger' as Icon,
       text: 'Delete',
@@ -2229,9 +2230,9 @@ const Stories = (props: {
           return;
         }
 
-        rootScope.managers.appStoriesManager!.deleteStories(peerId, [id]);
+        rootScope.managers.appStoriesManager.deleteStories(peerId, [id]);
       },
-      verify: () => rootScope.managers.appStoriesManager!.hasRights(peerId, story.id, 'delete')
+      verify: () => rootScope.managers.appStoriesManager.hasRights(peerId, story.id, 'delete')
     }, {
       icon: 'flag',
       className: 'danger',
@@ -2343,7 +2344,7 @@ const Stories = (props: {
       peerType: ['custom'],
       getMoreCustom: (q) => {
         const loadCount = 50;
-        return rootScope.managers.appStoriesManager!.getStoryViewsList(
+        return rootScope.managers.appStoriesManager.getStoryViewsList(
           props.state.peerId,
           currentStory().id,
           loadCount,
@@ -2395,7 +2396,7 @@ const Stories = (props: {
       }
     });
 
-    rootScope.managers.appStoriesManager!.deleteStories(peerId, [storyId]);
+    rootScope.managers.appStoriesManager.deleteStories(peerId, [storyId]);
   });
 
   if(isMe) {
@@ -2416,7 +2417,7 @@ const Stories = (props: {
 
       const ids = Array.from(viewedStories);
       viewedStories.clear();
-      promise = rootScope.managers.appStoriesManager!.getStoriesViews(props.state.peerId, ids).then(() => {
+      promise = rootScope.managers.appStoriesManager.getStoriesViews(props.state.peerId, ids).then(() => {
         promise = undefined;
       });
 
@@ -2607,7 +2608,7 @@ const Stories = (props: {
       }}
       style={((!props.isFull() && {
         '--translateX': calculateTranslateX()
-      })! as string | JSX.CSSProperties | undefined)}
+      }) as string | JSX.CSSProperties | undefined)}
       onClick={(e) => {
         if(!isActive()) {
           actions.set({peer: props.state, index: props.state.index});
@@ -2644,14 +2645,14 @@ const Stories = (props: {
           }
         } else if(
           captionScrollable!.scrollTop &&
-          !findUpAsChild((e.target! as { parentElement: HTMLElement; }), captionText!) &&
+          !findUpAsChild((e.target as { parentElement: HTMLElement; }), captionText!) &&
           !findUpClassName(e.target, styles.ViewerStoryHeader)
         ) {
           scrollPath(-captionScrollable!.scrollTop);
         } else if(
           !stories.paused &&
           !stories.hideInterface &&
-          !findUpAsChild((e.target! as { parentElement: HTMLElement; }), captionText!) &&
+          !findUpAsChild((e.target as { parentElement: HTMLElement; }), captionText!) &&
           !findUpClassName(e.target, styles.ViewerStoryHeader) &&
           !findUpClassName(e.target, 'stories-input') &&
           !findUpClassName(e.target, styles.ViewerStoryReactions) &&
@@ -2718,7 +2719,7 @@ const Stories = (props: {
           {mediaAreas() && (
             <div
               class={styles.ViewerStoryMediaAreas}
-              style={((captionOpacity() && {'opacity': 1 - captionOpacity() * 0.5, 'z-index': 0})! as string | JSX.CSSProperties | undefined)}
+              style={((captionOpacity() && {'opacity': 1 - captionOpacity() * 0.5, 'z-index': 0}) as string | JSX.CSSProperties | undefined)}
             >
               {mediaAreas()}
             </div>
@@ -3371,7 +3372,7 @@ export default function StoriesViewer(props: {
         onAfterEnter={() => {
           animating = false;
           actions.viewerReady(true);
-          deferred.resolve!();
+          deferred.resolve();
           // play();
         }}
         onExit={(el, done) => {
@@ -3383,7 +3384,7 @@ export default function StoriesViewer(props: {
           animating = false;
           props.onExit?.();
           stop();
-          deferred.resolve!();
+          deferred.resolve();
         }}
         appear
       >
@@ -3458,10 +3459,10 @@ export const createStoriesViewerWithPeer = async(
   }
 ): Promise<void> => {
   const [, rest] = splitProps(props, ['peerId', 'id']);
-  const peerStories = await rootScope.managers.appStoriesManager!.getPeerStories(props.peerId);
+  const peerStories = await rootScope.managers.appStoriesManager.getPeerStories(props.peerId);
   const storyIndex = props.id ? peerStories.stories.findIndex((story) => story.id === props.id) : undefined;
   if(props.id) {
-    const storyItem = await rootScope.managers.appStoriesManager!.getStoryById(props.peerId, props.id);
+    const storyItem = await rootScope.managers.appStoriesManager.getStoryById(props.peerId, props.id);
     if(!storyItem) {
       toastNew({langPackKey: 'Story.ExpiredToast'});
       return;

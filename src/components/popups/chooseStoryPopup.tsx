@@ -120,7 +120,7 @@ export default class PopupChooseStory extends PopupElement<{
         const {added, removed} = this.getResult();
         const changed = added.length || removed.length;
         if(confirmButton.element) {
-          replaceContent(confirmButton.element, i18n('Confirm')!);
+          replaceContent(confirmButton.element, i18n('Confirm'));
           confirmButton.element.toggleAttribute('disabled', changed === 0 && !originalIds.size);
         }
       }));

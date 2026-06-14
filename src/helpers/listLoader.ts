@@ -147,9 +147,9 @@ export default class ListLoader<T extends {}, P extends {}> {
 
     let anchor!: T;
     if(older) {
-      anchor = this.reverse ? this.previous[0]! : this.next[this.next.length - 1]!;
+      anchor = this.reverse ? this.previous[0] : this.next[this.next.length - 1];
     } else {
-      anchor = this.reverse ? this.next[this.next.length - 1]! : this.previous[0]!;
+      anchor = this.reverse ? this.next[this.next.length - 1] : this.previous[0];
     }
 
     anchor ??= this.current!;

@@ -33,7 +33,7 @@ export default function useVideoControlsCanvas({getCanvas, size}: Args) {
 
     onCleanup(() => {
       cleaned = true;
-      deferred?.resolve!();
+      deferred?.resolve();
       ctx!.clearRect(0, 0, canvas.width, canvas.height);
     });
 
@@ -46,7 +46,7 @@ export default function useVideoControlsCanvas({getCanvas, size}: Args) {
       if(cleaned) return;
 
       video.addEventListener('seeked', () => {
-        deferred?.resolve!();
+        deferred?.resolve();
       });
 
       const [chunkWidth, chunkHeight] = snapToViewport(ratio, size.width, size.height);

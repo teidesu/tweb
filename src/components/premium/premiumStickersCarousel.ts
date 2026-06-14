@@ -109,7 +109,7 @@ export default class PremiumStickersCarousel {
 
   private async initStickersCarousel(options: {topSection: HTMLElement; managers: AppManagers}) {
     options.topSection.classList.add('no-padding');
-    const stickers = await options.managers.appStickersManager!.getPromoPremiumStickers();
+    const stickers = await options.managers.appStickersManager.getPromoPremiumStickers();
     this.stickersMiddlewareHelper = getMiddleware();
     this.lazyLoadQueue = new LazyLoadQueue();
     this.superStickerRenderer = new SuperStickerRenderer({

@@ -7,6 +7,6 @@ export default function defineNotNumerableProperties<T extends any>(obj: T, name
       out[name] = props;
     }
   });
-  Object.defineProperties(obj, (out! as PropertyDescriptorMap & ThisType<any>));
+  Object.defineProperties(obj, (out as PropertyDescriptorMap & ThisType<any>));
   // console.log('defineNotNumerableProperties time:', performance.now() - perf);
 }

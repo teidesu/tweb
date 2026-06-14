@@ -92,5 +92,5 @@ export default function getUserStatusString(user: User.user): HTMLElement {
     }
   }
 
-  return i18n(key, args!)!;
+  return i18n(key, args!);
 }

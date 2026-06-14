@@ -41,7 +41,7 @@ function SponsoredPlateBody(props: {
     if(peerId$ === NULL_PEER_ID || !peerId$.isUser()) return;
     if(!props.chat.isBot) return;
 
-    props.managers.appMessagesManager!.getSponsoredMessage(peerId$)
+    props.managers.appMessagesManager.getSponsoredMessage(peerId$)
     .then((m) => {
       if(props.peerId() !== peerId$) return;
 

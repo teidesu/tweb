@@ -238,7 +238,7 @@ export class ThemeController {
   }
 
   private setWorkerThemeParams() {
-    rootScope.managers.apiManager!.setThemeParams({
+    rootScope.managers.apiManager.setThemeParams({
       _: 'dataJSON',
       data: JSON.stringify(this.getThemeParamsForWebView())
     });
@@ -722,7 +722,7 @@ export class ThemeController {
     } else {
       // Legacy single-object settings: keep the single-object shape (getThemeSettings reads it
       // directly via `as any` — line ~656 — and would mismatch if migrated to an array).
-      settings = {...(t.settings as any), wallpaper, highlightingColor} as any;
+      settings = {...(t.settings as any), wallpaper, highlightingColor};
     }
     themes[idx] = {...t, settings};
     return setAppSettings('themes', themes);

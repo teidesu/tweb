@@ -317,7 +317,7 @@ export default class MarkupTooltip {
     types.forEach((type) => {
       const {partly, fully} = markup[type];
       if(MarkupTooltip.DISPLAY_MARKUP_PARTLY ? partly : fully) {
-        currentMarkups.add(this.buttons[type as MarkupTooltipTypes]);
+        currentMarkups.add(this.buttons[type]);
       }
     });
 

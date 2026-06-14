@@ -44,7 +44,7 @@ export default class AppSearch {
     this.scrollable = new Scrollable(this.container);
     this.listsContainer = this.scrollable.container as HTMLDivElement;
     for(const i in this.searchGroups) {
-      this.listsContainer.append(this.searchGroups[i as SearchGroupType].container);
+      this.listsContainer.append(this.searchGroups[i].container);
     }
 
     if(this.searchGroups.messages) {
@@ -88,7 +88,7 @@ export default class AppSearch {
     this.foundCount = -1;
 
     for(const i in this.searchGroups) {
-      this.searchGroups[i as SearchGroupType].clear();
+      this.searchGroups[i].clear();
     }
 
     this.searchPromise = null;
@@ -123,7 +123,7 @@ export default class AppSearch {
 
     const middleware = this.middlewareHelper.get();
 
-    return this.searchPromise = rootScope.managers.appMessagesManager!.getHistory({
+    return this.searchPromise = rootScope.managers.appMessagesManager.getHistory({
       peerId: this.peerId,
       query,
       inputFilter: {_: 'inputMessagesFilterEmpty'},
@@ -149,13 +149,13 @@ export default class AppSearch {
         messages = (res.messages = history.map((mid) => apiManagerProxy.getMessageByPeer((this.peerId as number), mid)!))!;
       }
 
-      if(messages!.length && messages![0].mid === this.minMsgId) {
-        messages!.shift();
+      if(messages.length && messages[0].mid === this.minMsgId) {
+        messages.shift();
       }
 
       const searchGroup = this.searchGroups.messages;
 
-      messages!.forEach((message) => {
+      messages.forEach((message) => {
         try {
           const peerId = this.peerId ? message.fromId : message.peerId;
           appDialogsManager.addDialogAndSetLastMessage({
@@ -183,13 +183,13 @@ export default class AppSearch {
       if(this.loadedCount === -1) {
         this.loadedCount = 0;
       }
-      this.loadedCount += messages!.length;
+      this.loadedCount += messages.length;
 
       if(this.foundCount === -1) {
         this.foundCount = count;
 
         if(searchGroup.nameEl) {
-          replaceContent(searchGroup.nameEl, i18n(count ? 'Chat.Search.MessagesFound' : 'Chat.Search.NoMessagesFound', [count])!);
+          replaceContent(searchGroup.nameEl, i18n(count ? 'Chat.Search.MessagesFound' : 'Chat.Search.NoMessagesFound', [count]));
         }
 
         this.onSearch?.(this.foundCount);

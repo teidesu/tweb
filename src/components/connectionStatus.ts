@@ -86,8 +86,8 @@ export default class ConnectionStatusComponent {
 
   private setConnectionStatus = (overrideStatus?: ConnectionStatus) => {
     Promise.all([
-      rootScope.managers.apiManager!.getBaseDcId(),
-      rootScope.managers.rootScope!.getConnectionStatus()
+      rootScope.managers.apiManager.getBaseDcId(),
+      rootScope.managers.rootScope.getConnectionStatus()
     ]).then(([baseDcId, connectionStatus]) => {
       if(!baseDcId) {
         baseDcId = App.baseDcId;
@@ -102,7 +102,7 @@ export default class ConnectionStatusComponent {
       const online = status && (overrideStatus ?? status.status) === ConnectionStatus.Connected;
 
       if(this.connecting && online) {
-        this.managers.apiUpdatesManager!.forceGetDifference();
+        this.managers.apiUpdatesManager.forceGetDifference();
       }
 
       if(online && !this.hadConnect) {
@@ -126,7 +126,7 @@ export default class ConnectionStatusComponent {
   private getA(langPackKey: LangPackKey, callback: () => void) {
     const a = document.createElement('a');
     a.classList.add('force-reconnect');
-    a.append(i18n(langPackKey)!);
+    a.append(i18n(langPackKey));
     attachClickEvent(a, (e) => {
       cancelEvent(e);
       callback();
@@ -161,7 +161,7 @@ export default class ConnectionStatusComponent {
           setTime();
 
           if(HAVE_RECONNECT_BUTTON) {
-            const a = this.getA('ConnectionStatus.Reconnect', () => this.managers.networkerFactory!.forceReconnectTimeout());
+            const a = this.getA('ConnectionStatus.Reconnect', () => this.managers.networkerFactory.forceReconnectTimeout());
             setText = this.wrapSetStatusText('ConnectionStatus.ReconnectIn', [timerSpan, a]);
           } else {
             setText = this.wrapSetStatusText('ConnectionStatus.ReconnectInPlain', [timerSpan]);

@@ -194,7 +194,7 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
       this.btnConfirm = document.createElement('button');
       this.btnConfirm.classList.add('btn-primary', 'btn-color-primary');
       if(options.withConfirm !== true) {
-        this.btnConfirm.append(i18n(options.withConfirm)!);
+        this.btnConfirm.append(i18n(options.withConfirm));
       }
       this.header.append(this.btnConfirm);
       // ripple(this.btnConfirm);
@@ -267,7 +267,7 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
       if(b.text) {
         button.append(b.text);
       } else if(b.langKey) {
-        button.append(i18n(b.langKey, b.langArgs)!);
+        button.append(i18n(b.langKey, b.langArgs));
       }
 
       if(b.iconLeft || b.iconRight) {

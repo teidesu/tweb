@@ -129,7 +129,7 @@ const MyStories: Component = () => {
 
         return lottieLoader.waitForFirstFrame(player);
       }),
-      chatId && tab.managers.appChatsManager!.isBroadcast(chatId).then((isBroadcast) => {
+      chatId && tab.managers.appChatsManager.isBroadcast(chatId).then((isBroadcast) => {
         setArchiveCaption(isBroadcast ? 'ProfileStoriesArchiveChannelHint' : 'ProfileStoriesArchiveGroupHint');
       }),
 
