@@ -7,14 +7,14 @@
 
 import type GroupCallConnectionInstance from '@lib/calls/groupCallConnectionInstance';
 import safeReplaceObject from '@helpers/object/safeReplaceObject';
-import {nextRandomUint} from '@helpers/random';
-import {DataJSON, GroupCall, GroupCallParticipant, GroupCallParticipantVideoSourceGroup, GroupCallStreamChannel, InputFileLocation, InputGroupCall, PhoneJoinGroupCall, PhoneJoinGroupCallPresentation, Update, Updates} from '@layer';
-import {NULL_PEER_ID} from '@appManagers/constants';
-import {AppManager} from '@appManagers/manager';
+import { nextRandomUint } from '@helpers/random';
+import { DataJSON, GroupCall, GroupCallParticipant, GroupCallParticipantVideoSourceGroup, GroupCallStreamChannel, InputFileLocation, InputGroupCall, PhoneJoinGroupCall, PhoneJoinGroupCallPresentation, Update, Updates } from '@layer';
+import { NULL_PEER_ID } from '@appManagers/constants';
+import { AppManager } from '@appManagers/manager';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
-import {DcId} from '@types';
+import { DcId } from '@types';
 import assumeType from '@helpers/assumeType';
-import {parseVideoStreamInfo} from '@lib/calls/videoStreamInfo';
+import { parseVideoStreamInfo } from '@lib/calls/videoStreamInfo';
 
 export type GroupCallId = GroupCall['id'];
 export type MyGroupCall = GroupCall | Exclude<
@@ -81,11 +81,11 @@ export class AppGroupCallsManager extends AppManager {
 
         // this.getGroupCallFull(update.call.id, true); // ! WARNING TEMP
         this.saveApiParticipants(call.id, update.participants);
-      }
+      },
     });
 
     this.rootScope.addEventListener('group_call_update', (groupCall) => {
-      if(groupCall._ === 'groupCallDiscarded') {
+      if (groupCall._ === 'groupCallDiscarded') {
         this.participants.delete(groupCall.id);
       }
     });
@@ -93,7 +93,7 @@ export class AppGroupCallsManager extends AppManager {
 
   public getCachedParticipants(groupCallId: GroupCallId) {
     let participants = this.participants.get(groupCallId);
-    if(!participants) {
+    if (!participants) {
       this.participants.set(groupCallId, participants = new Map());
     }
 
@@ -104,7 +104,7 @@ export class AppGroupCallsManager extends AppManager {
     const nextOffsetsMap = this.nextOffsets;
 
     const setNextOffset = (newNextOffset: string) => {
-      if(nextOffsetsMap.get(groupCallId) === nextOffset) {
+      if (nextOffsetsMap.get(groupCallId) === nextOffset) {
         nextOffsetsMap.set(groupCallId, newNextOffset);
       }
     };
@@ -112,7 +112,7 @@ export class AppGroupCallsManager extends AppManager {
     const nextOffset = nextOffsetsMap.get(groupCallId);
     return {
       nextOffset,
-      setNextOffset
+      setNextOffset,
     };
   }
 
@@ -123,16 +123,16 @@ export class AppGroupCallsManager extends AppManager {
 
     const oldParticipant = participants.get(peerId);
     const hasLeft = participant.pFlags.left;
-    if(!oldParticipant && hasLeft) {
+    if (!oldParticipant && hasLeft) {
       return;
     }
 
     // * fix missing flag
-    if(!participant.pFlags.muted && !participant.pFlags.can_self_unmute) {
+    if (!participant.pFlags.muted && !participant.pFlags.can_self_unmute) {
       participant.pFlags.can_self_unmute = true;
     }
 
-    if(oldParticipant) {
+    if (oldParticipant) {
       safeReplaceObject(oldParticipant, participant);
       participant = oldParticipant;
     } else {
@@ -141,36 +141,36 @@ export class AppGroupCallsManager extends AppManager {
 
     // if(!skipCounterUpdating) {
     const groupCall = this.getGroupCall(groupCallId);
-    if(groupCall?._ === 'groupCall') {
+    if (groupCall?._ === 'groupCall') {
       let modified = false;
-      if(hasLeft) {
+      if (hasLeft) {
         --groupCall.participants_count;
         modified = true;
-      } else if(participant.pFlags.just_joined && !oldParticipant && !participant.pFlags.self) {
+      } else if (participant.pFlags.just_joined && !oldParticipant && !participant.pFlags.self) {
         ++groupCall.participants_count;
         modified = true;
       }
 
-      if(modified) {
+      if (modified) {
         this.rootScope.dispatchEvent('group_call_update', groupCall);
       }
     }
     // }
 
-    if(hasLeft) {
+    if (hasLeft) {
       participants.delete(peerId);
     }
 
-    if(oldParticipant || true/*  && this.doNotDispatchParticipantUpdate !== peerId */) {
+    if (oldParticipant || true/*  && this.doNotDispatchParticipantUpdate !== peerId */) {
       this.rootScope.dispatchEvent('group_call_participant', {
         groupCallId,
-        participant
+        participant,
       });
     }
   }
 
   public saveApiParticipants(groupCallId: GroupCallId, apiParticipants: GroupCallParticipant[], skipCounterUpdating?: boolean) {
-    if((apiParticipants as any).saved) return;
+    if ((apiParticipants as any).saved) return;
     (apiParticipants as any).saved = true;
     apiParticipants.forEach((p) => this.saveApiParticipant(groupCallId, p, skipCounterUpdating));
   }
@@ -194,7 +194,7 @@ export class AppGroupCallsManager extends AppManager {
       raise_hand: options.raiseHand,
       video_paused: options.videoPaused,
       video_stopped: options.videoStopped,
-      presentation_paused: options.presentationPaused
+      presentation_paused: options.presentationPaused,
     });
 
     // do not replace with peerId because it can be null
@@ -209,7 +209,7 @@ export class AppGroupCallsManager extends AppManager {
 
   public async getGroupCallFull(id: GroupCallId, override?: boolean): Promise<GroupCall> {
     const call = this.getGroupCall(id);
-    if(call && call._ !== 'inputGroupCall' && !override) {
+    if (call && call._ !== 'inputGroupCall' && !override) {
       return call;
     }
 
@@ -218,7 +218,7 @@ export class AppGroupCallsManager extends AppManager {
       method: 'phone.getGroupCall',
       params: {
         call: this.getGroupCallInput(id),
-        limit
+        limit,
       },
       processResult: (groupCall) => {
         // ? maybe I should save group call after participants so I can avoid passing the 'skipCounterUpdating' flag ?
@@ -227,20 +227,20 @@ export class AppGroupCallsManager extends AppManager {
         this.saveApiParticipants(id, groupCall.participants, true);
         const call = this.saveGroupCall(groupCall.call) as GroupCall;
 
-        if(limit && this.nextOffsets.get(id) === undefined) {
+        if (limit && this.nextOffsets.get(id) === undefined) {
           this.nextOffsets.set(id, groupCall.participants_next_offset);
         }
 
         return call;
-      }
+      },
     });
   }
 
   public saveGroupCall(call: MyGroupCall, peerId?: PeerId) {
     const oldCall = this.groupCalls.get(call.id);
     const shouldUpdate = call._ !== 'inputGroupCall' && (!oldCall || oldCall._ !== 'groupCallDiscarded');
-    if(oldCall) {
-      if(shouldUpdate) {
+    if (oldCall) {
+      if (shouldUpdate) {
         safeReplaceObject(oldCall, call);
       }
 
@@ -249,7 +249,7 @@ export class AppGroupCallsManager extends AppManager {
       this.groupCalls.set(call.id, call);
     }
 
-    if(shouldUpdate) {
+    if (shouldUpdate) {
       this.rootScope.dispatchEvent('group_call_update', call as any);
     }
 
@@ -262,7 +262,7 @@ export class AppGroupCallsManager extends AppManager {
       random_id: nextRandomUint(32),
       schedule_date: scheduleDate,
       title,
-      rtmp_stream: rtmp
+      rtmp_stream: rtmp,
     });
 
     this.apiUpdatesManager.processUpdateMessage(updates);
@@ -273,11 +273,11 @@ export class AppGroupCallsManager extends AppManager {
 
   public getGroupCallInput(id: GroupCallId): InputGroupCall {
     const groupCall = this.getGroupCall(id);
-    if(!groupCall) throw new Error(`Group call ${id} not found`);
+    if (!groupCall) throw new Error(`Group call ${id} not found`);
     return {
       _: 'inputGroupCall',
       id: groupCall.id,
-      access_hash: groupCall.access_hash
+      access_hash: groupCall.access_hash,
     };
   }
 
@@ -299,9 +299,9 @@ export class AppGroupCallsManager extends AppManager {
   // }
 
   public async getGroupCallParticipants(id: GroupCallId) {
-    const {nextOffset, setNextOffset} = this.prepareToSavingNextOffset(id);
+    const { nextOffset, setNextOffset } = this.prepareToSavingNextOffset(id);
 
-    if(nextOffset !== '') {
+    if (nextOffset !== '') {
       await this.apiManager.invokeApiSingleProcess({
         method: 'phone.getGroupParticipants',
         params: {
@@ -309,7 +309,7 @@ export class AppGroupCallsManager extends AppManager {
           ids: [],
           sources: [],
           offset: nextOffset || '',
-          limit: GET_PARTICIPANTS_LIMIT
+          limit: GET_PARTICIPANTS_LIMIT,
         },
         processResult: (groupCallParticipants) => {
           const newNextOffset = groupCallParticipants.count === groupCallParticipants.participants.length ? '' : groupCallParticipants.next_offset;
@@ -319,13 +319,13 @@ export class AppGroupCallsManager extends AppManager {
           this.saveApiParticipants(id, groupCallParticipants.participants);
 
           setNextOffset(newNextOffset);
-        }
+        },
       });
     }
 
     return {
       participants: this.getCachedParticipants(id),
-      isEnd: this.nextOffsets.get(id) === ''
+      isEnd: this.nextOffsets.get(id) === '',
     };
   }
 
@@ -346,7 +346,7 @@ export class AppGroupCallsManager extends AppManager {
    */
   public refreshConferenceParticipants(id: GroupCallId): Promise<boolean> {
     const groupCall = this.getGroupCall(id);
-    if(!groupCall || groupCall._ !== 'groupCall') {
+    if (!groupCall || groupCall._ !== 'groupCall') {
       // No cached call → can't build the input (getGroupCallInput throws), so
       // there's nothing to fetch. Report `false` so the instance's watchdog
       // sees the roster sync isn't actually running and can re-hydrate.
@@ -360,7 +360,7 @@ export class AppGroupCallsManager extends AppManager {
         ids: [],
         sources: [],
         offset: '',
-        limit: GET_PARTICIPANTS_LIMIT
+        limit: GET_PARTICIPANTS_LIMIT,
       },
       processResult: (result) => {
         this.appChatsManager.saveApiChats(result.chats);
@@ -374,10 +374,10 @@ export class AppGroupCallsManager extends AppManager {
         // truncated page we'd wrongly evict everyone past the first 100.
         const gotFullList = result.participants.length >= result.count ||
           result.participants.length < GET_PARTICIPANTS_LIMIT;
-        if(gotFullList) {
+        if (gotFullList) {
           // Snapshot the entries first — saveApiParticipant mutates the map.
-          for(const [peerId, participant] of [...cached]) {
-            if(participant.pFlags.self || freshPeerIds.has(peerId)) {
+          for (const [peerId, participant] of [...cached]) {
+            if (participant.pFlags.self || freshPeerIds.has(peerId)) {
               continue;
             }
 
@@ -385,7 +385,7 @@ export class AppGroupCallsManager extends AppManager {
             // group_call_participant (roster removal) + the count decrement.
             this.saveApiParticipant(id, {
               ...participant,
-              pFlags: {...participant.pFlags, left: true}
+              pFlags: { ...participant.pFlags, left: true },
             });
           }
         }
@@ -404,25 +404,25 @@ export class AppGroupCallsManager extends AppManager {
 
         // Server count is authoritative — the per-participant +/- bookkeeping in
         // saveApiParticipant can't see joins (no `just_joined` on a poll).
-        if(groupCall.participants_count !== result.count) {
+        if (groupCall.participants_count !== result.count) {
           groupCall.participants_count = result.count;
           this.rootScope.dispatchEvent('group_call_update', groupCall);
         }
-      }
+      },
     }).then(() => true);
   }
 
   public hangUp(id: GroupCallId, discard?: boolean | number) {
     const groupCallInput = this.getGroupCallInput(id);
     let promise: Promise<Updates>;
-    if(typeof(discard) === 'boolean' && discard) {
+    if (typeof(discard) === 'boolean' && discard) {
       promise = this.apiManager.invokeApi('phone.discardGroupCall', {
-        call: groupCallInput
+        call: groupCallInput,
       });
-    } else if(typeof(discard) === 'number') {
+    } else if (typeof(discard) === 'number') {
       promise = this.apiManager.invokeApi('phone.leaveGroupCall', {
         call: groupCallInput,
-        source: discard
+        source: discard,
       });
     } else { // ! this doesn't work anymore
       promise = this.apiManager.invokeApi('phone.joinGroupCall', {
@@ -432,8 +432,8 @@ export class AppGroupCallsManager extends AppManager {
         video_stopped: true,
         params: {
           _: 'dataJSON',
-          data: ''
-        }
+          data: '',
+        },
       });
     }
 
@@ -464,27 +464,27 @@ export class AppGroupCallsManager extends AppManager {
       options.e2eCallInput :
       this.getGroupCallInput(groupCallId);
     let promise: Promise<Updates>;
-    if(options.type === 'main') {
+    if (options.type === 'main') {
       const request: PhoneJoinGroupCall = {
         call: groupCallInput,
         join_as: this.appPeersManager.getInputPeerSelf(),
         params,
         muted: options.isMuted,
-        video_stopped: !options.joinVideo
+        video_stopped: !options.joinVideo,
       };
 
       // Conference (TdE2E) extras — only set when the caller drove the join
       // through the e2e path. Server distinguishes a conference join by the
       // presence of both fields.
-      if(options.e2ePublicKey) request.public_key = options.e2ePublicKey;
-      if(options.e2eBlock) request.block = options.e2eBlock;
+      if (options.e2ePublicKey) request.public_key = options.e2ePublicKey;
+      if (options.e2eBlock) request.block = options.e2eBlock;
 
       promise = this.apiManager.invokeApi('phone.joinGroupCall', request);
       this.log(`[api] joinGroupCall id=${groupCallId}`, request);
     } else {
       const request: PhoneJoinGroupCallPresentation = {
         call: groupCallInput,
-        params
+        params,
       };
 
       promise = this.apiManager.invokeApi('phone.joinGroupCallPresentation', request);
@@ -499,7 +499,7 @@ export class AppGroupCallsManager extends AppManager {
     // can rewrite their placeholder instance.id without a separate lookup.
     // For id-form joins this is the same call we already knew about.
     const groupCallUpdate = (updates as Updates.updates).updates.find((u) => u._ === 'updateGroupCall');
-    if(groupCallUpdate && groupCallUpdate.call._ !== 'groupCallDiscarded') {
+    if (groupCallUpdate && groupCallUpdate.call._ !== 'groupCallDiscarded') {
       // Keep the id in its native (fetchLong) form — number for small ids,
       // string for large — so it stays === the manager's cache key.
       const extended = update as Update.updateGroupCallConnection & {resolvedCallId?: GroupCallId};
@@ -516,7 +516,7 @@ export class AppGroupCallsManager extends AppManager {
     // leaving an empty call popup and no inbound video. Only the cursor is
     // cleared here (not the cached participant map) so we don't wipe a
     // participant the join updates may have just added.
-    if(options.type === 'main') {
+    if (options.type === 'main') {
       const resolvedId = (groupCallUpdate && groupCallUpdate.call._ !== 'groupCallDiscarded') ?
         groupCallUpdate.call.id :
         groupCallId;
@@ -527,7 +527,7 @@ export class AppGroupCallsManager extends AppManager {
 
   public leaveGroupCallPresentation(groupCallId: GroupCallId) {
     return this.apiManager.invokeApi('phone.leaveGroupCallPresentation', {
-      call: this.getGroupCallInput(groupCallId)
+      call: this.getGroupCallInput(groupCallId),
     }).then((updates) => {
       this.apiUpdatesManager.processUpdateMessage(updates);
     });
@@ -535,28 +535,28 @@ export class AppGroupCallsManager extends AppManager {
 
   public async _fetchRtmpState(call: InputGroupCall.inputGroupCall, retry = 0, dcId?: DcId): Promise<GroupCallRtmpState> {
     const full = await this.getGroupCallFull(call.id);
-    if(full._ === 'groupCallDiscarded') {
+    if (full._ === 'groupCallDiscarded') {
       throw new Error('Group call discarded');
     }
 
     dcId ??= full.stream_dc_id || await this.apiManager.getBaseDcId();
 
     try {
-      const res = await this.apiManager.invokeApi('phone.getGroupCallStreamChannels', {call}, {dcId});
+      const res = await this.apiManager.invokeApi('phone.getGroupCallStreamChannels', { call }, { dcId });
       return {
         channels: res.channels,
         dcId,
-        time: Date.now()
+        time: Date.now(),
       };
-    } catch(error) {
+    } catch (error) {
       assumeType<ApiError>(error);
 
-      if(error.type?.indexOf('CALL_MIGRATE') === 0) {
+      if (error.type?.indexOf('CALL_MIGRATE') === 0) {
         const dcId = +error.type.match(/^(CALL_MIGRATE_)(\d+)/)![2];
         return this._fetchRtmpState(call, retry, dcId);
       }
 
-      if(error.type === 'GROUPCALL_INVALID' && retry < 3) {
+      if (error.type === 'GROUPCALL_INVALID' && retry < 3) {
         // this sometimes happens for some reason. retry
         return this._fetchRtmpState(call, retry + 1);
       }
@@ -568,14 +568,14 @@ export class AppGroupCallsManager extends AppManager {
   public fetchRtmpState(call: InputGroupCall.inputGroupCall, overwrite?: boolean) {
     const callId = call.id;
     const cached = this.cachedStreamChannels.get(callId);
-    if(cached && !overwrite) {
+    if (cached && !overwrite) {
       return cached;
     }
 
     const promise = this._fetchRtmpState(call);
     promise.finally(() => {
       setTimeout(() => {
-        if(this.cachedStreamChannels.get(callId) === promise) {
+        if (this.cachedStreamChannels.get(callId) === promise) {
           this.cachedStreamChannels.delete(callId);
         }
       }, 1000);
@@ -592,9 +592,9 @@ export class AppGroupCallsManager extends AppManager {
       offset: 0,
       limit: 512 * 1024,
       priority: 32,
-      floodMaxTimeout: 0
+      floodMaxTimeout: 0,
     }).then((result) => {
-      if(!result.bytes.length) {
+      if (!result.bytes.length) {
         return;
       }
 
@@ -606,7 +606,7 @@ export class AppGroupCallsManager extends AppManager {
   public fetchRtmpUrl(peerId: PeerId, revoke = false) {
     return this.apiManager.invokeApi('phone.getGroupCallStreamRtmpUrl', {
       peer: this.appPeersManager.getInputPeerById(peerId),
-      revoke
+      revoke,
     });
   }
 
@@ -616,7 +616,7 @@ export class AppGroupCallsManager extends AppManager {
       call,
       video: params.recordVideo,
       video_portrait: params.videoHorizontal,
-      title: params.name || undefined
+      title: params.name || undefined,
     });
 
     this.apiUpdatesManager.processUpdateMessage(updates);
@@ -625,7 +625,7 @@ export class AppGroupCallsManager extends AppManager {
   public async stopRecording(call: InputGroupCall) {
     const updates = await this.apiManager.invokeApi('phone.toggleGroupCallRecord', {
       start: false,
-      call
+      call,
     });
 
     this.apiUpdatesManager.processUpdateMessage(updates);
@@ -643,7 +643,7 @@ export class AppGroupCallsManager extends AppManager {
     const updates = await this.apiManager.invokeApi('phone.toggleGroupCallSettings', {
       call: this.getGroupCallInput(id),
       join_muted: options.joinMuted,
-      reset_invite_hash: options.resetInviteHash
+      reset_invite_hash: options.resetInviteHash,
     });
 
     this.apiUpdatesManager.processUpdateMessage(updates);
@@ -656,7 +656,7 @@ export class AppGroupCallsManager extends AppManager {
   public async exportGroupCallInvite(id: GroupCallId, canSelfUnmute?: boolean) {
     const result = await this.apiManager.invokeApiSingle('phone.exportGroupCallInvite', {
       call: this.getGroupCallInput(id),
-      can_self_unmute: canSelfUnmute
+      can_self_unmute: canSelfUnmute,
     });
 
     return result.link;

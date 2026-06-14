@@ -11,13 +11,13 @@
  *   3. Failure modes — wrong user_id, non-participant, status sticky.
  */
 
-import {beforeAll, describe, expect, it} from 'vitest';
-import {E2eCall, CallError} from '../call';
-import {bytesToHex, ensureCryptoReady, sha256} from '../crypto';
-import {PrivateKey} from '../keys';
-import {decodeBlock, GroupParticipant, GroupState} from '../tlTypes';
-import {PERM_ADD_USERS, PERM_REMOVE_USERS} from '../tlTypes';
-import {localToServer, serverToLocal, TLReader} from '../tl';
+import { beforeAll, describe, expect, it } from 'vitest';
+import { E2eCall, CallError } from '../call';
+import { bytesToHex, ensureCryptoReady, sha256 } from '../crypto';
+import { PrivateKey } from '../keys';
+import { decodeBlock, GroupParticipant, GroupState } from '../tlTypes';
+import { PERM_ADD_USERS, PERM_REMOVE_USERS } from '../tlTypes';
+import { localToServer, serverToLocal, TLReader } from '../tl';
 
 beforeAll(() => ensureCryptoReady());
 
@@ -27,7 +27,7 @@ function participantFor(userId: bigint, sk: PrivateKey, version = 1): GroupParti
     publicKey: sk.publicKeyBytes,
     canAddUsers: true,
     canRemoveUsers: true,
-    version
+    version,
   };
 }
 
@@ -37,7 +37,7 @@ describe('E2eCall — block lifecycle', () => {
     const aliceUserId = BigInt(1001);
     const groupState: GroupState = {
       participants: [participantFor(aliceUserId, alice)],
-      externalPermissions: PERM_ADD_USERS | PERM_REMOVE_USERS
+      externalPermissions: PERM_ADD_USERS | PERM_REMOVE_USERS,
     };
     const zeroBlockLocal = await E2eCall.createZeroBlock(alice, groupState);
 
@@ -68,7 +68,7 @@ describe('E2eCall — block lifecycle', () => {
     const bob = PrivateKey.fromSeed(new Uint8Array(32).fill(3));
     const groupState: GroupState = {
       participants: [participantFor(BigInt(1), alice)],
-      externalPermissions: PERM_ADD_USERS
+      externalPermissions: PERM_ADD_USERS,
     };
     const zeroBlock = await E2eCall.createZeroBlock(alice, groupState);
     await expect(E2eCall.create(BigInt(99), bob, zeroBlock)).rejects.toThrow(CallError);
@@ -78,7 +78,7 @@ describe('E2eCall — block lifecycle', () => {
     const alice = PrivateKey.fromSeed(new Uint8Array(32).fill(4));
     const groupState: GroupState = {
       participants: [participantFor(BigInt(7), alice)],
-      externalPermissions: 0
+      externalPermissions: 0,
     };
     const zeroBlock = await E2eCall.createZeroBlock(alice, groupState);
     // Use the correct private key but claim a different user_id.
@@ -96,7 +96,7 @@ describe('E2eCall — two-party flow', () => {
     // 1) Alice creates the zero block.
     const zeroBlockServer = await E2eCall.createZeroBlock(alice, {
       participants: [participantFor(aliceUserId, alice)],
-      externalPermissions: PERM_ADD_USERS | PERM_REMOVE_USERS
+      externalPermissions: PERM_ADD_USERS | PERM_REMOVE_USERS,
     });
 
     // 2) Alice hydrates from her own zero block.
@@ -136,7 +136,7 @@ describe('E2eCall — two-party flow', () => {
 
     const zero = await E2eCall.createZeroBlock(alice, {
       participants: [participantFor(aliceId, alice)],
-      externalPermissions: 0
+      externalPermissions: 0,
     });
     const aliceCall = await E2eCall.create(aliceId, alice, zero);
     const selfAdd = await E2eCall.createSelfAddBlock(bob, zero, participantFor(bobId, bob));
@@ -161,7 +161,7 @@ describe('E2eCall — two-party flow', () => {
     const aliceId = BigInt(500);
     const zero = await E2eCall.createZeroBlock(alice, {
       participants: [participantFor(aliceId, alice)],
-      externalPermissions: 0
+      externalPermissions: 0,
     });
     const aliceCall = await E2eCall.create(aliceId, alice, zero);
     const packet = await aliceCall.encrypt(0, new Uint8Array([1, 2, 3]), 0);
@@ -178,7 +178,7 @@ describe('E2eCall — emoji verification end-to-end', () => {
 
     const zero = await E2eCall.createZeroBlock(alice, {
       participants: [participantFor(aliceId, alice)],
-      externalPermissions: 0
+      externalPermissions: 0,
     });
     const aliceCall = await E2eCall.create(aliceId, alice, zero);
     const selfAdd = await E2eCall.createSelfAddBlock(bob, zero, participantFor(bobId, bob));
@@ -226,13 +226,13 @@ describe('E2eCall — emoji verification end-to-end', () => {
     const aliceId = BigInt(800);
     const zero = await E2eCall.createZeroBlock(alice, {
       participants: [participantFor(aliceId, alice)],
-      externalPermissions: 0
+      externalPermissions: 0,
     });
     const aliceCall = await E2eCall.create(aliceId, alice, zero);
 
     // Random 100 bytes — not a valid TL broadcast.
     const garbage = new Uint8Array(100);
-    for(let i = 0; i < garbage.length; i++) garbage[i] = (i * 31 + 7) & 0xff;
+    for (let i = 0; i < garbage.length; i++) garbage[i] = (i * 31 + 7) & 0xff;
 
     await aliceCall.receiveInbound(garbage);
     // Call must still be healthy.
@@ -246,7 +246,7 @@ describe('E2eCall — failure modes', () => {
     const aliceId = BigInt(900);
     const zero = await E2eCall.createZeroBlock(alice, {
       participants: [participantFor(aliceId, alice)],
-      externalPermissions: 0
+      externalPermissions: 0,
     });
     const call = await E2eCall.create(aliceId, alice, zero);
 
@@ -256,7 +256,7 @@ describe('E2eCall — failure modes', () => {
     // (state.height already 0, expected next = 1).
     const otherZero = await E2eCall.createZeroBlock(alice, {
       participants: [participantFor(BigInt(901), PrivateKey.fromSeed(new Uint8Array(32).fill(91)))],
-      externalPermissions: 0
+      externalPermissions: 0,
     });
     await expect(call.applyBlockBytes(otherZero)).rejects.toThrow();
     expect(call.getStatus()).not.toBeNull();
@@ -271,7 +271,7 @@ describe('E2eCall — failure modes', () => {
     const aliceId = BigInt(950);
     const zero = await E2eCall.createZeroBlock(alice, {
       participants: [participantFor(aliceId, alice)],
-      externalPermissions: 0
+      externalPermissions: 0,
     });
     const call = await E2eCall.create(aliceId, alice, zero);
     const heightBefore = call.getHeight();
@@ -293,7 +293,7 @@ describe('E2eCall — failure modes', () => {
     const alice = PrivateKey.fromSeed(new Uint8Array(32).fill(100));
     const zero = await E2eCall.createZeroBlock(alice, {
       participants: [participantFor(BigInt(1), alice)],
-      externalPermissions: 0
+      externalPermissions: 0,
     });
     const decoded1 = decodeBlock(new TLReader(serverToLocal(zero)));
     const decoded2 = decodeBlock(new TLReader(serverToLocal(zero)));
@@ -316,7 +316,7 @@ describe('E2eCall — applyBlockBytes dedup by hash', () => {
     const aliceId = BigInt(1100);
     const zeroLocal = await E2eCall.createZeroBlock(alice, {
       participants: [participantFor(aliceId, alice)],
-      externalPermissions: 0
+      externalPermissions: 0,
     });
     const call = await E2eCall.create(aliceId, alice, zeroLocal);
     const heightBefore = call.getHeight();
@@ -340,7 +340,7 @@ describe('E2eCall — applyBlockBytes dedup by hash', () => {
     const aliceId = BigInt(1200);
     const zeroLocal = await E2eCall.createZeroBlock(alice, {
       participants: [participantFor(aliceId, alice)],
-      externalPermissions: 0
+      externalPermissions: 0,
     });
     const call = await E2eCall.create(aliceId, alice, zeroLocal);
     const hashBefore = call.getLastBlockHash();
@@ -368,13 +368,13 @@ describe('E2eCall — applyBlockBytes dedup by hash', () => {
     const aliceId = BigInt(1300);
     const zero = await E2eCall.createZeroBlock(alice, {
       participants: [participantFor(aliceId, alice)],
-      externalPermissions: 0
+      externalPermissions: 0,
     });
     const call = await E2eCall.create(aliceId, alice, zero);
 
     const sibling = await E2eCall.createZeroBlock(alice, {
       participants: [participantFor(BigInt(1301), PrivateKey.fromSeed(new Uint8Array(32).fill(131)))],
-      externalPermissions: 0
+      externalPermissions: 0,
     });
     // Distinct from our chain tip — must not be treated as a dedup target.
     expect(Array.from(sibling)).not.toEqual(Array.from(zero));
@@ -401,7 +401,7 @@ describe('E2eCall — applyBlockBytes re-delivery of older blocks', () => {
 
     const zero = await E2eCall.createZeroBlock(alice, {
       participants: [participantFor(aliceId, alice)],
-      externalPermissions: PERM_ADD_USERS | PERM_REMOVE_USERS
+      externalPermissions: PERM_ADD_USERS | PERM_REMOVE_USERS,
     });
     const call = await E2eCall.create(aliceId, alice, zero);
 
@@ -429,7 +429,7 @@ describe('E2eCall — applyBlockBytes re-delivery of older blocks', () => {
 
     const zero = await E2eCall.createZeroBlock(alice, {
       participants: [participantFor(aliceId, alice)],
-      externalPermissions: PERM_ADD_USERS | PERM_REMOVE_USERS
+      externalPermissions: PERM_ADD_USERS | PERM_REMOVE_USERS,
     });
     const call = await E2eCall.create(aliceId, alice, zero);
     const bobSelfAdd = await E2eCall.createSelfAddBlock(bob, zero, participantFor(bobId, bob));

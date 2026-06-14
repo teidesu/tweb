@@ -1,6 +1,6 @@
 import clamp from '@helpers/number/clamp';
-import {createMemo, JSX, Show} from 'solid-js';
-import {Dynamic} from 'solid-js/web';
+import { createMemo, JSX, Show } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 
 
 type Props = {
@@ -46,7 +46,7 @@ export const ProgressCircleSVG = (props: Props) => {
         style={{
           'transition': transition(),
           'transform': 'rotate(-90deg)',
-          'transform-origin': '50% 50%'
+          'transform-origin': '50% 50%',
         }}
       />
       <Show when={props.withText}>
@@ -60,7 +60,7 @@ export const ProgressCircleSVG = (props: Props) => {
           style={{
             'font-size': `${props.textSize ?? 30}px`,
             'font-weight': 'bolder',
-            'fill': 'white'
+            'fill': 'white',
           }}
         >
           {(props.progress * 100).toFixed(0)}%

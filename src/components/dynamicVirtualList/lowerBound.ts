@@ -8,18 +8,18 @@ export function lowerBound(
 ): number {
   let i = 0;
 
-  while(low <= high) {
+  while (low <= high) {
     const mid = low + Math.floor((high - low) / 2);
 
     const value = getValue(mid);
 
-    if(target > value) {
+    if (target > value) {
       low = mid + 1;
     } else {
       high = mid - 1;
     }
 
-    if(i++ > maxIters) return 0;
+    if (i++ > maxIters) return 0;
   }
 
   return low;

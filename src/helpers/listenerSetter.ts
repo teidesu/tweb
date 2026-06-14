@@ -30,7 +30,7 @@ export default class ListenerSetter {
 
   public add<T extends ListenerElement>(element: T): T['addEventListener'] {
     return ((event: string, callback: Function, options: ListenerOptions) => {
-      const listener: Listener = {element, event, callback, options};
+      const listener: Listener = { element, event, callback, options };
       this.addManual(listener);
       return listener;
     }) as any;
@@ -46,7 +46,7 @@ export default class ListenerSetter {
     // @ts-ignore
     listener.element.addEventListener(listener.event, listener.callback, listener.options);
 
-    if(listener.options?.once) { // remove listener when its called
+    if (listener.options?.once) { // remove listener when its called
       listener.onceCallback = () => {
         this.remove(listener);
         listener.onceFired = true;
@@ -60,11 +60,11 @@ export default class ListenerSetter {
   }
 
   public remove(listener: Listener) {
-    if(!listener.onceFired) {
+    if (!listener.onceFired) {
       // @ts-ignore
       listener.element.removeEventListener(listener.event, listener.callback, listener.options);
 
-      if(listener.onceCallback) {
+      if (listener.onceCallback) {
         // @ts-ignore
         listener.element.removeEventListener(listener.event, listener.onceCallback, listener.options);
       }
@@ -80,8 +80,8 @@ export default class ListenerSetter {
     options?: ListenerOptions
   ) {
     let listener: Listener;
-    for(const _listener of this.listeners) {
-      if(_listener.element === element &&
+    for (const _listener of this.listeners) {
+      if (_listener.element === element &&
         _listener.event === event &&
         _listener.callback === callback &&
         _listener.options === options) {
@@ -90,7 +90,7 @@ export default class ListenerSetter {
       }
     }
 
-    if(listener!) {
+    if (listener!) {
       this.remove(listener);
     }
   }

@@ -1,6 +1,6 @@
-import type {DcId, TrueDcId} from '@types';
+import type { DcId, TrueDcId } from '@types';
 import pause from '@helpers/schedulers/pause';
-import {logger, LogTypes} from '@lib/logger';
+import { logger, LogTypes } from '@lib/logger';
 import MTTransport from '@lib/mtproto/transports/transport';
 import Modes from '@config/modes';
 import transportController from '@lib/mtproto/transports/controller';
@@ -35,7 +35,7 @@ export default class HTTP implements MTTransport {
     this.debug = Modes.debug && false;
 
     let logTypes = LogTypes.Error | LogTypes.Log;
-    if(this.debug) logTypes |= LogTypes.Debug;
+    if (this.debug) logTypes |= LogTypes.Debug;
 
     this.log = logger(`HTTP-${dcId}` + logSuffix, logTypes);
     this.log('constructor');
@@ -48,16 +48,16 @@ export default class HTTP implements MTTransport {
     mode?: RequestMode,
     timeoutMs?: number
   ) {
-    for(let attempt = 0; ; ++attempt) {
+    for (let attempt = 0; ; ++attempt) {
       try {
         return await this._sendOnce(body, mode, timeoutMs);
-      } catch(err) {
-        if(err instanceof Response && err.status === 400 && attempt < FLAKY_400_MAX_RETRIES && !this.destroyed) {
+      } catch (err) {
+        if (err instanceof Response && err.status === 400 && attempt < FLAKY_400_MAX_RETRIES && !this.destroyed) {
           this.debug && this.log.debug('flaky 400, retrying, attempt', attempt);
           continue;
         }
 
-        if(err instanceof Response) {
+        if (err instanceof Response) {
           err.arrayBuffer().then((buffer) => {
             this.log.error('not 200',
               new TextDecoder('utf-8').decode(new Uint8Array(buffer)));
@@ -82,15 +82,15 @@ export default class HTTP implements MTTransport {
 
     try {
       // networkStats.addSent(this.dcId, length);
-      const response = await fetch(this.url, {method: 'POST', body: body as BodyInit, mode, signal: controller.signal});
-      if(response.status !== 200 && !mode) {
+      const response = await fetch(this.url, { method: 'POST', body: body as BodyInit, mode, signal: controller.signal });
+      if (response.status !== 200 && !mode) {
         throw response;
       }
 
       this.setConnected(true);
 
       // * test resending by dropping random request
-      if(TEST_DROPPING_REQUESTS && this.dcId === TEST_DROPPING_REQUESTS && Math.random() > .5) {
+      if (TEST_DROPPING_REQUESTS && this.dcId === TEST_DROPPING_REQUESTS && Math.random() > .5) {
         controller.abort();
         throw 'test';
       }
@@ -104,13 +104,13 @@ export default class HTTP implements MTTransport {
   }
 
   private setConnected(connected: boolean) {
-    if(this.connected === connected || this.destroyed) {
+    if (this.connected === connected || this.destroyed) {
       return;
     }
 
     this.connected = connected;
 
-    if(import.meta.env.VITE_MTPROTO_AUTO && Modes.multipleTransports) {
+    if (import.meta.env.VITE_MTPROTO_AUTO && Modes.multipleTransports) {
       transportController.setTransportValue('https', connected);
     }
   }
@@ -123,11 +123,11 @@ export default class HTTP implements MTTransport {
   }
 
   public send(body: Uint8Array) {
-    if(this.noScheduler) {
+    if (this.noScheduler) {
       return this._send(body);
     } else {
       const promise = new Promise<typeof body>((resolve, reject) => {
-        this.pending.push({resolve, reject, body});
+        this.pending.push({ resolve, reject, body });
       });
 
       this.releasePending();
@@ -140,19 +140,19 @@ export default class HTTP implements MTTransport {
    * ! will resend the request on error
    */
   private async releasePending() {
-    if(this.releasing) return;
+    if (this.releasing) return;
 
     this.releasing = true;
     // this.log('-> messages to send:', this.pending.length);
-    for(let i = 0; i < this.pending.length; ++i) {
+    for (let i = 0; i < this.pending.length; ++i) {
       const pending = this.pending[i];
-      const {body, resolve} = pending;
+      const { body, resolve } = pending;
 
       try {
         const result = await this._send(body);
         resolve(result);
         this.pending.splice(i, 1);
-      } catch(err) {
+      } catch (err) {
         this.log.error('Send plain request error:', err);
         await pause(5000);
       }

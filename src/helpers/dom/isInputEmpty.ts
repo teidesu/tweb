@@ -1,7 +1,7 @@
 export default function isInputEmpty(element: HTMLElement, allowStartingSpace?: boolean) {
   let value: string;
-  if(element.isContentEditable || element.tagName !== 'INPUT') {
-    if(element.querySelector('.emoji, .custom-emoji, .custom-emoji-placeholder')) {
+  if (element.isContentEditable || element.tagName !== 'INPUT') {
+    if (element.querySelector('.emoji, .custom-emoji, .custom-emoji-placeholder')) {
       return false;
     }
     /* const value = element.innerText;
@@ -13,7 +13,7 @@ export default function isInputEmpty(element: HTMLElement, allowStartingSpace?: 
     value = (element as HTMLInputElement).value;
   }
 
-  if(!allowStartingSpace) {
+  if (!allowStartingSpace) {
     return !value.trim();
   }
 

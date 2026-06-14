@@ -1,58 +1,58 @@
-import {batch, createContext, createEffect, createMemo, createResource, createSignal, For, JSX, on, onCleanup, Show, untrack, useContext} from 'solid-js';
-import {render} from 'solid-js/web';
+import { batch, createContext, createEffect, createMemo, createResource, createSignal, For, JSX, on, onCleanup, Show, untrack, useContext } from 'solid-js';
+import { render } from 'solid-js/web';
 import Section from '@components/section';
 import numberThousandSplitter from '@helpers/number/numberThousandSplitter';
-import {useChat, usePeer} from '@stores/peers';
-import {BusinessWorkHours, Chat, ChatFull, GeoPoint, HelpTimezonesList, Photo, StoryItem, Document, MessageMedia, Timezone, User, UserFull, UserStatus} from '@layer';
-import {useFullPeer} from '@stores/fullPeers';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { useChat, usePeer } from '@stores/peers';
+import { BusinessWorkHours, Chat, ChatFull, GeoPoint, HelpTimezonesList, Photo, StoryItem, Document, MessageMedia, Timezone, User, UserFull, UserStatus } from '@layer';
+import { useFullPeer } from '@stores/fullPeers';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 import createMiddleware from '@helpers/solid/createMiddleware';
-import {Skeleton} from '@components/skeleton';
-import {Middleware} from '@helpers/middleware';
+import { Skeleton } from '@components/skeleton';
+import { Middleware } from '@helpers/middleware';
 import pause from '@helpers/schedulers/pause';
 import classNames from '@helpers/string/classNames';
 import Row from '@components/rowTsx';
 import formatUserPhone from '@components/wrappers/formatUserPhone';
-import {copyTextToClipboard} from '@helpers/clipboard';
+import { copyTextToClipboard } from '@helpers/clipboard';
 import safeWindowOpen from '@helpers/dom/safeWindowOpen';
 import anchorCopy from '@helpers/dom/anchorCopy';
 import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
 import getPeerActiveUsernames from '@appManagers/utils/peers/getPeerActiveUsernames';
-import {useAppConfig} from '@stores/appState';
+import { useAppConfig } from '@stores/appState';
 import detectLanguageForTranslation from '@helpers/detectLanguageForTranslation';
 import usePeerTranslation from '@hooks/usePeerTranslation';
 import makeGoogleMapsUrl from '@helpers/makeGoogleMapsUrl';
 import getWebFileLocation from '@helpers/getWebFileLocation';
 import CheckboxFieldTsx from '@components/checkboxFieldTsx';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
-import {StoriesProvider, useStories} from '@components/stories/store';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
+import { StoriesProvider, useStories } from '@components/stories/store';
 import type SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
 import type Scrollable from '@components/scrollable';
-import {wrapStarsRatingLevel} from '@components/wrappers/starsRating';
+import { wrapStarsRatingLevel } from '@components/wrappers/starsRating';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {HIDDEN_PEER_ID} from '@appManagers/constants';
-import {rgbIntToHex} from '@helpers/color';
-import {makeMediaSize} from '@helpers/mediaSize';
-import type {MyStarGift} from '@appManagers/appGiftsManager';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { HIDDEN_PEER_ID } from '@appManagers/constants';
+import { rgbIntToHex } from '@helpers/color';
+import { makeMediaSize } from '@helpers/mediaSize';
+import type { MyStarGift } from '@appManagers/appGiftsManager';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import ListenerSetter from '@helpers/listenerSetter';
-import {resolveFirst} from '@solid-primitives/refs';
+import { resolveFirst } from '@solid-primitives/refs';
 import differenceInYears from '@helpers/date/differenceInYears';
 import prepareTextWithEntitiesForCopying from '@helpers/prepareTextWithEntitiesForCopying';
 import generateVerifiedIcon from '@components/generateVerifiedIcon';
-import {IconTsx} from './iconTsx';
-import {StoriesSegments} from '@components/avatarNew';
-import {MyDocument} from '../lib/appManagers/appDocsManager';
+import { IconTsx } from './iconTsx';
+import { StoriesSegments } from '@components/avatarNew';
+import { MyDocument } from '../lib/appManagers/appDocsManager';
 import wrapEmojiText from '../lib/richTextProcessor/wrapEmojiText';
-import {wrapSolidComponent} from '../helpers/solid/wrapSolidComponent';
+import { wrapSolidComponent } from '../helpers/solid/wrapSolidComponent';
 import PopupStarGiftInfo from './popups/starGiftInfo';
 import PopupElement from './popups';
 import AppSavedMusicTab from '@components/sidebarRight/tabs/savedMusic';
 import ripple from '@components/ripple';
-import {keepMe} from '@helpers/keepMe';
+import { keepMe } from '@helpers/keepMe';
 import choosePhotoSize from '@appManagers/utils/photos/choosePhotoSize';
 import wrapPhoto from './wrappers/photo';
-import {unwrap} from 'solid-js/store';
+import { unwrap } from 'solid-js/store';
 import Button from '@components/buttonTsx';
 
 keepMe(ripple);
@@ -83,17 +83,17 @@ type PeerProfileContextValue = {
 const PeerProfileContext = createContext<PeerProfileContextValue>();
 
 function getUsernamesAlso(usernames: string[]) {
-  const {i18n, join} = useHotReloadGuard();
+  const { i18n, join } = useHotReloadGuard();
   const also = usernames.slice(1);
-  if(also.length) {
-    const a = also.map((username) => anchorCopy({username}));
+  if (also.length) {
+    const a = also.map((username) => anchorCopy({ username }));
     const i = i18n('UsernameAlso', [join(a, false)]);
     return i;
   }
 }
 
 function getStatusHiddenShow(peerId: PeerId) {
-  const {i18n, PopupElement, PopupToggleReadDate} = useHotReloadGuard();
+  const { i18n, PopupElement, PopupToggleReadDate } = useHotReloadGuard();
   return (
     <span
       class="show-when"
@@ -121,7 +121,7 @@ const PeerProfile = (props: {
   onPinnedGiftsChange?: (gifts: MyStarGift[]) => void,
   onAvatarReady?: (promise: Promise<void>) => void
 }) => {
-  const {rootScope} = useHotReloadGuard();
+  const { rootScope } = useHotReloadGuard();
   const fullPeer = useFullPeer(props.peerId);
   const [needWhite, setNeedWhite] = createSignal(false);
   const value: PeerProfileContextValue = {
@@ -154,32 +154,32 @@ const PeerProfile = (props: {
     },
     canBeDetailed: () => value.peerId !== rootScope.myId || !value.isDialog,
     getDetailsForUse: () => {
-      const {peerId, threadId} = value;
+      const { peerId, threadId } = value;
       return value.isSavedDialog ? {
         peerId: threadId,
-        threadId: undefined
+        threadId: undefined,
       } : {
         peerId,
-        threadId
+        threadId,
       };
     },
     verifyContext: (peerId: PeerId, threadId?: number) => {
-      if(value.peerId !== peerId) {
+      if (value.peerId !== peerId) {
         return false;
       }
 
       const isForum = !!(value.peer as Chat.channel).pFlags.forum;
-      if(isForum && value.threadId ? value.threadId === threadId : true) {
+      if (isForum && value.threadId ? value.threadId === threadId : true) {
         return true;
       }
 
       return false;
-    }
+    },
   };
 
   props.setCollapsedOn.classList.add('profile-container');
 
-  if(value.peerId.isUser() && value.peerId !== rootScope.myId) {
+  if (value.peerId.isUser() && value.peerId !== rootScope.myId) {
     const refreshCurrentUser = () => {
       rootScope.managers.appUsersManager.getApiUsers([value.peerId.toUserId()]);
     };
@@ -187,7 +187,7 @@ const PeerProfile = (props: {
     // * refresh user online status
     subscribeOn(rootScope)('premium_toggle', refreshCurrentUser);
     subscribeOn(rootScope)('privacy_update', (updatePrivacy) => {
-      if(updatePrivacy.key._ === 'privacyKeyStatusTimestamp') {
+      if (updatePrivacy.key._ === 'privacyKeyStatusTimestamp') {
         refreshCurrentUser();
       }
     });
@@ -219,13 +219,13 @@ const PeerProfile = (props: {
 
 PeerProfile.Avatar = () => {
   const context = useContext(PeerProfileContext);
-  const {rootScope, PeerProfileAvatars, avatarNew} = useHotReloadGuard();
-  const {peerId, threadId} = context!.getDetailsForUse();
+  const { rootScope, PeerProfileAvatars, avatarNew } = useHotReloadGuard();
+  const { peerId, threadId } = context!.getDetailsForUse();
 
   const name = (<PeerProfile.Name />) as HTMLElement;
   const subtitle = (<PeerProfile.Subtitle />) as HTMLElement;
 
-  if(!context!.needSimpleAvatar) {
+  if (!context!.needSimpleAvatar) {
     const middleware = createMiddleware()
     const avatars = new PeerProfileAvatars(
       context!.scrollable,
@@ -247,7 +247,7 @@ PeerProfile.Avatar = () => {
       wrapSolidComponent(PeerProfile.PinnedGifts, middleware.get()),
       wrapSolidComponent(PeerProfile.PinnedMusic, middleware.get()),
       wrapSolidComponent(() => PeerProfile.StoryPreviews({
-        info: avatars.info
+        info: avatars.info,
       }), middleware.get()),
     );
 
@@ -267,10 +267,10 @@ PeerProfile.Avatar = () => {
     threadId: context!.isTopic ? threadId : undefined,
     wrapOptions: {
       customEmojiSize: makeMediaSize(120, 120),
-      middleware
+      middleware,
     },
     withStories: true,
-    meAsNotes: !!(peerId === rootScope.myId && threadId)
+    meAsNotes: !!(peerId === rootScope.myId && threadId),
   });
   avatar.node.classList.add('profile-avatar', 'avatar-120');
   // Same as above — let the host wait for the simple-avatar thumb.
@@ -286,10 +286,10 @@ PeerProfile.Avatar = () => {
 
 PeerProfile.AutoAvatar = () => {
   const context = useContext(PeerProfileContext);
-  const {rootScope} = useHotReloadGuard();
+  const { rootScope } = useHotReloadGuard();
   const [needAvatar, setNeedAvatar] = createSignal(true);
   subscribeOn(rootScope)('avatar_update', (data) => {
-    if(context!.verifyContext(data.peerId, data.threadId)) {
+    if (context!.verifyContext(data.peerId, data.threadId)) {
       setNeedAvatar(!needAvatar());
     }
   });
@@ -301,8 +301,8 @@ PeerProfile.AutoAvatar = () => {
 
 PeerProfile.Name = () => {
   const context = useContext(PeerProfileContext);
-  const {rootScope, wrapPeerTitle} = useHotReloadGuard();
-  const {peerId} = context!.getDetailsForUse();
+  const { rootScope, wrapPeerTitle } = useHotReloadGuard();
+  const { peerId } = context!.getDetailsForUse();
   const [element] = createResource(() => [context!.needWhite] as const, async([needWhite]) => {
     return wrapPeerTitle({
       peerId,
@@ -311,10 +311,10 @@ PeerProfile.Name = () => {
       threadId: context!.threadId,
       wrapOptions: {
         middleware: createMiddleware().get(),
-        textColor: needWhite ? 'white' : 'primary-color'
+        textColor: needWhite ? 'white' : 'primary-color',
       },
       meAsNotes: !!(peerId === rootScope.myId && context!.threadId),
-      clickableEmojiStatus: true
+      clickableEmojiStatus: true,
     });
   });
 
@@ -334,7 +334,7 @@ PeerProfile.Subtitle = () => {
 
 PeerProfile.SubtitleRating = () => {
   const context = useContext(PeerProfileContext);
-  const {showStarsRatingPopup} = useHotReloadGuard();
+  const { showStarsRatingPopup } = useHotReloadGuard();
   const starsRating = createMemo(() => (context!.fullPeer as UserFull.userFull)?.stars_rating);
   return (
     <Show when={starsRating()}>
@@ -344,7 +344,7 @@ PeerProfile.SubtitleRating = () => {
           cancelEvent(e);
           showStarsRatingPopup({
             user: context!.peer as User.user,
-            userFull: context!.fullPeer as UserFull
+            userFull: context!.fullPeer as UserFull,
           });
         }}
       >
@@ -356,24 +356,24 @@ PeerProfile.SubtitleRating = () => {
 
 PeerProfile.SubtitleStatus = () => {
   const context = useContext(PeerProfileContext);
-  const {rootScope, appImManager, wrapTopicNameButton} = useHotReloadGuard();
+  const { rootScope, appImManager, wrapTopicNameButton } = useHotReloadGuard();
   const needWhen = createMemo(() => {
     const user = (context!.peer as User.user);
     return !!(user.status as UserStatus.userStatusRecently)?.pFlags?.by_me;
   });
   const needStatus = createMemo(() => {
-    const {peerId, isDialog} = context!;
+    const { peerId, isDialog } = context!;
     return !(!peerId || (rootScope.myId === peerId && isDialog)) &&
       peerId !== HIDDEN_PEER_ID;
   });
   const status = createMemo(() => {
-    if(!needStatus()) {
+    if (!needStatus()) {
       return;
     }
 
-    const {peerId, isDialog} = context!;
+    const { peerId, isDialog } = context!;
     const middleware = createMiddleware().get();
-    if(context!.isTopic) {
+    if (context!.isTopic) {
       const [element] = createResource(() => {
         const listenerSetter = new ListenerSetter();
         onCleanup(() => listenerSetter.removeAll());
@@ -382,12 +382,12 @@ PeerProfile.SubtitleStatus = () => {
           withIcons: false,
           noAvatarAndLink: true,
           wrapOptions: {
-            middleware
-          }
-        }).then(({element}) => {
+            middleware,
+          },
+        }).then(({ element }) => {
           attachClickEvent(element, (e) => {
-            appImManager.setPeer({peerId});
-          }, {listenerSetter});
+            appImManager.setPeer({ peerId });
+          }, { listenerSetter });
           return element;
         });
       });
@@ -400,7 +400,7 @@ PeerProfile.SubtitleStatus = () => {
     let span: HTMLSpanElement;
     const ret = (<span ref={span!}></span>);
     let first = true;
-    const [ready, {refetch}] = createResource(() => {
+    const [ready, { refetch }] = createResource(() => {
       const _first = first;
       first = false;
       return appImManager.setPeerStatus({
@@ -409,19 +409,19 @@ PeerProfile.SubtitleStatus = () => {
         needClear: _first,
         useWhitespace: true,
         middleware,
-        ignoreSelf: !isDialog
+        ignoreSelf: !isDialog,
       }).then((callback) => (callback?.(), true));
     });
 
-    subscribeOn(rootScope)('peer_typings', ({peerId}) => {
-      if(context!.peerId === peerId) {
+    subscribeOn(rootScope)('peer_typings', ({ peerId }) => {
+      if (context!.peerId === peerId) {
         refetch();
       }
     });
 
-    if(context!.peerId.isUser()) {
+    if (context!.peerId.isUser()) {
       subscribeOn(rootScope)('user_update', (userId) => {
-        if(context!.peerId === userId.toPeerId(false)) {
+        if (context!.peerId === userId.toPeerId(false)) {
           refetch();
         }
       });
@@ -451,11 +451,11 @@ PeerProfile.SubtitleStatus = () => {
 
 PeerProfile.PinnedGifts = () => {
   const context = useContext(PeerProfileContext);
-  const {rootScope, wrapSticker} = useHotReloadGuard();
-  const {peerId} = context!.getDetailsForUse();
+  const { rootScope, wrapSticker } = useHotReloadGuard();
+  const { peerId } = context!.getDetailsForUse();
   const giftsCount = createMemo(() => (context!.fullPeer as UserFull.userFull)?.stargifts_count);
   const [pinnedGifts] = createResource(giftsCount, (count) => {
-    if(!peerId.isUser() || !count) {
+    if (!peerId.isUser() || !count) {
       return;
     }
 
@@ -463,35 +463,35 @@ PeerProfile.PinnedGifts = () => {
   });
   const [elements] = createResource(pinnedGifts, async(gifts) => {
     context!.onPinnedGiftsChange?.(gifts);
-    if(!gifts) {
+    if (!gifts) {
       return;
     }
 
     const middleware = createMiddleware().get();
     const promises = gifts
-    .filter((it) => it.saved!.pFlags.pinned_to_top)
-    .map(async(gift, idx) => {
-      const div = document.createElement('div');
-      div.className = 'profile-pinned-gift';
-      div.setAttribute('data-idx', idx.toString());
-      div.style.setProperty(
-        '--halo-color',
-        rgbIntToHex(gift.collectibleAttributes!.backdrop.center_color)
-      );
-      await wrapSticker({
-        doc: gift.sticker,
-        static: true,
-        middleware,
-        width: 30,
-        height: 30,
-        div
-      }).then((r) => r.render);
-      attachClickEvent(div, (e) => {
-        cancelEvent(e)
-        PopupElement.createPopup(PopupStarGiftInfo, {gift})
-      })
-      return div;
-    });
+      .filter((it) => it.saved!.pFlags.pinned_to_top)
+      .map(async(gift, idx) => {
+        const div = document.createElement('div');
+        div.className = 'profile-pinned-gift';
+        div.setAttribute('data-idx', idx.toString());
+        div.style.setProperty(
+          '--halo-color',
+          rgbIntToHex(gift.collectibleAttributes!.backdrop.center_color)
+        );
+        await wrapSticker({
+          doc: gift.sticker,
+          static: true,
+          middleware,
+          width: 30,
+          height: 30,
+          div,
+        }).then((r) => r.render);
+        attachClickEvent(div, (e) => {
+          cancelEvent(e)
+          PopupElement.createPopup(PopupStarGiftInfo, { gift })
+        })
+        return div;
+      });
 
     return Promise.all(promises);
   });
@@ -505,12 +505,12 @@ PeerProfile.PinnedGifts = () => {
 
 PeerProfile.PersonalChannel = () => {
   const context = useContext(PeerProfileContext);
-  const {appDialogsManager, apiManagerProxy, rootScope, i18n} = useHotReloadGuard();
+  const { appDialogsManager, apiManagerProxy, rootScope, i18n } = useHotReloadGuard();
   const channelId = createMemo(() => (context!.fullPeer as UserFull)?.personal_channel_id);
   const chat = createMemo(() => useChat(channelId()!));
 
   const list = createMemo(() => {
-    if(!channelId()) {
+    if (!channelId()) {
       return;
     }
 
@@ -526,9 +526,9 @@ PeerProfile.PersonalChannel = () => {
       rippleEnabled: true,
       avatarSize: 'abitbigger',
       append: true,
-      wrapOptions: {middleware},
+      wrapOptions: { middleware },
       withStories: true,
-      loadPromises
+      loadPromises,
     });
 
     dialogElement.container.classList.add('personal-channel');
@@ -541,7 +541,7 @@ PeerProfile.PersonalChannel = () => {
       const dispose = render(() => {
         return Skeleton({
           children,
-          loading: createMemo(() => !children())
+          loading: createMemo(() => !children()),
         });
       }, props.element);
 
@@ -559,10 +559,10 @@ PeerProfile.PersonalChannel = () => {
       await appDialogsManager.setLastMessageN({
         dialog: {
           _: 'dialog',
-          peerId
+          peerId,
         } as any,
         lastMessage: message,
-        dialogElement
+        dialogElement,
       });
 
       setSubtitleChildren?.(dialogElement.subtitle);
@@ -570,23 +570,23 @@ PeerProfile.PersonalChannel = () => {
     });
 
     let setSubtitleChildren: (children: JSX.Element) => void, setTimeChildren: (children: JSX.Element) => void;
-    if(!isCached) {
+    if (!isCached) {
       const _subtitle = dialogElement.subtitle.cloneNode(true) as HTMLElement;
       dialogElement.subtitle.replaceWith(_subtitle);
       setSubtitleChildren = makeSkeleton({
         element: _subtitle,
-        middleware
+        middleware,
       });
 
       const timeSpan = dialogElement.dom.lastTimeSpan.cloneNode(true) as HTMLElement;
       dialogElement.dom.lastTimeSpan.replaceWith(timeSpan);
       setTimeChildren = makeSkeleton({
         element: timeSpan,
-        middleware
+        middleware,
       });
     }
 
-    if(isCached) {
+    if (isCached) {
       loadPromises.push(readyPromise);
     }
 
@@ -600,7 +600,7 @@ PeerProfile.PersonalChannel = () => {
           appDialogsManager.setListClickListener({
             list: element,
             autonomous: false,
-            openInner: true
+            openInner: true,
           });
         }}
         name={
@@ -609,7 +609,7 @@ PeerProfile.PersonalChannel = () => {
               {i18n('AccDescrChannel')}
               <span class="personal-channel-counter">
                 {i18n('Subscribers', [
-                  numberThousandSplitter((chat() as Chat.channel).participants_count!)
+                  numberThousandSplitter((chat() as Chat.channel).participants_count!),
                 ])}
               </span>
             </span>
@@ -624,7 +624,7 @@ PeerProfile.PersonalChannel = () => {
 
 PeerProfile.PinnedMusic = () => {
   const context = useContext(PeerProfileContext);
-  const {appSidebarRight} = useHotReloadGuard();
+  const { appSidebarRight } = useHotReloadGuard();
 
   const openSavedMusic = (e: Event) => {
     cancelEvent(e);
@@ -640,7 +640,7 @@ PeerProfile.PinnedMusic = () => {
 
   return (
     <div class="profile-music-container">
-      <div class="profile-music" on:click={{capture: true, handleEvent: openSavedMusic}} use:ripple>
+      <div class="profile-music" on:click={{ capture: true, handleEvent: openSavedMusic }} use:ripple>
         <div class="profile-music-inner">
           <IconTsx icon="note" class="profile-music-icon" />
           <Show when={audioAttr()?.performer}>
@@ -661,23 +661,23 @@ PeerProfile.PinnedMusic = () => {
 
 PeerProfile.Phone = () => {
   const context = useContext(PeerProfileContext);
-  const {I18n, i18n, toast} = useHotReloadGuard();
+  const { I18n, i18n, toast } = useHotReloadGuard();
   const appConfig = useAppConfig();
 
   const phoneDetails = createMemo(() => {
-    if(!context!.peerId.isUser() || !context!.canBeDetailed()) {
+    if (!context!.peerId.isUser() || !context!.canBeDetailed()) {
       return;
     }
 
     const phone = (context!.peer as User.user).phone;
-    if(!phone) {
+    if (!phone) {
       return;
     }
 
     return {
       phone,
       isAnonymous: appConfig.fragment_prefixes!.some((prefix) => phone.startsWith(prefix)),
-      formatted: formatUserPhone(phone)
+      formatted: formatUserPhone(phone),
     };
   });
 
@@ -694,7 +694,7 @@ PeerProfile.Phone = () => {
           buttons: [{
             icon: 'copy',
             text: 'Text.CopyLabel_PhoneNumber',
-            onClick: copyPhoneNumber
+            onClick: copyPhoneNumber,
           }, {
             icon: 'info',
             text: 'PeerInfo.Phone.AnonymousInfo',
@@ -707,8 +707,8 @@ PeerProfile.Phone = () => {
             },
             separator: true,
             secondary: true,
-            verify: () => phoneDetails()!.isAnonymous
-          }]
+            verify: () => phoneDetails()!.isAnonymous,
+          }],
         }}
       >
         <Row.Title>{phoneDetails()!.formatted}</Row.Title>
@@ -720,9 +720,9 @@ PeerProfile.Phone = () => {
 
 PeerProfile.Username = () => {
   const context = useContext(PeerProfileContext);
-  const {I18n, i18n, toast, showMyQrCodePopup, rootScope} = useHotReloadGuard();
+  const { I18n, i18n, toast, showMyQrCodePopup, rootScope } = useHotReloadGuard();
   const usernames = createMemo(() => {
-    if(!context!.peerId.isUser() || !context!.canBeDetailed()) {
+    if (!context!.peerId.isUser() || !context!.canBeDetailed()) {
       return;
     }
 
@@ -744,8 +744,8 @@ PeerProfile.Username = () => {
           buttons: [{
             icon: 'copy',
             text: 'Text.CopyLabel_Username',
-            onClick: onClick
-          }]
+            onClick: onClick,
+          }],
         }}
       >
         <Row.Title>{mainUsername()}</Row.Title>
@@ -760,7 +760,7 @@ PeerProfile.Username = () => {
 
 PeerProfile.QrButton = () => {
   const context = useContext(PeerProfileContext);
-  const {showMyQrCodePopup, rootScope} = useHotReloadGuard();
+  const { showMyQrCodePopup, rootScope } = useHotReloadGuard();
   return (
     <Show when={context!.peerId !== rootScope.myId}>
       <Row.RightContent>
@@ -775,11 +775,11 @@ PeerProfile.QrButton = () => {
 
 PeerProfile.Birthday = () => {
   const context = useContext(PeerProfileContext);
-  const {I18n, i18n, wrapEmojiText, rootScope, PopupElement, PopupSendGift, showBirthdayPopup, saveMyBirthday, toastNew} = useHotReloadGuard();
+  const { I18n, i18n, wrapEmojiText, rootScope, PopupElement, PopupSendGift, showBirthdayPopup, saveMyBirthday, toastNew } = useHotReloadGuard();
   const birthday = createMemo(() => (context!.fullPeer as UserFull.userFull)?.birthday);
   const isToday = createMemo(() => {
     const birthday$ = birthday();
-    if(!birthday$) return false;
+    if (!birthday$) return false;
 
     const today = new Date();
     return birthday$.day === today.getDate() && birthday$.month === today.getMonth() + 1;
@@ -787,7 +787,7 @@ PeerProfile.Birthday = () => {
 
   const text = createMemo(() => {
     const birthday$ = birthday();
-    if(!birthday$) return '';
+    if (!birthday$) return '';
 
     const date = new Date(birthday$.year ?? new Date().getFullYear(), birthday$.month - 1, birthday$.day);
 
@@ -796,13 +796,13 @@ PeerProfile.Birthday = () => {
       options: {
         day: 'numeric',
         month: 'long',
-        year: birthday$.year ? 'numeric' : undefined
-      }
+        year: birthday$.year ? 'numeric' : undefined,
+      },
     }).element;
 
-    if(isToday()) el.prepend(wrapEmojiText('🎂 '));
+    if (isToday()) el.prepend(wrapEmojiText('🎂 '));
 
-    if(birthday$.year) {
+    if (birthday$.year) {
       const years = differenceInYears(date, new Date());
       el.append(i18n('BirthdayYearsOld', [years]));
     }
@@ -812,20 +812,20 @@ PeerProfile.Birthday = () => {
 
   const onCopyClick = () => {
     copyTextToClipboard((text() as HTMLElement).textContent);
-    toastNew({langPackKey: 'TextCopied'});
+    toastNew({ langPackKey: 'TextCopied' });
   };
 
   const onClick = createMemo(() => {
-    if(context!.peerId === rootScope.myId) {
+    if (context!.peerId === rootScope.myId) {
       return () => showBirthdayPopup({
         initialDate: birthday(),
         fromProfile: true,
-        onSave: saveMyBirthday
+        onSave: saveMyBirthday,
       });
     }
 
-    if(isToday()) {
-      return () => PopupElement.createPopup(PopupSendGift, {peerId: context!.peerId});
+    if (isToday()) {
+      return () => PopupElement.createPopup(PopupSendGift, { peerId: context!.peerId });
     }
 
     return onCopyClick;
@@ -840,8 +840,8 @@ PeerProfile.Birthday = () => {
           buttons: [{
             icon: 'copy',
             text: 'Copy',
-            onClick: onCopyClick
-          }]
+            onClick: onCopyClick,
+          }],
         }}
       >
         <Row.Title>{text()}</Row.Title>
@@ -855,19 +855,19 @@ PeerProfile.Birthday = () => {
 
 PeerProfile.ContactNote = () => {
   const context = useContext(PeerProfileContext);
-  const {i18n, wrapEmojiText, toastNew} = useHotReloadGuard();
+  const { i18n, wrapEmojiText, toastNew } = useHotReloadGuard();
   const note = createMemo(() => (context!.fullPeer as UserFull.userFull)?.note);
   const text = createMemo(() => {
     const note$ = note();
-    if(!note$) return;
+    if (!note$) return;
 
     return wrapEmojiText(note$.text, false, note$.entities);
   });
 
   const onClick = () => {
-    const {text, html} = prepareTextWithEntitiesForCopying(note()!);
+    const { text, html } = prepareTextWithEntitiesForCopying(note()!);
     copyTextToClipboard(text, html);
-    toastNew({langPackKey: 'TextCopied'});
+    toastNew({ langPackKey: 'TextCopied' });
   };
 
   return (
@@ -879,8 +879,8 @@ PeerProfile.ContactNote = () => {
           buttons: [{
             icon: 'copy',
             text: 'Text.CopyLabel_Note',
-            onClick
-          }]
+            onClick,
+          }],
         }}
       >
         <Row.Title>{text()}</Row.Title>
@@ -894,11 +894,11 @@ PeerProfile.ContactNote = () => {
 
 PeerProfile.Location = () => {
   const context = useContext(PeerProfileContext);
-  const {i18n} = useHotReloadGuard();
+  const { i18n } = useHotReloadGuard();
 
   const location = createMemo(() => {
     const location = (context!.fullPeer as ChatFull.channelFull)?.location;
-    if(location?._ === 'channelLocation') {
+    if (location?._ === 'channelLocation') {
       return location;
     }
   });
@@ -915,7 +915,7 @@ PeerProfile.Location = () => {
 
 PeerProfile.Bio = () => {
   const context = useContext(PeerProfileContext);
-  const {i18n, PopupPremium, showTranslatePopup, I18n, wrapRichText, toast} = useHotReloadGuard();
+  const { i18n, PopupPremium, showTranslatePopup, I18n, wrapRichText, toast } = useHotReloadGuard();
   const appConfig = useAppConfig();
   const peerTranslation = usePeerTranslation(context!.peerId);
 
@@ -923,17 +923,17 @@ PeerProfile.Bio = () => {
   const bioLanguagePromise = createMemo(() => detectLanguageForTranslation(about()!));
 
   const aboutWrapped = createMemo(() => {
-    if(!about()) {
+    if (!about()) {
       return;
     }
 
     return wrapRichText(about()!, {
-      whitelistedDomains: (context!.peer as User.user).pFlags.premium ? undefined : appConfig.whitelisted_domains
+      whitelistedDomains: (context!.peer as User.user).pFlags.premium ? undefined : appConfig.whitelisted_domains,
     });
   });
 
   const onClick = (e: MouseEvent | TouchEvent) => {
-    if((e.target as HTMLElement).tagName === 'A') {
+    if ((e.target as HTMLElement).tagName === 'A') {
       return;
     }
 
@@ -950,32 +950,32 @@ PeerProfile.Bio = () => {
             icon: 'copy',
             text: 'Text.CopyLabel_About',
             onClick,
-            verify: () => !context!.peerId.isUser()
+            verify: () => !context!.peerId.isUser(),
           }, {
             icon: 'copy',
             text: 'Text.CopyLabel_Bio',
             onClick,
-            verify: () => context!.peerId.isUser()
+            verify: () => context!.peerId.isUser(),
           }, {
             icon: 'premium_translate',
             text: 'TranslateMessage',
             onClick: async() => {
-              if(!peerTranslation.canTranslate(true)) {
-                PopupPremium.show({feature: 'translations'});
+              if (!peerTranslation.canTranslate(true)) {
+                PopupPremium.show({ feature: 'translations' });
               } else {
                 showTranslatePopup({
                   peerId: context!.peerId,
                   textWithEntities: {
                     _: 'textWithEntities',
                     text: about()!,
-                    entities: []
+                    entities: [],
                   },
-                  detectedLanguage: await bioLanguagePromise()
+                  detectedLanguage: await bioLanguagePromise(),
                 });
               }
             },
-            verify: async() => !!(await bioLanguagePromise())
-          }]
+            verify: async() => !!(await bioLanguagePromise()),
+          }],
         }}
       >
         <Row.Title class="pre-wrap">{aboutWrapped()}</Row.Title>
@@ -987,38 +987,38 @@ PeerProfile.Bio = () => {
 
 PeerProfile.Link = () => {
   const context = useContext(PeerProfileContext);
-  const {i18n, I18n, toast, showMyQrCodePopup} = useHotReloadGuard();
+  const { i18n, I18n, toast, showMyQrCodePopup } = useHotReloadGuard();
 
   const toFill = createMemo<Partial<{url: string, also: JSX.Element}>>(() => {
-    if(context!.peerId.isUser()) {
+    if (context!.peerId.isUser()) {
       return {} as Partial<{url: string, also: JSX.Element}>;
     }
 
     const usernames = getPeerActiveUsernames(context!.peer as Chat.channel);
-    if(context!.isTopic) {
+    if (context!.isTopic) {
       let url = 't.me/';
       const threadId = getServerMessageId(context!.threadId);
       const username = usernames[0];
-      if(username) {
+      if (username) {
         url += `${username}/${threadId}`;
       } else {
         url += `c/${context!.peerId.toChatId()}/${threadId}`;
       }
 
-      return {url};
+      return { url };
     }
 
-    if(usernames.length) {
+    if (usernames.length) {
       return {
         url: 't.me/' + usernames[0],
-        also: getUsernamesAlso((usernames as string[]))
+        also: getUsernamesAlso((usernames as string[])),
       };
     }
 
     const exportedInvite = (context!.fullPeer as ChatFull.channelFull)?.exported_invite;
-    if(exportedInvite?._ === 'chatInviteExported') {
+    if (exportedInvite?._ === 'chatInviteExported') {
       return {
-        url: exportedInvite.link.slice(exportedInvite.link.indexOf('t.me/'))
+        url: exportedInvite.link.slice(exportedInvite.link.indexOf('t.me/')),
       };
     }
 
@@ -1043,8 +1043,8 @@ PeerProfile.Link = () => {
           buttons: [{
             icon: 'copy',
             text: 'Text.CopyLabel_ShareLink',
-            onClick
-          }]
+            onClick,
+          }],
         }}
       >
         <Row.Title>{toFill().url}</Row.Title>
@@ -1057,7 +1057,7 @@ PeerProfile.Link = () => {
 
 PeerProfile.BusinessHours = () => {
   const context = useContext(PeerProfileContext);
-  const {rootScope, BusinessHours} = useHotReloadGuard();
+  const { rootScope, BusinessHours } = useHotReloadGuard();
   const [timezonesList] = createResource(() => {
     return rootScope.managers.apiManager.getTimezonesList() as Promise<HelpTimezonesList.helpTimezonesList>;
   });
@@ -1068,7 +1068,7 @@ PeerProfile.BusinessHours = () => {
     const fullPeer = context!.fullPeer as UserFull;
     const timezones = timezonesList()?.timezones;
     batch(() => {
-      if(!fullPeer || !timezones) {
+      if (!fullPeer || !timezones) {
         setHours();
         setTimezones();
         return;
@@ -1081,24 +1081,24 @@ PeerProfile.BusinessHours = () => {
 
   return (
     <Show when={hours() && timezones()}>
-      {BusinessHours({hours: hours as () => BusinessWorkHours, timezones: timezones as () => Timezone[]}).container}
+      {BusinessHours({ hours: hours as () => BusinessWorkHours, timezones: timezones as () => Timezone[] }).container}
     </Show>
   );
 };
 
 PeerProfile.BusinessLocation = () => {
   const context = useContext(PeerProfileContext);
-  const {i18n, wrapPhoto, wrapEmojiText, confirmationPopup, toastNew} = useHotReloadGuard();
+  const { i18n, wrapPhoto, wrapEmojiText, confirmationPopup, toastNew } = useHotReloadGuard();
   const location = createMemo(() => (context!.fullPeer as UserFull)?.business_location);
 
   const copyAddress = () => {
     copyTextToClipboard(location()!.address);
-    toastNew({langPackKey: 'BusinessLocationCopied'});
+    toastNew({ langPackKey: 'BusinessLocationCopied' });
   };
 
   const onClick = async() => {
     const _location = location();
-    if(!_location!.geo_point) {
+    if (!_location!.geo_point) {
       copyAddress();
       return;
     }
@@ -1106,8 +1106,8 @@ PeerProfile.BusinessLocation = () => {
     await confirmationPopup({
       descriptionLangKey: 'Popup.OpenInGoogleMaps',
       button: {
-        langKey: 'Open'
-      }
+        langKey: 'Open',
+      },
     });
 
     safeWindowOpen(makeGoogleMapsUrl(_location!.geo_point as GeoPoint.geoPoint));
@@ -1122,8 +1122,8 @@ PeerProfile.BusinessLocation = () => {
           buttons: [{
             icon: 'copy',
             text: 'Copy',
-            onClick: copyAddress
-          }]
+            onClick: copyAddress,
+          }],
         }}
       >
         <Row.Title>{wrapEmojiText(location()!.address)}</Row.Title>
@@ -1137,7 +1137,7 @@ PeerProfile.BusinessLocation = () => {
                 photo: getWebFileLocation(location()!.geo_point as GeoPoint.geoPoint, 48, 48, 16),
                 container: media,
                 middleware: createMiddleware().get(),
-                loadPromises
+                loadPromises,
               });
             }}
           />
@@ -1149,22 +1149,22 @@ PeerProfile.BusinessLocation = () => {
 
 PeerProfile.Notifications = () => {
   const context = useContext(PeerProfileContext);
-  const {i18n, rootScope} = useHotReloadGuard();
+  const { i18n, rootScope } = useHotReloadGuard();
 
   const options = {
     peerId: context!.peerId,
-    threadId: context!.threadId
+    threadId: context!.threadId,
   };
 
-  const [muted, {refetch}] = createResource(() => {
+  const [muted, { refetch }] = createResource(() => {
     return rootScope.managers.appNotificationsManager.isPeerLocalMuted({
       ...options,
-      respectType: false
+      respectType: false,
     });
   });
 
   subscribeOn(rootScope)('dialog_notify_settings', (dialog) => {
-    if(context!.peerId === dialog.peerId) {
+    if (context!.peerId === dialog.peerId) {
       refetch();
     }
   });
@@ -1179,7 +1179,7 @@ PeerProfile.Notifications = () => {
               rootScope.managers.appMessagesManager.togglePeerMute({
                 peerId: context!.peerId,
                 threadId: context!.threadId,
-                mute: !checked
+                mute: !checked,
               });
             }}
             toggle
@@ -1194,28 +1194,28 @@ PeerProfile.Notifications = () => {
 
 PeerProfile.BotVerification = () => {
   const context = useContext(PeerProfileContext);
-  const {wrapAdaptiveCustomEmoji, wrapRichText, i18n} = useHotReloadGuard();
+  const { wrapAdaptiveCustomEmoji, wrapRichText, i18n } = useHotReloadGuard();
   const verification = createMemo(() => (context!.fullPeer as UserFull)?.bot_verification);
   const officialVerified = createMemo(() => (context!.peer as User.user).pFlags.verified);
 
   const content = createMemo(() => {
-    if(verification()) {
+    if (verification()) {
       return {
         icon: wrapAdaptiveCustomEmoji({
           docId: verification()!.icon,
           size: 32,
           wrapOptions: {
             middleware: createMiddleware().get(),
-            textColor: 'secondary-text-color'
-          }
+            textColor: 'secondary-text-color',
+          },
         }).container,
-        text: wrapRichText(verification()!.description)
+        text: wrapRichText(verification()!.description),
       };
-    } else if(officialVerified()) {
+    } else if (officialVerified()) {
       const isBroadcast = (context!.peer as Chat.channel).pFlags.broadcast;
       return {
         icon: generateVerifiedIcon(),
-        text: i18n(context!.peerId.isAnyChat() ? (isBroadcast ? 'Verified.Channel' : 'Verified.Group') : 'Verified.Bot')
+        text: i18n(context!.peerId.isAnyChat() ? (isBroadcast ? 'Verified.Channel' : 'Verified.Group') : 'Verified.Bot'),
       };
     }
   });
@@ -1234,7 +1234,7 @@ PeerProfile.BotVerification = () => {
 
 PeerProfile.UnofficialWarning = () => {
   const context = useContext(PeerProfileContext);
-  const {i18n, wrapEmojiText} = useHotReloadGuard();
+  const { i18n, wrapEmojiText } = useHotReloadGuard();
 
   const show = createMemo(() => {
     const user = context!.peer as User.user;
@@ -1258,12 +1258,12 @@ PeerProfile.UnofficialWarning = () => {
 
 PeerProfile.BotPermissions = () => {
   const context = useContext(PeerProfileContext);
-  const {i18n, rootScope} = useHotReloadGuard();
+  const { i18n, rootScope } = useHotReloadGuard();
   const botInfo = createMemo(() => (context!.fullPeer as UserFull)?.bot_info);
   const canManageEmojiStatus = createMemo(() => botInfo() && (context!.fullPeer as UserFull).pFlags.bot_can_manage_emoji_status);
   const seenEmojiStatusFlag = createMemo<boolean>((prev) => (prev || canManageEmojiStatus())!);
   const [locationPermission] = createResource(botInfo, (botInfo) => {
-    if(!botInfo) {
+    if (!botInfo) {
       return null;
     }
 
@@ -1330,7 +1330,7 @@ PeerProfile.BotPermissions = () => {
 PeerProfile.StoryPreviews = (props: {
   info: HTMLElement
 }) => {
-  const {rootScope} = useHotReloadGuard();
+  const { rootScope } = useHotReloadGuard();
   const context = useContext(PeerProfileContext);
   const MAX_PREVIEWS = 3;
   const CIRCLE_SIZE = 36;
@@ -1341,7 +1341,7 @@ PeerProfile.StoryPreviews = (props: {
     const peer = createMemo(() => stories.peers[0]);
     const storyItems = createMemo(() => {
       const p = peer();
-      if(!p) return [];
+      if (!p) return [];
       return (p.stories as StoryItem.storyItem[]).slice(-MAX_PREVIEWS).reverse();
     });
 
@@ -1351,16 +1351,16 @@ PeerProfile.StoryPreviews = (props: {
 
     const getStorySegment = (story: StoryItem.storyItem) => {
       const p = peer();
-      if(!p) return undefined;
+      if (!p) return undefined;
       const maxReadId = p.maxReadId || 0;
       const isUnread = story.id > maxReadId;
-      return [{length: 1, type: isUnread ? 'unread' as const : 'read' as const}];
+      return [{ length: 1, type: isUnread ? 'unread' as const : 'read' as const }];
     };
 
     const onCircleClick = (e: MouseEvent) => {
       cancelEvent(e);
-      import('@components/stories/viewer').then(({createStoriesViewerWithPeer}) => {
-        createStoriesViewerWithPeer({peerId: context!.peerId});
+      import('@components/stories/viewer').then(({ createStoriesViewerWithPeer }) => {
+        createStoriesViewerWithPeer({ peerId: context!.peerId });
       });
     };
 
@@ -1369,10 +1369,10 @@ PeerProfile.StoryPreviews = (props: {
     const StoryCircle = (props: {story: StoryItem.storyItem, index: number}) => {
       let mediaDiv: HTMLDivElement;
 
-      const {setStoriesSegments, storyDimensions: dims, storiesCircle} = StoriesSegments({
+      const { setStoriesSegments, storyDimensions: dims, storiesCircle } = StoriesSegments({
         size: CIRCLE_SIZE,
-        colors: {read: 'rgba(0, 0, 0, .2)'},
-        simple: true
+        colors: { read: 'rgba(0, 0, 0, .2)' },
+        simple: true,
       });
 
       setStoriesSegments(getStorySegment(props.story));
@@ -1384,7 +1384,7 @@ PeerProfile.StoryPreviews = (props: {
         const messageMedia = props.story.media;
         const media = (messageMedia as MessageMedia.messageMediaPhoto).photo as Photo.photo ||
           (messageMedia as MessageMedia.messageMediaDocument).document as Document.document;
-        if(!media) return;
+        if (!media) return;
 
         const size = choosePhotoSize(media, CIRCLE_SIZE, CIRCLE_SIZE);
         const middleware = middlewareHelper.get();
@@ -1395,9 +1395,9 @@ PeerProfile.StoryPreviews = (props: {
           size,
           middleware,
           noThumb: true,
-          withoutPreloader: true
+          withoutPreloader: true,
         }).then((result) => {
-          if(!middleware()) return;
+          if (!middleware()) return;
           result.images.full.classList.add('profile-story-preview-img');
         });
       });
@@ -1408,7 +1408,7 @@ PeerProfile.StoryPreviews = (props: {
           style={{
             'z-index': MAX_PREVIEWS - props.index,
             'width': `${dims().totalSvgSize}px`,
-            'height': `${dims().totalSvgSize}px`
+            'height': `${dims().totalSvgSize}px`,
           }}
           on:mousedown={cancelEvent}
           on:click={onCircleClick}
@@ -1419,7 +1419,7 @@ PeerProfile.StoryPreviews = (props: {
             class="profile-story-preview-media"
             style={{
               'width': `${dims().willBeSize}px`,
-              'height': `${dims().willBeSize}px`
+              'height': `${dims().willBeSize}px`,
             }}
           />
         </div>
@@ -1454,7 +1454,7 @@ PeerProfile.MainSection = () => {
   return (
     <Section
       noDelimiter
-      contentProps={{class: classNames(context!.needSimpleAvatar && 'has-simple-avatar')}}
+      contentProps={{ class: classNames(context!.needSimpleAvatar && 'has-simple-avatar') }}
     >
       <Show when={context!.needSimpleAvatar}>
         <PeerProfile.AutoAvatar />

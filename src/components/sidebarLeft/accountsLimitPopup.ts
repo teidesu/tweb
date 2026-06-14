@@ -7,7 +7,7 @@ export default class AccountsLimitPopup extends PopupElement {
     super('accounts-limit-popup', {
       overlayClosable: true,
       body: true,
-      title: 'LimitReached'
+      title: 'LimitReached',
     });
 
     this.body.append(AccountsLimitPopupContent({
@@ -16,8 +16,8 @@ export default class AccountsLimitPopup extends PopupElement {
       },
       onSubmit: () => {
         this.hide();
-        PopupPremium.show({feature: 'double_limits'});
-      }
+        PopupPremium.show({ feature: 'double_limits' });
+      },
     }) as HTMLElement)
   }
 }

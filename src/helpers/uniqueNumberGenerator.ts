@@ -16,14 +16,14 @@ export default class UniqueNumberGenerator {
 
     const maxTries = max - min + 1;
     let value = Math.floor(min + maxTries * Math.random()), _try = 0;
-    while(set.has(value)) {
-      if(value < max) {
+    while (set.has(value)) {
+      if (value < max) {
         ++value;
       } else {
         value = min;
       }
 
-      if(++_try >= maxTries) {
+      if (++_try >= maxTries) {
         return null;
       }
     }

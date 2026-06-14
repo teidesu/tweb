@@ -1,5 +1,5 @@
-import {fastRaf} from '@helpers/schedulers';
-import {AnimatedSuper} from '@components/animatedSuper';
+import { fastRaf } from '@helpers/schedulers';
+import { AnimatedSuper } from '@components/animatedSuper';
 
 export interface AnimatedCounterOptions {
   reverse?: boolean;
@@ -33,11 +33,11 @@ export class AnimatedCounter {
     this.container.className = AnimatedCounter.BASE_CLASS;
     this.calculateWidth = options.calculateWidth;
 
-    if(this.calculateWidth) {
+    if (this.calculateWidth) {
       this.container.classList.add('animated-counter-dynamic-width');
     }
 
-    if(options.prefix) {
+    if (options.prefix) {
       const prefixContainer = document.createElement('div');
       prefixContainer.className = AnimatedCounter.BASE_CLASS + '-decimal-prefix';
       prefixContainer.innerText = this.prefix = options.prefix;
@@ -47,28 +47,28 @@ export class AnimatedCounter {
   }
 
   getDecimal(index: number) {
-    if(this.decimals[index]) return this.decimals[index];
+    if (this.decimals[index]) return this.decimals[index];
     const item = document.createElement('div');
     item.className = AnimatedCounter.BASE_CLASS + '-decimal';
 
     const placeholder = document.createElement('div');
     placeholder.className = AnimatedCounter.BASE_CLASS + '-decimal-placeholder';
 
-    const animatedSuper = new AnimatedSuper({duration: this.duration});
+    const animatedSuper = new AnimatedSuper({ duration: this.duration });
     animatedSuper.container.className = AnimatedCounter.BASE_CLASS + '-decimal-wrapper';
 
     item.append(placeholder, animatedSuper.container);
 
     this.container.append(item);
 
-    return this.decimals[index] = {container: item, placeholder, animatedSuper};
+    return this.decimals[index] = { container: item, placeholder, animatedSuper };
   }
 
   clear(number: number) {
-    if(this.clearTimeout) clearTimeout(this.clearTimeout);
+    if (this.clearTimeout) clearTimeout(this.clearTimeout);
 
     const decimals = ('' + number).length;
-    if(decimals >= this.decimals.length) {
+    if (decimals >= this.decimals.length) {
       return;
     }
 
@@ -117,9 +117,9 @@ export class AnimatedCounter {
 
     const setWidth = () => {
       let width: number;
-      if(typeof(calculateWidth) === 'boolean') {
+      if (typeof(calculateWidth) === 'boolean') {
         width = nextRows.reduce((sum, row) => sum + row.clientWidth, 0);
-        if(this.prefixContainer) {
+        if (this.prefixContainer) {
           width += this.prefixContainer.clientWidth;
         }
       } else {
@@ -130,8 +130,8 @@ export class AnimatedCounter {
       this.container.style.setProperty('--width', width + 'px');
     };
 
-    const {calculateWidth} = this;
-    if(calculateWidth) {
+    const { calculateWidth } = this;
+    if (calculateWidth) {
       noRaf ? setWidth() : fastRaf(setWidth);
     }
 

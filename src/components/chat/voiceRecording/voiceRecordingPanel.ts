@@ -21,7 +21,7 @@
 
 import Icon from '@components/icon';
 import Button from '@components/button';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import ListenerSetter from '@helpers/listenerSetter';
 import LiveWaveform from './liveWaveform';
 
@@ -102,19 +102,19 @@ export default class VoiceRecordingPanel {
       e?.preventDefault?.();
       e?.stopPropagation?.();
       opts.onCancel();
-    }, {listenerSetter: this.listenerSetter});
+    }, { listenerSetter: this.listenerSetter });
 
     attachClickEvent(this.btnPauseToggle, (e) => {
       e?.preventDefault?.();
       e?.stopPropagation?.();
       opts.onPauseToggle();
-    }, {listenerSetter: this.listenerSetter});
+    }, { listenerSetter: this.listenerSetter });
 
     attachClickEvent(this.btnPlayToggle, (e) => {
       e?.preventDefault?.();
       e?.stopPropagation?.();
       opts.onPlayToggle();
-    }, {listenerSetter: this.listenerSetter});
+    }, { listenerSetter: this.listenerSetter });
 
     this.waveform.onSeek = (progress) => opts.onSeek(progress);
 
@@ -125,7 +125,7 @@ export default class VoiceRecordingPanel {
     this.mode = mode;
     this.element.classList.toggle('voice-recording-panel--paused', mode === 'paused');
     this.element.classList.toggle('voice-recording-panel--recording', mode === 'recording');
-    if(mode === 'recording') {
+    if (mode === 'recording') {
       this.setPlaying(false);
       this.waveform.setProgress(undefined);
     }
@@ -153,7 +153,7 @@ export default class VoiceRecordingPanel {
   }
 
   public setTimer(text: string) {
-    if(this.timerEl.textContent !== text) this.timerEl.textContent = text;
+    if (this.timerEl.textContent !== text) this.timerEl.textContent = text;
   }
 
   public pushPeak(value: number) {

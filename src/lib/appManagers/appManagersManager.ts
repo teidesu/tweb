@@ -1,14 +1,14 @@
 import ServiceMessagePort from '@lib/serviceWorker/serviceMessagePort';
 import App from '@config/app';
-import {MOUNT_CLASS_TO} from '@config/debug';
+import { MOUNT_CLASS_TO } from '@config/debug';
 import callbackify from '@helpers/callbackify';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
 import cryptoMessagePort from '@lib/crypto/cryptoMessagePort';
 import rlottieMessagePort from '@lib/rlottie/rlottieMessagePort';
 import MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
-import {AppStoragesManager} from '@appManagers/appStoragesManager';
+import { AppStoragesManager } from '@appManagers/appStoragesManager';
 import createManagers from '@appManagers/createManagers';
-import {ActiveAccountNumber} from '@lib/accounts/types';
+import { ActiveAccountNumber } from '@lib/accounts/types';
 import AppStateManager from '@appManagers/appStateManager';
 import rootScope from '@lib/rootScope';
 import AccountController from '@lib/accounts/accountController';
@@ -49,12 +49,12 @@ export class AppManagersManager {
     this._isServiceWorkerOnline = CAN_USE_SERVICE_WORKER;
 
     this.threadedSharedWorkers = {};
-    for(
-      const {type, superMessagePort, threads} of THREADED_WORKERS_TYPES.map((type) => {
+    for (
+      const { type, superMessagePort, threads } of THREADED_WORKERS_TYPES.map((type) => {
         return {
           type,
           superMessagePort: type === 'crypto' ? cryptoMessagePort : rlottieMessagePort,
-          threads: type === 'crypto' ? App.cryptoWorkers : App.lottieWorkers
+          threads: type === 'crypto' ? App.cryptoWorkers : App.lottieWorkers,
         };
       })
     ) {
@@ -63,7 +63,7 @@ export class AppManagersManager {
         attached: 0,
         promise: deferredPromise(),
         superMessagePort,
-        threads
+        threads,
       };
 
       this.threadedSharedWorkers[type].promise!.then(() => {
@@ -75,7 +75,7 @@ export class AppManagersManager {
       1: new AppStateManager(1),
       2: new AppStateManager(2),
       3: new AppStateManager(3),
-      4: new AppStateManager(4)
+      4: new AppStateManager(4),
     };
 
     const managersByAccountAsArray = Object.values(this.stateManagersByAccount)
@@ -83,7 +83,7 @@ export class AppManagersManager {
     managersByAccountAsArray.forEach((stateManager) => {
       stateManager.onSettingsUpdate = (settingsValue) => {
         managersByAccountAsArray.forEach((stateManagerToUpdate) => {
-          if(stateManager !== stateManagerToUpdate)
+          if (stateManager !== stateManagerToUpdate)
             stateManagerToUpdate.updateLocalState('settings', settingsValue);
         });
       }
@@ -93,11 +93,11 @@ export class AppManagersManager {
   public start() {
     const port = MTProtoMessagePort.getInstance<false>();
 
-    port.addEventListener('manager', ({name, method, args, accountNumber}) => {
+    port.addEventListener('manager', ({ name, method, args, accountNumber }) => {
       return callbackify(this.getManagersByAccount(), (managersByAccount) => {
-        if(accountNumber === undefined) {
+        if (accountNumber === undefined) {
           const results: any[] = [];
-          for(const accountNumber in managersByAccount) {
+          for (const accountNumber in managersByAccount) {
             const managers = managersByAccount[+accountNumber as any as ActiveAccountNumber];
             const manager = managers[name as keyof Managers];
             // @ts-ignore
@@ -117,7 +117,7 @@ export class AppManagersManager {
     port.addEventListener('threadedPort', (type, source, event) => {
       const threadedWorker = this.threadedSharedWorkers[type];
       const port = event.ports[0];
-      if(threadedWorker!.attached >= threadedWorker!.urls.length) {
+      if (threadedWorker!.attached >= threadedWorker!.urls.length) {
         port.close();
         return;
       }
@@ -127,16 +127,16 @@ export class AppManagersManager {
       threadedWorker!.promise?.resolve();
     });
 
-    port.addEventListener('createProxyWorkerURLs', ({originalUrl, blob, type}) => {
-      const {urls, threads} = this.threadedSharedWorkers[type]!;
+    port.addEventListener('createProxyWorkerURLs', ({ originalUrl, blob, type }) => {
+      const { urls, threads } = this.threadedSharedWorkers[type]!;
       let length = urls.length;
-      if(!length) {
+      if (!length) {
         urls.push(originalUrl);
         ++length;
       }
 
       const maxLength = threads;
-      if(length === maxLength) {
+      if (length === maxLength) {
         return urls;
       }
 
@@ -145,11 +145,11 @@ export class AppManagersManager {
       return urls;
     });
 
-    rootScope.addEventListener('account_logged_in', async({accountNumber, userId}) => {
-      for(let i = 1; i < accountNumber; i++) {
+    rootScope.addEventListener('account_logged_in', async({ accountNumber, userId }) => {
+      for (let i = 1; i < accountNumber; i++) {
         const otherAccountNumber = i as ActiveAccountNumber;
         const accountData = await AccountController.get(otherAccountNumber);
-        if(accountData.userId === userId) {
+        if (accountData.userId === userId) {
           const managersByAccount = await this.getManagersByAccount();
           managersByAccount[accountNumber].apiManager.logOut(otherAccountNumber);
         }
@@ -169,7 +169,7 @@ export class AppManagersManager {
         // is imported into the main realm and cryptoMessagePort short-circuits
         // same-realm callers via invokeCryptoNew's early-out. There's nothing
         // to wait for and the threadedPort handshake never resolves, so skip.
-        Modes.noWorker ? Promise.resolve() : this.threadedSharedWorkers.crypto!.promise
+        Modes.noWorker ? Promise.resolve() : this.threadedSharedWorkers.crypto!.promise,
       ]);
 
       const managers = await createManagers(
@@ -181,7 +181,7 @@ export class AppManagersManager {
 
       return [
         accountNumber,
-        managers
+        managers,
       ] as const;
     });
 
@@ -208,7 +208,7 @@ export class AppManagersManager {
   }
 
   public onServiceWorkerPort(event: MessageEvent<any>) {
-    if(this.serviceMessagePort) {
+    if (this.serviceMessagePort) {
       this.serviceMessagePort.detachPort((this._serviceMessagePort as Window | MessagePort | ServiceWorker | Worker | ServiceWorkerContainer));
       this._serviceMessagePort = undefined;
     } else {
@@ -216,35 +216,35 @@ export class AppManagersManager {
       this.serviceMessagePort.addMultipleEventsListeners({
         requestFilePart: (payload) => {
           return callbackify(appManagersManager.getManagersByAccount(), (managersByAccount) => {
-            const {docId, dcId, offset, limit, accountNumber} = payload;
+            const { docId, dcId, offset, limit, accountNumber } = payload;
             return managersByAccount[accountNumber].appDocsManager.requestDocPart(docId, dcId, offset, limit);
           });
         },
-        cancelFilePartRequests: ({docId, accountNumber}) => {
+        cancelFilePartRequests: ({ docId, accountNumber }) => {
           return callbackify(appManagersManager.getManagersByAccount(), (managersByAccount) => {
             return managersByAccount[accountNumber].appDocsManager.cancelDocPartsRequests(docId);
           });
         },
-        requestRtmpState({call, accountNumber}) {
+        requestRtmpState({ call, accountNumber }) {
           return callbackify(appManagersManager.getManagersByAccount(), (managersByAccount) => {
             return managersByAccount[accountNumber].appGroupCallsManager.fetchRtmpState(call);
           });
         },
         requestRtmpPart(payload) {
           return callbackify(appManagersManager.getManagersByAccount(), async(managersByAccount) => {
-            const {request, dcId, accountNumber} = payload;
+            const { request, dcId, accountNumber } = payload;
             return (await managersByAccount[accountNumber].appGroupCallsManager.fetchRtmpPart(request, dcId))!;
           });
         },
         requestDoc(payload) {
           return callbackify(appManagersManager.getManagersByAccount(), (managersByAccount) => {
-            const {docId, accountNumber} = payload;
+            const { docId, accountNumber } = payload;
             return managersByAccount[accountNumber].appDocsManager.getDoc(docId);
           });
         },
         downloadDoc(payload) {
           return callbackify(appManagersManager.getManagersByAccount(), (managersByAccount) => {
-            const {docId, accountNumber} = payload;
+            const { docId, accountNumber } = payload;
             const appDocsManager = managersByAccount[accountNumber].appDocsManager;
             const doc = appDocsManager.getDoc(docId);
             return appDocsManager.downloadDoc(doc);
@@ -252,19 +252,19 @@ export class AppManagersManager {
         },
         requestAltDocsByDoc(payload) {
           return callbackify(appManagersManager.getManagersByAccount(), (managersByAccount) => {
-            const {docId, accountNumber} = payload;
-            const {appDocsManager} = managersByAccount[accountNumber];
+            const { docId, accountNumber } = payload;
+            const { appDocsManager } = managersByAccount[accountNumber];
             return appDocsManager.getAltDocsByDocument(docId);
           });
         },
         decryptPush(payload) {
           return pushSingleManager.decryptPush(payload.p, payload.keyIdBase64);
-        }
+        },
       });
     }
 
     // * port can be undefined in the future
-    if(this._serviceMessagePort = event.ports[0]) {
+    if (this._serviceMessagePort = event.ports[0]) {
       this.serviceMessagePort.attachPort(this._serviceMessagePort);
     }
   }

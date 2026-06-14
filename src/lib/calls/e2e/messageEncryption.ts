@@ -18,7 +18,7 @@ import {
   hmacSha256,
   hmacSha512,
   int32LeToBytes,
-  randomBytes
+  randomBytes,
 } from './crypto';
 
 const MIN_PADDING = 16;
@@ -35,8 +35,8 @@ function kdfExpand(secret: Uint8Array, label: string): Promise<Uint8Array> {
 
 // Extract AES-256 key (32B) + IV (16B) from the first 48 bytes of a hash.
 function calcAesCbcStateFromHash(hash: Uint8Array): {key: Uint8Array; iv: Uint8Array} {
-  if(hash.length < 48) throw new Error(`hash too short for AES-CBC state: ${hash.length}`);
-  return {key: hash.subarray(0, 32), iv: hash.subarray(32, 48)};
+  if (hash.length < 48) throw new Error(`hash too short for AES-CBC state: ${hash.length}`);
+  return { key: hash.subarray(0, 32), iv: hash.subarray(32, 48) };
 }
 
 // Random prefix; first byte holds total prefix length (16..31 typical).
@@ -75,10 +75,10 @@ async function encryptDataCore(
   const msgId = largeMsgId.subarray(0, 16);
 
   const hash = await hmacSha512(encryptSecret, msgId);
-  const {key, iv} = calcAesCbcStateFromHash(hash);
+  const { key, iv } = calcAesCbcStateFromHash(hash);
   const encrypted = aesCbcEncrypt(key, iv, padded);
 
-  return {output: concatBytes(msgId, encrypted), largeMsgId};
+  return { output: concatBytes(msgId, encrypted), largeMsgId };
 }
 
 // Production encryption: random padding.
@@ -105,7 +105,7 @@ export async function decryptData(
   secret: Uint8Array,
   extraData: Uint8Array = new Uint8Array(0)
 ): Promise<{output: Uint8Array; largeMsgId: Uint8Array}> {
-  if(encryptedData.length < 16 || encryptedData.length % 16 !== 0) {
+  if (encryptedData.length < 16 || encryptedData.length % 16 !== 0) {
     throw new Error(`invalid encrypted data length: ${encryptedData.length}`);
   }
 
@@ -117,7 +117,7 @@ export async function decryptData(
   const hmacSecret = largeSecret.subarray(32, 64);
 
   const hash = await hmacSha512(encryptSecret, msgId);
-  const {key, iv} = calcAesCbcStateFromHash(hash);
+  const { key, iv } = calcAesCbcStateFromHash(hash);
   const decrypted = aesCbcDecrypt(key, iv, ciphertext);
 
   // Verify MAC by recomputing it from the plaintext we just decrypted.
@@ -125,16 +125,16 @@ export async function decryptData(
   const expectedLargeMsgId = await hmacSha256(hmacSecret, tail);
   const expectedMsgId = expectedLargeMsgId.subarray(0, 16);
 
-  if(!constantTimeEqual(msgId, expectedMsgId)) {
+  if (!constantTimeEqual(msgId, expectedMsgId)) {
     throw new Error('MAC verification failed');
   }
 
   const prefixSize = decrypted[0];
-  if(prefixSize < MIN_PADDING || prefixSize > decrypted.length) {
+  if (prefixSize < MIN_PADDING || prefixSize > decrypted.length) {
     throw new Error(`invalid padding size: ${prefixSize}`);
   }
 
-  return {output: decrypted.subarray(prefixSize), largeMsgId: expectedLargeMsgId};
+  return { output: decrypted.subarray(prefixSize), largeMsgId: expectedLargeMsgId };
 }
 
 export async function encryptHeader(
@@ -142,15 +142,15 @@ export async function encryptHeader(
   encryptedMessage: Uint8Array,
   secret: Uint8Array
 ): Promise<Uint8Array> {
-  if(header.length !== 32) throw new Error(`header must be 32 bytes, got ${header.length}`);
-  if(encryptedMessage.length < 16) throw new Error('encrypted message too short for msg_id');
+  if (header.length !== 32) throw new Error(`header must be 32 bytes, got ${header.length}`);
+  if (encryptedMessage.length < 16) throw new Error('encrypted message too short for msg_id');
 
   const msgId = encryptedMessage.subarray(0, 16);
   const largeKey = await kdfExpand(secret, KDF_LABEL_ENCRYPT_HEADER);
   const encryptionKey = largeKey.subarray(0, 32);
 
   const hash = await hmacSha512(encryptionKey, msgId);
-  const {key, iv} = calcAesCbcStateFromHash(hash);
+  const { key, iv } = calcAesCbcStateFromHash(hash);
   return aesCbcEncrypt(key, iv, header);
 }
 
@@ -159,16 +159,16 @@ export async function decryptHeader(
   encryptedMessage: Uint8Array,
   secret: Uint8Array
 ): Promise<Uint8Array> {
-  if(encryptedHeader.length !== 32) {
+  if (encryptedHeader.length !== 32) {
     throw new Error(`header must be 32 bytes, got ${encryptedHeader.length}`);
   }
-  if(encryptedMessage.length < 16) throw new Error('encrypted message too short for msg_id');
+  if (encryptedMessage.length < 16) throw new Error('encrypted message too short for msg_id');
 
   const msgId = encryptedMessage.subarray(0, 16);
   const largeKey = await kdfExpand(secret, KDF_LABEL_ENCRYPT_HEADER);
   const encryptionKey = largeKey.subarray(0, 32);
 
   const hash = await hmacSha512(encryptionKey, msgId);
-  const {key, iv} = calcAesCbcStateFromHash(hash);
+  const { key, iv } = calcAesCbcStateFromHash(hash);
   return aesCbcDecrypt(key, iv, encryptedHeader);
 }

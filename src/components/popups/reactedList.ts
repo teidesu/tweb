@@ -1,19 +1,19 @@
 import PopupElement from '.';
-import {Message, Reaction, ReactionCount} from '@layer';
+import { Message, Reaction, ReactionCount } from '@layer';
 import ReactionsElement from '@components/chat/reactions';
-import {horizontalMenu} from '@components/horizontalMenu';
+import { horizontalMenu } from '@components/horizontalMenu';
 import Scrollable from '@components/scrollable';
 import ScrollableLoader from '@helpers/scrollableLoader';
-import appDialogsManager, {DialogDom, DialogElement} from '@lib/appDialogsManager';
+import appDialogsManager, { DialogDom, DialogElement } from '@lib/appDialogsManager';
 import replaceContent from '@helpers/dom/replaceContent';
 import wrapSticker from '@components/wrappers/sticker';
-import ReactionElement, {ReactionLayoutType} from '@components/chat/reaction';
+import ReactionElement, { ReactionLayoutType } from '@components/chat/reaction';
 import getUserStatusString from '@components/wrappers/getUserStatusString';
-import {MediaSize, makeMediaSize} from '@helpers/mediaSize';
+import { MediaSize, makeMediaSize } from '@helpers/mediaSize';
 import wrapCustomEmoji from '@components/wrappers/customEmoji';
 import SettingSection from '@components/settingSection';
-import {formatFullSentTime} from '@helpers/date';
-import {Middleware} from '@helpers/middleware';
+import { formatFullSentTime } from '@helpers/date';
+import { Middleware } from '@helpers/middleware';
 import rootScope from '@lib/rootScope';
 import Icon from '@components/icon';
 
@@ -26,7 +26,7 @@ export async function processDialogElementForReaction({
   middleware,
   isMine,
   date,
-  mediaSize = _mediaSize
+  mediaSize = _mediaSize,
 }: {
   peerId: PeerId,
   dialogElement: DialogElement,
@@ -36,12 +36,12 @@ export async function processDialogElementForReaction({
   date: number,
   mediaSize?: MediaSize
 }) {
-  const {dom} = dialogElement;
-  if(reaction) {
+  const { dom } = dialogElement;
+  if (reaction) {
     const stickerContainer = document.createElement('div');
     stickerContainer.classList.add('reacted-list-reaction-icon');
 
-    if(reaction._ === 'reactionEmoji') {
+    if (reaction._ === 'reactionEmoji') {
       const availableReaction = await rootScope.managers.appReactionsManager.getReaction(reaction.emoticon);
 
       wrapSticker({
@@ -49,20 +49,20 @@ export async function processDialogElementForReaction({
         div: stickerContainer,
         width: 24,
         height: 24,
-        middleware
+        middleware,
       });
-    } else if(reaction._ === 'reactionCustomEmoji') {
+    } else if (reaction._ === 'reactionCustomEmoji') {
       stickerContainer.append(wrapCustomEmoji({
         docIds: [reaction.document_id],
         customEmojiSize: mediaSize,
-        middleware
+        middleware,
       }));
     }
 
     dom.listEl.append(stickerContainer);
   }
 
-  if(date && isMine) {
+  if (date && isMine) {
     const c = document.createElement('span');
     dom.lastMessageSpan.style.cssText = `display: flex !important; align-items: center;`;
     const span = Icon(reaction ? 'reactions' : 'checks', 'reacted-list-checks');
@@ -80,7 +80,7 @@ export default class PopupReactedList extends PopupElement {
   constructor(
     private message: Message.message
   ) {
-    super('popup-reacted-list', {closable: true, overlayClosable: true, body: true});
+    super('popup-reacted-list', { closable: true, overlayClosable: true, body: true });
 
     this.init();
   }
@@ -88,9 +88,9 @@ export default class PopupReactedList extends PopupElement {
   private async init() {
     const middleware = this.middlewareHelper.get();
     const message = await this.managers.appMessagesManager.getGroupsFirstMessage(this.message);
-    if(!middleware()) return;
+    if (!middleware()) return;
     const canViewReadParticipants = await this.managers.appMessagesManager.canViewMessageReadParticipants(message);
-    if(!middleware()) return;
+    if (!middleware()) return;
     // this.body.append(generateDelimiter());
 
     const reactionsElement = new ReactionsElement();
@@ -105,14 +105,14 @@ export default class PopupReactedList extends PopupElement {
         ...message.reactions,
 
         pFlags: {},
-        recent_reactions: []
-      }
+        recent_reactions: [],
+      },
     };
 
     newMessage.reactions!.results = newMessage.reactions!.results.map((reactionCount) => {
       const _reactionCount: ReactionCount = {
         ...reactionCount,
-        chosen_order: undefined
+        chosen_order: undefined,
       };
 
       return _reactionCount;
@@ -121,7 +121,7 @@ export default class PopupReactedList extends PopupElement {
     reactionsElement.init({
       context: newMessage,
       type: ReactionLayoutType.Block,
-      middleware: this.middlewareHelper.get()
+      middleware: this.middlewareHelper.get(),
     });
     reactionsElement.render();
     reactionsElement.classList.add('no-stripe');
@@ -138,7 +138,7 @@ export default class PopupReactedList extends PopupElement {
     const loaders: Map<HTMLElement, ScrollableLoader> = new Map();
 
     let hasAllReactions = false;
-    if(newMessage.reactions!.results.length) {
+    if (newMessage.reactions!.results.length) {
       const reaction = this.createFakeReaction('reactions', newMessage.reactions!.results.reduce((acc, r) => acc + r.count, 0));
 
       reactionsElement.prepend(reaction);
@@ -147,11 +147,11 @@ export default class PopupReactedList extends PopupElement {
     }
 
     let hasReadParticipants = false;
-    if(canViewReadParticipants) {
+    if (canViewReadParticipants) {
       try {
         const readUserIds = await this.managers.appMessagesManager.getMessageReadParticipants(message.peerId!, message.mid!);
-        if(!middleware()) return;
-        if(!readUserIds.length) {
+        if (!middleware()) return;
+        if (!readUserIds.length) {
           throw '';
         }
 
@@ -160,12 +160,12 @@ export default class PopupReactedList extends PopupElement {
         reactionsElement.prepend(reaction);
         newMessage.reactions!.results.unshift(reaction.reactionCount);
         hasReadParticipants = true;
-      } catch(err) {
+      } catch (err) {
 
       }
     }
 
-    if(reactionsElement.customEmojiRenderer) {
+    if (reactionsElement.customEmojiRenderer) {
       reactionsElement.append(reactionsElement.customEmojiRenderer);
     }
 
@@ -175,11 +175,11 @@ export default class PopupReactedList extends PopupElement {
 
       const section = new SettingSection({
         noShadow: true,
-        noDelimiter: true
+        noDelimiter: true,
       });
 
       const chatlist = appDialogsManager.createChatList({
-        dialogSize: 72
+        dialogSize: 72,
       });
 
       appDialogsManager.setListClickListener({
@@ -189,7 +189,7 @@ export default class PopupReactedList extends PopupElement {
         },
         withContext: undefined,
         autonomous: false,
-        openInner: true
+        openInner: true,
       });
 
       section.content.append(chatlist);
@@ -197,7 +197,7 @@ export default class PopupReactedList extends PopupElement {
 
       const skipReadParticipants = (reactionCount.reaction as any) !== 'checks';
       const skipReactionsList = (reactionCount.reaction as any) === 'checks';
-      if(['checks', 'reactions'].includes(reactionCount.reaction as any)) {
+      if (['checks', 'reactions'].includes(reactionCount.reaction as any)) {
         reactionCount.reaction = (undefined as unknown as Reaction);
       }
 
@@ -208,7 +208,7 @@ export default class PopupReactedList extends PopupElement {
           const result = await this.managers.appMessagesManager.getMessageReactionsListAndReadParticipants(message, undefined, reactionCount.reaction, nextOffset, skipReadParticipants, skipReactionsList);
           nextOffset = result.nextOffset!;
 
-          await Promise.all(result.combined.map(async({peerId, reaction, date}) => {
+          await Promise.all(result.combined.map(async({ peerId, reaction, date }) => {
             const dialogElement = appDialogsManager.addDialogNew({
               peerId: peerId,
               autonomous: true,
@@ -217,8 +217,8 @@ export default class PopupReactedList extends PopupElement {
               rippleEnabled: false,
               meAsSaved: false,
               wrapOptions: {
-                middleware: this.middlewareHelper.get()
-              }
+                middleware: this.middlewareHelper.get(),
+              },
             });
 
             await processDialogElementForReaction({
@@ -227,12 +227,12 @@ export default class PopupReactedList extends PopupElement {
               isMine: message.pFlags.out!,
               middleware,
               peerId,
-              reaction
+              reaction,
             });
           }));
 
           return !nextOffset;
-        }
+        },
       });
 
       loaders.set(scrollable.container, loader);
@@ -243,13 +243,13 @@ export default class PopupReactedList extends PopupElement {
     this.body.append(tabsContainer);
 
     const selectTab = horizontalMenu(reactionsElement, tabsContainer, (id, tabContent) => {
-      if(id >= (reactionsElement.childElementCount - (reactionsElement.customEmojiRenderer ? 2 : 1))) {
+      if (id >= (reactionsElement.childElementCount - (reactionsElement.customEmojiRenderer ? 2 : 1))) {
         return false;
       }
 
       const reaction = reactionsElement.children[id] as ReactionElement;
       const prevId = selectTab.prevId();
-      if(prevId !== -1) {
+      if (prevId !== -1) {
         (reactionsElement.children[prevId] as ReactionElement).setIsChosen(false);
       }
 
@@ -271,7 +271,7 @@ export default class PopupReactedList extends PopupElement {
     reaction.reactionCount = {
       _: 'reactionCount',
       count: count,
-      reaction: icon as any
+      reaction: icon as any,
     };
     reaction.setCanRenderAvatars(false);
     reaction.renderCounter();

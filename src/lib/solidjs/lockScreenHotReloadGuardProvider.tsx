@@ -1,14 +1,14 @@
-import {ParentProps} from 'solid-js';
+import { ParentProps } from 'solid-js';
 
 import PasswordInputField from '@components/passwordInputField';
 import PasswordMonkey from '@components/monkeys/password';
-import {InputFieldTsx} from '@components/inputFieldTsx';
+import { InputFieldTsx } from '@components/inputFieldTsx';
 import themeController from '@helpers/themeController';
 
 import apiManagerProxy from '@lib/apiManagerProxy';
 import rootScope from '@lib/rootScope';
 
-import {LockScreenHotReloadGuardContext} from '@lib/solidjs/hotReloadGuard';
+import { LockScreenHotReloadGuardContext } from '@lib/solidjs/hotReloadGuard';
 
 
 export default function LockScreenHotReloadGuardProvider(props: ParentProps) {
@@ -19,7 +19,7 @@ export default function LockScreenHotReloadGuardProvider(props: ParentProps) {
       apiManagerProxy,
       InputFieldTsx,
       PasswordInputField,
-      PasswordMonkey
+      PasswordMonkey,
     }}>
       {props.children}
     </LockScreenHotReloadGuardContext.Provider>

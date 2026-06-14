@@ -4,21 +4,21 @@ import findUpClassName from '@helpers/dom/findUpClassName';
 import findUpTag from '@helpers/dom/findUpTag';
 import setInnerHTML from '@helpers/dom/setInnerHTML';
 import fastSmoothScroll from '@helpers/fastSmoothScroll';
-import {randomLong} from '@helpers/random';
-import {HelpCountry, HelpCountryCode} from '@layer';
-import I18n, {i18n} from '@lib/langPack';
+import { randomLong } from '@helpers/random';
+import { HelpCountry, HelpCountryCode } from '@layer';
+import I18n, { i18n } from '@lib/langPack';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
 import rootScope from '@lib/rootScope';
-import {getCountryEmoji} from '@vendor/emoji';
-import InputField, {InputFieldOptions} from '@components/inputField';
+import { getCountryEmoji } from '@vendor/emoji';
+import InputField, { InputFieldOptions } from '@components/inputField';
 import Scrollable from '@components/scrollable';
-import {isTruthy} from '../helpers/isTruthy';
+import { isTruthy } from '../helpers/isTruthy';
 
 let countries: HelpCountry.helpCountry[];
 const setCountries = () => {
   countries = I18n.countriesList
-  .filter((country) => !country.pFlags?.hidden)
-  .sort((a, b) => (a.name || a.default_name).localeCompare(b.name || b.default_name));
+    .filter((country) => !country.pFlags?.hidden)
+    .sort((a, b) => (a.name || a.default_name).localeCompare(b.name || b.default_name));
 };
 
 let init = () => {
@@ -36,19 +36,19 @@ export function filterCountries(value: string, excludeVirtual?: boolean) {
 
   value = value.toLowerCase();
   const filtered = countries.filter((c) => {
-    if(excludeVirtual && VIRTUAL_COUNTRIES.has(c.iso2)) {
+    if (excludeVirtual && VIRTUAL_COUNTRIES.has(c.iso2)) {
       return false;
     }
 
     const names = [
       c.name,
       c.default_name,
-      c.iso2
+      c.iso2,
     ];
 
     names.filter(isTruthy).forEach((name) => {
       const abbr = name.split(' ').filter((word) => /\w/.test(word)).map((word) => word[0]).join('');
-      if(abbr.length > 1) {
+      if (abbr.length > 1) {
         names.push(abbr);
       }
     });
@@ -80,7 +80,7 @@ export default class CountryInputField extends InputField {
     super({
       label: 'Country',
       name: randomLong(),
-      ...options
+      ...options,
     });
 
     init?.();
@@ -105,19 +105,19 @@ export default class CountryInputField extends InputField {
       initSelect = null as unknown as () => void;
 
       countries.forEach((c) => {
-        if(options.noPhoneCodes && VIRTUAL_COUNTRIES.has(c.iso2)) {
+        if (options.noPhoneCodes && VIRTUAL_COUNTRIES.has(c.iso2)) {
           return;
         }
 
         const emoji = getCountryEmoji(c.iso2);
 
         const liArr: Array<HTMLLIElement> = [];
-        for(let i = 0, length = Math.min(c.country_codes.length, options.noPhoneCodes ? 1 : Infinity); i < length; ++i) {
+        for (let i = 0, length = Math.min(c.country_codes.length, options.noPhoneCodes ? 1 : Infinity); i < length; ++i) {
           const countryCode = c.country_codes[i];
           const li = document.createElement('li');
 
           const wrapped = wrapEmojiText(emoji);
-          if(IS_EMOJI_SUPPORTED) {
+          if (IS_EMOJI_SUPPORTED) {
             const spanEmoji = document.createElement('span');
             setInnerHTML(spanEmoji, wrapped);
             li.append(spanEmoji);
@@ -129,7 +129,7 @@ export default class CountryInputField extends InputField {
           el.dataset.defaultName = c.default_name;
           li.append(el);
 
-          if(!options.noPhoneCodes) {
+          if (!options.noPhoneCodes) {
             const span = document.createElement('span');
             span.classList.add('phone-code');
             span.innerText = '+' + countryCode.country_code;
@@ -144,7 +144,7 @@ export default class CountryInputField extends InputField {
       });
 
       selectList.addEventListener('mousedown', (e) => {
-        if(e.button !== 0) { // other buttons but left shall not pass
+        if (e.button !== 0) { // other buttons but left shall not pass
           return;
         }
 
@@ -159,12 +159,12 @@ export default class CountryInputField extends InputField {
     initSelect();
 
     this.input.addEventListener('focus', (e) => {
-      if(initSelect) {
+      if (initSelect) {
         initSelect();
       } else {
         countries.forEach((c) => {
           const arr = this.liMap.get(c.iso2);
-          if(!arr) return;
+          if (!arr) return;
           arr.forEach((li) => li.style.display = '');
         });
       }
@@ -183,12 +183,12 @@ export default class CountryInputField extends InputField {
         container: findUpClassName(this.container, 'scrollable-y'),
         element: this.input,
         position: 'start',
-        margin: 4
+        margin: 4,
       });
 
       setTimeout(() => {
-        if(!mouseDownHandlerAttached) {
-          document.addEventListener('mousedown', onMouseDown, {capture: true});
+        if (!mouseDownHandlerAttached) {
+          document.addEventListener('mousedown', onMouseDown, { capture: true });
           mouseDownHandlerAttached = true;
         }
       }, 0);
@@ -196,15 +196,15 @@ export default class CountryInputField extends InputField {
 
     let mouseDownHandlerAttached = false;
     const onMouseDown = (e: MouseEvent) => {
-      if(findUpClassName(e.target!, 'input-select')) {
+      if (findUpClassName(e.target!, 'input-select')) {
         return;
       }
-      if(e.target === this.input) {
+      if (e.target === this.input) {
         return;
       }
 
       this.hidePicker();
-      document.removeEventListener('mousedown', onMouseDown, {capture: true});
+      document.removeEventListener('mousedown', onMouseDown, { capture: true });
       mouseDownHandlerAttached = false;
     };
 
@@ -216,7 +216,7 @@ export default class CountryInputField extends InputField {
 
     const onKeyPress = (e: KeyboardEvent) => {
       const key = e.key;
-      if(e.ctrlKey || key === 'Control') return false;
+      if (e.ctrlKey || key === 'Control') return false;
 
       // let i = new RegExp('^' + this.value, 'i');
       const filtered = new Set(filterCountries(this.value).map((c) => c.iso2));
@@ -233,16 +233,16 @@ export default class CountryInputField extends InputField {
         clickEvent.initEvent('mousedown', true, true);
         matches[0].li[0].dispatchEvent(clickEvent);
         return false;
-      } else  */if(!filtered.size) {
+      } else  */if (!filtered.size) {
         countries.forEach((c) => {
           const arr = this.liMap.get(c.iso2);
-          if(!arr) {
+          if (!arr) {
             return;
           }
 
           arr.forEach((li) => li.style.display = '');
         });
-      } else if(filtered.size === 1 && key === 'Enter') {
+      } else if (filtered.size === 1 && key === 'Enter') {
         cancelEvent(e);
         this.selectCountryByTarget(this.liMap.get([...filtered][0])![0]);
       }
@@ -250,13 +250,13 @@ export default class CountryInputField extends InputField {
 
     this.input.addEventListener('keyup', onKeyPress);
     this.input.addEventListener('keydown', (e) => {
-      if(e.key === 'Enter') {
+      if (e.key === 'Enter') {
         onKeyPress(e);
       }
     });
 
     arrowDown.addEventListener('mousedown', (e) => {
-      if(this.input.matches(':focus')) {
+      if (this.input.matches(':focus')) {
         this.hidePicker();
         this.input.blur();
       } else {
@@ -268,11 +268,11 @@ export default class CountryInputField extends InputField {
   }
 
   public getSelected() {
-    return {country: this.lastCountrySelected, code: this.lastCountryCodeSelected};
+    return { country: this.lastCountrySelected, code: this.lastCountryCodeSelected };
   }
 
   public hidePicker = () => {
-    if(this.hideTimeout !== undefined) return;
+    if (this.hideTimeout !== undefined) return;
     this.selectWrapper.classList.remove('active');
     this.hideTimeout = window.setTimeout(() => {
       this.selectWrapper.classList.add('hide');

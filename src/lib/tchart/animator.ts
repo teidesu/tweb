@@ -1,5 +1,5 @@
 import TComposer from '@lib/tchart/composer';
-import {TChartAnimationItem, TChartAnimationProperty, TChartState} from '@lib/tchart/types';
+import { TChartAnimationItem, TChartAnimationProperty, TChartState } from '@lib/tchart/types';
 
 const easing = (st: number, ed: number, per: number, tween: string) => {
   const functions: Record<string, (t: number, b: number, c: number, d: number) => number> = {
@@ -9,10 +9,10 @@ const easing = (st: number, ed: number, per: number, tween: string) => {
 
     easeInOutQuad: (t, b, c, d) => {
       t /= d * 0.5;
-      if(t < 1) return c * 0.5 * t * t + b;
+      if (t < 1) return c * 0.5 * t * t + b;
       t--;
       return -c / 2 * (t * (t - 2) - 1) + b;
-    }
+    },
   };
 
   return functions[tween](per, st, ed - st, 1);
@@ -37,19 +37,19 @@ export default class TAnimator {
     let item: TChartAnimationItem, param: TChartAnimationProperty, delta: number;
     const queue = this.queue;
 
-    while(i < params.length) {
+    while (i < params.length) {
       param = params[i];
       item = queue[param.prop];
 
-      if(!item) {
-        if(param.end === param.state[param.prop]) {
+      if (!item) {
+        if (param.end === param.state[param.prop]) {
           param.cbEnd && param.cbEnd(param.state);
           i++;
           continue;
         }
 
         item = {
-          lastStart: 1
+          lastStart: 1,
         } as TChartAnimationItem;
         queue[param.prop] = item;
         this.queueSize++;
@@ -77,7 +77,7 @@ export default class TAnimator {
       i++;
     }
 
-    if(!this.animFrame) {
+    if (!this.animFrame) {
       this.animFrame = requestAnimationFrame(this.step);
     }
   }
@@ -95,26 +95,26 @@ export default class TAnimator {
       per: number,
       curVal: number,
       newVal: number;
-    const group: TChartAnimationProperty['group'] = {top: false, bottom: false};
+    const group: TChartAnimationProperty['group'] = { top: false, bottom: false };
 
-    for(const itemKey in this.queue) {
+    for (const itemKey in this.queue) {
       item = this.queue[itemKey as keyof TChartState];
       time = cur;
       duration = item.endDt - item.startDt;
       curVal = item.state[itemKey as keyof TChartState] as number;
       const delayed = time < item.startDt;
 
-      if(time < item.startDt) {
+      if (time < item.startDt) {
         time = item.startDt;
-      } else if(time > item.endDt) {
+      } else if (time > item.endDt) {
         time = item.endDt;
       }
 
       per = duration ? (time - item.startDt) / duration : (delayed ? 0 : 1);
 
       let newVal: number;
-      if(per < 1) {
-        if(item.tween === 'exp') {
+      if (per < 1) {
+        if (item.tween === 'exp') {
           newVal = curVal + (item.end - curVal) * item.speed!;
         } else {
           newVal = easing(item.start, item.end, per, item.tween!);
@@ -123,19 +123,19 @@ export default class TAnimator {
         newVal = item.end;
       }
 
-      if(newVal !== curVal) {
+      if (newVal !== curVal) {
         // @ts-ignore
         item.state[itemKey as keyof TChartState] = newVal;
         group.top = group.top || item.group.top;
         group.bottom = group.bottom || item.group.bottom;
-      } else if(newVal === item.end) {
+      } else if (newVal === item.end) {
         done.push(itemKey as keyof TChartState);
       }
     }
 
     // Remove animations that are done
     let j = 0;
-    while(j < done.length) {
+    while (j < done.length) {
       this.queue[done[j]].cbEnd && this.queue[done[j]].cbEnd!(this.queue[done[j]].state);
       delete this.queue[done[j]];
       j++;
@@ -145,7 +145,7 @@ export default class TAnimator {
 
     this.composer.render(group);
 
-    if(!this.queueSize) {
+    if (!this.queueSize) {
       delete this.animFrame;
     } else {
       this.animFrame = requestAnimationFrame(this.step);

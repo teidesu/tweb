@@ -1,4 +1,4 @@
-import {MOUNT_CLASS_TO} from '@config/debug';
+import { MOUNT_CLASS_TO } from '@config/debug';
 import rootScope from '@lib/rootScope';
 import mediaSizes from '@helpers/mediaSizes';
 
@@ -27,7 +27,7 @@ export class CustomProperties {
     const cache = this.cache;
     this.cache = {};
 
-    for(const i in cache) {
+    for (const i in cache) {
       this.getProperty(i);
     }
   };
@@ -35,7 +35,7 @@ export class CustomProperties {
   public getProperty(name: CustomProperty, night?: boolean) {
     const values = this.cache[name];
     const index = night ? 1 : 0;
-    if(values?.[index]) {
+    if (values?.[index]) {
       return values[index];
     }
 
@@ -47,12 +47,12 @@ export class CustomProperties {
   }
 
   public getPropertyAsColor(name: CustomProperty) {
-    if(name[0] === '#') {
+    if (name[0] === '#') {
       return name;
     }
 
     const value = this.getProperty(name);
-    if(value[0] === '#') {
+    if (value[0] === '#') {
       return value;
     }
 
@@ -63,9 +63,9 @@ export class CustomProperties {
     const value = this.getProperty(name);
     let size: number;
 
-    if(value[value.length - 1] === '%') {
+    if (value[value.length - 1] === '%') {
 
-    } else if(value.indexOf('rem')) {
+    } else if (value.indexOf('rem')) {
       size = +value.replace('rem', '') * 16;
     } else {
       size = +value.replace('px', '');

@@ -1,7 +1,7 @@
-import {USING_BOMS} from '@helpers/dom/richInputHandler';
+import { USING_BOMS } from '@helpers/dom/richInputHandler';
 import BOM from '@helpers/string/bom';
-import {_i18n} from '@lib/langPack';
-import InputField, {InputFieldOptions} from '@components/inputField';
+import { _i18n } from '@lib/langPack';
+import InputField, { InputFieldOptions } from '@components/inputField';
 import SetTransition from '@components/singleTransition';
 
 const USELESS_REG_EXP = new RegExp(`(<span>${BOM}</span>)|(<br\/?>)`, 'g');
@@ -49,20 +49,20 @@ export default class InputFieldAnimated extends InputField {
   }
 
   public setMaxHeight(value: number | undefined) {
-    if(this.maxHeight === value) return;
+    if (this.maxHeight === value) return;
     this.maxHeight = value;
     this.input.style.maxHeight = value !== undefined ? value + 'px' : '';
     this.onFakeInput();
   }
 
   public onFakeInput(setHeight = true, noAnimation?: boolean) {
-    const {scrollHeight} = this.inputFake;
+    const { scrollHeight } = this.inputFake;
     const newHeight = this.maxHeight !== undefined ? Math.min(scrollHeight, this.maxHeight) : scrollHeight;
 
     noAnimation ??= !this.input.isContentEditable;
 
     const currentHeight = +this.input.style.height.replace('px', '');
-    if(currentHeight === newHeight) {
+    if (currentHeight === newHeight) {
       return;
     }
 
@@ -74,7 +74,7 @@ export default class InputFieldAnimated extends InputField {
     // this.wasInputFakeClientHeight = clientHeight;
     this.input.style.transitionDuration = `${transitionDuration}ms`;
 
-    if(setHeight) {
+    if (setHeight) {
       this.onChangeHeight?.(newHeight);
       this.input.style.height = newHeight ? newHeight + 'px' : '';
       (this.input as any).oldHeight = (this.input as any).newHeight;
@@ -98,16 +98,16 @@ export default class InputFieldAnimated extends InputField {
       duration: transitionDuration,
       onTransitionEnd: () => {
         (this.input as any).oldHeight = (this.input as any).newHeight;
-      }
+      },
     });
   }
 
   protected updateInnerHTML(innerHTML = this.input.innerHTML) {
     innerHTML = innerHTML
-    .replace(/<custom-emoji-renderer-element.+\/custom-emoji-renderer-element>/, '')
-    .replace(/(<custom-emoji-element.+?>).+?\/custom-emoji-element>/g, '$1</custom-emoji-element>');
+      .replace(/<custom-emoji-renderer-element.+\/custom-emoji-renderer-element>/, '')
+      .replace(/(<custom-emoji-element.+?>).+?\/custom-emoji-element>/g, '$1</custom-emoji-element>');
 
-    if(USING_BOMS) {
+    if (USING_BOMS) {
       innerHTML = innerHTML.replace(USELESS_REG_EXP, '');
     }
 
@@ -118,7 +118,7 @@ export default class InputFieldAnimated extends InputField {
     super.setValueSilently(value, fromSet);
 
     this.updateInnerHTML();
-    if(!fromSet) {
+    if (!fromSet) {
       this.onFakeInput();
     }
   }

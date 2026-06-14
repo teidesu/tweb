@@ -1,12 +1,12 @@
-import {rgbIntToHex} from '@helpers/color';
-import {setDirection} from '@helpers/dom/setInnerHTML';
+import { rgbIntToHex } from '@helpers/color';
+import { setDirection } from '@helpers/dom/setInnerHTML';
 import themeController from '@helpers/themeController';
-import {Message, MessageEntity, MessageReplyHeader, Peer, PeerColor, StoryItem, User} from '@layer';
-import {getPeerColorsByPeer} from '@appManagers/utils/peers/getPeerColorById';
+import { Message, MessageEntity, MessageReplyHeader, Peer, PeerColor, StoryItem, User } from '@layer';
+import { getPeerColorsByPeer } from '@appManagers/utils/peers/getPeerColorById';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import rootScope from '@lib/rootScope';
 import ReplyContainer from '@components/chat/replyContainer';
-import {setPeerColorToElement} from '@components/peerColors';
+import { setPeerColorToElement } from '@components/peerColors';
 import ripple from '@components/ripple';
 import wrapEmojiPattern from '@components/wrappers/emojiPattern';
 import wrapSticker from '@components/wrappers/sticker';
@@ -42,32 +42,32 @@ export default function wrapReply(options: WrapReplyOptions) {
   replyContainer.border.remove();
   ripple(replyContainer.container);
 
-  if(options.isQuote) {
+  if (options.isQuote) {
     replyContainer.container.classList.add('quote-like-icon');
     replyContainer.container.classList.add('reply-multiline');
   }
 
-  if(options.noBorder) {
+  if (options.noBorder) {
     replyContainer.container.classList.remove('quote-like-border');
   }
 
-  const {setColorPeerId} = options;
-  if(setColorPeerId !== undefined) {
+  const { setColorPeerId } = options;
+  if (setColorPeerId !== undefined) {
     setPeerColorToElement({
       peerId: setColorPeerId,
       element: replyContainer.container,
       messageHighlighting: options.useHighlightingColor,
-      colorAsOut: options.colorAsOut
+      colorAsOut: options.colorAsOut,
     });
 
     const peer = apiManagerProxy.getPeer(setColorPeerId);
     const color = (peer as User.user)?.color as PeerColor.peerColor | PeerColor.peerColorCollectible;
     const docId = color?.background_emoji_id;
-    if(docId) {
+    if (docId) {
       let emojiColor: string;
-      if(color?._ === 'peerColorCollectible') {
+      if (color?._ === 'peerColorCollectible') {
         let val = color.accent_color;
-        if(themeController.isNight() && color.dark_accent_color) val = color.dark_accent_color;
+        if (themeController.isNight() && color.dark_accent_color) val = color.dark_accent_color;
         emojiColor = rgbIntToHex(val);
       } else {
         emojiColor = getPeerColorsByPeer(peer)[0];
@@ -88,42 +88,42 @@ export default function wrapReply(options: WrapReplyOptions) {
           [28.9, 12.9, 15.2, .2],
           [65.5, 18.5, 12, .25],
           [48.9, 37.9, 15.2, .25],
-          [91.9, 7.9, 15.2, .3]
+          [91.9, 7.9, 15.2, .3],
         ],
         canvasWidth: 117,
         canvasHeight: 54,
-        emojiSize: 16
+        emojiSize: 16,
       }).then((canvas) => {
-        if(options.middleware && !options.middleware()) return;
+        if (options.middleware && !options.middleware()) return;
         canvas.classList.add('reply-background-canvas');
       });
     }
 
-    if(color?._ === 'peerColorCollectible') {
+    if (color?._ === 'peerColorCollectible') {
       const div = document.createElement('div');
       div.classList.add('reply-collectible');
       replyContainer.container.classList.add('has-collectible');
       replyContainer.container.appendChild(div);
 
       rootScope.managers.appEmojiManager.getCustomEmojiDocument(color.gift_emoji_id).then((doc) => {
-        if(options.middleware && !options.middleware()) return;
-        if(!doc) return;
+        if (options.middleware && !options.middleware()) return;
+        if (!doc) return;
 
         return wrapSticker({
           doc,
           div,
           middleware: options.middleware,
           width: 24,
-          height: 24
+          height: 24,
         });
       });
     }
   }
 
-  if(!options.subtitle && !options.message) {
+  if (!options.subtitle && !options.message) {
     replyContainer.container.classList.add('reply-no-subtitle');
     replyContainer.subtitle.remove();
   }
 
-  return {container: replyContainer.container, fillPromise};
+  return { container: replyContainer.container, fillPromise };
 }

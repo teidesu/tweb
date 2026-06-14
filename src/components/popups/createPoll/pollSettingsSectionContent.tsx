@@ -1,42 +1,42 @@
-import {createAutoDeleteIcon} from '@components/autoDeleteIcon';
-import {IconTsx} from '@components/iconTsx';
+import { createAutoDeleteIcon } from '@components/autoDeleteIcon';
+import { IconTsx } from '@components/iconTsx';
 import InputField from '@components/inputField';
 import showDatePickerPopup from '@components/popups/datePicker';
 import SimpleFormField from '@components/simpleFormField';
 import Space from '@components/space';
 import StaticSwitch from '@components/staticSwitch';
-import {wrapFormattedDuration} from '@components/wrappers/wrapDuration';
+import { wrapFormattedDuration } from '@components/wrappers/wrapDuration';
 import contextMenuController from '@helpers/contextMenuController';
-import {formatFullSentTime} from '@helpers/date';
+import { formatFullSentTime } from '@helpers/date';
 import getRichValueWithCaret from '@helpers/dom/getRichValueWithCaret';
 import formatDuration from '@helpers/formatDuration';
-import {positionFloatingMenu} from '@helpers/positionMenu';
+import { positionFloatingMenu } from '@helpers/positionMenu';
 import pause from '@helpers/schedulers/pause';
-import {HeightTransition} from '@helpers/solid/heightTransition';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {requestRAF} from '@helpers/solid/requestRAF';
+import { HeightTransition } from '@helpers/solid/heightTransition';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { requestRAF } from '@helpers/solid/requestRAF';
 import classNames from '@helpers/string/classNames';
-import {useIsCleaned} from '@hooks/useIsCleaned';
-import {oneDayInSeconds, oneHourInSeconds, oneWeekInSeconds} from '@lib/constants';
-import {LangPackKey} from '@lib/langPack';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {FilterBooleanKeys} from '@types';
-import {Accessor, createEffect, createSignal, JSX, on, onCleanup, Show} from 'solid-js';
-import {supportedDescriptionFormattingTypes} from './config';
-import {EmojiButtonWithOpacity as EmojiDropdownButton} from './emojiButtonWithOpacity';
-import {MediaAttachment} from './mediaAttachment';
-import {CreatePollStore, useCreatePollContext} from './storeContext';
+import { useIsCleaned } from '@hooks/useIsCleaned';
+import { oneDayInSeconds, oneHourInSeconds, oneWeekInSeconds } from '@lib/constants';
+import { LangPackKey } from '@lib/langPack';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { FilterBooleanKeys } from '@types';
+import { Accessor, createEffect, createSignal, JSX, on, onCleanup, Show } from 'solid-js';
+import { supportedDescriptionFormattingTypes } from './config';
+import { EmojiButtonWithOpacity as EmojiDropdownButton } from './emojiButtonWithOpacity';
+import { MediaAttachment } from './mediaAttachment';
+import { CreatePollStore, useCreatePollContext } from './storeContext';
 import styles from './styles.module.scss';
-import {useCreatePollLimits} from './useCreatePollLimits';
-import {createFormFieldClickHandler, interactableClass, useSupportsMedia} from './utils';
+import { useCreatePollLimits } from './useCreatePollLimits';
+import { createFormFieldClickHandler, interactableClass, useSupportsMedia } from './utils';
 
 type BooleanSettingKey = FilterBooleanKeys<CreatePollStore>;
 
 const minEndTimeFromNowMinutes = 5;
 
 export const PollSettingsSectionContent = () => {
-  const {Row} = useHotReloadGuard();
-  const {maxExplanationLength} = useCreatePollLimits();
+  const { Row } = useHotReloadGuard();
+  const { maxExplanationLength } = useCreatePollLimits();
   const context = useCreatePollContext();
   const supportsMedia = useSupportsMedia();
 
@@ -51,12 +51,12 @@ export const PollSettingsSectionContent = () => {
     canWrapCustomEmojis: true,
     withLinebreaks: true,
     onRawInput: () => {
-      const {value, entities} = getRichValueWithCaret(explanationInput.input);
+      const { value, entities } = getRichValueWithCaret(explanationInput.input);
       context!.setStore({
         explanation: value,
-        explanationEntities: entities
+        explanationEntities: entities,
       });
-    }
+    },
   });
 
   explanationInput.input.classList.replace('input-field-input', styles.inputField);
@@ -76,12 +76,12 @@ export const PollSettingsSectionContent = () => {
     open: isDurationMenuOpen,
     container: (pollDurationRowElement as Accessor<HTMLElement>),
     onOptionClick: (duration) => {
-      context!.setStore('timeLimit', {type: 'duration', duration});
+      context!.setStore('timeLimit', { type: 'duration', duration });
     },
     onCustomTimestamp: (timestamp) => {
-      context!.setStore('timeLimit', {type: 'timestamp', timestamp});
+      context!.setStore('timeLimit', { type: 'timestamp', timestamp });
     },
-    onClose: () => setIsDurationMenuOpen(false)
+    onClose: () => setIsDurationMenuOpen(false),
   });
 
   return (
@@ -94,14 +94,14 @@ export const PollSettingsSectionContent = () => {
           icon='eye1'
           checked={context!.store.showWhoVoted}
           onClick={() => {
-            if(context!.store.showWhoVoted) {
+            if (context!.store.showWhoVoted) {
               context!.setStore({
                 allowAddingOptions: false,
-                showWhoVoted: false
+                showWhoVoted: false,
               });
             } else {
               context!.setStore({
-                showWhoVoted: true
+                showWhoVoted: true,
               });
             }
           }}
@@ -149,15 +149,15 @@ export const PollSettingsSectionContent = () => {
         icon='checklist_done'
         checked={context!.store.hasCorrectAnswer}
         onClick={() => {
-          if(!context!.store.hasCorrectAnswer) {
+          if (!context!.store.hasCorrectAnswer) {
             context!.setStore({
               hasCorrectAnswer: true,
               allowAddingOptions: false,
-              allowRevoting: false
+              allowRevoting: false,
             });
           } else {
             context!.setStore({
-              hasCorrectAnswer: false
+              hasCorrectAnswer: false,
             });
           }
         }}
@@ -171,16 +171,16 @@ export const PollSettingsSectionContent = () => {
         onClick={handleSettingsFlag('durationLimited')}
       />
       <HeightTransition
-        onAfterEnter={() => limitDurationExtraElement()?.scrollIntoView({behavior: 'smooth', block: 'center'})}
+        onAfterEnter={() => limitDurationExtraElement()?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
       >
         <Show when={context!.store.durationLimited}>
-          <div ref={setLimitDurationExtraElement} style={{overflow: !isDurationMenuOpen() ? 'hidden' : undefined}}>
+          <div ref={setLimitDurationExtraElement} style={{ overflow: !isDurationMenuOpen() ? 'hidden' : undefined }}>
             <Space amount='0.25rem' />
             <div class={styles.smallerHrWrapper}>
               <hr class={styles.hr} />
             </div>
             <Space amount='0.25rem' />
-            <div style={{'position': 'relative'}}>
+            <div style={{ 'position': 'relative' }}>
               <Row ref={setPollDurationRowElement} clickable={() => setIsDurationMenuOpen(prev => !prev)}>
                 <Row.Title>
                   <I18nTsx key='NewPoll.PollDuration' />
@@ -212,9 +212,9 @@ export const PollSettingsSectionContent = () => {
         </Show>
       </HeightTransition>
 
-      <HeightTransition onAfterEnter={() => explanationElement()?.scrollIntoView({behavior: 'smooth', block: 'center'})}>
+      <HeightTransition onAfterEnter={() => explanationElement()?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>
         <Show when={context!.store.hasCorrectAnswer}>
-          <div ref={setExplanationElement} style={{overflow: 'hidden'}}>
+          <div ref={setExplanationElement} style={{ overflow: 'hidden' }}>
             <Space amount='1rem' />
 
             <SimpleFormField
@@ -244,7 +244,7 @@ export const PollSettingsSectionContent = () => {
                     supportedMediaTypes={[
                       ...(supportsMedia('photo') ? ['photo'] as const : []),
                       ...(supportsMedia('video') ? ['video'] as const : []),
-                      ...(supportsMedia('gif') ? ['gif'] as const : []) // GIF is additional to photo
+                      ...(supportsMedia('gif') ? ['gif'] as const : []), // GIF is additional to photo
                     ]}
                     imgClass={styles.mediaAttachmentImage}
                     attachedMedia={context!.store.explanationAttachment}
@@ -273,12 +273,12 @@ const gradients = [
   ['#bd69f0', '#a459e1'],
   ['#f0842c', '#e36b1c'],
   ['#4ec643', '#2fb837'],
-  ['#ef4e54', '#e33d55']
+  ['#ef4e54', '#e33d55'],
 ] as const;
 
 const getGradientStyle = (index: number): JSX.CSSProperties => ({
   '--gradient-start': gradients[index][0],
-  '--gradient-end': gradients[index][1]
+  '--gradient-end': gradients[index][1],
 });
 
 
@@ -291,7 +291,7 @@ const SettingsOption = (props: {
   checked?: boolean;
   onClick?: () => void;
 }) => {
-  const {Row} = useHotReloadGuard();
+  const { Row } = useHotReloadGuard();
 
   return (
     <Row clickable={props.onClick} disabled={props.disabled}>
@@ -315,7 +315,7 @@ const durationOptions = [
   oneHourInSeconds * 8,
   oneDayInSeconds,
   oneDayInSeconds * 3,
-  oneWeekInSeconds
+  oneWeekInSeconds,
 ];
 
 type PollDurationMenuArgs = {
@@ -327,16 +327,16 @@ type PollDurationMenuArgs = {
 };
 
 const usePollDurationMenu = (args: PollDurationMenuArgs) => {
-  const {ButtonMenuSync} = useHotReloadGuard();
+  const { ButtonMenuSync } = useHotReloadGuard();
 
-  const {closePeriodMax} = useCreatePollLimits();
+  const { closePeriodMax } = useCreatePollLimits();
 
   const format = (duration: number) => wrapFormattedDuration(formatDuration(duration, 1));
 
   const isCleaned = useIsCleaned();
 
   createEffect(on(args.open, (open) => {
-    if(!open) return;
+    if (!open) return;
 
     const buttonMenu = ButtonMenuSync({
       buttons: [
@@ -345,7 +345,7 @@ const usePollDurationMenu = (args: PollDurationMenuArgs) => {
           regularText: format(duration),
           onClick: () => {
             args.onOptionClick(duration);
-          }
+          },
         })),
         {
           icon: 'tools',
@@ -371,11 +371,11 @@ const usePollDurationMenu = (args: PollDurationMenuArgs) => {
                 args.onCustomTimestamp(timestamp);
               },
               sendTodayLangKey: 'NewPoll.EndToday',
-              sendDateLangKey: 'NewPoll.EndDate'
+              sendDateLangKey: 'NewPoll.EndDate',
             });
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     buttonMenu.classList.add(styles.pollDurationMenu);
@@ -383,7 +383,7 @@ const usePollDurationMenu = (args: PollDurationMenuArgs) => {
     document.body.appendChild(buttonMenu);
 
     requestRAF(() => {
-      if(isCleaned()) return;
+      if (isCleaned()) return;
 
       positionFloatingMenu(args.container().getBoundingClientRect(), buttonMenu, 'top-end');
       contextMenuController.openBtnMenu(buttonMenu, async() => {

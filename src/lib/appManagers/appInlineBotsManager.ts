@@ -5,13 +5,13 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import type {MyDocument} from '@appManagers/appDocsManager';
-import type {MyPhoto} from '@appManagers/appPhotosManager';
-import type {MyTopPeer} from '@appManagers/appUsersManager';
-import type {AppMessagesManager} from '@appManagers/appMessagesManager';
-import {BotInlineResult, Document, GeoPoint, InputGeoPoint, MessageMedia, Photo} from '@layer';
+import type { MyDocument } from '@appManagers/appDocsManager';
+import type { MyPhoto } from '@appManagers/appPhotosManager';
+import type { MyTopPeer } from '@appManagers/appUsersManager';
+import type { AppMessagesManager } from '@appManagers/appMessagesManager';
+import { BotInlineResult, Document, GeoPoint, InputGeoPoint, MessageMedia, Photo } from '@layer';
 import insertInDescendSortedArray from '@helpers/array/insertInDescendSortedArray';
-import {AppManager} from '@appManagers/manager';
+import { AppManager } from '@appManagers/manager';
 import getPhotoMediaInput from '@appManagers/utils/photos/getPhotoMediaInput';
 import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
 import generateQId from '@appManagers/utils/inlineBots/generateQId';
@@ -31,9 +31,9 @@ export class AppInlineBotsManager extends AppManager {
       _: 'inputGeoPoint',
       lat: geo.lat,
       long: geo.long,
-      accuracy_radius: geo.accuracy_radius
+      accuracy_radius: geo.accuracy_radius,
     } : {
-      _: 'inputGeoPointEmpty'
+      _: 'inputGeoPointEmpty',
     };
   }
 
@@ -43,8 +43,8 @@ export class AppInlineBotsManager extends AppManager {
       peer: this.appPeersManager.getInputPeerById(peerId),
       query,
       geo_point: geo ? this.getGeoInput(geo) : undefined,
-      offset
-    }, {/* timeout: 1,  */stopTime: -1, noErrorBox: true}).then((botResults) => {
+      offset,
+    }, { /* timeout: 1,  */stopTime: -1, noErrorBox: true }).then((botResults) => {
       const queryId = botResults.query_id;
 
       /* if(botResults.switch_pm) {
@@ -52,7 +52,7 @@ export class AppInlineBotsManager extends AppManager {
       } */
 
       botResults.results.forEach((result) => {
-        if(result._ === 'botInlineMediaResult') {
+        if (result._ === 'botInlineMediaResult') {
           result.document = this.appDocsManager.saveDoc(result.document!);
           result.photo = this.appPhotosManager.savePhoto(result.photo!);
         } else {
@@ -72,12 +72,12 @@ export class AppInlineBotsManager extends AppManager {
       const botPeerId = botId.toPeerId();
       const index = topPeers.findIndex((topPeer) => topPeer.id === botPeerId);
       let topPeer: MyTopPeer;
-      if(index !== -1) {
+      if (index !== -1) {
         topPeer = topPeers[index];
       } else {
         topPeer = {
           id: botPeerId,
-          rating: 0
+          rating: 0,
         };
       }
 
@@ -91,7 +91,7 @@ export class AppInlineBotsManager extends AppManager {
   }
 
   public switchToPM(fromPeerId: PeerId, botId: BotId, startParam: string) {
-    this.setHash[botId] = {peerId: fromPeerId, time: Date.now()};
+    this.setHash[botId] = { peerId: fromPeerId, time: Date.now() };
     return this.appMessagesManager.startBot(botId, undefined, startParam);
   }
 
@@ -204,14 +204,14 @@ export class AppInlineBotsManager extends AppManager {
 
   public async checkSwitchReturn(botId: BotId) {
     const bot = this.appUsersManager.getUser(botId);
-    if(!bot || !bot.pFlags.bot || !bot.bot_inline_placeholder) {
+    if (!bot || !bot.pFlags.bot || !bot.bot_inline_placeholder) {
       return;
     }
 
     const peerData = this.setHash[botId];
-    if(peerData) {
+    if (peerData) {
       delete this.setHash[botId];
-      if((Date.now() - peerData.time) < 3600e3) {
+      if ((Date.now() - peerData.time) < 3600e3) {
         return peerData.peerId;
       }
     }
@@ -227,8 +227,8 @@ export class AppInlineBotsManager extends AppManager {
       peer: this.appPeersManager.getInputPeerById(peerId),
       msg_id: getServerMessageId(mid)!,
       data: button?.data,
-      game
-    }, {/* timeout: 1,  */stopTime: -1, noErrorBox: true});
+      game,
+    }, { /* timeout: 1,  */stopTime: -1, noErrorBox: true });
   }
 
   public sendInlineResult(
@@ -240,7 +240,7 @@ export class AppInlineBotsManager extends AppManager {
     } = {}
   ) {
     const inlineResult = options.inlineResult ?? this.inlineResults[queryAndResultIds];
-    if(!inlineResult) {
+    if (!inlineResult) {
       return;
     }
 
@@ -251,32 +251,32 @@ export class AppInlineBotsManager extends AppManager {
     options.viaBotId = botId;
     options.queryId = queryId;
     options.resultId = resultId;
-    if(inlineResult.send_message.reply_markup) {
+    if (inlineResult.send_message.reply_markup) {
       options.replyMarkup = inlineResult.send_message.reply_markup;
     }
 
-    if(inlineResult.send_message._ === 'botInlineMessageText') {
+    if (inlineResult.send_message._ === 'botInlineMessageText') {
       this.appMessagesManager.sendText({
         ...options,
         peerId,
         text: inlineResult.send_message.message,
-        entities: inlineResult.send_message.entities
+        entities: inlineResult.send_message.entities,
       });
     } else {
       let caption = '';
       let inputMedia: Parameters<AppMessagesManager['sendOther']>[0]['inputMedia'], messageMedia: MessageMedia;
       const sendMessage = inlineResult.send_message;
-      switch(sendMessage._) {
+      switch (sendMessage._) {
         case 'botInlineMessageMediaAuto': {
           caption = sendMessage.message;
 
-          if(inlineResult.type === 'game') {
-            let gamePhoto: Photo = {_: 'photoEmpty', id: 0};
+          if (inlineResult.type === 'game') {
+            let gamePhoto: Photo = { _: 'photoEmpty', id: 0 };
             let gameDocument: Document;
 
-            if(inlineResult._ === 'botInlineMediaResult') {
-              if(inlineResult.photo) gamePhoto = inlineResult.photo;
-              if(inlineResult.document) gameDocument = inlineResult.document;
+            if (inlineResult._ === 'botInlineMediaResult') {
+              if (inlineResult.photo) gamePhoto = inlineResult.photo;
+              if (inlineResult.document) gameDocument = inlineResult.document;
             }
 
             messageMedia = {
@@ -289,15 +289,15 @@ export class AppInlineBotsManager extends AppManager {
                 title: inlineResult.title || '',
                 description: inlineResult.description || '',
                 photo: gamePhoto,
-                document: gameDocument!
-              }
+                document: gameDocument!,
+              },
             };
             break;
           }
 
-          if(inlineResult._ === 'botInlineMediaResult') {
-            const {document, photo} = inlineResult;
-            if(document) {
+          if (inlineResult._ === 'botInlineMediaResult') {
+            const { document, photo } = inlineResult;
+            if (document) {
               inputMedia = getDocumentMediaInput(document as MyDocument);
             } else {
               inputMedia = getPhotoMediaInput(photo as MyPhoto);
@@ -305,18 +305,18 @@ export class AppInlineBotsManager extends AppManager {
           } else {
             const webDocument = inlineResult.content || inlineResult.thumb;
 
-            if(webDocument) {
-              if(inlineResult.type === 'photo') {
+            if (webDocument) {
+              if (inlineResult.type === 'photo') {
                 inputMedia = {
                   _: 'inputMediaPhotoExternal',
                   pFlags: {},
-                  url: webDocument.url
+                  url: webDocument.url,
                 };
               } else {
                 inputMedia = {
                   _: 'inputMediaDocumentExternal',
                   pFlags: {},
-                  url: webDocument.url
+                  url: webDocument.url,
                 };
               }
 
@@ -330,7 +330,7 @@ export class AppInlineBotsManager extends AppManager {
         case 'botInlineMessageMediaGeo': {
           inputMedia = {
             _: 'inputMediaGeoPoint',
-            geo_point: this.getGeoInput(sendMessage.geo)
+            geo_point: this.getGeoInput(sendMessage.geo),
           };
 
           options.geoPoint = sendMessage.geo;
@@ -346,7 +346,7 @@ export class AppInlineBotsManager extends AppManager {
             address: sendMessage.address,
             provider: sendMessage.provider,
             venue_id: sendMessage.venue_id,
-            venue_type: sendMessage.venue_type
+            venue_type: sendMessage.venue_type,
           };
 
           options.geoPoint = sendMessage.geo;
@@ -360,7 +360,7 @@ export class AppInlineBotsManager extends AppManager {
             phone_number: sendMessage.phone_number,
             first_name: sendMessage.first_name,
             last_name: sendMessage.last_name,
-            vcard: sendMessage.vcard
+            vcard: sendMessage.vcard,
           };
 
           break;
@@ -395,23 +395,23 @@ export class AppInlineBotsManager extends AppManager {
             total_amount: sendMessage.total_amount,
             pFlags: {
               shipping_address_requested: sendMessage.pFlags.shipping_address_requested,
-              test: sendMessage.pFlags.test
+              test: sendMessage.pFlags.test,
             },
-            start_param: (undefined as unknown as string)
+            start_param: (undefined as unknown as string),
           };
 
           break;
         }
       }
 
-      if(!inputMedia && messageMedia!) {
+      if (!inputMedia && messageMedia!) {
         inputMedia = {
           _: 'messageMediaPending',
-          messageMedia
+          messageMedia,
         };
       }
 
-      this.appMessagesManager.sendOther({...options, peerId, inputMedia});
+      this.appMessagesManager.sendOther({ ...options, peerId, inputMedia });
     }
   }
 

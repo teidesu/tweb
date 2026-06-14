@@ -1,5 +1,5 @@
-import {createRoot, JSX} from 'solid-js';
-import {Middleware} from '@helpers/middleware';
+import { createRoot, JSX } from 'solid-js';
+import { Middleware } from '@helpers/middleware';
 
 export function wrapSolidComponent(component: () => JSX.Element, middleware: Middleware): HTMLElement {
   let dispose!: VoidFunction
@@ -8,7 +8,7 @@ export function wrapSolidComponent(component: () => JSX.Element, middleware: Mid
     return component()
   })
 
-  if(typeof el === 'function') {
+  if (typeof el === 'function') {
     el = (el as () => HTMLElement)()
   }
 

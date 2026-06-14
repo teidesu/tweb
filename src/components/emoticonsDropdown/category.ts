@@ -1,10 +1,10 @@
-import {makeMediaSize, MediaSize} from '@helpers/mediaSize';
+import { makeMediaSize, MediaSize } from '@helpers/mediaSize';
 import mediaSizes from '@helpers/mediaSizes';
-import {MiddlewareHelper, Middleware, getMiddleware} from '@helpers/middleware';
-import {StickerSet} from '@layer';
+import { MiddlewareHelper, Middleware, getMiddleware } from '@helpers/middleware';
+import { StickerSet } from '@layer';
 import ButtonIcon from '@components/buttonIcon';
-import {ScrollableX} from '@components/scrollable';
-import {EMOJI_ELEMENT_SIZE} from '@components/emoticonsDropdown/tabs/emoji';
+import { ScrollableX } from '@components/scrollable';
+import { EMOJI_ELEMENT_SIZE } from '@components/emoticonsDropdown/tabs/emoji';
 
 export type StickersTabCategoryItem = {element: HTMLElement};
 export type StickersTabStyles = {
@@ -23,7 +23,7 @@ export const EmoticonsTabStyles: {[key in 'Stickers' | 'Emoji' | 'GIF']?: Sticke
     gapX: 0,
     gapY: 0,
     itemsClassName: 'super-stickers',
-    squareCells: true
+    squareCells: true,
   },
   Emoji: {
     getElementMediaSize: () => EMOJI_ELEMENT_SIZE,
@@ -31,15 +31,15 @@ export const EmoticonsTabStyles: {[key in 'Stickers' | 'Emoji' | 'GIF']?: Sticke
     gapX: 0,
     gapY: 0,
     itemsClassName: 'super-emojis',
-    squareCells: true
+    squareCells: true,
   },
   GIF: {
     getElementMediaSize: () => makeMediaSize(124, 124),
     padding: 4,
     gapX: 2,
     gapY: 2,
-    itemsClassName: 'emoticons-gifs'
-  }
+    itemsClassName: 'emoticons-gifs',
+  },
 }
 
 export default class StickersTabCategory<Item extends StickersTabCategoryItem, AdditionalElements extends Record<string, HTMLElement> = {}> {
@@ -84,15 +84,15 @@ export default class StickersTabCategory<Item extends StickersTabCategoryItem, A
     items.classList.add('category-items');
 
     let title: HTMLElement;
-    if(options.title) {
+    if (options.title) {
       title = document.createElement('div');
       title.classList.add('category-title');
       title.append(options.title);
     }
 
     let menuTab: HTMLElement, menuTabPadding: HTMLElement;
-    if(!options.noMenuTab) {
-      menuTab = ButtonIcon(undefined, {noRipple: true});
+    if (!options.noMenuTab) {
+      menuTab = ButtonIcon(undefined, { noRipple: true });
       menuTab.classList.add('menu-horizontal-div-item');
 
       menuTabPadding = document.createElement('div');
@@ -101,7 +101,7 @@ export default class StickersTabCategory<Item extends StickersTabCategoryItem, A
       menuTab.append(menuTabPadding);
     }
 
-    if(title!) container.append(title);
+    if (title!) container.append(title);
     container.append(items);
 
     this.elements = {
@@ -109,7 +109,7 @@ export default class StickersTabCategory<Item extends StickersTabCategoryItem, A
       title: title!,
       items,
       menuTab: menuTab!,
-      menuTabPadding: menuTabPadding!
+      menuTabPadding: menuTabPadding!,
     } as any;
     this.id = options.id;
     this.items = [];
@@ -123,7 +123,7 @@ export default class StickersTabCategory<Item extends StickersTabCategoryItem, A
   }
 
   public setCategoryItemsHeight(itemsLength = this.items.length) {
-    const {width: containerWidth} = this.getContainerSize();
+    const { width: containerWidth } = this.getContainerSize();
     const elementSize = this.getElementMediaSize().width;
 
     const itemsPerRow = Math.max(1, Math.floor((containerWidth + this.gapX) / (elementSize + this.gapX)));
@@ -133,7 +133,7 @@ export default class StickersTabCategory<Item extends StickersTabCategoryItem, A
 
     const rows = Math.ceil(itemsLength / itemsPerRow);
     let height = rows * rowHeight;
-    if(this.gapY) height += (rows - 1) * this.gapY;
+    if (this.gapY) height += (rows - 1) * this.gapY;
 
     this.elements.items.style.minHeight = height + 'px';
   }

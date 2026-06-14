@@ -1,6 +1,6 @@
 import type CustomEmojiElement from '@lib/customEmoji/element';
-import type {AnimationItemGroup} from '@components/animationIntersector';
-import {CustomEmojiRendererElement} from '@lib/customEmoji/renderer';
+import type { AnimationItemGroup } from '@components/animationIntersector';
+import { CustomEmojiRendererElement } from '@lib/customEmoji/renderer';
 import cancelEvent from '@helpers/dom/cancelEvent';
 import simulateEvent from '@helpers/dom/dispatchEvent';
 import documentFragmentToHTML from '@helpers/dom/documentFragmentToHTML';
@@ -10,17 +10,17 @@ import getCaretPosNew from '@helpers/dom/getCaretPosNew';
 import getRichValueWithCaret from '@helpers/dom/getRichValueWithCaret';
 import isInputEmpty from '@helpers/dom/isInputEmpty';
 import replaceContent from '@helpers/dom/replaceContent';
-import RichInputHandler, {USING_BOMS} from '@helpers/dom/richInputHandler';
+import RichInputHandler, { USING_BOMS } from '@helpers/dom/richInputHandler';
 import selectElementContents from '@helpers/dom/selectElementContents';
-import setInnerHTML, {setDirection} from '@helpers/dom/setInnerHTML';
-import {MessageEntity} from '@layer';
-import {i18n, LangPackKey, _i18n} from '@lib/langPack';
-import {NULL_PEER_ID} from '@appManagers/constants';
+import setInnerHTML, { setDirection } from '@helpers/dom/setInnerHTML';
+import { MessageEntity } from '@layer';
+import { i18n, LangPackKey, _i18n } from '@lib/langPack';
+import { NULL_PEER_ID } from '@appManagers/constants';
 import mergeEntities from '@lib/richTextProcessor/mergeEntities';
 import parseEntities from '@lib/richTextProcessor/parseEntities';
 import wrapDraftText from '@lib/richTextProcessor/wrapDraftText';
-import {createCustomFiller, insertCustomFillers} from '@lib/richTextProcessor/wrapRichText';
-import type {MarkupTooltipTypes} from '@components/chat/markupTooltip';
+import { createCustomFiller, insertCustomFillers } from '@lib/richTextProcessor/wrapRichText';
+import type { MarkupTooltipTypes } from '@components/chat/markupTooltip';
 import forEachReverse from '@helpers/array/forEachReverse';
 import findAndSpliceAll from '@helpers/array/findAndSpliceAll';
 
@@ -28,7 +28,7 @@ export async function insertRichTextAsHTML(input: HTMLElement, text: string, ent
   const loadPromises: Promise<any>[] = [];
   const wrappingCustomEmoji = entities?.some((entity) => entity._ === 'messageEntityCustomEmoji');
   const renderer = wrappingCustomEmoji ? createCustomEmojiRendererForInput() : undefined;
-  const fragment = wrapDraftText(text, {entities, wrappingForPeerId, loadPromises, customEmojiRenderer: renderer});
+  const fragment = wrapDraftText(text, { entities, wrappingForPeerId, loadPromises, customEmojiRenderer: renderer });
   const something = fragment.querySelectorAll<HTMLElement>('[contenteditable="false"]');
   something.forEach((el) => {
     el.contentEditable = 'inherit';
@@ -64,7 +64,7 @@ export async function insertRichTextAsHTML(input: HTMLElement, text: string, ent
   const pre = getCaretPosNew(input);
   // console.log('pre', pre);
   let textNode: ChildNode, textNodeValue: string;
-  if(pre.node) {
+  if (pre.node) {
     // if(pre.node?.nodeValue === BOM && false) {
     //   textNode = document.createTextNode(textNodeValue = BOM);
     //   (pre.node.parentNode as any as ChildNode).after(textNode);
@@ -74,7 +74,7 @@ export async function insertRichTextAsHTML(input: HTMLElement, text: string, ent
   } else {
     const range = document.createRange();
     let node = input.lastChild;
-    if(!node) {
+    if (!node) {
       input.append(node /* = textNode */ = document.createTextNode(''));
     }
 
@@ -89,8 +89,8 @@ export async function insertRichTextAsHTML(input: HTMLElement, text: string, ent
   // const s = document.createElement('span');
   // (node as ChildNode).replaceWith(s);
   // s.append(node);
-  input.addEventListener('input', cancelEvent, {capture: true, once: true, passive: false});
-  richInputHandler?.onBeforeInput({inputType: 'insertContent'});
+  input.addEventListener('input', cancelEvent, { capture: true, once: true, passive: false });
+  richInputHandler?.onBeforeInput({ inputType: 'insertContent' });
   window.document.execCommand('insertHTML', false, html);
   Array.from(input.querySelectorAll<HTMLImageElement>('[data-ces]')).forEach((el, idx) => {
     delete el.dataset.ces;
@@ -104,9 +104,9 @@ export async function insertRichTextAsHTML(input: HTMLElement, text: string, ent
   input.querySelectorAll<HTMLElement>('.pc').forEach((el) => {
     el.contentEditable = 'false';
   });
-  if(textNode!) {
-    const {nodeValue} = textNode;
-    if(nodeValue === textNodeValue!) {
+  if (textNode!) {
+    const { nodeValue } = textNode;
+    if (nodeValue === textNodeValue!) {
       textNode.remove();
     } else {
       (textNode as CharacterData).replaceData(nodeValue!.indexOf(textNodeValue!), textNodeValue!.length, '');
@@ -153,7 +153,7 @@ export async function insertRichTextAsHTML(input: HTMLElement, text: string, ent
 let init = () => {
   document.addEventListener('paste', (e) => {
     const input = findUpAttribute(e.target, 'contenteditable="true"');
-    if(!input) {
+    if (!input) {
       return;
     }
 
@@ -169,14 +169,14 @@ let init = () => {
     let html: string = (e.originalEvent || e).clipboardData.getData('text/html') || plainText;
 
     const filterEntity = (e: MessageEntity) => e._ === 'messageEntityEmoji' || (e._ === 'messageEntityLinebreak' && !noLinebreaks);
-    if(noLinebreaks) {
+    if (noLinebreaks) {
       const regExp = /[\r\n]/g;
       plainText = plainText.replace(regExp, '');
       html = html.replace(regExp, '');
     }
 
     const peerId = (input.dataset.peerId || NULL_PEER_ID).toPeerId();
-    if(html.trim()) {
+    if (html.trim()) {
       // console.log(html.replace(/ (style|class|id)=".+?"/g, ''));
 
       html = html.replace(/<style([\s\S]*)<\/style>/, '');
@@ -186,7 +186,7 @@ let init = () => {
       html = html.replace(/<hr([\s\S]*?)</g, '<');
 
       const match = html.match(/<body>([\s\S]*)<\/body>/);
-      if(match) {
+      if (match) {
         html = match[1].trim();
       }
 
@@ -238,7 +238,7 @@ let init = () => {
       const richValue = getRichValueWithCaret(span, true, false);
 
       const canWrapCustomEmojis = !!input.dataset.canWrapCustomEmojis || !!peerId;
-      if(!canWrapCustomEmojis) {
+      if (!canWrapCustomEmojis) {
         richValue.entities = richValue.entities.filter((entity) => entity._ !== 'messageEntityCustomEmoji');
       }
 
@@ -277,14 +277,14 @@ let init = () => {
       // * if we have custom emoji, plain text will miss plain emoji
       // * so we won't be able to fix new lines
       // * hopefully we won't have same problem from other websites
-      if(!hasCustomEmoji) {
+      if (!hasCustomEmoji) {
         // * first we clear all the new lines from rich value
         const richValueSplitted = richValue.value.split('');
         forEachReverse(richValueSplitted, (char, index, arr) => {
-          if(char === '\n') {
+          if (char === '\n') {
             arr!.splice(index!, 1);
             richValue.entities.forEach((entity) => {
-              if(entity.offset! >= index!) {
+              if (entity.offset! >= index!) {
                 entity.offset! -= 1;
               }
             });
@@ -295,12 +295,12 @@ let init = () => {
         const plainTextLines = plainText.split('\n');
         const plainTextLinesLength = plainTextLines.length;
         let plainTextLength = 0;
-        for(let lineIndex = 0; lineIndex < plainTextLinesLength - 1; ++lineIndex) {
+        for (let lineIndex = 0; lineIndex < plainTextLinesLength - 1; ++lineIndex) {
           const line = plainTextLines[lineIndex];
           plainTextLength += line.length;
           richValueSplitted.splice(plainTextLength, 0, '\n');
           richValue.entities.forEach((entity) => {
-            if(entity.offset! > (plainTextLength - lineIndex + 1)) {
+            if (entity.offset! > (plainTextLength - lineIndex + 1)) {
               entity.offset! += 1;
             }
           });
@@ -313,7 +313,7 @@ let init = () => {
 
       const richTextLength = richValue.value.replace(/\s/g, '').length;
       const plainTextLength = plainText.replace(/\s/g, '').length;
-      if(richTextLength === plainTextLength || hasCustomEmoji) {
+      if (richTextLength === plainTextLength || hasCustomEmoji) {
         text = richValue.value;
         entities = richValue.entities;
         usePlainText = false;
@@ -326,15 +326,15 @@ let init = () => {
       // console.log('usePlainText', usePlainText);
     }
 
-    if(usePlainText) {
+    if (usePlainText) {
       text = plainText;
       entities = parseEntities(text);
       entities = entities.filter(filterEntity);
     }
 
-    if(entities?.length) {
+    if (entities?.length) {
       const ignoreEntities = new Set<MessageEntity['_']>([
-        'messageEntityPhone'
+        'messageEntityPhone',
       ]);
       findAndSpliceAll(entities, (entity) => ignoreEntities.has(entity._));
     }
@@ -396,7 +396,7 @@ function createCustomEmojiRendererForInput(textColor?: string, animationGroup?: 
     wrappingDraft: true,
     isSelectable: true,
     textColor: textColor || 'primary-text-color',
-    animationGroup
+    animationGroup,
   });
 
   return renderer;
@@ -405,35 +405,35 @@ function createCustomEmojiRendererForInput(textColor?: string, animationGroup?: 
 function processCustomEmojisInInput(input: HTMLElement) {
   const customEmojiElements = Array.from(input.querySelectorAll<CustomEmojiElement | HTMLElement>('.custom-emoji, .custom-emoji-placeholder'));
   let renderer = input.querySelector<CustomEmojiRendererElement>('.custom-emoji-renderer');
-  if(!renderer && customEmojiElements.length) {
+  if (!renderer && customEmojiElements.length) {
     renderer = createCustomEmojiRendererForInput(input.dataset.textColor, input.dataset.animationGroup as AnimationItemGroup);
     input.prepend(renderer);
-  } else if(renderer && !customEmojiElements.length) {
+  } else if (renderer && !customEmojiElements.length) {
     renderer.remove();
     return;
   }
 
-  if(!renderer) {
+  if (!renderer) {
     return;
   }
 
   const customEmojis: Parameters<CustomEmojiRendererElement['add']>[0]['addCustomEmojis'] = new Map();
   customEmojiElements.forEach((element) => {
     const customEmojiElement: CustomEmojiElement = (element as CustomEmojiElement).loop !== undefined ? element as CustomEmojiElement : (element as any).customEmojiElement as CustomEmojiElement;
-    const {docId} = customEmojiElement;
+    const { docId } = customEmojiElement;
     let set = customEmojis.get(docId);
-    if(!set) {
+    if (!set) {
       customEmojis.set(docId, set = new Set());
     }
 
     set.add(customEmojiElement);
   });
 
-  for(const [docId, customEmojiElements] of customEmojis) {
+  for (const [docId, customEmojiElements] of customEmojis) {
     let hasSet = renderer.customEmojis.get(docId);
-    if(hasSet) {
-      for(const customEmojiElement of hasSet) {
-        if(!customEmojiElements.has(customEmojiElement)) {
+    if (hasSet) {
+      for (const customEmojiElement of hasSet) {
+        if (!customEmojiElements.has(customEmojiElement)) {
           customEmojiElement.destroy();
         }
       }
@@ -441,8 +441,8 @@ function processCustomEmojisInInput(input: HTMLElement) {
       hasSet = new Set();
     }
 
-    for(const customEmojiElement of customEmojiElements) {
-      if(!hasSet.has(customEmojiElement)) {
+    for (const customEmojiElement of customEmojiElements) {
+      if (!hasSet.has(customEmojiElement)) {
         customEmojiElement.connectedCallback();
       }
     }
@@ -450,7 +450,7 @@ function processCustomEmojisInInput(input: HTMLElement) {
 
   renderer.add({
     addCustomEmojis: customEmojis,
-    lazyLoadQueue: false
+    lazyLoadQueue: false,
   });
   renderer.forceRender();
 }
@@ -477,18 +477,18 @@ export default class InputField {
     this.required = options.required!;
     this.validate = options.validate!;
 
-    if(options.maxLength !== undefined && options.showLengthOn === undefined) {
+    if (options.maxLength !== undefined && options.showLengthOn === undefined) {
       options.showLengthOn = Math.min(40, Math.round(options.maxLength / 3));
     }
 
-    const {placeholder, maxLength, showLengthOn, name, plainText, canBeEdited = true, autocomplete, withBorder, allowStartingSpace, canHaveFormatting, canWrapCustomEmojis} = options;
+    const { placeholder, maxLength, showLengthOn, name, plainText, canBeEdited = true, autocomplete, withBorder, allowStartingSpace, canHaveFormatting, canWrapCustomEmojis } = options;
     const label = options.label || options.labelText;
     this.allowStartingSpace = allowStartingSpace!;
 
     const onInputCallbacks: Array<() => void> = [];
     let input: HTMLElement;
-    if(!plainText) {
-      if(init) {
+    if (!plainText) {
+      if (init) {
         init();
       }
 
@@ -508,12 +508,12 @@ export default class InputField {
 
       input.addEventListener('mousedown', (e) => {
         const selection = document.getSelection();
-        if(!selection!.isCollapsed) {
+        if (!selection!.isCollapsed) {
           return;
         }
 
         const placeholder = findUpTag(e.target, 'IMG');
-        if(!placeholder) {
+        if (!placeholder) {
           return;
         }
 
@@ -527,7 +527,7 @@ export default class InputField {
         selection!.addRange(range);
       });
 
-      if(canHaveFormatting) {
+      if (canHaveFormatting) {
         input.setAttribute('can-format', canHaveFormatting.join(','));
       }
 
@@ -536,7 +536,7 @@ export default class InputField {
         // return;
         // * because if delete all characters there will br left
         const isEmpty = this.isEmpty();
-        if(isEmpty) {
+        if (isEmpty) {
           // const textNode = Array.from(input.childNodes).find((node) => node.nodeType === node.TEXT_NODE) || document.createTextNode('');
           input.replaceChildren();
           // input.append(document.createTextNode('')); // need first text node to support history stack
@@ -594,7 +594,7 @@ export default class InputField {
 
       onInputCallbacks.push(() => {
         const isEmpty = this.isEmpty();
-        if(isEmpty) {
+        if (isEmpty) {
           (input as HTMLInputElement).value = '';
         }
 
@@ -604,11 +604,11 @@ export default class InputField {
 
     setDirection(input);
 
-    if(options.inputMode) {
+    if (options.inputMode) {
       input.inputMode = options.inputMode;
     }
 
-    if(placeholder) {
+    if (placeholder) {
       // if(options.placeholderAsElement) {
       this.placeholder = document.createElement('span');
       this.placeholder.classList.add('input-field-placeholder');
@@ -619,19 +619,19 @@ export default class InputField {
       // }
     }
 
-    if(withBorder !== false && withBorder || label || placeholder) {
+    if (withBorder !== false && withBorder || label || placeholder) {
       const border = document.createElement('div');
       border.classList.add('input-field-border');
       this.container.append(border);
     }
 
-    if(label != null) {
+    if (label != null) {
       this.label = document.createElement('label');
       this.setLabel();
       this.container.append(this.label);
     }
 
-    if(maxLength) {
+    if (maxLength) {
       const labelEl = this.container.lastElementChild as HTMLLabelElement;
       let showingLength = false;
 
@@ -645,11 +645,11 @@ export default class InputField {
 
         // this.onLengthChange && this.onLengthChange(inputLength, isError);
 
-        if(isError || diff <= showLengthOn!) {
+        if (isError || diff <= showLengthOn!) {
           this.setLabel();
           labelEl.append(` (${maxLength - inputLength})`);
-          if(!showingLength) showingLength = true;
-        } else if((wasError && !isError) || showingLength) {
+          if (!showingLength) showingLength = true;
+        } else if ((wasError && !isError) || showingLength) {
           this.setLabel();
           showingLength = false;
         }
@@ -659,40 +659,40 @@ export default class InputField {
     }
 
     const noLinebreaks = !options.withLinebreaks;
-    if(noLinebreaks && !plainText) {
+    if (noLinebreaks && !plainText) {
       input.dataset.noLinebreaks = '1';
       input.addEventListener('keypress', (e) => {
-        if(e.key === 'Enter') {
+        if (e.key === 'Enter') {
           e.preventDefault();
           return false;
         }
       });
     }
 
-    if(options.onRawInput) {
+    if (options.onRawInput) {
       onInputCallbacks.push(() => {
         options.onRawInput!(this.value);
       });
     }
 
-    if(onInputCallbacks.length) {
+    if (onInputCallbacks.length) {
       input.addEventListener('input', () => {
         onInputCallbacks.forEach((callback) => callback());
       });
     }
 
-    if(canWrapCustomEmojis) input.dataset.canWrapCustomEmojis = '1';
+    if (canWrapCustomEmojis) input.dataset.canWrapCustomEmojis = '1';
 
     this.input = input;
     this.setEmpty(true);
   }
 
   public select() {
-    if(!this.value) { // * avoid selecting whole empty field on iOS devices
+    if (!this.value) { // * avoid selecting whole empty field on iOS devices
       return;
     }
 
-    if(this.options.plainText) {
+    if (this.options.plainText) {
       (this.input as HTMLInputElement).select(); // * select text
     } else {
       selectElementContents(this.input);
@@ -701,7 +701,7 @@ export default class InputField {
 
   public setLabel() {
     this.label.textContent = '';
-    if(this.options.labelText) {
+    if (this.options.labelText) {
       setInnerHTML(this.label, this.options.labelText);
     } else {
       this.label.append(i18n(this.options.label!, this.options.labelOptions));
@@ -724,7 +724,7 @@ export default class InputField {
   }
 
   public setValueSilently(value: Parameters<typeof replaceContent>[1], fromSet?: boolean) {
-    if(this.options.plainText) {
+    if (this.options.plainText) {
       (this.input as HTMLInputElement).value = value as string;
     } else {
       replaceContent(this.input, value);
@@ -765,11 +765,11 @@ export default class InputField {
 
   public setDraftValue(value = '', silent?: boolean) {
     let _value: Parameters<typeof replaceContent>[1] = value;
-    if(!this.options.plainText) {
+    if (!this.options.plainText) {
       _value = /* documentFragmentToHTML */(wrapDraftText(value));
     }
 
-    if(silent) {
+    if (silent) {
       this.setValueSilently(_value, false);
     } else {
       this.value = _value;
@@ -782,7 +782,7 @@ export default class InputField {
   }
 
   public setState(state: InputState, label?: LangPackKey, labelOptions?: any[]) {
-    if(label) {
+    if (label) {
       this.label.textContent = '';
       this.label.append(i18n(label, labelOptions ?? this.options.labelOptions));
       this.label.style.visibility = 'visible';

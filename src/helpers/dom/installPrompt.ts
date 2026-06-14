@@ -3,9 +3,9 @@ export default function cacheInstallPrompt() {
   window.addEventListener('beforeinstallprompt', (deferredPrompt: any) => {
     callback = async() => {
       deferredPrompt.prompt();
-      const {outcome} = await deferredPrompt.userChoice;
+      const { outcome } = await deferredPrompt.userChoice;
       const installed = outcome === 'accepted';
-      if(installed) {
+      if (installed) {
         callback = undefined;
       }
     };

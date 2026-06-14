@@ -1,4 +1,4 @@
-import type {ChatSetPeerOptions} from '@lib/appImManager';
+import type { ChatSetPeerOptions } from '@lib/appImManager';
 
 // * https://core.telegram.org/api/links
 

@@ -1,5 +1,5 @@
-import {webp2png} from '@lib/webp/webp';
-import type {ConvertWebPTask} from '@lib/webp/webpWorkerController';
+import { webp2png } from '@lib/webp/webp';
+import type { ConvertWebPTask } from '@lib/webp/webpWorkerController';
 
 const ctx = self as any as DedicatedWorkerGlobalScope;
 const tasks: ConvertWebPTask[] = [];
@@ -14,18 +14,18 @@ function processTasks() {
   // if(isProcessing) return;
 
   const task = tasks.shift();
-  if(!task) return;
+  if (!task) return;
 
   // isProcessing = true;
 
-  switch(task.type) {
+  switch (task.type) {
     case 'convertWebp': {
-      const {fileName, bytes} = task.payload;
+      const { fileName, bytes } = task.payload;
 
       let convertedBytes: Uint8Array;
       try {
         convertedBytes = webp2png(bytes).bytes;
-      } catch(err) {
+      } catch (err) {
         console.error('Convert webp2png error:', err, 'payload:', task.payload);
       }
 
@@ -33,8 +33,8 @@ function processTasks() {
         type: 'convertWebp',
         payload: {
           fileName,
-          bytes: convertedBytes!
-        }
+          bytes: convertedBytes!,
+        },
       });
 
       finishTask();

@@ -1,5 +1,5 @@
-import {createSignal, Accessor} from 'solid-js';
-import {observeResize} from '@components/resizeObserver';
+import { createSignal, Accessor } from 'solid-js';
+import { observeResize } from '@components/resizeObserver';
 
 const [_scrollbarWidth, setScrollbarWidth] = createSignal(0);
 
@@ -26,7 +26,7 @@ function init() {
 }
 
 const scrollbarWidth: Accessor<number> = () => {
-  if(!initialized) {
+  if (!initialized) {
     init();
   }
   return _scrollbarWidth();

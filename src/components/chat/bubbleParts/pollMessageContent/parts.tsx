@@ -1,21 +1,21 @@
-import {ConfettiContainer, ConfettiRef} from '@components/confetti';
+import { ConfettiContainer, ConfettiRef } from '@components/confetti';
 import Space from '@components/space';
 import PhotoTsx from '@components/wrappers/photoTsx';
 import VideoTsx from '@components/wrappers/videoTsx';
-import {keepMe} from '@helpers/keepMe';
+import { keepMe } from '@helpers/keepMe';
 import mediaSizes from '@helpers/mediaSizes';
 import formatNumber from '@helpers/number/formatNumber';
 import createMiddleware from '@helpers/solid/createMiddleware';
-import {I18nTsx} from '@helpers/solid/i18n';
+import { I18nTsx } from '@helpers/solid/i18n';
 import classNames from '@helpers/string/classNames';
-import {Document, MessageMedia, Photo} from '@layer';
-import {LangPackKey} from '@lib/langPack';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {createMemo, For, Match, onMount, Show, Switch} from 'solid-js';
-import {unwrap} from 'solid-js/store';
-import {usePollMessageContentProps} from './context';
+import { Document, MessageMedia, Photo } from '@layer';
+import { LangPackKey } from '@lib/langPack';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { createMemo, For, Match, onMount, Show, Switch } from 'solid-js';
+import { unwrap } from 'solid-js/store';
+import { usePollMessageContentProps } from './context';
 import styles from './styles.module.scss';
-import {dataPollViewerIdx, DataPollViewerIdxDirectivePayload, LocalTextWithEntities} from './utils';
+import { dataPollViewerIdx, DataPollViewerIdxDirectivePayload, LocalTextWithEntities } from './utils';
 
 
 keepMe(dataPollViewerIdx);
@@ -23,7 +23,7 @@ keepMe(dataPollViewerIdx);
 export const AvatarGroup = (props: {
   peerIds: PeerId[];
 }) => {
-  const {AvatarNewTsx} = useHotReloadGuard();
+  const { AvatarNewTsx } = useHotReloadGuard();
   const contextProps = usePollMessageContentProps()!;
 
   return (
@@ -34,7 +34,7 @@ export const AvatarGroup = (props: {
             class={styles.avatarGroupItem}
             classList={{
               [styles.pushOverNext]: index() > 0,
-              [styles.outgoing]: contextProps.isOutgoing
+              [styles.outgoing]: contextProps.isOutgoing,
             }}
           >
             <div class={styles.avatarGroupItemWrapper}>
@@ -54,7 +54,7 @@ export const Explanation = (props: LocalTextWithEntities & {
   geo?: MessageMedia.messageMediaGeo | MessageMedia.messageMediaVenue;
   pollViewerPayload?: DataPollViewerIdxDirectivePayload;
 }) => {
-  const {TranslatableMessageTsx, DocumentTsx} = useHotReloadGuard();
+  const { TranslatableMessageTsx, DocumentTsx } = useHotReloadGuard();
   const contextProps = usePollMessageContentProps()!;
 
   const middleware = createMiddleware().get();
@@ -69,8 +69,8 @@ export const Explanation = (props: LocalTextWithEntities & {
           <div class={classNames(styles.explanationText, 'reply-subtitle')}>
             <TranslatableMessageTsx
               peerId={contextProps.peerId}
-              textWithEntities={{_: 'textWithEntities', text: props.text, entities: unwrap(props.entities)}}
-              richTextOptions={{middleware, loadPromises: unwrap(contextProps.loadPromises)}}
+              textWithEntities={{ _: 'textWithEntities', text: props.text, entities: unwrap(props.entities) }}
+              richTextOptions={{ middleware, loadPromises: unwrap(contextProps.loadPromises) }}
             />
           </div>
         </Show>
@@ -136,8 +136,8 @@ export type CommonProps = {
 
 export const PollType = (props: CommonProps) => {
   const key = createMemo((): LangPackKey => {
-    if(props.closed) return 'Chat.Poll.Type.Closed';
-    if(props.hasCorrectAnswer) return props.showWhoVoted ? 'Chat.Poll.Type.Quiz' : 'Chat.Poll.Type.AnonymousQuiz';
+    if (props.closed) return 'Chat.Poll.Type.Closed';
+    if (props.hasCorrectAnswer) return props.showWhoVoted ? 'Chat.Poll.Type.Quiz' : 'Chat.Poll.Type.AnonymousQuiz';
     return props.showWhoVoted ? 'Chat.Poll.Type.Public' : 'Chat.Poll.Type.Anonymous';
   });
 
@@ -148,12 +148,12 @@ export const PollType = (props: CommonProps) => {
 
 export const PollVotes = (props: CommonProps & { votersCount: number }) => {
   const key = createMemo((): LangPackKey => {
-    if(!props.votersCount) {
-      if(props.closed) return 'Chat.Poll.TotalVotesResultEmpty';
+    if (!props.votersCount) {
+      if (props.closed) return 'Chat.Poll.TotalVotesResultEmpty';
       else return 'Chat.Poll.TotalVotesEmpty';
     }
 
-    if(props.hasCorrectAnswer) return 'Chat.Quiz.MembersAnswered';
+    if (props.hasCorrectAnswer) return 'Chat.Quiz.MembersAnswered';
 
     return 'Chat.Poll.MembersVoted';
   });
@@ -171,7 +171,7 @@ export const AutoStartedConfetti = (props: { onEnd: () => void }) => {
       mode: 'poppers',
       size: 4,
       speedScale: 0.6,
-      count: 50
+      count: 50,
     });
   });
 
@@ -184,7 +184,7 @@ export const GeoPreview = (props: {
   class?: string;
   geo: MessageMedia.messageMediaGeo | MessageMedia.messageMediaVenue;
 }) => {
-  const {wrapGeo} = useHotReloadGuard();
+  const { wrapGeo } = useHotReloadGuard();
   const contextProps = usePollMessageContentProps()!;
 
   let attachmentDiv: HTMLDivElement;
@@ -198,11 +198,11 @@ export const GeoPreview = (props: {
       wrapOptions: {
         middleware,
         lazyLoadQueue: unwrap(contextProps.lazyLoadQueue) || undefined,
-        animationGroup: contextProps.animationGroup
+        animationGroup: contextProps.animationGroup,
       },
       middleware,
       loadPromises: unwrap(contextProps.loadPromises) ?? [],
-      date: contextProps.message.date
+      date: contextProps.message.date,
     });
   });
 

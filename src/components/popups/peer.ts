@@ -1,9 +1,9 @@
-import PopupElement, {addCancelButton, PopupButton, PopupOptions} from '.';
-import {i18n, LangPackKey} from '@lib/langPack';
-import CheckboxField, {CheckboxFieldOptions} from '@components/checkboxField';
+import PopupElement, { addCancelButton, PopupButton, PopupOptions } from '.';
+import { i18n, LangPackKey } from '@lib/langPack';
+import CheckboxField, { CheckboxFieldOptions } from '@components/checkboxField';
 import setInnerHTML from '@helpers/dom/setInnerHTML';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import {avatarNew} from '@components/avatarNew';
+import { avatarNew } from '@components/avatarNew';
 import toggleDisability from '@helpers/dom/toggleDisability';
 import rootScope from '@lib/rootScope';
 import InputField from '@components/inputField';
@@ -38,50 +38,50 @@ export default class PopupPeer extends PopupElement {
       overlayClosable: true,
       ...options,
       title: true,
-      buttons: options.buttons && addCancelButton(options.buttons)
+      buttons: options.buttons && addCancelButton(options.buttons),
     });
 
-    if(options.peerId) {
+    if (options.peerId) {
       const isSavedDialog = !!(options.peerId === rootScope.myId && options.threadId);
-      const {node} = avatarNew({
+      const { node } = avatarNew({
         middleware: this.middlewareHelper.get(),
         size: 32,
         isDialog: true,
         peerId: isSavedDialog ? options.threadId : options.peerId,
         threadId: isSavedDialog ? undefined : options.threadId,
-        meAsNotes: isSavedDialog
+        meAsNotes: isSavedDialog,
       });
       this.header.prepend(node);
     }
 
-    if(!options.noTitle) {
-      if(options.titleLangKey || !options.title) {
+    if (!options.noTitle) {
+      if (options.titleLangKey || !options.title) {
         this.title.append(i18n(options.titleLangKey || 'AppName', options.titleLangArgs));
-      } else if(options.title instanceof HTMLElement || options.title instanceof DocumentFragment) {
+      } else if (options.title instanceof HTMLElement || options.title instanceof DocumentFragment) {
         this.title.append(options.title);
       } else this.title.innerText = options.title || '';
     }
 
     const fragment = document.createDocumentFragment();
 
-    if(options.descriptionLangKey || options.description || options.descriptionRaw) {
+    if (options.descriptionLangKey || options.description || options.descriptionRaw) {
       const p = this.description = document.createElement('p');
       p.classList.add('popup-description');
-      if(options.descriptionLangKey) p.append(i18n(options.descriptionLangKey, options.descriptionLangArgs));
-      else if(options.description && options.description !== true) setInnerHTML(p, options.description);
-      else if(options.descriptionRaw) p.append(wrapEmojiText(options.descriptionRaw));
+      if (options.descriptionLangKey) p.append(i18n(options.descriptionLangKey, options.descriptionLangArgs));
+      else if (options.description && options.description !== true) setInnerHTML(p, options.description);
+      else if (options.descriptionRaw) p.append(wrapEmojiText(options.descriptionRaw));
 
       fragment.append(p);
     }
 
-    if(options.inputField) {
+    if (options.inputField) {
       this.inputField = options.inputField;
       fragment.append(options.inputField.container);
       const button = options.buttons!.find((button) => !button.isCancel);
       toggleDisability([button!.element!], !options.inputField.isValid());
     }
 
-    if(options.checkboxes) {
+    if (options.checkboxes) {
       this.container.classList.add('have-checkbox');
 
       options.checkboxes.forEach((o) => {
@@ -92,12 +92,12 @@ export default class PopupPeer extends PopupElement {
       });
 
       options.buttons!.forEach((button) => {
-        if(button.callback) {
+        if (button.callback) {
           const original = button.callback;
           button.callback = (e) => {
             const c: Set<LangPackKey> = new Set();
             options.checkboxes!.forEach((o) => {
-              if(o.checkboxField!.checked) {
+              if (o.checkboxField!.checked) {
                 c.add(o.text!);
               }
             });
@@ -106,7 +106,7 @@ export default class PopupPeer extends PopupElement {
         }
 
         const checkbox = button.onlyWithCheckbox;
-        if(checkbox) {
+        if (checkbox) {
           const onChange = () => {
             toggleDisability([button.element!], !checkbox.checkboxField!.checked);
           };
@@ -116,14 +116,14 @@ export default class PopupPeer extends PopupElement {
       });
     }
 
-    if(options.inputField) {
+    if (options.inputField) {
       const button = options.buttons!.find((button) => !button.isCancel);
       this.listenerSetter.add(options.inputField.input)('input', () => {
         toggleDisability([button!.element!], !options.inputField!.isValid());
       });
     }
 
-    if(this.scrollable) this.scrollable.append(fragment);
+    if (this.scrollable) this.scrollable.append(fragment);
     else this.header.after(fragment);
   }
 

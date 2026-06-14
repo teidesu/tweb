@@ -1,28 +1,28 @@
-import {FormatterArguments, LangPackKey, i18n} from '@lib/langPack';
+import { FormatterArguments, LangPackKey, i18n } from '@lib/langPack';
 import Row from '@components/row';
-import {PREMIUM_FEATURES_COLORS, PremiumPromoFeature} from '@components/premium/featuresConfig';
+import { PREMIUM_FEATURES_COLORS, PremiumPromoFeature } from '@components/premium/featuresConfig';
 import TransitionSlider from '@components/transition';
 import Icon from '@components/icon';
-import {PopupPremiumProps} from '@components/popups/premium';
+import { PopupPremiumProps } from '@components/popups/premium';
 import paymentsWrapCurrencyAmount from '@helpers/paymentsWrapCurrencyAmount';
 import CheckboxField from '@components/checkboxField';
-import {PremiumGiftCodeOption, PremiumSubscriptionOption} from '@layer';
+import { PremiumGiftCodeOption, PremiumSubscriptionOption } from '@layer';
 import wrapRichText from '@lib/richTextProcessor/wrapRichText';
 import setInnerHTML from '@helpers/dom/setInnerHTML';
-import {onMediaCaptionClick} from '@components/appMediaViewer';
-import {formatMonthsDuration} from '@helpers/date';
+import { onMediaCaptionClick } from '@components/appMediaViewer';
+import { formatMonthsDuration } from '@helpers/date';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
 import rootScope from '@lib/rootScope';
-import {PeerTitleOptions} from '@components/peerTitle';
-import {InviteLink} from '@components/sidebarLeft/tabs/inviteLink';
+import { PeerTitleOptions } from '@components/peerTitle';
+import { InviteLink } from '@components/sidebarLeft/tabs/inviteLink';
 import anchorCallback from '@helpers/dom/anchorCallback';
 import PopupGiftLink from '@components/popups/giftLink';
 import lastItem from '@helpers/array/lastItem';
 import maybe2x from '@helpers/maybe2x';
 import wrapSticker from '@components/wrappers/sticker';
 import showStickersPopup from '@components/popups/stickers';
-import {isTruthy} from '../../helpers/isTruthy';
+import { isTruthy } from '../../helpers/isTruthy';
 
 type PromoSlideTabOptions = PopupPremiumProps & {
   container: HTMLElement,
@@ -35,7 +35,7 @@ export function premiumOptionsForm<T extends PremiumSubscriptionOption | Premium
   onOption,
   checked = 0,
   users = 1,
-  discountInTitle
+  discountInTitle,
 }: {
   periodOptions: T[],
   onOption: (option: T) => void,
@@ -49,20 +49,20 @@ export function premiumOptionsForm<T extends PremiumSubscriptionOption | Premium
   const keys: {[key: number]: LangPackKey} = (isGiftCode ? undefined : {
     12: 'PremiumTierAnnual',
     6: 'PremiumTierSemiannual',
-    1: 'PremiumTierMonthly'
+    1: 'PremiumTierMonthly',
   })!;
 
   const rows = periodOptions.map((option, idx) => {
     const amountPerUser = +option.amount / (isGiftCode ? (option as PremiumGiftCodeOption).users : 1);
     let title = keys ? i18n(keys[option.months] || 'Months', [option.months]) : formatMonthsDuration(option.months, false);
     let subtitle: HTMLElement;
-    if(isGiftCode) {
+    if (isGiftCode) {
       subtitle = i18n('Multiplier', [wrapCurrency(amountPerUser), users])!;
-    } else if(option !== shortestOption) {
+    } else if (option !== shortestOption) {
       subtitle = i18n('PricePerMonth', [wrapCurrency(+option.amount / option.months)])!;
     }
 
-    if(option !== shortestOption) {
+    if (option !== shortestOption) {
       const span = document.createElement('span');
       const badge = document.createElement('span');
       badge.classList.add('popup-gift-premium-discount');
@@ -70,7 +70,7 @@ export function premiumOptionsForm<T extends PremiumSubscriptionOption | Premium
       const discount = Math.round((1 - +option.amount / shortestAmount) * 100);
       badge.textContent = '-' + discount + '%';
       span.append(badge, (discountInTitle ? title : subtitle!));
-      if(discountInTitle) {
+      if (discountInTitle) {
         title = span;
       } else {
         subtitle = span;
@@ -81,7 +81,7 @@ export function premiumOptionsForm<T extends PremiumSubscriptionOption | Premium
       checked: idx === checked,
       round: true,
       name: 'premium-period',
-      asRadio: true
+      asRadio: true,
     });
 
     const row = new Row({
@@ -89,7 +89,7 @@ export function premiumOptionsForm<T extends PremiumSubscriptionOption | Premium
       checkboxField,
       clickable: true,
       subtitle: subtitle!,
-      rightTextContent: wrapCurrency(isGiftCode ? amountPerUser * users : option.amount)
+      rightTextContent: wrapCurrency(isGiftCode ? amountPerUser * users : option.amount),
     });
 
     row.container.classList.add('popup-gift-premium-option');
@@ -114,12 +114,12 @@ export function premiumOptionsForm<T extends PremiumSubscriptionOption | Premium
 
 export function getGiftDetails(options: PopupPremiumProps) {
   const gift = options.gift;
-  if(!gift) {
+  if (!gift) {
     return;
   }
 
   let fromPeerId: PeerId, toPeerId: PeerId;
-  if(gift._ === 'payments.checkedGiftCode') {
+  if (gift._ === 'payments.checkedGiftCode') {
     fromPeerId = getPeerId(gift.from_id!) || options.peerId;
   } else {
     fromPeerId = options.isOut ? rootScope.myId : options.peerId;
@@ -130,7 +130,7 @@ export function getGiftDetails(options: PopupPremiumProps) {
 
   const isOutbound = toPeerId !== rootScope.myId;
   const isUnclaimed = gift._ !== 'payments.checkedGiftCode' || !gift.used_date;
-  return {fromPeerId, toPeerId, isOutbound, isUnclaimed, gift};
+  return { fromPeerId, toPeerId, isOutbound, isUnclaimed, gift };
 }
 
 export default class PromoSlideTab {
@@ -156,7 +156,7 @@ export default class PromoSlideTab {
       this.createImageContainer(),
       this.createHeading(),
       options.type === 'premium' && !options.isPremiumActive && this.createOptionsForm(),
-      this.createFeaturesContainer()
+      this.createFeaturesContainer(),
     ])).filter(isTruthy));
     options.container.classList.add('fixed-size');
   }
@@ -169,20 +169,20 @@ export default class PromoSlideTab {
     const headingTextDescription = document.createElement('div');
     headingTextDescription.classList.add('popup-premium-heading-text-description');
 
-    const wrapTitleOptions: PeerTitleOptions = {onlyFirstName: true};
+    const wrapTitleOptions: PeerTitleOptions = { onlyFirstName: true };
 
     let title: HTMLElement, description: HTMLElement;
     const giftDetails = getGiftDetails(this.options);
-    if(giftDetails) {
+    if (giftDetails) {
       headingTextTitle.classList.add('smaller-text');
-      const {fromPeerId, toPeerId, isOutbound, isUnclaimed, gift} = giftDetails;
+      const { fromPeerId, toPeerId, isOutbound, isUnclaimed, gift } = giftDetails;
       const giftText = i18n('GiftDays', [gift.days]);
-      if(isOutbound) {
+      if (isOutbound) {
         title = i18n(
           'GiftModal.Title.You',
           [
-            await wrapPeerTitle({...wrapTitleOptions, peerId: toPeerId}),
-            giftText
+            await wrapPeerTitle({ ...wrapTitleOptions, peerId: toPeerId }),
+            giftText,
           ]
         )!;
       } else {
@@ -191,19 +191,19 @@ export default class PromoSlideTab {
             'TelegramPremiumUserGiftedPremiumDialogTitleWithPlural' :
             'TelegramPremiumUserGiftedPremiumDialogTitleWithPluralSomeone',
           [
-            fromPeerId && await wrapPeerTitle({...wrapTitleOptions, peerId: fromPeerId}),
-            giftText
+            fromPeerId && await wrapPeerTitle({ ...wrapTitleOptions, peerId: fromPeerId }),
+            giftText,
           ].filter(Boolean) as FormatterArguments
         )!;
       }
 
-      if(isOutbound) {
+      if (isOutbound) {
         description = i18n(
           'TelegramPremiumUserGiftedPremiumOutboundDialogSubtitle',
-          [await wrapPeerTitle({...wrapTitleOptions, peerId: toPeerId})]
+          [await wrapPeerTitle({ ...wrapTitleOptions, peerId: toPeerId })]
         )!;
       } else {
-        if(gift._ === 'messageActionGiftPremium') {
+        if (gift._ === 'messageActionGiftPremium') {
           description = i18n('TelegramPremiumUserGiftedPremiumDialogSubtitle')!;
         } else {
           const url = 'https://t.me/giftcode/' + gift.slug;
@@ -211,11 +211,11 @@ export default class PromoSlideTab {
           const inviteLink = new InviteLink({
             button: false,
             listenerSetter: this.options.listenerSetter,
-            url
+            url,
           });
 
           let text: HTMLElement;
-          if(!isUnclaimed) {
+          if (!isUnclaimed) {
             text = i18n('BoostingLinkUsed')!;
           } else {
             text = i18n(
@@ -224,7 +224,7 @@ export default class PromoSlideTab {
                 anchorCallback(async() => {
                   this.close();
                   PopupGiftLink.shareGiftLink(url);
-                })
+                }),
               ]
             )!;
           }
@@ -233,29 +233,29 @@ export default class PromoSlideTab {
           description.append(text, inviteLink.container);
         }
       }
-    } else if(this.options.peerId && this.options.emojiStatusId) {
+    } else if (this.options.peerId && this.options.emojiStatusId) {
       headingTextTitle.classList.add('smaller-text');
       const [peerTitle, doc] = await Promise.all([
-        wrapPeerTitle({peerId: this.options.peerId}),
-        rootScope.managers.appEmojiManager.getCustomEmojiDocument(this.options.emojiStatusId)
+        wrapPeerTitle({ peerId: this.options.peerId }),
+        rootScope.managers.appEmojiManager.getCustomEmojiDocument(this.options.emojiStatusId),
       ]);
-      if(doc.stickerSetInput) {
+      if (doc.stickerSetInput) {
         const stickerset = await rootScope.managers.appStickersManager.getStickerSet(doc.stickerSetInput);
         title = i18n('TelegramPremiumPeerTitleEmojiStatus', [
           peerTitle,
           anchorCallback(() => {
             showStickersPopup(doc.stickerSetInput!, true)
           }),
-          stickerset.set.title
+          stickerset.set.title,
         ])!
       } else {
         title = i18n('TelegramPremiumPeerTitleEmojiStatusNoPack', [peerTitle])!
       }
       description = i18n('TelegramPremiumPeerSubtitleEmojiStatus')!;
-    } else if(this.options.peerId) {
+    } else if (this.options.peerId) {
       headingTextTitle.classList.add('smaller-text');
       title = i18n('TelegramPremiumPeerTitle', [
-        await wrapPeerTitle({peerId: this.options.peerId})
+        await wrapPeerTitle({ peerId: this.options.peerId }),
       ])!
       description = i18n('TelegramPremiumPeerSubtitle')!;
     } else {
@@ -274,7 +274,7 @@ export default class PromoSlideTab {
     featuresContainer.classList.add('popup-premium-features-container');
     featuresContainer.append(...[
       ...this.createFeatures(this.options.features, this.options.order),
-      this.options.type === 'premium' && this.options.premiumPromo.status_text && this.createStatusText()
+      this.options.type === 'premium' && this.options.premiumPromo.status_text && this.createStatusText(),
     ].filter(isTruthy));
     return featuresContainer;
   }
@@ -282,7 +282,7 @@ export default class PromoSlideTab {
   private async createImageContainer() {
     const premiumImageContainer = document.createElement('div');
     premiumImageContainer.classList.add('popup-premium-header-image-container');
-    if(this.options.emojiStatusId) {
+    if (this.options.emojiStatusId) {
       premiumImageContainer.classList.add('is-emoji-status')
       const doc = await rootScope.managers.appEmojiManager.getCustomEmojiDocument(this.options.emojiStatusId);
       await wrapSticker({
@@ -293,7 +293,7 @@ export default class PromoSlideTab {
         group: 'EMOJI-STATUS',
         middleware: this.options.middleware,
         width: 100,
-        height: 100
+        height: 100,
       });
       return premiumImageContainer;
     } else {
@@ -308,22 +308,22 @@ export default class PromoSlideTab {
   private createStatusText() {
     const statusText = document.createElement('div');
     statusText.classList.add('popup-premium-status-text');
-    const wrapped = wrapRichText(this.options.premiumPromo.status_text, {entities: this.options.premiumPromo.status_entities});
+    const wrapped = wrapRichText(this.options.premiumPromo.status_text, { entities: this.options.premiumPromo.status_entities });
     setInnerHTML(statusText, wrapped);
 
     const onClick = (e: MouseEvent) => {
       const callback = onMediaCaptionClick(statusText, e);
-      if(!callback) {
+      if (!callback) {
         return;
       }
 
       this.close(() => {
-        statusText.removeEventListener('click', onClick, {capture: true});
+        statusText.removeEventListener('click', onClick, { capture: true });
         callback();
       });
     };
 
-    statusText.addEventListener('click', onClick, {capture: true});
+    statusText.addEventListener('click', onClick, { capture: true });
     return statusText;
   }
 
@@ -332,7 +332,7 @@ export default class PromoSlideTab {
       periodOptions: this.options.premiumPromo.period_options,
       onOption: (option) => {
         this.selectPeriod?.(option);
-      }
+      },
     });
   }
 
@@ -347,7 +347,7 @@ export default class PromoSlideTab {
         clickable: async() => {
           this.transition(1);
           await this.selectFeature(f!.feature);
-        }
+        },
       });
 
       const media = row.createMedia('small');
@@ -356,7 +356,7 @@ export default class PromoSlideTab {
       const color = PREMIUM_FEATURES_COLORS[idx] ?? lastItem(PREMIUM_FEATURES_COLORS);
       media.style.backgroundColor = color;
 
-      if(f!.new) {
+      if (f!.new) {
         const badge = i18n('New');
         badge.classList.add('row-title-badge');
         row.title.append(badge);
@@ -368,8 +368,8 @@ export default class PromoSlideTab {
   }
 
   private onTabScroll = () => {
-    const {tab, options} = this;
-    const {scrollTop, scrollHeight} = tab;
+    const { tab, options } = this;
+    const { scrollTop, scrollHeight } = tab;
     options.header.classList.toggle('is-visible', scrollTop > 100);
     options.header.classList.toggle('not-top', scrollTop > 0);
     tab.classList.toggle('not-bottom', (scrollHeight - scrollTop) > tab.offsetHeight);

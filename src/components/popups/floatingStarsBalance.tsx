@@ -1,14 +1,14 @@
 import classNames from '@helpers/string/classNames';
 import useStars from '@stores/stars';
-import PopupStars, {StarsStar} from '@components/popups/stars';
+import PopupStars, { StarsStar } from '@components/popups/stars';
 import styles from '@components/popups/floatingStarsBalance.module.scss';
-import {I18nTsx} from '@helpers/solid/i18n';
+import { I18nTsx } from '@helpers/solid/i18n';
 import PopupElement from '.';
-import {i18n} from '@lib/langPack';
-import {IconTsx} from '@components/iconTsx';
-import {createResource} from 'solid-js';
+import { i18n } from '@lib/langPack';
+import { IconTsx } from '@components/iconTsx';
+import { createResource } from 'solid-js';
 import rootScope from '@lib/rootScope';
-import paymentsWrapCurrencyAmount, {formatNanoton, nanotonToJsNumber} from '@helpers/paymentsWrapCurrencyAmount';
+import paymentsWrapCurrencyAmount, { formatNanoton, nanotonToJsNumber } from '@helpers/paymentsWrapCurrencyAmount';
 
 export function FloatingStarsBalance(props: {
   class?: string;
@@ -20,7 +20,7 @@ export function FloatingStarsBalance(props: {
 
   const converted = () => {
     const rate = appConfig.latest?.ton_usd_rate;
-    if(!rate) return '...';
+    if (!rate) return '...';
 
     return paymentsWrapCurrencyAmount(nanotonToJsNumber(balanceTon()) * rate * 100, 'USD');
   }
@@ -31,10 +31,10 @@ export function FloatingStarsBalance(props: {
         key="StarsBalanceLong"
         args={props.ton ? [
           <IconTsx icon="ton" />,
-          <b>{formatNanoton(balanceTon())}</b>
+          <b>{formatNanoton(balanceTon())}</b>,
         ] : [
           <StarsStar />,
-          <b>{balance()}</b>
+          <b>{balance()}</b>,
         ]}
       />
       {props.ton ? (

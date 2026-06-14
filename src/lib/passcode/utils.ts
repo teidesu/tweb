@@ -1,4 +1,4 @@
-import {SALT_LENGTH} from '@lib/passcode/constants';
+import { SALT_LENGTH } from '@lib/passcode/constants';
 
 const ITERATIONS = 100000;
 
@@ -7,10 +7,10 @@ export async function hashPasscode(passcode: string, salt: Uint8Array) {
   const passcodeBytes = encoder.encode(passcode);
   passcode = '';
 
-  const importedKey = await crypto.subtle.importKey('raw', passcodeBytes, {name: 'PBKDF2'}, false, ['deriveBits']);
+  const importedKey = await crypto.subtle.importKey('raw', passcodeBytes, { name: 'PBKDF2' }, false, ['deriveBits']);
 
   const derivedBits = await crypto.subtle.deriveBits(
-    {name: 'PBKDF2', salt: salt as BufferSource, iterations: ITERATIONS, hash: 'SHA-256'},
+    { name: 'PBKDF2', salt: salt as BufferSource, iterations: ITERATIONS, hash: 'SHA-256' },
     importedKey,
     256
   );
@@ -24,12 +24,12 @@ export async function deriveEncryptionKey(passcode: string, salt: Uint8Array): P
   passcode = '';
 
   const importedKey = await crypto.subtle.importKey(
-    'raw', passcodeBytes, {name: 'PBKDF2'}, false, ['deriveKey']
+    'raw', passcodeBytes, { name: 'PBKDF2' }, false, ['deriveKey']
   );
 
   return crypto.subtle.deriveKey(
-    {name: 'PBKDF2', salt: salt as BufferSource, iterations: ITERATIONS, hash: 'SHA-256'},
-    importedKey, {name: 'AES-GCM', length: 256}, true, ['encrypt', 'decrypt']
+    { name: 'PBKDF2', salt: salt as BufferSource, iterations: ITERATIONS, hash: 'SHA-256' },
+    importedKey, { name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']
   );
 }
 
@@ -41,5 +41,5 @@ export async function createEncryptionArtifactsForPasscode(passcode: string) {
   const verificationHash = await hashPasscode(passcode, verificationSalt);
   passcode = '';
 
-  return {verificationHash, verificationSalt, encryptionSalt, encryptionKey};
+  return { verificationHash, verificationSalt, encryptionSalt, encryptionKey };
 }

@@ -1,28 +1,28 @@
-import {onCleanup, onMount} from 'solid-js';
+import { onCleanup, onMount } from 'solid-js';
 
 import Button from '@components/buttonTsx';
 import LanguageChangeButton from '@components/languageChangeButton';
 import PasskeyLoginButton from '@components/passkeyLoginButton';
-import {putPreloader} from '@components/putPreloader';
+import { putPreloader } from '@components/putPreloader';
 import MediaHeader from '@components/mediaHeader';
 import bytesCmp from '@helpers/bytes/bytesCmp';
 import bytesToBase64 from '@helpers/bytes/bytesToBase64';
 import fixBase64String from '@helpers/fixBase64String';
 import pause from '@helpers/schedulers/pause';
-import {paintQrCode} from '@helpers/qrCode/paintQrCode';
-import type {DcId} from '@types';
-import {AuthAuthorization, AuthLoginToken} from '@layer';
+import { paintQrCode } from '@helpers/qrCode/paintQrCode';
+import type { DcId } from '@types';
+import { AuthAuthorization, AuthLoginToken } from '@layer';
 import App from '@config/app';
-import {LangPackKey, i18n} from '@lib/langPack';
+import { LangPackKey, i18n } from '@lib/langPack';
 import AccountController from '@lib/accounts/accountController';
-import {getCurrentAccount} from '@lib/accounts/getCurrentAccount';
+import { getCurrentAccount } from '@lib/accounts/getCurrentAccount';
 import rootScope from '@lib/rootScope';
 
 import AuthCard from '@/pages/AuthCard';
-import {CardSpec, useAuthFlow} from '@/pages/authFlow';
+import { CardSpec, useAuthFlow } from '@/pages/authFlow';
 import styles from '@/pages/authFlow.module.scss';
 
-if(import.meta.hot) import.meta.hot.accept();
+if (import.meta.hot) import.meta.hot.accept();
 
 type Spec = Extract<CardSpec, {name: 'signQR'}>;
 
@@ -36,7 +36,7 @@ const QR_SIZE = 240;
  * card. The loop terminates when the card unmounts (cleanup flips `stopped`).
  */
 export default function SignQRCard(_props: {spec: Spec}) {
-  const {managers, navigate, toIm} = useAuthFlow();
+  const { managers, navigate, toIm } = useAuthFlow();
 
   // Persistent host for the QR canvas (qr-code-styling injects its canvas
   // into this div). We hand it to <MediaHeader.Sticker element={...}>.
@@ -68,7 +68,7 @@ export default function SignQRCard(_props: {spec: Spec}) {
   const onUserAuth = () => {
     stopped = true;
   };
-  rootScope.addEventListener('user_auth', onUserAuth, {once: true});
+  rootScope.addEventListener('user_auth', onUserAuth, { once: true });
 
   /* ---------- paint QR ---------- */
 
@@ -77,7 +77,7 @@ export default function SignQRCard(_props: {spec: Spec}) {
   // change from the `theme_changed` listener so the QR repaints with the new
   // colors without waiting for the next 3-second polling tick.
   async function paintQR(token: Uint8Array | number[]) {
-    if(!QRCodeStylingCtor) return;
+    if (!QRCodeStylingCtor) return;
 
     const encoded = bytesToBase64(token);
     const url = 'tg://login?token=' + fixBase64String(encoded, true);
@@ -87,7 +87,7 @@ export default function SignQRCard(_props: {spec: Spec}) {
     const textColor = style.getPropertyValue('--primary-text-color').trim();
     const primaryColor = style.getPropertyValue('--primary-color').trim();
 
-    const {canvas} = await paintQrCode({
+    const { canvas } = await paintQrCode({
       data: url,
       size: QR_SIZE,
       host: stickerHost!,
@@ -95,11 +95,11 @@ export default function SignQRCard(_props: {spec: Spec}) {
       foreground: textColor,
       logoColor: primaryColor,
       canvasClass: styles.qrCanvas,
-      QRCodeStylingCtor
+      QRCodeStylingCtor,
     });
 
     // ! costyl, but the library doesn't expose any events
-    if(preloader) {
+    if (preloader) {
       preloader.style.animation = 'hide-icon .4s forwards';
 
       canvas.style.display = 'none';
@@ -121,14 +121,14 @@ export default function SignQRCard(_props: {spec: Spec}) {
   /* ---------- theme_changed: repaint with new CSS-variable colors ---------- */
 
   const onThemeChanged = () => {
-    if(stopped || !lastDrawnToken) return;
+    if (stopped || !lastDrawnToken) return;
     paintQR(lastDrawnToken);
   };
   rootScope.addEventListener('theme_changed', onThemeChanged);
 
   /* ---------- iterate loop ---------- */
 
-  const options: {dcId?: DcId, ignoreErrors: true} = {ignoreErrors: true};
+  const options: {dcId?: DcId, ignoreErrors: true} = { ignoreErrors: true };
   let prevToken: Uint8Array | number[] | undefined;
 
   async function iterate(QRCodeStyling: any, isLoop: boolean): Promise<boolean> {
@@ -137,42 +137,42 @@ export default function SignQRCard(_props: {spec: Spec}) {
       let loginToken = await managers.apiManager.invokeApi('auth.exportLoginToken', {
         api_id: App.id,
         api_hash: App.hash,
-        except_ids: userIds.map((userId) => userId.toUserId())
-      }, {ignoreErrors: true});
+        except_ids: userIds.map((userId) => userId.toUserId()),
+      }, { ignoreErrors: true });
 
-      if(loginToken._ === 'auth.loginTokenMigrateTo') {
-        if(!options.dcId) {
+      if (loginToken._ === 'auth.loginTokenMigrateTo') {
+        if (!options.dcId) {
           options.dcId = loginToken.dc_id;
           managers.apiManager.setBaseDcId(loginToken.dc_id);
         }
 
         loginToken = await managers.apiManager.invokeApi('auth.importLoginToken', {
-          token: loginToken.token
+          token: loginToken.token,
         }, options) as AuthLoginToken.authLoginToken;
       }
 
-      if(loginToken._ === 'auth.loginTokenSuccess') {
+      if (loginToken._ === 'auth.loginTokenSuccess') {
         const authorization = loginToken.authorization as any as AuthAuthorization.authAuthorization;
         await managers.apiManager.setUser(authorization.user);
         toIm();
         return true;
       }
 
-      if(!prevToken || !bytesCmp(prevToken, loginToken.token)) {
+      if (!prevToken || !bytesCmp(prevToken, loginToken.token)) {
         prevToken = loginToken.token;
         QRCodeStylingCtor = QRCodeStyling;
         await paintQR(loginToken.token);
       }
 
-      if(isLoop) {
+      if (isLoop) {
         const timestamp = Date.now() / 1000;
         const diff = loginToken.expires - timestamp - await managers.timeManager.getServerTimeOffset();
         await pause(diff > FETCH_INTERVAL ? 1e3 * FETCH_INTERVAL : 1e3 * diff | 0);
       }
-    } catch(err) {
-      switch((err as ApiError).type) {
+    } catch (err) {
+      switch ((err as ApiError).type) {
         case 'SESSION_PASSWORD_NEEDED':
-          navigate({name: 'password'});
+          navigate({ name: 'password' });
           stopped = true;
           break;
         case 'AUTH_TOKEN_EXPIRED':
@@ -193,19 +193,19 @@ export default function SignQRCard(_props: {spec: Spec}) {
   /* ---------- lifecycle ---------- */
 
   onMount(async() => {
-    managers.appStateManager.pushToState('authState', {_: 'authStateSignQr'});
+    managers.appStateManager.pushToState('authState', { _: 'authStateSignQr' });
 
     preloader = putPreloader(stickerHost!, true);
 
-    const [{default: QRCodeStyling}] = await Promise.all([
-      import('qr-code-styling' as any)
+    const [{ default: QRCodeStyling }] = await Promise.all([
+      import('qr-code-styling' as any),
     ]);
 
-    if(stopped) return;
+    if (stopped) return;
 
-    while(!stopped) {
+    while (!stopped) {
       const needBreak = await iterate(QRCodeStyling, true);
-      if(needBreak || stopped) break;
+      if (needBreak || stopped) break;
     }
   });
 
@@ -234,7 +234,7 @@ export default function SignQRCard(_props: {spec: Spec}) {
         class="btn-primary btn-secondary btn-primary-transparent primary"
         onClick={() => {
           stopped = true;
-          navigate({name: 'signIn'});
+          navigate({ name: 'signIn' });
         }}
         text="Login.QR.Cancel"
       />

@@ -1,4 +1,4 @@
-import {copyTextToClipboard} from '@helpers/clipboard';
+import { copyTextToClipboard } from '@helpers/clipboard';
 // import SelectionSaver from "@helpers/selectionSaver";
 // import selectElementContents from "@helpers/dom/selectElementContents";
 

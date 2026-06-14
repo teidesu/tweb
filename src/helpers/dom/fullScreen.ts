@@ -1,18 +1,18 @@
 import type ListenerSetter from '@helpers/listenerSetter';
 
 export function requestFullScreen(element: HTMLElement) {
-  if(element.requestFullscreen) {
+  if (element.requestFullscreen) {
     element.requestFullscreen();
     // @ts-ignore
-  } else if(element.mozRequestFullScreen) {
+  } else if (element.mozRequestFullScreen) {
     // @ts-ignore
     element.mozRequestFullScreen(); // Firefox
     // @ts-ignore
-  } else if(element.webkitRequestFullscreen) {
+  } else if (element.webkitRequestFullscreen) {
     // @ts-ignore
     element.webkitRequestFullscreen(); // Chrome and Safari
     // @ts-ignore
-  } else if(element.msRequestFullscreen) {
+  } else if (element.msRequestFullscreen) {
     // @ts-ignore
     element.msRequestFullscreen();
   }
@@ -20,19 +20,19 @@ export function requestFullScreen(element: HTMLElement) {
 
 export function cancelFullScreen() {
   // @ts-ignore
-  if(document.cancelFullScreen) {
+  if (document.cancelFullScreen) {
     // @ts-ignore
     document.cancelFullScreen();
     // @ts-ignore
-  } else if(document.mozCancelFullScreen) {
+  } else if (document.mozCancelFullScreen) {
     // @ts-ignore
     document.mozCancelFullScreen();
     // @ts-ignore
-  } else if(document.webkitCancelFullScreen) {
+  } else if (document.webkitCancelFullScreen) {
     // @ts-ignore
     document.webkitCancelFullScreen();
     // @ts-ignore
-  } else if(document.msExitFullscreen) {
+  } else if (document.msExitFullscreen) {
     // @ts-ignore
     document.msExitFullscreen();
   }

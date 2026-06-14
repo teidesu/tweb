@@ -1,17 +1,17 @@
-import {Match, onCleanup, Show, Switch} from 'solid-js';
-import {formatFullSentTime} from '@helpers/date';
-import {numberThousandSplitterForStars} from '@helpers/number/numberThousandSplitter';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {Message, MessageAction} from '@layer';
+import { Match, onCleanup, Show, Switch } from 'solid-js';
+import { formatFullSentTime } from '@helpers/date';
+import { numberThousandSplitterForStars } from '@helpers/number/numberThousandSplitter';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { Message, MessageAction } from '@layer';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
 import rootScope from '@lib/rootScope';
-import defineSolidElement, {PassedProps} from '@lib/solidjs/defineSolidElement';
-import {PeerTitleTsx} from '@components/peerTitleTsx';
+import defineSolidElement, { PassedProps } from '@lib/solidjs/defineSolidElement';
+import { PeerTitleTsx } from '@components/peerTitleTsx';
 import styles from '@components/chat/bubbleParts/suggestedPostActionContent.module.scss';
-import {SUGGESTED_POST_WAIT_FOR_REWARD_HOURS} from '@appManagers/constants';
+import { SUGGESTED_POST_WAIT_FOR_REWARD_HOURS } from '@appManagers/constants';
 
-if(import.meta.hot) import.meta.hot.accept();
+if (import.meta.hot) import.meta.hot.accept();
 
 
 const LIMIT_SYMBOLS = 20;
@@ -30,7 +30,7 @@ const SuggestedPostActionContent = defineSolidElement({
   name: 'suggested-post-action-content',
   component: (props: PassedProps<Props>) => {
     props.element.classList.add(styles.Container);
-    if(import.meta.hot) onCleanup(() => props.element.classList.remove(styles.Container));
+    if (import.meta.hot) onCleanup(() => props.element.classList.remove(styles.Container));
 
     const suggestedPost = () => props.message._ === 'message' ?
       props.message.suggested_post :
@@ -92,7 +92,7 @@ const SuggestedPostActionContent = defineSolidElement({
               key='SuggestedPosts.PostSuccess'
               args={[
                 makeEmoji('✅'),
-                <I18nTsx key='Stars' args={[numberThousandSplitterForStars((awardedStars()!))]} />
+                <I18nTsx key='Stars' args={[numberThousandSplitterForStars((awardedStars()!))]} />,
               ]}
             />
           </Match>
@@ -155,7 +155,7 @@ const SuggestedPostActionContent = defineSolidElement({
         </>
       }
     </>;
-  }
+  },
 });
 
 export default SuggestedPostActionContent;

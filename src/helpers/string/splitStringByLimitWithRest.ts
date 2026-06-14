@@ -2,12 +2,12 @@ export default function splitStringByLimitWithRest(str: string, separator: strin
   const splitted = str.split(separator);
   const out: string[] = [];
 
-  while(limit > 0 && splitted.length) {
+  while (limit > 0 && splitted.length) {
     out.push(splitted.shift()!);
     --limit;
   }
 
-  if(splitted.length) {
+  if (splitted.length) {
     out.push(splitted.join(separator));
   }
 

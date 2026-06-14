@@ -12,7 +12,7 @@
 // and createVideoRecordingPanel() exposes the same imperative handle ChatRecording
 // drives (mirrors createProgressRing in progressRing.tsx).
 
-import {Accessor, createRoot, createSignal, JSX} from 'solid-js';
+import { Accessor, createRoot, createSignal, JSX } from 'solid-js';
 import classNames from '@helpers/string/classNames';
 import ProgressRing from '@components/progressRing';
 
@@ -42,7 +42,7 @@ export default function VideoRecordingPanel(props: {
     >
       <div
         class="video-recording-circle"
-        style={{width: STAGE_SIZE + 'px', height: STAGE_SIZE + 'px'}}
+        style={{ width: STAGE_SIZE + 'px', height: STAGE_SIZE + 'px' }}
       >
         <video
           class="video-recording-preview"
@@ -99,27 +99,27 @@ export function createVideoRecordingPanel(): VideoRecordingPanelHandle {
       playing,
       progress,
       rootRef: (stage) => element = stage,
-      ref: (video) => previewVideo = video
+      ref: (video) => previewVideo = video,
     });
 
     const setMode = (m: VideoRecordingMode) => {
       // A fresh recording/preview is about to show — cancel any pending
       // fade-out cleanup.
-      if(clearVideoTimer) {
+      if (clearVideoTimer) {
         clearTimeout(clearVideoTimer);
         clearVideoTimer = undefined;
       }
       setModeSignal(m);
-      if(m === 'recording') setPlayingSignal(false);
+      if (m === 'recording') setPlayingSignal(false);
     };
 
     const releasePreview = () => {
       previewVideo.srcObject = null;
-      if(previewVideo.src) {
+      if (previewVideo.src) {
         previewVideo.removeAttribute('src');
         try {
           previewVideo.load();
-        } catch(e) {}
+        } catch (e) {}
       }
     };
 
@@ -134,19 +134,19 @@ export function createVideoRecordingPanel(): VideoRecordingPanelHandle {
 
       let safety: number | undefined;
       const reveal = () => {
-        if(safety) {
+        if (safety) {
           clearTimeout(safety); // don't let the safety net fire after a real reveal
           safety = undefined;
         }
-        if(liveToken !== token) return; // a newer call / reset superseded us
+        if (liveToken !== token) return; // a newer call / reset superseded us
         setMode('recording');
       };
 
       const rvfc = previewVideo as HTMLVideoElement & {requestVideoFrameCallback?: (cb: () => void) => number};
-      if(typeof rvfc.requestVideoFrameCallback === 'function') {
+      if (typeof rvfc.requestVideoFrameCallback === 'function') {
         rvfc.requestVideoFrameCallback(() => reveal());
       } else {
-        previewVideo.addEventListener('loadeddata', reveal, {once: true});
+        previewVideo.addEventListener('loadeddata', reveal, { once: true });
       }
       // Safety net: reveal anyway if the frame callback never fires.
       safety = window.setTimeout(reveal, 800);
@@ -162,7 +162,7 @@ export function createVideoRecordingPanel(): VideoRecordingPanelHandle {
       setPlayingSignal(false);
       setProgressSignal(0);
 
-      if(clearVideoTimer) clearTimeout(clearVideoTimer);
+      if (clearVideoTimer) clearTimeout(clearVideoTimer);
       clearVideoTimer = window.setTimeout(() => {
         clearVideoTimer = undefined;
         releasePreview();
@@ -182,11 +182,11 @@ export function createVideoRecordingPanel(): VideoRecordingPanelHandle {
       getIsPlaying: () => playing(),
       setProgress: (value: number) => setProgressSignal(value),
       destroy: () => {
-        if(clearVideoTimer) clearTimeout(clearVideoTimer);
+        if (clearVideoTimer) clearTimeout(clearVideoTimer);
         releasePreview();
         element.remove();
         dispose();
-      }
+      },
     };
   });
 }

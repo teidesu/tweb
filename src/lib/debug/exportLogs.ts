@@ -10,7 +10,7 @@
 import Modes from '@config/modes';
 import MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
 import apiManagerProxy from '@lib/apiManagerProxy';
-import {getLogEntries, LogEntry} from './logsBuffer';
+import { getLogEntries, LogEntry } from './logsBuffer';
 
 const WORKER_TIMEOUT = 5000;
 
@@ -31,14 +31,14 @@ export async function collectLogs(): Promise<LogEntry[]> {
 
   // In noWorker mode the worker shares this realm (and this very buffer), so
   // pulling it back would only duplicate entries.
-  if(!Modes.noWorker) {
+  if (!Modes.noWorker) {
     try {
       const master = MTProtoMessagePort.getMasterInstance();
       const workerLogs = await master?.invoke('getLogs', undefined, undefined, undefined, undefined, WORKER_TIMEOUT);
-      if(workerLogs?.length) {
+      if (workerLogs?.length) {
         all.push(...workerLogs);
       }
-    } catch(err) {
+    } catch (err) {
       // Worker unreachable / no listener — export what we have from the window.
       console.error('[logs] failed to collect worker logs:', err);
     }
@@ -46,13 +46,13 @@ export async function collectLogs(): Promise<LogEntry[]> {
 
   // ServiceWorker buffer (downloads, push notifications, stream interception,
   // cache). Its own context, so it has a separate ring buffer.
-  if(!Modes.noServiceWorker) {
+  if (!Modes.noServiceWorker) {
     try {
       const swLogs = await apiManagerProxy.serviceMessagePort?.invoke('getLogs', undefined, undefined, undefined, undefined, WORKER_TIMEOUT);
-      if(swLogs?.length) {
+      if (swLogs?.length) {
         all.push(...swLogs);
       }
-    } catch(err) {
+    } catch (err) {
       // SW asleep / unregistered — export the rest.
       console.error('[logs] failed to collect service worker logs:', err);
     }
@@ -71,7 +71,7 @@ function buildMeta(count: number): LogsMeta {
     ua: navigator.userAgent,
     href: location.href,
     exportedAt: new Date().toISOString(),
-    count
+    count,
   };
 }
 
@@ -79,7 +79,7 @@ function buildMeta(count: number): LogsMeta {
 export async function serializeLogs(): Promise<string> {
   const entries = await collectLogs();
   const lines = [JSON.stringify(buildMeta(entries.length))];
-  for(const e of entries) {
+  for (const e of entries) {
     lines.push(JSON.stringify(e));
   }
   return lines.join('\n');
@@ -87,7 +87,7 @@ export async function serializeLogs(): Promise<string> {
 
 export async function downloadLogs(filename?: string): Promise<void> {
   const payload = await serializeLogs();
-  const blob = new Blob([payload], {type: 'application/x-ndjson'});
+  const blob = new Blob([payload], { type: 'application/x-ndjson' });
   const url = URL.createObjectURL(blob);
 
   const a = document.createElement('a');

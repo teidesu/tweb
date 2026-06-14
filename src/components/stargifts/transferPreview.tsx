@@ -1,10 +1,10 @@
 import classNames from '@helpers/string/classNames';
-import {MyDocument} from '@appManagers/appDocsManager';
-import {MyStarGift} from '@appManagers/appGiftsManager';
-import {AvatarNewTsx} from '@components/avatarNew';
-import {IconTsx} from '@components/iconTsx';
-import {StickerTsx} from '@components/wrappers/sticker';
-import {StarGiftBackdrop} from '@components/stargifts/stargiftBackdrop';
+import { MyDocument } from '@appManagers/appDocsManager';
+import { MyStarGift } from '@appManagers/appGiftsManager';
+import { AvatarNewTsx } from '@components/avatarNew';
+import { IconTsx } from '@components/iconTsx';
+import { StickerTsx } from '@components/wrappers/sticker';
+import { StarGiftBackdrop } from '@components/stargifts/stargiftBackdrop';
 import styles from '@components/stargifts/transferPreview.module.scss'
 
 export function StarGiftTransferPreview(props: {
@@ -26,7 +26,7 @@ export function StarGiftTransferPreview(props: {
           width={48}
           height={48}
           autoStyle
-          extraOptions={{play: true, loop: true}}
+          extraOptions={{ play: true, loop: true }}
         />
       </div>
       <IconTsx icon="next" />

@@ -32,7 +32,7 @@ export default class LineBlobDrawable {
     this.progress = new Array(n + 1);
     this.speed = new Array(n + 1);
 
-    for(let i = 0; i <= n; i++) {
+    for (let i = 0; i <= n; i++) {
       this.generateBlob(this.radius, i);
       this.generateBlob(this.radiusNext, i);
       this.progress[i] = 0;
@@ -40,7 +40,7 @@ export default class LineBlobDrawable {
   }
 
   private generateBlob(radius: Radius, i: number) {
-    const {maxRadius, minRadius, speed} = this;
+    const { maxRadius, minRadius, speed } = this;
 
     const radDif = maxRadius - minRadius;
     radius[i] = minRadius + Math.random() * radDif;
@@ -48,8 +48,8 @@ export default class LineBlobDrawable {
   }
 
   private generateNextBlob() {
-    const {radius, radiusNext, progress, N} = this;
-    for(let i = 0; i < N; i++) {
+    const { radius, radiusNext, progress, N } = this;
+    for (let i = 0; i < N; i++) {
       this.generateBlob(radius, i);
       this.generateBlob(radiusNext, i);
       progress[i] = 0.0;
@@ -57,10 +57,10 @@ export default class LineBlobDrawable {
   }
 
   public update(amplitude: number, speedScale: number) {
-    const {N, progress, speed, radius, radiusNext} = this;
-    for(let i = 0; i <= N; i++) {
+    const { N, progress, speed, radius, radiusNext } = this;
+    for (let i = 0; i <= N; i++) {
       progress[i] += (speed[i] * MIN_SPEED) + amplitude * speed[i] * MAX_SPEED * speedScale;
-      if(progress[i] >= 1.0) {
+      if (progress[i] >= 1.0) {
         progress[i] = 0.0;
         radius[i] = radiusNext[i];
         this.generateBlob(radiusNext, i);
@@ -69,7 +69,7 @@ export default class LineBlobDrawable {
   }
 
   public draw(left: number, top: number, right: number, bottom: number, canvas: HTMLCanvasElement, paint: (ctx: CanvasRenderingContext2D) => void, pinnedTop: number, progressToPinned: number) {
-    if(canvas.getContext) {
+    if (canvas.getContext) {
       const ctx = canvas.getContext('2d');
       // ctx.globalAlpha = 0.5;
       // ctx.lineWidth = 1;
@@ -78,9 +78,9 @@ export default class LineBlobDrawable {
       ctx!.moveTo(right, bottom);
       ctx!.lineTo(left, bottom);
 
-      const {radius, radiusNext, N} = this;
-      for(let i = 0; i <= N; i++) {
-        if(i === 0) {
+      const { radius, radiusNext, N } = this;
+      for (let i = 0; i <= N; i++) {
+        if (i === 0) {
           const progress = this.progress[i];
           const r1 = radius[i] * (1.0 - progress) + radiusNext[i] * progress;
           const y = (top - r1) * progressToPinned + pinnedTop * (1.0 - progressToPinned);
@@ -97,7 +97,7 @@ export default class LineBlobDrawable {
           const y1 = (top - r1) * progressToPinned + pinnedTop * (1.0 - progressToPinned);
           const y2 = (top - r2) * progressToPinned + pinnedTop * (1.0 - progressToPinned);
           ctx!.bezierCurveTo(cx, y1, cx, y2, x2, y2);
-          if(i === N) {
+          if (i === N) {
             ctx!.lineTo(right, bottom);
           }
         }

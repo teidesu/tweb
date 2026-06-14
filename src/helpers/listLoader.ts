@@ -66,33 +66,33 @@ export default class ListLoader<T extends {}, P extends {}> {
 
   public go(length: number, dispatchJump = true) {
     let items: T[], item: T;
-    if(length > 0) {
+    if (length > 0) {
       items = this.next.splice(0, length);
       item = items.pop()!;
-      if(!item) {
+      if (!item) {
         return;
       }
 
-      if(this.current !== undefined) items.unshift(this.current);
+      if (this.current !== undefined) items.unshift(this.current);
       this.previous.push(...items);
     } else {
       items = this.previous.splice(Math.max(0, this.previous.length + length), -length);
       item = items.shift()!;
-      if(!item) {
+      if (!item) {
         return;
       }
 
-      if(this.current !== undefined) items.push(this.current);
+      if (this.current !== undefined) items.push(this.current);
       this.next.unshift(...items);
     }
 
     this.current = item;
 
-    if(this.next.length < this.loadWhenLeft) {
+    if (this.next.length < this.loadWhenLeft) {
       this.load(!this.reverse);
     }
 
-    if(this.previous.length < this.loadWhenLeft) {
+    if (this.previous.length < this.loadWhenLeft) {
       this.load(this.reverse);
     }
 
@@ -101,7 +101,7 @@ export default class ListLoader<T extends {}, P extends {}> {
   }
 
   protected unsetCurrent(toPrevious: boolean) {
-    if(toPrevious) this.previous.push((this.current as T));
+    if (toPrevious) this.previous.push((this.current as T));
     else this.next.unshift((this.current as T));
 
     this.current = undefined;
@@ -117,21 +117,21 @@ export default class ListLoader<T extends {}, P extends {}> {
 
     return {
       item: !leftLength ? item : undefined,
-      leftLength
+      leftLength,
     };
   }
 
   protected setLoaded(down: boolean, value: boolean) {
     const isChanged = (down ? this.loadedAllDown : this.loadedAllUp) !== value;
-    if(!isChanged) {
+    if (!isChanged) {
       return false;
     }
 
-    if(down) this.loadedAllDown = value;
+    if (down) this.loadedAllDown = value;
     else this.loadedAllUp = value;
 
-    if(!value) {
-      if(down) this.loadPromiseDown = null;
+    if (!value) {
+      if (down) this.loadPromiseDown = null;
       else this.loadPromiseUp = null;
     }
 
@@ -140,13 +140,13 @@ export default class ListLoader<T extends {}, P extends {}> {
 
   // нет смысла делать проверку для reverse и loadMediaPromise
   public load(older: boolean) {
-    if(older ? this.loadedAllDown : this.loadedAllUp) return Promise.resolve();
+    if (older ? this.loadedAllDown : this.loadedAllUp) return Promise.resolve();
 
     let promise = older ? this.loadPromiseDown : this.loadPromiseUp;
-    if(promise) return promise;
+    if (promise) return promise;
 
     let anchor!: T;
-    if(older) {
+    if (older) {
       anchor = this.reverse ? this.previous[0] : this.next[this.next.length - 1];
     } else {
       anchor = this.reverse ? this.next[this.next.length - 1] : this.previous[0];
@@ -154,15 +154,15 @@ export default class ListLoader<T extends {}, P extends {}> {
 
     anchor ??= this.current!;
     promise = this.loadMore(anchor, older, this.loadCount).then(async(result) => {
-      if((older ? this.loadPromiseDown : this.loadPromiseUp) !== promise) {
+      if ((older ? this.loadPromiseDown : this.loadPromiseUp) !== promise) {
         return;
       }
 
-      if(result.items.length < this.loadCount) {
+      if (result.items.length < this.loadCount) {
         this.setLoaded(older, true);
       }
 
-      if(this.count === undefined) {
+      if (this.count === undefined) {
         this.count = result.count || result.items.length;
       }
 
@@ -171,30 +171,30 @@ export default class ListLoader<T extends {}, P extends {}> {
       method((item: any) => {
         const processed = this.processItem ? this.processItem(item) : item;
 
-        if(!processed) return;
+        if (!processed) return;
         processedArr.push(processed);
       });
 
       const results = (await Promise.all(processedArr)).filter(Boolean);
-      if((older ? this.loadPromiseDown : this.loadPromiseUp) !== promise) {
+      if ((older ? this.loadPromiseDown : this.loadPromiseUp) !== promise) {
         return;
       }
 
-      if(older) {
-        if(this.reverse) this.previous.unshift(...results);
+      if (older) {
+        if (this.reverse) this.previous.unshift(...results);
         else this.next.push(...results);
       } else {
-        if(this.reverse) this.next.push(...results);
+        if (this.reverse) this.next.push(...results);
         else this.previous.unshift(...results);
       }
 
       this.onLoadedMore?.();
     }, () => {}).then(() => {
-      if(older) this.loadPromiseDown = null;
+      if (older) this.loadPromiseDown = null;
       else this.loadPromiseUp = null;
     });
 
-    if(older) this.loadPromiseDown = promise;
+    if (older) this.loadPromiseDown = promise;
     else this.loadPromiseUp = promise;
 
     return promise;

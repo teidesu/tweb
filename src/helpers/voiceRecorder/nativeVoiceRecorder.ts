@@ -9,7 +9,7 @@ import OggOpusWriter from './oggOpusWriter';
 import isNativeVoiceRecorderSupported from './isNativeSupported';
 import getStream from '@lib/calls/helpers/getStream';
 
-export {isNativeVoiceRecorderSupported};
+export { isNativeVoiceRecorderSupported };
 
 const WORKLET_SOURCE = `
 class VoiceCaptureProcessor extends AudioWorkletProcessor {
@@ -89,7 +89,7 @@ export default class NativeVoiceRecorder {
       encoderSampleRate: config.encoderSampleRate ?? ENCODER_SAMPLE_RATE,
       numberOfChannels: config.numberOfChannels ?? 1,
       encoderBitRate: config.encoderBitRate ?? DEFAULT_BITRATE,
-      mediaTrackConstraints: config.mediaTrackConstraints ?? true
+      mediaTrackConstraints: config.mediaTrackConstraints ?? true,
     };
   }
 
@@ -98,21 +98,21 @@ export default class NativeVoiceRecorder {
   // (appSettings.callDevices.microphoneId), same source as calls. Applied on the
   // next start().
   public setMicrophoneId(microphoneId?: string) {
-    this.config.mediaTrackConstraints = microphoneId ? {deviceId: {exact: microphoneId}} : true;
+    this.config.mediaTrackConstraints = microphoneId ? { deviceId: { exact: microphoneId } } : true;
   }
 
   public async start(): Promise<void> {
-    if(this.state !== 'inactive') return;
+    if (this.state !== 'inactive') return;
 
     // Reuse the call stack's getUserMedia chokepoint: if the selected mic is
     // gone it strips the deviceId, clears the stale appSettings.callDevices.
     // microphoneId and retries on the OS default — same self-healing as calls.
-    this.stream = await getStream({audio: this.config.mediaTrackConstraints});
+    this.stream = await getStream({ audio: this.config.mediaTrackConstraints });
 
-    this.audioContext = new AudioContext({sampleRate: this.config.encoderSampleRate});
+    this.audioContext = new AudioContext({ sampleRate: this.config.encoderSampleRate });
     this.sourceNode = this.audioContext.createMediaStreamSource(this.stream);
 
-    const blob = new Blob([WORKLET_SOURCE], {type: 'application/javascript'});
+    const blob = new Blob([WORKLET_SOURCE], { type: 'application/javascript' });
     this.workletUrl = URL.createObjectURL(blob);
     await this.audioContext.audioWorklet.addModule(this.workletUrl);
 
@@ -120,24 +120,24 @@ export default class NativeVoiceRecorder {
       numberOfInputs: 1,
       numberOfOutputs: 1,
       outputChannelCount: [this.config.numberOfChannels],
-      processorOptions: {bufferSize: WORKLET_BUFFER_SIZE}
+      processorOptions: { bufferSize: WORKLET_BUFFER_SIZE },
     });
 
     this.writer = new OggOpusWriter({
       channels: this.config.numberOfChannels,
-      inputSampleRate: this.config.encoderSampleRate
+      inputSampleRate: this.config.encoderSampleRate,
     });
 
     this.encoder = new AudioEncoder({
       output: (chunk, metadata) => this.onEncoderChunk(chunk, metadata),
-      error: (err) => console.error('[NativeVoiceRecorder] encoder error:', err)
+      error: (err) => console.error('[NativeVoiceRecorder] encoder error:', err),
     });
 
     this.encoder.configure({
       codec: 'opus',
       sampleRate: this.config.encoderSampleRate,
       numberOfChannels: this.config.numberOfChannels,
-      bitrate: this.config.encoderBitRate
+      bitrate: this.config.encoderBitRate,
     });
 
     this.workletNode.port.onmessage = (e: MessageEvent<Float32Array>) => this.onWorkletMessage(e.data);
@@ -154,8 +154,8 @@ export default class NativeVoiceRecorder {
   }
 
   private onWorkletMessage(samples: Float32Array) {
-    if(this.state !== 'recording') return;
-    if(this.notifySamples) this.notifySamples(samples);
+    if (this.state !== 'recording') return;
+    if (this.notifySamples) this.notifySamples(samples);
     const numberOfFrames = samples.length / this.config.numberOfChannels;
     const audioData = new AudioData({
       format: 'f32-planar',
@@ -163,22 +163,22 @@ export default class NativeVoiceRecorder {
       numberOfFrames,
       numberOfChannels: this.config.numberOfChannels,
       timestamp: this.encoderTimestampUs,
-      data: samples.slice()
+      data: samples.slice(),
     });
     this.encoderTimestampUs += (numberOfFrames * 1_000_000) / this.config.encoderSampleRate;
     try {
       this.encoder.encode(audioData);
-    } catch(err) {
+    } catch (err) {
       console.error('[NativeVoiceRecorder] encode error:', err);
     }
     audioData.close();
   }
 
   private onEncoderChunk(chunk: EncodedAudioChunk, metadata?: EncodedAudioChunkMetadata) {
-    if(!this.opusHeadCaptured && metadata?.decoderConfig?.description) {
+    if (!this.opusHeadCaptured && metadata?.decoderConfig?.description) {
       const desc = metadata.decoderConfig.description;
       let bytes: Uint8Array;
-      if(desc instanceof ArrayBuffer) {
+      if (desc instanceof ArrayBuffer) {
         bytes = new Uint8Array(desc);
       } else {
         const view = desc as ArrayBufferView;
@@ -199,18 +199,18 @@ export default class NativeVoiceRecorder {
   // Pause keeps the worklet → encoder pipeline wired up but ignores incoming
   // PCM samples. The encoder is flushed so the OGG snapshot is playable.
   public async pause(): Promise<void> {
-    if(this.state !== 'recording') return;
+    if (this.state !== 'recording') return;
     this.state = 'paused';
-    if(this.encoder && this.encoder.state !== 'closed') {
+    if (this.encoder && this.encoder.state !== 'closed') {
       try {
         await this.encoder.flush();
-      } catch(e) {}
+      } catch (e) {}
     }
     this.onpause();
   }
 
   public resume(): void {
-    if(this.state !== 'paused') return;
+    if (this.state !== 'paused') return;
     this.state = 'recording';
     this.onresume();
   }
@@ -222,45 +222,45 @@ export default class NativeVoiceRecorder {
   }
 
   public async stop(): Promise<void> {
-    if(this.state === 'inactive') return;
+    if (this.state === 'inactive') return;
     this.state = 'inactive';
 
     try {
       this.sourceNode?.disconnect();
-    } catch(e) {}
-    if(this.workletNode) {
+    } catch (e) {}
+    if (this.workletNode) {
       try {
         this.workletNode.disconnect();
-      } catch(e) {}
+      } catch (e) {}
       this.workletNode.port.onmessage = null;
     }
 
-    if(this.stream) {
+    if (this.stream) {
       this.stream.getTracks().forEach((t) => t.stop());
     }
 
-    if(this.encoder && this.encoder.state !== 'closed') {
+    if (this.encoder && this.encoder.state !== 'closed') {
       try {
         await this.encoder.flush();
-      } catch(e) {
+      } catch (e) {
         console.error('[NativeVoiceRecorder] flush error:', e);
       }
       try {
         this.encoder.close();
-      } catch(e) {}
+      } catch (e) {}
     }
 
     const ogg = this.writer ? this.writer.finalize() : new Uint8Array(0);
 
-    if(this.workletUrl) {
+    if (this.workletUrl) {
       URL.revokeObjectURL(this.workletUrl);
       this.workletUrl = undefined;
     }
 
-    if(this.audioContext && this.audioContext.state !== 'closed') {
+    if (this.audioContext && this.audioContext.state !== 'closed') {
       try {
         await this.audioContext.close();
-      } catch(e) {}
+      } catch (e) {}
     }
 
     this.ondataavailable(ogg);

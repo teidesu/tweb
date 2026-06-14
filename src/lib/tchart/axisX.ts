@@ -1,5 +1,5 @@
-import {getXIndex} from '@lib/tchart/utils';
-import {TChartUnitOptions} from '@lib/tchart/types';
+import { getXIndex } from '@lib/tchart/utils';
+import { TChartUnitOptions } from '@lib/tchart/types';
 
 type C = {[key in `ox_${string}`]: number};
 export type TChartAxisXItem = {
@@ -48,8 +48,8 @@ export default class TAxisX {
       end: 0,
       duration: this.noAnimation ? 0 : 200 * k,
       tween: 'linear',
-      group: {top: true},
-      cbEnd: this.deleteItem
+      group: { top: true },
+      cbEnd: this.deleteItem,
     }]);
   }
 
@@ -96,10 +96,10 @@ export default class TAxisX {
     let skipEachDetail = Math.pow(2, Math.ceil(Math.log2(space / xStepDetail)));
     const lxScale = (dims.w - pLeft - pRight) / (state!.x2! - state!.x1! + offsetForBarGraphScale);
 
-    if(skipEachMain < 1) {
+    if (skipEachMain < 1) {
       skipEachMain = 1;
     }
-    if(skipEachDetail < 1) {
+    if (skipEachDetail < 1) {
       skipEachDetail = 1;
     }
 
@@ -110,7 +110,7 @@ export default class TAxisX {
     const changeSpeed = this.prevXStep ? (this.prevXStep > xStepMain ? this.prevXStep / xStepMain : xStepMain / this.prevXStep) : 1;
     let k = 1 / Math.pow(changeSpeed, 5);
 
-    if(zoomMode && zoomMorph === 1) {
+    if (zoomMode && zoomMorph === 1) {
       k /= 2;
     }
 
@@ -118,7 +118,7 @@ export default class TAxisX {
     const x1Start = Math.max(x1 - Math.ceil((pLeft + space * 0.5) / xStep), 0);
     const x2Start = Math.min(x2 + Math.ceil((pRight + space * 0.5) / xStep), x!.length - 1);
 
-    if(zoomMode) {
+    if (zoomMode) {
       const x1AnimItem = this.opts.animator!.get('x1');
       const x2AnimItem = this.opts.animator!.get('x2');
       x1End = (x1AnimItem ? x1AnimItem.end : this.opts.state!['x1'])!;
@@ -128,20 +128,20 @@ export default class TAxisX {
     }
 
     let dtOffset: number;
-    if(zoomMode) {
+    if (zoomMode) {
       const tmp1 = Math.max(x![this.opts.state!.detailInd1!], this.opts.state!.xMainMin!);
       const tmp2 = Math.min(x![this.opts.state!.detailInd2!], this.opts.state!.xMainMax!);
       dtOffset = Math.round((tmp2 - tmp1) / this.opts.data!.mainPeriodLen!) + (isPointHasWidth ? 0 : 1);
     }
 
-    for(let i = x1Start; i <= x2Start; i++) {
+    for (let i = x1Start; i <= x2Start; i++) {
       let shown = (i % skipEachMain) === 0;
       let prefix = 'm';
 
-      if(zoomMode) {
-        if(i < this.opts.state!.detailInd1!) {
+      if (zoomMode) {
+        if (i < this.opts.state!.detailInd1!) {
           shown = (i % skipEachMain) === 0 && zoomMorph < 1;
-        } else if(i <= this.opts.state!.detailInd2!) {
+        } else if (i <= this.opts.state!.detailInd2!) {
           shown = (Math.max(i - this.opts.state!.detailInd1!, 0) % skipEachDetail) === 0;
           prefix = 'd';
         } else {
@@ -152,15 +152,15 @@ export default class TAxisX {
       const id = x![i] + prefix;
       let item = this.items[id];
 
-      if(shown) {
-        if(!item) { // not exist or removed
+      if (shown) {
+        if (!item) { // not exist or removed
           item = {
             tp: 1,
             xi: x![i],
             i: i,
             state: {
-              ind: id
-            }
+              ind: id,
+            },
           };
           item.state[`ox_${id}`] = 0;
           this.items[id] = item;
@@ -171,9 +171,9 @@ export default class TAxisX {
             end: 1,
             duration: this.noAnimation ? 0 : 200 * k,
             tween: 'linear',
-            group: {top: true}
+            group: { top: true },
           }]);
-        } else if(item.tp === 2) { // is hiding
+        } else if (item.tp === 2) { // is hiding
           item.tp = 1;
 
           animator!.add([{
@@ -182,21 +182,21 @@ export default class TAxisX {
             end: 1,
             duration: this.noAnimation ? 0 : 200 * k,
             tween: 'linear',
-            group: {top: true}
+            group: { top: true },
           }]);
         }
       } else {
-        if(item && item.tp === 1) { // is showing or shown
+        if (item && item.tp === 1) { // is showing or shown
           this.hideItem(id, k);
         }
       }
 
-      if(item && item.state[`ox_${id}`] > 0) {
+      if (item && item.state[`ox_${id}`] > 0) {
         const xc = (item.xi - state!.x1! + offsetForBarGraph / 2) * lxScale + pLeft;
 
         this.ctx.globalAlpha = item.state[`ox_${id}`] * opacity;
 
-        if(xc + space / 2 >= dims.l && xc - space / 2 <= dims.l + dims.w) {
+        if (xc + space / 2 >= dims.l && xc - space / 2 <= dims.l + dims.w) {
           // first and last labels manual align
           const xAligned = (xc + dims.l) * dpi;
 
@@ -206,36 +206,36 @@ export default class TAxisX {
     }
 
     // remove the old ones, which is outside the current range
-    for(const i in this.items) {
+    for (const i in this.items) {
       const item = this.items[i];
-      if(item.tp === 1 && ((item.xi < state!.x1! - pLeft / lxScale) || (item.xi > state!.x2! + pRight / lxScale))) {
+      if (item.tp === 1 && ((item.xi < state!.x1! - pLeft / lxScale) || (item.xi > state!.x2! + pRight / lxScale))) {
         this.hideItem(i, k);
       }
     }
 
     this.ctx.globalAlpha = 1;
 
-    if(!opts.data!.subchart!.show) {
+    if (!opts.data!.subchart!.show) {
       return;
     }
 
     let datesStr: string;
-    if(zoomMode && zoomMorph === 1) {
+    if (zoomMode && zoomMorph === 1) {
       x2End--;
     }
 
-    if(x2End < x1End) x2End = x1End;
+    if (x2End < x1End) x2End = x1End;
 
-    if(opts.data!.datesRange![x1End] === opts.data!.datesRange![x2End]) {
+    if (opts.data!.datesRange![x1End] === opts.data!.datesRange![x2End]) {
       datesStr = opts.data!.datesRange![x1End];
     } else {
       datesStr = opts.data!.datesRange![x1End] + ' — ' + opts.data!.datesRange![x2End];
     }
 
     let fontSize = opts.settings!.DATES_FONT_SIZE;
-    if(!fontSize) {
+    if (!fontSize) {
       fontSize = 13;
-      if(dims.w < 375) {
+      if (dims.w < 375) {
         fontSize = 11;
       }
     }

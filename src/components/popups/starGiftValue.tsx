@@ -1,22 +1,22 @@
-import {createEffect, createMemo, createSignal, JSX, on, onMount} from 'solid-js';
+import { createEffect, createMemo, createSignal, JSX, on, onMount } from 'solid-js';
 import PopupElement from '.';
 import safeAssign from '@helpers/object/safeAssign';
-import {MyStarGift} from '@appManagers/appGiftsManager';
+import { MyStarGift } from '@appManagers/appGiftsManager';
 
 import styles from '@components/popups/starGiftValue.module.scss';
-import {PaymentsUniqueStarGiftValueInfo, StarGift} from '@layer';
-import {ButtonIconTsx} from '@components/buttonIconTsx';
-import {StickerTsx} from '@components/wrappers/sticker';
+import { PaymentsUniqueStarGiftValueInfo, StarGift } from '@layer';
+import { ButtonIconTsx } from '@components/buttonIconTsx';
+import { StickerTsx } from '@components/wrappers/sticker';
 import paymentsWrapCurrencyAmount from '@helpers/paymentsWrapCurrencyAmount';
-import {I18nTsx} from '@helpers/solid/i18n';
-import Table, {TableButton, TableButtonWithTooltip, TableRow} from '@components/table';
-import {formatFullSentTime} from '@helpers/date';
-import {StarsStar} from '@components/popups/stars';
-import {numberThousandSplitterForStars} from '@helpers/number/numberThousandSplitter';
+import { I18nTsx } from '@helpers/solid/i18n';
+import Table, { TableButton, TableButtonWithTooltip, TableRow } from '@components/table';
+import { formatFullSentTime } from '@helpers/date';
+import { StarsStar } from '@components/popups/stars';
+import { numberThousandSplitterForStars } from '@helpers/number/numberThousandSplitter';
 import bigInt from 'big-integer';
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 import Button from '@components/buttonTsx';
-import {IconTsx} from '@components/iconTsx';
+import { IconTsx } from '@components/iconTsx';
 import safeWindowOpen from '@helpers/dom/safeWindowOpen';
 import PopupSendGift from '@components/popups/sendGift';
 import rootScope from '@lib/rootScope';
@@ -32,7 +32,7 @@ export default class PopupStarGiftValue extends PopupElement {
       closable: true,
       overlayClosable: true,
       body: true,
-      footer: false
+      footer: false,
     });
 
     this.header.remove()
@@ -53,10 +53,10 @@ export default class PopupStarGiftValue extends PopupElement {
     const tableContent = createMemo(() => {
       const rows: TableRow[] = [];
 
-      if(value.initial_sale_date) {
+      if (value.initial_sale_date) {
         rows.push([
           'StarGiftInitialSale',
-          <span>{formatFullSentTime(value.initial_sale_date)}</span>
+          <span>{formatFullSentTime(value.initial_sale_date)}</span>,
         ]);
       }
 
@@ -68,24 +68,24 @@ export default class PopupStarGiftValue extends PopupElement {
             key="StarGiftInitialPriceValue"
             args={[
               numberThousandSplitterForStars(value.initial_sale_stars),
-              paymentsWrapCurrencyAmount(value.initial_sale_price, value.currency)
+              paymentsWrapCurrencyAmount(value.initial_sale_price, value.currency),
             ]}
           />
-        </span>
+        </span>,
       ])
 
-      if(value.last_sale_date) {
+      if (value.last_sale_date) {
         rows.push([
           'StarGiftLastSale',
-          <span>{formatFullSentTime(value.last_sale_date)}</span>
+          <span>{formatFullSentTime(value.last_sale_date)}</span>,
         ]);
       }
 
-      if(value.last_sale_price) {
+      if (value.last_sale_price) {
         const diff = bigInt(value.last_sale_price as string)
-        .minus(value.initial_sale_price)
-        .multiply(100)
-        .divide(value.initial_sale_price).toJSNumber()
+          .minus(value.initial_sale_price)
+          .multiply(100)
+          .divide(value.initial_sale_price).toJSNumber()
 
         rows.push([
           'StarGiftLastPrice',
@@ -97,11 +97,11 @@ export default class PopupStarGiftValue extends PopupElement {
             <TableButton>
               {diff > 0 ? '+' : ''}{Math.round(diff)}%
             </TableButton>
-          </>
+          </>,
         ])
       }
 
-      if(value.floor_price) {
+      if (value.floor_price) {
         rows.push([
           'StarGiftMinimumPrice',
           <>
@@ -109,16 +109,16 @@ export default class PopupStarGiftValue extends PopupElement {
             <TableButtonWithTooltip
               tooltipTextElement={i18n('StarGiftMinimumPriceTooltip', [
                 paymentsWrapCurrencyAmount(value.floor_price, value.currency),
-                gift.title
+                gift.title,
               ])}
             >
               ?
             </TableButtonWithTooltip>
-          </>
+          </>,
         ]);
       }
 
-      if(value.average_price) {
+      if (value.average_price) {
         rows.push([
           'StarGiftAveragePrice',
           <>
@@ -126,12 +126,12 @@ export default class PopupStarGiftValue extends PopupElement {
             <TableButtonWithTooltip
               tooltipTextElement={i18n('StarGiftAveragePriceTooltip', [
                 paymentsWrapCurrencyAmount(value.average_price, value.currency),
-                gift.title
+                gift.title,
               ])}
             >
               ?
             </TableButtonWithTooltip>
-          </>
+          </>,
         ]);
       }
 
@@ -152,7 +152,7 @@ export default class PopupStarGiftValue extends PopupElement {
           width={120}
           height={120}
           autoStyle
-          extraOptions={{play: true, loop: false}}
+          extraOptions={{ play: true, loop: false }}
         />
 
         <div class={/* @once */ styles.value}>
@@ -184,8 +184,8 @@ export default class PopupStarGiftValue extends PopupElement {
               onClick={() => PopupElement.createPopup(PopupSendGift, {
                 peerId: rootScope.myId,
                 resaleParams: {
-                  giftId: gift.gift_id
-                }
+                  giftId: gift.gift_id,
+                },
               })}
             >
               <I18nTsx
@@ -198,10 +198,10 @@ export default class PopupStarGiftValue extends PopupElement {
                       width={24}
                       height={24}
                       autoStyle
-                      extraOptions={{play: false}}
+                      extraOptions={{ play: false }}
                     />
                   </span>,
-                  <IconTsx icon="next" />
+                  <IconTsx icon="next" />,
                 ]}
               />
             </Button>
@@ -221,10 +221,10 @@ export default class PopupStarGiftValue extends PopupElement {
                       width={24}
                       height={24}
                       autoStyle
-                      extraOptions={{play: false}}
+                      extraOptions={{ play: false }}
                     />
                   </span>,
-                  <IconTsx icon="next" />
+                  <IconTsx icon="next" />,
                 ]}
               />
             </Button>

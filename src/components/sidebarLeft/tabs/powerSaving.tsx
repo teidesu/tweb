@@ -1,14 +1,14 @@
-import {onMount} from 'solid-js';
-import type {StateSettings} from '@config/state';
+import { onMount } from 'solid-js';
+import type { StateSettings } from '@config/state';
 import flatten from '@helpers/array/flatten';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
-import {LiteModeKey} from '@helpers/liteMode';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
+import { LiteModeKey } from '@helpers/liteMode';
 import pause from '@helpers/schedulers/pause';
-import CheckboxFields, {CheckboxFieldsField} from '@components/checkboxFields';
+import CheckboxFields, { CheckboxFieldsField } from '@components/checkboxFields';
 import Section from '@components/section';
-import {toastNew} from '@components/toast';
-import {useAppSettings} from '@stores/appSettings';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
+import { toastNew } from '@components/toast';
+import { useAppSettings } from '@stores/appSettings';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
 
 type PowerSavingCheckboxFieldsField = CheckboxFieldsField & {
   key: LiteModeKey
@@ -34,7 +34,7 @@ const PowerSaving = () => {
       ['effects', ['effects_reactions', 'effects_premiumstickers', 'effects_emoji']],
       ['chat', ['chat_background', 'chat_spoilers']],
       'animations',
-      'blur'
+      'blur',
     ];
 
     const wrap = (key: typeof keys[0]): PowerSavingCheckboxFieldsField[] => {
@@ -47,7 +47,7 @@ const PowerSaving = () => {
         text: mainKey === 'all' ? 'LiteMode.EnableText' : `LiteMode.Key.${mainKey}.Title`,
         checked: mainKey === 'all' ? value : !value,
         nested: nested,
-        name: 'power-saving-' + mainKey
+        name: 'power-saving-' + mainKey,
       }, ...(nested || [])];
     };
 
@@ -55,32 +55,32 @@ const PowerSaving = () => {
 
     const checkboxFields = new CheckboxFields({
       fields: fields,
-      listenerSetter: tab.listenerSetter
+      listenerSetter: tab.listenerSetter,
     });
 
     fields.forEach((field, idx) => {
       const created = checkboxFields.createField(field);
-      if(!created) {
+      if (!created) {
         return;
       }
 
-      const {nodes} = created;
+      const { nodes } = created;
       (idx === 0 ? infoContentEl : sectionContentEl).append(...nodes);
     });
 
     attachClickEvent(sectionContentEl, () => {
-      if(appSettings.liteMode.all) {
-        toastNew({langPackKey: 'LiteMode.DisableAlert'});
+      if (appSettings.liteMode.all) {
+        toastNew({ langPackKey: 'LiteMode.DisableAlert' });
       }
-    }, {listenerSetter: tab.listenerSetter});
+    }, { listenerSetter: tab.listenerSetter });
 
     const onAllChange = (disable: boolean) => {
       fields.forEach((field) => {
-        if(field.key === 'all') {
+        if (field.key === 'all') {
           return;
         }
 
-        if(field.nested) {
+        if (field.nested) {
           checkboxFields.setNestedCounter(field, disable ? 0 : undefined);
         }
 
@@ -97,10 +97,10 @@ const PowerSaving = () => {
       });
 
       const wasAll = appSettings.liteMode.all;
-      if(wasAll !== liteMode.all) {
+      if (wasAll !== liteMode.all) {
         onAllChange(!wasAll);
 
-        if(liteMode.all) {
+        if (liteMode.all) {
           await pause(200);
         }
       }
@@ -113,8 +113,8 @@ const PowerSaving = () => {
 
   return (
     <form ref={formEl}>
-      <Section caption="LiteMode.Info" contentProps={{ref: (el: HTMLDivElement) => infoContentEl = el}} />
-      <Section contentProps={{ref: (el: HTMLDivElement) => sectionContentEl = el}} />
+      <Section caption="LiteMode.Info" contentProps={{ ref: (el: HTMLDivElement) => infoContentEl = el }} />
+      <Section contentProps={{ ref: (el: HTMLDivElement) => sectionContentEl = el }} />
     </form>
   );
 };

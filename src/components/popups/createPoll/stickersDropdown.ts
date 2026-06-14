@@ -1,11 +1,11 @@
-import {EmoticonsDropdown} from '@components/emoticonsDropdown';
-import {AnimationItemGroup} from '@components/animationIntersector';
+import { EmoticonsDropdown } from '@components/emoticonsDropdown';
+import { AnimationItemGroup } from '@components/animationIntersector';
 import StickersTab from '@components/emoticonsDropdown/tabs/stickers';
 import rootScope from '@lib/rootScope';
 import findUpTag from '@helpers/dom/findUpTag';
 import cloneDOMRect from '@helpers/dom/cloneDOMRect';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
-import {createEffect, createRoot, createSignal, onCleanup} from 'solid-js';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
+import { createEffect, createRoot, createSignal, onCleanup } from 'solid-js';
 
 import styles from '@components/emojiDropdownButton.module.scss';
 
@@ -35,19 +35,19 @@ const createStickersDropdown = ({
       cloned.top = rect.bottom + 8;
       return cloned;
     },
-    ...(rest as {animationGroup?: AnimationItemGroup})
+    ...(rest as {animationGroup?: AnimationItemGroup}),
   });
 
   // Override the default media click handler from StickersTab so callers
   // receive the picked sticker instead of it being sent through chatInput.
   emoticonsDropdown.onMediaClick = async(e) => {
     const target = findUpTag(e.target as HTMLElement, 'DIV');
-    if(!target) return false;
+    if (!target) return false;
 
     const docId = target.dataset.docId;
-    if(!docId) return false;
+    if (!docId) return false;
 
-    onStickerClick({docId, target});
+    onStickerClick({ docId, target });
     emoticonsDropdown.toggle(false);
     return true;
   };
@@ -64,7 +64,7 @@ const createStickersDropdown = ({
     emoticonsDropdown?.hideAndDestroy();
   });
 
-  return {emoticonsDropdown, dispose};
+  return { emoticonsDropdown, dispose };
 });
 
 export type UseStickersDropdownOptions = {
@@ -78,17 +78,17 @@ export type UseStickersDropdownOptions = {
  * Pass `null` (or any falsy value) to close the dropdown. The dropdown is automatically
  * disposed when the owning reactive scope is cleaned up or when the pivot changes.
  */
-export const useStickersDropdown = ({onStickerClick, ...rest}: UseStickersDropdownOptions) => {
+export const useStickersDropdown = ({ onStickerClick, ...rest }: UseStickersDropdownOptions) => {
   const [pivot, setPivot] = createSignal<HTMLElement | null>(null);
 
   createEffect(() => {
     const pivotEl = pivot();
-    if(!pivotEl) return;
+    if (!pivotEl) return;
 
-    const {emoticonsDropdown, dispose} = createStickersDropdown({
+    const { emoticonsDropdown, dispose } = createStickersDropdown({
       pivot: pivotEl,
       onStickerClick,
-      ...rest
+      ...rest,
     });
 
     subscribeOn(emoticonsDropdown)('close', () => {

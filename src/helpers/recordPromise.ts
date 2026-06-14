@@ -1,4 +1,4 @@
-import {logger} from '@lib/logger';
+import { logger } from '@lib/logger';
 import dT from '@helpers/dT';
 
 export function recordPromise<T extends Promise<any>>(
@@ -6,7 +6,7 @@ export function recordPromise<T extends Promise<any>>(
   description: string,
   log: ReturnType<typeof logger> | Console = console
 ) {
-  if(!(promise instanceof Promise)) {
+  if (!(promise instanceof Promise)) {
     return promise;
   }
 

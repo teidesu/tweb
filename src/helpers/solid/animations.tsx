@@ -1,23 +1,23 @@
-import {JSX, Show} from 'solid-js';
-import {Dynamic} from 'solid-js/web';
-import {AnimationList} from '@helpers/solid/animationList';
-import {getTransition} from '@config/transitions';
+import { JSX, Show } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
+import { AnimationList } from '@helpers/solid/animationList';
+import { getTransition } from '@config/transitions';
 import classNames from '@helpers/string/classNames';
 
 type AnimationType = 'cross-fade' | 'grow-width' | 'grow-height';
 
 export const growKeyframes = (property: 'width' | 'height', size: number): Keyframe[] => {
   return [
-    {[property]: 0, opacity: 0},
+    { [property]: 0, opacity: 0 },
     // {width: clientWidth / 2 + 'px', opacity: .25},
-    {[property]: size + 'px', opacity: 1}
+    { [property]: size + 'px', opacity: 1 },
   ];
 };
 
 const ANIMATIONS: {[key in AnimationType]: Keyframe[] | ((element: Element) => Keyframe[])} = {
-  'cross-fade': [{opacity: 0}, {opacity: 1}],
+  'cross-fade': [{ opacity: 0 }, { opacity: 1 }],
   'grow-width': (element) => growKeyframes('width', element.clientWidth),
-  'grow-height': (element) => growKeyframes('height', element.clientHeight)
+  'grow-height': (element) => growKeyframes('height', element.clientHeight),
 };
 
 export function SimpleAnimation(props: Pick<
@@ -28,7 +28,7 @@ export function SimpleAnimation(props: Pick<
 }) {
   return (
     <AnimationList
-      animationOptions={{duration: 200, easing: getTransition('standard').easing}}
+      animationOptions={{ duration: 200, easing: getTransition('standard').easing }}
       keyframes={props.keyframes}
       mode={props.mode || 'replacement'}
       itemClass={classNames(!props.noItemClass && 'animated-item', props.itemClass)}
@@ -84,7 +84,7 @@ export function GrowHeightReveal(props: {
   return (
     <Animated type="grow-height" noItemClass mode="add-remove" appear={props.appear ?? true}>
       <Show when={props.when}>
-        <div class={props.class} style={{overflow: 'hidden'}}>
+        <div class={props.class} style={{ overflow: 'hidden' }}>
           {props.children}
         </div>
       </Show>

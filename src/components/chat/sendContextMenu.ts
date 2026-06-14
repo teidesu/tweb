@@ -1,14 +1,14 @@
 import contextMenuController from '@helpers/contextMenuController';
-import {attachContextMenuListener} from '@helpers/dom/attachContextMenuListener';
+import { attachContextMenuListener } from '@helpers/dom/attachContextMenuListener';
 import cancelEvent from '@helpers/dom/cancelEvent';
 import ListenerSetter from '@helpers/listenerSetter';
-import {getMiddleware, Middleware, MiddlewareHelper} from '@helpers/middleware';
-import {Reaction} from '@layer';
+import { getMiddleware, Middleware, MiddlewareHelper } from '@helpers/middleware';
+import { Reaction } from '@layer';
 import rootScope from '@lib/rootScope';
-import {ButtonMenuItemOptionsVerifiable, ButtonMenuSync} from '@components/buttonMenu';
+import { ButtonMenuItemOptionsVerifiable, ButtonMenuSync } from '@components/buttonMenu';
 import PopupPremium from '@components/popups/premium';
 import ChatContextMenu from '@components/chat/contextMenu';
-import {ChatReactionsMenu} from '@components/chat/reactionsMenu';
+import { ChatReactionsMenu } from '@components/chat/reactionsMenu';
 
 export default class SendMenu {
   private type: 'schedule' | 'reminder';
@@ -44,28 +44,28 @@ export default class SendMenu {
       icon: 'mute',
       text: 'Chat.Send.WithoutSound',
       onClick: this.options.onSilentClick,
-      verify: () => this.type === 'schedule'
+      verify: () => this.type === 'schedule',
     }, {
       icon: 'schedule',
       text: 'Chat.Send.ScheduledMessage',
       onClick: this.options.onScheduleClick,
-      verify: () => this.type === 'schedule' && !this.isPaid
+      verify: () => this.type === 'schedule' && !this.isPaid,
     }, {
       icon: 'schedule',
       text: 'Chat.Send.SetReminder',
       onClick: this.options.onScheduleClick,
-      verify: () => this.type === 'reminder'
+      verify: () => this.type === 'reminder',
     }, {
       icon: 'online',
       text: 'Schedule.SendWhenOnline',
       onClick: this.options.onSendWhenOnlineClick!,
-      verify: async() => this.type === 'schedule' && !!( await this.options.canSendWhenOnline?.()) && !this.isPaid
+      verify: async() => this.type === 'schedule' && !!( await this.options.canSendWhenOnline?.()) && !this.isPaid,
     }, {
       icon: 'crossround',
       text: 'Effect.Remove',
       danger: true,
       onClick: () => this.options.onEffect!(undefined!),
-      verify: () => !!this.options.effect?.()
+      verify: () => !!this.options.effect?.(),
     }];
   }
 
@@ -80,14 +80,14 @@ export default class SendMenu {
 
     this.createButtons();
     const buttons = this.createButtons();
-    const element = ButtonMenuSync({buttons, listenerSetter});
+    const element = ButtonMenuSync({ buttons, listenerSetter });
     element.classList.add('menu-send', this.options.openSide);
     this.options.onRef(element);
 
     attachContextMenuListener({
       element: this.options.onContextElement,
       callback: async(e) => {
-        if(this.options.onOpen && !this.options.onOpen()) {
+        if (this.options.onOpen && !this.options.onOpen()) {
           return;
         }
 
@@ -102,7 +102,7 @@ export default class SendMenu {
 
         const reactionsMenuPosition = 'horizontal';
         let reactionsMenu: ChatReactionsMenu;
-        if(this.options.withEffects?.()) {
+        if (this.options.withEffects?.()) {
           reactionsMenu = new ChatReactionsMenu({
             managers: rootScope.managers,
             type: reactionsMenuPosition,
@@ -110,13 +110,13 @@ export default class SendMenu {
             onFinish: async(reaction) => {
               contextMenuController.close();
               reaction = await reaction;
-              if(!reaction) {
+              if (!reaction) {
                 return;
               }
 
               const stickerDocId = (reaction as Reaction.reactionCustomEmoji).document_id;
-              if(!rootScope.premium && !reactionsMenu.freeCustomEmoji.has(stickerDocId)) {
-                PopupPremium.show({feature: 'premium_stickers'});
+              if (!rootScope.premium && !reactionsMenu.freeCustomEmoji.has(stickerDocId)) {
+                PopupPremium.show({ feature: 'premium_stickers' });
                 return;
               }
 
@@ -125,7 +125,7 @@ export default class SendMenu {
               this.options.onEffect!(availableEffect!.id);
             },
             getOpenPosition: (hasMenu) => ChatContextMenu.getReactionsOpenPosition(reactionsMenu, hasMenu),
-            isEffects: true
+            isEffects: true,
           });
 
           await reactionsMenu.init();
@@ -133,7 +133,7 @@ export default class SendMenu {
           // const menuPadding = ChatContextMenu.getReactionsMenuPadding(reactionsMenuPosition);
         }
 
-        const reactionsCallbacks = reactionsMenu! && ChatContextMenu.appendReactionsMenu({element: element, reactionsMenu, reactionsMenuPosition});
+        const reactionsCallbacks = reactionsMenu! && ChatContextMenu.appendReactionsMenu({ element: element, reactionsMenu, reactionsMenuPosition });
 
         this.options.onToggle?.(true);
         contextMenuController.openBtnMenu(element, () => {
@@ -148,7 +148,7 @@ export default class SendMenu {
 
         reactionsCallbacks?.onAfterInit();
       },
-      listenerSetter
+      listenerSetter,
     });
   }
 };

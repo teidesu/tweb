@@ -1,18 +1,18 @@
-import {animateValue, simpleEasing} from '@helpers/animateValue';
+import { animateValue, simpleEasing } from '@helpers/animateValue';
 import createElementFromMarkup from '@helpers/createElementFromMarkup';
 import anchorCallback from '@helpers/dom/anchorCallback';
-import {lerp} from '@helpers/lerp';
-import {doubleRaf} from '@helpers/schedulers';
+import { lerp } from '@helpers/lerp';
+import { doubleRaf } from '@helpers/schedulers';
 import pause from '@helpers/schedulers/pause';
-import {Message} from '@layer';
-import {i18n} from '@lib/langPack';
+import { Message } from '@layer';
+import { i18n } from '@lib/langPack';
 import rootScope from '@lib/rootScope';
-import appMediaPlaybackController, {MediaSearchContext} from '@components/appMediaPlaybackController';
+import appMediaPlaybackController, { MediaSearchContext } from '@components/appMediaPlaybackController';
 import Icon from '@components/icon';
 import PopupPremium from '@components/popups/premium';
-import {hideToast, toastNew} from '@components/toast';
+import { hideToast, toastNew } from '@components/toast';
 import wrapDocument from '@components/wrappers/document';
-import {SpinnerElement} from '@components/spinner';
+import { SpinnerElement } from '@components/spinner';
 
 
 type WrapRoundVideoBubbleOptions = {
@@ -28,7 +28,7 @@ export function wrapRoundVideoBubble({
   bubble,
   message,
   globalMediaDeferred,
-  searchContext
+  searchContext,
 }: WrapRoundVideoBubbleOptions) {
   const content = bubble.querySelector('.bubble-content') as HTMLElement;
 
@@ -64,16 +64,16 @@ export function wrapRoundVideoBubble({
   let animatedCanvas: HTMLCanvasElement | undefined;
 
   async function drawCurrentFrame() {
-    if(!animatedCanvas) return;
+    if (!animatedCanvas) return;
 
     const currentFrameVideo = mediaContainer.querySelector('.media-video') as HTMLVideoElement;
     const currentFrameCanvas = mediaContainer.querySelector('.video-round-canvas') as HTMLCanvasElement;
     const ctx = animatedCanvas.getContext('2d')!;
 
     const globalMedia = await globalMediaDeferred;
-    if(!animatedCanvas) return;
+    if (!animatedCanvas) return;
 
-    if(appMediaPlaybackController.getPlayingMedia() === globalMedia) {
+    if (appMediaPlaybackController.getPlayingMedia() === globalMedia) {
       ctx.drawImage(currentFrameCanvas, 0, 0, animatedCanvas.width, animatedCanvas.height); // In case the video is playing
     } else {
       ctx.drawImage(currentFrameVideo, 0, 0, animatedCanvas.width, animatedCanvas.height);
@@ -84,7 +84,7 @@ export function wrapRoundVideoBubble({
     const bcr = getBubblesContainer().getBoundingClientRect();
     return {
       x: (value: number) => value - bcr.left,
-      y: (value: number) => value - bcr.top
+      y: (value: number) => value - bcr.top,
     }
   }
 
@@ -101,7 +101,7 @@ export function wrapRoundVideoBubble({
       contentStyle.borderStartStartRadius,
       contentStyle.borderStartEndRadius,
       contentStyle.borderEndEndRadius,
-      contentStyle.borderEndStartRadius
+      contentStyle.borderEndStartRadius,
     ];
 
     drawCurrentFrame()
@@ -163,8 +163,8 @@ export function wrapRoundVideoBubble({
         content.style.width = lerp(initialWidth, targetWidth, progress) + 'px';
 
         const tr = initialRadiuses
-        .map((r) => lerp(parseInt(r), targetSize, progress * Math.sqrt(progress)) + 'px')
-        .join(' ');
+          .map((r) => lerp(parseInt(r), targetSize, progress * Math.sqrt(progress)) + 'px')
+          .join(' ');
 
         content.style.setProperty('border-radius', tr);
 
@@ -195,27 +195,27 @@ export function wrapRoundVideoBubble({
           audioMessageContainer.style.removeProperty('opacity');
 
           videoSentTime.style.removeProperty('display');
-        }
+        },
       }
     );
   }
 
   async function showAudio() {
-    if(!rootScope.getPremium()) {
+    if (!rootScope.getPremium()) {
       toastNew({
         langPackKey: 'AudioAndVideoTranscription.PremiumAlert',
         langPackArguments: [anchorCallback(() => {
           hideToast();
-          PopupPremium.show({feature: 'voice_to_text'});
-        })]
+          PopupPremium.show({ feature: 'voice_to_text' });
+        })],
       });
       return;
     }
 
-    if(isTranscribeDisabled) return;
+    if (isTranscribeDisabled) return;
     isTranscribeDisabled = true;
 
-    if(!hasAddedTranscription) {
+    if (!hasAddedTranscription) {
       hasAddedTranscription = true;
       const spinner = new SpinnerElement();
       transcribe.append(spinner);
@@ -223,9 +223,9 @@ export function wrapRoundVideoBubble({
       transcribedText.classList.add('video-transcribed-text');
       try {
         const transcribeResult = await rootScope.managers.appMessagesManager.transcribeAudio(message, true);
-        if(!transcribeResult.text) throw '';
+        if (!transcribeResult.text) throw '';
         transcribedText.innerText = transcribeResult.text;
-      } catch(err) {
+      } catch (err) {
         transcribedText.append(i18n('Chat.Voice.Transribe.Error'));
       }
       audioMessageContainer.append(transcribedText);
@@ -271,7 +271,7 @@ export function wrapRoundVideoBubble({
       computedStyle.borderStartStartRadius,
       computedStyle.borderStartEndRadius,
       computedStyle.borderEndEndRadius,
-      computedStyle.borderEndStartRadius
+      computedStyle.borderEndStartRadius,
     ];
     // console.log('[video-trans] targetRadius', targetRadius)
     content.style.height = initialHeight + 'px';
@@ -307,7 +307,7 @@ export function wrapRoundVideoBubble({
 
     selectorsToHideWhenCollapsed.forEach((selector) => {
       const elementToHide = bubble.querySelector(selector) as HTMLElement;
-      if(elementToHide) elementToHide.style.setProperty('display', 'none', 'important');
+      if (elementToHide) elementToHide.style.setProperty('display', 'none', 'important');
     });
 
     measure.remove();
@@ -324,7 +324,7 @@ export function wrapRoundVideoBubble({
     bubbleTail.style.transform = `${initialTailTransform !== 'none' ? initialTailTransform : ''} translateX(calc(100% * var(--reflect)))`;
     bubbleTail.style.transition = '.2s';
 
-    if(true)
+    if (true)
       animateValue(
         0,
         1,
@@ -345,8 +345,8 @@ export function wrapRoundVideoBubble({
           content.style.width = lerp(initialWidth, targetWidth, progress) + 'px';
 
           const tr = targetRadiuses
-          .map((r) => lerp(initialRadius, parseInt(r), Math.min(1, progress * 1)) + 'px')
-          .join(' ');
+            .map((r) => lerp(initialRadius, parseInt(r), Math.min(1, progress * 1)) + 'px')
+            .join(' ');
 
           content.style.setProperty('border-radius', tr);
 
@@ -377,7 +377,7 @@ export function wrapRoundVideoBubble({
             animatedCanvas!.style.removeProperty('opacity');
 
             bubbleTail?.style.removeProperty('transition');
-          }
+          },
         }
       );
   }
@@ -402,7 +402,7 @@ export function wrapRoundVideoBubble({
       customAudioToTextButton: closeButton,
       shouldWrapAsVoice: true,
       globalMedia,
-      searchContext
+      searchContext,
     });
     audioMessageContainer.append(audioElement);
     // audioContainer.append(transcribedText);

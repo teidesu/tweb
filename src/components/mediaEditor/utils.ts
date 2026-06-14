@@ -1,9 +1,9 @@
-import {HistoryItem, MediaEditorState} from '@components/mediaEditor/context';
-import {FontInfo, FontKey, NumberPair, ResizableLayer, TextLayerInfo} from '@components/mediaEditor/types';
+import { HistoryItem, MediaEditorState } from '@components/mediaEditor/context';
+import { FontInfo, FontKey, NumberPair, ResizableLayer, TextLayerInfo } from '@components/mediaEditor/types';
 import StickerType from '@config/stickerType';
-import {IS_FIREFOX} from '@environment/userAgent';
-import {hexaToHsla} from '@helpers/color';
-import {logger} from '@lib/logger';
+import { IS_FIREFOX } from '@environment/userAgent';
+import { hexaToHsla } from '@helpers/color';
+import { logger } from '@lib/logger';
 
 export const log = logger('Media editor');
 
@@ -14,7 +14,7 @@ export function distance(p1: NumberPair, p2: NumberPair) {
 }
 
 export function snapToViewport(ratio: number, vw: number, vh: number) {
-  if(vw / ratio > vh) vw = vh * ratio;
+  if (vw / ratio > vh) vw = vh * ratio;
   else vh = vw / ratio;
 
   return [vw, vh] as NumberPair;
@@ -38,19 +38,19 @@ const isObject = (obj: any) => obj instanceof Object;
 const COMPARISON_ERROR = 0.001;
 
 export function approximateDeepEqual(x: any, y: any): boolean {
-  if(typeof x === 'number' && typeof y === 'number') return Math.abs(x - y) < COMPARISON_ERROR;
+  if (typeof x === 'number' && typeof y === 'number') return Math.abs(x - y) < COMPARISON_ERROR;
 
-  if(x === y) return true;
+  if (x === y) return true;
 
-  if(x instanceof Array && y instanceof Array)
+  if (x instanceof Array && y instanceof Array)
     return x.length === y.length && x
-    .every((value, idx) => approximateDeepEqual(value, y[idx]));
+      .every((value, idx) => approximateDeepEqual(value, y[idx]));
 
 
-  if(isObject(x) && isObject(y))
+  if (isObject(x) && isObject(y))
     return Array
-    .from(new Set([...Object.keys(x), ...Object.keys(y)]))
-    .every(key => approximateDeepEqual(x[key], y[key]))
+      .from(new Set([...Object.keys(x), ...Object.keys(y)]))
+      .every(key => approximateDeepEqual(x[key], y[key]))
 
 
   return false;
@@ -58,23 +58,23 @@ export function approximateDeepEqual(x: any, y: any): boolean {
 
 export function processHistoryItem(item: HistoryItem, mediaState: any) {
   const path = [...item.path].reverse() as (keyof any)[];
-  if(!path?.length) return;
+  if (!path?.length) return;
 
   let obj = mediaState;
 
-  while(path.length > 1)
+  while (path.length > 1)
     obj = obj[path.pop()!];
 
   let key = path.pop();
 
-  if(obj instanceof Array) {
+  if (obj instanceof Array) {
     key = key as number;
-    if(item.findBy) key = obj.findIndex((value) => value?.id === item.findBy!.id);
-    if(key === -1) key = obj.length;
+    if (item.findBy) key = obj.findIndex((value) => value?.id === item.findBy!.id);
+    if (key === -1) key = obj.length;
 
-    if(item.newValue === HistoryItem.RemoveArrayItem)
+    if (item.newValue === HistoryItem.RemoveArrayItem)
       obj.splice(key, 0, item.oldValue);
-    else if(item.oldValue === HistoryItem.RemoveArrayItem)
+    else if (item.oldValue === HistoryItem.RemoveArrayItem)
       obj.splice(key, 1);
     else
       obj[key] = item.oldValue;
@@ -84,8 +84,8 @@ export function processHistoryItem(item: HistoryItem, mediaState: any) {
 }
 
 export function traverseObjectDeep(obj: any) {
-  if(obj instanceof Array) obj.forEach(val => traverseObjectDeep(val));
-  else if(obj instanceof Object) Object.values(obj).forEach(val => traverseObjectDeep(val));
+  if (obj instanceof Array) obj.forEach(val => traverseObjectDeep(val));
+  else if (obj instanceof Object) Object.values(obj).forEach(val => traverseObjectDeep(val));
 }
 
 export function cleanupWebGl(gl: WebGLRenderingContext) {
@@ -98,17 +98,17 @@ export const availableQualityHeights = [
   480,
   600, // non-standard, but prevents big quality jumps
   720,
-  1080
+  1080,
 ];
 
 export function snapToAvailableQuality(videoHeight: number) {
   const ALLOWED_THRESHOLD = 0.8;
 
-  for(let i = availableQualityHeights.length - 1; i > 0; i--) {
+  for (let i = availableQualityHeights.length - 1; i > 0; i--) {
     const higher = availableQualityHeights[i], lower = availableQualityHeights[i - 1];
     const diff = higher - lower;
 
-    if(videoHeight > lower + diff * ALLOWED_THRESHOLD) return higher;
+    if (videoHeight > lower + diff * ALLOWED_THRESHOLD) return higher;
   }
 
   return availableQualityHeights[0];
@@ -125,43 +125,43 @@ export const fontInfoMap: Record<FontKey, FontInfo> = {
   roboto: {
     fontFamily: '\'Roboto\'',
     fontWeight: 500,
-    baseline: 0.75
+    baseline: 0.75,
   },
   suez: {
     fontFamily: '\'Suez One\'',
     fontWeight: 400,
-    baseline: 0.75
+    baseline: 0.75,
   },
   bubbles: {
     fontFamily: '\'Rubik Bubbles\'',
     fontWeight: 400,
-    baseline: 0.75
+    baseline: 0.75,
   },
   playwrite: {
     fontFamily: '\'Playwrite BE VLG\'',
     fontWeight: 400,
-    baseline: 0.85
+    baseline: 0.85,
   },
   chewy: {
     fontFamily: '\'Chewy\'',
     fontWeight: 400,
-    baseline: 0.75
+    baseline: 0.75,
   },
   courier: {
     fontFamily: '\'Courier Prime\'',
     fontWeight: 700,
-    baseline: 0.65
+    baseline: 0.65,
   },
   fugaz: {
     fontFamily: '\'Fugaz One\'',
     fontWeight: 400,
-    baseline: 0.75
+    baseline: 0.75,
   },
   sedan: {
     fontFamily: '\'Sedan\'',
     fontWeight: 400,
-    baseline: 0.75
-  }
+    baseline: 0.75,
+  },
 };
 
 export const textLayerInfoDefaults: TextLayerInfo = {
@@ -169,11 +169,11 @@ export const textLayerInfoDefaults: TextLayerInfo = {
   style: 'outline',
   color: '#ffffff',
   font: 'roboto',
-  size: 40
+  size: 40,
 };
 
 export const brushDefaults: MediaEditorState['currentBrush'] = {
   brush: 'pen',
   color: '#fe4438',
-  size: 18
+  size: 18,
 };

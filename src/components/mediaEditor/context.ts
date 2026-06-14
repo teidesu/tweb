@@ -1,16 +1,16 @@
-import {AdjustmentKey, adjustmentsConfig} from '@components/mediaEditor/adjustments';
-import {BrushDrawnLine} from '@components/mediaEditor/canvas/brushPainter';
-import {FinalTransform} from '@components/mediaEditor/canvas/useFinalTransform';
-import type {MediaEditorProps} from '@components/mediaEditor/mediaEditor';
-import {MediaType, NumberPair, ResizableLayer, StickerRenderingInfo, TextLayerInfo} from '@components/mediaEditor/types';
-import {approximateDeepEqual, brushDefaults, textLayerInfoDefaults, traverseObjectDeep} from '@components/mediaEditor/utils';
-import {RenderingPayload} from '@components/mediaEditor/webgl/initWebGL';
+import { AdjustmentKey, adjustmentsConfig } from '@components/mediaEditor/adjustments';
+import { BrushDrawnLine } from '@components/mediaEditor/canvas/brushPainter';
+import { FinalTransform } from '@components/mediaEditor/canvas/useFinalTransform';
+import type { MediaEditorProps } from '@components/mediaEditor/mediaEditor';
+import { MediaType, NumberPair, ResizableLayer, StickerRenderingInfo, TextLayerInfo } from '@components/mediaEditor/types';
+import { approximateDeepEqual, brushDefaults, textLayerInfoDefaults, traverseObjectDeep } from '@components/mediaEditor/utils';
+import { RenderingPayload } from '@components/mediaEditor/webgl/initWebGL';
 import exceptKeys from '@helpers/object/exceptKeys';
 import throttle from '@helpers/schedulers/throttle';
-import type {AppManagers} from '@lib/managers';
-import type {ObjectPath} from '@types';
-import {Accessor, createContext, createEffect, createMemo, createSignal, on, useContext} from 'solid-js';
-import {createMutable, modifyMutable, produce, Store} from 'solid-js/store';
+import type { AppManagers } from '@lib/managers';
+import type { ObjectPath } from '@types';
+import { Accessor, createContext, createEffect, createMemo, createSignal, on, useContext } from 'solid-js';
+import { createMutable, modifyMutable, produce, Store } from 'solid-js/store';
 
 
 type EditingMediaStateWithoutHistory = {
@@ -130,7 +130,7 @@ const getDefaultEditingMediaState = (): EditingMediaState => ({
   brushDrawnLines: [],
 
   history: [],
-  redoHistory: []
+  redoHistory: [],
 });
 
 const getDefaultMediaEditorState = (): MediaEditorState => ({
@@ -149,7 +149,7 @@ const getDefaultMediaEditorState = (): MediaEditorState => ({
     flip: [1, 1],
     rotation: 0,
     scale: 1,
-    translation: [0, 0]
+    translation: [0, 0],
   },
 
   currentTextLayerInfo: structuredClone(textLayerInfoDefaults),
@@ -163,7 +163,7 @@ const getDefaultMediaEditorState = (): MediaEditorState => ({
 
   isAdjusting: false,
   isMoving: false,
-  isPlaying: false
+  isPlaying: false,
 });
 
 export type MediaEditorContextValue = {
@@ -202,23 +202,23 @@ export function createContextValue(props: MediaEditorProps): MediaEditorContextV
 
 
   // Video-avatar mode forces audio off, since profile videos have no sound.
-  if(props.isVideoAvatarMode) {
+  if (props.isVideoAvatarMode) {
     mediaStateInit.videoMuted = true;
   }
 
   const mediaState = createMutable(mediaStateInit);
   const editorState = createMutable(getDefaultMediaEditorState());
 
-  if(props.initialTab) {
+  if (props.initialTab) {
     editorState.currentTab = props.initialTab;
-    if(props.initialTab === 'crop') {
+    if (props.initialTab === 'crop') {
       editorState.cropTabAnimationProgress = 1;
     }
   }
 
   const actions: EditorOverridableGlobalActions = {
     pushToHistory: (item: HistoryItem) => {
-      modifyMutable(mediaState, produce(({history, redoHistory}) => {
+      modifyMutable(mediaState, produce(({ history, redoHistory }) => {
         history.push(item);
         redoHistory.length && redoHistory.splice(0, Infinity);
       }));
@@ -229,7 +229,7 @@ export function createContextValue(props: MediaEditorProps): MediaEditorContextV
     redrawBrushes: () => {},
     abortDrawerSlide: () => {},
     resetRotationWheel: () => {},
-    setVideoTime: () => {}
+    setVideoTime: () => {},
   };
 
   const [hasModifications, setHasModifications] = createSignal(false);
@@ -274,7 +274,7 @@ export function createContextValue(props: MediaEditorProps): MediaEditorContextV
     hasModifications,
 
     // [0-1] make sure it's different even after reopening the editor, note that there might be some items in history!
-    resizableLayersSeed: Math.random()
+    resizableLayersSeed: Math.random(),
   };
 }
 

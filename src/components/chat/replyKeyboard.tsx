@@ -1,20 +1,20 @@
 import type ChatInput from '@components/chat/input';
 import DropdownHover from '@helpers/dropdownHover';
-import {ReplyMarkup} from '@layer';
+import { ReplyMarkup } from '@layer';
 import rootScope from '@lib/rootScope';
-import ListenerSetter, {Listener} from '@helpers/listenerSetter';
+import ListenerSetter, { Listener } from '@helpers/listenerSetter';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
 import findUpAsChild from '@helpers/dom/findUpAsChild';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {getHeavyAnimationPromise} from '@hooks/useHeavyAnimationCheck';
+import { getHeavyAnimationPromise } from '@hooks/useHeavyAnimationCheck';
 import safeAssign from '@helpers/object/safeAssign';
-import {AppManagers} from '@lib/managers';
+import { AppManagers } from '@lib/managers';
 import Scrollable from '@components/scrollable';
 import wrapKeyboardButton from '@components/wrappers/keyboardButton';
 import classNames from '@helpers/string/classNames';
-import {Middleware, MiddlewareHelper} from '@helpers/middleware';
-import {createRoot, For, onCleanup} from 'solid-js';
-import {render} from 'solid-js/web';
+import { Middleware, MiddlewareHelper } from '@helpers/middleware';
+import { createRoot, For, onCleanup } from 'solid-js';
+import { render } from 'solid-js/web';
 import ReplyMarkupLayout from '@components/chat/bubbleParts/replyMarkupLayout';
 
 export default class ReplyKeyboard extends DropdownHover {
@@ -38,7 +38,7 @@ export default class ReplyKeyboard extends DropdownHover {
     middleware: Middleware
   }) {
     super({
-      element: document.createElement('div')
+      element: document.createElement('div'),
     });
 
     safeAssign(this, options);
@@ -51,9 +51,9 @@ export default class ReplyKeyboard extends DropdownHover {
     this.element.append(this.scrollable.container);
 
     this.attachButtonListener(this.btnHover, this.listenerSetter);
-    this.listenerSetter.add(rootScope)('history_reply_markup', async({peerId}) => {
-      if(this.peerId === peerId) {
-        if((this.checkAvailability() as any) && this.isActive()) {
+    this.listenerSetter.add(rootScope)('history_reply_markup', async({ peerId }) => {
+      if (this.peerId === peerId) {
+        if ((this.checkAvailability() as any) && this.isActive()) {
           await this.render();
         }
 
@@ -70,11 +70,11 @@ export default class ReplyKeyboard extends DropdownHover {
     this.listenerSetter.add(this)('open', async() => {
       await this.render();
 
-      if(IS_TOUCH_SUPPORTED) {
-        this.touchListener = this.listenerSetter.add(document.body)('touchstart', this.onBodyTouchStart, {passive: false, capture: true}) as any as Listener;
+      if (IS_TOUCH_SUPPORTED) {
+        this.touchListener = this.listenerSetter.add(document.body)('touchstart', this.onBodyTouchStart, { passive: false, capture: true }) as any as Listener;
         this.listenerSetter.add(this)('close', () => {
           this.listenerSetter.remove(this.touchListener);
-        }, {once: true});
+        }, { once: true });
       }
     });
 
@@ -83,7 +83,7 @@ export default class ReplyKeyboard extends DropdownHover {
 
   private onBodyTouchStart = (e: TouchEvent) => {
     const target = e.touches[0].target as HTMLElement;
-    if(!findUpAsChild((target as { parentElement: HTMLElement; }), this.element) && target !== this.btnHover) {
+    if (!findUpAsChild((target as { parentElement: HTMLElement; }), this.element) && target !== this.btnHover) {
       cancelEvent(e);
       this.toggle(false);
     }
@@ -91,23 +91,23 @@ export default class ReplyKeyboard extends DropdownHover {
 
   public async checkForceReply() {
     const replyMarkup = await this.getReplyMarkup();
-    if(replyMarkup._ === 'replyKeyboardForceReply' &&
+    if (replyMarkup._ === 'replyKeyboardForceReply' &&
       !replyMarkup.pFlags.hidden &&
       !replyMarkup.pFlags.used) {
       replyMarkup.pFlags.used = true;
-      this.chatInput.initMessageReply({replyToMsgId: replyMarkup.mid});
+      this.chatInput.initMessageReply({ replyToMsgId: replyMarkup.mid });
     }
   }
 
   private async getReplyMarkup(): Promise<ReplyMarkup> {
     return this.chatInput.chat.historyStorageNoThreadId!.replyMarkup ?? {
       _: 'replyKeyboardHide',
-      pFlags: {}
+      pFlags: {},
     };
   }
 
   public async render(replyMarkup?: ReplyMarkup.replyKeyboardMarkup) {
-    if(replyMarkup === undefined) {
+    if (replyMarkup === undefined) {
       replyMarkup = await this.getReplyMarkup() as any;
     }
 
@@ -126,12 +126,12 @@ export default class ReplyKeyboard extends DropdownHover {
                     chat: this.chatInput.chat,
                     replyMarkup,
                     wrapOptions: {
-                      textColor: 'primary-color'
+                      textColor: 'primary-color',
                     },
                     onClick: () => {
                       this.toggle(false);
                     },
-                    className: classNames(ReplyKeyboard.BASE_CLASS + '-button', 'btn')
+                    className: classNames(ReplyKeyboard.BASE_CLASS + '-button', 'btn'),
                   })
                 )}
               </For>
@@ -144,14 +144,14 @@ export default class ReplyKeyboard extends DropdownHover {
   }
 
   public async checkAvailability(replyMarkup?: ReplyMarkup) {
-    if(replyMarkup === undefined) {
+    if (replyMarkup === undefined) {
       replyMarkup = await this.getReplyMarkup();
     }
 
     const hide = replyMarkup._ === 'replyKeyboardHide' || !(replyMarkup as ReplyMarkup.replyInlineMarkup).rows?.length;
     this.btnHover.classList.toggle('hide', hide);
 
-    if(hide) {
+    if (hide) {
       this.toggle(false);
     }
 

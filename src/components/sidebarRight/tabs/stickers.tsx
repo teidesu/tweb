@@ -1,24 +1,24 @@
-import {Component, onCleanup, onMount} from 'solid-js';
+import { Component, onCleanup, onMount } from 'solid-js';
 import InputSearch from '@components/inputSearch';
 import LazyLoadQueue from '@components/lazyLoadQueue';
 import showStickersPopup from '@components/popups/stickers';
 import animationIntersector from '@components/animationIntersector';
-import {StickerSet, StickerSetCovered} from '@layer';
-import {i18n} from '@lib/langPack';
+import { StickerSet, StickerSetCovered } from '@layer';
+import { i18n } from '@lib/langPack';
 import findUpClassName from '@helpers/dom/findUpClassName';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import forEachReverse from '@helpers/array/forEachReverse';
 import setInnerHTML from '@helpers/dom/setInnerHTML';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
 import attachStickerViewerListeners from '@components/stickerViewer';
 import wrapSticker from '@components/wrappers/sticker';
-import {getStickerSetInputById, getStickerSetInputByStickerSet} from '@lib/appManagers/utils/stickers/getStickerSetInput';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { getStickerSetInputById, getStickerSetInputByStickerSet } from '@lib/appManagers/utils/stickers/getStickerSetInput';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 
 const Stickers: Component = () => {
   const [tab] = useSuperTab();
-  const {appImManager, appSidebarRight} = useHotReloadGuard();
+  const { appImManager, appSidebarRight } = useHotReloadGuard();
 
   let inputSearch: InputSearch;
   let setsDiv: HTMLDivElement;
@@ -46,7 +46,7 @@ const Stickers: Component = () => {
     button.classList.add('btn-primary', 'btn-color-primary', 'sticker-set-button');
     button.append(i18n(set.installed_date ? 'Stickers.SearchAdded' : 'Stickers.SearchAdd'));
 
-    if(set.installed_date) {
+    if (set.installed_date) {
       button.classList.add('gray');
     }
 
@@ -56,7 +56,7 @@ const Stickers: Component = () => {
     stickersDiv.classList.add('sticker-set-stickers');
 
     const count = Math.min(5, set.count);
-    for(let i = 0; i < count; ++i) {
+    for (let i = 0; i < count; ++i) {
       const stickerDiv = document.createElement('div');
       stickerDiv.classList.add('sticker-set-sticker');
 
@@ -64,10 +64,10 @@ const Stickers: Component = () => {
     }
 
     tab.managers.appStickersManager.getStickerSet(getStickerSetInputById(set)).then((set) => {
-      for(let i = 0; i < count; ++i) {
+      for (let i = 0; i < count; ++i) {
         const div = stickersDiv.children[i] as HTMLDivElement;
         const doc = set.documents[i];
-        if(doc._ === 'documentEmpty') {
+        if (doc._ === 'documentEmpty') {
           continue;
         }
 
@@ -80,7 +80,7 @@ const Stickers: Component = () => {
           loop: true,
           width: 68,
           height: 68,
-          withLock: true
+          withLock: true,
         });
       }
     });
@@ -102,9 +102,9 @@ const Stickers: Component = () => {
       const id = el.dataset.stickerSet;
       const index = coveredSets.findIndex((covered) => covered.set.id === id);
 
-      if(index !== -1) {
+      if (index !== -1) {
         coveredSets.splice(index, 1);
-      } else if(!query || !el.dataset.title!.toLowerCase().includes(query.toLowerCase())) {
+      } else if (!query || !el.dataset.title!.toLowerCase().includes(query.toLowerCase())) {
         el.remove();
       }
     });
@@ -116,7 +116,7 @@ const Stickers: Component = () => {
 
   const renderFeatured = () => {
     return tab.managers.appStickersManager.getFeaturedStickers().then((coveredSets) => {
-      if(inputSearch.value) {
+      if (inputSearch.value) {
         return;
       }
 
@@ -128,12 +128,12 @@ const Stickers: Component = () => {
   };
 
   const search = (query: string) => {
-    if(!query) {
+    if (!query) {
       return renderFeatured();
     }
 
     return tab.managers.appStickersManager.searchStickerSets(query, false).then((coveredSets) => {
-      if(inputSearch.value !== query) {
+      if (inputSearch.value !== query) {
         return;
       }
 
@@ -152,7 +152,7 @@ const Stickers: Component = () => {
       placeholder: 'StickersTab.SearchPlaceholder',
       onChange: (value) => {
         search(value);
-      }
+      },
     });
 
     tab.title.replaceWith(inputSearch.container);
@@ -161,25 +161,25 @@ const Stickers: Component = () => {
     setsDiv.classList.add('sticker-sets');
     tab.scrollable.append(setsDiv);
 
-    attachStickerViewerListeners({listenTo: setsDiv, listenerSetter: tab.listenerSetter});
+    attachStickerViewerListeners({ listenTo: setsDiv, listenerSetter: tab.listenerSetter });
 
     attachClickEvent(setsDiv, (e) => {
       const sticker = findUpClassName(e.target!, 'sticker-set-sticker');
-      if(sticker) {
+      if (sticker) {
         const docId = sticker.dataset.docId;
-        appImManager.chat.input.sendMessageWithDocument({document: docId!, target: sticker});
+        appImManager.chat.input.sendMessageWithDocument({ document: docId!, target: sticker });
         return;
       }
 
       const target = findUpClassName(e.target!, 'sticker-set');
-      if(!target) return;
+      if (!target) return;
 
       const id = target.dataset.stickerSet as string;
       const access_hash = target.dataset.access_hash as string;
 
       const button = findUpClassName(e.target!, 'sticker-set-button');
-      const input = getStickerSetInputById({id, access_hash});
-      if(button) {
+      const input = getStickerSetInputById({ id, access_hash });
+      if (button) {
         e.preventDefault();
         e.cancelBubble = true;
 
@@ -187,7 +187,7 @@ const Stickers: Component = () => {
 
         tab.managers.appStickersManager.getStickerSet(input).then((full) => {
           tab.managers.appStickersManager.toggleStickerSet(full.set).then((changed) => {
-            if(changed) {
+            if (changed) {
               button.textContent = '';
               button.append(i18n(full.set.installed_date ? 'Stickers.SearchAdded' : 'Stickers.SearchAdd'));
               button.classList.toggle('gray', !!full.set.installed_date);
@@ -201,7 +201,7 @@ const Stickers: Component = () => {
           showStickersPopup(getStickerSetInputByStickerSet(full.set));
         });
       }
-    }, {listenerSetter: tab.listenerSetter});
+    }, { listenerSetter: tab.listenerSetter });
 
     appSidebarRight.toggleSidebar(true).then(() => {
       renderFeatured();

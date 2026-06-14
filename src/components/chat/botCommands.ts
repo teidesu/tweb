@@ -1,9 +1,9 @@
 import type ChatInput from '@components/chat/input';
 import callbackify from '@helpers/callbackify';
 import AutocompletePeerHelper from '@components/chat/autocompletePeerHelper';
-import {processPeerFullForCommands} from '@components/chat/commandsHelper';
-import {AppManagers} from '@lib/managers';
-import {Middleware} from '@helpers/middleware';
+import { processPeerFullForCommands } from '@components/chat/commandsHelper';
+import { AppManagers } from '@lib/managers';
+import { Middleware } from '@helpers/middleware';
 
 const CLASS_NAME = 'bot-commands';
 export default class ChatBotCommands extends AutocompletePeerHelper {
@@ -25,14 +25,14 @@ export default class ChatBotCommands extends AutocompletePeerHelper {
   }
 
   public setUserId(userId: UserId, middleware: Middleware) {
-    if(this.userId === userId && this.list?.childElementCount) {
+    if (this.userId === userId && this.list?.childElementCount) {
       this.toggle(false);
       return;
     }
 
     this.userId = userId;
     return callbackify(this.managers.appProfileManager.getProfile(userId), (full) => {
-      if(!middleware()) return;
+      if (!middleware()) return;
       const filtered = processPeerFullForCommands(userId.toPeerId(false), full);
 
       const PADDING_TOP = 8;

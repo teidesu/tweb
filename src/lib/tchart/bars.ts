@@ -1,5 +1,5 @@
-import {getXIndex} from '@lib/tchart/utils';
-import {TChartUnitOptions} from '@lib/tchart/types';
+import { getXIndex } from '@lib/tchart/utils';
+import { TChartUnitOptions } from '@lib/tchart/types';
 
 export default class TBars {
   private opts: TChartUnitOptions;
@@ -24,7 +24,7 @@ export default class TBars {
     // fillrect dramatically drops fps on iPhones after 5th (4s and 5 are ok, but 5s, SE, 7+ etc are freezing)
     // on direct onscreen canvas draw, so for this case we should use offscreen canvas
     this.$canvas = document.createElement('canvas');
-    this.ctx = this.$canvas.getContext('2d', {alpha: false})!;
+    this.ctx = this.$canvas.getContext('2d', { alpha: false })!;
   }
 
   onResize() {
@@ -73,28 +73,28 @@ export default class TBars {
 
     // cache both versions (big one is useful for selection)
     const hash = [dims.w, dims.h, mini ? state!.xg1 : state!.x1, mini ? state!.xg2 : state!.x2, this.isDarkMode, zoom];
-    if(!mini) {
+    if (!mini) {
       hash.push(state!.y1);
       hash.push(state!.y2);
     }
-    for(i = 0; i < ysLength; i++) {
+    for (i = 0; i < ysLength; i++) {
       hash.push(mini ? state![`om_${i}`] : state![`o_${i}`]);
       hash.push(state![`f_${i}`]);
     }
     const joinedHash = hash.join(',');
 
-    if(joinedHash === this.cached) {
+    if (joinedHash === this.cached) {
       this.opts.ctx!.drawImage(this.$canvas, dims.l * dpi, dims.t * dpi);
-      if(mini) return;
+      if (mini) return;
     }
 
     xScale = (dims.w - pRight - pLeft) / (x2! - x1! + this.opts.data!.mainPeriodLen! * (1 - zoomMorph));
     xInd1 = Math.floor(getXIndex(x!, x1! - pLeft / xScale));
     xInd2 = Math.ceil(getXIndex(x!, x2! + pRight / xScale));
 
-    if(zoom && zoomMorph === 1) {
-      if(xInd1 < this.opts.state!.xg1Ind!) xInd1 = this.opts.state!.xg1Ind!;
-      if(xInd2 > this.opts.state!.xg2Ind!) xInd2 = this.opts.state!.xg2Ind! - 1;
+    if (zoom && zoomMorph === 1) {
+      if (xInd1 < this.opts.state!.xg1Ind!) xInd1 = this.opts.state!.xg1Ind!;
+      if (xInd2 > this.opts.state!.xg2Ind!) xInd2 = this.opts.state!.xg2Ind! - 1;
     }
     xScale *= dpi;
     const xShift = (pLeft) * dpi - x1! * xScale;
@@ -103,16 +103,16 @@ export default class TBars {
     const xwMain = this.opts.data!.mainPeriodLen! * xScale;
     const xwDetail = this.opts.data!.detailPeriodLen! * xScale;
 
-    if(joinedHash !== this.cached) {
+    if (joinedHash !== this.cached) {
       ctx.fillStyle = this.opts.settings!.COLORS.background;
       ctx.fillRect(0, 0, dims.w * dpi, dims.h * dpi);
 
       let filteredInd = 0;
 
-      for(j = xInd1; j <= xInd2; j++) {
+      for (j = xInd1; j <= xInd2; j++) {
         let xw: number;
-        if(zoom) {
-          if(j >= d1! && j <= d2!) {
+        if (zoom) {
+          if (j >= d1! && j <= d2!) {
             xw = xwDetail;
           } else {
             xw = xwMain;
@@ -124,7 +124,7 @@ export default class TBars {
         const tmpX1 = Math.round(x![j] * xScale + xShift);
         const tmpX2 = Math.round(x![j] * xScale + xShift + xw);
 
-        if(tmpX2 - tmpX1 > 0) {
+        if (tmpX2 - tmpX1 > 0) {
           filteredX1[filteredInd] = tmpX1;
           filteredX2[filteredInd] = tmpX2;
           filteredJ[filteredInd] = j;
@@ -133,10 +133,10 @@ export default class TBars {
         }
       }
 
-      for(i = 0; i < ysLength; i++) {
+      for (i = 0; i < ysLength; i++) {
         o = (mini ? state![`om_${i}`] : state![`o_${i}`])!;
 
-        if(o > 0) {
+        if (o > 0) {
           y = ys![i].y;
           yFrom = ys![i].yFrom!;
 
@@ -156,8 +156,8 @@ export default class TBars {
           ctx.beginPath();
           ctx.moveTo(Math.round(x![xInd2] * xScale + xShift + (zoomMorph === 1 ? xwDetail : xwMain)), Math.round(hBottom));
 
-          if(i > 0) {
-            for(j = filteredInd - 1; j >= 0; j--) {
+          if (i > 0) {
+            for (j = filteredInd - 1; j >= 0; j--) {
               const curY = hBottom - prevY[j];
               ctx.lineTo(filteredX2[j], Math.round(curY));
               ctx.lineTo(filteredX1[j], Math.round(curY));
@@ -166,10 +166,10 @@ export default class TBars {
             ctx.lineTo(Math.round(x![xInd1] * xScale + xShift), Math.round(hBottom));
           }
 
-          for(j = 0; j < filteredInd; j++) {
+          for (j = 0; j < filteredInd; j++) {
             const jInd = filteredJ[j];
-            if(zoom) {
-              if(jInd >= d1! && jInd <= d2!) {
+            if (zoom) {
+              if (jInd >= d1! && jInd <= d2!) {
                 yVal = yFrom[jInd] + zoomMorph * (y[jInd] - yFrom[jInd]);
               } else {
                 yVal = y[jInd] + zoomMorph * (y[d1!] - y[jInd]); // approximation
@@ -200,15 +200,15 @@ export default class TBars {
     }
 
     // tooltip selection
-    if(state!.barInd! > -1 && !mini) {
+    if (state!.barInd! > -1 && !mini) {
       this.opts.ctx!.fillStyle = this.opts.settings!.COLORS.barsSelectionBackground;
       this.opts.ctx!.globalAlpha = state!.barO!;
       this.opts.ctx!.fillRect(0, 0, dims.w * dpi, dims.h * dpi);
       let yStart = 0;
 
-      for(i = 0; i < ysLength; i++) {
+      for (i = 0; i < ysLength; i++) {
         o = state![`o_${i}`]!;
-        if(o > 0) {
+        if (o > 0) {
           y = ys![i].y;
           yFrom = ys![i].yFrom!;
           y1 = state!['y1'] as number;
@@ -221,8 +221,8 @@ export default class TBars {
           this.opts.ctx!.globalAlpha = state![`f_${i}`]! * 0.9 + 0.1;
 
           let yVal: number, xw: number;
-          if(zoom) {
-            if(state!.barInd! >= d1! && state!.barInd! <= d2!) {
+          if (zoom) {
+            if (state!.barInd! >= d1! && state!.barInd! <= d2!) {
               yVal = yFrom[state!.barInd!] + zoomMorph * (y[state!.barInd!] - yFrom[state!.barInd!]);
               xw = xwDetail;
             } else {

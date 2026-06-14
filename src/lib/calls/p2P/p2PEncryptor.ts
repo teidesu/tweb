@@ -5,9 +5,9 @@
  * https://github.com/evgeny-nadymov/telegram-react/blob/master/LICENSE
  */
 
-import {createCtr256, ctr256, freeCtr256, sha256} from '@mtcute/wasm';
+import { createCtr256, ctr256, freeCtr256, sha256 } from '@mtcute/wasm';
 import bufferConcats from '@helpers/bytes/bufferConcats';
-import {initCryptoWasm} from '@lib/crypto/wasmInit';
+import { initCryptoWasm } from '@lib/crypto/wasmInit';
 
 const kMaxIncomingPacketSize = 128 * 1024 * 1024;
 
@@ -32,7 +32,7 @@ export default class P2PEncryptor {
 
     const result = {
       counter: 0, // this.counterFromSeq(this.readSeq(buffer)),
-      bytes: new Uint8Array(16 + buffer.length)
+      bytes: new Uint8Array(16 + buffer.length),
     };
 
     const x = (this.isOutgoing ? 0 : 8) + (this.type === 'Signaling' ? 128 : 0);
@@ -40,7 +40,7 @@ export default class P2PEncryptor {
 
     const msgKeyLarge = this.concatSHA256([key.subarray(x + 88, x + 88 + 32), buffer]);
     const msgKey = result.bytes;
-    for(let i = 0; i < 16; ++i) {
+    for (let i = 0; i < 16; ++i) {
       msgKey[i] = msgKeyLarge[i + 8];
     }
 
@@ -68,26 +68,26 @@ export default class P2PEncryptor {
     const [sha256a, sha256b] = await Promise.all([
       this.concatSHA256([
         msgKey.subarray(0, 16),
-        key.subarray(x, x + 36)
+        key.subarray(x, x + 36),
       ]),
 
       this.concatSHA256([
         key.subarray(40 + x, 40 + x + 36),
-        msgKey.subarray(0, 16)
-      ])
+        msgKey.subarray(0, 16),
+      ]),
     ]);
 
     return {
       key: new Uint8Array([
         ...sha256a.subarray(0, 8),
         ...sha256b.subarray(8, 8 + 16),
-        ...sha256a.subarray(24, 24 + 8)
+        ...sha256a.subarray(24, 24 + 8),
       ]),
       iv: new Uint8Array([
         ...sha256b.subarray(0, 4),
         ...sha256a.subarray(8, 8 + 8),
-        ...sha256b.subarray(24, 24 + 4)
-      ])
+        ...sha256b.subarray(24, 24 + 4),
+      ]),
     };
   }
 
@@ -102,8 +102,8 @@ export default class P2PEncryptor {
 
   private constTimeIsDifferent(a: Uint8Array, b: Uint8Array, count: number) {
     let msgKeyEquals = true;
-    for(let i = 0; i < count; ++i) {
-      if(a[i] !== b[i]) {
+    for (let i = 0; i < count; ++i) {
+      if (a[i] !== b[i]) {
         msgKeyEquals = false;
       }
     }
@@ -112,13 +112,13 @@ export default class P2PEncryptor {
   }
 
   public async decryptRawPacket(buffer: Uint8Array) {
-    if(buffer.length < 21 || buffer.length > kMaxIncomingPacketSize) {
+    if (buffer.length < 21 || buffer.length > kMaxIncomingPacketSize) {
       return;
     }
 
     await initCryptoWasm();
 
-    const {isOutgoing, type} = this;
+    const { isOutgoing, type } = this;
 
     const x = (isOutgoing ? 8 : 0) + (type === 'Signaling' ? 128 : 0);
     const key = this.p2pKey;
@@ -131,16 +131,16 @@ export default class P2PEncryptor {
 
     const msgKeyLarge = this.concatSHA256([
       key.subarray(88 + x, 88 + x + 32),
-      decryptionBuffer
+      decryptionBuffer,
     ]);
 
-    if(this.constTimeIsDifferent(msgKeyLarge.subarray(8), msgKey, 16)) {
+    if (this.constTimeIsDifferent(msgKeyLarge.subarray(8), msgKey, 16)) {
       return;
     }
 
     const dataView = new DataView(decryptionBuffer.buffer);
     const seq = dataView.getUint32(0);
-    if(this.seqMap.has(seq)) {
+    if (this.seqMap.has(seq)) {
       return;
     }
     this.seqMap.set(seq, seq);

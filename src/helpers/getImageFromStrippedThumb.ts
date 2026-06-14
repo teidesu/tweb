@@ -1,7 +1,7 @@
-import {PhotoSize} from '@layer';
-import {MyDocument} from '@appManagers/appDocsManager';
-import {MyPhoto} from '@appManagers/appPhotosManager';
-import {renderImageFromUrlPromise} from '@helpers/dom/renderImageFromUrl';
+import { PhotoSize } from '@layer';
+import { MyDocument } from '@appManagers/appDocsManager';
+import { MyPhoto } from '@appManagers/appPhotosManager';
+import { renderImageFromUrlPromise } from '@helpers/dom/renderImageFromUrl';
 import getPreviewURLFromThumb from '@helpers/getPreviewURLFromThumb';
 import blur from '@helpers/blur';
 
@@ -12,7 +12,7 @@ export default function getImageFromStrippedThumb(
   url = getPreviewURLFromThumb(photo, thumb, false)
 ) {
   let element: HTMLImageElement | HTMLCanvasElement, loadPromise: Promise<void>;
-  if(!useBlur) {
+  if (!useBlur) {
     element = new Image();
     loadPromise = renderImageFromUrlPromise(element, url);
   } else {
@@ -23,5 +23,5 @@ export default function getImageFromStrippedThumb(
 
   element.classList.add('thumbnail');
 
-  return {image: element, loadPromise};
+  return { image: element, loadPromise };
 }

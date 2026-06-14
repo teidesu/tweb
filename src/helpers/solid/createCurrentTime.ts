@@ -1,4 +1,4 @@
-import {createSignal, onCleanup} from 'solid-js';
+import { createSignal, onCleanup } from 'solid-js';
 import tsNow from '@helpers/tsNow';
 
 export function createCurrentTime(options: {
@@ -6,7 +6,7 @@ export function createCurrentTime(options: {
   updateInterval?: number
   updateWrapper?: (fn: VoidFunction) => void
 } = {}) {
-  const {fn = tsNow, updateInterval = 30000, updateWrapper} = options;
+  const { fn = tsNow, updateInterval = 30000, updateWrapper } = options;
 
   const [time, setTime] = createSignal(fn());
   const tick = updateWrapper ? () => {

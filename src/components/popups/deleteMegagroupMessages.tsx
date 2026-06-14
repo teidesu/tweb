@@ -1,21 +1,21 @@
-import PopupElement, {addCancelButton} from '.';
+import PopupElement, { addCancelButton } from '.';
 import filterUnique from '@helpers/array/filterUnique';
-import {Message} from '@layer';
-import I18n, {FormatterArguments, i18n, LangPackKey} from '@lib/langPack';
+import { Message } from '@layer';
+import I18n, { FormatterArguments, i18n, LangPackKey } from '@lib/langPack';
 import Section from '@components/section';
 import StackedAvatars from '@components/stackedAvatars';
-import {createEffect, createSignal} from 'solid-js';
-import CheckboxFields, {CheckboxFieldsField} from '@components/checkboxFields';
+import { createEffect, createSignal } from 'solid-js';
+import CheckboxFields, { CheckboxFieldsField } from '@components/checkboxFields';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
 import flatten from '@helpers/array/flatten';
-import {avatarNew} from '@components/avatarNew';
+import { avatarNew } from '@components/avatarNew';
 import PeerTitle from '@components/peerTitle';
 import Row from '@components/rowTsx';
-import {IconTsx} from '@components/iconTsx';
+import { IconTsx } from '@components/iconTsx';
 import classNames from '@helpers/string/classNames';
-import {ChatPermissions} from '@components/sidebarRight/tabs/groupPermissions/sharedPermissions';
-import {animate} from '@helpers/animation';
-import {isTruthy} from '../../helpers/isTruthy';
+import { ChatPermissions } from '@components/sidebarRight/tabs/groupPermissions/sharedPermissions';
+import { animate } from '@helpers/animation';
+import { isTruthy } from '../../helpers/isTruthy';
 
 const className = 'popup-delete-megagroup-messages';
 
@@ -44,8 +44,8 @@ export default class PopupDeleteMegagroupMessages extends PopupElement {
         langKey: 'DeleteProceedBtn',
         isDanger: true,
         callback: () => this.onConfirmClick(),
-        iconLeft: 'delete_filled'
-      }])
+        iconLeft: 'delete_filled',
+      }]),
     });
 
     this.messages = options.messages;
@@ -57,34 +57,34 @@ export default class PopupDeleteMegagroupMessages extends PopupElement {
   private async onConfirmClick() {
     const byPeers = this.fields.reduce((acc, field) => {
       let set = acc.get(field.peerId!);
-      if(!set) {
+      if (!set) {
         acc.set(field.peerId!, set = new Set());
       }
 
-      if(field.checkboxField!.checked) {
+      if (field.checkboxField!.checked) {
         set.add(field.action);
       }
       return acc;
     }, new Map<PeerId, Set<DeleteCheckboxFieldsField['action']>>());
 
-    const mids = this.messages.map(({mid}) => mid);
+    const mids = this.messages.map(({ mid }) => mid);
     const peerId = this.messages[0].peerId;
-    const {restricting, managers} = this;
-    for(const [fromId, actions] of byPeers) {
+    const { restricting, managers } = this;
+    for (const [fromId, actions] of byPeers) {
       const promises: Promise<any>[] = [];
-      if(actions.has('ban') && restricting) {
+      if (actions.has('ban') && restricting) {
         const rights = this.chatPermissions.takeOut();
         promises.push(managers.appChatsManager.editBanned(peerId!.toChatId(), fromId, rights));
-      } else if(actions.has('ban')) {
+      } else if (actions.has('ban')) {
         promises.push(managers.appChatsManager.kickFromChannel(peerId!.toChatId(), fromId));
       }
 
-      if(actions.has('report')) {
+      if (actions.has('report')) {
         promises.push(managers.appMessagesManager.reportSpamMessages(peerId!, fromId, (mids as number[])));
       }
 
-      if(actions.has('delete')) {
-        promises.push(managers.appMessagesManager.doFlushHistory({peerId: peerId!, justClear: false, revoke: true, participantPeerId: fromId}));
+      if (actions.has('delete')) {
+        promises.push(managers.appMessagesManager.doFlushHistory({ peerId: peerId!, justClear: false, revoke: true, participantPeerId: fromId }));
       }
     }
 
@@ -95,12 +95,12 @@ export default class PopupDeleteMegagroupMessages extends PopupElement {
   }
 
   private async construct() {
-    const fromPeerIds = filterUnique(this.messages.map(({fromId}) => fromId));
+    const fromPeerIds = filterUnique(this.messages.map(({ fromId }) => fromId));
     const peerId = this.messages[0].peerId;
 
     const stackedAvatars = new StackedAvatars({
       middleware: this.middlewareHelper.get(),
-      avatarSize: 32
+      avatarSize: 32,
     });
 
     const loadPromises: Promise<any>[] = [];
@@ -119,17 +119,17 @@ export default class PopupDeleteMegagroupMessages extends PopupElement {
     }[] = [{
       action: 'report',
       peerIds: (fromPeerIds as number[]),
-      langKey: 'DeleteReportSpam'
+      langKey: 'DeleteReportSpam',
     }, {
       action: 'delete',
       peerIds: (fromPeerIds as number[]),
       langKey: isSinglePeer ? 'DeleteAllFrom' : 'DeleteAllFromUsers',
-      langArgs: isSinglePeer ? [await wrapPeerTitle({peerId: fromPeerIds[0], onlyFirstName: true})] : undefined
+      langArgs: isSinglePeer ? [await wrapPeerTitle({ peerId: fromPeerIds[0], onlyFirstName: true })] : undefined,
     }, {
       action: 'ban',
       peerIds: (fromPeerIds as number[]),
       langKey: isSinglePeer ? 'DeleteBan' : 'DeleteBanUsers',
-      langArgs: isSinglePeer ? [await wrapPeerTitle({peerId: fromPeerIds[0], onlyFirstName: true})] : undefined
+      langArgs: isSinglePeer ? [await wrapPeerTitle({ peerId: fromPeerIds[0], onlyFirstName: true })] : undefined,
     }];
 
     const nameStart = 'delete-fields';
@@ -142,7 +142,7 @@ export default class PopupDeleteMegagroupMessages extends PopupElement {
         const field: DeleteCheckboxFieldsField = {
           action: item.action,
           name,
-          peerId
+          peerId,
         };
 
         return field;
@@ -154,7 +154,7 @@ export default class PopupDeleteMegagroupMessages extends PopupElement {
         textArgs: item.langArgs,
         nested: isSinglePeer ? undefined : nested,
         name: isSinglePeer ? join(item.action, '' + peerId) : join(item.action),
-        peerId: isSinglePeer ? item.peerIds[0] : undefined
+        peerId: isSinglePeer ? item.peerIds[0] : undefined,
       }, ...nested];
     };
 
@@ -164,7 +164,7 @@ export default class PopupDeleteMegagroupMessages extends PopupElement {
       listenerSetter: this.listenerSetter,
       round: true,
       onRowCreation: (row, info) => {
-        if(!info.nestedTo) {
+        if (!info.nestedTo) {
           return;
         }
 
@@ -177,13 +177,13 @@ export default class PopupDeleteMegagroupMessages extends PopupElement {
         const avatar = avatarNew({
           peerId: info.peerId,
           middleware: this.middlewareHelper.get(),
-          size: 32
+          size: 32,
         });
 
         const peerTitle = new PeerTitle();
         const peerTitlePromise = peerTitle.update({
           peerId: info.peerId,
-          onlyFirstName: true
+          onlyFirstName: true,
         });
 
         title.append(peerTitle.element);
@@ -204,7 +204,7 @@ export default class PopupDeleteMegagroupMessages extends PopupElement {
           const progress = Math.min((Date.now() - startTime) / duration, 1);
           return progress < 1;
         });
-      }
+      },
     });
 
     const createdFields = fields.map((field) => {
@@ -216,7 +216,7 @@ export default class PopupDeleteMegagroupMessages extends PopupElement {
     this.chatPermissions = new ChatPermissions({
       appendTo: chatPermissionsContainer,
       chatId: peerId!.toChatId(),
-      listenerSetter: this.listenerSetter
+      listenerSetter: this.listenerSetter,
     }, this.managers);
 
     let onAnyChange: () => void;
@@ -229,13 +229,13 @@ export default class PopupDeleteMegagroupMessages extends PopupElement {
 
       onAnyChange = () => {
         const peerIds = fields
-        .filter((field) => field.action === 'ban' && field.checkboxField!.checked && field.peerId)
-        .map(({peerId}) => peerId);
+          .filter((field) => field.action === 'ban' && field.checkboxField!.checked && field.peerId)
+          .map(({ peerId }) => peerId);
         setBanning(peerIds as PeerId[]);
       };
 
       createEffect(() => {
-        if(!banning().length) {
+        if (!banning().length) {
           setCollapsed(true);
         }
       });
@@ -247,12 +247,12 @@ export default class PopupDeleteMegagroupMessages extends PopupElement {
         i18nElement.compareAndUpdate({
           key: collapsed() ?
             (isSinglePeer ? 'DeleteBan' : 'DeleteBanUsers') :
-            (isSinglePeer ? 'DeleteRestrict' : 'DeleteRestrictUsers')
+            (isSinglePeer ? 'DeleteRestrict' : 'DeleteRestrictUsers'),
         });
       });
 
       createEffect(() => {
-        if(!collapsed()) {
+        if (!collapsed()) {
           const duration = 300;
           const startTime = Date.now();
           const scrollPosition = this.scrollable.scrollPosition + this.scrollable.clientSize;
@@ -280,13 +280,13 @@ export default class PopupDeleteMegagroupMessages extends PopupElement {
             noShadow
             style={{
               // 'max-height': collapsed() ? '0px' : ((chatPermissionsContainer.childElementCount - 1) * 48) + 40 + 'px'
-              'max-height': collapsed() ? '0px' : '712px'
+              'max-height': collapsed() ? '0px' : '712px',
             }}
           >
             {chatPermissionsContainer}
           </Section>
           <Section
-            classList={{hide: !banning().length}}
+            classList={{ hide: !banning().length }}
           >
             <Row
               ref={(e) => {

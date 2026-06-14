@@ -12,24 +12,24 @@ export default class SDPLine {
   constructor(key: SDPLine['key'], value: string | SDPMediaLineParts | SDPAttributeSplitted) {
     this.#key = key;
 
-    if(typeof(value) === 'string') {
+    if (typeof(value) === 'string') {
       this.#value = value;
 
-      if(key === 'm') {
+      if (key === 'm') {
         const splitted = value.split(' ');
         this.#mediaLineParts = new SDPMediaLineParts(splitted[0] as any, splitted[1], splitted[2], splitted.slice(3));
       } else {
-        if(key === 'a') {
+        if (key === 'a') {
           const result = splitStringByLimitWithRest(value, ':', 1);
           value = result[0];
           this.#parsed = result.length === 1 ? new SDPAttributeSplitted(value as any, null as unknown as string) : new SDPAttributeSplitted(value as any, result[1]);
         }
       }
     } else {
-      if(value instanceof SDPMediaLineParts) {
+      if (value instanceof SDPMediaLineParts) {
         this.#mediaLineParts = value;
         this.#value = value.toString();
-      } else if(value instanceof SDPAttributeSplitted) {
+      } else if (value instanceof SDPAttributeSplitted) {
         this.#parsed = value;
         this.#value = value.value ? `${value.key}:${value.value}` : value.key;
       }

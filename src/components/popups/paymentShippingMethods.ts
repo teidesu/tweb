@@ -1,11 +1,11 @@
 import PopupElement from '.';
 import accumulate from '@helpers/array/accumulate';
 import paymentsWrapCurrencyAmount from '@helpers/paymentsWrapCurrencyAmount';
-import {PaymentsPaymentForm, PaymentsValidatedRequestedInfo, ShippingOption} from '@layer';
+import { PaymentsPaymentForm, PaymentsValidatedRequestedInfo, ShippingOption } from '@layer';
 import RadioField from '@components/radioField';
-import Row, {RadioFormFromRows} from '@components/row';
+import Row, { RadioFormFromRows } from '@components/row';
 import SettingSection from '@components/settingSection';
-import {PaymentButton} from '@components/popups/payment';
+import { PaymentButton } from '@components/popups/payment';
 
 export default class PopupPaymentShippingMethods extends PopupElement<{
   finish: (shippingOption: ShippingOption) => void
@@ -20,26 +20,26 @@ export default class PopupPaymentShippingMethods extends PopupElement<{
       overlayClosable: true,
       body: true,
       scrollable: true,
-      title: 'PaymentShippingMethod'
+      title: 'PaymentShippingMethod',
     });
 
     this.d();
   }
 
   private d() {
-    const section = new SettingSection({name: 'PaymentCheckoutShippingMethod', noDelimiter: true, noShadow: true});
+    const section = new SettingSection({ name: 'PaymentCheckoutShippingMethod', noDelimiter: true, noShadow: true });
 
     const rows = this.requestedInfo.shipping_options!.map((shippingOption) => {
       return new Row({
         radioField: new RadioField({
           text: shippingOption.title,
           name: 'shipping-method',
-          value: shippingOption.id
+          value: shippingOption.id,
         }),
         subtitle: paymentsWrapCurrencyAmount(
-          accumulate(shippingOption.prices.map(({amount}) => +amount), 0),
+          accumulate(shippingOption.prices.map(({ amount }) => +amount), 0),
           this.paymentForm.invoice.currency
-        )
+        ),
       });
     });
 
@@ -48,7 +48,7 @@ export default class PopupPaymentShippingMethods extends PopupElement<{
       lastShippingId = value;
     });
 
-    if(this.shippingOption) {
+    if (this.shippingOption) {
       rows.find((row) => row.radioField.input.value === this.shippingOption.id)!.radioField.checked = true;
     } else {
       rows[0].radioField.checked = true;
@@ -63,7 +63,7 @@ export default class PopupPaymentShippingMethods extends PopupElement<{
       onClick: () => {
         this.dispatchEvent('finish', this.requestedInfo.shipping_options!.find((option) => option.id === lastShippingId)!);
         this.hide();
-      }
+      },
     });
     this.body.append(this.btnConfirmOnEnter = payButton);
 

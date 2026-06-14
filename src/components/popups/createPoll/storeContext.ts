@@ -1,13 +1,13 @@
 import lastItem from '@helpers/array/lastItem';
 import track from '@helpers/solid/track';
-import {MediaSize} from '@helpers/mediaSize';
-import {MessageEntity} from '@layer';
-import {oneDayInSeconds} from '@lib/constants';
-import {Accessor, createComputed, createContext, createResource, untrack, useContext} from 'solid-js';
-import {createStore, SetStoreFunction, Store} from 'solid-js/store';
-import {supportsVideoEncoding} from '@components/mediaEditor/support';
-import {useCreatePollLimits} from './useCreatePollLimits';
-import {checkOptionHasValue} from './utils';
+import { MediaSize } from '@helpers/mediaSize';
+import { MessageEntity } from '@layer';
+import { oneDayInSeconds } from '@lib/constants';
+import { Accessor, createComputed, createContext, createResource, untrack, useContext } from 'solid-js';
+import { createStore, SetStoreFunction, Store } from 'solid-js/store';
+import { supportsVideoEncoding } from '@components/mediaEditor/support';
+import { useCreatePollLimits } from './useCreatePollLimits';
+import { checkOptionHasValue } from './utils';
 
 export type CreatePollPayload = Omit<CreatePollStore, 'descriptionAttachment' | 'explanationAttachment' | 'pollOptions'> & {
   descriptionAttachment?: FinalizedAttachedMedia;
@@ -133,12 +133,12 @@ export const createPollStoreContextValue = (extra: CreatePollContextExtra): Crea
     pollOptions: [
       {
         text: '',
-        entities: []
+        entities: [],
       },
       {
         text: '',
-        entities: []
-      }
+        entities: [],
+      },
     ],
     showWhoVoted: true,
     allowMultipleAnswers: true,
@@ -147,22 +147,22 @@ export const createPollStoreContextValue = (extra: CreatePollContextExtra): Crea
     shuffleOptions: true,
     hasCorrectAnswer: false,
     durationLimited: false,
-    timeLimit: {type: 'duration', duration: oneDayInSeconds},
+    timeLimit: { type: 'duration', duration: oneDayInSeconds },
     explanation: '',
     explanationEntities: [],
-    hideResults: false
+    hideResults: false,
   });
 
-  const {maxOptions} = useCreatePollLimits();
+  const { maxOptions } = useCreatePollLimits();
 
   createComputed(() => {
-    if(store.allowMultipleAnswers) return;
+    if (store.allowMultipleAnswers) return;
 
     const firstChecked = untrack(() => store.pollOptions.findIndex((option) => option.checked));
 
     setStore('pollOptions', (option) => option.checked as boolean, 'checked', false);
 
-    if(firstChecked !== -1) {
+    if (firstChecked !== -1) {
       setStore('pollOptions', firstChecked, 'checked', true);
     }
   });
@@ -170,14 +170,14 @@ export const createPollStoreContextValue = (extra: CreatePollContextExtra): Crea
   // Add an option to the end of the list when the last item has a value
   createComputed(() => {
     // track options and their texts
-    for(const option of store.pollOptions) {
+    for (const option of store.pollOptions) {
       track(() => option.text);
     }
 
-    if(store.pollOptions.length && store.pollOptions.length < maxOptions() && checkOptionHasValue(lastItem(store.pollOptions)!)) {
+    if (store.pollOptions.length && store.pollOptions.length < maxOptions() && checkOptionHasValue(lastItem(store.pollOptions)!)) {
       setStore('pollOptions', store.pollOptions.length, {
         text: '',
-        entities: []
+        entities: [],
       });
       return;
     }
@@ -191,6 +191,6 @@ export const createPollStoreContextValue = (extra: CreatePollContextExtra): Crea
     store,
     setStore,
     canEncodeVideo,
-    ...extra
+    ...extra,
   };
 };

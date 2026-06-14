@@ -1,7 +1,7 @@
 import type ChatInput from '@components/chat/input';
 import AutocompleteHelperController from '@components/chat/autocompleteHelperController';
 import AutocompletePeerHelper from '@components/chat/autocompletePeerHelper';
-import {AppManagers} from '@lib/managers';
+import { AppManagers } from '@lib/managers';
 import getPeerActiveUsernames from '@appManagers/utils/peers/getPeerActiveUsernames';
 import rootScope from '@lib/rootScope';
 
@@ -30,7 +30,7 @@ export default class MentionsHelper extends AutocompletePeerHelper {
     global?: boolean
   ) {
     const trimmed = query.trim(); // check that there is no whitespace
-    if(query.length !== trimmed.length) return false;
+    if (query.length !== trimmed.length) return false;
 
     const middleware = this.controller.getMiddleware();
     this.managers.appProfileManager.getMentions(
@@ -39,7 +39,7 @@ export default class MentionsHelper extends AutocompletePeerHelper {
       topMsgId,
       global
     ).then(async(peerIds) => {
-      if(!middleware()) return;
+      if (!middleware()) return;
 
       peerIds = peerIds.filter((peerId) => peerId !== rootScope.myId);
 
@@ -54,12 +54,12 @@ export default class MentionsHelper extends AutocompletePeerHelper {
 
         return {
           peerId,
-          description: usernames[0] ? '@' + usernames[0] : undefined
+          description: usernames[0] ? '@' + usernames[0] : undefined,
         };
       });
 
       const out = (await Promise.all(p)).filter(Boolean);
-      if(!middleware()) return;
+      if (!middleware()) return;
       this.render(out, middleware);
     });
 

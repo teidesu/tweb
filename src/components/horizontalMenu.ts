@@ -1,14 +1,14 @@
 import TransitionSlider from '@components/transition';
-import {ScrollableX} from '@components/scrollable';
-import {fastRaf} from '@helpers/schedulers';
-import fastSmoothScroll, {FocusDirection} from '@helpers/fastSmoothScroll';
+import { ScrollableX } from '@components/scrollable';
+import { fastRaf } from '@helpers/schedulers';
+import fastSmoothScroll, { FocusDirection } from '@helpers/fastSmoothScroll';
 import findUpAsChild from '@helpers/dom/findUpAsChild';
 import nthChild from '@helpers/dom/nthChild';
 import whichChild from '@helpers/dom/whichChild';
 import ListenerSetter from '@helpers/listenerSetter';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import liteMode from '@helpers/liteMode';
-import {ScrollableContextValue} from '@components/scrollable2';
+import { ScrollableContextValue } from '@components/scrollable2';
 
 type OnChangeArgs = {
   element: HTMLElement;
@@ -53,18 +53,18 @@ export async function selectTarget({
   prevId = -1,
   selectTab,
   onChange,
-  isUserClick
+  isUserClick,
 }: SelectTargetArgs) {
-  if(onClick) {
+  if (onClick) {
     const tabContent = content && nthChild(content, id) as HTMLDivElement;
     const result1 = onClick(id, tabContent!, animate, isUserClick);
     const canChange = result1 instanceof Promise ? await result1 : result1;
-    if(canChange === false) {
+    if (canChange === false) {
       return;
     }
   }
 
-  if(scrollableX) {
+  if (scrollableX) {
     const containerEl = scrollableX.container;
     // Skip the scroll round-trip when there's no actual scrolling to do:
     //   - row has no horizontal overflow (every tab is already visible)
@@ -75,43 +75,43 @@ export async function selectTarget({
     // against a row whose scroll position is the default 0.
     const noOverflow = containerEl.scrollWidth <= containerEl.clientWidth;
     const isFirstAndAtStart = id === 0 && containerEl.scrollLeft === 0;
-    if(!noOverflow && !isFirstAndAtStart) {
+    if (!noOverflow && !isFirstAndAtStart) {
       fastSmoothScroll({
         container: containerEl,
         element: target.parentElement!.children[id] as HTMLElement,
         position: 'center',
         forceDirection: animate ? undefined : FocusDirection.Static,
         forceDuration: transitionTime,
-        axis: 'x'
+        axis: 'x',
       });
     }
   }
 
-  if(!liteMode.isAvailable('animations')) {
+  if (!liteMode.isAvailable('animations')) {
     animate = false;
   }
 
-  if(target.classList.contains('active') || id === prevId) {
+  if (target.classList.contains('active') || id === prevId) {
     return false;
   }
 
   const mutateCallback = animate ? fastRaf : (cb: () => void) => cb();
 
   const prev = tabs.querySelector(tabs.firstElementChild!.tagName.toLowerCase() + '.active') as HTMLElement;
-  if(prev) {
+  if (prev) {
     mutateCallback(() => {
       prev.classList.remove('active');
-      onChange?.({element: prev, active: false});
+      onChange?.({ element: prev, active: false });
     });
   }
 
   // a great stripe from Jolly Cobra
-  if(prevId !== -1 && animate) {
+  if (prevId !== -1 && animate) {
     const selector = '.menu-horizontal-div-item-background';
     mutateCallback(() => {
       const indicator = target.querySelector(selector) as HTMLElement;
       const currentIndicator = target.parentElement!.children[prevId]?.querySelector(selector) as HTMLElement;
-      if(!indicator || !currentIndicator) return;
+      if (!indicator || !currentIndicator) return;
 
       currentIndicator.classList.remove('animate');
       indicator.classList.remove('animate');
@@ -132,13 +132,13 @@ export async function selectTarget({
 
   mutateCallback(() => {
     target.classList.add('active');
-    onChange?.({element: target, active: true});
+    onChange?.({ element: target, active: true });
   });
 
   selectTab?.(id, animate);
 }
 
-export function horizontalMenuObjArgs({tabs, content, onClick, onTransitionEnd, transitionTime, scrollableX, listenerSetter, onChange}: Args) {
+export function horizontalMenuObjArgs({ tabs, content, onClick, onTransitionEnd, transitionTime, scrollableX, listenerSetter, onChange }: Args) {
   return horizontalMenu(tabs, content, onClick, onTransitionEnd, transitionTime, scrollableX, listenerSetter, onChange);
 }
 
@@ -157,10 +157,10 @@ export function horizontalMenu(
     type: tabs || content.dataset.animation === 'tabs' ? 'tabs' : 'navigation',
     transitionTime,
     onTransitionEnd,
-    listenerSetter
+    listenerSetter,
   });
 
-  if(!tabs) {
+  if (!tabs) {
     return _selectTab;
   }
 
@@ -177,7 +177,7 @@ export function horizontalMenu(
       prevId: _selectTab.prevId(),
       selectTab: _selectTab,
       onChange,
-      isUserClick
+      isUserClick,
     });
   };
 
@@ -186,7 +186,7 @@ export function horizontalMenu(
       const animate = args[1] !== undefined ? args[1] : true;
 
       let id: number, el: HTMLElement;
-      if(args[0] instanceof HTMLElement) {
+      if (args[0] instanceof HTMLElement) {
         id = whichChild(args[0]);
         el = args[0];
       } else {
@@ -195,18 +195,18 @@ export function horizontalMenu(
       }
 
       _selectTarget(el, id, animate);
-    }
+    },
   });
 
   attachClickEvent(tabs, (e) => {
     let target = e.target as HTMLElement;
     target = (findUpAsChild((target as { parentElement: HTMLElement; }), tabs) as HTMLElement);
-    if(!target) return false;
+    if (!target) return false;
 
     let id: number;
-    if(target.dataset.tab) {
+    if (target.dataset.tab) {
       id = +target.dataset.tab;
-      if(id === -1) {
+      if (id === -1) {
         return false;
       }
     } else {
@@ -214,7 +214,7 @@ export function horizontalMenu(
     }
 
     _selectTarget(target, id, true, true);
-  }, {listenerSetter});
+  }, { listenerSetter });
 
   return proxy;
 }

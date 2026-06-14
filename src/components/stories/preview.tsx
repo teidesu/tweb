@@ -1,28 +1,28 @@
-import {createSignal, createEffect, on, JSX, onCleanup, catchError} from 'solid-js';
-import {unwrap} from 'solid-js/store';
+import { createSignal, createEffect, on, JSX, onCleanup, catchError } from 'solid-js';
+import { unwrap } from 'solid-js/store';
 import rootScope from '@lib/rootScope';
-import {Photo, StoryItem, Document, MessageMedia, Message} from '@layer';
+import { Photo, StoryItem, Document, MessageMedia, Message } from '@layer';
 import choosePhotoSize from '@appManagers/utils/photos/choosePhotoSize';
 import wrapPhoto from '@components/wrappers/photo';
 import wrapVideo from '@components/wrappers/video';
 import LazyLoadQueue from '@components/lazyLoadQueue';
-import {AnimationItemGroup} from '@components/animationIntersector';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
-import {IS_SAFARI} from '@environment/userAgent';
+import { AnimationItemGroup } from '@components/animationIntersector';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
+import { IS_SAFARI } from '@environment/userAgent';
 import createMiddleware from '@helpers/solid/createMiddleware';
-import {ChatAutoDownloadSettings} from '@hooks/useAutoDownloadSettings';
+import { ChatAutoDownloadSettings } from '@hooks/useAutoDownloadSettings';
 
 let processing = false;
 const pollStories = () => {
-  if(processing) return;
+  if (processing) return;
   const promises: PromiseLike<any>[] = [];
   wrappedStories.forEach((map, peerId) => {
     const ids = [...map.keys()];
     const promise = rootScope.managers.appStoriesManager.getStoriesById(peerId, ids, true).then(() => {
       ids.forEach((id) => {
-        if(!map.get(id)!.mounted) {
+        if (!map.get(id)!.mounted) {
           map.delete(id);
-          if(!map.size) {
+          if (!map.size) {
             wrappedStories.delete(peerId);
           }
         }
@@ -70,13 +70,13 @@ export const wrapStoryMedia = (props: {
   const [ready, setReady] = createSignal(false);
 
   let map = wrappedStories.get(props.peerId);
-  if(!map) {
+  if (!map) {
     wrappedStories.set(props.peerId, map = new Map());
   }
 
   let c = map.get(props.storyItem.id);
-  if(!c) {
-    map.set(props.storyItem.id, c = {mounted: 0});
+  if (!c) {
+    map.set(props.storyItem.id, c = { mounted: 0 });
   }
   ++c.mounted;
   onCleanup(() => {
@@ -92,7 +92,7 @@ export const wrapStoryMedia = (props: {
   const setChildrenClassName = (wrapped: {images: {thumb: HTMLElement, full: HTMLElement}}, className: string) => {
     [
       wrapped.images.thumb,
-      wrapped.images.full
+      wrapped.images.full,
     ].filter(Boolean).forEach((image) => {
       image.classList.add(className);
     });
@@ -108,29 +108,29 @@ export const wrapStoryMedia = (props: {
         middleware,
         ...(props.forPreview && {
           ...(props.noAspecter && {
-            size: choosePhotoSize(photo, 150, 200)
+            size: choosePhotoSize(photo, 150, 200),
           }),
           // size: choosePhotoSize(photo, 150, 200),
-          useRenderCache: false
+          useRenderCache: false,
         }),
         ...(props.forViewer && {
           size: choosePhotoSize(photo, Infinity, Infinity),
           // noBlur: true,
-          noFadeIn: true
+          noFadeIn: true,
           // noThumb: true
         }),
-        withoutPreloader: !props.withPreloader
+        withoutPreloader: !props.withPreloader,
       });
 
       result.then(async(result) => {
-        if(!middleware()) return;
-        if(props.childrenClassName) setChildrenClassName(result, props.childrenClassName);
+        if (!middleware()) return;
+        if (props.childrenClassName) setChildrenClassName(result, props.childrenClassName);
         await result.loadPromises.thumb;
-        if(!middleware()) return;
+        if (!middleware()) return;
         setThumb(result.images.thumb);
         setReady(true);
         await result.loadPromises.full;
-        if(!middleware()) return;
+        if (!middleware()) return;
         setMedia(result.images.full);
       });
 
@@ -151,48 +151,48 @@ export const wrapStoryMedia = (props: {
           // noPreview: true,
           noInfo: true,
           // noPlayButton: true,
-          noAutoplayAttribute: true
+          noAutoplayAttribute: true,
         }),
         ...(props.forPreview && {
           ...(props.noAspecter && {
-            photoSize: choosePhotoSize(document, 200, 200, false)
+            photoSize: choosePhotoSize(document, 200, 200, false),
           }),
-          onlyPreview: true
+          onlyPreview: true,
         }),
-        withoutPreloader: !props.withPreloader
+        withoutPreloader: !props.withPreloader,
       });
 
       result.then(async(result) => {
-        if(!middleware()) return;
-        if(props.childrenClassName) {
-          if(result?.thumb) setChildrenClassName(result.thumb, props.childrenClassName);
-          if(result?.video) result.video.classList.add(props.childrenClassName);
+        if (!middleware()) return;
+        if (props.childrenClassName) {
+          if (result?.thumb) setChildrenClassName(result.thumb, props.childrenClassName);
+          if (result?.video) result.video.classList.add(props.childrenClassName);
         }
-        if(result?.thumb) await result.thumb.loadPromises.thumb;
-        if(!middleware()) return;
-        if(result?.thumb) setThumb(result.thumb.images.full as any || result.thumb.images.thumb);
+        if (result?.thumb) await result.thumb.loadPromises.thumb;
+        if (!middleware()) return;
+        if (result?.thumb) setThumb(result.thumb.images.full as any || result.thumb.images.thumb);
         setReady(true);
         const video = result?.video;
-        if(video && props.forViewer) {
+        if (video && props.forViewer) {
           video.loop = false;
           video.muted = true;
 
-          if(IS_SAFARI) { // * force Safari to load the video
+          if (IS_SAFARI) { // * force Safari to load the video
             video.load();
           }
         }
         await result?.loadPromise;
-        if(!middleware()) return;
+        if (!middleware()) return;
 
         setMedia(video);
       });
 
       return result;
-    }
+    },
   };
 
   let mediaResult: ReturnType<typeof wrapPhoto | typeof wrapVideo>;
-  switch(messageMedia._) {
+  switch (messageMedia._) {
     case 'messageMediaPhoto': {
       mediaResult = wrappers.photo(messageMedia);
       break;
@@ -209,7 +209,7 @@ export const wrapStoryMedia = (props: {
     }
   }
 
-  return {container, div: div!, media, mediaResult: mediaResult!, thumb, ready};
+  return { container, div: div!, media, mediaResult: mediaResult!, thumb, ready };
 };
 
 export const StoryPreview = (props: {
@@ -217,8 +217,8 @@ export const StoryPreview = (props: {
   loadPromises?: Promise<any>[],
   onExpiredStory?: () => void,
 } & CommonProperties) => {
-  let {loadPromises} = props;
-  if(loadPromises) {
+  let { loadPromises } = props;
+  if (loadPromises) {
     delete props.loadPromises;
   }
 
@@ -226,21 +226,21 @@ export const StoryPreview = (props: {
   loadPromises?.push(loadPromise);
   loadPromises = undefined;
 
-  const [storyItem, setStoryItem] = createSignal<StoryItem.storyItem>(undefined!, {equals: false});
+  const [storyItem, setStoryItem] = createSignal<StoryItem.storyItem>(undefined!, { equals: false });
   const [f, setF] = createSignal<JSX.Element>();
 
   rootScope.managers.acknowledged.appStoriesManager.getStoryById(props.peerId, props.storyId)
-  .then(async(result) => {
-    if(!result.cached) {
-      loadPromise?.resolve();
-    }
+    .then(async(result) => {
+      if (!result.cached) {
+        loadPromise?.resolve();
+      }
 
-    const storyItem = await result.result;
-    setStoryItem(storyItem!);
-  });
+      const storyItem = await result.result;
+      setStoryItem(storyItem!);
+    });
 
   const onStoryItem = (storyItem: StoryItem.storyItem) => {
-    if(!storyItem) {
+    if (!storyItem) {
       props.onExpiredStory?.();
       loadPromise.resolve();
       return;
@@ -260,10 +260,10 @@ export const StoryPreview = (props: {
     //   console.error('error', err);
     // });
 
-    const {container, ready} = wrapStoryMedia({
+    const { container, ready } = wrapStoryMedia({
       ...props,
       storyItem,
-      forPreview: true
+      forPreview: true,
     });
 
     createEffect(
@@ -273,7 +273,7 @@ export const StoryPreview = (props: {
           loadPromise?.resolve();
           setF(container);
         },
-        {defer: true}
+        { defer: true }
       )
     );
   };
@@ -282,7 +282,7 @@ export const StoryPreview = (props: {
     on(
       () => storyItem(),
       onStoryItem,
-      {defer: true}
+      { defer: true }
     )
   );
 

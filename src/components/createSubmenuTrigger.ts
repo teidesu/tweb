@@ -1,10 +1,10 @@
-import {CLICK_EVENT_NAME} from '@helpers/dom/clickEvent';
-import {getMiddleware, Middleware, MiddlewareHelper} from '@helpers/middleware';
+import { CLICK_EVENT_NAME } from '@helpers/dom/clickEvent';
+import { getMiddleware, Middleware, MiddlewareHelper } from '@helpers/middleware';
 import noop from '@helpers/noop';
 import pause from '@helpers/schedulers/pause';
-import {i18n} from '@lib/langPack';
-import {ButtonMenuItemOptionsVerifiable} from '@components/buttonMenu';
-import attachFloatingButtonMenu, {FloatingButtonMenuDirection} from '@components/floatingButtonMenu';
+import { i18n } from '@lib/langPack';
+import { ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
+import attachFloatingButtonMenu, { FloatingButtonMenuDirection } from '@components/floatingButtonMenu';
 import Icon from '@components/icon';
 
 
@@ -23,7 +23,7 @@ type CreateSubmenuTriggerArgs = {
 export default function createSubmenuTrigger({
   options,
   createSubmenu,
-  direction = 'right-start'
+  direction = 'right-start',
 }: CreateSubmenuTriggerArgs) {
   let
     isDisabled = false,
@@ -31,7 +31,7 @@ export default function createSubmenuTrigger({
   ;
 
   const onOpen = () => {
-    if(!menuBtnOptions.element) return;
+    if (!menuBtnOptions.element) return;
     currentMiddleware = getMiddleware();
 
     menuBtnOptions.element.addEventListener(CLICK_EVENT_NAME, (e) => {
@@ -43,7 +43,7 @@ export default function createSubmenuTrigger({
       element: menuBtnOptions.element,
       direction,
       createMenu: async() => {
-        const menu = await createSubmenu({middleware: currentMiddleware.get()});
+        const menu = await createSubmenu({ middleware: currentMiddleware.get() });
         menu.classList.add('btn-menu-submenu');
         return menu;
       },
@@ -51,7 +51,7 @@ export default function createSubmenuTrigger({
       level: 2,
       triggerEvent: 'mouseenter',
       canOpen: () => !isDisabled,
-      onClose: onClose
+      onClose: onClose,
     });
   };
 
@@ -79,7 +79,7 @@ export default function createSubmenuTrigger({
     onClick: noop,
     onOpen,
     onClose,
-    id: submenuHelperIdSeed++
+    id: submenuHelperIdSeed++,
   };
 
   delete menuBtnOptions.text;

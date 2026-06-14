@@ -1,12 +1,12 @@
-import PopupElement, {createPopup, PopupContext} from '@components/popups/indexTsx';
-import {ChannelsSponsoredMessageReportResult, MessageReportOption, ReportResult, SponsoredMessageReportOption} from '@layer';
-import {Accessor, createSignal, For, Setter, createResource, createEffect, onCleanup, createMemo, untrack, useContext} from 'solid-js';
+import PopupElement, { createPopup, PopupContext } from '@components/popups/indexTsx';
+import { ChannelsSponsoredMessageReportResult, MessageReportOption, ReportResult, SponsoredMessageReportOption } from '@layer';
+import { Accessor, createSignal, For, Setter, createResource, createEffect, onCleanup, createMemo, untrack, useContext } from 'solid-js';
 import Section from '@components/section';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import {TransitionGroup} from '@helpers/solid/transitionGroup';
+import { TransitionGroup } from '@helpers/solid/transitionGroup';
 import TransitionSlider from '@components/transition';
-import {i18n, LangPackKey} from '@lib/langPack';
-import {toastNew} from '@components/toast';
+import { i18n, LangPackKey } from '@lib/langPack';
+import { toastNew } from '@components/toast';
 import Icon from '@components/icon';
 import rootScope from '@lib/rootScope';
 import preloadAnimatedEmojiSticker from '@helpers/preloadAnimatedEmojiSticker';
@@ -52,24 +52,24 @@ export default function showReportAdPopup(
     const [activeSection, setActiveSection] = createSignal<RenderedSection>();
 
     function renderSection(result: ChooseOrComment, prevText?: string): RenderedSection {
-      const [option, setOption] = createSignal<SponsoredMessageReportOption | MessageReportOption>(undefined!, {equals: false});
+      const [option, setOption] = createSignal<SponsoredMessageReportOption | MessageReportOption>(undefined!, { equals: false });
       const [data] = createResource(() => option()?.option, (option) => report(option));
 
       const onReport = (hasReported: boolean) => {
         context!.hide();
         onAdHide?.();
-        toastNew({langPackKey: type === 'ad' ? (hasReported ? 'Ads.Reported' : 'AdHidden') : 'Reported2'});
+        toastNew({ langPackKey: type === 'ad' ? (hasReported ? 'Ads.Reported' : 'AdHidden') : 'Reported2' });
       };
 
       createEffect(() => {
         const _data = data();
-        if(!_data) {
+        if (!_data) {
           return;
         }
 
         const hasReported = _data._ === 'channels.sponsoredMessageReportResultReported' || _data._ === 'reportResultReported';
         const hasHidden = _data._ === 'channels.sponsoredMessageReportResultAdsHidden';
-        if(hasReported || hasHidden) {
+        if (hasReported || hasHidden) {
           onReport(hasReported);
           return;
         }
@@ -77,10 +77,10 @@ export default function showReportAdPopup(
         const rendered = renderSection(_data as typeof result, untrack(option).text);
         const middleware = createMiddleware().get();
         rendered.readyPromise.then(() => {
-          if(!middleware()) return;
+          if (!middleware()) return;
           setSections((sections) => [
             ...sections,
-            rendered
+            rendered,
           ]);
         });
         setOption(undefined!); // reset for another click
@@ -90,14 +90,14 @@ export default function showReportAdPopup(
 
       let timeout: number;
       const onTransition = (e: TransitionEvent) => {
-        if(e.target !== container!) {
+        if (e.target !== container!) {
           return;
         }
 
         const isStart = e.type === 'transitionstart';
         setTransition(isStart);
         clearTimeout(timeout);
-        if(isStart) { // * fix
+        if (isStart) { // * fix
           timeout = window.setTimeout(() => {
             setTransition(false);
           }, 300);
@@ -108,7 +108,7 @@ export default function showReportAdPopup(
       let stickerDiv: HTMLDivElement, inputField: InputField, sendButton: HTMLButtonElement;
       let readyPromise: Promise<any> = Promise.resolve();
       const isComment = result._ === 'reportResultAddComment';
-      if(isComment) {
+      if (isComment) {
         stickerDiv = document.createElement('div');
         const size = 130;
         readyPromise = wrapStickerEmoji({
@@ -116,13 +116,13 @@ export default function showReportAdPopup(
           emoji: STICKER_EMOJI,
           width: size,
           height: size,
-          middleware: createMiddleware().get()
-        }).then(({render}) => render);
+          middleware: createMiddleware().get(),
+        }).then(({ render }) => render);
         inputField = new InputField({
           label: 'ReportHint',
           maxLength: 512,
           placeholder: result.pFlags.optional ? 'Report2CommentOptional' : 'Report2Comment',
-          required: !result.pFlags.optional
+          required: !result.pFlags.optional,
         });
 
         [maxHeight!, setMaxHeight!] = createSignal(undefined as unknown as number);
@@ -167,7 +167,7 @@ export default function showReportAdPopup(
           onTransitionStart={onTransition}
           onTransitionEnd={onTransition}
         >
-          <div class={classNames('popup-report-ad-tab-options')} style={{height: (activeHeight() || maxHeight()) + 'px'}}>
+          <div class={classNames('popup-report-ad-tab-options')} style={{ height: (activeHeight() || maxHeight()) + 'px' }}>
             {inner}
           </div>
         </Section>
@@ -176,7 +176,7 @@ export default function showReportAdPopup(
       transitions.set(container!, transition);
       onCleanup(() => transitions.delete(container!));
 
-      if(isComment) {
+      if (isComment) {
         const [disabled, setDisabled] = createSignal(false);
         (
           <Button
@@ -190,7 +190,7 @@ export default function showReportAdPopup(
               try {
                 await report(result.option, inputField.value);
                 onReport(true);
-              } catch(err) {
+              } catch (err) {
                 console.error(err);
                 setDisabled(false);
                 inputField.input.contentEditable = 'true';
@@ -211,18 +211,18 @@ export default function showReportAdPopup(
         caption!.after(sendButton!);
       }
 
-      return {container: container!, transition, maxHeight, prevText: prevText!, readyPromise, isComment};
+      return { container: container!, transition, maxHeight, prevText: prevText!, readyPromise, isComment };
     }
 
     setSections([
-      renderSection(props.reportResult as ChooseOrComment)
+      renderSection(props.reportResult as ChooseOrComment),
     ]);
 
     createEffect(() => {
       const _sections = sections();
       transition(_sections.length - 1);
       headerTransition(_sections.length === 1 ? 0 : 1);
-      if(!untrack(activeSection)) {
+      if (!untrack(activeSection)) {
         setActiveSection(_sections[_sections.length - 1]);
       }
     });
@@ -231,7 +231,7 @@ export default function showReportAdPopup(
     const body = (
       <div ref={container!} class="popup-report-ad-tabs tabs-container">
         <TransitionGroup transitions={transitions}>
-          {sections().map(({container}) => container)}
+          {sections().map(({ container }) => container)}
         </TransitionGroup>
       </div>
     );
@@ -243,7 +243,7 @@ export default function showReportAdPopup(
       animateFirst: false,
       onTransitionStartAfter: () => {
         setActiveSection(sections()[sections().length - 1]);
-      }
+      },
     });
 
     const prevText = createMemo<string>((prev) => (activeSection()?.prevText ?? prev)!);
@@ -266,7 +266,7 @@ export default function showReportAdPopup(
       content: titleRef!,
       type: 'slide-fade',
       transitionTime: 400,
-      isHeavy: false
+      isHeavy: false,
     });
 
     return (

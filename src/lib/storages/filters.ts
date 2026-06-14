@@ -1,22 +1,22 @@
-import type {DialogFilter, InputChatlist, Update, Updates} from '@layer';
-import type {Dialog} from '@appManagers/appMessagesManager';
-import type {AnyDialog} from '@lib/storages/dialogs';
+import type { DialogFilter, InputChatlist, Update, Updates } from '@layer';
+import type { Dialog } from '@appManagers/appMessagesManager';
+import type { AnyDialog } from '@lib/storages/dialogs';
 import forEachReverse from '@helpers/array/forEachReverse';
 import copy from '@helpers/object/copy';
-import {AppManager} from '@appManagers/manager';
+import { AppManager } from '@appManagers/manager';
 import findAndSplice from '@helpers/array/findAndSplice';
 import assumeType from '@helpers/assumeType';
-import {FOLDER_ID_ALL, FOLDER_ID_ARCHIVE, REAL_FOLDERS, REAL_FOLDER_ID, START_LOCAL_ID} from '@appManagers/constants';
+import { FOLDER_ID_ALL, FOLDER_ID_ARCHIVE, REAL_FOLDERS, REAL_FOLDER_ID, START_LOCAL_ID } from '@appManagers/constants';
 import makeError from '@helpers/makeError';
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
-import {isDialog} from '@appManagers/utils/dialogs/isDialog';
+import { isDialog } from '@appManagers/utils/dialogs/isDialog';
 
 export type MyDialogFilter = Exclude<DialogFilter, DialogFilter.dialogFilterDefault>;
 
 const convertment = [
   ['pinned_peers', 'pinnedPeerIds'],
   ['exclude_peers', 'excludePeerIds'],
-  ['include_peers', 'includePeerIds']
+  ['include_peers', 'includePeerIds'],
 ] as ['pinned_peers' | 'exclude_peers' | 'include_peers', 'pinnedPeerIds' | 'excludePeerIds' | 'includePeerIds'][];
 
 const PREPENDED_FILTERS = REAL_FOLDERS.size;
@@ -25,13 +25,13 @@ const LOCAL_FILTER: DialogFilter.dialogFilter = {
   _: 'dialogFilter',
   pFlags: {},
   id: 0,
-  title: {_: 'textWithEntities', text: '', entities: []},
+  title: { _: 'textWithEntities', text: '', entities: [] },
   exclude_peers: [],
   include_peers: [],
   pinned_peers: [],
   excludePeerIds: [],
   includePeerIds: [],
-  pinnedPeerIds: []
+  pinnedPeerIds: [],
 };
 
 export default class FiltersStorage extends AppManager {
@@ -49,7 +49,7 @@ export default class FiltersStorage extends AppManager {
 
       updateDialogFilters: this.onUpdateDialogFilters,
 
-      updateDialogFilterOrder: this.onUpdateDialogFilterOrder
+      updateDialogFilterOrder: this.onUpdateDialogFilterOrder,
     });
 
     // delete peers when dialog is being dropped
@@ -73,7 +73,7 @@ export default class FiltersStorage extends AppManager {
     }); */
 
     this.rootScope.addEventListener('premium_toggle', () => {
-      this.onUpdateDialogFilters({_: 'updateDialogFilters'});
+      this.onUpdateDialogFilters({ _: 'updateDialogFilters' });
     });
 
     return this.appStateManager.getState().then((state) => {
@@ -94,7 +94,7 @@ export default class FiltersStorage extends AppManager {
     const archiveFilter = this.localFilters[FOLDER_ID_ARCHIVE];
 
     const allChatsFilterIndex = filters.findIndex((filter) => filter._ === 'dialogFilterDefault' || filter.id === FOLDER_ID_ALL);
-    if(allChatsFilterIndex !== -1) filters[allChatsFilterIndex] = allChatsFilter;
+    if (allChatsFilterIndex !== -1) filters[allChatsFilterIndex] = allChatsFilter;
     else filters.unshift(allChatsFilter);
 
     findAndSplice(filters, (filter) => (filter as MyDialogFilter).id === FOLDER_ID_ARCHIVE);
@@ -109,14 +109,14 @@ export default class FiltersStorage extends AppManager {
   }
 
   private generateLocalFilter(id: REAL_FOLDER_ID) {
-    const filter: MyDialogFilter = {...copy(LOCAL_FILTER), id};
-    if(id === FOLDER_ID_ALL) {
+    const filter: MyDialogFilter = { ...copy(LOCAL_FILTER), id };
+    if (id === FOLDER_ID_ALL) {
       filter.pFlags.exclude_archived = true;
-    } else if(id === FOLDER_ID_ARCHIVE) {
+    } else if (id === FOLDER_ID_ARCHIVE) {
       filter.pFlags.exclude_unarchived = true;
     }
 
-    if(REAL_FOLDERS.has(id)) {
+    if (REAL_FOLDERS.has(id)) {
       filter.pinnedPeerIds = this.dialogsStorage.getPinnedOrders(id);
     }
 
@@ -128,7 +128,7 @@ export default class FiltersStorage extends AppManager {
   // }
 
   public clear = (init?: boolean) => {
-    if(!init) {
+    if (!init) {
       // safeReplaceObject(this.filters, {});
       this.reloadedPeerIds.clear();
       this.clearFilters();
@@ -138,7 +138,7 @@ export default class FiltersStorage extends AppManager {
       this.reloadedPeerIds = new Set();
 
       this.localFilters = {};
-      for(const filterId of REAL_FOLDERS) {
+      for (const filterId of REAL_FOLDERS) {
         this.localFilters[filterId] = this.generateLocalFilter(filterId as REAL_FOLDER_ID);
       }
     }
@@ -147,9 +147,9 @@ export default class FiltersStorage extends AppManager {
   };
 
   private onUpdateDialogFilter = (update: Update.updateDialogFilter) => {
-    if(update.filter) {
+    if (update.filter) {
       this.saveDialogFilter(update.filter as any);
-    } else if(this.filters[update.id]) { // Папка удалена
+    } else if (this.filters[update.id]) { // Папка удалена
       // this.getDialogFilters(true);
       this.rootScope.dispatchEvent('filter_delete', this.filters[update.id]);
       delete this.filters[update.id];
@@ -165,14 +165,14 @@ export default class FiltersStorage extends AppManager {
     const oldFilters = copy(this.filters);
 
     this.getDialogFilters(true).then((filters) => {
-      for(const _filterId in oldFilters) {
+      for (const _filterId in oldFilters) {
         const filterId = +_filterId;
-        if(!filters.find((filter) => filter.id === filterId)) { // * deleted
-          this.onUpdateDialogFilter({_: 'updateDialogFilter', id: filterId});
+        if (!filters.find((filter) => filter.id === filterId)) { // * deleted
+          this.onUpdateDialogFilter({ _: 'updateDialogFilter', id: filterId });
         }
       }
 
-      this.onUpdateDialogFilterOrder({_: 'updateDialogFilterOrder', order: filters.map((filter) => filter.id)});
+      this.onUpdateDialogFilterOrder({ _: 'updateDialogFilterOrder', order: filters.map((filter) => filter.id) });
     });
   };
 
@@ -180,7 +180,7 @@ export default class FiltersStorage extends AppManager {
     // console.log('updateDialogFilterOrder', update);
 
     const order = update.order.slice();
-    if(!order.includes(FOLDER_ID_ARCHIVE)) {
+    if (!order.includes(FOLDER_ID_ARCHIVE)) {
       order.splice(order[0] === FOLDER_ID_ALL ? 1 : 0, 0, FOLDER_ID_ARCHIVE);
     }
 
@@ -201,77 +201,77 @@ export default class FiltersStorage extends AppManager {
   }
 
   public testDialogForFilter(dialog: AnyDialog, filter?: MyDialogFilter) {
-    if(!filter || !isDialog(dialog)) {
+    if (!filter || !isDialog(dialog)) {
       return true;
     }
 
-    const {peerId} = dialog;
+    const { peerId } = dialog;
 
-    if(REAL_FOLDERS.has(filter.id)) {
+    if (REAL_FOLDERS.has(filter.id)) {
       return dialog.folder_id === filter.id && this.dialogsStorage.canSaveDialog(peerId!, dialog);
     }
 
     // * check whether dialog exists
-    if(!this.appMessagesManager.getDialogOnly(peerId!)) {
+    if (!this.appMessagesManager.getDialogOnly(peerId!)) {
       return false;
     }
 
     // exclude_peers
-    if((filter as DialogFilter.dialogFilter).excludePeerIds?.includes(peerId!)) {
+    if ((filter as DialogFilter.dialogFilter).excludePeerIds?.includes(peerId!)) {
       return false;
     }
 
     // include_peers
-    if((filter as DialogFilter.dialogFilter).includePeerIds?.includes(peerId!)) {
+    if ((filter as DialogFilter.dialogFilter).includePeerIds?.includes(peerId!)) {
       return true;
     }
 
     const pFlags = (filter as DialogFilter.dialogFilter).pFlags;
 
-    if(!pFlags) {
+    if (!pFlags) {
       return true;
     }
 
     // exclude_archived
-    if(pFlags.exclude_archived && dialog.folder_id === FOLDER_ID_ARCHIVE) {
+    if (pFlags.exclude_archived && dialog.folder_id === FOLDER_ID_ARCHIVE) {
       return false;
     }
 
     // exclude_read
-    if(pFlags.exclude_read && !this.appMessagesManager.isDialogUnread(dialog)) {
+    if (pFlags.exclude_read && !this.appMessagesManager.isDialogUnread(dialog)) {
       return false;
     }
 
     // exclude_muted
-    if(pFlags.exclude_muted && this.appNotificationsManager.isPeerLocalMuted({peerId: peerId!}) && !(dialog.unread_mentions_count && dialog.unread_count)) {
+    if (pFlags.exclude_muted && this.appNotificationsManager.isPeerLocalMuted({ peerId: peerId! }) && !(dialog.unread_mentions_count && dialog.unread_count)) {
       return false;
     }
 
-    if(this.appPeersManager.isAnyChat(peerId!)) {
+    if (this.appPeersManager.isAnyChat(peerId!)) {
       // broadcasts
-      if(pFlags.broadcasts && this.appPeersManager.isBroadcast(peerId!)) {
+      if (pFlags.broadcasts && this.appPeersManager.isBroadcast(peerId!)) {
         return true;
       }
 
       // groups
-      if(pFlags.groups && this.appPeersManager.isAnyGroup(peerId!)) {
+      if (pFlags.groups && this.appPeersManager.isAnyGroup(peerId!)) {
         return true;
       }
     } else {
       const userId = peerId!.toUserId();
 
       // bots
-      if(this.appUsersManager.isBot(userId)) {
+      if (this.appUsersManager.isBot(userId)) {
         return !!pFlags.bots;
       }
 
       // non_contacts
-      if(pFlags.non_contacts && !this.appUsersManager.isContact(userId)) {
+      if (pFlags.non_contacts && !this.appUsersManager.isContact(userId)) {
         return true;
       }
 
       // contacts
-      if(pFlags.contacts && this.appUsersManager.isContact(userId)) {
+      if (pFlags.contacts && this.appUsersManager.isContact(userId)) {
         return true;
       }
     }
@@ -293,14 +293,14 @@ export default class FiltersStorage extends AppManager {
 
   public clearFilters() {
     const filters = this.getFilters();
-    for(const filterId in filters) { // delete filters
-      if(REAL_FOLDERS.has(+filterId)) {
+    for (const filterId in filters) { // delete filters
+      if (REAL_FOLDERS.has(+filterId)) {
         continue;
       }
 
       this.onUpdateDialogFilter({
         _: 'updateDialogFilter',
-        id: +filterId
+        id: +filterId,
       });
     }
   }
@@ -311,13 +311,13 @@ export default class FiltersStorage extends AppManager {
     const index = filter.pinnedPeerIds!.indexOf(peerId);
     const wasPinned = index !== -1;
 
-    if(wasPinned) {
+    if (wasPinned) {
       filter.pinned_peers.splice(index, 1);
       filter.pinnedPeerIds!.splice(index, 1);
     }
 
-    if(!wasPinned) {
-      if(filter.pinned_peers.length >= (await this.apiManager.getLimit('folderPin'))) {
+    if (!wasPinned) {
+      if (filter.pinned_peers.length >= (await this.apiManager.getLimit('folderPin'))) {
         return Promise.reject(makeError('PINNED_DIALOGS_TOO_MUCH'));
       }
 
@@ -338,15 +338,15 @@ export default class FiltersStorage extends AppManager {
   public updateDialogFilter(filter: MyDialogFilter, remove = false, prepend = false) {
     return this.apiManager.invokeApi('messages.updateDialogFilter', {
       id: filter.id,
-      filter: remove ? undefined : this.getOutputDialogFilter(filter)
+      filter: remove ? undefined : this.getOutputDialogFilter(filter),
     }).then(() => {
       this.onUpdateDialogFilter({
         _: 'updateDialogFilter',
         id: filter.id,
-        filter: remove ? undefined : filter as any
+        filter: remove ? undefined : filter as any,
       });
 
-      if(prepend) {
+      if (prepend) {
         const f = Object.values(this.filters);
         const order = f.sort((a, b) => a.localId! - b.localId!).map((filter) => filter.id);
         indexOfAndSplice(order, filter.id);
@@ -354,7 +354,7 @@ export default class FiltersStorage extends AppManager {
         order.splice(order[0] === FOLDER_ID_ALL ? 1 : 0, 0, filter.id);
         this.onUpdateDialogFilterOrder({
           _: 'updateDialogFilterOrder',
-          order
+          order,
         });
       }
 
@@ -364,11 +364,11 @@ export default class FiltersStorage extends AppManager {
 
   public updateDialogFiltersOrder(order: number[]) {
     return this.apiManager.invokeApi('messages.updateDialogFiltersOrder', {
-      order
+      order,
     }).then(() => {
       this.onUpdateDialogFilterOrder({
         _: 'updateDialogFilterOrder',
-        order
+        order,
       });
     });
   }
@@ -386,7 +386,7 @@ export default class FiltersStorage extends AppManager {
 
   private filterIncludedPinnedPeers(filter: MyDialogFilter) {
     forEachReverse(filter.includePeerIds!, (peerId, idx) => {
-      if(filter.pinnedPeerIds!.includes(peerId)) {
+      if (filter.pinnedPeerIds!.includes(peerId)) {
         filter.include_peers.splice(idx!, 1);
         filter.includePeerIds!.splice(idx!, 1);
       }
@@ -423,7 +423,7 @@ export default class FiltersStorage extends AppManager {
   ) {
     const filter = this.getFilter(filterId);
     const peers = (filter as DialogFilter.dialogFilter)?.[type];
-    if(!peers?.length) {
+    if (!peers?.length) {
       return;
     }
 
@@ -440,7 +440,7 @@ export default class FiltersStorage extends AppManager {
       return reload;
     });
 
-    if(!reloadDialogs.length) {
+    if (!reloadDialogs.length) {
       // if(missingPeerIds.length) {
       //   this.spliceMissingPeerIds(filterId, type, missingPeerIds);
       // }
@@ -451,18 +451,18 @@ export default class FiltersStorage extends AppManager {
     const reloadPromises = reloadDialogs.map((inputPeer) => {
       const peerId = this.appPeersManager.getPeerId(inputPeer);
       const promise = this.appMessagesManager.reloadConversation(inputPeer)
-      .then((dialog) => {
-        this.reloadedPeerIds.add(peerId);
+        .then((dialog) => {
+          this.reloadedPeerIds.add(peerId);
 
-        return dialog ? undefined : peerId;
-      });
+          return dialog ? undefined : peerId;
+        });
 
       return promise;
     });
 
     const reloadPromise = Promise.all(reloadPromises).then((missingPeerIds) => {
       missingPeerIds = missingPeerIds.filter(Boolean);
-      if(!missingPeerIds.length) {
+      if (!missingPeerIds.length) {
         return;
       }
 
@@ -474,7 +474,7 @@ export default class FiltersStorage extends AppManager {
 
   public async getDialogFilters(overwrite = false): Promise<MyDialogFilter[]> {
     const keys = Object.keys(this.filters);
-    if(keys.length > PREPENDED_FILTERS && !overwrite) {
+    if (keys.length > PREPENDED_FILTERS && !overwrite) {
       return keys.map((filterId) => this.filters[filterId]).sort((a, b) => a.localId! - b.localId!);
     }
 
@@ -490,15 +490,15 @@ export default class FiltersStorage extends AppManager {
   public saveDialogFilter(filter: DialogFilter, update = true, silent?: boolean) {
     // defineNotNumerableProperties(filter, ['includePeerIds', 'excludePeerIds', 'pinnedPeerIds']);
 
-    if(filter._ === 'dialogFilterDefault') {
+    if (filter._ === 'dialogFilterDefault') {
       filter = this.localFilters[FOLDER_ID_ALL];
     }
 
     assumeType<MyDialogFilter>(filter);
-    if(!REAL_FOLDERS.has(filter.id)) {
+    if (!REAL_FOLDERS.has(filter.id)) {
       convertment.forEach(([from, to]) => {
         const arrayFrom = (filter as DialogFilter.dialogFilter)[from];
-        if(!arrayFrom) return;
+        if (!arrayFrom) return;
         (filter as DialogFilter.dialogFilter)[to] = arrayFrom.map((peer) => this.appPeersManager.getPeerId(peer));
       });
 
@@ -509,7 +509,7 @@ export default class FiltersStorage extends AppManager {
     }
 
     const oldFilter = this.filters[filter.id];
-    if(oldFilter) {
+    if (oldFilter) {
       filter = Object.assign(oldFilter, filter);
     } else {
       this.filters[filter.id] = filter;
@@ -517,10 +517,10 @@ export default class FiltersStorage extends AppManager {
 
     this.setLocalId(filter);
 
-    if(!silent) {
-      if(update) {
+    if (!silent) {
+      if (update) {
         this.rootScope.dispatchEvent('filter_update', filter);
-      } else if(!oldFilter) {
+      } else if (!oldFilter) {
         this.rootScope.dispatchEvent('filter_new', filter);
       }
     }
@@ -529,8 +529,8 @@ export default class FiltersStorage extends AppManager {
   }
 
   private setLocalId(filter: MyDialogFilter) {
-    if(filter.localId !== undefined) {
-      if(filter.localId >= this.localId) {
+    if (filter.localId !== undefined) {
+      if (filter.localId >= this.localId) {
         this.localId = filter.localId + 1;
       }
     } else {
@@ -542,20 +542,20 @@ export default class FiltersStorage extends AppManager {
   }
 
   public async isFilterIdAvailable(filterId: number): Promise<boolean | undefined> {
-    if(REAL_FOLDERS.has(filterId)) {
+    if (REAL_FOLDERS.has(filterId)) {
       return true;
     }
 
     await this.getDialogFilters();
-    if(!this.filtersArr.some((filter) => filter.id === filterId)) {
+    if (!this.filtersArr.some((filter) => filter.id === filterId)) {
       return;
     }
 
     const limit = await this.apiManager.getLimit('folders');
     const isFolderAvailable = this.filtersArr
-    .filter((filter) => !REAL_FOLDERS.has(filter.id))
-    .slice(0, limit)
-    .some((filter) => filter.id === filterId);
+      .filter((filter) => !REAL_FOLDERS.has(filter.id))
+      .slice(0, limit)
+      .some((filter) => filter.id === filterId);
 
     return isFolderAvailable;
   }
@@ -563,7 +563,7 @@ export default class FiltersStorage extends AppManager {
   public getChatlistInput(id: number): InputChatlist {
     return {
       _: 'inputChatlistDialogFilter',
-      filter_id: id
+      filter_id: id,
     };
   }
 
@@ -576,12 +576,12 @@ export default class FiltersStorage extends AppManager {
       params: {
         chatlist: this.getChatlistInput(filter.id),
         title: filter.title.text,
-        peers: filter.include_peers
+        peers: filter.include_peers,
       },
       processResult: (exportedChatlistInvite) => {
         this.saveDialogFilter(exportedChatlistInvite.filter);
         return exportedChatlistInvite;
-      }
+      },
     });
   }
 
@@ -590,8 +590,8 @@ export default class FiltersStorage extends AppManager {
       method: 'chatlists.deleteExportedInvite',
       params: {
         chatlist: this.getChatlistInput(id),
-        slug
-      }
+        slug,
+      },
     });
   }
 
@@ -600,38 +600,38 @@ export default class FiltersStorage extends AppManager {
       chatlist: this.getChatlistInput(id),
       slug,
       title,
-      peers: peerIds.map((peerId) => this.appPeersManager.getInputPeerById(peerId))
+      peers: peerIds.map((peerId) => this.appPeersManager.getInputPeerById(peerId)),
     });
   }
 
   public getExportedInvites(id: number) {
     const filter = this.getFilter(id);
-    if(filter?._ === 'dialogFilter') {
+    if (filter?._ === 'dialogFilter') {
       return Promise.reject(makeError('FILTER_NOT_SUPPORTED'));
     }
 
     return this.apiManager.invokeApiSingleProcess({
       method: 'chatlists.getExportedInvites',
       params: {
-        chatlist: this.getChatlistInput(id)
+        chatlist: this.getChatlistInput(id),
       },
       processResult: (exportedInvites) => {
         this.appUsersManager.saveApiUsers(exportedInvites.users);
         this.appChatsManager.saveApiChats(exportedInvites.chats);
         return exportedInvites.invites;
-      }
+      },
     });
   }
 
   public checkChatlistInvite(slug: string) {
     return this.apiManager.invokeApiSingleProcess({
       method: 'chatlists.checkChatlistInvite',
-      params: {slug},
+      params: { slug },
       processResult: (chatlistInvite) => {
         this.appUsersManager.saveApiUsers(chatlistInvite.users);
         this.appChatsManager.saveApiChats(chatlistInvite.chats);
         return chatlistInvite;
-      }
+      },
     });
   }
 
@@ -640,7 +640,7 @@ export default class FiltersStorage extends AppManager {
       method: 'chatlists.joinChatlistInvite',
       params: {
         slug,
-        peers: peerIds.map((peerId) => this.appPeersManager.getInputPeerById(peerId))
+        peers: peerIds.map((peerId) => this.appPeersManager.getInputPeerById(peerId)),
       },
       processResult: (updates) => {
         this.apiUpdatesManager.processUpdateMessage(updates);
@@ -648,13 +648,13 @@ export default class FiltersStorage extends AppManager {
         const filterId = update.id;
         this.rootScope.dispatchEvent('filter_joined', this.getFilter(filterId));
         return filterId;
-      }
+      },
     });
   }
 
   public getChatlistUpdates(id: number) {
     const filter = this.getFilter(id);
-    if(filter?._ !== 'dialogFilterChatlist') {
+    if (filter?._ !== 'dialogFilterChatlist') {
       return Promise.reject(makeError('FILTER_NOT_SUPPORTED'));
     }
 
@@ -662,20 +662,20 @@ export default class FiltersStorage extends AppManager {
     return this.apiManager.invokeApiSingleProcess({
       method: 'chatlists.getChatlistUpdates',
       params: {
-        chatlist: this.getChatlistInput(id)
+        chatlist: this.getChatlistInput(id),
       },
       processResult: (chatlistUpdates) => {
         this.appUsersManager.saveApiUsers(chatlistUpdates.users);
         this.appChatsManager.saveApiChats(chatlistUpdates.chats);
 
         const filter = this.getFilter(id);
-        if(filter?._ === 'dialogFilterChatlist') {
+        if (filter?._ === 'dialogFilterChatlist') {
           filter.updatedTime = time;
           this.pushToState();
         }
 
         return chatlistUpdates;
-      }
+      },
     });
   }
 
@@ -684,23 +684,23 @@ export default class FiltersStorage extends AppManager {
       method: 'chatlists.joinChatlistUpdates',
       params: {
         chatlist: this.getChatlistInput(id),
-        peers: peerIds.map((peerId) => this.appPeersManager.getInputPeerById(peerId))
+        peers: peerIds.map((peerId) => this.appPeersManager.getInputPeerById(peerId)),
       },
       processResult: (updates) => {
         this.apiUpdatesManager.processUpdateMessage(updates);
-      }
+      },
     });
   }
 
   public hideChatlistUpdates(id: number) {
     return this.apiManager.invokeApiSingle('chatlists.hideChatlistUpdates', {
-      chatlist: this.getChatlistInput(id)
+      chatlist: this.getChatlistInput(id),
     });
   }
 
   public getLeaveChatlistSuggestions(id: number) {
     return this.apiManager.invokeApiSingle('chatlists.getLeaveChatlistSuggestions', {
-      chatlist: this.getChatlistInput(id)
+      chatlist: this.getChatlistInput(id),
     });
   }
 
@@ -709,11 +709,11 @@ export default class FiltersStorage extends AppManager {
       method: 'chatlists.leaveChatlist',
       params: {
         chatlist: this.getChatlistInput(id),
-        peers: peerIds.map((peerId) => this.appPeersManager.getInputPeerById(peerId))
+        peers: peerIds.map((peerId) => this.appPeersManager.getInputPeerById(peerId)),
       },
       processResult: (updates) => {
         this.apiUpdatesManager.processUpdateMessage(updates);
-      }
+      },
     });
   }
 }

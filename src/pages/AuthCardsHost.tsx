@@ -1,33 +1,33 @@
-import {JSX, Match, Show, Switch, children, createMemo, lazy, onMount} from 'solid-js';
+import { JSX, Match, Show, Switch, children, createMemo, lazy, onMount } from 'solid-js';
 
 import Scrollable from '@components/scrollable2';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import {IS_MOBILE_SAFARI} from '@environment/userAgent';
+import { IS_MOBILE_SAFARI } from '@environment/userAgent';
 import loadFonts from '@helpers/dom/loadFonts';
-import {doubleRaf} from '@helpers/schedulers';
+import { doubleRaf } from '@helpers/schedulers';
 import pause from '@helpers/schedulers/pause';
 import classNames from '@helpers/string/classNames';
 import themeController from '@helpers/themeController';
-import {changeAccount} from '@lib/accounts/changeAccount';
-import {getCurrentAccount} from '@lib/accounts/getCurrentAccount';
-import {getValidatedAccount} from '@lib/accounts/getValidatedAccount';
+import { changeAccount } from '@lib/accounts/changeAccount';
+import { getCurrentAccount } from '@lib/accounts/getCurrentAccount';
+import { getValidatedAccount } from '@lib/accounts/getValidatedAccount';
 import rootScope from '@lib/rootScope';
 import sessionStorage from '@lib/sessionStorage';
 
-import {Transition} from '@vendor/solid-transition-group';
+import { Transition } from '@vendor/solid-transition-group';
 
 import {
   AuthFlowContext,
   AuthFlowContextValue,
   currentCard,
   matchCard,
-  navigateAuth
+  navigateAuth,
 } from '@/pages/authFlow';
 import styles from '@/pages/authFlow.module.scss';
-import {bootstrapIm} from '@/pages/bootstrapIm';
+import { bootstrapIm } from '@/pages/bootstrapIm';
 import Button from '@components/buttonTsx';
 
-if(import.meta.hot) import.meta.hot.accept();
+if (import.meta.hot) import.meta.hot.accept();
 
 /* ------------------------------------------------------------------ */
 /* Lazy card slots — same chunk-splitting as the legacy dynamic imports */
@@ -72,17 +72,17 @@ export default function AuthCardsHost(): JSX.Element {
     current: currentCard,
     navigate: navigateAuth,
     back,
-    toIm
+    toIm,
   };
 
   /* ---------- back button (returns to previous account) ---------- */
 
   async function back(): Promise<void> {
-    await sessionStorage.set({should_animate_main: 1});
+    await sessionStorage.set({ should_animate_main: 1 });
     const prevAccount = getValidatedAccount((await sessionStorage.get('previous_account'))!);
     await sessionStorage.delete('previous_account');
 
-    if(hostEl) {
+    if (hostEl) {
       hostEl.classList.add(styles.hostExit);
       await doubleRaf();
       hostEl.classList.add(styles.hostExiting);
@@ -110,7 +110,7 @@ export default function AuthCardsHost(): JSX.Element {
     const rect = icon.getBoundingClientRect();
     themeController.switchTheme(undefined, {
       x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 2
+      y: rect.top + rect.height / 2,
     });
   }
 
@@ -120,7 +120,7 @@ export default function AuthCardsHost(): JSX.Element {
     const fontsPromise = loadFonts();
 
     const shouldAnimate = await sessionStorage.get('should_animate_auth');
-    if(shouldAnimate) {
+    if (shouldAnimate) {
       await sessionStorage.delete('should_animate_auth');
       hostEl.classList.add(styles.hostEnter);
     }
@@ -128,7 +128,7 @@ export default function AuthCardsHost(): JSX.Element {
     await fontsPromise;
     hostEl.style.opacity = '';
 
-    if(!shouldAnimate) return;
+    if (!shouldAnimate) return;
 
     await pause(20);
     await doubleRaf();
@@ -140,7 +140,7 @@ export default function AuthCardsHost(): JSX.Element {
   /* ---------- onMount ---------- */
 
   onMount(() => {
-    if(!currentCard()) {
+    if (!currentCard()) {
       console.warn(
         '[AuthCardsHost] mounted without an initial card — call navigateAuth({...}) before render'
       );
@@ -153,7 +153,7 @@ export default function AuthCardsHost(): JSX.Element {
 
   return (
     <AuthFlowContext.Provider value={ctx}>
-      <div ref={hostEl} style={{opacity: 0}} class={classNames('whole', styles.host)} id="auth-pages">
+      <div ref={hostEl} style={{ opacity: 0 }} class={classNames('whole', styles.host)} id="auth-pages">
         {showBackButton && (
           <Button.Icon icon="back" class={styles.closeButton} onClick={back} />
         )}

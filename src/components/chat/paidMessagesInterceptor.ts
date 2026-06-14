@@ -1,9 +1,9 @@
-import {SEND_PAID_WITH_STARS_DELAY} from '@appManagers/constants';
-import type {AppManagers} from '@lib/managers';
-import useStars, {setReservedStars} from '@stores/stars';
-import {MOUNT_CLASS_TO} from '@config/debug';
+import { SEND_PAID_WITH_STARS_DELAY } from '@appManagers/constants';
+import type { AppManagers } from '@lib/managers';
+import useStars, { setReservedStars } from '@stores/stars';
+import { MOUNT_CLASS_TO } from '@config/debug';
 import rootScope from '@lib/rootScope';
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 import noop from '@helpers/noop';
 
 import confirmationPopup from '@components/confirmationPopup';
@@ -11,10 +11,10 @@ import wrapPeerTitle from '@components/wrappers/peerTitle';
 import PopupStars from '@components/popups/stars';
 import PopupElement from '@components/popups';
 
-import showUndoablePaidTooltip, {paidMessagesLangKeys} from '@components/chat/undoablePaidTooltip';
+import showUndoablePaidTooltip, { paidMessagesLangKeys } from '@components/chat/undoablePaidTooltip';
 import createPendingUndoableMessage from '@components/chat/pendingUndoableMessage';
 import type Chat from '@components/chat/chat';
-import {useAppState} from '@stores/appState';
+import { useAppState } from '@stores/appState';
 
 
 type PassedDownArgs = {
@@ -58,7 +58,7 @@ export default class PaidMessagesInterceptor {
    */
   private static MIN_UNDO_SENDING_PARAMS = {
     starsAmount: 100,
-    messageCount: 3
+    messageCount: 3,
   };
   // private static MIN_UNDO_SENDING_PARAMS = {
   //   starsAmount: 2,
@@ -81,42 +81,42 @@ export default class PaidMessagesInterceptor {
    * to make sure we don't accidentally send stars in a case that might have not been handled
    */
   public async prepareStarsForPayment(messageCount: number): Promise<PreparedPaymentResult> {
-    const {peerId, starsAmount} = this.chat
+    const { peerId, starsAmount } = this.chat
 
-    if(!starsAmount) return;
+    if (!starsAmount) return;
 
     const totalStarsAmount = messageCount * starsAmount;
 
-    if(PaidMessagesInterceptor.starsBalance < totalStarsAmount)
+    if (PaidMessagesInterceptor.starsBalance < totalStarsAmount)
     {
       this.pendingUndoableMessage.abort();
       PopupElement.createPopup(PopupStars);
       return PAYMENT_REJECTED;
     }
 
-    const userConfirmation = await PaidMessagesInterceptor.checkIfUserReallyWantsToPay({peerId, messageCount, starsAmount, withDontShowAgain: true});
-    if(userConfirmation === UserConfirmationResult.Rejected) return PAYMENT_REJECTED;
+    const userConfirmation = await PaidMessagesInterceptor.checkIfUserReallyWantsToPay({ peerId, messageCount, starsAmount, withDontShowAgain: true });
+    if (userConfirmation === UserConfirmationResult.Rejected) return PAYMENT_REJECTED;
 
     const canUndo = (
-      PaidMessagesInterceptor.canUndoMessageSending({userConfirmation, messageCount, starsAmount}) ||
+      PaidMessagesInterceptor.canUndoMessageSending({ userConfirmation, messageCount, starsAmount }) ||
       !!this.pendingUndoableMessage.messageCount() // Allow undo if there's some pending undoable messages already
     );
 
-    if(canUndo)
+    if (canUndo)
     {
       setReservedStars(prev => prev + totalStarsAmount);
       this.pendingUndoableMessage.setReserved(prev => prev + totalStarsAmount);
 
-      this.triggerUndoableMessages({peerId, messageCount, starsAmount});
+      this.triggerUndoableMessages({ peerId, messageCount, starsAmount });
     }
 
-    return {starsAmount, canUndo};
+    return { starsAmount, canUndo };
   }
 
   private static canUndoMessageSending(args: {userConfirmation: UserConfirmationResult, messageCount: number, starsAmount: number}) {
-    const {messageCount, starsAmount, userConfirmation} = args;
+    const { messageCount, starsAmount, userConfirmation } = args;
 
-    if(UserConfirmationResult.Skipped !== userConfirmation) return false;
+    if (UserConfirmationResult.Skipped !== userConfirmation) return false;
 
     return (
       starsAmount >= this.MIN_UNDO_SENDING_PARAMS.starsAmount ||
@@ -131,39 +131,39 @@ export default class PaidMessagesInterceptor {
    * to make sure we don't accidentally send stars in a case that might have not been handled
    */
   public static async prepareStarsForPayment(args: {messageCount: number, peerId: PeerId}): Promise<PreparedPaymentResult> {
-    const {peerId, messageCount} = args;
+    const { peerId, messageCount } = args;
 
     const starsAmount = await rootScope.managers.appPeersManager.getStarsAmount(peerId);
 
-    if(!starsAmount) return;
+    if (!starsAmount) return;
 
     const totalStarsAmount = messageCount * starsAmount;
 
-    if(PaidMessagesInterceptor.starsBalance < totalStarsAmount)
+    if (PaidMessagesInterceptor.starsBalance < totalStarsAmount)
     {
       PopupElement.createPopup(PopupStars);
       return PAYMENT_REJECTED;
     }
 
-    const userConfirmation = await PaidMessagesInterceptor.checkIfUserReallyWantsToPay({peerId, messageCount, starsAmount, withDontShowAgain: false});
+    const userConfirmation = await PaidMessagesInterceptor.checkIfUserReallyWantsToPay({ peerId, messageCount, starsAmount, withDontShowAgain: false });
 
-    if(userConfirmation === UserConfirmationResult.Rejected) return PAYMENT_REJECTED;
+    if (userConfirmation === UserConfirmationResult.Rejected) return PAYMENT_REJECTED;
 
 
-    return {starsAmount, canUndo: false};
+    return { starsAmount, canUndo: false };
   }
 
-  private static async checkIfUserReallyWantsToPay({peerId, messageCount, starsAmount, withDontShowAgain}: PassedDownArgs & {withDontShowAgain: boolean}) {
+  private static async checkIfUserReallyWantsToPay({ peerId, messageCount, starsAmount, withDontShowAgain }: PassedDownArgs & {withDontShowAgain: boolean}) {
     const totalStarsAmount = starsAmount * messageCount;
 
     let onNotShowAgain = noop;
 
-    if(withDontShowAgain)
+    if (withDontShowAgain)
     {
-      const {dontShowPaidMessageWarningFor = []} = await rootScope.managers.appStateManager.getState();
+      const { dontShowPaidMessageWarningFor = [] } = await rootScope.managers.appStateManager.getState();
       const shouldShowWarning = !dontShowPaidMessageWarningFor.includes(peerId);
 
-      if(!shouldShowWarning) return UserConfirmationResult.Skipped;
+      if (!shouldShowWarning) return UserConfirmationResult.Skipped;
 
       onNotShowAgain = () => {
         const [, setAppState] = useAppState();
@@ -179,21 +179,21 @@ export default class PaidMessagesInterceptor {
           'PaidMessages.UserChargesForMultipleMessageWarning' :
           'PaidMessages.UserChargesForOneMessageWarning',
         descriptionLangArgs: [
-          await wrapPeerTitle({peerId, onlyFirstName: true}),
+          await wrapPeerTitle({ peerId, onlyFirstName: true }),
           i18n('Stars', [starsAmount]),
           i18n('Stars', [totalStarsAmount]),
-          ...(messageCount > 1 ? [messageCount] : [])
+          ...(messageCount > 1 ? [messageCount] : []),
         ],
         checkbox: withDontShowAgain ? {
-          text: 'DontAskAgain'
+          text: 'DontAskAgain',
         } : undefined,
         button: {
           langKey: 'PaidMessages.PayForMessages',
-          langArgs: [messageCount]
-        }
+          langArgs: [messageCount],
+        },
       });
 
-      if(withDontShowAgain && dontShowAgain) onNotShowAgain();
+      if (withDontShowAgain && dontShowAgain) onNotShowAgain();
     }
     catch
     {
@@ -203,17 +203,17 @@ export default class PaidMessagesInterceptor {
     return UserConfirmationResult.Confirmed;
   }
 
-  private triggerUndoableMessages({peerId, messageCount, starsAmount}: PassedDownArgs) {
+  private triggerUndoableMessages({ peerId, messageCount, starsAmount }: PassedDownArgs) {
     this.pendingUndoableMessage.setMessageCount(prev => prev + messageCount);
     this.pendingUndoableMessage.setSendTime(Date.now() + SEND_PAID_WITH_STARS_DELAY);
 
-    if(!this.pendingUndoableMessage.timeoutId) {
+    if (!this.pendingUndoableMessage.timeoutId) {
       showUndoablePaidTooltip({
         sendTime: this.pendingUndoableMessage.sendTime,
         titleCount: this.pendingUndoableMessage.messageCount,
         subtitleCount: () => this.pendingUndoableMessage.messageCount() * starsAmount,
         onUndo: () => void this.pendingUndoableMessage.abort(),
-        ...paidMessagesLangKeys
+        ...paidMessagesLangKeys,
       });
     }
 

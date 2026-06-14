@@ -1,13 +1,13 @@
-import type {SliderSuperTab} from '@components/slider';
-import type {SliderSuperTabEventable, SliderSuperTabEventableConstructable} from '@components/sliderTab';
-import CheckboxField, {CheckboxFieldOptions} from '@components/checkboxField';
+import type { SliderSuperTab } from '@components/slider';
+import type { SliderSuperTabEventable, SliderSuperTabEventableConstructable } from '@components/sliderTab';
+import CheckboxField, { CheckboxFieldOptions } from '@components/checkboxField';
 import RadioField from '@components/radioField';
 import ripple from '@components/ripple';
 import RadioForm from '@components/radioForm';
-import {i18n, LangPackKey} from '@lib/langPack';
+import { i18n, LangPackKey } from '@lib/langPack';
 import replaceContent from '@helpers/dom/replaceContent';
-import setInnerHTML, {setDirection} from '@helpers/dom/setInnerHTML';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import setInnerHTML, { setDirection } from '@helpers/dom/setInnerHTML';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import ListenerSetter from '@helpers/listenerSetter';
 import Button from '@components/button';
 import createContextMenu from '@helpers/dom/createContextMenu';
@@ -17,9 +17,9 @@ import Icon from '@components/icon';
 type K = string | HTMLElement | DocumentFragment | true;
 
 const setContent = (element: HTMLElement, content: K) => {
-  if(content === true) {
+  if (content === true) {
 
-  } else if(typeof(content) === 'string') {
+  } else if (typeof(content) === 'string') {
     setInnerHTML(element, content);
   } else {
     element.append(content);
@@ -90,10 +90,10 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
     asLabel: boolean,
     checkboxKeys: [LangPackKey, LangPackKey],
   }> = {}) {
-    if(options.checkboxFieldOptions) {
+    if (options.checkboxFieldOptions) {
       options.checkboxField = new CheckboxField({
         listenerSetter: options.listenerSetter,
-        ...options.checkboxFieldOptions
+        ...options.checkboxFieldOptions,
       });
     }
 
@@ -101,21 +101,21 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
     this.container = document.createElement(tagName);
     this.container.classList.add('row', 'no-subtitle');
 
-    if(options.noWrap) {
+    if (options.noWrap) {
       this.container.classList.add('no-wrap');
     }
 
-    if(options.subtitle || options.subtitleLangKey) {
+    if (options.subtitle || options.subtitleLangKey) {
       const subtitle = this.subtitle;
-      if(options.subtitleLangKey) {
+      if (options.subtitleLangKey) {
         subtitle.append(i18n(options.subtitleLangKey, options.subtitleLangArgs));
       } else {
         setContent(subtitle, options.subtitle!);
       }
 
-      if(options.noWrap) subtitle.classList.add('no-wrap');
+      if (options.noWrap) subtitle.classList.add('no-wrap');
 
-      if(options.subtitleRight) {
+      if (options.subtitleRight) {
         this.container.append(this.subtitleRow = this.createRow());
         this.subtitleRow.classList.add('row-subtitle-row');
         const subtitleRight = this.subtitleRight = document.createElement('div');
@@ -127,36 +127,36 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
     }
 
     let havePadding = !!options.havePadding;
-    if(options.radioField || options.checkboxField) {
-      if(options.radioField) {
+    if (options.radioField || options.checkboxField) {
+      if (options.radioField) {
         this.radioField = options.radioField;
         this.container.append(this.radioField.label);
         havePadding = true;
       }
 
-      if(options.checkboxField) {
+      if (options.checkboxField) {
         this.checkboxField = options.checkboxField;
 
         const isToggle = options.checkboxField.label.classList.contains('checkbox-field-toggle');
-        if(isToggle) {
+        if (isToggle) {
           this.container.classList.add('row-with-toggle');
           options.titleRight = this.checkboxField.label;
         } else {
           havePadding = true;
-          if(!this.checkboxField.span) {
+          if (!this.checkboxField.span) {
             this.checkboxField.label.classList.add('checkbox-field-absolute');
           }
           this.container.append(this.checkboxField.label);
         }
 
-        if(options.withCheckboxSubtitle && !isToggle) {
+        if (options.withCheckboxSubtitle && !isToggle) {
           options.checkboxKeys ??= ['Checkbox.Enabled', 'Checkbox.Disabled'];
           const [enabledKey, disabledKey] = options.checkboxKeys;
           const onChange = () => {
             replaceContent(this.subtitle, i18n(this.checkboxField.checked ? enabledKey : disabledKey));
           };
 
-          if(options.listenerSetter) options.listenerSetter.add(this.checkboxField.input)('change', onChange);
+          if (options.listenerSetter) options.listenerSetter.add(this.checkboxField.input)('change', onChange);
           else this.checkboxField.input.addEventListener('change', onChange);
         }
       }
@@ -165,10 +165,10 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
       i!.label.classList.add('disable-hover');
     }
 
-    if(options.title || options.titleLangKey || options.titleRight || options.titleRightSecondary) {
+    if (options.title || options.titleLangKey || options.titleRight || options.titleRightSecondary) {
       let c: HTMLElement;
       const titleRightContent = options.titleRight || options.titleRightSecondary;
-      if(titleRightContent) {
+      if (titleRightContent) {
         this.container.append(c = this.titleRow = this.createRow());
         this.titleRow.classList.add('row-title-row');
       } else {
@@ -176,20 +176,20 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
       }
 
       this._title = this.createTitle();
-      if(options.noWrap) this.title.classList.add('no-wrap');
-      if(options.title) {
+      if (options.noWrap) this.title.classList.add('no-wrap');
+      if (options.title) {
         setContent(this.title, options.title);
-      } else if(options.titleLangKey) {
+      } else if (options.titleLangKey) {
         this.title.append(i18n(options.titleLangKey, options.titleLangArgs));
       }
 
       c.append(this.title);
 
-      if(titleRightContent) {
+      if (titleRightContent) {
         const titleRight = this.titleRight = document.createElement('div');
         titleRight.classList.add('row-title', 'row-title-right');
 
-        if(options.titleRightSecondary) {
+        if (options.titleRightSecondary) {
           titleRight.classList.add('row-title-right-secondary');
         }
 
@@ -198,10 +198,10 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
       }
     }
 
-    if(options.icon) {
+    if (options.icon) {
       havePadding = true;
       // this.title.classList.add('tgico', 'tgico-' + options.icon);
-      if(options.iconClasses?.length) {
+      if (options.iconClasses?.length) {
         this.container.append(Icon(options.icon, 'row-icon', ...options.iconClasses));
       } else {
         this.container.append(Icon(options.icon, 'row-icon'));
@@ -209,15 +209,15 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
       this.container.classList.add('row-with-icon');
     }
 
-    if(havePadding) {
+    if (havePadding) {
       this.container.classList.add('row-with-padding');
     }
 
-    if(options.navigationTab) {
+    if (options.navigationTab) {
       let getInitArgs = options.navigationTab.getInitArgs;
-      if(!getInitArgs) {
+      if (!getInitArgs) {
         const g = (options.navigationTab.constructor as any as typeof SliderSuperTab).getInitArgs;
-        if(g) {
+        if (g) {
           // @ts-ignore
           getInitArgs = () => g();
         }
@@ -226,7 +226,7 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
       let args = options.navigationTab.args ?? getInitArgs?.();
 
       options.clickable = async() => {
-        if(args instanceof Promise) {
+        if (args instanceof Promise) {
           args = await args;
         }
 
@@ -238,7 +238,7 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
         tab.open(args);
 
         const eventListener = (tab as SliderSuperTabEventable).eventListener;
-        if(eventListener && getInitArgs) {
+        if (eventListener && getInitArgs) {
           eventListener.addEventListener('destroyAfter', (promise) => {
             args = promise.then(() => getInitArgs() as any);
           });
@@ -246,17 +246,17 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
       };
     }
 
-    if(options.clickable || options.radioField || options.checkboxField) {
-      if(typeof(options.clickable) === 'function') {
+    if (options.clickable || options.radioField || options.checkboxField) {
+      if (typeof(options.clickable) === 'function') {
         attachClickEvent(this.container, (e) => {
-          if(this.freezed) return;
+          if (this.freezed) return;
           (options.clickable as any)(e);
-        }, {listenerSetter: options.listenerSetter});
+        }, { listenerSetter: options.listenerSetter });
       }
 
       this.container.classList.add('row-clickable', 'hover-effect');
 
-      if(!options.noRipple) {
+      if (!options.noRipple) {
         ripple(this.container);
       }
 
@@ -265,29 +265,29 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
       } */
     }
 
-    if(options.buttonRight || options.buttonRightLangKey) {
+    if (options.buttonRight || options.buttonRightLangKey) {
       options.rightContent = this.buttonRight = options.buttonRight instanceof HTMLElement ?
         options.buttonRight :
-        Button('btn-primary btn-color-primary btn-control-small', {text: options.buttonRightLangKey});
+        Button('btn-primary btn-color-primary btn-control-small', { text: options.buttonRightLangKey });
     }
 
-    if(options.rightTextContent) {
+    if (options.rightTextContent) {
       options.rightContent = document.createElement('span');
       options.rightContent.classList.add('row-title-right-secondary');
       options.rightContent.textContent = options.rightTextContent;
     }
 
-    if(options.rightContent) {
+    if (options.rightContent) {
       options.rightContent.classList.add('row-right');
       this.container.classList.add('row-grid');
       this.container.append(options.rightContent);
     }
 
-    if(options.contextMenu) {
-      const {open} = createContextMenu({
+    if (options.contextMenu) {
+      const { open } = createContextMenu({
         ...options.contextMenu,
         listenTo: this.container,
-        listenerSetter: options.listenerSetter
+        listenerSetter: options.listenerSetter,
       });
 
       this.openContextMenu = open;
@@ -323,7 +323,7 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
     const subtitle = document.createElement('div');
     subtitle.classList.add('row-subtitle');
     setDirection(subtitle);
-    if(this.title) this.title.after(subtitle);
+    if (this.title) this.title.after(subtitle);
     else this.container.prepend(subtitle);
     this.container.classList.remove('no-subtitle');
     return subtitle;
@@ -347,7 +347,7 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
     this.media = media;
     media.classList.add('row-media');
 
-    if(size) {
+    if (size) {
       media.classList.add('row-media-' + size);
     }
 
@@ -384,11 +384,11 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
 }
 
 export const CreateRowFromCheckboxField = (checkboxField: CheckboxField) => {
-  return new Row({checkboxField, listenerSetter: checkboxField.listenerSetter});
+  return new Row({ checkboxField, listenerSetter: checkboxField.listenerSetter });
 };
 
 export const RadioFormFromRows = (rows: Row[], onChange: (value: string) => void) => {
-  return RadioForm(rows.map((r) => ({container: r.container, input: r.radioField.input})), onChange);
+  return RadioForm(rows.map((r) => ({ container: r.container, input: r.radioField.input })), onChange);
 };
 
 export const RadioFormFromValues = (values: {
@@ -399,17 +399,17 @@ export const RadioFormFromValues = (values: {
 }[], onChange: Parameters<typeof RadioFormFromRows>[1], fireInit?: boolean) => {
   const name = 'name-' + (Math.random() * 0x7FFFFF | 0);
   let checkedRadioField: RadioField;
-  const rows = values.map(({langPackKey, value, checked, textElement}) => {
+  const rows = values.map(({ langPackKey, value, checked, textElement }) => {
     const row = new Row({
       radioField: new RadioField({
         textElement,
         langKey: langPackKey,
         name,
-        value: '' + value
-      })
+        value: '' + value,
+      }),
     });
 
-    if(checked) {
+    if (checked) {
       checkedRadioField = row.radioField;
     }
 
@@ -417,8 +417,8 @@ export const RadioFormFromValues = (values: {
   });
 
   const form = RadioFormFromRows(rows, onChange);
-  if(checkedRadioField!) {
-    if(fireInit) checkedRadioField.checked = true;
+  if (checkedRadioField!) {
+    if (fireInit) checkedRadioField.checked = true;
     else checkedRadioField.setValueSilently(true);
   }
   return form;

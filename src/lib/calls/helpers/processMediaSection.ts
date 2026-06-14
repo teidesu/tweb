@@ -1,7 +1,7 @@
-import {DataJSON} from '@layer';
-import {JoinGroupCallJsonPayload} from '@appManagers/appGroupCallsManager';
+import { DataJSON } from '@layer';
+import { JoinGroupCallJsonPayload } from '@appManagers/appGroupCallsManager';
 import SDP from '@lib/calls/sdp';
-import {Ssrc} from '@lib/calls/types';
+import { Ssrc } from '@lib/calls/types';
 import parseMediaSectionInfo from '@lib/calls/helpers/parseMediaSectionInfo';
 
 export default function processMediaSection(sdp: SDP, media: SDP['media'][0]) {
@@ -11,7 +11,7 @@ export default function processMediaSection(sdp: SDP, media: SDP['media'][0]) {
   const entry: Ssrc = {
     source: (sectionInfo.source as number),
     sourceGroups: sectionInfo.sourceGroups,
-    type: mediaType
+    type: mediaType,
   };
 
   // DTLS role advertised to the SFU in the phone.joinGroupCall params: we are
@@ -35,13 +35,13 @@ export default function processMediaSection(sdp: SDP, media: SDP['media'][0]) {
     'pwd': sectionInfo.pwd,
     'ssrc': (sectionInfo.source as number | undefined),
     'ssrc-groups': sectionInfo.sourceGroups || [],
-    'ufrag': sectionInfo.ufrag
+    'ufrag': sectionInfo.ufrag,
   };
   const paramsDataJson = JSON.stringify(payload);
 
   const params: DataJSON = {
     _: 'dataJSON',
-    data: paramsDataJson
+    data: paramsDataJson,
   };
 
   return {
@@ -49,6 +49,6 @@ export default function processMediaSection(sdp: SDP, media: SDP['media'][0]) {
     source: sectionInfo.source,
     media,
     sourceGroups: sectionInfo.sourceGroups,
-    entry
+    entry,
   };
 }

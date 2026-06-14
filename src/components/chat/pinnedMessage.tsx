@@ -1,32 +1,32 @@
 import type ChatTopbar from '@components/chat/topbar';
 import PopupPinMessage from '@components/popups/unpinMessage';
 import PinnedMessageBorder from '@components/chat/pinnedMessageBorder';
-import {wrapReplyDivAndCaption} from '@components/chat/replyContainer';
+import { wrapReplyDivAndCaption } from '@components/chat/replyContainer';
 import rootScope from '@lib/rootScope';
 import Chat from '@components/chat/chat';
 import ListenerSetter from '@helpers/listenerSetter';
-import {getHeavyAnimationPromise} from '@hooks/useHeavyAnimationCheck';
-import {i18n, I18n} from '@lib/langPack';
+import { getHeavyAnimationPromise } from '@hooks/useHeavyAnimationCheck';
+import { i18n, I18n } from '@lib/langPack';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import handleScrollSideEvent from '@helpers/dom/handleScrollSideEvent';
 import debounce from '@helpers/schedulers/debounce';
 import throttle from '@helpers/schedulers/throttle';
-import {AppManagers} from '@lib/managers';
-import {logger} from '@lib/logger';
+import { AppManagers } from '@lib/managers';
+import { logger } from '@lib/logger';
 import PopupElement from '@components/popups';
-import {AnimatedSuper} from '@components/animatedSuper';
-import {AnimatedCounter} from '@components/animatedCounter';
-import {isMessageSensitive} from '@appManagers/utils/messages/isMessageRestricted';
+import { AnimatedSuper } from '@components/animatedSuper';
+import { AnimatedCounter } from '@components/animatedCounter';
+import { isMessageSensitive } from '@appManagers/utils/messages/isMessageRestricted';
 import ButtonMenuToggle from '@components/buttonMenuToggle';
 import ButtonIcon from '@components/buttonIcon';
-import {getMiddleware, MiddlewareHelper} from '@helpers/middleware';
-import {getKeyboardButtonHandler} from '@components/wrappers/keyboardButton';
+import { getMiddleware, MiddlewareHelper } from '@helpers/middleware';
+import { getKeyboardButtonHandler } from '@components/wrappers/keyboardButton';
 import getTextWidth from '@helpers/canvas/getTextWidth';
-import {FontFullBold} from '@config/font';
-import {KeyboardButton, Message} from '@layer';
-import TopbarPlate, {createTopbarPlate, TopbarPlateController} from '@components/chat/topbarPlate';
-import {createSignal, JSX} from 'solid-js';
+import { FontFullBold } from '@config/font';
+import { KeyboardButton, Message } from '@layer';
+import TopbarPlate, { createTopbarPlate, TopbarPlateController } from '@components/chat/topbarPlate';
+import { createSignal, JSX } from 'solid-js';
 import classNames from '@helpers/string/classNames';
 import getWebPageActionOnClick from '@components/chat/getWebPageActionOnClick';
 
@@ -122,7 +122,7 @@ export default function createChatPinnedMessage(
   const animatedSubtitle = new AnimatedSuper();
   const animatedMedia = new AnimatedSuper();
   animatedMedia.container.classList.add('pinned-message-media-container');
-  const animatedCounter = new AnimatedCounter({reverse: true});
+  const animatedCounter = new AnimatedCounter({ reverse: true });
   const pinnedMessageBorder = new PinnedMessageBorder();
   let wasPinnedIndex = 0;
   let wasPinnedMediaIndex = 0;
@@ -174,24 +174,24 @@ export default function createChatPinnedMessage(
       onClick: () => {
         topbar.openPinned(true);
       },
-      verify: () => true
+      verify: () => true,
     }, {
       icon: 'unpin',
       text: 'UnpinMessage',
       onClick: () => {
         PopupElement.createPopup(PopupPinMessage, chat.peerId, pinnedMid, true);
       },
-      verify: () => managers.appPeersManager.canPinMessage(chat.peerId)
+      verify: () => managers.appPeersManager.canPinMessage(chat.peerId),
     }, {
       icon: 'eyecross_outline',
       text: 'Popup.Unpin.HideTitle',
       onClick: () => {
         PopupElement.createPopup(PopupPinMessage, chat.peerId, 0, true);
       },
-      verify: async() => !(await managers.appPeersManager.canPinMessage(chat.peerId))
+      verify: async() => !(await managers.appPeersManager.canPinMessage(chat.peerId)),
     }],
     listenerSetter,
-    icon: 'pin'
+    icon: 'pin',
   });
   menu.classList.add('pinned-message-menu');
 
@@ -205,7 +205,7 @@ export default function createChatPinnedMessage(
       canPin ? pinnedMid : 0,
       true
     );
-  }, {listenerSetter});
+  }, { listenerSetter });
 
   const actionContainer = document.createElement('div');
   actionContainer.classList.add('pinned-message-action');
@@ -225,7 +225,7 @@ export default function createChatPinnedMessage(
       hasCustomActionButton() && 'has-custom-action-button'
     ),
     onVisibilityChange: () => topbar.setFloating(),
-    render: ({setHidden}) => {
+    render: ({ setHidden }) => {
       plateSetHidden = setHidden;
       return (
         <PinnedMessagePlateBody
@@ -238,16 +238,16 @@ export default function createChatPinnedMessage(
           onFollow={() => followPinnedMessage(pinnedMid)}
         />
       );
-    }
+    },
   });
 
   // ────────────────────────────────────────────────────────────────────────
   // rootScope listeners
   // ────────────────────────────────────────────────────────────────────────
 
-  listenerSetter.add(rootScope)('peer_pinned_messages', ({peerId}) => {
-    if(peerId !== chat.peerId) return;
-    if(userHidden) {
+  listenerSetter.add(rootScope)('peer_pinned_messages', ({ peerId }) => {
+    if (peerId !== chat.peerId) return;
+    if (userHidden) {
       userHidden = false;
       plateSetHidden(false);
     }
@@ -268,22 +268,22 @@ export default function createChatPinnedMessage(
     offsetIndex = 0;
     pinnedMaxMid = 0;
 
-    if(anchorMid) {
+    if (anchorMid) {
       // Fetch around the anchor so the new mids window contains its
       // neighbours, then re-position at the anchor. If still pinned,
       // testMid finds it exactly; if unpinned, it falls onto the
       // next-older pin (the one now occupying the same slot).
       const promise = getCurrentIndexPromise ??= getCurrentIndex(anchorMid, false);
       promise.then(() => {
-        if(count) testMid(anchorMid);
+        if (count) testMid(anchorMid);
       });
     } else {
       setCorrectIndex(0);
     }
   });
 
-  listenerSetter.add(rootScope)('peer_pinned_hidden', ({peerId}) => {
-    if(peerId !== chat.peerId) return;
+  listenerSetter.add(rootScope)('peer_pinned_hidden', ({ peerId }) => {
+    if (peerId !== chat.peerId) return;
     userHidden = true;
     plateSetHidden(true);
   });
@@ -296,29 +296,29 @@ export default function createChatPinnedMessage(
 
   function setCorrectIndex(lastScrollDirection?: number) {
     const bound = log.bindPrefix('setCorrectIndex');
-    if(isStatic) {
+    if (isStatic) {
       debug && bound('not needed, static');
     }
 
-    if(locked || userHidden) {
+    if (locked || userHidden) {
       debug && bound('not needed 1');
       return;
     }
 
-    if((loadedBottom || loadedTop) && !count) {
+    if ((loadedBottom || loadedTop) && !count) {
       debug && bound('not needed 2');
       return;
     }
 
     const el = chat.bubbles.getBubbleByPoint('bottom');
-    if(!el) {
+    if (!el) {
       debug && bound('no element');
       return;
     }
 
     const mid = el.dataset.mid;
     debug && bound('direction', lastScrollDirection, 'mid', mid);
-    if(mid !== undefined) {
+    if (mid !== undefined) {
       testMid(+mid, lastScrollDirection);
     }
   }
@@ -326,13 +326,13 @@ export default function createChatPinnedMessage(
   const setCorrectIndexThrottled = throttle(setCorrectIndex, 100, false);
 
   function testMid(mid: number, lastScrollDirection?: number) {
-    if(isStatic) return;
-    if(userHidden) return;
+    if (isStatic) return;
+    if (userHidden) return;
 
     let currentIndex: number = mids.findIndex((_mid) => _mid <= mid);
-    if(currentIndex !== -1 && !isNeededMore(currentIndex)) {
+    if (currentIndex !== -1 && !isNeededMore(currentIndex)) {
       currentIndex += offsetIndex;
-    } else if(loadedTop && mid < mids[mids.length - 1]) {
+    } else if (loadedTop && mid < mids[mids.length - 1]) {
       currentIndex = mids.length - 1 + offsetIndex;
     } else {
       return getCurrentIndexPromise ??= getCurrentIndex(mid, lastScrollDirection !== undefined);
@@ -345,9 +345,9 @@ export default function createChatPinnedMessage(
     // the plate would keep rendering the stale hint after the server data
     // resolves.
     const changed = pinnedIndex !== currentIndex || pinnedMid !== newPinnedMid;
-    if(changed) {
-      if(waitForScrollBottom && lastScrollDirection !== undefined) {
-        if(pinnedIndex === 0 || pinnedIndex > currentIndex) { // если не скроллил вниз и пытается поставить нижний пиннед - выйти
+    if (changed) {
+      if (waitForScrollBottom && lastScrollDirection !== undefined) {
+        if (pinnedIndex === 0 || pinnedIndex > currentIndex) { // если не скроллил вниз и пытается поставить нижний пиннед - выйти
           return;
         }
       }
@@ -368,7 +368,7 @@ export default function createChatPinnedMessage(
   }
 
   async function getCurrentIndex(mid: number, correctAfter = true) {
-    if(loading) return;
+    if (loading) return;
     loading = true;
 
     try {
@@ -379,27 +379,27 @@ export default function createChatPinnedMessage(
       const promises = [
         managers.appMessagesManager.getHistory({
           peerId: chat.peerId,
-          inputFilter: {_: 'inputMessagesFilterPinned'},
+          inputFilter: { _: 'inputMessagesFilterPinned' },
           offsetId: mid,
           limit: LOAD_COUNT,
           backLimit: LOAD_COUNT,
           threadId: chat.threadId,
-          needRealOffsetIdOffset: true
+          needRealOffsetIdOffset: true,
         }).then((r) => {
           gotRest = true;
           return r;
-        })
+        }),
       ];
 
-      if(!pinnedMaxMid) {
+      if (!pinnedMaxMid) {
         const promise = managers.appMessagesManager.getPinnedMessage(
           chat.peerId,
           chat.threadId
         ).then((p) => {
-          if(!p.maxId) return;
+          if (!p.maxId) return;
           pinnedMaxMid = p.maxId;
 
-          if(!gotRest && correctAfter) {
+          if (!gotRest && correctAfter) {
             mids = [pinnedMaxMid];
             count = p.count!;
             pinnedIndex = 0;
@@ -416,7 +416,7 @@ export default function createChatPinnedMessage(
       const history = result.history;
 
       let backLimited = history.findIndex((_mid) => _mid <= mid);
-      if(backLimited === -1) {
+      if (backLimited === -1) {
         backLimited = history.length;
       }
 
@@ -426,7 +426,7 @@ export default function createChatPinnedMessage(
       mids = history.slice();
       count = result.count;
 
-      if(!count) {
+      if (!count) {
         plateSetHidden(true);
       }
 
@@ -443,19 +443,19 @@ export default function createChatPinnedMessage(
       // `pinnedMid` against the fresh window here so the sync first
       // `_setPinnedMessage` already paints with the right pin.
       const reconciledMid = mids[pinnedIndex - offsetIndex];
-      if(oldCount !== count || (reconciledMid && oldPinnedMid !== reconciledMid)) {
-        if(reconciledMid) pinnedMid = reconciledMid;
+      if (oldCount !== count || (reconciledMid && oldPinnedMid !== reconciledMid)) {
+        if (reconciledMid) pinnedMid = reconciledMid;
         setPinnedMessageDebounced();
       }
-    } catch(err) {
+    } catch (err) {
       log.error('getCurrentIndex error', err);
     }
 
     loading = false;
 
-    if(locked) {
+    if (locked) {
       testMid(mid);
-    } else if(correctAfter) {
+    } else if (correctAfter) {
       setCorrectIndex(0);
     }
 
@@ -465,7 +465,7 @@ export default function createChatPinnedMessage(
   function setScrollDownListener() {
     waitForScrollBottom = true;
 
-    if(!scrollDownListenerSetter) {
+    if (!scrollDownListenerSetter) {
       scrollDownListenerSetter = new ListenerSetter();
       handleScrollSideEvent(chat.bubbles.scrollable.container, 'bottom', () => {
         unsetScrollDownListener();
@@ -476,12 +476,12 @@ export default function createChatPinnedMessage(
   function unsetScrollDownListener(refreshPosition = true) {
     waitForScrollBottom = false;
 
-    if(scrollDownListenerSetter) {
+    if (scrollDownListenerSetter) {
       scrollDownListenerSetter.removeAll();
       scrollDownListenerSetter = undefined;
     }
 
-    if(refreshPosition) {
+    if (refreshPosition) {
       setCorrectIndex(0);
     }
   }
@@ -494,7 +494,7 @@ export default function createChatPinnedMessage(
       setScrollDownListener();
 
       const setPeerPromise = chat.setPeerPromise;
-      if(setPeerPromise instanceof Promise) {
+      if (setPeerPromise instanceof Promise) {
         await setPeerPromise;
       }
 
@@ -504,7 +504,7 @@ export default function createChatPinnedMessage(
 
       debug && log('handleFollowingPinnedMessage: unlock');
       locked = false;
-    } catch(err) {
+    } catch (err) {
       log.error('handleFollowingPinnedMessage error:', err);
 
       locked = false;
@@ -515,11 +515,11 @@ export default function createChatPinnedMessage(
 
   function followPinnedMessage(mid: number) {
     const message = chat.getMessage(mid);
-    if(!message) {
+    if (!message) {
       return;
     }
 
-    chat.setMessageId({lastMsgId: mid});
+    chat.setMessageId({ lastMsgId: mid });
     (chat.setPeerPromise || Promise.resolve()).then(() => { // * debounce fast clicker
       handleFollowingPinnedMessage();
       testMid(pinnedIndex >= (count - 1) ? pinnedMaxMid : mid - 1);
@@ -527,12 +527,12 @@ export default function createChatPinnedMessage(
   }
 
   async function _setPinnedMessage(skipReveal = false) {
-    if(count) {
+    if (count) {
       const message = chat.getMessage(pinnedMid);
 
       const isLast = pinnedIndex === 0;
       animatedCounter.container.classList.toggle('is-last', isLast);
-      if(!isLast) {
+      if (!isLast) {
         animatedCounter.setCount(count - pinnedIndex);
       }
 
@@ -553,7 +553,7 @@ export default function createChatPinnedMessage(
         isSensitive: chat.isSensitive || isMessageSensitive(message!),
         textColor: 'primary-text-color',
         canTranslate: !message!.pFlags.out,
-        middleware: animatedSubtitle.getRow(pinnedIndex).middlewareHelper!.get()
+        middleware: animatedSubtitle.getRow(pinnedIndex).middlewareHelper!.get(),
       });
 
       await Promise.all(loadPromises);
@@ -563,12 +563,12 @@ export default function createChatPinnedMessage(
       // Flip the plate visible only after content (text + media) is in
       // the DOM — otherwise the user sees an empty plate for a paint
       // frame while wrapReplyDivAndCaption is still resolving.
-      if(!skipReveal) {
+      if (!skipReveal) {
         plateSetHidden(false);
       }
 
       animatedSubtitle.animate(pinnedIndex, wasPinnedIndex);
-      if(isMediaSet) {
+      if (isMediaSet) {
         animatedMedia.animate(pinnedIndex, wasPinnedMediaIndex);
         wasPinnedMediaIndex = pinnedIndex;
       } else {
@@ -590,9 +590,9 @@ export default function createChatPinnedMessage(
 
   function getSingleInlineButton(message?: Message.message): KeyboardButton | undefined {
     const replyMarkup = message?.reply_markup;
-    if(replyMarkup?._ !== 'replyInlineMarkup') return;
+    if (replyMarkup?._ !== 'replyInlineMarkup') return;
     const rows = replyMarkup.rows;
-    if(rows.length !== 1 || rows[0].buttons.length !== 1) return;
+    if (rows.length !== 1 || rows[0].buttons.length !== 1) return;
     const button = rows[0].buttons[0];
     return button.text ? button : undefined;
   }
@@ -615,15 +615,15 @@ export default function createChatPinnedMessage(
     const webPage = media?._ === 'messageMediaWebPage' ? media.webpage : undefined;
     const onCallClick = webPage && getWebPageActionOnClick(webPage, ['telegram_call']);
 
-    if(onCallClick) {
+    if (onCallClick) {
       buttonText = I18n.format('PinnedJoinCall', true);
       newBtn = createCustomActionButton({
         text: i18n('PinnedJoinCall'),
-        onClick: onCallClick
+        onClick: onCallClick,
       });
     } else {
       const button = getSingleInlineButton(message);
-      if(button) {
+      if (button) {
         const middleware = getMiddleware();
         const handler = getKeyboardButtonHandler({
           button,
@@ -631,16 +631,16 @@ export default function createChatPinnedMessage(
           message,
           wrapOptions: {
             middleware: middleware.get(),
-            textColor: 'white'
-          }
+            textColor: 'white',
+          },
         });
 
-        if(handler) {
+        if (handler) {
           buttonText = button.text;
           newBtn = createCustomActionButton({
             text: handler.text,
             onClick: handler.onClick,
-            as: handler.as
+            as: handler.as,
           });
           handler.refCallbacks.forEach((cb) => cb(newBtn!));
           customButtonMiddleware = middleware;
@@ -650,7 +650,7 @@ export default function createChatPinnedMessage(
       }
     }
 
-    if(newBtn) {
+    if (newBtn) {
       actionContainer.append(newBtn);
 
       // Measure the actual button width: text + horizontal padding (1rem each side = 32px),
@@ -666,7 +666,7 @@ export default function createChatPinnedMessage(
 
     setHasCustomActionButton(!!newBtn);
 
-    if(oldBtn) {
+    if (oldBtn) {
       oldBtn.classList.add('is-leaving');
       setTimeout(() => {
         oldBtn.remove();
@@ -691,13 +691,13 @@ export default function createChatPinnedMessage(
       'pinned-message-action-button',
       'text-overflow-no-wrap'
     );
-    if(typeof opts.text === 'string') {
+    if (typeof opts.text === 'string') {
       btn.textContent = opts.text;
     } else {
       btn.append(opts.text);
     }
-    if(opts.onClick) {
-      attachClickEvent(btn, opts.onClick, {listenerSetter});
+    if (opts.onClick) {
+      attachClickEvent(btn, opts.onClick, { listenerSetter });
     }
     return btn;
   }
@@ -715,8 +715,8 @@ export default function createChatPinnedMessage(
     isUserHidden: () => userHidden,
     setUserHidden: (v: boolean) => {
       userHidden = v;
-      if(v) plateSetHidden(true);
-      else if(count > 0) plateSetHidden(false);
+      if (v) plateSetHidden(true);
+      else if (count > 0) plateSetHidden(false);
     },
     isLocked: () => locked,
     testMid,
@@ -731,11 +731,11 @@ export default function createChatPinnedMessage(
       _setPinnedMessage();
     },
     get pinnedMessages() {
-      return pinnedMid ? {mid: pinnedMid, index: pinnedIndex, count} : undefined;
+      return pinnedMid ? { mid: pinnedMid, index: pinnedIndex, count } : undefined;
     },
-    prepareInitial: async({mid, index, count: hintCount}) => {
-      if(userHidden || !mid || pinnedMid === mid) return;
-      if(!chat.getMessage(mid)) return;
+    prepareInitial: async({ mid, index, count: hintCount }) => {
+      if (userHidden || !mid || pinnedMid === mid) return;
+      if (!chat.getMessage(mid)) return;
       pinnedMid = mid;
       pinnedIndex = index ?? 0;
       count = Math.max(hintCount ?? 1, pinnedIndex + 1);
@@ -743,7 +743,7 @@ export default function createChatPinnedMessage(
       prepared = true;
     },
     revealPrepared: () => {
-      if(!prepared) return;
+      if (!prepared) return;
       prepared = false;
       plateSetHidden(false);
     },
@@ -756,7 +756,7 @@ export default function createChatPinnedMessage(
       listenerSetter.removeAll();
       unsetScrollDownListener(false);
       plate.destroy();
-    }
+    },
   };
 
   return controller;

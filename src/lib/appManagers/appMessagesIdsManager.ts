@@ -1,4 +1,4 @@
-import {MESSAGE_ID_OFFSET} from '@appManagers/constants';
+import { MESSAGE_ID_OFFSET } from '@appManagers/constants';
 import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
 import isLegacyMessageId from '@appManagers/utils/messageId/isLegacyMessageId';
 
@@ -12,7 +12,7 @@ export class AppMessagesIdsManager {
   }
 
   public generateMessageId(messageId: number, channelId?: ChatId) {
-    if(
+    if (
       !channelId ||
       !Number.isInteger(messageId) ||
       messageId <= 0
@@ -38,7 +38,7 @@ export class AppMessagesIdsManager {
 
   public getMessageIdInfo(mid: number, channelId?: ChatId) {
     const messageId = getServerMessageId(mid);
-    return {messageId, channelId: mid === messageId ? undefined : channelId};
+    return { messageId, channelId: mid === messageId ? undefined : channelId };
     // if(mid === messageId) {
     //   return {messageId, channelId: undefined as number};
     // }
@@ -50,11 +50,11 @@ export class AppMessagesIdsManager {
   public splitMessageIdsByChannels(mids: number[], _channelId?: ChatId) {
     const out: Array<[ChatId, {mids: number[], messageIds: number[]}]> = [];
     let prevItem: typeof out[0];
-    for(let i = 0, length = mids.length; i < length; ++i) {
+    for (let i = 0, length = mids.length; i < length; ++i) {
       const mid = mids[i];
-      const {messageId, channelId} = this.getMessageIdInfo(mid, _channelId);
-      if(!prevItem! || prevItem[0] !== channelId) {
-        prevItem = [channelId!, {mids: [], messageIds: []}];
+      const { messageId, channelId } = this.getMessageIdInfo(mid, _channelId);
+      if (!prevItem! || prevItem[0] !== channelId) {
+        prevItem = [channelId!, { mids: [], messageIds: [] }];
         out.push(prevItem);
       }
 

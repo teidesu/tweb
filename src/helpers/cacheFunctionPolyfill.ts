@@ -5,7 +5,7 @@ const cache: Map<CacheFunction, {result: any, timeout: number}> = new Map();
 
 Function.prototype.cache = function(thisArg, ...args: any[]) {
   let cached = cache.get(this);
-  if(cached) {
+  if (cached) {
     return cached.result;
   }
 
@@ -15,7 +15,7 @@ Function.prototype.cache = function(thisArg, ...args: any[]) {
     result,
     timeout: ctx.setTimeout(() => {
       cache.delete(this);
-    }, 60000)
+    }, 60000),
   });
 
   return result;

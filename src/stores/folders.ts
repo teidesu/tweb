@@ -1,10 +1,10 @@
-import {createEffect, createMemo, createRoot, createSignal, untrack} from 'solid-js';
-import {createStore, reconcile} from 'solid-js/store';
+import { createEffect, createMemo, createRoot, createSignal, untrack } from 'solid-js';
+import { createStore, reconcile } from 'solid-js/store';
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
 import rootScope from '@lib/rootScope';
-import {FOLDER_ID_ALL, FOLDER_ID_ARCHIVE, REAL_FOLDERS} from '@appManagers/constants';
-import type {MyDialogFilter} from '@lib/storages/filters';
-import type {AppManagers} from '@lib/managers';
+import { FOLDER_ID_ALL, FOLDER_ID_ARCHIVE, REAL_FOLDERS } from '@appManagers/constants';
+import type { MyDialogFilter } from '@lib/storages/filters';
+import type { AppManagers } from '@lib/managers';
 
 export type StoredFolder = {
   id: number,
@@ -20,12 +20,12 @@ async function getNotificationCountForFilter(filterId: number, managers: AppMana
   const {
     unreadUnmutedCount,
     unreadCount,
-    unreadMentionsCount
+    unreadMentionsCount,
   } = await managers.dialogsStorage.getFolderUnreadCount(filterId);
 
   return {
     count: filterId === FOLDER_ID_ALL ? unreadUnmutedCount : unreadCount,
-    muted: !unreadUnmutedCount && !!unreadCount && !unreadMentionsCount
+    muted: !unreadUnmutedCount && !!unreadCount && !unreadMentionsCount,
   };
 }
 
@@ -33,19 +33,19 @@ async function getFolderItemsInOrder(folderItems: StoredFolder[], managers: AppM
   const filters = new Map<number, MyDialogFilter>();
 
   const filtersPromises = folderItems
-  .filter((item) => item.id)
-  .map((item) => managers.filtersStorage.getFilter(item.id));
+    .filter((item) => item.id)
+    .map((item) => managers.filtersStorage.getFilter(item.id));
 
   const filtersArr = (
     await Promise.all(filtersPromises)
   ).filter(Boolean);
 
-  for(const filter of filtersArr) {
+  for (const filter of filtersArr) {
     filters.set(filter.id, filter);
   }
 
   return folderItems.sort((a, b) => {
-    if(!a.id || !b.id) return 0;
+    if (!a.id || !b.id) return 0;
     return filters.get(a.id)?.localId! - filters.get(b.id)?.localId!;
   });
 }
@@ -53,7 +53,7 @@ async function getFolderItemsInOrder(folderItems: StoredFolder[], managers: AppM
 const useFoldersStore = createRoot(() => {
   const [selectedFolderId, _setSelectedFolderId] = createSignal<number>(FOLDER_ID_ALL);
   const [folderItems, setFolderItems] = createStore<StoredFolder[]>([]);
-  const selectedFolderIndex = createMemo(() => folderItems.findIndex(({id}) => id === selectedFolderId()));
+  const selectedFolderIndex = createMemo(() => folderItems.findIndex(({ id }) => id === selectedFolderId()));
 
   let setSelectedFolderId: (index: number, dontAnimate?: boolean) => any;
   const [onClick, setOnClick] = createSignal<typeof setSelectedFolderId>();
@@ -64,23 +64,23 @@ const useFoldersStore = createRoot(() => {
 
   function updateFolderItem(folderId: number, payload: Partial<StoredFolder>) {
     const idx = folderItems.findIndex((item) => item.id === folderId);
-    if(idx === -1) {
+    if (idx === -1) {
       return;
     }
 
     const folderItem = folderItems[idx];
-    setFolderItems(idx, reconcile({...folderItem, ...payload}));
+    setFolderItems(idx, reconcile({ ...folderItem, ...payload }));
   }
 
   async function updateFolderNotifications(folderId: number) {
     updateFolderItem(folderId, {
-      notifications: await getNotificationCountForFilter(folderId, rootScope.managers)
+      notifications: await getNotificationCountForFilter(folderId, rootScope.managers),
     });
   }
 
   function updateAllFolderNotifications() {
-    for(const folderItem of folderItems) {
-      if(!folderItem.id) continue;
+    for (const folderItem of folderItems) {
+      if (!folderItem.id) continue;
       updateFolderNotifications(folderItem.id);
     }
   }
@@ -88,14 +88,14 @@ const useFoldersStore = createRoot(() => {
   async function makeFolderItemPayload(filter: MyDialogFilter): Promise<StoredFolder> {
     const [notifications, folder] = await Promise.all([
       getNotificationCountForFilter(filter.id, rootScope.managers),
-      rootScope.managers.dialogsStorage.getFolder(filter.id)
+      rootScope.managers.dialogsStorage.getFolder(filter.id),
     ]);
 
     return {
       id: filter.id,
       notifications: notifications,
       chatsCount: folder?.dialogs?.length || 0,
-      filter
+      filter,
     };
   }
 
@@ -103,14 +103,14 @@ const useFoldersStore = createRoot(() => {
     const items = [...folderItems];
     const existingItem = items.find((item) => item.id === filter.id);
 
-    if(existingItem) {
+    if (existingItem) {
       updateFolderItem(filter.id, await makeFolderItemPayload(filter));
       return;
     }
 
     const [payload, orderedFolderItems] = await Promise.all([
       makeFolderItemPayload(filter),
-      getFolderItemsInOrder(items, rootScope.managers)
+      getFolderItemsInOrder(items, rootScope.managers),
     ]);
 
     items.push(payload);
@@ -121,14 +121,14 @@ const useFoldersStore = createRoot(() => {
     const items = [...folderItems];
     const existingItemIndex = items.findIndex((item) => item.id === filterId);
 
-    if(existingItemIndex === -1) return;
+    if (existingItemIndex === -1) return;
 
     items.splice(existingItemIndex, 1);
     const length = items.length;
     setFolderItems(items);
 
     const selectedId = untrack(selectedFolderId);
-    if(length >= selectedId || selectedId === filterId) {
+    if (length >= selectedId || selectedId === filterId) {
       setSelectedFolderId(0);
     }
   }
@@ -143,8 +143,8 @@ const useFoldersStore = createRoot(() => {
       const aIndex = order.indexOf(a.id);
       const bIndex = order.indexOf(b.id);
 
-      if(aIndex === -1) return -1;
-      if(bIndex === -1) return 1;
+      if (aIndex === -1) return -1;
+      if (bIndex === -1) return 1;
 
       return aIndex - bIndex;
     });
@@ -154,7 +154,7 @@ const useFoldersStore = createRoot(() => {
 
   let hydrated = false;
   async function hydrateFilters(filters: MyDialogFilter[]) {
-    if(hydrated) {
+    if (hydrated) {
       return;
     }
 
@@ -167,18 +167,18 @@ const useFoldersStore = createRoot(() => {
   }
 
   function initListeners() {
-    rootScope.addEventListener('dialog_flush', ({dialog}) => {
-      if(!dialog) return;
+    rootScope.addEventListener('dialog_flush', ({ dialog }) => {
+      if (!dialog) return;
       updateAllFolderNotifications();
     });
 
     rootScope.addEventListener('folder_unread', (filter) => {
-      if(filter.id < 0) return;
+      if (filter.id < 0) return;
       updateFolderNotifications(filter.id);
     });
 
     rootScope.addEventListener('filter_update', (filter) => {
-      if(REAL_FOLDERS.has(filter.id)) return;
+      if (REAL_FOLDERS.has(filter.id)) return;
       updateOrAddFolder(filter);
     });
 
@@ -195,12 +195,12 @@ const useFoldersStore = createRoot(() => {
     });
 
     rootScope.addEventListener('premium_toggle', async(isPremium) => {
-      if(isPremium) {
+      if (isPremium) {
         return;
       }
 
       const isFolderAvailable = await rootScope.managers.filtersStorage.isFilterIdAvailable(selectedFolderId());
-      if(!isFolderAvailable) {
+      if (!isFolderAvailable) {
         setSelectedFolderId(FOLDER_ID_ALL);
       }
     });
@@ -213,7 +213,7 @@ const useFoldersStore = createRoot(() => {
     folderItems,
     hydrateFilters,
     onClick,
-    setOnClick
+    setOnClick,
   };
 });
 

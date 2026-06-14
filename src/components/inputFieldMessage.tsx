@@ -4,17 +4,17 @@ import classNames from '@helpers/string/classNames';
 import getRichValueWithCaret from '@helpers/dom/getRichValueWithCaret';
 import ListenerSetter from '@helpers/listenerSetter';
 import throttle from '@helpers/schedulers/throttle';
-import {LangPackKey} from '@lib/langPack';
-import {EmoticonsDropdown} from '@components/emoticonsDropdown';
-import {Accessor, createEffect, JSX, onCleanup, Ref, Show, untrack} from 'solid-js';
-import {Portal} from 'solid-js/web';
+import { LangPackKey } from '@lib/langPack';
+import { EmoticonsDropdown } from '@components/emoticonsDropdown';
+import { Accessor, createEffect, JSX, onCleanup, Ref, Show, untrack } from 'solid-js';
+import { Portal } from 'solid-js/web';
 import cloneDOMRect from '@helpers/dom/cloneDOMRect';
-import type {AnimationItemGroup} from '@components/animationIntersector';
-import {IconTsx} from '@components/iconTsx';
-import {numberThousandSplitterForStars} from '@helpers/number/numberThousandSplitter';
+import type { AnimationItemGroup } from '@components/animationIntersector';
+import { IconTsx } from '@components/iconTsx';
+import { numberThousandSplitterForStars } from '@helpers/number/numberThousandSplitter';
 import Button from '@components/buttonTsx';
 import Animated from '@helpers/solid/animations';
-import {getTransition} from '@config/transitions';
+import { getTransition } from '@config/transitions';
 import liteMode from '@helpers/liteMode';
 
 type InputFieldMessageProps = {
@@ -38,7 +38,7 @@ const InputFieldMessage = (props: InputFieldMessageProps) => {
     placeholder: props.placeholder ?? 'PreviewSender.CaptionPlaceholder',
     name: props.name ?? 'message',
     withLinebreaks: props.withLinebreaks ?? true,
-    maxLength: props.maxLength
+    maxLength: props.maxLength,
   });
 
   const additionalClass = 'simple-message-input';
@@ -66,7 +66,7 @@ const InputFieldMessage = (props: InputFieldMessageProps) => {
       </Animated>
     );
 
-    if(btnConfirm) {
+    if (btnConfirm) {
       btnConfirm.classList.add(_additionalClass);
 
       <Portal
@@ -100,18 +100,18 @@ const InputFieldMessage = (props: InputFieldMessageProps) => {
       props.stars?.();
       queueMicrotask(() => {
         const last = contentWrapper?.lastElementChild as HTMLElement | null;
-        if(!last?.offsetWidth) return;
+        if (!last?.offsetWidth) return;
         const style = getComputedStyle(btnConfirm!);
         const padding = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
         const minWidth = parseFloat(style.minWidth) || 0;
         const currentWidth = Math.max(last.offsetWidth + padding, minWidth);
-        if(prevWidth !== undefined && prevWidth !== currentWidth && liteMode.isAvailable('animations')) {
+        if (prevWidth !== undefined && prevWidth !== currentWidth && liteMode.isAvailable('animations')) {
           btnConfirm!.animate([
-            {width: prevWidth + 'px'},
-            {width: currentWidth + 'px'}
+            { width: prevWidth + 'px' },
+            { width: currentWidth + 'px' },
           ], {
             duration: 200,
-            easing: getTransition('standard').easing
+            easing: getTransition('standard').easing,
           });
         }
         prevWidth = currentWidth;
@@ -119,7 +119,7 @@ const InputFieldMessage = (props: InputFieldMessageProps) => {
     });
   }
 
-  if(props.animationGroup) {
+  if (props.animationGroup) {
     inputField.input.dataset.animationGroup = props.animationGroup;
   }
 
@@ -133,26 +133,26 @@ const InputFieldMessage = (props: InputFieldMessageProps) => {
     additionalClass + '-placeholder'
   );
 
-  if(props.listenerSetter) {
-    if(props.onScroll) {
+  if (props.listenerSetter) {
+    if (props.onScroll) {
       props.listenerSetter.add(inputField.input)('scroll', props.onScroll);
     }
 
-    if(props.onInput) {
+    if (props.onInput) {
       props.listenerSetter.add(inputField.input)('input', throttle(() => {
-        const {value} = getRichValueWithCaret(inputField.input);
+        const { value } = getRichValueWithCaret(inputField.input);
         const trimmed = value.trim();
         props.onInput!(!!trimmed, trimmed ? value.length : 0);
       }, 120, true));
     }
   }
 
-  if(props.draft !== undefined) {
+  if (props.draft !== undefined) {
     inputField.setValueSilently(props.draft);
   }
 
   let emoticonsDropdown: EmoticonsDropdown;
-  const {button: emojiButton, dispose} = createEmojiDropdownButton({
+  const { button: emojiButton, dispose } = createEmojiDropdownButton({
     inputField,
     class: additionalClass + '-emoji',
     animationGroup: props.animationGroup,
@@ -167,7 +167,7 @@ const InputFieldMessage = (props: InputFieldMessageProps) => {
       cloned.left = rect.left;
       cloned.top = rect.top - 420 - 8;
       return cloned;
-    }
+    },
   });
 
   onCleanup(dispose);

@@ -1,9 +1,9 @@
-import {createStore, reconcile, unwrap} from 'solid-js/store';
-import {ChatFull, UserFull} from '@layer';
+import { createStore, reconcile, unwrap } from 'solid-js/store';
+import { ChatFull, UserFull } from '@layer';
 import rootScope from '@lib/rootScope';
 import useDynamicCachedValue from '@helpers/solid/useDynamicCachedValue';
-import {onCleanup} from 'solid-js';
-import {PEER_FULL_TTL} from '@appManagers/constants';
+import { onCleanup } from 'solid-js';
+import { PEER_FULL_TTL } from '@appManagers/constants';
 
 type PeerFull = ChatFull | UserFull;
 
@@ -15,7 +15,7 @@ const requestFullPeer = (peerId: PeerId, overwrite?: boolean) => {
     peerId,
     overwrite
   ).then((fullPeer) => {
-    if(overwrite !== false) {
+    if (overwrite !== false) {
       expirations.set(peerId, Date.now() + PEER_FULL_TTL);
     }
 
@@ -29,7 +29,7 @@ function _useFullPeer(peerId: PeerId) {
   const fullPeer = () => state[peerId];
 
   const expiration = expirations.get(peerId);
-  if(!expiration || !fullPeer()) {
+  if (!expiration || !fullPeer()) {
     requestFullPeer(peerId, false);
   }
 

@@ -1,4 +1,4 @@
-import {createDualClients, loadSeed} from './dualHarness';
+import { createDualClients, loadSeed } from './dualHarness';
 
 const ENABLED = process.env.TG_API_E2E === '1';
 const seedAPath = process.env.TG_API_SEED || './tmp/seed.json';
@@ -8,13 +8,13 @@ const describeOrSkip = ENABLED ? describe : describe.skip;
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 const randomLongStr = () => String(Math.floor(Math.random() * 1e15));
 function summarize(params: any) {
-  if(!params || typeof params !== 'object') return params;
+  if (!params || typeof params !== 'object') return params;
   const o: any = {};
-  for(const k of Object.keys(params).slice(0, 6)) {
+  for (const k of Object.keys(params).slice(0, 6)) {
     const v = (params)[k];
-    if(v == null) o[k] = v;
-    else if(Array.isArray(v)) o[k] = `[len=${v.length}]`;
-    else if(typeof v === 'object') o[k] = (v)._ || '{…}';
+    if (v == null) o[k] = v;
+    else if (Array.isArray(v)) o[k] = `[len=${v.length}]`;
+    else if (typeof v === 'object') o[k] = (v)._ || '{…}';
     else o[k] = String(v).slice(0, 30);
   }
   return o;
@@ -25,7 +25,7 @@ describeOrSkip('server-verified mention reads (issue #380)', () => {
     const seedA = loadSeed(seedAPath);
     const seedB = loadSeed(seedBPath);
 
-    const dual = await createDualClients({seedA, seedB, testDc: process.env.TG_API_PROD_DC !== '1'});
+    const dual = await createDualClients({ seedA, seedB, testDc: process.env.TG_API_PROD_DC !== '1' });
 
     let createdChatId: number | undefined;
 
@@ -48,26 +48,26 @@ describeOrSkip('server-verified mention reads (issue #380)', () => {
     try {
       // 0. Make sure each side knows its own User (saveMessages reads getSelf().id)
       await Promise.all([
-        dual.A.apiManager.invokeApi('users.getUsers', {id: [{_: 'inputUserSelf'}]}),
-        dual.B.apiManager.invokeApi('users.getUsers', {id: [{_: 'inputUserSelf'}]})
+        dual.A.apiManager.invokeApi('users.getUsers', { id: [{ _: 'inputUserSelf' }] }),
+        dual.B.apiManager.invokeApi('users.getUsers', { id: [{ _: 'inputUserSelf' }] }),
       ]);
 
       // 1. B's username
-      const bMe: any = (await dual.B.apiManager.invokeApi('users.getUsers', {id: [{_: 'inputUserSelf'}]}))[0];
+      const bMe: any = (await dual.B.apiManager.invokeApi('users.getUsers', { id: [{ _: 'inputUserSelf' }] }))[0];
       const usernameB = bMe?.username as string | undefined;
-      if(!usernameB) throw new Error('B has no username; needed to add to a fresh group');
+      if (!usernameB) throw new Error('B has no username; needed to add to a fresh group');
 
       console.log('[step 1] B is', bMe?.id, '@' + usernameB);
 
       // 2. A resolves B by username -> InputUser with access_hash
       const resolved: any = await dual.A.apiManager.invokeApi('contacts.resolveUsername' as any, {
-        username: usernameB
+        username: usernameB,
       } as any);
       const bResolvedUser = resolved.users.find((u: any) => u.id === bMe.id);
       const bInputUser = {
         _: 'inputUser' as const,
         user_id: bResolvedUser.id,
-        access_hash: bResolvedUser.access_hash
+        access_hash: bResolvedUser.access_hash,
       };
 
       console.log('[step 2] A resolved @' + usernameB, '-> id', bResolvedUser.id);
@@ -77,7 +77,7 @@ describeOrSkip('server-verified mention reads (issue #380)', () => {
       const created: any = await dual.A.apiManager.invokeApi('messages.createChat' as any, {
         users: [bInputUser],
         title,
-        ttl_period: 0
+        ttl_period: 0,
       } as any);
 
       const updates = created.updates || created;
@@ -86,21 +86,21 @@ describeOrSkip('server-verified mention reads (issue #380)', () => {
 
       console.log('[step 3] A created chat', title, '-> id', createdChatId);
 
-      if(!createdChatId) {
+      if (!createdChatId) {
         throw new Error('Failed to create chat: ' + JSON.stringify(updates).slice(0, 300));
       }
 
       // 4. A sends message with @mention entity
       const messageText = '@' + usernameB + ' test mention #' + Date.now();
       await dual.A.apiManager.invokeApi('messages.sendMessage' as any, {
-        peer: {_: 'inputPeerChat', chat_id: createdChatId},
+        peer: { _: 'inputPeerChat', chat_id: createdChatId },
         message: messageText,
         random_id: randomLongStr(),
         entities: [{
           _: 'messageEntityMention',
           offset: 0,
-          length: ('@' + usernameB).length
-        }]
+          length: ('@' + usernameB).length,
+        }],
       } as any);
 
       console.log('[step 4] A sent:', messageText);
@@ -111,17 +111,17 @@ describeOrSkip('server-verified mention reads (issue #380)', () => {
       // 6. B fetches the dialog from server (truth source)
       const bDialogPeer = {
         _: 'inputDialogPeer',
-        peer: {_: 'inputPeerChat', chat_id: createdChatId}
+        peer: { _: 'inputPeerChat', chat_id: createdChatId },
       };
       const bDialogsBefore: any = await dual.B.apiManager.invokeApi('messages.getPeerDialogs' as any, {
-        peers: [bDialogPeer]
+        peers: [bDialogPeer],
       } as any);
       const serverBefore = bDialogsBefore.dialogs[0];
 
       console.log('[step 6] server BEFORE read:', {
         unread_count: serverBefore?.unread_count,
         unread_mentions_count: serverBefore?.unread_mentions_count,
-        top_message: serverBefore?.top_message
+        top_message: serverBefore?.top_message,
       });
 
       expect(serverBefore?.unread_mentions_count).toBeGreaterThanOrEqual(1);
@@ -135,14 +135,14 @@ describeOrSkip('server-verified mention reads (issue #380)', () => {
       // 8. Pull the actual chat history (so the mention message lands in
       //    historyMessagesStorage — same as bubbles.ts does on chat open).
       const history: any = await dual.B.apiManager.invokeApi('messages.getHistory' as any, {
-        peer: {_: 'inputPeerChat', chat_id: createdChatId},
+        peer: { _: 'inputPeerChat', chat_id: createdChatId },
         offset_id: 0,
         offset_date: 0,
         add_offset: 0,
         limit: 30,
         max_id: 0,
         min_id: 0,
-        hash: '0'
+        hash: '0',
       } as any);
       dual.B.managers.appMessagesManager.saveMessages(history.messages, {});
 
@@ -152,8 +152,8 @@ describeOrSkip('server-verified mention reads (issue #380)', () => {
         m._ === 'message' &&
         (m.pFlags?.mentioned || m.entities?.some((e: any) => e._ === 'messageEntityMention'))
       );
-      if(!mentionMsg) {
-        console.warn('[debug] history.messages =', history.messages.map((m: any) => ({_: m._, id: m.id, action: m.action?._, mentioned: m.pFlags?.mentioned})));
+      if (!mentionMsg) {
+        console.warn('[debug] history.messages =', history.messages.map((m: any) => ({ _: m._, id: m.id, action: m.action?._, mentioned: m.pFlags?.mentioned })));
         throw new Error('Could not find mention message in history');
       }
       const mentionServerMid = mentionMsg.id;
@@ -170,7 +170,7 @@ describeOrSkip('server-verified mention reads (issue #380)', () => {
       await dual.B.managers.appMessagesManager.readHistory({
         peerId: groupPeerId,
         maxId: mentionLocalMid,
-        force: true
+        force: true,
       });
 
       // 10. Give server time to register the read
@@ -178,14 +178,14 @@ describeOrSkip('server-verified mention reads (issue #380)', () => {
 
       // 11. Re-fetch the dialog from server to learn the truth
       const bDialogsAfter: any = await dual.B.apiManager.invokeApi('messages.getPeerDialogs' as any, {
-        peers: [bDialogPeer]
+        peers: [bDialogPeer],
       } as any);
       const serverAfter = bDialogsAfter.dialogs[0];
 
       console.log('[step 11] server AFTER read:', {
         unread_count: serverAfter?.unread_count,
         unread_mentions_count: serverAfter?.unread_mentions_count,
-        top_message: serverAfter?.top_message
+        top_message: serverAfter?.top_message,
       });
 
       // 12. Local state on B side
@@ -193,29 +193,29 @@ describeOrSkip('server-verified mention reads (issue #380)', () => {
 
       console.log('[step 12] local AFTER read:', {
         unread_count: localDialog?.unread_count,
-        unread_mentions_count: localDialog?.unread_mentions_count
+        unread_mentions_count: localDialog?.unread_mentions_count,
       });
 
       expect(serverAfter?.unread_mentions_count ?? 0).toBe(0);
       expect(localDialog?.unread_mentions_count ?? 0).toBe(0);
     } finally {
       // Cleanup: A (creator) deletes the chat for both sides.
-      if(createdChatId !== undefined) {
+      if (createdChatId !== undefined) {
         try {
-          await dual.A.apiManager.invokeApi('messages.deleteChat' as any, {chat_id: createdChatId} as any);
+          await dual.A.apiManager.invokeApi('messages.deleteChat' as any, { chat_id: createdChatId } as any);
 
           console.log('[cleanup] A deleteChat ok');
-        } catch(err: any) {
+        } catch (err: any) {
           console.warn('[cleanup] A deleteChat failed:', err?.type || err?.message || err);
         }
 
         // B also clears its inbox copy (without revoke — non-admins cannot revoke chat)
         try {
           await dual.B.apiManager.invokeApi('messages.deleteHistory' as any, {
-            peer: {_: 'inputPeerChat', chat_id: createdChatId},
-            max_id: 0
+            peer: { _: 'inputPeerChat', chat_id: createdChatId },
+            max_id: 0,
           } as any);
-        } catch{}
+        } catch {}
       }
 
       dual.dispose();

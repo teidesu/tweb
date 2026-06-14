@@ -1,42 +1,42 @@
-import {AnimationItemGroup} from '@components/animationIntersector';
-import {AppMediaViewerStaticTargetType} from '@components/appMediaViewerStatic';
-import {ButtonIconTsx} from '@components/buttonIconTsx';
+import { AnimationItemGroup } from '@components/animationIntersector';
+import { AppMediaViewerStaticTargetType } from '@components/appMediaViewerStatic';
+import { ButtonIconTsx } from '@components/buttonIconTsx';
 import InputField from '@components/inputField';
 import type LazyLoadQueue from '@components/lazyLoadQueue';
-import {useCreatePollLimits} from '@components/popups/createPoll/useCreatePollLimits';
-import {RemainingTime} from '@components/remainingTime';
+import { useCreatePollLimits } from '@components/popups/createPoll/useCreatePollLimits';
+import { RemainingTime } from '@components/remainingTime';
 import ripple from '@components/ripple';
 import Space from '@components/space';
 import PhotoTsx from '@components/wrappers/photoTsx';
 import VideoTsx from '@components/wrappers/videoTsx';
-import {setCaretAtEnd} from '@helpers/dom/setCaretAt';
+import { setCaretAtEnd } from '@helpers/dom/setCaretAt';
 import SuperIntersectionObserver from '@helpers/dom/superIntersectionObserver';
-import {keepMe} from '@helpers/keepMe';
+import { keepMe } from '@helpers/keepMe';
 import mediaSizes from '@helpers/mediaSizes';
-import {attachHotClassName} from '@helpers/solid/classname';
+import { attachHotClassName } from '@helpers/solid/classname';
 import createMiddleware from '@helpers/solid/createMiddleware';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
-import {wrapAsyncClickHandler} from '@helpers/wrapAsyncClickHandler';
-import type {ChatAutoDownloadSettings} from '@hooks/useAutoDownloadSettings';
-import {Document, Message, MessageMedia, Photo, Poll, PollResults} from '@layer';
-import {ChatRights} from '@lib/appManagers/appChatsManager';
-import {PollUploadingFileNames} from '@lib/appManagers/appPollsManager';
-import {sliceTextWithEntities} from '@lib/richTextProcessor/sliceTextWithEntities';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
+import { wrapAsyncClickHandler } from '@helpers/wrapAsyncClickHandler';
+import type { ChatAutoDownloadSettings } from '@hooks/useAutoDownloadSettings';
+import { Document, Message, MessageMedia, Photo, Poll, PollResults } from '@layer';
+import { ChatRights } from '@lib/appManagers/appChatsManager';
+import { PollUploadingFileNames } from '@lib/appManagers/appPollsManager';
+import { sliceTextWithEntities } from '@lib/richTextProcessor/sliceTextWithEntities';
 import wrapDraftText from '@lib/richTextProcessor/wrapDraftText';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {batch, createEffect, createMemo, createSelector, createSignal, For, Match, onCleanup, Show, Switch} from 'solid-js';
-import {createStore, reconcile, unwrap} from 'solid-js/store';
-import {Transition, TransitionGroup} from 'solid-transition-group';
-import {AddOption} from './AddOption';
-import {PollMessageContentPropsContext} from './context';
-import {AutoStartedConfetti, AvatarGroup, Explanation, GeoPreview, PollType, PollVotes} from './parts';
-import {PollOption} from './PollOption';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { batch, createEffect, createMemo, createSelector, createSignal, For, Match, onCleanup, Show, Switch } from 'solid-js';
+import { createStore, reconcile, unwrap } from 'solid-js/store';
+import { Transition, TransitionGroup } from 'solid-transition-group';
+import { AddOption } from './AddOption';
+import { PollMessageContentPropsContext } from './context';
+import { AutoStartedConfetti, AvatarGroup, Explanation, GeoPreview, PollType, PollVotes } from './parts';
+import { PollOption } from './PollOption';
 import styles from './styles.module.scss';
-import {usePollDerivedProps} from './usePollDerivedProps';
-import {usePollMutations} from './usePollMutations';
-import {usePollOptionsStore} from './usePollOptionsStore';
-import {attachSpoilerOverlay, dataPollViewerIdx, hasSelectedCorrectAnswers, NewOptionValues} from './utils';
+import { usePollDerivedProps } from './usePollDerivedProps';
+import { usePollMutations } from './usePollMutations';
+import { usePollOptionsStore } from './usePollOptionsStore';
+import { attachSpoilerOverlay, dataPollViewerIdx, hasSelectedCorrectAnswers, NewOptionValues } from './utils';
 
 
 keepMe(ripple);
@@ -77,7 +77,7 @@ export const PollMessageContent =
     attachHotClassName(props.element, styles.container);
 
     createEffect(() => {
-      if(props.isOutgoing) {
+      if (props.isOutgoing) {
         props.element.classList.add(styles.outgoing);
         onCleanup(() => {
           props.element.classList.remove(styles.outgoing);
@@ -86,8 +86,8 @@ export const PollMessageContent =
     });
 
     // ----- Setup / external dependencies -----
-    const {rootScope, AppMediaViewerStatic, appSidebarRight, AppPollResultsTab, TranslatableMessageTsx, DocumentTsx} = useHotReloadGuard();
-    const {maxOptionLength} = useCreatePollLimits();
+    const { rootScope, AppMediaViewerStatic, appSidebarRight, AppPollResultsTab, TranslatableMessageTsx, DocumentTsx } = useHotReloadGuard();
+    const { maxOptionLength } = useCreatePollLimits();
     const middleware = createMiddleware().get();
 
     // ----- Local state -----
@@ -97,7 +97,7 @@ export const PollMessageContent =
     const [isAddingNewOptionActive, setIsAddingNewOptionActive] = createSignal(false);
     const [newOption, setNewOption] = createStore<NewOptionValues>({
       text: '',
-      entities: []
+      entities: [],
     });
     const [descriptionElement, setDescriptionElement] = createSignal<HTMLDivElement>();
     const [isConfettiActive, setIsConfettiActive] = createSignal(false);
@@ -110,7 +110,7 @@ export const PollMessageContent =
     // ----- Poll options store & derived props -----
     const [pollOptions] = usePollOptionsStore({
       props,
-      userId: rootScope.myId
+      userId: rootScope.myId,
     });
 
     const {
@@ -148,12 +148,12 @@ export const PollMessageContent =
       getPhotoForOption,
       getVideoForOption,
       getStickerForOption,
-      getGeoForOption
+      getGeoForOption,
     } = usePollDerivedProps({
       props,
       pollOptions,
       chosenIndexes,
-      newOptionText: () => newOption.text
+      newOptionText: () => newOption.text,
     });
 
     const isChecked = createSelector(chosenIndexes, (index: number, indices) => indices.includes(index));
@@ -164,7 +164,7 @@ export const PollMessageContent =
     const resetInteractiveState = () => batch(() => {
       setChosenIndexes([]);
       setIsAddingNewOptionActive(false);
-      setNewOption(reconcile({text: '', entities: []}));
+      setNewOption(reconcile({ text: '', entities: [] }));
       inputField?.setValueSilently('');
     });
 
@@ -173,13 +173,13 @@ export const PollMessageContent =
       wrappedSendVote,
       delayedSendVotePending,
       addOptionMutation,
-      wrappedAddOption
+      wrappedAddOption,
     } = usePollMutations({
       getOverridenMessage,
       isShowingResult: isShowingResult as () => boolean,
       initialIdxFromShuffledIdx,
       newOption,
-      onSuccess: resetInteractiveState
+      onSuccess: resetInteractiveState,
     });
 
     // Make the footer unclickable immediately when there are pending requests
@@ -191,15 +191,15 @@ export const PollMessageContent =
 
       const media: (Photo.photo | Document.document)[] = [];
       const indexes: MediaViewerPayloadIndexes = {
-        options: new Map()
+        options: new Map(),
       };
 
-      if(descriptionPhoto() || descriptionVideo()) {
+      if (descriptionPhoto() || descriptionVideo()) {
         media.push((descriptionPhoto() || descriptionVideo())!);
         indexes.description = idxSeed++;
       }
 
-      if(explanationPhoto() || explanationVideo()) {
+      if (explanationPhoto() || explanationVideo()) {
         media.push((explanationPhoto() || explanationVideo())!);
         indexes.explanation = idxSeed++;
       }
@@ -207,24 +207,24 @@ export const PollMessageContent =
       props.poll.answers.forEach((option, idx) => {
         const photo = getPhotoForOption(idx);
         const video = getVideoForOption(idx);
-        if(photo || video) {
+        if (photo || video) {
           media.push((photo || video)!);
           indexes.options.set(idx, idxSeed++);
         }
       });
 
-      return {media, indexes};
+      return { media, indexes };
     });
 
     // ----- Event handlers -----
     const handleToggle = (index: number) => {
-      if(!allowMultipleAnswers()) {
+      if (!allowMultipleAnswers()) {
         wrappedSendVote([index]);
         return;
       }
 
       setChosenIndexes(prev => {
-        if(prev.includes(index)) {
+        if (prev.includes(index)) {
           return prev.filter(i => i !== index);
         } else {
           return [...prev, index];
@@ -233,22 +233,22 @@ export const PollMessageContent =
     };
 
     const handleNewOptionChanged = (values: Partial<NewOptionValues>) => batch(() => {
-      if('attachment' in values) setNewOption({attachment: values.attachment});
+      if ('attachment' in values) setNewOption({ attachment: values.attachment });
 
-      if(!('text' in values && 'entities' in values)) return;
+      if (!('text' in values && 'entities' in values)) return;
 
       const sliced = sliceTextWithEntities(values.text ?? '', values.entities ?? [], 0, maxOptionLength());
       setNewOption(sliced);
-      if(sliced.text.length < inputField?.value.length) {
+      if (sliced.text.length < inputField?.value.length) {
         inputField?.setValueSilently(
-          wrapDraftText(sliced.text, {entities: sliced.entities, middleware}),
+          wrapDraftText(sliced.text, { entities: sliced.entities, middleware }),
         );
         setCaretAtEnd(inputField?.input);
       }
     });
 
     const openViewResults = () => {
-      if(!appSidebarRight.isTabExists(AppPollResultsTab)) {
+      if (!appSidebarRight.isTabExists(AppPollResultsTab)) {
         appSidebarRight.createTab(AppPollResultsTab).open(getOverridenMessage());
       } else {
         appSidebarRight.toggleSidebar(true);
@@ -256,25 +256,25 @@ export const PollMessageContent =
     };
 
     const onFooterClick = wrapAsyncClickHandler(async() => {
-      if(canShowViewResults()) openViewResults();
-      else if(hasSelectedSomething()) await sendVoteMutation.mutateAsync(chosenIndexes());
-      else if(hasTypedNewOption()) await wrappedAddOption();
+      if (canShowViewResults()) openViewResults();
+      else if (hasSelectedSomething()) await sendVoteMutation.mutateAsync(chosenIndexes());
+      else if (hasTypedNewOption()) await wrappedAddOption();
     });
 
     // ----- Effects & subscriptions -----
-    subscribeOn(rootScope)('poll_update', ({poll, results}) => {
-      if(poll.id !== props.poll.id) return;
+    subscribeOn(rootScope)('poll_update', ({ poll, results }) => {
+      if (poll.id !== props.poll.id) return;
 
       props.poll = poll;
       props.results = results;
 
-      if(poll.pFlags.quiz && hasSelectedCorrectAnswers(poll)) {
+      if (poll.pFlags.quiz && hasSelectedCorrectAnswers(poll)) {
         setIsConfettiActive(true);
       }
     });
 
     createEffect(() => {
-      if(!descriptionElement()) return;
+      if (!descriptionElement()) return;
       attachSpoilerOverlay(descriptionElement()!, props);
     });
 
@@ -286,14 +286,14 @@ export const PollMessageContent =
         fromId: props.message.fromId!,
         timestamp: props.message.date,
         peerId: props.message.peerId!,
-        mid: props.message.mid
+        mid: props.message.mid,
       });
 
       new AppMediaViewerStatic().openMedia({
         allTargets: mediaViewerPayload().media.map((_, idx) => getTarget(idx)),
         index: idx,
         fromRight: 0,
-        ...getTarget(idx)
+        ...getTarget(idx),
       });
     };
 
@@ -303,7 +303,7 @@ export const PollMessageContent =
       self.clearTimeout(highlightedTimeout);
       setSlowHighlightedIndexes([]);
 
-      if(typeof idx === 'number') {
+      if (typeof idx === 'number') {
         setHighlightedIndexes([idx]);
       } else {
         setHighlightedIndexes([]);
@@ -377,8 +377,8 @@ export const PollMessageContent =
           <div ref={setDescriptionElement} class={styles.description}>
             <TranslatableMessageTsx
               peerId={props.peerId}
-              textWithEntities={{_: 'textWithEntities', text: descriptionText(), entities: unwrap(descriptionEntities())!}}
-              richTextOptions={{middleware: createMiddleware().get(), loadPromises: unwrap(props.loadPromises)}}
+              textWithEntities={{ _: 'textWithEntities', text: descriptionText(), entities: unwrap(descriptionEntities())! }}
+              richTextOptions={{ middleware: createMiddleware().get(), loadPromises: unwrap(props.loadPromises) }}
             />
           </div>
         </Show>
@@ -388,7 +388,7 @@ export const PollMessageContent =
               <TranslatableMessageTsx
                 peerId={props.peerId}
                 textWithEntities={unwrap(question())}
-                richTextOptions={{middleware, loadPromises: unwrap(props.loadPromises)}}
+                richTextOptions={{ middleware, loadPromises: unwrap(props.loadPromises) }}
               />
             </div>
             <div class={styles.headerSubtitle}>
@@ -450,7 +450,7 @@ export const PollMessageContent =
         </TransitionGroup>
 
         <Show when={canShowAddOption()}>
-          <div style={{overflow: 'hidden'}}>
+          <div style={{ overflow: 'hidden' }}>
             <AddOption
               inputFieldRef={(value: InputField) => void (inputField = value)}
               value={newOption.text}
@@ -470,7 +470,7 @@ export const PollMessageContent =
             class={styles.footerButton}
             classList={{
               [styles.clickable]: isFooterClickable(),
-              [styles.outgoing]: props.isOutgoing
+              [styles.outgoing]: props.isOutgoing,
             }}
             use:ripple={isFooterClickable()}
             onClick={onFooterClick}

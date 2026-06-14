@@ -1,10 +1,10 @@
 import StickerType from '@config/stickerType';
-import {MediaEditorContextValue} from '@components/mediaEditor/context';
-import {MediaEditorFinalResultPayload} from '@components/mediaEditor/finalRender/createFinalResult';
+import { MediaEditorContextValue } from '@components/mediaEditor/context';
+import { MediaEditorFinalResultPayload } from '@components/mediaEditor/finalRender/createFinalResult';
 
 import drawStickerLayer from '@components/mediaEditor/finalRender/drawStickerLayer';
 import drawTextLayer from '@components/mediaEditor/finalRender/drawTextLayer';
-import {ScaledLayersAndLines} from '@components/mediaEditor/finalRender/getScaledLayersAndLines';
+import { ScaledLayersAndLines } from '@components/mediaEditor/finalRender/getScaledLayersAndLines';
 
 export type RenderToImageArgs = {
   context: MediaEditorContextValue;
@@ -21,25 +21,25 @@ export default async function renderToImage({
   ctx,
   imageCanvas,
   brushCanvas,
-  resultCanvas
+  resultCanvas,
 }: RenderToImageArgs) {
-  const {editorState: {stickersLayersInfo}, canImageResultInGIF, dontCreatePreview, imageType = 'image/jpeg', imageQuality} = context;
+  const { editorState: { stickersLayersInfo }, canImageResultInGIF, dontCreatePreview, imageType = 'image/jpeg', imageQuality } = context;
 
   ctx.drawImage(imageCanvas, 0, 0);
   ctx.drawImage(brushCanvas, 0, 0);
 
   scaledLayers.forEach((layer) => {
-    if(layer.type === 'text') drawTextLayer(context, ctx, layer);
-    if(layer.type === 'sticker' && (!canImageResultInGIF || layer.sticker?.sticker === StickerType.Static)) {
-      const {container} = stickersLayersInfo[layer.id];
+    if (layer.type === 'text') drawTextLayer(context, ctx, layer);
+    if (layer.type === 'sticker' && (!canImageResultInGIF || layer.sticker?.sticker === StickerType.Static)) {
+      const { container } = stickersLayersInfo[layer.id];
       const stickerChild = container?.lastElementChild;
 
       let ratio: number;
-      if(stickerChild instanceof HTMLImageElement) {
+      if (stickerChild instanceof HTMLImageElement) {
         ratio = stickerChild.naturalWidth / stickerChild.naturalHeight;
-      } else if(stickerChild instanceof HTMLVideoElement) {
+      } else if (stickerChild instanceof HTMLVideoElement) {
         ratio = stickerChild.videoWidth / stickerChild.videoHeight;
-      } else if(stickerChild instanceof HTMLCanvasElement) {
+      } else if (stickerChild instanceof HTMLCanvasElement) {
         ratio = stickerChild.width / stickerChild.height;
       } else {
         return;
@@ -57,13 +57,13 @@ export default async function renderToImage({
   const result = await new Promise<MediaEditorFinalResultPayload>((resolve) =>
     resultCanvas.toBlob(blob => resolve({
       blob: blob!,
-      hasSound: false
+      hasSound: false,
     }), imageType, imageQuality)
   );
 
   return {
     preview: dontCreatePreview ? undefined : result.blob,
     isVideo: false,
-    getResult: () => result
+    getResult: () => result,
   };
 }

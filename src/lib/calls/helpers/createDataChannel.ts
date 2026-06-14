@@ -1,9 +1,9 @@
-import {Logger, logger} from '@lib/logger';
+import { Logger, logger } from '@lib/logger';
 
 export default function createDataChannel(connection: RTCPeerConnection, dict?: RTCDataChannelInit, log?: Logger) {
   // return;
 
-  if(!log) {
+  if (!log) {
     log = logger('RTCDataChannel');
   }
 

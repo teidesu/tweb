@@ -1,16 +1,16 @@
-import {Component, createEffect, createResource, on, onCleanup, onMount} from 'solid-js';
-import {createMutable} from 'solid-js/store';
-import {animateValue} from '@helpers/animateValue';
+import { Component, createEffect, createResource, on, onCleanup, onMount } from 'solid-js';
+import { createMutable } from 'solid-js/store';
+import { animateValue } from '@helpers/animateValue';
 import focusInput from '@helpers/dom/focusInput';
-import {keepMe} from '@helpers/keepMe';
+import { keepMe } from '@helpers/keepMe';
 import pause from '@helpers/schedulers/pause';
 import throttle from '@helpers/schedulers/throttle';
 import AccountController from '@lib/accounts/accountController';
 import commonStateStorage from '@lib/commonStateStorage';
-import {i18n} from '@lib/langPack';
-import {usePasscodeActions} from '@lib/passcode/actions';
-import {MAX_PASSCODE_LENGTH} from '@lib/passcode/constants';
-import {useLockScreenHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { i18n } from '@lib/langPack';
+import { usePasscodeActions } from '@lib/passcode/actions';
+import { MAX_PASSCODE_LENGTH } from '@lib/passcode/constants';
+import { useLockScreenHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 import ChatBackgroundGradientRenderer from '@components/chat/gradientRenderer';
 import type PasswordInputField from '@components/passwordInputField';
 import ripple from '@components/ripple';
@@ -48,15 +48,15 @@ const PasscodeLockScreen: Component<{
 
   let attempts = 0;
 
-  const {isMyPasscode, unlockWithPasscode} = usePasscodeActions();
-  const {InputFieldTsx, PasswordInputField, apiManagerProxy} = useLockScreenHotReloadGuard();
+  const { isMyPasscode, unlockWithPasscode } = usePasscodeActions();
+  const { InputFieldTsx, PasswordInputField, apiManagerProxy } = useLockScreenHotReloadGuard();
 
   const store = createMutable<StateStore>({
     isMonkeyHidden: !!props.fromLockIcon,
     isError: false,
     tooManyAttempts: false,
     passcode: '',
-    isLogoutPopupOpen: false
+    isLogoutPopupOpen: false,
   });
 
   const [totalAccounts] = createResource(() => AccountController.getUnencryptedTotalAccounts());
@@ -65,7 +65,7 @@ const PasscodeLockScreen: Component<{
     attempts = 0;
 
     const lockIcon = props.fromLockIcon;
-    if(lockIcon) (async() => {
+    if (lockIcon) (async() => {
       const lockIconRect = lockIcon.getBoundingClientRect();
       const rect = passwordMonkeyContainer!.getBoundingClientRect();
 
@@ -85,7 +85,7 @@ const PasscodeLockScreen: Component<{
     })();
 
     const listener = (e: KeyboardEvent) => {
-      if(document.activeElement && document.activeElement.tagName === 'INPUT') return;
+      if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
       focusInput(passwordInputField.input, e);
     };
     document.addEventListener('keydown', listener);
@@ -99,7 +99,7 @@ const PasscodeLockScreen: Component<{
   function rotateBackgroundGradient() {
     cancelAnimation?.();
 
-    if(store.gradientRenderer) {
+    if (store.gradientRenderer) {
       let progress = 0;
       cancelAnimation = animateValue(0, 1, 200, (p) => progress = p);
       store.gradientRenderer.toNextPosition(() => progress);
@@ -125,41 +125,41 @@ const PasscodeLockScreen: Component<{
   const canAttempt = async() => {
     const settings = structuredClone(await commonStateStorage.get('settings', false));
     const canAttemptAgainOn = settings?.passcode?.canAttemptAgainOn;
-    if(!canAttemptAgainOn) return true;
+    if (!canAttemptAgainOn) return true;
 
-    if(canAttemptAgainOn > Date.now()) return false;
+    if (canAttemptAgainOn > Date.now()) return false;
 
     store.tooManyAttempts = false;
     attempts = 0;
     settings.passcode.canAttemptAgainOn = null;
-    commonStateStorage.set({settings});
+    commonStateStorage.set({ settings });
     return true;
   };
 
   let isSubmiting = false;
   const onSubmit = async(e?: Event) => {
     e?.preventDefault();
-    if(isSubmiting) return;
+    if (isSubmiting) return;
 
     isSubmiting = true;
 
     try {
-      if(!(await canAttempt())) {
+      if (!(await canAttempt())) {
         store.tooManyAttempts = true;
-      } else if(canSubmit() && await isMyPasscode(store.passcode)) {
+      } else if (canSubmit() && await isMyPasscode(store.passcode)) {
         await unlockWithPasscode(store.passcode);
         props.onUnlock();
       } else {
         attempts ++;
         store.isError = true;
-        if(attempts > MAX_ATTEMPTS) {
+        if (attempts > MAX_ATTEMPTS) {
           store.tooManyAttempts = true;
           const settings = structuredClone(await commonStateStorage.get('settings', false));
           settings.passcode.canAttemptAgainOn = Date.now() + MAX_ATTEMPTS_TIMEOUT_SEC * 1000;
-          await commonStateStorage.set({settings});
+          await commonStateStorage.set({ settings });
         }
       }
-    } catch{
+    } catch {
       store.isError = true;
     } finally {
       isSubmiting = false;
@@ -209,7 +209,7 @@ const PasscodeLockScreen: Component<{
           >
             {i18n('PasscodeLock.Proceed')}
           </button>
-          <button hidden style={{visibility: 'hidden', height: '0', width: '0'}} type='submit' />
+          <button hidden style={{ visibility: 'hidden', height: '0', width: '0' }} type='submit' />
         </form>
         <Space amount="1.625rem" />
         <div class={styles.Description}>
@@ -224,7 +224,7 @@ const PasscodeLockScreen: Component<{
                   onClick={() => {
                     store.isLogoutPopupOpen = true;
                   }}
-                /> as HTMLButtonElement
+                /> as HTMLButtonElement,
               ]
             )
           }

@@ -20,11 +20,11 @@ export default class ScrollableLoader {
   }
 
   public load() {
-    if(this.loaded) {
+    if (this.loaded) {
       return Promise.resolve();
     }
 
-    if(this.loading) {
+    if (this.loading) {
       return this.promise;
     }
 
@@ -33,7 +33,7 @@ export default class ScrollableLoader {
       this.loading = false;
       this.promise = undefined;
 
-      if(done) {
+      if (done) {
         this.loaded = true;
         this.scrollable.onScrolledBottom = null;
       } else {

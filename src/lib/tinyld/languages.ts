@@ -109,7 +109,7 @@ const Languages = [
   ['xh', 'isiXhosa'],
   ['yi', 'ייִדיש'],
   ['yo', 'Yorùbá'],
-  ['zu', 'isiZulu']
+  ['zu', 'isiZulu'],
 ] as const;
 
 export default Languages;

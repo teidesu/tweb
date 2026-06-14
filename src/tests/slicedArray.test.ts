@@ -1,4 +1,4 @@
-import SlicedArray, {Slice, SliceEnd} from '@helpers/slicedArray';
+import SlicedArray, { Slice, SliceEnd } from '@helpers/slicedArray';
 
 test('Slicing returns new Slice', () => {
   const sliced = new SlicedArray();
@@ -24,11 +24,11 @@ describe('Inserting', () => {
   const values: typeof arr = [];
   const valuesPerArray = 3;
   const totalArrays = 10;
-  for(let i = 0, length = valuesPerArray * totalArrays; i < length; ++i) {
+  for (let i = 0, length = valuesPerArray * totalArrays; i < length; ++i) {
     values.push(toSomething(+startValue - i));
   }
   const arrays: (typeof values)[] = [];
-  for(let i = 0; i < totalArrays; ++i) {
+  for (let i = 0; i < totalArrays; ++i) {
     arrays.push(values.slice(valuesPerArray * i, valuesPerArray * (i + 1)));
   }
 
@@ -65,7 +65,7 @@ describe('Inserting', () => {
   test('Insert arrays with gap & join them', () => {
     slices[0].length = 0;
 
-    for(const arr of arrays) {
+    for (const arr of arrays) {
       sliced.insertSlice(arr);
     }
 
@@ -100,7 +100,7 @@ describe('Slicing', () => {
   const VALUES_LENGTH = 100;
   const INCREMENTOR = 0xFFFF;
   const values: number[] = [];
-  for(let i = 0; i < VALUES_LENGTH; ++i) {
+  for (let i = 0; i < VALUES_LENGTH; ++i) {
     values[i] = i + INCREMENTOR * i;
   }
   values.sort((a, b) => b - a);
@@ -112,7 +112,7 @@ describe('Slicing', () => {
 
   const r = (func: (idx: number) => void) => {
     const max = VALUES_LENGTH * 3;
-    for(let i = 0; i < max; ++i) {
+    for (let i = 0; i < max; ++i) {
       const idx = Math.random() * max | 0;
       func(idx);
     }
@@ -120,7 +120,7 @@ describe('Slicing', () => {
 
   describe('Positive addOffset', () => {
     test('From the start', () => {
-      const {slice} = sliced.sliceMe(0, addOffset, limit)!;
+      const { slice } = sliced.sliceMe(0, addOffset, limit)!;
       expect([...slice]).toEqual(values.slice(addOffset, addOffset + limit));
     });
 
@@ -128,7 +128,7 @@ describe('Slicing', () => {
       r((idx) => {
         const value = values[idx] || 1;
         idx += 1; // because is it inclusive
-        const {slice} = sliced.sliceMe(value, addOffset, limit)!;
+        const { slice } = sliced.sliceMe(value, addOffset, limit)!;
         expect([...slice]).toEqual(values.slice(idx + addOffset, idx + addOffset + limit));
       });
     });
@@ -155,8 +155,8 @@ describe('Serializing', () => {
 
     const serialized = sliced.serialize();
     expect(serialized).toEqual([
-      {values: [5, 4, 3], end: SliceEnd.Bottom},
-      {values: [1, 0], end: SliceEnd.Top}
+      { values: [5, 4, 3], end: SliceEnd.Bottom },
+      { values: [1, 0], end: SliceEnd.Top },
     ]);
   });
 
@@ -168,7 +168,7 @@ describe('Serializing', () => {
     const isTemp = (v: number) => v > Math.floor(v);
     const serialized = sliced.serialize((v) => !isTemp(v));
     expect(serialized).toEqual([
-      {values: [5, 4], end: SliceEnd.None}
+      { values: [5, 4], end: SliceEnd.None },
     ]);
   });
 
@@ -179,10 +179,10 @@ describe('Serializing', () => {
     sliced.insertSlice([3, 2]);
 
     const restored = new SlicedArray<number>();
-    for(const {values, end} of sliced.serialize()) {
+    for (const { values, end } of sliced.serialize()) {
       const inserted = restored.insertSlice(values);
-      if(end & SliceEnd.Top) inserted!.setEnd(SliceEnd.Top);
-      if(end & SliceEnd.Bottom) inserted!.setEnd(SliceEnd.Bottom);
+      if (end & SliceEnd.Top) inserted!.setEnd(SliceEnd.Top);
+      if (end & SliceEnd.Bottom) inserted!.setEnd(SliceEnd.Bottom);
     }
 
     expect(restored.serialize()).toEqual(sliced.serialize());

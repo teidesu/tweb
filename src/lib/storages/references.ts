@@ -1,9 +1,9 @@
-import type {Photo, StoryItem, WallPaper} from '@layer';
+import type { Photo, StoryItem, WallPaper } from '@layer';
 import bytesToHex from '@helpers/bytes/bytesToHex';
 import deepEqual from '@helpers/object/deepEqual';
-import {AppManager} from '@appManagers/manager';
+import { AppManager } from '@appManagers/manager';
 import makeError from '@helpers/makeError';
-import type {MyStickerSetInput} from '@lib/appManagers/utils/stickers/constants';
+import type { MyStickerSetInput } from '@lib/appManagers/utils/stickers/constants';
 
 export type ReferenceContext =
   ReferenceContext.referenceContextProfilePhoto |
@@ -177,14 +177,14 @@ export class ReferencesStorage extends AppManager {
     // }
 
     [contexts, reference] = this.getContexts(reference);
-    if(!contexts) {
+    if (!contexts) {
       contexts = new Set();
       this.contexts.set(reference, contexts);
     }
 
     this.links[bytesToHex(reference)] = reference;
-    for(const _context of contexts) {
-      if(deepEqual(_context, context)) {
+    for (const _context of contexts) {
+      if (deepEqual(_context, context)) {
         return;
       }
     }
@@ -211,11 +211,11 @@ export class ReferencesStorage extends AppManager {
 
   public deleteContext(reference: ReferenceBytes, context: ReferenceContext, contexts?: ReferenceContexts) {
     [contexts, reference] = this.getContexts(reference);
-    if(contexts) {
-      for(const _context of contexts) {
-        if(deepEqual(_context, context)) {
+    if (contexts) {
+      for (const _context of contexts) {
+        if (deepEqual(_context, context)) {
           contexts.delete(_context);
-          if(!contexts.size) {
+          if (!contexts.size) {
             this.contexts.delete(reference);
             this.apiFileManager.cancelDownloadByReference(reference);
             delete this.links[bytesToHex(reference)];
@@ -229,7 +229,7 @@ export class ReferencesStorage extends AppManager {
   }
 
   private getRefreshPromise(context: ReferenceContext): any {
-    switch(context?.type) {
+    switch (context?.type) {
       case 'message': {
         // const message = copy(this.appMessagesManager.getMessageByPeer(context.peerId, context.messageId));
         return this.appMessagesManager.reloadMessage(context.peerId, context.messageId, true);
@@ -283,7 +283,7 @@ export class ReferencesStorage extends AppManager {
         return this.appStickersManager.getFavedStickers(true);
 
       case 'stickerSet':
-        return this.appStickersManager.getStickerSet(context.input, {overwrite: true});
+        return this.appStickersManager.getStickerSet(context.input, { overwrite: true });
 
       case 'availableEffects':
         return this.appReactionsManager.getAvailableEffects(true);
@@ -292,7 +292,7 @@ export class ReferencesStorage extends AppManager {
         return this.appStickersManager.getStickersByEmoticon({
           emoticon: context.emoticon,
           includeServerStickers: true,
-          includeOurStickers: false
+          includeOurStickers: false,
         });
 
       case 'savedMusic':
@@ -308,9 +308,9 @@ export class ReferencesStorage extends AppManager {
   public refreshReference(reference: ReferenceBytes, context?: ReferenceContext): Promise<Uint8Array | number[]> {
     const log = this.log.bindPrefix('refreshReference');
     log('start', reference.slice(), context);
-    if(!context) {
+    if (!context) {
       const c = this.getContext(reference);
-      if(!c) {
+      if (!c) {
         log('got no context for reference', reference.slice());
         return Promise.reject(makeError('NO_CONTEXT'));
       }
@@ -322,10 +322,10 @@ export class ReferencesStorage extends AppManager {
     let promise: Promise<any>;
     try {
       promise = this.getRefreshPromise(context);
-      if(!(promise instanceof Promise)) {
+      if (!(promise instanceof Promise)) {
         promise = Promise.resolve(promise);
       }
-    } catch(err) {
+    } catch (err) {
       promise = Promise.reject(err);
     }
 
@@ -334,14 +334,14 @@ export class ReferencesStorage extends AppManager {
     const onFinish = () => {
       const newHex = bytesToHex(reference);
       log('refreshed, reference before', hex, 'after', newHex);
-      if(hex !== newHex) {
+      if (hex !== newHex) {
         return reference;
       }
 
       this.deleteContext(reference, context);
 
       const newContext = this.getContext(reference);
-      if(newContext) {
+      if (newContext) {
         return this.refreshReference(reference, newContext[0]);
       }
 

@@ -1,9 +1,9 @@
-import {Message, MessageMedia, PhotoSize, WebDocument} from '@layer';
-import {REPLIES_HIDDEN_CHANNEL_ID} from '@appManagers/constants';
-import {MyDocument} from '@appManagers/appDocsManager';
-import {MyPhoto} from '@appManagers/appPhotosManager';
+import { Message, MessageMedia, PhotoSize, WebDocument } from '@layer';
+import { REPLIES_HIDDEN_CHANNEL_ID } from '@appManagers/constants';
+import { MyDocument } from '@appManagers/appDocsManager';
+import { MyPhoto } from '@appManagers/appPhotosManager';
 import choosePhotoSize from '@appManagers/utils/photos/choosePhotoSize';
-import {MediaSize, makeMediaSize} from '@helpers/mediaSize';
+import { MediaSize, makeMediaSize } from '@helpers/mediaSize';
 import isWebDocument from '@appManagers/utils/webDocs/isWebDocument';
 
 export const EXPAND_TEXT_WIDTH = 320;
@@ -22,7 +22,7 @@ export default function setAttachmentSize({
   photoSize,
   size,
   canHaveVideoPlayer,
-  noMinSize
+  noMinSize,
 }: {
   photo?: MyPhoto | MyDocument | WebDocument,
   element: HTMLElement | SVGForeignObjectElement,
@@ -41,15 +41,15 @@ export default function setAttachmentSize({
   //   pushDocumentSize = true;
   // }
 
-  if(!photoSize && !size) {
+  if (!photoSize && !size) {
     photoSize = choosePhotoSize(photo!, boxWidth, boxHeight, undefined, pushDocumentSize);
   }
   // console.log('setAttachmentSize', photo, photo.sizes[0].bytes, div);
 
   const isDocument = photo?._ === 'document';
-  if(size) {
+  if (size) {
 
-  } else if(isDocument || _isWebDocument) {
+  } else if (isDocument || _isWebDocument) {
     size = makeMediaSize(
       photo.w || (photoSize as PhotoSize.photoSize).w || 512,
       photo.h || (photoSize as PhotoSize.photoSize).h || 512
@@ -66,13 +66,13 @@ export default function setAttachmentSize({
   boxSize = size = size.aspect(boxSize, noZoom);
 
   let isFit = true;
-  if(!noMinSize && (!isDocument || ['video', 'gif'].includes(photo.type!) || _isWebDocument)) {
+  if (!noMinSize && (!isDocument || ['video', 'gif'].includes(photo.type!) || _isWebDocument)) {
     const minSideSize = MIN_SIDE_SIZE;
-    if(boxSize.width < minSideSize && boxSize.height < minSideSize) { // make at least one side this big
+    if (boxSize.width < minSideSize && boxSize.height < minSideSize) { // make at least one side this big
       boxSize = size = size.aspectCovered(makeMediaSize(minSideSize, minSideSize));
     }
 
-    if(message &&
+    if (message &&
       (message.message ||
         message.factcheck ||
         message.reply_to_mid ||
@@ -80,14 +80,14 @@ export default function setAttachmentSize({
         (message.replies && message.replies.pFlags.comments && message.replies.channel_id!.toChatId() !== REPLIES_HIDDEN_CHANNEL_ID)
       )
     ) { // make sure that bubble block is human-readable
-      if(boxSize.width < EXPAND_TEXT_WIDTH) {
+      if (boxSize.width < EXPAND_TEXT_WIDTH) {
         boxSize = makeMediaSize(EXPAND_TEXT_WIDTH, boxSize.height);
         isFit = false;
       }
     }
 
     const minWidth = (photo as MyDocument)?.type === 'video' && canHaveVideoPlayer ? MIN_VIDEO_SIDE_SIZE : MIN_IMAGE_WIDTH;
-    if(/* isFit &&  */boxSize.width < minWidth && message) { // if image is too narrow
+    if (/* isFit &&  */boxSize.width < minWidth && message) { // if image is too narrow
       boxSize = makeMediaSize(minWidth, boxSize.height);
       isFit = false;
     }
@@ -103,5 +103,5 @@ export default function setAttachmentSize({
   element.style.height = boxSize.height + 'px';
   // }
 
-  return {photoSize, size, isFit};
+  return { photoSize, size, isFit };
 }

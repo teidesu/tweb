@@ -1,16 +1,16 @@
-import {createEffect, onCleanup, Show} from 'solid-js';
-import {Message} from '@layer';
+import { createEffect, onCleanup, Show } from 'solid-js';
+import { Message } from '@layer';
 import getMessageThreadId from '@appManagers/utils/messages/getMessageThreadId';
-import {i18n} from '@lib/langPack';
-import defineSolidElement, {PassedProps} from '@lib/solidjs/defineSolidElement';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {IconTsx} from '@components/iconTsx';
+import { i18n } from '@lib/langPack';
+import defineSolidElement, { PassedProps } from '@lib/solidjs/defineSolidElement';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { IconTsx } from '@components/iconTsx';
 import classNames from '@helpers/string/classNames';
 import ReplyMarkupLayout from '@components/chat/bubbleParts/replyMarkupLayout';
 import type Chat from '@components/chat/chat';
 import styles from '@components/chat/bubbleParts/continueLastTopicReplyMarkup/styles.module.scss';
 
-if(import.meta.hot) import.meta.hot.accept();
+if (import.meta.hot) import.meta.hot.accept();
 
 type Props = {
   chat: Chat;
@@ -22,20 +22,20 @@ type Props = {
 const ContinueLastTopicReplyMarkupContent = defineSolidElement({
   name: 'continue-last-topic-reply-markup-content',
   component: (props: PassedProps<Props>) => {
-    const {appImManager} = useHotReloadGuard();
+    const { appImManager } = useHotReloadGuard();
 
     const onClick = () => {
-      const messageThreadId = getMessageThreadId(props.message, {isBotforum: props.chat.isBotforum});
-      if(!messageThreadId) return;
+      const messageThreadId = getMessageThreadId(props.message, { isBotforum: props.chat.isBotforum });
+      if (!messageThreadId) return;
 
       appImManager.setPeer({
         peerId: props.chat.peerId,
-        threadId: messageThreadId
+        threadId: messageThreadId,
       });
     };
 
     createEffect(() => {
-      if(!props.visible) return;
+      if (!props.visible) return;
       props.bubble.classList.add('with-reply-markup');
       onCleanup(() => props.bubble.classList.remove('with-reply-markup'));
     });
@@ -52,7 +52,7 @@ const ContinueLastTopicReplyMarkupContent = defineSolidElement({
         </ReplyMarkupLayout>
       </Show>
     );
-  }
+  },
 });
 
 export default ContinueLastTopicReplyMarkupContent;

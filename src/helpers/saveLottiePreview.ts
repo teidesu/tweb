@@ -1,5 +1,5 @@
-import type {MyDocument} from '@appManagers/appDocsManager';
-import {applyColorOnContext} from '@lib/rlottie/rlottiePlayer';
+import type { MyDocument } from '@appManagers/appDocsManager';
+import { applyColorOnContext } from '@lib/rlottie/rlottiePlayer';
 import rootScope from '@lib/rootScope';
 import getStickerThumbKey from '@lib/storages/utils/thumbs/getStickerThumbKey';
 import customProperties from '@helpers/dom/customProperties';
@@ -17,9 +17,9 @@ const createCanvas = () => {
   rootScope.addEventListener('theme_changed', () => {
     rootScope.managers.thumbsStorage.clearColoredStickerThumbs();
 
-    for(const key in savingLottiePreview) {
+    for (const key in savingLottiePreview) {
       const [, toneIndex] = key.split('-');
-      if(toneIndex && isNaN(+toneIndex)) {
+      if (toneIndex && isNaN(+toneIndex)) {
         delete savingLottiePreview[key];
       }
     }
@@ -31,27 +31,27 @@ const createCanvas = () => {
 
 export async function saveLottiePreview(doc: MyDocument, canvas: HTMLCanvasElement, toneIndex: number | string) {
   const key = getStickerThumbKey(doc.id, toneIndex);
-  const {width, height} = canvas;
-  if(isSavingLottiePreview(doc, toneIndex, width, height)) {
+  const { width, height } = canvas;
+  if (isSavingLottiePreview(doc, toneIndex, width, height)) {
     return;
   }
 
   const saving = savingLottiePreview[key] = {
     width,
-    height
+    height,
   };
 
   const thumb = await rootScope.managers.thumbsStorage.getStickerCachedThumb(doc.id, toneIndex);
-  if(savingLottiePreview[key] !== saving) {
+  if (savingLottiePreview[key] !== saving) {
     return;
   }
 
-  if(thumb && thumb.w >= width && thumb.h >= height) {
+  if (thumb && thumb.w >= width && thumb.h >= height) {
     return;
   }
 
-  if(typeof(toneIndex) === 'string') {
-    if(!sharedCanvas) {
+  if (typeof(toneIndex) === 'string') {
+    if (!sharedCanvas) {
       createCanvas();
     }
 
@@ -67,11 +67,11 @@ export async function saveLottiePreview(doc: MyDocument, canvas: HTMLCanvasEleme
   });
 
   const blob = await promise;
-  if(savingLottiePreview[key] !== saving) {
+  if (savingLottiePreview[key] !== saving) {
     return;
   }
 
-  if(!blob) {
+  if (!blob) {
     console.error('trying to save sticker preview with no blob', arguments);
     debugger;
     return;

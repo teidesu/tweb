@@ -1,30 +1,30 @@
-import {createEffect, createMemo, createResource, createSignal, JSX, on, onMount, Show} from 'solid-js';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {usePromiseCollector} from '@components/solidJsTabs/promiseCollector';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import type {AppEditProfileTab} from '@components/solidJsTabs/tabs';
+import { createEffect, createMemo, createResource, createSignal, JSX, on, onMount, Show } from 'solid-js';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import type { AppEditProfileTab } from '@components/solidJsTabs/tabs';
 import Section from '@components/section';
 import Row from '@components/rowTsx';
-import {InputFieldTsx} from '@components/inputFieldTsx';
-import {i18n} from '@lib/langPack';
+import { InputFieldTsx } from '@components/inputFieldTsx';
+import { i18n } from '@lib/langPack';
 import rootScope from '@lib/rootScope';
 import getPeerEditableUsername from '@appManagers/utils/peers/getPeerEditableUsername';
 import EditPeer from '@components/editPeer';
 import InputField from '@components/inputField';
-import {UsernameInputField} from '@components/usernameInputField';
+import { UsernameInputField } from '@components/usernameInputField';
 import UsernamesSection from '@components/usernamesSection';
-import showBirthdayPopup, {saveMyBirthday} from '@components/popups/birthday';
+import showBirthdayPopup, { saveMyBirthday } from '@components/popups/birthday';
 import showPickUserPopup from '@components/popups/pickUser';
 import PopupElement from '@components/popups/indexTsx';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
-import {toastNew} from '@components/toast';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
-import {getHeavyAnimationPromise} from '@hooks/useHeavyAnimationCheck';
+import { toastNew } from '@components/toast';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
+import { getHeavyAnimationPromise } from '@hooks/useHeavyAnimationCheck';
 import placeCaretAtEnd from '@helpers/dom/placeCaretAtEnd';
 import shake from '@helpers/dom/shake';
-import {purchaseUsernameCaption} from '@components/sidebarLeft/tabs/purchaseUsernameCaption';
-import {User, UserFull} from '@layer';
-import {trackAvatarUpload} from '@stores/avatarUpload';
+import { purchaseUsernameCaption } from '@components/sidebarLeft/tabs/purchaseUsernameCaption';
+import { User, UserFull } from '@layer';
+import { trackAvatarUpload } from '@stores/avatarUpload';
 
 type AppEditProfileTabType = typeof AppEditProfileTab;
 
@@ -41,17 +41,17 @@ type FocusKey = typeof FOCUS_KEYS[number];
 const EditProfileTab = () => {
   const [tab] = useSuperTab<AppEditProfileTabType>();
   const promiseCollector = usePromiseCollector();
-  const {appSidebarLeft} = useHotReloadGuard();
+  const { appSidebarLeft } = useHotReloadGuard();
 
   const payload = tab.payload;
   const loadPromise = Promise.all([
     Promise.resolve(payload.bioMaxLength),
     Promise.resolve(payload.user),
-    Promise.resolve(payload.userFull)
+    Promise.resolve(payload.userFull),
   ]);
   promiseCollector.collect(loadPromise);
 
-  const [data] = createResource(() => loadPromise.then(([bioMaxLength, user, userFull]) => ({bioMaxLength, user, userFull})));
+  const [data] = createResource(() => loadPromise.then(([bioMaxLength, user, userFull]) => ({ bioMaxLength, user, userFull })));
 
   return (
     <Show when={data()}>
@@ -66,7 +66,7 @@ type FormData = {bioMaxLength: number, user: User.user, userFull: UserFull.userF
 
 const EditProfileForm = (props: {data: FormData, focusOn?: string}) => {
   const [tab] = useSuperTab<AppEditProfileTabType>();
-  const {user, userFull, bioMaxLength} = props.data;
+  const { user, userFull, bioMaxLength } = props.data;
 
   tab.container.classList.add('edit-profile-container');
 
@@ -76,7 +76,7 @@ const EditProfileForm = (props: {data: FormData, focusOn?: string}) => {
     peerId: rootScope.myId,
     inputFields,
     listenerSetter: tab.listenerSetter,
-    middleware: tab.middlewareHelper.get()
+    middleware: tab.middlewareHelper.get(),
   });
 
   tab.content.append(editPeer.nextBtn);
@@ -102,11 +102,11 @@ const EditProfileForm = (props: {data: FormData, focusOn?: string}) => {
   const origIsChanged = editPeer.isChanged;
   editPeer.isChanged = () => origIsChanged() || isPersonalChannelChanged();
 
-  const {setUsername: setPurchaseUsername, element: purchaseEl} = purchaseUsernameCaption();
+  const { setUsername: setPurchaseUsername, element: purchaseEl } = purchaseUsernameCaption();
 
   createEffect(on(personalChannelId, async(channelId) => {
-    if(channelId) {
-      setPersonalChannelTitle(await wrapPeerTitle({peerId: channelId.toPeerId(true)}));
+    if (channelId) {
+      setPersonalChannelTitle(await wrapPeerTitle({ peerId: channelId.toPeerId(true) }));
     } else {
       setPersonalChannelTitle(i18n('EditProfile.PersonalChannel.Add'));
     }
@@ -116,14 +116,14 @@ const EditProfileForm = (props: {data: FormData, focusOn?: string}) => {
     let channelIds: ChatId[];
     try {
       channelIds = await tab.managers.appProfileManager.getAdminedPersonalChannels();
-    } catch(err) {
+    } catch (err) {
       console.error('getAdminedPersonalChannels error:', err);
-      toastNew({langPackKey: 'Error.AnError'});
+      toastNew({ langPackKey: 'Error.AnError' });
       return;
     }
 
-    if(!channelIds.length && !personalChannelId()) {
-      toastNew({langPackKey: 'EditProfile.PersonalChannel.NoChannels'});
+    if (!channelIds.length && !personalChannelId()) {
+      toastNew({ langPackKey: 'EditProfile.PersonalChannel.NoChannels' });
       return;
     }
 
@@ -132,11 +132,11 @@ const EditProfileForm = (props: {data: FormData, focusOn?: string}) => {
     showPickUserPopup({
       titleLangKey: 'EditProfile.PersonalChannel.PickerTitle',
       peerType: ['custom'],
-      getMoreCustom: async() => ({result: peerIds, isEnd: true}),
+      getMoreCustom: async() => ({ result: peerIds, isEnd: true }),
       noSearch: true,
       onSelect: (chosen) => {
         const newChatId = chosen[0].peerId.toChatId();
-        if(newChatId === personalChannelId()) return;
+        if (newChatId === personalChannelId()) return;
         setPersonalChannelId(newChatId);
         editPeer.handleChange();
       },
@@ -151,7 +151,7 @@ const EditProfileForm = (props: {data: FormData, focusOn?: string}) => {
             }}
           />
         </Show>
-      )
+      ),
     });
   };
 
@@ -170,25 +170,25 @@ const EditProfileForm = (props: {data: FormData, focusOn?: string}) => {
       console.error('updateProfile error:', err);
     }));
 
-    if(editPeer.uploadAvatar) {
-      const {file: fileFn, video: videoFn, videoStartTs} = editPeer.uploadAvatar;
+    if (editPeer.uploadAvatar) {
+      const { file: fileFn, video: videoFn, videoStartTs } = editPeer.uploadAvatar;
       const filePromise = fileFn();
       const videoPromise = videoFn?.();
       // Surface the upload to the profile's big avatar (progress ring + cancel +
       // collapse lock) for the duration of the upload.
-      trackAvatarUpload(rootScope.myId, {file: filePromise, video: videoPromise});
+      trackAvatarUpload(rootScope.myId, { file: filePromise, video: videoPromise });
       promises.push(Promise.all([filePromise, videoPromise]).then(([file, video]) => {
-        return tab.managers.appProfileManager.uploadProfilePhoto({file, video, videoStartTs});
+        return tab.managers.appProfileManager.uploadProfilePhoto({ file, video, videoStartTs });
       }, () => {
         // swallow cancellation/upload errors so Promise.race below doesn't reject the whole save
       }));
     }
 
-    if(usernameInputField.isValidToChange()) {
+    if (usernameInputField.isValidToChange()) {
       promises.push(tab.managers.appUsersManager.updateUsername(usernameInputField.value));
     }
 
-    if(isPersonalChannelChanged()) {
+    if (isPersonalChannelChanged()) {
       promises.push(tab.managers.appProfileManager.updatePersonalChannel(personalChannelId() || undefined));
     }
 
@@ -197,7 +197,7 @@ const EditProfileForm = (props: {data: FormData, focusOn?: string}) => {
     });
   };
 
-  attachClickEvent(editPeer.nextBtn, onSave, {listenerSetter: tab.listenerSetter});
+  attachClickEvent(editPeer.nextBtn, onSave, { listenerSetter: tab.listenerSetter });
 
   onMount(() => {
     firstNameInputField.setOriginalValue(user.first_name, true);
@@ -207,20 +207,20 @@ const EditProfileForm = (props: {data: FormData, focusOn?: string}) => {
     editPeer.handleChange();
 
     const focusOn = props.focusOn as FocusKey | 'set-photo' | undefined;
-    if(!focusOn) return;
+    if (!focusOn) return;
 
     getHeavyAnimationPromise().then(() => {
       const focusMap: Record<FocusKey, InputField | undefined> = {
         'first-name': firstNameInputField,
         'last-name': lastNameInputField,
         'username': usernameInputField,
-        'bio': bioInputField
+        'bio': bioInputField,
       };
 
       const target = focusMap[focusOn as FocusKey];
-      if(target) {
+      if (target) {
         placeCaretAtEnd(target.input);
-      } else if(focusOn === 'set-photo') {
+      } else if (focusOn === 'set-photo') {
         shake(editPeer.avatarElem.node);
       }
     });
@@ -264,12 +264,12 @@ const EditProfileForm = (props: {data: FormData, focusOn?: string}) => {
           <Row clickable={() => {
             showBirthdayPopup({
               onSave: async(date) => {
-                if(await saveMyBirthday(date)) {
+                if (await saveMyBirthday(date)) {
                   setHasBirthday(true);
                   return true;
                 }
                 return false;
-              }
+              },
             });
           }}>
             <Row.Icon icon="gift" />
@@ -295,7 +295,7 @@ const EditProfileForm = (props: {data: FormData, focusOn?: string}) => {
           peer: user,
           listenerSetter: tab.listenerSetter,
           usernameInputField: usernameInputField!,
-          middleware: tab.middlewareHelper.get()
+          middleware: tab.middlewareHelper.get(),
         });
         return section.container;
       })()}
@@ -339,7 +339,7 @@ const UsernameSection = (props: {
     onChange,
     availableText: 'EditProfile.Username.Available',
     takenText: 'EditProfile.Username.Taken',
-    invalidText: 'EditProfile.Username.Invalid'
+    invalidText: 'EditProfile.Username.Invalid',
   }, tab.managers);
 
   props.usernameInputFieldRef(inputField);

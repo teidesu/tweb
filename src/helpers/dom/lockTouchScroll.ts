@@ -7,13 +7,13 @@ export default function lockTouchScroll(container: HTMLElement) {
 
   let lockers = 2;
   const cb = () => {
-    if(!--lockers) {
-      container.removeEventListener('touchmove', onTouchMove, {capture: true});
+    if (!--lockers) {
+      container.removeEventListener('touchmove', onTouchMove, { capture: true });
     }
   };
 
-  container.addEventListener('touchmove', onTouchMove, {capture: true, passive: false});
-  container.addEventListener('touchend', cb, {once: true});
+  container.addEventListener('touchmove', onTouchMove, { capture: true, passive: false });
+  container.addEventListener('touchend', cb, { once: true });
 
   return cb;
 }

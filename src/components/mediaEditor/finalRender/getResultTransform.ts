@@ -1,7 +1,7 @@
-import {FinalTransform} from '@components/mediaEditor/canvas/useFinalTransform';
-import {useCropOffset} from '@components/mediaEditor/canvas/useCropOffset';
-import {MediaEditorContextValue} from '@components/mediaEditor/context';
-import {getSnappedViewportsScale} from '@components/mediaEditor/utils';
+import { FinalTransform } from '@components/mediaEditor/canvas/useFinalTransform';
+import { useCropOffset } from '@components/mediaEditor/canvas/useCropOffset';
+import { MediaEditorContextValue } from '@components/mediaEditor/context';
+import { getSnappedViewportsScale } from '@components/mediaEditor/utils';
 
 export type GetResultTransformArgs = {
   context: MediaEditorContextValue;
@@ -18,11 +18,11 @@ export default function getResultTransform({
   scaledHeight,
   imageWidth,
   imageHeight,
-  cropOffset
+  cropOffset,
 }: GetResultTransformArgs): FinalTransform {
   const {
-    editorState: {canvasSize},
-    mediaState: {scale, translation, rotation, flip, currentImageRatio}
+    editorState: { canvasSize },
+    mediaState: { scale, translation, rotation, flip, currentImageRatio },
   } = context;
 
   const initialCanvasWidth = canvasSize![0];
@@ -33,7 +33,7 @@ export default function getResultTransform({
   const canvasRatio = initialCanvasWidth / initialCanvasHeight;
   let snappedCanvasWidth = scaledWidth,
     snappedCanvasHeight = scaledHeight;
-  if(scaledWidth / canvasRatio < scaledHeight) snappedCanvasWidth = scaledHeight * canvasRatio;
+  if (scaledWidth / canvasRatio < scaledHeight) snappedCanvasWidth = scaledHeight * canvasRatio;
   else snappedCanvasHeight = scaledWidth / canvasRatio;
 
   let toCropScale = getSnappedViewportsScale(
@@ -63,6 +63,6 @@ export default function getResultTransform({
     flip: flip,
     rotation: rotation,
     scale: scale * snappedImageScale * toCropScale,
-    translation: [cropTranslation[0] + translation[0], cropTranslation[1] + translation[1]]
+    translation: [cropTranslation[0] + translation[0], cropTranslation[1] + translation[1]],
   };
 }

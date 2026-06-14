@@ -1,28 +1,28 @@
-import {JSX, createSignal, For, createEffect, Accessor, onMount, createMemo, splitProps, on, Show, onCleanup} from 'solid-js';
+import { JSX, createSignal, For, createEffect, Accessor, onMount, createMemo, splitProps, on, Show, onCleanup } from 'solid-js';
 import Scrollable from '@components/scrollable2';
-import {createStoriesViewer} from '@components/stories/viewer';
+import { createStoriesViewer } from '@components/stories/viewer';
 import styles from '@components/stories/list.module.scss';
 import mediaSizes from '@helpers/mediaSizes';
 import rootScope from '@lib/rootScope';
-import {fastSmoothScrollToStart} from '@helpers/fastSmoothScroll';
+import { fastSmoothScrollToStart } from '@helpers/fastSmoothScroll';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {AvatarNew} from '@components/avatarNew';
-import I18n, {i18n} from '@lib/langPack';
+import { AvatarNew } from '@components/avatarNew';
+import I18n, { i18n } from '@lib/langPack';
 import createContextMenu from '@helpers/dom/createContextMenu';
 import findUpClassName from '@helpers/dom/findUpClassName';
-import {StoriesProvider, useStories} from '@components/stories/store';
+import { StoriesProvider, useStories } from '@components/stories/store';
 import appImManager from '@lib/appImManager';
 import appSidebarLeft from '@components/sidebarLeft';
-import {AppMyProfileTab, AppMyStoriesTab} from '@components/solidJsTabs/tabs';
-import {toastNew} from '@components/toast';
+import { AppMyProfileTab, AppMyStoriesTab } from '@components/solidJsTabs/tabs';
+import { toastNew } from '@components/toast';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
-import {ChatType} from '@components/chat/chatType';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
-import {useCollapsable} from '@hooks/useCollapsable';
+import { ChatType } from '@components/chat/chatType';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
+import { useCollapsable } from '@hooks/useCollapsable';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
 import createMiddleware from '@helpers/solid/createMiddleware';
 import ListenerSetter from '@helpers/listenerSetter';
-import {PeerTitleTsx} from '@components/peerTitleTsx';
+import { PeerTitleTsx } from '@components/peerTitleTsx';
 import showStoriesStealthModePopup from '@components/popups/storiesStealthMode';
 
 const TEST_COUNT = 0;
@@ -54,7 +54,7 @@ function _StoriesList(props: {
 
   const peers = createMemo(() => {
     const peers = stories.peers;
-    if(TEST_COUNT) {
+    if (TEST_COUNT) {
       return peers.slice(0, TEST_COUNT);
     }
     return peers;
@@ -64,7 +64,7 @@ function _StoriesList(props: {
   const myIndex = createMemo(() => peers().findIndex((peer: PeerStories) => peer.peerId === rootScope.myId));
   const spaceEvenly = createMemo(() => {
     const rect = containerRect();
-    if(rect && rect.width > (peers().length * ITEM_WIDTH)) {
+    if (rect && rect.width > (peers().length * ITEM_WIDTH)) {
       return (rect.width - (peers().length * ITEM_WIDTH)) / (peers().length + 1);
     }
 
@@ -80,7 +80,7 @@ function _StoriesList(props: {
 
   createEffect(() => {
     const peer = viewerPeer();
-    if(!peer) {
+    if (!peer) {
       return;
     }
 
@@ -93,16 +93,16 @@ function _StoriesList(props: {
       return item?.querySelector('.avatar');
     });
 
-    createStoriesViewer({onExit, target: (target as Accessor<Element> | undefined)});
+    createStoriesViewer({ onExit, target: (target as Accessor<Element> | undefined) });
   });
 
   const onItemClick = (peer: PeerStories, e?: MouseEvent) => {
-    if(progress() !== STATE_UNFOLDED && e) {
+    if (progress() !== STATE_UNFOLDED && e) {
       return onContainerClick(e);
     }
 
     actions.resetIndexes();
-    actions.set({peer});
+    actions.set({ peer });
     setViewerPeer(peer);
   };
 
@@ -110,12 +110,12 @@ function _StoriesList(props: {
   const indexes = createMemo(() => {
     return {
       min: myIndex() === 0 && peers().length > 1 ? 1 : 0,
-      max: myIndex() === 0 ? foldedLength() : foldedLength() - 1
+      max: myIndex() === 0 ? foldedLength() : foldedLength() - 1,
     };
   });
 
   const isItemOut = (index: number, _indexes: ReturnType<typeof indexes> = indexes()) => {
-    const {min: minIndex, max: maxIndex} = _indexes;
+    const { min: minIndex, max: maxIndex } = _indexes;
     return index < minIndex || index > maxIndex;
   };
 
@@ -134,12 +134,12 @@ function _StoriesList(props: {
       const fromLeft = fromRect.left + containerPadding;
       const left = fromLeft + index * ITEM_WIDTH + marginEvenly * (index + 1);
       const realLeft = rect!.left + containerPadding + index * ITEM_WIDTH + marginEvenly * (index + 1);
-      if(realLeft > rect!.right) {
+      if (realLeft > rect!.right) {
         return;
       }
 
       const cssProperties: JSX.CSSProperties = {};
-      if(isOut) {
+      if (isOut) {
         cssProperties['z-index'] = 100 - index;
       } else {
         cssProperties['z-index'] = 100 + foldedLength() + 1 - index;
@@ -154,7 +154,7 @@ function _StoriesList(props: {
       let distanceX = desiredX - left + 5 - indexOffsetX;
 
       let _scale: number;
-      if(isOut) {
+      if (isOut) {
         cssProperties['transform-origin'] = 'center 43.75%';
         distanceX += 8 * (index < _indexes.min ? 1 : -1);
         _scale = 0.2;
@@ -170,7 +170,7 @@ function _StoriesList(props: {
       return {
         isOut,
         isLastIn: !isOut && index === _indexes.max,
-        cssProperties
+        cssProperties,
       };
     });
 
@@ -178,11 +178,11 @@ function _StoriesList(props: {
       peerId: peer.peerId,
       size: ITEM_AVATAR_SIZE,
       props: {
-        onClick
+        onClick,
       },
       isDialog: false,
       withStories: true,
-      isStoryFolded: shouldStoriesSegmentsBeFolded
+      isStoryFolded: shouldStoriesSegmentsBeFolded,
     });
 
     const isMyStory = peer.peerId === rootScope.myId;
@@ -196,12 +196,12 @@ function _StoriesList(props: {
           [styles.isMasked]: (() => {
             const movement = calculateMovement();
             return movement && !movement.isOut && !movement.isLastIn;
-          })()
+          })(),
         }}
         onClick={onClick}
         style={{
           ...calculateMovement()?.cssProperties,
-          transition: hasTransition() ? undefined : 'none'
+          transition: hasTransition() ? undefined : 'none',
         }}
       >
         {avatar.element}
@@ -224,7 +224,7 @@ function _StoriesList(props: {
     const value = progress();
 
     const scrollableX = !scrolling && getMenuScrollable();
-    if(scrollableX && (scrollableX).scrollLeft) {
+    if (scrollableX && (scrollableX).scrollLeft) {
       scrolling = true;
       fastSmoothScrollToStart((scrollableX), 'x').then(() => {
         scrolling = false;
@@ -238,7 +238,7 @@ function _StoriesList(props: {
     return {
       // 'height': `${containerHeight - (containerHeight * value)}px`,
       'transform': translate,
-      '--progress': value
+      '--progress': value,
       // '--scale': 1 - (value * (1 - 0.625))
     };
   };
@@ -248,11 +248,11 @@ function _StoriesList(props: {
     on(
       () => peers().length,
       (length) => {
-        if(!length) {
+        if (!length) {
           fold();
         }
       },
-      {defer: true}
+      { defer: true }
     )
   );
 
@@ -260,15 +260,15 @@ function _StoriesList(props: {
 
   // * lock horizontal scroll when folded
   createEffect(() => {
-    if(folded() || isTransition()) {
+    if (folded() || isTransition()) {
       const onWheel = cancelEvent;
       const scrollableX = getMenuScrollable();
-      subscribeOn(scrollableX)('wheel', onWheel, {capture: true});
+      subscribeOn(scrollableX)('wheel', onWheel, { capture: true });
     }
   });
 
   createEffect(() => {
-    if(isTransition()) {
+    if (isTransition()) {
       return;
     }
 
@@ -302,13 +302,13 @@ function _StoriesList(props: {
     })
   });
 
-  const {folded, unfold, fold, isTransition, progress, STATE_UNFOLDED} = useCollapsable({
+  const { folded, unfold, fold, isTransition, progress, STATE_UNFOLDED } = useCollapsable({
     scrollable: props.getScrollable,
     container: () => container!,
     listenWheelOn: props.listenWheelOn,
     shouldIgnore: () => !peers().length,
     canUnfold: () => IS_TOUCH_SUPPORTED,
-    disableHoverWhenFolded: true
+    disableHoverWhenFolded: true,
   });
 
   const r = (
@@ -321,7 +321,7 @@ function _StoriesList(props: {
         <div
           class={styles.List}
           classList={{
-            [styles['space-evenly']]: !!spaceEvenly()
+            [styles['space-evenly']]: !!spaceEvenly(),
           }}
         >
           <For each={peers()}>{Item}</For>
@@ -336,7 +336,7 @@ function _StoriesList(props: {
 
       toastNew({
         langPackKey: mute ? 'NotificationsStoryMutedHint' : 'NotificationsStoryUnmutedHint',
-        langPackArguments: [await wrapPeerTitle({peerId: peer.peerId})]
+        langPackArguments: [await wrapPeerTitle({ peerId: peer.peerId })],
       });
     };
 
@@ -345,7 +345,7 @@ function _StoriesList(props: {
 
       toastNew({
         langPackKey: hidden ? 'StoriesMovedToContacts' : 'StoriesMovedToDialogs',
-        langPackArguments: [await wrapPeerTitle({peerId: peer.peerId})]
+        langPackArguments: [await wrapPeerTitle({ peerId: peer.peerId })],
       });
     };
 
@@ -357,72 +357,72 @@ function _StoriesList(props: {
         onClick: () => {
           appSidebarLeft.createTab(AppMyProfileTab).open();
         },
-        verify: () => isSelf
+        verify: () => isSelf,
       }, {
         icon: 'archive',
         text: 'ArchivedStories',
         onClick: () => {
-          appSidebarLeft.createTab(AppMyStoriesTab).open({...AppMyStoriesTab.getInitArgs(), isArchive: true});
+          appSidebarLeft.createTab(AppMyStoriesTab).open({ ...AppMyStoriesTab.getInitArgs(), isArchive: true });
         },
-        verify: () => isSelf
+        verify: () => isSelf,
       }, {
         icon: 'message',
         text: 'SendMessage',
         onClick: () => {
           appImManager.setInnerPeer({
             peerId: peer.peerId,
-            type: ChatType.Chat
+            type: ChatType.Chat,
           });
         },
-        verify: () => !isSelf && peer.peerId.isUser()
+        verify: () => !isSelf && peer.peerId.isUser(),
       }, {
         icon: 'channel',
         text: 'OpenChannel2',
         onClick: () => {
           appImManager.setInnerPeer({
             peerId: peer.peerId,
-            type: ChatType.Chat
+            type: ChatType.Chat,
           });
         },
-        verify: () => !peer.peerId.isUser()
+        verify: () => !peer.peerId.isUser(),
       }, {
         icon: 'mute',
         text: 'NotificationsStoryMute2',
         onClick: () => toggleMute(true),
         verify: () => !isSelf && rootScope.managers.appNotificationsManager.isPeerStoriesMuted(peer.peerId).then((isMuted) => !isMuted),
-        multiline: true
+        multiline: true,
       }, {
         icon: 'unmute',
         text: 'NotificationsStoryUnmute2',
         onClick: () => toggleMute(false),
         verify: () => !isSelf && rootScope.managers.appNotificationsManager.isPeerStoriesMuted(peer.peerId),
-        multiline: true
+        multiline: true,
       }, {
         icon: 'eyecross_outline',
         text: 'Stories.StealthMode.View',
         onClick: () => {
-          const {peerId} = peer;
+          const { peerId } = peer;
           showStoriesStealthModePopup({
             onActivate: () => {
               const peer = peers().find((p: PeerStories) => p.peerId === peerId);
-              if(!peer) {
+              if (!peer) {
                 return;
               }
 
               onItemClick(peer);
-            }
+            },
           });
-        }
+        },
       }, {
         icon: 'archive',
         text: 'ArchivePeerStories',
         onClick: () => toggleHidden(true),
-        verify: () => !isSelf && !props.archive
+        verify: () => !isSelf && !props.archive,
       }, {
         icon: 'unarchive',
         text: 'UnarchiveStories',
         onClick: () => toggleHidden(false),
-        verify: () => !isSelf && !!props.archive
+        verify: () => !isSelf && !!props.archive,
       }],
       listenTo: container!,
       middleware: createMiddleware().get(),
@@ -435,7 +435,7 @@ function _StoriesList(props: {
       },
       onClose: () => {
         peer = undefined as any;
-      }
+      },
     });
   });
 

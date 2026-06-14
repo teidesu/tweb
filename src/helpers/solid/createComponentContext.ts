@@ -1,5 +1,5 @@
-import {createContext, onCleanup, JSX, createEffect, children, untrack, createRenderEffect} from 'solid-js';
-import {createStore} from 'solid-js/store';
+import { createContext, onCleanup, JSX, createEffect, children, untrack, createRenderEffect } from 'solid-js';
+import { createStore } from 'solid-js/store';
 
 export type ComponentContextValue<Kind extends string> = {
   register: (kind: Kind, element: JSX.Element) => JSX.Element,
@@ -30,10 +30,10 @@ export default function createComponentContext<
 
       const value: ComponentContextValue<Kind> = {
         register,
-        store
+        store,
       };
 
       return value;
-    }
+    },
   };
 }

@@ -1,12 +1,12 @@
-import {Show} from 'solid-js';
+import { Show } from 'solid-js';
 
-import {hexToRgb} from '@helpers/color';
+import { hexToRgb } from '@helpers/color';
 
-import {useMediaEditorContext} from '@components/mediaEditor/context';
+import { useMediaEditorContext } from '@components/mediaEditor/context';
 
 
 const PreviewBrushSize = () => {
-  const {editorState} = useMediaEditorContext()!;
+  const { editorState } = useMediaEditorContext()!;
 
   return (
     <Show when={editorState.previewBrushSize}>
@@ -17,7 +17,7 @@ const PreviewBrushSize = () => {
             hexToRgb(editorState.currentBrush.color).join(',') :
             undefined,
           'width': editorState.previewBrushSize + 'px',
-          'height': editorState.previewBrushSize + 'px'
+          'height': editorState.previewBrushSize + 'px',
         }}
       />
     </Show>

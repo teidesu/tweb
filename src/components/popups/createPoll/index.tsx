@@ -4,22 +4,22 @@ import Scrollable from '@components/scrollable2';
 import SimpleFormField from '@components/simpleFormField';
 import Space from '@components/space';
 import getRichValueWithCaret from '@helpers/dom/getRichValueWithCaret';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {useMaxLengthError} from '@helpers/solid/useMaxLengthError';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { useMaxLengthError } from '@helpers/solid/useMaxLengthError';
 import classNames from '@helpers/string/classNames';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 import type SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
-import {createSignal, Show} from 'solid-js';
-import PopupElement, {createPopup, useSnitchedPopupContext} from '../indexTsx';
-import {supportedDescriptionFormattingTypes} from './config';
-import {EmojiButtonWithOpacity as EmojiDropdownButton} from './emojiButtonWithOpacity';
-import {MediaAttachment} from './mediaAttachment';
-import {PollOptionsSectionContent} from './pollOptionsSectionContent';
-import {PollSettingsSectionContent} from './pollSettingsSectionContent';
-import {CreatePollContext, CreatePollPayload, createPollStoreContextValue, SupportedMediaType, useCreatePollContext} from './storeContext';
+import { createSignal, Show } from 'solid-js';
+import PopupElement, { createPopup, useSnitchedPopupContext } from '../indexTsx';
+import { supportedDescriptionFormattingTypes } from './config';
+import { EmojiButtonWithOpacity as EmojiDropdownButton } from './emojiButtonWithOpacity';
+import { MediaAttachment } from './mediaAttachment';
+import { PollOptionsSectionContent } from './pollOptionsSectionContent';
+import { PollSettingsSectionContent } from './pollSettingsSectionContent';
+import { CreatePollContext, CreatePollPayload, createPollStoreContextValue, SupportedMediaType, useCreatePollContext } from './storeContext';
 import styles from './styles.module.scss';
-import {useCreatePollLimits} from './useCreatePollLimits';
-import {createFormFieldClickHandler, getFinalPayload, hasMeaningfulChanges, interactableClass, useCanSubmit, useSupportsMedia} from './utils';
+import { useCreatePollLimits } from './useCreatePollLimits';
+import { createFormFieldClickHandler, getFinalPayload, hasMeaningfulChanges, interactableClass, useCanSubmit, useSupportsMedia } from './utils';
 
 
 type CreatePollPopupProps = {
@@ -29,25 +29,25 @@ type CreatePollPopupProps = {
 };
 
 export const CreatePollPopup = (props: CreatePollPopupProps) => {
-  const {confirmationPopup} = useHotReloadGuard();
+  const { confirmationPopup } = useHotReloadGuard();
 
   const context = createPollStoreContextValue({
     isBroadcast: () => props.isBroadcast ?? false,
-    supportedMediaTypes: () => props.supportedMediaTypes ?? []
+    supportedMediaTypes: () => props.supportedMediaTypes ?? [],
   });
 
-  const {SnitchPopupContext, popupContext} = useSnitchedPopupContext();
+  const { SnitchPopupContext, popupContext } = useSnitchedPopupContext();
 
   const isConfirmationNeededOnClose = () => {
-    if(!hasMeaningfulChanges(context.store)) return false;
+    if (!hasMeaningfulChanges(context.store)) return false;
 
     return confirmationPopup({
       titleLangKey: 'CancelPollAlertTitle',
       descriptionLangKey: 'CancelPollAlertText',
       button: {
         langKey: 'Discard',
-        isDanger: true
-      }
+        isDanger: true,
+      },
     });
   };
 
@@ -97,7 +97,7 @@ const Header = (props: {
 
 const QuestionAndDescription = () => {
   const context = useCreatePollContext();
-  const {maxQuestionLength, maxDescriptionLength} = useCreatePollLimits();
+  const { maxQuestionLength, maxDescriptionLength } = useCreatePollLimits();
   const supportsMedia = useSupportsMedia();
 
   const questionError = useMaxLengthError(() => context!.store.question, maxQuestionLength);
@@ -105,12 +105,12 @@ const QuestionAndDescription = () => {
   const questionInput = new InputField({
     canWrapCustomEmojis: true,
     onRawInput: () => {
-      const {value, entities} = getRichValueWithCaret(questionInput.input);
+      const { value, entities } = getRichValueWithCaret(questionInput.input);
       context!.setStore({
         question: value,
-        questionEntities: entities
+        questionEntities: entities,
       });
-    }
+    },
   });
 
   questionInput.input.classList.replace('input-field-input', styles.inputField);
@@ -120,12 +120,12 @@ const QuestionAndDescription = () => {
     canWrapCustomEmojis: true,
     withLinebreaks: true,
     onRawInput: () => {
-      const {value, entities} = getRichValueWithCaret(descriptionInput.input);
+      const { value, entities } = getRichValueWithCaret(descriptionInput.input);
       context!.setStore({
         description: value,
-        descriptionEntities: entities
+        descriptionEntities: entities,
       });
-    }
+    },
   });
 
   descriptionInput.input.classList.replace('input-field-input', styles.inputField);
@@ -184,7 +184,7 @@ const QuestionAndDescription = () => {
               supportedMediaTypes={[
                 ...(supportsMedia('photo') ? ['photo'] as const : []),
                 ...(supportsMedia('video') ? ['video'] as const : []),
-                ...(supportsMedia('gif') ? ['gif'] as const : []) // GIF is additional to photo
+                ...(supportsMedia('gif') ? ['gif'] as const : []), // GIF is additional to photo
               ]}
               imgClass={styles.mediaAttachmentImage}
               attachedMedia={context!.store.descriptionAttachment}

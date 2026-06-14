@@ -1,12 +1,12 @@
 import filterUnique from '@helpers/array/filterUnique';
-import {markdownTags, MarkdownType} from '@helpers/dom/getRichElementValue';
+import { markdownTags, MarkdownType } from '@helpers/dom/getRichElementValue';
 
 export default function getMarkupInSelection<T extends MarkdownType>(types: T[], ignoreNoContentEditable?: boolean) {
   type ResultByType = {elements: HTMLElement[], fully: boolean, partly: boolean, textLength: number};
   const result: Record<T, ResultByType> = {} as Record<T, ResultByType>;
-  types.forEach((tag) => result[tag] = {elements: [], fully: false, partly: false, textLength: 0});
+  types.forEach((tag) => result[tag] = { elements: [], fully: false, partly: false, textLength: 0 });
   const selection = window.getSelection();
-  if(selection!.isCollapsed) {
+  if (selection!.isCollapsed) {
     return result;
   }
 
@@ -16,8 +16,8 @@ export default function getMarkupInSelection<T extends MarkdownType>(types: T[],
     commonAncestor as HTMLElement :
     (commonAncestor as ChildNode).parentElement;
   let contentEditable = root!.closest('[contenteditable="true"]');
-  if(!contentEditable) {
-    if(ignoreNoContentEditable) {
+  if (!contentEditable) {
+    if (ignoreNoContentEditable) {
       contentEditable = root;
     } else {
       return result;
@@ -27,36 +27,36 @@ export default function getMarkupInSelection<T extends MarkdownType>(types: T[],
   const treeWalker = document.createTreeWalker(
     contentEditable!,
     NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
-    {acceptNode: (node) => range.intersectsNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT}
+    { acceptNode: (node) => range.intersectsNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT }
   );
 
   let nodes = 0, node: Node, textLength = 0;
-  while(node = treeWalker.nextNode()!) {
+  while (node = treeWalker.nextNode()!) {
     ++nodes;
 
     const element = node.nodeType === node.ELEMENT_NODE ? node as HTMLElement : node.parentElement;
 
     let value = node.nodeValue;
-    if(!value) {
+    if (!value) {
       const alt = element!.dataset.stickerEmoji || (element as HTMLImageElement).alt;
       value = alt;
     }
 
     const valueLength = value?.length || 0;
     textLength += valueLength;
-    for(const type of types) {
+    for (const type of types) {
       const tag = markdownTags[type];
       const matches = element!.closest(tag.match);
-      if(matches) {
+      if (matches) {
         result[type].elements.push(element!);
         result[type].textLength += valueLength;
       }
     }
   }
 
-  for(const type of types) {
+  for (const type of types) {
     const item = result[type];
-    if(!item.elements.length) {
+    if (!item.elements.length) {
       continue;
     }
 

@@ -1,5 +1,5 @@
-import {MOUNT_CLASS_TO} from '@config/debug';
-import type {RLottieColor} from '@lib/rlottie/rlottiePlayer';
+import { MOUNT_CLASS_TO } from '@config/debug';
+import type { RLottieColor } from '@lib/rlottie/rlottiePlayer';
 
 export type FramesCacheMap = Map<number, Uint8ClampedArray>;
 export type FramesCacheMapNew = Map<number, HTMLCanvasElement | ImageBitmap>;
@@ -33,7 +33,7 @@ export class FramesCache {
         cache.framesNew.clear();
         cache.framesURLs.clear();
       },
-      counter: 0
+      counter: 0,
     };
 
     return cache;
@@ -41,7 +41,7 @@ export class FramesCache {
 
   public getCache(name: string) {
     let cache = this.cache.get(name);
-    if(!cache) {
+    if (!cache) {
       this.cache.set(name, cache = FramesCache.createCache());
     } else {
       // console.warn('[RLottieCache] cache will be reused', cache);
@@ -53,7 +53,7 @@ export class FramesCache {
 
   public releaseCache(name: string) {
     const cache = this.cache.get(name);
-    if(cache && !--cache.counter) {
+    if (cache && !--cache.counter) {
       cache.clearCache();
       this.cache.delete(name);
       // console.warn('[RLottieCache] released cache', cache);
@@ -72,7 +72,7 @@ export class FramesCache {
       height,
       // color ? rgbaToHexa(color) : ''
       // color ? 'colored' : '',
-      toneIndex || ''
+      toneIndex || '',
     ].filter(Boolean).join('-');
   }
 }

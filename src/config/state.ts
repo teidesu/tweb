@@ -1,17 +1,17 @@
-import type {LiteModeKey} from '@helpers/liteMode';
-import type {AppMediaPlaybackController} from '@components/appMediaPlaybackController';
-import type {TopPeerType, MyTopPeer} from '@appManagers/appUsersManager';
-import type {AccountContentSettings, AccountThemes, AutoDownloadSettings, BaseTheme, NotifyPeer, PeerNotifySettings, Theme, ThemeSettings, WallPaper} from '@layer';
+import type { LiteModeKey } from '@helpers/liteMode';
+import type { AppMediaPlaybackController } from '@components/appMediaPlaybackController';
+import type { TopPeerType, MyTopPeer } from '@appManagers/appUsersManager';
+import type { AccountContentSettings, AccountThemes, AutoDownloadSettings, BaseTheme, NotifyPeer, PeerNotifySettings, Theme, ThemeSettings, WallPaper } from '@layer';
 import type DialogsStorage from '@lib/storages/dialogs';
 import type FiltersStorage from '@lib/storages/filters';
-import type {AuthState, Modify} from '@types';
-import type {ShortcutKey as PasscodeLockShortcutKey} from '@components/sidebarLeft/tabs/passcodeLock/shortcutBuilder';
-import {IS_MOBILE} from '@environment/userAgent';
+import type { AuthState, Modify } from '@types';
+import type { ShortcutKey as PasscodeLockShortcutKey } from '@components/sidebarLeft/tabs/passcodeLock/shortcutBuilder';
+import { IS_MOBILE } from '@environment/userAgent';
 import getTimeFormat from '@helpers/getTimeFormat';
 import App from '@config/app';
-import {getAccentPresetsForBase} from '@config/themePresets';
-import {ColoredBrushType} from '@components/mediaEditor/context';
-import {FontKey} from '@components/mediaEditor/types';
+import { getAccentPresetsForBase } from '@config/themePresets';
+import { ColoredBrushType } from '@components/mediaEditor/context';
+import { FontKey } from '@components/mediaEditor/types';
 
 // Factory tinted ("Dark") collapses onto the first base-color preset (blue) so the accent picker
 // can omit a separate "default" swatch — resetting to factory now reaches the same state the user
@@ -269,14 +269,14 @@ export const DEFAULT_THEME: Theme = {
   settings: [{
     _: 'themeSettings',
     pFlags: {},
-    base_theme: {_: 'baseThemeClassic'},
+    base_theme: { _: 'baseThemeClassic' },
     accent_color: 0x3390ec,
     message_colors: [0x5CA853],
     wallpaper: {
       _: 'wallPaper',
       pFlags: {
         default: true,
-        pattern: true
+        pattern: true,
       },
       access_hash: '',
       document: undefined as any,
@@ -289,13 +289,13 @@ export const DEFAULT_THEME: Theme = {
         background_color: 0xdbddbb,
         second_background_color: 0x6ba587,
         third_background_color: 0xd5d88d,
-        fourth_background_color: 0x88b884
-      }
-    }
+        fourth_background_color: 0x88b884,
+      },
+    },
   }, {
     _: 'themeSettings',
     pFlags: {},
-    base_theme: {_: 'baseThemeNight'},
+    base_theme: { _: 'baseThemeNight' },
     accent_color: 0x8774E1,
     message_colors: [0x8774E1],
     wallpaper: {
@@ -303,7 +303,7 @@ export const DEFAULT_THEME: Theme = {
       pFlags: {
         default: true,
         pattern: true,
-        dark: true
+        dark: true,
       },
       access_hash: '',
       document: undefined as any,
@@ -316,13 +316,13 @@ export const DEFAULT_THEME: Theme = {
         background_color: 0xfec496,
         second_background_color: 0xdd6cb9,
         third_background_color: 0x962fbf,
-        fourth_background_color: 0x4f5bd5
-      }
-    }
+        fourth_background_color: 0x4f5bd5,
+      },
+    },
   }, {
     _: 'themeSettings',
     pFlags: {},
-    base_theme: {_: 'baseThemeTinted'},
+    base_theme: { _: 'baseThemeTinted' },
     // accent + wallpaper aligned with iOS Dark Blue ("nightAccent"). See submodules/Telegram-iOS/
     // submodules/TelegramPresentationData/Sources/DefaultDarkTintedPresentationTheme.swift —
     // the home wallpaper is the `.blue` baseColor variant from `colorWallpaper` (line 13-14):
@@ -336,7 +336,7 @@ export const DEFAULT_THEME: Theme = {
       pFlags: {
         default: true,
         pattern: true,
-        dark: true
+        dark: true,
       },
       access_hash: '',
       document: undefined as any,
@@ -352,20 +352,20 @@ export const DEFAULT_THEME: Theme = {
         background_color: 0x1e3557,
         second_background_color: 0x182036,
         third_background_color: 0x1c4352,
-        fourth_background_color: 0x16263a
-      }
-    }
+        fourth_background_color: 0x16263a,
+      },
+    },
   }, {
     _: 'themeSettings',
     pFlags: {},
-    base_theme: {_: 'baseThemeDay'},
+    base_theme: { _: 'baseThemeDay' },
     accent_color: 0x2D7ED5,
     message_colors: [0x2D7ED5],
     wallpaper: {
       _: 'wallPaper',
       pFlags: {
         default: true,
-        pattern: true
+        pattern: true,
       },
       access_hash: '',
       document: undefined as any,
@@ -378,14 +378,14 @@ export const DEFAULT_THEME: Theme = {
         background_color: 0xb1e0fa,
         second_background_color: 0x82b0d8,
         third_background_color: 0xa0d8e8,
-        fourth_background_color: 0xe5f0f8
-      }
-    }
+        fourth_background_color: 0xe5f0f8,
+      },
+    },
   }],
   slug: '',
   title: '',
   emoticon: '🏠',
-  pFlags: {default: true}
+  pFlags: { default: true },
 };
 
 // Per-base highlighting colors used when nothing has been computed from a wallpaper yet.
@@ -395,7 +395,7 @@ const DEFAULT_HIGHLIGHTING_COLORS: {[base in BaseTheme['_']]?: string} = {
   baseThemeClassic: 'hsla(86.4, 43.846153%, 45.117647%, .4)',
   baseThemeNight: 'hsla(299.142857, 44.166666%, 37.470588%, .4)',
   baseThemeTinted: 'hsla(258.461538, 50%, 65.490196%, .4)',
-  baseThemeDay: 'hsla(210, 67.741935%, 50.588235%, .4)'
+  baseThemeDay: 'hsla(210, 67.741935%, 50.588235%, .4)',
 };
 
 const makeDefaultAppTheme = (name: AppTheme['name']): AppTheme => {
@@ -404,8 +404,8 @@ const makeDefaultAppTheme = (name: AppTheme['name']): AppTheme => {
     name,
     settings: DEFAULT_THEME.settings!.map((s) => ({
       ...s,
-      highlightingColor: DEFAULT_HIGHLIGHTING_COLORS[s.base_theme._] ?? ''
-    }))
+      highlightingColor: DEFAULT_HIGHLIGHTING_COLORS[s.base_theme._] ?? '',
+    })),
   };
 };
 
@@ -418,53 +418,53 @@ export const SETTINGS_INIT: StateSettings = {
       contacts: true,
       private: true,
       groups: true,
-      channels: true
+      channels: true,
     },
     video: {
       contacts: true,
       private: true,
       groups: true,
-      channels: true
+      channels: true,
     },
     file: {
       contacts: true,
       private: true,
       groups: true,
-      channels: true
-    }
+      channels: true,
+    },
   },
   autoDownloadNew: {
     _: 'autoDownloadSettings',
     file_size_max: 3145728,
     pFlags: {
       video_preload_large: true,
-      audio_preload_next: true
+      audio_preload_next: true,
     },
     photo_size_max: 1048576,
     video_size_max: 15728640,
     video_upload_maxbitrate: 100,
     small_queue_active_operations_max: 0,
-    large_queue_active_operations_max: 0
+    large_queue_active_operations_max: 0,
   },
   stickers: {
     suggest: 'all',
     dynamicPackOrder: true,
-    loop: true
+    loop: true,
   },
   emoji: {
     suggest: true,
-    big: true
+    big: true,
   },
   themes: [
     makeDefaultAppTheme('day'),
     makeDefaultAppTheme('night'),
     makeDefaultAppTheme('tinted'),
-    makeDefaultAppTheme('light')
+    makeDefaultAppTheme('light'),
   ],
   theme: 'system',
   lastThemeNames: {
     dark: 'night',
-    light: 'day'
+    light: 'day',
   },
   notifications: {
     sound: false,
@@ -472,7 +472,7 @@ export const SETTINGS_INIT: StateSettings = {
     desktop: true,
     sentMessageSound: true,
     suggested: false,
-    volume: 0.5
+    volume: 0.5,
   },
   timeFormat: getTimeFormat(),
   liteMode: {
@@ -494,7 +494,7 @@ export const SETTINGS_INIT: StateSettings = {
     stickers: false,
     stickers_chat: false,
     stickers_panel: false,
-    video: false
+    video: false,
   },
   savedAsForum: false,
   notifyAllAccounts: true,
@@ -507,54 +507,54 @@ export const SETTINGS_INIT: StateSettings = {
     playbackRates: {
       voice: 1,
       video: 1,
-      audio: 1
+      audio: 1,
     },
     loop: false,
-    round: false
+    round: false,
   },
   chatContextMenuHintWasShown: false,
   seenTooltips: {
     storySound: false,
     noForwards: false,
-    sidebarResize: false
+    sidebarResize: false,
   },
   translations: {
     peers: {},
     enabledPeers: {},
     enabled: true,
     showInMenu: true,
-    doNotTranslate: []
+    doNotTranslate: [],
   },
   passcode: {
     enabled: false,
     autoLockTimeoutMins: 0,
     lockShortcutEnabled: false,
     lockShortcut: ['Alt'],
-    canAttemptAgainOn: null
+    canAttemptAgainOn: null,
   },
   instantView: {
-    scale: 1
+    scale: 1,
   },
   cacheTTL: 86400 * 7, // 1 week
   cacheSize: 0, // Auto
   showArchiveInChatList: true,
   mediaEditor: {
-    colorByBrush: {}
+    colorByBrush: {},
   },
   callDevices: {
     speakerId: '',
     microphoneId: '',
     cameraId: '',
     micVolume: 1,
-    noiseSuppression: true
+    noiseSuppression: true,
   },
   recordingMediaType: 'voice',
   qrCode: {
-    selectedThemeId: ''
+    selectedThemeId: '',
   },
   rightColumnShown: false,
   esgInSidebar: false,
-  esgSelectedTab: 0
+  esgSelectedTab: 0,
 };
 
 export const STATE_INIT: State = {
@@ -573,7 +573,7 @@ export const STATE_INIT: State = {
   version: STATE_VERSION,
   build: BUILD,
   authState: {
-    _: IS_MOBILE ? 'authStateSignIn' : 'authStateSignQr'
+    _: IS_MOBILE ? 'authStateSignIn' : 'authStateSignQr',
   },
   hiddenPinnedMessages: {},
   hideChatJoinRequests: {},
@@ -584,9 +584,9 @@ export const STATE_INIT: State = {
   appConfig: {} as any,
   accountThemes: {} as any,
   dontShowPaidMessageWarningFor: [],
-  accountContentSettings: {} as any
+  accountContentSettings: {} as any,
 };
 
 export const COMMON_STATE_INIT: CommonState = {
-  settings: SETTINGS_INIT
+  settings: SETTINGS_INIT,
 };

@@ -88,9 +88,9 @@ Always use these aliases instead of relative paths:
 
 Non-obvious rules — these differ from common defaults:
 
-- **No space after keywords**: `if(cond)`, `for(...)`, `while(...)`, `switch`, `catch` — not `if (cond)`
-- **No space inside `{}` / `[]`**: `{a: 1}` and `[1, 2]` — not `{ a: 1 }`
-- **No trailing comma** anywhere
+- **Space after keywords**: `if (cond)`, `for (...)`, `while(...)`, `switch`, `catch` — not `if(cond)`
+- **Space inside `{}`, no space inside `[]`**: `{ a: 1 }` and `[1, 2]` — not `{ a: 1 }`
+- **Trailing comma** when multi-line
 - **No space before function paren**: `function foo()`
 - **No `return await`** — return the promise directly
 
@@ -98,7 +98,7 @@ Standard defaults, also enforced: 2-space indent, single quotes, LF + final newl
 
 ## TypeScript Notes
 
-- `strict: true` but `strictNullChecks: false` and `strictPropertyInitialization: false`
+- `strict: true` but `strictPropertyInitialization: false`
 - `useDefineForClassFields: false` — important for class field behavior
 - `jsxImportSource: solid-js` — JSX is Solid.js, not React
 - MTProto types live in `src/layer.d.ts` (664KB, auto-generated); import from `@layer`

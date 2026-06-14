@@ -1,25 +1,25 @@
-import {getHeavyAnimationPromise} from '@hooks/useHeavyAnimationCheck';
-import {getCurrentAccount} from '@lib/accounts/getCurrentAccount';
-import {initVideoHls} from '@lib/hls/initVideoHls';
+import { getHeavyAnimationPromise } from '@hooks/useHeavyAnimationCheck';
+import { getCurrentAccount } from '@lib/accounts/getCurrentAccount';
+import { initVideoHls } from '@lib/hls/initVideoHls';
 import apiManagerProxy from '@lib/apiManagerProxy';
-import {Middleware} from '@helpers/middleware';
+import { Middleware } from '@helpers/middleware';
 
 function updateStreamInUse(url: string, inUse: boolean) {
-  if(url.includes('stream/')) {
-    apiManagerProxy.serviceMessagePort.invokeVoid('toggleStreamInUse', {url, inUse, accountNumber: getCurrentAccount()});
+  if (url.includes('stream/')) {
+    apiManagerProxy.serviceMessagePort.invokeVoid('toggleStreamInUse', { url, inUse, accountNumber: getCurrentAccount() });
   }
 }
 
 // const createdVideos: Set<HTMLVideoElement> = new Set();
 export default function createVideo({
   pip,
-  middleware
+  middleware,
 }: {
   pip?: boolean,
   middleware?: Middleware
 }) {
   const video = document.createElement('video');
-  if(!pip) video.disablePictureInPicture = true;
+  if (!pip) video.disablePictureInPicture = true;
   video.setAttribute('playsinline', 'true');
   // createdVideos.add(video);
 
@@ -41,12 +41,12 @@ export default function createVideo({
 
       originalSrc = newValue;
 
-      if(newValue.startsWith('hls/')) {
-        initVideoHls({video, src: newValue, middleware: middleware!});
+      if (newValue.startsWith('hls/')) {
+        initVideoHls({ video, src: newValue, middleware: middleware! });
       } else {
         video.setAttribute('src', newValue);
       }
-    }
+    },
   });
 
   return video;

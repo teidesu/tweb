@@ -15,8 +15,8 @@ export class Register<ToCheck, Payload> {
   }
 
   getEntry(value: ToCheck): Payload | undefined {
-    for(const entry of this.entries) {
-      if(entry.check(value)) {
+    for (const entry of this.entries) {
+      if (entry.check(value)) {
         return entry.payload;
       }
     }

@@ -1,5 +1,5 @@
-import {onCleanup} from 'solid-js';
-import {requestRAF} from '@helpers/solid/requestRAF';
+import { onCleanup } from 'solid-js';
+import { requestRAF } from '@helpers/solid/requestRAF';
 
 
 type ResizeCallbackArgs = {
@@ -17,8 +17,8 @@ export function useResizeObserver() {
   const queuedCallbacks = new Map<Element, () => void>();
 
   const observer = new ResizeObserver(entries => {
-    for(const entry of entries) {
-      if(!queuedCallbacks.has(entry.target))
+    for (const entry of entries) {
+      if (!queuedCallbacks.has(entry.target))
         requestRAF(() => {
           const cb = queuedCallbacks.get(entry.target);
           queuedCallbacks.delete(entry.target);
@@ -28,10 +28,10 @@ export function useResizeObserver() {
       queuedCallbacks.set(entry.target, () => {
         const cb = callbacks.get(entry.target);
         const boxSize = entry.borderBoxSize[0];
-        if(cb && boxSize) {
+        if (cb && boxSize) {
           cb({
             entry,
-            size: {width: boxSize.inlineSize, height: boxSize.blockSize}
+            size: { width: boxSize.inlineSize, height: boxSize.blockSize },
           });
         }
       });

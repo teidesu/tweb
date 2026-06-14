@@ -1,16 +1,16 @@
-import {Component, onMount} from 'solid-js';
+import { Component, onMount } from 'solid-js';
 import PrivacySection from '@components/privacySection';
-import {LangPackKey, i18n} from '@lib/langPack';
+import { LangPackKey, i18n } from '@lib/langPack';
 import Row from '@components/row';
 import CheckboxField from '@components/checkboxField';
 import SettingSection from '@components/settingSection';
 import Button from '@components/button';
 import rootScope from '@lib/rootScope';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import PopupPremium from '@components/popups/premium';
 import PrivacyType from '@appManagers/utils/privacy/privacyType';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import type {AppPrivacyLastSeenTab} from '@components/solidJsTabs/tabs';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import type { AppPrivacyLastSeenTab } from '@components/solidJsTabs/tabs';
 
 const PrivacyLastSeen: Component = () => {
   const [tab] = useSuperTab<typeof AppPrivacyLastSeenTab>();
@@ -36,24 +36,24 @@ const PrivacyLastSeen: Component = () => {
           section.container.classList.toggle('hide', !canHideReadTime());
         });
       },
-      managers: tab.managers
+      managers: tab.managers,
     });
 
     let hideReadTimeSection: SettingSection;
     {
       const section = hideReadTimeSection = new SettingSection({
-        caption: 'HideReadTimeInfo'
+        caption: 'HideReadTimeInfo',
       });
 
       const row = new Row({
         titleLangKey: 'HideReadTime',
-        checkboxField: new CheckboxField({toggle: true, checked: !!globalPrivacy.pFlags.hide_read_marks}),
-        listenerSetter: tab.listenerSetter
+        checkboxField: new CheckboxField({ toggle: true, checked: !!globalPrivacy.pFlags.hide_read_marks }),
+        listenerSetter: tab.listenerSetter,
       });
 
       tab.eventListener.addEventListener('destroy', () => {
         const hide = row.checkboxField.checked && canHideReadTime();
-        if(!!globalPrivacy.pFlags.hide_read_marks === hide) {
+        if (!!globalPrivacy.pFlags.hide_read_marks === hide) {
           return;
         }
 
@@ -61,8 +61,8 @@ const PrivacyLastSeen: Component = () => {
           _: 'globalPrivacySettings',
           pFlags: {
             ...globalPrivacy.pFlags,
-            hide_read_marks: hide || undefined
-          }
+            hide_read_marks: hide || undefined,
+          },
         });
         tab.eventListener.dispatchEvent('privacy', promise);
         return promise;
@@ -75,17 +75,17 @@ const PrivacyLastSeen: Component = () => {
     let premiumSection: SettingSection;
     {
       const section = premiumSection = new SettingSection({
-        caption: true
+        caption: true,
       });
 
       const createButton = () => {
         const btn = Button('btn-primary btn-transparent primary', {
-          text: rootScope.premium ? 'PrivacyLastSeenPremiumForPremium' : 'PrivacyLastSeenPremium'
+          text: rootScope.premium ? 'PrivacyLastSeenPremiumForPremium' : 'PrivacyLastSeenPremium',
         });
 
         attachClickEvent(btn, () => {
           PopupPremium.show();
-        }, {listenerSetter: tab.listenerSetter});
+        }, { listenerSetter: tab.listenerSetter });
 
         return btn;
       };

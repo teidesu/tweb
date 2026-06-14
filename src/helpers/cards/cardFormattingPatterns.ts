@@ -1,8 +1,8 @@
-import {IS_ANDROID} from '@environment/userAgent';
+import { IS_ANDROID } from '@environment/userAgent';
 import createArray from '@helpers/array/createArray';
 import cacheCallback from '@helpers/cacheCallback';
 import replaceNonNumber from '@helpers/string/replaceNonNumber';
-import {CARD_BRANDS, detectCardBrand} from '@helpers/cards/cardBrands';
+import { CARD_BRANDS, detectCardBrand } from '@helpers/cards/cardBrands';
 import patternCharacters from '@helpers/cards/patternCharacters';
 
 const digit = patternCharacters.digit;
@@ -17,8 +17,8 @@ const requiredPostcodes = new Set(['DZ', 'AR', 'AM', 'AU', 'AT', 'AZ', 'PT', 'BD
 const generateFourPattern = cacheCallback((length: number) => {
   const out: Array<typeof digit | typeof spaceCharacter> = [];
 
-  for(let i = 0, k = 0; i < length;) {
-    if(k === 4) {
+  for (let i = 0, k = 0; i < length;) {
+    if (k === 4) {
       out.push(spaceCharacter);
       k = 0;
     } else {
@@ -33,9 +33,9 @@ const generateFourPattern = cacheCallback((length: number) => {
 
 function generateCardNumberPattern(card: string) {
   const brand = detectCardBrand(card);
-  if(brand === 'amex') return sixteenPattern;
-  if(brand === 'diners14') return fifteenPattern;
-  const {minLength, maxLength} = CARD_BRANDS[brand];
+  if (brand === 'amex') return sixteenPattern;
+  if (brand === 'diners14') return fifteenPattern;
+  const { minLength, maxLength } = CARD_BRANDS[brand];
   const s = replaceNonNumber(card).length;
   const d = Math.min(Math.max(minLength, s), maxLength);
   return generateFourPattern(d);
@@ -47,12 +47,12 @@ const cardFormattingPatterns = {
   cardCvc: (card?: string) => cardFormattingPatterns.cardCvcFromBrand(detectCardBrand(card)),
   cardCvcFromBrand: cacheCallback((brand: string) => {
     const info = CARD_BRANDS[brand];
-    const {cvcMinLength, cvcMaxLength} = info;
+    const { cvcMinLength, cvcMaxLength } = info;
     const pattern = createArray(cvcMinLength || cvcMaxLength, digit);
-    if(cvcMinLength && cvcMinLength < cvcMaxLength) {
+    if (cvcMinLength && cvcMinLength < cvcMaxLength) {
       const i = cvcMaxLength - cvcMinLength;
       const h = patternCharacters.optionalPattern(/\d/);
-      if(i) {
+      if (i) {
         pattern.push(...createArray(i, h));
       }
     }
@@ -60,19 +60,19 @@ const cardFormattingPatterns = {
     return pattern;
   }),
   postalCodeFromCountry: cacheCallback((iso2: string) => {
-    switch(iso2) {
+    switch (iso2) {
       case 'US':
         return createArray(5, digit);
       case 'CA':
         return IS_ANDROID ? null : [capitalCharacter, capitalCharacter, capitalCharacter, spaceCharacter, capitalCharacter, capitalCharacter, capitalCharacter];
       default:
         const optionalDigits = createArray(10, patternCharacters.optionalPattern(/\d/));
-        if(requiredPostcodes.has(iso2)) {
+        if (requiredPostcodes.has(iso2)) {
           optionalDigits[0] = digit;
         }
         return optionalDigits;
     }
-  })
+  }),
 };
 
 export default cardFormattingPatterns;

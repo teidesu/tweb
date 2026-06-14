@@ -1,10 +1,10 @@
-import {render} from 'solid-js/web';
-import SidebarSlider, {SliderSuperTab} from '@components/slider';
+import { render } from 'solid-js/web';
+import SidebarSlider, { SliderSuperTab } from '@components/slider';
 import rootScope from '@lib/rootScope';
-import AppSearchSuper, {SearchSuperMediaType} from '@components/appSearchSuper';
+import AppSearchSuper, { SearchSuperMediaType } from '@components/appSearchSuper';
 import SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
-import {PromiseCollector} from '@components/solidJsTabs/promiseCollector';
-import {SuperTabProvider} from '@components/solidJsTabs/superTabProvider';
+import { PromiseCollector } from '@components/solidJsTabs/promiseCollector';
+import { SuperTabProvider } from '@components/solidJsTabs/superTabProvider';
 
 export type SharedMediaImpl = {
   setQuery: () => void;
@@ -36,12 +36,12 @@ export default class AppSharedMediaTab extends SliderSuperTab {
   private _dispose: () => void;
 
   private _render() {
-    if(this._renderPromise) return this._renderPromise;
+    if (this._renderPromise) return this._renderPromise;
 
     const div = document.createElement('div');
 
     return this._renderPromise = (async() => {
-      const {default: Component} = await import('./sharedMedia');
+      const { default: Component } = await import('./sharedMedia');
 
       const promiseCollectorHelper = PromiseCollector.createHelper();
 
@@ -66,14 +66,14 @@ export default class AppSharedMediaTab extends SliderSuperTab {
   }
 
   public setPeer(peerId: PeerId, threadId?: number) {
-    if(this.peerId === peerId && this.threadId === threadId) return false;
+    if (this.peerId === peerId && this.threadId === threadId) return false;
 
     this.peerId = peerId;
     this.threadId = threadId!;
     this.noProfile ??= peerId === rootScope.myId;
     this.peerChanged = true;
 
-    if(this._impl) {
+    if (this._impl) {
       this._impl.setQuery();
     } else {
       this._render().then(() => this._impl.setQuery());
@@ -83,22 +83,22 @@ export default class AppSharedMediaTab extends SliderSuperTab {
   }
 
   public fillProfileElements() {
-    if(this._impl) return this._impl.fillProfileElements();
+    if (this._impl) return this._impl.fillProfileElements();
     return this._render().then(() => this._impl.fillProfileElements());
   }
 
   public loadSidebarMedia(single: boolean, justLoad?: boolean) {
-    if(this._impl) return this._impl.loadSidebarMedia(single, justLoad);
+    if (this._impl) return this._impl.loadSidebarMedia(single, justLoad);
     return this._render().then(() => this._impl.loadSidebarMedia(single, justLoad));
   }
 
   public setSearchTab(type: SearchSuperMediaType) {
-    if(this._impl) return this._impl.setSearchTab(type);
+    if (this._impl) return this._impl.setSearchTab(type);
     this._render().then(() => this._impl.setSearchTab(type));
   }
 
   public setLoadMutex(promise: Promise<any>) {
-    if(this._impl) return this._impl.setLoadMutex(promise);
+    if (this._impl) return this._impl.setLoadMutex(promise);
     this._render().then(() => this._impl.setLoadMutex(promise));
   }
 
@@ -111,7 +111,7 @@ export default class AppSharedMediaTab extends SliderSuperTab {
   onCloseAfterTimeout() {
     super.onCloseAfterTimeout();
 
-    if(this.destroyable) {
+    if (this.destroyable) {
       this.searchSuper?.destroy();
     }
 

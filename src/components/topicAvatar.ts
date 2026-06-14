@@ -1,11 +1,11 @@
-import {hexaToHsla} from '@helpers/color';
-import {TOPIC_COLORS} from '@appManagers/constants';
+import { hexaToHsla } from '@helpers/color';
+import { TOPIC_COLORS } from '@appManagers/constants';
 import wrapAbbreviation from '@lib/richTextProcessor/wrapAbbreviation';
 
 let svg: SVGSVGElement, span: HTMLElement, defs: HTMLElement;
 const hadColors: Map<number, string> = new Map();
 export default function topicAvatar(color: number, content: string) {
-  if(!svg) {
+  if (!svg) {
     defs = document.getElementById('svg-defs') as HTMLElement;
 
     const ns = 'http://www.w3.org/2000/svg';
@@ -28,12 +28,12 @@ export default function topicAvatar(color: number, content: string) {
     span.append(svg, contentSpan);
   }
 
-  if(!color) {
+  if (!color) {
     console.error('NO TOPIC ICON COLOR!');
     color = TOPIC_COLORS[0];
   }
 
-  if(!content) {
+  if (!content) {
     console.error('NO TOPIC NAME!');
     content = '';
   }
@@ -42,8 +42,8 @@ export default function topicAvatar(color: number, content: string) {
 
   const gradientId = `topic-icon-gradient-${color}`;
   let strokeColor = hadColors.get(color);
-  if(!strokeColor) {
-    const {h, s, l, a} = hexaToHsla('#' + hex);
+  if (!strokeColor) {
+    const { h, s, l, a } = hexaToHsla('#' + hex);
     defs.insertAdjacentHTML('beforeend', `
       <linearGradient id="${gradientId}" x1="0" x2="0" y1="0" y2="1">
         <stop style="stop-color: #${hex};" offset="0%" />

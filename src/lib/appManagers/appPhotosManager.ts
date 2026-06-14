@@ -7,9 +7,9 @@
 
 import isObject from '@helpers/object/isObject';
 import safeReplaceArrayInObject from '@helpers/object/safeReplaceArrayInObject';
-import {Photo, PhotoSize, PhotosPhotos} from '@layer';
-import {ReferenceContext} from '@lib/storages/references';
-import {AppManager} from '@appManagers/manager';
+import { Photo, PhotoSize, PhotosPhotos } from '@layer';
+import { ReferenceContext } from '@lib/storages/references';
+import { AppManager } from '@appManagers/manager';
 
 export type MyPhoto = Photo.photo;
 
@@ -22,7 +22,7 @@ export class AppPhotosManager extends AppManager {
   } = {};
 
   public savePhoto(photo: Photo, context?: ReferenceContext) {
-    if(!photo || photo._ === 'photoEmpty') return;
+    if (!photo || photo._ === 'photoEmpty') return;
 
     /* if(photo.id === TEST_FILE_REFERENCE) {
       console.warn('Testing FILE_REFERENCE_EXPIRED');
@@ -35,24 +35,24 @@ export class AppPhotosManager extends AppManager {
     } */
 
     const oldPhoto = this.photos[photo.id];
-    if(photo.file_reference) { // * because we can have a new object w/o the file_reference while sending
+    if (photo.file_reference) { // * because we can have a new object w/o the file_reference while sending
       safeReplaceArrayInObject('file_reference', oldPhoto, photo);
       this.referencesStorage.saveContext(photo.file_reference, context!);
     }
 
-    if(photo.sizes?.length) {
+    if (photo.sizes?.length) {
       // * sometimes photoStrippedSize can be the last item
       photo.sizes.sort((a, b) => {
         return ((a as PhotoSize.photoSize).size || ((a as PhotoSize.photoSizeProgressive).sizes ? Infinity : 0)) - ((b as PhotoSize.photoSize).size || ((b as PhotoSize.photoSizeProgressive).sizes ? Infinity : 0));
       });
 
       const size = photo.sizes[photo.sizes.length - 1];
-      if(size._ === 'photoSizeProgressive') {
+      if (size._ === 'photoSizeProgressive') {
         size.size = size.sizes[size.sizes.length - 1];
       }
     }
 
-    if(oldPhoto) {
+    if (oldPhoto) {
       return Object.assign(oldPhoto, photo);
     }
 
@@ -65,25 +65,25 @@ export class AppPhotosManager extends AppManager {
       user_id: inputUser,
       offset: 0,
       limit,
-      max_id: maxId
-    }, {cacheSeconds: 60}).then((photosResult) => {
+      max_id: maxId,
+    }, { cacheSeconds: 60 }).then((photosResult) => {
       this.appUsersManager.saveApiUsers(photosResult.users);
       const photoIds = photosResult.photos.map((photo, idx) => {
-        photosResult.photos[idx] = this.savePhoto(photo, {type: 'profilePhoto', peerId: userId.toPeerId()})!;
+        photosResult.photos[idx] = this.savePhoto(photo, { type: 'profilePhoto', peerId: userId.toPeerId() })!;
         return photo.id;
       });
 
       // ! WARNING !
-      if(maxId !== '0' && maxId) {
+      if (maxId !== '0' && maxId) {
         const idx = photoIds.indexOf(maxId);
-        if(idx !== -1) {
+        if (idx !== -1) {
           photoIds.splice(idx, 1);
         }
       }
 
       return {
         count: (photosResult as PhotosPhotos.photosPhotosSlice).count || photoIds.length,
-        photos: photoIds
+        photos: photoIds,
       };
     });
   }

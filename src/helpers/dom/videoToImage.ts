@@ -7,7 +7,7 @@ export async function videoToImage(video: HTMLVideoElement): Promise<Blob> {
 
   return new Promise((resolve, reject) => {
     canvas.toBlob((blob) => {
-      if(blob) {
+      if (blob) {
         resolve(blob);
       } else {
         reject(new Error('Failed to create blob'));

@@ -1,11 +1,11 @@
-import {EnterCodeStep, EnterEmailStep} from '@components/popups/emailSetup';
-import {SliderSuperTab} from '@components/slider';
-import {render} from 'solid-js/web';
+import { EnterCodeStep, EnterEmailStep } from '@components/popups/emailSetup';
+import { SliderSuperTab } from '@components/slider';
+import { render } from 'solid-js/web';
 
 import styles from '@components/sidebarLeft/tabs/changeLoginEmail.module.scss';
-import {AccountSentEmailCode} from '@layer';
-import {toastNew} from '@components/toast';
-import {AppSettingsTab} from '@components/solidJsTabs';
+import { AccountSentEmailCode } from '@layer';
+import { toastNew } from '@components/toast';
+import { AppSettingsTab } from '@components/solidJsTabs';
 
 class ChangeLoginEmailCodeTab extends SliderSuperTab {
   private dispose: VoidFunction
@@ -19,14 +19,14 @@ class ChangeLoginEmailCodeTab extends SliderSuperTab {
 
     this.dispose = render(() => (
       <EnterCodeStep
-        purpose={{_: 'emailVerifyPurposeLoginChange'}}
+        purpose={{ _: 'emailVerifyPurposeLoginChange' }}
         footerClass={styles.footer}
         sentCode={args.sentCode}
         onExpired={() => {
           this.close()
         }}
         onSuccess={() => {
-          toastNew({langPackKey: args.isInitialSetup ? 'EmailSetup.SetupToast' : 'EmailSetup.ChangeToast'});
+          toastNew({ langPackKey: args.isInitialSetup ? 'EmailSetup.SetupToast' : 'EmailSetup.ChangeToast' });
           this.slider.sliceTabsUntilTab(AppSettingsTab, this);
           this.close()
         }}
@@ -49,13 +49,13 @@ export default class ChangeLoginEmailTab extends SliderSuperTab {
 
     this.dispose = render(() => (
       <EnterEmailStep
-        purpose={{_: 'emailVerifyPurposeLoginChange'}}
+        purpose={{ _: 'emailVerifyPurposeLoginChange' }}
         footerClass={styles.footer}
         isInitialSetup={options.isInitialSetup}
         onCodeSent={code => {
           this.slider.createTab(ChangeLoginEmailCodeTab).open({
             sentCode: code,
-            isInitialSetup: options.isInitialSetup
+            isInitialSetup: options.isInitialSetup,
           });
         }}
       />

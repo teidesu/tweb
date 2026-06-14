@@ -1,4 +1,4 @@
-import {MOUNT_CLASS_TO} from '@config/debug';
+import { MOUNT_CLASS_TO } from '@config/debug';
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
 import compareValue from '@helpers/compareValue';
 
@@ -77,24 +77,24 @@ export default class SlicedArray<T extends ItemType> {
       } */
 
       isEnd(side: SliceEnd): boolean {
-        if((this.end & side) === side) {
+        if ((this.end & side) === side) {
           return true;
         }/*  else if(!this.slicedArray) {
           return false;
         } */
 
         let isEnd = false;
-        if(side === SliceEnd.Top) {
+        if (side === SliceEnd.Top) {
           const slice = slicedArray.last;
           isEnd = slice.end & side ? this.includes(slice[slice.length - 1])/*  || !slice.length */ : false;
-        } else if(side === SliceEnd.Bottom) {
+        } else if (side === SliceEnd.Bottom) {
           const slice = slicedArray.first;
           isEnd = slice.end & side ? this.includes(slice[0])/*  || !slice.length */ : false;
-        } else if(side === SliceEnd.Both) {
+        } else if (side === SliceEnd.Both) {
           return this.isEnd(SliceEnd.Top) && this.isEnd(SliceEnd.Bottom);
         }
 
-        if(isEnd) {
+        if (isEnd) {
           this.setEnd(side);
         }
 
@@ -105,7 +105,7 @@ export default class SlicedArray<T extends ItemType> {
         return {
           top: this.isEnd(SliceEnd.Top),
           bottom: this.isEnd(SliceEnd.Bottom),
-          both: this.isEnd(SliceEnd.Both)
+          both: this.isEnd(SliceEnd.Both),
         };
       }
 
@@ -120,11 +120,11 @@ export default class SlicedArray<T extends ItemType> {
       splice(start: number, deleteCount: number, ...items: ItemType[]) {
         const ret = super.splice(start, deleteCount, ...items);
 
-        if(!this.length) {
+        if (!this.length) {
           const slices = slicedArray.slices as ItemType[][];
           const idx = slices.indexOf(this);
-          if(idx !== -1) {
-            if(slices.length === 1) { // left empty slice without ends
+          if (idx !== -1) {
+            if (slices.length === 1) { // left empty slice without ends
               this.unsetEnd(SliceEnd.Both);
             } else { // delete this slice
               slices.splice(idx, 1);
@@ -141,7 +141,7 @@ export default class SlicedArray<T extends ItemType> {
     // const slice = new Slice(this, ...items);
     // can't pass items directly to constructor because first argument is length
     const slice = new this.sliceConstructor(items.length);
-    for(let i = 0, length = items.length; i < length; ++i) {
+    for (let i = 0, length = items.length; i < length; ++i) {
       slice[i] = items[i];
     }
     return slice;
@@ -193,12 +193,12 @@ export default class SlicedArray<T extends ItemType> {
   }
 
   public insertSlice(slice: T[], flatten = true) {
-    if(!slice.length) {
+    if (!slice.length) {
       return;
     }
 
     const first = this.slices[0];
-    if(!first.length) {
+    if (!first.length) {
       first.push(...slice);
       return first;
     }
@@ -207,31 +207,31 @@ export default class SlicedArray<T extends ItemType> {
     const upperBound = slice[0];
 
     let foundSlice: Slice<T>, lowerIndex = -1, upperIndex = -1, foundSliceIndex = 0;
-    for(; foundSliceIndex < this.slices.length; ++foundSliceIndex) {
+    for (; foundSliceIndex < this.slices.length; ++foundSliceIndex) {
       foundSlice = this.slices[foundSliceIndex];
       lowerIndex = foundSlice.indexOf(lowerBound);
       upperIndex = foundSlice.indexOf(upperBound);
 
-      if(upperIndex !== -1 && -1 !== lowerIndex) {
+      if (upperIndex !== -1 && -1 !== lowerIndex) {
         break;
-      } else if(upperIndex !== -1 || -1 !== lowerIndex) {
+      } else if (upperIndex !== -1 || -1 !== lowerIndex) {
         break;
       }
     }
 
-    if(upperIndex !== -1 && -1 !== lowerIndex) {
+    if (upperIndex !== -1 && -1 !== lowerIndex) {
 
-    } else if(upperIndex !== -1) {  // ([1, 2, 3] | [1, 2, 3, 4, 5]) -> [1, 2, 3, 4, 5]
+    } else if (upperIndex !== -1) {  // ([1, 2, 3] | [1, 2, 3, 4, 5]) -> [1, 2, 3, 4, 5]
       const sliced = slice.slice(foundSlice!.length - upperIndex);
       foundSlice!.push(...sliced);
-    } else if(lowerIndex !== -1) {  // ([1, 2, 3] | [-1, 0, 1]) -> [-1, 0, 1, 2, 3]
+    } else if (lowerIndex !== -1) {  // ([1, 2, 3] | [-1, 0, 1]) -> [-1, 0, 1, 2, 3]
       const sliced = slice.slice(0, slice.length - lowerIndex - 1);
       foundSlice!.unshift(...sliced);
     } else {
       let insertIndex = 0;
-      for(const length = this.slices.length; insertIndex < length; ++insertIndex) { // * maybe should iterate from the end, could be faster ?
+      for (const length = this.slices.length; insertIndex < length; ++insertIndex) { // * maybe should iterate from the end, could be faster ?
         const s = this.slices[insertIndex];
-        if(this.compareValue(slice[0], s[0]) === 1) {
+        if (this.compareValue(slice[0], s[0]) === 1) {
           break;
         }
       }
@@ -240,23 +240,23 @@ export default class SlicedArray<T extends ItemType> {
       foundSliceIndex = insertIndex;
     }
 
-    if(flatten) {
+    if (flatten) {
       return this.flatten(foundSliceIndex);
     }
   }
 
   private flatten(foundSliceIndex: number) {
-    if(this.slices.length >= 2) {
-      for(let i = 0, length = this.slices.length; i < (length - 1); ++i) {
+    if (this.slices.length >= 2) {
+      for (let i = 0, length = this.slices.length; i < (length - 1); ++i) {
         const prevSlice = this.slices[i];
         const nextSlice = this.slices[i + 1];
 
         const upperIndex = prevSlice.indexOf(nextSlice[0]);
-        if(upperIndex !== -1) {
+        if (upperIndex !== -1) {
           prevSlice.setEnd(nextSlice.end);
           this.slices.splice(i + 1, 1);
 
-          if(i < foundSliceIndex) {
+          if (i < foundSliceIndex) {
             --foundSliceIndex;
           }
 
@@ -290,11 +290,11 @@ export default class SlicedArray<T extends ItemType> {
   }
 
   public findSlice(item: T) {
-    for(let i = 0, length = this.slices.length; i < length; ++i) {
+    for (let i = 0, length = this.slices.length; i < length; ++i) {
       const slice = this.slices[i];
       const index = slice.indexOf(item);
-      if(index !== -1) {
-        return {slice, index};
+      if (index !== -1) {
+        return { slice, index };
       }
     }
 
@@ -303,15 +303,15 @@ export default class SlicedArray<T extends ItemType> {
 
   // * offset will be exclusive, so if offsetId is in slice, then offset will be +1
   public findOffsetInSlice(offsetId: T, slice: Slice<T>) {
-    for(let offset = 0; offset < slice.length; ++offset) {
-      if(this.compareValue(offsetId, slice[offset]) >= 0) {
+    for (let offset = 0; offset < slice.length; ++offset) {
+      if (this.compareValue(offsetId, slice[offset]) >= 0) {
         /* if(!offset) { // because can't find 3 in [[5,4], [2,1]]
           return undefined;
         } */
 
         return {
           slice,
-          offset: offsetId === slice[offset] ? offset + 1 : offset
+          offset: offsetId === slice[offset] ? offset + 1 : offset,
         };
       }
     }
@@ -319,23 +319,23 @@ export default class SlicedArray<T extends ItemType> {
 
   public findSliceOffset(maxId: T): ReturnType<SlicedArray<T>['findOffsetInSlice']> & {sliceIndex: number} | undefined {
     let slice!: Slice<T>;
-    for(let i = 0; i < this.slices.length; ++i) {
+    for (let i = 0; i < this.slices.length; ++i) {
       slice = this.slices[i];
 
       const found = this.findOffsetInSlice(maxId, slice);
-      if(found) {
+      if (found) {
         return {
           ...found,
-          sliceIndex: i
+          sliceIndex: i,
         };
       }
     }
 
-    if(slice?.isEnd(SliceEnd.Top)) {
+    if (slice?.isEnd(SliceEnd.Top)) {
       return {
         slice,
         offset: slice.length,
-        sliceIndex: this.slices.length - 1
+        sliceIndex: this.slices.length - 1,
       };
     }
   }
@@ -346,9 +346,9 @@ export default class SlicedArray<T extends ItemType> {
     let offset = 0;
     let sliceOffset = 0;
 
-    if(offsetId) {
+    if (offsetId) {
       const pos = this.findSliceOffset(offsetId);
-      if(!pos) {
+      if (!pos) {
         return;
       }
 
@@ -362,7 +362,7 @@ export default class SlicedArray<T extends ItemType> {
       /* if(slice.includes(offsetId) && add_offset < 0) {
         add_offset += 1;
       } */
-    } else if(!slice.isEnd(SliceEnd.Bottom)) {
+    } else if (!slice.isEnd(SliceEnd.Bottom)) {
       return;
     }
 
@@ -387,15 +387,15 @@ export default class SlicedArray<T extends ItemType> {
     return {
       slice: sliced,
       offsetIdOffset: offset,
-      fulfilled: SliceEnd.None | (topFulfilled && bottomFulfilled ? SliceEnd.Both : ((topFulfilled ? SliceEnd.Top : SliceEnd.None) | (bottomFulfilled ? SliceEnd.Bottom : SliceEnd.None)))
+      fulfilled: SliceEnd.None | (topFulfilled && bottomFulfilled ? SliceEnd.Both : ((topFulfilled ? SliceEnd.Top : SliceEnd.None) | (bottomFulfilled ? SliceEnd.Bottom : SliceEnd.None))),
     };
   }
 
   public unshift(...items: T[]) {
     let slice = this.first;
-    if(!slice.length) {
+    if (!slice.length) {
       slice.setEnd(SliceEnd.Bottom);
-    } else if(!slice.isEnd(SliceEnd.Bottom)) {
+    } else if (!slice.isEnd(SliceEnd.Bottom)) {
       slice = this.constructSlice();
       slice.setEnd(SliceEnd.Bottom);
       this.slices.unshift(slice);
@@ -406,9 +406,9 @@ export default class SlicedArray<T extends ItemType> {
 
   public push(...items: T[]) {
     let slice = this.last;
-    if(!slice.length) {
+    if (!slice.length) {
       slice.setEnd(SliceEnd.Top);
-    } else if(!slice.isEnd(SliceEnd.Top)) {
+    } else if (!slice.isEnd(SliceEnd.Top)) {
       slice = this.constructSlice();
       slice.setEnd(SliceEnd.Top);
       this.slices.push(slice);
@@ -419,7 +419,7 @@ export default class SlicedArray<T extends ItemType> {
 
   public delete(item: T) {
     const found = this.findSlice(item);
-    if(found) {
+    if (found) {
       found.slice.splice(found.index, 1);
       return true;
     }
@@ -433,15 +433,15 @@ export default class SlicedArray<T extends ItemType> {
 
   public serialize(filterValue?: (value: T) => boolean): SlicedArrayPersisted<T> {
     const slices: SlicedArrayPersisted<T> = [];
-    for(const slice of this.slices) {
+    for (const slice of this.slices) {
       slice.getEnds(); // derive lazily-computed end flags before reading them
       let values: T[] = Array.from(slice);
-      if(filterValue) {
+      if (filterValue) {
         values = values.filter(filterValue);
       }
 
-      if(values.length) {
-        slices.push({values, end: slice.end});
+      if (values.length) {
+        slices.push({ values, end: slice.end });
       }
     }
 
@@ -452,12 +452,12 @@ export default class SlicedArray<T extends ItemType> {
     const slices: SlicedArraySerialized<T>['slices'] = this.slices.map((slice) => {
       return {
         values: slice.slice(),
-        isEnd: slice.getEnds()
+        isEnd: slice.getEnds(),
       };
     });
 
     const serialized: SlicedArraySerialized<T> = {
-      slices
+      slices,
     };
 
     return JSON.stringify(serialized);
@@ -468,8 +468,8 @@ export default class SlicedArray<T extends ItemType> {
     const sliced = new SlicedArray<T>();
     parsed.slices.forEach((slice) => {
       const inserted = sliced.insertSlice(slice.values) || sliced.first;
-      if(slice.isEnd.top) inserted.setEnd(SliceEnd.Top);
-      if(slice.isEnd.bottom) inserted.setEnd(SliceEnd.Bottom);
+      if (slice.isEnd.top) inserted.setEnd(SliceEnd.Top);
+      if (slice.isEnd.bottom) inserted.setEnd(SliceEnd.Bottom);
     });
 
     return sliced;

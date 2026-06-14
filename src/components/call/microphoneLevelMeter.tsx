@@ -1,6 +1,6 @@
-import {createEffect, createSignal, on, onCleanup, onMount} from 'solid-js';
+import { createEffect, createSignal, on, onCleanup, onMount } from 'solid-js';
 import getAudioConstraints from '@lib/calls/helpers/getAudioConstraints';
-import acquireStream, {StreamAcquisition} from '@lib/calls/helpers/acquireStream';
+import acquireStream, { StreamAcquisition } from '@lib/calls/helpers/acquireStream';
 
 // A live microphone level meter. Acquires its own MediaStream so the user
 // can confirm "is my mic actually working" outside an active call — the bar
@@ -35,23 +35,23 @@ export default function MicrophoneLevelMeter(props: MicrophoneLevelMeterProps) {
   let acquisition: StreamAcquisition | undefined;
 
   const teardown = () => {
-    if(raf !== undefined) {
+    if (raf !== undefined) {
       cancelAnimationFrame(raf);
       raf = undefined;
     }
-    if(source) {
-      try { source.disconnect(); } catch(_) {}
+    if (source) {
+      try { source.disconnect(); } catch (_) {}
       source = undefined;
     }
-    if(analyser) {
-      try { analyser.disconnect(); } catch(_) {}
+    if (analyser) {
+      try { analyser.disconnect(); } catch (_) {}
       analyser = undefined;
     }
     // dispose() owns the mic stream's tracks (stops the in-flight one too).
     acquisition?.dispose();
     acquisition = undefined;
     stream = undefined;
-    if(context) {
+    if (context) {
       // suspend instead of close — closing makes follow-up re-acquires racy
       // because creating a new AudioContext requires user gesture on some
       // browsers, and we may re-mount after a device change.
@@ -68,12 +68,12 @@ export default function MicrophoneLevelMeter(props: MicrophoneLevelMeterProps) {
     // `getStream` self-heals a stale persisted mic id (clears appSettings,
     // retries with the default) so the meter doesn't lock on an error.
     const current = acquisition = acquireStream({
-      audio: getAudioConstraints(props.deviceId)
+      audio: getAudioConstraints(props.deviceId),
     });
     let acquired: MediaStream;
     try {
       acquired = await current.promise;
-    } catch(err) {
+    } catch (err) {
       // A disposed acquire resolves undefined, so only a real, still-wanted
       // error reaches here.
       const msg = err instanceof Error ? err.message : String(err);
@@ -83,7 +83,7 @@ export default function MicrophoneLevelMeter(props: MicrophoneLevelMeterProps) {
 
     // Disposed (unmount / mic switch) while getUserMedia resolved — dispose()
     // already stopped the orphaned stream.
-    if(!acquired) return;
+    if (!acquired) return;
     stream = acquired;
 
     const Ctor = window.AudioContext || (window as any).webkitAudioContext;
@@ -98,7 +98,7 @@ export default function MicrophoneLevelMeter(props: MicrophoneLevelMeterProps) {
     buffer = new Uint8Array(analyser.frequencyBinCount);
 
     const tick = () => {
-      if(!analyser || !buffer) return;
+      if (!analyser || !buffer) return;
       // Cast to `Uint8Array<ArrayBuffer>` for getByteFrequencyData — TS infers
       // the buffer's backing type as `ArrayBufferLike` (which includes
       // SharedArrayBuffer), but AnalyserNode only accepts ArrayBuffer-backed
@@ -109,8 +109,8 @@ export default function MicrophoneLevelMeter(props: MicrophoneLevelMeterProps) {
       // as "the mic heard me", whereas averaged level looks dead at typical
       // speech volumes.
       let peak = 0;
-      for(let i = 0; i < buffer.length; i++) {
-        if(buffer[i] > peak) peak = buffer[i];
+      for (let i = 0; i < buffer.length; i++) {
+        if (buffer[i] > peak) peak = buffer[i];
       }
       setAmplitude(peak / 255);
       raf = requestAnimationFrame(tick);
@@ -129,21 +129,21 @@ export default function MicrophoneLevelMeter(props: MicrophoneLevelMeterProps) {
   // double-start on mount.
   createEffect(on(() => props.deviceId, () => {
     start();
-  }, {defer: true}));
+  }, { defer: true }));
 
   const height = props.height ?? 8;
 
   return (
     <div
       class="microphone-level-meter"
-      style={{height: height + 'px'}}
+      style={{ height: height + 'px' }}
       title={error() || undefined}
     >
       <div
         class="microphone-level-meter__fill"
         style={{
           width: (amplitude() * 100) + '%',
-          opacity: error() ? '0.3' : '1'
+          opacity: error() ? '0.3' : '1',
         }}
       />
     </div>

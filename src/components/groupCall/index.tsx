@@ -1,10 +1,10 @@
 import PopupElement from '@components/popups';
-import {hexToRgb} from '@helpers/color';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { hexToRgb } from '@helpers/color';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import customProperties from '@helpers/dom/customProperties';
-import {GroupCall, GroupCallParticipant} from '@layer';
+import { GroupCall, GroupCallParticipant } from '@layer';
 import GROUP_CALL_STATE from '@lib/calls/groupCallState';
-import {RLottieColor} from '@lib/rlottie/rlottiePlayer';
+import { RLottieColor } from '@lib/rlottie/rlottiePlayer';
 import rootScope from '@lib/rootScope';
 import ButtonIcon from '@components/buttonIcon';
 import GroupCallMicrophoneIcon from '@components/groupCall/microphoneIcon';
@@ -13,11 +13,11 @@ import GroupCallParticipantsVideoElement from '@components/groupCall/participant
 import PopupPeer from '@components/popups/peer';
 import GroupCallDescriptionElement from '@components/groupCall/description';
 import GroupCallTitleElement from '@components/groupCall/title';
-import {addFullScreenListener, cancelFullScreen, isFullScreen, requestFullScreen} from '@helpers/dom/fullScreen';
+import { addFullScreenListener, cancelFullScreen, isFullScreen, requestFullScreen } from '@helpers/dom/fullScreen';
 import Scrollable from '@components/scrollable';
-import {MovableState} from '@components/movableElement';
+import { MovableState } from '@components/movableElement';
 import animationIntersector from '@components/animationIntersector';
-import {IS_APPLE_MOBILE} from '@environment/userAgent';
+import { IS_APPLE_MOBILE } from '@environment/userAgent';
 import throttle from '@helpers/schedulers/throttle';
 import IS_SCREEN_SHARING_SUPPORTED from '@environment/screenSharingSupport';
 import GroupCallInstance from '@lib/calls/groupCallInstance';
@@ -27,8 +27,8 @@ import findUpClassName from '@helpers/dom/findUpClassName';
 import toggleClassName from '@helpers/toggleClassName';
 import themeController from '@helpers/themeController';
 import groupCallsController from '@lib/calls/groupCallsController';
-import {render} from 'solid-js/web';
-import {createSignal} from 'solid-js';
+import { render } from 'solid-js/web';
+import { createSignal } from 'solid-js';
 import FingerprintBadge from '@components/conferenceCall/fingerprintBadge';
 import showCallSettingsPopup from '@components/call/settingsPopup';
 
@@ -44,11 +44,11 @@ export type GROUP_CALL_PARTICIPANT_CLEARED_MUTED_STATE = Exclude<GROUP_CALL_PART
 
 export function getGroupCallParticipantMutedState(participant: GroupCallParticipant) {
   const states = GROUP_CALL_PARTICIPANT_MUTED_STATE;
-  if(participant.pFlags.muted_by_you) {
+  if (participant.pFlags.muted_by_you) {
     return states.MUTED_FOR_ME;
-  } else if(participant.raise_hand_rating !== undefined) {
+  } else if (participant.raise_hand_rating !== undefined) {
     return states.HAND;
-  } else if(participant.pFlags.muted) {
+  } else if (participant.pFlags.muted) {
     return participant.pFlags.can_self_unmute ? states.MUTED : states.MUTED_BY_ADMIN;
   } else {
     return states.UNMUTED;
@@ -57,7 +57,7 @@ export function getGroupCallParticipantMutedState(participant: GroupCallParticip
 
 export function clearMutedStateModifier(state: GROUP_CALL_PARTICIPANT_MUTED_STATE): GROUP_CALL_PARTICIPANT_CLEARED_MUTED_STATE {
   const states = GROUP_CALL_PARTICIPANT_MUTED_STATE;
-  switch(state) {
+  switch (state) {
     case states.MUTED_BY_ADMIN:
     case states.MUTED_FOR_ME:
       return states.MUTED;
@@ -69,7 +69,7 @@ export function clearMutedStateModifier(state: GROUP_CALL_PARTICIPANT_MUTED_STAT
 export function getColorByMutedState(state: GROUP_CALL_PARTICIPANT_MUTED_STATE) {
   const states = GROUP_CALL_PARTICIPANT_MUTED_STATE;
   let colorStr: 'blue' | 'green' | 'secondary' | 'red';
-  switch(state) {
+  switch (state) {
     case states.HAND:
       colorStr = 'blue';
       break;
@@ -97,9 +97,9 @@ export enum GROUP_CALL_MICROPHONE_BUTTON_STATE {
 
 export function getGroupCallMicrophoneButtonState(groupCall: GroupCall.groupCall, participant: GroupCallParticipant) {
   const states = GROUP_CALL_MICROPHONE_BUTTON_STATE;
-  if(!participant.pFlags.can_self_unmute) {
+  if (!participant.pFlags.can_self_unmute) {
     return states.HAND;
-  } else if(participant.pFlags.muted) {
+  } else if (participant.pFlags.muted) {
     return states.MUTED
   } else {
     return states.UNMUTED;
@@ -108,7 +108,7 @@ export function getGroupCallMicrophoneButtonState(groupCall: GroupCall.groupCall
 
 let previousState: MovableState = {
   width: 420,
-  height: 640
+  height: 640,
 };
 
 const className = 'group-call';
@@ -137,26 +137,26 @@ export default class PopupGroupCall extends PopupElement {
       body: true,
       withoutOverlay: true,
       closable: true,
-      title: true
+      title: true,
     });
 
     this.videosCount = 0;
     this.container.classList.add(className, 'night');
 
     const instance = this.instance = groupCallsController.groupCall;
-    const {listenerSetter} = this;
+    const { listenerSetter } = this;
 
-    if(!IS_APPLE_MOBILE) {
+    if (!IS_APPLE_MOBILE) {
       const btnFullScreen = this.btnFullScreen = ButtonIcon('fullscreen');
       const btnFullScreen2 = this.btnFullScreen2 = ButtonIcon('fullscreen ' + className + '-cfs');
       const btnExitFullScreen = this.btnExitFullScreen = ButtonIcon('smallscreen');
 
-      attachClickEvent(btnFullScreen, this.onFullScreenClick, {listenerSetter});
-      attachClickEvent(btnFullScreen2, this.onFullScreenClick, {listenerSetter});
+      attachClickEvent(btnFullScreen, this.onFullScreenClick, { listenerSetter });
+      attachClickEvent(btnFullScreen2, this.onFullScreenClick, { listenerSetter });
 
       attachClickEvent(btnExitFullScreen, () => {
         cancelFullScreen();
-      }, {listenerSetter});
+      }, { listenerSetter });
 
       addFullScreenListener(this.container, this.onFullScreenChange, listenerSetter);
     }
@@ -164,7 +164,7 @@ export default class PopupGroupCall extends PopupElement {
     const btnInvite = this.btnInvite = ButtonIcon('adduser');
     const btnShowColumn = this.btnShowColumn = ButtonIcon('rightpanel ' + className + '-only-big');
 
-    attachClickEvent(btnShowColumn, this.toggleRightColumn, {listenerSetter});
+    attachClickEvent(btnShowColumn, this.toggleRightColumn, { listenerSetter });
 
     const headerInfo = document.createElement('div');
     headerInfo.classList.add(className + '-header-info');
@@ -188,7 +188,7 @@ export default class PopupGroupCall extends PopupElement {
     const btnHideColumn = ButtonIcon('rightpanel');
     newHeader.append(...[btnHideColumn, newHeaderInfo, this.btnFullScreen2].filter(Boolean));
 
-    attachClickEvent(btnHideColumn, this.toggleRightColumn, {listenerSetter});
+    attachClickEvent(btnHideColumn, this.toggleRightColumn, { listenerSetter });
 
     this.body.prepend(newHeader);
 
@@ -210,13 +210,13 @@ export default class PopupGroupCall extends PopupElement {
         this.videosCount = length;
         this.toggleBigLayout();
       },
-      managers: this.managers
+      managers: this.managers,
     });
     this.groupCallParticipants = new GroupCallParticipantsElement({
       appendTo: this.body,
       instance,
       listenerSetter,
-      managers: this.managers
+      managers: this.managers,
     });
 
     this.movablePanel = new MovablePanel({
@@ -227,7 +227,7 @@ export default class PopupGroupCall extends PopupElement {
         element: this.element,
         verifyTouchTarget: (e) => {
           const target = e.target;
-          if(findUpClassName(target, 'chatlist') ||
+          if (findUpClassName(target, 'chatlist') ||
             findUpClassName(target, 'group-call-button') ||
             findUpClassName(target, 'btn-icon') ||
             findUpClassName(target, 'group-call-participants-video-container') ||
@@ -236,10 +236,10 @@ export default class PopupGroupCall extends PopupElement {
           }
 
           return true;
-        }
+        },
       },
       onResize: () => this.toggleBigLayout(),
-      previousState
+      previousState,
     });
 
     listenerSetter.add(instance)('state', () => {
@@ -247,7 +247,7 @@ export default class PopupGroupCall extends PopupElement {
     });
 
     listenerSetter.add(rootScope)('group_call_update', (groupCall) => {
-      if(this.instance?.id === groupCall.id) {
+      if (this.instance?.id === groupCall.id) {
         this.updateInstance();
       }
     });
@@ -259,7 +259,7 @@ export default class PopupGroupCall extends PopupElement {
     listenerSetter.add(this.groupCallParticipantsVideo)('toggleControls', this.onToggleControls);
 
     this.addEventListener('close', () => {
-      const {movablePanel} = this;
+      const { movablePanel } = this;
       previousState = movablePanel.state;
 
       this.groupCallParticipantsVideo.destroy();
@@ -282,8 +282,8 @@ export default class PopupGroupCall extends PopupElement {
   // the call is encrypted to the same key on every participant's device.
   // No-op for legacy voice chats.
   private mountFingerprintBadgeIfConference(): void {
-    const {instance} = this;
-    if(!instance?.e2e) return;
+    const { instance } = this;
+    if (!instance?.e2e) return;
 
     const [hash, setHash] = createSignal<Uint8Array | undefined>(
       instance.e2eStatus?.verification?.emojiHash
@@ -296,7 +296,7 @@ export default class PopupGroupCall extends PopupElement {
     mount.classList.add(className + '-header-fingerprint');
     // Place the fingerprint to the LEFT of the fullscreen button. A plain
     // append() lands it at the very end of the header (right of fullscreen).
-    if(this.btnFullScreen) {
+    if (this.btnFullScreen) {
       this.header.insertBefore(mount, this.btnFullScreen);
     } else {
       this.header.append(mount);
@@ -321,20 +321,20 @@ export default class PopupGroupCall extends PopupElement {
     const btnVideo = this.btnVideo = _makeButton({
       // text: 'VoiceChat.Video.Stream.Video',
       callback: this.onVideoClick,
-      icon: 'videocamera_filled'
+      icon: 'videocamera_filled',
     });
 
     const btnScreen = this.btnScreen = _makeButton({
       // text: 'VoiceChat.Video.Stream.Screencast',
       callback: this.onScreenClick,
-      icon: 'sharescreen_filled'
+      icon: 'sharescreen_filled',
     });
 
     btnScreen.classList.toggle('hide', !IS_SCREEN_SHARING_SUPPORTED);
 
     const btnMute = _makeButton({
       noRipple: true,
-      callback: throttle(this.onMuteClick, 600, true)
+      callback: throttle(this.onMuteClick, 600, true),
     });
     btnMute.classList.add(className + '-microphone-button');
 
@@ -344,7 +344,7 @@ export default class PopupGroupCall extends PopupElement {
     const btnMore = _makeButton({
       // text: 'VoiceChat.Video.Stream.More'
       icon: 'settings_filled',
-      callback: this.onMoreClick
+      callback: this.onMoreClick,
     });
 
     // Match the legacy positioning that used to hide btnMore behind the
@@ -356,7 +356,7 @@ export default class PopupGroupCall extends PopupElement {
       // text: 'VoiceChat.Leave',
       isDanger: true,
       callback: this.onLeaveClick,
-      icon: 'close'
+      icon: 'close',
     });
 
     buttons.append(btnVideo, btnScreen, btnMute, btnMore, btnLeave);
@@ -391,8 +391,8 @@ export default class PopupGroupCall extends PopupElement {
 
   private onMuteClick = () => {
     const participant = this.instance.participant;
-    if(!participant.pFlags.can_self_unmute) {
-      if(participant.raise_hand_rating === undefined) {
+    if (!participant.pFlags.can_self_unmute) {
+      if (participant.raise_hand_rating === undefined) {
         this.instance.changeRaiseHand(true);
       }
     } else {
@@ -402,7 +402,7 @@ export default class PopupGroupCall extends PopupElement {
 
   private onMoreClick = async() => {
     const canManage = await this.managers.appChatsManager.hasRights(this.instance.chatId, 'manage_call');
-    showCallSettingsPopup({mode: 'groupCall', instance: this.instance, canManage});
+    showCallSettingsPopup({ mode: 'groupCall', instance: this.instance, canManage });
   };
 
   private onLeaveClick = async() => {
@@ -410,20 +410,20 @@ export default class PopupGroupCall extends PopupElement {
       this.instance.hangUp(discard);
     };
 
-    if(await this.managers.appChatsManager.hasRights(this.instance.chatId, 'manage_call')) {
+    if (await this.managers.appChatsManager.hasRights(this.instance.chatId, 'manage_call')) {
       PopupElement.createPopup(PopupPeer, 'popup-end-video-chat', {
         titleLangKey: 'VoiceChat.End.Title',
         descriptionLangKey: 'VoiceChat.End.Text',
         checkboxes: [{
-          text: 'VoiceChat.End.Third'
+          text: 'VoiceChat.End.Third',
         }],
         buttons: [{
           langKey: 'VoiceChat.End.OK',
           callback: (e, checkboxes) => {
             hangUp(!!checkboxes!.size);
           },
-          isDanger: true
-        }]
+          isDanger: true,
+        }],
       }).show();
     } else {
       hangUp(false);
@@ -438,7 +438,7 @@ export default class PopupGroupCall extends PopupElement {
     this.toggleBigLayout();
     const isFull = isFullScreen();
 
-    const {btnFullScreen, btnExitFullScreen} = this;
+    const { btnFullScreen, btnExitFullScreen } = this;
 
     const wasFullScreen = this.container.classList.contains('is-full-screen');
     this.container.classList.toggle('is-full-screen', isFull);
@@ -446,7 +446,7 @@ export default class PopupGroupCall extends PopupElement {
     btnExitFullScreen && btnExitFullScreen.classList.toggle('hide', !isFull);
     this.btnClose.classList.toggle('hide', isFull);
 
-    if(isFull !== wasFullScreen) {
+    if (isFull !== wasFullScreen) {
       animationIntersector.checkAnimations2(isFull);
 
       themeController.setThemeColor(isFull ? '#000000' : undefined);
@@ -465,7 +465,7 @@ export default class PopupGroupCall extends PopupElement {
 
     const wasBig = this.container.classList.contains('is-big-layout');
     let buttons: HTMLElement[];
-    if(isBig && !wasBig) { // fix buttons transition to 0 opacity
+    if (isBig && !wasBig) { // fix buttons transition to 0 opacity
       buttons = Array.from(this.buttonsContainer.children) as HTMLElement[];
       buttons.forEach((element) => {
         element.style.opacity = '0';
@@ -478,7 +478,7 @@ export default class PopupGroupCall extends PopupElement {
     this.btnInvite.classList.toggle('hide', isBig);
     this.btnShowColumn.classList.toggle('hide', !isBig);
 
-    if(buttons!) {
+    if (buttons!) {
       // window.requestAnimationFrame(() => {
       buttons.forEach((element) => {
         element.style.opacity = '';
@@ -496,8 +496,8 @@ export default class PopupGroupCall extends PopupElement {
   }
 
   private updateInstance() {
-    if(this.instance.state === GROUP_CALL_STATE.CLOSED) {
-      if(this.container.classList.contains('is-full-screen')) {
+    if (this.instance.state === GROUP_CALL_STATE.CLOSED) {
+      if (this.container.classList.contains('is-full-screen')) {
         cancelFullScreen();
       }
 
@@ -505,8 +505,8 @@ export default class PopupGroupCall extends PopupElement {
       return;
     }
 
-    const {participant, groupCall} = this.instance;
-    if(!participant) {
+    const { participant, groupCall } = this.instance;
+    if (!participant) {
       return;
     }
 

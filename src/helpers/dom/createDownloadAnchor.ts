@@ -14,11 +14,11 @@ export default function createDownloadAnchor(url: string, fileName: string, onRe
     const clickEvent = document.createEvent('MouseEvents');
     clickEvent.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
     a.dispatchEvent(clickEvent);
-  } catch(e) {
+  } catch (e) {
     console.error('Download click error', e);
     try {
       a.click();
-    } catch(e) {
+    } catch (e) {
       window.open(url, '_blank');
     }
   }

@@ -1,24 +1,24 @@
-import type {AppTheme, AppThemeSettings} from '@config/state';
-import type {AccentPreset} from '@config/themePresets';
-import type {BaseTheme, Theme, ThemeSettings} from '@layer';
-import {blendWallpaperForTinted, presetThemeId, presetToThemeSettings} from '@config/themePresets';
-import type {AppBackgroundTab} from '@components/sidebarLeft/tabs/background';
-import type {AppChatBackground} from '@components/chat/bubbles/chatBackground';
+import type { AppTheme, AppThemeSettings } from '@config/state';
+import type { AccentPreset } from '@config/themePresets';
+import type { BaseTheme, Theme, ThemeSettings } from '@layer';
+import { blendWallpaperForTinted, presetThemeId, presetToThemeSettings } from '@config/themePresets';
+import type { AppBackgroundTab } from '@components/sidebarLeft/tabs/background';
+import type { AppChatBackground } from '@components/chat/bubbles/chatBackground';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
 import rootScope from '@lib/rootScope';
-import {changeColorAccent, ColorRgb, getAccentColor, getAverageColor, getRgbColorFromTelegramColor, hexToRgb, hslaStringToHex, hslaStringToRgba, hslaToRgba, hsvToRgb, mixColors, rgbaToHexa, rgbaToHsla, rgbToHsv} from '@helpers/color';
-import {SETTINGS_INIT} from '@config/state';
-import {MOUNT_CLASS_TO} from '@config/debug';
+import { changeColorAccent, ColorRgb, getAccentColor, getAverageColor, getRgbColorFromTelegramColor, hexToRgb, hslaStringToHex, hslaStringToRgba, hslaToRgba, hsvToRgb, mixColors, rgbaToHexa, rgbaToHsla, rgbToHsv } from '@helpers/color';
+import { SETTINGS_INIT } from '@config/state';
+import { MOUNT_CLASS_TO } from '@config/debug';
 import customProperties from '@helpers/dom/customProperties';
-import {TelegramWebViewTheme} from '@types';
+import { TelegramWebViewTheme } from '@types';
 import windowSize from '@helpers/windowSize';
 import liteMode from '@helpers/liteMode';
-import {useAppSettings} from '@stores/appSettings';
-import {joinDeepPath} from '@helpers/object/setDeepProperty';
-import {logger} from '@lib/logger';
+import { useAppSettings } from '@stores/appSettings';
+import { joinDeepPath } from '@helpers/object/setDeepProperty';
+import { logger } from '@lib/logger';
 import pause from '@helpers/schedulers/pause';
-import Transitions, {getTransition} from '@config/transitions';
-import {dispatchHeavyAnimationEvent} from '@hooks/useHeavyAnimationCheck';
+import Transitions, { getTransition } from '@config/transitions';
+import { dispatchHeavyAnimationEvent } from '@hooks/useHeavyAnimationCheck';
 import noop from '@helpers/noop';
 
 // Hard cap for the theme-switch view transition: how long heavy rendering (videos/stickers/
@@ -48,57 +48,57 @@ const appColorMap: {[name in AppColorName]: AppColor} = {
     light: true,
     lightFilled: true,
     dark: true,
-    darkRgb: true
+    darkRgb: true,
   },
   'message-out-primary-color': {
     lightFilled: true,
-    rgb: true
+    rgb: true,
   },
   'surface-color': {
-    rgb: true
+    rgb: true,
   },
   'danger-color': {
     rgb: true,
     light: true,
-    dark: true
+    dark: true,
   },
   'primary-text-color': {
-    rgb: true
+    rgb: true,
   },
   'secondary-text-color': {
     light: true,
     lightFilled: true,
-    rgb: true
+    rgb: true,
   },
   'message-background-color': {
     light: true,
     lightFilled: true,
     dark: true,
-    darkFilled: true
+    darkFilled: true,
   },
   'message-out-background-color': {
     light: true,
     lightFilled: true,
     dark: true,
     darkFilled: true,
-    rgb: true
+    rgb: true,
   },
   'saved-color': {
-    lightFilled: true
+    lightFilled: true,
   },
   'green-color': {
-    rgb: true
+    rgb: true,
   },
   'background-color': {
-    rgb: true
+    rgb: true,
   },
   'body-background-color': {
-    rgb: true
+    rgb: true,
   },
   'border-color': {},
   'secondary-color': {},
   'link-color': {},
-  'input-search-background-color': {}
+  'input-search-background-color': {},
 };
 
 const colorMap: {
@@ -122,7 +122,7 @@ const colorMap: {
     'border-color': '#dfe1e5',
     'secondary-color': '#c4c9cc',
     'link-color': '#00488f',
-    'input-search-background-color': '#ffffff'
+    'input-search-background-color': '#ffffff',
   },
   night: {
     'primary-color': '#8774E1',
@@ -140,7 +140,7 @@ const colorMap: {
     'border-color': '#0f0f0f',
     'secondary-color': '#707579',
     'link-color': '#8774E1', // SCSS resolves to var(--primary-color)
-    'input-search-background-color': '#181818'
+    'input-search-background-color': '#181818',
   },
   tinted: {
     // base colors ported from Telegram-Android darkblue.attheme (Dark Blue / Tinted)
@@ -164,7 +164,7 @@ const colorMap: {
     'border-color': '#0F151B',
     'secondary-color': '#7D8B99',
     'link-color': '#5EABE1',
-    'input-search-background-color': '#212D3B'
+    'input-search-background-color': '#212D3B',
   },
   light: {
     // base colors ported from Telegram-Android day.attheme (Android's "Day" / baseThemeDay)
@@ -184,15 +184,15 @@ const colorMap: {
     'border-color': '#DFE1E5',
     'secondary-color': '#C4C9CC',
     'link-color': '#238AE3', // windowBackgroundWhiteBlueText
-    'input-search-background-color': '#FFFFFF'
-  }
+    'input-search-background-color': '#FFFFFF',
+  },
 };
 
 const themeNameToBaseTheme: {[name in Exclude<AppTheme['name'], 'system'>]: BaseTheme['_']} = {
   day: 'baseThemeClassic',
   night: 'baseThemeNight',
   light: 'baseThemeDay',
-  tinted: 'baseThemeTinted'
+  tinted: 'baseThemeTinted',
 };
 
 const NIGHT_THEME_NAMES = new Set<AppTheme['name']>(['night', 'tinted']);
@@ -224,12 +224,12 @@ export class ThemeController {
     // to the legacy night/day pair. Stored in `settings.lastThemeNames` for persistence; updated
     // here whenever `settings.theme` changes (radio in General Settings, switchTheme calls).
     const themeKey = joinDeepPath('settings', 'theme');
-    rootScope.addEventListener('settings_updated', ({key, value}) => {
-      if(key !== themeKey) return;
+    rootScope.addEventListener('settings_updated', ({ key, value }) => {
+      if (key !== themeKey) return;
       const [, setAppSettings] = useAppSettings();
-      if(value === 'night' || value === 'tinted') {
+      if (value === 'night' || value === 'tinted') {
         setAppSettings('lastThemeNames', 'dark', value);
-      } else if(value === 'day' || value === 'light') {
+      } else if (value === 'day' || value === 'light') {
         setAppSettings('lastThemeNames', 'light', value);
       }
       // 'system' — don't update either side; burger-menu toggle still falls back to the
@@ -240,12 +240,12 @@ export class ThemeController {
   private setWorkerThemeParams() {
     rootScope.managers.apiManager.setThemeParams({
       _: 'dataJSON',
-      data: JSON.stringify(this.getThemeParamsForWebView())
+      data: JSON.stringify(this.getThemeParamsForWebView()),
     });
   }
 
   private get themeColorElem() {
-    if(this._themeColorElem !== undefined) {
+    if (this._themeColorElem !== undefined) {
       return this._themeColorElem;
     }
 
@@ -253,13 +253,13 @@ export class ThemeController {
   }
 
   public setThemeColor(color = this.themeColor) {
-    if(!color) {
+    if (!color) {
       const themeName = this.getResolvedThemeName();
       color = colorMap[themeName]?.['surface-color'] || (this.isNight() ? '#212121' : '#ffffff');
     }
 
     const themeColorElem = this.themeColorElem;
-    if(themeColorElem) {
+    if (themeColorElem) {
       themeColorElem.setAttribute('content', color);
     }
   }
@@ -272,37 +272,37 @@ export class ThemeController {
         this.systemTheme = darkModeMediaQuery.matches ? 'night' : 'day';
         // const newTheme = this.getTheme();
 
-        if(rootScope.myId) {
+        if (rootScope.myId) {
           rootScope.dispatchEvent('theme_change');
         } else {
           this.setTheme();
         }
       };
 
-      if('addEventListener' in darkModeMediaQuery) {
+      if ('addEventListener' in darkModeMediaQuery) {
         darkModeMediaQuery.addEventListener('change', checkDarkMode);
-      } else if('addListener' in darkModeMediaQuery) {
+      } else if ('addListener' in darkModeMediaQuery) {
         (darkModeMediaQuery as any).addListener(checkDarkMode);
       }
 
       checkDarkMode();
-    } catch(err) {
+    } catch (err) {
 
     }
   }
 
   public applyHighlightingColor({
     hsla,
-    element = document.documentElement
+    element = document.documentElement,
   }: {
     hsla?: string,
     element?: HTMLElement
   } = {}) {
-    if(!hsla) {
+    if (!hsla) {
       hsla = 'hsla(85.5319, 36.9171%, 40.402%, .4)';
       const theme = this.getTheme();
       const themeSettings = this.getThemeSettings(theme!);
-      if(themeSettings?.highlightingColor) {
+      if (themeSettings?.highlightingColor) {
         hsla = themeSettings.highlightingColor;
       }
     }
@@ -312,7 +312,7 @@ export class ThemeController {
     element.style.setProperty('--message-highlighting-color-rgb', highlightingRgba.slice(0, 3).join(','));
     element.style.setProperty('--message-highlighting-alpha', '' + highlightingRgba[3] / 255);
 
-    if(!IS_TOUCH_SUPPORTED && hsla) {
+    if (!IS_TOUCH_SUPPORTED && hsla) {
       this.themeColor = hslaStringToHex(hsla);
     }
   }
@@ -330,7 +330,7 @@ export class ThemeController {
     this.applyTheme(theme!);
 
     let style = this.styleElement;
-    if(!style) {
+    if (!style) {
       style = this.styleElement = document.createElement('style');
       document.head.append(style);
     }
@@ -352,25 +352,25 @@ export class ThemeController {
     const animationsAvailable = liteMode.isAvailable('animations');
     _log(`start, fast=${fast}, coordinates=${JSON.stringify(coordinates)}, animations=${animationsAvailable}`);
 
-    if(fast) {
+    if (fast) {
       const silent = !this.applied;
       const wasApplied = this.applied;
       this.applied = true;
 
       this._setTheme(silent);
-      if(!wasApplied) {
+      if (!wasApplied) {
         this.setWorkerThemeParams();
       }
 
       return;
     }
 
-    if(!animationsAvailable) {
+    if (!animationsAvailable) {
       coordinates = undefined;
     }
 
     const reverse = !this.isNight();
-    if(coordinates) {
+    if (coordinates) {
       document.documentElement.classList.add('no-view-transition');
       document.documentElement.classList.toggle('reverse', reverse);
       void document.documentElement.offsetLeft; // reflow
@@ -386,7 +386,7 @@ export class ThemeController {
       // swaps in AFTER the circular reveal, visibly desynced. Capped so a slow/uncached image
       // can't freeze the whole theme switch (it just falls back to the old pop-in for that case).
       const bg = this.appChatBackground;
-      if(bg) await Promise.race([bg.getReadyPromise(), pause(500)]);
+      if (bg) await Promise.race([bg.getReadyPromise(), pause(500)]);
     });
 
     // Pause heavy rendering (videos, stickers, lottie) while the reveal plays so it stays
@@ -405,12 +405,12 @@ export class ThemeController {
     }, THEME_TRANSITION_TIMEOUT);
     transition.finished.catch(noop).then(() => clearTimeout(safetyTimeout));
 
-    if(!coordinates) {
+    if (!coordinates) {
       _log('view transition is not needed');
       return;
     }
 
-    const {x, y} = coordinates;
+    const { x, y } = coordinates;
     // Get the distance to the furthest corner
     const endRadius = Math.hypot(
       Math.max(x, windowSize.width - x),
@@ -420,12 +420,12 @@ export class ThemeController {
     transition.ready.then(() => {
       _log('view transition ready');
 
-      const {easing, duration, keyframes} = getTransition(
+      const { easing, duration, keyframes } = getTransition(
         'standard',
         !reverse,
         [
-          {clipPath: `circle(0 at ${x}px ${y}px)`},
-          {clipPath: `circle(${endRadius}px at ${x}px ${y}px)`}
+          { clipPath: `circle(0 at ${x}px ${y}px)` },
+          { clipPath: `circle(${endRadius}px at ${x}px ${y}px)` },
         ]
       );
 
@@ -433,7 +433,7 @@ export class ThemeController {
         duration: duration * 2,
         easing,
         pseudoElement: `::view-transition-${reverse ? 'old' : 'new'}(root)`,
-        fill: 'forwards' // * without this rule animation will flick at the end
+        fill: 'forwards', // * without this rule animation will flick at the end
       });
     }).catch(noop); // `ready` rejects when the transition is skipped (safety timeout / overlap / hidden tab)
 
@@ -448,7 +448,7 @@ export class ThemeController {
     coordinates?: {x: number, y: number}
   ) {
     const [appSettings, setAppSettings] = useAppSettings();
-    if(name === undefined) {
+    if (name === undefined) {
       // Burger-menu Dark-Mode toggle. Resolve to the user's last explicitly-picked variant on the
       // opposite side so e.g. tinted → classic instead of tinted → day, and back tinted again
       // instead of falling to night. Defensive: appSettings.lastThemeNames can be missing during
@@ -484,7 +484,7 @@ export class ThemeController {
 
   private getThemeName(theme: Theme | AppTheme): AppTheme['name'] {
     const appTheme = theme as AppTheme;
-    if(appTheme?.name && appTheme.name !== 'system') return appTheme.name;
+    if (appTheme?.name && appTheme.name !== 'system') return appTheme.name;
     return this.getResolvedThemeName();
   }
 
@@ -508,20 +508,20 @@ export class ThemeController {
     return {
       applyAppColor: (_options: Omit<Parameters<ThemeController['applyAppColor']>[0], keyof typeof options>) => {
         appliedColors.add(_options.name);
-        return this.applyAppColor({mixColor: defaultMixColor, ..._options, ...options});
+        return this.applyAppColor({ mixColor: defaultMixColor, ..._options, ...options });
       },
       finalize: () => {
-        for(const name in appColorMap) {
-          if(!appliedColors.has(name as AppColorName)) {
+        for (const name in appColorMap) {
+          if (!appliedColors.has(name as AppColorName)) {
             this.applyAppColor({
               name: name as AppColorName,
               hex: colorMap[fallbackName]![name as AppColorName]!,
               mixColor: defaultMixColor,
-              ...options
+              ...options,
             });
           }
         }
-      }
+      },
     };
   };
 
@@ -534,7 +534,7 @@ export class ThemeController {
     mixColor,
     isNight = this.isNight(),
     themeName,
-    saveToCache
+    saveToCache,
   }: {
     name: AppColorName,
     hex: string,
@@ -556,7 +556,7 @@ export class ThemeController {
 
     const darkenedHsla: typeof hsla = {
       ...hsla,
-      l: hsla.l - darkenAlpha * 100
+      l: hsla.l - darkenAlpha * 100,
     };
 
     const properties: [string, string][] = [
@@ -564,7 +564,7 @@ export class ThemeController {
       ((appColor.rgb && [name + '-rgb', rgb.join(',')])! as [string, string]),
       ((appColor.light && ['light-' + name, `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${lightenAlpha})`])! as [string, string]),
       ((appColor.lightFilled && ['light-filled-' + name, rgbaToHexa(lightenedRgb)])! as [string, string]),
-      ((appColor.dark && ['dark-' + name, `hsl(${darkenedHsla.h}, ${darkenedHsla.s}%, ${darkenedHsla.l}%)`])! as [string, string])
+      ((appColor.dark && ['dark-' + name, `hsl(${darkenedHsla.h}, ${darkenedHsla.s}%, ${darkenedHsla.l}%)`])! as [string, string]),
       // appColor.darkFilled && ['dark-' + name, `hsl(${darkenedHsla.h}, ${darkenedHsla.s}%, ${darkenedHsla.l}%)`]
     ];
 
@@ -572,7 +572,7 @@ export class ThemeController {
     properties.filter(Boolean).forEach(([name, value]) => {
       element.style.setProperty('--' + name, value);
 
-      if(saveToCache) {
+      if (saveToCache) {
         customProperties.setPropertyCache(name as AppColorName, value, isNight);
       }
     });
@@ -589,7 +589,7 @@ export class ThemeController {
     // iOS dayColorPresets have `wallpaper: nil` — those presets only swap accent + bubbles
     // and keep the current wallpaper. Mirror that here: setBackgroundDocument requires a
     // WallPaper, so fall back to the current AppTheme's wallpaper when the preset omits one.
-    if(!settings.wallpaper) {
+    if (!settings.wallpaper) {
       settings.wallpaper = this.getThemeSettings(currentTheme!)?.wallpaper;
     }
     const synthetic: Theme = {
@@ -599,7 +599,7 @@ export class ThemeController {
       slug: '',
       title: '',
       pFlags: {},
-      settings: [settings]
+      settings: [settings],
     };
     return this.applyNewTheme(synthetic);
   }
@@ -610,8 +610,8 @@ export class ThemeController {
   public resetActiveTheme() {
     const currentTheme = this.getTheme();
     const defaultTheme = SETTINGS_INIT.themes.find((t) => t.name === currentTheme!.name);
-    if(!defaultTheme) return Promise.resolve();
-    return this.applyNewTheme({...defaultTheme, settings: defaultTheme.settings});
+    if (!defaultTheme) return Promise.resolve();
+    return this.applyNewTheme({ ...defaultTheme, settings: defaultTheme.settings });
   }
 
   public async applyNewTheme(theme: Theme) {
@@ -638,7 +638,7 @@ export class ThemeController {
     const themeId = String(theme.id ?? '');
     const isCurated = themeId === '' || themeId.startsWith('preset:');
     let effectiveWallpaper = themeSettings!.wallpaper;
-    if(themeName === 'tinted' && !isCurated && effectiveWallpaper) {
+    if (themeName === 'tinted' && !isCurated && effectiveWallpaper) {
       effectiveWallpaper = blendWallpaperForTinted(effectiveWallpaper, themeSettings!.accent_color);
     }
 
@@ -649,20 +649,20 @@ export class ThemeController {
     const newSettings: AppTheme['settings'] = theme.settings!.map((s) => ({
       ...s,
       wallpaper: s.base_theme._ === themeSettings!.base_theme._ ? effectiveWallpaper : s.wallpaper,
-      highlightingColor: ''
+      highlightingColor: '',
     }));
     const targetSettings = newSettings.find((s) => s.base_theme._ === themeSettings!.base_theme._);
 
     const newAppTheme: AppTheme = {
       ...theme,
       name: themeName,
-      settings: newSettings
+      settings: newSettings,
     };
 
     await this.AppBackgroundTab.setBackgroundDocument(effectiveWallpaper!, targetSettings);
     let idx = themes.indexOf(currentTheme!);
-    if(idx < 0) idx = themes.findIndex((t) => t.name === themeName);
-    if(idx < 0) {
+    if (idx < 0) idx = themes.findIndex((t) => t.name === themeName);
+    if (idx < 0) {
       themes.push(newAppTheme);
     } else {
       themes[idx] = newAppTheme;
@@ -685,10 +685,10 @@ export class ThemeController {
   public getThemeSettings(theme: Theme, isNight?: boolean): ThemeSettings;
   public getThemeSettings(theme: Theme | AppTheme, isNight?: boolean): ThemeSettings | AppThemeSettings;
   public getThemeSettings(theme: Theme | AppTheme, isNight?: boolean): ThemeSettings | AppThemeSettings | undefined {
-    if(!theme?.settings) return undefined;
+    if (!theme?.settings) return undefined;
     // Legacy state may have stored a single ThemeSettings object instead of an array;
     // pass it through unchanged so reads keep working until the next save migrates it.
-    if(!Array.isArray(theme.settings)) return theme.settings as any;
+    if (!Array.isArray(theme.settings)) return theme.settings as any;
     const themeName = this.getThemeName(theme);
     const baseTheme = this.getBaseThemeForName(themeName);
     return theme.settings.find((s) => s.base_theme._ === baseTheme) ??
@@ -707,24 +707,24 @@ export class ThemeController {
     const [appSettings, setAppSettings] = useAppSettings();
     const themes = appSettings.themes.slice();
     let idx = themes.indexOf(theme!);
-    if(idx < 0) idx = themes.findIndex((t) => t.name === theme!.name);
-    if(idx < 0) return Promise.resolve();
+    if (idx < 0) idx = themes.findIndex((t) => t.name === theme!.name);
+    if (idx < 0) return Promise.resolve();
 
     const t = themes[idx];
     let settings: AppTheme['settings'];
-    if(Array.isArray(t.settings)) {
+    if (Array.isArray(t.settings)) {
       const themeName = this.getThemeName(t);
       const baseTheme = this.getBaseThemeForName(themeName);
       let sIdx = t.settings.findIndex((s) => s.base_theme._ === baseTheme);
-      if(sIdx < 0) sIdx = t.settings.findIndex((s) => s.base_theme._ === (this.isNightThemeName(themeName) ? 'baseThemeNight' : 'baseThemeClassic'));
-      if(sIdx < 0) sIdx = 0;
-      settings = t.settings.map((s, i) => i === sIdx ? {...s, wallpaper, highlightingColor} : s);
+      if (sIdx < 0) sIdx = t.settings.findIndex((s) => s.base_theme._ === (this.isNightThemeName(themeName) ? 'baseThemeNight' : 'baseThemeClassic'));
+      if (sIdx < 0) sIdx = 0;
+      settings = t.settings.map((s, i) => i === sIdx ? { ...s, wallpaper, highlightingColor } : s);
     } else {
       // Legacy single-object settings: keep the single-object shape (getThemeSettings reads it
       // directly via `as any` — line ~656 — and would mismatch if migrated to an array).
-      settings = {...(t.settings as any), wallpaper, highlightingColor};
+      settings = { ...(t.settings as any), wallpaper, highlightingColor };
     }
-    themes[idx] = {...t, settings};
+    themes[idx] = { ...t, settings };
     return setAppSettings('themes', themes);
   }
 
@@ -752,7 +752,7 @@ export class ThemeController {
     let mainSeparatorColor: string | undefined;
     let mainSecondaryColor: string | undefined;
     let mainSecondaryTextColor: string | undefined;
-    if(themeName === 'tinted') {
+    if (themeName === 'tinted') {
       // iOS reassigns the accent before deriving surfaces (line 94-96):
       //   let hsb = initialAccentColor.hsb
       //   accentColor = UIColor(hue: hsb.0, saturation: hsb.1, brightness: max(hsb.2, 0.18))
@@ -792,37 +792,37 @@ export class ThemeController {
     // Default mixColor for every light-filled-* in this pass. For tinted use the iOS-derived
     // surface so panels, secondary text, primary buttons all share a consistent fill.
     const defaultMixColor = tintedSurfaceRgb;
-    const {applyAppColor, finalize} = this.bindColorApplier({element, isNight, themeName, saveToCache}, defaultMixColor);
+    const { applyAppColor, finalize } = this.bindColorApplier({ element, isNight, themeName, saveToCache }, defaultMixColor);
 
     applyAppColor({
       name: 'primary-color',
       hex: newAccentHex,
-      darkenAlpha: 0.04
+      darkenAlpha: 0.04,
     });
 
     applyAppColor({
       name: 'saved-color',
       hex: newAccentHex,
       lightenAlpha: 0.64,
-      mixColor: [255, 255, 255]
+      mixColor: [255, 255, 255],
     });
 
-    if(themeName === 'tinted') {
+    if (themeName === 'tinted') {
       // iOS → tweb CSS var mapping. mainBackgroundColor is the chat-list/settings panel surface;
       // additionalBackgroundColor is the page/list backdrop; inputBackgroundColor is the search
       // input chrome. mainBackgroundColor doubles for the incoming-bubble fill (matches iOS
       // chat.message.incoming.bubble.fill which uses the same derived background color).
-      applyAppColor({name: 'surface-color', hex: mainBackgroundColor!});
-      applyAppColor({name: 'background-color', hex: additionalBackgroundColor!});
-      applyAppColor({name: 'body-background-color', hex: additionalBackgroundColor!});
-      applyAppColor({name: 'message-background-color', hex: mainBackgroundColor!});
-      applyAppColor({name: 'input-search-background-color', hex: inputBackgroundColor!});
-      applyAppColor({name: 'border-color', hex: mainSeparatorColor!});
-      applyAppColor({name: 'secondary-color', hex: mainSecondaryColor!});
-      applyAppColor({name: 'secondary-text-color', hex: mainSecondaryTextColor!});
+      applyAppColor({ name: 'surface-color', hex: mainBackgroundColor! });
+      applyAppColor({ name: 'background-color', hex: additionalBackgroundColor! });
+      applyAppColor({ name: 'body-background-color', hex: additionalBackgroundColor! });
+      applyAppColor({ name: 'message-background-color', hex: mainBackgroundColor! });
+      applyAppColor({ name: 'input-search-background-color', hex: inputBackgroundColor! });
+      applyAppColor({ name: 'border-color', hex: mainSeparatorColor! });
+      applyAppColor({ name: 'secondary-color', hex: mainSecondaryColor! });
+      applyAppColor({ name: 'secondary-text-color', hex: mainSecondaryTextColor! });
     }
 
-    if(!themeSettings.message_colors?.length) {
+    if (!themeSettings.message_colors?.length) {
       return;
     }
 
@@ -837,7 +837,7 @@ export class ThemeController {
     const firstColor = getRgbColorFromTelegramColor(themeSettings.message_colors[0]);
 
     let myMessagesAccent = firstColor;
-    if(themeSettings.message_colors.length > 1) {
+    if (themeSettings.message_colors.length > 1) {
       // const w = getAccentColor(hsvTemp1, baseMessageOutBackgroundColor, myMessagesAccent);
 
       themeSettings.message_colors.slice(1).forEach((nextColor) => {
@@ -864,7 +864,7 @@ export class ThemeController {
 
     let newMessageOutBackgroundColor = mixColors(myMessagesAccent, surfaceForMessage, messageLightenAlpha);
 
-    if(!isNight/*  || true */) {
+    if (!isNight/*  || true */) {
       const messageOutBackgroundColorHsl = rgbaToHsla(...newMessageOutBackgroundColor);
       messageOutBackgroundColorHsl.s = Math.min(messageOutBackgroundColorHsl.s + (isNight ? 8 : 63), 100);
       newMessageOutBackgroundColor = hslaToRgba(messageOutBackgroundColorHsl.h, messageOutBackgroundColorHsl.s, messageOutBackgroundColorHsl.l, messageOutBackgroundColorHsl.a).slice(0, 3) as ColorRgb;
@@ -873,13 +873,13 @@ export class ThemeController {
     applyAppColor({
       name: 'message-out-background-color',
       hex: rgbaToHexa(newMessageOutBackgroundColor),
-      lightenAlpha: messageLightenAlpha
+      lightenAlpha: messageLightenAlpha,
     });
 
     applyAppColor({
       name: 'message-out-primary-color',
       hex: isNight ? '#ffffff' : rgbaToHexa(accentColor2 ? hsvToRgb(...accentColor2) : myMessagesAccent),
-      mixColor: newMessageOutBackgroundColor
+      mixColor: newMessageOutBackgroundColor,
     });
 
     // if(accentColor2) {
@@ -903,11 +903,11 @@ export class ThemeController {
       section_bg_color: 'surface-color',
       section_header_text_color: 'primary-color',
       subtitle_text_color: 'secondary-text-color',
-      destructive_text_color: 'danger-color'
+      destructive_text_color: 'danger-color',
     };
 
     const themeParams: TelegramWebViewTheme = {} as any;
-    for(const key in themePropertiesMap) {
+    for (const key in themePropertiesMap) {
       const value = themePropertiesMap[key as keyof TelegramWebViewTheme];
       themeParams[key as keyof TelegramWebViewTheme] = value[0] === '#' ? value : customProperties.getProperty(value as AppColorName);
     }

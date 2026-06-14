@@ -1,5 +1,5 @@
-import {Accessor, createEffect, createMemo} from 'solid-js';
-import {render} from 'solid-js/web';
+import { Accessor, createEffect, createMemo } from 'solid-js';
+import { render } from 'solid-js/web';
 
 import styles from './preview.module.scss';
 import classNames from '@helpers/string/classNames';
@@ -26,18 +26,18 @@ export type PreviewProps = {
 function Preview(props: PreviewProps) {
   createEffect<StoryboardFrame>((prevFrame) => {
     const storyboard = props.storyboard();
-    if(!props.visible() || !storyboard) {
+    if (!props.visible() || !storyboard) {
       return undefined as unknown as StoryboardFrame;
     }
 
     const time = props.time();
     const frame = storyboard.frames.find((frame) => time <= frame.time) ||
       storyboard.frames[storyboard.frames.length - 1];
-    if(prevFrame === frame) {
+    if (prevFrame === frame) {
       return prevFrame;
     }
 
-    const {width, height} = canvasRef!;
+    const { width, height } = canvasRef!;
     const context = canvasRef!.getContext('2d');
     context!.clearRect(0, 0, width, height);
     context!.drawImage(
@@ -64,7 +64,7 @@ function Preview(props: PreviewProps) {
       height={props.storyboard()?.frameHeight}
       style={props.storyboard() && {
         width: `${props.storyboard().frameWidth * 1.5}px`,
-        height: `${props.storyboard().frameHeight * 1.5}px`
+        height: `${props.storyboard().frameHeight * 1.5}px`,
       }}
     />
   );
@@ -89,6 +89,6 @@ export function createPreview(props: PreviewProps) {
 
   return {
     element,
-    dispose
+    dispose,
   };
 }

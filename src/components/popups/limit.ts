@@ -1,5 +1,5 @@
-import {LangPackKey} from '@lib/langPack';
-import {ApiLimitType} from '@appManagers/apiManagerMethods';
+import { LangPackKey } from '@lib/langPack';
+import { ApiLimitType } from '@appManagers/apiManagerMethods';
 import rootScope from '@lib/rootScope';
 import PopupPeer from '@components/popups/peer';
 import LimitLine from '@components/limit';
@@ -17,43 +17,43 @@ const a: {[type in ApiLimitType]?: {
     description: 'LimitReachedPinDialogs',
     descriptionPremium: 'LimitReachedPinDialogsPremium',
     descriptionLocked: 'LimitReachedPinDialogsLocked',
-    icon: 'limit_pin'
+    icon: 'limit_pin',
   },
   folders: {
     title: 'LimitReached',
     description: 'LimitReachedFolders',
     descriptionPremium: 'LimitReachedFoldersPremium',
     descriptionLocked: 'LimitReachedFoldersLocked',
-    icon: 'limit_folders'
+    icon: 'limit_folders',
   },
   folderPeers: {
     title: 'LimitReached',
     description: 'LimitReachedChatInFolders',
     descriptionPremium: 'LimitReachedChatInFoldersPremium',
     descriptionLocked: 'LimitReachedChatInFoldersLocked',
-    icon: 'limit_folders'
+    icon: 'limit_folders',
   },
   chatlistInvites: {
     title: 'LimitReached',
     description: 'LimitReachedSharedFolderInvites',
     descriptionPremium: 'LimitReachedSharedFolderInvitesPremium',
     descriptionLocked: 'LimitReachedSharedFolderInvitesLocked',
-    icon: 'limit_link'
+    icon: 'limit_link',
   },
   savedPin: {
     title: 'LimitReached',
     description: 'LimitReachedPinDialogs',
     descriptionPremium: 'LimitReachedPinDialogsPremium',
     descriptionLocked: 'LimitReachedPinDialogsLocked',
-    icon: 'limit_pin'
+    icon: 'limit_pin',
   },
   channels: {
     title: 'LimitReached',
     description: 'LimitReachedCommunities',
     descriptionPremium: 'LimitReachedCommunitiesPremium',
     descriptionLocked: 'LimitReachedCommunitiesLocked',
-    icon: 'limit_chat'
-  }
+    icon: 'limit_chat',
+  },
 };
 
 class P extends PopupPeer {
@@ -68,35 +68,35 @@ class P extends PopupPeer {
     super('popup-limit', {
       buttons: options.isPremium === undefined ? [{
         langKey: 'LimitReached.Ok',
-        isCancel: true
+        isCancel: true,
       }] : (options.isPremium ? [{
         langKey: 'OK',
-        isCancel: true
+        isCancel: true,
       }] : [{
         langKey: 'IncreaseLimit',
         callback: () => {
-          PopupPremium.show({feature: options.feature});
+          PopupPremium.show({ feature: options.feature });
         },
-        iconRight: 'premium_double'
+        iconRight: 'premium_double',
       }, {
         langKey: 'Cancel',
-        isCancel: true
+        isCancel: true,
       }]),
       descriptionLangKey: options.isPremium === undefined ? options.strings!.descriptionLocked : (options.isPremium ? options.strings!.descriptionPremium : options.strings!.description),
       descriptionLangArgs: options.isPremium ? [options.limitPremium] : [options.limit, options.limitPremium],
       titleLangKey: options.strings!.title,
-      body: !!options.popupRef
+      body: !!options.popupRef,
     });
 
     const limit = new LimitLine({
       limitPremium: options.limitPremium,
       hint: {
         icon: options.strings!.icon,
-        content: '' + (options.isPremium ? options.limitPremium : options.limit)
-      }
+        content: '' + (options.isPremium ? options.limitPremium : options.limit),
+      },
     });
 
-    if(options.isPremium !== undefined) {
+    if (options.isPremium !== undefined) {
       limit.setProgress(options.isPremium ? 1 : 0.5);
     } else {
       const limitLine = limit.container.querySelector('.limit-line');
@@ -126,7 +126,7 @@ export default async function showLimitPopup(
 
   const [appConfig, limit, limitPremium] = await Promise.all([
     rootScope.managers.apiManager.getAppConfig(),
-    ...[false, true].map((v) => rootScope.managers.apiManager.getLimit(type, v))
+    ...[false, true].map((v) => rootScope.managers.apiManager.getLimit(type, v)),
   ]);
   const isLocked = appConfig.premium_purchase_blocked;
   const popup = new P({
@@ -136,10 +136,10 @@ export default async function showLimitPopup(
     // feature: featureMap[type]
     feature,
     popupRef,
-    strings: a[type]
+    strings: a[type],
   });
 
-  if(popupRef) {
+  if (popupRef) {
     popupRef(popup);
   } else {
     popup.show();

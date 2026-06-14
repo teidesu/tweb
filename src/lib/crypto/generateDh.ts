@@ -1,26 +1,26 @@
 import type CallInstance from '@lib/calls/callInstance';
-import type {MessagesDhConfig} from '@layer';
+import type { MessagesDhConfig } from '@layer';
 import bigInt from 'big-integer';
-import {bigIntFromBytes} from '@helpers/bigInt/bigIntConversion';
+import { bigIntFromBytes } from '@helpers/bigInt/bigIntConversion';
 import addPadding from '@helpers/bytes/addPadding';
 import bytesFromHex from '@helpers/bytes/bytesFromHex';
 import cryptoWorker from '@lib/crypto/cryptoMessagePort';
-import {randomBytes} from '@helpers/random';
+import { randomBytes } from '@helpers/random';
 
 export default async function generateDh(dhConfig: MessagesDhConfig.messagesDhConfig): Promise<CallInstance['dh']> {
-  const {p, g} = dhConfig;
+  const { p, g } = dhConfig;
 
   const generateA = (p: Uint8Array) => {
-    for(;;) {
+    for (;;) {
       const a = randomBytes(p.length);
 
       const aBigInt = bigIntFromBytes(a);
-      if(!aBigInt.greater(bigInt.one)) {
+      if (!aBigInt.greater(bigInt.one)) {
         continue;
       }
 
       const pBigInt = bigIntFromBytes(p);
-      if(!aBigInt.lesser(pBigInt.subtract(bigInt.one))) {
+      if (!aBigInt.lesser(pBigInt.subtract(bigInt.one))) {
         continue;
       }
 
@@ -38,7 +38,7 @@ export default async function generateDh(dhConfig: MessagesDhConfig.messagesDhCo
     a: a,
     g_a: g_a,
     g_a_hash: g_a_hash,
-    p
+    p,
   };
 
   return dh;

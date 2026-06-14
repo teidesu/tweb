@@ -23,8 +23,8 @@
  * the bridge can be dropped — drop `<TopbarPlate>` straight into the JSX.
  */
 
-import {Accessor, createContext, createSignal, JSX, onCleanup, Ref, useContext} from 'solid-js';
-import {render} from 'solid-js/web';
+import { Accessor, createContext, createSignal, JSX, onCleanup, Ref, useContext } from 'solid-js';
+import { render } from 'solid-js/web';
 import classNames from '@helpers/string/classNames';
 import ripple from '@components/ripple';
 import Button from '@components/buttonTsx';
@@ -52,7 +52,7 @@ const TopbarPlate = (props: {
   children: JSX.Element
 }) => {
   return (
-    <PlateContext.Provider value={{modifier: props.modifier}}>
+    <PlateContext.Provider value={{ modifier: props.modifier }}>
       <div
         ref={props.ref}
         class={classNames(
@@ -251,7 +251,7 @@ export type CreateTopbarPlateOptions = {
 export const createTopbarPlate = (options: CreateTopbarPlateOptions): TopbarPlateController => {
   const [hidden, setHiddenSignal] = createSignal(options.initiallyHidden ?? true);
   const setHidden = (next: boolean) => {
-    if(hidden() === next) return;
+    if (hidden() === next) return;
     setHiddenSignal(next);
     options.onVisibilityChange?.(!next);
   };
@@ -266,7 +266,7 @@ export const createTopbarPlate = (options: CreateTopbarPlateOptions): TopbarPlat
       class={options.class?.()}
       ref={(el) => (plateEl = el)}
     >
-      {options.render({hidden, setHidden})}
+      {options.render({ hidden, setHidden })}
     </TopbarPlate>
   ), host);
 
@@ -279,6 +279,6 @@ export const createTopbarPlate = (options: CreateTopbarPlateOptions): TopbarPlat
     destroy: () => {
       dispose();
       plateEl?.remove();
-    }
+    },
   };
 };

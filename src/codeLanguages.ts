@@ -9,954 +9,954 @@ export const CodeLanguageMap: {[key: string]: string[]} = {
     'mathml',
     'ssml',
     'atom',
-    'rss'
+    'rss',
   ],
   'CSS': [
-    'css'
+    'css',
   ],
   'C-like': [
-    'clike'
+    'clike',
   ],
   'Regex': [
-    'regex'
+    'regex',
   ],
   'JavaScript': [
     'javascript',
-    'js'
+    'js',
   ],
   'ABAP': [
-    'abap'
+    'abap',
   ],
   'ABNF': [
-    'abnf'
+    'abnf',
   ],
   'ActionScript': [
-    'actionscript'
+    'actionscript',
   ],
   'Ada': [
-    'ada'
+    'ada',
   ],
   'Agda': [
-    'agda'
+    'agda',
   ],
   'AL': [
-    'al'
+    'al',
   ],
   'ANTLR4': [
     'antlr4',
-    'g4'
+    'g4',
   ],
   'Apache Configuration': [
-    'apacheconf'
+    'apacheconf',
   ],
   'SQL': [
-    'sql'
+    'sql',
   ],
   'Apex': [
-    'apex'
+    'apex',
   ],
   'APL': [
-    'apl'
+    'apl',
   ],
   'AppleScript': [
-    'applescript'
+    'applescript',
   ],
   'AQL': [
-    'aql'
+    'aql',
   ],
   'C': [
-    'c'
+    'c',
   ],
   'C++': [
-    'cpp'
+    'cpp',
   ],
   'Arduino': [
     'arduino',
-    'ino'
+    'ino',
   ],
   'ARFF': [
-    'arff'
+    'arff',
   ],
   'ARM Assembly': [
     'armasm',
-    'arm-asm'
+    'arm-asm',
   ],
   'Bash': [
     'bash',
     'sh',
-    'shell'
+    'shell',
   ],
   'YAML': [
     'yaml',
-    'yml'
+    'yml',
   ],
   'Markdown': [
     'markdown',
-    'md'
+    'md',
   ],
   'Arturo': [
     'arturo',
-    'art'
+    'art',
   ],
   'AsciiDoc': [
     'asciidoc',
-    'adoc'
+    'adoc',
   ],
   'C#': [
     'csharp',
     'cs',
-    'dotnet'
+    'dotnet',
   ],
   'ASP.NET (C#)': [
-    'aspnet'
+    'aspnet',
   ],
   '6502 Assembly': [
-    'asm6502'
+    'asm6502',
   ],
   'Atmel AVR Assembly': [
-    'asmatmel'
+    'asmatmel',
   ],
   'AutoHotkey': [
-    'autohotkey'
+    'autohotkey',
   ],
   'AutoIt': [
-    'autoit'
+    'autoit',
   ],
   'AviSynth': [
     'avisynth',
-    'avs'
+    'avs',
   ],
   'Avro IDL': [
     'avro-idl',
-    'avdl'
+    'avdl',
   ],
   'AWK': [
     'awk',
-    'gawk'
+    'gawk',
   ],
   'BASIC': [
-    'basic'
+    'basic',
   ],
   'Batch': [
-    'batch'
+    'batch',
   ],
   'BBcode': [
     'bbcode',
-    'shortcode'
+    'shortcode',
   ],
   'BBj': [
-    'bbj'
+    'bbj',
   ],
   'Bicep': [
-    'bicep'
+    'bicep',
   ],
   'Birb': [
-    'birb'
+    'birb',
   ],
   'Bison': [
-    'bison'
+    'bison',
   ],
   'BNF': [
     'bnf',
-    'rbnf'
+    'rbnf',
   ],
   'BQN': [
-    'bqn'
+    'bqn',
   ],
   'Brainfuck': [
-    'brainfuck'
+    'brainfuck',
   ],
   'BrightScript': [
-    'brightscript'
+    'brightscript',
   ],
   'Bro': [
-    'bro'
+    'bro',
   ],
   'CFScript': [
     'cfscript',
-    'cfc'
+    'cfc',
   ],
   'ChaiScript': [
-    'chaiscript'
+    'chaiscript',
   ],
   'CIL': [
-    'cil'
+    'cil',
   ],
   'Cilk/C': [
     'cilkc',
-    'cilk-c'
+    'cilk-c',
   ],
   'Cilk/C++': [
     'cilkcpp',
     'cilk-cpp',
-    'cilk'
+    'cilk',
   ],
   'Clojure': [
-    'clojure'
+    'clojure',
   ],
   'CMake': [
-    'cmake'
+    'cmake',
   ],
   'COBOL': [
-    'cobol'
+    'cobol',
   ],
   'CoffeeScript': [
     'coffeescript',
-    'coffee'
+    'coffee',
   ],
   'Concurnas': [
     'concurnas',
-    'conc'
+    'conc',
   ],
   'Content-Security-Policy': [
-    'csp'
+    'csp',
   ],
   'Cooklang': [
-    'cooklang'
+    'cooklang',
   ],
   'Ruby': [
     'ruby',
-    'rb'
+    'rb',
   ],
   'Crystal': [
-    'crystal'
+    'crystal',
   ],
   'CSV': [
-    'csv'
+    'csv',
   ],
   'CUE': [
-    'cue'
+    'cue',
   ],
   'Cypher': [
-    'cypher'
+    'cypher',
   ],
   'D': [
-    'd'
+    'd',
   ],
   'Dart': [
-    'dart'
+    'dart',
   ],
   'DataWeave': [
-    'dataweave'
+    'dataweave',
   ],
   'DAX': [
-    'dax'
+    'dax',
   ],
   'Dhall': [
-    'dhall'
+    'dhall',
   ],
   'Diff': [
-    'diff'
+    'diff',
   ],
   'Markup templating': [
-    'markup-templating'
+    'markup-templating',
   ],
   'Django/Jinja2': [
     'django',
-    'jinja2'
+    'jinja2',
   ],
   'DNS zone file': [
     'dns-zone-file',
-    'dns-zone'
+    'dns-zone',
   ],
   'Docker': [
     'docker',
-    'dockerfile'
+    'dockerfile',
   ],
   'DOT (Graphviz)': [
     'dot',
-    'gv'
+    'gv',
   ],
   'EBNF': [
-    'ebnf'
+    'ebnf',
   ],
   'EditorConfig': [
-    'editorconfig'
+    'editorconfig',
   ],
   'Eiffel': [
-    'eiffel'
+    'eiffel',
   ],
   'EJS': [
     'ejs',
-    'eta'
+    'eta',
   ],
   'Elixir': [
-    'elixir'
+    'elixir',
   ],
   'Elm': [
-    'elm'
+    'elm',
   ],
   'Lua': [
-    'lua'
+    'lua',
   ],
   'Embedded Lua templating': [
-    'etlua'
+    'etlua',
   ],
   'ERB': [
-    'erb'
+    'erb',
   ],
   'Erlang': [
-    'erlang'
+    'erlang',
   ],
   'Excel Formula': [
     'excel-formula',
     'xlsx',
-    'xls'
+    'xls',
   ],
   'F#': [
-    'fsharp'
+    'fsharp',
   ],
   'Factor': [
-    'factor'
+    'factor',
   ],
   'False': [
-    'false'
+    'false',
   ],
   'Firestore security rules': [
-    'firestore-security-rules'
+    'firestore-security-rules',
   ],
   'Flow': [
-    'flow'
+    'flow',
   ],
   'Fortran': [
-    'fortran'
+    'fortran',
   ],
   'FreeMarker Template Language': [
-    'ftl'
+    'ftl',
   ],
   'GameMaker Language': [
     'gml',
-    'gamemakerlanguage'
+    'gamemakerlanguage',
   ],
   'GAP (CAS)': [
-    'gap'
+    'gap',
   ],
   'G-code': [
-    'gcode'
+    'gcode',
   ],
   'GDScript': [
-    'gdscript'
+    'gdscript',
   ],
   'GEDCOM': [
-    'gedcom'
+    'gedcom',
   ],
   'gettext': [
     'gettext',
-    'po'
+    'po',
   ],
   'Git': [
-    'git'
+    'git',
   ],
   'GLSL': [
-    'glsl'
+    'glsl',
   ],
   'GN': [
     'gn',
-    'gni'
+    'gni',
   ],
   'GNU Linker Script': [
     'linker-script',
-    'ld'
+    'ld',
   ],
   'Go': [
-    'go'
+    'go',
   ],
   'Go module': [
     'go-module',
-    'go-mod'
+    'go-mod',
   ],
   'Gradle': [
-    'gradle'
+    'gradle',
   ],
   'GraphQL': [
-    'graphql'
+    'graphql',
   ],
   'Groovy': [
-    'groovy'
+    'groovy',
   ],
   'Less': [
-    'less'
+    'less',
   ],
   'Sass (SCSS)': [
-    'scss'
+    'scss',
   ],
   'Textile': [
-    'textile'
+    'textile',
   ],
   'Haml': [
-    'haml'
+    'haml',
   ],
   'Handlebars': [
     'handlebars',
     'hbs',
-    'mustache'
+    'mustache',
   ],
   'Haskell': [
     'haskell',
-    'hs'
+    'hs',
   ],
   'Haxe': [
-    'haxe'
+    'haxe',
   ],
   'HCL': [
-    'hcl'
+    'hcl',
   ],
   'HLSL': [
-    'hlsl'
+    'hlsl',
   ],
   'Hoon': [
-    'hoon'
+    'hoon',
   ],
   'HTTP Public-Key-Pins': [
-    'hpkp'
+    'hpkp',
   ],
   'HTTP Strict-Transport-Security': [
-    'hsts'
+    'hsts',
   ],
   'JSON': [
     'json',
-    'webmanifest'
+    'webmanifest',
   ],
   'URI': [
     'uri',
-    'url'
+    'url',
   ],
   'HTTP': [
-    'http'
+    'http',
   ],
   'IchigoJam': [
-    'ichigojam'
+    'ichigojam',
   ],
   'Icon': [
-    'icon'
+    'icon',
   ],
   'ICU Message Format': [
-    'icu-message-format'
+    'icu-message-format',
   ],
   'Idris': [
     'idris',
-    'idr'
+    'idr',
   ],
   '.ignore': [
     'ignore',
     'gitignore',
     'hgignore',
-    'npmignore'
+    'npmignore',
   ],
   'Inform 7': [
-    'inform7'
+    'inform7',
   ],
   'Ini': [
-    'ini'
+    'ini',
   ],
   'Io': [
-    'io'
+    'io',
   ],
   'J': [
-    'j'
+    'j',
   ],
   'Java': [
-    'java'
+    'java',
   ],
   'Scala': [
-    'scala'
+    'scala',
   ],
   'PHP': [
-    'php'
+    'php',
   ],
   'JavaDoc-like': [
-    'javadoclike'
+    'javadoclike',
   ],
   'JavaDoc': [
-    'javadoc'
+    'javadoc',
   ],
   'Java stack trace': [
-    'javastacktrace'
+    'javastacktrace',
   ],
   'Jolie': [
-    'jolie'
+    'jolie',
   ],
   'JQ': [
-    'jq'
+    'jq',
   ],
   'TypeScript': [
     'typescript',
-    'ts'
+    'ts',
   ],
   'JSDoc': [
-    'jsdoc'
+    'jsdoc',
   ],
   'N4JS': [
     'n4js',
-    'n4jsd'
+    'n4jsd',
   ],
   'JSON5': [
-    'json5'
+    'json5',
   ],
   'JSONP': [
-    'jsonp'
+    'jsonp',
   ],
   'JS stack trace': [
-    'jsstacktrace'
+    'jsstacktrace',
   ],
   'Julia': [
-    'julia'
+    'julia',
   ],
   'Keepalived Configure': [
-    'keepalived'
+    'keepalived',
   ],
   'Keyman': [
-    'keyman'
+    'keyman',
   ],
   'Kotlin': [
     'kotlin',
     'kt',
-    'kts'
+    'kts',
   ],
   'Kusto': [
-    'kusto'
+    'kusto',
   ],
   'LaTeX': [
     'latex',
     'tex',
-    'context'
+    'context',
   ],
   'Latte': [
-    'latte'
+    'latte',
   ],
   'Scheme': [
-    'scheme'
+    'scheme',
   ],
   'LilyPond': [
     'lilypond',
-    'ly'
+    'ly',
   ],
   'Liquid': [
-    'liquid'
+    'liquid',
   ],
   'Lisp': [
     'lisp',
     'emacs',
     'elisp',
-    'emacs-lisp'
+    'emacs-lisp',
   ],
   'LiveScript': [
-    'livescript'
+    'livescript',
   ],
   'LLVM IR': [
-    'llvm'
+    'llvm',
   ],
   'Log file': [
-    'log'
+    'log',
   ],
   'LOLCODE': [
-    'lolcode'
+    'lolcode',
   ],
   'Magma (CAS)': [
-    'magma'
+    'magma',
   ],
   'Makefile': [
-    'makefile'
+    'makefile',
   ],
   'Mata': [
-    'mata'
+    'mata',
   ],
   'MATLAB': [
-    'matlab'
+    'matlab',
   ],
   'MAXScript': [
-    'maxscript'
+    'maxscript',
   ],
   'MEL': [
-    'mel'
+    'mel',
   ],
   'Mermaid': [
-    'mermaid'
+    'mermaid',
   ],
   'METAFONT': [
-    'metafont'
+    'metafont',
   ],
   'Mizar': [
-    'mizar'
+    'mizar',
   ],
   'MongoDB': [
-    'mongodb'
+    'mongodb',
   ],
   'Monkey': [
-    'monkey'
+    'monkey',
   ],
   'MoonScript': [
     'moonscript',
-    'moon'
+    'moon',
   ],
   'N1QL': [
-    'n1ql'
+    'n1ql',
   ],
   'Nand To Tetris HDL': [
-    'nand2tetris-hdl'
+    'nand2tetris-hdl',
   ],
   'Naninovel Script': [
     'naniscript',
-    'nani'
+    'nani',
   ],
   'NASM': [
-    'nasm'
+    'nasm',
   ],
   'NEON': [
-    'neon'
+    'neon',
   ],
   'Nevod': [
-    'nevod'
+    'nevod',
   ],
   'nginx': [
-    'nginx'
+    'nginx',
   ],
   'Nim': [
-    'nim'
+    'nim',
   ],
   'Nix': [
-    'nix'
+    'nix',
   ],
   'NSIS': [
-    'nsis'
+    'nsis',
   ],
   'Objective-C': [
     'objectivec',
-    'objc'
+    'objc',
   ],
   'OCaml': [
-    'ocaml'
+    'ocaml',
   ],
   'Odin': [
-    'odin'
+    'odin',
   ],
   'OpenCL': [
-    'opencl'
+    'opencl',
   ],
   'OpenQasm': [
     'openqasm',
-    'qasm'
+    'qasm',
   ],
   'Oz': [
-    'oz'
+    'oz',
   ],
   'PARI/GP': [
-    'parigp'
+    'parigp',
   ],
   'Parser': [
-    'parser'
+    'parser',
   ],
   'Pascal': [
     'pascal',
-    'objectpascal'
+    'objectpascal',
   ],
   'Pascaligo': [
-    'pascaligo'
+    'pascaligo',
   ],
   'PATROL Scripting Language': [
-    'psl'
+    'psl',
   ],
   'PC-Axis': [
     'pcaxis',
-    'px'
+    'px',
   ],
   'PeopleCode': [
     'peoplecode',
-    'pcode'
+    'pcode',
   ],
   'Perl': [
-    'perl'
+    'perl',
   ],
   'PHPDoc': [
-    'phpdoc'
+    'phpdoc',
   ],
   'PlantUML': [
     'plant-uml',
-    'plantuml'
+    'plantuml',
   ],
   'PL/SQL': [
-    'plsql'
+    'plsql',
   ],
   'PowerQuery': [
     'powerquery',
     'pq',
-    'mscript'
+    'mscript',
   ],
   'PowerShell': [
-    'powershell'
+    'powershell',
   ],
   'Processing': [
-    'processing'
+    'processing',
   ],
   'Prolog': [
-    'prolog'
+    'prolog',
   ],
   'PromQL': [
-    'promql'
+    'promql',
   ],
   '.properties': [
-    'properties'
+    'properties',
   ],
   'Protocol Buffers': [
-    'protobuf'
+    'protobuf',
   ],
   'Stylus': [
-    'stylus'
+    'stylus',
   ],
   'Twig': [
-    'twig'
+    'twig',
   ],
   'Pug': [
-    'pug'
+    'pug',
   ],
   'Puppet': [
-    'puppet'
+    'puppet',
   ],
   'PureBasic': [
     'purebasic',
-    'pbfasm'
+    'pbfasm',
   ],
   'Python': [
     'python',
-    'py'
+    'py',
   ],
   'Q#': [
     'qsharp',
-    'qs'
+    'qs',
   ],
   'Q (kdb+ database)': [
-    'q'
+    'q',
   ],
   'QML': [
-    'qml'
+    'qml',
   ],
   'Qore': [
-    'qore'
+    'qore',
   ],
   'R': [
-    'r'
+    'r',
   ],
   'Racket': [
     'racket',
-    'rkt'
+    'rkt',
   ],
   'Razor C#': [
     'cshtml',
-    'razor'
+    'razor',
   ],
   'React JSX': [
-    'jsx'
+    'jsx',
   ],
   'React TSX': [
-    'tsx'
+    'tsx',
   ],
   'Reason': [
-    'reason'
+    'reason',
   ],
   'Rego': [
-    'rego'
+    'rego',
   ],
   'Ren\'py': [
     'renpy',
-    'rpy'
+    'rpy',
   ],
   'ReScript': [
     'rescript',
-    'res'
+    'res',
   ],
   'reST (reStructuredText)': [
-    'rest'
+    'rest',
   ],
   'Rip': [
-    'rip'
+    'rip',
   ],
   'Roboconf': [
-    'roboconf'
+    'roboconf',
   ],
   'Robot Framework': [
     'robotframework',
-    'robot'
+    'robot',
   ],
   'Rust': [
-    'rust'
+    'rust',
   ],
   'SAS': [
-    'sas'
+    'sas',
   ],
   'Sass (Sass)': [
-    'sass'
+    'sass',
   ],
   'Shell session': [
     'shell-session',
     'sh-session',
-    'shellsession'
+    'shellsession',
   ],
   'Smali': [
-    'smali'
+    'smali',
   ],
   'Smalltalk': [
-    'smalltalk'
+    'smalltalk',
   ],
   'Smarty': [
-    'smarty'
+    'smarty',
   ],
   'SML': [
     'sml',
-    'smlnj'
+    'smlnj',
   ],
   'Solidity (Ethereum)': [
     'solidity',
-    'sol'
+    'sol',
   ],
   'Solution file': [
     'solution-file',
-    'sln'
+    'sln',
   ],
   'Soy (Closure Template)': [
-    'soy'
+    'soy',
   ],
   'Splunk SPL': [
-    'splunk-spl'
+    'splunk-spl',
   ],
   'SQF: Status Quo Function (Arma 3)': [
-    'sqf'
+    'sqf',
   ],
   'Squirrel': [
-    'squirrel'
+    'squirrel',
   ],
   'Stan': [
-    'stan'
+    'stan',
   ],
   'Stata Ado': [
-    'stata'
+    'stata',
   ],
   'Structured Text (IEC 61131-3)': [
-    'iecst'
+    'iecst',
   ],
   'SuperCollider': [
     'supercollider',
-    'sclang'
+    'sclang',
   ],
   'Swift': [
-    'swift'
+    'swift',
   ],
   'Systemd configuration file': [
-    'systemd'
+    'systemd',
   ],
   'T4 templating': [
-    't4-templating'
+    't4-templating',
   ],
   'T4 Text Templates (C#)': [
     't4-cs',
-    't4'
+    't4',
   ],
   'VB.Net': [
-    'vbnet'
+    'vbnet',
   ],
   'T4 Text Templates (VB)': [
-    't4-vb'
+    't4-vb',
   ],
   'TAP': [
-    'tap'
+    'tap',
   ],
   'Tcl': [
-    'tcl'
+    'tcl',
   ],
   'Template Toolkit 2': [
-    'tt2'
+    'tt2',
   ],
   'TOML': [
-    'toml'
+    'toml',
   ],
   'Tremor': [
     'tremor',
     'trickle',
-    'troy'
+    'troy',
   ],
   'TypoScript': [
     'typoscript',
-    'tsconfig'
+    'tsconfig',
   ],
   'UnrealScript': [
     'unrealscript',
     'uscript',
-    'uc'
+    'uc',
   ],
   'UO Razor Script': [
-    'uorazor'
+    'uorazor',
   ],
   'V': [
-    'v'
+    'v',
   ],
   'Vala': [
-    'vala'
+    'vala',
   ],
   'Velocity': [
-    'velocity'
+    'velocity',
   ],
   'Verilog': [
-    'verilog'
+    'verilog',
   ],
   'VHDL': [
-    'vhdl'
+    'vhdl',
   ],
   'vim': [
-    'vim'
+    'vim',
   ],
   'Visual Basic': [
     'visual-basic',
     'vb',
-    'vba'
+    'vba',
   ],
   'WarpScript': [
-    'warpscript'
+    'warpscript',
   ],
   'WebAssembly': [
-    'wasm'
+    'wasm',
   ],
   'Web IDL': [
     'web-idl',
-    'webidl'
+    'webidl',
   ],
   'WGSL': [
-    'wgsl'
+    'wgsl',
   ],
   'Wiki markup': [
-    'wiki'
+    'wiki',
   ],
   'Wolfram language': [
     'wolfram',
     'mathematica',
     'nb',
-    'wl'
+    'wl',
   ],
   'Wren': [
-    'wren'
+    'wren',
   ],
   'Xeora': [
     'xeora',
-    'xeoracube'
+    'xeoracube',
   ],
   'Xojo (REALbasic)': [
-    'xojo'
+    'xojo',
   ],
   'XQuery': [
-    'xquery'
+    'xquery',
   ],
   'YANG': [
-    'yang'
+    'yang',
   ],
   'Zig': [
-    'zig'
-  ]
+    'zig',
+  ],
 };
 
 export const CodeLanguageAliases: {[key: string]: string} = {};
 
-for(const language in CodeLanguageMap) {
+for (const language in CodeLanguageMap) {
   const aliases = CodeLanguageMap[language];
   aliases.unshift(language.toLowerCase());
-  for(let i = 0, l = aliases.length; i < l; ++i) {
+  for (let i = 0, l = aliases.length; i < l; ++i) {
     CodeLanguageAliases[aliases[i]] = language;
   }
 }
@@ -964,9 +964,9 @@ for(const language in CodeLanguageMap) {
 function importPrismLanguage(language: string) {
   const lowerCase = language.toLowerCase();
   const aliases = CodeLanguageMap[CodeLanguageAliases[lowerCase]] || [];
-  for(const alias of aliases) {
-    if(prism.languages[alias]) {
-      return {language: alias, prism};
+  for (const alias of aliases) {
+    if (prism.languages[alias]) {
+      return { language: alias, prism };
     }
   }
 
@@ -975,19 +975,19 @@ function importPrismLanguage(language: string) {
 
 let prism: any;
 export function importPrism(language: string) {
-  if(prism) {
+  if (prism) {
     return callbackify(prism, () => importPrismLanguage(language));
   }
 
   const hadBefore = !!window.Prism;
-  if(!hadBefore) {
+  if (!hadBefore) {
     window.Prism = window.Prism || {} as any;
     window.Prism.manual = true;
   }
 
   return prism = import('./vendor/prism').then((module) => {
     const Prism = module.default;
-    if(!hadBefore) {
+    if (!hadBefore) {
       Prism.hooks.add('wrap', (env) => {
         env.classes.forEach((className, i, arr) => {
           arr[i] = 'prism-' + className;
@@ -1002,12 +1002,12 @@ export function importPrism(language: string) {
 
 export function highlightCode(code: string, _language: string) {
   return callbackify(importPrism(_language), (imported) => {
-    if(!imported) {
+    if (!imported) {
       console.error(`Language "${_language}" is not supported`, code);
       return;
     }
 
-    const {prism, language} = imported;
+    const { prism, language } = imported;
     const html: string = prism.highlight(code, prism.languages[language], language);
     return html;
   });

@@ -1,13 +1,13 @@
-import type {InputWebFileLocation, WebDocument} from '@layer';
-import type {MyDocument} from '@appManagers/appDocsManager';
-import type {MyPhoto} from '@appManagers/appPhotosManager';
-import {joinDeepPath} from '@helpers/object/setDeepProperty';
+import type { InputWebFileLocation, WebDocument } from '@layer';
+import type { MyDocument } from '@appManagers/appDocsManager';
+import type { MyPhoto } from '@appManagers/appPhotosManager';
+import { joinDeepPath } from '@helpers/object/setDeepProperty';
 import MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
-import {THUMB_TYPE_FULL} from '@appManagers/constants';
+import { THUMB_TYPE_FULL } from '@appManagers/constants';
 import generateEmptyThumb from '@lib/storages/utils/thumbs/generateEmptyThumb';
 import getStickerThumbKey from '@lib/storages/utils/thumbs/getStickerThumbKey';
 import getThumbKey from '@lib/storages/utils/thumbs/getThumbKey';
-import {AppManager} from '@appManagers/manager';
+import { AppManager } from '@appManagers/manager';
 
 export type ThumbCache = {
   downloaded: number,
@@ -57,7 +57,7 @@ export default class ThumbsStorage extends AppManager {
       // key: [key, thumbSize].filter(Boolean).join('.'),
       key: joinDeepPath(key, thumbSize),
       value,
-      accountNumber: this.getAccountNumber()
+      accountNumber: this.getAccountNumber(),
     });
   }
 
@@ -66,7 +66,7 @@ export default class ThumbsStorage extends AppManager {
       name: 'stickerThumbs',
       key,
       value,
-      accountNumber: this.getAccountNumber()
+      accountNumber: this.getAccountNumber(),
     });
   }
 
@@ -75,13 +75,13 @@ export default class ThumbsStorage extends AppManager {
     instance.invokeVoid('mirror', {
       name: 'thumbs',
       value: this.thumbsCache,
-      accountNumber: this.getAccountNumber()
+      accountNumber: this.getAccountNumber(),
     }, port);
 
     instance.invokeVoid('mirror', {
       name: 'stickerThumbs',
       value: this.stickerCachedThumbs,
-      accountNumber: this.getAccountNumber()
+      accountNumber: this.getAccountNumber(),
     }, port);
   }
 
@@ -105,7 +105,7 @@ export default class ThumbsStorage extends AppManager {
     key = getThumbKey(media)
   ) {
     const cache = this.thumbsCache[key];
-    if(cache) {
+    if (cache) {
       this.mirrorCacheContext(key, thumbSize);
       delete cache[thumbSize];
     }
@@ -118,23 +118,23 @@ export default class ThumbsStorage extends AppManager {
   public saveStickerPreview(docId: DocId, blob: Blob, width: number, height: number, toneIndex: number | string) {
     const key = getStickerThumbKey(docId, toneIndex);
     const thumb = this.stickerCachedThumbs[key];
-    if(thumb && thumb.w >= width && thumb.h >= height) {
+    if (thumb && thumb.w >= width && thumb.h >= height) {
       return;
     }
 
     const cache = this.stickerCachedThumbs[key] = {
       url: URL.createObjectURL(blob),
       w: width,
-      h: height
+      h: height,
     };
 
     this.mirrorStickerThumb(key, cache);
   }
 
   public clearColoredStickerThumbs() {
-    for(const key in this.stickerCachedThumbs) {
+    for (const key in this.stickerCachedThumbs) {
       const [, toneIndex] = key.split('-');
-      if(toneIndex && isNaN(+toneIndex)) {
+      if (toneIndex && isNaN(+toneIndex)) {
         const thumb = this.stickerCachedThumbs[key];
         URL.revokeObjectURL(thumb.url);
         delete this.stickerCachedThumbs[key];

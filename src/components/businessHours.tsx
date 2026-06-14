@@ -1,16 +1,16 @@
-import {createEffect, createSignal, For, on, untrack, JSX, onCleanup, getOwner, runWithOwner} from 'solid-js';
-import {Portal} from 'solid-js/web';
+import { createEffect, createSignal, For, on, untrack, JSX, onCleanup, getOwner, runWithOwner } from 'solid-js';
+import { Portal } from 'solid-js/web';
 import OpeningHours from '@helpers/openingHours';
-import {BusinessWorkHours, Timezone} from '@layer';
+import { BusinessWorkHours, Timezone } from '@layer';
 import Row from '@components/row';
-import I18n, {i18n} from '@lib/langPack';
-import {getWeekDays, ONE_DAY_MINUTES, ONE_WEEK_MINUTES} from '@helpers/date';
+import I18n, { i18n } from '@lib/langPack';
+import { getWeekDays, ONE_DAY_MINUTES, ONE_WEEK_MINUTES } from '@helpers/date';
 import rotateArray from '@helpers/array/rotate';
 import classNames from '@helpers/string/classNames';
 import findUpAsChild from '@helpers/dom/findUpAsChild';
 import ListenerSetter from '@helpers/listenerSetter';
-import {copyTextToClipboard} from '@helpers/clipboard';
-import {toastNew} from '@components/toast';
+import { copyTextToClipboard } from '@helpers/clipboard';
+import { toastNew } from '@components/toast';
 import Animated from '@helpers/solid/animations';
 
 export default function BusinessHours(props: {
@@ -43,7 +43,7 @@ export default function BusinessHours(props: {
     subtitleLangKey: 'BusinessHoursProfile',
     subtitleRight: true,
     clickable: (e) => {
-      if(findUpAsChild(((e.target as HTMLElement) as { parentElement: HTMLElement; }), switchElement!)) {
+      if (findUpAsChild(((e.target as HTMLElement) as { parentElement: HTMLElement; }), switchElement!)) {
         setShowInMyTimezone((value) => !value);
         runWithOwner(owner, () => {
           update();
@@ -52,7 +52,7 @@ export default function BusinessHours(props: {
         return;
       }
 
-      if(!is24x7()) {
+      if (!is24x7()) {
         setExpanded((value) => !value);
       }
     },
@@ -62,16 +62,16 @@ export default function BusinessHours(props: {
         text: 'Copy',
         onClick: () => {
           copyTextToClipboard(text()!);
-          toastNew({langPackKey: 'BusinessHoursCopied'});
-        }
-      }]
+          toastNew({ langPackKey: 'BusinessHoursCopied' });
+        },
+      }],
     },
-    listenerSetter
+    listenerSetter,
   });
 
   const updateContainerStyles = () => {
     let height: number;
-    if(expanded() && !is24x7()) {
+    if (expanded() && !is24x7()) {
       const rect = row.container.querySelector('.business-hours')!.getBoundingClientRect();
       height = rect.height;
     }
@@ -83,7 +83,7 @@ export default function BusinessHours(props: {
   createEffect(on(
     expanded,
     updateContainerStyles,
-    {defer: true}
+    { defer: true }
   ));
 
   const getUtcOffset = () => {
@@ -100,7 +100,7 @@ export default function BusinessHours(props: {
 
   const update = () => {
     const workHours = props.hours();
-    if(!workHours || !props.timezones()) {
+    if (!workHours || !props.timezones()) {
       return;
     }
 
@@ -113,34 +113,34 @@ export default function BusinessHours(props: {
     const isDifferentTimezone = !!utcOffset;
     const _showInMyTimezone = isDifferentTimezone ? untrack(showInMyTimezone) ?? false : true;
     const adaptedWeeklyOpen = OpeningHours.adaptWeeklyOpen(weeklyOpen, utcOffset);
-    const {openNow, nowPeriodTime, nowWeekday} = OpeningHours.isOpenNow(adaptedWeeklyOpen);
+    const { openNow, nowPeriodTime, nowWeekday } = OpeningHours.isOpenNow(adaptedWeeklyOpen);
 
     setShowInMyTimezone(isDifferentTimezone ? _showInMyTimezone : undefined);
 
     const formatDay = (day: Parameters<typeof OpeningHours['isFull']>[0], index: number) => {
-      if(OpeningHours.isFull(day)) {
+      if (OpeningHours.isFull(day)) {
         return [I18n.format('BusinessHoursProfileOpen', true)];
       }
 
-      if(!index && !openNow && !expanded()) {
+      if (!index && !openNow && !expanded()) {
         let opensPeriodTime = -1;
-        for(let j = 0; j < adaptedWeeklyOpen.length; ++j) {
+        for (let j = 0; j < adaptedWeeklyOpen.length; ++j) {
           const weekly = adaptedWeeklyOpen[j];
-          if(nowPeriodTime < weekly.start_minute) {
+          if (nowPeriodTime < weekly.start_minute) {
             opensPeriodTime = weekly.start_minute;
             break;
           }
         }
-        if(opensPeriodTime === -1 && adaptedWeeklyOpen.length) {
+        if (opensPeriodTime === -1 && adaptedWeeklyOpen.length) {
           opensPeriodTime = adaptedWeeklyOpen[0].start_minute;
         }
-        if(opensPeriodTime === -1) {
+        if (opensPeriodTime === -1) {
           return [I18n.format('BusinessHoursProfileClose', true)];
         } else {
           const diff = opensPeriodTime < nowPeriodTime ? opensPeriodTime + (ONE_WEEK_MINUTES - nowPeriodTime) : opensPeriodTime - nowPeriodTime;
-          if(diff < 60) {
+          if (diff < 60) {
             return [I18n.format('BusinessHoursProfileOpensInMinutes', true, [diff])];
-          } else if(diff < ONE_DAY_MINUTES) {
+          } else if (diff < ONE_DAY_MINUTES) {
             return [I18n.format('BusinessHoursProfileOpensInHours', true, [Math.ceil(diff / 60)])];
           } else {
             return [I18n.format('BusinessHoursProfileOpensInDays', true, [Math.ceil(diff / ONE_DAY_MINUTES)])];
@@ -149,7 +149,7 @@ export default function BusinessHours(props: {
       }
 
       const result = day.map((period) => period.toString());
-      if(!result.length) {
+      if (!result.length) {
         return [I18n.format('BusinessHoursProfileClose', true)];
       }
 
@@ -176,13 +176,13 @@ export default function BusinessHours(props: {
 
     row.subtitleRight.textContent = is24x7 ? I18n.format('BusinessHoursProfileFullOpen', true) : daysFormattedToUse[0][0];
 
-    if(is24x7) {
+    if (is24x7) {
       return;
     }
 
     const weekDays = rotateArray(getWeekDays(), nowWeekday);
     const key = daysFormattedToUse.map((day) => day.join('')).join('');
-    if(untrack(lastKey) === key) {
+    if (untrack(lastKey) === key) {
       return;
     }
 
@@ -195,7 +195,7 @@ export default function BusinessHours(props: {
       let textLine = weekDay + ': ';
       const textPeriods: string[] = day;
 
-      if(i === 0) {
+      if (i === 0) {
         day = day.slice(1);
       }
 

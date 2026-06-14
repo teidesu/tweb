@@ -1,4 +1,4 @@
-import {MessageEntity} from '@layer';
+import { MessageEntity } from '@layer';
 import findConflictingEntity from '@lib/richTextProcessor/findConflictingEntity';
 import sortEntities from '@lib/richTextProcessor/sortEntities';
 
@@ -16,12 +16,12 @@ export default function mergeEntities(currentEntities: MessageEntity[], newEntit
   // * fix splitted emoji. messageEntityTextUrl can split the emoji if starts before its end (e.g. on fe0f)
   // * have to fix even if emoji supported since it's being wrapped in span
   // if(!IS_EMOJI_SUPPORTED) {
-  for(let i = 0; i < currentEntities.length; ++i) {
+  for (let i = 0; i < currentEntities.length; ++i) {
     let entity = currentEntities[i];
-    if(entity._ === 'messageEntityEmoji') {
+    if (entity._ === 'messageEntityEmoji') {
       const nextEntity = currentEntities[i + 1];
-      if(nextEntity /* && nextEntity._ !== 'messageEntityCaret' */ && nextEntity.offset! < (entity.offset! + entity.length!)) {
-        entity = currentEntities[i] = {...entity};
+      if (nextEntity /* && nextEntity._ !== 'messageEntityCaret' */ && nextEntity.offset! < (entity.offset! + entity.length!)) {
+        entity = currentEntities[i] = { ...entity };
         entity.length = nextEntity.offset! - entity.offset!;
       }
     }

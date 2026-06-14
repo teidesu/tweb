@@ -2,8 +2,8 @@ import type Chat from '@components/chat/chat';
 import ListenerSetter from '@helpers/listenerSetter';
 import mediaSizes from '@helpers/mediaSizes';
 import preloadAnimatedEmojiSticker from '@helpers/preloadAnimatedEmojiSticker';
-import {MyDocument} from '@appManagers/appDocsManager';
-import {AppManagers} from '@lib/managers';
+import { MyDocument } from '@appManagers/appDocsManager';
+import { AppManagers } from '@lib/managers';
 import rootScope from '@lib/rootScope';
 import SuperStickerRenderer from '@components/emoticonsDropdown/tabs/SuperStickerRenderer';
 import LazyLoadQueue from '@components/lazyLoadQueue';
@@ -28,9 +28,9 @@ export default class StickersHelper extends AutocompleteHelper {
       controller,
       listType: 'xy',
       onSelect: async(target) => {
-        return !(await this.chat.input.emoticonsDropdown.onMediaClick({target}, true));
+        return !(await this.chat.input.emoticonsDropdown.onMediaClick({ target }, true));
       },
-      waitForKey: ['ArrowUp', 'ArrowDown']
+      waitForKey: ['ArrowUp', 'ArrowDown'],
     });
 
     this.container.classList.add('stickers-helper');
@@ -44,7 +44,7 @@ export default class StickersHelper extends AutocompleteHelper {
     });
 
     this.addEventListener('hidden', () => {
-      if(this.onChangeScreen) {
+      if (this.onChangeScreen) {
         mediaSizes.removeEventListener('changeScreen', this.onChangeScreen);
         this.onChangeScreen = undefined;
 
@@ -63,13 +63,13 @@ export default class StickersHelper extends AutocompleteHelper {
     this.managers.appStickersManager.getStickersByEmoticon({
       emoticon,
       includeOurStickers: true,
-      includeServerStickers: this.chat.appSettings.stickers.suggest === 'all'
+      includeServerStickers: this.chat.appSettings.stickers.suggest === 'all',
     }).then((stickers) => {
-      if(!middleware()) {
+      if (!middleware()) {
         return;
       }
 
-      if(this.init) {
+      if (this.init) {
         this.init();
         this.init = null as unknown as () => void;
       }
@@ -78,12 +78,12 @@ export default class StickersHelper extends AutocompleteHelper {
 
       let ready: Promise<void>;
 
-      if(stickers.length) {
+      if (stickers.length) {
         const lazyLoadQueue = new LazyLoadQueue();
         const superStickerRenderer = new SuperStickerRenderer({
           regularLazyLoadQueue: lazyLoadQueue,
           group: this.chat.animationGroup,
-          managers: this.managers
+          managers: this.managers,
         });
 
         ready = new Promise<void>((resolve) => {
@@ -107,7 +107,7 @@ export default class StickersHelper extends AutocompleteHelper {
         this.list.replaceWith(container);
         this.list = container;
 
-        if(!this.onChangeScreen) {
+        if (!this.onChangeScreen) {
           this.onChangeScreen = () => {
             const width = (this.list.childElementCount * mediaSizes.active.esgSticker.width) + (this.list.childElementCount - 1 * 1);
             this.list.style.width = width + 'px';
@@ -115,7 +115,7 @@ export default class StickersHelper extends AutocompleteHelper {
           mediaSizes.addEventListener('changeScreen', this.onChangeScreen);
 
           this.listenerSetter = new ListenerSetter();
-          attachStickerViewerListeners({listenTo: this.container, listenerSetter: this.listenerSetter});
+          attachStickerViewerListeners({ listenTo: this.container, listenerSetter: this.listenerSetter });
         }
 
         this.onChangeScreen();

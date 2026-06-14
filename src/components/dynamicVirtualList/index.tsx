@@ -15,15 +15,15 @@ import {
   onCleanup,
   type Ref,
   runWithOwner,
-  untrack
+  untrack,
 } from 'solid-js';
-import {Dynamic} from 'solid-js/web';
-import {requestRAF} from '@helpers/solid/requestRAF';
+import { Dynamic } from 'solid-js/web';
+import { requestRAF } from '@helpers/solid/requestRAF';
 import useElementSize from '@hooks/useElementSize';
-import {useIsCleaned} from '@hooks/useIsCleaned';
-import {useResizeObserver} from '@hooks/useResizeObserver';
-import {useScrollTop} from '@hooks/useScrollTop';
-import {lowerBound} from '@components/dynamicVirtualList/lowerBound';
+import { useIsCleaned } from '@hooks/useIsCleaned';
+import { useResizeObserver } from '@hooks/useResizeObserver';
+import { useScrollTop } from '@hooks/useScrollTop';
+import { lowerBound } from '@components/dynamicVirtualList/lowerBound';
 import styles from '@components/dynamicVirtualList/styles.module.scss';
 
 
@@ -81,7 +81,7 @@ const createListItemStates = <T, >(list: Accessor<T[]>) => {
       translate,
       setTranslate,
       idx,
-      needScrollAdjustment: false
+      needScrollAdjustment: false,
     };
   });
 
@@ -96,7 +96,7 @@ type CreateListHeightArgs<T> = {
   verticalPadding: Accessor<number>;
 };
 
-const createListHeight = <T, >({listItemStates, estimateItemHeight, verticalPadding}: CreateListHeightArgs<T>) => {
+const createListHeight = <T, >({ listItemStates, estimateItemHeight, verticalPadding }: CreateListHeightArgs<T>) => {
   const [height, setHeight] = createSignal(0);
 
   createComputed(() => {
@@ -133,7 +133,7 @@ const createVirtualRenderState = <T, >({
   maxBatchSize: batchSize,
   estimateItemHeight,
   verticalPadding,
-  renderAtLeastFromBottom
+  renderAtLeastFromBottom,
 }: CreateVirtualRenderStateArgs<T>) => {
   const scrollTop = useScrollTop(scrollable);
   const size = useElementSize(scrollable);
@@ -145,11 +145,11 @@ const createVirtualRenderState = <T, >({
   const [height, setHeight] = createListHeight({
     listItemStates,
     estimateItemHeight,
-    verticalPadding
+    verticalPadding,
   });
 
   const [renderedItems, setRenderedItems] = createSignal<ListItemState<T>[]>([], {
-    equals: (a, b) => a.length === b.length && a.every((item, i) => item === b[i])
+    equals: (a, b) => a.length === b.length && a.every((item, i) => item === b[i]),
   });
 
   // Here we care only by reference
@@ -173,8 +173,8 @@ const createVirtualRenderState = <T, >({
 
     let scrollTopAdjustment = 0;
 
-    for(const item of prevRenderedItems)
-      if(item.needScrollAdjustment) {
+    for (const item of prevRenderedItems)
+      if (item.needScrollAdjustment) {
         const height = untrack(item.cachedHeight) || 0;
         const heightDiff = height - item.prevCachedHeight;
         scrollTopAdjustment += heightDiff;
@@ -196,14 +196,14 @@ const createVirtualRenderState = <T, >({
         untrack(() => list[idx].offset() + (list[idx].cachedHeight() || 0)),
       );
 
-      const fromBottomIdx = list.length - renderAtLeastFromBottom({clientHeight: localClientHeight});
+      const fromBottomIdx = list.length - renderAtLeastFromBottom({ clientHeight: localClientHeight });
 
       i = Math.min(i, fromBottomIdx);
       i = Math.max(i, 0);
 
       currentOffset = untrack(() => list[i]?.offset()) || verticalPadding();
 
-      for(; i < list.length; i++) {
+      for (; i < list.length; i++) {
         const item = list[i];
 
         const height = untrack(item.cachedHeight) || 0;
@@ -220,21 +220,21 @@ const createVirtualRenderState = <T, >({
 
         const isVisible = (bottom > viewportTop || i >= fromBottomIdx) && top < viewportBottom;
 
-        if(!wasVisible && isVisible) queuedCount += 1;
+        if (!wasVisible && isVisible) queuedCount += 1;
 
         const tooManyQueued = queuedCount > localBatchSize;
 
-        if(!tooManyQueued && isVisible) {
+        if (!tooManyQueued && isVisible) {
           toRender.push(item);
           item.needScrollAdjustment = i < prevMinIdx;
-        } else if(toRender.length) break;
+        } else if (toRender.length) break;
 
         currentOffset += height;
       }
 
       toRender.forEach(item => void item.cachedHeight()); // the height will be recomputed immediately and rerun this effect (if there are changes)
 
-      if(Math.abs(scrollTopAdjustment) > scrollAdjustmentThreshold)
+      if (Math.abs(scrollTopAdjustment) > scrollAdjustmentThreshold)
         untrack(scrollable).scrollTop += scrollTopAdjustment;
 
       setHeight(prev => prev + totalHeightDiff);
@@ -251,7 +251,7 @@ const createVirtualRenderState = <T, >({
     renderedItems,
     onMeasure: () => {
       setTrackedRenderedItems(untrack(renderedItems));
-    }
+    },
   };
 };
 
@@ -262,7 +262,7 @@ type CreateItemComponentArgs<T, El extends HTMLElement> = {
 
 const createItemComponent = <T, El extends HTMLElement>({
   component,
-  measureElementHeight
+  measureElementHeight,
 }: CreateItemComponentArgs<T, El>) => {
   const registerResizeCallback = useResizeObserver();
 
@@ -274,7 +274,7 @@ const createItemComponent = <T, El extends HTMLElement>({
     const owner = getOwner();
     const isCleaned = useIsCleaned();
 
-    const {offset, setCachedHeight, idx} = props.item;
+    const { offset, setCachedHeight, idx } = props.item;
 
     const [stableOffset, setStableOffset] = createSignal(0);
     const [translation, setTranslation] = createSignal(0);
@@ -289,7 +289,7 @@ const createItemComponent = <T, El extends HTMLElement>({
     let afterMeasure = true;
 
     requestRAF(() => {
-      if(isCleaned()) return;
+      if (isCleaned()) return;
 
       // we're already in a batch
 
@@ -300,7 +300,7 @@ const createItemComponent = <T, El extends HTMLElement>({
       afterMeasure = true;
 
       runWithOwner(owner, () => {
-        registerResizeCallback(ref, ({size}) => {
+        registerResizeCallback(ref, ({ size }) => {
           // setCachedHeight(size.height);
           // Looks like the resize observer is giving a little bit different height, especially visible when scrolled to bottom then collapse one element
           setCachedHeight(measureElementHeight(ref));
@@ -310,14 +310,14 @@ const createItemComponent = <T, El extends HTMLElement>({
 
     createComputed(
       on(offset, () => {
-        if(afterMeasure) {
+        if (afterMeasure) {
           afterMeasure = false;
           setStableOffset(offset());
           return;
         }
 
         const diff = offset() - stableOffset();
-        if(!diff) return;
+        if (!diff) return;
 
         setTranslation(diff);
 
@@ -351,22 +351,22 @@ export const DynamicVirtualList = <T, El extends HTMLElement>(
   const props = mergeProps({
     nearBottomThreshold: 120,
     verticalPadding: 0,
-    renderAtLeastFromBottom: () => 0
+    renderAtLeastFromBottom: () => 0,
   }, inProps);
 
-  const {scrollTop, clientHeight, height, renderedItems, onMeasure} = createVirtualRenderState({
+  const { scrollTop, clientHeight, height, renderedItems, onMeasure } = createVirtualRenderState({
     list: () => props.list,
     estimateItemHeight: (...args) => props.estimateItemHeight(...args),
     maxBatchSize: () => props.maxBatchSize,
     scrollable: () => props.scrollable,
     verticalPadding: () => props.verticalPadding,
-    renderAtLeastFromBottom: (args) => props.renderAtLeastFromBottom(args)
+    renderAtLeastFromBottom: (args) => props.renderAtLeastFromBottom(args),
   });
 
   createEffect(() => {
-    if(!props.onNearBottom) return;
+    if (!props.onNearBottom) return;
 
-    if(scrollTop() + clientHeight() >= height() - props.nearBottomThreshold) {
+    if (scrollTop() + clientHeight() >= height() - props.nearBottomThreshold) {
       untrack(() => props.onNearBottom!());
     }
   })
@@ -376,11 +376,11 @@ export const DynamicVirtualList = <T, El extends HTMLElement>(
     measureElementHeight: (...args) => {
       onMeasure(); // we're batching inside the measure and it will set by the same reference, so it should be fine
       return props.measureElementHeight(...args)
-    }
+    },
   });
 
   return (
-    <div class={styles.Container} style={{'--height': `${height()}px`}}>
+    <div class={styles.Container} style={{ '--height': `${height()}px` }}>
       <For each={renderedItems()}>{item => <Item item={/* @once */ item} />}</For>
     </div>
   );

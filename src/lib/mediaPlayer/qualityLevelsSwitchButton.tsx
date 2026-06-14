@@ -1,16 +1,16 @@
-import {createEffect, createMemo, createSignal, Show, JSX} from 'solid-js';
-import {render} from 'solid-js/web';
-import type {Level} from 'hls.js';
+import { createEffect, createMemo, createSignal, Show, JSX } from 'solid-js';
+import { render } from 'solid-js/web';
+import type { Level } from 'hls.js';
 
-import {ButtonMenuItemOptionsVerifiable} from '@components/buttonMenu';
+import { ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
 import ButtonMenuToggle from '@components/buttonMenuToggle';
 import Icon from '@components/icon';
 import deferredPromise from '@helpers/cancellablePromise';
 
-import {hlsInstancesByVideo} from '@lib/hls/hlsInstancesByVideo';
-import {HlsStandardResolutionHeight} from '@lib/hls/types';
-import {snapQualityHeight} from '@lib/hls/snapQualityHeight';
-import {i18n, LangPackKey} from '@lib/langPack';
+import { hlsInstancesByVideo } from '@lib/hls/hlsInstancesByVideo';
+import { HlsStandardResolutionHeight } from '@lib/hls/types';
+import { snapQualityHeight } from '@lib/hls/snapQualityHeight';
+import { i18n, LangPackKey } from '@lib/langPack';
 
 type QualityLevelsSwitchButtonProps = {
   video: HTMLVideoElement;
@@ -39,7 +39,7 @@ function QualityLevelsSwitchButton(props: InternalQualityLevelsSwitchButtonProps
     },
     isMenuOpen: () => {
       return qualityLevelsButton().classList.contains('menu-open');
-    }
+    },
   };
 
   props.controlsRef(controls);
@@ -50,17 +50,17 @@ function QualityLevelsSwitchButton(props: InternalQualityLevelsSwitchButtonProps
   // });
 
   createEffect(() => {
-    if(qualityLevelsLoaded()) (async() => {
+    if (qualityLevelsLoaded()) (async() => {
       const options = await getButtonMenuQualityOptions(props.video, setSelectedHeight);
       setQualityLevelsMenuButtons(options);
     })();
   });
 
   createEffect(() => {
-    if(qualityLevelsLoaded()) {
+    if (qualityLevelsLoaded()) {
       qualityLevelsMenuButtons().forEach((btn) => btn.icon = undefined);
       const selectedMenuButton = qualityLevelsMenuButtons().find((btn) => btn.id === (selectedHeight() || 'auto'));
-      if(selectedMenuButton) selectedMenuButton.icon = 'check';
+      if (selectedMenuButton) selectedMenuButton.icon = 'check';
     }
   });
 
@@ -73,7 +73,7 @@ function QualityLevelsSwitchButton(props: InternalQualityLevelsSwitchButtonProps
     },
     onClose: () => {
       props.onMenuToggle?.(false);
-    }
+    },
   }));
 
   createEffect(() => {
@@ -111,7 +111,7 @@ export function createQualityLevelsSwitchButton(props: QualityLevelsSwitchButton
     get controls() {
       return controls;
     },
-    dispose
+    dispose,
   };
 }
 
@@ -133,13 +133,13 @@ async function getButtonMenuQualityOptions(
   onHeightSelect: (level?: HlsStandardResolutionHeight) => void
 ) {
   const hls = hlsInstancesByVideo.get(video);
-  if(!hls) return [];
+  if (!hls) return [];
 
   const deferredLevels = deferredPromise<Level[]>();
 
-  const {default: Hls} = await import('hls.js');
+  const { default: Hls } = await import('hls.js');
 
-  if(hls.levels && hls.levels.length > 0) {
+  if (hls.levels && hls.levels.length > 0) {
     deferredLevels.resolve(hls.levels);
   } else hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
     deferredLevels.resolve(data.levels);
@@ -148,16 +148,16 @@ async function getButtonMenuQualityOptions(
   const levels = await deferredLevels;
 
   const availableHeights = Array.from(new Set(levels.map((level) => snapQualityHeight(level.height))))
-  .sort((a, b) => b - a);
+    .sort((a, b) => b - a);
 
   const qualityButtons = availableHeights.map((height): ButtonMenuItemOptionsVerifiable => {
     const levelsOfThisHeight = levels.filter((level) => snapQualityHeight(level.height) === height)
-    .sort((a, b) => a.bitrate - b.bitrate);
+      .sort((a, b) => a.bitrate - b.bitrate);
 
     const onClick = () => {
       let optimalLevel = levelsOfThisHeight[0];
-      for(const level of levelsOfThisHeight) {
-        if(level.bitrate < hls.bandwidthEstimate) optimalLevel = level;
+      for (const level of levelsOfThisHeight) {
+        if (level.bitrate < hls.bandwidthEstimate) optimalLevel = level;
       }
       const idx = levels.indexOf(optimalLevel);
 
@@ -170,7 +170,7 @@ async function getButtonMenuQualityOptions(
       id: height,
       emptyIcon: true,
       regularText: ButtonMenuItemQualityText(height) as HTMLElement,
-      onClick
+      onClick,
     };
   });
 
@@ -183,9 +183,9 @@ async function getButtonMenuQualityOptions(
         hls.currentLevel = -1;
         onHeightSelect();
       // hls.autoLevelCapping = -1;
-      }
+      },
     },
-    ...qualityButtons
+    ...qualityButtons,
   ];
 
   return result;

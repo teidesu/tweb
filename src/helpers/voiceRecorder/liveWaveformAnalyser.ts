@@ -28,23 +28,23 @@ export default class LiveWaveformAnalyser {
   }
 
   private onAudioProcess = (e: AudioProcessingEvent) => {
-    if(this.finished || this.paused) return;
+    if (this.finished || this.paused) return;
 
     const channel = e.inputBuffer.getChannelData(0);
     let peak = 0;
-    for(let i = 0; i < channel.length; ++i) {
+    for (let i = 0; i < channel.length; ++i) {
       const v = Math.abs(channel[i]);
-      if(v > peak) peak = v;
+      if (v > peak) peak = v;
     }
     this.onpeak(peak);
   };
 
   public destroy() {
-    if(this.finished) return;
+    if (this.finished) return;
     this.finished = true;
     try {
       this.sourceNode.disconnect(this.scriptProcessor);
-    } catch(e) {}
+    } catch (e) {}
     this.scriptProcessor.disconnect();
     this.scriptProcessor.onaudioprocess = null;
   }

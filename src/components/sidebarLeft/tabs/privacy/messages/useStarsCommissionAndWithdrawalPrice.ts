@@ -1,4 +1,4 @@
-import {Accessor, createMemo} from 'solid-js';
+import { Accessor, createMemo } from 'solid-js';
 import useAppConfig from '@components/sidebarLeft/tabs/privacy/messages/useAppConfig';
 
 
@@ -9,7 +9,7 @@ type Options = {
 
 const useStarsCommissionAndWithdrawalPrice = (stars: Accessor<number>, {
   commissionKey = 'stars_paid_message_commission_permille',
-  withdrawRateKey = 'stars_usd_withdraw_rate_x1000'
+  withdrawRateKey = 'stars_usd_withdraw_rate_x1000',
 }: Options = {}) => {
   const [appConfig] = useAppConfig();
 
@@ -21,7 +21,7 @@ const useStarsCommissionAndWithdrawalPrice = (stars: Accessor<number>, {
 
   return {
     commissionPercents,
-    willReceiveDollars
+    willReceiveDollars,
   }
 };
 

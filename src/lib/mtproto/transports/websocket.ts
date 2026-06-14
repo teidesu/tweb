@@ -1,7 +1,7 @@
-import {logger, LogTypes} from '@lib/logger';
+import { logger, LogTypes } from '@lib/logger';
 import Modes from '@config/modes';
 import EventListenerBase from '@helpers/eventListenerBase';
-import {MTConnection} from '@lib/mtproto/transports/transport';
+import { MTConnection } from '@lib/mtproto/transports/transport';
 import ctx from '@environment/ctx';
 
 const TEST_NO_WEBSOCKET = false;
@@ -22,19 +22,19 @@ export default class Socket extends EventListenerBase<{
   constructor(protected dcId: number, protected url: string, logSuffix: string) {
     super();
 
-    if(TEST_NO_WEBSOCKET) {
+    if (TEST_NO_WEBSOCKET) {
       this.url = url = 'wss://localhost:8081';
     }
 
     let logTypes = LogTypes.Error | LogTypes.Log;
-    if(this.debug) logTypes |= LogTypes.Debug;
+    if (this.debug) logTypes |= LogTypes.Debug;
     this.log = logger(`WS-${dcId}` + logSuffix, logTypes);
     this.log('constructor');
     this.connect();
   }
 
   private removeListeners() {
-    if(!this.ws) {
+    if (!this.ws) {
       return;
     }
 
@@ -66,7 +66,7 @@ export default class Socket extends EventListenerBase<{
   }
 
   public close() {
-    if(!this.ws) {
+    if (!this.ws) {
       return;
     }
 
@@ -74,7 +74,7 @@ export default class Socket extends EventListenerBase<{
 
     try {
       this.ws.close();
-    } catch(err) {
+    } catch (err) {
 
     }
     this.handleClose();

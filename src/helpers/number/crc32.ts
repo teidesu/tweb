@@ -6,9 +6,9 @@
 
 const CRC32_TABLE = (() => {
   const table = new Uint32Array(256);
-  for(let i = 0; i < 256; i++) {
+  for (let i = 0; i < 256; i++) {
     let c = i;
-    for(let j = 0; j < 8; j++) {
+    for (let j = 0; j < 8; j++) {
       c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
     }
     table[i] = c >>> 0;
@@ -18,7 +18,7 @@ const CRC32_TABLE = (() => {
 
 export default function crc32(data: Uint8Array): number {
   let crc = 0xffffffff;
-  for(let i = 0; i < data.length; i++) {
+  for (let i = 0; i < data.length; i++) {
     crc = (crc >>> 8) ^ CRC32_TABLE[(crc & 0xff) ^ data[i]];
   }
   return (crc ^ 0xffffffff) >>> 0;

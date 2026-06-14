@@ -1,8 +1,8 @@
-import {IconTsx} from '@components/iconTsx';
+import { IconTsx } from '@components/iconTsx';
 import styles from '@components/sidebarRight/tabs/adminRecentActions/logEntry.module.scss';
-import {formatDate} from '@helpers/date';
-import {HeightTransition} from '@helpers/solid/heightTransition';
-import {createSignal, JSX, Show} from 'solid-js';
+import { formatDate } from '@helpers/date';
+import { HeightTransition } from '@helpers/solid/heightTransition';
+import { createSignal, JSX, Show } from 'solid-js';
 
 
 type LogEntryProps = {
@@ -24,7 +24,7 @@ export const LogEntry = (props: LogEntryProps) => {
 
   return (
     <div class={styles.Container} onClick={(e) => {
-      if(e.target.closest('.interactable')) return;
+      if (e.target.closest('.interactable')) return;
       !hasRunningAnimations() && props.onExpandedChange?.(!props.expanded);
     }}>
       <div class={styles.Header}>
@@ -45,7 +45,7 @@ export const LogEntry = (props: LogEntryProps) => {
           </HeightTransition>
         </div>
         <div class={styles.Date}>
-          {formatDate(props.date, {withTime: true, shortMonth: true})}
+          {formatDate(props.date, { withTime: true, shortMonth: true })}
         </div>
       </div>
       <HeightTransition scale>
@@ -53,7 +53,7 @@ export const LogEntry = (props: LogEntryProps) => {
           <div class={styles.ExpandableContentWrapper}>
             <div class={styles.ExpandableContent}>
               <div class={styles.ExpandableContentTitle} classList={{
-                [styles.offset]: props.offsetTitle
+                [styles.offset]: props.offsetTitle,
               }}>
                 {props.message}
               </div>

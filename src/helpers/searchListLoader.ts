@@ -1,14 +1,14 @@
-import type {MediaSearchContext} from '@components/appMediaPlaybackController';
-import type {SearchSuperContext} from '@components/appSearchSuper';
-import type {Message} from '@layer';
-import type {MessagesStorageKey, MyMessage} from '@appManagers/appMessagesManager';
-import {AppManagers} from '@lib/managers';
-import {isMessageSensitive} from '@appManagers/utils/messages/isMessageRestricted';
+import type { MediaSearchContext } from '@components/appMediaPlaybackController';
+import type { SearchSuperContext } from '@components/appSearchSuper';
+import type { Message } from '@layer';
+import type { MessagesStorageKey, MyMessage } from '@appManagers/appMessagesManager';
+import { AppManagers } from '@lib/managers';
+import { isMessageSensitive } from '@appManagers/utils/messages/isMessageRestricted';
 import apiManagerProxy from '@lib/apiManagerProxy';
-import rootScope, {BroadcastEvents} from '@lib/rootScope';
+import rootScope, { BroadcastEvents } from '@lib/rootScope';
 import forEachReverse from '@helpers/array/forEachReverse';
 import filterChatPhotosMessages from '@helpers/filterChatPhotosMessages';
-import ListLoader, {ListLoaderOptions} from '@helpers/listLoader';
+import ListLoader, { ListLoaderOptions } from '@helpers/listLoader';
 
 export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}> extends ListLoader<Item, Message.message> {
   public searchContext: MediaSearchContext | undefined;
@@ -28,7 +28,7 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
         const backLimit = older ? 0 : loadCount;
         let offsetId = anchor?.mid ?? this.searchContext!.maxId;
 
-        if(!older) offsetId = await this.managers.appMessagesIdsManager.incrementMessageId(offsetId, 1);
+        if (!older) offsetId = await this.managers.appMessagesIdsManager.incrementMessageId(offsetId, 1);
 
         const peerId = this.searchContext!.peerId || anchor?.peerId;
 
@@ -38,35 +38,35 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
           offsetId,
           offsetPeerId: !peerId ? anchor?.peerId : undefined,
           limit: backLimit ? 0 : loadCount,
-          backLimit
+          backLimit,
         }).then((value) => {
           /* if(DEBUG) {
             this.log('loaded more media by maxId:', maxId, value, older, this.reverse);
           } */
 
-          if(this.searchContext!.inputFilter._ === 'inputMessagesFilterChatPhotos') {
+          if (this.searchContext!.inputFilter._ === 'inputMessagesFilterChatPhotos') {
             filterChatPhotosMessages(value);
           }
 
-          if(value.nextRate) {
+          if (value.nextRate) {
             this.searchContext!.nextRate = value.nextRate;
           }
 
-          if(!value.messages) {
+          if (!value.messages) {
             value.messages = (value.history.map((mid) => apiManagerProxy.getMessageByPeer(peerId, mid)) as MyMessage[] | undefined);
           }
 
-          return {count: value.count, items: value.messages as unknown as Item[]};
+          return { count: value.count, items: value.messages as unknown as Item[] };
         });
       },
       processItem: (async(message: Message.message) => {
         const filtered = await this.filterMids([message.mid!]);
-        if(!filtered.length) {
+        if (!filtered.length) {
           return undefined!;
         }
 
         return options.processItem!(message) as Promise<Item>;
-      }) as any
+      }) as any,
     });
 
     this.managers ??= rootScope.managers;
@@ -74,10 +74,10 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
     rootScope.addEventListener('history_multiappend', this.onHistoryMultiappend);
     rootScope.addEventListener('message_sent', this.onMessageSent);
 
-    if(!options.isInner) {
+    if (!options.isInner) {
       this.otherSideLoader = new SearchListLoader({
         ...options,
-        isInner: true
+        isInner: true,
       });
 
       // this.otherSideLoader.onLoadedMore = () => {
@@ -89,16 +89,16 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
   protected async filterMids(mids: number[]) {
     const storageKey: MessagesStorageKey = `${this.searchContext!.peerId}_${this.searchContext!.isScheduled ? 'scheduled' : 'history'}`;
     let filtered = (await this.managers.appMessagesManager.filterMessagesByInputFilterFromStorage(this.searchContext!.inputFilter._, mids, storageKey, mids.length)) as Message.message[];
-    if(this.searchContext!.skipSensitive) {
+    if (this.searchContext!.skipSensitive) {
       filtered = filtered.filter((message) => !isMessageSensitive(message));
     }
     return filtered;
   }
 
-  protected onHistoryDelete = ({peerId, msgs}: BroadcastEvents['history_delete']) => {
+  protected onHistoryDelete = ({ peerId, msgs }: BroadcastEvents['history_delete']) => {
     const shouldBeDeleted = (item: Item) => item.peerId === peerId && msgs.has(item.mid);
     const filter = (item: Item, idx: number, arr: Item[]) => {
-      if(shouldBeDeleted(item)) {
+      if (shouldBeDeleted(item)) {
         arr.splice(idx, 1);
       }
     };
@@ -106,78 +106,78 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
     forEachReverse(this.previous, filter as (value: Item, index?: number, array?: Item[]) => void);
     forEachReverse(this.next, filter as (value: Item, index?: number, array?: Item[]) => void);
 
-    if(this.current && shouldBeDeleted(this.current)) {
+    if (this.current && shouldBeDeleted(this.current)) {
       this.current = undefined;
       /* if(this.go(1)) {
         this.previous.splice(this.previous.length - 1, 1);
       } else if(this.go(-1)) {
         this.next.splice(0, 1);
-      } else  */if(this.onEmptied) {
+      } else  */if (this.onEmptied) {
         this.onEmptied();
       }
     }
   };
 
   protected onHistoryMultiappend = async(message: Message.message | Message.messageService) => {
-    const {searchContext} = this;
-    if(searchContext!.folderId !== undefined) {
+    const { searchContext } = this;
+    if (searchContext!.folderId !== undefined) {
       return;
     }
 
     // because it's reversed
-    if(!this.loadedAllUp || this.loadPromiseUp) {
+    if (!this.loadedAllUp || this.loadPromiseUp) {
       return;
     }
 
-    if(message.peerId !== searchContext!.peerId) {
+    if (message.peerId !== searchContext!.peerId) {
       return;
     }
 
     const filtered = await this.filterMids([message.mid!]);
-    if(this.searchContext !== searchContext) return;
+    if (this.searchContext !== searchContext) return;
     const targets = (await Promise.all(filtered.map((message) => this.processItem(message)))).filter(Boolean);
-    if(this.searchContext !== searchContext) return;
-    if(!targets.length) {
+    if (this.searchContext !== searchContext) return;
+    if (!targets.length) {
       return;
     }
 
     // * it can be already added because of `message_sent`
     const allTargets = this.previous.concat(this.next, this.current ? [this.current] : []);
-    if(allTargets.some((item) => item?.mid === message.mid)) {
+    if (allTargets.some((item) => item?.mid === message.mid)) {
       return;
     }
 
-    if(!this.current) {
+    if (!this.current) {
       this.previous.push(...targets);
     } else {
       this.next.push(...targets);
     }
   };
 
-  protected onMessageSent = ({message}: {message: MyMessage}) => {
+  protected onMessageSent = ({ message }: {message: MyMessage}) => {
     this.onHistoryMultiappend(message);
   };
 
   public setSearchContext(context: SearchSuperContext) {
     this.searchContext = context;
 
-    if(this.searchContext.folderId !== undefined) {
+    if (this.searchContext.folderId !== undefined) {
       this.loadedAllUp = true;
 
-      if(this.searchContext.nextRate === undefined) {
+      if (this.searchContext.nextRate === undefined) {
         this.loadedAllDown = true;
       }
     }
 
-    if(this.searchContext.inputFilter._ === 'inputMessagesFilterChatPhotos') {
+    if (this.searchContext.inputFilter._ === 'inputMessagesFilterChatPhotos') {
       this.loadedAllUp = true;
     }
 
-    if(this.searchContext.useSearch === false) {
+    if (this.searchContext.useSearch === false) {
       this.loadedAllDown = this.loadedAllUp = true;
     }
 
-    if(this.otherSideLoader) {
+    if (this.otherSideLoader) {
       this.otherSideLoader.setSearchContext(context);
     }
   }
@@ -186,7 +186,7 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
     super.reset();
     this.searchContext = undefined;
 
-    if(this.otherSideLoader) {
+    if (this.otherSideLoader) {
       this.otherSideLoader.reset();
     }
   }
@@ -194,7 +194,7 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
   public getPrevious(withOtherSide?: boolean) {
     let previous = this.previous;
 
-    if(this.otherSideLoader && withOtherSide) {
+    if (this.otherSideLoader && withOtherSide) {
       previous = previous.concat(this.otherSideLoader.previous);
     }
 
@@ -204,7 +204,7 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
   public getNext(withOtherSide?: boolean) {
     let next = this.next;
 
-    if(this.otherSideLoader && withOtherSide) {
+    if (this.otherSideLoader && withOtherSide) {
       next = next.concat(this.otherSideLoader.next);
     }
 
@@ -216,28 +216,28 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
   }
 
   private goToOtherEnd(length: number) {
-    if(length > 0) return this.go(-this.previous.length);
+    if (length > 0) return this.go(-this.previous.length);
     else return this.go(this.next.length);
   }
 
   public goRound(length: number, dispatchJump?: boolean) {
     let ret: ReturnType<SearchListLoader<Item>['goUnsafe']>;
 
-    if(this.otherSideLoader?.current) {
+    if (this.otherSideLoader?.current) {
       ret = this.otherSideLoader.goUnsafe(length, dispatchJump);
-      if(ret.item) {
+      if (ret.item) {
         return ret.item;
       }
 
       length = ret.leftLength;
-      if(!(length > 0 ? this.otherSideLoader.next : this.otherSideLoader.previous).length) {
+      if (!(length > 0 ? this.otherSideLoader.next : this.otherSideLoader.previous).length) {
         const loaded = length > 0 ? this.otherSideLoader.loadedAllUp : this.otherSideLoader.loadedAllDown;
-        if(!loaded) { // do not reset anything until it's loaded
+        if (!loaded) { // do not reset anything until it's loaded
           return;
         }
 
         // if other side is loaded too will start from its begin
-        if((length > 0 && (this.otherSideLoader.searchContext!.maxId === 1 || this.otherSideLoader.loadedAllDown)) ||
+        if ((length > 0 && (this.otherSideLoader.searchContext!.maxId === 1 || this.otherSideLoader.loadedAllDown)) ||
           (length < 0 && (this.otherSideLoader.searchContext!.maxId === 0 || this.otherSideLoader.loadedAllUp))) {
           return this.otherSideLoader.goToOtherEnd(length);
         }
@@ -247,14 +247,14 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
     }
 
     ret = this.goUnsafe(length, dispatchJump);
-    if(!ret.item) {
-      if(this.loadedAllUp && this.loadedAllDown) { // just use the same loader if the list is too short
+    if (!ret.item) {
+      if (this.loadedAllUp && this.loadedAllDown) { // just use the same loader if the list is too short
         return this.goToOtherEnd(length);
-      } else if(this.otherSideLoader) {
+      } else if (this.otherSideLoader) {
         length = ret.leftLength;
         ret = this.otherSideLoader.goUnsafe(length, dispatchJump);
 
-        if(ret.item) {
+        if (ret.item) {
           this.unsetCurrent(length > 0);
         }
       }
@@ -274,7 +274,7 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
   protected setLoaded(down: boolean, value: boolean) {
     const changed = super.setLoaded(down, value);
 
-    if(changed &&
+    if (changed &&
       this.otherSideLoader &&
       value &&
       this.searchContext?.useSearch !== false/*  &&
@@ -282,7 +282,7 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
       const reverse = this.loadedAllUp;
       this.otherSideLoader.setSearchContext(({
         ...this.searchContext,
-        maxId: reverse ? 1 : 0
+        maxId: reverse ? 1 : 0,
       } as SearchSuperContext));
 
       // these 'reverse' are different, not a mistake here.
@@ -301,7 +301,7 @@ export default class SearchListLoader<Item extends {mid: number, peerId: PeerId}
     rootScope.removeEventListener('message_sent', this.onMessageSent);
     this.onEmptied = undefined;
 
-    if(this.otherSideLoader) {
+    if (this.otherSideLoader) {
       this.otherSideLoader.cleanup();
       this.otherSideLoader = undefined;
     }

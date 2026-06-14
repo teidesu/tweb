@@ -1,11 +1,11 @@
-import {Component, onMount} from 'solid-js';
+import { Component, onMount } from 'solid-js';
 import assumeType from '@helpers/assumeType';
 import createContextMenu from '@helpers/dom/createContextMenu';
 import positionElementByIndex from '@helpers/dom/positionElementByIndex';
 import Sortable from '@helpers/dom/sortable';
-import {joinDeepPath} from '@helpers/object/setDeepProperty';
-import {StickerSet, MessagesAllStickers} from '@layer';
-import {i18n, LangPackKey} from '@lib/langPack';
+import { joinDeepPath } from '@helpers/object/setDeepProperty';
+import { StickerSet, MessagesAllStickers } from '@layer';
+import { i18n, LangPackKey } from '@lib/langPack';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
 import rootScope from '@lib/rootScope';
 import CheckboxField from '@components/checkboxField';
@@ -15,11 +15,11 @@ import Row from '@components/row';
 import SettingSection from '@components/settingSection';
 import wrapStickerSetThumb from '@components/wrappers/stickerSetThumb';
 import wrapStickerToRow from '@components/wrappers/stickerToRow';
-import {AppQuickReactionTab} from '@components/solidJsTabs/tabs';
-import {useAppSettings} from '@stores/appSettings';
-import {getStickerSetInputById} from '@lib/appManagers/utils/stickers/getStickerSetInput';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {usePromiseCollector} from '@components/solidJsTabs/promiseCollector';
+import { AppQuickReactionTab } from '@components/solidJsTabs/tabs';
+import { useAppSettings } from '@stores/appSettings';
+import { getStickerSetInputById } from '@lib/appManagers/utils/stickers/getStickerSetInput';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
 
 const StickersAndEmoji: Component = () => {
   const [tab] = useSuperTab();
@@ -31,26 +31,26 @@ const StickersAndEmoji: Component = () => {
 
     let p = {
       allStickers: tab.managers.appStickersManager.getAllStickers(),
-      quickReaction: tab.managers.appReactionsManager.getQuickReaction()
+      quickReaction: tab.managers.appReactionsManager.getQuickReaction(),
     };
 
     const promises: Promise<any>[] = [];
 
     {
-      const section = new SettingSection({caption: 'LoopAnimatedStickersInfo'});
+      const section = new SettingSection({ caption: 'LoopAnimatedStickersInfo' });
 
       const suggestStickersRow = new Row({
         icon: 'lamp',
         titleLangKey: 'Stickers.SuggestStickers',
         clickable: true,
         listenerSetter: tab.listenerSetter,
-        titleRightSecondary: true
+        titleRightSecondary: true,
       });
 
       const map: {[k in typeof appSettings.stickers.suggest]: LangPackKey} = {
         all: 'SuggestStickersAll',
         installed: 'SuggestStickersInstalled',
-        none: 'SuggestStickersNone'
+        none: 'SuggestStickersNone',
       };
 
       const setStickersSuggestDescription = () => {
@@ -60,7 +60,7 @@ const StickersAndEmoji: Component = () => {
       setStickersSuggestDescription();
 
       const setStickersSuggest = (value: typeof appSettings.stickers.suggest) => {
-        if(appSettings.stickers.suggest === value) return;
+        if (appSettings.stickers.suggest === value) return;
         setAppSettings('stickers', 'suggest', value);
         setStickersSuggestDescription();
       };
@@ -69,19 +69,19 @@ const StickersAndEmoji: Component = () => {
         buttons: [{
           icon: 'stickers_face',
           text: 'SuggestStickersAll',
-          onClick: setStickersSuggest.bind(null, 'all')
+          onClick: setStickersSuggest.bind(null, 'all'),
         }, {
           icon: 'newprivate',
           text: 'SuggestStickersInstalled',
-          onClick: setStickersSuggest.bind(null, 'installed')
+          onClick: setStickersSuggest.bind(null, 'installed'),
         }, {
           icon: 'stop',
           text: 'SuggestStickersNone',
-          onClick: setStickersSuggest.bind(null, 'none')
+          onClick: setStickersSuggest.bind(null, 'none'),
         }],
         listenTo: suggestStickersRow.container,
         middleware: tab.middlewareHelper.get(),
-        listenForClick: true
+        listenForClick: true,
       });
 
       const reactionsRow = new Row({
@@ -90,12 +90,12 @@ const StickersAndEmoji: Component = () => {
         clickable: () => {
           tab.slider.createTab(AppQuickReactionTab).open();
         },
-        listenerSetter: tab.listenerSetter
+        listenerSetter: tab.listenerSetter,
       });
 
       const renderQuickReaction = () => {
         p.quickReaction.then((reaction) => {
-          if(reaction!._ === 'availableReaction') {
+          if (reaction!._ === 'availableReaction') {
             return reaction!.static_icon;
           } else {
             return tab.managers.appEmojiManager.getCustomEmojiDocument(reaction!.document_id);
@@ -104,7 +104,7 @@ const StickersAndEmoji: Component = () => {
           wrapStickerToRow({
             row: reactionsRow,
             doc,
-            size: 'small'
+            size: 'small',
           });
         });
       };
@@ -114,7 +114,7 @@ const StickersAndEmoji: Component = () => {
       tab.listenerSetter.add(rootScope)('quick_reaction', () => {
         p = {
           allStickers: tab.managers.appStickersManager.getAllStickers(),
-          quickReaction: tab.managers.appReactionsManager.getQuickReaction()
+          quickReaction: tab.managers.appReactionsManager.getQuickReaction(),
         };
         renderQuickReaction();
       });
@@ -126,9 +126,9 @@ const StickersAndEmoji: Component = () => {
           name: 'loop',
           stateKey: joinDeepPath('settings', 'stickers', 'loop'),
           listenerSetter: tab.listenerSetter,
-          toggle: true
+          toggle: true,
         }),
-        listenerSetter: tab.listenerSetter
+        listenerSetter: tab.listenerSetter,
       });
 
       section.content.append(
@@ -141,7 +141,7 @@ const StickersAndEmoji: Component = () => {
     }
 
     {
-      const section = new SettingSection({name: 'Emoji'});
+      const section = new SettingSection({ name: 'Emoji' });
 
       const suggestEmojiRow = new Row({
         icon: 'lamp',
@@ -150,9 +150,9 @@ const StickersAndEmoji: Component = () => {
           name: 'suggest-emoji',
           stateKey: joinDeepPath('settings', 'emoji', 'suggest'),
           listenerSetter: tab.listenerSetter,
-          toggle: true
+          toggle: true,
         }),
-        listenerSetter: tab.listenerSetter
+        listenerSetter: tab.listenerSetter,
       });
       const bigEmojiRow = new Row({
         icon: 'smile',
@@ -161,9 +161,9 @@ const StickersAndEmoji: Component = () => {
           name: 'emoji-big',
           stateKey: joinDeepPath('settings', 'emoji', 'big'),
           listenerSetter: tab.listenerSetter,
-          toggle: true
+          toggle: true,
         }),
-        listenerSetter: tab.listenerSetter
+        listenerSetter: tab.listenerSetter,
       });
 
       section.content.append(
@@ -175,7 +175,7 @@ const StickersAndEmoji: Component = () => {
     }
 
     {
-      const section = new SettingSection({name: 'DynamicPackOrder', caption: 'DynamicPackOrderInfo'});
+      const section = new SettingSection({ name: 'DynamicPackOrder', caption: 'DynamicPackOrderInfo' });
 
       const dynamicPackOrderRow = new Row({
         titleLangKey: 'DynamicPackOrder',
@@ -184,9 +184,9 @@ const StickersAndEmoji: Component = () => {
           name: 'dynamic-pack-order',
           stateKey: joinDeepPath('settings', 'stickers', 'dynamicPackOrder'),
           listenerSetter: tab.listenerSetter,
-          toggle: true
+          toggle: true,
         }),
-        listenerSetter: tab.listenerSetter
+        listenerSetter: tab.listenerSetter,
       });
 
       section.content.append(
@@ -197,7 +197,7 @@ const StickersAndEmoji: Component = () => {
     }
 
     {
-      const section = new SettingSection({name: 'Telegram.InstalledStickerPacksController', caption: 'StickersBotInfo'});
+      const section = new SettingSection({ name: 'Telegram.InstalledStickerPacksController', caption: 'StickersBotInfo' });
 
       const stickerSets: {[id: string]: Row} = {};
 
@@ -213,7 +213,7 @@ const StickersAndEmoji: Component = () => {
           clickable: () => {
             showStickersPopup(getStickerSetInputById(stickerSet));
           },
-          listenerSetter: tab.listenerSetter
+          listenerSetter: tab.listenerSetter,
         });
 
         row.container.dataset.id = '' + stickerSet.id;
@@ -233,7 +233,7 @@ const StickersAndEmoji: Component = () => {
           width: 36,
           height: 36,
           autoplay: true,
-          middleware: tab.middlewareHelper.get()
+          middleware: tab.middlewareHelper.get(),
         });
 
         row.container.append(div);
@@ -250,26 +250,26 @@ const StickersAndEmoji: Component = () => {
       promises.push(promise);
 
       tab.listenerSetter.add(rootScope)('stickers_installed', (set) => {
-        if(!stickerSets[set.id]) {
+        if (!stickerSets[set.id]) {
           renderStickerSet(set, 'prepend');
         }
       });
 
       tab.listenerSetter.add(rootScope)('stickers_deleted', (set) => {
-        if(stickerSets[set.id]) {
+        if (stickerSets[set.id]) {
           stickerSets[set.id].container.remove();
           delete stickerSets[set.id];
         }
       });
 
-      tab.listenerSetter.add(rootScope)('stickers_order', ({type, order}) => {
-        if(type !== 'stickers') {
+      tab.listenerSetter.add(rootScope)('stickers_order', ({ type, order }) => {
+        if (type !== 'stickers') {
           return;
         }
 
         order.forEach((id, idx) => {
           const row = stickerSets[id];
-          if(!row) {
+          if (!row) {
             return;
           }
 
@@ -279,7 +279,7 @@ const StickersAndEmoji: Component = () => {
 
       tab.listenerSetter.add(rootScope)('stickers_top', (id) => {
         const row = stickerSets[id];
-        if(!row) {
+        if (!row) {
           return;
         }
 
@@ -292,7 +292,7 @@ const StickersAndEmoji: Component = () => {
         onSort: (idx, newIdx) => {
           const order = Array.from(stickersContent.children).map((el) => (el as HTMLElement).dataset.id);
           tab.managers.appStickersManager.reorderStickerSets((order as (string | number)[]));
-        }
+        },
       });
 
       tab.scrollable.append(section.container);

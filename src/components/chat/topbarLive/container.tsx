@@ -1,18 +1,18 @@
-import {Accessor, Show, createEffect, createMemo, createResource, createSignal} from 'solid-js';
-import {TopbarLive} from '@components/chat/topbarLive/topbarLive';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
+import { Accessor, Show, createEffect, createMemo, createResource, createSignal } from 'solid-js';
+import { TopbarLive } from '@components/chat/topbarLive/topbarLive';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
 import rootScope from '@lib/rootScope';
-import {useCurrentRtmpCall} from '@components/rtmp/hooks';
-import {AppManagers} from '@lib/managers';
+import { useCurrentRtmpCall } from '@components/rtmp/hooks';
+import { AppManagers } from '@lib/managers';
 import Chat from '@components/chat/chat';
 import ChatTopbar from '@components/chat/topbar';
-import {NULL_PEER_ID} from '@appManagers/constants';
-import {ChatFull, GroupCall, InputGroupCall, Chat as MTChat} from '@layer';
+import { NULL_PEER_ID } from '@appManagers/constants';
+import { ChatFull, GroupCall, InputGroupCall, Chat as MTChat } from '@layer';
 import appImManager from '@lib/appImManager';
-import {useChat} from '@stores/peers';
-import {useFullPeer} from '@stores/fullPeers';
-import {i18n} from '@lib/langPack';
-import TopbarPlate, {createTopbarPlate, TopbarPlateController} from '@components/chat/topbarPlate';
+import { useChat } from '@stores/peers';
+import { useFullPeer } from '@stores/fullPeers';
+import { i18n } from '@lib/langPack';
+import TopbarPlate, { createTopbarPlate, TopbarPlateController } from '@components/chat/topbarPlate';
 
 export type ChatLivePlate = TopbarPlateController & {
   setPeerId: (peerId: PeerId) => void
@@ -48,7 +48,7 @@ function LivePlateBody(props: {
     fullPeer,
     async(fullPeer) => {
       const inputGroupCall = (fullPeer as ChatFull.channelFull)?.call;
-      if(!inputGroupCall) return;
+      if (!inputGroupCall) return;
 
       const fullCall = await rootScope.managers.appGroupCallsManager.getGroupCallFull(
         (inputGroupCall as InputGroupCall.inputGroupCall).id
@@ -63,20 +63,20 @@ function LivePlateBody(props: {
   });
 
   subscribeOn(rootScope)('group_call_update', async(call) => {
-    if(!isCallActive() || call._ !== 'groupCall') return;
+    if (!isCallActive() || call._ !== 'groupCall') return;
     const fullChat = fullPeer();
-    if(fullChat?._ !== 'channelFull') return;
-    if(call.id !== (fullChat.call as InputGroupCall.inputGroupCall)?.id) return;
+    if (fullChat?._ !== 'channelFull') return;
+    if (call.id !== (fullChat.call as InputGroupCall.inputGroupCall)?.id) return;
     setWatching(call.participants_count);
   });
 
   createEffect<PeerId>((wasPeerId) => {
-    if(!peerChat() || !(peerChat() as MTChat.channel).pFlags.broadcast) return undefined!;
+    if (!peerChat() || !(peerChat() as MTChat.channel).pFlags.broadcast) return undefined!;
 
-    if(wasPeerId !== props.peerId()) setWatching();
+    if (wasPeerId !== props.peerId()) setWatching();
 
     createEffect(() => {
-      if(!isCallActive()) setWatching();
+      if (!isCallActive()) setWatching();
       else setWatching(fullCall()?.participants_count);
     });
 
@@ -112,11 +112,11 @@ export default function createChatLivePlate(
     modifier: 'live',
     height: 48,
     onVisibilityChange: () => topbar.setFloating(),
-    render: ({setHidden}) => <LivePlateBody peerId={peerId} setHidden={setHidden} />
+    render: ({ setHidden }) => <LivePlateBody peerId={peerId} setHidden={setHidden} />,
   });
 
   return {
     ...plate,
-    setPeerId: (next) => setPeerIdSignal(next)
+    setPeerId: (next) => setPeerIdSignal(next),
   };
 }

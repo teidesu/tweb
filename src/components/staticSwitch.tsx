@@ -1,7 +1,7 @@
-import {JSX, splitProps} from 'solid-js';
+import { JSX, splitProps } from 'solid-js';
 
 import styles from '@components/staticSwitch.module.scss';
-import {IconTsx, IconTsxProps} from './iconTsx';
+import { IconTsx, IconTsxProps } from './iconTsx';
 import classNames from '@helpers/string/classNames';
 
 const StaticSwitch = (props: {
@@ -10,7 +10,7 @@ const StaticSwitch = (props: {
 }) => {
   return (
     <div class={styles.StaticSwitch} classList={{
-      [styles.checked]: props.checked
+      [styles.checked]: props.checked,
     }}>
       <div class={styles.Background} />
       <div class={styles.Handle}>{props.handleContent}</div>

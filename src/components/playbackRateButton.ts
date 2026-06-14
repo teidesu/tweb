@@ -1,7 +1,7 @@
 
 import appMediaPlaybackController from '@components/appMediaPlaybackController';
-import {ButtonMenuSync} from '@components/buttonMenu';
-import {ButtonMenuToggleHandler} from '@components/buttonMenuToggle';
+import { ButtonMenuSync } from '@components/buttonMenu';
+import { ButtonMenuToggleHandler } from '@components/buttonMenuToggle';
 import ButtonIcon from '@components/buttonIcon';
 import Icon from '@components/icon';
 
@@ -11,16 +11,16 @@ export const PlaybackRateButton = (options: {
 }) => {
   const PLAYBACK_RATES = [0.5, 1, 1.5, 2];
   const PLAYBACK_RATES_ICONS: Icon[] = ['playback_05', 'playback_1x', 'playback_15', 'playback_2x'];
-  const button = ButtonIcon(` btn-menu-toggle`, {noRipple: true});
+  const button = ButtonIcon(` btn-menu-toggle`, { noRipple: true });
 
   const setIcon = () => {
     const playbackRateButton = button;
 
     let idx = PLAYBACK_RATES.indexOf(appMediaPlaybackController.playbackRate);
-    if(idx === -1) idx = PLAYBACK_RATES.indexOf(1);
+    if (idx === -1) idx = PLAYBACK_RATES.indexOf(1);
 
     const icon = Icon(PLAYBACK_RATES_ICONS[idx]);
-    if(playbackRateButton.firstElementChild) {
+    if (playbackRateButton.firstElementChild) {
       playbackRateButton.firstElementChild.replaceWith(icon);
     } else {
       playbackRateButton.append(icon);
@@ -34,12 +34,12 @@ export const PlaybackRateButton = (options: {
         regularText: rate + 'x',
         onClick: () => {
           appMediaPlaybackController.playbackRate = rate;
-        }
+        },
       };
 
       return buttonOptions;
     });
-    const btnMenu = ButtonMenuSync({buttons});
+    const btnMenu = ButtonMenuSync({ buttons });
     btnMenu.classList.add(options.direction, 'playback-rate-menu');
     ButtonMenuToggleHandler({
       el: button,
@@ -48,7 +48,7 @@ export const PlaybackRateButton = (options: {
       } : undefined,
       onClose: options.onPlaybackRateMenuToggle ? () => {
         options.onPlaybackRateMenuToggle!(false);
-      } : undefined
+      } : undefined,
     });
     setIcon();
     button.append(btnMenu);
@@ -58,7 +58,7 @@ export const PlaybackRateButton = (options: {
     const playbackRate = appMediaPlaybackController.playbackRate;
     const idx = PLAYBACK_RATES.indexOf(playbackRate);
     const nextIdx = idx + add;
-    if(nextIdx >= 0 && nextIdx < PLAYBACK_RATES.length) {
+    if (nextIdx >= 0 && nextIdx < PLAYBACK_RATES.length) {
       appMediaPlaybackController.playbackRate = PLAYBACK_RATES[nextIdx];
     }
   };
@@ -68,5 +68,5 @@ export const PlaybackRateButton = (options: {
   };
 
   setBtnMenuToggle();
-  return {element: button, setIcon, addRate, isMenuOpen};
+  return { element: button, setIcon, addRate, isMenuOpen };
 };

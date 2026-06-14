@@ -1,14 +1,14 @@
-import {ScrollableBase} from '@components/scrollable';
+import { ScrollableBase } from '@components/scrollable';
 import SwipeHandler from '@components/swipeHandler';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
 import rootScope from '@lib/rootScope';
 import liteMode from '@helpers/liteMode';
-import {Middleware} from '@helpers/middleware';
+import { Middleware } from '@helpers/middleware';
 import clamp from '@helpers/number/clamp';
 import safeAssign from '@helpers/object/safeAssign';
 import pause from '@helpers/schedulers/pause';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import findUpAsChild from '@helpers/dom/findUpAsChild';
 import positionElementByIndex from '@helpers/dom/positionElementByIndex';
 import whichChild from '@helpers/dom/whichChild';
@@ -46,7 +46,7 @@ export default class Sortable {
       onReset: this.onReset,
       setCursorTo: document.body,
       middleware: this.middleware,
-      withDelay: true
+      withDelay: true,
     });
   }
 
@@ -58,8 +58,8 @@ export default class Sortable {
     this.siblings = [];
     const property = yDiff < 0 ? 'previousElementSibling' : 'nextElementSibling';
     let sibling = this.element[property] as HTMLElement;
-    for(let i = 0; i < count; ++i) {
-      if(this.getSortableTarget(sibling)) {
+    for (let i = 0; i < count; ++i) {
+      if (this.getSortableTarget(sibling)) {
         this.siblings.push(sibling);
         sibling = sibling[property] as HTMLElement;
       } else {
@@ -68,7 +68,7 @@ export default class Sortable {
     }
 
     (lastSiblings || []).forEach((sibling) => {
-      if(!this.siblings.includes(sibling)) {
+      if (!this.siblings.includes(sibling)) {
         sibling.style.transform = '';
       }
     });
@@ -78,29 +78,29 @@ export default class Sortable {
       sibling.style.transform = `translateY(${y}px)`;
     });
 
-    if(this.scrollableRect) {
+    if (this.scrollableRect) {
       const diff = yDiff;
       const toEnd = diff > 0;
       const elementEndPos = toEnd ? this.elementRect.bottom : this.elementRect.top;
       const clientY = elementEndPos + diff - this.addScrollPos!;
       // console.log(clientY, this.scrollableRect.top, elementEndPos, diff, this.addScrollPos, toEnd);
       let change = 2;
-      if((clientY + (toEnd ? 0 : this.elementRect.height)) >= this.scrollableRect.bottom/*  && diff < this.maxY */) {
+      if ((clientY + (toEnd ? 0 : this.elementRect.height)) >= this.scrollableRect.bottom/*  && diff < this.maxY */) {
 
-      } else if((clientY - (toEnd ? this.elementRect.height : 0)) <= this.scrollableRect.top/*  && diff > this.minY */) {
+      } else if ((clientY - (toEnd ? this.elementRect.height : 0)) <= this.scrollableRect.top/*  && diff > this.minY */) {
         change *= -1;
       } else {
         change = (undefined as unknown as number);
       }
 
-      if(change !== undefined) {
+      if (change !== undefined) {
         this.scrollable.scrollPosition += change;
       }
     }
   };
 
   private verifyTouchTarget = (e: {target: EventTarget}) => {
-    if(this.list.classList.contains('is-reordering')) {
+    if (this.list.classList.contains('is-reordering')) {
       return false;
     }
 
@@ -126,7 +126,7 @@ export default class Sortable {
     this.maxY = this.containerRect.bottom - this.elementRect.bottom;
     this.addScrollPos = 0;
 
-    if(this.scrollable) {
+    if (this.scrollable) {
       this.startScrollPos = this.scrollable.scrollPosition;
       this.scrollableRect = this.scrollable.container.getBoundingClientRect();
       this.scrollable.container.addEventListener('scroll', this.onScroll);
@@ -143,15 +143,15 @@ export default class Sortable {
     this.element.style.transform = move ? `translateY(${move * this.elementRect.height}px)` : '';
     this.swipeHandler.setCursor('');
 
-    if(this.scrollable) {
+    if (this.scrollable) {
       this.scrollable.container.removeEventListener('scroll', this.onScroll);
     }
 
-    if(!IS_TOUCH_SUPPORTED) {
-      attachClickEvent(document.body, cancelEvent, {capture: true, once: true});
+    if (!IS_TOUCH_SUPPORTED) {
+      attachClickEvent(document.body, cancelEvent, { capture: true, once: true });
     }
 
-    if(liteMode.isAvailable('animations')) {
+    if (liteMode.isAvailable('animations')) {
       await pause(250);
     }
 
@@ -174,7 +174,7 @@ export default class Sortable {
 
     // cancelClick = true;
 
-    if(!move) {
+    if (!move) {
       return;
     }
 
@@ -182,12 +182,12 @@ export default class Sortable {
   };
 
   private getSortableTarget(target: HTMLElement) {
-    if(!target) {
+    if (!target) {
       return;
     }
 
     let child = findUpAsChild(target as unknown as {parentElement: HTMLElement}, this.list) as HTMLElement | null;
-    if(child && child.classList.contains('cant-sort')) {
+    if (child && child.classList.contains('cant-sort')) {
       child = null;
     }
 

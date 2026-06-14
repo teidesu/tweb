@@ -8,12 +8,12 @@
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
 
 export default function placeCaretAtEnd(el: HTMLElement, ignoreTouchCheck = false, focus = true) {
-  if(IS_TOUCH_SUPPORTED && (!ignoreTouchCheck || (document.activeElement!.tagName !== 'INPUT' && !(document.activeElement as HTMLElement).isContentEditable))) {
+  if (IS_TOUCH_SUPPORTED && (!ignoreTouchCheck || (document.activeElement!.tagName !== 'INPUT' && !(document.activeElement as HTMLElement).isContentEditable))) {
     return;
   }
 
   focus && el.focus();
-  if(el instanceof HTMLInputElement) {
+  if (el instanceof HTMLInputElement) {
     const length = el.value.length;
     el.selectionStart = length;
     el.selectionEnd = length;

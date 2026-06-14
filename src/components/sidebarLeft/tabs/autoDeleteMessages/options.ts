@@ -1,6 +1,6 @@
-import formatDuration, {DurationType} from '@helpers/formatDuration';
-import {wrapFormattedDuration} from '@components/wrappers/wrapDuration';
-import {oneDayInSeconds, oneHourInSeconds, oneMonthInSeconds, oneWeekInSeconds, oneYearInSeconds} from '@lib/constants';
+import formatDuration, { DurationType } from '@helpers/formatDuration';
+import { wrapFormattedDuration } from '@components/wrappers/wrapDuration';
+import { oneDayInSeconds, oneHourInSeconds, oneMonthInSeconds, oneWeekInSeconds, oneYearInSeconds } from '@lib/constants';
 
 
 export type Option = {
@@ -15,23 +15,23 @@ export type DetailedOption = Option & {
 
 const makeOption = (value: number, duration: number, type: DurationType) => ({
   value,
-  label: () => wrapFormattedDuration([{duration, type}]),
+  label: () => wrapFormattedDuration([{ duration, type }]),
   duration,
-  type
+  type,
 });
 
 type GetDefaultOptionsArgs = {
   offLabel: () => Element;
 };
 
-export const getDefaultOptions = ({offLabel}: GetDefaultOptionsArgs): Option[] => [
+export const getDefaultOptions = ({ offLabel }: GetDefaultOptionsArgs): Option[] => [
   {
     value: 0,
-    label: offLabel
+    label: offLabel,
   },
   makeOption(oneDayInSeconds, 1, DurationType.Days),
   makeOption(oneWeekInSeconds, 1, DurationType.Weeks),
-  makeOption(oneMonthInSeconds, 1, DurationType.Months)
+  makeOption(oneMonthInSeconds, 1, DurationType.Months),
 ];
 
 export const customTimeOptions: DetailedOption[] = [
@@ -50,7 +50,7 @@ export const customTimeOptions: DetailedOption[] = [
   makeOption(oneMonthInSeconds * 4, 4, DurationType.Months),
   makeOption(oneMonthInSeconds * 5, 5, DurationType.Months),
   makeOption(oneMonthInSeconds * 6, 6, DurationType.Months),
-  makeOption(oneYearInSeconds, 1, DurationType.Years)
+  makeOption(oneYearInSeconds, 1, DurationType.Years),
 ];
 
 export const allTimeOptionsForAutoDeleteIcon = [
@@ -62,15 +62,15 @@ export const allTimeOptionsForAutoDeleteIcon = [
   makeOption(oneHourInSeconds * 6, 6, DurationType.Hours),
   makeOption(oneHourInSeconds * 7, 7, DurationType.Hours),
   makeOption(oneHourInSeconds * 8, 8, DurationType.Hours),
-  ...customTimeOptions
+  ...customTimeOptions,
 ];
 
 export function findBestMatchingOption<T extends Option>(period: number, options: T[]) {
   const threshold = 0.1;
   const isCloseTo = (period: number, targetPeriod: number) => targetPeriod > 0 && Math.abs(period - targetPeriod) / targetPeriod < threshold;
 
-  for(const option of options) {
-    if(isCloseTo(period, option.value)) return option;
+  for (const option of options) {
+    if (isCloseTo(period, option.value)) return option;
   }
 
   return null;
@@ -87,6 +87,6 @@ export function findMatchingAutoDeleteIconOption(period: number) {
 export function findExistingOrCreateCustomOption(period: number): Option {
   return findMatchingCustomOption(period) || {
     label: () => wrapFormattedDuration(formatDuration(period)),
-    value: period
+    value: period,
   };
 }

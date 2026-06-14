@@ -14,9 +14,9 @@ export default function listenMessagePort(
 
   messagePort.setOnPortDisconnect(onDisconnect!);
 
-  if(typeof(SharedWorkerGlobalScope) !== 'undefined') {
+  if (typeof(SharedWorkerGlobalScope) !== 'undefined') {
     (ctx as any as SharedWorkerGlobalScope).addEventListener('connect', (e) => attachPort(e.source, e.source));
-  } else if(typeof(ServiceWorkerGlobalScope) !== 'undefined') {
+  } else if (typeof(ServiceWorkerGlobalScope) !== 'undefined') {
     attachPort(ctx, null);
   } else {
     attachPort(ctx, ctx);

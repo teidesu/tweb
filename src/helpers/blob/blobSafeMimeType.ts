@@ -7,7 +7,7 @@
 
 // https://www.iana.org/assignments/media-types/media-types.xhtml
 export default function blobSafeMimeType(mimeType: string) {
-  if([
+  if ([
     'image/jpeg',
     'image/png',
     'image/gif',
@@ -24,7 +24,7 @@ export default function blobSafeMimeType(mimeType: string) {
     'audio/mp4',
     'audio/wav', // though it is not in list
     'application/json',
-    'application/pdf'
+    'application/pdf',
   ].indexOf(mimeType) === -1) {
     return 'application/octet-stream';
   }

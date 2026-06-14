@@ -1,41 +1,41 @@
-import type {ReactionsContext} from '@appManagers/appReactionsManager';
-import type {RequestHistoryOptions} from '@appManagers/appMessagesManager';
-import {createEffect, createSignal, onCleanup, JSX, createMemo, onMount, on, untrack, batch, Accessor} from 'solid-js';
+import type { ReactionsContext } from '@appManagers/appReactionsManager';
+import type { RequestHistoryOptions } from '@appManagers/appMessagesManager';
+import { createEffect, createSignal, onCleanup, JSX, createMemo, onMount, on, untrack, batch, Accessor } from 'solid-js';
 import InputSearch from '@components/inputSearch';
-import {ButtonIconTsx} from '@components/buttonIconTsx';
+import { ButtonIconTsx } from '@components/buttonIconTsx';
 import classNames from '@helpers/string/classNames';
 import PopupElement from '@components/popups';
 import showDatePickerPopup from '@components/popups/datePicker';
-import rootScope, {BroadcastEvents} from '@lib/rootScope';
+import rootScope, { BroadcastEvents } from '@lib/rootScope';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import appDialogsManager from '@lib/appDialogsManager';
-import {ChannelsChannelParticipants, Message, MessageReactions, Reaction, ReactionCount, SavedReactionTag} from '@layer';
+import { ChannelsChannelParticipants, Message, MessageReactions, Reaction, ReactionCount, SavedReactionTag } from '@layer';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
 import placeCaretAtEnd from '@helpers/dom/placeCaretAtEnd';
-import {createLoadableList} from '@components/sidebarRight/tabs/statistics';
-import {Middleware, getMiddleware} from '@helpers/middleware';
-import {NULL_PEER_ID} from '@appManagers/constants';
+import { createLoadableList } from '@components/sidebarRight/tabs/statistics';
+import { Middleware, getMiddleware } from '@helpers/middleware';
+import { NULL_PEER_ID } from '@appManagers/constants';
 import whichChild from '@helpers/dom/whichChild';
 import appImManager from '@lib/appImManager';
 import attachListNavigation from '@helpers/dom/attachListNavigation';
 import blurActiveElement from '@helpers/dom/blurActiveElement';
-import I18n, {i18n} from '@lib/langPack';
+import I18n, { i18n } from '@lib/langPack';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
 import stringMiddleOverflow from '@helpers/string/stringMiddleOverflow';
-import appNavigationController, {NavigationItem} from '@components/appNavigationController';
+import appNavigationController, { NavigationItem } from '@components/appNavigationController';
 import getTextWidth from '@helpers/canvas/getTextWidth';
-import {FontFull} from '@config/font';
+import { FontFull } from '@config/font';
 import Row from '@components/row';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
 import getParticipantPeerId from '@appManagers/utils/chats/getParticipantPeerId';
-import {avatarNew} from '@components/avatarNew';
+import { avatarNew } from '@components/avatarNew';
 import getPeerActiveUsernames from '@appManagers/utils/peers/getPeerActiveUsernames';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import AppSelectPeers from '@components/appSelectPeers';
 import PeerTitle from '@components/peerTitle';
 import ReactionsElement from '@components/chat/reactions';
-import ReactionElement, {ReactionLayoutType} from '@components/chat/reaction';
+import ReactionElement, { ReactionLayoutType } from '@components/chat/reaction';
 import Scrollable from '@components/scrollable2';
 import reactionsEqual from '@appManagers/utils/reactions/reactionsEqual';
 import findUpClassName from '@helpers/dom/findUpClassName';
@@ -46,10 +46,10 @@ import usePremium from '@stores/premium';
 import createMiddleware from '@helpers/solid/createMiddleware';
 import Animated from '@helpers/solid/animations';
 import Chat from '@components/chat/chat';
-import {ChatType} from './chatType';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
-import getHistoryStorageKey, {getHistoryStorageType} from '@appManagers/utils/messages/getHistoryStorageKey';
-import {ScreenSize, useMediaSizes} from '@helpers/mediaSizes';
+import { ChatType } from './chatType';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
+import getHistoryStorageKey, { getHistoryStorageType } from '@appManagers/utils/messages/getHistoryStorageKey';
+import { ScreenSize, useMediaSizes } from '@helpers/mediaSizes';
 import ButtonCorner from '@components/buttonCorner';
 import deferSideEffect from '@helpers/solid/deferSideEffect';
 
@@ -68,11 +68,11 @@ type LoadOptions = {
   searchType?: SearchType
 };
 
-const renderHistoryResult = ({middleware, peerId, fromSavedDialog, messages, query, searchType/* , fromPeerId */}: LoadOptions & {fromSavedDialog: boolean, messages: (Message.message | Message.messageService)[]}) => {
+const renderHistoryResult = ({ middleware, peerId, fromSavedDialog, messages, query, searchType/* , fromPeerId */ }: LoadOptions & {fromSavedDialog: boolean, messages: (Message.message | Message.messageService)[]}) => {
   const promises = messages.map(async(message) => {
     const fromPeerId = message.fromId;
     const loadPromises: Promise<any>[] = [];
-    const {dom} = appDialogsManager.addDialogAndSetLastMessage({
+    const { dom } = appDialogsManager.addDialogAndSetLastMessage({
       peerId: fromSavedDialog ? rootScope.myId : (fromPeerId || peerId),
       container: false,
       avatarSize: 'abitbigger',
@@ -81,11 +81,11 @@ const renderHistoryResult = ({middleware, peerId, fromSavedDialog, messages, que
       query,
       // noIcons: this.noIcons,
       wrapOptions: {
-        middleware
+        middleware,
       },
       loadPromises,
       threadId: fromSavedDialog ? ((message as Message.message).saved_peer_id ? getPeerId((message as Message.message).saved_peer_id!) : rootScope.myId) : undefined,
-      autonomous: true
+      autonomous: true,
     });
 
     await Promise.all(loadPromises);
@@ -96,11 +96,11 @@ const renderHistoryResult = ({middleware, peerId, fromSavedDialog, messages, que
 };
 
 const createSearchLoader = (options: LoadOptions) => {
-  const {middleware, peerId, threadId, query, fromPeerId, reaction, searchType, monoforumThreadId} = options;
+  const { middleware, peerId, threadId, query, fromPeerId, reaction, searchType, monoforumThreadId } = options;
   const fromSavedDialog = !!(peerId === rootScope.myId && threadId);
   let lastMessage: Message.message | Message.messageService, loading = false, nextRate: number;
   const loadMore = async() => {
-    if(loading) {
+    if (loading) {
       return;
     }
     loading = true;
@@ -112,7 +112,7 @@ const createSearchLoader = (options: LoadOptions) => {
       threadId: searchType === 'this' || !searchType ? threadId : undefined,
       monoforumThreadId,
       query,
-      inputFilter: {_: 'inputMessagesFilterEmpty'},
+      inputFilter: { _: 'inputMessagesFilterEmpty' },
       offsetId,
       offsetPeerId,
       limit: 30,
@@ -121,30 +121,30 @@ const createSearchLoader = (options: LoadOptions) => {
       nextRate,
       isPublicHashtag: searchType === 'public',
       isCacheableSearch: !!searchType,
-      hashtagType: searchType
+      hashtagType: searchType,
     };
 
-    const key = getHistoryStorageKey({type: getHistoryStorageType(requestHistoryOptions), ...requestHistoryOptions});
+    const key = getHistoryStorageKey({ type: getHistoryStorageType(requestHistoryOptions), ...requestHistoryOptions });
     rootScope.managers.appMessagesManager.toggleHistoryKeySubscription(key, true);
     onCleanup(() => {
       rootScope.managers.appMessagesManager.toggleHistoryKeySubscription(key, false);
     });
 
     const result = await rootScope.managers.appMessagesManager.getHistory(requestHistoryOptions);
-    if(!middleware()) {
+    if (!middleware()) {
       return;
     }
 
     let messages: Message.message[];
-    if(result.messages) {
+    if (result.messages) {
       messages = result.messages as Message.message[];
       nextRate = result.nextRate!;
     } else {
       messages = result.history.map((mid) => apiManagerProxy.getMessageByPeer(peerId, mid)) as Message.message[];
     }
 
-    const rendered = await renderHistoryResult({...options, fromSavedDialog, messages});
-    if(!middleware()) {
+    const rendered = await renderHistoryResult({ ...options, fromSavedDialog, messages });
+    if (!middleware()) {
       return;
     }
 
@@ -152,7 +152,7 @@ const createSearchLoader = (options: LoadOptions) => {
       value.count = result.count;
       value.values.push(...messages);
       lastMessage = messages[messages.length - 1];
-      if(result.isEnd.top) {
+      if (result.isEnd.top) {
         value.loadMore = undefined;
       }
 
@@ -162,33 +162,33 @@ const createSearchLoader = (options: LoadOptions) => {
     loading = false;
   };
 
-  const [f, setF] = createLoadableList<Message.message | Message.messageService>({loadMore});
+  const [f, setF] = createLoadableList<Message.message | Message.messageService>({ loadMore });
   return f;
 };
 
 const createParticipantsLoader = (options: LoadOptions) => {
-  const {middleware, peerId, query} = options;
+  const { middleware, peerId, query } = options;
   let loading = false, offset = 0;
   const loadMore = async() => {
-    if(loading) {
+    if (loading) {
       return;
     }
     loading = true;
 
     const result = await rootScope.managers.appProfileManager.getParticipants({
       id: peerId.toChatId(),
-      filter: {_: 'channelParticipantsSearch', q: query},
+      filter: { _: 'channelParticipantsSearch', q: query },
       limit: 30,
       offset,
-      forMessagesSearch: true
+      forMessagesSearch: true,
     });
-    if(!middleware()) {
+    if (!middleware()) {
       return;
     }
 
     const peerIds = result.participants.map(getParticipantPeerId);
     const promises = peerIds.map(async(peerId) => {
-      const title = await wrapPeerTitle({peerId});
+      const title = await wrapPeerTitle({ peerId });
       const peer = apiManagerProxy.getPeer(peerId);
       const username = getPeerActiveUsernames(peer)[0];
       const row = new Row({
@@ -197,13 +197,13 @@ const createParticipantsLoader = (options: LoadOptions) => {
             <b>{title}</b> {username && <span class="secondary">{`@${username}`}</span>}
           </span>
         ) as HTMLElement,
-        clickable: true
+        clickable: true,
       });
 
       row.container.classList.add('topbar-search-left-sender');
 
       const size = 40;
-      const avatar = avatarNew({peerId, size, middleware});
+      const avatar = avatarNew({ peerId, size, middleware });
       row.createMedia(`${size}`).append(avatar.node);
       await avatar.readyThumbPromise;
 
@@ -211,7 +211,7 @@ const createParticipantsLoader = (options: LoadOptions) => {
     });
 
     const rendered = await Promise.all(promises);
-    if(!middleware()) {
+    if (!middleware()) {
       return;
     }
 
@@ -219,7 +219,7 @@ const createParticipantsLoader = (options: LoadOptions) => {
       value.count = (result as ChannelsChannelParticipants.channelsChannelParticipants).count ?? peerIds.length;
       const newLength = value.values.push(...peerIds);
       offset = newLength;
-      if(newLength >= value.count) {
+      if (newLength >= value.count) {
         value.loadMore = undefined;
       }
 
@@ -229,7 +229,7 @@ const createParticipantsLoader = (options: LoadOptions) => {
     loading = false;
   };
 
-  const [f, setF] = createLoadableList<PeerId>({loadMore});
+  const [f, setF] = createLoadableList<PeerId>({ loadMore });
   return f;
 };
 
@@ -297,12 +297,12 @@ function SearchMobileButtons(props: {
   onArrowButtonClick: (direction: 'up' | 'down') => void
 }) {
   const makeButton = (icon: 'up' | 'down', onClick: () => void) => {
-    const btn = ButtonCorner({icon, className: 'bubbles-corner-button chat-secondary-button chat-search-go chat-search-go-' + icon});
+    const btn = ButtonCorner({ icon, className: 'bubbles-corner-button chat-secondary-button chat-search-go chat-search-go-' + icon });
     const detach = attachClickEvent(btn, onClick);
     onCleanup(detach);
 
     const isEnd = createMemo(() => {
-      if(icon === 'down') {
+      if (icon === 'down') {
         return props.index() === 0;
       } else {
         return props.index() === props.count() - 1;
@@ -319,7 +319,7 @@ function SearchMobileButtons(props: {
 
   const buttons = [
     makeButton('up', props.onArrowButtonClick.bind(null, 'up')),
-    makeButton('down', props.onArrowButtonClick.bind(null, 'down'))
+    makeButton('down', props.onArrowButtonClick.bind(null, 'down')),
   ];
 
   props.chat.bubbles.container.after(...buttons);
@@ -356,26 +356,26 @@ export default function TopbarSearch(props: {
   const [messages, setMessages] = createSignal<(Message.message | Message.messageService)[]>();
   const [sendersPeerIds, setSendersPeerIds] = createSignal<PeerId[]>();
   const [loadMore, setLoadMore] = createSignal<() => Promise<void>>();
-  const [target, setTarget] = createSignal<HTMLElement>(undefined!, {equals: false});
+  const [target, setTarget] = createSignal<HTMLElement>(undefined!, { equals: false });
   const [filteringSender, setFilteringSender] = createSignal<boolean>(false);
   const [filterPeerId, setFilterPeerId] = createSignal<PeerId>();
   const [senderInputEntity, setSenderInputEntity] = createSignal<HTMLElement>();
-  const [savedReactionTags, setSavedReactionTags] = createSignal<SavedReactionTag[]>(undefined!, {equals: false});
+  const [savedReactionTags, setSavedReactionTags] = createSignal<SavedReactionTag[]>(undefined!, { equals: false });
   const [reactionsElement, setReactionsElement] = createSignal<ReactionsElement>();
-  const [reaction, setReaction] = createSignal<Reaction>(undefined!, {equals: false});
+  const [reaction, setReaction] = createSignal<Reaction>(undefined!, { equals: false });
   const [searchType, setSearchType] = createSignal<SearchType>(DEFAULT_SEARCH_TYPE);
   const [showingSmallResults, setShowingSmallResults] = createSignal(false);
   const choosingSender = createMemo(() => filteringSender() && !filterPeerId());
   const shouldShowResults = createMemo(() => isSmallScreen() ? showingSmallResults() : isInputFocused());
   const shouldHaveListNavigation = createMemo(() => (shouldShowResults() && count() && list()) || undefined);
   const lookingHashtag = createMemo(() => {
-    if(filteringSender() || reaction()) return;
+    if (filteringSender() || reaction()) return;
     const _value = value();
     return _value.startsWith('#') ? _value.slice(1) : undefined;
   });
   const isHashtag = createMemo(() => lookingHashtag() !== undefined);
   const shouldShowReactions = createMemo(() => {
-    if(isHashtag()) return false;
+    if (isHashtag()) return false;
     const element = reactionsElement();
     const tags = savedReactionTags();
     return !!(element && tags?.length);
@@ -385,7 +385,7 @@ export default function TopbarSearch(props: {
   const isActive = createMemo(() => isSmallScreen() || shouldShowReactions()/*  || shouldShowSearchTypes() */ || shouldShowResults());
   const isPremium = usePremium();
 
-  if(props.onActive) {
+  if (props.onActive) {
     createEffect(() => {
       props.onActive!(isActive(), shouldShowReactions(), isSmallScreen());
     });
@@ -413,8 +413,8 @@ export default function TopbarSearch(props: {
 
   // * list navigation
   createEffect(() => {
-    const {element} = shouldHaveListNavigation() || {};
-    if(!element) {
+    const { element } = shouldHaveListNavigation() || {};
+    if (!element) {
       return;
     }
 
@@ -422,19 +422,19 @@ export default function TopbarSearch(props: {
     const activeClassName = 'menu-open';
     const el = list.querySelector(`.${activeClassName}`);
     el && el.classList.remove(activeClassName);
-    const {detach} = attachListNavigation({
+    const { detach } = attachListNavigation({
       list,
       type: 'y',
       onSelect: (target) => {
         const shouldBlur = !!(!filteringSender() || filterPeerId());
         setTarget(target as HTMLElement);
-        if(shouldBlur) {
+        if (shouldBlur) {
           blurActiveElement();
         }
       },
       activeClassName,
       cancelMouseDown: true,
-      target: untrack(target)
+      target: untrack(target),
     });
 
     onCleanup(() => {
@@ -445,13 +445,13 @@ export default function TopbarSearch(props: {
   const navigationItem: NavigationItem = {
     type: 'topbar-search',
     onPop: () => {
-      if(isInputFocused() && value()) {
+      if (isInputFocused() && value()) {
         blurActiveElement();
         return false;
       }
 
       props.onClose?.();
-    }
+    },
   };
   appNavigationController.pushItem(navigationItem);
   onCleanup(() => {
@@ -459,20 +459,20 @@ export default function TopbarSearch(props: {
   });
 
   const onInputClear: (e?: MouseEvent, wasEmpty?: boolean) => void = (e, wasEmpty = inputSearch.inputField.isEmpty()) => {
-    if(filterPeerId()) {
+    if (filterPeerId()) {
       e && cancelEvent(e);
       wasEmpty && setFilterPeerId(undefined);
       return;
     }
 
-    if(filteringSender()) {
+    if (filteringSender()) {
       e && cancelEvent(e);
       wasEmpty && setFilteringSender(false);
       return;
     }
 
-    if(wasEmpty) {
-      if(isSmallScreen()) {
+    if (wasEmpty) {
+      if (isSmallScreen()) {
         return;
       }
 
@@ -495,17 +495,17 @@ export default function TopbarSearch(props: {
         !inputSearch.container.classList.contains('show-placeholder') &&
         !!value.trim(); // skip debounce for hashtag
     },
-    arrowBack: isSmallScreen()
+    arrowBack: isSmallScreen(),
   });
   inputSearch.container.classList.add('topbar-search-input-container');
   inputSearch.input.classList.add('topbar-search-input');
   const onKeyDown = (e: KeyboardEvent) => {
-    if(e.key !== 'Backspace') {
+    if (e.key !== 'Backspace') {
       return;
     }
 
     const isEmpty = inputSearch.inputField.isEmpty();
-    if(isEmpty && (filterPeerId() || filteringSender())) {
+    if (isEmpty && (filterPeerId() || filteringSender())) {
       onInputClear(undefined, isEmpty);
     }
   };
@@ -522,7 +522,7 @@ export default function TopbarSearch(props: {
   createEffect<HTMLElement | undefined>((_element) => {
     const filtering = filteringSender();
     const _isHashtag = isHashtag();
-    if(_element) {
+    if (_element) {
       _element.classList.remove('scale-in');
       void _element.offsetWidth;
       _element.classList.add('scale-out');
@@ -532,16 +532,16 @@ export default function TopbarSearch(props: {
     }
 
     const element = senderInputEntity();
-    if(element) {
+    if (element) {
       element.classList.add('topbar-search-input-entity', 'scale-in');
       const detach = attachClickEvent(element, (e) => {
         cancelEvent(e);
-        if(_isHashtag) {
+        if (_isHashtag) {
           setSearchType();
         } else {
           setFilterPeerId();
         }
-      }, {cancelMouseDown: true});
+      }, { cancelMouseDown: true });
       onCleanup(detach);
       inputSearch.container.append(element);
     }
@@ -573,24 +573,24 @@ export default function TopbarSearch(props: {
       fallbackIcon: props.fallbackIcon,
       middleware,
       avatarSize: 30,
-      meAsSaved: false
+      meAsSaved: false,
     }));
 
-    if(props.active !== undefined) {
+    if (props.active !== undefined) {
       createEffect(() => {
         entity.element.classList.toggle('active', props.active!());
       });
     }
 
-    if(props.onClick) {
+    if (props.onClick) {
       const detach = attachClickEvent(entity.element, (e) => {
         cancelEvent(e);
         props.onClick!();
-      }, {cancelMouseDown: true});
+      }, { cancelMouseDown: true });
       onCleanup(detach);
     }
 
-    if(props.onPromises) {
+    if (props.onPromises) {
       props.onPromises(entity.promises);
     }
 
@@ -610,7 +610,7 @@ export default function TopbarSearch(props: {
         title={title}
         {...(!_props.notList && {
           active: () => searchType() === _props.type,
-          onClick: () => setSearchType((type) => type === _props.type ? DEFAULT_SEARCH_TYPE : _props.type)
+          onClick: () => setSearchType((type) => type === _props.type ? DEFAULT_SEARCH_TYPE : _props.type),
         })}
         fallbackIcon={_props.type === 'public' ? 'newchannel_filled' : undefined}
         onPromises={_props.onPromises}
@@ -624,7 +624,7 @@ export default function TopbarSearch(props: {
     const _searchType = searchType();
     const middleware = createMiddleware().get();
     let element: HTMLElement;
-    if(peerId || _searchType) {
+    if (peerId || _searchType) {
       element = await new Promise((resolve) => {
         let element: HTMLDivElement;
         const onPromises = async(promises: Promise<any>[]) => {
@@ -632,20 +632,20 @@ export default function TopbarSearch(props: {
           return resolve(element);
         };
 
-        if(_searchType) {
+        if (_searchType) {
           element = SearchTypeEntity({
             type: _searchType,
             notList: true,
-            onPromises
+            onPromises,
           }) as HTMLDivElement;
         } else {
           element = PeerEntity({
             peerId,
-            onPromises
+            onPromises,
           });
         }
       });
-      if(!middleware()) {
+      if (!middleware()) {
         return;
       }
     }
@@ -659,19 +659,19 @@ export default function TopbarSearch(props: {
   const onArrowButtonClick = (direction: 'up' | 'down') => {
     // let _target = scrollableDiv.querySelector<HTMLElement>('.active');
     let _target = target();
-    if(!_target) {
+    if (!_target) {
       _target = scrollableDiv!.querySelector<HTMLElement>('.chatlist-chat')!;
       setTarget(_target);
       return;
     }
 
-    if(direction === 'down') {
+    if (direction === 'down') {
       _target = _target.previousElementSibling as HTMLElement;
     } else {
       _target = _target.nextElementSibling as HTMLElement;
     }
 
-    if(!_target || !_target.classList.contains('chatlist-chat')) {
+    if (!_target || !_target.classList.contains('chatlist-chat')) {
       return;
     }
 
@@ -683,7 +683,7 @@ export default function TopbarSearch(props: {
     setTarget(_target);
   };
 
-  const ArrowButton = ({direction}: {direction: 'up' | 'down'}) => {
+  const ArrowButton = ({ direction }: {direction: 'up' | 'down'}) => {
     return (
       <ButtonIconTsx
         icon={direction}
@@ -718,18 +718,18 @@ export default function TopbarSearch(props: {
       query: searchType && query || undefined,
       isPublicHashtag: searchType === 'public' || undefined,
       isCacheableSearch: !!searchType || undefined,
-      inputFilter: query && searchType ? {_: 'inputMessagesFilterEmpty'} : undefined,
+      inputFilter: query && searchType ? { _: 'inputMessagesFilterEmpty' } : undefined,
       type: query && searchType ? ChatType.Search : props.chatType,
-      hashtagType: searchType
+      hashtagType: searchType,
     });
   };
 
   // * search
   createEffect<Partial<{searchType: SearchType, query: string}> | undefined>((prev) => {
-    if(props.noList) return;
+    if (props.noList) return;
 
     prev ||= {};
-    const {peerId, threadId} = props;
+    const { peerId, threadId } = props;
     const query = value();
     const fromPeerId = filterPeerId();
     const isSender = choosingSender();
@@ -740,7 +740,7 @@ export default function TopbarSearch(props: {
     const _searchType = searchType();
 
     // * reset search if it's not a hashtag anymore
-    if(_searchType && !query) {
+    if (_searchType && !query) {
       setSearchType();
       updateChatSearchContext(undefined, undefined!);
       return;
@@ -759,7 +759,7 @@ export default function TopbarSearch(props: {
       query,
       fromPeerId,
       reaction: (_reaction as Reaction | undefined),
-      searchType: _searchType
+      searchType: _searchType,
     });
 
     const isEmpty = createMemo(() => count() === 0 || (_isHashtag && count() === undefined));
@@ -777,7 +777,7 @@ export default function TopbarSearch(props: {
               i18n('Search.EmptyHashtag', [wrapEmojiText(stringMiddleOverflow(query, 18))]))}
             {!_isHashtag && (fromPeerId ?
               i18n('Search.EmptyFrom', [(() => {
-                const peerTitle = new PeerTitle({peerId: fromPeerId});
+                const peerTitle = new PeerTitle({ peerId: fromPeerId });
                 return peerTitle.element;
               })()]) :
               i18n('Search.Empty', [wrapEmojiText(stringMiddleOverflow(query, 18))])
@@ -796,27 +796,27 @@ export default function TopbarSearch(props: {
 
     let first = true;
     const onLoad = (firstElement?: HTMLElement) => {
-      if(first) {
+      if (first) {
         inputSearch.toggleLoading(false);
-        setList({element: ref!, type: isSender ? 'senders' : 'messages'});
+        setList({ element: ref!, type: isSender ? 'senders' : 'messages' });
         scrollableDiv!.scrollTop = 0;
         first = false;
 
         // * jump to first target
-        if(untrack(isSmallScreen) && !isSender) {
+        if (untrack(isSmallScreen) && !isSender) {
           setTarget((untrack(messages) && firstElement) as HTMLElement);
         }
       }
     };
 
-    if(_searchType !== prev.searchType || (_searchType && query !== prev.query)) {
+    if (_searchType !== prev.searchType || (_searchType && query !== prev.query)) {
       props.onSearchTypeChange?.();
       updateChatSearchContext(_searchType, query);
     }
 
-    const current = {searchType: _searchType, query};
+    const current = { searchType: _searchType, query };
 
-    if(!isSender && !fromPeerId && !_reaction && isEmptyQuery) {
+    if (!isSender && !fromPeerId && !_reaction && isEmptyQuery) {
       setCount();
       setTotalCount();
       onLoad();
@@ -826,15 +826,15 @@ export default function TopbarSearch(props: {
     createEffect(
       on(
         () => loader(),
-        ({rendered, values, count, loadMore}) => {
+        ({ rendered, values, count, loadMore }) => {
           setCount(rendered.length);
           setTotalCount(count);
           setLoadMore(() => loadMore);
-          if(isSender) setSendersPeerIds(values as any);
+          if (isSender) setSendersPeerIds(values as any);
           else setMessages(values as any);
           onLoad((rendered as HTMLElement[])[0]);
         },
-        {defer: true}
+        { defer: true }
       )
     );
 
@@ -849,11 +849,11 @@ export default function TopbarSearch(props: {
       target,
       (target) => {
         const idx = whichChild(target);
-        if(idx === -1) {
+        if (idx === -1) {
           return;
         }
 
-        if(choosingSender()) {
+        if (choosingSender()) {
           const peerId = sendersPeerIds()![idx];
           batch(() => {
             setFilterPeerId(peerId);
@@ -863,7 +863,7 @@ export default function TopbarSearch(props: {
         }
 
         const previousActive = target.parentElement!.querySelector('.active');
-        if(previousActive) {
+        if (previousActive) {
           previousActive.classList.remove('active');
         }
 
@@ -875,11 +875,11 @@ export default function TopbarSearch(props: {
         deferSideEffect(() => {
           appImManager.chat.setMessageId({
             lastMsgId: message.mid,
-            lastMsgPeerId: message.peerId
+            lastMsgPeerId: message.peerId,
           });
         });
       },
-      {defer: true}
+      { defer: true }
     )
   );
 
@@ -887,20 +887,20 @@ export default function TopbarSearch(props: {
     return {
       _: 'reactionCount',
       count: tag.count,
-      reaction: tag.reaction
+      reaction: tag.reaction,
     };
   };
 
   const tagsToMessageReactions = (tags: SavedReactionTag[]): MessageReactions => {
     return {
       _: 'messageReactions',
-      pFlags: {reactions_as_tags: true},
-      results: tags.map(tagToReactionCount)
+      pFlags: { reactions_as_tags: true },
+      results: tags.map(tagToReactionCount),
     };
   };
 
-  const onSavedTags = ({savedPeerId, tags}: BroadcastEvents['saved_tags']) => {
-    if(savedPeerId !== props.threadId) {
+  const onSavedTags = ({ savedPeerId, tags }: BroadcastEvents['saved_tags']) => {
+    if (savedPeerId !== props.threadId) {
       return;
     }
 
@@ -912,21 +912,21 @@ export default function TopbarSearch(props: {
   createEffect<HTMLElement | undefined>((previousLock) => {
     const tags = savedReactionTags();
     const element = reactionsElement();
-    if(!tags || !element) {
+    if (!tags || !element) {
       return previousLock;
     }
 
     const reactionsContext: ReactionsContext = {
       ...element.getContext(),
-      reactions: tagsToMessageReactions(tags)
+      reactions: tagsToMessageReactions(tags),
     };
 
     // * set active
     const _reaction = reaction();
     let chosenReactionCount: ReactionCount;
-    if(_reaction) {
+    if (_reaction) {
       const reactionCount = reactionsContext.reactions!.results.find((reactionCount) => reactionsEqual(reactionCount.reaction, _reaction));
-      if(reactionCount) {
+      if (reactionCount) {
         chosenReactionCount = reactionCount;
         reactionCount.chosen_order = 0;
       }
@@ -935,26 +935,26 @@ export default function TopbarSearch(props: {
     previousLock?.remove();
     element.update(reactionsContext);
 
-    if(chosenReactionCount!) {
+    if (chosenReactionCount!) {
       const reactionElement = element.getSorted().find((element) => reactionsEqual(element.reactionCount.reaction, _reaction));
       fastSmoothScroll({
         container: reactionsScrollableDiv!,
         element: reactionElement!,
         position: 'center',
-        axis: 'x'
+        axis: 'x',
       });
     }
 
     const premium = isPremium();
     element.classList.toggle('is-locked', !premium);
-    if(!premium) {
+    if (!premium) {
       const icon: Icon = 'premium_lock';
       const reaction = new ReactionElement();
       reaction.init(ReactionLayoutType.Tag, createMiddleware().get());
       reaction.reactionCount = {
         _: 'reactionCount',
         count: 1,
-        reaction: icon as any
+        reaction: icon as any,
       };
       reaction.setCanRenderAvatars(false);
       reaction.renderCounter(undefined, i18n('Unlock'));
@@ -972,7 +972,7 @@ export default function TopbarSearch(props: {
 
   // * load saved reaction tags
   createEffect(() => {
-    if(props.peerId !== rootScope.myId) {
+    if (props.peerId !== rootScope.myId) {
       setReactionsElement();
       setSavedReactionTags(undefined as unknown as SavedReactionTag[]);
       return;
@@ -987,10 +987,10 @@ export default function TopbarSearch(props: {
     });
     const reactionsElement = new ReactionsElement();
     reactionsElement.init({
-      context: {peerId: props.peerId, mid: 0, reactions: tagsToMessageReactions([])},
+      context: { peerId: props.peerId, mid: 0, reactions: tagsToMessageReactions([]) },
       type: ReactionLayoutType.Block,
       middleware: middlewareHelper.get(),
-      forceCounter: true
+      forceCounter: true,
     });
     reactionsElement.classList.remove('has-no-reactions');
     reactionsElement.classList.add('topbar-search-left-reactions');
@@ -998,19 +998,19 @@ export default function TopbarSearch(props: {
     // * reactions listener
     const detach = attachClickEvent(reactionsElement, (e) => {
       const reactionElement = findUpClassName(e.target!, 'reaction-tag') as ReactionElement;
-      if(!reactionElement) {
+      if (!reactionElement) {
         return;
       }
 
-      if(!isPremium()) {
-        PopupPremium.show({feature: 'saved_tags'});
+      if (!isPremium()) {
+        PopupPremium.show({ feature: 'saved_tags' });
         return;
       }
 
-      const {reactionCount} = reactionElement;
-      const {reaction} = reactionCount;
+      const { reactionCount } = reactionElement;
+      const { reaction } = reactionCount;
       setReaction((prev) => {
-        if(reactionsEqual(prev, reaction)) {
+        if (reactionsEqual(prev, reaction)) {
           return undefined as unknown as Reaction;
         }
 
@@ -1018,13 +1018,13 @@ export default function TopbarSearch(props: {
       });
 
       placeCaretAtEnd(inputSearch.input);
-    }, {cancelMouseDown: true});
+    }, { cancelMouseDown: true });
     onCleanup(detach);
 
     const get = () => {
       rootScope.managers.appReactionsManager.getSavedReactionTags(props.threadId).then((tags) => {
         // await pause(1000);
-        if(!realMiddleware()) {
+        if (!realMiddleware()) {
           return;
         }
 
@@ -1045,17 +1045,17 @@ export default function TopbarSearch(props: {
   createEffect(on(
     reaction,
     (reaction) => {
-      if(first) {
+      if (first) {
         first = false;
 
-        if(!reaction) {
+        if (!reaction) {
           return;
         }
       }
 
       deferSideEffect(() => {
         appImManager.chat.setMessageId({
-          savedReaction: reaction ? [reaction as Reaction.reactionCustomEmoji | Reaction.reactionEmoji] : undefined
+          savedReaction: reaction ? [reaction as Reaction.reactionCustomEmoji | Reaction.reactionEmoji] : undefined,
         });
       });
     }
@@ -1063,7 +1063,7 @@ export default function TopbarSearch(props: {
 
   // * reset reaction on close
   onCleanup(() => {
-    if(!reaction()) {
+    if (!reaction()) {
       return;
     }
 
@@ -1072,14 +1072,14 @@ export default function TopbarSearch(props: {
         lastMsgId: undefined,
         lastMsgPeerId: undefined,
         mediaTimestamp: undefined,
-        savedReaction: undefined
+        savedReaction: undefined,
       });
     });
   });
 
   // * reset search on close
   onCleanup(() => {
-    if(appImManager.chat.type !== ChatType.Search) {
+    if (appImManager.chat.type !== ChatType.Search) {
       return;
     }
 
@@ -1089,7 +1089,7 @@ export default function TopbarSearch(props: {
   // * mobile search
   createEffect(() => {
     inputSearch.setArrowBack(isSmallScreen());
-    if(!isSmallScreen()) {
+    if (!isSmallScreen()) {
       return;
     }
 
@@ -1104,25 +1104,25 @@ export default function TopbarSearch(props: {
       onToggle: () => {
         setShowingSmallResults((prev) => !prev);
       },
-      choosingSender
+      choosingSender,
     }) as HTMLElement;
 
     const resultsElement = SearchMobileResults({
-      scrollable
+      scrollable,
     }) as HTMLElement;
 
     const topElement = SearchMobileTop({
       reactionsScrollable,
       searchTypesScrollable,
       hasReactions: () => !!calculateReactionsHeight(),
-      hasSearchTypes: () => !!calculateSearchTypesHeight()
+      hasSearchTypes: () => !!calculateSearchTypesHeight(),
     }) as HTMLElement;
 
     SearchMobileButtons({
       index,
       count: totalCount as Accessor<number>,
       chat: props.chat,
-      onArrowButtonClick
+      onArrowButtonClick,
     });
 
     const onShowingSmallResultsChange = (value = showingSmallResults()) => {
@@ -1135,7 +1135,7 @@ export default function TopbarSearch(props: {
       value ??= !!(calculateReactionsHeight() || calculateSearchTypesHeight());
       props.chat.topbar.container.classList.toggle('search-top-active', value);
       resultsElement.classList.toggle('search-top-active', value);
-      if(value) container!.after(topElement);
+      if (value) container!.after(topElement);
       else topElement.remove();
     };
 
@@ -1143,9 +1143,9 @@ export default function TopbarSearch(props: {
     createEffect(() => onTopActive());
 
     createEffect(() => {
-      if(choosingSender()) {
+      if (choosingSender()) {
         setShowingSmallResults(true);
-      } else if(!filteringSender()) {
+      } else if (!filteringSender()) {
         setShowingSmallResults(false);
       }
     });
@@ -1165,20 +1165,20 @@ export default function TopbarSearch(props: {
   });
 
   const calculateResultsHeight = createMemo(() => {
-    if(!shouldShowResults()) {
+    if (!shouldShowResults()) {
       return 0;
     }
 
     const length = count();
-    if(length === undefined && !isHashtag()) {
+    if (length === undefined && !isHashtag()) {
       return 0;
     }
 
     const paddingVertical = 8 * 2;
     let height: number;
-    if(!length) {
+    if (!length) {
       height = MIN_HEIGHT;
-    } else if(list()!.type === 'senders') {
+    } else if (list()!.type === 'senders') {
       height = 1 + paddingVertical + length * 48;
     } else {
       height = 1 + paddingVertical + length * 56;
@@ -1188,7 +1188,7 @@ export default function TopbarSearch(props: {
   });
 
   const calculateReactionsHeight = createMemo(() => {
-    if(!isActive()) {
+    if (!isActive()) {
       return 0;
     }
 
@@ -1196,7 +1196,7 @@ export default function TopbarSearch(props: {
   });
 
   const calculateSearchTypesHeight = createMemo(() => {
-    if(!isActive()) {
+    if (!isActive()) {
       return 0;
     }
 
@@ -1213,7 +1213,7 @@ export default function TopbarSearch(props: {
           inputSearch.onChange!(inputSearch.value = '');
           setFilteringSender(true);
           placeCaretAtEnd(inputSearch.input, true);
-        }, {cancelMouseDown: true});
+        }, { cancelMouseDown: true });
         onCleanup(detach);
       }}
     />
@@ -1225,7 +1225,7 @@ export default function TopbarSearch(props: {
       onClick={() => {
         showDatePickerPopup({
           initDate: new Date(),
-          onPick: props.onDatePick!
+          onPick: props.onDatePick!,
         });
       }}
     />
@@ -1236,7 +1236,7 @@ export default function TopbarSearch(props: {
     <Scrollable
       ref={scrollableDiv!}
       class={!isSmallScreen() ? 'topbar-search-left-results topbar-search-left-collapsable' : undefined}
-      style={!isSmallScreen() && calculateResultsHeight() ? {height: calculateResultsHeight() + 'px'} : undefined}
+      style={!isSmallScreen() && calculateResultsHeight() ? { height: calculateResultsHeight() + 'px' } : undefined}
       onScrolledBottom={() => {
         loadMore()?.();
       }}
@@ -1282,7 +1282,7 @@ export default function TopbarSearch(props: {
         {/* shouldShowReactions() &&  */!isSmallScreen() && (
           <div
             class="topbar-search-left-reactions-container topbar-search-left-collapsable"
-            style={calculateReactionsHeight() ? {height: calculateReactionsHeight() + 'px'} : undefined}
+            style={calculateReactionsHeight() ? { height: calculateReactionsHeight() + 'px' } : undefined}
           >
             <div class="topbar-search-left-delimiter"></div>
             {reactionsScrollable}
@@ -1291,7 +1291,7 @@ export default function TopbarSearch(props: {
         {/* shouldShowReactions() &&  */!isSmallScreen() && (
           <div
             class="topbar-search-left-reactions-container topbar-search-left-collapsable"
-            style={calculateSearchTypesHeight() ? {height: calculateSearchTypesHeight() + 'px'} : undefined}
+            style={calculateSearchTypesHeight() ? { height: calculateSearchTypesHeight() + 'px' } : undefined}
           >
             <div class="topbar-search-left-delimiter"></div>
             {searchTypesScrollable}

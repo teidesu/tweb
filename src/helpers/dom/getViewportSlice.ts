@@ -8,7 +8,7 @@ export default function getViewportSlice({
   selector,
   extraSize,
   extraMinLength,
-  elements
+  elements,
 }: {
   overflowElement: HTMLElement,
   overflowRect?: DOMRectMinified,
@@ -21,12 +21,12 @@ export default function getViewportSlice({
   overflowRect ??= overflowElement.getBoundingClientRect();
   elements! ??= Array.from(overflowElement.querySelectorAll<HTMLElement>(selector!));
 
-  if(extraSize) {
+  if (extraSize) {
     overflowRect = {
       top: overflowRect.top - extraSize,
       right: overflowRect.right + extraSize,
       bottom: overflowRect.bottom + extraSize,
-      left: overflowRect.left - extraSize
+      left: overflowRect.left - extraSize,
     };
   }
 
@@ -34,16 +34,16 @@ export default function getViewportSlice({
     visible: typeof invisibleTop = [],
     invisibleBottom: typeof invisibleTop = [];
   let foundVisible = false;
-  for(const element of elements) {
+  for (const element of elements) {
     const rect = element.getBoundingClientRect();
     const visibleRect = getVisibleRect(element, overflowElement, false, rect, overflowRect);
 
     const isVisible = !!visibleRect;
     let array: typeof invisibleTop;
-    if(isVisible) {
+    if (isVisible) {
       foundVisible = true;
       array = visible;
-    } else if(foundVisible) {
+    } else if (foundVisible) {
       array = invisibleBottom;
     } else {
       array = invisibleTop;
@@ -52,11 +52,11 @@ export default function getViewportSlice({
     array.push({
       element,
       rect,
-      visibleRect
+      visibleRect,
     });
   }
 
-  if(extraMinLength) {
+  if (extraMinLength) {
     visible.unshift(...invisibleTop.splice(Math.max(0, invisibleTop.length - extraMinLength), extraMinLength));
     visible.push(...invisibleBottom.splice(0, extraMinLength));
   }
@@ -87,5 +87,5 @@ export default function getViewportSlice({
 
   // console.log('getViewportSlice time:', performance.now() - perf);
 
-  return {invisibleTop, visible, invisibleBottom};
+  return { invisibleTop, visible, invisibleBottom };
 }

@@ -7,9 +7,9 @@
 
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
 import safeAssign from '@helpers/object/safeAssign';
-import {GroupCallParticipantVideoSourceGroup} from '@layer';
-import {fixMediaLineType, SDPBuilder, WebRTCLineType, WEBRTC_MEDIA_PORT} from '@lib/calls/sdpBuilder';
-import {AudioCodec, GroupCallConnectionTransport, Ssrc, UpdateGroupCallConnectionData, VideoCodec} from '@lib/calls/types';
+import { GroupCallParticipantVideoSourceGroup } from '@layer';
+import { fixMediaLineType, SDPBuilder, WebRTCLineType, WEBRTC_MEDIA_PORT } from '@lib/calls/sdpBuilder';
+import { AudioCodec, GroupCallConnectionTransport, Ssrc, UpdateGroupCallConnectionData, VideoCodec } from '@lib/calls/types';
 
 export class ConferenceEntry {
   public source: number;
@@ -29,7 +29,7 @@ export class ConferenceEntry {
   }
 
   public setDirection(direction: RTCRtpTransceiverDirection) {
-    if(!this.originalDirection) {
+    if (!this.originalDirection) {
       this.originalDirection = direction;
     }
 
@@ -49,7 +49,7 @@ export class ConferenceEntry {
   }
 
   public createTransceiver(connection: RTCPeerConnection, init?: RTCRtpTransceiverInit) {
-    if(init?.direction) {
+    if (init?.direction) {
       this.setDirection(init.direction);
     }
 
@@ -58,8 +58,8 @@ export class ConferenceEntry {
 
   public setSource(source: number | GroupCallParticipantVideoSourceGroup[]) {
     let sourceGroups: GroupCallParticipantVideoSourceGroup[];
-    if(Array.isArray(source)) {
-      if(!source[0]) return;
+    if (Array.isArray(source)) {
+      if (!source[0]) return;
       sourceGroups = source;
       source = sourceGroups[0].sources[0];
     }
@@ -75,8 +75,8 @@ export class ConferenceEntry {
 
 export function generateSsrc(type: WebRTCLineType, source: number | GroupCallParticipantVideoSourceGroup[], endpoint?: string): Ssrc | undefined {
   let sourceGroups: GroupCallParticipantVideoSourceGroup[];
-  if(Array.isArray(source)) {
-    if(!source[0]) return;
+  if (Array.isArray(source)) {
+    if (!source[0]) return;
     sourceGroups = source;
     source = sourceGroups[0].sources[0];
   }
@@ -85,7 +85,7 @@ export function generateSsrc(type: WebRTCLineType, source: number | GroupCallPar
     endpoint,
     type,
     source,
-    sourceGroups: sourceGroups!
+    sourceGroups: sourceGroups!,
   };
 }
 
@@ -131,9 +131,9 @@ export default class LocalConferenceDescription implements UpdateGroupCallConnec
     this.entriesBySource.delete(entry.source);
 
     const set = this.entriesByPeerId.get(entry.peerId);
-    if(set) {
+    if (set) {
       set.delete(entry);
-      if(!set.size) {
+      if (!set.size) {
         this.entriesByPeerId.delete(entry.peerId);
       }
     }
@@ -147,7 +147,7 @@ export default class LocalConferenceDescription implements UpdateGroupCallConnec
   public setEntryPeerId(entry: ConferenceEntry, peerId: ConferenceEntry['peerId']) {
     entry.setPeerId(peerId);
     let set = this.entriesByPeerId.get(peerId);
-    if(!set) {
+    if (!set) {
       this.entriesByPeerId.set(peerId, set = new Set());
     }
 
@@ -163,7 +163,7 @@ export default class LocalConferenceDescription implements UpdateGroupCallConnec
       return entry.direction === 'sendrecv' && entry.type === type && !(isSending ? entry.sendEntry : entry.recvEntry);
     });
 
-    if(!entry) {
+    if (!entry) {
       entry = this.createEntry(type);
       entry.setDirection('sendrecv');
     }
@@ -186,7 +186,7 @@ export default class LocalConferenceDescription implements UpdateGroupCallConnec
   public generateSdp(options: Omit<Parameters<SDPBuilder['addConference']>[0], 'conference'>) {
     return SDPBuilder.fromConference({
       conference: this,
-      ...options
+      ...options,
     });
   }
 }

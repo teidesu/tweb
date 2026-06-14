@@ -1,4 +1,4 @@
-import {IS_PREVIEW} from '@config/debug';
+import { IS_PREVIEW } from '@config/debug';
 
 /*
  * The preview tab runs permanently hidden, and Chrome throttles DOM timers in
@@ -14,7 +14,7 @@ import {IS_PREVIEW} from '@config/debug';
  * tab. Must be imported before any other module (see src/index.ts) so no code
  * captures the native timers. Production builds fold all of this away.
  */
-if(IS_PREVIEW && typeof(window) !== 'undefined') {
+if (IS_PREVIEW && typeof(window) !== 'undefined') {
   type StoredTimer = {callback: (...args: any[]) => void, args: any[], isInterval?: boolean};
 
   const workerSource = `
@@ -27,37 +27,37 @@ if(IS_PREVIEW && typeof(window) !== 'undefined') {
     };
   `;
 
-  const worker = new Worker(URL.createObjectURL(new Blob([workerSource], {type: 'application/javascript'})));
+  const worker = new Worker(URL.createObjectURL(new Blob([workerSource], { type: 'application/javascript' })));
   const timers = new Map<number, StoredTimer>();
   let autoIncrement = 0;
 
   const set = (type: 'timeout' | 'interval', callback: StoredTimer['callback'], delay: number, args: any[]) => {
     const id = ++autoIncrement;
-    timers.set(id, {callback, args, isInterval: type === 'interval'});
-    worker.postMessage({type, id, delay: delay || 0});
+    timers.set(id, { callback, args, isInterval: type === 'interval' });
+    worker.postMessage({ type, id, delay: delay || 0 });
     return id;
   };
 
   const clear = (id: number) => {
-    if(!timers.delete(id)) {
+    if (!timers.delete(id)) {
       return;
     }
 
-    worker.postMessage({type: 'clear', id});
+    worker.postMessage({ type: 'clear', id });
   };
 
   worker.addEventListener('message', (e) => {
     const id = e.data as number;
     const timer = timers.get(id);
-    if(!timer) {
+    if (!timer) {
       return;
     }
 
-    if(!timer.isInterval) {
+    if (!timer.isInterval) {
       timers.delete(id);
     }
 
-    if(typeof(timer.callback) === 'function') {
+    if (typeof(timer.callback) === 'function') {
       timer.callback(...timer.args);
     }
   });
@@ -67,15 +67,15 @@ if(IS_PREVIEW && typeof(window) !== 'undefined') {
   window.clearTimeout = window.clearInterval = clear as any;
 
   window.requestIdleCallback = ((callback: IdleRequestCallback) => {
-    return window.setTimeout(() => callback({didTimeout: false, timeRemaining: () => 50} as IdleDeadline), 1);
+    return window.setTimeout(() => callback({ didTimeout: false, timeRemaining: () => 50 } as IdleDeadline), 1);
   }) as any;
   window.cancelIdleCallback = clear as any;
 
   // * pretend the tab is visible and focused, so nothing pauses itself
   const defineGetter = (object: any, property: string, value: any) => {
     try {
-      Object.defineProperty(object, property, {get: () => value, configurable: true});
-    } catch{}
+      Object.defineProperty(object, property, { get: () => value, configurable: true });
+    } catch {}
   };
 
   defineGetter(document, 'hidden', false);
@@ -90,14 +90,14 @@ if(IS_PREVIEW && typeof(window) !== 'undefined') {
   // * resolves there — wait for the load event instead
   HTMLImageElement.prototype.decode = function() {
     return new Promise<void>((resolve, reject) => {
-      if(this.complete) {
-        if(this.naturalWidth) resolve();
+      if (this.complete) {
+        if (this.naturalWidth) resolve();
         else reject(new DOMException('broken image', 'EncodingError'));
         return;
       }
 
-      this.addEventListener('load', () => resolve(), {once: true});
-      this.addEventListener('error', () => reject(new DOMException('broken image', 'EncodingError')), {once: true});
+      this.addEventListener('load', () => resolve(), { once: true });
+      this.addEventListener('error', () => reject(new DOMException('broken image', 'EncodingError')), { once: true });
     });
   };
 }

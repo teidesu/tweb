@@ -26,8 +26,8 @@ export default function focusWhenConnected(
   let rafId = 0;
 
   const tick = () => {
-    if(cancelled || (signal && !signal())) return;
-    if(el.isConnected) {
+    if (cancelled || (signal && !signal())) return;
+    if (el.isConnected) {
       el.focus();
       return;
     }

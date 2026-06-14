@@ -1,5 +1,5 @@
-import {FileURLType, getFileURL} from '@helpers/fileName';
-import {Document, PhotoSize} from '@layer';
+import { FileURLType, getFileURL } from '@helpers/fileName';
+import { Document, PhotoSize } from '@layer';
 
 import getDocumentDownloadOptions from '@appManagers/utils/docs/getDocumentDownloadOptions';
 
@@ -14,17 +14,17 @@ export default function getDocumentURL(
   {
     download = false,
     thumb,
-    supportsHlsStreaming
+    supportsHlsStreaming,
   }: GetDocumentURLOptions = {}
 ) {
   let type: FileURLType;
-  if(download) {
+  if (download) {
     type = 'download';
-  } else if(thumb) {
+  } else if (thumb) {
     type = 'thumb';
-  } else if(supportsHlsStreaming) {
+  } else if (supportsHlsStreaming) {
     type = 'hls';
-  } else if(doc.supportsStreaming) {
+  } else if (doc.supportsStreaming) {
     type = 'stream';
   } else {
     type = 'document';
@@ -33,7 +33,7 @@ export default function getDocumentURL(
   return getFileURL(
     type,
     getDocumentDownloadOptions(doc, {
-      thumb
+      thumb,
     })
   );
 }

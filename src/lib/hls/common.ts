@@ -1,6 +1,6 @@
 import assumeType from '@helpers/assumeType';
-import {Document} from '@layer';
-import {logger} from '@lib/logger';
+import { Document } from '@layer';
+import { logger } from '@lib/logger';
 
 export const QUALITY_FILE_MIME_TYPE = 'application/x-mpegurl';
 

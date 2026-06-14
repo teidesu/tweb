@@ -1,8 +1,8 @@
 // * Jolly Cobra's fastSmoothScroll slightly patched
 
-import {dispatchHeavyAnimationEvent} from '@hooks/useHeavyAnimationCheck';
-import {fastRafPromise} from '@helpers/schedulers';
-import {animateSingle, cancelAnimationByKey} from '@helpers/animation';
+import { dispatchHeavyAnimationEvent } from '@hooks/useHeavyAnimationCheck';
+import { fastRafPromise } from '@helpers/schedulers';
+import { animateSingle, cancelAnimationByKey } from '@helpers/animation';
 import isInDOM from '@helpers/dom/isInDOM';
 import liteMode from '@helpers/liteMode';
 
@@ -57,7 +57,7 @@ export function fastSmoothScrollToStart(
     getElementPosition: () => -(axis === 'x' ? container.scrollLeft : container.scrollTop),
     position: 'start',
     axis,
-    forceDuration
+    forceDuration,
   });
 }
 
@@ -67,11 +67,11 @@ export default function fastSmoothScroll(options: ScrollOptions) {
   options.axis ??= 'y';
   // return;
 
-  if(!liteMode.isAvailable('animations') || options.forceDuration === 0) {
+  if (!liteMode.isAvailable('animations') || options.forceDuration === 0) {
     options.forceDirection = FocusDirection.Static;
   }
 
-  if(options.forceDirection === FocusDirection.Static) {
+  if (options.forceDirection === FocusDirection.Static) {
     options.forceDuration = 0;
     return scrollWithJs(options);
     /* return Promise.resolve();
@@ -88,8 +88,8 @@ export default function fastSmoothScroll(options: ScrollOptions) {
 }
 
 function scrollWithJs(options: ScrollOptions): Promise<void> {
-  const {element, container, getNormalSize, getElementPosition, transitionFunction, axis, margin, position, forceDirection, maxDistance, forceDuration} = options;
-  if(!isInDOM(element)) {
+  const { element, container, getNormalSize, getElementPosition, transitionFunction, axis, margin, position, forceDirection, maxDistance, forceDuration } = options;
+  if (!isInDOM(element)) {
     cancelAnimationByKey(container);
     return Promise.resolve();
   }
@@ -108,14 +108,14 @@ function scrollWithJs(options: ScrollOptions): Promise<void> {
   // const transformable = container.firstElementChild as HTMLElement;
 
   const possibleElementPosition = elementRect[rectStartKey] - containerRect[rectStartKey];
-  const elementPosition = getElementPosition ? getElementPosition({elementRect, containerRect, elementPosition: possibleElementPosition}) : possibleElementPosition;
+  const elementPosition = getElementPosition ? getElementPosition({ elementRect, containerRect, elementPosition: possibleElementPosition }) : possibleElementPosition;
   const elementSize = element[elementScrollSizeKey]; // margin is exclusive in DOMRect
 
   /* const containerTrueSize = containerRect[sizeKey];
   const containerNormalSize = getNormalSize ? getNormalSize({rect: containerRect}) : containerTrueSize;
   const containerSize = containerNormalSize;
   const containerSizeDifference = containerTrueSize - containerNormalSize; */
-  const containerSize = getNormalSize ? getNormalSize({rect: containerRect}) : containerRect[sizeKey];
+  const containerSize = getNormalSize ? getNormalSize({ rect: containerRect }) : containerRect[sizeKey];
 
   let scrollPosition = container[scrollPositionKey];
   const scrollSize = container[scrollSizeKey];
@@ -128,7 +128,7 @@ function scrollWithJs(options: ScrollOptions): Promise<void> {
 
   let path!: number;
 
-  switch(position) {
+  switch (position) {
     case 'start':
       path = elementPosition - margin!;
       break;
@@ -138,10 +138,10 @@ function scrollWithJs(options: ScrollOptions): Promise<void> {
     // 'nearest' is not supported yet
     case 'nearest':
     case 'center':
-      if(elementSize < containerSize) {
+      if (elementSize < containerSize) {
         path = (elementPosition + elementSize / 2) - (containerSize / 2);
       } else {
-        if(
+        if (
           options.fallbackToElementStartWhenCentering &&
           options.fallbackToElementStartWhenCentering !== element
         ) {
@@ -155,9 +155,9 @@ function scrollWithJs(options: ScrollOptions): Promise<void> {
 
       // * check if the scroll is possible at all
       const maxScrollPosition = container[scrollSizeKey] - containerSize;
-      if((path + scrollPosition) > maxScrollPosition) {
+      if ((path + scrollPosition) > maxScrollPosition) {
         path = Math.max(0, maxScrollPosition - scrollPosition);
-      } else if((path + scrollPosition) < 0) {
+      } else if ((path + scrollPosition) < 0) {
         path = Math.min(0, -scrollPosition);
       }
 
@@ -179,18 +179,18 @@ function scrollWithJs(options: ScrollOptions): Promise<void> {
       break;
   } */
 
-  if(Math.abs(path/*  - (margin || 0) */) < 1) {
+  if (Math.abs(path/*  - (margin || 0) */) < 1) {
     cancelAnimationByKey(container);
     return Promise.resolve();
   }
 
   let jumpToScrollPosition: number | undefined;
-  if(axis === 'y') {
-    if(forceDirection === undefined) {
-      if(path > maxDistance!) {
+  if (axis === 'y') {
+    if (forceDirection === undefined) {
+      if (path > maxDistance!) {
         jumpToScrollPosition = scrollPosition += path - maxDistance!;
         path = maxDistance!;
-      } else if(path < -maxDistance!) {
+      } else if (path < -maxDistance!) {
         jumpToScrollPosition = scrollPosition += path + maxDistance!;
         path = -maxDistance!;
       }
@@ -210,10 +210,10 @@ function scrollWithJs(options: ScrollOptions): Promise<void> {
     //path += existsTransform;
   } */
 
-  if(path < 0) {
+  if (path < 0) {
     const remainingPath = -scrollPosition;
     path = Math.max(path, remainingPath);
-  } else if(path > 0) {
+  } else if (path > 0) {
     const remainingPath = scrollSize - (scrollPosition + containerSize);
     path = Math.min(path, remainingPath);
   }
@@ -268,7 +268,7 @@ function scrollWithJs(options: ScrollOptions): Promise<void> {
   const transition = transitionFunction ?? (absPath < SHORT_TRANSITION_MAX_DISTANCE ? shortTransition : longTransition);
   const getProgress = () => duration ? Math.min((Date.now() - startAt) / duration, 1) : 1;
   const tick = () => {
-    if(jumpToScrollPosition !== undefined) {
+    if (jumpToScrollPosition !== undefined) {
       container[scrollPositionKey] = jumpToScrollPosition;
       jumpToScrollPosition = undefined;
     }
@@ -281,7 +281,7 @@ function scrollWithJs(options: ScrollOptions): Promise<void> {
     return t < 1;
   };
 
-  if(!duration || !path) {
+  if (!duration || !path) {
     cancelAnimationByKey(container);
     tick();
     return Promise.resolve();
@@ -305,7 +305,7 @@ function scrollWithJs(options: ScrollOptions): Promise<void> {
 
   }); */
 
-  if(options.startCallback) {
+  if (options.startCallback) {
     const distanceToEnd = scrollSize - Math.round(target + container[axis === 'y' ? 'offsetHeight' : 'offsetWidth']);
     options.startCallback({
       scrollSize,
@@ -315,7 +315,7 @@ function scrollWithJs(options: ScrollOptions): Promise<void> {
       duration,
       containerRect,
       elementRect,
-      getProgress
+      getProgress,
     });
   }
 
@@ -330,4 +330,4 @@ function shortTransition(t: number) {
   return 1 - ((1 - t) ** 3.5);
 }
 
-export {shortTransition as shortScrollTransition};
+export { shortTransition as shortScrollTransition };

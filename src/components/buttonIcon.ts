@@ -4,7 +4,7 @@ const ButtonIcon = (className?: (string & {}) | Icon, options: Partial<{noRipple
   const splitted = className?.split(' ');
   const button = Button('btn-icon' + (splitted?.length! > 1 ? ' ' + splitted!.slice(1).join(' ') : ''), {
     icon: splitted?.[0] as Icon || undefined,
-    ...options
+    ...options,
   });
 
   return button;

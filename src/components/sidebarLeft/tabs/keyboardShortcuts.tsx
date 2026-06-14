@@ -1,34 +1,34 @@
-import {createResource, createSignal, For, Show, JSX} from 'solid-js';
+import { createResource, createSignal, For, Show, JSX } from 'solid-js';
 import Row from '@components/rowTsx';
 import Section from '@components/section';
-import {i18n, LangPackKey} from '@lib/langPack';
-import {IS_APPLE} from '@environment/userAgent';
+import { i18n, LangPackKey } from '@lib/langPack';
+import { IS_APPLE } from '@environment/userAgent';
 import rootScope from '@lib/rootScope';
-import {useAppSettings} from '@stores/appSettings';
+import { useAppSettings } from '@stores/appSettings';
 import InlineSelect from '@components/sidebarLeft/tabs/passcodeLock/inlineSelect';
 import styles from './keyboardShortcuts.module.scss';
 
 
 const KEY_LABELS: {[k: string]: {mac: string, pc: string}} = {
-  ctrl: {mac: '⌘', pc: 'Ctrl'},
-  shift: {mac: '⇧', pc: 'Shift'},
-  alt: {mac: '⌥', pc: 'Alt'},
-  meta: {mac: '⌘', pc: 'Win'},
-  enter: {mac: '↵', pc: 'Enter'},
-  esc: {mac: 'Esc', pc: 'Esc'},
-  space: {mac: 'Space', pc: 'Space'},
-  up: {mac: '↑', pc: '↑'},
-  down: {mac: '↓', pc: '↓'},
-  left: {mac: '←', pc: '←'},
-  right: {mac: '→', pc: '→'},
-  plus: {mac: '+', pc: '+'},
-  minus: {mac: '−', pc: '−'}
+  ctrl: { mac: '⌘', pc: 'Ctrl' },
+  shift: { mac: '⇧', pc: 'Shift' },
+  alt: { mac: '⌥', pc: 'Alt' },
+  meta: { mac: '⌘', pc: 'Win' },
+  enter: { mac: '↵', pc: 'Enter' },
+  esc: { mac: 'Esc', pc: 'Esc' },
+  space: { mac: 'Space', pc: 'Space' },
+  up: { mac: '↑', pc: '↑' },
+  down: { mac: '↓', pc: '↓' },
+  left: { mac: '←', pc: '←' },
+  right: { mac: '→', pc: '→' },
+  plus: { mac: '+', pc: '+' },
+  minus: { mac: '−', pc: '−' },
 };
 
 function labelFor(key: string): string {
   const lower = key.toLowerCase();
   const lookup = KEY_LABELS[lower];
-  if(lookup) return IS_APPLE ? lookup.mac : lookup.pc;
+  if (lookup) return IS_APPLE ? lookup.mac : lookup.pc;
   return key.length === 1 ? key.toUpperCase() : key;
 }
 
@@ -101,8 +101,8 @@ const SendShortcutRow = () => {
   const ctrlEnterLabel = () => <KeyCombo keys={['ctrl', 'enter']} />;
 
   const options = [
-    {value: 'enter' as const, label: enterLabel},
-    {value: 'ctrlEnter' as const, label: ctrlEnterLabel}
+    { value: 'enter' as const, label: enterLabel },
+    { value: 'ctrlEnter' as const, label: ctrlEnterLabel },
   ];
 
   return (
@@ -254,7 +254,7 @@ const OtherSection = () => {
 
   const lockKeys = () => {
     const p = passcode();
-    if(!p?.enabled || !p?.lockShortcutEnabled || !p?.lockShortcut?.length) return undefined;
+    if (!p?.enabled || !p?.lockShortcutEnabled || !p?.lockShortcut?.length) return undefined;
     return [...p.lockShortcut, 'L'];
   };
 

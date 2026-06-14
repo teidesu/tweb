@@ -1,10 +1,10 @@
-import {IS_WEBM_SUPPORTED} from '@environment/videoSupport';
-import {rgbIntToHex} from '@helpers/color';
-import {MediaSize} from '@helpers/mediaSize';
+import { IS_WEBM_SUPPORTED } from '@environment/videoSupport';
+import { rgbIntToHex } from '@helpers/color';
+import { MediaSize } from '@helpers/mediaSize';
 import mediaSizes from '@helpers/mediaSizes';
-import {EmojiStatus, DocumentAttribute, Document} from '@layer';
+import { EmojiStatus, DocumentAttribute, Document } from '@layer';
 import rootScope from '@lib/rootScope';
-import {Sparkles} from '@components/sparkles';
+import { Sparkles } from '@components/sparkles';
 import wrapSticker from '@components/wrappers/sticker';
 
 const RENDER_SPARKLES = false; // performance issues
@@ -12,22 +12,22 @@ const RENDER_SPARKLES = false; // performance issues
 export default async function wrapEmojiStatus({
   wrapOptions,
   emojiStatus,
-  size = mediaSizes.active.emojiStatus
+  size = mediaSizes.active.emojiStatus,
 }: {
   wrapOptions: WrapSomethingOptions,
   emojiStatus: EmojiStatus.emojiStatus | EmojiStatus.emojiStatusCollectible,
   size?: MediaSize
 }) {
-  const {middleware, animationGroup, textColor} = wrapOptions;
+  const { middleware, animationGroup, textColor } = wrapOptions;
   const container = document.createElement('span');
   container.classList.add('emoji-status');
   const result = await rootScope.managers.acknowledged.appEmojiManager.getCustomEmojiDocument(emojiStatus.document_id);
   const wrap = async(doc: Document.document) => {
-    if(!middleware!()) return;
+    if (!middleware!()) return;
     const loadPromises: Promise<any>[] = [];
 
     const attribute = doc.attributes.find((attr) => attr._ === 'documentAttributeCustomEmoji') as DocumentAttribute.documentAttributeCustomEmoji;
-    if(attribute && attribute.pFlags.text_color) {
+    if (attribute && attribute.pFlags.text_color) {
       container.classList.add('emoji-status-text-color');
     }
 
@@ -42,29 +42,29 @@ export default async function wrapEmojiStatus({
       loadPromises,
       middleware,
       static: doc.mime_type === 'video/webm' && !IS_WEBM_SUPPORTED,
-      textColor: textColor || 'primary-color'
+      textColor: textColor || 'primary-color',
       // group: 'none'
     });
 
-    if(!middleware!()) return;
+    if (!middleware!()) return;
     await Promise.all(loadPromises);
   };
 
-  if(emojiStatus._ === 'emojiStatusCollectible' && RENDER_SPARKLES) {
+  if (emojiStatus._ === 'emojiStatusCollectible' && RENDER_SPARKLES) {
     container.appendChild(Sparkles({
       mode: 'button',
       isDiv: true,
-      containerSize: size
+      containerSize: size,
     }));
     container.style.setProperty('--sparkles-color', rgbIntToHex(emojiStatus.center_color));
   }
 
-  if(!middleware!()) {
+  if (!middleware!()) {
     return container;
   }
 
   const p = result.result.then(wrap);
-  if(result.cached) {
+  if (result.cached) {
     await p;
   }
 

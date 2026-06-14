@@ -1,9 +1,9 @@
-import {RestrictionReason} from '@layer';
+import { RestrictionReason } from '@layer';
 
 const platforms = new Set([
   'all',
   'web',
-  'webk'
+  'webk',
 ]);
 
 const ignore = new Set();
@@ -14,7 +14,7 @@ export function getRestrictionReason(reasons: RestrictionReason[]) {
 }
 
 export function isSensitive(reasons: RestrictionReason[]) {
-  if(ignore.has('sensitive')) return false;
+  if (ignore.has('sensitive')) return false;
   return reasons.some((reason) => reason.reason === 'sensitive' /* && platforms.has(reason.platform) */);
 }
 

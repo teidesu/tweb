@@ -3,8 +3,8 @@ export default function findIndexFrom<T>(
   predicate: (item: T, idx: number, arr: T[]) => boolean,
   i: number = 0
 ): number {
-  for(let length = arr.length; i < length; ++i) {
-    if(predicate(arr[i], i, arr)) {
+  for (let length = arr.length; i < length; ++i) {
+    if (predicate(arr[i], i, arr)) {
       return i;
     }
   }

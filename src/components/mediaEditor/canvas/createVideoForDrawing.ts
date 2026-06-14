@@ -1,7 +1,7 @@
 import deferredPromise from '@helpers/cancellablePromise';
 import createVideo from '@helpers/dom/createVideo';
 import handleVideoLeak from '@helpers/dom/handleVideoLeak';
-import {Middleware} from '@helpers/middleware';
+import { Middleware } from '@helpers/middleware';
 import onMediaLoad from '@helpers/onMediaLoad';
 
 
@@ -28,7 +28,7 @@ export default async function createVideoForDrawing(mediaSrc: string, options: O
   const waitToSeek = options.waitToSeek ?? true;
   const muted = options.muted ?? true;
 
-  const video = createVideo({pip: false, middleware: options.middleware});
+  const video = createVideo({ pip: false, middleware: options.middleware });
   video.src = mediaSrc;
   video.autoplay = true;
   video.controls = false;
@@ -40,16 +40,16 @@ export default async function createVideoForDrawing(mediaSrc: string, options: O
 
   video.addEventListener('timeupdate', () => {
     video.pause();
-  }, {once: true});
+  }, { once: true });
 
   // Theoretically we should not have any errors here as this is handled in the media popup
   try {
     const promise = onMediaLoad(video);
     await handleVideoLeak(video, promise);
 
-    if(waitToSeek) {
+    if (waitToSeek) {
       const deferred = deferredPromise<void>();
-      video.addEventListener('seeked', () => void deferred.resolve(), {once: true});
+      video.addEventListener('seeked', () => void deferred.resolve(), { once: true });
       timeout = self.setTimeout(() => deferred.resolve(), 500); // just in case
 
       video.currentTime = video.duration * currentTime;
@@ -57,12 +57,12 @@ export default async function createVideoForDrawing(mediaSrc: string, options: O
       await deferred;
       self.clearTimeout(timeout);
     }
-  } catch(e) {
+  } catch (e) {
     console.error(e);
   }
 
 
-  if(!muted) video.muted = false;
+  if (!muted) video.muted = false;
 
   return video;
 }

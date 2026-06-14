@@ -65,7 +65,7 @@ export default class MovableElement extends EventListenerBase<{
   };
 
   public toggleResizable(value: boolean) {
-    if(!value) {
+    if (!value) {
       this.destroyResizeHandlers();
     } else {
       this.addResizeHandlers();
@@ -78,7 +78,7 @@ export default class MovableElement extends EventListenerBase<{
   }
 
   public destroyResizeHandlers() {
-    if(this.handlers) {
+    if (this.handlers) {
       this.handlers.forEach((handler) => {
         handler.remove();
       });
@@ -93,7 +93,7 @@ export default class MovableElement extends EventListenerBase<{
   }
 
   private addResizeHandlers() {
-    if(this.handlers) {
+    if (this.handlers) {
       return;
     }
 
@@ -120,31 +120,31 @@ export default class MovableElement extends EventListenerBase<{
       onSwipe: (xDiff, yDiff, e) => {
         // console.log(xDiff, yDiff, e);
 
-        if(resizingSide) {
+        if (resizingSide) {
           const changingWidth = resizingSide.includes('e') || resizingSide.includes('w');
           const changingHeight = resizingSide.includes('n') || resizingSide.includes('s');
           const maxPossibleWidth = resizingSide.includes('e') || !changingWidth ? windowSize.width - startLeft : startWidth + startLeft;
           const maxPossibleHeight = resizingSide.includes('s') || !changingHeight ? windowSize.height - startTop : startHeight + startTop;
 
-          if(changingWidth) {
+          if (changingWidth) {
             const isEnlarging = resizingSide.includes('e') && xDiff > 0 || resizingSide.includes('w') && xDiff < 0;
             const resizeDiff = Math.abs(xDiff) * (isEnlarging ? 1 : -1);
 
             this.width = clamp(startWidth + resizeDiff, this.minWidth, maxPossibleWidth);
 
-            if(this.aspectRatio) {
+            if (this.aspectRatio) {
               this.height = clamp(this.width / this.aspectRatio + startExtraHeight, this.minHeight, maxPossibleHeight);
               this.width = this.height * this.aspectRatio + startExtraWidth;
             }
           }
 
-          if(changingHeight) {
+          if (changingHeight) {
             const isEnlarging = resizingSide.includes('s') && yDiff > 0 || resizingSide.includes('n') && yDiff < 0;
             const resizeDiff = Math.abs(yDiff) * (isEnlarging ? 1 : -1);
 
             this.height = clamp(startHeight + resizeDiff, this.minHeight, maxPossibleHeight);
 
-            if(this.aspectRatio) {
+            if (this.aspectRatio) {
               this.width = clamp(this.height * this.aspectRatio + startExtraWidth, this.minWidth, maxPossibleWidth);
               this.height = this.width / this.aspectRatio + startExtraHeight;
             }
@@ -152,11 +152,11 @@ export default class MovableElement extends EventListenerBase<{
 
           // this.fixDimensions();
 
-          if(resizingSide.includes('w')) {
+          if (resizingSide.includes('w')) {
             this.left = Math.min(startLeft + startWidth - this.minWidth, startLeft + xDiff);
           }
 
-          if(resizingSide.includes('n')) {
+          if (resizingSide.includes('n')) {
             this.top = Math.min(startTop + startHeight - this.minHeight, startTop + yDiff);
           }
         } else {
@@ -171,18 +171,18 @@ export default class MovableElement extends EventListenerBase<{
         const target = e.target;
         const resizeHandler = findUpClassName(target, resizeHandlerClassName);
 
-        if(this.verifyTouchTarget && !this.verifyTouchTarget(e, resizeHandler ? 'resize' : 'move')) {
+        if (this.verifyTouchTarget && !this.verifyTouchTarget(e, resizeHandler ? 'resize' : 'move')) {
           return false;
         }
 
-        if(resizeHandler) {
+        if (resizeHandler) {
           resizingSide = resizeHandler.dataset.side as ResizeSide;
           let cursor: Parameters<SwipeHandler['setCursor']>[0] = 'col-resize';
-          if(resizingSide === 'nw' || resizingSide === 'se') {
+          if (resizingSide === 'nw' || resizingSide === 'se') {
             cursor = 'nwse-resize';
-          } else if(resizingSide === 'ne' || resizingSide === 'sw') {
+          } else if (resizingSide === 'ne' || resizingSide === 'sw') {
             cursor = 'nesw-resize';
-          } else if(resizingSide === 'n' || resizingSide === 's') {
+          } else if (resizingSide === 'n' || resizingSide === 's') {
             cursor = 'row-resize';
           }
           swipeHandler.setCursor(cursor);
@@ -199,31 +199,31 @@ export default class MovableElement extends EventListenerBase<{
         startWidth = this.width;
         startHeight = this.height;
 
-        if(!this.overlay) {
+        if (!this.overlay) {
           this.overlay = document.createElement('div');
           this.overlay.classList.add(className + '-overlay');
         }
 
         this.element.append(this.overlay);
 
-        if(this.aspectRatio) {
+        if (this.aspectRatio) {
           startExtraWidth = this.width - this.height * this.aspectRatio;
           startExtraHeight = this.height - this.width / this.aspectRatio;
         }
 
-        if(this.resetTransition) {
+        if (this.resetTransition) {
           this.element.classList.add('no-transition');
           void this.element.offsetLeft; // reflow
         }
       },
       onReset: () => {
-        if(this.resetTransition) {
+        if (this.resetTransition) {
           this.element.classList.remove('no-transition');
         }
 
         this.overlay.remove();
       },
-      setCursorTo: document.body
+      setCursorTo: document.body,
     });
   }
 
@@ -234,16 +234,16 @@ export default class MovableElement extends EventListenerBase<{
   }
 
   private fixDimensions(fixAspectRatio?: boolean) {
-    if(fixAspectRatio && this.aspectRatio) {
+    if (fixAspectRatio && this.aspectRatio) {
       const extraWidth = this.width - this.height * this.aspectRatio;
       const extraHeight = this.height - this.width / this.aspectRatio;
 
       const maxPossibleWidth = windowSize.width - this.left;
       const maxPossibleHeight = windowSize.height - this.top;
-      if(this.width > maxPossibleWidth) {
+      if (this.width > maxPossibleWidth) {
         this.width = maxPossibleWidth;
         this.height = this.width / this.aspectRatio + extraHeight;
-      } else if(this.height > maxPossibleHeight) {
+      } else if (this.height > maxPossibleHeight) {
         this.height = maxPossibleHeight;
         this.width = this.height * this.aspectRatio + extraWidth;
       } else {
@@ -288,17 +288,17 @@ export default class MovableElement extends EventListenerBase<{
   }
 
   public get state(): MovableState {
-    const {top, left, width, height} = this;
+    const { top, left, width, height } = this;
     return {
       top,
       left,
       width,
-      height
+      height,
     };
   }
 
   public set state(state: MovableState) {
-    const {top, left, width, height} = state;
+    const { top, left, width, height } = state;
     this.top = top!;
     this.left = left!;
     this.width = width;

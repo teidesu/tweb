@@ -1,5 +1,5 @@
-import {providedTabs} from '@components/solidJsTabs/providedTabs';
-import {SuperTabProvider} from '@components/solidJsTabs/superTabProvider';
+import { providedTabs } from '@components/solidJsTabs/providedTabs';
+import { SuperTabProvider } from '@components/solidJsTabs/superTabProvider';
 import {
   AppAddMembersTab,
   AppChatBackgroundTab,
@@ -16,14 +16,14 @@ import {
   AppMyProfileTab,
   AppSettingsTab,
   AppSpeakersAndCameraTab,
-  getEditProfileInitArgs
+  getEditProfileInitArgs,
 } from '@components/solidJsTabs/tabs';
 
 
 SuperTabProvider.allTabs = providedTabs;
 
 
-export {providedTabs};
+export { providedTabs };
 
 export {
   AppAddMembersTab,
@@ -41,5 +41,5 @@ export {
   AppMyProfileTab,
   AppSettingsTab,
   AppSpeakersAndCameraTab,
-  getEditProfileInitArgs
+  getEditProfileInitArgs,
 };

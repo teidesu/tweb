@@ -44,7 +44,7 @@ export class Lethargy {
     stability = 8,
     sensitivity = 100,
     tolerance = 1.1,
-    delay = 150
+    delay = 150,
   }: LethargyConfig = {}) {
     this.stability = stability;
     this.sensitivity = sensitivity;
@@ -58,16 +58,16 @@ export class Lethargy {
   check(e: any) {
     let lastDelta;
     e = e.originalEvent || e;
-    if(e.wheelDelta !== undefined) {
+    if (e.wheelDelta !== undefined) {
       lastDelta = e.wheelDelta;
-    } else if(e.deltaY !== undefined) {
+    } else if (e.deltaY !== undefined) {
       lastDelta = e.deltaY * -40;
-    } else if(e.detail !== undefined || e.detail === 0) {
+    } else if (e.detail !== undefined || e.detail === 0) {
       lastDelta = e.detail * -40;
     }
     this.deltasTimestamp.push(Date.now());
     this.deltasTimestamp.shift();
-    if(lastDelta > 0) {
+    if (lastDelta > 0) {
       this.lastUpDeltas.push(lastDelta);
       this.lastUpDeltas.shift();
       return this.isInertia(1);
@@ -80,8 +80,8 @@ export class Lethargy {
 
   isInertia(direction: number) {
     const lastDeltas = direction === -1 ? this.lastDownDeltas : this.lastUpDeltas;
-    if(lastDeltas[0] === undefined) return direction;
-    if(
+    if (lastDeltas[0] === undefined) return direction;
+    if (
       this.deltasTimestamp[this.stability * 2 - 2] + this.delay > Date.now() &&
       lastDeltas[0] === lastDeltas[this.stability * 2 - 1]
     ) {

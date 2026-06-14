@@ -1,7 +1,7 @@
-import {createEffect, onCleanup} from 'solid-js';
-import {animate} from '@helpers/animation';
+import { createEffect, onCleanup } from 'solid-js';
+import { animate } from '@helpers/animation';
 import clamp from '@helpers/number/clamp';
-import {SetVideoTimeFlags, useMediaEditorContext} from '@components/mediaEditor/context';
+import { SetVideoTimeFlags, useMediaEditorContext } from '@components/mediaEditor/context';
 
 
 type Args = {
@@ -9,24 +9,24 @@ type Args = {
   drawAdjustedImage: () => void;
 };
 
-export default function initVideoPlayback({gl, drawAdjustedImage}: Args) {
-  const {editorState, mediaState, actions} = useMediaEditorContext()!;
-  const {renderingPayload} = editorState;
+export default function initVideoPlayback({ gl, drawAdjustedImage }: Args) {
+  const { editorState, mediaState, actions } = useMediaEditorContext()!;
+  const { renderingPayload } = editorState;
   const video = renderingPayload!.media.video;
 
-  if(!video) return;
+  if (!video) return;
 
   // We don't want this 'seeked' event to be fired when generating the final result
   let pendingSeek = false;
 
   actions.setVideoTime = (time: number, flags = SetVideoTimeFlags.Redraw | SetVideoTimeFlags.UpdateVideo | SetVideoTimeFlags.UpdateCursor) => {
-    if(flags & SetVideoTimeFlags.UpdateCursor) mediaState.currentVideoTime = time;
-    if(flags & SetVideoTimeFlags.UpdateVideo) video.currentTime = time * video.duration;
-    if(flags & SetVideoTimeFlags.Redraw) pendingSeek = true;
+    if (flags & SetVideoTimeFlags.UpdateCursor) mediaState.currentVideoTime = time;
+    if (flags & SetVideoTimeFlags.UpdateVideo) video.currentTime = time * video.duration;
+    if (flags & SetVideoTimeFlags.Redraw) pendingSeek = true;
   };
 
   const seekListener = () => {
-    if(!pendingSeek) return;
+    if (!pendingSeek) return;
     pendingSeek = false;
 
     gl.bindTexture(gl.TEXTURE_2D, renderingPayload!.texture);
@@ -42,12 +42,12 @@ export default function initVideoPlayback({gl, drawAdjustedImage}: Args) {
 
 
   createEffect(() => {
-    if(editorState.currentTab !== 'adjustments') return;
+    if (editorState.currentTab !== 'adjustments') return;
 
     const listener = (event: KeyboardEvent) => {
       const el = (event.target as HTMLElement);
 
-      if(event.code === 'Space' && !el.isContentEditable) {
+      if (event.code === 'Space' && !el.isContentEditable) {
         event.preventDefault(); // stop page from scrolling, idk if needed
         editorState.isPlaying = !editorState.isPlaying;
       }
@@ -66,7 +66,7 @@ export default function initVideoPlayback({gl, drawAdjustedImage}: Args) {
   });
 
   createEffect(() => {
-    if(!editorState.isPlaying) return;
+    if (!editorState.isPlaying) return;
 
     let
       frameCallbackId: number,
@@ -84,7 +84,7 @@ export default function initVideoPlayback({gl, drawAdjustedImage}: Args) {
     }
 
     const timeout = self.setTimeout(() => {
-      if(mediaState.currentVideoTime >= mediaState.videoCropStart + mediaState.videoCropLength)
+      if (mediaState.currentVideoTime >= mediaState.videoCropStart + mediaState.videoCropLength)
         actions.setVideoTime(mediaState.videoCropStart);
 
       frameCallbackId = video.requestVideoFrameCallback(frameCallback);
@@ -93,12 +93,12 @@ export default function initVideoPlayback({gl, drawAdjustedImage}: Args) {
       animate(() => {
         skip = (skip + 1) % 3;
 
-        if(skip) return true;
-        if(!playing) return false;
+        if (skip) return true;
+        if (!playing) return false;
 
         mediaState.currentVideoTime = video.currentTime / video.duration || 0;
 
-        if(video.ended || video.paused || mediaState.currentVideoTime >= mediaState.videoCropStart + mediaState.videoCropLength) {
+        if (video.ended || video.paused || mediaState.currentVideoTime >= mediaState.videoCropStart + mediaState.videoCropLength) {
           playing = false;
           editorState.isPlaying = false;
           mediaState.currentVideoTime = clamp(mediaState.currentVideoTime, mediaState.videoCropStart, mediaState.videoCropStart + mediaState.videoCropLength);

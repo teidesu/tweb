@@ -14,12 +14,12 @@ export default function onQuoteClick(
   const isTruncated = quoteDiv.classList.contains('is-truncated');
   const isExpanded = quoteDiv.classList.contains('is-expanded');
   const isGood = isTruncated || isExpanded;
-  if(isGood && window.getSelection()!.isCollapsed) {
+  if (isGood && window.getSelection()!.isCollapsed) {
     cancelEvent(e);
 
-    if(createScrollSaver) {
+    if (createScrollSaver) {
       const hasAnimations = liteMode.isAvailable('animations');
-      if(hasAnimations) {
+      if (hasAnimations) {
         (quoteDiv as any).ignoreQuoteResize = Infinity;
       }
 
@@ -34,14 +34,14 @@ export default function onQuoteClick(
         }),
         new Promise<void>((resolve) => {
           onTransitionEnd = (e: TransitionEvent) => {
-            if(e.target === quoteDiv) {
+            if (e.target === quoteDiv) {
               resolve();
               delete (quoteDiv as any).ignoreQuoteResize;
             }
           };
 
-          quoteDiv.addEventListener('transitionend', onTransitionEnd, {once: true});
-        })
+          quoteDiv.addEventListener('transitionend', onTransitionEnd, { once: true });
+        }),
       ]) : Promise.resolve();
 
       animateSomethingWithScroll(animationPromise, scrollable!, scrollSaver);

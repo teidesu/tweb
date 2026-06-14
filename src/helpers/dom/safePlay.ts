@@ -3,10 +3,10 @@ import noop from '@helpers/noop';
 export default function safePlay(media: {play: () => any}) {
   try {
     const promise = media.play();
-    if(promise instanceof Promise) {
+    if (promise instanceof Promise) {
       promise.catch(noop);
     }
-  } catch(e) {
+  } catch (e) {
     console.error(e);
   }
 }

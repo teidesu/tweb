@@ -1,4 +1,4 @@
-import {Component, createSignal, JSX, onCleanup} from 'solid-js';
+import { Component, createSignal, JSX, onCleanup } from 'solid-js';
 
 import styles from '@components/loadingDialogSkeleton.module.scss';
 
@@ -37,17 +37,17 @@ const LoadingDialogSkeleton: Component<{
         [props.class as string]: !!props.class,
         [styles['size' + props.size]]: true,
         [styles.noAvatar]: props.noAvatar,
-        [styles.shimmer]: animating()
+        [styles.shimmer]: animating(),
       }}
       style={props.style}
     >
       <div class={styles.Avatar} />
       <div class={styles.Content}>
         <div class={styles.Title}>
-          <div class={styles.TitleLeft} style={{'--width': (pseudoRandomRange(props.seed, 100, 120) | 0) + 'px'}} />
-          <div class={styles.TitleRight} style={{'--width': (pseudoRandomRange(props.seed, 20, 60) | 0) + 'px'}} />
+          <div class={styles.TitleLeft} style={{ '--width': (pseudoRandomRange(props.seed, 100, 120) | 0) + 'px' }} />
+          <div class={styles.TitleRight} style={{ '--width': (pseudoRandomRange(props.seed, 20, 60) | 0) + 'px' }} />
         </div>
-        <div class={styles.Subtitle} style={{'--width': (pseudoRandomRange(props.seed, 60, 200) | 0) + 'px'}} />
+        <div class={styles.Subtitle} style={{ '--width': (pseudoRandomRange(props.seed, 60, 200) | 0) + 'px' }} />
       </div>
     </div>
   );

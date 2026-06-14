@@ -1,15 +1,15 @@
 import type ChatTopbar from '@components/chat/topbar';
 import Chat from '@components/chat/chat';
-import {LangPackKey, i18n} from '@lib/langPack';
-import {PeerSettings} from '@layer';
-import {AppManagers} from '@lib/managers';
+import { LangPackKey, i18n } from '@lib/langPack';
+import { PeerSettings } from '@layer';
+import { AppManagers } from '@lib/managers';
 import callbackify from '@helpers/callbackify';
 import ripple from '@components/ripple';
 import confirmationPopup from '@components/confirmationPopup';
 import classNames from '@helpers/string/classNames';
-import {AckedResult} from '@lib/superMessagePort';
-import {Accessor, createSignal, For, Show} from 'solid-js';
-import TopbarPlate, {createTopbarPlate, TopbarPlateController} from '@components/chat/topbarPlate';
+import { AckedResult } from '@lib/superMessagePort';
+import { Accessor, createSignal, For, Show } from 'solid-js';
+import TopbarPlate, { createTopbarPlate, TopbarPlateController } from '@components/chat/topbarPlate';
 
 type ActionKey = keyof PeerSettings['pFlags'];
 
@@ -23,7 +23,7 @@ const LANG_KEY_MAP: {[key in ActionKey]?: LangPackKey} = {
   add_contact: 'AddContact',
   autoarchived: 'Unarchive',
   block_contact: 'BlockUser',
-  report_spam: 'DeleteReportSpam'
+  report_spam: 'DeleteReportSpam',
 };
 
 export type ChatActionsPlate = TopbarPlateController & {
@@ -89,7 +89,7 @@ export default function createChatActionsPlate(
     setDisabled(true);
     try {
       await promise;
-    } catch(err) {
+    } catch (err) {
 
     }
     setDisabled(false);
@@ -100,7 +100,7 @@ export default function createChatActionsPlate(
     onClick: async() => {
       const promise = managers.appMessagesManager.editPeerFolders([currentPeerId!], 0);
       freeze(promise);
-    }
+    },
   }, {
     key: 'block_contact',
     onClick: () => {
@@ -110,15 +110,15 @@ export default function createChatActionsPlate(
         (promise) => freeze(promise)
       );
     },
-    danger: true
+    danger: true,
   }, {
     key: 'add_contact',
-    onClick: () => topbar.addContact()
+    onClick: () => topbar.addContact(),
   }, {
     key: 'report_spam',
     onClick: async() => {
       const peerId = currentPeerId;
-      if(peerId!.isUser()) {
+      if (peerId!.isUser()) {
         actions.find((action) => action.key === 'block_contact')!.onClick();
       } else {
         await confirmationPopup({
@@ -126,21 +126,21 @@ export default function createChatActionsPlate(
           descriptionLangKey: await managers.appPeersManager.isBroadcast(peerId!) ?
             'Chat.Confirm.ReportSpam.Channel' :
             'Chat.Confirm.ReportSpam.Group',
-          button: {langKey: 'ReportChat'}
+          button: { langKey: 'ReportChat' },
         });
 
         const promise = Promise.all([
           managers.appMessagesManager.reportSpam(peerId!),
-          managers.appChatsManager.leave(peerId!.toChatId())
+          managers.appChatsManager.leave(peerId!.toChatId()),
         ]);
         freeze(promise);
       }
     },
-    danger: true
+    danger: true,
   }];
 
   const onClose = () => {
-    if(currentPeerId !== undefined) {
+    if (currentPeerId !== undefined) {
       managers.appProfileManager.hidePeerSettingsBar(currentPeerId);
     }
     unset(currentPeerId!);
@@ -150,7 +150,7 @@ export default function createChatActionsPlate(
     modifier: 'actions',
     height: 52,
     onVisibilityChange: () => topbar.setFloating(),
-    render: () => <ActionsPlateBody buttons={buttons} disabled={disabled} onClose={onClose} />
+    render: () => <ActionsPlateBody buttons={buttons} disabled={disabled} onClose={onClose} />,
   });
 
   const unset = (peerId: PeerId) => {
@@ -164,7 +164,7 @@ export default function createChatActionsPlate(
     const supportedActions = settings?.pFlags ?
       actions.filter((action) => settings.pFlags[action.key]) :
       [];
-    if(!supportedActions.length) return () => unset(peerId);
+    if (!supportedActions.length) return () => unset(peerId);
 
     return () => {
       currentPeerId = peerId;
@@ -178,11 +178,11 @@ export default function createChatActionsPlate(
 
   const setPeerId = (peerId: PeerId) => {
     return Promise.all([
-      managers.acknowledged.appProfileManager.getPeerSettings(peerId)
+      managers.acknowledged.appProfileManager.getPeerSettings(peerId),
     ]).then(([peerSettingsAcked]) => {
       return {
         cached: peerSettingsAcked.cached,
-        result: callbackify(peerSettingsAcked.result, (peerSettings) => set(peerId, peerSettings))
+        result: callbackify(peerSettingsAcked.result, (peerSettings) => set(peerId, peerSettings)),
       };
     });
   };
@@ -191,6 +191,6 @@ export default function createChatActionsPlate(
     ...plate,
     set,
     unset,
-    setPeerId
+    setPeerId,
   };
 }

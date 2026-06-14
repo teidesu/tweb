@@ -8,59 +8,59 @@ function kindaFuzzyFinderImpl(str: string, toFind: string, fm: number) {
   const n = str.length;
   const m = toFind.length;
 
-  for(let j = 0; j < m; j++) {
-    for(let i = 0; i < n; i++) {
-      if(str[i] !== toFind[j]) continue;
+  for (let j = 0; j < m; j++) {
+    for (let i = 0; i < n; i++) {
+      if (str[i] !== toFind[j]) continue;
 
-      const {found} = kindaFuzzyFinderImpl(str.slice(i + 1), toFind.slice(j + 1), fm);
+      const { found } = kindaFuzzyFinderImpl(str.slice(i + 1), toFind.slice(j + 1), fm);
       const newIndicies = [i, ...found.map(fi => fi + i + 1)];
 
       const s = score(str, toFind, newIndicies, fm, true) - punishments.missing(fm) * j;
-      if(s > bestScore) {
+      if (s > bestScore) {
         bestScore = s;
         bestIndicies = newIndicies;
       }
     }
   }
 
-  return {found: bestIndicies, score: score(str, toFind, bestIndicies, fm, true)};
+  return { found: bestIndicies, score: score(str, toFind, bestIndicies, fm, true) };
 }
 
 const punishments = {
   missing: (length: number) => 1 / length,
-  gap: (length: number, gap: number) => 0.25 / length * gap
+  gap: (length: number, gap: number) => 0.25 / length * gap,
 };
 
 function score(str: string, toFind: string, indicies: number[], fm: number, punishLastMissing: boolean) {
   const n = str.length, m = toFind.length, k = indicies.length;
-  if(!k) return 0;
+  if (!k) return 0;
 
   let result = 1;
 
   let fi = 0, prevsi = -1;
-  for(let i = 0; i < k && fi < m; i++) {
+  for (let i = 0; i < k && fi < m; i++) {
     const si = indicies[i];
-    if(!(si < n)) break;
+    if (!(si < n)) break;
 
-    while(str[si] !== toFind[fi] && fi < m) {
+    while (str[si] !== toFind[fi] && fi < m) {
       fi++;
       result -= punishments.missing(fm);
     }
     fi++;
 
-    if(prevsi != -1 && si - prevsi > 1) {
+    if (prevsi != -1 && si - prevsi > 1) {
       result -= punishments.gap(m, si - prevsi - 1);
     }
 
     prevsi = si;
   }
 
-  if(punishLastMissing) result -= (fm - fi) * punishments.missing(fm);
+  if (punishLastMissing) result -= (fm - fi) * punishments.missing(fm);
 
   return result;
 }
 
-if(false) {
+if (false) {
   const testCases = [
     ['hello world', ['hlo', 'hew', 'wld', 'world', 'xyz']],
     ['fuzzy finder', ['fzy', 'fin', 'fndr', 'zzi', 'der']],
@@ -80,13 +80,13 @@ if(false) {
     ['node.js server', ['nd', 'srv', 'node', 'js', 'ser']],
     ['web development', ['web', 'dev', 'wdev', 'lop', 'zzz']],
     ['browser history', ['bh', 'hist', 'browse', 'his', 'story']],
-    ['terminal command', ['term', 'cmd', 'com', 'tc', 'mand']]
+    ['terminal command', ['term', 'cmd', 'com', 'tc', 'mand']],
   ] as const;
 
-  for(const [source, terms] of testCases) {
+  for (const [source, terms] of testCases) {
     console.log(`\nSource: "${source}"`);
-    for(const term of terms) {
-      const {found, score} = kindaFuzzyFinder(source, term);
+    for (const term of terms) {
+      const { found, score } = kindaFuzzyFinder(source, term);
       const arr = new Array(source.length).fill('^').map((_, i) => found.includes(i) ? source[i] : _);
       console.log(`  Search: "${term}" -> (${score.toFixed(2)}) ${arr.join('')}`);
     }

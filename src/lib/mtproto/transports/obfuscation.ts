@@ -1,7 +1,7 @@
 // import aesjs from 'aes-js';
 import randomize from '@helpers/array/randomize';
 import cryptoMessagePort from '@lib/crypto/cryptoMessagePort';
-import {Codec} from '@lib/mtproto/transports/codec';
+import { Codec } from '@lib/mtproto/transports/codec';
 
 /*
 @cryptography/aes не работает с массивами которые не кратны 4, поэтому использую intermediate а не abridged
@@ -24,17 +24,17 @@ export default class Obfuscation {
   // private decIvCounter: Counter;
 
   public async init(codec: Codec) {
-    if(this.idPromise !== undefined) {
+    if (this.idPromise !== undefined) {
       this.release();
     }
 
     const initPayload = new Uint8Array(64);
     randomize(initPayload);
 
-    while(true) {
+    while (true) {
       const val = (initPayload[3] << 24) | (initPayload[2] << 16) | (initPayload[1] << 8) | initPayload[0];
       const val2 = (initPayload[7] << 24) | (initPayload[6] << 16) | (initPayload[5] << 8) | initPayload[4];
-      if(initPayload[0] !== 0xef &&
+      if (initPayload[0] !== 0xef &&
           val !== 0x44414548 &&
           val !== 0x54534f50 &&
           val !== 0x20544547 &&
@@ -69,7 +69,7 @@ export default class Obfuscation {
       encKey,
       encIv,
       decKey,
-      decIv
+      decIv,
     });
 
     this.process = async(data, operation) => {
@@ -153,8 +153,8 @@ export default class Obfuscation {
   private _process = (data: Uint8Array, operation: 'encrypt' | 'decrypt') => {
     return cryptoMessagePort.invokeCryptoNew({
       method: 'aes-ctr-process',
-      args: [{id: (this.id as number), data, operation}],
-      transfer: [data.buffer]
+      args: [{ id: (this.id as number), data, operation }],
+      transfer: [data.buffer],
     });
   };
 
@@ -176,7 +176,7 @@ export default class Obfuscation {
 
   public async release() {
     const idPromise = this.idPromise;
-    if(idPromise === undefined) {
+    if (idPromise === undefined) {
       return;
     }
 

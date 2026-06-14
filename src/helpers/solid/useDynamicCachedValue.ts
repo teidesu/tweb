@@ -1,4 +1,4 @@
-import {createMemo, createRoot, Accessor, onCleanup} from 'solid-js';
+import { createMemo, createRoot, Accessor, onCleanup } from 'solid-js';
 
 type T = Partial<{
   count: number,
@@ -14,8 +14,8 @@ export default function useDynamicCachedValue<T>(cacheKey: Accessor<string>, fac
     const currentKey = cacheKey();
     let entry = cache.get(currentKey);
 
-    if(!entry) {
-      entry = {count: 0, factory};
+    if (!entry) {
+      entry = { count: 0, factory };
       entry.value = createRoot((dispose) => {
         entry!.dispose = dispose;
         return factory();
@@ -26,7 +26,7 @@ export default function useDynamicCachedValue<T>(cacheKey: Accessor<string>, fac
     ++entry.count!;
 
     onCleanup(() => {
-      if(!--entry.count!) {
+      if (!--entry.count!) {
         entry.dispose!();
         cache.delete(currentKey);
       }

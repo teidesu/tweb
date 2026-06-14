@@ -1,9 +1,9 @@
-import {ColorHsla, ColorRgba, hexaToHsla, hslaToRgba, rgbaToHexa as rgbaToHexa, rgbaToHsla} from '@helpers/color';
+import { ColorHsla, ColorRgba, hexaToHsla, hslaToRgba, rgbaToHexa as rgbaToHexa, rgbaToHsla } from '@helpers/color';
 import createElementFromMarkup from '@helpers/createElementFromMarkup';
 import attachGrabListeners from '@helpers/dom/attachGrabListeners';
 import clamp from '@helpers/number/clamp';
-import InputField, {InputState} from '@components/inputField';
-import {observeResize} from './resizeObserver';
+import InputField, { InputState } from '@components/inputField';
+import { observeResize } from './resizeObserver';
 
 export type ColorPickerColor = {
   hsl: string;
@@ -67,7 +67,7 @@ export default class ColorPicker {
     pickerBoxWidth = defaultPickerBoxWidth,
     pickerBoxHeight = defaultPickerBoxHeight,
     sliderWidth = defaultSliderWidth,
-    thickSlider = false
+    thickSlider = false,
   }: ConstructorArgs = {}) {
     // Multiple instances of color pickers will need different id's for SVG markup
     const id = ColorPicker.idSeed++;
@@ -128,14 +128,14 @@ export default class ColorPicker {
     this.elements.hueDragger = this.elements.hue.lastElementChild as any;
     this.elements.hueRect = slider.querySelector(`#color-picker-hue-rect-${id}`)!;
 
-    this.hexInputField = new InputField({plainText: true, label: 'Appearance.Color.Hex'});
-    this.rgbInputField = new InputField({plainText: true, label: 'Appearance.Color.RGB'});
+    this.hexInputField = new InputField({ plainText: true, label: 'Appearance.Color.Hex' });
+    this.rgbInputField = new InputField({ plainText: true, label: 'Appearance.Color.RGB' });
 
     this.container = buildLayout({
       pickerBox,
       slider,
       hexInput: this.hexInputField.container,
-      rgbInput: this.rgbInputField.container
+      rgbInput: this.rgbInputField.container,
     });
 
     this.hexInputField.input.addEventListener('input', () => {
@@ -148,7 +148,7 @@ export default class ColorPicker {
       value = '#' + value;
       this.hexInputField.setValueSilently(value);
 
-      if(valid) {
+      if (valid) {
         this.setColor(value, false, true);
       }
     });
@@ -159,7 +159,7 @@ export default class ColorPicker {
       const match = this.rgbInputField.value.match(rgbRegExp);
       this.rgbInputField.setState(match ? InputState.Neutral : InputState.Error);
 
-      if(match) {
+      if (match) {
         this.setColor(rgbaToHsla(+match[1], +match[2], +match[3]), true, false);
       }
     });
@@ -188,7 +188,7 @@ export default class ColorPicker {
     return container;
   }
 
-  public adjustSize({pickerBoxWidth, pickerBoxHeight, sliderWidth}: AdjustSizeArgs) {
+  public adjustSize({ pickerBoxWidth, pickerBoxHeight, sliderWidth }: AdjustSizeArgs) {
     this.elements.box.setAttribute('viewBox', `0 0 ${pickerBoxWidth} ${pickerBoxHeight}`);
     this.elements.box.style.width = `${pickerBoxWidth}px`;
     this.elements.box.style.height = `${pickerBoxHeight}px`;
@@ -207,7 +207,7 @@ export default class ColorPicker {
   public attachAutoResize() {
     return observeResize(this.container, (entry) => {
       const width = entry.contentRect.width;
-      this.adjustSize({pickerBoxWidth: width, pickerBoxHeight: width / pickerBoxRatio, sliderWidth: width});
+      this.adjustSize({ pickerBoxWidth: width, pickerBoxHeight: width / pickerBoxRatio, sliderWidth: width });
     });
   }
 
@@ -244,15 +244,15 @@ export default class ColorPicker {
   }
 
   public setColor(color: ColorHsla | string, updateHexInput = true, updateRgbInput = true) {
-    if(color === undefined) { // * set to red
+    if (color === undefined) { // * set to red
       color = {
         h: 0,
         s: 100,
         l: 50,
-        a: 1
+        a: 1,
       };
-    } else if(typeof(color) === 'string') {
-      if(color[0] === '#') {
+    } else if (typeof(color) === 'string') {
+      if (color[0] === '#') {
         color = hexaToHsla(color);
       } else {
         const rgb = color.match(/[.?\d]+/g);
@@ -298,7 +298,7 @@ export default class ColorPicker {
       hsla: `hsla(${this.hue}, ${this.saturation}%, ${this.lightness}%, ${this.alpha})`,
       rgba: `rgba(${rgbaArray[0]}, ${rgbaArray[1]}, ${rgbaArray[2]}, ${rgbaArray[3]})`,
       hexa: hexa,
-      rgbaArray: rgbaArray
+      rgbaArray: rgbaArray,
     };
   }
 
@@ -306,17 +306,17 @@ export default class ColorPicker {
     const color = this.getCurrentColor();
     this.elements.boxDragger.setAttributeNS(null, 'fill', color.hex);
 
-    if(updateHexInput) {
+    if (updateHexInput) {
       this.hexInputField.setValueSilently(color.hex);
       this.hexInputField.setState(InputState.Neutral);
     }
 
-    if(updateRgbInput) {
+    if (updateRgbInput) {
       this.rgbInputField.setValueSilently(color.rgbaArray.slice(0, -1).join(', '));
       this.rgbInputField.setState(InputState.Neutral);
     }
 
-    if(this.onChange) {
+    if (this.onChange) {
       this.onChange(color);
     }
   }
@@ -334,7 +334,7 @@ export default class ColorPicker {
 
     this.elements.saturation.lastElementChild!.setAttributeNS(null, 'stop-color', hsla);
 
-    if(update) {
+    if (update) {
       this.updatePicker();
     }
   }
@@ -363,7 +363,7 @@ export default class ColorPicker {
     this.saturation = saturation;
     this.lightness = lightness;
 
-    if(update) {
+    if (update) {
       this.updatePicker();
     }
   };

@@ -5,11 +5,11 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import {Database} from '@config/databases';
+import { Database } from '@config/databases';
 import Modes from '@config/modes';
 import makeError from '@helpers/makeError';
 import safeAssign from '@helpers/object/safeAssign';
-import {logger} from '@lib/logger';
+import { logger } from '@lib/logger';
 
 /**
  * https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/createIndex
@@ -48,7 +48,7 @@ export class IDB {
   constructor(db: Database<any>) {
     safeAssign(this, db);
 
-    if(Modes.test) {
+    if (Modes.test) {
       this.name += '_test';
     }
 
@@ -66,22 +66,22 @@ export class IDB {
   }
 
   public openDatabase(createNew = false): IDB['openDbPromise'] {
-    if(this.openDbPromise && !createNew) {
+    if (this.openDbPromise && !createNew) {
       return this.openDbPromise;
     }
 
     const createIndexes = (os: IDBObjectStore, store: IDBStore) => {
       const indexNames = Array.from(os.indexNames);
-      for(const indexName of indexNames) {
+      for (const indexName of indexNames) {
         os.deleteIndex(indexName);
       }
 
-      if(!store.indexes?.length) {
+      if (!store.indexes?.length) {
         return;
       }
 
-      for(const index of store.indexes) {
-        if(os.indexNames.contains(index.indexName)) {
+      for (const index of store.indexes) {
+        if (os.indexNames.contains(index.indexName)) {
           continue;
         }
 
@@ -96,10 +96,10 @@ export class IDB {
 
     try {
       var request = indexedDB.open(this.name, this.version);
-      if(!request) {
+      if (!request) {
         return Promise.reject();
       }
-    } catch(error) {
+    } catch (error) {
       this.log.error('error opening db', (error as Error).message);
       this.storageIsAvailable = false;
       return Promise.reject(error);
@@ -107,7 +107,7 @@ export class IDB {
 
     let finished = false;
     setTimeout(() => {
-      if(!finished) {
+      if (!finished) {
         request.onerror!(makeError('IDB_CREATE_TIMEOUT') as any as Event);
       }
     }, 3000);
@@ -137,7 +137,7 @@ export class IDB {
 
           this.openDatabase(calledNew = true);
 
-          if(transaction.onerror) {
+          if (transaction.onerror) {
             transaction.onerror(e);
           }
 
@@ -171,7 +171,7 @@ export class IDB {
             //}
           } */
 
-          if(!db.objectStoreNames.contains(store.name)) {
+          if (!db.objectStoreNames.contains(store.name)) {
             createObjectStore(db, store);
           } else {
             const txn = target.transaction;
@@ -179,7 +179,7 @@ export class IDB {
             createIndexes(os, store);
           }
 
-          if(store.encryptedName && !db.objectStoreNames.contains(store.encryptedName)) {
+          if (store.encryptedName && !db.objectStoreNames.contains(store.encryptedName)) {
             db.createObjectStore(store.encryptedName);
           }
         });
@@ -189,7 +189,7 @@ export class IDB {
 
   // * can't return promise here since some connections can be opened in other threads and it won't resolve
   public async closeDatabase() {
-    if(!this.db) {
+    if (!this.db) {
       return;
     }
 
@@ -204,7 +204,7 @@ export class IDB {
 
   public static closeDatabases(preserve?: IDB) {
     this.INSTANCES.forEach((storage) => {
-      if(preserve && preserve === storage) {
+      if (preserve && preserve === storage) {
         return;
       }
 
@@ -243,7 +243,7 @@ export class IDB {
   public static deleteDatabaseByName(dbName: string) {
     return new Promise<void>((resolve, reject) => {
       this.INSTANCES.forEach((storage) => {
-        if(storage.name === dbName) {
+        if (storage.name === dbName) {
           return storage.closeDatabase();
         }
       });
@@ -277,7 +277,7 @@ class IDBStorage<T extends Database<any>, StoreName extends string = T['stores']
   public delete(entryName: string | string[], storeName?: StoreName): Promise<void> {
     // return Promise.resolve();
     const isArray = Array.isArray(entryName);
-    if(!isArray) {
+    if (!isArray) {
       entryName = ([] as string[]).concat(entryName as string);
     }
 
@@ -304,7 +304,7 @@ class IDBStorage<T extends Database<any>, StoreName extends string = T['stores']
     // };
 
     const isArray = Array.isArray(entryName);
-    if(!isArray) {
+    if (!isArray) {
       entryName = [entryName] as string[];
       value = [value];
     }
@@ -394,13 +394,13 @@ class IDBStorage<T extends Database<any>, StoreName extends string = T['stores']
     // return Promise.reject();
 
     const isArray = Array.isArray(entryName);
-    if(!isArray) {
-      if(!entryName) {
+    if (!isArray) {
+      if (!entryName) {
         return undefined as any;
       }
 
       entryName = ([] as string[]).concat(entryName as string);
-    } else if(!entryName.length) {
+    } else if (!entryName.length) {
       return Promise.resolve([]) as any;
     }
 
@@ -418,7 +418,7 @@ class IDBStorage<T extends Database<any>, StoreName extends string = T['stores']
   ) {
     let perf: number;
 
-    if(log) {
+    if (log) {
       perf = performance.now();
       this.log(log + ': start');
     }
@@ -434,7 +434,7 @@ class IDBStorage<T extends Database<any>, StoreName extends string = T['stores']
     const promise = new Promise<T>((a, b) => [resolve, reject] = [a, b]);
 
     // * https://developer.chrome.com/blog/indexeddb-durability-mode-now-defaults-to-relaxed
-    const transaction = db.transaction([storeName], mode, {durability: 'relaxed'});
+    const transaction = db.transaction([storeName], mode, { durability: 'relaxed' });
 
     const onError = () => {
       clearTimeout(timeout);
@@ -444,14 +444,14 @@ class IDBStorage<T extends Database<any>, StoreName extends string = T['stores']
     const onComplete = (/* what: string */) => {
       clearTimeout(timeout);
 
-      if(log) {
+      if (log) {
         this.log(log + ': end', performance.now() - perf/* , what */);
       }
 
       const results = requests.map((r) => r.result);
       resolve(isArray ? results : results[0]);
 
-      if(log) {
+      if (log) {
         this.log(log + ': resolved', isArray ? results : results[0]);
       }
     };
@@ -460,7 +460,7 @@ class IDBStorage<T extends Database<any>, StoreName extends string = T['stores']
 
     // * have to wait while clearing or setting something
     const waitForTransactionComplete = mode === 'readwrite';
-    if(waitForTransactionComplete) {
+    if (waitForTransactionComplete) {
       transaction.oncomplete = () => onComplete(/* 'transaction' */);
     }
 
@@ -468,7 +468,7 @@ class IDBStorage<T extends Database<any>, StoreName extends string = T['stores']
     const isArray = Array.isArray(callbackResult);
     const requests: IDBRequest[] = isArray ? callbackResult : ([] as IDBRequest[]).concat(callbackResult);
 
-    if(waitForTransactionComplete) {
+    if (waitForTransactionComplete) {
       return promise;
     }
 
@@ -476,16 +476,16 @@ class IDBStorage<T extends Database<any>, StoreName extends string = T['stores']
     let left = length;
 
     const onRequestFinished = () => {
-      if(transaction.error) {
+      if (transaction.error) {
         return;
       }
 
-      if(!--left) {
+      if (!--left) {
         onComplete(/* 'requests' */);
       }
     };
 
-    for(let i = 0; i < length; ++i) {
+    for (let i = 0; i < length; ++i) {
       const request = requests[i];
       request.onerror = onError;
       request.onsuccess = onRequestFinished;
@@ -509,7 +509,7 @@ class IDBStorage<T extends Database<any>, StoreName extends string = T['stores']
         const request = objectStore.openCursor();
         request.onsuccess = (event) => {
           const cursor = (event.target as IDBRequest<IDBCursorWithValue | null>).result;
-          if(cursor) {
+          if (cursor) {
             entries.push([cursor.key, cursor.value])
             cursor.continue();
           } else {

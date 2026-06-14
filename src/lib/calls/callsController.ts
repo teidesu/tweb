@@ -1,5 +1,5 @@
 import getCallAudioAsset from '@components/call/getAudioAsset';
-import {MOUNT_CLASS_TO} from '@config/debug';
+import { MOUNT_CLASS_TO } from '@config/debug';
 import IS_CALL_SUPPORTED from '@environment/callSupport';
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
 import insertInDescendSortedArray from '@helpers/array/insertInDescendSortedArray';
@@ -7,12 +7,12 @@ import AudioAssetPlayer from '@helpers/audioAssetPlayer';
 import bytesCmp from '@helpers/bytes/bytesCmp';
 import EventListenerBase from '@helpers/eventListenerBase';
 import tsNow from '@helpers/tsNow';
-import {PhoneCallProtocol} from '@layer';
-import {CallId} from '@appManagers/appCallsManager';
-import {AppManagers} from '@lib/managers';
-import {logger} from '@lib/logger';
+import { PhoneCallProtocol } from '@layer';
+import { CallId } from '@appManagers/appCallsManager';
+import { AppManagers } from '@lib/managers';
+import { logger } from '@lib/logger';
 import apiManagerProxy from '@lib/apiManagerProxy';
-import {NULL_PEER_ID} from '@appManagers/constants';
+import { NULL_PEER_ID } from '@appManagers/constants';
 import rootScope from '@lib/rootScope';
 import CallInstance from '@lib/calls/callInstance';
 import CALL_STATE from '@lib/calls/callState';
@@ -36,7 +36,7 @@ export class CallsController extends EventListenerBase<{
     this.managers = managers;
     this.log = logger('CC');
 
-    if(!IS_CALL_SUPPORTED) {
+    if (!IS_CALL_SUPPORTED) {
       return;
     }
 
@@ -48,13 +48,13 @@ export class CallsController extends EventListenerBase<{
     rootScope.addEventListener('call_update', async(call) => {
       let instance = this.instances.get(call.id);
 
-      if(instance) {
+      if (instance) {
         instance.setPhoneCall(call);
       }
 
-      switch(call._) {
+      switch (call._) {
         case 'phoneCallDiscarded': {
-          if(instance) {
+          if (instance) {
             // Server-initiated migration to a conference call: the 1-on-1
             // is being ended specifically so both parties can rejoin via
             // the new GroupCall. Hand off via the conference path (which
@@ -62,7 +62,7 @@ export class CallsController extends EventListenerBase<{
             // instead of the normal hangUp. Gated until the SFU exposes a
             // multi-mid layout to browser clients — see
             // docs/conf-call-browser-recv-blocker.md.
-            if(call.reason?._ === 'phoneCallDiscardReasonMigrateConferenceCall' && IS_CONFERENCE_CALL_SUPPORTED) {
+            if (call.reason?._ === 'phoneCallDiscardReasonMigrateConferenceCall' && IS_CONFERENCE_CALL_SUPPORTED) {
               this.migrateToConference(instance);
               break;
             }
@@ -73,7 +73,7 @@ export class CallsController extends EventListenerBase<{
         }
 
         case 'phoneCallAccepted': {
-          if(instance) {
+          if (instance) {
             /* if(!this.verifyProtocolCompatibility(call.protocol)) {
               instance.hangUp('phoneCallDiscardReasonDisconnect');
               rootScope.dispatchEvent('call_incompatible', instance.interlocutorUserId);
@@ -87,7 +87,7 @@ export class CallsController extends EventListenerBase<{
         }
 
         case 'phoneCallRequested': {
-          if(!instance) {
+          if (!instance) {
             /* if(!this.verifyProtocolCompatibility(call.protocol)) {
               rootScope.dispatchEvent('call_incompatible', call.admin_id);
               break;
@@ -95,7 +95,7 @@ export class CallsController extends EventListenerBase<{
 
             instance = this.createCallInstance({
               isOutgoing: false,
-              interlocutorUserId: call.admin_id
+              interlocutorUserId: call.admin_id,
             });
 
             instance.overrideConnectionState(CALL_STATE.PENDING);
@@ -107,20 +107,20 @@ export class CallsController extends EventListenerBase<{
         }
 
         case 'phoneCall': {
-          if(!instance || instance.encryptionKey) {
+          if (!instance || instance.encryptionKey) {
             break;
           }
 
           const g_a = instance.dh.g_a = call.g_a_or_b;
           const dh = instance.dh;
           const g_a_hash = await apiManagerProxy.invokeCrypto('sha256', g_a);
-          if(!bytesCmp(dh.g_a_hash!, g_a_hash!)) {
+          if (!bytesCmp(dh.g_a_hash!, g_a_hash!)) {
             this.log.error('Incorrect g_a_hash', dh.g_a_hash, g_a_hash);
             break;
           }
 
-          const {key, key_fingerprint} = await this.managers.appCallsManager.computeKey(g_a, dh.b!, dh.p!);
-          if(call.key_fingerprint !== key_fingerprint) {
+          const { key, key_fingerprint } = await this.managers.appCallsManager.computeKey(g_a, dh.b!, dh.p!);
+          if (call.key_fingerprint !== key_fingerprint) {
             this.log.error('Incorrect key fingerprint', call.key_fingerprint, key_fingerprint, g_a, dh);
             instance.hangUp('phoneCallDiscardReasonDisconnect');
             break;
@@ -134,9 +134,9 @@ export class CallsController extends EventListenerBase<{
       }
     });
 
-    rootScope.addEventListener('call_signaling', ({callId, data}) => {
+    rootScope.addEventListener('call_signaling', ({ callId, data }) => {
       const instance = this.instances.get(callId);
-      if(instance?.id !== callId) {
+      if (instance?.id !== callId) {
         return;
       }
 
@@ -152,8 +152,8 @@ export class CallsController extends EventListenerBase<{
   }
 
   public getCallByUserId(userId: UserId) {
-    for(const [callId, instance] of this.instances) {
-      if(instance.interlocutorUserId === userId) {
+    for (const [callId, instance] of this.instances) {
+      if (instance.interlocutorUserId === userId) {
         return instance;
       }
     }
@@ -166,45 +166,45 @@ export class CallsController extends EventListenerBase<{
   }) {
     const call = new CallInstance({
       managers: this.managers,
-      ...options
+      ...options,
     });
 
     call.addEventListener('state', (state) => {
       const currentCall = this.currentCall;
-      if(state === CALL_STATE.CLOSED) {
+      if (state === CALL_STATE.CLOSED) {
         this.instances.delete(call.id);
         indexOfAndSplice(this.sortedInstances, call);
       } else {
         insertInDescendSortedArray(this.sortedInstances, call, 'sortIndex');
       }
 
-      if(state === CALL_STATE.EXCHANGING_KEYS) {
+      if (state === CALL_STATE.EXCHANGING_KEYS) {
         call.wasTryingToJoin = true;
       }
 
       const hasConnected = call.connectedAt !== undefined;
-      if(state === CALL_STATE.EXCHANGING_KEYS || (state === CALL_STATE.CONNECTING && hasConnected)) {
+      if (state === CALL_STATE.EXCHANGING_KEYS || (state === CALL_STATE.CONNECTING && hasConnected)) {
         call.setHangUpTimeout(CALL_REQUEST_TIMEOUT, 'phoneCallDiscardReasonDisconnect');
       } else {
         call.clearHangUpTimeout();
       }
 
-      if(currentCall === call || !currentCall) {
-        if(state === CALL_STATE.CLOSED) {
-          if(!call.isOutgoing && !call.wasTryingToJoin) { // incoming call has been accepted on other device or ended
+      if (currentCall === call || !currentCall) {
+        if (state === CALL_STATE.CLOSED) {
+          if (!call.isOutgoing && !call.wasTryingToJoin) { // incoming call has been accepted on other device or ended
             this.audioAsset.stop();
-          } else if(call.wasTryingToJoin && !hasConnected) { // something has happened during the key exchanging
-            this.audioAsset.play({name: 'failed'});
+          } else if (call.wasTryingToJoin && !hasConnected) { // something has happened during the key exchanging
+            this.audioAsset.play({ name: 'failed' });
           } else {
-            this.audioAsset.play(call.discardReason._ === 'phoneCallDiscardReasonBusy' ? {name: 'busy'} : {name: 'end'});
+            this.audioAsset.play(call.discardReason._ === 'phoneCallDiscardReasonBusy' ? { name: 'busy' } : { name: 'end' });
           }
-        } else if(state === CALL_STATE.PENDING) {
-          this.audioAsset.play({name: call.isOutgoing ? 'outgoing' : 'incoming', loop: true});
-        } else if(state === CALL_STATE.EXCHANGING_KEYS) {
-          this.audioAsset.playIfDifferent({name: 'connect'});
-        } else if(state === CALL_STATE.CONNECTING) {
-          if(call.duration) {
-            this.audioAsset.play({name: 'connect', loop: true});
+        } else if (state === CALL_STATE.PENDING) {
+          this.audioAsset.play({ name: call.isOutgoing ? 'outgoing' : 'incoming', loop: true });
+        } else if (state === CALL_STATE.EXCHANGING_KEYS) {
+          this.audioAsset.playIfDifferent({ name: 'connect' });
+        } else if (state === CALL_STATE.CONNECTING) {
+          if (call.duration) {
+            this.audioAsset.play({ name: 'connect', loop: true });
           }
         } else {
           this.audioAsset.stop();
@@ -213,15 +213,15 @@ export class CallsController extends EventListenerBase<{
     });
 
     call.addEventListener('id', (id, prevId) => {
-      if(prevId !== undefined) {
+      if (prevId !== undefined) {
         this.instances.delete(prevId);
       }
 
       const hasCurrent = !!this.currentCall;
       this.instances.set(id, call);
 
-      if(prevId === undefined) {
-        this.dispatchEvent('instance', {instance: call, hasCurrent: hasCurrent});
+      if (prevId === undefined) {
+        this.dispatchEvent('instance', { instance: call, hasCurrent: hasCurrent });
       }
     });
 
@@ -232,13 +232,13 @@ export class CallsController extends EventListenerBase<{
     this.log('p2pStartCallInternal', userId, isVideo);
 
     const fullInfo = await this.managers.appProfileManager.getProfile(userId);
-    if(!fullInfo) return;
+    if (!fullInfo) return;
 
-    const {video_calls_available} = fullInfo.pFlags;
+    const { video_calls_available } = fullInfo.pFlags;
 
     const call = this.createCallInstance({
       isOutgoing: true,
-      interlocutorUserId: userId
+      interlocutorUserId: userId,
     });
 
     call.overrideConnectionState(CALL_STATE.REQUESTING);
@@ -251,8 +251,8 @@ export class CallsController extends EventListenerBase<{
       participant_id: userId,
       protocol: call.protocol,
       pFlags: {
-        video: isVideo || undefined
-      }
+        video: isVideo || undefined,
+      },
     });
 
     // return;
@@ -292,7 +292,7 @@ export class CallsController extends EventListenerBase<{
     let fingerprint: ReturnType<CallInstance['getEmojisFingerprint']> | undefined;
     try {
       fingerprint = instance.getEmojisFingerprint();
-    } catch{
+    } catch {
       fingerprint = undefined;
     }
     this.migratedCallSnapshot = {
@@ -301,7 +301,7 @@ export class CallsController extends EventListenerBase<{
       emojisFingerprint: fingerprint,
       wasMuted: instance.isMuted,
       wasVideo: instance.isSharingVideo,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     // Tear down the 1-on-1 without sending discard or playing audio. The
@@ -310,7 +310,7 @@ export class CallsController extends EventListenerBase<{
     instance.overrideConnectionState(CALL_STATE.CLOSED);
     try {
       (instance as unknown as {stopPhoneCall?: () => void}).stopPhoneCall?.();
-    } catch(err) {
+    } catch (err) {
       this.log.error('migrateToConference: stopPhoneCall failed', err);
     }
     this.audioAsset?.stop();

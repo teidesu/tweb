@@ -7,24 +7,24 @@
 
 import filterUnique from '@helpers/array/filterUnique';
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
-import cleanSearchText, {ProcessSearchTextOptions, processSearchText} from '@helpers/cleanSearchText';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
+import cleanSearchText, { ProcessSearchTextOptions, processSearchText } from '@helpers/cleanSearchText';
 import cleanUsername from '@helpers/cleanUsername';
 import tsNow from '@helpers/tsNow';
 import isObject from '@helpers/object/isObject';
 import safeReplaceObject from '@helpers/object/safeReplaceObject';
-import {AccountEmojiStatuses, Chat, ContactsResolvedPeer, EmojiStatus, InputContact, InputGeoPoint, InputMedia, InputPeer, InputUser, User as MTUser, RequirementToContact, UserProfilePhoto, UserStatus} from '@layer';
+import { AccountEmojiStatuses, Chat, ContactsResolvedPeer, EmojiStatus, InputContact, InputGeoPoint, InputMedia, InputPeer, InputUser, User as MTUser, RequirementToContact, UserProfilePhoto, UserStatus } from '@layer';
 import parseEntities from '@lib/richTextProcessor/parseEntities';
 import wrapUrl from '@lib/richTextProcessor/wrapUrl';
 import SearchIndex from '@lib/searchIndex';
-import {AppManager} from '@appManagers/manager';
+import { AppManager } from '@appManagers/manager';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
 import canSendToUser from '@appManagers/utils/users/canSendToUser';
-import {AppStoragesManager} from '@appManagers/appStoragesManager';
+import { AppStoragesManager } from '@appManagers/appStoragesManager';
 import deepEqual from '@helpers/object/deepEqual';
 import getPeerActiveUsernames from '@appManagers/utils/peers/getPeerActiveUsernames';
 import callbackify from '@helpers/callbackify';
-import {NULL_PEER_ID, TEST_NO_STORIES} from '@appManagers/constants';
+import { NULL_PEER_ID, TEST_NO_STORIES } from '@appManagers/constants';
 import MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
 import pause from '@helpers/schedulers/pause';
 
@@ -36,7 +36,7 @@ const SEARCH_OPTIONS: ProcessSearchTextOptions = {
   clearBadChars: true,
   ignoreCase: true,
   latinize: true,
-  includeTag: true
+  includeTag: true,
 };
 
 type GetPaidMessagesRevenueArgs = {
@@ -72,9 +72,9 @@ export class AppUsersManager extends AppManager {
     this.rootScope.addEventListener('peer_deleted', (peerId) => {
       this.appStateManager.getState().then((state) => {
         const recentSearch = state.recentSearch;
-        if(!recentSearch) return;
+        if (!recentSearch) return;
         const idx = recentSearch.indexOf(peerId);
-        if(idx !== -1) {
+        if (idx !== -1) {
           recentSearch.splice(idx, 1);
           this.peersStorage.releasePeer(peerId, 'recentSearch');
           this.appStateManager.pushToState('recentSearch', recentSearch);
@@ -86,7 +86,7 @@ export class AppUsersManager extends AppManager {
       updateUserStatus: (update) => {
         const userId = update.user_id;
         const user = this.users[userId];
-        if(!user) {
+        if (!user) {
           return;
         }
 
@@ -124,7 +124,7 @@ export class AppUsersManager extends AppManager {
       updateUserName: (update) => {
         const userId = update.user_id;
         const user = this.users[userId];
-        if(!user) {
+        if (!user) {
           return;
         }
 
@@ -134,28 +134,28 @@ export class AppUsersManager extends AppManager {
           first_name: update.first_name,
           last_name: update.last_name,
           username: undefined,
-          usernames: update.usernames
+          usernames: update.usernames,
         }, true);
       },
 
       updateUserEmojiStatus: (update) => {
         const userId = update.user_id;
         const user = this.users[userId];
-        if(!user) {
+        if (!user) {
           return;
         }
 
         this.forceUserOnline(userId);
         this.saveApiUser({
           ...user,
-          emoji_status: update.emoji_status
+          emoji_status: update.emoji_status,
         }, true);
       },
 
       updateRecentEmojiStatuses: () => {
         this.recentEmojiStatuses = undefined;
         this.getRecentEmojiStatuses();
-      }
+      },
     });
 
     /* case 'updateContactLink':
@@ -164,21 +164,21 @@ export class AppUsersManager extends AppManager {
 
     return Promise.all([
       this.appStateManager.getState(),
-      this.appStoragesManager.loadStorage('users')
-    ]).then(([state, {results: users, storage}]) => {
+      this.appStoragesManager.loadStorage('users'),
+    ]).then(([state, { results: users, storage }]) => {
       this.storage = storage;
 
       this.saveApiUsers(users);
-      for(let i = 0, length = users.length; i < length; ++i) {
+      for (let i = 0, length = users.length; i < length; ++i) {
         const user = users[i];
-        if(!user) {
+        if (!user) {
           continue;
         }
 
-        if(state.contactsListCachedTime && (user.pFlags.contact || user.pFlags.mutual_contact)) {
+        if (state.contactsListCachedTime && (user.pFlags.contact || user.pFlags.mutual_contact)) {
           this.pushContact(user.id);
 
-          if(!this.contactsFillPromise) {
+          if (!this.contactsFillPromise) {
             this.contactsFillPromise = deferredPromise();
             this.contactsFillPromise.resolve(this.contactsList);
           }
@@ -198,30 +198,30 @@ export class AppUsersManager extends AppManager {
       // }
 
       const recentSearch = state.recentSearch || [];
-      for(let i = 0, length = recentSearch.length; i < length; ++i) {
+      for (let i = 0, length = recentSearch.length; i < length; ++i) {
         this.peersStorage.requestPeer(recentSearch[i], 'recentSearch');
       }
 
       this.peersStorage.addEventListener('peerNeeded', (peerId) => {
-        if(!this.appPeersManager.isUser(peerId)) {
+        if (!this.appPeersManager.isUser(peerId)) {
           return;
         }
 
         const userId = peerId.toUserId();
-        if(!this.storage.getFromCache(userId)) {
+        if (!this.storage.getFromCache(userId)) {
           this.storage.set({
-            [userId]: this.getUser(userId)
+            [userId]: this.getUser(userId),
           });
         }
       });
 
       this.peersStorage.addEventListener('peerUnneeded', (peerId) => {
-        if(!this.appPeersManager.isUser(peerId)) {
+        if (!this.appPeersManager.isUser(peerId)) {
           return;
         }
 
         const userId = peerId.toUserId();
-        if(this.storage.getFromCache(userId)) {
+        if (this.storage.getFromCache(userId)) {
           this.storage.delete(userId);
         }
       });
@@ -229,12 +229,12 @@ export class AppUsersManager extends AppManager {
   }
 
   public clear = (init = false) => {
-    if(!init) {
-      for(const userId in this.users) {
+    if (!init) {
+      for (const userId in this.users) {
         // const userId = +userId;
-        if(!userId) continue;
+        if (!userId) continue;
         const peerId = userId.toPeerId();
-        if(!this.peersStorage.isPeerNeeded(peerId)) {
+        if (!this.peersStorage.isPeerNeeded(peerId)) {
           const user = this.users[userId];
           this.modifyUsernamesCache(user, false);
 
@@ -269,7 +269,7 @@ export class AppUsersManager extends AppManager {
     // const contactsList = [...this.contactsList];
     // this.appStateManager.pushToState('contactsList', contactsList);
 
-    if(fromServer) {
+    if (fromServer) {
       this.appStateManager.pushToState('contactsListCachedTime', tsNow(true));
     }
   }
@@ -277,15 +277,15 @@ export class AppUsersManager extends AppManager {
   public pushRecentSearch(peerId: PeerId) {
     return this.appStateManager.getState().then((state) => {
       const recentSearch = state.recentSearch || [];
-      if(recentSearch[0] !== peerId) {
+      if (recentSearch[0] !== peerId) {
         indexOfAndSplice(recentSearch, peerId);
         recentSearch.unshift(peerId);
-        if(recentSearch.length > 20) {
+        if (recentSearch.length > 20) {
           recentSearch.length = 20;
         }
 
         this.appStateManager.pushToState('recentSearch', recentSearch);
-        for(const peerId of recentSearch) {
+        for (const peerId of recentSearch) {
           this.peersStorage.requestPeer(peerId, 'recentSearch');
         }
       }
@@ -295,7 +295,7 @@ export class AppUsersManager extends AppManager {
   public clearRecentSearch() {
     return this.appStateManager.getState().then((state) => {
       const recentSearch = state.recentSearch || [];
-      for(const peerId of recentSearch) {
+      for (const peerId of recentSearch) {
         this.peersStorage.releasePeer(peerId, 'recentSearch');
       }
 
@@ -305,10 +305,10 @@ export class AppUsersManager extends AppManager {
   }
 
   public fillContacts() {
-    if(this.contactsFillPromise && this.updatedContactsList) {
+    if (this.contactsFillPromise && this.updatedContactsList) {
       return {
         cached: this.contactsFillPromise.isFulfilled,
-        promise: this.contactsFillPromise
+        promise: this.contactsFillPromise,
       };
     }
 
@@ -316,7 +316,7 @@ export class AppUsersManager extends AppManager {
 
     const promise = deferredPromise<Set<UserId>>();
     this.apiManager.invokeApi('contacts.getContacts').then((result) => {
-      if(result._ === 'contacts.contacts') {
+      if (result._ === 'contacts.contacts') {
         this.contactsList.clear();
 
         this.saveApiUsers(result.users);
@@ -337,25 +337,25 @@ export class AppUsersManager extends AppManager {
 
     return {
       cached: this.contactsFillPromise?.isFulfilled,
-      promise: this.contactsFillPromise ||= promise
+      promise: this.contactsFillPromise ||= promise,
     };
   }
 
   public resolveUsername(username: string) {
-    if(username[0] === '@') {
+    if (username[0] === '@') {
       username = username.slice(1);
     }
 
     username = username.toLowerCase();
     const peerId = this.usernames[username];
-    if(peerId) {
+    if (peerId) {
       return this.appPeersManager.getPeer(peerId);
     }
 
     return this.apiManager.invokeApiSingleProcess({
       method: 'contacts.resolveUsername',
-      params: {username},
-      processResult: (resolvedPeer) => this.processResolvedPeer(resolvedPeer)
+      params: { username },
+      processResult: (resolvedPeer) => this.processResolvedPeer(resolvedPeer),
     });
   }
 
@@ -373,7 +373,7 @@ export class AppUsersManager extends AppManager {
   }
 
   public resolvePhone(phone: string) {
-    return this.apiManager.invokeApi('contacts.resolvePhone', {phone}).then((resolvedPeer) => {
+    return this.apiManager.invokeApi('contacts.resolvePhone', { phone }).then((resolvedPeer) => {
       return this.processResolvedPeer(resolvedPeer) as User;
     });
   }
@@ -398,7 +398,7 @@ export class AppUsersManager extends AppManager {
 
   public getUserSearchText(id: UserId) {
     const user = this.users[id];
-    if(!user) {
+    if (!user) {
       return '';
     }
 
@@ -408,7 +408,7 @@ export class AppUsersManager extends AppManager {
       user.phone!,
       ...getPeerActiveUsernames(user) as string[],
       // user.pFlags.self ? I18n.format('SavedMessages', true) : '',
-      ((((((((user.pFlags.self ? 'Saved Messages' : '') as string)))))))
+      ((((((((user.pFlags.self ? 'Saved Messages' : '') as string))))))),
     ];
 
     return arr.filter(Boolean).join(' ');
@@ -418,30 +418,30 @@ export class AppUsersManager extends AppManager {
     const contactListPromise = this.fillContacts().promise;
     return Promise.all([
       contactListPromise,
-      sortBy === 'rating' && this.getTopPeers('correspondents')
+      sortBy === 'rating' && this.getTopPeers('correspondents'),
     ]).then(([_contactsList, topPeers]) => {
       let contactsList = [..._contactsList];
-      if(query) {
+      if (query) {
         const results = this.contactsIndex.search(query);
         const filteredContactsList = [...contactsList].filter((id) => results.has(id));
 
         contactsList = filteredContactsList;
       }
 
-      if(sortBy === 'name') {
+      if (sortBy === 'name') {
         contactsList.sort((userId1, userId2) => {
           const sortName1 = (this.users[userId1] || {}).sortName || '';
           const sortName2 = (this.users[userId2] || {}).sortName || '';
           return sortName1.localeCompare(sortName2);
         });
-      } else if(sortBy === 'online') {
+      } else if (sortBy === 'online') {
         contactsList.sort((userId1, userId2) => {
           const status1 = this.getUserStatusForSort(this.getUser(userId1).status);
           const status2 = this.getUserStatusForSort(this.getUser(userId2).status);
           return status2 - status1;
         });
-      } else if(sortBy === 'rating') {
-        if(!query!.trim().replace(/@/g, '')) contactsList = (topPeers as MyTopPeer[]).map((peer) => peer.id.toUserId());
+      } else if (sortBy === 'rating') {
+        if (!query!.trim().replace(/@/g, '')) contactsList = (topPeers as MyTopPeer[]).map((peer) => peer.id.toUserId());
         else {
           const ratingMap = new Map<UserId, number>((topPeers as MyTopPeer[]).map((peer) => [peer.id.toUserId(), peer.rating]));
           contactsList.sort((userId1, userId2) => {
@@ -454,8 +454,8 @@ export class AppUsersManager extends AppManager {
 
       const myUserId = this.userId;
       indexOfAndSplice(contactsList, myUserId);
-      if(includeSaved) {
-        if(this.testSelfSearch(query!)) {
+      if (includeSaved) {
+        if (this.testSelfSearch(query!)) {
           contactsList.unshift(myUserId);
         }
       }
@@ -472,7 +472,7 @@ export class AppUsersManager extends AppManager {
   ) {
     return this.getContacts(query, includeSaved, sortBy).then((userIds) => {
       const peerIds = userIds.map((userId) => userId.toPeerId(false));
-      if(limit) {
+      if (limit) {
         return peerIds.slice(0, limit);
       }
 
@@ -483,15 +483,15 @@ export class AppUsersManager extends AppManager {
   public toggleBlock(peerId: PeerId, block: boolean, blockMyStoriesFrom?: boolean) {
     return this.apiManager.invokeApiSingle(block ? 'contacts.block' : 'contacts.unblock', {
       id: this.appPeersManager.getInputPeerById(peerId),
-      my_stories_from: blockMyStoriesFrom === undefined ? undefined : true
+      my_stories_from: blockMyStoriesFrom === undefined ? undefined : true,
     }).then(() => {
       this.apiUpdatesManager.processLocalUpdate({
         _: 'updatePeerBlocked',
         peer_id: this.appPeersManager.getOutputPeer(peerId),
         pFlags: {
           blocked: block || undefined,
-          blocked_my_stories_from: blockMyStoriesFrom || undefined
-        }
+          blocked_my_stories_from: blockMyStoriesFrom || undefined,
+        },
       });
 
       this.appProfileManager.refreshPeerSettingsIfNeeded(peerId);
@@ -510,19 +510,19 @@ export class AppUsersManager extends AppManager {
   }
 
   public saveApiUsers(apiUsers: MTUser[], override?: boolean) {
-    if(!apiUsers || (apiUsers as any).saved) return;
+    if (!apiUsers || (apiUsers as any).saved) return;
     (apiUsers as any).saved = true;
     apiUsers.forEach((user) => this.saveApiUser(user, override));
   }
 
   public modifyUsernamesCache(peer: Parameters<typeof getPeerActiveUsernames>[0], save: boolean) {
     const usernames = getPeerActiveUsernames(peer);
-    if(!usernames.length) {
+    if (!usernames.length) {
       return;
     }
 
     const cleanedUsernames = usernames.map((username) => cleanUsername(username!));
-    if(save) {
+    if (save) {
       cleanedUsernames.forEach((searchUsername) => {
         this.usernames[searchUsername] = peer.id.toPeerId(peer._ !== 'user');
       });
@@ -534,7 +534,7 @@ export class AppUsersManager extends AppManager {
   }
 
   public setUsernameToCache(peer: Parameters<typeof getPeerActiveUsernames>[0], oldPeer?: typeof peer) {
-    if(
+    if (
       !oldPeer ||
       (oldPeer as MTUser.user).username !== (peer as MTUser.user).username ||
       !deepEqual((oldPeer as MTUser.user).usernames, (peer as MTUser.user).usernames)
@@ -549,16 +549,16 @@ export class AppUsersManager extends AppManager {
   }
 
   private saveUserStatus(userStatus: UserStatus) {
-    if(!userStatus) {
+    if (!userStatus) {
       return;
     }
 
     const saved = (userStatus as any).saved;
-    if((userStatus as UserStatus.userStatusOnline).expires && !saved) {
+    if ((userStatus as UserStatus.userStatusOnline).expires && !saved) {
       (userStatus as UserStatus.userStatusOnline).expires -= this.timeManager.getServerTimeOffset();
     }
 
-    if((userStatus as UserStatus.userStatusOffline).was_online && !saved) {
+    if ((userStatus as UserStatus.userStatusOffline).was_online && !saved) {
       (userStatus as UserStatus.userStatusOffline).was_online -= this.timeManager.getServerTimeOffset();
     }
 
@@ -566,7 +566,7 @@ export class AppUsersManager extends AppManager {
   }
 
   public saveApiUser(user: MTUser, override?: boolean) {
-    if(!user || user._ === 'userEmpty') return;
+    if (!user || user._ === 'userEmpty') return;
 
     const userId = user.id;
     const oldUser = this.users[userId];
@@ -579,7 +579,7 @@ export class AppUsersManager extends AppManager {
 
     user.pFlags ??= {};
 
-    if(user.pFlags.min && oldUser !== undefined) {
+    if (user.pFlags.min && oldUser !== undefined) {
       return;
     }
 
@@ -588,7 +588,7 @@ export class AppUsersManager extends AppManager {
 
     const changedUsername = this.setUsernameToCache(user, oldUser);
 
-    if(!oldUser ||
+    if (!oldUser ||
       oldUser.sortName === undefined ||
       oldUser.first_name !== user.first_name ||
       oldUser.last_name !== user.last_name) {
@@ -601,7 +601,7 @@ export class AppUsersManager extends AppManager {
 
     this.saveUserStatus(user.status!);
 
-    if((user).photo?._ === 'userProfilePhotoEmpty') {
+    if ((user).photo?._ === 'userProfilePhotoEmpty') {
       delete (user).photo;
     }
 
@@ -611,12 +611,12 @@ export class AppUsersManager extends AppManager {
     //   user.username = user.usernames.find((username) => username.pFlags.active).username;
     // }
 
-    if(user.emoji_status?._ === 'emojiStatusEmpty') {
+    if (user.emoji_status?._ === 'emojiStatusEmpty') {
       delete user.emoji_status;
     }
 
     const peerId = userId.toPeerId(false);
-    if(oldUser === undefined) {
+    if (oldUser === undefined) {
       this.users[userId] = user;
       this.mirrorUser(user);
     } else {
@@ -651,21 +651,21 @@ export class AppUsersManager extends AppManager {
 
       this.rootScope.dispatchEvent('user_update', userId);
 
-      if(wasContact !== newContact) {
+      if (wasContact !== newContact) {
         this.onContactUpdated(userId, newContact, wasContact);
       }
 
       storiesCallback?.();
 
-      if(changedPhoto) {
-        this.rootScope.dispatchEvent('avatar_update', {peerId});
+      if (changedPhoto) {
+        this.rootScope.dispatchEvent('avatar_update', { peerId });
       }
 
-      if(changedTitle || changedAnyBadge) {
-        this.rootScope.dispatchEvent('peer_title_edit', {peerId});
+      if (changedTitle || changedAnyBadge) {
+        this.rootScope.dispatchEvent('peer_title_edit', { peerId });
       }
 
-      if(changedEmojiStatus && user.pFlags.self) {
+      if (changedEmojiStatus && user.pFlags.self) {
         this.rootScope.dispatchEvent('emoji_status_change');
       }
     }
@@ -679,23 +679,23 @@ export class AppUsersManager extends AppManager {
       name: 'peers',
       key: '' + user.id,
       value: user,
-      accountNumber: this.getAccountNumber()
+      accountNumber: this.getAccountNumber(),
     });
   }
 
   private checkPremium(user: User, oldUser: User) {
-    if(user.pFlags.self) {
+    if (user.pFlags.self) {
       const isPremium = !!user.pFlags.premium;
-      if(this.rootScope.premium !== isPremium) {
-        this.rootScope.dispatchEvent('premium_toggle_private', {isNew: !oldUser, isPremium});
+      if (this.rootScope.premium !== isPremium) {
+        this.rootScope.dispatchEvent('premium_toggle_private', { isNew: !oldUser, isPremium });
       }
     }
   }
 
   private setUserToStateIfNeeded(user: User) {
-    if(this.peersStorage.isPeerNeeded(user.id.toPeerId())) {
+    if (this.peersStorage.isPeerNeeded(user.id.toPeerId())) {
       this.storage.set({
-        [user.id]: user
+        [user.id]: user,
       });
     }
   }
@@ -705,14 +705,14 @@ export class AppUsersManager extends AppManager {
   }
 
   public getUserStatusForSort(status: User['status'] | UserId) {
-    if(typeof(status) !== 'object') {
+    if (typeof(status) !== 'object') {
       const user = this.getUser(status!);
       status = user?.status;
     }
 
-    if(status) {
+    if (status) {
       const expires = status._ === 'userStatusOnline' ? status.expires : (status._ === 'userStatusOffline' ? status.was_online : 0);
-      if(expires) {
+      if (expires) {
         return expires;
       }
 
@@ -725,7 +725,7 @@ export class AppUsersManager extends AppManager {
         case 'userStatusLastMonth':
           return timeNow - 86400 * 30;
       } */
-      switch(status._) {
+      switch (status._) {
         case 'userStatusRecently':
           return 3;
         case 'userStatusLastWeek':
@@ -739,7 +739,7 @@ export class AppUsersManager extends AppManager {
   }
 
   public getUser(id: User | UserId) {
-    if(isObject<User>(id)) {
+    if (isObject<User>(id)) {
       return id;
     }
 
@@ -756,7 +756,7 @@ export class AppUsersManager extends AppManager {
 
   public getApiUsers(userIds: (UserId | InputUser)[]) {
     return this.apiManager.invokeApi('users.getUsers', {
-      id: userIds.map((userId) => isObject(userId) ? userId : this.getUserInput(userId))
+      id: userIds.map((userId) => isObject(userId) ? userId : this.getUserInput(userId)),
     }).then((users) => {
       this.saveApiUsers(users);
       return users;
@@ -822,7 +822,7 @@ export class AppUsersManager extends AppManager {
 
   public getUserId(userId: Parameters<typeof getPeerId>[0]) {
     const peerId = getPeerId(userId);
-    if(peerId) {
+    if (peerId) {
       return peerId.toUserId();
     }
 
@@ -831,14 +831,14 @@ export class AppUsersManager extends AppManager {
 
   public getUserInput(id: UserId): InputUser {
     const user = this.getUser(id);
-    if(!id || (user.pFlags && user.pFlags.self)) {
-      return {_: 'inputUserSelf'};
+    if (!id || (user.pFlags && user.pFlags.self)) {
+      return { _: 'inputUserSelf' };
     }
 
     return {
       _: 'inputUser',
       user_id: id,
-      access_hash: user.access_hash!
+      access_hash: user.access_hash!,
     };
   }
 
@@ -852,7 +852,7 @@ export class AppUsersManager extends AppManager {
     return {
       _: 'inputPeerUser',
       user_id: id,
-      access_hash: user.access_hash!
+      access_hash: user.access_hash!,
     };
   }
 
@@ -865,23 +865,23 @@ export class AppUsersManager extends AppManager {
       last_name: user.last_name!,
       phone_number: user.phone!,
       vcard: '',
-      user_id: id
+      user_id: id,
     };
   }
 
   private updateUsersStatuses = () => {
     const timestampNow = tsNow(true);
-    for(const i in this.users) {
+    for (const i in this.users) {
       const user = this.users[i];
       this.updateUserStatus(user, timestampNow);
     }
   };
 
   private updateUserStatus(user: MTUser.user, timestampNow = tsNow(true)) {
-    if(user.status &&
+    if (user.status &&
       user.status._ === 'userStatusOnline' &&
       user.status.expires < timestampNow) {
-      user.status = {_: 'userStatusOffline', was_online: user.status.expires};
+      user.status = { _: 'userStatusOffline', was_online: user.status.expires };
       this.rootScope.dispatchEvent('user_update', user.id);
 
       this.setUserToStateIfNeeded(user);
@@ -889,29 +889,29 @@ export class AppUsersManager extends AppManager {
   }
 
   public forceUserOnline(id: UserId, eventTimestamp?: number) {
-    if(this.isBot(id)) {
+    if (this.isBot(id)) {
       return;
     }
 
     const timestamp = tsNow(true);
     const onlineTimeFor = 60;
-    if(eventTimestamp) {
-      if((timestamp - eventTimestamp) >= onlineTimeFor) {
+    if (eventTimestamp) {
+      if ((timestamp - eventTimestamp) >= onlineTimeFor) {
         return;
       }
-    } else if(this.apiUpdatesManager.updatesState.syncLoading) {
+    } else if (this.apiUpdatesManager.updatesState.syncLoading) {
       return;
     }
 
     const user = this.getUser(id);
-    if(user?.status &&
+    if (user?.status &&
       user.status._ !== 'userStatusOnline' &&
       user.status._ !== 'userStatusEmpty' &&
       !user.pFlags.support &&
       !user.pFlags.deleted) {
       user.status = {
         _: 'userStatusOnline',
-        expires: timestamp + onlineTimeFor
+        expires: timestamp + onlineTimeFor,
       };
 
       // user.sortStatus = this.getUserStatusForSort(user.status);
@@ -925,9 +925,9 @@ export class AppUsersManager extends AppManager {
     return this.importContacts([{
       first_name,
       last_name,
-      phones: [phone]
+      phones: [phone],
     }]).then((userIds) => {
-      if(!userIds.length) {
+      if (!userIds.length) {
         const error = new Error();
         (error as any).type = 'NO_USER';
         throw error;
@@ -940,20 +940,20 @@ export class AppUsersManager extends AppManager {
   public importContacts(contacts: {phones: string[], first_name: string, last_name: string}[]) {
     const inputContacts: InputContact[] = [];
 
-    for(let i = 0; i < contacts.length; ++i) {
-      for(let j = 0; j < contacts[i].phones.length; ++j) {
+    for (let i = 0; i < contacts.length; ++i) {
+      for (let j = 0; j < contacts[i].phones.length; ++j) {
         inputContacts.push({
           _: 'inputPhoneContact',
           client_id: (i << 16 | j).toString(10),
           phone: contacts[i].phones[j],
           first_name: contacts[i].first_name,
-          last_name: contacts[i].last_name
+          last_name: contacts[i].last_name,
         });
       }
     }
 
     return this.apiManager.invokeApi('contacts.importContacts', {
-      contacts: inputContacts
+      contacts: inputContacts,
     }).then((importedContactsResult) => {
       this.saveApiUsers(importedContactsResult.users);
 
@@ -967,11 +967,11 @@ export class AppUsersManager extends AppManager {
   }
 
   public getTopPeers(type: TopPeerType) {
-    if(this.getTopPeersPromises[type]) return this.getTopPeersPromises[type];
+    if (this.getTopPeersPromises[type]) return this.getTopPeersPromises[type];
 
     return this.getTopPeersPromises[type] = this.appStateManager.getState().then((state) => {
       const cached = state.topPeersCache[type];
-      if(cached && (cached.cachedTime + 86400e3) > Date.now() && cached.peers) { // * fix deleted peer
+      if (cached && (cached.cachedTime + 86400e3) > Date.now() && cached.peers) { // * fix deleted peer
         return cached.peers.filter((topPeer) => this.appPeersManager.getPeer(topPeer.id));
       }
 
@@ -979,26 +979,26 @@ export class AppUsersManager extends AppManager {
         [type]: true,
         offset: 0,
         limit: 30,
-        hash: '0'
+        hash: '0',
       }).then((result) => {
         let topPeers: MyTopPeer[] = [];
-        if(result._ === 'contacts.topPeers') {
+        if (result._ === 'contacts.topPeers') {
           // console.log(result);
           this.saveApiUsers(result.users);
           this.appChatsManager.saveApiChats(result.chats);
 
-          if(result.categories.length) {
+          if (result.categories.length) {
             topPeers = result.categories[0].peers.map((topPeer) => {
               const peerId = getPeerId(topPeer.peer);
               this.peersStorage.requestPeer(peerId, 'topPeer');
-              return {id: peerId, rating: topPeer.rating};
+              return { id: peerId, rating: topPeer.rating };
             });
           }
         }
 
         state.topPeersCache[type] = {
           peers: topPeers,
-          cachedTime: Date.now()
+          cachedTime: Date.now(),
         };
         this.appStateManager.pushToState('topPeersCache', state.topPeersCache);
 
@@ -1008,14 +1008,14 @@ export class AppUsersManager extends AppManager {
   }
 
   public getBlocked(offset = 0, limit = 0) {
-    return this.apiManager.invokeApiSingle('contacts.getBlocked', {offset, limit}).then((contactsBlocked) => {
+    return this.apiManager.invokeApiSingle('contacts.getBlocked', { offset, limit }).then((contactsBlocked) => {
       this.saveApiUsers(contactsBlocked.users);
       this.appChatsManager.saveApiChats(contactsBlocked.chats);
       const count = contactsBlocked._ === 'contacts.blocked' ? contactsBlocked.users.length + contactsBlocked.chats.length : contactsBlocked.count;
 
       const peerIds: PeerId[] = contactsBlocked.users.map((u) => u.id.toPeerId()).concat(contactsBlocked.chats.map((c) => c.id.toPeerId(true)));
 
-      return {count, peerIds};
+      return { count, peerIds };
     });
   }
 
@@ -1030,12 +1030,12 @@ export class AppUsersManager extends AppManager {
       _: 'inputGeoPoint',
       lat,
       long,
-      accuracy_radius
+      accuracy_radius,
     };
 
     return this.apiManager.invokeApi('contacts.getLocated', {
       geo_point,
-      background
+      background,
     }).then((updates) => {
       this.apiUpdatesManager.processUpdateMessage(updates);
       return updates;
@@ -1069,26 +1069,26 @@ export class AppUsersManager extends AppManager {
   public searchContacts(query: string, limit = 20) {
     // handle 't.me/username' as 'username'
     const entities = parseEntities(query);
-    if(entities.length && entities[0].length === query.trim().length && entities[0]._ === 'messageEntityUrl') {
+    if (entities.length && entities[0].length === query.trim().length && entities[0]._ === 'messageEntityUrl') {
       try {
         const url = new URL(wrapUrl(query).url);
         const path = url.pathname.slice(1);
-        if(path) {
+        if (path) {
           query = path;
         }
-      } catch(err) {}
+      } catch (err) {}
     }
 
     return this.apiManager.invokeApiCacheable('contacts.search', {
       q: query,
-      limit
-    }, {cacheSeconds: 60}).then((peers) => {
+      limit,
+    }, { cacheSeconds: 60 }).then((peers) => {
       this.saveApiUsers(peers.users);
       this.appChatsManager.saveApiChats(peers.chats);
 
       const out = {
         my_results: filterUnique(peers.my_results.map((p) => getPeerId(p))), // ! contacts.search returns duplicates in my_results
-        results: peers.results.map((p) => getPeerId(p))
+        results: peers.results.map((p) => getPeerId(p)),
       };
 
       return out;
@@ -1096,8 +1096,8 @@ export class AppUsersManager extends AppManager {
   }
 
   private onContactUpdated(userId: UserId, isContact: boolean, curIsContact = this.isContact(userId)) {
-    if(isContact !== curIsContact) {
-      if(isContact) {
+    if (isContact !== curIsContact) {
+      if (isContact) {
         this.pushContact(userId);
       } else {
         this.popContact(userId);
@@ -1111,25 +1111,25 @@ export class AppUsersManager extends AppManager {
 
   public updateUsername(username: string) {
     return this.apiManager.invokeApi('account.updateUsername', {
-      username
+      username,
     }).then((user) => {
       this.saveApiUser(user);
     });
   }
 
   public setUserStatus(userId: UserId, offline: boolean) {
-    if(this.isBot(userId)) {
+    if (this.isBot(userId)) {
       return;
     }
 
     const user = this.users[userId];
-    if(user) {
+    if (user) {
       const status: UserStatus = offline ? {
         _: 'userStatusOffline',
-        was_online: tsNow(true)
+        was_online: tsNow(true),
       } : {
         _: 'userStatusOnline',
-        expires: tsNow(true) + 50
+        expires: tsNow(true) + 50,
       };
 
       user.status = status;
@@ -1142,7 +1142,7 @@ export class AppUsersManager extends AppManager {
 
   public updateMyOnlineStatus(offline: boolean) {
     this.setUserStatus(this.getSelf().id, offline);
-    return this.apiManager.invokeApiSingle('account.updateStatus', {offline});
+    return this.apiManager.invokeApiSingle('account.updateStatus', { offline });
   }
 
   public addContact(
@@ -1165,9 +1165,9 @@ export class AppUsersManager extends AppManager {
       first_name,
       last_name,
       phone,
-      add_phone_privacy_exception: addPhonePrivacyException
+      add_phone_privacy_exception: addPhonePrivacyException,
     }).then((updates) => {
-      this.apiUpdatesManager.processUpdateMessage(updates, {override: true});
+      this.apiUpdatesManager.processUpdateMessage(updates, { override: true });
 
       this.appProfileManager.refreshPeerSettingsIfNeeded(userId.toPeerId(false));
 
@@ -1177,9 +1177,9 @@ export class AppUsersManager extends AppManager {
 
   public deleteContacts(userIds: UserId[]) {
     return this.apiManager.invokeApi('contacts.deleteContacts', {
-      id: userIds.map((userId) => this.getUserInput(userId))
+      id: userIds.map((userId) => this.getUserInput(userId)),
     }).then((updates) => {
-      this.apiUpdatesManager.processUpdateMessage(updates, {override: true});
+      this.apiUpdatesManager.processUpdateMessage(updates, { override: true });
 
       userIds.forEach((userId) => {
         this.onContactUpdated(userId, false);
@@ -1188,7 +1188,7 @@ export class AppUsersManager extends AppManager {
   }
 
   public checkUsername(username: string) {
-    return this.apiManager.invokeApi('account.checkUsername', {username});
+    return this.apiManager.invokeApi('account.checkUsername', { username });
   }
 
   public canSendToUser(userId: UserId) {
@@ -1201,23 +1201,23 @@ export class AppUsersManager extends AppManager {
       params: {
         user_id: this.getUserInput(userId),
         limit,
-        max_id: maxId ?? 0
+        max_id: maxId ?? 0,
       },
       processResult: (messagesChats) => {
         this.appChatsManager.saveApiChats(messagesChats.chats);
         return messagesChats;
-      }
+      },
     });
   }
 
   public updateEmojiStatus(emojiStatus: EmojiStatus) {
     return this.apiManager.invokeApi('account.updateEmojiStatus', {
-      emoji_status: emojiStatus
+      emoji_status: emojiStatus,
     }).then(() => {
       this.apiUpdatesManager.processLocalUpdate({
         _: 'updateUserEmojiStatus',
         user_id: this.getSelf().id,
-        emoji_status: emojiStatus
+        emoji_status: emojiStatus,
       });
     });
   }
@@ -1225,49 +1225,49 @@ export class AppUsersManager extends AppManager {
   public getDefaultEmojiStatuses() {
     return this.defaultEmojiStatuses ??= this.apiManager.invokeApiSingleProcess({
       method: 'account.getDefaultEmojiStatuses',
-      processResult: (emojiStatuses) => this.defaultEmojiStatuses = emojiStatuses
+      processResult: (emojiStatuses) => this.defaultEmojiStatuses = emojiStatuses,
     });
   }
 
   public getRecentEmojiStatuses() {
     return this.recentEmojiStatuses ??= this.apiManager.invokeApiSingleProcess({
       method: 'account.getRecentEmojiStatuses',
-      processResult: (emojiStatuses) => this.recentEmojiStatuses = emojiStatuses
+      processResult: (emojiStatuses) => this.recentEmojiStatuses = emojiStatuses,
     });
   }
 
   public getRequirementToContact(userId: UserId, onlyCached?: boolean): MaybePromise<RequirementToContact> | undefined {
     const user = this.getUser(userId);
-    const empty: RequirementToContact = {_: 'requirementToContactEmpty'};
-    if(!user) {
+    const empty: RequirementToContact = { _: 'requirementToContactEmpty' };
+    if (!user) {
       return empty;
     }
 
-    if(user.pFlags.self) {
+    if (user.pFlags.self) {
       return empty;
     }
 
-    if(!user.send_paid_messages_stars && (!user.pFlags.contact_require_premium || this.rootScope.premium)) {
+    if (!user.send_paid_messages_stars && (!user.pFlags.contact_require_premium || this.rootScope.premium)) {
       return empty;
     }
 
     const userFull = this.appProfileManager.getCachedFullUser(userId);
-    if(userFull) {
-      if(userFull.pFlags.contact_require_premium && !this.rootScope.premium) {
-        return {_: 'requirementToContactPremium'};
-      } else if(userFull.send_paid_messages_stars) {
-        return {_: 'requirementToContactPaidMessages', stars_amount: userFull.send_paid_messages_stars};
+    if (userFull) {
+      if (userFull.pFlags.contact_require_premium && !this.rootScope.premium) {
+        return { _: 'requirementToContactPremium' };
+      } else if (userFull.send_paid_messages_stars) {
+        return { _: 'requirementToContactPaidMessages', stars_amount: userFull.send_paid_messages_stars };
       } else {
         return empty;
       }
     }
 
     const historyStorage = this.appMessagesManager.getHistoryStorage(userId.toPeerId(false));
-    if(historyStorage.count && !user.send_paid_messages_stars) {
+    if (historyStorage.count && !user.send_paid_messages_stars) {
       return empty;
     }
 
-    if(onlyCached) {
+    if (onlyCached) {
       return;
     }
 
@@ -1276,7 +1276,7 @@ export class AppUsersManager extends AppManager {
 
   private fetchRequirementToContact(userId: UserId) {
     let promise = this.requirementsToContactPromises.get(userId);
-    if(!promise) {
+    if (!promise) {
       this.requirementsToContactPromises.set(userId, promise = deferredPromise());
     }
 
@@ -1302,7 +1302,7 @@ export class AppUsersManager extends AppManager {
   }
 
   private getRequirementsToContact() {
-    if(this.requirementsToContactProcessing) {
+    if (this.requirementsToContactProcessing) {
       return;
     }
 
@@ -1310,12 +1310,12 @@ export class AppUsersManager extends AppManager {
     pause(0).then(() => {
       const userIds = [...this.requirementsToContactPromises.keys()];
       this.apiManager.invokeApi('users.getRequirementsToContact', {
-        id: userIds.map((userId) => this.getUserInput(userId))
+        id: userIds.map((userId) => this.getUserInput(userId)),
       }).then((result) => {
         result.forEach((requirement, index) => {
           // * not sure if it's needed, but just in case
-          if(requirement._ === 'requirementToContactPremium' && this.rootScope.premium) {
-            requirement = {_: 'requirementToContactEmpty'};
+          if (requirement._ === 'requirementToContactPremium' && this.rootScope.premium) {
+            requirement = { _: 'requirementToContactEmpty' };
           }
 
           const userId = userIds[index];
@@ -1325,17 +1325,17 @@ export class AppUsersManager extends AppManager {
         });
       }).finally(() => {
         this.requirementsToContactProcessing = false;
-        if(this.requirementsToContactPromises.size) {
+        if (this.requirementsToContactPromises.size) {
           this.getRequirementsToContact();
         }
       });
     });
   }
 
-  public async getPaidMessagesRevenue({userId, parentPeerId}: GetPaidMessagesRevenueArgs) {
+  public async getPaidMessagesRevenue({ userId, parentPeerId }: GetPaidMessagesRevenueArgs) {
     const revenue = await this.apiManager.invokeApi('account.getPaidMessagesRevenue', {
       user_id: this.getUserInput(userId),
-      parent_peer: parentPeerId ? this.appPeersManager.getInputPeerById(parentPeerId) : undefined
+      parent_peer: parentPeerId ? this.appPeersManager.getInputPeerById(parentPeerId) : undefined,
     });
     return +revenue.stars_amount;
   }
@@ -1344,7 +1344,7 @@ export class AppUsersManager extends AppManager {
     userId,
     refundCharged,
     requirePayment,
-    parentPeerId
+    parentPeerId,
   }: {
     userId: UserId,
     refundCharged?: boolean,
@@ -1355,17 +1355,17 @@ export class AppUsersManager extends AppManager {
       user_id: this.getUserInput(userId),
       refund_charged: refundCharged,
       require_payment: requirePayment,
-      parent_peer: parentPeerId ? this.appPeersManager.getInputPeerById(parentPeerId) : undefined
+      parent_peer: parentPeerId ? this.appPeersManager.getInputPeerById(parentPeerId) : undefined,
     });
 
-    if(parentPeerId) {
+    if (parentPeerId) {
       this.apiUpdatesManager.processLocalUpdate({
         _: 'updateMonoForumNoPaidException',
         channel_id: parentPeerId.toChatId(),
         pFlags: !requirePayment ? {
-          exception: true
+          exception: true,
         } : {},
-        saved_peer_id: this.appPeersManager.getOutputPeer(userId.toPeerId())
+        saved_peer_id: this.appPeersManager.getOutputPeer(userId.toPeerId()),
       });
     }
 

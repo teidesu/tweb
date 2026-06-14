@@ -1,24 +1,24 @@
 // * thanks https://github.com/dkaraush/particles for webgl version
 
-import {MOUNT_CLASS_TO} from '@config/debug';
-import {animate} from '@helpers/animation';
+import { MOUNT_CLASS_TO } from '@config/debug';
+import { animate } from '@helpers/animation';
 import callbackify from '@helpers/callbackify';
 import deferredPromise from '@helpers/cancellablePromise';
-import {Middleware} from '@helpers/middleware';
+import { Middleware } from '@helpers/middleware';
 import getUnsafeRandomInt from '@helpers/number/getUnsafeRandomInt';
-import {applyColorOnContext} from '@lib/rlottie/rlottiePlayer';
-import animationIntersector, {AnimationItemGroup, AnimationItemWrapper} from '@components/animationIntersector';
+import { applyColorOnContext } from '@lib/rlottie/rlottiePlayer';
+import animationIntersector, { AnimationItemGroup, AnimationItemWrapper } from '@components/animationIntersector';
 import BluffSpoilerController from '@components/bluffSpoilerController';
-import DotRendererCore, {buildDotRendererConfig, drawClippingCircle, getDefaultParticlesCount, DotRendererConfig, DotRendererShaderURLs} from '@components/dotRendererCore';
-import {retainSpoilerRenderer, SpoilerRendererConnection} from '@components/spoilerRendererConnection';
-import type {SpoilerOverlayUpdate} from '@components/spoilerRenderer.worker';
-import {animateValue, simpleEasing} from '@helpers/animateValue';
-import {CancellablePromise} from '@helpers/cancellablePromise';
-import {isTruthy} from '../helpers/isTruthy';
+import DotRendererCore, { buildDotRendererConfig, drawClippingCircle, getDefaultParticlesCount, DotRendererConfig, DotRendererShaderURLs } from '@components/dotRendererCore';
+import { retainSpoilerRenderer, SpoilerRendererConnection } from '@components/spoilerRendererConnection';
+import type { SpoilerOverlayUpdate } from '@components/spoilerRenderer.worker';
+import { animateValue, simpleEasing } from '@helpers/animateValue';
+import { CancellablePromise } from '@helpers/cancellablePromise';
+import { isTruthy } from '../helpers/isTruthy';
 
 const SHADER_URLS: DotRendererShaderURLs = {
   vertex: 'assets/img/spoiler_vertex.glsl',
-  fragment: 'assets/img/spoiler_fragment.glsl'
+  fragment: 'assets/img/spoiler_fragment.glsl',
 };
 
 const TEXT_SPOILER_WIDTH = 240;
@@ -34,7 +34,7 @@ const getTextSpoilerConfig = (dpr: number): Partial<DotRendererConfig> => ({
   forceMult: .2,
   velocityMult: .4,
   dampingMult: 2.2,
-  longevity: 5.0
+  longevity: 5.0,
 });
 
 export class AnimationItemNested implements AnimationItemWrapper {
@@ -54,7 +54,7 @@ export class AnimationItemNested implements AnimationItemWrapper {
   }
 
   public play() {
-    if(!this.paused) {
+    if (!this.paused) {
       return;
     }
 
@@ -63,7 +63,7 @@ export class AnimationItemNested implements AnimationItemWrapper {
   }
 
   public pause() {
-    if(this.paused) {
+    if (this.paused) {
       return;
     }
 
@@ -111,7 +111,7 @@ export default class DotRenderer implements AnimationItemWrapper {
   }
 
   private draw() {
-    if(!this.core.inited) {
+    if (!this.core.inited) {
       return;
     }
 
@@ -125,7 +125,7 @@ export default class DotRenderer implements AnimationItemWrapper {
   }
 
   public pause() {
-    if(this.paused) {
+    if (this.paused) {
       return;
     }
 
@@ -142,7 +142,7 @@ export default class DotRenderer implements AnimationItemWrapper {
   // }
 
   public play() {
-    if(!this.paused) {
+    if (!this.paused) {
       return;
     }
 
@@ -151,7 +151,7 @@ export default class DotRenderer implements AnimationItemWrapper {
     this.core.lastDrawTime = Date.now();
 
     animate(() => {
-      if(this.tempId !== tempId || this.paused) {
+      if (this.tempId !== tempId || this.paused) {
         return false;
       }
 
@@ -179,13 +179,13 @@ export default class DotRenderer implements AnimationItemWrapper {
     multiply?: number,
     config?: Partial<DotRendererConfig>
   }) {
-    if(BluffSpoilerController.isWorkerSimSupported()) {
+    if (BluffSpoilerController.isWorkerSimSupported()) {
       return this.createWithWorker(options);
     }
 
-    const {width, height, middleware, animationGroup, config} = options;
-    let {imageSpoilerInstance: instance} = this;
-    if(!instance) {
+    const { width, height, middleware, animationGroup, config } = options;
+    let { imageSpoilerInstance: instance } = this;
+    if (!instance) {
       instance = this.imageSpoilerInstance = new DotRenderer();
       instance.resize(IMAGE_SPOILER_SIZE, IMAGE_SPOILER_SIZE);
       (window as any).dotRenderer = instance;
@@ -193,7 +193,7 @@ export default class DotRenderer implements AnimationItemWrapper {
     // dotRenderer.renderFirstFrame();
 
     const dpr = window.devicePixelRatio;
-    const {canvas, rotate, flipX, flipY} = this.createTargetCanvas(width!, height!, dpr);
+    const { canvas, rotate, flipX, flipY } = this.createTargetCanvas(width!, height!, dpr);
     const context = canvas.getContext('2d');
 
     let revealAnimation: {
@@ -209,14 +209,14 @@ export default class DotRenderer implements AnimationItemWrapper {
     const y = getUnsafeRandomInt(0, instance.canvas.height - canvas.height);
 
     const draw = () => {
-      const {width, height} = canvas;
+      const { width, height } = canvas;
       const isRevealed = revealAnimation?.progress >= 1;
 
-      if(isRevealed) return;
+      if (isRevealed) return;
 
       context!.clearRect(0, 0, width, height);
 
-      if(!revealAnimation) {
+      if (!revealAnimation) {
         context!.drawImage(instance.canvas, x, y, width, height, 0, 0, width, height);
       } else {
         const {
@@ -225,7 +225,7 @@ export default class DotRenderer implements AnimationItemWrapper {
           underLyingCtx,
           maxDist,
           maxDistUnderlyingCanvas,
-          underlyingCanvasClickCoords
+          underlyingCanvasClickCoords,
         } = revealAnimation;
 
         // Zoom (push) the particles
@@ -240,7 +240,7 @@ export default class DotRenderer implements AnimationItemWrapper {
         drawClippingCircle(underLyingCtx, progress, underlyingCanvasClickCoords, maxDistUnderlyingCanvas, instance.dpr);
       }
 
-      if(config?.color) {
+      if (config?.color) {
         applyColorOnContext(context!, '#' + config.color.toString(16), 0, 0, width, height);
       }
     };
@@ -253,16 +253,16 @@ export default class DotRenderer implements AnimationItemWrapper {
       },
       onPause: () => {
         instance.drawCallbacks.delete(canvas);
-        if(!instance.drawCallbacks.size) {
+        if (!instance.drawCallbacks.size) {
           instance.pause();
         }
       },
       onDestroy: () => {
-        if(!--instance.targetCanvasesCount) {
+        if (!--instance.targetCanvasesCount) {
           instance.remove();
           this.imageSpoilerInstance = undefined;
         }
-      }
+      },
     });
 
     animationIntersector.addAnimation({
@@ -270,21 +270,21 @@ export default class DotRenderer implements AnimationItemWrapper {
       group: animationGroup,
       observeElement: canvas,
       controlled: middleware,
-      type: 'dots'
+      type: 'dots',
     });
 
     function revealWithAnimation(event: Event, underLyingCanvas: HTMLCanvasElement) {
-      if(!('clientX' in event && 'clientY' in event)) return false;
+      if (!('clientX' in event && 'clientY' in event)) return false;
       const bcr = canvas.getBoundingClientRect();
 
       const rectX = event.clientX as number - bcr.left;
       const rectY = event.clientY as number - bcr.top;
       let transX = rectX, transY = rectY;
 
-      if(Number(rotate) + Number(flipX) === 1) {
+      if (Number(rotate) + Number(flipX) === 1) {
         transX = bcr.width - rectX;
       }
-      if(Number(rotate) + Number(flipY) === 1) {
+      if (Number(rotate) + Number(flipY) === 1) {
         transY = bcr.height - rectY;
       }
 
@@ -299,16 +299,16 @@ export default class DotRenderer implements AnimationItemWrapper {
       revealAnimation = {
         underlyingCanvasClickCoords: {
           x: rectX * underLyingCanvas.width / bcr.width,
-          y: rectY * underLyingCanvas.height / bcr.height
+          y: rectY * underLyingCanvas.height / bcr.height,
         },
         transformedCoords: {
           x: transX * instance!.dpr,
-          y: transY * instance!.dpr
+          y: transY * instance!.dpr,
         },
         maxDist,
         maxDistUnderlyingCanvas: maxDist / canvas.width * underLyingCanvas.width,
         underLyingCtx: underLyingCanvas.getContext('2d')!,
-        progress: 0
+        progress: 0,
       };
 
       const deferred = deferredPromise<void>();
@@ -320,7 +320,7 @@ export default class DotRenderer implements AnimationItemWrapper {
         },
         {
           onEnd: () => void deferred.resolve(),
-          easing: simpleEasing
+          easing: simpleEasing,
         }
       );
 
@@ -330,7 +330,7 @@ export default class DotRenderer implements AnimationItemWrapper {
     const result = {
       canvas,
       readyResult: width && (/* dotRenderer.resize(width, height, multiply, config),  */instance.init()),
-      revealWithAnimation
+      revealWithAnimation,
     };
 
     this.createdImageSpoilers.set(canvas, result);
@@ -348,23 +348,23 @@ export default class DotRenderer implements AnimationItemWrapper {
   private static getShaderURLs() {
     return {
       vertexURL: new URL(SHADER_URLS.vertex, window.location.href).href,
-      fragmentURL: new URL(SHADER_URLS.fragment, window.location.href).href
+      fragmentURL: new URL(SHADER_URLS.fragment, window.location.href).href,
     };
   }
 
   private static retainConnection() {
     ++this.connectionUsers;
     return this.connection ??= retainSpoilerRenderer((message) => {
-      if(message.type === 'media-inited') {
+      if (message.type === 'media-inited') {
         this.mediaWorkerReady?.resolve();
-      } else if(message.type === 'text-inited') {
+      } else if (message.type === 'text-inited') {
         this.textWorkerReady?.resolve();
       }
     });
   }
 
   private static releaseConnection() {
-    if(--this.connectionUsers || !this.connection) return;
+    if (--this.connectionUsers || !this.connection) return;
 
     this.connection.release();
     this.connection = undefined;
@@ -373,7 +373,7 @@ export default class DotRenderer implements AnimationItemWrapper {
   }
 
   private static initMediaSim() {
-    if(this.mediaInited) return;
+    if (this.mediaInited) return;
     this.mediaInited = true;
 
     this.mediaWorkerReady = deferredPromise<void>();
@@ -384,12 +384,12 @@ export default class DotRenderer implements AnimationItemWrapper {
       height: IMAGE_SPOILER_SIZE,
       dpr,
       config: buildDotRendererConfig(IMAGE_SPOILER_SIZE, IMAGE_SPOILER_SIZE, dpr),
-      ...this.getShaderURLs()
+      ...this.getShaderURLs(),
     });
   }
 
   private static initTextSim() {
-    if(this.textInited) return;
+    if (this.textInited) return;
     this.textInited = true;
 
     this.textWorkerReady = deferredPromise<void>();
@@ -400,7 +400,7 @@ export default class DotRenderer implements AnimationItemWrapper {
       height: TEXT_SPOILER_HEIGHT,
       dpr,
       config: buildDotRendererConfig(TEXT_SPOILER_WIDTH, TEXT_SPOILER_HEIGHT, dpr, getTextSpoilerConfig(dpr)),
-      ...this.getShaderURLs()
+      ...this.getShaderURLs(),
     });
   }
 
@@ -414,7 +414,7 @@ export default class DotRenderer implements AnimationItemWrapper {
 
     const canvas = document.createElement('canvas');
     canvas.classList.add('canvas-thumbnail', 'canvas-dots');
-    if(width) {
+    if (width) {
       canvas.width = width * dpr;
       canvas.height = height * dpr;
     }
@@ -426,13 +426,13 @@ export default class DotRenderer implements AnimationItemWrapper {
     const transforms: string[] = ([
       rotate && 'rotate(180deg)',
       flipX && 'scaleX(-1)',
-      flipY && 'scaleY(-1)'
+      flipY && 'scaleY(-1)',
     ].filter(isTruthy));
-    if(transforms.length) {
+    if (transforms.length) {
       canvas.style.transform = transforms.join(' ');
     }
 
-    return {canvas, rotate, flipX, flipY};
+    return { canvas, rotate, flipX, flipY };
   }
 
   /**
@@ -446,12 +446,12 @@ export default class DotRenderer implements AnimationItemWrapper {
     height,
     middleware,
     animationGroup,
-    config
+    config,
   }: Parameters<(typeof DotRenderer)['create']>[0]) {
     const connection = this.retainConnection();
     this.initMediaSim();
     const dpr = window.devicePixelRatio;
-    const {canvas, rotate, flipX, flipY} = this.createTargetCanvas(width!, height!, dpr);
+    const { canvas, rotate, flipX, flipY } = this.createTargetCanvas(width!, height!, dpr);
     const id = this.createdIndex;
 
     const simSize = IMAGE_SPOILER_SIZE * dpr;
@@ -465,16 +465,16 @@ export default class DotRenderer implements AnimationItemWrapper {
       canvas: offscreen,
       x,
       y,
-      color: config?.color ? '#' + config.color.toString(16) : undefined
+      color: config?.color ? '#' + config.color.toString(16) : undefined,
     }, [offscreen]);
 
     const animation = new AnimationItemNested({
-      onPlay: () => this.connection?.postMessage({type: 'media-play', id}),
-      onPause: () => this.connection?.postMessage({type: 'media-pause', id}),
+      onPlay: () => this.connection?.postMessage({ type: 'media-play', id }),
+      onPause: () => this.connection?.postMessage({ type: 'media-pause', id }),
       onDestroy: () => {
-        this.connection?.postMessage({type: 'media-detach', id});
+        this.connection?.postMessage({ type: 'media-detach', id });
         this.releaseConnection();
-      }
+      },
     });
 
     animationIntersector.addAnimation({
@@ -482,21 +482,21 @@ export default class DotRenderer implements AnimationItemWrapper {
       group: animationGroup,
       observeElement: canvas,
       controlled: middleware,
-      type: 'dots'
+      type: 'dots',
     });
 
     const revealWithAnimation = (event: Event, underLyingCanvas: HTMLCanvasElement) => {
-      if(!('clientX' in event && 'clientY' in event)) return false;
+      if (!('clientX' in event && 'clientY' in event)) return false;
       const bcr = canvas.getBoundingClientRect();
 
       const rectX = event.clientX as number - bcr.left;
       const rectY = event.clientY as number - bcr.top;
       let transX = rectX, transY = rectY;
 
-      if(Number(rotate) + Number(flipX) === 1) {
+      if (Number(rotate) + Number(flipX) === 1) {
         transX = bcr.width - rectX;
       }
-      if(Number(rotate) + Number(flipY) === 1) {
+      if (Number(rotate) + Number(flipY) === 1) {
         transY = bcr.height - rectY;
       }
 
@@ -512,15 +512,15 @@ export default class DotRenderer implements AnimationItemWrapper {
       this.connection?.postMessage({
         type: 'media-reveal',
         id,
-        coords: {x: transX * dpr, y: transY * dpr},
+        coords: { x: transX * dpr, y: transY * dpr },
         maxDist,
-        duration
+        duration,
       });
 
       const underLyingCtx = underLyingCanvas.getContext('2d');
       const underlyingCanvasClickCoords = {
         x: rectX * underLyingCanvas.width / bcr.width,
-        y: rectY * underLyingCanvas.height / bcr.height
+        y: rectY * underLyingCanvas.height / bcr.height,
       };
       const maxDistUnderlyingCanvas = maxDist / canvas.width * underLyingCanvas.width;
 
@@ -532,7 +532,7 @@ export default class DotRenderer implements AnimationItemWrapper {
         },
         {
           onEnd: () => void deferred.resolve(),
-          easing: simpleEasing
+          easing: simpleEasing,
         }
       );
 
@@ -542,7 +542,7 @@ export default class DotRenderer implements AnimationItemWrapper {
     const result = {
       canvas,
       readyResult: width && this.mediaWorkerReady,
-      revealWithAnimation
+      revealWithAnimation,
     };
 
     this.createdImageSpoilers.set(canvas, result);
@@ -555,7 +555,7 @@ export default class DotRenderer implements AnimationItemWrapper {
   }
 
   private static getTextSpoilerInstance() {
-    if(this.textSpoilerInstance) return this.textSpoilerInstance;
+    if (this.textSpoilerInstance) return this.textSpoilerInstance;
 
     const instance = this.textSpoilerInstance = new DotRenderer();
 
@@ -575,7 +575,7 @@ export default class DotRenderer implements AnimationItemWrapper {
     middleware,
     animationGroup,
     canvas,
-    draw
+    draw,
   }: {
     canvas: HTMLCanvasElement,
     draw: () => void,
@@ -593,16 +593,16 @@ export default class DotRenderer implements AnimationItemWrapper {
       },
       onPause: () => {
         instance.drawCallbacks.delete(canvas);
-        if(!instance.drawCallbacks.size) {
+        if (!instance.drawCallbacks.size) {
           instance.pause();
         }
       },
       onDestroy: () => {
-        if(!--instance.targetCanvasesCount) {
+        if (!--instance.targetCanvasesCount) {
           instance.remove();
           this.textSpoilerInstance = undefined;
         }
-      }
+      },
     });
 
     animationIntersector.addAnimation({
@@ -610,14 +610,14 @@ export default class DotRenderer implements AnimationItemWrapper {
       group: animationGroup,
       observeElement: canvas,
       controlled: middleware,
-      type: 'dots'
+      type: 'dots',
     });
 
     return {
       animation,
       sourceCanvas: instance.canvas,
       dpr: instance.dpr,
-      readyResult: instance.init()
+      readyResult: instance.init(),
     };
   }
 
@@ -629,7 +629,7 @@ export default class DotRenderer implements AnimationItemWrapper {
   public static attachTextSpoilerOverlay({
     canvas,
     middleware,
-    animationGroup
+    animationGroup,
   }: {
     canvas: HTMLCanvasElement,
     middleware: Middleware,
@@ -641,15 +641,15 @@ export default class DotRenderer implements AnimationItemWrapper {
     const id = ++this.createdIndex;
     const dpr = Math.min(2, window.devicePixelRatio);
     const offscreen = canvas.transferControlToOffscreen();
-    connection.postMessage({type: 'overlay-attach', id, canvas: offscreen, dpr}, [offscreen]);
+    connection.postMessage({ type: 'overlay-attach', id, canvas: offscreen, dpr }, [offscreen]);
 
     const animation = new AnimationItemNested({
-      onPlay: () => this.connection?.postMessage({type: 'overlay-play', id}),
-      onPause: () => this.connection?.postMessage({type: 'overlay-pause', id}),
+      onPlay: () => this.connection?.postMessage({ type: 'overlay-play', id }),
+      onPause: () => this.connection?.postMessage({ type: 'overlay-pause', id }),
       onDestroy: () => {
-        this.connection?.postMessage({type: 'overlay-detach', id});
+        this.connection?.postMessage({ type: 'overlay-detach', id });
         this.releaseConnection();
-      }
+      },
     });
 
     animationIntersector.addAnimation({
@@ -657,7 +657,7 @@ export default class DotRenderer implements AnimationItemWrapper {
       group: animationGroup,
       observeElement: canvas,
       controlled: middleware,
-      type: 'dots'
+      type: 'dots',
     });
 
     return {
@@ -665,12 +665,12 @@ export default class DotRenderer implements AnimationItemWrapper {
       dpr,
       readyResult: this.textWorkerReady,
       overlay: {
-        update: (payload: Omit<SpoilerOverlayUpdate, 'type' | 'id'>) => this.connection?.postMessage({type: 'overlay-update', id, ...payload}),
-        unwrap: (coords: [number, number], maxDist: number, duration: number) => this.connection?.postMessage({type: 'overlay-unwrap', id, coords, maxDist, duration}),
-        wrap: (duration: number) => this.connection?.postMessage({type: 'overlay-wrap', id, duration}),
-        reset: () => this.connection?.postMessage({type: 'overlay-reset', id}),
-        clear: () => this.connection?.postMessage({type: 'overlay-clear', id})
-      }
+        update: (payload: Omit<SpoilerOverlayUpdate, 'type' | 'id'>) => this.connection?.postMessage({ type: 'overlay-update', id, ...payload }),
+        unwrap: (coords: [number, number], maxDist: number, duration: number) => this.connection?.postMessage({ type: 'overlay-unwrap', id, coords, maxDist, duration }),
+        wrap: (duration: number) => this.connection?.postMessage({ type: 'overlay-wrap', id, duration }),
+        reset: () => this.connection?.postMessage({ type: 'overlay-reset', id }),
+        clear: () => this.connection?.postMessage({ type: 'overlay-clear', id }),
+      },
     };
   }
 
@@ -681,7 +681,7 @@ export default class DotRenderer implements AnimationItemWrapper {
 
     // The whole rendering (simulation + encoding) runs inside a worker, the main
     // thread only receives ready mask URLs
-    if(BluffSpoilerController.isWorkerSimSupported()) {
+    if (BluffSpoilerController.isWorkerSimSupported()) {
       const dpr = Math.min(2, window.devicePixelRatio);
       BluffSpoilerController.setupWorkerSim({
         width: TEXT_SPOILER_WIDTH,
@@ -689,17 +689,17 @@ export default class DotRenderer implements AnimationItemWrapper {
         dpr,
         config: buildDotRendererConfig(TEXT_SPOILER_WIDTH, TEXT_SPOILER_HEIGHT, dpr, getTextSpoilerConfig(dpr)),
         vertexURL: new URL(SHADER_URLS.vertex, window.location.href).href,
-        fragmentURL: new URL(SHADER_URLS.fragment, window.location.href).href
+        fragmentURL: new URL(SHADER_URLS.fragment, window.location.href).href,
       });
 
       const animation = new AnimationItemNested({
         onPlay: () => BluffSpoilerController.activate(element),
         onPause: () => BluffSpoilerController.deactivate(element),
         onDestroy: () => {
-          if(!--BluffSpoilerController.instancesCount) {
+          if (!--BluffSpoilerController.instancesCount) {
             BluffSpoilerController.destroy();
           }
-        }
+        },
       });
 
       animationIntersector.addAnimation({
@@ -707,7 +707,7 @@ export default class DotRenderer implements AnimationItemWrapper {
         group: 'BLUFF-SPOILER',
         // controlled: true, // should not be controlled! elements might reappear in the DOM after being removed
         observeElement: element,
-        type: 'dots'
+        type: 'dots',
       });
 
       return;
@@ -724,19 +724,19 @@ export default class DotRenderer implements AnimationItemWrapper {
       },
       onPause: () => {
         instance.drawCallbacks.delete(element);
-        if(!instance.drawCallbacks.size) {
+        if (!instance.drawCallbacks.size) {
           instance.pause();
         }
       },
       onDestroy: () => {
-        if(!--instance.targetCanvasesCount) {
+        if (!--instance.targetCanvasesCount) {
           instance.remove();
           this.textSpoilerInstance = undefined;
         }
-        if(!--BluffSpoilerController.instancesCount) {
+        if (!--BluffSpoilerController.instancesCount) {
           BluffSpoilerController.destroy();
         }
-      }
+      },
     });
 
     animationIntersector.addAnimation({
@@ -744,7 +744,7 @@ export default class DotRenderer implements AnimationItemWrapper {
       group: 'BLUFF-SPOILER',
       // controlled: true, // should not be controlled! elements might reappear in the DOM after being removed
       observeElement: element,
-      type: 'dots'
+      type: 'dots',
     });
 
     instance.init();

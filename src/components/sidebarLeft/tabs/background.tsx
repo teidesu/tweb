@@ -1,39 +1,39 @@
-import {createEffect, createResource, createSignal, on, onCleanup, onMount, Show} from 'solid-js';
-import {render} from 'solid-js/web';
-import {averageColor, averageColorFromCanvas} from '@helpers/averageColor';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { createEffect, createResource, createSignal, on, onCleanup, onMount, Show } from 'solid-js';
+import { render } from 'solid-js/web';
+import { averageColor, averageColorFromCanvas } from '@helpers/averageColor';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import findUpClassName from '@helpers/dom/findUpClassName';
-import markGridCornerItem, {GRID_CORNER_CLASSES} from '@helpers/dom/markGridCornerItem';
+import markGridCornerItem, { GRID_CORNER_CLASSES } from '@helpers/dom/markGridCornerItem';
 import highlightingColor from '@helpers/highlightingColor';
 import ChatBackgroundGradientRenderer from '@components/chat/gradientRenderer';
-import {ChatBackground as ChatBackgroundLayer} from '@components/chat/bubbles/chatBackground';
-import {BaseTheme, Document, WallPaper, WebDocument} from '@layer';
-import {MyDocument} from '@appManagers/appDocsManager';
-import appDownloadManager, {AppDownloadManager} from '@lib/appDownloadManager';
+import { ChatBackground as ChatBackgroundLayer } from '@components/chat/bubbles/chatBackground';
+import { BaseTheme, Document, WallPaper, WebDocument } from '@layer';
+import { MyDocument } from '@appManagers/appDocsManager';
+import appDownloadManager, { AppDownloadManager } from '@lib/appDownloadManager';
 import appImManager from '@lib/appImManager';
 import rootScope from '@lib/rootScope';
-import {useAppSettings} from '@stores/appSettings';
-import {unwrap} from 'solid-js/store';
+import { useAppSettings } from '@stores/appSettings';
+import { unwrap } from 'solid-js/store';
 import Section from '@components/section';
 import Row from '@components/rowTsx';
 import Button from '@components/buttonTsx';
 import CheckboxField from '@components/checkboxField';
 import ProgressivePreloader from '@components/preloader';
-import {AppBackgroundColorTab} from '@components/solidJsTabs/tabs';
-import {AppTheme, AppThemeSettings} from '@config/state';
-import {blendWallpaperForTinted} from '@config/themePresets';
+import { AppBackgroundColorTab } from '@components/solidJsTabs/tabs';
+import { AppTheme, AppThemeSettings } from '@config/state';
+import { blendWallpaperForTinted } from '@config/themePresets';
 import themeController from '@helpers/themeController';
 import requestFile from '@helpers/files/requestFile';
-import {renderImageFromUrlPromise} from '@helpers/dom/renderImageFromUrl';
+import { renderImageFromUrlPromise } from '@helpers/dom/renderImageFromUrl';
 import scaleMediaElement from '@helpers/canvas/scaleMediaElement';
-import {MediaSize} from '@helpers/mediaSize';
-import {getColorsFromWallPaper} from '@helpers/color';
+import { MediaSize } from '@helpers/mediaSize';
+import { getColorsFromWallPaper } from '@helpers/color';
 import ChatBackgroundStore from '@lib/chatBackgroundStore';
 import ListenerSetter from '@helpers/listenerSetter';
 import LazyLoadQueue from '@components/lazyLoadQueue';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
 
 const needBlur = (wallPaper: WallPaper, respectPattern = true) => {
   const blur = (wallPaper as WallPaper.wallPaper)?.settings?.pFlags?.blur;
@@ -74,13 +74,13 @@ export class AppBackgroundTab {
     wallPaper: WallPaper,
     container = document.createElement('div'),
     forBaseTheme?: BaseTheme['_'],
-    size: {width: number, height: number} = {width: 72, height: 96},
+    size: {width: number, height: number} = { width: 72, height: 96 },
     lazyLoadQueue?: LazyLoadQueue
   ) {
     const colors = getColorsFromWallPaper(wallPaper);
     const hasFile = wallPaper._ === 'wallPaper';
     const isPattern = hasFile && !!(wallPaper).pFlags.pattern;
-    if((hasFile && isPattern && !colors)) {
+    if ((hasFile && isPattern && !colors)) {
       return;
     }
 
@@ -103,7 +103,7 @@ export class AppBackgroundTab {
       forBaseTheme === 'baseThemeTinted' ? 'tinted' :
       forBaseTheme === 'baseThemeNight' ? 'night' :
       'day';
-    const theme = {name: themeName} as AppTheme;
+    const theme = { name: themeName } as AppTheme;
 
     const deferred = deferredPromise<void>();
     let disposeRoot: (() => void) | undefined;
@@ -111,7 +111,7 @@ export class AppBackgroundTab {
     // Mounting the component is what triggers the wallpaper download + raster, so it's the unit of
     // work we gate on visibility.
     const mount = () => {
-      if(disposed) return deferred;
+      if (disposed) return deferred;
       disposeRoot = render(() => (
         <ChatBackgroundLayer
           theme={theme}
@@ -129,8 +129,8 @@ export class AppBackgroundTab {
       disposeRoot?.();
     };
 
-    if(lazyLoadQueue) {
-      lazyLoadQueue.push({div: container, load: () => mount()});
+    if (lazyLoadQueue) {
+      lazyLoadQueue.push({ div: container, load: () => mount() });
     } else {
       mount();
     }
@@ -139,7 +139,7 @@ export class AppBackgroundTab {
       container,
       media,
       loadPromise: deferred as Promise<void>,
-      dispose
+      dispose,
     };
   }
 
@@ -153,10 +153,10 @@ export class AppBackgroundTab {
     const doc = (wallPaper as WallPaper.wallPaper).document as MyDocument;
     const deferred = deferredPromise<void>();
     let download: Promise<void> | ReturnType<AppDownloadManager['downloadMediaURL']>;
-    if(doc) {
+    if (doc) {
       download = appDownloadManager.downloadMediaURL({
         media: doc,
-        queueId: appImManager.chat.bubbles ? appImManager.chat.bubbles.lazyLoadQueue!.queueId : 0
+        queueId: appImManager.chat.bubbles ? appImManager.chat.bubbles.lazyLoadQueue!.queueId : 0,
       });
       deferred.addNotifyListener = download.addNotifyListener.bind(download);
       deferred.cancel = download.cancel;
@@ -165,7 +165,7 @@ export class AppBackgroundTab {
     }
 
     download.then(async() => {
-      if(!middleware()) {
+      if (!middleware()) {
         deferred.resolve();
         return;
       }
@@ -177,32 +177,32 @@ export class AppBackgroundTab {
       // caller passed an explicit themeSettings (which it does only from applyNewTheme). For
       // direct invocations on tinted base, run the same per-accent dark blend so wallpaper picks
       // sit in the Dark Blue palette like cloud-theme picks do.
-      if(!hadSettings && themeController.getTheme()!.name === 'tinted') {
+      if (!hadSettings && themeController.getTheme()!.name === 'tinted') {
         wallPaper = blendWallpaperForTinted(wallPaper, themeSettings.accent_color);
       }
       const onReady = (url?: string) => {
         let getPixelPromise: Promise<Uint8ClampedArray>;
         const backgroundColor = getColorsFromWallPaper(wallPaper);
-        if(url && !backgroundColor) {
+        if (url && !backgroundColor) {
           getPixelPromise = averageColor(url);
         } else {
-          const {canvas} = ChatBackgroundGradientRenderer.create(backgroundColor);
+          const { canvas } = ChatBackgroundGradientRenderer.create(backgroundColor);
           getPixelPromise = Promise.resolve(averageColorFromCanvas(canvas));
         }
 
         const slug = (wallPaper as WallPaper.wallPaper).slug;
         Promise.all([
           getPixelPromise,
-          ChatBackgroundStore.saveWallPaperToCache(slug, url!)
+          ChatBackgroundStore.saveWallPaperToCache(slug, url!),
         ]).then(([pixel]) => {
-          if(!middleware()) {
+          if (!middleware()) {
             deferred.resolve();
             return;
           }
 
           const hsla = highlightingColor(Array.from(pixel) as any);
 
-          if(hadSettings) {
+          if (hadSettings) {
             // applyNewTheme handed us a plain, mutable settings object (part of the themes
             // array it persists itself right after) — mutate it in place.
             themeSettings!.wallpaper = wallPaper;
@@ -219,21 +219,21 @@ export class AppBackgroundTab {
           appImManager.applyCurrentTheme({
             slug,
             backgroundUrl: url,
-            broadcastEvent: true
+            broadcastEvent: true,
           }).then(deferred.resolve.bind(deferred));
         });
       };
 
-      if(!doc) {
+      if (!doc) {
         onReady();
         return;
       }
 
       const cacheContext = await rootScope.managers.thumbsStorage.getCacheContext(doc);
-      if(needBlur(wallPaper)) {
+      if (needBlur(wallPaper)) {
         setTimeout(() => {
           ChatBackgroundStore.blurWallPaperImage(cacheContext.url).then((url) => {
-            if(!middleware()) {
+            if (!middleware()) {
               deferred.resolve();
               return;
             }
@@ -241,7 +241,7 @@ export class AppBackgroundTab {
             onReady(url);
           });
         }, 200);
-      } else if(middleware()) {
+      } else if (middleware()) {
         onReady(cacheContext.url);
       }
     });
@@ -278,7 +278,7 @@ const ChatBackground = () => {
   const blurCheckboxField = new CheckboxField({
     text: 'ChatBackground.Blur',
     name: 'blur',
-    checked: needBlur(getActiveThemeSettings()?.wallpaper!, false)
+    checked: needBlur(getActiveThemeSettings()?.wallpaper!, false),
   });
 
   const toggleBlurCheckbox = () => {
@@ -287,7 +287,7 @@ const ChatBackground = () => {
   };
 
   const changeWallPaperBlur = async(wallPaper: WallPaper, blur: boolean) => {
-    (wallPaper.settings ??= {_: 'wallPaperSettings', pFlags: {}}).pFlags.blur = blur || undefined;
+    (wallPaper.settings ??= { _: 'wallPaperSettings', pFlags: {} }).pFlags.blur = blur || undefined;
     const [appSettings] = useAppSettings();
     await rootScope.managers.appStateManager.pushToState('settings', unwrap(appSettings));
   };
@@ -296,7 +296,7 @@ const ChatBackground = () => {
     wallPaper: WallPaper,
     themeSettings?: AppThemeSettings
   ) => {
-    if(!blurCheckboxField.isDisabled()) {
+    if (!blurCheckboxField.isDisabled()) {
       await changeWallPaperBlur(wallPaper, blurCheckboxField.checked);
     }
 
@@ -306,12 +306,12 @@ const ChatBackground = () => {
   const setActive = () => {
     const active = grid.querySelector('.active');
     const target = elementsByKey.get(getWallPaperKeyFromTheme(getTheme()!));
-    if(active === target) return;
+    if (active === target) return;
 
     toggleBlurCheckbox();
 
     active?.classList.remove('active', ...GRID_CORNER_CLASSES);
-    if(target) {
+    if (target) {
       target.classList.add('active');
       markGridCornerItem(grid, target);
     }
@@ -330,8 +330,8 @@ const ChatBackground = () => {
 
   const addWallPaper = (wallPaper: WallPaper, append = true) => {
     const result = AppBackgroundTab.addWallPaper(wallPaper, undefined, undefined, undefined, lazyLoadQueue);
-    if(result) {
-      const {container, media, dispose} = result;
+    if (result) {
+      const { container, media, dispose } = result;
       container.classList.add('grid-item');
       media.classList.add('grid-item-media');
       solidRoots.push(dispose);
@@ -340,7 +340,7 @@ const ChatBackground = () => {
       wallPapersByElement.set(container, wallPaper);
       elementsByKey.set(key, container);
 
-      if(getWallPaperKeyFromTheme(getTheme()!) === key) {
+      if (getWallPaperKeyFromTheme(getTheme()!) === key) {
         container.classList.add('active');
       }
 
@@ -361,13 +361,13 @@ const ChatBackground = () => {
 
   const onUploadClick = () => {
     requestFile('image/x-png,image/png,image/jpeg').then(async(file) => {
-      if(file.name.endsWith('.png')) {
+      if (file.name.endsWith('.png')) {
         const img = document.createElement('img');
         const url = URL.createObjectURL(file);
         await renderImageFromUrlPromise(img, url, false);
         const mimeType = 'image/jpeg';
-        const {blob} = await scaleMediaElement({media: img, size: new MediaSize(img.naturalWidth, img.naturalHeight), mimeType});
-        file = new File([blob], file.name.replace(/\.png$/, '.jpg'), {type: mimeType});
+        const { blob } = await scaleMediaElement({ media: img, size: new MediaSize(img.naturalWidth, img.naturalHeight), mimeType });
+        file = new File([blob], file.name.replace(/\.png$/, '.jpg'), { type: mimeType });
       }
 
       const wallPaper = await rootScope.managers.appDocsManager.prepareWallPaperUpload(file);
@@ -375,11 +375,11 @@ const ChatBackground = () => {
       // (which now goes through `<ChatBackground>` → ChatBackgroundStore.getBackground)
       // resolves the in-progress upload preview without trying to hit the network.
       const uploadDoc = (wallPaper).document as Document.document;
-      if(uploadDoc) {
+      if (uploadDoc) {
         const cacheContext = await rootScope.managers.thumbsStorage.getCacheContext(uploadDoc);
         ChatBackgroundStore.setBackgroundUrlToCache({
           slug: (wallPaper).slug,
-          url: cacheContext.url
+          url: cacheContext.url,
         });
       }
       const uploadPromise = rootScope.managers.appDocsManager.uploadWallPaper(wallPaper.id);
@@ -407,10 +407,10 @@ const ChatBackground = () => {
       const preloader = new ProgressivePreloader({
         isUpload: true,
         cancelable: true,
-        tryAgainOnFail: false
+        tryAgainOnFail: false,
       });
 
-      const {container} = (await addWallPaper(wallPaper, false))!;
+      const { container } = (await addWallPaper(wallPaper, false))!;
       clicked.add(key);
 
       preloader.attach(container, false, deferred);
@@ -429,28 +429,28 @@ const ChatBackground = () => {
 
   const onGridClick = (e: MouseEvent | TouchEvent) => {
     const target = findUpClassName(e.target!, 'grid-item');
-    if(!target) return;
+    if (!target) return;
 
     const wallPaper = wallPapersByElement.get(target);
-    if(wallPaper!._ === 'wallPaperNoFile') {
+    if (wallPaper!._ === 'wallPaperNoFile') {
       setBackgroundDocument(wallPaper!);
       return;
     }
 
     const key = getWallPaperKey(wallPaper!);
-    if(clicked.has(key)) return;
+    if (clicked.has(key)) return;
     clicked.add(key);
 
     const doc = wallPaper!.document as MyDocument;
     const preloader = new ProgressivePreloader({
       cancelable: true,
-      tryAgainOnFail: false
+      tryAgainOnFail: false,
     });
 
     const load = async() => {
       const promise = setBackgroundDocument(wallPaper!);
       const cacheContext = await rootScope.managers.thumbsStorage.getCacheContext(doc);
-      if(!cacheContext.url || needBlur(wallPaper!)) {
+      if (!cacheContext.url || needBlur(wallPaper!)) {
         preloader.attach(target, true, promise as any);
       }
     };
@@ -458,13 +458,13 @@ const ChatBackground = () => {
     preloader.construct();
 
     attachClickEvent(target, (e) => {
-      if(preloader.preloader.parentElement) {
+      if (preloader.preloader.parentElement) {
         preloader.onClick(e);
         preloader.detach();
       } else {
         load();
       }
-    }, {listenerSetter});
+    }, { listenerSetter });
 
     load();
   };
@@ -482,7 +482,7 @@ const ChatBackground = () => {
   // Build synchronously from the cached list (warmed by the General Settings preload, or a prior
   // open) so the grid + its skeleton tiles are present in the very first frame of the tab-open
   // slide, instead of popping in when the async getWallPapers resolves (around when the slide ends).
-  if(ChatBackgroundStore.cachedWallPapers) {
+  if (ChatBackgroundStore.cachedWallPapers) {
     buildGrid(ChatBackgroundStore.cachedWallPapers);
   }
 
@@ -492,15 +492,15 @@ const ChatBackground = () => {
   const [wallPapersResource] = createResource(() => rootScope.managers.appThemesManager.getWallPapers());
 
   createEffect(on(wallPapersResource, (wallPapers) => {
-    if(!wallPapers) return;
+    if (!wallPapers) return;
     ChatBackgroundStore.cachedWallPapers = wallPapers;
-    if(!loaded()) {
+    if (!loaded()) {
       buildGrid(wallPapers);
     }
   }));
 
   onMount(() => {
-    attachClickEvent(grid, onGridClick, {listenerSetter});
+    attachClickEvent(grid, onGridClick, { listenerSetter });
     toggleBlurCheckbox();
     tab.container.classList.add('background-container', 'background-image-container');
 
@@ -510,10 +510,10 @@ const ChatBackground = () => {
       // wait for the animation end before re-applying — matches legacy timing
       setTimeout(() => {
         const active = grid.querySelector('.active') as HTMLElement;
-        if(!active) return;
+        if (!active) return;
 
         const wallpaper = wallPapersByElement.get(active);
-        if((wallpaper as WallPaper.wallPaper).pFlags.pattern || wallpaper!._ === 'wallPaperNoFile') {
+        if ((wallpaper as WallPaper.wallPaper).pFlags.pattern || wallpaper!._ === 'wallPaperNoFile') {
           return;
         }
 

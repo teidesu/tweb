@@ -1,4 +1,4 @@
-import {Component, mergeProps, onCleanup, onMount} from 'solid-js';
+import { Component, mergeProps, onCleanup, onMount } from 'solid-js';
 
 export interface PathDotProps {
   /** Rectangle width (inner path width, excluding stroke) */
@@ -36,7 +36,7 @@ const PathDot: Component<PathDotProps> = (rawProps) => {
       dotLength: 8,
       duration: 2,
       reverse: false,
-      padding: 8
+      padding: 8,
     },
     rawProps,
   );
@@ -63,7 +63,7 @@ const PathDot: Component<PathDotProps> = (rawProps) => {
       `M ${x} ${y + R}`,
       `L ${x} ${y + H - R}`,
       `A ${R} ${R} 0 0 0 ${x + R} ${y + H}`,
-      `L ${x + W - R} ${y + H}`
+      `L ${x + W - R} ${y + H}`,
     ].join(' ');
   };
 
@@ -77,7 +77,7 @@ const PathDot: Component<PathDotProps> = (rawProps) => {
   let animation: Animation | undefined;
 
   onMount(() => {
-    if(!dotPathRef) return;
+    if (!dotPathRef) return;
 
     // Open path: animate the dash from sitting at the start to sitting at the end
     // (i.e. shift by 100 - dotLength), so the dot stays fully visible the whole way.
@@ -86,20 +86,20 @@ const PathDot: Component<PathDotProps> = (rawProps) => {
     const to = props.reverse ? '0' : `${-travel}`;
 
     animation = dotPathRef.animate(
-      [{strokeDashoffset: from}, {strokeDashoffset: to}],
+      [{ strokeDashoffset: from }, { strokeDashoffset: to }],
       {
         duration: props.duration * 1000,
         easing: 'ease-in',
         fill: 'forwards',
-        iterations: 1
+        iterations: 1,
       }
     );
 
     animation.finished
-    .then(() => props.onAnimationEnd?.())
-    .catch(() => {
+      .then(() => props.onAnimationEnd?.())
+      .catch(() => {
       // Animation was cancelled — ignore.
-    });
+      });
   });
 
   onCleanup(() => {

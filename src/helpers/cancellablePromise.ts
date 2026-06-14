@@ -30,7 +30,7 @@ const deferredHelper = {
   },
 
   addNotifyListener: function(callback: (...args: any[]) => void) {
-    if(this.lastNotify) {
+    if (this.lastNotify) {
       callback(...this.lastNotify);
     }
 
@@ -38,7 +38,7 @@ const deferredHelper = {
   },
 
   resolve: function(value) {
-    if(this.isFulfilled || this.isRejected) return;
+    if (this.isFulfilled || this.isRejected) return;
 
     this.isFulfilled = true;
     this._resolve(value);
@@ -46,7 +46,7 @@ const deferredHelper = {
   },
 
   reject: function(...args) {
-    if(this.isRejected || this.isFulfilled) return;
+    if (this.isRejected || this.isFulfilled) return;
 
     this.isRejected = true;
     this._reject(...args);
@@ -55,12 +55,12 @@ const deferredHelper = {
 
   onFinish: function() {
     this.notify = (this.notifyAll = (this.lastNotify = null)!)!;
-    if(this.listeners) this.listeners.length = 0;
+    if (this.listeners) this.listeners.length = 0;
 
-    if(this.cancel) {
+    if (this.cancel) {
       this.cancel = noop;
     }
-  }
+  },
 } as CancellablePromise<any>;
 
 export default function deferredPromise<T>() {

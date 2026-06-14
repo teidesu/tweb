@@ -1,15 +1,15 @@
-import {createEffect, createSignal, onCleanup} from 'solid-js';
-import {keepMe} from '@helpers/keepMe';
-import {i18n} from '@lib/langPack';
-import {usePasscodeActions} from '@lib/passcode/actions';
-import {MAX_PASSCODE_LENGTH} from '@lib/passcode/constants';
+import { createEffect, createSignal, onCleanup } from 'solid-js';
+import { keepMe } from '@helpers/keepMe';
+import { i18n } from '@lib/langPack';
+import { usePasscodeActions } from '@lib/passcode/actions';
+import { MAX_PASSCODE_LENGTH } from '@lib/passcode/constants';
 import SettingsTabLottieAnimation from '@components/settingsTabLottieAnimation';
-import {InputFieldTsx} from '@components/inputFieldTsx';
+import { InputFieldTsx } from '@components/inputFieldTsx';
 import PasswordInputField from '@components/passwordInputField';
 import ripple from '@components/ripple';
 import Section from '@components/section';
-import type {AppPasscodeEnterPasswordTab} from '@components/solidJsTabs';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
+import type { AppPasscodeEnterPasswordTab } from '@components/solidJsTabs';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
 import Space from '@components/space';
 import commonStyles from '@components/sidebarLeft/tabs/passcodeLock/common.module.scss';
 
@@ -48,12 +48,12 @@ const EnterPasswordTab = () => {
   async function onSubmit(e: Event) {
     e.preventDefault();
 
-    if(!canSubmit() || isSubmitting) return;
+    if (!canSubmit() || isSubmitting) return;
     isSubmitting = true;
 
     try {
       await tab.payload.onSubmit(value(), tab, actions);
-    } catch{
+    } catch {
       setIsError(true);
     } finally {
       isSubmitting = false;

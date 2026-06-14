@@ -1,5 +1,5 @@
-import {MOUNT_CLASS_TO} from '@config/debug';
-import {_tgico} from '@helpers/tgico';
+import { MOUNT_CLASS_TO } from '@config/debug';
+import { _tgico } from '@helpers/tgico';
 
 export function putPreloader(elem: Element, returnDiv = false): HTMLElement {
   const html = `
@@ -7,12 +7,12 @@ export function putPreloader(elem: Element, returnDiv = false): HTMLElement {
   <circle class="preloader-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/>
   </svg>`;
 
-  if(returnDiv) {
+  if (returnDiv) {
     const div = document.createElement('div');
     div.classList.add('preloader');
     div.innerHTML = html;
 
-    if(elem) {
+    if (elem) {
       elem.appendChild(div);
     }
 
@@ -33,7 +33,7 @@ export function setButtonLoader(elem: HTMLButtonElement, icon: Icon = 'check') {
 
   return () => {
     elem.replaceChildren();
-    if(iconElement) elem.append(iconElement);
+    if (iconElement) elem.append(iconElement);
     elem.removeAttribute('disabled');
   };
 }

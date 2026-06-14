@@ -1,4 +1,4 @@
-import {createDualClients, loadSeed} from './dualHarness';
+import { createDualClients, loadSeed } from './dualHarness';
 
 const ENABLED = process.env.TG_API_E2E === '1';
 const seedAPath = process.env.TG_API_SEED || './tmp/seed.json';
@@ -13,13 +13,13 @@ describeOrSkip('dual-client smoke', () => {
     const dual = await createDualClients({
       seedA,
       seedB,
-      testDc: process.env.TG_API_PROD_DC !== '1'
+      testDc: process.env.TG_API_PROD_DC !== '1',
     });
 
     try {
       const [resA, resB] = await Promise.all([
-        dual.A.apiManager.invokeApi('users.getUsers', {id: [{_: 'inputUserSelf'}]}),
-        dual.B.apiManager.invokeApi('users.getUsers', {id: [{_: 'inputUserSelf'}]})
+        dual.A.apiManager.invokeApi('users.getUsers', { id: [{ _: 'inputUserSelf' }] }),
+        dual.B.apiManager.invokeApi('users.getUsers', { id: [{ _: 'inputUserSelf' }] }),
       ]);
 
       const a: any = (resA as any[])[0];
@@ -30,14 +30,14 @@ describeOrSkip('dual-client smoke', () => {
         id: a?.id,
         username: a?.username,
         first_name: a?.first_name,
-        access_hash_present: !!a?.access_hash
+        access_hash_present: !!a?.access_hash,
       });
 
       console.log('B says it is:', {
         id: b?.id,
         username: b?.username,
         first_name: b?.first_name,
-        access_hash_present: !!b?.access_hash
+        access_hash_present: !!b?.access_hash,
       });
 
       expect(a?.id).toBe(seedA.userId);

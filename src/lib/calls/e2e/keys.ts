@@ -17,7 +17,7 @@ import {
   ed25519KeyPairFromSeed,
   ed25519Sign,
   ed25519Verify,
-  randomBytes
+  randomBytes,
 } from './crypto';
 
 // Ed25519 secret-key wrapper. Holds both the 32-byte seed (== public key
@@ -29,10 +29,10 @@ export class PrivateKey {
   readonly publicKeyBytes: Uint8Array; // 32 bytes
 
   private constructor(secretKey: Uint8Array, publicKey: Uint8Array) {
-    if(secretKey.length !== 64) {
+    if (secretKey.length !== 64) {
       throw new Error(`PrivateKey: libsodium secret must be 64 bytes, got ${secretKey.length}`);
     }
-    if(publicKey.length !== 32) {
+    if (publicKey.length !== 32) {
       throw new Error(`PrivateKey: public must be 32 bytes, got ${publicKey.length}`);
     }
     this.secretKey = secretKey;
@@ -40,7 +40,7 @@ export class PrivateKey {
   }
 
   private secret(): Uint8Array {
-    if(!this.secretKey) throw new Error('PrivateKey: already destroyed');
+    if (!this.secretKey) throw new Error('PrivateKey: already destroyed');
     return this.secretKey;
   }
 
@@ -59,7 +59,7 @@ export class PrivateKey {
 
   // Construct from a 32-byte Ed25519 seed (matches tdlib wire format).
   public static fromSeed(seed: Uint8Array): PrivateKey {
-    if(seed.length !== 32) throw new Error(`PrivateKey.fromSeed: need 32 bytes, got ${seed.length}`);
+    if (seed.length !== 32) throw new Error(`PrivateKey.fromSeed: need 32 bytes, got ${seed.length}`);
     const kp = ed25519KeyPairFromSeed(seed);
     return new PrivateKey(kp.secretKey, kp.publicKey);
   }
@@ -86,7 +86,7 @@ export class PrivateKey {
   // Same as ecdh() but the peer's key is a raw Curve25519 public (NOT Ed25519).
   // Useful when SharedKey.ek already stores an X25519 pub directly.
   public ecdhWithCurve25519(curvePublicKey: Uint8Array): Promise<Uint8Array> {
-    if(curvePublicKey.length !== 32) {
+    if (curvePublicKey.length !== 32) {
       throw new Error(`ecdhWithCurve25519: pub must be 32 bytes, got ${curvePublicKey.length}`);
     }
     return computeSharedSecretWithCurve25519(this.secret(), curvePublicKey);
@@ -94,7 +94,7 @@ export class PrivateKey {
 
   // Wipe the in-memory secret. After destroy() the object is unusable.
   public destroy(): void {
-    if(this.secretKey) {
+    if (this.secretKey) {
       this.secretKey.fill(0);
       this.secretKey = undefined;
     }
@@ -105,21 +105,21 @@ export class PublicKey {
   readonly bytes: Uint8Array; // 32 bytes
 
   constructor(bytes: Uint8Array) {
-    if(bytes.length !== 32) {
+    if (bytes.length !== 32) {
       throw new Error(`PublicKey: must be 32 bytes, got ${bytes.length}`);
     }
     this.bytes = new Uint8Array(bytes); // defensive copy
   }
 
   public verify(message: Uint8Array, signature: Uint8Array): boolean {
-    if(signature.length !== 64) return false;
+    if (signature.length !== 64) return false;
     return ed25519Verify(this.bytes, message, signature);
   }
 
   public equals(other: PublicKey): boolean {
-    if(this.bytes.length !== other.bytes.length) return false;
-    for(let i = 0; i < this.bytes.length; i++) {
-      if(this.bytes[i] !== other.bytes[i]) return false;
+    if (this.bytes.length !== other.bytes.length) return false;
+    for (let i = 0; i < this.bytes.length; i++) {
+      if (this.bytes[i] !== other.bytes[i]) return false;
     }
     return true;
   }

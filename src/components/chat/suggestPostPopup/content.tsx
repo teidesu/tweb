@@ -1,8 +1,8 @@
-import {createSignal, Show} from 'solid-js';
+import { createSignal, Show } from 'solid-js';
 import numberThousandSplitter from '@helpers/number/numberThousandSplitter';
-import {attachHotClassName} from '@helpers/solid/classname';
-import {I18nTsx} from '@helpers/solid/i18n';
-import defineSolidElement, {PassedProps} from '@lib/solidjs/defineSolidElement';
+import { attachHotClassName } from '@helpers/solid/classname';
+import { I18nTsx } from '@helpers/solid/i18n';
+import defineSolidElement, { PassedProps } from '@lib/solidjs/defineSolidElement';
 import currencyStarIcon from '@components/currencyStarIcon';
 import ripple from '@components/ripple';
 import useAppConfig from '@components/sidebarLeft/tabs/privacy/messages/useAppConfig';
@@ -14,7 +14,7 @@ import PublishTimeField from '@components/chat/suggestPostPopup/publishTimeField
 import styles from '@components/chat/suggestPostPopup/styles.module.scss';
 ripple;
 
-if(import.meta.hot) import.meta.hot.accept();
+if (import.meta.hot) import.meta.hot.accept();
 
 
 export type SuggestPostPopupContentProps = {
@@ -47,8 +47,8 @@ const SuggestPostPopupContent = defineSolidElement({
 
     const [appConfig] = useAppConfig();
 
-    const {willReceiveDollars} = useStarsCommissionAndWithdrawalPrice(() => +stars() || 0, {
-      commissionKey: 'stars_suggested_post_commission_permille'
+    const { willReceiveDollars } = useStarsCommissionAndWithdrawalPrice(() => +stars() || 0, {
+      commissionKey: 'stars_suggested_post_commission_permille',
     });
 
     const minStars = () => appConfig()?.stars_suggested_post_amount_min || MIN_STARS;
@@ -63,11 +63,11 @@ const SuggestPostPopupContent = defineSolidElement({
     };
 
     const onFinish = () => {
-      if(hasErrors()) return;
+      if (hasErrors()) return;
 
       props.onFinish({
         stars: (+stars() || undefined)!,
-        timestamp: (publishingTimestamp() || undefined)!
+        timestamp: (publishingTimestamp() || undefined)!,
       });
     };
 
@@ -78,7 +78,7 @@ const SuggestPostPopupContent = defineSolidElement({
         isError={(isBadPrice() as boolean | undefined)}
       >
         <SimpleFormField.SideContent first>
-          {currencyStarIcon({class: commonStyles.Icon})}
+          {currencyStarIcon({ class: commonStyles.Icon })}
         </SimpleFormField.SideContent>
         <SimpleFormField.Input type='number' forceFieldValue />
         <SimpleFormField.Label forceOffset={44}>
@@ -121,7 +121,7 @@ const SuggestPostPopupContent = defineSolidElement({
         <I18nTsx key='SuggestedPosts.MakeAnOffer' />
       </button>
     </>;
-  }
+  },
 });
 
 export default SuggestPostPopupContent;

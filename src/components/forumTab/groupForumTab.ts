@@ -1,19 +1,19 @@
-import {Chat} from '@layer';
+import { Chat } from '@layer';
 import appDialogsManager from '@lib/appDialogsManager';
-import appImManager, {AppImManager} from '@lib/appImManager';
+import appImManager, { AppImManager } from '@lib/appImManager';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import rootScope from '@lib/rootScope';
-import {AutonomousForumTopicList} from '@components/autonomousDialogList/forumTopics';
+import { AutonomousForumTopicList } from '@components/autonomousDialogList/forumTopics';
 import ButtonMenuToggle from '@components/buttonMenuToggle';
-import {ChatType} from '@components/chat/chatType';
+import { ChatType } from '@components/chat/chatType';
 import PopupElement from '@components/popups';
 import PopupDeleteDialog from '@components/popups/deleteDialog';
 import appSidebarLeft from '@components/sidebarLeft';
-import {AppEditTopicTab} from '@components/solidJsTabs/tabs';
+import { AppEditTopicTab } from '@components/solidJsTabs/tabs';
 import AppSharedMediaTab from '@components/sidebarRight/tabs/sharedMediaTab';
 import SortedDialogList from '@components/sortedDialogList';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
-import {ForumTab} from '@components/forumTab/forumTab';
+import { ForumTab } from '@components/forumTab/forumTab';
 
 
 export class GroupForumTab extends ForumTab {
@@ -22,7 +22,7 @@ export class GroupForumTab extends ForumTab {
 
     this.container.classList.add('topic-dialogs-override');
 
-    this.xd = (new AutonomousForumTopicList({peerId: this.peerId, appDialogsManager}) as any)!;
+    this.xd = (new AutonomousForumTopicList({ peerId: this.peerId, appDialogsManager }) as any)!;
     this.xd.scrollable = this.scrollable;
     this.xd.sortedList = new SortedDialogList({
       itemSize: 64,
@@ -34,11 +34,11 @@ export class GroupForumTab extends ForumTab {
       requestItemForIdx: this.xd.requestItemForIdx,
       onListShrinked: this.xd.onListShrinked,
       indexKey: 'index_0',
-      virtualFilterId: this.peerId
+      virtualFilterId: this.peerId,
     });
 
     const list = this.xd.sortedList.list;
-    appDialogsManager.setListClickListener({list, onFound: null as any, withContext: true});
+    appDialogsManager.setListClickListener({ list, onFound: null as any, withContext: true });
     this.scrollable.append(list);
     this.xd.bindScrollable();
 
@@ -49,16 +49,16 @@ export class GroupForumTab extends ForumTab {
         icon: 'add',
         text: 'ForumTopic.Context.New',
         onClick: () => {
-          appSidebarLeft.createTab(AppEditTopicTab).open({peerId: this.peerId});
+          appSidebarLeft.createTab(AppEditTopicTab).open({ peerId: this.peerId });
         },
         separatorDown: true,
-        verify: () => this.managers.appChatsManager.hasRights(this.peerId.toChatId(), 'manage_topics')
+        verify: () => this.managers.appChatsManager.hasRights(this.peerId.toChatId(), 'manage_topics'),
       }, {
         icon: 'info',
         text: 'ForumTopic.Context.Info',
         onClick: () => {
           AppSharedMediaTab.open(appSidebarLeft, this.peerId);
-        }
+        },
       }, {
         icon: 'message',
         text: 'ForumTopic.Context.ShowAsMessages',
@@ -66,12 +66,12 @@ export class GroupForumTab extends ForumTab {
         verify: () => {
           const chat = appImManager.chat;
           return !chat || !appImManager.isSamePeer(chat, this.getOptionsForMessages());
-        }
+        },
       }, {
         icon: 'adduser',
         text: 'ForumTopic.Context.AddMember',
         onClick: () => {},
-        verify: () => false && this.managers.appChatsManager.hasRights(this.peerId.toChatId(), 'invite_users')
+        verify: () => false && this.managers.appChatsManager.hasRights(this.peerId.toChatId(), 'invite_users'),
       }, {
         icon: 'logout',
         danger: true,
@@ -82,12 +82,12 @@ export class GroupForumTab extends ForumTab {
           });
         },
         separator: true,
-        verify: async() => !!(await this.managers.appMessagesManager.getDialogOnly(this.peerId))
-      }]
+        verify: async() => !!(await this.managers.appMessagesManager.getDialogOnly(this.peerId)),
+      }],
     });
 
     this.listenerSetter.add(rootScope)('history_reload', (peerId) => {
-      if(this.peerId !== peerId) {
+      if (this.peerId !== peerId) {
         return;
       }
 
@@ -95,12 +95,12 @@ export class GroupForumTab extends ForumTab {
     });
 
     this.listenerSetter.add(rootScope)('chat_update', (chatId) => {
-      if(this.peerId !== chatId.toPeerId(true)) {
+      if (this.peerId !== chatId.toPeerId(true)) {
         return;
       }
 
       const chat = apiManagerProxy.getChat(chatId);
-      if(!(chat as Chat.channel).pFlags.forum) {
+      if (!(chat as Chat.channel).pFlags.forum) {
         appDialogsManager.toggleForumTab(undefined, this);
       }
     });
@@ -122,7 +122,7 @@ export class GroupForumTab extends ForumTab {
     const peerTitlePromise = wrapPeerTitle({
       peerId,
       dialog: true,
-      wrapOptions: {middleware}
+      wrapOptions: { middleware },
     });
 
     const setStatusPromise = appImManager.setPeerStatus({
@@ -131,18 +131,18 @@ export class GroupForumTab extends ForumTab {
       needClear: true,
       useWhitespace: false,
       middleware,
-      noTyping: true
+      noTyping: true,
     });
 
     return Promise.all([
       peerTitlePromise,
-      setStatusPromise
+      setStatusPromise,
     ]).then(([
       peerTitle,
-      setStatus
+      setStatus,
       // _
     ]) => {
-      if(!middleware()) {
+      if (!middleware()) {
         return;
       }
 
@@ -154,7 +154,7 @@ export class GroupForumTab extends ForumTab {
   public getOptionsForMessages(): Parameters<AppImManager['isSamePeer']>[0] {
     return {
       peerId: this.peerId,
-      type: ChatType.Chat
+      type: ChatType.Chat,
     };
   }
 

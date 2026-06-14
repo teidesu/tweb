@@ -1,6 +1,6 @@
-import {MediaEditorContextValue} from '@components/mediaEditor/context';
-import {fontInfoMap, getContrastColor} from '@components/mediaEditor/utils';
-import {ResizableLayer} from '@components/mediaEditor/types';
+import { MediaEditorContextValue } from '@components/mediaEditor/context';
+import { fontInfoMap, getContrastColor } from '@components/mediaEditor/utils';
+import { ResizableLayer } from '@components/mediaEditor/types';
 
 export default function drawTextLayer(
   context: MediaEditorContextValue,
@@ -8,11 +8,11 @@ export default function drawTextLayer(
   layer: ResizableLayer,
   densityAware = true
 ) {
-  if(layer.type !== 'text') return;
+  if (layer.type !== 'text') return;
 
-  const {editorState: {pixelRatio}} = context;
+  const { editorState: { pixelRatio } } = context;
 
-  const renderingInfo = {...layer.textRenderingInfo};
+  const renderingInfo = { ...layer.textRenderingInfo };
   const scale = layer.scale * (densityAware ? pixelRatio : 1);
   renderingInfo.height! *= scale;
   renderingInfo.width! *= scale;
@@ -20,19 +20,19 @@ export default function drawTextLayer(
     ...line,
     height: line.height * scale,
     left: line.left * scale,
-    right: line.right * scale
+    right: line.right * scale,
   }));
 
-  if(renderingInfo.path) {
+  if (renderingInfo.path) {
     const newPath = [...renderingInfo.path];
     function multiply(i: number) {
       newPath[i] = (newPath[i] as number) * scale;
     }
     newPath.forEach((part, i) => {
-      if(part === 'M' || part === 'L') {
+      if (part === 'M' || part === 'L') {
         multiply(i + 1);
         multiply(i + 2);
-      } else if(part === 'A') {
+      } else if (part === 'A') {
         multiply(i + 1);
         multiply(i + 2);
         multiply(i + 6);
@@ -50,7 +50,7 @@ export default function drawTextLayer(
   const boxLeft = -renderingInfo.width! / 2;
   const fontInfo = fontInfoMap[layer.textInfo!.font];
 
-  if(layer.textInfo!.style === 'background') {
+  if (layer.textInfo!.style === 'background') {
     ctx.translate(boxLeft, prevY);
 
     ctx.fillStyle = layer.textInfo!.color;
@@ -63,20 +63,20 @@ export default function drawTextLayer(
   renderingInfo.lines.forEach((line) => {
     const yOffset = line.height * fontInfo.baseline;
     let xOffset = 0.2 * layer.textInfo!.size;
-    if(layer.textInfo!.style === 'background') xOffset = 0.3 * layer.textInfo!.size;
+    if (layer.textInfo!.style === 'background') xOffset = 0.3 * layer.textInfo!.size;
 
     ctx.font = `${fontInfo.fontWeight} ${layer.textInfo!.size}px ${fontInfo.fontFamily}`;
 
     const x = boxLeft + xOffset + line.left,
       y = prevY + yOffset;
 
-    if(layer.textInfo!.style === 'outline') {
+    if (layer.textInfo!.style === 'outline') {
       ctx.lineWidth = layer.textInfo!.size * 0.15;
       ctx.strokeStyle = layer.textInfo!.color;
       ctx.strokeText(line.content, x, y);
       ctx.fillStyle = getContrastColor(layer.textInfo!.color);
       ctx.fillText(line.content, x, y);
-    } else if(layer.textInfo!.style === 'background') {
+    } else if (layer.textInfo!.style === 'background') {
       ctx.fillStyle = getContrastColor(layer.textInfo!.color);
       ctx.fillText(line.content, x, y);
     } else {

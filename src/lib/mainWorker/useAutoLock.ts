@@ -1,5 +1,5 @@
 // SolidJS in worker script 🤯 #ReactSucks
-import {createEffect, createRoot, createSignal, onCleanup} from 'solid-js';
+import { createEffect, createRoot, createSignal, onCleanup } from 'solid-js';
 
 import accumulate from '@helpers/array/accumulate';
 import DEBUG from '@config/debug';
@@ -15,7 +15,7 @@ type UseAutoLockArgs = {
   onLock: () => void;
 };
 
-export const useAutoLock = ({getPort, getIsLocked, onLock}: UseAutoLockArgs) => createRoot((dispose) => {
+export const useAutoLock = ({ getPort, getIsLocked, onLock }: UseAutoLockArgs) => createRoot((dispose) => {
   const [areAllIdle, setAreAllIdle] = createSignal(false);
   const [uninteruptableActivities, setUninteruptableActivities] = createSignal(0);
 
@@ -35,17 +35,17 @@ export const useAutoLock = ({getPort, getIsLocked, onLock}: UseAutoLockArgs) => 
 
     (async() => {
       const settings = await commonStateStorage.get('settings', false);
-      if(cleaned) return;
+      if (cleaned) return;
 
       const passcodeEnabled = settings?.passcode?.enabled || false;
       const timeoutMins = settings?.passcode?.autoLockTimeoutMins || null;
 
-      if(!timeoutMins || !passcodeEnabled) return;
+      if (!timeoutMins || !passcodeEnabled) return;
 
-      if(hasActiveTabs || activities > 0 || getIsLocked()) return;
+      if (hasActiveTabs || activities > 0 || getIsLocked()) return;
 
       autoLockTimeout = self.setTimeout(() => {
-        if(!areAllIdle() || getIsLocked()) return;
+        if (!areAllIdle() || getIsLocked()) return;
 
         onLock();
       }, timeoutMins * 1000 * 60);
@@ -56,7 +56,7 @@ export const useAutoLock = ({getPort, getIsLocked, onLock}: UseAutoLockArgs) => 
   function updateActivities() {
     const activities = accumulate(Array.from(uninteruptableActivitiesMap.values()).map(set => set.size), 0);
 
-    if(DEBUG) {
+    if (DEBUG) {
       const activitiesObject = Object.fromEntries(Array.from(uninteruptableActivitiesMap.entries()).map(([, value], idx) => [idx, Array.from(value.values())]));
       getPort().invokeVoid('log', activitiesObject);
     }
@@ -67,17 +67,17 @@ export const useAutoLock = ({getPort, getIsLocked, onLock}: UseAutoLockArgs) => 
   return {
     dispose,
     toggleUninteruptableActivity: (source: MessageEventSource, activity: string, active: boolean) => {
-      if(!uninteruptableActivitiesMap.has(source)) uninteruptableActivitiesMap.set(source, new Set());
+      if (!uninteruptableActivitiesMap.has(source)) uninteruptableActivitiesMap.set(source, new Set());
 
-      if(active) uninteruptableActivitiesMap.get(source)!.add(activity);
+      if (active) uninteruptableActivitiesMap.get(source)!.add(activity);
       else uninteruptableActivitiesMap.get(source)!.delete(activity);
 
       updateActivities();
     },
     removeTab: (source: MessageEventSource) => {
-      if(uninteruptableActivitiesMap.delete(source))
+      if (uninteruptableActivitiesMap.delete(source))
         updateActivities();
     },
-    setAreAllIdle
+    setAreAllIdle,
   }
 });

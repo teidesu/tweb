@@ -1,9 +1,9 @@
 import clamp from '@helpers/number/clamp';
 import OverlayClickHandler from '@helpers/overlayClickHandler';
 import classNames from '@helpers/string/classNames';
-import {createRoot, createSignal, onMount, JSX} from 'solid-js';
-import {Portal} from 'solid-js/web';
-import {IconTsx} from '@components/iconTsx';
+import { createRoot, createSignal, onMount, JSX } from 'solid-js';
+import { Portal } from 'solid-js/web';
+import { IconTsx } from '@components/iconTsx';
 import SetTransition from '@components/singleTransition';
 
 const KEEP_TOOLTIP = true;
@@ -25,7 +25,7 @@ export default function showTooltip({
   relative,
   lighter,
   rightElement,
-  useOverlay = mountOn === document.body
+  useOverlay = mountOn === document.body,
 }: {
   element: HTMLElement,
   class?: string,
@@ -56,11 +56,11 @@ export default function showTooltip({
       const cr = containerRect as DOMRect;
       const er = elementRect as DOMRect;
       const css: JSX.CSSProperties = {
-        'max-width': Math.min(cr.width - paddingX * 2, 320) + 'px'
+        'max-width': Math.min(cr.width - paddingX * 2, 320) + 'px',
       };
 
       const rect = getRect();
-      if(!rect) {
+      if (!rect) {
         return css;
       }
 
@@ -70,7 +70,7 @@ export default function showTooltip({
       const centerX = er.left + (er.width - rect.width) / 2;
       const left = clamp(centerX, minX, maxX);
       const verticalOffset = 12;
-      if(vertical === 'top') css.top = (centerVertically ? er.top + er.height / 2 : er.top) - rect.height - verticalOffset + offsetY + 'px';
+      if (vertical === 'top') css.top = (centerVertically ? er.top + er.height / 2 : er.top) - rect.height - verticalOffset + offsetY + 'px';
       else css.top = er.bottom + verticalOffset + 'px';
       css.left = left + 'px';
 
@@ -114,13 +114,13 @@ export default function showTooltip({
         className: 'is-visible',
         duration: 200,
         useRafs: 2,
-        forwards: true
+        forwards: true,
       });
     });
 
     let closed = false;
     const onToggle = (open: boolean) => {
-      if(open) {
+      if (open) {
         return;
       }
 
@@ -134,16 +134,16 @@ export default function showTooltip({
         onTransitionEnd: () => {
           onClose?.();
           dispose();
-        }
+        },
       });
     };
 
     close = () => {
-      if(closed) {
+      if (closed) {
         return;
       }
 
-      if(useOverlay) tooltipOverlayClickHandler.close();
+      if (useOverlay) tooltipOverlayClickHandler.close();
       else onToggle(false);
     };
 
@@ -151,9 +151,9 @@ export default function showTooltip({
 
     useOverlay && Promise.resolve().then(() => {
       tooltipOverlayClickHandler.open(mountOn);
-      tooltipOverlayClickHandler.addEventListener('toggle', onToggle, {once: true});
+      tooltipOverlayClickHandler.addEventListener('toggle', onToggle, { once: true });
     });
   });
 
-  return {close: close!};
+  return { close: close! };
 }

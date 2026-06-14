@@ -1,22 +1,22 @@
 import tsNow from '@helpers/tsNow';
 import classNames from '@helpers/string/classNames';
-import {AvatarNewTsx} from '@components/avatarNew';
-import PopupElement, {createPopup} from '@components/popups/indexTsx';
-import {RadioFormFromValues} from '@components/row';
-import {MUTE_UNTIL} from '@appManagers/constants';
-import {LangPackKey} from '@lib/langPack';
+import { AvatarNewTsx } from '@components/avatarNew';
+import PopupElement, { createPopup } from '@components/popups/indexTsx';
+import { RadioFormFromValues } from '@components/row';
+import { MUTE_UNTIL } from '@appManagers/constants';
+import { LangPackKey } from '@lib/langPack';
 import rootScope from '@lib/rootScope';
 
 import styles from '@components/popups/mute.module.scss';
 
 const ONE_HOUR = 3600;
 const TIMES: {value: number, langPackKey: LangPackKey, checked?: boolean}[] = [
-  {value: ONE_HOUR, langPackKey: 'ChatList.Mute.1Hour'},
-  {value: ONE_HOUR * 4, langPackKey: 'ChatList.Mute.4Hours'},
-  {value: ONE_HOUR * 8, langPackKey: 'ChatList.Mute.8Hours'},
-  {value: ONE_HOUR * 24, langPackKey: 'ChatList.Mute.1Day'},
-  {value: ONE_HOUR * 24 * 3, langPackKey: 'ChatList.Mute.3Days'},
-  {value: -1, langPackKey: 'ChatList.Mute.Forever', checked: true}
+  { value: ONE_HOUR, langPackKey: 'ChatList.Mute.1Hour' },
+  { value: ONE_HOUR * 4, langPackKey: 'ChatList.Mute.4Hours' },
+  { value: ONE_HOUR * 8, langPackKey: 'ChatList.Mute.8Hours' },
+  { value: ONE_HOUR * 24, langPackKey: 'ChatList.Mute.1Day' },
+  { value: ONE_HOUR * 24 * 3, langPackKey: 'ChatList.Mute.3Days' },
+  { value: -1, langPackKey: 'ChatList.Mute.Forever', checked: true },
 ];
 
 export default function showMutePopup(peerId: PeerId, threadId?: number) {
@@ -50,7 +50,7 @@ export default function showMutePopup(peerId: PeerId, threadId?: number) {
               rootScope.managers.appMessagesManager.mutePeer({
                 peerId,
                 muteUntil: time === -1 ? MUTE_UNTIL : tsNow(true) + time,
-                threadId
+                threadId,
               });
             }}
           />

@@ -1,8 +1,8 @@
-import {children, createMemo, JSX, onCleanup, Ref, Show, splitProps, useContext} from 'solid-js';
+import { children, createMemo, JSX, onCleanup, Ref, Show, splitProps, useContext } from 'solid-js';
 import classNames from '@helpers/string/classNames';
-import {IconTsx} from '@components/iconTsx';
+import { IconTsx } from '@components/iconTsx';
 import RippleElement from '@components/rippleElement';
-import createComponentContext, {ComponentContextValue} from '@helpers/solid/createComponentContext';
+import createComponentContext, { ComponentContextValue } from '@helpers/solid/createComponentContext';
 import createContextMenu from '@helpers/dom/createContextMenu';
 import ListenerSetter from '@helpers/listenerSetter';
 
@@ -18,7 +18,7 @@ type RowContextValue = ComponentContextValue<Kind> & {
 
 const {
   context: RowContext,
-  createValue: createRowValue
+  createValue: createRowValue,
 } = createComponentContext<RowContextValue, Kind>();
 
 const Row = (props: {children: JSX.Element} & Partial<{
@@ -43,10 +43,10 @@ const Row = (props: {children: JSX.Element} & Partial<{
     ...createRowValue(),
     get noWrap() {
       return props.noWrap;
-    }
+    },
   };
 
-  const {store} = value;
+  const { store } = value;
 
   const isCheckbox = () => !!(store.checkboxField || store.checkboxFieldToggle || store.radioField);
   const isClickable = () => !!(props.clickable || isCheckbox() || props.contextMenu);
@@ -69,10 +69,10 @@ const Row = (props: {children: JSX.Element} & Partial<{
   const ref = createMemo(() => {
     return props.contextMenu ? (container: HTMLElement) => {
       const listenerSetter = new ListenerSetter();
-      const {open} = createContextMenu({
+      const { open } = createContextMenu({
         ...props.contextMenu!,
         listenTo: container,
-        listenerSetter
+        listenerSetter,
       } as any);
 
       openContextMenu = open;
@@ -103,7 +103,7 @@ const Row = (props: {children: JSX.Element} & Partial<{
         'row-grid': !!store.rightContent,
         'with-midtitle': !!store.midtitle,
         ...(props.classList || {}),
-        [props.class as string]: !!props.class
+        [props.class as string]: !!props.class,
       }}
       onClick={
         (typeof(props.clickable) !== 'boolean' && props.clickable) ||

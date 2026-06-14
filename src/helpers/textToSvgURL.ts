@@ -1,5 +1,5 @@
 export default function textToSvgURL(text: string) {
-  const blob = new Blob([text], {type: 'image/svg+xml;charset=utf-8'});
+  const blob = new Blob([text], { type: 'image/svg+xml;charset=utf-8' });
 
   // * because iOS Safari doesn't want to eat objectURL
   return new Promise<string>((resolve) => {

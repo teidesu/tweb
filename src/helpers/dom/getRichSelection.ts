@@ -1,5 +1,5 @@
-import type {ChatInputReplyTo} from '@components/chat/input';
-import {MessageEntity} from '@layer';
+import type { ChatInputReplyTo } from '@components/chat/input';
+import { MessageEntity } from '@layer';
 import cancelSelection from '@helpers/dom/cancelSelection';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import getRichValueWithCaret from '@helpers/dom/getRichValueWithCaret';
@@ -7,7 +7,7 @@ import getRichValueWithCaret from '@helpers/dom/getRichValueWithCaret';
 export default function getRichSelection(target: HTMLElement) {
   const selection = document.getSelection();
   const range = selection!.getRangeAt(0);
-  const {startContainer, startOffset, endContainer, endOffset} = range;
+  const { startContainer, startOffset, endContainer, endOffset } = range;
   const startValue = startContainer.nodeValue;
   const endValue = endContainer.nodeValue;
 
@@ -17,7 +17,7 @@ export default function getRichSelection(target: HTMLElement) {
   const skipSelectors: string[] = ['.reply'];
   const s = skipSelectors.map((selector) => {
     const element = container.querySelector(selector);
-    if(element) {
+    if (element) {
       const textNode = document.createTextNode('');
       element.replaceWith(textNode);
       return [textNode, element];
@@ -25,32 +25,32 @@ export default function getRichSelection(target: HTMLElement) {
   }).filter(Boolean);
 
   let insertedStartNode: Text, insertedEndNode: Text;
-  if(startValue === null) {
+  if (startValue === null) {
     startContainer.parentNode!.insertBefore(
       insertedStartNode = document.createTextNode(needle),
       startOffset === 0 ? startContainer : startContainer.nextSibling
     );
   }
 
-  if(endValue === null) {
+  if (endValue === null) {
     endContainer.parentNode!.insertBefore(
       insertedEndNode = document.createTextNode(needle),
       endOffset === 0 ? endContainer : endContainer.nextSibling
     );
   }
 
-  if(startContainer === endContainer && !insertedStartNode!) {
+  if (startContainer === endContainer && !insertedStartNode!) {
     startContainer.nodeValue = startValue!.slice(0, startOffset) + needle + startValue!.slice(startOffset, endOffset) + needle + startValue!.slice(endOffset);
   } else {
-    if(!insertedEndNode!) endContainer.nodeValue = endValue!.slice(0, endOffset) + needle + endValue!.slice(endOffset);
-    if(!insertedStartNode!) startContainer.nodeValue = startValue!.slice(0, startOffset) + needle + startValue!.slice(startOffset);
+    if (!insertedEndNode!) endContainer.nodeValue = endValue!.slice(0, endOffset) + needle + endValue!.slice(endOffset);
+    if (!insertedStartNode!) startContainer.nodeValue = startValue!.slice(0, startOffset) + needle + startValue!.slice(startOffset);
   }
-  const {value: valueBefore} = getRichValueWithCaret(container);
+  const { value: valueBefore } = getRichValueWithCaret(container);
   const startIndex = valueBefore.indexOf(needle);
   const endIndex = valueBefore.indexOf(needle, startIndex + 1) - 1;
-  if(insertedStartNode!) insertedStartNode.remove();
+  if (insertedStartNode!) insertedStartNode.remove();
   else startContainer.nodeValue = startValue;
-  if(insertedEndNode!) insertedEndNode.remove();
+  if (insertedEndNode!) insertedEndNode.remove();
   else endContainer.nodeValue = endValue;
 
   // * have to fix entities
@@ -62,15 +62,15 @@ export default function getRichSelection(target: HTMLElement) {
     'messageEntitySpoiler',
     'messageEntityCustomEmoji',
     'messageEntityEmoji',
-    'messageEntityFormattedDate'
+    'messageEntityFormattedDate',
   ]);
-  const {value: valueAfter, entities} = getRichValueWithCaret(container, true);
+  const { value: valueAfter, entities } = getRichValueWithCaret(container, true);
   const value = valueAfter.slice(startIndex, endIndex);
-  for(let i = 0; i < entities.length; ++i) {
+  for (let i = 0; i < entities.length; ++i) {
     const entity = entities[i];
     const startOffset = entity.offset;
     const endOffset = startOffset! + entity.length!;
-    if(endOffset < startIndex || startOffset! >= endIndex || !SUPPORTED_ENTITIES.has(entity._)) {
+    if (endOffset < startIndex || startOffset! >= endIndex || !SUPPORTED_ENTITIES.has(entity._)) {
       entities.splice(i--, 1);
       continue;
     }
@@ -87,7 +87,7 @@ export default function getRichSelection(target: HTMLElement) {
   const quote: ChatInputReplyTo['replyToQuote'] = {
     text: value,
     entities: entities.length ? entities : undefined,
-    offset: startIndex
+    offset: startIndex,
   };
 
   return quote;

@@ -1,9 +1,9 @@
-import {createEffect, createMemo, createSignal, JSX, on, onCleanup, onMount} from 'solid-js';
-import {StarGiftAttribute} from '@layer';
-import {MyDocument} from '@appManagers/appDocsManager';
+import { createEffect, createMemo, createSignal, JSX, on, onCleanup, onMount } from 'solid-js';
+import { StarGiftAttribute } from '@layer';
+import { MyDocument } from '@appManagers/appDocsManager';
 import wrapEmojiPattern from '@components/wrappers/emojiPattern';
-import {getMiddleware} from '@helpers/middleware';
-import {rgbIntToHex} from '@helpers/color';
+import { getMiddleware } from '@helpers/middleware';
+import { rgbIntToHex } from '@helpers/color';
 
 const MIN_OPACITY = .1;
 const MID_OPACITY = .2;
@@ -16,7 +16,7 @@ const SMALL_CANVAS_HEIGHT = 120;
 
 import styles from '@components/stargifts/stargiftBackdrop.module.scss';
 import classNames from '@helpers/string/classNames';
-import {Transition} from '@vendor/solid-transition-group';
+import { Transition } from '@vendor/solid-transition-group';
 
 const POSITIONS: [number, number, number, number][] = [
   [55, 47, 18, MAX_OPACITY],
@@ -36,7 +36,7 @@ const POSITIONS: [number, number, number, number][] = [
   [118, 151, 22, MAX_OPACITY],
   [180, 141, 22, MAX_OPACITY],
   [155, 13, 24, MAX_OPACITY],
-  [196, 82, 26, MAX_OPACITY]
+  [196, 82, 26, MAX_OPACITY],
 ]
 
 const POSITIONS_SMALL: [number, number, number, number][] = [
@@ -47,7 +47,7 @@ const POSITIONS_SMALL: [number, number, number, number][] = [
   [49, 97, 20, MAX_OPACITY],
   [9, 86, 20, MAX_OPACITY],
   [0, 42, 20, MAX_OPACITY],
-  [5, 12, 20, MAX_OPACITY]
+  [5, 12, 20, MAX_OPACITY],
 ];
 
 export function StarGiftBackdrop(props: {
@@ -71,10 +71,10 @@ export function StarGiftBackdrop(props: {
       canvasHeight: props.small ? SMALL_CANVAS_HEIGHT : CANVAS_HEIGHT,
       emojiSize: 24,
       positions: props.small ? POSITIONS_SMALL : POSITIONS,
-      color: rgbIntToHex(props.backdrop.pattern_color)
+      color: rgbIntToHex(props.backdrop.pattern_color),
     }).then((canvas) => {
-      if(!middleware()) return;
-      if(currentEmoji !== props.patternEmoji) return
+      if (!middleware()) return;
+      if (currentEmoji !== props.patternEmoji) return
       canvas.classList.add(styles.canvas, props.canvasClass!);
       setPatternCanvas(canvas);
     });
@@ -89,7 +89,7 @@ export function StarGiftBackdrop(props: {
       class={classNames(styles.wrap, props.class)}
       style={{
         '--stargift-backdrop-edge-color': rgbIntToHex(props.backdrop.edge_color),
-        '--stargift-backdrop-center-color': rgbIntToHex(props.backdrop.center_color)
+        '--stargift-backdrop-center-color': rgbIntToHex(props.backdrop.center_color),
       }}
     >
       <Transition>

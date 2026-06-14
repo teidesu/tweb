@@ -1,21 +1,21 @@
 import App from '@config/app';
 import DEBUG from '@config/debug';
-import {CommonState as StateCommon, State, COMMON_STATE_INIT, STATE_INIT, AppTheme} from '@config/state';
+import { CommonState as StateCommon, State, COMMON_STATE_INIT, STATE_INIT, AppTheme } from '@config/state';
 import compareVersion from '@helpers/compareVersion';
 import copy from '@helpers/object/copy';
 import validateInitObject from '@helpers/object/validateInitObject';
-import {UserAuth} from '@appManagers/constants';
+import { UserAuth } from '@appManagers/constants';
 import sessionStorage from '@lib/sessionStorage';
-import {recordPromiseBound} from '@helpers/recordPromise';
-import {StoragesResults} from '@appManagers/utils/storages/loadStorages';
-import {LogTypes, logger} from '@lib/logger';
-import {AccountSessionData, ActiveAccountNumber} from '@lib/accounts/types';
+import { recordPromiseBound } from '@helpers/recordPromise';
+import { StoragesResults } from '@appManagers/utils/storages/loadStorages';
+import { LogTypes, logger } from '@lib/logger';
+import { AccountSessionData, ActiveAccountNumber } from '@lib/accounts/types';
 import StateStorage from '@lib/stateStorage';
 import AccountController from '@lib/accounts/accountController';
 import commonStateStorage from '@lib/commonStateStorage';
-import {TrueDcId} from '@types';
-import {getOldDatabaseState} from '@config/databases/state';
-import {IDB} from '@lib/files/idb';
+import { TrueDcId } from '@types';
+import { getOldDatabaseState } from '@config/databases/state';
+import { IDB } from '@lib/files/idb';
 import createStorages from '@appManagers/utils/storages/createStorages';
 import isObject from '@helpers/object/isObject';
 import AppStorage from '@lib/storage';
@@ -46,13 +46,13 @@ const REFRESH_KEYS: Array<keyof State> = [
   'contactsListCachedTime',
   'stateCreatedTime',
   'maxSeenMsgId',
-  'filtersArr'
+  'filtersArr',
 ];
 
 const RESET_WITH_BUILD: Array<keyof State> = [
   'appConfig',
   'version',
-  'build'
+  'build',
 ];
 
 // const REFRESH_KEYS_WEEK = ['dialogs', 'allDialogsLoaded', 'updates', 'pinnedOrders'] as any as Array<keyof State>;
@@ -74,10 +74,10 @@ function AnyStateWriter<S>(log: ReturnType<typeof logger>, keys: string[], init:
 
   const readFromArray = (arr: any[]) => {
     // ! then can't store false values
-    for(let i = 0, length = keys.length; i < length; ++i) {
+    for (let i = 0, length = keys.length; i < length; ++i) {
       const key = keys[i];
       const value = arr[i];
-      if(value !== undefined) {
+      if (value !== undefined) {
         // @ts-ignore
         state[key] = value;
       } else {
@@ -98,7 +98,7 @@ function AnyStateWriter<S>(log: ReturnType<typeof logger>, keys: string[], init:
       state = _state;
     },
     pushedKeys,
-    log
+    log,
   };
 }
 
@@ -107,7 +107,7 @@ function StateWriter(log: ReturnType<typeof logger>) {
 
   const resetStorages: Map<keyof StoragesResults, []> = new Map();
   const resetState = ({
-    preserveKeys = []
+    preserveKeys = [],
     // preserveCommonKeys = []
   }: Partial<{
     preserveKeys: (keyof State)[]
@@ -126,7 +126,7 @@ function StateWriter(log: ReturnType<typeof logger>) {
     });
 
     const r: (keyof StoragesResults)[] = ['chats', 'dialogs', 'users', 'messages'];
-    for(const key of r) {
+    for (const key of r) {
       resetStorages.set(key, []);
     }
 
@@ -142,7 +142,7 @@ function StateWriter(log: ReturnType<typeof logger>) {
       w.state = _state;
     },
     resetStorages,
-    reset: resetState
+    reset: resetState,
   };
 }
 
@@ -154,8 +154,8 @@ function CommonStateWriter(log: ReturnType<typeof logger>) {
 const STATE_STEPS = {
   REFRESH: (writer: ReturnType<typeof StateWriter>) => {
     const time = Date.now();
-    if((writer.state.stateCreatedTime + REFRESH_EVERY) < time) {
-      if(DEBUG) {
+    if ((writer.state.stateCreatedTime + REFRESH_EVERY) < time) {
+      if (DEBUG) {
         writer.log('will refresh state', writer.state.stateCreatedTime, time);
       }
 
@@ -166,7 +166,7 @@ const STATE_STEPS = {
   },
   VALIDATE: <T>(writer: ReturnType<typeof AnyStateWriter<T>>, init: T) => {
     const SKIP_VALIDATING_PATHS: Set<string> = new Set([
-      'settings.themes'
+      'settings.themes',
     ]);
 
     validateInitObject(init, writer.state, (missingKey) => {
@@ -182,32 +182,32 @@ const STATE_STEPS = {
   // singular settings into a one-element array — getThemeSettings handles the rest.
   MIGRATE_THEMES: (writer: ReturnType<typeof CommonStateWriter>) => {
     const themes = writer.state.settings?.themes as AppTheme[] | undefined;
-    if(!themes) return;
+    if (!themes) return;
     let migrated = false;
     themes.forEach((theme) => {
-      if(theme.settings && !Array.isArray(theme.settings)) {
+      if (theme.settings && !Array.isArray(theme.settings)) {
         theme.settings = [theme.settings as any];
         migrated = true;
       }
     });
-    if(migrated) {
+    if (migrated) {
       writer.push('settings', writer.state.settings);
     }
   },
   VERSION: (writer: ReturnType<typeof StateWriter>) => {
     let oldVersion: string;
-    if(writer.state.version !== STATE_VERSION || writer.state.build !== BUILD/*  || true */) {
-      if(writer.state.build < 526) { // * drop all previous migrations
+    if (writer.state.version !== STATE_VERSION || writer.state.build !== BUILD/*  || true */) {
+      if (writer.state.build < 526) { // * drop all previous migrations
         writer.reset();
-      } else if(writer.state.build < 562) { // * drop filtersArr
+      } else if (writer.state.build < 562) { // * drop filtersArr
         writer.push('filtersArr', copy(STATE_INIT.filtersArr));
-      } else if(writer.state.build < 646) {
+      } else if (writer.state.build < 646) {
         writer.resetStorages.set('dialogs', []);
         writer.push('allDialogsLoaded', copy(STATE_INIT.allDialogsLoaded));
         writer.push('pinnedOrders', copy(STATE_INIT.pinnedOrders));
       }
 
-      if(compareVersion(writer.state.version, STATE_VERSION) !== 0) {
+      if (compareVersion(writer.state.version, STATE_VERSION) !== 0) {
         oldVersion = writer.state.version;
       }
 
@@ -216,31 +216,31 @@ const STATE_STEPS = {
       });
     }
 
-    return {oldVersion: oldVersion!};
+    return { oldVersion: oldVersion! };
   },
   CHANGED_AUTH: async(writer: ReturnType<typeof StateWriter>) => {
     const [authKeyFingerprint, baseDcAuthKey] = await Promise.all([
       sessionStorage.get('auth_key_fingerprint'),
-      sessionStorage.get(`dc${App.baseDcId}_auth_key`)
+      sessionStorage.get(`dc${App.baseDcId}_auth_key`),
     ]);
 
-    if(!baseDcAuthKey) {
+    if (!baseDcAuthKey) {
       return;
     }
 
     const _authKeyFingerprint = baseDcAuthKey.slice(0, 8);
-    if(!authKeyFingerprint) { // * migration, preserve settings
+    if (!authKeyFingerprint) { // * migration, preserve settings
       writer.reset(/* {preserveCommonKeys: ['settings']} */);
-    } else if(authKeyFingerprint !== _authKeyFingerprint) {
+    } else if (authKeyFingerprint !== _authKeyFingerprint) {
       writer.reset();
     }
 
-    if(authKeyFingerprint !== _authKeyFingerprint) {
+    if (authKeyFingerprint !== _authKeyFingerprint) {
       await sessionStorage.set({
-        auth_key_fingerprint: _authKeyFingerprint
+        auth_key_fingerprint: _authKeyFingerprint,
       });
     }
-  }
+  },
   // STATE_ID: async(writer: ReturnType<typeof StateWriter>) => {
   //   const stateId = await sessionStorage.get('state_id');
   //   if(writer.state.stateId !== stateId) {
@@ -262,7 +262,7 @@ async function loadStateForAccount(accountNumber: ActiveAccountNumber): Promise<
   const [accountData, ...arr] = await Promise.all([
     AccountController.get(accountNumber),
     ...COMMON_KEYS.map((key) => commonStateStorage.get(key)),
-    ...ALL_KEYS.map((key) => stateStorage.get(key))
+    ...ALL_KEYS.map((key) => stateStorage.get(key)),
   ]);
 
   const commonWriter = CommonStateWriter(log);
@@ -271,17 +271,17 @@ async function loadStateForAccount(accountNumber: ActiveAccountNumber): Promise<
   const writer = StateWriter(log);
   writer.readFromArray(arr);
 
-  if(accountData.userId) {
-    writer.state.authState = {_: 'authStateSignedIn'};
+  if (accountData.userId) {
+    writer.state.authState = { _: 'authStateSignedIn' };
   }
 
   // await STATE_STEPS.STATE_ID(writer);
-  if(accountNumber === 1) await STATE_STEPS.CHANGED_AUTH(writer);
+  if (accountNumber === 1) await STATE_STEPS.CHANGED_AUTH(writer);
   STATE_STEPS.REFRESH(writer);
   STATE_STEPS.VALIDATE(writer, STATE_INIT);
   STATE_STEPS.VALIDATE(commonWriter, COMMON_STATE_INIT);
   STATE_STEPS.MIGRATE_THEMES(commonWriter);
-  const {oldVersion} = STATE_STEPS.VERSION(writer);
+  const { oldVersion } = STATE_STEPS.VERSION(writer);
 
   return {
     state: writer.state,
@@ -289,7 +289,7 @@ async function loadStateForAccount(accountNumber: ActiveAccountNumber): Promise<
     oldVersion,
     resetStorages: writer.resetStorages,
     common: commonWriter.state,
-    userId: accountData.userId!
+    userId: accountData.userId!,
   };
 }
 
@@ -304,7 +304,7 @@ async function loadOldState(): Promise<LoadStateResult> {
     'playbackParams',
     'chatContextMenuHintWasShown',
     'seenTooltips',
-    'translations'
+    'translations',
   ];
   const commonKeys = migrateToStateKeys.concat(COMMON_KEYS);
 
@@ -312,7 +312,7 @@ async function loadOldState(): Promise<LoadStateResult> {
     ...commonKeys.map((key) => (stateStorage as typeof commonStateStorage).get(key as any)),
     ...ALL_KEYS.map((key) => recordPromise(stateStorage.get(key), 'state ' + key)),
     (stateStorage as typeof commonStateStorage).get('langPack'),
-    recordPromise(sessionStorage.get('user_auth'), 'auth')
+    recordPromise(sessionStorage.get('user_auth'), 'auth'),
   ]);
 
   log.warn('promises', performance.now() - totalPerf);
@@ -320,7 +320,7 @@ async function loadOldState(): Promise<LoadStateResult> {
   const commonWriter = CommonStateWriter(log);
   const migrateToStateSettingsValues = arr.splice(0, migrateToStateKeys.length);
   const settingsKeyIndex = COMMON_KEYS.indexOf('settings');
-  if(isObject(arr[settingsKeyIndex])) { // * migrate values to settings
+  if (isObject(arr[settingsKeyIndex])) { // * migrate values to settings
     migrateToStateSettingsValues.forEach((value, i) => {
       arr[settingsKeyIndex][migrateToStateKeys[i]] = value;
     });
@@ -332,9 +332,9 @@ async function loadOldState(): Promise<LoadStateResult> {
 
   const langPack = arr.shift();
   const auth = arr.shift() as UserAuth | number;
-  if(auth) {
+  if (auth) {
     // ! Warning ! DON'T delete this
-    writer.state.authState = {_: 'authStateSignedIn'};
+    writer.state.authState = { _: 'authStateSignedIn' };
   }
 
   // await STATE_STEPS.STATE_ID(writer);
@@ -343,22 +343,22 @@ async function loadOldState(): Promise<LoadStateResult> {
   STATE_STEPS.VALIDATE(writer, STATE_INIT);
   STATE_STEPS.VALIDATE(commonWriter, COMMON_STATE_INIT);
   STATE_STEPS.MIGRATE_THEMES(commonWriter);
-  const {oldVersion} = STATE_STEPS.VERSION(writer);
+  const { oldVersion } = STATE_STEPS.VERSION(writer);
 
-  if(DEBUG) {
+  if (DEBUG) {
     log('state res', writer.state, copy(writer.state));
   }
 
   log.warn('total', performance.now() - totalPerf);
 
   // * set to pushed keys so it'll migrate to new state
-  for(const key in writer.state) {
+  for (const key in writer.state) {
     writer.push(key as keyof State, writer.state[key as keyof State]);
   }
 
   // * migrate langPack
-  if(langPack) {
-    await commonStateStorage.set({langPack});
+  if (langPack) {
+    await commonStateStorage.set({ langPack });
   }
 
   const oldDb = getOldDatabaseState();
@@ -374,7 +374,7 @@ async function loadOldState(): Promise<LoadStateResult> {
     oldVersion,
     resetStorages: writer.resetStorages,
     common: commonWriter.state,
-    userId: (typeof(auth) === 'number' ? auth : (auth?.id ? +auth.id : undefined))!
+    userId: (typeof(auth) === 'number' ? auth : (auth?.id ? +auth.id : undefined))!,
   };
 }
 
@@ -383,19 +383,19 @@ async function moveAccessKeysToMultiAccountFormat() {
 
   const resetKeysPromise = (async() => {
     const callbacks: (() => Promise<any>)[] = [];
-    for(let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 5; i++) {
       const authKeyKey = `dc${i as TrueDcId}_auth_key` as const;
       const serverSaltKey = `dc${i as TrueDcId}_server_salt` as const;
 
       [data[authKeyKey], data[serverSaltKey]] = await Promise.all([
         sessionStorage.get(authKeyKey),
-        sessionStorage.get(serverSaltKey)
+        sessionStorage.get(serverSaltKey),
       ]);
 
       callbacks.push(() => {
         return Promise.all([
           sessionStorage.delete(authKeyKey),
-          sessionStorage.delete(serverSaltKey)
+          sessionStorage.delete(serverSaltKey),
         ]);
       });
     }
@@ -408,7 +408,7 @@ async function moveAccessKeysToMultiAccountFormat() {
   const [userAuth, fingerprint, resetKeys] = await Promise.all([
     sessionStorage.get(`user_auth`),
     sessionStorage.get(`auth_key_fingerprint`),
-    resetKeysPromise
+    resetKeysPromise,
   ]);
 
   // ! not clearing old keys for legacy
@@ -431,7 +431,7 @@ async function moveStoragesToMultiAccountFormat() {
   const [users, chats, dialogs] = await Promise.all([
     storages.users.getAll(),
     storages.chats.getAll(),
-    storages.dialogs.getAll()
+    storages.dialogs.getAll(),
   ]);
 
   const toObject = (arr: any[], prop: string) => {
@@ -444,7 +444,7 @@ async function moveStoragesToMultiAccountFormat() {
   await Promise.all([
     storagesNew.users.set(toObject(users, 'id')),
     storagesNew.chats.set(toObject(chats, 'id')),
-    storagesNew.dialogs.set(toObject(dialogs, 'peerId'))
+    storagesNew.dialogs.set(toObject(dialogs, 'peerId')),
   ]);
 }
 
@@ -458,17 +458,17 @@ function deleteOldDatabase() {
 
 async function applyBuildVersionToStorage() {
   const sessionBuild = await sessionStorage.get('k_build');
-  if(sessionBuild !== BUILD && (!sessionBuild || sessionBuild < BUILD)) {
-    await sessionStorage.set({k_build: BUILD});
+  if (sessionBuild !== BUILD && (!sessionBuild || sessionBuild < BUILD)) {
+    await sessionStorage.set({ k_build: BUILD });
   }
 }
 
 async function loadStateForAllAccounts() {
-  if(TEST_MULTI_MIGRATION) {
+  if (TEST_MULTI_MIGRATION) {
     // * clear all storages to test migration
     await Promise.all([1, 2, 3, 4].map(async(i) => {
       const storages = createStorages(i as ActiveAccountNumber);
-      for(const key in storages) {
+      for (const key in storages) {
         await storages[key as keyof typeof storages].clear();
       }
       await new StateStorage(i as ActiveAccountNumber).clear();
@@ -486,18 +486,18 @@ async function loadStateForAllAccounts() {
   const restPromise = Promise.all([
     loadStateForAccount(2),
     loadStateForAccount(3),
-    loadStateForAccount(4)
+    loadStateForAccount(4),
   ]);
 
-  if(!hasMultiAccount) {
+  if (!hasMultiAccount) {
     stateForFirstAccount = await loadOldState();
     await Promise.all([
       moveAccessKeysToMultiAccountFormat(),
-      moveStoragesToMultiAccountFormat()
+      moveStoragesToMultiAccountFormat(),
     ]);
     stateForFirstAccount.refetchStorages = true;
 
-    if(!TEST_MULTI_MIGRATION) {
+    if (!TEST_MULTI_MIGRATION) {
       deleteOldDatabase(); // * don't wait for the result
     }
   } else {
@@ -508,7 +508,7 @@ async function loadStateForAllAccounts() {
 
   const [...rest] = await restPromise;
 
-  if(DEBUG) {
+  if (DEBUG) {
     console.log('loadStateForAllAccounts time', performance.now() - perf);
   }
 
@@ -516,7 +516,7 @@ async function loadStateForAllAccounts() {
     1: stateForFirstAccount,
     2: rest[0],
     3: rest[1],
-    4: rest[2]
+    4: rest[2],
   };
 }
 

@@ -1,8 +1,8 @@
-import {createEffect, createResource, JSX, on} from 'solid-js';
+import { createEffect, createResource, JSX, on } from 'solid-js';
 import classNames from '@helpers/string/classNames';
-import {MessageEntity, ReplyMarkup} from '@layer';
-import {generateTail} from '@components/chat/utils';
-import {I18nTsx} from '@helpers/solid/i18n';
+import { MessageEntity, ReplyMarkup } from '@layer';
+import { generateTail } from '@components/chat/utils';
+import { I18nTsx } from '@helpers/solid/i18n';
 import wrapRichText from '@lib/richTextProcessor/wrapRichText';
 import rootScope from '@lib/rootScope';
 import ReplyMarkupLayout from '@components/chat/bubbleParts/replyMarkupLayout';
@@ -78,7 +78,7 @@ export function BubbleLayout(props: {
           {props.attachment}
           {(props.text || props.content) && (
             <div class={classNames('message spoilers-container', props.attachment && 'mt-shorter')}>
-              {props.content ?? wrapRichText(props.text!, {entities: props.textEntities})}
+              {props.content ?? wrapRichText(props.text!, { entities: props.textEntities })}
             </div>
           )}
           {props.tail && generateTail()}

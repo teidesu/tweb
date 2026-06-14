@@ -1,9 +1,9 @@
-import type {MyDocument} from '@appManagers/appDocsManager';
-import type {MyMessage} from '@appManagers/appMessagesManager';
-import {Message, MessageMedia} from '@layer';
+import type { MyDocument } from '@appManagers/appDocsManager';
+import type { MyMessage } from '@appManagers/appMessagesManager';
+import { Message, MessageMedia } from '@layer';
 
 export default function isMentionUnread(message: MyMessage) {
-  if(!message) {
+  if (!message) {
     return false;
   }
 

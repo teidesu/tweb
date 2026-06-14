@@ -7,7 +7,7 @@ import SDPSessionSection from '@lib/calls/sdp/sessionSection';
 
 export function parseSdp(str: string) {
   function createSection() {
-    if(sessionSection) {
+    if (sessionSection) {
       mediaSections.push(new SDPMediaSection(lines));
     } else {
       sessionSection = new SDPSessionSection(lines);
@@ -17,9 +17,9 @@ export function parseSdp(str: string) {
   let sessionSection: SDPSessionSection | null = null, lines: SDPLine[] = [];
   const mediaSections: SDPMediaSection[] = [];
   str.split(/\r?\n/).forEach((lineStr) => {
-    if(!isIncorrectSdpLine(lineStr)) {
+    if (!isIncorrectSdpLine(lineStr)) {
       const line = parseSdpLine(lineStr);
-      if(line.key === 'm') {
+      if (line.key === 'm') {
         createSection();
         lines = [];
       }
@@ -44,8 +44,8 @@ export function parseSdpLine(str: string) {
 export function addSimulcast(sdp: SDP) {
   let generator: UniqueNumberGenerator;
   sdp.media.forEach((section, idx) => {
-    if(section.mediaType === 'video' && section.isSending && !section.attributes.get('ssrc-group').get('SIM').exists) {
-      if(!generator) {
+    if (section.mediaType === 'video' && section.isSending && !section.attributes.get('ssrc-group').get('SIM').exists) {
+      if (!generator) {
         generator = new UniqueNumberGenerator(2, 4294967295);
       }
 
@@ -61,7 +61,7 @@ export function addSimulcast(sdp: SDP) {
 
       ssrcs.forEach((ssrc, idx) => {
         const ssrc2 = ssrcs2[idx];
-        if(idx > 0) {
+        if (idx > 0) {
           lines.push(parseSdpLine('a=ssrc-group:FID ' + ssrc + ' ' + ssrc2));
 
           ssrcsStrLines.forEach((v) => {

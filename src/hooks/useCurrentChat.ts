@@ -1,4 +1,4 @@
-import {createSignal, onCleanup, onMount} from 'solid-js';
+import { createSignal, onCleanup, onMount } from 'solid-js';
 import Chat from '@components/chat/chat';
 import appImManager from '@lib/appImManager';
 

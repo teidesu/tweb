@@ -1,4 +1,4 @@
-import {JSX, splitProps} from 'solid-js';
+import { JSX, splitProps } from 'solid-js';
 
 export default function Space(
   inProps: JSX.HTMLAttributes<HTMLDivElement> & {
@@ -8,6 +8,6 @@ export default function Space(
 ) {
   const [props, divProps] = splitProps(inProps, ['amount', 'withTransition']);
   return (
-    <div {...divProps} style={{'padding-top': props.amount, 'transition': props.withTransition ? '.2s' : undefined}} />
+    <div {...divProps} style={{ 'padding-top': props.amount, 'transition': props.withTransition ? '.2s' : undefined }} />
   );
 }

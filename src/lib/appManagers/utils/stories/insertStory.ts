@@ -1,10 +1,10 @@
 import insertInDescendSortedArray from '@helpers/array/insertInDescendSortedArray';
-import {StoryItem} from '@layer';
+import { StoryItem } from '@layer';
 import StoriesCacheType from '@appManagers/utils/stories/cacheType';
 
 export default function insertStory(array: any[], storyItem: StoryItem, onlyId: boolean, cacheType: StoriesCacheType, pinnedToTop?: Map<number, number>) {
   const valueToInsert = onlyId ? storyItem.id : storyItem;
-  if(cacheType === StoriesCacheType.Pinned) {
+  if (cacheType === StoriesCacheType.Pinned) {
     return insertInDescendSortedArray(
       array,
       valueToInsert,
@@ -14,7 +14,7 @@ export default function insertStory(array: any[], storyItem: StoryItem, onlyId: 
         return pinnedIndex !== undefined ? 0xFFFFFFFF - pinnedIndex : storyId;
       }
     );
-  } else if(cacheType === StoriesCacheType.Archive) {
+  } else if (cacheType === StoriesCacheType.Archive) {
     return insertInDescendSortedArray(
       array,
       valueToInsert,

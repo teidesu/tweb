@@ -1,5 +1,5 @@
 import findAndSpliceAll from '@helpers/array/findAndSpliceAll';
-import LazyLoadQueueBase, {LazyLoadElementBase} from '@components/lazyLoadQueueBase';
+import LazyLoadQueueBase, { LazyLoadElementBase } from '@components/lazyLoadQueueBase';
 import VisibilityIntersector from '@components/visibilityIntersector';
 
 export type LazyLoadElement = Omit<LazyLoadElementBase, 'load'> & {
@@ -50,11 +50,11 @@ export default class LazyLoadQueueIntersector extends LazyLoadQueueBase {
 
   protected addElement(method: 'push' | 'unshift', el: LazyLoadElement) {
     const item = this.queue.find((i) => i.div === el.div && i.load === el.load);
-    if(item) {
+    if (item) {
       return false;
     } else {
-      for(const item of this.inProcess) {
-        if(item.div === el.div && item.load === el.load) {
+      for (const item of this.inProcess) {
+        if (item.div === el.div && item.load === el.load) {
           return false;
         }
       }

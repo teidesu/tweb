@@ -27,31 +27,31 @@ export function splitRangeForGettingFileParts(lowerBound: number, upperBound: nu
   const ranges: StreamFetchingRange[] = [
     {
       offset: alignedLowerBound,
-      limit: limitForFirstPart
-    }
+      limit: limitForFirstPart,
+    },
   ];
 
   // Most likely this `while` will never happen unless the data from the quality file is crazy
   let currentOffset = lowerBoundNextFragmentStart;
-  while(currentOffset < upperBound) {
+  while (currentOffset < upperBound) {
     //
     const nextFragmentStart = (Math.floor(currentOffset / STREAM_FRAGMENT_SIZE) + 1) * STREAM_FRAGMENT_SIZE;
-    if(nextFragmentStart > upperBound) break;
+    if (nextFragmentStart > upperBound) break;
 
     ranges.push({
       offset: currentOffset,
-      limit: STREAM_FRAGMENT_SIZE
+      limit: STREAM_FRAGMENT_SIZE,
     });
     currentOffset += STREAM_FRAGMENT_SIZE;
   }
 
-  if(currentOffset <= upperBound) {
+  if (currentOffset <= upperBound) {
     const diff = upperBound - currentOffset + 1;
     const limitForLastPart = snapLimit(diff);
 
     ranges.push({
       offset: currentOffset,
-      limit: limitForLastPart
+      limit: limitForLastPart,
     });
   }
 
@@ -61,7 +61,7 @@ export function splitRangeForGettingFileParts(lowerBound: number, upperBound: nu
   return {
     alignedLowerBound,
     alignedUpperBound,
-    ranges
+    ranges,
   };
 }
 

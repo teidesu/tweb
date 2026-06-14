@@ -1,9 +1,9 @@
-import {Accessor, createMemo, createResource, createSelector, createSignal} from 'solid-js';
-import {createStore, reconcile} from 'solid-js/store';
-import {createSetSignal} from '@helpers/solid/createSetSignal';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {FilterGroupConfigItem, getFilterGroupsConfig} from '@components/sidebarRight/tabs/adminRecentActions/filters/config';
-import {CommittedFilters} from '@components/sidebarRight/tabs/adminRecentActions/filters/types';
+import { Accessor, createMemo, createResource, createSelector, createSignal } from 'solid-js';
+import { createStore, reconcile } from 'solid-js/store';
+import { createSetSignal } from '@helpers/solid/createSetSignal';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { FilterGroupConfigItem, getFilterGroupsConfig } from '@components/sidebarRight/tabs/adminRecentActions/filters/config';
+import { CommittedFilters } from '@components/sidebarRight/tabs/adminRecentActions/filters/types';
 
 
 type UseFlagFiltersArgs = {
@@ -13,10 +13,10 @@ type UseFlagFiltersArgs = {
 
 const adminsFetchLimit = 40; // Have more admins? I'm really sorry :)
 
-export function useFlagFilters({channelId, isBroadcast}: UseFlagFiltersArgs) {
-  const {rootScope} = useHotReloadGuard();
+export function useFlagFilters({ channelId, isBroadcast }: UseFlagFiltersArgs) {
+  const { rootScope } = useHotReloadGuard();
 
-  const filterGroupsConfig = createMemo(() => getFilterGroupsConfig({isBroadcast: isBroadcast()}));
+  const filterGroupsConfig = createMemo(() => getFilterGroupsConfig({ isBroadcast: isBroadcast() }));
 
   const getAllFlagKeys = () => filterGroupsConfig().flatMap(group => group.items.map(item => item.pFlag));
 
@@ -28,9 +28,9 @@ export function useFlagFilters({channelId, isBroadcast}: UseFlagFiltersArgs) {
   const [adminsResource] = createResource(channelId, (id) =>
     rootScope.managers.appProfileManager.getChannelParticipants({
       id,
-      filter: {_: 'channelParticipantsAdmins'},
+      filter: { _: 'channelParticipantsAdmins' },
       offset: 0,
-      limit: adminsFetchLimit
+      limit: adminsFetchLimit,
     })
   );
 
@@ -41,12 +41,12 @@ export function useFlagFilters({channelId, isBroadcast}: UseFlagFiltersArgs) {
   const adminIds = createMemo(() =>
     // [...Array.from({length: 20}).flatMap(() => [...adminsResource()?.participants || []])]
     adminsResource()?.participants
-    ?.filter(item => 'user_id' in item)
-    .map(item => item.user_id) || []
+      ?.filter(item => 'user_id' in item)
+      .map(item => item.user_id) || []
   );
 
   const notShowingAdmins = createMemo(() => {
-    if(!adminsResource()) return null;
+    if (!adminsResource()) return null;
 
     const length = adminIds().length;
     const count = adminsResource()!.count || length;
@@ -85,7 +85,7 @@ export function useFlagFilters({channelId, isBroadcast}: UseFlagFiltersArgs) {
 
   const onAdminClick = (id: PeerId) => {
     const newIds = new Set(selectedAdminIds());
-    if(newIds.has(id.toPeerId())) {
+    if (newIds.has(id.toPeerId())) {
       newIds.delete(id.toPeerId());
     } else {
       newIds.add(id.toPeerId());
@@ -104,12 +104,12 @@ export function useFlagFilters({channelId, isBroadcast}: UseFlagFiltersArgs) {
       Array.from(selectedAdminIds()) :
       undefined;
 
-    if(!search() && !flags && !admins) return null;
+    if (!search() && !flags && !admins) return null;
 
     return {
       search: search() || undefined,
       flags,
-      admins
+      admins,
     };
   };
 
@@ -139,6 +139,6 @@ export function useFlagFilters({channelId, isBroadcast}: UseFlagFiltersArgs) {
 
     isFlagSelected,
     isAdminIdSelected,
-    flagGroupCheckCount
+    flagGroupCheckCount,
   };
 }

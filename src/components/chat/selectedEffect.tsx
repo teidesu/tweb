@@ -1,10 +1,10 @@
-import {Accessor, createEffect, createMemo, createResource, createSignal, JSX} from 'solid-js';
+import { Accessor, createEffect, createMemo, createResource, createSignal, JSX } from 'solid-js';
 import Animated from '@helpers/solid/animations';
 import createMiddleware from '@helpers/solid/createMiddleware';
 import classNames from '@helpers/string/classNames';
 import rootScope from '@lib/rootScope';
 import wrapSticker from '@components/wrappers/sticker';
-import {fireMessageEffect} from '@components/chat/messageRender';
+import { fireMessageEffect } from '@components/chat/messageRender';
 
 export default function SelectedEffect(props: {
   effect: Accessor<DocId>
@@ -17,7 +17,7 @@ export default function SelectedEffect(props: {
 
   createEffect(async() => {
     const effect = props.effect();
-    if(!effect || !availableEffects()) {
+    if (!effect || !availableEffects()) {
       setElement();
       return;
     }
@@ -36,12 +36,12 @@ export default function SelectedEffect(props: {
       middleware,
       loadPromises,
       width: 20,
-      height: 20
+      height: 20,
     });
 
     await Promise.all(loadPromises);
 
-    if(middleware()) {
+    if (middleware()) {
       setElement(element);
     }
 
@@ -49,7 +49,7 @@ export default function SelectedEffect(props: {
       isOut: true,
       effectId: effect,
       element: ref!,
-      middleware
+      middleware,
     });
   });
 

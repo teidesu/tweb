@@ -1,16 +1,16 @@
-import {GROUP_CALL_AMPLITUDE_ANALYSE_INTERVAL_MS} from '@lib/calls/constants';
+import { GROUP_CALL_AMPLITUDE_ANALYSE_INTERVAL_MS } from '@lib/calls/constants';
 import StreamManager from '@lib/calls/streamManager';
 import getAudioConstraints from '@lib/calls/helpers/getAudioConstraints';
 import getStream from '@lib/calls/helpers/getStream';
 import getVideoConstraints from '@lib/calls/helpers/getVideoConstraints';
-import {logger} from '@lib/logger';
+import { logger } from '@lib/logger';
 
 const log = logger('GROUP-CALL');
 
 export default async function createMainStreamManager(muted?: boolean, joinVideo?: boolean) {
   const constraints: MediaStreamConstraints = {
     audio: getAudioConstraints(),
-    video: joinVideo && getVideoConstraints()
+    video: joinVideo && getVideoConstraints(),
   };
 
   const streamManager = new StreamManager(GROUP_CALL_AMPLITUDE_ANALYSE_INTERVAL_MS);
@@ -18,7 +18,7 @@ export default async function createMainStreamManager(muted?: boolean, joinVideo
   try {
     const stream = await getStream(constraints, muted);
     streamManager.addStream(stream, 'input');
-  } catch(err) {
+  } catch (err) {
     log.error('joinGroupCall getStream error', err, constraints);
     streamManager.inputStream = new MediaStream();
   }

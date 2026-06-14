@@ -1,6 +1,6 @@
 import type ListenerSetter from '@helpers/listenerSetter';
 import ripple from '@components/ripple';
-import {LangPackKey, _i18n} from '@lib/langPack';
+import { LangPackKey, _i18n } from '@lib/langPack';
 import getDeepProperty from '@helpers/object/getDeepProperty';
 import rootScope from '@lib/rootScope';
 import apiManagerProxy from '@lib/apiManagerProxy';
@@ -36,19 +36,19 @@ export default class CheckboxField {
     const label = this.label = document.createElement('label');
     label.classList.add('checkbox-field');
 
-    if(options.restriction && !options.toggle) {
+    if (options.restriction && !options.toggle) {
       label.classList.add('checkbox-field-restriction');
     }
 
-    if(options.round) {
+    if (options.round) {
       label.classList.add('checkbox-field-round');
     }
 
-    if(options.color && options.color !== 'secondary') {
+    if (options.color && options.color !== 'secondary') {
       label.classList.add('checkbox-color-' + options.color);
     }
 
-    if(options.disabled) {
+    if (options.disabled) {
       this.toggleDisability(true);
     }
 
@@ -57,28 +57,28 @@ export default class CheckboxField {
     const input = this.input = document.createElement('input');
     input.classList.add('checkbox-field-input');
     input.type = options.asRadio ? 'radio' : 'checkbox';
-    if(options.name) {
+    if (options.name) {
       input[options.asRadio ? 'name' : 'id'] = 'input-' + options.name;
     }
 
-    if(options.checked) {
+    if (options.checked) {
       input.checked = true;
     }
 
-    if(options.stateKey) {
+    if (options.stateKey) {
       let loaded = options.checked !== undefined;
       const onChange = () => {
-        if(!loaded) {
+        if (!loaded) {
           return;
         }
 
         let value: any;
-        if(options.stateValues) {
+        if (options.stateValues) {
           value = options.stateValues[input.checked ? 1 : 0];
         } else {
           value = input.checked;
 
-          if(options.stateValueReverse) {
+          if (options.stateValueReverse) {
             value = !value;
           }
         }
@@ -90,12 +90,12 @@ export default class CheckboxField {
         loaded = true;
         const stateValue = getDeepProperty(state, options.stateKey!);
         let checked: boolean;
-        if(options.stateValues) {
+        if (options.stateValues) {
           checked = options.stateValues.indexOf(stateValue) === 1;
         } else {
           checked = stateValue;
 
-          if(options.stateValueReverse) {
+          if (options.stateValueReverse) {
             checked = !checked;
           }
         }
@@ -103,12 +103,12 @@ export default class CheckboxField {
         this.setValueSilently(checked);
       });
 
-      if(options.listenerSetter) options.listenerSetter.add(input)('change', onChange);
+      if (options.listenerSetter) options.listenerSetter.add(input)('change', onChange);
       else input.addEventListener('change', onChange);
     }
 
     let span: HTMLSpanElement;
-    if(options.text) {
+    if (options.text) {
       span = this.span = document.createElement('span');
       span.classList.add('checkbox-caption');
       _i18n(span, options.text, options.textArgs);
@@ -118,10 +118,10 @@ export default class CheckboxField {
 
     label.append(input);
 
-    if(options.toggle) {
+    if (options.toggle) {
       label.classList.add('checkbox-field-toggle');
 
-      if(options.restriction) {
+      if (options.restriction) {
         label.classList.add('checkbox-field-toggle-restriction');
       }
 
@@ -154,15 +154,15 @@ export default class CheckboxField {
       label.append(box);
     }
 
-    if(span!) {
+    if (span!) {
       label.append(span);
     }
 
-    if(options.withRipple) {
+    if (options.withRipple) {
       label.classList.add('checkbox-ripple', 'hover-effect');
       ripple(label);
       // label.prepend(input);
-    } else if(options.withHover) {
+    } else if (options.withHover) {
       label.classList.add('hover-effect');
     }
   }

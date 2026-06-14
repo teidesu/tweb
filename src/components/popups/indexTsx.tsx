@@ -1,24 +1,24 @@
-import {createContext, useContext, createSignal, onCleanup, JSX, Show, createRoot, Accessor, createEffect, untrack, on, Ref, Setter, onMount} from 'solid-js';
-import {createStore} from 'solid-js/store';
-import {Portal} from 'solid-js/web';
+import { createContext, useContext, createSignal, onCleanup, JSX, Show, createRoot, Accessor, createEffect, untrack, on, Ref, Setter, onMount } from 'solid-js';
+import { createStore } from 'solid-js/store';
+import { Portal } from 'solid-js/web';
 import classNames from '@helpers/string/classNames';
-import {IconTsx} from '@components/iconTsx';
-import {FormatterArguments, i18n, LangPackKey} from '@lib/langPack';
-import {AppManagers} from '@lib/managers';
+import { IconTsx } from '@components/iconTsx';
+import { FormatterArguments, i18n, LangPackKey } from '@lib/langPack';
+import { AppManagers } from '@lib/managers';
 import overlayCounter from '@helpers/overlayCounter';
-import {getMiddleware, MiddlewareHelper} from '@helpers/middleware';
+import { getMiddleware, MiddlewareHelper } from '@helpers/middleware';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import blurActiveElement from '@helpers/dom/blurActiveElement';
 import animationIntersector from '@components/animationIntersector';
-import appNavigationController, {NavigationItem} from '@components/appNavigationController';
-import {addFullScreenListener, getFullScreenElement} from '@helpers/dom/fullScreen';
+import appNavigationController, { NavigationItem } from '@components/appNavigationController';
+import { addFullScreenListener, getFullScreenElement } from '@helpers/dom/fullScreen';
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
 import MarkupTooltip from '@components/chat/markupTooltip';
 import Button from '@components/buttonTsx';
-import {doubleRaf} from '@helpers/schedulers';
-import Scrollable, {ScrollableContextValue} from '@components/scrollable2';
+import { doubleRaf } from '@helpers/schedulers';
+import Scrollable, { ScrollableContextValue } from '@components/scrollable2';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {simulateClickEvent} from '@helpers/dom/clickEvent';
+import { simulateClickEvent } from '@helpers/dom/clickEvent';
 import isSendShortcutPressed from '@helpers/dom/isSendShortcutPressed';
 import noop from '@helpers/noop';
 
@@ -104,7 +104,7 @@ export const useSnitchedPopupContext = () => {
       context = useContext(PopupContext)!;
       return <></>;
     },
-    popupContext: () => context
+    popupContext: () => context,
   }
 };
 
@@ -144,15 +144,15 @@ const PopupElement = (props: {
   };
 
   const show = () => {
-    if(shown() || destroyed()) return;
+    if (shown() || destroyed()) return;
 
     setShown(true);
     const navItem: NavigationItem = {
       type: 'popup',
       onPop: () => {
-        if(isConfirmationNeededOnClose) {
+        if (isConfirmationNeededOnClose) {
           const result = isConfirmationNeededOnClose();
-          if(result) {
+          if (result) {
             Promise.resolve(result).then(() => {
               destroy();
             });
@@ -160,14 +160,14 @@ const PopupElement = (props: {
           }
         }
         return destroy();
-      }
+      },
     };
     setNavigationItem(navItem);
     appNavigationController.pushItem(navItem);
 
     blurActiveElement();
 
-    if(!withoutOverlay) {
+    if (!withoutOverlay) {
       overlayCounter.isOverlayActive = true;
       animationIntersector.checkAnimations2(true);
     }
@@ -175,17 +175,17 @@ const PopupElement = (props: {
     // Add keyboard event listener
     setTimeout(() => {
       const element = popupElement();
-      if(!element || !element.classList.contains('active')) return;
+      if (!element || !element.classList.contains('active')) return;
 
       const handleKeydown = (e: KeyboardEvent) => {
         const btnConfirm = value.btnConfirmOnEnter;
-        if(!btnConfirm ||
+        if (!btnConfirm ||
            (btnConfirm as HTMLButtonElement).disabled ||
            PopupElement.POPUPS[PopupElement.POPUPS.length - 1] !== value) {
           return;
         }
 
-        if(confirmShortcutIsSendShortcut ? isSendShortcutPressed(e) : e.key === 'Enter') {
+        if (confirmShortcutIsSendShortcut ? isSendShortcutPressed(e) : e.key === 'Enter') {
           simulateClickEvent(btnConfirm);
           cancelEvent(e);
         }
@@ -197,10 +197,10 @@ const PopupElement = (props: {
   };
 
   const hide = () => {
-    if(destroyed()) return;
+    if (destroyed()) return;
 
     const navItem = navigationItem();
-    if(!navItem) {
+    if (!navItem) {
       destroy();
       return;
     }
@@ -209,7 +209,7 @@ const PopupElement = (props: {
   };
 
   const destroy = () => {
-    if(destroyed()) return;
+    if (destroyed()) return;
 
     props.onClose?.()
 
@@ -223,12 +223,12 @@ const PopupElement = (props: {
       controllerContext!.dispose(); // * call it here for the content
       MarkupTooltip.getInstance().hide();
 
-      if(!withoutOverlay) {
+      if (!withoutOverlay) {
         overlayCounter.isOverlayActive = false;
       }
 
       const navItem = navigationItem();
-      if(navItem) {
+      if (navItem) {
         appNavigationController.removeItem(navItem);
         setNavigationItem(undefined);
       }
@@ -239,7 +239,7 @@ const PopupElement = (props: {
 
       lateMiddlewareHelper.destroy();
 
-      if(!withoutOverlay) {
+      if (!withoutOverlay) {
         animationIntersector.checkAnimations2(false);
       }
 
@@ -252,7 +252,7 @@ const PopupElement = (props: {
   const [popupElement, setPopupElement] = createSignal<HTMLElement>();
   const [btnConfirmOnEnter, setBtnConfirmOnEnter] = createSignal<HTMLElement>();
 
-  if(props.btnConfirmOnEnter) {
+  if (props.btnConfirmOnEnter) {
     createEffect(() => {
       setBtnConfirmOnEnter(props.btnConfirmOnEnter!());
     });
@@ -282,7 +282,7 @@ const PopupElement = (props: {
     closable: props.closable || false,
     get element() { return popupElement(); },
     kind: props.kind,
-    old: props.old
+    old: props.old,
   };
 
   // Add to popups array
@@ -291,16 +291,16 @@ const PopupElement = (props: {
     indexOfAndSplice(PopupElement.POPUPS, value);
   });
 
-  if(props.show !== undefined) {
+  if (props.show !== undefined) {
     createEffect(on(() => props.show, (_show) => {
       let callback: () => void;
-      if(_show) {
+      if (_show) {
         callback = show;
-      } else if(shown()) {
+      } else if (shown()) {
         callback = hide;
       }
 
-      if(callback!) {
+      if (callback!) {
         doubleRaf().then(callback);
       }
     }));
@@ -330,19 +330,19 @@ const PopupElement = (props: {
             mouseDownTarget = e.target;
           }}
           onClick={/* store.closeButton &&  */((e) => {
-            if(
+            if (
               findUpClassName(e.target, 'popup-container') ||
               !(e.target as HTMLElement).isConnected
             ) {
               return;
             }
 
-            if(props.closable === false) {
+            if (props.closable === false) {
               return;
             }
 
             // Prevent hiding the popup when the click started inside the popup and ended outside
-            if(mouseDownTarget && mouseDownTarget !== e.target) return;
+            if (mouseDownTarget && mouseDownTarget !== e.target) return;
             mouseDownTarget = undefined;
 
             hide();
@@ -386,10 +386,10 @@ PopupElement.Title = (props: {
 }) => {
   const context = useContext(PopupContext);
   const titleContent = () => {
-    if(props.title) {
-      if(typeof(props.title) === 'string') {
+    if (props.title) {
+      if (typeof(props.title) === 'string') {
         return i18n(props.title);
-      } else if(typeof(props.title) !== 'boolean') {
+      } else if (typeof(props.title) !== 'boolean') {
         return props.title;
       }
     }
@@ -413,7 +413,7 @@ PopupElement.CloseButton = (props: {
   const context = useContext(PopupContext);
 
   const handleClick = () => {
-    if(props.canGoBack && props.onBackClick) {
+    if (props.canGoBack && props.onBackClick) {
       props.onBackClick()
     } else {
       context!.hide();
@@ -530,23 +530,23 @@ PopupElement.Button = (props: {
   const [disabled, setDisabled] = createSignal(false);
 
   const handleClick = async(e: MouseEvent) => {
-    if(context!.destroyed) return;
+    if (context!.destroyed) return;
     let result = props.callback?.(e);
-    if(result !== undefined && result instanceof Promise) {
+    if (result !== undefined && result instanceof Promise) {
       setDisabled(true);
       try {
         result = await result;
-      } catch(err) {
+      } catch (err) {
         console.log('popup button error', err);
         result = false;
       }
 
-      if(result === false) {
+      if (result === false) {
         setDisabled(false);
       }
     }
 
-    if(result === false) {
+    if (result === false) {
       return;
     }
 
@@ -555,7 +555,7 @@ PopupElement.Button = (props: {
 
   onMount(() => {
     createEffect(() => {
-      if(props.confirm) {
+      if (props.confirm) {
         context!.setBtnConfirmOnEnter(ref);
 
         onCleanup(() => {
@@ -609,10 +609,10 @@ PopupElement.getPopups = (popupKind: symbol) => {
 
 export const addCancelButton = (buttons: PopupButton[]) => {
   const button = buttons.find((b) => b.isCancel);
-  if(!button) {
+  if (!button) {
     buttons.push({
       langKey: 'Cancel',
-      isCancel: true
+      isCancel: true,
     });
   }
 
@@ -621,7 +621,7 @@ export const addCancelButton = (buttons: PopupButton[]) => {
 
 export function createPopup(callback: () => JSX.Element) {
   createRoot((dispose) => {
-    <PopupControllerContext.Provider value={{dispose}}>
+    <PopupControllerContext.Provider value={{ dispose }}>
       {untrack(callback)}
     </PopupControllerContext.Provider>
   });

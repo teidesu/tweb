@@ -1,15 +1,15 @@
-import type {MyDocument} from '@appManagers/appDocsManager';
-import animationIntersector, {AnimationItemGroup} from '@components/animationIntersector';
+import type { MyDocument } from '@appManagers/appDocsManager';
+import animationIntersector, { AnimationItemGroup } from '@components/animationIntersector';
 import Scrollable from '@components/scrollable';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
-import {doubleRaf} from '@helpers/schedulers';
-import {AppManagers} from '@lib/managers';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
+import { doubleRaf } from '@helpers/schedulers';
+import { AppManagers } from '@lib/managers';
 import rootScope from '@lib/rootScope';
 import LazyLoadQueueRepeat2 from '@components/lazyLoadQueueRepeat2';
 import LazyLoadQueue from '@components/lazyLoadQueue';
 import wrapVideo from '@components/wrappers/video';
 import noop from '@helpers/noop';
-import {MiddlewareHelper, getMiddleware} from '@helpers/middleware';
+import { MiddlewareHelper, getMiddleware } from '@helpers/middleware';
 import positionElementByIndex from '@helpers/dom/positionElementByIndex';
 
 export default class GifsMasonry {
@@ -30,21 +30,21 @@ export default class GifsMasonry {
     this.middlewareHelper = getMiddleware();
     this.map = new Map();
 
-    this.lazyLoadQueue = new LazyLoadQueueRepeat2(undefined, ({target, visible}) => {
-      if(visible) {
+    this.lazyLoadQueue = new LazyLoadQueueRepeat2(undefined, ({ target, visible }) => {
+      if (visible) {
         this.processVisibleDiv(target);
       } else {
         this.processInvisibleDiv(target);
       }
     });
 
-    if(attach) {
+    if (attach) {
       this.attach();
     }
   }
 
   private onScroll = () => {
-    if(this.timeout) {
+    if (this.timeout) {
       clearTimeout(this.timeout);
     } else {
       this.scrollPromise = deferredPromise<void>();
@@ -74,14 +74,14 @@ export default class GifsMasonry {
 
   private processVisibleDiv(div: HTMLElement) {
     const video = div.querySelector('video');
-    if(video) {
+    if (video) {
       return;
     }
 
     const load = () => {
       const docId = div.dataset.docId;
       const promise = Promise.all([this.managers.appDocsManager.getDoc(docId!), this.scrollPromise]).then(async([doc]) => {
-        if(!this.lazyLoadQueue.intersector.isVisible(div)) {
+        if (!this.lazyLoadQueue.intersector.isVisible(div)) {
           this.processInvisibleDiv(div);
           return;
         }
@@ -96,7 +96,7 @@ export default class GifsMasonry {
           group: this.group,
           noInfo: true,
           noPreview: true,
-          middleware
+          middleware,
         });
 
         const promise = res.loadPromise;
@@ -105,7 +105,7 @@ export default class GifsMasonry {
             res.video?.remove();
           });
 
-          if(!middleware() || !this.lazyLoadQueue.intersector.isVisible(div)) {
+          if (!middleware() || !this.lazyLoadQueue.intersector.isVisible(div)) {
             this.processInvisibleDiv(div);
             return;
           }
@@ -122,25 +122,25 @@ export default class GifsMasonry {
 
     // return load();
 
-    this.lazyLoadQueue.push({div, load});
+    this.lazyLoadQueue.push({ div, load });
   }
 
   public processInvisibleDiv = (div: HTMLElement) => {
     return this.scrollPromise?.then(async() => {
       // return;
 
-      if(this.lazyLoadQueue.intersector.isVisible(div)) {
+      if (this.lazyLoadQueue.intersector.isVisible(div)) {
         return;
       }
 
       const thumb = div.querySelector('img, canvas');
 
-      if(thumb) {
+      if (thumb) {
         thumb.classList.remove('hide');
         await doubleRaf();
       }
 
-      if(this.lazyLoadQueue.intersector.isVisible(div)) {
+      if (this.lazyLoadQueue.intersector.isVisible(div)) {
         return;
       }
 
@@ -153,21 +153,21 @@ export default class GifsMasonry {
   }
 
   public update(docs: MyDocument[]) {
-    for(const [docId] of this.map) {
-      if(!docs.some((doc) => doc.id === docId)) {
+    for (const [docId] of this.map) {
+      if (!docs.some((doc) => doc.id === docId)) {
         this.delete(docId);
       }
     }
 
     this.addBatch(docs);
-    for(let i = 0, length = docs.length; i < length; ++i) {
+    for (let i = 0, length = docs.length; i < length; ++i) {
       const element = this.map.get(docs[i].id);
       positionElementByIndex(element!, this.element, i);
     }
   }
 
   public add(doc: MyDocument, appendTo = this.element) {
-    if(this.map.has(doc.id)) {
+    if (this.map.has(doc.id)) {
       return;
     }
 
@@ -180,7 +180,7 @@ export default class GifsMasonry {
 
     appendTo.append(div);
 
-    this.lazyLoadQueue.observe({div, load: noop as any});
+    this.lazyLoadQueue.observe({ div, load: noop as any });
 
     // let preloader = new ProgressivePreloader(div);
 
@@ -190,13 +190,13 @@ export default class GifsMasonry {
       lazyLoadQueue: null as unknown as LazyLoadQueue,
       noInfo: true,
       onlyPreview: true,
-      middleware: div.middlewareHelper.get()
+      middleware: div.middlewareHelper.get(),
     });
   }
 
   public delete(docId: DocId) {
     const div = this.map.get(docId);
-    if(div) {
+    if (div) {
       div.remove();
       div.middlewareHelper!.destroy();
       this.map.delete(docId);

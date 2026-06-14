@@ -1,7 +1,7 @@
-import {i18n} from '@lib/langPack';
-import {useAppConfig} from '@stores/appState';
+import { i18n } from '@lib/langPack';
+import { useAppConfig } from '@stores/appState';
 import anchorCallback from '@helpers/dom/anchorCallback';
-import {formatDate} from '@helpers/date';
+import { formatDate } from '@helpers/date';
 import appImManager from '@lib/appImManager';
 import showFeatureDetailsPopup from '@components/popups/featureDetails';
 
@@ -22,17 +22,17 @@ export default function showFrozenPopup() {
 
   showFeatureDetailsPopup({
     rows: [
-      {icon: 'hand', title: i18n('Frozen.Violation.Title'), subtitle: i18n('Frozen.Violation.Subtitle')},
-      {icon: 'lock', title: i18n('Frozen.ReadOnly.Title'), subtitle: i18n('Frozen.ReadOnly.Subtitle')},
+      { icon: 'hand', title: i18n('Frozen.Violation.Title'), subtitle: i18n('Frozen.Violation.Subtitle') },
+      { icon: 'lock', title: i18n('Frozen.ReadOnly.Title'), subtitle: i18n('Frozen.ReadOnly.Subtitle') },
       {
         icon: 'hourglass',
         title: i18n('Frozen.Appeal.Title'),
-        subtitle: i18n('Frozen.Appeal.Subtitle', [anchor, formatDate(new Date(untilDate), {withTime: true})])
-      }
+        subtitle: i18n('Frozen.Appeal.Subtitle', [anchor, formatDate(new Date(untilDate), { withTime: true })]),
+      },
     ],
     sticker: {
       name: 'UtyanRestricted',
-      size: 130
+      size: 130,
     },
     title: i18n('Frozen.Title'),
     buttons: [{
@@ -40,12 +40,12 @@ export default function showFrozenPopup() {
       onClick: (close) => {
         close();
         onClick();
-      }
+      },
     }, {
       text: i18n('Frozen.Ok'),
       onClick: () => {},
       isCancel: true,
-      isSecondary: true
-    }]
+      isSecondary: true,
+    }],
   });
 }

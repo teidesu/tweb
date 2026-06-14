@@ -1,39 +1,39 @@
-import type {PeerAvailableReactions} from '@appManagers/appReactionsManager';
+import type { PeerAvailableReactions } from '@appManagers/appReactionsManager';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import {IS_MOBILE, IS_SAFARI} from '@environment/userAgent';
+import { IS_MOBILE, IS_SAFARI } from '@environment/userAgent';
 import filterUnique from '@helpers/array/filterUnique';
 import assumeType from '@helpers/assumeType';
 import callbackifyAll from '@helpers/callbackifyAll';
 import deferredPromise from '@helpers/cancellablePromise';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import ListenerSetter from '@helpers/listenerSetter';
 import liteMode from '@helpers/liteMode';
-import {Middleware, getMiddleware} from '@helpers/middleware';
+import { Middleware, getMiddleware } from '@helpers/middleware';
 import noop from '@helpers/noop';
-import {fastRaf} from '@helpers/schedulers';
-import {Message, AvailableReaction, Reaction, AvailableEffect, EmojiGroup} from '@layer';
-import {AppManagers} from '@lib/managers';
+import { fastRaf } from '@helpers/schedulers';
+import { Message, AvailableReaction, Reaction, AvailableEffect, EmojiGroup } from '@layer';
+import { AppManagers } from '@lib/managers';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import lottieLoader from '@lib/rlottie/lottieLoader';
 import RLottiePlayer from '@lib/rlottie/rlottiePlayer';
 import rootScope from '@lib/rootScope';
-import animationIntersector, {AnimationItemGroup} from '@components/animationIntersector';
+import animationIntersector, { AnimationItemGroup } from '@components/animationIntersector';
 import ButtonIcon from '@components/buttonIcon';
-import {EmoticonsDropdown} from '@components/emoticonsDropdown';
+import { EmoticonsDropdown } from '@components/emoticonsDropdown';
 import EmojiTab from '@components/emoticonsDropdown/tabs/emoji';
 import wrapSticker from '@components/wrappers/sticker';
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 import anchorCallback from '@helpers/dom/anchorCallback';
 import PopupPremium from '@components/popups/premium';
 import contextMenuController from '@helpers/contextMenuController';
 import callbackify from '@helpers/callbackify';
 import partition from '@helpers/array/partition';
-import {PAID_REACTION_EMOJI_DOCID} from '@lib/customEmoji/constants';
-import {StarsStar} from '@components/popups/stars';
-import {cleanEmoji} from '@lib/richTextProcessor/fixEmoji';
-import {isTruthy} from '../../helpers/isTruthy';
+import { PAID_REACTION_EMOJI_DOCID } from '@lib/customEmoji/constants';
+import { StarsStar } from '@components/popups/stars';
+import { cleanEmoji } from '@lib/richTextProcessor/fixEmoji';
+import { isTruthy } from '../../helpers/isTruthy';
 
 const REACTIONS_CLASS_NAME = 'btn-menu-reactions';
 const REACTION_CLASS_NAME = REACTIONS_CLASS_NAME + '-reaction';
@@ -110,15 +110,15 @@ export class ChatReactionsMenu {
       'btn-menu-transition'
     );
 
-    if(this.isTags || this.isEffects) {
+    if (this.isTags || this.isEffects) {
       widthContainer.classList.add(REACTIONS_CLASS_NAME + '-container-' + 'tags');
       const description = this.isEffects ? i18n('AddEffectMessageHint') : i18n(
         rootScope.premium ? 'Reactions.Tag.Description' : 'Reactions.Tag.PremiumHint',
         [
           anchorCallback(() => {
             contextMenuController.close();
-            PopupPremium.show({feature: 'saved_tags'});
-          })
+            PopupPremium.show({ feature: 'saved_tags' });
+          }),
         ]
       );
       description.classList.add(REACTIONS_CLASS_NAME + '-description');
@@ -151,19 +151,19 @@ export class ChatReactionsMenu {
     this.animationGroup = `CHAT-MENU-REACTIONS-${Date.now()}`;
     animationIntersector.setOverrideIdleGroup(this.animationGroup, true);
 
-    if(!IS_TOUCH_SUPPORTED) {
+    if (!IS_TOUCH_SUPPORTED) {
       reactionsContainer.addEventListener('mousemove', this.onMouseMove);
     }
 
     attachClickEvent(reactionsContainer, (e) => {
       const reactionDiv = findUpClassName(e.target!, REACTION_CLASS_NAME);
-      if(!reactionDiv) return;
+      if (!reactionDiv) return;
 
       const players = this.reactionsMap.get(reactionDiv);
-      if(!players) return;
+      if (!players) return;
 
       this.onFinish(players.reaction);
-    }, {listenerSetter: this.listenerSetter});
+    }, { listenerSetter: this.listenerSetter });
 
     widthContainer.append(reactionsContainer);
   }
@@ -171,17 +171,17 @@ export class ChatReactionsMenu {
   private render = async(renderPromises: Promise<any>[], hasMore: boolean) => {
     const middleware = this.middlewareHelper.get();
     await Promise.all(renderPromises);
-    if(!middleware()) {
+    if (!middleware()) {
       return;
     }
 
-    if(hasMore && !this.noMoreButton) {
-      const moreButton = ButtonIcon(`${this.openSide === 'bottom' ? 'down' : 'up'} ${REACTIONS_CLASS_NAME}-more`, {noRipple: true});
+    if (hasMore && !this.noMoreButton) {
+      const moreButton = ButtonIcon(`${this.openSide === 'bottom' ? 'down' : 'up'} ${REACTIONS_CLASS_NAME}-more`, { noRipple: true });
       this.container.append(moreButton);
       attachClickEvent(
         moreButton,
         this.onMoreClick,
-        {listenerSetter: this.listenerSetter}
+        { listenerSetter: this.listenerSetter }
       );
     }
 
@@ -193,15 +193,15 @@ export class ChatReactionsMenu {
   };
 
   private renderReactions(
-    {type, reactions}: PeerAvailableReactions,
+    { type, reactions }: PeerAvailableReactions,
     availableReactions: AvailableReaction[]
   ) {
-    if(availableReactions) {
+    if (availableReactions) {
       this.availableReactions = availableReactions;
       this.freeCustomEmoji = new Set(
         this.availableReactions
-        .map((availableReaction) => availableReaction.select_animation.id)
-        .concat(reactions.map((reaction) => this.reactionToDocId(reaction)))
+          .map((availableReaction) => availableReaction.select_animation.id)
+          .concat(reactions.map((reaction) => this.reactionToDocId(reaction)))
       );
     }
 
@@ -215,7 +215,7 @@ export class ChatReactionsMenu {
 
   private renderEffects(availableEffects: AvailableEffect[]) {
     const renderPromises = availableEffects.slice(0, REACTIONS_MAX_LENGTH).map((availableEffect) => {
-      return this.renderReaction({_: 'reactionCustomEmoji', document_id: availableEffect.effect_sticker_id});
+      return this.renderReaction({ _: 'reactionCustomEmoji', document_id: availableEffect.effect_sticker_id });
     });
 
     return this.render(renderPromises, availableEffects.length > REACTIONS_MAX_LENGTH);
@@ -228,13 +228,13 @@ export class ChatReactionsMenu {
     const cached = !(availableReactionsResult instanceof Promise) && peerAvailableReactionsResult.cached;
     const renderPromise = callbackifyAll([
       peerAvailableReactionsResult.result,
-      availableReactionsResult
+      availableReactionsResult,
     ], async([peerAvailableReactions, availableReactions]) => {
-      if(!middleware()) {
+      if (!middleware()) {
         return;
       }
 
-      if(peerAvailableReactions.type === 'chatReactionsNone') {
+      if (peerAvailableReactions.type === 'chatReactionsNone') {
         return;
       }
 
@@ -249,18 +249,18 @@ export class ChatReactionsMenu {
   private async prepareEffects() {
     const middleware = this.middlewareHelper.get();
     const availableEffects = await this.managers.acknowledged.appReactionsManager.getAvailableEffects();
-    const {cached} = availableEffects;
+    const { cached } = availableEffects;
     const renderPromise = callbackify(
       availableEffects.result,
       async(availableEffects) => {
-        if(!middleware()) {
+        if (!middleware()) {
           return;
         }
 
         this.freeCustomEmoji = new Set(
           availableEffects
-          .filter((availableEffect) => !availableEffect.pFlags.premium_required)
-          .map((availableEffect) => availableEffect.effect_sticker_id)
+            .filter((availableEffect) => !availableEffect.pFlags.premium_required)
+            .map((availableEffect) => availableEffect.effect_sticker_id)
         );
 
         this.noPacks = true;
@@ -274,22 +274,22 @@ export class ChatReactionsMenu {
 
   public async init(message?: Message.message | Message.messageService) {
     let cached: boolean, renderPromise: Promise<() => void>;
-    if(this.isEffects) {
+    if (this.isEffects) {
       [cached, renderPromise!] = await this.prepareEffects() as unknown as readonly [boolean, Promise<() => void>];
     } else {
       [cached, renderPromise!] = await this.prepareReactions(message) as unknown as readonly [boolean, Promise<() => void>];
     }
 
-    if(cached) {
+    if (cached) {
       await renderPromise;
     }
 
     renderPromise.then((callback) => {
-      if(!callback) {
+      if (!callback) {
         return;
       }
 
-      if(cached) {
+      if (cached) {
         callback();
       } else {
         fastRaf(callback);
@@ -314,9 +314,9 @@ export class ChatReactionsMenu {
   // };
 
   private reactionToDocId = (reaction: Reaction) => {
-    if(reaction._ === 'reactionPaid') return PAID_REACTION_EMOJI_DOCID;
+    if (reaction._ === 'reactionPaid') return PAID_REACTION_EMOJI_DOCID;
     let docId = (reaction as Reaction.reactionCustomEmoji).document_id;
-    if(!docId) {
+    if (!docId) {
       const availableReaction = this.availableReactions.find((_reaction) => _reaction.reaction === (reaction as Reaction.reactionEmoji).emoticon);
       docId = availableReaction!.select_animation.id;
     }
@@ -330,34 +330,34 @@ export class ChatReactionsMenu {
 
   private loadTags = () => {
     const reactionsPromise = this.managers.appReactionsManager.getTagReactions()
-    .then(this.reactionsToDocIds);
+      .then(this.reactionsToDocIds);
     return [reactionsPromise];
   };
 
   private loadEffects = () => {
     const reactionsPromise = this.managers.appReactionsManager.getAvailableEffects()
-    .then((availableEffects) => {
-      return availableEffects.filter((availableEffect) => {
-        return !!availableEffect.effect_animation_id;
-      }).map((availableEffect) => availableEffect.effect_sticker_id);
-    });
+      .then((availableEffects) => {
+        return availableEffects.filter((availableEffect) => {
+          return !!availableEffect.effect_animation_id;
+        }).map((availableEffect) => availableEffect.effect_sticker_id);
+      });
     return [reactionsPromise];
   };
 
   private loadReactions = () => {
     const topReactionsPromise = Promise.resolve(this.reactions)
     // const topReactionsPromise = this.managers.appReactionsManager.getTopReactions()
-    .then(this.reactionsToDocIds);
+      .then(this.reactionsToDocIds);
 
     const allRecentReactionsPromise = this.managers.appReactionsManager.getRecentReactions()
-    .then(this.reactionsToDocIds);
+      .then(this.reactionsToDocIds);
 
     const topReactionsSlicedPromise = topReactionsPromise.then((docIds) => this.noPacks ? docIds : docIds.slice(0, 16));
 
     const recentReactionsPromise = this.noPacks ? undefined : Promise.all([
       topReactionsPromise,
       allRecentReactionsPromise,
-      topReactionsSlicedPromise
+      topReactionsSlicedPromise,
     ]).then(([topDocIds, recentDocIds, topSlicedDocIds]) => {
       // filter recent reactions and add left top reactions
       recentDocIds = recentDocIds.filter((docId) => !topSlicedDocIds.includes(docId));
@@ -384,27 +384,27 @@ export class ChatReactionsMenu {
         return (await this.splitAvailableEffects(availableEffects)).localStickerSet!;
       } : undefined,
       onClick: async(emoji) => {
-        if(emoji.docId && emoji.emoji) {
+        if (emoji.docId && emoji.emoji) {
           const availableReactions = await apiManagerProxy.getAvailableReactions();
           const hasNativeReaction = availableReactions!.find((_reaction) => _reaction.select_animation?.id === emoji.docId);
-          if(hasNativeReaction) {
+          if (hasNativeReaction) {
             emoji.emoji = hasNativeReaction.reaction;
             delete emoji.docId;
           }
         }
 
         let reaction: Reaction;
-        if(emoji.docId === PAID_REACTION_EMOJI_DOCID) {
-          reaction = {_: 'reactionPaid'};
-        } else if(emoji.docId) {
+        if (emoji.docId === PAID_REACTION_EMOJI_DOCID) {
+          reaction = { _: 'reactionPaid' };
+        } else if (emoji.docId) {
           reaction = {
             _: 'reactionCustomEmoji',
-            document_id: emoji.docId
+            document_id: emoji.docId,
           };
         } else {
           reaction = {
             _: 'reactionEmoji',
-            emoticon: cleanEmoji(emoji.emoji) // * heart can be different, like '❤' and '❤️'
+            emoticon: cleanEmoji(emoji.emoji), // * heart can be different, like '❤' and '❤️'
           };
         }
 
@@ -415,20 +415,20 @@ export class ChatReactionsMenu {
       onReady: () => {
         const element = emoticonsDropdown.getElement();
         // element.style.setProperty('--width', element.offsetWidth + 'px');
-        if(canShrink) {
+        if (canShrink) {
           const container = element.querySelector<HTMLElement>('.emoticons-categories-container');
           element.style.setProperty('--height', container!.offsetHeight + 'px');
         }
       },
       searchFetcher: this.isEffects ? async(q) => {
-        const availableEffects = await this.managers.appReactionsManager.searchAvailableEffects({q});
+        const availableEffects = await this.managers.appReactionsManager.searchAvailableEffects({ q });
         return this.splitAvailableEffects(availableEffects);
       } : async(q) => {
-        const emojis = await this.managers.appEmojiManager.prepareAndSearchEmojis({q, limit: Infinity, minChars: 1, addCustom: true});
+        const emojis = await this.managers.appEmojiManager.prepareAndSearchEmojis({ q, limit: Infinity, minChars: 1, addCustom: true });
         return {
           emojis: emojis.filter((emoji) => {
-            if(!emoji.docId) {
-              if(this.availableReactions) {
+            if (!emoji.docId) {
+              if (this.availableReactions) {
                 return this.availableReactions.some((availableReaction) => availableReaction.reaction === emoji.emoji);
               }
 
@@ -436,27 +436,27 @@ export class ChatReactionsMenu {
             }
 
             return true;
-          })
+          }),
         };
       },
       groupFetcher: this.isEffects ? async(emojiGroup) => {
-        const availableEffects = await this.managers.appReactionsManager.searchAvailableEffects({emoticon: (emojiGroup as EmojiGroup.emojiGroup).emoticons});
+        const availableEffects = await this.managers.appReactionsManager.searchAvailableEffects({ emoticon: (emojiGroup as EmojiGroup.emojiGroup).emoticons });
         return this.splitAvailableEffects(availableEffects);
       } : undefined,
-      showLocks: this.isEffects
+      showLocks: this.isEffects,
     });
 
     const emoticonsDropdown = new EmoticonsDropdown({
       tabsToRender: [emojiTab],
       customParentElement: document.body,
-      getOpenPosition: () => this.getOpenPosition(!this.noPacks)
+      getOpenPosition: () => this.getOpenPosition(!this.noPacks),
     });
 
-    if(canShrink) {
+    if (canShrink) {
       emoticonsDropdown.getElement().classList.add('shrink');
     }
 
-    if(this.isEffects) {
+    if (this.isEffects) {
       emoticonsDropdown.getElement().classList.add('smaller');
     }
 
@@ -478,13 +478,13 @@ export class ChatReactionsMenu {
       emojis: customEmojis.map((availableEffect) => {
         return {
           emoji: '',
-          docId: availableEffect.effect_sticker_id
+          docId: availableEffect.effect_sticker_id,
         }
       }),
       localStickerSet: {
         title: 'StickerEffects',
-        stickers: docs
-      }
+        stickers: docs,
+      },
     };
   }
 
@@ -503,7 +503,7 @@ export class ChatReactionsMenu {
     let selectWrapper: HTMLElement;;
     appearWrapper.classList.add(REACTION_CLASS_NAME + '-appear');
 
-    if(this.canUseAnimations()) {
+    if (this.canUseAnimations()) {
       selectWrapper = document.createElement('div');
       selectWrapper.classList.add(REACTION_CLASS_NAME + '-select', 'hide');
     }
@@ -511,7 +511,7 @@ export class ChatReactionsMenu {
     const players: ChatReactionsMenuPlayers = {
       selectWrapper: selectWrapper!,
       appearWrapper,
-      reaction
+      reaction,
     };
     this.reactionsMap.set(reactionDiv, players);
 
@@ -529,16 +529,16 @@ export class ChatReactionsMenu {
       withThumb: false,
       group: this.animationGroup,
       middleware,
-      loadPromises
+      loadPromises,
     };
 
     const canUseAnimations = this.canUseAnimations();
     const isPaidReaction = reaction._ === 'reactionPaid';
 
     this.container.append(reactionDiv);
-    if(isPaidReaction && !canUseAnimations) {
+    if (isPaidReaction && !canUseAnimations) {
       appearWrapper.append(StarsStar() as HTMLElement);
-    } else if(isPaidReaction && canUseAnimations) {
+    } else if (isPaidReaction && canUseAnimations) {
       const promise = lottieLoader.loadAnimationAsAsset({
         container: appearWrapper,
         loop: false,
@@ -547,7 +547,7 @@ export class ChatReactionsMenu {
         height: size,
         skipRatio: 1,
         middleware,
-        group: this.animationGroup
+        group: this.animationGroup,
       }, 'StarReactionAppear').then((player) => {
         players.appear = player;
 
@@ -555,11 +555,11 @@ export class ChatReactionsMenu {
           container: selectWrapper,
           loop: false,
           autoplay: false,
-          ...options
+          ...options,
         }, 'StarReactionSelect');
 
         player.addEventListener('enterFrame', (frameNo) => {
-          if(player.maxFrame === frameNo) {
+          if (player.maxFrame === frameNo) {
             selectLoadPromise.then((selectPlayer) => {
               assumeType<RLottiePlayer>(selectPlayer);
               appearWrapper.classList.add('hide');
@@ -572,7 +572,7 @@ export class ChatReactionsMenu {
       });
 
       loadPromises.push(promise);
-    } else if(!canUseAnimations || !availableReaction) {
+    } else if (!canUseAnimations || !availableReaction) {
       delete (options as {needFadeIn?: boolean}).needFadeIn;
       delete (options as {withThumb?: boolean}).withThumb;
 
@@ -582,14 +582,14 @@ export class ChatReactionsMenu {
           div: appearWrapper,
           liteModeKey: false,
           play: availableReaction === undefined ? true : undefined,
-          ...options
+          ...options,
         });
       };
 
       let doc = availableReaction?.static_icon, delay = false;
-      if(!doc) {
+      if (!doc) {
         const result = await this.managers.acknowledged.appEmojiManager.getCustomEmojiDocument((reaction as Reaction.reactionCustomEmoji).document_id);
-        if(result.cached) {
+        if (result.cached) {
           doc = await result.result;
         } else {
           delete (options as {loadPromises?: any}).loadPromises;
@@ -598,7 +598,7 @@ export class ChatReactionsMenu {
         }
       }
 
-      if(!delay) {
+      if (!delay) {
         wrap();
       }
     } else {
@@ -608,20 +608,20 @@ export class ChatReactionsMenu {
         div: appearWrapper,
         play: true,
         liteModeKey: false,
-        ...options
-      }).then(({render}) => render).then((player) => {
+        ...options,
+      }).then(({ render }) => render).then((player) => {
         assumeType<RLottiePlayer>(player);
 
         players.appear = player;
 
         player.addEventListener('enterFrame', (frameNo) => {
-          if(player.maxFrame === frameNo) {
+          if (player.maxFrame === frameNo) {
             selectLoadPromise.then((selectPlayer) => {
               assumeType<RLottiePlayer>(selectPlayer);
               appearWrapper.classList.add('hide');
               selectWrapper.classList.remove('hide');
 
-              if(isFirst) {
+              if (isFirst) {
                 players.select = selectPlayer;
                 isFirst = false;
               }
@@ -634,8 +634,8 @@ export class ChatReactionsMenu {
         doc: availableReaction.select_animation,
         div: selectWrapper!,
         liteModeKey: false,
-        ...options
-      }).then(({render}) => render).then((player) => {
+        ...options,
+      }).then(({ render }) => render).then((player) => {
         assumeType<RLottiePlayer>(player);
 
         return lottieLoader.waitForFirstFrame(player);
@@ -687,26 +687,26 @@ export class ChatReactionsMenu {
 
   private onMouseMove = (e: MouseEvent) => {
     const reactionDiv = findUpClassName(e.target!, REACTION_CLASS_NAME);
-    if(!reactionDiv) {
+    if (!reactionDiv) {
       return;
     }
 
     const players = this.reactionsMap.get(reactionDiv);
-    if(!players) {
+    if (!players) {
       return;
     }
 
     // do not play select animation when appearing
-    if(!players.appear?.paused) {
+    if (!players.appear?.paused) {
       return;
     }
 
     const player = players.select;
-    if(!player) {
+    if (!player) {
       return;
     }
 
-    if(player.paused) {
+    if (player.paused) {
       player.autoplay = true;
       player.restart();
     }

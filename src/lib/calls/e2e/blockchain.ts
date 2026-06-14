@@ -17,10 +17,10 @@ import {
   ed25519GenerateKeyPair,
   ed25519Verify,
   randomBytes,
-  sha256
+  sha256,
 } from './crypto';
-import {PrivateKey} from './keys';
-import {encryptData, encryptHeader} from './messageEncryption';
+import { PrivateKey } from './keys';
+import { encryptData, encryptHeader } from './messageEncryption';
 import {
   Block,
   Change,
@@ -32,9 +32,9 @@ import {
   SharedKey,
   serializeBlock,
   serializeBlockForSigning,
-  StateProof
+  StateProof,
 } from './tlTypes';
-import {TLWriter} from './tl';
+import { TLWriter } from './tl';
 
 export class BlockchainError extends Error {
   constructor(public readonly code: BlockchainErrorCode, message: string) {
@@ -66,7 +66,7 @@ const EMPTY_TRIE_ROOT_HASH = new Uint8Array([
   0xdf, 0x3f, 0x61, 0x98, 0x04, 0xa9, 0x2f, 0xdb,
   0x40, 0x57, 0x19, 0x2d, 0xc4, 0x3d, 0xd7, 0x48,
   0xea, 0x77, 0x8a, 0xdc, 0x52, 0xbc, 0x49, 0x8c,
-  0xe8, 0x05, 0x24, 0xc0, 0x14, 0xb8, 0x11, 0x19
+  0xe8, 0x05, 0x24, 0xc0, 0x14, 0xb8, 0x11, 0x19,
 ]);
 
 export interface ClientBlockchainState {
@@ -82,9 +82,9 @@ export function createInitialState(): ClientBlockchainState {
   return {
     height: HEIGHT_BEFORE_ZERO,
     lastBlockHash: new Uint8Array(ZERO_HASH),
-    groupState: {participants: [], externalPermissions: 0},
+    groupState: { participants: [], externalPermissions: 0 },
     sharedKey: undefined,
-    kvHash: new Uint8Array(EMPTY_TRIE_ROOT_HASH)
+    kvHash: new Uint8Array(EMPTY_TRIE_ROOT_HASH),
   };
 }
 
@@ -98,15 +98,15 @@ export async function computeBlockHash(block: Block): Promise<Uint8Array> {
 // Extract permission bitmask from a participant entry.
 function participantPermissions(p: GroupParticipant): number {
   let perms = 0;
-  if(p.canAddUsers) perms |= PERM_ADD_USERS;
-  if(p.canRemoveUsers) perms |= PERM_REMOVE_USERS;
+  if (p.canAddUsers) perms |= PERM_ADD_USERS;
+  if (p.canRemoveUsers) perms |= PERM_REMOVE_USERS;
   return perms;
 }
 
 // Look up a participant by raw 32-byte public key.
 function findParticipant(state: GroupState, pubKey: Uint8Array): GroupParticipant | undefined {
-  for(const p of state.participants) {
-    if(constantTimeEqual(p.publicKey, pubKey)) return p;
+  for (const p of state.participants) {
+    if (constantTimeEqual(p.publicKey, pubKey)) return p;
   }
   return undefined;
 }
@@ -115,9 +115,9 @@ function findParticipant(state: GroupState, pubKey: Uint8Array): GroupParticipan
 // explicitly, that's the answer; otherwise (per the TL optimization) it's
 // the first participant in the group_state's participants list.
 function resolveSignerPublicKey(block: Block, state: GroupState): Uint8Array {
-  if(block.signaturePublicKey) return block.signaturePublicKey;
+  if (block.signaturePublicKey) return block.signaturePublicKey;
   const first = state.participants[0];
-  if(!first) {
+  if (!first) {
     throw new BlockchainError('UNKNOWN_SIGNER',
       'block omits signature_public_key and group_state has no participants');
   }
@@ -145,7 +145,7 @@ export async function applyBlock(
 ): Promise<ClientBlockchainState> {
   // 1. Height
   const expectedHeight = state.height + 1;
-  if(block.height !== expectedHeight) {
+  if (block.height !== expectedHeight) {
     throw new BlockchainError(
       'HEIGHT_MISMATCH',
       `block height ${block.height} != expected ${expectedHeight}`
@@ -153,7 +153,7 @@ export async function applyBlock(
   }
 
   // 2. Previous block hash
-  if(!constantTimeEqual(block.prevBlockHash, state.lastBlockHash)) {
+  if (!constantTimeEqual(block.prevBlockHash, state.lastBlockHash)) {
     throw new BlockchainError(
       'PREVIOUS_BLOCK_HASH_MISMATCH',
       `expected ${bytesToHex(state.lastBlockHash)}, got ${bytesToHex(block.prevBlockHash)}`
@@ -167,14 +167,14 @@ export async function applyBlock(
   // the signer's key must appear either in block.signaturePublicKey or be
   // recoverable from the first SetGroupState change.
   let signerPubKey: Uint8Array;
-  if(state.height === HEIGHT_BEFORE_ZERO) {
+  if (state.height === HEIGHT_BEFORE_ZERO) {
     // Zero block: signer must be explicit (signaturePublicKey set), OR derive
     // from the new group state in changes.
-    if(block.signaturePublicKey) {
+    if (block.signaturePublicKey) {
       signerPubKey = block.signaturePublicKey;
     } else {
       const setGroup = block.changes.find((c) => c.kind === 'setGroupState');
-      if(!setGroup || setGroup.kind !== 'setGroupState' || !setGroup.groupState.participants[0]) {
+      if (!setGroup || setGroup.kind !== 'setGroupState' || !setGroup.groupState.participants[0]) {
         throw new BlockchainError(
           'UNKNOWN_SIGNER',
           'zero block: cannot resolve signer (no signaturePublicKey and no participants in SetGroupState)'
@@ -187,7 +187,7 @@ export async function applyBlock(
   }
 
   const toVerify = serializeBlockForSigning(block);
-  if(!ed25519Verify(signerPubKey, toVerify, block.signature)) {
+  if (!ed25519Verify(signerPubKey, toVerify, block.signature)) {
     throw new BlockchainError('INVALID_SIGNATURE', 'Ed25519 verify failed');
   }
 
@@ -197,8 +197,8 @@ export async function applyBlock(
   let kvHash: Uint8Array = state.kvHash;
   let kvHashDirty = false;
 
-  for(const change of block.changes) {
-    switch(change.kind) {
+  for (const change of block.changes) {
+    switch (change.kind) {
       case 'noop':
         break;
       case 'setValue':
@@ -223,9 +223,9 @@ export async function applyBlock(
 
   // KV hash: when SetValue changes occurred, we trust the proof's kv_hash
   // and adopt it. Without dirty kv, the proof's hash must match prior state.
-  if(kvHashDirty) {
+  if (kvHashDirty) {
     kvHash = new Uint8Array(proof.kvHash);
-  } else if(!constantTimeEqual(proof.kvHash, kvHash)) {
+  } else if (!constantTimeEqual(proof.kvHash, kvHash)) {
     throw new BlockchainError(
       'INVALID_STATE_PROOF',
       'state-proof kv_hash diverges from prior state with no SetValue changes'
@@ -234,15 +234,15 @@ export async function applyBlock(
 
   // Group state field of the proof.
   const hasSetGroupChange = block.changes.some((c) => c.kind === 'setGroupState');
-  if(proof.groupState !== undefined) {
+  if (proof.groupState !== undefined) {
     // Proof carries an explicit group_state — must match the post-state.
-    if(!groupStatesEqual(proof.groupState, groupState)) {
+    if (!groupStatesEqual(proof.groupState, groupState)) {
       throw new BlockchainError(
         'INVALID_STATE_PROOF',
         'state-proof group_state does not match post-application group_state'
       );
     }
-  } else if(!hasSetGroupChange) {
+  } else if (!hasSetGroupChange) {
     // No change AND no proof field — the prior state must still hold; it does
     // by construction since `groupState` was never reassigned. Nothing to do.
   }
@@ -254,14 +254,14 @@ export async function applyBlock(
   const hasSetSharedChange = block.changes.some(
     (c) => c.kind === 'setSharedKey' || c.kind === 'setGroupState'
   );
-  if(proof.sharedKey !== undefined) {
-    if(!sharedKey || !sharedKeysEqual(proof.sharedKey, sharedKey)) {
+  if (proof.sharedKey !== undefined) {
+    if (!sharedKey || !sharedKeysEqual(proof.sharedKey, sharedKey)) {
       throw new BlockchainError(
         'INVALID_STATE_PROOF',
         'state-proof shared_key does not match post-application shared_key'
       );
     }
-  } else if(!hasSetSharedChange) {
+  } else if (!hasSetSharedChange) {
     // Same idea — no change, proof omits, prior state still holds.
   }
 
@@ -273,40 +273,40 @@ export async function applyBlock(
     lastBlockHash: newLastBlockHash,
     groupState,
     sharedKey,
-    kvHash
+    kvHash,
   };
 }
 
 // ===== Structural equality helpers =====
 
 function groupStatesEqual(a: GroupState, b: GroupState): boolean {
-  if(a.externalPermissions !== b.externalPermissions) return false;
-  if(a.participants.length !== b.participants.length) return false;
-  for(let i = 0; i < a.participants.length; i++) {
+  if (a.externalPermissions !== b.externalPermissions) return false;
+  if (a.participants.length !== b.participants.length) return false;
+  for (let i = 0; i < a.participants.length; i++) {
     const x = a.participants[i];
     const y = b.participants[i];
-    if(x.userId !== y.userId) return false;
-    if(x.version !== y.version) return false;
-    if(x.canAddUsers !== y.canAddUsers) return false;
-    if(x.canRemoveUsers !== y.canRemoveUsers) return false;
-    if(!constantTimeEqual(x.publicKey, y.publicKey)) return false;
+    if (x.userId !== y.userId) return false;
+    if (x.version !== y.version) return false;
+    if (x.canAddUsers !== y.canAddUsers) return false;
+    if (x.canRemoveUsers !== y.canRemoveUsers) return false;
+    if (!constantTimeEqual(x.publicKey, y.publicKey)) return false;
   }
   return true;
 }
 
 function sharedKeysEqual(a: SharedKey, b: SharedKey): boolean {
-  if(!constantTimeEqual(a.ek, b.ek)) return false;
-  if(!constantTimeEqual(a.encryptedSharedKey, b.encryptedSharedKey)) return false;
-  if(a.destUserIds.length !== b.destUserIds.length) return false;
-  for(let i = 0; i < a.destUserIds.length; i++) {
-    if(a.destUserIds[i] !== b.destUserIds[i]) return false;
-    if(!constantTimeEqual(a.destHeaders[i], b.destHeaders[i])) return false;
+  if (!constantTimeEqual(a.ek, b.ek)) return false;
+  if (!constantTimeEqual(a.encryptedSharedKey, b.encryptedSharedKey)) return false;
+  if (a.destUserIds.length !== b.destUserIds.length) return false;
+  for (let i = 0; i < a.destUserIds.length; i++) {
+    if (a.destUserIds[i] !== b.destUserIds[i]) return false;
+    if (!constantTimeEqual(a.destHeaders[i], b.destHeaders[i])) return false;
   }
   return true;
 }
 
 // Re-export so callers don't need to import from tlTypes for the basic shapes.
-export {participantPermissions, findParticipant};
+export { participantPermissions, findParticipant };
 
 // ===== Block building =====
 //
@@ -329,21 +329,21 @@ const ALL_PERMISSIONS = 7;
 // they're derivable from the changes themselves).
 export async function hydrateStateFromBlock(block: Block): Promise<ClientBlockchainState> {
   let groupState: GroupState = block.height === 0 ?
-    {participants: [], externalPermissions: ALL_PERMISSIONS} :
-    {participants: [], externalPermissions: 0};
+    { participants: [], externalPermissions: ALL_PERMISSIONS } :
+    { participants: [], externalPermissions: 0 };
   let sharedKey: SharedKey | undefined;
 
-  for(const change of block.changes) {
-    if(change.kind === 'setGroupState') {
+  for (const change of block.changes) {
+    if (change.kind === 'setGroupState') {
       groupState = change.groupState;
       sharedKey = undefined;
-    } else if(change.kind === 'setSharedKey') {
+    } else if (change.kind === 'setSharedKey') {
       sharedKey = change.sharedKey;
     }
   }
 
-  if(block.stateProof.groupState) groupState = block.stateProof.groupState;
-  if(block.stateProof.sharedKey) sharedKey = block.stateProof.sharedKey;
+  if (block.stateProof.groupState) groupState = block.stateProof.groupState;
+  if (block.stateProof.sharedKey) sharedKey = block.stateProof.sharedKey;
 
   const blockHash = await computeBlockHash(block);
   return {
@@ -351,7 +351,7 @@ export async function hydrateStateFromBlock(block: Block): Promise<ClientBlockch
     lastBlockHash: blockHash,
     groupState,
     sharedKey,
-    kvHash: new Uint8Array(block.stateProof.kvHash)
+    kvHash: new Uint8Array(block.stateProof.kvHash),
   };
 }
 
@@ -362,7 +362,7 @@ export async function hydrateStateFromBlock(block: Block): Promise<ClientBlockch
 export async function buildChangesForNewState(
   groupState: GroupState
 ): Promise<{changes: Change[]; rawGroupSharedKey: Uint8Array}> {
-  if(groupState.participants.length === 0) {
+  if (groupState.participants.length === 0) {
     throw new Error('buildChangesForNewState: group must have at least one participant');
   }
 
@@ -370,11 +370,11 @@ export async function buildChangesForNewState(
   const rawGroupSharedKey = randomBytes(32);
   const oneTimeSecret = randomBytes(32);
 
-  const {output: encryptedSharedKey} = await encryptData(rawGroupSharedKey, oneTimeSecret);
+  const { output: encryptedSharedKey } = await encryptData(rawGroupSharedKey, oneTimeSecret);
 
   const destUserIds: bigint[] = [];
   const destHeaders: Uint8Array[] = [];
-  for(const p of groupState.participants) {
+  for (const p of groupState.participants) {
     const sharedSecret = await computeSharedSecret(ephemeral.secretKey, p.publicKey);
     const header = await encryptHeader(oneTimeSecret, encryptedSharedKey, sharedSecret);
     destUserIds.push(p.userId);
@@ -385,15 +385,15 @@ export async function buildChangesForNewState(
     ek: ephemeral.publicKey,
     encryptedSharedKey,
     destUserIds,
-    destHeaders
+    destHeaders,
   };
 
   return {
     changes: [
-      {kind: 'setGroupState', groupState},
-      {kind: 'setSharedKey', sharedKey}
+      { kind: 'setGroupState', groupState },
+      { kind: 'setSharedKey', sharedKey },
     ],
-    rawGroupSharedKey
+    rawGroupSharedKey,
   };
 }
 
@@ -408,20 +408,20 @@ export async function buildBlock(
   changes: Change[],
   privateKey: PrivateKey
 ): Promise<Block> {
-  if(state.height === 0x7fffffff) {
+  if (state.height === 0x7fffffff) {
     throw new BlockchainError('HEIGHT_MISMATCH', 'cannot exceed int32 max height');
   }
   const height = state.height + 1;
 
   let groupState: GroupState = height === 0 ?
-    {participants: [], externalPermissions: ALL_PERMISSIONS} :
+    { participants: [], externalPermissions: ALL_PERMISSIONS } :
     state.groupState;
   let sharedKey: SharedKey | undefined = state.sharedKey;
   let hasSetGroupState = false;
   let hasSetSharedKey = false;
 
-  for(const change of changes) {
-    switch(change.kind) {
+  for (const change of changes) {
+    switch (change.kind) {
       case 'noop':
       case 'setValue':
         break;
@@ -443,7 +443,7 @@ export async function buildBlock(
   const stateProof: StateProof = {
     kvHash: new Uint8Array(state.kvHash),
     groupState: hasSetGroupState ? undefined : groupState,
-    sharedKey: (hasSetGroupState || hasSetSharedKey) ? undefined : sharedKey
+    sharedKey: (hasSetGroupState || hasSetSharedKey) ? undefined : sharedKey,
   };
 
   const unsigned: Block = {
@@ -452,10 +452,10 @@ export async function buildBlock(
     changes,
     height,
     stateProof,
-    signaturePublicKey: new Uint8Array(privateKey.publicKeyBytes)
+    signaturePublicKey: new Uint8Array(privateKey.publicKeyBytes),
   };
 
   const toSign = serializeBlockForSigning(unsigned);
   const signature = privateKey.sign(toSign);
-  return {...unsigned, signature};
+  return { ...unsigned, signature };
 }

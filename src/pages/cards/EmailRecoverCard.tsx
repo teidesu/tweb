@@ -1,19 +1,19 @@
-import {onCleanup, onMount} from 'solid-js';
+import { onCleanup, onMount } from 'solid-js';
 
 import Button from '@components/buttonTsx';
 import CodeInputFieldCompat from '@components/codeInputField';
-import {wrapEmailPattern} from '@components/popups/emailSetup';
+import { wrapEmailPattern } from '@components/popups/emailSetup';
 import MediaHeader from '@components/mediaHeader';
 import focusWhenConnected from '@helpers/dom/focusWhenConnected';
 import replaceContent from '@helpers/dom/replaceContent';
 import mediaSizes from '@helpers/mediaSizes';
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 
 import AuthCard from '@/pages/AuthCard';
-import {CardSpec, useAuthFlow} from '@/pages/authFlow';
+import { CardSpec, useAuthFlow } from '@/pages/authFlow';
 import styles from '@/pages/authFlow.module.scss';
 
-if(import.meta.hot) import.meta.hot.accept();
+if (import.meta.hot) import.meta.hot.accept();
 
 type Spec = Extract<CardSpec, {name: 'emailRecover'}>;
 
@@ -23,7 +23,7 @@ type Spec = Extract<CardSpec, {name: 'emailRecover'}>;
  * switches to IM. The cancel button returns to the password card.
  */
 export default function EmailRecoverCard(props: {spec: Spec}) {
-  const {managers, navigate, toIm} = useAuthFlow();
+  const { managers, navigate, toIm } = useAuthFlow();
 
   const stickerSize = mediaSizes.isMobile ? 100 : 130;
 
@@ -45,14 +45,14 @@ export default function EmailRecoverCard(props: {spec: Spec}) {
         codeInputField.error = true;
         codeInputField.value = '';
 
-        if(err.type === 'CODE_INVALID') {
+        if (err.type === 'CODE_INVALID') {
           replaceContent(codeInputErrorLabel, i18n('PHONE_CODE_INVALID'));
         } else {
           console.log('error', err);
           replaceContent(codeInputErrorLabel, i18n('Error.AnError'));
         }
       });
-    }
+    },
   });
 
   /* ---------- lifecycle ---------- */
@@ -84,7 +84,7 @@ export default function EmailRecoverCard(props: {spec: Spec}) {
       {codeInputErrorLabel}
       <Button
         class="btn-primary btn-secondary btn-primary-transparent primary"
-        onClick={() => navigate({name: 'password'})}
+        onClick={() => navigate({ name: 'password' })}
         text="Login.ResetPassword.Cancel"
       />
     </AuthCard>

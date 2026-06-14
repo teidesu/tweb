@@ -1,4 +1,4 @@
-import {TLDeserialization} from '@lib/mtproto/tl_utils';
+import { TLDeserialization } from '@lib/mtproto/tl_utils';
 
 export interface VideoStreamEvent {
   offsetValue: number;
@@ -17,12 +17,12 @@ export interface VideoStreamInfo {
 
 export function parseVideoStreamInfo(buf: Uint8Array) {
   const originalBuf = buf;
-  if(buf.length % 4 !== 0) {
+  if (buf.length % 4 !== 0) {
     buf = buf.subarray(0, buf.length - buf.length % 4);
   }
   const r = new TLDeserialization(buf);
 
-  if(r.fetchInt() !== -1590787827) { // 0xa12e810d
+  if (r.fetchInt() !== -1590787827) { // 0xa12e810d
     throw new Error('Invalid video stream info');
   }
   const container = r.fetchString();
@@ -30,12 +30,12 @@ export function parseVideoStreamInfo(buf: Uint8Array) {
   const eventCount = r.fetchInt();
 
   const events = new Array(eventCount);
-  for(let i = 0; i < eventCount; i++) {
+  for (let i = 0; i < eventCount; i++) {
     events[i] = {
       offsetValue: r.fetchInt(),
       endpointId: r.fetchString(),
       rotation: r.fetchInt(),
-      extra: r.fetchInt()
+      extra: r.fetchInt(),
     };
   }
 
@@ -44,6 +44,6 @@ export function parseVideoStreamInfo(buf: Uint8Array) {
     container,
     activeMask,
     events,
-    bytes: originalBuf
+    bytes: originalBuf,
   };
 }

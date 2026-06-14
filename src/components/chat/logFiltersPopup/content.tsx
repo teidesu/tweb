@@ -1,12 +1,12 @@
-import {createComputed} from 'solid-js';
-import {attachHotClassName} from '@helpers/solid/classname';
-import defineSolidElement, {PassedProps} from '@lib/solidjs/defineSolidElement';
-import {CommittedFilters} from '@components/sidebarRight/tabs/adminRecentActions/filters';
-import {FlagFilters} from '@components/sidebarRight/tabs/adminRecentActions/filters/flagFilters';
-import {useFlagFilters} from '@components/sidebarRight/tabs/adminRecentActions/filters/useFlagFilters';
+import { createComputed } from 'solid-js';
+import { attachHotClassName } from '@helpers/solid/classname';
+import defineSolidElement, { PassedProps } from '@lib/solidjs/defineSolidElement';
+import { CommittedFilters } from '@components/sidebarRight/tabs/adminRecentActions/filters';
+import { FlagFilters } from '@components/sidebarRight/tabs/adminRecentActions/filters/flagFilters';
+import { useFlagFilters } from '@components/sidebarRight/tabs/adminRecentActions/filters/useFlagFilters';
 import styles from '@components/chat/logFiltersPopup/styles.module.scss';
 
-if(import.meta.hot) import.meta.hot.accept();
+if (import.meta.hot) import.meta.hot.accept();
 
 
 export type LogFiltersPopupContentProps = {
@@ -25,14 +25,14 @@ const LogFiltersPopupContent = defineSolidElement({
   component: (props: PassedProps<LogFiltersPopupContentProps>) => {
     attachHotClassName(props.element, styles.Container);
 
-    const filtersControls = useFlagFilters({channelId: () => props.channelId, isBroadcast: () => props.isBroadcast});
+    const filtersControls = useFlagFilters({ channelId: () => props.channelId, isBroadcast: () => props.isBroadcast });
 
     createComputed(() => {
       filtersControls.setFromCommittedFilters(props.committedFilters);
     });
 
     const onCommit = (committedFilters?: CommittedFilters) => {
-      props.onFinish({committedFilters});
+      props.onFinish({ committedFilters });
     };
 
     return <>
@@ -42,7 +42,7 @@ const LogFiltersPopupContent = defineSolidElement({
         onReset={() => onCommit()}
       />
     </>;
-  }
+  },
 });
 
 export default LogFiltersPopupContent;

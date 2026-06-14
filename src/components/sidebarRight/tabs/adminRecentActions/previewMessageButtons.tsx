@@ -1,9 +1,9 @@
-import {createMemo, Show} from 'solid-js';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {Message} from '@layer';
-import {MyMessage} from '@appManagers/appMessagesManager';
-import {LangPackKey} from '@lib/langPack';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { createMemo, Show } from 'solid-js';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { Message } from '@layer';
+import { MyMessage } from '@appManagers/appMessagesManager';
+import { LangPackKey } from '@lib/langPack';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 import Button from '@components/buttonTsx';
 import styles from '@components/sidebarRight/tabs/adminRecentActions/previewMessageButtons.module.scss';
 
@@ -16,7 +16,7 @@ export const PreviewMessageButtons = (props: {
   addedKey?: LangPackKey;
   removedKey?: LangPackKey;
 }) => {
-  const {rootScope, appImManager, ChatType} = useHotReloadGuard();
+  const { rootScope, appImManager, ChatType } = useHotReloadGuard();
 
   const getNonEmpty = (message: Message) => message && (message._ === 'message' || message._ === 'messageService') ? message : undefined;
 
@@ -29,7 +29,7 @@ export const PreviewMessageButtons = (props: {
     appImManager.setPeer({
       peerId: props.channelId.toPeerId(true),
       messages: [newMessage],
-      type: ChatType.Static
+      type: ChatType.Static,
     });
   };
 

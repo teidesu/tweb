@@ -1,7 +1,7 @@
 import forEachReverse from '@helpers/array/forEachReverse';
 import SDPMediaSection from '@lib/calls/sdp/mediaSection';
-import {UpdateGroupCallConnectionData, Codec} from '@lib/calls/types';
-import {logger} from '@lib/logger';
+import { UpdateGroupCallConnectionData, Codec } from '@lib/calls/types';
+import { logger } from '@lib/logger';
 
 const log = logger('SDP');
 
@@ -24,13 +24,13 @@ export default function filterServerCodecs(mainChannels: SDPMediaSection[], data
 
   codecsToPerform.forEach(([codec, type]) => {
     const channel = mainChannels.find((line) => line.mediaType === type);
-    if(!channel) {
+    if (!channel) {
       return;
     }
 
     const extmap = performExtmap(channel);
     forEachReverse(codec['rtp-hdrexts'], (value, index, arr) => {
-      if(extmap[value.id] !== value.uri) {
+      if (extmap[value.id] !== value.uri) {
         arr!.splice(index!, 1);
         log('filtered extmap', value, index, type);
       }

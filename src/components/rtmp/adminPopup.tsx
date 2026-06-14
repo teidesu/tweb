@@ -1,13 +1,13 @@
-import {render} from 'solid-js/web';
+import { render } from 'solid-js/web';
 import PopupElement from '@components/popups';
 
 import '@components/rtmp/adminPopup.css';
-import {Show, createRoot, createSignal} from 'solid-js';
-import {toastNew} from '@components/toast';
+import { Show, createRoot, createSignal } from 'solid-js';
+import { toastNew } from '@components/toast';
 import ButtonMenuToggle from '@components/buttonMenuToggle';
-import {Ripple} from '@components/rippleTsx';
-import {RtmpData} from '@components/rtmp/rtmpData';
-import {i18n} from '@lib/langPack';
+import { Ripple } from '@components/rippleTsx';
+import { RtmpData } from '@components/rtmp/rtmpData';
+import { i18n } from '@lib/langPack';
 import appImManager from '@lib/appImManager';
 
 const cnPopup = (className = '') => `rtmp-popup${className}`;
@@ -30,20 +30,20 @@ export class RtmpStartStreamPopup extends PopupElement {
       overlayClosable: true,
       closable: true,
       title: true,
-      body: true
+      body: true,
     });
 
-    const {active} = props;
+    const { active } = props;
 
-    if(!active) {
+    if (!active) {
       this.btnMore = ButtonMenuToggle({
         buttons: [{
           icon: 'stop',
           regularText: 'Revoke',
           danger: true,
-          onClick: () => this._revokeKey()
+          onClick: () => this._revokeKey(),
         }],
-        direction: 'bottom-left'
+        direction: 'bottom-left',
       });
       this.header.append(this.btnMore);
     }
@@ -94,13 +94,13 @@ export class RtmpStartStreamPopup extends PopupElement {
   }
 
   private _fetchData(revoke = false) {
-    this.managers.appGroupCallsManager.fetchRtmpUrl(this.props.peerId, revoke).then(({url, key}) => {
+    this.managers.appGroupCallsManager.fetchRtmpUrl(this.props.peerId, revoke).then(({ url, key }) => {
       this._setUrl(url);
       this._setKey(key);
       this._setLoading(false);
     }).catch(() => {
       toastNew({
-        langPackKey: 'Error.AnError'
+        langPackKey: 'Error.AnError',
       });
       this.forceHide();
     });
@@ -108,7 +108,7 @@ export class RtmpStartStreamPopup extends PopupElement {
 
   private _onStreamStart() {
     this.forceHide();
-    if(this.props.active) {
+    if (this.props.active) {
       this.props.onEndStream!();
       return;
     }
@@ -165,7 +165,7 @@ const RtmpStartStreamPopupContent = (props: RtmpPopupProps) => {
         <button onClick={props.onStreamStart}
           classList={{
             [cnPopup('-button')]: true,
-            [cnPopup('-button_danger')]: props.active
+            [cnPopup('-button_danger')]: props.active,
           }}
         >
           {props.active ? i18n('Rtmp.StreamPopup.EndLiveStream') : i18n('Rtmp.StreamPopup.StartStreaming')}

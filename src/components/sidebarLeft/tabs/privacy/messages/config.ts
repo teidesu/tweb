@@ -1,4 +1,4 @@
-import {InputPrivacyKey, InputPrivacyRule} from '@layer';
+import { InputPrivacyKey, InputPrivacyRule } from '@layer';
 
 export enum MessagesPrivacyOption {
   Everybody = 1,
@@ -20,8 +20,8 @@ export const defaultPrivacyRules: InputPrivacyRule[] = [
   //   _: 'inputPrivacyValueDisallowAll'
   // },
   {
-    _: 'inputPrivacyValueAllowContacts'
-  }
+    _: 'inputPrivacyValueAllowContacts',
+  },
 ];
 
 export const TRANSITION_TIME = 120;

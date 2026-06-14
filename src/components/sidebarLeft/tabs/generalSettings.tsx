@@ -1,26 +1,26 @@
-import {createSignal, For, onCleanup, onMount, Show} from 'solid-js';
-import {GrowHeightReveal} from '@helpers/solid/animations';
+import { createSignal, For, onCleanup, onMount, Show } from 'solid-js';
+import { GrowHeightReveal } from '@helpers/solid/animations';
 import Section from '@components/section';
 import Row from '@components/rowTsx';
 import RangeSettingSelector from '@components/rangeSettingSelector';
 import Button from '@components/buttonTsx';
 import RadioField from '@components/radioField';
-import {i18n, LangPackKey} from '@lib/langPack';
+import { i18n, LangPackKey } from '@lib/langPack';
 import I18n from '@lib/langPack';
 import rootScope from '@lib/rootScope';
-import {useAppSettings} from '@stores/appSettings';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
+import { useAppSettings } from '@stores/appSettings';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
 import IS_GEOLOCATION_SUPPORTED from '@environment/geolocationSupport';
-import {StateSettings} from '@config/state';
-import {AccentPreset, getAccentPresetsForBase, presetThemeId} from '@config/themePresets';
-import {BaseTheme} from '@layer';
+import { StateSettings } from '@config/state';
+import { AccentPreset, getAccentPresetsForBase, presetThemeId } from '@config/themePresets';
+import { BaseTheme } from '@layer';
 import Scrollable from '@components/scrollable2';
 import themeController from '@helpers/themeController';
 import liteMode from '@helpers/liteMode';
-import {joinDeepPath} from '@helpers/object/setDeepProperty';
+import { joinDeepPath } from '@helpers/object/setDeepProperty';
 import eachMinute from '@helpers/eachMinute';
-import {AppChatBackgroundTab, AppPowerSavingTab} from '@components/solidJsTabs/tabs';
+import { AppChatBackgroundTab, AppPowerSavingTab } from '@components/solidJsTabs/tabs';
 import fastSmoothScroll from '@helpers/fastSmoothScroll';
 import ChatThemesPicker from '@components/chatThemesPicker';
 import ChatBackgroundStore from '@lib/chatBackgroundStore';
@@ -40,7 +40,7 @@ const SettingsSection = () => {
   const liteModeStatusEl = new I18n.IntlElement();
 
   const onUpdate = () => {
-    liteModeStatusEl.compareAndUpdate({key: liteModeStatus()});
+    liteModeStatusEl.compareAndUpdate({ key: liteModeStatus() });
   };
 
   onMount(() => {
@@ -105,7 +105,7 @@ const THEME_VARIANTS: [StateSettings['theme'], LangPackKey][] = [
   ['night', 'ThemeNight'],
   ['light', 'ThemeLight'],
   ['tinted', 'ThemeTinted'],
-  ['system', 'AutoNightSystemDefault']
+  ['system', 'AutoNightSystemDefault'],
 ];
 
 const ThemeSection = () => {
@@ -120,10 +120,10 @@ const ThemeSection = () => {
   // accent preset, auto-night) dispatches `theme_changed`.
   const readThemeState = () => {
     const theme = themeController.getTheme();
-    return {id: String(theme!.id ?? ''), name: theme!.name};
+    return { id: String(theme!.id ?? ''), name: theme!.name };
   };
   const [themeState, setThemeState] = createSignal(readThemeState(), {
-    equals: (a, b) => a.id === b.id && a.name === b.name
+    equals: (a, b) => a.id === b.id && a.name === b.name,
   });
   subscribeOn(rootScope)('theme_changed', () => setThemeState(readThemeState()));
 
@@ -133,8 +133,8 @@ const ThemeSection = () => {
   // Theme variant changes flow through the radio's `stateKey`. Bridge the
   // resulting `settings_updated` to a `theme_change` dispatch (preserved from
   // the legacy tab — this is what reapplies the picked theme everywhere).
-  subscribeOn(rootScope)('settings_updated', ({key}) => {
-    if(key === stateKey) {
+  subscribeOn(rootScope)('settings_updated', ({ key }) => {
+    if (key === stateKey) {
       rootScope.dispatchEvent('theme_change');
     }
   });
@@ -143,7 +143,7 @@ const ThemeSection = () => {
   // RadioFields with stateKey for two-way state binding. They share `name`
   // which radio-groups them in the DOM.
   const radios = THEME_VARIANTS.map(([value, langKey]) =>
-    new RadioField({langKey, name: 'theme', value, stateKey})
+    new RadioField({ langKey, name: 'theme', value, stateKey })
   );
 
   // Accent-color picker is Dark-only: only `baseThemeTinted` has the per-base wallpaper map and
@@ -165,7 +165,7 @@ const ThemeSection = () => {
         onSelect={(theme) => themeController.applyNewTheme(theme)}
         recenterOnBaseChange
       />
-      <form style={{'margin-top': '.5rem'}}>
+      <form style={{ 'margin-top': '.5rem' }}>
         {radios.map((radio) => (
           <Row>
             <Row.RadioField>{radio.label}</Row.RadioField>
@@ -203,10 +203,10 @@ const AccentPickerRow = () => {
     let activeId = String(theme!.id ?? '');
     // Tinted factory state has theme.id === '' but the same accent/bubble values as the blue
     // base preset — surface that to the picker so blue reads as active right after install/reset.
-    if(isTinted && activeId === '' && presets.length) {
+    if (isTinted && activeId === '' && presets.length) {
       activeId = presetThemeId(presets[0]);
     }
-    return {presets, activeId, showDefault: !isTinted};
+    return { presets, activeId, showDefault: !isTinted };
   };
 
   const [state, setState] = createSignal(computeState());
@@ -215,12 +215,12 @@ const AccentPickerRow = () => {
   // active thumbnail is auto-scrolled into view after a theme_changed (see ThemeSection).
   const scrollActiveIntoView = () => {
     const active = scrollableEl?.querySelector<HTMLElement>('.accent-circle--active');
-    if(!active) return;
+    if (!active) return;
     fastSmoothScroll({
       element: active,
       container: scrollableEl,
       axis: 'x',
-      position: 'center'
+      position: 'center',
     });
   };
 
@@ -237,7 +237,7 @@ const AccentPickerRow = () => {
       <Show when={state().showDefault}>
         <div
           class="accent-circle accent-circle--default"
-          classList={{'accent-circle--active': state().activeId === ''}}
+          classList={{ 'accent-circle--active': state().activeId === '' }}
           onClick={onDefault}
           title="Default"
         >
@@ -251,11 +251,11 @@ const AccentPickerRow = () => {
         return (
           <div
             class="accent-circle"
-            classList={{'accent-circle--active': state().activeId === presetThemeId(preset)}}
+            classList={{ 'accent-circle--active': state().activeId === presetThemeId(preset) }}
             style={{
               '--accent-circle-ring': accent,
               '--accent-circle-fill-1': fill1,
-              '--accent-circle-fill-2': fill2
+              '--accent-circle-fill-2': fill2,
             }}
             onClick={() => onPreset(preset)}
           >
@@ -275,14 +275,14 @@ const DistanceUnitsSection = () => {
   const stateKey = joinDeepPath('settings', 'distanceUnit');
   const radios: [StateSettings['distanceUnit'], LangPackKey][] = [
     ['kilometers', 'DistanceUnitsKilometers'],
-    ['miles', 'DistanceUnitsMiles']
+    ['miles', 'DistanceUnitsMiles'],
   ];
 
   return (
     <Section name="DistanceUnitsTitle">
       <form>
         {radios.map(([value, langKey]) => {
-          const field = new RadioField({langKey, name: 'distance-unit', value, stateKey});
+          const field = new RadioField({ langKey, name: 'distance-unit', value, stateKey });
           return <Row><Row.RadioField>{field.label}</Row.RadioField></Row>;
         })}
       </form>
@@ -298,22 +298,22 @@ const TimeFormatSection = () => {
   const stateKey = joinDeepPath('settings', 'timeFormat');
   const formats: [StateSettings['timeFormat'], LangPackKey][] = [
     ['h12', 'General.TimeFormat.h12'],
-    ['h23', 'General.TimeFormat.h23']
+    ['h23', 'General.TimeFormat.h23'],
   ];
 
   // Pre-create radios so the same instances drive both DOM and subtitle refs.
   const items = formats.map(([format, langKey]) => {
-    const radio = new RadioField({langKey, name: 'time-format', value: format, stateKey});
+    const radio = new RadioField({ langKey, name: 'time-format', value: format, stateKey });
     const [subtitle, setSubtitle] = createSignal<string>('');
-    return {format, langKey, radio, subtitle, setSubtitle};
+    return { format, langKey, radio, subtitle, setSubtitle };
   });
 
   const updateAll = () => {
     const date = new Date();
-    items.forEach(({format, setSubtitle}) => {
+    items.forEach(({ format, setSubtitle }) => {
       const str = date.toLocaleTimeString('en-us-u-hc-' + format, {
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
       });
       setSubtitle(str);
     });
@@ -326,7 +326,7 @@ const TimeFormatSection = () => {
   return (
     <Section name="General.TimeFormat">
       <form>
-        {items.map(({radio, subtitle}) => (
+        {items.map(({ radio, subtitle }) => (
           <Row>
             <Row.RadioField>{radio.label}</Row.RadioField>
             <Row.Subtitle>{subtitle()}</Row.Subtitle>

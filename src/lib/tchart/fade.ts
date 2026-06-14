@@ -1,4 +1,4 @@
-import {TChartUnitOptions} from '@lib/tchart/types';
+import { TChartUnitOptions } from '@lib/tchart/types';
 
 export default class TFade {
   private opts: TChartUnitOptions;
@@ -13,11 +13,11 @@ export default class TFade {
     this.opts = opts;
     this.ctx = opts.ctx!;
 
-    if(this.opts.graphStyle !== 'area') {
+    if (this.opts.graphStyle !== 'area') {
       this.$fadeTop = document.createElement('canvas');
       this.ctxFadeTop = this.$fadeTop.getContext('2d')!;
 
-      if(this.opts.graphStyle !== 'bar') {
+      if (this.opts.graphStyle !== 'bar') {
         this.$fadeBottom = document.createElement('canvas');
         this.ctxFadeBottom = this.$fadeBottom.getContext('2d')!;
       }
@@ -30,7 +30,7 @@ export default class TFade {
     const dimsBottom = this.opts.state!.dims!.fadeBottom;
     const backgroundRgbJoined = this.opts.settings!.COLORS.backgroundRgb.join(', ');
 
-    if(this.opts.graphStyle !== 'area') {
+    if (this.opts.graphStyle !== 'area') {
       const gradientTop = this.ctxFadeTop.createLinearGradient(0, 0, 0, dimsTop.h * dpi);
       gradientTop.addColorStop(0, `rgba(${backgroundRgbJoined}, 1)`);
       gradientTop.addColorStop(1, `rgba(${backgroundRgbJoined}, 0)`);
@@ -39,7 +39,7 @@ export default class TFade {
       this.ctxFadeTop.fillStyle = gradientTop;
       this.ctxFadeTop.fillRect(0, 0, dimsTop.w * dpi, dimsTop.h * dpi);
 
-      if(this.opts.graphStyle !== 'bar') {
+      if (this.opts.graphStyle !== 'bar') {
         const gradientBottom = this.ctxFadeBottom.createLinearGradient(0, 0, 0, dimsBottom.h * dpi);
         gradientBottom.addColorStop(0, `rgba(${backgroundRgbJoined}, 0)`);
         gradientBottom.addColorStop(1, `rgba(${backgroundRgbJoined}, 1)`);

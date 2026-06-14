@@ -5,14 +5,14 @@
  * https://github.com/evgeny-nadymov/telegram-react/blob/master/LICENSE
  */
 
-import {IS_FIREFOX} from '@environment/userAgent';
-import LocalConferenceDescription, {ConferenceEntry} from '@lib/calls/localConferenceDescription';
+import { IS_FIREFOX } from '@environment/userAgent';
+import LocalConferenceDescription, { ConferenceEntry } from '@lib/calls/localConferenceDescription';
 import StringFromLineBuilder from '@lib/calls/stringFromLineBuilder';
-import {CallSignalingData, GroupCallConnectionTransport, PayloadType, RtpHdrexts, UpdateGroupCallConnectionData} from '@lib/calls/types';
-import {fromTelegramSource} from '@lib/calls/utils';
-import {getSdpDirection, getSdpPort, SdpSection} from '@lib/calls/p2P/sdpCommon';
-import {logger} from '@lib/logger';
-import {isTruthy} from '../../helpers/isTruthy';
+import { CallSignalingData, GroupCallConnectionTransport, PayloadType, RtpHdrexts, UpdateGroupCallConnectionData } from '@lib/calls/types';
+import { fromTelegramSource } from '@lib/calls/utils';
+import { getSdpDirection, getSdpPort, SdpSection } from '@lib/calls/p2P/sdpCommon';
+import { logger } from '@lib/logger';
+import { isTruthy } from '../../helpers/isTruthy';
 
 // screencast is for Peer-to-Peer only
 export type WebRTCLineTypeTrue = 'video' | 'audio' | 'application';
@@ -30,7 +30,7 @@ export function performCandidate(c: NonNullable<GroupCallConnectionTransport['ca
   const arr: string[] = [];
   arr.push('a=candidate:');
   arr.push(`${c.foundation} ${c.component} ${c.protocol.toUpperCase()} ${c.priority} ${c.ip} ${c.port} typ ${c.type}`);
-  if(c['rel-addr'] !== undefined) {
+  if (c['rel-addr'] !== undefined) {
     arr.push(` raddr ${c['rel-addr']} rport ${c['rel-port']}`);
   }
   arr.push(` generation ${c.generation}`);
@@ -98,15 +98,15 @@ export class SDPBuilder extends StringFromLineBuilder {
       'a=ice-options:trickle'           // ! test
     );
 
-    for(const fingerprint of transport.fingerprints) {
+    for (const fingerprint of transport.fingerprints) {
       this.add(
         `a=fingerprint:${fingerprint.hash} ${fingerprint.fingerprint}`,
         `a=setup:${fingerprint.setup}`
       );
     }
 
-    if(!skipCandidates && transport.candidates) {
-      for(const candidate of transport.candidates) {
+    if (!skipCandidates && transport.candidates) {
+      for (const candidate of transport.candidates) {
         this.addCandidate(candidate);
       }
     }
@@ -116,7 +116,7 @@ export class SDPBuilder extends StringFromLineBuilder {
 
   public addSsrc(entry: ConferenceEntry) {
     let streamName = 'stream';
-    let {type, sourceGroups} = entry;
+    let { type, sourceGroups } = entry;
 
     // let source = ssrc.source ?? ssrc.sourceGroups[0].sources[0];
     // source = fromTelegramSource(source);
@@ -144,9 +144,9 @@ export class SDPBuilder extends StringFromLineBuilder {
     };
 
     addMsid();
-    if(sourceGroups?.length) {
+    if (sourceGroups?.length) {
       sourceGroups.forEach((ssrcGroup) => {
-        if(ssrcGroup.sources.length) {
+        if (ssrcGroup.sources.length) {
           const sources = ssrcGroup.sources.map(fromTelegramSource);
           this.add(`a=ssrc-group:${ssrcGroup.semantics} ${sources.join(' ')}`);
           sources.forEach(addSource);
@@ -162,7 +162,7 @@ export class SDPBuilder extends StringFromLineBuilder {
   public addSsrcEntry(entry: ConferenceEntry, data: ConferenceData, isAnswer?: boolean) {
     const add = (...x: string[]) => this.add(...x);
 
-    const {type, mid, direction, port} = entry;
+    const { type, mid, direction, port } = entry;
     const transport = data.transport;
 
     /* if(type === 'application') {
@@ -173,7 +173,7 @@ export class SDPBuilder extends StringFromLineBuilder {
     const codec = isApplication ? undefined : data[type];
 
     const isInactive = direction === 'inactive';
-    if(entry.shouldBeSkipped(isAnswer)) {
+    if (entry.shouldBeSkipped(isAnswer)) {
       return add(
         `m=${fixMediaLineType(type)} 0 ${getConnectionTypeForMediaType(type)} 0`,
         `c=IN IP4 0.0.0.0`,
@@ -182,7 +182,7 @@ export class SDPBuilder extends StringFromLineBuilder {
       );
     }
 
-    const payloadTypes = !isApplication ? codec!['payload-types'] : [{id: 5000} as PayloadType];
+    const payloadTypes = !isApplication ? codec!['payload-types'] : [{ id: 5000 } as PayloadType];
     const ids = payloadTypes.map((type) => type.id);
     add(
       generateMediaFirstLine(type, port, ids),
@@ -190,7 +190,7 @@ export class SDPBuilder extends StringFromLineBuilder {
       `a=rtcp:${port} IN IP4 0.0.0.0`
     );
 
-    if(transport['rtcp-mux']) {
+    if (transport['rtcp-mux']) {
       add('a=rtcp-mux');
     }
 
@@ -200,7 +200,7 @@ export class SDPBuilder extends StringFromLineBuilder {
     } */
 
     let setDirection = direction;
-    if(direction !== 'sendrecv' && isAnswer && !(isInactive || isApplication)) {
+    if (direction !== 'sendrecv' && isAnswer && !(isInactive || isApplication)) {
       setDirection = direction === 'sendonly' ? 'recvonly' : 'sendonly';
     }
 
@@ -210,9 +210,9 @@ export class SDPBuilder extends StringFromLineBuilder {
     // this.addTransport(transport, isAnswer);
     this.addTransport(transport);
 
-    if(!isApplication) {
+    if (!isApplication) {
       const hdrexts = codec!['rtp-hdrexts'];
-      if(hdrexts?.length) {
+      if (hdrexts?.length) {
         hdrexts.forEach((hdrext) => {
           add(`a=extmap:${hdrext.id} ${hdrext.uri}`);
         });
@@ -222,20 +222,20 @@ export class SDPBuilder extends StringFromLineBuilder {
         add(`a=rtpmap:${type.id} ${type.name}/${type.clockrate}${type.channels && type.channels > 1 ? `/${type.channels}` : ''}`);
 
         const parameters = type.parameters;
-        if(Array.isArray(parameters)) {
-          if(parameters.length) {
+        if (Array.isArray(parameters)) {
+          if (parameters.length) {
             log.error('parameters is array???', parameters);
           }
-        } else if(parameters && Object.keys(parameters).length) {
+        } else if (parameters && Object.keys(parameters).length) {
           const p: string[] = [];
-          for(const i in parameters) {
+          for (const i in parameters) {
             p.push(`${i}=${parameters[i]}`);
           }
           add(`a=fmtp:${type.id} ${p.join(';')}`);
         }
 
         const fbs = type['rtcp-fbs'];
-        if(fbs?.length) {
+        if (fbs?.length) {
           fbs.forEach((fb) => {
             add(`a=rtcp-fb:${type.id} ${fb.type}${fb.subtype ? ' ' + fb.subtype : ''}`);
           });
@@ -245,7 +245,7 @@ export class SDPBuilder extends StringFromLineBuilder {
       add(`a=sctpmap:${payloadTypes[0].id} webrtc-datachannel 256`);
     }
 
-    if(entry.source && (setDirection === 'sendonly' || setDirection === 'sendrecv')) {
+    if (entry.source && (setDirection === 'sendonly' || setDirection === 'sendrecv')) {
       this.addSsrc(entry);
     }
 
@@ -258,14 +258,14 @@ export class SDPBuilder extends StringFromLineBuilder {
     entries: ConferenceEntry[],
     isAnswer?: boolean,
   }) {
-    const {conference, entries, bundle, isAnswer} = options;
+    const { conference, entries, bundle, isAnswer } = options;
     this.addHeader(conference.sessionId, bundle);
 
-    if(IS_FIREFOX) {
+    if (IS_FIREFOX) {
       this.addTransport(conference.transport); // support Firefox
     }
 
-    for(const entry of entries) {
+    for (const entry of entries) {
       // this.addSsrcEntry(entry, conference, isAnswer);
       this.addSsrcEntry((isAnswer ? entry.recvEntry || entry.sendEntry : entry.sendEntry || entry.recvEntry) || entry, conference, isAnswer);
     }
@@ -285,7 +285,7 @@ export class SDPBuilder extends StringFromLineBuilder {
     const {
       setup, mids, isAnswer, entries,
       audioPayloadTypes, audioExtensions, videoPayloadTypes, videoExtensions,
-      sectionOrder, bundleMids, shouldKeepRemoteReceiveSection
+      sectionOrder, bundleMids, shouldKeepRemoteReceiveSection,
     } = options;
 
     const add = (line: string) => {
@@ -295,16 +295,16 @@ export class SDPBuilder extends StringFromLineBuilder {
     // On an answer, sectionOrder is our own local offer — mirror its DTLS role.
     const getAnswerSetupRole = (mid: string | undefined, fallback: string) => {
       const offerSetup = sectionOrder?.find((section) => section.mid === mid)
-      ?.lines.find((line) => line.startsWith('a=setup:'))
-      ?.slice('a=setup:'.length);
+        ?.lines.find((line) => line.startsWith('a=setup:'))
+        ?.slice('a=setup:'.length);
 
-      if(offerSetup === 'active') {
+      if (offerSetup === 'active') {
         return 'passive';
       }
-      if(offerSetup === 'passive') {
+      if (offerSetup === 'passive') {
         return 'active';
       }
-      if(fallback === 'active' || fallback === 'passive') {
+      if (fallback === 'active' || fallback === 'passive') {
         return fallback;
       }
 
@@ -324,7 +324,7 @@ export class SDPBuilder extends StringFromLineBuilder {
     const addPayloadType = (payloadType: PayloadType) => {
       const channels = payloadType.channels ? `/${payloadType.channels}` : '';
       add(`a=rtpmap:${payloadType.id} ${payloadType.name}/${payloadType.clockrate}${channels}`);
-      if(payloadType.parameters) {
+      if (payloadType.parameters) {
         const parameters = Object.keys(payloadType.parameters).map((key) => {
           return `${key}=${(payloadType.parameters as Record<string, string | number>)[key]}`;
         }).join(';');
@@ -348,7 +348,7 @@ export class SDPBuilder extends StringFromLineBuilder {
       add(`m=${mediaType} ${port} UDP/TLS/RTP/SAVPF ${payloadTypes.map((payloadType) => payloadType.id).join(' ')}`);
       add('c=IN IP4 0.0.0.0');
       add(`a=mid:${entry.mid}`);
-      if(port === 0) {
+      if (port === 0) {
         add('a=inactive');
         return;
       }
@@ -357,24 +357,24 @@ export class SDPBuilder extends StringFromLineBuilder {
       add('a=rtcp-mux');
       payloadTypes.forEach(addPayloadType);
       add('a=rtcp:1 IN IP4 0.0.0.0');
-      if(entry.isVideo) {
+      if (entry.isVideo) {
         add('a=rtcp-rsize');
       }
-      extensions.forEach(({id, uri}) => {
+      extensions.forEach(({ id, uri }) => {
         add(`a=extmap:${id} ${uri}`);
       });
       addTransport(entry.mid);
-      if(entry.isRemoved) {
+      if (entry.isRemoved) {
         add('a=inactive');
         return;
       }
       add(`a=${direction || entry.direction || (isAnswer ? 'recvonly' : 'sendonly')}`);
-      if(isAnswer || direction === 'recvonly') {
+      if (isAnswer || direction === 'recvonly') {
         return;
       }
 
       entry.sourceGroups.forEach((sourceGroup) => {
-        if(sourceGroup.semantics) {
+        if (sourceGroup.semantics) {
           add(`a=ssrc-group:${sourceGroup.semantics} ${sourceGroup.sources.join(' ')}`);
         }
         sourceGroup.sources.forEach((ssrc) => {
@@ -391,7 +391,7 @@ export class SDPBuilder extends StringFromLineBuilder {
       add('c=IN IP4 0.0.0.0');
       add(`a=mid:${mid}`);
 
-      if(shouldReject) {
+      if (shouldReject) {
         add('a=inactive');
         return;
       }
@@ -411,62 +411,62 @@ export class SDPBuilder extends StringFromLineBuilder {
         userId: '0',
         endpoint: section.mid || '',
         mid: section.mid || '',
-        sourceGroups: []
+        sourceGroups: [],
       };
       const entry = entries.find((item) => item.mid === section.mid) || fallbackEntry;
       const shouldKeepLocalSection = !isAnswer && entry.isRemoved && shouldKeepEstablishedLocalSection(section);
       const shouldKeepRemoteSection = isAnswer && entry.isRemoved && shouldKeepRemoteReceiveSection(section);
-      const keptMediaEntry = shouldKeepLocalSection || shouldKeepRemoteSection ? {...entry, isRemoved: false} : entry;
+      const keptMediaEntry = shouldKeepLocalSection || shouldKeepRemoteSection ? { ...entry, isRemoved: false } : entry;
       const shouldRejectOfferSection = isAnswer && !canAcceptOfferedBundledSection(section, bundleMids);
-      const mediaEntry = shouldRejectOfferSection ? {...keptMediaEntry, isRemoved: true} : keptMediaEntry;
+      const mediaEntry = shouldRejectOfferSection ? { ...keptMediaEntry, isRemoved: true } : keptMediaEntry;
       const shouldRejectRemoved = isAnswer && (mediaEntry.isRemoved || shouldRejectOfferSection);
       const payloadTypes = section.kind === 'audio' ? audioPayloadTypes : videoPayloadTypes;
       const extensions = section.kind === 'audio' ? audioExtensions : videoExtensions;
       const direction: RTCRtpTransceiverDirection | undefined = shouldKeepRemoteSection ? 'sendonly' :
         (mediaEntry.isLocalOnly || shouldKeepLocalSection ? 'recvonly' : undefined);
 
-      return {direction, extensions, mediaEntry, payloadTypes, shouldRejectRemoved};
+      return { direction, extensions, mediaEntry, payloadTypes, shouldRejectRemoved };
     };
 
     const getBundledOrderedMid = (section: SdpSection) => {
       const mid = section.mid || (section.kind === 'application' ? mids.data : undefined);
-      if(!mid) {
+      if (!mid) {
         return undefined;
       }
 
-      if(section.kind === 'application') {
-        if(!isAnswer) {
+      if (section.kind === 'application') {
+        if (!isAnswer) {
           return mid;
         }
 
         return canAcceptOfferedBundledSection(section, bundleMids) ? mid : undefined;
       }
 
-      const {mediaEntry, shouldRejectRemoved} = getOrderedMedia(section);
+      const { mediaEntry, shouldRejectRemoved } = getOrderedMedia(section);
       return mediaEntry.isRemoved && shouldRejectRemoved ? undefined : mediaEntry.mid;
     };
 
     const addOrderedSection = (section: SdpSection) => {
-      if(section.kind === 'application') {
+      if (section.kind === 'application') {
         const mid = section.mid || mids.data;
         const shouldRejectApplication = isAnswer && !canAcceptOfferedBundledSection(section, bundleMids);
         addApplication(mid, shouldRejectApplication);
         return;
       }
 
-      const {direction, extensions, mediaEntry, payloadTypes, shouldRejectRemoved} = getOrderedMedia(section);
+      const { direction, extensions, mediaEntry, payloadTypes, shouldRejectRemoved } = getOrderedMedia(section);
       addMedia(mediaEntry, payloadTypes, extensions, section.kind, shouldRejectRemoved, direction);
     };
 
     const rawBundledMids = (sectionOrder?.map(getBundledOrderedMid).filter(isTruthy) || [
       ...entries.filter((entry) => !entry.isRemoved).map((entry) => entry.mid),
-      mids.data
+      mids.data,
     ]).concat(isAnswer ? [] : entries.filter((entry) => {
       return !entry.isRemoved && !sectionOrder?.some((section) => section.mid === entry.mid);
     }).map((entry) => entry.mid));
     const seenBundledMids = new Set<string>();
     const bundledMids = rawBundledMids.filter((mid) => {
-      if(seenBundledMids.has(mid)) {
+      if (seenBundledMids.has(mid)) {
         return false;
       }
 
@@ -482,7 +482,7 @@ export class SDPBuilder extends StringFromLineBuilder {
     add('a=msid-semantic:WMS *');
     add(`a=group:BUNDLE ${bundledMids.join(' ')}`);
 
-    if(sectionOrder?.length) {
+    if (sectionOrder?.length) {
       sectionOrder.forEach(addOrderedSection);
       entries.filter((entry) => {
         return !sectionOrder.some((section) => section.mid === entry.mid);
@@ -566,7 +566,7 @@ function canAcceptOfferedBundledSection(section: SdpSection, bundleMids: string[
 }
 
 function shouldKeepEstablishedLocalSection(section: SdpSection) {
-  if(section.kind !== 'audio' && section.kind !== 'video') {
+  if (section.kind !== 'audio' && section.kind !== 'video') {
     return false;
   }
 

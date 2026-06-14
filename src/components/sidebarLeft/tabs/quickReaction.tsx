@@ -1,12 +1,12 @@
-import {onMount} from 'solid-js';
-import {AvailableReaction} from '@layer';
+import { onMount } from 'solid-js';
+import { AvailableReaction } from '@layer';
 import RadioField from '@components/radioField';
-import Row, {RadioFormFromRows} from '@components/row';
+import Row, { RadioFormFromRows } from '@components/row';
 import Section from '@components/section';
 import rootScope from '@lib/rootScope';
 import wrapStickerToRow from '@components/wrappers/stickerToRow';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {usePromiseCollector} from '@components/solidJsTabs/promiseCollector';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
 
 const QuickReaction = () => {
   const [tab] = useSuperTab();
@@ -21,7 +21,7 @@ const QuickReaction = () => {
   promiseCollector.collect((async() => {
     const [quickReaction, availableReactions] = await Promise.all([
       rootScope.managers.appReactionsManager.getQuickReaction(),
-      rootScope.managers.appReactionsManager.getAvailableReactions()
+      rootScope.managers.appReactionsManager.getAvailableReactions(),
     ]);
 
     const reactions = availableReactions.filter((reaction) => !reaction.pFlags.inactive);
@@ -32,12 +32,12 @@ const QuickReaction = () => {
         name,
         text: availableReaction.title,
         value: availableReaction.reaction,
-        alignRight: true
+        alignRight: true,
       });
 
       const row = new Row({
         radioField,
-        havePadding: true
+        havePadding: true,
       });
 
       radioField.main.classList.add('quick-reaction-title');
@@ -45,10 +45,10 @@ const QuickReaction = () => {
       wrapStickerToRow({
         row,
         doc: availableReaction.static_icon,
-        size: 'small'
+        size: 'small',
       });
 
-      if(availableReaction.reaction === (quickReaction as AvailableReaction).reaction) {
+      if (availableReaction.reaction === (quickReaction as AvailableReaction).reaction) {
         radioField.setValueSilently(true);
       }
 
@@ -56,7 +56,7 @@ const QuickReaction = () => {
     });
 
     const form = RadioFormFromRows(rows, (value) => {
-      rootScope.managers.appReactionsManager.setDefaultReaction({_: 'reactionEmoji', emoticon: value});
+      rootScope.managers.appReactionsManager.setDefaultReaction({ _: 'reactionEmoji', emoticon: value });
     });
 
     containerEl.replaceChildren(form);

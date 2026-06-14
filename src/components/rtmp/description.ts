@@ -1,7 +1,7 @@
-import {numberThousandSplitterForWatching} from '@helpers/number/numberThousandSplitter';
-import {RtmpCallInstance} from '@lib/calls/rtmpCallsController';
+import { numberThousandSplitterForWatching } from '@helpers/number/numberThousandSplitter';
+import { RtmpCallInstance } from '@lib/calls/rtmpCallsController';
 import RTMP_STATE from '@lib/calls/rtmpState';
-import I18n, {FormatterArguments, LangPackKey, i18n} from '@lib/langPack';
+import I18n, { FormatterArguments, LangPackKey, i18n } from '@lib/langPack';
 
 export default class RtmpDescriptionElement {
   private descriptionIntl: I18n.IntlElement;
@@ -9,7 +9,7 @@ export default class RtmpDescriptionElement {
 
   constructor(private appendTo: HTMLElement, private appendLiveTo: HTMLElement) {
     this.descriptionIntl = new I18n.IntlElement({
-      key: 'VoiceChat.Status.Connecting'
+      key: 'VoiceChat.Status.Connecting',
     });
 
     this.descriptionIntl.element.classList.add('rtmp-description');
@@ -23,24 +23,24 @@ export default class RtmpDescriptionElement {
 
   public update(instance: RtmpCallInstance) {
     let key: LangPackKey, args: FormatterArguments;
-    if(instance.state !== RTMP_STATE.PLAYING) {
+    if (instance.state !== RTMP_STATE.PLAYING) {
       key = 'VoiceChat.Status.Connecting';
     } else {
       key = 'Rtmp.Watching';
       args = [numberThousandSplitterForWatching(instance.call.participants_count)];
     }
 
-    const {descriptionIntl} = this;
+    const { descriptionIntl } = this;
     descriptionIntl.compareAndUpdate({
       key,
-      args: args!
+      args: args!,
     });
 
-    if(!this.descriptionIntl.element.parentElement) {
+    if (!this.descriptionIntl.element.parentElement) {
       this.appendTo.append(this.descriptionIntl.element);
     }
 
-    if(!this.liveTextElement.parentElement) {
+    if (!this.liveTextElement.parentElement) {
       this.appendLiveTo.append(this.liveTextElement);
     }
   }

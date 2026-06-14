@@ -55,23 +55,23 @@ export default class VoiceWaveformAnalyser {
   }
 
   private onAudioProcess = (e: AudioProcessingEvent) => {
-    if(this.finished || this.paused) return;
+    if (this.finished || this.paused) return;
 
     const channel = e.inputBuffer.getChannelData(0);
     const len = channel.length;
     let peak = this.currentPeak;
     let count = this.currentPeakCount;
 
-    for(let i = 0; i < len; ++i) {
+    for (let i = 0; i < len; ++i) {
       const sample = Math.abs(channel[i]) * 32767;
-      if(sample > peak) peak = sample;
-      if(++count === this.peakCompressionFactor) {
+      if (sample > peak) peak = sample;
+      if (++count === this.peakCompressionFactor) {
         this.peaks.push(peak);
         peak = 0;
         count = 0;
 
-        if(this.peaks.length >= DOWNSAMPLE_THRESHOLD) {
-          for(let j = 0; j < WAVEFORM_SAMPLES_COUNT; ++j) {
+        if (this.peaks.length >= DOWNSAMPLE_THRESHOLD) {
+          for (let j = 0; j < WAVEFORM_SAMPLES_COUNT; ++j) {
             const a = this.peaks[j * 2];
             const b = this.peaks[j * 2 + 1];
             this.peaks[j] = a > b ? a : b;
@@ -87,32 +87,32 @@ export default class VoiceWaveformAnalyser {
   };
 
   public finish(): Uint8Array {
-    if(this.finished) return new Uint8Array(WAVEFORM_BYTES_LENGTH);
+    if (this.finished) return new Uint8Array(WAVEFORM_BYTES_LENGTH);
     this.finished = true;
 
     try {
       this.sourceNode.disconnect(this.scriptProcessor);
-    } catch(e) {}
+    } catch (e) {}
     this.scriptProcessor.disconnect();
     this.scriptProcessor.onaudioprocess = null;
 
     const peaks = this.peaks.slice(0, WAVEFORM_SAMPLES_COUNT);
-    while(peaks.length < WAVEFORM_SAMPLES_COUNT) peaks.push(0);
+    while (peaks.length < WAVEFORM_SAMPLES_COUNT) peaks.push(0);
 
     let sum = 0;
-    for(let i = 0; i < peaks.length; ++i) sum += peaks[i];
+    for (let i = 0; i < peaks.length; ++i) sum += peaks[i];
     let normPeak = sum * 1.8 / peaks.length;
-    if(normPeak < 2500) normPeak = 2500;
+    if (normPeak < 2500) normPeak = 2500;
 
     const result = new Uint8Array(WAVEFORM_BYTES_LENGTH);
-    for(let i = 0; i < peaks.length; ++i) {
+    for (let i = 0; i < peaks.length; ++i) {
       const clamped = peaks[i] < normPeak ? peaks[i] : normPeak;
       const v = Math.min(31, (clamped * 31 / normPeak) | 0);
       const bitOffset = i * 5;
       const byteIndex = bitOffset >> 3;
       const bitShift = bitOffset & 7;
       result[byteIndex] |= (v << bitShift) & 0xFF;
-      if(bitShift > 3 && byteIndex + 1 < result.length) {
+      if (bitShift > 3 && byteIndex + 1 < result.length) {
         result[byteIndex + 1] |= (v >> (8 - bitShift)) & 0xFF;
       }
     }

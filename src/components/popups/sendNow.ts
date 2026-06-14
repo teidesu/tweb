@@ -7,8 +7,8 @@ export default function showSendNowPopup(peerId: PeerId, mids: number[], onConfi
     title: `Send Message${isMultiple ? 's' : ''} Now`,
     description: isMultiple ? `Send ${mids.length} messages now?` : 'Send message now?',
     button: {
-      langKey: 'Send'
-    }
+      langKey: 'Send',
+    },
   }).then(() => {
     onConfirm?.();
     rootScope.managers.appMessagesManager.sendScheduledMessages(peerId, mids);

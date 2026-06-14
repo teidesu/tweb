@@ -1,30 +1,30 @@
-import {EmoticonsDropdown} from '..';
+import { EmoticonsDropdown } from '..';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import mediaSizes from '@helpers/mediaSizes';
-import {Document, MessagesAllStickers, StickerSet} from '@layer';
-import {MyDocument} from '@appManagers/appDocsManager';
-import {AppManagers} from '@lib/managers';
+import { Document, MessagesAllStickers, StickerSet } from '@layer';
+import { MyDocument } from '@appManagers/appDocsManager';
+import { AppManagers } from '@lib/managers';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
 import rootScope from '@lib/rootScope';
-import {putPreloader} from '@components/putPreloader';
+import { putPreloader } from '@components/putPreloader';
 import showStickersPopup from '@components/popups/stickers';
 import findAndSplice from '@helpers/array/findAndSplice';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import noop from '@helpers/noop';
 import ButtonIcon from '@components/buttonIcon';
 import confirmationPopup from '@components/confirmationPopup';
-import VisibilityIntersector, {OnVisibilityChangeItem} from '@components/visibilityIntersector';
+import VisibilityIntersector, { OnVisibilityChangeItem } from '@components/visibilityIntersector';
 import findUpAsChild from '@helpers/dom/findUpAsChild';
 import forEachReverse from '@helpers/array/forEachReverse';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import getStickerEffectThumb from '@appManagers/utils/stickers/getStickerEffectThumb';
-import StickersTabCategory, {EmoticonsTabStyles} from '@components/emoticonsDropdown/category';
+import StickersTabCategory, { EmoticonsTabStyles } from '@components/emoticonsDropdown/category';
 import EmoticonsTabC from '@components/emoticonsDropdown/tab';
-import {i18n} from '@lib/langPack';
-import {onCleanup} from 'solid-js';
+import { i18n } from '@lib/langPack';
+import { onCleanup } from 'solid-js';
 import SuperStickerRenderer from '@components/emoticonsDropdown/tabs/SuperStickerRenderer';
-import {getStickerSetInputById} from '@lib/appManagers/utils/stickers/getStickerSetInput';
-import {isTruthy} from '../../../helpers/isTruthy';
+import { getStickerSetInputById } from '@lib/appManagers/utils/stickers/getStickerSetInput';
+import { isTruthy } from '../../../helpers/isTruthy';
 
 type StickersTabItem = {element: HTMLElement, document: Document.document};
 export default class StickersTab extends EmoticonsTabC<StickersTabCategory<StickersTabItem>, Document.document[]> {
@@ -34,31 +34,31 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
     super({
       managers,
       searchFetcher: async(value) => {
-        if(!value) return [];
+        if (!value) return [];
         return this.managers.appStickersManager.searchStickers(value);
       },
       groupFetcher: async(group) => {
-        if(!group) return [];
+        if (!group) return [];
 
-        if(group._ === 'emojiGroupPremium') {
+        if (group._ === 'emojiGroupPremium') {
           return this.managers.appStickersManager.getPremiumStickers();
         }
 
-        return this.managers.appStickersManager.getStickersByEmoticon({emoticon: group.emoticons, includeServerStickers: true});
+        return this.managers.appStickersManager.getStickersByEmoticon({ emoticon: group.emoticons, includeServerStickers: true });
       },
-      processSearchResult: (async({data: stickers, searching, grouping}) => {
-        if(!stickers || (!searching && !grouping)) {
+      processSearchResult: (async({ data: stickers, searching, grouping }) => {
+        if (!stickers || (!searching && !grouping)) {
           return;
         }
 
-        if(!stickers.length) {
+        if (!stickers.length) {
           const span = i18n('NoStickersFound');
           span.classList.add('emoticons-not-found');
           return span;
         }
 
         const container = this.categoriesContainer.cloneNode(false) as HTMLElement;
-        const category = this.createCategory({styles: EmoticonsTabStyles.Stickers!});
+        const category = this.createCategory({ styles: EmoticonsTabStyles.Stickers! });
         const promise = StickersTab.categoryAppendStickers(
           this,
           this.stickerRenderer,
@@ -77,7 +77,7 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
 
         await promise;
 
-        if(!cleaned) {
+        if (!cleaned) {
           StickersTab._onCategoryVisibility(category, true);
         }
 
@@ -85,7 +85,7 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
       }) as (result: {data: MyDocument[]; searching: boolean; grouping: boolean}) => Promise<HTMLElement>,
       // searchNoLoader: true,
       searchPlaceholder: 'SearchStickers',
-      searchType: 'stickers'
+      searchType: 'stickers',
     });
 
     this.container.classList.add('stickers-padding');
@@ -98,10 +98,10 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
   }
 
   public static _onCategoryVisibility = (category: StickersTabCategory<any>, visible: boolean) => {
-    category.elements.items.replaceChildren(...(!visible ? [] : category.items.map(({element}) => element)));
+    category.elements.items.replaceChildren(...(!visible ? [] : category.items.map(({ element }) => element)));
   };
 
-  private onCategoryVisibility = ({target, visible}: OnVisibilityChangeItem) => {
+  private onCategoryVisibility = ({ target, visible }: OnVisibilityChangeItem) => {
     const category = this.categoriesMap.get(target);
     StickersTab._onCategoryVisibility(category!, visible);
   };
@@ -135,10 +135,10 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
 
     this.scrollable.container.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
-      if(findUpClassName(target, 'category-title')) {
+      if (findUpClassName(target, 'category-title')) {
         const container = findUpClassName(target, 'emoji-category');
         const category = this.categoriesMap.get(container);
-        if(category!.local) {
+        if (category!.local) {
           return;
         }
 
@@ -158,13 +158,13 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
       //   category.limit = stickers.length;
       // }
 
-      if(category.limit) {
+      if (category.limit) {
         stickers = stickers.slice(0, category.limit);
       }
 
       const ids = new Set(stickers.map((doc) => doc.id));
       forEachReverse(category.items, (item) => {
-        if(!ids.has(item.document.id)) {
+        if (!ids.has(item.document.id)) {
           this.deleteSticker(category, item.document, true);
         }
       });
@@ -181,7 +181,7 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
       id: 'faved',
       title: 'FavoriteStickers',
       icon: 'savedmessages',
-      styles: EmoticonsTabStyles.Stickers!
+      styles: EmoticonsTabStyles.Stickers!,
     });
     // favedCategory.elements.menuTab.classList.add('active');
 
@@ -189,19 +189,19 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
       id: 'recent',
       title: 'Stickers.Recent',
       icon: 'recent',
-      styles: EmoticonsTabStyles.Stickers!
+      styles: EmoticonsTabStyles.Stickers!,
     });
     recentCategory.limit = 20;
 
-    const clearButton = ButtonIcon('close', {noRipple: true});
+    const clearButton = ButtonIcon('close', { noRipple: true });
     recentCategory.elements.title.append(clearButton);
     attachClickEvent(clearButton, () => {
       confirmationPopup({
         titleLangKey: 'ClearRecentStickersAlertTitle',
         descriptionLangKey: 'ClearRecentStickersAlertMessage',
         button: {
-          langKey: 'Clear'
-        }
+          langKey: 'Clear',
+        },
       }).then(() => {
         this.managers.appStickersManager.clearRecentStickers();
       }, noop);
@@ -210,7 +210,7 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
     const promises = [
       Promise.all([
         this.managers.apiManager.getLimit('favedStickers'),
-        this.managers.appStickersManager.getFavedStickersStickers()
+        this.managers.appStickersManager.getFavedStickersStickers(),
       ]).then(([limit, stickers]) => {
         this.setFavedLimit(limit);
         onCategoryStickers(favedCategory, (stickers as Document.document[]));
@@ -221,10 +221,10 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
       }),
 
       this.managers.appStickersManager.getAllStickers().then((res) => {
-        for(const set of (res).sets) {
+        for (const set of (res).sets) {
           StickersTab.renderStickerSet(this, this.stickerRenderer, set, false);
         }
-      })
+      }),
     ];
 
     Promise.race(promises).finally(() => {
@@ -240,7 +240,7 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
       this.menuOnClickResult.setActive(favedCategory.items.length ? favedCategory : recentCategory);
 
       rootScope.addEventListener('stickers_installed', (set) => {
-        if(!this.categories[set.id]) {
+        if (!this.categories[set.id]) {
           StickersTab.renderStickerSet(this, this.stickerRenderer, set, true);
         }
       });
@@ -248,14 +248,14 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
 
     this.stickerRenderer = this.createStickerRenderer();
 
-    rootScope.addEventListener('sticker_updated', ({type, document, faved}) => {
+    rootScope.addEventListener('sticker_updated', ({ type, document, faved }) => {
       // if(type === 'faved') {
       //   return;
       // }
 
       const category = this.categories[type === 'faved' ? 'faved' : 'recent'];
-      if(category) {
-        if(faved) {
+      if (category) {
+        if (faved) {
           this.unshiftSticker(category, document);
         } else {
           this.deleteSticker(category, document);
@@ -263,37 +263,37 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
       }
     });
 
-    rootScope.addEventListener('stickers_deleted', ({id}) => {
+    rootScope.addEventListener('stickers_deleted', ({ id }) => {
       const category = this.categories[id];
       this.deleteCategory(category);
     });
 
     rootScope.addEventListener('stickers_top', this.postponedEvent((id) => {
       const category = this.categories[id];
-      if(category) {
+      if (category) {
         this.positionCategory(category, true);
         this.emoticonsDropdown.addEventListener('openAfterLayout', () => {
           this.menuOnClickResult.setActiveStatic(category);
-        }, {once: true});
+        }, { once: true });
       }
     }));
 
-    rootScope.addEventListener('stickers_order', ({type, order}) => {
-      if(type !== 'stickers') {
+    rootScope.addEventListener('stickers_order', ({ type, order }) => {
+      if (type !== 'stickers') {
         return;
       }
 
       order.forEach((id) => {
         const category = this.categories[id];
-        if(category) {
+        if (category) {
           this.positionCategory(category, false);
         }
       });
     });
 
-    rootScope.addEventListener('stickers_updated', ({type, stickers}) => {
+    rootScope.addEventListener('stickers_updated', ({ type, stickers }) => {
       const category = this.categories[type === 'faved' ? 'faved' : 'recent'];
-      if(category) {
+      if (category) {
         onCategoryStickers(category, stickers);
       }
     });
@@ -307,7 +307,7 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
     mediaSizes.addEventListener('resize', this.resizeCategories);
 
     this.attachHelpers({
-      verifyRecent: (target) => !!findUpAsChild((target as { parentElement: HTMLElement; }), this.categories['recent'].elements.items)
+      verifyRecent: (target) => !!findUpAsChild((target as { parentElement: HTMLElement; }), this.categories['recent'].elements.items),
     });
 
     this.init = null!;
@@ -315,7 +315,7 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
 
   public deleteCategory(category: StickersTabCategory<StickersTabItem>) {
     const ret = super.deleteCategory(category);
-    if(ret) {
+    if (ret) {
       this.clearCategoryItems(category);
     }
 
@@ -323,42 +323,42 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
   }
 
   private clearCategoryItems(category: StickersTabCategory<StickersTabItem>, noUnmount?: boolean) {
-    if(!noUnmount) category.elements.items.replaceChildren();
-    category.items.splice(0, Infinity).forEach(({element}) => this.stickerRenderer.unobserveAnimated(element));
+    if (!noUnmount) category.elements.items.replaceChildren();
+    category.items.splice(0, Infinity).forEach(({ element }) => this.stickerRenderer.unobserveAnimated(element));
   }
 
   public deleteSticker(category: StickersTabCategory<StickersTabItem>, doc: MyDocument, batch?: boolean) {
     const item = findAndSplice(category.items, (item) => item.document.id === doc.id);
-    if(item) {
+    if (item) {
       item.element.remove();
       this.stickerRenderer.unobserveAnimated(item.element);
 
-      if(!batch) {
+      if (!batch) {
         this.onLocalCategoryUpdate(category);
       }
     }
   }
 
   public unshiftSticker(category: StickersTabCategory<StickersTabItem>, doc: MyDocument, batch?: boolean, idx?: number) {
-    if(idx !== undefined) {
+    if (idx !== undefined) {
       const i = category.items[idx];
-      if(i && i.document.id === doc.id) {
+      if (i && i.document.id === doc.id) {
         return;
       }
     }
 
     let item = findAndSplice(category.items, (item) => item.document.id === doc.id);
-    if(!item) {
+    if (!item) {
       item = {
         element: this.stickerRenderer.renderSticker(doc, undefined, undefined, category.middlewareHelper.get()),
-        document: doc
+        document: doc,
       };
     }
 
     category.items.unshift(item);
     category.elements.items.prepend(item.element);
 
-    if(!batch) {
+    if (!batch) {
       this.spliceExceed(category);
     }
   }
@@ -372,7 +372,7 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
   }
 
   public setTyping = (cancel = false) => {
-    if(!cancel && (!this.emoticonsDropdown.isActive() || this.emoticonsDropdown.tab !== this)) {
+    if (!cancel && (!this.emoticonsDropdown.isActive() || this.emoticonsDropdown.tab !== this)) {
       return;
     }
 
@@ -400,28 +400,28 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
     category: StickersTabCategory<StickersTabItem>,
     promise: MaybePromise<MyDocument[]>
   ) {
-    const {container} = category.elements;
+    const { container } = category.elements;
 
     category.setCategoryItemsHeight(count);
     container.classList.remove('hide');
 
     return Promise.all([
       promise,
-      apiManagerProxy.isPremiumFeaturesHidden()
+      apiManagerProxy.isPremiumFeaturesHidden(),
     ]).then(([documents, isPremiumFeaturesHidden]) => {
       const isVisible = tab.isCategoryVisible(category);
 
       const elements = documents.map((document) => {
-        if(isPremiumFeaturesHidden && getStickerEffectThumb(document)) {
+        if (isPremiumFeaturesHidden && getStickerEffectThumb(document)) {
           return;
         }
 
         const element = stickerRenderer.renderSticker(document, undefined, undefined, category.middlewareHelper.get());
-        category.items.push({document, element});
+        category.items.push({ document, element });
         return element;
       }).filter(isTruthy);
 
-      if(isVisible) {
+      if (isVisible) {
         category.elements.items.append(...elements);
       }
     });
@@ -436,9 +436,9 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
     const category = tab.createCategory({
       stickerSet: set,
       title: wrapEmojiText(set.title),
-      styles: EmoticonsTabStyles.Stickers!
+      styles: EmoticonsTabStyles.Stickers!,
     });
-    const {menuTabPadding} = category.elements;
+    const { menuTabPadding } = category.elements;
 
     const promise = tab.managers.appStickersManager.getStickerSet(getStickerSetInputById(set));
     this.categoryAppendStickers(
@@ -449,14 +449,14 @@ export default class StickersTab extends EmoticonsTabC<StickersTabCategory<Stick
       promise.then((stickerSet) => stickerSet.documents as MyDocument[])
     );
 
-    if(prepend !== undefined) {
+    if (prepend !== undefined) {
       tab.positionCategory(category, prepend);
     }
 
     tab.renderStickerSetThumb({
       set,
       menuTabPadding,
-      middleware: category.middlewareHelper.get()
+      middleware: category.middlewareHelper.get(),
     });
   }
 }

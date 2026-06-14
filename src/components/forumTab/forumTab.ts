@@ -1,22 +1,22 @@
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import handleTabSwipe from '@helpers/dom/handleTabSwipe';
 import liteMode from '@helpers/liteMode';
 import safeAssign from '@helpers/object/safeAssign';
 import pause from '@helpers/schedulers/pause';
 import appDialogsManager from '@lib/appDialogsManager';
-import {AppManagers} from '@lib/managers';
-import {logger} from '@lib/logger';
-import {AutonomousDialogListBase} from '@components/autonomousDialogList/base';
+import { AppManagers } from '@lib/managers';
+import { logger } from '@lib/logger';
+import { AutonomousDialogListBase } from '@components/autonomousDialogList/base';
 import ButtonIcon from '@components/buttonIcon';
 import Icon from '@components/icon';
 import appSidebarLeft from '@components/sidebarLeft';
-import {MAX_SIDEBAR_WIDTH} from '@helpers/updateColumnWidths';
+import { MAX_SIDEBAR_WIDTH } from '@helpers/updateColumnWidths';
 import SetTransition from '@components/singleTransition';
-import {SliderSuperTabEventable} from '@components/sliderTab';
-import {Register} from '@components/forumTab/register';
+import { SliderSuperTabEventable } from '@components/sliderTab';
+import { Register } from '@components/forumTab/register';
 import rootScope from '@lib/rootScope';
-import {isDialog} from '@lib/appManagers/utils/dialogs/isDialog';
+import { isDialog } from '@lib/appManagers/utils/dialogs/isDialog';
 
 
 export class ForumTab extends SliderSuperTabEventable {
@@ -34,7 +34,7 @@ export class ForumTab extends SliderSuperTabEventable {
   public xd: AutonomousDialogListBase;
 
   public async toggle(value: boolean) {
-    if(this.triggerAsyncInit) {
+    if (this.triggerAsyncInit) {
       await this.triggerAsyncInit();
     }
 
@@ -46,12 +46,12 @@ export class ForumTab extends SliderSuperTabEventable {
       onTransitionEnd: !value ? () => {
         this.onCloseAfterTimeout();
       } : undefined,
-      useRafs: this.firstTime ? (this.firstTime = undefined, 2) : undefined
+      useRafs: this.firstTime ? (this.firstTime = undefined, 2) : undefined,
     });
   }
 
   protected _close = () => {
-    if(!this.slider) {
+    if (!this.slider) {
       appDialogsManager.toggleForumTab(undefined, this);
     } else {
       this.close();
@@ -60,7 +60,7 @@ export class ForumTab extends SliderSuperTabEventable {
 
   protected syncInit(): void {
     this.listenerSetter.add(rootScope)('dialog_drop', (dialog) => {
-      if(isDialog(dialog) && this.peerId === dialog.peerId) {
+      if (isDialog(dialog) && this.peerId === dialog.peerId) {
         this._close();
       }
     });
@@ -81,11 +81,11 @@ export class ForumTab extends SliderSuperTabEventable {
     this.container.classList.add('topics-container');
 
     const isFloating = !this.slider;
-    if(isFloating) {
+    if (isFloating) {
       this.closeBtn.replaceChildren(Icon('close'));
       this.container.classList.add('active', 'is-floating');
 
-      attachClickEvent(this.closeBtn, this._close, {listenerSetter: this.listenerSetter});
+      attachClickEvent(this.closeBtn, this._close, { listenerSetter: this.listenerSetter });
     }
 
     this.rows = document.createElement('div');
@@ -97,20 +97,20 @@ export class ForumTab extends SliderSuperTabEventable {
     this.title.replaceWith(this.rows);
     this.rows.append(this.title, this.subtitle);
 
-    if(IS_TOUCH_SUPPORTED) {
+    if (IS_TOUCH_SUPPORTED) {
       handleTabSwipe({
         element: this.container,
         onSwipe: () => {
           appDialogsManager.toggleForumTab(undefined, this);
         },
-        middleware: this.middlewareHelper.get()
+        middleware: this.middlewareHelper.get(),
       });
     }
 
     const searchButton = ButtonIcon('search');
     attachClickEvent(searchButton, async() => {
       appSidebarLeft.closeEverythingInside();
-      if(liteMode.isAvailable('animations')) await pause(400);
+      if (liteMode.isAvailable('animations')) await pause(400);
       appSidebarLeft.initSearch().openWithPeerId(this.peerId);
     });
 
@@ -120,7 +120,7 @@ export class ForumTab extends SliderSuperTabEventable {
 
     this.xd.getRectFromForPlaceholder = this.getRectFromForPlaceholder;
 
-    if(!isFloating) {
+    if (!isFloating) {
       return this.triggerAsyncInit();
     }
   }
@@ -142,7 +142,7 @@ export class ForumTab extends SliderSuperTabEventable {
         bottom: 0,
         left: paddingX,
         width,
-        height: sidebarRect.height - paddingY
+        height: sidebarRect.height - paddingY,
       };
     };
   }

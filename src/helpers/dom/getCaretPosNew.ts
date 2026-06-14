@@ -5,18 +5,18 @@ export default function getCaretPosNew(input: HTMLElement, anchor?: boolean): Re
   // let {focusNode: node, focusOffset: offset} = selection;
   const node = selection![anchor ? 'anchorNode' : 'focusNode'];
   const offset = selection![anchor ? 'anchorOffset' : 'focusOffset'];
-  if(!findUpAsChild((node! as { parentElement: HTMLElement; }), input) && node !== input) {
-    return {selection} as any;
+  if (!findUpAsChild((node! as { parentElement: HTMLElement; }), input) && node !== input) {
+    return { selection } as any;
   }
 
-  return {...getCaretPosF(input, node!, offset), selection: selection!};
+  return { ...getCaretPosF(input, node!, offset), selection: selection! };
 }
 
 export function getCaretPosF(input: HTMLElement, node: Node, offset: number) {
-  if(node === input) {
+  if (node === input) {
     const childNodes = input.childNodes;
     const childNodesLength = childNodes.length;
-    if(childNodesLength && offset >= childNodesLength) {
+    if (childNodesLength && offset >= childNodesLength) {
       node = childNodes[childNodesLength - 1];
       offset = (node.textContent || (node as HTMLImageElement).alt || '').length;
     } else {
@@ -25,5 +25,5 @@ export function getCaretPosF(input: HTMLElement, node: Node, offset: number) {
     }
   }
 
-  return {node: node as ChildNode, offset};
+  return { node: node as ChildNode, offset };
 }

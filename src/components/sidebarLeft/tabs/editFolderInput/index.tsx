@@ -1,11 +1,11 @@
-import {onCleanup} from 'solid-js';
-import {TextWithEntities} from '@layer';
+import { onCleanup } from 'solid-js';
+import { TextWithEntities } from '@layer';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import defineSolidElement, {PassedProps} from '@lib/solidjs/defineSolidElement';
-import {InputFieldEmoji} from '@components/inputFieldEmoji';
-import {InputFieldTsx} from '@components/inputFieldTsx';
+import defineSolidElement, { PassedProps } from '@lib/solidjs/defineSolidElement';
+import { InputFieldEmoji } from '@components/inputFieldEmoji';
+import { InputFieldTsx } from '@components/inputFieldTsx';
 
-if(import.meta.hot) import.meta.hot.accept();
+if (import.meta.hot) import.meta.hot.accept();
 
 
 const MAX_FOLDER_NAME_LENGTH = 12;
@@ -38,7 +38,7 @@ const EditFolderInput = defineSolidElement({
         />
       </>
     );
-  }
+  },
 });
 
 export default EditFolderInput;

@@ -1,7 +1,7 @@
 import LimitLine from '@components/limit';
-import {_i18n} from '@lib/langPack';
-import {PremiumPromoFeature} from '@components/premium/featuresConfig';
-import {AppManagers} from '@lib/managers';
+import { _i18n } from '@lib/langPack';
+import { PremiumPromoFeature } from '@components/premium/featuresConfig';
+import { AppManagers } from '@lib/managers';
 
 export default class LimitsFeature {
   public limits: HTMLElement;
@@ -12,12 +12,12 @@ export default class LimitsFeature {
     const promises = options.limits!.map(async(limit, index) => {
       const [free, premium] = limit.limitType ? await Promise.all([
         options.managers.apiManager.getLimit(limit.limitType, false),
-        options.managers.apiManager.getLimit(limit.limitType, true)
+        options.managers.apiManager.getLimit(limit.limitType, true),
       ]) : [];
 
       const limitTextContainer = document.createElement('div');
       limitTextContainer.classList.add('limit-text-container');
-      if(!index) {
+      if (!index) {
         limitTextContainer.classList.add('no-margin');
       }
       const limitContainer = document.createElement('div');
@@ -31,7 +31,7 @@ export default class LimitsFeature {
       const limitLine = new LimitLine({
         limitFree: free ?? limit.free,
         limitPremium: premium ?? limit.premium,
-        color: limit.backgroundColor
+        color: limit.backgroundColor,
       });
       limitTextContainer.append(limitTitle, limitSubtitle);
       limitContainer.append(limitTextContainer, limitLine.container);

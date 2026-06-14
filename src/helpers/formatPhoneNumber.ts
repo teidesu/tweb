@@ -1,4 +1,4 @@
-import {HelpCountry, HelpCountryCode} from '@layer';
+import { HelpCountry, HelpCountryCode } from '@layer';
 import I18n from '@lib/langPack';
 
 let sortedCountries: HelpCountry[];
@@ -11,7 +11,7 @@ const setPrefix = (country: HelpCountry, code: HelpCountryCode, prefix: string =
     console.error('asdasdasd', prefixes.get(prefix), country, code);
   } */
   maxPrefixLength = Math.max(maxPrefixLength, prefix.length);
-  prefixes.set(prefix, {country, code});
+  prefixes.set(prefix, { country, code });
 };
 
 export function formatPhoneNumber(originalStr: string): {
@@ -22,10 +22,10 @@ export function formatPhoneNumber(originalStr: string): {
 } {
   originalStr = originalStr || '';
 
-  if(!prefixes.size) {
+  if (!prefixes.size) {
     I18n.countriesList.forEach((country) => {
       country.country_codes.forEach((code) => {
-        if(code.prefixes) {
+        if (code.prefixes) {
           code.prefixes.forEach((prefix) => {
             setPrefix(country, code, prefix);
           });
@@ -50,19 +50,19 @@ export function formatPhoneNumber(originalStr: string): {
   // });
 
   let prefixCountry: PrefixCountry;
-  for(let i = phoneCode.length - 1; i >= 0; --i) { // lookup for country by prefix
+  for (let i = phoneCode.length - 1; i >= 0; --i) { // lookup for country by prefix
     prefixCountry = prefixes.get(phoneCode.slice(0, i + 1))!;
-    if(prefixCountry) {
+    if (prefixCountry) {
       break;
     }
   }
 
-  if(!prefixCountry!) {
+  if (!prefixCountry!) {
     return {
       formatted: str,
       country: (undefined as unknown as HelpCountry.helpCountry),
       code: (undefined as unknown as HelpCountryCode.helpCountryCode),
-      leftPattern: ''
+      leftPattern: '',
     };
   }
 
@@ -72,15 +72,15 @@ export function formatPhoneNumber(originalStr: string): {
   const patterns = prefixCountry.code.patterns || [];
   const searchForPattern = str.slice(prefixCountry.code.country_code.length); // splice country code
   let pattern = '', mostMatchedPatternMatches = 0, mostMatchedPattern = '';
-  for(let i = patterns.length - 1; i >= 0; --i) {
+  for (let i = patterns.length - 1; i >= 0; --i) {
     pattern = patterns[i];
 
     const _pattern = pattern.replace(/ /g, '');
     let patternMatches = 0;
-    for(let k = 0, length = Math.min(searchForPattern.length, _pattern.length); k < length; ++k) {
-      if(searchForPattern[k] === _pattern[k]) {
+    for (let k = 0, length = Math.min(searchForPattern.length, _pattern.length); k < length; ++k) {
+      if (searchForPattern[k] === _pattern[k]) {
         patternMatches += 1.01;
-      } else if(_pattern[k] === 'X') {
+      } else if (_pattern[k] === 'X') {
         ++patternMatches;
       } else {
         patternMatches = 0;
@@ -88,7 +88,7 @@ export function formatPhoneNumber(originalStr: string): {
       }
     }
 
-    if(patternMatches > mostMatchedPatternMatches) {
+    if (patternMatches > mostMatchedPatternMatches) {
       mostMatchedPatternMatches = patternMatches;
       mostMatchedPattern = pattern;
     }
@@ -100,7 +100,7 @@ export function formatPhoneNumber(originalStr: string): {
   pattern = prefixCountry.code.country_code + ' ' + pattern;
   // let pattern = country.pattern || country.phoneCode;
   pattern.split('').forEach((symbol, idx) => {
-    if(symbol === ' ' && str[idx] !== ' ' && str.length > idx) {
+    if (symbol === ' ' && str[idx] !== ' ' && str.length > idx) {
       str = str.slice(0, idx) + ' ' + str.slice(idx);
     }
   });
@@ -110,12 +110,12 @@ export function formatPhoneNumber(originalStr: string): {
   } */
 
   let leftPattern = pattern && pattern.length > str.length ? pattern.slice(str.length) : '';
-  if(leftPattern) {
+  if (leftPattern) {
     /* const length = str.length;
     leftPattern = leftPattern.split('').map((_, idx) => (length + idx).toString().slice(-1)).join(''); */
     leftPattern = leftPattern.replace(/X/g, '‒');
     // leftPattern = leftPattern.replace(/X/g, '0');
   }
 
-  return {formatted: str, country, code: prefixCountry.code, leftPattern};
+  return { formatted: str, country, code: prefixCountry.code, leftPattern };
 }

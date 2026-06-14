@@ -1,5 +1,5 @@
-import {StaticCheckbox, StaticCheckboxProps} from '@components/staticCheckbox';
-import {splitProps} from 'solid-js';
+import { StaticCheckbox, StaticCheckboxProps } from '@components/staticCheckbox';
+import { splitProps } from 'solid-js';
 import styles from './inMessageCheckbox.module.scss';
 
 
@@ -13,7 +13,7 @@ export const InMessageCheckbox = (inProps: StaticCheckboxProps & {
       class={props.class}
       classList={{
         [styles.isOutgoing]: props.isOutgoing,
-        ...props.classList
+        ...props.classList,
       }}
       {...restProps}
     />

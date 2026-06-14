@@ -4,36 +4,36 @@ const COLORREPLACEMENTS = [
     [0xf77e41, 0xcb7b55],
     [0xffb139, 0xf6b689],
     [0xffd140, 0xffcda7],
-    [0xffdf79, 0xffdfc5]
+    [0xffdf79, 0xffdfc5],
   ],
 
   [
     [0xf77e41, 0xa45a38],
     [0xffb139, 0xdf986b],
     [0xffd140, 0xedb183],
-    [0xffdf79, 0xf4c3a0]
+    [0xffdf79, 0xf4c3a0],
   ],
 
   [
     [0xf77e41, 0x703a17],
     [0xffb139, 0xab673d],
     [0xffd140, 0xc37f4e],
-    [0xffdf79, 0xd89667]
+    [0xffdf79, 0xd89667],
   ],
 
   [
     [0xf77e41, 0x4a2409],
     [0xffb139, 0x7d3e0e],
     [0xffd140, 0x965529],
-    [0xffdf79, 0xa96337]
+    [0xffdf79, 0xa96337],
   ],
 
   [
     [0xf77e41, 0x200f0a],
     [0xffb139, 0x412924],
     [0xffd140, 0x593d37],
-    [0xffdf79, 0x63453f]
-  ]
+    [0xffdf79, 0x63453f],
+  ],
 ];
 
 const convert = (value: number) => {
@@ -58,7 +58,7 @@ export default function applyReplacements(object: {
     const color = convert(k[2]) | (convert(k[1]) << 8) | (convert(k[0]) << 16);
 
     const foundReplacement = replacements.find((p) => p[0] === color);
-    if(foundReplacement) {
+    if (foundReplacement) {
       k[0] = ((foundReplacement[1] >> 16) & 255) / 255;
       k[1] = ((foundReplacement[1] >> 8) & 255) / 255;
       k[2] = (foundReplacement[1] & 255) / 255;
@@ -68,30 +68,30 @@ export default function applyReplacements(object: {
   };
 
   const checkSmth = (smth: LottieShape) => {
-    switch(smth.ty) {
+    switch (smth.ty) {
       case 'st':
       case 'fl':
         applyTo(smth);
         break;
     }
 
-    if(smth.hasOwnProperty('it')) {
+    if (smth.hasOwnProperty('it')) {
       iterateIt(smth.it);
     }
   };
 
   const iterateIt = (it: LottieShape['it']) => {
-    for(const smth of it!) {
+    for (const smth of it!) {
       checkSmth(smth);
     }
   };
 
   try {
-    for(const layer of object.layers) {
-      if(!layer.shapes) continue;
+    for (const layer of object.layers) {
+      if (!layer.shapes) continue;
 
-      for(const shape of layer.shapes) {
-        if(!shape.it) {
+      for (const shape of layer.shapes) {
+        if (!shape.it) {
           checkSmth(shape);
           continue;
         }
@@ -99,7 +99,7 @@ export default function applyReplacements(object: {
         iterateIt(shape.it);
       }
     }
-  } catch(err) {
+  } catch (err) {
     console.warn('cant apply replacements', err, object, toneIndex);
   }
 }

@@ -1,9 +1,9 @@
 import deepEqual from '@helpers/object/deepEqual';
-import {AvailableReaction, Reaction} from '@layer';
+import { AvailableReaction, Reaction } from '@layer';
 import availableReactionToReaction from '@appManagers/utils/reactions/availableReactionToReaction';
 
 export default function reactionsEqual(r1: Reaction | AvailableReaction, r2: Reaction | AvailableReaction) {
-  if(typeof(r1) !== typeof(r2)) {
+  if (typeof(r1) !== typeof(r2)) {
     return false;
   }
 

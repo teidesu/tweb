@@ -7,7 +7,7 @@
 import Icon from '@components/icon';
 import setInnerHTML from '@helpers/dom/setInnerHTML';
 import appImManager from '@lib/appImManager';
-import {isTruthy} from '../helpers/isTruthy';
+import { isTruthy } from '../helpers/isTruthy';
 
 const hideQuizHint = (element: HTMLElement, onHide: () => void, timeout: number) => {
   element.classList.remove('active');
@@ -17,7 +17,7 @@ const hideQuizHint = (element: HTMLElement, onHide: () => void, timeout: number)
     onHide?.();
     element.remove();
 
-    if(prevQuizHint === element && prevQuizHintOnHide === onHide && prevQuizHintTimeout === timeout) {
+    if (prevQuizHint === element && prevQuizHintOnHide === onHide && prevQuizHintTimeout === timeout) {
       prevQuizHint = (prevQuizHintOnHide = null)!;
       prevQuizHintTimeout = 0;
     }
@@ -38,7 +38,7 @@ export const setQuizHint = (options: {
   class?: string,
   canCloseOnPeerChange?: boolean
 }) => {
-  if(prevQuizHint) {
+  if (prevQuizHint) {
     hideQuizHint(prevQuizHint, prevQuizHintOnHide!, prevQuizHintTimeout);
   }
 
@@ -50,7 +50,7 @@ export const setQuizHint = (options: {
   container.classList.add('quiz-hint-container');
 
   let titleEl: HTMLElement;
-  if(options.title) {
+  if (options.title) {
     titleEl = document.createElement('div');
     titleEl.classList.add('quiz-hint-title');
     titleEl.append(options.title);
@@ -61,7 +61,7 @@ export const setQuizHint = (options: {
   textEl.classList.add('quiz-hint-text');
 
   let textRightEl: HTMLElement;
-  if(options.textRight) {
+  if (options.textRight) {
     textRightEl = document.createElement('div');
     textRightEl.classList.add('quiz-hint-text-right');
     textRightEl.append(options.textRight);
@@ -72,7 +72,7 @@ export const setQuizHint = (options: {
     options.icon && Icon(options.icon, 'quiz-hint-icon'),
     titleEl!,
     textEl,
-    textRightEl!
+    textRightEl!,
   ].filter(isTruthy)));
   element.append(container);
 
@@ -91,17 +91,17 @@ export const setQuizHint = (options: {
   const timeout = prevQuizHintTimeout = (options.duration && window.setTimeout(hide, options.duration))!;
 
   options.canCloseOnPeerChange ??= true;
-  if(!options.canCloseOnPeerChange)
+  if (!options.canCloseOnPeerChange)
     element.dataset.dontCloseOnPeerChange = '1';
 
-  if(!isListenerSet) {
+  if (!isListenerSet) {
     isListenerSet = true;
     appImManager.addEventListener('peer_changed', () => {
-      if(prevQuizHint && prevQuizHint.dataset.dontCloseOnPeerChange !== '1') {
+      if (prevQuizHint && prevQuizHint.dataset.dontCloseOnPeerChange !== '1') {
         hideQuizHint(prevQuizHint, prevQuizHintOnHide!, prevQuizHintTimeout);
       }
     });
   }
 
-  return {hide};
+  return { hide };
 };

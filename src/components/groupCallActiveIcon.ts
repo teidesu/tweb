@@ -1,4 +1,4 @@
-import {animate} from '@helpers/animation';
+import { animate } from '@helpers/animation';
 import customProperties from '@helpers/dom/customProperties';
 import easeInOutSine from '@helpers/easing/easeInOutSine';
 import mediaSizes from '@helpers/mediaSizes';
@@ -27,11 +27,11 @@ export default function groupCallActiveIcon(isActive = false) {
   let wasMounted = false;
   // let hadRound = false;
   const renderFrame = () => {
-    if(!canvas.isConnected) {
-      if(wasMounted) {
+    if (!canvas.isConnected) {
+      if (wasMounted) {
         return false;
       }
-    } else if(!wasMounted) {
+    } else if (!wasMounted) {
       wasMounted = canvas.isConnected;
     }
 
@@ -45,11 +45,11 @@ export default function groupCallActiveIcon(isActive = false) {
     context!.clearRect(0, 0, SIZE, SIZE);
     context!.fillStyle = isActive && !mediaSizes.isMobile ? customProperties.getProperty('primary-color') : '#fff';
 
-    for(let i = 0; i < LENGTH; ++i) {
+    for (let i = 0; i < LENGTH; ++i) {
       const x = START_X + (i * WIDTH) + (i * MARGIN);
 
       let itemProgress: number;
-      if(progress >= .5) {
+      if (progress >= .5) {
         itemProgress = i % 2 ? 2 - progress * 2 : (progress - .5) * 2;
       } else {
         itemProgress = i % 2 ? progress * 2 : 1 - progress * 2;
@@ -78,6 +78,6 @@ export default function groupCallActiveIcon(isActive = false) {
     setActive: (active: boolean) => {
       isActive = active;
       renderFrame();
-    }
+    },
   };
 }

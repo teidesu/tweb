@@ -1,6 +1,6 @@
 import PopupElement from '.';
 import placeCaretAtEnd from '@helpers/dom/placeCaretAtEnd';
-import {InputInvoice, PaymentRequestedInfo, PaymentsPaymentForm, PaymentsValidatedRequestedInfo} from '@layer';
+import { InputInvoice, PaymentRequestedInfo, PaymentsPaymentForm, PaymentsValidatedRequestedInfo } from '@layer';
 import matchEmail from '@lib/richTextProcessor/matchEmail';
 import CheckboxField from '@components/checkboxField';
 import CountryInputField from '@components/countryInputField';
@@ -8,8 +8,8 @@ import InputField from '@components/inputField';
 import Row from '@components/row';
 import SettingSection from '@components/settingSection';
 import TelInputField from '@components/telInputField';
-import {PaymentButton} from '@components/popups/payment';
-import {createCountryZipFields, handleInputFieldsOnChange, InputFieldCorrected} from '@components/popups/paymentCard';
+import { PaymentButton } from '@components/popups/payment';
+import { createCountryZipFields, handleInputFieldsOnChange, InputFieldCorrected } from '@components/popups/paymentCard';
 
 export type PaymentShippingAddress = PaymentRequestedInfo;
 
@@ -28,7 +28,7 @@ export default class PopupPaymentShipping extends PopupElement<{
       overlayClosable: true,
       body: true,
       scrollable: true,
-      title: 'PaymentShippingInfo'
+      title: 'PaymentShippingInfo',
     });
 
     this.d();
@@ -46,12 +46,12 @@ export default class PopupPaymentShipping extends PopupElement<{
       stateInputField: InputField,
       countryInputField: CountryInputField,
       postcodeInputField: InputFieldCorrected;
-    if(invoice.pFlags.shipping_address_requested) {
-      addressSection = new SettingSection({name: 'PaymentShippingAddress', noDelimiter: true, noShadow: true});
-      address1InputField = new InputField({label: 'PaymentShippingAddress1Placeholder', maxLength: 64, required: true});
-      address2InputField = new InputField({label: 'PaymentShippingAddress2Placeholder', maxLength: 64});
-      cityInputField = new InputField({label: 'PaymentShippingCityPlaceholder', maxLength: 64, required: true});
-      stateInputField = new InputField({label: 'PaymentShippingStatePlaceholder', maxLength: 64});
+    if (invoice.pFlags.shipping_address_requested) {
+      addressSection = new SettingSection({ name: 'PaymentShippingAddress', noDelimiter: true, noShadow: true });
+      address1InputField = new InputField({ label: 'PaymentShippingAddress1Placeholder', maxLength: 64, required: true });
+      address2InputField = new InputField({ label: 'PaymentShippingAddress2Placeholder', maxLength: 64 });
+      cityInputField = new InputField({ label: 'PaymentShippingCityPlaceholder', maxLength: 64, required: true });
+      stateInputField = new InputField({ label: 'PaymentShippingStatePlaceholder', maxLength: 64 });
       const res = createCountryZipFields(true, true);
       countryInputField = res.countryInputField;
       postcodeInputField = res.postcodeInputField;
@@ -62,19 +62,19 @@ export default class PopupPaymentShipping extends PopupElement<{
         cityInputField,
         stateInputField,
         countryInputField,
-        postcodeInputField
+        postcodeInputField,
       ].filter(Boolean).map((inputField) => inputField.container));
     }
 
     let receiverSection: SettingSection;
     let nameInputField: InputField, emailInputField: InputField, telInputField: TelInputField;
-    if([invoice.pFlags.name_requested, invoice.pFlags.email_requested, invoice.pFlags.phone_requested].includes(true)) {
-      receiverSection = new SettingSection({name: 'PaymentShippingReceiver', noDelimiter: true, noShadow: true});
+    if ([invoice.pFlags.name_requested, invoice.pFlags.email_requested, invoice.pFlags.phone_requested].includes(true)) {
+      receiverSection = new SettingSection({ name: 'PaymentShippingReceiver', noDelimiter: true, noShadow: true });
 
       const validateEmail = () => {
         const value = emailInputField.value;
         const match = matchEmail(value);
-        if(!match || match[0].length !== value.length) {
+        if (!match || match[0].length !== value.length) {
           return false;
         }
 
@@ -85,24 +85,24 @@ export default class PopupPaymentShipping extends PopupElement<{
         return !!telInputField.value.match(/\d/);
       };
 
-      if(invoice.pFlags.name_requested) nameInputField = new InputField({label: 'PaymentShippingName', maxLength: 256, required: true});
-      if(invoice.pFlags.email_requested) emailInputField = new InputField({label: 'PaymentShippingEmailPlaceholder', maxLength: 64, required: true, validate: validateEmail});
-      if(invoice.pFlags.phone_requested) telInputField = new TelInputField({required: true, validate: validatePhone});
+      if (invoice.pFlags.name_requested) nameInputField = new InputField({ label: 'PaymentShippingName', maxLength: 256, required: true });
+      if (invoice.pFlags.email_requested) emailInputField = new InputField({ label: 'PaymentShippingEmailPlaceholder', maxLength: 64, required: true, validate: validateEmail });
+      if (invoice.pFlags.phone_requested) telInputField = new TelInputField({ required: true, validate: validatePhone });
 
       receiverSection.content.append(...[
         nameInputField!,
         emailInputField!,
-        telInputField!
+        telInputField!,
       ].filter(Boolean).map((inputField) => inputField.container));
     }
 
     const saveCheckboxField = new CheckboxField({
       text: 'PaymentShippingSave',
-      checked: true
+      checked: true,
     });
     const saveRow = new Row({
       checkboxField: saveCheckboxField,
-      subtitleLangKey: 'PaymentShippingSaveInfo'
+      subtitleLangKey: 'PaymentShippingSaveInfo',
     });
 
     (receiverSection! || addressSection!).content.append(saveRow.container);
@@ -123,11 +123,11 @@ export default class PopupPaymentShipping extends PopupElement<{
             state: stateInputField.value,
             // country: countryInputField.value,
             country_iso2: selectedCountry?.iso2,
-            post_code: postcodeInputField.value
+            post_code: postcodeInputField.value,
           },
           name: nameInputField?.value,
           email: emailInputField?.value,
-          phone: telInputField?.value
+          phone: telInputField?.value,
         };
 
         try {
@@ -135,11 +135,11 @@ export default class PopupPaymentShipping extends PopupElement<{
 
           this.dispatchEvent('finish', {
             shippingAddress: data,
-            requestedInfo
+            requestedInfo,
           });
 
           this.hide();
-        } catch(err: any) {
+        } catch (err: any) {
           const errorMap: {[err in ErrorType]?: InputField} = {
             ADDRESS_STREET_LINE1_INVALID: address1InputField,
             ADDRESS_STREET_LINE2_INVALID: address2InputField,
@@ -150,24 +150,24 @@ export default class PopupPaymentShipping extends PopupElement<{
 
             REQ_INFO_NAME_INVALID: nameInputField,
             REQ_INFO_EMAIL_INVALID: emailInputField,
-            REQ_INFO_PHONE_INVALID: telInputField
+            REQ_INFO_PHONE_INVALID: telInputField,
           };
 
           const inputField = errorMap[(err as ApiError).type];
-          if(inputField) {
+          if (inputField) {
             inputField.setError();
             (err as ApiError).handled = true;
           }
 
           throw err;
         }
-      }
+      },
     });
     this.body.append(this.btnConfirmOnEnter = payButton);
 
-    if(savedInfo) {
+    if (savedInfo) {
       const shippingAddress = savedInfo.shipping_address;
-      if(shippingAddress) {
+      if (shippingAddress) {
         address1InputField!.value = shippingAddress.street_line1;
         address2InputField!.value = shippingAddress.street_line2;
         cityInputField!.value = shippingAddress.city;
@@ -181,7 +181,7 @@ export default class PopupPaymentShipping extends PopupElement<{
       savedInfo.phone && telInputField! && (telInputField.value = savedInfo.phone);
     }
 
-    const {validate} = handleInputFieldsOnChange([
+    const { validate } = handleInputFieldsOnChange([
       address1InputField!,
       address2InputField!,
       cityInputField!,
@@ -190,7 +190,7 @@ export default class PopupPaymentShipping extends PopupElement<{
       postcodeInputField!,
       nameInputField!,
       emailInputField!,
-      telInputField!
+      telInputField!,
     ].filter(Boolean), (valid) => {
       payButton.disabled = !valid;
     });
@@ -200,11 +200,11 @@ export default class PopupPaymentShipping extends PopupElement<{
     this.show();
 
     let focusField: InputField;
-    if(this.focus) {
+    if (this.focus) {
       const focusMap: {[field in ShippingFocusField]?: InputField} = {
         name: nameInputField!,
         email: emailInputField!,
-        phone: telInputField!
+        phone: telInputField!,
       };
 
       focusField = focusMap[this.focus]!;
@@ -212,7 +212,7 @@ export default class PopupPaymentShipping extends PopupElement<{
       focusField = address1InputField!;
     }
 
-    if(focusField) {
+    if (focusField) {
       placeCaretAtEnd(focusField.input);
     }
   }

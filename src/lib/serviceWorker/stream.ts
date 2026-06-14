@@ -1,18 +1,18 @@
 import readBlobAsUint8Array from '@helpers/blob/readBlobAsUint8Array';
 import bufferConcats from '@helpers/bytes/bufferConcats';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
 import tryPatchMp4 from '@helpers/fixChromiumMp4';
-import debounce, {DebounceReturnType} from '@helpers/schedulers/debounce';
+import debounce, { DebounceReturnType } from '@helpers/schedulers/debounce';
 import pause from '@helpers/schedulers/pause';
-import {InputFileLocation} from '@layer';
-import {getCurrentAccountFromURL} from '@lib/accounts/getCurrentAccountFromURL';
-import {ActiveAccountNumber} from '@lib/accounts/types';
+import { InputFileLocation } from '@layer';
+import { getCurrentAccountFromURL } from '@lib/accounts/getCurrentAccountFromURL';
+import { ActiveAccountNumber } from '@lib/accounts/types';
 import CacheStorageController from '@lib/files/cacheStorage';
-import {DownloadOptions, MyUploadFile} from '@appManagers/apiFileManager';
-import {getMtprotoMessagePort, log, serviceMessagePort} from '@lib/serviceWorker/index.service';
-import {ServiceRequestFilePartTaskPayload} from '@lib/serviceWorker/serviceMessagePort';
+import { DownloadOptions, MyUploadFile } from '@appManagers/apiFileManager';
+import { getMtprotoMessagePort, log, serviceMessagePort } from '@lib/serviceWorker/index.service';
+import { ServiceRequestFilePartTaskPayload } from '@lib/serviceWorker/serviceMessagePort';
 import timeout from '@lib/serviceWorker/timeout';
-import {isTruthy} from '../../helpers/isTruthy';
+import { isTruthy } from '../../helpers/isTruthy';
 
 const ctx = self as any as ServiceWorkerGlobalScope;
 
@@ -24,12 +24,12 @@ const PRELOAD_SIZE = 20 * 1024 * 1024;
 
 setInterval(() => {
   const mtprotoMessagePort = getMtprotoMessagePort();
-  for(const [messagePort, promises] of deferredPromises) {
-    if(messagePort === mtprotoMessagePort) {
+  for (const [messagePort, promises] of deferredPromises) {
+    if (messagePort === mtprotoMessagePort) {
       continue;
     }
 
-    for(const taskId in promises) {
+    for (const taskId in promises) {
       const promise = promises[taskId];
       promise.reject();
     }
@@ -66,13 +66,13 @@ class Stream {
     streams.delete(this.id);
     serviceMessagePort.invokeVoid('cancelFilePartRequests', {
       docId: Stream.getDocId(this.info),
-      accountNumber: this.info.accountNumber!
+      accountNumber: this.info.accountNumber!,
     }, getMtprotoMessagePort());
   };
 
   public toggleInUse = (inUse: boolean) => {
     this.inUse += inUse ? 1 : -1;
-    if(!this.inUse) {
+    if (!this.inUse) {
       this.destroy();
     }
   };
@@ -83,19 +83,19 @@ class Stream {
       dcId: this.info.dcId,
       offset: alignedOffset,
       limit,
-      accountNumber: this.info.accountNumber!
+      accountNumber: this.info.accountNumber!,
     };
 
     const taskId = JSON.stringify(payload);
 
     const mtprotoMessagePort = getMtprotoMessagePort();
     let promises = deferredPromises.get((mtprotoMessagePort as MessagePort));
-    if(!promises) {
+    if (!promises) {
       deferredPromises.set((mtprotoMessagePort as MessagePort), promises = {});
     }
 
     let deferred = promises[taskId];
-    if(deferred) {
+    if (deferred) {
       return deferred.then((uploadFile) => uploadFile.bytes);
     }
 
@@ -104,19 +104,19 @@ class Stream {
     deferred = promises[taskId] = deferredPromise();
 
     serviceMessagePort.invoke('requestFilePart', payload, undefined, mtprotoMessagePort, undefined, 60e3)
-    .then(deferred.resolve.bind(deferred), deferred.reject.bind(deferred)).finally(() => {
-      if(promises[taskId] === deferred) {
-        delete promises[taskId];
+      .then(deferred.resolve.bind(deferred), deferred.reject.bind(deferred)).finally(() => {
+        if (promises[taskId] === deferred) {
+          delete promises[taskId];
 
-        if(!Object.keys(promises).length) {
-          deferredPromises.delete((mtprotoMessagePort as MessagePort));
+          if (!Object.keys(promises).length) {
+            deferredPromises.delete((mtprotoMessagePort as MessagePort));
+          }
         }
-      }
-    });
+      });
 
     const bytesPromise = deferred.then((uploadFile) => uploadFile.bytes);
 
-    if(USE_CACHE) {
+    if (USE_CACHE) {
       this.saveChunkToCache(bytesPromise, alignedOffset, limit);
       !fromPreload && this.preloadChunks(alignedOffset, PRELOAD_SIZE);
     }
@@ -125,7 +125,7 @@ class Stream {
   }
 
   private requestFilePartFromCache(alignedOffset: number, limit: number, fromPreload?: boolean) {
-    if(!USE_CACHE) {
+    if (!USE_CACHE) {
       return Promise.resolve();
     }
 
@@ -133,7 +133,7 @@ class Stream {
     return cacheStorage.getFile(key).then((blob: Blob) => {
       return fromPreload ? new Uint8Array() : readBlobAsUint8Array(blob);
     }, (error: ApiError) => {
-      if(error.type === 'NO_ENTRY_FOUND') {
+      if (error.type === 'NO_ENTRY_FOUND') {
         return;
       }
     });
@@ -144,7 +144,7 @@ class Stream {
       return bytes || this.requestFilePartFromWorker(alignedOffset, limit, fromPreload);
     });
 
-    if(TEST_SLOW) {
+    if (TEST_SLOW) {
       return promise.then((bytes) => {
         log.warn('delaying chunk', alignedOffset, limit);
         return pause(3000).then(() => {
@@ -162,12 +162,12 @@ class Stream {
       const key = this.getChunkKey(alignedOffset, limit);
       const response = new Response(bytes as BodyInit);
 
-      return cacheStorage.save({entryName: key, response, size: bytes.length, contentType: 'application/octet-stream'});
+      return cacheStorage.save({ entryName: key, response, size: bytes.length, contentType: 'application/octet-stream' });
     });
   }
 
   private preloadChunk(offset: number) {
-    if(this.loadedOffsets.has(offset)) {
+    if (this.loadedOffsets.has(offset)) {
       return;
     }
 
@@ -176,14 +176,14 @@ class Stream {
   }
 
   private preloadChunks(offset: number, end: number) {
-    if(end > this.info.size!) {
+    if (end > this.info.size!) {
       end = this.info.size!;
     }
 
-    if(!offset) { // load last chunk for bounds
+    if (!offset) { // load last chunk for bounds
       this.preloadChunk(alignOffset(offset, this.limitPart));
     } else { // don't preload next chunks before the start
-      for(; offset < end; offset += this.limitPart) {
+      for (; offset < end; offset += this.limitPart) {
         this.preloadChunk(offset);
       }
     }
@@ -193,7 +193,7 @@ class Stream {
     this.destroyDebounced();
 
     const possibleResponse = responseForSafariFirstRange(range, this.info.mimeType!, this.info.size!);
-    if(possibleResponse) {
+    if (possibleResponse) {
       return possibleResponse;
     }
 
@@ -208,18 +208,18 @@ class Stream {
     const limit = end && end < this.limitPart ? alignLimit(end - offset + 1) : this.limitPart;
     const alignedOffset = alignOffset(offset, limit);
 
-    if(!end) {
+    if (!end) {
       end = Math.min(offset + limit, this.info.size! - 1);
     }
 
     let overflow: number;
-    if(offset !== alignedOffset || end !== (alignedOffset + limit)) {
+    if (offset !== alignedOffset || end !== (alignedOffset + limit)) {
       overflow = end - alignedOffset - limit + 1;
     }
 
     const parts = Promise.all([
       this.requestFilePart(alignedOffset, limit),
-      overflow! && this.requestFilePart(alignedOffset + limit, limit)
+      overflow! && this.requestFilePart(alignedOffset + limit, limit),
     ]);
 
     return parts.then((parts) => {
@@ -227,14 +227,14 @@ class Stream {
       // log.debug('[stream] requestFilePart result:', result);
 
       // if(isSafari) {
-      if(offset !== alignedOffset || end !== (alignedOffset + limit)) {
+      if (offset !== alignedOffset || end !== (alignedOffset + limit)) {
         const sliceStart = offset - alignedOffset;
         const sliceEnd = end - alignedOffset + 1;
         ab = ab.slice(sliceStart, sliceEnd);
       }
 
-      if(this.shouldPatchMp4 === true || this.shouldPatchMp4 === alignedOffset) {
-        if(tryPatchMp4(ab)) {
+      if (this.shouldPatchMp4 === true || this.shouldPatchMp4 === alignedOffset) {
+        if (tryPatchMp4(ab)) {
           this.shouldPatchMp4 = alignedOffset;
         }
       }
@@ -246,10 +246,10 @@ class Stream {
         'Accept-Ranges': 'bytes',
         'Content-Range': `bytes ${offset}-${offset + ab.byteLength - 1}/${this.info.size || '*'}`,
         'Content-Length': `${ab.byteLength}`,
-        'Response-Time': '' + Date.now()
+        'Response-Time': '' + Date.now(),
       };
 
-      if(this.info.mimeType) {
+      if (this.info.mimeType) {
         headers['Content-Type'] = this.info.mimeType;
       }
 
@@ -258,7 +258,7 @@ class Stream {
       return new Response(ab, {
         status: 206,
         statusText: 'Partial Content',
-        headers
+        headers,
       });
       // }, 2.5e3);
     });
@@ -296,11 +296,11 @@ export default function onStreamFetch(event: FetchEvent, params: string, search:
 
     const client = await ctx.clients.get(event.clientId);
     // Theoretically should never happen otherwise
-    if(client?.type === 'window') info.accountNumber = getCurrentAccountFromURL(client.url);
+    if (client?.type === 'window') info.accountNumber = getCurrentAccountFromURL(client.url);
 
     const stream = Stream.get(info);
 
-    if(search === '_crbug1250841') {
+    if (search === '_crbug1250841') {
       stream.patchChromiumMp4();
     }
 
@@ -311,11 +311,11 @@ export default function onStreamFetch(event: FetchEvent, params: string, search:
 
   event.respondWith(Promise.race([
     timeout(45 * 1000),
-    performRequest()
+    performRequest(),
   ]));
 }
 
-export function toggleStreamInUse({url, inUse, accountNumber}: {url: string, inUse: boolean, accountNumber: ActiveAccountNumber}) {
+export function toggleStreamInUse({ url, inUse, accountNumber }: {url: string, inUse: boolean, accountNumber: ActiveAccountNumber}) {
   [url] = url.split('?');
   const needle = 'stream/';
   const index = url.indexOf(needle);
@@ -326,7 +326,7 @@ export function toggleStreamInUse({url, inUse, accountNumber}: {url: string, inU
 }
 
 function responseForSafariFirstRange(range: StreamRange, mimeType: string, size: number): Response | null {
-  if(range[0] === 0 && range[1] === 1) {
+  if (range[0] === 0 && range[1] === 1) {
     return new Response(new Uint8Array(2).buffer, {
       status: 206,
       statusText: 'Partial Content',
@@ -334,8 +334,8 @@ function responseForSafariFirstRange(range: StreamRange, mimeType: string, size:
         'Accept-Ranges': 'bytes',
         'Content-Range': `bytes 0-1/${size || '*'}`,
         'Content-Length': '2',
-        'Content-Type': mimeType || 'video/mp4'
-      }
+        'Content-Type': mimeType || 'video/mp4',
+      },
     });
   }
 
@@ -351,7 +351,7 @@ const STREAM_CHUNK_UPPER_LIMIT = 1024 * 1024;
 const SMALLEST_CHUNK_LIMIT = 512 * 4;
 
 export function parseRange(header: string): StreamRange {
-  if(!header) return [0, 0];
+  if (!header) return [0, 0];
   const [, chunks] = header.split('=');
   const ranges = chunks.split(', ');
   const [offset, end] = ranges[0].split('-');

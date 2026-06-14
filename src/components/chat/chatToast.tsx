@@ -4,7 +4,7 @@
  * https://github.com/morethanwords/tweb/blob/master/LICENSE
  */
 
-import {JSX} from 'solid-js';
+import { JSX } from 'solid-js';
 
 import classNames from '@helpers/string/classNames';
 import appImManager from '@lib/appImManager';
@@ -43,10 +43,10 @@ export default function showChatToast(options: {
 }) {
   current?.hide();
 
-  if(!isListenerSet) {
+  if (!isListenerSet) {
     isListenerSet = true;
     appImManager.addEventListener('peer_changed', () => {
-      if(current?.closeOnPeerChange) {
+      if (current?.closeOnPeerChange) {
         current.hide();
       }
     });
@@ -54,7 +54,7 @@ export default function showChatToast(options: {
 
   options.title?.classList.add('text-bold');
 
-  const {close} = showTooltip({
+  const { close } = showTooltip({
     element: appImManager.chat.container,
     container: appImManager.chat.container,
     mountOn: appImManager.chat.container,
@@ -66,22 +66,22 @@ export default function showChatToast(options: {
     subtitleElement: options.title && options.textElement,
     rightElement: options.rightElement,
     onClose: () => {
-      if(current === entry) {
+      if (current === entry) {
         current = undefined;
       }
 
       options.onHide?.();
-    }
+    },
   });
 
   const entry: CurrentToast = current = {
     hide: close,
-    closeOnPeerChange: options.closeOnPeerChange ?? true
+    closeOnPeerChange: options.closeOnPeerChange ?? true,
   };
 
-  if(options.duration) {
+  if (options.duration) {
     setTimeout(close, options.duration);
   }
 
-  return {hide: close};
+  return { hide: close };
 }

@@ -1,4 +1,4 @@
-import {Codec} from '@lib/mtproto/transports/codec';
+import { Codec } from '@lib/mtproto/transports/codec';
 
 export class IntermediatePacketCodec implements Codec {
   public tag = 0xee;
@@ -7,7 +7,7 @@ export class IntermediatePacketCodec implements Codec {
   // private lol = 0;
 
   public encodePacket(data: Uint8Array) {
-    if((data.length % 4) !== 0) {
+    if ((data.length % 4) !== 0) {
       console.error('Encode error!', data.length, data);
     }
 

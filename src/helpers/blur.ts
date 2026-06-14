@@ -7,7 +7,7 @@ const ITERATIONS = 2;
 
 let requireBlurPromise: Promise<any>;
 let fastBlurFunc: typeof fastBlur;
-if(!IS_CANVAS_FILTER_SUPPORTED) {
+if (!IS_CANVAS_FILTER_SUPPORTED) {
   requireBlurPromise = import('../vendor/fastBlur').then((m) => {
     fastBlurFunc = m.default;
   });
@@ -27,7 +27,7 @@ function processBlurNext(
   // downscale the source before blurring (like the official clients do for the side-fill):
   // blurring a small thumbnail and upscaling it produces a far stronger, frosted-glass blur
   // than blurring the full-resolution image and scaling it down.
-  if(maxSize && Math.max(width, height) > maxSize) {
+  if (maxSize && Math.max(width, height) > maxSize) {
     const scale = maxSize / Math.max(width, height);
     width = Math.round(width * scale) || 1;
     height = Math.round(height * scale) || 1;
@@ -36,8 +36,8 @@ function processBlurNext(
   canvas.width = width;
   canvas.height = height;
 
-  const ctx = canvas.getContext('2d', {alpha: false});
-  if(IS_CANVAS_FILTER_SUPPORTED) {
+  const ctx = canvas.getContext('2d', { alpha: false });
+  if (IS_CANVAS_FILTER_SUPPORTED) {
     ctx!.filter = `blur(${radius}px)`;
     ctx!.drawImage(img, -radius * 2, -radius * 2, canvas.width + radius * 4, canvas.height + radius * 4);
   } else {
@@ -53,11 +53,11 @@ const cache: Map<string, CacheValue> = new Map();
 const CACHE_SIZE = 150;
 
 export default function blur(dataUri: string, radius: number = RADIUS, iterations: number = ITERATIONS, maxSize?: number) {
-  if(!dataUri) {
+  if (!dataUri) {
     throw 'no dataUri for blur: ' + dataUri;
   }
 
-  if(cache.size > CACHE_SIZE) {
+  if (cache.size > CACHE_SIZE) {
     cache.clear();
   }
 
@@ -65,7 +65,7 @@ export default function blur(dataUri: string, radius: number = RADIUS, iteration
   canvas.className = 'canvas-thumbnail';
 
   let cached = cache.get(dataUri);
-  if(!cached) {
+  if (!cached) {
     const promise: CacheValue['promise'] = new Promise((resolve) => {
       // return resolve(dataUri);
       requireBlurPromise.then(() => {
@@ -77,7 +77,7 @@ export default function blur(dataUri: string, radius: number = RADIUS, iteration
           const promise = addHeavyTask({
             items: [[img, radius, iterations, canvas, maxSize]],
             context: null,
-            process: processBlurNext
+            process: processBlurNext,
           }, 'unshift');
 
           promise.then(() => {
@@ -91,7 +91,7 @@ export default function blur(dataUri: string, radius: number = RADIUS, iteration
 
     cache.set(dataUri, cached = {
       canvas,
-      promise
+      promise,
     });
   } else {
     canvas.width = cached.canvas.width;
@@ -103,6 +103,6 @@ export default function blur(dataUri: string, radius: number = RADIUS, iteration
 
   return {
     ...cached,
-    canvas
+    canvas,
   };
 }

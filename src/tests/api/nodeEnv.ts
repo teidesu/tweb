@@ -1,7 +1,7 @@
 import nodeCrypto from 'crypto';
 import nodePath from 'path';
-import {createRequire} from 'module';
-import {indexedDB, IDBKeyRange, IDBFactory} from 'fake-indexeddb';
+import { createRequire } from 'module';
+import { indexedDB, IDBKeyRange, IDBFactory } from 'fake-indexeddb';
 
 // Load `ws` by absolute file path so Node's resolver does not honour the
 // `browser` export condition (which yields a no-op shim that throws). Vite's
@@ -11,14 +11,14 @@ const wsPackageJson = nodeRequire.resolve('ws/package.json');
 const wsAbsPath = nodePath.join(nodePath.dirname(wsPackageJson), 'index.js');
 const wsModule = nodeRequire(wsAbsPath);
 const NodeWebSocket = (wsModule.WebSocket || wsModule.default || wsModule) as typeof globalThis.WebSocket;
-if(typeof NodeWebSocket !== 'function') {
+if (typeof NodeWebSocket !== 'function') {
   console.warn('[nodeEnv] failed to load Node ws; got', typeof NodeWebSocket, Object.keys(wsModule || {}));
 }
 
 let installed = false;
 
 export function installNodeEnv() {
-  if(installed) return;
+  if (installed) return;
   installed = true;
 
   ensureSelfAlias();
@@ -34,7 +34,7 @@ export function installNodeEnv() {
 function installDomShims() {
   const target: any = globalThis as any;
 
-  if(typeof target.location === 'undefined') {
+  if (typeof target.location === 'undefined') {
     target.location = {
       href: 'https://web.telegram.org/k/',
       origin: 'https://web.telegram.org',
@@ -44,11 +44,11 @@ function installDomShims() {
       port: '',
       pathname: '/k/',
       search: '',
-      hash: ''
+      hash: '',
     };
   }
 
-  if(typeof target.navigator === 'undefined') {
+  if (typeof target.navigator === 'undefined') {
     target.navigator = {
       userAgent: 'tweb-node-harness/1.0',
       platform: 'Node',
@@ -56,19 +56,19 @@ function installDomShims() {
       hardwareConcurrency: 4,
       maxTouchPoints: 0,
       onLine: true,
-      language: 'en'
+      language: 'en',
     };
   }
 
-  if(typeof target.window === 'undefined') {
+  if (typeof target.window === 'undefined') {
     target.window = target;
   }
 
-  if(typeof target.document === 'undefined') {
+  if (typeof target.document === 'undefined') {
     target.document = {
-      createElement: () => ({getContext: (): any => null, toDataURL: () => ''}),
+      createElement: () => ({ getContext: (): any => null, toDataURL: () => '' }),
       addEventListener: () => {},
-      removeEventListener: () => {}
+      removeEventListener: () => {},
     };
   }
 }
@@ -108,53 +108,53 @@ function installStoragePolyfill() {
   const localStorageWorks = (() => {
     try {
       const ls = target.localStorage;
-      if(!ls || typeof ls.setItem !== 'function') return false;
+      if (!ls || typeof ls.setItem !== 'function') return false;
       ls.setItem('__probe__', '1');
       ls.removeItem('__probe__');
       return true;
-    } catch{
+    } catch {
       return false;
     }
   })();
 
-  if(!localStorageWorks) {
+  if (!localStorageWorks) {
     const localStorage = new MemoryStorage();
-    Object.defineProperty(target, 'localStorage', {configurable: true, value: localStorage});
-    if(win && win !== target) {
-      Object.defineProperty(win, 'localStorage', {configurable: true, value: localStorage});
+    Object.defineProperty(target, 'localStorage', { configurable: true, value: localStorage });
+    if (win && win !== target) {
+      Object.defineProperty(win, 'localStorage', { configurable: true, value: localStorage });
     }
   }
 
   const sessionStorageWorks = (() => {
     try {
       const ss = target.sessionStorage;
-      if(!ss || typeof ss.setItem !== 'function') return false;
+      if (!ss || typeof ss.setItem !== 'function') return false;
       ss.setItem('__probe__', '1');
       ss.removeItem('__probe__');
       return true;
-    } catch{
+    } catch {
       return false;
     }
   })();
 
-  if(!sessionStorageWorks) {
+  if (!sessionStorageWorks) {
     const sessionStorage = new MemoryStorage();
-    Object.defineProperty(target, 'sessionStorage', {configurable: true, value: sessionStorage});
-    if(win && win !== target) {
-      Object.defineProperty(win, 'sessionStorage', {configurable: true, value: sessionStorage});
+    Object.defineProperty(target, 'sessionStorage', { configurable: true, value: sessionStorage });
+    if (win && win !== target) {
+      Object.defineProperty(win, 'sessionStorage', { configurable: true, value: sessionStorage });
     }
   }
 }
 
 function installCryptoPolyfill() {
   const target: any = (typeof self !== 'undefined' ? self : globalThis) as any;
-  if(target.crypto?.subtle) return;
+  if (target.crypto?.subtle) return;
   Object.defineProperty(target, 'crypto', {
     configurable: true,
     value: {
       subtle: nodeCrypto.webcrypto.subtle,
-      getRandomValues: nodeCrypto.webcrypto.getRandomValues.bind(nodeCrypto.webcrypto)
-    }
+      getRandomValues: nodeCrypto.webcrypto.getRandomValues.bind(nodeCrypto.webcrypto),
+    },
   });
 }
 
@@ -162,15 +162,15 @@ function installWebSocketPolyfill() {
   // jsdom installs a WebSocket impl that delegates to ws/browser.js (a no-op shim
   // that throws); we must overwrite it on every surface that mtproto can reach.
   const win: any = (typeof window !== 'undefined' ? window : undefined);
-  Object.defineProperty(globalThis, 'WebSocket', {configurable: true, value: NodeWebSocket});
-  if(win && win !== globalThis) {
-    Object.defineProperty(win, 'WebSocket', {configurable: true, value: NodeWebSocket});
+  Object.defineProperty(globalThis, 'WebSocket', { configurable: true, value: NodeWebSocket });
+  if (win && win !== globalThis) {
+    Object.defineProperty(win, 'WebSocket', { configurable: true, value: NodeWebSocket });
   }
 }
 
 function installIndexedDBPolyfill() {
   const target: any = globalThis as any;
-  if(target.indexedDB) return;
+  if (target.indexedDB) return;
   target.indexedDB = indexedDB;
   target.IDBKeyRange = IDBKeyRange;
   target.IDBFactory = IDBFactory;
@@ -178,7 +178,7 @@ function installIndexedDBPolyfill() {
 
 function installCacheStoragePolyfill() {
   const target: any = globalThis as any;
-  if(target.caches) return;
+  if (target.caches) return;
 
   const noopCache: Cache = {
     keys: async() => [],
@@ -187,7 +187,7 @@ function installCacheStoragePolyfill() {
     add: async() => {},
     addAll: async() => {},
     put: async() => {},
-    delete: async() => false
+    delete: async() => false,
   };
 
   const noopCacheStorage: CacheStorage = {
@@ -195,14 +195,14 @@ function installCacheStoragePolyfill() {
     has: async() => false,
     keys: async() => [],
     match: async() => undefined,
-    delete: async() => false
+    delete: async() => false,
   };
   target.caches = noopCacheStorage;
 }
 
 function installBroadcastChannelPolyfill() {
   const target: any = globalThis as any;
-  if(target.BroadcastChannel) return;
+  if (target.BroadcastChannel) return;
 
   class NoopBroadcastChannel {
     public name: string;
@@ -227,7 +227,7 @@ function installBroadcastChannelPolyfill() {
 
 function ensureSelfAlias() {
   const target: any = globalThis as any;
-  if(typeof target.self === 'undefined') {
+  if (typeof target.self === 'undefined') {
     target.self = globalThis;
   }
 }

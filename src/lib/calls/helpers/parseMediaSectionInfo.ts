@@ -1,7 +1,7 @@
 import SDP from '@lib/calls/sdp';
 import SDPMediaSection from '@lib/calls/sdp/mediaSection';
-import {toTelegramSource} from '@lib/calls/utils';
-import {parseSourceGroups} from '@lib/calls/helpers/parseSourceGroups';
+import { toTelegramSource } from '@lib/calls/utils';
+import { parseSourceGroups } from '@lib/calls/helpers/parseSourceGroups';
 
 export default function parseMediaSectionInfo(sdp: SDP, channel: SDPMediaSection) {
   const clientInfo = channel.lookupAttributeKeys({
@@ -11,10 +11,10 @@ export default function parseMediaSectionInfo(sdp: SDP, channel: SDPMediaSection
     'setup': true,
     'ssrc': true,
     'mid': true,
-    'ssrc-group': false
+    'ssrc-group': false,
   });
 
-  if(!clientInfo.fingerprint) { // support Firefox
+  if (!clientInfo.fingerprint) { // support Firefox
     const line = sdp.session.lines.find((line) => line.parsed?.key === 'fingerprint');
     clientInfo.fingerprint = line!.parsed!.value;
   }
@@ -31,10 +31,10 @@ export default function parseMediaSectionInfo(sdp: SDP, channel: SDPMediaSection
     fingerprint: {
       fingerprint,
       setup: clientInfo.setup,
-      hash
+      hash,
     },
     source: ssrc,
     sourceGroups: telegramSourceGroups,
-    mid: clientInfo.mid
+    mid: clientInfo.mid,
   };
 }

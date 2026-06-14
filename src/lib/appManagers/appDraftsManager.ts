@@ -5,10 +5,10 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import {MessageEntity, DraftMessage, MessagesSaveDraft, MessageReplyHeader, InputReplyTo, MessageMedia, WebPage, InputMedia} from '@layer';
+import { MessageEntity, DraftMessage, MessagesSaveDraft, MessageReplyHeader, InputReplyTo, MessageMedia, WebPage, InputMedia } from '@layer';
 import tsNow from '@helpers/tsNow';
 import assumeType from '@helpers/assumeType';
-import {AppManager} from '@appManagers/manager';
+import { AppManager } from '@appManagers/manager';
 import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
 import draftsAreEqual from '@appManagers/utils/drafts/draftsAreEqual';
 import isObject from '@helpers/object/isObject';
@@ -46,18 +46,18 @@ export class AppDraftsManager extends AppManager {
         const peerId = this.appPeersManager.getPeerId(update.peer);
         const isNotMe = peerId !== this.rootScope.myId;
 
-        const {draft, threadId} = update;
+        const { draft, threadId } = update;
 
         let monoforumThreadId: PeerId;
-        if(isNotMe && update.saved_peer_id && draft._ === 'draftMessage') {
+        if (isNotMe && update.saved_peer_id && draft._ === 'draftMessage') {
           monoforumThreadId = this.appPeersManager.getPeerId(update.saved_peer_id);
 
-          if(draft.reply_to?._ === 'inputReplyToMessage' || draft.reply_to?._ === 'inputReplyToMonoForum') {
+          if (draft.reply_to?._ === 'inputReplyToMessage' || draft.reply_to?._ === 'inputReplyToMonoForum') {
             draft.reply_to.monoforum_peer_id = monoforumThreadId;
-          } else if(!draft.reply_to) {
+          } else if (!draft.reply_to) {
             draft.reply_to = {
               _: 'inputReplyToMonoForum',
-              monoforum_peer_id: this.appPeersManager.getInputPeerById(monoforumThreadId)
+              monoforum_peer_id: this.appPeersManager.getInputPeerById(monoforumThreadId),
             };
           }
         }
@@ -68,9 +68,9 @@ export class AppDraftsManager extends AppManager {
           monoforumThreadId: monoforumThreadId!,
           draft,
           notify: true,
-          fromUpdate: true
+          fromUpdate: true,
         });
-      }
+      },
     });
 
     /* return  */this.appStateManager.storage.get('drafts').then((drafts) => {
@@ -79,7 +79,7 @@ export class AppDraftsManager extends AppManager {
   }
 
   public clear = (init?: boolean) => {
-    if(!init) {
+    if (!init) {
       this.getAllDraftPromise = undefined;
       this.getAllDraftsResolved = false;
     }
@@ -105,7 +105,7 @@ export class AppDraftsManager extends AppManager {
   // }
 
   public addMissedDialogsOrVoid() {
-    if(this.getAllDraftsResolved) return;
+    if (this.getAllDraftsResolved) return;
     return this.addMissedDialogs();
   }
 
@@ -114,8 +114,8 @@ export class AppDraftsManager extends AppManager {
       this.getAllDraftsResolved = true;
 
       // MTProtoMessagePort.getInstance<false>().invoke('log', {m: '[my-debug] drafts', drafts: this.drafts})
-      for(const key in this.drafts) {
-        if(key.indexOf('_') !== -1) { // exclude threads
+      for (const key in this.drafts) {
+        if (key.indexOf('_') !== -1) { // exclude threads
           const peerId = key.split('_')[0]?.toPeerId() || 0;
           this.monoforumDialogsStorage.checkPreloadedDraft(peerId, this.drafts[key]);
           continue;
@@ -123,7 +123,7 @@ export class AppDraftsManager extends AppManager {
 
         const peerId = key.toPeerId();
         const dialog = this.appMessagesManager.getDialogOnly(peerId);
-        if(!dialog) {
+        if (!dialog) {
           this.appMessagesManager.reloadConversation(peerId);
           // this.generateDialog(peerId);
         }
@@ -133,12 +133,12 @@ export class AppDraftsManager extends AppManager {
 
   private getAllDrafts() {
     return this.getAllDraftPromise ??= this.apiManager.invokeApi('messages.getAllDrafts')
-    .then((updates) => {
-      const p = this.apiUpdatesManager.updatesState.syncLoading || Promise.resolve();
-      return p.then(() => {
-        this.apiUpdatesManager.processUpdateMessage(updates);
+      .then((updates) => {
+        const p = this.apiUpdatesManager.updatesState.syncLoading || Promise.resolve();
+        return p.then(() => {
+          this.apiUpdatesManager.processUpdateMessage(updates);
+        });
       });
-    });
   }
 
   public saveDraft({
@@ -148,7 +148,7 @@ export class AppDraftsManager extends AppManager {
     draft: apiDraft,
     notify,
     force,
-    fromUpdate
+    fromUpdate,
   }: {
     peerId: PeerId,
     threadId?: number,
@@ -161,33 +161,33 @@ export class AppDraftsManager extends AppManager {
     const draft = this.processApiDraft(apiDraft, peerId);
 
     const key = this.getKey(peerId, monoforumThreadId || threadId);
-    if(fromUpdate) {
+    if (fromUpdate) {
       const previous = this.drafts[key];
-      if(previous && !draftsAreEqual(previous, (draft as DraftMessage))) {
+      if (previous && !draftsAreEqual(previous, (draft as DraftMessage))) {
         this.supersededDrafts[key] = previous;
       }
     } else {
       delete this.supersededDrafts[key];
     }
 
-    if(draft) {
+    if (draft) {
       this.drafts[key] = draft;
     } else {
       delete this.drafts[key];
     }
 
     this.appStateManager.storage.set({
-      drafts: this.drafts
+      drafts: this.drafts,
     });
 
-    if(notify) {
+    if (notify) {
       // console.warn(dT(), 'save draft', peerId, apiDraft, options)
       this.rootScope.dispatchEvent('draft_updated', {
         peerId,
         threadId,
         monoforumThreadId,
         draft,
-        force
+        force,
       });
     }
 
@@ -195,15 +195,15 @@ export class AppDraftsManager extends AppManager {
   }
 
   private isEmptyDraft(draft: DraftMessage) {
-    if(draft?._ !== 'draftMessage') {
+    if (draft?._ !== 'draftMessage') {
       return true;
     }
 
-    if(draft.reply_to !== undefined && (draft.reply_to as InputReplyTo.inputReplyToMessage).reply_to_msg_id > 0) {
+    if (draft.reply_to !== undefined && (draft.reply_to as InputReplyTo.inputReplyToMessage).reply_to_msg_id > 0) {
       return false;
     }
 
-    if(!draft.message.length) {
+    if (!draft.message.length) {
       return true;
     }
 
@@ -211,12 +211,12 @@ export class AppDraftsManager extends AppManager {
   }
 
   private processApiDraft(draft: DraftMessage, peerId: PeerId): MyDraftMessage | undefined {
-    if(draft?._ !== 'draftMessage') {
+    if (draft?._ !== 'draftMessage') {
       return undefined;
     }
 
     const replyTo = draft.reply_to as InputReplyTo.inputReplyToMessage;
-    if(replyTo?.reply_to_msg_id) {
+    if (replyTo?.reply_to_msg_id) {
       const channelId = this.appPeersManager.isChannel(peerId) ? peerId.toChatId() : undefined;
       replyTo.reply_to_msg_id = this.appMessagesIdsManager.generateMessageId(replyTo.reply_to_msg_id, channelId);
       replyTo.top_msg_id &&= this.appMessagesIdsManager.generateMessageId(replyTo.top_msg_id, channelId);
@@ -227,10 +227,10 @@ export class AppDraftsManager extends AppManager {
     return draft;
   }
 
-  public syncDraft({peerId, threadId, monoforumThreadId, localDraft, saveOnServer = true, force = false}: SyncDraftArgs) {
+  public syncDraft({ peerId, threadId, monoforumThreadId, localDraft, saveOnServer = true, force = false }: SyncDraftArgs) {
     // console.warn(dT(), 'sync draft', peerID)
     const serverDraft = this.getDraft(peerId, monoforumThreadId || threadId);
-    if(draftsAreEqual(serverDraft, localDraft!)) {
+    if (draftsAreEqual(serverDraft, localDraft!)) {
       // console.warn(dT(), 'equal drafts', localDraft, serverDraft)
       return true;
     }
@@ -239,28 +239,28 @@ export class AppDraftsManager extends AppManager {
     // (e.g. the message was sent from another client) — uploading it would
     // resurrect the stale draft on all clients
     const superseded = this.supersededDrafts[this.getKey(peerId, monoforumThreadId || threadId)];
-    if(!force && superseded && draftsAreEqual(superseded, localDraft!)) {
+    if (!force && superseded && draftsAreEqual(superseded, localDraft!)) {
       return true;
     }
 
     // console.warn(dT(), 'changed draft', localDraft, serverDraft)
     const params: MessagesSaveDraft = {
       peer: this.appPeersManager.getInputPeerById(peerId),
-      message: ''
+      message: '',
     };
 
     let draftObj: DraftMessage;
-    if(this.isEmptyDraft(localDraft!)) {
-      draftObj = {_: 'draftMessageEmpty'};
+    if (this.isEmptyDraft(localDraft!)) {
+      draftObj = { _: 'draftMessageEmpty' };
 
       let monoforumPeerId = monoforumThreadId;
-      if(!monoforumPeerId && (this.appPeersManager.isMonoforum(peerId) && (serverDraft?.reply_to?._ === 'inputReplyToMessage' || serverDraft?.reply_to?._ === 'inputReplyToMonoForum')))
+      if (!monoforumPeerId && (this.appPeersManager.isMonoforum(peerId) && (serverDraft?.reply_to?._ === 'inputReplyToMessage' || serverDraft?.reply_to?._ === 'inputReplyToMonoForum')))
         monoforumPeerId = getPeerId(serverDraft.reply_to.monoforum_peer_id!);
 
-      if(monoforumPeerId)
+      if (monoforumPeerId)
         params.reply_to = {
           _: 'inputReplyToMonoForum',
-          monoforum_peer_id: this.appPeersManager.getInputPeerById(monoforumPeerId)
+          monoforum_peer_id: this.appPeersManager.getInputPeerById(monoforumPeerId),
         };
     } else {
       assumeType<DraftMessage.draftMessage>(localDraft);
@@ -268,49 +268,49 @@ export class AppDraftsManager extends AppManager {
       const entities: MessageEntity[] = localDraft.entities!;
 
       const replyTo = localDraft.reply_to as InputReplyTo.inputReplyToMessage;
-      if(replyTo) {
+      if (replyTo) {
         params.reply_to = {
           _: 'inputReplyToMessage',
           reply_to_msg_id: getServerMessageId(replyTo.reply_to_msg_id)!,
-          poll_option: replyTo.poll_option
+          poll_option: replyTo.poll_option,
         };
 
-        if(replyTo.reply_to_peer_id && !isObject(replyTo.reply_to_peer_id)) {
+        if (replyTo.reply_to_peer_id && !isObject(replyTo.reply_to_peer_id)) {
           params.reply_to.reply_to_peer_id = this.appPeersManager.getInputPeerById(replyTo.reply_to_peer_id);
         }
 
-        if(replyTo.monoforum_peer_id && !isObject(replyTo.monoforum_peer_id)) {
+        if (replyTo.monoforum_peer_id && !isObject(replyTo.monoforum_peer_id)) {
           params.reply_to.monoforum_peer_id = this.appPeersManager.getInputPeerById(replyTo.monoforum_peer_id);
         }
-      } else if(monoforumThreadId) {
+      } else if (monoforumThreadId) {
         params.reply_to = {
           _: 'inputReplyToMonoForum',
-          monoforum_peer_id: this.appPeersManager.getInputPeerById(monoforumThreadId)
+          monoforum_peer_id: this.appPeersManager.getInputPeerById(monoforumThreadId),
         }
       }
 
-      if(entities?.length) {
+      if (entities?.length) {
         params.entities = this.appMessagesManager.getInputEntities(entities);
       }
 
-      if(localDraft.pFlags.no_webpage) {
+      if (localDraft.pFlags.no_webpage) {
         params.no_webpage = localDraft.pFlags.no_webpage;
       }
 
-      if(localDraft.pFlags.invert_media) {
+      if (localDraft.pFlags.invert_media) {
         params.invert_media = localDraft.pFlags.invert_media;
       }
 
-      if(localDraft.media) {
+      if (localDraft.media) {
         params.media = localDraft.media;
       }
 
       params.message = message;
     }
 
-    if(threadId) {
-      const inputReplyTo: InputReplyTo.inputReplyToMessage = params.reply_to ??= {_: 'inputReplyToMessage'} as any;
-      if(!inputReplyTo.reply_to_msg_id) {
+    if (threadId) {
+      const inputReplyTo: InputReplyTo.inputReplyToMessage = params.reply_to ??= { _: 'inputReplyToMessage' } as any;
+      if (!inputReplyTo.reply_to_msg_id) {
         inputReplyTo.reply_to_msg_id = getServerMessageId(threadId)!;
       } else {
         inputReplyTo.top_msg_id = getServerMessageId(threadId);
@@ -326,13 +326,13 @@ export class AppDraftsManager extends AppManager {
       monoforumThreadId,
       draft: saveLocalDraft,
       notify: true,
-      force
+      force,
     });
 
-    if(saveOnServer) {
+    if (saveOnServer) {
       const promise = this.apiManager.invokeApi('messages.saveDraft', params);
       const dialog = this.dialogsStorage.getDialogOnly(peerId); // * create or delete dialog when draft changes
-      if(!dialog || !getServerMessageId(dialog.top_message)) {
+      if (!dialog || !getServerMessageId(dialog.top_message)) {
         return promise.then(() => {
           return this.appMessagesManager.reloadConversation(peerId);
         });
@@ -346,33 +346,33 @@ export class AppDraftsManager extends AppManager {
 
   public clearAllDrafts() {
     return this.apiManager.invokeApi('messages.clearAllDrafts').then((bool) => {
-      if(!bool) {
+      if (!bool) {
         return;
       }
 
-      for(const combined in this.drafts) {
+      for (const combined in this.drafts) {
         const [peerId, strThreadId] = combined.split('_');
         const threadId = strThreadId ? +strThreadId : undefined;
 
         this.rootScope.dispatchEvent('draft_updated', {
           peerId: peerId.toPeerId(),
           ...(this.appPeersManager.isMonoforum(peerId.toPeerId()) ?
-            {threadId} :
-            {monoforumThreadId: threadId}
+            { threadId } :
+            { monoforumThreadId: threadId }
           ),
-          draft: undefined
+          draft: undefined,
         });
       }
     });
   }
 
-  public clearDraft({peerId, threadId, monoforumThreadId}: ClearDraftArgs) {
+  public clearDraft({ peerId, threadId, monoforumThreadId }: ClearDraftArgs) {
     const emptyDraft: DraftMessage.draftMessageEmpty = {
-      _: 'draftMessageEmpty'
+      _: 'draftMessageEmpty',
     };
 
-    if(threadId) {
-      this.syncDraft({peerId, threadId, monoforumThreadId, localDraft: emptyDraft as any, saveOnServer: false, force: true});
+    if (threadId) {
+      this.syncDraft({ peerId, threadId, monoforumThreadId, localDraft: emptyDraft as any, saveOnServer: false, force: true });
     } else {
       this.saveDraft({
         peerId,
@@ -380,7 +380,7 @@ export class AppDraftsManager extends AppManager {
         monoforumThreadId,
         draft: emptyDraft,
         notify: true,
-        force: true
+        force: true,
       });
     }
   }
@@ -391,18 +391,18 @@ export class AppDraftsManager extends AppManager {
       date: tsNow(true),
       message,
       pFlags: {},
-      entities
+      entities,
     };
 
-    if(threadId) {
-      this.syncDraft({peerId, threadId, localDraft: draft, saveOnServer: false, force: true});
+    if (threadId) {
+      this.syncDraft({ peerId, threadId, localDraft: draft, saveOnServer: false, force: true });
     } else {
       this.saveDraft({
         peerId,
         threadId,
         draft,
         notify: true,
-        force: true
+        force: true,
       });
     }
   }

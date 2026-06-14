@@ -1,4 +1,4 @@
-import {NotWrappable, Part, StoreSetter} from 'solid-js/store';
+import { NotWrappable, Part, StoreSetter } from 'solid-js/store';
 
 // Mirrors solid-js/store's SetStoreFunction with a configurable Return type.
 // TS-side inference tricks (`F extends { (...): infer A1; (...): infer A2; ... }`)

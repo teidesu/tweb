@@ -426,7 +426,7 @@ const Icons = {
   webview: 'eaa8',
   win_key: 'eaa9',
   zoomin: 'eaaa',
-  zoomout: 'eaab'
+  zoomout: 'eaab',
 };
 
 export default Icons;

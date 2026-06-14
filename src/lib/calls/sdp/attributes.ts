@@ -18,11 +18,11 @@ export default class SDPAttributes {
   private static fillAttributes(attributes: SDPAttributes) {
     const attributesMap: Map<string, Array<string>> = new Map();
     attributes.#lines.forEach((line) => {
-      if(line.key === 'a') {
-        const {key, value} = line.parsed!;
+      if (line.key === 'a') {
+        const { key, value } = line.parsed!;
 
         let linesArray = attributesMap.get(key);
-        if(!linesArray) {
+        if (!linesArray) {
           linesArray = [];
           attributesMap.set(key, linesArray);
         }

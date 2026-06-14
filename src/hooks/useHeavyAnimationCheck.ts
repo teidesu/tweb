@@ -1,8 +1,8 @@
 // * Jolly Cobra's useHeavyAnimationCheck.ts, patched
 
-import {AnyToVoidFunction} from '@types';
+import { AnyToVoidFunction } from '@types';
 import ListenerSetter from '@helpers/listenerSetter';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
 import DEBUG from '@config/debug';
 import pause from '@helpers/schedulers/pause';
 import EventListenerBase from '@helpers/eventListenerBase';
@@ -23,7 +23,7 @@ heavyAnimationPromise.resolve();
 const log = console.log.bind(console.log, '[HEAVY-ANIMATION]:');
 
 export function dispatchHeavyAnimationEvent(promise: Promise<any>, timeout?: number) {
-  if(!isAnimating) {
+  if (!isAnimating) {
     heavyAnimationPromise = deferredPromise<void>();
     eventListener.dispatchEvent(ANIMATION_START_EVENT);
     isAnimating = true;
@@ -35,19 +35,19 @@ export function dispatchHeavyAnimationEvent(promise: Promise<any>, timeout?: num
 
   const promises = [
     timeout !== undefined ? pause(timeout) : undefined,
-    promise.finally(() => {})
+    promise.finally(() => {}),
   ].filter(Boolean);
 
   const perf = performance.now();
   const _heavyAnimationPromise = heavyAnimationPromise;
   Promise.race(promises).then(() => {
-    if(heavyAnimationPromise !== _heavyAnimationPromise || heavyAnimationPromise.isFulfilled) { // interrupted
+    if (heavyAnimationPromise !== _heavyAnimationPromise || heavyAnimationPromise.isFulfilled) { // interrupted
       return;
     }
 
     --promisesInQueue;
     DEBUG && log('promise end, length:', promisesInQueue, performance.now() - perf);
-    if(promisesInQueue <= 0) {
+    if (promisesInQueue <= 0) {
       onHeavyAnimationEnd();
     }
   });
@@ -58,7 +58,7 @@ export function dispatchHeavyAnimationEvent(promise: Promise<any>, timeout?: num
 (window as any).dispatchHeavyAnimationEvent = dispatchHeavyAnimationEvent;
 
 function onHeavyAnimationEnd() {
-  if(heavyAnimationPromise.isFulfilled) {
+  if (heavyAnimationPromise.isFulfilled) {
     return;
   }
 
@@ -84,7 +84,7 @@ export default function(
   listenerSetter?: ListenerSetter
 ) {
   // useEffect(() => {
-  if(isAnimating) {
+  if (isAnimating) {
     handleAnimationStart();
   }
 

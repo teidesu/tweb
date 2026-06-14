@@ -1,6 +1,6 @@
-import {Accessor, createEffect, createSignal, on, onCleanup} from 'solid-js';
-import {simpleEasing} from '@helpers/animateValue';
-import {animate} from '@helpers/animation';
+import { Accessor, createEffect, createSignal, on, onCleanup } from 'solid-js';
+import { simpleEasing } from '@helpers/animateValue';
+import { animate } from '@helpers/animation';
 
 
 export default function createAnimatedValue(value: Accessor<number>, time: number, easing = simpleEasing, shouldAnimate: Accessor<boolean> = () => true) {
@@ -8,7 +8,7 @@ export default function createAnimatedValue(value: Accessor<number>, time: numbe
   const [animating, setAnimating] = createSignal(false);
 
   createEffect(on(value, () => {
-    if(!shouldAnimate()) {
+    if (!shouldAnimate()) {
       setCurrent(value());
       return;
     }
@@ -20,13 +20,13 @@ export default function createAnimatedValue(value: Accessor<number>, time: numbe
     let cleaned = false;
 
     animate(() => {
-      if(cleaned) return;
+      if (cleaned) return;
 
       const progress = easing(Math.min(1, (performance.now() - startTime) / time));
 
       setCurrent((value() - startValue) * progress + startValue);
 
-      if(progress < 1) return true;
+      if (progress < 1) return true;
       setAnimating(false);
     });
 
@@ -35,7 +35,7 @@ export default function createAnimatedValue(value: Accessor<number>, time: numbe
       setAnimating(false);
     });
   }, {
-    defer: true
+    defer: true,
   }));
 
 

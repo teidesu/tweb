@@ -1,6 +1,6 @@
-import {IS_FIREFOX} from '@environment/userAgent';
-import {logger} from '@lib/logger';
-import {isCustomFillerNeededBySiblingNode} from '@lib/richTextProcessor/wrapRichText';
+import { IS_FIREFOX } from '@environment/userAgent';
+import { logger } from '@lib/logger';
+import { isCustomFillerNeededBySiblingNode } from '@lib/richTextProcessor/wrapRichText';
 import ListenerSetter from '@helpers/listenerSetter';
 import BOM from '@helpers/string/bom';
 import compareNodes from '@helpers/dom/compareNodes';
@@ -31,33 +31,33 @@ export default class RichInputHandler {
     this.savedRanges = new WeakMap();
 
     this.listenerSetter.add(document)('selectionchange', this.saveSelectionOnChange);
-    if(USING_BOMS) {
+    if (USING_BOMS) {
       this.listenerSetter.add(document)('focusout', this.onFocusOut);
       this.listenerSetter.add(document)('selectionchange', this.onSelectionChange);
       this.listenerSetter.add(document)('beforeinput', this.onBeforeInput);
-      this.listenerSetter.add(document)('keydown', this.onKeyDown, {capture: true});
+      this.listenerSetter.add(document)('keydown', this.onKeyDown, { capture: true });
 
-      if(IS_FIREFOX) {
+      if (IS_FIREFOX) {
         this.inputCaptureCallbacks = [];
         this.listenerSetter.add(document)('input', () => {
           this.inputCaptureCallbacks.forEach((callback) => callback());
           this.inputCaptureCallbacks.length = 0;
-        }, {capture: true});
+        }, { capture: true });
       }
     }
   }
 
   private get input() {
     const selection = document.getSelection();
-    const {anchorNode: node} = selection!;
-    if(!node) return;
+    const { anchorNode: node } = selection!;
+    if (!node) return;
     return ((node as HTMLElement).closest ? node as HTMLElement : node.parentElement)!.closest<HTMLElement>('[contenteditable="true"]');
   }
 
   private saveRangeForElement(element: HTMLElement) {
-    if(element && (element.isContentEditable || element.tagName === 'INPUT')) {
+    if (element && (element.isContentEditable || element.tagName === 'INPUT')) {
       const selection = document.getSelection();
-      if(selection!.rangeCount) {
+      if (selection!.rangeCount) {
         this.savedRanges.set(element, document.getSelection()!.getRangeAt(0));
       }
     }
@@ -97,18 +97,18 @@ export default class RichInputHandler {
     toLeft: boolean,
     fromSelectionChange: boolean
   ) {
-    const {node, offset, move} = caret;
+    const { node, offset, move } = caret;
     const something = input.querySelectorAll('.input-something');
     const smthIndex = this.findPreviousSmthIndex(input, node, something);
     const r = document.createRange();
     r[toLeft ? 'setEnd' : 'setStart'](node, offset);
 
-    if(fromSelectionChange) {
+    if (fromSelectionChange) {
       move(toLeft);
     }
 
     const c = this.getCaretPosN();
-    if(c.node?.nodeValue === BOM && (!fromSelectionChange || node === this.lastNode)) {
+    if (c.node?.nodeValue === BOM && (!fromSelectionChange || node === this.lastNode)) {
       const idx = this.findPreviousSmthIndex(input, c.node, something);
 
       let moved = !fromSelectionChange;
@@ -120,7 +120,7 @@ export default class RichInputHandler {
         const rangeString = r.toString();
         const onlyBOMs = !NOT_ONLY_BOMS_REG_EXP.test(rangeString);
         this.log('test cursor', rangeString, onlyBOMs, idx, idxidx);
-        if(
+        if (
           onlyBOMs &&
           c.node?.nodeValue === BOM &&
           idxidx === idx &&
@@ -131,22 +131,22 @@ export default class RichInputHandler {
         ) {
           move(toLeft);
           moved = true;
-        } else if(!moved) {
+        } else if (!moved) {
           break;
         } else {
-          if((!this.getFiller(node as HTMLElement)!.classList.contains('input-filler-text') && idx !== smthIndex) || c.offset === BOM.length) {
+          if ((!this.getFiller(node as HTMLElement)!.classList.contains('input-filler-text') && idx !== smthIndex) || c.offset === BOM.length) {
             move(!toLeft);
           }
 
           break;
         }
-      } while(true);
+      } while (true);
     }
   }
 
   private onSelectionChange = (e: Event) => {
-    const {input} = this;
-    if(!input) {
+    const { input } = this;
+    if (!input) {
       this.setSelectionClassName(document.getSelection()!);
       return;
     }
@@ -158,11 +158,11 @@ export default class RichInputHandler {
 
     let caret = this.getCaretPosN();
     do {
-      const {node, offset, selection, move} = caret;
+      const { node, offset, selection, move } = caret;
 
       const nodeValue = node?.nodeValue;
       // if(!nodeValue?.includes(BOM)) {
-      if(nodeValue !== BOM || !this.lastNode) {
+      if (nodeValue !== BOM || !this.lastNode) {
         break;
       }
 
@@ -199,9 +199,9 @@ export default class RichInputHandler {
       // }
 
       // const parent = getFiller(node);
-      if(toLeft !== undefined) {
+      if (toLeft !== undefined) {
         // let newNode = toLeft ? parent.previousSibling : parent.nextSibling;
-        if(selection.isCollapsed) {
+        if (selection.isCollapsed) {
           this.superMove(input, caret, toLeft, true);
 
           // if(offset === BOM.length) {
@@ -249,7 +249,7 @@ export default class RichInputHandler {
       // if(findPreviousSmthIndex(caret.node) !== smthIndex) {
       //   break;
       // }
-    } while(true);
+    } while (true);
 
     this.lastNode = (this.lastOffset = undefined)!;
 
@@ -264,7 +264,7 @@ export default class RichInputHandler {
 
   public restoreSavedRange(input: HTMLElement) {
     const range = this.getSavedRange(input);
-    if(!range) {
+    if (!range) {
       return false;
     }
 
@@ -280,7 +280,7 @@ export default class RichInputHandler {
   }
 
   public makeFocused(input: HTMLElement) {
-    if(document.activeElement !== input && !this.restoreSavedRange(input)) {
+    if (document.activeElement !== input && !this.restoreSavedRange(input)) {
       placeCaretAtEnd(input, false, false);
     }
   }
@@ -299,26 +299,26 @@ export default class RichInputHandler {
   }
 
   public onBeforeInput = (e: Pick<InputEvent, 'inputType'>) => {
-    const {input, log} = this;
-    if(!input) {
+    const { input, log } = this;
+    if (!input) {
       return;
     }
 
     const addInputCallback = this.addInputCallback.bind(this, input);
 
     const caretPos = this.getCaretPosN();
-    let {node, offset, selection, move} = caretPos;
+    let { node, offset, selection, move } = caretPos;
     log('beforeinput', e, node, offset, selection, caretPos);
     this.lastNode = (this.lastOffset = undefined)!;
 
-    if(e.inputType.startsWith('delete')) { // delete current BOM
+    if (e.inputType.startsWith('delete')) { // delete current BOM
       addInputCallback(() => {
         this.processEmptiedFillers(input);
         this.removeExtraBOMs(input);
         this.fixInsertedLineBreaks(input);
       });
 
-      if(node?.nodeValue === BOM && selection.isCollapsed && e.inputType.includes('deleteContent')) {
+      if (node?.nodeValue === BOM && selection.isCollapsed && e.inputType.includes('deleteContent')) {
         const toLeft = e.inputType.includes('Backward');
         const moveFirst = (offset === BOM.length && toLeft) || (!offset && !toLeft);
         this.superMove(input, caretPos, toLeft, moveFirst);
@@ -365,8 +365,8 @@ export default class RichInputHandler {
         //   this.fixInsertedLineBreaks(input);
         // });
       }
-    } else if(e.inputType.startsWith('insert')) { // clear current BOM
-      if((node as HTMLElement)?.classList?.contains('input-something')/*  || (node.textContent === BOM && offset === BOM.length) */) {
+    } else if (e.inputType.startsWith('insert')) { // clear current BOM
+      if ((node as HTMLElement)?.classList?.contains('input-something')/*  || (node.textContent === BOM && offset === BOM.length) */) {
         node = node.previousSibling!.firstChild!;
         const range = selection.getRangeAt(0);
         range.setStart(node, 0);
@@ -379,7 +379,7 @@ export default class RichInputHandler {
         selection = c.selection;
         offset = c.offset;
       }
-      if(node && node.textContent === BOM && offset === BOM.length) {
+      if (node && node.textContent === BOM && offset === BOM.length) {
         // const range = selection.getRangeAt(0);
         // range.setStart(node, 0);
         // range.setEnd(node, 0);
@@ -396,7 +396,7 @@ export default class RichInputHandler {
       //   offset = BOM.length;
       // }
 
-      if(e.inputType === 'insertLineBreak' || true) {
+      if (e.inputType === 'insertLineBreak' || true) {
         // const appendix = 'X';
         // const textNode = document.createTextNode(appendix);
         // if(node.parentElement !== this.messageInput) node.parentElement.after(textNode);
@@ -425,14 +425,14 @@ export default class RichInputHandler {
           // });
 
           // fix case when focused somehow on span instead of text node
-          if(node && node.nodeType === node.ELEMENT_NODE) {
+          if (node && node.nodeType === node.ELEMENT_NODE) {
             node = node.firstChild!;
             log.warn('fixing focus on span');
           }
 
           const isBOM = node?.nodeValue === BOM;
           log('inserting line break', isBOM, node, `"${node?.nodeValue}"`, node?.parentElement ? Array.from(node.parentElement.childNodes).slice() : []);
-          if(isBOM) {
+          if (isBOM) {
             // (node as ChildNode).replaceWith(this.messageInput.querySelector('.lol'));
 
             const parentElement = node.parentElement;
@@ -440,7 +440,7 @@ export default class RichInputHandler {
             const childNodesLength = parentElement!.childNodes.length;
             addInputCallback(() => {
               const newChildNodesLength = parentElement!.childNodes.length;
-              if(newChildNodesLength > 1/*  && newChildNodesLength !== childNodesLength */) {
+              if (newChildNodesLength > 1/*  && newChildNodesLength !== childNodesLength */) {
                 log('inserting line break, remove');
                 node = Array.from(parentElement!.childNodes).find((node) => node.nodeValue === BOM)!;
                 (parentElement as any).t = node;
@@ -450,7 +450,7 @@ export default class RichInputHandler {
                 // const range = selection.getRangeAt(0);
                 // range.setStart(n, n.nodeValue.length);
                 // range.setEnd(n, n.nodeValue.length);
-              } else if(node.nodeValue !== BOM) {
+              } else if (node.nodeValue !== BOM) {
                 log('inserting line break, deleteData');
                 (node as CharacterData).deleteData(node.nodeValue!.indexOf(BOM), BOM.length);
                 // node = document.createTextNode(BOM);
@@ -467,7 +467,7 @@ export default class RichInputHandler {
             //   node.replaceWith(s);
             //   s.prepend(node);
             // });
-          } else if(e.inputType === 'insertLineBreak') {
+          } else if (e.inputType === 'insertLineBreak') {
             addInputCallback(() => {
               this.fixInsertedLineBreaks(input);
             });
@@ -528,14 +528,14 @@ export default class RichInputHandler {
         return;
       }
 
-      if(node?.nodeValue === BOM) {
+      if (node?.nodeValue === BOM) {
         // node.nodeValue = ''; // ! will move cursor forward
         // addInputCallback(() => {
         //   (node as CharacterData).deleteData(node.nodeValue.indexOf(BOM), BOM.length);
         // });
 
-        if(e.inputType === 'insertLineBreak') {
-          if(offset === BOM.length) {
+        if (e.inputType === 'insertLineBreak') {
+          if (offset === BOM.length) {
             selection.modify('move', 'backward', 'character');
           }
 
@@ -557,7 +557,7 @@ export default class RichInputHandler {
         // node.parentElement.replaceWith(node);
 
         // node.parentElement.replaceWith(node);
-        if(e.inputType === 'insertLineBreak') {
+        if (e.inputType === 'insertLineBreak') {
           // const previousParentSibling = node.parentNode.previousSibling;
           // addInputCallback(() => {
           //   if(previousParentSibling.nextSibling.nodeValue === '\n') {
@@ -585,7 +585,7 @@ export default class RichInputHandler {
 
           addInputCallback(() => {
             (node as CharacterData).deleteData(node.nodeValue!.indexOf(BOM), BOM.length);
-            if(!node.nodeValue) {
+            if (!node.nodeValue) {
               node.remove();
             }
 
@@ -593,7 +593,7 @@ export default class RichInputHandler {
           });
         }
 
-        if(selection.isCollapsed && false) {
+        if (selection.isCollapsed && false) {
           node.parentElement!.replaceWith(node);
           // const textNode = document.createTextNode(BOM);
           // (node.parentNode as any as ChildNode).after(textNode);
@@ -609,7 +609,7 @@ export default class RichInputHandler {
           //   node.parentElement.remove();
           // });
         }
-      } else if(e.inputType === 'insertLineBreak' &&
+      } else if (e.inputType === 'insertLineBreak' &&
         node &&
         node.nodeType === node.TEXT_NODE &&
         node.nodeValue!.length === offset) {
@@ -643,7 +643,7 @@ export default class RichInputHandler {
         //   }
         // });
       }
-    } else if(e.inputType === 'historyUndo') { // have to remove extra BOMs
+    } else if (e.inputType === 'historyUndo') { // have to remove extra BOMs
       addInputCallback(() => {
         this.processFilledFillers(input);
         this.processEmptiedFillers(input);
@@ -661,7 +661,7 @@ export default class RichInputHandler {
         //   }
         // });
       });
-    } else if(e.inputType === 'historyRedo') {
+    } else if (e.inputType === 'historyRedo') {
       // if(node?.nodeValue === BOM && offset === BOM.length) {
       //   selection.modify('move', 'backward', 'character');
       // }
@@ -687,12 +687,12 @@ export default class RichInputHandler {
     const key = e.key;
 
     // // have to ignore line up and down
-    if(key === 'ArrowDown' || key === 'ArrowUp') {
+    if (key === 'ArrowDown' || key === 'ArrowUp') {
       this.lastNode = (this.lastOffset = undefined)!;
     } else {
-      const {node, offset} = this.getCaretPosN();
+      const { node, offset } = this.getCaretPosN();
       this.lastNode = node/* getFiller(node) */, this.lastOffset = offset;
-      if(this.lastNode === this.input) {
+      if (this.lastNode === this.input) {
         this.lastNode = (this.lastOffset = undefined)!;
       }
     }
@@ -706,8 +706,8 @@ export default class RichInputHandler {
       callback();
     };
 
-    if(capture && IS_FIREFOX) this.inputCaptureCallbacks.push(newCallback);
-    else this.listenerSetter.add(input)('input', newCallback, {once: true, capture});
+    if (capture && IS_FIREFOX) this.inputCaptureCallbacks.push(newCallback);
+    else this.listenerSetter.add(input)('input', newCallback, { once: true, capture });
   }
 
   public removeExtraBOMs(input: HTMLElement) {
@@ -716,15 +716,15 @@ export default class RichInputHandler {
     };
 
     input.querySelectorAll('.input-filler').forEach((el) => {
-      const {previousSibling, nextSibling} = el;
+      const { previousSibling, nextSibling } = el;
       let needed = false;
 
       // if(!(previousSibling as HTMLElement)?.classList?.contains('input-filler') && isCustomFillerNeededBySiblingNode(previousSibling)) {
-      if(!(nextSibling as HTMLElement)?.classList?.contains('input-filler') && isCustomFillerNeededBySiblingNode(nextSibling!)) {
+      if (!(nextSibling as HTMLElement)?.classList?.contains('input-filler') && isCustomFillerNeededBySiblingNode(nextSibling!)) {
         needed = c(previousSibling!) || c(nextSibling!);
       }
 
-      if(!needed) {
+      if (!needed) {
         this.log.warn('removing empty bom node', el);
         el.remove();
       }
@@ -743,21 +743,21 @@ export default class RichInputHandler {
     //   ret.offset = ret.node.textContent.length;
     // }
 
-    return {...ret, move: this.move.bind(this, ret.selection)};
+    return { ...ret, move: this.move.bind(this, ret.selection) };
   }
 
   private removeEmptyTextNodes(input: HTMLElement) {
-    const {log} = this;
+    const { log } = this;
     // let i = -1;
     // remove empty text nodes
     const treeWalker = document.createTreeWalker(
       input,
       NodeFilter.SHOW_TEXT,
-      {acceptNode: (node) => node.parentElement === input && !node.nodeValue/*  && !++i */ ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT}
+      { acceptNode: (node) => node.parentElement === input && !node.nodeValue/*  && !++i */ ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT }
     );
 
     let textNode: Text;
-    while(textNode = treeWalker.nextNode() as Text) {
+    while (textNode = treeWalker.nextNode() as Text) {
       log.warn('removing empty text node', textNode);
       textNode.remove();
     }
@@ -765,14 +765,14 @@ export default class RichInputHandler {
 
   private removePossibleBOMSiblings(previousSibling: ChildNode, nextSibling: ChildNode) {
     [previousSibling, nextSibling].forEach((sibling) => {
-      if((sibling as HTMLElement)?.classList?.contains('input-filler')) {
+      if ((sibling as HTMLElement)?.classList?.contains('input-filler')) {
         sibling.remove();
       }
     });
   }
 
   private removePossibleBOMSiblingsByNode(node: ChildNode) {
-    const {previousSibling, nextSibling} = node;
+    const { previousSibling, nextSibling } = node;
     this.removePossibleBOMSiblings(previousSibling!, nextSibling!);
   };
 
@@ -781,24 +781,24 @@ export default class RichInputHandler {
       this.removeExtraBOMs(el);
 
       let cleanSiblings = true;
-      if(!el.textContent) {
+      if (!el.textContent) {
         el.classList.replace('input-filler-text', 'input-filler');
 
         const textNode = Array.from(el.childNodes).find((node) => node.nodeType === node.TEXT_NODE);
-        if(textNode) {
+        if (textNode) {
           (textNode as CharacterData).insertData(0, BOM);
-        } else if(((el as any).t as ChildNode)?.nodeValue) {
+        } else if (((el as any).t as ChildNode)?.nodeValue) {
           el.append((el as any).t);
         } else {
           el.append(document.createTextNode(BOM));
         }
-      } else if(!NOT_ONLY_BOMS_REG_EXP.test(el.textContent) && !el.querySelector('.input-something')) {
+      } else if (!NOT_ONLY_BOMS_REG_EXP.test(el.textContent) && !el.querySelector('.input-something')) {
         el.classList.replace('input-filler-text', 'input-filler');
       } else {
         cleanSiblings = false;
       }
 
-      if(cleanSiblings) {
+      if (cleanSiblings) {
         this.removePossibleBOMSiblingsByNode(el);
       }
     });
@@ -807,13 +807,13 @@ export default class RichInputHandler {
   private processFilledFillers(input: HTMLElement) {
     // remove the BOM when changing to text
     input.querySelectorAll('.input-filler').forEach((el) => {
-      if(el.textContent !== BOM) {
+      if (el.textContent !== BOM) {
         el.classList.replace('input-filler', 'input-filler-text');
         const t = (el as any).t as ChildNode;
         const bomNode = Array.from(el.childNodes).find((node) => node.nodeType === node.TEXT_NODE && node.nodeValue!.includes(BOM));
-        if(bomNode && !t?.nodeValue) {
+        if (bomNode && !t?.nodeValue) {
           const idx = bomNode.nodeValue!.indexOf(BOM);
-          if(idx !== -1) {
+          if (idx !== -1) {
             (bomNode as CharacterData).deleteData(idx, BOM.length);
           }
         }
@@ -828,10 +828,10 @@ export default class RichInputHandler {
     //   element.classList.remove('selection');
     // });
 
-    if(selection.rangeCount) {
+    if (selection.rangeCount) {
       const range = selection.getRangeAt(0);
 
-      if(input) {
+      if (input) {
         Array.from(input.querySelectorAll('.input-selectable')).forEach((element) => {
           element.classList.toggle('selection', !range.collapsed && range.intersectsNode(element));
         });
@@ -842,14 +842,14 @@ export default class RichInputHandler {
   }
 
   private move(selection: Selection, left: boolean) {
-    const {focusNode: focusNodeBefore, focusOffset: focusOffsetBefore} = selection;
+    const { focusNode: focusNodeBefore, focusOffset: focusOffsetBefore } = selection;
     selection.modify('extend', left ? 'backward' : 'forward', 'character');
     // if(offset === nodeValue.length) {
     //   selection.modify('extend', !left ? 'backward' : 'forward', 'character');
     // }
-    if(left) selection.collapseToStart();
+    if (left) selection.collapseToStart();
     else selection.collapseToEnd();
-    const {focusNode: focusNodeAfter, focusOffset: focusOffsetAfter} = selection;
+    const { focusNode: focusNodeAfter, focusOffset: focusOffsetAfter } = selection;
     this.log(
       'moving cursor',
       left,
@@ -863,7 +863,7 @@ export default class RichInputHandler {
   }
 
   public prepareApplyingMarkdown() {
-    const {input} = this;
+    const { input } = this;
 
     // do not wrap fillers into spans
     const fillers = input!.querySelectorAll<HTMLElement>('.input-filler');

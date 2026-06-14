@@ -5,8 +5,8 @@ export const IS_WORKER = IS_WEB_WORKER || IS_SERVICE_WORKER;
 
 export const getWindowClients = () => {
   return (self as any as ServiceWorkerGlobalScope)
-  .clients
-  .matchAll({includeUncontrolled: false, type: 'window'});
+    .clients
+    .matchAll({ includeUncontrolled: false, type: 'window' });
 };
 
 export const getLastWindowClient = () => getWindowClients().then((windowClients) => windowClients.slice(-1)[0]);
@@ -15,14 +15,14 @@ const postMessage = (listener: WindowClient | DedicatedWorkerGlobalScope, ...arg
   try {
     // @ts-ignore
     listener.postMessage(...args);
-  } catch(err) {
+  } catch (err) {
     console.error('[worker] postMessage error:', err, args);
   }
 };
 
 const notifyServiceWorker = (all: boolean, ...args: any[]) => {
   getWindowClients().then((listeners) => {
-    if(!listeners.length) {
+    if (!listeners.length) {
       // console.trace('no listeners?', self, listeners);
       return;
     }

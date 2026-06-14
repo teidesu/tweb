@@ -6,20 +6,20 @@ export default function formatInputValueByPattern(options: {
   deleting?: boolean,
   input?: HTMLElement
 }) {
-  const {value: originalValue, getPattern, deleting, input} = options;
+  const { value: originalValue, getPattern, deleting, input } = options;
   const pushRest = !deleting && !!originalValue.length;
   const result = formatValueByPattern(getPattern, originalValue, {
     selectionStart: (input ? (input as HTMLInputElement).selectionStart : 0)!,
-    selectionEnd: (input ? (input as HTMLInputElement).selectionEnd : 0)!
+    selectionEnd: (input ? (input as HTMLInputElement).selectionEnd : 0)!,
   }, pushRest)
-  const {value, selection} = result;
+  const { value, selection } = result;
 
   return {
     value,
     meta: {
       autocorrectComplete: result.autocorrectComplete,
-      empty: !value
+      empty: !value,
     },
-    selection
+    selection,
   };
 }

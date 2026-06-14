@@ -45,7 +45,7 @@ const CRC16_TABLE = new Uint16Array(
 
 export function crc8(buf: Uint8Array) {
   let crc = 0;
-  for(let i = 0; i < buf.length; i++) {
+  for (let i = 0; i < buf.length; i++) {
     crc = CRC8_TABLE[crc ^ buf[i]];
   }
   return crc;
@@ -53,7 +53,7 @@ export function crc8(buf: Uint8Array) {
 
 export function crc16(buf: Uint8Array) {
   let crc = 0;
-  for(let i = 0; i < buf.length; i++) {
+  for (let i = 0; i < buf.length; i++) {
     crc = ((crc << 8) ^ CRC16_TABLE[(crc >> 8) ^ buf[i]]) & 0xffff;
   }
   return crc;

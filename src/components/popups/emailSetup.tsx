@@ -1,46 +1,46 @@
-import PopupElement, {createPopup} from '@components/popups/indexTsx'
+import PopupElement, { createPopup } from '@components/popups/indexTsx'
 
-import {CodeInputField} from '@components/codeInputField';
-import {TransitionSliderTsx} from '@components/transitionTsx';
-import {createEffect, createSignal, onCleanup, onMount, Ref, Show} from 'solid-js';
+import { CodeInputField } from '@components/codeInputField';
+import { TransitionSliderTsx } from '@components/transitionTsx';
+import { createEffect, createSignal, onCleanup, onMount, Ref, Show } from 'solid-js';
 
 import styles from '@components/popups/emailSetup.module.scss';
 import LottieAnimation from '@components/lottieAnimation';
 import lottieLoader from '@lib/rlottie/lottieLoader';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {InputFieldTsx} from '@components/inputFieldTsx';
-import {LangPackKey} from '@lib/langPack';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { InputFieldTsx } from '@components/inputFieldTsx';
+import { LangPackKey } from '@lib/langPack';
 import ButtonTsx from '@components/buttonTsx';
 import classNames from '@helpers/string/classNames';
-import {AccountSentEmailCode, EmailVerifyPurpose, MessageEntity} from '@layer';
-import appNavigationController, {NavigationItem} from '@components/appNavigationController';
-import InputField, {InputState} from '@components/inputField';
-import {doubleRaf, fastRaf} from '@helpers/schedulers';
+import { AccountSentEmailCode, EmailVerifyPurpose, MessageEntity } from '@layer';
+import appNavigationController, { NavigationItem } from '@components/appNavigationController';
+import InputField, { InputState } from '@components/inputField';
+import { doubleRaf, fastRaf } from '@helpers/schedulers';
 import Animated from '@helpers/solid/animations';
 import rootScope from '@lib/rootScope';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
 import wrapRichText from '@lib/richTextProcessor/wrapRichText';
 
 export function wrapEmailPattern(pattern: string) {
-  if(pattern.includes(' ') || !pattern.includes('*')) return pattern;
+  if (pattern.includes(' ') || !pattern.includes('*')) return pattern;
 
   const entities: MessageEntity[] = [];
-  for(let i = 0; i < pattern.length;) {
+  for (let i = 0; i < pattern.length;) {
     const idx = pattern.indexOf('*', i);
-    if(idx === -1) break;
+    if (idx === -1) break;
     let endIdx = idx + 1;
-    while(pattern[endIdx] === '*') endIdx++;
+    while (pattern[endIdx] === '*') endIdx++;
 
     entities.push({
       _: 'messageEntitySpoiler',
       offset: idx,
-      length: endIdx - idx
+      length: endIdx - idx,
     });
 
     i = endIdx;
   }
 
-  return wrapRichText(pattern, {entities, noTextFormat: true});
+  return wrapRichText(pattern, { entities, noTextFormat: true });
 }
 
 export function EnterEmailStep(props: {
@@ -56,7 +56,7 @@ export function EnterEmailStep(props: {
   let inputRef!: InputField;
 
   function onSubmit() {
-    if(!email().includes('@')) {
+    if (!email().includes('@')) {
       inputRef.setError();
       return;
     }
@@ -70,12 +70,12 @@ export function EnterEmailStep(props: {
       props.onCodeSent({
         _: 'account.sentEmailCode',
         email_pattern: email(),
-        length: 6
+        length: 6,
       });
     }).catch((err: ApiError) => {
-      if(err.type === 'EMAIL_INVALID') {
+      if (err.type === 'EMAIL_INVALID') {
         setError('EmailSetup.InvalidEmail');
-      } else if(err.type === 'EMAIL_NOT_ALLOWED') {
+      } else if (err.type === 'EMAIL_NOT_ALLOWED') {
         setError('EmailSetup.BadEmail');
       } else {
         console.error(err);
@@ -95,7 +95,7 @@ export function EnterEmailStep(props: {
     })
 
     subscribeOn(inputRef.input)('keydown', (e) => {
-      if(e.key === 'Enter') {
+      if (e.key === 'Enter') {
         e.preventDefault();
         onSubmit();
       }
@@ -112,7 +112,7 @@ export function EnterEmailStep(props: {
         restartOnClick
         rlottieOptions={{
           loop: false,
-          autoplay: true
+          autoplay: true,
         }}
       />
 
@@ -173,7 +173,7 @@ export function EnterCodeStep(props: {
   let inputRef!: HTMLInputElement;
 
   createEffect(() => {
-    if(props.visible !== false) {
+    if (props.visible !== false) {
       doubleRaf().then(() => {
         inputRef.focus();
       })
@@ -186,18 +186,18 @@ export function EnterCodeStep(props: {
       props.purpose,
       {
         _: 'emailVerificationCode',
-        code: codeSignal[0]()
+        code: codeSignal[0](),
       }
     ).then(() => {
       setLoading(false);
       props.onSuccess();
     }).catch((err: ApiError) => {
-      if(err.type === 'EMAIL_VERIFY_EXPIRED') {
+      if (err.type === 'EMAIL_VERIFY_EXPIRED') {
         setLoading(false);
         return props.onExpired();
       }
 
-      if(err.type === 'CODE_INVALID') {
+      if (err.type === 'CODE_INVALID') {
         setError('EmailSetup.WrongCode');
       } else {
         console.error(err);
@@ -224,7 +224,7 @@ export function EnterCodeStep(props: {
         restartOnClick
         rlottieOptions={{
           loop: false,
-          autoplay: true
+          autoplay: true,
         }}
       />
 
@@ -278,7 +278,7 @@ export function showEmailSetupPopup(options: {
   onSuccess?: () => void
   onDismiss?: () => void
 }) {
-  if(isCurrentlyShowing) {
+  if (isCurrentlyShowing) {
     return;
   }
   isCurrentlyShowing = true;
@@ -291,7 +291,7 @@ export function showEmailSetupPopup(options: {
   return createPopup(() => {
     const secondPageNavigationItem: NavigationItem = {
       type: 'left',
-      onPop: () => void setPage(0)
+      onPop: () => void setPage(0),
     }
 
     onCleanup(() => {
@@ -311,10 +311,10 @@ export function showEmailSetupPopup(options: {
         closable={!options.noskip}
         onClose={() => {
           isCurrentlyShowing = false;
-          if(!isSuccess) options.onDismiss?.()
+          if (!isSuccess) options.onDismiss?.()
         }}
         isConfirmationNeededOnClose={() => {
-          if(options.noskip && !isSuccess) return Promise.reject()
+          if (options.noskip && !isSuccess) return Promise.reject()
         }}
       >
         <PopupElement.Header class={styles.popupHeader}>
@@ -335,14 +335,14 @@ export function showEmailSetupPopup(options: {
             currentPage={page()}
             onTransitionStart={(id) => {
               setCodePageTransitionEnded(false);
-              if(id === 0) {
+              if (id === 0) {
                 appNavigationController.removeItem(secondPageNavigationItem);
               } else {
                 appNavigationController.pushItem(secondPageNavigationItem);
               }
             }}
             onTransitionEnd={(id) => {
-              if(id === 1) {
+              if (id === 1) {
                 setCodePageTransitionEnded(true);
               }
             }}

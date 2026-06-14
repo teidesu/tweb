@@ -1,9 +1,9 @@
-import EventListenerBase, {EventListenerListeners} from '@helpers/eventListenerBase';
+import EventListenerBase, { EventListenerListeners } from '@helpers/eventListenerBase';
 import ListenerSetter from '@helpers/listenerSetter';
-import {getMiddleware, MiddlewareHelper} from '@helpers/middleware';
+import { getMiddleware, MiddlewareHelper } from '@helpers/middleware';
 import noop from '@helpers/noop';
-import {AppManagers} from '@lib/managers';
-import {i18n, LangPackKey} from '@lib/langPack';
+import { AppManagers } from '@lib/managers';
+import { i18n, LangPackKey } from '@lib/langPack';
 import ButtonIcon from '@components/buttonIcon';
 import Scrollable from '@components/scrollable';
 import SidebarSlider from '@components/slider';
@@ -54,7 +54,7 @@ export default class SliderSuperTab {
     this.header = document.createElement('div');
     this.header.classList.add('sidebar-header');
 
-    this.closeBtn = ButtonIcon('left sidebar-close-button', {noRipple: true});
+    this.closeBtn = ButtonIcon('left sidebar-close-button', { noRipple: true });
     this.title = document.createElement('div');
     this.title.classList.add('sidebar-header__title');
     this.header.append(this.closeBtn, this.title);
@@ -93,15 +93,15 @@ export default class SliderSuperTab {
   public onSidebarHide?(persist: boolean): void;
 
   public async initTab(...args: Parameters<typeof this['init']>) {
-    if(this.init as any) {
+    if (this.init as any) {
       try {
         const result = this.init(...args);
         this.init = null as any;
 
-        if(result instanceof Promise) {
+        if (result instanceof Promise) {
           await result;
         }
-      } catch(err) {
+      } catch (err) {
         console.error('open tab error', err);
       }
     }
@@ -116,7 +116,7 @@ export default class SliderSuperTab {
   protected onClose() {}
 
   protected onCloseAfterTimeout() {
-    if(this.destroyable) { // ! WARNING, пока что это будет работать только с самой последней внутренней вкладкой !
+    if (this.destroyable) { // ! WARNING, пока что это будет работать только с самой последней внутренней вкладкой !
       this.slider?.deleteTab(this);
       this.container.remove();
       this.scrollable.destroy();

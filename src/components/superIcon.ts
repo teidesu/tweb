@@ -1,8 +1,8 @@
 import noop from '@helpers/noop';
 import safeAssign from '@helpers/object/safeAssign';
-import {LottieAssetName} from '@lib/rlottie/lottieLoader';
-import RLottieIcon, {RLottieIconItemPartOptions, RLottieIconItemPart} from '@lib/rlottie/rlottieIcon';
-import {RLottieColor} from '@lib/rlottie/rlottiePlayer';
+import { LottieAssetName } from '@lib/rlottie/lottieLoader';
+import RLottieIcon, { RLottieIconItemPartOptions, RLottieIconItemPart } from '@lib/rlottie/rlottieIcon';
+import { RLottieColor } from '@lib/rlottie/rlottiePlayer';
 
 export type SuperRLottieIconAddItemOptions = {name: LottieAssetName, parts: RLottieIconItemPartOptions};
 export type SuperRLottieIconGetInfoResult = RLottieIconItemPart;
@@ -29,7 +29,7 @@ export class SuperRLottieIcon<Options extends {
   }) {
     super({
       width: options.width,
-      height: options.height
+      height: options.height,
     });
 
     safeAssign(this, options);
@@ -44,7 +44,7 @@ export class SuperRLottieIcon<Options extends {
   }
 
   public load(partState: Options['PartState'], colorState?: Options['ColorState']) {
-    if(this.loaded) {
+    if (this.loaded) {
       return this.loadPromise;
     }
 
@@ -67,22 +67,22 @@ export class SuperRLottieIcon<Options extends {
    * Will redirect setting color state to part callback to synchronize the rendering
    */
   public setState(partState: Options['PartState'], colorState?: Options['ColorState'], partCallback?: () => void) {
-    if(!this.loaded) this.load(partState, colorState);
+    if (!this.loaded) this.load(partState, colorState);
 
     let changedPartState = false, changedColorState = false;
-    if(partState !== undefined) changedPartState = this.setPartState(partState, colorState, partCallback);
-    else if(colorState !== undefined) changedColorState = this.setColorState(colorState);
+    if (partState !== undefined) changedPartState = this.setPartState(partState, colorState, partCallback);
+    else if (colorState !== undefined) changedColorState = this.setColorState(colorState);
 
     return changedPartState || changedColorState;
   }
 
   public setPartState(state: Options['PartState'], colorState?: Options['ColorState'], callback?: () => void) {
-    const {partState: prevState} = this;
-    if(prevState === state) {
+    const { partState: prevState } = this;
+    if (prevState === state) {
       return colorState !== undefined ? this.setColorState(colorState) : false;
     }
 
-    if(colorState !== undefined) {
+    if (colorState !== undefined) {
       this.setColorState(colorState, false);
     }
 
@@ -95,8 +95,8 @@ export class SuperRLottieIcon<Options extends {
   }
 
   public setColorState(state: Options['ColorState'], renderIfPaused = true) {
-    const {colorState: prevState} = this;
-    if(prevState === state || !this.getColor) {
+    const { colorState: prevState } = this;
+    if (prevState === state || !this.getColor) {
       return false;
     }
 
@@ -108,7 +108,7 @@ export class SuperRLottieIcon<Options extends {
       item.player.setColor(color, renderIfPaused);
     };
 
-    if(item.player) {
+    if (item.player) {
       invoke();
     } else {
       item.onLoadForColor = invoke;

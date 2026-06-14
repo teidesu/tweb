@@ -1,8 +1,8 @@
-import {Component, createEffect, createMemo, createSelector, createSignal, For, JSX, onCleanup, onMount} from 'solid-js';
-import {Portal} from 'solid-js/web';
-import {Transition} from 'solid-transition-group';
-import {animateValue, simpleEasing} from '@helpers/animateValue';
-import {keepMe} from '@helpers/keepMe';
+import { Component, createEffect, createMemo, createSelector, createSignal, For, JSX, onCleanup, onMount } from 'solid-js';
+import { Portal } from 'solid-js/web';
+import { Transition } from 'solid-transition-group';
+import { animateValue, simpleEasing } from '@helpers/animateValue';
+import { keepMe } from '@helpers/keepMe';
 import ListenerSetter from '@helpers/listenerSetter';
 import ripple from '@components/ripple';
 import styles from '@components/sidebarLeft/tabs/passcodeLock/inlineSelect.module.scss';
@@ -34,7 +34,7 @@ const InlineSelect: Component<{
   onMount(() => {
     const listenerSetter = new ListenerSetter();
     listenerSetter.add(window)('resize', () => {
-      if(props.isOpen) props.onClose?.();
+      if (props.isOpen) props.onClose?.();
     });
 
     onCleanup(() => {
@@ -46,7 +46,7 @@ const InlineSelect: Component<{
     const selectEl = el.firstElementChild as HTMLElement;
     const selectOptionEl = selectEl.querySelector(`.${styles.selected}`);
 
-    if(!selectOptionEl || !selectEl) {
+    if (!selectOptionEl || !selectEl) {
       // done();
       return;
     }
@@ -64,7 +64,7 @@ const InlineSelect: Component<{
 
     const isOverflowing = y + selectRect.height > window.innerHeight || y < 0;
 
-    if(isOverflowing) {
+    if (isOverflowing) {
       y +=
         Math.max(0, -y) +
         Math.min(0, window.innerHeight - (y + selectRect.height));
@@ -74,11 +74,11 @@ const InlineSelect: Component<{
     selectEl.style.setProperty('--y', '' + y);
 
 
-    selectEl.animate({opacity: [0, 1]}, {duration: 120}).finished.then(() => {
-      if(isOverflowing) done();
+    selectEl.animate({ opacity: [0, 1] }, { duration: 120 }).finished.then(() => {
+      if (isOverflowing) done();
     });
 
-    if(isOverflowing) return;
+    if (isOverflowing) return;
 
     const maxDist = Math.max(optionTop, selectRect.height - optionBottom);
     const getPath = (dist: number) =>
@@ -96,7 +96,7 @@ const InlineSelect: Component<{
         onEnd: () => {
           selectEl.style.removeProperty('clip-path');
           done();
-        }
+        },
       }
     );
   };
@@ -104,14 +104,14 @@ const InlineSelect: Component<{
   const onExit = async(el: Element, done: () => void) => {
     const selectEl = el.firstElementChild as HTMLElement;
 
-    await selectEl.animate({opacity: [1, 0]}, {duration: 120}).finished;
+    await selectEl.animate({ opacity: [1, 0] }, { duration: 120 }).finished;
 
     done();
   };
 
   const onMouseMove = (e: MouseEvent) => {
     const toCheck = [props.parent, selectEl()];
-    if(!toCheck.every(Boolean)) return;
+    if (!toCheck.every(Boolean)) return;
 
     const isOutside = toCheck.every((el) => {
       const rect = el!.getBoundingClientRect();
@@ -125,7 +125,7 @@ const InlineSelect: Component<{
       return max > 100;
     });
 
-    if(isOutside) {
+    if (isOutside) {
       props.onClose?.();
     }
   };
@@ -155,7 +155,7 @@ const InlineSelect: Component<{
                         use:ripple
                         class={styles.Option}
                         classList={{
-                          [styles.selected]: isSelected(option.value)
+                          [styles.selected]: isSelected(option.value),
                         }}
                         onClick={[props.onChange, option.value]}
                       >

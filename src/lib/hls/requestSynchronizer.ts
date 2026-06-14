@@ -6,7 +6,7 @@ export class RequestSynchronizer<Key, Response> {
     requestFn: () => Promise<Response>
   ) {
     let request = this.ongoingRequests.get(key);
-    if(!request) this.ongoingRequests.set(key, request = requestFn());
+    if (!request) this.ongoingRequests.set(key, request = requestFn());
 
     const result = await request;
     this.ongoingRequests.delete(key);

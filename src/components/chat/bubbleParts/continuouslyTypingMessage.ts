@@ -1,4 +1,4 @@
-import {animate} from '@helpers/animation';
+import { animate } from '@helpers/animation';
 import styles from '@components/chat/bubbleParts/continuouslyTypingMessage.module.scss';
 
 
@@ -19,13 +19,13 @@ type Result = {
   nextIsEnd?: boolean;
 };
 
-export function wrapContinuouslyTypingMessage({root, bubble, scrollable, isEnd = false, prevPosition = -1}: WrapContinuouslyTypingMessageArgs): Result {
+export function wrapContinuouslyTypingMessage({ root, bubble, scrollable, isEnd = false, prevPosition = -1 }: WrapContinuouslyTypingMessageArgs): Result {
   const {
     maxPosition,
     nodeContents,
     allNodes,
-    currentNodeIdx
-  } = processNodeTree({root, prevPosition});
+    currentNodeIdx,
+  } = processNodeTree({ root, prevPosition });
 
   let
     lastTextNode: Node,
@@ -39,10 +39,10 @@ export function wrapContinuouslyTypingMessage({root, bubble, scrollable, isEnd =
   };
 
   function onEnd() {
-    if(ended) return;
+    if (ended) return;
     ended = true;
 
-    if(!isEnd && lastTextNode) appendDots(lastTextNode);
+    if (!isEnd && lastTextNode) appendDots(lastTextNode);
   }
 
   const result = {
@@ -51,7 +51,7 @@ export function wrapContinuouslyTypingMessage({root, bubble, scrollable, isEnd =
     clean,
     currentPosition: prevPosition,
     currentNodeIdx,
-    nextIsEnd: isEnd
+    nextIsEnd: isEnd,
   };
 
   runAnimation({
@@ -61,11 +61,11 @@ export function wrapContinuouslyTypingMessage({root, bubble, scrollable, isEnd =
       setLastTextNode: (node) => lastTextNode = node,
       nodeContents,
       onEnd,
-      length
+      length,
     }),
     isCleaned: () => cleaned,
     maxPosition,
-    prevPosition
+    prevPosition,
   });
 
   return result;
@@ -77,42 +77,42 @@ type ProcessNodeTreeArgs = {
   prevPosition: number;
 };
 
-function processNodeTree({root, prevPosition}: ProcessNodeTreeArgs) {
+function processNodeTree({ root, prevPosition }: ProcessNodeTreeArgs) {
   const treeWalker = document.createTreeWalker(root, NodeFilter.SHOW_ALL);
 
   const allNodes: Node[] = [];
   const nodeContents = new WeakMap<Node, string>();
 
-  while(treeWalker.nextNode()) allNodes.push(treeWalker.currentNode);
+  while (treeWalker.nextNode()) allNodes.push(treeWalker.currentNode);
 
   let
     position = -1,
     currentNodeIdx = 0
   ;
 
-  for(const node of allNodes) {
-    if(node.nodeType === Node.TEXT_NODE) {
+  for (const node of allNodes) {
+    if (node.nodeType === Node.TEXT_NODE) {
       nodeContents.set(node, node.textContent!);
 
       node.textContent = node.textContent!.slice(0, Math.max(0, prevPosition - position + 1));
 
       position += nodeContents.get(node)!.length;
-    } else if(node instanceof Element && position > prevPosition) {
+    } else if (node instanceof Element && position > prevPosition) {
       node.classList.add(styles.hidden);
     }
 
-    if(position <= prevPosition) {
+    if (position <= prevPosition) {
       currentNodeIdx++;
     }
   }
 
-  return {maxPosition: position, nodeContents, allNodes, currentNodeIdx};
+  return { maxPosition: position, nodeContents, allNodes, currentNodeIdx };
 }
 
 
 function appendDots(node: Node) {
   const parent = node.parentNode;
-  if(!(parent instanceof Element)) return;
+  if (!(parent instanceof Element)) return;
 
   const dots = document.createElement('span');
   dots.className = styles.Dots;
@@ -137,16 +137,16 @@ type TypeNextArgs = {
   length: number;
 };
 
-function typeNext({result, setLastTextNode, onEnd, nodeContents, length}: TypeNextArgs) {
-  const {allNodes, clean} = result;
+function typeNext({ result, setLastTextNode, onEnd, nodeContents, length }: TypeNextArgs) {
+  const { allNodes, clean } = result;
 
-  while(result.currentNodeIdx < allNodes.length && length) {
+  while (result.currentNodeIdx < allNodes.length && length) {
     const node = allNodes[result.currentNodeIdx];
 
-    if(node instanceof Element) {
+    if (node instanceof Element) {
       result.currentNodeIdx++;
       node.classList.remove(styles.hidden);
-    } else if(node.nodeType === Node.TEXT_NODE) {
+    } else if (node.nodeType === Node.TEXT_NODE) {
       const typedLength = node.textContent!.length;
       const finalContent = nodeContents.get(node);
 
@@ -160,12 +160,12 @@ function typeNext({result, setLastTextNode, onEnd, nodeContents, length}: TypeNe
       length = leftOverLength;
       result.currentPosition += end - start;
 
-      if(leftOverLength) result.currentNodeIdx++;
+      if (leftOverLength) result.currentNodeIdx++;
       setLastTextNode(node);
     }
   }
 
-  if(result.currentNodeIdx >= allNodes.length) {
+  if (result.currentNodeIdx >= allNodes.length) {
     clean();
     onEnd();
   }
@@ -193,7 +193,7 @@ type RunAnimationArgs = {
 
 const TARGET_TIME_TO_WRITE = 5000;
 
-function runAnimation({scrollable, typeNext, isCleaned, maxPosition, prevPosition}: RunAnimationArgs) {
+function runAnimation({ scrollable, typeNext, isCleaned, maxPosition, prevPosition }: RunAnimationArgs) {
   const targetDelay = TARGET_TIME_TO_WRITE / (maxPosition - prevPosition);
 
   let prevTime = 0;
@@ -201,7 +201,7 @@ function runAnimation({scrollable, typeNext, isCleaned, maxPosition, prevPositio
   const animationInvalidation = registerAnimationInvalidation(scrollable);
 
   const checkCleaned = () => {
-    if(!isCleaned()) return false;
+    if (!isCleaned()) return false;
 
     animationInvalidation.cleanup();
 
@@ -212,22 +212,22 @@ function runAnimation({scrollable, typeNext, isCleaned, maxPosition, prevPositio
   const skipFrames = 2;
 
   animate(() => {
-    if(checkCleaned()) return false;
+    if (checkCleaned()) return false;
 
     skip = (skip + 1) % skipFrames;
-    if(skip) return true;
+    if (skip) return true;
 
     const now = performance.now();
-    if(!prevTime) prevTime = now;
+    if (!prevTime) prevTime = now;
 
     const length = Math.max(0, Math.round((now - prevTime) / getRandomDelay(targetDelay)));
 
-    if(length) {
+    if (length) {
       typeNext(length);
       prevTime = now;
     }
 
-    if(length && !animationInvalidation.isInvalidated()) {
+    if (length && !animationInvalidation.isInvalidated()) {
       // value.aboutToScroll = true;
 
       // animate(() => {
@@ -235,7 +235,7 @@ function runAnimation({scrollable, typeNext, isCleaned, maxPosition, prevPositio
       // if(value.invalidateTimeoutId || checkCleaned()) return;
 
       const threshold = 120; // px
-      if(scrollable.scrollTop + scrollable.clientHeight > scrollable.scrollHeight - threshold) {
+      if (scrollable.scrollTop + scrollable.clientHeight > scrollable.scrollHeight - threshold) {
         scrollable.scrollTop = scrollable.scrollHeight;
       }
       // });
@@ -261,25 +261,25 @@ const registeredScrollables = new Map<HTMLElement, RegisteredScrollableValue>();
 function registerAnimationInvalidation(scrollable: HTMLElement) {
   let value: RegisteredScrollableValue;
 
-  if(!registeredScrollables.has(scrollable)) {
+  if (!registeredScrollables.has(scrollable)) {
     value = {
       count: 0,
       cleanup: () => {
         events.forEach(event => {
           scrollable.removeEventListener(event, callback);
         });
-      }
+      },
     };
 
     const callback = () => {
-      if(value.invalidateTimeoutId) self.clearTimeout(value.invalidateTimeoutId);
+      if (value.invalidateTimeoutId) self.clearTimeout(value.invalidateTimeoutId);
       value.invalidateTimeoutId = self.setTimeout(() => {
         value.invalidateTimeoutId = undefined;
       }, INVALIDATE_SCROLL_TIMEOUT)
     };
 
     events.forEach(event => {
-      scrollable.addEventListener(event, callback, {passive: true});
+      scrollable.addEventListener(event, callback, { passive: true });
     });
 
     registeredScrollables.set(scrollable, value);
@@ -294,15 +294,15 @@ function registerAnimationInvalidation(scrollable: HTMLElement) {
   return {
     isInvalidated: () => !!value.invalidateTimeoutId,
     cleanup: () => {
-      if(cleaned) return;
+      if (cleaned) return;
       cleaned = true;
 
       value.count--;
 
-      if(value.count <= 0) {
+      if (value.count <= 0) {
         value.cleanup();
         registeredScrollables.delete(scrollable);
       }
-    }
+    },
   };
 }

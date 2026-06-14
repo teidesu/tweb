@@ -1,12 +1,12 @@
 import ctx from '@environment/ctx';
 import callbackify from '@helpers/callbackify';
-import {ignoreRestrictionReasons} from '@helpers/restrictions';
-import {Config, DataJSON, HelpAppConfig, HelpPeerColors, MethodDeclMap, User} from '@layer';
-import {InvokeApiOptions} from '@types';
-import {AppManager} from '@appManagers/manager';
+import { ignoreRestrictionReasons } from '@helpers/restrictions';
+import { Config, DataJSON, HelpAppConfig, HelpPeerColors, MethodDeclMap, User } from '@layer';
+import { InvokeApiOptions } from '@types';
+import { AppManager } from '@appManagers/manager';
 import rootScope from '@lib/rootScope';
-import {UserAuth} from '@appManagers/constants';
-import {MTMessage} from '@lib/mtproto/networker';
+import { UserAuth } from '@appManagers/constants';
+import { MTMessage } from '@lib/mtproto/networker';
 
 type HashResult = {
   hash: number,
@@ -61,7 +61,7 @@ export default abstract class ApiManagerMethods extends AppManager {
     this.rootScope.addEventListener('managers_ready', async() => {
       const appConfig = await promise;
       this.applyAppConfig(appConfig, false);
-    }, {once: true});
+    }, { once: true });
 
     const promise = this.appStateManager.getState().then((state) => {
       return state.appConfig;
@@ -77,7 +77,7 @@ export default abstract class ApiManagerMethods extends AppManager {
 
     rootScope.dispatchEvent('account_logged_in', {
       accountNumber: this.getAccountNumber(),
-      userId: user.id
+      userId: user.id,
     });
 
     return this.setUserAuth(user.id);
@@ -89,7 +89,7 @@ export default abstract class ApiManagerMethods extends AppManager {
     let o = options;
     o.prepareTempMessageId = '' + ++this.afterMessageIdTemp;
 
-    o = {...options};
+    o = { ...options };
     (options as MTMessage).messageId = o.prepareTempMessageId;
 
     // console.log('will invokeApi:', method, params, options);
@@ -109,14 +109,14 @@ export default abstract class ApiManagerMethods extends AppManager {
     o.options ??= {};
     // console.log('will invokeApi:', method, params, options);
 
-    const {params, options, method, overwrite} = o;
+    const { params, options, method, overwrite } = o;
 
     const queryJSON = JSON.stringify(params);
     let cached: HashResult | undefined;
-    if(this.hashes[method]) {
+    if (this.hashes[method]) {
       cached = this.hashes[method][queryJSON];
-      if(cached) {
-        if(overwrite) {
+      if (cached) {
+        if (overwrite) {
           delete this.hashes[method][queryJSON];
           cached = undefined;
         } else {
@@ -128,22 +128,22 @@ export default abstract class ApiManagerMethods extends AppManager {
     return this.invokeApiSingleProcess<T, R>({
       method,
       processResult: (result) => {
-        if(result._.includes('NotModified')) {
+        if (result._.includes('NotModified')) {
           // this.debug && this.log.warn('NotModified saved!', method, queryJSON);
           return cached!.result;
         }
 
-        if(result.hash/*  || result.messages */) {
+        if (result.hash/*  || result.messages */) {
           const hash = result.hash/*  || this.computeHash(result.messages) */;
 
-          if(!this.hashes[method]) this.hashes[method] = {};
+          if (!this.hashes[method]) this.hashes[method] = {};
           cached = this.hashes[method][queryJSON] = {
             hash,
-            result
+            result,
           };
         }
 
-        if(o.processResult) {
+        if (o.processResult) {
           const newResult = o.processResult(result);
           return cached ? cached.result = newResult : newResult;
         }
@@ -151,14 +151,14 @@ export default abstract class ApiManagerMethods extends AppManager {
         return result;
       },
       params,
-      options
+      options,
     });
   }
 
   public invokeApiSingle<T extends keyof MethodDeclMap>(method: T, params: MethodDeclMap[T]['req'] = {} as any, options: InvokeApiOptions = {}): Promise<MethodDeclMap[T]['res']> {
     const q = method + '-' + JSON.stringify(params);
     const cache = this.apiPromisesSingle;
-    if(cache[q] as Promise<any> | undefined) {
+    if (cache[q] as Promise<any> | undefined) {
       return cache[q];
     }
 
@@ -177,12 +177,12 @@ export default abstract class ApiManagerMethods extends AppManager {
     o.params ??= {};
     o.options ??= {};
 
-    const {method, processResult, processError, params, options} = o;
+    const { method, processResult, processError, params, options } = o;
     const cache = this.apiPromisesSingleProcess;
     const cacheKey = options.cacheKey || JSON.stringify(params);
     const map = cache[method] ??= new Map();
     const oldPromise = map.get(cacheKey);
-    if(oldPromise && !options.overwrite) {
+    if (oldPromise && !options.overwrite) {
       return oldPromise;
     }
 
@@ -196,11 +196,11 @@ export default abstract class ApiManagerMethods extends AppManager {
       return getNewPromise() || (processResult ? processResult(result) : result);
     }, (error) => {
       const promise = getNewPromise();
-      if(promise) {
+      if (promise) {
         return promise;
       }
 
-      if(!processError) {
+      if (!processError) {
         throw error;
       }
 
@@ -208,12 +208,12 @@ export default abstract class ApiManagerMethods extends AppManager {
     });
 
     const p = newPromise.finally(() => {
-      if(map.get(cacheKey) !== p) {
+      if (map.get(cacheKey) !== p) {
         return;
       }
 
       map.delete(cacheKey);
-      if(!map.size) {
+      if (!map.size) {
         delete cache[method];
       }
     });
@@ -233,11 +233,11 @@ export default abstract class ApiManagerMethods extends AppManager {
     const cache = this.apiPromisesCacheable[method] ??= {};
     const queryJSON = JSON.stringify(params);
     let item = cache[queryJSON];
-    if(item && (!options.override || !item.fulfilled)) {
-      if(options.syncIfHasResult) {
-        if(item.hasOwnProperty('result')) {
+    if (item && (!options.override || !item.fulfilled)) {
+      if (options.syncIfHasResult) {
+        if (item.hasOwnProperty('result')) {
           return item.result;
-        } else if(item.hasOwnProperty('error')) {
+        } else if (item.hasOwnProperty('error')) {
           throw item.error;
         }
       }
@@ -245,8 +245,8 @@ export default abstract class ApiManagerMethods extends AppManager {
       return item.promise;
     }
 
-    if(options.override) {
-      if(item?.timeout) {
+    if (options.override) {
+      if (item?.timeout) {
         clearTimeout(item.timeout);
         delete item.timeout;
       }
@@ -255,9 +255,9 @@ export default abstract class ApiManagerMethods extends AppManager {
     }
 
     let timeout: number;
-    if(options.cacheSeconds) {
+    if (options.cacheSeconds) {
       timeout = ctx.setTimeout(() => {
-        if(cache[queryJSON] === item) {
+        if (cache[queryJSON] === item) {
           delete cache[queryJSON];
         }
       }, options.cacheSeconds * 1000);
@@ -281,7 +281,7 @@ export default abstract class ApiManagerMethods extends AppManager {
       fulfilled: false,
       timeout: timeout!,
       promise,
-      params
+      params,
     };
 
     return promise;
@@ -289,18 +289,18 @@ export default abstract class ApiManagerMethods extends AppManager {
 
   public clearCache<T extends keyof MethodDeclMap>(method: T, verify: (params: MethodDeclMap[T]['req']) => boolean) {
     const cache = this.apiPromisesCacheable[method];
-    if(cache) {
-      for(const queryJSON in cache) {
+    if (cache) {
+      for (const queryJSON in cache) {
         const item = cache[queryJSON];
         try {
-          if(verify(item.params)) {
-            if(item.timeout) {
+          if (verify(item.params)) {
+            if (item.timeout) {
               clearTimeout(item.timeout);
             }
 
             delete cache[queryJSON];
           }
-        } catch(err) {
+        } catch (err) {
           // this.log.error('clearCache error:', err, queryJSON, item);
         }
       }
@@ -308,7 +308,7 @@ export default abstract class ApiManagerMethods extends AppManager {
   }
 
   public getConfig(overwrite?: boolean) {
-    if(this.config && !overwrite) {
+    if (this.config && !overwrite) {
       return this.config;
     }
 
@@ -320,7 +320,7 @@ export default abstract class ApiManagerMethods extends AppManager {
         this.rootScope.dispatchEvent('config', config);
         return config;
       },
-      options: {overwrite}
+      options: { overwrite },
     });
   }
 
@@ -328,7 +328,7 @@ export default abstract class ApiManagerMethods extends AppManager {
     this.appConfig = appConfig;
     ignoreRestrictionReasons(appConfig.ignore_restriction_reasons ?? []);
 
-    if(save) {
+    if (save) {
       appConfig.cachedTime = Date.now();
       this.appStateManager.pushToState('appConfig', appConfig);
     }
@@ -338,7 +338,7 @@ export default abstract class ApiManagerMethods extends AppManager {
   }
 
   public getAppConfig(overwrite?: boolean) {
-    if(
+    if (
       this.appConfig &&
       !overwrite &&
       (this.requestedAppConfig || (Date.now() - (this.appConfig.cachedTime || 0)) < 86400e3)
@@ -349,7 +349,7 @@ export default abstract class ApiManagerMethods extends AppManager {
     return this.invokeApiSingleProcess({
       method: 'help.getAppConfig',
       params: {
-        hash: this.appConfig?.hash || 0
+        hash: this.appConfig?.hash || 0,
       },
       processResult: async(helpAppConfig) => {
         this.requestedAppConfig = true;
@@ -357,12 +357,12 @@ export default abstract class ApiManagerMethods extends AppManager {
         config.hash = (helpAppConfig as HelpAppConfig.helpAppConfig).hash || config.hash;
         return this.applyAppConfig(config, true);
       },
-      options: {overwrite}
+      options: { overwrite },
     });
   }
 
   public getTimezonesList() {
-    return this.invokeApiCacheable('help.getTimezonesList', {hash: 0}, {cacheSeconds: 86400, syncIfHasResult: true});
+    return this.invokeApiCacheable('help.getTimezonesList', { hash: 0 }, { cacheSeconds: 86400, syncIfHasResult: true });
   }
 
   public getLimit(type: ApiLimitType, isPremium?: boolean) {
@@ -384,7 +384,7 @@ export default abstract class ApiManagerMethods extends AppManager {
         folderPeers: ['dialog_filters_chats_limit_default', 'dialog_filters_chats_limit_premium'],
         uploadFileParts: ['upload_max_fileparts_default', 'upload_max_fileparts_premium'],
         recommendedChannels: ['recommended_channels_limit_default', 'recommended_channels_limit_premium'],
-        savedPin: ['saved_dialogs_pinned_limit_default', 'saved_dialogs_pinned_limit_premium']
+        savedPin: ['saved_dialogs_pinned_limit_default', 'saved_dialogs_pinned_limit_premium'],
       };
 
       isPremium ??= this.rootScope.premium;
@@ -396,11 +396,11 @@ export default abstract class ApiManagerMethods extends AppManager {
   }
 
   public getPeerColors() {
-    return this.apiManager.invokeApiCacheable('help.getPeerColors', {hash: 0}) as Promise<HelpPeerColors.helpPeerColors>;
+    return this.apiManager.invokeApiCacheable('help.getPeerColors', { hash: 0 }) as Promise<HelpPeerColors.helpPeerColors>;
   }
 
   public getPeerProfileColors() {
-    return this.apiManager.invokeApiCacheable('help.getPeerProfileColors', {hash: 0}) as Promise<HelpPeerColors.helpPeerColors>;
+    return this.apiManager.invokeApiCacheable('help.getPeerProfileColors', { hash: 0 }) as Promise<HelpPeerColors.helpPeerColors>;
   }
 
   public setThemeParams(themeParams: DataJSON) {

@@ -1,21 +1,21 @@
-import {SETTINGS_INIT} from '@config/state';
+import { SETTINGS_INIT } from '@config/state';
 import copy from '@helpers/object/copy';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
 import convertKeyToInputKey from '@helpers/string/convertKeyToInputKey';
-import {InputNotifyPeer, InputPeerNotifySettings, PeerNotifySettings, Update} from '@layer';
-import {i18n, LangPackKey} from '@lib/langPack';
-import {MUTE_UNTIL} from '@appManagers/constants';
+import { InputNotifyPeer, InputPeerNotifySettings, PeerNotifySettings, Update } from '@layer';
+import { i18n, LangPackKey } from '@lib/langPack';
+import { MUTE_UNTIL } from '@appManagers/constants';
 import rootScope from '@lib/rootScope';
-import {useAppSettings} from '@stores/appSettings';
+import { useAppSettings } from '@stores/appSettings';
 import CheckboxFieldTsx from '@components/checkboxFieldTsx';
 import RangeSettingSelector from '@components/rangeSettingSelector';
 import Row from '@components/rowTsx';
 import Section from '@components/section';
-import {createEffect, createMemo, createSignal, getOwner, onCleanup, runWithOwner} from 'solid-js';
-import {toastNew} from '@components/toast';
+import { createEffect, createMemo, createSignal, getOwner, onCleanup, runWithOwner } from 'solid-js';
+import { toastNew } from '@components/toast';
 import Button from '@components/buttonTsx';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 
 type InputNotifyKey = Exclude<InputNotifyPeer['_'], 'inputNotifyPeer' | 'inputNotifyForumTopic'>;
 
@@ -27,11 +27,11 @@ const NotifySection = (props: {
   const [enabled, setEnabled] = createSignal(true);
   const [showPreviews, setShowPreviews] = createSignal(true);
   const [notifySettings, setNotifySettings] = createSignal<PeerNotifySettings>();
-  const inputNotifyPeer = {_: props.inputKey};
+  const inputNotifyPeer = { _: props.inputKey };
 
   createEffect(async() => {
     const _notifySettings = notifySettings();
-    if(!_notifySettings) {
+    if (!_notifySettings) {
       return;
     }
 
@@ -47,7 +47,7 @@ const NotifySection = (props: {
     const _showPreviews = showPreviews();
     const _notifySettings = notifySettings();
     const isMuted = await rootScope.managers.appNotificationsManager.isMuted(_notifySettings!);
-    if(
+    if (
       mute === isMuted &&
       _showPreviews === _notifySettings!.show_previews
     ) {
@@ -66,14 +66,14 @@ const NotifySection = (props: {
 
   subscribeOn(rootScope)('notify_settings', (update: Update.updateNotifySettings) => {
     const inputKey = convertKeyToInputKey(update.peer._) as any;
-    if(props.inputKey === inputKey) {
+    if (props.inputKey === inputKey) {
       setNotifySettings(update.notify_settings);
     }
   });
 
   const ret = rootScope.managers.appNotificationsManager.getNotifySettings(inputNotifyPeer);
   (ret instanceof Promise ? ret : Promise.resolve(ret)).then((_notifySettings) => {
-    if(!notifySettings()) {
+    if (!notifySettings()) {
       setNotifySettings(_notifySettings);
     }
   });
@@ -104,7 +104,7 @@ const OtherSection = () => {
 
     runWithOwner(owner, () => onCleanup(() => {
       const _enabled = contactJoined();
-      if(_enabled !== enabled) {
+      if (_enabled !== enabled) {
         rootScope.managers.appNotificationsManager.setContactSignUpNotification(!_enabled);
       }
     }));
@@ -127,7 +127,7 @@ const OtherSection = () => {
 };
 
 const NotificationsSection = () => {
-  const {uiNotificationsManager} = useHotReloadGuard();
+  const { uiNotificationsManager } = useHotReloadGuard();
   const [appSettings, setAppSettings] = useAppSettings();
   const [permission, setPermission] = createSignal<NotificationPermission>(Notification.permission);
   const isGranted = createMemo(() => permission() === 'granted');
@@ -137,14 +137,14 @@ const NotificationsSection = () => {
     // const now = Date.now();
     Notification.requestPermission().then((permission) => {
       setPermission(permission);
-      if(permission === 'granted') {
+      if (permission === 'granted') {
         uiNotificationsManager.onPushConditionsChange();
       } else {
         throw 1;
       }
     }, () => {
       // if((Date.now() - now) < 100) {
-      toastNew({langPackKey: 'Notifications.Restricted'});
+      toastNew({ langPackKey: 'Notifications.Restricted' });
       // }
     });
   };
@@ -217,7 +217,7 @@ const NotificationsSection = () => {
 };
 
 const SoundSection = () => {
-  const {uiNotificationsManager} = useHotReloadGuard();
+  const { uiNotificationsManager } = useHotReloadGuard();
   const [appSettings, setAppSettings] = useAppSettings();
 
   return (
@@ -230,7 +230,7 @@ const SoundSection = () => {
           <CheckboxFieldTsx
             checked={appSettings.notifications.sound}
             onChange={(value) => {
-              if(value && !appSettings.notifications.volume) {
+              if (value && !appSettings.notifications.volume) {
                 setAppSettings('notifications', 'volume', SETTINGS_INIT.notifications.volume);
               }
 
@@ -250,7 +250,7 @@ const SoundSection = () => {
         maxValue={1}
         onChange={(value) => {
           value = +value.toFixed(2);
-          if(!value) {
+          if (!value) {
             setAppSettings('notifications', 'sound', false);
           }
 

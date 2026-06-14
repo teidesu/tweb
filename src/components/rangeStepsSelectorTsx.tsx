@@ -1,4 +1,4 @@
-import {createEffect, createMemo, createSignal, For, JSX} from 'solid-js';
+import { createEffect, createMemo, createSignal, For, JSX } from 'solid-js';
 import clamp from '@helpers/number/clamp';
 import RangeSelector from '@components/rangeSelectorTsx';
 import classNames from '@helpers/string/classNames';
@@ -19,7 +19,7 @@ export default function RangeStepsSelector<T = any>(props: {
   onValue?: (value: T) => void
 }) {
   const steps = createMemo<RangeStep<T>[]>(() => {
-    if(props.steps) {
+    if (props.steps) {
       return props.steps;
     }
 
@@ -41,12 +41,12 @@ export default function RangeStepsSelector<T = any>(props: {
   const [index, setIndex] = createSignal(0);
 
   createEffect(() => {
-    if(props.index !== undefined) {
+    if (props.index !== undefined) {
       setIndex(clampIndex(props.index));
       return;
     }
 
-    if(props.indexByValue !== undefined) {
+    if (props.indexByValue !== undefined) {
       const valueIndex = steps().findIndex((step) => step[1] === props.indexByValue);
       setIndex(clampIndex(valueIndex));
       return;
@@ -86,11 +86,11 @@ export default function RangeStepsSelector<T = any>(props: {
                   'is-first': currentIndex === 0 && !props.noFirstLast,
                   'is-last': isLast && !props.noFirstLast,
                   'active': index() >= currentIndex,
-                  'is-chosen': index() === currentIndex
+                  'is-chosen': index() === currentIndex,
                 }}
                 style={{
                   left: isLast ? undefined : left,
-                  right: isLast ? '0' : undefined
+                  right: isLast ? '0' : undefined,
                 }}
               >
                 <div class="range-setting-selector-option-text">{step[0]}</div>

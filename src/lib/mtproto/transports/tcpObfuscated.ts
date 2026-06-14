@@ -1,12 +1,12 @@
 import Modes from '@config/modes';
-import {logger, LogTypes} from '@lib/logger';
+import { logger, LogTypes } from '@lib/logger';
 import MTPNetworker from '@lib/mtproto/networker';
 import Obfuscation from '@lib/mtproto/transports/obfuscation';
-import MTTransport, {MTConnection, MTConnectionConstructable} from '@lib/mtproto/transports/transport';
+import MTTransport, { MTConnection, MTConnectionConstructable } from '@lib/mtproto/transports/transport';
 // import intermediatePacketCodec from '@lib/mtproto/transports/intermediate';
 import abridgedPacketCodec from '@lib/mtproto/transports/abridged';
 // import paddedIntermediatePacketCodec from '@lib/mtproto/transports/padded';
-import {ConnectionStatus} from '@lib/mtproto/connectionStatus';
+import { ConnectionStatus } from '@lib/mtproto/connectionStatus';
 import transportController from '@lib/mtproto/transports/controller';
 import bytesToHex from '@helpers/bytes/bytesToHex';
 // import networkStats from '@lib/mtproto/networkStats';
@@ -45,7 +45,7 @@ export default class TcpObfuscated implements MTTransport {
     private retryTimeout: number
   ) {
     let logTypes = LogTypes.Error | LogTypes.Log;
-    if(this.debug) logTypes |= LogTypes.Debug;
+    if (this.debug) logTypes |= LogTypes.Debug;
     this.log = logger(`TCP-${dcId}` + logSuffix, logTypes);
     this.log('constructor');
 
@@ -55,18 +55,18 @@ export default class TcpObfuscated implements MTTransport {
   private onOpen = async() => {
     this.connected = true;
 
-    if(import.meta.env.VITE_MTPROTO_AUTO && Modes.multipleTransports) {
+    if (import.meta.env.VITE_MTPROTO_AUTO && Modes.multipleTransports) {
       transportController.setTransportOpened('websocket');
     }
 
     const initPayload = await this.obfuscation.init(this.codec);
-    if(!this.connected) {
+    if (!this.connected) {
       return;
     }
 
     this.connection!.send(initPayload);
 
-    if(this.networker) {
+    if (this.networker) {
       this.pending.length = 0; // ! clear queue and reformat messages to container, because if sending simultaneously 10+ messages, connection will die
       this.networker.onTransportOpen();
     }/*  else {
@@ -89,7 +89,7 @@ export default class TcpObfuscated implements MTTransport {
     let data = await this.obfuscation.decode(new Uint8Array(buffer));
     data = this.codec.readPacket(data);
 
-    if(this.networker) { // authenticated!
+    if (this.networker) { // authenticated!
       // this.pending = this.pending.filter((p) => p.body); // clear pending
 
       this.networker.onTransportData(data, time);
@@ -100,7 +100,7 @@ export default class TcpObfuscated implements MTTransport {
 
     // console.log('got hex:', data.hex);
     const pending = this.pending.shift();
-    if(!pending) {
+    if (!pending) {
       this.debug && this.log.debug('no pending for res:', bytesToHex(data));
       return;
     }
@@ -112,19 +112,19 @@ export default class TcpObfuscated implements MTTransport {
     this.clear();
 
     let needTimeout: number, retryAt: number;
-    if(this.autoReconnect) {
+    if (this.autoReconnect) {
       const time = Date.now();
       const diff = time - this.lastCloseTime;
       needTimeout = !isNaN(diff) && diff < this.retryTimeout ? this.retryTimeout - diff : 0;
       retryAt = time + needTimeout;
     }
 
-    if(this.networker) {
+    if (this.networker) {
       this.networker.setConnectionStatus(ConnectionStatus.Closed, retryAt!);
       this.pending.length = 0;
     }
 
-    if(this.autoReconnect) {
+    if (this.autoReconnect) {
       this.log('will try to reconnect after timeout:', needTimeout! / 1000);
       this.reconnectTimeout = ctx.setTimeout(this.reconnect, needTimeout!);
     } else {
@@ -133,15 +133,15 @@ export default class TcpObfuscated implements MTTransport {
   };
 
   public clear() {
-    if(import.meta.env.VITE_MTPROTO_AUTO && Modes.multipleTransports) {
-      if(this.connected) {
+    if (import.meta.env.VITE_MTPROTO_AUTO && Modes.multipleTransports) {
+      if (this.connected) {
         transportController.setTransportClosed('websocket');
       }
     }
 
     this.connected = false;
 
-    if(this.connection) {
+    if (this.connection) {
       this.connection.removeEventListener('open', this.onOpen);
       this.connection.removeEventListener('close', this.onClose);
       this.connection.removeEventListener('message', this.onMessage);
@@ -153,21 +153,21 @@ export default class TcpObfuscated implements MTTransport {
    * invoke only when closed
    */
   public reconnect = () => {
-    if(this.reconnectTimeout !== undefined) {
+    if (this.reconnectTimeout !== undefined) {
       clearTimeout(this.reconnectTimeout);
       this.reconnectTimeout = undefined;
     }
 
-    if(this.connection) {
+    if (this.connection) {
       return;
     }
 
     this.log('trying to reconnect...');
     this.lastCloseTime = Date.now();
 
-    if(!this.networker) {
-      for(const pending of this.pending) {
-        if(pending.bodySent) {
+    if (!this.networker) {
+      for (const pending of this.pending) {
+        if (pending.bodySent) {
           pending.bodySent = false;
         }
       }
@@ -187,12 +187,12 @@ export default class TcpObfuscated implements MTTransport {
     this.setAutoReconnect(false);
     this.close();
 
-    if(this.obfuscation) {
+    if (this.obfuscation) {
       this.obfuscation.destroy();
     }
 
     this.pending.forEach((pending) => {
-      if(pending.reject) {
+      if (pending.reject) {
         pending.reject();
       }
     });
@@ -201,14 +201,14 @@ export default class TcpObfuscated implements MTTransport {
 
   public close() {
     const connection = this.connection;
-    if(connection) {
+    if (connection) {
       const connected = this.connected;
       this.clear();
-      if(connected) { // wait for buffered messages if they are there
+      if (connected) { // wait for buffered messages if they are there
         connection.addEventListener('message', this.onMessage);
         connection.addEventListener('close', () => {
           connection.removeEventListener('message', this.onMessage);
-        }, {once: true});
+        }, { once: true });
         connection.close();
       }
     }
@@ -221,18 +221,18 @@ export default class TcpObfuscated implements MTTransport {
   public setAutoReconnect(enable: boolean) {
     this.autoReconnect = enable;
 
-    if(!enable) {
-      if(this.reconnectTimeout !== undefined) {
+    if (!enable) {
+      if (this.reconnectTimeout !== undefined) {
         clearTimeout(this.reconnectTimeout);
         this.reconnectTimeout = undefined;
       }
-    } else if(!this.connection && this.reconnectTimeout === undefined) {
+    } else if (!this.connection && this.reconnectTimeout === undefined) {
       this.reconnect();
     }
   }
 
   private connect() {
-    if(this.connection) {
+    if (this.connection) {
       this.close();
     }
 
@@ -243,7 +243,7 @@ export default class TcpObfuscated implements MTTransport {
   }
 
   public changeUrl(url: string) {
-    if(this.url === url) {
+    if (this.url === url) {
       return;
     }
 
@@ -268,12 +268,12 @@ export default class TcpObfuscated implements MTTransport {
 
     // return;
 
-    if(this.networker) {
-      this.pending.push({body, encoded});
+    if (this.networker) {
+      this.pending.push({ body, encoded });
       this.releasePending();
     } else {
       const promise = new Promise<typeof body>((resolve, reject) => {
-        this.pending.push({resolve, reject, body, encoded});
+        this.pending.push({ resolve, reject, body, encoded });
       });
 
       this.releasePending();
@@ -283,7 +283,7 @@ export default class TcpObfuscated implements MTTransport {
   }
 
   private async releasePending(/* tt = false */) {
-    if(!this.connected || this.releasingPending) {
+    if (!this.connected || this.releasingPending) {
       // this.connect();
       return;
     }
@@ -299,14 +299,14 @@ export default class TcpObfuscated implements MTTransport {
     let length = this.pending.length;
     let sent = false;
     // for(let i = length - 1; i >= 0; --i) {
-    for(let i = 0; i < length; ++i) {
+    for (let i = 0; i < length; ++i) {
       const pending = this.pending[i];
-      if(!pending) {
+      if (!pending) {
         break;
       }
 
-      const {body, bodySent} = pending;
-      if(body && !bodySent) {
+      const { body, bodySent } = pending;
+      if (body && !bodySent) {
         // this.debugPayloads.push({before: body.slice(), after: enc});
 
         this.debug && this.log.debug('-> body length to send:', body.length);
@@ -316,14 +316,14 @@ export default class TcpObfuscated implements MTTransport {
         // }
 
         const encoded = pending.encoded ??= await this.encodeBody(body);
-        if(!this.connected) {
+        if (!this.connected) {
           break;
         }
 
         // networkStats.addSent(this.dcId, encoded.byteLength);
         this.connection!.send(encoded);
 
-        if(!pending.resolve) { // remove if no response needed
+        if (!pending.resolve) { // remove if no response needed
           this.pending.splice(i--, 1);
           length--;
         } else {
@@ -337,7 +337,7 @@ export default class TcpObfuscated implements MTTransport {
 
     this.releasingPending = undefined;
 
-    if(this.pending.length && sent) {
+    if (this.pending.length && sent) {
       this.releasePending();
     }
   }

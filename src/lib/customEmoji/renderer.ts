@@ -1,32 +1,32 @@
-import type {MyDocument} from '@appManagers/appDocsManager';
-import animationIntersector, {AnimationItemGroup} from '@components/animationIntersector';
+import type { MyDocument } from '@appManagers/appDocsManager';
+import animationIntersector, { AnimationItemGroup } from '@components/animationIntersector';
 import LazyLoadQueue from '@components/lazyLoadQueue';
-import wrapSticker, {videosCache} from '@components/wrappers/sticker';
-import customProperties, {CustomProperty} from '@helpers/dom/customProperties';
+import wrapSticker, { videosCache } from '@components/wrappers/sticker';
+import customProperties, { CustomProperty } from '@helpers/dom/customProperties';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import getViewportSlice from '@helpers/dom/getViewportSlice';
 import replaceContent from '@helpers/dom/replaceContent';
 import framesCache from '@helpers/framesCache';
-import {MediaSize} from '@helpers/mediaSize';
+import { MediaSize } from '@helpers/mediaSize';
 import mediaSizes from '@helpers/mediaSizes';
 import liteMode from '@helpers/liteMode';
 import apiManagerProxy from '@lib/apiManagerProxy';
-import {Middleware, MiddlewareHelper, getMiddleware} from '@helpers/middleware';
+import { Middleware, MiddlewareHelper, getMiddleware } from '@helpers/middleware';
 import noop from '@helpers/noop';
-import {DocumentAttribute} from '@layer';
+import { DocumentAttribute } from '@layer';
 import wrapRichText from '@lib/richTextProcessor/wrapRichText';
-import RLottiePlayer, {applyColorOnContext, getLottiePixelRatio} from '@lib/rlottie/rlottiePlayer';
+import RLottiePlayer, { applyColorOnContext, getLottiePixelRatio } from '@lib/rlottie/rlottiePlayer';
 import rootScope from '@lib/rootScope';
-import CustomEmojiElement, {CustomEmojiElements} from '@lib/customEmoji/element';
+import CustomEmojiElement, { CustomEmojiElements } from '@lib/customEmoji/element';
 import assumeType from '@helpers/assumeType';
-import {IS_WEBM_SUPPORTED} from '@environment/videoSupport';
-import {observeResize, unobserveResize} from '@components/resizeObserver';
-import {PAID_REACTION_EMOJI_DOCID} from '@lib/customEmoji/constants';
+import { IS_WEBM_SUPPORTED } from '@environment/videoSupport';
+import { observeResize, unobserveResize } from '@components/resizeObserver';
+import { PAID_REACTION_EMOJI_DOCID } from '@lib/customEmoji/constants';
 import lottieLoader from '@lib/rlottie/lottieLoader';
 import StickerType from '@config/stickerType';
-import {Accessor, createMemo, createRoot, createSignal, Setter} from 'solid-js';
+import { Accessor, createMemo, createRoot, createSignal, Setter } from 'solid-js';
 import readValue from '@helpers/solid/readValue';
-import {isTruthy} from '../../helpers/isTruthy';
+import { isTruthy } from '../../helpers/isTruthy';
 
 const globalLazyLoadQueue = new LazyLoadQueue();
 
@@ -89,14 +89,14 @@ export class CustomEmojiRendererElement extends HTMLElement {
   };
 
   public connectedCallback() {
-    if(emojiRenderers.has(this)) {
+    if (emojiRenderers.has(this)) {
       return;
     }
 
     // this.setDimensions();
     // animationIntersector.addAnimation(this, this.animationGroup);
     const observeElement = this.observeResizeElement ?? this.canvas;
-    if(observeElement) {
+    if (observeElement) {
       observeResize(observeElement, this.onResizeEntry);
     }
     emojiRenderers.add(this);
@@ -105,7 +105,7 @@ export class CustomEmojiRendererElement extends HTMLElement {
   }
 
   public disconnectedCallback() {
-    if(this.isConnected || !this.auto) {
+    if (this.isConnected || !this.auto) {
       return;
     }
 
@@ -120,7 +120,7 @@ export class CustomEmojiRendererElement extends HTMLElement {
     // }
 
     const observeElement = this.observeResizeElement ?? this.canvas;
-    if(observeElement) {
+    if (observeElement) {
       unobserveResize(observeElement);
     }
 
@@ -142,35 +142,35 @@ export class CustomEmojiRendererElement extends HTMLElement {
   }
 
   public getOffsets(offsetsMap: Map<CustomEmojiElements, {top: number, left: number, width: number}[]> = new Map()) {
-    if(!this.playersSynced.size) {
+    if (!this.playersSynced.size) {
       return offsetsMap;
     }
 
     const overflowElement = findUpClassName(this, 'scrollable') || this.offsetParent as HTMLElement;
-    if(!overflowElement) {
+    if (!overflowElement) {
       return offsetsMap;
     }
 
     const overflowRect = overflowElement.getBoundingClientRect();
     const rect = this.getBoundingClientRect();
 
-    for(const elements of this.playersSynced.keys()) {
+    for (const elements of this.playersSynced.keys()) {
       const elementsArr = Array.from(elements);
       const placeholders = this.isSelectable ? elementsArr.map((element) => element.placeholder) : elementsArr;
-      const {visible} = getViewportSlice({
+      const { visible } = getViewportSlice({
         overflowElement,
         overflowRect,
         elements: placeholders.filter(el => !(el instanceof CustomEmojiElement) || !el.syncedPlayer?.pausedElements?.has(el)),
-        extraSize: this.size.height * 2.5 // let's add some margin
+        extraSize: this.size.height * 2.5, // let's add some margin
       });
 
-      const offsets = visible.map(({rect: elementRect}) => {
+      const offsets = visible.map(({ rect: elementRect }) => {
         const top = elementRect.top - rect.top;
         const left = elementRect.left - rect.left;
-        return {top, left, width: elementRect.width};
+        return { top, left, width: elementRect.width };
       });
 
-      if(offsets.length) {
+      if (offsets.length) {
         offsetsMap.set(elements, offsets);
       }
     }
@@ -196,36 +196,36 @@ export class CustomEmojiRendererElement extends HTMLElement {
   }
 
   public clearCanvas() {
-    if(this.isCanvasClean) {
+    if (this.isCanvasClean) {
       return;
     }
 
-    const {context, canvas} = this;
+    const { context, canvas } = this;
     context.clearRect(0, 0, canvas.width, canvas.height);
     this.isCanvasClean = true;
   }
 
   public render(offsetsMap: ReturnType<CustomEmojiRendererElement['getOffsets']>) {
-    const {context, canvas, isDimensionsSet} = this;
-    if(!isDimensionsSet) {
+    const { context, canvas, isDimensionsSet } = this;
+    if (!isDimensionsSet) {
       this.setDimensionsFromRect(undefined, false);
     }
 
     this.isCanvasClean = false;
 
-    const {width, height, dpr} = canvas;
+    const { width, height, dpr } = canvas;
     const animationsEnabled = liteMode.isAvailable('emoji_appear');
     let _color: string;
-    for(const [elements, offsets] of offsetsMap) {
+    for (const [elements, offsets] of offsetsMap) {
       const player = this.playersSynced.get(elements);
       const frame = syncedPlayersFrames.get(player!) || (player instanceof HTMLVideoElement ? player : undefined);
-      if(!frame) {
+      if (!frame) {
         continue;
       }
 
       const isImageData = frame instanceof ImageData;
       let frameWidth: number, frameHeight: number;
-      if(player instanceof HTMLVideoElement) {
+      if (player instanceof HTMLVideoElement) {
         frameWidth = this.size.width * dpr!;
         frameHeight = this.size.height * dpr!;
       } else {
@@ -235,7 +235,7 @@ export class CustomEmojiRendererElement extends HTMLElement {
 
       // ! check performance of scaling
       const elementWidth = Math.round(offsets[0].width * dpr!);
-      if(elementWidth !== frameWidth) {
+      if (elementWidth !== frameWidth) {
         // if(this.size.width === 36) {
         //   console.warn('different width', elementWidth, frameWidth, this);
         // }
@@ -249,9 +249,9 @@ export class CustomEmojiRendererElement extends HTMLElement {
       const color = this.textColored.has(elements) ? (_color ??= customProperties.getProperty(this.textColor())) : undefined;
 
       let alpha = 1;
-      if(animationsEnabled) {
+      if (animationsEnabled) {
         let startTime = elementsFadeInStartTimes.get(elements);
-        if(startTime === undefined) {
+        if (startTime === undefined) {
           // Skip fade if a raster thumb <img> is already visible under the canvas —
           // the canvas frame replacing it would otherwise read as a blink. Path-size
           // <svg> placeholders are visually different enough that the fade still helps.
@@ -267,8 +267,8 @@ export class CustomEmojiRendererElement extends HTMLElement {
       // Keep the placeholder DOM children visible underneath until the fade completes,
       // otherwise there's a visible gap between the thumb being removed and the canvas
       // frame becoming opaque enough to see.
-      if(!applyFade && !this.clearedElements.has(elements) && !this.isSelectable) {
-        if(this.isSelectable/*  && false */) {
+      if (!applyFade && !this.clearedElements.has(elements) && !this.isSelectable) {
+        if (this.isSelectable/*  && false */) {
           elements.forEach((element) => {
             element.lastChildWas ??= element.lastChild!;
             replaceContent(element, element.firstChild!);
@@ -283,29 +283,29 @@ export class CustomEmojiRendererElement extends HTMLElement {
         this.clearedElements.add(elements);
       }
 
-      if(applyFade) {
+      if (applyFade) {
         context.globalAlpha = alpha;
       }
 
-      offsets.forEach(({top, left}) => {
+      offsets.forEach(({ top, left }) => {
         top = Math.round(top * dpr!), left = Math.round(left * dpr!);
-        if(left < 0 ||/* top > maxTop ||  */left > maxLeft) {
+        if (left < 0 ||/* top > maxTop ||  */left > maxLeft) {
           return;
         }
 
-        if(isImageData) {
+        if (isImageData) {
           context.putImageData(frame, left, top);
         } else {
           // context.clearRect(left, top, width, height);
           context.drawImage(frame, left, top, frameWidth, frameHeight);
         }
 
-        if(color) {
+        if (color) {
           applyColorOnContext(context, color, left, top, frameWidth, frameHeight);
         }
       });
 
-      if(applyFade) {
+      if (applyFade) {
         context.globalAlpha = 1;
       }
     }
@@ -315,8 +315,8 @@ export class CustomEmojiRendererElement extends HTMLElement {
     // disabled, etc.) but still on-screen — restoring there would re-trigger the fade
     // on every unpause. animationIntersector already tracks per-element viewport visibility
     // via IntersectionObserver, so reuse that instead of running a second viewport check.
-    for(const elements of this.customEmojis.values()) {
-      if(
+    for (const elements of this.customEmojis.values()) {
+      if (
         !offsetsMap.has(elements) &&
         this.clearedElements.has(elements) &&
         !isAnyElementVisible(elements)
@@ -327,13 +327,13 @@ export class CustomEmojiRendererElement extends HTMLElement {
   }
 
   public restorePlaceholders(elements: CustomEmojiElements) {
-    if(this.isSelectable) {
+    if (this.isSelectable) {
       return;
     }
 
     elements.forEach((element) => {
       const saved = element.savedChildren;
-      if(saved?.length && !element.firstChild) {
+      if (saved?.length && !element.firstChild) {
         element.replaceChildren(...saved);
       }
     });
@@ -343,16 +343,16 @@ export class CustomEmojiRendererElement extends HTMLElement {
   }
 
   public restoreAllPlaceholders() {
-    for(const elements of this.customEmojis.values()) {
-      if(this.clearedElements.has(elements) && !isAnyElementVisible(elements)) {
+    for (const elements of this.customEmojis.values()) {
+      if (this.clearedElements.has(elements) && !isAnyElementVisible(elements)) {
         this.restorePlaceholders(elements);
       }
     }
   }
 
   public checkForAnyFrame() {
-    for(const player of this.playersSynced.values()) {
-      if(syncedPlayersFrames.has(player) || player instanceof HTMLVideoElement) {
+    for (const player of this.playersSynced.values()) {
+      if (syncedPlayersFrames.has(player) || player instanceof HTMLVideoElement) {
         return true;
       }
     }
@@ -374,18 +374,18 @@ export class CustomEmojiRendererElement extends HTMLElement {
   // }
 
   public setDimensionsFromRect(rect: {width: number, height: number} = this.lastRect, forceRenderAfter = true) {
-    const {canvas} = this;
-    const {dpr} = canvas;
+    const { canvas } = this;
+    const { dpr } = canvas;
 
-    if(this.lastRect !== rect) {
+    if (this.lastRect !== rect) {
       this.lastRect = rect;
     }
 
-    if(!rect || !dpr || this.ignoreSettingDimensions) {
+    if (!rect || !dpr || this.ignoreSettingDimensions) {
       return;
     }
 
-    const {width, height} = rect;
+    const { width, height } = rect;
     // if(this.isSelectable) {
     //   height = this.parentElement.scrollHeight || height;
 
@@ -395,7 +395,7 @@ export class CustomEmojiRendererElement extends HTMLElement {
 
     const newWidth = Math.floor(Math.round(width * dpr));
     const newHeight = Math.floor(Math.round(height * dpr));
-    if(canvas.width === newWidth && canvas.height === newHeight) {
+    if (canvas.width === newWidth && canvas.height === newHeight) {
       return;
     }
 
@@ -404,23 +404,23 @@ export class CustomEmojiRendererElement extends HTMLElement {
     this.isDimensionsSet = true;
     this.isCanvasClean = true;
 
-    if(this.observeResizeElement || this.observeResizeElement === false) {
+    if (this.observeResizeElement || this.observeResizeElement === false) {
       this.canvas.style.setProperty('width', width + 'px', 'important');
       this.canvas.style.setProperty('height', height + 'px', 'important');
     }
 
-    if(this.forceRenderAfterSize || (this.isSelectable && forceRenderAfter)) {
+    if (this.forceRenderAfterSize || (this.isSelectable && forceRenderAfter)) {
       this.forceRenderAfterSize = undefined;
       this.forceRender();
     }
   }
 
   public forceRender() {
-    if(!this.isDimensionsSet) {
+    if (!this.isDimensionsSet) {
       return;
     }
 
-    if(!renderEmojis(new Set([this]))) {
+    if (!renderEmojis(new Set([this]))) {
       this.clearCanvas();
     }
   }
@@ -431,22 +431,22 @@ export class CustomEmojiRendererElement extends HTMLElement {
     syncedPlayer.middlewares.delete(middleware);
 
     // * still has some elements
-    if(syncedPlayer.middlewares.size) {
+    if (syncedPlayer.middlewares.size) {
       return;
     }
 
-    if(syncedPlayer.player) {
+    if (syncedPlayer.player) {
       const frame = syncedPlayersFrames.get(syncedPlayer.player);
-      if(frame) {
+      if (frame) {
         (frame as ImageBitmap).close?.();
         syncedPlayersFrames.delete(syncedPlayer.player);
       }
 
       syncedPlayersFrames.delete(syncedPlayer.player);
-      if(syncedPlayer.player instanceof RLottiePlayer) {
+      if (syncedPlayer.player instanceof RLottiePlayer) {
         syncedPlayer.player.overrideRender = noop;
         syncedPlayer.player.remove();
-      } else if(syncedPlayer.player instanceof HTMLVideoElement) {
+      } else if (syncedPlayer.player instanceof HTMLVideoElement) {
         const cacheName = framesCache.generateName('' + element.docId, 0, 0, undefined!, undefined!);
         delete videosCache[cacheName];
       }
@@ -454,7 +454,7 @@ export class CustomEmojiRendererElement extends HTMLElement {
       syncedPlayer.player = undefined;
     }
 
-    if(
+    if (
       syncedPlayers.get(syncedPlayer.key) === syncedPlayer &&
       syncedPlayers.delete(syncedPlayer.key) &&
       !syncedPlayers.size
@@ -471,7 +471,7 @@ export class CustomEmojiRendererElement extends HTMLElement {
       height: size.height,
       loop: true,
       autoplay: CUSTOM_EMOJI_INSTANT_PLAY,
-      sync: true
+      sync: true,
     }, 'StarReaction')
 
     return {
@@ -479,7 +479,7 @@ export class CustomEmojiRendererElement extends HTMLElement {
       height: size.height,
       downloaded: true,
       load: () => Promise.resolve(player),
-      render: undefined as any
+      render: undefined as any,
     }
   }
 
@@ -491,7 +491,7 @@ export class CustomEmojiRendererElement extends HTMLElement {
     lazyLoadQueue,
     onlyThumb,
     withThumb,
-    loadPromises
+    loadPromises,
   }: {
     doc: MyDocument,
     isPaidReactionEmoji?: boolean,
@@ -517,7 +517,7 @@ export class CustomEmojiRendererElement extends HTMLElement {
     const willHaveSyncedPlayer = (isLottie || (stickerType === StickerType.WebM && this.isSelectable)) && !onlyThumb && !isStatic;
 
     const attribute = doc.attributes.find((attribute) => attribute._ === 'documentAttributeCustomEmoji') as DocumentAttribute.documentAttributeCustomEmoji;
-    if(attribute && attribute.pFlags.text_color) {
+    if (attribute && attribute.pFlags.text_color) {
       renderer.textColored.add(customEmojis!);
     }
 
@@ -562,10 +562,10 @@ export class CustomEmojiRendererElement extends HTMLElement {
       withThumb: withThumb ?? (renderer.clearedElements.has(customEmojis!) ? false : undefined),
       syncedVideo: this.isSelectable,
       textColor: renderer.textColor,
-      keepThumb: willDomFade
+      keepThumb: willDomFade,
     });
 
-    if(loadPromises) {
+    if (loadPromises) {
       promise.then(() => loadPromises.push(..._loadPromises));
     }
 
@@ -573,13 +573,13 @@ export class CustomEmojiRendererElement extends HTMLElement {
       onRender?: (_p: Awaited<Awaited<typeof promise>['render']>) => Promise<void>,
       elements: typeof newElements
     } = {
-      elements: newElements
+      elements: newElements,
     };
 
     const readyPromise = newElementsArray[0].readyPromise;
-    if(readyPromise) {
-      promise.then(({render}) => {
-        if(!render) {
+    if (readyPromise) {
+      promise.then(({ render }) => {
+        if (!render) {
           readyPromise.resolve();
           return;
         }
@@ -591,21 +591,21 @@ export class CustomEmojiRendererElement extends HTMLElement {
       });
     }
 
-    if(stickerType === StickerType.Static || onlyThumb || isStatic) {
+    if (stickerType === StickerType.Static || onlyThumb || isStatic) {
       addition.onRender = () => {
         // Pre-hide the real media (not the container) synchronously, before the
         // next browser paint. With keepThumb=true, wrapSticker leaves the thumb in
         // DOM — we absolutely-position it so it overlays the media, and it stays
         // at full opacity throughout. The media fades 0 -> 1 on top, so the user
         // sees a crossfade from thumb to media with no perceptual gap.
-        if(willDomFade) {
+        if (willDomFade) {
           newElementsArray.forEach(preHideMediaWithThumbOverlay);
         }
         return Promise.all(_loadPromises).then(() => {
-          if(!middleware()) return;
-          if(this.isSelectable) {
+          if (!middleware()) return;
+          if (this.isSelectable) {
             newElementsArray.forEach((element) => {
-              const {placeholder} = element;
+              const { placeholder } = element;
               placeholder.src = (element.firstElementChild as HTMLImageElement).src;
             });
           } else {
@@ -614,18 +614,18 @@ export class CustomEmojiRendererElement extends HTMLElement {
         });
       };
 
-      return promise.then((res) => ({...res, ...addition}));
+      return promise.then((res) => ({ ...res, ...addition }));
     }
 
     addition.onRender = (_p) => {
       // Same approach as the static path — fade the <video> directly, keep the
       // thumb overlaid underneath so any compositor timing on the video layer
       // doesn't produce a visible gap (the thumb covers it until the fade completes).
-      if(willDomFade) {
+      if (willDomFade) {
         newElementsArray.forEach(preHideMediaWithThumbOverlay);
       }
       return Promise.all(_loadPromises).then(() => {
-        if(!middleware() || !doc.animated) {
+        if (!middleware() || !doc.animated) {
           return;
         }
 
@@ -636,39 +636,39 @@ export class CustomEmojiRendererElement extends HTMLElement {
           const player = players[idx] || players[0];
           element.player = player;
 
-          if(syncedPlayer) {
+          if (syncedPlayer) {
             element.syncedPlayer = syncedPlayer;
-            if(element.paused) {
+            if (element.paused) {
               element.syncedPlayer.pausedElements.add(element);
-            } else if(player.paused) {
+            } else if (player.paused) {
               player.play();
             }
           }
 
-          if(element.isConnected || middleware()) {
+          if (element.isConnected || middleware()) {
             animationIntersector.addAnimation({
               animation: element,
               group: element.renderer.animationGroup,
               observeElement: element.placeholder ?? element,
               controlled: true,
-              type: 'emoji'
+              type: 'emoji',
             });
           }
         });
 
-        if(player instanceof RLottiePlayer || (player instanceof HTMLVideoElement && this.isSelectable)) {
+        if (player instanceof RLottiePlayer || (player instanceof HTMLVideoElement && this.isSelectable)) {
           syncedPlayer.player = player;
           renderer.playersSynced.set(customEmojis!, player);
         }
 
-        if(player instanceof RLottiePlayer) {
+        if (player instanceof RLottiePlayer) {
           player.group = renderer.animationGroup;
 
           player.overrideRender ??= (frame) => {
             syncedPlayersFrames.set(player, frame);
           // frames.set(containers, frame);
           };
-        } else if(player instanceof HTMLVideoElement) {
+        } else if (player instanceof HTMLVideoElement) {
         // player.play();
 
           // const cache = framesCache.getCache(key);
@@ -716,11 +716,11 @@ export class CustomEmojiRendererElement extends HTMLElement {
         // // setInterval(callback, CUSTOM_EMOJI_FRAME_INTERVAL);
         }
 
-        if(willHaveSyncedPlayer) {
+        if (willHaveSyncedPlayer) {
           const dpr = getLottiePixelRatio(this.size.width, this.size.height);
           renderer.canvas.dpr = dpr;
           setRenderInterval();
-        } else if(!isAlreadyAvailable) {
+        } else if (!isAlreadyAvailable) {
           // DOM-rendered path (e.g. non-selectable WebM video) — fade-in via JS opacity
           newElementsArray.forEach(fadeInMediaAndCleanupThumbs);
         }
@@ -729,34 +729,34 @@ export class CustomEmojiRendererElement extends HTMLElement {
 
     let syncedPlayer: SyncedPlayer;
     const key = [docId, size.width, size.height].join('-');
-    if(willHaveSyncedPlayer) {
+    if (willHaveSyncedPlayer) {
       syncedPlayer = syncedPlayers.get(key)!;
-      if(!syncedPlayer) {
+      if (!syncedPlayer) {
         syncedPlayer = {
           player: undefined,
           middlewares: new Set(),
           pausedElements: new Set(),
-          key
+          key,
         };
 
         syncedPlayers.set(key, syncedPlayer);
       }
 
-      for(const element of newElements!) {
+      for (const element of newElements!) {
         const middleware = element.middlewareHelper.get();
         syncedPlayer.middlewares.add(middleware);
         middleware.onClean(this.onElementCleanup.bind(this, element, syncedPlayer, middleware));
       }
     }
 
-    return promise.then((res) => ({...res, ...addition}));
+    return promise.then((res) => ({ ...res, ...addition }));
   }
 
   public add({
     addCustomEmojis,
     lazyLoadQueue,
     onlyThumb,
-    withThumb
+    withThumb,
   }: {
     addCustomEmojis: Map<DocId, CustomEmojiElements>,
     lazyLoadQueue?: LazyLoadQueue | false,
@@ -768,11 +768,11 @@ export class CustomEmojiRendererElement extends HTMLElement {
 
     addCustomEmojis.forEach((addElements, docId) => { // prevent adding old elements
       let elements = this.customEmojis.get(docId);
-      if(!elements) this.customEmojis.set(docId, elements = new Set());
+      if (!elements) this.customEmojis.set(docId, elements = new Set());
       else this.clearedElements.delete(elements);
 
-      for(const el of addElements) {
-        if(elements.has(el)) {
+      for (const el of addElements) {
+        if (elements.has(el)) {
           addElements.delete(el);
         } else {
           el.clean = false;
@@ -781,18 +781,18 @@ export class CustomEmojiRendererElement extends HTMLElement {
           el.middlewareHelper = middleware.create();
           elements.add(el);
 
-          if(el.lastChildWas && !el.lastChildWas.parentNode) {
+          if (el.lastChildWas && !el.lastChildWas.parentNode) {
             el.append(el.lastChildWas);
           }
         }
       }
 
-      if(!addElements.size) {
+      if (!addElements.size) {
         addCustomEmojis.delete(docId);
       }
     });
 
-    if(!addCustomEmojis.size) {
+    if (!addCustomEmojis.size) {
       return;
     }
 
@@ -801,58 +801,58 @@ export class CustomEmojiRendererElement extends HTMLElement {
     const managers = rootScope.managers;
 
     const loadPromise = managers.appEmojiManager.getCachedCustomEmojiDocuments((docIds)).then((docs) => {
-      if(!middleware()) return;
+      if (!middleware()) return;
 
       const wrapOptions: Omit<Parameters<CustomEmojiRendererElement['wrap']>[0], 'doc'> = {
         addCustomEmojis,
         usingOwnQueue,
         lazyLoadQueue,
         onlyThumb,
-        withThumb
+        withThumb,
       };
 
       const loadPromises: Promise<any>[] = [];
 
       const missing: DocId[] = [];
       const cachedPromises = docs.map((doc, idx) => {
-        if(!doc) {
+        if (!doc) {
           const docId = docIds[idx];
-          if(docId === PAID_REACTION_EMOJI_DOCID) {
+          if (docId === PAID_REACTION_EMOJI_DOCID) {
             return this.wrap({
               ...wrapOptions,
               doc: {
                 _: 'document',
                 id: docId,
-                attributes: []
+                attributes: [],
               } as unknown as MyDocument,
               isPaidReactionEmoji: true,
-              loadPromises
+              loadPromises,
             });
           }
           missing.push((docId));
           return;
         }
 
-        return this.wrap({...wrapOptions, doc, loadPromises});
+        return this.wrap({ ...wrapOptions, doc, loadPromises });
       }).filter(isTruthy);
 
       const uncachedPromisesPromise = !missing.length ?
         Promise.resolve([] as typeof cachedPromises) :
         managers.appEmojiManager.getCustomEmojiDocuments(missing).then((docs) => {
-          if(!middleware()) return [];
-          return docs.filter(isTruthy).map((doc) => this.wrap({...wrapOptions, doc}));
+          if (!middleware()) return [];
+          return docs.filter(isTruthy).map((doc) => this.wrap({ ...wrapOptions, doc }));
         });
 
       const loadFromPromises = async(_promises: typeof cachedPromises) => {
         const arr = await Promise.all(_promises);
-        const promises = (arr).map(({load, onRender, elements}) => {
-          if(!load) {
+        const promises = (arr).map(({ load, onRender, elements }) => {
+          if (!load) {
             return;
           }
 
           const l = () => load().then(onRender);
 
-          if(!usingOwnQueue) {
+          if (!usingOwnQueue) {
             return l();
           }
 
@@ -861,11 +861,11 @@ export class CustomEmojiRendererElement extends HTMLElement {
               div: element,
               load: () => {
                 elements!.forEach((element) => {
-                  globalLazyLoadQueue.delete({div: element});
+                  globalLazyLoadQueue.delete({ div: element });
                 });
 
                 return l();
-              }
+              },
             });
           });
         });
@@ -874,16 +874,16 @@ export class CustomEmojiRendererElement extends HTMLElement {
       };
 
       const load = () => {
-        if(!middleware()) return;
+        if (!middleware()) return;
         const cached = loadFromPromises(cachedPromises);
         const uncached = uncachedPromisesPromise.then((promises) => loadFromPromises(promises));
         return Promise.all([cached, uncached]);
       };
 
-      if(lazyLoadQueue) {
+      if (lazyLoadQueue) {
         lazyLoadQueue.push({
           div: renderer.canvas,
-          load: load as (target?: HTMLElement) => Promise<any>
+          load: load as (target?: HTMLElement) => Promise<any>,
         });
       } else {
         load();
@@ -909,13 +909,13 @@ export class CustomEmojiRendererElement extends HTMLElement {
     [renderer._textColor, renderer._setTextColor] = createSignal() as unknown as [Accessor<CustomProperty>, Setter<CustomProperty>];
     renderer.observeResizeElement = options.observeResizeElement!;
     renderer.renderNonSticker = options.renderNonSticker!;
-    if(options.wrappingDraft) {
+    if (options.wrappingDraft) {
       renderer.contentEditable = 'false';
       renderer.style.height = 'inherit';
     }
     // const middleware = () => !!renderer.disconnectedCallback && (!options.middleware || options.middleware());
     const middleware = options.middleware;
-    if(middleware) {
+    if (middleware) {
       renderer.middlewareHelper = middleware.create();
       renderer.middlewareHelper.get().onDestroy(() => {
         renderer.destroy?.();
@@ -959,14 +959,14 @@ const CUSTOM_EMOJI_INSTANT_PLAY = true; // do not wait for animationIntersector
 const CUSTOM_EMOJI_FADE_IN_DURATION = 250;
 
 const isAnyElementVisible = (elements: CustomEmojiElements) => {
-  for(const element of elements) {
-    if(animationIntersector.isVisible(element)) return true;
+  for (const element of elements) {
+    if (animationIntersector.isVisible(element)) return true;
   }
   return false;
 };
 
 const hasRasterThumbPlaceholder = (elements: CustomEmojiElements) => {
-  for(const element of elements) {
+  for (const element of elements) {
     return !!element.querySelector?.('img');
   }
   return false;
@@ -980,18 +980,18 @@ const elementsFadeInStartTimes: WeakMap<CustomEmojiElements, number> = new WeakM
 export const renderEmojis = (renderers = emojiRenderers) => {
   const r = Array.from(renderers);
   const t = r.filter((r) => r.isConnected && r.checkForAnyFrame() && !r.ignoreSettingDimensions);
-  if(!t.length) {
+  if (!t.length) {
     return false;
   }
 
   const o = t.map((renderer) => {
     const paused = [...renderer.playersSynced.values()].reduce((acc, v) => acc + +!!v.paused, 0);
-    if(renderer.playersSynced.size === paused) {
+    if (renderer.playersSynced.size === paused) {
       return;
     }
 
     const offsets = renderer.getOffsets();
-    if(offsets.size) {
+    if (offsets.size) {
       return [renderer, offsets] as const;
     }
 
@@ -1000,11 +1000,11 @@ export const renderEmojis = (renderers = emojiRenderers) => {
     renderer.restoreAllPlaceholders();
   }).filter(isTruthy);
 
-  for(const [renderer] of o) {
+  for (const [renderer] of o) {
     renderer.clearCanvas();
   }
 
-  for(const [renderer, offsets] of o) {
+  for (const [renderer, offsets] of o) {
     renderer.render(offsets);
   }
 
@@ -1013,7 +1013,7 @@ export const renderEmojis = (renderers = emojiRenderers) => {
 const CUSTOM_EMOJI_FPS = 60;
 const CUSTOM_EMOJI_FRAME_INTERVAL = 1000 / CUSTOM_EMOJI_FPS;
 const setRenderInterval = () => {
-  if(emojiRenderInterval) {
+  if (emojiRenderInterval) {
     return;
   }
 
@@ -1021,7 +1021,7 @@ const setRenderInterval = () => {
   renderEmojis();
 };
 const clearRenderInterval = () => {
-  if(!emojiRenderInterval) {
+  if (!emojiRenderInterval) {
     return;
   }
 
@@ -1037,9 +1037,9 @@ const domFadeIns: Set<DomFadeIn> = new Set();
 let domFadeRaf: number;
 const stepDomFadeIns = () => {
   const now = performance.now();
-  for(const fade of domFadeIns) {
+  for (const fade of domFadeIns) {
     const alpha = Math.min(1, (now - fade.startTime) / CUSTOM_EMOJI_FADE_IN_DURATION);
-    if(alpha >= 1) {
+    if (alpha >= 1) {
       fade.element.style.removeProperty('opacity');
       fade.element.style.removeProperty('will-change');
       domFadeIns.delete(fade);
@@ -1050,12 +1050,12 @@ const stepDomFadeIns = () => {
   domFadeRaf = (domFadeIns.size ? requestAnimationFrame(stepDomFadeIns) : undefined)!;
 };
 const startDomFadeIn = (element: HTMLElement) => {
-  if(!liteMode.isAvailable('emoji_appear')) {
+  if (!liteMode.isAvailable('emoji_appear')) {
     return;
   }
   element.style.setProperty('opacity', '0');
-  domFadeIns.add({element, startTime: performance.now()});
-  if(!domFadeRaf) {
+  domFadeIns.add({ element, startTime: performance.now() });
+  if (!domFadeRaf) {
     domFadeRaf = requestAnimationFrame(stepDomFadeIns);
   }
 };
@@ -1066,12 +1066,12 @@ const startDomFadeIn = (element: HTMLElement) => {
 // runs before the next paint so the media never composites at opacity 1.
 const preHideMediaWithThumbOverlay = (el: HTMLElement) => {
   const media = el.querySelector('.media-sticker:not(.thumbnail)');
-  if(media instanceof HTMLElement) {
+  if (media instanceof HTMLElement) {
     media.style.setProperty('opacity', '0');
     media.style.setProperty('will-change', 'opacity');
   }
   const thumb = el.querySelector('.thumbnail');
-  if(thumb instanceof HTMLElement) {
+  if (thumb instanceof HTMLElement) {
     // Take the thumb out of flow so it overlays the media at the same rect.
     // DOM order (thumb before media) keeps media painted on top, so as media
     // fades 0 -> 1 the thumb is gradually obscured — a crossfade.
@@ -1087,7 +1087,7 @@ const preHideMediaWithThumbOverlay = (el: HTMLElement) => {
 // than tearing it out.
 const fadeInMediaAndCleanupThumbs = (el: HTMLElement) => {
   const media = el.querySelector('.media-sticker:not(.thumbnail)');
-  if(!(media instanceof HTMLElement)) return;
+  if (!(media instanceof HTMLElement)) return;
   startDomFadeIn(media);
   setTimeout(() => {
     el.querySelectorAll('.thumbnail').forEach((t) => t.remove());

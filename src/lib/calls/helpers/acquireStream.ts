@@ -39,17 +39,17 @@ export default function acquireStream(
     let stream: MediaStream;
     try {
       stream = await getStream(constraints, muted);
-    } catch(err) {
+    } catch (err) {
       // The owner already walked away — its error handler is gone, so swallow
       // the rejection and resolve like a (benign) disposed acquire rather than
       // surfacing a stale error / leaving it unhandled.
-      if(disposed) return undefined;
+      if (disposed) return undefined;
       throw err;
     }
 
     // Torn down while getUserMedia was resolving — stop the orphaned stream and
     // hand back nothing.
-    if(disposed) {
+    if (disposed) {
       stream.getTracks().forEach((track) => stopTrack(track));
       return undefined;
     }
@@ -60,11 +60,11 @@ export default function acquireStream(
 
   const dispose = () => {
     disposed = true;
-    if(acquired) {
+    if (acquired) {
       acquired.getTracks().forEach((track) => stopTrack(track));
       acquired = undefined;
     }
   };
 
-  return {promise: (promise as Promise<MediaStream>), dispose};
+  return { promise: (promise as Promise<MediaStream>), dispose };
 }

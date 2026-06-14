@@ -1,19 +1,19 @@
-import {createSignal, onCleanup} from 'solid-js';
+import { createSignal, onCleanup } from 'solid-js';
 import PopupElement from '.';
 import formatDuration from '@helpers/formatDuration';
 import safeAssign from '@helpers/object/safeAssign';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {MyDocument} from '@appManagers/appDocsManager';
-import {AvatarNewTsx} from '@components/avatarNew';
-import {StickerTsx} from '@components/wrappers/sticker';
-import {wrapFormattedDuration} from '@components/wrappers/wrapDuration';
-import {randomItem, randomItemExcept} from '@helpers/array/randomItem';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { MyDocument } from '@appManagers/appDocsManager';
+import { AvatarNewTsx } from '@components/avatarNew';
+import { StickerTsx } from '@components/wrappers/sticker';
+import { wrapFormattedDuration } from '@components/wrappers/wrapDuration';
+import { randomItem, randomItemExcept } from '@helpers/array/randomItem';
 import assumeType from '@helpers/assumeType';
 import RLottiePlayer from '@lib/rlottie/rlottiePlayer';
 
 import css from '@components/popups/webAppEmojiStatusAccess.module.scss';
 import rootScope from '@lib/rootScope';
-import {PeerTitleTsx} from '@components/peerTitleTsx';
+import { PeerTitleTsx } from '@components/peerTitleTsx';
 
 export default class PopupWebAppEmojiStatusAccess extends PopupElement<{
   finish: (result: boolean) => void
@@ -39,20 +39,20 @@ export default class PopupWebAppEmojiStatusAccess extends PopupElement<{
           callback: () => {
             finished = true
             this.dispatchEvent('finish', true);
-          }
+          },
         },
         {
           langKey: options.sticker ? 'Cancel' : 'Decline',
           callback: () => {
             finished = true
             this.dispatchEvent('finish', false);
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     this.addEventListener('close', () => {
-      if(!finished) {
+      if (!finished) {
         this.dispatchEvent('finish', false);
       }
     });
@@ -67,7 +67,7 @@ export default class PopupWebAppEmojiStatusAccess extends PopupElement<{
   protected _construct() {
     const [sticker, setSticker] = createSignal<MyDocument>(this.sticker);
 
-    if(!this.sticker) {
+    if (!this.sticker) {
       setSticker(randomItem(this.defaultStatusEmojis));
       this.body.classList.add(css.forOffline)
     }
@@ -84,23 +84,23 @@ export default class PopupWebAppEmojiStatusAccess extends PopupElement<{
           sticker={sticker()}
           extraOptions={{
             play: true,
-            textColor: 'primary-color'
+            textColor: 'primary-color',
           }}
           width={20}
           height={20}
           onRender={(player) => {
-            if(this.sticker) return
+            if (this.sticker) return
             stickerRef!.classList.remove(css.switch);
 
             assumeType<RLottiePlayer>(player);
             player.playOrRestart();
             player.addEventListener('enterFrame', (frameNo) => {
-              if(frameNo === player.maxFrame) {
+              if (frameNo === player.maxFrame) {
                 player.stop(false);
                 stickerRef!.classList.add(css.switch)
                 stickerRef!.addEventListener('transitionend', () => {
                   setSticker(randomItemExcept(this.defaultStatusEmojis, sticker()));
-                }, {once: true});
+                }, { once: true });
               }
             });
           }}
@@ -117,7 +117,7 @@ export default class PopupWebAppEmojiStatusAccess extends PopupElement<{
               autoStyle
               class={/* @once */ css.sticker}
               sticker={this.sticker}
-              extraOptions={{play: true}}
+              extraOptions={{ play: true }}
               width={96}
               height={96}
             />
@@ -140,10 +140,10 @@ export default class PopupWebAppEmojiStatusAccess extends PopupElement<{
             }
             args={this.sticker && this.period ? [
               <PeerTitleTsx peerId={this.botId} />,
-              wrapFormattedDuration(formatDuration(this.period))
+              wrapFormattedDuration(formatDuration(this.period)),
             ] : [
               <PeerTitleTsx peerId={this.botId} />,
-              !this.sticker && <PeerTitleTsx peerId={this.botId} />
+              !this.sticker && <PeerTitleTsx peerId={this.botId} />,
             ]}
           />
         </div>

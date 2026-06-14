@@ -1,8 +1,8 @@
-import {Document, Message, MessageMedia} from '@layer';
+import { Document, Message, MessageMedia } from '@layer';
 
 export function canSaveMessageMediaWithNoForwards(message: Message.message) {
   const document = (message.media as MessageMedia.messageMediaDocument)?.document;
-  if(!document) {
+  if (!document) {
     return false;
   }
 

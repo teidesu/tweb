@@ -1,8 +1,8 @@
-import {animateValue} from '@helpers/animateValue';
+import { animateValue } from '@helpers/animateValue';
 import deferredPromise from '@helpers/cancellablePromise';
-import {hexaToRgba} from '@helpers/color';
-import {NumberPair} from '@components/mediaEditor/types';
-import {distance} from '@components/mediaEditor/utils';
+import { hexaToRgba } from '@helpers/color';
+import { NumberPair } from '@components/mediaEditor/types';
+import { distance } from '@components/mediaEditor/utils';
 
 
 export type BrushDrawnLine = {
@@ -36,7 +36,7 @@ export default class BrushPainter {
 
   static defaultBlurAmount = 10;
 
-  constructor({targetCanvas, imageCanvas, blurAmount = BrushPainter.defaultBlurAmount}: BrushPainterOptions) {
+  constructor({ targetCanvas, imageCanvas, blurAmount = BrushPainter.defaultBlurAmount }: BrushPainterOptions) {
     this.targetCtx = targetCanvas.getContext('2d')!;
     this.imageCanvas = imageCanvas;
     this.blurAmount = blurAmount;
@@ -96,10 +96,10 @@ export default class BrushPainter {
   }
 
   private drawLinePath(line: BrushDrawnLine, ctx: CanvasRenderingContext2D) {
-    const {points} = line;
-    if(!points.length) return;
+    const { points } = line;
+    if (!points.length) return;
 
-    if(points.length === 1) {
+    if (points.length === 1) {
       ctx.fillStyle = ctx.strokeStyle;
       ctx.beginPath();
       ctx.arc(points[0][0], points[0][1], line.size / 2, 0, 2 * Math.PI);
@@ -114,7 +114,7 @@ export default class BrushPainter {
     ctx.beginPath();
     ctx.moveTo(points[0][0], points[0][1]);
 
-    for(let i = 1; i < points.length - 2; i++) {
+    for (let i = 1; i < points.length - 2; i++) {
       const cx = (points[i][0] + points[i + 1][0]) / 2;
       const cy = (points[i][1] + points[i + 1][1]) / 2;
       ctx.quadraticCurveTo(points[i][0], points[i][1], cx, cy);
@@ -131,14 +131,14 @@ export default class BrushPainter {
   }
 
   private drawArrowHead(ctx: CanvasRenderingContext2D, line: BrushDrawnLine, arrowLength: number) {
-    const {points} = line;
-    if(points.length < 2) return;
+    const { points } = line;
+    if (points.length < 2) return;
 
     const i = points.length - 1;
 
     let i2 = i;
-    for(; i2 > 0; i2--) {
-      if(distance(points[i], points[i2]) > line.size * 0.5) break;
+    for (; i2 > 0; i2--) {
+      if (distance(points[i], points[i2]) > line.size * 0.5) break;
     }
 
     const angle = Math.atan2(points[i][0] - points[i2][0], points[i][1] - points[i2][1]) + Math.PI;
@@ -163,8 +163,8 @@ export default class BrushPainter {
   }
 
   async animateArrowBrush(line: BrushDrawnLine) {
-    const {points} = line;
-    if(points.length < 2) return;
+    const { points } = line;
+    if (points.length < 2) return;
 
     const ctx = this.targetCtx;
 
@@ -172,7 +172,7 @@ export default class BrushPainter {
 
     const deferred = deferredPromise<void>();
     animateValue(0.1, arrowLength, 120, (length) => this.drawArrowHead(ctx, line, length), {
-      onEnd: () => deferred.resolve()
+      onEnd: () => deferred.resolve(),
     });
     await deferred;
   }
@@ -186,13 +186,13 @@ export default class BrushPainter {
         this.drawLinePath(line, ctx);
       },
       arrow: (line, ctx, shouldFinish) => {
-        const {points} = line;
+        const { points } = line;
 
         ctx.strokeStyle = line.color;
         this.drawLinePath(line, ctx);
 
-        if(!shouldFinish) return;
-        if(points.length < 2) return;
+        if (!shouldFinish) return;
+        if (points.length < 2) return;
 
         this.drawArrowHead(ctx, line, this.getArrowHeadLength(line));
       },
@@ -212,7 +212,7 @@ export default class BrushPainter {
 
         this.blurredLineCtx.clearRect(0, 0, w, h);
 
-        const {points} = line;
+        const { points } = line;
         const pointsX = points.map((p) => p[0]);
         const pointsY = points.map((p) => p[1]);
         const minX = Math.max(Math.min(...pointsX) - line.size, 0),
@@ -235,6 +235,6 @@ export default class BrushPainter {
         this.drawLinePath(line, ctx);
         ctx.stroke();
         ctx.globalCompositeOperation = 'source-over';
-      }
+      },
     };
 }

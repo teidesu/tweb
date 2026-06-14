@@ -1,13 +1,13 @@
-import {Component} from 'solid-js';
-import {render} from 'solid-js/web';
-import {LangPackKey} from '@lib/langPack';
+import { Component } from 'solid-js';
+import { render } from 'solid-js/web';
+import { LangPackKey } from '@lib/langPack';
 import SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
-import {InstanceOf} from '@types';
-import {SliderSuperTab} from '@components/slider';
-import {SliderSuperTabEventable} from '@components/sliderTab';
-import {EventListenerListeners} from '@helpers/eventListenerBase';
-import {PromiseCollector} from '@components/solidJsTabs/promiseCollector';
-import {SuperTabProvider} from '@components/solidJsTabs/superTabProvider';
+import { InstanceOf } from '@types';
+import { SliderSuperTab } from '@components/slider';
+import { SliderSuperTabEventable } from '@components/sliderTab';
+import { EventListenerListeners } from '@helpers/eventListenerBase';
+import { PromiseCollector } from '@components/solidJsTabs/promiseCollector';
+import { SuperTabProvider } from '@components/solidJsTabs/superTabProvider';
 
 
 type ScaffoldSolidJSTabArgs<Payload> = {
@@ -28,7 +28,7 @@ export function scaffoldSolidJSTab<Payload = void>({
   getComponentModule,
   onOpenAfterTimeout,
   onClose,
-  onCloseAfterTimeout
+  onCloseAfterTimeout,
 }: ScaffoldSolidJSTabArgs<Payload>): ScaffoledClass<Payload> {
   return class extends SliderSuperTab {
     public payload: Payload;
@@ -41,7 +41,7 @@ export function scaffoldSolidJSTab<Payload = void>({
 
       const div = document.createElement('div');
 
-      const {default: Component} = await getComponentModule();
+      const { default: Component } = await getComponentModule();
 
       const promiseCollectorHelper = PromiseCollector.createHelper();
 
@@ -98,7 +98,7 @@ type ScaffoledEventableClass<Payload = void, Events extends EventListenerListene
 export function scaffoldSolidJSTabEventable<Payload = void, Events extends EventListenerListeners = {}>({
   title,
   getComponentModule,
-  onOpenAfterTimeout
+  onOpenAfterTimeout,
 }: ScaffoldSolidJSTabEventableArgs<Payload>): ScaffoledEventableClass<Payload, Events> {
   return class extends SliderSuperTabEventable<Events> {
     public payload: Payload;
@@ -111,7 +111,7 @@ export function scaffoldSolidJSTabEventable<Payload = void, Events extends Event
 
       const div = document.createElement('div');
 
-      const {default: Component} = await getComponentModule();
+      const { default: Component } = await getComponentModule();
 
       const promiseCollectorHelper = PromiseCollector.createHelper();
 

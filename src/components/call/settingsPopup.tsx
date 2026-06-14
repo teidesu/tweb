@@ -1,23 +1,23 @@
-import {createSignal, onCleanup, onMount, Show} from 'solid-js';
-import PopupElement, {createPopup} from '@components/popups/indexTsx';
+import { createSignal, onCleanup, onMount, Show } from 'solid-js';
+import PopupElement, { createPopup } from '@components/popups/indexTsx';
 import confirmationPopup from '@components/confirmationPopup';
 import Section from '@components/section';
 import Row from '@components/rowTsx';
 import CheckboxFieldTsx from '@components/checkboxFieldTsx';
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
 import rootScope from '@lib/rootScope';
-import {appSettings, setAppSettings} from '@stores/appSettings';
+import { appSettings, setAppSettings } from '@stores/appSettings';
 import showOutputDevicePopup from '@components/rtmp/outputDevicePopup';
 import shareUrlToPeers from '@components/popups/shareUrl';
-import {toastNew} from '@components/toast';
+import { toastNew } from '@components/toast';
 import GroupCallInstance from '@lib/calls/groupCallInstance';
 import CallInstance from '@lib/calls/callInstance';
-import {GroupCall} from '@layer';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
+import { GroupCall } from '@layer';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
 import MicrophoneLevelMeter from '@components/call/microphoneLevelMeter';
 import CallCameraSection from '@components/call/cameraSection';
-import {IS_NOISE_SUPPRESSION_SUPPORTED} from '@lib/calls/p2P/utils';
+import { IS_NOISE_SUPPRESSION_SUPPORTED } from '@lib/calls/p2P/utils';
 
 import '@components/call/settingsPopup.scss';
 
@@ -70,7 +70,7 @@ export default function showCallSettingsPopup(options: CallSettingsPopupOptions)
     };
 
     const labelFor = (kind: MediaDeviceKind, id: string) => {
-      if(!id) return i18n('CallSettings.DeviceDefault');
+      if (!id) return i18n('CallSettings.DeviceDefault');
       const found = devices().find((d) => d.kind === kind && d.deviceId === id);
       // Fall back to deviceId when label is blank — Chrome blanks labels
       // until media permission is granted for that kind, which can race
@@ -86,11 +86,11 @@ export default function showCallSettingsPopup(options: CallSettingsPopupOptions)
       });
     });
 
-    if(groupCallInstance) {
+    if (groupCallInstance) {
       // Reflect remote `updateGroupCall` join_muted changes; a parallel
       // admin may flip the flag while this popup is open.
       subscribeOn(rootScope)('group_call_update', (call) => {
-        if(call.id !== groupCallInstance.id) return;
+        if (call.id !== groupCallInstance.id) return;
         setJoinMuted(!!(call as GroupCall.groupCall)?.pFlags?.join_muted);
       });
     }
@@ -113,7 +113,7 @@ export default function showCallSettingsPopup(options: CallSettingsPopupOptions)
         onStaleCurrentId: () => {
           setSpeakerId('');
           setAppSettings('callDevices', 'speakerId', '');
-        }
+        },
       });
     };
 
@@ -130,7 +130,7 @@ export default function showCallSettingsPopup(options: CallSettingsPopupOptions)
         onStaleCurrentId: () => {
           setMicrophoneId('');
           setAppSettings('callDevices', 'microphoneId', '');
-        }
+        },
       });
     };
 
@@ -140,19 +140,19 @@ export default function showCallSettingsPopup(options: CallSettingsPopupOptions)
       // Re-acquire the mic so the new noiseSuppression constraint takes
       // effect mid-call. `setInputAudioDeviceId` rebuilds the constraints
       // from getAudioConstraints, which already reads the persisted flag.
-      if(options.instance.isSharingAudio) {
+      if (options.instance.isSharingAudio) {
         options.instance.setInputAudioDeviceId(microphoneId()).catch(() => {});
       }
     };
 
     const onToggleMuteNewParticipants = (checked: boolean) => {
-      if(!groupCallInstance) return;
+      if (!groupCallInstance) return;
       setJoinMuted(checked);
       // Optimistic UI: server echoes via updateGroupCall and the
       // subscription above reconciles if it disagrees.
       rootScope.managers.appGroupCallsManager.toggleGroupCallSettings(
         groupCallInstance.id,
-        {joinMuted: checked}
+        { joinMuted: checked }
       ).catch((err) => {
         setJoinMuted(!checked);
         console.error('toggleGroupCallSettings failed', err);
@@ -165,17 +165,17 @@ export default function showCallSettingsPopup(options: CallSettingsPopupOptions)
     // chat's general invite link so the user still has something shareable
     // rather than getting an "An error occurred" toast for a benign retry.
     const onShareInviteLink = async() => {
-      if(!groupCallInstance) return;
-      const {appGroupCallsManager, appProfileManager} = rootScope.managers;
+      if (!groupCallInstance) return;
+      const { appGroupCallsManager, appProfileManager } = rootScope.managers;
       let link: string;
       try {
         link = await appGroupCallsManager.exportGroupCallInvite(groupCallInstance.id, true);
-      } catch(err) {
+      } catch (err) {
         try {
           link = await appProfileManager.getChatInviteLink(groupCallInstance.chatId);
-        } catch(fallbackErr) {
+        } catch (fallbackErr) {
           console.error('share invite: both exports failed', err, fallbackErr);
-          toastNew({langPackKey: 'Error.AnError'});
+          toastNew({ langPackKey: 'Error.AnError' });
           return;
         }
       }
@@ -184,7 +184,7 @@ export default function showCallSettingsPopup(options: CallSettingsPopupOptions)
         url: link,
         multiSelect: true,
         toastKey: 'InviteLinkSentSingle',
-        toastKeyForMany: 'InviteLinkSentMany'
+        toastKeyForMany: 'InviteLinkSentMany',
       });
     };
 
@@ -193,18 +193,18 @@ export default function showCallSettingsPopup(options: CallSettingsPopupOptions)
     // button shows — routed through the generic `confirmationPopup`, which
     // handles the Cancel button, click-to-close, and rejection paths for us.
     const onEnd = () => {
-      if(groupCallInstance) {
-        if(canManage) {
+      if (groupCallInstance) {
+        if (canManage) {
           setShow(false);
           confirmationPopup({
             titleLangKey: 'VoiceChat.End.Title',
             descriptionLangKey: 'VoiceChat.End.Text',
             className: 'popup-end-video-chat',
-            checkbox: {text: 'VoiceChat.End.Third'},
+            checkbox: { text: 'VoiceChat.End.Third' },
             button: {
               langKey: 'VoiceChat.End.OK',
-              isDanger: true
-            }
+              isDanger: true,
+            },
           }).then((discard: any) => {
             groupCallInstance.hangUp(!!discard);
           }).catch(() => {/* user cancelled */});
@@ -212,7 +212,7 @@ export default function showCallSettingsPopup(options: CallSettingsPopupOptions)
           groupCallInstance.hangUp(false);
           setShow(false);
         }
-      } else if(p2pInstance) {
+      } else if (p2pInstance) {
         p2pInstance.hangUp('phoneCallDiscardReasonHangup');
         setShow(false);
       }

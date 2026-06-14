@@ -21,8 +21,8 @@ export function drawImageFromSource(
   const lastChunkX = (Math.floor((sx + sw) / sourceWidth) + 1) * sourceWidth;
   const lastChunkY = (Math.floor((sy + sh) / sourceHeight) + 1) * sourceHeight;
 
-  for(let cx = startChunkX; cx < lastChunkX; cx += sourceWidth) {
-    for(let cy = startChunkY; cy < lastChunkY; cy += sourceHeight) {
+  for (let cx = startChunkX; cx < lastChunkX; cx += sourceWidth) {
+    for (let cy = startChunkY; cy < lastChunkY; cy += sourceHeight) {
       const rawX = Math.max(sx, cx);
       const rawY = Math.max(sy, cy);
       const x = rawX % sourceWidth;

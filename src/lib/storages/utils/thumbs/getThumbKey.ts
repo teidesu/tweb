@@ -1,11 +1,11 @@
-import type {MyPhoto} from '@appManagers/appPhotosManager';
-import type {ThumbStorageMedia} from '@lib/storages/thumbs';
-import type {WebDocument} from '@layer';
-import {getFileNameByLocation} from '@helpers/fileName';
+import type { MyPhoto } from '@appManagers/appPhotosManager';
+import type { ThumbStorageMedia } from '@lib/storages/thumbs';
+import type { WebDocument } from '@layer';
+import { getFileNameByLocation } from '@helpers/fileName';
 import isWebFileLocation from '@appManagers/utils/webFiles/isWebFileLocation';
 
 export default function getThumbKey(media: ThumbStorageMedia) {
-  if(isWebFileLocation(media)) {
+  if (isWebFileLocation(media)) {
     return getFileNameByLocation(media);
   }
 

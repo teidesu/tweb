@@ -1,10 +1,10 @@
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
 import RLottiePlayer from '@lib/rlottie/rlottiePlayer';
 import appDownloadManager from '@lib/appDownloadManager';
 import lottieLoader from '@lib/rlottie/lottieLoader';
-import {Document} from '@layer';
+import { Document } from '@layer';
 
-import {StickerFrameByFrameRenderer} from '@components/mediaEditor/finalRender/types';
+import { StickerFrameByFrameRenderer } from '@components/mediaEditor/finalRender/types';
 
 export default class LottieStickerFrameByFrameRenderer implements StickerFrameByFrameRenderer {
   private frameCount: number = 0;
@@ -14,7 +14,7 @@ export default class LottieStickerFrameByFrameRenderer implements StickerFrameBy
 
   async init(doc: Document.document, size: number) {
     const blob = await appDownloadManager.downloadMedia({
-      media: doc
+      media: doc,
     });
     const container = (this.container = document.createElement('div'));
     container.style.width = size + 'px';
@@ -30,7 +30,7 @@ export default class LottieStickerFrameByFrameRenderer implements StickerFrameBy
       animationData: blob,
       width: size,
       height: size,
-      name: 'doc' + doc.id
+      name: 'doc' + doc.id,
     }));
 
     const deferred = deferredPromise<void>();

@@ -1,5 +1,5 @@
-import type {TabState} from '@lib/apiManagerProxy';
-import {MOUNT_CLASS_TO} from '@config/debug';
+import type { TabState } from '@lib/apiManagerProxy';
+import { MOUNT_CLASS_TO } from '@config/debug';
 import MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
 
 type Tab = {
@@ -23,7 +23,7 @@ export class AppTabsManager {
 
       this.onTabStateChange();
 
-      port.invokeVoid('tabsUpdated', [...this.tabs.values()].map(({state}) => state));
+      port.invokeVoid('tabsUpdated', [...this.tabs.values()].map(({ state }) => state));
     });
   }
 
@@ -36,7 +36,7 @@ export class AppTabsManager {
   public addTab(source: MessageEventSource) {
     const tab: Tab = {
       source,
-      state: (undefined as unknown as TabState)
+      state: (undefined as unknown as TabState),
     };
 
     this.tabs.set(source, tab);
@@ -46,7 +46,7 @@ export class AppTabsManager {
   public deleteTab(source: MessageEventSource) {
     this.tabs.delete(source);
     this.onTabStateChange();
-    MTProtoMessagePort.getInstance<false>().invokeVoid('tabsUpdated', [...this.tabs.values()].map(({state}) => state));
+    MTProtoMessagePort.getInstance<false>().invokeVoid('tabsUpdated', [...this.tabs.values()].map(({ state }) => state));
   }
 }
 

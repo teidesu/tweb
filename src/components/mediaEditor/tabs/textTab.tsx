@@ -1,44 +1,44 @@
-import {onMount, Accessor, JSX, createEffect, untrack} from 'solid-js';
-import {i18n} from '@lib/langPack';
+import { onMount, Accessor, JSX, createEffect, untrack } from 'solid-js';
+import { i18n } from '@lib/langPack';
 import ripple from '@components/ripple';
-import {IconTsx} from '@components/iconTsx';
+import { IconTsx } from '@components/iconTsx';
 import Space from '@components/space';
-import {createStoredColor} from '@components/mediaEditor/createStoredColor';
-import {useMediaEditorContext} from '@components/mediaEditor/context';
+import { createStoredColor } from '@components/mediaEditor/createStoredColor';
+import { useMediaEditorContext } from '@components/mediaEditor/context';
 import ColorPicker from '@components/mediaEditor/colorPicker';
 import LargeButton from '@components/mediaEditor/largeButton';
 import RangeInput from '@components/mediaEditor/rangeInput';
-import {fontInfoMap, textLayerInfoDefaults} from '@components/mediaEditor/utils';
-import {FontKey, TextLayerInfo} from '@components/mediaEditor/types';
-import {createStoredValue, Optional} from '../createStoredValue';
+import { fontInfoMap, textLayerInfoDefaults } from '@components/mediaEditor/utils';
+import { FontKey, TextLayerInfo } from '@components/mediaEditor/types';
+import { createStoredValue, Optional } from '../createStoredValue';
 
 
 const textSizeMin = 16;
 const textSizeMax = 64;
 
 export default function TextTab() {
-  const {editorState} = useMediaEditorContext()!;
+  const { editorState } = useMediaEditorContext()!;
 
   const [savedColor, setSavedColor] = createStoredColor('textColor', textLayerInfoDefaults.color);
 
   const [savedFont, setSavedFont] = createStoredValue<FontKey>({
     key: 'textFont',
     defaultValue: textLayerInfoDefaults.font,
-    validate: (value) => value in fontInfoMap ? Optional.value(value as FontKey) : Optional.none()
+    validate: (value) => value in fontInfoMap ? Optional.value(value as FontKey) : Optional.none(),
   });
 
   const availableAlignments = ['left', 'center', 'right'];
   const [savedAlignment, setSavedAlignment] = createStoredValue<string>({
     key: 'textAlignment',
     defaultValue: textLayerInfoDefaults.alignment,
-    validate: (value) => availableAlignments.includes(value) ? Optional.value(value) : Optional.none()
+    validate: (value) => availableAlignments.includes(value) ? Optional.value(value) : Optional.none(),
   });
 
   const availableStyles = ['normal', 'outline', 'background'];
   const [savedStyle, setSavedStyle] = createStoredValue<string>({
     key: 'textStyle',
     defaultValue: textLayerInfoDefaults.style,
-    validate: (value) => availableStyles.includes(value) ? Optional.value(value) : Optional.none()
+    validate: (value) => availableStyles.includes(value) ? Optional.value(value) : Optional.none(),
   });
 
   const [savedSize, setSavedSize] = createStoredValue<number>({
@@ -47,12 +47,12 @@ export default function TextTab() {
     validate: (value) => {
       const parsed = Number(value);
 
-      if(isNaN(parsed) || parsed < textSizeMin || parsed > textSizeMax) {
+      if (isNaN(parsed) || parsed < textSizeMin || parsed > textSizeMax) {
         return Optional.none();
       }
 
       return Optional.value(parsed | 0);
-    }
+    },
   });
 
   createSyncedLayerInfoProp('color', () => savedColor().value);
@@ -69,7 +69,7 @@ export default function TextTab() {
   ) => (
     <div
       class="media-editor__toggle-button"
-      classList={{'media-editor__toggle-button--active': value === currentValue()}}
+      classList={{ 'media-editor__toggle-button--active': value === currentValue() }}
       onClick={() => setValue(value)}
     >
       <IconTsx icon={icon} />
@@ -88,7 +88,7 @@ export default function TextTab() {
       onClick={() => void setSavedFont(textFont)}
       style={{
         'font-family': fontInfoMap[textFont].fontFamily,
-        'font-weight': fontInfoMap[textFont].fontWeight
+        'font-weight': fontInfoMap[textFont].fontWeight,
       }}
     >
       {text}
@@ -145,7 +145,7 @@ export default function TextTab() {
 }
 
 function createSyncedLayerInfoProp<T extends keyof TextLayerInfo>(key: T, getter: () => TextLayerInfo[T]) {
-  const {editorState} = useMediaEditorContext()!;
+  const { editorState } = useMediaEditorContext()!;
 
   editorState.currentTextLayerInfo[key] = getter();
 

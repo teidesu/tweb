@@ -1,4 +1,4 @@
-import {T_ME_PREFIXES} from '@appManagers/constants';
+import { T_ME_PREFIXES } from '@appManagers/constants';
 import wrapUrl from '@lib/richTextProcessor/wrapUrl';
 import cancelEvent from '@helpers/dom/cancelEvent';
 import parseUriParams from '@helpers/string/parseUriParams';
@@ -12,7 +12,7 @@ type InternalLinkAnchorType = 'showMaskedAlert' | 'execBotCommand' | 'searchByHa
 
 export const UNSAFE_ANCHOR_LINK_TYPES: Set<InternalLinkAnchorType> = new Set([
   'showMaskedAlert',
-  'execBotCommand'
+  'execBotCommand',
 ]);
 
 export default function addAnchorListener<
@@ -32,7 +32,7 @@ export default function addAnchorListener<
     !options.noCancelEvent && cancelEvent(undefined);
 
     let href = element!.href;
-    if(!href) {
+    if (!href) {
       return;
     }
 
@@ -41,23 +41,23 @@ export default function addAnchorListener<
 
     const u = new URL(href);
     const match = u.host.match(/(.+?)\.t(?:elegram)?\.me/);
-    if(match && !T_ME_PREFIXES.has(match[1])) {
+    if (match && !T_ME_PREFIXES.has(match[1])) {
       u.pathname = match[1] + (u.pathname === '/' ? '' : u.pathname);
       href = u.toString();
     }
 
-    if(!options.noPathnameParams) pathnameParams = new URL(href).pathname.split('/').slice(1);
-    if(!options.noUriParams) uriParams = parseUriParams(href);
+    if (!options.noPathnameParams) pathnameParams = new URL(href).pathname.split('/').slice(1);
+    if (!options.noUriParams) uriParams = parseUriParams(href);
 
     const masked = element!.href !== wrapUrl(element!.textContent).url && element!.getAttribute('safe') === null;
     const result = options.callback({
-      ...{pathnameParams: pathnameParams!, uriParams} as Params,
+      ...{ pathnameParams: pathnameParams!, uriParams } as Params,
       element,
       masked,
-      event: e || window.event
+      event: e || window.event,
     });
 
-    if(!e?.isTrusted) {
+    if (!e?.isTrusted) {
       return result;
     }
   };

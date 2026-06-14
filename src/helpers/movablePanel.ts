@@ -1,7 +1,7 @@
-import MovableElement, {MovableElementOptions, MovableState} from '@components/movableElement';
+import MovableElement, { MovableElementOptions, MovableState } from '@components/movableElement';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
 import ListenerSetter from '@helpers/listenerSetter';
-import mediaSizes, {ScreenSize} from '@helpers/mediaSizes';
+import mediaSizes, { ScreenSize } from '@helpers/mediaSizes';
 import safeAssign from '@helpers/object/safeAssign';
 
 export default class MovablePanel {
@@ -22,7 +22,7 @@ export default class MovablePanel {
     this.toggleMovable(!IS_TOUCH_SUPPORTED);
 
     this.listenerSetter.add(mediaSizes)('changeScreen', (from, to) => {
-      if(to === ScreenSize.mobile || from === ScreenSize.mobile) {
+      if (to === ScreenSize.mobile || from === ScreenSize.mobile) {
         this.toggleMovable(!IS_TOUCH_SUPPORTED);
       }
     });
@@ -30,7 +30,7 @@ export default class MovablePanel {
 
   public destroy() {
     const movable = this.movable;
-    if(movable) {
+    if (movable) {
       movable.destroy();
     }
   }
@@ -48,24 +48,24 @@ export default class MovablePanel {
   }
 
   private toggleMovable(enabled: boolean) {
-    let {movable} = this;
-    if(enabled) {
-      if(movable) {
+    let { movable } = this;
+    if (enabled) {
+      if (movable) {
         return;
       }
 
       movable = this.#movable = new MovableElement(this.movableOptions);
 
       movable.state = this.previousState;
-      if(this.previousState.top === undefined) {
+      if (this.previousState.top === undefined) {
         movable.setPositionToCenter();
       }
 
-      if(this.onResize) {
+      if (this.onResize) {
         this.listenerSetter.add(movable)('resize', this.onResize);
       }
     } else {
-      if(!movable) {
+      if (!movable) {
         return;
       }
 

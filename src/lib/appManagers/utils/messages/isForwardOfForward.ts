@@ -1,10 +1,10 @@
-import {Message} from '@layer';
+import { Message } from '@layer';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
 import getFwdFromName from '@appManagers/utils/messages/getFwdFromName';
 
 export default function isForwardOfForward(message: Message) {
   const fwdFrom = (message as Message.message).fwd_from;
-  if(!fwdFrom) {
+  if (!fwdFrom) {
     return false;
   }
 

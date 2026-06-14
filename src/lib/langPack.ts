@@ -1,23 +1,23 @@
 import type lang from '@/lang';
 import type langSign from '@/langSign';
-import type {State, StateSettings} from '@config/state';
-import {IS_BETA, MOUNT_CLASS_TO} from '@config/debug';
-import {HelpCountry, LangPackDifference, LangPackString} from '@layer';
+import type { State, StateSettings } from '@config/state';
+import { IS_BETA, MOUNT_CLASS_TO } from '@config/debug';
+import { HelpCountry, LangPackDifference, LangPackString } from '@layer';
 import App from '@config/app';
 import rootScope from '@lib/rootScope';
-import {IS_MOBILE} from '@environment/userAgent';
+import { IS_MOBILE } from '@environment/userAgent';
 import deepEqual from '@helpers/object/deepEqual';
 import safeAssign from '@helpers/object/safeAssign';
 import capitalizeFirstLetter from '@helpers/string/capitalizeFirstLetter';
 import matchUrlProtocol from '@lib/richTextProcessor/matchUrlProtocol';
 import wrapUrl from '@lib/richTextProcessor/wrapUrl';
-import {setDirection} from '@helpers/dom/setInnerHTML';
+import { setDirection } from '@helpers/dom/setInnerHTML';
 import setBlankToAnchor from '@lib/richTextProcessor/setBlankToAnchor';
-import {createSignal} from 'solid-js';
+import { createSignal } from 'solid-js';
 import commonStateStorage from '@lib/commonStateStorage';
 import Icon from '@components/icon';
 import currencyStarIcon from '@components/currencyStarIcon';
-import {isTruthy} from '../helpers/isTruthy';
+import { isTruthy } from '../helpers/isTruthy';
 
 export const langPack: {[actionType: string]: LangPackKey} = {
   'messageActionChatCreate': 'ActionCreateGroup',
@@ -65,7 +65,7 @@ export const langPack: {[actionType: string]: LangPackKey} = {
   'messageActionGroupCall.ended_by': 'Chat.Service.VoiceChatFinished',
   'messageActionGroupCall.ended_byYou': 'Chat.Service.VoiceChatFinishedYou',
 
-  'messageActionBotAllowed': 'Chat.Service.BotPermissionAllowed'
+  'messageActionBotAllowed': 'Chat.Service.BotPermissionAllowed',
 };
 
 export type LangPackKey = /* string |  */keyof typeof lang | keyof typeof langSign;
@@ -109,13 +109,13 @@ namespace I18n {
   export function getCacheLangPack(dontLoadLocal?: boolean) {
     return Promise.all([
       commonStateStorage.get('langPack').then((langPack) => langPack || (dontLoadLocal ? undefined : loadLocalLangPack())),
-      polyfillPromise
+      polyfillPromise,
     ]).then(([langPack]) => langPack);
   }
 
   export function getCacheLangPackAndApply() {
     return cacheLangPackPromise ||= getCacheLangPack(true).then(async(langPack) => {
-      if(!langPack) {
+      if (!langPack) {
         langPack = await loadLocalLangPack();
         langPack = await saveLangPack(langPack, false);
       }
@@ -129,9 +129,9 @@ namespace I18n {
   }
 
   function updateAmPm() {
-    if(timeFormat === 'h12') {
+    if (timeFormat === 'h12') {
       try {
-        const dateTimeFormat = getDateTimeFormat({hour: 'numeric', minute: 'numeric', hour12: true});
+        const dateTimeFormat = getDateTimeFormat({ hour: 'numeric', minute: 'numeric', hour12: true });
         const date = new Date();
         date.setHours(0);
         const amText = dateTimeFormat.format(date);
@@ -139,7 +139,7 @@ namespace I18n {
         date.setHours(12);
         const pmText = dateTimeFormat.format(date);
         amPmCache.pm = pmText.split(/\s/)[1];
-      } catch(err) {
+      } catch (err) {
         console.error('cannot get am/pm', err);
         amPmCache.am = 'AM';
         amPmCache.pm = 'PM';
@@ -155,13 +155,13 @@ namespace I18n {
 
     updateAmPm();
 
-    if(haveToUpdate) {
+    if (haveToUpdate) {
       cachedDateTimeFormats.clear();
       const elements = Array.from(document.querySelectorAll(`.i18n`));
       elements.forEach((element) => {
         const instance = weakMap.get(element);
 
-        if(instance instanceof IntlDateElement) {
+        if (instance instanceof IntlDateElement) {
           instance.update();
         }
       });
@@ -173,7 +173,7 @@ namespace I18n {
     return Promise.all([
       import('../lang'),
       import('../langSign'),
-      import('../countries')
+      import('../countries'),
     ]).then(([lang, langSign, countries]) => {
       const strings: LangPackString[] = [];
       formatLocalStrings(lang.default, strings);
@@ -186,7 +186,7 @@ namespace I18n {
         strings,
         version: App.langPackVersion,
         countries: countries.default,
-        localVersion: App.langPackLocalVersion
+        localVersion: App.langPackLocalVersion,
       };
       return langPack;
     });
@@ -201,7 +201,7 @@ namespace I18n {
       import('../lang'),
       import('../langSign'),
       managers.appLangPackManager.getCountriesList(langCode, ignoreCache),
-      polyfillPromise
+      polyfillPromise,
     ]);
   }
 
@@ -210,20 +210,20 @@ namespace I18n {
   }
 
   export function formatLocalStrings(strings: any, pushTo: LangPackString[] = []) {
-    for(const i in strings) {
+    for (const i in strings) {
       // @ts-ignore
       const v = strings[i];
-      if(typeof(v) === 'string') {
+      if (typeof(v) === 'string') {
         pushTo.push({
           _: 'langPackString',
           key: i,
-          value: v
+          value: v,
         });
       } else {
         pushTo.push({
           _: 'langPackStringPluralized',
           key: i,
-          ...v
+          ...v,
         });
       }
     }
@@ -240,9 +240,9 @@ namespace I18n {
         formatLocalStrings(l.default as any, strings);
       });
 
-      if(!TEST_LOCAL) pushLocal();
+      if (!TEST_LOCAL) pushLocal();
       strings = strings.concat(...[langPack1.strings, langPack2 && (langPack2 as unknown as LangPackDifference).strings].filter(isTruthy));
-      if(TEST_LOCAL) pushLocal();
+      if (TEST_LOCAL) pushLocal();
 
       langPack1.strings = strings;
       langPack1.countries = countries;
@@ -254,15 +254,15 @@ namespace I18n {
   export function saveLangPack(langPack: LangPackDifference, apply: boolean) {
     langPack.version ||= App.langPackVersion;
 
-    if(!apply) return langPack;
-    return commonStateStorage.set({langPack}).then(() => {
+    if (!apply) return langPack;
+    return commonStateStorage.set({ langPack }).then(() => {
       applyLangPack(langPack);
       return langPack;
     });
   }
 
   export const polyfillPromise = (function checkIfPolyfillNeeded() {
-    if(typeof(Intl) !== 'undefined' && typeof(Intl.PluralRules) !== 'undefined'/*  && false */) {
+    if (typeof(Intl) !== 'undefined' && typeof(Intl.PluralRules) !== 'undefined'/*  && false */) {
       return Promise.resolve();
     } else {
       return import('./pluralPolyfill').then((_Intl) => {
@@ -273,48 +273,48 @@ namespace I18n {
 
   export function applyLangPack(langPack: LangPackDifference) {
     const currentLangCode = lastRequestedLangCode;
-    if(langPack.lang_code !== currentLangCode) {
+    if (langPack.lang_code !== currentLangCode) {
       return;
     }
 
     try {
       pluralRules = new Intl.PluralRules(lastRequestedNormalizedLangCode);
-    } catch(err) {
+    } catch (err) {
       console.error('pluralRules error', err);
       pluralRules = new Intl.PluralRules(lastRequestedNormalizedLangCode.split('-', 1)[0]);
     }
 
     try {
       pluralRules = new Intl.PluralRules(langPack.lang_code);
-    } catch(err) {
+    } catch (err) {
       console.error('pluralRules error', err);
       pluralRules = new Intl.PluralRules(langPack.lang_code.split('-', 1)[0]);
     }
 
     strings.clear();
 
-    for(const string of langPack.strings) {
+    for (const string of langPack.strings) {
       strings.set(string.key as LangPackKey, string);
     }
 
-    if(langPack.countries) {
+    if (langPack.countries) {
       countriesList.length = 0;
       countriesList.push(...langPack.countries.countries);
 
       langPack.countries.countries.forEach((country) => {
-        if(country.name) {
+        if (country.name) {
           const langPackKey: any = country.default_name;
           strings.set(langPackKey, {
             _: 'langPackString',
             key: langPackKey,
-            value: country.name
+            value: country.name,
           });
         }
       });
     }
 
-    if(lastAppliedLangCode !== currentLangCode) {
-      if(lastAppliedLangCode && rootScope.myId) {
+    if (lastAppliedLangCode !== currentLangCode) {
+      if (lastAppliedLangCode && rootScope.myId) {
         rootScope.managers.appReactionsManager.resetAvailableReactions();
         rootScope.managers.appUsersManager.indexMyself();
         rootScope.managers.dialogsStorage.indexMyDialog();
@@ -330,7 +330,7 @@ namespace I18n {
     elements.forEach((element) => {
       const instance = weakMap.get(element);
 
-      if(instance) {
+      if (instance) {
         instance.update();
       }
     });
@@ -340,7 +340,7 @@ namespace I18n {
 
   function pushNextArgument(out: ReturnType<typeof superFormatter>, args: FormatterArguments, indexHolder: {i: number}, i?: number) {
     const arg = args[i === undefined ? indexHolder.i++ : i];
-    if(Array.isArray(arg)) {
+    if (Array.isArray(arg)) {
       out.push(...arg as any);
     } else {
       out.push(arg);
@@ -349,7 +349,7 @@ namespace I18n {
 
   const IconMap: Record<string, Icon | (() => HTMLElement)> = {
     '>': 'next',
-    '<': 'previous'
+    '<': 'previous',
     // '⭐️': currencyStarIcon as () => HTMLElement
   };
 
@@ -357,10 +357,10 @@ namespace I18n {
   const iconsKeys = Object.keys(IconMap);
 
   export function superFormatter(input: string, args?: FormatterArguments, indexHolder?: {i: number}): Exclude<FormatterArgument, FormatterArgument[]>[] {
-    if(!indexHolder) { // set starting index for arguments without order
-      indexHolder = {i: 0};
+    if (!indexHolder) { // set starting index for arguments without order
+      indexHolder = { i: 0 };
       const indexes = input.match(/(%|un)\d+/g);
-      if(indexes?.length) {
+      if (indexes?.length) {
         indexHolder.i = Math.max(...indexes.map((str) => +str.replace(/\D/g, '')));
       }
     }
@@ -372,14 +372,14 @@ namespace I18n {
     input.replace(regExp, (match, p1: any, p2: any, p3: any, p4: string, p5: string, offset: number, string: string) => {
       // console.table({match, p1, p2, offset, string});
 
-      if(offset > lastIndex) {
+      if (offset > lastIndex) {
         out.push(string.slice(lastIndex, offset));
       }
 
-      if(p1) {
+      if (p1) {
         // offset += p1.length;
         let element: HTMLElement;
-        switch(p1) {
+        switch (p1) {
           case '**': {
             element = document.createElement('b');
             break;
@@ -393,53 +393,53 @@ namespace I18n {
 
         element!.append(...superFormatter(p2, args, indexHolder) as any);
         out.push(element!);
-      } else if(p3) {
+      } else if (p3) {
         out.push(document.createElement('br'));
-      } else if(p4) {
+      } else if (p4) {
         const idx = p4.lastIndexOf(']');
         const text = p4.slice(1, idx);
 
         const url = p4.slice(idx + 2, p4.length - 1);
         let a: HTMLAnchorElement;
-        if(url && matchUrlProtocol(url)) {
+        if (url && matchUrlProtocol(url)) {
           a = document.createElement('a');
           const wrappedUrl = wrapUrl(url);
           a.href = wrappedUrl.url;
-          if(wrappedUrl.onclick) a.setAttribute('onclick', wrappedUrl.onclick + '(this)');
+          if (wrappedUrl.onclick) a.setAttribute('onclick', wrappedUrl.onclick + '(this)');
           setBlankToAnchor(a);
         } else {
           a = args![indexHolder.i++] as HTMLAnchorElement;
 
-          if(a instanceof DocumentFragment) { // right after wrapRichText
+          if (a instanceof DocumentFragment) { // right after wrapRichText
             a = a.firstChild as any;
           }
 
-          if(typeof(a) !== 'string') {
+          if (typeof(a) !== 'string') {
             a.textContent = ''; // reset content
           }
         }
 
         const formatted = superFormatter(text, args, indexHolder) as any;
-        if(typeof(a) === 'string') {
+        if (typeof(a) === 'string') {
           out.push(...formatted);
         } else {
           a.append(...formatted);
           out.push(a);
         }
-      } else if(p5) {
+      } else if (p5) {
         const noWhitespace = iconsNoWhitespace.includes(p5);
-        if(!noWhitespace && !match.startsWith(p5)) out.push(match[0]);
+        if (!noWhitespace && !match.startsWith(p5)) out.push(match[0]);
         const className = 'inline-icon';
         const i = IconMap[p5];
-        if(typeof(i) === 'function') {
+        if (typeof(i) === 'function') {
           const element = i();
           element.classList.add(className);
           out.push(element);
         } else {
           out.push(Icon(i, className));
         }
-        if(!noWhitespace && match.startsWith(p5)) out.push(match[match.length - 1]);
-      } else if(args) {
+        if (!noWhitespace && match.startsWith(p5)) out.push(match[match.length - 1]);
+      } else if (args) {
         const index = match.replace(/\D/g, '');
         pushNextArgument(
           out,
@@ -453,7 +453,7 @@ namespace I18n {
       return '';
     });
 
-    if(lastIndex !== input.length) {
+    if (lastIndex !== input.length) {
       out.push(input.slice(lastIndex));
     }
 
@@ -467,14 +467,14 @@ namespace I18n {
   ): T extends true ? string : ReturnType<typeof superFormatter> {
     const str = strings.get(key);
     let input: string;
-    if(str) {
-      if(str._ === 'langPackStringPluralized' && args?.length) {
+    if (str) {
+      if (str._ === 'langPackStringPluralized' && args?.length) {
         let v = args[0] as number | string;
-        if(typeof(v) === 'string') v = +v.replace(/\D/g, '');
+        if (typeof(v) === 'string') v = +v.replace(/\D/g, '');
         const s = pluralRules.select(v);
         // @ts-ignore
         input = str[s + '_value'] || str['other_value'];
-      } else if(str._ === 'langPackString') {
+      } else if (str._ === 'langPackString') {
         input = str.value;
       } else {
         // input = '[' + key + ']';
@@ -486,7 +486,7 @@ namespace I18n {
     }
 
     const result = superFormatter(input, args);
-    if(plain) { // * let's try a hack now... (don't want to replace []() entity)
+    if (plain) { // * let's try a hack now... (don't want to replace []() entity)
       return result.map((item) => item instanceof HTMLBRElement ? '\n' : (item instanceof Node ? item.textContent : item)).join('') as any;
     } else {
       return result as any;
@@ -539,9 +539,9 @@ namespace I18n {
     public args: IntlElementOptions['args'];
 
     constructor(options: IntlElementOptions = {}) {
-      super({...options, property: options.property ?? 'innerHTML'});
+      super({ ...options, property: options.property ?? 'innerHTML' });
 
-      if(options?.key) {
+      if (options?.key) {
         this.update(options);
       }
     }
@@ -549,14 +549,14 @@ namespace I18n {
     public update(options?: IntlElementOptions) {
       safeAssign(this, options);
 
-      if(!this.key) {
+      if (!this.key) {
         this.element.replaceChildren();
         return;
       }
 
-      if(this.property === 'innerHTML') {
+      if (this.property === 'innerHTML') {
         this.element.replaceChildren(...format(this.key, false, this.args) as any);
-        if(this.args?.length) {
+        if (this.args?.length) {
           this.element.normalize();
         }
       } else {
@@ -565,13 +565,13 @@ namespace I18n {
         const formatted = format(this.key, true, this.args);
 
         // * hasOwnProperty won't work here
-        if(v === undefined) this.element.dataset[this.property!] = formatted;
+        if (v === undefined) this.element.dataset[this.property!] = formatted;
         else (this.element as HTMLInputElement)[this.property!] = formatted;
       }
     }
 
     public compareAndUpdateBool(options?: IntlElementOptions): boolean {
-      if(this.key === options!.key && deepEqual(this.args, options!.args)) {
+      if (this.key === options!.key && deepEqual(this.args, options!.args)) {
         return false;
       }
 
@@ -580,7 +580,7 @@ namespace I18n {
     }
 
     public compareAndUpdate(options?: IntlElementOptions) {
-      if(this.key === options!.key && deepEqual(this.args, options!.args)) {
+      if (this.key === options!.key && deepEqual(this.args, options!.args)) {
         return;
       }
 
@@ -592,7 +592,7 @@ namespace I18n {
   export function getDateTimeFormat(options: Intl.DateTimeFormatOptions = {}) {
     const json = JSON.stringify(options);
     let dateTimeFormat = cachedDateTimeFormats.get(json);
-    if(!dateTimeFormat) {
+    if (!dateTimeFormat) {
       dateTimeFormat = new Intl.DateTimeFormat(lastRequestedNormalizedLangCode + '-u-hc-' + timeFormat, options);
       cachedDateTimeFormats.set(json, dateTimeFormat);
     }
@@ -600,7 +600,7 @@ namespace I18n {
     return dateTimeFormat;
   }
 
-  export const amPmCache = {am: 'AM', pm: 'PM'};
+  export const amPmCache = { am: 'AM', pm: 'PM' };
   export type IntlDateElementOptions = IntlElementBaseOptions & {
     date?: Date,
     options: Intl.DateTimeFormatOptions
@@ -610,10 +610,10 @@ namespace I18n {
     public options: IntlDateElementOptions['options'];
 
     constructor(options: IntlDateElementOptions) {
-      super({...options, property: options.property ?? 'textContent'});
+      super({ ...options, property: options.property ?? 'textContent' });
       setDirection(this.element);
 
-      if(options?.date) {
+      if (options?.date) {
         this.update(options);
       }
     }
@@ -622,14 +622,14 @@ namespace I18n {
       safeAssign(this, options);
 
       let text: string;
-      if(this.options.hour && this.options.minute && Object.keys(this.options).length === 2/*  && false */) {
+      if (this.options.hour && this.options.minute && Object.keys(this.options).length === 2/*  && false */) {
         const hours = this.date!.getHours();
         text = ('0' + (timeFormat === 'h12' ? (hours % 12) || 12 : hours)).slice(-2) + ':' + ('0' + this.date!.getMinutes()).slice(-2);
         // if(this.options.second) {
         //   text += ':' + ('0' + this.date.getSeconds()).slice(-2);
         // }
 
-        if(timeFormat === 'h12') {
+        if (timeFormat === 'h12') {
           text += ' ' + (hours < 12 ? amPmCache.am : amPmCache.pm);
         }
       } else {
@@ -643,7 +643,7 @@ namespace I18n {
   }
 
   export function i18n(key: LangPackKey, args?: FormatterArguments): HTMLElement {
-    return new IntlElement({key, args}).element;
+    return new IntlElement({ key, args }).element;
   }
 
   export function i18n_(options: IntlElementOptions): HTMLElement {
@@ -651,28 +651,28 @@ namespace I18n {
   }
 
   export function _i18n(element: HTMLElement, key: LangPackKey, args?: FormatterArguments, property?: IntlElementOptions['property']): HTMLElement {
-    return new IntlElement({element, key, args, property}).element;
+    return new IntlElement({ element, key, args, property }).element;
   }
 }
 
-export {I18n};
+export { I18n };
 export default I18n;
 
 const i18n = I18n.i18n;
-export {i18n};
+export { i18n };
 
 const i18n_ = I18n.i18n_;
-export {i18n_};
+export { i18n_ };
 
 const _i18n = I18n._i18n;
-export {_i18n};
+export { _i18n };
 
 export function joinElementsWith<T>(
   elements: T[],
   joiner: T | string | ((isLast: boolean) => T)
 ): T[] {
   const arr = elements.slice(0, 1);
-  for(let i = 1; i < elements.length; ++i) {
+  for (let i = 1; i < elements.length; ++i) {
     const isLast = (elements.length - 1) === i;
     arr.push(typeof(joiner) === 'function' ? (joiner as any)(isLast) : joiner);
     arr.push(elements[i]);
@@ -695,30 +695,30 @@ export function join(elements: (Node | string)[], useLast = true, plain?: boolea
 }
 
 export async function handleUpdateLangPack(update: {difference: LangPackDifference}) {
-  const {difference} = update;
+  const { difference } = update;
 
   // Check if this update is for the current language
-  if(difference.lang_code !== I18n.getLastRequestedLangCode()) {
+  if (difference.lang_code !== I18n.getLastRequestedLangCode()) {
     return;
   }
 
   // Get current langPack from storage
   const storedLangPack = await I18n.getCacheLangPack();
-  if(storedLangPack?.lang_code !== difference.lang_code || storedLangPack.lang_code !== I18n.getLastRequestedLangCode()) {
+  if (storedLangPack?.lang_code !== difference.lang_code || storedLangPack.lang_code !== I18n.getLastRequestedLangCode()) {
     return;
   }
 
-  if(storedLangPack.version !== difference.from_version) {
+  if (storedLangPack.version !== difference.from_version) {
     handleUpdateLangPackTooLong(difference);
     return;
   }
 
   // Apply updates to langPack
-  if(difference.strings) {
+  if (difference.strings) {
     const storedStrings = storedLangPack.strings ||= [];
-    for(const string of difference.strings) {
+    for (const string of difference.strings) {
       const existingIndex = storedStrings.findIndex((s) => s.key === string.key);
-      if(existingIndex !== -1) {
+      if (existingIndex !== -1) {
         storedStrings[existingIndex] = string;
       } else {
         storedStrings.push(string);
@@ -751,10 +751,10 @@ export async function handleUpdateLangPack(update: {difference: LangPackDifferen
 }
 
 export function handleUpdateLangPackTooLong(update: {lang_code: string}) {
-  const {lang_code} = update;
+  const { lang_code } = update;
 
   // Check if this update is for the current language
-  if(lang_code !== I18n.getLastRequestedLangCode()) {
+  if (lang_code !== I18n.getLastRequestedLangCode()) {
     return;
   }
 
@@ -763,14 +763,14 @@ export function handleUpdateLangPackTooLong(update: {lang_code: string}) {
 }
 
 export function handleStateCleared() {
-  handleUpdateLangPackTooLong({lang_code: I18n.getLastRequestedLangCode()});
+  handleUpdateLangPackTooLong({ lang_code: I18n.getLastRequestedLangCode() });
 }
 
 export async function checkLangPackForUpdates() {
   const storedLangPack = await I18n.getCacheLangPack();
   const difference = await rootScope.managers.appLangPackManager.getDifference(storedLangPack.lang_code, storedLangPack.version);
-  if(difference.version > storedLangPack.version) {
-    return handleUpdateLangPack({difference});
+  if (difference.version > storedLangPack.version) {
+    return handleUpdateLangPack({ difference });
   }
 }
 

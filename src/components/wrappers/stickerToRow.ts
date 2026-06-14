@@ -1,9 +1,9 @@
-import {MyDocument} from '@appManagers/appDocsManager';
-import {AppManagers} from '@lib/managers';
+import { MyDocument } from '@appManagers/appDocsManager';
+import { AppManagers } from '@lib/managers';
 import Row from '@components/row';
 import wrapSticker from '@components/wrappers/sticker';
 
-export default function wrapStickerToRow({doc, row, size, managers}: {
+export default function wrapStickerToRow({ doc, row, size, managers }: {
   doc: MyDocument,
   row: Row,
   size?: 'small' | 'large',
@@ -12,7 +12,7 @@ export default function wrapStickerToRow({doc, row, size, managers}: {
   const previousMedia = row.media;
   const media = row.createMedia('small');
 
-  if(previousMedia) {
+  if (previousMedia) {
     media.classList.add('hide');
   }
 
@@ -25,8 +25,8 @@ export default function wrapStickerToRow({doc, row, size, managers}: {
     width: _size,
     height: _size,
     loadPromises,
-    managers
-  }).then(({render}) => render);
+    managers,
+  }).then(({ render }) => render);
 
   loadPromises && Promise.all(loadPromises).then(() => {
     media.classList.remove('hide');

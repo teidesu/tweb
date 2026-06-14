@@ -1,10 +1,10 @@
-import {crc16, crc8} from '@lib/rtmp/flac-crc';
+import { crc16, crc8 } from '@lib/rtmp/flac-crc';
 
 function writeUtf8Integer(dv: DataView, pos: number, value: number) {
-  while(true) {
+  while (true) {
     const byte = value & 0x7f;
     value >>= 7;
-    if(value === 0) {
+    if (value === 0) {
       dv.setUint8(pos++, byte);
       break;
     } else {
@@ -29,7 +29,7 @@ export function encodeFlacFrame(params: FlacFrameOptions) {
   // Sample rate=48khz (opus decoder always uses 48khz)
   dv.setUint8(2, 0b01111010);
   const channelAssignment = params.pcms.length - 1;
-  if(channelAssignment > 7) throw new Error('Too many channels');
+  if (channelAssignment > 7) throw new Error('Too many channels');
   const sampleSize = 0b1000; // we ask opus decoder to spit out 16 bit pcm
   dv.setUint8(3, (channelAssignment << 4) | sampleSize);
 
@@ -41,15 +41,15 @@ export function encodeFlacFrame(params: FlacFrameOptions) {
   dv.setUint8(pos++, crc);
 
   // subframes
-  for(const channelPcms of params.pcms) {
+  for (const channelPcms of params.pcms) {
     // channelPcms is Int16Array[]
     dv.setUint8(pos++, 0b00000010); // verbatim subframe + no wasted bits-per-sample
 
     let currentBuffer = channelPcms[0];
     let currentBufferIdx = 0;
     let currentBufferPos = 0;
-    for(let i = 0; i < params.blockSize; i++) {
-      if(currentBufferPos >= currentBuffer.length) {
+    for (let i = 0; i < params.blockSize; i++) {
+      if (currentBufferPos >= currentBuffer.length) {
         currentBuffer = channelPcms[++currentBufferIdx];
         currentBufferPos = 0;
       }
@@ -58,10 +58,10 @@ export function encodeFlacFrame(params: FlacFrameOptions) {
     }
 
     // adjust the pcms array to only be the remaining samples
-    if(currentBufferIdx > 0) {
+    if (currentBufferIdx > 0) {
       channelPcms.splice(0, currentBufferIdx);
     }
-    if(currentBufferPos > 0) {
+    if (currentBufferPos > 0) {
       channelPcms[0] = currentBuffer.subarray(currentBufferPos);
     }
   }
@@ -73,7 +73,7 @@ export function encodeFlacFrame(params: FlacFrameOptions) {
 
   return {
     data: buf.subarray(0, pos),
-    duration: params.blockSize / 48000
+    duration: params.blockSize / 48000,
   };
 }
 

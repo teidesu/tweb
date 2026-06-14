@@ -1,11 +1,11 @@
 import findAndSplice from '@helpers/array/findAndSplice';
 import assumeType from '@helpers/assumeType';
-import {BotInlineResult, MessagesSavedGifs, Document} from '@layer';
-import {NULL_PEER_ID} from '@appManagers/constants';
-import {ReferenceContext} from '@lib/storages/references';
-import {AppManager} from '@appManagers/manager';
+import { BotInlineResult, MessagesSavedGifs, Document } from '@layer';
+import { NULL_PEER_ID } from '@appManagers/constants';
+import { ReferenceContext } from '@lib/storages/references';
+import { AppManager } from '@appManagers/manager';
 import getDocumentInput from '@appManagers/utils/docs/getDocumentInput';
-import {isTruthy} from '../../helpers/isTruthy';
+import { isTruthy } from '../../helpers/isTruthy';
 
 export default class AppGifsManager extends AppManager {
   private gifs: MaybePromise<Document.document[]> | undefined;
@@ -17,7 +17,7 @@ export default class AppGifsManager extends AppManager {
     });
 
     this.apiUpdatesManager.addMultipleEventsListeners({
-      updateSavedGifs: () => this.onGifsUpdated()
+      updateSavedGifs: () => this.onGifsUpdated(),
     });
   }
 
@@ -27,13 +27,13 @@ export default class AppGifsManager extends AppManager {
   }
 
   public getGifs(overwrite?: boolean) {
-    if(overwrite && Array.isArray(this.gifs)) {
+    if (overwrite && Array.isArray(this.gifs)) {
       this.gifs = undefined;
     }
 
     return this.gifs! ??= this.apiManager.invokeApi('messages.getSavedGifs').then((res) => {
       assumeType<MessagesSavedGifs.messagesSavedGifs>(res);
-      const referenceContext: ReferenceContext = {type: 'savedGifs'};
+      const referenceContext: ReferenceContext = { type: 'savedGifs' };
       this.gifs = res.gifs.map((doc) => {
         // if(this.TEST_REFERENCE) {
         //   (doc as Document.document).file_reference[0] = 5;
@@ -48,7 +48,7 @@ export default class AppGifsManager extends AppManager {
   public async searchGifs(query: string, nextOffset?: string) {
     const user = await this.appUsersManager.resolveUsername('gif');
     const gifBotPeerId = user.id.toPeerId(false);
-    const {results, next_offset} = await this.appInlineBotsManager.getInlineResults(
+    const { results, next_offset } = await this.appInlineBotsManager.getInlineResults(
       NULL_PEER_ID,
       gifBotPeerId,
       query,
@@ -56,35 +56,35 @@ export default class AppGifsManager extends AppManager {
     );
 
     const documents = (results as BotInlineResult.botInlineMediaResult[])
-    .map((result) => result.document)
-    .filter(Boolean) as Document.document[];
-    return {documents, nextOffset: next_offset};
+      .map((result) => result.document)
+      .filter(Boolean) as Document.document[];
+    return { documents, nextOffset: next_offset };
   }
 
   public async saveGif(docId: DocId, unsave?: boolean) {
     const [limit, gifs] = await Promise.all([
       this.apiManager.getLimit('gifs'),
-      this.getGifs()
+      this.getGifs(),
     ]);
 
     const doc = this.appDocsManager.getDoc(docId);
     findAndSplice(gifs, (_doc) => _doc.id === doc.id);
 
     let limitReached = false;
-    if(!unsave) {
+    if (!unsave) {
       gifs.unshift(doc);
       const spliced = gifs.splice(limit, gifs.length - limit);
       limitReached = spliced.length > 0;
     }
 
     this.rootScope.dispatchEvent('gifs_updated', (gifs));
-    this.rootScope.dispatchEvent('gif_updated', {saved: !unsave, document: doc, limitReached});
+    this.rootScope.dispatchEvent('gif_updated', { saved: !unsave, document: doc, limitReached });
 
     return this.apiManager.invokeApi('messages.saveGif', {
       id: getDocumentInput(doc),
-      unsave: unsave!
+      unsave: unsave!,
     }).then(() => {
-      if(unsave) {
+      if (unsave) {
         this.onGifsUpdated();
       }
     });

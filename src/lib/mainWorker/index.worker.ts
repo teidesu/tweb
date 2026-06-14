@@ -3,31 +3,31 @@ import '@lib/polyfill';
 import '@helpers/peerIdPolyfill';
 
 import cryptoWorker from '@lib/crypto/cryptoMessagePort';
-import {setEnvironment} from '@environment/utils';
+import { setEnvironment } from '@environment/utils';
 import transportController from '@lib/mtproto/transports/controller';
 import MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
 import appManagersManager from '@appManagers/appManagersManager';
 import listenMessagePort from '@helpers/listenMessagePort';
-import {logger} from '@lib/logger';
-import {getLogEntries, setLogBufferEnabled} from '@lib/debug/logsBuffer';
+import { logger } from '@lib/logger';
+import { getLogEntries, setLogBufferEnabled } from '@lib/debug/logsBuffer';
 import toggleStorages from '@helpers/toggleStorages';
 import appTabsManager from '@appManagers/appTabsManager';
 import callbackify from '@helpers/callbackify';
 import Modes from '@config/modes';
-import {IS_WORKER} from '@helpers/context';
-import {ActiveAccountNumber} from '@lib/accounts/types';
+import { IS_WORKER } from '@helpers/context';
+import { ActiveAccountNumber } from '@lib/accounts/types';
 import commonStateStorage from '@lib/commonStateStorage';
 import DeferredIsUsingPasscode from '@lib/passcode/deferredIsUsingPasscode';
 import AppStorage from '@lib/storage';
 import EncryptionKeyStore from '@lib/passcode/keyStore';
 import sessionStorage from '@lib/sessionStorage';
 import CacheStorageController from '@lib/files/cacheStorage';
-import {ApiManager} from '@appManagers/apiManager';
-import {useAutoLock} from '@lib/mainWorker/useAutoLock';
+import { ApiManager } from '@appManagers/apiManager';
+import { useAutoLock } from '@lib/mainWorker/useAutoLock';
 import pushSingleManager from '@appManagers/pushSingleManager';
-import {createBroadcastChannelWrapper} from '@lib/broadcastChannelWrapper';
-import {MainBroadcastChannelEvents, unversionedMainBroadcastChannelName} from '@config/broadcastChannel';
-import {initCryptoWasm} from '@lib/crypto/wasmInit';
+import { createBroadcastChannelWrapper } from '@lib/broadcastChannelWrapper';
+import { MainBroadcastChannelEvents, unversionedMainBroadcastChannelName } from '@config/broadcastChannel';
+import { initCryptoWasm } from '@lib/crypto/wasmInit';
 
 
 const log = logger('MTPROTO');
@@ -45,19 +45,19 @@ const mainBroadcastChannel = createBroadcastChannelWrapper<MainBroadcastChannelE
 let isLocked = true;
 
 const singleManagers = {
-  [pushSingleManager.name]: pushSingleManager
+  [pushSingleManager.name]: pushSingleManager,
 };
 
 port.addMultipleEventsListeners({
   environment: (environment) => {
     setEnvironment(environment);
 
-    if(import.meta.env.VITE_MTPROTO_AUTO && Modes.multipleTransports) {
+    if (import.meta.env.VITE_MTPROTO_AUTO && Modes.multipleTransports) {
       transportController.waitForWebSocket();
     }
   },
 
-  crypto: ({method, args}) => {
+  crypto: ({ method, args }) => {
     return cryptoWorker.invokeCrypto(method as any, ...args as any);
   },
 
@@ -65,7 +65,7 @@ port.addMultipleEventsListeners({
 
   setLogBufferEnabled: (enabled) => setLogBufferEnabled(enabled),
 
-  state: ({state, resetStorages, pushedKeys, oldVersion, userId, accountNumber, common, refetchStorages}) => {
+  state: ({ state, resetStorages, pushedKeys, oldVersion, userId, accountNumber, common, refetchStorages }) => {
     // if(haveState) {
     //   return;
     // }
@@ -77,7 +77,7 @@ port.addMultipleEventsListeners({
     appStateManager.oldVersion = oldVersion;
 
     // * preserve self user
-    if(userId && resetStorages.has('users')) {
+    if (userId && resetStorages.has('users')) {
       resetStorages.set('users', [userId]);
     }
 
@@ -89,29 +89,29 @@ port.addMultipleEventsListeners({
 
         const map: Map<string, any> = new Map();
         const pushedKeysCombined: string[] = [...pushedKeys];
-        if(accountNumber === 1) {
-          for(const key in common) {
+        if (accountNumber === 1) {
+          for (const key in common) {
             map.set(key, common[key as keyof typeof common]);
             pushedKeysCombined.push(key as any); // ! unoptimized, but it's ok for now since it's only one key
           }
         }
 
-        for(const key in state) {
+        for (const key in state) {
           map.set(key, state[key as keyof typeof state]);
         }
 
-        for(const [key, value] of map) {
+        for (const [key, value] of map) {
           const promise = appStateManager.pushToState(key as any, value, true, !pushedKeysCombined.includes(key));
           promises.push(promise);
         }
 
         await Promise.all(promises);
-      }
+      },
     });
     // haveState = true;
   },
 
-  toggleStorages: ({enabled, clearWrite}) => {
+  toggleStorages: ({ enabled, clearWrite }) => {
     return toggleStorages(enabled, clearWrite);
   },
 
@@ -157,7 +157,7 @@ port.addMultipleEventsListeners({
       AppStorage.toggleEncryptedForAll(payload.isUsingPasscode),
       payload.isUsingPasscode ?
         sessionStorage.encryptEncryptable() :
-        sessionStorage.decryptEncryptable()
+        sessionStorage.decryptEncryptable(),
     ]);
 
     pushSingleManager.registerAgain();
@@ -167,13 +167,13 @@ port.addMultipleEventsListeners({
     isLocked = false;
   },
 
-  changePasscode: async({toStore, encryptionKey}, source) => {
-    await commonStateStorage.set({passcode: toStore});
+  changePasscode: async({ toStore, encryptionKey }, source) => {
+    await commonStateStorage.set({ passcode: toStore });
 
     EncryptionKeyStore.save(encryptionKey);
     await Promise.all([
       AppStorage.reEncryptEncrypted(),
-      sessionStorage.reEncryptEncryptable()
+      sessionStorage.reEncryptEncryptable(),
     ]);
 
     await port.invokeExceptSourceAsync('saveEncryptionKey', encryptionKey, source);
@@ -181,8 +181,8 @@ port.addMultipleEventsListeners({
 
   isLocked: async(_, source) => {
     const isUsingPasscode = await DeferredIsUsingPasscode.isUsingPasscode();
-    if(isUsingPasscode) {
-      if(!isLocked) {
+    if (isUsingPasscode) {
+      if (!isLocked) {
         await port.invoke('saveEncryptionKey', (await EncryptionKeyStore.get())!, undefined, source);
       }
       return isLocked;
@@ -219,7 +219,7 @@ port.addMultipleEventsListeners({
     await ApiManager.forceLogOutAll();
   },
 
-  toggleUninteruptableActivity: ({activity, active}, source) => {
+  toggleUninteruptableActivity: ({ activity, active }, source) => {
     autoLockControls.toggleUninteruptableActivity(source, activity, active);
   },
 
@@ -239,7 +239,7 @@ port.addMultipleEventsListeners({
 
   resetOpenCacheStoragesByNames: (names) => {
     CacheStorageController.resetOpenStoragesByNames(names);
-  }
+  },
 
   // socketProxy: (task) => {
   //   const socketTask = task.payload;
@@ -267,7 +267,7 @@ let isFirst = true;
 
 function resetNotificationsCount() {
   commonStateStorage.set({
-    notificationsCount: {}
+    notificationsCount: {},
   });
 }
 
@@ -277,7 +277,7 @@ const autoLockControls = useAutoLock({
     mainBroadcastChannel.emitVoid('reload');
     selfTerminate();
   },
-  getPort: () => port
+  getPort: () => port,
 });
 
 appTabsManager.onTabStateChange = () => {
@@ -285,19 +285,19 @@ appTabsManager.onTabStateChange = () => {
   const areAllIdle = tabs.every((tab) => !!tab.state.idleStartTime);
 
   autoLockControls.setAreAllIdle(areAllIdle);
-  if(!tabs.length && DeferredIsUsingPasscode.isUsingPasscodeUndeferred()) {
+  if (!tabs.length && DeferredIsUsingPasscode.isUsingPasscodeUndeferred()) {
     selfTerminate();
   }
 };
 
 const onTabConnect = (source: MessageEventSource) => {
   appTabsManager.addTab(source);
-  if(isFirst) {
+  if (isFirst) {
     isFirst = false;
     resetNotificationsCount();
   } else {
     callbackify(appManagersManager.getManagersByAccount(), (managers) => {
-      for(const key in managers) {
+      for (const key in managers) {
         const accountNumber = key as any as ActiveAccountNumber
         managers[accountNumber].thumbsStorage.mirrorAll(source);
         managers[accountNumber].appPeersManager.mirrorAllPeers(source);
@@ -316,7 +316,7 @@ const onTabDisconnect = (source: MessageEventSource) => {
 // In Modes.noWorker the proxy imports this module and drives connectInProcessTab
 // manually; falling through to listenMessagePort's else-branch would attach
 // `self` (the window) as a port and intercept unrelated window.postMessage.
-if(IS_WORKER) {
+if (IS_WORKER) {
   listenMessagePort(port, onTabConnect, onTabDisconnect);
 }
 
@@ -332,7 +332,7 @@ export function connectInProcessTab(p: MessagePort) {
 
 
 function selfTerminate() {
-  if(typeof(SharedWorkerGlobalScope) !== 'undefined') {
+  if (typeof(SharedWorkerGlobalScope) !== 'undefined') {
     self.close();
   }
 }

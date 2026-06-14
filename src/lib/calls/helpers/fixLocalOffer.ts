@@ -1,9 +1,9 @@
 import forEachReverse from '@helpers/array/forEachReverse';
 import copy from '@helpers/object/copy';
-import {ConferenceEntry} from '@lib/calls/localConferenceDescription';
-import {parseSdp, addSimulcast} from '@lib/calls/sdp/utils';
-import {generateMediaFirstLine, SDPBuilder} from '@lib/calls/sdpBuilder';
-import {UpdateGroupCallConnectionData} from '@lib/calls/types';
+import { ConferenceEntry } from '@lib/calls/localConferenceDescription';
+import { parseSdp, addSimulcast } from '@lib/calls/sdp/utils';
+import { generateMediaFirstLine, SDPBuilder } from '@lib/calls/sdpBuilder';
+import { UpdateGroupCallConnectionData } from '@lib/calls/types';
 import parseMediaSectionInfo from '@lib/calls/helpers/parseMediaSectionInfo';
 
 export default function fixLocalOffer(options: {
@@ -12,11 +12,11 @@ export default function fixLocalOffer(options: {
   skipAddingMulticast?: boolean
   // mids?: string[]
 }) {
-  const {offer, data} = options;
+  const { offer, data } = options;
   const sdp = parseSdp(offer.sdp!);
   let hasMunged = false;
 
-  if(!options.skipAddingMulticast) {
+  if (!options.skipAddingMulticast) {
     hasMunged = addSimulcast(sdp) || hasMunged;
   }
 
@@ -35,11 +35,11 @@ export default function fixLocalOffer(options: {
       return;
     } */
 
-    if(/* section.mediaType !== 'video' ||  */section.isSending) {
+    if (/* section.mediaType !== 'video' ||  */section.isSending) {
       return;
     }
 
-    if(section.mediaType === 'application') {
+    if (section.mediaType === 'application') {
       return;
     }
 
@@ -55,7 +55,7 @@ export default function fixLocalOffer(options: {
     // join response has no codec mapping for. Skip munging — Chrome's own
     // SDP is fine; we only need to munge the sending-side mids whose
     // codecs we're aligning with the server's list.
-    if(!codec) {
+    if (!codec) {
       return;
     }
     const payloadTypes = codec['payload-types'];
@@ -71,10 +71,10 @@ export default function fixLocalOffer(options: {
     const codecIds = payloadTypes.map((payload) => '' + payload.id);
     const correctMLine = generateMediaFirstLine(section.mediaType, undefined, codecIds);
 
-    if(localMLine !== correctMLine) {
+    if (localMLine !== correctMLine) {
       const sectionInfo = parseMediaSectionInfo(sdp, section);
 
-      const newData = {...data};
+      const newData = { ...data };
       newData.transport = copy(newData.transport);
       newData.transport.ufrag = sectionInfo.ufrag;
       newData.transport.pwd = sectionInfo.pwd;
@@ -95,10 +95,10 @@ export default function fixLocalOffer(options: {
     }
   });
 
-  if(hasMunged) {
+  if (hasMunged) {
     const mungedSdp = sdp.toString();
     offer.sdp = mungedSdp;
   }
 
-  return {offer, sdp/* , bundleMids */};
+  return { offer, sdp/* , bundleMids */ };
 }

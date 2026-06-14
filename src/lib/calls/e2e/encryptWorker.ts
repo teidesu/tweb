@@ -13,11 +13,11 @@
  *   handler pumps frames through `call.encrypt` / `call.decrypt`.
  */
 
-import {appendAudioTrailer, stripAudioTrailer} from './audioTrailer';
-import {E2eCall} from './call';
-import {ensureCryptoReady} from './crypto';
-import type {CallStatusSnapshot, HostRequest, HostResponse, WorkerEvent} from './encryptWorkerProtocol';
-import {PrivateKey} from './keys';
+import { appendAudioTrailer, stripAudioTrailer } from './audioTrailer';
+import { E2eCall } from './call';
+import { ensureCryptoReady } from './crypto';
+import type { CallStatusSnapshot, HostRequest, HostResponse, WorkerEvent } from './encryptWorkerProtocol';
+import { PrivateKey } from './keys';
 
 declare const self: DedicatedWorkerGlobalScope;
 
@@ -31,11 +31,11 @@ function post(msg: HostResponse): void {
 }
 
 function emit(event: WorkerEvent): void {
-  post({kind: 'event', event});
+  post({ kind: 'event', event });
 }
 
 function snapshot(): CallStatusSnapshot {
-  if(!call) {
+  if (!call) {
     throw new Error('Call not initialized');
   }
   return {
@@ -43,14 +43,14 @@ function snapshot(): CallStatusSnapshot {
     groupState: call.getGroupState(),
     lastBlockHash: call.getLastBlockHash(),
     verification: call.getVerificationState(),
-    failed: call.getStatus()?.message ?? null
+    failed: call.getStatus()?.message ?? null,
   };
 }
 
 // Wrap any handler so unhandled errors come back as `err` responses instead
 // of crashing the worker.
 async function handle(req: HostRequest): Promise<unknown> {
-  switch(req.kind) {
+  switch (req.kind) {
     case 'createZeroBlock': {
       const sk = PrivateKey.fromSeed(req.args.privateSeed);
       try {
@@ -74,50 +74,50 @@ async function handle(req: HostRequest): Promise<unknown> {
     }
 
     case 'init': {
-      if(call) {
+      if (call) {
         throw new Error('init: already initialized');
       }
       // Keep a long-lived PrivateKey for the duration of the call.
       privateKey = PrivateKey.fromSeed(req.args.privateSeed);
       call = await E2eCall.create(req.args.userId, privateKey, req.args.lastBlockServer);
       const snap = snapshot();
-      emit({kind: 'status', status: snap});
+      emit({ kind: 'status', status: snap });
       // Initial verification round always queues a commit broadcast.
-      emit({kind: 'pendingOutbound'});
+      emit({ kind: 'pendingOutbound' });
       return snap;
     }
 
     case 'applyBlock': {
-      if(!call) throw new Error('applyBlock: not initialized');
+      if (!call) throw new Error('applyBlock: not initialized');
       try {
         await call.applyBlockBytes(req.args.serverBlock);
-      } catch(e) {
-        emit({kind: 'callFailed', message: (e as Error).message});
+      } catch (e) {
+        emit({ kind: 'callFailed', message: (e as Error).message });
         throw e;
       }
       const snap = snapshot();
-      emit({kind: 'status', status: snap});
-      emit({kind: 'pendingOutbound'});
+      emit({ kind: 'status', status: snap });
+      emit({ kind: 'pendingOutbound' });
       return snap;
     }
 
     case 'buildChangeStateBlock': {
-      if(!call) throw new Error('buildChangeStateBlock: not initialized');
+      if (!call) throw new Error('buildChangeStateBlock: not initialized');
       return call.buildChangeStateBlock(req.args.newGroupState);
     }
 
     case 'pullOutbound': {
-      if(!call) throw new Error('pullOutbound: not initialized');
+      if (!call) throw new Error('pullOutbound: not initialized');
       return call.pullOutbound();
     }
 
     case 'receiveInbound': {
-      if(!call) throw new Error('receiveInbound: not initialized');
+      if (!call) throw new Error('receiveInbound: not initialized');
       await call.receiveInbound(req.args.serverMessage);
       const snap = snapshot();
-      emit({kind: 'status', status: snap});
+      emit({ kind: 'status', status: snap });
       // Reveals queue up here; tell host to drain.
-      emit({kind: 'pendingOutbound'});
+      emit({ kind: 'pendingOutbound' });
       return snap;
     }
 
@@ -126,14 +126,14 @@ async function handle(req: HostRequest): Promise<unknown> {
 
     case 'setSsrcUsers': {
       ssrcToUser.clear();
-      for(const [ssrc, userId] of req.args.entries) {
+      for (const [ssrc, userId] of req.args.entries) {
         ssrcToUser.set(ssrc >>> 0, userId);
       }
       // Re-arm recv diagnostics: drop now-mapped SSRCs from the unmapped
       // counter (so a future un-mapping reports again) and reset decrypt-error
       // counters for the new key epoch.
-      for(const ssrc of [...unmappedFrames.keys()]) {
-        if(ssrcToUser.has(ssrc)) unmappedFrames.delete(ssrc);
+      for (const ssrc of [...unmappedFrames.keys()]) {
+        if (ssrcToUser.has(ssrc)) unmappedFrames.delete(ssrc);
       }
       decryptErrFrames.clear();
       return undefined;
@@ -142,16 +142,16 @@ async function handle(req: HostRequest): Promise<unknown> {
     case 'getDebug': {
       // Gated: in production (E2E_DEBUG=false) never expose the ssrc→user_id
       // map, per-frame counters, or loop state — return an empty snapshot.
-      if(!E2E_DEBUG) {
+      if (!E2E_DEBUG) {
         return {
-          recv: {seen: 0, noMeta: 0, noSsrc: 0, unmapped: 0, decryptOk: 0, decryptErr: 0, lastSsrc: 0, lastErr: ''},
-          send: {seen: 0, ok: 0, err: 0, lastErr: ''},
+          recv: { seen: 0, noMeta: 0, noSsrc: 0, unmapped: 0, decryptOk: 0, decryptErr: 0, lastSsrc: 0, lastErr: '' },
+          send: { seen: 0, ok: 0, err: 0, lastErr: '' },
           mapSize: 0,
           mapEntries: [],
           rtcInstalledAt: undefined,
           rtcTransformEvents: 0,
           hasOnRtcTransform: typeof (self as unknown as {onrtctransform: unknown}).onrtctransform === 'function',
-          loops: {}
+          loops: {},
         };
       }
       const w = self as unknown as {
@@ -160,14 +160,14 @@ async function handle(req: HostRequest): Promise<unknown> {
         __loopState?: Record<string, unknown>;
       };
       return {
-        recv: {...__recvDebug},
-        send: {...__sendDebug},
+        recv: { ...__recvDebug },
+        send: { ...__sendDebug },
         mapSize: ssrcToUser.size,
         mapEntries: Array.from(ssrcToUser.entries()).map(([s, u]) => [s, u.toString()] as [number, string]),
         rtcInstalledAt: w.__rtcInstalled,
         rtcTransformEvents: w.__rtcEvents ?? 0,
         hasOnRtcTransform: typeof (self as unknown as {onrtctransform: unknown}).onrtctransform === 'function',
-        loops: w.__loopState ? Object.fromEntries(Object.entries(w.__loopState)) : {}
+        loops: w.__loopState ? Object.fromEntries(Object.entries(w.__loopState)) : {},
       };
     }
 
@@ -202,8 +202,8 @@ self.addEventListener('message', (ev: MessageEvent<HostRequest>) => {
   const req = ev.data;
   const handlePromise = ensureCryptoReady().then(() => handle(req));
   handlePromise.then(
-    (result) => post({kind: 'ok', id: req.id, result}),
-    (err: Error) => post({kind: 'err', id: req.id, message: err.message || String(err)})
+    (result) => post({ kind: 'ok', id: req.id, result }),
+    (err: Error) => post({ kind: 'err', id: req.id, message: err.message || String(err) })
   );
 });
 
@@ -269,14 +269,14 @@ function toFreshArrayBuffer(bytes: Uint8Array): ArrayBuffer {
 // Telegram conferences negotiate VP8 only (verified live against an iOS peer);
 // H264's NAL-start-code-rewrite path is not implemented here.
 function vp8PlaintextPrefixLength(frame: Uint8Array): number {
-  if(frame.length === 0) return 0;
+  if (frame.length === 0) return 0;
   const isKeyFrame = (frame[0] & 0x01) === 0; // VP8 payload header P bit: 0 = key frame
   return Math.min(isKeyFrame ? 10 : 1, frame.length);
 }
 
 async function processSend(opts: TransformOptions, frame: RTCEncodedFrameLike): Promise<RTCEncodedFrameLike | undefined> {
   __sendDebug.seen++;
-  if(!call) return undefined;
+  if (!call) return undefined;
   try {
     const input = new Uint8Array(frame.data);
     const kind = opts.kind ?? 'audio';
@@ -297,7 +297,7 @@ async function processSend(opts: TransformOptions, frame: RTCEncodedFrameLike): 
     frame.data = toFreshArrayBuffer(encrypted);
     __sendDebug.ok++;
     return frame;
-  } catch(err) {
+  } catch (err) {
     __sendDebug.err++;
     __sendDebug.lastErr = (err as Error)?.message?.slice(0, 80) || '';
     return undefined;
@@ -311,50 +311,50 @@ async function processSend(opts: TransformOptions, frame: RTCEncodedFrameLike): 
 // The per-frame counters below are negligible integer bookkeeping and simply
 // go unread when diagnostics are off.
 const E2E_DEBUG = false;
-const __recvDebug = {seen: 0, noMeta: 0, noSsrc: 0, unmapped: 0, decryptOk: 0, decryptErr: 0, lastSsrc: 0, lastErr: ''};
-const __sendDebug = {seen: 0, ok: 0, err: 0, lastErr: ''};
-if(E2E_DEBUG) {
-  (self as unknown as {__e2eDebug?: unknown}).__e2eDebug = {recv: __recvDebug, send: __sendDebug, mapSize: () => ssrcToUser.size};
+const __recvDebug = { seen: 0, noMeta: 0, noSsrc: 0, unmapped: 0, decryptOk: 0, decryptErr: 0, lastSsrc: 0, lastErr: '' };
+const __sendDebug = { seen: 0, ok: 0, err: 0, lastErr: '' };
+if (E2E_DEBUG) {
+  (self as unknown as {__e2eDebug?: unknown}).__e2eDebug = { recv: __recvDebug, send: __sendDebug, mapSize: () => ssrcToUser.size };
 }
 
 async function processRecv(opts: TransformOptions, frame: RTCEncodedFrameLike): Promise<RTCEncodedFrameLike | undefined> {
   __recvDebug.seen++;
-  if(!call) return frame;
+  if (!call) return frame;
   const meta = frame.getMetadata?.();
-  if(!meta) { __recvDebug.noMeta++; return frame; }
+  if (!meta) { __recvDebug.noMeta++; return frame; }
   const ssrc = meta?.synchronizationSource;
-  if(ssrc === undefined) { __recvDebug.noSsrc++; return frame; }
+  if (ssrc === undefined) { __recvDebug.noSsrc++; return frame; }
   __recvDebug.lastSsrc = ssrc >>> 0;
   const fromUserId = ssrcToUser.get(ssrc >>> 0);
-  if(fromUserId === undefined) {
+  if (fromUserId === undefined) {
     __recvDebug.unmapped++;
     const key = ssrc >>> 0;
     const n = (unmappedFrames.get(key) || 0) + 1;
     unmappedFrames.set(key, n);
-    if(n === 1) emit({kind: 'recvDiag', ssrc: key, reason: 'unmapped'});
-    else if(n === RECV_DIAG_SUSTAINED_FRAMES) emit({kind: 'recvDiag', ssrc: key, reason: 'unmapped', sustained: true});
+    if (n === 1) emit({ kind: 'recvDiag', ssrc: key, reason: 'unmapped' });
+    else if (n === RECV_DIAG_SUSTAINED_FRAMES) emit({ kind: 'recvDiag', ssrc: key, reason: 'unmapped', sustained: true });
     return frame;
   }
   try {
     const encrypted = new Uint8Array(frame.data);
     let decrypted = await call.decrypt(fromUserId, opts.channelId, encrypted);
     const kind = opts.kind ?? 'audio';
-    if(kind === 'audio') {
+    if (kind === 'audio') {
       decrypted = stripAudioTrailer(decrypted);
     }
     frame.data = toFreshArrayBuffer(decrypted);
     __recvDebug.decryptOk++;
     // Recovered — let a later error on this SSRC report afresh.
-    if(decryptErrFrames.size) decryptErrFrames.delete(ssrc >>> 0);
+    if (decryptErrFrames.size) decryptErrFrames.delete(ssrc >>> 0);
     return frame;
-  } catch(err) {
+  } catch (err) {
     __recvDebug.decryptErr++;
     __recvDebug.lastErr = (err as Error)?.message?.slice(0, 80) || '';
     const key = ssrc >>> 0;
     const n = (decryptErrFrames.get(key) || 0) + 1;
     decryptErrFrames.set(key, n);
-    if(n === 1) emit({kind: 'recvDiag', ssrc: key, reason: 'decryptErr', message: __recvDebug.lastErr});
-    else if(n === RECV_DIAG_SUSTAINED_FRAMES) emit({kind: 'recvDiag', ssrc: key, reason: 'decryptErr', sustained: true, message: __recvDebug.lastErr});
+    if (n === 1) emit({ kind: 'recvDiag', ssrc: key, reason: 'decryptErr', message: __recvDebug.lastErr });
+    else if (n === RECV_DIAG_SUSTAINED_FRAMES) emit({ kind: 'recvDiag', ssrc: key, reason: 'decryptErr', sustained: true, message: __recvDebug.lastErr });
     return frame;
   }
 }
@@ -373,32 +373,32 @@ async function processRecv(opts: TransformOptions, frame: RTCEncodedFrameLike): 
   const w = self as unknown as {__loopState?: Record<string, unknown>};
   w.__loopState = w.__loopState ?? {};
   const loopKey = `${options.direction}-${options.channelId}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-  w.__loopState[loopKey] = {state: 'starting'};
+  w.__loopState[loopKey] = { state: 'starting' };
 
   // Use the pipeThrough(TransformStream)→pipeTo pattern. Spec-recommended
   // for RTCRtpScriptTransform and used by W3C reference samples — Chrome's
   // recv-side pump consistently halted at ~6 frames with the manual
   // reader/writer pattern, even with no-op handlers. The TransformStream
   // form lets Chrome wire its own backpressure correctly to the decoder.
-  w.__loopState[loopKey] = {state: 'loop-entered'};
+  w.__loopState[loopKey] = { state: 'loop-entered' };
   const xform = new TransformStream({
     async transform(frame, controller) {
-      if(!isEncodedFrame(frame)) {
+      if (!isEncodedFrame(frame)) {
         controller.enqueue(frame);
         return;
       }
       try {
         const out = await handler(options, frame);
-        if(out) {
+        if (out) {
           controller.enqueue(out);
         }
         // else: drop frame
-      } catch(err) {
-        w.__loopState![loopKey] = {state: 'transform-threw', err: (err as Error).message};
+      } catch (err) {
+        w.__loopState![loopKey] = { state: 'transform-threw', err: (err as Error).message };
       }
-    }
+    },
   });
   transformer.readable.pipeThrough(xform).pipeTo(transformer.writable).catch((err: Error) => {
-    w.__loopState![loopKey] = {state: 'pipe-failed', err: err?.message};
+    w.__loopState![loopKey] = { state: 'pipe-failed', err: err?.message };
   });
 };

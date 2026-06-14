@@ -1,15 +1,15 @@
-import {PrivacyRule} from '@layer';
+import { PrivacyRule } from '@layer';
 import PrivacyType from '@appManagers/utils/privacy/privacyType';
 
 export default function getPrivacyRulesDetails(rules: PrivacyRule[]) {
   const types: PrivacyType[] = [];
 
   type peers = {users: UserId[], chats: ChatId[]};
-  const allowPeers: peers = {users: [], chats: []}, disallowPeers: peers = {users: [], chats: []};
+  const allowPeers: peers = { users: [], chats: [] }, disallowPeers: peers = { users: [], chats: [] };
   let allowMiniApps = false;
   let disallowMiniApps = false;
   rules.forEach((rule) => {
-    switch(rule._) {
+    switch (rule._) {
       case 'privacyValueAllowAll':
         types.push(PrivacyType.Everybody);
         break;
@@ -43,5 +43,5 @@ export default function getPrivacyRulesDetails(rules: PrivacyRule[]) {
     }
   });
 
-  return {type: types[0], disallowPeers, allowPeers, allowMiniApps, disallowMiniApps};
+  return { type: types[0], disallowPeers, allowPeers, allowMiniApps, disallowMiniApps };
 }

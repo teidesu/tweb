@@ -1,8 +1,8 @@
-import {JSX, Ref, Show} from 'solid-js';
+import { JSX, Ref, Show } from 'solid-js';
 
 import LottieAnimation from '@components/lottieAnimation';
 import classNames from '@helpers/string/classNames';
-import lottieLoader, {LottieAssetName} from '@lib/rlottie/lottieLoader';
+import lottieLoader, { LottieAssetName } from '@lib/rlottie/lottieLoader';
 
 import styles from '@components/mediaHeader.module.scss';
 
@@ -53,14 +53,14 @@ export type MediaHeaderStickerProps = {
 MediaHeader.Sticker = function MediaHeaderSticker(props: MediaHeaderStickerProps): JSX.Element {
   const size = () => props.size || 130;
 
-  if(props.element) {
+  if (props.element) {
     props.onReady?.();
   }
 
   return (
     <div
       class={classNames(styles.sticker, props.class)}
-      style={{'--sticker-size': size() + 'px'}}
+      style={{ '--sticker-size': size() + 'px' }}
       ref={props.ref}
     >
       <Show

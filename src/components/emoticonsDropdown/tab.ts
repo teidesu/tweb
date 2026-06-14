@@ -1,29 +1,29 @@
-import {EmoticonsTab, EmoticonsDropdown, EMOTICONSSTICKERGROUP, EMOJI_TEXT_COLOR} from '.';
+import { EmoticonsTab, EmoticonsDropdown, EMOTICONSSTICKERGROUP, EMOJI_TEXT_COLOR } from '.';
 import createStickersContextMenu from '@helpers/dom/createStickersContextMenu';
 import customProperties from '@helpers/dom/customProperties';
 import positionElementByIndex from '@helpers/dom/positionElementByIndex';
-import {IgnoreMouseOutType} from '@helpers/dropdownHover';
+import { IgnoreMouseOutType } from '@helpers/dropdownHover';
 import ListenerSetter from '@helpers/listenerSetter';
-import {MiddlewareHelper, getMiddleware, Middleware} from '@helpers/middleware';
+import { MiddlewareHelper, getMiddleware, Middleware } from '@helpers/middleware';
 import safeAssign from '@helpers/object/safeAssign';
 import Animated from '@helpers/solid/animations';
 import windowSize from '@helpers/windowSize';
-import {EmojiGroup, StickerSet} from '@layer';
-import {AppManagers} from '@lib/managers';
-import {LangPackKey, i18n} from '@lib/langPack';
-import {AnyFunction} from '@types';
-import {createSignal, createMemo, createResource, createEffect, untrack} from 'solid-js';
-import {render, Portal} from 'solid-js/web';
+import { EmojiGroup, StickerSet } from '@layer';
+import { AppManagers } from '@lib/managers';
+import { LangPackKey, i18n } from '@lib/langPack';
+import { AnyFunction } from '@types';
+import { createSignal, createMemo, createResource, createEffect, untrack } from 'solid-js';
+import { render, Portal } from 'solid-js/web';
 import Icon from '@components/icon';
-import Scrollable, {ScrollableX} from '@components/scrollable';
+import Scrollable, { ScrollableX } from '@components/scrollable';
 import attachStickerViewerListeners from '@components/stickerViewer';
 import VisibilityIntersector from '@components/visibilityIntersector';
-import {observeResize, unobserveResize} from '@components/resizeObserver';
-import StickersTabCategory, {EmoticonsTabStyles, StickersTabStyles} from '@components/emoticonsDropdown/category';
+import { observeResize, unobserveResize } from '@components/resizeObserver';
+import StickersTabCategory, { EmoticonsTabStyles, StickersTabStyles } from '@components/emoticonsDropdown/category';
 import EmoticonsSearch from '@components/emoticonsDropdown/search';
 import wrapStickerSetThumb from '@components/wrappers/stickerSetThumb';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import type {MyDocument} from '@appManagers/appDocsManager';
+import type { MyDocument } from '@appManagers/appDocsManager';
 import SuperStickerRenderer from '@components/emoticonsDropdown/tabs/SuperStickerRenderer';
 
 export default class EmoticonsTabC<Category extends StickersTabCategory<any, any>, T = any> implements EmoticonsTab {
@@ -91,7 +91,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
     this.container = document.createElement('div');
     this.container.classList.add('tabs-tab', 'emoticons-container');
 
-    if(this.noMenu) {
+    if (this.noMenu) {
       this.container.classList.add('no-menu');
     } else {
       this.createMenu();
@@ -107,7 +107,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
     this.categoriesContainer = document.createElement('div');
     this.categoriesContainer.classList.add('emoticons-categories-container');
 
-    if(options.searchFetcher) {
+    if (options.searchFetcher) {
       this.createSearch();
     } else {
       this.scrollable.append(this.categoriesContainer);
@@ -147,7 +147,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
         return {
           data: loadedData() as T,
           grouping: !!untrack(group),
-          searching: untrack(searching)
+          searching: untrack(searching),
         };
       }, this.processSearchResult!);
 
@@ -161,13 +161,13 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
           type: 'cross-fade',
           get children() {
             return shouldUseContainer() as Element;
-          }
-        })
+          },
+        }),
       });
 
       createEffect(() => {
         const useData = group() ? groupData : data;
-        if(!useData!.loading) {
+        if (!useData!.loading) {
           setLoadedData(() => useData!() as T);
         }
       });
@@ -184,7 +184,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
         onFocusChange: setFocused,
         onGroup: this.groupFetcher ? setGroup : undefined,
         // categoryColor: this.textColor
-        categoryColor: 'primary-text-color'
+        categoryColor: 'primary-text-color',
       });
     }, searchContainer);
   }
@@ -202,7 +202,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
     title,
     isLocal,
     noMenuTab = !stickerSet,
-    styles
+    styles,
   }: {
     stickerSet?: StickerSet,
     title?: HTMLElement | DocumentFragment,
@@ -210,7 +210,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
     noMenuTab?: boolean,
     styles: StickersTabStyles
   }) {
-    if(this.noMenu) {
+    if (this.noMenu) {
       noMenuTab = true;
     }
 
@@ -220,7 +220,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
       overflowElement: this.content,
       getContainerSize: () => {
         let width: number, height: number;
-        if(this.getContainerSize) {
+        if (this.getContainerSize) {
           const size = this.getContainerSize();
           width = size.width;
           height = size.height;
@@ -232,28 +232,28 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
           // width = esgWidth === undefined ? windowSize.width : esgWidth;
         }
 
-        return {width: width - styles.padding, height: height!};
+        return { width: width - styles.padding, height: height! };
       },
       styles,
       noMenuTab,
-      middleware: this.middlewareHelper.get()
+      middleware: this.middlewareHelper.get(),
     }) as any;
 
-    if(styles.itemsClassName) {
+    if (styles.itemsClassName) {
       category.elements.items.classList.add(styles.itemsClassName);
     }
 
     const container = category.elements.container;
     container.classList.add('hide');
 
-    if(stickerSet) {
+    if (stickerSet) {
       category.set = stickerSet;
       this.categories[stickerSet.id] = category;
       this.categoriesMap.set(container, category);
       this.categoriesIntersector.observe(container);
     }
 
-    if(!noMenuTab) {
+    if (!noMenuTab) {
       this.categoriesByMenuTabMap.set(category.elements.menuTab, category);
       this.menuOnClickResult.stickyIntersector.observeStickyHeaderChanges(container);
       !isLocal && category.elements.menuTab.classList.add('not-local');
@@ -263,11 +263,11 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
   }
 
   public positionCategory(category: Category, prepend?: boolean) {
-    const {menuTab, container} = category.elements;
+    const { menuTab, container } = category.elements;
     const posItems = prepend ? this.localCategories.filter((category) => category.mounted).length : 0xFFFF;
     let foundMenuScroll = false;
     const posMenu = prepend ? this.localCategories.filter((category) => {
-      if(category.menuScroll && !foundMenuScroll) {
+      if (category.menuScroll && !foundMenuScroll) {
         foundMenuScroll = true;
         return true;
       }
@@ -283,7 +283,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
   }
 
   protected toggleLocalCategory(category: Category, visible: boolean) {
-    if(!visible) {
+    if (!visible) {
       category.elements.menuTab?.remove();
       category.elements.container.remove();
     } else {
@@ -291,10 +291,10 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
       const sliced = this.localCategories.slice(0, idx);
       let notMountedItems = 0, notMountedMenus = 0;
       sliced.forEach((category) => {
-        if(!category.mounted) {
+        if (!category.mounted) {
           ++notMountedItems;
           ++notMountedMenus;
-        } else if(!category.elements.menuTab || category.menuScroll) {
+        } else if (!category.elements.menuTab || category.menuScroll) {
           ++notMountedMenus;
         }
       });
@@ -312,7 +312,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
     title,
     icon,
     noMenuTab,
-    styles
+    styles,
   }: {
     id?: string,
     title: LangPackKey | '',
@@ -320,27 +320,27 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
     noMenuTab?: boolean,
     styles: StickersTabStyles
   }) {
-    if(this.noMenu) {
+    if (this.noMenu) {
       noMenuTab = true;
     }
 
     const hasId = id !== undefined;
 
     const category = this.createCategory({
-      stickerSet: hasId ? {id} as any : undefined,
+      stickerSet: hasId ? { id } as any : undefined,
       title: ((title && i18n(title)) as HTMLElement | DocumentFragment | undefined),
       isLocal: true,
       noMenuTab,
-      styles
+      styles,
     });
     category.local = true;
     hasId && this.localCategories.push(category);
-    if(category.elements.title) {
+    if (category.elements.title) {
       category.elements.title.classList.add('disable-hover');
     }
 
-    if(category.elements.menuTab) {
-      if(icon) {
+    if (category.elements.menuTab) {
+      if (icon) {
         category.elements.menuTab.append(Icon(icon));
       }
 
@@ -357,13 +357,13 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
   }
 
   protected resizeCategories = () => {
-    for(const [container, category] of this.categoriesMap) {
+    for (const [container, category] of this.categoriesMap) {
       category.setCategoryItemsHeight();
     }
   };
 
   protected deleteCategory(category: Category) {
-    if(category) {
+    if (category) {
       category.elements.container.remove();
       category.elements.menuTab?.remove();
       this.categoriesIntersector.unobserve(category.elements.container);
@@ -379,12 +379,12 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
   }
 
   protected spliceExceed(category: Category) {
-    if(category.limit === undefined) {
+    if (category.limit === undefined) {
       return false;
     }
 
-    const {items, limit} = category;
-    items.splice(limit, items.length - limit).forEach(({element}) => {
+    const { items, limit } = category;
+    items.splice(limit, items.length - limit).forEach(({ element }) => {
       element.remove();
     });
 
@@ -395,7 +395,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
 
   public init() {
     this.emoticonsDropdown && this.listenerSetter.add(this.emoticonsDropdown)('closed', () => {
-      this.postponedEvents.forEach(({cb, args}) => {
+      this.postponedEvents.forEach(({ cb, args }) => {
         cb(...args);
       });
 
@@ -405,7 +405,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
     // needed to respond to right sidebar resize
     observeResize(this.content, (entry) => {
       const width = entry.contentRect.width;
-      if(!width || width === this.lastObservedWidth) return;
+      if (!width || width === this.lastObservedWidth) return;
       this.lastObservedWidth = width;
       this.resizeCategories();
     });
@@ -426,15 +426,15 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
 
   protected postponedEvent = <K>(cb: (...args: K[]) => void) => {
     return (...args: K[]) => {
-      if(this.emoticonsDropdown.isActive()) {
-        this.postponedEvents.push({cb, args});
+      if (this.emoticonsDropdown.isActive()) {
+        this.postponedEvents.push({ cb, args });
       } else {
         cb(...args);
       }
     };
   };
 
-  protected attachHelpers({getTextColor, verifyRecent, canHaveEmojiTimer, isGif}: {
+  protected attachHelpers({ getTextColor, verifyRecent, canHaveEmojiTimer, isGif }: {
     getTextColor?: () => string,
     verifyRecent?: (target: HTMLElement) => boolean,
     canHaveEmojiTimer?: boolean,
@@ -444,7 +444,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
       additionalClass: this.additionalStickerViewerClass,
       listenTo: this.content,
       listenerSetter: this.listenerSetter,
-      getTextColor
+      getTextColor,
     });
 
     const type: IgnoreMouseOutType = 'menu';
@@ -461,7 +461,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
       },
       onClose: () => {
         this.emoticonsDropdown.setIgnoreMouseOut(type, false);
-      }
+      },
     });
   }
 
@@ -471,7 +471,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
 
   // * common methods for tabs
 
-  public renderStickerSetThumb({set, menuTabPadding, middleware, textColor}: {
+  public renderStickerSetThumb({ set, menuTabPadding, middleware, textColor }: {
     set: StickerSet.stickerSet,
     menuTabPadding: HTMLElement,
     middleware: Middleware,
@@ -486,7 +486,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
       height: 32,
       autoplay: false,
       textColor,
-      middleware
+      middleware,
     });
   }
 
@@ -495,7 +495,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
       regularLazyLoadQueue: this.emoticonsDropdown.lazyLoadQueue,
       group: this.animationGroup,
       managers: this.managers,
-      intersectionObserverInit: this.emoticonsDropdown.intersectionOptions
+      intersectionObserverInit: this.emoticonsDropdown.intersectionOptions,
     });
 
     const rendererLazyLoadQueue = superStickerRenderer.lazyLoadQueue;

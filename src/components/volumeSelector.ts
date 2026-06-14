@@ -1,11 +1,11 @@
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import ListenerSetter from '@helpers/listenerSetter';
 import safeAssign from '@helpers/object/safeAssign';
-import {_tgico} from '@helpers/tgico';
+import { _tgico } from '@helpers/tgico';
 import appMediaPlaybackController from '@components/appMediaPlaybackController';
-import {replaceButtonIcon} from '@components/button';
+import { replaceButtonIcon } from '@components/button';
 import RangeSelector from '@components/rangeSelector';
 
 const className = 'player-volume';
@@ -33,7 +33,7 @@ export default class VolumeSelector extends RangeSelector {
       step: 0.01,
       min: 0,
       max: options.maxVolume ?? 1,
-      vertical: options.vertical
+      vertical: options.vertical,
     }, 1);
 
     safeAssign(this, options);
@@ -43,15 +43,15 @@ export default class VolumeSelector extends RangeSelector {
       onScrub: (_value) => {
         const value = Math.max(Math.min(_value, this.max), 0);
 
-        if(this.useGlobalVolume) {
+        if (this.useGlobalVolume) {
           this.modifyGlobal(() => {
             appMediaPlaybackController.muted = false;
             this.writeGlobalVolume(value);
           });
         }
 
-        this.setVolume({volume: value, muted: false, eventType: 'click'});
-      }
+        this.setVolume({ volume: value, muted: false, eventType: 'click' });
+      },
 
       /* onMouseUp: (e) => {
         cancelEvent(e.event);
@@ -62,29 +62,29 @@ export default class VolumeSelector extends RangeSelector {
     btn.classList.add('btn-icon', className);
 
     attachClickEvent(btn, (e) => {
-      if(!findUpClassName(e.target!, className + '__icon') && e.target !== this.btn) {
+      if (!findUpClassName(e.target!, className + '__icon') && e.target !== this.btn) {
         return;
       }
 
       this.onMuteClick(e);
-    }, {listenerSetter: this.listenerSetter});
+    }, { listenerSetter: this.listenerSetter });
 
-    if(this.useGlobalVolume) {
+    if (this.useGlobalVolume) {
       this.listenerSetter.add(appMediaPlaybackController)('playbackParams', (params) => {
-        if(this.ignoreGlobalEvents) {
+        if (this.ignoreGlobalEvents) {
           return;
         }
 
-        this.setVolume({volume: this.readGlobalVolume(), muted: params.muted, eventType: 'global'});
+        this.setVolume({ volume: this.readGlobalVolume(), muted: params.muted, eventType: 'global' });
       });
 
-      if(this.useGlobalVolume === 'no-init') {
-        this.setVolume({volume: this.readGlobalVolume(), muted: this.media.muted});
+      if (this.useGlobalVolume === 'no-init') {
+        this.setVolume({ volume: this.readGlobalVolume(), muted: this.media.muted });
       } else {
         this.setGlobalVolume();
       }
-    } else if(this.media) {
-      this.setVolume({volume: this.media.volume, muted: this.media.muted});
+    } else if (this.media) {
+      this.setVolume({ volume: this.media.volume, muted: this.media.muted });
     }
 
     btn.append(this.container);
@@ -105,9 +105,9 @@ export default class VolumeSelector extends RangeSelector {
     e && cancelEvent(e);
 
     const globalMuted = appMediaPlaybackController.muted;
-    const {volume, muted} = this.media ?? {};
+    const { volume, muted } = this.media ?? {};
 
-    if(this.useGlobalVolume) {
+    if (this.useGlobalVolume) {
       this.modifyGlobal(() => {
         appMediaPlaybackController.muted = !globalMuted;
       });
@@ -116,7 +116,7 @@ export default class VolumeSelector extends RangeSelector {
     this.setVolume({
       volume: volume ?? this.readGlobalVolume(),
       muted: !(muted ?? globalMuted),
-      eventType: 'click'
+      eventType: 'click',
     });
   }
 
@@ -136,20 +136,20 @@ export default class VolumeSelector extends RangeSelector {
    * splits a voice value into shared master (0–100%) + voice-only boost (100–200%).
    */
   protected writeGlobalVolume(value: number) {
-    if(this.media) {
+    if (this.media) {
       appMediaPlaybackController.volume = value;
     } else {
       appMediaPlaybackController.setGlobalSliderVolume(value);
     }
   }
 
-  public setVolume = ({volume, muted, eventType}: {volume: number, muted: boolean, eventType?: 'global' | 'click'}) => {
+  public setVolume = ({ volume, muted, eventType }: {volume: number, muted: boolean, eventType?: 'global' | 'click'}) => {
     let iconIndex: number;
-    if(!volume || muted) {
+    if (!volume || muted) {
       iconIndex = 0;
-    } else if(volume > .5) {
+    } else if (volume > .5) {
       iconIndex = 3;
-    } else if(volume > 0 && volume < .25) {
+    } else if (volume > 0 && volume < .25) {
       iconIndex = 1;
     } else {
       iconIndex = 2;
@@ -158,14 +158,14 @@ export default class VolumeSelector extends RangeSelector {
     const newIcon = replaceButtonIcon(this.btn, VolumeSelector.ICONS[iconIndex]);
     newIcon.classList.add(className + '__icon');
 
-    if(this.media) {
+    if (this.media) {
       // HTMLMediaElement only accepts [0, 1]; the master volume is already clamped, but a
       // boosted voice value (or a stale persisted >1) must never reach the element directly.
       this.media.volume = Math.min(volume, 1);
       this.media.muted = muted;
     }
 
-    if(!this.mousedown) {
+    if (!this.mousedown) {
       this.setProgress(muted ? 0 : volume);
     }
 
@@ -175,11 +175,11 @@ export default class VolumeSelector extends RangeSelector {
   public setGlobalVolume = (eventType?: Parameters<VolumeSelector['setVolume']>[0]['eventType']) => {
     const volume = this.readGlobalVolume();
     const muted = appMediaPlaybackController.muted;
-    return this.setVolume({volume, muted, eventType});
+    return this.setVolume({ volume, muted, eventType });
   };
 
   public setMaxVolume = (max: number) => {
-    if(this.max === max) return;
+    if (this.max === max) return;
     this.max = max;
     this.seek.max = '' + max;
     this.setFilled(+this.seek.value);

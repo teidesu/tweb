@@ -4,9 +4,9 @@
 
 const OGG_CRC_TABLE = (() => {
   const table = new Uint32Array(256);
-  for(let i = 0; i < 256; ++i) {
+  for (let i = 0; i < 256; ++i) {
     let r = i << 24;
-    for(let j = 0; j < 8; ++j) {
+    for (let j = 0; j < 8; ++j) {
       r = (r & 0x80000000) ? (((r << 1) >>> 0) ^ 0x04C11DB7) : ((r << 1) >>> 0);
     }
     table[i] = r >>> 0;
@@ -16,7 +16,7 @@ const OGG_CRC_TABLE = (() => {
 
 function oggCrc(bytes: Uint8Array): number {
   let crc = 0;
-  for(let i = 0; i < bytes.length; ++i) {
+  for (let i = 0; i < bytes.length; ++i) {
     crc = (((crc << 8) >>> 0) ^ OGG_CRC_TABLE[((crc >>> 24) ^ bytes[i]) & 0xFF]) >>> 0;
   }
   return crc >>> 0;
@@ -94,12 +94,12 @@ export default class OggOpusWriter {
   // (via EncodedAudioChunkMetadata.decoderConfig.description). Must be called
   // before any writePacket().
   public setOpusHead(opusHead: Uint8Array) {
-    if(this.headersWritten) return;
+    if (this.headersWritten) return;
     this.writeHeaderPagesWith(opusHead);
   }
 
   private ensureHeadersWritten() {
-    if(this.headersWritten) return;
+    if (this.headersWritten) return;
     this.writeHeaderPagesWith(buildOpusHead(this.channels, this.inputSampleRate, this.preSkip));
   }
 
@@ -110,33 +110,33 @@ export default class OggOpusWriter {
   }
 
   public writePacket(packet: Uint8Array, durationSamples: number) {
-    if(this.finalized) return;
+    if (this.finalized) return;
     this.ensureHeadersWritten();
 
     this.pageBuffer.push(packet);
     this.samplesInCurrentPage += durationSamples;
     this.granulePosition += durationSamples;
 
-    if(this.shouldFlushPage()) {
+    if (this.shouldFlushPage()) {
       this.flushDataPage(false);
     }
   }
 
   private shouldFlushPage(): boolean {
-    if(this.pageBuffer.length >= MAX_PAGE_SEGMENTS) return true;
-    if(this.samplesInCurrentPage >= this.pageGranularitySamples) return true;
+    if (this.pageBuffer.length >= MAX_PAGE_SEGMENTS) return true;
+    if (this.samplesInCurrentPage >= this.pageGranularitySamples) return true;
 
     let segmentCount = 0;
-    for(let i = 0; i < this.pageBuffer.length; ++i) {
+    for (let i = 0; i < this.pageBuffer.length; ++i) {
       segmentCount += Math.floor(this.pageBuffer[i].length / MAX_SEGMENT_LEN) + 1;
-      if(segmentCount >= MAX_PAGE_SEGMENTS) return true;
+      if (segmentCount >= MAX_PAGE_SEGMENTS) return true;
     }
     return false;
   }
 
   private flushDataPage(eos: boolean) {
-    if(!this.pageBuffer.length) {
-      if(eos) this.emitPage([], this.granulePosition, OGG_HEADER_TYPE_EOS);
+    if (!this.pageBuffer.length) {
+      if (eos) this.emitPage([], this.granulePosition, OGG_HEADER_TYPE_EOS);
       return;
     }
     this.emitPage(this.pageBuffer, this.granulePosition, eos ? OGG_HEADER_TYPE_EOS : 0);
@@ -152,10 +152,10 @@ export default class OggOpusWriter {
   private buildPage(packets: Uint8Array[], granulePos: number, headerType: number, pageSequence: number): Uint8Array {
     const segments: number[] = [];
     let payloadLen = 0;
-    for(let i = 0; i < packets.length; ++i) {
+    for (let i = 0; i < packets.length; ++i) {
       const len = packets[i].length;
       const full = Math.floor(len / MAX_SEGMENT_LEN);
-      for(let j = 0; j < full; ++j) segments.push(MAX_SEGMENT_LEN);
+      for (let j = 0; j < full; ++j) segments.push(MAX_SEGMENT_LEN);
       segments.push(len % MAX_SEGMENT_LEN);
       payloadLen += len;
     }
@@ -173,10 +173,10 @@ export default class OggOpusWriter {
     view.setUint32(18, pageSequence, true);
     view.setUint32(22, 0, true);
     page[26] = segCount;
-    for(let i = 0; i < segCount; ++i) page[27 + i] = segments[i];
+    for (let i = 0; i < segCount; ++i) page[27 + i] = segments[i];
 
     let off = 27 + segCount;
-    for(let i = 0; i < packets.length; ++i) {
+    for (let i = 0; i < packets.length; ++i) {
       page.set(packets[i], off);
       off += packets[i].length;
     }
@@ -186,7 +186,7 @@ export default class OggOpusWriter {
   }
 
   public finalize(): Uint8Array {
-    if(this.finalized) return this.concat();
+    if (this.finalized) return this.concat();
     this.ensureHeadersWritten();
     this.flushDataPage(true);
     this.finalized = true;
@@ -198,16 +198,16 @@ export default class OggOpusWriter {
   // pending packets) so decoders read the correct duration; the live writer
   // keeps its state and continues from where it left off on the next packet.
   public snapshot(): Uint8Array {
-    if(!this.headersWritten) return new Uint8Array(0);
+    if (!this.headersWritten) return new Uint8Array(0);
 
     const extraPage = this.buildPage(this.pageBuffer, this.granulePosition, OGG_HEADER_TYPE_EOS, this.pageSequence);
 
     let total = extraPage.length;
-    for(let i = 0; i < this.chunks.length; ++i) total += this.chunks[i].length;
+    for (let i = 0; i < this.chunks.length; ++i) total += this.chunks[i].length;
 
     const out = new Uint8Array(total);
     let off = 0;
-    for(let i = 0; i < this.chunks.length; ++i) {
+    for (let i = 0; i < this.chunks.length; ++i) {
       out.set(this.chunks[i], off);
       off += this.chunks[i].length;
     }
@@ -217,10 +217,10 @@ export default class OggOpusWriter {
 
   private concat(): Uint8Array {
     let total = 0;
-    for(let i = 0; i < this.chunks.length; ++i) total += this.chunks[i].length;
+    for (let i = 0; i < this.chunks.length; ++i) total += this.chunks[i].length;
     const out = new Uint8Array(total);
     let off = 0;
-    for(let i = 0; i < this.chunks.length; ++i) {
+    for (let i = 0; i < this.chunks.length; ++i) {
       out.set(this.chunks[i], off);
       off += this.chunks[i].length;
     }

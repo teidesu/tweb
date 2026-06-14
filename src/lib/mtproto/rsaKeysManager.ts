@@ -5,7 +5,7 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import {TLSerialization} from '@lib/mtproto/tl_utils';
+import { TLSerialization } from '@lib/mtproto/tl_utils';
 import cryptoWorker from '@lib/crypto/cryptoMessagePort';
 import Modes from '@config/modes';
 import bytesFromHex from '@helpers/bytes/bytesFromHex';
@@ -64,13 +64,13 @@ export class RSAKeysManager {
 
   private testPublicKeysHex: RSAPublicKeyHex[] = [{
     modulus: 'c8c11d635691fac091dd9489aedced2932aa8a0bcefef05fa800892d9b52ed03200865c9e97211cb2ee6c7ae96d3fb0e15aeffd66019b44a08a240cfdd2868a85e1f54d6fa5deaa041f6941ddf302690d61dc476385c2fa655142353cb4e4b59f6e5b6584db76fe8b1370263246c010c93d011014113ebdf987d093f9d37c2be48352d69a1683f8f6e6c2167983c761e3ab169fde5daaa12123fa1beab621e4da5935e9c198f82f35eae583a99386d8110ea6bd1abb0f568759f62694419ea5f69847c43462abef858b4cb5edc84e7b9226cd7bd7e183aa974a712c079dde85b9dc063b8a5c08e8f859c0ee5dcd824c7807f20153361a7f63cfd2a433a1be7f5',
-    exponent: '010001'
+    exponent: '010001',
   }];
 
   private publisKeysHex: RSAPublicKeyHex[] = [{
     // modulus: '00e8bb3305c0b52c6cf2afdf7637313489e63e05268e5badb601af417786472e5f93b85438968e20e6729a301c0afc121bf7151f834436f7fda680847a66bf64accec78ee21c0b316f0edafe2f41908da7bd1f4a5107638eeb67040ace472a14f90d9f7c2b7def99688ba3073adb5750bb02964902a359fe745d8170e36876d4fd8a5d41b2a76cbff9a13267eb9580b2d06d10357448d20d9da2191cb5d8c93982961cdfdeda629e37f1fb09a0722027696032fe61ed663db7a37f6f263d370f69db53a0dc0a1748bdaaff6209d5645485e6e001d1953255757e4b8e42813347b11da6ab500fd0ace7e6dfa3736199ccaf9397ed0745a427dcfa6cd67bcb1acff3',
     modulus: 'e8bb3305c0b52c6cf2afdf7637313489e63e05268e5badb601af417786472e5f93b85438968e20e6729a301c0afc121bf7151f834436f7fda680847a66bf64accec78ee21c0b316f0edafe2f41908da7bd1f4a5107638eeb67040ace472a14f90d9f7c2b7def99688ba3073adb5750bb02964902a359fe745d8170e36876d4fd8a5d41b2a76cbff9a13267eb9580b2d06d10357448d20d9da2191cb5d8c93982961cdfdeda629e37f1fb09a0722027696032fe61ed663db7a37f6f263d370f69db53a0dc0a1748bdaaff6209d5645485e6e001d1953255757e4b8e42813347b11da6ab500fd0ace7e6dfa3736199ccaf9397ed0745a427dcfa6cd67bcb1acff3',
-    exponent: '010001'
+    exponent: '010001',
   }];
 
   private publicKeysParsed: {
@@ -80,14 +80,14 @@ export class RSAKeysManager {
   private preparePromise: Promise<void> | null = null;
 
   constructor() {
-    if(Modes.test) {
+    if (Modes.test) {
       this.publisKeysHex = this.testPublicKeysHex;
     }
   }
 
   public prepare(): Promise<void> {
-    if(this.preparePromise) return this.preparePromise;
-    else if(this.prepared) {
+    if (this.preparePromise) return this.preparePromise;
+    else if (this.prepared) {
       return Promise.resolve();
     }
 
@@ -104,7 +104,7 @@ export class RSAKeysManager {
 
         this.publicKeysParsed[bytesToHex(fingerprintBytes).toLowerCase()] = {
           modulus: keyParsed.modulus,
-          exponent: keyParsed.exponent
+          exponent: keyParsed.exponent,
         };
       });
     })).then(() => {
@@ -118,18 +118,18 @@ export class RSAKeysManager {
   public async select(fingerprints: Array<string>) {
     await this.prepare();
 
-    for(let i = 0; i < fingerprints.length; ++i) {
+    for (let i = 0; i < fingerprints.length; ++i) {
       let fingerprintHex = bigInt(fingerprints[i]).toString(16).toLowerCase();
 
-      if(fingerprintHex.length < 16) {
+      if (fingerprintHex.length < 16) {
         fingerprintHex = new Array(16 - fingerprintHex.length).fill('0').join('') + fingerprintHex;
       }
 
       // console.log(fingerprintHex, this.publicKeysParsed);
       const foundKey = this.publicKeysParsed[fingerprintHex];
-      if(foundKey) {
+      if (foundKey) {
         return Object.assign({
-          fingerprint: fingerprints[i]
+          fingerprint: fingerprints[i],
         }, foundKey);
       }
     }

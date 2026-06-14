@@ -1,6 +1,6 @@
 // generate a path's arc data parameter
 
-import {MOUNT_CLASS_TO} from '@config/debug';
+import { MOUNT_CLASS_TO } from '@config/debug';
 
 // http://www.w3.org/TR/SVG/paths.html#PathDataEllipticalArcCommands
 function arcParameter(rx: number, ry: number, xAxisRotation: number, largeArcFlag: number, sweepFlag: number, x: number, y: number) {
@@ -20,7 +20,7 @@ export default function generatePathData(x: number, y: number, width: number, he
   // next we go to the right
   data.push('H' + (x + width - tr));
 
-  if(tr > 0) {
+  if (tr > 0) {
     // now we draw the arc in the top-right corner
     data.push('A' + arcParameter(tr, tr, 0, 0, 1, (x + width), (y + tr)));
   }
@@ -28,7 +28,7 @@ export default function generatePathData(x: number, y: number, width: number, he
   // next we go down
   data.push('V' + (y + height - br));
 
-  if(br > 0) {
+  if (br > 0) {
     // now we draw the arc in the lower-right corner
     data.push('A' + arcParameter(br, br, 0, 0, 1, (x + width - br), (y + height)));
   }
@@ -36,7 +36,7 @@ export default function generatePathData(x: number, y: number, width: number, he
   // now we go to the left
   data.push('H' + (x + bl));
 
-  if(bl > 0) {
+  if (bl > 0) {
     // now we draw the arc in the lower-left corner
     data.push('A' + arcParameter(bl, bl, 0, 0, 1, (x + 0), (y + height - bl)));
   }
@@ -44,7 +44,7 @@ export default function generatePathData(x: number, y: number, width: number, he
   // next we go up
   data.push('V' + (y + tl));
 
-  if(tl > 0) {
+  if (tl > 0) {
     // now we draw the arc in the top-left corner
     data.push('A' + arcParameter(tl, tl, 0, 0, 1, (x + tl), (y + 0)));
   }

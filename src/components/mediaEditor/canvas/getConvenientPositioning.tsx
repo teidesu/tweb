@@ -1,8 +1,8 @@
-import {useMediaEditorContext} from '@components/mediaEditor/context';
-import {snapToViewport} from '@components/mediaEditor/utils';
-import {NumberPair} from '@components/mediaEditor/types';
+import { useMediaEditorContext } from '@components/mediaEditor/context';
+import { snapToViewport } from '@components/mediaEditor/utils';
+import { NumberPair } from '@components/mediaEditor/types';
 
-import {useCropOffset} from '@components/mediaEditor/canvas/useCropOffset';
+import { useCropOffset } from '@components/mediaEditor/canvas/useCropOffset';
 
 type Options = {
   rotation: number;
@@ -17,10 +17,10 @@ export default function getConvenientPositioning({
   rotation,
   extendCrop = [
     [0, 0],
-    [0, 0]
-  ]
+    [0, 0],
+  ],
 }: Options) {
-  const {editorState, mediaState} = useMediaEditorContext()!;
+  const { editorState, mediaState } = useMediaEditorContext()!;
 
   const cropOffset = useCropOffset();
 
@@ -33,7 +33,7 @@ export default function getConvenientPositioning({
     [imageLeftTop[0], imageLeftTop[1]],
     [imageLeftTop[0] + imageWidth, imageLeftTop[1]],
     [imageLeftTop[0] + imageWidth, imageLeftTop[1] - imageHeight],
-    [imageLeftTop[0], imageLeftTop[1] - imageHeight]
+    [imageLeftTop[0], imageLeftTop[1] - imageHeight],
   ].map((point) => {
     const r = [Math.sin(rotation), Math.cos(rotation)];
     point = [point[0] * r[1] - point[1] * r[0], point[1] * r[1] + point[0] * r[0]].map((x) => x * scale);
@@ -50,7 +50,7 @@ export default function getConvenientPositioning({
     [cropLeftTop[0] + extendCrop[0][0], cropLeftTop[1] + extendCrop[0][1]],
     [cropLeftTop[0] + cropWidth + extendCrop[1][0], cropLeftTop[1] + extendCrop[0][1]],
     [cropLeftTop[0] + cropWidth + extendCrop[1][0], cropLeftTop[1] - cropHeight + extendCrop[1][1]],
-    [cropLeftTop[0] + extendCrop[0][0], cropLeftTop[1] - cropHeight + extendCrop[1][1]]
+    [cropLeftTop[0] + extendCrop[0][0], cropLeftTop[1] - cropHeight + extendCrop[1][1]],
   ].map((point) => {
     const r = [Math.sin(-rotation), Math.cos(-rotation)];
     return [point[0] * r[1] - point[1] * r[0], point[1] * r[1] + point[0] * r[0]];
@@ -66,6 +66,6 @@ export default function getConvenientPositioning({
     imageMinX: imagePoints[0][0],
     imageMaxX: imagePoints[2][0],
     imageMinY: imagePoints[2][1],
-    imageMaxY: imagePoints[0][1]
+    imageMaxY: imagePoints[0][1],
   };
 }

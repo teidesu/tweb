@@ -1,11 +1,11 @@
-import {Component} from 'solid-js';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { Component } from 'solid-js';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import toggleDisability from '@helpers/dom/toggleDisability';
-import {makeMediaSize} from '@helpers/mediaSize';
+import { makeMediaSize } from '@helpers/mediaSize';
 import copy from '@helpers/object/copy';
 import deepEqual from '@helpers/object/deepEqual';
-import {ForumTopic} from '@layer';
-import {GENERAL_TOPIC_ID, TOPIC_COLORS} from '@appManagers/constants';
+import { ForumTopic } from '@layer';
+import { GENERAL_TOPIC_ID, TOPIC_COLORS } from '@appManagers/constants';
 import getAbbreviation from '@lib/richTextProcessor/getAbbreviation';
 import ButtonIcon from '@components/buttonIcon';
 import CheckboxField from '@components/checkboxField';
@@ -13,11 +13,11 @@ import EmojiTab from '@components/emoticonsDropdown/tabs/emoji';
 import InputField from '@components/inputField';
 import Row from '@components/row';
 import SettingSection from '@components/settingSection';
-import {wrapTopicIcon} from '@components/wrappers/messageActionTextNewUnsafe';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {usePromiseCollector} from '@components/solidJsTabs/promiseCollector';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import type {AppEditTopicTab} from '@components/solidJsTabs/tabs';
+import { wrapTopicIcon } from '@components/wrappers/messageActionTextNewUnsafe';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import type { AppEditTopicTab } from '@components/solidJsTabs/tabs';
 
 const size = 64;
 const mediaSize = makeMediaSize(size, size);
@@ -27,8 +27,8 @@ type Topic = Parameters<typeof wrapTopicIcon>[0]['topic'];
 const EditTopic: Component = () => {
   const [tab] = useSuperTab<typeof AppEditTopicTab>();
   const promiseCollector = usePromiseCollector();
-  const {appImManager, appSidebarLeft} = useHotReloadGuard();
-  const {peerId, threadId} = tab.payload;
+  const { appImManager, appSidebarLeft } = useHotReloadGuard();
+  const { peerId, threadId } = tab.payload;
 
   let colorIndex = 0;
   let topic: Topic;
@@ -40,7 +40,7 @@ const EditTopic: Component = () => {
 
   const validate = () => {
     let isChanged = nameInputField.isValidToChange();
-    if(!isChanged && originalTopic) {
+    if (!isChanged && originalTopic) {
       isChanged = topic.icon_emoji_id !== originalTopic.icon_emoji_id;
     }
 
@@ -48,7 +48,7 @@ const EditTopic: Component = () => {
   };
 
   const s = () => {
-    if(topic?.icon_color) {
+    if (topic?.icon_color) {
       colorIndex = TOPIC_COLORS.indexOf(topic.icon_color);
     }
 
@@ -60,18 +60,18 @@ const EditTopic: Component = () => {
 
     const isMainIcon = appendTo === iconDiv;
 
-    if(isMainIcon) {
+    if (isMainIcon) {
       const newTopic: Topic = {
         id: topic?.id,
         icon_color: TOPIC_COLORS[colorIndex],
         title: getAbbreviation(title, true).text || 'A',
-        icon_emoji_id: iconEmojiId
+        icon_emoji_id: iconEmojiId,
       };
 
       const oldTopic = topic;
       topic = newTopic;
 
-      if(
+      if (
         force ||
         !oldTopic ||
         oldTopic.icon_color !== newTopic.icon_color ||
@@ -80,7 +80,7 @@ const EditTopic: Component = () => {
         setIcon(undefined, emojiElement);
       }
 
-      if(deepEqual(oldTopic, newTopic) && !force) {
+      if (deepEqual(oldTopic, newTopic) && !force) {
         return;
       }
 
@@ -88,9 +88,9 @@ const EditTopic: Component = () => {
     }
 
     const el = await wrapTopicIcon({
-      topic: isMainIcon ? topic : {...topic, icon_emoji_id: undefined},
+      topic: isMainIcon ? topic : { ...topic, icon_emoji_id: undefined },
       customEmojiSize: mediaSize,
-      middleware: tab.middlewareHelper.get()
+      middleware: tab.middlewareHelper.get(),
     });
 
     const span = document.createElement('div');
@@ -102,8 +102,8 @@ const EditTopic: Component = () => {
 
     const applyFadeAnimation = (el: HTMLElement, fadeIn: boolean) => {
       const frames: Keyframe[] = [
-        {opacity: '0', transform: 'scale(0.8)'},
-        {opacity: '1', transform: 'scale(1)'}
+        { opacity: '0', transform: 'scale(0.8)' },
+        { opacity: '1', transform: 'scale(1)' },
       ];
 
       const animation = el.animate(frames, {
@@ -111,17 +111,17 @@ const EditTopic: Component = () => {
         iterations: 1,
         easing: 'ease-in-out',
         fill: 'forwards',
-        direction: fadeIn ? 'normal' : 'reverse'
+        direction: fadeIn ? 'normal' : 'reverse',
       });
 
       return new Promise<void>((resolve) => {
         animation.addEventListener('finish', () => {
           resolve();
-        }, {once: true});
+        }, { once: true });
       });
     };
 
-    if(oldEl) {
+    if (oldEl) {
       applyFadeAnimation(oldEl, false).then(() => oldEl.remove());
     }
 
@@ -135,28 +135,28 @@ const EditTopic: Component = () => {
     tab.container.classList.add('edit-topic-container');
     // title is set by the scaffold (function of threadId)
 
-    if(threadId) {
+    if (threadId) {
       topic = (originalTopic = copy(await tab.managers.dialogsStorage.getForumTopic(peerId, threadId))!)!;
     }
 
     {
       const section = new SettingSection({
-        name: isGeneral ? 'CreateGeneralTopicTitle' : 'CreateTopicTitle'
+        name: isGeneral ? 'CreateGeneralTopicTitle' : 'CreateTopicTitle',
       });
 
       iconDiv = document.createElement('div');
       iconDiv.classList.add('edit-topic-icon-container');
 
       !threadId && attachClickEvent(iconDiv, () => {
-        if(topic.icon_emoji_id) {
+        if (topic.icon_emoji_id) {
           return;
         }
 
         colorIndex = (colorIndex + 1) % TOPIC_COLORS.length;
         setIcon();
-      }, {listenerSetter: tab.listenerSetter});
+      }, { listenerSetter: tab.listenerSetter });
 
-      if(threadId) {
+      if (threadId) {
         iconDiv.classList.add('disable-hover');
       }
 
@@ -168,24 +168,24 @@ const EditTopic: Component = () => {
         withLinebreaks: false,
         name: 'topic-name',
         maxLength: 70,
-        required: true
+        required: true,
       });
 
-      if(topic!) {
+      if (topic!) {
         nameInputField.setOriginalValue(topic.title, true);
       }
 
-      confirmBtn = ButtonIcon('check btn-confirm blue hide', {noRipple: true});
+      confirmBtn = ButtonIcon('check btn-confirm blue hide', { noRipple: true });
       tab.header.append(confirmBtn);
 
       attachClickEvent(confirmBtn, () => {
         const toggle = toggleDisability([confirmBtn], true);
-        if(threadId) {
+        if (threadId) {
           tab.managers.appMessagesManager.editForumTopic({
             peerId,
             topicId: threadId,
             title: nameInputField.value,
-            iconEmojiId: topic.icon_emoji_id || 0
+            iconEmojiId: topic.icon_emoji_id || 0,
           }).then(() => {
             tab.close();
           }).catch((err) => {
@@ -197,19 +197,19 @@ const EditTopic: Component = () => {
             peerId,
             iconColor: TOPIC_COLORS[colorIndex],
             iconEmojiId: topic.icon_emoji_id!,
-            title: nameInputField.value
+            title: nameInputField.value,
           }).then((threadId) => {
             tab.close();
             appImManager.setInnerPeer({
               peerId,
-              threadId
+              threadId,
             });
           }).catch((err) => {
             console.error('create topic error', err);
             toggle();
           });
         }
-      }, {listenerSetter: tab.listenerSetter});
+      }, { listenerSetter: tab.listenerSetter });
 
       tab.listenerSetter.add(nameInputField.input)('input', () => {
         validate();
@@ -225,7 +225,7 @@ const EditTopic: Component = () => {
 
     const promises: Promise<any>[] = [];
 
-    if(!isGeneral) {
+    if (!isGeneral) {
       const section = new SettingSection({});
       section.container.classList.add('edit-topic-emoticons-container');
       const emojiTab = new EmojiTab({
@@ -234,16 +234,16 @@ const EditTopic: Component = () => {
         noRegularEmoji: true,
         mainSets: () => {
           return tab.managers.appStickersManager.getLocalStickerSet('inputStickerSetEmojiDefaultTopicIcons')
-          .then((messagesStickerSet) => messagesStickerSet.documents.map((doc) => doc.id));
+            .then((messagesStickerSet) => messagesStickerSet.documents.map((doc) => doc.id));
         },
         onClick: (emoji) => {
-          emojiTab.setActive(((!emoji.docId ? {emoji: undefined, docId: undefined} : emoji) as { docId?: DocId; emoji: string; } | undefined));
+          emojiTab.setActive(((!emoji.docId ? { emoji: undefined, docId: undefined } : emoji) as { docId?: DocId; emoji: string; } | undefined));
           setIcon(emoji.docId);
-        }
+        },
       });
       emojiTab.getContainerSize = () => ({
         width: appSidebarLeft.rect.width,
-        height: 400
+        height: 400,
       });
 
       tab.middlewareHelper.onDestroy(() => {
@@ -264,11 +264,11 @@ const EditTopic: Component = () => {
           element: emojiElement,
           batch: false,
           prepend: true,
-          active: !iconEmojiId
+          active: !iconEmojiId,
         });
 
-        if(iconEmojiId) {
-          emojiTab.setActive({docId: iconEmojiId, emoji: ''});
+        if (iconEmojiId) {
+          emojiTab.setActive({ docId: iconEmojiId, emoji: '' });
         }
       });
 
@@ -277,25 +277,25 @@ const EditTopic: Component = () => {
       section.content.replaceWith(emojiTab.container);
       tab.scrollable.append(section.container);
     } else {
-      const section = new SettingSection({caption: 'EditTopicHideInfo'});
+      const section = new SettingSection({ caption: 'EditTopicHideInfo' });
 
       const checkboxField = new CheckboxField({
         checked: !(topic! as ForumTopic.forumTopic).pFlags.hidden,
-        text: 'EditTopicHide'
+        text: 'EditTopicHide',
       });
 
       tab.listenerSetter.add(checkboxField.input)('change', () => {
         const promise = tab.managers.appMessagesManager.editForumTopic({
           peerId,
           topicId: threadId,
-          hidden: !checkboxField.checked
+          hidden: !checkboxField.checked,
         });
 
         row.disableWithPromise(promise);
       });
 
       const row = new Row({
-        checkboxField
+        checkboxField,
       });
 
       section.content.append(row.container);

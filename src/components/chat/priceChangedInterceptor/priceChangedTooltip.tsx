@@ -1,4 +1,4 @@
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 
 import showTooltip from '@components/tooltip';
 import Button from '@components/buttonTsx';
@@ -14,7 +14,7 @@ type ShowPriceChangedTooltipArgs = {
   onResend: () => void;
 };
 
-export default function showPriceChangedTooltip({chat, starsAmount, onResend}: ShowPriceChangedTooltipArgs) {
+export default function showPriceChangedTooltip({ chat, starsAmount, onResend }: ShowPriceChangedTooltipArgs) {
   return showTooltip({
     element: chat.bubbles.container,
     container: chat.bubbles.container,
@@ -31,6 +31,6 @@ export default function showPriceChangedTooltip({chat, starsAmount, onResend}: S
       </Button>
     ),
     class: styles.Tooltip,
-    icon: 'sendingerror'
+    icon: 'sendingerror',
   });
 }

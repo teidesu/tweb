@@ -1,8 +1,8 @@
-import {Accessor, Signal, createContext, createRoot, createSignal, useContext} from 'solid-js';
+import { Accessor, Signal, createContext, createRoot, createSignal, useContext } from 'solid-js';
 
 import rootScope from '@lib/rootScope';
-import {AuthState} from '@types';
-import {AuthSentCode} from '@layer';
+import { AuthState } from '@types';
+import { AuthSentCode } from '@layer';
 
 /**
  * Centralised auth-flow router & shared context.
@@ -79,13 +79,13 @@ export type AuthFlowContextValue = {
  */
 const [currentCard, setCurrentCard] = (() => {
   const stored = (import.meta.hot?.data)?.currentCardSignal as Signal<CardSpec | null> | undefined;
-  if(stored) return stored;
+  if (stored) return stored;
   const pair = createRoot(() => createSignal<CardSpec | null>(null));
-  if(import.meta.hot) (import.meta.hot.data).currentCardSignal = pair;
+  if (import.meta.hot) (import.meta.hot.data).currentCardSignal = pair;
   return pair;
 })();
 
-export {currentCard};
+export { currentCard };
 
 /**
  * Imperative navigation entry-point. Callable from non-Solid code (passkey button,
@@ -102,7 +102,7 @@ export function navigateAuth(spec: CardSpec): void {
  */
 export function matchCard<K extends CardName>(name: K): Extract<CardSpec, {name: K}> | null {
   const c = currentCard();
-  if(!c || c.name !== name) return null;
+  if (!c || c.name !== name) return null;
   return c as Extract<CardSpec, {name: K}>;
 }
 
@@ -120,10 +120,10 @@ export const AuthFlowContext = createContext<AuthFlowContextValue>();
  */
 export function useAuthFlow(): AuthFlowContextValue {
   const ctx = useContext(AuthFlowContext);
-  if(!ctx) {
+  if (!ctx) {
     throw new Error('useAuthFlow() called outside of <AuthFlowProvider>');
   }
   return ctx;
 }
 
-if(import.meta.hot) import.meta.hot.accept();
+if (import.meta.hot) import.meta.hot.accept();

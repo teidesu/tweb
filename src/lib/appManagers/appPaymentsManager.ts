@@ -10,9 +10,9 @@ import {
   PaymentsStarsStatus,
   StarsAmount,
   StarsTransactionPeer,
-  Update
+  Update,
 } from '@layer';
-import {AppManager} from '@appManagers/manager';
+import { AppManager } from '@appManagers/manager';
 import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
 import formatStarsAmount from '@appManagers/utils/payments/formatStarsAmount';
 
@@ -28,14 +28,14 @@ export default class AppPaymentsManager extends AppManager {
     });
 
     this.apiUpdatesManager.addMultipleEventsListeners({
-      updateStarsBalance: this.onUpdateStarsBalance
+      updateStarsBalance: this.onUpdateStarsBalance,
     });
   }
 
   public getInputInvoiceBySlug(slug: string): InputInvoice.inputInvoiceSlug {
     return {
       _: 'inputInvoiceSlug',
-      slug
+      slug,
     };
   }
 
@@ -43,16 +43,16 @@ export default class AppPaymentsManager extends AppManager {
     return {
       _: 'inputInvoiceMessage',
       peer: this.appPeersManager.getInputPeerById(peerId),
-      msg_id: getServerMessageId(mid)!
+      msg_id: getServerMessageId(mid)!,
     };
   }
 
   public getPaymentForm(invoice: InputInvoice) {
     return this.apiManager.invokeApi('payments.getPaymentForm', {
       invoice,
-      theme_params: this.apiManager.getThemeParams()
+      theme_params: this.apiManager.getThemeParams(),
     }).then((paymentForm) => {
-      if(paymentForm._ !== 'payments.paymentFormStarGift') {
+      if (paymentForm._ !== 'payments.paymentFormStarGift') {
         this.appPeersManager.saveApiPeers(paymentForm);
         paymentForm.photo = this.appWebDocsManager.saveWebDocument(paymentForm.photo!);
       }
@@ -64,7 +64,7 @@ export default class AppPaymentsManager extends AppManager {
   public getPaymentReceipt(peerId: PeerId, mid: number) {
     return this.apiManager.invokeApi('payments.getPaymentReceipt', {
       peer: this.appPeersManager.getInputPeerById(peerId),
-      msg_id: getServerMessageId(mid)!
+      msg_id: getServerMessageId(mid)!,
     }).then((paymentForm) => {
       this.appPeersManager.saveApiPeers(paymentForm);
       paymentForm.photo = this.appWebDocsManager.saveWebDocument(paymentForm.photo!);
@@ -77,7 +77,7 @@ export default class AppPaymentsManager extends AppManager {
     return this.apiManager.invokeApi('payments.validateRequestedInfo', {
       save,
       invoice,
-      info
+      info,
     });
   }
 
@@ -95,25 +95,25 @@ export default class AppPaymentsManager extends AppManager {
       requested_info_id: requestedInfoId,
       shipping_option_id: shippingOptionId,
       credentials,
-      tip_amount: tipAmount || undefined
+      tip_amount: tipAmount || undefined,
     }).then(this.processPaymentResult);
   }
 
   public clearSavedInfo(info?: boolean, credentials?: boolean) {
     return this.apiManager.invokeApi('payments.clearSavedInfo', {
       info,
-      credentials
+      credentials,
     });
   }
 
   public getPremiumGiftCodeOptions(peerId?: PeerId) {
     return this.apiManager.invokeApiCacheable('payments.getPremiumGiftCodeOptions', {
-      boost_peer: peerId !== undefined ? this.appPeersManager.getInputPeerById(peerId) : undefined
+      boost_peer: peerId !== undefined ? this.appPeersManager.getInputPeerById(peerId) : undefined,
     });
   }
 
   public getPremiumPromo(overwrite?: boolean) {
-    if(overwrite && this.premiumPromo) {
+    if (overwrite && this.premiumPromo) {
       this.premiumPromo = undefined;
     }
 
@@ -123,23 +123,23 @@ export default class AppPaymentsManager extends AppManager {
       processResult: (helpPremiumPromo) => {
         this.appPeersManager.saveApiPeers(helpPremiumPromo);
         helpPremiumPromo.videos = helpPremiumPromo.videos.map((doc) => {
-          return this.appDocsManager.saveDoc(doc, {type: 'premiumPromo'});
+          return this.appDocsManager.saveDoc(doc, { type: 'premiumPromo' });
         }) as Document[];
 
         return this.premiumPromo = helpPremiumPromo;
-      }
+      },
     });
   }
 
   public checkGiftCode(slug: string) {
     return this.apiManager.invokeApiSingleProcess({
       method: 'payments.checkGiftCode',
-      params: {slug},
+      params: { slug },
       processResult: (checkedGiftCode) => {
         this.appPeersManager.saveApiPeers(checkedGiftCode);
         checkedGiftCode.slug = slug;
 
-        if(checkedGiftCode.giveaway_msg_id) {
+        if (checkedGiftCode.giveaway_msg_id) {
           const fromPeerId = checkedGiftCode.from_id && this.appPeersManager.getPeerId(checkedGiftCode.from_id);
           checkedGiftCode.giveaway_msg_id = this.appMessagesIdsManager.generateMessageId(
             checkedGiftCode.giveaway_msg_id,
@@ -148,7 +148,7 @@ export default class AppPaymentsManager extends AppManager {
         }
 
         return checkedGiftCode;
-      }
+      },
     });
   }
 
@@ -157,10 +157,10 @@ export default class AppPaymentsManager extends AppManager {
 
     return this.apiManager.invokeApiSingleProcess({
       method: 'payments.applyGiftCode',
-      params: {slug},
+      params: { slug },
       processResult: (updates) => {
         this.apiUpdatesManager.processUpdateMessage(updates);
-      }
+      },
     });
   }
 
@@ -169,8 +169,8 @@ export default class AppPaymentsManager extends AppManager {
       method: 'payments.getGiveawayInfo',
       params: {
         peer: this.appPeersManager.getInputPeerById(peerId),
-        msg_id: getServerMessageId(mid)!
-      }
+        msg_id: getServerMessageId(mid)!,
+      },
     });
   }
 
@@ -180,11 +180,11 @@ export default class AppPaymentsManager extends AppManager {
       params: {
         peer: this.appPeersManager.getInputPeerById(peerId),
         giveaway_id: id,
-        purpose
+        purpose,
       },
       processResult: (updates) => {
         this.apiUpdatesManager.processUpdateMessage(updates);
-      }
+      },
     });
   }
 
@@ -198,18 +198,18 @@ export default class AppPaymentsManager extends AppManager {
     starsStatus.history?.forEach((transaction) => {
       const transactionPeer = transaction.peer as StarsTransactionPeer.starsTransactionPeer;
       const peerId = transactionPeer && this.appPeersManager.getPeerId(transactionPeer.peer);
-      if(transaction.msg_id) {
+      if (transaction.msg_id) {
         transaction.msg_id = this.appMessagesIdsManager.generateMessageId(
           transaction.msg_id,
           this.appPeersManager.isChannel(peerId) ? peerId.toChatId() : undefined
         );
       }
 
-      if(transaction.extended_media) {
+      if (transaction.extended_media) {
         transaction.extended_media.forEach((messageMedia) => {
           this.appMessagesManager.saveMessageMedia(
-            {media: messageMedia},
-            {type: 'starsTransaction', peerId, mid: transaction.msg_id!}
+            { media: messageMedia },
+            { type: 'starsTransaction', peerId, mid: transaction.msg_id! }
           );
         });
       }
@@ -219,28 +219,28 @@ export default class AppPaymentsManager extends AppManager {
   };
 
   public getCachedStarsStatus() {
-    if(this.starsStatus instanceof Promise) return;
+    if (this.starsStatus instanceof Promise) return;
     return this.starsStatus;
   }
 
   public getStarsStatus(overwrite?: boolean) {
-    if(overwrite) {
+    if (overwrite) {
       this.starsStatus = undefined;
     }
 
     return this.starsStatus ??= this.apiManager.invokeApiSingleProcess({
       method: 'payments.getStarsStatus',
       params: {
-        peer: this.appPeersManager.getInputPeerById(this.rootScope.myId)
+        peer: this.appPeersManager.getInputPeerById(this.rootScope.myId),
       },
       processResult: (starsStatus) => {
         return this.starsStatus = this.saveStarsStatus(starsStatus);
-      }
+      },
     });
   }
 
   public getStarsStatusTon(overwrite?: boolean) {
-    if(overwrite) {
+    if (overwrite) {
       this.starsStatusTon = undefined;
     }
 
@@ -248,11 +248,11 @@ export default class AppPaymentsManager extends AppManager {
       method: 'payments.getStarsStatus',
       params: {
         peer: this.appPeersManager.getInputPeerById(this.rootScope.myId),
-        ton: true
+        ton: true,
       },
       processResult: (starsStatus) => {
         return this.starsStatusTon = this.saveStarsStatus(starsStatus);
-      }
+      },
     });
   }
 
@@ -265,9 +265,9 @@ export default class AppPaymentsManager extends AppManager {
         inbound,
         outbound: inbound === false,
         limit: 30,
-        ton
+        ton,
       },
-      processResult: this.saveStarsStatus
+      processResult: this.saveStarsStatus,
     });
   }
 
@@ -278,9 +278,9 @@ export default class AppPaymentsManager extends AppManager {
         // peer: this.appPeersManager.getInputPeerById(peerId),
         peer: this.appPeersManager.getInputPeerById(this.rootScope.myId),
         offset: offset!,
-        missing_balance: missingBalance
+        missing_balance: missingBalance,
       },
-      processResult: this.saveStarsStatus
+      processResult: this.saveStarsStatus,
     });
   }
 
@@ -290,8 +290,8 @@ export default class AppPaymentsManager extends AppManager {
       params: {
         subscription_id: subscriptionId,
         peer: this.appPeersManager.getInputPeerById(this.rootScope.myId),
-        canceled
-      }
+        canceled,
+      },
     });
   }
 
@@ -300,8 +300,8 @@ export default class AppPaymentsManager extends AppManager {
       method: 'payments.fulfillStarsSubscription',
       params: {
         subscription_id: subscriptionId,
-        peer: this.appPeersManager.getInputPeerById(this.rootScope.myId)
-      }
+        peer: this.appPeersManager.getInputPeerById(this.rootScope.myId),
+      },
     });
   }
 
@@ -311,22 +311,22 @@ export default class AppPaymentsManager extends AppManager {
   ) {
     return this.apiManager.invokeApi('payments.sendStarsForm', {
       form_id: formId,
-      invoice
+      invoice,
     }).then(this.processPaymentResult);
   }
 
   public getStarsTransactionsByID(transactionId: string) {
-    if(!transactionId) return;
+    if (!transactionId) return;
     return this.apiManager.invokeApi('payments.getStarsTransactionsByID', {
       peer: this.appPeersManager.getInputPeerById(this.rootScope.myId),
-      id: [{_: 'inputStarsTransaction', pFlags: {}, id: transactionId}]
+      id: [{ _: 'inputStarsTransaction', pFlags: {}, id: transactionId }],
     }).then((starsStatus) => {
       return starsStatus.history?.[0];
     });
   }
 
   public getStarsGiftOptions(userId: UserId) {
-    return this.apiManager.invokeApi('payments.getStarsGiftOptions', {user_id: this.appUsersManager.getUserInput(userId)});
+    return this.apiManager.invokeApi('payments.getStarsGiftOptions', { user_id: this.appUsersManager.getUserInput(userId) });
   }
 
   public getStarsGiveawayOptions() {
@@ -334,7 +334,7 @@ export default class AppPaymentsManager extends AppManager {
   }
 
   private processPaymentResult = (result: PaymentsPaymentResult) => {
-    if(result._ === 'payments.paymentResult') {
+    if (result._ === 'payments.paymentResult') {
       this.apiUpdatesManager.processUpdateMessage(result.updates);
     }
 
@@ -348,14 +348,14 @@ export default class AppPaymentsManager extends AppManager {
     (starsStatus as PaymentsStarsStatus).balance = balance;
     this.rootScope.dispatchEvent('stars_balance', {
       balance: formatStarsAmount(balance),
-      ton
+      ton,
     });
   }
 
   private onUpdateStarsBalance = (update: Update.updateStarsBalance) => {
     const isTon = update.balance._ === 'starsTonAmount';
     const starsStatus = isTon ? this.starsStatusTon : this.starsStatus;
-    if(!starsStatus || starsStatus instanceof Promise) {
+    if (!starsStatus || starsStatus instanceof Promise) {
       return;
     }
 

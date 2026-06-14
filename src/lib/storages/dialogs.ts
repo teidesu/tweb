@@ -5,15 +5,15 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import type {Chat, ForumTopic as MTForumTopic, DialogPeer, Message, MessagesForumTopics, MessagesPeerDialogs, Update, Peer, MessagesMessages, MessagesSavedDialogs} from '@layer';
-import type {AppMessagesManager, Dialog, ForumTopic, MyMessage, SavedDialog} from '@appManagers/appMessagesManager';
-import type {AccountDatabase} from '@config/databases/state';
+import type { Chat, ForumTopic as MTForumTopic, DialogPeer, Message, MessagesForumTopics, MessagesPeerDialogs, Update, Peer, MessagesMessages, MessagesSavedDialogs } from '@layer';
+import type { AppMessagesManager, Dialog, ForumTopic, MyMessage, SavedDialog } from '@appManagers/appMessagesManager';
+import type { AccountDatabase } from '@config/databases/state';
 import tsNow from '@helpers/tsNow';
 import SearchIndex from '@lib/searchIndex';
-import {SliceEnd} from '@helpers/slicedArray';
-import {MyDialogFilter} from '@lib/storages/filters';
-import {CAN_HIDE_TOPIC, FOLDER_ID_ALL, FOLDER_ID_ARCHIVE, NULL_PEER_ID, REAL_FOLDERS, REAL_FOLDER_ID, TEST_NO_SAVED} from '@appManagers/constants';
-import {MaybePromise, Modify, NoneToVoidFunction} from '@types';
+import { SliceEnd } from '@helpers/slicedArray';
+import { MyDialogFilter } from '@lib/storages/filters';
+import { CAN_HIDE_TOPIC, FOLDER_ID_ALL, FOLDER_ID_ARCHIVE, NULL_PEER_ID, REAL_FOLDERS, REAL_FOLDER_ID, TEST_NO_SAVED } from '@appManagers/constants';
+import { MaybePromise, Modify, NoneToVoidFunction } from '@types';
 import ctx from '@environment/ctx';
 import AppStorage from '@lib/storage';
 import forEachReverse from '@helpers/array/forEachReverse';
@@ -21,26 +21,26 @@ import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
 import insertInDescendSortedArray from '@helpers/array/insertInDescendSortedArray';
 import safeReplaceObject from '@helpers/object/safeReplaceObject';
 import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
-import {AppManager} from '@appManagers/manager';
+import { AppManager } from '@appManagers/manager';
 import getDialogIndexKey from '@appManagers/utils/dialogs/getDialogIndexKey';
 import isObject from '@helpers/object/isObject';
 import getDialogIndex from '@appManagers/utils/dialogs/getDialogIndex';
 import getPeerIdsFromMessage from '@appManagers/utils/messages/getPeerIdsFromMessage';
-import {AppStoragesManager} from '@appManagers/appStoragesManager';
+import { AppStoragesManager } from '@appManagers/appStoragesManager';
 import defineNotNumerableProperties from '@helpers/object/defineNotNumerableProperties';
 import setDialogIndex from '@appManagers/utils/dialogs/setDialogIndex';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
 import pause from '@helpers/schedulers/pause';
-import {BroadcastEvents} from '@lib/rootScope';
+import { BroadcastEvents } from '@lib/rootScope';
 import assumeType from '@helpers/assumeType';
 import makeError from '@helpers/makeError';
 import callbackify from '@helpers/callbackify';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
-import {isDialog, isSavedDialog, isForumTopic} from '@appManagers/utils/dialogs/isDialog';
+import { isDialog, isSavedDialog, isForumTopic } from '@appManagers/utils/dialogs/isDialog';
 import getDialogKey from '@appManagers/utils/dialogs/getDialogKey';
 import getDialogThreadId from '@appManagers/utils/dialogs/getDialogThreadId';
-import {isTempId} from '@appManagers/utils/messages/isTempId';
-import {isTruthy} from '../../helpers/isTruthy';
+import { isTempId } from '@appManagers/utils/messages/isTempId';
+import { isTruthy } from '../../helpers/isTruthy';
 
 export enum FilterType {
   Folder,
@@ -112,7 +112,7 @@ export default class DialogsStorage extends AppManager {
 
     const onFilterUpdate = (filter: MyDialogFilter) => {
       const dialogs = this.getCachedDialogs(false);
-      for(let i = 0; i < dialogs.length; ++i) {
+      for (let i = 0; i < dialogs.length; ++i) {
         this.processDialogForFilter(dialogs[i], filter);
       }
     };
@@ -120,15 +120,15 @@ export default class DialogsStorage extends AppManager {
     this.rootScope.addEventListener('filter_order', () => {
       const dialogs = this.getCachedDialogs(false);
       // const indexKeys: ReturnType<DialogsStorage['getDialogIndexKey']>[] = [];
-      for(const filterId in this.folders) {
-        if(!this.isVirtualFilter(+filterId)) {
+      for (const filterId in this.folders) {
+        if (!this.isVirtualFilter(+filterId)) {
           delete this.folders[filterId];
         }
 
         // indexKeys.push(this.getDialogIndexKey(+filterId));
       }
 
-      for(let i = 0; i < dialogs.length; ++i) {
+      for (let i = 0; i < dialogs.length; ++i) {
         const dialog = dialogs[i];
         // for(const indexKey of indexKeys) {
         //   delete dialog[indexKey];
@@ -145,7 +145,7 @@ export default class DialogsStorage extends AppManager {
       const dialogs = this.getCachedDialogs(false);
 
       const indexKey = this.getDialogIndexKeyByFilterId(filter.id);
-      for(let i = 0; i < dialogs.length; ++i) {
+      for (let i = 0; i < dialogs.length; ++i) {
         const dialog = dialogs[i];
         delete dialog[indexKey];
       }
@@ -160,14 +160,14 @@ export default class DialogsStorage extends AppManager {
     this.rootScope.addEventListener('chat_update', (chatId) => {
       const peerId = chatId.toPeerId(true);
       const dialog = this.getDialogOnly(peerId);
-      if(dialog && !this.canSaveDialog(peerId, dialog)) {
+      if (dialog && !this.canSaveDialog(peerId, dialog)) {
         this.dropDialogOnDeletion(peerId);
       }
     });
 
-    this.rootScope.addEventListener('chat_toggle_forum', ({chatId, enabled}) => {
+    this.rootScope.addEventListener('chat_toggle_forum', ({ chatId, enabled }) => {
       const peerId = chatId.toPeerId(true);
-      if(!enabled) {
+      if (!enabled) {
         this.flushForumTopicsCache(peerId);
       }
 
@@ -177,7 +177,7 @@ export default class DialogsStorage extends AppManager {
     this.rootScope.addEventListener('user_auth', () => {
       this.rootScope.addEventListener('premium_toggle', () => {
         [FOLDER_ID_ALL, FOLDER_ID_ARCHIVE].forEach((folderId) => {
-          this.apiUpdatesManager.processLocalUpdate({_: 'updatePinnedDialogs', folder_id: folderId});
+          this.apiUpdatesManager.processLocalUpdate({ _: 'updatePinnedDialogs', folder_id: folderId });
         });
       });
     });
@@ -195,19 +195,19 @@ export default class DialogsStorage extends AppManager {
 
       updatePinnedForumTopics: this.onUpdatePinnedForumTopics,
 
-      updateChannelViewForumAsMessages: this.onUpdateChannelViewForumAsMessages
+      updateChannelViewForumAsMessages: this.onUpdateChannelViewForumAsMessages,
     });
 
     return Promise.all([
       this.appStateManager.getState(),
-      this.appStoragesManager.loadStorage('dialogs')
-    ]).then(([state, {results: dialogs, storage}]) => {
+      this.appStoragesManager.loadStorage('dialogs'),
+    ]).then(([state, { results: dialogs, storage }]) => {
       this.storage = storage;
       this.dialogs = this.storage.getCache() as unknown as {[peerId: PeerId]: Dialog};
 
-      for(const folderId of REAL_FOLDERS) {
+      for (const folderId of REAL_FOLDERS) {
         const order = state.pinnedOrders[folderId];
-        if(!order) {
+        if (!order) {
           continue;
         }
 
@@ -215,13 +215,13 @@ export default class DialogsStorage extends AppManager {
         _order.splice(0, _order.length, ...order);
       }
 
-      if(dialogs.length) {
+      if (dialogs.length) {
         AppStorage.freezeSaving<AccountDatabase>(this.setDialogsFromState.bind(this, dialogs), ['chats', 'dialogs', 'messages', 'users']);
       }
 
       this.allDialogsLoaded = state.allDialogsLoaded || {};
 
-      if(dialogs.length) {
+      if (dialogs.length) {
         this.appDraftsManager.addMissedDialogs();
       }
     });
@@ -230,16 +230,16 @@ export default class DialogsStorage extends AppManager {
   public indexMyDialog() {
     const peerId = this.appUsersManager.getSelf().id.toPeerId(false);
     const dialog = this.getDialogOnly(peerId);
-    if(dialog) {
+    if (dialog) {
       const peerText = this.appPeersManager.getPeerSearchText(peerId);
       this.dialogsIndex.indexObject(peerId, peerText);
     }
   }
 
   private setDialogsFromState(dialogs: Dialog[]) {
-    for(let i = 0, length = dialogs.length; i < length; ++i) {
+    for (let i = 0, length = dialogs.length; i < length; ++i) {
       const dialog = dialogs[i];
-      if(!dialog) {
+      if (!dialog) {
         continue;
       }
 
@@ -247,11 +247,11 @@ export default class DialogsStorage extends AppManager {
       dialog.top_message = getServerMessageId(dialog.top_message)!; // * fix outgoing message to avoid copying dialog
       // }
 
-      if(dialog.topMessage) {
+      if (dialog.topMessage) {
         this.appMessagesManager.saveMessages([dialog.topMessage]);
       }
 
-      for(let i = 0; i <= 21; ++i) {
+      for (let i = 0; i <= 21; ++i) {
         const indexKey: ReturnType<typeof getDialogIndexKey> = `index_${i}` as any;
         delete dialog[indexKey];
       }
@@ -259,12 +259,12 @@ export default class DialogsStorage extends AppManager {
 
       this.saveDialog({
         dialog,
-        ignoreOffsetDate: true
+        ignoreOffsetDate: true,
       });
 
       // ! WARNING, убрать это когда нужно будет делать чтобы pending сообщения сохранялись
       const message = this.appMessagesManager.getMessageByPeer(dialog.peerId!, dialog.top_message);
-      if(!message) {
+      if (!message) {
         this.appMessagesManager.reloadConversation(dialog.peerId);
       }
     }
@@ -277,22 +277,22 @@ export default class DialogsStorage extends AppManager {
   public setDialogsLoaded(folderId: number, loaded: boolean) {
     const isVirtualFilter = this.isVirtualFilter(folderId);
 
-    if(folderId === GLOBAL_FOLDER_ID && loaded) {
+    if (folderId === GLOBAL_FOLDER_ID && loaded) {
       this.allDialogsLoaded[FOLDER_ID_ALL] = loaded;
       this.allDialogsLoaded[FOLDER_ID_ARCHIVE] = loaded;
     } else {
-      if(isVirtualFilter) {
+      if (isVirtualFilter) {
         defineNotNumerableProperties(this.allDialogsLoaded, [folderId]);
       }
 
       this.allDialogsLoaded[folderId] = loaded;
     }
 
-    if(isVirtualFilter) {
+    if (isVirtualFilter) {
       return;
     }
 
-    if(Array.from(REAL_FOLDERS).every((folderId) => this.allDialogsLoaded[folderId])) {
+    if (Array.from(REAL_FOLDERS).every((folderId) => this.allDialogsLoaded[folderId])) {
       this.allDialogsLoaded[GLOBAL_FOLDER_ID!] = true;
     }
 
@@ -304,7 +304,7 @@ export default class DialogsStorage extends AppManager {
   }
 
   public clear = (init = false) => {
-    if(!init) {
+    if (!init) {
       this.storage.clear();
 
       this.allDialogsLoaded = {};
@@ -312,14 +312,14 @@ export default class DialogsStorage extends AppManager {
 
       // * clear not numerable properties
       this.pinnedOrders = Object.assign({}, this.pinnedOrders);
-      for(const folderId of REAL_FOLDERS) {
+      for (const folderId of REAL_FOLDERS) {
         this.resetPinnedOrder(folderId);
       }
       this.savePinnedOrders();
     } else {
       this.allDialogsLoaded = {};
       this.pinnedOrders = {};
-      for(const folderId of REAL_FOLDERS) {
+      for (const folderId of REAL_FOLDERS) {
         this.pinnedOrders[folderId] = [];
       }
     }
@@ -334,7 +334,7 @@ export default class DialogsStorage extends AppManager {
       query: '',
       count: 0,
       dialogs: [],
-      folderId: 0
+      folderId: 0,
     };
     this.savedDialogs = {};
   };
@@ -344,7 +344,7 @@ export default class DialogsStorage extends AppManager {
       clearBadChars: true,
       ignoreCase: true,
       latinize: true,
-      includeTag: true
+      includeTag: true,
     });
   }
 
@@ -364,7 +364,7 @@ export default class DialogsStorage extends AppManager {
 
   public getPinnedOrders(folderId: number) {
     let orders = this.pinnedOrders[folderId];
-    if(!orders && this.isVirtualFilter(folderId)) {
+    if (!orders && this.isVirtualFilter(folderId)) {
       defineNotNumerableProperties(this.pinnedOrders, [folderId]);
       orders = this.pinnedOrders[folderId] = [];
     }
@@ -375,7 +375,7 @@ export default class DialogsStorage extends AppManager {
   public isDialogPinned(peerId: PeerId, folderId: number) {
     const filter = this.filtersStorage.getFilter(folderId);
     let isPinned: boolean;
-    if(filter) {
+    if (filter) {
       isPinned = filter.pinnedPeerIds!.indexOf(peerId) !== -1;
     } else {
       isPinned = !!this.getDialogOnly(peerId).pFlags.pinned;
@@ -386,7 +386,7 @@ export default class DialogsStorage extends AppManager {
 
   public getOffsetDate(folderId: number): number {
     const offsetDate = this.dialogsOffsetDate[folderId] || 0;
-    if(folderId === GLOBAL_FOLDER_ID && !offsetDate) { // make request not from beginning if we have loaded some dialogs
+    if (folderId === GLOBAL_FOLDER_ID && !offsetDate) { // make request not from beginning if we have loaded some dialogs
       return Math.min(...Array.from(REAL_FOLDERS).sort((a, b) => a - b));
     }
 
@@ -401,7 +401,7 @@ export default class DialogsStorage extends AppManager {
       unreadMessagesCount: 0,
       unreadPeerIds: new Set(),
       unreadUnmutedPeerIds: new Set(),
-      unreadMentionsPeerIds: new Set()
+      unreadMentionsPeerIds: new Set(),
     };
 
     defineNotNumerableProperties(folder, ['dispatchUnreadTimeout']);
@@ -418,8 +418,8 @@ export default class DialogsStorage extends AppManager {
   }
 
   public getFilterType(filterId: number) {
-    if(filterId && filterId < 0 || this.appPeersManager.isBotforum(filterId)) return FilterType.Forum;
-    else if(filterId === this.appPeersManager.peerId) return FilterType.Saved;
+    if (filterId && filterId < 0 || this.appPeersManager.isBotforum(filterId)) return FilterType.Forum;
+    else if (filterId === this.appPeersManager.peerId) return FilterType.Saved;
     else return FilterType.Folder;
   }
 
@@ -432,15 +432,15 @@ export default class DialogsStorage extends AppManager {
   }
 
   public getFolderDialogs(id: number, skipMigrated = true): Folder['dialogs'] {
-    if(id === GLOBAL_FOLDER_ID) { // * it won't be sorted
+    if (id === GLOBAL_FOLDER_ID) { // * it won't be sorted
       return this.getCachedDialogs(skipMigrated);
     }
 
     const folder = this.getFolder(id);
     const filterType = this.getFilterType(id);
-    if(filterType === FilterType.Forum) {
+    if (filterType === FilterType.Forum) {
       return skipMigrated ? folder.dialogs!.filter((forumTopic) => !(forumTopic as ForumTopic).pFlags.hidden) : folder.dialogs;
-    } else if(filterType === FilterType.Saved) {
+    } else if (filterType === FilterType.Saved) {
       return folder.dialogs;
     }
 
@@ -450,13 +450,13 @@ export default class DialogsStorage extends AppManager {
   public getNextDialog(currentPeerId: PeerId, next: boolean, filterId: number) {
     const folder = this.getFolderDialogs(filterId, true);
     let dialog: AnyDialog;
-    if(!currentPeerId) {
-      if(next) {
+    if (!currentPeerId) {
+      if (next) {
         dialog = folder![0];
       }
     } else {
       const idx = folder!.findIndex((dialog) => dialog.peerId === currentPeerId);
-      if(idx !== -1) {
+      if (idx !== -1) {
         const nextIndex = next ? idx + 1 : idx - 1;
         dialog = folder![nextIndex];
       }
@@ -466,8 +466,8 @@ export default class DialogsStorage extends AppManager {
   }
 
   public getDialogIndexKeyByFilterId(filterId: number) {
-    if(this.isVirtualFilter(filterId)) return getDialogIndexKey();
-    if(REAL_FOLDERS.has(filterId)) return getDialogIndexKey(filterId as REAL_FOLDER_ID);
+    if (this.isVirtualFilter(filterId)) return getDialogIndexKey();
+    if (REAL_FOLDERS.has(filterId)) return getDialogIndexKey(filterId as REAL_FOLDER_ID);
     const filter = this.filtersStorage.getFilter(filterId);
     return getDialogIndexKey(filter.localId);
   }
@@ -476,7 +476,7 @@ export default class DialogsStorage extends AppManager {
     return !this.appNotificationsManager.isPeerLocalMuted({
       peerId: dialog.peerId!,
       respectType: true,
-      threadId: isForumTopic(dialog) ? (dialog).id : undefined
+      threadId: isForumTopic(dialog) ? (dialog).id : undefined,
     });
   }
 
@@ -485,7 +485,7 @@ export default class DialogsStorage extends AppManager {
     return {
       unreadUnmutedCount: folder.unreadUnmutedPeerIds.size,
       unreadCount: folder.unreadPeerIds.size,
-      unreadMentionsCount: folder.unreadMentionsPeerIds.size
+      unreadMentionsCount: folder.unreadMentionsPeerIds.size,
     };
   }
 
@@ -510,7 +510,7 @@ export default class DialogsStorage extends AppManager {
     /* if(isRealFolder) {
       // index = getDialogIndex(dialog, indexKey);
       index = this.generateIndexForDialog(dialog, true);
-    } else  */if(this.filtersStorage.testDialogForFilter(dialog, filter)) {
+    } else  */if (this.filtersStorage.testDialogForFilter(dialog, filter)) {
       const pinnedIds = isVirtual ?
         this.getPinnedOrdersByDialog(dialog) :
         filter!.pinnedPeerIds;
@@ -518,9 +518,9 @@ export default class DialogsStorage extends AppManager {
       const pinnedKey = getDialogKey(dialog);
       const pinnedIndex = pinnedIds!.indexOf(pinnedKey);
 
-      if(pinnedIndex !== -1) {
+      if (pinnedIndex !== -1) {
         index = this.generateDialogIndex(this.generateDialogPinnedDateByIndex(pinnedIds!.length - 1 - pinnedIndex), true);
-      } else if(dialog.pFlags?.pinned || isRealFolder) {
+      } else if (dialog.pFlags?.pinned || isRealFolder) {
         index = this.generateIndexForDialog(dialog, true, undefined, !isRealFolder)!;
       } else {
         index = (getDialogIndex(dialog) ?? this.generateIndexForDialog(dialog, true))!;
@@ -537,20 +537,20 @@ export default class DialogsStorage extends AppManager {
   public getDialog(peerId: PeerId, folderId?: number, topicOrSavedId?: number, skipMigrated = true): [AnyDialog, number] | [] {
     const folders: Folder['dialogs'][] = [];
 
-    if(topicOrSavedId) {
+    if (topicOrSavedId) {
       folderId = peerId;
       // skipMigrated = false;
     }
 
-    if(folderId === undefined) {
+    if (folderId === undefined) {
       folders.push(...Array.from(REAL_FOLDERS).map((folderId) => this.getFolder(folderId).dialogs));
     } else {
       folders.push(this.getFolderDialogs(folderId, false));
     }
 
     let verify: (d: AnyDialog) => boolean;
-    if(topicOrSavedId) {
-      if(this.isFilterIdForForum(folderId!) || this.appPeersManager.isBotforum(peerId)) {
+    if (topicOrSavedId) {
+      if (this.isFilterIdForForum(folderId!) || this.appPeersManager.isBotforum(peerId)) {
         verify = (dialog) => (dialog as ForumTopic).id === topicOrSavedId;
       } else {
         verify = (dialog) => (dialog as SavedDialog).savedPeerId === topicOrSavedId;
@@ -559,13 +559,13 @@ export default class DialogsStorage extends AppManager {
       verify = (dialog) => dialog.peerId === peerId;
     }
 
-    for(const folder of folders) {
+    for (const folder of folders) {
       let i = 0, skipped = 0;
-      for(let length = folder!.length; i < length; ++i) {
+      for (let length = folder!.length; i < length; ++i) {
         const dialog = folder![i];
-        if(verify(dialog)) {
+        if (verify(dialog)) {
           return [dialog, i - skipped];
-        } else if(skipMigrated && ((dialog as ForumTopic).pFlags.hidden || (dialog as Dialog).migratedTo !== undefined)) {
+        } else if (skipMigrated && ((dialog as ForumTopic).pFlags.hidden || (dialog as Dialog).migratedTo !== undefined)) {
           ++skipped;
         }
       }
@@ -579,7 +579,7 @@ export default class DialogsStorage extends AppManager {
   }
 
   public getAnyDialog(peerId: PeerId, topicOrSavedId?: number) {
-    if(topicOrSavedId) {
+    if (topicOrSavedId) {
       return peerId.isUser() && !this.appPeersManager.isBotforum(peerId) ? this.savedDialogs[topicOrSavedId] : this.getForumTopic(peerId, topicOrSavedId);
     }
 
@@ -618,9 +618,9 @@ export default class DialogsStorage extends AppManager {
 
   public getDialogFilterId(dialog: AnyDialog) {
     let filterId: number;
-    if(isForumTopic(dialog)) {
+    if (isForumTopic(dialog)) {
       filterId = this.getFilterIdForForum(dialog)!;
-    } else if(isSavedDialog(dialog)) {
+    } else if (isSavedDialog(dialog)) {
       filterId = dialog.peerId!;
     } else {
       filterId = dialog.folder_id!;
@@ -635,15 +635,15 @@ export default class DialogsStorage extends AppManager {
 
   public processDialogForFilters(dialog: AnyDialog, noIndex?: boolean) {
     // let perf = performance.now();
-    if(dialog?._ === 'forumTopic' && isTempId(dialog.id)) return;
+    if (dialog?._ === 'forumTopic' && isTempId(dialog.id)) return;
 
-    if(!isDialog(dialog)) {
+    if (!isDialog(dialog)) {
       this.processDialogForFilter(dialog, undefined, noIndex);
       return;
     }
 
     const filters = this.filtersStorage.getFilters();
-    for(const id in filters) {
+    for (const id in filters) {
       const filter = filters[id];
       this.processDialogForFilter(dialog, filter, noIndex);
     }
@@ -665,7 +665,7 @@ export default class DialogsStorage extends AppManager {
     const m: {[key in AnyDialog['_']]: (dialog: any) => boolean} = {
       dialog: (dialog1: Dialog) => dialog1.peerId === (dialog as Dialog).peerId,
       forumTopic: (dialog1: ForumTopic) => dialog1.id === (dialog as ForumTopic).id,
-      savedDialog: (dialog1: SavedDialog) => dialog1.savedPeerId === (dialog as SavedDialog).savedPeerId
+      savedDialog: (dialog1: SavedDialog) => dialog1.savedPeerId === (dialog as SavedDialog).savedPeerId,
     };
 
     const cmp = m[dialog._];
@@ -679,25 +679,25 @@ export default class DialogsStorage extends AppManager {
 
     const newDialogIndex = noIndex ? undefined : this.setDialogIndexInFilter(dialog, indexKey, filter);
 
-    if(wasDialogIndex === newDialogIndex) {
+    if (wasDialogIndex === newDialogIndex) {
       return false;
     }
 
-    if(!!wasDialogIndex !== !!newDialogIndex) {
+    if (!!wasDialogIndex !== !!newDialogIndex) {
       this.prepareFolderUnreadCountModifyingByDialog(folderId, dialog, !!newDialogIndex);
     }
 
-    if(wasIndex !== -1) {
+    if (wasIndex !== -1) {
       dialogs!.splice(wasIndex, 1);
-      if(folder.count !== null) {
+      if (folder.count !== null) {
         --folder.count;
       }
     }
 
-    if(newDialogIndex) {
+    if (newDialogIndex) {
       insertInDescendSortedArray(dialogs!, dialog, (dialog: AnyDialog) => this.getDialogIndex(dialog, indexKey)!, -1);
 
-      if(wasIndex === -1 && folder.count !== null) {
+      if (wasIndex === -1 && folder.count !== null) {
         ++folder.count;
       }
     }
@@ -706,7 +706,7 @@ export default class DialogsStorage extends AppManager {
   }
 
   public prepareDialogUnreadCountModifying(dialog: AnyDialog, toggle?: boolean) {
-    if(isSavedDialog(dialog)) {
+    if (isSavedDialog(dialog)) {
       return () => {};
     }
 
@@ -716,11 +716,11 @@ export default class DialogsStorage extends AppManager {
     const folderId = isTopic ? this.getFilterIdForForum(dialog) : dialog.folder_id;
     callbacks.push(this.prepareFolderUnreadCountModifyingByDialog(folderId!, dialog, toggle)!);
 
-    if(!isTopic) {
+    if (!isTopic) {
       const filters = this.filtersStorage.getFilters();
-      for(const id in filters) {
+      for (const id in filters) {
         const filter = filters[id];
-        if(this.filtersStorage.testDialogForFilter(dialog, filter)) {
+        if (this.filtersStorage.testDialogForFilter(dialog, filter)) {
           callbacks.push(this.prepareFolderUnreadCountModifyingByDialog(filter.id, dialog, toggle)!);
         }
       }
@@ -730,8 +730,8 @@ export default class DialogsStorage extends AppManager {
   }
 
   public prepareFolderUnreadCountModifyingByDialog(folderId: number, dialog: AnyDialog, toggle?: boolean) {
-    if(isSavedDialog(dialog)) {
-      if(toggle !== undefined) {
+    if (isSavedDialog(dialog)) {
+      if (toggle !== undefined) {
         return;
       }
 
@@ -742,7 +742,7 @@ export default class DialogsStorage extends AppManager {
     const wasUnmuted = this.isDialogUnmuted(dialog);
     const wasUnreadMentionsCount = wasUnreadCount ? dialog.unread_mentions_count : 0;
 
-    if(toggle !== undefined) {
+    if (toggle !== undefined) {
       const addMessagesCount = toggle ? wasUnreadCount : -wasUnreadCount;
       // this.modifyFolderUnreadCount(folderId, addMessagesCount, !!wasUnreadCount, wasUnreadCount && wasUnmuted, dialog);
       this.modifyFolderUnreadCount(
@@ -781,16 +781,16 @@ export default class DialogsStorage extends AppManager {
     toggleMentions: boolean,
     dialog: Dialog | ForumTopic
   ) {
-    const {peerId} = dialog;
+    const { peerId } = dialog;
     const isForum = this.appPeersManager.isForum(peerId!);
     const isTopic = isForumTopic(dialog);
-    if(isForum && !isTopic && !(dialog as Dialog).pFlags.view_forum_as_messages) {
+    if (isForum && !isTopic && !(dialog as Dialog).pFlags.view_forum_as_messages) {
       const forumUnreadCount = this.getForumUnreadCount(peerId!);
-      if(forumUnreadCount instanceof Promise) {
-        forumUnreadCount.then(({count, hasUnmuted}) => {
+      if (forumUnreadCount instanceof Promise) {
+        forumUnreadCount.then(({ count, hasUnmuted }) => {
           dialog = this.getDialogOnly(peerId!);
           const folder = this.getFolder(folderId);
-          if(
+          if (
             !dialog ||
             !this.appPeersManager.isForum(peerId!) ||
             !folder ||
@@ -818,24 +818,24 @@ export default class DialogsStorage extends AppManager {
     }
 
     const folder = this.getFolder(folderId);
-    if(addMessagesCount) {
+    if (addMessagesCount) {
       folder.unreadMessagesCount = Math.max(0, folder.unreadMessagesCount + addMessagesCount);
     }
 
     const key = getDialogKey(dialog);
-    if(toggleDialog) {
+    if (toggleDialog) {
       folder.unreadPeerIds.add(key);
     } else {
       folder.unreadPeerIds.delete(key);
     }
 
-    if(toggleUnmuted) {
+    if (toggleUnmuted) {
       folder.unreadUnmutedPeerIds.add(key);
     } else {
       folder.unreadUnmutedPeerIds.delete(key);
     }
 
-    if(toggleMentions) {
+    if (toggleMentions) {
       folder.unreadMentionsPeerIds.add(key);
     } else {
       folder.unreadMentionsPeerIds.delete(key);
@@ -843,11 +843,11 @@ export default class DialogsStorage extends AppManager {
 
     folder.dispatchUnreadTimeout ??= ctx.setTimeout(() => {
       folder.dispatchUnreadTimeout = undefined;
-      const _folder = {...folder};
+      const _folder = { ...folder };
       delete _folder.dialogs;
       this.rootScope.dispatchEvent('folder_unread', _folder);
 
-      if(isTopic) { // * refresh forum dialog unread count
+      if (isTopic) { // * refresh forum dialog unread count
         this.processChangedUnreadOrUnmuted(peerId!);
       }
     }, 0);
@@ -855,7 +855,7 @@ export default class DialogsStorage extends AppManager {
 
   public processChangedUnreadOrUnmuted(peerId: PeerId) {
     const dialog = this.getDialogOnly(peerId);
-    if(!dialog) {
+    if (!dialog) {
       return;
     }
 
@@ -863,7 +863,7 @@ export default class DialogsStorage extends AppManager {
     this.prepareDialogUnreadCountModifying(dialog)(); // * because counter won't be changed if only changed muted status
     this.rootScope.dispatchEvent('dialog_unread', {
       peerId,
-      dialog
+      dialog,
     });
   }
 
@@ -873,36 +873,36 @@ export default class DialogsStorage extends AppManager {
     message?: MyMessage,
     noPinnedOrderUpdate?: boolean
   ) {
-    if(!justReturn/*  && !isTopic */) {
+    if (!justReturn/*  && !isTopic */) {
       return;
     }
 
     const isTopic = isForumTopic(dialog);
     const _isDialog = isDialog(dialog);
     let topDate = 0, isPinned: boolean;
-    if(isTopic && dialog.pFlags.hidden && CAN_HIDE_TOPIC) { // general topic must be first
+    if (isTopic && dialog.pFlags.hidden && CAN_HIDE_TOPIC) { // general topic must be first
       topDate = this.generateDialogPinnedDateByIndex(0xFFF);
       isPinned = true;
-    } else if(dialog.pFlags.pinned && !noPinnedOrderUpdate) {
+    } else if (dialog.pFlags.pinned && !noPinnedOrderUpdate) {
       topDate = this.generateDialogPinnedDate(dialog);
       isPinned = true;
     } else {
-      const {peerId} = dialog;
+      const { peerId } = dialog;
       message ||= this.appMessagesManager.getMessageByPeer(peerId!, dialog.top_message);
 
       topDate = (message as Message.message)?.date || topDate;
 
-      if(_isDialog) {
+      if (_isDialog) {
         const channelId = this.appPeersManager.isChannel(peerId!) && peerId!.toChatId();
-        if(channelId) {
+        if (channelId) {
           const channel = this.appChatsManager.getChat(channelId) as Chat.channel;
-          if(!topDate || (channel.date && channel.date > topDate)) {
+          if (!topDate || (channel.date && channel.date > topDate)) {
             topDate = channel.date;
           }
         }
       }
 
-      if(
+      if (
         (isTopic || _isDialog) &&
         dialog.draft?._ === 'draftMessage' &&
         dialog.draft.date > topDate
@@ -914,7 +914,7 @@ export default class DialogsStorage extends AppManager {
     topDate ||= tsNow(true);
 
     const index = this.generateDialogIndex(topDate, isPinned!);
-    if(justReturn) {
+    if (justReturn) {
       return index;
     }
 
@@ -931,11 +931,11 @@ export default class DialogsStorage extends AppManager {
 
     const dialogKey = getDialogKey(dialog);
     let pinnedIndex = order.indexOf(dialogKey);
-    if(pinnedIndex === -1) {
+    if (pinnedIndex === -1) {
       order.unshift(dialogKey);
       pinnedIndex = 0;
 
-      if(isDialog(dialog)) {
+      if (isDialog(dialog)) {
         this.savePinnedOrders();
       }
     }
@@ -962,16 +962,16 @@ export default class DialogsStorage extends AppManager {
   } */
 
   private getDialogMessageForState(dialog: AnyDialog) {
-    const {peerId} = dialog;
+    const { peerId } = dialog;
     const threadId = isSavedDialog(dialog) ? dialog.savedPeerId : undefined;
     const historyStorage = this.appMessagesManager.getHistoryStorageNoHydrate(peerId!, threadId);
     const messagesStorage = this.appMessagesManager.getHistoryMessagesStorageNoHydrate(peerId!);
     const history = historyStorage.history!.slice;
     let incomingMessage: MyMessage;
-    for(let i = 0, length = history.length; i < length; ++i) {
+    for (let i = 0, length = history.length; i < length; ++i) {
       const mid = history[i];
       const message: MyMessage = this.appMessagesManager.getMessageFromStorage(messagesStorage, mid)!;
-      if(message && !message.pFlags.is_outgoing/*  || peerId === SERVICE_PEER_ID */) {
+      if (message && !message.pFlags.is_outgoing/*  || peerId === SERVICE_PEER_ID */) {
         incomingMessage = message;
         break;
       }
@@ -981,13 +981,13 @@ export default class DialogsStorage extends AppManager {
   }
 
   public setDialogToState(dialog: AnyDialog) {
-    if(!isDialog(dialog)) {
+    if (!isDialog(dialog)) {
       return;
     }
 
-    const {peerId, pts} = dialog;
+    const { peerId, pts } = dialog;
     const incomingMessage = this.getDialogMessageForState(dialog);
-    if(incomingMessage) {
+    if (incomingMessage) {
       const peerIds = getPeerIdsFromMessage(incomingMessage);
       this.peersStorage.requestPeersForKey(peerIds, `topMessage_${peerId}`);
     }
@@ -1004,13 +1004,13 @@ export default class DialogsStorage extends AppManager {
     dialog.read_outbox_max_id = this.appMessagesIdsManager.clearMessageId(dialog.read_outbox_max_id); */
     // CAN TOUCH NOW
 
-    if(peerId!.isAnyChat() && pts) {
+    if (peerId!.isAnyChat() && pts) {
       const newPts = this.apiUpdatesManager.getChannelState(peerId!.toChatId(), pts).pts;
       dialog.pts = newPts;
     }
 
     this.storage.set({
-      [peerId!]: dialog
+      [peerId!]: dialog,
     });
 
     this.peersStorage.requestPeer(peerId!, 'dialog');
@@ -1024,22 +1024,22 @@ export default class DialogsStorage extends AppManager {
     } */
   }
 
-  public pushDialog({dialog, offsetDate, ignoreOffsetDate, saveGlobalOffset}: {
+  public pushDialog({ dialog, offsetDate, ignoreOffsetDate, saveGlobalOffset }: {
     dialog: AnyDialog,
     offsetDate?: number,
     ignoreOffsetDate?: boolean,
     saveGlobalOffset?: boolean
   }) {
     const _isDialog = isDialog(dialog);
-    const {peerId} = dialog;
+    const { peerId } = dialog;
     const key = getDialogKey(dialog);
 
-    if(_isDialog) {
+    if (_isDialog) {
       this.dialogs[key] = dialog;
-    } else if(isForumTopic(dialog)) {
+    } else if (isForumTopic(dialog)) {
       const forumTopics = this.getForumTopicsCache(peerId!);
       forumTopics.topics.set(key, dialog);
-    } else if(isSavedDialog(dialog)) {
+    } else if (isSavedDialog(dialog)) {
       this.savedDialogs[key] = dialog;
     }
 
@@ -1049,19 +1049,19 @@ export default class DialogsStorage extends AppManager {
     this.processDialogForFilters(dialog);
     // }
 
-    if(offsetDate && !dialog.pFlags.pinned) {
-      if(_isDialog && saveGlobalOffset) {
+    if (offsetDate && !dialog.pFlags.pinned) {
+      if (_isDialog && saveGlobalOffset) {
         const savedGlobalOffsetDate = this.dialogsOffsetDate[GLOBAL_FOLDER_ID!];
-        if(!savedGlobalOffsetDate || offsetDate < savedGlobalOffsetDate) {
+        if (!savedGlobalOffsetDate || offsetDate < savedGlobalOffsetDate) {
           this.setDialogOffsetDate((GLOBAL_FOLDER_ID as number), offsetDate);
         }
       }
 
       const folderId = this.getDialogFilterId(dialog);
       const savedOffsetDate = this.dialogsOffsetDate[folderId];
-      if(!savedOffsetDate || offsetDate < savedOffsetDate) {
+      if (!savedOffsetDate || offsetDate < savedOffsetDate) {
         // if(pos !== -1) {
-        if(!ignoreOffsetDate && !this.isDialogsLoaded(folderId)) {
+        if (!ignoreOffsetDate && !this.isDialogsLoaded(folderId)) {
           this.dropDialog(peerId!, getDialogThreadId(dialog), true);
           return;
         }
@@ -1086,7 +1086,7 @@ export default class DialogsStorage extends AppManager {
   public dropDialogFromFolders(peerId: PeerId, topicOrSavedId?: number, keepLocal?: boolean) {
     const foundDialog = this.getDialog(peerId, undefined, topicOrSavedId, false);
     const [dialog, index] = foundDialog;
-    if(dialog) {
+    if (dialog) {
       const filterId = this.getDialogFilterId(dialog);
 
       // const folder = this.getFolder(filterId);
@@ -1095,18 +1095,18 @@ export default class DialogsStorage extends AppManager {
 
       this.processDialogForFilters(dialog, true);
 
-      if(!keepLocal) {
-        if(isForumTopic(dialog)) {
+      if (!keepLocal) {
+        if (isForumTopic(dialog)) {
           const cache = this.getForumTopicsCache(peerId);
           cache.index.indexObject(topicOrSavedId!, '');
-        } else if(isSavedDialog(dialog)) {
+        } else if (isSavedDialog(dialog)) {
 
         } else {
           this.dialogsIndex.indexObject(peerId, '');
         }
       }
 
-      if(wasPinned) {
+      if (wasPinned) {
         this.savePinnedOrders();
       }
     }
@@ -1117,11 +1117,11 @@ export default class DialogsStorage extends AppManager {
   public dropDialog(peerId: PeerId, topicOrSavedId?: number, keepLocal?: boolean) {
     const dialog = this.getAnyDialog(peerId, topicOrSavedId);
     const foundDialog = this.dropDialogFromFolders(peerId, topicOrSavedId, keepLocal);
-    if(dialog) {
-      if(!keepLocal) {
-        if(isForumTopic(dialog)) {
+    if (dialog) {
+      if (!keepLocal) {
+        if (isForumTopic(dialog)) {
           this.getForumTopicsCache(peerId).topics.delete(topicOrSavedId!);
-        } else if(isSavedDialog(dialog)) {
+        } else if (isSavedDialog(dialog)) {
           delete this.savedDialogs[topicOrSavedId!];
         } else {
           delete this.dialogs[peerId];
@@ -1135,11 +1135,11 @@ export default class DialogsStorage extends AppManager {
   }
 
   public clearDialogFromState(dialog: AnyDialog, keepLocal: boolean) {
-    if(!isDialog(dialog)) {
+    if (!isDialog(dialog)) {
       return;
     }
 
-    const {peerId} = dialog;
+    const { peerId } = dialog;
     this.peersStorage.requestPeersForKey([], `topMessage_${peerId}`);
     this.peersStorage.releasePeer(peerId!, 'dialog');
     this.storage.delete(peerId!, keepLocal);
@@ -1147,7 +1147,7 @@ export default class DialogsStorage extends AppManager {
 
   public dropDialogWithEvent(peerId: PeerId, topicOrSavedId?: number) {
     const dropped = this.dropDialog(peerId, topicOrSavedId);
-    if(dropped.length) {
+    if (dropped.length) {
       this.rootScope.dispatchEvent('dialog_drop', dropped[0]);
     }
 
@@ -1161,17 +1161,17 @@ export default class DialogsStorage extends AppManager {
     this.dropDialogWithEvent(peerId, topicOrSavedId);
 
     // * drop 'you joined this channel' service message
-    if(this.appPeersManager.isBroadcast(peerId)) {
+    if (this.appPeersManager.isBroadcast(peerId)) {
       const historyStorage = this.appMessagesManager.getHistoryStorageNoHydrate(peerId);
       const mid = historyStorage?.channelJoinedMid;
-      if(mid) {
+      if (mid) {
         historyStorage.channelJoinedMid = undefined;
         this.apiUpdatesManager.processLocalUpdate({
           _: 'updateDeleteChannelMessages',
           channel_id: peerId.toChatId(),
           messages: [mid],
           pts: (undefined as unknown as number),
-          pts_count: (undefined as unknown as number)
+          pts_count: (undefined as unknown as number),
         });
       }
     }
@@ -1189,12 +1189,12 @@ export default class DialogsStorage extends AppManager {
     const isSaved = result._ === 'messages.savedDialogs';
     const isDialog = !isForum && !isSaved;
     const items = isForum ? result.topics : result.dialogs;
-    if(isForum) {
+    if (isForum) {
       this.processTopics(peerId!, result);
-    } else if(isDialog) {
+    } else if (isDialog) {
       // ! fix 'dialogFolder', maybe there is better way to do it, this only can happen by 'messages.getPinnedDialogs' by folder_id: 0
       forEachReverse(result.dialogs, (dialog, idx, arr) => {
-        if(dialog._ === 'dialogFolder') {
+        if (dialog._ === 'dialogFolder') {
           arr!.splice(idx!, 1);
         }
       });
@@ -1207,7 +1207,7 @@ export default class DialogsStorage extends AppManager {
     const updatedDialogs: BroadcastEvents['dialogs_multiupdate'] = new Map();
     const getUpdateCache = (peerId: PeerId) => {
       let cache = updatedDialogs.get(peerId);
-      if(!cache) {
+      if (!cache) {
         updatedDialogs.set(peerId, cache = {});
       }
 
@@ -1219,11 +1219,11 @@ export default class DialogsStorage extends AppManager {
       const peerId = this.getDialogPeerId(dialog);
       let topMid = dialog.top_message;
 
-      const {pendingTopMsgs} = this.appMessagesManager;
+      const { pendingTopMsgs } = this.appMessagesManager;
       let pendingTopMsgKey: keyof typeof pendingTopMsgs, dialogKey: number;
-      if(isDialog) {
+      if (isDialog) {
         pendingTopMsgKey = peerId;
-      } else if(isForum) {
+      } else if (isForum) {
         dialogKey = this.appMessagesIdsManager.generateMessageId(
           (dialog as ForumTopic).id,
           this.getDialogPeerId(dialog).toChatId()
@@ -1235,25 +1235,25 @@ export default class DialogsStorage extends AppManager {
       }
 
       const topPendingMid = pendingTopMsgs[pendingTopMsgKey];
-      if(topPendingMid) {
+      if (topPendingMid) {
         const topPendingMessage = this.appMessagesManager.getMessageByPeer(peerId, topPendingMid) as MyMessage;
         const topMessage = this.appMessagesManager.getMessageByPeer(peerId, topMid) as MyMessage;
-        if(!topMid || (topPendingMessage && (!topMessage || topPendingMessage?.date > topMessage?.date))) {
+        if (!topMid || (topPendingMessage && (!topMessage || topPendingMessage?.date > topMessage?.date))) {
           dialog.top_message = topMid = topPendingMid;
           this.appMessagesManager.getHistoryStorageNoHydrate(peerId, dialogKey!)._maxId = topPendingMid;
         }
       }
 
-      if(topMid || (dialog as Dialog | ForumTopic).draft?._ === 'draftMessage') {
-        if(this.saveDialog({dialog})) {
+      if (topMid || (dialog as Dialog | ForumTopic).draft?._ === 'draftMessage') {
+        if (this.saveDialog({ dialog })) {
           const cache = getUpdateCache(peerId);
 
-          if(isForum) {
+          if (isForum) {
             (cache.topics ??= new Map()).set(
               (dialog as ForumTopic).id,
               dialog as ForumTopic
             );
-          } else if(isSaved) {
+          } else if (isSaved) {
             (cache.saved ??= new Map()).set(
               (dialog as SavedDialog).savedPeerId,
               dialog as SavedDialog
@@ -1268,20 +1268,20 @@ export default class DialogsStorage extends AppManager {
 
       const key = this.appMessagesManager.getUpdateAfterReloadKey(peerId, dialogKey!);
       const updates = this.appMessagesManager.newUpdatesAfterReloadToHandle[key];
-      if(updates !== undefined) {
+      if (updates !== undefined) {
         const slicedUpdates = [...updates]; // ! have to clone set, otherwise will have infinite loop if element is inserted again
-        for(const update of slicedUpdates) {
+        for (const update of slicedUpdates) {
           updates.delete(update);
           this.apiUpdatesManager.saveUpdate(update);
         }
 
-        if(!updates.size) {
+        if (!updates.size) {
           delete this.appMessagesManager.newUpdatesAfterReloadToHandle[key];
         }
       }
     });
 
-    if(updatedDialogs.size) {
+    if (updatedDialogs.size) {
       this.rootScope.dispatchEvent('dialogs_multiupdate', updatedDialogs);
     }
   }
@@ -1295,7 +1295,7 @@ export default class DialogsStorage extends AppManager {
       messages: [],
       pFlags: {},
       pts: 0,
-      users: []
+      users: [],
     });
   }
 
@@ -1311,10 +1311,10 @@ export default class DialogsStorage extends AppManager {
   }
 
   public canSaveDialog(peerId: PeerId, dialog: Dialog) {
-    if(peerId.isAnyChat()) {
+    if (peerId.isAnyChat()) {
       const chat: Chat = this.appChatsManager.getChat(peerId.toChatId());
       // ! chatForbidden stays for chat where you're kicked
-      if(
+      if (
         chat._ === 'channelForbidden' ||
         // (chat as Chat.chat).pFlags.deactivated || // ! deactivated means migrated, must save them
         // || chat._ === 'chatForbidden'
@@ -1323,7 +1323,7 @@ export default class DialogsStorage extends AppManager {
       ) {
         return false;
       }
-    } else if(this.appUsersManager.isDeleted(peerId.toUserId()) && !getServerMessageId(dialog.top_message)) {
+    } else if (this.appUsersManager.isDeleted(peerId.toUserId()) && !getServerMessageId(dialog.top_message)) {
       return false;
     }
 
@@ -1331,12 +1331,12 @@ export default class DialogsStorage extends AppManager {
   }
 
   public getDialogPeerId(dialog: AnyDialog) {
-    const {peerId} = dialog;
-    if(peerId) {
+    const { peerId } = dialog;
+    if (peerId) {
       return peerId;
     }
 
-    if(isSavedDialog(dialog)) {
+    if (isSavedDialog(dialog)) {
       return this.appPeersManager.peerId;
     }
 
@@ -1350,7 +1350,7 @@ export default class DialogsStorage extends AppManager {
     dialog,
     folderId,
     ignoreOffsetDate,
-    saveGlobalOffset
+    saveGlobalOffset,
   }: {
     dialog: AnyDialog,
     folderId?: REAL_FOLDER_ID,
@@ -1368,18 +1368,18 @@ export default class DialogsStorage extends AppManager {
     const topicId = isTopic ?
       dialog.id = this.appMessagesIdsManager.generateMessageId(dialog.id, channelId) :
       (isSaved ? savedPeerId : undefined);
-    if(_isDialog) {
+    if (_isDialog) {
       folderId ??= dialog.folder_id ?? FOLDER_ID_ALL;
     }
 
-    if(!peerId) {
+    if (!peerId) {
       this.log.error('saveConversation no peerId???', dialog, folderId);
       return false;
     }
 
-    if(_isDialog && !channelId && peerId.isAnyChat()) {
+    if (_isDialog && !channelId && peerId.isAnyChat()) {
       const chat = this.appChatsManager.getChat(peerId.toChatId()) as Chat.chat;
-      if(chat && chat.migrated_to && chat.pFlags.deactivated) {
+      if (chat && chat.migrated_to && chat.pFlags.deactivated) {
         const migratedToPeer = this.appPeersManager.getPeerId(chat.migrated_to);
         this.appMessagesManager.migratedFromTo[peerId] = migratedToPeer;
         this.appMessagesManager.migratedToFrom[migratedToPeer] = peerId;
@@ -1388,14 +1388,14 @@ export default class DialogsStorage extends AppManager {
       }
     }
 
-    if(_isDialog && !this.canSaveDialog(peerId, dialog)) {
+    if (_isDialog && !this.canSaveDialog(peerId, dialog)) {
       return false;
     }
 
-    if(isTopic) {
+    if (isTopic) {
       const cache = this.getForumTopicsCache(peerId);
       cache.index.indexObject(topicId!, dialog.title);
-    } else if(_isDialog && !dialog.migratedTo) {
+    } else if (_isDialog && !dialog.migratedTo) {
       const peerText = this.appPeersManager.getPeerSearchText(peerId);
       this.dialogsIndex.indexObject(peerId, peerText);
     }
@@ -1403,12 +1403,12 @@ export default class DialogsStorage extends AppManager {
     const wasDialogBefore = this.getAnyDialog(peerId, topicId);
 
     let mid: number, message: MyMessage;
-    if(dialog.top_message || true) {
+    if (dialog.top_message || true) {
       mid = this.appMessagesIdsManager.generateMessageId(dialog.top_message, channelId);// dialog.top_message;
 
       // preserve outgoing message
       const wasTopMessage = wasDialogBefore?.top_message && this.appMessagesManager.getMessageByPeer(peerId, wasDialogBefore.top_message) as MyMessage;
-      if((wasTopMessage as MyMessage)?.pFlags?.is_outgoing && wasDialogBefore!.top_message >= mid) {
+      if ((wasTopMessage as MyMessage)?.pFlags?.is_outgoing && wasDialogBefore!.top_message >= mid) {
         mid = wasDialogBefore!.top_message;
       }
 
@@ -1434,7 +1434,7 @@ export default class DialogsStorage extends AppManager {
 
     dialog.top_message = mid;
     // dialog.unread_count = wasDialogBefore && dialog.read_inbox_max_id === getServerMessageId(wasDialogBefore.read_inbox_max_id) ? wasDialogBefore.unread_count : dialog.unread_count;
-    if(!isSaved) {
+    if (!isSaved) {
       dialog.read_inbox_max_id = this.appMessagesIdsManager.generateMessageId(wasDialogBefore && !dialog.read_inbox_max_id ? (wasDialogBefore as typeof dialog).read_inbox_max_id : dialog.read_inbox_max_id, channelId);
       dialog.read_outbox_max_id = this.appMessagesIdsManager.generateMessageId(wasDialogBefore && !dialog.read_outbox_max_id ? (wasDialogBefore as typeof dialog).read_outbox_max_id : dialog.read_outbox_max_id, channelId);
 
@@ -1444,7 +1444,7 @@ export default class DialogsStorage extends AppManager {
       // local read cursor and unread counts. Otherwise the counter visibly
       // jumps back up before the next read brings it down again — looks
       // like the unread count "duplicated".
-      if(wasDialogBefore) {
+      if (wasDialogBefore) {
         const wasReadInbox = (wasDialogBefore as typeof dialog).read_inbox_max_id;
         const wasReadOutbox = (wasDialogBefore as typeof dialog).read_outbox_max_id;
         const wasUnread = (wasDialogBefore as typeof dialog).unread_count;
@@ -1452,30 +1452,30 @@ export default class DialogsStorage extends AppManager {
         const wasUnreadReactions = (wasDialogBefore as typeof dialog).unread_reactions_count;
         const wasUnreadPollVotes = (wasDialogBefore as typeof dialog).unread_poll_votes_count;
 
-        if(wasReadInbox > dialog.read_inbox_max_id) {
+        if (wasReadInbox > dialog.read_inbox_max_id) {
           dialog.read_inbox_max_id = wasReadInbox;
-          if(typeof wasUnread === 'number') {
+          if (typeof wasUnread === 'number') {
             dialog.unread_count = Math.min(dialog.unread_count, wasUnread);
           }
-          if(typeof wasUnreadMentions === 'number') {
+          if (typeof wasUnreadMentions === 'number') {
             dialog.unread_mentions_count = Math.min(dialog.unread_mentions_count, wasUnreadMentions);
           }
-          if(typeof wasUnreadReactions === 'number') {
+          if (typeof wasUnreadReactions === 'number') {
             dialog.unread_reactions_count = Math.min(dialog.unread_reactions_count, wasUnreadReactions);
           }
-          if(typeof wasUnreadPollVotes === 'number') {
+          if (typeof wasUnreadPollVotes === 'number') {
             dialog.unread_poll_votes_count = Math.min(dialog.unread_poll_votes_count, wasUnreadPollVotes);
           }
         }
 
-        if(wasReadOutbox > dialog.read_outbox_max_id) {
+        if (wasReadOutbox > dialog.read_outbox_max_id) {
           dialog.read_outbox_max_id = wasReadOutbox;
         }
       }
     }
 
-    if(_isDialog && dialog.folder_id === undefined) {
-      if(dialog._ === 'dialog') {
+    if (_isDialog && dialog.folder_id === undefined) {
+      if (dialog._ === 'dialog') {
         // ! СЛОЖНО ! СМОТРИ В getTopMessages
         dialog.folder_id = wasDialogBefore ? (wasDialogBefore as typeof dialog).folder_id : folderId;
       }/*  else if(dialog._ === 'dialogFolder') {
@@ -1483,11 +1483,11 @@ export default class DialogsStorage extends AppManager {
       } */
     }
 
-    if(!isSaved) {
+    if (!isSaved) {
       dialog.draft = this.appDraftsManager.saveDraft({
         peerId,
         threadId: topicId,
-        draft: dialog.draft!
+        draft: dialog.draft!,
       });
     } else {
       dialog.savedPeerId = savedPeerId;
@@ -1496,13 +1496,13 @@ export default class DialogsStorage extends AppManager {
     // dialog.indexes ??= {} as any;
 
     // * Because we saved message without dialog present
-    if(!isSaved && message && message.pFlags.is_outgoing) {
+    if (!isSaved && message && message.pFlags.is_outgoing) {
       const isOut = message.pFlags.out;
       const maxId = dialog[isOut ? 'read_outbox_max_id' : 'read_inbox_max_id'];
-      if(mid > maxId) {
+      if (mid > maxId) {
         message.pFlags.unread = true;
 
-        if(!dialog.unread_count && !isOut) {
+        if (!dialog.unread_count && !isOut) {
           ++dialog.unread_count;
         }
       } else {
@@ -1512,47 +1512,47 @@ export default class DialogsStorage extends AppManager {
 
     const historyStorage = this.appMessagesManager.getHistoryStorageNoHydrate(peerId, topicId);
     const slice = historyStorage.history!.slice;
-    if(!mid) {
+    if (!mid) {
 
-    } else if(!slice.length || !slice.isEnd(SliceEnd.Bottom)) {  // * second condition will probably never happen, however, if it does, then it will fix slice with top_message
+    } else if (!slice.length || !slice.isEnd(SliceEnd.Bottom)) {  // * second condition will probably never happen, however, if it does, then it will fix slice with top_message
       historyStorage.history!.unshift(mid);
       historyStorage.count ||= historyStorage.history!.length;
-      if(this.appMessagesManager.mergeReplyKeyboard(historyStorage, message)) {
-        this.rootScope.dispatchEvent('history_reply_markup', {peerId});
+      if (this.appMessagesManager.mergeReplyKeyboard(historyStorage, message)) {
+        this.rootScope.dispatchEvent('history_reply_markup', { peerId });
       }
 
-      if(historyStorage.originalInsertSlice) {
+      if (historyStorage.originalInsertSlice) {
         this.appMessagesManager.insertChannelJoinedService(peerId, historyStorage, historyStorage.history!.slice);
       }
-    } else if(_isDialog && !wasDialogBefore) {
+    } else if (_isDialog && !wasDialogBefore) {
       this.appMessagesManager.insertChannelJoinedService(peerId, historyStorage);
     }
 
     // * if set channel joined message
-    if(_isDialog && dialog.top_message < historyStorage.history!.first[0]) {
+    if (_isDialog && dialog.top_message < historyStorage.history!.first[0]) {
       mid = dialog.top_message = historyStorage.history!.first[0];
       dialog.topMessage = this.appMessagesManager.getMessageByPeer(peerId, dialog.top_message);
     }
 
     historyStorage._maxId = mid;
-    if(!isSaved) {
+    if (!isSaved) {
       historyStorage.readMaxId = dialog.read_inbox_max_id;
       historyStorage.readOutboxMaxId = dialog.read_outbox_max_id;
 
       this.appNotificationsManager.savePeerSettings({
         peerId,
         threadId: isTopic ? dialog.id : undefined,
-        settings: dialog.notify_settings
+        settings: dialog.notify_settings,
       });
     }
 
-    if(_isDialog && channelId && dialog.pts) {
+    if (_isDialog && channelId && dialog.pts) {
       this.apiUpdatesManager.addChannelState(channelId, dialog.pts);
     }
 
     this.generateIndexForDialog(dialog);
 
-    if(wasDialogBefore) {
+    if (wasDialogBefore) {
       // fix unread count
       const releaseUnreadCount = this.dialogsStorage.prepareDialogUnreadCountModifying(wasDialogBefore);
       safeReplaceObject(wasDialogBefore, dialog);
@@ -1562,10 +1562,10 @@ export default class DialogsStorage extends AppManager {
     this.pushDialog({
       dialog,
       ignoreOffsetDate,
-      saveGlobalOffset
+      saveGlobalOffset,
     });
 
-    if(isTopic) {
+    if (isTopic) {
       this.processTopicUpdate(dialog, wasDialogBefore as ForumTopic);
     }
 
@@ -1573,21 +1573,21 @@ export default class DialogsStorage extends AppManager {
   }
 
   public processTopicUpdate(topic: ForumTopic, oldTopic?: ForumTopic) {
-    if(!oldTopic) {
+    if (!oldTopic) {
       return;
     }
 
-    const {peerId, id: threadId} = topic;
+    const { peerId, id: threadId } = topic;
     const isIconChanged = topic.icon_emoji_id !== (oldTopic).icon_emoji_id;
     const isTitleChanged = topic.title !== (oldTopic).title;
     const isChanged = isIconChanged || isTitleChanged;
 
-    if(isIconChanged) {
-      this.rootScope.dispatchEvent('avatar_update', {peerId: peerId!, threadId});
+    if (isIconChanged) {
+      this.rootScope.dispatchEvent('avatar_update', { peerId: peerId!, threadId });
     }
 
-    if(isChanged) {
-      this.rootScope.dispatchEvent('peer_title_edit', {peerId: peerId!, threadId});
+    if (isChanged) {
+      this.rootScope.dispatchEvent('peer_title_edit', { peerId: peerId!, threadId });
     }
   }
 
@@ -1614,26 +1614,26 @@ export default class DialogsStorage extends AppManager {
       filterType = this.getFilterType(filterId),
       skipMigrated = filterType === FilterType.Forum,
       forceLocal,
-      recursion
+      recursion,
     } = options;
 
     const isForum = this.isFilterIdForForum(filterId);
     const isBotforum = this.appPeersManager.isBotforum(filterId);
     const isVirtualFilter = this.isVirtualFilter(filterId);
-    if(!isVirtualFilter && !REAL_FOLDERS.has(filterId)) {
+    if (!isVirtualFilter && !REAL_FOLDERS.has(filterId)) {
       const promises: Promise<any>[] = [];
 
       const fillContactsResult = this.appUsersManager.fillContacts();
-      if(!fillContactsResult.cached) {
+      if (!fillContactsResult.cached) {
         promises.push(fillContactsResult.promise);
       }
 
       const reloadMissingDialogsPromise = this.filtersStorage.reloadMissingPeerIds(filterId);
-      if(reloadMissingDialogsPromise) {
+      if (reloadMissingDialogsPromise) {
         promises.push(reloadMissingDialogsPromise);
       }
 
-      if(promises.length) {
+      if (promises.length) {
         return Promise.all(promises).then(() => {
           return this.getDialogs(options);
         });
@@ -1651,12 +1651,12 @@ export default class DialogsStorage extends AppManager {
     const isSearchSupported = filterType !== FilterType.Saved;
     const isServerSearchSupported = filterType === FilterType.Forum;
 
-    if(TEST_NO_SAVED && filterType === FilterType.Saved) {
+    if (TEST_NO_SAVED && filterType === FilterType.Saved) {
       throw makeError('SAVED_DIALOGS_UNSUPPORTED');
     }
 
-    if(query && isSearchSupported) {
-      if(!limit || this.cachedResults.query !== query || this.cachedResults.folderId !== filterId || recursion) {
+    if (query && isSearchSupported) {
+      if (!limit || this.cachedResults.query !== query || this.cachedResults.folderId !== filterId || recursion) {
         this.cachedResults.query = query;
         this.cachedResults.folderId = filterId;
 
@@ -1664,14 +1664,14 @@ export default class DialogsStorage extends AppManager {
         const results = index.search(query);
 
         const dialogs: DialogsStorage['cachedResults']['dialogs'] = [];
-        if(isForum || isBotforum) for(const topicId of results) {
+        if (isForum || isBotforum) for (const topicId of results) {
           const topic = this.getForumTopic(filterId, topicId);
-          if(topic) {
+          if (topic) {
             dialogs.push(topic);
           }
-        } else for(const peerId of results) {
+        } else for (const peerId of results) {
           const dialog = this.dialogs[peerId];
-          if(dialog && dialog.folder_id === filterId) {
+          if (dialog && dialog.folder_id === filterId) {
             dialogs.push(dialog);
           }
         }
@@ -1687,9 +1687,9 @@ export default class DialogsStorage extends AppManager {
     }
 
     let offset = 0;
-    if(offsetIndex! > 0) {
-      for(let length = curDialogStorage!.length; offset < length; ++offset) {
-        if(offsetIndex! > this.getDialogIndex(curDialogStorage![offset], indexKey)!) {
+    if (offsetIndex! > 0) {
+      for (let length = curDialogStorage!.length; offset < length; ++offset) {
+        if (offsetIndex! > this.getDialogIndex(curDialogStorage![offset], indexKey)!) {
           break;
         }
       }
@@ -1697,13 +1697,13 @@ export default class DialogsStorage extends AppManager {
 
     const loadedAll = this.isDialogsLoaded((realFolderId as number));
     const isEnoughDialogs = curDialogStorage!.length >= (offset + limit);
-    if((isServerSearchSupported ? false : query) || loadedAll || isEnoughDialogs || forceLocal) {
+    if ((isServerSearchSupported ? false : query) || loadedAll || isEnoughDialogs || forceLocal) {
       const dialogs = curDialogStorage!.slice(offset, offset + limit);
       return {
         dialogs,
         count: loadedAll ? curDialogStorage!.length : this.getFolder(filterId).count,
         isTopEnd: ((curDialogStorage!.length && ((dialogs[0] && dialogs[0] === curDialogStorage![0]) || this.getDialogIndex(curDialogStorage![0], indexKey)! < offsetIndex!)) as boolean),
-        isEnd: ((((isServerSearchSupported ? false : query) || loadedAll) && (offset + limit) >= curDialogStorage!.length) as boolean)
+        isEnd: ((((isServerSearchSupported ? false : query) || loadedAll) && (offset + limit) >= curDialogStorage!.length) as boolean),
       };
     }
 
@@ -1712,27 +1712,27 @@ export default class DialogsStorage extends AppManager {
       folderId: (realFolderId as number),
       query,
       offsetTopicId: isForum && query ? (curDialogStorage![curDialogStorage!.length - 1] as ForumTopic)?.id : undefined,
-      offsetBotforumTopic: isBotforum ? (curDialogStorage![curDialogStorage!.length - 1] as ForumTopic) : undefined
+      offsetBotforumTopic: isBotforum ? (curDialogStorage![curDialogStorage!.length - 1] as ForumTopic) : undefined,
     }).then((result) => {
-      if(query) {
+      if (query) {
         return this.getDialogs({
           ...options,
           forceLocal: true,
-          recursion: true
+          recursion: true,
         });
       }
 
       const folder = this.getFolder(filterId);
       folder.count = result!.count;
 
-      if(skipMigrated) {
+      if (skipMigrated) {
         curDialogStorage = this.getFolderDialogs(filterId, skipMigrated);
       }
 
       offset = 0;
-      if(offsetIndex! > 0) {
-        for(let length = curDialogStorage!.length; offset < length; ++offset) {
-          if(offsetIndex! > this.getDialogIndex(curDialogStorage![offset], indexKey)!) {
+      if (offsetIndex! > 0) {
+        for (let length = curDialogStorage!.length; offset < length; ++offset) {
+          if (offsetIndex! > this.getDialogIndex(curDialogStorage![offset], indexKey)!) {
             break;
           }
         }
@@ -1746,7 +1746,7 @@ export default class DialogsStorage extends AppManager {
         count: result!.count ?? curDialogStorage!.length,
         isTopEnd: !!(curDialogStorage!.length && ((dialogs[0] && dialogs[0] === curDialogStorage![0]) || this.getDialogIndex(curDialogStorage![0], indexKey)! < offsetIndex!)),
         // isEnd: this.isDialogsLoaded(realFolderId) && (offset + limit) >= curDialogStorage.length
-        isEnd: result!.isEnd && curDialogStorage![curDialogStorage!.length - 1] === dialogs[dialogs.length - 1]
+        isEnd: result!.isEnd && curDialogStorage![curDialogStorage!.length - 1] === dialogs[dialogs.length - 1],
       };
     });
   }
@@ -1754,8 +1754,8 @@ export default class DialogsStorage extends AppManager {
   public async markFolderAsRead(folderId: number) {
     const folder = this.getFolder(folderId);
     const peerIds = [...folder.unreadPeerIds];
-    for(const peerId of peerIds) {
-      await this.appMessagesManager.markDialogUnread({peerId, read: true});
+    for (const peerId of peerIds) {
+      await this.appMessagesManager.markDialogUnread({ peerId, read: true });
     }
   }
 
@@ -1763,13 +1763,13 @@ export default class DialogsStorage extends AppManager {
 
   public flushForumTopicsCache(peerId: PeerId) {
     const cache = this.forumTopics.get(peerId);
-    if(!cache) {
+    if (!cache) {
       return;
     }
 
     const folder = this.folders[peerId];
-    if(folder) {
-      if(folder.dispatchUnreadTimeout) {
+    if (folder) {
+      if (folder.dispatchUnreadTimeout) {
         clearTimeout(folder.dispatchUnreadTimeout);
       }
 
@@ -1788,13 +1788,13 @@ export default class DialogsStorage extends AppManager {
 
   public getForumTopicsCache(peerId: PeerId) {
     let forumTopics = this.forumTopics.get(peerId);
-    if(!forumTopics) {
+    if (!forumTopics) {
       forumTopics = {
         topics: new Map(),
         temporaryTopics: new Map(),
         deletedTopics: new Set(),
         getTopicPromises: new Map(),
-        index: this.createSearchIndex()
+        index: this.createSearchIndex(),
       };
 
       this.forumTopics.set(peerId, forumTopics);
@@ -1804,19 +1804,19 @@ export default class DialogsStorage extends AppManager {
   }
 
   public getForumTopicById(peerId: PeerId, topicId?: number): Promise<ForumTopic> {
-    if(!this.appPeersManager.isForum(peerId) && !this.appPeersManager.isBotforum(peerId)) {
+    if (!this.appPeersManager.isForum(peerId) && !this.appPeersManager.isBotforum(peerId)) {
       return Promise.reject(makeError('CHANNEL_FORUM_MISSING'));
     }
 
     const cache = this.getForumTopicsCache(peerId);
     let promise: CancellablePromise<ForumTopic>;
-    if(topicId) {
+    if (topicId) {
       promise = cache.getTopicPromises.get(topicId)!;
-      if(promise) {
+      if (promise) {
         return promise;
       }
 
-      if(cache.deletedTopics.has(topicId)) {
+      if (cache.deletedTopics.has(topicId)) {
         return Promise.resolve(undefined as unknown as ForumTopic);
       }
 
@@ -1826,7 +1826,7 @@ export default class DialogsStorage extends AppManager {
     cache.getTopicsPromise ??= pause(0).then(() => {
       const promises: {[topicId: number]: typeof promise} = {};
       const ids: number[] = [];
-      for(const [topicId, promise] of cache.getTopicPromises) {
+      for (const [topicId, promise] of cache.getTopicPromises) {
         promises[topicId] = promise;
         ids.push(getServerMessageId(topicId)!);
       }
@@ -1834,13 +1834,13 @@ export default class DialogsStorage extends AppManager {
       cache.getTopicPromises.clear();
 
       const fullfillLeft = () => {
-        for(const topicId in promises) {
+        for (const topicId in promises) {
           promises[topicId].resolve(undefined!);
           cache.deletedTopics.add(+topicId);
         }
       };
 
-      if(this.getForumTopicsCache(peerId) !== cache) {
+      if (this.getForumTopicsCache(peerId) !== cache) {
         fullfillLeft();
         return;
       }
@@ -1850,28 +1850,28 @@ export default class DialogsStorage extends AppManager {
       return Promise.all([
         this.apiManager.invokeApi('messages.getForumTopicsByID', {
           peer: this.appPeersManager.getInputPeerById(peerId),
-          topics: ids
+          topics: ids,
         }),
         topicsFolder.count === null && this.apiManager.invokeApi('messages.getForumTopics', {
           peer: this.appPeersManager.getInputPeerById(peerId),
           offset_date: 0,
           offset_id: 0,
           limit: 1,
-          offset_topic: 0
-        })
+          offset_topic: 0,
+        }),
       ]).then(([messagesForumTopics, allMessagesForumTopicsResult]) => {
-        if(this.getForumTopicsCache(peerId) !== cache) {
+        if (this.getForumTopicsCache(peerId) !== cache) {
           return;
         }
 
         this.applyDialogs(messagesForumTopics, peerId);
 
-        if(typeof (allMessagesForumTopicsResult as any)?.count === 'number') {
+        if (typeof (allMessagesForumTopicsResult as any)?.count === 'number') {
           topicsFolder.count = (allMessagesForumTopicsResult as any).count;
         }
 
         messagesForumTopics.topics.forEach((forumTopic) => {
-          if(isForumTopic(forumTopic as ForumTopic)) {
+          if (isForumTopic(forumTopic as ForumTopic)) {
             promises[forumTopic.id]?.resolve(forumTopic as ForumTopic);
             delete promises[forumTopic.id];
           }
@@ -1882,7 +1882,7 @@ export default class DialogsStorage extends AppManager {
         fullfillLeft();
 
         cache.getTopicsPromise = undefined;
-        if(cache.getTopicPromises.size) {
+        if (cache.getTopicPromises.size) {
           this.getForumTopicById(peerId);
         }
       });
@@ -1907,7 +1907,7 @@ export default class DialogsStorage extends AppManager {
 
   public getForumTopicOrReload(peerId: PeerId, topicId: number) {
     const forumTopic = this.getForumTopic(peerId, topicId);
-    if(forumTopic) {
+    if (forumTopic) {
       return forumTopic;
     }
 
@@ -1917,13 +1917,13 @@ export default class DialogsStorage extends AppManager {
 
   public processTopics<T extends MaybePromise<{topics: MTForumTopic[], pts?: number}>>(peerId: PeerId, result: T) {
     return callbackify(result, (result) => {
-      if('pts' in result && peerId.isAnyChat()) {
+      if ('pts' in result && peerId.isAnyChat()) {
         this.apiUpdatesManager.addChannelState(peerId.toChatId(), result.pts!);
       }
 
       const peer = this.appPeersManager.getOutputPeer(peerId);
       result.topics = (result.topics.map((topic) => {
-        if(!isForumTopic(topic as ForumTopic)) {
+        if (!isForumTopic(topic as ForumTopic)) {
           return;
         }
 
@@ -1944,13 +1944,13 @@ export default class DialogsStorage extends AppManager {
   }
 
   public getForumUnreadCount(peerId: PeerId, ignoreIfAsMessages?: boolean) {
-    if(!this.appPeersManager.isForum(peerId)) {
+    if (!this.appPeersManager.isForum(peerId)) {
       return;
     }
 
-    if(ignoreIfAsMessages) {
+    if (ignoreIfAsMessages) {
       const dialog = this.getDialogOnly(peerId);
-      if(dialog && dialog.pFlags.view_forum_as_messages) {
+      if (dialog && dialog.pFlags.view_forum_as_messages) {
         return;
       }
     }
@@ -1959,7 +1959,7 @@ export default class DialogsStorage extends AppManager {
 
     const f = folder.dialogs!.length >= 20 || this.isDialogsLoaded(peerId) ?
       folder.dialogs!.slice(0, 20) :
-      callbackify(this.getDialogs({filterId: peerId, limit: 20}), (result) => {
+      callbackify(this.getDialogs({ filterId: peerId, limit: 20 }), (result) => {
         return result.dialogs;
       });
 
@@ -1967,22 +1967,22 @@ export default class DialogsStorage extends AppManager {
       assumeType<ForumTopic[]>(dialogs);
       return {
         count: dialogs.reduce((acc, v) => acc + +!!v.unread_count, 0),
-        hasUnmuted: dialogs.some((dialog) => dialog.unread_count && this.isDialogUnmuted(dialog))
+        hasUnmuted: dialogs.some((dialog) => dialog.unread_count && this.isDialogUnmuted(dialog)),
       };
     });
   }
 
   public canManageTopic(forumTopic: ForumTopic) {
-    if(forumTopic.pFlags.my) {
+    if (forumTopic.pFlags.my) {
       return true;
     }
 
     const peerId = forumTopic.peerId;
 
     // Note: currently, it doesn't matter if the user can't create the topics inside the botforum. We allow the user to manage the topics anyway.
-    if(this.appPeersManager.isBotforum(peerId)) return true;
+    if (this.appPeersManager.isBotforum(peerId)) return true;
 
-    if(!peerId!.isAnyChat()) return false;
+    if (!peerId!.isAnyChat()) return false;
 
     const chatId = peerId!.toChatId();
     return ((this.appChatsManager.getChat(chatId) as Chat.channel).admin_rights ? this.appChatsManager.hasRights(forumTopic.peerId!.toChatId(), 'manage_topics') : false);
@@ -1994,7 +1994,7 @@ export default class DialogsStorage extends AppManager {
 
   public getSavedDialogById(peerId: PeerId) {
     let promise = this.savedDialogsPromises.get(peerId);
-    if(promise) {
+    if (promise) {
       return promise;
     }
 
@@ -2007,11 +2007,11 @@ export default class DialogsStorage extends AppManager {
       max_id: 0,
       min_id: 0,
       offset_date: 0,
-      offset_id: 0
+      offset_id: 0,
     }).then((messagesMessages) => {
       assumeType<Exclude<MessagesMessages, MessagesMessages.messagesMessagesNotModified>>(messagesMessages);
 
-      if(this.savedDialogsPromises.get(peerId) === promise) {
+      if (this.savedDialogsPromises.get(peerId) === promise) {
         this.savedDialogsPromises.delete(peerId);
       }
 
@@ -2019,7 +2019,7 @@ export default class DialogsStorage extends AppManager {
 
       const messages = messagesMessages.messages;
       const message = messages[0];
-      if(!message) {
+      if (!message) {
         this.log('reloaded saved dialog is empty', peerId);
         this.dropDialogOnDeletion(myId, peerId);
         return;
@@ -2030,15 +2030,15 @@ export default class DialogsStorage extends AppManager {
         _: 'savedDialog',
         peer: this.appPeersManager.getOutputPeer(peerId),
         pFlags: {
-          pinned: pinnedOrder.includes(peerId) || undefined
+          pinned: pinnedOrder.includes(peerId) || undefined,
         },
-        top_message: message.id || 0
+        top_message: message.id || 0,
       };
 
       this.log('saving reloaded saved dialog', peerId);
       this.applyDialogs({
         _: 'messages.savedDialogs',
-        dialogs: [dialog]
+        dialogs: [dialog],
       });
 
       return dialog.peerId ? dialog : undefined;
@@ -2048,8 +2048,8 @@ export default class DialogsStorage extends AppManager {
   // * SAVED SECTION END
 
   private handleDialogTogglePinned(dialog: AnyDialog, pinned: boolean, folderId: number) {
-    if(dialog) {
-      if(!pinned) {
+    if (dialog) {
+      if (!pinned) {
         this.handleDialogUnpinning(dialog, folderId);
       } else { // means set
         dialog.pFlags.pinned = true;
@@ -2078,7 +2078,7 @@ export default class DialogsStorage extends AppManager {
 
       const dialog = this.getAnyDialog(peerId!, topicOrSavedId);
       this.appMessagesManager.scheduleHandleNewDialogs(peerId, dialog);
-      if(!dialog) {
+      if (!dialog) {
         return;
       }
 
@@ -2087,12 +2087,12 @@ export default class DialogsStorage extends AppManager {
     });
 
     const dialogs = this.getFolderDialogs(folderId, false);
-    for(const dialog of dialogs!) {
-      if(!dialog.pFlags.pinned) {
+    for (const dialog of dialogs!) {
+      if (!dialog.pFlags.pinned) {
         break;
       }
 
-      if(!newPinned[getDialogKey(dialog)]) {
+      if (!newPinned[getDialogKey(dialog)]) {
         delete dialog.pFlags.pinned;
         this.generateIndexForDialog(dialog);
         this.appMessagesManager.scheduleHandleNewDialogs(dialog.peerId, dialog);
@@ -2106,18 +2106,18 @@ export default class DialogsStorage extends AppManager {
     const peers = update.folder_peers;
 
     peers.forEach((folderPeer) => {
-      const {folder_id, peer} = folderPeer;
+      const { folder_id, peer } = folderPeer;
 
       const peerId = this.appPeersManager.getPeerId(peer);
       const dialog = this.dropDialogFromFolders(peerId, undefined, true)[0] as Dialog;
-      if(dialog) {
-        if(dialog.pFlags?.pinned) {
+      if (dialog) {
+        if (dialog.pFlags?.pinned) {
           this.handleDialogUnpinning(dialog, folder_id);
         }
 
         (dialog).folder_id = folder_id as REAL_FOLDER_ID;
         this.generateIndexForDialog(dialog);
-        this.pushDialog({dialog}); // need for simultaneously updatePinnedDialogs
+        this.pushDialog({ dialog }); // need for simultaneously updatePinnedDialogs
       }
 
       this.appMessagesManager.scheduleHandleNewDialogs(peerId, dialog);
@@ -2127,7 +2127,7 @@ export default class DialogsStorage extends AppManager {
   private onUpdateDialogPinned = (update: Update.updateDialogPinned | Update.updateSavedDialogPinned) => {
     const peerId = this.appPeersManager.getPeerId((update.peer as DialogPeer.dialogPeer).peer);
     let dialog: AnyDialog, folderId: number;
-    if(update._ === 'updateDialogPinned') {
+    if (update._ === 'updateDialogPinned') {
       folderId = update.folder_id ?? FOLDER_ID_ALL;
       // this.log('updateDialogPinned', update);
       dialog = this.getDialogOnly(peerId);
@@ -2154,7 +2154,7 @@ export default class DialogsStorage extends AppManager {
     const channelId = peerId.isAnyChat() ? peerId.toChatId() : undefined;
     const topicId = this.appMessagesIdsManager.generateMessageId(update.topic_id, channelId);
     const topic = this.getForumTopic(peerId, topicId);
-    if(!topic) {
+    if (!topic) {
       return;
     }
 
@@ -2164,22 +2164,22 @@ export default class DialogsStorage extends AppManager {
   private onUpdatePinnedDialogs = (update: Update.updatePinnedDialogs | Update.updatePinnedSavedDialogs) => {
     const isSaved = update._ === 'updatePinnedSavedDialogs';
     let folderId: number;
-    if(isSaved) {
+    if (isSaved) {
       folderId = this.appPeersManager.peerId;
     } else {
       folderId = update.folder_id ?? FOLDER_ID_ALL;
     }
 
-    if(update.order) {
+    if (update.order) {
       this.handleDialogsPinned(folderId, update.order.map((peer) => this.appPeersManager.getPeerId((peer as DialogPeer.dialogPeer).peer)));
     } else {
       type S = Modify<MessagesSavedDialogs.messagesSavedDialogs, {dialogs: Array<SavedDialog>}>;
       let promise: Promise<MessagesPeerDialogs | S>;
-      if(isSaved) {
+      if (isSaved) {
         promise = this.apiManager.invokeApi('messages.getPinnedSavedDialogs') as Promise<S>;
       } else {
         promise = this.apiManager.invokeApi('messages.getPinnedDialogs', {
-          folder_id: folderId
+          folder_id: folderId,
         });
       }
 
@@ -2198,12 +2198,12 @@ export default class DialogsStorage extends AppManager {
     const peerId = this.appPeersManager.getPeerId(update.peer);
     const channelId = peerId.isAnyChat() ? peerId.toChatId() : undefined;
     const forumTopics = this.forumTopics.get(peerId);
-    if(!forumTopics) {
+    if (!forumTopics) {
       return;
     }
 
     const filterId = peerId;
-    if(update.order) {
+    if (update.order) {
       const order = update.order.map((topicId) => this.appMessagesIdsManager.generateMessageId(topicId, channelId));
       this.handleDialogsPinned(filterId, order);
     } else {
@@ -2214,7 +2214,7 @@ export default class DialogsStorage extends AppManager {
         limit,
         offset_date: 0,
         offset_id: 0,
-        offset_topic: 0
+        offset_topic: 0,
       });
 
       const result = await this.processTopics(peerId, promise);
@@ -2228,11 +2228,11 @@ export default class DialogsStorage extends AppManager {
   private onUpdateChannelViewForumAsMessages = (update: Update.updateChannelViewForumAsMessages) => {
     const peerId = update.channel_id.toPeerId(true);
     const dialog = this.getDialogOnly(peerId);
-    if(!dialog) {
+    if (!dialog) {
       return;
     }
 
-    if(update.enabled) dialog.pFlags.view_forum_as_messages = true;
+    if (update.enabled) dialog.pFlags.view_forum_as_messages = true;
     else delete dialog.pFlags.view_forum_as_messages;
     this.setDialogToState(dialog);
   };

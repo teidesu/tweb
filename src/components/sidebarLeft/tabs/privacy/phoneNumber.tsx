@@ -1,11 +1,11 @@
-import {Component, onMount} from 'solid-js';
+import { Component, onMount } from 'solid-js';
 import PrivacySection from '@components/privacySection';
-import {i18n, LangPackKey} from '@lib/langPack';
+import { i18n, LangPackKey } from '@lib/langPack';
 import anchorCopy from '@helpers/dom/anchorCopy';
 import PrivacyType from '@appManagers/utils/privacy/privacyType';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {usePromiseCollector} from '@components/solidJsTabs/promiseCollector';
-import type {AppPrivacyPhoneNumberTab} from '@components/solidJsTabs/tabs';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
+import type { AppPrivacyPhoneNumberTab } from '@components/solidJsTabs/tabs';
 
 const PrivacyPhoneNumber: Component = () => {
   const [tab] = useSuperTab<typeof AppPrivacyPhoneNumberTab>();
@@ -25,7 +25,7 @@ const PrivacyPhoneNumber: Component = () => {
       i18n('PrivacyPhoneInfo4'),
       document.createElement('br'),
       anchorCopy({
-        mePath: formatted
+        mePath: formatted,
       })
     );
 
@@ -40,7 +40,7 @@ const PrivacyPhoneNumber: Component = () => {
         s.setRadio(PrivacyType.Everybody);
         s.radioSection.container.classList.toggle('hide', type !== PrivacyType.Nobody);
       },
-      managers: tab.managers
+      managers: tab.managers,
     });
 
     const sCaption: LangPackKey = 'PrivacyPhoneInfo3';
@@ -51,7 +51,7 @@ const PrivacyPhoneNumber: Component = () => {
       captions: [sCaption, sCaption, ''],
       noExceptions: true,
       skipTypes: [PrivacyType.Nobody],
-      managers: tab.managers
+      managers: tab.managers,
     });
 
     tab.scrollable.container.insertBefore(s.radioSection.container, phoneSection.radioSection.container.nextSibling);

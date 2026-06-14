@@ -1,5 +1,5 @@
-import {createTestClient} from './harness';
-import {loadSeed} from './dualHarness';
+import { createTestClient } from './harness';
+import { loadSeed } from './dualHarness';
 
 const ENABLED = process.env.TG_API_E2E === '1';
 const seedAPath = process.env.TG_API_SEED || './tmp/seed.json';
@@ -12,29 +12,29 @@ const username = '';
 describeOrSkip(`Bug 5 e2e: botforum (@${username}) topic read on account A`, () => {
   test('readHistory on a botforum topic decrements server-side unread', async() => {
     const seed = loadSeed(seedAPath);
-    const client = await createTestClient({seed, accountNumber: 1, testDc: false});
+    const client = await createTestClient({ seed, accountNumber: 1, testDc: false });
 
     // Trace outgoing API calls
     const realInvoke = client.apiManager.invokeApi.bind(client.apiManager);
     (client.apiManager as any).invokeApi = (method: string, params: any, opts: any) => {
-      if(/read|getForumTopics|getReplies|getPeerDialogs|getHistory/.test(method)) {
+      if (/read|getForumTopics|getReplies|getPeerDialogs|getHistory/.test(method)) {
         console.log('  [→]', method, params?.peer?._ || '', params?.msg_id || params?.max_id || '');
       }
       return realInvoke(method as any, params, opts);
     };
 
     try {
-      await client.apiManager.invokeApi('users.getUsers', {id: [{_: 'inputUserSelf'}]});
+      await client.apiManager.invokeApi('users.getUsers', { id: [{ _: 'inputUserSelf' }] });
 
       const resolved: any = await client.apiManager.invokeApi('contacts.resolveUsername' as any, {
-        username: username
+        username: username,
       } as any);
       const user = resolved.users.find((u: any) => u._ === 'user');
       const userId = user.id as number;
       const peerId = userId;
-      const inputPeerUser = {_: 'inputPeerUser', user_id: userId, access_hash: user.access_hash};
+      const inputPeerUser = { _: 'inputPeerUser', user_id: userId, access_hash: user.access_hash };
 
-      console.log('[botforum]', {id: userId, bot_forum_view: !!user?.pFlags?.bot_forum_view});
+      console.log('[botforum]', { id: userId, bot_forum_view: !!user?.pFlags?.bot_forum_view });
       expect(user?.pFlags?.bot_forum_view).toBe(true);
 
       // List topics
@@ -43,7 +43,7 @@ describeOrSkip(`Bug 5 e2e: botforum (@${username}) topic read on account A`, () 
         offset_date: 0,
         offset_id: 0,
         offset_topic: 0,
-        limit: 30
+        limit: 30,
       } as any);
 
       const topics: any[] = topicsRes.topics || [];
@@ -53,12 +53,12 @@ describeOrSkip(`Bug 5 e2e: botforum (@${username}) topic read on account A`, () 
           id: t.id, title: t.title?.slice(0, 30),
           top_message: t.top_message,
           unread_count: t.unread_count,
-          unread_mentions_count: t.unread_mentions_count
+          unread_mentions_count: t.unread_mentions_count,
         })));
 
       // Find one with unread, otherwise pick the latest
       const target = topics.find((t) => t.unread_count > 0) || topics[0];
-      if(!target) {
+      if (!target) {
         throw new Error('A has no topics in botforum either');
       }
       const serverBeforeUnread = target.unread_count as number;
@@ -70,17 +70,17 @@ describeOrSkip(`Bug 5 e2e: botforum (@${username}) topic read on account A`, () 
         title: target.title?.slice(0, 50),
         unread_count: serverBeforeUnread,
         top_message: topMidServer,
-        read_inbox_max_id: target.read_inbox_max_id
+        read_inbox_max_id: target.read_inbox_max_id,
       });
 
-      if(serverBeforeUnread === 0) {
+      if (serverBeforeUnread === 0) {
         console.warn('[step 2] target topic already fully read — Bug 5 still exercises early-return path');
       }
 
       // Apply server response into local state. For messages.forumTopics
       // applyDialogs needs the forum peerId as the second arg (used by
       // processTopics → addChannelState).
-      client.managers.dialogsStorage.applyDialogs({...topicsRes, _: 'messages.forumTopics'}, peerId);
+      client.managers.dialogsStorage.applyDialogs({ ...topicsRes, _: 'messages.forumTopics' }, peerId);
 
       // Pull topic history so messages land in storage
       const history: any = await client.apiManager.invokeApi('messages.getReplies' as any, {
@@ -92,7 +92,7 @@ describeOrSkip(`Bug 5 e2e: botforum (@${username}) topic read on account A`, () 
         limit: 30,
         max_id: 0,
         min_id: 0,
-        hash: '0'
+        hash: '0',
       } as any);
       client.managers.appMessagesManager.saveMessages(history.messages || [], {});
 
@@ -111,7 +111,7 @@ describeOrSkip(`Bug 5 e2e: botforum (@${username}) topic read on account A`, () 
       await client.managers.appMessagesManager.readHistory({
         peerId: peerId,
         maxId: topMidLocal,
-        threadId: topicLocalId
+        threadId: topicLocalId,
       });
 
       await sleep(2500);
@@ -122,7 +122,7 @@ describeOrSkip(`Bug 5 e2e: botforum (@${username}) topic read on account A`, () 
         offset_date: 0,
         offset_id: 0,
         offset_topic: 0,
-        limit: 30
+        limit: 30,
       } as any);
       const sameTopicAfter = (topicsAfter.topics || []).find((t: any) => t.id === topicServerId);
 
@@ -131,7 +131,7 @@ describeOrSkip(`Bug 5 e2e: botforum (@${username}) topic read on account A`, () 
         unread_count: sameTopicAfter.unread_count,
         unread_mentions_count: sameTopicAfter.unread_mentions_count,
         top_message: sameTopicAfter.top_message,
-        read_inbox_max_id: sameTopicAfter.read_inbox_max_id
+        read_inbox_max_id: sameTopicAfter.read_inbox_max_id,
       });
 
       const localTopic = client.managers.dialogsStorage.getForumTopic(peerId, topicLocalId);
@@ -139,15 +139,15 @@ describeOrSkip(`Bug 5 e2e: botforum (@${username}) topic read on account A`, () 
       console.log('[step 5] local AFTER read:', localTopic && {
         unread_count: localTopic.unread_count,
         unread_mentions_count: localTopic.unread_mentions_count,
-        read_inbox_max_id: localTopic.read_inbox_max_id
+        read_inbox_max_id: localTopic.read_inbox_max_id,
       });
 
-      if(serverBeforeUnread > 0) {
+      if (serverBeforeUnread > 0) {
         // The actual #380-style bug: server-side topic unread should drop to 0
         expect(sameTopicAfter?.unread_count ?? 0).toBe(0);
       }
       // Local must not exceed server (would be divergence)
-      if(sameTopicAfter && localTopic) {
+      if (sameTopicAfter && localTopic) {
         expect(localTopic.unread_count).toBeLessThanOrEqual(sameTopicAfter.unread_count);
       }
     } finally {

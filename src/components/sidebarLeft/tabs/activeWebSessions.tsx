@@ -1,18 +1,18 @@
-import {Component, onMount} from 'solid-js';
-import {formatDateAccordingToTodayNew} from '@helpers/date';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { Component, onMount } from 'solid-js';
+import { formatDateAccordingToTodayNew } from '@helpers/date';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import toggleDisability from '@helpers/dom/toggleDisability';
-import {WebAuthorization} from '@layer';
-import {avatarNew} from '@components/avatarNew';
+import { WebAuthorization } from '@layer';
+import { avatarNew } from '@components/avatarNew';
 import Button from '@components/button';
 import confirmationPopup from '@components/confirmationPopup';
 import Row from '@components/row';
 import SettingSection from '@components/settingSection';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {usePromiseCollector} from '@components/solidJsTabs/promiseCollector';
-import type {AppActiveWebSessionsTab} from '@components/solidJsTabs/tabs';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
+import type { AppActiveWebSessionsTab } from '@components/solidJsTabs/tabs';
 
 const ActiveWebSessions: Component = () => {
   const [tab] = useSuperTab<typeof AppActiveWebSessionsTab>();
@@ -22,17 +22,17 @@ const ActiveWebSessions: Component = () => {
   const Session = async(auth: WebAuthorization) => {
     const peerId = auth.bot_id.toPeerId();
     const row = new Row({
-      title: await wrapPeerTitle({peerId}),
+      title: await wrapPeerTitle({ peerId }),
       subtitle: [auth.ip, auth.region].join(' - '),
       clickable: true,
-      titleRight: formatDateAccordingToTodayNew(new Date(Math.max(auth.date_active, auth.date_created) * 1000))
+      titleRight: formatDateAccordingToTodayNew(new Date(Math.max(auth.date_active, auth.date_created) * 1000)),
     });
 
     const media = row.createMedia('big');
     const avatar = avatarNew({
       middleware: tab.middlewareHelper.get(),
       size: 48,
-      peerId
+      peerId,
     });
     await avatar.readyThumbPromise;
     media.append(avatar.node);
@@ -52,18 +52,18 @@ const ActiveWebSessions: Component = () => {
   promiseCollector.collect((async() => {
     {
       const section = new SettingSection({
-        caption: 'ClearOtherWebSessionsHelp'
+        caption: 'ClearOtherWebSessionsHelp',
       });
 
-      const btnTerminate = Button('btn-primary btn-transparent danger', {icon: 'stop', text: 'TerminateAllWebSessions'});
+      const btnTerminate = Button('btn-primary btn-transparent danger', { icon: 'stop', text: 'TerminateAllWebSessions' });
 
       attachClickEvent(btnTerminate, async() => {
         await confirmationPopup({
           descriptionLangKey: 'AreYouSureWebSessions',
           button: {
             langKey: 'Disconnect',
-            isDanger: true
-          }
+            isDanger: true,
+          },
         });
 
         const toggle = toggleDisability([btnTerminate], true);
@@ -71,7 +71,7 @@ const ActiveWebSessions: Component = () => {
           toggle();
           tab.close();
         });
-      }, {listenerSetter: tab.listenerSetter});
+      }, { listenerSetter: tab.listenerSetter });
 
       section.content.append(btnTerminate);
 
@@ -81,7 +81,7 @@ const ActiveWebSessions: Component = () => {
     {
       const section = new SettingSection({
         name: 'OtherWebSessions',
-        caption: 'TerminateWebSessionInfo'
+        caption: 'TerminateWebSessionInfo',
       });
 
       const rows = await Promise.all(sessions.map(Session));
@@ -90,29 +90,29 @@ const ActiveWebSessions: Component = () => {
       let leftLength = rows.length;
       attachClickEvent(section.content, async(e) => {
         const row = findUpClassName(e.target!, 'row');
-        if(!row) {
+        if (!row) {
           return;
         }
 
         await confirmationPopup({
           descriptionLangKey: 'TerminateWebSessionText',
-          descriptionLangArgs: [await wrapPeerTitle({peerId: row.dataset.peerId!.toPeerId()})],
+          descriptionLangArgs: [await wrapPeerTitle({ peerId: row.dataset.peerId!.toPeerId() })],
           button: {
             langKey: 'Disconnect',
-            isDanger: true
-          }
+            isDanger: true,
+          },
         });
 
         const hash = row.dataset.hash;
         row.classList.add('is-disabled');
         tab.managers.appSeamlessLoginManager.resetWebAuthorization(hash!).then(() => {
-          if(!--leftLength) {
+          if (!--leftLength) {
             tab.close();
           } else {
             row.remove();
           }
         });
-      }, {listenerSetter: tab.listenerSetter});
+      }, { listenerSetter: tab.listenerSetter });
 
       tab.scrollable.append(section.container);
     }

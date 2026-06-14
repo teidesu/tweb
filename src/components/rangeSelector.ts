@@ -1,4 +1,4 @@
-import attachGrabListeners, {GrabEvent} from '@helpers/dom/attachGrabListeners';
+import attachGrabListeners, { GrabEvent } from '@helpers/dom/attachGrabListeners';
 import clamp from '@helpers/number/clamp';
 import safeAssign from '@helpers/object/safeAssign';
 import I18n from '@lib/langPack';
@@ -49,9 +49,9 @@ export default class RangeSelector {
     this.container.classList.add('progress-line');
 
     // there is no sense in using transition with transform, because it is updating every frame
-    if(this.useTransform) {
+    if (this.useTransform) {
       this.container.classList.add('use-transform');
-    } else if(this.withTransition) {
+    } else if (this.withTransition) {
       this.container.classList.add('with-transition');
     }
 
@@ -65,7 +65,7 @@ export default class RangeSelector {
     this.setMinMax(this.min, this.max);
     seek.value = '' + value;
 
-    if(value) {
+    if (value) {
       this.setProgress(value);
     }
 
@@ -135,9 +135,9 @@ export default class RangeSelector {
     percents = clamp(percents, 0, 1);
 
     // using scaleX and width even with vertical because it will be rotated
-    if(this.useTransform) {
+    if (this.useTransform) {
       this.filled.style.transform = `scaleX(${percents})`;
-    } else if(this.useProperty) {
+    } else if (this.useProperty) {
       this.container.style.setProperty('--progress', '' + percents);
     } else {
       this.filled.style.width = (percents * 100) + '%';
@@ -151,7 +151,7 @@ export default class RangeSelector {
   protected getValueByEvent(event: GrabEvent) {
     let rectMax = this.vertical ? this.rect.height : this.rect.width;
 
-    if(this.offsetAxisValue) {
+    if (this.offsetAxisValue) {
       rectMax -= this.offsetAxisValue;
     }
 
@@ -163,7 +163,7 @@ export default class RangeSelector {
       rectMax
     );
 
-    if(!this.vertical && I18n.getIsRTL()) {
+    if (!this.vertical && I18n.getIsRTL()) {
       offsetAxisValue = rectMax - offsetAxisValue;
     }
 
@@ -173,13 +173,13 @@ export default class RangeSelector {
   protected scrub(event: GrabEvent, snapValue?: (value: number) => number) {
     let value = this.min + (this.getValueByEvent(event) * (this.max - this.min));
 
-    if((value - this.min) < ((this.max - this.min) / 2)) {
+    if ((value - this.min) < ((this.max - this.min) / 2)) {
       value -= this.step / 10;
     }
 
     value = +value.toFixed(this.decimals);
     value = clamp(value, this.min, this.max);
-    if(snapValue) value = snapValue(value);
+    if (snapValue) value = snapValue(value);
 
     // this.seek.value = '' + value;
     // this.onInput();
@@ -191,7 +191,7 @@ export default class RangeSelector {
   }
 
   public removeListeners() {
-    if(this._removeListeners) {
+    if (this._removeListeners) {
       this._removeListeners();
       this._removeListeners = null;
     }

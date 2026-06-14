@@ -1,15 +1,15 @@
 import appDialogsManager from '@lib/appDialogsManager';
-import {SavedDialog} from '@appManagers/appMessagesManager';
-import {isSavedDialog} from '@appManagers/utils/dialogs/isDialog';
+import { SavedDialog } from '@appManagers/appMessagesManager';
+import { isSavedDialog } from '@appManagers/utils/dialogs/isDialog';
 import rootScope from '@lib/rootScope';
-import {AutonomousDialogListBase, BaseConstructorArgs} from '@components/autonomousDialogList/base';
+import { AutonomousDialogListBase, BaseConstructorArgs } from '@components/autonomousDialogList/base';
 
 
 export class AutonomousSavedDialogList extends AutonomousDialogListBase<SavedDialog> {
   public onAnyUpdate: () => void;
 
-  constructor({appDialogsManager}: BaseConstructorArgs) {
-    super({appDialogsManager});
+  constructor({ appDialogsManager }: BaseConstructorArgs) {
+    super({ appDialogsManager });
 
     // this.listenerSetter.add(rootScope)('dialog_flush', ({dialog}) => {
     //   if(!dialog) {
@@ -21,20 +21,20 @@ export class AutonomousSavedDialogList extends AutonomousDialogListBase<SavedDia
 
     this.listenerSetter.add(rootScope)('dialogs_multiupdate', (dialogs) => {
       let hasAnyUpdate = false;
-      for(const [peerId, {saved}] of dialogs) {
+      for (const [peerId, { saved }] of dialogs) {
         saved?.forEach((dialog) => {
           hasAnyUpdate = true;
           this.updateDialog(dialog as SavedDialog);
         });
       }
 
-      if(hasAnyUpdate) {
+      if (hasAnyUpdate) {
         this.onAnyUpdate?.();
       }
     });
 
     this.listenerSetter.add(rootScope)('dialog_drop', (dialog) => {
-      if(!isSavedDialog(dialog)) {
+      if (!isSavedDialog(dialog)) {
         return;
       }
 

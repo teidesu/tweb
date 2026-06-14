@@ -1,5 +1,5 @@
 import defineSolidElement from '@lib/solidjs/defineSolidElement';
-import {createMemo, mergeProps} from 'solid-js';
+import { createMemo, mergeProps } from 'solid-js';
 import styles from './spinner.module.scss';
 
 
@@ -16,7 +16,7 @@ const radius = size / 2;
  * Note: the spinner is positioned absolutely, needs a container
  */
 export const Spinner = (inProps: SpinnerProps) => {
-  const props = mergeProps({thickness: 1 / radius}, inProps);
+  const props = mergeProps({ thickness: 1 / radius }, inProps);
   const strokeWidth = createMemo(() => props.thickness * radius);
 
   return (
@@ -40,5 +40,5 @@ export const SpinnerElement = defineSolidElement({
   component: (props) => {
     props.element.classList.add(styles.container);
     return <Spinner />;
-  }
+  },
 });

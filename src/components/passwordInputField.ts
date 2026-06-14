@@ -1,6 +1,6 @@
 import cancelEvent from '@helpers/dom/cancelEvent';
 import Icon from '@components/icon';
-import InputField, {InputFieldOptions} from '@components/inputField';
+import InputField, { InputFieldOptions } from '@components/inputField';
 
 export class PasswordInputHelpers {
   public passwordVisible = false;
@@ -56,7 +56,7 @@ export default class PasswordInputField extends InputField {
     super({
       plainText: true,
       allowStartingSpace: true,
-      ...options
+      ...options,
     });
 
     this.helpers = new PasswordInputHelpers(this.container, this.input as HTMLInputElement);

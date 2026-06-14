@@ -1,5 +1,5 @@
-import {WebPDecoder} from '@vendor/libwebp-0.2.0';
-import {encode} from 'fast-png';
+import { WebPDecoder } from '@vendor/libwebp-0.2.0';
+import { encode } from 'fast-png';
 
 export function webp2png(data: Uint8Array) {
   const decoder = new WebPDecoder();
@@ -16,27 +16,27 @@ export function webp2png(data: Uint8Array) {
   let status;
   try {
     status = decoder.WebPDecode(data, data.length, config);
-  } catch(e) {
+  } catch (e) {
     status = e;
   }
 
-  if(status === 0) {
+  if (status === 0) {
     const rgbaData = buffer.Jb;
     const pngData = encode({
       data: rgbaData,
       width: buffer.width,
       height: buffer.height,
       channels: 4,
-      depth: 8
+      depth: 8,
     });
 
-    return {status, bytes: pngData};
+    return { status, bytes: pngData };
   }
 
-  return {status, bytes: data};
+  return { status, bytes: data };
 }
 
 export function webp2pngAsBlob(data: Uint8Array) {
-  const {status, bytes} = webp2png(data);
-  return new Blob([bytes as BlobPart], {type: status === 0 ? 'image/png' : 'image/webp'});
+  const { status, bytes } = webp2png(data);
+  return new Blob([bytes as BlobPart], { type: status === 0 ? 'image/png' : 'image/webp' });
 }

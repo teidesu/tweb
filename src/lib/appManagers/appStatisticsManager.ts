@@ -1,8 +1,8 @@
 import assumeType from '@helpers/assumeType';
 import callbackify from '@helpers/callbackify';
-import {ChatFull, Message, MessagesMessages, PublicForward, StatsBroadcastStats, StatsGraph, StatsPublicForwards} from '@layer';
-import {DcId, InvokeApiOptions} from '@types';
-import {AppManager} from '@appManagers/manager';
+import { ChatFull, Message, MessagesMessages, PublicForward, StatsBroadcastStats, StatsGraph, StatsPublicForwards } from '@layer';
+import { DcId, InvokeApiOptions } from '@types';
+import { AppManager } from '@appManagers/manager';
 import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
 
 type GetStatsParams = {
@@ -14,15 +14,15 @@ type GetStatsParams = {
 };
 
 export default class AppStatisticsManager extends AppManager {
-  private async getInvokeOptions({peerId, dcId}: GetStatsParams) {
+  private async getInvokeOptions({ peerId, dcId }: GetStatsParams) {
     const options: InvokeApiOptions = {};
-    if(peerId.isUser()) {
+    if (peerId.isUser()) {
       return options;
     }
 
     dcId ??= await callbackify(this.appProfileManager.getChatFull(peerId.toChatId()), async(chatFull) => {
       let dcId = (chatFull as ChatFull.channelFull).stats_dc;
-      if(dcId === undefined) {
+      if (dcId === undefined) {
         dcId = await this.apiManager.getBaseDcId();
       }
 
@@ -51,21 +51,21 @@ export default class AppStatisticsManager extends AppManager {
       method: 'stats.getBroadcastStats',
       params: {
         channel: this.appChatsManager.getChannelInput(params.peerId.toChatId()),
-        dark: params.dark
+        dark: params.dark,
       },
       processResult: (stats) => {
         stats.recent_posts_interactions.forEach((postInteractionCounters) => {
-          if(postInteractionCounters._ === 'postInteractionCountersMessage') {
+          if (postInteractionCounters._ === 'postInteractionCountersMessage') {
             postInteractionCounters.msg_id = this.appMessagesIdsManager.generateMessageId(postInteractionCounters.msg_id, params.peerId.toChatId());
           }
         });
 
         return {
           stats,
-          dcId: options.dcId!
+          dcId: options.dcId!,
         };
       },
-      options
+      options,
     });
   }
 
@@ -74,9 +74,9 @@ export default class AppStatisticsManager extends AppManager {
       method: 'stats.loadAsyncGraph',
       params: {
         token,
-        x
+        x,
       },
-      options: {dcId}
+      options: { dcId },
     });
   }
 
@@ -86,17 +86,17 @@ export default class AppStatisticsManager extends AppManager {
       method: 'stats.getMegagroupStats',
       params: {
         channel: this.appChatsManager.getChannelInput(params.peerId.toChatId()),
-        dark: params.dark
+        dark: params.dark,
       },
       processResult: (stats) => {
         this.appPeersManager.saveApiPeers(stats);
 
         return {
           stats,
-          dcId: options.dcId
+          dcId: options.dcId,
         };
       },
-      options
+      options,
     });
   }
 
@@ -113,10 +113,10 @@ export default class AppStatisticsManager extends AppManager {
         channel: this.appChatsManager.getChannelInput(params.peerId.toChatId()),
         msg_id: getServerMessageId(params.mid)!,
         offset: params.offset!,
-        limit: params.limit
+        limit: params.limit,
       },
       processResult: this.processPublicForwards,
-      options
+      options,
     });
   }
 
@@ -127,15 +127,15 @@ export default class AppStatisticsManager extends AppManager {
       params: {
         channel: this.appChatsManager.getChannelInput(params.peerId.toChatId()),
         dark: params.dark,
-        msg_id: getServerMessageId(params.mid!)!
+        msg_id: getServerMessageId(params.mid!)!,
       },
       processResult: (stats) => {
         return {
           stats,
-          dcId: options.dcId
+          dcId: options.dcId,
         };
       },
-      options
+      options,
     });
   }
 
@@ -146,15 +146,15 @@ export default class AppStatisticsManager extends AppManager {
       params: {
         peer: this.appPeersManager.getInputPeerById(params.peerId),
         dark: params.dark,
-        id: params.storyId!
+        id: params.storyId!,
       },
       processResult: (stats) => {
         return {
           stats,
-          dcId: options.dcId
+          dcId: options.dcId,
         };
       },
-      options
+      options,
     });
   }
 
@@ -171,10 +171,10 @@ export default class AppStatisticsManager extends AppManager {
         peer: this.appPeersManager.getInputPeerById(params.peerId),
         id: params.id,
         limit: params.limit,
-        offset: params.offset!
+        offset: params.offset!,
       },
       processResult: this.processPublicForwards,
-      options
+      options,
     });
   }
 }

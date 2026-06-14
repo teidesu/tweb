@@ -1,6 +1,6 @@
-import {InputPrivacyKey, InputPrivacyRule, PrivacyRule, PrivacyKey, GlobalPrivacySettings, AccountSetContentSettings, AccountContentSettings} from '@layer';
+import { InputPrivacyKey, InputPrivacyRule, PrivacyRule, PrivacyKey, GlobalPrivacySettings, AccountSetContentSettings, AccountContentSettings } from '@layer';
 import convertInputKeyToKey from '@helpers/string/convertInputKeyToKey';
-import {AppManager} from '@appManagers/manager';
+import { AppManager } from '@appManagers/manager';
 import App from '@config/app';
 import Schema from '@lib/mtproto/schema';
 
@@ -15,7 +15,7 @@ export class AppPrivacyManager extends AppManager {
         const key = update.key._;
         this.privacy[key] = update.rules;
         this.rootScope.dispatchEvent('privacy_update', update);
-      }
+      },
     });
 
     // * preload content settings and global privacy so the chat-open
@@ -30,9 +30,9 @@ export class AppPrivacyManager extends AppManager {
   public setPrivacy(inputKey: InputPrivacyKey['_'], rules: InputPrivacyRule[]) {
     return this.apiManager.invokeApi('account.setPrivacy', {
       key: {
-        _: inputKey
+        _: inputKey,
       },
-      rules
+      rules,
     }).then((privacyRules) => {
       this.appUsersManager.saveApiUsers(privacyRules.users);
       this.appChatsManager.saveApiChats(privacyRules.chats);
@@ -40,14 +40,14 @@ export class AppPrivacyManager extends AppManager {
       this.apiUpdatesManager.processLocalUpdate({
         _: 'updatePrivacy',
         key: {
-          _: convertInputKeyToKey(inputKey)
+          _: convertInputKeyToKey(inputKey),
         },
         rules: rules.map((inputRule) => {
           const rule: PrivacyRule = {} as any;
           Object.assign(rule, inputRule);
           rule._ = convertInputKeyToKey(rule._);
           return rule;
-        })
+        }),
       });
 
       // console.log('privacy rules', inputKey, privacyRules, privacyRules.rules);
@@ -59,14 +59,14 @@ export class AppPrivacyManager extends AppManager {
   public getPrivacy(inputKey: InputPrivacyKey['_']) {
     const privacyKey: PrivacyKey['_'] = convertInputKeyToKey(inputKey);
     const rules = this.privacy[privacyKey];
-    if(rules) {
+    if (rules) {
       return Promise.resolve(rules);
     }
 
     return this.privacy[privacyKey] = this.apiManager.invokeApi('account.getPrivacy', {
       key: {
-        _: inputKey
-      }
+        _: inputKey,
+      },
     }).then((privacyRules) => {
       this.appUsersManager.saveApiUsers(privacyRules.users);
       this.appChatsManager.saveApiChats(privacyRules.chats);
@@ -85,17 +85,17 @@ export class AppPrivacyManager extends AppManager {
     // reports cached:true and `result` is a value (not a Promise). The
     // chat-input gift-button visibility check relies on this to apply
     // during the render closure without flicker.
-    if(this.globalPrivacy && !(this.globalPrivacy instanceof Promise)) {
+    if (this.globalPrivacy && !(this.globalPrivacy instanceof Promise)) {
       return this.globalPrivacy;
     }
-    if(this.globalPrivacy) return this.globalPrivacy;
+    if (this.globalPrivacy) return this.globalPrivacy;
     return this.globalPrivacy = this.apiManager.invokeApi('account.getGlobalPrivacySettings').then((settings) => {
       return this.globalPrivacy = settings;
     });
   }
 
   public setGlobalPrivacySettings(settings: GlobalPrivacySettings) {
-    return this.apiManager.invokeApi('account.setGlobalPrivacySettings', {settings}).then((updated) => {
+    return this.apiManager.invokeApi('account.setGlobalPrivacySettings', { settings }).then((updated) => {
       this.globalPrivacy = updated;
       this.rootScope.dispatchEvent('global_privacy_update', updated);
       return updated;
@@ -107,10 +107,10 @@ export class AppPrivacyManager extends AppManager {
       key: 'accountContentSettings',
       defaultValue: {
         _: 'account.contentSettings',
-        pFlags: {}
+        pFlags: {},
       },
       getValue: () => this.apiManager.invokeApi('account.getContentSettings'),
-      overwrite
+      overwrite,
     });
   }
 
@@ -124,9 +124,9 @@ export class AppPrivacyManager extends AppManager {
     await this.appStateManager.pushToState('ageVerification', {
       date: new Date().toISOString(),
       layer: Schema.layer,
-      clientVersion: App.versionFull
+      clientVersion: App.versionFull,
     });
-    await this.setContentSettings({sensitive_enabled: true});
+    await this.setContentSettings({ sensitive_enabled: true });
   }
 
   public async getDefaultAutoDeletePeriod() {
@@ -135,13 +135,13 @@ export class AppPrivacyManager extends AppManager {
   }
 
   public async setDefaultAutoDeletePeriod(period: number) {
-    return this.apiManager.invokeApi('messages.setDefaultHistoryTTL', {period});
+    return this.apiManager.invokeApi('messages.setDefaultHistoryTTL', { period });
   }
 
   public async setAutoDeletePeriodFor(peerId: PeerId, period: number) {
     const updates = await this.apiManager.invokeApi('messages.setHistoryTTL', {
       peer: this.appPeersManager.getInputPeerById(peerId),
-      period
+      period,
     });
 
     this.apiUpdatesManager.processUpdateMessage(updates);

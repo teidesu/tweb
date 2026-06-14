@@ -1,8 +1,8 @@
-import {toastNew} from '@components/toast';
-import {LangPackKey} from '@lib/langPack';
-import {copyTextToClipboard} from '@helpers/clipboard';
+import { toastNew } from '@components/toast';
+import { LangPackKey } from '@lib/langPack';
+import { copyTextToClipboard } from '@helpers/clipboard';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 
 const T_ME = 'https://t.me/';
 export default function anchorCopy(options: Partial<{
@@ -14,12 +14,12 @@ export default function anchorCopy(options: Partial<{
   anchor.classList.add('anchor-copy');
 
   let copyWhat: string, copyText: LangPackKey = 'LinkCopied';
-  if(options.mePath) {
+  if (options.mePath) {
     const href = T_ME + options.mePath;
     copyWhat = anchor.href = anchor.innerText = href;
   }
 
-  if(options.username) {
+  if (options.username) {
     const href = T_ME + options.username;
     anchor.href = href;
     copyWhat = anchor.innerText = '@' + options.username;
@@ -29,7 +29,7 @@ export default function anchorCopy(options: Partial<{
   attachClickEvent(anchor, (e) => {
     cancelEvent(e);
     copyTextToClipboard(copyWhat ?? anchor.href);
-    toastNew({langPackKey: copyText});
+    toastNew({ langPackKey: copyText });
   });
 
   return anchor;

@@ -1,17 +1,17 @@
-import type {MyDocument} from '@appManagers/appDocsManager';
+import type { MyDocument } from '@appManagers/appDocsManager';
 import showStickersPopup from '@components/popups/stickers';
 import rootScope from '@lib/rootScope';
 import createContextMenu from '@helpers/dom/createContextMenu';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import PopupElement from '@components/popups';
 import PopupNewMedia from '@components/popups/newMedia';
-import {ButtonMenuItemOptionsVerifiable} from '@components/buttonMenu';
+import { ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
 import ChatInput from '@components/chat/input';
-import {copyTextToClipboard} from '@helpers/clipboard';
-import {getEmojiFromElement} from '@components/emoticonsDropdown/tabs/emoji';
+import { copyTextToClipboard } from '@helpers/clipboard';
+import { getEmojiFromElement } from '@components/emoticonsDropdown/tabs/emoji';
 import tsNow from '@helpers/tsNow';
-import {toastNew} from '@components/toast';
-import {DocumentAttribute, EmojiStatus, InputStickerSet} from '@layer';
+import { toastNew } from '@components/toast';
+import { DocumentAttribute, EmojiStatus, InputStickerSet } from '@layer';
 
 export default function createStickersContextMenu({
   listenTo,
@@ -25,7 +25,7 @@ export default function createStickersContextMenu({
   canViewPack,
   onOpen,
   onClose,
-  onSend
+  onSend,
 }: {
   listenTo: HTMLElement,
   chatInput?: ChatInput,
@@ -43,7 +43,7 @@ export default function createStickersContextMenu({
   let target: HTMLElement, doc: MyDocument;
   const verifyFavoriteSticker = async(toAdd: boolean) => {
     const favedStickers = await (isGif ? rootScope.managers.acknowledged.appGifsManager.getGifs() : rootScope.managers.acknowledged.appStickersManager.getFavedStickersStickers());
-    if(!favedStickers.cached) {
+    if (!favedStickers.cached) {
       return false;
     }
 
@@ -53,7 +53,7 @@ export default function createStickersContextMenu({
 
   const updateEmojiStatus = (emojiStatus: EmojiStatus) => {
     rootScope.managers.appUsersManager.updateEmojiStatus(emojiStatus).then(() => {
-      toastNew({langPackKey: 'SetAsEmojiStatusInfo'});
+      toastNew({ langPackKey: 'SetAsEmojiStatusInfo' });
     });
   };
 
@@ -61,7 +61,7 @@ export default function createStickersContextMenu({
     updateEmojiStatus({
       _: 'emojiStatus',
       document_id: doc.id,
-      until: tsNow(true) + duration
+      until: tsNow(true) + duration,
     });
   };
 
@@ -69,12 +69,12 @@ export default function createStickersContextMenu({
     icon: 'copy',
     text: 'Copy',
     onClick: () => {
-      if(doc) {
+      if (doc) {
         copyTextToClipboard(doc.stickerEmojiRaw!, target.outerHTML);
       } else {
         copyTextToClipboard(getEmojiFromElement(target)!.emoji);
       }
-    }
+    },
   }, {
     icon: 'stickers_face',
     text: 'ViewPackPreview',
@@ -83,42 +83,42 @@ export default function createStickersContextMenu({
       const inputStickerSet = attribute.stickerset as InputStickerSet.inputStickerSetID;
       showStickersPopup(inputStickerSet, true, chatInput);
     },
-    verify: () => canViewPack
+    verify: () => canViewPack,
   }, {
     icon: 'smile',
     text: 'SetAsEmojiStatus',
     onClick: () => {
       updateEmojiStatus({
         _: 'emojiStatus',
-        document_id: doc.id
+        document_id: doc.id,
       });
     },
-    verify: () => !!(rootScope.premium && doc)
+    verify: () => !!(rootScope.premium && doc),
   }, {
     icon: 'delete',
     text: 'DeleteFromRecent',
     onClick: () => rootScope.managers.appEmojiManager.deleteRecentEmoji((getEmojiFromElement(((target as unknown as AppEmoji) as unknown as HTMLElement))!)),
-    verify: () => verifyRecent?.(target) ?? false
+    verify: () => verifyRecent?.(target) ?? false,
   }] : [{
     icon: 'stickers',
     text: 'Context.ViewStickerSet',
     onClick: () => showStickersPopup(doc.stickerSetInput!, false, chatInput),
-    verify: () => !isPack && !isGif
+    verify: () => !isPack && !isGif,
   }, {
     icon: isGif ? 'gifs' : 'favourites',
     text: isGif ? 'SaveToGIFs' : 'AddToFavorites',
     onClick: () => isGif ? rootScope.managers.appGifsManager.saveGif(doc.id, false) : rootScope.managers.appStickersManager.faveSticker(doc.id, false),
-    verify: () => verifyFavoriteSticker(true)
+    verify: () => verifyFavoriteSticker(true),
   }, {
     icon: isGif ? 'crossgif' : 'crossstar',
     text: isGif ? 'Message.Context.RemoveGif' : 'DeleteFromFavorites',
     onClick: () => isGif ? rootScope.managers.appGifsManager.saveGif(doc.id, true) : rootScope.managers.appStickersManager.faveSticker(doc.id, true),
-    verify: () => verifyFavoriteSticker(false)
+    verify: () => verifyFavoriteSticker(false),
   }, {
     icon: 'delete',
     text: 'DeleteFromRecent',
     onClick: () => rootScope.managers.appStickersManager.saveRecentSticker(doc.id, true),
-    verify: () => verifyRecent?.(target) ?? false
+    verify: () => verifyRecent?.(target) ?? false,
   }, {
     icon: 'edit',
     text: 'Chat.Send.WithCaption',
@@ -126,7 +126,7 @@ export default function createStickersContextMenu({
       onSend?.();
       PopupElement.createPopup(PopupNewMedia, chatInput!.chat, [], 'media', false, doc);
     },
-    verify: () => !!(isGif && chatInput && chatInput.chat.peerId)
+    verify: () => !!(isGif && chatInput && chatInput.chat.peerId),
   }, {
     icon: 'mute',
     text: 'Chat.Send.WithoutSound',
@@ -136,33 +136,33 @@ export default function createStickersContextMenu({
         document: doc.id,
         clearDraft: false,
         silent: true,
-        target
+        target,
       });
     },
-    verify: () => !!(chatInput && chatInput.chat.peerId && chatInput.chat.peerId !== rootScope.myId)
+    verify: () => !!(chatInput && chatInput.chat.peerId && chatInput.chat.peerId !== rootScope.myId),
   }, {
     icon: 'schedule',
     text: 'Chat.Send.ScheduledMessage',
-    onClick: () => chatInput!.scheduleSending(() => chatInput!.sendMessageWithDocument({document: doc, target})),
-    verify: () => chatInput && !!chatInput.chat.peerId && !chatInput.chat.starsAmount
+    onClick: () => chatInput!.scheduleSending(() => chatInput!.sendMessageWithDocument({ document: doc, target })),
+    verify: () => chatInput && !!chatInput.chat.peerId && !chatInput.chat.starsAmount,
   }]) as ButtonMenuItemOptionsVerifiable[]);
 
-  if(canHaveEmojiTimer) buttons = [{
+  if (canHaveEmojiTimer) buttons = [{
     text: 'SetEmojiStatusUntil1Hour',
     onClick: () => updateEmojiStatusUntil(3600),
-    verify: () => canHaveEmojiTimer
+    verify: () => canHaveEmojiTimer,
   }, {
     text: 'SetEmojiStatusUntil2Hours',
     onClick: () => updateEmojiStatusUntil(3600 * 2),
-    verify: () => canHaveEmojiTimer
+    verify: () => canHaveEmojiTimer,
   }, {
     text: 'SetEmojiStatusUntil8Hours',
     onClick: () => updateEmojiStatusUntil(3600 * 8),
-    verify: () => canHaveEmojiTimer
+    verify: () => canHaveEmojiTimer,
   }, {
     text: 'SetEmojiStatusUntil2Days',
     onClick: () => updateEmojiStatusUntil(3600 * 24 * 2),
-    verify: () => canHaveEmojiTimer
+    verify: () => canHaveEmojiTimer,
   }];
 
   return createContextMenu({
@@ -170,14 +170,14 @@ export default function createStickersContextMenu({
     appendTo,
     findElement: (e) => {
       target = e.target as HTMLElement;
-      if(isEmojis) {
+      if (isEmojis) {
         const superEmoji = findUpClassName(target, 'super-emoji');
-        if(superEmoji) {
+        if (superEmoji) {
           target = superEmoji.firstElementChild as HTMLElement;
         } else {
           target = findUpClassName(target, 'emoji') || findUpClassName(target, 'custom-emoji');
         }
-      } else if(isGif) {
+      } else if (isGif) {
         target = findUpClassName(e.target!, 'gif');
       } else {
         target = findUpClassName(e.target!, 'media-sticker-wrapper');
@@ -190,6 +190,6 @@ export default function createStickersContextMenu({
       return onOpen?.();
     },
     onClose,
-    buttons
+    buttons,
   });
 }

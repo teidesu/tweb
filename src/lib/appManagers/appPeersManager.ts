@@ -5,14 +5,14 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import type {Chat, DialogPeer, InputDialogPeer, InputNotifyPeer, InputPeer, Peer, RestrictionReason, User} from '@layer';
-import type {LangPackKey} from '@lib/langPack';
+import type { Chat, DialogPeer, InputDialogPeer, InputNotifyPeer, InputPeer, Peer, RestrictionReason, User } from '@layer';
+import type { LangPackKey } from '@lib/langPack';
 import isObject from '@helpers/object/isObject';
-import {AppManager} from '@appManagers/manager';
+import { AppManager } from '@appManagers/manager';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
 import isUser from '@appManagers/utils/peers/isUser';
 import isAnyChat from '@appManagers/utils/peers/isAnyChat';
-import {NULL_PEER_ID} from '@appManagers/constants';
+import { NULL_PEER_ID } from '@appManagers/constants';
 import getPeerActiveUsernames from '@appManagers/utils/peers/getPeerActiveUsernames';
 import isPeerRestricted from '@appManagers/utils/peers/isPeerRestricted';
 import getPeerPhoto from '@appManagers/utils/peers/getPeerPhoto';
@@ -45,32 +45,32 @@ export class AppPeersManager extends AppManager {
   }
 
   public getPeerMigratedTo(peerId: PeerId) {
-    if(peerId.isUser()) {
+    if (peerId.isUser()) {
       return;
     }
 
     const chat = this.appChatsManager.getChat(peerId.toChatId()) as Chat.chat;
     const migratedTo = chat?.migrated_to;
-    if(migratedTo && chat.pFlags.deactivated) {
+    if (migratedTo && chat.pFlags.deactivated) {
       return getPeerId(migratedTo);
     }
   }
 
   public getOutputPeer(peerId: PeerId): Peer {
-    if(peerId.isUser()) {
-      return {_: 'peerUser', user_id: peerId.toUserId()};
+    if (peerId.isUser()) {
+      return { _: 'peerUser', user_id: peerId.toUserId() };
     }
 
     const chatId = peerId.toChatId();
-    if(this.appChatsManager.isChannel(chatId)) {
-      return {_: 'peerChannel', channel_id: chatId};
+    if (this.appChatsManager.isChannel(chatId)) {
+      return { _: 'peerChannel', channel_id: chatId };
     }
 
-    return {_: 'peerChat', chat_id: chatId};
+    return { _: 'peerChat', chat_id: chatId };
   }
 
   public getPeerString(peerId: PeerId) {
-    if(peerId.isUser()) {
+    if (peerId.isUser()) {
       return this.appUsersManager.getUserString(peerId.toUserId());
     }
     return this.appChatsManager.getChatString(peerId.toChatId());
@@ -98,7 +98,7 @@ export class AppPeersManager extends AppManager {
   public getDialogPeer(peerId: PeerId): DialogPeer {
     return {
       _: 'dialogPeer',
-      peer: this.getOutputPeer(peerId)
+      peer: this.getOutputPeer(peerId),
     };
   }
 
@@ -119,12 +119,12 @@ export class AppPeersManager extends AppManager {
   }
 
   public isLikeGroup(peerId: PeerId) {
-    if(this.isAnyGroup(peerId)) {
+    if (this.isAnyGroup(peerId)) {
       return true;
     }
 
     const peer = this.getPeer(peerId) as Chat.channel;
-    if(!peer) {
+    if (!peer) {
       return false;
     }
 
@@ -198,7 +198,7 @@ export class AppPeersManager extends AppManager {
    * The amount of stars necessary to be paid for every message if the target peer had enabled it
    */
   public getStarsAmount(peerId: PeerId, onlyCached?: boolean): MaybePromise<number | undefined> {
-    if(peerId.isUser()) return this.appUsersManager.getStarsAmount(peerId.toUserId(), undefined, onlyCached);
+    if (peerId.isUser()) return this.appUsersManager.getStarsAmount(peerId.toUserId(), undefined, onlyCached);
 
     return this.appChatsManager.getStarsAmount(peerId.toChatId());
   }
@@ -245,38 +245,38 @@ export class AppPeersManager extends AppManager {
   }>({
     peerId,
     ignorePeerId,
-    threadId
+    threadId,
   }: T): T['ignorePeerId'] extends true ? Exclude<InputNotifyPeer, InputNotifyPeer.inputNotifyPeer | InputNotifyPeer.inputNotifyForumTopic> : (T['threadId'] extends number ? InputNotifyPeer.inputNotifyForumTopic : InputNotifyPeer.inputNotifyPeer) {
-    if(ignorePeerId) {
-      if(peerId.isUser()) {
-        return {_: 'inputNotifyUsers'} as any;
+    if (ignorePeerId) {
+      if (peerId.isUser()) {
+        return { _: 'inputNotifyUsers' } as any;
       } else {
-        if(this.isBroadcast(peerId)) {
-          return {_: 'inputNotifyBroadcasts'} as any;
+        if (this.isBroadcast(peerId)) {
+          return { _: 'inputNotifyBroadcasts' } as any;
         } else {
-          return {_: 'inputNotifyChats'} as any;
+          return { _: 'inputNotifyChats' } as any;
         }
       }
-    } else if(threadId) {
+    } else if (threadId) {
       return {
         _: 'inputNotifyForumTopic',
         peer: this.getInputPeerById(peerId),
-        top_msg_id: getServerMessageId(threadId)
+        top_msg_id: getServerMessageId(threadId),
       } as any;
     } else {
       return {
         _: 'inputNotifyPeer',
-        peer: this.getInputPeerById(peerId)
+        peer: this.getInputPeerById(peerId),
       } as any;
     }
   }
 
   public getInputPeerById(peerId: PeerId): InputPeer {
-    if(!peerId) {
-      return {_: 'inputPeerEmpty'};
+    if (!peerId) {
+      return { _: 'inputPeerEmpty' };
     }
 
-    if(!peerId.isUser()) {
+    if (!peerId.isUser()) {
       const chatId = peerId.toChatId();
       return this.appChatsManager.getInputPeer(chatId);
     }
@@ -289,19 +289,19 @@ export class AppPeersManager extends AppManager {
    * ! use it only in safe places like requests
    */
   public getInputPeerSelf(): InputPeer.inputPeerSelf {
-    return {_: 'inputPeerSelf'};
+    return { _: 'inputPeerSelf' };
   }
 
   public getInputDialogPeerById(peerId: PeerId | InputPeer): InputDialogPeer {
     return {
       _: 'inputDialogPeer',
-      peer: isObject<InputPeer>(peerId) ? peerId : this.getInputPeerById(peerId)
+      peer: isObject<InputPeer>(peerId) ? peerId : this.getInputPeerById(peerId),
     };
   }
 
   public getPeerSearchText(peerId: PeerId) {
     let text: string;
-    if(this.isUser(peerId)) {
+    if (this.isUser(peerId)) {
       text = '%pu ' + this.appUsersManager.getUserSearchText(peerId.toUserId());
     } else {
       text = '%pg ' + this.appChatsManager.getChatSearchText(peerId.toChatId());
@@ -311,17 +311,17 @@ export class AppPeersManager extends AppManager {
   }
 
   public getDialogType(peerId: PeerId, threadId?: number): PeerType {
-    if(this.peerId === peerId && threadId) {
+    if (this.peerId === peerId && threadId) {
       return 'savedDialog';
-    } else if(this.isMonoforum(peerId)) {
+    } else if (this.isMonoforum(peerId)) {
       return threadId ? 'monoforum_thread' : 'monoforum';
-    } else if(this.isBotforum(peerId) && threadId) {
+    } else if (this.isBotforum(peerId) && threadId) {
       return 'botforum_thread';
-    } else if(this.isMegagroup(peerId)) {
+    } else if (this.isMegagroup(peerId)) {
       return 'megagroup';
-    } else if(this.isChannel(peerId)) {
+    } else if (this.isChannel(peerId)) {
       return 'channel';
-    } else if(!this.isUser(peerId)) {
+    } else if (!this.isUser(peerId)) {
       return 'group';
     } else {
       return peerId === this.peerId ? 'saved' : 'chat';
@@ -329,7 +329,7 @@ export class AppPeersManager extends AppManager {
   }
 
   public getDeleteButtonText(peerId: PeerId) {
-    switch(this.getDialogType(peerId)) {
+    switch (this.getDialogType(peerId)) {
       case 'channel':
         return this.appChatsManager.hasRights(peerId.toChatId(), 'delete_chat') ? 'ChannelDelete' : 'ChatList.Context.LeaveChannel' satisfies LangPackKey;
 
@@ -346,7 +346,7 @@ export class AppPeersManager extends AppManager {
   }
 
   public noForwards(peerId: PeerId) {
-    if(peerId.isUser()) {
+    if (peerId.isUser()) {
       const userFull = this.appProfileManager.getCachedFullUser(peerId.toUserId());
       return !!(userFull?.pFlags?.noforwards_my_enabled || userFull?.pFlags?.noforwards_peer_enabled);
     } else {
@@ -357,18 +357,18 @@ export class AppPeersManager extends AppManager {
 
   public mirrorAllPeers(port?: MessageEventSource) {
     const peers: any = {
-      ...this.appUsersManager.getUsers()
+      ...this.appUsersManager.getUsers(),
     };
 
     const chats = this.appChatsManager.getChats();
-    for(const chatId in chats) {
+    for (const chatId in chats) {
       peers[chatId.toPeerId(true)] = chats[chatId];
     }
 
     MTProtoMessagePort.getInstance<false>().invokeVoid('mirror', {
       name: 'peers',
       value: peers,
-      accountNumber: this.getAccountNumber()
+      accountNumber: this.getAccountNumber(),
     }, port);
   }
 }

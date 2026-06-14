@@ -11,12 +11,12 @@
  * AddUsers|RemoveUsers permissions.
  */
 
-import {beforeAll, describe, expect, it} from 'vitest';
-import {E2eCall} from '../call';
-import {ensureCryptoReady, sha256} from '../crypto';
-import {PrivateKey} from '../keys';
-import {decodeBlock, GroupParticipant, GroupState, PERM_ADD_USERS, PERM_REMOVE_USERS} from '../tlTypes';
-import {TLReader} from '../tl';
+import { beforeAll, describe, expect, it } from 'vitest';
+import { E2eCall } from '../call';
+import { ensureCryptoReady, sha256 } from '../crypto';
+import { PrivateKey } from '../keys';
+import { decodeBlock, GroupParticipant, GroupState, PERM_ADD_USERS, PERM_REMOVE_USERS } from '../tlTypes';
+import { TLReader } from '../tl';
 
 beforeAll(() => ensureCryptoReady());
 
@@ -39,7 +39,7 @@ const REFERENCE_HEX = (
 
 function hexToBytes(hex: string): Uint8Array {
   const out = new Uint8Array(hex.length / 2);
-  for(let i = 0; i < out.length; i++) {
+  for (let i = 0; i < out.length; i++) {
     out[i] = parseInt(hex.substr(i * 2, 2), 16);
   }
   return out;
@@ -62,7 +62,7 @@ describe('zero-block byte compat with tdlib', () => {
     expect(block.changes[1].kind).toBe('setSharedKey');
 
     // Verify the group state matches our inputs (user_id=1000, perms=3, etc.).
-    if(block.changes[0].kind === 'setGroupState') {
+    if (block.changes[0].kind === 'setGroupState') {
       const gs = block.changes[0].groupState;
       expect(gs.externalPermissions).toBe(PERM_ADD_USERS | PERM_REMOVE_USERS);
       expect(gs.participants.length).toBe(1);
@@ -73,13 +73,13 @@ describe('zero-block byte compat with tdlib', () => {
       expect(p.version).toBe(0);
       // Public key for ed25519 seed 0x01...01
       expect(Array.from(p.publicKey).map((b) => b.toString(16).padStart(2, '0')).join(''))
-      .toBe('8a88e3dd7409f195fd52db2d3cba5d72ca6709bf1d94121bf3748801b40f6f5c');
+        .toBe('8a88e3dd7409f195fd52db2d3cba5d72ca6709bf1d94121bf3748801b40f6f5c');
     }
 
     // State proof: kv_hash should be the empty-trie root hash, group_state
     // should be undefined (because there's a SetGroupState change in this block).
     expect(Array.from(block.stateProof.kvHash).map((b) => b.toString(16).padStart(2, '0')).join(''))
-    .toBe('df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119');
+      .toBe('df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119');
     expect(block.stateProof.groupState).toBeUndefined();
     expect(block.stateProof.sharedKey).toBeUndefined();
   });
@@ -91,11 +91,11 @@ describe('zero-block byte compat with tdlib', () => {
       publicKey: alice.publicKeyBytes,
       canAddUsers: true,
       canRemoveUsers: true,
-      version: 0
+      version: 0,
     };
     const groupState: GroupState = {
       participants: [self],
-      externalPermissions: PERM_ADD_USERS | PERM_REMOVE_USERS
+      externalPermissions: PERM_ADD_USERS | PERM_REMOVE_USERS,
     };
     const ourBlockBytes = await E2eCall.createZeroBlock(alice, groupState);
     const ourBlock = decodeBlock(new TLReader(ourBlockBytes));
@@ -114,7 +114,7 @@ describe('zero-block byte compat with tdlib', () => {
     const refGs = (refBlock.changes[0] as {kind: 'setGroupState'; groupState: GroupState});
     expect(ourGs.groupState.externalPermissions).toBe(refGs.groupState.externalPermissions);
     expect(ourGs.groupState.participants.length).toBe(refGs.groupState.participants.length);
-    for(let i = 0; i < ourGs.groupState.participants.length; i++) {
+    for (let i = 0; i < ourGs.groupState.participants.length; i++) {
       const op = ourGs.groupState.participants[i];
       const rp = refGs.groupState.participants[i];
       expect(op.userId).toBe(rp.userId);
@@ -136,7 +136,7 @@ describe('zero-block byte compat with tdlib', () => {
     expect(ourSk.sharedKey.destUserIds.length).toBe(refSk.sharedKey.destUserIds.length);
     expect(ourSk.sharedKey.destUserIds).toEqual(refSk.sharedKey.destUserIds);
     expect(ourSk.sharedKey.destHeaders.length).toBe(refSk.sharedKey.destHeaders.length);
-    for(let i = 0; i < ourSk.sharedKey.destHeaders.length; i++) {
+    for (let i = 0; i < ourSk.sharedKey.destHeaders.length; i++) {
       expect(ourSk.sharedKey.destHeaders[i].length).toBe(refSk.sharedKey.destHeaders[i].length);
     }
   });

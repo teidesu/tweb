@@ -1,18 +1,18 @@
-import {createSignal, onCleanup, onMount, Show} from 'solid-js';
+import { createSignal, onCleanup, onMount, Show } from 'solid-js';
 import Section from '@components/section';
 import Row from '@components/rowTsx';
 import CheckboxFieldTsx from '@components/checkboxFieldTsx';
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
 import rootScope from '@lib/rootScope';
-import {useAppSettings} from '@stores/appSettings';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {usePromiseCollector} from '@components/solidJsTabs/promiseCollector';
+import { useAppSettings } from '@stores/appSettings';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
 import showOutputDevicePopup from '@components/rtmp/outputDevicePopup';
 import applyDeviceToActiveCall from '@lib/calls/applyDeviceToActiveCall';
 import MicrophoneLevelMeter from '@components/call/microphoneLevelMeter';
 import CallCameraSection from '@components/call/cameraSection';
-import {Authorization} from '@layer';
+import { Authorization } from '@layer';
 
 import '@components/call/settingsPopup.scss';
 
@@ -50,11 +50,11 @@ export default function SpeakersAndCamera() {
   // flipping back ON would look like a flicker.
   promiseCollector.collect(
     rootScope.managers.appAccountManager.getAuthorizations()
-    .then((res) => {
-      const cur = res.authorizations.find((a) => a.pFlags?.current);
-      setCurrentAuth(cur);
-    })
-    .catch(() => {})
+      .then((res) => {
+        const cur = res.authorizations.find((a) => a.pFlags?.current);
+        setCurrentAuth(cur);
+      })
+      .catch(() => {})
   );
 
   onMount(() => {
@@ -67,7 +67,7 @@ export default function SpeakersAndCamera() {
   });
 
   const labelFor = (kind: MediaDeviceKind, id: string) => {
-    if(!id) return i18n('CallSettings.DeviceDefault');
+    if (!id) return i18n('CallSettings.DeviceDefault');
     const found = devices().find((d) => d.kind === kind && d.deviceId === id);
     return found ? wrapEmojiText(found.label || found.deviceId) : i18n('CallSettings.DeviceDefault');
   };
@@ -83,7 +83,7 @@ export default function SpeakersAndCamera() {
       },
       onStaleCurrentId: () => {
         setAppSettings('callDevices', 'speakerId', '');
-      }
+      },
     });
   };
 
@@ -98,27 +98,27 @@ export default function SpeakersAndCamera() {
       },
       onStaleCurrentId: () => {
         setAppSettings('callDevices', 'microphoneId', '');
-      }
+      },
     });
   };
 
   const onToggleAcceptCalls = (checked: boolean) => {
     const auth = currentAuth();
-    if(!auth) return;
+    if (!auth) return;
     const previous = auth.pFlags?.call_requests_disabled;
     // Optimistic local flip — re-create the pFlags object so Solid's signal
     // equality fires.
     setCurrentAuth({
       ...auth,
-      pFlags: {...auth.pFlags, call_requests_disabled: checked ? undefined : true}
+      pFlags: { ...auth.pFlags, call_requests_disabled: checked ? undefined : true },
     });
     rootScope.managers.appAccountManager.changeAuthorizationSettings(
       auth.hash,
-      {callRequestsDisabled: !checked}
+      { callRequestsDisabled: !checked }
     ).catch((err) => {
       setCurrentAuth({
         ...auth,
-        pFlags: {...auth.pFlags, call_requests_disabled: previous}
+        pFlags: { ...auth.pFlags, call_requests_disabled: previous },
       });
       console.error('changeAuthorizationSettings failed', err);
     });

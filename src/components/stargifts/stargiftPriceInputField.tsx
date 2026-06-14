@@ -1,12 +1,12 @@
-import InputField, {InputFieldOptions} from '@components/inputField';
+import InputField, { InputFieldOptions } from '@components/inputField';
 import currencyStarIcon from '@components/currencyStarIcon';
 import Icon from '@components/icon';
-import {FormatterArguments, LangPackKey} from '@lib/langPack';
-import {useAppConfig} from '@stores/appState';
-import {createEffect, on} from 'solid-js';
+import { FormatterArguments, LangPackKey } from '@lib/langPack';
+import { useAppConfig } from '@stores/appState';
+import { createEffect, on } from 'solid-js';
 import paymentsWrapCurrencyAmount from '@helpers/paymentsWrapCurrencyAmount';
-import {InputFieldTsx} from '@components/inputFieldTsx';
-import {fastRaf} from '@helpers/schedulers';
+import { InputFieldTsx } from '@components/inputFieldTsx';
+import { fastRaf } from '@helpers/schedulers';
 
 import styles from '@components/stargifts/stargiftPriceInputField.module.scss';
 
@@ -32,7 +32,7 @@ export class StarGiftPriceInputFieldClass extends InputField {
   }
 
   public setIcon(icon: 'ton' | 'stars') {
-    if(icon === 'ton') {
+    if (icon === 'ton') {
       this.icon.replaceChildren(Icon('ton'))
     } else {
       this.icon.replaceChildren(currencyStarIcon() as HTMLElement)
@@ -59,7 +59,7 @@ export function StarGiftPriceInputField(props: {
   let inputRef!: StarGiftPriceInputFieldClass
 
   createEffect(on(() => [props.ton, props.value], ([ton, valueStr]) => {
-    if(ton) {
+    if (ton) {
       const float = Number(valueStr);
       const usd = appConfig.ton_usd_rate! * float;
       inputRef.setApproxText(`≈${paymentsWrapCurrencyAmount(usd * 100, 'USD')}`);
@@ -72,10 +72,10 @@ export function StarGiftPriceInputField(props: {
   }));
 
   createEffect(on(() => props.ton, (ton, prev) => {
-    if(!inputRef) return;
+    if (!inputRef) return;
     inputRef.setIcon(ton ? 'ton' : 'stars');
 
-    if(prev !== undefined) {
+    if (prev !== undefined) {
       props.onValueChange('');
       fastRaf(() => {
         inputRef.input.focus();
@@ -92,11 +92,11 @@ export function StarGiftPriceInputField(props: {
       onRawInput={(value) => {
         let cleanValue = value.replace(/,/g, '.');
         const parts = cleanValue.split('.');
-        if(parts.length > 2) cleanValue = parts[0] + '.' + parts.slice(1).join('');
+        if (parts.length > 2) cleanValue = parts[0] + '.' + parts.slice(1).join('');
         cleanValue = cleanValue.replace(/[^0-9.]/g, '');
 
-        if(!props.ton) cleanValue = cleanValue.replace(/\./g, '');
-        if(value !== cleanValue) {
+        if (!props.ton) cleanValue = cleanValue.replace(/\./g, '');
+        if (value !== cleanValue) {
           inputRef.setValueSilently(cleanValue);
         }
         props.onValueChange(cleanValue);

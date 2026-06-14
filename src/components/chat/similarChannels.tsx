@@ -1,15 +1,15 @@
-import {createEffect, createSignal, JSX, For, untrack, Accessor, onCleanup, Ref, createMemo} from 'solid-js';
-import {i18n} from '@lib/langPack';
+import { createEffect, createSignal, JSX, For, untrack, Accessor, onCleanup, Ref, createMemo } from 'solid-js';
+import { i18n } from '@lib/langPack';
 import rootScope from '@lib/rootScope';
-import {AvatarNew} from '@components/avatarNew';
+import { AvatarNew } from '@components/avatarNew';
 import PeerTitle from '@components/peerTitle';
 import Scrollable from '@components/scrollable2';
 import formatNumber from '@helpers/number/formatNumber';
-import {Chat, MessagesChats, User} from '@layer';
+import { Chat, MessagesChats, User } from '@layer';
 import computeLockColor from '@helpers/computeLockColor';
 import classNames from '@helpers/string/classNames';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import PopupPremium from '@components/popups/premium';
 import appImManager from '@lib/appImManager';
@@ -17,11 +17,11 @@ import anchorCallback from '@helpers/dom/anchorCallback';
 import PopupElement from '@components/popups';
 import showPickUserPopup from '@components/popups/pickUser';
 import apiManagerProxy from '@lib/apiManagerProxy';
-import {ButtonIconTsx} from '@components/buttonIconTsx';
-import {IconTsx} from '@components/iconTsx';
+import { ButtonIconTsx } from '@components/buttonIconTsx';
+import { IconTsx } from '@components/iconTsx';
 import createMiddleware from '@helpers/solid/createMiddleware';
 import showTooltip from '@components/tooltip';
-import {usePeer} from '@stores/peers';
+import { usePeer } from '@stores/peers';
 
 let canvas: HTMLCanvasElement, context: CanvasRenderingContext2D;
 export function SimilarPeer(props: {
@@ -35,17 +35,17 @@ export function SimilarPeer(props: {
   defaultLimit?: number,
   premium?: boolean
 }) {
-  if(!canvas) {
+  if (!canvas) {
     canvas = document.createElement('canvas');
     canvas.width = 20;
     canvas.height = 20;
-    context = canvas.getContext('2d', {alpha: false, willReadFrequently: true})!;
+    context = canvas.getContext('2d', { alpha: false, willReadFrequently: true })!;
   }
 
   const [color, setColor] = createSignal<string>();
   const [badgeBackgroundUrl, setBadgeBackgroundUrl] = createSignal<string>();
   const onImageLoad = (image: HTMLImageElement) => {
-    if(image.naturalWidth < 100) {
+    if (image.naturalWidth < 100) {
       return;
     }
 
@@ -59,13 +59,13 @@ export function SimilarPeer(props: {
     return AvatarNew({
       peerId: props.peerId,
       size: props.avatarSize,
-      processImageOnLoad: onImageLoad
+      processImageOnLoad: onImageLoad,
     });
   });
   avatar.node.classList.add('similar-channels-channel-avatar');
   const promises: Promise<any>[] = [];
   promises.push(avatar.readyThumbPromise);
-  if(props.isLast) {
+  if (props.isLast) {
     avatar.node.classList.add('similar-channels-channel-avatar-stack-first');
   }
 
@@ -74,9 +74,9 @@ export function SimilarPeer(props: {
   });
 
   let nameElement: HTMLElement;
-  if(!props.isLast) {
+  if (!props.isLast) {
     const peerTitle = new PeerTitle();
-    promises.push(peerTitle.update({peerId: untrack(() => props.peerId)}));
+    promises.push(peerTitle.update({ peerId: untrack(() => props.peerId) }));
     nameElement = peerTitle.element;
   } else {
     nameElement = i18n('MoreSimilar')!;
@@ -90,7 +90,7 @@ export function SimilarPeer(props: {
     />
   );
 
-  if(props.promises) {
+  if (props.promises) {
     props.promises.push(...promises);
   }
 
@@ -98,7 +98,7 @@ export function SimilarPeer(props: {
   const badge = (
     <span
       class="similar-channels-channel-badge"
-      style={badgeBackgroundUrl() ? {'background-image': `url(${badgeBackgroundUrl()})`} : {'background-color': `var(--peer-avatar-${color()}-bottom)`}}
+      style={badgeBackgroundUrl() ? { 'background-image': `url(${badgeBackgroundUrl()})` } : { 'background-color': `var(--peer-avatar-${color()}-bottom)` }}
     >
       {props.isLast ? (
         <>
@@ -145,12 +145,12 @@ export default function SimilarChannels(props: {
   const [details, setDetails] = createSignal<Awaited<Awaited<ReturnType<typeof getDetails>>['results']>>();
   const [list, setList] = createSignal<JSX.Element>();
 
-  let {onAcked, onReady, onEmpty} = props;
+  let { onAcked, onReady, onEmpty } = props;
 
   const canvas = document.createElement('canvas');
   canvas.width = 20;
   canvas.height = 20;
-  const context = canvas.getContext('2d', {alpha: false, willReadFrequently: true});
+  const context = canvas.getContext('2d', { alpha: false, willReadFrequently: true });
 
   rootScope.addEventListener('premium_toggle', setPremium);
 
@@ -160,31 +160,31 @@ export default function SimilarChannels(props: {
       rootScope.managers.acknowledged.appChatsManager.getChannelRecommendations(props.chatId),
       rootScope.managers.acknowledged.apiManager.getLimit('recommendedChannels', false),
       rootScope.managers.acknowledged.apiManager.getLimit('recommendedChannels', true),
-      {cached: !(r instanceof Promise), result: Promise.resolve(r)}
+      { cached: !(r instanceof Promise), result: Promise.resolve(r) },
     ]);
 
     return {
       cached: results.every((result) => result.cached),
-      results: Promise.all(results.map((result) => result.result)) as Promise<[MessagesChats, number, number, boolean]>
+      results: Promise.all(results.map((result) => result.result)) as Promise<[MessagesChats, number, number, boolean]>,
     };
   };
 
   createEffect(async() => {
     premium();
     const middleware = createMiddleware().get();
-    const {cached, results} = await getDetails();
+    const { cached, results } = await getDetails();
     onAcked?.(cached);
     onAcked = undefined;
-    if(!middleware()) {
+    if (!middleware()) {
       return;
     }
 
     const details = await results;
-    if(!middleware()) {
+    if (!middleware()) {
       return;
     }
 
-    if(!details[0].chats.length) {
+    if (!details[0].chats.length) {
       props.onEmpty?.();
       return;
     }
@@ -194,7 +194,7 @@ export default function SimilarChannels(props: {
 
   createEffect(async() => {
     const d = details();
-    if(!d) {
+    if (!d) {
       return;
     }
 
@@ -230,18 +230,18 @@ export default function SimilarChannels(props: {
 
     const detach = attachClickEvent(ref!, (e) => {
       const target = findUpClassName(e.target!, 'similar-channels-channel');
-      if(!target) {
+      if (!target) {
         return;
       }
 
       cancelEvent(e);
       const chat = rendered.get(target);
-      if(chat) {
-        appImManager.setInnerPeer({peerId: chat.id.toPeerId(true)});
+      if (chat) {
+        appImManager.setInnerPeer({ peerId: chat.id.toPeerId(true) });
         return;
       }
 
-      if(premium()) {
+      if (premium()) {
         showPickUserPopup({
           onSelect: ([first]) => {
             appImManager.setInnerPeer(first);
@@ -250,11 +250,11 @@ export default function SimilarChannels(props: {
           getMoreCustom: async() => {
             return {
               result: messagesChats.chats.map((chat) => chat.id.toPeerId(true)),
-              isEnd: true
+              isEnd: true,
             };
           },
           titleLangKey: 'SimilarChannels',
-          noSearch: true
+          noSearch: true,
         });
         return;
       }
@@ -265,7 +265,7 @@ export default function SimilarChannels(props: {
       });
       anchor.classList.add('primary');
 
-      const {close} = showTooltip({
+      const { close } = showTooltip({
         element: target.querySelector('.similar-channels-channel-avatar-stack, .similar-channels-channel-avatar')!,
         container: target.parentElement!,
         vertical: 'top',
@@ -273,16 +273,16 @@ export default function SimilarChannels(props: {
           'SimilarChannels.Unlock',
           [
             anchor,
-            premiumLimit
+            premiumLimit,
           ]
         ),
-        icon: 'star'
+        icon: 'star',
       });
     });
     onCleanup(detach);
 
     await Promise.all(promises);
-    if(!middleware()) {
+    if (!middleware()) {
       return;
     }
 

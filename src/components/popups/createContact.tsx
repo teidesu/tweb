@@ -1,12 +1,12 @@
-import PopupElement, {createPopup, PopupContext} from '@components/popups/indexTsx';
-import {createSignal, onCleanup, onMount, untrack, useContext} from 'solid-js';
+import PopupElement, { createPopup, PopupContext } from '@components/popups/indexTsx';
+import { createSignal, onCleanup, onMount, untrack, useContext } from 'solid-js';
 import InputField from '@components/inputField';
 import TelInputField from '@components/telInputField';
 import EditPeer from '@components/editPeer';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
-import {formatPhoneNumber} from '@helpers/formatPhoneNumber';
-import {toastNew} from '@components/toast';
-import {i18n} from '@lib/langPack';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
+import { formatPhoneNumber } from '@helpers/formatPhoneNumber';
+import { toastNew } from '@components/toast';
+import { i18n } from '@lib/langPack';
 import ListenerSetter from '@helpers/listenerSetter';
 
 export default function showCreateContactPopup(): void {
@@ -20,17 +20,17 @@ export default function showCreateContactPopup(): void {
       label: 'FirstName',
       name: 'create-contact-name',
       maxLength: 70,
-      required: true
+      required: true,
     });
     nameInputField.container.classList.add('input-field-name');
 
     const lastNameInputField = new InputField({
       label: 'LastName',
       name: 'create-contact-lastname',
-      maxLength: 70
+      maxLength: 70,
     });
 
-    const telInputField = new TelInputField({required: true});
+    const telInputField = new TelInputField({ required: true });
     telInputField.validate = () => {
       return !!telInputField.value.match(/\d/);
     };
@@ -44,7 +44,7 @@ export default function showCreateContactPopup(): void {
 
     const onInput = () => {
       const name = nameInputField.value + ' ' + lastNameInputField.value;
-      editPeer.avatarElem.render({peerTitle: name});
+      editPeer.avatarElem.render({ peerTitle: name });
     };
 
     listenerSetter.add(nameInputField.input)('input', onInput);
@@ -56,8 +56,8 @@ export default function showCreateContactPopup(): void {
       promise.then(() => {
         context!.hide();
       }, (err: ApiError) => {
-        if(err.type === 'NO_USER') {
-          toastNew({langPackKey: 'Contacts.PhoneNumber.NotRegistred'});
+        if (err.type === 'NO_USER') {
+          toastNew({ langPackKey: 'Contacts.PhoneNumber.NotRegistred' });
           editPeer.disabled = false;
         }
       });
@@ -76,17 +76,17 @@ export default function showCreateContactPopup(): void {
         doNotEditAvatar: true,
         nextBtn: confirmBtn,
         avatarSize: 100,
-        middleware
+        middleware,
       });
       setAvatarNode(editPeer.avatarElem.node);
 
-      attachClickEvent(confirmBtn, onConfirm, {listenerSetter});
+      attachClickEvent(confirmBtn, onConfirm, { listenerSetter });
       context!.setBtnConfirmOnEnter(confirmBtn);
 
       managers.appUsersManager.getSelf().then((user) => {
-        if(!middleware()) return;
+        if (!middleware()) return;
         const formatted = formatPhoneNumber(user.phone!);
-        if(formatted.code) {
+        if (formatted.code) {
           telInputField.value = '+' + formatted.code.country_code;
         }
       });

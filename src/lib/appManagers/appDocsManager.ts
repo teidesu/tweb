@@ -5,27 +5,27 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import type {ThumbCache} from '@lib/storages/thumbs';
-import {Document, DocumentAttribute, PhotoSize, WallPaper} from '@layer';
-import {ReferenceContext} from '@lib/storages/references';
-import {getFullDate} from '@helpers/date/getFullDate';
+import type { ThumbCache } from '@lib/storages/thumbs';
+import { Document, DocumentAttribute, PhotoSize, WallPaper } from '@layer';
+import { ReferenceContext } from '@lib/storages/references';
+import { getFullDate } from '@helpers/date/getFullDate';
 import isObject from '@helpers/object/isObject';
 import safeReplaceArrayInObject from '@helpers/object/safeReplaceArrayInObject';
-import {AppManager} from '@appManagers/manager';
+import { AppManager } from '@appManagers/manager';
 import wrapPlainText from '@lib/richTextProcessor/wrapPlainText';
 import assumeType from '@helpers/assumeType';
-import {getEnvironment} from '@environment/utils';
+import { getEnvironment } from '@environment/utils';
 import MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
 import getDocumentInputFileLocation from '@appManagers/utils/docs/getDocumentInputFileLocation';
 import getDocumentURL from '@appManagers/utils/docs/getDocumentURL';
 import makeError from '@helpers/makeError';
-import {EXTENSION_MIME_TYPE_MAP} from '@environment/mimeTypeMap';
-import {THUMB_TYPE_FULL} from '@appManagers/constants';
+import { EXTENSION_MIME_TYPE_MAP } from '@environment/mimeTypeMap';
+import { THUMB_TYPE_FULL } from '@appManagers/constants';
 import tsNow from '@helpers/tsNow';
 import appManagersManager from '@appManagers/appManagersManager';
 import tryPatchMp4 from '@helpers/fixChromiumMp4';
 import StickerType from '@config/stickerType';
-import {isTruthy} from '../../helpers/isTruthy';
+import { isTruthy } from '../../helpers/isTruthy';
 
 export type MyDocument = Document.document;
 
@@ -63,17 +63,17 @@ export class AppDocsManager extends AppManager {
     this.altDocsByMainMediaDocument = {};
 
     MTProtoMessagePort.getInstance<false>().addEventListener('serviceWorkerOnline', (online) => {
-      if(!online) {
+      if (!online) {
         this.onServiceWorkerFail();
       }
     });
   }
 
   private onServiceWorkerFail = () => {
-    for(const id in this.docs) {
+    for (const id in this.docs) {
       const doc = this.docs[id];
 
-      if(doc.supportsStreaming) {
+      if (doc.supportsStreaming) {
         delete doc.supportsStreaming;
         this.thumbsStorage.deleteCacheContext(doc);
       }
@@ -81,7 +81,7 @@ export class AppDocsManager extends AppManager {
   };
 
   public saveDoc(doc: Document, context?: ReferenceContext, altDocuments?: Document[]): MyDocument | undefined {
-    if(!doc || doc._ === 'documentEmpty') {
+    if (!doc || doc._ === 'documentEmpty') {
       return;
     }
 
@@ -98,7 +98,7 @@ export class AppDocsManager extends AppManager {
     //   }
     // }
 
-    if(altDocuments) {
+    if (altDocuments) {
       const saved = altDocuments.map((altDoc) => this.saveDoc(altDoc, context)).filter(isTruthy);
       this.altDocsByMainMediaDocument[doc.id] = saved;
       altDocuments.splice(0, altDocuments.length, ...saved);
@@ -106,7 +106,7 @@ export class AppDocsManager extends AppManager {
 
     const oldDoc = this.docs[doc.id];
 
-    if(doc.file_reference) { // * because we can have a new object w/o the file_reference while sending
+    if (doc.file_reference) { // * because we can have a new object w/o the file_reference while sending
       safeReplaceArrayInObject('file_reference', oldDoc, doc);
       this.referencesStorage.saveContext(doc.file_reference, context!);
     }
@@ -131,7 +131,7 @@ export class AppDocsManager extends AppManager {
     //   //return context ? Object.assign(d, context) : d;
     // }
 
-    if(!oldDoc) {
+    if (!oldDoc) {
       this.docs[doc.id] = doc;
     }
 
@@ -141,16 +141,16 @@ export class AppDocsManager extends AppManager {
     // 'audioPerformer', 'sticker', 'stickerEmoji', 'stickerEmojiRaw',
     // 'stickerSetInput', 'stickerThumbConverted', 'animated', 'supportsStreaming']);
 
-    for(let i = 0, length = doc.attributes.length; i < length; ++i) {
+    for (let i = 0, length = doc.attributes.length; i < length; ++i) {
       const attribute = doc.attributes[i];
-      switch(attribute._) {
+      switch (attribute._) {
         case 'documentAttributeFilename': {
           doc.file_name = wrapPlainText(attribute.file_name);
           break;
         }
 
         case 'documentAttributeAudio': {
-          if(doc.type === 'round') {
+          if (doc.type === 'round') {
             break;
           }
 
@@ -164,7 +164,7 @@ export class AppDocsManager extends AppManager {
           doc.w = attribute.w;
           doc.h = attribute.h;
           // apiDoc.supportsStreaming = attribute.pFlags?.supports_streaming/*  && apiDoc.size > 524288 */;
-          if(/* apiDoc.thumbs &&  */attribute.pFlags.round_message) {
+          if (/* apiDoc.thumbs &&  */attribute.pFlags.round_message) {
             doc.type = 'round';
           } else /* if(apiDoc.thumbs) */ {
             doc.type = 'video';
@@ -174,23 +174,23 @@ export class AppDocsManager extends AppManager {
 
         case 'documentAttributeCustomEmoji':
         case 'documentAttributeSticker': {
-          if(attribute.alt !== undefined) {
+          if (attribute.alt !== undefined) {
             doc.stickerEmojiRaw = attribute.alt;
           }
 
-          if(attribute.stickerset) {
-            if(attribute.stickerset._ === 'inputStickerSetEmpty') {
+          if (attribute.stickerset) {
+            if (attribute.stickerset._ === 'inputStickerSetEmpty') {
               delete (attribute as any).stickerset;
-            } else if(attribute.stickerset._ === 'inputStickerSetID') {
+            } else if (attribute.stickerset._ === 'inputStickerSetID') {
               doc.stickerSetInput = attribute.stickerset;
             }
           }
 
           // * there can be no thumbs, then it is a document
-          if(/* apiDoc.thumbs &&  */doc.mime_type === EXTENSION_MIME_TYPE_MAP.webp && (doc.thumbs || getEnvironment().IS_WEBP_SUPPORTED)) {
+          if (/* apiDoc.thumbs &&  */doc.mime_type === EXTENSION_MIME_TYPE_MAP.webp && (doc.thumbs || getEnvironment().IS_WEBP_SUPPORTED)) {
             doc.type = 'sticker';
             doc.sticker = StickerType.Static;
-          } else if(doc.mime_type === EXTENSION_MIME_TYPE_MAP.webm) {
+          } else if (doc.mime_type === EXTENSION_MIME_TYPE_MAP.webm) {
             // if(!getEnvironment().IS_WEBM_SUPPORTED) {
             //   break;
             // }
@@ -210,7 +210,7 @@ export class AppDocsManager extends AppManager {
         }
 
         case 'documentAttributeAnimated': {
-          if((doc.mime_type === EXTENSION_MIME_TYPE_MAP.gif || doc.mime_type === EXTENSION_MIME_TYPE_MAP.mp4)/*  && apiDoc.thumbs */) {
+          if ((doc.mime_type === EXTENSION_MIME_TYPE_MAP.gif || doc.mime_type === EXTENSION_MIME_TYPE_MAP.mp4)/*  && apiDoc.thumbs */) {
             doc.type = 'gif';
           }
 
@@ -220,13 +220,13 @@ export class AppDocsManager extends AppManager {
       }
     }
 
-    if(!doc.mime_type) {
+    if (!doc.mime_type) {
       const ext = (doc.file_name || '').split('.').pop();
       const mappedMimeType = ext && EXTENSION_MIME_TYPE_MAP[ext.toLowerCase() as any as MTFileExtension];
-      if(mappedMimeType) {
+      if (mappedMimeType) {
         doc.mime_type = mappedMimeType;
       } else {
-        switch(doc.type) {
+        switch (doc.type) {
           case 'gif':
           case 'video':
           case 'round':
@@ -246,25 +246,25 @@ export class AppDocsManager extends AppManager {
             break;
         }
       }
-    } else if(doc.mime_type === EXTENSION_MIME_TYPE_MAP.pdf) {
+    } else if (doc.mime_type === EXTENSION_MIME_TYPE_MAP.pdf) {
       doc.type = 'pdf';
-    } else if(doc.mime_type === EXTENSION_MIME_TYPE_MAP.gif) {
+    } else if (doc.mime_type === EXTENSION_MIME_TYPE_MAP.gif) {
       doc.type = 'gif';
-    } else if(doc.mime_type === EXTENSION_MIME_TYPE_MAP.tgs && doc.file_name === 'AnimatedSticker.tgs') {
+    } else if (doc.mime_type === EXTENSION_MIME_TYPE_MAP.tgs && doc.file_name === 'AnimatedSticker.tgs') {
       doc.type = 'sticker';
       doc.animated = true;
       doc.sticker = StickerType.Lottie;
     }
 
-    if(doc.type === 'voice' || doc.type === 'round') {
+    if (doc.type === 'voice' || doc.type === 'round') {
       // browser will identify extension
       const attribute = doc.attributes.find((attribute) => attribute._ === 'documentAttributeFilename') as DocumentAttribute.documentAttributeFilename;
       const ext = attribute && attribute.file_name.split('.').pop();
-      const date = getFullDate(new Date(doc.date * 1000), {monthAsNumber: true, leadingZero: true}).replace(/[:\.]/g, '-').replace(', ', '_');
+      const date = getFullDate(new Date(doc.date * 1000), { monthAsNumber: true, leadingZero: true }).replace(/[:\.]/g, '-').replace(', ', '_');
       doc.file_name = `${doc.type}_${date}${ext ? '.' + ext : ''}`;
     }
 
-    if(
+    if (
       appManagersManager.isServiceWorkerOnline &&
       (
         (doc.type === 'gif' && doc.size! > 8e6) ||
@@ -281,7 +281,7 @@ export class AppDocsManager extends AppManager {
        * Need to override when supportsHlsStreaming=true as for some reason the message.media
        * comes first without alt_documents, and later comes with them
        */
-      if(!cacheContext.url/*  || supportsHlsStreaming */) {
+      if (!cacheContext.url/*  || supportsHlsStreaming */) {
         this.thumbsStorage.setCacheContextURL(doc, undefined, getDocumentURL(doc/* , {supportsHlsStreaming} */), 0);
       }
     } else {
@@ -298,7 +298,7 @@ export class AppDocsManager extends AppManager {
       doc.url = this.getFileURL(doc);
     } */
 
-    if(oldDoc) {
+    if (oldDoc) {
       return Object.assign(oldDoc, doc);
     }
 
@@ -313,18 +313,18 @@ export class AppDocsManager extends AppManager {
     return this.apiFileManager.downloadMedia({
       media: doc,
       queueId,
-      onlyCache
+      onlyCache,
     });
   }
 
   public saveWebPConvertedStrippedThumb(docId: DocId, bytes: Uint8Array) {
     const doc = this.getDoc(docId);
-    if(!doc) {
+    if (!doc) {
       return;
     }
 
     const thumb = doc.thumbs && doc.thumbs.find((thumb) => thumb._ === 'photoStrippedSize') as PhotoSize.photoStrippedSize;
-    if(!thumb) {
+    if (!thumb) {
       return;
     }
 
@@ -341,7 +341,7 @@ export class AppDocsManager extends AppManager {
       w: 0,
       location: {} as any,
       size: file.size,
-      type: THUMB_TYPE_FULL
+      type: THUMB_TYPE_FULL,
     } as PhotoSize.photoSize;
     let document: MyDocument = {
       _: 'document',
@@ -355,7 +355,7 @@ export class AppDocsManager extends AppManager {
       date: tsNow(true),
       pFlags: {},
       thumbs: [thumb],
-      file_name: file.name
+      file_name: file.name,
     };
 
     document = (this.saveDoc(document) as Document.document);
@@ -368,30 +368,30 @@ export class AppDocsManager extends AppManager {
       document: document,
       id,
       slug: id,
-      pFlags: {}
+      pFlags: {},
     };
 
     this.uploadingWallPapers[id] = {
       cacheContext,
-      file
+      file,
     };
 
     return wallpaper;
   }
 
   public uploadWallPaper(id: WallPaperId) {
-    const {cacheContext, file} = this.uploadingWallPapers[id];
+    const { cacheContext, file } = this.uploadingWallPapers[id];
     delete this.uploadingWallPapers[id];
 
-    const upload = this.apiFileManager.upload({file, fileName: file.name});
+    const upload = this.apiFileManager.upload({ file, fileName: file.name });
     return upload.then((inputFile) => {
       return this.apiManager.invokeApi('account.uploadWallPaper', {
         file: inputFile,
         mime_type: file.type,
         settings: {
           _: 'wallPaperSettings',
-          pFlags: {}
-        }
+          pFlags: {},
+        },
       }).then((wallPaper) => {
         assumeType<WallPaper.wallPaper>(wallPaper);
         wallPaper.document = (this.saveDoc(wallPaper.document) as Document);
@@ -404,14 +404,14 @@ export class AppDocsManager extends AppManager {
 
   public requestDocPart(docId: DocId, dcId: number, offset: number, limit: number) {
     const doc = this.getDoc(docId);
-    if(!doc) {
+    if (!doc) {
       return Promise.reject(makeError('NO_DOC'));
     }
 
     const set = this.requestingDocParts[docId] ??= new Set();
 
     const onFinish = () => {
-      if(
+      if (
         set.delete(cancel) &&
         !set.size &&
         this.requestingDocParts[docId] === set
@@ -434,10 +434,10 @@ export class AppDocsManager extends AppManager {
       offset,
       limit,
       checkCancel: () => {
-        if(canceled) {
+        if (canceled) {
           throw makeError('DOWNLOAD_CANCELED');
         }
-      }
+      },
     });
 
     promise.finally(onFinish);
@@ -447,23 +447,23 @@ export class AppDocsManager extends AppManager {
 
   public cancelDocPartsRequests(docId: DocId) {
     const set = this.requestingDocParts[docId];
-    if(!set) {
+    if (!set) {
       return;
     }
 
-    for(const cancel of set) {
+    for (const cancel of set) {
       cancel();
     }
   }
 
   public fixChromiumMp4(src: string) {
     return this.fixingChromiumMp4[src] ??= fetch(src)
-    .then((response) => response.arrayBuffer())
-    .then((ab) => {
-      const u8 = new Uint8Array(ab);
-      tryPatchMp4(u8);
-      return this.fixingChromiumMp4[src] = URL.createObjectURL(new Blob([u8]));
-    });
+      .then((response) => response.arrayBuffer())
+      .then((ab) => {
+        const u8 = new Uint8Array(ab);
+        tryPatchMp4(u8);
+        return this.fixingChromiumMp4[src] = URL.createObjectURL(new Blob([u8]));
+      });
   }
 
   public getAltDocsByDocument(docId: DocId) {

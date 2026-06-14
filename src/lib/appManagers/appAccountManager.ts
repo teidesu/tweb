@@ -1,9 +1,9 @@
 import App from '@config/app';
-import {bigIntFromBytes} from '@helpers/bigInt/bigIntConversion';
-import {EmailVerification, EmailVerifyPurpose, InputCheckPasswordSRP, InputPasskeyCredential} from '@layer';
-import {DcId, TrueDcId} from '@types';
+import { bigIntFromBytes } from '@helpers/bigInt/bigIntConversion';
+import { EmailVerification, EmailVerifyPurpose, InputCheckPasswordSRP, InputPasskeyCredential } from '@layer';
+import { DcId, TrueDcId } from '@types';
 import AccountController from '@lib/accounts/accountController';
-import {AppManager} from '@appManagers/manager';
+import { AppManager } from '@appManagers/manager';
 
 export default class AppAccountManager extends AppManager {
   public initPasskeyRegistration() {
@@ -11,7 +11,7 @@ export default class AppAccountManager extends AppManager {
   }
 
   public registerPasskey(credential: InputPasskeyCredential) {
-    return this.apiManager.invokeApi('account.registerPasskey', {credential});
+    return this.apiManager.invokeApi('account.registerPasskey', { credential });
   }
 
   public getPasskeys() {
@@ -19,13 +19,13 @@ export default class AppAccountManager extends AppManager {
   }
 
   public deletePasskey(id: string) {
-    return this.apiManager.invokeApiSingle('account.deletePasskey', {id});
+    return this.apiManager.invokeApiSingle('account.deletePasskey', { id });
   }
 
   public initPasskeyLogin() {
     return this.apiManager.invokeApi('auth.initPasskeyLogin', {
       api_hash: App.hash,
-      api_id: App.id
+      api_id: App.id,
     });
   }
 
@@ -35,10 +35,10 @@ export default class AppAccountManager extends AppManager {
       credential,
       ...(fromDcId ? {
         from_dc_id: fromDcId,
-        from_auth_key_id: bigIntFromBytes(fromAuthKey!.id.reverse()).toString()
-      } : {})
-    }, {ignoreErrors: true}).then((authorization) => {
-      if(authorization._ === 'auth.authorization') {
+        from_auth_key_id: bigIntFromBytes(fromAuthKey!.id.reverse()).toString(),
+      } : {}),
+    }, { ignoreErrors: true }).then((authorization) => {
+      if (authorization._ === 'auth.authorization') {
         this.apiManager.setUser(authorization.user);
       }
 
@@ -47,11 +47,11 @@ export default class AppAccountManager extends AppManager {
   }
 
   public sendVerifyEmailCode(purpose: EmailVerifyPurpose, email: string) {
-    return this.apiManager.invokeApi('account.sendVerifyEmailCode', {purpose, email});
+    return this.apiManager.invokeApi('account.sendVerifyEmailCode', { purpose, email });
   }
 
   public verifyEmail(purpose: EmailVerifyPurpose, verification: EmailVerification) {
-    return this.apiManager.invokeApi('account.verifyEmail', {purpose, verification});
+    return this.apiManager.invokeApi('account.verifyEmail', { purpose, verification });
   }
 
   public getAuthorizations() {
@@ -59,7 +59,7 @@ export default class AppAccountManager extends AppManager {
   }
 
   public resetAuthorization(hash: string) {
-    return this.apiManager.invokeApi('account.resetAuthorization', {hash});
+    return this.apiManager.invokeApi('account.resetAuthorization', { hash });
   }
 
   // Wraps account.changeAuthorizationSettings. Used by the Speakers-and-Camera
@@ -75,11 +75,11 @@ export default class AppAccountManager extends AppManager {
       hash,
       call_requests_disabled: options.callRequestsDisabled,
       encrypted_requests_disabled: options.encryptedRequestsDisabled,
-      confirmed: options.confirmed
+      confirmed: options.confirmed,
     });
   }
 
   public deleteAccount(reason: string) {
-    return this.apiManager.invokeApi('account.deleteAccount', {reason});
+    return this.apiManager.invokeApi('account.deleteAccount', { reason });
   }
 }

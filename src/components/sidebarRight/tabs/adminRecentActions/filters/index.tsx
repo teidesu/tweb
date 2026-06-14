@@ -1,11 +1,11 @@
-import {batch, createComputed, Show} from 'solid-js';
-import {Transition} from 'solid-transition-group';
-import {IS_MOBILE} from '@environment/userAgent';
+import { batch, createComputed, Show } from 'solid-js';
+import { Transition } from 'solid-transition-group';
+import { IS_MOBILE } from '@environment/userAgent';
 import track from '@helpers/solid/track';
-import {FlagFilters} from '@components/sidebarRight/tabs/adminRecentActions/filters/flagFilters';
+import { FlagFilters } from '@components/sidebarRight/tabs/adminRecentActions/filters/flagFilters';
 import styles from '@components/sidebarRight/tabs/adminRecentActions/filters/styles.module.scss';
-import {CommittedFilters} from '@components/sidebarRight/tabs/adminRecentActions/filters/types';
-import {useFlagFilters} from '@components/sidebarRight/tabs/adminRecentActions/filters/useFlagFilters';
+import { CommittedFilters } from '@components/sidebarRight/tabs/adminRecentActions/filters/types';
+import { useFlagFilters } from '@components/sidebarRight/tabs/adminRecentActions/filters/useFlagFilters';
 
 
 type FiltersProps = {
@@ -21,7 +21,7 @@ type FiltersProps = {
 const focusDelay = 100;
 
 export const Filters = (props: FiltersProps) => {
-  const filtersControls = useFlagFilters({channelId: () => props.channelId, isBroadcast: () => props.isBroadcast});
+  const filtersControls = useFlagFilters({ channelId: () => props.channelId, isBroadcast: () => props.isBroadcast });
 
   createComputed(() => {
     track(() => props.open);
@@ -41,7 +41,7 @@ export const Filters = (props: FiltersProps) => {
   });
 
   const onInputRef = (el: HTMLInputElement) => {
-    if(IS_MOBILE) return;
+    if (IS_MOBILE) return;
     setTimeout(() => el.focus(), focusDelay)
   };
 
@@ -82,4 +82,4 @@ export const Filters = (props: FiltersProps) => {
   );
 };
 
-export type {CommittedFilters};
+export type { CommittedFilters };

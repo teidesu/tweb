@@ -1,6 +1,6 @@
-import {MediaEditorProps, openMediaEditor} from '@components/mediaEditor/mediaEditor';
-import {NumberPair} from '@components/mediaEditor/types';
-import {snapToViewport} from '@components/mediaEditor/utils';
+import { MediaEditorProps, openMediaEditor } from '@components/mediaEditor/mediaEditor';
+import { NumberPair } from '@components/mediaEditor/types';
+import { snapToViewport } from '@components/mediaEditor/utils';
 import SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
 
 
@@ -30,7 +30,7 @@ export function openMediaEditorFromMedia({
   const spawnedAnimatedImage = spawnAnimatedImage({
     animatedCanvasSize: size,
     rect,
-    source
+    source,
   });
 
   openMediaEditor({
@@ -42,7 +42,7 @@ export function openMediaEditorFromMedia({
     },
     onImageRendered: async() => {
       await removeWithFade(spawnedAnimatedImage.imageCanvas);
-    }
+    },
   }, SolidJSHotReloadGuardProvider);
 }
 
@@ -61,16 +61,16 @@ export function openMediaEditorFromMediaNoAnimation({
       spawnedImageCanvas = spawnImageCanvas({
         rect: snapToRect(size, canvasBcr),
         source,
-        animatedCanvasSize: size
+        animatedCanvasSize: size,
       });
 
       await fadeIn(spawnedImageCanvas.imageCanvas);
     },
     onImageRendered: async() => {
-      if(spawnedImageCanvas) {
+      if (spawnedImageCanvas) {
         await removeWithFade(spawnedImageCanvas.imageCanvas);
       }
-    }
+    },
   }, SolidJSHotReloadGuardProvider);
 }
 
@@ -78,15 +78,15 @@ export function openMediaEditorFromMediaRaw(args: OpenMediaEditorFromMediaRawArg
   openMediaEditor({
     ...args,
     onCanvasReady: async() => {},
-    onImageRendered: () => {}
+    onImageRendered: () => {},
   }, SolidJSHotReloadGuardProvider);
 }
 
-function spawnAnimatedImage({rect, source, animatedCanvasSize: size}: SpawnImageCanvasArgs) {
-  const {imageCanvas, centerLeft, centerTop} = spawnImageCanvas({
+function spawnAnimatedImage({ rect, source, animatedCanvasSize: size }: SpawnImageCanvasArgs) {
+  const { imageCanvas, centerLeft, centerTop } = spawnImageCanvas({
     rect,
     source,
-    animatedCanvasSize: size
+    animatedCanvasSize: size,
   });
 
   const [sourceWidth, sourceHeight] = size;
@@ -102,17 +102,17 @@ function spawnAnimatedImage({rect, source, animatedCanvasSize: size}: SpawnImage
     await imageCanvas.animate({
       transform: `translate(calc(-50% + ${leftDiff}px), calc(-50% + ${topDiff}px))`,
       width: `${newWidth}px`,
-      height: `${newHeight}px`
+      height: `${newHeight}px`,
     }, {
       duration: 200,
       fill: 'forwards',
-      easing: 'ease-in-out'
+      easing: 'ease-in-out',
     }).finished;
   }
 
   return {
     imageCanvas,
-    animateToNewCenter
+    animateToNewCenter,
   };
 }
 
@@ -121,7 +121,7 @@ type SpanImageCanvasResult = ReturnType<typeof spawnImageCanvas>;
 function spawnImageCanvas({
   source,
   rect,
-  animatedCanvasSize: size
+  animatedCanvasSize: size,
 }: SpawnImageCanvasArgs) {
   const imageCanvas = document.createElement('canvas');
   [imageCanvas.width, imageCanvas.height] = size;
@@ -146,27 +146,27 @@ function spawnImageCanvas({
   return {
     centerLeft,
     centerTop,
-    imageCanvas
+    imageCanvas,
   };
 }
 
 async function fadeIn(imageCanvas: HTMLCanvasElement) {
   await imageCanvas.animate({
-    opacity: [0, 1]
+    opacity: [0, 1],
   }, {
     duration: 200,
     fill: 'forwards',
-    easing: 'ease-in-out'
+    easing: 'ease-in-out',
   }).finished;
 }
 
 async function removeWithFade(imageCanvas: HTMLCanvasElement) {
   await imageCanvas.animate({
-    opacity: [1, 0]
+    opacity: [1, 0],
   }, {
     duration: 400,
     fill: 'forwards',
-    easing: 'ease-in'
+    easing: 'ease-in',
   }).finished;
   imageCanvas.remove();
 }
@@ -182,6 +182,6 @@ function snapToRect(size: NumberPair, rect: LocalDOMRect): LocalDOMRect {
     left,
     top,
     width: snappedWidth,
-    height: snappedHeight
+    height: snappedHeight,
   };
 }

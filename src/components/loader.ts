@@ -1,4 +1,4 @@
-import {CancellablePromise} from '@helpers/cancellablePromise';
+import { CancellablePromise } from '@helpers/cancellablePromise';
 import ProgressivePreloader from '@components/preloader';
 
 export default class Loader {
@@ -14,7 +14,7 @@ export default class Loader {
   }) {
     this.preloader = options.preloader || new ProgressivePreloader({
       cancelable: false,
-      attachMethod: 'prepend'
+      attachMethod: 'prepend',
     });
   }
 

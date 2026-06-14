@@ -1,32 +1,32 @@
-import {formatFullSentTime, formatMonthsDuration} from '@helpers/date';
+import { formatFullSentTime, formatMonthsDuration } from '@helpers/date';
 import liteMode from '@helpers/liteMode';
 import clamp from '@helpers/number/clamp';
-import {Message, MessageMedia} from '@layer';
+import { Message, MessageMedia } from '@layer';
 import appImManager from '@lib/appImManager';
-import I18n, {FormatterArguments, LangPackKey, i18n, join} from '@lib/langPack';
+import I18n, { FormatterArguments, LangPackKey, i18n, join } from '@lib/langPack';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import {LottieAssetName} from '@lib/rlottie/lottieLoader';
+import { LottieAssetName } from '@lib/rlottie/lottieLoader';
 import rootScope from '@lib/rootScope';
-import {getCountryEmoji} from '@vendor/emoji';
+import { getCountryEmoji } from '@vendor/emoji';
 import AppSelectPeers from '@components/appSelectPeers';
 import confirmationPopup from '@components/confirmationPopup';
 import wrapLocalSticker from '@components/wrappers/localSticker';
-import {For, JSX} from 'solid-js';
+import { For, JSX } from 'solid-js';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
 import PopupElement from '@components/popups';
 import PopupGiftLink from '@components/popups/giftLink';
 import classNames from '@helpers/string/classNames';
 import createMiddleware from '@helpers/solid/createMiddleware';
-import {IconTsx} from '@components/iconTsx';
-import {setPeerColorToElement} from '@components/peerColors';
-import {isTruthy} from '../../helpers/isTruthy';
+import { IconTsx } from '@components/iconTsx';
+import { setPeerColorToElement } from '@components/peerColors';
+import { isTruthy } from '../../helpers/isTruthy';
 
 export function getGiftAssetName(days?: number) {
   const months = days === undefined ? days : Math.round(days / 30);
   const durationAssetMap: {[key: number]: LottieAssetName} = {
     3: 'Gift3',
     6: 'Gift6',
-    12: 'Gift12'
+    12: 'Gift12',
   };
 
   return durationAssetMap[clamp(months ?? 0, 3, 12)];
@@ -65,63 +65,63 @@ export async function onGiveawayClick(message: Message.message) {
   const subtitleArgs: FormatterArguments = [
     formatDate(isResults ? giveawayInfo.finish_date : giveaway.until_date),
     i18n('Giveaway.Info.Users', [quantity]),
-    await wrapPeerTitle({peerId: giveawayPeerId})
+    await wrapPeerTitle({ peerId: giveawayPeerId }),
   ];
 
-  if(additionalPeersLength) {
+  if (additionalPeersLength) {
     subtitleKey += '.Several';
     subtitleArgs.push(i18n('Giveaway.Info.OtherChannels', [additionalPeersLength]));
   }
-  if(onlyNewSubscribers) {
+  if (onlyNewSubscribers) {
     subtitleKey += '.Date';
     subtitleArgs.push(formatDate(giveawayInfo.start_date));
   }
-  if(isResults) subtitleKey += '.End';
+  if (isResults) subtitleKey += '.End';
 
   let subsubtitleKey: LangPackKey,
     subsubtitleArgs: FormatterArguments,
     subsubtitleAtTop: boolean;
-  if(isRefunded) {
+  if (isRefunded) {
     subsubtitleKey = 'BoostingGiveawayCanceledByPayment';
-  } else if(isWinner) {
+  } else if (isWinner) {
     subsubtitleKey = 'Giveaway.Won';
     subsubtitleArgs = [
-      wrapEmojiText('🏆')
+      wrapEmojiText('🏆'),
     ];
     subsubtitleAtTop = true;
-  } else if(isResults) {
+  } else if (isResults) {
     subsubtitleKey = 'BoostingGiveawayYouNotWon';
     subsubtitleAtTop = true;
-  } else if(giveawayInfo.joined_too_early_date) {
+  } else if (giveawayInfo.joined_too_early_date) {
     subsubtitleKey = 'BoostingGiveawayNotEligible';
     subsubtitleArgs = [
-      formatDate(giveawayInfo.joined_too_early_date)
+      formatDate(giveawayInfo.joined_too_early_date),
     ];
-  } else if(giveawayInfo.disallowed_country) {
+  } else if (giveawayInfo.disallowed_country) {
     subsubtitleKey = 'BoostingGiveawayNotEligibleCountry';
-  } else if(giveawayInfo.admin_disallowed_chat_id) {
+  } else if (giveawayInfo.admin_disallowed_chat_id) {
     subsubtitleKey = 'BoostingGiveawayNotEligibleAdmin';
     subsubtitleArgs = [
-      await wrapPeerTitle({peerId: giveawayInfo.admin_disallowed_chat_id.toPeerId(true)})
+      await wrapPeerTitle({ peerId: giveawayInfo.admin_disallowed_chat_id.toPeerId(true) }),
     ];
   } else {
     subsubtitleKey = isParticipating ? 'Giveaway.Participation' : 'Giveaway.TakePart';
     subsubtitleArgs = [
-      await wrapPeerTitle({peerId: giveawayPeerId})
+      await wrapPeerTitle({ peerId: giveawayPeerId }),
     ];
 
-    if(additionalPeersLength) {
+    if (additionalPeersLength) {
       subsubtitleKey += '.Multi';
       subsubtitleArgs.push(i18n('Giveaway.Info.OtherChannels', [additionalPeersLength]));
     }
 
-    if(!isParticipating && giveawayInfo.start_date) {
+    if (!isParticipating && giveawayInfo.start_date) {
       subsubtitleArgs.push(formatDate(giveaway.until_date));
     }
   }
 
   let titleLangPackKey: LangPackKey;
-  if(isStars) {
+  if (isStars) {
     titleLangPackKey = isResults ? 'BoostingStarsGiveawayHowItWorksTextEnd' : 'BoostingStarsGiveawayHowItWorksText';
   } else {
     titleLangPackKey = isResults ? 'BoostingGiveawayHowItWorksTextEnd' : 'BoostingGiveawayHowItWorksText';
@@ -131,65 +131,65 @@ export async function onGiveawayClick(message: Message.message) {
     titleLangPackKey,
     [
       giveaway.stars || quantity,
-      await wrapPeerTitle({peerId: giveawayPeerId}),
+      await wrapPeerTitle({ peerId: giveawayPeerId }),
       quantity,
-      duration
+      duration,
     ]
   );
 
   const subtitle = i18n(subtitleKey as LangPackKey, subtitleArgs);
   const subsubtitle = i18n(subsubtitleKey as LangPackKey, subsubtitleArgs!);
 
-  if(subsubtitleAtTop! || isRefunded) {
+  if (subsubtitleAtTop! || isRefunded) {
     subsubtitle.classList.add('popup-description-framed');
   }
 
-  if(isRefunded) {
+  if (isRefunded) {
     subsubtitle.classList.add('popup-description-danger');
   }
 
   d.append(...[
     ...(subsubtitleAtTop! ? [
       subsubtitle,
-      document.createElement('br')
+      document.createElement('br'),
     ] : []),
     title,
     document.createElement('br'),
     document.createElement('br'),
     ...(giveaway.prize_description ? [
       i18n('Giveaway.AlsoPrizes', [
-        await wrapPeerTitle({peerId: giveawayPeerId}),
+        await wrapPeerTitle({ peerId: giveawayPeerId }),
         quantity,
         wrapEmojiText(giveaway.prize_description),
-        i18n('Giveaway.AlsoPrizes2', [quantity])
+        i18n('Giveaway.AlsoPrizes2', [quantity]),
       ]),
       document.createElement('br'),
-      document.createElement('br')
+      document.createElement('br'),
     ] : []),
     subtitle,
     ...(isResults && giveawayInfo.activated_count ? [
       ' ',
-      i18n('BoostingGiveawayUsedLinksPlural', [giveawayInfo.activated_count])
+      i18n('BoostingGiveawayUsedLinksPlural', [giveawayInfo.activated_count]),
     ] : []),
     ...(!subsubtitleAtTop! ? [
       document.createElement('br'),
       document.createElement('br'),
-      subsubtitle
-    ] : [])
+      subsubtitle,
+    ] : []),
   ].filter(isTruthy));
 
   await confirmationPopup({
     titleLangKey: isResults ? 'BoostingGiveawayEnd' : 'BoostingGiveAwayAbout',
     description: d,
     button: isWinner ? {
-      langKey: 'BoostingGiveawayViewPrize'
+      langKey: 'BoostingGiveawayViewPrize',
     } : {
       langKey: 'OK',
-      isCancel: true
-    }
+      isCancel: true,
+    },
   });
 
-  if(isWinner) {
+  if (isWinner) {
     PopupElement.createPopup(PopupGiftLink, giveawayInfo.gift_code_slug!);
   }
 }
@@ -214,7 +214,7 @@ export default function Giveaway(props: {
 
   const headerDuration = formatMonthsDuration(giveaway.months!, true);
   let header: JSX.Element;
-  if(isResults) {
+  if (isResults) {
     let a: HTMLAnchorElement;
     (
       <a
@@ -252,10 +252,10 @@ export default function Giveaway(props: {
       key: peerId,
       middleware,
       avatarSize: 30,
-      meAsSaved: false
+      meAsSaved: false,
     });
 
-    setPeerColorToElement({peerId, element: entity.element});
+    setPeerColorToElement({ peerId, element: entity.element });
 
     entity.element.classList.add('bubble-giveaway-channel', 'hover-primary');
 
@@ -280,7 +280,7 @@ export default function Giveaway(props: {
   );
 
   let middle: JSX.Element;
-  if(isResults) {
+  if (isResults) {
     middle = (
       <>
         <div class="bubble-giveaway-channels">
@@ -345,8 +345,8 @@ export default function Giveaway(props: {
     assetName: isResults ? 'Congratulations' : getGiftAssetName(giveaway.months),
     middleware,
     loop: false,
-    autoplay: liteMode.isAvailable('stickers_chat')
-  }).then(({container, promise}) => {
+    autoplay: liteMode.isAvailable('stickers_chat'),
+  }).then(({ container, promise }) => {
     stickerDiv!.style.position = 'relative';
     stickerDiv!.style.width = stickerDiv!.style.height = size + 'px';
     stickerDiv!.append(container);

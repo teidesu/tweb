@@ -1,68 +1,68 @@
-import type {ModifyFunctionsToAsync} from '@types';
-import {type State} from '@config/state';
-import type {Chat, ChatPhoto, Message, MessagePeerReaction, PeerNotifySettings, User, UserProfilePhoto} from '@layer';
-import type {CryptoMethods} from '@lib/crypto/cryptoMethodsRegistry';
-import type {ThumbStorageMedia} from '@lib/storages/thumbs';
+import type { ModifyFunctionsToAsync } from '@types';
+import { type State } from '@config/state';
+import type { Chat, ChatPhoto, Message, MessagePeerReaction, PeerNotifySettings, User, UserProfilePhoto } from '@layer';
+import type { CryptoMethods } from '@lib/crypto/cryptoMethodsRegistry';
+import type { ThumbStorageMedia } from '@lib/storages/thumbs';
 import type ThumbsStorage from '@lib/storages/thumbs';
-import type {AppReactionsManager} from '@appManagers/appReactionsManager';
-import type {MessagesStorageKey} from '@appManagers/appMessagesManager';
-import type {AppAvatarsManager, PeerPhotoSize} from '@appManagers/appAvatarsManager';
-import rootScope, {BroadcastEvents} from '@lib/rootScope';
+import type { AppReactionsManager } from '@appManagers/appReactionsManager';
+import type { MessagesStorageKey } from '@appManagers/appMessagesManager';
+import type { AppAvatarsManager, PeerPhotoSize } from '@appManagers/appAvatarsManager';
+import rootScope, { BroadcastEvents } from '@lib/rootScope';
 import webpWorkerController from '@lib/webp/webpWorkerController';
-import DEBUG, {MOUNT_CLASS_TO} from '@config/debug';
+import DEBUG, { MOUNT_CLASS_TO } from '@config/debug';
 import sessionStorage from '@lib/sessionStorage';
 import webPushApiManager from '@lib/webPushApiManager';
 import ENVIRONMENT from '@environment/index';
 import loadStateForAllAccountsOnce from '@appManagers/utils/state/loadState';
 import opusDecodeController from '@lib/opusDecodeController';
-import MTProtoMessagePort, {ThreadedWorkerEvents} from '@lib/mainWorker/mainMessagePort';
+import MTProtoMessagePort, { ThreadedWorkerEvents } from '@lib/mainWorker/mainMessagePort';
 import cryptoMessagePort from '@lib/crypto/cryptoMessagePort';
 import SuperMessagePort from '@lib/superMessagePort';
 import IS_SHARED_WORKER_SUPPORTED from '@environment/sharedWorkerSupport';
 import toggleStorages from '@helpers/toggleStorages';
 import idleController from '@helpers/idleController';
 import ServiceMessagePort from '@lib/serviceWorker/serviceMessagePort';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
-import {makeWorkerURL} from '@helpers/setWorkerProxy';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
+import { makeWorkerURL } from '@helpers/setWorkerProxy';
 import ServiceWorkerURL from '../../sw?worker&url';
-import setDeepProperty, {joinDeepPath, splitDeepPath} from '@helpers/object/setDeepProperty';
+import setDeepProperty, { joinDeepPath, splitDeepPath } from '@helpers/object/setDeepProperty';
 import getThumbKey from '@lib/storages/utils/thumbs/getThumbKey';
-import {NULL_PEER_ID, TEST_NO_STREAMING, THUMB_TYPE_FULL} from '@appManagers/constants';
+import { NULL_PEER_ID, TEST_NO_STREAMING, THUMB_TYPE_FULL } from '@appManagers/constants';
 import generateEmptyThumb from '@lib/storages/utils/thumbs/generateEmptyThumb';
 import getStickerThumbKey from '@lib/storages/utils/thumbs/getStickerThumbKey';
 import callbackify from '@helpers/callbackify';
 import isLegacyMessageId from '@appManagers/utils/messageId/isLegacyMessageId';
-import {setAppStateSilent} from '@stores/appState';
+import { setAppStateSilent } from '@stores/appState';
 import getObjectKeysAndSort from '@helpers/object/getObjectKeysAndSort';
-import {reconcilePeer, reconcilePeers} from '@stores/peers';
-import {getCurrentAccount} from '@lib/accounts/getCurrentAccount';
-import {ActiveAccountNumber} from '@lib/accounts/types';
-import {createProxiedManagersForAccount} from '@lib/getProxiedManagers';
+import { reconcilePeer, reconcilePeers } from '@stores/peers';
+import { getCurrentAccount } from '@lib/accounts/getCurrentAccount';
+import { ActiveAccountNumber } from '@lib/accounts/types';
+import { createProxiedManagersForAccount } from '@lib/getProxiedManagers';
 import noop from '@helpers/noop';
 import AccountController from '@lib/accounts/accountController';
 import getPeerTitle from '@components/wrappers/getPeerTitle';
 import I18n from '@lib/langPack';
-import {NOTIFICATION_BADGE_PATH} from '@config/notifications';
-import {createAppURLForAccount} from '@lib/accounts/createAppURLForAccount';
-import {setAppSettingsSilent} from '@stores/appSettings';
-import {batch} from 'solid-js';
+import { NOTIFICATION_BADGE_PATH } from '@config/notifications';
+import { createAppURLForAccount } from '@lib/accounts/createAppURLForAccount';
+import { setAppSettingsSilent } from '@stores/appSettings';
+import { batch } from 'solid-js';
 import createNotificationImage from '@helpers/createNotificationImage';
 import PasscodeLockScreenController from '@components/passcodeLock/passcodeLockScreenController';
 import EncryptionKeyStore from '@lib/passcode/keyStore';
 import DeferredIsUsingPasscode from '@lib/passcode/deferredIsUsingPasscode';
-import CacheStorageController, {CacheStorageDbName} from '@lib/files/cacheStorage';
-import type {PushSingleManager} from '@appManagers/pushSingleManager';
+import CacheStorageController, { CacheStorageDbName } from '@lib/files/cacheStorage';
+import type { PushSingleManager } from '@appManagers/pushSingleManager';
 import getDeepProperty from '@helpers/object/getDeepProperty';
-import {_changeHistoryStorageKey, _deleteHistoryStorage, _iterateHistoryStorages, _useHistoryStorage} from '@stores/historyStorages';
-import SlicedArray, {SliceEnd} from '@helpers/slicedArray';
-import {createHistoryStorageSearchSlicedArray} from '@appManagers/utils/messages/createHistoryStorage';
+import { _changeHistoryStorageKey, _deleteHistoryStorage, _iterateHistoryStorages, _useHistoryStorage } from '@stores/historyStorages';
+import SlicedArray, { SliceEnd } from '@helpers/slicedArray';
+import { createHistoryStorageSearchSlicedArray } from '@appManagers/utils/messages/createHistoryStorage';
 import tabId from '@config/tabId';
 import Modes from '@config/modes';
 import appNavigationController from '@components/appNavigationController';
-import {BroadcastChannelWrapper, createBroadcastChannelWrapper} from './broadcastChannelWrapper';
-import {MainBroadcastChannelEvents, unversionedMainBroadcastChannelName} from '@config/broadcastChannel';
-import {CacheStorageThreadedControls, createCacheStorageThreadedControls} from './apiManagerProxyUtils';
-import type {ThreadedWorkerType} from '@lib/appManagers/appManagersManager';
+import { BroadcastChannelWrapper, createBroadcastChannelWrapper } from './broadcastChannelWrapper';
+import { MainBroadcastChannelEvents, unversionedMainBroadcastChannelName } from '@config/broadcastChannel';
+import { CacheStorageThreadedControls, createCacheStorageThreadedControls } from './apiManagerProxyUtils';
+import type { ThreadedWorkerType } from '@lib/appManagers/appManagersManager';
 
 
 export type Mirrors = {
@@ -160,21 +160,21 @@ class ApiManagerProxy extends MTProtoMessagePort {
       groupedMessages: {},
       peers: {},
       avatars: {},
-      historyStorage: undefined
+      historyStorage: undefined,
     };
 
     this.pushSingleManager = this.createSingleManagerProxy('pushSingleManager');
 
     this.processMirrorTaskMap = {
       messages: (payload) => {
-        if(!payload.key) { // * mirroring all messages at once
-          for(const key in payload.value) {
-            for(const mid in payload.value[key]) {
+        if (!payload.key) { // * mirroring all messages at once
+          for (const key in payload.value) {
+            for (const mid in payload.value[key]) {
               this.processMirrorTaskMap.messages!({
                 name: payload.name,
                 accountNumber: payload.accountNumber,
                 key: joinDeepPath(key, mid),
-                value: payload.value[key][mid]
+                value: payload.value[key][mid],
               });
             }
           }
@@ -184,29 +184,29 @@ class ApiManagerProxy extends MTProtoMessagePort {
 
         const message = payload.value as Message.message | Message.messageService;
         let mid: number, groupedId: string;
-        if(message) {
+        if (message) {
           mid = message.mid!;
           groupedId = (message as Message.message).grouped_id!;
         } else {
           const [key, _mid] = splitDeepPath(payload.key);
           mid = +_mid;
           const previousMessage = this.mirrors.messages[key]?.[mid];
-          if(!previousMessage) {
+          if (!previousMessage) {
             return;
           }
 
           groupedId = (previousMessage as Message.message).grouped_id!;
         }
 
-        if(!groupedId) {
+        if (!groupedId) {
           return;
         }
 
         const map = this.mirrors.groupedMessages[groupedId] ??= new Map();
-        if(!message) {
+        if (!message) {
           map.delete(mid);
 
-          if(!map.size) {
+          if (!map.size) {
             delete this.mirrors.groupedMessages[groupedId];
           }
         } else {
@@ -215,7 +215,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
       },
 
       state: (payload) => {
-        if(payload.key) {
+        if (payload.key) {
           setAppStateSilent(payload.key, payload.value);
         } else {
           console.error(payload);
@@ -223,7 +223,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
       },
 
       peers: (payload) => {
-        if(payload.key) {
+        if (payload.key) {
           reconcilePeer(payload.key.toPeerId(), payload.value);
         } else {
           reconcilePeers(payload.value);
@@ -231,12 +231,12 @@ class ApiManagerProxy extends MTProtoMessagePort {
       },
 
       historyStorage: (payload) => {
-        if(!payload.key) { // * mirroring all history storages at once
+        if (!payload.key) { // * mirroring all history storages at once
           batch(() => {
-            for(const key in payload.value) {
+            for (const key in payload.value) {
               const historyStorage = payload.value[key];
               const [, setHistoryStorage] = _useHistoryStorage(key as any);
-              if(historyStorage.searchHistorySerialized) {
+              if (historyStorage.searchHistorySerialized) {
                 setHistoryStorage(
                   'searchHistory',
                   SlicedArray.fromJSON<`${PeerId}_${number}`>(historyStorage.searchHistorySerialized)
@@ -260,17 +260,17 @@ class ApiManagerProxy extends MTProtoMessagePort {
         const [historyStorageKey, property, smth1, smth2] = splittedKey;
         const [historyStorage, setHistoryStorage] = _useHistoryStorage(historyStorageKey as any);
 
-        if(property === 'delete') {
+        if (property === 'delete') {
           this.clearHistoryStorage(historyStorageKey, [historyStorage, setHistoryStorage], true);
-        } else if(property === 'key') {
+        } else if (property === 'key') {
           _changeHistoryStorageKey(historyStorageKey as any, payload.value);
           setHistoryStorage('key', payload.value);
-        } else if(property === 'slices') {
+        } else if (property === 'slices') {
           // @ts-ignore
           (historyStorage.searchHistory || historyStorage.history).slices[+smth1][smth2](...payload.value);
-        } else if(property === 'history' || property === 'searchHistory') {
+        } else if (property === 'history' || property === 'searchHistory') {
           let slicedArray: SlicedArray<any> = (historyStorage.searchHistory || historyStorage.history)!;
-          if(!slicedArray) {
+          if (!slicedArray) {
             slicedArray = property === 'searchHistory' ? createHistoryStorageSearchSlicedArray() : new SlicedArray();
             setHistoryStorage(property, slicedArray);
           }
@@ -282,21 +282,21 @@ class ApiManagerProxy extends MTProtoMessagePort {
         }
 
         return false;
-      }
+      },
     };
 
     this.tabState = {
       accountNumber: getCurrentAccount(),
       chatPeerIds: [],
       idleStartTime: 0,
-      id: tabId
+      id: tabId,
     };
 
     this.intervals = new Map();
 
     this.log('constructor');
 
-    if(!import.meta.env.VITE_MTPROTO_SW) {
+    if (!import.meta.env.VITE_MTPROTO_SW) {
       this.registerWorker();
     }
 
@@ -313,22 +313,22 @@ class ApiManagerProxy extends MTProtoMessagePort {
       'notification_count_update',
       'account_logged_in',
       'notification_cancel',
-      'toggle_using_passcode'
+      'toggle_using_passcode',
     ]);
 
     // const perf = performance.now();
     this.addMultipleEventsListeners({
-      convertWebp: ({fileName, bytes}) => {
+      convertWebp: ({ fileName, bytes }) => {
         return webpWorkerController.convert(fileName, bytes);
       },
 
-      convertOpus: ({fileName, bytes}) => {
+      convertOpus: ({ fileName, bytes }) => {
         return opusDecodeController.pushDecodeTask(bytes, false).then((result) => result.bytes);
       },
 
-      event: ({name, args, accountNumber}) => {
+      event: ({ name, args, accountNumber }) => {
         const isDifferentAccount = accountNumber && accountNumber !== getCurrentAccount();
-        if(!commonEventNames.has(name as keyof BroadcastEvents) && isDifferentAccount) return;
+        if (!commonEventNames.has(name as keyof BroadcastEvents) && isDifferentAccount) return;
         // @ts-ignore
         rootScope.dispatchEventSingle(name, ...args);
       },
@@ -349,22 +349,22 @@ class ApiManagerProxy extends MTProtoMessagePort {
       },
 
       callNotification: async(payload) => {
-        const {accountNumber} = payload;
+        const { accountNumber } = payload;
         const managers = createProxiedManagersForAccount(accountNumber);
         const peerId = payload.callerId.toPeerId();
         const peer = await managers.appPeersManager.getPeer(peerId);
-        const title = await getPeerTitle({peerId: peerId, managers, plainText: true, limitSymbols: 20, useManagers: true});
+        const title = await getPeerTitle({ peerId: peerId, managers, plainText: true, limitSymbols: 20, useManagers: true });
 
         const notification = new Notification(title, {
           body: I18n.format('Call.StatusCalling', true),
           icon: await createNotificationImage(managers, peerId, title),
-          badge: NOTIFICATION_BADGE_PATH
+          badge: NOTIFICATION_BADGE_PATH,
         });
         notification.onclick = () => {
           const peerId = peer.id;
           const url = createAppURLForAccount(accountNumber, {
             p: '' + peerId.toPeerId(),
-            call: '' + payload.callId
+            call: '' + payload.callId,
           });
           window.open(url, '_blank');
           notification.close();
@@ -380,7 +380,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
 
       intervalCallback: (intervalId) => {
         const callback = this.intervals.get(intervalId);
-        if(callback) {
+        if (callback) {
           callback();
         }
       },
@@ -390,7 +390,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
       },
 
       toggleLock: (isLocked) => {
-        if(isLocked) {
+        if (isLocked) {
           PasscodeLockScreenController.lock();
         } else {
           PasscodeLockScreenController.unlock();
@@ -404,7 +404,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
       toggleUsingPasscode: (payload) => {
         DeferredIsUsingPasscode.resolveDeferred(payload.isUsingPasscode);
         EncryptionKeyStore.save(payload.encryptionKey);
-      }
+      },
 
       // hello: () => {
       //   this.log.error('time hello', performance.now() - perf);
@@ -417,7 +417,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
       appNavigationController.reload();
     });
 
-    this.cacheStorageThreadedControls = createCacheStorageThreadedControls({apiManagerProxy: this});
+    this.cacheStorageThreadedControls = createCacheStorageThreadedControls({ apiManagerProxy: this });
 
     // this.addTaskListener('socketProxy', (task) => {
     //   const socketTask = task.payload;
@@ -487,19 +487,19 @@ class ApiManagerProxy extends MTProtoMessagePort {
       rootScope.managers.networkerFactory.forceReconnectTimeout();
     });
 
-    rootScope.addEventListener('logging_out', ({accountNumber, migrateTo}) => {
+    rootScope.addEventListener('logging_out', ({ accountNumber, migrateTo }) => {
       // const toClear: CacheStorageDbName[] = ['cachedFiles', 'cachedStreamChunks'];
       Promise.all([
         toggleStorages(false, true),
         webPushApiManager.unsubscribe(),
         this.invokeVoid('terminate', undefined), // * terminate mtproto worker
-        this.serviceWorkerRegistration?.unregister().catch(noop) // * release storages
+        this.serviceWorkerRegistration?.unregister().catch(noop), // * release storages
       ]).finally(() => {
         this.onLoggedOut(accountNumber, migrateTo);
       });
     });
 
-    rootScope.addEventListener('settings_updated', ({key, settings}) => {
+    rootScope.addEventListener('settings_updated', ({ key, settings }) => {
       const path = splitDeepPath(key).slice(1);
       setAppSettingsSilent(...path, getDeepProperty(settings, path));
     });
@@ -535,7 +535,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
       replyMarkup: undefined,
       readMaxId: undefined,
       readOutboxMaxId: undefined,
-      triedToReadMaxId: undefined
+      triedToReadMaxId: undefined,
     });
   }
 
@@ -546,21 +546,21 @@ class ApiManagerProxy extends MTProtoMessagePort {
     let url = new URL(location.href);
 
     const currentAccount = getCurrentAccount();
-    if(!accountNumber) {
+    if (!accountNumber) {
       url.hash = '';
       url.search = '';
-    } else if(currentAccount > accountNumber) {
+    } else if (currentAccount > accountNumber) {
       const newAccountNumber = currentAccount - 1;
       url = createAppURLForAccount(newAccountNumber as ActiveAccountNumber, undefined, true);
-    } else if(currentAccount === accountNumber) {
-      if(migrateTo) url = createAppURLForAccount(migrateTo);
+    } else if (currentAccount === accountNumber) {
+      if (migrateTo) url = createAppURLForAccount(migrateTo);
       else {
         url.hash = '';
         url.search = '';
       }
     }
 
-    if(Modes.test) {
+    if (Modes.test) {
       url.searchParams.set('test', '1');
     }
 
@@ -585,7 +585,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
   }
 
   public pingServiceWorkerWithIframe() {
-    if(this.pingServiceWorkerPromise) {
+    if (this.pingServiceWorkerPromise) {
       return this.pingServiceWorkerPromise;
     }
 
@@ -620,7 +620,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
   }
 
   private attachServiceWorker(serviceWorker: ServiceWorker) {
-    if(this.lastServiceWorker === serviceWorker) {
+    if (this.lastServiceWorker === serviceWorker) {
       this.log.warn('trying to attach same service worker');
       return;
     }
@@ -632,7 +632,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
     this.serviceMessagePort.invokeVoid('setLogBufferEnabled', DEBUG);
 
     DeferredIsUsingPasscode.isUsingPasscode().then((value) => {
-      this.serviceMessagePort.invokeVoid('toggleUsingPasscode', {type: 'init', isUsingPasscode: value});
+      this.serviceMessagePort.invokeVoid('toggleUsingPasscode', { type: 'init', isUsingPasscode: value });
     });
   }
 
@@ -650,9 +650,9 @@ class ApiManagerProxy extends MTProtoMessagePort {
       // new URL('../../../sw.ts', import.meta.url),
       // '../../../sw',
       ServiceWorkerURL,
-      {type: 'module', scope: './'}
+      { type: 'module', scope: './' }
     ).then((registration) => {
-      if(TEST_NO_STREAMING) {
+      if (TEST_NO_STREAMING) {
         throw 1;
       }
 
@@ -662,8 +662,8 @@ class ApiManagerProxy extends MTProtoMessagePort {
       const url = new URL(window.location.href);
       const FIX_KEY = 'swfix';
       const swfix = +url.searchParams.get(FIX_KEY)! || 0;
-      if(registration.active && !navigator.serviceWorker.controller) {
-        if(swfix >= 3) {
+      if (registration.active && !navigator.serviceWorker.controller) {
+        if (swfix >= 3) {
           throw new Error('no controller');
         }
 
@@ -674,7 +674,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
         });
       }
 
-      if(swfix) {
+      if (swfix) {
         url.searchParams.delete(FIX_KEY);
         history.pushState(undefined, '', url);
       }
@@ -687,7 +687,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
       const controller = navigator.serviceWorker.controller || registration.installing || registration.waiting || registration.active;
       this.attachServiceWorker(controller!);
 
-      if(import.meta.env.VITE_MTPROTO_SW) {
+      if (import.meta.env.VITE_MTPROTO_SW) {
         this.onWorkerFirstMessage(controller);
       }
     }).catch((err) => {
@@ -698,11 +698,11 @@ class ApiManagerProxy extends MTProtoMessagePort {
   }
 
   private registerServiceWorker() {
-    if(!('serviceWorker' in navigator)) return;
+    if (!('serviceWorker' in navigator)) return;
 
-    if(Modes.noServiceWorker) {
+    if (Modes.noServiceWorker) {
       navigator.serviceWorker.getRegistrations().then(regs => {
-        for(const reg of regs) {
+        for (const reg of regs) {
           reg.unregister().then((success) => {
             success &&
               window.location.reload();
@@ -738,7 +738,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
       });
     });
 
-    if(import.meta.env.VITE_MTPROTO_SW) {
+    if (import.meta.env.VITE_MTPROTO_SW) {
       this.attachListenPort(worker);
     } else {
       this.serviceMessagePort.attachListenPort(worker);
@@ -765,7 +765,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
 
         clearCacheStoragesByNames: async(payload) => {
           await this.clearCacheStoragesByNames(payload);
-        }
+        },
       });
     }
 
@@ -777,7 +777,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
   public async registerThreadedWorker({
     type,
     createWorker: _createWorker,
-    superMessagePort
+    superMessagePort,
   }: {
     type: ThreadedWorkerType,
     createWorker: () => SharedWorker | Worker,
@@ -791,7 +791,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
         text = text.replace(/(import (?:.+? from )?['"])\//g, '$1' + pre);
 
         // * fix wasm url
-        if(type === 'rlottie') {
+        if (type === 'rlottie') {
           text = text.replace(/(rlottie-wasm\.wasm)/, pre + '$1');
         }
 
@@ -800,7 +800,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
         // filenames absolute so import.meta.url is irrelevant.
         text = text.replace(/(["'])(mtcute(?:-simd)?-[\w-]+\.wasm)/g, '$1' + pre + '$2');
 
-        const blob = new Blob([text], {type: 'application/javascript'});
+        const blob = new Blob([text], { type: 'application/javascript' });
         return blob;
       });
     };
@@ -808,14 +808,14 @@ class ApiManagerProxy extends MTProtoMessagePort {
     const workerHandler = {
       construct(target: any, args: any): any {
         return {
-          url: makeWorkerURL(args[0]).toString()
+          url: makeWorkerURL(args[0]).toString(),
         };
-      }
+      },
     };
 
     const originals = [
       Worker,
-      typeof(SharedWorker) !== 'undefined' && SharedWorker
+      typeof(SharedWorker) !== 'undefined' && SharedWorker,
     ].filter(Boolean);
     originals.forEach((w) => window[(w as typeof Worker).name as any] = new Proxy(w, workerHandler));
 
@@ -825,7 +825,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
 
     const originalUrl = (worker as any).url;
 
-    const createWorker = (url: string) => new constructor(url, {type: 'module'});
+    const createWorker = (url: string) => new constructor(url, { type: 'module' });
     const attachWorkerToPort = (worker: SharedWorker | Worker) => this.attachWorkerToPort(
       worker,
       superMessagePort,
@@ -841,17 +841,17 @@ class ApiManagerProxy extends MTProtoMessagePort {
     attachWorkerToPort(firstWorker);
 
     const blob = await get(originalUrl);
-    const urlsPromise = await this.invoke('createProxyWorkerURLs', {originalUrl, blob, type});
+    const urlsPromise = await this.invoke('createProxyWorkerURLs', { originalUrl, blob, type });
     const workers = urlsPromise.slice(1).map(createWorker);
     workers.forEach(attachWorkerToPort);
 
-    if(DEBUG) {
+    if (DEBUG) {
       console.log('Workers URLs', type, urlsPromise);
     }
   }
 
   private async registerCryptoWorker() {
-    if(Modes.noWorker) {
+    if (Modes.noWorker) {
       // Import the registry side; it adds an `invoke` listener on the shared
       // cryptoMessagePort singleton. CryptoMessagePort.invokeCryptoNew detects
       // a same-realm listener and short-circuits directly into it, so no port
@@ -865,19 +865,19 @@ class ApiManagerProxy extends MTProtoMessagePort {
       createWorker: () => {
         return new Worker(
           new URL('./crypto/crypto.worker.ts', import.meta.url),
-          {type: 'module'}
+          { type: 'module' }
         );
       },
-      superMessagePort: cryptoMessagePort
+      superMessagePort: cryptoMessagePort,
     });
   }
 
   private registerWorker() {
-    if(import.meta.env.VITE_MTPROTO_SW) {
+    if (import.meta.env.VITE_MTPROTO_SW) {
       return;
     }
 
-    if(Modes.noWorker) {
+    if (Modes.noWorker) {
       // Loop both ends of a MessageChannel back into the same realm so the
       // worker module's listeners run in the main thread under the same call
       // stack as the proxy. start-preview / dev only — multi-tab dedup is lost.
@@ -891,16 +891,16 @@ class ApiManagerProxy extends MTProtoMessagePort {
     }
 
     let worker: SharedWorker | Worker;
-    if(IS_SHARED_WORKER_SUPPORTED) {
+    if (IS_SHARED_WORKER_SUPPORTED) {
       worker = new SharedWorker(
         new URL('./mainWorker/index.worker.ts', import.meta.url),
-        {type: 'module'}
+        { type: 'module' }
       );
       this.closeMTProtoWorker = () => (worker as SharedWorker).port.close();
     } else {
       worker = new Worker(
         new URL('./mainWorker/index.worker.ts', import.meta.url),
-        {type: 'module'}
+        { type: 'module' }
       );
       this.closeMTProtoWorker = () => (worker as Worker).terminate();
     }
@@ -925,7 +925,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
     this.log('set webWorker');
 
     // this.worker = worker;
-    if(import.meta.env.VITE_MTPROTO_SW) {
+    if (import.meta.env.VITE_MTPROTO_SW) {
       this.attachSendPort(worker);
     } else {
       this.attachWorkerToPort(worker, this, 'mtproto');
@@ -948,11 +948,11 @@ class ApiManagerProxy extends MTProtoMessagePort {
 
   private async dispatchUserAuth() {
     const accountData = await AccountController.get(getCurrentAccount());
-    if(accountData.userId) {
+    if (accountData.userId) {
       rootScope.dispatchEvent('user_auth', {
         dcID: accountData.dcId || 0,
         date: accountData.date || (Date.now() / 1000 | 0),
-        id: accountData.userId.toPeerId(false)
+        id: accountData.userId.toPeerId(false),
       });
     }
   }
@@ -967,11 +967,11 @@ class ApiManagerProxy extends MTProtoMessagePort {
 
   public sendAllStates(loadedStates: Awaited<ReturnType<ApiManagerProxy['loadAllStates']>>) {
     const promises: Promise<any>[] = [];
-    for(let i = 1; i <= 4; i++) {
+    for (let i = 1; i <= 4; i++) {
       const state = loadedStates[i as ActiveAccountNumber];
       const promise = this.invoke('state', {
         ...state,
-        accountNumber: i as ActiveAccountNumber
+        accountNumber: i as ActiveAccountNumber,
       });
 
       promises.push(promise);
@@ -981,7 +981,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
   }
 
   public invokeCrypto<Method extends keyof CryptoMethods>(method: Method, ...args: Parameters<CryptoMethods[typeof method]>) {
-    if(!import.meta.env.VITE_MTPROTO_WORKER) {
+    if (!import.meta.env.VITE_MTPROTO_WORKER) {
       return;
     }
 
@@ -990,8 +990,8 @@ class ApiManagerProxy extends MTProtoMessagePort {
 
   public async toggleStorages(enabled: boolean, clearWrite: boolean) {
     await toggleStorages(enabled, clearWrite);
-    this.invoke('toggleStorages', {enabled, clearWrite});
-    this.serviceMessagePort?.invokeVoid('toggleStorages', {enabled, clearWrite});
+    this.invoke('toggleStorages', { enabled, clearWrite });
+    this.serviceMessagePort?.invokeVoid('toggleStorages', { enabled, clearWrite });
   }
 
   public async getMirror<T extends keyof Mirrors>(name: T) {
@@ -1033,7 +1033,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
 
   public getMessageFromStorage(key: MessagesStorageKey, mid: number) {
     // * use global storage instead
-    if(key.endsWith('history') && isLegacyMessageId(mid)) {
+    if (key.endsWith('history') && isLegacyMessageId(mid)) {
       key = this.getGlobalHistoryMessagesStorage();
     }
 
@@ -1042,12 +1042,12 @@ class ApiManagerProxy extends MTProtoMessagePort {
   }
 
   public getGroupsFirstMessage(message: Message.message) {
-    if(!message?.grouped_id) return message;
+    if (!message?.grouped_id) return message;
 
     const storage = this.mirrors.groupedMessages[message.grouped_id];
     let minMid = Number.MAX_SAFE_INTEGER;
-    for(const [mid, message] of storage) {
-      if(message.mid! < minMid) {
+    for (const [mid, message] of storage) {
+      if (message.mid! < minMid) {
         minMid = message.mid!;
       }
     }
@@ -1079,13 +1079,13 @@ class ApiManagerProxy extends MTProtoMessagePort {
   }
 
   public getMessageById(messageId: number) {
-    if(isLegacyMessageId(messageId)) {
+    if (isLegacyMessageId(messageId)) {
       return this.getMessageFromStorage(this.getGlobalHistoryMessagesStorage(), messageId);
     }
   }
 
   public getMessageByPeer(peerId: PeerId, messageId: number) {
-    if(!peerId) {
+    if (!peerId) {
       return this.getMessageById(messageId);
     }
 
@@ -1134,7 +1134,7 @@ class ApiManagerProxy extends MTProtoMessagePort {
 
   public isAvatarCached(peerId: PeerId, size?: PeerPhotoSize) {
     const saved = this.mirrors.avatars[peerId];
-    if(size === undefined) {
+    if (size === undefined) {
       return !!saved;
     }
 
@@ -1142,36 +1142,36 @@ class ApiManagerProxy extends MTProtoMessagePort {
   }
 
   public loadAvatar(peerId: PeerId, photo: UserProfilePhoto.userProfilePhoto | ChatPhoto.chatPhoto, size: PeerPhotoSize, accountNumber?: ActiveAccountNumber) {
-    if(accountNumber && accountNumber !== getCurrentAccount()) {
+    if (accountNumber && accountNumber !== getCurrentAccount()) {
       const managers = createProxiedManagersForAccount(accountNumber);
       return managers.appAvatarsManager.loadAvatar(peerId, photo, size);
     }
 
     const saved = this.mirrors.avatars[peerId] ??= {};
-    if(saved[size]) {
+    if (saved[size]) {
       return saved[size];
     }
 
     const promise = saved[size] = (rootScope.managers.appAvatarsManager.loadAvatar(peerId, photo, size) as string | Promise<string> | undefined);
     // Don't permanently cache a failed (undefined) video load — allow a retry.
     // (Successful loads overwrite this entry with the URL via the 'mirror' message.)
-    if(size === 'photo_video' || size === 'photo_video_full') {
+    if (size === 'photo_video' || size === 'photo_video_full') {
       Promise.resolve(promise).then(
-        (url) => { if(!url && saved[size] === promise) delete saved[size]; },
-        () => { if(saved[size] === promise) delete saved[size]; }
+        (url) => { if (!url && saved[size] === promise) delete saved[size]; },
+        () => { if (saved[size] === promise) delete saved[size]; }
       );
     }
     return promise;
   }
 
   public getAppConfig(overwrite?: boolean) {
-    if(overwrite) {
+    if (overwrite) {
       this.appConfig = undefined;
     }
 
-    if(!this.appConfig) {
+    if (!this.appConfig) {
       const promise = rootScope.managers.apiManager.getAppConfig().then((appConfig) => {
-        if(this.appConfig === promise) {
+        if (this.appConfig === promise) {
           this.appConfig = appConfig;
         }
 
@@ -1200,11 +1200,11 @@ class ApiManagerProxy extends MTProtoMessagePort {
     const totalAccounts = await AccountController.getTotalAccounts();
 
     let hasSomeonePremium = false;
-    for(let i = 1; i <= totalAccounts; i++) {
+    for (let i = 1; i <= totalAccounts; i++) {
       const accountNumber = i as ActiveAccountNumber;
       const managers = createProxiedManagersForAccount(accountNumber);
       hasSomeonePremium ||= await managers.rootScope.getPremium();
-      if(hasSomeonePremium) break;
+      if (hasSomeonePremium) break;
     }
 
     return hasSomeonePremium;
@@ -1224,16 +1224,16 @@ class ApiManagerProxy extends MTProtoMessagePort {
   }
 
   private onMirrorTask = (payload: MirrorTaskPayload) => {
-    const {name, key, value, accountNumber} = payload;
+    const { name, key, value, accountNumber } = payload;
     const isSettingsUpdate = name === 'state' && key === 'settings';
-    if(!isSettingsUpdate && accountNumber !== getCurrentAccount()) return;
+    if (!isSettingsUpdate && accountNumber !== getCurrentAccount()) return;
 
     const result = this.processMirrorTaskMap[name]?.(payload);
-    if(result === false) {
+    if (result === false) {
       return;
     }
 
-    if(!payload.hasOwnProperty('key')) {
+    if (!payload.hasOwnProperty('key')) {
       this.mirrors[name] = value;
       return;
     }
@@ -1260,12 +1260,12 @@ class ApiManagerProxy extends MTProtoMessagePort {
           const promise = apiManagerProxy.invoke('singleManager', {
             name,
             method: p as string,
-            args
+            args,
           });
 
           return promise;
         };
-      }
+      },
     });
 
     return proxy as any;

@@ -1,5 +1,5 @@
-import {JSX, Show} from 'solid-js';
-import {Transition} from 'solid-transition-group';
+import { JSX, Show } from 'solid-js';
+import { Transition } from 'solid-transition-group';
 
 import '@components/skeleton/skeleton.scss';
 

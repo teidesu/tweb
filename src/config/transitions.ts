@@ -11,8 +11,8 @@ type TransitionType = 'standard';
 const Transitions: {[key in TransitionType]: Transition<TransitionDuration>} = {
   standard: {
     easing: 'cubic-bezier(.4, .0, .2, 1)',
-    duration: {true: 300, false: 250}
-  }
+    duration: { true: 300, false: 250 },
+  },
 };
 
 export function getTransition(
@@ -22,21 +22,21 @@ export function getTransition(
 ): Transition<number> & {keyframes: any[]} {
   const transition = Transitions[type];
 
-  if(!forwards && keyframes) {
+  if (!forwards && keyframes) {
     keyframes = keyframes.slice().reverse();
   }
 
-  if(typeof(transition.duration) !== 'number') {
+  if (typeof(transition.duration) !== 'number') {
     return {
       ...transition,
       duration: transition.duration[('' + forwards) as keyof TransitionDurationFull],
-      keyframes: keyframes!
+      keyframes: keyframes!,
     };
   }
 
   return {
     ...transition as Transition<TransitionDurationShort>,
-    keyframes: keyframes!
+    keyframes: keyframes!,
   };
 }
 

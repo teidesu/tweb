@@ -1,5 +1,5 @@
-import {snapToViewport} from '@components/mediaEditor/utils';
-import {defaultCodec, highResCodec} from '@components/mediaEditor/finalRender/calcCodecAndBitrate';
+import { snapToViewport } from '@components/mediaEditor/utils';
+import { defaultCodec, highResCodec } from '@components/mediaEditor/finalRender/calcCodecAndBitrate';
 
 const SIDE_MAX = 2560;
 const SIDE_MIN = 240;
@@ -15,7 +15,7 @@ type Args = {
   quality?: number;
 };
 
-export default function getResultSize({imageWidth, cropOffset, imageRatio, newRatio, scale, videoType, quality}: Args) {
+export default function getResultSize({ imageWidth, cropOffset, imageRatio, newRatio, scale, videoType, quality }: Args) {
   const [w] = snapToViewport(imageRatio, cropOffset.width, cropOffset.height);
   const [cw] = snapToViewport(newRatio, cropOffset.width, cropOffset.height);
 
@@ -24,20 +24,20 @@ export default function getResultSize({imageWidth, cropOffset, imageRatio, newRa
 
   const willResultInVideo = !!videoType;
 
-  if(Math.max(scaledWidth, scaledHeight) < SIDE_MIN) {
+  if (Math.max(scaledWidth, scaledHeight) < SIDE_MIN) {
     [scaledWidth, scaledHeight] = snapToViewport(newRatio, SIDE_MIN, SIDE_MIN);
   }
-  if(videoType === 'gif' && (scaledWidth > defaultCodec.width || scaledHeight > defaultCodec.height)) {
+  if (videoType === 'gif' && (scaledWidth > defaultCodec.width || scaledHeight > defaultCodec.height)) {
     [scaledWidth, scaledHeight] = snapToViewport(newRatio, defaultCodec.width, defaultCodec.height);
   }
-  if(videoType === 'video' && (scaledWidth > highResCodec.width || scaledHeight > highResCodec.height)) {
+  if (videoType === 'video' && (scaledWidth > highResCodec.width || scaledHeight > highResCodec.height)) {
     [scaledWidth, scaledHeight] = snapToViewport(newRatio, highResCodec.width, highResCodec.height);
   }
-  if(!willResultInVideo && Math.max(scaledWidth, scaledHeight) > SIDE_MAX) {
+  if (!willResultInVideo && Math.max(scaledWidth, scaledHeight) > SIDE_MAX) {
     [scaledWidth, scaledHeight] = snapToViewport(newRatio, SIDE_MAX, SIDE_MAX);
   }
 
-  if(quality) {
+  if (quality) {
     scaledHeight = quality;
     scaledWidth = quality * newRatio;
   }

@@ -1,13 +1,13 @@
-import {batch, createEffect, createSignal, onCleanup, onMount, Show} from 'solid-js';
-import {render} from 'solid-js/web';
+import { batch, createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js';
+import { render } from 'solid-js/web';
 
 import ListenerSetter from '@helpers/listenerSetter';
 import appMediaPlaybackController from '@components/appMediaPlaybackController';
-import {IconTsx} from '@components/iconTsx';
+import { IconTsx } from '@components/iconTsx';
 import clamp from '@helpers/number/clamp';
-import {IS_MOBILE} from '@environment/userAgent';
+import { IS_MOBILE } from '@environment/userAgent';
 
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 import classNames from '@helpers/string/classNames';
 
 type SpeedDragHandlerProps = {
@@ -43,7 +43,7 @@ export function SpeedDragHandler(props: InternalSpeedDragHandlerProps) {
   const [mouseCoords, setMouseCoords] = createSignal<[number, number]>([0, 0]);
 
   const controls: SpeedDragHandlerControls = {
-    isChangingSpeed: () => showSpeed()
+    isChangingSpeed: () => showSpeed(),
   };
   props.controlsRef(controls);
 
@@ -64,18 +64,18 @@ export function SpeedDragHandler(props: InternalSpeedDragHandlerProps) {
         setShowSpeed(true);
         setMouseCoords([
           initialMousePosition![0] - rect.left,
-          initialMousePosition![1] - rect.top
+          initialMousePosition![1] - rect.top,
         ]);
       });
 
-      if(additionalSpeed) {
+      if (additionalSpeed) {
         appMediaPlaybackController.playbackRate = Math.min(initialSpeed + additionalSpeed, MAX_SPEED);
       }
 
       window.setTimeout(() => {
-        if(!speedTipRef!) return;
+        if (!speedTipRef!) return;
         const speedTipRect = speedTipRef.getBoundingClientRect();
-        if(
+        if (
           speedTipRect.left < rect.left ||
           speedTipRect.top < rect.top ||
           speedTipRect.right > rect.right ||
@@ -87,21 +87,21 @@ export function SpeedDragHandler(props: InternalSpeedDragHandlerProps) {
         }
 
         setTimeout(() => {
-          if(!hideSpeedTip()) setHideSpeedTip(true);
+          if (!hideSpeedTip()) setHideSpeedTip(true);
         }, HIDE_TIP_TIMEOUT);
       }, 0);
     }
 
     listenerSetter.add(props.video)('pointerdown', (e) => {
-      if(props.video.paused) return;
+      if (props.video.paused) return;
 
       initialMousePosition = [e.clientX, e.clientY];
       initialSpeed = appMediaPlaybackController.playbackRate;
 
-      if(!IS_MOBILE && areSpeedsEqual(initialSpeed, 1)) {
+      if (!IS_MOBILE && areSpeedsEqual(initialSpeed, 1)) {
         additionalSpeed = 1;
       }
-      if(IS_MOBILE) {
+      if (IS_MOBILE) {
         additionalSpeed = initialSpeed;
       }
 
@@ -111,7 +111,7 @@ export function SpeedDragHandler(props: InternalSpeedDragHandlerProps) {
     });
 
     listenerSetter.add(window)('pointermove', (e) => {
-      if(!initialMousePosition || IS_MOBILE) return;
+      if (!initialMousePosition || IS_MOBILE) return;
 
       const moveX = e.clientX - initialMousePosition[0];
 
@@ -120,14 +120,14 @@ export function SpeedDragHandler(props: InternalSpeedDragHandlerProps) {
 
       let newSpeed: number;
 
-      if(startSpeed < 1) {
+      if (startSpeed < 1) {
         const borrowedUnits = Math.min((1 - startSpeed) / SPEED_MULTIPLIER_WHEN_BELOW_ONE, changedSpeed);
 
         newSpeed = startSpeed +
           borrowedUnits * SPEED_MULTIPLIER_WHEN_BELOW_ONE +
           Math.max(0, changedSpeed - borrowedUnits);
         //
-      } else if(startSpeed + changedSpeed < 1) {
+      } else if (startSpeed + changedSpeed < 1) {
         newSpeed = 1 - (1 - startSpeed - changedSpeed) * SPEED_MULTIPLIER_WHEN_BELOW_ONE;
       } else {
         newSpeed = startSpeed + changedSpeed;
@@ -135,18 +135,18 @@ export function SpeedDragHandler(props: InternalSpeedDragHandlerProps) {
 
       newSpeed = clamp(newSpeed, MIN_SPEED, MAX_SPEED);
 
-      if(!areSpeedsEqual(appMediaPlaybackController.playbackRate, newSpeed)) {
+      if (!areSpeedsEqual(appMediaPlaybackController.playbackRate, newSpeed)) {
         appMediaPlaybackController.playbackRate = newSpeed;
       }
 
-      if(!initialMousePosition || hideSpeedTip()) return;
+      if (!initialMousePosition || hideSpeedTip()) return;
 
       const move = Math.hypot(
         moveX,
         e.clientY - initialMousePosition[1]
       );
 
-      if(move > HIDE_TIP_MOUSE_MOVE_THRESHOLD) {
+      if (move > HIDE_TIP_MOUSE_MOVE_THRESHOLD) {
         setHideSpeedTip(true);
         window.clearTimeout(showTimeout);
         setShowSpeed(true);
@@ -154,7 +154,7 @@ export function SpeedDragHandler(props: InternalSpeedDragHandlerProps) {
     });
 
     listenerSetter.add(window)('pointerup', () => {
-      if(!initialMousePosition) return;
+      if (!initialMousePosition) return;
 
       window.clearTimeout(showTimeout);
       batch(() => {
@@ -164,7 +164,7 @@ export function SpeedDragHandler(props: InternalSpeedDragHandlerProps) {
       });
       initialMousePosition = undefined;
 
-      if(additionalSpeed) {
+      if (additionalSpeed) {
         appMediaPlaybackController.playbackRate = initialSpeed;
       }
       additionalSpeed = 0;
@@ -176,9 +176,9 @@ export function SpeedDragHandler(props: InternalSpeedDragHandlerProps) {
   });
 
   createEffect(() => {
-    if(showSpeed()) {
+    if (showSpeed()) {
       props.onShowSpeed();
-      if(props.video) {
+      if (props.video) {
         props.video.dataset.startedChangingSpeed = 'true';
         props.video.dataset.wasChangingSpeed = 'true';
         setTimeout(() => {
@@ -189,7 +189,7 @@ export function SpeedDragHandler(props: InternalSpeedDragHandlerProps) {
       onCleanup(() => {
         props.onHideSpeed();
 
-        if(props.video) {
+        if (props.video) {
           setTimeout(() => {
             delete props.video.dataset.wasChangingSpeed;
           }, 100);
@@ -209,7 +209,7 @@ export function SpeedDragHandler(props: InternalSpeedDragHandlerProps) {
       <div
         class="speed-drag-handler__speed"
         style={{
-          '--animation-duration-multiplier': currentSpeed()
+          '--animation-duration-multiplier': currentSpeed(),
         }}
       >
         <div class="speed-drag-handler__speed-number">
@@ -225,11 +225,11 @@ export function SpeedDragHandler(props: InternalSpeedDragHandlerProps) {
         ref={speedTipRef!}
         class="speed-drag-handler__speed-tip"
         classList={{
-          'speed-drag-handler__speed-tip--visible': !hideSpeedTip() && !IS_MOBILE
+          'speed-drag-handler__speed-tip--visible': !hideSpeedTip() && !IS_MOBILE,
         }}
         style={{
           '--left': mouseCoords()[0] + 'px',
-          '--top': mouseCoords()[1] + 'px'
+          '--top': mouseCoords()[1] + 'px',
         }}
       >
         <div class="speed-drag-handler__speed-tip-arrows">
@@ -266,7 +266,7 @@ export function createSpeedDragHandler(props: SpeedDragHandlerProps) {
     get controls() {
       return controls;
     },
-    dispose
+    dispose,
   };
 }
 

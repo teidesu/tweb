@@ -1,7 +1,7 @@
 import callbackify from '@helpers/callbackify';
 import formatNumber from '@helpers/number/formatNumber';
-import {AvailableReaction, Document, MessagePeerReaction, Reaction, ReactionCount} from '@layer';
-import {AppManagers} from '@lib/managers';
+import { AvailableReaction, Document, MessagePeerReaction, Reaction, ReactionCount } from '@layer';
+import { AppManagers } from '@lib/managers';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
 import rootScope from '@lib/rootScope';
 import SetTransition from '@components/singleTransition';
@@ -9,8 +9,8 @@ import StackedAvatars from '@components/stackedAvatars';
 import wrapSticker from '@components/wrappers/sticker';
 import wrapStickerAnimation from '@components/wrappers/stickerAnimation';
 import RLottiePlayer from '@lib/rlottie/rlottiePlayer';
-import {fastRaf} from '@helpers/schedulers';
-import {Middleware} from '@helpers/middleware';
+import { fastRaf } from '@helpers/schedulers';
+import { Middleware } from '@helpers/middleware';
 import liteMode from '@helpers/liteMode';
 import appImManager from '@lib/appImManager';
 import apiManagerProxy from '@lib/apiManagerProxy';
@@ -19,16 +19,16 @@ import deferredPromise from '@helpers/cancellablePromise';
 import callbackifyAll from '@helpers/callbackifyAll';
 import BezierEasing from '@vendor/bezierEasing';
 import safePlay from '@helpers/dom/safePlay';
-import lottieLoader, {LottieAssetName} from '@lib/rlottie/lottieLoader';
+import lottieLoader, { LottieAssetName } from '@lib/rlottie/lottieLoader';
 import Scrollable from '@components/scrollable';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import {savedReactionTags} from '@components/chat/reactions';
+import { savedReactionTags } from '@components/chat/reactions';
 import reactionsEqual from '@appManagers/utils/reactions/reactionsEqual';
-import {StarsStar} from '@components/popups/stars';
-import {Sparkles} from '@components/sparkles';
-import {AnimatedCounter} from '@components/animatedCounter';
+import { StarsStar } from '@components/popups/stars';
+import { Sparkles } from '@components/sparkles';
+import { AnimatedCounter } from '@components/animatedCounter';
 import getUnsafeRandomInt from '@helpers/number/getUnsafeRandomInt';
-import {IS_MOBILE} from '@environment/userAgent';
+import { IS_MOBILE } from '@environment/userAgent';
 import StickerType from '@config/stickerType';
 
 const CLASS_NAME = 'reaction';
@@ -43,12 +43,12 @@ export enum ReactionLayoutType {
 export const REACTIONS_SIZE: {[key in ReactionLayoutType]: number} = {
   [ReactionLayoutType.Inline]: 14,
   [ReactionLayoutType.Block]: 22,
-  [ReactionLayoutType.Tag]: 22
+  [ReactionLayoutType.Tag]: 22,
 };
 
 export const REACTIONS_DISPLAY_COUNTER_AT: {[key in ReactionLayoutType]?: number} = {
   [ReactionLayoutType.Inline]: 2,
-  [ReactionLayoutType.Block]: 4
+  [ReactionLayoutType.Block]: 4,
 };
 
 const defaultBezier = (val: number) => val;
@@ -116,7 +116,7 @@ class TransformationComputator {
     let pointsProgress = pointsPlayed / (this.nextKeyframe.t - this.keyframe.t);
 
     const isArrayBeziers = Array.isArray(this.beziers);
-    if(!isArrayBeziers) {
+    if (!isArrayBeziers) {
       pointsProgress = (this.beziers as EasingFunction)(pointsProgress);
     }
 
@@ -128,19 +128,19 @@ class TransformationComputator {
   }
 
   computeAtPoint(point: number) {
-    if(!this.nextKeyframe) {
+    if (!this.nextKeyframe) {
       return;
     }
 
-    if(point >= this.nextKeyframe.t) {
+    if (point >= this.nextKeyframe.t) {
       this.keyframe = this.nextKeyframe;
       this.nextKeyframe = this.keyframes[++this.keyframeIndex];
 
-      if(this.keyframe.o && this.keyframe.i) {
-        if(!Array.isArray(this.keyframe.o.x)) {
+      if (this.keyframe.o && this.keyframe.i) {
+        if (!Array.isArray(this.keyframe.o.x)) {
           // @ts-ignore
           this.beziers = BezierEasing(this.keyframe.o.x, this.keyframe.o.y, this.keyframe.i.x, this.keyframe.i.y);
-        } else if(new Set(this.keyframe.o.x).size === 1) {
+        } else if (new Set(this.keyframe.o.x).size === 1) {
           // @ts-ignore
           this.beziers = BezierEasing(this.keyframe.o.x[0], this.keyframe.o.y[0], this.keyframe.i.x[0], this.keyframe.i.y[0]);
         } else {
@@ -153,12 +153,12 @@ class TransformationComputator {
         this.beziers = defaultBezier;
       }
 
-      if(!this.nextKeyframe || point === this.nextKeyframe.t) {
+      if (!this.nextKeyframe || point === this.nextKeyframe.t) {
         return this.keyframe.s;
       } else {
         return this.withProgress(point);
       }
-    } else if(this.keyframe) {
+    } else if (this.keyframe) {
       return this.withProgress(point);
     } else { // ! test
       return this.nextKeyframe.s;
@@ -174,8 +174,8 @@ function computeLayerTransformations(layer: Layer) {
   const opacityComputator = ks.o && new TransformationComputator(ks.o);
   const translationComputator = ks.p && new TransformationComputator(ks.p);
   const scaleComputator = ks.s && new TransformationComputator(ks.s);
-  for(let point = 0; point < op; ++point) {
-    if(point < layer.ip) {
+  for (let point = 0; point < op; ++point) {
+    if (point < layer.ip) {
       continue;
     }
 
@@ -183,10 +183,10 @@ function computeLayerTransformations(layer: Layer) {
     const transformations: ComputedFrameTransformations = {};
 
     const translation = translationComputator.computeAtPoint(point);
-    if(translation) {
+    if (translation) {
       transformations.translation = translation;
 
-      if(anchor) {
+      if (anchor) {
         transformations.anchor = anchor.k as Position;
         // transformations.anchor = translation.map((value, index) => {
         //   return anchor.k[index] as number + value;
@@ -198,20 +198,20 @@ function computeLayerTransformations(layer: Layer) {
     }
 
     const scale = scaleComputator.computeAtPoint(point);
-    if(scale) {
+    if (scale) {
       transformations.scale = scale;
     } else {
       transformations.scale = prevTransformations.scale;
     }
 
     const opacity = opacityComputator.computeAtPoint(point);
-    if(opacity) {
+    if (opacity) {
       transformations.opacity = opacity;
     } else {
       transformations.opacity = prevTransformations.opacity;
     }
 
-    if(translation || scale || opacity) {
+    if (translation || scale || opacity) {
       layerTransformations[point] = transformations;
     }
   }
@@ -228,7 +228,7 @@ type ComputedFrameTransformations = {
 
 let reactionGenericPromise: ReturnType<typeof loadReactionGeneric>;
 function loadReactionGeneric(): Promise<{layersPositions: ComputedFrameTransformations[][], op: number}> {
-  if(reactionGenericPromise) {
+  if (reactionGenericPromise) {
     return reactionGenericPromise;
   }
 
@@ -236,11 +236,11 @@ function loadReactionGeneric(): Promise<{layersPositions: ComputedFrameTransform
   const promise = reactionGenericPromise = lottieLoader.loadAnimationDataFromURL(url, 'json').then((animationData) => {
     const placeholderLayers: Layer[] = animationData.layers.filter((layer: any) => layer.nm.startsWith('placeholder_'))/* .slice(0, 1) */;
     const layersPositions: ComputedFrameTransformations[][] = [];
-    for(const layer of placeholderLayers) {
+    for (const layer of placeholderLayers) {
       layersPositions.push(computeLayerTransformations(layer));
     }
 
-    return {layersPositions, op: animationData.op};
+    return { layersPositions, op: animationData.op };
   });
 
   return promise;
@@ -286,7 +286,7 @@ export default class ReactionElement extends HTMLElement {
     this.classList.toggle(CLASS_NAME + '-like-block', type === ReactionLayoutType.Block || type === ReactionLayoutType.Tag);
     this.middleware = middleware;
 
-    if(type === ReactionLayoutType.Tag) {
+    if (type === ReactionLayoutType.Tag) {
       // this.insertAdjacentHTML('beforeend', `
       //   <svg class="reaction-tag-svg" width="43" height="30" viewBox="0 0 43 30" xmlns="http://www.w3.org/2000/svg">
       //     <path class="reaction-tag-svg-path" d="M40.8317 12.0432L34.9967 4.08636C33.1129 1.51761 30.1181 0 26.9326 0H7C3.13401 0 0 3.13401 0 7V23C0 26.866 3.13401 30 7 30H26.9326C30.1181 30 33.1129 28.4824 34.9967 25.9136L40.8317 17.9568C42.1223 16.1969 42.1223 13.8031 40.8317 12.0432Z" />
@@ -309,7 +309,7 @@ export default class ReactionElement extends HTMLElement {
 
   public render(doNotRenderSticker?: boolean) {
     const hadStickerContainer = !!this.stickerContainer;
-    if(!hadStickerContainer) {
+    if (!hadStickerContainer) {
       this.stickerContainer = document.createElement('div');
       this.stickerContainer.classList.add(CLASS_NAME + '-sticker');
       this.append(this.stickerContainer);
@@ -318,21 +318,21 @@ export default class ReactionElement extends HTMLElement {
     }
 
     const reactionCount = this.reactionCount;
-    if(doNotRenderSticker || hadStickerContainer) {
+    if (doNotRenderSticker || hadStickerContainer) {
       return;
     }
 
     const reaction = reactionCount.reaction;
-    if(reaction._ === 'reactionEmoji') {
+    if (reaction._ === 'reactionEmoji') {
       const availableReaction = apiManagerProxy.getReaction(reaction.emoticon);
       return callbackify(availableReaction, (availableReaction) => {
-        if(!availableReaction!.center_icon) {
+        if (!availableReaction!.center_icon) {
           this.stickerContainer.classList.add('is-static');
         } else {
           this.stickerContainer.classList.add('is-regular');
         }
 
-        if(availableReaction!.pFlags.inactive) {
+        if (availableReaction!.pFlags.inactive) {
           this.classList.add('is-inactive');
         }
 
@@ -343,7 +343,7 @@ export default class ReactionElement extends HTMLElement {
         // customEmojiElement.docId = doc.id;
         // return customEmojiElement;
       });
-    } else if(reaction._ === 'reactionCustomEmoji') {
+    } else if (reaction._ === 'reactionCustomEmoji') {
       this.stickerContainer.classList.add('is-custom');
       // const wrapped = wrapCustomEmoji({
       //   docIds: [reaction.document_id],
@@ -352,11 +352,11 @@ export default class ReactionElement extends HTMLElement {
 
       // this.stickerContainer.append(wrapped);
 
-      if(!this.customEmojiElement) {
+      if (!this.customEmojiElement) {
         this.customEmojiElement = CustomEmojiElement.create();
         const wrapPromise = this.wrapStickerPromise = this.customEmojiElement.readyPromise = deferredPromise();
         this.wrapStickerPromise.finally(() => {
-          if(this.wrapStickerPromise === wrapPromise) {
+          if (this.wrapStickerPromise === wrapPromise) {
             this.wrapStickerPromise = undefined;
           }
         });
@@ -365,19 +365,19 @@ export default class ReactionElement extends HTMLElement {
 
       this.customEmojiElement.docId = reaction.document_id;
       return this.customEmojiElement;
-    } else if(reaction._ === 'reactionPaid') {
+    } else if (reaction._ === 'reactionPaid') {
       this.classList.add('is-paid');
-      if(!IS_MOBILE) this.append(Sparkles({mode: 'button', isDiv: true}));
+      if (!IS_MOBILE) this.append(Sparkles({ mode: 'button', isDiv: true }));
       this.stickerContainer.append(StarsStar() as HTMLElement);
     }
   }
 
   public setPaidReactionCounter(count: number) {
-    if(!this.paidReactionCounter) {
+    if (!this.paidReactionCounter) {
       this.paidReactionCounter = new AnimatedCounter({
         reverse: false,
         prefix: '+',
-        calculateWidth: true
+        calculateWidth: true,
         // calculateWidth: (text) => {
         //   return getTextWidth(text, `400 24 ${customProperties.getProperty('font-rounded')}`) * 1.5;
         // }
@@ -391,8 +391,8 @@ export default class ReactionElement extends HTMLElement {
   }
 
   public destroyPaidReactionCounter() {
-    if(this.paidReactionCounter) {
-      const {container} = this.paidReactionCounter;
+    if (this.paidReactionCounter) {
+      const { container } = this.paidReactionCounter;
       this.paidReactionCounter = undefined;
       setTimeout(() => {
         container.remove();
@@ -410,9 +410,9 @@ export default class ReactionElement extends HTMLElement {
       static: true,
       managers: this.managers,
       middleware: this.middleware,
-      needFadeIn: false
-    }).then(({render}) => render).finally(() => {
-      if(this.wrapStickerPromise === wrapPromise) {
+      needFadeIn: false,
+    }).then(({ render }) => render).finally(() => {
+      if (this.wrapStickerPromise === wrapPromise) {
         this.wrapStickerPromise = undefined;
       }
     });
@@ -420,7 +420,7 @@ export default class ReactionElement extends HTMLElement {
 
   public findTitle() {
     let title: string;
-    if(this.type === ReactionLayoutType.Tag) {
+    if (this.type === ReactionLayoutType.Tag) {
       const tag = savedReactionTags.find((tag) => reactionsEqual(tag.reaction, this.reactionCount.reaction));
       title = tag?.title!;
     }
@@ -430,34 +430,34 @@ export default class ReactionElement extends HTMLElement {
 
   public renderCounter(force?: boolean, title: string | HTMLElement = this.findTitle()) {
     const displayOn = REACTIONS_DISPLAY_COUNTER_AT[this.type];
-    if(displayOn === undefined && !force && !title && !this.hasTitle) return;
+    if (displayOn === undefined && !force && !title && !this.hasTitle) return;
     const reactionCount = this.reactionCount;
 
     let setTitle = false;
-    if(force || title || reactionCount.count >= displayOn! || (this.type === ReactionLayoutType.Block && !this.canRenderAvatars)) {
-      if(!this.counter) {
+    if (force || title || reactionCount.count >= displayOn! || (this.type === ReactionLayoutType.Block && !this.canRenderAvatars)) {
+      if (!this.counter) {
         this.counter = document.createElement(this.type === ReactionLayoutType.Inline ? 'i' : 'span');
         this.counter.classList.add(CLASS_NAME + '-counter');
       }
 
       const formatted = formatNumber(reactionCount.count);
-      if(title) {
+      if (title) {
         const span = document.createElement('span');
         span.classList.add(CLASS_NAME + '-counter-title');
         span.append(typeof(title) === 'string' ? wrapEmojiText(title) : title);
         this.counter.replaceChildren(span);
         setTitle = true;
-        if(force) {
+        if (force) {
           this.counter.append(' ', formatted);
         }
-      } else if(this.counter.textContent !== formatted) {
+      } else if (this.counter.textContent !== formatted) {
         this.counter.textContent = formatted;
       }
 
-      if(!this.counter.parentElement) {
+      if (!this.counter.parentElement) {
         this.append(this.counter);
       }
-    } else if(this.counter?.parentElement) {
+    } else if (this.counter?.parentElement) {
       this.counter.remove();
       this.counter = undefined;
     }
@@ -466,12 +466,12 @@ export default class ReactionElement extends HTMLElement {
   }
 
   public renderAvatars(recentReactions: MessagePeerReaction[]) {
-    if(this.type !== ReactionLayoutType.Block) {
+    if (this.type !== ReactionLayoutType.Block) {
       return;
     }
 
-    if(this.reactionCount.count >= REACTIONS_DISPLAY_COUNTER_AT[this.type]! || !this.canRenderAvatars) {
-      if(this.stackedAvatars) {
+    if (this.reactionCount.count >= REACTIONS_DISPLAY_COUNTER_AT[this.type]! || !this.canRenderAvatars) {
+      if (this.stackedAvatars) {
         this.stackedAvatars.container.remove();
         this.stackedAvatars = undefined;
       }
@@ -479,10 +479,10 @@ export default class ReactionElement extends HTMLElement {
       return;
     }
 
-    if(!this.stackedAvatars) {
+    if (!this.stackedAvatars) {
       this.stackedAvatars = new StackedAvatars({
         avatarSize: 24,
-        middleware: this.middleware
+        middleware: this.middleware,
       });
 
       this.append(this.stackedAvatars.container);
@@ -492,23 +492,23 @@ export default class ReactionElement extends HTMLElement {
   }
 
   public setIsChosen(isChosen = this.reactionCount.chosen_order !== undefined) {
-    if(this.type === ReactionLayoutType.Inline) return;
+    if (this.type === ReactionLayoutType.Inline) return;
     const wasChosen = this.classList.contains('is-chosen') && !this.classList.contains('backwards');
-    if(wasChosen !== isChosen) {
+    if (wasChosen !== isChosen) {
       SetTransition({
         element: this,
         className: 'is-chosen',
         forwards: isChosen,
-        duration: this.isConnected ? 300 : 0
+        duration: this.isConnected ? 300 : 0,
       });
     }
   }
 
   public fireAroundAnimation(waitPromise?: Promise<any>) {
     let add = 0;
-    if(this.type === ReactionLayoutType.Inline) {
+    if (this.type === ReactionLayoutType.Inline) {
       add = 14;
-    } else if(this.type === ReactionLayoutType.Block || this.type === ReactionLayoutType.Tag) {
+    } else if (this.type === ReactionLayoutType.Block || this.type === ReactionLayoutType.Tag) {
       add = 18;
     }
 
@@ -523,9 +523,9 @@ export default class ReactionElement extends HTMLElement {
         genericEffect: 26,
         genericEffectSize: 100,
         size: REACTIONS_SIZE[this.type] + add,
-        effectSize: 80
+        effectSize: 80,
       },
-      scrollable: appImManager.chat.bubbles.scrollable
+      scrollable: appImManager.chat.bubbles.scrollable,
     });
   }
 
@@ -548,21 +548,21 @@ export default class ReactionElement extends HTMLElement {
     textColor?: string,
     scrollable?: Scrollable
   }) {
-    if(options.cache!.hasAroundAnimation || !liteMode.isAvailable('effects_reactions')) {
+    if (options.cache!.hasAroundAnimation || !liteMode.isAvailable('effects_reactions')) {
       return;
     }
 
     options.managers ??= rootScope.managers;
 
     const reaction = options.reaction;
-    if(reaction._ === 'reactionEmpty') return;
+    if (reaction._ === 'reactionEmpty') return;
 
     const onAvailableReaction = ({
       availableReaction,
       genericEffect,
       sticker,
       onlyAround,
-      assetName
+      assetName,
     }: {
       availableReaction?: AvailableReaction,
       genericEffect?: Document.document,
@@ -588,7 +588,7 @@ export default class ReactionElement extends HTMLElement {
         play: false,
         managers: options.managers,
         middleware: options.middleware,
-        scrollable: options.scrollable
+        scrollable: options.scrollable,
       };
 
       const aroundResult = assetName ? lottieLoader.loadAnimationAsAsset({
@@ -598,7 +598,7 @@ export default class ReactionElement extends HTMLElement {
         autoplay: false,
         middleware: options.middleware,
         container: div!,
-        noCache: true
+        noCache: true,
       }, assetName) : wrapStickerAnimation(aroundParams).stickerPromise;
       const genericResult = genericEffect && wrapStickerAnimation({
         ...aroundParams,
@@ -606,7 +606,7 @@ export default class ReactionElement extends HTMLElement {
         size: genericEffectSize,
         stickerSize: size,
         loopEffect: true,
-        textColor
+        textColor,
       });
       const stickerResult = (!genericEffect || isGenericMasked) && !onlyAround && wrapSticker({
         div: div || document.createElement('div'),
@@ -622,9 +622,9 @@ export default class ReactionElement extends HTMLElement {
         managers: options.managers,
         middleware: options.middleware,
         textColor,
-        loop: isGenericMasked
+        loop: isGenericMasked,
         // static: isGenericMasked || undefined
-      }).then(({render}) => render as Promise<RLottiePlayer>);
+      }).then(({ render }) => render as Promise<RLottiePlayer>);
 
       return Promise.all([
         genericEffect ?
@@ -637,9 +637,9 @@ export default class ReactionElement extends HTMLElement {
 
         genericEffect && loadReactionGeneric(),
 
-        options.waitPromise
+        options.waitPromise,
       ]).then(([iconPlayer, aroundPlayer, maskedSticker, reactionGeneric, _]) => {
-        if(onlyAround) {
+        if (onlyAround) {
           iconPlayer = aroundPlayer;
         }
 
@@ -653,7 +653,7 @@ export default class ReactionElement extends HTMLElement {
           options.stickerContainer.classList.remove('has-animation');
         };
 
-        if(genericEffect) {
+        if (genericEffect) {
           const _iconPlayer = iconPlayer as RLottiePlayer;
           const canvas = _iconPlayer.canvas[0];
           canvas.classList.add('hide');
@@ -671,34 +671,34 @@ export default class ReactionElement extends HTMLElement {
             _iconPlayer.setSize(newCanvasSize, newCanvasSize);
             canvas.classList.remove('hide');
 
-            if(isMaskedVideo) {
+            if (isMaskedVideo) {
               safePlay(maskedMedia);
             }
-          }, {once: true});
+          }, { once: true });
 
           let frameNo = 0;
           const scale = newCanvasSize / 512;
 
-          const {layersPositions, op} = reactionGeneric!;
+          const { layersPositions, op } = reactionGeneric!;
 
           _iconPlayer.overrideRender = (frame: any) => {
-            if(isGenericMasked) {
+            if (isGenericMasked) {
               frame = maskedMedia as any as HTMLCanvasElement;
             }
 
             const isImageData = frame instanceof ImageData;
             context.clearRect(0, 0, newCanvasSize, newCanvasSize);
 
-            for(let i = 0; i < layersPositions.length; ++i) {
+            for (let i = 0; i < layersPositions.length; ++i) {
               const frames = layersPositions[i];
               const transformations = frames[frameNo];
-              if(!transformations) {
+              if (!transformations) {
                 continue;
               }
 
               let savedContext = false, flippedX = false, flippedY = false;
               let scaledWidth = size, scaledHeight = size;
-              if(transformations.scale) {
+              if (transformations.scale) {
                 const [x, y] = transformations.scale;
                 scaledWidth *= /* Math.abs */(x) * 4 / 100;
                 scaledHeight *= /* Math.abs */(y) * 4 / 100;
@@ -711,17 +711,17 @@ export default class ReactionElement extends HTMLElement {
               x = (x + transformations.anchor![0]) * scale - Math.abs(scaledWidth) / 2;
               y = (y + transformations.anchor![1]) * scale - Math.abs(scaledHeight) / 2;
 
-              if(flippedX || flippedY) {
+              if (flippedX || flippedY) {
                 savedContext = true;
                 context.save();
                 context.scale(flippedX ? -1 : 1, flippedY ? -1 : 1);
 
-                if(flippedX) x = -x;
-                if(flippedY) y = -y;
+                if (flippedX) x = -x;
+                if (flippedY) y = -y;
               }
 
-              if(transformations.opacity) {
-                if(!savedContext) {
+              if (transformations.opacity) {
+                if (!savedContext) {
                   savedContext = true;
                   context.save();
                 }
@@ -729,26 +729,26 @@ export default class ReactionElement extends HTMLElement {
                 context.globalAlpha = transformations.opacity[0] / 100;
               }
 
-              if(isImageData) {
+              if (isImageData) {
                 context.putImageData(frame as ImageData, x, y);
               } else {
                 context.drawImage(frame as ImageBitmap, x, y, scaledWidth, scaledHeight);
               }
 
-              if(savedContext) {
+              if (savedContext) {
                 context.restore();
               }
             }
 
             frameNo++;
 
-            if(frameNo >= op) {
+            if (frameNo >= op) {
               removeOnFrame();
             }
           };
         }
 
-        if(!iconPlayer || !aroundPlayer) {
+        if (!iconPlayer || !aroundPlayer) {
           remove();
           return deferred;
         }
@@ -761,8 +761,8 @@ export default class ReactionElement extends HTMLElement {
         options.middleware.onDestroy(removeOnFrame);
 
         !genericEffect && iconPlayer.addEventListener('enterFrame', (frameNo) => {
-          if(frameNo === iconPlayer.maxFrame) {
-            if(options.cache!.wrapStickerPromise) { // wait for fade in animation
+          if (frameNo === iconPlayer.maxFrame) {
+            if (options.cache!.wrapStickerPromise) { // wait for fade in animation
               options.cache!.wrapStickerPromise.then(() => {
                 setTimeout(removeOnFrame, 1e3);
               });
@@ -777,7 +777,7 @@ export default class ReactionElement extends HTMLElement {
           options.stickerContainer.classList.add('has-animation');
           iconPlayer.play();
           aroundPlayer.play();
-        }, {once: true});
+        }, { once: true });
 
         return deferred;
       });
@@ -786,29 +786,29 @@ export default class ReactionElement extends HTMLElement {
     const onEmoticon = (sticker: Document.document, emoticon: string = sticker.stickerEmojiRaw!) => {
       return callbackifyAll([
         apiManagerProxy.getReaction(emoticon),
-        sticker ? options.managers!.appReactionsManager.getRandomGenericAnimation() : undefined
+        sticker ? options.managers!.appReactionsManager.getRandomGenericAnimation() : undefined,
       ], ([
         availableReaction,
-        genericEffect
+        genericEffect,
       ]) => {
         return onAvailableReaction(availableReaction ? {
           availableReaction,
-          onlyAround: !!sticker
+          onlyAround: !!sticker,
         } : {
           genericEffect,
-          sticker
+          sticker,
         });
       });
     };
 
     let promise: Promise<void>;
-    if(reaction._ === 'reactionEmoji') {
+    if (reaction._ === 'reactionEmoji') {
       promise = onEmoticon(undefined!, reaction.emoticon);
-    } else if(reaction._ === 'reactionPaid') {
+    } else if (reaction._ === 'reactionPaid') {
       promise = Promise.resolve()
       onAvailableReaction({
         onlyAround: true,
-        assetName: `StarReactionEffect${getUnsafeRandomInt(1, 3)}` as LottieAssetName
+        assetName: `StarReactionEffect${getUnsafeRandomInt(1, 3)}` as LottieAssetName,
       })
     } else {
       promise = callbackify(options.managers.appEmojiManager.getCustomEmojiDocument(reaction.document_id), (doc) => {
@@ -822,13 +822,13 @@ export default class ReactionElement extends HTMLElement {
 
     options.cache!.hasAroundAnimation = promise;
     promise.finally(() => {
-      if(options.cache!.hasAroundAnimation === promise) {
+      if (options.cache!.hasAroundAnimation === promise) {
         options.cache!.hasAroundAnimation = undefined;
       }
     });
   }
 }
 
-if(!customElements.get(TAG_NAME)) {
+if (!customElements.get(TAG_NAME)) {
   customElements.define(TAG_NAME, ReactionElement);
 }

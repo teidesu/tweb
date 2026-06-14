@@ -1,46 +1,46 @@
-import {createEffect, createSignal, For, JSX, createMemo, onCleanup, untrack, createReaction, Show, Switch, Match} from 'solid-js';
-import {Portal} from 'solid-js/web';
-import {createStoriesViewer} from '@components/stories/viewer';
-import {Document, MessageMedia, Photo, StoryAlbum, StoryItem} from '@layer';
-import {wrapStoryMedia} from '@components/stories/preview';
+import { createEffect, createSignal, For, JSX, createMemo, onCleanup, untrack, createReaction, Show, Switch, Match } from 'solid-js';
+import { Portal } from 'solid-js/web';
+import { createStoriesViewer } from '@components/stories/viewer';
+import { Document, MessageMedia, Photo, StoryAlbum, StoryItem } from '@layer';
+import { wrapStoryMedia } from '@components/stories/preview';
 import getMediaThumbIfNeeded from '@helpers/getStrippedThumbIfNeeded';
-import {StoriesContext, useStories, createStoriesStore, StoriesContextState} from '@components/stories/store';
+import { StoriesContext, useStories, createStoriesStore, StoriesContextState } from '@components/stories/store';
 import Icon from '@components/icon';
-import {ChipTab, ChipTabs} from '@components/chipTabs';
-import {i18n} from '@lib/langPack';
+import { ChipTab, ChipTabs } from '@components/chipTabs';
+import { i18n } from '@lib/langPack';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import {PreloaderTsx} from '@components/putPreloader';
+import { PreloaderTsx } from '@components/putPreloader';
 import fastSmoothScroll from '@helpers/fastSmoothScroll';
 import Scrollable from '@components/scrollable';
-import {AnimationList} from '@helpers/solid/animationList';
-import {doubleRaf} from '@helpers/schedulers';
-import {I18nTsx} from '@helpers/solid/i18n';
+import { AnimationList } from '@helpers/solid/animationList';
+import { doubleRaf } from '@helpers/schedulers';
+import { I18nTsx } from '@helpers/solid/i18n';
 import ButtonTsx from '@components/buttonTsx';
-import {StoriesSelection, toastStoryPinnedToProfile} from './selection';
-import {ButtonMenuItemOptions, ButtonMenuSync} from '@components/buttonMenu';
+import { StoriesSelection, toastStoryPinnedToProfile } from './selection';
+import { ButtonMenuItemOptions, ButtonMenuSync } from '@components/buttonMenu';
 import CheckboxField from '@components/checkboxField';
 import findUpClassName from '@helpers/dom/findUpClassName';
-import {attachContextMenuListener} from '@helpers/dom/attachContextMenuListener';
+import { attachContextMenuListener } from '@helpers/dom/attachContextMenuListener';
 import contextMenuController from '@helpers/contextMenuController';
 import positionMenu from '@helpers/positionMenu';
 import rootScope from '@lib/rootScope';
 import ListenerSetter from '@helpers/listenerSetter';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import cancelClickOrNextIfNotClick from '@helpers/dom/cancelClickOrNextIfNotClick';
-import {ButtonMenuItemOptionsVerifiable} from '@components/buttonMenu';
-import {AppMyStoriesTab} from '@components/solidJsTabs/tabs';
+import { ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
+import { AppMyStoriesTab } from '@components/solidJsTabs/tabs';
 import SidebarSlider from '../slider';
 import InputField from '@components/inputField';
 import confirmationPopup from '@components/confirmationPopup';
 import PopupElement from '@components/popups';
 import PopupChooseStory from '@components/popups/chooseStoryPopup';
 import createSubmenuTrigger from '@components/createSubmenuTrigger';
-import {toastNew} from '@components/toast';
-import {IconTsx} from '@components/iconTsx';
+import { toastNew } from '@components/toast';
+import { IconTsx } from '@components/iconTsx';
 import LottieAnimation from '@components/lottieAnimation';
 import lottieLoader from '@lib/rlottie/lottieLoader';
-import {copyTextToClipboard} from '@helpers/clipboard';
-import {handleShareStory} from './share';
+import { copyTextToClipboard } from '@helpers/clipboard';
+import { handleShareStory } from './share';
 import wrapPeerTitle from '../wrappers/peerTitle';
 
 const ALL_ALBUMS_ID = -1;
@@ -67,7 +67,7 @@ class StoriesContextMenu {
     attachContextMenuListener({
       element: attachTo,
       callback: (e) => {
-        if(this.init) {
+        if (this.init) {
           this.init();
           this.init = null as any;
         }
@@ -75,15 +75,15 @@ class StoriesContextMenu {
         let item: HTMLElement;
         try {
           item = findUpClassName(e.target!, 'search-super-item');
-        } catch(e) {}
+        } catch (e) {}
 
-        if(!item!) return;
+        if (!item!) return;
 
-        if(e instanceof MouseEvent) e.preventDefault();
-        if(this.element.classList.contains('active')) {
+        if (e instanceof MouseEvent) e.preventDefault();
+        if (this.element.classList.contains('active')) {
           return false;
         }
-        if(e instanceof MouseEvent) e.cancelBubble = true;
+        if (e instanceof MouseEvent) e.cancelBubble = true;
 
         const r = async() => {
           this.target = item;
@@ -98,7 +98,7 @@ class StoriesContextMenu {
             return good;
           }));
 
-          if(!f.some((v) => v)) {
+          if (!f.some((v) => v)) {
             return;
           }
 
@@ -112,14 +112,14 @@ class StoriesContextMenu {
 
         r();
       },
-      listenerSetter
+      listenerSetter,
     });
   }
 
   private init() {
     const managers = rootScope.managers;
     const getSelectedIds = () => {
-      if(this.selection && this.selection.isSelecting) {
+      if (this.selection && this.selection.isSelecting) {
         return this.selection.getSelectedStoryIds(this.peerId);
       }
       return [this.storyItem.id];
@@ -133,31 +133,31 @@ class StoriesContextMenu {
       icon: 'archive',
       text: 'Archive',
       onClick: () => managers.appStoriesManager.togglePinned(this.peerId, [this.storyItem.id], false).then(() => toastStoryPinnedToProfile(managers, this.peerId, false)),
-      verify: (() => !this.state.albumId && this.storyItem?.pFlags.pinned && managers.appStoriesManager.hasRights(this.peerId, this.storyItem.id, 'pin')) as () => Promise<boolean>
+      verify: (() => !this.state.albumId && this.storyItem?.pFlags.pinned && managers.appStoriesManager.hasRights(this.peerId, this.storyItem.id, 'pin')) as () => Promise<boolean>,
     }, {
       icon: 'unarchive',
       text: 'Unarchive',
       onClick: () => managers.appStoriesManager.togglePinned(this.peerId, [this.storyItem.id], true).then(() => toastStoryPinnedToProfile(managers, this.peerId, true)),
-      verify: () => !this.state.albumId && this.storyItem && !this.storyItem.pFlags.pinned && managers.appStoriesManager.hasRights(this.peerId, this.storyItem.id, 'pin')
+      verify: () => !this.state.albumId && this.storyItem && !this.storyItem.pFlags.pinned && managers.appStoriesManager.hasRights(this.peerId, this.storyItem.id, 'pin'),
     }, {
       icon: 'pin',
       text: 'ChatList.Context.Pin',
       onClick: () => managers.appStoriesManager.togglePinnedToTop(this.peerId, [this.storyItem.id], true).catch((err: ApiError) => {
-        if(err.type === 'STORY_ID_TOO_MANY') {
-          toastNew({langPackKey: 'StoriesPinLimit', langPackArguments: [+err.message!]});
+        if (err.type === 'STORY_ID_TOO_MANY') {
+          toastNew({ langPackKey: 'StoriesPinLimit', langPackArguments: [+err.message!] });
         }
       }),
-      verify: () => !this.state.albumId && this.state.pinned && this.storyItem?.pinnedIndex === undefined && managers.appStoriesManager.hasRights(this.peerId, this.storyItem.id, 'pin')
+      verify: () => !this.state.albumId && this.state.pinned && this.storyItem?.pinnedIndex === undefined && managers.appStoriesManager.hasRights(this.peerId, this.storyItem.id, 'pin'),
     }, {
       icon: 'unpin',
       text: 'ChatList.Context.Unpin',
       onClick: () => managers.appStoriesManager.togglePinnedToTop(this.peerId, [this.storyItem.id], false),
-      verify: () => !this.state.albumId && this.state.pinned && this.storyItem?.pinnedIndex !== undefined && managers.appStoriesManager.hasRights(this.peerId, this.storyItem.id, 'pin')
+      verify: () => !this.state.albumId && this.state.pinned && this.storyItem?.pinnedIndex !== undefined && managers.appStoriesManager.hasRights(this.peerId, this.storyItem.id, 'pin'),
     }, createSubmenuTrigger({
       options: {
         icon: 'folder',
         text: 'Stories.Albums.AddToAlbum',
-        verify: () => !this.state.albumId && !!(this.state.peer?.albums?.length) && hasRightsOnSelected('edit')
+        verify: () => !this.state.albumId && !!(this.state.peer?.albums?.length) && hasRightsOnSelected('edit'),
       },
       createSubmenu: async() => {
         const selectedIds = getSelectedIds();
@@ -167,7 +167,7 @@ class StoriesContextMenu {
           const checkboxField = new CheckboxField({
             checked: selectedStories.every((story) => {
               return story?._ === 'storyItem' && !!story.albums?.includes(album.album_id);
-            })
+            }),
           });
 
           const span = document.createElement('span');
@@ -180,46 +180,46 @@ class StoriesContextMenu {
               const wasChecked = checkboxField.checked;
               checkboxField.checked = !wasChecked;
               rootScope.managers.appStoriesManager.updateAlbum(this.peerId, album.album_id, {
-                [wasChecked ? 'deleteStories' : 'addStories']: selectedIds
+                [wasChecked ? 'deleteStories' : 'addStories']: selectedIds,
               }).catch(() => {
                 checkboxField.checked = wasChecked;
-                toastNew({langPackKey: 'Error.AnError'});
+                toastNew({ langPackKey: 'Error.AnError' });
               });
             },
             checkboxField,
             noCheckboxClickListener: true,
-            keepOpen: true
+            keepOpen: true,
           };
         });
 
-        return ButtonMenuSync({buttons, listenerSetter: this.listenerSetter});
-      }
+        return ButtonMenuSync({ buttons, listenerSetter: this.listenerSetter });
+      },
     }), {
       icon: 'crossround',
       text: 'Stories.Albums.RemoveFromAlbum',
       onClick: () => {
         const albumId = this.state.albumId;
         const storyIds = getSelectedIds()
-        if(this.selection!.isSelecting) this.selection!.cancelSelection();
-        rootScope.managers.appStoriesManager.updateAlbum(this.peerId, albumId!, {deleteStories: storyIds}).then(() => {
-          toastNew({langPackKey: 'Stories.Albums.Removed', langPackArguments: [storyIds.length]});
+        if (this.selection!.isSelecting) this.selection!.cancelSelection();
+        rootScope.managers.appStoriesManager.updateAlbum(this.peerId, albumId!, { deleteStories: storyIds }).then(() => {
+          toastNew({ langPackKey: 'Stories.Albums.Removed', langPackArguments: [storyIds.length] });
         }).catch(() => {
-          toastNew({langPackKey: 'Error.AnError'});
+          toastNew({ langPackKey: 'Error.AnError' });
         });
       },
-      verify: () => this.state.albumId !== undefined && hasRightsOnSelected('edit')
+      verify: () => this.state.albumId !== undefined && hasRightsOnSelected('edit'),
     }, {
       icon: 'link',
       text: 'CopyLink',
       onClick: async() => {
         const username = await rootScope.managers.appPeersManager.getPeerUsername(this.peerId);
         copyTextToClipboard(`https://t.me/${username}/s/${this.storyItem.id}`);
-        toastNew({langPackKey: 'LinkCopied'});
+        toastNew({ langPackKey: 'LinkCopied' });
       },
       verify: async() => {
         const username = await rootScope.managers.appPeersManager.getPeerUsername(this.peerId);
         return !!username;
-      }
+      },
     }, {
       icon: 'forward',
       text: 'ShareFile',
@@ -230,37 +230,37 @@ class StoriesContextMenu {
           onSend: async(toPeerId: PeerId) => {
             toastNew({
               langPackKey: toPeerId === rootScope.myId ? 'StorySharedToSavedMessages' : 'StorySharedTo',
-              langPackArguments: [await wrapPeerTitle({peerId: toPeerId})]
+              langPackArguments: [await wrapPeerTitle({ peerId: toPeerId })],
             })
-          }
+          },
         });
       },
       verify: async() => {
         const username = await rootScope.managers.appPeersManager.getPeerUsername(this.peerId);
-        if(!username) return false;
+        if (!username) return false;
 
         const story = this.storyItem;
         return !!story.pFlags.public && (!story.pFlags.noforwards || !!username)
-      }
+      },
     }, {
       icon: 'select',
       text: 'Message.Context.Select',
       onClick: () => this.selection!.toggleByElement(this.target),
-      verify: () => !!this.selection && !this.isSelected && this.state.canEdit
+      verify: () => !!this.selection && !this.isSelected && this.state.canEdit,
     }, {
       icon: 'select',
       text: 'Message.Context.Selection.Clear',
       onClick: () => this.selection!.cancelSelection(),
-      verify: () => !!this.selection && this.isSelected
+      verify: () => !!this.selection && this.isSelected,
     }, {
       icon: 'delete',
       className: 'danger',
       text: 'Delete',
       onClick: () => this.selection!.onDeleteStoriesClick([this.storyItem.id], this.peerId),
-      verify: () => managers.appStoriesManager.hasRights(this.peerId, this.storyItem.id, 'delete')
+      verify: () => managers.appStoriesManager.hasRights(this.peerId, this.storyItem.id, 'delete'),
     }];
 
-    this.element = ButtonMenuSync({buttons: this.buttons, listenerSetter: this.listenerSetter});
+    this.element = ButtonMenuSync({ buttons: this.buttons, listenerSetter: this.listenerSetter });
     this.element.classList.add('search-contextmenu', 'contextmenu');
     document.body.append(this.element);
 
@@ -272,16 +272,16 @@ async function openCreateAlbumPopup(peerId: PeerId): Promise<number | undefined>
   const inputField = new InputField({
     maxLength: 64,
     placeholder: 'Stories.Albums.CreatePlaceholder',
-    required: true
+    required: true,
   });
 
   try {
     await confirmationPopup({
       titleLangKey: 'Stories.Albums.CreateTitle',
       inputField,
-      button: {langKey: 'Create'}
+      button: { langKey: 'Create' },
     });
-  } catch(e) {
+  } catch (e) {
     return;
   }
 
@@ -300,13 +300,13 @@ function StoriesAlbums(props: {
 
   const handleChange = (value: string) => {
     const albumId = Number(value);
-    if(albumId === ADD_ALBUM_ID) {
+    if (albumId === ADD_ALBUM_ID) {
       openCreateAlbumPopup(props.peerId).then((albumId) => {
-        if(albumId !== undefined) props.onAlbumChange(albumId);
+        if (albumId !== undefined) props.onAlbumChange(albumId);
       });
       return false;
     }
-    if(props.selection?.isSelecting) props.selection.cancelSelection()
+    if (props.selection?.isSelecting) props.selection.cancelSelection()
     props.onAlbumChange(albumId === ALL_ALBUMS_ID ? undefined : albumId);
   }
 
@@ -321,10 +321,10 @@ function StoriesAlbums(props: {
         needIntersectionObserver
         contextMenuButtons={async(id_) => {
           const id = Number(id_);
-          if(id === ALL_ALBUMS_ID || id === ADD_ALBUM_ID) return [];
+          if (id === ALL_ALBUMS_ID || id === ADD_ALBUM_ID) return [];
 
           const album = stories.peer.albums?.find((a: StoryAlbum) => a.album_id === id);
-          if(!album) return [];
+          if (!album) return [];
 
           return [
             {
@@ -333,18 +333,18 @@ function StoriesAlbums(props: {
               onClick: async() => {
                 const username = await rootScope.managers.appPeersManager.getPeerUsername(props.peerId);
                 copyTextToClipboard(`https://t.me/${username}/a/${id}`);
-                toastNew({langPackKey: 'LinkCopied'});
+                toastNew({ langPackKey: 'LinkCopied' });
               },
               verify: async() => {
                 const username = await rootScope.managers.appPeersManager.getPeerUsername(props.peerId);
                 return !!username;
-              }
+              },
             },
             {
               icon: 'add',
               text: 'Stories.Albums.AddStories',
               verify: () => stories.canEdit,
-              onClick: () => openAddToAlbumPopup(props.peerId, id)
+              onClick: () => openAddToAlbumPopup(props.peerId, id),
             },
             {
               icon: 'edit',
@@ -354,7 +354,7 @@ function StoriesAlbums(props: {
                 const inputField = new InputField({
                   maxLength: 64,
                   placeholder: 'Stories.Albums.CreatePlaceholder',
-                  required: true
+                  required: true,
                 });
                 inputField.value = album.title;
 
@@ -362,17 +362,17 @@ function StoriesAlbums(props: {
                   await confirmationPopup({
                     titleLangKey: 'Stories.Albums.RenameTitle',
                     inputField,
-                    button: {langKey: 'Edit'}
+                    button: { langKey: 'Edit' },
                   });
-                } catch(e) {
+                } catch (e) {
                   return;
                 }
 
-                if(inputField.value === album.title) return;
-                rootScope.managers.appStoriesManager.updateAlbum(props.peerId, id, {title: inputField.value}).catch(() => {
-                  toastNew({langPackKey: 'Error.AnError'});
+                if (inputField.value === album.title) return;
+                rootScope.managers.appStoriesManager.updateAlbum(props.peerId, id, { title: inputField.value }).catch(() => {
+                  toastNew({ langPackKey: 'Error.AnError' });
                 });
-              }
+              },
             },
             {
               icon: 'delete',
@@ -384,17 +384,17 @@ function StoriesAlbums(props: {
                   await confirmationPopup({
                     titleLangKey: 'Stories.Albums.Delete',
                     descriptionLangKey: 'Stories.Albums.DeleteConfirm',
-                    button: {langKey: 'Delete', isDanger: true}
+                    button: { langKey: 'Delete', isDanger: true },
                   });
-                } catch(e) {
+                } catch (e) {
                   return;
                 }
 
                 rootScope.managers.appStoriesManager.deleteAlbum(props.peerId, id).catch(() => {
-                  toastNew({langPackKey: 'Error.AnError'});
+                  toastNew({ langPackKey: 'Error.AnError' });
                 });
-              }
-            }
+              },
+            },
           ];
         }}
       >
@@ -422,21 +422,21 @@ function StoriesAlbums(props: {
 }
 
 async function openAddToAlbumPopup(peerId: PeerId, albumId: number) {
-  const popup = PopupElement.createPopup(PopupChooseStory, {peerId, albumId});
+  const popup = PopupElement.createPopup(PopupChooseStory, { peerId, albumId });
   popup.show();
 
   const result = await new Promise<{added: number[], removed: number[]} | null>((resolve) => {
     popup.addEventListener('finish', resolve);
   });
 
-  if(!result) return;
-  const {added, removed} = result;
-  if(!added.length && !removed.length) return;
+  if (!result) return;
+  const { added, removed } = result;
+  if (!added.length && !removed.length) return;
   rootScope.managers.appStoriesManager.updateAlbum(peerId, albumId, {
     addStories: added.length ? added : undefined,
-    deleteStories: removed.length ? removed : undefined
+    deleteStories: removed.length ? removed : undefined,
   }).catch(() => {
-    toastNew({langPackKey: 'Error.AnError'});
+    toastNew({ langPackKey: 'Error.AnError' });
   });
 }
 
@@ -459,7 +459,7 @@ function StoriesGrid(props: {
 
   createEffect(() => {
     const id = viewerId();
-    if(!id) {
+    if (!id) {
       return;
     }
 
@@ -475,18 +475,18 @@ function StoriesGrid(props: {
     untrack(() => {
       const peer = stories.peer;
       const index = peer.stories.findIndex((story: StoryItem) => story.id === id);
-      actions.set({peer, index});
+      actions.set({ peer, index });
     });
 
     createStoriesViewer({
       onExit,
       target: target as () => Element,
-      splitByDays: true
+      splitByDays: true,
     });
   });
 
   const Item = (storyItem: StoryItem) => {
-    const {container, div, media, thumb} = wrapStoryMedia({
+    const { container, div, media, thumb } = wrapStoryMedia({
       peerId: stories.peer.peerId,
       storyItem: storyItem as StoryItem.storyItem,
       forPreview: true,
@@ -498,10 +498,10 @@ function StoriesGrid(props: {
         'class': 'grid-item search-super-item',
         'onClick': () => {
           setViewerId(storyItem.id);
-        }
+        },
       },
       childrenClassName: 'grid-item-media',
-      noPlayButton: true
+      noPlayButton: true,
     });
 
     let icon: HTMLElement;
@@ -510,7 +510,7 @@ function StoriesGrid(props: {
       const t = thumb();
       const m = media();
       const element = m || t;
-      if(!element) {
+      if (!element) {
         return;
       }
 
@@ -519,15 +519,15 @@ function StoriesGrid(props: {
         items.delete(storyItem.id);
       });
 
-      if(stories.peer.stories.length === 1) {
+      if (stories.peer.stories.length === 1) {
         const messageMedia = (storyItem as StoryItem.storyItem).media;
         const media = (messageMedia as MessageMedia.messageMediaPhoto).photo as Photo.photo || (messageMedia as MessageMedia.messageMediaDocument).document as Document.document;
         const gotThumb = getMediaThumbIfNeeded({
           photo: media,
-          cacheContext: {type: 'x', url: '', downloaded: 0},
+          cacheContext: { type: 'x', url: '', downloaded: 0 },
           useBlur: true,
           ignoreCache: true,
-          onlyStripped: true
+          onlyStripped: true,
         });
         const thumb = gotThumb!.image as HTMLCanvasElement;
         element.parentElement!.prepend(thumb);
@@ -545,22 +545,22 @@ function StoriesGrid(props: {
         });
       }
 
-      if(element.parentElement && props.pinned && !stories.albumId && (storyItem as StoryItem.storyItem).pinnedIndex !== undefined) {
+      if (element.parentElement && props.pinned && !stories.albumId && (storyItem as StoryItem.storyItem).pinnedIndex !== undefined) {
         icon ??= Icon('pin2', 'grid-item-pin');
         element.parentElement.append(icon);
-      } else if(icon) {
+      } else if (icon) {
         icon.remove();
       }
 
-      if(element.parentElement && props.archive && !(storyItem as StoryItem.storyItem).pFlags.pinned) {
+      if (element.parentElement && props.archive && !(storyItem as StoryItem.storyItem).pFlags.pinned) {
         archiveIcon ??= Icon('hide', 'grid-item-archived');
         element.parentElement.append(archiveIcon);
-      } else if(archiveIcon) {
+      } else if (archiveIcon) {
         archiveIcon.remove();
       }
     });
 
-    if(props.selection?.isSelecting) {
+    if (props.selection?.isSelecting) {
       props.selection.toggleElementCheckbox(div, true);
     }
 
@@ -579,14 +579,14 @@ function StoriesGrid(props: {
   const slideKeyframes = (_element: Element, removed: boolean): Keyframe[] => {
     const dir = direction();
     const yOffset = scrollDiff ? ` translateY(${scrollDiff}px)` : '';
-    if(removed) {
+    if (removed) {
       // AnimationList reverses these for exit; Y offset compensates scroll change
       return [
-        {transform: `translateX(${-dir * 100}%)${yOffset}`},
-        {transform: `translateX(0)${yOffset}`}
+        { transform: `translateX(${-dir * 100}%)${yOffset}` },
+        { transform: `translateX(0)${yOffset}` },
       ];
     }
-    return [{transform: `translateX(${dir * 100}%)`}, {transform: 'translateX(0)'}];
+    return [{ transform: `translateX(${dir * 100}%)` }, { transform: 'translateX(0)' }];
   };
 
   const scrollPositions = new Map<number | undefined, number>();
@@ -594,7 +594,7 @@ function StoriesGrid(props: {
 
   const getScrollBase = () => {
     const searchSuper = wrapperRef?.closest('.search-super') as HTMLElement;
-    if(!searchSuper) return 0;
+    if (!searchSuper) return 0;
     // 0 for "my stories" tab
     return searchSuper.offsetTop === 0 ? 0 : searchSuper.offsetTop - 56;
   };
@@ -611,31 +611,31 @@ function StoriesGrid(props: {
     const scrollBase = getScrollBase();
     const oldScrollTop = scrollable.scrollTop;
     const oldScroll = oldScrollTop - scrollBase;
-    if(oldScroll >= 0) {
+    if (oldScroll >= 0) {
       scrollPositions.set(stories.albumId, Math.max(0, oldScroll));
     }
 
-    if(dir) setDirection(dir);
+    if (dir) setDirection(dir);
     actions.setAlbumId(albumId);
 
     // restore scroll immediately (before paint) and compensate via keyframes Y offset
     const newScroll = scrollPositions.get(albumId) ?? 0;
     const targetScrollTop = scrollBase + newScroll;
-    if(oldScroll >= 0) {
+    if (oldScroll >= 0) {
       scrollDiff = targetScrollTop - oldScrollTop;
       scrollable.scrollTop = targetScrollTop;
     } else {
       scrollDiff = 0;
       const searchSuper = wrapperRef?.closest('.search-super') as HTMLElement;
-      if(searchSuper) {
+      if (searchSuper) {
         fastSmoothScroll({
           element: searchSuper,
           container: scrollable,
           position: 'center',
           axis: 'y',
-          getElementPosition: ({elementPosition}) => {
+          getElementPosition: ({ elementPosition }) => {
             return elementPosition - 24;
-          }
+          },
         });
       }
     }
@@ -673,7 +673,7 @@ function StoriesGrid(props: {
           <Match when={true}>
             <div
               class="grid"
-              classList={{two: stories.peer.stories.length === 2, one: stories.peer.stories.length === 1}}
+              classList={{ two: stories.peer.stories.length === 2, one: stories.peer.stories.length === 1 }}
             >
               <For each={stories.peer.stories}>{Item}</For>
             </div>
@@ -686,7 +686,7 @@ function StoriesGrid(props: {
   return (
     <div ref={wrapperRef} class="stories-album-wrapper">
       <AnimationList
-        animationOptions={{duration: SLIDE_DURATION, easing: SLIDE_EASING}}
+        animationOptions={{ duration: SLIDE_DURATION, easing: SLIDE_EASING }}
         keyframes={slideKeyframes}
         mode="replacement"
       >
@@ -719,12 +719,12 @@ function StoriesSelectionToolbar(props: {
           class="search-super-selection-remove btn-icon"
           onClick={() => {
             const mids = props.selection.selectedMids.get(props.peerId!);
-            if(mids?.size) {
+            if (mids?.size) {
               const count = mids.size;
-              rootScope.managers.appStoriesManager.updateAlbum(props.peerId!, props.albumId!, {deleteStories: [...mids]}).then(() => {
-                toastNew({langPackKey: 'Stories.Albums.Removed', langPackArguments: [count]});
+              rootScope.managers.appStoriesManager.updateAlbum(props.peerId!, props.albumId!, { deleteStories: [...mids] }).then(() => {
+                toastNew({ langPackKey: 'Stories.Albums.Removed', langPackArguments: [count] });
               }).catch(() => {
-                toastNew({langPackKey: 'Error.AnError'});
+                toastNew({ langPackKey: 'Error.AnError' });
               });
             }
             props.selection.cancelSelection();
@@ -755,7 +755,7 @@ function StoriesSelectionToolbar(props: {
     </div>
   );
 
-  if(props.mount) {
+  if (props.mount) {
     createEffect(() => {
       const selecting = props.selection.selecting();
       props.mount!.classList.toggle('is-selecting', selecting);
@@ -767,7 +767,7 @@ function StoriesSelectionToolbar(props: {
   return (
     <div
       class="search-super-tabs-scrollable menu-horizontal-scrollable sticky is-single"
-      classList={{'is-selecting': props.selection.selecting(), 'backwards': !props.selection.selecting()}}
+      classList={{ 'is-selecting': props.selection.selecting(), 'backwards': !props.selection.selecting() }}
     >
       {content}
     </div>
@@ -789,26 +789,26 @@ export function profileStoriesButtonMenu(props: {
       props.slider.createTab(AppMyStoriesTab).open({
         ...AppMyStoriesTab.getInitArgs(),
         isArchive: true,
-        chatId: props.peerId.isAnyChat() ? props.peerId.toChatId() : undefined
+        chatId: props.peerId.isAnyChat() ? props.peerId.toChatId() : undefined,
       });
     },
     verify: () => Promise.resolve(props.canEdit?.() ?? true).then((canEdit) => (
       props.verify() &&
       !props.isArchive &&
       canEdit
-    ))
+    )),
   }, {
     icon: 'folder',
     text: 'Stories.Albums.CreateAlbum',
     onClick: async() => {
       const albumId = await openCreateAlbumPopup(props.peerId);
-      if(albumId !== undefined) props.onAlbumCreated?.(albumId);
+      if (albumId !== undefined) props.onAlbumCreated?.(albumId);
     },
     verify: () => Promise.resolve(props.canEdit?.() ?? true).then((canEdit) => (
       props.verify() &&
       !props.isArchive &&
       canEdit
-    ))
+    )),
   }];
 }
 
@@ -833,13 +833,13 @@ export function StoriesProfileList(props: {
     archive: props.archive,
     initialAlbumId: props.initialAlbumId,
     manualLoad: true,
-    onLoad: props.onLoad
+    onLoad: props.onLoad,
   });
   const [state, actions] = contextValue;
 
   createEffect(() => {
     const count = state.peer?.count ?? 0;
-    if(state.albumId === undefined) {
+    if (state.albumId === undefined) {
       props.onCountChange?.(count);
     }
   });
@@ -850,7 +850,7 @@ export function StoriesProfileList(props: {
     listenerSetter: props.listenerSetter,
     isArchive: props.archive,
     chatId: props.peerId.isAnyChat() ? props.peerId.toChatId() : undefined,
-    forPicker: props.forPicker
+    forPicker: props.forPicker,
   }) : undefined;
 
   let setAlbumAnimated!: (albumId: number | undefined) => void;
@@ -876,15 +876,15 @@ export function StoriesProfileList(props: {
               state
             );
 
-            if(selection) {
+            if (selection) {
               attachClickEvent(containerRef, (e) => {
-                if(selection.isSelecting) {
+                if (selection.isSelecting) {
                   const item = findUpClassName(e.target!, 'search-super-item');
-                  if(!item) return;
+                  if (!item) return;
                   cancelClickOrNextIfNotClick(e);
                   selection.toggleByElement(item);
                 }
-              }, {capture: true, passive: false, listenerSetter: props.listenerSetter});
+              }, { capture: true, passive: false, listenerSetter: props.listenerSetter });
             }
             props.onReady?.();
           }}
@@ -913,11 +913,11 @@ export function StoriesProfileList(props: {
     actions,
     selection,
     setAlbum: (albumId: number | undefined, skipAnimation = false) => {
-      if(!skipAnimation) {
+      if (!skipAnimation) {
         setAlbumAnimated(albumId);
         return;
       }
       actions.setAlbumId(albumId);
-    }
+    },
   }
 }

@@ -1,12 +1,12 @@
 import mediaSizes from '@helpers/mediaSizes';
-import {MyDocument} from '@appManagers/appDocsManager';
-import {AppManagers} from '@lib/managers';
-import animationIntersector, {AnimationItemGroup} from '@components/animationIntersector';
+import { MyDocument } from '@appManagers/appDocsManager';
+import { AppManagers } from '@lib/managers';
+import animationIntersector, { AnimationItemGroup } from '@components/animationIntersector';
 import LazyLoadQueue from '@components/lazyLoadQueue';
 import LazyLoadQueueRepeat from '@components/lazyLoadQueueRepeat';
 import wrapSticker from '@components/wrappers/sticker';
 import safeAssign from '@helpers/object/safeAssign';
-import {getMiddleware, Middleware} from '@helpers/middleware';
+import { getMiddleware, Middleware } from '@helpers/middleware';
 import noop from '@helpers/noop';
 
 export default class SuperStickerRenderer {
@@ -32,8 +32,8 @@ export default class SuperStickerRenderer {
     options.withLock ??= true;
     safeAssign(this, options);
 
-    this.lazyLoadQueue = new LazyLoadQueueRepeat(undefined, ({target, visible}) => {
-      if(!visible) {
+    this.lazyLoadQueue = new LazyLoadQueueRepeat(undefined, ({ target, visible }) => {
+      if (!visible) {
         this.processInvisible(target);
       }
     }, this.intersectionObserverInit);
@@ -57,12 +57,12 @@ export default class SuperStickerRenderer {
     loadPromises?: Promise<any>[],
     middleware?: Middleware
   ) {
-    if(!element) {
+    if (!element) {
       element = document.createElement('div');
       element.classList.add('grid-item', 'super-sticker');
       element.dataset.docId = '' + doc.id;
 
-      if(doc.animated) {
+      if (doc.animated) {
         this.observeAnimated(element);
       }
     }
@@ -78,13 +78,13 @@ export default class SuperStickerRenderer {
       onlyThumb: doc.animated,
       loadPromises,
       middleware: element.middlewareHelper.get(),
-      ...(doc.animated ? {} : this.visibleRenderOptions || {})
+      ...(doc.animated ? {} : this.visibleRenderOptions || {}),
     });
 
-    if(this.playOnHover) {
+    if (this.playOnHover) {
       element.addEventListener('mouseenter', () => {
         const renderer = this.rendererByElement.get(element);
-        if(renderer && 'playOrRestart' in renderer) {
+        if (renderer && 'playOrRestart' in renderer) {
           renderer.playOrRestart()
         }
       })
@@ -97,14 +97,14 @@ export default class SuperStickerRenderer {
     this.animated.add(element);
     this.lazyLoadQueue.observe({
       div: element,
-      load: this.processVisible as (target?: HTMLElement) => Promise<any>
+      load: this.processVisible as (target?: HTMLElement) => Promise<any>,
     });
   }
 
   public unobserveAnimated(element: HTMLElement) {
     element.middlewareHelper?.destroy();
     this.animated.delete(element);
-    this.lazyLoadQueue.delete({div: element});
+    this.lazyLoadQueue.delete({ div: element });
   }
 
   public deleteSticker(element: HTMLElement) {
@@ -115,7 +115,7 @@ export default class SuperStickerRenderer {
     // console.error('checkAnimationContainer', div, visible);
     const players = animationIntersector.getAnimations(element);
     players.forEach((player) => {
-      if(!visible) {
+      if (!visible) {
         animationIntersector.removeAnimation(player);
       } else {
         animationIntersector.checkAnimation(player, false);
@@ -146,15 +146,15 @@ export default class SuperStickerRenderer {
       loop: true,
       withLock: this.withLock,
       middleware: element.middlewareHelper.get(),
-      ...(this.visibleRenderOptions || {})
-    }).then(({render}) => render);
+      ...(this.visibleRenderOptions || {}),
+    }).then(({ render }) => render);
 
     promise.then(() => {
       // clearTimeout(timeout);
       this.checkAnimationContainer(element, this.lazyLoadQueue.intersector.isVisible(element));
     }, noop);
 
-    if(this.playOnHover) {
+    if (this.playOnHover) {
       promise.then(renderer => {
         this.rendererByElement.set(element, renderer);
       });

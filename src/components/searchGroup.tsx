@@ -1,9 +1,9 @@
-import appDialogsManager, {AppDialogsManager} from '@lib/appDialogsManager';
-import {i18n, LangPackKey} from '@lib/langPack';
+import appDialogsManager, { AppDialogsManager } from '@lib/appDialogsManager';
+import { i18n, LangPackKey } from '@lib/langPack';
 import Section from '@components/section';
-import {createMemo, createRoot, createSignal, JSX, Show} from 'solid-js';
+import { createMemo, createRoot, createSignal, JSX, Show } from 'solid-js';
 import classNames from '@helpers/string/classNames';
-import {Middleware} from '@helpers/middleware';
+import { Middleware } from '@helpers/middleware';
 import Scrollable from '@components/scrollable2';
 
 export type SearchGroupType = 'contacts' | 'globalContacts' | 'messages' | string;
@@ -32,7 +32,7 @@ export function createSearchGroup(options: {
     onFound,
     noIcons,
     middleware,
-    scrollableX
+    scrollableX,
   } = options;
 
   const NameRight = (props: {
@@ -55,12 +55,12 @@ export function createSearchGroup(options: {
   const [_nameRight, setNameRight] = createSignal<Parameters<typeof NameRight>[0]>();
   const nameRight = createMemo(() => {
     const _ = _nameRight();
-    if(_) {
+    if (_) {
       return NameRight(_);
     }
 
     const toggleClassName = showMoreClassName();
-    if(!toggleClassName) {
+    if (!toggleClassName) {
       return;
     }
 
@@ -95,7 +95,7 @@ export function createSearchGroup(options: {
       ref={(ref) => container = ref}
       innerClass="search-group-inner"
       contentProps={{
-        class: 'search-group-content'
+        class: 'search-group-content',
       }}
     >
       <Show when={scrollableX} fallback={list}>
@@ -111,12 +111,12 @@ export function createSearchGroup(options: {
     middleware?.onClean(dispose);
   });
 
-  if(clickable) {
+  if (clickable) {
     appDialogsManager.setListClickListener({
       list,
       onFound,
       withContext: undefined,
-      autonomous
+      autonomous,
     });
   }
 
@@ -142,10 +142,10 @@ export function createSearchGroup(options: {
     clear() {
       setHide(true);
       group.removePlaceholder();
-      if(clearable) {
+      if (clearable) {
         Array.from(list.children).forEach((el) => {
           const dialogElement = (el as any).dialogElement;
-          if(dialogElement) dialogElement?.remove();
+          if (dialogElement) dialogElement?.remove();
           else el.remove();
         });
       }
@@ -154,7 +154,7 @@ export function createSearchGroup(options: {
       setHide(false);
     },
     toggle() {
-      if(list.childElementCount) {
+      if (list.childElementCount) {
         group.setActive();
       } else {
         group.clear();
@@ -163,7 +163,7 @@ export function createSearchGroup(options: {
     needShowMoreButton(toggleClassName = 'is-short-5') {
       setShowMoreClassName(toggleClassName);
     },
-    setNameRight
+    setNameRight,
   };
 
   return group;

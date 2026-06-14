@@ -15,7 +15,7 @@
  * trick. The serialized wire form matches exactly.
  */
 
-import {TLReader, TLWriter} from './tl';
+import { TLReader, TLWriter } from './tl';
 
 // Mask of bits [from, 8) — MSB-first; e.g. beginMask(3) = 0b00011111.
 function beginMask(from: number): number {
@@ -41,11 +41,11 @@ export class BitString {
   readonly bitLengthValue: number;
 
   constructor(data: Uint8Array, beginBit: number, bitLength: number) {
-    if(beginBit < 0 || beginBit > 7) {
+    if (beginBit < 0 || beginBit > 7) {
       throw new Error(`BitString: beginBit out of range: ${beginBit}`);
     }
     const requiredBytes = Math.ceil((beginBit + bitLength) / 8);
-    if(data.length < requiredBytes) {
+    if (data.length < requiredBytes) {
       throw new Error(
         `BitString: backing too short (need ${requiredBytes} bytes, have ${data.length})`
       );
@@ -69,7 +69,7 @@ export class BitString {
   }
 
   public getBit(pos: number): number {
-    if(pos < 0 || pos >= this.bitLengthValue) {
+    if (pos < 0 || pos >= this.bitLengthValue) {
       throw new Error(`BitString.getBit: out of range ${pos} / ${this.bitLengthValue}`);
     }
     const abs = pos + this.beginBit;
@@ -79,25 +79,25 @@ export class BitString {
   }
 
   public equals(other: BitString): boolean {
-    if(this.bitLengthValue !== other.bitLengthValue) return false;
-    for(let i = 0; i < this.bitLengthValue; i++) {
-      if(this.getBit(i) !== other.getBit(i)) return false;
+    if (this.bitLengthValue !== other.bitLengthValue) return false;
+    for (let i = 0; i < this.bitLengthValue; i++) {
+      if (this.getBit(i) !== other.getBit(i)) return false;
     }
     return true;
   }
 
   public commonPrefixLength(other: BitString): number {
     const cap = Math.min(this.bitLengthValue, other.bitLengthValue);
-    for(let i = 0; i < cap; i++) {
-      if(this.getBit(i) !== other.getBit(i)) return i;
+    for (let i = 0; i < cap; i++) {
+      if (this.getBit(i) !== other.getBit(i)) return i;
     }
     return cap;
   }
 
   public substr(pos: number, length: number = Number.MAX_SAFE_INTEGER): BitString {
-    if(pos < 0) throw new Error('BitString.substr: negative pos');
+    if (pos < 0) throw new Error('BitString.substr: negative pos');
     const newLength = Math.min(length, this.bitLengthValue - pos);
-    if(newLength < 0) throw new Error('BitString.substr: pos beyond bitLength');
+    if (newLength < 0) throw new Error('BitString.substr: pos beyond bitLength');
 
     // Adjust beginBit; share the underlying buffer offset by whole bytes.
     const absStart = this.beginBit + pos;
@@ -109,14 +109,14 @@ export class BitString {
   // Concatenate bit strings into a fresh BitString. Useful for trie key paths.
   public static concat(parts: BitString[]): BitString {
     let total = 0;
-    for(const p of parts) total += p.bitLengthValue;
-    if(total === 0) return BitString.empty();
+    for (const p of parts) total += p.bitLengthValue;
+    if (total === 0) return BitString.empty();
 
     const bytes = new Uint8Array(Math.ceil(total / 8));
     let cursor = 0;
-    for(const p of parts) {
-      for(let i = 0; i < p.bitLengthValue; i++) {
-        if(p.getBit(i)) {
+    for (const p of parts) {
+      for (let i = 0; i < p.bitLengthValue; i++) {
+        if (p.getBit(i)) {
           bytes[cursor >> 3] |= 1 << (7 - (cursor & 7));
         }
         cursor++;
@@ -143,26 +143,26 @@ export class BitString {
     const singleByteOnly = bytesSize === 0 && begin !== 0 && endBitInLastByte !== 0 && totalBytes === 1;
 
     let n = 0;
-    if(singleByteOnly) {
+    if (singleByteOnly) {
       const mask = createMask(begin, endBitInLastByte);
       writer.uint8(this.data[0] & mask);
       n = 1;
     } else {
-      if(begin !== 0) {
+      if (begin !== 0) {
         writer.uint8(this.data[0] & beginMask(begin));
         n++;
       }
       // Full middle bytes — no masking.
-      for(let i = 0; i < bytesSize; i++) {
+      for (let i = 0; i < bytesSize; i++) {
         writer.uint8(this.data[fullMiddleStart + i]);
         n++;
       }
-      if(endBitInLastByte !== 0) {
+      if (endBitInLastByte !== 0) {
         writer.uint8(this.data[totalBytes - 1] & endMask(endBitInLastByte));
         n++;
       }
     }
-    while(n % 4 !== 0) {
+    while (n % 4 !== 0) {
       writer.uint8(0);
       n++;
     }
@@ -173,8 +173,8 @@ export class BitString {
     const beginEnd = reader.uint32();
     const begin = (beginEnd >>> 16) & 0xff;
     const end = beginEnd & 0xffff;
-    if(begin > 7) throw new Error(`BitString.parse: invalid begin_bit ${begin}`);
-    if(end < begin) throw new Error(`BitString.parse: end ${end} < begin ${begin}`);
+    if (begin > 7) throw new Error(`BitString.parse: invalid begin_bit ${begin}`);
+    if (end < begin) throw new Error(`BitString.parse: end ${end} < begin ${begin}`);
 
     const bitLength = end - begin;
     const endBitInLastByte = end & 7;
@@ -184,27 +184,27 @@ export class BitString {
     let n = 0;
     const singleByteOnly = totalBytes === 1 && begin !== 0 && endBitInLastByte !== 0;
 
-    if(singleByteOnly) {
+    if (singleByteOnly) {
       const mask = createMask(begin, endBitInLastByte);
       out[0] = reader.uint8() & mask;
       n = 1;
     } else {
-      if(begin !== 0) {
+      if (begin !== 0) {
         out[0] = reader.uint8() & beginMask(begin);
         n++;
       }
       const fullMiddleStart = begin === 0 ? 0 : 1;
       const fullMiddleEnd = endBitInLastByte === 0 ? totalBytes : totalBytes - 1;
-      for(let i = fullMiddleStart; i < fullMiddleEnd; i++) {
+      for (let i = fullMiddleStart; i < fullMiddleEnd; i++) {
         out[i] = reader.uint8();
         n++;
       }
-      if(endBitInLastByte !== 0) {
+      if (endBitInLastByte !== 0) {
         out[totalBytes - 1] = reader.uint8() & endMask(endBitInLastByte);
         n++;
       }
     }
-    while(n % 4 !== 0) {
+    while (n % 4 !== 0) {
       reader.uint8();
       n++;
     }

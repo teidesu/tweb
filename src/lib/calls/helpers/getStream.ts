@@ -1,5 +1,5 @@
-import {appSettings, setAppSettings} from '@stores/appSettings';
-import {logger} from '@lib/logger';
+import { appSettings, setAppSettings } from '@stores/appSettings';
+import { logger } from '@lib/logger';
 
 const log = logger('getStream');
 
@@ -11,7 +11,7 @@ const log = logger('getStream');
 // matches a physical device" condition: Chromium / Safari say
 // `OverconstrainedError`, Firefox says `NotFoundError`.
 function isMissingDeviceError(err: unknown): boolean {
-  if(!err || typeof err !== 'object') return false;
+  if (!err || typeof err !== 'object') return false;
   const name = (err as {name?: unknown}).name;
   return name === 'OverconstrainedError' || name === 'NotFoundError';
 }
@@ -20,14 +20,14 @@ type StrippedConstraint<T> = {value: T, stripped: boolean};
 function stripDeviceId<T extends boolean | MediaTrackConstraints | undefined>(
   constraint: T
 ): StrippedConstraint<T> {
-  if(!constraint || typeof constraint !== 'object') return {value: constraint, stripped: false};
-  if(!('deviceId' in constraint)) return {value: constraint, stripped: false};
-  const {deviceId: _, ...rest} = constraint as MediaTrackConstraints & {deviceId?: unknown};
-  return {value: rest as T, stripped: true};
+  if (!constraint || typeof constraint !== 'object') return { value: constraint, stripped: false };
+  if (!('deviceId' in constraint)) return { value: constraint, stripped: false };
+  const { deviceId: _, ...rest } = constraint as MediaTrackConstraints & {deviceId?: unknown};
+  return { value: rest as T, stripped: true };
 }
 
 function applyMuted(stream: MediaStream, muted: boolean | undefined): MediaStream {
-  if(muted !== undefined) {
+  if (muted !== undefined) {
     stream.getTracks().forEach((t) => t.enabled = !muted);
   }
   return stream;
@@ -57,8 +57,8 @@ export default async function getStream(
 ): Promise<MediaStream> {
   try {
     return applyMuted(await navigator.mediaDevices.getUserMedia(constraints), muted);
-  } catch(err) {
-    if(!isMissingDeviceError(err)) throw err;
+  } catch (err) {
+    if (!isMissingDeviceError(err)) throw err;
 
     const audio = stripDeviceId(constraints.audio);
     const video = stripDeviceId(constraints.video);
@@ -66,41 +66,41 @@ export default async function getStream(
     // Nothing to fall back FROM — propagate the original error so the caller
     // surfaces it (this is a real "no device at all" condition, not a stale
     // persisted choice).
-    if(!audio.stripped && !video.stripped) throw err;
+    if (!audio.stripped && !video.stripped) throw err;
 
-    log.warn('saved device id is stale, attempting fallback', {audioHadDeviceId: audio.stripped, videoHadDeviceId: video.stripped, error: (err as {name?: string})?.name});
+    log.warn('saved device id is stale, attempting fallback', { audioHadDeviceId: audio.stripped, videoHadDeviceId: video.stripped, error: (err as {name?: string})?.name });
 
     // Both had deviceId — try keeping audio first; if that succeeds, the
     // camera was the only stale device and the mic preference survives.
-    if(audio.stripped && video.stripped) {
+    if (audio.stripped && video.stripped) {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: constraints.audio,
-          video: video.value
+          video: video.value,
         });
-        if(appSettings.callDevices?.cameraId) {
+        if (appSettings.callDevices?.cameraId) {
           setAppSettings('callDevices', 'cameraId', '');
         }
         log('camera device was stale; kept microphone, cleared cameraId');
         return applyMuted(stream, muted);
-      } catch(err2) {
-        if(!isMissingDeviceError(err2)) throw err2;
+      } catch (err2) {
+        if (!isMissingDeviceError(err2)) throw err2;
         // audio.deviceId was also bad — fall through to the dual-clear path.
       }
     }
 
-    if(audio.stripped && appSettings.callDevices?.microphoneId) {
+    if (audio.stripped && appSettings.callDevices?.microphoneId) {
       setAppSettings('callDevices', 'microphoneId', '');
     }
-    if(video.stripped && appSettings.callDevices?.cameraId) {
+    if (video.stripped && appSettings.callDevices?.cameraId) {
       setAppSettings('callDevices', 'cameraId', '');
     }
 
-    log.warn('clearing stale device id(s), retrying on OS defaults', {clearedMicrophone: audio.stripped, clearedCamera: video.stripped});
+    log.warn('clearing stale device id(s), retrying on OS defaults', { clearedMicrophone: audio.stripped, clearedCamera: video.stripped });
 
     return applyMuted(await navigator.mediaDevices.getUserMedia({
       audio: audio.value,
-      video: video.value
+      video: video.value,
     }), muted);
   }
 }

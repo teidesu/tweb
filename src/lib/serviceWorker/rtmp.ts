@@ -1,22 +1,22 @@
-import type {OpusDecodedAudio} from '@vendor/opus';
-import type {GroupCallRtmpState} from '@appManagers/appGroupCallsManager';
-import type {VideoStreamInfo} from '@lib/calls/videoStreamInfo';
-import {InputGroupCall} from '@layer';
-import {DcId} from '@types';
-import {RTMP_UNIFIED_CHANNEL_ID, RTMP_UNIFIED_QUALITY} from '@lib/calls/constants';
-import {Fmp4InitChunkInfo, generateFmp4Init, generateFmp4Segment} from '@lib/rtmp/fmp4';
+import type { OpusDecodedAudio } from '@vendor/opus';
+import type { GroupCallRtmpState } from '@appManagers/appGroupCallsManager';
+import type { VideoStreamInfo } from '@lib/calls/videoStreamInfo';
+import { InputGroupCall } from '@layer';
+import { DcId } from '@types';
+import { RTMP_UNIFIED_CHANNEL_ID, RTMP_UNIFIED_QUALITY } from '@lib/calls/constants';
+import { Fmp4InitChunkInfo, generateFmp4Init, generateFmp4Segment } from '@lib/rtmp/fmp4';
 import ISOBoxer from '@lib/rtmp/isoboxer';
-import {serviceMessagePort, log, invokeVoidAll} from '@lib/serviceWorker/index.service';
+import { serviceMessagePort, log, invokeVoidAll } from '@lib/serviceWorker/index.service';
 import bigInt from 'big-integer';
-import {IS_SAFARI} from '@environment/userAgent';
-import {OpusDecoder} from '@vendor/opus';
+import { IS_SAFARI } from '@environment/userAgent';
+import { OpusDecoder } from '@vendor/opus';
 import deferredPromise from '@helpers/cancellablePromise';
-import {logger} from '@lib/logger';
+import { logger } from '@lib/logger';
 import assumeType from '@helpers/assumeType';
 import clamp from '@helpers/number/clamp';
 import pause from '@helpers/schedulers/pause';
-import {ActiveAccountNumber} from '@lib/accounts/types';
-import {getCurrentAccountFromURL} from '@lib/accounts/getCurrentAccountFromURL';
+import { ActiveAccountNumber } from '@lib/accounts/types';
+import { getCurrentAccountFromURL } from '@lib/accounts/getCurrentAccountFromURL';
 
 const ctx = self as any as ServiceWorkerGlobalScope;
 
@@ -43,7 +43,7 @@ const MP4_MIME = 'video/mp4';
 const HLS_MIME = 'application/vnd.apple.mpegurl';
 
 function scaleToTime(scale: number) {
-  if(scale < 0) return 1000 << -scale;
+  if (scale < 0) return 1000 << -scale;
   return 1000 >> scale;
 }
 
@@ -104,13 +104,13 @@ class RtmpStream {
   }
 
   private updateRtt(rtt: number) {
-    if(this._rtts.push(rtt) > 10) {
+    if (this._rtts.push(rtt) > 10) {
       this._rtts.shift();
     }
   }
 
   private maybeAdjustBufferSize() {
-    if(this._rtts.length < 3) return;
+    if (this._rtts.length < 3) return;
 
     const log = this._log.bindPrefix('maybeAdjustBufferSize');
 
@@ -119,7 +119,7 @@ class RtmpStream {
 
     log(`avg rtt=${avgRtt} target buffer size=${targetBufferSize}`);
 
-    if(targetBufferSize !== this._bufferSize) {
+    if (targetBufferSize !== this._bufferSize) {
       const diff = targetBufferSize - this._bufferSize;
       this._cutoff = this._cutoff.minus(this._chunkTime * diff);
       this._bufferSize = targetBufferSize;
@@ -128,24 +128,24 @@ class RtmpStream {
   }
 
   private async processChunk(iso: any, seq: number) {
-    if(!iso) return new Uint8Array(0);
+    if (!iso) return new Uint8Array(0);
     return generateFmp4Segment({
       chunk: iso,
       seq: seq,
       timestamp: bigInt(seq).multiply(this._chunkTime),
       opusTrackId: this._initChunk!.opusTrackId,
-      decodeOpus: (IS_SAFARI && this.decodeOpus) as unknown as ((chunk: Uint8Array) => Promise<OpusDecodedAudio>) | undefined
+      decodeOpus: (IS_SAFARI && this.decodeOpus) as unknown as ((chunk: Uint8Array) => Promise<OpusDecodedAudio>) | undefined,
     });
   }
 
   private async fetchChunk(time: bigInt.BigInteger, ignoreRequestedTime?: boolean) {
     const log = this._log.bindPrefix('fetchChunk-' + time.toString());
-    if(time.isNegative()) {
+    if (time.isNegative()) {
       // chunk does not exist (e.g. stream has just started)
       log.warn('negative time');
       return;
     }
-    if(!ignoreRequestedTime && this._lastRequestedTime !== undefined && time.lesserOrEquals(this._lastRequestedTime)) {
+    if (!ignoreRequestedTime && this._lastRequestedTime !== undefined && time.lesserOrEquals(this._lastRequestedTime)) {
       // this chunk was already fetched, likely due to resync
       log.warn('last requested time is greater or equals', this._lastRequestedTime.toString());
       return;
@@ -163,20 +163,20 @@ class RtmpStream {
         time_ms: time.toString(),
         scale: this._scale,
         video_channel: RTMP_UNIFIED_CHANNEL_ID,
-        video_quality: RTMP_UNIFIED_QUALITY
-      }
+        video_quality: RTMP_UNIFIED_QUALITY,
+      },
     });
     const rtt = Date.now() - now;
     this.updateRtt(rtt);
     log(`ended fetch time=${time}, rtt=${rtt}`);
 
     // empty chunk (e.g. stream has just started)
-    if(!info) {
+    if (!info) {
       log.warn('no bytes');
       return;
     }
 
-    if(info.container !== 'mp4') {
+    if (info.container !== 'mp4') {
       throw new Error('Invalid container');
     }
 
@@ -185,27 +185,27 @@ class RtmpStream {
   }
 
   private async generateInitChunk(iso: any) {
-    if(this._initChunk) {
+    if (this._initChunk) {
       return;
     }
 
     this._initChunk = generateFmp4Init(iso, {
-      opusToFlac: IS_SAFARI
+      opusToFlac: IS_SAFARI,
     });
-    if(this._initChunk.opusInitOptions) {
+    if (this._initChunk.opusInitOptions) {
       await this.initOpusDecoder();
     }
     this._retryCount = 0;
   }
 
   private async initOpusDecoder(ignoreExisting = false) {
-    if(this._decoderInitPromise) {
+    if (this._decoderInitPromise) {
       await this._decoderInitPromise;
       return;
     }
 
     this._log('creating opus decoder');
-    if(this._opusDecoder !== undefined && !ignoreExisting) {
+    if (this._opusDecoder !== undefined && !ignoreExisting) {
       this._opusDecoder.free();
     }
     const decoder = new OpusDecoder(this._initChunk!.opusInitOptions);
@@ -216,7 +216,7 @@ class RtmpStream {
   }
 
   private async decodeOpus(chunk: Uint8Array): Promise<OpusDecodedAudio> {
-    if(this._opusDecoder === undefined) {
+    if (this._opusDecoder === undefined) {
       await this.initOpusDecoder();
     }
 
@@ -230,8 +230,8 @@ class RtmpStream {
   private sendBufferToController(controller: ReadableStreamDefaultController<Uint8Array>) {
     this._log('sending buffer to controller');
     controller.enqueue(this._initChunk!.data);
-    for(const chunk of this._buffer) {
-      if(!chunk.segment) break;
+    for (const chunk of this._buffer) {
+      if (!chunk.segment) break;
       controller.enqueue(chunk.segment);
     }
   }
@@ -239,13 +239,13 @@ class RtmpStream {
   private removeStaleChunks() {
     do {
       const chunk = this._buffer[0];
-      if(chunk && chunk.time.lt(this._cutoff)) {
+      if (chunk && chunk.time.lt(this._cutoff)) {
         this._buffer.shift();
         this._log('removing stale chunk', chunk.time.toString());
       } else {
         break;
       }
-    } while(true);
+    } while (true);
   }
 
   private async _replenishBuffer(maxChunks: number = 1, lastReplenishingPromise = this._lastReplenishingPromise): Promise<void> {
@@ -256,7 +256,7 @@ class RtmpStream {
 
     // fetch upcoming chunks
     const chunksToFetch = clamp(this._bufferSize - this._buffer.length, 0, maxChunks);
-    if(!chunksToFetch) {
+    if (!chunksToFetch) {
       log('skipping replenish - buffer full');
       return;
     }
@@ -267,34 +267,34 @@ class RtmpStream {
 
     log(`replenishing buffer chunksToFetch=${chunksToFetch} lastBufferedChunkTime=${lastBufferedChunkTime} bufferLength=${this._buffer.length}`);
 
-    for(let i = 1; i <= chunksToFetch; ++i) {
+    for (let i = 1; i <= chunksToFetch; ++i) {
       const nextTime = lastBufferedChunkTime.add(this._chunkTime * i);
-      const chunk: BufferedChunk = {time: nextTime};
+      const chunk: BufferedChunk = { time: nextTime };
       this._buffer.push(chunk);
 
       const fetchChunk = async(ignoreRequestedTime?: boolean): Promise<BufferedChunk> => {
         try {
           chunk.iso = await this.fetchChunk(nextTime, ignoreRequestedTime);
-        } catch(e) {
+        } catch (e) {
           assumeType<ApiError>(e);
           log('error', e.type, nextTime.toString());
 
           const retry = async(delay: number): Promise<BufferedChunk> => {
             await pause(delay);
-            if(shouldSkip()) return undefined as unknown as BufferedChunk;
+            if (shouldSkip()) return undefined as unknown as BufferedChunk;
             return fetchChunk(true);
           };
 
-          if(e.type === 'TIME_TOO_BIG') { // * can happen when we're ahead or the stream is ended
-            if(ignoreRequestedTime) { // * we already tried to refetch it
+          if (e.type === 'TIME_TOO_BIG') { // * can happen when we're ahead or the stream is ended
+            if (ignoreRequestedTime) { // * we already tried to refetch it
               throw new Error('stream ended');
             }
 
             const state = await this.fetchState();
-            if(shouldSkip()) return undefined as unknown as BufferedChunk;
+            if (shouldSkip()) return undefined as unknown as BufferedChunk;
             const channel = this.findChannel(state); // * will throw an error if channel not found
             const delay = nextTime.minus(bigInt(channel.last_timestamp_ms as number)).add(this._chunkTime).toJSNumber();
-            if(delay < 0) {
+            if (delay < 0) {
               throw new Error('stream ended');
             }
 
@@ -318,22 +318,22 @@ class RtmpStream {
 
     let newChunks = await Promise.all(tasks);
 
-    if(shouldSkip()) return; // resync happened while we were fetching
+    if (shouldSkip()) return; // resync happened while we were fetching
 
     this.maybeAdjustBufferSize();
 
     // * wait for previous requests to flush if got new chunk faster
     await lastReplenishingPromise;
-    if(shouldSkip()) return;
+    if (shouldSkip()) return;
 
     // remove any chunks that are now too old
     newChunks = newChunks.filter((chunk) => chunk.time.gt(this._lastFlushedTime));
-    if(!newChunks.length) {
+    if (!newChunks.length) {
       log.warn('skipping flush - no new chunks');
       return;
     }
 
-    if(this._lastFlushedTime.notEquals(bigInt.zero) &&
+    if (this._lastFlushedTime.notEquals(bigInt.zero) &&
       newChunks[0].time.minus(this._lastFlushedTime).notEquals(this._chunkTime)) {
       log.error(`chunks are not continuous, lastFlushed=${this._lastFlushedTime.toString()}, newChunks=${newChunks[0].time.toString()}`);
     }
@@ -341,7 +341,7 @@ class RtmpStream {
     this._lastFlushedTime = newChunks[newChunks.length - 1].time;
 
     newChunks = newChunks.filter((chunk) => {
-      if(!chunk.iso) {
+      if (!chunk.iso) {
         this._log.error('empty chunk?', chunk);
         return false;
       }
@@ -349,40 +349,40 @@ class RtmpStream {
       return true;
     });
 
-    if(IS_SAFARI) {
+    if (IS_SAFARI) {
       // notify pending manifests
-      for(const waiter of this._hlsWaitingForBuffer) {
+      for (const waiter of this._hlsWaitingForBuffer) {
         waiter();
       }
       this._hlsWaitingForBuffer.length = 0;
 
       // notify pending chunks
-      for(const chunk of newChunks) {
+      for (const chunk of newChunks) {
         await this.prepareChunkForFlushing(chunk);
 
         const waiters = this._hlsWaitingForChunk.get(chunk.seq!) || [];
         this._hlsWaitingForChunk.delete(chunk.seq!);
         log(`sending chunk to waiters time=${chunk.time} seq=${chunk.seq}`);
 
-        for(const waiter of waiters) {
+        for (const waiter of waiters) {
           waiter(chunk.segment);
         }
       }
     } else {
       // notify active controllers
 
-      for(const chunk of newChunks) {
+      for (const chunk of newChunks) {
         await this.prepareChunkForFlushing(chunk);
 
         log(`sending chunk to controller time=${chunk.time} seq=${chunk.seq}`);
 
-        for(const controller of this._controllers) {
+        for (const controller of this._controllers) {
           controller.enqueue(chunk.segment);
         }
       }
 
       // notify new controllers and move them from waiting to active
-      for(const controller of this._waitingForBuffer) {
+      for (const controller of this._waitingForBuffer) {
         this.sendBufferToController(controller);
         this._controllers.add(controller);
       }
@@ -400,12 +400,12 @@ class RtmpStream {
         const result = await originalPromise;
         await lastReplenishingPromise;
         return result;
-      } catch(err) {
+      } catch (err) {
         throw err;
       }
     })();
 
-    if((this._bufferSize - this._buffer.length) > 0 && this._lastRequestedTime.geq(bigInt.zero)) {
+    if ((this._bufferSize - this._buffer.length) > 0 && this._lastRequestedTime.geq(bigInt.zero)) {
       return Promise.all([promise, this.replenishBuffer()]).then(() => {});
     }
 
@@ -413,7 +413,7 @@ class RtmpStream {
   }
 
   private async prepareChunkForFlushing(chunk: BufferedChunk) {
-    if(!this._initChunk) {
+    if (!this._initChunk) {
       this._log(`will add init chunk to time=${chunk.time.toString()}`);
       await this.generateInitChunk(chunk.iso);
     }
@@ -429,12 +429,12 @@ class RtmpStream {
     let timeout: number;
 
     const retry = () => {
-      if(retries > 3) {
+      if (retries > 3) {
         promise.reject(new Error('Failed to fetch state'));
         return;
       }
 
-      if(timeout) {
+      if (timeout) {
         clearTimeout(timeout);
         this._timeouts.delete(timeout);
       }
@@ -447,7 +447,7 @@ class RtmpStream {
 
       serviceMessagePort.invoke('requestRtmpState', {
         call: this.call,
-        accountNumber: this.accountNumber
+        accountNumber: this.accountNumber,
       }).then((state) => {
         clearTimeout(timeout);
         promise.resolve(state);
@@ -478,12 +478,12 @@ class RtmpStream {
       log(`tick ts=${this._time.toString()} cutoff=${this._cutoff.toString()}`);
 
       this.replenishBuffer().catch((e) => {
-        if(this._destroyed || this._clock !== clock) return;
+        if (this._destroyed || this._clock !== clock) return;
 
         log.error('error replenishing buffer', e);
 
         // if there's still some buffer, we can ignore this error and keep going
-        if(!this._buffer.some((it) => it.segment)) {
+        if (!this._buffer.some((it) => it.segment)) {
           this.handleError(e);
         }
       });
@@ -492,7 +492,7 @@ class RtmpStream {
 
   private findChannel(state: GroupCallRtmpState) {
     const channel = state.channels.find((channel) => channel.channel === RTMP_UNIFIED_CHANNEL_ID);
-    if(!channel) {
+    if (!channel) {
       log.error('no unified channel found', state);
       throw new Error('No unified channel found');
     }
@@ -517,9 +517,9 @@ class RtmpStream {
 
     const [state] = await Promise.all([
       this.fetchState(),
-      floodRelease.get(this.call.id) && pause(Math.max(0, floodRelease.get(this.call.id)! - Date.now()))
+      floodRelease.get(this.call.id) && pause(Math.max(0, floodRelease.get(this.call.id)! - Date.now())),
     ]);
-    if(!check()) return;
+    if (!check()) return;
 
     floodRelease.delete(this.call.id);
 
@@ -535,9 +535,9 @@ class RtmpStream {
     log(`started, last_ts=${channel.last_timestamp_ms}, scale=${channel.scale}`);
     this._time = bigInt(channel.last_timestamp_ms as number).minus(OFFSET_MS);
     this._lastRequestedTime = this._time;
-    if(IS_SAFARI) {
+    if (IS_SAFARI) {
       const lastKnown = lastKnownTime.get(this.call.id);
-      if(lastKnown && lastKnown.gt(this._time)) {
+      if (lastKnown && lastKnown.gt(this._time)) {
         this._time = lastKnown;
       }
     }
@@ -561,13 +561,13 @@ class RtmpStream {
   }
 
   private notifyTime() {
-    if(IS_SAFARI) {
+    if (IS_SAFARI) {
       lastKnownTime.set(this.call.id, this._time);
     }
 
     invokeVoidAll('rtmpStreamTime', {
       callId: this.call.id,
-      time: this._time.toString()
+      time: this._time.toString(),
     });
   }
 
@@ -575,25 +575,25 @@ class RtmpStream {
    * @returns whether the request should be retried
    */
   private handleError(error: any): boolean | undefined {
-    if(this._destroyed) return false;
+    if (this._destroyed) return false;
     const log = this._log.bindPrefix('handleError');
 
-    if(typeof(error) === 'object' && error && typeof(error.type) === 'string') {
+    if (typeof(error) === 'object' && error && typeof(error.type) === 'string') {
       assumeType<ApiError>(error);
-      if(error.type.startsWith('FLOOD_WAIT')) {
+      if (error.type.startsWith('FLOOD_WAIT')) {
         const wait = +error.type.split('_').pop()!;
         floodRelease.set(this.call.id, Date.now() + wait * 1000);
         this.start();
         return true;
       }
 
-      if(error.type === 'TIME_TOO_SMALL' || error.type === 'TIME_INVALID') {
+      if (error.type === 'TIME_TOO_SMALL' || error.type === 'TIME_INVALID') {
         log('rtmp stream need resync', error);
         this.start();
         return true;
       }
 
-      if((
+      if ((
         error.type === 'GROUPCALL_FORBIDDEN' ||
         error.type === 'VIDEO_CHANNEL_INVALID'
       ) && this._retryCount < 3) {
@@ -613,19 +613,19 @@ class RtmpStream {
     pendingStreams.delete(this.call.id as string);
     this.clearClock();
     this.clearDeadTimeout();
-    for(const timeout of this._timeouts) {
+    for (const timeout of this._timeouts) {
       clearTimeout(timeout);
     }
-    if(this._opusDecoder !== undefined) {
+    if (this._opusDecoder !== undefined) {
       this._opusDecoder.free();
     }
-    for(const controller of this._controllers) {
+    for (const controller of this._controllers) {
       controller.close();
     }
-    for(const controller of this._waitingForBuffer) {
+    for (const controller of this._waitingForBuffer) {
       controller.close();
     }
-    for(const reject of this._pendingRejects) {
+    for (const reject of this._pendingRejects) {
       reject(error);
     }
     this._destroyed = true;
@@ -642,13 +642,13 @@ class RtmpStream {
         log(`added rtmp stream controller call=${this.call.id} gen=${this._generation} destroyed=${this._destroyed}`);
         controller_ = controller;
 
-        if(this._generation === 0) {
+        if (this._generation === 0) {
           this.start();
         }
 
         this.clearDeadTimeout();
 
-        if(this.hasEnoughBuffer()) {
+        if (this.hasEnoughBuffer()) {
           this.sendBufferToController(controller);
           this._controllers.add(controller);
         } else {
@@ -656,20 +656,20 @@ class RtmpStream {
         }
       },
       cancel: () => { // * when tab with stream is closed
-        if(this._destroyed) return;
+        if (this._destroyed) return;
         log('rtmp stream controller died', this.call.id);
         this._controllers.delete(controller_);
         this._waitingForBuffer.delete(controller_);
 
-        if(!this._controllers.size) {
+        if (!this._controllers.size) {
           this.setDeadTimeout(this.destroy, STREAM_TIMEOUT);
         }
-      }
+      },
     });
   }
 
   private clearDeadTimeout() {
-    if(this._deadTimeout) {
+    if (this._deadTimeout) {
       clearTimeout(this._deadTimeout);
       this._deadTimeout = undefined;
     }
@@ -688,18 +688,18 @@ class RtmpStream {
       `#EXT-X-TARGETDURATION:${Math.ceil(chunkDuration)}`,
       `#EXT-X-MEDIA-SEQUENCE:${this._buffer[0]?.seq ?? 0}`,
       '#EXT-X-INDEPENDENT-SEGMENTS',
-      `#EXT-X-MAP:URI="${baseUrl}?hls=init"`
+      `#EXT-X-MAP:URI="${baseUrl}?hls=init"`,
     ];
 
-    for(const chunk of this._buffer) {
-      if(!chunk.segment) break;
+    for (const chunk of this._buffer) {
+      if (!chunk.segment) break;
       playlist.push(
         `#EXTINF:${chunkDuration},`,
         `${baseUrl}?hls=${chunk.seq}`
       );
     }
 
-    if(end) {
+    if (end) {
       playlist.push('#EXT-X-ENDLIST');
     }
 
@@ -709,7 +709,7 @@ class RtmpStream {
   private onHlsTimeout = () => {
     const log = this._log.bindPrefix('onHlsTimeout');
     log('hls playlist refetch timeout');
-    if(this._hlsWaitingForBuffer.length || this._hlsWaitingForChunk.size) {
+    if (this._hlsWaitingForBuffer.length || this._hlsWaitingForChunk.size) {
       log('still active (some fetch is pending)');
       this.setDeadTimeout(this.onHlsTimeout, HLS_TIMEOUT);
       return;
@@ -725,7 +725,7 @@ class RtmpStream {
 
     this.setDeadTimeout(this.onHlsTimeout, HLS_TIMEOUT);
 
-    if(this._generation !== 0) {
+    if (this._generation !== 0) {
       return this.generateHlsPlaylist(baseUrl);
     }
 
@@ -739,7 +739,7 @@ class RtmpStream {
       this._pendingRejects.push(reject);
       this._hlsWaitingForBuffer.push(() => {
         const idx = this._pendingRejects.indexOf(reject);
-        if(idx !== -1) {
+        if (idx !== -1) {
           this._pendingRejects.splice(idx, 1);
         }
 
@@ -758,10 +758,10 @@ class RtmpStream {
 
     const chunk = this._buffer.find((chunk) => chunk.seq === seq);
 
-    if(chunk && chunk.segment) return chunk.segment;
+    if (chunk && chunk.segment) return chunk.segment;
 
     // either we're not ready yet or the chunk is too old
-    if(this._buffer.length && seq < this._buffer[0].seq!) {
+    if (this._buffer.length && seq < this._buffer[0].seq!) {
       log('hls chunk to old', seq);
       log(this._buffer);
       return undefined as unknown as Uint8Array;
@@ -769,7 +769,7 @@ class RtmpStream {
 
     return new Promise<Uint8Array>((resolve, reject) => {
       const interval = ctx.setInterval(() => {
-        if(this._buffer.length && seq < this._buffer[0].seq!) {
+        if (this._buffer.length && seq < this._buffer[0].seq!) {
           // chunk is now too old
           log('hls chunk fetch timeout', seq);
           resolve(undefined!);
@@ -784,7 +784,7 @@ class RtmpStream {
 
       waiters.push((chunk) => {
         const idx = this._pendingRejects.indexOf(rejectWrap);
-        if(idx !== -1) {
+        if (idx !== -1) {
           this._pendingRejects.splice(idx, 1);
         }
 
@@ -812,61 +812,61 @@ async function getRtmpFetchResponse(event: FetchEvent, params: string, search: s
   const client = await ctx.clients.get(event.clientId);
   const accountNumber = getCurrentAccountFromURL(client!.url);
 
-  if(!pending) {
+  if (!pending) {
     log('creating rtmp stream', call.id);
     pending = new RtmpStream(call, accountNumber);
     pendingStreams.set(call.id, pending);
   }
 
-  if(isHls) {
+  if (isHls) {
     search = search.split('&t=')[0];
     const baseUrl = event.request.url.split('?')[0];
     const chunk = search.slice(4);
 
-    if(chunk === 'playlist') {
+    if (chunk === 'playlist') {
       return pending.getHlsPlaylist(baseUrl).then((r) => new Response(r, {
         headers: {
-          'Content-Type': HLS_MIME
-        }
+          'Content-Type': HLS_MIME,
+        },
       }));
     }
 
-    if(chunk === 'init') {
+    if (chunk === 'init') {
       const init = pending.getInitChunk();
 
-      if(!init) {
-        return new Response('', {status: 404});
+      if (!init) {
+        return new Response('', { status: 404 });
       }
 
       return new Response(init as BodyInit, {
         headers: {
-          'Content-Type': MP4_MIME
-        }
+          'Content-Type': MP4_MIME,
+        },
       });
     }
 
     const seq = Number(chunk);
-    if(isNaN(seq)) {
-      return new Response('', {status: 404});
+    if (isNaN(seq)) {
+      return new Response('', { status: 404 });
     }
 
     return pending.getHlsChunk(seq).then((r) => {
-      if(!r) {
-        return new Response('', {status: 404});
+      if (!r) {
+        return new Response('', { status: 404 });
       }
 
       return new Response(r as BodyInit, {
         headers: {
-          'Content-Type': MP4_MIME
-        }
+          'Content-Type': MP4_MIME,
+        },
       });
     });
   }
 
   return new Response(pending.createStream(), {
     headers: {
-      'Content-Type': 'video/mp4'
-    }
+      'Content-Type': 'video/mp4',
+    },
   });
 }
 
@@ -878,10 +878,10 @@ export function onRtmpFetch(event: FetchEvent, params: string, search: string) {
 
 export function onRtmpLeftCall([callId, forever]: [Long, boolean]) {
   const stream = pendingStreams.get(callId + '');
-  if(stream) {
+  if (stream) {
     stream.destroy();
   }
-  if(IS_SAFARI && forever) {
+  if (IS_SAFARI && forever) {
     lastKnownTime.delete(callId);
   }
 }

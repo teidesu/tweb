@@ -14,7 +14,7 @@
  *  - `int256` / `int512` are raw fixed-length bytes (no length prefix).
  */
 
-import {TL_MAGIC, TLReader, TLWriter} from './tl';
+import { TL_MAGIC, TLReader, TLWriter } from './tl';
 
 // Permission bits inside groupParticipant.flags.
 export const PERM_ADD_USERS = 1 << 0;
@@ -48,8 +48,8 @@ export function encodeGroupParticipant(w: TLWriter, p: GroupParticipant): void {
   w.int64(p.userId);
   w.int256(p.publicKey);
   let flags = 0;
-  if(p.canAddUsers) flags |= PERM_ADD_USERS;
-  if(p.canRemoveUsers) flags |= PERM_REMOVE_USERS;
+  if (p.canAddUsers) flags |= PERM_ADD_USERS;
+  if (p.canRemoveUsers) flags |= PERM_REMOVE_USERS;
   w.uint32(flags);
   w.int32(p.version);
 }
@@ -65,7 +65,7 @@ export function decodeGroupParticipant(r: TLReader): GroupParticipant {
     publicKey,
     canAddUsers: (flags & PERM_ADD_USERS) !== 0,
     canRemoveUsers: (flags & PERM_REMOVE_USERS) !== 0,
-    version
+    version,
   };
 }
 
@@ -86,7 +86,7 @@ export function decodeGroupState(r: TLReader): GroupState {
   r.expectMagic(TL_MAGIC.groupState);
   const participants = r.vector((rr) => decodeGroupParticipant(rr));
   const externalPermissions = r.int32();
-  return {participants, externalPermissions};
+  return { participants, externalPermissions };
 }
 
 // ===== SharedKey =====
@@ -102,7 +102,7 @@ export interface SharedKey {
 }
 
 export function encodeSharedKey(w: TLWriter, s: SharedKey): void {
-  if(s.destUserIds.length !== s.destHeaders.length) {
+  if (s.destUserIds.length !== s.destHeaders.length) {
     throw new Error(`SharedKey: dest_user_id and dest_header length mismatch (${s.destUserIds.length}/${s.destHeaders.length})`);
   }
   w.magic(TL_MAGIC.sharedKey);
@@ -118,7 +118,7 @@ export function decodeSharedKey(r: TLReader): SharedKey {
   const encryptedSharedKey = new Uint8Array(r.bytes());
   const destUserIds = r.vector((rr) => rr.int64());
   const destHeaders = r.vector((rr) => new Uint8Array(rr.bytes()));
-  return {ek, encryptedSharedKey, destUserIds, destHeaders};
+  return { ek, encryptedSharedKey, destUserIds, destHeaders };
 }
 
 // ===== Change (union) =====
@@ -130,7 +130,7 @@ export type Change =
   | {kind: 'setSharedKey'; sharedKey: SharedKey};
 
 export function encodeChange(w: TLWriter, c: Change): void {
-  switch(c.kind) {
+  switch (c.kind) {
     case 'noop':
       w.magic(TL_MAGIC.changeNoop);
       w.int256(c.nonce);
@@ -153,19 +153,19 @@ export function encodeChange(w: TLWriter, c: Change): void {
 
 export function decodeChange(r: TLReader): Change {
   const magic = r.int32() >>> 0;
-  switch(magic) {
+  switch (magic) {
     case TL_MAGIC.changeNoop:
-      return {kind: 'noop', nonce: new Uint8Array(r.int256())};
+      return { kind: 'noop', nonce: new Uint8Array(r.int256()) };
     case TL_MAGIC.changeSetValue:
       return {
         kind: 'setValue',
         key: new Uint8Array(r.bytes()),
-        value: new Uint8Array(r.bytes())
+        value: new Uint8Array(r.bytes()),
       };
     case TL_MAGIC.changeSetGroupState:
-      return {kind: 'setGroupState', groupState: decodeGroupState(r)};
+      return { kind: 'setGroupState', groupState: decodeGroupState(r) };
     case TL_MAGIC.changeSetSharedKey:
-      return {kind: 'setSharedKey', sharedKey: decodeSharedKey(r)};
+      return { kind: 'setSharedKey', sharedKey: decodeSharedKey(r) };
     default:
       throw new Error(`decodeChange: unknown magic ${magic.toString(16)}`);
   }
@@ -182,12 +182,12 @@ export interface StateProof {
 export function encodeStateProof(w: TLWriter, p: StateProof): void {
   w.magic(TL_MAGIC.stateProof);
   let flags = 0;
-  if(p.groupState !== undefined) flags |= SP_FLAG_GROUP_STATE;
-  if(p.sharedKey !== undefined) flags |= SP_FLAG_SHARED_KEY;
+  if (p.groupState !== undefined) flags |= SP_FLAG_GROUP_STATE;
+  if (p.sharedKey !== undefined) flags |= SP_FLAG_SHARED_KEY;
   w.uint32(flags);
   w.int256(p.kvHash);
-  if(p.groupState !== undefined) encodeGroupState(w, p.groupState);
-  if(p.sharedKey !== undefined) encodeSharedKey(w, p.sharedKey);
+  if (p.groupState !== undefined) encodeGroupState(w, p.groupState);
+  if (p.sharedKey !== undefined) encodeSharedKey(w, p.sharedKey);
 }
 
 export function decodeStateProof(r: TLReader): StateProof {
@@ -196,7 +196,7 @@ export function decodeStateProof(r: TLReader): StateProof {
   const kvHash = new Uint8Array(r.int256());
   const groupState = (flags & SP_FLAG_GROUP_STATE) ? decodeGroupState(r) : undefined;
   const sharedKey = (flags & SP_FLAG_SHARED_KEY) ? decodeSharedKey(r) : undefined;
-  return {kvHash, groupState, sharedKey};
+  return { kvHash, groupState, sharedKey };
 }
 
 // ===== Block =====
@@ -217,13 +217,13 @@ export function encodeBlock(w: TLWriter, b: Block): void {
   w.magic(TL_MAGIC.block);
   w.int512(b.signature);
   let flags = 0;
-  if(b.signaturePublicKey !== undefined) flags |= BLOCK_FLAG_SIGNATURE_PUBLIC_KEY;
+  if (b.signaturePublicKey !== undefined) flags |= BLOCK_FLAG_SIGNATURE_PUBLIC_KEY;
   w.uint32(flags);
   w.int256(b.prevBlockHash);
   w.vector(b.changes, (ww, c) => encodeChange(ww, c));
   w.int32(b.height);
   encodeStateProof(w, b.stateProof);
-  if(b.signaturePublicKey !== undefined) w.int256(b.signaturePublicKey);
+  if (b.signaturePublicKey !== undefined) w.int256(b.signaturePublicKey);
 }
 
 export function decodeBlock(r: TLReader): Block {
@@ -235,7 +235,7 @@ export function decodeBlock(r: TLReader): Block {
   const height = r.int32();
   const stateProof = decodeStateProof(r);
   const signaturePublicKey = (flags & BLOCK_FLAG_SIGNATURE_PUBLIC_KEY) ? new Uint8Array(r.int256()) : undefined;
-  return {signature, prevBlockHash, changes, height, stateProof, signaturePublicKey};
+  return { signature, prevBlockHash, changes, height, stateProof, signaturePublicKey };
 }
 
 // Serialize a block to wire bytes.
@@ -250,7 +250,7 @@ export function serializeBlock(b: Block): Uint8Array {
 // real signature in place (see blockchain.md "Signature serialization is
 // the trap").
 export function serializeBlockForSigning(b: Block): Uint8Array {
-  return serializeBlock({...b, signature: new Uint8Array(64)});
+  return serializeBlock({ ...b, signature: new Uint8Array(64) });
 }
 
 // ===== GroupBroadcastNonceCommit / Reveal =====
@@ -295,24 +295,24 @@ export function encodeGroupBroadcastNonceReveal(w: TLWriter, b: GroupBroadcastNo
 
 export function decodeGroupBroadcast(r: TLReader): GroupBroadcast {
   const magic = r.int32() >>> 0;
-  if(magic === TL_MAGIC.groupBroadcastNonceCommit) {
+  if (magic === TL_MAGIC.groupBroadcastNonceCommit) {
     return {
       kind: 'commit',
       signature: new Uint8Array(r.int512()),
       userId: r.int64(),
       chainHeight: r.int32(),
       chainHash: new Uint8Array(r.int256()),
-      nonceHash: new Uint8Array(r.int256())
+      nonceHash: new Uint8Array(r.int256()),
     };
   }
-  if(magic === TL_MAGIC.groupBroadcastNonceReveal) {
+  if (magic === TL_MAGIC.groupBroadcastNonceReveal) {
     return {
       kind: 'reveal',
       signature: new Uint8Array(r.int512()),
       userId: r.int64(),
       chainHeight: r.int32(),
       chainHash: new Uint8Array(r.int256()),
-      nonce: new Uint8Array(r.int256())
+      nonce: new Uint8Array(r.int256()),
     };
   }
   throw new Error(`decodeGroupBroadcast: unknown magic ${magic.toString(16)}`);

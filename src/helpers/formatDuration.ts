@@ -9,44 +9,44 @@ export enum DurationType {
 }
 
 export default function formatDuration(duration: number, showLast = 2) {
-  if(!duration) {
+  if (!duration) {
     duration = 1;
   }
 
   const d: {duration: number, type: DurationType}[] = [];
   const p = [
-    {m: 1, t: DurationType.Seconds},
-    {m: 60, t: DurationType.Minutes},
-    {m: 60, t: DurationType.Hours},
-    {m: 24, t: DurationType.Days},
-    {m: 7, t: DurationType.Weeks},
-    {m: 365 / 12 / 7, t: DurationType.Months},
-    {m: 12, t: DurationType.Years}
+    { m: 1, t: DurationType.Seconds },
+    { m: 60, t: DurationType.Minutes },
+    { m: 60, t: DurationType.Hours },
+    { m: 24, t: DurationType.Days },
+    { m: 7, t: DurationType.Weeks },
+    { m: 365 / 12 / 7, t: DurationType.Months },
+    { m: 12, t: DurationType.Years },
   ] as Array<{m?: number, t: DurationType}>
   const s = 1;
   let t = s;
   p.forEach((o, idx) => {
     t = Math.round(t * o.m!);
 
-    if(duration < t) {
+    if (duration < t) {
       return;
     }
 
     let dd = duration / t;
-    if(idx !== (p.length - 1)) {
+    if (idx !== (p.length - 1)) {
       const modulus = p[idx === (p.length - 1) ? idx : idx + 1].m;
       dd %= modulus!;
     }
 
     d.push({
       duration: dd | 0,
-      type: o.t
+      type: o.t,
     });
   });
 
   const out = d.slice(-showLast).reverse();
-  for(let i = out.length - 1; i >= 0; --i) {
-    if(out[i].duration === 0) {
+  for (let i = out.length - 1; i >= 0; --i) {
+    if (out[i].duration === 0) {
       out.splice(i, 1);
     }
   }

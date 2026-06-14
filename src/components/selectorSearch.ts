@@ -2,16 +2,16 @@ import Scrollable from '@components/scrollable';
 import InputSearch from '@components/inputSearch';
 import SettingSection from '@components/settingSection';
 import PeerTitle from '@components/peerTitle';
-import {avatarNew} from '@components/avatarNew';
+import { avatarNew } from '@components/avatarNew';
 import Icon from '@components/icon';
 import Tabs from '@components/tabs';
-import {observeResize} from '@components/resizeObserver';
+import { observeResize } from '@components/resizeObserver';
 import replaceContent from '@helpers/dom/replaceContent';
 import findUpClassName from '@helpers/dom/findUpClassName';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import liteMode from '@helpers/liteMode';
-import {FocusDirection} from '@helpers/fastSmoothScroll';
-import {Middleware, MiddlewareHelper} from '@helpers/middleware';
+import { FocusDirection } from '@helpers/fastSmoothScroll';
+import { Middleware, MiddlewareHelper } from '@helpers/middleware';
 
 export default class SelectorSearch {
   public section: SettingSection;
@@ -41,7 +41,7 @@ export default class SelectorSearch {
       debounceTime: 200,
       noBorder: true,
       noFocusEffect: true,
-      noPlaceholderAnimation: true
+      noPlaceholderAnimation: true,
     });
     this.input = this.inputSearch.input;
     this.inputSearch.container.classList.add('selector-search-input-container');
@@ -64,10 +64,10 @@ export default class SelectorSearch {
 
     this.setupHeightAnimation();
 
-    if(options.multiSelect) attachClickEvent(this.selectedContainer, (e) => {
+    if (options.multiSelect) attachClickEvent(this.selectedContainer, (e) => {
       let target = e.target as HTMLElement;
       target = findUpClassName(target, 'selector-user');
-      if(!target) return;
+      if (!target) return;
       let key: string | PeerId = target.dataset.key!;
       key = key.isPeerId() ? key.toPeerId() : key;
       options.onChipClick(key);
@@ -78,27 +78,27 @@ export default class SelectorSearch {
     this.gradient = Tabs.MenuGradient({
       color: 'background',
       className: 'selector-search-gradient',
-      smaller: true
+      smaller: true,
     }) as HTMLElement;
   }
 
   private setupHeightAnimation() {
-    if(!liteMode.isAvailable('animations')) return;
+    if (!liteMode.isAvailable('animations')) return;
 
     let prevHeight = 0;
     let isAnimating = false;
     const el = this.selectedContainer;
     const unobserve = observeResize(el, () => {
-      if(isAnimating) return;
+      if (isAnimating) return;
 
       el.style.height = '';
       const targetHeight = el.clientHeight;
-      if(!prevHeight || targetHeight === prevHeight) {
+      if (!prevHeight || targetHeight === prevHeight) {
         prevHeight = targetHeight;
         return;
       }
 
-      if(!targetHeight) {
+      if (!targetHeight) {
         prevHeight = targetHeight;
         return;
       }
@@ -111,7 +111,7 @@ export default class SelectorSearch {
     });
 
     el.addEventListener('transitionend', (e) => {
-      if(e.target === el && e.propertyName === 'height') {
+      if (e.target === el && e.propertyName === 'height') {
         isAnimating = false;
         el.style.height = '';
       }
@@ -121,10 +121,10 @@ export default class SelectorSearch {
   }
 
   private captureChildRects(exclude?: HTMLElement) {
-    if(!liteMode.isAvailable('animations')) return;
+    if (!liteMode.isAvailable('animations')) return;
     this.capturedRects = new Map();
-    for(const el of this.flipElements) {
-      if(el !== exclude) {
+    for (const el of this.flipElements) {
+      if (el !== exclude) {
         this.capturedRects.set(el, el.getBoundingClientRect());
       }
     }
@@ -132,28 +132,28 @@ export default class SelectorSearch {
 
   private animateChildrenFlip(exclude?: HTMLElement) {
     const rects = this.capturedRects;
-    if(!rects) return;
+    if (!rects) return;
     this.capturedRects = undefined;
 
     const toAnimate: HTMLElement[] = [];
-    for(const [el, prevRect] of rects) {
-      if(el === exclude) {
+    for (const [el, prevRect] of rects) {
+      if (el === exclude) {
         continue;
       }
 
       const newRect = el.getBoundingClientRect();
       const dx = prevRect.left - newRect.left;
       const dy = prevRect.top - newRect.top;
-      if(!dx && !dy) continue;
+      if (!dx && !dy) continue;
 
       el.style.transition = 'none';
       el.style.transform = `translate(${dx}px, ${dy}px)`;
       toAnimate.push(el);
     }
 
-    if(!toAnimate.length) return;
+    if (!toAnimate.length) return;
     void this.selectedContainer.offsetHeight;
-    for(const el of toAnimate) {
+    for (const el of toAnimate) {
       el.style.transition = '';
       el.style.transform = '';
     }
@@ -166,7 +166,7 @@ export default class SelectorSearch {
     scroll = true,
     avatarSize = 30,
     fallbackIcon,
-    primary
+    primary,
   }: {
     key: PeerId | string,
     middleware: Middleware,
@@ -182,27 +182,27 @@ export default class SelectorSearch {
       title,
       avatarSize,
       fallbackIcon,
-      primary
+      primary,
     });
-    const {element, promises} = rendered;
+    const { element, promises } = rendered;
 
     const keyStr = '' + key;
     this.chipsMap.set(keyStr, element);
 
     const insert = () => {
-      if(this.chipsMap.get(keyStr) !== element) {
+      if (this.chipsMap.get(keyStr) !== element) {
         return;
       }
 
-      if(scroll) {
+      if (scroll) {
         element.classList.add('scale-in');
         element.addEventListener('animationend', () => {
           element.classList.remove('scale-in');
-        }, {once: true});
+        }, { once: true });
       }
 
       const prevLast = this.inputSearch.container.previousElementSibling as HTMLElement;
-      if(prevLast?.classList.contains('selector-user')) {
+      if (prevLast?.classList.contains('selector-user')) {
         prevLast.classList.remove('is-last');
       }
       element.classList.add('is-last');
@@ -212,15 +212,15 @@ export default class SelectorSearch {
       this.inputSearch.container.before(element);
       this.animateChildrenFlip();
 
-      if(scroll) {
+      if (scroll) {
         this.selectedScrollable.scrollIntoViewNew({
           element: this.inputSearch.container,
-          position: 'center'
+          position: 'center',
         });
       }
     };
 
-    if(promises.length) {
+    if (promises.length) {
       Promise.all(promises).then(insert);
     } else {
       insert();
@@ -233,7 +233,7 @@ export default class SelectorSearch {
     const keyStr = '' + key;
     const div = this.chipsMap.get(keyStr) as HTMLElement;
     const cleanup = () => {
-      if(div) {
+      if (div) {
         div.remove();
         div.middlewareHelper!.destroy();
       }
@@ -242,9 +242,9 @@ export default class SelectorSearch {
     };
 
     this.chipsMap.delete(keyStr);
-    if(div) this.flipElements.delete(div);
+    if (div) this.flipElements.delete(div);
 
-    if(!div?.parentElement) {
+    if (!div?.parentElement) {
       cleanup();
       return;
     }
@@ -252,7 +252,7 @@ export default class SelectorSearch {
     const animate = liteMode.isAvailable('animations');
     const wasLast = div.classList.contains('is-last');
 
-    if(animate) {
+    if (animate) {
       this.captureChildRects(div);
       const chipRect = div.getBoundingClientRect();
       const containerRect = this.selectedContainer.getBoundingClientRect();
@@ -267,7 +267,7 @@ export default class SelectorSearch {
       const initialTop = chipRect.top - containerRect.top;
       const scrollDelta = scrollBefore - scrollEl.scrollTop;
 
-      if(scrollDelta) {
+      if (scrollDelta) {
         // Start at old visual position (compensated), then smoothly
         // transition to the new position — matching the FLIP animation of neighbors
         div.style.top = (initialTop - scrollDelta) + 'px';
@@ -282,19 +282,19 @@ export default class SelectorSearch {
       cleanup();
     }
 
-    if(wasLast) {
+    if (wasLast) {
       const newLast = (animate ? div : this.inputSearch.container).previousElementSibling as HTMLElement;
-      if(newLast?.classList.contains('selector-user')) {
+      if (newLast?.classList.contains('selector-user')) {
         newLast.classList.add('is-last');
       }
     }
 
-    if(animate) {
+    if (animate) {
       void div.offsetWidth;
       div.classList.add('scale-out');
       this.animateChildrenFlip();
 
-      div.addEventListener('animationend', cleanup, {once: true});
+      div.addEventListener('animationend', cleanup, { once: true });
     }
   }
 
@@ -310,7 +310,7 @@ export default class SelectorSearch {
     this.selectedScrollable.scrollIntoViewNew({
       element: this.inputSearch.container,
       position: 'center',
-      forceDirection
+      forceDirection,
     });
   }
 
@@ -325,7 +325,7 @@ export default class SelectorSearch {
     avatarSize,
     fallbackIcon,
     meAsSaved = true,
-    primary
+    primary,
   }: {
     key: PeerId | string,
     middleware: Middleware,
@@ -339,7 +339,7 @@ export default class SelectorSearch {
     div.classList.add('selector-user');
     div.middlewareHelper = middleware.create();
 
-    if(primary) {
+    if (primary) {
       div.classList.add('selector-user-primary');
     }
 
@@ -351,16 +351,16 @@ export default class SelectorSearch {
     const avatarEl = avatarNew({
       middleware: div.middlewareHelper.get(),
       size: avatarSize,
-      isDialog: meAsSaved
+      isDialog: meAsSaved,
     });
     avatarEl.node.classList.add('selector-user-avatar');
     avatarContainer.append(avatarEl.node, avatarClose);
 
     const keyStr = '' + key;
     let threadId: number;
-    if(keyStr.includes('_')) { // * handle threads
+    if (keyStr.includes('_')) { // * handle threads
       const [_peerId, _threadId] = keyStr.split('_');
-      if(_peerId.isPeerId()) { // * needed
+      if (_peerId.isPeerId()) { // * needed
         key = _peerId.toPeerId();
         threadId = +_threadId;
       }
@@ -368,27 +368,27 @@ export default class SelectorSearch {
 
     div.dataset.key = keyStr;
     const promises: Promise<any>[] = [];
-    if(key.isPeerId()) {
-      if(title === undefined) {
+    if (key.isPeerId()) {
+      if (title === undefined) {
         const peerTitle = new PeerTitle();
-        promises.push(peerTitle.update({peerId: key.toPeerId(), threadId: threadId!, dialog: meAsSaved}));
+        promises.push(peerTitle.update({ peerId: key.toPeerId(), threadId: threadId!, dialog: meAsSaved }));
         title = peerTitle.element;
       }
 
       avatarEl.render({
         peerId: key.toPeerId(),
-        threadId: threadId!
+        threadId: threadId!,
       });
 
       promises.push(avatarEl.readyThumbPromise);
-    } else if(fallbackIcon) {
+    } else if (fallbackIcon) {
       avatarEl.setIcon(fallbackIcon);
     }
 
-    if(title) {
+    if (title) {
       const t = document.createElement('div');
       t.classList.add('selector-user-title');
-      if(typeof(title) === 'string') {
+      if (typeof(title) === 'string') {
         t.innerHTML = title;
       } else {
         replaceContent(t, title);
@@ -399,6 +399,6 @@ export default class SelectorSearch {
 
     div.insertAdjacentElement('afterbegin', avatarContainer);
 
-    return {element: div, avatar: avatarEl, promises};
+    return { element: div, avatar: avatarEl, promises };
   }
 }

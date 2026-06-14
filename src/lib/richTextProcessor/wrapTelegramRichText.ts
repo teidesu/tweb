@@ -1,4 +1,4 @@
-import {RichText, TextWithEntities, MessageEntity} from '@layer';
+import { RichText, TextWithEntities, MessageEntity } from '@layer';
 import wrapTextWithEntities from '@lib/richTextProcessor/wrapTextWithEntities';
 
 type Options = {
@@ -40,28 +40,28 @@ export default function wrapTelegramRichText(
 }
 
 function processRichText(richText: RichText, options: Options): TextWithEntities {
-  switch(richText._) {
+  switch (richText._) {
     case 'textEmpty':
       return {
         _: 'textWithEntities',
         text: '',
-        entities: []
+        entities: [],
       };
     case 'textPlain':
       return {
         _: 'textWithEntities',
         text: richText.text,
-        entities: []
+        entities: [],
       };
     case 'textConcat': {
       let text = '';
       const entities: MessageEntity[] = [];
-      for(const part of richText.texts) {
+      for (const part of richText.texts) {
         const partResult = processRichText(part, options);
-        for(const entity of partResult.entities) {
+        for (const entity of partResult.entities) {
           entities.push({
             ...entity,
-            offset: entity.offset! + text.length
+            offset: entity.offset! + text.length,
           });
         }
         text += partResult.text;
@@ -69,38 +69,38 @@ function processRichText(richText: RichText, options: Options): TextWithEntities
       return {
         _: 'textWithEntities',
         text,
-        entities
+        entities,
       };
     }
     case 'textBold':
       return wrapEntity(richText.text, (offset, length) => ({
         _: 'messageEntityBold',
         offset,
-        length
+        length,
       }), options);
     case 'textItalic':
       return wrapEntity(richText.text, (offset, length) => ({
         _: 'messageEntityItalic',
         offset,
-        length
+        length,
       }), options);
     case 'textUnderline':
       return wrapEntity(richText.text, (offset, length) => ({
         _: 'messageEntityUnderline',
         offset,
-        length
+        length,
       }), options);
     case 'textStrike':
       return wrapEntity(richText.text, (offset, length) => ({
         _: 'messageEntityStrike',
         offset,
-        length
+        length,
       }), options);
     case 'textFixed':
       return wrapEntity(richText.text, (offset, length) => ({
         _: 'messageEntityCode',
         offset,
-        length
+        length,
       }), options);
     case 'textUrl':
       return wrapEntity(richText.text, (offset, length) => ({
@@ -110,46 +110,46 @@ function processRichText(richText: RichText, options: Options): TextWithEntities
         url: richText.webpage_id ?
           'tg://iv?url=' + encodeURIComponent(richText.url) :
           richText.url,
-        safe: !!richText.webpage_id
+        safe: !!richText.webpage_id,
       }), options);
     case 'textEmail':
       return wrapEntity(richText.text, (offset, length) => ({
         _: 'messageEntityEmail',
         offset,
-        length
+        length,
       }), options);
     case 'textMarked':
       return wrapEntity(richText.text, (offset, length) => ({
         _: 'messageEntityHighlight',
         offset,
-        length
+        length,
       }), options);
     case 'textPhone':
       return wrapEntity(richText.text, (offset, length) => ({
         _: 'messageEntityPhone',
         offset,
-        length
+        length,
       }), options);
     case 'textImage':
-      return wrapEntity({_: 'textPlain', text: '\x01'}, (offset, length) => ({
+      return wrapEntity({ _: 'textPlain', text: '\x01' }, (offset, length) => ({
         _: 'messageEntityCustomEmoji',
         document_id: richText.document_id,
         offset,
         length,
         w: richText.w,
-        h: richText.h
+        h: richText.h,
       }), options);
     case 'textSubscript':
       return wrapEntity(richText.text, (offset, length) => ({
         _: 'messageEntitySubscript',
         offset,
-        length
+        length,
       } as any), options);
     case 'textSuperscript':
       return wrapEntity(richText.text, (offset, length) => ({
         _: 'messageEntitySuperscript',
         offset,
-        length
+        length,
       } as any), options);
     case 'textAnchor': {
       // const url = options?.url && new URL(options.url);
@@ -158,7 +158,7 @@ function processRichText(richText: RichText, options: Options): TextWithEntities
         _: 'messageEntityAnchor',
         offset,
         length,
-        name: (options?.randomId || '') + richText.name
+        name: (options?.randomId || '') + richText.name,
         // url: 'tg://iv?' + (url ?
         //   'url=' + encodeURIComponent(url.toString()) :
         //   'anchor=' + encodeURIComponent('#' + richText.name)
@@ -169,7 +169,7 @@ function processRichText(richText: RichText, options: Options): TextWithEntities
       return {
         _: 'textWithEntities',
         text: '',
-        entities: []
+        entities: [],
       };
   }
 }
@@ -184,6 +184,6 @@ function wrapEntity(
   return {
     _: 'textWithEntities',
     text: innerResult.text,
-    entities: [entity, ...innerResult.entities]
+    entities: [entity, ...innerResult.entities],
   };
 }

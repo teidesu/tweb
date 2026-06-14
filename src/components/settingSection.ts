@@ -1,5 +1,5 @@
-import {LangPackKey, FormatterArguments, i18n_} from '@lib/langPack';
-import {generateDelimiter} from '@components/generateDelimiter';
+import { LangPackKey, FormatterArguments, i18n_ } from '@lib/langPack';
+import { generateDelimiter } from '@components/generateDelimiter';
 import Scrollable from '@components/scrollable';
 
 export type SettingSectionOptions = {
@@ -32,14 +32,14 @@ export default class SettingSection {
     const innerContainer = this.innerContainer = document.createElement('div');
     innerContainer.classList.add(className);
 
-    if(options.noShadow) {
+    if (options.noShadow) {
       innerContainer.classList.add('no-shadow');
     }
 
-    if(options.fakeGradientDelimiter) {
+    if (options.fakeGradientDelimiter) {
       innerContainer.append(generateDelimiter());
       innerContainer.classList.add('with-fake-delimiter');
-    } else if(!options.noDelimiter) {
+    } else if (!options.noDelimiter) {
       const hr = document.createElement('hr');
       innerContainer.append(hr);
     } else {
@@ -56,11 +56,11 @@ export default class SettingSection {
 
     const content = this.content = this.generateContentElement();
 
-    if(options.name) {
+    if (options.name) {
       const title = this.title = document.createElement('div');
       title.classList.add('sidebar-left-h2', className + '-name');
-      if(typeof(options.name) === 'string') {
-        i18n_({element: title, key: options.name, args: options.nameArgs});
+      if (typeof(options.name) === 'string') {
+        i18n_({ element: title, key: options.name, args: options.nameArgs });
       } else {
         title.append(options.name);
       }
@@ -70,16 +70,16 @@ export default class SettingSection {
     container.append(innerContainer);
 
     const caption = options.caption ?? options.captionOld;
-    if(caption) {
+    if (caption) {
       const el = this.caption = this.generateContentElement();
       el.classList.add(className + '-caption');
 
-      if(!options.captionOld) {
+      if (!options.captionOld) {
         container.append(el);
       }
 
-      if(caption !== true) {
-        i18n_({element: el, key: caption, args: options.captionArgs});
+      if (caption !== true) {
+        i18n_({ element: el, key: caption, args: options.captionArgs });
       }
     }
   }
@@ -98,7 +98,7 @@ export default class SettingSection {
 }
 
 export const generateSection = (appendTo: Scrollable, name?: LangPackKey, caption?: LangPackKey) => {
-  const section = new SettingSection({name, caption});
+  const section = new SettingSection({ name, caption });
   appendTo.append(section.container);
   return section.content;
 };

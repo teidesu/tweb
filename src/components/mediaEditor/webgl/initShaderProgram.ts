@@ -1,4 +1,4 @@
-import {log} from '@components/mediaEditor/utils';
+import { log } from '@components/mediaEditor/utils';
 
 export function initShaderProgram(gl: WebGLRenderingContext, vsSource: string, fsSource: string) {
   const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
@@ -9,7 +9,7 @@ export function initShaderProgram(gl: WebGLRenderingContext, vsSource: string, f
   gl.attachShader(shaderProgram, fragmentShader!);
   gl.linkProgram(shaderProgram);
 
-  if(!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+  if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
     log.error(`Unable to initialize the shader program: ${gl.getProgramInfoLog(shaderProgram)}`);
     return null;
   }
@@ -23,7 +23,7 @@ function loadShader(gl: WebGLRenderingContext, type: GLenum, source: string) {
   gl.shaderSource(shader!, source);
   gl.compileShader(shader!);
 
-  if(!gl.getShaderParameter(shader!, gl.COMPILE_STATUS)) {
+  if (!gl.getShaderParameter(shader!, gl.COMPILE_STATUS)) {
     log.error(`An error occurred compiling the shaders: ${gl.getShaderInfoLog(shader!)}`);
     gl.deleteShader(shader);
     return null;

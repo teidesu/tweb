@@ -1,5 +1,5 @@
-import I18n, {LangPackKey, i18n, join} from '@lib/langPack';
-import formatDuration, {DurationType} from '@helpers/formatDuration';
+import I18n, { LangPackKey, i18n, join } from '@lib/langPack';
+import formatDuration, { DurationType } from '@helpers/formatDuration';
 import toHHMMSS from '@helpers/string/toHHMMSS';
 
 export const DURATION_LANG_KEYS: {[type in DurationType]: LangPackKey} = {
@@ -9,14 +9,14 @@ export const DURATION_LANG_KEYS: {[type in DurationType]: LangPackKey} = {
   [DurationType.Days]: 'Days',
   [DurationType.Weeks]: 'Weeks',
   [DurationType.Months]: 'Months',
-  [DurationType.Years]: 'Years'
+  [DurationType.Years]: 'Years',
 };
 
 export function wrapFormattedDuration(formatted: ReturnType<typeof formatDuration>, plain: true): string;
 export function wrapFormattedDuration(formatted: ReturnType<typeof formatDuration>, plain?: false): HTMLSpanElement;
 export function wrapFormattedDuration(formatted: ReturnType<typeof formatDuration>, plain?: boolean): string | HTMLSpanElement;
 export function wrapFormattedDuration(formatted: ReturnType<typeof formatDuration>, plain?: boolean): string | HTMLSpanElement {
-  if(plain) {
+  if (plain) {
     const strings = formatted.map((d) => I18n.format(DURATION_LANG_KEYS[d.type], true, [d.duration]));
     return join(strings, false, plain);
   }
@@ -35,7 +35,7 @@ export function wrapCallDuration(duration: number, plain?: boolean) {
 
 export function wrapLeftDuration(timeLeft: number) {
   const formatted = formatDuration(timeLeft, 3);
-  if(formatted[0].type <= DurationType.Hours) {
+  if (formatted[0].type <= DurationType.Hours) {
     return toHHMMSS(timeLeft, true);
   } else {
     formatted.splice(1, Infinity);
@@ -45,7 +45,7 @@ export function wrapLeftDuration(timeLeft: number) {
 
 export function wrapSlowModeLeftDuration(timeLeft: number) {
   const formatted = formatDuration(timeLeft, 3);
-  if(formatted[0].type === DurationType.Seconds) {
+  if (formatted[0].type === DurationType.Seconds) {
     return wrapFormattedDuration(formatted);
   } else {
     return toHHMMSS(timeLeft, true);

@@ -2,7 +2,7 @@ import replaceContent from '@helpers/dom/replaceContent';
 import toHHMMSS from '@helpers/string/toHHMMSS';
 import CallInstance from '@lib/calls/callInstance';
 import CALL_STATE from '@lib/calls/callState';
-import {i18n, LangPackKey} from '@lib/langPack';
+import { i18n, LangPackKey } from '@lib/langPack';
 
 export default class CallDescriptionElement {
   private container: HTMLElement;
@@ -15,7 +15,7 @@ export default class CallDescriptionElement {
   }
 
   public detach() {
-    if(this.interval !== undefined) {
+    if (this.interval !== undefined) {
       clearInterval(this.interval);
       this.interval = undefined;
     }
@@ -25,16 +25,16 @@ export default class CallDescriptionElement {
   }
 
   public update(instance: CallInstance) {
-    const {connectionState} = instance;
+    const { connectionState } = instance;
 
-    if(this.state === connectionState) {
+    if (this.state === connectionState) {
       return;
     }
 
     this.state = connectionState;
 
     let element: HTMLElement;
-    if(connectionState === CALL_STATE.CONNECTED) {
+    if (connectionState === CALL_STATE.CONNECTED) {
       element = document.createElement('span');
       element.classList.add('call-description-duration');
 
@@ -46,7 +46,7 @@ export default class CallDescriptionElement {
       setTime();
     } else {
       let langPackKey: LangPackKey;
-      switch(connectionState) {
+      switch (connectionState) {
         case CALL_STATE.PENDING:
           langPackKey = instance.isOutgoing ? 'Call.StatusRinging' : 'Call.StatusCalling';
           break;
@@ -65,7 +65,7 @@ export default class CallDescriptionElement {
       }
 
       element = i18n(langPackKey)!;
-      if(this.interval !== undefined) {
+      if (this.interval !== undefined) {
         clearInterval(this.interval);
         this.interval = undefined;
       }
@@ -74,7 +74,7 @@ export default class CallDescriptionElement {
     this.container.classList.toggle('has-duration', connectionState === CALL_STATE.CONNECTED);
     replaceContent(this.container, element);
 
-    if(!this.container.parentElement) {
+    if (!this.container.parentElement) {
       this.appendTo.append(this.container);
     }
   }

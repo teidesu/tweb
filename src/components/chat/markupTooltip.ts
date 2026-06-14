@@ -1,19 +1,19 @@
 import ButtonIcon from '@components/buttonIcon';
-import {replaceButtonIcon} from '@components/button';
+import { replaceButtonIcon } from '@components/button';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import {IS_APPLE, IS_MOBILE} from '@environment/userAgent';
+import { IS_APPLE, IS_MOBILE } from '@environment/userAgent';
 import appNavigationController from '@components/appNavigationController';
-import {_i18n} from '@lib/langPack';
+import { _i18n } from '@lib/langPack';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import isSelectionEmpty from '@helpers/dom/isSelectionEmpty';
-import {getFormattedDateEntityByElement, MarkdownType} from '@helpers/dom/getRichElementValue';
+import { getFormattedDateEntityByElement, MarkdownType } from '@helpers/dom/getRichElementValue';
 import getVisibleRect from '@helpers/dom/getVisibleRect';
 import clamp from '@helpers/number/clamp';
 import matchUrl from '@lib/richTextProcessor/matchUrl';
 import matchUrlProtocol from '@lib/richTextProcessor/matchUrlProtocol';
 import getMarkupInSelection from '@helpers/dom/getMarkupInSelection';
-import {applyMarkdown} from '@helpers/dom/markdown';
+import { applyMarkdown } from '@helpers/dom/markdown';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import overlayCounter from '@helpers/overlayCounter';
 import type showDatePickerPopup from '@components/popups/datePicker';
@@ -72,25 +72,25 @@ export default class MarkupTooltip {
       'spoiler',
       ['quote', 'quote_outline', 'quote'],
       ['date', 'calendar'],
-      'link'
+      'link',
     ];
     arr.forEach((c) => {
       const type = typeof(c) === 'string' ? c : c[0];
       const inactiveIcon = (typeof(c) === 'string' ? c : c[1]) as Icon;
       const activeIcon = typeof(c) === 'string' ? undefined : c[2];
-      if(activeIcon !== undefined && activeIcon !== inactiveIcon) {
-        this.buttonIcons[type] = {inactive: inactiveIcon, active: activeIcon};
+      if (activeIcon !== undefined && activeIcon !== inactiveIcon) {
+        this.buttonIcons[type] = { inactive: inactiveIcon, active: activeIcon };
       }
-      const button = ButtonIcon(inactiveIcon, {noRipple: true});
+      const button = ButtonIcon(inactiveIcon, { noRipple: true });
       tools1.append(this.buttons[type] = button);
 
-      if(type === 'link') {
+      if (type === 'link') {
         attachClickEvent(button, (e) => {
           cancelEvent(e);
           this.showLinkEditor();
           this.cancelClosening();
         });
-      } else if(type === 'date') {
+      } else if (type === 'date') {
         attachClickEvent(button, (e) => {
           cancelEvent(e);
           this.showDatePicker();
@@ -98,7 +98,7 @@ export default class MarkupTooltip {
       } else {
         button.addEventListener('mousedown', (e) => {
           cancelEvent(e);
-          applyMarkdown({input: (this.input as HTMLElement), type});
+          applyMarkdown({ input: (this.input as HTMLElement), type });
           this.cancelClosening();
 
           /* this.mouseUpCounter = 0;
@@ -108,16 +108,16 @@ export default class MarkupTooltip {
       }
     });
 
-    this.linkBackButton = ButtonIcon('left', {noRipple: true});
+    this.linkBackButton = ButtonIcon('left', { noRipple: true });
     this.linkInput = document.createElement('input');
     _i18n(this.linkInput, 'MarkupTooltip.LinkPlaceholder', undefined, 'placeholder');
     this.linkInput.classList.add('input-clear');
     this.linkInput.addEventListener('keydown', (e) => {
       const valid = !this.linkInput.value.length || !!matchUrl(this.linkInput.value);// /^(http)|(https):\/\//i.test(this.linkInput.value);
 
-      if(e.key === 'Enter') {
-        if(!valid) {
-          if(this.linkInput.classList.contains('error')) {
+      if (e.key === 'Enter') {
+        if (!valid) {
+          if (this.linkInput.classList.contains('error')) {
             this.linkInput.classList.remove('error');
             void this.linkInput.offsetLeft; // reflow
           }
@@ -147,7 +147,7 @@ export default class MarkupTooltip {
       this.cancelClosening();
     });
 
-    this.linkApplyButton = ButtonIcon('check markup-tooltip-link-apply', {noRipple: true});
+    this.linkApplyButton = ButtonIcon('check markup-tooltip-link-apply', { noRipple: true });
     this.linkApplyButton.addEventListener('mousedown', (e) => {
       // this.log('linkApplyButton click');
       this.applyLink(e);
@@ -178,7 +178,7 @@ export default class MarkupTooltip {
   }
 
   private clearLinkInputFocusTimeout() {
-    if(this.linkInputFocusTimeout) {
+    if (this.linkInputFocusTimeout) {
       clearTimeout(this.linkInputFocusTimeout);
       this.linkInputFocusTimeout = undefined;
     }
@@ -186,11 +186,11 @@ export default class MarkupTooltip {
 
   public showDatePicker() {
     this.saveRange();
-    const {input} = this;
+    const { input } = this;
     const markup = getMarkupInSelection(['date']);
     const element = markup.date.elements[0];
     let initDate = new Date();
-    if(element) {
+    if (element) {
       const entity = getFormattedDateEntityByElement(element, 0, 0);
       initDate = new Date(entity.date * 1000);
     }
@@ -208,17 +208,17 @@ export default class MarkupTooltip {
           applyMarkdown({
             input: input!,
             type: 'date',
-            dateSuffix: timestamp ? '' + timestamp : undefined
+            dateSuffix: timestamp ? '' + timestamp : undefined,
           });
         }, 0);
       },
       btnConfirmLangKey: element ? 'EditDate' : 'AddDate',
-      btnDangerLangKey: element ? 'RemoveDate' : undefined
+      btnDangerLangKey: element ? 'RemoveDate' : undefined,
     });
   }
 
   public showLinkEditor() {
-    if(!this.container || !this.container.classList.contains('is-visible')) { // * if not inited yet (Ctrl+A + Ctrl+K)
+    if (!this.container || !this.container.classList.contains('is-visible')) { // * if not inited yet (Ctrl+A + Ctrl+K)
       this.show();
     }
 
@@ -230,7 +230,7 @@ export default class MarkupTooltip {
     const markup = getMarkupInSelection(['link']);
     const anchor = markup['link'].elements.find((element) => element.tagName === 'A') as HTMLAnchorElement;
 
-    if(button.classList.contains('active')) {
+    if (button.classList.contains('active')) {
       this.linkInput.value = anchor.href;
     } else {
       this.linkInput.value = '';
@@ -249,10 +249,10 @@ export default class MarkupTooltip {
     cancelEvent(e);
     this.resetSelection();
     let url = this.linkInput.value;
-    if(url && !matchUrlProtocol(url)) {
+    if (url && !matchUrlProtocol(url)) {
       url = 'https://' + url;
     }
-    applyMarkdown({input: (this.input as HTMLElement), type: 'link', href: url});
+    applyMarkdown({ input: (this.input as HTMLElement), type: 'link', href: url });
     setTimeout(() => {
       this.hide();
     }, 0);
@@ -276,7 +276,7 @@ export default class MarkupTooltip {
   public hide() {
     // return;
 
-    if(this.init as any) return;
+    if (this.init as any) return;
 
     this.input = undefined;
     this.container.classList.remove('is-visible');
@@ -286,7 +286,7 @@ export default class MarkupTooltip {
 
     appNavigationController.removeByType('markup');
 
-    if(this.hideTimeout) clearTimeout(this.hideTimeout);
+    if (this.hideTimeout) clearTimeout(this.hideTimeout);
     this.clearLinkInputFocusTimeout();
     this.hideTimeout = window.setTimeout(() => {
       this.hideTimeout = undefined;
@@ -315,8 +315,8 @@ export default class MarkupTooltip {
     const types = Object.keys(this.buttons) as MarkupTooltipTypes[];
     const markup = getMarkupInSelection(types);
     types.forEach((type) => {
-      const {partly, fully} = markup[type];
-      if(MarkupTooltip.DISPLAY_MARKUP_PARTLY ? partly : fully) {
+      const { partly, fully } = markup[type];
+      if (MarkupTooltip.DISPLAY_MARKUP_PARTLY ? partly : fully) {
         currentMarkups.add(this.buttons[type]);
       }
     });
@@ -327,7 +327,7 @@ export default class MarkupTooltip {
   public setActiveMarkupButton() {
     const activeButtons = this.getActiveMarkupButton();
 
-    for(const i in this.buttons) {
+    for (const i in this.buttons) {
       const type = i as MarkupTooltipTypes;
       const button = this.buttons[type];
       const isActive = activeButtons.includes(button);
@@ -335,7 +335,7 @@ export default class MarkupTooltip {
       button.classList.toggle('active', isActive);
 
       const icons = this.buttonIcons[type];
-      if(icons && wasActive !== isActive) {
+      if (icons && wasActive !== isActive) {
         replaceButtonIcon(button, isActive ? icons.active : icons.inactive);
       }
     }
@@ -351,7 +351,7 @@ export default class MarkupTooltip {
       findUpClassName(this.input!, 'input-field') ||
       this.input?.closest('[data-markup-tooltip-host]');
 
-    if(!rowsWrapper) return;
+    if (!rowsWrapper) return;
 
     const currentTools = this.container.classList.contains('is-link') ?
       this.wrapper.lastElementChild :
@@ -370,9 +370,9 @@ export default class MarkupTooltip {
       selectionRect
     );
 
-    const {newHeight = 0, oldHeight = newHeight} = this.input as any;
+    const { newHeight = 0, oldHeight = newHeight } = this.input as any;
 
-    if(!visibleRect) { // can be when modifying quote that's not in visible area
+    if (!visibleRect) { // can be when modifying quote that's not in visible area
       return;
     }
 
@@ -383,7 +383,7 @@ export default class MarkupTooltip {
     const minX = inputRect.left;
     const maxX = (inputRect.left + inputRect.width) - Math.min(inputRect.width, sizesRect.width);
     let left: number;
-    if(isLinkToggle) {
+    if (isLinkToggle) {
       const containerRect = this.container.getBoundingClientRect();
       left = clamp(containerRect.left, minX, maxX);
     } else {
@@ -399,21 +399,21 @@ export default class MarkupTooltip {
   }
 
   public show() {
-    if(this.init) {
+    if (this.init) {
       this.init();
       this.init = null as any;
     }
 
-    if(isSelectionEmpty()) {
+    if (isSelectionEmpty()) {
       this.hide();
       return;
     }
 
-    if(this.hideTimeout !== undefined) {
+    if (this.hideTimeout !== undefined) {
       clearTimeout(this.hideTimeout);
     }
 
-    if(this.container.classList.contains('is-visible')) {
+    if (this.container.classList.contains('is-visible')) {
       return;
     }
 
@@ -428,33 +428,33 @@ export default class MarkupTooltip {
     (Object.keys(this.buttons) as MarkupTooltipTypes[]).forEach((type) => {
       const hidden = !!allowedTypes && !allowedTypes.has(type);
       this.buttons[type].classList.toggle('hide', hidden);
-      if(type === 'link') {
+      if (type === 'link') {
         this.linkDelimiter.classList.toggle('hide', hidden);
       }
     });
 
     this.container.classList.remove('is-link');
     const isFirstShow = this.container.classList.contains('hide');
-    if(isFirstShow) {
+    if (isFirstShow) {
       this.container.classList.remove('hide');
       this.container.classList.add('no-transition');
     }
 
     this.setTooltipPosition();
 
-    if(isFirstShow) {
+    if (isFirstShow) {
       void this.container.offsetLeft; // reflow
       this.container.classList.remove('no-transition');
     }
 
     this.container.classList.add('is-visible');
 
-    if(!IS_MOBILE) {
+    if (!IS_MOBILE) {
       appNavigationController.pushItem({
         type: 'markup',
         onPop: () => {
           this.hide();
-        }
+        },
       });
     }
 
@@ -473,9 +473,9 @@ export default class MarkupTooltip {
     // this.log('onMouseUpSingle');
     this.waitingForMouseUp = false;
 
-    if(IS_TOUCH_SUPPORTED) {
+    if (IS_TOUCH_SUPPORTED) {
       e && cancelEvent(e);
-      if(this.mouseUpCounter++ === 0) {
+      if (this.mouseUpCounter++ === 0) {
         this.resetSelection();
       } else {
         this.hide();
@@ -489,23 +489,23 @@ export default class MarkupTooltip {
   };
 
   public setMouseUpEvent() {
-    if(this.waitingForMouseUp) return;
+    if (this.waitingForMouseUp) return;
     this.waitingForMouseUp = true;
 
     // this.log('setMouseUpEvent');
 
-    document.addEventListener('mouseup', this.onMouseUpSingle, {once: true});
+    document.addEventListener('mouseup', this.onMouseUpSingle, { once: true });
   }
 
   public cancelClosening() {
-    if(IS_TOUCH_SUPPORTED && !IS_APPLE) {
+    if (IS_TOUCH_SUPPORTED && !IS_APPLE) {
       document.removeEventListener('mouseup', this.onMouseUpSingle);
       document.addEventListener('mouseup', (e) => {
         cancelEvent(e);
         this.mouseUpCounter = 1;
         this.waitingForMouseUp = false;
         this.setMouseUpEvent();
-      }, {once: true});
+      }, { once: true });
     }
   }
 
@@ -514,38 +514,38 @@ export default class MarkupTooltip {
   }
 
   public handleSelection() {
-    if(this.addedListener) return;
+    if (this.addedListener) return;
     this.addedListener = true;
     document.addEventListener('selectionchange', (e) => {
-      if(this.linkInputFocusTimeout) { // * if it soon will be focused, ignore the event because of click event
+      if (this.linkInputFocusTimeout) { // * if it soon will be focused, ignore the event because of click event
         return;
       }
       // this.log('selectionchange');
 
-      if(document.activeElement === this.linkInput) {
+      if (document.activeElement === this.linkInput) {
         return;
       }
 
       const activeElement = document.activeElement as HTMLElement;
-      if(this.input ? activeElement !== this.input : !this.canFormatInput(activeElement)) {
+      if (this.input ? activeElement !== this.input : !this.canFormatInput(activeElement)) {
         this.hide();
         return;
       }
 
       const selection = document.getSelection();
-      if(isSelectionEmpty(selection)) {
+      if (isSelectionEmpty(selection)) {
         this.hide();
         return;
       }
 
       this.input = activeElement;
 
-      if(IS_TOUCH_SUPPORTED) {
-        if(IS_APPLE) {
+      if (IS_TOUCH_SUPPORTED) {
+        if (IS_APPLE) {
           this.show();
           this.setTooltipPosition(); // * because can skip this in .show();
         } else {
-          if(this.mouseUpCounter === 2) {
+          if (this.mouseUpCounter === 2) {
             this.mouseUpCounter = 0;
             return;
           }
@@ -558,10 +558,10 @@ export default class MarkupTooltip {
             this.show();
           }, {once: true, passive: false}); */
         }
-      } else if(this.container && this.container.classList.contains('is-visible')) {
+      } else if (this.container && this.container.classList.contains('is-visible')) {
         this.setActiveMarkupButton();
         this.setTooltipPosition();
-      } else if(this.input.matches(':active')) {
+      } else if (this.input.matches(':active')) {
         this.setMouseUpEvent();
       } else {
         this.show();
@@ -569,8 +569,8 @@ export default class MarkupTooltip {
     });
 
     document.addEventListener('beforeinput', (e) => {
-      if(e.inputType === 'historyRedo' || e.inputType === 'historyUndo') {
-        e.target!.addEventListener('input', () => this.setActiveMarkupButton(), {once: true});
+      if (e.inputType === 'historyRedo' || e.inputType === 'historyUndo') {
+        e.target!.addEventListener('input', () => this.setActiveMarkupButton(), { once: true });
       }
     });
   }

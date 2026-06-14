@@ -1,4 +1,4 @@
-import {MessageEntity} from '@layer';
+import { MessageEntity } from '@layer';
 
 
 export default function trimRichText(text: string, entities: MessageEntity[]) {
@@ -9,7 +9,7 @@ export default function trimRichText(text: string, entities: MessageEntity[]) {
   text = text.replace(/^\s*/, '');
   let diff = prevLength - text.length;
 
-  if(diff) {
+  if (diff) {
     entities.forEach((entity) => {
       entity.offset = Math.max(0, entity.offset! - diff);
     });
@@ -21,13 +21,13 @@ export default function trimRichText(text: string, entities: MessageEntity[]) {
   text = text.replace(/\s*$/, '');
   diff = prevLength - text.length;
 
-  if(diff) {
+  if (diff) {
     entities.forEach((entity) => {
-      if((entity.offset! + entity.length!) > text.length) {
+      if ((entity.offset! + entity.length!) > text.length) {
         entity.length = text.length - entity.offset!;
       }
     });
   }
 
-  return {text, entities};
+  return { text, entities };
 }

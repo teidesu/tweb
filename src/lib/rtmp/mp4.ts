@@ -1,4 +1,4 @@
-import {findIsoBox} from '@lib/rtmp/utils';
+import { findIsoBox } from '@lib/rtmp/utils';
 
 export interface Mp4Sample {
   idx: number;
@@ -18,16 +18,16 @@ export function parseMp4Samples(trak: any) {
   const mdhd = findIsoBox(trak, 'mdhd');
 
   let stts, stsc, stco, ctts, stsz, stsd, stss;
-  for(const box of stbl.boxes) {
-    if(box.type === 'stts') stts = box;
-    if(box.type === 'stsc') stsc = box;
-    if(box.type === 'stco') stco = box;
-    if(box.type === 'ctts') ctts = box;
-    if(box.type === 'stsz') stsz = box;
-    if(box.type === 'stsd') stsd = box;
-    if(box.type === 'stss') stss = box;
+  for (const box of stbl.boxes) {
+    if (box.type === 'stts') stts = box;
+    if (box.type === 'stsc') stsc = box;
+    if (box.type === 'stco') stco = box;
+    if (box.type === 'ctts') ctts = box;
+    if (box.type === 'stsz') stsz = box;
+    if (box.type === 'stsd') stsd = box;
+    if (box.type === 'stss') stss = box;
   }
-  if(!stts || !stsc || !stco || !stsz || !stsd) {
+  if (!stts || !stsc || !stco || !stsz || !stsd) {
     throw new Error('Missing required box');
   }
 
@@ -44,16 +44,16 @@ export function parseMp4Samples(trak: any) {
   let cttsRunIdx = -1;
   let lastStssIndex = 0;
 
-  for(let i = 0; i < stsz.sample_count; i++) {
+  for (let i = 0; i < stsz.sample_count; i++) {
     const sample = {
       idx: i,
-      size: stsz.sample_size || stsz.entry_sizes[i]
+      size: stsz.sample_size || stsz.entry_sizes[i],
     } as Mp4Sample;
     totalSize += sample.size;
     samples.push(sample);
 
     // computing chunk-based properties (offset, sample description index)
-    if(i === 0) {
+    if (i === 0) {
       chunkIdx = 1; // chunks are 1-indexed
       chunkRunIdx = 0; // the first chunk is the first entry in the first_chunk table
       lastSampleInChunk = stsc.entries[chunkRunIdx].samples_per_chunk;
@@ -62,14 +62,14 @@ export function parseMp4Samples(trak: any) {
       sample.chunkIdx = chunkIdx;
       sample.chunkRunIdx = chunkRunIdx;
 
-      if(chunkRunIdx + 1 < stsc.entry_count) {
+      if (chunkRunIdx + 1 < stsc.entry_count) {
         /* The last chunk in the run is the chunk before the next first chunk */
         lastChunkInRun = stsc.entries[chunkRunIdx + 1].first_chunk - 1;
       } else {
         /* There is only one entry in the table, it is valid for all future chunks*/
         lastChunkInRun = Infinity;
       }
-    } else if(i < lastSampleInChunk) {
+    } else if (i < lastSampleInChunk) {
       /* the sample is still in the current chunk */
       sample.chunkIdx = chunkIdx!;
       sample.chunkRunIdx = chunkRunIdx!;
@@ -78,13 +78,13 @@ export function parseMp4Samples(trak: any) {
       chunkIdx++;
       sample.chunkIdx = chunkIdx!;
       offsetInChunk = 0;
-      if(chunkIdx <= lastChunkInRun) {
+      if (chunkIdx <= lastChunkInRun) {
         /* stay in the same entry of the first_chunk table */
         /* chunk_run_index unmodified */
       } else {
         chunkRunIdx++;
         /* Is there another entry in the first_chunk table ? */
-        if(chunkRunIdx + 1 < stsc.entry_count) {
+        if (chunkRunIdx + 1 < stsc.entry_count) {
           /* The last chunk in the run is the chunk before the next first chunk */
           lastChunkInRun = stsc.entries[chunkRunIdx + 1].first_chunk - 1;
         } else {
@@ -102,15 +102,15 @@ export function parseMp4Samples(trak: any) {
     offsetInChunk += sample.size;
 
     /* setting dts, cts, duration and rap flags */
-    if(i > lastSampleInSttsRun) {
+    if (i > lastSampleInSttsRun) {
       sttsRunIdx += 1;
-      if(lastSampleInSttsRun < 0) {
+      if (lastSampleInSttsRun < 0) {
         lastSampleInSttsRun = 0;
       }
       lastSampleInSttsRun += stts.entries[sttsRunIdx].sample_count;
     }
 
-    if(i > 0) {
+    if (i > 0) {
       const prevSample = samples[i - 1];
       prevSample.duration = stts.entries[sttsRunIdx].sample_delta;
       totalDuration += prevSample.duration;
@@ -119,10 +119,10 @@ export function parseMp4Samples(trak: any) {
       sample.dts = 0;
     }
 
-    if(ctts) {
-      if(i >= lastSampleInCttsRun) {
+    if (ctts) {
+      if (i >= lastSampleInCttsRun) {
         cttsRunIdx += 1;
-        if(lastSampleInCttsRun < 0) {
+        if (lastSampleInCttsRun < 0) {
           lastSampleInCttsRun = 0;
         }
         lastSampleInCttsRun += ctts.entries[cttsRunIdx].sample_count;
@@ -132,8 +132,8 @@ export function parseMp4Samples(trak: any) {
       sample.cts = sample.dts;
     }
 
-    if(stss) {
-      if(i === stss.sample_numbers[lastStssIndex] - 1) {
+    if (stss) {
+      if (i === stss.sample_numbers[lastStssIndex] - 1) {
         sample.isSync = true;
         hasSyncSamples = true;
         lastStssIndex++;
@@ -146,7 +146,7 @@ export function parseMp4Samples(trak: any) {
     }
   }
 
-  if(samples.length) {
+  if (samples.length) {
     const lastSample = samples[samples.length - 1];
     lastSample.duration = Math.max(0, mdhd.duration - lastSample.dts);
     totalDuration += lastSample.duration;
@@ -156,6 +156,6 @@ export function parseMp4Samples(trak: any) {
     mdhd,
     totalSize,
     samples,
-    hasSyncSamples
+    hasSyncSamples,
   };
 }

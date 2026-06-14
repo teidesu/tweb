@@ -1,4 +1,4 @@
-import {Accessor, createMemo} from 'solid-js';
+import { Accessor, createMemo } from 'solid-js';
 
 export const useMaxLengthError = (value: Accessor<string>, maxLength: Accessor<number>) => {
   const threshold = () => Math.min(40, Math.round(maxLength() / 3));
@@ -8,6 +8,6 @@ export const useMaxLengthError = (value: Accessor<string>, maxLength: Accessor<n
   return {
     hasError: createMemo(() => value().length > maxLength()),
     shouldShowLengthLeft,
-    lengthLeft
+    lengthLeft,
   };
 };

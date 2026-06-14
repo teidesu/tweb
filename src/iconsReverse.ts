@@ -31,7 +31,7 @@ const IconsReverse = new Set<Icon>([
   'premium_noads',
   'topics',
   'pinlist',
-  'deleteleft'
+  'deleteleft',
 ]);
 
 export default IconsReverse;

@@ -1,6 +1,6 @@
-import {MyMessage} from '@appManagers/appMessagesManager';
+import { MyMessage } from '@appManagers/appMessagesManager';
 import getMessageSenderPeerIdOrName from '@appManagers/utils/messages/getMessageSenderPeerIdOrName';
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 import rootScope from '@lib/rootScope';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
 
@@ -14,12 +14,12 @@ export default async function wrapSenderToPeer(message: MyMessage) {
       i18n('FromYou') :
       await wrapPeerTitle({
         ...getMessageSenderPeerIdOrName(message),
-        dialog: message.peerId === rootScope.myId
+        dialog: message.peerId === rootScope.myId,
       }))
   );
 
-  if(await rootScope.managers.appPeersManager.isAnyGroup(message.peerId!) || fromMe) {
-    const peerTitle = await wrapPeerTitle({peerId: message.peerId});
+  if (await rootScope.managers.appPeersManager.isAnyGroup(message.peerId!) || fromMe) {
+    const peerTitle = await wrapPeerTitle({ peerId: message.peerId });
     senderTitle.append(' ➝ ', peerTitle);
   }
 

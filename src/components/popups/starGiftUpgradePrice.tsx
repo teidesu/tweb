@@ -1,21 +1,21 @@
-import {createMemo, createSignal, onCleanup, onMount} from 'solid-js';
+import { createMemo, createSignal, onCleanup, onMount } from 'solid-js';
 import tsNow from '@helpers/tsNow';
-import {LimitLineTsx} from '@components/limitLineTsx';
-import PopupElement, {createPopup} from '@components/popups/indexTsx';
+import { LimitLineTsx } from '@components/limitLineTsx';
+import PopupElement, { createPopup } from '@components/popups/indexTsx';
 
 import styles from '@components/popups/starGiftUpgradePrice.module.scss';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {StarGiftUpgradePreview} from '@appManagers/appGiftsManager';
-import {easeOutCircApply} from '@helpers/easing/easeOutCirc';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { StarGiftUpgradePreview } from '@appManagers/appGiftsManager';
+import { easeOutCircApply } from '@helpers/easing/easeOutCirc';
 import Table from '@components/table';
-import {formatDate, formatDateAccordingToTodayNew, formatFullSentTime, formatTime} from '@helpers/date';
-import {StarsStar} from '@components/popups/stars';
-import {numberThousandSplitterForStars} from '@helpers/number/numberThousandSplitter';
+import { formatDate, formatDateAccordingToTodayNew, formatFullSentTime, formatTime } from '@helpers/date';
+import { StarsStar } from '@components/popups/stars';
+import { numberThousandSplitterForStars } from '@helpers/number/numberThousandSplitter';
 import I18n from '@lib/langPack';
 import toHHMMSS from '@helpers/string/toHHMMSS';
 import Scrollable from '@components/scrollable2';
-import {fastRaf} from '@helpers/schedulers';
-import {createCurrentTime} from '@helpers/solid/createCurrentTime';
+import { fastRaf } from '@helpers/schedulers';
+import { createCurrentTime } from '@helpers/solid/createCurrentTime';
 
 export function createStarGiftUpgradePricePopup(props: {
   preview: StarGiftUpgradePreview,
@@ -24,24 +24,24 @@ export function createStarGiftUpgradePricePopup(props: {
 
   let minPrice = Infinity;
   let maxPrice = 0;
-  for(const price of props.preview.prices) {
+  for (const price of props.preview.prices) {
     const val = Number(price.upgrade_stars);
-    if(val < minPrice) {
+    if (val < minPrice) {
       minPrice = val;
     }
-    if(val > maxPrice) {
+    if (val > maxPrice) {
       maxPrice = val;
     }
   }
 
   const now = createCurrentTime({
     fn: () => tsNow(true),
-    updateInterval: 1000
+    updateInterval: 1000,
   })
   const currentPriceNext = createMemo(() => {
     const now$ = now()
-    for(let i = props.preview.next_prices.length - 1; i >= 0; i--) {
-      if(props.preview.next_prices[i].date <= now$) {
+    for (let i = props.preview.next_prices.length - 1; i >= 0; i--) {
+      if (props.preview.next_prices[i].date <= now$) {
         return props.preview.next_prices[i];
       }
     }
@@ -51,8 +51,8 @@ export function createStarGiftUpgradePricePopup(props: {
 
   const currentPriceIdx = createMemo(() => {
     const now$ = now()
-    for(let i = props.preview.prices.length - 1; i >= 0; i--) {
-      if(props.preview.prices[i].date <= now$) {
+    for (let i = props.preview.prices.length - 1; i >= 0; i--) {
+      if (props.preview.prices[i].date <= now$) {
         return i;
       }
     }
@@ -70,8 +70,8 @@ export function createStarGiftUpgradePricePopup(props: {
           date,
           options: {
             month: 'short',
-            day: 'numeric'
-          }
+            day: 'numeric',
+          },
         }).element}
       </>
     )
@@ -114,7 +114,7 @@ export function createStarGiftUpgradePricePopup(props: {
                   <span class={styles.tableValue}>
                     <StarsStar />
                     {numberThousandSplitterForStars(it.upgrade_stars)}
-                  </span>
+                  </span>,
                 ]))}
               />
 

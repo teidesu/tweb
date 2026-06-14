@@ -17,7 +17,7 @@ export default function setDeepProperty(
   const splitted = key.split(DEEP_PATH_JOINER);
   const length = splitted.length;
   let lastObject = object/* , fractalPart: string */; // fix fractal number key
-  for(let i = 0; i < length - 1; ++i) {
+  for (let i = 0; i < length - 1; ++i) {
     const part = splitted[i];
     // if(fractalPart) {
     //   part = fractalPart + '.' + part;
@@ -30,7 +30,7 @@ export default function setDeepProperty(
   }
 
   const lastKey = /* (fractalPart ? fractalPart + '.' : '') +  */splitted[length - 1];
-  if(value === undefined && deleteIfUndefined/*  && arguments.length === 2 */) {
+  if (value === undefined && deleteIfUndefined/*  && arguments.length === 2 */) {
     delete lastObject[lastKey];
   } else {
     lastObject[lastKey] = value;

@@ -1,3 +1,3 @@
-import {installNodeEnv} from './api/nodeEnv';
+import { installNodeEnv } from './api/nodeEnv';
 
 installNodeEnv();

@@ -10,20 +10,20 @@ export default function addPadding<T extends number[] | ArrayBuffer | Uint8Array
 ): T {
   const len = (bytes as ArrayBuffer).byteLength || (bytes as Uint8Array).length;
   const needPadding = blockSizeAsTotalLength ? blockSize - len : blockSize - (len % blockSize);
-  if(needPadding > 0 && needPadding < blockSize) {
+  if (needPadding > 0 && needPadding < blockSize) {
     // //console.log('addPadding()', len, blockSize, needPadding);
     const padding = new Uint8Array(needPadding);
-    if(zeroes) {
-      for(let i = 0; i < needPadding; ++i) {
+    if (zeroes) {
+      for (let i = 0; i < needPadding; ++i) {
         padding[i] = 0;
       }
     } else {
       randomize(padding);
     }
 
-    if(bytes instanceof ArrayBuffer) {
+    if (bytes instanceof ArrayBuffer) {
       return (prepend ? bufferConcats(padding, bytes) : bufferConcats(bytes, padding)).buffer as T;
-    } else if(bytes instanceof Uint8Array) {
+    } else if (bytes instanceof Uint8Array) {
       return (prepend ? bufferConcats(padding, bytes) : bufferConcats(bytes, padding)) as T;
     } else {
       // @ts-ignore

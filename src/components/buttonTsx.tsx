@@ -1,6 +1,6 @@
-import {Accessor, createMemo, createSignal, JSX, Ref, Setter} from 'solid-js';
-import {FormatterArguments, i18n, LangPackKey} from '@lib/langPack';
-import {IconTsx} from '@components/iconTsx';
+import { Accessor, createMemo, createSignal, JSX, Ref, Setter } from 'solid-js';
+import { FormatterArguments, i18n, LangPackKey } from '@lib/langPack';
+import { IconTsx } from '@components/iconTsx';
 import classNames from '@helpers/string/classNames';
 import RippleElement from '@components/rippleElement';
 
@@ -26,7 +26,7 @@ const Button = (props: Partial<{
   tabIndex: number,
 }> = {}): JSX.Element => {
   let disabled: Accessor<boolean>, setDisabled: Setter<boolean>;
-  if(props.disabled !== undefined) {
+  if (props.disabled !== undefined) {
     disabled = (createMemo(() => props.disabled) as Accessor<boolean>);
   } else {
     [disabled, setDisabled] = createSignal(false);
@@ -48,13 +48,13 @@ const Button = (props: Partial<{
       onClick={props.onClick && setDisabled! ? ((e: any) => {
         try {
           const result = props.onClick!(e);
-          if(result instanceof Promise) {
+          if (result instanceof Promise) {
             setDisabled(true);
             result.finally(() => {
               setDisabled(false);
             });
           }
-        } catch(err) {
+        } catch (err) {
           throw err;
         }
       }) : props.onClick}

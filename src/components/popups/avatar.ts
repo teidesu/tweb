@@ -1,8 +1,8 @@
-import type {AppDownloadManager} from '@lib/appDownloadManager';
+import type { AppDownloadManager } from '@lib/appDownloadManager';
 import resizeableImage from '@lib/cropper';
 import PopupElement from '.';
-import {_i18n} from '@lib/langPack';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { _i18n } from '@lib/langPack';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import readBlobAsDataURL from '@helpers/blob/readBlobAsDataURL';
 import appDownloadManager from '@lib/appDownloadManager';
 import Button from '@components/button';
@@ -18,7 +18,7 @@ export default class PopupAvatar extends PopupElement {
   private blob: Blob;
   private cropper = {
     crop: () => {},
-    removeHandlers: () => {}
+    removeHandlers: () => {},
   };
 
   private onCrop: (upload: () => ReturnType<AppDownloadManager['upload']>) => void;
@@ -26,7 +26,7 @@ export default class PopupAvatar extends PopupElement {
   constructor(options: Partial<{
     isForum: boolean
   }> = {}) {
-    super('popup-avatar', {closable: true});
+    super('popup-avatar', { closable: true });
 
     this.h6 = document.createElement('h6');
     _i18n(this.h6, 'Popup.Avatar.Title');
@@ -39,7 +39,7 @@ export default class PopupAvatar extends PopupElement {
     this.cropContainer.classList.add('crop');
     this.cropContainer.append(this.image);
 
-    if(options.isForum) {
+    if (options.isForum) {
       this.cropContainer.classList.add('is-forum');
     }
 
@@ -48,7 +48,7 @@ export default class PopupAvatar extends PopupElement {
     this.input.style.display = 'none';
     this.listenerSetter.add(this.input)('change', (e: any) => {
       const file = e.target.files[0];
-      if(!file) {
+      if (!file) {
         return;
       }
 
@@ -69,7 +69,7 @@ export default class PopupAvatar extends PopupElement {
       });
     }, false);
 
-    this.btnConfirm = Button(`btn-primary btn-color-primary btn-circle btn-crop btn-icon z-depth-1`, {noRipple: true, icon: 'check'});
+    this.btnConfirm = Button(`btn-primary btn-color-primary btn-circle btn-crop btn-icon z-depth-1`, { noRipple: true, icon: 'check' });
     attachClickEvent(this.btnConfirm, () => {
       this.cropper.crop();
       this.hide();
@@ -79,13 +79,13 @@ export default class PopupAvatar extends PopupElement {
         this.darkenCanvas();
         this.resolve();
       }, 'image/jpeg', 1);
-    }, {listenerSetter: this.listenerSetter});
+    }, { listenerSetter: this.listenerSetter });
 
     this.container.append(this.cropContainer, this.btnConfirm, this.input);
 
     this.addEventListener('closeAfterTimeout', () => {
       this.cropper.removeHandlers();
-      if(this.image) {
+      if (this.image) {
         this.image.remove();
       }
     });

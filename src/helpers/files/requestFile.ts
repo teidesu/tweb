@@ -3,7 +3,7 @@ export default function requestFile(accept?: string) {
   input.type = 'file';
   input.style.display = 'none';
 
-  if(accept) {
+  if (accept) {
     input.accept = accept;
   }
 
@@ -12,13 +12,13 @@ export default function requestFile(accept?: string) {
   const promise = new Promise<File>((resolve, reject) => {
     input.addEventListener('change', (e: any) => {
       const file: File = e.target.files[0];
-      if(!file) {
+      if (!file) {
         reject('NO_FILE_SELECTED');
         return;
       }
 
       resolve(file);
-    }, {once: true});
+    }, { once: true });
   }).finally(() => {
     input.remove();
   });

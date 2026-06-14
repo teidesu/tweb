@@ -1,13 +1,13 @@
 import tsNow from '@helpers/tsNow';
-import {ChatInviteImporter, ExportedChatInvite} from '@layer';
-import {AppManagers} from '@lib/managers';
-import {i18n, LangPackKey} from '@lib/langPack';
+import { ChatInviteImporter, ExportedChatInvite } from '@layer';
+import { AppManagers } from '@lib/managers';
+import { i18n, LangPackKey } from '@lib/langPack';
 import lottieLoader from '@lib/rlottie/lottieLoader';
 import rootScope from '@lib/rootScope';
 import hasRights from '@lib/appManagers/utils/chats/hasRights';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import AppSelectPeers from '@components/appSelectPeers';
-import {InviteLink} from '@components/sidebarLeft/tabs/inviteLink';
+import { InviteLink } from '@components/sidebarLeft/tabs/inviteLink';
 
 export type ChatInvite = ExportedChatInvite.chatInviteExported;
 
@@ -18,15 +18,15 @@ export type ChatInviteActions = {
 };
 
 export function isActiveInvite(invite: ChatInvite) {
-  if(invite.pFlags.revoked) {
+  if (invite.pFlags.revoked) {
     return false;
   }
 
-  if(invite.expire_date && invite.expire_date <= tsNow(true)) {
+  if (invite.expire_date && invite.expire_date <= tsNow(true)) {
     return false;
   }
 
-  if(invite.usage_limit && invite.usage_limit <= (invite.usage || 0)) {
+  if (invite.usage_limit && invite.usage_limit <= (invite.usage || 0)) {
     return false;
   }
 
@@ -41,10 +41,10 @@ export class ChatInviteLink extends InviteLink {
     withSubtitle?: boolean
   }) {
     super({
-      ...options
+      ...options,
     });
 
-    if(options.withSubtitle) {
+    if (options.withSubtitle) {
       this.subtitle = document.createElement('div');
       this.subtitle.classList.add('invite-link-subtitle', 'hide');
       this.container.append(this.subtitle);
@@ -56,8 +56,8 @@ export class ChatInviteLink extends InviteLink {
     const username = typeof(chatInvite) === 'string' ? chatInvite : undefined;
     this.setUrl(isUsername ? 't.me/' + username : chatInvite.link);
 
-    if(this.subtitle) {
-      if(!isUsername && chatInvite?.usage) {
+    if (this.subtitle) {
+      if (!isUsername && chatInvite?.usage) {
         this.subtitle.replaceChildren(i18n('InviteLink.JoinedNew', [chatInvite.usage]));
       }
 
@@ -65,17 +65,17 @@ export class ChatInviteLink extends InviteLink {
     }
 
     let hasSomething: LangPackKey;
-    if(!isUsername) {
-      if(chatInvite.pFlags.revoked) {
+    if (!isUsername) {
+      if (chatInvite.pFlags.revoked) {
         this.onButtonClick = () => this.options.actions.deleteLink();
         hasSomething = 'DeleteLink';
-      } else if(!isActiveInvite(chatInvite)) {
+      } else if (!isActiveInvite(chatInvite)) {
         this.onButtonClick = () => this.options.actions.editLink();
         hasSomething = 'InviteLinks.Reactivate';
       }
     }
 
-    if(!hasSomething!) {
+    if (!hasSomething!) {
       hasSomething = 'ShareLink';
       this.onButtonClick = undefined;
     }
@@ -88,7 +88,7 @@ export function getImportersLoader({
   chatId,
   managers,
   link,
-  requested
+  requested,
 }: {
   chatId: ChatId,
   managers: AppManagers,
@@ -99,7 +99,7 @@ export function getImportersLoader({
   const importersMap: Map<PeerId, ChatInviteImporter> = new Map();
   let lastQuery = '';
   const load: AppSelectPeers['getMoreCustom'] = async(q) => {
-    if(lastQuery !== q) {
+    if (lastQuery !== q) {
       importers.length = 0;
       importersMap.clear();
       lastQuery = q;
@@ -114,7 +114,7 @@ export function getImportersLoader({
       requested,
       offsetDate: lastImporter?.date,
       offsetUserId: lastImporter?.user_id,
-      q
+      q,
     });
 
     importers.push(...result.importers);
@@ -125,7 +125,7 @@ export function getImportersLoader({
         importersMap.set(peerId, importer);
         return peerId;
       }),
-      isEnd: result.importers.length < limit
+      isEnd: result.importers.length < limit,
     };
   };
 
@@ -138,16 +138,16 @@ export function getImportersLoader({
     importers,
     importersMap,
     load,
-    deleteImporter
+    deleteImporter,
   };
 }
 
 export function getChatInviteLinksInitArgs(chatId: ChatId, adminId?: UserId) {
   return {
     animationData: !adminId && lottieLoader.loadAnimationFromURLManually('UtyanLinks'),
-    invites: rootScope.managers.appChatInvitesManager.getExportedChatInvites({chatId, adminId}),
-    invitesRevoked: rootScope.managers.appChatInvitesManager.getExportedChatInvites({chatId, adminId, revoked: true}),
+    invites: rootScope.managers.appChatInvitesManager.getExportedChatInvites({ chatId, adminId }),
+    invitesRevoked: rootScope.managers.appChatInvitesManager.getExportedChatInvites({ chatId, adminId, revoked: true }),
     adminsInvites: !adminId && hasRights(apiManagerProxy.getChat(chatId), 'change_type') && rootScope.managers.appChatInvitesManager.getAdminsWithInvites(chatId),
-    chatFull: rootScope.managers.appProfileManager.getChatFull(chatId)
+    chatFull: rootScope.managers.appProfileManager.getChatFull(chatId),
   };
 }

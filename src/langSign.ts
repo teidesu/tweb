@@ -59,7 +59,7 @@ const lang = {
   'PhoneNumber.Code.Fragment.Info': 'Get the code in the Numbers section on [Fragment](%1$@)',
   'PHONE_CODE_INVALID': 'Invalid code',
   'PHONE_CODE_EXPIRED': 'Code expired',
-  'PASSWORD_HASH_INVALID': 'Incorrect password'
+  'PASSWORD_HASH_INVALID': 'Incorrect password',
 };
 
 export default lang;

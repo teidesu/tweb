@@ -1,25 +1,25 @@
-import {createSignal, getOwner, runWithOwner} from 'solid-js';
-import {animate} from '@helpers/animation';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
+import { createSignal, getOwner, runWithOwner } from 'solid-js';
+import { animate } from '@helpers/animation';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
 import ListenerSetter from '@helpers/listenerSetter';
-import {MediaSize} from '@helpers/mediaSize';
+import { MediaSize } from '@helpers/mediaSize';
 import noop from '@helpers/noop';
 import clamp from '@helpers/number/clamp';
-import {logger} from '@lib/logger';
-import {useMediaEditorContext} from '@components/mediaEditor/context';
-import {supportsAudioEncoding} from '@components/mediaEditor/support';
-import {delay, snapToViewport} from '@components/mediaEditor/utils';
-import {RenderingPayload} from '@components/mediaEditor/webgl/initWebGL';
-import calcCodecAndBitrate, {BITRATE_TARGET_FPS} from '@components/mediaEditor/finalRender/calcCodecAndBitrate';
-import {FRAMES_PER_SECOND, STICKER_SIZE} from '@components/mediaEditor/finalRender/constants';
-import {MediaEditorFinalResultPayload} from '@components/mediaEditor/finalRender/createFinalResult';
+import { logger } from '@lib/logger';
+import { useMediaEditorContext } from '@components/mediaEditor/context';
+import { supportsAudioEncoding } from '@components/mediaEditor/support';
+import { delay, snapToViewport } from '@components/mediaEditor/utils';
+import { RenderingPayload } from '@components/mediaEditor/webgl/initWebGL';
+import calcCodecAndBitrate, { BITRATE_TARGET_FPS } from '@components/mediaEditor/finalRender/calcCodecAndBitrate';
+import { FRAMES_PER_SECOND, STICKER_SIZE } from '@components/mediaEditor/finalRender/constants';
+import { MediaEditorFinalResultPayload } from '@components/mediaEditor/finalRender/createFinalResult';
 import drawStickerLayer from '@components/mediaEditor/finalRender/drawStickerLayer';
 import drawTextLayer from '@components/mediaEditor/finalRender/drawTextLayer';
-import {generateVideoPreview} from '@components/mediaEditor/finalRender/generateVideoPreview';
-import {ScaledLayersAndLines} from '@components/mediaEditor/finalRender/getScaledLayersAndLines';
+import { generateVideoPreview } from '@components/mediaEditor/finalRender/generateVideoPreview';
+import { ScaledLayersAndLines } from '@components/mediaEditor/finalRender/getScaledLayersAndLines';
 import ImageStickerFrameByFrameRenderer from '@components/mediaEditor/finalRender/imageStickerFrameByFrameRenderer';
 import LottieStickerFrameByFrameRenderer from '@components/mediaEditor/finalRender/lottieStickerFrameByFrameRenderer';
-import {StickerFrameByFrameRenderer} from '@components/mediaEditor/finalRender/types';
+import { StickerFrameByFrameRenderer } from '@components/mediaEditor/finalRender/types';
 import VideoStickerFrameByFrameRenderer from '@components/mediaEditor/finalRender/videoStickerFrameByFrameRenderer';
 import StickerType from '@config/stickerType';
 
@@ -56,18 +56,18 @@ export default async function renderToActualVideo({
   imageCanvas,
   drawToImageCanvas,
   brushCanvas,
-  resultCanvas
+  resultCanvas,
 }: Args) {
   const context = useMediaEditorContext();
 
   const {
-    editorState: {pixelRatio},
-    mediaState: {videoCropStart, videoCropLength, videoMuted, videoThumbnailPosition},
+    editorState: { pixelRatio },
+    mediaState: { videoCropStart, videoCropLength, videoMuted, videoThumbnailPosition },
     getMediaBlob,
-    dontCreatePreview
+    dontCreatePreview,
   } = context!;
 
-  const {media: {video}} = renderingPayload;
+  const { media: { video } } = renderingPayload;
 
   const owner = getOwner();
 
@@ -115,7 +115,7 @@ export default async function renderToActualVideo({
   canceledDeferred.catch(noop);
 
   function throwIfCanceled() {
-    if(canceled) throw ThrowReason.Canceled;
+    if (canceled) throw ThrowReason.Canceled;
   }
 
   function raceCancel<T>(p: Promise<T>): Promise<T> {
@@ -137,24 +137,24 @@ export default async function renderToActualVideo({
   });
 
   async function initMuxerAndEncoder() {
-    const {BufferTarget, EncodedAudioPacketSource, EncodedPacket, EncodedVideoPacketSource, Mp4OutputFormat, Output} = await import('mediabunny');
+    const { BufferTarget, EncodedAudioPacketSource, EncodedPacket, EncodedVideoPacketSource, Mp4OutputFormat, Output } = await import('mediabunny');
 
     let audioBuffer: AudioBuffer, mediaBlob: Blob;
 
-    if(!videoMuted && await supportsAudioEncoding() && (mediaBlob = (await getMediaBlob())!)) try {
+    if (!videoMuted && await supportsAudioEncoding() && (mediaBlob = (await getMediaBlob())!)) try {
       audioBuffer = await extractAudioFragment(mediaBlob, startTime, endTime);
-    } catch{}
+    } catch {}
 
     const output = new Output({
-      format: new Mp4OutputFormat({fastStart: 'in-memory'}),
-      target: new BufferTarget()
+      format: new Mp4OutputFormat({ fastStart: 'in-memory' }),
+      target: new BufferTarget(),
     });
 
     const videoSource = new EncodedVideoPacketSource('avc');
     output.addVideoTrack(videoSource);
 
     const audioSource = audioBuffer! ? new EncodedAudioPacketSource('opus') : undefined;
-    if(audioSource) output.addAudioTrack(audioSource);
+    if (audioSource) output.addAudioTrack(audioSource);
 
     await output.start();
 
@@ -166,14 +166,14 @@ export default async function renderToActualVideo({
         videoAddChain = videoAddChain.then(() => videoSource.add(EncodedPacket.fromEncodedChunk(chunk), meta));
         videoAddChain.catch(noop); // the rejection still surfaces when the chain is awaited before finalize
       },
-      error: (e) => console.error(e)
+      error: (e) => console.error(e),
     });
 
     const codecAndBitrate = calcCodecAndBitrate(scaledWidth, scaledHeight, BITRATE_TARGET_FPS);
     // Profile video avatars: clamp the bitrate so a ~10s clip stays under the
     // server's profile-video size limit (~2MB). The generic editor bitrate
     // (6-20 Mbps) would produce multi-MB files the server rejects/re-encodes.
-    if(context!.isVideoAvatarMode) {
+    if (context!.isVideoAvatarMode) {
       const AVATAR_MAX_BITRATE = 1.5e6;
       codecAndBitrate.bitrate = Math.min(codecAndBitrate.bitrate, AVATAR_MAX_BITRATE);
     }
@@ -181,7 +181,7 @@ export default async function renderToActualVideo({
     encoder.configure({
       width: scaledWidth,
       height: scaledHeight,
-      ...codecAndBitrate
+      ...codecAndBitrate,
     });
 
     return {
@@ -190,7 +190,7 @@ export default async function renderToActualVideo({
       audioBuffer: audioBuffer!,
       addAudioChunk: (chunk: EncodedAudioChunk, meta?: EncodedAudioChunkMetadata) =>
         audioSource!.add(EncodedPacket.fromEncodedChunk(chunk), meta),
-      waitForVideoPackets: () => videoAddChain
+      waitForVideoPackets: () => videoAddChain,
     };
   }
 
@@ -202,15 +202,15 @@ export default async function renderToActualVideo({
   async function initStickerRenderers() {
     await Promise.all(
       scaledLayers.map(async(layer) => {
-        if(!layer.sticker) return;
+        if (!layer.sticker) return;
 
         const stickerType = layer.sticker?.sticker;
         let renderer: StickerFrameByFrameRenderer;
 
-        if(stickerType === StickerType.Static) renderer = (new ImageStickerFrameByFrameRenderer() as StickerFrameByFrameRenderer);
-        if(stickerType === StickerType.Lottie) renderer = new LottieStickerFrameByFrameRenderer();
-        if(stickerType === StickerType.WebM) renderer = (new VideoStickerFrameByFrameRenderer() as StickerFrameByFrameRenderer);
-        if(!renderer!) return;
+        if (stickerType === StickerType.Static) renderer = (new ImageStickerFrameByFrameRenderer() as StickerFrameByFrameRenderer);
+        if (stickerType === StickerType.Lottie) renderer = new LottieStickerFrameByFrameRenderer();
+        if (stickerType === StickerType.WebM) renderer = (new VideoStickerFrameByFrameRenderer() as StickerFrameByFrameRenderer);
+        if (!renderer!) return;
 
         renderers.set(layer.id, renderer);
         await renderer.init(layer.sticker, STICKER_SIZE * layer.scale * pixelRatio);
@@ -234,26 +234,26 @@ export default async function renderToActualVideo({
       currentVideoFrameDeferred.resolve(mediaTime);
     };
 
-    if(frameNo === 0) callback(0);
+    if (frameNo === 0) callback(0);
     else {
-      frameCallbackId = video!.requestVideoFrameCallback((_, {mediaTime}) => void callback(mediaTime));
-      if(video!.paused) await video!.play();
+      frameCallbackId = video!.requestVideoFrameCallback((_, { mediaTime }) => void callback(mediaTime));
+      if (video!.paused) await video!.play();
     }
 
     let mediaTime: number;
     try {
       mediaTime = await currentVideoFrameDeferred;
-    } catch(e: unknown) {
+    } catch (e: unknown) {
       video!.pause();
-      if(e === ThrowReason.Canceled || canceled) throw ThrowReason.Canceled;
-      if(e === ThrowReason.EncodingPaused && encodingPausedDeferred) {
+      if (e === ThrowReason.Canceled || canceled) throw ThrowReason.Canceled;
+      if (e === ThrowReason.EncodingPaused && encodingPausedDeferred) {
         await encodingPausedDeferred;
         log('paused case was playing', lastTime + startTime);
         const deferred = deferredPromise<void>();
 
         listenerSetter.add(video!)('seeked', () => {
           deferred.resolve();
-        }, {once: true});
+        }, { once: true });
 
         video!.currentTime = lastTime + startTime;
 
@@ -263,17 +263,17 @@ export default async function renderToActualVideo({
     }
 
     const currentTime = frameNo === 0 ? 0 : mediaTime - startTime;
-    if(currentTime < lastTime) throw ThrowReason.TimeLoopback;
+    if (currentTime < lastTime) throw ThrowReason.TimeLoopback;
 
     // Fill static frame with stickers frames
-    if(hasAnimatedStickers) {
+    if (hasAnimatedStickers) {
       const untilFrame = Math.round(currentTime * EXPECTED_FPS);
-      for(let frame = Math.round(lastTime * EXPECTED_FPS) + 1; frame < untilFrame; frame++) {
+      for (let frame = Math.round(lastTime * EXPECTED_FPS) + 1; frame < untilFrame; frame++) {
         await renderFrame({
           frameNo: frame / EXPECTED_FPS * FRAMES_PER_SECOND | 0,
           timestamp: frame / EXPECTED_FPS * 1e6 | 0,
           appendToMuxer: true,
-          encoder
+          encoder,
         });
       }
     }
@@ -282,7 +282,7 @@ export default async function renderToActualVideo({
 
     // Avatar fps cap: skip encoding frames that fall within the same 1/30s slot
     // as the previously encoded one (still advances the source frame-by-frame).
-    if(frameNo !== 0 && currentTime - lastEncodedTime < minEncodeInterval - VIDEO_COMPARISON_ERROR) {
+    if (frameNo !== 0 && currentTime - lastEncodedTime < minEncodeInterval - VIDEO_COMPARISON_ERROR) {
       return;
     }
     lastEncodedTime = currentTime;
@@ -291,11 +291,11 @@ export default async function renderToActualVideo({
       frameNo: currentTime * FRAMES_PER_SECOND | 0,
       timestamp: currentTime * 1e6 | 0,
       appendToMuxer: true,
-      encoder
+      encoder,
     });
 
     // Save the thumbnail if it's more or less in the same frame as the current time
-    if(!drewThumbnail && thumbnailTimeInClip - 0.5 / EXPECTED_FPS <= currentTime && currentTime <= thumbnailTimeInClip + 0.5 / EXPECTED_FPS) {
+    if (!drewThumbnail && thumbnailTimeInClip - 0.5 / EXPECTED_FPS <= currentTime && currentTime <= thumbnailTimeInClip + 0.5 / EXPECTED_FPS) {
       drewThumbnail = true;
       thumbnailCtx!.drawImage(resultCanvas, 0, 0, thumbnailCanvas.width, thumbnailCanvas.height);
     }
@@ -308,7 +308,7 @@ export default async function renderToActualVideo({
     encoder: VideoEncoder;
   };
 
-  async function renderFrame({frameNo, timestamp, appendToMuxer, encoder}: RenderFrameArgs) {
+  async function renderFrame({ frameNo, timestamp, appendToMuxer, encoder }: RenderFrameArgs) {
     const promises = Array.from(renderers.values()).map((renderer) =>
       renderer.renderFrame(frameNo % (renderer.getTotalFrames()))
     );
@@ -322,16 +322,16 @@ export default async function renderToActualVideo({
     ctx.drawImage(brushCanvas, 0, 0);
 
     scaledLayers.forEach((layer) => {
-      if(layer.type === 'text') drawTextLayer(context!, ctx, layer);
-      if(layer.type === 'sticker' && renderers.has(layer.id)) {
+      if (layer.type === 'text') drawTextLayer(context!, ctx, layer);
+      if (layer.type === 'sticker' && renderers.has(layer.id)) {
         const renderer = renderers.get(layer.id);
         drawStickerLayer(context!, ctx, layer, renderer!.getRenderedFrame(), renderer!.getRatio());
       }
     });
 
-    if(!appendToMuxer) return;
+    if (!appendToMuxer) return;
 
-    const videoFrame = new VideoFrame(resultCanvas, {timestamp});
+    const videoFrame = new VideoFrame(resultCanvas, { timestamp });
 
     encoder.encode(videoFrame);
     videoFrame.close();
@@ -343,7 +343,7 @@ export default async function renderToActualVideo({
 
     const delta = targetProgress - currentProgress;
 
-    if(delta < 0.0025) { // fourth of a percent
+    if (delta < 0.0025) { // fourth of a percent
       setProgress(targetProgress);
       return;
     }
@@ -364,7 +364,7 @@ export default async function renderToActualVideo({
 
   setProgress(0);
 
-  const preview = dontCreatePreview ? undefined : await runWithOwner(owner, () => generateVideoPreview({scaledWidth, scaledHeight}));
+  const preview = dontCreatePreview ? undefined : await runWithOwner(owner, () => generateVideoPreview({ scaledWidth, scaledHeight }));
 
   const resultPromise = new Promise<MediaEditorFinalResultPayload>(async(resolve, reject) => {
     let encoder: VideoEncoder | undefined;
@@ -372,17 +372,17 @@ export default async function renderToActualVideo({
     const finishCanceled = () => {
       try {
         video!.cancelVideoFrameCallback?.(frameCallbackId);
-      } catch{}
+      } catch {}
       try {
         video!.pause();
-      } catch{}
-      if(encoder) {
+      } catch {}
+      if (encoder) {
         try {
           cleanup(encoder);
-        } catch{}
+        } catch {}
       } else {
         Array.from(renderers.values()).forEach((renderer) => {
-          try { renderer.destroy(); } catch{}
+          try { renderer.destroy(); } catch {}
         });
         listenerSetter.removeAll();
         cancelAnimationFrame(progressRAF);
@@ -393,15 +393,15 @@ export default async function renderToActualVideo({
     try {
       const firstFrameSeekDeferred = deferredPromise<void>();
       video!.currentTime = video!.duration * videoCropStart;
-      video!.addEventListener('seeked', () => void firstFrameSeekDeferred.resolve(), {once: true});
+      video!.addEventListener('seeked', () => void firstFrameSeekDeferred.resolve(), { once: true });
 
       const initResults = await raceCancel(Promise.all([
         initMuxerAndEncoder(),
         delay(200),
         firstFrameSeekDeferred,
-        initStickerRenderers()
+        initStickerRenderers(),
       ]));
-      const {output, encoder: createdEncoder, audioBuffer, addAudioChunk, waitForVideoPackets} = initResults[0];
+      const { output, encoder: createdEncoder, audioBuffer, addAudioChunk, waitForVideoPackets } = initResults[0];
       encoder = createdEncoder;
       throwIfCanceled();
 
@@ -410,35 +410,35 @@ export default async function renderToActualVideo({
       let done = false;
 
       animate(() => {
-        if(encodingPausedDeferred) return true;
-        if(canceled) {
+        if (encodingPausedDeferred) return true;
+        if (canceled) {
           done = true;
           return false;
         }
 
-        if(video!.currentTime >= endTime - VIDEO_COMPARISON_ERROR) {
+        if (video!.currentTime >= endTime - VIDEO_COMPARISON_ERROR) {
           done = true;
           currentVideoFrameDeferred?.resolve(endTime);
         }
         return !done;
       });
 
-      while(video!.currentTime < endTime - VIDEO_COMPARISON_ERROR) {
+      while (video!.currentTime < endTime - VIDEO_COMPARISON_ERROR) {
         throwIfCanceled();
 
         try {
           log('prepareAndRenderFrame', frameNo);
-          if(encodingPausedDeferred) {
+          if (encodingPausedDeferred) {
             log('paused case was paused', lastTime + startTime);
             await raceCancel(encodingPausedDeferred);
           }
           await prepareAndRenderFrame(encoder, frameNo);
-        } catch(e: unknown) {
-          if(e === ThrowReason.Canceled || canceled) throw ThrowReason.Canceled;
-          if(typeof e !== 'number') break;
+        } catch (e: unknown) {
+          if (e === ThrowReason.Canceled || canceled) throw ThrowReason.Canceled;
+          if (typeof e !== 'number') break;
 
-          if(e === ThrowReason.EncodingPaused) await raceCancel((encodingPausedDeferred as Promise<void>));
-          else if(e === ThrowReason.TimeLoopback) break;
+          if (e === ThrowReason.EncodingPaused) await raceCancel((encodingPausedDeferred as Promise<void>));
+          else if (e === ThrowReason.TimeLoopback) break;
         }
 
         updateProgress(clamp((video!.currentTime - startTime) / (endTime - startTime), 0, 1));
@@ -452,24 +452,24 @@ export default async function renderToActualVideo({
 
       // const endrendering = performance.now();
 
-      if(!drewThumbnail) {
+      if (!drewThumbnail) {
         const deferred = deferredPromise<void>();
 
         video!.addEventListener('seeked', () => {
           deferred.resolve();
-        }, {once: true});
+        }, { once: true });
         video!.currentTime = thumbnailTime;
 
         await raceCancel(Promise.race([deferred, delay(2_000)])); // just in case you know
         throwIfCanceled();
 
         drawToTexture();
-        await renderFrame({frameNo: 0, timestamp: 0, appendToMuxer: false, encoder});
+        await renderFrame({ frameNo: 0, timestamp: 0, appendToMuxer: false, encoder });
 
         thumbnailCtx!.drawImage(resultCanvas, 0, 0, thumbnailCanvas.width, thumbnailCanvas.height);
       }
 
-      if(audioBuffer) await raceCancel(encodeAndMuxAudio(audioBuffer, addAudioChunk));
+      if (audioBuffer) await raceCancel(encodeAndMuxAudio(audioBuffer, addAudioChunk));
       throwIfCanceled();
 
       await raceCancel(encoder.flush());
@@ -483,22 +483,22 @@ export default async function renderToActualVideo({
 
       cleanup(encoder);
 
-      const {buffer} = output.target;
+      const { buffer } = output.target;
 
       setProgress(1);
 
       const thumbBlob = await new Promise<Blob>(resolve => thumbnailCanvas.toBlob((resolve as BlobCallback)));
 
       resolve({
-        blob: new Blob([buffer!], {type: 'video/mp4'}),
+        blob: new Blob([buffer!], { type: 'video/mp4' }),
         hasSound: !!audioBuffer,
         thumb: {
           blob: thumbBlob,
-          size: new MediaSize(thumbnailCanvas.width, thumbnailCanvas.height)
-        }
+          size: new MediaSize(thumbnailCanvas.width, thumbnailCanvas.height),
+        },
       });
-    } catch(e: unknown) {
-      if(e === ThrowReason.Canceled || canceled) {
+    } catch (e: unknown) {
+      if (e === ThrowReason.Canceled || canceled) {
         finishCanceled();
         return;
       }
@@ -525,14 +525,14 @@ export default async function renderToActualVideo({
       return result ?? resultPromise;
     },
     cancel: () => {
-      if(canceled) return;
+      if (canceled) return;
       canceled = true;
       // unblock anything awaiting these so the pipeline aborts immediately
       canceledDeferred.reject(ThrowReason.Canceled);
       currentVideoFrameDeferred?.reject(ThrowReason.Canceled);
       encodingPausedDeferred?.resolve?.();
     },
-    creationProgress
+    creationProgress,
   };
 
   // const div = document.createElement('div')
@@ -565,7 +565,7 @@ async function extractAudioFragment(blob: Blob, startTime: number, endTime: numb
 
   const fragmentBuffer = audioContext.createBuffer(numChannels, frameCount, sampleRate);
 
-  for(let ch = 0; ch < numChannels; ch++) {
+  for (let ch = 0; ch < numChannels; ch++) {
     const fullData = fullAudioBuffer.getChannelData(ch);
     fragmentBuffer.copyToChannel(fullData.subarray(startSample, endSample), ch);
   }
@@ -581,9 +581,9 @@ async function encodeAndMuxAudio(audioBuffer: AudioBuffer, onChunk: (chunk: Enco
 
   // Interleave audio for WebCodecs
   const interleaved = new Float32Array(totalFrames * numChannels);
-  for(let ch = 0; ch < numChannels; ch++) {
+  for (let ch = 0; ch < numChannels; ch++) {
     const channelData = audioBuffer.getChannelData(ch);
-    for(let i = 0; i < totalFrames; i++) {
+    for (let i = 0; i < totalFrames; i++) {
       interleaved[i * numChannels + ch] = channelData[i];
     }
   }
@@ -596,14 +596,14 @@ async function encodeAndMuxAudio(audioBuffer: AudioBuffer, onChunk: (chunk: Enco
       addChain = addChain.then(() => onChunk(chunk, meta));
       addChain.catch(noop); // the rejection still surfaces when the chain is awaited below
     },
-    error: (e) => console.error('AudioEncoder error:', e)
+    error: (e) => console.error('AudioEncoder error:', e),
   });
 
   encoder.configure({
     codec: 'opus',
     sampleRate,
     numberOfChannels: audioBuffer.numberOfChannels,
-    bitrate: 128000
+    bitrate: 128000,
   });
 
   const audioData = new AudioData({
@@ -612,7 +612,7 @@ async function encodeAndMuxAudio(audioBuffer: AudioBuffer, onChunk: (chunk: Enco
     numberOfFrames: audioBuffer.duration * audioBuffer.sampleRate,
     numberOfChannels: audioBuffer.numberOfChannels,
     timestamp: 0,
-    data: interleaved
+    data: interleaved,
   });
 
   encoder.encode(audioData);

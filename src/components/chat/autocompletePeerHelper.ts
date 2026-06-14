@@ -1,7 +1,7 @@
 import setInnerHTML from '@helpers/dom/setInnerHTML';
-import {Middleware} from '@helpers/middleware';
+import { Middleware } from '@helpers/middleware';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import {avatarNew} from '@components/avatarNew';
+import { avatarNew } from '@components/avatarNew';
 import PeerTitle from '@components/peerTitle';
 import Scrollable from '@components/scrollable';
 import AutocompleteHelper from '@components/chat/autocompleteHelper';
@@ -22,7 +22,7 @@ export default class AutocompletePeerHelper extends AutocompleteHelper {
       appendTo,
       controller,
       listType: 'y',
-      onSelect
+      onSelect,
     });
 
     this.container.classList.add(AutocompletePeerHelper.BASE_CLASS, className);
@@ -48,8 +48,8 @@ export default class AutocompletePeerHelper extends AutocompleteHelper {
     middleware: Middleware,
     doNotShow?: boolean
   ) {
-    if(this.init) {
-      if(!data.length) {
+    if (this.init) {
+      if (!data.length) {
         return;
       }
 
@@ -57,7 +57,7 @@ export default class AutocompletePeerHelper extends AutocompleteHelper {
       this.init = null!;
     }
 
-    if(data.length) {
+    if (data.length) {
       this.list.replaceChildren();
       data.forEach((d) => {
         const div = AutocompletePeerHelper.listElement({
@@ -65,14 +65,14 @@ export default class AutocompletePeerHelper extends AutocompleteHelper {
           peerId: d.peerId,
           name: d.name,
           description: d.description,
-          middleware
+          middleware,
         });
 
         this.list.append(div);
       });
     }
 
-    if(!doNotShow) {
+    if (!doNotShow) {
       this.toggle(!data.length);
     }
   }
@@ -91,22 +91,22 @@ export default class AutocompletePeerHelper extends AutocompleteHelper {
     div.classList.add(BASE, options.className);
     div.dataset.peerId = '' + options.peerId;
 
-    const {node} = avatarNew({
+    const { node } = avatarNew({
       middleware: options.middleware,
       isBig: false,
       size: 30,
-      peerId: options.peerId
+      peerId: options.peerId,
     });
     node.classList.add(BASE + '-avatar', options.className + '-avatar');
 
     const name = document.createElement('div');
     name.classList.add(BASE + '-name', options.className + '-name');
-    if(!options.name) {
+    if (!options.name) {
       name.append(new PeerTitle({
         peerId: options.peerId,
         dialog: false,
         onlyFirstName: false,
-        plainText: false
+        plainText: false,
       }).element);
     } else {
       setInnerHTML(name, wrapEmojiText(options.name));
@@ -114,7 +114,7 @@ export default class AutocompletePeerHelper extends AutocompleteHelper {
 
     div.append(node, name);
 
-    if(options.description) {
+    if (options.description) {
       const description = document.createElement('div');
       description.classList.add(BASE + '-description', options.className + '-description');
       setInnerHTML(description, wrapEmojiText(options.description));

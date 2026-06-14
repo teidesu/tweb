@@ -1,5 +1,5 @@
-import {isTouchDevice} from '@lib/tchart/utils';
-import {TChartUnitOptions} from '@lib/tchart/types';
+import { isTouchDevice } from '@lib/tchart/utils';
+import { TChartUnitOptions } from '@lib/tchart/types';
 
 export default class TDrag {
   private opts: TChartUnitOptions & {
@@ -44,15 +44,15 @@ export default class TDrag {
     const $global: HTMLElement | Window = opts.useElForMove ? opts.$el : window;
 
     opts.$el.addEventListener(this.isTouch ? 'touchstart' : 'mousedown', this.onDragStart, {
-      passive: false
+      passive: false,
     });
 
     $global.addEventListener(this.isTouch ? 'touchmove' : 'mousemove', this.onDragMove, {
-      passive: false
+      passive: false,
     });
 
     $global.addEventListener(this.isTouch ? 'touchend' : 'mouseup', this.onDragEnd, {
-      passive: false
+      passive: false,
     });
   }
 
@@ -60,8 +60,8 @@ export default class TDrag {
     this.skipMoveEnd = true;
     clearTimeout(this.pointerTimeout);
 
-    if(this.isTouch) {
-      if(e.touches.length > 1) return;
+    if (this.isTouch) {
+      if (e.touches.length > 1) return;
     }
 
     this.scroll = undefined;
@@ -77,18 +77,18 @@ export default class TDrag {
     const cancelDrag = this.opts.onDragStart!({
       pageX: this.x,
       pageY: this.y,
-      isTouch: this.isTouch
+      isTouch: this.isTouch,
     });
 
-    if(cancelDrag) return;
+    if (cancelDrag) return;
 
     this.skipMoveEnd = false;
   };
 
   onDragMove = (e: any) => {
-    if(this.skipMoveEnd) return;
+    if (this.skipMoveEnd) return;
 
-    if(this.scroll === 'v') {
+    if (this.scroll === 'v') {
       return;
     }
 
@@ -101,21 +101,21 @@ export default class TDrag {
     this.pageX = x;
     this.pageY = y;
 
-    if(this.isTouch) {
-      if(this.scroll === 'h') {
+    if (this.isTouch) {
+      if (this.scroll === 'h') {
         !this.opts.noPrevent && e.preventDefault();
-      } else if(Math.abs(this.dX) > 5 || Math.abs(this.dY) > 5) {
+      } else if (Math.abs(this.dX) > 5 || Math.abs(this.dY) > 5) {
         this.scroll = Math.abs(this.dX) > Math.abs(this.dY) ? 'h' : 'v';
       }
     }
 
-    if(this.prevDx !== this.dX || this.prevDy !== this.dY) {
+    if (this.prevDx !== this.dX || this.prevDy !== this.dY) {
       this.opts.onDragMove && this.opts.onDragMove({
         canceled: this.scroll === 'v',
         d: this.dX,
         pageX: this.pageX,
         pageY: this.pageY,
-        isTouch: this.isTouch
+        isTouch: this.isTouch,
       });
 
       this.prevDx = this.dX;
@@ -124,13 +124,13 @@ export default class TDrag {
   };
 
   onDragEnd = (e: any) => {
-    if(this.skipMoveEnd) return;
+    if (this.skipMoveEnd) return;
 
     this.skipMoveEnd = true;
 
     this.opts.onDragEnd && this.opts.onDragEnd({
       isTouch: this.isTouch,
-      e: e
+      e: e,
     });
   };
 }

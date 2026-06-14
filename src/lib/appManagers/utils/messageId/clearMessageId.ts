@@ -1,12 +1,12 @@
-import {MESSAGE_ID_OFFSET} from '@appManagers/constants';
+import { MESSAGE_ID_OFFSET } from '@appManagers/constants';
 
 export default function clearMessageId(messageId: number, toServer?: boolean) {
-  if(messageId === undefined) {
+  if (messageId === undefined) {
     return;
   }
 
   messageId = +messageId.toFixed(0);
-  if(!toServer) {
+  if (!toServer) {
     return messageId;
   }
 

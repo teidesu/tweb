@@ -1,9 +1,9 @@
 import ListenerSetter from '@helpers/listenerSetter';
 import debounce from '@helpers/schedulers/debounce';
-import {LangPackKey} from '@lib/langPack';
-import InputField, {InputFieldOptions, InputState} from '@components/inputField';
-import {isUsernameValid} from '@lib/richTextProcessor/validators';
-import {AppManagers} from '@lib/managers';
+import { LangPackKey } from '@lib/langPack';
+import InputField, { InputFieldOptions, InputState } from '@components/inputField';
+import { isUsernameValid } from '@lib/richTextProcessor/validators';
+import { AppManagers } from '@lib/managers';
 
 export class UsernameInputField extends InputField {
   private checkUsernamePromise: Promise<any> | undefined;
@@ -31,17 +31,17 @@ export class UsernameInputField extends InputField {
       const value = this.getValue();
 
       this.error = undefined;
-      if(value === this.originalValue || !value.length) {
+      if (value === this.originalValue || !value.length) {
         this.setState(InputState.Neutral);
         this.options.onChange?.();
         return;
-      } else if(!isUsernameValid(value)) { // does not check the last underscore
+      } else if (!isUsernameValid(value)) { // does not check the last underscore
         this.setError(this.options.invalidText);
       } else {
         this.setState(InputState.Neutral);
       }
 
-      if(this.input.classList.contains('error')) {
+      if (this.input.classList.contains('error')) {
         this.options.onChange?.();
         return;
       }
@@ -52,7 +52,7 @@ export class UsernameInputField extends InputField {
 
   public getValue() {
     let value = this.value;
-    if(this.options.head) {
+    if (this.options.head) {
       value = value.slice(this.options.head.length);
       this.setValueSilently(this.options.head + value);
     }
@@ -61,29 +61,29 @@ export class UsernameInputField extends InputField {
   }
 
   private checkUsername(username: string) {
-    if(this.checkUsernamePromise) return;
+    if (this.checkUsernamePromise) return;
 
     this.error = undefined;
     let checkPromise: Promise<any>
-    if(this.options.peerId) {
+    if (this.options.peerId) {
       checkPromise = this.managers.appChatsManager.checkUsername(this.options.peerId.toChatId(), username);
     } else {
       checkPromise = this.managers.appUsersManager.checkUsername(username);
     }
 
     const promise = this.checkUsernamePromise = checkPromise.then((available) => {
-      if(this.getValue() !== username) return;
+      if (this.getValue() !== username) return;
 
-      if(available) {
+      if (available) {
         this.setState(InputState.Valid, this.options.availableText);
       } else {
         this.setError(this.options.takenText);
       }
     }, (err) => {
-      if(this.getValue() !== username) return;
+      if (this.getValue() !== username) return;
 
       this.error = err;
-      switch(this.error!.type) {
+      switch (this.error!.type) {
         case 'USERNAME_PURCHASE_AVAILABLE': {
           this.setError(this.options.takenText);
           break;
@@ -96,14 +96,14 @@ export class UsernameInputField extends InputField {
         }
       }
     }).then(() => {
-      if(this.checkUsernamePromise === promise) {
+      if (this.checkUsernamePromise === promise) {
         this.checkUsernamePromise = undefined;
       }
 
       this.options.onChange?.();
 
       const value = this.getValue();
-      if(value !== username && this.isValidToChange() && isUsernameValid(value)) {
+      if (value !== username && this.isValidToChange() && isUsernameValid(value)) {
         this.checkUsername(value);
       }
     });

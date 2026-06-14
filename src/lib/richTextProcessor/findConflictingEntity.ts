@@ -1,5 +1,5 @@
-import {PASS_CONFLICTING_ENTITIES, PASS_SINGLE_CONFLICTING_ENTITIES, PASS_SINGLE_CONFLICTING_ENTITIES_WITH_QUOTE, SINGLE_ENTITIES} from '.';
-import {MessageEntity} from '@layer';
+import { PASS_CONFLICTING_ENTITIES, PASS_SINGLE_CONFLICTING_ENTITIES, PASS_SINGLE_CONFLICTING_ENTITIES_WITH_QUOTE, SINGLE_ENTITIES } from '.';
+import { MessageEntity } from '@layer';
 import isEntityIntersecting from '@lib/richTextProcessor/isEntityIntersecting';
 
 export default function findConflictingEntity(
@@ -7,7 +7,7 @@ export default function findConflictingEntity(
   newEntity: MessageEntity,
   isInsertingSingleEntity = SINGLE_ENTITIES.has(newEntity._)
 ) {
-  if(isInsertingSingleEntity) {
+  if (isInsertingSingleEntity) {
     return currentEntities.find((currentEntity) => {
       return isEntityIntersecting(currentEntity, newEntity);
     });
@@ -15,8 +15,8 @@ export default function findConflictingEntity(
 
   let singleStart = -1, singleEnd = -1, singleType: MessageEntity['_'];
   return currentEntities.find((currentEntity) => {
-    const {offset, length} = currentEntity;
-    if(SINGLE_ENTITIES.has(currentEntity._)) {
+    const { offset, length } = currentEntity;
+    if (SINGLE_ENTITIES.has(currentEntity._)) {
       singleStart = offset!;
       singleEnd = singleStart + length!;
       singleType = currentEntity._;
@@ -24,8 +24,8 @@ export default function findConflictingEntity(
 
     const isQuoteException = newEntity._ === 'messageEntityBlockquote' && PASS_SINGLE_CONFLICTING_ENTITIES_WITH_QUOTE.has(singleType);
 
-    if(singleStart !== -1) {
-      if(
+    if (singleStart !== -1) {
+      if (
         newEntity.offset! >= singleStart &&
         newEntity.offset! < singleEnd &&
         !PASS_SINGLE_CONFLICTING_ENTITIES.has(newEntity._) &&
@@ -42,7 +42,7 @@ export default function findConflictingEntity(
         !isQuoteException
       );
 
-    if(!isConflictingTypes) {
+    if (!isConflictingTypes) {
       return false;
     }
 

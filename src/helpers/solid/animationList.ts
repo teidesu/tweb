@@ -1,7 +1,7 @@
 import liteMode from '@helpers/liteMode';
-import {resolveElements} from '@solid-primitives/refs';
-import {createListTransition} from '@vendor/createListTransition';
-import {JSX} from 'solid-js';
+import { resolveElements } from '@solid-primitives/refs';
+import { createListTransition } from '@vendor/createListTransition';
+import { JSX } from 'solid-js';
 
 function wrapKeyframes(keyframes: Keyframe[] | ((element: Element, removed: boolean) => Keyframe[])) {
   return typeof(keyframes) !== 'function' ? () => keyframes : keyframes;
@@ -29,9 +29,9 @@ export function AnimationList(props: {
   const transitionList = createListTransition(children, {
     exitMethod: 'keep-index',
     appear: props.appear,
-    onChange: ({added, removed, finishRemoved}) => {
+    onChange: ({ added, removed, finishRemoved }) => {
       const options = props.animationOptions;
-      if(!liteMode.isAvailable('animations')) {
+      if (!liteMode.isAvailable('animations')) {
         options.duration = 0;
       }
 
@@ -39,19 +39,19 @@ export function AnimationList(props: {
 
       const getKeyframes = wrapKeyframes(props.keyframes);
       let shouldAnimateAdded = false, shouldAnimateRemoved = false;
-      if(props.mode === 'replacement') {
+      if (props.mode === 'replacement') {
         shouldAnimateAdded = !!removed.length;
         shouldAnimateRemoved = !!added.length;
-      } else if(props.mode === 'remove') {
+      } else if (props.mode === 'remove') {
         shouldAnimateRemoved = !!removed.length;
-      } else if(props.mode === 'add-remove') {
+      } else if (props.mode === 'add-remove') {
         shouldAnimateAdded = !!added.length;
         shouldAnimateRemoved = !!removed.length;
       }
 
       // * no need to animate disconnected elements
       queueMicrotask(() => {
-        if(shouldAnimateAdded) {
+        if (shouldAnimateAdded) {
           const elements = added.filter((element) => element.isConnected);
           const keyframes = elements.map((element) => getKeyframes(element, false));
           elements.forEach((element, idx) => {
@@ -59,7 +59,7 @@ export function AnimationList(props: {
           });
         }
 
-        if(!shouldAnimateRemoved) {
+        if (!shouldAnimateRemoved) {
           finishRemoved(removed);
           return;
         }
@@ -74,7 +74,7 @@ export function AnimationList(props: {
 
         Promise.all(promises).then(() => finishRemoved(removed));
       });
-    }
+    },
   }) as unknown as JSX.Element;
 
   return transitionList;

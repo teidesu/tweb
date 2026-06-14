@@ -1,16 +1,16 @@
-import {Accessor, createEffect, createSignal, onCleanup, For, on} from 'solid-js';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { Accessor, createEffect, createSignal, onCleanup, For, on } from 'solid-js';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import placeCaretAtEnd from '@helpers/dom/placeCaretAtEnd';
-import fastSmoothScroll, {fastSmoothScrollToStart} from '@helpers/fastSmoothScroll';
+import fastSmoothScroll, { fastSmoothScrollToStart } from '@helpers/fastSmoothScroll';
 import createMiddleware from '@helpers/solid/createMiddleware';
-import {EmojiGroup} from '@layer';
-import {AppEmojiManager} from '@appManagers/appEmojiManager';
-import {LangPackKey} from '@lib/langPack';
+import { EmojiGroup } from '@layer';
+import { AppEmojiManager } from '@appManagers/appEmojiManager';
+import { LangPackKey } from '@lib/langPack';
 import rootScope from '@lib/rootScope';
 import InputSearch from '@components/inputSearch';
 import Scrollable from '@components/scrollable2';
 import wrapSticker from '@components/wrappers/sticker';
-import {AnimationItemGroup} from '@components/animationIntersector';
+import { AnimationItemGroup } from '@components/animationIntersector';
 
 /* @refresh reload */
 
@@ -22,7 +22,7 @@ function addSearchCategories(props: {
   animatedItemGroup?: AnimationItemGroup,
   color?: WrapSomethingOptions['textColor']
 }) {
-  const {inputSearch} = props;
+  const { inputSearch } = props;
   const [emojiGroups, setEmojiGroups] = createSignal<Awaited<ReturnType<AppEmojiManager['getEmojiGroups']>>>([]);
   const [selected, setSelected] = createSignal<EmojiGroup>();
   const [scrolled, setScrolled] = createSignal(false);
@@ -33,12 +33,12 @@ function addSearchCategories(props: {
       container: scrollableContainer,
       element: e.target as HTMLElement,
       position: 'center',
-      axis: 'x'
+      axis: 'x',
     });
   };
 
-  const EmojiGroup = ({group, document}: ReturnType<typeof emojiGroups>[0]) => {
-    if(props.type !== 'stickers' && group._ === 'emojiGroupPremium') {
+  const EmojiGroup = ({ group, document }: ReturnType<typeof emojiGroups>[0]) => {
+    if (props.type !== 'stickers' && group._ === 'emojiGroupPremium') {
       return;
     }
 
@@ -47,7 +47,7 @@ function addSearchCategories(props: {
       <div
         ref={element!}
         class="emoticons-search-input-category"
-        classList={{active: selected() === group}}
+        classList={{ active: selected() === group }}
         title={group.title}
         onClick={[onEmojiGroupClick, group]}
       >
@@ -63,7 +63,7 @@ function addSearchCategories(props: {
       group: props.animatedItemGroup,
       play: true,
       middleware: createMiddleware().get(),
-      textColor: props.color
+      textColor: props.color,
     });
 
     return ret;
@@ -76,13 +76,13 @@ function addSearchCategories(props: {
       ref={(el) => {
         scrollableContainer = el;
         el.addEventListener('click', (e) => {
-          if(e.target === inputSearch.currentPlaceholder) {
+          if (e.target === inputSearch.currentPlaceholder) {
             placeCaretAtEnd(inputSearch.input, true, true);
           }
         });
       }}
       class="emoticons-search-input-scrollable"
-      classList={{'is-searching': props.searching(), 'is-scrolled': scrolled()}}
+      classList={{ 'is-searching': props.searching(), 'is-scrolled': scrolled() }}
       onScroll={() => {
         setScrolled(scrollableContainer.scrollLeft > 0);
       }}
@@ -114,17 +114,17 @@ function addSearchCategories(props: {
   });
 
   createEffect(() => {
-    if(props.searching()) {
+    if (props.searching()) {
       setSelected();
     }
   });
 
   createEffect(on(selected, (selected) => {
     props.onGroup(selected!);
-    if(!selected) {
+    if (!selected) {
       fastSmoothScrollToStart(scrollableContainer, 'x');
     }
-  }, {defer: true}));
+  }, { defer: true }));
 
   rootScope.managers.appEmojiManager.getEmojiGroups(props.type === 'stickers' ? 'stickers' : 'esg').then(setEmojiGroups);
 }
@@ -152,7 +152,7 @@ export default function EmoticonsSearch(props: {
     onDebounce: setDebounced,
     noBorder: true,
     noFocusEffect: true,
-    debounceTime: 0
+    debounceTime: 0,
   });
   inputSearch.container.classList.add('emoticons-search-input-container');
   inputSearch.input.classList.add('emoticons-search-input');
@@ -161,20 +161,20 @@ export default function EmoticonsSearch(props: {
     inputSearch.remove();
   });
 
-  if(props.loading) {
+  if (props.loading) {
     createEffect(() => {
       inputSearch.toggleLoading(debounced() || props.loading!());
     });
   }
 
-  if(props.onGroup) {
+  if (props.onGroup) {
     addSearchCategories({
       type: props.type,
       searching,
       inputSearch,
       onGroup: props.onGroup,
       animatedItemGroup: props.animatedItemGroup,
-      color: props.categoryColor
+      color: props.categoryColor,
     });
   }
 

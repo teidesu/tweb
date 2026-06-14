@@ -1,4 +1,4 @@
-import {CancellablePromise} from '@helpers/cancellablePromise';
+import { CancellablePromise } from '@helpers/cancellablePromise';
 import StreamWriter from '@lib/files/streamWriter';
 
 export default abstract class FileStorage {

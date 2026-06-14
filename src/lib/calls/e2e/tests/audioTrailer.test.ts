@@ -7,12 +7,12 @@
  *   DECRYPT (audio in):  result[len-2] & 0x01 ? strip 2 bytes : strip 1 byte
  */
 
-import {beforeAll, describe, expect, it} from 'vitest';
-import {appendAudioTrailer, stripAudioTrailer} from '../audioTrailer';
-import {E2eCall} from '../call';
-import {bytesToHex, ensureCryptoReady} from '../crypto';
-import {PrivateKey} from '../keys';
-import {GroupParticipant, GroupState, PERM_ADD_USERS} from '../tlTypes';
+import { beforeAll, describe, expect, it } from 'vitest';
+import { appendAudioTrailer, stripAudioTrailer } from '../audioTrailer';
+import { E2eCall } from '../call';
+import { bytesToHex, ensureCryptoReady } from '../crypto';
+import { PrivateKey } from '../keys';
+import { GroupParticipant, GroupState, PERM_ADD_USERS } from '../tlTypes';
 
 beforeAll(() => ensureCryptoReady());
 
@@ -22,7 +22,7 @@ function participantFor(userId: bigint, sk: PrivateKey, version = 1): GroupParti
     publicKey: sk.publicKeyBytes,
     canAddUsers: true,
     canRemoveUsers: true,
-    version
+    version,
   };
 }
 
@@ -80,14 +80,14 @@ describe('audioTrailer — pure wrap/unwrap', () => {
   it('round-trips arbitrary payloads', () => {
     // Cover the boundary where payload's last byte itself looks like 0x01 —
     // append still wraps, strip still recovers exactly the original.
-    for(const payload of [
+    for (const payload of [
       new Uint8Array(),
       new Uint8Array([0x00]),
       new Uint8Array([0x01]),
       new Uint8Array([0x00, 0x01]),
       new Uint8Array([0x01, 0x00]),
       new Uint8Array([0xff, 0xff, 0xff, 0xff]),
-      new Uint8Array(Array.from({length: 100}, (_, i) => i & 0xff))
+      new Uint8Array(Array.from({ length: 100 }, (_, i) => i & 0xff)),
     ]) {
       const wrapped = appendAudioTrailer(payload);
       const recovered = stripAudioTrailer(wrapped);
@@ -108,7 +108,7 @@ describe('audioTrailer — E2eCall encrypt/decrypt round-trip', () => {
 
     const groupState: GroupState = {
       participants: [participantFor(aliceId, alice)],
-      externalPermissions: PERM_ADD_USERS
+      externalPermissions: PERM_ADD_USERS,
     };
     const zero = await E2eCall.createZeroBlock(alice, groupState);
     const aliceCall = await E2eCall.create(aliceId, alice, zero);
@@ -116,17 +116,17 @@ describe('audioTrailer — E2eCall encrypt/decrypt round-trip', () => {
     await aliceCall.applyBlockBytes(selfAdd);
     const bobCall = await E2eCall.create(bobId, bob, selfAdd);
 
-    return {aliceCall, bobCall, aliceId, bobId};
+    return { aliceCall, bobCall, aliceId, bobId };
   }
 
   it('audio frame survives wrap + encrypt + decrypt + strip', async() => {
-    const {aliceCall, bobCall, aliceId} = await makeTwoPartyCall();
+    const { aliceCall, bobCall, aliceId } = await makeTwoPartyCall();
     const channelId = 0;
 
     // Simulated Opus frame payload — arbitrary bytes including 0x01 boundary
     // cases so we know strip is using the last-but-one byte, not the input.
     const opusFrame = new Uint8Array([
-      0xfc, 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef, 0x01, 0x00
+      0xfc, 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef, 0x01, 0x00,
     ]);
 
     // Send side (Alice): wrap → encrypt.
@@ -141,7 +141,7 @@ describe('audioTrailer — E2eCall encrypt/decrypt round-trip', () => {
   });
 
   it('strip recovers the original payload when the decrypted bytes carry the 2-byte trailer', async() => {
-    const {aliceCall, bobCall, aliceId} = await makeTwoPartyCall();
+    const { aliceCall, bobCall, aliceId } = await makeTwoPartyCall();
 
     // Plain payload that happens to end in 0x00 — without a trailer, strip
     // would chop off our last byte. With a trailer (flag = 0x01), strip
@@ -163,7 +163,7 @@ describe('audioTrailer — E2eCall encrypt/decrypt round-trip', () => {
     // low bit happens to be 0 in this fixture. Simulate by encrypting a
     // hand-crafted "legacy" plaintext (payload || 1-byte trailer) and confirm
     // strip walks the 1-byte branch.
-    const {aliceCall, bobCall, aliceId} = await makeTwoPartyCall();
+    const { aliceCall, bobCall, aliceId } = await makeTwoPartyCall();
 
     // Payload whose last byte has bit 0 clear, then a single trailer byte.
     // After decrypt, the bytes end with [..., 0x00, 0xff]. Since 0x00 & 0x01 == 0,

@@ -7,7 +7,7 @@ type WrapTopicThreadAnchorArgs = {
   lastMsgId: number;
 };
 
-export default function wrapTopicThreadAnchor({peerId, threadId, lastMsgId}: WrapTopicThreadAnchorArgs) {
+export default function wrapTopicThreadAnchor({ peerId, threadId, lastMsgId }: WrapTopicThreadAnchorArgs) {
   return wrapTelegramUrlToAnchor(
     't.me/c/' +
     peerId.toChatId() +

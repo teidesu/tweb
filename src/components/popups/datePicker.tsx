@@ -1,18 +1,18 @@
-import PopupElement, {createPopup} from '@components/popups/indexTsx';
-import {batch, createEffect, createMemo, createSignal, For, JSX, onCleanup, onMount, Show} from 'solid-js';
+import PopupElement, { createPopup } from '@components/popups/indexTsx';
+import { batch, createEffect, createMemo, createSignal, For, JSX, onCleanup, onMount, Show } from 'solid-js';
 import classNames from '@helpers/string/classNames';
 import mediaSizes from '@helpers/mediaSizes';
-import I18n, {i18n, LangPackKey, FormatterArguments} from '@lib/langPack';
-import {ButtonIconTsx} from '@components/buttonIconTsx';
+import I18n, { i18n, LangPackKey, FormatterArguments } from '@lib/langPack';
+import { ButtonIconTsx } from '@components/buttonIconTsx';
 import InputField from '@components/inputField';
 import rootScope from '@lib/rootScope';
 import ListenerSetter from '@helpers/listenerSetter';
-import {formatTime} from '@helpers/date';
+import { formatTime } from '@helpers/date';
 import suggestPostStyles from '@components/chat/suggestPostPopup/styles.module.scss';
-import {wrapReplyMedia} from '@components/chat/replyContainer';
+import { wrapReplyMedia } from '@components/chat/replyContainer';
 import createMiddleware from '@helpers/solid/createMiddleware';
-import {Message, MessagesFilter} from '@layer';
-import {ScrollableContextValue} from '@components/scrollable2';
+import { Message, MessagesFilter } from '@layer';
+import { ScrollableContextValue } from '@components/scrollable2';
 
 const MILLIS_IN_MINUTE = 60 * 1000;
 
@@ -34,7 +34,7 @@ const getMaxScheduleDate = () => {
 
 const checkDate = (date: Date, addMinutes?: number) => {
   const ret = date.getTime() > getMaxScheduleDate().getTime() ? new Date() : date;
-  if(addMinutes) {
+  if (addMinutes) {
     ret.setMinutes(ret.getMinutes() + addMinutes);
   }
   return ret;
@@ -52,7 +52,7 @@ const dayKeyFromTimestamp = (ts: number) => {
 // (Chrome 130+, Safari 17+, Firefox 124+) so locales like he-IL get Fri+Sat.
 let weekendDaysCache: Set<number> | undefined;
 function getWeekendDays(): Set<number> {
-  if(weekendDaysCache) return weekendDaysCache;
+  if (weekendDaysCache) return weekendDaysCache;
   try {
     const langCode = I18n.getLastRequestedLangCode?.() || 'en';
     const locale = new Intl.Locale(langCode) as Intl.Locale & {
@@ -60,12 +60,12 @@ function getWeekendDays(): Set<number> {
       getWeekInfo?: () => {weekend: number[]}
     };
     const info = typeof locale.getWeekInfo === 'function' ? locale.getWeekInfo() : locale.weekInfo;
-    if(info && Array.isArray(info.weekend)) {
+    if (info && Array.isArray(info.weekend)) {
       // Intl spec: 1=Mon ... 7=Sun. Map to JS getDay(): 7→0 (Sunday), others unchanged.
       weekendDaysCache = new Set(info.weekend.map((d) => d % 7));
       return weekendDaysCache;
     }
-  } catch{}
+  } catch {}
   weekendDaysCache = new Set([0, 6]);
   return weekendDaysCache;
 }
@@ -142,7 +142,7 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
   maxDate.setHours(0, 0, 0, 0);
 
   const initDate = checkDate(opts.initDate, opts.addMinutes ? 10 : undefined);
-  if(initDate < minDate) {
+  if (initDate < minDate) {
     initDate.setFullYear(minDate.getFullYear(), minDate.getMonth(), minDate.getDate());
   }
 
@@ -201,9 +201,9 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
     // Time inputs (kept imperative — InputField is a legacy DOM construction helper)
     let hoursInputField: InputField;
     let minutesInputField: InputField;
-    if(opts.withTime) {
-      hoursInputField = new InputField({plainText: true});
-      minutesInputField = new InputField({plainText: true});
+    if (opts.withTime) {
+      hoursInputField = new InputField({ plainText: true });
+      minutesInputField = new InputField({ plainText: true });
       hoursInputField.setValueSilently(hoursValue());
       minutesInputField.setValueSilently(minutesValue());
 
@@ -217,11 +217,11 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
         const maxString = '' + max;
         listenerSetter.add(inputField.input)('input', () => {
           let value = inputField.value.replace(/\D/g, '');
-          if(value.length > 2) {
+          if (value.length > 2) {
             value = value.slice(0, 2);
           } else {
-            if((value.length === 1 && +value[0] > +maxString[0]) || (value.length === 2 && +value > max)) {
-              if(value.length === 2 && onOverflow) {
+            if ((value.length === 1 && +value[0] > +maxString[0]) || (value.length === 2 && +value > max)) {
+              if (value.length === 2 && onOverflow) {
                 onOverflow(+value[1]);
               }
               value = '0' + value[0];
@@ -234,14 +234,14 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
       };
 
       handleTimeInput(23, hoursInputField, setHoursValue, (length) => {
-        if(length === 2) minutesInputField.input.focus();
+        if (length === 2) minutesInputField.input.focus();
       }, (number) => {
         const next = (number + minutesInputField.value).slice(0, 2);
         minutesInputField.setValueSilently(next);
         setMinutesValue(next);
       });
       handleTimeInput(59, minutesInputField, setMinutesValue, (length) => {
-        if(!length) hoursInputField.input.focus();
+        if (!length) hoursInputField.input.focus();
       });
     }
 
@@ -254,7 +254,7 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
       const cursor = new Date(minMonth);
       let runningOffset = 0;
 
-      while(cursor <= maxMonth) {
+      while (cursor <= maxMonth) {
         const cells = buildMonthCells(cursor);
         const rows = Math.ceil(cells.length / 7);
         // row-gap only sits BETWEEN rows in the grid (not above the first row),
@@ -270,7 +270,7 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
           cells,
           rows,
           height,
-          offset: runningOffset
+          offset: runningOffset,
         });
         runningOffset += height;
         cursor.setMonth(cursor.getMonth() + 1);
@@ -289,10 +289,10 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
 
       // Leading padding (Mon-first week). Sunday=0 ⇒ 6 leading; Mon=1 ⇒ 0; etc.
       let leading = firstDate.getDay() - 1;
-      if(leading === -1) leading = 6;
+      if (leading === -1) leading = 6;
 
-      for(let i = 0; i < leading; ++i) {
-        cells.push({kind: 'spacer', key: `${monthKeyStr}-pre-${i}`});
+      for (let i = 0; i < leading; ++i) {
+        cells.push({ kind: 'spacer', key: `${monthKeyStr}-pre-${i}` });
       }
 
       // Days of the month.
@@ -302,16 +302,16 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
           kind: 'day',
           date: new Date(dayCursor),
           timestamp: dayCursor.getTime(),
-          disabled: dayCursor < minDate || dayCursor > maxDate
+          disabled: dayCursor < minDate || dayCursor > maxDate,
         });
         dayCursor.setDate(dayCursor.getDate() + 1);
-      } while(dayCursor.getDate() !== 1);
+      } while (dayCursor.getDate() !== 1);
 
       // Trailing padding to complete the final week row.
       const remainder = cells.length % 7;
-      if(remainder) {
-        for(let i = remainder; i < 7; ++i) {
-          cells.push({kind: 'spacer', key: `${monthKeyStr}-post-${i}`});
+      if (remainder) {
+        for (let i = remainder; i < 7; ++i) {
+          cells.push({ kind: 'spacer', key: `${monthKeyStr}-post-${i}` });
         }
       }
 
@@ -332,10 +332,10 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
       const top = scrollTop();
       const bottom = top + Math.max(viewportHeight(), CELL_HEIGHT * 6);
       const result: MonthSection[] = [];
-      for(const section of monthSections) {
+      for (const section of monthSections) {
         const sectionBottom = section.offset + section.height;
-        if(sectionBottom < top - SCROLL_BUFFER_PX) continue;
-        if(section.offset > bottom + SCROLL_BUFFER_PX) break;
+        if (sectionBottom < top - SCROLL_BUFFER_PX) continue;
+        if (section.offset > bottom + SCROLL_BUFFER_PX) break;
         result.push(section);
       }
       return result;
@@ -351,13 +351,13 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
     // INSIDE the second-to-last month — so the title would show that month and
     // the up arrow would skip ahead by two.
     const topMostSection = createMemo<MonthSection>(() => {
-      if(!monthSections.length) return undefined as unknown as MonthSection;
+      if (!monthSections.length) return undefined as unknown as MonthSection;
       const top = scrollTop();
       const vh = viewportHeight();
       // Fall back to top-of-viewport while we don't have a measured height yet.
       const probe = vh > 0 ? top + vh / 2 : top + 1;
-      for(const m of monthSections) {
-        if(m.offset + m.height > probe) return m;
+      for (const m of monthSections) {
+        if (m.offset + m.height > probe) return m;
       }
       return monthSections[monthSections.length - 1];
     });
@@ -373,32 +373,32 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
     });
 
     function scrollToSection(section: MonthSection, smooth = true) {
-      if(!scrollableHostRef) return;
+      if (!scrollableHostRef) return;
       // Use the host element directly — Scrollable's setScrollPositionSilently
       // would suppress the scroll event we need to update reactive state.
       scrollableHostRef.scrollTo({
         top: section.offset,
-        behavior: smooth ? 'smooth' : 'auto'
+        behavior: smooth ? 'smooth' : 'auto',
       });
     }
 
     function onPrev() {
       const top = topMostSection();
-      if(!top) return;
+      if (!top) return;
       const idx = monthSections.indexOf(top);
-      if(idx > 0) scrollToSection(monthSections[idx - 1]);
+      if (idx > 0) scrollToSection(monthSections[idx - 1]);
     }
 
     function onNext() {
       const top = topMostSection();
-      if(!top) return;
+      if (!top) return;
       const idx = monthSections.indexOf(top);
-      if(idx < monthSections.length - 1) scrollToSection(monthSections[idx + 1]);
+      if (idx < monthSections.length - 1) scrollToSection(monthSections[idx + 1]);
     }
 
     async function fetchMonthMedia(section: MonthSection) {
-      if(!opts.peerId) return;
-      if(requestedMonths.has(section.key)) return;
+      if (!opts.peerId) return;
+      if (requestedMonths.has(section.key)) return;
 
       requestedMonths.add(section.key);
 
@@ -412,28 +412,28 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
         const result = await rootScope.managers.appMessagesManager.getSearchResultsCalendar({
           peerId: opts.peerId,
           threadId: opts.threadId,
-          filter: {_: opts.mediaFilter || 'inputMessagesFilterPhotoVideo'} as MessagesFilter,
-          offsetDate: Math.floor(lastDay.getTime() / 1000)
+          filter: { _: opts.mediaFilter || 'inputMessagesFilterPhotoVideo' } as MessagesFilter,
+          offsetDate: Math.floor(lastDay.getTime() / 1000),
         });
 
-        if(!result.messages?.length) return;
+        if (!result.messages?.length) return;
 
         const next = new Map(mediaByDay());
         let added = 0;
 
-        for(const message of result.messages) {
-          if(message._ !== 'message') continue;
-          if(!message.media) continue;
+        for (const message of result.messages) {
+          if (message._ !== 'message') continue;
+          if (!message.media) continue;
 
           const key = dayKeyFromTimestamp(message.date * 1000);
-          if(!next.has(key)) {
+          if (!next.has(key)) {
             next.set(key, message);
             ++added;
           }
         }
 
-        if(added) setMediaByDay(next);
-      } catch(err) {
+        if (added) setMediaByDay(next);
+      } catch (err) {
         // Swallow — the calendar still works without thumbnails.
         // Re-mark as not-requested so a later visit may retry.
         requestedMonths.delete(section.key);
@@ -442,10 +442,10 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
 
     // Kick off media fetches for any visible section we haven't requested yet.
     createEffect(() => {
-      if(!opts.peerId) return;
+      if (!opts.peerId) return;
       const sections = visibleSections();
-      for(const section of sections) {
-        if(!requestedMonths.has(section.key)) {
+      for (const section of sections) {
+        if (!requestedMonths.has(section.key)) {
           fetchMonthMedia(section);
         }
       }
@@ -454,16 +454,16 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
     // ─── selected day count (multi-select only) ───────────────────────────
     const selectedDayCount = createMemo<number>(() => {
       const start = selectionStart();
-      if(!start) return 0;
+      if (!start) return 0;
       const end = selectionEnd();
-      if(!end) return 1;
+      if (!end) return 1;
       const ms = end.getTime() - start.getTime();
       return Math.round(ms / (24 * 60 * 60 * 1000)) + 1;
     });
 
     // ─── title (month name, or "N days selected" when multi-select active) ─
     const monthTitleEl = createMemo<JSX.Element>(() => {
-      if(multiSelectActive() && selectedDayCount() > 0) {
+      if (multiSelectActive() && selectedDayCount() > 0) {
         return i18n('Calendar.SelectedDays', [selectedDayCount()]);
       }
       const section = topMostSection();
@@ -472,8 +472,8 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
         date,
         options: {
           year: 'numeric',
-          month: opts.withTime && mediaSizes.isMobile ? 'short' : 'long'
-        }
+          month: opts.withTime && mediaSizes.isMobile ? 'short' : 'long',
+        },
       }).element;
     });
 
@@ -485,12 +485,12 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
     const weekdayInfo: Array<{name: string, weekend: boolean}> = (() => {
       const cursor = new Date();
       const day = cursor.getDay();
-      if(day !== 1) cursor.setHours(-24 * (day - 1));
+      if (day !== 1) cursor.setHours(-24 * (day - 1));
       const out: Array<{name: string, weekend: boolean}> = [];
-      for(let i = 0; i < 7; ++i) {
+      for (let i = 0; i < 7; ++i) {
         out.push({
-          name: new I18n.IntlDateElement({date: cursor, options: {weekday: 'narrow'}}).element.textContent,
-          weekend: isWeekend(cursor)
+          name: new I18n.IntlDateElement({ date: cursor, options: { weekday: 'narrow' } }).element.textContent,
+          weekend: isWeekend(cursor),
         });
         cursor.setDate(cursor.getDate() + 1);
       }
@@ -501,19 +501,19 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
     // Color of the primary footer button — danger only when a multi-select
     // action explicitly opts into it (e.g. Clear History in chat).
     const confirmColor = createMemo<'primary' | 'danger'>(() => {
-      if(multiSelectActive() && opts.multiSelectAction?.isDanger) return 'danger';
+      if (multiSelectActive() && opts.multiSelectAction?.isDanger) return 'danger';
       return 'primary';
     });
 
     const confirmLabel = createMemo<JSX.Element>(() => {
-      if(multiSelectActive() && opts.multiSelectAction) {
+      if (multiSelectActive() && opts.multiSelectAction) {
         return i18n(opts.multiSelectAction.langKey);
       }
-      if(opts.btnConfirmLangKey) return i18n(opts.btnConfirmLangKey);
-      if(multiSelectActive() && selectedDayCount() > 0) {
+      if (opts.btnConfirmLangKey) return i18n(opts.btnConfirmLangKey);
+      if (multiSelectActive() && selectedDayCount() > 0) {
         return i18n('Calendar.SelectedDays', [selectedDayCount()]);
       }
-      if(!opts.withTime) return i18n('JumpToDate');
+      if (!opts.withTime) return i18n('JumpToDate');
 
       let key: LangPackKey;
       const args: FormatterArguments = [];
@@ -523,37 +523,37 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
       const sendDate = new Date(selectedDate().getTime());
       sendDate.setHours(+hoursValue() || 0, +minutesValue() || 0);
 
-      if(selectedDate().getTime() === today.getTime()) {
+      if (selectedDate().getTime() === today.getTime()) {
         key = opts.sendTodayLangKey ?? 'Schedule.SendToday';
       } else {
         key = opts.sendDateLangKey ?? 'Schedule.SendDate';
-        const dateOptions: Intl.DateTimeFormatOptions = {month: 'short', day: 'numeric'};
-        if(sendDate.getFullYear() !== today.getFullYear()) {
+        const dateOptions: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+        if (sendDate.getFullYear() !== today.getFullYear()) {
           dateOptions.year = 'numeric';
         }
-        args.push(new I18n.IntlDateElement({date: sendDate, options: dateOptions}).element);
+        args.push(new I18n.IntlDateElement({ date: sendDate, options: dateOptions }).element);
       }
 
       args.push(new I18n.IntlDateElement({
         date: sendDate,
-        options: {minute: '2-digit', hour: '2-digit'}
+        options: { minute: '2-digit', hour: '2-digit' },
       }).element);
 
       return i18n(key, args);
     });
 
     const isConfirmDisabled = createMemo(() => {
-      if(multiSelectActive()) {
+      if (multiSelectActive()) {
         // multiSelectAction enables the button as soon as one day is picked
         // (single-day range = same day for both endpoints). onPickRange wants
         // an explicit two-endpoint range. With neither, fall back to single
         // pick — also enabled with one click.
-        if(opts.onPickRange) {
+        if (opts.onPickRange) {
           return !selectionStart() || !selectionEnd();
         }
         return !selectionStart();
       }
-      if(!opts.minTimeDate) return false;
+      if (!opts.minTimeDate) return false;
       const sendDate = new Date(selectedDate().getTime());
       sendDate.setHours(+hoursValue() || 0, +minutesValue() || 0);
       return sendDate < new Date() ||
@@ -561,7 +561,7 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
     });
 
     const isMinTimeCaptionVisible = createMemo(() => {
-      if(!opts.minTimeDate) return true;
+      if (!opts.minTimeDate) return true;
       const sendDate = new Date(selectedDate().getTime());
       sendDate.setHours(+hoursValue() || 0, +minutesValue() || 0);
       return sendDate.getDate() === opts.minTimeDate.getDate();
@@ -569,20 +569,20 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
 
     // ─── cell click handling ───────────────────────────────────────────────
     function onCellClick(cell: CellModel) {
-      if(cell.kind !== 'day') return;
-      if(cell.disabled) return;
+      if (cell.kind !== 'day') return;
+      if (cell.disabled) return;
 
-      if(multiSelectActive()) {
+      if (multiSelectActive()) {
         batch(() => {
           const start = selectionStart();
           const end = selectionEnd();
-          if(!start || (start && end)) {
+          if (!start || (start && end)) {
             // First click, or third click after a complete pair → start a new range.
             setSelectionStart(cell.date);
             setSelectionEnd(null);
           } else {
             // Second click → close the range. Swap if user picked an earlier date.
-            if(cell.date < start) {
+            if (cell.date < start) {
               setSelectionStart(cell.date);
               setSelectionEnd(start);
             } else {
@@ -598,14 +598,14 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
     }
 
     async function onConfirm() {
-      if(multiSelectActive()) {
+      if (multiSelectActive()) {
         const start = selectionStart();
-        if(!start) return;
+        if (!start) return;
 
         // multiSelectAction takes priority: lets a caller fully replace the
         // primary action while in multi-select (Clear History in chat, etc.).
         // Single-day pick is treated as a 1-day range (to defaults to start).
-        if(opts.multiSelectAction) {
+        if (opts.multiSelectAction) {
           const end = selectionEnd() || start;
           const from = new Date(start);
           from.setHours(0, 0, 0, 0);
@@ -619,9 +619,9 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
           return;
         }
 
-        if(opts.onPickRange) {
+        if (opts.onPickRange) {
           const end = selectionEnd();
-          if(!end) return;
+          if (!end) return;
           const from = new Date(start);
           from.setHours(0, 0, 0, 0);
           const to = new Date(end);
@@ -634,7 +634,7 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
       }
 
       const date = new Date(selectedDate());
-      if(opts.withTime) {
+      if (opts.withTime) {
         date.setHours(+hoursValue() || 0, +minutesValue() || 0, 0, 0);
       }
       opts.onPick(date.getTime() / 1000 | 0);
@@ -651,22 +651,22 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
 
     // ─── scroll plumbing ───────────────────────────────────────────────────
     const onScroll = () => {
-      if(!scrollableContextRef) return;
+      if (!scrollableContextRef) return;
       setScrollTop(scrollableContextRef.scrollPosition);
     };
 
     onMount(() => {
       // Defer to after first layout so the scrollable has its real dimensions.
       queueMicrotask(() => {
-        if(scrollableContextRef) {
+        if (scrollableContextRef) {
           setViewportHeight(scrollableContextRef.clientSize);
         }
-        if(!didInitialScroll && scrollableHostRef && monthSections[initialMonthIndex]) {
+        if (!didInitialScroll && scrollableHostRef && monthSections[initialMonthIndex]) {
           didInitialScroll = true;
           scrollableHostRef.scrollTop = monthSections[initialMonthIndex].offset;
           // setScrollTop manually because scrollTop assignment may not fire onScroll
           // synchronously in all browsers.
-          if(scrollableContextRef) setScrollTop(scrollableContextRef.scrollPosition);
+          if (scrollableContextRef) setScrollTop(scrollableContextRef.scrollPosition);
         }
       });
     });
@@ -682,40 +682,40 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
     //   .range-edge-right  — round the right edge of the bar (row end or range end)
     // .active is reserved for single-pick mode and the partial (start-only) state.
     function isCellSelected(cell: CellModel & {kind: 'day'}): boolean {
-      if(multiSelectActive()) {
+      if (multiSelectActive()) {
         const start = selectionStart();
-        if(!start) return false;
+        if (!start) return false;
         // Both endpoints visually render as filled primary circles; the .in-range
         // bar paints only the cells BETWEEN them (via the .range-edge-* clipping).
-        if(cell.date.getTime() === start.getTime()) return true;
+        if (cell.date.getTime() === start.getTime()) return true;
         const end = selectionEnd();
-        if(end && cell.date.getTime() === end.getTime()) return true;
+        if (end && cell.date.getTime() === end.getTime()) return true;
         return false;
       }
       return cell.timestamp === selectedDate().getTime();
     }
 
     function isCellInRange(cell: CellModel & {kind: 'day'}): boolean {
-      if(!multiSelectActive()) return false;
+      if (!multiSelectActive()) return false;
       const start = selectionStart();
       const end = selectionEnd();
-      if(!start || !end) return false;
+      if (!start || !end) return false;
       return cell.date >= start && cell.date <= end;
     }
 
     function isCellRangeEdgeLeft(cell: CellModel & {kind: 'day'}, idx: number, cells: CellModel[]): boolean {
-      if(!isCellInRange(cell)) return false;
-      if(idx % 7 === 0) return true;
+      if (!isCellInRange(cell)) return false;
+      if (idx % 7 === 0) return true;
       const prev = cells[idx - 1];
-      if(!prev || prev.kind !== 'day') return true;
+      if (!prev || prev.kind !== 'day') return true;
       return !isCellInRange(prev);
     }
 
     function isCellRangeEdgeRight(cell: CellModel & {kind: 'day'}, idx: number, cells: CellModel[]): boolean {
-      if(!isCellInRange(cell)) return false;
-      if(idx % 7 === 6) return true;
+      if (!isCellInRange(cell)) return false;
+      if (idx % 7 === 6) return true;
       const next = cells[idx + 1];
-      if(!next || next.kind !== 'day') return true;
+      if (!next || next.kind !== 'day') return true;
       return !isCellInRange(next);
     }
 
@@ -724,14 +724,14 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
     // center (where the .active circle sits); row-boundary non-endpoints round
     // the bar's outer edge.
     function isCellRangeStart(cell: CellModel & {kind: 'day'}): boolean {
-      if(!multiSelectActive()) return false;
+      if (!multiSelectActive()) return false;
       const start = selectionStart();
       const end = selectionEnd();
       return !!(start && end && cell.date.getTime() === start.getTime());
     }
 
     function isCellRangeEnd(cell: CellModel & {kind: 'day'}): boolean {
-      if(!multiSelectActive()) return false;
+      if (!multiSelectActive()) return false;
       const start = selectionStart();
       const end = selectionEnd();
       return !!(start && end && cell.date.getTime() === end.getTime());
@@ -781,16 +781,16 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
           onScroll={onScroll}
           withBorders="both"
         >
-          <div class="date-picker-months" style={{height: totalHeight + 'px'}}>
+          <div class="date-picker-months" style={{ height: totalHeight + 'px' }}>
             <For each={visibleSections()}>{(section) => (
               <div
                 class="date-picker-month-section"
-                style={{transform: `translateY(${section.offset}px)`, height: section.height + 'px'}}
+                style={{ transform: `translateY(${section.offset}px)`, height: section.height + 'px' }}
               >
                 <div class="date-picker-month-label">
                   {new I18n.IntlDateElement({
                     date: section.date,
-                    options: {year: 'numeric', month: 'long'}
+                    options: { year: 'numeric', month: 'long' },
                   }).element}
                 </div>
                 <div class="date-picker-weekdays">
@@ -800,7 +800,7 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
                 </div>
                 <div class="date-picker-month-grid">
                   <For each={section.cells}>{(cell, index) => {
-                    if(cell.kind === 'spacer') {
+                    if (cell.kind === 'spacer') {
                       return <div class="date-picker-spacer" />;
                     }
 
@@ -922,7 +922,7 @@ function DayMediaThumb(props: {message: Message.message, size: number}) {
       message: props.message,
       mediaEl: containerRef,
       size: props.size,
-      middleware
+      middleware,
     });
   });
 

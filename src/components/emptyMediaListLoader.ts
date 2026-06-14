@@ -5,12 +5,12 @@
  */
 
 import ListLoader from '@helpers/listLoader';
-import {Message} from '@layer';
+import { Message } from '@layer';
 import type {
   MediaItem,
   MediaListLoader,
   MediaListLoaderFactory,
-  MediaListLoaderOptions
+  MediaListLoaderOptions,
 } from './appMediaPlaybackController';
 
 /**
@@ -29,7 +29,7 @@ export class EmptyMediaListLoader extends ListLoader<MediaItem, Message.message>
 
   constructor() {
     super({
-      loadMore: async() => ({count: 0, items: []})
+      loadMore: async() => ({ count: 0, items: [] }),
     });
 
     // No prev / no next — we're loaded "to the ends" in both directions.

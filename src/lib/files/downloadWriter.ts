@@ -13,7 +13,7 @@ export default class DownloadWriter implements StreamWriter {
   public async write(part: Uint8Array, offset?: number) {
     return this.serviceMessagePort.invoke('downloadChunk', {
       id: this.downloadId,
-      chunk: part
+      chunk: part,
     });
   }
 

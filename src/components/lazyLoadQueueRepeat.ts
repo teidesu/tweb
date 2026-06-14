@@ -1,6 +1,6 @@
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
-import LazyLoadQueueIntersector, {LazyLoadElement} from '@components/lazyLoadQueueIntersector';
-import VisibilityIntersector, {OnVisibilityChange} from '@components/visibilityIntersector';
+import LazyLoadQueueIntersector, { LazyLoadElement } from '@components/lazyLoadQueueIntersector';
+import VisibilityIntersector, { OnVisibilityChange } from '@components/visibilityIntersector';
 
 export default class LazyLoadQueueRepeat extends LazyLoadQueueIntersector {
   private elementsMap: Map<HTMLElement, LazyLoadElement> = new Map();
@@ -13,14 +13,14 @@ export default class LazyLoadQueueRepeat extends LazyLoadQueueIntersector {
     super(parallelLimit);
 
     this.intersector = new VisibilityIntersector((item) => {
-      const {target, visible} = item;
+      const { target, visible } = item;
 
       const queueItem = this.elementsMap.get(target);
       queueItem!.visible = visible;
 
-      if(visible) {
+      if (visible) {
         queueItem!.wasSeen = true;
-        if(!this.queue.includes(queueItem!)) {
+        if (!this.queue.includes(queueItem!)) {
           this.queue.push(queueItem!);
         }
       } else {

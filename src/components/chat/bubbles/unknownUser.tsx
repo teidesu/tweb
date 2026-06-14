@@ -1,24 +1,24 @@
-import {createResource, Show, JSX} from 'solid-js';
-import {PeerSettings, User, UserFull} from '@layer';
+import { createResource, Show, JSX } from 'solid-js';
+import { PeerSettings, User, UserFull } from '@layer';
 
 import classNames from '@helpers/string/classNames';
-import {PeerTitleTsx} from '@components/peerTitleTsx';
+import { PeerTitleTsx } from '@components/peerTitleTsx';
 
 import stylesCommon from '@components/chat/bubbles/service.module.scss';
 import styles from '@components/chat/bubbles/unknownUser.module.scss';
 
-import {I18nTsx} from '@helpers/solid/i18n';
+import { I18nTsx } from '@helpers/solid/i18n';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import {getCountryEmoji} from '@vendor/emoji';
+import { getCountryEmoji } from '@vendor/emoji';
 import I18n from '@lib/langPack';
-import {monthsLocalized} from '@helpers/date';
-import {IconTsx} from '@components/iconTsx';
+import { monthsLocalized } from '@helpers/date';
+import { IconTsx } from '@components/iconTsx';
 import formatDuration from '@helpers/formatDuration';
-import {wrapFormattedDuration} from '@components/wrappers/wrapDuration';
+import { wrapFormattedDuration } from '@components/wrappers/wrapDuration';
 import rootScope from '@lib/rootScope';
 import appSidebarRight from '@components/sidebarRight';
-import {StackedAvatarsTsx} from '@components/stackedAvatars';
-import {wrapAdaptiveCustomEmoji} from '@components/wrappers/customEmojiSimple';
+import { StackedAvatarsTsx } from '@components/stackedAvatars';
+import { wrapAdaptiveCustomEmoji } from '@components/wrappers/customEmojiSimple';
 import wrapRichText from '@lib/richTextProcessor/wrapRichText';
 
 export function UnknownUserBubble(props: {
@@ -34,14 +34,14 @@ export function UnknownUserBubble(props: {
 
   const registrationDate = () => {
     const m = props.peerSettings!.registration_month!.match(/^(\d{2})\.(\d{4})$/);
-    if(!m) return props.peerSettings!.registration_month;
+    if (!m) return props.peerSettings!.registration_month;
 
     const [, month, year] = m;
     return monthsLocalized[Number(month) - 1] + ' ' + year;
   };
 
   const [commonChats] = createResource(() => {
-    if(!props.userFull.common_chats_count) return;
+    if (!props.userFull.common_chats_count) return;
     return rootScope.managers.appUsersManager.getCommonChats(props.peerId.toUserId(), 3, 0);
   });
 
@@ -120,8 +120,8 @@ export function UnknownUserBubble(props: {
               size: 32,
               as: 'span',
               wrapOptions: {
-                textColor: 'white'
-              }
+                textColor: 'white',
+              },
             }).container}
             text={wrapRichText(props.userFull.bot_verification!.description)}
           />

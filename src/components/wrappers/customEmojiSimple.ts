@@ -7,11 +7,11 @@ export function wrapAdaptiveCustomEmoji(options: {
   size: number
   wrapOptions?: WrapSomethingOptions
 }) {
-  const {docId, size, wrapOptions, as} = options;
+  const { docId, size, wrapOptions, as } = options;
   const container = document.createElement(as || 'div');
   container.classList.add('custom-emoji');
 
-  if(wrapOptions?.textColor) {
+  if (wrapOptions?.textColor) {
     container.classList.add('emoji-status-text-color')
   }
 
@@ -29,9 +29,9 @@ export function wrapAdaptiveCustomEmoji(options: {
       middleware: wrapOptions?.middleware,
       textColor: wrapOptions?.textColor,
       lazyLoadQueue: wrapOptions?.lazyLoadQueue === false ? undefined : wrapOptions?.lazyLoadQueue,
-      managers: wrapOptions?.managers
+      managers: wrapOptions?.managers,
     }).then(res => res.render);
   })()
 
-  return {container, loadPromise};
+  return { container, loadPromise };
 }

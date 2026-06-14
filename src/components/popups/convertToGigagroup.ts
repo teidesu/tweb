@@ -1,7 +1,7 @@
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 import rootScope from '@lib/rootScope';
 import confirmationPopup from '@components/confirmationPopup';
-import {toastNew} from '@components/toast';
+import { toastNew } from '@components/toast';
 
 export default async function showConvertToGigagroupPopup(chatId: ChatId) {
   const features = document.createElement('ul');
@@ -16,9 +16,9 @@ export default async function showConvertToGigagroupPopup(chatId: ChatId) {
     await confirmationPopup({
       titleLangKey: 'BroadcastGroupConvertTitle',
       description: features,
-      button: {langKey: 'BroadcastGroupConvertAction'}
+      button: { langKey: 'BroadcastGroupConvertAction' },
     });
-  } catch(_) {
+  } catch (_) {
     return;
   }
 
@@ -26,13 +26,13 @@ export default async function showConvertToGigagroupPopup(chatId: ChatId) {
     await confirmationPopup({
       titleLangKey: 'BroadcastGroupConvertWarningTitle',
       descriptionLangKey: 'BroadcastGroupConvertWarning',
-      button: {langKey: 'BroadcastGroupConvertAction', isDanger: true}
+      button: { langKey: 'BroadcastGroupConvertAction', isDanger: true },
     });
-  } catch(_) {
+  } catch (_) {
     return;
   }
 
   const config = await rootScope.managers.apiManager.getConfig();
   await rootScope.managers.appChatsManager.convertToGigagroup(chatId);
-  toastNew({langPackKey: 'BroadcastGroupConvertDone', langPackArguments: [config.megagroup_size_max]});
+  toastNew({ langPackKey: 'BroadcastGroupConvertDone', langPackArguments: [config.megagroup_size_max] });
 }

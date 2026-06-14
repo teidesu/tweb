@@ -6,13 +6,13 @@ import ResizableLayers from '@components/mediaEditor/canvas/resizableLayers';
 import RotationWheel from '@components/mediaEditor/canvas/rotationWheel';
 import useFinalTransform from '@components/mediaEditor/canvas/useFinalTransform';
 import VideoControls from '@components/mediaEditor/canvas/videoControls';
-import {useMediaEditorContext} from '@components/mediaEditor/context';
-import {onCleanup, onMount, Show} from 'solid-js';
+import { useMediaEditorContext } from '@components/mediaEditor/context';
+import { onCleanup, onMount, Show } from 'solid-js';
 
 
 export default function MainCanvas() {
   let container: HTMLDivElement;
-  const {editorState, mediaType} = useMediaEditorContext()!;
+  const { editorState, mediaType } = useMediaEditorContext()!;
 
   useFinalTransform();
 

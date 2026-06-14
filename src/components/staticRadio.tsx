@@ -1,6 +1,6 @@
 import styles from '@components/staticRadio.module.scss';
 import classNames from '@helpers/string/classNames';
-import {JSX, splitProps} from 'solid-js';
+import { JSX, splitProps } from 'solid-js';
 
 
 const StaticRadio = (inProps: {
@@ -16,7 +16,7 @@ const StaticRadio = (inProps: {
       [styles.checked]: props.checked,
       [styles.floating]: props.floating,
       'offset-left': props.floating,
-      ...props.classList
+      ...props.classList,
     }}
     {...spanProps}
   />;

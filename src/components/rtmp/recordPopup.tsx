@@ -1,6 +1,6 @@
-import {Show, createSignal} from 'solid-js';
-import {render} from 'solid-js/web';
-import {InputFieldTsx} from '@components/inputFieldTsx';
+import { Show, createSignal } from 'solid-js';
+import { render } from 'solid-js/web';
+import { InputFieldTsx } from '@components/inputFieldTsx';
 import PopupElement from '@components/popups';
 
 import Row from '@components/rowTsx';
@@ -10,15 +10,15 @@ import imgRecordAudio from '@components/rtmp/assets/recordAudio.svg';
 import imgVideoVertical from '@components/rtmp/assets/videoVertical.svg';
 import imgVideoHorizontal from '@components/rtmp/assets/videoHorizontal.svg';
 
-import {Transition} from 'solid-transition-group';
-import {Ripple} from '@components/rippleTsx';
+import { Transition } from 'solid-transition-group';
+import { Ripple } from '@components/rippleTsx';
 import classNames from '@helpers/string/classNames';
-import {CallRecordParams} from '@appManagers/appGroupCallsManager';
-import {toastNew} from '@components/toast';
+import { CallRecordParams } from '@appManagers/appGroupCallsManager';
+import { toastNew } from '@components/toast';
 import rtmpCallsController from '@lib/calls/rtmpCallsController';
 
 import '@components/rtmp/recordPopup.css';
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 
 const cnPopup = (className = '') => `rtmp-record-popup${className}`;
 
@@ -30,7 +30,7 @@ export class RtmpRecordPopup extends PopupElement {
       overlayClosable: true,
       closable: true,
       title: true,
-      body: true
+      body: true,
     });
 
     this.title.append(i18n('Rtmp.RecordPopup.Title'));
@@ -49,7 +49,7 @@ export class RtmpRecordPopup extends PopupElement {
       params
     ).catch(() => {
       toastNew({
-        langPackKey: 'Rtmp.RecordPopup.Failed'
+        langPackKey: 'Rtmp.RecordPopup.Failed',
       });
     });
   }
@@ -72,7 +72,7 @@ const RtmpRecordPopupContent = (props: RtmpRecordPopupContentProps) => {
   const [videoHorizontal, setVideoHorizontal] = createSignal(true);
 
   const recordVideoCheck = new CheckboxField({
-    toggle: true
+    toggle: true,
   });
   recordVideoCheck.input.addEventListener('change', () => {
     setRecordVideo(recordVideoCheck.checked);
@@ -82,7 +82,7 @@ const RtmpRecordPopupContent = (props: RtmpRecordPopupContentProps) => {
     props.onSubmit({
       name: name(),
       recordVideo: recordVideo(),
-      videoHorizontal: videoHorizontal()
+      videoHorizontal: videoHorizontal(),
     });
   };
 
@@ -134,7 +134,7 @@ const RtmpRecordPopupContent = (props: RtmpRecordPopupContentProps) => {
                   classList={{
                     [cnPopup('-preview-img')]: true,
                     [cnPopup('-preview-img_videoH')]: true,
-                    [cnPopup('-preview-img_active')]: videoHorizontal()
+                    [cnPopup('-preview-img_active')]: videoHorizontal(),
                   }}
                   onClick={() => setVideoHorizontal(true)}
                 />
@@ -144,7 +144,7 @@ const RtmpRecordPopupContent = (props: RtmpRecordPopupContentProps) => {
                   classList={{
                     [cnPopup('-preview-img')]: true,
                     [cnPopup('-preview-img_videoV')]: true,
-                    [cnPopup('-preview-img_active')]: !videoHorizontal()
+                    [cnPopup('-preview-img_active')]: !videoHorizontal(),
                   }}
                   onClick={() => setVideoHorizontal(false)}
                 />

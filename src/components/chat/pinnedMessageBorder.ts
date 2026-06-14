@@ -36,15 +36,15 @@ export default class PinnedMessageBorder {
       d = this.drawRect(0, 0, WIDTH, barHeight, radius)
         + this.drawRect(0, barHeight + GAP, WIDTH, barHeight + 1, radius)
         + this.drawRect(0, barHeight * 2 + GAP * 2 + 1, WIDTH, barHeight, radius);
-    } */if(count === 2) {
+    } */if (count === 2) {
       d = this.drawRect(0, 0, WIDTH, barHeight, radius) + this.drawRect(0, barHeight + GAP * 2, WIDTH, barHeight, radius);
     } else {
-      for(let i = 0; i < count; ++i) {
+      for (let i = 0; i < count; ++i) {
         d += this.drawRect(0, (barHeight + GAP) * i, WIDTH, barHeight, radius);
       }
     }
 
-    if(!this.clipPath) {
+    if (!this.clipPath) {
       this.clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
       this.path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 
@@ -59,13 +59,13 @@ export default class PinnedMessageBorder {
 
   private getBarHeight = (count: number, index: number) => {
     let barHeight: number;
-    if(count <= 1) {
+    if (count <= 1) {
       barHeight = BAR_HEIGHTS.ONE;
-    } else if(count === 2) {
+    } else if (count === 2) {
       barHeight = BAR_HEIGHTS.TWO;
-    } else if(count === 3) {
+    } else if (count === 3) {
       barHeight = BAR_HEIGHTS.THREE;
-    } else if(count === 4) {
+    } else if (count === 4) {
       barHeight = BAR_HEIGHTS.FOUR;
     } else {
       barHeight = BAR_HEIGHTS.MORE;
@@ -76,13 +76,13 @@ export default class PinnedMessageBorder {
 
   private getMarkHeight = (count: number, index: number) => {
     let markHeight: number;
-    if(count <= 1) {
+    if (count <= 1) {
       markHeight = BAR_HEIGHTS.ONE;
-    } else if(count === 2) {
+    } else if (count === 2) {
       markHeight = BAR_HEIGHTS.TWO;
-    } else if(count === 3) {
+    } else if (count === 3) {
       markHeight = BAR_HEIGHTS.THREE;
-    } else if(count === 4) {
+    } else if (count === 4) {
       markHeight = BAR_HEIGHTS.FOUR;
     } else {
       markHeight = BAR_HEIGHTS.MORE;
@@ -92,16 +92,16 @@ export default class PinnedMessageBorder {
   };
 
   private getMarkTranslateY = (index: number, barHeight: number, count: number) => {
-    if(count === 1) {
+    if (count === 1) {
       return 0;
-    } else if(count === 2) {
+    } else if (count === 2) {
       return !index ? 0 : barHeight + GAP;
     }
 
-    if(count === 3) {
-      if(!index) {
+    if (count === 3) {
+      if (!index) {
         return 0;
-      } else if(index === 1) {
+      } else if (index === 1) {
         return barHeight + GAP;
       }
 
@@ -112,13 +112,13 @@ export default class PinnedMessageBorder {
   };
 
   private getTrackTranslateY = (index: number, count: number, barHeight: number, trackHeight: number) => {
-    if(count <= 3) {
+    if (count <= 3) {
       return 0;
     }
 
-    if(index <= 1) {
+    if (index <= 1) {
       return 0;
-    } else if(index >= (count - 2)) {
+    } else if (index >= (count - 2)) {
       return trackHeight - BAR_HEIGHTS.ONE/*  - barHeight */;
     }
 
@@ -132,7 +132,7 @@ export default class PinnedMessageBorder {
   };
 
   public render(count: number, index: number) {
-    if(!this.border) {
+    if (!this.border) {
       this.border = document.createElement('div');
       this.border.classList.add(BASE_CLASS);
 
@@ -140,8 +140,8 @@ export default class PinnedMessageBorder {
       this.border.append(this.wrapper);
     }
 
-    if(count === 1) {
-      if(this.count !== count) {
+    if (count === 1) {
+      if (this.count !== count) {
         this.wrapper.className = BASE_CLASS + '-wrapper-1';
         this.border.classList.remove(BASE_CLASS + '-mask');
         this.wrapper.replaceChildren();
@@ -163,10 +163,10 @@ export default class PinnedMessageBorder {
 
     this.border.classList.toggle(BASE_CLASS + '-mask', count > 4);
 
-    if(index <= 1) {
+    if (index <= 1) {
       this.border.classList.add('mask-bottom');
       this.border.classList.remove('mask-top');
-    } else if(index >= (count - 2)) {
+    } else if (index >= (count - 2)) {
       this.border.classList.add('mask-top');
       this.border.classList.remove('mask-bottom');
     } else {
@@ -176,7 +176,7 @@ export default class PinnedMessageBorder {
     this.wrapper.className = BASE_CLASS + '-wrapper';
     this.wrapper.style.cssText = `clip-path: url(#${clipPathId}); width: ${WIDTH}px; height: ${trackHeight}px; transform: translateY(-${trackTranslateY}px);`;
 
-    if(!this.svg) {
+    if (!this.svg) {
       this.svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       this.svg.setAttributeNS(null, 'height', '0');
       this.svg.setAttributeNS(null, 'width', '0');
@@ -190,7 +190,7 @@ export default class PinnedMessageBorder {
       this.mark.classList.add(BASE_CLASS + '-mark');
     }
 
-    if(!this.svg.parentElement) {
+    if (!this.svg.parentElement) {
       this.wrapper.append(this.svg, this.mark);
     }
 

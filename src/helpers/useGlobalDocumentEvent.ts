@@ -1,4 +1,4 @@
-import {onCleanup} from 'solid-js';
+import { onCleanup } from 'solid-js';
 
 type PossibleEvent = DocumentEventMap[keyof DocumentEventMap];
 
@@ -14,10 +14,10 @@ export function registerGlobalDocumentEvent<Key extends keyof DocumentEventMap>(
     callbacks: [],
     listener: (e) => {
       value.callbacks.forEach(clb => clb(e));
-    }
+    },
   };
 
-  if(!eventsMap.has(eventName)) {
+  if (!eventsMap.has(eventName)) {
     eventsMap.set(eventName, value);
     document.addEventListener(eventName, value.listener);
   }
@@ -27,16 +27,16 @@ export function registerGlobalDocumentEvent<Key extends keyof DocumentEventMap>(
   return {
     cleanup: () => {
       value.callbacks = value.callbacks.filter(clb => clb !== callback);
-      if(value.callbacks.length) return;
+      if (value.callbacks.length) return;
 
       eventsMap.delete(eventName);
       document.removeEventListener(eventName, value.listener);
-    }
+    },
   }
 }
 
 export default function useGlobalDocumentEvent<Key extends keyof DocumentEventMap>(eventName: Key, callback: (e: DocumentEventMap[Key]) => void) {
-  const {cleanup} = registerGlobalDocumentEvent(eventName, callback);
+  const { cleanup } = registerGlobalDocumentEvent(eventName, callback);
 
   onCleanup(cleanup);
 };

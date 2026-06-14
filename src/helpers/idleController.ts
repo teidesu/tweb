@@ -1,6 +1,6 @@
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
 import EventListenerBase from '@helpers/eventListenerBase';
-import {IS_PREVIEW} from '@config/debug';
+import { IS_PREVIEW } from '@config/debug';
 
 const FOCUS_EVENT_NAME = IS_TOUCH_SUPPORTED ? 'touchstart' : 'mousemove';
 const DO_NOT_IDLE = IS_PREVIEW; // the preview window is never focused — don't let it look idle
@@ -25,16 +25,16 @@ export class IdleController extends EventListenerBase<{
 
       window.addEventListener('focus', () => {
         this.isIdle = false;
-      }, {once: true});
+      }, { once: true });
     });
 
     // * Prevent setting online after reloading page
     window.addEventListener(FOCUS_EVENT_NAME, () => {
       this.isIdle = false;
-    }, {once: true, passive: true});
+    }, { once: true, passive: true });
 
     this.addEventListener('change', (idle) => {
-      if(idle) {
+      if (idle) {
         this.focusPromise = new Promise((resolve) => {
           this.focusResolve = resolve;
         });
@@ -53,11 +53,11 @@ export class IdleController extends EventListenerBase<{
   }
 
   public set isIdle(value: boolean) {
-    if(this._isIdle === value) {
+    if (this._isIdle === value) {
       return;
     }
 
-    if(DO_NOT_IDLE && value) {
+    if (DO_NOT_IDLE && value) {
       return;
     }
 

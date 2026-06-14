@@ -1,26 +1,26 @@
-import {createResource, createSignal, onMount} from 'solid-js';
+import { createResource, createSignal, onMount } from 'solid-js';
 import PopupElement from '.';
 import safeAssign from '@helpers/object/safeAssign';
-import {I18nTsx} from '@helpers/solid/i18n';
+import { I18nTsx } from '@helpers/solid/i18n';
 
-import {BotInlineResult, Message, MessageEntity, MessagesPreparedInlineMessage, Photo, ReplyMarkup, TextWithEntities} from '@layer';
-import {BubbleLayout} from '@components/chat/bubbles/bubbleLayout';
-import {FakeBubbles} from '@components/chat/bubbles/fakeBubbles';
-import {PeerTitleTsx} from '@components/peerTitleTsx';
+import { BotInlineResult, Message, MessageEntity, MessagesPreparedInlineMessage, Photo, ReplyMarkup, TextWithEntities } from '@layer';
+import { BubbleLayout } from '@components/chat/bubbles/bubbleLayout';
+import { FakeBubbles } from '@components/chat/bubbles/fakeBubbles';
+import { PeerTitleTsx } from '@components/peerTitleTsx';
 
 import css from '@components/popups/webAppPreparedMessage.module.scss';
 import wrapPhoto from '@components/wrappers/photo';
 import classNames from '@helpers/string/classNames';
 import setAttachmentSize from '@helpers/setAttachmentSize';
-import {MyDocument} from '@appManagers/appDocsManager';
+import { MyDocument } from '@appManagers/appDocsManager';
 import mediaSizes from '@helpers/mediaSizes';
-import {MyPhoto} from '@appManagers/appPhotosManager';
+import { MyPhoto } from '@appManagers/appPhotosManager';
 import wrapSticker from '@components/wrappers/sticker';
 import wrapVideo from '@components/wrappers/video';
 import wrapDocument from '@components/wrappers/document';
-import {useAppSettings} from '@stores/appSettings';
+import { useAppSettings } from '@stores/appSettings';
 import wrapRichText from '@lib/richTextProcessor/wrapRichText';
-import {showPickUser2Popup} from '@components/popups/pickUser';
+import { showPickUser2Popup } from '@components/popups/pickUser';
 import appImManager from '@lib/appImManager';
 import generateQId from '@appManagers/utils/inlineBots/generateQId';
 
@@ -49,51 +49,51 @@ export default class PopupWebAppPreparedMessage extends PopupElement<{
             const chosenPeerId = await showPickUser2Popup({
               peerType: ['dialogs', 'contacts'],
               filterPeerTypeBy: (peer) => {
-                if(peer._ === 'user') {
-                  if(peer.id === this.botId && availableTypes.has('inlineQueryPeerTypeSameBotPM')) return true
-                  if(peer.pFlags.bot && availableTypes.has('inlineQueryPeerTypeBotPM')) return true
-                  if(availableTypes.has('inlineQueryPeerTypePM')) return true
+                if (peer._ === 'user') {
+                  if (peer.id === this.botId && availableTypes.has('inlineQueryPeerTypeSameBotPM')) return true
+                  if (peer.pFlags.bot && availableTypes.has('inlineQueryPeerTypeBotPM')) return true
+                  if (availableTypes.has('inlineQueryPeerTypePM')) return true
                 }
-                if(peer._ === 'chat' && availableTypes.has('inlineQueryPeerTypeChat')) return true
-                if(peer._ === 'channel') {
-                  if(peer.pFlags.broadcast && availableTypes.has('inlineQueryPeerTypeBroadcast')) return true
-                  if(peer.pFlags.megagroup && availableTypes.has('inlineQueryPeerTypeChat')) return true
+                if (peer._ === 'chat' && availableTypes.has('inlineQueryPeerTypeChat')) return true
+                if (peer._ === 'channel') {
+                  if (peer.pFlags.broadcast && availableTypes.has('inlineQueryPeerTypeBroadcast')) return true
+                  if (peer.pFlags.megagroup && availableTypes.has('inlineQueryPeerTypeChat')) return true
                 }
 
                 return false
               },
-              chatRightsActions: ['send_inline']
+              chatRightsActions: ['send_inline'],
             }).catch(() => undefined as unknown as PeerId);
 
-            if(!chosenPeerId) {
+            if (!chosenPeerId) {
               return false;
             }
 
-            await appImManager.setInnerPeer({peerId: chosenPeerId});
+            await appImManager.setInnerPeer({ peerId: chosenPeerId });
             const queryAndResultIds = generateQId(this.message.query_id, this.message.result.id);
             await this.managers.appInlineBotsManager.sendInlineResult(chosenPeerId, this.botId, queryAndResultIds, {
               inlineResult: this.message.result,
               ...appImManager.chat.getMessageSendingParams(),
-              clearDraft: true
+              clearDraft: true,
             })
 
             finished = true
             this.dispatchEvent('finish');
             return true
-          }
+          },
         },
         {
           langKey: 'Cancel',
           callback: () => {
             finished = true
             this.dispatchEvent('finish', 'USER_DECLINED');
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     this.addEventListener('close', () => {
-      if(!finished) {
+      if (!finished) {
         this.dispatchEvent('finish', 'USER_DECLINED');
       }
     });
@@ -114,7 +114,7 @@ export default class PopupWebAppPreparedMessage extends PopupElement<{
     let bubbleClass = css.bubble;
     const bubbleContainerStyle: Record<string, string> = {};
 
-    switch(sendMessage._) {
+    switch (sendMessage._) {
       case 'botInlineMessageText':
       case 'botInlineMessageMediaAuto':
       case 'botInlineMessageMediaWebPage':
@@ -125,10 +125,10 @@ export default class PopupWebAppPreparedMessage extends PopupElement<{
 
     let justMedia = false
 
-    if(result._ === 'botInlineMediaResult' || result.thumb) {
+    if (result._ === 'botInlineMediaResult' || result.thumb) {
       attachmentDiv = document.createElement('div');
       attachmentDiv.classList.add('attachment');
-      if(text!) {
+      if (text!) {
         attachmentDiv.classList.add('no-brb');
         bubbleClass += ' with-media-tail';
       } else {
@@ -136,8 +136,8 @@ export default class PopupWebAppPreparedMessage extends PopupElement<{
       }
     }
 
-    if(result._ === 'botInlineMediaResult') {
-      if(result.type === 'photo' && result.photo) {
+    if (result._ === 'botInlineMediaResult') {
+      if (result.type === 'photo' && result.photo) {
         bubbleClass += ' photo';
 
         wrapPhoto({
@@ -145,16 +145,16 @@ export default class PopupWebAppPreparedMessage extends PopupElement<{
           container: attachmentDiv!,
           withTail: true,
           isOut: true,
-          middleware: this.middlewareHelper.get()
+          middleware: this.middlewareHelper.get(),
         })
-      } else if(result.document) {
+      } else if (result.document) {
         const doc = result.document as MyDocument;
 
-        if(result.type === 'sticker') {
+        if (result.type === 'sticker') {
           justMedia = true
           bubbleClass += ' sticker';
 
-          if(doc.animated) {
+          if (doc.animated) {
             bubbleClass += 'sticker-animated'
           }
 
@@ -164,7 +164,7 @@ export default class PopupWebAppPreparedMessage extends PopupElement<{
             photo: doc,
             element: attachmentDiv!,
             boxWidth: boxSize.width,
-            boxHeight: boxSize.height
+            boxHeight: boxSize.height,
           });
           bubbleContainerStyle['min-width'] = boxSize.width + 'px';
           bubbleContainerStyle['min-height'] = boxSize.height + 'px';
@@ -177,9 +177,9 @@ export default class PopupWebAppPreparedMessage extends PopupElement<{
             liteModeKey: 'stickers_chat',
             loop: true,
             withThumb: true,
-            isOut: true
+            isOut: true,
           })
-        } else if(result.type === 'video') {
+        } else if (result.type === 'video') {
           const isRound = doc.type === 'round';
           justMedia = isRound
           bubbleClass += isRound ? ' round' : ' video';
@@ -190,14 +190,14 @@ export default class PopupWebAppPreparedMessage extends PopupElement<{
               _: 'message',
               media: {
                 _: 'messageMediaDocument',
-                document: doc
-              }
+                document: doc,
+              },
             } as Message.message,
             container: attachmentDiv!,
             middleware: this.middlewareHelper.get(),
             boxWidth: mediaSizes.active.regular.width,
             boxHeight: mediaSizes.active.regular.height,
-            isOut: true
+            isOut: true,
           })
         } else {
           bubbleClass += ' document-message is-single-document';
@@ -213,31 +213,31 @@ export default class PopupWebAppPreparedMessage extends PopupElement<{
           wrapDocument({
             message: {
               _: 'message',
-              pFlags: {is_outgoing: true},
+              pFlags: { is_outgoing: true },
               media: {
                 _: 'messageMediaDocument',
-                document: doc
-              }
+                document: doc,
+              },
             } as Message.message,
             middleware: this.middlewareHelper.get(),
             sizeType: 'documentName',
             fontSize: appSettings.messagesTextSize,
             canTranscribeVoice: false,
-            isOut: true
+            isOut: true,
           }).then((div) => {
             wrapper.append(div);
 
-            if(text) {
+            if (text) {
               const message = document.createElement('div');
               message.classList.add('document-message');
-              const rich = wrapRichText(text, {entities});
+              const rich = wrapRichText(text, { entities });
               message.append(rich);
               wrapper.append(message);
             }
           });
         }
       }
-    } else if(result._ === 'botInlineResult' && result.thumb && result.thumb.mime_type!.indexOf('image/') === 0) {
+    } else if (result._ === 'botInlineResult' && result.thumb && result.thumb.mime_type!.indexOf('image/') === 0) {
       bubbleClass += ' photo';
 
       wrapPhoto({
@@ -245,7 +245,7 @@ export default class PopupWebAppPreparedMessage extends PopupElement<{
         container: attachmentDiv!,
         withTail: true,
         isOut: true,
-        middleware: this.middlewareHelper.get()
+        middleware: this.middlewareHelper.get(),
       })
     }
 

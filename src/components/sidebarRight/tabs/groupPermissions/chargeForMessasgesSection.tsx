@@ -1,19 +1,19 @@
-import {Component, ComponentProps, createComputed, createEffect, createSignal, Show} from 'solid-js';
-import {render} from 'solid-js/web';
-import {Transition} from 'solid-transition-group';
+import { Component, ComponentProps, createComputed, createEffect, createSignal, Show } from 'solid-js';
+import { render } from 'solid-js/web';
+import { Transition } from 'solid-transition-group';
 
 import type SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 
 import useStarsCommissionAndWithdrawalPrice from '@components/sidebarLeft/tabs/privacy/messages/useStarsCommissionAndWithdrawalPrice';
-import {PromiseCollector} from '@components/solidJsTabs/promiseCollector';
+import { PromiseCollector } from '@components/solidJsTabs/promiseCollector';
 import StarRangeInput from '@components/sidebarLeft/tabs/privacy/messages/starsRangeInput';
 import StaticSwitch from '@components/staticSwitch';
 import Section from '@components/section';
 import Row from '@components/rowTsx';
 
 
-const TRANSITION_PARAMS: KeyframeAnimationOptions = {duration: 200, easing: 'ease-out'};
+const TRANSITION_PARAMS: KeyframeAnimationOptions = { duration: 200, easing: 'ease-out' };
 
 const ChargeForMessasgesSection: Component<{
   initialStars: number;
@@ -22,10 +22,10 @@ const ChargeForMessasgesSection: Component<{
   const [checked, setChecked] = createSignal(!!props.initialStars);
   const [stars, setStars] = createSignal(props.initialStars || 0);
 
-  const {commissionPercents, willReceiveDollars} = useStarsCommissionAndWithdrawalPrice(stars);
+  const { commissionPercents, willReceiveDollars } = useStarsCommissionAndWithdrawalPrice(stars);
 
   createComputed(() => {
-    if(checked()) {
+    if (checked()) {
       setStars(prev => prev || props.initialStars || 1);
     } else {
       setStars(0);
@@ -34,7 +34,7 @@ const ChargeForMessasgesSection: Component<{
 
   let first = true;
   createEffect(() => {
-    if(first) {
+    if (first) {
       first = false;
       stars();
       return;
@@ -54,7 +54,7 @@ const ChargeForMessasgesSection: Component<{
       <Transition
         onEnter={async(el, done) => {
           const height = el.scrollHeight;
-          await el.animate({height: ['0px', height + 'px']}, TRANSITION_PARAMS).finished;
+          await el.animate({ height: ['0px', height + 'px'] }, TRANSITION_PARAMS).finished;
 
           done();
         }}
@@ -62,7 +62,7 @@ const ChargeForMessasgesSection: Component<{
           const height = el.clientHeight;
           await el.animate({
             height: [height + 'px', '0px'],
-            opacity: [1, 0]
+            opacity: [1, 0],
           }, TRANSITION_PARAMS).finished;
 
           done();
@@ -75,7 +75,7 @@ const ChargeForMessasgesSection: Component<{
             caption='PaidMessages.SetPriceGroupDescription'
             captionArgs={[
               commissionPercents(),
-              willReceiveDollars()
+              willReceiveDollars(),
             ]}
           >
             <StarRangeInput value={stars()} onChange={setStars} />
@@ -105,7 +105,7 @@ const createChargeForMessasgesSection = (
   return {
     element,
     dispose,
-    promise: promiseCollectorHelper.await()
+    promise: promiseCollectorHelper.await(),
   };
 };
 

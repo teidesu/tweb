@@ -1,9 +1,9 @@
-import type {Reaction} from '@layer';
-import type {HistoryStorage, RequestHistoryOptions, SearchStorageFilterKey} from '@appManagers/appMessagesManager';
+import type { Reaction } from '@layer';
+import type { HistoryStorage, RequestHistoryOptions, SearchStorageFilterKey } from '@appManagers/appMessagesManager';
 import getSearchType from '@appManagers/utils/messages/getSearchType';
 
 export default function getHistoryStorageKey(options: RequestHistoryOptions & {type: HistoryStorage['type']}) {
-  const {type, peerId, threadId, monoforumThreadId} = options;
+  const { type, peerId, threadId, monoforumThreadId } = options;
   const filter = getSearchStorageFilterKey(options);
   return [type, peerId, filter, threadId, monoforumThreadId].filter(Boolean).join('_') as HistoryStorage['key'];
 }
@@ -12,15 +12,15 @@ export function getSearchStorageFilterKey({
   inputFilter,
   savedReaction,
   query,
-  hashtagType
+  hashtagType,
 }: Parameters<typeof getHistoryStorageKey>[0]): SearchStorageFilterKey {
   let reactionsPart: string;
-  if(savedReaction) {
+  if (savedReaction) {
     const part = savedReaction.map((reaction) => {
       return (reaction as Reaction.reactionCustomEmoji).document_id || (reaction as Reaction.reactionEmoji).emoticon;
     }).join(',');
     reactionsPart = `tag-${part}`;
-    inputFilter ??= {_: 'inputMessagesFilterEmpty'};
+    inputFilter ??= { _: 'inputMessagesFilterEmpty' };
   }
 
   const filter: SearchStorageFilterKey = inputFilter?._!;

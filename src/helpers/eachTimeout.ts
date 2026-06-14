@@ -9,7 +9,7 @@ export default function eachTimeout(callback: () => any, getNextTimeout: () => n
 
   // replace callback to run noop and restore after
   const _callback = callback;
-  if(!runFirst) {
+  if (!runFirst) {
     callback = noop;
   }
 

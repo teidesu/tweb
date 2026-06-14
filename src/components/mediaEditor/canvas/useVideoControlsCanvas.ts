@@ -1,8 +1,8 @@
-import {createEffect, onCleanup} from 'solid-js';
+import { createEffect, onCleanup } from 'solid-js';
 import deferredPromise from '@helpers/cancellablePromise';
 import createMiddleware from '@helpers/solid/createMiddleware';
-import {useMediaEditorContext} from '@components/mediaEditor/context';
-import {snapToViewport} from '@components/mediaEditor/utils';
+import { useMediaEditorContext } from '@components/mediaEditor/context';
+import { snapToViewport } from '@components/mediaEditor/utils';
 import createVideoForDrawing from '@components/mediaEditor/canvas/createVideoForDrawing';
 import styles from '@components/mediaEditor/canvas/videoControls.module.scss';
 
@@ -14,13 +14,13 @@ type Args = {
   };
 };
 
-export default function useVideoControlsCanvas({getCanvas, size}: Args) {
-  const {editorState, mediaSrc} = useMediaEditorContext()!;
+export default function useVideoControlsCanvas({ getCanvas, size }: Args) {
+  const { editorState, mediaSrc } = useMediaEditorContext()!;
 
   createEffect(() => {
     const media = editorState.renderingPayload?.media;
     const canvas = getCanvas();
-    if(!media || !canvas || !size.width || !size.height) return;
+    if (!media || !canvas || !size.width || !size.height) return;
 
     const ratio = media.width / media.height;
 
@@ -40,10 +40,10 @@ export default function useVideoControlsCanvas({getCanvas, size}: Args) {
     const middleware = createMiddleware().get();
 
     (async() => {
-      const video = await createVideoForDrawing(mediaSrc, {currentTime: 0, middleware});
+      const video = await createVideoForDrawing(mediaSrc, { currentTime: 0, middleware });
       // (window as any).myWeakRef = new WeakRef(video); // works
 
-      if(cleaned) return;
+      if (cleaned) return;
 
       video.addEventListener('seeked', () => {
         deferred?.resolve();
@@ -51,12 +51,12 @@ export default function useVideoControlsCanvas({getCanvas, size}: Args) {
 
       const [chunkWidth, chunkHeight] = snapToViewport(ratio, size.width, size.height);
 
-      for(let x = 0; x < size.width; x += chunkWidth) {
+      for (let x = 0; x < size.width; x += chunkWidth) {
         deferred = deferredPromise();
         video.currentTime = x / size.width * video.duration;
 
         await deferred;
-        if(cleaned) return;
+        if (cleaned) return;
 
         ctx!.drawImage(video, x, 0, chunkWidth, chunkHeight);
 
@@ -70,8 +70,8 @@ export default function useVideoControlsCanvas({getCanvas, size}: Args) {
 
         canvas.after(fade);
 
-        fade.animate({opacity: [1, 0]}, {duration: 500, easing: 'ease-in-out'}).finished
-        .then(() => fade.remove());
+        fade.animate({ opacity: [1, 0] }, { duration: 500, easing: 'ease-in-out' }).finished
+          .then(() => fade.remove());
       }
     })();
   });

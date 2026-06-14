@@ -1,11 +1,11 @@
-import AvatarEdit, {AvatarEditPayload} from '@components/avatarEdit';
+import AvatarEdit, { AvatarEditPayload } from '@components/avatarEdit';
 import InputField from '@components/inputField';
 import ListenerSetter from '@helpers/listenerSetter';
 import ButtonCorner from '@components/buttonCorner';
 import safeAssign from '@helpers/object/safeAssign';
-import {NULL_PEER_ID} from '@appManagers/constants';
-import {Middleware} from '@helpers/middleware';
-import {avatarNew} from '@components/avatarNew';
+import { NULL_PEER_ID } from '@appManagers/constants';
+import { Middleware } from '@helpers/middleware';
+import { avatarNew } from '@components/avatarNew';
 
 export default class EditPeer {
   public nextBtn: HTMLButtonElement;
@@ -37,23 +37,23 @@ export default class EditPeer {
 
     this.peerId ||= NULL_PEER_ID;
 
-    if(!this.nextBtn) {
-      this.nextBtn = ButtonCorner({icon: 'check'});
-    } else if(!this.nextBtn.classList.contains('btn-corner')) {
+    if (!this.nextBtn) {
+      this.nextBtn = ButtonCorner({ icon: 'check' });
+    } else if (!this.nextBtn.classList.contains('btn-corner')) {
       this.handleChange = () => {
         this.nextBtn.toggleAttribute('disabled', !this.isChanged() || this.disabled);
       };
     }
 
-    if(!options.withoutAvatar) {
+    if (!options.withoutAvatar) {
       this.avatarElem = avatarNew({
         middleware: options.middleware,
         size: this.avatarSize,
-        peerId: this.peerId
+        peerId: this.peerId,
       });
       this.avatarElem.node.classList.add('avatar-placeholder');
 
-      if(!options.doNotEditAvatar) {
+      if (!options.doNotEditAvatar) {
         this.avatarEdit = new AvatarEdit((payload) => {
           this.uploadAvatar = payload;
           this.handleChange();
@@ -84,7 +84,7 @@ export default class EditPeer {
   public lockWithPromise(promise: Promise<any>, unlockOnSuccess = false) {
     this.disabled = true;
     promise.then(() => {
-      if(unlockOnSuccess) {
+      if (unlockOnSuccess) {
         this.disabled = false;
       }
     }, () => {
@@ -93,23 +93,23 @@ export default class EditPeer {
   }
 
   public isChanged = () => {
-    if(this.uploadAvatar) {
+    if (this.uploadAvatar) {
       return true;
     }
 
     let changedLength = 0, requiredLength = 0, requiredValidLength = 0;
     this.inputFields.forEach((inputField) => {
-      if(inputField.isValid()) {
-        if(inputField.isChanged()) {
+      if (inputField.isValid()) {
+        if (inputField.isChanged()) {
           ++changedLength;
         }
 
-        if(inputField.required) {
+        if (inputField.required) {
           ++requiredValidLength;
         }
       }
 
-      if(inputField.required) {
+      if (inputField.required) {
         ++requiredLength;
       }
     });

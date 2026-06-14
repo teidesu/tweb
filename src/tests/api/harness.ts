@@ -1,5 +1,5 @@
-import {installNodeEnv} from './nodeEnv';
-import {registerInlineCrypto} from './inlineCrypto';
+import { installNodeEnv } from './nodeEnv';
+import { registerInlineCrypto } from './inlineCrypto';
 
 export type TrueDcSeed = 1 | 2 | 3 | 4 | 5;
 
@@ -26,13 +26,13 @@ export async function createTestClient(opts: CreateTestClientOpts) {
 
   step('import @config/modes');
   const Modes = (await import('@config/modes')).default;
-  if(opts.testDc) {
+  if (opts.testDc) {
     Modes.test = true;
   }
 
   step('import @config/app');
   const App = (await import('@config/app')).default;
-  if(!Number.isFinite(App.id) || !App.hash) {
+  if (!Number.isFinite(App.id) || !App.hash) {
     throw new Error(
       'createTestClient: VITE_API_ID / VITE_API_HASH are not set. Define them in .env.local before running api tests.'
     );
@@ -52,7 +52,7 @@ export async function createTestClient(opts: CreateTestClientOpts) {
   registerInlineCrypto();
 
   step('setEnvironment (stub)');
-  const {setEnvironment} = await import('@environment/utils');
+  const { setEnvironment } = await import('@environment/utils');
   setEnvironment(buildNodeEnvironmentStub() as any);
 
   step('init MTProtoMessagePort singleton');
@@ -62,21 +62,21 @@ export async function createTestClient(opts: CreateTestClientOpts) {
 
   step('import managers');
   const AppStateManager = (await import('@appManagers/appStateManager')).default;
-  const {AppStoragesManager} = await import('@appManagers/appStoragesManager');
+  const { AppStoragesManager } = await import('@appManagers/appStoragesManager');
   const createManagers = (await import('@appManagers/createManagers')).default;
 
   step('new AppStateManager');
   const stateManager = new AppStateManager(accountNumber);
   stateManager.userId = opts.seed.userId as UserId;
 
-  const {STATE_INIT} = await import('@config/state');
+  const { STATE_INIT } = await import('@config/state');
   // worker normally hydrates this from the main thread; in node we seed defaults
   (stateManager as any).state = JSON.parse(JSON.stringify(STATE_INIT));
 
   stateManager.resetStoragesPromise.resolve({
     storages: new Map(),
     refetch: false,
-    callback: async() => {}
+    callback: async() => {},
   });
 
   step('new AppStoragesManager');
@@ -100,7 +100,7 @@ export async function createTestClient(opts: CreateTestClientOpts) {
     apiManager: managers.apiManager,
     dispose() {
       // best-effort cleanup; networker timers will clear when the process exits
-    }
+    },
   };
 }
 
@@ -139,7 +139,7 @@ function buildNodeEnvironmentStub() {
     IS_H265_SUPPORTED: false,
     IMAGE_MIME_TYPES_SUPPORTED: new Set<string>(),
     MEDIA_MIME_TYPES_SUPPORTED: new Set<string>(),
-    VIDEO_MIME_TYPES_SUPPORTED: new Set<string>()
+    VIDEO_MIME_TYPES_SUPPORTED: new Set<string>(),
   };
 }
 
@@ -149,47 +149,47 @@ async function seedLocalStorage(accountNumber: 1 | 2 | 3 | 4, seed: AccountSeed)
   const accountKey = `account${accountNumber}` as const;
   const accountData: any = {
     userId: seed.userId,
-    dcId: seed.dcId
+    dcId: seed.dcId,
   };
 
-  for(const dcIdStr in seed.authKeys) {
+  for (const dcIdStr in seed.authKeys) {
     const dcId = Number(dcIdStr) as TrueDcSeed;
     const entry = seed.authKeys[dcId];
-    if(!entry) continue;
+    if (!entry) continue;
     accountData[`dc${dcId}_auth_key`] = entry.key;
     accountData[`dc${dcId}_server_salt`] = entry.salt;
-    if(dcId === seed.dcId && entry.fingerprint) {
+    if (dcId === seed.dcId && entry.fingerprint) {
       accountData.auth_key_fingerprint = entry.fingerprint;
     }
   }
 
-  if(!accountData.auth_key_fingerprint) {
+  if (!accountData.auth_key_fingerprint) {
     const baseEntry = seed.authKeys[seed.dcId as TrueDcSeed];
-    if(baseEntry?.key) {
+    if (baseEntry?.key) {
       accountData.auth_key_fingerprint = baseEntry.key.slice(0, 8);
     }
   }
 
-  await sessionStorage.set({[accountKey]: accountData} as any);
+  await sessionStorage.set({ [accountKey]: accountData } as any);
 
-  if(accountNumber === 1) {
+  if (accountNumber === 1) {
     const legacy: any = {};
-    for(const dcIdStr in seed.authKeys) {
+    for (const dcIdStr in seed.authKeys) {
       const dcId = Number(dcIdStr) as TrueDcSeed;
       const entry = seed.authKeys[dcId];
-      if(!entry) continue;
+      if (!entry) continue;
       legacy[`dc${dcId}_auth_key`] = entry.key;
       legacy[`dc${dcId}_server_salt`] = entry.salt;
     }
     legacy.dc = seed.dcId;
-    legacy.user_auth = {date: Math.floor(Date.now() / 1000), id: seed.userId, dcID: seed.dcId};
-    if(accountData.auth_key_fingerprint) {
+    legacy.user_auth = { date: Math.floor(Date.now() / 1000), id: seed.userId, dcID: seed.dcId };
+    if (accountData.auth_key_fingerprint) {
       legacy.auth_key_fingerprint = accountData.auth_key_fingerprint;
     }
     await sessionStorage.set(legacy);
   }
 
-  if(seed.timeOffset !== undefined) {
-    await sessionStorage.set({server_time_offset: seed.timeOffset});
+  if (seed.timeOffset !== undefined) {
+    await sessionStorage.set({ server_time_offset: seed.timeOffset });
   }
 }

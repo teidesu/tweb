@@ -1,8 +1,8 @@
 import PasscodeLockScreenController from '@components/passcodeLock/passcodeLockScreenController';
 import showTooltip from '@components/tooltip';
 import apiManagerProxy from '@lib/apiManagerProxy';
-import {i18n} from '@lib/langPack';
-import {createEffect, createRoot, createSignal, onCleanup} from 'solid-js';
+import { i18n } from '@lib/langPack';
+import { createEffect, createRoot, createSignal, onCleanup } from 'solid-js';
 
 
 const LockIcon = () => {
@@ -29,15 +29,15 @@ const LockButton = () => {
   };
 
   createEffect(() => {
-    if(!isTooltipVisible()) return;
+    if (!isTooltipVisible()) return;
 
-    const {close} = showTooltip({
+    const { close } = showTooltip({
       element: button!,
       mountOn: button!.parentElement!,
       vertical: 'bottom',
       textElement: i18n('PasscodeLock.TapToLock'),
       onClose: () => {},
-      lighter: true
+      lighter: true,
     });
 
     onCleanup(() => {
@@ -80,7 +80,7 @@ const createLockButton = () => {
     return LockButton();
   });
 
-  return {element, dispose: dispose!};
+  return { element, dispose: dispose! };
 };
 
 export default createLockButton;

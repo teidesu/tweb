@@ -1,4 +1,4 @@
-import {createRoot, createSignal, JSX} from 'solid-js';
+import { createRoot, createSignal, JSX } from 'solid-js';
 import classNames from '@helpers/string/classNames';
 
 // The circular SVG progress ring used by round video notes (wrappers/video.ts)
@@ -45,7 +45,7 @@ export default function ProgressRing(props: ProgressRingProps): JSX.Element {
       class={classNames('progress-ring', props.class)}
       width={props.size}
       height={props.size}
-      style={{transform: 'rotate(-90deg)'}}
+      style={{ transform: 'rotate(-90deg)' }}
     >
       <circle
         ref={props.circleRef}
@@ -59,7 +59,7 @@ export default function ProgressRing(props: ProgressRingProps): JSX.Element {
         fill="transparent"
         style={{
           'stroke-dasharray': `${circumference()} ${circumference()}`,
-          'stroke-dashoffset': '' + dashoffset()
+          'stroke-dashoffset': '' + dashoffset(),
         }}
       />
     </svg>
@@ -99,9 +99,9 @@ export function createProgressRing(opts: Omit<ProgressRingProps, 'progress' | 'r
         return progress();
       },
       ref: (svg) => element = svg,
-      circleRef: (c) => circle = c
+      circleRef: (c) => circle = c,
     });
 
-    return {element: element!, circle: circle!, setProgress, destroy: dispose};
+    return { element: element!, circle: circle!, setProgress, destroy: dispose };
   });
 }

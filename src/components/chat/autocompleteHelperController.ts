@@ -1,4 +1,4 @@
-import {getMiddleware} from '@helpers/middleware';
+import { getMiddleware } from '@helpers/middleware';
 import AutocompleteHelper from '@components/chat/autocompleteHelper';
 
 export default class AutocompleteHelperController {
@@ -15,7 +15,7 @@ export default class AutocompleteHelperController {
   } */
 
   public toggleListNavigation(enabled: boolean) {
-    for(const helper of this.helpers) {
+    for (const helper of this.helpers) {
       helper.toggleListNavigation(enabled);
     }
   }
@@ -36,12 +36,12 @@ export default class AutocompleteHelperController {
 
   public hideOtherHelpers(preserveHelpers?: Set<AutocompleteHelper>) {
     this.helpers.forEach((helper) => {
-      if(!preserveHelpers?.has(helper)) {
+      if (!preserveHelpers?.has(helper)) {
         helper.toggle(true, true);
       }
     });
 
-    if(!preserveHelpers?.size) {
+    if (!preserveHelpers?.size) {
       this.middleware.clean();
     }
   }

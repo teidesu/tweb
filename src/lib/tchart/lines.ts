@@ -1,5 +1,5 @@
-import {getXIndex} from '@lib/tchart/utils';
-import {TChartUnitOptions} from '@lib/tchart/types';
+import { getXIndex } from '@lib/tchart/utils';
+import { TChartUnitOptions } from '@lib/tchart/types';
 
 export default class TLines {
   private opts: TChartUnitOptions;
@@ -12,7 +12,7 @@ export default class TLines {
     this.opts = opts;
 
     this.$canvas = document.createElement('canvas');
-    this.ctx = this.$canvas.getContext('2d', {alpha: true})!;
+    this.ctx = this.$canvas.getContext('2d', { alpha: true })!;
   }
 
   onResize() {
@@ -61,9 +61,9 @@ export default class TLines {
     xScale *= dpi;
     const xShift = (pLeft + (toCache ? 0 : dims.l)) * dpi - x1! * xScale;
 
-    if(isStepMode && zoom && morph === 1) {
-      if(xInd1 < this.opts.state!.xg1Ind!) xInd1 = this.opts.state!.xg1Ind;
-      if(xInd2 > this.opts.state!.xg2Ind!) xInd2 = this.opts.state!.xg2Ind! - 1;
+    if (isStepMode && zoom && morph === 1) {
+      if (xInd1 < this.opts.state!.xg1Ind!) xInd1 = this.opts.state!.xg1Ind;
+      if (xInd2 > this.opts.state!.xg2Ind!) xInd2 = this.opts.state!.xg2Ind! - 1;
     }
 
     let xw: number;
@@ -71,19 +71,19 @@ export default class TLines {
     const xwDetail = this.opts.data!.detailPeriodLen! * xScale;
 
     // Cache rendered version
-    if(toCache) {
+    if (toCache) {
       const hash = [dims.w, dims.h, mini ? state!.xg1 : state!.x1, mini ? state!.xg2 : state!.x2, this.isDarkMode, zoom];
-      if(!mini) {
+      if (!mini) {
         hash.push(state!.y1 as number);
         hash.push(state!.y2 as number);
       }
-      for(i = 0; i < ysLen; i++) {
+      for (i = 0; i < ysLen; i++) {
         hash.push(mini ? state![`om_${i}`] : state![`o_${i}`]);
         hash.push(state![`f_${i}`]);
       }
       const joinedHash = hash.join(',');
 
-      if(joinedHash === this.cached) {
+      if (joinedHash === this.cached) {
         this.opts.ctx!.drawImage(this.$canvas, dims.l * dpi, dims.t * dpi);
         return;
       }
@@ -102,26 +102,26 @@ export default class TLines {
     // @ts-ignore
     ctx.lineJoin = opts.additional.mini ? 'square' : 'round';
 
-    for(i = 0; i < ysLen; i++) {
+    for (i = 0; i < ysLen; i++) {
       o = (mini ? state![`om_${i}`] : state![`o_${i}`])!;
       e = state![`e_${i}`]!;
 
-      if(o <= 0) {
+      if (o <= 0) {
         continue;
       }
 
       y = ys![i].y;
       yFrom = ys![i].yFrom!;
 
-      if(opts.pairY) {
+      if (opts.pairY) {
         y1 = (mini ? state![`y1m_${i}`] : state![`y1_${i}`])!;
         y2 = (mini ? state![`y2m_${i}`] : state![`y2_${i}`])!;
       } else {
-        if(mini) {
-          if(e && o < 1) {
+        if (mini) {
+          if (e && o < 1) {
             y1 = state!['y1m_show']!;
             y2 = state!['y2m_show']!;
-          } else if(!e && o < 1) {
+          } else if (!e && o < 1) {
             y1 = state!['y1m_hidd']!;
             y2 = state!['y2m_hidd']!;
           } else {
@@ -150,9 +150,9 @@ export default class TLines {
       let hasPrev = false;
       let needMove = true;
 
-      for(j = xInd1!; j <= xInd2; j++) {
-        if(zoom) {
-          if(j >= d1! && j <= d2!) {
+      for (j = xInd1!; j <= xInd2; j++) {
+        if (zoom) {
+          if (j >= d1! && j <= d2!) {
             yVal = yFrom[j] + morph * (y[j] - yFrom[j]);
             xw = xwDetail;
           } else {
@@ -165,7 +165,7 @@ export default class TLines {
         }
 
         // Skip absent values
-        if(isNaN(yVal)) {
+        if (isNaN(yVal)) {
           needMove = true;
           continue;
         }
@@ -173,16 +173,16 @@ export default class TLines {
         xc = x![j] * xScale + xShift << 0;
         const yc = yShift - yVal * yScale << 0;
 
-        if(xc > prevXc || (isStepMode && j === d2! + 1)) {
+        if (xc > prevXc || (isStepMode && j === d2! + 1)) {
           // Merge vertical lines into one
-          if(hasPrev) {
-            if(prevYc! === minY) {
+          if (hasPrev) {
+            if (prevYc! === minY) {
               ctx!.moveTo(prevXc + lineWidthShift, maxY - lineWidthShift);
               ctx!.lineTo(prevXc + lineWidthShift, minY - lineWidthShift);
             } else {
               ctx!.moveTo(prevXc + lineWidthShift, minY - lineWidthShift);
               ctx!.lineTo(prevXc + lineWidthShift, maxY - lineWidthShift);
-              if(prevYc! !== maxY) {
+              if (prevYc! !== maxY) {
                 ctx!.moveTo(prevXc + lineWidthShift, prevYc! - lineWidthShift);
               }
             }
@@ -190,7 +190,7 @@ export default class TLines {
             hasPrev = false;
           }
 
-          if(needMove) {
+          if (needMove) {
             ctx!.moveTo(xc + lineWidthShift, yc - lineWidthShift);
             needMove = false;
           }
@@ -208,7 +208,7 @@ export default class TLines {
         prevYc = yc;
       }
 
-      if(hasPrev) {
+      if (hasPrev) {
         ctx!.moveTo(prevXc + lineWidthShift, minY - lineWidthShift);
         ctx!.lineTo(prevXc + lineWidthShift, maxY - lineWidthShift);
       }

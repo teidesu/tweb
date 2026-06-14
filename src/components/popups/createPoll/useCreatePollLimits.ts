@@ -1,4 +1,4 @@
-import {useAppConfig} from '@stores/appState';
+import { useAppConfig } from '@stores/appState';
 import usePremium from '@stores/premium';
 
 
@@ -13,6 +13,6 @@ export const useCreatePollLimits = () => {
     maxQuestionLength: () => 255,
     maxOptionLength: () => 100,
     maxDescriptionLength: () => isPremium() ? appConfig.caption_length_limit_premium ?? 4096 : appConfig.caption_length_limit_default ?? 1024,
-    maxExplanationLength: () => 200
+    maxExplanationLength: () => 200,
   };
 };

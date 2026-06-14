@@ -1,12 +1,12 @@
-import {JSX, splitProps} from 'solid-js';
+import { JSX, splitProps } from 'solid-js';
 
-import {IconTsx} from '@components/iconTsx';
-import {i18n} from '@lib/langPack';
+import { IconTsx } from '@components/iconTsx';
+import { i18n } from '@lib/langPack';
 
-import {animateToNewRotationOrRatio} from '@components/mediaEditor/canvas/animateToNewRotationOrRatio';
-import {useMediaEditorContext} from '@components/mediaEditor/context';
-import LargeButton, {MediaEditorLargeButtonProps} from '@components/mediaEditor/largeButton';
-import {withCurrentOwner} from '@helpers/solid/withCurrentOwner';
+import { animateToNewRotationOrRatio } from '@components/mediaEditor/canvas/animateToNewRotationOrRatio';
+import { useMediaEditorContext } from '@components/mediaEditor/context';
+import LargeButton, { MediaEditorLargeButtonProps } from '@components/mediaEditor/largeButton';
+import { withCurrentOwner } from '@helpers/solid/withCurrentOwner';
 
 const ratioRects = {
   '1x1': () => <rect x="4" y="4" width="16" height="16" rx="2" stroke="white" stroke-width="1.66" />,
@@ -14,12 +14,12 @@ const ratioRects = {
   '4x3': () => <rect x="3" y="5" width="18" height="14" rx="2" stroke="white" stroke-width="1.66" />,
   '5x4': () => <rect x="3" y="4.5" width="18" height="15" rx="2" stroke="white" stroke-width="1.66" />,
   '7x5': () => <rect x="3" y="4" width="18" height="16" rx="2" stroke="white" stroke-width="1.66" />,
-  '16x9': () => <rect x="2.5" y="6.5" width="19" height="11" rx="2" stroke="white" stroke-width="1.66" />
+  '16x9': () => <rect x="2.5" y="6.5" width="19" height="11" rx="2" stroke="white" stroke-width="1.66" />,
 };
 
 const ratioIcon = (ratio: keyof typeof ratioRects, rotated?: boolean) => (
   <svg
-    classList={{'media-editor__crop-item-icon--rotated': rotated}}
+    classList={{ 'media-editor__crop-item-icon--rotated': rotated }}
     width="24"
     height="24"
     viewBox="0 0 24 24"
@@ -47,7 +47,7 @@ function Item(
 }
 
 export default function CropTab() {
-  const {editorState, mediaState, actions, isEditingForAvatar} = useMediaEditorContext()!;
+  const { editorState, mediaState, actions, isEditingForAvatar } = useMediaEditorContext()!;
 
   const isActive = (what?: string) => editorState.fixedImageRatioKey === what;
 

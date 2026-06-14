@@ -51,7 +51,7 @@ export default class LiveWaveform {
     this.inactiveColorVar = opts.inactiveColorVar || '--secondary-color';
 
     this.cssHeight = opts.height ?? 36;
-    if(opts.width) this.cssWidth = opts.width;
+    if (opts.width) this.cssWidth = opts.width;
 
     this.resizeObserver = new ResizeObserver(() => {
       this.measureAndResize();
@@ -63,9 +63,9 @@ export default class LiveWaveform {
   }
 
   private onClick = (e: MouseEvent) => {
-    if(!this.seekable || !this.onSeek) return;
+    if (!this.seekable || !this.onSeek) return;
     const rect = this.element.getBoundingClientRect();
-    if(rect.width <= 0) return;
+    if (rect.width <= 0) return;
     const x = e.clientX - rect.left;
     const progress = Math.max(0, Math.min(1, x / rect.width));
     this.onSeek(progress);
@@ -78,7 +78,7 @@ export default class LiveWaveform {
 
   private measureAndResize() {
     const rect = this.element.getBoundingClientRect();
-    if(rect.width <= 0) return;
+    if (rect.width <= 0) return;
 
     this.cssWidth = rect.width;
     this.cssHeight = rect.height;
@@ -88,17 +88,17 @@ export default class LiveWaveform {
     this.capacity = Math.max(1, Math.floor((this.cssWidth + BAR_GAP) / (BAR_WIDTH + BAR_GAP)));
 
     // Trim oldest peaks if window shrinks below current buffer.
-    if(this.peaks.length > this.capacity) {
+    if (this.peaks.length > this.capacity) {
       this.peaks.splice(0, this.peaks.length - this.capacity);
     }
   }
 
   public pushPeak(value: number) {
-    if(value > this.maxPeak) this.maxPeak = value;
+    if (value > this.maxPeak) this.maxPeak = value;
     const denom = Math.max(this.maxPeak, 0.02);
     const normalized = Math.min(1, value / denom);
     this.peaks.push(normalized);
-    if(this.peaks.length > this.capacity) {
+    if (this.peaks.length > this.capacity) {
       this.peaks.splice(0, this.peaks.length - this.capacity);
     }
     this.scheduleDraw();
@@ -108,25 +108,25 @@ export default class LiveWaveform {
   // recorded audio for the pause/playback view).
   public setPeaks(peaks: ArrayLike<number>) {
     const fitted: number[] = [];
-    if(this.capacity <= 0) this.measureAndResize();
+    if (this.capacity <= 0) this.measureAndResize();
     const cap = this.capacity || 1;
-    if(peaks.length <= cap) {
-      for(let i = 0; i < peaks.length; ++i) fitted.push(peaks[i]);
+    if (peaks.length <= cap) {
+      for (let i = 0; i < peaks.length; ++i) fitted.push(peaks[i]);
     } else {
       const ratio = peaks.length / cap;
-      for(let i = 0; i < cap; ++i) {
+      for (let i = 0; i < cap; ++i) {
         const start = Math.floor(i * ratio);
         const end = Math.floor((i + 1) * ratio);
         let peak = 0;
-        for(let j = start; j < end && j < peaks.length; ++j) {
-          if(peaks[j] > peak) peak = peaks[j];
+        for (let j = start; j < end && j < peaks.length; ++j) {
+          if (peaks[j] > peak) peak = peaks[j];
         }
         fitted.push(peak);
       }
     }
     let max = 0.001;
-    for(let i = 0; i < fitted.length; ++i) if(fitted[i] > max) max = fitted[i];
-    for(let i = 0; i < fitted.length; ++i) fitted[i] = Math.min(1, fitted[i] / max);
+    for (let i = 0; i < fitted.length; ++i) if (fitted[i] > max) max = fitted[i];
+    for (let i = 0; i < fitted.length; ++i) fitted[i] = Math.min(1, fitted[i] / max);
 
     this.peaks = fitted;
     this.scheduleDraw();
@@ -145,7 +145,7 @@ export default class LiveWaveform {
   }
 
   private scheduleDraw() {
-    if(this.rafScheduled) return;
+    if (this.rafScheduled) return;
     this.rafScheduled = true;
     requestAnimationFrame(() => {
       this.rafScheduled = false;
@@ -154,15 +154,15 @@ export default class LiveWaveform {
   }
 
   private draw() {
-    if(!this.cssWidth) this.measureAndResize();
+    if (!this.cssWidth) this.measureAndResize();
     const w = this.cssWidth;
     const h = this.cssHeight;
-    if(!w || !h) return;
+    if (!w || !h) return;
     const ctx = this.ctx;
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
 
-    if(!this.peaks.length) return;
+    if (!this.peaks.length) return;
 
     const stride = BAR_WIDTH + BAR_GAP;
     const totalWidth = this.peaks.length * stride - BAR_GAP;
@@ -183,16 +183,16 @@ export default class LiveWaveform {
       startX + Math.max(0, Math.min(1, this.progress!)) * totalWidth :
       Infinity;
 
-    for(let i = 0; i < this.peaks.length; ++i) {
+    for (let i = 0; i < this.peaks.length; ++i) {
       const x = startX + i * stride;
-      if(x + BAR_WIDTH < 0) continue;
+      if (x + BAR_WIDTH < 0) continue;
       const peak = this.peaks[i];
       const barH = Math.max(MIN_BAR_HEIGHT, Math.min(h, peak * h));
       const y = midY - barH / 2;
 
       ctx.globalAlpha = !hasProgress || x + BAR_WIDTH / 2 <= progressPx ? 1 : 0.3;
 
-      if((ctx as any).roundRect) {
+      if ((ctx as any).roundRect) {
         ctx.beginPath();
         (ctx as any).roundRect(x, y, BAR_WIDTH, barH, BAR_RADIUS);
         ctx.fill();

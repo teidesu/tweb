@@ -1,8 +1,8 @@
-import type {MyDocument} from '@appManagers/appDocsManager';
-import type {MyPhoto} from '@appManagers/appPhotosManager';
-import type {PhotoSize, VideoSize, WebDocument} from '@layer';
+import type { MyDocument } from '@appManagers/appDocsManager';
+import type { MyPhoto } from '@appManagers/appPhotosManager';
+import type { PhotoSize, VideoSize, WebDocument } from '@layer';
 import calcImageInBox from '@helpers/calcImageInBox';
-import {THUMB_TYPE_FULL} from '@appManagers/constants';
+import { THUMB_TYPE_FULL } from '@appManagers/constants';
 
 export default function choosePhotoSize(
   photo: MyPhoto | MyDocument | WebDocument,
@@ -11,7 +11,7 @@ export default function choosePhotoSize(
   useBytes = false,
   pushDocumentSize = false
 ) {
-  if(window.devicePixelRatio > 1) {
+  if (window.devicePixelRatio > 1) {
     boxWidth *= 2;
     boxHeight *= 2;
   }
@@ -28,31 +28,31 @@ export default function choosePhotoSize(
   d crop  1280x1280 */
 
   let sizes: PhotoSize[] = (photo as MyPhoto).sizes || (photo as MyDocument).thumbs as PhotoSize[];
-  let bestPhotoSize: typeof sizes[0] = {_: 'photoSizeEmpty', type: THUMB_TYPE_FULL};
-  if(pushDocumentSize && sizes && photo._ !== 'photo') {
+  let bestPhotoSize: typeof sizes[0] = { _: 'photoSizeEmpty', type: THUMB_TYPE_FULL };
+  if (pushDocumentSize && sizes && photo._ !== 'photo') {
     sizes = sizes.concat({
       _: 'photoSize',
       w: photo.w!,
       h: photo.h!,
       size: photo.size!,
-      type: THUMB_TYPE_FULL
+      type: THUMB_TYPE_FULL,
     });
   }
 
-  if(sizes?.length) {
-    for(let i = 0, length = sizes.length; i < length; ++i) {
+  if (sizes?.length) {
+    for (let i = 0, length = sizes.length; i < length; ++i) {
       const photoSize = sizes[i];
-      if(!('w' in photoSize) && !('h' in photoSize)) continue;
+      if (!('w' in photoSize) && !('h' in photoSize)) continue;
 
       bestPhotoSize = photoSize;
 
       const size = calcImageInBox(photoSize.w!, photoSize.h!, boxWidth, boxHeight);
-      if(size.width >= boxWidth || size.height >= boxHeight) {
+      if (size.width >= boxWidth || size.height >= boxHeight) {
         break;
       }
     }
 
-    if(useBytes && bestPhotoSize._ === 'photoSizeEmpty' && sizes[0]._ === 'photoStrippedSize') {
+    if (useBytes && bestPhotoSize._ === 'photoSizeEmpty' && sizes[0]._ === 'photoStrippedSize') {
       bestPhotoSize = sizes[0];
     }
   }

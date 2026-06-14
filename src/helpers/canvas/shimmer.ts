@@ -28,16 +28,16 @@ export default class Shimmer {
 
   private cycleAnimation() {
     ++this.currentAnimationIndex;
-    if(this.currentAnimationIndex >= this.animations.length) {
+    if (this.currentAnimationIndex >= this.animations.length) {
       this.currentAnimationIndex = 0;
     }
   }
 
   private animate() {
     const currentAnimation = this.animations[this.currentAnimationIndex];
-    if(currentAnimation === 'glow') {
+    if (currentAnimation === 'glow') {
       return this.animateGlow(); // return glow style
-    } else if(currentAnimation === 'slide') {
+    } else if (currentAnimation === 'slide') {
       return this.animateSlide(); // return slide gradient
     } else {
       console.log('unknown animation type: ' + String(currentAnimation));
@@ -55,15 +55,15 @@ export default class Shimmer {
 
     return () => {
       var smartInc = increment * (this.diffTime / (1000 / 60));
-      if(this.paused) {
-        if((Date.now() - this.pausedTime) > interval) {
+      if (this.paused) {
+        if ((Date.now() - this.pausedTime) > interval) {
           r = rgbStart;
           this.cycleAnimation()
           this.paused = false;
         }
       } else {
         r = parseInt('' + (r + smartInc));
-        if(r >= glowEnd) {
+        if (r >= glowEnd) {
           this.paused = true;
           this.pausedTime = Date.now()
         }
@@ -78,8 +78,8 @@ export default class Shimmer {
       lightLeft,
       lightRight,
       lightCenter;
-    if(this.paused) {
-      if((Date.now() - this.pausedTime) > this.pauseInterval) {
+    if (this.paused) {
+      if ((Date.now() - this.pausedTime) > this.pauseInterval) {
         this.lightSource = -0.6;
         this.cycleAnimation()
         this.paused = false;
@@ -87,7 +87,7 @@ export default class Shimmer {
       }
     } else {
       this.lightSource += smartInc;
-      if(this.lightSource > (1 + this.lightSpread)) {
+      if (this.lightSource > (1 + this.lightSpread)) {
         this.paused = true;
         this.pausedTime = Date.now();
       }
@@ -128,25 +128,25 @@ export default class Shimmer {
   }
 
   public on() {
-    const {width, height} = this.canvas;
+    const { width, height } = this.canvas;
     // record the time we ran:
     this.keepTime();
     // clear and fill the canvas:
     this.ctx.clearRect(0, 0, width, height);
 
-    if(this.font) {
+    if (this.font) {
       this.ctx.font = this.font;
     }
 
     this.ctx.fillStyle = this.animate() as any;
     this.ctx.fillRect(0, 0, width, height);
 
-    if(this.fillStyle) {
+    if (this.fillStyle) {
       this.ctx.fillStyle = this.fillStyle;
       this.ctx.fillRect(0, 0, width, height);
     }
 
-    if(this.text) {
+    if (this.text) {
       this.ctx.fillText(this.text, 50, 50);
     }
   }

@@ -1,5 +1,5 @@
-import {resolveFirst} from '@solid-primitives/refs';
-import {createEffect, JSX, onCleanup} from 'solid-js';
+import { resolveFirst } from '@solid-primitives/refs';
+import { createEffect, JSX, onCleanup } from 'solid-js';
 import ripple from '@components/ripple';
 
 export interface RippleProps {
@@ -9,7 +9,7 @@ export interface RippleProps {
 export const Ripple = (props: RippleProps) => {
   const element = resolveFirst(() => props.children);
   createEffect(() => {
-    const {dispose, element: rippleElement} = ripple(element() as HTMLElement)!;
+    const { dispose, element: rippleElement } = ripple(element() as HTMLElement)!;
     onCleanup(() => {
       dispose();
       rippleElement.remove();

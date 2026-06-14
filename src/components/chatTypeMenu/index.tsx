@@ -1,12 +1,12 @@
-import {createEffect, createMemo, createRenderEffect, onCleanup} from 'solid-js';
-import type {RequestHistoryOptions} from '@appManagers/appMessagesManager';
-import {i18n, LangPackKey} from '@lib/langPack';
-import defineSolidElement, {PassedProps} from '@lib/solidjs/defineSolidElement';
-import {ButtonMenuItemOptions} from '@components/buttonMenu';
+import { createEffect, createMemo, createRenderEffect, onCleanup } from 'solid-js';
+import type { RequestHistoryOptions } from '@appManagers/appMessagesManager';
+import { i18n, LangPackKey } from '@lib/langPack';
+import defineSolidElement, { PassedProps } from '@lib/solidjs/defineSolidElement';
+import { ButtonMenuItemOptions } from '@components/buttonMenu';
 import ButtonMenuToggle from '@components/buttonMenuToggle';
 import styles from '@components/chatTypeMenu/styles.module.scss';
 
-if(import.meta.hot) import.meta.hot.accept();
+if (import.meta.hot) import.meta.hot.accept();
 
 
 type ChatType = RequestHistoryOptions['chatType'];
@@ -21,7 +21,7 @@ const langKeyMap: Record<NonNullable<ChatType>, LangPackKey> = {
   'all': 'AllChats',
   'users': 'UsersOnly',
   'groups': 'GroupsOnly',
-  'channels': 'ChannelsOnly'
+  'channels': 'ChannelsOnly',
 };
 
 const keys: ChatType[] = ['all', 'users', 'groups', 'channels'];
@@ -38,12 +38,12 @@ const ChatTypeMenu = defineSolidElement({
       onClick: () => {
         props.selected = key;
         props.onChange?.(key);
-      }
+      },
     }));
 
     createEffect(() => {
-      const option = options.find(({id}) => id === selected());
-      if(!option) return;
+      const option = options.find(({ id }) => id === selected());
+      if (!option) return;
 
       option.icon = 'check';
       onCleanup(() => {
@@ -54,7 +54,7 @@ const ChatTypeMenu = defineSolidElement({
     const span = <span
       class={`primary checkable-button-menu ${styles.ButtonMenu}`}
       classList={{
-        [styles.hidden]: !!props.hidden
+        [styles.hidden]: !!props.hidden,
       }}
     >{i18n(langKeyMap[selected()])}</span> as HTMLSpanElement;
 
@@ -64,11 +64,11 @@ const ChatTypeMenu = defineSolidElement({
       direction: 'bottom-left',
       onOpen: (_, element) => {
         element.style.bottom = 'unset';
-      }
+      },
     });
 
     return <>{buttonMenu}</>;
-  }
+  },
 });
 
 export default ChatTypeMenu;

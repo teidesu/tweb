@@ -1,7 +1,7 @@
-import {createEffect, createSignal, onCleanup, onMount, Show} from 'solid-js';
-import PopupElement, {createPopup} from '@components/popups/indexTsx';
-import {RadioFormFromValues} from '@components/row';
-import {i18n, LangPackKey} from '@lib/langPack';
+import { createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js';
+import PopupElement, { createPopup } from '@components/popups/indexTsx';
+import { RadioFormFromValues } from '@components/row';
+import { i18n, LangPackKey } from '@lib/langPack';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
 
 import '@components/rtmp/outputDevicePopup.scss';
@@ -48,7 +48,7 @@ export default function showOutputDevicePopup(options: OutputDevicePopupOptions)
         // Default in the UI and notify the caller so it can clear the
         // stored id — otherwise the radio list shows nothing selected and
         // the next call attempt would still try the dead id.
-        if(
+        if (
           !prunedStaleId &&
           chosenDeviceId &&
           !filtered.some((d) => d.deviceId === chosenDeviceId)
@@ -70,7 +70,7 @@ export default function showOutputDevicePopup(options: OutputDevicePopupOptions)
 
     const renderForm = () => {
       const list = devices();
-      if(!list) return;
+      if (!list) return;
 
       // Drop placeholder entries Chrome returns before media permission is
       // granted — they share an empty/`'default'` deviceId with our own
@@ -83,13 +83,13 @@ export default function showOutputDevicePopup(options: OutputDevicePopupOptions)
           value: '',
           // @ts-ignore — RadioField's `checked` typing is overly strict; the
           // value is honoured by setValueSilently regardless.
-          checked: !chosenDeviceId
+          checked: !chosenDeviceId,
         },
         ...filtered.map((device) => ({
           textElement: wrapEmojiText(device.label || device.deviceId),
           value: device.deviceId,
-          checked: device.deviceId === chosenDeviceId
-        }))
+          checked: device.deviceId === chosenDeviceId,
+        })),
       ];
 
       return RadioFormFromValues(values, (id) => {
@@ -99,7 +99,7 @@ export default function showOutputDevicePopup(options: OutputDevicePopupOptions)
 
     const [show, setShow] = createSignal(false);
     createEffect(() => {
-      if(devices()) {
+      if (devices()) {
         setShow(true);
       }
     });

@@ -5,10 +5,10 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import {MessageEntity} from '@layer';
+import { MessageEntity } from '@layer';
 import matchUrlProtocol from '@lib/richTextProcessor/matchUrlProtocol';
-import {BOM_REG_EXP} from '@helpers/string/bom';
-import {ENTITY_ELEMENT_MAP} from '@lib/richTextProcessor/wrapRichText';
+import { BOM_REG_EXP } from '@helpers/string/bom';
+import { ENTITY_ELEMENT_MAP } from '@lib/richTextProcessor/wrapRichText';
 
 export type MarkdownType = 'bold' | 'italic' | 'underline' | 'strikethrough' |
   'monospace' | 'link' | 'mentionName' | 'spoiler' | 'quote' | 'date'/*  | 'customEmoji' */;
@@ -44,19 +44,19 @@ export const markdownTags: {[type in MarkdownType]: MarkdownTag} = {
       'h5',
       'h6'
     ),
-    entityName: 'messageEntityBold'
+    entityName: 'messageEntityBold',
   },
   underline: {
     match: join('[style*="underline"]', 'u', 'ins'),
-    entityName: 'messageEntityUnderline'
+    entityName: 'messageEntityUnderline',
   },
   italic: {
     match: join('[style*="italic"]', 'i', 'em'),
-    entityName: 'messageEntityItalic'
+    entityName: 'messageEntityItalic',
   },
   monospace: {
     match: join('[style*="monospace"]', '[face*="monospace"]', 'pre'),
-    entityName: 'messageEntityCode'
+    entityName: 'messageEntityCode',
   },
   strikethrough: {
     match: join(
@@ -66,28 +66,28 @@ export const markdownTags: {[type in MarkdownType]: MarkdownTag} = {
       'del',
       's'
     ),
-    entityName: 'messageEntityStrike'
+    entityName: 'messageEntityStrike',
   },
   link: {
     match: 'A:not(.follow)',
-    entityName: 'messageEntityTextUrl'
+    entityName: 'messageEntityTextUrl',
   },
   mentionName: {
     match: 'A.follow',
-    entityName: 'messageEntityMentionName'
+    entityName: 'messageEntityMentionName',
   },
   spoiler: {
     match: '[style*="spoiler"]',
-    entityName: 'messageEntitySpoiler'
+    entityName: 'messageEntitySpoiler',
   },
   quote: {
     match: join('[style*="quote"]', '.quote'),
-    entityName: 'messageEntityBlockquote'
+    entityName: 'messageEntityBlockquote',
   },
   date: {
     match: join('[style*="date"]', '.formatted-date'),
-    entityName: 'messageEntityFormattedDate'
-  }
+    entityName: 'messageEntityFormattedDate',
+  },
   // customEmoji: {
   //   match: '.custom-emoji',
   //   entityName: 'messageEntityCustomEmoji'
@@ -125,7 +125,7 @@ const BLOCK_TAGS = new Set([
   'TR',
   'OL',
   'UL',
-  'BLOCKQUOTE'
+  'BLOCKQUOTE',
 ]);
 
 // const INSERT_NEW_LINE_TAGS = new Set([
@@ -143,11 +143,11 @@ export function getFormattedDateEntityByElement(
   const dateStr = element.dataset.date;
   const date = dateStr ? +dateStr : undefined;
   return {
-    ...(({_: 'messageEntityFormattedDate', pFlags: {}, date: 0}) as Partial<MessageEntity.messageEntityFormattedDate>),
+    ...(({ _: 'messageEntityFormattedDate', pFlags: {}, date: 0 }) as Partial<MessageEntity.messageEntityFormattedDate>),
     ...((ENTITY_ELEMENT_MAP.get(element) as MessageEntity.messageEntityFormattedDate) || {}),
-    ...(date ? {date} : {}),
+    ...(date ? { date } : {}),
     offset,
-    length
+    length,
   } as MessageEntity.messageEntityFormattedDate;
 }
 
@@ -165,10 +165,10 @@ function checkElementForEntity(
   currentEntities: {[_ in MessageEntity['_']]?: MessageEntity}
 ) {
   // let closestTag: MarkdownTag, closestElementByTag: Element, closestDepth = Infinity;
-  for(const type in markdownTags) {
+  for (const type in markdownTags) {
     const tag = markdownTags[type as MarkdownType];
     const closest: HTMLElement = element.closest(tag.match + ', [contenteditable="true"]')!;
-    if(closest?.getAttribute('contenteditable') !== null) {
+    if (closest?.getAttribute('contenteditable') !== null) {
       /* const depth = getDepth(closest, parentElement.closest('[contenteditable]'));
       if(closestDepth > depth) {
         closestDepth = depth;
@@ -179,31 +179,31 @@ function checkElementForEntity(
     }
 
     let codeElement: HTMLElement;
-    if(tag.entityName === 'messageEntityCode' && (codeElement = element.closest('[data-language]')!)) {
+    if (tag.entityName === 'messageEntityCode' && (codeElement = element.closest('[data-language]')!)) {
       (currentEntities[tag.entityName] ||= pushEntity(entities, {
         _: 'messageEntityPre',
         language: codeElement.dataset.language || '',
         offset: offset.offset,
-        length: 0
+        length: 0,
       })).length! += value.length;
-    } else if(tag.entityName === 'messageEntityTextUrl') {
-      if(!value) {
+    } else if (tag.entityName === 'messageEntityTextUrl') {
+      if (!value) {
         continue;
       }
 
       let entity = currentEntities[tag.entityName];
-      if(!entity) {
+      if (!entity) {
         let good = false;
         try {
           const url1 = new URL((closest as HTMLAnchorElement).href);
           const url1String = url1.toString();
           const isRealUrl = url1.protocol === 'http:' || url1.protocol === 'https:';
-          if(!isRealUrl) {
+          if (!isRealUrl) {
             throw 1;
           }
 
           let url2Before = value;
-          if(!matchUrlProtocol(url2Before)) {
+          if (!matchUrlProtocol(url2Before)) {
             url2Before = 'https://' + url2Before;
           }
 
@@ -212,47 +212,47 @@ function checkElementForEntity(
           try {
             url2 = new URL(url2Before);
             url2String = url2.toString();
-          } catch(err) {}
+          } catch (err) {}
 
           const isSameUrl = url1String === url2String!;
           good = !isSameUrl;
-        } catch(err) {}
+        } catch (err) {}
 
         good && (entity = currentEntities[tag.entityName] = pushEntity(entities, {
           _: tag.entityName,
           url: (closest as HTMLAnchorElement).href,
           offset: offset.offset,
-          length: 0
+          length: 0,
         }));
       }
 
-      if(entity) {
+      if (entity) {
         entity.length! += value.length;
       }
-    } else if(tag.entityName === 'messageEntityMentionName') {
+    } else if (tag.entityName === 'messageEntityMentionName') {
       (currentEntities[tag.entityName] ||= pushEntity(entities, {
         _: tag.entityName,
         offset: offset.offset,
         length: 0,
-        user_id: (closest).dataset.follow!.toUserId()
+        user_id: (closest).dataset.follow!.toUserId(),
       })).length! += value.length;
-    } else if(tag.entityName === 'messageEntityBlockquote') {
+    } else if (tag.entityName === 'messageEntityBlockquote') {
       (currentEntities[tag.entityName] ||= pushEntity(entities, {
         _: tag.entityName,
         pFlags: {
-          collapsed: /* closest.classList.contains('can-send-collapsed') &&  */!!closest.dataset.collapsed || undefined
+          collapsed: /* closest.classList.contains('can-send-collapsed') &&  */!!closest.dataset.collapsed || undefined,
         },
         offset: offset.offset,
-        length: 0
+        length: 0,
       })).length! += value.length;
-    } else if(tag.entityName === 'messageEntityFormattedDate') {
-      if(!value) {
+    } else if (tag.entityName === 'messageEntityFormattedDate') {
+      if (!value) {
         continue;
       }
 
       const entity = getFormattedDateEntityByElement(closest, offset.offset, value.length);
-      const {originalText, fakeText} = closest.dataset;
-      if(originalText) { // * fix the text
+      const { originalText, fakeText } = closest.dataset;
+      if (originalText) { // * fix the text
         entity.length = originalText.length + value.length - fakeText!.length; // * can have \x02 (quoting), calculating the difference
         offset.offset += originalText.length - fakeText!.length;
         line[line.length - 1] = line[line.length - 1].replace(fakeText!, originalText);
@@ -267,7 +267,7 @@ function checkElementForEntity(
       });
     } */ else {
       // * ignore local visible entities
-      if(!(
+      if (!(
         tag.entityName === 'messageEntityUnderline' &&
         closest.classList.contains('anchor-url') &&
         closest === element
@@ -275,7 +275,7 @@ function checkElementForEntity(
         (currentEntities[tag.entityName] ||= pushEntity(entities, {
           _: tag.entityName,
           offset: offset.offset,
-          length: 0
+          length: 0,
         })).length! += value.length;
       }
     }
@@ -283,12 +283,12 @@ function checkElementForEntity(
 }
 
 function isLineEmpty(line: string[]) {
-  const {length} = line;
-  if(!length) {
+  const { length } = line;
+  if (!length) {
     return true;
   }
 
-  if(line[length - 1] === SELECTION_SEPARATOR && length === SELECTION_SEPARATOR.length) {
+  if (line[length - 1] === SELECTION_SEPARATOR && length === SELECTION_SEPARATOR.length) {
     return true;
   }
 
@@ -302,10 +302,10 @@ export default function getRichElementValue(
   selNode?: Node,
   selOffset?: number,
   entities?: MessageEntity[],
-  offset: {offset: number} = {offset: 0},
+  offset: {offset: number} = { offset: 0 },
   currentEntities: {[_ in MessageEntity['_']]?: MessageEntity} = {}
 ) {
-  if(node.nodeType === node.TEXT_NODE) { // TEXT
+  if (node.nodeType === node.TEXT_NODE) { // TEXT
     let nodeValue = node.nodeValue;
     // if(nodeValue[0] === BOM) {
     nodeValue = nodeValue!.replace(BOM_REG_EXP, '');
@@ -318,17 +318,17 @@ export default function getRichElementValue(
       // ++offset.offset;
     } */
 
-    if(nodeValue) {
-      if(selNode === node) {
+    if (nodeValue) {
+      if (selNode === node) {
         line.push(nodeValue.substr(0, selOffset) + SELECTION_SEPARATOR + nodeValue.substr(selOffset!));
       } else {
         line.push(nodeValue);
       }
-    } else if(selNode === node) {
+    } else if (selNode === node) {
       line.push(SELECTION_SEPARATOR);
     }
 
-    if(entities && nodeValue.length && node.parentElement) {
+    if (entities && nodeValue.length && node.parentElement) {
       checkElementForEntity(node.parentElement, nodeValue, entities, offset, line, currentEntities);
     }
 
@@ -336,7 +336,7 @@ export default function getRichElementValue(
     return;
   }
 
-  if(node.nodeType !== node.ELEMENT_NODE) { // NON-ELEMENT
+  if (node.nodeType !== node.ELEMENT_NODE) { // NON-ELEMENT
     return;
   }
 
@@ -349,32 +349,32 @@ export default function getRichElementValue(
   const isSelected = selNode === node;
   const isQuote = /* node.matches(markdownTags.quote.match) &&  */node.matches('.quote'); // * can have inner formatted quotes, check by class
   const isBlock = BLOCK_TAGS.has(node.tagName) || isQuote;
-  if(isBlock && ((line.length && line[line.length - 1].slice(-1) !== '\n') || node.tagName === 'BR'/*  || (BLOCK_TAGS.has(node.tagName) && lines.length) */)) {
+  if (isBlock && ((line.length && line[line.length - 1].slice(-1) !== '\n') || node.tagName === 'BR'/*  || (BLOCK_TAGS.has(node.tagName) && lines.length) */)) {
     pushLine();
   } else {
     const alt = node.dataset.stickerEmoji || (node as HTMLImageElement).alt;
     const stickerEmoji = node.dataset.stickerEmoji;
 
-    if(alt && entities) {
+    if (alt && entities) {
       checkElementForEntity(node, alt, entities, offset, line, currentEntities);
     }
 
-    if(stickerEmoji && entities) {
+    if (stickerEmoji && entities) {
       entities.push({
         _: 'messageEntityCustomEmoji',
         document_id: node.dataset.docId!,
         offset: offset.offset,
-        length: alt.length
+        length: alt.length,
       });
     }
 
-    if(alt) {
+    if (alt) {
       line.push(alt);
       offset.offset += alt.length;
     }
   }
 
-  if(isSelected && !selOffset) {
+  if (isSelected && !selOffset) {
     line.push(SELECTION_SEPARATOR);
   }
 
@@ -384,12 +384,12 @@ export default function getRichElementValue(
   let wasNodeEmpty = true;
 
   // * prefill currentEntities for current element
-  if(node.getAttribute('contenteditable') === null && entities) {
+  if (node.getAttribute('contenteditable') === null && entities) {
     checkElementForEntity(node, '', entities, offset, line, currentEntities);
   }
 
   let curChild = node.firstChild as HTMLElement;
-  while(curChild) {
+  while (curChild) {
     getRichElementValue(
       curChild,
       lines,
@@ -398,49 +398,49 @@ export default function getRichElementValue(
       selOffset,
       entities,
       offset,
-      curChild.nodeType === curChild.TEXT_NODE ? currentEntities : {...currentEntities}
+      curChild.nodeType === curChild.TEXT_NODE ? currentEntities : { ...currentEntities }
     );
     curChild = curChild.nextSibling as HTMLElement;
 
-    if(!isLineEmpty(line)) {
+    if (!isLineEmpty(line)) {
       wasNodeEmpty = false;
     }
   }
 
-  if(isQuote) {
+  if (isQuote) {
     const lastValue = line[line.length - 1];
-    if(lastValue?.endsWith('\n')) { // slice last linebreak from quote
+    if (lastValue?.endsWith('\n')) { // slice last linebreak from quote
       line[line.length - 1] = lastValue.slice(0, -1);
       offset.offset -= 1;
     }
   }
 
   // can test on text with list (https://www.who.int/initiatives/sports-and-health)
-  if(wasNodeEmpty && node.textContent?.replace(/[\r\n]/g, '')) {
+  if (wasNodeEmpty && node.textContent?.replace(/[\r\n]/g, '')) {
     wasNodeEmpty = false;
   }
 
-  if(isSelected && selOffset) {
+  if (isSelected && selOffset) {
     line.push(SELECTION_SEPARATOR);
   }
 
-  if(isTableCell && node.nextSibling && !isLineEmpty(line)) {
+  if (isTableCell && node.nextSibling && !isLineEmpty(line)) {
     line.push(' ');
     ++offset.offset;
 
     // * combine entities such as url after adding space
-    if(wasEntitiesLength !== undefined) {
-      for(let i = wasEntitiesLength, length = entities!.length; i < length; ++i) {
+    if (wasEntitiesLength !== undefined) {
+      for (let i = wasEntitiesLength, length = entities!.length; i < length; ++i) {
         ++entities![i].length!;
       }
     }
   }
 
-  if(isBlock && !wasNodeEmpty) {
+  if (isBlock && !wasNodeEmpty) {
     pushLine();
   }
 
-  if(!wasNodeEmpty && node.tagName === 'P' && node.nextSibling) {
+  if (!wasNodeEmpty && node.tagName === 'P' && node.nextSibling) {
     lines.push('');
     ++offset.offset;
   }

@@ -1,21 +1,21 @@
-import {Accessor, batch, createEffect, createMemo, For, on, onCleanup, onMount, ParentProps, Show} from 'solid-js';
-import {createMutable, modifyMutable, produce} from 'solid-js/store';
-import {Portal} from 'solid-js/web';
+import { Accessor, batch, createEffect, createMemo, For, on, onCleanup, onMount, ParentProps, Show } from 'solid-js';
+import { createMutable, modifyMutable, produce } from 'solid-js/store';
+import { Portal } from 'solid-js/web';
 
 import createContextMenu from '@helpers/dom/createContextMenu';
 
-import {observeResize} from '@components/resizeObserver';
-import SwipeHandler, {getEvent} from '@components/swipeHandler';
+import { observeResize } from '@components/resizeObserver';
+import SwipeHandler, { getEvent } from '@components/swipeHandler';
 
-import {HistoryItem, useMediaEditorContext} from '@components/mediaEditor/context';
-import {NumberPair, ResizableLayer, ResizableLayerProps} from '@components/mediaEditor/types';
+import { HistoryItem, useMediaEditorContext } from '@components/mediaEditor/context';
+import { NumberPair, ResizableLayer, ResizableLayerProps } from '@components/mediaEditor/types';
 import useIsMobile from '@components/mediaEditor/useIsMobile';
 
 import StickerLayerContent from '@components/mediaEditor/canvas/stickerLayerContent';
 import TextLayerContent from '@components/mediaEditor/canvas/textLayerContent';
 import useNormalizePoint from '@components/mediaEditor/canvas/useNormalizePoint';
 import useProcessPoint from '@components/mediaEditor/canvas/useProcessPoint';
-import {withCurrentOwner} from '@helpers/solid/withCurrentOwner';
+import { withCurrentOwner } from '@helpers/solid/withCurrentOwner';
 
 
 type ProcessedLayer = {
@@ -26,7 +26,7 @@ type ProcessedLayer = {
 
 export default function ResizableLayers() {
   const context = useMediaEditorContext();
-  const {editorState, mediaState, actions} = context!;
+  const { editorState, mediaState, actions } = context!;
   const isTextTab = () => editorState.currentTab === 'text';
   const canClick = () => ['stickers', 'text', 'adjustments'].includes(editorState.currentTab);
 
@@ -34,7 +34,7 @@ export default function ResizableLayers() {
   function moveSelectedLayerOnTop() {
     const layers = mediaState.resizableLayers;
     const idx = layers.findIndex(layer => layer.id === editorState.selectedResizableLayer);
-    if(idx < 0) return;
+    if (idx < 0) return;
     const layer = layers.splice(idx, 1)[0];
     layer && layers.push(layer);
   }
@@ -57,13 +57,13 @@ export default function ResizableLayers() {
   const normalizePoint = useNormalizePoint();
 
   function addLayer(e: MouseEvent) {
-    if(e.target !== container!) return;
-    if(editorState.selectedResizableLayer) {
+    if (e.target !== container!) return;
+    if (editorState.selectedResizableLayer) {
       editorState.selectedResizableLayer = undefined;
       return;
     }
 
-    if(!isTextTab()) return;
+    if (!isTextTab()) return;
 
     const bcr = container.getBoundingClientRect();
     const transform = editorState.finalTransform;
@@ -74,7 +74,7 @@ export default function ResizableLayers() {
       rotation: -transform.rotation,
       scale: 1 / transform.scale,
       type: 'text',
-      textInfo: {...editorState.currentTextLayerInfo}
+      textInfo: { ...editorState.currentTextLayerInfo },
     } as ResizableLayer;
 
     batch(() => {
@@ -86,8 +86,8 @@ export default function ResizableLayers() {
         newValue: newResizableLayer,
         oldValue: HistoryItem.RemoveArrayItem,
         findBy: {
-          id: newResizableLayer.id
-        }
+          id: newResizableLayer.id,
+        },
       });
     });
   }
@@ -96,10 +96,10 @@ export default function ResizableLayers() {
     <div
       class="media-editor__resizable-layers"
       classList={{
-        'media-editor__resizable-layers--active': canClick()
+        'media-editor__resizable-layers--active': canClick(),
       }}
       style={{
-        cursor: !editorState.selectedResizableLayer && isTextTab() ? 'text' : undefined
+        cursor: !editorState.selectedResizableLayer && isTextTab() ? 'text' : undefined,
       }}
     >
       <div
@@ -107,7 +107,7 @@ export default function ResizableLayers() {
         class="media-editor__resizable-layers-inner"
         onClick={withCurrentOwner(addLayer)}
         style={{
-          'opacity': editorState.isAdjusting ? 0 : 1
+          'opacity': editorState.isAdjusting ? 0 : 1,
         }}
       >
         <For each={mediaState.resizableLayers}>
@@ -128,7 +128,7 @@ export default function ResizableLayers() {
 }
 
 export function ResizableContainer(props: ParentProps<ResizableLayerProps>) {
-  const {editorState, mediaState} = useMediaEditorContext()!;
+  const { editorState, mediaState } = useMediaEditorContext()!;
 
   const isMobile = useIsMobile();
   const processPoint = useProcessPoint(false);
@@ -143,7 +143,7 @@ export function ResizableContainer(props: ParentProps<ResizableLayerProps>) {
     leftTopEl: handleTyping(),
     rightTopEl: handleTyping(),
     leftBottomEl: handleTyping(),
-    rightBottomEl: handleTyping()
+    rightBottomEl: handleTyping(),
   });
 
   const circleOffset = () => (isMobile() ? '-6px' : '-4px');
@@ -152,7 +152,7 @@ export function ResizableContainer(props: ParentProps<ResizableLayerProps>) {
   const processedLayer = createMemo(() => ({
     position: processPoint(props.layer.position),
     rotation: props.layer.rotation + mediaState.rotation,
-    scale: editorState.finalTransform.scale * props.layer.scale
+    scale: editorState.finalTransform.scale * props.layer.scale,
   }));
 
 
@@ -168,10 +168,10 @@ export function ResizableContainer(props: ParentProps<ResizableLayerProps>) {
 
       layer: props.layer,
       diff: store.diff,
-      processedLayer
+      processedLayer,
     });
 
-    useContextMenu({container: container!, layer: props.layer});
+    useContextMenu({ container: container!, layer: props.layer });
 
     const unobserve = observeResize(container!, () => {
       store.containerWidth = container!.clientWidth;
@@ -190,7 +190,7 @@ export function ResizableContainer(props: ParentProps<ResizableLayerProps>) {
         'left': processedLayer().position[0] + store.diff[0] + 'px',
         'top': processedLayer().position[1] + store.diff[1] + 'px',
         '--rotation': (processedLayer().rotation / Math.PI) * 180 + 'deg',
-        '--scale': processedLayer().scale
+        '--scale': processedLayer().scale,
       }}
       onClick={() => {
         editorState.selectedResizableLayer = props.layer.id;
@@ -207,44 +207,44 @@ export function ResizableContainer(props: ParentProps<ResizableLayerProps>) {
             'top': processedLayer().position[1] + store.diff[1] + 'px',
             'width': store.containerWidth * processedLayer().scale + 'px',
             'height': store.containerHeight * processedLayer().scale + 'px',
-            '--rotation': (processedLayer().rotation / Math.PI) * 180 + 'deg'
+            '--rotation': (processedLayer().rotation / Math.PI) * 180 + 'deg',
           }}
         >
           <div
             class="media-editor__resizable-container-border media-editor__resizable-container-border--vertical"
-            style={{left: 0}}
+            style={{ left: 0 }}
           />
           <div
             class="media-editor__resizable-container-border media-editor__resizable-container-border--vertical"
-            style={{right: 0}}
+            style={{ right: 0 }}
           />
           <div
             class="media-editor__resizable-container-border media-editor__resizable-container-border--horizontal"
-            style={{top: 0}}
+            style={{ top: 0 }}
           />
           <div
             class="media-editor__resizable-container-border media-editor__resizable-container-border--horizontal"
-            style={{bottom: 0}}
+            style={{ bottom: 0 }}
           />
           <div
             ref={(el) => store.leftTopEl = el}
             class="media-editor__resizable-container-circle"
-            style={{left: circleOffset(), top: circleOffset()}}
+            style={{ left: circleOffset(), top: circleOffset() }}
           />
           <div
             ref={(el) => store.rightTopEl = el}
             class="media-editor__resizable-container-circle"
-            style={{right: circleOffset(), top: circleOffset()}}
+            style={{ right: circleOffset(), top: circleOffset() }}
           />
           <div
             ref={(el) => store.leftBottomEl = el}
             class="media-editor__resizable-container-circle"
-            style={{left: circleOffset(), bottom: circleOffset()}}
+            style={{ left: circleOffset(), bottom: circleOffset() }}
           />
           <div
             ref={(el) => store.rightBottomEl = el}
             class="media-editor__resizable-container-circle"
-            style={{right: circleOffset(), bottom: circleOffset()}}
+            style={{ right: circleOffset(), bottom: circleOffset() }}
           />
         </div>
       </Portal>}
@@ -273,9 +273,9 @@ function useResizeHandles({
   rightBottomEl,
   diff,
   layer,
-  processedLayer
+  processedLayer,
 }: UseResizeArgs) {
-  const {editorState, mediaState} = useMediaEditorContext()!;
+  const { editorState, mediaState } = useMediaEditorContext()!;
 
   const normalizePoint = useNormalizePoint();
 
@@ -284,16 +284,16 @@ function useResizeHandles({
   let swipeStarted = false;
 
   const multipliers = [
-    {el: leftTopEl, x: -1, y: -1},
-    {el: rightTopEl, x: 1, y: -1},
-    {el: leftBottomEl, x: -1, y: 1},
-    {el: rightBottomEl, x: 1, y: 1}
+    { el: leftTopEl, x: -1, y: -1 },
+    { el: rightTopEl, x: 1, y: -1 },
+    { el: leftBottomEl, x: -1, y: 1 },
+    { el: rightBottomEl, x: 1, y: 1 },
   ];
 
-  multipliers.forEach(({el, x, y}) => {
+  multipliers.forEach(({ el, x, y }) => {
     createEffect(() => {
       const element = el();
-      if(!element) return;
+      if (!element) return;
 
       const swipeHandler = new SwipeHandler({
         element,
@@ -303,12 +303,12 @@ function useResizeHandles({
         onSwipe(_, __, _e) {
           const e = getEvent(_e);
 
-          if(!firstTarget) firstTarget = e.target;
-          if(firstTarget !== element) return;
+          if (!firstTarget) firstTarget = e.target;
+          if (firstTarget !== element) return;
 
           const initialVector = [
             (container.clientWidth / 2) * x * editorState.finalTransform.scale,
-            (container.clientHeight / 2) * y * editorState.finalTransform.scale
+            (container.clientHeight / 2) * y * editorState.finalTransform.scale,
           ];
           const bcr = container.getBoundingClientRect();
           const resizedVector = [bcr.left + bcr.width / 2 - e.clientX, bcr.top + bcr.height / 2 - e.clientY];
@@ -325,7 +325,7 @@ function useResizeHandles({
         onReset() {
           element.classList.remove('media-editor__resizable-container-circle--anti-flicker');
           firstTarget = undefined;
-        }
+        },
       });
       onCleanup(() => {
         swipeHandler.removeListeners();
@@ -337,10 +337,10 @@ function useResizeHandles({
   const moveHandler = new SwipeHandler({
     element: container,
     onSwipe(xDiff, yDiff, e) {
-      if(!firstTarget) firstTarget = e.target;
-      if(multipliers.find(({el}) => el() === firstTarget)) return;
+      if (!firstTarget) firstTarget = e.target;
+      if (multipliers.find(({ el }) => el() === firstTarget)) return;
 
-      if(!swipeStarted) {
+      if (!swipeStarted) {
         // onStart messes up the typing
         swipeStarted = true;
         editorState.selectedResizableLayer = layer.id;
@@ -353,7 +353,7 @@ function useResizeHandles({
       diff.splice(0, 2, 0, 0);
       swipeStarted = false;
       firstTarget = undefined;
-    }
+    },
   });
 
   onCleanup(() => {
@@ -367,13 +367,13 @@ type UseContextMenuArgs = {
   layer: ResizableLayer;
 }
 
-function useContextMenu({container, layer}: UseContextMenuArgs) {
-  const {editorState, mediaState, actions} = useMediaEditorContext()!;
+function useContextMenu({ container, layer }: UseContextMenuArgs) {
+  const { editorState, mediaState, actions } = useMediaEditorContext()!;
 
   function onClick() {
     const layers = mediaState.resizableLayers;
     const idx = layers.findIndex(otherLayer => otherLayer.id === layer.id);
-    if(idx < 0) return;
+    if (idx < 0) return;
 
     batch(() => {
       editorState.selectedResizableLayer = undefined;
@@ -384,8 +384,8 @@ function useContextMenu({container, layer}: UseContextMenuArgs) {
         newValue: HistoryItem.RemoveArrayItem,
         oldValue: deletedLayer,
         findBy: {
-          id: deletedLayer.id
-        }
+          id: deletedLayer.id,
+        },
       });
     });
   }
@@ -396,13 +396,13 @@ function useContextMenu({container, layer}: UseContextMenuArgs) {
         icon: 'delete',
         className: 'danger',
         text: 'Delete',
-        onClick
-      }
+        onClick,
+      },
     ],
     listenTo: container,
     onElementReady: (element) => {
       element.classList.add('night');
-    }
+    },
   });
 
   onCleanup(() => {

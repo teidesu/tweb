@@ -23,14 +23,14 @@ function isEmojiSupported(emoji: string) {
   return Math.abs(newEmojiWidth - legacyEmojiWidth) < ALLOWABLE_CALCULATION_ERROR_SIZE;
 }
 
-if(IS_EMOJI_SUPPORTED) {
+if (IS_EMOJI_SUPPORTED) {
   EMOJI_VERSIONS_SUPPORTED[''] = true;
 
   const a: {[version in Exclude<EMOJI_VERSION, ''>]: string} = {
     '14': '🫱🏻',
     '15': '🫨',
     '15.1': '🙂‍↔️',
-    '16': '🫩'
+    '16': '🫩',
   };
 
   Object.entries(a).forEach(([version, emoji]) => {

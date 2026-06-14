@@ -1,7 +1,7 @@
-import {createResource, onCleanup, Ref} from 'solid-js';
+import { createResource, onCleanup, Ref } from 'solid-js';
 import PeerTitle from '@components/peerTitle';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
-import {attachClassName} from '@helpers/solid/classname';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
+import { attachClassName } from '@helpers/solid/classname';
 import createListenerSetter from '../helpers/solid/createListenerSetter';
 
 export const PeerTitleTsx = (props: {
@@ -30,10 +30,10 @@ export const PeerTitleTsx = (props: {
         onlyFirstName: props.onlyFirstName,
         username: props.username,
         limitSymbols: props.limitSymbols,
-        withIcons: props.withIcons
+        withIcons: props.withIcons,
       });
-      if(props.onClick) {
-        attachClickEvent(peerTitle.element, props.onClick, {listenerSetter});
+      if (props.onClick) {
+        attachClickEvent(peerTitle.element, props.onClick, { listenerSetter });
       }
       return true;
     }

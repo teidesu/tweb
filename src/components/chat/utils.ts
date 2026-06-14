@@ -1,11 +1,11 @@
-import {AdminLog} from '@appManagers/appChatsManager';
-import {MyMessage} from '@appManagers/appMessagesManager';
-import {VERIFICATION_CODES_BOT_ID} from '@appManagers/constants';
+import { AdminLog } from '@appManagers/appChatsManager';
+import { MyMessage } from '@appManagers/appMessagesManager';
+import { VERIFICATION_CODES_BOT_ID } from '@appManagers/constants';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
-import {wrapSlowModeLeftDuration} from '@components/wrappers/wrapDuration';
-import {formatFullSentTimeRaw, formatTime} from '@helpers/date';
+import { wrapSlowModeLeftDuration } from '@components/wrappers/wrapDuration';
+import { formatFullSentTimeRaw, formatTime } from '@helpers/date';
 import eachSecond from '@helpers/eachSecond';
-import {Document, Message} from '@layer';
+import { Document, Message } from '@layer';
 
 
 export function isMessageForVerificationBot(message: MyMessage) {
@@ -18,7 +18,7 @@ export function isVerificationBot(peerId: PeerId) {
 }
 
 export function getMid(message: MyMessage | AdminLog) {
-  if(message._ === 'channelAdminLogEvent') return +message.id;
+  if (message._ === 'channelAdminLogEvent') return +message.id;
   return message.mid;
 }
 
@@ -27,11 +27,11 @@ export function isMessage(message: Message | AdminLog) {
 }
 
 export function makeTime(date: Date, includeDate?: boolean) {
-  return includeDate ? formatFullSentTimeRaw(date.getTime() / 1000 | 0, {combined: true}).dateEl : formatTime(date);
+  return includeDate ? formatFullSentTimeRaw(date.getTime() / 1000 | 0, { combined: true }).dateEl : formatTime(date);
 };
 
 export function generateTail(asSpan?: boolean) {
-  if(asSpan) {
+  if (asSpan) {
     const span = document.createElement('span');
     span.classList.add('bubble-tail');
     return span;
@@ -53,14 +53,14 @@ export function generateTail(asSpan?: boolean) {
 }
 
 export function linkColor(el: string | Node) {
-  if(typeof el === 'string') {
+  if (typeof el === 'string') {
     const span = document.createElement('span');
     span.textContent = el;
     span.classList.add('link-color');
     return span;
   }
 
-  if(el instanceof HTMLElement) el.classList.add('link-color');
+  if (el instanceof HTMLElement) el.classList.add('link-color');
 
   return el;
 }
@@ -76,11 +76,11 @@ type CanUploadAsWhenEditingArgs = {
 const allowedDocumentTypesAsGroup: Array<Document.document['type']> = ['audio', 'photo', 'pdf'];
 const documentAsMediaTypes: Array<Document.document['type']> = ['gif', 'video'];
 
-export const canUploadAsWhenEditing = ({asWhat, message}: CanUploadAsWhenEditingArgs) => {
-  if(!message || !message.media) return true;
+export const canUploadAsWhenEditing = ({ asWhat, message }: CanUploadAsWhenEditingArgs) => {
+  if (!message || !message.media) return true;
 
   const isGrouped = !!message.grouped_id;
-  if(!isGrouped) return true;
+  if (!isGrouped) return true;
 
   const currentMediaType = getMediaTypeForMessage(message);
 
@@ -88,17 +88,17 @@ export const canUploadAsWhenEditing = ({asWhat, message}: CanUploadAsWhenEditing
 };
 
 export const getMediaTypeForMessage = (message: Message.message | null | undefined): AttachedMediaType | null => {
-  if(!message || !message.media) return null;
+  if (!message || !message.media) return null;
 
-  if(message.media._ === 'messageMediaDocument') {
-    if(message.media.document?._ !== 'document') return null;
-    if(documentAsMediaTypes.includes(message.media.document.type)) return 'media';
-    if(message.media.document.type && !allowedDocumentTypesAsGroup.includes(message.media.document.type)) return null;
+  if (message.media._ === 'messageMediaDocument') {
+    if (message.media.document?._ !== 'document') return null;
+    if (documentAsMediaTypes.includes(message.media.document.type)) return 'media';
+    if (message.media.document.type && !allowedDocumentTypesAsGroup.includes(message.media.document.type)) return null;
 
     return 'document';
   }
 
-  if(message.media._ === 'messageMediaPhoto') {
+  if (message.media._ === 'messageMediaPhoto') {
     return 'media';
   }
 
@@ -111,9 +111,9 @@ export function slowModeTimer(getLeftDuration: () => number) {
     const leftDuration = getLeftDuration();
     s.replaceChildren(wrapSlowModeLeftDuration(leftDuration));
 
-    if(!leftDuration) {
+    if (!leftDuration) {
       close();
     }
   }, true);
-  return {element: s, dispose};
+  return { element: s, dispose };
 }

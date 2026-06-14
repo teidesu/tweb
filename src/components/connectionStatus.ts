@@ -1,12 +1,12 @@
 import App from '@config/app';
 import DEBUG from '@config/debug';
-import {LangPackKey, i18n} from '@lib/langPack';
-import {logger} from '@lib/logger';
+import { LangPackKey, i18n } from '@lib/langPack';
+import { logger } from '@lib/logger';
 import rootScope from '@lib/rootScope';
-import {ConnectionStatus} from '@lib/mtproto/connectionStatus';
+import { ConnectionStatus } from '@lib/mtproto/connectionStatus';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
-import {AppManagers} from '@lib/managers';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
+import { AppManagers } from '@lib/managers';
 import singleInstance from '@lib/singleInstance';
 import InputSearch from '@components/inputSearch';
 
@@ -68,7 +68,7 @@ export default class ConnectionStatusComponent {
       ConnectionStatusComponent.INITIAL_DELAY
     );
 
-    if(TEST_DBLCLICK) {
+    if (TEST_DBLCLICK) {
       let bool = true;
       document.addEventListener('dblclick', () => {
         this.setConnectionStatus(bool ? (
@@ -87,13 +87,13 @@ export default class ConnectionStatusComponent {
   private setConnectionStatus = (overrideStatus?: ConnectionStatus) => {
     Promise.all([
       rootScope.managers.apiManager.getBaseDcId(),
-      rootScope.managers.rootScope.getConnectionStatus()
+      rootScope.managers.rootScope.getConnectionStatus(),
     ]).then(([baseDcId, connectionStatus]) => {
-      if(!baseDcId) {
+      if (!baseDcId) {
         baseDcId = App.baseDcId;
       }
 
-      if(this.setFirstConnectionTimeout) {
+      if (this.setFirstConnectionTimeout) {
         clearTimeout(this.setFirstConnectionTimeout);
         this.setFirstConnectionTimeout = 0;
       }
@@ -101,11 +101,11 @@ export default class ConnectionStatusComponent {
       const status = connectionStatus['NET-' + baseDcId];
       const online = status && (overrideStatus ?? status.status) === ConnectionStatus.Connected;
 
-      if(this.connecting && online) {
+      if (this.connecting && online) {
         this.managers.apiUpdatesManager.forceGetDifference();
       }
 
-      if(online && !this.hadConnect) {
+      if (online && !this.hadConnect) {
         this.hadConnect = true;
       }
 
@@ -136,31 +136,31 @@ export default class ConnectionStatusComponent {
   }
 
   private setState = () => {
-    if(singleInstance.deactivatedReason) {
+    if (singleInstance.deactivatedReason) {
       return;
     }
 
     let setText: () => void;
-    if(this.connecting) {
-      if(this.timedOut) {
+    if (this.connecting) {
+      if (this.timedOut) {
         // const a = this.getA('ConnectionStatus.ForceReconnect', () => this.managers.networkerFactory.forceReconnect());
         // setText = this.wrapSetStatusText('ConnectionStatus.TimedOut', [a]);
         setText = this.wrapSetStatusText('Updating');
-      } else if(this.hadConnect) {
-        if(this.retryAt !== undefined) {
+      } else if (this.hadConnect) {
+        if (this.retryAt !== undefined) {
           const timerSpan = document.createElement('span');
           const retryAt = this.retryAt;
           const setTime = () => {
             const now = Date.now();
             timerSpan.innerText = '' + Math.max(0, Math.round((retryAt - now) / 1000));
-            if(now > retryAt) {
+            if (now > retryAt) {
               clearInterval(interval);
             }
           };
           const interval = setInterval(setTime, 1e3);
           setTime();
 
-          if(HAVE_RECONNECT_BUTTON) {
+          if (HAVE_RECONNECT_BUTTON) {
             const a = this.getA('ConnectionStatus.Reconnect', () => this.managers.networkerFactory.forceReconnectTimeout());
             setText = this.wrapSetStatusText('ConnectionStatus.ReconnectIn', [timerSpan, a]);
           } else {
@@ -172,21 +172,21 @@ export default class ConnectionStatusComponent {
       } else {
         setText = this.wrapSetStatusText('ConnectionStatus.Waiting');
       }
-    } else if(this.updating) {
+    } else if (this.updating) {
       setText = this.wrapSetStatusText('Updating');
     } else {
       setText = this.wrapSetStatusText('Search');
     }
 
     DEBUG && this.log('setState', this.connecting || this.updating);
-    if(this.rAF) window.cancelAnimationFrame(this.rAF);
+    if (this.rAF) window.cancelAnimationFrame(this.rAF);
     this.rAF = window.requestAnimationFrame(() => {
       this.rAF = 0;
-      if(this.setStateTimeout) clearTimeout(this.setStateTimeout);
+      if (this.setStateTimeout) clearTimeout(this.setStateTimeout);
 
       const wasVisible = this.inputSearch.isLoading();
       const cb = () => {
-        if(NO_STATUS) {
+        if (NO_STATUS) {
           return;
         }
 
@@ -197,7 +197,7 @@ export default class ConnectionStatusComponent {
         DEBUG && this.log('setState: isShown:', isConnecting);
       };
 
-      if(wasVisible) {
+      if (wasVisible) {
         cb();
       } else {
         this.setStateTimeout = window.setTimeout(cb, ConnectionStatusComponent.CHANGE_STATE_DELAY);

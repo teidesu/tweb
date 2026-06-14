@@ -17,10 +17,10 @@ export default class WheelClassifier {
     this.events.push({
       t: now,
       d: Math.abs(e.deltaY),
-      raw: e
+      raw: e,
     });
 
-    if(this.events.length > this.maxSamples) {
+    if (this.events.length > this.maxSamples) {
       this.events.shift();
     }
 
@@ -28,7 +28,7 @@ export default class WheelClassifier {
   }
 
   private classify(): WheelKind {
-    if(this.events.length < 4) {
+    if (this.events.length < 4) {
       return this.lastType;
     }
 
@@ -36,7 +36,7 @@ export default class WheelClassifier {
 
     // интервалы
     const intervals: number[] = [];
-    for(let i = 1; i < ev.length; i++) {
+    for (let i = 1; i < ev.length; i++) {
       intervals.push(ev[i].t - ev[i - 1].t);
     }
 
@@ -44,8 +44,8 @@ export default class WheelClassifier {
 
     // затухание дельты
     let decayCount = 0;
-    for(let i = 1; i < ev.length; i++) {
-      if(ev[i].d < ev[i - 1].d) decayCount++;
+    for (let i = 1; i < ev.length; i++) {
+      if (ev[i].d < ev[i - 1].d) decayCount++;
     }
 
     const decayRatio = decayCount / (ev.length - 1);
@@ -64,8 +64,8 @@ export default class WheelClassifier {
       deltaAvg > 25 &&
       decayRatio < 0.4;
 
-    if(looksLikeInertia) this.lastType = 'inertia';
-    else if(looksLikeInput) this.lastType = 'input';
+    if (looksLikeInertia) this.lastType = 'inertia';
+    else if (looksLikeInput) this.lastType = 'input';
 
     return this.lastType;
   }

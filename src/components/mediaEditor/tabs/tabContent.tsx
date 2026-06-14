@@ -1,12 +1,12 @@
-import {Accessor, createContext, createEffect, createSignal, JSX, onCleanup, onMount} from 'solid-js';
+import { Accessor, createContext, createEffect, createSignal, JSX, onCleanup, onMount } from 'solid-js';
 
-import {doubleRaf} from '@helpers/schedulers';
+import { doubleRaf } from '@helpers/schedulers';
 import Scrollable from '@components/scrollable';
 
-import {useMediaEditorContext} from '@components/mediaEditor/context';
-import {delay} from '@components/mediaEditor/utils';
+import { useMediaEditorContext } from '@components/mediaEditor/context';
+import { delay } from '@components/mediaEditor/utils';
 
-import {mediaEditorTabsOrder} from '@components/mediaEditor/tabs/tabs';
+import { mediaEditorTabsOrder } from '@components/mediaEditor/tabs/tabs';
 
 type TabContentContextValue = {
   container: Accessor<HTMLDivElement>;
@@ -19,7 +19,7 @@ export default function TabContent(props: {
   onContainer: (el: HTMLDivElement) => void;
   onScroll: () => void;
 }) {
-  const {editorState} = useMediaEditorContext()!;
+  const { editorState } = useMediaEditorContext()!;
 
   const [container, setContainer] = createSignal<HTMLDivElement>();
   const [scrollAmount, setScrollAmount] = createSignal(0);
@@ -28,7 +28,7 @@ export default function TabContent(props: {
   let scrollable: Scrollable;
 
   createEffect(async() => {
-    if(prevTab === editorState.currentTab) return;
+    if (prevTab === editorState.currentTab) return;
 
     const toRight = mediaEditorTabsOrder.indexOf(editorState.currentTab) > mediaEditorTabsOrder.indexOf(prevTab);
     prevTab = editorState.currentTab;
@@ -37,7 +37,7 @@ export default function TabContent(props: {
     const newElement = (
       <div>
         <div class="media-editor__tab-content-scrollable-content">
-          <TabContentContext.Provider value={{container: (container as Accessor<HTMLDivElement>), scrollAmount}}>
+          <TabContentContext.Provider value={{ container: (container as Accessor<HTMLDivElement>), scrollAmount }}>
             {props.tabs[editorState.currentTab]()}
           </TabContentContext.Provider>
         </div>
@@ -50,7 +50,7 @@ export default function TabContent(props: {
 
     cls(prevElement, 'add', 'exit');
 
-    if(toRight) {
+    if (toRight) {
       cls(newElement, 'add', 'go-right');
       container()!.append(newElement);
       await doubleRaf();
@@ -100,7 +100,7 @@ export default function TabContent(props: {
     >
       <div ref={prevElement!}>
         <div class="media-editor__tab-content-scrollable-content">
-          <TabContentContext.Provider value={{container: (container as Accessor<HTMLDivElement>), scrollAmount}}>{initialTab}</TabContentContext.Provider>
+          <TabContentContext.Provider value={{ container: (container as Accessor<HTMLDivElement>), scrollAmount }}>{initialTab}</TabContentContext.Provider>
         </div>
       </div>
     </div>

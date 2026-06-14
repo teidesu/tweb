@@ -48,8 +48,8 @@ export function appendAudioTrailer(plain: Uint8Array): Uint8Array {
  * Use AFTER the e2e decrypt step on inbound audio frames.
  */
 export function stripAudioTrailer(decrypted: Uint8Array): Uint8Array {
-  if(decrypted.length < 1) return decrypted;
-  if(decrypted.length >= 2 && (decrypted[decrypted.length - 2] & 0x01) !== 0) {
+  if (decrypted.length < 1) return decrypted;
+  if (decrypted.length >= 2 && (decrypted[decrypted.length - 2] & 0x01) !== 0) {
     return decrypted.subarray(0, decrypted.length - 2);
   }
   return decrypted.subarray(0, decrypted.length - 1);

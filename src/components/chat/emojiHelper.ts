@@ -1,13 +1,13 @@
 import type ChatInput from '@components/chat/input';
 import type StickersHelper from '@components/chat/stickersHelper';
-import {appendEmoji as wrapAppEmoji, getEmojiFromElement} from '@components/emoticonsDropdown/tabs/emoji';
-import {ScrollableX} from '@components/scrollable';
+import { appendEmoji as wrapAppEmoji, getEmojiFromElement } from '@components/emoticonsDropdown/tabs/emoji';
+import { ScrollableX } from '@components/scrollable';
 import AutocompleteHelper from '@components/chat/autocompleteHelper';
 import AutocompleteHelperController from '@components/chat/autocompleteHelperController';
-import {AppManagers} from '@lib/managers';
-import {CustomEmojiRendererElement} from '@lib/customEmoji/renderer';
+import { AppManagers } from '@lib/managers';
+import { CustomEmojiRendererElement } from '@lib/customEmoji/renderer';
 import mediaSizes from '@helpers/mediaSizes';
-import {getMiddleware, Middleware} from '@helpers/middleware';
+import { getMiddleware, Middleware } from '@helpers/middleware';
 import CustomEmojiElement from '@lib/customEmoji/element';
 import attachStickerViewerListeners from '@components/stickerViewer';
 import ListenerSetter from '@helpers/listenerSetter';
@@ -33,7 +33,7 @@ export default class EmojiHelper extends AutocompleteHelper {
       onSelect: (target) => {
         chatInput.onEmojiSelected(getEmojiFromElement(target as any), true, this.emoticon);
       },
-      getNavigationList: () => this.innerList as HTMLElement
+      getNavigationList: () => this.innerList as HTMLElement,
     });
 
     this.container.classList.add('emoji-helper');
@@ -60,7 +60,7 @@ export default class EmojiHelper extends AutocompleteHelper {
     const inner = this.innerList = document.createElement('span');
     container.append(inner);
 
-    if(!rootScope.premium) {
+    if (!rootScope.premium) {
       emojis = emojis.filter((emoji) => this.chatInput.emoticonsDropdown.canUseEmoji(emoji, false));
     }
 
@@ -68,7 +68,7 @@ export default class EmojiHelper extends AutocompleteHelper {
       const wrapped = wrapAppEmoji(emoji, true);
       inner.append(wrapped);
 
-      if(emoji.docId) {
+      if (emoji.docId) {
         const customEmojiElement = wrapped.firstElementChild as CustomEmojiElement;
         // customEmojiElement.clear(false);
         // const customEmojiElement = CustomEmojiElement.create(document.id);
@@ -76,7 +76,7 @@ export default class EmojiHelper extends AutocompleteHelper {
       }
     });
 
-    if(customEmojis.size) {
+    if (customEmojis.size) {
       const _middleware = getMiddleware();
       middleware.create().get().onClean(() => {
         setTimeout(() => _middleware.destroy(), 500); // * fix video flick
@@ -87,27 +87,27 @@ export default class EmojiHelper extends AutocompleteHelper {
         customEmojiSize: mediaSizes.active.esgCustomEmoji,
         textColor: 'primary-text-color',
         observeResizeElement: false,
-        middleware: _middleware.get()
+        middleware: _middleware.get(),
       });
 
       container.prepend(customEmojiRenderer);
 
       customEmojiRenderer.setDimensionsFromRect({
         width: (emojis.length * 42) + 8,
-        height: 42
+        height: 42,
       });
 
       const listenerSetter = new ListenerSetter();
       middleware.onClean(() => {
         listenerSetter.removeAll();
-        if(this.innerList === inner) {
+        if (this.innerList === inner) {
           this.innerList = undefined;
         }
       });
-      attachStickerViewerListeners({listenTo: this.container, listenerSetter});
+      attachStickerViewerListeners({ listenTo: this.container, listenerSetter });
 
       await customEmojiRenderer.add({
-        addCustomEmojis: customEmojis
+        addCustomEmojis: customEmojis,
       });
     }
 
@@ -115,8 +115,8 @@ export default class EmojiHelper extends AutocompleteHelper {
   }
 
   public async render(emojis: AppEmoji[], waitForKey: boolean, middleware: Middleware) {
-    if(this.init) {
-      if(!emojis.length) {
+    if (this.init) {
+      if (!emojis.length) {
         return;
       }
 
@@ -124,7 +124,7 @@ export default class EmojiHelper extends AutocompleteHelper {
       this.init = null as unknown as () => void;
     }
 
-    if(!emojis.length) {
+    if (!emojis.length) {
       this.toggle(true);
       return;
     }
@@ -132,7 +132,7 @@ export default class EmojiHelper extends AutocompleteHelper {
     emojis = emojis.slice(0, 80);
 
     const container = await this.renderEmojis(emojis, middleware);
-    if(!middleware()) {
+    if (!middleware()) {
       return;
     }
 
@@ -152,8 +152,8 @@ export default class EmojiHelper extends AutocompleteHelper {
     const middleware = this.getMiddleware();
     this.emoticon = undefined;
     const q = query.replace(/^:/, '');
-    this.managers.appEmojiManager.prepareAndSearchEmojis({q, addCustom: true}).then(async(emojis) => {
-      if(!middleware()) {
+    this.managers.appEmojiManager.prepareAndSearchEmojis({ q, addCustom: true }).then(async(emojis) => {
+      if (!middleware()) {
         return;
       }
 
@@ -167,12 +167,12 @@ export default class EmojiHelper extends AutocompleteHelper {
   // * stickers underneath the strip are reachable
   public attachStickersHelper(stickersHelper: StickersHelper) {
     this.stickersHelper = stickersHelper;
-    stickersHelper.container.addEventListener('scroll', this.onStickersScroll, {passive: true, capture: true});
+    stickersHelper.container.addEventListener('scroll', this.onStickersScroll, { passive: true, capture: true });
   }
 
   private onStickersScroll = () => {
     // * fromController=true so the cascade in toggle() doesn't also hide the stickers panel
-    if(!this.hidden) {
+    if (!this.hidden) {
       this.toggle(true, true);
     }
   };
@@ -182,14 +182,14 @@ export default class EmojiHelper extends AutocompleteHelper {
     const middleware = this.getMiddleware();
     this.emoticon = emoticon;
     this.managers.appEmojiManager.searchCustomEmoji(emoticon).then((emojiList) => {
-      if(!middleware()) {
+      if (!middleware()) {
         return;
       }
 
-      let emojis: AppEmoji[] = emojiList.document_id.map((docId) => ({docId, emoji: ''}));
+      let emojis: AppEmoji[] = emojiList.document_id.map((docId) => ({ docId, emoji: '' }));
       // * the result is custom emoji only — drop the ones a non-premium user can't use here,
       // * otherwise render() would show an empty strip instead of hiding it
-      if(!rootScope.premium) {
+      if (!rootScope.premium) {
         emojis = emojis.filter((emoji) => this.chatInput.emoticonsDropdown.canUseEmoji(emoji, false));
       }
 

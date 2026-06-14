@@ -37,7 +37,7 @@ Number.prototype.isPeerId = function(): this is number {
 
 [
   ['isUser' as const, isUser],
-  ['isAnyChat' as const, isAnyChat]
+  ['isAnyChat' as const, isAnyChat],
 ].forEach((value) => {
   const newMethod = Array.isArray(value) ? value[0] : value;
   const originMethod = Array.isArray(value) ? value[1] : value;

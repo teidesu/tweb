@@ -1,5 +1,5 @@
-import {readFileSync} from 'fs';
-import {createTestClient, AccountSeed} from './harness';
+import { readFileSync } from 'fs';
+import { createTestClient, AccountSeed } from './harness';
 import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
 
 const ENABLED = process.env.TG_API_TEST === '1';
@@ -13,19 +13,19 @@ describeOrSkip('unread counter races', () => {
     'channels.readHistory',
     'messages.readHistory',
     'messages.readSavedHistory',
-    'messages.readDiscussion'
+    'messages.readDiscussion',
   ]);
   let pendingServerReads: Array<() => void> = [];
 
   beforeAll(async() => {
     const seed = JSON.parse(readFileSync(seedPath!, 'utf8')) as AccountSeed;
-    client = await createTestClient({seed, testDc: false});
+    client = await createTestClient({ seed, testDc: false });
 
     realInvoke = client.apiManager.invokeApi.bind(client.apiManager);
     (client.apiManager as any).invokeApi = (method: string, params: any, opts: any) => {
-      if(stubbedReadMethods.has(method)) {
+      if (stubbedReadMethods.has(method)) {
         return new Promise<any>((resolve) => {
-          pendingServerReads.push(() => resolve({_: 'messages.affectedMessages', pts: 0, pts_count: 0}));
+          pendingServerReads.push(() => resolve({ _: 'messages.affectedMessages', pts: 0, pts_count: 0 }));
         });
       }
       return realInvoke(method as any, params, opts);
@@ -47,8 +47,8 @@ describeOrSkip('unread counter races', () => {
       title,
       date: 0,
       version: 0,
-      photo: {_: 'chatPhotoEmpty'},
-      pFlags: opts.forum ? {megagroup: true, forum: true} : {broadcast: true}
+      photo: { _: 'chatPhotoEmpty' },
+      pFlags: opts.forum ? { megagroup: true, forum: true } : { broadcast: true },
     }]);
     return id;
   }
@@ -65,7 +65,7 @@ describeOrSkip('unread counter races', () => {
     const apiUpdates: any = client.managers.apiUpdatesManager;
     apiUpdates.channelStates ??= {};
     apiUpdates.channelStates[channelId] ??= {
-      pts: 1, pendingPtsUpdates: [], syncPending: null, syncLoading: null
+      pts: 1, pendingPtsUpdates: [], syncPending: null, syncLoading: null,
     };
 
     const topicId = idsManager.generateMessageId(topicServerId, channelId);
@@ -79,8 +79,8 @@ describeOrSkip('unread counter races', () => {
       title: 'Topic ' + topicServerId,
       date: 0,
       icon_color: 0,
-      from_id: {_: 'peerUser', user_id: 1},
-      notify_settings: {_: 'peerNotifySettings'},
+      from_id: { _: 'peerUser', user_id: 1 },
+      notify_settings: { _: 'peerNotifySettings' },
       top_message: topMid,
       read_inbox_max_id: readInboxMid,
       read_outbox_max_id: topMid,
@@ -89,7 +89,7 @@ describeOrSkip('unread counter races', () => {
       unread_reactions_count: 0,
       pts: 1,
       folder_id: 0,
-      pFlags: {}
+      pFlags: {},
     };
     const cache = dialogsStorage.getForumTopicsCache(peerId);
     cache.topics.set(topicId, topic);
@@ -102,7 +102,7 @@ describeOrSkip('unread counter races', () => {
     historyStorage.readMaxId = readInboxMid;
 
     const mids: number[] = [];
-    for(let serverId = opts.readInboxServerMid + 1; serverId <= opts.topServerMid; serverId++) {
+    for (let serverId = opts.readInboxServerMid + 1; serverId <= opts.topServerMid; serverId++) {
       const mid = idsManager.generateMessageId(serverId, channelId);
       mids.push(mid);
       messagesStorage.set(mid, {
@@ -110,22 +110,22 @@ describeOrSkip('unread counter races', () => {
         mid,
         id: serverId,
         peerId,
-        peer_id: {_: 'peerChannel', channel_id: channelId},
+        peer_id: { _: 'peerChannel', channel_id: channelId },
         date: 0,
         message: 'mention ' + serverId,
-        pFlags: {unread: true, media_unread: true, mentioned: true},
+        pFlags: { unread: true, media_unread: true, mentioned: true },
         reply_to: {
           _: 'messageReplyHeader',
           reply_to_msg_id: topicId,
           reply_to_top_id: topicId,
-          pFlags: {forum_topic: true}
-        }
+          pFlags: { forum_topic: true },
+        },
       });
     }
     historyStorage.history.first.length = 0;
     historyStorage.history.first.push(...mids.slice().reverse());
 
-    return {topic, topicId, historyStorage};
+    return { topic, topicId, historyStorage };
   }
 
   function injectDialog(peerId: number, channelId: number, opts: {
@@ -142,7 +142,7 @@ describeOrSkip('unread counter races', () => {
       pts: 1,
       pendingPtsUpdates: [],
       syncPending: null,
-      syncLoading: null
+      syncLoading: null,
     };
 
     const topMid = idsManager.generateMessageId(opts.topServerMid, channelId);
@@ -150,7 +150,7 @@ describeOrSkip('unread counter races', () => {
 
     const dialog: any = {
       _: 'dialog',
-      peer: {_: 'peerChannel', channel_id: channelId},
+      peer: { _: 'peerChannel', channel_id: channelId },
       peerId,
       top_message: topMid,
       read_inbox_max_id: readInboxMid,
@@ -158,11 +158,11 @@ describeOrSkip('unread counter races', () => {
       unread_count: opts.unreadCount,
       unread_mentions_count: 0,
       unread_reactions_count: 0,
-      notify_settings: {_: 'peerNotifySettings'},
+      notify_settings: { _: 'peerNotifySettings' },
       pts: 0,
       index_0: 0,
       folder_id: 0,
-      pFlags: {}
+      pFlags: {},
     };
     dialogsStorage.dialogs[peerId] = dialog;
 
@@ -175,7 +175,7 @@ describeOrSkip('unread counter races', () => {
     historyStorage.readMaxId = readInboxMid;
 
     const mids: number[] = [];
-    for(let serverId = opts.topServerMid - 30; serverId <= opts.topServerMid; serverId++) {
+    for (let serverId = opts.topServerMid - 30; serverId <= opts.topServerMid; serverId++) {
       const mid = idsManager.generateMessageId(serverId, channelId);
       mids.push(mid);
       messagesStorage.set(mid, {
@@ -183,19 +183,19 @@ describeOrSkip('unread counter races', () => {
         mid,
         id: serverId,
         peerId,
-        peer_id: {_: 'peerChannel', channel_id: channelId},
+        peer_id: { _: 'peerChannel', channel_id: channelId },
         date: 0,
         message: 'm' + serverId,
-        pFlags: serverId > opts.readInboxServerMid ? {unread: true} : {},
+        pFlags: serverId > opts.readInboxServerMid ? { unread: true } : {},
         from_id: undefined,
-        out: false
+        out: false,
       } as any);
     }
     historyStorage.history.first.length = 0;
     historyStorage.history.first.push(...mids.slice().reverse());
     historyStorage.history.first.setEnd?.(0); // SliceEnd.None — keep loose
 
-    return {dialog, historyStorage, topMid, readInboxMid};
+    return { dialog, historyStorage, topMid, readInboxMid };
   }
 
   test('Bug 1 freeze: triedToReadMaxId stays stale during overlapping reads', async() => {
@@ -205,19 +205,19 @@ describeOrSkip('unread counter races', () => {
     const peerId = -channelId;
     makeChannel(channelId, 'Race Test 1');
 
-    const {dialog, historyStorage} = injectDialog(peerId as any, channelId, {
+    const { dialog, historyStorage } = injectDialog(peerId as any, channelId, {
       unreadCount: 6188,
       topServerMid: 10000,
-      readInboxServerMid: 9969 // first 30 in history are all unread
+      readInboxServerMid: 9969, // first 30 in history are all unread
     });
 
     const baseMid = (sid: number) => idsManager.generateMessageId(sid, channelId);
     pendingServerReads = [];
 
     // Fire three reads with progressively higher maxIds, all while server stub blocks
-    const p1 = m.readHistory({peerId, maxId: baseMid(9980), force: true});
-    const p2 = m.readHistory({peerId, maxId: baseMid(9990), force: true});
-    const p3 = m.readHistory({peerId, maxId: baseMid(9995), force: true});
+    const p1 = m.readHistory({ peerId, maxId: baseMid(9980), force: true });
+    const p2 = m.readHistory({ peerId, maxId: baseMid(9990), force: true });
+    const p3 = m.readHistory({ peerId, maxId: baseMid(9995), force: true });
 
     // Right now historyStorage.triedToReadMaxId reflects only the FIRST call's maxId
     const triedAfterRace = historyStorage.triedToReadMaxId;
@@ -256,10 +256,10 @@ describeOrSkip('unread counter races', () => {
     const peerId = -channelId;
     makeChannel(channelId, 'Race Test 2');
 
-    const {dialog, historyStorage} = injectDialog(peerId as any, channelId, {
+    const { dialog, historyStorage } = injectDialog(peerId as any, channelId, {
       unreadCount: 6188,
       topServerMid: 10000,
-      readInboxServerMid: 9969
+      readInboxServerMid: 9969,
     });
 
     const baseMid = (sid: number) => idsManager.generateMessageId(sid, channelId);
@@ -272,8 +272,8 @@ describeOrSkip('unread counter races', () => {
 
     // User scrolls to sid 9990 — should mark 9970..9990 (21 messages) as read
     await Promise.race([
-      m.readHistory({peerId, maxId: baseMid(9990), force: true}),
-      new Promise((r) => setTimeout(r, 100))
+      m.readHistory({ peerId, maxId: baseMid(9990), force: true }),
+      new Promise((r) => setTimeout(r, 100)),
     ]);
 
     pendingServerReads.forEach((r) => r());
@@ -296,10 +296,10 @@ describeOrSkip('unread counter races', () => {
 
     // Dialog already has the new message accounted for (server snapshot)
     const newServerId = 10001;
-    const {dialog} = injectDialog(peerId as any, channelId, {
+    const { dialog } = injectDialog(peerId as any, channelId, {
       unreadCount: 1,                  // server already counted it
       topServerMid: newServerId,       // top_message already includes it
-      readInboxServerMid: 10000        // user has read up to mid 10000
+      readInboxServerMid: 10000,        // user has read up to mid 10000
     });
 
     const newMid = idsManager.generateMessageId(newServerId, channelId);
@@ -312,14 +312,14 @@ describeOrSkip('unread counter races', () => {
       message: {
         _: 'message',
         id: newServerId,
-        peer_id: {_: 'peerChannel', channel_id: channelId},
+        peer_id: { _: 'peerChannel', channel_id: channelId },
         from_id: undefined as any,
         date: Math.floor(Date.now() / 1000),
         message: 'hello',
-        pFlags: {unread: true}
+        pFlags: { unread: true },
       },
       pts: 2,
-      pts_count: 1
+      pts_count: 1,
     };
 
     const before = dialog.unread_count;
@@ -348,10 +348,10 @@ describeOrSkip('unread counter races', () => {
     const peerId = -channelId;
     makeChannel(channelId, 'Race Test 5');
 
-    const {historyStorage} = injectDialog(peerId as any, channelId, {
+    const { historyStorage } = injectDialog(peerId as any, channelId, {
       unreadCount: 10,
       topServerMid: 10000,
-      readInboxServerMid: 9969
+      readInboxServerMid: 9969,
     });
 
     const baseMid = (sid: number) => idsManager.generateMessageId(sid, channelId);
@@ -359,8 +359,8 @@ describeOrSkip('unread counter races', () => {
 
     pendingServerReads = [];
     await Promise.race([
-      m.readHistory({peerId, maxId: baseMid(9979), force: true}),
-      new Promise((r) => setTimeout(r, 100))
+      m.readHistory({ peerId, maxId: baseMid(9979), force: true }),
+      new Promise((r) => setTimeout(r, 100)),
     ]);
     pendingServerReads.forEach((r) => r());
     pendingServerReads = [];
@@ -379,22 +379,22 @@ describeOrSkip('unread counter races', () => {
       _: 'messages.peerDialogs',
       dialogs: [{
         _: 'dialog',
-        peer: {_: 'peerChannel', channel_id: channelId},
+        peer: { _: 'peerChannel', channel_id: channelId },
         top_message: 10000,
         read_inbox_max_id: 9969,   // <-- BEHIND local
         read_outbox_max_id: 10000,
         unread_count: 10,          // <-- ROLLBACK from 0 to 10
         unread_mentions_count: 0,
         unread_reactions_count: 0,
-        notify_settings: {_: 'peerNotifySettings'},
+        notify_settings: { _: 'peerNotifySettings' },
         pts: 1,
         folder_id: 0,
-        pFlags: {}
+        pFlags: {},
       }],
       messages: [],
       chats: [],
       users: [],
-      state: {_: 'updates.state', pts: 1, qts: 0, date: 0, seq: 0, unread_count: 0}
+      state: { _: 'updates.state', pts: 1, qts: 0, date: 0, seq: 0, unread_count: 0 },
     });
 
     const afterReload = currentDialog().unread_count;
@@ -422,10 +422,10 @@ describeOrSkip('unread counter races', () => {
     const peerId = -channelId;
     makeChannel(channelId, 'Race Test 6');
 
-    const {historyStorage} = injectDialog(peerId as any, channelId, {
+    const { historyStorage } = injectDialog(peerId as any, channelId, {
       unreadCount: 10,
       topServerMid: 10000,
-      readInboxServerMid: 9969
+      readInboxServerMid: 9969,
     });
 
     const baseMid = (sid: number) => idsManager.generateMessageId(sid, channelId);
@@ -433,8 +433,8 @@ describeOrSkip('unread counter races', () => {
     pendingServerReads = [];
     // First local read up to mid 9979
     await Promise.race([
-      m.readHistory({peerId, maxId: baseMid(9979), force: true}),
-      new Promise((r) => setTimeout(r, 100))
+      m.readHistory({ peerId, maxId: baseMid(9979), force: true }),
+      new Promise((r) => setTimeout(r, 100)),
     ]);
     pendingServerReads.forEach((r) => r());
     pendingServerReads = [];
@@ -444,22 +444,22 @@ describeOrSkip('unread counter races', () => {
       _: 'messages.peerDialogs',
       dialogs: [{
         _: 'dialog',
-        peer: {_: 'peerChannel', channel_id: channelId},
+        peer: { _: 'peerChannel', channel_id: channelId },
         top_message: 10000,
         read_inbox_max_id: 9969,
         read_outbox_max_id: 10000,
         unread_count: 10,
         unread_mentions_count: 0,
         unread_reactions_count: 0,
-        notify_settings: {_: 'peerNotifySettings'},
+        notify_settings: { _: 'peerNotifySettings' },
         pts: 1,
         folder_id: 0,
-        pFlags: {}
+        pFlags: {},
       }],
       messages: [],
       chats: [],
       users: [],
-      state: {_: 'updates.state', pts: 1, qts: 0, date: 0, seq: 0, unread_count: 0}
+      state: { _: 'updates.state', pts: 1, qts: 0, date: 0, seq: 0, unread_count: 0 },
     });
 
     const currentDialog = () => dialogsStorage.getDialogOnly(peerId);
@@ -467,8 +467,8 @@ describeOrSkip('unread counter races', () => {
 
     pendingServerReads = [];
     await Promise.race([
-      m.readHistory({peerId, maxId: baseMid(9985), force: true}),
-      new Promise((r) => setTimeout(r, 100))
+      m.readHistory({ peerId, maxId: baseMid(9985), force: true }),
+      new Promise((r) => setTimeout(r, 100)),
     ]);
     pendingServerReads.forEach((r) => r());
     pendingServerReads = [];
@@ -498,10 +498,10 @@ describeOrSkip('unread counter races', () => {
     makeChannel(channelId, 'Race Test 4');
 
     // Dialog is fully read; read_inbox_max_id = 10000
-    const {dialog} = injectDialog(peerId as any, channelId, {
+    const { dialog } = injectDialog(peerId as any, channelId, {
       unreadCount: 0,
       topServerMid: 10000,
-      readInboxServerMid: 10000
+      readInboxServerMid: 10000,
     });
 
     // Server resends an "old" message that the user already read on another device
@@ -511,14 +511,14 @@ describeOrSkip('unread counter races', () => {
       message: {
         _: 'message',
         id: oldServerId,
-        peer_id: {_: 'peerChannel', channel_id: channelId},
+        peer_id: { _: 'peerChannel', channel_id: channelId },
         from_id: undefined,
         date: Math.floor(Date.now() / 1000),
         message: 'old echo',
-        pFlags: {unread: true}
+        pFlags: { unread: true },
       },
       pts: 1,
-      pts_count: 1
+      pts_count: 1,
     } as any;
 
     const before = dialog.unread_count;
@@ -541,7 +541,7 @@ describeOrSkip('unread counter races', () => {
       id: userId,
       access_hash: '0',
       first_name: name,
-      pFlags: {bot: true, bot_forum_view: true, bot_forum_can_manage_topics: true}
+      pFlags: { bot: true, bot_forum_view: true, bot_forum_can_manage_topics: true },
     }]);
     return userId;
   }
@@ -558,12 +558,12 @@ describeOrSkip('unread counter races', () => {
     // Inject parent dialog with one unread mention (and one unread message overall)
     const apiUpdates: any = client.managers.apiUpdatesManager;
     apiUpdates.channelStates ??= {};
-    apiUpdates.channelStates[channelId] ??= {pts: 1, pendingPtsUpdates: [], syncPending: null, syncLoading: null};
+    apiUpdates.channelStates[channelId] ??= { pts: 1, pendingPtsUpdates: [], syncPending: null, syncLoading: null };
 
     const topMid = idsManager.generateMessageId(500, channelId);
     const dialog: any = {
       _: 'dialog',
-      peer: {_: 'peerChannel', channel_id: channelId},
+      peer: { _: 'peerChannel', channel_id: channelId },
       peerId,
       top_message: topMid,
       read_inbox_max_id: idsManager.generateMessageId(499, channelId),
@@ -571,11 +571,11 @@ describeOrSkip('unread counter races', () => {
       unread_count: 1,
       unread_mentions_count: 1,
       unread_reactions_count: 0,
-      notify_settings: {_: 'peerNotifySettings'},
+      notify_settings: { _: 'peerNotifySettings' },
       pts: 1,
       index_0: 0,
       folder_id: 0,
-      pFlags: {}
+      pFlags: {},
     };
     dialogsStorage.dialogs[peerId] = dialog;
 
@@ -588,10 +588,10 @@ describeOrSkip('unread counter races', () => {
       mid: mentionMid,
       id: 500,
       peerId,
-      peer_id: {_: 'peerChannel', channel_id: channelId},
+      peer_id: { _: 'peerChannel', channel_id: channelId },
       date: 0,
       message: '@me hello',
-      pFlags: {unread: true, media_unread: true, mentioned: true}
+      pFlags: { unread: true, media_unread: true, mentioned: true },
     });
 
     // Server (or another device) reports the mention's content as read.
@@ -599,7 +599,7 @@ describeOrSkip('unread counter races', () => {
     updates.processLocalUpdate({
       _: 'updateChannelReadMessagesContents',
       channel_id: channelId,
-      messages: [500]
+      messages: [500],
     });
 
 
@@ -624,7 +624,7 @@ describeOrSkip('unread counter races', () => {
     // but this topic has 3 unread mentions inside.
     const dialog: any = {
       _: 'dialog',
-      peer: {_: 'peerUser', user_id: userId},
+      peer: { _: 'peerUser', user_id: userId },
       peerId,
       top_message: idsManager.generateMessageId(200, 0),
       read_inbox_max_id: idsManager.generateMessageId(200, 0),
@@ -632,11 +632,11 @@ describeOrSkip('unread counter races', () => {
       unread_count: 0,
       unread_mentions_count: 3,
       unread_reactions_count: 0,
-      notify_settings: {_: 'peerNotifySettings'},
+      notify_settings: { _: 'peerNotifySettings' },
       pts: 1,
       index_0: 0,
       folder_id: 0,
-      pFlags: {}
+      pFlags: {},
     };
     dialogsStorage.dialogs[peerId] = dialog;
 
@@ -652,8 +652,8 @@ describeOrSkip('unread counter races', () => {
       title: 'Topic ' + topicServerId,
       date: 0,
       icon_color: 0,
-      from_id: {_: 'peerUser', user_id: userId},
-      notify_settings: {_: 'peerNotifySettings'},
+      from_id: { _: 'peerUser', user_id: userId },
+      notify_settings: { _: 'peerNotifySettings' },
       top_message: topMid,
       read_inbox_max_id: readInboxMid,
       read_outbox_max_id: topMid,
@@ -662,7 +662,7 @@ describeOrSkip('unread counter races', () => {
       unread_reactions_count: 0,
       pts: 1,
       folder_id: 0,
-      pFlags: {}
+      pFlags: {},
     };
     const cache = dialogsStorage.getForumTopicsCache(peerId);
     cache.topics.set(topicId, topic);
@@ -675,23 +675,23 @@ describeOrSkip('unread counter races', () => {
     // realistic state right after the topic dialog is loaded for the first time.
 
     const mids: number[] = [];
-    for(let serverId = readInboxMid + 1; serverId <= topMid; serverId++) {
+    for (let serverId = readInboxMid + 1; serverId <= topMid; serverId++) {
       mids.push(serverId);
       messagesStorage.set(serverId, {
         _: 'message',
         mid: serverId,
         id: serverId,
         peerId,
-        peer_id: {_: 'peerUser', user_id: userId},
+        peer_id: { _: 'peerUser', user_id: userId },
         date: 0,
         message: 'mention ' + serverId,
-        pFlags: {unread: true, media_unread: true, mentioned: true},
+        pFlags: { unread: true, media_unread: true, mentioned: true },
         reply_to: {
           _: 'messageReplyHeader',
           reply_to_msg_id: topicId,
           reply_to_top_id: topicId,
-          pFlags: {forum_topic: true}
-        }
+          pFlags: { forum_topic: true },
+        },
       });
     }
     historyStorage.history.first.length = 0;
@@ -700,8 +700,8 @@ describeOrSkip('unread counter races', () => {
     pendingServerReads = [];
     // No `force: true` — relying on the unread-detection logic to find the topic.
     await Promise.race([
-      m.readHistory({peerId, maxId: topMid, threadId: topicId}),
-      new Promise((r) => setTimeout(r, 100))
+      m.readHistory({ peerId, maxId: topMid, threadId: topicId }),
+      new Promise((r) => setTimeout(r, 100)),
     ]);
     pendingServerReads.forEach((r) => r());
     pendingServerReads = [];
@@ -728,12 +728,12 @@ describeOrSkip('unread counter races', () => {
     const channelId = 999000007;
     const peerId = -channelId;
     const topicServerId = 100; // topic root mid
-    makeChannel(channelId, 'Race Test 7 (forum)', {forum: true});
+    makeChannel(channelId, 'Race Test 7 (forum)', { forum: true });
 
     // Parent forum dialog: tracks aggregate mentions across topics
     const dialog: any = {
       _: 'dialog',
-      peer: {_: 'peerChannel', channel_id: channelId},
+      peer: { _: 'peerChannel', channel_id: channelId },
       peerId,
       top_message: idsManager.generateMessageId(10000, channelId),
       read_inbox_max_id: idsManager.generateMessageId(9969, channelId),
@@ -741,26 +741,26 @@ describeOrSkip('unread counter races', () => {
       unread_count: 10,
       unread_mentions_count: 3,    // 3 mentions live somewhere in topics
       unread_reactions_count: 0,
-      notify_settings: {_: 'peerNotifySettings'},
+      notify_settings: { _: 'peerNotifySettings' },
       pts: 1,
       index_0: 0,
       folder_id: 0,
-      pFlags: {}
+      pFlags: {},
     };
     dialogsStorage.dialogs[peerId] = dialog;
 
     // Topic with 3 unread mentions
-    const {topic, topicId} = injectForumTopic(peerId as any, channelId, topicServerId, {
+    const { topic, topicId } = injectForumTopic(peerId as any, channelId, topicServerId, {
       unreadCount: 3,
       unreadMentionsCount: 3,
       topServerMid: 200,
-      readInboxServerMid: 197 // mids 198, 199, 200 are unread mentions
+      readInboxServerMid: 197, // mids 198, 199, 200 are unread mentions
     });
 
     pendingServerReads = [];
     await Promise.race([
-      m.readHistory({peerId, maxId: idsManager.generateMessageId(200, channelId), threadId: topicId, force: true}),
-      new Promise((r) => setTimeout(r, 100))
+      m.readHistory({ peerId, maxId: idsManager.generateMessageId(200, channelId), threadId: topicId, force: true }),
+      new Promise((r) => setTimeout(r, 100)),
     ]);
     pendingServerReads.forEach((r) => r());
     pendingServerReads = [];
@@ -784,10 +784,10 @@ describeOrSkip('unread counter races', () => {
     const peerId = -channelId;
     makeChannel(channelId, 'Burst Test');
 
-    const {historyStorage} = injectDialog(peerId as any, channelId, {
+    const { historyStorage } = injectDialog(peerId as any, channelId, {
       unreadCount: 6188,
       topServerMid: 10000,
-      readInboxServerMid: 9969
+      readInboxServerMid: 9969,
     });
 
     const baseMid = (sid: number) => idsManager.generateMessageId(sid, channelId);
@@ -797,7 +797,7 @@ describeOrSkip('unread counter races', () => {
     // of the last real mid (N.0001, N.0002, …); all map to the same server max_id.
     const real = baseMid(9980);
 
-    const p1 = m.readHistory({peerId, maxId: real + 0.0001, force: true});
+    const p1 = m.readHistory({ peerId, maxId: real + 0.0001, force: true });
     expect(pendingServerReads.length).toBe(1); // first read goes to the server
 
     // Resolve it so readPromise clears, mimicking the ~370ms RTT between sends —
@@ -806,12 +806,12 @@ describeOrSkip('unread counter races', () => {
     await p1;
 
     // Next message in the burst, different temp mid, same server id → no server call.
-    const p2 = m.readHistory({peerId, maxId: real + 0.0002, force: true});
+    const p2 = m.readHistory({ peerId, maxId: real + 0.0002, force: true });
     expect(pendingServerReads.length).toBe(0);
     await p2;
 
     // A genuinely higher server id must still hit the wire.
-    const p3 = m.readHistory({peerId, maxId: baseMid(9990), force: true});
+    const p3 = m.readHistory({ peerId, maxId: baseMid(9990), force: true });
     expect(pendingServerReads.length).toBe(1);
     expect(getServerMessageId(historyStorage.triedToReadMaxId)).toBe(9990);
     pendingServerReads.forEach((r) => r());

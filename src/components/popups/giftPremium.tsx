@@ -1,22 +1,22 @@
-import {onCleanup, untrack, useContext} from 'solid-js';
-import PopupElement, {createPopup, PopupContext} from '@components/popups/indexTsx';
+import { onCleanup, untrack, useContext } from 'solid-js';
+import PopupElement, { createPopup, PopupContext } from '@components/popups/indexTsx';
 import PopupPayment from '@components/popups/payment';
-import {AvatarNewTsx} from '@components/avatarNew';
+import { AvatarNewTsx } from '@components/avatarNew';
 import Button from '@components/button';
 import CheckboxField from '@components/checkboxField';
 import Row from '@components/row';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
 import classNames from '@helpers/string/classNames';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import paymentsWrapCurrencyAmount from '@helpers/paymentsWrapCurrencyAmount';
 import ListenerSetter from '@helpers/listenerSetter';
-import I18n, {i18n, _i18n} from '@lib/langPack';
-import {PremiumGiftCodeOption} from '@layer';
+import I18n, { i18n, _i18n } from '@lib/langPack';
+import { PremiumGiftCodeOption } from '@layer';
 
 import styles from '@components/popups/giftPremium.module.scss';
 
 export default async function showGiftPremiumPopup(peerId: PeerId, giftOptions: PremiumGiftCodeOption[]): Promise<void> {
-  const peerTitleEl = await wrapPeerTitle({peerId});
+  const peerTitleEl = await wrapPeerTitle({ peerId });
 
   function Inner() {
     const context = useContext(PopupContext);
@@ -29,7 +29,7 @@ export default async function showGiftPremiumPopup(peerId: PeerId, giftOptions: 
 
     const rows = giftOptions.map((giftOption, idx) => {
       let subtitle: HTMLElement = i18n('PricePerMonth', [wrapCurrency(+giftOption.amount / giftOption.months)]);
-      if(giftOption !== shortestOption) {
+      if (giftOption !== shortestOption) {
         const span = document.createElement('span');
         const badge = document.createElement('span');
         badge.classList.add('popup-gift-premium-discount');
@@ -45,7 +45,7 @@ export default async function showGiftPremiumPopup(peerId: PeerId, giftOptions: 
         checked: idx === 0,
         round: true,
         name: 'gift-months',
-        asRadio: true
+        asRadio: true,
       });
 
       const row = new Row({
@@ -53,7 +53,7 @@ export default async function showGiftPremiumPopup(peerId: PeerId, giftOptions: 
         checkboxField,
         clickable: true,
         subtitle,
-        rightTextContent: wrapCurrency(giftOption.amount)
+        rightTextContent: wrapCurrency(giftOption.amount),
       });
 
       row.container.classList.add('popup-gift-premium-option');
@@ -66,14 +66,14 @@ export default async function showGiftPremiumPopup(peerId: PeerId, giftOptions: 
 
     const buttonText = new I18n.IntlElement({
       key: 'GiftSubscriptionFor',
-      args: [wrapCurrency(giftOptions[0].amount)]
+      args: [wrapCurrency(giftOptions[0].amount)],
     });
 
     const getSelectedOption = () => giftOptions[rows.findIndex((row) => row.checkboxField.checked)];
 
     listenerSetter.add(form)('change', () => {
       buttonText.compareAndUpdate({
-        args: [wrapCurrency(getSelectedOption().amount)]
+        args: [wrapCurrency(getSelectedOption().amount)],
       });
     });
 
@@ -90,12 +90,12 @@ export default async function showGiftPremiumPopup(peerId: PeerId, giftOptions: 
             _: 'inputStorePaymentPremiumGiftCode',
             amount: giftOption.amount,
             currency: giftOption.currency,
-            users: [await managers.appUsersManager.getUserInput(peerId.toUserId())]
-          }
-        }
+            users: [await managers.appUsersManager.getUserInput(peerId.toUserId())],
+          },
+        },
       });
       context!.hide();
-    }, {listenerSetter});
+    }, { listenerSetter });
 
     onCleanup(() => listenerSetter.removeAll());
 

@@ -1,41 +1,41 @@
-import {Component} from 'solid-js';
-import type {MyDialogFilter} from '@lib/storages/filters';
+import { Component } from 'solid-js';
+import type { MyDialogFilter } from '@lib/storages/filters';
 import appDialogsManager from '@lib/appDialogsManager';
-import {LottieLoader} from '@lib/rlottie/lottieLoader';
-import {toastNew} from '@components/toast';
+import { LottieLoader } from '@lib/rlottie/lottieLoader';
+import { toastNew } from '@components/toast';
 import InputField from '@components/inputField';
 import ButtonIcon from '@components/buttonIcon';
 import ButtonMenuToggle from '@components/buttonMenuToggle';
-import {ButtonMenuItemOptions} from '@components/buttonMenu';
+import { ButtonMenuItemOptions } from '@components/buttonMenu';
 import Button from '@components/button';
-import {AppIncludedChatsTab} from '@components/solidJsTabs/tabs';
-import {i18n, LangPackKey} from '@lib/langPack';
+import { AppIncludedChatsTab } from '@components/solidJsTabs/tabs';
+import { i18n, LangPackKey } from '@lib/langPack';
 import RLottiePlayer from '@lib/rlottie/rlottiePlayer';
 import copy from '@helpers/object/copy';
 import deepEqual from '@helpers/object/deepEqual';
 import filterAsync from '@helpers/array/filterAsync';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import SettingSection from '@components/settingSection';
-import {DialogFilter, ExportedChatlistInvite} from '@layer';
+import { DialogFilter, ExportedChatlistInvite } from '@layer';
 import rootScope from '@lib/rootScope';
-import {useAppSettings} from '@stores/appSettings';
+import { useAppSettings } from '@stores/appSettings';
 import Row from '@components/row';
 import createContextMenu from '@helpers/dom/createContextMenu';
 import findUpClassName from '@helpers/dom/findUpClassName';
-import {copyTextToClipboard} from '@helpers/clipboard';
+import { copyTextToClipboard } from '@helpers/clipboard';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import {AppSharedFolderTab} from '@components/solidJsTabs/tabs';
+import { AppSharedFolderTab } from '@components/solidJsTabs/tabs';
 import showLimitPopup from '@components/popups/limit';
 import toggleDisability from '@helpers/dom/toggleDisability';
 import Icon from '@components/icon';
 import EditFolderInput from '@components/sidebarLeft/tabs/editFolderInput';
 import getRichValueWithCaret from '@helpers/dom/getRichValueWithCaret';
 import trimRichText from '@lib/richTextProcessor/trimRichText';
-import {deleteFolder} from './editFolderShared';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {usePromiseCollector} from '@components/solidJsTabs/promiseCollector';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import type {AppEditFolderTab} from '@components/solidJsTabs/tabs';
+import { deleteFolder } from './editFolderShared';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import type { AppEditFolderTab } from '@components/solidJsTabs/tabs';
 
 type EditFolderButton = {
   icon: Icon,
@@ -49,7 +49,7 @@ type EditFolderFlags = {[k in 'contacts' | 'non_contacts' | 'groups' | 'broadcas
 const EditFolder: Component = () => {
   const [tab] = useSuperTab<typeof AppEditFolderTab>();
   const promiseCollector = usePromiseCollector();
-  const {HotReloadGuard, lottieLoader} = useHotReloadGuard();
+  const { HotReloadGuard, lottieLoader } = useHotReloadGuard();
   const p = tab.payload;
 
   const flags: EditFolderFlags = {} as any;
@@ -64,10 +64,10 @@ const EditFolder: Component = () => {
   let showMoreClicked: {[key in 'includePeerIds' | 'excludePeerIds']?: boolean} = {};
 
   const editCheckForChange = () => {
-    if(type === 'edit') {
+    if (type === 'edit') {
       const changed = !deepEqual(
-        {...originalFilter, updatedTime: 0, localId: 0},
-        {...filter, updatedTime: 0, localId: 0}
+        { ...originalFilter, updatedTime: 0, localId: 0 },
+        { ...filter, updatedTime: 0, localId: 0 }
       );
       confirmBtn.classList.toggle('hide', !changed);
       menuBtn.classList.toggle('hide', changed);
@@ -84,7 +84,7 @@ const EditFolder: Component = () => {
     menuBtn.classList.add('hide');
     confirmBtn.classList.remove('hide');
 
-    for(const flag in flags) {
+    for (const flag in flags) {
       // @ts-ignore
       flags[flag].style.display = 'none';
     }
@@ -94,7 +94,7 @@ const EditFolder: Component = () => {
     const _tempId = ++tempId;
     tab.title.replaceChildren(i18n(type === 'create' ? 'FilterNew' : 'FilterHeaderEdit'));
 
-    if(type === 'edit') {
+    if (type === 'edit') {
       menuBtn.classList.remove('hide');
       confirmBtn.classList.add('hide');
     }
@@ -102,26 +102,26 @@ const EditFolder: Component = () => {
     const _filter = filter;
 
     nameInputField.feedProps<false>({
-      value: _filter.title
+      value: _filter.title,
     });
 
     const pFlags = (_filter as DialogFilter.dialogFilter).pFlags;
-    for(const flag in flags) {
+    for (const flag in flags) {
       const good = !!pFlags?.[flag as keyof EditFolderFlags];
       flags[flag as keyof EditFolderFlags].style.display = good ? '' : 'none';
     }
 
     const promises = [
       'includePeerIds' as const,
-      'excludePeerIds' as const
+      'excludePeerIds' as const,
     ].map(async(key) => {
       let peers = (_filter as DialogFilter.dialogFilter)[key];
-      if(!peers) {
+      if (!peers) {
         return;
       }
 
       const section = key === 'includePeerIds' ? includePeerIds : excludePeerIds;
-      const ul = appDialogsManager.createChatList({ignoreClick: true});
+      const ul = appDialogsManager.createChatList({ ignoreClick: true });
 
       // filter peers where we're kicked
       const hasPeer = async(peerId: PeerId) => {
@@ -140,7 +140,7 @@ const EditFolder: Component = () => {
           return peerId.isUser() ? true : !!await tab.managers.appMessagesManager.getDialogOnly(peerId);
         });
 
-        if(_tempId !== tempId) return;
+        if (_tempId !== tempId) return;
 
         const loadPromises: Promise<any>[] = [];
         const containers = filtered.map((peerId) => {
@@ -152,21 +152,21 @@ const EditFolder: Component = () => {
             loadPromises,
             autonomous: true,
             wrapOptions: {
-              middleware: tab.middlewareHelper.get()
-            }
+              middleware: tab.middlewareHelper.get(),
+            },
           });
           (dialogElement.container as any).dialogElement = dialogElement;
-          const {dom} = dialogElement;
+          const { dom } = dialogElement;
           dom.lastMessageSpan.parentElement!.remove();
           return dom.containerEl;
         });
 
         await Promise.all(loadPromises);
-        if(_tempId !== tempId) return;
+        if (_tempId !== tempId) return;
         ul.append(...containers);
 
-        if(showMore) {
-          if(peers.length) {
+        if (showMore) {
+          if (peers.length) {
             showMore.lastElementChild!.replaceWith(i18n('FilterShowMoreChats', [peers.length]));
             showMore.classList.remove('hide');
           } else {
@@ -176,23 +176,23 @@ const EditFolder: Component = () => {
       };
 
       let showMore: HTMLElement;
-      if(peers.length && !showMoreClicked[key]) {
-        showMore = Button('folder-category-button btn btn-primary btn-transparent hide', {icon: 'down'});
+      if (peers.length && !showMoreClicked[key]) {
+        showMore = Button('folder-category-button btn btn-primary btn-transparent hide', { icon: 'down' });
         showMore.classList.add('load-more', 'rp-overflow');
         attachClickEvent(showMore, () => {
           showMoreClicked[key] = true;
           renderMore(Infinity);
-        }, {listenerSetter: tab.listenerSetter});
+        }, { listenerSetter: tab.listenerSetter });
         showMore.append(i18n('FilterShowMoreChats', [peers.length]));
       }
 
       return renderMore(showMoreClicked[key] ? Infinity : 4).then(() => {
-        if(_tempId !== tempId) return;
+        if (_tempId !== tempId) return;
 
         return () => {
           section.generateContentElement().append(ul);
 
-          if(showMore && peers.length) {
+          if (showMore && peers.length) {
             const content = section.generateContentElement();
             content.append(showMore);
           }
@@ -201,11 +201,11 @@ const EditFolder: Component = () => {
     });
 
     return Promise.all(promises).then((callbacks) => {
-      if(_tempId !== tempId) return;
+      if (_tempId !== tempId) return;
 
       toggleExcludedPeers();
 
-      if(tab.container) {
+      if (tab.container) {
         // cleanup
         Array.from(tab.container.querySelectorAll('.chatlist, .load-more')).forEach((el) => el.parentElement!.remove());
       }
@@ -215,7 +215,7 @@ const EditFolder: Component = () => {
   };
 
   const setFilter = (_filter: MyDialogFilter, firstTime: boolean) => {
-    if(firstTime) {
+    if (firstTime) {
       originalFilter = _filter;
       filter = copy(_filter);
     } else {
@@ -226,18 +226,18 @@ const EditFolder: Component = () => {
   };
 
   const setInitFilter = (_filter?: MyDialogFilter) => {
-    if(_filter === undefined) {
+    if (_filter === undefined) {
       setFilter({
         _: 'dialogFilter',
         id: 0,
-        title: {_: 'textWithEntities', text: '', entities: []},
+        title: { _: 'textWithEntities', text: '', entities: [] },
         pFlags: {},
         pinned_peers: [],
         include_peers: [],
         exclude_peers: [],
         pinnedPeerIds: [],
         includePeerIds: [],
-        excludePeerIds: []
+        excludePeerIds: [],
       }, true);
       type = 'create';
     } else {
@@ -257,7 +257,7 @@ const EditFolder: Component = () => {
     });
   };
 
-  if(p.initFilter !== undefined) {
+  if (p.initFilter !== undefined) {
     setInitFilter(p.initFilter);
   }
 
@@ -278,7 +278,7 @@ const EditFolder: Component = () => {
     className: 'danger',
     text: 'FilterMenuDelete',
     onClick: () => {
-      if(deleting) {
+      if (deleting) {
         return;
       }
 
@@ -287,12 +287,12 @@ const EditFolder: Component = () => {
       }).finally(() => {
         deleting = false;
       });
-    }
+    },
   };
   const menuBtn = ButtonMenuToggle({
     listenerSetter: tab.listenerSetter,
     direction: 'bottom-left',
-    buttons: [deleteFolderButton]
+    buttons: [deleteFolderButton],
   });
   menuBtn.classList.add('hide');
 
@@ -301,7 +301,7 @@ const EditFolder: Component = () => {
   const [appSettings] = useAppSettings();
   const hasFoldersSidebar = appSettings.tabsInSidebar;
   const inputSection = new SettingSection({
-    caption: hasFoldersSidebar ? 'EditFolder.EmojiAsIconTip' : undefined
+    caption: hasFoldersSidebar ? 'EditFolder.EmojiAsIconTip' : undefined,
   });
 
   const nameInputField = new EditFolderInput;
@@ -309,10 +309,10 @@ const EditFolder: Component = () => {
   nameInputField.classList.add('input-wrapper');
   nameInputField.feedProps({
     onInput: () => {
-      const {value, entities} = getRichValueWithCaret(nameInputField.controls.inputField.input);
-      filter.title = {_: 'textWithEntities', ...trimRichText(value || '', entities || [])};
+      const { value, entities } = getRichValueWithCaret(nameInputField.controls.inputField.input);
+      filter.title = { _: 'textWithEntities', ...trimRichText(value || '', entities || []) };
       editCheckForChange();
-    }
+    },
   });
 
   inputSection.content.append(nameInputField);
@@ -327,7 +327,7 @@ const EditFolder: Component = () => {
     const section = new SettingSection({
       name: h2Text,
       caption: captionKey,
-      noDelimiter: true
+      noDelimiter: true,
     });
 
     section.container.classList.add('folder-list', className);
@@ -339,10 +339,10 @@ const EditFolder: Component = () => {
       const button = Button('folder-category-button btn btn-primary btn-transparent' + (idx === 0 ? ' primary' : ' disable-hover'), {
         icon: o.icon,
         text: o.text,
-        noRipple: o.withRipple ? undefined : true
+        noRipple: o.withRipple ? undefined : true,
       });
 
-      if(o.name) {
+      if (o.name) {
         to[o.name] = button;
       }
 
@@ -355,51 +355,51 @@ const EditFolder: Component = () => {
   const includePeerIds = generateList('folder-list-included', 'FilterInclude', includePeerIdsButtons = [{
     icon: 'add',
     text: 'ChatList.Filter.Include.AddChat',
-    withRipple: true
+    withRipple: true,
   }, {
     text: 'ChatList.Filter.Contacts',
     icon: 'newprivate',
-    name: 'contacts'
+    name: 'contacts',
   }, {
     text: 'ChatList.Filter.NonContacts',
     icon: 'noncontacts',
-    name: 'non_contacts'
+    name: 'non_contacts',
   }, {
     text: 'ChatList.Filter.Groups',
     icon: 'group',
-    name: 'groups'
+    name: 'groups',
   }, {
     text: 'ChatList.Filter.Channels',
     icon: 'channel',
-    name: 'broadcasts'
+    name: 'broadcasts',
   }, {
     text: 'ChatList.Filter.Bots',
     icon: 'bots',
-    name: 'bots'
+    name: 'bots',
   }], flags, 'FilterIncludeInfo');
 
   const excludePeerIds = generateList('folder-list-excluded', 'FilterExclude', excludePeerIdsButtons = [{
     icon: 'minus',
     text: 'FilterRemoveChats',
-    withRipple: true
+    withRipple: true,
   }, {
     text: 'ChatList.Filter.MutedChats',
     icon: 'mute',
-    name: 'exclude_muted'
+    name: 'exclude_muted',
   }, {
     text: 'ChatList.Filter.Archive',
     icon: 'archive',
-    name: 'exclude_archived'
+    name: 'exclude_archived',
   }, {
     text: 'ChatList.Filter.ReadChats',
     icon: 'readchats',
-    name: 'exclude_read'
+    name: 'exclude_read',
   }], flags, 'FilterExcludeInfo');
 
   const inviteLinks = generateList('folder-list-links', 'InviteLinks', [{
     icon: 'add',
     text: 'SharedFolder.CreateLink',
-    withRipple: true
+    withRipple: true,
   }], {}, 'SharedFolder.Description');
 
   tab.scrollable.append(
@@ -417,19 +417,19 @@ const EditFolder: Component = () => {
   const inviteLinksCreate = inviteLinks.container.querySelector('.btn') as HTMLElement;
 
   attachClickEvent(includedFlagsContainer!.querySelector('.btn') as HTMLElement, () => {
-    tab.slider.createTab(AppIncludedChatsTab).open({filter, type: 'included', onSetFilter: (f) => setFilter(f, false)});
-  }, {listenerSetter: tab.listenerSetter});
+    tab.slider.createTab(AppIncludedChatsTab).open({ filter, type: 'included', onSetFilter: (f) => setFilter(f, false) });
+  }, { listenerSetter: tab.listenerSetter });
 
   attachClickEvent(excludedFlagsContainer!.querySelector('.btn') as HTMLElement, () => {
-    tab.slider.createTab(AppIncludedChatsTab).open({filter, type: 'excluded', onSetFilter: (f) => setFilter(f, false)});
-  }, {listenerSetter: tab.listenerSetter});
+    tab.slider.createTab(AppIncludedChatsTab).open({ filter, type: 'excluded', onSetFilter: (f) => setFilter(f, false) });
+  }, { listenerSetter: tab.listenerSetter });
 
   const confirmEditing = (closeAfter?: boolean) => {
-    if(nameInputField.controls?.inputField?.input.classList.contains('error') ?? true) {
+    if (nameInputField.controls?.inputField?.input.classList.contains('error') ?? true) {
       return;
     }
 
-    if(!nameInputField.controls?.inputField?.value.trim()) {
+    if (!nameInputField.controls?.inputField?.value.trim()) {
       nameInputField.controls?.inputField?.input.classList.add('error');
       return;
     }
@@ -437,18 +437,18 @@ const EditFolder: Component = () => {
     let include = (Array.from(includedFlagsContainer!.children) as HTMLElement[]).slice(1).reduce((acc, el) => acc + +!el.style.display, 0);
     include += filter.include_peers.length;
 
-    if(!include) {
-      toastNew({langPackKey: 'EditFolder.Toast.ChooseChat'});
+    if (!include) {
+      toastNew({ langPackKey: 'EditFolder.Toast.ChooseChat' });
       return;
     }
 
     confirmBtn.setAttribute('disabled', 'true');
 
     let promise: Promise<DialogFilter>;
-    if(!filter.id) {
+    if (!filter.id) {
       promise = tab.managers.filtersStorage.createDialogFilter(filter);
     } else {
-      if(closeAfter) {
+      if (closeAfter) {
         postponeFilterUpdate = true;
       }
 
@@ -456,19 +456,19 @@ const EditFolder: Component = () => {
     }
 
     return promise.then((dialogFilter) => {
-      if(closeAfter) {
+      if (closeAfter) {
         tab.close();
       }
 
       return dialogFilter;
     }).catch((err: ApiError) => {
       postponeFilterUpdate = false;
-      if(postponedFilterUpdate) {
+      if (postponedFilterUpdate) {
         updateFilter(postponedFilterUpdate);
         postponedFilterUpdate = undefined;
       }
 
-      if(err.type === 'DIALOG_FILTERS_TOO_MUCH') {
+      if (err.type === 'DIALOG_FILTERS_TOO_MUCH') {
         showLimitPopup('folders');
       } else {
         console.error('updateDialogFilter error:', err);
@@ -482,14 +482,14 @@ const EditFolder: Component = () => {
 
   attachClickEvent(confirmBtn, () => {
     confirmEditing(true);
-  }, {listenerSetter: tab.listenerSetter});
+  }, { listenerSetter: tab.listenerSetter });
 
   let postponedFilterUpdate: DialogFilter.dialogFilterChatlist | DialogFilter.dialogFilter | undefined;
   let postponeFilterUpdate = false;
 
   tab.listenerSetter.add(rootScope)('filter_update', (updatedFilter) => {
-    if(filter.id === updatedFilter.id) {
-      if(postponeFilterUpdate) {
+    if (filter.id === updatedFilter.id) {
+      if (postponeFilterUpdate) {
         postponedFilterUpdate = updatedFilter;
       } else {
         updateFilter(updatedFilter);
@@ -500,7 +500,7 @@ const EditFolder: Component = () => {
   const reloadMissingPromises: Promise<any>[] = type! === 'edit' ? [
     tab.managers.filtersStorage.reloadMissingPeerIds(filter!.id, 'pinned_peers'),
     tab.managers.filtersStorage.reloadMissingPeerIds(filter!.id, 'include_peers'),
-    tab.managers.filtersStorage.reloadMissingPeerIds(filter!.id, 'exclude_peers')
+    tab.managers.filtersStorage.reloadMissingPeerIds(filter!.id, 'exclude_peers'),
   ] : [];
 
   promiseCollector.collect(Promise.all([
@@ -513,7 +513,7 @@ const EditFolder: Component = () => {
         loop: false,
         autoplay: false,
         width: 86,
-        height: 86
+        height: 86,
       });
 
       animation = player;
@@ -521,9 +521,9 @@ const EditFolder: Component = () => {
       return lottieLoader.waitForFirstFrame(player);
     }),
 
-    ...reloadMissingPromises
+    ...reloadMissingPromises,
   ]).then(([chatlistInvitesLimit, chatlistInvitesPremiumLimit]) => {
-    if(type === 'edit') {
+    if (type === 'edit') {
       setFilter(originalFilter, true);
       onEditOpen();
     } else {
@@ -532,7 +532,7 @@ const EditFolder: Component = () => {
     }
 
     tab.managers.filtersStorage.getExportedInvites(filter.id).catch((err: ApiError) => {
-      if(err.type === 'FILTER_NOT_SUPPORTED') {
+      if (err.type === 'FILTER_NOT_SUPPORTED') {
         return [] as ExportedChatlistInvite[];
       }
 
@@ -550,7 +550,7 @@ const EditFolder: Component = () => {
 
       const onLinkDeletion = (link: ExportedChatlistInvite) => {
         const row = invitesMap.get(link.url);
-        if(row) {
+        if (row) {
           row.container.remove();
           invitesMap.delete(link.url);
           map.delete(row.container);
@@ -571,7 +571,7 @@ const EditFolder: Component = () => {
         const row = new Row({
           title: true,
           subtitle: true,
-          clickable: true
+          clickable: true,
         });
 
         updateLink(row, chatlistInvite);
@@ -592,7 +592,7 @@ const EditFolder: Component = () => {
         buttons: [{
           icon: 'copy',
           text: 'CopyLink',
-          onClick: () => copyTextToClipboard(map.get(target)!.url)
+          onClick: () => copyTextToClipboard(map.get(target)!.url),
         }, {
           icon: 'delete',
           className: 'danger',
@@ -605,46 +605,46 @@ const EditFolder: Component = () => {
             ).then(() => {
               onLinkDeletion(chatlistInvite!);
             });
-          }
+          },
         }],
         listenTo: content,
         listenerSetter: tab.listenerSetter,
         findElement: (e) => findUpClassName(e.target!, 'row'),
-        onOpen: (e, _target) => target = _target
+        onOpen: (e, _target) => target = _target,
       });
 
       attachClickEvent(inviteLinksCreate, async() => {
-        if(map.size >= chatlistInvitesLimit) {
+        if (map.size >= chatlistInvitesLimit) {
           showLimitPopup('chatlistInvites');
           return;
         }
 
-        if(!filter.title) {
-          toastNew({langPackKey: 'SharedFolder.Toast.NeedName'});
+        if (!filter.title) {
+          toastNew({ langPackKey: 'SharedFolder.Toast.NeedName' });
           return;
         }
 
         const pFlags = (filter as DialogFilter.dialogFilter).pFlags;
-        if(pFlags) {
+        if (pFlags) {
           const found = [includePeerIdsButtons, excludePeerIdsButtons].some((buttons) => {
             return buttons.some((button) => !!pFlags[button.name!]);
           });
 
-          if(found) {
-            toastNew({langPackKey: 'SharedFolder.Toast.NoTypes'});
+          if (found) {
+            toastNew({ langPackKey: 'SharedFolder.Toast.NoTypes' });
             return;
           }
         }
 
-        if((filter as DialogFilter.dialogFilter).excludePeerIds?.length) {
-          toastNew({langPackKey: 'SharedFolder.Toast.NoExcluded'});
+        if ((filter as DialogFilter.dialogFilter).excludePeerIds?.length) {
+          toastNew({ langPackKey: 'SharedFolder.Toast.NoExcluded' });
           return;
         }
 
         const toggle = toggleDisability([inviteLinksCreate], true);
         try {
           const result = confirmEditing(false);
-          if(!(result instanceof Promise)) {
+          if (!(result instanceof Promise)) {
             throw '';
           }
 
@@ -653,7 +653,7 @@ const EditFolder: Component = () => {
           type = 'edit';
           originalFilter = f;
           editCheckForChange();
-        } catch(err) {
+        } catch (err) {
           toggle();
           return;
         }
@@ -661,7 +661,7 @@ const EditFolder: Component = () => {
         tab.managers.filtersStorage.exportChatlistInvite({
           ...filter,
           _: 'dialogFilterChatlist',
-          ...({pFlags: filter._ === 'dialogFilter' ? {has_my_invites: true} : filter.pFlags})
+          ...({ pFlags: filter._ === 'dialogFilter' ? { has_my_invites: true } : filter.pFlags }),
         }).then((exportedChatlistInvite) => {
           toggle();
           openChatlistInvite(exportedChatlistInvite.invite).finally(() => {
@@ -669,17 +669,17 @@ const EditFolder: Component = () => {
           });
         }, (err: ApiError) => {
           toggle();
-          if(err.type === 'INVITES_TOO_MUCH' || err.type === 'FILTERS_TOO_MUCH' || err.type === 'CHATLISTS_TOO_MUCH') {
+          if (err.type === 'INVITES_TOO_MUCH' || err.type === 'FILTERS_TOO_MUCH' || err.type === 'CHATLISTS_TOO_MUCH') {
             showLimitPopup('chatlistInvites');
             return;
-          } else if(err.type === 'PEERS_LIST_EMPTY' || err.type === 'CHAT_ADMIN_REQUIRED') {
+          } else if (err.type === 'PEERS_LIST_EMPTY' || err.type === 'CHAT_ADMIN_REQUIRED') {
             openChatlistInvite();
             return;
           }
 
           throw err;
         });
-      }, {listenerSetter: tab.listenerSetter});
+      }, { listenerSetter: tab.listenerSetter });
 
       const openChatlistInvite = (chatlistInvite?: ExportedChatlistInvite) => {
         const row = invitesMap.get(chatlistInvite?.url!);
@@ -692,18 +692,18 @@ const EditFolder: Component = () => {
           updateLink(row!, chatlistInvite);
         });
 
-        return sharedTab.open({filter: filter as DialogFilter.dialogFilterChatlist, chatlistInvite: chatlistInvite!});
+        return sharedTab.open({ filter: filter as DialogFilter.dialogFilterChatlist, chatlistInvite: chatlistInvite! });
       };
 
       attachClickEvent(content, (e) => {
         const target = findUpClassName(e.target!, 'row');
         const chatlistInvite = map.get(target);
-        if(!chatlistInvite) {
+        if (!chatlistInvite) {
           return;
         }
 
         openChatlistInvite(chatlistInvite);
-      }, {listenerSetter: tab.listenerSetter});
+      }, { listenerSetter: tab.listenerSetter });
 
       chatlistInvites.forEach(wrapLink);
     });

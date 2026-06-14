@@ -1,8 +1,8 @@
-import {MOUNT_CLASS_TO} from '@config/debug';
+import { MOUNT_CLASS_TO } from '@config/debug';
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
 import noop from '@helpers/noop';
-import {DcId} from '@types';
+import { DcId } from '@types';
 
 export class NetworkStats {
   public sent: number;
@@ -23,10 +23,10 @@ export class NetworkStats {
 
     const awaitingChunks = this.awaitingChunks.get(dcId);
     const awaitingLength = awaitingChunks?.length;
-    if(awaitingLength) {
-      for(let i = 0; i < awaitingLength; ++i) {
+    if (awaitingLength) {
+      for (let i = 0; i < awaitingLength; ++i) {
         const awaiting = awaitingChunks[i];
-        if(length >= awaiting.length) {
+        if (length >= awaiting.length) {
           awaiting.deferred.resolve();
           break;
         }
@@ -37,11 +37,11 @@ export class NetworkStats {
   public waitForChunk(dcId: DcId, length: number) {
     const deferred = deferredPromise<void>();
     let awaitingChunks = this.awaitingChunks.get(dcId);
-    if(!awaitingChunks) {
+    if (!awaitingChunks) {
       this.awaitingChunks.set(dcId, awaitingChunks = []);
     }
 
-    const awaiting = {length, deferred};
+    const awaiting = { length, deferred };
     deferred.catch(noop).finally(() => {
       indexOfAndSplice(awaitingChunks, awaiting);
     });

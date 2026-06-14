@@ -1,11 +1,11 @@
-import {createSignal, onCleanup} from 'solid-js';
+import { createSignal, onCleanup } from 'solid-js';
 
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 import ListenerSetter from '@helpers/listenerSetter';
 
 
 const useIsPremium = () => {
-  const {rootScope} = useHotReloadGuard();
+  const { rootScope } = useHotReloadGuard();
 
   const [isPremium, setIsPremium] = createSignal(rootScope.premium);
 

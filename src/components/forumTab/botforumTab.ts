@@ -1,16 +1,16 @@
 import middlewarePromise from '@helpers/middlewarePromise';
 import namedPromises from '@helpers/namedPromises';
 import asyncThrottle from '@helpers/schedulers/asyncThrottle';
-import {Chat, Dialog} from '@layer';
+import { Chat, Dialog } from '@layer';
 import appDialogsManager from '@lib/appDialogsManager';
-import {isDialog} from '@appManagers/utils/dialogs/isDialog';
-import {i18n} from '@lib/langPack';
+import { isDialog } from '@appManagers/utils/dialogs/isDialog';
+import { i18n } from '@lib/langPack';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import rootScope from '@lib/rootScope';
-import {AutonomousBotforumTopicList} from '@components/autonomousDialogList/botforumTopics';
+import { AutonomousBotforumTopicList } from '@components/autonomousDialogList/botforumTopics';
 import SortedDialogList from '@components/sortedDialogList';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
-import {ForumTab} from '@components/forumTab/forumTab';
+import { ForumTab } from '@components/forumTab/forumTab';
 
 
 export class BotforumTab extends ForumTab {
@@ -25,7 +25,7 @@ export class BotforumTab extends ForumTab {
 
     this.container.classList.add('topic-dialogs-override');
 
-    const autonomousList = new AutonomousBotforumTopicList({peerId: this.peerId, appDialogsManager});
+    const autonomousList = new AutonomousBotforumTopicList({ peerId: this.peerId, appDialogsManager });
     autonomousList.scrollable = this.scrollable;
 
     const sortedList = autonomousList.sortedList = new SortedDialogList({
@@ -37,7 +37,7 @@ export class BotforumTab extends ForumTab {
       requestItemForIdx: autonomousList.requestItemForIdx,
       onListShrinked: autonomousList.onListShrinked,
       indexKey: 'index_0',
-      virtualFilterId: this.peerId
+      virtualFilterId: this.peerId,
     });
 
     sortedList.addPinned(this.peerId);
@@ -47,12 +47,12 @@ export class BotforumTab extends ForumTab {
 
     this.xd = autonomousList as any;
 
-    appDialogsManager.setListClickListener({list, onFound: null as unknown as undefined, withContext: true});
+    appDialogsManager.setListClickListener({ list, onFound: null as unknown as undefined, withContext: true });
     this.scrollable.append(list);
 
 
     this.listenerSetter.add(rootScope)('history_reload', (peerId) => {
-      if(this.peerId !== peerId) {
+      if (this.peerId !== peerId) {
         return;
       }
 
@@ -60,48 +60,48 @@ export class BotforumTab extends ForumTab {
     });
 
     this.listenerSetter.add(rootScope)('user_update', (userId) => {
-      if(this.peerId !== userId.toPeerId()) {
+      if (this.peerId !== userId.toPeerId()) {
         return;
       }
 
       const user = apiManagerProxy.getUser(userId);
-      if(user?._ === 'user' && !user?.pFlags?.bot_forum_view) {
+      if (user?._ === 'user' && !user?.pFlags?.bot_forum_view) {
         appDialogsManager.toggleForumTab(undefined, this);
       }
     });
 
     this.listenerSetter.add(rootScope)('dialogs_multiupdate', (dialogs) => {
-      for(const [peerId, {dialog, topics}] of dialogs) {
-        if(isDialog(dialog!) && dialog.peerId === this.peerId) {
+      for (const [peerId, { dialog, topics }] of dialogs) {
+        if (isDialog(dialog!) && dialog.peerId === this.peerId) {
           this.updateAllChatsDialog(dialog);
         }
-        if(peerId === this.peerId && topics?.size) {
+        if (peerId === this.peerId && topics?.size) {
           this.updateDialogsCount();
         }
       }
     });
 
     this.listenerSetter.add(rootScope)('dialog_drop', (dialog) => {
-      if(this.peerId !== dialog.peerId) return;
+      if (this.peerId !== dialog.peerId) return;
       this.updateDialogsCount();
     });
 
-    this.listenerSetter.add(rootScope)('dialog_draft', ({dialog}) => {
-      if(!isDialog(dialog) || dialog.peerId !== this.peerId) return;
+    this.listenerSetter.add(rootScope)('dialog_draft', ({ dialog }) => {
+      if (!isDialog(dialog) || dialog.peerId !== this.peerId) return;
       this.updateAllChatsDialog(dialog);
     });
   }
 
   private updateAllChatsDialog(dialog: Dialog.dialog) {
     const dialogElement = this.xd.getDialogElement(this.peerId);
-    if(!dialogElement) {
+    if (!dialogElement) {
       return;
     }
 
     appDialogsManager.setLastMessageN({
       dialog,
       dialogElement,
-      setUnread: true
+      setUnread: true,
     });
   }
 
@@ -114,26 +114,26 @@ export class BotforumTab extends ForumTab {
     const wrapPromiseWithMiddleware = middlewarePromise(middleware);
 
     try {
-      const {peerTitle, dialogs} = await wrapPromiseWithMiddleware(namedPromises({
+      const { peerTitle, dialogs } = await wrapPromiseWithMiddleware(namedPromises({
         peerTitle: wrapPeerTitle({
           peerId,
           withIcons: true,
           dialog: true,
-          wrapOptions: {middleware}
+          wrapOptions: { middleware },
         }),
         dialogs: this.managers.dialogsStorage.getDialogs({
           filterId: this.peerId,
-          limit: 1
-        })
+          limit: 1,
+        }),
       }));
 
       this.title.append(peerTitle);
       this.subtitle.append((this.dialogsCountI18nEl = this.getTopicsCountI18n(dialogs ? dialogs.count : null)!));
-    } catch{}
+    } catch {}
   }
 
   private getTopicsCountI18n(count: number | null) {
-    if(count === 0) {
+    if (count === 0) {
       return i18n('NoTopics');
     }
 
@@ -141,8 +141,8 @@ export class BotforumTab extends ForumTab {
   }
 
   private updateDialogsCount = asyncThrottle(async() => {
-    if(!this.dialogsCountI18nEl) return;
-    const {count} = await this.managers.dialogsStorage.getDialogs({filterId: this.peerId, limit: 1});
+    if (!this.dialogsCountI18nEl) return;
+    const { count } = await this.managers.dialogsStorage.getDialogs({ filterId: this.peerId, limit: 1 });
     this.dialogsCountI18nEl.replaceWith((this.dialogsCountI18nEl = this.getTopicsCountI18n(count)!));
   }, 0);
 }

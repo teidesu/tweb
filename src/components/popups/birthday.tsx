@@ -1,22 +1,22 @@
-import {createEffect, createSignal, For, onMount, Show} from 'solid-js';
+import { createEffect, createSignal, For, onMount, Show } from 'solid-js';
 import PopupElement from '@components/popups/indexTsx';
-import {createPopup} from '@components/popups/indexTsx';
-import {I18nTsx} from '@helpers/solid/i18n';
+import { createPopup } from '@components/popups/indexTsx';
+import { I18nTsx } from '@helpers/solid/i18n';
 
-import {Birthday} from '@layer';
-import {getMonths, getDaysPerMonthForYear, numberOfDaysEachMonth} from '@helpers/date';
+import { Birthday } from '@layer';
+import { getMonths, getDaysPerMonthForYear, numberOfDaysEachMonth } from '@helpers/date';
 import InputField from '@components/inputField';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {createButtonMenuSelect} from '@components/buttonMenuSelect';
-import {IconTsx} from '@components/iconTsx';
+import { createButtonMenuSelect } from '@components/buttonMenuSelect';
+import { IconTsx } from '@components/iconTsx';
 
 import styles from '@components/popups/birthday.module.scss';
 import appSidebarLeft from '@components/sidebarLeft';
-import {AppPrivacyBirthdayTab} from '@components/solidJsTabs/tabs';
+import { AppPrivacyBirthdayTab } from '@components/solidJsTabs/tabs';
 import rootScope from '@lib/rootScope';
-import {doubleRaf} from '@helpers/schedulers';
-import {toastNew} from '@components/toast';
-import {PeerTitleTsx} from '@components/peerTitleTsx';
+import { doubleRaf } from '@helpers/schedulers';
+import { toastNew } from '@components/toast';
+import { PeerTitleTsx } from '@components/peerTitleTsx';
 import lottieLoader from '@lib/rlottie/lottieLoader';
 import LottieAnimation from '@components/lottieAnimation';
 
@@ -31,9 +31,9 @@ export async function saveMyBirthday(date: Birthday | null) {
   try {
     await rootScope.managers.appProfileManager.setMyBirthday(date);
     return true;
-  } catch(error) {
+  } catch (error) {
     console.error(error);
-    toastNew({langPackKey: 'Error.AnError'});
+    toastNew({ langPackKey: 'Error.AnError' });
     return false;
   }
 }
@@ -42,9 +42,9 @@ export async function suggestUserBirthday(userId: UserId, date: Birthday) {
   try {
     await rootScope.managers.appProfileManager.suggestUserBirthday(userId, date);
     return true;
-  } catch(error) {
+  } catch (error) {
     console.error(error);
-    toastNew({langPackKey: 'Error.AnError'});
+    toastNew({ langPackKey: 'Error.AnError' });
     return false;
   }
 }
@@ -69,8 +69,8 @@ export default async function showBirthdayPopup(props: {
     const [month, setMonth] = createSignal<MonthOption | undefined>();
     const [year, setYear] = createSignal<number | undefined>(props.initialDate?.year);
 
-    const monthOptions = getMonths().map((m, idx) => ({text: m, value: idx + 1}));
-    if(props.initialDate?.month) {
+    const monthOptions = getMonths().map((m, idx) => ({ text: m, value: idx + 1 }));
+    if (props.initialDate?.month) {
       setMonth(monthOptions[props.initialDate.month - 1]);
     }
 
@@ -78,26 +78,26 @@ export default async function showBirthdayPopup(props: {
 
     const dayField = new InputField({
       label: 'BirthdayPopup.Day',
-      plainText: true
+      plainText: true,
     });
     dayField.container.classList.add(styles.day);
 
     const monthField = new InputField({
       label: 'BirthdayPopup.Month',
-      plainText: true
+      plainText: true,
     });
     monthField.container.classList.add(styles.month);
 
     const yearField = new InputField({
       label: 'BirthdayPopup.Year',
-      plainText: true
+      plainText: true,
     });
     yearField.container.classList.add(styles.year);
 
-    if(props.initialDate?.day) {
+    if (props.initialDate?.day) {
       dayField.setValueSilently(String(props.initialDate.day));
     }
-    if(props.initialDate?.year) {
+    if (props.initialDate?.year) {
       yearField.setValueSilently(String(props.initialDate.year));
     }
 
@@ -109,7 +109,7 @@ export default async function showBirthdayPopup(props: {
     function updateDayInput() {
       const value = dayField.value;
       const cleanValue = value.replace(/[^0-9]/g, '');
-      if(!cleanValue) {
+      if (!cleanValue) {
         setDay(undefined);
         return;
       }
@@ -118,13 +118,13 @@ export default async function showBirthdayPopup(props: {
 
       const valueNum = Number(cleanValue);
       const daysInMonth = month$ ? daysPerMonth()[month$.value - 1] : 31;
-      if(yearField.value === String(nowYear) && month$!.value === nowMonth && valueNum > nowDay) {
+      if (yearField.value === String(nowYear) && month$!.value === nowMonth && valueNum > nowDay) {
         dayField.setValueSilently(nowDay.toString());
         setDay(nowDay);
-      } else if(valueNum > daysInMonth) {
+      } else if (valueNum > daysInMonth) {
         dayField.setValueSilently(daysInMonth.toString());
         setDay(daysInMonth);
-      } else if(valueNum < 1) {
+      } else if (valueNum < 1) {
         dayField.setValueSilently('1');
         setDay(1);
       } else {
@@ -136,7 +136,7 @@ export default async function showBirthdayPopup(props: {
     monthField.input.addEventListener('beforeinput', (e) => cancelEvent(e));
     monthField.input.addEventListener('paste', (e) => cancelEvent(e));
 
-    const {open: openMonthsMenu, close: closeMonthsMenu} = createButtonMenuSelect<MonthOption>({
+    const { open: openMonthsMenu, close: closeMonthsMenu } = createButtonMenuSelect<MonthOption>({
       class: styles.monthMenu,
       direction: 'bottom-center',
       get value() { return month() ? [month()!] : [] },
@@ -146,7 +146,7 @@ export default async function showBirthdayPopup(props: {
         updateDayInput()
       },
       get options() {
-        if(yearField.value === String(nowYear)) {
+        if (yearField.value === String(nowYear)) {
           return monthOptions.filter((m) => m.value <= nowMonth)
         }
 
@@ -161,12 +161,12 @@ export default async function showBirthdayPopup(props: {
           </div>
           {props.chosen && <IconTsx icon="check" class="btn-menu-item-icon-right" />}
         </>
-      )
+      ),
     });
     monthField.input.addEventListener('focus', () => openMonthsMenu(monthField.container));
     monthField.input.addEventListener('click', () => openMonthsMenu(monthField.container));
     monthField.input.addEventListener('blur', (e) => {
-      if((e.relatedTarget as HTMLElement)?.closest('.btn-menu')) return;
+      if ((e.relatedTarget as HTMLElement)?.closest('.btn-menu')) return;
       closeMonthsMenu();
     });
 
@@ -174,18 +174,18 @@ export default async function showBirthdayPopup(props: {
       const value = yearField.value;
       const valueNum = Number(value);
 
-      if(isNaN(valueNum)) {
+      if (isNaN(valueNum)) {
         const cleanValue = value.replace(/[^0-9]/g, '');
         yearField.setValueSilently(cleanValue);
         setYear(Number(cleanValue));
-      } else if(value.length >= 4) {
-        if(valueNum < MIN_YEAR) {
+      } else if (value.length >= 4) {
+        if (valueNum < MIN_YEAR) {
           yearField.setValueSilently(String(MIN_YEAR));
           setYear(MIN_YEAR);
-        } else if(valueNum >= nowYear) {
+        } else if (valueNum >= nowYear) {
           yearField.setValueSilently(nowYear.toString());
           setYear(nowYear);
-          if(month() && month()!.value > nowMonth) {
+          if (month() && month()!.value > nowMonth) {
             setMonth(monthOptions[nowMonth - 1])
           }
         } else {
@@ -199,7 +199,7 @@ export default async function showBirthdayPopup(props: {
     })
     yearField.input.addEventListener('blur', () => {
       const value = yearField.value;
-      if(value.length !== 4) yearField.value = '';
+      if (value.length !== 4) yearField.value = '';
     });
 
     function openPrivacySettings() {
@@ -209,7 +209,7 @@ export default async function showBirthdayPopup(props: {
 
     createEffect(() => {
       const month$ = month();
-      if(month$) {
+      if (month$) {
         monthField.value = month$.text;
       }
     });
@@ -257,7 +257,7 @@ export default async function showBirthdayPopup(props: {
                   <a class={styles.privacyInfoLink} onClick={openPrivacySettings}>
                     <I18nTsx key={isContactsOnly ? 'BirthdayPopup.OnlyContactsLink' : 'BirthdayPopup.ChooseLink'} />
                     <IconTsx icon="next" />
-                  </a>
+                  </a>,
                 ]} />
             </div>
           </Show>
@@ -290,8 +290,8 @@ export default async function showBirthdayPopup(props: {
               props.fromSuggestion ? 'BirthdayPopup.SaveFromSuggestion' :
               props.suggestForPeer ? 'BirthdayPopup.Suggest' : 'Save'}
             callback={async() => {
-              if(!day() || !month()) return;
-              await props.onSave({_: 'birthday', day: day()!, month: month()!.value, year: year()});
+              if (!day() || !month()) return;
+              await props.onSave({ _: 'birthday', day: day()!, month: month()!.value, year: year() });
               return true;
             }}
           />

@@ -3,7 +3,7 @@
  * Ported from Telegram Web A (telegram-tt) — src/api/gramjs/methods/sctpSignaling.ts
  */
 
-import {logger} from '@lib/logger';
+import { logger } from '@lib/logger';
 import ByteBuf from '@lib/calls/p2P/byteBuf';
 
 const DEBUG_CALLS = true;
@@ -76,19 +76,19 @@ export class SctpSignaling {
   private reassembly?: ByteBuf[];
 
   wrapPayload(payload: ByteBuf) {
-    if(this.isEstablished && this.peerTag !== undefined) {
+    if (this.isEstablished && this.peerTag !== undefined) {
       return Array.from(this.createDataPacket(payload));
     }
 
     this.pendingPayloads.push(payload);
-    if(!this.initSent) {
+    if (!this.initSent) {
       return this.createInitRetryPacket();
     }
 
-    if(this.shouldRetryInit()) {
+    if (this.shouldRetryInit()) {
       logSctp('INIT retrying', {
         retryCount: this.initRetryCount,
-        pendingPayloadCount: this.pendingPayloads.length
+        pendingPayloadCount: this.pendingPayloads.length,
       });
       return this.createInitRetryPacket();
     }
@@ -97,7 +97,7 @@ export class SctpSignaling {
   }
 
   private shouldRetryInit() {
-    if(!this.initSentAt || this.peerTag !== undefined) {
+    if (!this.initSentAt || this.peerTag !== undefined) {
       return false;
     }
 
@@ -105,7 +105,7 @@ export class SctpSignaling {
   }
 
   private getInitRetryDelay() {
-    if(!this.initRetryCount) {
+    if (!this.initRetryCount) {
       return SCTP_INIT_RETRY_DELAY;
     }
 
@@ -127,68 +127,68 @@ export class SctpSignaling {
 
   receive(packet: ByteBuf) {
     const payloads: ByteBuf[] = [];
-    if(packet.length < 12) {
+    if (packet.length < 12) {
       logSctp('packet dropped: too short', {
-        length: packet.length
+        length: packet.length,
       });
       return payloads;
     }
 
-    if(!hasValidSctpChecksum(packet)) {
+    if (!hasValidSctpChecksum(packet)) {
       logSctp('packet dropped: invalid CRC32C', {
         length: packet.length,
         sourcePort: packet.readUInt16BE(0),
         destinationPort: packet.readUInt16BE(2),
-        verificationTag: packet.readUInt32BE(4)
+        verificationTag: packet.readUInt32BE(4),
       });
       return payloads;
     }
 
     const chunks = parseSctpChunks(packet);
     chunks.forEach((chunk) => {
-      if(!this.validateVerificationTag(packet, chunk.type)) {
+      if (!this.validateVerificationTag(packet, chunk.type)) {
         logSctp('chunk dropped: invalid verification tag', {
           chunkType: chunk.type,
           verificationTag: packet.readUInt32BE(4),
-          expectedVerificationTag: chunk.type === SCTP_INIT ? 0 : this.localTag
+          expectedVerificationTag: chunk.type === SCTP_INIT ? 0 : this.localTag,
         });
         return;
       }
 
-      if(chunk.type === SCTP_INIT) {
+      if (chunk.type === SCTP_INIT) {
         this.handleInit(chunk.body);
-      } else if(chunk.type === SCTP_INIT_ACK) {
+      } else if (chunk.type === SCTP_INIT_ACK) {
         this.handleInitAck(chunk.body);
-      } else if(chunk.type === SCTP_COOKIE_ECHO) {
-        if(!this.validateCookieEcho(chunk.body)) {
+      } else if (chunk.type === SCTP_COOKIE_ECHO) {
+        if (!this.validateCookieEcho(chunk.body)) {
           logSctp('COOKIE_ECHO ignored: invalid cookie', {
             cookieLength: chunk.body.length,
-            expectedCookieLength: this.cookie.length
+            expectedCookieLength: this.cookie.length,
           });
           return;
         }
         this.pendingPackets.push(Array.from(this.createPacket(SCTP_COOKIE_ACK, 0, ByteBuf.alloc(0))));
         this.markEstablished();
-      } else if(chunk.type === SCTP_COOKIE_ACK) {
+      } else if (chunk.type === SCTP_COOKIE_ACK) {
         this.markEstablished();
-      } else if(chunk.type === SCTP_DATA) {
+      } else if (chunk.type === SCTP_DATA) {
         payloads.push(...this.handleData(chunk.flags, chunk.body));
-      } else if(chunk.type === SCTP_SACK) {
+      } else if (chunk.type === SCTP_SACK) {
         this.handleSack(chunk.body);
-      } else if(chunk.type === SCTP_HEARTBEAT) {
+      } else if (chunk.type === SCTP_HEARTBEAT) {
         this.pendingPackets.push(Array.from(this.createPacket(SCTP_HEARTBEAT_ACK, 0, chunk.body)));
-      } else if(chunk.type === SCTP_HEARTBEAT_ACK) {
+      } else if (chunk.type === SCTP_HEARTBEAT_ACK) {
         // Nothing to do; accepting the chunk prevents Firefox/native peers from being logged as unsupported.
-      } else if(chunk.type === SCTP_ABORT) {
+      } else if (chunk.type === SCTP_ABORT) {
         logSctp('ABORT received; resetting association', {
-          bodyLength: chunk.body.length
+          bodyLength: chunk.body.length,
         });
         this.resetAssociation();
       } else {
         logSctp('chunk ignored: unsupported type', {
           chunkType: chunk.type,
           flags: chunk.flags,
-          bodyLength: chunk.body.length
+          bodyLength: chunk.body.length,
         });
       }
     });
@@ -202,7 +202,7 @@ export class SctpSignaling {
 
   private validateVerificationTag(packet: ByteBuf, chunkType: number) {
     const verificationTag = packet.readUInt32BE(4);
-    if(chunkType === SCTP_INIT) {
+    if (chunkType === SCTP_INIT) {
       return verificationTag === 0;
     }
 
@@ -210,9 +210,9 @@ export class SctpSignaling {
   }
 
   private handleInit(body: ByteBuf) {
-    if(body.length < 16) {
+    if (body.length < 16) {
       logSctp('INIT ignored: body too short', {
-        bodyLength: body.length
+        bodyLength: body.length,
       });
       return;
     }
@@ -226,9 +226,9 @@ export class SctpSignaling {
   }
 
   private handleInitAck(body: ByteBuf) {
-    if(body.length < 16) {
+    if (body.length < 16) {
       logSctp('INIT_ACK ignored: body too short', {
-        bodyLength: body.length
+        bodyLength: body.length,
       });
       return;
     }
@@ -238,19 +238,19 @@ export class SctpSignaling {
     this.peerCumulativeTsn = (this.peerInitialTsn - 1) >>> 0;
 
     const cookie = findSctpParameter(body.slice(16), SCTP_STATE_COOKIE);
-    if(cookie) {
+    if (cookie) {
       this.pendingPackets.push(Array.from(this.createPacket(SCTP_COOKIE_ECHO, 0, cookie)));
     } else {
       logSctp('INIT_ACK ignored: missing state cookie', {
-        bodyLength: body.length
+        bodyLength: body.length,
       });
     }
   }
 
   private handleData(flags: number, body: ByteBuf) {
-    if(body.length < 12) {
+    if (body.length < 12) {
       logSctp('DATA ignored: body too short', {
-        bodyLength: body.length
+        bodyLength: body.length,
       });
       return [];
     }
@@ -258,25 +258,25 @@ export class SctpSignaling {
     const tsn = body.readUInt32BE(0);
     const streamId = body.readUInt16BE(4);
     const ppid = body.readUInt32BE(8);
-    if(streamId !== SCTP_STREAM_ID || ppid !== SCTP_BINARY_PPID) {
+    if (streamId !== SCTP_STREAM_ID || ppid !== SCTP_BINARY_PPID) {
       logSctp('DATA ignored: unsupported stream or PPID', {
         streamId,
         ppid,
         expectedStreamId: SCTP_STREAM_ID,
-        expectedPpid: SCTP_BINARY_PPID
+        expectedPpid: SCTP_BINARY_PPID,
       });
       return [];
     }
 
     const expectedTsn = this.getNextPeerTsn();
-    if(expectedTsn !== undefined && tsn !== expectedTsn) {
-      if(isTsnAfter(tsn, expectedTsn)) {
+    if (expectedTsn !== undefined && tsn !== expectedTsn) {
+      if (isTsnAfter(tsn, expectedTsn)) {
         this.bufferPendingPeerData(tsn, flags, body, expectedTsn);
       } else {
         logSctp('DATA ignored: duplicate TSN', {
           tsn,
           peerCumulativeTsn: this.peerCumulativeTsn,
-          expectedTsn
+          expectedTsn,
         });
       }
       this.pendingPackets.push(Array.from(this.createSackPacket()));
@@ -292,15 +292,15 @@ export class SctpSignaling {
     let currentFlags = flags;
     let currentBody = body;
 
-    while(true) {
+    while (true) {
       const payload = this.readDataPayload(currentTsn, currentFlags, currentBody);
-      if(payload) {
+      if (payload) {
         payloads.push(payload);
       }
 
       const nextTsn = this.getNextPeerTsn();
       const nextChunk = nextTsn === undefined ? undefined : this.pendingPeerData.get(nextTsn);
-      if(nextTsn === undefined || !nextChunk) {
+      if (nextTsn === undefined || !nextChunk) {
         break;
       }
 
@@ -321,25 +321,25 @@ export class SctpSignaling {
     const userData = body.slice(12);
     const isBegin = Boolean(flags & 0x02);
     const isEnd = Boolean(flags & 0x01);
-    if(isBegin && isEnd) {
+    if (isBegin && isEnd) {
       return userData;
     }
 
-    if(isBegin) {
+    if (isBegin) {
       this.reassembly = [userData];
       return undefined;
     }
 
-    if(!this.reassembly) {
+    if (!this.reassembly) {
       logSctp('DATA ignored: missing reassembly start', {
         flags,
-        tsn
+        tsn,
       });
       return undefined;
     }
 
     this.reassembly.push(userData);
-    if(!isEnd) {
+    if (!isEnd) {
       return undefined;
     }
 
@@ -349,9 +349,9 @@ export class SctpSignaling {
   }
 
   private handleSack(body: ByteBuf) {
-    if(body.length < 12) {
+    if (body.length < 12) {
       logSctp('SACK ignored: body too short', {
-        bodyLength: body.length
+        bodyLength: body.length,
       });
       return;
     }
@@ -360,7 +360,7 @@ export class SctpSignaling {
   }
 
   private getNextPeerTsn() {
-    if(this.peerCumulativeTsn === undefined) {
+    if (this.peerCumulativeTsn === undefined) {
       return undefined;
     }
 
@@ -368,18 +368,18 @@ export class SctpSignaling {
   }
 
   private bufferPendingPeerData(tsn: number, flags: number, body: ByteBuf, expectedTsn: number) {
-    if(this.pendingPeerData.has(tsn)) {
+    if (this.pendingPeerData.has(tsn)) {
       logSctp('DATA ignored: already buffered TSN', {
         tsn,
         expectedTsn,
         pendingCount: this.pendingPeerData.size,
-        pendingBytes: this.pendingPeerDataSize
+        pendingBytes: this.pendingPeerDataSize,
       });
       return;
     }
 
     const tsnGap = getForwardTsnGap(tsn, expectedTsn);
-    if(
+    if (
       tsnGap > SCTP_MAX_PENDING_PEER_TSN_GAP ||
       this.pendingPeerData.size >= SCTP_MAX_PENDING_PEER_DATA_CHUNKS ||
       this.pendingPeerDataSize + body.length > SCTP_MAX_PENDING_PEER_DATA_BYTES
@@ -390,12 +390,12 @@ export class SctpSignaling {
         expectedTsn,
         tsnGap,
         pendingCount: this.pendingPeerData.size,
-        pendingBytes: this.pendingPeerDataSize
+        pendingBytes: this.pendingPeerDataSize,
       });
       return;
     }
 
-    this.pendingPeerData.set(tsn, {flags, body});
+    this.pendingPeerData.set(tsn, { flags, body });
     this.pendingPeerDataSize += body.length;
     logSctp('DATA buffered: TSN gap', {
       tsn,
@@ -403,13 +403,13 @@ export class SctpSignaling {
       expectedTsn,
       tsnGap,
       pendingCount: this.pendingPeerData.size,
-      pendingBytes: this.pendingPeerDataSize
+      pendingBytes: this.pendingPeerDataSize,
     });
   }
 
   private deletePendingPeerData(tsn: number) {
     const chunk = this.pendingPeerData.get(tsn);
-    if(!chunk) {
+    if (!chunk) {
       return;
     }
 
@@ -423,7 +423,7 @@ export class SctpSignaling {
   }
 
   private flushPendingPayloads() {
-    if(this.peerTag === undefined) {
+    if (this.peerTag === undefined) {
       return;
     }
 
@@ -435,7 +435,7 @@ export class SctpSignaling {
   }
 
   private markEstablished() {
-    if(this.isEstablished) {
+    if (this.isEstablished) {
       return;
     }
 
@@ -481,7 +481,7 @@ export class SctpSignaling {
 
     return this.createPacket(SCTP_INIT_ACK, 0, ByteBuf.concat([
       body,
-      createSctpParameter(SCTP_STATE_COOKIE, this.cookie)
+      createSctpParameter(SCTP_STATE_COOKIE, this.cookie),
     ]));
   }
 
@@ -549,14 +549,14 @@ function createSctpParameter(type: number, value: ByteBuf) {
 
 function findSctpParameter(parameters: ByteBuf, type: number) {
   let offset = 0;
-  while(offset + 4 <= parameters.length) {
+  while (offset + 4 <= parameters.length) {
     const parameterType = parameters.readUInt16BE(offset);
     const length = parameters.readUInt16BE(offset + 2);
-    if(length < 4 || offset + length > parameters.length) {
+    if (length < 4 || offset + length > parameters.length) {
       return undefined;
     }
 
-    if(parameterType === type) {
+    if (parameterType === type) {
       return parameters.slice(offset + 4, offset + length);
     }
 
@@ -569,18 +569,18 @@ function findSctpParameter(parameters: ByteBuf, type: number) {
 function parseSctpChunks(packet: ByteBuf) {
   const chunks: SctpChunk[] = [];
   let offset = 12;
-  while(offset + 4 <= packet.length) {
+  while (offset + 4 <= packet.length) {
     const type = packet[offset];
     const flags = packet[offset + 1];
     const length = packet.readUInt16BE(offset + 2);
-    if(length < 4 || offset + length > packet.length) {
+    if (length < 4 || offset + length > packet.length) {
       break;
     }
 
     chunks.push({
       type,
       flags,
-      body: packet.slice(offset + 4, offset + length)
+      body: packet.slice(offset + 4, offset + length),
     });
     offset += align4(length);
   }
@@ -619,9 +619,9 @@ function getForwardTsnGap(tsn: number, expectedTsn: number) {
 
 function createCrc32cTable() {
   const table: number[] = [];
-  for(let i = 0; i < 256; i++) {
+  for (let i = 0; i < 256; i++) {
     let value = i;
-    for(let bit = 0; bit < 8; bit++) {
+    for (let bit = 0; bit < 8; bit++) {
       value = value & 1 ? (0x82F63B78 ^ (value >>> 1)) : value >>> 1;
     }
     table[i] = value >>> 0;
@@ -633,14 +633,14 @@ function crc32c(data: ByteBuf) {
   const buffer = ByteBuf.wrap(data);
   buffer.writeUInt32LE(0, 8);
   let crc = 0xFFFFFFFF;
-  for(let i = 0; i < buffer.length; i++) {
+  for (let i = 0; i < buffer.length; i++) {
     crc = CRC32C_TABLE[(crc ^ buffer[i]) & 0xFF] ^ (crc >>> 8);
   }
   return (~crc) >>> 0;
 }
 
 function logSctp(message: string, data: Record<string, unknown> = {}) {
-  if(!DEBUG_CALLS) {
+  if (!DEBUG_CALLS) {
     return;
   }
 

@@ -1,12 +1,12 @@
-import {createEffect, createMemo, createSignal, on, onCleanup, onMount, Show} from 'solid-js';
+import { createEffect, createMemo, createSignal, on, onCleanup, onMount, Show } from 'solid-js';
 import Section from '@components/section';
 import Row from '@components/rowTsx';
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import {useAppSettings} from '@stores/appSettings';
+import { useAppSettings } from '@stores/appSettings';
 import showOutputDevicePopup from '@components/rtmp/outputDevicePopup';
 import applyDeviceToActiveCall from '@lib/calls/applyDeviceToActiveCall';
-import acquireStream, {StreamAcquisition} from '@lib/calls/helpers/acquireStream';
+import acquireStream, { StreamAcquisition } from '@lib/calls/helpers/acquireStream';
 import shouldMirrorVideoTrack from '@lib/calls/helpers/shouldMirrorVideoTrack';
 import classNames from '@helpers/string/classNames';
 
@@ -54,16 +54,16 @@ export default function CallCameraSection() {
     stopPreview();
     const id = appSettings.callDevices?.cameraId;
     const current = acquisition = acquireStream({
-      video: id ? {deviceId: {exact: id}} : true
+      video: id ? { deviceId: { exact: id } } : true,
     });
     try {
       const stream = await current.promise;
       // Disposed (popup closed / camera switched) while getUserMedia resolved —
       // dispose() already stopped the orphaned stream; nothing to show.
-      if(!stream) return;
+      if (!stream) return;
       setPreviewStream(stream);
       setPreviewError(undefined);
-    } catch(err) {
+    } catch (err) {
       // A disposed acquire resolves undefined, so only a real, still-wanted
       // error reaches here.
       const msg = err instanceof Error ? err.message : String(err);
@@ -87,13 +87,13 @@ export default function CallCameraSection() {
   // <video> in sync with the picker without manual wiring.
   createEffect(on(() => appSettings.callDevices?.cameraId, () => {
     startPreview();
-  }, {defer: true}));
+  }, { defer: true }));
 
   // Attach the preview stream to the <video> reactively. Setting srcObject
   // mid-stream is allowed and cheap; the browser switches frames on vsync.
   createEffect(() => {
     const stream = previewStream();
-    if(videoEl) {
+    if (videoEl) {
       videoEl.srcObject = stream || null;
     }
   });
@@ -108,7 +108,7 @@ export default function CallCameraSection() {
   });
 
   const labelFor = (id: string) => {
-    if(!id) return i18n('CallSettings.DeviceDefault');
+    if (!id) return i18n('CallSettings.DeviceDefault');
     const found = devices().find((d) => d.kind === 'videoinput' && d.deviceId === id);
     return found ? wrapEmojiText(found.label || found.deviceId) : i18n('CallSettings.DeviceDefault');
   };
@@ -127,7 +127,7 @@ export default function CallCameraSection() {
       },
       onStaleCurrentId: () => {
         setAppSettings('callDevices', 'cameraId', '');
-      }
+      },
     });
   };
 

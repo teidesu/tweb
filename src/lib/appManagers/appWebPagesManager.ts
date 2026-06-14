@@ -5,12 +5,12 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import {ReferenceContext} from '@lib/storages/references';
-import {Document, Photo, WebPage} from '@layer';
+import { ReferenceContext } from '@lib/storages/references';
+import { Document, Photo, WebPage } from '@layer';
 import safeReplaceObject from '@helpers/object/safeReplaceObject';
-import {AppManager} from '@appManagers/manager';
+import { AppManager } from '@appManagers/manager';
 import findAndSplice from '@helpers/array/findAndSplice';
-import {isTruthy} from '../../helpers/isTruthy';
+import { isTruthy } from '../../helpers/isTruthy';
 
 const photoTypeSet = new Set(['photo', 'video', 'gif', 'document']);
 
@@ -32,18 +32,18 @@ export class AppWebPagesManager extends AppManager {
 
       updateChannelWebPage: (update) => {
         this.saveWebPage(update.webpage);
-      }
+      },
     });
   }
 
   public saveWebPage(apiWebPage: WebPage, messageKey?: WebPageMessageKey, mediaContext?: ReferenceContext) {
-    if(apiWebPage._ === 'webPageNotModified' || apiWebPage._ === 'webPageEmpty') {
+    if (apiWebPage._ === 'webPageNotModified' || apiWebPage._ === 'webPageEmpty') {
       return;
     }
 
-    const {id} = apiWebPage;
+    const { id } = apiWebPage;
     const oldWebPage = this.webpages[id];
-    if(oldWebPage?._ === 'webPage' && apiWebPage._ !== oldWebPage._) {
+    if (oldWebPage?._ === 'webPage' && apiWebPage._ !== oldWebPage._) {
       this.log.warn('ignore webpage update, type changed', oldWebPage, apiWebPage);
       return oldWebPage;
     }
@@ -57,39 +57,39 @@ export class AppWebPagesManager extends AppManager {
 
     mediaContext ??= {
       type: 'webPage',
-      url: apiWebPage.url!
+      url: apiWebPage.url!,
     };
 
-    if(apiWebPage._ === 'webPage') {
-      if(apiWebPage.photo?._ === 'photo') {
+    if (apiWebPage._ === 'webPage') {
+      if (apiWebPage.photo?._ === 'photo') {
         apiWebPage.photo = this.appPhotosManager.savePhoto(apiWebPage.photo, mediaContext);
       } else {
         delete apiWebPage.photo;
       }
 
-      if(apiWebPage.document?._ === 'document') {
+      if (apiWebPage.document?._ === 'document') {
         apiWebPage.document = this.appDocsManager.saveDoc(apiWebPage.document, mediaContext);
       } else {
-        if(apiWebPage.type === 'document') {
+        if (apiWebPage.type === 'document') {
           delete apiWebPage.type;
         }
 
         delete apiWebPage.document;
       }
 
-      if(oldWebPage?._ === apiWebPage._) {
+      if (oldWebPage?._ === apiWebPage._) {
         isMediaUpdated = oldWebPage.photo?.id !== apiWebPage.photo?.id ||
           oldWebPage.document?.id !== apiWebPage.document?.id;
       }
 
       const siteName = apiWebPage.site_name;
       const shortTitle = apiWebPage.title || apiWebPage.author || '';
-      if(siteName && shortTitle === siteName) {
+      if (siteName && shortTitle === siteName) {
         delete apiWebPage.site_name;
       }
 
-      for(const attribute of apiWebPage.attributes || []) {
-        switch(attribute._) {
+      for (const attribute of apiWebPage.attributes || []) {
+        switch (attribute._) {
           case 'webPageAttributeStory': {
             const cache = this.appStoriesManager.getPeerStoriesCache(this.appPeersManager.getPeerId(attribute.peer));
             attribute.story = this.appStoriesManager.saveStoryItem(attribute.story!, cache);
@@ -99,7 +99,7 @@ export class AppWebPagesManager extends AppManager {
       }
 
       const cachedPage = apiWebPage.cached_page;
-      if(cachedPage) {
+      if (cachedPage) {
         cachedPage.photos = cachedPage.photos?.map((photo) => {
           return this.appPhotosManager.savePhoto(photo, mediaContext);
         }).filter(isTruthy);
@@ -108,24 +108,24 @@ export class AppWebPagesManager extends AppManager {
           return this.appDocsManager.saveDoc(doc, mediaContext);
         }).filter(isTruthy);
 
-        if(apiWebPage.photo) {
+        if (apiWebPage.photo) {
           findAndSplice(cachedPage.photos, (photo) => photo.id === apiWebPage.photo!.id);
           cachedPage.photos.push(apiWebPage.photo);
         }
 
-        if(apiWebPage.document) {
+        if (apiWebPage.document) {
           findAndSplice(cachedPage.documents, (doc) => doc.id === apiWebPage.document!.id);
           cachedPage.documents.push(apiWebPage.document);
         }
 
         cachedPage.blocks.forEach((block) => {
-          if('channel' in block) {
+          if ('channel' in block) {
             this.appChatsManager.saveApiChats([block.channel]);
           }
         });
       }
 
-      if(!photoTypeSet.has(apiWebPage.type!) &&
+      if (!photoTypeSet.has(apiWebPage.type!) &&
         !apiWebPage.description &&
         apiWebPage.photo) {
         apiWebPage.type = 'photo';
@@ -133,31 +133,31 @@ export class AppWebPagesManager extends AppManager {
     }
 
     let pendingSet = this.pendingWebPages[id];
-    if(messageKey) {
-      if(!pendingSet) pendingSet = this.pendingWebPages[id] = new Set();
+    if (messageKey) {
+      if (!pendingSet) pendingSet = this.pendingWebPages[id] = new Set();
       pendingSet.add(messageKey);
     }
 
-    if(oldWebPage === undefined) {
+    if (oldWebPage === undefined) {
       this.webpages[id] = apiWebPage;
     } else {
       safeReplaceObject(oldWebPage, apiWebPage);
     }
 
-    if(((!messageKey && isUpdated) || isMediaUpdated) && pendingSet !== undefined) {
+    if (((!messageKey && isUpdated) || isMediaUpdated) && pendingSet !== undefined) {
       const msgs: {peerId: PeerId, mid: number, isScheduled: boolean}[] = [];
       pendingSet.forEach((value) => {
         const [peerId, mid, isScheduled] = value.split('_');
         msgs.push({
           peerId: peerId.toPeerId(),
           mid: +mid,
-          isScheduled: !!isScheduled
+          isScheduled: !!isScheduled,
         });
       });
 
       this.rootScope.dispatchEvent('webpage_updated', {
         id,
-        msgs
+        msgs,
       });
     }
 
@@ -170,15 +170,15 @@ export class AppWebPagesManager extends AppManager {
 
   public deleteWebPageFromPending(webPage: WebPage, messageKey: WebPageMessageKey) {
     const id = (webPage as WebPage.webPage).id;
-    if(!id) {
+    if (!id) {
       return;
     }
 
     const set = this.pendingWebPages[id];
-    if(set && set.has(messageKey)) {
+    if (set && set.has(messageKey)) {
       set.delete(messageKey);
 
-      if(!set.size) {
+      if (!set.size) {
         delete this.pendingWebPages[id];
       }
     }
@@ -196,8 +196,8 @@ export class AppWebPagesManager extends AppManager {
         return this.saveWebPage(messagesWebPage.webpage);
       },
       params: {
-        url
-      }
+        url,
+      },
     });
   }
 }

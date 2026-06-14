@@ -1,8 +1,8 @@
 import DEBUG from '@config/debug';
-import {Middleware} from '@helpers/middleware';
+import { Middleware } from '@helpers/middleware';
 
-import {log} from '@lib/hls/common';
-import {hlsInstancesByVideo} from '@lib/hls/hlsInstancesByVideo';
+import { log } from '@lib/hls/common';
+import { hlsInstancesByVideo } from '@lib/hls/hlsInstancesByVideo';
 
 type InitVideoHlsParameters = {
   video: HTMLVideoElement;
@@ -10,8 +10,8 @@ type InitVideoHlsParameters = {
   middleware: Middleware;
 };
 
-export async function initVideoHls({video, src, middleware}: InitVideoHlsParameters) {
-  const {default: Hls} = await import('hls.js');
+export async function initVideoHls({ video, src, middleware }: InitVideoHlsParameters) {
+  const { default: Hls } = await import('hls.js');
 
   log('initing video hls', src);
 
@@ -25,7 +25,7 @@ export async function initVideoHls({video, src, middleware}: InitVideoHlsParamet
     maxMaxBufferLength: 60,
     maxFragLookUpTolerance: 0.001,
     maxBufferHole: 1,
-    nudgeMaxRetry: 10000
+    nudgeMaxRetry: 10000,
   });
 
   hlsInstancesByVideo.set(video, hls);

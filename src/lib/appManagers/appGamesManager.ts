@@ -1,21 +1,21 @@
-import {Game, Photo, Document, MessagesHighScores} from '@layer';
-import {AppManager} from '@appManagers/manager';
+import { Game, Photo, Document, MessagesHighScores } from '@layer';
+import { AppManager } from '@appManagers/manager';
 import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
-import type {ReferenceContext} from '@lib/storages/references';
+import type { ReferenceContext } from '@lib/storages/references';
 
 export default class AppGamesManager extends AppManager {
   public saveGame(game: Game, mediaContext?: ReferenceContext): Game {
-    if(!game || game._ !== 'game') return game;
-    if(game.photo) {
+    if (!game || game._ !== 'game') return game;
+    if (game.photo) {
       game.photo = this.appPhotosManager.savePhoto(game.photo, mediaContext) || game.photo;
     }
-    if(game.document) {
+    if (game.document) {
       game.document = this.appDocsManager.saveDoc(game.document, mediaContext) || game.document;
     }
     return game;
   }
 
-  public setGameScore({peerId, mid, userId, score, editMessage, force}: {
+  public setGameScore({ peerId, mid, userId, score, editMessage, force }: {
     peerId: PeerId,
     mid: number,
     userId: UserId,
@@ -31,12 +31,12 @@ export default class AppGamesManager extends AppManager {
         user_id: this.appUsersManager.getUserInput(userId),
         score,
         edit_message: editMessage,
-        force
+        force,
       },
       processResult: (updates) => {
         this.apiUpdatesManager.processUpdateMessage(updates);
         return true;
-      }
+      },
     });
   }
 
@@ -46,12 +46,12 @@ export default class AppGamesManager extends AppManager {
       params: {
         peer: this.appPeersManager.getInputPeerById(peerId),
         id: getServerMessageId(mid)!,
-        user_id: this.appUsersManager.getUserInput(userId)
+        user_id: this.appUsersManager.getUserInput(userId),
       },
       processResult: (highScores) => {
         this.appPeersManager.saveApiPeers(highScores);
         return highScores;
-      }
+      },
     });
   }
 }

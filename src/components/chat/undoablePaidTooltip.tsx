@@ -1,12 +1,12 @@
-import {Accessor, createEffect, createRoot, createSignal, onCleanup} from 'solid-js';
+import { Accessor, createEffect, createRoot, createSignal, onCleanup } from 'solid-js';
 
-import {SEND_PAID_WITH_STARS_DELAY} from '@appManagers/constants';
-import I18n, {i18n, LangPackKey} from '@lib/langPack';
+import { SEND_PAID_WITH_STARS_DELAY } from '@appManagers/constants';
+import I18n, { i18n, LangPackKey } from '@lib/langPack';
 import classNames from '@helpers/string/classNames';
 import eachSecond from '@helpers/eachSecond';
-import {animate} from '@helpers/animation';
+import { animate } from '@helpers/animation';
 
-import {AnimatedCounter} from '@components/animatedCounter';
+import { AnimatedCounter } from '@components/animatedCounter';
 import showChatToast from '@components/chat/chatToast';
 
 
@@ -17,12 +17,12 @@ type LangKeys = {
 
 export const paidReactionLangKeys: LangKeys = {
   titleKey: 'PaidReaction.Sent',
-  subtitleKey: 'StarsSentText'
+  subtitleKey: 'StarsSentText',
 };
 
 export const paidMessagesLangKeys: LangKeys = {
   titleKey: 'PaidMessages.MessagesSent',
-  subtitleKey: 'PaidMessages.YouPaidForMessages'
+  subtitleKey: 'PaidMessages.YouPaidForMessages',
 };
 
 
@@ -37,16 +37,16 @@ export default function showUndoablePaidTooltip(props: {
     const [secondsLeft, setSecondsLeft] = createSignal<number>();
     const [progressCircumference, setProgressCircumference] = createSignal<number>();
 
-    const title = new I18n.IntlElement({key: props.titleKey});
-    const subtitle = new I18n.IntlElement({key: props.subtitleKey});
+    const title = new I18n.IntlElement({ key: props.titleKey });
+    const subtitle = new I18n.IntlElement({ key: props.subtitleKey });
 
     createEffect(() => {
-      title.compareAndUpdate({args: [props.titleCount()]});
-      subtitle.compareAndUpdate({args: [props.subtitleCount()]});
+      title.compareAndUpdate({ args: [props.titleCount()] });
+      subtitle.compareAndUpdate({ args: [props.subtitleCount()] });
     });
 
     createEffect(() => {
-      if(!(!!props.sendTime())) {
+      if (!(!!props.sendTime())) {
         dispose();
         hide();
       } else {
@@ -72,10 +72,10 @@ export default function showUndoablePaidTooltip(props: {
     const radius = 10;
     const circumference = radius * 2 * Math.PI;
 
-    const countdown = new AnimatedCounter({reverse: false});
+    const countdown = new AnimatedCounter({ reverse: false });
     createEffect(() => countdown.setCount(secondsLeft()!));
 
-    const {hide} = showChatToast({
+    const { hide } = showChatToast({
       animation: 'fade',
       // the undo countdown outlives a chat switch — the send can still be aborted
       closeOnPeerChange: false,
@@ -105,7 +105,7 @@ export default function showUndoablePaidTooltip(props: {
           </span>
         </span>
       ),
-      icon: 'star'
+      icon: 'star',
     });
   });
 }

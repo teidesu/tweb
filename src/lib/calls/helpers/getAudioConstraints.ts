@@ -1,5 +1,5 @@
-import constraintSupported, {MyMediaTrackSupportedConstraints} from '@environment/constraintSupport';
-import {appSettings} from '@stores/appSettings';
+import constraintSupported, { MyMediaTrackSupportedConstraints } from '@environment/constraintSupport';
+import { appSettings } from '@stores/appSettings';
 
 // `deviceId` opt-in: callers pass the persisted choice from
 // `appSettings.callDevices.microphoneId`; the helper falls back to the store
@@ -12,16 +12,16 @@ import {appSettings} from '@stores/appSettings';
 // makes a call dramatically worse for the remote side.
 export default function getAudioConstraints(deviceId?: string): MediaTrackConstraints {
   const constraints: MediaTrackConstraints = {
-    channelCount: 2
+    channelCount: 2,
   };
 
   const desirable: (keyof MyMediaTrackSupportedConstraints)[] = [
     'echoCancellation',
-    'autoGainControl'
+    'autoGainControl',
   ];
 
   desirable.forEach((constraint) => {
-    if(constraintSupported(constraint)) {
+    if (constraintSupported(constraint)) {
       // @ts-ignore
       constraints[constraint] = true;
     }
@@ -29,14 +29,14 @@ export default function getAudioConstraints(deviceId?: string): MediaTrackConstr
 
   // `noiseSuppression` defaults to true (legacy behavior) — opt-out via the
   // call settings toggle when the user wants to capture ambient sound.
-  if(constraintSupported('noiseSuppression')) {
+  if (constraintSupported('noiseSuppression')) {
     const enabled = appSettings.callDevices?.noiseSuppression ?? true;
     constraints.noiseSuppression = enabled;
   }
 
   const id = deviceId ?? appSettings.callDevices?.microphoneId;
-  if(id) {
-    constraints.deviceId = {exact: id};
+  if (id) {
+    constraints.deviceId = { exact: id };
   }
 
   return constraints;

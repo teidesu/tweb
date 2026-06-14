@@ -5,7 +5,7 @@ function readBigIntFromBytesBE(bytes: Uint8Array) {
   const length = bytes.length;
   const bits = length * 8;
   let value = bigInt(bytes[0]).and(0x7F).shiftLeft(bits - 8);
-  for(let i = 1; i < length; ++i) {
+  for (let i = 1; i < length; ++i) {
     const _bits = bits - (i + 1) * 8;
     const b = bigInt(bytes[i]);
     value = value.or(_bits ? b.shiftLeft(_bits) : b);
@@ -64,7 +64,7 @@ const emojis = [
   '1f1f7-1f1fa', '1f1ec-1f1e7', '0031-20e3', '0032-20e3', '0033-20e3',
   '0034-20e3', '0035-20e3', '0036-20e3', '0037-20e3', '0038-20e3', '0039-20e3',
   '0030-20e3', '1f51f', '2757', '2753', '2665', '2666', '1f4af', '1f517',
-  '1f531', '1f534', '1f535', '1f536', '1f537'
+  '1f531', '1f534', '1f535', '1f536', '1f537',
 ];
 
 export default async function getEmojisFingerprint(key: Uint8Array, g_a: Uint8Array): Promise<[string, string, string, string]> {
@@ -75,7 +75,7 @@ export default async function getEmojisFingerprint(key: Uint8Array, g_a: Uint8Ar
   const emojisLength = emojis.length;
 
   const kPartSize = 8;
-  for(let partOffset = 0; partOffset != hash.length; partOffset += kPartSize) {
+  for (let partOffset = 0; partOffset != hash.length; partOffset += kPartSize) {
     const bytes = hash.slice(partOffset, partOffset + kPartSize);
     const value = readBigIntFromBytesBE(bytes);
     const index = value.mod(emojisLength).toJSNumber();

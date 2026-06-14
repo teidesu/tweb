@@ -1,8 +1,8 @@
-import {MAX_ACCOUNTS_FREE, MAX_ACCOUNTS_PREMIUM} from '@lib/accounts/constants';
-import {i18n, i18n_} from '@lib/langPack';
+import { MAX_ACCOUNTS_FREE, MAX_ACCOUNTS_PREMIUM } from '@lib/accounts/constants';
+import { i18n, i18n_ } from '@lib/langPack';
 
 import Button from '@components/button';
-import {IconTsx} from '@components/iconTsx';
+import { IconTsx } from '@components/iconTsx';
 
 export default function AccountsLimitPopupContent(props: {onCancel: () => void; onSubmit: () => void}) {
   return (
@@ -21,11 +21,11 @@ export default function AccountsLimitPopupContent(props: {onCancel: () => void; 
         </div>
       </div>
 
-      <div class="accounts-limit__description">{i18n_({key: 'MultiAccount.AccountsLimitDescription'})}</div>
+      <div class="accounts-limit__description">{i18n_({ key: 'MultiAccount.AccountsLimitDescription' })}</div>
 
       <div class="accounts-limit__actions">
         {(() => {
-          const cancelButton = Button('popup-button btn primary', {text: 'Cancel'});
+          const cancelButton = Button('popup-button btn primary', { text: 'Cancel' });
           cancelButton.addEventListener('click', props.onCancel);
           return cancelButton;
         })()}

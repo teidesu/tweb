@@ -7,15 +7,15 @@ export function mergeSortedArrays<T>(
   let i = 0,
     j = 0;
 
-  while(i < arrA.length && j < arrB.length) {
+  while (i < arrA.length && j < arrB.length) {
     const a = arrA[i];
     const b = arrB[j];
 
-    if(compare(a, b) === 0) {
+    if (compare(a, b) === 0) {
       result.push(b);
       i++;
       j++;
-    } else if(compare(a, b) < 0) {
+    } else if (compare(a, b) < 0) {
       result.push(a);
       i++;
     } else {
@@ -25,8 +25,8 @@ export function mergeSortedArrays<T>(
   }
 
   // Drain any leftovers
-  while(i < arrA.length) result.push(arrA[i++]);
-  while(j < arrB.length) result.push(arrB[j++]);
+  while (i < arrA.length) result.push(arrA[i++]);
+  while (j < arrB.length) result.push(arrB[j++]);
 
   return result;
 }

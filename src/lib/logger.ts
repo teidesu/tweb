@@ -1,8 +1,8 @@
 import DEBUG from '@config/debug';
-import {IS_FIREFOX, IS_SAFARI} from '@environment/userAgent';
-import {IS_SERVICE_WORKER, IS_WEB_WORKER} from '@helpers/context';
+import { IS_FIREFOX, IS_SAFARI } from '@environment/userAgent';
+import { IS_SERVICE_WORKER, IS_WEB_WORKER } from '@helpers/context';
 import dT from '@helpers/dT';
-import {capture} from '@lib/debug/logsBuffer';
+import { capture } from '@lib/debug/logsBuffer';
 
 export enum LogTypes {
   None = 0,
@@ -17,7 +17,7 @@ export const LOG_LEVELS = [
   LogTypes.Error,
   LogTypes.Warn,
   LogTypes.Log,
-  LogTypes.Debug
+  LogTypes.Debug,
 ];
 
 const IS_WEBKIT = IS_SAFARI || IS_FIREFOX;
@@ -67,7 +67,7 @@ export const LOGGER_STYLES = {
     blue: '\x1b[34m',
     magenta: '\x1b[35m',
     cyan: '\x1b[36m',
-    white: '\x1b[37m'
+    white: '\x1b[37m',
   },
   // Background colors
   bg: {
@@ -78,8 +78,8 @@ export const LOGGER_STYLES = {
     blue: '\x1b[44m',
     magenta: '\x1b[45m',
     cyan: '\x1b[46m',
-    white: '\x1b[47m'
-  }
+    white: '\x1b[47m',
+  },
 };
 
 export type Logger = {
@@ -111,7 +111,7 @@ const methods: [
   ['trace', LogTypes.Log],
   ['group', LogTypes.Log],
   ['groupCollapsed', LogTypes.Log],
-  ['groupEnd', LogTypes.Log]
+  ['groupEnd', LogTypes.Log],
   // ["log", LogTypes.Log]
 ];
 
@@ -122,19 +122,19 @@ export function logger(
   style = ''
 ): Logger {
   let originalPrefix: string;
-  if(!DEBUG && !ignoreDebugReset/*  || true */) {
+  if (!DEBUG && !ignoreDebugReset/*  || true */) {
     type = LogTypes.Error;
   }
 
-  if(!STYLES_SUPPORTED) {
+  if (!STYLES_SUPPORTED) {
     style = '';
-  } else if(!style) {
-    if(IS_SERVICE_WORKER) style = LOGGER_STYLES.fg.yellow;
-    else if(IS_WEB_WORKER) style = LOGGER_STYLES.fg.cyan;
+  } else if (!style) {
+    if (IS_SERVICE_WORKER) style = LOGGER_STYLES.fg.yellow;
+    else if (IS_WEB_WORKER) style = LOGGER_STYLES.fg.cyan;
   }
 
   const originalStyle = style;
-  if(style) style = `%s ${style}%s`;
+  if (style) style = `%s ${style}%s`;
   else style = '%s';
 
   // level = LogLevels.log | LogLevels.warn | LogLevels.error | LogLevels.debug
@@ -152,7 +152,7 @@ export function logger(
       // production-with-?debug=1 the worker keeps `type` at Error-only (quiet
       // console) yet we still want the full timeline recorded. capture() self-
       // gates on its own DEBUG-backed flag.
-      if(!isGroup) capture(logType, prefix, args);
+      if (!isGroup) capture(logType, prefix, args);
       return type & logType && console[method](style, dT(), prefix, /* getCallerFunctionName(), */ ...args);
     };
   });

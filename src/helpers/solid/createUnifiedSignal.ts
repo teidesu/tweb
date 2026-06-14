@@ -1,4 +1,4 @@
-import {createSignal, Setter} from 'solid-js';
+import { createSignal, Setter } from 'solid-js';
 
 /**
  * do not use getter in JSX
@@ -7,7 +7,7 @@ export default function createUnifiedSignal<T = any>(...args: Partial<Parameters
   const [getter, setter] = createSignal<T>(...args as Parameters<typeof createSignal<T>>);
   return <A extends Parameters<Setter<T>>>(...args: Partial<A>) => {
     // @ts-ignore
-    if(args.length === 0) {
+    if (args.length === 0) {
       return getter();
     }
 

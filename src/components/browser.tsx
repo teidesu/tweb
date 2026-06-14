@@ -1,62 +1,62 @@
-import {Portal} from 'solid-js/web';
-import {batch, createContext, createEffect, createRoot, For, onCleanup, onMount, useContext, JSX, createMemo, createSignal, Accessor, untrack, createResource, Resource, on, createReaction, Show, createRenderEffect, createComputed, Setter} from 'solid-js';
+import { Portal } from 'solid-js/web';
+import { batch, createContext, createEffect, createRoot, For, onCleanup, onMount, useContext, JSX, createMemo, createSignal, Accessor, untrack, createResource, Resource, on, createReaction, Show, createRenderEffect, createComputed, Setter } from 'solid-js';
 import styles from '@components/browser.module.scss';
-import {ButtonIconTsx} from '@components/buttonIconTsx';
+import { ButtonIconTsx } from '@components/buttonIconTsx';
 import getTextWidth from '@helpers/canvas/getTextWidth';
-import {FontFull, FontFullBold} from '@config/font';
-import {createStore, reconcile, unwrap} from 'solid-js/store';
+import { FontFull, FontFullBold } from '@config/font';
+import { createStore, reconcile, unwrap } from 'solid-js/store';
 import untrackActions from '@helpers/solid/untrackActions';
 import classNames from '@helpers/string/classNames';
 import Scrollable from '@components/scrollable2';
 import fastSmoothScroll from '@helpers/fastSmoothScroll';
-import {IconTsx} from '@components/iconTsx';
-import {ButtonMenuItemOptions, ButtonMenuItemOptionsVerifiable, ButtonMenuSync} from '@components/buttonMenu';
-import {attachContextMenuListener} from '@helpers/dom/attachContextMenuListener';
+import { IconTsx } from '@components/iconTsx';
+import { ButtonMenuItemOptions, ButtonMenuItemOptionsVerifiable, ButtonMenuSync } from '@components/buttonMenu';
+import { attachContextMenuListener } from '@helpers/dom/attachContextMenuListener';
 import ListenerSetter from '@helpers/listenerSetter';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import contextMenuController from '@helpers/contextMenuController';
 import positionMenu from '@helpers/positionMenu';
 import copy from '@helpers/object/copy';
-import {filterButtonMenuItems} from '@components/buttonMenuToggle';
+import { filterButtonMenuItems } from '@components/buttonMenuToggle';
 import Animated from '@helpers/solid/animations';
-import WebApp, {WebAppLaunchOptions} from '@components/webApp';
+import WebApp, { WebAppLaunchOptions } from '@components/webApp';
 import deferredPromise from '@helpers/cancellablePromise';
 import documentFragmentToNodes from '@helpers/dom/documentFragmentToNodes';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import I18n, {i18n} from '@lib/langPack';
-import {avatarNew} from '@components/avatarNew';
-import {getMiddleware} from '@helpers/middleware';
+import I18n, { i18n } from '@lib/langPack';
+import { avatarNew } from '@components/avatarNew';
+import { getMiddleware } from '@helpers/middleware';
 import MovablePanel from '@helpers/movablePanel';
-import {MovableState} from '@components/movableElement';
-import {Ref, resolveElements, resolveFirst} from '@solid-primitives/refs';
+import { MovableState } from '@components/movableElement';
+import { Ref, resolveElements, resolveFirst } from '@solid-primitives/refs';
 import Section from '@components/section';
 import InputSearch from '@components/inputSearch';
 import rootScope from '@lib/rootScope';
-import {SimilarPeer} from '@components/chat/similarChannels';
+import { SimilarPeer } from '@components/chat/similarChannels';
 import SearchIndex from '@lib/searchIndex';
-import {useUser} from '@stores/peers';
-import {Game, Message, Page, User} from '@layer';
+import { useUser } from '@stores/peers';
+import { Game, Message, Page, User } from '@layer';
 import TelegramWebView from '@components/telegramWebView';
 import showForwardPopup from '@components/popups/forward';
 import getPeerActiveUsernames from '@appManagers/utils/peers/getPeerActiveUsernames';
 import internalLinkProcessor from '@lib/internalLinkProcessor';
-import {INTERNAL_LINK_TYPE} from '@lib/internalLink';
-import {InstantView} from '@components/instantView';
-import {WebPage} from '@layer';
+import { INTERNAL_LINK_TYPE } from '@lib/internalLink';
+import { InstantView } from '@components/instantView';
+import { WebPage } from '@layer';
 import SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
-import {copyTextToClipboard} from '@helpers/clipboard';
+import { copyTextToClipboard } from '@helpers/clipboard';
 import safeWindowOpen from '@helpers/dom/safeWindowOpen';
 import wrapTelegramRichText from '@lib/richTextProcessor/wrapTelegramRichText';
 import limitSymbols from '@helpers/string/limitSymbols';
-import {toastNew} from '@components/toast';
+import { toastNew } from '@components/toast';
 import pause from '@helpers/schedulers/pause';
 import assumeType from '@helpers/assumeType';
-import {useAppSettings} from '@stores/appSettings';
+import { useAppSettings } from '@stores/appSettings';
 import cancelEvent from '@helpers/dom/cancelEvent';
 import clamp from '@helpers/number/clamp';
 import windowSize from '@helpers/windowSize';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import {isTruthy} from '../helpers/isTruthy';
+import { isTruthy } from '../helpers/isTruthy';
 
 type BrowserPageProps<T = {}> = T & {
   title: string, // plain text
@@ -99,13 +99,13 @@ function BrowserHeaderTab(props: {
   const [state, actions] = useContext(BrowserContext)!;
   const isActive = createMemo(() => !state.collapsed && state.page === props.page);
   const transform = createMemo(() => {
-    if(!state.collapsed) {
+    if (!state.collapsed) {
       return '';
     }
 
     const index = props.index();
     let value = -20 + Math.min(2, index) * -26;
-    if(index > 2) {
+    if (index > 2) {
       value += (index - 2) * -40;
     }
 
@@ -123,7 +123,7 @@ function BrowserHeaderTab(props: {
       style={{
         '--text-width': props.page.titleWidth!() + 26 + 'px',
         'z-index': Math.max(1, 4 - props.index()),
-        'transform': transform()
+        'transform': transform(),
       }}
       onClick={() => actions.select(props.page)}
     >
@@ -161,7 +161,7 @@ function BrowserHeader(props: {
   createEffect(() => {
     const page = state.page;
     const scrollFromPage = state.page?.scrollFromPage;
-    if(!scrollFromPage) {
+    if (!scrollFromPage) {
       return;
     }
 
@@ -171,37 +171,37 @@ function BrowserHeader(props: {
       position: 'center',
       axis: 'x',
       forceDuration: 200,
-      getNormalSize: ({rect}) => {
+      getNormalSize: ({ rect }) => {
         const diff = scrollFromPage.titleWidth!() - page.titleWidth!();
         return rect.width + diff/*  + page.titleWidth */;
-      }
+      },
     });
   });
 
   const openPageMenu = async(e: MouseEvent | TouchEvent) => {
     const target = findUpClassName(e.target!, styles.BrowserHeaderTab);
-    if(!target) {
+    if (!target) {
       return;
     }
 
-    if(e instanceof MouseEvent) e.preventDefault();
+    if (e instanceof MouseEvent) e.preventDefault();
     // smth
-    if(e instanceof MouseEvent) e.cancelBubble = true;
+    if (e instanceof MouseEvent) e.cancelBubble = true;
 
     const page = state.pages.find((page) => tabMap.get(page.id!) === target);
-    if(!page?.menuButtons) {
+    if (!page?.menuButtons) {
       return;
     }
 
     const listenerSetter = new ListenerSetter();
     const copied = page.menuButtons.map((button) => (button = unwrap(button), button.element ? button : copy(button)));
     const buttons = (await filterButtonMenuItems(copied)).map((button) => {
-      button.options = {listenerSetter};
+      button.options = { listenerSetter };
       return button;
     });
     const element = ButtonMenuSync({
       buttons: buttons as ButtonMenuItemOptions[],
-      listenerSetter
+      listenerSetter,
     });
     element.classList.add('contextmenu');
 
@@ -221,7 +221,7 @@ function BrowserHeader(props: {
     attachContextMenuListener({
       element: scrollableRef!,
       callback: openPageMenu,
-      listenerSetter
+      listenerSetter,
     });
 
     onCleanup(() => {
@@ -232,9 +232,9 @@ function BrowserHeader(props: {
   const collapsedTitle = createMemo(() => {
     const wrapTitles = (pages: BrowserPageProps[]) => pages.map((page) => wrapEmojiText(page.title));
     const pages = state.pages;
-    if(pages.length === 1) {
+    if (pages.length === 1) {
       return i18n('MiniApps.Collapsed.One', wrapTitles([pages[0]]));
-    } else if(pages.length === 2) {
+    } else if (pages.length === 2) {
       return i18n('MiniApps.Collapsed.Two', wrapTitles(pages.slice(0, 2)));
     } else {
       return i18n('MiniApps.Collapsed.Many', [...wrapTitles([pages[0]]), pages.length - 1]);
@@ -246,7 +246,7 @@ function BrowserHeader(props: {
     <div class={styles.BrowserHeader}>
       <BrowserHeaderButton
         onClick={() => {
-          if(needBackButton()) {
+          if (needBackButton()) {
             state.page.onBackClick!();
           } else {
             actions.close(state.page);
@@ -266,7 +266,7 @@ function BrowserHeader(props: {
             class={styles.BrowserHeaderSelector}
             style={{
               transform: `translateX(${state.index * 40 + 7 + (state.index >= 1 ? 16 : 0)}px)`,
-              width: state.page.titleWidth!() + 16 * 2 + 34 + 'px'
+              width: state.page.titleWidth!() + 16 * 2 + 34 + 'px',
             }}
           >
             <BrowserHeaderTipSvg left />
@@ -295,7 +295,7 @@ function BrowserHeader(props: {
       </Scrollable>
       <div
         class={styles.BrowserHeaderCollapsedTitle}
-        style={{'--translateX': Math.max(0, 3 - state.pages.length) * -14 + 'px'}}
+        style={{ '--translateX': Math.max(0, 3 - state.pages.length) * -14 + 'px' }}
       >
         {collapsedTitle()}
       </div>
@@ -343,7 +343,7 @@ function createBrowserStore(props: {
     },
     destroyed: false,
     collapsed: false,
-    canCollapse: true
+    canCollapse: true,
   };
 
   const [state, setState] = createStore<BrowserContextState>(initialState);
@@ -358,8 +358,8 @@ function createBrowserStore(props: {
     },
     select: (page) => {
       let newIndex: number;
-      if(typeof(page) === 'number') {
-        if(page < 0 || page >= state.pages.length) {
+      if (typeof(page) === 'number') {
+        if (page < 0 || page >= state.pages.length) {
           newIndex = -1;
         } else {
           newIndex = page;
@@ -368,7 +368,7 @@ function createBrowserStore(props: {
         newIndex = state.pages.indexOf(page);
       }
 
-      if(newIndex === -1) {
+      if (newIndex === -1) {
         return;
       }
 
@@ -386,13 +386,13 @@ function createBrowserStore(props: {
     },
     close: async(page) => {
       const index = state.pages.findIndex((_page) => _page.id === page.id);
-      if(index === -1) {
+      if (index === -1) {
         return;
       }
 
       await page.isConfirmationNeededOnClose?.();
 
-      if(state.pages.length === 1) {
+      if (state.pages.length === 1) {
         actions.destroy();
         return;
       }
@@ -401,28 +401,28 @@ function createBrowserStore(props: {
       pages.splice(index, 1);
 
       let newIndex: number;
-      if(index < state.index) {
+      if (index < state.index) {
         newIndex = state.index - 1;
-      } else if(index === state.index) {
+      } else if (index === state.index) {
         newIndex = Math.min(state.index, pages.length - 1);
       }
 
       setState({
         pages,
-        ...(newIndex! !== undefined && {index: newIndex})
+        ...(newIndex! !== undefined && { index: newIndex }),
       });
 
       page.dispose();
     },
     destroy: () => {
-      if(state.destroyed) {
+      if (state.destroyed) {
         return;
       }
 
       setState('destroyed', true);
     },
     toggleCollapsed: (collapse) => {
-      if(!untrack(() => state.canCollapse)) {
+      if (!untrack(() => state.canCollapse)) {
         collapse = false;
       }
 
@@ -437,9 +437,9 @@ function createBrowserStore(props: {
     setCanCollapse: (canCollapse) => {
       setState({
         canCollapse,
-        ...(!canCollapse && {collapsed: false})
+        ...(!canCollapse && { collapsed: false }),
       });
-    }
+    },
   });
 
   props.pages.forEach(actions.add);
@@ -466,7 +466,7 @@ function Browser(props: {
   const [state, actions] = lastContext = useContext(BrowserContext)!;
   const [movableState, setMovableState] = createSignal<MovableState>({
     width,
-    height: height + additionalHeight
+    height: height + additionalHeight,
   });
 
   onMount(() => {
@@ -479,7 +479,7 @@ function Browser(props: {
         element: ref!,
         verifyTouchTarget: (e, type) => {
           const target = e.target;
-          if(type === 'move' && (
+          if (type === 'move' && (
             !findUpClassName(target, styles.BrowserHeader) ||
             findUpClassName(target, styles.BrowserHeaderButton) ||
             findUpClassName(target, styles.BrowserHeaderTab)
@@ -490,25 +490,25 @@ function Browser(props: {
           return true;
         },
         aspectRatio: IS_TOUCH_SUPPORTED ? aspectRatio : undefined,
-        resetTransition: true
+        resetTransition: true,
       },
       onResize: (movableState) => {
-        if(state.collapsed) {
+        if (state.collapsed) {
           return;
         }
 
         setMovableState(movableState);
       },
-      previousState: movableState()
+      previousState: movableState(),
     });
 
     createEffect(() => {
-      const {movable} = movablePanel;
-      if(!movable) {
+      const { movable } = movablePanel;
+      if (!movable) {
         createEffect(() => {
           setMovableState({
             width: windowSize.width - 16,
-            height: Math.min(688, windowSize.height - 16 * 2)
+            height: Math.min(688, windowSize.height - 16 * 2),
           });
 
           ref!.style.width = movableState().width + 'px';
@@ -524,7 +524,7 @@ function Browser(props: {
         return;
       }
 
-      const {collapsed} = state;
+      const { collapsed } = state;
       const collapsedWidth = 328;
       const collapsedHeight = 48;
       movable.toggleResizable(!collapsed);
@@ -537,11 +537,11 @@ function Browser(props: {
       movable.state = collapsed ? {
         ...previousMovableState,
         width: collapsedWidth,
-        height: collapsedHeight
+        height: collapsedHeight,
       } : {
         ...movable.state,
         width: previousMovableState.width,
-        height: previousMovableState.height
+        height: previousMovableState.height,
       };
     });
 
@@ -560,7 +560,7 @@ function Browser(props: {
         style={{
           'width': movableState().width + 'px',
           '--browser-width': movableState().width + 'px',
-          'height': movableState().height - additionalHeight + 'px'
+          'height': movableState().height - additionalHeight + 'px',
         }}
       >
         <For each={state.pages}>{(page) => {
@@ -587,7 +587,7 @@ function Browser(props: {
 
   const child = resolveFirst(() => animated);
   createEffect(() => {
-    if(!child()) {
+    if (!child()) {
       props.onExit();
     }
   });
@@ -608,14 +608,14 @@ function makeBrowserPage(props: BrowserPageProps): BrowserPageProps {
     text: 'Close',
     onClick: () => {
       lastContext![1].close(props);
-    }
+    },
   });
   return props;
 }
 
 let lastContext: BrowserContextValue | undefined;
 export function openInAppBrowser(page?: BrowserPageProps) {
-  if(lastContext) {
+  if (lastContext) {
     lastContext[1].add(page!);
     lastContext[1].toggleCollapsed(false);
     return;
@@ -625,7 +625,7 @@ export function openInAppBrowser(page?: BrowserPageProps) {
     const pages: BrowserPageProps[] = [page!];
 
     const store = createBrowserStore({
-      pages: pages.filter(Boolean)
+      pages: pages.filter(Boolean),
     });
 
     return (
@@ -642,9 +642,9 @@ export function openInAppBrowser(page?: BrowserPageProps) {
 }
 
 export async function openWebAppInAppBrowser(options: WebAppLaunchOptions) {
-  if(lastContext && options.cacheKey) {
+  if (lastContext && options.cacheKey) {
     const page = lastContext[0].pages.find((page) => page.cacheKey === options.cacheKey);
-    if(page) {
+    if (page) {
       lastContext[1].select(page);
       return;
     }
@@ -659,7 +659,7 @@ export async function openWebAppInAppBrowser(options: WebAppLaunchOptions) {
     title: document.createElement('div'),
     body: document.createElement('div'),
     forceHide: () => setDestroy(true),
-    onBackStatus: setNeedBackButton
+    onBackStatus: setNeedBackButton,
   });
 
   const title = await webApp.getTitle(true);
@@ -669,7 +669,7 @@ export async function openWebAppInAppBrowser(options: WebAppLaunchOptions) {
   const avatar = avatarNew({
     peerId: webApp.getPeerId(),
     size: 24,
-    middleware: middlewareHelper.get()
+    middleware: middlewareHelper.get(),
   });
   await avatar.readyThumbPromise;
 
@@ -685,13 +685,13 @@ export async function openWebAppInAppBrowser(options: WebAppLaunchOptions) {
         return needBackButton();
       },
       onBackClick: webApp.onBackClick,
-      cacheKey: webApp.cacheKey
+      cacheKey: webApp.cacheKey,
     };
 
     onCleanup(() => webApp.destroy());
 
     createEffect(() => {
-      if(destroy()) {
+      if (destroy()) {
         lastContext![1].close(initialState);
       }
     });
@@ -699,7 +699,7 @@ export async function openWebAppInAppBrowser(options: WebAppLaunchOptions) {
     queueMicrotask(() => deferred.resolve());
     // const [state, setState] = createStore<BrowserPageProps>(initialState);
     const lastState = lastContext?.[0];
-    if(lastState && lastState?.page.isCatalogue) {
+    if (lastState && lastState?.page.isCatalogue) {
       lastContext![1].replace(initialState, lastContext![0].page);
     } else {
       openInAppBrowser(initialState);
@@ -719,7 +719,7 @@ const GAME_SANDBOX_ATTRIBUTES = [
   'allow-forms',
   'allow-modals',
   'allow-orientation-lock',
-  'allow-pointer-lock'
+  'allow-pointer-lock',
 ].join(' ');
 
 const GAME_ALLOW_ATTRIBUTES = 'accelerometer; gyroscope; magnetometer; gamepad; fullscreen; autoplay; clipboard-write;';
@@ -729,12 +729,12 @@ export async function openGameInAppBrowser(options: {
   message: Message.message,
   url: string
 }) {
-  const {game, message, url} = options;
+  const { game, message, url } = options;
   const cacheKey = `game-${game.id}-${message.peerId}-${message.mid}`;
 
-  if(lastContext) {
+  if (lastContext) {
     const existing = lastContext[0].pages.find((page) => page.cacheKey === cacheKey);
-    if(existing) {
+    if (existing) {
       lastContext[1].select(existing);
       lastContext[1].toggleCollapsed(false);
       return;
@@ -743,7 +743,7 @@ export async function openGameInAppBrowser(options: {
 
   const shareMessage = async() => {
     const mids = await rootScope.managers.appMessagesManager.getMidsByMessage(message);
-    showForwardPopup({[message.peerId as number]: mids as number[]});
+    showForwardPopup({ [message.peerId as number]: mids as number[] });
   };
 
   const body = document.createElement('div');
@@ -755,7 +755,7 @@ export async function openGameInAppBrowser(options: {
     allow: GAME_ALLOW_ATTRIBUTES,
     onLoad: () => {
       telegramWebView.iframe.style.opacity = '1';
-    }
+    },
   });
 
   const iframe = telegramWebView.iframe;
@@ -771,7 +771,7 @@ export async function openGameInAppBrowser(options: {
   const avatar = avatarNew({
     peerId: botId ? (botId as UserId).toPeerId(false) : message.peerId,
     size: 24,
-    middleware: middlewareHelper.get()
+    middleware: middlewareHelper.get(),
   });
   await avatar.readyThumbPromise;
 
@@ -783,11 +783,11 @@ export async function openGameInAppBrowser(options: {
         icon: 'forward',
         text: 'ShareFile',
         onClick: shareMessage,
-        verify: () => true
+        verify: () => true,
       }],
       dispose,
       content: body,
-      cacheKey
+      cacheKey,
     };
 
     onCleanup(() => {
@@ -798,7 +798,7 @@ export async function openGameInAppBrowser(options: {
     queueMicrotask(() => telegramWebView.onMount());
 
     const lastState = lastContext?.[0];
-    if(lastState && lastState?.page.isCatalogue) {
+    if (lastState && lastState?.page.isCatalogue) {
       lastContext![1].replace(initialState, lastContext![0].page);
     } else {
       openInAppBrowser(initialState);
@@ -811,7 +811,7 @@ export async function openCatalogueInAppBrowser() {
     const [folded, setFolded] = createSignal(true);
     const [value, setValue] = createSignal('');
     const targets = new WeakMap<HTMLElement, BotId>;
-    const searchIndex = new SearchIndex<BotId>({ignoreCase: true});
+    const searchIndex = new SearchIndex<BotId>({ ignoreCase: true });
 
     const inputSearch = new InputSearch({
       placeholder: 'MiniApps.Search',
@@ -820,7 +820,7 @@ export async function openCatalogueInAppBrowser() {
         setValue(value);
       },
       debounceTime: 200,
-      oldStyle: true
+      oldStyle: true,
     });
 
     inputSearch.container.classList.add(styles.BrowserCatalogueSearch);
@@ -889,7 +889,7 @@ export async function openCatalogueInAppBrowser() {
           {(items) => {
             const elements = resolveElements(items).toArray;
             const isMoreThanEnough = createMemo(() => elements().length > 7);
-            if(!isMoreThanEnough()) {
+            if (!isMoreThanEnough()) {
               setFolded(false);
             }
 
@@ -932,7 +932,7 @@ export async function openCatalogueInAppBrowser() {
 
     const initialState: BrowserPageProps = {
       title: 'Open App',
-      icon: IconTsx({icon: 'plus'}),
+      icon: IconTsx({ icon: 'plus' }),
       dispose,
       content: (
         <Scrollable class={styles.BrowserCatalogueScrollable}>
@@ -940,7 +940,7 @@ export async function openCatalogueInAppBrowser() {
             class={styles.BrowserCatalogue}
             onClick={(e) => {
               const target = findUpClassName(e.target as HTMLElement, 'similar-channels-channel');
-              if(!target) {
+              if (!target) {
                 return;
               }
 
@@ -948,7 +948,7 @@ export async function openCatalogueInAppBrowser() {
               internalLinkProcessor.processWebAppLink({
                 _: INTERNAL_LINK_TYPE.WEB_APP,
                 appname: '',
-                domain: getPeerActiveUsernames(useUser(botId!) as User.user)[0]!
+                domain: getPeerActiveUsernames(useUser(botId!) as User.user)[0]!,
               });
               // lastContext[1].close(initialState);
             }}
@@ -960,7 +960,7 @@ export async function openCatalogueInAppBrowser() {
           </div>
         </Scrollable>
       ),
-      isCatalogue: true
+      isCatalogue: true,
     };
 
     openInAppBrowser(initialState);
@@ -976,7 +976,7 @@ function Loader<T>(props: {
 }) {
   const loader = createMemo(props.loader);
   const [ready, setReady] = createSignal(false);
-  const [rendered, setRendered] = createSignal<JSX.Element[]>(undefined!, {equals: false});
+  const [rendered, setRendered] = createSignal<JSX.Element[]>(undefined!, { equals: false });
 
   const loadMore = (first?: boolean) => {
     const _loader = loader();
@@ -986,7 +986,7 @@ function Loader<T>(props: {
     createReaction(() => {
       const onReady = () => {
         setRendered((v) => {
-          if(first) {
+          if (first) {
             return [rendered];
           }
 
@@ -999,14 +999,14 @@ function Loader<T>(props: {
 
       let returned = false;
       const rendered = props.render(result()!, () => {
-        if(returned) {
+        if (returned) {
           onReady();
         } else {
           returned = true;
         }
       });
 
-      if(returned) {
+      if (returned) {
         onReady();
       } else {
         returned = true;
@@ -1032,14 +1032,14 @@ export function openInstantViewInAppBrowser({
   webPageId: _webPageId,
   cachedPage,
   HotReloadGuardProvider,
-  anchor
+  anchor,
 }: {
   webPageId?: Long,
   cachedPage?: Page | string,
   HotReloadGuardProvider: typeof SolidJSHotReloadGuardProvider,
   anchor?: string // * expect it to be '#name'
 }) {
-  if(!cachedPage && anchor) {
+  if (!cachedPage && anchor) {
     (lastContext![0].page as BrowserPageProps<InstantViewPageExtraProps>).setAnchor(anchor);
     return;
   }
@@ -1047,15 +1047,15 @@ export function openInstantViewInAppBrowser({
   const TEST_PART = false;
   let hadCachedPage = typeof(cachedPage) !== 'string';
   let url: string;
-  if(hadCachedPage) {
+  if (hadCachedPage) {
     assumeType<Page>(cachedPage);
     url = cachedPage.url;
-    if(TEST_PART) {
+    if (TEST_PART) {
       cachedPage.blocks = cachedPage.blocks.slice(0, -5);
     }
 
     // * preload page first because anchor can be missing
-    if(anchor && cachedPage.pFlags.part) {
+    if (anchor && cachedPage.pFlags.part) {
       hadCachedPage = false;
       cachedPage = undefined;
     }
@@ -1064,13 +1064,13 @@ export function openInstantViewInAppBrowser({
     cachedPage = undefined;
     anchor = new URL(url).hash;
 
-    if(/* anchor &&  */lastContext && lastContext[0].page) {
+    if (/* anchor &&  */lastContext && lastContext[0].page) {
       const page = lastContext[0].page as BrowserPageProps<InstantViewPageExtraProps>;
       const u1 = new URL(page.url);
       const u2 = new URL(url);
       u2.hash = u1.hash = '';
       // * protocol can be http or https
-      if(u1.hostname === u2.hostname && u1.pathname === u2.pathname) {
+      if (u1.hostname === u2.hostname && u1.pathname === u2.pathname) {
         page.setAnchor(anchor);
         return;
       }
@@ -1082,7 +1082,7 @@ export function openInstantViewInAppBrowser({
   const [webPageId, setWebPageId] = createSignal<Long>(_webPageId!);
   const [page, setPageStore] = createStore<Page>(undefined!);
   const [pageResource] = createResource<Page>(async() => {
-    if(
+    if (
       !TEST_PART &&
       hadCachedPage &&
       (!cachedPage.pFlags.part && cachedPage.views !== undefined)
@@ -1090,29 +1090,29 @@ export function openInstantViewInAppBrowser({
       return cachedPage;
     }
 
-    if(TEST_PART) await pause(10000);
+    if (TEST_PART) await pause(10000);
     return rootScope.managers.appWebPagesManager.getWebPage(url)
-    .then((webPage) => {
-      setWebPageId(webPage!.id);
-      return (webPage as WebPage.webPage).cached_page!;
-    });
-  }, {initialValue: cachedPage});
+      .then((webPage) => {
+        setWebPageId(webPage!.id);
+        return (webPage as WebPage.webPage).cached_page!;
+      });
+  }, { initialValue: cachedPage });
 
   const needFadeIn = !hadCachedPage;
   createRoot((dispose) => {
     createComputed(() => {
-      if(pageResource()) {
+      if (pageResource()) {
         setPageStore(reconcile(pageResource()));
       }
     });
 
-    const [_anchor, setAnchor] = createSignal(anchor, {equals: false});
+    const [_anchor, setAnchor] = createSignal(anchor, { equals: false });
     const [appSettings, setAppSettings] = useAppSettings();
 
     const waitForReady = !lastContext && hadCachedPage;
     let wasReady = false;
     const onReady = () => {
-      if(wasReady) {
+      if (wasReady) {
         return;
       }
 
@@ -1133,12 +1133,12 @@ export function openInstantViewInAppBrowser({
 
     const initialState: BrowserPageProps<InstantViewPageExtraProps> = {
       get title() {
-        if(pageResource.loading && !pageResource.latest) {
+        if (pageResource.loading && !pageResource.latest) {
           return I18n.format('Loading', true);
         }
 
         const block = page.blocks.find((block) => block._ === 'pageBlockTitle');
-        if(!block) {
+        if (!block) {
           return /* webPage().site_name ||  */'Instant View';
         }
 
@@ -1153,19 +1153,19 @@ export function openInstantViewInAppBrowser({
             <span class={classNames(styles.ScaleMenuBigger, 'hover-effect')} onClick={changeScale.bind(null, true)}>A</span>
           </span>
         ) as HTMLElement,
-        onClick: () => {}
+        onClick: () => {},
       }, {
         icon: 'newtab',
         text: 'OpenInNewTab',
         onClick: () => safeWindowOpen(url),
-        separator: true
+        separator: true,
       }, {
         icon: 'copy',
         text: 'CopyLink',
         onClick: () => {
           copyTextToClipboard(url);
-          toastNew({langPackKey: 'LinkCopied'});
-        }
+          toastNew({ langPackKey: 'LinkCopied' });
+        },
       }],
       icon: <IconTsx icon="boostcircle" />,
       dispose,
@@ -1176,7 +1176,7 @@ export function openInstantViewInAppBrowser({
               webPageId={webPageId()}
               page={page}
               openNewPage={(url) => {
-                openInstantViewInAppBrowser({cachedPage: url, HotReloadGuardProvider});
+                openInstantViewInAppBrowser({ cachedPage: url, HotReloadGuardProvider });
               }}
               anchor={_anchor()}
               needFadeIn={needFadeIn}
@@ -1190,10 +1190,10 @@ export function openInstantViewInAppBrowser({
       ),
 
       url,
-      setAnchor: (setAnchor as Setter<string>)
+      setAnchor: (setAnchor as Setter<string>),
     };
 
-    if(!waitForReady) {
+    if (!waitForReady) {
       onReady();
     }
   });

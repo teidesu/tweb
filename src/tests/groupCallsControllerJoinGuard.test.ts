@@ -12,7 +12,7 @@
  * "the guard passed" without dragging in the SFU / streamManager / SDP stack.
  */
 
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Replace the e2e worker with a no-op host so `new EncryptWorkerHost()` doesn't
 // spawn a real Web Worker (which jsdom can't run). Must be hoisted via `vi.mock`
@@ -28,11 +28,11 @@ vi.mock('@lib/calls/e2e/encryptWorkerHost', () => {
     }
     public async terminate(): Promise<void> {}
   }
-  return {EncryptWorkerHost};
+  return { EncryptWorkerHost };
 });
 
 import groupCallsController from '@lib/calls/groupCallsController';
-import type {InputGroupCall} from '@layer';
+import type { InputGroupCall } from '@layer';
 
 const SENTINEL_MESSAGE = '__guard_passed_sentinel__';
 
@@ -42,25 +42,25 @@ function installManagers(opts: {
   const appCallsManagerMock = {
     getGroupCallChainBlocks: opts.chainBlocksImpl ?? (async() => {
       throw new Error(SENTINEL_MESSAGE);
-    })
+    }),
   };
   const apiUpdatesManagerMock = {
-    processUpdateMessage: () => {}
+    processUpdateMessage: () => {},
   };
 
   Object.assign(groupCallsController as any, {
     managers: {
       appCallsManager: appCallsManagerMock,
-      apiUpdatesManager: apiUpdatesManagerMock
+      apiUpdatesManager: apiUpdatesManagerMock,
     },
-    log: Object.assign(() => {}, {warn: () => {}, error: () => {}, info: () => {}, debug: () => {}}),
+    log: Object.assign(() => {}, { warn: () => {}, error: () => {}, info: () => {}, debug: () => {} }),
     audioAsset: {
       createAudio: () => {},
       play: () => {},
       stop: () => {},
       playWithTimeout: () => {},
-      cancelDelayedPlay: () => {}
-    }
+      cancelDelayedPlay: () => {},
+    },
   });
 }
 
@@ -72,40 +72,40 @@ describe('GroupCallsController.joinConference — InputGroupCall type guard', ()
   });
 
   it('accepts inputGroupCall(id, access_hash) — guard does not throw', async() => {
-    const input: InputGroupCall = {_: 'inputGroupCall', id: '777', access_hash: '888'};
+    const input: InputGroupCall = { _: 'inputGroupCall', id: '777', access_hash: '888' };
     // Reaching the sentinel means we got past the guard, into
     // `fetchLastConferenceBlock` — exactly what we want to assert.
     await expect(
-      groupCallsController.joinConference({input, selfUserId: SELF_USER_ID})
+      groupCallsController.joinConference({ input, selfUserId: SELF_USER_ID })
     ).rejects.toThrow(SENTINEL_MESSAGE);
   });
 
   it('accepts inputGroupCallSlug — guard does not throw', async() => {
-    const input: InputGroupCall = {_: 'inputGroupCallSlug', slug: 'invite-link-slug'};
+    const input: InputGroupCall = { _: 'inputGroupCallSlug', slug: 'invite-link-slug' };
     await expect(
-      groupCallsController.joinConference({input, selfUserId: SELF_USER_ID})
+      groupCallsController.joinConference({ input, selfUserId: SELF_USER_ID })
     ).rejects.toThrow(SENTINEL_MESSAGE);
   });
 
   it('accepts inputGroupCallInviteMessage — guard does not throw', async() => {
-    const input: InputGroupCall = {_: 'inputGroupCallInviteMessage', msg_id: 555};
+    const input: InputGroupCall = { _: 'inputGroupCallInviteMessage', msg_id: 555 };
     await expect(
-      groupCallsController.joinConference({input, selfUserId: SELF_USER_ID})
+      groupCallsController.joinConference({ input, selfUserId: SELF_USER_ID })
     ).rejects.toThrow(SENTINEL_MESSAGE);
   });
 
   it('rejects any other tag with an informative error', async() => {
     // Cast through `any` — the type itself forbids the bad shape, but the
     // server could theoretically send any tag and we want defence-in-depth.
-    const bogusInput = {_: 'inputGroupCallBogus', whatever: 1} as any;
+    const bogusInput = { _: 'inputGroupCallBogus', whatever: 1 } as any;
     await expect(
-      groupCallsController.joinConference({input: bogusInput, selfUserId: SELF_USER_ID})
+      groupCallsController.joinConference({ input: bogusInput, selfUserId: SELF_USER_ID })
     ).rejects.toThrow(/unsupported call ref kind/);
 
     // And the bad-tag error must mention the offending kind so logs are
     // actionable.
     await expect(
-      groupCallsController.joinConference({input: bogusInput, selfUserId: SELF_USER_ID})
+      groupCallsController.joinConference({ input: bogusInput, selfUserId: SELF_USER_ID })
     ).rejects.toThrow(/inputGroupCallBogus/);
   });
 
@@ -118,12 +118,12 @@ describe('GroupCallsController.joinConference — InputGroupCall type guard', ()
       chainBlocksImpl: async(input: InputGroupCall) => {
         seen.push(input);
         throw new Error(SENTINEL_MESSAGE);
-      }
+      },
     });
 
-    const slugInput: InputGroupCall = {_: 'inputGroupCallSlug', slug: 'test-slug'};
+    const slugInput: InputGroupCall = { _: 'inputGroupCallSlug', slug: 'test-slug' };
     await expect(
-      groupCallsController.joinConference({input: slugInput, selfUserId: SELF_USER_ID})
+      groupCallsController.joinConference({ input: slugInput, selfUserId: SELF_USER_ID })
     ).rejects.toThrow(SENTINEL_MESSAGE);
 
     expect(seen.length).toBe(1);

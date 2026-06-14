@@ -5,9 +5,9 @@
  * common-prefix / substr semantics.
  */
 
-import {describe, it, expect} from 'vitest';
-import {BitString} from '../bitString';
-import {TLReader, TLWriter} from '../tl';
+import { describe, it, expect } from 'vitest';
+import { BitString } from '../bitString';
+import { TLReader, TLWriter } from '../tl';
 
 function roundTrip(bs: BitString): BitString {
   const writer = new TLWriter();
@@ -35,7 +35,7 @@ describe('BitString', () => {
 
   it('256-bit key (typical trie path) round-trips', () => {
     const buf = new Uint8Array(32);
-    for(let i = 0; i < 32; i++) buf[i] = i * 7 + 1;
+    for (let i = 0; i < 32; i++) buf[i] = i * 7 + 1;
     const bs = BitString.fromBytes(buf);
     expect(bs.bitLength()).toBe(256);
     const rt = roundTrip(bs);

@@ -1,11 +1,11 @@
-import {ComponentProps, For, JSX, splitProps, untrack} from 'solid-js';
-import {LangPackKey, i18n} from '@lib/langPack';
-import {AvatarNew} from '@components/avatarNew';
-import {PeerTitleTsx} from '@components/peerTitleTsx';
+import { ComponentProps, For, JSX, splitProps, untrack } from 'solid-js';
+import { LangPackKey, i18n } from '@lib/langPack';
+import { AvatarNew } from '@components/avatarNew';
+import { PeerTitleTsx } from '@components/peerTitleTsx';
 import classNames from '@helpers/string/classNames';
 
 import styles from '@components/table.module.scss';
-import {NULL_PEER_ID} from '@appManagers/constants';
+import { NULL_PEER_ID } from '@appManagers/constants';
 import Button from '@components/buttonTsx';
 import showTooltip from '@components/tooltip';
 
@@ -59,7 +59,7 @@ export function TablePeer(props: {
   peerId: PeerId,
   onClick?: () => void
 }) {
-  const avatar = untrack(() => AvatarNew({peerId: props.peerId, size: 24}));
+  const avatar = untrack(() => AvatarNew({ peerId: props.peerId, size: 24 }));
   return (
     <div
       class={/* @once */ styles.peer}
@@ -102,12 +102,12 @@ export function TableButtonWithTooltip(props: ComponentProps<typeof Button> & {
       class={classNames(rest.class, styles.button)}
       onClick={(evt) => {
         props.onClick?.(evt);
-        if(props.tooltipTextElement) showTooltip({
+        if (props.tooltipTextElement) showTooltip({
           element: evt.target as HTMLElement,
           vertical: 'top',
           container: document.body,
           class: props.tooltipClass,
-          textElement: props.tooltipTextElement
+          textElement: props.tooltipTextElement,
         });
       }}
     />

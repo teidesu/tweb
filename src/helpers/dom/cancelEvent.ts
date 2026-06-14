@@ -7,7 +7,7 @@
 
 export default function cancelEvent(event?: Event) {
   event ||= window.event;
-  if(event) {
+  if (event) {
     // 'input' event will have cancelable=false, but we still need to preventDefault
     // if(!event.cancelable) {
     //   return false;
@@ -17,11 +17,11 @@ export default function cancelEvent(event?: Event) {
     event = event.originalEvent || event;
 
     try {
-      if((event!.stopPropagation as unknown as boolean)) event!.stopPropagation();
-      if((event!.preventDefault as unknown as boolean)) event!.preventDefault();
+      if ((event!.stopPropagation as unknown as boolean)) event!.stopPropagation();
+      if ((event!.preventDefault as unknown as boolean)) event!.preventDefault();
       event!.returnValue = false;
       event!.cancelBubble = true;
-    } catch(err) {}
+    } catch (err) {}
   }
 
   return false;

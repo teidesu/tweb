@@ -1,7 +1,7 @@
-import {beforeAll, describe, it, expect} from 'vitest';
-import {bytesToHex, ensureCryptoReady, hexToBytes} from '../crypto';
-import {PrivateKey, PublicKey} from '../keys';
-import {HANDSHAKE_VECTORS} from './vectors';
+import { beforeAll, describe, it, expect } from 'vitest';
+import { bytesToHex, ensureCryptoReady, hexToBytes } from '../crypto';
+import { PrivateKey, PublicKey } from '../keys';
+import { HANDSHAKE_VECTORS } from './vectors';
 
 beforeAll(() => ensureCryptoReady());
 
@@ -65,7 +65,7 @@ describe('Keys', () => {
       const pad = '='.repeat((4 - (std.length % 4)) % 4);
       const binary = atob(std + pad);
       const out = new Uint8Array(binary.length);
-      for(let i = 0; i < binary.length; i++) out[i] = binary.charCodeAt(i);
+      for (let i = 0; i < binary.length; i++) out[i] = binary.charCodeAt(i);
       return out;
     };
 

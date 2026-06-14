@@ -1,7 +1,7 @@
 import type LazyLoadQueue from '@components/lazyLoadQueue';
-import type {PeerPhotoSize} from '@appManagers/appAvatarsManager';
-import type {StoriesSegment, StoriesSegments} from '@appManagers/appStoriesManager';
-import {getMiddleware, type Middleware} from '@helpers/middleware';
+import type { PeerPhotoSize } from '@appManagers/appAvatarsManager';
+import type { StoriesSegment, StoriesSegments } from '@appManagers/appStoriesManager';
+import { getMiddleware, type Middleware } from '@helpers/middleware';
 import deferredPromise from '@helpers/cancellablePromise';
 import {
   createSignal,
@@ -13,25 +13,25 @@ import {
   Show,
   Accessor,
   on,
-  createComputed
+  createComputed,
 } from 'solid-js';
 import rootScope from '@lib/rootScope';
-import {NULL_PEER_ID, REPLIES_PEER_ID, HIDDEN_PEER_ID} from '@appManagers/constants';
-import {Chat, ChatPhoto, PhotoSize, User, UserProfilePhoto} from '@layer';
-import {getPeerAvatarColorByPeer} from '@appManagers/utils/peers/getPeerColorById';
+import { NULL_PEER_ID, REPLIES_PEER_ID, HIDDEN_PEER_ID } from '@appManagers/constants';
+import { Chat, ChatPhoto, PhotoSize, User, UserProfilePhoto } from '@layer';
+import { getPeerAvatarColorByPeer } from '@appManagers/utils/peers/getPeerColorById';
 import getPeerPhoto from '@appManagers/utils/peers/getPeerPhoto';
 import wrapAbbreviation from '@lib/richTextProcessor/wrapAbbreviation';
 import getPeerInitials from '@components/wrappers/getPeerInitials';
 import liteMode from '@helpers/liteMode';
-import renderImageFromUrl, {renderImageFromUrlPromise} from '@helpers/dom/renderImageFromUrl';
+import renderImageFromUrl, { renderImageFromUrlPromise } from '@helpers/dom/renderImageFromUrl';
 import getPreviewURLFromBytes from '@helpers/bytes/getPreviewURLFromBytes';
 import classNames from '@helpers/string/classNames';
-import {wrapTopicIcon} from '@components/wrappers/messageActionTextNewUnsafe';
-import {Modify} from '@types';
+import { wrapTopicIcon } from '@components/wrappers/messageActionTextNewUnsafe';
+import { Modify } from '@types';
 import documentFragmentToNodes from '@helpers/dom/documentFragmentToNodes';
-import DashedCircle, {DashedCircleSection} from '@helpers/canvas/dashedCircle';
+import DashedCircle, { DashedCircleSection } from '@helpers/canvas/dashedCircle';
 import findUpClassName from '@helpers/dom/findUpClassName';
-import {AckedResult} from '@lib/superMessagePort';
+import { AckedResult } from '@lib/superMessagePort';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import callbackify from '@helpers/callbackify';
 import Icon from '@components/icon';
@@ -39,11 +39,11 @@ import wrapPhoto from '@components/wrappers/photo';
 import customProperties from '@helpers/dom/customProperties';
 import useIsNightTheme from '@hooks/useIsNightTheme';
 import currencyStarIcon from '@components/currencyStarIcon';
-import type {ActiveAccountNumber} from '@lib/accounts/types';
-import {getCurrentAccount} from '@lib/accounts/getCurrentAccount';
-import {appSettings} from '@stores/appSettings';
-import {createAutoDeleteIcon} from '@components/autoDeleteIcon';
-import {resolveElements} from '@solid-primitives/refs';
+import type { ActiveAccountNumber } from '@lib/accounts/types';
+import { getCurrentAccount } from '@lib/accounts/getCurrentAccount';
+import { appSettings } from '@stores/appSettings';
+import { createAutoDeleteIcon } from '@components/autoDeleteIcon';
+import { resolveElements } from '@solid-primitives/refs';
 import toArray from '@helpers/array/toArray';
 import computeLockColor from '@helpers/computeLockColor';
 import createLoopingMutedVideo from '@helpers/dom/createLoopingMutedVideo';
@@ -59,39 +59,39 @@ function getAvatarQueueKey(peerId: PeerId, threadId?: number) {
   return peerId + (threadId ? '_' + threadId : '');
 }
 
-const onAvatarUpdate = ({peerId, threadId}: {peerId: PeerId, threadId?: number}) => {
+const onAvatarUpdate = ({ peerId, threadId }: {peerId: PeerId, threadId?: number}) => {
   const key = getAvatarQueueKey(peerId, threadId);
   const set = avatarsMap.get(key);
-  if(!set?.size) {
+  if (!set?.size) {
     return;
   }
 
-  for(const avatar of set) {
+  for (const avatar of set) {
     avatar.render();
   }
 };
 
-const onAvatarStoriesUpdate = ({peerId}: {peerId: PeerId}) => {
+const onAvatarStoriesUpdate = ({ peerId }: {peerId: PeerId}) => {
   const key = getAvatarQueueKey(peerId);
   const set = avatarsMap.get(key);
-  if(!set?.size) {
+  if (!set?.size) {
     return;
   }
 
-  for(const avatar of set) {
+  for (const avatar of set) {
     avatar.updateStoriesSegments();
   }
 };
 
 rootScope.addEventListener('avatar_update', onAvatarUpdate);
 rootScope.addEventListener('peer_title_edit', async(data) => {
-  if(!data.threadId && (await rootScope.managers.appAvatarsManager.isAvatarCached(data.peerId))) return;
+  if (!data.threadId && (await rootScope.managers.appAvatarsManager.isAvatarCached(data.peerId))) return;
 
   onAvatarUpdate(data);
 });
 
-rootScope.addEventListener('peer_stories', ({peerId}) => {
-  onAvatarStoriesUpdate({peerId});
+rootScope.addEventListener('peer_stories', ({ peerId }) => {
+  onAvatarStoriesUpdate({ peerId });
 });
 rootScope.addEventListener('stories_read', onAvatarStoriesUpdate);
 rootScope.addEventListener('story_deleted', onAvatarStoriesUpdate);
@@ -99,17 +99,17 @@ rootScope.addEventListener('story_new', onAvatarStoriesUpdate);
 
 
 const getStoriesSegments = async(peerId: PeerId, storyId?: number): Promise<AckedResult<StoriesSegments>> => {
-  if(storyId) {
+  if (storyId) {
     const storyUnreadType = await rootScope.managers.appStoriesManager.getUnreadType(peerId, storyId);
 
     const segments: StoriesSegments = [{
       length: 1,
-      type: (storyUnreadType as 'unread' | 'close' | 'read')
+      type: (storyUnreadType as 'unread' | 'close' | 'read'),
     }];
 
     return {
       cached: true,
-      result: Promise.resolve(segments)
+      result: Promise.resolve(segments),
     };
   }
 
@@ -142,7 +142,7 @@ const createCloseGradient = (context: CanvasRenderingContext2D, size: number, dp
 
 export function findUpAvatar(target: Element | EventTarget) {
   let avatar = findUpClassName(target, 'avatar');
-  if(avatar) avatar = findUpClassName(avatar, 'has-stories') || avatar;
+  if (avatar) avatar = findUpClassName(avatar, 'has-stories') || avatar;
   return avatar;
 }
 
@@ -157,9 +157,9 @@ async function loadAvatarVideoOverlay(
   // playback can begin at that frame, matching the static cover.
   const [url, videoStartTs] = await Promise.all([
     Promise.resolve(apiManagerProxy.loadAvatar(peerId, photo, videoSize)),
-    rootScope.managers.appAvatarsManager.getAvatarVideoStartTs(peerId, photo, videoSize === 'photo_video_full').catch((): number | undefined => undefined)
+    rootScope.managers.appAvatarsManager.getAvatarVideoStartTs(peerId, photo, videoSize === 'photo_video_full').catch((): number | undefined => undefined),
   ]);
-  if(!url || !middleware()) return undefined;
+  if (!url || !middleware()) return undefined;
 
   // Muted-autoplay setup with src assigned last (see helper) — retry on
   // canplay/loadeddata covers the "interrupted by a new load request" reject.
@@ -173,11 +173,11 @@ async function loadAvatarVideoOverlay(
   try {
     observer = new IntersectionObserver((entries) => {
       const isVisible = entries.some((e) => e.isIntersecting);
-      if(isVisible) tryPlay();
+      if (isVisible) tryPlay();
       else v.pause();
     });
     observer.observe(node);
-  } catch{}
+  } catch {}
 
   middleware.onDestroy(() => {
     observer?.disconnect();
@@ -200,7 +200,7 @@ const calculateSegmentsDimensions = (s: number) => {
     willBeSize,
     totalSvgSize,
     multiplier,
-    strokeWidth
+    strokeWidth,
   };
 };
 
@@ -223,25 +223,25 @@ export function wrapPhotoToAvatar(
     boxWidth: boxSize,
     withoutPreloader: true,
     size: photoSize,
-    noFadeIn: !!cacheContext?.downloaded
+    noFadeIn: !!cacheContext?.downloaded,
   }).then((result) => {
     avatarElem.node.classList.replace('media-container', 'avatar-relative');
     avatarElem.node.style.width = avatarElem.node.style.height = '';
     [result.images.thumb, result.images.full].forEach((image) => {
-      if(!image) {
+      if (!image) {
         return;
       }
 
       image.classList.replace('media-photo', 'avatar-photo');
     });
 
-    if(result.images.thumb) {
+    if (result.images.thumb) {
       result.images.thumb.classList.add('avatar-photo-thumbnail');
     }
 
     // For photos that include a video variant (animated profile photo), overlay
     // a muted looping <video> on top of the still image once it is loaded.
-    if((photo as any)?.video_sizes?.length) {
+    if ((photo as any)?.video_sizes?.length) {
       attachAvatarVideoFromPhoto(avatarElem.node, photo as any);
     }
 
@@ -250,16 +250,16 @@ export function wrapPhotoToAvatar(
 }
 
 async function attachAvatarVideoFromPhoto(container: HTMLElement, photo: import('@layer').Photo.photo) {
-  const [{default: chooseProfileVideoSize}, {default: appDownloadManager}] = await Promise.all([
+  const [{ default: chooseProfileVideoSize }, { default: appDownloadManager }] = await Promise.all([
     import('@appManagers/utils/photos/chooseProfileVideoSize'),
-    import('@lib/appDownloadManager')
+    import('@lib/appDownloadManager'),
   ]);
   const videoSize = chooseProfileVideoSize(photo, 'full');
-  if(!videoSize) return;
+  if (!videoSize) return;
 
   const url = await appDownloadManager.downloadMediaURL({
     media: photo,
-    thumb: videoSize
+    thumb: videoSize,
   });
 
   const v = createLoopingMutedVideo(url, 'avatar-photo avatar-video', videoSize.video_start_ts);
@@ -276,11 +276,11 @@ export function StoriesSegments(props: {
 }) {
   const [storiesSegments, setStoriesSegments] = createSignal<StoriesSegments>();
   const storyDimensions = createMemo((previousDimensions) => {
-    if(storiesSegments() === undefined) {
+    if (storiesSegments() === undefined) {
       return;
     }
 
-    if(previousDimensions?.size === props.size) {
+    if (previousDimensions?.size === props.size) {
       return previousDimensions;
     }
 
@@ -292,12 +292,12 @@ export function StoriesSegments(props: {
     // }
 
     const dimensions = storyDimensions();
-    if(!dimensions) {
+    if (!dimensions) {
       return;
     }
 
     let simple: JSX.Element;
-    if(props.isStoryFolded !== undefined || props.simple) {
+    if (props.isStoryFolded !== undefined || props.simple) {
       const status = createMemo(() => {
         const segments = storiesSegments();
         const firstCloseSegment = segments!.find((segment) => segment.type === 'close');
@@ -308,45 +308,45 @@ export function StoriesSegments(props: {
       simple = (
         <div
           class="avatar-stories-simple"
-          classList={{['is-' + status()]: true}}
+          classList={{ ['is-' + status()]: true }}
         >
 
         </div>
       );
-      if(props.simple) return simple;
+      if (props.simple) return simple;
     }
 
     const segmentToSection = (segment: StoriesSegment, unreadAsClose?: boolean): DashedCircleSection => {
-      if(segment.type === 'read') {
+      if (segment.type === 'read') {
         return {
           color: props.colors?.read || customProperties.getProperty('avatar-color-story-read'),
           length: segment.length,
-          lineWidth: dimensions.strokeWidth / 2
+          lineWidth: dimensions.strokeWidth / 2,
         };
       }
 
-      if(segment.type === 'close' || unreadAsClose) {
+      if (segment.type === 'close' || unreadAsClose) {
         return {
           color: closeGradient ??= createCloseGradient(context, canvas.width, dpr),
           length: segment.length,
-          lineWidth: dimensions.strokeWidth
+          lineWidth: dimensions.strokeWidth,
         };
       } else {
         return {
           color: unreadGradient ??= createUnreadGradient(context, canvas.width, dpr),
           length: segment.length,
-          lineWidth: dimensions.strokeWidth
+          lineWidth: dimensions.strokeWidth,
         };
       }
     };
 
     const dashedCircle = new DashedCircle();
-    const {canvas, context, dpr} = dashedCircle;
+    const { canvas, context, dpr } = dashedCircle;
     dashedCircle.prepare({
       radius: dimensions.size / 2,
       gap: 4 * dimensions.multiplier,
       width: dimensions.totalSvgSize,
-      height: dimensions.totalSvgSize
+      height: dimensions.totalSvgSize,
     });
 
     let unreadGradient: CanvasGradient, closeGradient: CanvasGradient | undefined;
@@ -358,10 +358,10 @@ export function StoriesSegments(props: {
       const firstCloseSegment = segments!.find((segment) => segment.type === 'close');
       let sections = segments!.map((segment) => segmentToSection(segment, !!firstCloseSegment));
       const totalLength = sections.reduce((sum, section) => sum + section.length, 0);
-      if(totalLength > 30) {
+      if (totalLength > 30) {
         sections = sections.map((section) => ({
           ...section,
-          length: Math.floor(section.length / totalLength * 30)
+          length: Math.floor(section.length / totalLength * 30),
         })).filter((section) => section.length > 0);
       }
 
@@ -385,7 +385,7 @@ export function StoriesSegments(props: {
     ) : canvas;
   });
 
-  return {setStoriesSegments, storyDimensions, storiesCircle};
+  return { setStoriesSegments, storyDimensions, storiesCircle };
 }
 
 export const AvatarNew = (props: {
@@ -426,10 +426,10 @@ export const AvatarNew = (props: {
   const [isTopic, setIsTopic] = createSignal(false);
   const [isMonoforum, setIsMonoforum] = createSignal(false);
   const [isSubscribed, setIsSubscribed] = createSignal(false);
-  const {setStoriesSegments, storyDimensions, storiesCircle} = StoriesSegments({
+  const { setStoriesSegments, storyDimensions, storiesCircle } = StoriesSegments({
     size: props.size as number,
     colors: props.storyColors!,
-    isStoryFolded: props.isStoryFolded
+    isStoryFolded: props.isStoryFolded,
   });
 
   const [autoDeletePeriod, setAutoDeletePeriod] = createSignal<number>();
@@ -437,10 +437,10 @@ export const AvatarNew = (props: {
   createComputed(() => setAutoDeletePeriod(props.autoDeletePeriod ?? 0));
 
   const autoDeletePeriodBackground = createMemo(() => {
-    if(!autoDeletePeriod()) return;
+    if (!autoDeletePeriod()) return;
 
     const mediaElement = toArray(resolveElements(media, (el) => el instanceof HTMLImageElement)())[0];
-    if(!mediaElement) return;
+    if (!mediaElement) return;
 
     const smallSize = 20;
 
@@ -474,7 +474,7 @@ export const AvatarNew = (props: {
     readyPromise.resolve();
     cleanLastKey();
 
-    (props.lazyLoadQueue as LazyLoadQueue)?.delete({div: node!});
+    (props.lazyLoadQueue as LazyLoadQueue)?.delete({ div: node! });
   });
 
   // const owner = getOwner();
@@ -494,24 +494,24 @@ export const AvatarNew = (props: {
 
   const getKey = () => getAvatarQueueKey(props.peerId!, props.threadId);
   const cleanLastKey = () => {
-    if(!lastKey) {
+    if (!lastKey) {
       return;
     }
 
     const set = believeMe.get(lastKey);
-    if(set) {
+    if (set) {
       set.delete(this!);
-      if(!set.size) {
+      if (!set.size) {
         believeMe.delete(lastKey);
       }
     }
 
     const avatarsSet = avatarsMap.get(lastKey);
-    if(!avatarsSet?.delete(ret)) {
+    if (!avatarsSet?.delete(ret)) {
       return;
     }
 
-    if(!avatarsSet.size) {
+    if (!avatarsSet.size) {
       avatarsMap.delete(lastKey);
     }
   };
@@ -522,15 +522,15 @@ export const AvatarNew = (props: {
     onlyThumb?: boolean
   }) => {
     const middleware = middlewareHelper.get();
-    const {peerId, useCache} = props;
-    const {photo, size} = options;
+    const { peerId, useCache } = props;
+    const { photo, size } = options;
     // Drop any previously rendered video overlay — the new avatar load will
     // re-issue the lazy video fetch if this photo also has a video variant.
     // Must clear for the FINAL size of this avatar (photo_big for big avatars,
     // photo_small for dialog/topbar), otherwise a recycled small avatar keeps
     // playing the previous peer's video.
     const finalSizeForClear: PeerPhotoSize = props.isBig ? 'photo_big' : 'photo_small';
-    if(size === finalSizeForClear) setVideo();
+    if (size === finalSizeForClear) setVideo();
     const result = apiManagerProxy.loadAvatar(peerId!, photo, size, props.accountNumber);
     const loadPromise = result;
     const cached = !(result instanceof Promise);
@@ -543,24 +543,24 @@ export const AvatarNew = (props: {
     let renderThumbPromise: Promise<void>;
     let callback: () => void;
     let thumbImage: HTMLImageElement, thumbElement: JSX.Element;
-    if(cached) {
+    if (cached) {
       callback = () => {
-        if(!middleware()) {
+        if (!middleware()) {
           return;
         }
 
         _setMedia(element);
       };
     } else {
-      if(size === 'photo_big') { // let's load small photo first
-        const res = await putAvatar({photo, size: 'photo_small'});
-        if(!middleware()) {
+      if (size === 'photo_big') { // let's load small photo first
+        const res = await putAvatar({ photo, size: 'photo_small' });
+        if (!middleware()) {
           return;
         }
 
         renderThumbPromise = res!.loadThumbPromise || res!.loadPromise;
         thumbImage = res!.thumbImage;
-      } else if(photo.stripped_thumb) {
+      } else if (photo.stripped_thumb) {
         thumbElement = thumbImage = document.createElement('img');
         thumbImage.className = 'avatar-photo avatar-photo-thumbnail';
         const url = getPreviewURLFromBytes(photo.stripped_thumb);
@@ -570,7 +570,7 @@ export const AvatarNew = (props: {
           props.useCache,
           props.processImageOnLoad
         ).then(() => {
-          if(media() || !middleware()) {
+          if (media() || !middleware()) {
             return;
           }
 
@@ -579,12 +579,12 @@ export const AvatarNew = (props: {
       }
 
       callback = () => {
-        if(!middleware()) {
+        if (!middleware()) {
           return;
         }
 
         _setMedia(element);
-        if(animate) {
+        if (animate) {
           setTimeout(() => {
             image.classList.remove('fade-in');
             setThumb();
@@ -622,14 +622,14 @@ export const AvatarNew = (props: {
       !!apiManagerProxy.getUser(peerId.toUserId())?.pFlags?.premium;
     const wantsVideo = (props.isBig || (props.withVideoAvatar && ownerIsPremiumUser)) &&
       liteMode.isAvailable('video');
-    if(wantsVideo && photoHasVideo && size === finalSize) {
+    if (wantsVideo && photoHasVideo && size === finalSize) {
       Promise.resolve(renderPromise).then(() => {
-        if(!middleware()) return;
+        if (!middleware()) return;
         // Big profile avatar gets the full-quality video ('u'); chat list /
         // topbar use the small preview ('p') to save bandwidth.
         const videoSize: PeerPhotoSize = props.isBig ? 'photo_video_full' : 'photo_video';
         loadAvatarVideoOverlay(peerId!, photo, node!, middleware, videoSize).then((videoElement) => {
-          if(!middleware() || !videoElement) return;
+          if (!middleware() || !videoElement) return;
           setVideo(videoElement);
         });
       });
@@ -642,7 +642,7 @@ export const AvatarNew = (props: {
       thumbImage: thumbImage!,
       thumbElement,
       image,
-      element
+      element,
     };
   };
 
@@ -654,7 +654,7 @@ export const AvatarNew = (props: {
     isTopic,
     isSubscribed,
     isMonoforum,
-    storiesSegments
+    storiesSegments,
   }: {
     abbreviature?: JSX.Element,
     icon?: Icon,
@@ -679,12 +679,12 @@ export const AvatarNew = (props: {
   };
 
   const updateStoriesSegments = async() => {
-    if(!props.withStories || (props.peerId === rootScope.myId && props.isDialog)) {
+    if (!props.withStories || (props.peerId === rootScope.myId && props.isDialog)) {
       return;
     }
 
     const segments = await (await getStoriesSegments(props.peerId!, props.storyId)).result;
-    if(lastRenderPromise) {
+    if (lastRenderPromise) {
       const result = await lastRenderPromise;
       await result?.loadThumbPromise;
     }
@@ -693,24 +693,24 @@ export const AvatarNew = (props: {
 
   const _render = async(onlyThumb?: boolean) => {
     const middleware = middlewareHelper.get();
-    const {isDialog, withStories, storyId, isBig, peerTitle: title, wrapOptions} = props;
+    const { isDialog, withStories, storyId, isBig, peerTitle: title, wrapOptions } = props;
 
-    let {peerId, threadId} = props;
-    if(title !== undefined) {
+    let { peerId, threadId } = props;
+    if (title !== undefined) {
       peerId = NULL_PEER_ID;
     }
 
-    if(props.asAllChats) {
+    if (props.asAllChats) {
       set({
-        icon: 'round_chats_filled'
+        icon: 'round_chats_filled',
       });
       return;
     }
 
-    if(peerId === myId && isDialog) {
+    if (peerId === myId && isDialog) {
       set({
         icon: props.meAsNotes ? 'mynotes' : 'saved',
-        isForum: !props.meAsNotes && appSettings.savedAsForum
+        isForum: !props.meAsNotes && appSettings.savedAsForum,
       });
 
       !props.meAsNotes && createRoot((dispose) => {
@@ -718,7 +718,7 @@ export const AvatarNew = (props: {
           on(
             () => appSettings.savedAsForum,
             setIsForum,
-            {defer: true}
+            { defer: true }
           )
         );
 
@@ -728,43 +728,43 @@ export const AvatarNew = (props: {
     }
 
     // * fix monoforum
-    if(threadId && apiManagerProxy.isMonoforum(peerId!)) {
+    if (threadId && apiManagerProxy.isMonoforum(peerId!)) {
       peerId = threadId;
       threadId = undefined;
     }
 
     const peer = props.peer ?? apiManagerProxy.getPeer(peerId!);
-    if(title) {
+    if (title) {
       const color = getPeerAvatarColorByPeer(peer);
       const abbr = wrapAbbreviation(title);
       set({
         abbreviature: documentFragmentToNodes(abbr),
-        color
+        color,
       });
       return;
     }
 
-    if(threadId) {
+    if (threadId) {
       const topic = await managers.dialogsStorage.getForumTopic(peerId!, threadId);
-      set({isTopic: true});
+      set({ isTopic: true });
 
       return wrapTopicIcon({
         ...wrapOptions,
         middleware,
         topic: topic!,
-        lazyLoadQueue: false
+        lazyLoadQueue: false,
       }).then((icon) => {
         _setMedia(icon);
         return undefined as unknown as ReturnType<typeof putAvatar>;
       });
     }
 
-    if(!middleware()) {
+    if (!middleware()) {
       return;
     }
 
-    if(peerId !== NULL_PEER_ID && peerId!.isUser() && (peer as User.user)?.pFlags?.deleted) {
-      set({color: 'archive', icon: 'deletedaccount'});
+    if (peerId !== NULL_PEER_ID && peerId!.isUser() && (peer as User.user)?.pFlags?.deleted) {
+      set({ color: 'archive', icon: 'deletedaccount' });
       return;
     }
 
@@ -772,7 +772,7 @@ export const AvatarNew = (props: {
     const _isSubscribed = props.isSubscribed ?? !!(peer as Chat.channel)?.subscription_until_date;
     const storiesSegmentsResult = withStories && ((peer as User.user | Chat.channel)?.stories_max_id || storyId) && await getStoriesSegments(peerId!, storyId);
     const storiesSegments = storiesSegmentsResult && (storiesSegmentsResult).cached ? await (storiesSegmentsResult).result : undefined;
-    if(!middleware()) {
+    if (!middleware()) {
       return;
     }
 
@@ -789,27 +789,27 @@ export const AvatarNew = (props: {
     // thumb usually is (loaded by the chat list). Treat it as cached so we render
     // that thumb instantly instead of flashing the colour placeholder while
     // photo_big downloads (the visible "blink" when opening/switching profiles).
-    if(!isAvatarCached && isBig && avatarAvailable && sameAccount) {
+    if (!isAvatarCached && isBig && avatarAvailable && sameAccount) {
       isAvatarCached = apiManagerProxy.isAvatarCached(peerId!, 'photo_small');
     }
-    if(!middleware()) {
+    if (!middleware()) {
       return;
     }
 
     let isSet = false;
-    if(!avatarRendered && !isAvatarCached) {
+    if (!avatarRendered && !isAvatarCached) {
       let color: string;
-      if(peerId && (peerId !== myId || !isDialog)) {
+      if (peerId && (peerId !== myId || !isDialog)) {
         color = getPeerAvatarColorByPeer(peer)!;
       }
 
-      if(peerId === REPLIES_PEER_ID) {
-        set({color: color!, icon: 'reply_filled'});
+      if (peerId === REPLIES_PEER_ID) {
+        set({ color: color!, icon: 'reply_filled' });
         return;
       }
 
-      if(peerId === HIDDEN_PEER_ID) {
-        set({color: 'violet', icon: 'author_hidden'});
+      if (peerId === HIDDEN_PEER_ID) {
+        set({ color: 'violet', icon: 'author_hidden' });
         return;
       }
 
@@ -820,19 +820,19 @@ export const AvatarNew = (props: {
         isForum: _isForum,
         isSubscribed: _isSubscribed,
         isMonoforum: !!linkedMonoforumPeer,
-        storiesSegments
+        storiesSegments,
       });
       isSet = true;
       // return Promise.resolve(true);
     }
 
-    if(storiesSegmentsResult && !storiesSegmentsResult.cached) {
+    if (storiesSegmentsResult && !storiesSegmentsResult.cached) {
       updateStoriesSegments();
     }
 
-    if(avatarAvailable/*  && false */) {
-      const promise = putAvatar({photo, size, onlyThumb});
-      if(isSet) {
+    if (avatarAvailable/*  && false */) {
+      const promise = putAvatar({ photo, size, onlyThumb });
+      if (isSet) {
         return promise;
       }
 
@@ -840,23 +840,23 @@ export const AvatarNew = (props: {
       const changeForum = _isForum !== isForum();
       const changeIsSubcribed = _isSubscribed !== isSubscribed();
       promise.then((result) => result?.loadThumbPromise).then(() => {
-        if(!middleware()) {
+        if (!middleware()) {
           return;
         }
 
-        if(changeSegments) {
+        if (changeSegments) {
           setStoriesSegments(storiesSegments);
         }
 
-        if(changeForum) {
+        if (changeForum) {
           setIsForum(_isForum);
         }
 
-        if(changeIsSubcribed) {
+        if (changeIsSubcribed) {
           setIsSubscribed(_isSubscribed);
         }
 
-        if(TEST_SWAPPING && peerId === TEST_SWAPPING) {
+        if (TEST_SWAPPING && peerId === TEST_SWAPPING) {
           let i = true;
           setInterval(() => {
             i = !i;
@@ -871,7 +871,7 @@ export const AvatarNew = (props: {
   };
 
   const processResult = (result: Awaited<ReturnType<typeof _render>>) => {
-    if(!result && !isTopic()) {
+    if (!result && !isTopic()) {
       _setMedia();
     }
 
@@ -882,33 +882,33 @@ export const AvatarNew = (props: {
   let lastKey: string;
   const render = async(_props?: Modify<typeof props, {size?: never, peerId?: PeerId}>) => {
     const key = getKey();
-    if(key !== lastKey) {
+    if (key !== lastKey) {
       cleanLastKey();
       lastKey = key;
 
       let set = avatarsMap.get(key);
-      if(!set) {
+      if (!set) {
         avatarsMap.set(key, set = new Set());
       }
       set.add(ret);
     }
 
-    if(_props?.peerId !== undefined && props.peerId !== _props.peerId) {
+    if (_props?.peerId !== undefined && props.peerId !== _props.peerId) {
       node!.dataset.peerId = '' + _props.peerId;
     }
 
-    if(_props) Object.assign(props, _props);
+    if (_props) Object.assign(props, _props);
     middlewareHelper.clean();
     const middleware = middlewareHelper.get();
 
-    if(props.lazyLoadQueue) {
-      if(!seen.has(props.peerId!)) {
-        if(addedToQueue) return;
+    if (props.lazyLoadQueue) {
+      if (!seen.has(props.peerId!)) {
+        if (addedToQueue) return;
         addedToQueue = true;
 
         const key = getKey();
         let set = believeMe.get(key);
-        if(!set) {
+        if (!set) {
           believeMe.set(key, set = new Set());
         }
 
@@ -919,18 +919,18 @@ export const AvatarNew = (props: {
           load: () => {
             seen.add(props.peerId!);
             return render();
-          }
+          },
         });
 
         const promise = lastRenderPromise = _render(true);
         const result = await promise;
-        if(!middleware()) {
+        if (!middleware()) {
           return;
         }
 
         return processResult(result);
-      } else if(addedToQueue) {
-        props.lazyLoadQueue.delete({div: node!});
+      } else if (addedToQueue) {
+        props.lazyLoadQueue.delete({ div: node! });
       }
     }
 
@@ -939,29 +939,29 @@ export const AvatarNew = (props: {
     const promise = lastRenderPromise = _render();
 
     const set = believeMe.get(key);
-    if(set) {
+    if (set) {
       set.delete(ret);
       const arr = Array.from(set);
       believeMe.delete(key);
 
-      for(let i = 0, length = arr.length; i < length; ++i) {
+      for (let i = 0, length = arr.length; i < length; ++i) {
         arr[i].render();
       }
     }
 
     const result = await promise;
-    if(!middleware()) {
+    if (!middleware()) {
       return;
     }
 
-    if(addedToQueue) {
+    if (addedToQueue) {
       addedToQueue = false;
     }
 
     return processResult(result);
   };
 
-  if(props.onStoriesStatus) {
+  if (props.onStoriesStatus) {
     createEffect(() => {
       props.onStoriesStatus!(!!storyDimensions());
     });
@@ -975,14 +975,14 @@ export const AvatarNew = (props: {
       'is-relative': !!autoDeletePeriod(),
       // The video overlay is absolutely positioned (inset: 0); without a
       // positioning context it would anchor to the wrong ancestor.
-      'avatar-relative': !!thumb() || isSubscribed() || !!video()
+      'avatar-relative': !!thumb() || isSubscribed() || !!video(),
     };
   };
 
   const classList = (): JSX.CustomAttributes<HTMLDivElement>['classList'] => {
     return {
       ...(!storiesCircle() && innerClassList()),
-      'has-stories': !!storyDimensions()
+      'has-stories': !!storyDimensions(),
     };
   };
 
@@ -990,7 +990,7 @@ export const AvatarNew = (props: {
     const dimensions = storyDimensions();
     return {
       'padding': dimensions ? (dimensions.size - dimensions.willBeSize) / 2 + 'px' : undefined,
-      '--size': isTopic() && props.wrapOptions?.customEmojiSize?.width ? props.wrapOptions.customEmojiSize.width + 'px' : undefined
+      '--size': isTopic() && props.wrapOptions?.customEmojiSize?.width ? props.wrapOptions.customEmojiSize.width + 'px' : undefined,
     };
   };
 
@@ -1000,7 +1000,7 @@ export const AvatarNew = (props: {
       {thumb()}
       {[media(), abbreviature()].find(Boolean)}
       {video()}
-      {isSubscribed() && currencyStarIcon({class: 'avatar-star', stroke: true})}
+      {isSubscribed() && currencyStarIcon({ class: 'avatar-star', stroke: true })}
       {autoDeletePeriod() && (
         <div
           class="avatar-auto-delete-timer"
@@ -1009,10 +1009,10 @@ export const AvatarNew = (props: {
             <div
               class="avatar-auto-delete-timer__background"
               classList={{
-                'avatar-auto-delete-timer__background--color': !!color()
+                'avatar-auto-delete-timer__background--color': !!color(),
               }}
               style={{
-                background: autoDeletePeriodBackground() ? `url(${autoDeletePeriodBackground()})` : undefined
+                background: autoDeletePeriodBackground() ? `url(${autoDeletePeriodBackground()})` : undefined,
               }}
             />
           </Show>
@@ -1071,10 +1071,10 @@ export const AvatarNew = (props: {
     setAutoDeletePeriod,
     updateStoriesSegments,
     set,
-    color
+    color,
   };
 
-  if(
+  if (
     props.peerId !== undefined ||
     props.peerTitle !== undefined ||
     props.peer !== undefined

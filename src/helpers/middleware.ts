@@ -16,7 +16,7 @@ const createDetails = (): {
 } => ({
   cleaned: false,
   inner: [],
-  onCleanCallbacks: []
+  onCleanCallbacks: [],
 });
 
 const MIDDLEWARE_ERROR = makeError('MIDDLEWARE');
@@ -43,7 +43,7 @@ export class MiddlewareHelper {
     this.clean();
     this.onDestroyCallbacks.splice(0, this.onDestroyCallbacks.length).forEach((callback) => callback());
 
-    if(this.parent) {
+    if (this.parent) {
       indexOfAndSplice(this.parent.details.inner, this);
       this.parent = undefined;
     }
@@ -55,7 +55,7 @@ export class MiddlewareHelper {
     };
 
     middleware.create = () => {
-      if(!middleware()) throw MIDDLEWARE_ERROR;
+      if (!middleware()) throw MIDDLEWARE_ERROR;
       const helper = getMiddleware();
       helper.parent = this;
       details.inner.push(helper);
@@ -63,7 +63,7 @@ export class MiddlewareHelper {
     };
 
     middleware.onClean = (callback) => {
-      if(!middleware()) return callback();
+      if (!middleware()) return callback();
       details.onCleanCallbacks.push(callback);
     };
 
@@ -74,11 +74,11 @@ export class MiddlewareHelper {
 
   public get(additionalCallback?: () => boolean) {
     const details = this.details;
-    if(details.cleaned) {
+    if (details.cleaned) {
       return this.createMiddlewareForDetails(details);
     }
 
-    if(additionalCallback) {
+    if (additionalCallback) {
       return this.createMiddlewareForDetails(details, additionalCallback);
     }
 
@@ -86,7 +86,7 @@ export class MiddlewareHelper {
   }
 
   public onDestroy = (callback: VoidFunction) => {
-    if(this.destroyed) return callback();
+    if (this.destroyed) return callback();
     this.onDestroyCallbacks.push(callback);
   };
 }

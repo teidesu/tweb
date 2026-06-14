@@ -1,27 +1,27 @@
-import {Accessor, For, JSX, createEffect, createMemo, createRoot, createSignal, onCleanup, untrack} from 'solid-js';
-import {formatFullSentTime} from '@helpers/date';
+import { Accessor, For, JSX, createEffect, createMemo, createRoot, createSignal, onCleanup, untrack } from 'solid-js';
+import { formatFullSentTime } from '@helpers/date';
 import anchorCallback from '@helpers/dom/anchorCallback';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {MyBoost, PremiumMyBoosts} from '@layer';
+import { MyBoost, PremiumMyBoosts } from '@layer';
 import appImManager from '@lib/appImManager';
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 import AppSelectPeers from '@components/appSelectPeers';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
-import {BoostsConfirmButton} from '@components/popups/boostsViaGifts';
+import { BoostsConfirmButton } from '@components/popups/boostsViaGifts';
 import PopupPeer from '@components/popups/peer';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
 import toggleDisability from '@helpers/dom/toggleDisability';
-import {AvatarNew} from '@components/avatarNew';
+import { AvatarNew } from '@components/avatarNew';
 import classNames from '@helpers/string/classNames';
 import filterUnique from '@helpers/array/filterUnique';
-import {resolveElements} from '@solid-primitives/refs';
+import { resolveElements } from '@solid-primitives/refs';
 import liteMode from '@helpers/liteMode';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
-import {hideToast, toastNew} from '@components/toast';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
+import { hideToast, toastNew } from '@components/toast';
 import tsNow from '@helpers/tsNow';
-import {wrapLeftDuration} from '@components/wrappers/wrapDuration';
-import {IconTsx} from '@components/iconTsx';
-import {createListTransition} from '@vendor/createListTransition';
+import { wrapLeftDuration } from '@components/wrappers/wrapDuration';
+import { IconTsx } from '@components/iconTsx';
+import { createListTransition } from '@vendor/createListTransition';
 
 const className = 'popup-boost';
 
@@ -39,7 +39,7 @@ export default class PopupReassignBoost extends PopupPeer {
       body: true,
       description: true,
       footer: true,
-      withConfirm: true
+      withConfirm: true,
     });
 
     this.btnClose.remove();
@@ -64,7 +64,7 @@ export default class PopupReassignBoost extends PopupPeer {
         const avatar = untrack(() => {
           return AvatarNew({
             peerId: props.peerId,
-            size: 60
+            size: 60,
           });
         });
 
@@ -73,7 +73,7 @@ export default class PopupReassignBoost extends PopupPeer {
         return avatar;
       };
 
-      const avatar = createAvatar({peerId: this.peerId, right: true});
+      const avatar = createAvatar({ peerId: this.peerId, right: true });
       const peerIds = createMemo<PeerId[]>((previous) => {
         const previosIndexes: Map<PeerId, number> = new Map();
         previous?.forEach((peerId, index) => {
@@ -88,7 +88,7 @@ export default class PopupReassignBoost extends PopupPeer {
 
       const realList = (
         <For each={peerIds()}>{(peerId, index) => {
-          const {element} = createAvatar({peerId});
+          const { element } = createAvatar({ peerId });
           const diff = createMemo(() => peerIds().length - index() - 1);
           return (
             <div
@@ -104,24 +104,24 @@ export default class PopupReassignBoost extends PopupPeer {
 
       const transitionList = createListTransition(resolveElements(() => realList).toArray, {
         exitMethod: 'keep-index',
-        onChange: ({added, removed, finishRemoved}) => {
-          const options: KeyframeAnimationOptions = {duration: liteMode.isAvailable('animations') ? 200 : 0/* , fill: 'forwards' */, easing: 'ease-in-out'};
-          const keyframes: Keyframe[] = [{transform: 'translateX(var(--offset)) scale(0)'}, {transform: 'translateX(var(--offset)) scale(1)'}];
+        onChange: ({ added, removed, finishRemoved }) => {
+          const options: KeyframeAnimationOptions = { duration: liteMode.isAvailable('animations') ? 200 : 0/* , fill: 'forwards' */, easing: 'ease-in-out' };
+          const keyframes: Keyframe[] = [{ transform: 'translateX(var(--offset)) scale(0)' }, { transform: 'translateX(var(--offset)) scale(1)' }];
           queueMicrotask(() => {
-            for(const element of added) {
+            for (const element of added) {
               element.animate(keyframes, options);
             }
 
             const reversedKeyframes = keyframes.slice().reverse();
             const promises: Promise<any>[] = [];
-            for(const element of removed) {
+            for (const element of removed) {
               const animation = element.animate(reversedKeyframes, options);
               promises.push(animation.finished);
             }
 
             Promise.all(promises).then(() => finishRemoved(removed));
           });
-        }
+        },
       }) as unknown as JSX.Element;
 
       return (
@@ -176,7 +176,7 @@ export default class PopupReassignBoost extends PopupPeer {
           const [timestamp, setTimestamp] = createSignal(tsNow(true));
           const leftTime = createMemo<number>((prev) => {
             const left = Math.max(0, (myBoost!.cooldown_until_date || 0) - timestamp());
-            if(!left && prev !== undefined) {
+            if (!left && prev !== undefined) {
               clearInterval(interval);
             }
 
@@ -205,13 +205,13 @@ export default class PopupReassignBoost extends PopupPeer {
             dialogElement.container.classList.toggle('is-unavailable', !!leftTime!());
           });
         });
-      }
+      },
     });
 
     const _add = this.selector.add.bind(this.selector);
     this.selector.add = (...args) => {
       const element = this.selector.getElementByKey(args[0].key as any);
-      if(element!.classList.contains('is-unavailable')) {
+      if (element!.classList.contains('is-unavailable')) {
         toastNew({
           langPackKey: 'Boost.Reassign.Wait',
           langPackArguments: [
@@ -221,8 +221,8 @@ export default class PopupReassignBoost extends PopupPeer {
               this.hideWithCallback(() => {
                 appImManager.initGifting();
               });
-            })
-          ]
+            }),
+          ],
         });
         return false;
       }
@@ -232,7 +232,7 @@ export default class PopupReassignBoost extends PopupPeer {
 
     const keys = this.myBoosts.my_boosts.map((myBoost) => {
       const peerId = getPeerId(myBoost.peer!);
-      if(peerId === this.peerId) {
+      if (peerId === this.peerId) {
         return;
       }
 
@@ -256,26 +256,26 @@ export default class PopupReassignBoost extends PopupPeer {
         this.hide();
         toastNew({
           langPackKey: 'BoostingReassignedFromPlural',
-          langPackArguments: [slots.length, i18n('BoostingFromOtherChannel', [uniquePeers.length])]
+          langPackArguments: [slots.length, i18n('BoostingFromOtherChannel', [uniquePeers.length])],
         });
-      } catch(err) {
+      } catch (err) {
         console.error('error replacing boosts', err);
         toggle();
       }
       processing = false;
     };
 
-    attachClickEvent(this.btnConfirm, onClick, {listenerSetter: this.listenerSetter});
+    attachClickEvent(this.btnConfirm, onClick, { listenerSetter: this.listenerSetter });
 
     BoostsConfirmButton({
       button: this.btnConfirm,
       langKey: () => 'Boost.Reassign',
       langArgs: () => [count() || 1],
-      boosts: count
+      boosts: count,
     });
 
     createEffect(() => {
-      if(processing) {
+      if (processing) {
         return;
       }
 
@@ -286,7 +286,7 @@ export default class PopupReassignBoost extends PopupPeer {
       i18n(
         'Boost.Reassign.Description',
         [
-          await wrapPeerTitle({peerId: this.peerId}),
+          await wrapPeerTitle({ peerId: this.peerId }),
           i18n(
             'Boost.GiftPremium',
             [
@@ -294,10 +294,10 @@ export default class PopupReassignBoost extends PopupPeer {
                 this.hideWithCallback(() => {
                   appImManager.initGifting();
                 });
-              })
+              }),
             ]
           ),
-          i18n('Boost.Additional', [this.appConfig.boosts_per_sent_gift ?? 1])
+          i18n('Boost.Additional', [this.appConfig.boosts_per_sent_gift ?? 1]),
         ]
       )
     );

@@ -1,5 +1,5 @@
-import {getXIndex, simplifyData} from '@lib/tchart/utils';
-import {TChartAngle, TChartUnitOptions} from '@lib/tchart/types';
+import { getXIndex, simplifyData } from '@lib/tchart/utils';
+import { TChartAngle, TChartUnitOptions } from '@lib/tchart/types';
 
 export default class TAreas {
   private opts: TChartUnitOptions;
@@ -14,14 +14,14 @@ export default class TAreas {
   constructor(opts: TChartUnitOptions) {
     this.opts = opts;
 
-    if(opts.additional!.mini) {
+    if (opts.additional!.mini) {
       this.$canvas = document.createElement('canvas');
-      this.ctx = this.$canvas.getContext('2d', {alpha: true})!;
+      this.ctx = this.$canvas.getContext('2d', { alpha: true })!;
     }
   }
 
   onResize() {
-    if(this.opts.additional!.mini) {
+    if (this.opts.additional!.mini) {
       var dpi = this.opts.settings!.dpi;
       var dims = this.opts.additional!.mini ? this.opts.state!.dims!.mini : this.opts.state!.dims!.graph;
       this.$canvas.width = dims.w * dpi;
@@ -61,15 +61,15 @@ export default class TAreas {
     const ysLen = ys!.length;
 
     // cache rendered version
-    if(mini) {
+    if (mini) {
       const hash = [dims.w, dims.h, state!.xg1, state!.xg2, this.isDarkMode, state!.zoomMode, zoomMorph];
-      for(i = 0; i < ysLen; i++) {
+      for (i = 0; i < ysLen; i++) {
         hash.push(state![`om_${i}`]);
         hash.push(state![`f_${i}`]);
       }
       const joinedHash = hash.join(',');
 
-      if(joinedHash === this.cached) {
+      if (joinedHash === this.cached) {
         this.opts.ctx!.drawImage(this.$canvas, dims.l * dpi, dims.t * dpi);
         return;
       }
@@ -91,20 +91,20 @@ export default class TAreas {
     let fullyVisibleCount = 0;
     let fullyVisibleInd = 0;
     let hasUnfocusedColumns = false;
-    for(i = 0; i < ysLen; i++) {
+    for (i = 0; i < ysLen; i++) {
       o = (mini ? state![`om_${i}`] : state![`o_${i}`])!;
 
       hasUnfocusedColumns = hasUnfocusedColumns || state![`f_${i}`]! < 1;
 
-      if(o < 1 && o > 0) {
+      if (o < 1 && o > 0) {
         textToCenter = o!;
       }
 
-      if(o > 0) {
+      if (o > 0) {
         visibleCols.push(i);
         opacityCols.push(o);
 
-        if(o === 1 && state![`e_${i}`]) {
+        if (o === 1 && state![`e_${i}`]) {
           fullyVisibleCount++;
           fullyVisibleInd = visibleCols.length - 1;
         }
@@ -124,18 +124,18 @@ export default class TAreas {
     const optYs = optData.ys;
     let hasGapsInData = false;
 
-    for(j = xInd1; j <= xInd2; j++) {
+    for (j = xInd1; j <= xInd2; j++) {
       prevY[j] = 0;
       totalPerX[j] = 0;
-      for(i = 0; i < colsLen; i++) {
+      for (i = 0; i < colsLen; i++) {
         totalPerX[j] += (optYs![visibleCols[i]].y[j] || 0) * opacityCols[i];
       }
-      if(totalPerX[j] === 0) {
+      if (totalPerX[j] === 0) {
         hasGapsInData = true;
       }
     }
 
-    if(hasGapsInData || hasUnfocusedColumns) {
+    if (hasGapsInData || hasUnfocusedColumns) {
       ctx!.fillStyle = this.opts.settings!.COLORS.background;
       ctx!.fillRect(0, 0, dims.w * dpi, dims.h * dpi);
     }
@@ -143,14 +143,14 @@ export default class TAreas {
     let angles: TChartAngle[], radius: number, cx: number, cy: number;
 
     // calc totals for fractional period so all animations will be transformed for pie representation
-    if(zoomMorph > 0 && !mini) {
-      if(morph === 1) {
+    if (zoomMorph > 0 && !mini) {
+      if (morph === 1) {
         this.savedX1 = x1!;
         this.savedX2 = x2!;
       }
 
       let xInd1Real: number, xInd2Real: number;
-      if(morph < 1) {
+      if (morph < 1) {
         const x1AnimItem = this.opts.animator!.get('x1');
         const x2AnimItem = this.opts.animator!.get('x2');
         const x1End = x1AnimItem ? x1AnimItem.end : this.opts.state!['x1'];
@@ -170,12 +170,12 @@ export default class TAreas {
       var totalForAll = 0;
       var totalPerItem = [];
 
-      for(i = 0; i < colsLen; i++) {
+      for (i = 0; i < colsLen; i++) {
         totalPerItem[i] = 0;
         const tmpY = ys![visibleCols[i]].y;
 
         let tmp: number;
-        for(j = xInd1RealCeil; j <= xInd2RealFloor; j++) {
+        for (j = xInd1RealCeil; j <= xInd2RealFloor; j++) {
           tmp = (tmpY[j] || 0) * opacityCols[i];
           totalPerItem[i] += tmp;
           totalForAll += tmp;
@@ -198,7 +198,7 @@ export default class TAreas {
       const initAngle = prevAngle;
 
 
-      if(this.opts.state!.zoomDir === 1) {
+      if (this.opts.state!.zoomDir === 1) {
         morph = Math.min(Math.max((morph - 0.25) / 0.4, 0), 1);
         this.prevElastic = elastic;
       } else {
@@ -212,13 +212,13 @@ export default class TAreas {
       cy = dpi * (dims.h / 2 + dims.t + 2);
       const rLen =  2 * Math.PI * radius / dpi;
       const pointsPerArcLen = 1 / 13; // 1 point per each 10 pixels of arc
-      for(i = 0; i < colsLen; i++) {
+      for (i = 0; i < colsLen; i++) {
         let percentage = totalPerItem[i] / totalForAll;
         percentage = percentage || 0; // absent data
         const len = 2 * Math.PI * percentage;
         let newAngle = prevAngle - len;
         const additionalPoints = Math.round(percentage * rLen * pointsPerArcLen);
-        if(i === colsLen - 1) newAngle = initAngle - 2 * Math.PI;
+        if (i === colsLen - 1) newAngle = initAngle - 2 * Math.PI;
         const overlapAng = Math.PI * 2 * 0.1 / (rLen);
         const yItem = ys![visibleCols[i]];
         angles.push({
@@ -231,7 +231,7 @@ export default class TAreas {
           ind: visibleCols[i],
           value: totalPerItem[i],
           label: yItem.label,
-          color: this.isDarkMode ? yItem.colors_n[2] : yItem.colors_d[2]
+          color: this.isDarkMode ? yItem.colors_n[2] : yItem.colors_d[2],
         });
 
 
@@ -246,10 +246,10 @@ export default class TAreas {
 
     let colInd = 0;
 
-    for(i = 0; i < ysLen; i++) {
+    for (i = 0; i < ysLen; i++) {
       o = (mini ? state![`om_${i}`] : state![`o_${i}`])!;
 
-      if(o <= 0) {
+      if (o <= 0) {
         continue;
       }
 
@@ -261,13 +261,13 @@ export default class TAreas {
       ctx!.globalAlpha = state![`f_${i}`]! * 0.9 + 0.1;
       ctx!.beginPath();
 
-      if(zoomMorph === 0 || !mini) {
+      if (zoomMorph === 0 || !mini) {
         // use regular version to skip complex math evaluations
         // despite of fact that they produce same result for morph === 0
-        if(zoomMorph === 0) {
-          if(i > 0) {
+        if (zoomMorph === 0) {
+          if (i > 0) {
             ctx!.moveTo(optX[xInd2] * xScale + xShift << 0, hBottom - prevY[xInd2] + overlap << 0);
-            for(j = xInd2 - 1; j >= xInd1; j--) {
+            for (j = xInd2 - 1; j >= xInd1; j--) {
               ctx!.lineTo(optX[j] * xScale + xShift << 0, hBottom - prevY[j] + overlap << 0);
             }
           } else {
@@ -275,12 +275,12 @@ export default class TAreas {
             ctx!.lineTo(optX[xInd1] * xScale + xShift << 0, hBottom << 0);
           }
 
-          if(colInd < colsLen - 1 || hasGapsInData) {
-            for(j = xInd1; j <= xInd2; j++) {
+          if (colInd < colsLen - 1 || hasGapsInData) {
+            for (j = xInd1; j <= xInd2; j++) {
               const curY = (yShift - ((y[j] * k / totalPerX[j]) || 0));
               const curH = hBottom - curY;
               let sy = prevY[j] + curH;
-              if(sy > yScale) sy = yScale;
+              if (sy > yScale) sy = yScale;
               ctx!.lineTo(optX[j] * xScale + xShift << 0, hBottom - sy << 0);
               prevY[j] += curH;
             }
@@ -293,20 +293,20 @@ export default class TAreas {
           const calcTrans = (fromX: number, fromY: number, toAngle: number, toR: number) => {
             let sx = 0;
             let sy = 0;
-            if(selectionOffset && fullyVisibleCount > 1) {
+            if (selectionOffset && fullyVisibleCount > 1) {
               sx = Math.cos(angles[colInd].mid) * selectionOffset * 8 * dpi;
               sy = -Math.sin(angles[colInd].mid) * selectionOffset * 8 * dpi;
             }
 
-            if(toR > radius) toR = radius;
+            if (toR > radius) toR = radius;
             let fromAngle = Math.atan2(cy - fromY, fromX - cx);
             fromAngle = fromAngle < 0 ? Math.PI * 2 + fromAngle : fromAngle;
             const fromR = Math.pow((cy - fromY) * (cy - fromY) + (fromX - cx) * (fromX - cx), 0.5);
 
-            if(Math.abs(toAngle - fromAngle) > Math.PI * (colsLen === 1 ? 1.5 : 1)) {
+            if (Math.abs(toAngle - fromAngle) > Math.PI * (colsLen === 1 ? 1.5 : 1)) {
               toAngle -= Math.PI * 2;
             }
-            if(toAngle < -Math.PI * 2) {
+            if (toAngle < -Math.PI * 2) {
               toAngle -= -Math.PI * 2;
             }
 
@@ -314,7 +314,7 @@ export default class TAreas {
             const r = fromR + morph * (toR - fromR);
             const res = [
               cx + Math.cos(ang) * r + sx,
-              cy - Math.sin(ang) * r + sy
+              cy - Math.sin(ang) * r + sy,
             ] as const;
 
             return res;
@@ -325,23 +325,23 @@ export default class TAreas {
           let cBot = false, cTop = false, xj: number;
           var selectionOffset = state![`pieInd_${visibleCols[colInd]}`] || 0;
 
-          if(angles![colInd].percentage === 0) {
+          if (angles![colInd].percentage === 0) {
             ctx!.globalAlpha = 0;
           }
 
           let res = calcTrans(optX[xInd2] * xScale + xShift, hBottom - prevY[xInd2], angles![0].st, radius!);
           ctx!.moveTo(res[0], res[1]);
 
-          if(colInd > 0) {
-            for(j = xInd2 - 1; j >= xInd1; j--) {
+          if (colInd > 0) {
+            for (j = xInd2 - 1; j >= xInd1; j--) {
               xj = optX[j] * xScale + xShift;
-              if(xj === cx!) cBot = true;
-              if(xj >= cx!) {
+              if (xj === cx!) cBot = true;
+              if (xj >= cx!) {
                 dist = (xj - cx!) / (dims.w * dpi / 2);
-                if(morph === 0) dist = 0;
+                if (morph === 0) dist = 0;
                 res = calcTrans(xj, hBottom - prevY[j] + overlap, angles![0].st, radius! * dist);
               } else {
-                if(!cBot) {
+                if (!cBot) {
                   cBot = true;
                   const sc = (cx! - xj) / (optX[j + 1] * xScale + xShift - xj);
                   const sy1 = hBottom - prevY[j] + overlap;
@@ -364,9 +364,9 @@ export default class TAreas {
             ctx!.lineTo(res[0], res[1]);
           }
 
-          if(colInd < colsLen - 1) {
+          if (colInd < colsLen - 1) {
             let sy1: number;
-            for(j = 0; j <= additionalSteps; j++) {
+            for (j = 0; j <= additionalSteps; j++) {
               const curY = (yShift - ((y[xInd1] * k / totalPerX[xInd1]) || 0));
               const curH = hBottom - curY;
               sy1 = hBottom - prevY[xInd1] + overlap;
@@ -382,19 +382,19 @@ export default class TAreas {
               ctx!.lineTo(res[0], res[1]);
             }
 
-            for(j = xInd1; j <= xInd2; j++) {
+            for (j = xInd1; j <= xInd2; j++) {
               const curY = (yShift - ((y[j] * k / totalPerX[j]) || 0));
               const curH = hBottom - curY;
               xj = optX[j] * xScale + xShift;
 
-              if(xj === cx!) cTop = true;
-              if(xj <= cx!) {
+              if (xj === cx!) cTop = true;
+              if (xj <= cx!) {
                 dist = (cx! - xj) / (dims.w * dpi / 2);
                 var xjprev = xj;
                 var syprev = hBottom - prevY[j] - curH;
                 res = calcTrans(xj, syprev, angles![colInd].ed, radius! * dist);
               } else {
-                if(!cTop) {
+                if (!cTop) {
                   cTop = true;
                   // @ts-expect-error use before assigned
                   const sc = (cx! - xjprev) / (xj - xjprev);
@@ -404,7 +404,7 @@ export default class TAreas {
                   ctx!.lineTo(res[0], res[1]);
                 }
                 dist = (xj - cx!) / (dims.w * dpi / 2);
-                if(morph === 0) dist = 0;
+                if (morph === 0) dist = 0;
                 res = calcTrans(xj, hBottom - prevY[j] - curH, angles![0].st, radius! * dist);
               }
 
@@ -412,14 +412,14 @@ export default class TAreas {
               prevY[j] += curH;
             }
 
-            if(xj! < cx!) { // last day, haack
-              if(!cTop) {
+            if (xj! < cx!) { // last day, haack
+              if (!cTop) {
                 res = calcTrans(cx!, sy1!, angles![colInd].ed, 0);
                 ctx!.lineTo(res[0], res[1]);
               }
             }
           } else {
-            for(j = 0; j <= additionalSteps; j++) {
+            for (j = 0; j <= additionalSteps; j++) {
               res = calcTrans(
                 (optX[xInd1] + (j / additionalSteps) * (optX[xInd2] - optX[xInd1])) * xScale + xShift,
                 0,
@@ -436,10 +436,10 @@ export default class TAreas {
 
         ctx!.moveTo(optX[xInd2] * xScale + xw + xShift, hBottom - prevY[xInd2]);
 
-        if(i > 0) {
+        if (i > 0) {
           ctx!.lineTo(optX[xInd2] * xScale + xShift, hBottom - prevY[xInd2]);
 
-          for(j = xInd2; j >= xInd1 + 1; j--) {
+          for (j = xInd2; j >= xInd1 + 1; j--) {
             ctx!.lineTo(optX[j] * xScale + xShift, hBottom - (prevY[j] + morph * (prevY[j - 1] - prevY[j])) + overlap);
             ctx!.lineTo(optX[j - 1] * xScale + xShift, hBottom - prevY[j - 1] + overlap);
           }
@@ -448,12 +448,12 @@ export default class TAreas {
         }
 
         let curHNext: number;
-        if(colInd < colsLen - 1) {
-          for(j = xInd1; j <= xInd2 - 1; j++) {
+        if (colInd < colsLen - 1) {
+          for (j = xInd1; j <= xInd2 - 1; j++) {
             let curY = (yShift - ((y[j] * k / totalPerX[j]) || 0));
             const curH = hBottom - curY;
 
-            if(j === xInd1) {
+            if (j === xInd1) {
               ctx!.lineTo(optX[xInd1] * xScale + xShift, hBottom - prevY[xInd1] - curH);
             }
 
@@ -466,7 +466,7 @@ export default class TAreas {
             ctx!.lineTo(optX[j+1] * xScale + xShift, hBottom - (yFrom + morph * (yTo - yFrom)));
             ctx!.lineTo(optX[j+1] * xScale + xShift, hBottom - yFrom);
 
-            if(j === xInd2 - 1) {
+            if (j === xInd2 - 1) {
               ctx!.lineTo(optX[xInd2] * xScale + xw + xShift, hBottom - prevY[xInd2] - curHNext);
             }
 
@@ -484,7 +484,7 @@ export default class TAreas {
       ctx!.fill();
 
       // texts
-      if(!mini && zoomMorph > 0 && angles![colInd].percentageText) {
+      if (!mini && zoomMorph > 0 && angles![colInd].percentageText) {
         const opacity = Math.pow(morph, this.opts.state!.zoomDir === 1 ? 4 : 20) * o * (state![`f_${i}`]! * 0.9 + 0.1);
         let fontSize = Math.max(Math.min(angles![colInd].percentage * 2, 26), 10);
         const rad = settings!.PIE_RADIUS;
@@ -496,7 +496,7 @@ export default class TAreas {
         let sx = 0;
         let sy = 0;
         // @ts-expect-error use before assigned
-        if(selectionOffset && fullyVisibleCount > 1) {
+        if (selectionOffset && fullyVisibleCount > 1) {
           sx = cosVal * selectionOffset * 8 * dpi;
           sy = -sinVal * selectionOffset * 8 * dpi;
         }
@@ -505,12 +505,12 @@ export default class TAreas {
         ctx!.textAlign = 'center';
         ctx!.globalAlpha = opacity;
 
-        if(angles![colInd].percentage < opts.data!.pieLabelsPercentages.hoverOnly) {
+        if (angles![colInd].percentage < opts.data!.pieLabelsPercentages.hoverOnly) {
           // @ts-expect-error use before assigned
           ctx!.globalAlpha = selectionOffset * opacity;
         }
 
-        if(isOutboard) {
+        if (isOutboard) {
           fontSize = Math.max(fontSize, 14);
           offset = rad + fontSize / 3 + 13;
           ctx!.fillStyle = this.isDarkMode ? ys![i].colors_n[0] : ys![i].colors_d[0];

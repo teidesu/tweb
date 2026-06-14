@@ -1,5 +1,5 @@
-import {copyTextToClipboard} from '@helpers/clipboard';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { copyTextToClipboard } from '@helpers/clipboard';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import ListenerSetter from '@helpers/listenerSetter';
 import wrapPlainText from '@lib/richTextProcessor/wrapPlainText';
 import Button from '@components/button';
@@ -7,7 +7,7 @@ import ButtonIcon from '@components/buttonIcon';
 import ButtonMenuToggle from '@components/buttonMenuToggle';
 import shareUrlToPeers from '@components/popups/shareUrl';
 import ripple from '@components/ripple';
-import {toastNew} from '@components/toast';
+import { toastNew } from '@components/toast';
 
 export class InviteLink {
   public container: HTMLDivElement;
@@ -25,7 +25,7 @@ export class InviteLink {
     listenerSetter,
     url,
     noRightButton,
-    onClick
+    onClick,
   }: {
     buttons?: Parameters<typeof ButtonMenuToggle>[0]['buttons'],
     button?: HTMLButtonElement | false,
@@ -47,49 +47,49 @@ export class InviteLink {
     text.classList.add('invite-link-text');
 
     let rightButton: HTMLElement;
-    if(buttons) {
+    if (buttons) {
       rightButton = ButtonMenuToggle({
         buttons,
         direction: 'bottom-left',
-        buttonOptions: {noRipple: true},
-        listenerSetter
+        buttonOptions: { noRipple: true },
+        listenerSetter,
       });
-    } else if(!noRightButton) {
-      rightButton = ButtonIcon('copy', {noRipple: true});
-      attachClickEvent(rightButton, () => this.copyLink(), {listenerSetter});
+    } else if (!noRightButton) {
+      rightButton = ButtonIcon('copy', { noRipple: true });
+      attachClickEvent(rightButton, () => this.copyLink(), { listenerSetter });
     }
 
-    if(rightButton!) rightButton.classList.add('invite-link-menu');
+    if (rightButton!) rightButton.classList.add('invite-link-menu');
 
-    if(!button && button !== false) {
-      button = Button('', {text: 'ShareLink'});
+    if (!button && button !== false) {
+      button = Button('', { text: 'ShareLink' });
       this.buttonText = button.lastElementChild as HTMLSpanElement;
       attachClickEvent(button, () => {
-        if(this.onButtonClick) this.onButtonClick();
+        if (this.onButtonClick) this.onButtonClick();
         else this.shareLink();
-      }, {listenerSetter});
+      }, { listenerSetter });
     }
 
-    if(button) {
+    if (button) {
       this.button = button;
       button.className = 'btn-primary btn-color-primary invite-link-button';
     }
 
-    if(url) this.setUrl(url);
+    if (url) this.setUrl(url);
     ripple(link);
     link.append(...[
       text,
-      rightButton!
+      rightButton!,
     ].filter(Boolean));
 
     linkContainer.append(link, button || '');
 
-    attachClickEvent(link, onClick || (() => this.copyLink()), {listenerSetter});
+    attachClickEvent(link, onClick || (() => this.copyLink()), { listenerSetter });
   }
 
   public setUrl(url: string) {
     let s = url;
-    if(s.includes('//')) {
+    if (s.includes('//')) {
       s = url.split('//').slice(1).join('//');
     }
     this.textElement.replaceChildren(wrapPlainText(s));
@@ -98,10 +98,10 @@ export class InviteLink {
 
   public copyLink = (url: string = this.url) => {
     copyTextToClipboard(url);
-    toastNew({langPackKey: 'LinkCopied'});
+    toastNew({ langPackKey: 'LinkCopied' });
   };
 
   public shareLink = (url: string = this.url) => {
-    shareUrlToPeers({url, openAfter: true});
+    shareUrlToPeers({ url, openAfter: true });
   };
 }

@@ -1,5 +1,5 @@
 // * Jolly Cobra's schedulers
-import {NoneToVoidFunction} from '@types';
+import { NoneToVoidFunction } from '@types';
 
 /*
 export function throttleWithTickEnd<F extends AnyToVoidFunction>(fn: F) {
@@ -20,7 +20,7 @@ function runNow(fn: NoneToVoidFunction) {
 
 let fastRafCallbacks: NoneToVoidFunction[] | undefined;
 export function fastRaf(callback: NoneToVoidFunction) {
-  if(!fastRafCallbacks) {
+  if (!fastRafCallbacks) {
     fastRafCallbacks = [callback];
 
     requestAnimationFrame(() => {
@@ -35,19 +35,19 @@ export function fastRaf(callback: NoneToVoidFunction) {
 
 let fastRafConventionalCallbacks: NoneToVoidFunction[] | undefined, processing = false;
 export function fastRafConventional(callback: NoneToVoidFunction) {
-  if(!fastRafConventionalCallbacks) {
+  if (!fastRafConventionalCallbacks) {
     fastRafConventionalCallbacks = [callback];
 
     requestAnimationFrame(() => {
       processing = true;
-      for(let i = 0; i < fastRafConventionalCallbacks!.length; ++i) {
+      for (let i = 0; i < fastRafConventionalCallbacks!.length; ++i) {
         fastRafConventionalCallbacks![i]();
       }
 
       fastRafConventionalCallbacks = undefined;
       processing = false;
     });
-  } else if(processing) {
+  } else if (processing) {
     callback();
   } else {
     fastRafConventionalCallbacks.push(callback);
@@ -56,7 +56,7 @@ export function fastRafConventional(callback: NoneToVoidFunction) {
 
 let rafPromise: Promise<void> | undefined;
 export function fastRafPromise() {
-  if(rafPromise) return rafPromise;
+  if (rafPromise) return rafPromise;
 
   rafPromise = new Promise<void>((resolve) => fastRaf(() => resolve()));
   rafPromise.then(() => {

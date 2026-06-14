@@ -1,33 +1,33 @@
-import {JSX, Show, createSignal, onCleanup, onMount} from 'solid-js';
+import { JSX, Show, createSignal, onCleanup, onMount } from 'solid-js';
 
 import CodeInputFieldCompat from '@components/codeInputField';
 import Icon from '@components/icon';
 import TrackingMonkey from '@components/monkeys/tracking';
-import {wrapEmailPattern} from '@components/popups/emailSetup';
-import {SimpleConfirmationPopup} from '@components/popups/simpleConfirmation';
+import { wrapEmailPattern } from '@components/popups/emailSetup';
+import { SimpleConfirmationPopup } from '@components/popups/simpleConfirmation';
 import MediaHeader from '@components/mediaHeader';
-import {toastNew} from '@components/toast';
-import {wrapFormattedDuration} from '@components/wrappers/wrapDuration';
+import { toastNew } from '@components/toast';
+import { wrapFormattedDuration } from '@components/wrappers/wrapDuration';
 import anchorCallback from '@helpers/dom/anchorCallback';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import focusWhenConnected from '@helpers/dom/focusWhenConnected';
 import replaceContent from '@helpers/dom/replaceContent';
 import formatDuration from '@helpers/formatDuration';
 import mediaSizes from '@helpers/mediaSizes';
-import {fastRaf} from '@helpers/schedulers';
+import { fastRaf } from '@helpers/schedulers';
 import tsNow from '@helpers/tsNow';
-import {AuthSentCode, AuthSentCodeType, AuthSignIn} from '@layer';
-import {LangPackKey, i18n} from '@lib/langPack';
+import { AuthSentCode, AuthSentCodeType, AuthSignIn } from '@layer';
+import { LangPackKey, i18n } from '@lib/langPack';
 import setBlankToAnchor from '@lib/richTextProcessor/setBlankToAnchor';
 import lottieLoader from '@lib/rlottie/lottieLoader';
 import RLottiePlayer from '@lib/rlottie/rlottiePlayer';
 import ctx from '@environment/ctx';
 
 import AuthCard from '@/pages/AuthCard';
-import {CardSpec, useAuthFlow} from '@/pages/authFlow';
+import { CardSpec, useAuthFlow } from '@/pages/authFlow';
 import styles from '@/pages/authFlow.module.scss';
 
-if(import.meta.hot) import.meta.hot.accept();
+if (import.meta.hot) import.meta.hot.accept();
 
 type Spec = Extract<CardSpec, {name: 'authCode'}>;
 
@@ -44,7 +44,7 @@ type Spec = Extract<CardSpec, {name: 'authCode'}>;
  * would flash the card.
  */
 export default function AuthCodeCard(props: {spec: Spec}) {
-  const {managers, navigate, toIm} = useAuthFlow();
+  const { managers, navigate, toIm } = useAuthFlow();
 
   /* ---------- state ---------- */
 
@@ -74,7 +74,7 @@ export default function AuthCodeCard(props: {spec: Spec}) {
   const editButton = document.createElement('span');
   editButton.classList.add(styles.phoneEdit);
   editButton.append(Icon('edit'));
-  attachClickEvent(editButton, () => navigate({name: 'signIn'}));
+  attachClickEvent(editButton, () => navigate({ name: 'signIn' }));
 
   /* ---------- code input ---------- */
 
@@ -86,7 +86,7 @@ export default function AuthCodeCard(props: {spec: Spec}) {
       replaceContent(codeInputErrorLabel, '');
     },
     onFill: (code) => submitCode(code),
-    class: styles.codeInputField
+    class: styles.codeInputField,
   });
 
   /* ---------- submission ---------- */
@@ -97,11 +97,11 @@ export default function AuthCodeCard(props: {spec: Spec}) {
     const params: AuthSignIn = {
       phone_number: sentCode.phone_number!,
       phone_code_hash: sentCode.phone_code_hash,
-      phone_code: code
+      phone_code: code,
     };
 
-    managers.apiManager.invokeApi('auth.signIn', params, {ignoreErrors: true}).then(async(response) => {
-      switch(response._) {
+    managers.apiManager.invokeApi('auth.signIn', params, { ignoreErrors: true }).then(async(response) => {
+      switch (response._) {
         case 'auth.authorization':
           await managers.apiManager.setUser(response.user);
           toIm();
@@ -111,17 +111,17 @@ export default function AuthCodeCard(props: {spec: Spec}) {
             name: 'signUp',
             payload: {
               phone_number: sentCode.phone_number!,
-              phone_code_hash: sentCode.phone_code_hash
-            }
+              phone_code_hash: sentCode.phone_code_hash,
+            },
           });
           break;
       }
     }).catch((err) => {
       let good = false;
-      switch(err.type) {
+      switch (err.type) {
         case 'SESSION_PASSWORD_NEEDED':
           good = true;
-          navigate({name: 'password'});
+          navigate({ name: 'password' });
           setTimeout(() => {
             codeInputField.value = '';
           }, 300);
@@ -143,7 +143,7 @@ export default function AuthCodeCard(props: {spec: Spec}) {
 
       codeInputField.disabled = false;
 
-      if(!good) {
+      if (!good) {
         codeInputField.value = '';
         fastRaf(() => codeInputField.input.focus());
       }
@@ -157,7 +157,7 @@ export default function AuthCodeCard(props: {spec: Spec}) {
     player?.remove(); player = undefined;
     stickerHost.replaceChildren();
 
-    if(sentCode.type._ === 'auth.sentCodeTypeFragmentSms') {
+    if (sentCode.type._ === 'auth.sentCodeTypeFragmentSms') {
       const container = document.createElement('div');
       container.classList.add('media-sticker-wrapper');
       stickerHost.append(container);
@@ -166,7 +166,7 @@ export default function AuthCodeCard(props: {spec: Spec}) {
         loop: true,
         autoplay: true,
         width: stickerSize,
-        height: stickerSize
+        height: stickerSize,
       }, 'jolly_roger').then((animation) => {
         player = animation;
         return lottieLoader.waitForFirstFrame(animation);
@@ -183,42 +183,42 @@ export default function AuthCodeCard(props: {spec: Spec}) {
   function handleResetEmail() {
     managers.apiManager.invokeApi('auth.resetLoginEmail', {
       phone_number: sentCode.phone_number!,
-      phone_code_hash: sentCode.phone_code_hash
+      phone_code_hash: sentCode.phone_code_hash,
     }).then((code) => {
-      if(code._ === 'auth.sentCode') {
-        sentCode = Object.assign(code, {phone_number: sentCode.phone_number});
-        if(sentCode.type._ === 'auth.sentCodeTypeEmailCode') {
+      if (code._ === 'auth.sentCode') {
+        sentCode = Object.assign(code, { phone_number: sentCode.phone_number });
+        if (sentCode.type._ === 'auth.sentCodeTypeEmailCode') {
           updatePendingEmail(sentCode.type);
         } else {
           applySentCode();
         }
       } else {
         console.error(code);
-        toastNew({langPackKey: 'Error.AnError'});
+        toastNew({ langPackKey: 'Error.AnError' });
       }
     }).catch((err: ApiError) => {
-      if(err.type.includes('TASK_ALREADY_EXISTS')) {
+      if (err.type.includes('TASK_ALREADY_EXISTS')) {
         SimpleConfirmationPopup.show({
           titleLangKey: 'Login.ResetEmail.NeedPremium',
           descriptionLangKey: 'Login.ResetEmail.NeedPremiumText',
-          button: {langKey: 'OK'}
+          button: { langKey: 'OK' },
         });
       } else {
         console.error(err);
-        toastNew({langPackKey: 'Error.AnError'});
+        toastNew({ langPackKey: 'Error.AnError' });
       }
     });
   }
 
   function updatePendingEmail(type: AuthSentCodeType.authSentCodeTypeEmailCode) {
-    if(resetEmailTimer) {
+    if (resetEmailTimer) {
       clearTimeout(resetEmailTimer);
       resetEmailTimer = undefined;
     }
 
-    if(type.reset_pending_date != null) {
+    if (type.reset_pending_date != null) {
       const diff = type.reset_pending_date - tsNow(true);
-      if(diff <= 0 || type.reset_pending_date <= 0) {
+      if (diff <= 0 || type.reset_pending_date <= 0) {
         setResetEmailContent(i18n('Login.ResetEmail.PleaseWait'));
         handleResetEmail();
         return;
@@ -226,22 +226,22 @@ export default function AuthCodeCard(props: {spec: Spec}) {
 
       setResetEmailContent(i18n('Login.ResetEmail.Pending', [
         wrapFormattedDuration(formatDuration(diff, 2)),
-        anchorCallback(handleResetEmail)
+        anchorCallback(handleResetEmail),
       ]));
       resetEmailTimer = ctx.setTimeout(() => updatePendingEmail(type), 30_000);
       return;
     }
 
-    if(type.reset_available_period != null) {
+    if (type.reset_available_period != null) {
       setResetEmailContent(i18n('TroubleEmail', [
         anchorCallback(() => {
           SimpleConfirmationPopup.show({
             titleLangKey: 'Login.ResetEmail.Title',
             descriptionLangKey: 'Login.ResetEmail.Text',
             descriptionArgs: [wrapFormattedDuration(formatDuration(type.reset_available_period!, 2))],
-            button: {langKey: 'Login.ResetEmail.Title'}
+            button: { langKey: 'Login.ResetEmail.Title' },
           }).then(() => handleResetEmail());
-        })
+        }),
       ]));
     }
   }
@@ -255,7 +255,7 @@ export default function AuthCodeCard(props: {spec: Spec}) {
 
     phoneEl.innerText = sentCode.phone_number ?? '';
 
-    if(resetEmailTimer) {
+    if (resetEmailTimer) {
       clearTimeout(resetEmailTimer);
       resetEmailTimer = undefined;
     }
@@ -264,7 +264,7 @@ export default function AuthCodeCard(props: {spec: Spec}) {
     let key: LangPackKey;
     let args: any[] | undefined;
     const type = sentCode.type;
-    switch(type._) {
+    switch (type._) {
       case 'auth.sentCodeTypeSms':
         key = 'Login.Code.SentSms';
         break;
@@ -295,7 +295,7 @@ export default function AuthCodeCard(props: {spec: Spec}) {
 
     setSentTypeContent(i18n(key, args));
 
-    managers.appStateManager.pushToState('authState', {_: 'authStateAuthCode', sentCode});
+    managers.appStateManager.pushToState('authState', { _: 'authStateAuthCode', sentCode });
 
     rebuildAnimation().catch(() => {});
   }
@@ -310,7 +310,7 @@ export default function AuthCodeCard(props: {spec: Spec}) {
 
   onCleanup(() => {
     cancelFocus?.();
-    if(resetEmailTimer) clearTimeout(resetEmailTimer);
+    if (resetEmailTimer) clearTimeout(resetEmailTimer);
     monkey?.remove();
     player?.remove();
     codeInputField.cleanup();

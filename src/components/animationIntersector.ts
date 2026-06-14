@@ -1,13 +1,13 @@
-import type {LiteModeKey} from '@helpers/liteMode';
+import type { LiteModeKey } from '@helpers/liteMode';
 import type RLottiePlayer from '@lib/rlottie/rlottiePlayer';
-import {useAppSettings} from '@stores/appSettings';
-import {MOUNT_CLASS_TO} from '@config/debug';
+import { useAppSettings } from '@stores/appSettings';
+import { MOUNT_CLASS_TO } from '@config/debug';
 import isInDOM from '@helpers/dom/isInDOM';
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
 import forEachReverse from '@helpers/array/forEachReverse';
 import idleController from '@helpers/idleController';
-import {fastRaf} from '@helpers/schedulers';
-import {Middleware} from '@helpers/middleware';
+import { fastRaf } from '@helpers/schedulers';
+import { Middleware } from '@helpers/middleware';
 import safePlay from '@helpers/dom/safePlay';
 
 export type AnimationItemGroup = '' | 'none' | 'chat' | 'lock' |
@@ -55,20 +55,20 @@ export class AnimationIntersector {
     this.observer = new IntersectionObserver((entries) => {
       // if(rootScope.idle.isIDLE) return;
 
-      for(const entry of entries) {
+      for (const entry of entries) {
         const target = entry.target;
 
-        for(const group in this.byGroups) {
-          if(this.intersectionLockedGroups[group as AnimationItemGroup]) {
+        for (const group in this.byGroups) {
+          if (this.intersectionLockedGroups[group as AnimationItemGroup]) {
             continue;
           }
 
           const animation = this.byGroups[group as AnimationItemGroup]!.find((p) => p.el === target);
-          if(!animation) {
+          if (!animation) {
             continue;
           }
 
-          if(entry.isIntersecting) {
+          if (entry.isIntersecting) {
             this.visible.add(animation);
             this.checkAnimation(animation, false);
 
@@ -81,7 +81,7 @@ export class AnimationIntersector {
             this.checkAnimation(animation, true);
 
             const _animation = animation.animation;
-            if(
+            if (
               animation.type === 'lottie' &&
               (_animation as RLottiePlayer).paused
               /*  && animation.cachingDelta === 2 */
@@ -117,8 +117,8 @@ export class AnimationIntersector {
   }
 
   public toggleMediaPause(paused: boolean) {
-    if(paused) {
-      if(this.videosLocked) {
+    if (paused) {
+      if (this.videosLocked) {
         this.videosLocked = false;
         this.checkAnimations2();
       }
@@ -129,15 +129,15 @@ export class AnimationIntersector {
   }
 
   public setOverrideIdleGroup(group: string, override: boolean) {
-    if(override) this.overrideIdleGroups.add(group);
+    if (override) this.overrideIdleGroups.add(group);
     else this.overrideIdleGroups.delete(group);
   }
 
   public getAnimations(element: HTMLElement) {
     const found: AnimationItem[] = [];
-    for(const group in this.byGroups) {
-      for(const player of this.byGroups[group as AnimationItemGroup]!) {
-        if(player.el === element) {
+    for (const group in this.byGroups) {
+      for (const player of this.byGroups[group as AnimationItemGroup]!) {
+        if (player.el === element) {
           found.push(player);
         }
       }
@@ -147,15 +147,15 @@ export class AnimationIntersector {
   }
 
   public removeAnimation(player: AnimationItem) {
-    const {el, animation} = player;
-    if(player.controlled !== true && player.type !== 'video') {
+    const { el, animation } = player;
+    if (player.controlled !== true && player.type !== 'video') {
       animation.remove();
     }
 
     const group = this.byGroups[player.group];
-    if(group) {
+    if (group) {
       indexOfAndSplice(group, player);
-      if(!group.length) {
+      if (!group.length) {
         delete this.byGroups[player.group];
       }
     }
@@ -167,7 +167,7 @@ export class AnimationIntersector {
 
   public removeAnimationByPlayer(player: AnimationItemWrapper) {
     const item = this.byPlayer.get(player);
-    if(item) {
+    if (item) {
       this.removeAnimation(item);
     }
   }
@@ -186,8 +186,8 @@ export class AnimationIntersector {
     type: AnimationItemType,
     locked?: boolean
   }) {
-    const {animation, group = '', observeElement, controlled, liteModeKey, type, locked} = options;
-    if(group === 'none' || this.byPlayer.has(animation)) {
+    const { animation, group = '', observeElement, controlled, liteModeKey, type, locked } = options;
+    if (group === 'none' || this.byPlayer.has(animation)) {
       return;
     }
 
@@ -198,18 +198,18 @@ export class AnimationIntersector {
       controlled,
       liteModeKey,
       type,
-      locked
+      locked,
     };
 
-    if(controlled && typeof(controlled) !== 'boolean') {
+    if (controlled && typeof(controlled) !== 'boolean') {
       controlled.onClean(() => {
         this.removeAnimationByPlayer(animation);
       });
     }
 
-    if(item.type === 'lottie') {
+    if (item.type === 'lottie') {
       const [appSettings] = useAppSettings();
-      if(!appSettings.stickers.loop && animation.loop) {
+      if (!appSettings.stickers.loop && animation.loop) {
         animation.loop = appSettings.stickers.loop;
       }
     }
@@ -227,15 +227,15 @@ export class AnimationIntersector {
   ) {
     // if(rootScope.idle.isIDLE) return;
 
-    if(group !== undefined && !this.byGroups[group]) {
+    if (group !== undefined && !this.byGroups[group]) {
       // console.warn('no animation group:', group);
       return;
     }
 
     const groups = group !== undefined /* && false */ ? [group] : Object.keys(this.byGroups) as AnimationItemGroup[];
 
-    for(const group of groups) {
-      if(imitateIntersection && this.intersectionLockedGroups[group]) {
+    for (const group of groups) {
+      if (imitateIntersection && this.intersectionLockedGroups[group]) {
         continue;
       }
 
@@ -252,30 +252,30 @@ export class AnimationIntersector {
   }
 
   public checkAnimation(player: AnimationItem, blurred?: boolean, destroy?: boolean) {
-    const {el, animation, group, locked} = player;
-    if(locked) {
+    const { el, animation, group, locked } = player;
+    if (locked) {
       return;
     }
 
     // return;
-    if(destroy || (!this.lockedGroups[group] && !isInDOM(el))) {
-      if(!player.controlled || destroy) {
+    if (destroy || (!this.lockedGroups[group] && !isInDOM(el))) {
+      if (!player.controlled || destroy) {
         this.removeAnimation(player);
       }
 
       return;
     }
 
-    if(
+    if (
       blurred ||
       (this.onlyOnePlayableGroup && this.onlyOnePlayableGroup !== group) ||
       (player.type === 'video' && this.videosLocked)
     ) {
-      if(!animation.paused) {
+      if (!animation.paused) {
         // console.warn('pause animation:', animation);
         animation.pause();
       }
-    } else if(
+    } else if (
       animation.paused &&
       this.visible.has(player) &&
       animation.autoplay &&
@@ -306,7 +306,7 @@ export class AnimationIntersector {
 
   public refreshGroup(group: AnimationItemGroup) {
     const animations = this.byGroups[group];
-    if(!animations?.length) {
+    if (!animations?.length) {
       return;
     }
 
@@ -331,7 +331,7 @@ export class AnimationIntersector {
   }
 
   public toggleIntersectionGroup(group: AnimationItemGroup, lock: boolean) {
-    if(lock) this.lockIntersectionGroup(group);
+    if (lock) this.lockIntersectionGroup(group);
     else this.unlockIntersectionGroup(group);
   }
 
@@ -339,7 +339,7 @@ export class AnimationIntersector {
     const [appSettings] = useAppSettings();
     let changed = false;
     this.byPlayer.forEach((animationItem, animation) => {
-      if(animationItem.liteModeKey === liteModeKey) {
+      if (animationItem.liteModeKey === liteModeKey) {
         changed = true;
         animation.autoplay = (play ? animation._autoplay : false)!;
         animation.loop = (play ? appSettings.stickers.loop && animation._loop : false)!;
@@ -352,7 +352,7 @@ export class AnimationIntersector {
   public setLoop(loop: boolean) {
     let changed = false;
     this.byPlayer.forEach((animationItem, animation) => {
-      if(
+      if (
         animation._loop &&
         animation.loop !== loop &&
         (animationItem.type === 'lottie' || animationItem.type === 'video')

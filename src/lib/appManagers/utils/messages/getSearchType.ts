@@ -1,14 +1,14 @@
-import type {RequestHistoryOptions} from '@appManagers/appMessagesManager';
+import type { RequestHistoryOptions } from '@appManagers/appMessagesManager';
 
 export default function getSearchType(options: RequestHistoryOptions): RequestHistoryOptions['searchType'] {
   // return 'uncached';
 
   const isSearch = !!(options.inputFilter || options.savedReaction || options.query || options.isPublicHashtag);
-  if(!isSearch) {
+  if (!isSearch) {
     return;
   }
 
-  if(options.isCacheableSearch) {
+  if (options.isCacheableSearch) {
     return 'cached';
   }
 

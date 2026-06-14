@@ -1,8 +1,8 @@
-import {MediaEditorContextValue} from '@components/mediaEditor/context';
-import {snapToViewport} from '@components/mediaEditor/utils';
-import {ResizableLayer} from '@components/mediaEditor/types';
+import { MediaEditorContextValue } from '@components/mediaEditor/context';
+import { snapToViewport } from '@components/mediaEditor/utils';
+import { ResizableLayer } from '@components/mediaEditor/types';
 
-import {STICKER_SIZE} from '@components/mediaEditor/finalRender/constants';
+import { STICKER_SIZE } from '@components/mediaEditor/finalRender/constants';
 
 export default function drawStickerLayer(
   context: MediaEditorContextValue,
@@ -12,11 +12,11 @@ export default function drawStickerLayer(
   ratio: number,
   densityAware = true
 ) {
-  const {editorState: {stickersLayersInfo, pixelRatio}} = context;
+  const { editorState: { stickersLayersInfo, pixelRatio } } = context;
 
-  const {container} = stickersLayersInfo[layer.id];
+  const { container } = stickersLayersInfo[layer.id];
   const stickerChild = container?.lastElementChild;
-  if(!stickerChild) return;
+  if (!stickerChild) return;
 
   const size = STICKER_SIZE * layer.scale * (densityAware ? pixelRatio : 1);
 

@@ -1,5 +1,5 @@
-import {children, createMemo, For, JSX, Show} from 'solid-js';
-import {IconTsx} from '@components/iconTsx';
+import { children, createMemo, For, JSX, Show } from 'solid-js';
+import { IconTsx } from '@components/iconTsx';
 import styles from '@components/sidebarRight/tabs/adminRecentActions/logDiff.module.scss';
 
 
@@ -21,10 +21,10 @@ export const LogDiff = (props: LogDiffProps) => {
   const hasRemoved = createMemo(() => removedAsArray().length > 0);
 
   return (
-    <div class={styles.Container} classList={{[styles.vertical]: props.vertical, interactable: !props.vertical}}>
+    <div class={styles.Container} classList={{ [styles.vertical]: props.vertical, interactable: !props.vertical }}>
       <Show when={hasAdded()}>
         <div class={`${styles.Block} ${styles.added}`} classList={{
-          [props.vertical ? styles.unroundedRight : styles.unroundedBottom]: hasRemoved()
+          [props.vertical ? styles.unroundedRight : styles.unroundedBottom]: hasRemoved(),
         }}>
           <div class={`${styles.Border} ${styles.added}`} />
           <For each={addedAsArray()}>
@@ -48,7 +48,7 @@ export const LogDiff = (props: LogDiffProps) => {
 
       <Show when={hasRemoved()}>
         <div class={`${styles.Block} ${styles.removed}`} classList={{
-          [props.vertical ? styles.unroundedLeft : styles.unroundedTop]: hasAdded()
+          [props.vertical ? styles.unroundedLeft : styles.unroundedTop]: hasAdded(),
         }}>
           <div class={`${styles.Border} ${styles.removed}`} />
           <For each={removedAsArray()}>

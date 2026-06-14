@@ -1,8 +1,8 @@
-import {Component, createEffect, createRoot, createSignal, onMount} from 'solid-js';
-import {createStore, SetStoreFunction} from 'solid-js/store';
+import { Component, createEffect, createRoot, createSignal, onMount } from 'solid-js';
+import { createStore, SetStoreFunction } from 'solid-js/store';
 import Row from '@components/row';
-import {AccountPassword, GlobalPrivacySettings, InputPrivacyKey, Passkey, WebAuthorization} from '@layer';
-import {AppTwoStepVerificationTab, AppTwoStepVerificationEnterPasswordTab, AppTwoStepVerificationEmailConfirmationTab} from '@components/solidJsTabs/tabs';
+import { AccountPassword, GlobalPrivacySettings, InputPrivacyKey, Passkey, WebAuthorization } from '@layer';
+import { AppTwoStepVerificationTab, AppTwoStepVerificationEnterPasswordTab, AppTwoStepVerificationEmailConfirmationTab } from '@components/solidJsTabs/tabs';
 import {
   AppActiveWebSessionsTab,
   AppBlockedUsersTab,
@@ -21,10 +21,10 @@ import {
   AppPrivacyPhoneNumberTab,
   AppPrivacyProfilePhotoTab,
   AppPrivacySavedMusicTab,
-  AppPrivacyVoicesTab
+  AppPrivacyVoicesTab,
 } from '@components/solidJsTabs/tabs';
 import rootScope from '@lib/rootScope';
-import {i18n, LangPackKey, _i18n} from '@lib/langPack';
+import { i18n, LangPackKey, _i18n } from '@lib/langPack';
 import replaceContent from '@helpers/dom/replaceContent';
 import CheckboxField from '@components/checkboxField';
 import PopupPeer from '@components/popups/peer';
@@ -34,24 +34,24 @@ import toggleDisability from '@helpers/dom/toggleDisability';
 import convertKeyToInputKey from '@helpers/string/convertKeyToInputKey';
 import getPrivacyRulesDetails from '@appManagers/utils/privacy/getPrivacyRulesDetails';
 import PrivacyType from '@appManagers/utils/privacy/privacyType';
-import confirmationPopup, {PopupConfirmationOptions} from '@components/confirmationPopup';
+import confirmationPopup, { PopupConfirmationOptions } from '@components/confirmationPopup';
 import noop from '@helpers/noop';
-import {toastNew} from '@components/toast';
+import { toastNew } from '@components/toast';
 import PopupElement from '@components/popups';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import Icon from '@components/icon';
-import {joinDeepPath} from '@helpers/object/setDeepProperty';
-import {AgeVerificationPopup} from '@components/popups/ageVerification';
-import {clearSensitiveSpoilers} from '@components/wrappers/mediaSpoiler';
+import { joinDeepPath } from '@helpers/object/setDeepProperty';
+import { AgeVerificationPopup } from '@components/popups/ageVerification';
+import { clearSensitiveSpoilers } from '@components/wrappers/mediaSpoiler';
 import useContentSettings from '@stores/contentSettings';
 import ChangeLoginEmailTab from '@components/sidebarLeft/tabs/changeLoginEmail';
-import {wrapEmailPattern} from '@components/popups/emailSetup';
+import { wrapEmailPattern } from '@components/popups/emailSetup';
 import IS_WEB_AUTHN_SUPPORTED from '@environment/webAuthn';
 import showPasskeyPopup from '@components/popups/passkey';
-import {findExistingOrCreateCustomOption} from '@components/sidebarLeft/tabs/autoDeleteMessages/options';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {usePromiseCollector} from '@components/solidJsTabs/promiseCollector';
-import type {AppPrivacyAndSecurityTab} from '@components/solidJsTabs/tabs';
+import { findExistingOrCreateCustomOption } from '@components/sidebarLeft/tabs/autoDeleteMessages/options';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
+import type { AppPrivacyAndSecurityTab } from '@components/solidJsTabs/tabs';
 
 const PrivacyAndSecurity: Component = () => {
   const [tab] = useSuperTab<typeof AppPrivacyAndSecurityTab>();
@@ -91,7 +91,7 @@ const PrivacyAndSecurity: Component = () => {
     passkeyRow.freezed = true;
     return Promise.all([
       tab.managers.apiManager.getAppConfig(),
-      tab.managers.appAccountManager.getPasskeys()
+      tab.managers.appAccountManager.getPasskeys(),
     ]).then(([appConfig, passkeysResult]) => {
       passkeyRow.freezed = false;
       [passkeys, setPasskeys] = createStore(passkeysResult.passkeys);
@@ -114,28 +114,28 @@ const PrivacyAndSecurity: Component = () => {
       titleLangKey: 'PrivacyPaymentsClearAlertTitle',
       descriptionLangKey: 'PrivacyPaymentsClearAlertText',
       button: {
-        langKey: 'Clear'
+        langKey: 'Clear',
       },
       checkboxes: [{
         text: 'PrivacyClearShipping',
-        checked: true
+        checked: true,
       }, {
         text: 'PrivacyClearPayment',
-        checked: true
-      }]
+        checked: true,
+      }],
     };
 
     confirmationPopup(options).then(() => {
       const [info, payment] = options.checkboxes!.map((c) => c.checkboxField!.checked);
       const toggle = toggleDisability([clearButton], true);
       tab.managers.appPaymentsManager.clearSavedInfo(info, payment).then(() => {
-        if(!info && !payment) {
+        if (!info && !payment) {
           return;
         }
 
         toggle();
         toastNew({
-          langPackKey: info && payment ? 'PrivacyPaymentsPaymentShippingCleared' : (info ? 'PrivacyPaymentsShippingInfoCleared' : 'PrivacyPaymentsPaymentInfoCleared')
+          langPackKey: info && payment ? 'PrivacyPaymentsPaymentShippingCleared' : (info ? 'PrivacyPaymentsShippingInfoCleared' : 'PrivacyPaymentsPaymentInfoCleared'),
         });
       });
     }, noop);
@@ -151,10 +151,10 @@ const PrivacyAndSecurity: Component = () => {
             toggle();
           });
         },
-        isDanger: true
+        isDanger: true,
       }],
       titleLangKey: 'AreYouSureClearDraftsTitle',
-      descriptionLangKey: 'AreYouSureClearDrafts'
+      descriptionLangKey: 'AreYouSureClearDrafts',
     });
 
     popup.show();
@@ -174,9 +174,9 @@ const PrivacyAndSecurity: Component = () => {
           titleLangKey: 'BlockedUsers',
           subtitleLangKey: SUBTITLE,
           clickable: () => {
-            tab.slider.createTab(AppBlockedUsersTab).open({peerIds: blockedPeerIds});
+            tab.slider.createTab(AppBlockedUsersTab).open({ peerIds: blockedPeerIds });
           },
-          listenerSetter: tab.listenerSetter
+          listenerSetter: tab.listenerSetter,
         });
         blockedUsersRow.freezed = true;
 
@@ -186,21 +186,21 @@ const PrivacyAndSecurity: Component = () => {
           titleLangKey: 'TwoStepVerification' as LangPackKey,
           subtitleLangKey: SUBTITLE,
           clickable: (e: Event) => {
-            if(passwordState.pFlags.has_password) {
-              tab.slider.createTab(AppTwoStepVerificationEnterPasswordTab).open({state: passwordState});
-            } else if(passwordState.email_unconfirmed_pattern) {
+            if (passwordState.pFlags.has_password) {
+              tab.slider.createTab(AppTwoStepVerificationEnterPasswordTab).open({ state: passwordState });
+            } else if (passwordState.email_unconfirmed_pattern) {
               tab.managers.passwordManager.resendPasswordEmail();
               tab.slider.createTab(AppTwoStepVerificationEmailConfirmationTab).open({
                 state: passwordState,
                 email: wrapEmailPattern(passwordState.email_unconfirmed_pattern),
                 length: 6,
-                isFirst: true
+                isFirst: true,
               });
             } else {
-              tab.slider.createTab(AppTwoStepVerificationTab).open({state: passwordState});
+              tab.slider.createTab(AppTwoStepVerificationTab).open({ state: passwordState });
             }
           },
-          listenerSetter: tab.listenerSetter
+          listenerSetter: tab.listenerSetter,
         };
         const twoFactorRow = new Row(twoFactorRowOptions);
         twoFactorRow.freezed = true;
@@ -208,7 +208,7 @@ const PrivacyAndSecurity: Component = () => {
         const openPasskeysTab = () => {
           tab.slider.createTab(AppPasskeysTab).open({
             passkeys: passkeys,
-            setPasskeys: setPasskeys
+            setPasskeys: setPasskeys,
           });
         };
 
@@ -217,7 +217,7 @@ const PrivacyAndSecurity: Component = () => {
           titleLangKey: 'Privacy.Passkeys',
           subtitleLangKey: SUBTITLE,
           clickable: () => {
-            if(passkeys.length) {
+            if (passkeys.length) {
               openPasskeysTab();
               return;
             }
@@ -227,7 +227,7 @@ const PrivacyAndSecurity: Component = () => {
               openPasskeysTab();
             });
           },
-          listenerSetter: tab.listenerSetter
+          listenerSetter: tab.listenerSetter,
         });
 
         updatePasskeys();
@@ -238,10 +238,10 @@ const PrivacyAndSecurity: Component = () => {
           icon: 'email',
           clickable: () => {
             tab.slider.createTab(ChangeLoginEmailTab).open({
-              isInitialSetup: passwordState.login_email_pattern!.includes(' ')
+              isInitialSetup: passwordState.login_email_pattern!.includes(' '),
             });
           },
-          listenerSetter: tab.listenerSetter
+          listenerSetter: tab.listenerSetter,
         });
         emailRow.freezed = true;
 
@@ -250,24 +250,24 @@ const PrivacyAndSecurity: Component = () => {
           titleLangKey: 'PasscodeLock.Item.Title',
           subtitleLangKey: SUBTITLE,
           clickable: () => {
-            if(passcodeEnabled) {
+            if (passcodeEnabled) {
               tab.slider.createTab(AppPasscodeEnterPasswordTab)
-              .open({
-                buttonText: 'PasscodeLock.Next',
-                inputLabel: 'PasscodeLock.EnterYourPasscode',
-                onSubmit: async(passcode, _, {isMyPasscode}) => {
-                  const isCorrect = await isMyPasscode(passcode);
-                  passcode = '';
-                  if(!isCorrect) throw {};
+                .open({
+                  buttonText: 'PasscodeLock.Next',
+                  inputLabel: 'PasscodeLock.EnterYourPasscode',
+                  onSubmit: async(passcode, _, { isMyPasscode }) => {
+                    const isCorrect = await isMyPasscode(passcode);
+                    passcode = '';
+                    if (!isCorrect) throw {};
 
-                  tab.slider.createTab(AppPasscodeLockTab).open();
-                }
-              })
+                    tab.slider.createTab(AppPasscodeLockTab).open();
+                  },
+                })
             } else {
               tab.slider.createTab(AppPasscodeLockTab).open();
             }
           },
-          listenerSetter: tab.listenerSetter
+          listenerSetter: tab.listenerSetter,
         };
         const passcodeLockRow = new Row(passcodeLockRowOptions);
         passcodeLockRow.freezed = true;
@@ -283,7 +283,7 @@ const PrivacyAndSecurity: Component = () => {
             });
             webTab.open(websites);
           },
-          listenerSetter: tab.listenerSetter
+          listenerSetter: tab.listenerSetter,
         });
         websitesRow.freezed = true;
 
@@ -294,16 +294,16 @@ const PrivacyAndSecurity: Component = () => {
           titleLangKey: 'AutoDeleteMessages',
           subtitleLangKey: SUBTITLE,
           clickable: () => {
-            if(isNaN(autoDeletePeriod)) return;
+            if (isNaN(autoDeletePeriod)) return;
             tab.slider.createTab(AppMessagesAutoDeleteTab).open({
               period: autoDeletePeriod,
               onSaved: (period) => {
                 autoDeletePeriod = period;
                 updateAutoDeleteRow();
-              }
+              },
             });
           },
-          listenerSetter: tab.listenerSetter
+          listenerSetter: tab.listenerSetter,
         };
 
         const autoDeleteMessagesRow = new Row(autoDeleteMessagesRowOptions);
@@ -319,7 +319,7 @@ const PrivacyAndSecurity: Component = () => {
         );
 
         const setBlockedCount = (count: number) => {
-          if(count) {
+          if (count) {
             replaceContent(blockedUsersRow.subtitle, i18n('PrivacySettingsController.UserCount', [count]));
           } else {
             replaceContent(blockedUsersRow.subtitle, i18n('BlockedEmpty', [count]));
@@ -350,7 +350,7 @@ const PrivacyAndSecurity: Component = () => {
           replaceContent(twoFactorRow.subtitle, i18n(state.pFlags.has_password ? 'PrivacyAndSecurity.Item.On' : 'PrivacyAndSecurity.Item.Off'));
           twoFactorRow.freezed = false;
 
-          if(state.login_email_pattern) {
+          if (state.login_email_pattern) {
             replaceContent(emailRow.subtitle, wrapEmailPattern(state.login_email_pattern));
             emailRow.freezed = false;
             twoFactorRow.container.after(emailRow.container);
@@ -368,8 +368,8 @@ const PrivacyAndSecurity: Component = () => {
           passcodeLockRow.freezed = false;
           setPasscodeEnabledState(state.settings?.passcode?.enabled || false);
         });
-        tab.listenerSetter.add(rootScope)('settings_updated', ({key, value}) => {
-          if(key === joinDeepPath('settings', 'passcode', 'enabled'))
+        tab.listenerSetter.add(rootScope)('settings_updated', ({ key, value }) => {
+          if (key === joinDeepPath('settings', 'passcode', 'enabled'))
             setPasscodeEnabledState(value);
         });
 
@@ -420,7 +420,7 @@ const PrivacyAndSecurity: Component = () => {
           clickable: () => {
             tab.slider.createTab(AppPrivacyPhoneNumberTab).open();
           },
-          listenerSetter: tab.listenerSetter
+          listenerSetter: tab.listenerSetter,
         });
 
         const lastSeenTimeRow = rowsByKeys['inputPrivacyKeyStatusTimestamp'] = new Row({
@@ -429,7 +429,7 @@ const PrivacyAndSecurity: Component = () => {
           clickable: () => {
             openTabWithGlobalPrivacy(AppPrivacyLastSeenTab, 'inputPrivacyKeyStatusTimestamp');
           },
-          listenerSetter: tab.listenerSetter
+          listenerSetter: tab.listenerSetter,
         });
 
         const photoVisibilityRow = rowsByKeys['inputPrivacyKeyProfilePhoto'] = new Row({
@@ -438,7 +438,7 @@ const PrivacyAndSecurity: Component = () => {
           clickable: () => {
             tab.slider.createTab(AppPrivacyProfilePhotoTab).open();
           },
-          listenerSetter: tab.listenerSetter
+          listenerSetter: tab.listenerSetter,
         });
 
         const aboutRow = rowsByKeys['inputPrivacyKeyAbout'] = new Row({
@@ -447,7 +447,7 @@ const PrivacyAndSecurity: Component = () => {
           clickable: () => {
             tab.slider.createTab(AppPrivacyAboutTab).open();
           },
-          listenerSetter: tab.listenerSetter
+          listenerSetter: tab.listenerSetter,
         });
 
         const callRow = rowsByKeys['inputPrivacyKeyPhoneCall'] = new Row({
@@ -456,7 +456,7 @@ const PrivacyAndSecurity: Component = () => {
           clickable: () => {
             tab.slider.createTab(AppPrivacyCallsTab).open();
           },
-          listenerSetter: tab.listenerSetter
+          listenerSetter: tab.listenerSetter,
         });
 
         const linkAccountRow = rowsByKeys['inputPrivacyKeyForwards'] = new Row({
@@ -465,7 +465,7 @@ const PrivacyAndSecurity: Component = () => {
           clickable: () => {
             tab.slider.createTab(AppPrivacyForwardMessagesTab).open();
           },
-          listenerSetter: tab.listenerSetter
+          listenerSetter: tab.listenerSetter,
         });
 
         const groupChatsAddRow = rowsByKeys['inputPrivacyKeyChatInvite'] = new Row({
@@ -474,7 +474,7 @@ const PrivacyAndSecurity: Component = () => {
           clickable: () => {
             tab.slider.createTab(AppPrivacyAddToGroupsTab).open();
           },
-          listenerSetter: tab.listenerSetter
+          listenerSetter: tab.listenerSetter,
         });
 
         const birthdayRow = rowsByKeys['inputPrivacyKeyBirthday'] = new Row({
@@ -483,7 +483,7 @@ const PrivacyAndSecurity: Component = () => {
           clickable: () => {
             tab.slider.createTab(AppPrivacyBirthdayTab).open();
           },
-          listenerSetter: tab.listenerSetter
+          listenerSetter: tab.listenerSetter,
         });
 
         const savedMusicRow = rowsByKeys['inputPrivacyKeySavedMusic'] = new Row({
@@ -492,7 +492,7 @@ const PrivacyAndSecurity: Component = () => {
           clickable: () => {
             tab.slider.createTab(AppPrivacySavedMusicTab).open();
           },
-          listenerSetter: tab.listenerSetter
+          listenerSetter: tab.listenerSetter,
         });
 
         const giftsRow = rowsByKeys['inputPrivacyKeyStarGiftsAutoSave'] = new Row({
@@ -501,7 +501,7 @@ const PrivacyAndSecurity: Component = () => {
           clickable: () => {
             openTabWithGlobalPrivacy(AppPrivacyGiftsTab, 'inputPrivacyKeyStarGiftsAutoSave');
           },
-          listenerSetter: tab.listenerSetter
+          listenerSetter: tab.listenerSetter,
         });
 
         const createPremiumTitle = (langKey: LangPackKey) => {
@@ -517,17 +517,17 @@ const PrivacyAndSecurity: Component = () => {
         };
 
         let voicesRow: Row;
-        if(!isPremiumFeaturesHidden) voicesRow = rowsByKeys['inputPrivacyKeyVoiceMessages'] = new Row({
+        if (!isPremiumFeaturesHidden) voicesRow = rowsByKeys['inputPrivacyKeyVoiceMessages'] = new Row({
           title: createPremiumTitle('PrivacyVoiceMessagesTitle'),
           subtitleLangKey: SUBTITLE,
           clickable: () => {
             tab.slider.createTab(AppPrivacyVoicesTab).open();
           },
-          listenerSetter: tab.listenerSetter
+          listenerSetter: tab.listenerSetter,
         });
 
         let messagesRow: Row;
-        if(!isPremiumFeaturesHidden) messagesRow = rowsByKeys['new_noncontact_peers_require_premium'] = new Row({
+        if (!isPremiumFeaturesHidden) messagesRow = rowsByKeys['new_noncontact_peers_require_premium'] = new Row({
           title: createPremiumTitle('PrivacyMessagesTitle'),
           subtitleLangKey: SUBTITLE,
           clickable: () => {
@@ -535,35 +535,35 @@ const PrivacyAndSecurity: Component = () => {
               onSaved: (updatedPrivacy) => {
                 p.globalPrivacy = updatedPrivacy;
                 updatePrivacyRow('new_noncontact_peers_require_premium');
-              }
+              },
             });
           },
-          listenerSetter: tab.listenerSetter
+          listenerSetter: tab.listenerSetter,
         });
 
         const updatePrivacyRow = (key: RowKey) => {
           const row = rowsByKeys[key];
-          if(!row) {
+          if (!row) {
             return;
           }
 
           const map: {[key in PrivacyType]: LangPackKey} = {
             [PrivacyType.Everybody]: 'PrivacySettingsController.Everbody',
             [PrivacyType.Contacts]: 'PrivacySettingsController.MyContacts',
-            [PrivacyType.Nobody]: 'PrivacySettingsController.Nobody'
+            [PrivacyType.Nobody]: 'PrivacySettingsController.Nobody',
           };
 
           const getLangKeyForMessagesPrivacy = (globalPrivacy: GlobalPrivacySettings.globalPrivacySettings): LangPackKey => {
-            if(!rootScope.premium) return map[PrivacyType.Everybody];
+            if (!rootScope.premium) return map[PrivacyType.Everybody];
 
-            if(+globalPrivacy.noncontact_peers_paid_stars!) return 'PrivacySettingsController.Paid';
+            if (+globalPrivacy.noncontact_peers_paid_stars!) return 'PrivacySettingsController.Paid';
 
-            if(globalPrivacy.pFlags.new_noncontact_peers_require_premium) return 'Privacy.ContactsAndPremium';
+            if (globalPrivacy.pFlags.new_noncontact_peers_require_premium) return 'Privacy.ContactsAndPremium';
 
             return map[PrivacyType.Everybody];
           };
 
-          if(!key.startsWith('inputPrivacy')) {
+          if (!key.startsWith('inputPrivacy')) {
             p.globalPrivacy.then((globalPrivacy) => {
               const langKey = getLangKeyForMessagesPrivacy(globalPrivacy);
               row.subtitle.replaceChildren(i18n(langKey));
@@ -574,11 +574,11 @@ const PrivacyAndSecurity: Component = () => {
           tab.managers.appPrivacyManager.getPrivacy(key as InputPrivacyKey['_']).then((rules) => {
             const details = getPrivacyRulesDetails(rules);
             let langKey = map[details.type];
-            if(details.type === PrivacyType.Nobody && details.allowMiniApps) {
+            if (details.type === PrivacyType.Nobody && details.allowMiniApps) {
               langKey = 'PrivacyMiniApps';
-            } else if(details.type === PrivacyType.Everybody && details.disallowMiniApps) {
+            } else if (details.type === PrivacyType.Everybody && details.disallowMiniApps) {
               langKey = 'PrivacyNoMiniApps';
-            } else if(details.type === PrivacyType.Contacts && details.allowMiniApps) {
+            } else if (details.type === PrivacyType.Contacts && details.allowMiniApps) {
               langKey = 'PrivacyContactsAndMiniApps';
             }
             const disallowLength = details.disallowPeers.users.length + details.disallowPeers.chats.length;
@@ -586,7 +586,7 @@ const PrivacyAndSecurity: Component = () => {
 
             const s = i18n(langKey);
             row.subtitle.replaceChildren(s);
-            if(disallowLength || allowLength) {
+            if (disallowLength || allowLength) {
               row.subtitle.append(` (${[-disallowLength, allowLength ? '+' + allowLength : 0].filter(Boolean).join(', ')})`);
             }
           });
@@ -604,10 +604,10 @@ const PrivacyAndSecurity: Component = () => {
           messagesRow!,
           birthdayRow,
           giftsRow,
-          savedMusicRow
+          savedMusicRow,
         ].filter(Boolean).map((row) => row.container));
 
-        for(const key in rowsByKeys) {
+        for (const key in rowsByKeys) {
           updatePrivacyRow(key as keyof typeof rowsByKeys);
         }
 
@@ -617,9 +617,9 @@ const PrivacyAndSecurity: Component = () => {
       }
 
       {
-        const checkboxField = new CheckboxField({text: 'ArchiveAndMute'});
+        const checkboxField = new CheckboxField({ text: 'ArchiveAndMute' });
         const row = new Row({
-          checkboxField
+          checkboxField,
         });
 
         newChatsContent.append(row.container);
@@ -627,21 +627,21 @@ const PrivacyAndSecurity: Component = () => {
         let enabled: boolean, destroyed: boolean;
         tab.eventListener.addEventListener('destroy', async() => {
           destroyed = true;
-          if(enabled === undefined || enabled === checkboxField.checked) return;
+          if (enabled === undefined || enabled === checkboxField.checked) return;
           return tab.managers.appPrivacyManager.setGlobalPrivacySettings({
             _: 'globalPrivacySettings',
             pFlags: {
               ...(await p.globalPrivacy).pFlags,
-              archive_and_mute_new_noncontact_peers: checkboxField.checked || undefined
-            }
+              archive_and_mute_new_noncontact_peers: checkboxField.checked || undefined,
+            },
           });
-        }, {once: true});
+        }, { once: true });
 
         const promise = Promise.all([
           p.appConfig,
-          p.globalPrivacy
+          p.globalPrivacy,
         ]).then(([appConfig, settings]) => {
-          if(destroyed) {
+          if (destroyed) {
             return;
           }
 
@@ -661,23 +661,23 @@ const PrivacyAndSecurity: Component = () => {
       }
 
       {
-        const checkboxField = new CheckboxField({text: 'PrivacyAndSecurity.SensitiveText'});
+        const checkboxField = new CheckboxField({ text: 'PrivacyAndSecurity.SensitiveText' });
         const row = new Row({
-          checkboxField
+          checkboxField,
         });
 
         let pendingChange = false;
         checkboxField.input.addEventListener('change', (evt) => {
           const newEnabled = checkboxField.checked;
-          if(pendingChange) {
+          if (pendingChange) {
             checkboxField.input.checked = !newEnabled;
             return;
           }
 
-          if(newEnabled && contentSettings.needAgeVerification() && !contentSettings.ageVerified()) {
+          if (newEnabled && contentSettings.needAgeVerification() && !contentSettings.ageVerified()) {
             checkboxField.input.checked = false;
             AgeVerificationPopup.create().then((verified) => {
-              if(verified) {
+              if (verified) {
                 checkboxField.setValueSilently(true);
                 clearSensitiveSpoilers();
               }
@@ -688,9 +688,9 @@ const PrivacyAndSecurity: Component = () => {
           pendingChange = true;
 
           tab.managers.appPrivacyManager.setContentSettings({
-            sensitive_enabled: newEnabled
+            sensitive_enabled: newEnabled,
           }).catch(() => {
-            toastNew({langPackKey: 'Error.AnError'});
+            toastNew({ langPackKey: 'Error.AnError' });
             checkboxField.setValueSilently(!newEnabled);
           }).finally(() => {
             pendingChange = false;
@@ -699,7 +699,7 @@ const PrivacyAndSecurity: Component = () => {
 
         sensitiveContent.append(row.container);
 
-        if(contentSettings.sensitiveCanChange()) {
+        if (contentSettings.sensitiveCanChange()) {
           checkboxField.setValueSilently(contentSettings.sensitiveEnabled());
           setSensitiveHidden(false);
         }
@@ -716,24 +716,24 @@ const PrivacyAndSecurity: Component = () => {
       <Section
         caption="SessionsInfo"
         noDelimiter
-        contentProps={{ref: (el) => sessionsContent = el}}
+        contentProps={{ ref: (el) => sessionsContent = el }}
       />
       <Section
         name="PrivacyTitle"
         caption={privacyCaption()}
-        contentProps={{ref: (el) => privacyContent = el, class: 'privacy-navigation-container'}}
+        contentProps={{ ref: (el) => privacyContent = el, class: 'privacy-navigation-container' }}
       />
       <Section
         name="NewChatsFromNonContacts"
         caption="ArchiveAndMuteInfo"
-        classList={{hide: newChatsHidden()}}
-        contentProps={{ref: (el) => newChatsContent = el}}
+        classList={{ hide: newChatsHidden() }}
+        contentProps={{ ref: (el) => newChatsContent = el }}
       />
       <Section
         name="Privacy.SensitiveContent"
         caption="PrivacyAndSecurity.SensitiveDesc"
-        classList={{hide: sensitiveHidden()}}
-        contentProps={{ref: (el) => sensitiveContent = el}}
+        classList={{ hide: sensitiveHidden() }}
+        contentProps={{ ref: (el) => sensitiveContent = el }}
       />
       <Section name="PrivacyPayments" caption="PrivacyPaymentsClearInfo">
         <Button

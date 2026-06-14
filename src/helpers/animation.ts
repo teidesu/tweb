@@ -1,7 +1,7 @@
 // * Jolly Cobra's animation.ts
 
-import {fastRaf} from '@helpers/schedulers';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
+import { fastRaf } from '@helpers/schedulers';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
 
 interface AnimationInstance {
   isCancelled: boolean;
@@ -16,12 +16,12 @@ export function createAnimationInstance(key: AnimationInstanceKey) {
 
   const instance: AnimationInstance = {
     isCancelled: false,
-    deferred: deferredPromise<void>()
+    deferred: deferredPromise<void>(),
   };
 
   instances.set(key, instance);
   instance.deferred.then(() => {
-    if(getAnimationInstance(key) === instance) {
+    if (getAnimationInstance(key) === instance) {
       instances.delete(key);
     }
   });
@@ -35,23 +35,23 @@ export function getAnimationInstance(key: AnimationInstanceKey) {
 
 export function cancelAnimationByKey(key: AnimationInstanceKey) {
   const instance = getAnimationInstance(key);
-  if(instance) {
+  if (instance) {
     instance.isCancelled = true;
     instance.deferred.resolve();
   }
 }
 
 export function animateSingle(tick: Function, key: AnimationInstanceKey, instance?: AnimationInstance) {
-  if(!instance) {
+  if (!instance) {
     instance = createAnimationInstance(key);
   }
 
   fastRaf(() => {
-    if(instance.isCancelled) {
+    if (instance.isCancelled) {
       return;
     }
 
-    if(tick()) {
+    if (tick()) {
       animateSingle(tick, key, instance);
     } else {
       instance.deferred.resolve();
@@ -63,7 +63,7 @@ export function animateSingle(tick: Function, key: AnimationInstanceKey, instanc
 
 export function animate(tick: Function) {
   fastRaf(() => {
-    if(tick()) {
+    if (tick()) {
       animate(tick);
     }
   });

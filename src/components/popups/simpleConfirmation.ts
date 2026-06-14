@@ -1,5 +1,5 @@
-import PopupElement, {addCancelButton, PopupButton} from '@components/popups';
-import {FormatterArguments, LangPackKey, i18n} from '@lib/langPack';
+import PopupElement, { addCancelButton, PopupButton } from '@components/popups';
+import { FormatterArguments, LangPackKey, i18n } from '@lib/langPack';
 
 // ! cant use PopupPeer/confirmationPopup because of awkward recursive dependencies.
 // Originally lived in `src/pages/loginPage.ts` next to the `LoginPage` DOM helper;
@@ -14,7 +14,7 @@ export class SimpleConfirmationPopup extends PopupElement {
   }) {
     super('popup-peer popup-confirmation', {
       title: options.titleLangKey,
-      buttons: options.buttons
+      buttons: options.buttons,
     });
 
     const description = document.createElement('p');
@@ -35,13 +35,13 @@ export class SimpleConfirmationPopup extends PopupElement {
       const buttons = addCancelButton([options.button])
       const cancelButton = buttons.find((button) => button.isCancel);
       cancelButton!.callback = () => {
-        if(!resolved) {
+        if (!resolved) {
           reject();
           resolved = true;
         }
       }
       options.button.callback = () => {
-        if(!resolved) {
+        if (!resolved) {
           resolve()
           resolved = true;
         }
@@ -51,11 +51,11 @@ export class SimpleConfirmationPopup extends PopupElement {
         titleLangKey: options.titleLangKey,
         descriptionLangKey: options.descriptionLangKey,
         descriptionArgs: options.descriptionArgs,
-        buttons: buttons
+        buttons: buttons,
       })
 
       popup.addEventListener('closeAfterTimeout', () => {
-        if(!resolved) {
+        if (!resolved) {
           reject();
           resolved = true;
         }

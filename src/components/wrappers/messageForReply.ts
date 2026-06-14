@@ -1,30 +1,30 @@
 import partition from '@helpers/array/partition';
 import assumeType from '@helpers/assumeType';
-import {formatDate} from '@helpers/date';
+import { formatDate } from '@helpers/date';
 import htmlToDocumentFragment from '@helpers/dom/htmlToDocumentFragment';
-import {getRestrictionReason} from '@helpers/restrictions';
+import { getRestrictionReason } from '@helpers/restrictions';
 import escapeRegExp from '@helpers/string/escapeRegExp';
 import limitSymbols from '@helpers/string/limitSymbols';
-import {Message, DocumentAttribute, DraftMessage, MessageMedia, Document, Photo} from '@layer';
-import {MyDocument} from '@appManagers/appDocsManager';
-import {MyDraftMessage} from '@appManagers/appDraftsManager';
-import {MyMessage} from '@appManagers/appMessagesManager';
+import { Message, DocumentAttribute, DraftMessage, MessageMedia, Document, Photo } from '@layer';
+import { MyDocument } from '@appManagers/appDocsManager';
+import { MyDraftMessage } from '@appManagers/appDraftsManager';
+import { MyMessage } from '@appManagers/appMessagesManager';
 import isMessageRestricted from '@appManagers/utils/messages/isMessageRestricted';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
-import I18n, {LangPackKey, i18n, UNSUPPORTED_LANG_PACK_KEY, FormatterArguments} from '@lib/langPack';
-import {SERVICE_PEER_ID, VERIFICATION_CODES_BOT_ID} from '@appManagers/constants';
+import I18n, { LangPackKey, i18n, UNSUPPORTED_LANG_PACK_KEY, FormatterArguments } from '@lib/langPack';
+import { SERVICE_PEER_ID, VERIFICATION_CODES_BOT_ID } from '@appManagers/constants';
 import parseEntities from '@lib/richTextProcessor/parseEntities';
 import sortEntities from '@lib/richTextProcessor/sortEntities';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
 import wrapPlainText from '@lib/richTextProcessor/wrapPlainText';
-import wrapRichText, {WrapRichTextOptions} from '@lib/richTextProcessor/wrapRichText';
+import wrapRichText, { WrapRichTextOptions } from '@lib/richTextProcessor/wrapRichText';
 import wrapTextWithEntities from '@lib/richTextProcessor/wrapTextWithEntities';
 import rootScope from '@lib/rootScope';
-import {Modify} from '@types';
+import { Modify } from '@types';
 import Icon from '@components/icon';
 import TranslatableMessage from '@components/translatableMessage';
-import wrapMessageActionTextNew, {WrapMessageActionTextOptions} from '@components/wrappers/messageActionTextNew';
-import {wrapMessageGiveawayResults} from '@components/wrappers/messageActionTextNewUnsafe';
+import wrapMessageActionTextNew, { WrapMessageActionTextOptions } from '@components/wrappers/messageActionTextNew';
+import { wrapMessageGiveawayResults } from '@components/wrappers/messageActionTextNewUnsafe';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
 
 export type WrapMessageForReplyOptions = Modify<WrapMessageActionTextOptions, {
@@ -41,29 +41,29 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
   options: T
 ): Promise<T['plain'] extends true ? string : DocumentFragment> {
   options.text ??= (options.message as Message.message).message;
-  if(!options.plain && options.highlightWord) {
+  if (!options.plain && options.highlightWord) {
     options.highlightWord = options.highlightWord.trim();
   }
 
-  const {message, usingMids, plain, highlightWord, withoutMediaType} = options;
+  const { message, usingMids, plain, highlightWord, withoutMediaType } = options;
 
   const parts: (Node | string)[] = [];
 
   let hasGroupedKey = false;
   const addPart = (langKey: LangPackKey, part?: string | HTMLElement | DocumentFragment, args?: FormatterArguments) => {
-    if(langKey) {
-      if(part === undefined && hasGroupedKey) {
+    if (langKey) {
+      if (part === undefined && hasGroupedKey) {
         return;
       }
 
       part = plain ? I18n.format(langKey, true, args) : i18n(langKey, args);
     }
 
-    if(plain) {
+    if (plain) {
       parts.push(part!);
     } else {
       const el = document.createElement('span');
-      if(typeof(part) === 'string') el.innerHTML = part;
+      if (typeof(part) === 'string') el.innerHTML = part;
       else el.append(part!);
       parts.push(el);
     }
@@ -81,19 +81,19 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
     ...options,
     noLinebreaks: true,
     noLinks: true,
-    noTextFormat: true
+    noTextFormat: true,
   };
 
   let entities = (message as Message.message).totalEntities ?? (message as DraftMessage.draftMessage).entities;
-  if((message as Message.message).media && !isRestricted) {
+  if ((message as Message.message).media && !isRestricted) {
     assumeType<Message.message>(message);
     let usingFullGrouped = true;
-    if(message.grouped_id) {
-      if(usingMids) {
+    if (message.grouped_id) {
+      if (usingMids) {
         const mids = await appMessagesManager.getMidsByMessage(message);
-        if(usingMids.length === mids.length) {
-          for(const mid of mids) {
-            if(!usingMids.includes(mid)) {
+        if (usingMids.length === mids.length) {
+          for (const mid of mids) {
+            if (!usingMids.includes(mid)) {
               usingFullGrouped = false;
               break;
             }
@@ -103,12 +103,12 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
         }
       }
 
-      if(usingFullGrouped) {
+      if (usingFullGrouped) {
         const groupedText = await appMessagesManager.getGroupedText(message.grouped_id);
         options.text = groupedText?.message || '';
         entities = groupedText?.totalEntities || [];
 
-        if(!withoutMediaType) {
+        if (!withoutMediaType) {
           addPart('AttachAlbum');
           hasGroupedKey = true;
         }
@@ -121,22 +121,22 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
       langPackKeyPart: 'Photo' | 'Video' | 'Voice' | 'Round',
       media: Photo | Document
     ) {
-      const {out} = (message as Message.message).pFlags;
+      const { out } = (message as Message.message).pFlags;
       addPart(
         `SelfDestructingOnMobile.${langPackKeyPart}${!media ? '.Expired' : (out ? '.You' : '')}`,
         undefined,
-        [(!out && await wrapPeerTitle({peerId: (message as Message.message).fromId})) as HTMLElement]
+        [(!out && await wrapPeerTitle({ peerId: (message as Message.message).fromId })) as HTMLElement]
       );
       options.text = '';
       entities = [];
     }
 
     let i = 1;
-    if((!usingFullGrouped && !withoutMediaType) || !options.text || isSelfDestructingMedia) {
+    if ((!usingFullGrouped && !withoutMediaType) || !options.text || isSelfDestructingMedia) {
       const media = message.media;
-      switch(media?._) {
+      switch (media?._) {
         case 'messageMediaPhoto':
-          if(isSelfDestructingMedia) {
+          if (isSelfDestructingMedia) {
             await addSelfDestructingMediaPart('Photo', media.photo!);
           } else {
             addPart('AttachPhoto');
@@ -158,12 +158,12 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
           break;
         case 'messageMediaPoll':
           const pre = '📊' + ' ';
-          if(plain) {
+          if (plain) {
             const f = pre + media.poll.question.text;
             addPart(undefined!, f);
           } else {
             const textWithEntities = wrapTextWithEntities(media.poll.question);
-            const fragment = wrapRichText(textWithEntities.text, {...someRichTextOptions, entities: textWithEntities.entities});
+            const fragment = wrapRichText(textWithEntities.text, { ...someRichTextOptions, entities: textWithEntities.entities });
             fragment.prepend(wrapEmojiText(pre));
             addPart(undefined!, fragment);
           }
@@ -179,29 +179,29 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
         case 'messageMediaDocument': {
           const document = media.document as MyDocument;
 
-          if(document?.type === 'video' || media.pFlags.video) {
-            if(isSelfDestructingMedia) {
+          if (document?.type === 'video' || media.pFlags.video) {
+            if (isSelfDestructingMedia) {
               await addSelfDestructingMediaPart('Video', document);
             } else {
               addPart('AttachVideo');
             }
-          } else if(document?.type === 'voice' || media.pFlags.voice) {
-            if(isSelfDestructingMedia) {
+          } else if (document?.type === 'voice' || media.pFlags.voice) {
+            if (isSelfDestructingMedia) {
               await addSelfDestructingMediaPart('Voice', document);
             } else {
               addPart('AttachAudio');
             }
-          } else if(document?.type === 'round' || media.pFlags.round) {
-            if(isSelfDestructingMedia) {
+          } else if (document?.type === 'round' || media.pFlags.round) {
+            if (isSelfDestructingMedia) {
               await addSelfDestructingMediaPart('Round', document);
             } else {
               addPart('AttachRound');
             }
-          } else if(document.type === 'gif') {
+          } else if (document.type === 'gif') {
             addPart('AttachGif');
-          } else if(document.type === 'sticker') {
+          } else if (document.type === 'sticker') {
             const i = parts.length;
-            if(document.stickerEmojiRaw) {
+            if (document.stickerEmojiRaw) {
               const f = document.stickerEmojiRaw + ' ';
               addPart(undefined!, plain ? f : wrapEmojiText(f));
             }
@@ -210,7 +210,7 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
 
             // will combine two parts into one
             const p = parts.splice(i, 2);
-            if(plain) parts.push((p[0] as string) + (p[1] ? p[1] as string : ''));
+            if (plain) parts.push((p[0] as string) + (p[1] ? p[1] as string : ''));
             else {
               const span = window.document.createElement('span');
               span.append(...p);
@@ -218,7 +218,7 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
             }
 
             options.text = '';
-          } else if(document.type === 'audio') {
+          } else if (document.type === 'audio') {
             const attribute = document.attributes.find((attribute) => attribute._ === 'documentAttributeAudio' && (attribute.title || attribute.performer)) as DocumentAttribute.documentAttributeAudio;
             const f = '🎵' + ' ' + (attribute ? [attribute.title, attribute.performer].filter(Boolean).join(' - ') : document.file_name);
             addPart(undefined!, plain ? f : wrapEmojiText(f));
@@ -230,7 +230,7 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
         }
 
         case 'messageMediaInvoice': {
-          if(media.extended_media?._ === 'messageExtendedMediaPreview') {
+          if (media.extended_media?._ === 'messageExtendedMediaPreview') {
             addPart(undefined!, plain ? media.description : wrapEmojiText(media.description));
           } else {
             addPart(undefined!, plain ? media.title : wrapEmojiText(media.title));
@@ -245,13 +245,13 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
         }
 
         case 'messageMediaStory': {
-          if(media.pFlags.via_mention) {
+          if (media.pFlags.via_mention) {
             const storyPeerId = getPeerId(media.peer);
             const isMyStory = storyPeerId === await getMyId();
             addPart(
               isMyStory ? 'StoryMentionYou' : 'StoryMention',
               undefined,
-              [await wrapPeerTitle({peerId: isMyStory ? message.peerId : storyPeerId, plainText: plain})]
+              [await wrapPeerTitle({ peerId: isMyStory ? message.peerId : storyPeerId, plainText: plain })]
             )
           } else {
             addPart('Story');
@@ -275,7 +275,7 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
         }
 
         case 'messageMediaGiveawayResults': {
-          const {langPackKey, args} = wrapMessageGiveawayResults(media, plain);
+          const { langPackKey, args } = wrapMessageGiveawayResults(media, plain);
           addPart(langPackKey, undefined, args);
           break;
         }
@@ -283,21 +283,21 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
         case 'messageMediaPaidMedia': {
           const extendedMedia = media.extended_media;
           const [photos, videos] = partition(extendedMedia, (media) => {
-            if(media._ === 'messageExtendedMediaPreview') {
+            if (media._ === 'messageExtendedMediaPreview') {
               return media.video_duration === undefined;
             }
 
             return media.media._ === 'messageMediaPhoto';
           });
 
-          if(!plain) {
+          if (!plain) {
             i += 2;
             addPart(undefined!, Icon('star', 'xtr-icon'));
             addPart(undefined!, ' ');
           }
 
           const length = photos.length + videos.length;
-          if(length < 2) {
+          if (length < 2) {
             addPart(photos.length ? 'AttachPhoto' : 'AttachVideo');
             break;
           }
@@ -324,53 +324,53 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
     }
 
     const length = parts.length;
-    for(; i < length; i += 2) {
+    for (; i < length; i += 2) {
       parts.splice(i, 0, ', ');
     }
 
-    if(options.text && length) {
+    if (options.text && length) {
       parts.push(', ');
     }
   }
 
-  if((message as Message.messageService).action) {
+  if ((message as Message.messageService).action) {
     const actionWrapped = await wrapMessageActionTextNew({
       ...(options as Modify<typeof options, {message: Message.messageService}>),
       noLinks: true,
-      noTextFormat: true
+      noTextFormat: true,
     });
 
-    if(actionWrapped) {
+    if (actionWrapped) {
       addPart(undefined!, actionWrapped);
     }
   }
 
-  if(isRestricted) {
+  if (isRestricted) {
     options.text = getRestrictionReason((message as Message.message).restriction_reason!)!.text;
     entities = [];
   }
 
-  if(options.text) {
+  if (options.text) {
     options.text = limitSymbols(options.text, 100);
 
     entities ??= parseEntities(options.text);
 
-    if(plain) {
+    if (plain) {
       parts.push(wrapPlainText(options.text, entities));
     } else {
       // let entities = parseEntities(text.replace(/\n/g, ' '));
 
-      if(highlightWord) {
+      if (highlightWord) {
         let found = false;
         let match: any;
         const regExp = new RegExp(escapeRegExp(highlightWord), 'gi');
         entities = entities.slice(); // fix leaving highlight entity
-        while((match = regExp.exec(options.text)) !== null) {
-          entities.push({_: 'messageEntityHighlight', length: highlightWord.length, offset: match.index});
+        while ((match = regExp.exec(options.text)) !== null) {
+          entities.push({ _: 'messageEntityHighlight', length: highlightWord.length, offset: match.index });
           found = true;
         }
 
-        if(found) {
+        if (found) {
           sortEntities(entities);
         }
       }
@@ -379,15 +379,15 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
       const shouldHideCode = [SERVICE_PEER_ID, VERIFICATION_CODES_BOT_ID].includes(messagePeerId!);
       const codeRegex = messagePeerId === SERVICE_PEER_ID ? /[\d\-]{5,7}/ : /[\d\-]{3,8}/;
 
-      if(shouldHideCode &&
+      if (shouldHideCode &&
         (message as Message.message).fromId === (message as Message.message).peerId) {
         const match = options.text.match(codeRegex);
-        if(match) {
+        if (match) {
           entities = entities.slice();
           entities.push({
             _: 'messageEntitySpoiler',
             offset: match.index!,
-            length: match[0].length
+            length: match[0].length,
           });
 
           sortEntities(entities);
@@ -395,7 +395,7 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
       }
 
       let what: DocumentFragment | HTMLElement;
-      if(options.canTranslate) {
+      if (options.canTranslate) {
         what = TranslatableMessage({
           peerId: (message as Message.message).peerId!,
           message: message as Message.message,
@@ -404,14 +404,14 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
           onTextWithEntities: (textWithEntities) => {
             return {
               ...textWithEntities,
-              text: limitSymbols(textWithEntities.text, 100)
+              text: limitSymbols(textWithEntities.text, 100),
             };
-          }
+          },
         });
       } else {
         what = wrapRichText(options.text, {
           ...someRichTextOptions,
-          entities
+          entities,
         });
 
         what = htmlToDocumentFragment(what);
@@ -421,7 +421,7 @@ export default async function wrapMessageForReply<T extends WrapMessageForReplyO
     }
   }
 
-  if(plain) {
+  if (plain) {
     return parts.join('') as any;
   } else {
     const fragment = document.createDocumentFragment();

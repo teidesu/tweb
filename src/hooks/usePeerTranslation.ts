@@ -1,13 +1,13 @@
-import {useFullPeer} from '@stores/fullPeers';
-import {createEffect, createMemo} from 'solid-js';
+import { useFullPeer } from '@stores/fullPeers';
+import { createEffect, createMemo } from 'solid-js';
 import usePeerLanguage from '@stores/peerLanguage';
 import useDynamicCachedValue from '@helpers/solid/useDynamicCachedValue';
 import I18n from '@lib/langPack';
 import usePremium from '@stores/premium';
-import {useAppSettings} from '@stores/appSettings';
-import {usePeer} from '@stores/peers';
-import {Chat} from '@layer';
-import {useAppState} from '@stores/appState';
+import { useAppSettings } from '@stores/appSettings';
+import { usePeer } from '@stores/peers';
+import { Chat } from '@layer';
+import { useAppState } from '@stores/appState';
 
 function _usePeerTranslation(peerId: PeerId) {
   const [appSettings, setAppSettings] = useAppSettings();
@@ -19,12 +19,12 @@ function _usePeerTranslation(peerId: PeerId) {
   const isPremium = usePremium();
 
   const areTranslationsAvailable = (manual?: boolean) => {
-    if(appState.appConfig.freeze_since_date) {
+    if (appState.appConfig.freeze_since_date) {
       return false;
     }
 
     const appConfig = appState?.appConfig;
-    if((manual ? appConfig?.translations_manual_enabled : appConfig?.translations_auto_enabled) !== 'enabled') {
+    if ((manual ? appConfig?.translations_manual_enabled : appConfig?.translations_auto_enabled) !== 'enabled') {
       return false;
     }
 
@@ -32,11 +32,11 @@ function _usePeerTranslation(peerId: PeerId) {
   };
 
   const canTranslate = (manual?: boolean) => {
-    if(!areTranslationsAvailable(manual)) {
+    if (!areTranslationsAvailable(manual)) {
       return false;
     }
 
-    if(manual) {
+    if (manual) {
       return true;
     }
 
@@ -44,12 +44,12 @@ function _usePeerTranslation(peerId: PeerId) {
   };
 
   const shouldShow = createMemo<boolean | undefined>(() => {
-    if(!canTranslate() || !peerLanguage() || !appSettings.translations.enabled) {
+    if (!canTranslate() || !peerLanguage() || !appSettings.translations.enabled) {
       return;
     }
 
     const _fullPeer = fullPeer();
-    if(
+    if (
       (!_fullPeer || _fullPeer.pFlags.translations_disabled) ||
       appSettings.translations.doNotTranslate.includes(peerLanguage()!)
     ) {
@@ -67,11 +67,11 @@ function _usePeerTranslation(peerId: PeerId) {
     toggle: (enabled: boolean) => setAppSettings('translations', 'enabledPeers', peerId, (enabled ? true : undefined)!),
     shouldShow,
     canTranslate,
-    areTranslationsAvailable
+    areTranslationsAvailable,
   } as const;
 
   createEffect(() => {
-    if(ret.shouldShow() === false && ret.enabled()) {
+    if (ret.shouldShow() === false && ret.enabled()) {
       ret.toggle(false);
     }
   });

@@ -1,7 +1,7 @@
 // * Jolly Cobra's schedulers
 
 import ctx from '@environment/ctx';
-import {AnyFunction} from '@types';
+import { AnyFunction } from '@types';
 import noop from '@helpers/noop';
 
 export type DebounceReturnType<F extends AnyFunction> = {
@@ -25,7 +25,7 @@ export default function debounce<F extends AnyFunction>(
     try {
       const result = fn.apply(null, args);
       _resolve(result);
-    } catch(err) {
+    } catch (err) {
       console.error('debounce error', err);
       // @ts-ignore
       _reject(err);
@@ -33,26 +33,26 @@ export default function debounce<F extends AnyFunction>(
   };
 
   const debounce = (...args: Parameters<F>) => {
-    if(!waitingPromise) waitingPromise = new Promise((_resolve, _reject) => (resolve = _resolve, reject = _reject));
+    if (!waitingPromise) waitingPromise = new Promise((_resolve, _reject) => (resolve = _resolve, reject = _reject));
 
-    if(waitingTimeout) {
+    if (waitingTimeout) {
       clearTimeout(waitingTimeout);
       hadNewCall = true;
       reject!();
       waitingPromise = new Promise((_resolve, _reject) => (resolve = _resolve, reject = _reject));
-    } else if(shouldRunFirst) {
+    } else if (shouldRunFirst) {
       invoke(args);
       hadNewCall = false;
     }
 
     const _waitingTimeout = ctx.setTimeout(() => {
       // will run if should run last or first but with new call
-      if(shouldRunLast && (!shouldRunFirst || hadNewCall)) {
+      if (shouldRunLast && (!shouldRunFirst || hadNewCall)) {
         invoke(args);
       }
 
       // if debounce was called during invoking
-      if(waitingTimeout === _waitingTimeout) {
+      if (waitingTimeout === _waitingTimeout) {
         waitingTimeout = (waitingPromise = (resolve = (reject = undefined)!)!)!;
         hadNewCall = false;
       }
@@ -64,7 +64,7 @@ export default function debounce<F extends AnyFunction>(
   };
 
   debounce.clearTimeout = () => {
-    if(waitingTimeout) {
+    if (waitingTimeout) {
       ctx.clearTimeout(waitingTimeout);
       reject!();
       waitingTimeout = (waitingPromise = (resolve = (reject = undefined)!)!)!;

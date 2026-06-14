@@ -1,5 +1,5 @@
-import {UrlAuthResult} from '@layer';
-import {AppManager} from '@appManagers/manager';
+import { UrlAuthResult } from '@layer';
+import { AppManager } from '@appManagers/manager';
 import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
 
 export default class AppSeamlessLoginManager extends AppManager {
@@ -8,9 +8,9 @@ export default class AppSeamlessLoginManager extends AppManager {
       button_id: buttonId,
       msg_id: mid ? getServerMessageId(mid) : undefined,
       peer: peerId ? this.appPeersManager.getInputPeerById(peerId) : undefined,
-      url
+      url,
     }).then((urlAuthResult) => {
-      if(urlAuthResult._ === 'urlAuthResultRequest') {
+      if (urlAuthResult._ === 'urlAuthResultRequest') {
         this.appUsersManager.saveApiUser(urlAuthResult.bot);
       }
 
@@ -24,7 +24,7 @@ export default class AppSeamlessLoginManager extends AppManager {
       msg_id: mid ? getServerMessageId(mid) : undefined,
       peer: peerId ? this.appPeersManager.getInputPeerById(peerId) : undefined,
       url,
-      write_allowed: writeAllowed
+      write_allowed: writeAllowed,
     }).then((urlAuthResult) => {
       return urlAuthResult as Exclude<UrlAuthResult, UrlAuthResult.urlAuthResultRequest>;
     });
@@ -39,7 +39,7 @@ export default class AppSeamlessLoginManager extends AppManager {
 
   public resetWebAuthorization(hash: Long) {
     return this.apiManager.invokeApi('account.resetWebAuthorization', {
-      hash
+      hash,
     });
   }
 

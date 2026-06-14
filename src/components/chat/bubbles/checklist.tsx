@@ -1,7 +1,7 @@
-import {createEffect, createMemo, createSignal, For, on, Show} from 'solid-js';
-import {createStore, reconcile} from 'solid-js/store';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {Message, MessageMedia, TodoCompletion} from '@layer'
+import { createEffect, createMemo, createSignal, For, on, Show } from 'solid-js';
+import { createStore, reconcile } from 'solid-js/store';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { Message, MessageMedia, TodoCompletion } from '@layer'
 import wrapRichText from '@lib/richTextProcessor/wrapRichText';
 
 import styles from '@components/chat/bubbles/checklist.module.scss';
@@ -9,15 +9,15 @@ import CheckboxFieldTsx from '@components/checkboxFieldTsx';
 import cancelEvent from '@helpers/dom/cancelEvent';
 import rootScope from '@lib/rootScope';
 import Chat from '@components/chat/chat';
-import {AvatarNewTsx} from '@components/avatarNew';
+import { AvatarNewTsx } from '@components/avatarNew';
 import classNames from '@helpers/string/classNames';
-import {PeerTitleTsx} from '@components/peerTitleTsx';
-import {IconTsx} from '@components/iconTsx';
-import {wrapEmojiTextWithEntities} from '@lib/richTextProcessor/wrapEmojiText';
+import { PeerTitleTsx } from '@components/peerTitleTsx';
+import { IconTsx } from '@components/iconTsx';
+import { wrapEmojiTextWithEntities } from '@lib/richTextProcessor/wrapEmojiText';
 import PopupPremium from '@components/popups/premium';
-import {toastNew} from '@components/toast';
+import { toastNew } from '@components/toast';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
-import {ConfettiContainer, ConfettiRef} from '@components/confetti';
+import { ConfettiContainer, ConfettiRef } from '@components/confetti';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
 
 export function ChecklistBubble(props: {
@@ -36,7 +36,7 @@ export function ChecklistBubble(props: {
 
   const completionsById = createMemo(() => {
     const results: Record<number, TodoCompletion> = {};
-    for(const item of checklist.completions ?? []) {
+    for (const item of checklist.completions ?? []) {
       results[item.id] = item;
     }
     return results;
@@ -47,38 +47,38 @@ export function ChecklistBubble(props: {
   })
 
   createEffect(on(isFullyCompleted, (value, prev) => {
-    if(value && !prev) {
+    if (value && !prev) {
       confetti.create({
         mode: 'poppers',
         size: 4,
         speedScale: 0.6,
-        count: 50
+        count: 50,
       });
     }
-  }, {defer: true}))
+  }, { defer: true }))
 
   const isGroupChecklist = checklist.todo.pFlags.others_can_complete
   const isReadonly = props.message.fwd_from || !props.out && !isGroupChecklist;
 
   async function handleClick(id: number) {
-    if(props.message.fwd_from) {
+    if (props.message.fwd_from) {
       toastNew({
-        langPackKey: 'ChecklistReadonlyForwarded'
+        langPackKey: 'ChecklistReadonlyForwarded',
       })
       return
     }
 
-    if(isReadonly) {
+    if (isReadonly) {
       toastNew({
         langPackKey: 'ChecklistReadonlyPersonal',
         langPackArguments: [
-          await wrapPeerTitle({peerId: props.message.fromId})
-        ]
+          await wrapPeerTitle({ peerId: props.message.fromId }),
+        ],
       })
       return;
     }
 
-    if(!rootScope.premium) {
+    if (!rootScope.premium) {
       PopupPremium.show();
       return;
     }
@@ -89,7 +89,7 @@ export function ChecklistBubble(props: {
       peerId: props.chat.peerId,
       mid: props.message.mid!,
       taskId: id,
-      action: wasCompleted ? 'uncomplete' : 'complete'
+      action: wasCompleted ? 'uncomplete' : 'complete',
     })
   }
 
@@ -109,7 +109,7 @@ export function ChecklistBubble(props: {
             const [completedById, setCompletedById] = createSignal<PeerId>(0);
             createEffect(() => {
               const completion = completionsById()[item.id];
-              if(completion) {
+              if (completion) {
                 setCompletedById(getPeerId(completion.completed_by));
               }
             })

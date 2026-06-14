@@ -1,8 +1,8 @@
 import ButtonIcon from '@components/buttonIcon';
 import FeaturesCarousel from '@components/premium/featuresCarousel';
-import {PopupPremiumProps} from '@components/popups/premium';
+import { PopupPremiumProps } from '@components/popups/premium';
 import TransitionSlider from '@components/transition';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 
 type FeatureSlideTabOptions = PopupPremiumProps & {
   header: HTMLElement,
@@ -16,7 +16,7 @@ export default class FeatureSlideTab {
   public featureCarousel: FeaturesCarousel;
 
   constructor(options: FeatureSlideTabOptions) {
-    this.backBtn = ButtonIcon('left popup-close back-button', {noRipple: true});
+    this.backBtn = ButtonIcon('left popup-close back-button', { noRipple: true });
     this.initFeaturesTab(options);
   }
 
@@ -31,7 +31,7 @@ export default class FeatureSlideTab {
     tab.append(options.header);
     this.featureCarousel = new FeaturesCarousel({
       ...options,
-      header: options.header
+      header: options.header,
     });
     tab.append(this.featureCarousel.container, this.featureCarousel.controlsContainer);
     this.tab = tab;
@@ -39,7 +39,7 @@ export default class FeatureSlideTab {
     attachClickEvent(this.backBtn, () => {
       this.featureCarousel.slideIndex = undefined;
       this.transition(0);
-    }, {listenerSetter: options.listenerSetter});
+    }, { listenerSetter: options.listenerSetter });
   }
 
   public setCarouselSlide(feature: PremiumPromoFeatureType) {

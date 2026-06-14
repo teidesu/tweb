@@ -1,29 +1,29 @@
-import {batch, createComputed, createMemo, createResource, createSelector, createSignal, ErrorBoundary, onMount, Show} from 'solid-js';
-import {Dynamic, Portal} from 'solid-js/web';
-import {Transition} from 'solid-transition-group';
+import { batch, createComputed, createMemo, createResource, createSelector, createSignal, ErrorBoundary, onMount, Show } from 'solid-js';
+import { Dynamic, Portal } from 'solid-js/web';
+import { Transition } from 'solid-transition-group';
 import lastItem from '@helpers/array/lastItem';
-import {keepMe} from '@helpers/keepMe';
+import { keepMe } from '@helpers/keepMe';
 import liteMode from '@helpers/liteMode';
 import asyncThrottle from '@helpers/schedulers/asyncThrottle';
 import debounce from '@helpers/schedulers/debounce';
 import pause from '@helpers/schedulers/pause';
-import {createSetSignal} from '@helpers/solid/createSetSignal';
-import {AdminLog} from '@appManagers/appChatsManager';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {setAppSettings} from '@stores/appSettings';
-import {ButtonIconTsx} from '@components/buttonIconTsx';
-import {DynamicVirtualList} from '@components/dynamicVirtualList';
+import { createSetSignal } from '@helpers/solid/createSetSignal';
+import { AdminLog } from '@appManagers/appChatsManager';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { setAppSettings } from '@stores/appSettings';
+import { ButtonIconTsx } from '@components/buttonIconTsx';
+import { DynamicVirtualList } from '@components/dynamicVirtualList';
 import ripple from '@components/ripple';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {type AppAdminRecentActionsTab} from '@components/solidJsTabs/tabs';
-import {limitPeerTitleSymbols} from '@components/sidebarRight/tabs/adminRecentActions/constants';
-import {ExpandToggleButton} from '@components/sidebarRight/tabs/adminRecentActions/expandToggleButton';
-import {CommittedFilters, Filters} from '@components/sidebarRight/tabs/adminRecentActions/filters';
-import {groupToIconMap, resolveLogEntry} from '@components/sidebarRight/tabs/adminRecentActions/logEntriesResolver';
-import {LogEntry} from '@components/sidebarRight/tabs/adminRecentActions/logEntry';
-import {NoActionsPlaceholder} from '@components/sidebarRight/tabs/adminRecentActions/noActionsPlaceholder';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { type AppAdminRecentActionsTab } from '@components/solidJsTabs/tabs';
+import { limitPeerTitleSymbols } from '@components/sidebarRight/tabs/adminRecentActions/constants';
+import { ExpandToggleButton } from '@components/sidebarRight/tabs/adminRecentActions/expandToggleButton';
+import { CommittedFilters, Filters } from '@components/sidebarRight/tabs/adminRecentActions/filters';
+import { groupToIconMap, resolveLogEntry } from '@components/sidebarRight/tabs/adminRecentActions/logEntriesResolver';
+import { LogEntry } from '@components/sidebarRight/tabs/adminRecentActions/logEntry';
+import { NoActionsPlaceholder } from '@components/sidebarRight/tabs/adminRecentActions/noActionsPlaceholder';
 import styles from '@components/sidebarRight/tabs/adminRecentActions/styles.module.scss';
-import {useParticipantClickHandler} from '@components/sidebarRight/tabs/adminRecentActions/utils';
+import { useParticipantClickHandler } from '@components/sidebarRight/tabs/adminRecentActions/utils';
 
 keepMe(ripple);
 
@@ -42,7 +42,7 @@ const thumbUpdateDebounceTimeout = 100;
 const testEmpty = 0;
 
 const AdminRecentActionsTab = () => {
-  const {rootScope, PeerTitleTsx, apiManagerProxy, appImManager, ChatType} = useHotReloadGuard();
+  const { rootScope, PeerTitleTsx, apiManagerProxy, appImManager, ChatType } = useHotReloadGuard();
   const [tab] = useSuperTab<typeof AppAdminRecentActionsTab>();
 
   const isForum = apiManagerProxy.isForum(tab.payload.channelId.toPeerId(true));
@@ -70,8 +70,8 @@ const AdminRecentActionsTab = () => {
       admins: committedFilters()?.admins,
       flags: committedFilters()?.flags,
       limit: fetchLimit,
-      offsetId
-    }).then(({items}) => items);
+      offsetId,
+    }).then(({ items }) => items);
 
   // for loading state, then we're fetching more as the user scrolls
   const [initialLogs] = createResource(() => committedFilters() || {}, () =>
@@ -103,13 +103,13 @@ const AdminRecentActionsTab = () => {
   });
 
   const fetchMore = asyncThrottle(async() => {
-    if(initialLogs.loading || reachedTheEnd) return;
+    if (initialLogs.loading || reachedTheEnd) return;
 
     const lastLog = lastItem(logs());
-    if(!lastLog) return; // empty list
+    if (!lastLog) return; // empty list
 
     const newLogs = await fetchLogs(lastLog.id);
-    if(!newLogs.length) {
+    if (!newLogs.length) {
       reachedTheEnd = true;
       return;
     }
@@ -118,7 +118,7 @@ const AdminRecentActionsTab = () => {
 
     setLogs([
       ...logs().filter(log => !newLogsIds.has(String(log.id))), // just in case
-      ...newLogs as AdminLog[]
+      ...newLogs as AdminLog[],
     ]);
   }, fetchThrottleTimeout);
 
@@ -141,7 +141,7 @@ const AdminRecentActionsTab = () => {
         set.has(log) ? set.delete(log) : set.add(log);
         return set;
       });
-      if(toggledLogs().size === logs().length) {
+      if (toggledLogs().size === logs().length) {
         setCachedAreAllExpanded(!cachedAreAllExpanded());
         setToggledLogs(new Set<AdminLog>);
       }
@@ -153,7 +153,7 @@ const AdminRecentActionsTab = () => {
     tab.close();
     appImManager.setInnerPeer({
       peerId: tab.payload.channelId.toPeerId(true),
-      type: ChatType.Logs
+      type: ChatType.Logs,
     });
   };
 
@@ -213,7 +213,7 @@ const AdminRecentActionsTab = () => {
           scrollable={tab.scrollable.container}
           onNearBottom={onNearBottom}
           verticalPadding={8}
-          renderAtLeastFromBottom={({clientHeight}) => Math.ceil((clientHeight / itemSizeEstimate))}
+          renderAtLeastFromBottom={({ clientHeight }) => Math.ceil((clientHeight / itemSizeEstimate))}
           Item={(props) => {
             let ref: HTMLDivElement;
 
@@ -223,28 +223,28 @@ const AdminRecentActionsTab = () => {
               channelId: tab.payload.channelId,
               event: log(),
               isBroadcast: tab.payload.isBroadcast,
-              isForum
+              isForum,
             }));
 
             const areAnimationsAvailable = liteMode.isAvailable('animations');
 
             const [forceHide, setForceHide] = createSignal(areAnimationsAvailable && shouldAnimateIn);
 
-            if(shouldAnimateIn && areAnimationsAvailable) {
+            if (shouldAnimateIn && areAnimationsAvailable) {
               onMount(() => {
                 ref?.animate({
                   opacity: [0, 1],
-                  transform: ['translateY(-4px)', 'translateY(0)']
+                  transform: ['translateY(-4px)', 'translateY(0)'],
                 }, {
                   duration: animateInDuration,
-                  delay: props.idx * (cachedAreAllExpanded() ? staggerDelayExpanded : staggerDelay) + (!isFirstAnimation ? reAnimateDelay : 0)
+                  delay: props.idx * (cachedAreAllExpanded() ? staggerDelayExpanded : staggerDelay) + (!isFirstAnimation ? reAnimateDelay : 0),
                 }).finished
-                .then(() => {
-                  setForceHide(false);
-                });
+                  .then(() => {
+                    setForceHide(false);
+                  });
               });
 
-              if(!isQueuedUnsettingShouldAnimate) {
+              if (!isQueuedUnsettingShouldAnimate) {
                 isQueuedUnsettingShouldAnimate = true;
                 queueMicrotask(() => {
                   shouldAnimateIn = false;
@@ -257,13 +257,13 @@ const AdminRecentActionsTab = () => {
               <div
                 ref={(el) => {
                   ref = el;
-                  if(props.ref instanceof Function) props.ref(el);
+                  if (props.ref instanceof Function) props.ref(el);
                 }}
                 class={styles.Item}
-                classList={{[styles.hidden]: forceHide() || props.isMeasuring}}
+                classList={{ [styles.hidden]: forceHide() || props.isMeasuring }}
                 style={{
                   '--top': `${props.offset}px`,
-                  '--translation': `${props.translation}px`
+                  '--translation': `${props.translation}px`,
                 }}
               >
                 <Show when={entry()}>

@@ -1,4 +1,4 @@
-import lottieLoader, {LottieLoader} from '@lib/rlottie/lottieLoader';
+import lottieLoader, { LottieLoader } from '@lib/rlottie/lottieLoader';
 import RLottiePlayer from '@lib/rlottie/rlottiePlayer';
 import PasswordInputField from '@components/passwordInputField';
 
@@ -14,14 +14,14 @@ export default class PasswordMonkey {
   }
 
   public load() {
-    if(this.loadPromise) return this.loadPromise;
+    if (this.loadPromise) return this.loadPromise;
     return this.loadPromise = lottieLoader.loadAnimationAsAsset({
       container: this.container,
       loop: false,
       autoplay: false,
       width: this.size,
       height: this.size,
-      noCache: true
+      noCache: true,
     // }, 'assets/img/TwoFactorSetupMonkeyClose.tgs').then((_animation) => {
     }, 'TwoFactorSetupMonkeyPeek').then((_animation) => {
       // return;
@@ -29,7 +29,7 @@ export default class PasswordMonkey {
       this.animation.addEventListener('enterFrame', (currentFrame) => {
         // console.log('enterFrame', currentFrame, this.needFrame);
 
-        if((this.animation.direction === 1 && currentFrame >= this.needFrame) ||
+        if ((this.animation.direction === 1 && currentFrame >= this.needFrame) ||
           (this.animation.direction === -1 && currentFrame <= this.needFrame)) {
           this.animation.setSpeed(1);
           this.animation.pause();
@@ -37,7 +37,7 @@ export default class PasswordMonkey {
       });
 
       this.passwordInputField.helpers.onVisibilityClickAdditional = () => {
-        if(this.passwordInputField.helpers.passwordVisible) {
+        if (this.passwordInputField.helpers.passwordVisible) {
           this.animation.setDirection(1);
           this.animation.curFrame = 0;
           this.needFrame = 16;
@@ -55,7 +55,7 @@ export default class PasswordMonkey {
   }
 
   public remove() {
-    if(this.animation) {
+    if (this.animation) {
       this.animation.remove();
     }
   }

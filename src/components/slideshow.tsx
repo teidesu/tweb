@@ -1,11 +1,11 @@
 
-import {createEffect, createSignal, For, onCleanup, onMount, Show, JSX} from 'solid-js';
+import { createEffect, createSignal, For, onCleanup, onMount, Show, JSX } from 'solid-js';
 import SwipeHandler from '@components/swipeHandler';
 import styles from '@components/slideshow.module.scss';
 import classNames from '@helpers/string/classNames';
-import {fastRaf} from '@helpers/schedulers';
+import { fastRaf } from '@helpers/schedulers';
 import findUpClassName from '@helpers/dom/findUpClassName';
-import {IconTsx} from '@components/iconTsx';
+import { IconTsx } from '@components/iconTsx';
 
 export type SlideshowProps<T> = {
   class?: string;
@@ -41,14 +41,14 @@ export default function Slideshow<T>(props: SlideshowProps<T>) {
 
         lastDiffX = xDiff;
         let lastX = x + xDiff * -SCALE;
-        if(lastX > 0) lastX = 0;
-        else if(lastX < minX) lastX = minX;
+        if (lastX > 0) lastX = 0;
+        else if (lastX < minX) lastX = minX;
 
         itemsContainer!.style.transform = TRANSLATE_TEMPLATE.replace('{x}', lastX + 'px');
         return false;
       },
       verifyTouchTarget: (e) => {
-        if(getCount() <= 1) return false;
+        if (getCount() <= 1) return false;
         return true;
       },
       onFirstSwipe: () => {
@@ -69,13 +69,13 @@ export default function Slideshow<T>(props: SlideshowProps<T>) {
         setNoTransition(false);
         fastRaf(() => {
           let newIndex = index() + addIndex;
-          if(newIndex < 0) newIndex = 0;
-          if(newIndex >= getCount()) newIndex = getCount() - 1;
+          if (newIndex < 0) newIndex = 0;
+          if (newIndex >= getCount()) newIndex = getCount() - 1;
 
           setIndex(newIndex);
           setIsSwiping(false);
         });
-      }
+      },
     });
   });
 
@@ -84,33 +84,33 @@ export default function Slideshow<T>(props: SlideshowProps<T>) {
   });
 
   createEffect(() => {
-    if(props.activeIndex !== undefined && props.activeIndex !== index()) {
+    if (props.activeIndex !== undefined && props.activeIndex !== index()) {
       setIndex(props.activeIndex);
     }
   });
 
   createEffect(() => {
     const i = index();
-    if(itemsContainer!) {
+    if (itemsContainer!) {
       itemsContainer.style.transform = TRANSLATE_TEMPLATE.replace('{x}', `${-i * 100}%`);
     }
   });
 
   const handleClick = (e: MouseEvent) => {
-    if(isSwiping()) return;
+    if (isSwiping()) return;
 
     // Check if clicked buttons
     const target = e.target as HTMLElement;
-    if(findUpClassName(target, styles.Arrow)) return;
+    if (findUpClassName(target, styles.Arrow)) return;
 
     const rect = container!.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const isLeft = x < (rect.width / 3);
     const isRight = x > (rect.width * 2 / 3);
 
-    if(isLeft) {
+    if (isLeft) {
       handlePrev(e);
-    } else if(isRight) {
+    } else if (isRight) {
       handleNext(e);
     } else {
       props.onClick?.(index());
@@ -119,7 +119,7 @@ export default function Slideshow<T>(props: SlideshowProps<T>) {
 
   const handlePrev = (e: Event) => {
     e.stopPropagation();
-    if(index() > 0) {
+    if (index() > 0) {
       const newIndex = index() - 1;
       setIndex(newIndex);
       props.onIndexChange?.(newIndex);
@@ -128,7 +128,7 @@ export default function Slideshow<T>(props: SlideshowProps<T>) {
 
   const handleNext = (e: Event) => {
     e.stopPropagation();
-    if(index() < (getCount() - 1)) {
+    if (index() < (getCount() - 1)) {
       const newIndex = index() + 1;
       setIndex(newIndex);
       props.onIndexChange?.(newIndex);

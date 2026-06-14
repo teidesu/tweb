@@ -1,19 +1,19 @@
-import {animateValue} from '@helpers/animateValue';
+import { animateValue } from '@helpers/animateValue';
 import cloneDOMRect from '@helpers/dom/cloneDOMRect';
 import throttleWith from '@helpers/schedulers/throttleWith';
-import {useIsCleaned} from '@hooks/useIsCleaned';
+import { useIsCleaned } from '@hooks/useIsCleaned';
 import {
   Accessor,
   batch,
   createEffect,
   createMemo,
   JSX,
-  onCleanup
+  onCleanup,
 } from 'solid-js';
-import {createStore, SetStoreFunction, Store} from 'solid-js/store';
+import { createStore, SetStoreFunction, Store } from 'solid-js/store';
 import styles from './createSortableList.module.scss';
-import {requestRAF} from './requestRAF';
-import {subscribeOn} from './subscribeOn';
+import { requestRAF } from './requestRAF';
+import { subscribeOn } from './subscribeOn';
 
 
 type Id = string | number; // probably could be anything
@@ -84,7 +84,7 @@ export const createSortableList = <T, >(args: CreateSortableListArgs<T>) => {
   };
 
   const dragHandleProps = (id: Id) => ({
-    onPointerDown: (e) => startDrag(e, id)
+    onPointerDown: (e) => startDrag(e, id),
   } satisfies JSX.HTMLAttributes<HTMLElement>);
 
   const itemStyle = useItemStyle(context);
@@ -95,11 +95,11 @@ export const createSortableList = <T, >(args: CreateSortableListArgs<T>) => {
 
     itemRef,
     itemStyle,
-    dragHandleProps
+    dragHandleProps,
   };
 };
 
-const createDragContextValue = <T, >({container, items, getId, onReorder}: CreateSortableListArgs<T>): DragContext<T> => {
+const createDragContextValue = <T, >({ container, items, getId, onReorder }: CreateSortableListArgs<T>): DragContext<T> => {
   const intialDragState: DragState = {
     id: null as unknown as Id,
     isDragging: false,
@@ -108,7 +108,7 @@ const createDragContextValue = <T, >({container, items, getId, onReorder}: Creat
     deltaY: 0,
     pointerStartY: 0,
     initialScrollTop: 0,
-    currentScrollTop: 0
+    currentScrollTop: 0,
   };
 
   const [dragState, setDragState] = createStore<DragState>(
@@ -116,7 +116,7 @@ const createDragContextValue = <T, >({container, items, getId, onReorder}: Creat
     structuredClone(intialDragState)
   );
 
-  const [finishingAnimationState, setFinishingAnimationState] = createStore<FinishingAnimationState>({id: null as unknown as Id, shift: 0});
+  const [finishingAnimationState, setFinishingAnimationState] = createStore<FinishingAnimationState>({ id: null as unknown as Id, shift: 0 });
 
   const scrollAdjustment = createMemo(() => dragState.currentScrollTop - dragState.initialScrollTop);
 
@@ -137,23 +137,23 @@ const createDragContextValue = <T, >({container, items, getId, onReorder}: Creat
     finishingAnimationState,
     setFinishingAnimationState,
 
-    scrollAdjustment
+    scrollAdjustment,
   };
 }
 
 const useFindIndexById = <T, >(context: DragContext<T>) => (id: Id) => {
-  const {items, getId} = context;
+  const { items, getId } = context;
   return items().findIndex((x) => getId(x) === id);
 };
 
 const useGetRectAtIndex = <T, >(context: DragContext<T>) => (index: number) => {
-  const {items, getId, rects} = context;
-  if(index < 0 || index >= items().length) return null;
+  const { items, getId, rects } = context;
+  if (index < 0 || index >= items().length) return null;
   return rects.get(getId(items()[index]));
 };
 
 const useCalculateShift = <T, >(context: DragContext<T>) => {
-  const {dragState, scrollAdjustment, items, rects} = context;
+  const { dragState, scrollAdjustment, items, rects } = context;
   const getRectAtIndex = useGetRectAtIndex(context);
 
   return (id: Id) => {
@@ -161,24 +161,24 @@ const useCalculateShift = <T, >(context: DragContext<T>) => {
     const rect = rects.get(id);
 
     let firstRect: DOMRectEditable;
-    for(let i = 0; i < items().length; i++) {
+    for (let i = 0; i < items().length; i++) {
       const rect = getRectAtIndex(i);
-      if(rect) {
+      if (rect) {
         firstRect = rect;
         break;
       }
     }
 
     let lastRect: DOMRectEditable;
-    for(let i = items().length - 1; i >= 0; i--) {
+    for (let i = items().length - 1; i >= 0; i--) {
       const rect = getRectAtIndex(i);
-      if(rect) {
+      if (rect) {
         lastRect = rect;
         break;
       }
     }
 
-    if(rect && firstRect! && lastRect!) {
+    if (rect && firstRect! && lastRect!) {
       shift = Math.max(shift, firstRect.top - rect.top);
       shift = Math.min(shift, lastRect.bottom - rect.bottom);
     }
@@ -188,24 +188,24 @@ const useCalculateShift = <T, >(context: DragContext<T>) => {
 };
 
 const useMeasureElements = <T, >(context: DragContext<T>) => () =>  {
-  const {rects, elements, container, items, getId} = context;
+  const { rects, elements, container, items, getId } = context;
 
   rects.clear();
 
   const localContainer = container();
-  if(!localContainer) return;
+  if (!localContainer) return;
 
   context.containerRect = cloneDOMRect(localContainer.getBoundingClientRect());
   context.containerScrollHeight = localContainer.scrollHeight;
 
-  for(const item of items()) {
+  for (const item of items()) {
     const id = getId(item);
     const el = elements.get(id);
-    if(!el) continue;
+    if (!el) continue;
 
     const cloned = cloneDOMRect(el.getBoundingClientRect());
 
-    const {containerRect} = context;
+    const { containerRect } = context;
 
     cloned.top -= containerRect.top;
     cloned.bottom -= containerRect.top;
@@ -217,8 +217,8 @@ const useMeasureElements = <T, >(context: DragContext<T>) => () =>  {
 };
 
 const useUpdateOverIndex = <T, >(context: DragContext<T>) => (y: number) => {
-  const {containerRect, scrollAdjustment, items, getId, setDragState, rects} = context;
-  if(!containerRect) return;
+  const { containerRect, scrollAdjustment, items, getId, setDragState, rects } = context;
+  if (!containerRect) return;
 
   let idx = 0;
 
@@ -226,21 +226,21 @@ const useUpdateOverIndex = <T, >(context: DragContext<T>) => (y: number) => {
 
   y += - containerRect.top + scrollAdjustment();
 
-  for(let i = 0; i < ids.length; i++) {
+  for (let i = 0; i < ids.length; i++) {
     const id = ids[i];
     const rect = rects.get(id);
-    if(rect && y >= rect.top) {
+    if (rect && y >= rect.top) {
       idx = i;
     }
   }
 
   setDragState({
-    overIndex: idx
+    overIndex: idx,
   });
 };
 
 const useStartDrag = <T, >(context: DragContext<T>) => {
-  const {setDragState, container} = context;
+  const { setDragState, container } = context;
 
   const findIndexById = useFindIndexById(context);
   const measureElements = useMeasureElements(context);
@@ -249,7 +249,7 @@ const useStartDrag = <T, >(context: DragContext<T>) => {
   const handlePointerUp = useHandlePointerUp(context, () => removeListeners);
 
   const setListeners = () => {
-    window.addEventListener('pointermove', handlePointerMove, {passive: false});
+    window.addEventListener('pointermove', handlePointerMove, { passive: false });
     window.addEventListener('pointerup', handlePointerUp);
     window.addEventListener('pointercancel', handlePointerUp);
   };
@@ -265,7 +265,7 @@ const useStartDrag = <T, >(context: DragContext<T>) => {
   });
 
   return (e: PointerEvent, id: Id) => {
-    if(e.button !== 0 && e.pointerType !== 'touch') return;
+    if (e.button !== 0 && e.pointerType !== 'touch') return;
 
     e.preventDefault();
 
@@ -284,7 +284,7 @@ const useStartDrag = <T, >(context: DragContext<T>) => {
         overIndex: index,
         initialScrollTop: container()?.scrollTop,
         currentScrollTop: container()?.scrollTop,
-        pointerStartY: e.clientY
+        pointerStartY: e.clientY,
       });
 
       setListeners();
@@ -293,19 +293,19 @@ const useStartDrag = <T, >(context: DragContext<T>) => {
 };
 
 const useHandlePointerMove = <T, >(context: DragContext<T>) => {
-  const {dragState, setDragState} = context;
+  const { dragState, setDragState } = context;
 
   const updateOverIndex = useUpdateOverIndex(context);
   const loopAutoScroll = useLoopAutoScroll(context);
 
   return throttleWith(requestRAF, (e: PointerEvent) => {
-    if(!dragState.isDragging) return;
+    if (!dragState.isDragging) return;
 
     const y = e.clientY;
 
     batch(() => {
       setDragState({
-        deltaY: y - dragState.pointerStartY
+        deltaY: y - dragState.pointerStartY,
       });
       updateOverIndex(y);
       loopAutoScroll(y);
@@ -329,19 +329,19 @@ const useStartAutoScroll = <T, >(context: DragContext<T>) => {
   const updateOverIndex = useUpdateOverIndex(context);
 
   return (y: number) => {
-    const {dragState, container, containerRect, containerScrollHeight} = context;
+    const { dragState, container, containerRect, containerScrollHeight } = context;
 
-    if(isCleaned() || !dragState.isDragging) return false;
+    if (isCleaned() || !dragState.isDragging) return false;
 
     const localContainer = container();
-    if(!localContainer || !containerRect || !containerScrollHeight) return false;
+    if (!localContainer || !containerRect || !containerScrollHeight) return false;
 
     let speed = 0;
 
-    if(y < containerRect.top + autoScrollThreshold) {
+    if (y < containerRect.top + autoScrollThreshold) {
       const t = 1 - Math.max(0, y - containerRect.top) / autoScrollThreshold;
       speed = -autoScrollSpeedBase * t;
-    } else if(y > containerRect.bottom - autoScrollThreshold) {
+    } else if (y > containerRect.bottom - autoScrollThreshold) {
       const t = 1 - Math.max(0, containerRect.bottom - y) / autoScrollThreshold;
       speed = autoScrollSpeedBase * t;
     }
@@ -353,7 +353,7 @@ const useStartAutoScroll = <T, >(context: DragContext<T>) => {
     speed = Math.max(-scrollTop, Math.min(scrollHeight - scrollTop - clientHeight, speed));
     speed = Math.round(speed);
 
-    if(Math.abs(speed) === 0) return false;
+    if (Math.abs(speed) === 0) return false;
 
     localContainer.scrollTop = scrollTop + speed;
     updateOverIndex(y);
@@ -363,7 +363,7 @@ const useStartAutoScroll = <T, >(context: DragContext<T>) => {
 };
 
 const useLoopAutoScroll = <T, >(context: DragContext<T>) => {
-  const {dragState} = context;
+  const { dragState } = context;
   const autoScroll = useStartAutoScroll(context);
 
   let autoScrollRef = {};
@@ -373,14 +373,14 @@ const useLoopAutoScroll = <T, >(context: DragContext<T>) => {
   });
 
   return (y: number) => {
-    if(!dragState.isDragging) return;
+    if (!dragState.isDragging) return;
 
     autoScrollRef = {};
 
     const savedRef = autoScrollRef;
 
     const frame = () => {
-      if(autoScrollRef === savedRef && autoScroll(y)) {
+      if (autoScrollRef === savedRef && autoScroll(y)) {
         requestRAF(frame);
       }
     };
@@ -393,11 +393,11 @@ const useEndDrag = <T, >(context: DragContext<T>) => {
   const calculateShift = useCalculateShift(context);
 
   return () => {
-    const {dragState, onReorder, items, rects, setFinishingAnimationState, getId, resetDragState} = context;
+    const { dragState, onReorder, items, rects, setFinishingAnimationState, getId, resetDragState } = context;
 
-    if(!dragState.isDragging) return;
+    if (!dragState.isDragging) return;
 
-    const {startIndex, overIndex, id} = dragState;
+    const { startIndex, overIndex, id } = dragState;
 
     const fromRect = rects.get(getId(items()[startIndex]));
     const toRect = rects.get(getId(items()[overIndex]));
@@ -413,19 +413,19 @@ const useEndDrag = <T, >(context: DragContext<T>) => {
       resetDragState();
       onReorder(reorder(items(), startIndex, overIndex));
 
-      if(shift === 0) return;
+      if (shift === 0) return;
 
       setFinishingAnimationState({
         id,
-        shift
+        shift,
       });
 
       context.cancelFinishingAnimation = animateValue(shift, 0, 200, (value) => {
         setFinishingAnimationState('shift', value);
       }, {
         onEnd: () => {
-          setFinishingAnimationState({id: null as unknown as Id, shift: 0});
-        }
+          setFinishingAnimationState({ id: null as unknown as Id, shift: 0 });
+        },
       });
     });
 
@@ -434,27 +434,27 @@ const useEndDrag = <T, >(context: DragContext<T>) => {
 };
 
 const watchScrollPosition = <T, >(context: DragContext<T>) => {
-  const {container, dragState, setDragState} = context;
+  const { container, dragState, setDragState } = context;
 
   createEffect(() => {
     const localContainer = container();
-    if(!localContainer) return;
+    if (!localContainer) return;
 
     subscribeOn(localContainer)('scroll', throttleWith(requestRAF, () => {
-      if(!dragState.isDragging) return;
+      if (!dragState.isDragging) return;
 
       setDragState({
-        currentScrollTop: localContainer.scrollTop
+        currentScrollTop: localContainer.scrollTop,
       });
-    }, false), {passive: true});
+    }, false), { passive: true });
   });
 };
 
 const attachGrabbingClassname = <T, >(context: DragContext<T>) => {
-  const {dragState} = context;
+  const { dragState } = context;
 
   createEffect(() => {
-    if(!dragState.isDragging) return;
+    if (!dragState.isDragging) return;
 
     document.body.classList.add(styles.grabbing);
 
@@ -470,23 +470,23 @@ const useItemStyle = <T, >(context: DragContext<T>) => {
   const calculateShift = useCalculateShift(context);
 
   return (id: Id) => {
-    const {dragState, finishingAnimationState, rects} = context;
+    const { dragState, finishingAnimationState, rects } = context;
 
-    if(id === finishingAnimationState.id) {
+    if (id === finishingAnimationState.id) {
       return {
         'transform': `translateY(${finishingAnimationState.shift}px)`,
-        ...baseMovingStyle
+        ...baseMovingStyle,
       };
     }
 
-    if(!dragState.isDragging) {
+    if (!dragState.isDragging) {
       return {};
     }
 
-    if(id === dragState.id) {
+    if (id === dragState.id) {
       return {
         'transform': `translateY(${calculateShift(id)}px)`,
-        ...baseMovingStyle
+        ...baseMovingStyle,
       };
     }
 
@@ -494,21 +494,21 @@ const useItemStyle = <T, >(context: DragContext<T>) => {
     const prevRect = getRectAtIndex(dragState.startIndex - 1);
     const nextRect = getRectAtIndex(dragState.startIndex + 1);
 
-    if(!activeRect) return {};
+    if (!activeRect) return {};
 
     const index = findIndexById(id);
 
     let shift = 0;
 
-    if(index < dragState.startIndex && index >= dragState.overIndex) {
+    if (index < dragState.startIndex && index >= dragState.overIndex) {
       shift = activeRect.height + (prevRect ? activeRect.top - prevRect.bottom : 0);
-    } else if(index > dragState.startIndex && index <= dragState.overIndex) {
+    } else if (index > dragState.startIndex && index <= dragState.overIndex) {
       shift = -activeRect.height - (nextRect ? nextRect.top - activeRect.bottom : 0);
     }
 
     return {
       transform: `translateY(${shift}px)`,
-      transition: 'transform 0.2s'
+      transition: 'transform 0.2s',
     };
   }
 };
@@ -516,11 +516,11 @@ const useItemStyle = <T, >(context: DragContext<T>) => {
 const baseMovingStyle = {
   'position': 'relative',
   'transition': 'none',
-  'z-index': 1
+  'z-index': 1,
 } satisfies JSX.CSSProperties;
 
 const reorder = <T, >(list: T[], from: number, to: number) => {
-  if(from === to) return list;
+  if (from === to) return list;
   const copy = list.slice();
   const [moved] = copy.splice(from, 1);
   copy.splice(to, 0, moved);

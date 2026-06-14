@@ -9,11 +9,11 @@ import {
   untrack,
   onCleanup,
   createComputed,
-  on
+  on,
 } from 'solid-js';
 
-import LoadingDialogSkeleton, {LoadingDialogSkeletonSize} from '@components/loadingDialogSkeleton';
-import VerticalVirtualList, {VerticalVirtualListItemProps} from '@components/verticalVirtualList';
+import LoadingDialogSkeleton, { LoadingDialogSkeletonSize } from '@components/loadingDialogSkeleton';
+import VerticalVirtualList, { VerticalVirtualListItemProps } from '@components/verticalVirtualList';
 
 import styles from '@components/deferredSortedVirtualList.module.scss';
 
@@ -52,7 +52,7 @@ export const createDeferredSortedVirtualList = <T, >(args: CreateDeferredSortedV
     itemSize,
     onListLengthChange,
     noAvatar,
-    extraPaddingBottom = 8
+    extraPaddingBottom = 8,
   } = args;
 
   const [items, setItems] = createSignal<DeferredSortedVirtualListItem<T>[]>([]);
@@ -63,7 +63,7 @@ export const createDeferredSortedVirtualList = <T, >(args: CreateDeferredSortedV
   const [blockedAnimationCount, setBlockedAnimationCount] = createSignal(0);
   const blockedAnimationCallbacks = new Set();
 
-  const [visibleItems, setVisibleItems] = createSignal(new Set<number>(), {equals: false});
+  const [visibleItems, setVisibleItems] = createSignal(new Set<number>(), { equals: false });
 
   // const scrollableSize = useElementSize(() => scrollable);
 
@@ -76,40 +76,40 @@ export const createDeferredSortedVirtualList = <T, >(args: CreateDeferredSortedV
     const realItems = [...pinnedItems(), ...sortedItems()];
 
     return new Array(Math.max(totalCount() + pinnedItems().length, realItems.length))
-    .fill(null)
-    .map((_, idx) => realItems[idx] || null);
+      .fill(null)
+      .map((_, idx) => realItems[idx] || null);
   });
 
   const itemsLength = createMemo(() => items().length);
 
   createEffect(() => {
-    if(!wasAtLeastOnceFetched()) return;
+    if (!wasAtLeastOnceFetched()) return;
 
     itemsLength();
     untrack(() => onListLengthChange?.());
   });
 
   createComputed(on(wasAtLeastOnceFetched, () => {
-    if(!wasAtLeastOnceFetched()) return;
+    if (!wasAtLeastOnceFetched()) return;
 
     setRevealIdx(items().length);
   }));
 
   const addItems = (newItems: DeferredSortedVirtualListItem<T>[]) => {
-    if(!newItems.length) return;
+    if (!newItems.length) return;
     const ids = new Set(newItems.map(item => item.id));
     setItems(prev => [
       ...prev.filter(item => !ids.has(item.id)),
-      ...newItems
+      ...newItems,
     ]);
   };
 
   const addPinnedItems = (newItems: DeferredSortedVirtualListItem<T>[]) => {
-    if(!newItems.length) return;
+    if (!newItems.length) return;
     const ids = new Set(newItems.map(item => item.id));
     setPinnedItems(prev => [
       ...prev.filter(item => !ids.has(item.id)),
-      ...newItems
+      ...newItems,
     ]);
   };
 
@@ -117,13 +117,13 @@ export const createDeferredSortedVirtualList = <T, >(args: CreateDeferredSortedV
    * Doesn't replace if already pinned
    */
   const ensurePinnedItems = (newItems: DeferredSortedVirtualListItem<T>[]) => {
-    if(!newItems.length) return;
+    if (!newItems.length) return;
 
     setPinnedItems(prev => {
       const ids = new Set(prev.map(item => item.id));
       return [
         ...prev,
-        ...newItems.filter(item => !ids.has(item.id))
+        ...newItems.filter(item => !ids.has(item.id)),
       ];
     });
   };
@@ -141,7 +141,7 @@ export const createDeferredSortedVirtualList = <T, >(args: CreateDeferredSortedV
   const updateItem = (id: any, index: number) => {
     setItems(prev => {
       const foundItem = prev.find(item => item.id === id);
-      if(foundItem) foundItem.index = index; // we're not spreading here as we want to keep the same object reference for the animation to trigger
+      if (foundItem) foundItem.index = index; // we're not spreading here as we want to keep the same object reference for the animation to trigger
       return [...prev];
     });
   };
@@ -187,7 +187,7 @@ export const createDeferredSortedVirtualList = <T, >(args: CreateDeferredSortedV
     });
 
     createEffect(() => {
-      if(props.animating)
+      if (props.animating)
         element()?.style.setProperty('--background', /* 'red' */'var(--surface-color)');
       else
         element()?.style.removeProperty('--background');
@@ -208,7 +208,7 @@ export const createDeferredSortedVirtualList = <T, >(args: CreateDeferredSortedV
   createEffect(() => {
     const mn = minQueuedToBeRevealed();
 
-    if(mn === null) return;
+    if (mn === null) return;
 
     const timeout = self.setTimeout(() => {
       batch(() => {
@@ -228,7 +228,7 @@ export const createDeferredSortedVirtualList = <T, >(args: CreateDeferredSortedV
 
     const toKeep = maxVisible - pinnedItems().length + EXTRA_ITEMS_TO_KEEP;
 
-    if(itemsLength > toKeep) {
+    if (itemsLength > toKeep) {
       batch(() => {
         // Should be sortedItems() here, because the updated cursor is based on the last item from the list, and might skip a few dialogs if wasn't set the right cursor
         setItems(sortedItems().slice(0, toKeep));
@@ -245,7 +245,7 @@ export const createDeferredSortedVirtualList = <T, >(args: CreateDeferredSortedV
     blockedAnimationCallbacks.add(ref);
 
     return () => {
-      if(blockedAnimationCallbacks.has(ref)) {
+      if (blockedAnimationCallbacks.has(ref)) {
         blockedAnimationCallbacks.delete(ref);
         setBlockedAnimationCount(prev => Math.max(0, prev - 1));
       }
@@ -273,7 +273,7 @@ export const createDeferredSortedVirtualList = <T, >(args: CreateDeferredSortedV
       const canShow = createMemo(() => props.item && isRevealed());
 
       createEffect(() => {
-        if(!props.item || isRevealed()) return;
+        if (!props.item || isRevealed()) return;
 
         const idx = props.idx;
 
@@ -285,7 +285,7 @@ export const createDeferredSortedVirtualList = <T, >(args: CreateDeferredSortedV
       });
 
       createEffect(() => {
-        if(canShow()) return;
+        if (canShow()) return;
 
         requestItemForIdx(props.idx - pinnedItems().length, items().length);
       });
@@ -308,7 +308,7 @@ export const createDeferredSortedVirtualList = <T, >(args: CreateDeferredSortedV
           fallback={
             <LoadingDialogSkeleton
               class={styles.Item}
-              style={{top: props.top + 'px'}}
+              style={{ top: props.top + 'px' }}
               seed={props.idx}
               size={itemSize}
               noAvatar={noAvatar}
@@ -351,6 +351,6 @@ export const createDeferredSortedVirtualList = <T, >(args: CreateDeferredSortedV
     clear,
     has,
     get,
-    getAll: () => itemsMap()
+    getAll: () => itemsMap(),
   }
 });

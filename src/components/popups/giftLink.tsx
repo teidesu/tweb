@@ -1,27 +1,27 @@
-import {render} from 'solid-js/web';
+import { render } from 'solid-js/web';
 import PopupElement from '.';
-import {PaymentsCheckedGiftCode} from '@layer';
+import { PaymentsCheckedGiftCode } from '@layer';
 import renderImageFromUrl from '@helpers/dom/renderImageFromUrl';
-import {LangPackKey, i18n} from '@lib/langPack';
-import {InviteLink} from '@components/sidebarLeft/tabs/inviteLink';
-import {JSX} from 'solid-js';
-import {formatDaysDuration, formatFullSentTime} from '@helpers/date';
+import { LangPackKey, i18n } from '@lib/langPack';
+import { InviteLink } from '@components/sidebarLeft/tabs/inviteLink';
+import { JSX } from 'solid-js';
+import { formatDaysDuration, formatFullSentTime } from '@helpers/date';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
-import appImManager, {ChatSetPeerOptions} from '@lib/appImManager';
+import appImManager, { ChatSetPeerOptions } from '@lib/appImManager';
 import rootScope from '@lib/rootScope';
 import PeerTitle from '@components/peerTitle';
 import cancelEvent from '@helpers/dom/cancelEvent';
 import shareUrlToPeers from '@components/popups/shareUrl';
-import {attachClickEvent, simulateClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent, simulateClickEvent } from '@helpers/dom/clickEvent';
 import toggleDisability from '@helpers/dom/toggleDisability';
-import {toastNew} from '@components/toast';
+import { toastNew } from '@components/toast';
 import shouldDisplayGiftCodeAsGift from '@helpers/shouldDisplayGiftCodeAsGift';
 import PopupPremium from '@components/popups/premium';
 import confirmationPopup from '@components/confirmationPopup';
 import anchorCallback from '@helpers/dom/anchorCallback';
 import DotRenderer from '@components/dotRenderer';
 import themeController from '@helpers/themeController';
-import Table, {TablePeer} from '@components/table';
+import Table, { TablePeer } from '@components/table';
 
 export default class PopupGiftLink extends PopupElement {
   private isInChat: boolean;
@@ -39,7 +39,7 @@ export default class PopupGiftLink extends PopupElement {
       scrollable: true,
       floatingHeader: true,
       footer: true,
-      title: true
+      title: true,
     });
 
     this.isInChat = !!checkedGiftCode;
@@ -59,11 +59,11 @@ export default class PopupGiftLink extends PopupElement {
       url,
       noRightButton: !url,
       onClick: (!url ? (() => {
-        toastNew({langPackKey: 'BoostingOnlyRecipientCode'});
-      }) : undefined)
+        toastNew({ langPackKey: 'BoostingOnlyRecipientCode' });
+      }) : undefined),
     });
 
-    if(dotsCanvas) {
+    if (dotsCanvas) {
       dotsCanvas.classList.add('invite-link-dots');
       inviteLink.container.appendChild(dotsCanvas);
     }
@@ -73,7 +73,7 @@ export default class PopupGiftLink extends PopupElement {
         peerId={peerId}
         onClick={() => {
           this.hideWithCallback(() => {
-            appImManager.setInnerPeer({peerId});
+            appImManager.setInnerPeer({ peerId });
           });
         }}
       />
@@ -85,23 +85,23 @@ export default class PopupGiftLink extends PopupElement {
     const toPeerId = this.checkedGiftCode!.to_id && getPeerId(this.checkedGiftCode!.to_id);
 
     const giveawayAnchor = this.checkedGiftCode!.giveaway_msg_id || isGiveaway ? document.createElement('a') : undefined;
-    if(giveawayAnchor) {
+    if (giveawayAnchor) {
       giveawayAnchor.href = '#';
       giveawayAnchor.append(i18n('BoostingIncompleteGiveaway'));
       attachClickEvent(giveawayAnchor, () => {
         this.hideWithCallback(() => {
           appImManager.setInnerPeer({
             peerId: fromPeerId,
-            lastMsgId: this.checkedGiftCode!.giveaway_msg_id
+            lastMsgId: this.checkedGiftCode!.giveaway_msg_id,
           });
         });
-      }, {listenerSetter: this.listenerSetter});
+      }, { listenerSetter: this.listenerSetter });
     }
 
     const reasonValue = toPeerId ? (
       toPeerId === rootScope.myId ?
         i18n('BoostingYouWereSelected') :
-        i18n('BoostingUserWasSelected', [new PeerTitle({peerId: toPeerId}).element])
+        i18n('BoostingUserWasSelected', [new PeerTitle({ peerId: toPeerId }).element])
     ) : giveawayAnchor;
 
     let content: [LangPackKey, JSX.Element][] = [
@@ -109,7 +109,7 @@ export default class PopupGiftLink extends PopupElement {
       ['BoostingTo', toPeerId ? makePeer(toPeerId) : i18n('BoostingNoRecipient')],
       ['BoostingGift', i18n('BoostingTelegramPremiumFor', [formatDaysDuration(this.checkedGiftCode!.days)])],
       ((!this.isInChat && ['BoostingReason', reasonValue]) as [LangPackKey, JSX.Element]),
-      ['BoostingDate', formatFullSentTime(this.checkedGiftCode!.date, undefined, true)]
+      ['BoostingDate', formatFullSentTime(this.checkedGiftCode!.date, undefined, true)],
     ];
     content = content.filter(Boolean);
 
@@ -132,7 +132,7 @@ export default class PopupGiftLink extends PopupElement {
                 i18n('BoostingLinkUsed') :
                 i18n(
                   toPeerId === rootScope.myId ? 'BoostingLinkAllows' : (toPeerId ? 'BoostingLinkAllowsToUser' : 'BoostingLinkAllowsAnyone'),
-                  toPeerId ? [new PeerTitle({peerId: toPeerId}).element] : undefined
+                  toPeerId ? [new PeerTitle({ peerId: toPeerId }).element] : undefined
                 )
             }
           </div>
@@ -162,39 +162,39 @@ export default class PopupGiftLink extends PopupElement {
     this.footer.classList.add('abitlarger');
 
     attachClickEvent(this.btnConfirm, () => {
-      if(!canUseLink) {
+      if (!canUseLink) {
         this.hide();
         return;
       }
 
       PopupGiftLink.applyGiftCode(this.slug, this.btnConfirm, this);
-    }, {listenerSetter: this.listenerSetter});
+    }, { listenerSetter: this.listenerSetter });
 
     return ret;
   }
 
   private async construct() {
     this.checkedGiftCode ??= await this.managers.appPaymentsManager.checkGiftCode(this.slug);
-    if(shouldDisplayGiftCodeAsGift(this.checkedGiftCode)) {
+    if (shouldDisplayGiftCodeAsGift(this.checkedGiftCode)) {
       this.destroy();
       PopupPremium.show({
         gift: this.checkedGiftCode,
-        stack: this.stack
+        stack: this.stack,
       });
       return;
     }
 
     let dotsCanvas: HTMLElement;
-    if(this.isInChat && !this.checkedGiftCode.used_date) {
-      const {canvas, readyResult} = DotRenderer.create({
+    if (this.isInChat && !this.checkedGiftCode.used_date) {
+      const { canvas, readyResult } = DotRenderer.create({
         width: 320,
         height: 32,
         middleware: this.middlewareHelper.get(),
         animationGroup: 'STICKERS-POPUP',
         config: {
           particlesCount: 1000,
-          color: themeController.isNight() ? 0xffffff : 0x000000
-        }
+          color: themeController.isNight() ? 0xffffff : 0x000000,
+        },
       });
 
       await readyResult;
@@ -213,7 +213,7 @@ export default class PopupGiftLink extends PopupElement {
       url,
       openAfter,
       toastKey: 'BoostingGiftLinkForwardedTo',
-      toastKeyForSelf: 'BoostingGiftLinkForwardedToSavedMsg'
+      toastKeyForSelf: 'BoostingGiftLinkForwardedToSavedMsg',
     });
   }
 
@@ -222,9 +222,9 @@ export default class PopupGiftLink extends PopupElement {
     try {
       await PopupElement.MANAGERS.appPaymentsManager.applyGiftCode(slug);
       popup.hide();
-      toastNew({langPackKey: 'GiftLink.UseSuccess'});
-    } catch(err) {
-      if((err as ApiError).type.includes('PREMIUM_SUB_ACTIVE_UNTIL_')) {
+      toastNew({ langPackKey: 'GiftLink.UseSuccess' });
+    } catch (err) {
+      if ((err as ApiError).type.includes('PREMIUM_SUB_ACTIVE_UNTIL_')) {
         popup.hide();
         const timestamp = +(err as ApiError).type.split('_').pop()!;
         let button: Parameters<typeof confirmationPopup>[0]['button'];
@@ -237,12 +237,12 @@ export default class PopupGiftLink extends PopupElement {
               simulateClickEvent(button.element!);
               popup.hide();
               this.shareGiftLink('https://t.me/giftcode/' + slug);
-            })
+            }),
           ],
           button: button = {
             langKey: 'OK',
-            isCancel: true
-          }
+            isCancel: true,
+          },
         });
       }
 

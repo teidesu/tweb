@@ -1,15 +1,15 @@
-import {TextWithEntities} from '@layer';
+import { TextWithEntities } from '@layer';
 
 export function concatTextsWithEntities(items: TextWithEntities.textWithEntities[]) {
   const result: TextWithEntities.textWithEntities = {
     _: 'textWithEntities',
     text: '',
-    entities: []
+    entities: [],
   };
 
-  for(const item of items) {
+  for (const item of items) {
     const entities = item.entities?.map(entity => ({
-      ...entity, offset: entity.offset! + result.text.length
+      ...entity, offset: entity.offset! + result.text.length,
     })) ?? [];
 
     result.entities.push(...entities);

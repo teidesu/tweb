@@ -44,17 +44,17 @@ export type PaintQrOptions = {
 const logoUrlCache = new Map<string, Promise<string>>();
 function getLogoUrl(logoColor: string): Promise<string> {
   let url = logoUrlCache.get(logoColor);
-  if(!url) {
+  if (!url) {
     url = fetch('assets/img/logo_padded.svg')
-    .then((res) => res.text())
-    .then((text) => textToSvgURL(text.replace(/(fill:).+?(;)/, `$1${logoColor}$2`)));
+      .then((res) => res.text())
+      .then((text) => textToSvgURL(text.replace(/(fill:).+?(;)/, `$1${logoColor}$2`)));
     logoUrlCache.set(logoColor, url);
   }
   return url;
 }
 
 export async function paintQrCode(options: PaintQrOptions) {
-  const {data, size, host, background, foreground, logoColor, pixelRatio = window.devicePixelRatio, QRCodeStylingCtor} = options;
+  const { data, size, host, background, foreground, logoColor, pixelRatio = window.devicePixelRatio, QRCodeStylingCtor } = options;
 
   const logoUrl = await getLogoUrl(logoColor);
 
@@ -63,21 +63,21 @@ export async function paintQrCode(options: PaintQrOptions) {
     height: size * pixelRatio,
     data,
     image: logoUrl,
-    dotsOptions: {color: foreground, type: 'rounded'},
-    cornersSquareOptions: {type: 'extra-rounded', color: foreground},
-    imageOptions: {imageSize: 1, margin: 0},
-    backgroundOptions: {color: background},
-    qrOptions: {errorCorrectionLevel: 'L'}
+    dotsOptions: { color: foreground, type: 'rounded' },
+    cornersSquareOptions: { type: 'extra-rounded', color: foreground },
+    imageOptions: { imageSize: 1, margin: 0 },
+    backgroundOptions: { color: background },
+    qrOptions: { errorCorrectionLevel: 'L' },
   });
 
   qrCode.append(host);
   const canvas = host.lastChild as HTMLCanvasElement;
-  if(options.canvasClass) canvas.classList.add(options.canvasClass);
+  if (options.canvasClass) canvas.classList.add(options.canvasClass);
 
   // qr-code-styling races the image-load against a 1s upper bound — matches the
   // legacy behaviour so we don't leave the host stuck behind a never-loading logo.
   let drawingPromise: Promise<void>;
-  if(qrCode._drawingPromise) {
+  if (qrCode._drawingPromise) {
     drawingPromise = qrCode._drawingPromise;
   } else {
     drawingPromise = Promise.race([
@@ -85,13 +85,13 @@ export async function paintQrCode(options: PaintQrOptions) {
       new Promise<void>((resolve) => {
         qrCode._canvas._image.addEventListener('load', () => {
           window.requestAnimationFrame(() => resolve());
-        }, {once: true});
-      })
+        }, { once: true });
+      }),
     ]);
   }
   await drawingPromise;
 
-  return {canvas, qrCode};
+  return { canvas, qrCode };
 }
 
 /**

@@ -5,14 +5,14 @@ export default function setCaretAt(node: Node) {
   node = node.previousSibling!;
 
   const needNewTextNode = node.nodeType === node.ELEMENT_NODE;
-  if(needNewTextNode) {
+  if (needNewTextNode) {
     const newNode = document.createTextNode('');
     node.parentNode!.insertBefore(newNode, !originalNode.nextSibling || originalNode.nextSibling.nodeType === node.nodeType ? originalNode : originalNode.nextSibling);
     node = newNode;
   }
 
   const range = document.createRange();
-  if(node) {
+  if (node) {
     range.setStartAfter(node);
     range.insertNode(node);
     range.setStart(node, node.nodeValue!.length);
@@ -24,7 +24,7 @@ export default function setCaretAt(node: Node) {
   sel!.removeAllRanges();
   sel!.addRange(range);
 
-  if(needNewTextNode) {
+  if (needNewTextNode) {
     node.parentNode!.removeChild(node);
   }
 }

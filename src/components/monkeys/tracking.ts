@@ -2,7 +2,7 @@ import InputField from '@components/inputField';
 import lottieLoader from '@lib/rlottie/lottieLoader';
 import RLottiePlayer from '@lib/rlottie/rlottiePlayer';
 import CodeInputFieldCompat from '@components/codeInputField';
-import {fastRaf} from '@helpers/schedulers';
+import { fastRaf } from '@helpers/schedulers';
 
 export default class TrackingMonkey {
   public container: HTMLElement;
@@ -27,7 +27,7 @@ export default class TrackingMonkey {
 
     const isCodeInputField = inputField instanceof CodeInputFieldCompat;
 
-    if(isCodeInputField) {
+    if (isCodeInputField) {
       input.addEventListener('focus', () => {
         this.playAnimation(1);
       });
@@ -52,14 +52,14 @@ export default class TrackingMonkey {
   // 1st symbol = frame 15
   // end symbol = frame 165
   public playAnimation(length: number) {
-    if(!this.animation) return;
+    if (!this.animation) return;
 
     length = Math.min(length, 30);
     let frame: number;
-    if(length) {
+    if (length) {
       frame = Math.round(Math.min(this.max, length) * (165 / this.max) + 11.33);
 
-      if(this.idleAnimation) {
+      if (this.idleAnimation) {
         this.idleAnimation.stop(true);
         this.idleAnimation.canvas[0].style.display = 'none';
       }
@@ -84,7 +84,7 @@ export default class TrackingMonkey {
     // console.log('keydown', length, frame, direction);
 
     this.animation.setDirection(direction);
-    if(this.needFrame !== 0 && frame === 0) {
+    if (this.needFrame !== 0 && frame === 0) {
       this.animation.setSpeed(7);
     }
     /* let diff = Math.abs(needFrame - frame * direction);
@@ -98,19 +98,19 @@ export default class TrackingMonkey {
   }
 
   public load() {
-    if(this.loadPromise) return this.loadPromise;
+    if (this.loadPromise) return this.loadPromise;
     return this.loadPromise = Promise.all([
       lottieLoader.loadAnimationAsAsset({
         container: this.container,
         loop: true,
         autoplay: true,
         width: this.size,
-        height: this.size
+        height: this.size,
       }, 'TwoFactorSetupMonkeyIdle').then((animation) => {
         this.idleAnimation = animation;
 
         // ! animationIntersector will stop animation instantly
-        if(!this.inputField.value.length) {
+        if (!this.inputField.value.length) {
           animation.play();
         }
 
@@ -122,11 +122,11 @@ export default class TrackingMonkey {
         loop: false,
         autoplay: false,
         width: this.size,
-        height: this.size
+        height: this.size,
       }, 'TwoFactorSetupMonkeyTracking').then((_animation) => {
         this.animation = _animation;
 
-        if(!this.inputField.value.length) {
+        if (!this.inputField.value.length) {
           this.animation.canvas[0].style.display = 'none';
         }
 
@@ -134,16 +134,16 @@ export default class TrackingMonkey {
           // console.log('enterFrame', currentFrame, needFrame);
           // let currentFrame = Math.round(e.currentTime);
 
-          if((this.animation.direction === 1 && currentFrame >= this.needFrame) ||
+          if ((this.animation.direction === 1 && currentFrame >= this.needFrame) ||
             (this.animation.direction === -1 && currentFrame <= this.needFrame)) {
             this.animation.setSpeed(1);
             this.animation.pause();
           }
 
-          if(currentFrame === 0 && this.needFrame === 0) {
+          if (currentFrame === 0 && this.needFrame === 0) {
             // animation.curFrame = 0;
 
-            if(this.idleAnimation) {
+            if (this.idleAnimation) {
               this.idleAnimation.canvas[0].style.display = '';
               this.idleAnimation.play();
               this.animation.canvas[0].style.display = 'none';
@@ -153,12 +153,12 @@ export default class TrackingMonkey {
         // console.log(animation.getDuration(), animation.getDuration(true));
 
         return lottieLoader.waitForFirstFrame(_animation);
-      })
+      }),
     ]);
   }
 
   public remove() {
-    if(this.animation) this.animation.remove();
-    if(this.idleAnimation) this.idleAnimation.remove();
+    if (this.animation) this.animation.remove();
+    if (this.idleAnimation) this.idleAnimation.remove();
   }
 }

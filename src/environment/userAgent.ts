@@ -7,7 +7,7 @@ export const IS_CHROMIUM = /Chrome/.test(navigator.userAgent) && /Google Inc/.te
 export const CHROMIUM_VERSION = (() => {
   try {
     return +navigator.userAgent.match(/Chrom(?:e|ium)\/(.+?)(?:\s|\.)/)![1];
-  } catch(err) {
+  } catch (err) {
   }
 })();
 

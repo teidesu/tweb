@@ -1,6 +1,6 @@
 import rootScope from '@lib/rootScope';
 import wrapSticker from '@components/wrappers/sticker'
-import {Modify} from '@types';
+import { Modify } from '@types';
 
 export default async function wrapStickerEmoji(options: Modify<Parameters<typeof wrapSticker>[0], {
   div: HTMLElement,
@@ -10,10 +10,10 @@ export default async function wrapStickerEmoji(options: Modify<Parameters<typeof
   const {
     emoji,
     div,
-    managers = rootScope.managers
+    managers = rootScope.managers,
   } = options;
   const doc = await managers.appStickersManager.getAnimatedEmojiSticker(emoji!);
-  if(!doc) {
+  if (!doc) {
     div.classList.add('media-sticker-wrapper');
     throw new Error('no sticker');
   }
@@ -22,6 +22,6 @@ export default async function wrapStickerEmoji(options: Modify<Parameters<typeof
     doc,
     play: true,
     loop: false,
-    ...options
+    ...options,
   });
 }

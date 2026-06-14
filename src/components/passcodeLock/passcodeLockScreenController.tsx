@@ -1,9 +1,9 @@
-import {render} from 'solid-js/web';
+import { render } from 'solid-js/web';
 
 import appNavigationController from '@components/appNavigationController';
-import {MOUNT_CLASS_TO} from '@config/debug';
+import { MOUNT_CLASS_TO } from '@config/debug';
 import deferredPromise from '@helpers/cancellablePromise';
-import {doubleRaf} from '@helpers/schedulers';
+import { doubleRaf } from '@helpers/schedulers';
 import pause from '@helpers/schedulers/pause';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import EncryptionKeyStore from '@lib/passcode/keyStore';
@@ -28,17 +28,17 @@ export default class PasscodeLockScreenController extends StaticUtilityClass {
   private static async tryGetStoredEncryptionHash() {
     const storedBase64Key = await sessionStorage.get('encryption_key');
 
-    if(storedBase64Key) {
+    if (storedBase64Key) {
       sessionStorage.delete('encryption_key');
 
       const isValid = typeof storedBase64Key === 'string'; // storedEncryptionHash instanceof Array && storedEncryptionHash.every((num) => typeof num === 'number');
-      if(!isValid) return false;
+      if (!isValid) return false;
 
       const keyAsBuffer = new Uint8Array(atob(storedBase64Key).split('').map(c => c.charCodeAt(0)));
       const importedKey =  await crypto.subtle.importKey(
         'raw',
         keyAsBuffer,
-        {name: 'AES-GCM'},
+        { name: 'AES-GCM' },
         true,
         ['encrypt', 'decrypt']
       );
@@ -61,7 +61,7 @@ export default class PasscodeLockScreenController extends StaticUtilityClass {
 
     this.isLocked = isLocked;
 
-    if(isLocked) {
+    if (isLocked) {
       await isLockedCallback();
       await this.lock();
     } else {
@@ -81,11 +81,11 @@ export default class PasscodeLockScreenController extends StaticUtilityClass {
   }
 
   public static async lock(fromLockIcon?: HTMLElement | boolean, onAnimationEnd?: () => void) {
-    if(this.mountedElement) return;
+    if (this.mountedElement) return;
 
     this.isLocked = true;
 
-    if(this.appStartupDeferred as unknown) {
+    if (this.appStartupDeferred as unknown) {
       this.savedHash = window.location.hash;
       window.location.hash = '';
     }
@@ -101,14 +101,14 @@ export default class PasscodeLockScreenController extends StaticUtilityClass {
 
 
     const clonedLockIcon = fromLockIcon instanceof HTMLElement ? this.cloneLockIcon(fromLockIcon) : undefined;
-    if(clonedLockIcon) this.mountedElement.append(clonedLockIcon);
+    if (clonedLockIcon) this.mountedElement.append(clonedLockIcon);
 
-    if(shouldAnimateIn) {
+    if (shouldAnimateIn) {
       this.mountedElement.classList.add('passcode-lock-screen--hidden');
     }
     document.body.append(this.mountedElement);
 
-    const {default: PasscodeLockScreen} = await importPasscodeLockScreen();
+    const { default: PasscodeLockScreen } = await importPasscodeLockScreen();
 
     this.dispose = render(() => (
       <LockScreenHotReloadGuardProvider>
@@ -120,11 +120,11 @@ export default class PasscodeLockScreenController extends StaticUtilityClass {
       </LockScreenHotReloadGuardProvider>
     ), this.mountedElement);
 
-    if(shouldAnimateIn) {
+    if (shouldAnimateIn) {
       doubleRaf().then(async() => {
         this.mountedElement!.classList.remove('passcode-lock-screen--hidden');
 
-        if(!clonedLockIcon) pause(200).then(() => {
+        if (!clonedLockIcon) pause(200).then(() => {
           onAnimationEnd!();
         });
       });
@@ -148,12 +148,12 @@ export default class PasscodeLockScreenController extends StaticUtilityClass {
     this.mountedElement = undefined;
 
     this.isLocked = false;
-    if(this.savedHash) {
+    if (this.savedHash) {
       // window.location.hash = this.savedHash;
       appNavigationController.overrideHash(this.savedHash, true);
     }
 
-    if(element) (async() => {
+    if (element) (async() => {
       element.style.setProperty('transition-time', '.12s');
       await pause(120);
 
@@ -166,7 +166,7 @@ export default class PasscodeLockScreenController extends StaticUtilityClass {
         element?.remove();
       };
 
-      if(document.startViewTransition) document.startViewTransition(next);
+      if (document.startViewTransition) document.startViewTransition(next);
       else next();
     })();
 

@@ -5,8 +5,8 @@
  * callInstance.ts.
  */
 
-import {Logger} from '@lib/logger';
-import {appSettings} from '@stores/appSettings';
+import { Logger } from '@lib/logger';
+import { appSettings } from '@stores/appSettings';
 import getStream from '@lib/calls/helpers/getStream';
 import {
   findSdpLineValue as findLineValue,
@@ -20,9 +20,9 @@ import {
   parseSsrcs,
   summarizeSdp,
   parseBundleMids,
-  SdpSection
+  SdpSection,
 } from '@lib/calls/p2P/sdpCommon';
-import {P2PMediaContent, P2PMessage, P2PPayloadType, PayloadType, RtpHdrexts} from '@lib/calls/types';
+import { P2PMediaContent, P2PMessage, P2PPayloadType, PayloadType, RtpHdrexts } from '@lib/calls/types';
 
 export const IS_ECHO_CANCELLATION_SUPPORTED = navigator?.mediaDevices?.getSupportedConstraints().echoCancellation;
 export const IS_NOISE_SUPPRESSION_SUPPORTED = navigator?.mediaDevices?.getSupportedConstraints().noiseSuppression;
@@ -96,17 +96,17 @@ export function payloadTypeToConference(payloadType: P2PPayloadType): PayloadTyp
     'clockrate': payloadType.clockrate,
     'channels': payloadType.channels,
     'parameters': payloadType.parameters,
-    'rtcp-fbs': payloadType.feedbackTypes
+    'rtcp-fbs': payloadType.feedbackTypes,
   };
 }
 
 // ===== Media-stream helpers =====
 
 export function getUserStream(streamType: StreamType, facing: VideoFacingModeEnum = 'user') {
-  if(streamType === 'presentation') {
+  if (streamType === 'presentation') {
     return (navigator.mediaDevices as any).getDisplayMedia({
       audio: false,
-      video: true
+      video: true,
     });
   }
 
@@ -122,7 +122,7 @@ export function getUserStream(streamType: StreamType, facing: VideoFacingModeEnu
     noiseSuppression: IS_NOISE_SUPPRESSION_SUPPORTED ?
       (appSettings.callDevices?.noiseSuppression ?? true) :
       undefined,
-    deviceId: audioId ? {exact: audioId} : undefined
+    deviceId: audioId ? { exact: audioId } : undefined,
   } : false;
 
   // `facingMode` only matters on mobile (front vs rear camera) — paired with
@@ -132,12 +132,12 @@ export function getUserStream(streamType: StreamType, facing: VideoFacingModeEnu
   const videoId = appSettings.callDevices?.cameraId;
   const video = streamType === 'video' ? (
     videoId ?
-      {deviceId: {exact: videoId}} :
-      {facingMode: facing}
+      { deviceId: { exact: videoId } } :
+      { facingMode: facing }
   ) : false;
 
   // Stale-deviceId recovery and incremental retry live inside `getStream`.
-  return getStream({audio, video});
+  return getStream({ audio, video });
 }
 
 export function getStreamTrack(stream: MediaStream | undefined) {
@@ -149,7 +149,7 @@ export function hasLiveTrack(stream: MediaStream | undefined) {
 }
 
 export function stopStream(stream?: MediaStream, except?: MediaStream) {
-  if(!stream || stream === except) {
+  if (!stream || stream === except) {
     return;
   }
 
@@ -165,27 +165,27 @@ export function buildIceServers(connections: Connection[], isP2p: boolean) {
 
   connections.forEach((connection) => {
     const urls: string[] = [];
-    if(connection.isTurn) {
+    if (connection.isTurn) {
       urls.push(buildIceServerUrl('turn', connection.ip, connection.port));
-      if(connection.ipv6) {
+      if (connection.ipv6) {
         urls.push(buildIceServerUrl('turn', connection.ipv6, connection.port));
       }
     }
-    if(isP2p && connection.isStun) {
+    if (isP2p && connection.isStun) {
       urls.push(buildIceServerUrl('stun', connection.ip, connection.port));
-      if(connection.ipv6) {
+      if (connection.ipv6) {
         urls.push(buildIceServerUrl('stun', connection.ipv6, connection.port));
       }
     }
 
-    if(!urls.length) {
+    if (!urls.length) {
       return;
     }
 
     servers.push({
       urls,
       username: connection.username,
-      credential: connection.password
+      credential: connection.password,
     });
   });
 
@@ -200,12 +200,12 @@ function buildIceServerUrl(protocol: 'stun' | 'turn', host: string, port: number
 export async function addIceCandidate(log: Logger, connection: RTCPeerConnection, candidate: RTCIceCandidateInit) {
   try {
     await connection.addIceCandidate(candidate);
-  } catch(error) {
+  } catch (error) {
     log.warn('failed to add ICE candidate', {
       candidate,
       remoteSdpSummary: getRemoteSdpSummary(connection),
       errorName: error instanceof Error ? error.name : undefined,
-      errorMessage: error instanceof Error ? error.message : String(error)
+      errorMessage: error instanceof Error ? error.message : String(error),
     });
   }
 }
@@ -216,7 +216,7 @@ export async function tryAddCandidate(
   candidate: QueuedCandidate,
 ) {
   const sdpString = normalizeCandidateComponent(candidate.sdpString);
-  if(!sdpString) {
+  if (!sdpString) {
     return;
   }
 
@@ -224,18 +224,18 @@ export async function tryAddCandidate(
     candidate: sdpString,
     sdpMid: candidate.sdpMid,
     sdpMLineIndex: candidate.sdpMLineIndex,
-    usernameFragment: getCandidateUfrag(candidate)
+    usernameFragment: getCandidateUfrag(candidate),
   };
 
-  if(
+  if (
     !rtcCandidate.sdpMid &&
     (rtcCandidate.sdpMLineIndex === undefined || rtcCandidate.sdpMLineIndex === null)
   ) {
     const fallbackMLineIndex = getLegacyCandidateMLineIndex(connection);
-    if(fallbackMLineIndex === undefined) {
+    if (fallbackMLineIndex === undefined) {
       log('drop ICE candidate without media id', {
         candidate: rtcCandidate,
-        remoteSdpSummary: getRemoteSdpSummary(connection)
+        remoteSdpSummary: getRemoteSdpSummary(connection),
       });
       return;
     }
@@ -252,7 +252,7 @@ export function getCandidateUfrag(candidate: QueuedCandidate) {
 
 export function getRemoteDescriptionUfrags(connection: RTCPeerConnection) {
   const sdp = connection.remoteDescription?.sdp;
-  if(!sdp) {
+  if (!sdp) {
     return new Set<string>();
   }
 
@@ -260,7 +260,7 @@ export function getRemoteDescriptionUfrags(connection: RTCPeerConnection) {
   const ufrags = new Set<string>();
   sections.forEach((section) => {
     const ufrag = findLineValue(sections, 'a=ice-ufrag:', section);
-    if(ufrag) {
+    if (ufrag) {
       ufrags.add(ufrag);
     }
   });
@@ -270,7 +270,7 @@ export function getRemoteDescriptionUfrags(connection: RTCPeerConnection) {
 
 export function getRemoteDescriptionMids(connection: RTCPeerConnection) {
   const sdp = connection.remoteDescription?.sdp;
-  if(!sdp) {
+  if (!sdp) {
     return [];
   }
 
@@ -283,7 +283,7 @@ export function getRemoteDescriptionMids(connection: RTCPeerConnection) {
       kind: section.kind,
       mid: section.mid,
       port: getSdpPort(section),
-      ufrag: findLineValue(sections, 'a=ice-ufrag:', section)
+      ufrag: findLineValue(sections, 'a=ice-ufrag:', section),
     };
   });
 }
@@ -294,12 +294,12 @@ export function getRemoteSdpSummary(connection: RTCPeerConnection) {
 }
 
 export function normalizeCandidateComponent(sdpString?: string) {
-  if(!sdpString) {
+  if (!sdpString) {
     return undefined;
   }
 
   const component = sdpString.match(/^candidate:\S+ (\d+) /)?.[1];
-  if(component === '2') {
+  if (component === '2') {
     return undefined;
   }
 
@@ -308,7 +308,7 @@ export function normalizeCandidateComponent(sdpString?: string) {
 
 export function getLegacyCandidateMLineIndex(connection: RTCPeerConnection) {
   const sdp = connection.remoteDescription?.sdp;
-  if(!sdp) {
+  if (!sdp) {
     return undefined;
   }
 
@@ -322,11 +322,11 @@ export function getLegacyCandidateMLineIndex(connection: RTCPeerConnection) {
     return section.kind === 'audio' || section.kind === 'video';
   });
 
-  if(activeMediaSections.length === 1) {
+  if (activeMediaSections.length === 1) {
     return mediaSections.indexOf(activeMediaSections[0]);
   }
 
-  if(activeRtpMediaSections.length === 1 && activeMediaSections.every((section) => {
+  if (activeRtpMediaSections.length === 1 && activeMediaSections.every((section) => {
     return section.kind === 'application' || section === activeRtpMediaSections[0];
   })) {
     return mediaSections.indexOf(activeRtpMediaSections[0]);
@@ -345,8 +345,8 @@ export function getDefaultAudioPayloadTypes(): Conference['audioPayloadTypes'] {
     channels: 2,
     parameters: {
       minptime: 10,
-      useinbandfec: 1
-    }
+      useinbandfec: 1,
+    },
   }];
 }
 
@@ -355,7 +355,7 @@ export function getDefaultVideoPayloadTypes(): Conference['videoPayloadTypes'] {
     id: 96,
     name: 'VP8',
     clockrate: 90000,
-    channels: 0
+    channels: 0,
   }];
 }
 
@@ -371,7 +371,7 @@ export function buildSsrc(
   isVideo: boolean,
   isPresentation = false,
 ): SsrcEntry {
-  if(!content) {
+  if (!content) {
     return {
       isVideo,
       isPresentation,
@@ -380,7 +380,7 @@ export function buildSsrc(
       userId: '0',
       endpoint: mid,
       mid,
-      sourceGroups: []
+      sourceGroups: [],
     };
   }
 
@@ -388,10 +388,10 @@ export function buildSsrc(
   const sourceGroups: SsrcGroup[] = ssrcGroups.length ? ssrcGroups.map((group) => {
     return {
       semantics: group.semantics,
-      sources: group.ssrcs
+      sources: group.ssrcs,
     };
   }) : [{
-    sources: [Number(content.ssrc)]
+    sources: [Number(content.ssrc)],
   }];
 
   return {
@@ -401,7 +401,7 @@ export function buildSsrc(
     userId: '0',
     endpoint: mid,
     mid,
-    sourceGroups
+    sourceGroups,
   };
 }
 
@@ -412,7 +412,7 @@ export function parseInitialSetup(sdp: string): Extract<P2PMessage, { '@type': '
   const fingerprints = parseFingerprints(sections);
   const iceOptions = findLineValue(sections, 'a=ice-options:');
 
-  if(!ufrag || !pwd || !fingerprints.length) {
+  if (!ufrag || !pwd || !fingerprints.length) {
     throw Error('Failed parsing SDP transport setup');
   }
 
@@ -421,7 +421,7 @@ export function parseInitialSetup(sdp: string): Extract<P2PMessage, { '@type': '
     ufrag,
     pwd,
     'renomination': Boolean(iceOptions?.split(' ').includes('renomination')),
-    fingerprints
+    fingerprints,
   };
 }
 
@@ -433,7 +433,7 @@ export function parseMediaContent(
   const ssrcGroups = parseSsrcGroups(section);
   const ssrc = ssrcGroups[0]?.ssrcs[0] || parseSsrcs(section)[0] || Number(fallbackContent?.ssrc);
 
-  if(!ssrc) {
+  if (!ssrc) {
     throw Error('Failed parsing SDP media SSRC');
   }
 
@@ -442,7 +442,7 @@ export function parseMediaContent(
     ssrc: fallbackContent?.ssrc || String(ssrc),
     ssrcGroups: fallbackContent ? fallbackContent.ssrcGroups || [] : ssrcGroups,
     payloadTypes: parsePayloadTypes(section),
-    rtpExtensions: parseExtmaps(section)
+    rtpExtensions: parseExtmaps(section),
   };
 }
 
@@ -453,13 +453,13 @@ export function parseMediaContents(sdp: string, mids: MediaMids, activeMedia?: A
   const videoSection = sections.find((section) => section.mid === mids.video);
   const presentationSection = sections.find((section) => section.mid === mids.presentation);
 
-  if(audioSection) {
+  if (audioSection) {
     contents.push(parseMediaContent(audioSection, 'audio'));
   }
-  if(videoSection && activeMedia?.hasVideo !== false) {
+  if (videoSection && activeMedia?.hasVideo !== false) {
     contents.push(parseMediaContent(videoSection, 'video'));
   }
-  if(presentationSection && activeMedia?.hasPresentation !== false) {
+  if (presentationSection && activeMedia?.hasPresentation !== false) {
     contents.push(parseMediaContent(presentationSection, 'video'));
   }
 
@@ -474,7 +474,7 @@ export function parseMediaContentMids(sdp: string, contents: P2PMediaContent[]) 
     const section = sections.find((item) => {
       return item.mid && parseSsrcs(item).includes(Number(content.ssrc));
     });
-    if(section?.mid) {
+    if (section?.mid) {
       midsBySsrc[content.ssrc] = section.mid;
     }
   });
@@ -484,7 +484,7 @@ export function parseMediaContentMids(sdp: string, contents: P2PMediaContent[]) 
 
 export function filterRemoteVideoPayloadTypes(content: P2PMediaContent | undefined) {
   const payloadTypes = content?.payloadTypes;
-  if(!payloadTypes?.length) {
+  if (!payloadTypes?.length) {
     return undefined;
   }
 
@@ -498,7 +498,7 @@ export function filterRemoteVideoPayloadTypes(content: P2PMediaContent | undefin
     return payloadType.name.toUpperCase() !== 'RTX' && supportedNames.has(payloadType.name.toUpperCase());
   });
 
-  if(!preferredCodec) {
+  if (!preferredCodec) {
     return undefined;
   }
 
@@ -506,7 +506,7 @@ export function filterRemoteVideoPayloadTypes(content: P2PMediaContent | undefin
   const rtxPayload = payloadTypes.find((payloadType) => {
     return payloadType.name.toUpperCase() === 'RTX' && Number(payloadType.parameters?.apt) === preferredCodec.id;
   });
-  if(rtxPayload) {
+  if (rtxPayload) {
     result.push(rtxPayload);
   }
 
@@ -521,12 +521,12 @@ function summarizeValidationMLine(section: SdpSection, bundleMids: Set<string>) 
     direction: getSdpDirection(section),
     hasRtcpMux: section.lines.includes('a=rtcp-mux'),
     hasBundleOnly: section.lines.includes('a=bundle-only'),
-    isBundled: Boolean(section.mid && bundleMids.has(section.mid))
+    isBundled: Boolean(section.mid && bundleMids.has(section.mid)),
   };
 }
 
 export function validateRemoteAnswerSdp(log: Logger, offerSdp: string | undefined, answerSdp: string) {
-  if(!offerSdp) {
+  if (!offerSdp) {
     return;
   }
 
@@ -539,35 +539,35 @@ export function validateRemoteAnswerSdp(log: Logger, offerSdp: string | undefine
     return {
       index,
       offer: summarizeValidationMLine(offerSection, offerBundleMids),
-      answer: answerSection ? summarizeValidationMLine(answerSection, answerBundleMids) : undefined
+      answer: answerSection ? summarizeValidationMLine(answerSection, answerBundleMids) : undefined,
     };
   });
-  const issues = mLines.flatMap(({answer, index, offer}) => {
-    if(!answer) {
+  const issues = mLines.flatMap(({ answer, index, offer }) => {
+    if (!answer) {
       return [`m-line ${index} is missing in answer`];
     }
 
     const result: string[] = [];
-    if(answer.mid !== offer.mid) {
+    if (answer.mid !== offer.mid) {
       result.push(`m-line ${index} mid mismatch`);
     }
-    if(answer.port !== 0 && !answer.isBundled) {
+    if (answer.port !== 0 && !answer.isBundled) {
       result.push(`m-line ${index} is active but not bundled`);
     }
-    if(offer.port === 0 && !offer.hasBundleOnly && answer.port !== 0) {
+    if (offer.port === 0 && !offer.hasBundleOnly && answer.port !== 0) {
       result.push(`m-line ${index} answer activates rejected offer section`);
     }
-    if(answer.port !== 0 && answer.hasBundleOnly) {
+    if (answer.port !== 0 && answer.hasBundleOnly) {
       result.push(`m-line ${index} active answer m-line has bundle-only`);
     }
-    if(answer.port !== 0 && (answer.kind === 'audio' || answer.kind === 'video') && !answer.hasRtcpMux) {
+    if (answer.port !== 0 && (answer.kind === 'audio' || answer.kind === 'video') && !answer.hasRtcpMux) {
       result.push(`m-line ${index} is active RTP without rtcp-mux`);
     }
-    if(answer.port !== 0 && answer.kind === 'video' && answer.direction !== 'recvonly' &&
+    if (answer.port !== 0 && answer.kind === 'video' && answer.direction !== 'recvonly' &&
       answer.direction !== 'sendrecv') {
       result.push(`m-line ${index} active video direction is ${answer.direction || 'missing'}`);
     }
-    if(answer.port !== 0 && offer.port !== 0 && !offer.isBundled) {
+    if (answer.port !== 0 && offer.port !== 0 && !offer.isBundled) {
       result.push(`m-line ${index} answers an unbundled offer section`);
     }
 
@@ -575,10 +575,10 @@ export function validateRemoteAnswerSdp(log: Logger, offerSdp: string | undefine
   });
   const data = {
     mLines,
-    issues
+    issues,
   };
 
-  if(issues.length) {
+  if (issues.length) {
     log.warn('remote answer SDP validation failed', data);
   } else {
     log('remote answer SDP validation passed', data);
@@ -588,7 +588,7 @@ export function validateRemoteAnswerSdp(log: Logger, offerSdp: string | undefine
 // ===== Summaries / debug =====
 
 export function summarizeTrack(track: MediaStreamTrack | undefined) {
-  if(!track) {
+  if (!track) {
     return undefined;
   }
 
@@ -598,7 +598,7 @@ export function summarizeTrack(track: MediaStreamTrack | undefined) {
     enabled: track.enabled,
     muted: track.muted,
     readyState: track.readyState,
-    label: track.label
+    label: track.label,
   };
 }
 
@@ -611,7 +611,7 @@ export function summarizeContents(contents: P2PMediaContent[]) {
       ssrcGroups: content.ssrcGroups?.map((group) => {
         return {
           semantics: group.semantics,
-          count: group.ssrcs.length
+          count: group.ssrcs.length,
         };
       }) || [],
       payloads: content.payloadTypes?.map((payload) => {
@@ -619,7 +619,7 @@ export function summarizeContents(contents: P2PMediaContent[]) {
       }) || [],
       extensions: content.rtpExtensions?.map((extension) => {
         return `${extension.id}:${extension.uri}`;
-      }) || []
+      }) || [],
     };
   });
 }

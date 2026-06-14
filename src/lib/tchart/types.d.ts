@@ -3,7 +3,7 @@ import TChart from '@lib/tchart/chart';
 import TLines from '@lib/tchart/lines';
 import TAreas from '@lib/tchart/areas';
 import TBars from '@lib/tchart/bars';
-import {getLabelTime, getLabelDate} from '@lib/tchart/format';
+import { getLabelTime, getLabelDate } from '@lib/tchart/format';
 
 export type Modify<T, R> = Omit<T, keyof R> & R;
 

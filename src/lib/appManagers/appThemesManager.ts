@@ -1,6 +1,6 @@
 import assumeType from '@helpers/assumeType';
-import {AccountThemes, AccountWallPapers, InputWallPaper, WallPaper} from '@layer';
-import {AppManager} from '@appManagers/manager';
+import { AccountThemes, AccountWallPapers, InputWallPaper, WallPaper } from '@layer';
+import { AppManager } from '@appManagers/manager';
 
 type WallPaperId = WallPaper['id'];
 
@@ -19,12 +19,12 @@ export default class AppThemesManager extends AppManager {
     return this.appStateManager.getState().then((state) => {
       try {
         this.saveAccountThemes(state.accountThemes);
-      } catch(err) {}
+      } catch (err) {}
     });
   }
 
   public saveWallPaper(wallPaper: WallPaper) {
-    if(!wallPaper) {
+    if (!wallPaper) {
       return wallPaper;
     }
     // const oldWallPaper = this.wallPapers[wallPaper.id];
@@ -35,9 +35,9 @@ export default class AppThemesManager extends AppManager {
     // }
 
     let slug: string;
-    if(wallPaper._ !== 'wallPaperNoFile') {
+    if (wallPaper._ !== 'wallPaperNoFile') {
       slug = wallPaper.slug;
-      wallPaper.document = this.appDocsManager.saveDoc(wallPaper.document, {type: 'wallPaper', wallPaperId: wallPaper.id})!;
+      wallPaper.document = this.appDocsManager.saveDoc(wallPaper.document, { type: 'wallPaper', wallPaperId: wallPaper.id })!;
     }
 
     // if(oldWallPaper) {
@@ -46,7 +46,7 @@ export default class AppThemesManager extends AppManager {
     this.wallPapers[wallPaper.id] = wallPaper;
     // }
 
-    if(slug!) {
+    if (slug!) {
       this.wallPapersBySlug[slug] = wallPaper;
     }
 
@@ -56,20 +56,20 @@ export default class AppThemesManager extends AppManager {
   public getWallPaper(inputWallPaper: InputWallPaper) {
     return this.apiManager.invokeApiSingleProcess({
       method: 'account.getWallPaper',
-      params: {wallpaper: inputWallPaper},
+      params: { wallpaper: inputWallPaper },
       processResult: (wallPaper) => {
         return this.saveWallPaper(wallPaper);
-      }
+      },
     });
   }
 
   public getInputWallPaper(wallPaper: WallPaper | string): InputWallPaper {
-    if(typeof(wallPaper) === 'string') {
-      return {_: 'inputWallPaperSlug', slug: wallPaper};
-    } else if(wallPaper._ === 'wallPaperNoFile') {
-      return {_: 'inputWallPaperNoFile', id: wallPaper.id};
+    if (typeof(wallPaper) === 'string') {
+      return { _: 'inputWallPaperSlug', slug: wallPaper };
+    } else if (wallPaper._ === 'wallPaperNoFile') {
+      return { _: 'inputWallPaperNoFile', id: wallPaper.id };
     } else {
-      return {_: 'inputWallPaper', id: wallPaper.id, access_hash: wallPaper.access_hash};
+      return { _: 'inputWallPaper', id: wallPaper.id, access_hash: wallPaper.access_hash };
     }
   }
 
@@ -80,7 +80,7 @@ export default class AppThemesManager extends AppManager {
 
   public getWallPaperBySlug(slug: string) {
     const wallPaper = this.wallPapersBySlug[slug];
-    if(wallPaper) {
+    if (wallPaper) {
       return wallPaper;
     }
 
@@ -89,7 +89,7 @@ export default class AppThemesManager extends AppManager {
 
   private saveAccountThemes(accountThemes: AccountThemes.accountThemes) {
     accountThemes.themes?.forEach((theme) => {
-      if(!theme.settings) {
+      if (!theme.settings) {
         return;
       }
 
@@ -104,21 +104,21 @@ export default class AppThemesManager extends AppManager {
     const oldAccountThemes = state.accountThemes;
     return this.apiManager.invokeApiSingleProcess({
       method: 'account.getThemes',
-      params: {format: 'macos', hash: oldAccountThemes?.hash ?? 0},
+      params: { format: 'macos', hash: oldAccountThemes?.hash ?? 0 },
       processResult: async(accountThemes) => {
-        if(accountThemes._ === 'account.themesNotModified') {
+        if (accountThemes._ === 'account.themesNotModified') {
           return oldAccountThemes.themes;
         }
 
         this.saveAccountThemes(accountThemes);
         await this.appStateManager.pushToState('accountThemes', accountThemes);
         return accountThemes.themes;
-      }
+      },
     });
   }
 
   public getWallPapers() {
-    return this.apiManager.invokeApiHashable({method: 'account.getWallPapers'}).then((accountWallpapers) => {
+    return this.apiManager.invokeApiHashable({ method: 'account.getWallPapers' }).then((accountWallpapers) => {
       const wallPapers = (accountWallpapers as AccountWallPapers.accountWallPapers).wallpapers;
       wallPapers.forEach((wallPaper, idx, arr) => {
         arr[idx] = this.saveWallPaper(wallPaper);

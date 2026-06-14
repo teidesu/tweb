@@ -1,31 +1,31 @@
-import {AutoHeight} from '@components/autoHeight';
+import { AutoHeight } from '@components/autoHeight';
 import Button from '@components/buttonTsx';
-import {IconTsx} from '@components/iconTsx';
+import { IconTsx } from '@components/iconTsx';
 import InputField from '@components/inputField';
 import SimpleFormField from '@components/simpleFormField';
 import Space from '@components/space';
-import {StaticCheckbox} from '@components/staticCheckbox';
+import { StaticCheckbox } from '@components/staticCheckbox';
 import StaticRadio from '@components/staticRadio';
 import lastItem from '@helpers/array/lastItem';
 import blurActiveElement from '@helpers/dom/blurActiveElement';
 import focusInput from '@helpers/dom/focusInput';
 import getRichValueWithCaret from '@helpers/dom/getRichValueWithCaret';
-import {createDelayed} from '@helpers/solid/createDelayed';
+import { createDelayed } from '@helpers/solid/createDelayed';
 import createMiddleware from '@helpers/solid/createMiddleware';
-import {createSortableList} from '@helpers/solid/createSortableList';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
+import { createSortableList } from '@helpers/solid/createSortableList';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
 import classNames from '@helpers/string/classNames';
 import I18n from '@lib/langPack';
 import wrapDraftText from '@lib/richTextProcessor/wrapDraftText';
-import {batch, children, createEffect, createMemo, createSignal, For, JSX, mapArray, Match, on, Ref, Show, Switch} from 'solid-js';
-import {Transition, TransitionGroup} from 'solid-transition-group';
-import {EmojiButtonWithOpacity as EmojiDropdownButton} from './emojiButtonWithOpacity';
-import {MediaAttachment} from './mediaAttachment';
-import {AttachedMedia, StorePollOption, useCreatePollContext} from './storeContext';
+import { batch, children, createEffect, createMemo, createSignal, For, JSX, mapArray, Match, on, Ref, Show, Switch } from 'solid-js';
+import { Transition, TransitionGroup } from 'solid-transition-group';
+import { EmojiButtonWithOpacity as EmojiDropdownButton } from './emojiButtonWithOpacity';
+import { MediaAttachment } from './mediaAttachment';
+import { AttachedMedia, StorePollOption, useCreatePollContext } from './storeContext';
 import styles from './styles.module.scss';
-import {useCreatePollLimits} from './useCreatePollLimits';
-import {checkOptionHasValue, createFormFieldClickHandler, interactableClass, useSupportsMedia} from './utils';
+import { useCreatePollLimits } from './useCreatePollLimits';
+import { checkOptionHasValue, createFormFieldClickHandler, interactableClass, useSupportsMedia } from './utils';
 
 
 type MappedItem = {
@@ -38,7 +38,7 @@ type MappedItem = {
 export const PollOptionsSectionContent = (props: {
   scrollable: HTMLElement
 }) => {
-  const {maxOptions} = useCreatePollLimits();
+  const { maxOptions } = useCreatePollLimits();
 
   let idSeed = 0;
 
@@ -47,7 +47,7 @@ export const PollOptionsSectionContent = (props: {
   const rawMappedItems = mapArray(() => context!.store.pollOptions, (option): MappedItem => ({
     type: 'mappedItem',
     id: idSeed++,
-    option
+    option,
   }));
 
   const mappedItems = createMemo(rawMappedItems);
@@ -55,7 +55,7 @@ export const PollOptionsSectionContent = (props: {
   const optionsLeft = createMemo(() => Math.max(0, maxOptions() - mappedItems().length));
 
   const visibleOptionsLeft = createMemo(() => {
-    if(context!.store.pollOptions.length === 2 && !checkOptionHasValue(context!.store.pollOptions[0])) {
+    if (context!.store.pollOptions.length === 2 && !checkOptionHasValue(context!.store.pollOptions[0])) {
       return maxOptions();
     }
 
@@ -73,7 +73,7 @@ export const PollOptionsSectionContent = (props: {
     getId: item => item.id,
     onReorder: (newItems) => {
       context!.setStore('pollOptions', newItems.map(item => item.option));
-    }
+    },
   });
 
   const isDragging = createDelayed(sortable.isDragging, false, (value) => value ? -1 : 100);
@@ -98,7 +98,7 @@ export const PollOptionsSectionContent = (props: {
   };
 
   const optionsLeftItem: MappedItemOrOptionsLeft = {
-    type: 'optionsLeft'
+    type: 'optionsLeft',
   };
 
   // Discarded add button
@@ -117,11 +117,11 @@ export const PollOptionsSectionContent = (props: {
   });
 
   const onAdd = () => {
-    if(optionsLeft() === 0) return;
+    if (optionsLeft() === 0) return;
     blurActiveElement();
     context!.setStore('pollOptions', context!.store.pollOptions.length, {
       text: '',
-      entities: []
+      entities: [],
     });
   };
 
@@ -154,7 +154,7 @@ export const PollOptionsSectionContent = (props: {
                 </div>
               </Match>
               <Match when={item.type === 'addOption'}>
-                <div style={{height: !canShowAddOption() ? '0' : undefined}}>
+                <div style={{ height: !canShowAddOption() ? '0' : undefined }}>
                   <Button class={styles.addOptionButton} primary onClick={onAdd}>
                     <IconTsx class={styles.addOptionButtonIcon} icon='plus' />
                     <I18nTsx key='NewPoll.OptionsAddOption' />
@@ -176,7 +176,7 @@ const PollOptionFullField = (props: {
   sortable: ReturnType<typeof createSortableList>;
   optionsLeft: number;
 }) => {
-  const {store, setStore} = useCreatePollContext()!;
+  const { store, setStore } = useCreatePollContext()!;
   const middleware = createMiddleware().get();
 
   const [container, setContainer] = createSignal<HTMLElement>();
@@ -184,7 +184,7 @@ const PollOptionFullField = (props: {
 
   const isDuplicate = createMemo(() => {
     const text = value();
-    if(!text) return false;
+    if (!text) return false;
     return store.pollOptions.filter((option) => option.text === text).length > 1;
   });
 
@@ -198,7 +198,7 @@ const PollOptionFullField = (props: {
   const onPointerDown = createMemo(() => props.sortable.dragHandleProps(props.mappedItem.id).onPointerDown);
 
   createEffect(() => {
-    if(!container() || !canBeReordered()) return;
+    if (!container() || !canBeReordered()) return;
 
     props.sortable.itemRef(props.mappedItem.id)(container()!);
   });
@@ -212,7 +212,7 @@ const PollOptionFullField = (props: {
 
 
   const focusToEmptyInputCallback = createMemo(() => {
-    if(!isAdd() || store.pollOptions.length !== 2 || checkOptionHasValue(store.pollOptions[0])) return;
+    if (!isAdd() || store.pollOptions.length !== 2 || checkOptionHasValue(store.pollOptions[0])) return;
 
     return () => {
       props.mappedItems[0]?.inputField?.input.focus();
@@ -226,7 +226,7 @@ const PollOptionFullField = (props: {
       style={props.sortable.itemStyle(props.mappedItem.id)}
     >
       <Show when={store.hasCorrectAnswer}>
-        <div class={styles.pollOptionCheckWrapper} classList={{[styles.disabled]: !canBeReordered()}}>
+        <div class={styles.pollOptionCheckWrapper} classList={{ [styles.disabled]: !canBeReordered() }}>
           <Transition name='t-zoom' duration={200} mode='outin'>
             <Show when={!store.allowMultipleAnswers}>
               <div class={styles.checkButtonWrapper} onClick={onRadioClick}>
@@ -251,33 +251,33 @@ const PollOptionFullField = (props: {
         noEmojiPicker={noEmojiPicker()}
         noAttachment={noAttachment()}
         onPointerDown={(e) => {
-          if(!canBeReordered()) return;
+          if (!canBeReordered()) return;
           blurActiveElement();
           onPointerDown()(e);
         }}
         hoverDisabled={props.sortable.draggingId() !== null}
         inputFieldRef={(inputField) => {
           props.mappedItem.inputField = inputField;
-          if(import.meta.hot) {
-            inputField.setValueSilently(wrapDraftText(value(), {entities: props.mappedItem.option.entities, middleware}));
+          if (import.meta.hot) {
+            inputField.setValueSilently(wrapDraftText(value(), { entities: props.mappedItem.option.entities, middleware }));
           }
         }}
         onChange={(option) => {
           setStore('pollOptions', props.index, option);
         }}
         onEnter={() => {
-          if(noIcon()) return;
-          for(const item of props.mappedItems.slice(props.index + 1)) {
-            if(!item.inputField?.value) {
+          if (noIcon()) return;
+          for (const item of props.mappedItems.slice(props.index + 1)) {
+            if (!item.inputField?.value) {
               focusInput(item.inputField?.input!);
               return;
             }
           }
         }}
         onEmptyBackspace={() => {
-          if(store.pollOptions.length <= 1) return;
+          if (store.pollOptions.length <= 1) return;
 
-          if(store.pollOptions.length > 2 && props.index < store.pollOptions.length - 1) {
+          if (store.pollOptions.length > 2 && props.index < store.pollOptions.length - 1) {
             setStore('pollOptions', prev => prev.filter((_, i) => i !== props.index));
           }
 
@@ -312,24 +312,24 @@ const PollOptionInputField = (props: {
   onClickOverride?: JSX.EventHandler<HTMLDivElement, MouseEvent>;
   onPointerDown?: JSX.HTMLAttributes<HTMLElement>['onPointerDown'];
 }) => {
-  const {maxOptionLength} = useCreatePollLimits();
+  const { maxOptionLength } = useCreatePollLimits();
   const supportsMedia = useSupportsMedia();
 
   const inputField = new InputField({
     placeholder: props.isAdd ? 'NewPoll.OptionsAddOption' : 'NewPoll.Option',
     canWrapCustomEmojis: true,
     onRawInput: () => {
-      const {value, entities} = getRichValueWithCaret(inputField.input);
-      props.onChange({text: value, entities});
-    }
+      const { value, entities } = getRichValueWithCaret(inputField.input);
+      props.onChange({ text: value, entities });
+    },
   });
 
   createEffect(on(() => props.isAdd, () => {
     const element = I18n.weakMap.get(inputField.placeholder);
-    if(element instanceof I18n.IntlElement) {
-      element.update({key: props.isAdd ? 'NewPoll.OptionsAddOption' : 'NewPoll.Option'});
+    if (element instanceof I18n.IntlElement) {
+      element.update({ key: props.isAdd ? 'NewPoll.OptionsAddOption' : 'NewPoll.Option' });
     }
-  }, {defer: true}));
+  }, { defer: true }));
 
   props.inputFieldRef?.(inputField);
 
@@ -338,18 +338,18 @@ const PollOptionInputField = (props: {
   inputField.placeholder.classList.add(styles.inputFieldPlaceholder);
 
   inputField.input.addEventListener('keydown', (e) => {
-    if(e.key === 'Enter') {
+    if (e.key === 'Enter') {
       props.onEnter?.();
     }
 
-    if(e.key === 'Backspace' && props.value === '') {
+    if (e.key === 'Backspace' && props.value === '') {
       e.preventDefault();
       props.onEmptyBackspace?.();
     }
   });
 
   createEffect(() => {
-    if(!props.onFocus) return;
+    if (!props.onFocus) return;
     subscribeOn(inputField.input)('focus', props.onFocus);
   });
 
@@ -368,7 +368,7 @@ const PollOptionInputField = (props: {
       isError={props.isError}
       style={props.style}
       onClick={(e) => {
-        if(props.onClickOverride) {
+        if (props.onClickOverride) {
           props.onClickOverride(e);
         } else {
           onFormFieldClickOriginal(e);
@@ -379,7 +379,7 @@ const PollOptionInputField = (props: {
         class={styles.draggableSideContent}
         classList={{
           [interactableClass]: props.canBeReordered,
-          [styles.disabled]: !props.canBeReordered
+          [styles.disabled]: !props.canBeReordered,
         }}
         first
         last
@@ -419,12 +419,12 @@ const PollOptionInputField = (props: {
                 ...(supportsMedia('photo') ? ['photo'] as const : []),
                 ...(supportsMedia('video') ? ['video'] as const : []),
                 ...(supportsMedia('gif') ? ['gif'] as const : []), // GIF is additional to photo
-                ...(supportsMedia('sticker') ? ['sticker'] as const : [])
+                ...(supportsMedia('sticker') ? ['sticker'] as const : []),
               ]}
               imgClass={styles.mediaAttachmentImage}
               attachedMedia={props.attachment}
               onAttach={(value) => {
-                props.onChange?.({attachment: value});
+                props.onChange?.({ attachment: value });
               }}
             />
           </SimpleFormField.WithAutoLengthCounter>

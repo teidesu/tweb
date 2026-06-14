@@ -5,9 +5,9 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import type {AccountPassword, AccountUpdatePasswordSettings, InputCheckPasswordSRP, PasswordKdfAlgo} from '@layer';
+import type { AccountPassword, AccountUpdatePasswordSettings, InputCheckPasswordSRP, PasswordKdfAlgo } from '@layer';
 import randomize from '@helpers/array/randomize';
-import {AppManager} from '@appManagers/manager';
+import { AppManager } from '@appManagers/manager';
 
 export class PasswordManager extends AppManager {
   public getState(): Promise<AccountPassword> {
@@ -31,15 +31,15 @@ export class PasswordManager extends AppManager {
         new_settings: {
           _: 'account.passwordInputSettings',
           hint: settings.hint,
-          email: settings.email
-        }
+          email: settings.email,
+        },
       };
 
-      if(settings.currentPassword) {
+      if (settings.currentPassword) {
         currentHashPromise = this.cryptoWorker.invokeCrypto('computeSRP', settings.currentPassword, state, false) as any;
       } else {
         currentHashPromise = Promise.resolve({
-          _: 'inputCheckPasswordEmpty'
+          _: 'inputCheckPasswordEmpty',
         });
       }
 
@@ -50,7 +50,7 @@ export class PasswordManager extends AppManager {
       salt1.set(newAlgo.salt1, 0);
       newAlgo.salt1 = salt1;
 
-      if(settings.newPassword) {
+      if (settings.newPassword) {
         newHashPromise = this.cryptoWorker.invokeCrypto('computeSRP', settings.newPassword, state, true) as any;
       } else {
         newHashPromise = Promise.resolve(new Uint8Array());
@@ -75,9 +75,9 @@ export class PasswordManager extends AppManager {
     return this.getInputCheckPassword(password, state).then((inputCheckPassword) => {
       // console.log('SRP', inputCheckPassword);
       return this.apiManager.invokeApi('auth.checkPassword', {
-        password: inputCheckPassword
+        password: inputCheckPassword,
       }, options).then((auth) => {
-        if(auth._ === 'auth.authorization') {
+        if (auth._ === 'auth.authorization') {
           this.apiManager.setUser(auth.user);
         }
 
@@ -87,7 +87,7 @@ export class PasswordManager extends AppManager {
   }
 
   public confirmPasswordEmail(code: string) {
-    return this.apiManager.invokeApi('account.confirmPasswordEmail', {code});
+    return this.apiManager.invokeApi('account.confirmPasswordEmail', { code });
   }
 
   public requestRecovery(options: any = {}) {
@@ -95,9 +95,9 @@ export class PasswordManager extends AppManager {
   }
 
   public async confirmPasswordResetEmail(code: string) {
-    const res = await this.apiManager.invokeApi('auth.recoverPassword', {code});
+    const res = await this.apiManager.invokeApi('auth.recoverPassword', { code });
 
-    if(res._ === 'auth.authorization') {
+    if (res._ === 'auth.authorization') {
       this.apiManager.setUser(res.user);
     }
 
@@ -121,6 +121,6 @@ export class PasswordManager extends AppManager {
   }
 
   public getTmpPassword(srp: InputCheckPasswordSRP, period: number) {
-    return this.apiManager.invokeApi('account.getTmpPassword', {password: srp, period});
+    return this.apiManager.invokeApi('account.getTmpPassword', { password: srp, period });
   }
 }

@@ -1,15 +1,15 @@
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
 import appDownloadManager from '@lib/appDownloadManager';
-import {Document} from '@layer';
+import { Document } from '@layer';
 
-import {StickerFrameByFrameRenderer} from '@components/mediaEditor/finalRender/types';
+import { StickerFrameByFrameRenderer } from '@components/mediaEditor/finalRender/types';
 
 export default class ImageStickerFrameByFrameRenderer implements StickerFrameByFrameRenderer {
   private image: HTMLImageElement | null;
 
   async init(doc: Document.document) {
     const blob = await appDownloadManager.downloadMedia({
-      media: doc
+      media: doc,
     });
 
     const image = (this.image = new Image());

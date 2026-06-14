@@ -1,6 +1,6 @@
 import replaceContent from '@helpers/dom/replaceContent';
 import OverlayClickHandler from '@helpers/overlayClickHandler';
-import {FormatterArguments, i18n, LangPackKey} from '@lib/langPack';
+import { FormatterArguments, i18n, LangPackKey } from '@lib/langPack';
 
 const toastsContainer = document.createElement('div');
 toastsContainer.classList.add('toasts-container');
@@ -11,7 +11,7 @@ let timeout: number | undefined;
 
 const x = new OverlayClickHandler('toast');
 x.addEventListener('toggle', (open) => {
-  if(!open) {
+  if (!open) {
     hideToast();
   }
 });
@@ -33,8 +33,8 @@ export function toast(content: string | Node, onClose?: () => void) {
 
   replaceContent(toastEl, content);
 
-  if(!toastEl.parentElement) {
-    if(!toastsContainer.parentNode) {
+  if (!toastEl.parentElement) {
+    if (!toastsContainer.parentNode) {
       document.body.append(toastsContainer);
     }
 
@@ -49,8 +49,8 @@ export function toast(content: string | Node, onClose?: () => void) {
 
   timeout = window.setTimeout(hideToast, 3000);
 
-  if(onClose) {
-    x.addEventListener('toggle', onClose, {once: true});
+  if (onClose) {
+    x.addEventListener('toggle', onClose, { once: true });
   }
 }
 

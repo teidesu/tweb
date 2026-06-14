@@ -1,5 +1,5 @@
 import classNames from '@helpers/string/classNames';
-import {JSX, splitProps} from 'solid-js';
+import { JSX, splitProps } from 'solid-js';
 import styles from './staticCheckbox.module.scss';
 
 
@@ -20,7 +20,7 @@ export const StaticCheckbox = (inProps: StaticCheckboxProps) => {
       'classList',
       'checked',
       'round',
-      'cross'
+      'cross',
     ],
   );
 
@@ -30,7 +30,7 @@ export const StaticCheckbox = (inProps: StaticCheckboxProps) => {
       classList={{
         [styles.checked]: props.checked,
         [styles.round]: props.round,
-        ...props.classList
+        ...props.classList,
       }}
       {...restProps}
     >

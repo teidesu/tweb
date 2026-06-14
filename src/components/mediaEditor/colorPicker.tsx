@@ -1,12 +1,12 @@
-import {createEffect, createMemo, createSignal, on, onCleanup, onMount} from 'solid-js';
+import { createEffect, createMemo, createSignal, on, onCleanup, onMount } from 'solid-js';
 
-import {doubleRaf} from '@helpers/schedulers';
-import {hexToRgb} from '@helpers/color';
+import { doubleRaf } from '@helpers/schedulers';
+import { hexToRgb } from '@helpers/color';
 import _ColorPicker from '@components/colorPicker';
 import ripple from '@components/ripple';
 
-import {useMediaEditorContext} from '@components/mediaEditor/context';
-import {delay} from '@components/mediaEditor/utils';
+import { useMediaEditorContext } from '@components/mediaEditor/context';
+import { delay } from '@components/mediaEditor/utils';
 
 
 export const colorPickerSwatches = [
@@ -17,7 +17,7 @@ export const colorPickerSwatches = [
   '#33c759',
   '#62e5e0',
   '#0a84ff',
-  '#bd5cf3'
+  '#bd5cf3',
 ];
 
 const normalPickerWidth = 200;
@@ -32,7 +32,7 @@ export default function ColorPicker(props: {
   colorKey?: string; // Just for reaction, not used to access anything
   previousColor?: string;
 }) {
-  const {actions} = useMediaEditorContext()!;
+  const { actions } = useMediaEditorContext()!;
 
   const [collapsed, setCollapsed] = createSignal(colorPickerSwatches.includes(props.value));
   const [collapsing, setCollapsing] = createSignal(false);
@@ -47,10 +47,10 @@ export default function ColorPicker(props: {
   const swatch = (hexColor: string, i: number) => (
     <div
       class="media-editor__color-picker-swatch"
-      classList={{'media-editor__color-picker-swatch--active': props.value === hexColor && collapsed()}}
+      classList={{ 'media-editor__color-picker-swatch--active': props.value === hexColor && collapsed() }}
       style={{
         '--color-rgb': hexToRgb(hexColor).join(' '),
-        '--i': i
+        '--i': i,
       }}
       onClick={() => props.onChange(hexColor)}
     >
@@ -60,7 +60,7 @@ export default function ColorPicker(props: {
 
   const onCollapseToggle = async() => {
     setCollapsed((prev) => !prev);
-    if(collapsed()) {
+    if (collapsed()) {
       setCollapsing(true);
       props.onChange(props.previousColor || colorPickerSwatches[0]);
       await delay(200);
@@ -73,14 +73,14 @@ export default function ColorPicker(props: {
       return (
         <div
           class="media-editor__color-picker"
-          classList={{'media-editor__color-picker--collapsed': collapsed()}}
-          style={{'--picker-height': pickerHeight + 'px'}}
+          classList={{ 'media-editor__color-picker--collapsed': collapsed() }}
+          style={{ '--picker-height': pickerHeight + 'px' }}
         >
           <div class="media-editor__color-picker-swatches">
             {colorPickerSwatches.map(swatch)}
             <div
               class="media-editor__color-picker-swatch media-editor__color-picker-swatch--gradient"
-              classList={{'media-editor__color-picker-swatch--active': !collapsed()}}
+              classList={{ 'media-editor__color-picker-swatch--active': !collapsed() }}
               onClick={onCollapseToggle}
             >
               <div class="media-editor__color-picker-swatch-color" />
@@ -104,11 +104,11 @@ export default function ColorPicker(props: {
     pickerBoxWidth: pickerBoxWidth(),
     pickerBoxHeight: pickerHeight,
     sliderWidth: sliderWidth(),
-    thickSlider: true
+    thickSlider: true,
   });
 
   colorPicker.onChange = (color) => {
-    if(color.hex !== props.value) props.onChange(color.hex);
+    if (color.hex !== props.value) props.onChange(color.hex);
     actions.abortDrawerSlide();
   };
 
@@ -134,7 +134,7 @@ export default function ColorPicker(props: {
     colorPicker.adjustSize({
       pickerBoxWidth: pickerBoxWidth(),
       pickerBoxHeight: pickerHeight,
-      sliderWidth: sliderWidth()
+      sliderWidth: sliderWidth(),
     });
   });
 
@@ -144,9 +144,9 @@ export default function ColorPicker(props: {
       async() => {
         await delay(0);
         const newCollapsed = colorPickerSwatches.includes(props.value);
-        if(newCollapsed !== collapsed()) {
+        if (newCollapsed !== collapsed()) {
           setCollapsed(newCollapsed);
-          if(newCollapsed) {
+          if (newCollapsed) {
             setCollapsing(true);
             delay(200).then(() => setCollapsing(false));
           }
@@ -160,7 +160,7 @@ export default function ColorPicker(props: {
       () => [collapsing(), props.value],
       async() => {
         await doubleRaf();
-        if(!collapsing() && props.value !== colorPicker.getCurrentColor().hex) {
+        if (!collapsing() && props.value !== colorPicker.getCurrentColor().hex) {
           colorPicker.setColor(props.value);
         }
       }

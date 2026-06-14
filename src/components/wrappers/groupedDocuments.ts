@@ -1,15 +1,15 @@
 import setInnerHTML from '@helpers/dom/setInnerHTML';
-import {MediaSizeType} from '@helpers/mediaSizes';
-import {Message} from '@layer';
-import {AppManagers} from '@lib/managers';
+import { MediaSizeType } from '@helpers/mediaSizes';
+import { Message } from '@layer';
+import { AppManagers } from '@lib/managers';
 import getMediaDurationFromMessage from '@appManagers/utils/messages/getMediaDurationFromMessage';
 import wrapRichText from '@lib/richTextProcessor/wrapRichText';
-import {MediaSearchContext} from '@components/appMediaPlaybackController';
+import { MediaSearchContext } from '@components/appMediaPlaybackController';
 import Chat from '@components/chat/chat';
 import LazyLoadQueue from '@components/lazyLoadQueue';
 import TranslatableMessage from '@components/translatableMessage';
 import wrapDocument from '@components/wrappers/document';
-import {Middleware} from '@helpers/middleware';
+import { Middleware } from '@helpers/middleware';
 
 export default async function wrapGroupedDocuments({
   albumMustBeRenderedFull,
@@ -32,7 +32,7 @@ export default async function wrapGroupedDocuments({
   canTranscribeVoice,
   translatableParams,
   factCheckBox,
-  isOut
+  isOut,
 }: {
   albumMustBeRenderedFull: boolean,
   middleware: Middleware,
@@ -58,7 +58,7 @@ export default async function wrapGroupedDocuments({
   isOut?: boolean
 }) {
   let nameContainer: HTMLElement;
-  const {peerId} = message;
+  const { peerId } = message;
   const mids = albumMustBeRenderedFull ? await chat.getMidsByMid(message.peerId, message.mid) : [message.mid];
   /* if(isPending) {
     mids.reverse();
@@ -78,7 +78,7 @@ export default async function wrapGroupedDocuments({
       fontWeight,
       fontSize,
       canTranscribeVoice,
-      isOut
+      isOut,
     });
 
     const container = document.createElement('div');
@@ -92,33 +92,33 @@ export default async function wrapGroupedDocuments({
     const isFirst = idx === 0;
     const isLast = idx === (arr.length - 1);
 
-    if(isFirst) container.classList.add('is-first');
-    if(isLast) container.classList.add('is-last');
+    if (isFirst) container.classList.add('is-first');
+    if (isLast) container.classList.add('is-last');
     // if(!(isFirst && isLast)) container.classList.add('has-sibling');
 
     let messageDiv: HTMLElement;
-    if(message.message || (isLast && factCheckBox)) {
+    if (message.message || (isLast && factCheckBox)) {
       messageDiv = document.createElement('div');
       messageDiv.classList.add('document-message');
     }
 
-    if(message.message) {
+    if (message.message) {
       let fragment = richTextFragment;
-      if(!fragment) {
-        if(translatableParams) {
+      if (!fragment) {
+        if (translatableParams) {
           fragment = TranslatableMessage({
             ...translatableParams,
             message,
             richTextOptions: {
               ...translatableParams.richTextOptions,
-              maxMediaTimestamp: getMediaDurationFromMessage(message)
-            }
+              maxMediaTimestamp: getMediaDurationFromMessage(message),
+            },
           });
         } else {
           fragment = wrapRichText(message.message, {
             ...richTextOptions,
             entities: message.totalEntities,
-            maxMediaTimestamp: getMediaDurationFromMessage(message)
+            maxMediaTimestamp: getMediaDurationFromMessage(message),
           });
         }
       }
@@ -126,18 +126,18 @@ export default async function wrapGroupedDocuments({
       setInnerHTML(messageDiv!, fragment);
     }
 
-    if(factCheckBox && messageDiv! && isLast) {
+    if (factCheckBox && messageDiv! && isLast) {
       messageDiv.append(factCheckBox);
     }
 
-    if(mids.length > 1) {
+    if (mids.length > 1) {
       const selection = document.createElement('div');
       selection.classList.add('document-selection');
       container.append(selection);
 
       container.classList.add('grouped-item');
 
-      if(idx === 0) {
+      if (idx === 0) {
         nameContainer = wrapper;
       }
     }
@@ -150,7 +150,7 @@ export default async function wrapGroupedDocuments({
   const containers = await Promise.all(promises);
   messageDiv.append(...containers);
 
-  if(mids.length > 1) {
+  if (mids.length > 1) {
     bubble.classList.add('is-multiple-documents', 'is-grouped');
   }
 

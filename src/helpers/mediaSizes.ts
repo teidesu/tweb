@@ -1,7 +1,7 @@
-import {MOUNT_CLASS_TO} from '@config/debug';
+import { MOUNT_CLASS_TO } from '@config/debug';
 import EventListenerBase from '@helpers/eventListenerBase';
-import {makeMediaSize, MediaSize} from '@helpers/mediaSize';
-import {createStore} from 'solid-js/store';
+import { makeMediaSize, MediaSize } from '@helpers/mediaSize';
+import { createStore } from 'solid-js/store';
 
 type MediaTypeSizes = {
   regular: MediaSize,
@@ -47,7 +47,7 @@ const [store, setStore] = createStore({
   isFloatingLeftSidebar: false,
   isLessThanFloatingLeftSidebar: false,
   active: undefined as unknown as MediaTypeSizes,
-  activeScreen: undefined as unknown as ScreenSize
+  activeScreen: undefined as unknown as ScreenSize,
 });
 
 class MediaSizes extends EventListenerBase<{
@@ -55,9 +55,9 @@ class MediaSizes extends EventListenerBase<{
   resize: () => void
 }> {
   private screenSizes: {key: ScreenSize, value: number}[] = [
-    {key: ScreenSize.mobile, value: MOBILE_SIZE},
-    {key: ScreenSize.medium, value: FLOATING_LEFT_SIDEBAR_SIZE},
-    {key: ScreenSize.large, value: LARGE_SIZE}
+    { key: ScreenSize.mobile, value: MOBILE_SIZE },
+    { key: ScreenSize.medium, value: FLOATING_LEFT_SIDEBAR_SIZE },
+    { key: ScreenSize.large, value: LARGE_SIZE },
   ];
 
   private sizes: {[k in 'desktop' | 'handhelds']: MediaTypeSizes} = {
@@ -77,7 +77,7 @@ class MediaSizes extends EventListenerBase<{
       customEmoji: CUSTOM_EMOJI_SIZE,
       esgCustomEmoji: ESG_CUSTOM_EMOJI_SIZE,
       emojiStatus: EMOJI_STATUS_SIZE,
-      popupSticker: makeMediaSize(68, 68)
+      popupSticker: makeMediaSize(68, 68),
     },
     desktop: {
       regular: makeMediaSize(420, 400),
@@ -95,8 +95,8 @@ class MediaSizes extends EventListenerBase<{
       customEmoji: CUSTOM_EMOJI_SIZE,
       esgCustomEmoji: ESG_CUSTOM_EMOJI_SIZE,
       emojiStatus: EMOJI_STATUS_SIZE,
-      popupSticker: makeMediaSize(80, 80)
-    }
+      popupSticker: makeMediaSize(80, 80),
+    },
   };
 
   public isMobile = false;
@@ -110,7 +110,7 @@ class MediaSizes extends EventListenerBase<{
     super();
 
     window.addEventListener('resize', () => {
-      if(this.rAF) window.cancelAnimationFrame(this.rAF);
+      if (this.rAF) window.cancelAnimationFrame(this.rAF);
       this.rAF = window.requestAnimationFrame(() => {
         this.handleResize();
         this.rAF = 0;
@@ -124,8 +124,8 @@ class MediaSizes extends EventListenerBase<{
     // this.isMobile = innerWidth <= 720;
 
     let activeScreen = this.screenSizes[0].key;
-    for(let i = this.screenSizes.length - 1; i >= 0; --i) {
-      if(this.screenSizes[i].value < innerWidth) {
+    for (let i = this.screenSizes.length - 1; i >= 0; --i) {
+      if (this.screenSizes[i].value < innerWidth) {
         activeScreen = (this.screenSizes[i + 1] || this.screenSizes[i]).key;
         break;
       }
@@ -145,7 +145,7 @@ class MediaSizes extends EventListenerBase<{
       isFloatingLeftSidebar: this.isFloatingLeftSidebar,
       isLessThanFloatingLeftSidebar: this.isLessThanFloatingLeftSidebar,
       active: this.active,
-      activeScreen: this.activeScreen
+      activeScreen: this.activeScreen,
     });
 
     // console.time('esg');
@@ -153,15 +153,15 @@ class MediaSizes extends EventListenerBase<{
     // this.active.esgSticker.width = parseFloat(computedStyle.getPropertyValue('--esg-sticker-size'));
     // console.timeEnd('esg');
 
-    if(wasScreen !== activeScreen) {
+    if (wasScreen !== activeScreen) {
       // console.log('changeScreen', this.activeScreen, activeScreen);
 
-      if(wasScreen !== undefined) {
+      if (wasScreen !== undefined) {
         this.dispatchEvent('changeScreen', wasScreen, activeScreen);
       }
     }
 
-    if(wasScreen !== undefined) {
+    if (wasScreen !== undefined) {
       this.dispatchEvent('resize');
     }
 

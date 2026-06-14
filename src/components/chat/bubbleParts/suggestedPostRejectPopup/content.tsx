@@ -1,14 +1,14 @@
-import {createSignal} from 'solid-js';
-import {I18nTsx} from '@helpers/solid/i18n';
+import { createSignal } from 'solid-js';
+import { I18nTsx } from '@helpers/solid/i18n';
 import rootScope from '@lib/rootScope';
-import defineSolidElement, {PassedProps} from '@lib/solidjs/defineSolidElement';
-import {InputFieldTsx} from '@components/inputFieldTsx';
+import defineSolidElement, { PassedProps } from '@lib/solidjs/defineSolidElement';
+import { InputFieldTsx } from '@components/inputFieldTsx';
 import ripple from '@components/ripple';
 import Space from '@components/space';
 import styles from '@components/chat/bubbleParts/suggestedPostRejectPopup/style.module.scss';
 ripple; // keep
 
-if(import.meta.hot) import.meta.hot.accept();
+if (import.meta.hot) import.meta.hot.accept();
 
 
 type Props = {
@@ -29,13 +29,13 @@ const SuggestedPostRejectPopupContent = defineSolidElement({
     let isFinishing = false;
 
     const onFinish = () => {
-      if(isFinishing || tooLong()) return;
+      if (isFinishing || tooLong()) return;
       isFinishing = true;
       rootScope.managers.monoforumDialogsStorage.toggleSuggestedPostApproval({
         parentPeerId: props.peerId,
         messageId: props.messageId,
         reject: true,
-        rejectComment: comment() || undefined
+        rejectComment: comment() || undefined,
       });
       props.onFinish();
     };
@@ -61,7 +61,7 @@ const SuggestedPostRejectPopupContent = defineSolidElement({
 
       <Space amount="0.5rem" />
     </>;
-  }
+  },
 });
 
 export default SuggestedPostRejectPopupContent;

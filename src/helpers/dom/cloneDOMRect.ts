@@ -5,6 +5,6 @@ export default function cloneDOMRect(rect: DOMRect): DOMRectEditable {
     top: rect.top,
     right: rect.right,
     bottom: rect.bottom,
-    left: rect.left
+    left: rect.left,
   };
 }

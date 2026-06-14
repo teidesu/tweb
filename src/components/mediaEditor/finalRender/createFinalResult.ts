@@ -1,18 +1,18 @@
-import {getOwner, runWithOwner, Signal} from 'solid-js';
-import {unwrap} from 'solid-js/store';
-import {createPosterFromMedia} from '@helpers/createPoster';
-import {MediaSize} from '@helpers/mediaSize';
+import { getOwner, runWithOwner, Signal } from 'solid-js';
+import { unwrap } from 'solid-js/store';
+import { createPosterFromMedia } from '@helpers/createPoster';
+import { MediaSize } from '@helpers/mediaSize';
 import noop from '@helpers/noop';
 import detectVideoHasSound from '@helpers/video/detectVideoHasSound';
-import {logger} from '@lib/logger';
-import {adjustmentsConfig, AdjustmentsConfig} from '@components/mediaEditor/adjustments';
+import { logger } from '@lib/logger';
+import { adjustmentsConfig, AdjustmentsConfig } from '@components/mediaEditor/adjustments';
 import BrushPainter from '@components/mediaEditor/canvas/brushPainter';
-import {useCropOffset} from '@components/mediaEditor/canvas/useCropOffset';
-import {EditingMediaState, useMediaEditorContext} from '@components/mediaEditor/context';
-import {NumberPair} from '@components/mediaEditor/types';
-import {checkIfHasAnimatedStickers, cleanupWebGl, snapToAvailableQuality} from '@components/mediaEditor/utils';
-import {draw} from '@components/mediaEditor/webgl/draw';
-import {initWebGL} from '@components/mediaEditor/webgl/initWebGL';
+import { useCropOffset } from '@components/mediaEditor/canvas/useCropOffset';
+import { EditingMediaState, useMediaEditorContext } from '@components/mediaEditor/context';
+import { NumberPair } from '@components/mediaEditor/types';
+import { checkIfHasAnimatedStickers, cleanupWebGl, snapToAvailableQuality } from '@components/mediaEditor/utils';
+import { draw } from '@components/mediaEditor/webgl/draw';
+import { initWebGL } from '@components/mediaEditor/webgl/initWebGL';
 import getResultSize from '@components/mediaEditor/finalRender/getResultSize';
 import getResultTransform from '@components/mediaEditor/finalRender/getResultTransform';
 import getScaledLayersAndLines from '@components/mediaEditor/finalRender/getScaledLayersAndLines';
@@ -50,8 +50,8 @@ const log = logger('MediaEditor.createFinalResult');
 
 export async function createFinalResult(): Promise<MediaEditorFinalResult> {
   const context = useMediaEditorContext();
-  const {editorState, mediaState, mediaSrc, mediaType, canImageResultInGIF} = context!;
-  const {resizableLayers, adjustments} = mediaState;
+  const { editorState, mediaState, mediaSrc, mediaType, canImageResultInGIF } = context!;
+  const { resizableLayers, adjustments } = mediaState;
 
   const owner = getOwner();
 
@@ -69,7 +69,7 @@ export async function createFinalResult(): Promise<MediaEditorFinalResult> {
     scale: mediaState.scale,
     videoType: videoType!,
     imageRatio: editorState.mediaRatio!,
-    cropOffset: cropOffset()
+    cropOffset: cropOffset(),
   });
 
   const maxQuality = snapToAvailableQuality(maxHeight);
@@ -81,16 +81,16 @@ export async function createFinalResult(): Promise<MediaEditorFinalResult> {
     videoType: videoType!,
     imageRatio: editorState.mediaRatio!,
     cropOffset: cropOffset(),
-    quality: willResultInVideo ? Math.min(maxQuality, mediaState.videoQuality) : undefined
+    quality: willResultInVideo ? Math.min(maxQuality, mediaState.videoQuality) : undefined,
   });
 
   // Profile video avatars must stay small (server profile-video size limits +
   // the avatar is only ever shown tiny). Cap the square output to 800px; the
   // bitrate is separately capped in renderToActualVideo. h.264 needs even dims.
-  if(context!.isVideoAvatarMode && mediaType === 'video') {
+  if (context!.isVideoAvatarMode && mediaType === 'video') {
     const AVATAR_VIDEO_MAX = 800;
     const max = Math.max(scaledWidth, scaledHeight);
-    if(max > AVATAR_VIDEO_MAX) {
+    if (max > AVATAR_VIDEO_MAX) {
       const k = AVATAR_VIDEO_MAX / max;
       scaledWidth = Math.round(scaledWidth * k / 2) * 2;
       scaledHeight = Math.round(scaledHeight * k / 2) * 2;
@@ -103,10 +103,10 @@ export async function createFinalResult(): Promise<MediaEditorFinalResult> {
   // over 640); every avatar source (regular / forum / fallback / contact) is
   // square-cropped here. tdesktop sends source-res, but the server downscales
   // either way — capping just avoids the needless upload, no quality loss.
-  if(context!.isEditingForAvatar && mediaType === 'image') {
+  if (context!.isEditingForAvatar && mediaType === 'image') {
     const AVATAR_PHOTO_MAX = 800;
     const max = Math.max(scaledWidth, scaledHeight);
-    if(max > AVATAR_PHOTO_MAX) {
+    if (max > AVATAR_PHOTO_MAX) {
       const k = AVATAR_PHOTO_MAX / max;
       scaledWidth = Math.round(scaledWidth * k);
       scaledHeight = Math.round(scaledHeight * k);
@@ -118,16 +118,16 @@ export async function createFinalResult(): Promise<MediaEditorFinalResult> {
   imageCanvas.height = scaledHeight;
 
   const gl = imageCanvas.getContext('webgl', {
-    preserveDrawingBuffer: true
+    preserveDrawingBuffer: true,
   });
 
-  const payload = await initWebGL({gl: gl!, mediaSrc, mediaType, videoTime: mediaState.videoCropStart, waitToSeek: false});
+  const payload = await initWebGL({ gl: gl!, mediaSrc, mediaType, videoTime: mediaState.videoCropStart, waitToSeek: false });
 
   // No modifications to a video: return the original blob and skip the render pipeline.
   // The animated preview is still produced so the caller can animate it into the target slot.
-  if(mediaType === 'video' && !context!.hasModifications()) {
+  if (mediaType === 'video' && !context!.hasModifications()) {
     const originalBlob = await context!.getMediaBlob();
-    if(!originalBlob) throw new Error('Failed to get original media blob');
+    if (!originalBlob) throw new Error('Failed to get original media blob');
 
     const videoEl = payload.media.video;
     const poster = await createPosterFromMedia(videoEl!);
@@ -141,21 +141,21 @@ export async function createFinalResult(): Promise<MediaEditorFinalResult> {
       cropOffset,
       scaledWidth: previewWidth,
       scaledHeight: previewHeight,
-      previewBlob: poster.blob
+      previewBlob: poster.blob,
     });
 
     cleanupWebGl(gl!);
 
     return {
       preview: poster.blob,
-      getResult: () => ({blob: originalBlob, hasSound, thumb: poster}),
+      getResult: () => ({ blob: originalBlob, hasSound, thumb: poster }),
       isVideo: true,
       width: previewWidth,
       height: previewHeight,
       originalSrc: context!.mediaSrc,
       originalSize: [previewWidth, previewHeight],
       editingMediaState: structuredClone(unwrap(mediaState)),
-      animatedPreview
+      animatedPreview,
     };
   }
 
@@ -165,7 +165,7 @@ export async function createFinalResult(): Promise<MediaEditorFinalResult> {
     scaledHeight,
     imageWidth: payload.media.width,
     imageHeight: payload.media.height,
-    cropOffset
+    cropOffset,
   });
 
   const drawToImageCanvas = () => {
@@ -173,33 +173,33 @@ export async function createFinalResult(): Promise<MediaEditorFinalResult> {
       ...finalTransform,
       imageSize: [payload.media.width, payload.media.height],
       ...(Object.fromEntries(
-        adjustmentsConfig.map(({key, to100}) => {
+        adjustmentsConfig.map(({ key, to100 }) => {
           const value = adjustments[key];
           return [key, value / (to100 ? 100 : 50)];
         })
-      ) as Record<AdjustmentsConfig[number]['key'], number>)
+      ) as Record<AdjustmentsConfig[number]['key'], number>),
     });
   };
 
-  if(mediaType === 'image') drawToImageCanvas();
+  if (mediaType === 'image') drawToImageCanvas();
 
-  const {scaledLayers, scaledLines} = getScaledLayersAndLines(context!, finalTransform, scaledWidth, scaledHeight);
+  const { scaledLayers, scaledLines } = getScaledLayersAndLines(context!, finalTransform, scaledWidth, scaledHeight);
 
   const brushCanvas = document.createElement('canvas');
   brushCanvas.width = scaledWidth;
   brushCanvas.height = scaledHeight;
 
-  const brushPainter = new BrushPainter({targetCanvas: brushCanvas, imageCanvas});
+  const brushPainter = new BrushPainter({ targetCanvas: brushCanvas, imageCanvas });
   brushPainter.saveLastLine();
   scaledLines.forEach((line) => brushPainter.drawLine(line));
 
   const resultCanvas = document.createElement('canvas');
   resultCanvas.width = scaledWidth;
   resultCanvas.height = scaledHeight;
-  const ctx = resultCanvas.getContext('2d', {willReadFrequently: true});
+  const ctx = resultCanvas.getContext('2d', { willReadFrequently: true });
 
   const renderPromise = (() => {
-    if(mediaType === 'video')
+    if (mediaType === 'video')
       return runWithOwner(owner, () => renderToActualVideo({
         renderingPayload: payload,
         hasAnimatedStickers,
@@ -211,10 +211,10 @@ export async function createFinalResult(): Promise<MediaEditorFinalResult> {
         drawToImageCanvas,
         resultCanvas,
         brushCanvas,
-        ctx: ctx!
+        ctx: ctx!,
       }));
 
-    if(hasAnimatedStickers)
+    if (hasAnimatedStickers)
       return runWithOwner(owner, () => renderToVideoGIF({
         scaledWidth,
         scaledHeight,
@@ -222,7 +222,7 @@ export async function createFinalResult(): Promise<MediaEditorFinalResult> {
         imageCanvas,
         resultCanvas,
         brushCanvas,
-        ctx: ctx!
+        ctx: ctx!,
       }));
 
     return renderToImage({
@@ -231,7 +231,7 @@ export async function createFinalResult(): Promise<MediaEditorFinalResult> {
       imageCanvas,
       resultCanvas,
       brushCanvas,
-      ctx: ctx!
+      ctx: ctx!,
     });
   })();
 
@@ -242,7 +242,7 @@ export async function createFinalResult(): Promise<MediaEditorFinalResult> {
     cropOffset,
     scaledWidth,
     scaledHeight,
-    previewBlob: renderResult!.preview
+    previewBlob: renderResult!.preview,
   }) : undefined;
 
   Promise.resolve(renderResult!.getResult())?.catch(noop)?.finally(() => {
@@ -257,6 +257,6 @@ export async function createFinalResult(): Promise<MediaEditorFinalResult> {
     height: scaledHeight,
     originalSrc: context!.mediaSrc,
     originalSize: [payload.media.width, payload.media.height],
-    editingMediaState: structuredClone(unwrap(mediaState))
+    editingMediaState: structuredClone(unwrap(mediaState)),
   } as MediaEditorFinalResult;
 }

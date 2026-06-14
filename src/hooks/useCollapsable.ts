@@ -1,15 +1,15 @@
 import SwipeHandler from '@components/swipeHandler';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import {animateSingle, cancelAnimationByKey} from '@helpers/animation';
-import {CancellablePromise} from '@helpers/cancellablePromise';
+import { animateSingle, cancelAnimationByKey } from '@helpers/animation';
+import { CancellablePromise } from '@helpers/cancellablePromise';
 import cancelEvent from '@helpers/dom/cancelEvent';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import WheelClassifier from '@helpers/dom/wheelClassifier';
 import liteMode from '@helpers/liteMode';
 import clamp from '@helpers/number/clamp';
 import debounce from '@helpers/schedulers/debounce';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
-import {createSignal, createMemo, onCleanup, createEffect} from 'solid-js';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
+import { createSignal, createMemo, onCleanup, createEffect } from 'solid-js';
 
 const STATE_FOLDED = 1;
 const STATE_UNFOLDED = 0;
@@ -28,7 +28,7 @@ export function useCollapsable(props: {
   const folded = createMemo(() => progress() === STATE_FOLDED);
 
   const setProgress = (progress: number, skipAnimation?: boolean) => {
-    if(liteMode.isAvailable('animations') && !skipAnimation) setIsTransition(true);
+    if (liteMode.isAvailable('animations') && !skipAnimation) setIsTransition(true);
     _setProgress(progress);
   };
 
@@ -38,7 +38,7 @@ export function useCollapsable(props: {
       const value = clamp((Date.now() - startTime) / 125, 0, 1);
 
       let progress = wasProgress;
-      if((wasProgress > 0.5 || open === false) && open !== true) {
+      if ((wasProgress > 0.5 || open === false) && open !== true) {
         progress += (1 - wasProgress) * value;
         animationOpening = false;
       } else {
@@ -49,7 +49,7 @@ export function useCollapsable(props: {
       setProgress(progress);
       return value < 1;
     }, props.container()).finally(() => {
-      if(_animation === animation) {
+      if (_animation === animation) {
         animation = undefined;
       }
     });
@@ -64,7 +64,7 @@ export function useCollapsable(props: {
     return;
 
     const wasProgress = progress();
-    if(wasProgress >= 1 || wasProgress <= 0) {
+    if (wasProgress >= 1 || wasProgress <= 0) {
       return;
     }
 
@@ -77,31 +77,31 @@ export function useCollapsable(props: {
   const onMove = (delta: number, e?: WheelEvent | TouchEvent) => {
     const scrollTop = props.scrollable().scrollTop;
     const isWheel = e instanceof WheelEvent;
-    if(isWheel || true) {
-      if(scrollTop && progress() !== STATE_FOLDED) {
+    if (isWheel || true) {
+      if (scrollTop && progress() !== STATE_FOLDED) {
         setProgress(STATE_FOLDED);
         debounced.clearTimeout();
         return;
       }
 
-      if(isWheel) {
+      if (isWheel) {
         const type = classifier.push(e);
-        if(type === 'inertia') {
+        if (type === 'inertia') {
           return;
         }
       }
 
       const newState = delta < 0 ? STATE_UNFOLDED : STATE_FOLDED;
-      if(newState === STATE_UNFOLDED && props.canUnfold && !props.canUnfold()) {
+      if (newState === STATE_UNFOLDED && props.canUnfold && !props.canUnfold()) {
         return;
       }
 
-      if((scrollTop && progress() !== STATE_UNFOLDED) || debounced.isDebounced()) {
+      if ((scrollTop && progress() !== STATE_UNFOLDED) || debounced.isDebounced()) {
         debounced();
         return;
       }
 
-      if(progress() === newState) {
+      if (progress() === newState) {
         return;
       }
 
@@ -114,13 +114,13 @@ export function useCollapsable(props: {
     props.container().classList.add(props.skipAnimationClassName!);
 
     // if user starts to scroll down when it's being opened
-    if(delta > 0 && animation && animationOpening) {
+    if (delta > 0 && animation && animationOpening) {
       debounced.clearTimeout();
       scrollTo(wasProgress, false);
       return;
     }
 
-    if(
+    if (
       animation ||
       (wasProgress >= STATE_FOLDED && delta > 0) ||
       (wasProgress <= STATE_UNFOLDED && delta <= 0)/*  ||
@@ -137,7 +137,7 @@ export function useCollapsable(props: {
     let value = delta / 600;
     value = clamp(wasProgress + value, 0, 1);
     setProgress(value);
-    if(value >= 1 || value <= 0) {
+    if (value >= 1 || value <= 0) {
       debounced.clearTimeout();
       onScrolled();
     } else {
@@ -147,7 +147,7 @@ export function useCollapsable(props: {
   };
 
   const onWheel = (e: WheelEvent) => {
-    if(props.shouldIgnore?.()) {
+    if (props.shouldIgnore?.()) {
       return;
     }
 
@@ -155,9 +155,9 @@ export function useCollapsable(props: {
     const delta: number = -wheelDeltaY;
     onMove(delta, e);
   };
-  subscribeOn(props.listenWheelOn)('wheel', onWheel, {passive: false});
+  subscribeOn(props.listenWheelOn)('wheel', onWheel, { passive: false });
 
-  if(IS_TOUCH_SUPPORTED) {
+  if (IS_TOUCH_SUPPORTED) {
     const swipeHandler = new SwipeHandler({
       element: props.listenWheelOn,
       onSwipe: (xDiff, yDiff, e) => {
@@ -168,7 +168,7 @@ export function useCollapsable(props: {
       cursor: '',
       verifyTouchTarget: (e) => {
         return e instanceof TouchEvent && !props.shouldIgnore?.() && !findUpClassName(e.target, 'folders-tabs-scrollable');
-      }
+      },
     });
 
     onCleanup(() => {
@@ -178,7 +178,7 @@ export function useCollapsable(props: {
 
   const unfold = (e?: MouseEvent) => {
     const wasProgress = progress();
-    if(wasProgress !== STATE_UNFOLDED) {
+    if (wasProgress !== STATE_UNFOLDED) {
       // scrollTo(wasProgress, true);
       clearAnimation();
       setProgress(STATE_UNFOLDED);
@@ -192,7 +192,7 @@ export function useCollapsable(props: {
 
   createEffect(() => {
     const container = props.container();
-    if(!container) {
+    if (!container) {
       return;
     }
 
@@ -202,7 +202,7 @@ export function useCollapsable(props: {
 
   createEffect(() => {
     const container = props.container();
-    if(!container) {
+    if (!container) {
       return;
     }
 
@@ -210,5 +210,5 @@ export function useCollapsable(props: {
     subscribeOn(container)('transitionend', (e) => e.target === container && setIsTransition(false));
   });
 
-  return {folded, unfold, fold, progress, clearAnimation, isTransition, STATE_FOLDED, STATE_UNFOLDED};
+  return { folded, unfold, fold, progress, clearAnimation, isTransition, STATE_FOLDED, STATE_UNFOLDED };
 }

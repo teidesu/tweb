@@ -1,4 +1,4 @@
-import type {WallPaper} from '@layer';
+import type { WallPaper } from '@layer';
 import clamp from '@helpers/number/clamp';
 
 export type ColorHsla = {
@@ -46,12 +46,12 @@ export function rgbaToHsla(r: number, g: number, b: number, a: number = 1): Colo
   let h: number, s: number;
   const l = (max + min) / 2;
 
-  if(max === min) {
+  if (max === min) {
     h = s = 0; // achromatic
   } else {
     const d = max - min;
     s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch(max) {
+    switch (max) {
       case r:
         h = (g - b) / d + (g < b ? 6 : 0);
         break;
@@ -69,7 +69,7 @@ export function rgbaToHsla(r: number, g: number, b: number, a: number = 1): Colo
     h: h! * 360,
     s: s * 100,
     l: l * 100,
-    a
+    a,
   };
 }
 
@@ -91,15 +91,15 @@ export function hslaToRgba(h: number, s: number, l: number, a: number): ColorRgb
   h /= 360, s /= 100, l /= 100;
   let r: number, g: number, b: number;
 
-  if(s === 0) {
+  if (s === 0) {
     r = g = b = l; // achromatic
   } else {
     const hue2rgb = function hue2rgb(p: number, q: number, t: number) {
-      if(t < 0) t += 1;
-      if(t > 1) t -= 1;
-      if(t < 1/6) return p + (q - p) * 6 * t;
-      if(t < 1/2) return q;
-      if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1/6) return p + (q - p) * 6 * t;
+      if (t < 1/2) return q;
+      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
       return p;
     }
 
@@ -117,7 +117,7 @@ export function hslaStringToRgba(hsla: string) {
   const splitted = hsla.slice(5, -1).split(', ');
   const alpha = +splitted.pop()!;
   const arr = splitted.map((val) => {
-    if(val.endsWith('%')) {
+    if (val.endsWith('%')) {
       return +val.slice(0, -1);
     }
 
@@ -130,22 +130,22 @@ export function hslaStringToRgba(hsla: string) {
 export function hexaToRgba(hexa: string) {
   const arr: ColorRgba = [] as any;
   const offset = hexa[0] === '#' ? 1 : 0;
-  if(hexa.length === (5 + offset)) {
+  if (hexa.length === (5 + offset)) {
     hexa = (offset ? '#' : '') + '0' + hexa.slice(offset);
   }
 
-  if(hexa.length === (3 + offset)) {
-    for(let i = offset; i < hexa.length; ++i) {
+  if (hexa.length === (3 + offset)) {
+    for (let i = offset; i < hexa.length; ++i) {
       arr.push(parseInt(hexa[i] + hexa[i], 16));
     }
-  } else if(hexa.length === (4 + offset)) {
-    for(let i = offset; i < (hexa.length - 1); ++i) {
+  } else if (hexa.length === (4 + offset)) {
+    for (let i = offset; i < (hexa.length - 1); ++i) {
       arr.push(parseInt(hexa[i] + hexa[i], 16));
     }
 
     arr.push(parseInt(hexa[hexa.length - 1], 16));
   } else {
-    for(let i = offset; i < hexa.length; i += 2) {
+    for (let i = offset; i < hexa.length; i += 2) {
       arr.push(parseInt(hexa.slice(i, i + 2), 16));
     }
   }
@@ -159,7 +159,7 @@ export function hexToRgb(hex: string) {
 
 export function rgbIntToHex(int: number, alpha?: number) {
   let str = `#${int.toString(16).padStart(6, '0')}`;
-  if(alpha !== undefined) {
+  if (alpha !== undefined) {
     str += `${Math.floor(alpha * 255).toString(16).padStart(2, '0')}`;
   }
   return str;
@@ -187,7 +187,7 @@ export function hslaStringToHex(hsla: string) {
  */
 export function mixColors(color1: ColorRgb, color2: ColorRgb, weight: number) {
   const out = new Array<number>(3) as ColorRgb;
-  for(let i = 0; i < 3; ++i) {
+  for (let i = 0; i < 3; ++i) {
     const v1 = color1[i], v2 = color2[i];
     out[i] = Math.floor(v2 + (v1 - v2) * weight);
   }
@@ -212,7 +212,7 @@ export function getAccentColor(baseHsv: number[], baseColor: ColorRgb, elementCo
   hsvTemp3[0] = Math.min(360, hsvTemp4[0] - hsvTemp3[0] + baseHsv[0]);
   hsvTemp3[1] = Math.min(1, hsvTemp4[1] * baseHsv[1] / hsvTemp3[1]);
   hsvTemp3[2] = Math.min(1, (hsvTemp4[2] / hsvTemp3[2] + dist - 1) * baseHsv[2] / dist);
-  if(hsvTemp3[2] < 0.3) {
+  if (hsvTemp3[2] < 0.3) {
     return elementColor;
   }
   return hsvToRgb(...hsvTemp3);
@@ -222,7 +222,7 @@ export function changeColorAccent(baseHsv: number[], accentHsv: number[], color:
   const colorHsv = rgbToHsv(...color);
 
   const diffH = Math.min(Math.abs(colorHsv[0] - baseHsv[0]), Math.abs(colorHsv[0] - baseHsv[0] - 360));
-  if(diffH > 30) {
+  if (diffH > 30) {
     return color;
   }
 
@@ -240,7 +240,7 @@ export function changeColorAccent(baseHsv: number[], accentHsv: number[], color:
   // We need to keep colors lighter in dark themes and darker in light themes
   const needRevertBrightness = isDarkTheme ? origBrightness > newBrightness : origBrightness < newBrightness;
 
-  if(needRevertBrightness) {
+  if (needRevertBrightness) {
     const amountOfNew = 0.6;
     const fallbackAmount = (1 - amountOfNew) * origBrightness / newBrightness + amountOfNew;
     newColor = changeBrightness(newColor, fallbackAmount);
@@ -273,15 +273,15 @@ export function getRgbColorFromTelegramColor(color: number) {
 // gradient instead of the intended flat white, so later zero stops are dropped.
 export function getWallPaperColors(wallPaper: WallPaper): string[] {
   const settings = wallPaper?.settings;
-  if(!settings) return [];
+  if (!settings) return [];
   return [
     settings.background_color,
     settings.second_background_color,
     settings.third_background_color,
-    settings.fourth_background_color
+    settings.fourth_background_color,
   ]
-  .filter((color, index): color is number => color != null && (index === 0 || color !== 0))
-  .map(getHexColorFromTelegramColor);
+    .filter((color, index): color is number => color != null && (index === 0 || color !== 0))
+    .map(getHexColorFromTelegramColor);
 }
 
 export function getColorsFromWallPaper(wallPaper: WallPaper) {
@@ -321,15 +321,15 @@ export function relativeLuminance(rgb: ColorRgb): number {
  * pass through unchanged; non-`#rrggbb` input is returned untouched.
  */
 export function darkenToMaxLuminance(hex: string, maxL: number): string {
-  if(!/^#[0-9a-f]{6}$/i.test(hex)) return hex;
+  if (!/^#[0-9a-f]{6}$/i.test(hex)) return hex;
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
-  if(relativeLuminance([r, g, b]) <= maxL) return hex;
+  if (relativeLuminance([r, g, b]) <= maxL) return hex;
   let lo = 0, hi = 1;
-  for(let i = 0; i < 20; i++) {
+  for (let i = 0; i < 20; i++) {
     const f = (lo + hi) / 2;
-    if(relativeLuminance([r * f, g * f, b * f]) > maxL) hi = f;
+    if (relativeLuminance([r * f, g * f, b * f]) > maxL) hi = f;
     else lo = f;
   }
   const c = (v: number) => Math.round(v * lo).toString(16).padStart(2, '0');

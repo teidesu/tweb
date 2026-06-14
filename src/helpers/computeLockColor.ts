@@ -3,7 +3,7 @@ let outCanvas: HTMLCanvasElement,
 
 // https://github.com/telegramdesktop/tdesktop/blob/543bfab24a76402992421063f1e6444f347d31fe/Telegram/SourceFiles/boxes/sticker_set_box.cpp#L75
 export default function computeLockColor(canvas: HTMLCanvasElement) {
-  if(!outCanvas) {
+  if (!outCanvas) {
     outCanvas = document.createElement('canvas');
     outContext = outCanvas.getContext('2d')!;
   }
@@ -17,7 +17,7 @@ export default function computeLockColor(canvas: HTMLCanvasElement) {
   const skipy = canvas.height - height - margin;
   const imageData = context!.getImageData(skipx, skipy, width, height).data;
   let sr = 0, sg = 0, sb = 0, sa = 0;
-  for(let i = 0; i < imageData.length; i += 4) {
+  for (let i = 0; i < imageData.length; i += 4) {
     sr += imageData[i];
     sg += imageData[i + 1];
     sb += imageData[i + 2];

@@ -1,24 +1,24 @@
-import {createEffect, createSelector, createSignal, For, onCleanup, onMount, Show} from 'solid-js';
-import {createStore} from 'solid-js/store';
-import {render} from 'solid-js/web';
+import { createEffect, createSelector, createSignal, For, onCleanup, onMount, Show } from 'solid-js';
+import { createStore } from 'solid-js/store';
+import { render } from 'solid-js/web';
 import createFolderContextMenu from '@helpers/dom/createFolderContextMenu';
-import {keepMe} from '@helpers/keepMe';
-import {Middleware} from '@helpers/middleware';
+import { keepMe } from '@helpers/keepMe';
+import { Middleware } from '@helpers/middleware';
 import pause from '@helpers/schedulers/pause';
 import Animated from '@helpers/solid/animations';
 import classNames from '@helpers/string/classNames';
-import {logger, LogTypes} from '@lib/logger';
-import {REAL_FOLDERS} from '@appManagers/constants';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { logger, LogTypes } from '@lib/logger';
+import { REAL_FOLDERS } from '@appManagers/constants';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 import type SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
 import useHasFoldersSidebar from '@stores/foldersSidebar';
 import useFolders from '@stores/folders';
 import appChatBackground from '@components/chat/bubbles/chatBackground';
-import {IconTsx} from '@components/iconTsx';
+import { IconTsx } from '@components/iconTsx';
 import ripple from '@components/ripple';
 import Scrollable from '@components/scrollable2';
 import FolderItem from '@components/sidebarLeft/foldersSidebarContent/folderItem';
-import {getFolderTitle} from '@components/sidebarLeft/foldersSidebarContent/utils';
+import { getFolderTitle } from '@components/sidebarLeft/foldersSidebarContent/utils';
 
 keepMe(ripple);
 
@@ -35,10 +35,10 @@ export function FoldersSidebarContent(props: {
     appSidebarLeft,
     AppChatFoldersTab,
     AppEditFolderTab,
-    i18n
+    i18n,
   } = useHotReloadGuard();
 
-  const {selectedFolderId, onClick, folderItems} = useFolders();
+  const { selectedFolderId, onClick, folderItems } = useFolders();
   const [addFoldersOffset, setAddFoldersOffset] = createSignal(0);
   const [canShowAddFolders, setCanShowAddFolders] = createSignal(false);
   const [menuTarget, setMenuTarget] = createSignal<HTMLDivElement>();
@@ -62,8 +62,8 @@ export function FoldersSidebarContent(props: {
   let folderItemsContainer: HTMLDivElement;
 
   async function _onClick(folderId: number) {
-    const index = folderItems.findIndex(({filter}) => filter.id === folderId);
-    if(!(await onClick()!(index, false))) {
+    const index = folderItems.findIndex(({ filter }) => filter.id === folderId);
+    if (!(await onClick()!(index, false))) {
       return false;
     }
 
@@ -74,9 +74,9 @@ export function FoldersSidebarContent(props: {
 
   createEffect(() => {
     const _menuTarget = menuTarget();
-    if(!_menuTarget) return;
+    if (!_menuTarget) return;
 
-    appSidebarLeft.createToolsMenu(_menuTarget, {top: 8, left: 48});
+    appSidebarLeft.createToolsMenu(_menuTarget, { top: 8, left: 48 });
     _menuTarget.classList.add('sidebar-tools-button', 'is-visible');
     _menuTarget.append(props.notificationsElement);
   });
@@ -89,7 +89,7 @@ export function FoldersSidebarContent(props: {
       AppEditFolderTab,
       managers: rootScope.managers,
       className: 'folders-sidebar__folder-item',
-      listenTo: folderItemsContainer!
+      listenTo: folderItemsContainer!,
     });
 
     // Mirror the chat-background gradient into our own canvas — cheap stand-in for
@@ -101,7 +101,7 @@ export function FoldersSidebarContent(props: {
     const unsubscribeRenderer = appChatBackground.onActiveGradientRendererChange((renderer, meta) => {
       detachMirror?.();
       detachMirror = undefined;
-      if(renderer && backgroundCanvas!) {
+      if (renderer && backgroundCanvas!) {
         detachMirror = renderer.attachMirror(backgroundCanvas);
         setHasGradient(true);
       } else {
@@ -119,7 +119,7 @@ export function FoldersSidebarContent(props: {
 
   const updateCanShowAddFolders = () => {
     const selectedItem = folderItemRefs[selectedFolderId()];
-    if(!selectedItem) return;
+    if (!selectedItem) return;
 
     const containerRect = folderItemsContainer!.getBoundingClientRect();
     const itemRect = selectedItem.getBoundingClientRect();
@@ -152,17 +152,17 @@ export function FoldersSidebarContent(props: {
           withBorders="both"
         >
           <For each={folderItems}>{(folderItem) => {
-            const {id} = folderItem;
+            const { id } = folderItem;
 
             onCleanup(() => {
-              setFolderItemRefs({[id]: undefined});
+              setFolderItemRefs({ [id]: undefined });
             });
 
             return (
               <FolderItem
                 {...folderItem}
                 {...getFolderTitle(folderItem.filter)}
-                ref={(el) => setFolderItemRefs({[id]: el!})}
+                ref={(el) => setFolderItemRefs({ [id]: el! })}
                 selected={isSelected(id)}
                 onClick={() => _onClick(id)}
               />
@@ -176,7 +176,7 @@ export function FoldersSidebarContent(props: {
             class="folders-sidebar__add-folders-button"
             onClick={() => contextMenu.openSettingsForFilter(selectedFolderId())}
             style={{
-              '--offset': addFoldersOffset()
+              '--offset': addFoldersOffset(),
             }}
           >
             <IconTsx icon="plus" class="folders-sidebar__add-folders-button-icon" />
@@ -191,7 +191,7 @@ export function FoldersSidebarContent(props: {
         class="folders-sidebar__menu-button is-last"
         icon="equalizer"
         onClick={() => {
-          if(openingChatFolders || appSidebarLeft.getTab(AppChatFoldersTab)) return;
+          if (openingChatFolders || appSidebarLeft.getTab(AppChatFoldersTab)) return;
           openingChatFolders = true;
           appSidebarLeft.closeTabsBefore(() => {
             const tab = appSidebarLeft.createTab(AppChatFoldersTab);

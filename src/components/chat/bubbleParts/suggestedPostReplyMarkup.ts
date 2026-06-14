@@ -1,4 +1,4 @@
-import {Message} from '@layer';
+import { Message } from '@layer';
 import SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
 import type Chat from '@components/chat/chat';
 
@@ -14,14 +14,14 @@ type Args = {
   contentWrapper: HTMLElement;
 };
 
-export default function addSuggestedPostReplyMarkup({chat, message, bubble, contentWrapper}: Args) {
-  if(!canHaveSuggestedPostReplyMarkup(message)) return;
+export default function addSuggestedPostReplyMarkup({ chat, message, bubble, contentWrapper }: Args) {
+  if (!canHaveSuggestedPostReplyMarkup(message)) return;
 
   return (async() => {
-    const {default: SuggestedPostReplyMarkupContent} = await import('./suggestedPostReplyMarkupContent');
+    const { default: SuggestedPostReplyMarkupContent } = await import('./suggestedPostReplyMarkupContent');
     const container = new SuggestedPostReplyMarkupContent;
     container.HotReloadGuard = SolidJSHotReloadGuardProvider;
-    container.feedProps({message, chat});
+    container.feedProps({ message, chat });
 
     bubble.classList.add('with-reply-markup');
     contentWrapper.append(container);

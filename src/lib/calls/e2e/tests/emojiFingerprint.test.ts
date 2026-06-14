@@ -11,14 +11,14 @@
  *      bit 0 of byte 0 ↔ bit 7 of byte 0 maps to the same index).
  */
 
-import {describe, expect, it} from 'vitest';
-import {emojiFingerprint, emojiFingerprintString, getFingerprintEmojiCount} from '../emojiFingerprint';
+import { describe, expect, it } from 'vitest';
+import { emojiFingerprint, emojiFingerprintString, getFingerprintEmojiCount } from '../emojiFingerprint';
 
 describe('emojiFingerprint', () => {
   it('produces 4 emojis from a 32-byte hash', () => {
     const out = emojiFingerprint(new Uint8Array(32));
     expect(out).toHaveLength(4);
-    for(const e of out) {
+    for (const e of out) {
       expect(typeof e).toBe('string');
       expect(e.length).toBeGreaterThanOrEqual(1);
     }
@@ -26,7 +26,7 @@ describe('emojiFingerprint', () => {
 
   it('is deterministic for the same input', () => {
     const hash = new Uint8Array(32);
-    for(let i = 0; i < hash.length; i++) hash[i] = (i * 37 + 11) & 0xff;
+    for (let i = 0; i < hash.length; i++) hash[i] = (i * 37 + 11) & 0xff;
     expect(emojiFingerprint(hash)).toEqual(emojiFingerprint(hash));
   });
 
@@ -45,7 +45,7 @@ describe('emojiFingerprint', () => {
     // regress and forget the mask, this test will fail.
     const a = new Uint8Array(32);
     const b = new Uint8Array(32);
-    for(let chunk = 0; chunk < 4; chunk++) {
+    for (let chunk = 0; chunk < 4; chunk++) {
       a[chunk * 8] = 0x00;
       b[chunk * 8] = 0x80;
     }
@@ -57,7 +57,7 @@ describe('emojiFingerprint', () => {
     // one emoji with very high probability (333^4 ≈ 1.2 × 10^10 emoji-sequence
     // space; collision odds for 10 random inputs ~10^-10).
     const seen = new Set<string>();
-    for(let i = 0; i < 10; i++) {
+    for (let i = 0; i < 10; i++) {
       const hash = new Uint8Array(32);
       hash[3] = i; // vary one byte
       seen.add(emojiFingerprintString(hash));
@@ -73,7 +73,7 @@ describe('emojiFingerprint', () => {
 
   it('accepts 64-byte input (full HMAC-SHA512 output) → 8 emojis', () => {
     const hash = new Uint8Array(64);
-    for(let i = 0; i < hash.length; i++) hash[i] = i;
+    for (let i = 0; i < hash.length; i++) hash[i] = i;
     const out = emojiFingerprint(hash);
     expect(out).toHaveLength(8);
   });

@@ -1,4 +1,4 @@
-import {getMiddleware, MiddlewareHelper} from '@helpers/middleware';
+import { getMiddleware, MiddlewareHelper } from '@helpers/middleware';
 
 export interface AnimatedSuperOptions {
   duration?: number;
@@ -19,27 +19,27 @@ export class AnimatedSuper {
   }
 
   public getRow(index: number, animateFirst = false) {
-    if(this.rows[index]) return this.rows[index].element;
+    if (this.rows[index]) return this.rows[index].element;
     const row = document.createElement('div');
     const isFirst = !Object.keys(this.rows).length && !animateFirst;
     row.className = AnimatedSuper.BASE_CLASS + '-row' + (isFirst ? '' : ' is-hiding hide');
-    this.rows[index] = {element: row, middleware: row.middlewareHelper = getMiddleware(), new: true};
+    this.rows[index] = { element: row, middleware: row.middlewareHelper = getMiddleware(), new: true };
     this.container.append(row);
     return row;
   }
 
   public clearRow(index: number) {
-    if(!this.rows[index]) return;
+    if (!this.rows[index]) return;
     this.rows[index].element.remove();
     this.rows[index].middleware.destroy();
     delete this.rows[index];
   }
 
   public clearRows(currentIndex?: number) {
-    if(this.clearTimeout) clearTimeout(this.clearTimeout);
+    if (this.clearTimeout) clearTimeout(this.clearTimeout);
     this.clearTimeout = window.setTimeout(() => {
-      for(const i in this.rows) {
-        if(+i === currentIndex) continue;
+      for (const i in this.rows) {
+        if (+i === currentIndex) continue;
         this.clearRow(+i);
       }
     }, this.duration);
@@ -47,8 +47,8 @@ export class AnimatedSuper {
 
   public setNewRow(index: number, reflow = false) {
     const row = this.rows[index];
-    if(row.new) {
-      if(reflow) {
+    if (row.new) {
+      if (reflow) {
         row.element.classList.remove('hide');
         void row.element.offsetLeft; // reflow
       } else {
@@ -62,27 +62,27 @@ export class AnimatedSuper {
   }
 
   public animate(index: number, previousIndex: number, fromTop = index > previousIndex, ignorePrevious = false) {
-    if(index === previousIndex) { // * handle if set index 0 and previousIndex 0
+    if (index === previousIndex) { // * handle if set index 0 and previousIndex 0
       return this.setNewRow(index);
     }
 
     const row = this.rows[index];
     const previousRow = this.rows[previousIndex];
-    if(!previousRow && !ignorePrevious) {
+    if (!previousRow && !ignorePrevious) {
       return this.setNewRow(index);
     }
 
     const sides = ['from-top', 'from-bottom'];
-    if(!fromTop) sides.reverse();
+    if (!fromTop) sides.reverse();
 
     row.element.classList.add(sides[0]);
     row.element.classList.remove(sides[1]);
-    if(previousRow) {
+    if (previousRow) {
       previousRow.element.classList.add(sides[1]);
       previousRow.element.classList.remove(sides[0]);
     }
 
-    if(row.new) {
+    if (row.new) {
       this.setNewRow(index, true);
     }
 
@@ -93,7 +93,7 @@ export class AnimatedSuper {
   }
 
   public destroy() {
-    for(const i in this.rows) {
+    for (const i in this.rows) {
       this.clearRow(+i);
     }
   }

@@ -1,5 +1,5 @@
-import {ParentProps, JSX, createEffect, splitProps, untrack, children} from 'solid-js';
-import {assign, insert} from 'solid-js/web';
+import { ParentProps, JSX, createEffect, splitProps, untrack, children } from 'solid-js';
+import { assign, insert } from 'solid-js/web';
 
 export type PassthroughProps<E extends Element> = {element: E} & ParentProps & JSX.HTMLAttributes<E>;
 export default function Passthrough<E extends Element>(props: PassthroughProps<E>): E {

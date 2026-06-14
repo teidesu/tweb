@@ -1,17 +1,17 @@
 import callbackify from '@helpers/callbackify';
 import namedPromises from '@helpers/namedPromises';
-import {numberThousandSplitterForStars} from '@helpers/number/numberThousandSplitter';
-import {AppManagers} from '@lib/managers';
-import {i18n} from '@lib/langPack';
+import { numberThousandSplitterForStars } from '@helpers/number/numberThousandSplitter';
+import { AppManagers } from '@lib/managers';
+import { i18n } from '@lib/langPack';
 import confirmationPopup from '@components/confirmationPopup';
 import Icon from '@components/icon';
 import PeerTitle from '@components/peerTitle';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
 import Chat from '@components/chat/chat';
 import type ChatTopbar from '@components/chat/topbar';
-import {AckedResult} from '@lib/superMessagePort';
-import {Accessor, createSignal, Show} from 'solid-js';
-import TopbarPlate, {createTopbarPlate, TopbarPlateController} from '@components/chat/topbarPlate';
+import { AckedResult } from '@lib/superMessagePort';
+import { Accessor, createSignal, Show } from 'solid-js';
+import TopbarPlate, { createTopbarPlate, TopbarPlateController } from '@components/chat/topbarPlate';
 
 type SetArgs = {
   peerId: PeerId,
@@ -38,7 +38,7 @@ function RemoveFeePlateBody(props: {
         peerTitle.update({
           peerId: a().monoforumThreadId || a().peerId,
           onlyFirstName: true,
-          limitSymbols: 20
+          limitSymbols: 20,
         });
 
         const inlineStars = (
@@ -59,7 +59,7 @@ function RemoveFeePlateBody(props: {
                 await openRemoveFeePopup({
                   parentPeerId: a().monoforumThreadId ? a().peerId : undefined,
                   peerId: a().monoforumThreadId || a().peerId,
-                  managers: props.chat.managers
+                  managers: props.chat.managers,
                 });
                 props.hide();
               }}
@@ -84,7 +84,7 @@ export default function createChatRemoveFeePlate(
     modifier: className,
     height: 74,
     onVisibilityChange: () => topbar.setFloating(),
-    render: () => <RemoveFeePlateBody args={args} chat={chat} hide={() => hide()} />
+    render: () => <RemoveFeePlateBody args={args} chat={chat} hide={() => hide()} />,
   });
 
   const show = (next: SetArgs) => {
@@ -98,25 +98,25 @@ export default function createChatRemoveFeePlate(
   };
 
   const setPeerId = async(peerId: PeerId) => {
-    if(chat.isMonoforum && chat.canManageDirectMessages && chat.monoforumThreadId) {
-      const {ackedChat, ackedDialog} = await namedPromises({
+    if (chat.isMonoforum && chat.canManageDirectMessages && chat.monoforumThreadId) {
+      const { ackedChat, ackedDialog } = await namedPromises({
         ackedChat: managers.acknowledged.appChatsManager.getChat(peerId.toChatId()),
-        ackedDialog: managers.acknowledged.monoforumDialogsStorage.getDialogByParent(peerId, chat.monoforumThreadId)
+        ackedDialog: managers.acknowledged.monoforumDialogsStorage.getDialogByParent(peerId, chat.monoforumThreadId),
       });
 
       return {
         cached: ackedChat.cached && ackedDialog.cached,
         result: callbackify(Promise.all([ackedChat.result, ackedDialog.result]), ([chatPeer, dialog]) => {
           const starsCharged = chatPeer?._ === 'channel' && +chatPeer.send_paid_messages_stars!;
-          if(!starsCharged || dialog?.pFlags?.nopaid_messages_exception) return hide;
-          return () => show({peerId, starsCharged, monoforumThreadId: chat.monoforumThreadId});
-        })
+          if (!starsCharged || dialog?.pFlags?.nopaid_messages_exception) return hide;
+          return () => show({ peerId, starsCharged, monoforumThreadId: chat.monoforumThreadId });
+        }),
       };
     }
 
-    if(!peerId.isUser()) return {
+    if (!peerId.isUser()) return {
       cached: true,
-      result: Promise.resolve(hide)
+      result: Promise.resolve(hide),
     };
 
     const ackedFullUser = await managers.acknowledged.appProfileManager.getProfile(peerId.toUserId());
@@ -125,16 +125,16 @@ export default function createChatRemoveFeePlate(
       cached: ackedFullUser.cached,
       result: callbackify(ackedFullUser.result, (fullUser) => {
         const starsCharged = +fullUser?.settings?.charge_paid_message_stars!;
-        if(!starsCharged) return hide;
-        return () => show({peerId, starsCharged});
-      })
+        if (!starsCharged) return hide;
+        return () => show({ peerId, starsCharged });
+      }),
     };
   };
 
   return {
     ...plate,
     setPeerId,
-    hide
+    hide,
   };
 }
 
@@ -145,22 +145,22 @@ type OpenRemoveFeePopupArgs = {
   managers: AppManagers
 };
 
-export async function openRemoveFeePopup({peerId, parentPeerId, managers, requirePayment}: OpenRemoveFeePopupArgs) {
+export async function openRemoveFeePopup({ peerId, parentPeerId, managers, requirePayment }: OpenRemoveFeePopupArgs) {
   const userId = peerId.toUserId();
-  const revenue = !requirePayment ? await managers.appUsersManager.getPaidMessagesRevenue({userId, parentPeerId}) : undefined;
+  const revenue = !requirePayment ? await managers.appUsersManager.getPaidMessagesRevenue({ userId, parentPeerId }) : undefined;
 
   const shouldRefund = await confirmationPopup({
     titleLangKey: requirePayment ? 'PaidMessages.ChargeFee' : 'PaidMessages.RemoveFee',
     descriptionLangKey: requirePayment ? 'PaidMessages.ChargeFeeWarning' : 'PaidMessages.RemoveFeeWarning',
-    descriptionLangArgs: [await wrapPeerTitle({peerId, onlyFirstName: true})],
+    descriptionLangArgs: [await wrapPeerTitle({ peerId, onlyFirstName: true })],
     checkbox: revenue ? {
       text: 'PaidMessages.RemoveFeeRefund',
-      textArgs: [i18n('Stars', [revenue])]
+      textArgs: [i18n('Stars', [revenue])],
     } : undefined,
     button: {
-      langKey: 'Confirm'
-    }
+      langKey: 'Confirm',
+    },
   });
 
-  await managers.appUsersManager.toggleNoPaidMessagesException({userId, refundCharged: shouldRefund!, parentPeerId, requirePayment});
+  await managers.appUsersManager.toggleNoPaidMessagesException({ userId, refundCharged: shouldRefund!, parentPeerId, requirePayment });
 }

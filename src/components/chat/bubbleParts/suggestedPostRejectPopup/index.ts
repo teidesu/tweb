@@ -8,12 +8,12 @@ type Args = {
 };
 
 export default class SuggestedPostRejectPopup extends PopupElement {
-  constructor({peerId, messageId}: Args) {
+  constructor({ peerId, messageId }: Args) {
     super('suggested-post-popup', {
       overlayClosable: true,
       closable: true,
       body: true,
-      title: 'SuggestedPosts.RejectOffer'
+      title: 'SuggestedPosts.RejectOffer',
     });
 
     const content = new SuggestedPostRejectPopupContent;
@@ -22,7 +22,7 @@ export default class SuggestedPostRejectPopup extends PopupElement {
       messageId,
       onFinish: () => {
         this.hide();
-      }
+      },
     })
 
     this.body.append(content);

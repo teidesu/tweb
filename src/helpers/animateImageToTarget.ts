@@ -1,6 +1,6 @@
-import {animateValue} from './animateValue';
+import { animateValue } from './animateValue';
 import deferredPromise from './cancellablePromise';
-import {lerp} from './lerp';
+import { lerp } from './lerp';
 
 type AnimateImageToTargetArgs = {
   animatedImg: HTMLImageElement;
@@ -8,7 +8,7 @@ type AnimateImageToTargetArgs = {
   targetIsRound?: boolean;
 };
 
-export function animateImageToTarget({animatedImg, target, targetIsRound}: AnimateImageToTargetArgs) {
+export function animateImageToTarget({ animatedImg, target, targetIsRound }: AnimateImageToTargetArgs) {
   const deferred = deferredPromise<void>();
 
   const bcr = animatedImg.getBoundingClientRect();
@@ -24,14 +24,14 @@ export function animateImageToTarget({animatedImg, target, targetIsRound}: Anima
       animatedImg.style.width = lerp(width, targetBcr.width, progress) + 'px';
       animatedImg.style.height = lerp(height, targetBcr.height, progress) + 'px';
 
-      if(targetIsRound) {
+      if (targetIsRound) {
         animatedImg.style.borderRadius = lerp(0, 50, progress) + '%';
       }
     },
     {
       onEnd: () => {
         deferred.resolve();
-      }
+      },
     }
   );
 
@@ -39,9 +39,9 @@ export function animateImageToTarget({animatedImg, target, targetIsRound}: Anima
     promise: deferred,
     cancel: (reject?: boolean) => {
       cancelAnimation();
-      if(reject) {
+      if (reject) {
         deferred.reject();
       }
-    }
+    },
   };
 }

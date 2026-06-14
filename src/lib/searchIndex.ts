@@ -5,7 +5,7 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import {processSearchText, ProcessSearchTextOptions} from '@helpers/cleanSearchText';
+import { processSearchText, ProcessSearchTextOptions } from '@helpers/cleanSearchText';
 import flatten from '@helpers/array/flatten';
 
 type SearchIndexOptions = ProcessSearchTextOptions & {
@@ -26,11 +26,11 @@ export default class SearchIndex<SearchWhat> {
       return false;
     } */
 
-    if(searchText.trim()) {
+    if (searchText.trim()) {
       searchText = this.processSearchText(searchText);
     }
 
-    if(!searchText) {
+    if (!searchText) {
       this.fullTexts.delete(id);
       return false;
     }
@@ -68,11 +68,11 @@ export default class SearchIndex<SearchWhat> {
       let found = true;
       let foundChars = 0;
       // let totalChars = 0;
-      for(let i = 0; i < queryWordsLength; ++i) { // * verify that all words are found
+      for (let i = 0; i < queryWordsLength; ++i) { // * verify that all words are found
         const word = queryWords[i];
         const idx = fullText.indexOf(word);
         const isLastWord = i === (queryWordsLength - 1);
-        if(
+        if (
           idx === -1 ||                                                                         // * if not found at all
           (this.options.fullWords && !isLastWord && fullText[idx + word.length] !== ' ') ||     // * if not last word, then next char must be space
           (idx !== 0 && fullText[idx - 1] !== ' '/*  && !badCharsRe.test(fullText[idx - 1]) */) // * search only from word beginning
@@ -89,11 +89,11 @@ export default class SearchIndex<SearchWhat> {
         // totalChars += textWordLength;
       }
 
-      if(found) {
+      if (found) {
         foundChars += queryWordsLength - 1;
         const fullTextLength = fullText.length;
-        if(minChars! <= foundChars || fullTextLength <= foundChars) {
-          newFoundObjs.push({fullText, fullTextLength/* , totalChars */, what, foundChars});
+        if (minChars! <= foundChars || fullTextLength <= foundChars) {
+          newFoundObjs.push({ fullText, fullTextLength/* , totalChars */, what, foundChars });
         }
       }
     });

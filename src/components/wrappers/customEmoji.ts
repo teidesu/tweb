@@ -1,4 +1,4 @@
-import {MessageEntity} from '@layer';
+import { MessageEntity } from '@layer';
 import wrapRichText from '@lib/richTextProcessor/wrapRichText';
 
 export default function wrapCustomEmoji({
@@ -8,7 +8,7 @@ export default function wrapCustomEmoji({
   lazyLoadQueue,
   customEmojiSize,
   animationGroup,
-  textColor
+  textColor,
 }: {
   docIds: DocId[],
   loadPromises?: Promise<any>[]
@@ -20,7 +20,7 @@ export default function wrapCustomEmoji({
       _: 'messageEntityCustomEmoji',
       offset: idx,
       length: 1,
-      document_id: docId
+      document_id: docId,
     });
   });
 
@@ -31,7 +31,7 @@ export default function wrapCustomEmoji({
     customEmojiSize,
     middleware,
     lazyLoadQueue,
-    textColor
+    textColor,
   });
 
   return wrapped;

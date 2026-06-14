@@ -1,26 +1,26 @@
 import getGroupCallAudioAsset from '@components/groupCall/getAudioAsset';
-import {MOUNT_CLASS_TO} from '@config/debug';
+import { MOUNT_CLASS_TO } from '@config/debug';
 import EventListenerBase from '@helpers/eventListenerBase';
-import {GroupCallParticipant, GroupCallParticipantVideo, GroupCallParticipantVideoSourceGroup} from '@layer';
-import {GroupCallId, GroupCallConnectionType} from '@appManagers/appGroupCallsManager';
-import {AppManagers} from '@lib/managers';
-import {logger} from '@lib/logger';
+import { GroupCallParticipant, GroupCallParticipantVideo, GroupCallParticipantVideoSourceGroup } from '@layer';
+import { GroupCallId, GroupCallConnectionType } from '@appManagers/appGroupCallsManager';
+import { AppManagers } from '@lib/managers';
+import { logger } from '@lib/logger';
 import rootScope from '@lib/rootScope';
 import GroupCallInstance from '@lib/calls/groupCallInstance';
 import GROUP_CALL_STATE from '@lib/calls/groupCallState';
 import createMainStreamManager from '@lib/calls/helpers/createMainStreamManager';
 import senderKind from '@lib/calls/helpers/senderKind';
-import {generateSsrc} from '@lib/calls/localConferenceDescription';
-import {WebRTCLineType} from '@lib/calls/sdpBuilder';
+import { generateSsrc } from '@lib/calls/localConferenceDescription';
+import { WebRTCLineType } from '@lib/calls/sdpBuilder';
 import StreamManager from '@lib/calls/streamManager';
-import {Ssrc} from '@lib/calls/types';
-import {EncryptWorkerHost} from '@lib/calls/e2e/encryptWorkerHost';
-import {randomBytes} from '@lib/calls/e2e/crypto';
-import {PrivateKey} from '@lib/calls/e2e/keys';
-import type {GroupParticipant} from '@lib/calls/e2e/tlTypes';
-import type {InputGroupCall, Update, Updates} from '@layer';
-import {NULL_PEER_ID} from '@appManagers/constants';
-import {isTruthy} from '../../helpers/isTruthy';
+import { Ssrc } from '@lib/calls/types';
+import { EncryptWorkerHost } from '@lib/calls/e2e/encryptWorkerHost';
+import { randomBytes } from '@lib/calls/e2e/crypto';
+import { PrivateKey } from '@lib/calls/e2e/keys';
+import type { GroupParticipant } from '@lib/calls/e2e/tlTypes';
+import type { InputGroupCall, Update, Updates } from '@layer';
+import { NULL_PEER_ID } from '@appManagers/constants';
+import { isTruthy } from '../../helpers/isTruthy';
 
 const IS_MUTED = true;
 
@@ -30,7 +30,7 @@ export function makeSsrcsFromParticipant(participant: GroupCallParticipant) {
     participant.video?.audio_source && makeSsrcFromParticipant(participant, 'audio', participant.video.audio_source),
     participant.video && makeSsrcFromParticipant(participant, 'video', participant.video.source_groups, participant.video.endpoint),
     participant.presentation?.audio_source && makeSsrcFromParticipant(participant, 'audio', participant.presentation.audio_source),
-    participant.presentation && makeSsrcFromParticipant(participant, 'video', participant.presentation.source_groups, participant.presentation.endpoint)
+    participant.presentation && makeSsrcFromParticipant(participant, 'video', participant.presentation.source_groups, participant.presentation.endpoint),
   ].filter(isTruthy);
 };
 
@@ -44,7 +44,7 @@ export function generateSelfVideo(source: Ssrc, audioSource?: number): GroupCall
     pFlags: {},
     endpoint: '',
     source_groups: source.sourceGroups,
-    audio_source: audioSource
+    audio_source: audioSource,
   }) as GroupCallParticipantVideo;
 }
 
@@ -62,19 +62,19 @@ export class GroupCallsController extends EventListenerBase<{
     this.log = logger('GCC');
 
     rootScope.addEventListener('group_call_update', (groupCall) => {
-      const {currentGroupCall} = this;
-      if(currentGroupCall?.id === groupCall.id) {
+      const { currentGroupCall } = this;
+      if (currentGroupCall?.id === groupCall.id) {
         currentGroupCall.groupCall = groupCall;
 
-        if(groupCall._ === 'groupCallDiscarded') {
+        if (groupCall._ === 'groupCallDiscarded') {
           currentGroupCall.hangUp(false, false, true);
         }
       }
     });
 
-    rootScope.addEventListener('group_call_participant', ({groupCallId, participant}) => {
-      const {currentGroupCall} = this;
-      if(currentGroupCall?.id === groupCallId) {
+    rootScope.addEventListener('group_call_participant', ({ groupCallId, participant }) => {
+      const { currentGroupCall } = this;
+      if (currentGroupCall?.id === groupCallId) {
         currentGroupCall.onParticipantUpdate(participant/* , this.doNotDispatchParticipantUpdate */);
       }
     });
@@ -87,14 +87,14 @@ export class GroupCallsController extends EventListenerBase<{
   public setCurrentGroupCall(groupCall: GroupCallInstance) {
     this.currentGroupCall = groupCall;
 
-    if(groupCall) {
+    if (groupCall) {
       this.dispatchEvent('instance', groupCall);
     }
   }
 
   public startConnectingSound() {
     this.stopConnectingSound();
-    this.audioAsset.playWithTimeout({name: 'connect', loop: true}, 2500);
+    this.audioAsset.playWithTimeout({ name: 'connect', loop: true }, 2500);
   }
 
   public stopConnectingSound() {
@@ -108,28 +108,28 @@ export class GroupCallsController extends EventListenerBase<{
     this.log(`joinGroupCall chatId=${chatId} id=${groupCallId} muted=${muted} rejoin=${rejoin}`);
 
     let streamManager: StreamManager;
-    if(rejoin) {
+    if (rejoin) {
       streamManager = this.currentGroupCall.connections.main!.streamManager;
     } else {
       streamManager = await createMainStreamManager(muted, joinVideo);
     }
 
     return this.joinGroupCallInternal(chatId, groupCallId, streamManager, muted, rejoin, joinVideo)
-    .then(() => {
+      .then(() => {
       // have to refresh participants because of the new connection
-      const {currentGroupCall} = this;
-      currentGroupCall.participants.then((participants) => {
-        if(this.currentGroupCall !== currentGroupCall || currentGroupCall.state === GROUP_CALL_STATE.CLOSED) {
-          return;
-        }
-
-        participants.forEach((participant) => {
-          if(!participant.pFlags.self) {
-            currentGroupCall.onParticipantUpdate(participant);
+        const { currentGroupCall } = this;
+        currentGroupCall.participants.then((participants) => {
+          if (this.currentGroupCall !== currentGroupCall || currentGroupCall.state === GROUP_CALL_STATE.CLOSED) {
+            return;
           }
+
+          participants.forEach((participant) => {
+            if (!participant.pFlags.self) {
+              currentGroupCall.onParticipantUpdate(participant);
+            }
+          });
         });
       });
-    });
   }
 
   private async joinGroupCallInternal(chatId: ChatId, groupCallId: GroupCallId, streamManager: StreamManager, muted: boolean, rejoin = false, joinVideo?: boolean) {
@@ -138,8 +138,8 @@ export class GroupCallsController extends EventListenerBase<{
 
     const type: GroupCallConnectionType = 'main';
 
-    let {currentGroupCall} = this;
-    if(currentGroupCall && rejoin) {
+    let { currentGroupCall } = this;
+    if (currentGroupCall && rejoin) {
       // currentGroupCall.connections.main.connection = connection;
       currentGroupCall.handleUpdateGroupCallParticipants = false;
       currentGroupCall.updatingSdp = false;
@@ -148,16 +148,16 @@ export class GroupCallsController extends EventListenerBase<{
       currentGroupCall = new GroupCallInstance({
         chatId,
         id: groupCallId,
-        managers: this.managers
+        managers: this.managers,
       });
 
       currentGroupCall.fixSafariAudio();
 
       currentGroupCall.addEventListener('state', (state) => {
-        if(this.currentGroupCall === currentGroupCall && state === GROUP_CALL_STATE.CLOSED) {
+        if (this.currentGroupCall === currentGroupCall && state === GROUP_CALL_STATE.CLOSED) {
           this.setCurrentGroupCall(null as any);
           this.stopConnectingSound();
-          this.audioAsset.play({name: 'end'});
+          this.audioAsset.play({ name: 'end' });
           rootScope.dispatchEvent('chat_update', currentGroupCall.chatId);
         }
       });
@@ -171,8 +171,8 @@ export class GroupCallsController extends EventListenerBase<{
           type,
           isMuted: muted,
           joinVideo,
-          rejoin
-        }
+          rejoin,
+        },
       });
 
       const connection = connectionInstance.createPeerConnection();
@@ -188,14 +188,14 @@ export class GroupCallsController extends EventListenerBase<{
       connection.addEventListener('iceconnectionstatechange', () => {
         currentGroupCall.dispatchEvent('state', currentGroupCall.state);
 
-        const {iceConnectionState} = connection;
-        if(iceConnectionState === 'disconnected' || iceConnectionState === 'checking' || iceConnectionState === 'new') {
+        const { iceConnectionState } = connection;
+        if (iceConnectionState === 'disconnected' || iceConnectionState === 'checking' || iceConnectionState === 'new') {
           this.startConnectingSound();
         } else {
           this.stopConnectingSound();
         }
 
-        switch(iceConnectionState) {
+        switch (iceConnectionState) {
           case 'checking': {
             break;
           }
@@ -210,9 +210,9 @@ export class GroupCallsController extends EventListenerBase<{
           }
 
           case 'connected': {
-            if(!currentGroupCall.joined) {
+            if (!currentGroupCall.joined) {
               currentGroupCall.joined = true;
-              this.audioAsset.play({name: 'start'});
+              this.audioAsset.play({ name: 'start' });
               this.managers.appGroupCallsManager.getGroupCallParticipants(groupCallId);
             }
 
@@ -281,7 +281,7 @@ export class GroupCallsController extends EventListenerBase<{
     const emptyUpdates = await this.managers.appCallsManager.createEmptyConferenceCall();
     this.managers.apiUpdatesManager.processUpdateMessage(emptyUpdates);
     const input = this.findInputGroupCallFromUpdates(emptyUpdates);
-    if(!input || input._ !== 'inputGroupCall') {
+    if (!input || input._ !== 'inputGroupCall') {
       throw new Error('startConference: no inputGroupCall in createConferenceCall(flags=0) response');
     }
 
@@ -295,7 +295,7 @@ export class GroupCallsController extends EventListenerBase<{
       selfUserId: opts.selfUserId,
       chatId: opts.chatId,
       muted: opts.muted,
-      joinVideo: opts.joinVideo
+      joinVideo: opts.joinVideo,
     });
   }
 
@@ -316,7 +316,7 @@ export class GroupCallsController extends EventListenerBase<{
     //   - inputGroupCallInviteMessage(msg_id) — invite-message join
     // The latter two return the real id+access_hash inside the join response.
     // tdesktop: calls_group_call.cpp:4251 `inputCallSafe`.
-    if(opts.input._ !== 'inputGroupCall' &&
+    if (opts.input._ !== 'inputGroupCall' &&
        opts.input._ !== 'inputGroupCallSlug' &&
        opts.input._ !== 'inputGroupCallInviteMessage') {
       throw new Error(`joinConference: unsupported call ref kind ${(opts.input as any)._}`);
@@ -332,7 +332,7 @@ export class GroupCallsController extends EventListenerBase<{
       publicKey,
       canAddUsers: true,
       canRemoveUsers: true,
-      version: 0
+      version: 0,
     };
 
     const worker = new EncryptWorkerHost();
@@ -346,11 +346,11 @@ export class GroupCallsController extends EventListenerBase<{
         worker.createSelfAddBlock({
           privateSeed: seed,
           previousBlockServer: lastBlock,
-          self: selfParticipant
+          self: selfParticipant,
         }) :
         worker.createZeroBlock({
           privateSeed: seed,
-          groupState: {participants: [selfParticipant], externalPermissions: 3}
+          groupState: { participants: [selfParticipant], externalPermissions: 3 },
         });
     };
 
@@ -369,9 +369,9 @@ export class GroupCallsController extends EventListenerBase<{
         rebuildBlock: buildJoinBlock,
         chatId: opts.chatId,
         muted: opts.muted,
-        joinVideo: opts.joinVideo
+        joinVideo: opts.joinVideo,
       });
-    } catch(e) {
+    } catch (e) {
       await worker.terminate().catch((): undefined => undefined);
       throw e;
     }
@@ -414,7 +414,7 @@ export class GroupCallsController extends EventListenerBase<{
     const instance = new GroupCallInstance({
       chatId: opts.chatId ?? NULL_PEER_ID,
       id: placeholderId,
-      managers: this.managers
+      managers: this.managers,
     });
     instance.fixSafariAudio();
     instance.attachE2e(opts.worker, opts.selfUserId);
@@ -423,14 +423,14 @@ export class GroupCallsController extends EventListenerBase<{
     await opts.worker.init({
       userId: opts.selfUserId,
       privateSeed: opts.seed,
-      lastBlockServer: opts.lastBlockServer
+      lastBlockServer: opts.lastBlockServer,
     });
 
     instance.addEventListener('state', (state) => {
-      if(this.currentGroupCall === instance && state === GROUP_CALL_STATE.CLOSED) {
+      if (this.currentGroupCall === instance && state === GROUP_CALL_STATE.CLOSED) {
         this.setCurrentGroupCall(null as any);
         this.stopConnectingSound();
-        this.audioAsset.play({name: 'end'});
+        this.audioAsset.play({ name: 'end' });
         void opts.worker.terminate().catch((): undefined => undefined);
       }
     });
@@ -438,10 +438,10 @@ export class GroupCallsController extends EventListenerBase<{
     // For id-form input we can hydrate the full call now. For slug-form input
     // the access_hash is still unknown — we hydrate after joinGroupCall echoes
     // back the real updateGroupCall with id+access_hash.
-    if(opts.input && opts.input._ === 'inputGroupCall') {
+    if (opts.input && opts.input._ === 'inputGroupCall') {
       instance.groupCall = (await this.managers.appGroupCallsManager
-      .getGroupCallFull(opts.input.id)
-      .catch((): GroupCallInstance['groupCall'] | undefined => undefined))!;
+        .getGroupCallFull(opts.input.id)
+        .catch((): GroupCallInstance['groupCall'] | undefined => undefined))!;
     }
 
     const connectionInstance = instance.createConnectionInstance({
@@ -460,8 +460,8 @@ export class GroupCallsController extends EventListenerBase<{
         e2eCallInput: (opts.input && opts.input._ !== 'inputGroupCall') ? opts.input : undefined,
         // Wire rebuild callback so the connection layer can recover from
         // CONF_WRITE_CHAIN_INVALID without tearing down the WebRTC stack.
-        e2eRebuildBlock: opts.rebuildBlock
-      }
+        e2eRebuildBlock: opts.rebuildBlock,
+      },
     });
 
     const connection = connectionInstance.createPeerConnection();
@@ -473,8 +473,8 @@ export class GroupCallsController extends EventListenerBase<{
       // looping `connect` tone around the pre-connected ICE states. Without
       // this the tone plays forever even after we're fully joined — the UI
       // reports CONNECTED but the audio asset never stops.
-      const {iceConnectionState} = connection;
-      if(iceConnectionState === 'disconnected' || iceConnectionState === 'checking' || iceConnectionState === 'new') {
+      const { iceConnectionState } = connection;
+      if (iceConnectionState === 'disconnected' || iceConnectionState === 'checking' || iceConnectionState === 'new') {
         this.startConnectingSound();
       } else {
         this.stopConnectingSound();
@@ -485,11 +485,11 @@ export class GroupCallsController extends EventListenerBase<{
       // `instance.participant` undefined and the UI in a half-broken
       // "no self info" state. Also play the join-success chime so the
       // user has audible feedback that media is live.
-      if(iceConnectionState === 'connected' && !instance.joined) {
+      if (iceConnectionState === 'connected' && !instance.joined) {
         instance.joined = true;
-        this.audioAsset.play({name: 'start'});
+        this.audioAsset.play({ name: 'start' });
         void this.managers.appGroupCallsManager.getGroupCallParticipants(instance.id)
-        .catch((err) => this.log.warn('getGroupCallParticipants on connect failed', err));
+          .catch((err) => this.log.warn('getGroupCallParticipants on connect failed', err));
       }
     });
 
@@ -545,7 +545,7 @@ export class GroupCallsController extends EventListenerBase<{
     // effects (e.g. updateGroupCall) are applied to local state.
     this.managers.apiUpdatesManager.processUpdateMessage(updates);
     const blocks = this.extractBlocksFromUpdates(updates);
-    if(blocks.length === 0) return undefined;
+    if (blocks.length === 0) return undefined;
     return blocks[blocks.length - 1];
   }
 
@@ -553,18 +553,18 @@ export class GroupCallsController extends EventListenerBase<{
   // returns Updates whose body contains an updateGroupCallChainBlocks with
   // `.blocks: Uint8Array[]`.
   private extractBlocksFromUpdates(updates: Updates): Uint8Array[] {
-    if(updates._ !== 'updates' && updates._ !== 'updatesCombined') return [];
-    for(const u of (updates as Updates.updates).updates) {
-      if(u._ === 'updateGroupCallChainBlocks') return u.blocks;
+    if (updates._ !== 'updates' && updates._ !== 'updatesCombined') return [];
+    for (const u of (updates as Updates.updates).updates) {
+      if (u._ === 'updateGroupCallChainBlocks') return u.blocks;
     }
     return [];
   }
 
   private findInputGroupCallFromUpdates(updates: Updates): InputGroupCall | undefined {
-    if(updates._ !== 'updates' && updates._ !== 'updatesCombined') return undefined;
-    for(const u of (updates as Updates.updates).updates) {
-      if(u._ === 'updateGroupCall' && u.call._ !== 'groupCallDiscarded') {
-        return {_: 'inputGroupCall', id: u.call.id, access_hash: u.call.access_hash};
+    if (updates._ !== 'updates' && updates._ !== 'updatesCombined') return undefined;
+    for (const u of (updates as Updates.updates).updates) {
+      if (u._ === 'updateGroupCall' && u.call._ !== 'groupCallDiscarded') {
+        return { _: 'inputGroupCall', id: u.call.id, access_hash: u.call.access_hash };
       }
     }
     return undefined;

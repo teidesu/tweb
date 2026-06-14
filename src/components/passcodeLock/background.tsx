@@ -1,17 +1,17 @@
-import {Component, Show} from 'solid-js';
+import { Component, Show } from 'solid-js';
 
-import {useLockScreenHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {ScreenSize, useMediaSizes} from '@helpers/mediaSizes';
+import { useLockScreenHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { ScreenSize, useMediaSizes } from '@helpers/mediaSizes';
 
 import ChatBackgroundGradientRenderer from '@components/chat/gradientRenderer';
 
-import {ChatBackground} from '@components/chat/bubbles/chatBackground';
+import { ChatBackground } from '@components/chat/bubbles/chatBackground';
 
 
 const Background: Component<{
   gradientRendererRef: (value: ChatBackgroundGradientRenderer | undefined) => void
 }> = (props) => {
-  const {themeController, rootScope} = useLockScreenHotReloadGuard();
+  const { themeController, rootScope } = useLockScreenHotReloadGuard();
 
   const mediaSizes = useMediaSizes();
 

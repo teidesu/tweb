@@ -1,9 +1,9 @@
-import {createComputed, untrack} from 'solid-js';
-import {createStore, reconcile} from 'solid-js/store';
+import { createComputed, untrack } from 'solid-js';
+import { createStore, reconcile } from 'solid-js/store';
 import compareUint8Arrays from '@helpers/bytes/compareUint8Arrays';
-import {PollAnswer} from '@layer';
-import {PollMessageContentProps} from './PollMessageContent';
-import {shouldShufflePollOptions, shufflePollOptions} from './shuffle';
+import { PollAnswer } from '@layer';
+import { PollMessageContentProps } from './PollMessageContent';
+import { shouldShufflePollOptions, shufflePollOptions } from './shuffle';
 
 type UsePollOptionsStoreArgs = {
   props: PollMessageContentProps;
@@ -14,14 +14,14 @@ type UsePollOptionsStoreArgs = {
  * Stores poll options in a reactive store, applying shuffling on init
  * and reconciling new/removed options as the poll updates.
  */
-export function usePollOptionsStore({props, userId}: UsePollOptionsStoreArgs) {
+export function usePollOptionsStore({ props, userId }: UsePollOptionsStoreArgs) {
   let initialOptions = props.poll.answers.filter(answer => answer._ === 'pollAnswer');
 
-  if(shouldShufflePollOptions(props.poll)) {
+  if (shouldShufflePollOptions(props.poll)) {
     initialOptions = shufflePollOptions({
       options: initialOptions,
       userId,
-      pollId: props.poll.id
+      pollId: props.poll.id,
     });
   }
 
@@ -33,7 +33,7 @@ export function usePollOptionsStore({props, userId}: UsePollOptionsStoreArgs) {
     // Keep the order after intial shuffle and append new options at the end when the poll was already rendered
     filteredOptions.forEach((option) => {
       const idx = untrack(() => pollOptions.findIndex(other => compareUint8Arrays(other.option, option.option)));
-      if(idx === -1) setPollOptions(untrack(() => pollOptions.length), option);
+      if (idx === -1) setPollOptions(untrack(() => pollOptions.length), option);
       else setPollOptions(idx, reconcile(option));
     });
 

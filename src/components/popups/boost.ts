@@ -1,23 +1,23 @@
-import PopupElement, {addCancelButton} from '.';
+import PopupElement, { addCancelButton } from '.';
 import createBadge from '@helpers/createBadge';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import formatDuration from '@helpers/formatDuration';
-import {PremiumBoostsStatus} from '@layer';
+import { PremiumBoostsStatus } from '@layer';
 import appImManager from '@lib/appImManager';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import rootScope from '@lib/rootScope';
 import AppSelectPeers from '@components/appSelectPeers';
 import confirmationPopup from '@components/confirmationPopup';
 import LimitLine from '@components/limit';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
-import {wrapFormattedDuration} from '@components/wrappers/wrapDuration';
+import { wrapFormattedDuration } from '@components/wrappers/wrapDuration';
 import PopupPeer from '@components/popups/peer';
 import PopupPremium from '@components/popups/premium';
 import PopupReassignBoost from '@components/popups/reassignBoost';
-import {toastNew} from '@components/toast';
+import { toastNew } from '@components/toast';
 
 const className = 'popup-boost';
 
@@ -29,7 +29,7 @@ export default class PopupBoost extends PopupPeer {
       closable: true,
       overlayClosable: true,
       description: true,
-      old: true
+      old: true,
     });
 
     this.btnClose.remove();
@@ -44,11 +44,11 @@ export default class PopupBoost extends PopupPeer {
       this.managers.appBoostsManager.getMyBoosts(),
       this.managers.apiManager.getAppConfig(),
       apiManagerProxy.isPremiumPurchaseBlocked(),
-      this.managers.appPeersManager.isBroadcast(this.peerId)
+      this.managers.appPeersManager.isBroadcast(this.peerId),
     ]);
 
-    if(!boostsStatus) {
-      toastNew({langPackKey: 'CantBoostChat'});
+    if (!boostsStatus) {
+      toastNew({ langPackKey: 'CantBoostChat' });
       this.hide();
       return;
     }
@@ -56,7 +56,7 @@ export default class PopupBoost extends PopupPeer {
     const entity = AppSelectPeers.renderEntity({
       key: this.peerId,
       middleware: this.middlewareHelper.get(),
-      avatarSize: 30
+      avatarSize: 30,
     });
 
     entity.element.classList.add(`${className}-entity`, 'selector-user-alone', 'hover-primary');
@@ -67,14 +67,14 @@ export default class PopupBoost extends PopupPeer {
 
     attachClickEvent(entity.element, () => {
       this.hideWithCallback(() => {
-        appImManager.setInnerPeer({peerId: this.peerId});
+        appImManager.setInnerPeer({ peerId: this.peerId });
       });
-    }, {listenerSetter: this.listenerSetter});
+    }, { listenerSetter: this.listenerSetter });
 
     const title = document.createElement('div');
     title.classList.add(`${className}-title`);
 
-    const descriptionPeerTitle = await wrapPeerTitle({peerId: this.peerId});
+    const descriptionPeerTitle = await wrapPeerTitle({ peerId: this.peerId });
     await entity.avatar.readyThumbPromise;
 
     let hasStories: boolean,
@@ -92,11 +92,11 @@ export default class PopupBoost extends PopupPeer {
     };
 
     const setTitle = () => {
-      if(hasMyBoost) {
+      if (hasMyBoost) {
         title.replaceChildren(i18n(isBroadcast ? 'YouBoostedChannel' : 'YouBoostedGroup'));
-      } else if(isMaxLevel) {
+      } else if (isMaxLevel) {
         title.replaceChildren(i18n('BoostsMaxLevelReached'));
-      } else if(hasStories) {
+      } else if (hasStories) {
         title.replaceChildren(i18n(isBroadcast ? 'HelpUpgradeChannel' : 'HelpUpgradeGroup'));
       } else {
         title.replaceChildren(i18n('Boost.EnableStoriesFor'));
@@ -104,29 +104,29 @@ export default class PopupBoost extends PopupPeer {
     };
 
     const setDescription = () => {
-      if(updated && boostsStatus.level === 0 && hasStories) {
+      if (updated && boostsStatus.level === 0 && hasStories) {
         this.description!.replaceChildren(
           i18n(
             isBroadcast ? 'Boost.DescriptionJustReachedLevel1' : 'Boost.DescriptionJustReachedLevel1.Group'
           )
         );
-      } else if(isMaxLevel || (updated && boostsStatus.level > 0)) {
+      } else if (isMaxLevel || (updated && boostsStatus.level > 0)) {
         this.description!.replaceChildren(
           i18n(
             isBroadcast ? 'Boost.DescriptionJustReachedLevel' : 'Boost.DescriptionJustReachedLevel.Group',
             [
               boostsStatus.level,
-              i18n('Boost.StoriesCount', [boostsStatus.level + 1])
+              i18n('Boost.StoriesCount', [boostsStatus.level + 1]),
             ]
           )
         );
-      } else if(hasStories) {
+      } else if (hasStories) {
         this.description!.replaceChildren(
           i18n(
             'ChannelNeedBoostsDescriptionForNewFeatures',
             [
               descriptionPeerTitle,
-              i18n('MoreBoosts', [needBoostsForNextLevel])
+              i18n('MoreBoosts', [needBoostsForNextLevel]),
             ]
           )
         );
@@ -135,7 +135,7 @@ export default class PopupBoost extends PopupPeer {
           i18n(
             isBroadcast ? 'ChannelNeedBoostsDescriptionLevel1' : 'GroupNeedBoostsDescriptionLevel1',
             [
-              i18n('MoreBoosts', [needBoostsForNextLevel])
+              i18n('MoreBoosts', [needBoostsForNextLevel]),
             ]
           )
         );
@@ -146,8 +146,8 @@ export default class PopupBoost extends PopupPeer {
       progress: true,
       hint: {
         icon: 'boost',
-        noStartEnd: true
-      }
+        noStartEnd: true,
+      },
     });
     this.description!.before(limitLine.container, title, entity.element);
 
@@ -167,7 +167,7 @@ export default class PopupBoost extends PopupPeer {
           from1: i18n('BoostsLevel', [boostsStatus.level]),
           to1: i18n('BoostsLevel', [boostsStatus.level + 1]),
           from2: i18n('BoostsLevel', [boostsStatus.level]),
-          to2: i18n('BoostsLevel', [boostsStatus.level + 1])
+          to2: i18n('BoostsLevel', [boostsStatus.level + 1]),
         }
       );
       setTitle();
@@ -180,20 +180,20 @@ export default class PopupBoost extends PopupPeer {
     const setButtons = () => {
       this.setButtons(addCancelButton([isMaxLevel || (getGivenBoosts().length === myBoosts.my_boosts.length && isPremiumPurchaseBlocked) ? {
         langKey: 'OK',
-        isCancel: true
+        isCancel: true,
       } : {
         langKey: isBroadcast ? 'BoostChannel' : 'BoostGroup',
         iconLeft: 'boost',
-        callback: onClick
+        callback: onClick,
       }]));
     };
 
     const handleErrorType = (type: ErrorType) => {
-      if(type === 'PREMIUM_ACCOUNT_REQUIRED') {
+      if (type === 'PREMIUM_ACCOUNT_REQUIRED') {
         showPremiumNeeded();
       }/*  else if(type === 'BOOST_NOT_MODIFIED') {
         showAlreadyBoosting();
-      } */ else if(type.includes('FLOOD_WAIT')) {
+      } */ else if (type.includes('FLOOD_WAIT')) {
         const wait = +type.split('_')[2];
         confirmationPopup({
           titleLangKey: 'CantBoostTooOften',
@@ -201,17 +201,17 @@ export default class PopupBoost extends PopupPeer {
           descriptionLangArgs: [wrapFormattedDuration(formatDuration(wait, 2), false)],
           button: {
             langKey: 'OK',
-            isCancel: true
-          }
+            isCancel: true,
+          },
         });
-      } else if(type === 'PREMIUM_GIFTED_NOT_ALLOWED') {
+      } else if (type === 'PREMIUM_GIFTED_NOT_ALLOWED') {
         confirmationPopup({
           titleLangKey: 'CantBoostWithGiftedPremium',
           descriptionLangKey: 'CantBoostWithGiftedPremiumDescription',
           button: {
             langKey: 'OK',
-            isCancel: true
-          }
+            isCancel: true,
+          },
         });
       }
     };
@@ -221,8 +221,8 @@ export default class PopupBoost extends PopupPeer {
         titleLangKey: 'PremiumNeeded',
         descriptionLangKey: 'PremiumNeededForBoosting',
         button: {
-          langKey: 'Yes'
-        }
+          langKey: 'Yes',
+        },
       }).then(() => {
         PopupPremium.show();
       });
@@ -245,26 +245,26 @@ export default class PopupBoost extends PopupPeer {
         const givenBoosts = getGivenBoosts();
         const availableBoost = myBoosts.my_boosts.find((myBoost) => !myBoost.peer);
         let type: ApiError['type'];
-        if(!rootScope.premium) {
+        if (!rootScope.premium) {
           type = 'PREMIUM_ACCOUNT_REQUIRED';
-        } else if(givenBoosts.length === myBoosts.my_boosts.length) {
+        } else if (givenBoosts.length === myBoosts.my_boosts.length) {
           await confirmationPopup({
             titleLangKey: 'BoostingMoreBoostsNeeded',
             descriptionLangKey: 'Boost.GetMoreBoosts',
             descriptionLangArgs: [
-              await wrapPeerTitle({peerId: this.peerId}),
-              appConfig.boosts_per_sent_gift ?? 1
+              await wrapPeerTitle({ peerId: this.peerId }),
+              appConfig.boosts_per_sent_gift ?? 1,
             ],
             button: {
-              langKey: 'GiftPremium'
-            }
+              langKey: 'GiftPremium',
+            },
           });
 
           this.hideWithCallback(() => {
             appImManager.initGifting();
           });
           return;
-        } else if(!availableBoost) {
+        } else if (!availableBoost) {
           this.hide();
           PopupElement.createPopup(PopupReassignBoost, this.peerId, myBoosts, appConfig);
           return;
@@ -272,8 +272,8 @@ export default class PopupBoost extends PopupPeer {
           type = 'BOOST_NOT_MODIFIED';
         } */
 
-        if(type!) {
-          throw {type};
+        if (type!) {
+          throw { type };
         }
 
         // const slots = [...givenBoosts, availableBoost].filter(Boolean).map((myBoost) => myBoost.slot);
@@ -284,13 +284,13 @@ export default class PopupBoost extends PopupPeer {
 
         [myBoosts, boostsStatus] = await Promise.all([
           this.managers.appBoostsManager.getMyBoosts(),
-          this.managers.appBoostsManager.getBoostsStatus(this.peerId)
+          this.managers.appBoostsManager.getBoostsStatus(this.peerId),
         ]);
 
         updated = true;
         setBoostsStatus(boostsStatus);
         setInfo();
-      } catch(err) {
+      } catch (err) {
         handleErrorType((err as ApiError).type);
       }
 

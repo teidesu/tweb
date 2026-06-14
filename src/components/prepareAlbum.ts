@@ -1,4 +1,4 @@
-import {Layouter, RectPart} from '@components/groupedLayout';
+import { Layouter, RectPart } from '@components/groupedLayout';
 
 export default function prepareAlbum(options: {
   container: HTMLElement,
@@ -24,39 +24,39 @@ export default function prepareAlbum(options: {
   container.style.height = height + 'px';
   const children = container.children;
 
-  const items = layout.map(({geometry, sides}, idx) => {
+  const items = layout.map(({ geometry, sides }, idx) => {
     let div: HTMLElement;
     div = children[idx] as HTMLElement;
-    if(!div) {
+    if (!div) {
       div = document.createElement('div');
       container.append(div);
     }
 
     div.classList.add('album-item');
-    if(!options.noGroupedItem) div.classList.add('grouped-item');
+    if (!options.noGroupedItem) div.classList.add('grouped-item');
 
     div.style.width = (geometry.width / width * 100) + '%';
     div.style.height = (geometry.height / height * 100) + '%';
     div.style.top = (geometry.y / height * 100) + '%';
     div.style.left = (geometry.x / width * 100) + '%';
 
-    if(sides & RectPart.Left && sides & RectPart.Top) {
+    if (sides & RectPart.Left && sides & RectPart.Top) {
       div.style.borderStartStartRadius = `calc(var(--border-start-start-radius) - ${options.spacing}px)`;
     }
 
-    if(sides & RectPart.Left && sides & RectPart.Bottom) {
+    if (sides & RectPart.Left && sides & RectPart.Bottom) {
       div.style.borderEndStartRadius =  `calc(var(--border-end-start-radius) - ${options.spacing}px)`;
     }
 
-    if(sides & RectPart.Right && sides & RectPart.Top) {
+    if (sides & RectPart.Right && sides & RectPart.Top) {
       div.style.borderStartEndRadius =  `calc(var(--border-start-end-radius) - ${options.spacing}px)`;
     }
 
-    if(sides & RectPart.Right && sides & RectPart.Bottom) {
+    if (sides & RectPart.Right && sides & RectPart.Bottom) {
       div.style.borderEndEndRadius =  `calc(var(--border-end-end-radius) - ${options.spacing}px)`;
     }
 
-    if(options.forMedia) {
+    if (options.forMedia) {
       const mediaDiv = document.createElement('div');
       mediaDiv.classList.add('album-item-media');
 
@@ -78,5 +78,5 @@ export default function prepareAlbum(options: {
     });
   } */
 
-  return {items, width, height};
+  return { items, width, height };
 }

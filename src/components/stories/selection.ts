@@ -1,25 +1,25 @@
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
 import ListenerSetter from '@helpers/listenerSetter';
-import {AppManagers} from '@lib/managers';
-import {toastNew} from '@components/toast';
+import { AppManagers } from '@lib/managers';
+import { toastNew } from '@components/toast';
 import confirmationPopup from '@components/confirmationPopup';
-import {AppSelection} from '@components/chat/selection';
-import {createSignal} from 'solid-js';
-import {LangPackKey} from '../../lib/langPack';
+import { AppSelection } from '@components/chat/selection';
+import { createSignal } from 'solid-js';
+import { LangPackKey } from '../../lib/langPack';
 
 export function toastStoryPinnedToProfile(managers: AppManagers, peerId: PeerId, pin: boolean) {
-  if(peerId.isUser()) {
-    return toastNew({langPackKey: pin ? 'StoryPinnedToProfile' : 'StoryArchivedFromProfile'});
+  if (peerId.isUser()) {
+    return toastNew({ langPackKey: pin ? 'StoryPinnedToProfile' : 'StoryArchivedFromProfile' });
   } else {
     managers.appChatsManager.isBroadcast(peerId.toChatId()).then((isBroadcast) => {
       let key: LangPackKey;
-      if(isBroadcast) {
+      if (isBroadcast) {
         key = pin ? 'StoryPinnedToChannel' : 'StoryArchivedFromChannel';
       } else {
         key = pin ? 'StoryPinnedToGroup' : 'StoryArchivedFromGroup';
       }
 
-      toastNew({langPackKey: key});
+      toastNew({ langPackKey: key });
     })
   }
 }
@@ -54,14 +54,14 @@ export class StoriesSelection extends AppSelection {
       verifyTarget: (e, target) => !!target && this.isSelecting,
       getElementFromTarget: (target) => {
         let el: HTMLElement = target;
-        while(el && !el.classList.contains('search-super-item')) {
+        while (el && !el.classList.contains('search-super-item')) {
           el = el.parentElement!;
         }
         return el;
       },
       targetLookupClassName: 'search-super-item',
       lookupBetweenParentClassName: 'tabs-tab',
-      lookupBetweenElementsQuery: '.search-super-item'
+      lookupBetweenElementsQuery: '.search-super-item',
     });
 
     this.isStoriesArchive = options.isArchive!;
@@ -91,7 +91,7 @@ export class StoriesSelection extends AppSelection {
 
   protected async updateContainer(forceSelection = false) {
     const size = this.selectedMids.size;
-    if(!size && !forceSelection) return;
+    if (!size && !forceSelection) return;
 
     const peerId = this.selectedMids.keys().next().value;
     const r = await this.managers.appStoriesManager.cantPinDeleteStories(peerId!, Array.from(this.selectedMids.get(peerId!)!));
@@ -103,8 +103,7 @@ export class StoriesSelection extends AppSelection {
   public toggleSelection(toggleCheckboxes = true, forceSelection = false) {
     const ret = super.toggleSelection(toggleCheckboxes, forceSelection || this.forPicker);
 
-    if(ret && toggleCheckboxes) {
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    if (ret && toggleCheckboxes) {
       const elements = Array.from(this.mainContainer.querySelectorAll('.search-super-item')) as HTMLElement[];
       elements.forEach((element) => {
         this.toggleElementCheckbox(element, this.isSelecting);
@@ -118,7 +117,7 @@ export class StoriesSelection extends AppSelection {
     const mid = +element.dataset.mid!;
     const peerId = element.dataset.peerId!.toPeerId();
 
-    if(!this.toggleMid(peerId, mid)) {
+    if (!this.toggleMid(peerId, mid)) {
       return;
     }
 
@@ -127,7 +126,7 @@ export class StoriesSelection extends AppSelection {
 
   public getSelectedStoryIds(peerId: PeerId) {
     const mids = this.selectedMids.get(peerId);
-    if(mids?.size) {
+    if (mids?.size) {
       return [...mids];
     }
 
@@ -143,8 +142,8 @@ export class StoriesSelection extends AppSelection {
       descriptionLangArgs: [ids.length],
       button: {
         langKey: 'Delete',
-        isDanger: true
-      }
+        isDanger: true,
+      },
     });
     this.cancelSelection();
     this.managers.appStoriesManager.deleteStories(peerId, ids);
@@ -156,22 +155,22 @@ export class StoriesSelection extends AppSelection {
     const promise = this.managers.appStoriesManager.togglePinned(peerId, ids, pin);
     this.cancelSelection();
     promise.then(async() => {
-      if(ids.length === 1) {
+      if (ids.length === 1) {
         toastStoryPinnedToProfile(this.managers, peerId, pin);
       } else {
         let key: LangPackKey;
-        if(peerId.isUser()) {
+        if (peerId.isUser()) {
           key = pin ? 'StorySavedTitle' : 'StoryArchived';
         } else {
           const isBroadcast = await this.managers.appChatsManager.isBroadcast(peerId.toChatId());
-          if(isBroadcast) {
+          if (isBroadcast) {
             key = pin ? 'StorySavedChannelTitle' : 'StoryChannelArchived';
           } else {
             key = pin ? 'StorySavedGroupTitle' : 'StoryGroupArchived';
           }
         }
 
-        toastNew({langPackKey: key, langPackArguments: [ids.length]});
+        toastNew({ langPackKey: key, langPackArguments: [ids.length] });
       }
     });
   };
@@ -182,8 +181,8 @@ export class StoriesSelection extends AppSelection {
     const promise = this.managers.appStoriesManager.togglePinnedToTop(peerId, ids, pin);
     this.cancelSelection();
     promise.catch((err: ApiError) => {
-      if(err.type === 'STORY_ID_TOO_MANY') {
-        toastNew({langPackKey: 'StoriesPinLimit', langPackArguments: [+err.message!]});
+      if (err.type === 'STORY_ID_TOO_MANY') {
+        toastNew({ langPackKey: 'StoriesPinLimit', langPackArguments: [+err.message!] });
       }
     });
   };
@@ -192,7 +191,7 @@ export class StoriesSelection extends AppSelection {
     this._setSelecting(forwards);
 
     this.mainContainer.classList.toggle('is-selecting', forwards);
-    if(!forwards) {
+    if (!forwards) {
       this.selectedText = undefined;
     }
   };

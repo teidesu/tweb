@@ -1,20 +1,20 @@
-import {createMemo, onMount} from 'solid-js';
+import { createMemo, onMount } from 'solid-js';
 import anchorCallback from '@helpers/dom/anchorCallback';
-import {randomLong} from '@helpers/random';
-import {LangPackLanguage} from '@layer';
-import I18n, {i18n, join} from '@lib/langPack';
+import { randomLong } from '@helpers/random';
+import { LangPackLanguage } from '@layer';
+import I18n, { i18n, join } from '@lib/langPack';
 import rootScope from '@lib/rootScope';
 import usePremium from '@stores/premium';
-import {pickLanguage} from '@components/chat/translation';
+import { pickLanguage } from '@components/chat/translation';
 import CheckboxFieldTsx from '@components/checkboxFieldTsx';
 import PopupPremium from '@components/popups/premium';
 import RadioField from '@components/radioField';
-import Row, {RadioFormFromRows} from '@components/row';
+import Row, { RadioFormFromRows } from '@components/row';
 import RowTsx from '@components/rowTsx';
 import Section from '@components/section';
-import {useAppSettings} from '@stores/appSettings';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {usePromiseCollector} from '@components/solidJsTabs/promiseCollector';
+import { useAppSettings } from '@stores/appSettings';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Section 1 — translation toggles + "Do not translate" picker
@@ -26,7 +26,7 @@ const TranslateSection = () => {
 
   const doNotTranslate = createMemo(() => {
     const arr = appSettings.translations.doNotTranslate;
-    if(!arr.length) {
+    if (!arr.length) {
       return [I18n.langCodeNormalized()];
     }
 
@@ -38,7 +38,7 @@ const TranslateSection = () => {
       name="TranslateMessages"
       caption={isPremium() ? 'Translation.DoNotShow' : 'Language.TranslateMessages.Channel.Premium'}
       captionArgs={[anchorCallback(() => {
-        PopupPremium.show({feature: 'translations'});
+        PopupPremium.show({ feature: 'translations' });
       })]}
     >
       <RowTsx>
@@ -56,9 +56,9 @@ const TranslateSection = () => {
       <RowTsx
         fakeDisabled={!isPremium()}
         clickable={(e) => {
-          if(!isPremium()) {
+          if (!isPremium()) {
             e.preventDefault();
-            PopupPremium.show({feature: 'translations'});
+            PopupPremium.show({ feature: 'translations' });
           }
         }}
       >
@@ -104,7 +104,7 @@ const LanguageListSection = () => {
 
   promiseCollector.collect((async() => {
     const langs1 = await rootScope.managers.apiManager.invokeApiCacheable('langpack.getLanguages', {
-      lang_pack: 'web'
+      lang_pack: 'web',
     });
     // macos langpack disabled in legacy tab — kept the structure for parity
     const langs2: LangPackLanguage[] = [];
@@ -115,16 +115,16 @@ const LanguageListSection = () => {
     const random = randomLong();
 
     langs1.concat(langs2).forEach((language) => {
-      if(rendered.has(language.lang_code)) return;
+      if (rendered.has(language.lang_code)) return;
       rendered.add(language.lang_code);
 
       const row = new Row({
         radioField: new RadioField({
           text: language.name,
           name: random,
-          value: language.lang_code
+          value: language.lang_code,
         }),
-        subtitle: language.native_name
+        subtitle: language.native_name,
       });
 
       radioRows.set(language.lang_code, row);
@@ -138,7 +138,7 @@ const LanguageListSection = () => {
 
     const langPack = await I18n.getCacheLangPackAndApply();
     const row = radioRows.get(langPack.lang_code);
-    if(!row) {
+    if (!row) {
       console.error('no row', row, langPack);
       return;
     }

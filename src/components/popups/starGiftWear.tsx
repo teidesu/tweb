@@ -1,23 +1,23 @@
 import PopupElement from '.';
-import {StarGift} from '@layer';
-import {MyDocument} from '@appManagers/appDocsManager';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
-import {MyStarGift} from '@appManagers/appGiftsManager';
+import { StarGift } from '@layer';
+import { MyDocument } from '@appManagers/appDocsManager';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
+import { MyStarGift } from '@appManagers/appGiftsManager';
 import rootScope from '@lib/rootScope';
-import {toastNew} from '@components/toast';
-import {ButtonIconTsx} from '@components/buttonIconTsx';
-import {StarGiftBackdrop} from '@components/stargifts/stargiftBackdrop';
-import {I18nTsx} from '@helpers/solid/i18n';
+import { toastNew } from '@components/toast';
+import { ButtonIconTsx } from '@components/buttonIconTsx';
+import { StarGiftBackdrop } from '@components/stargifts/stargiftBackdrop';
+import { I18nTsx } from '@helpers/solid/i18n';
 import safeAssign from '@helpers/object/safeAssign';
 
 import styles from '@components/popups/starGiftWear.module.scss';
-import {AvatarNewTsx} from '@components/avatarNew';
+import { AvatarNewTsx } from '@components/avatarNew';
 import Row from '@components/rowTsx';
 import PopupPremium from '@components/popups/premium';
-import {getCollectibleName} from '@appManagers/utils/gifts/getCollectibleName';
-import {PeerTitleTsx} from '@components/peerTitleTsx';
+import { getCollectibleName } from '@appManagers/utils/gifts/getCollectibleName';
+import { PeerTitleTsx } from '@components/peerTitleTsx';
 import classNames from '@helpers/string/classNames';
-import {StickerTsx} from '@components/wrappers/sticker';
+import { StickerTsx } from '@components/wrappers/sticker';
 import PopupBoost from './boost';
 
 export default class PopupStarGiftWear extends PopupElement {
@@ -34,7 +34,7 @@ export default class PopupStarGiftWear extends PopupElement {
       body: true,
       footer: true,
       withConfirm: 'StarGiftWearStart',
-      withFooterConfirm: true
+      withFooterConfirm: true,
     });
 
     safeAssign(this, options);
@@ -43,7 +43,7 @@ export default class PopupStarGiftWear extends PopupElement {
   }
 
   private _construct() {
-    const {collectibleAttributes} = this.gift;
+    const { collectibleAttributes } = this.gift;
     const gift = this.gift.raw as StarGift.starGiftUnique;
 
     return (
@@ -76,7 +76,7 @@ export default class PopupStarGiftWear extends PopupElement {
                 sticker={this.gift.sticker}
                 width={24}
                 height={24}
-                extraOptions={{play: true, loop: false}}
+                extraOptions={{ play: true, loop: false }}
               />
             </div>
             <div class="profile-subtitle">
@@ -133,7 +133,7 @@ export default class PopupStarGiftWear extends PopupElement {
       const promise = this.peerId === rootScope.myId ?
         rootScope.managers.appUsersManager.updateEmojiStatus({
           _: 'inputEmojiStatusCollectible',
-          collectible_id: this.gift.raw.id
+          collectible_id: this.gift.raw.id,
         }) :
         rootScope.managers.apiManager.invokeApiSingleProcess({
           method: 'channels.updateEmojiStatus',
@@ -141,9 +141,9 @@ export default class PopupStarGiftWear extends PopupElement {
             channel: await rootScope.managers.appChatsManager.getChannelInput(this.peerId.toChatId()),
             emoji_status: {
               _: 'inputEmojiStatusCollectible',
-              collectible_id: this.gift.raw.id
-            }
-          }
+              collectible_id: this.gift.raw.id,
+            },
+          },
         }).then((updates) => {
           rootScope.managers.apiUpdatesManager.processUpdateMessage(updates);
         });
@@ -151,21 +151,21 @@ export default class PopupStarGiftWear extends PopupElement {
       promise.then(() => {
         this.hide();
       }).catch((err: ApiError) => {
-        if(err.type === 'BOOSTS_REQUIRED') {
+        if (err.type === 'BOOSTS_REQUIRED') {
           PopupElement.createPopup(PopupBoost, this.peerId);
           return
         }
-        toastNew({langPackKey: 'Error.AnError'});
+        toastNew({ langPackKey: 'Error.AnError' });
       });
     });
   }
 
   static open(gift: MyStarGift, peerId?: PeerId) {
-    if(!rootScope.premium) {
+    if (!rootScope.premium) {
       PopupElement.createPopup(PopupPremium);
       return false
     }
 
-    PopupElement.createPopup(PopupStarGiftWear, {gift, peerId}).show();
+    PopupElement.createPopup(PopupStarGiftWear, { gift, peerId }).show();
   }
 }

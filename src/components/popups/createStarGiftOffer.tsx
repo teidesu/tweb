@@ -1,30 +1,30 @@
-import PopupElement, {createPopup} from '@components/popups/indexTsx';
-import {createEffect, createMemo, createSignal, on, onMount, Show} from 'solid-js';
-import {MyStarGift} from '@appManagers/appGiftsManager';
-import {i18n, LangPackKey} from '@lib/langPack';
+import PopupElement, { createPopup } from '@components/popups/indexTsx';
+import { createEffect, createMemo, createSignal, on, onMount, Show } from 'solid-js';
+import { MyStarGift } from '@appManagers/appGiftsManager';
+import { i18n, LangPackKey } from '@lib/langPack';
 import Row from '@components/rowTsx';
 import CheckboxFieldTsx from '@components/checkboxFieldTsx';
-import {InputFieldTsx} from '@components/inputFieldTsx';
-import {fastRaf} from '@helpers/schedulers';
-import paymentsWrapCurrencyAmount, {formatNanoton, parseNanotonFromDecimal} from '@helpers/paymentsWrapCurrencyAmount';
+import { InputFieldTsx } from '@components/inputFieldTsx';
+import { fastRaf } from '@helpers/schedulers';
+import paymentsWrapCurrencyAmount, { formatNanoton, parseNanotonFromDecimal } from '@helpers/paymentsWrapCurrencyAmount';
 import Section from '@components/section';
 import rootScope from '@lib/rootScope';
 
-import {useAppConfig} from '@stores/appState';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {STARS_CURRENCY, TON_CURRENCY} from '@appManagers/constants';
-import {ChipTab, ChipTabs} from '@components/chipTabs';
-import {StarGift, StarsAmount} from '@layer';
+import { useAppConfig } from '@stores/appState';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { STARS_CURRENCY, TON_CURRENCY } from '@appManagers/constants';
+import { ChipTab, ChipTabs } from '@components/chipTabs';
+import { StarGift, StarsAmount } from '@layer';
 import bigInt from 'big-integer';
 import PopupElementOld from './index'
 import styles from '@components/popups/createStarGiftOffer.module.scss';
-import {StarGiftPriceInputField} from '@components/stargifts/stargiftPriceInputField';
-import {getCollectibleName} from '@appManagers/utils/gifts/getCollectibleName';
+import { StarGiftPriceInputField } from '@components/stargifts/stargiftPriceInputField';
+import { getCollectibleName } from '@appManagers/utils/gifts/getCollectibleName';
 import InlineSelect from '@components/sidebarLeft/tabs/passcodeLock/inlineSelect';
-import {PeerTitleTsx} from '@components/peerTitleTsx';
+import { PeerTitleTsx } from '@components/peerTitleTsx';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
-import {FloatingStarsBalance} from './floatingStarsBalance';
+import { FloatingStarsBalance } from './floatingStarsBalance';
 import PopupStars from './stars';
 import formatStarsAmount from '../../lib/appManagers/utils/payments/formatStarsAmount';
 
@@ -33,7 +33,7 @@ export async function showCreateStarGiftOfferPopup(options: {
   onFinish?: (result: 'created' | 'cancel') => void
 }) {
   const gift = options.gift.raw as StarGift.starGiftUnique;
-  const peerTitle = await wrapPeerTitle({peerId: getPeerId(gift.owner_id!), onlyFirstName: true})
+  const peerTitle = await wrapPeerTitle({ peerId: getPeerId(gift.owner_id!), onlyFirstName: true })
   const [show, setShow] = createSignal(true);
 
   return createPopup(() => {
@@ -44,12 +44,12 @@ export async function showCreateStarGiftOfferPopup(options: {
     const [durationSelectOpen, setDurationSelectOpen] = createSignal(false);
 
     const durationOptions = [
-      {value: 21600, label: () => i18n('Hours', [6])},
-      {value: 43200, label: () => i18n('Hours', [12])},
-      {value: 86400, label: () => i18n('Hours', [24])},
-      {value: 129600, label: () => i18n('Hours', [36])},
-      {value: 172800, label: () => i18n('Hours', [48])},
-      {value: 259200, label: () => i18n('Hours', [72])}
+      { value: 21600, label: () => i18n('Hours', [6]) },
+      { value: 43200, label: () => i18n('Hours', [12]) },
+      { value: 86400, label: () => i18n('Hours', [24]) },
+      { value: 129600, label: () => i18n('Hours', [36]) },
+      { value: 172800, label: () => i18n('Hours', [48]) },
+      { value: 259200, label: () => i18n('Hours', [72]) },
     ];
 
 
@@ -66,11 +66,11 @@ export async function showCreateStarGiftOfferPopup(options: {
     const handleSubmit = async() => {
       const starsAmount: StarsAmount = ton() ? {
         _: 'starsTonAmount',
-        amount: parseNanotonFromDecimal(offerAmount()).toString()
+        amount: parseNanotonFromDecimal(offerAmount()).toString(),
       } : {
         _: 'starsAmount',
         amount: +offerAmount(),
-        nanos: 0
+        nanos: 0,
       }
 
       try {
@@ -78,20 +78,20 @@ export async function showCreateStarGiftOfferPopup(options: {
           peerId: getPeerId(gift.owner_id!),
           slug: gift.slug,
           amount: starsAmount,
-          duration: offerDuration()
+          duration: offerDuration(),
         });
 
         isCreated = true;
         options.onFinish?.('created')
-      } catch(err) {
-        if((err as ApiError).type === 'BALANCE_TOO_LOW') {
+      } catch (err) {
+        if ((err as ApiError).type === 'BALANCE_TOO_LOW') {
           PopupElementOld.createPopup(PopupStars, {
             itemPrice: starsAmount.amount,
             ton: ton(),
             onTopup: async() => {
               await handleSubmit()
             },
-            purpose: 'stargift'
+            purpose: 'stargift',
           });
         }
       }
@@ -106,22 +106,22 @@ export async function showCreateStarGiftOfferPopup(options: {
       const minTonFromConfig = bigInt(appConfig.ton_stargift_resale_amount_min!);
       const minTon = bigInt.max(minTonFromStars, minTonFromConfig);
       const maxTon = bigInt.max(minTon.multiply(2), appConfig.ton_stargift_resale_amount_max!);
-      return {minStars, maxStars, minTon, maxTon};
+      return { minStars, maxStars, minTon, maxTon };
     })
 
     const inputError = createMemo<[LangPackKey, any[]] | undefined>(() => {
       const offerAmount$ = offerAmount();
-      if(!offerAmount$) return undefined;
+      if (!offerAmount$) return undefined;
 
-      const {minStars, maxStars, minTon, maxTon} = limits();
+      const { minStars, maxStars, minTon, maxTon } = limits();
 
-      if(ton()) {
+      if (ton()) {
         const nanoton = parseNanotonFromDecimal(offerAmount$);
-        if(nanoton.lt(minTon)) {
+        if (nanoton.lt(minTon)) {
           return ['StarGiftMinSellAmountTon', [formatNanoton(minTon)]];
         }
 
-        if(nanoton.gt(maxTon)) {
+        if (nanoton.gt(maxTon)) {
           return ['StarGiftMaxSellAmountTon', [formatNanoton(maxTon)]];
         }
 
@@ -130,11 +130,11 @@ export async function showCreateStarGiftOfferPopup(options: {
 
       const value = +offerAmount$;
 
-      if(value < minStars!) {
+      if (value < minStars!) {
         return ['StarGiftMinSellAmountStars', [minStars]];
       }
 
-      if(value > maxStars) {
+      if (value > maxStars) {
         return ['StarGiftMaxSellAmountStars', [maxStars]];
       }
 
@@ -148,7 +148,7 @@ export async function showCreateStarGiftOfferPopup(options: {
         show={show()}
         closable={true}
         onClose={() => {
-          if(!isCreated) {
+          if (!isCreated) {
             options.onFinish?.('cancel');
           }
         }}
@@ -225,7 +225,7 @@ export async function showCreateStarGiftOfferPopup(options: {
               args={[
                 ton() ?
                   paymentsWrapCurrencyAmount(parseNanotonFromDecimal(offerAmount()).toString(), TON_CURRENCY) :
-                  paymentsWrapCurrencyAmount(offerAmount(), STARS_CURRENCY)
+                  paymentsWrapCurrencyAmount(offerAmount(), STARS_CURRENCY),
               ]}
             />
           </PopupElement.FooterButton>

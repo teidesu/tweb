@@ -1,19 +1,19 @@
-import {AppManager} from '@appManagers/manager';
+import { AppManager } from '@appManagers/manager';
 import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
-import type {AttachedPhoto, AttachedSticker, AttachedVideo, CreatePollPayload, FinalizedAttachedMedia} from '@components/popups/createPoll/storeContext';
+import type { AttachedPhoto, AttachedSticker, AttachedVideo, CreatePollPayload, FinalizedAttachedMedia } from '@components/popups/createPoll/storeContext';
 import assumeType from '@helpers/assumeType';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
 import copy from '@helpers/object/copy';
-import {randomLong} from '@helpers/random';
-import {InputFile, InputMedia, Message, MessageEntity, MessageMedia, Poll, PollAnswer, PollResults, TextWithEntities} from '@layer';
-import {oneHourInSeconds} from '@lib/constants';
-import {LogTypes} from '@lib/logger';
+import { randomLong } from '@helpers/random';
+import { InputFile, InputMedia, Message, MessageEntity, MessageMedia, Poll, PollAnswer, PollResults, TextWithEntities } from '@layer';
+import { oneHourInSeconds } from '@lib/constants';
+import { LogTypes } from '@lib/logger';
 import parseMarkdown from '@lib/richTextProcessor/parseMarkdown';
-import {MessageSendingParams, MyMessage} from './appMessagesManager';
+import { MessageSendingParams, MyMessage } from './appMessagesManager';
 import getDocumentInput from './utils/docs/getDocumentInput';
 import getMessageThreadId from './utils/messages/getMessageThreadId';
 import getPhotoInput from './utils/photos/getPhotoInput';
-import {isTruthy} from '../../helpers/isTruthy';
+import { isTruthy } from '../../helpers/isTruthy';
 
 
 type PollId = Poll['id'];
@@ -75,12 +75,12 @@ export class AppPollsManager extends AppManager {
         this.log('updateMessagePoll:', update);
 
         const poll: Poll = update.poll || this.polls[update.poll_id];
-        if(!poll) {
+        if (!poll) {
           return;
         }
 
         const results = update.results;
-        if(!results) return;
+        if (!results) return;
 
         const prev = this.getPoll(poll.id);
         const wasUnread = prev?.results?.pFlags?.has_unread_votes;
@@ -91,13 +91,13 @@ export class AppPollsManager extends AppManager {
         // dialog's `unread_poll_votes_count` so the badge appears. This is
         // the poll-vote analogue of the unread-reactions tracking on
         // `updateMessageReactions` in AppMessagesManager.
-        if(!results?.pFlags?.min && results.pFlags?.has_unread_votes && !wasUnread) {
+        if (!results?.pFlags?.min && results.pFlags?.has_unread_votes && !wasUnread) {
           this.bumpUnreadPollVotes(update, true);
         }
-        if(!results?.pFlags?.min && !results.pFlags?.has_unread_votes && wasUnread) {
+        if (!results?.pFlags?.min && !results.pFlags?.has_unread_votes && wasUnread) {
           this.bumpUnreadPollVotes(update, false);
         }
-      }
+      },
     });
   }
 
@@ -106,49 +106,49 @@ export class AppPollsManager extends AppManager {
     // carry the message context directly (peer + msg_id); otherwise we fall
     // back to the local poll→messages map populated by `updatePollToMessage`.
     const messageRefs: Array<{peerId: PeerId, mid: number}> = [];
-    if(update.peer && update.msg_id) {
+    if (update.peer && update.msg_id) {
       const peerId = this.appPeersManager.getPeerId(update.peer);
       const channelId = peerId.isAnyChat() ? peerId.toChatId() : 0;
       const mid = this.appMessagesIdsManager.generateMessageId(update.msg_id, channelId);
-      messageRefs.push({peerId, mid});
+      messageRefs.push({ peerId, mid });
     } else {
       const pollMessageKeys = this.pollToMessages[update.poll_id];
-      if(!pollMessageKeys?.size) return;
-      for(const key of pollMessageKeys) {
+      if (!pollMessageKeys?.size) return;
+      for (const key of pollMessageKeys) {
         const [peerIdStr, midStr] = key.split('_');
-        messageRefs.push({peerId: peerIdStr.toPeerId(), mid: +midStr});
+        messageRefs.push({ peerId: peerIdStr.toPeerId(), mid: +midStr });
       }
     }
 
-    for(const {peerId, mid} of messageRefs) {
+    for (const { peerId, mid } of messageRefs) {
       const message = this.appMessagesManager.getMessageByPeer(peerId, mid) as MyMessage;
       // `has_unread_votes` is only meaningful on polls we own.
-      if(!message || !message.pFlags.out) {
+      if (!message || !message.pFlags.out) {
         continue;
       }
 
       const threadId = getMessageThreadId(message, {
         isForum: this.appPeersManager.isForum(peerId),
-        isBotforum: this.appPeersManager.isBotforum(peerId)
+        isBotforum: this.appPeersManager.isBotforum(peerId),
       });
 
       this.appMessagesManager.modifyCachedMentionsAndSave({
         peerId,
         mid: message.mid!,
         threadId,
-        addPollVote: add
+        addPollVote: add,
       });
     }
   }
 
   public clear = (init?: boolean) => {
-    if(init) return;
+    if (init) return;
 
     this.polls = {};
     this.results = {};
     this.pollToMessages = {};
 
-    Object.values(this.refetchResultsTimeouts).forEach(({timerId}) => {
+    Object.values(this.refetchResultsTimeouts).forEach(({ timerId }) => {
       self.clearTimeout(timerId);
     });
 
@@ -157,12 +157,12 @@ export class AppPollsManager extends AppManager {
   };
 
   public savePoll(poll: Poll, results: PollResults, message?: Message.message) {
-    if(message) {
+    if (message) {
       this.updatePollToMessage(message, true);
     }
 
     const id = poll.id;
-    if(this.polls[id]) {
+    if (this.polls[id]) {
       poll = Object.assign(this.polls[id], poll);
       results = this.saveResults(poll, results);
     } else {
@@ -174,25 +174,25 @@ export class AppPollsManager extends AppManager {
     }
 
     poll.answers.forEach(answer => {
-      if(answer._ !== 'pollAnswer' || !answer.media) return;
-      this.appMessagesManager.saveMessageMedia({media: answer.media});
+      if (answer._ !== 'pollAnswer' || !answer.media) return;
+      this.appMessagesManager.saveMessageMedia({ media: answer.media });
     });
-    if(results?.solution_media) {
-      this.appMessagesManager.saveMessageMedia({media: results.solution_media});
+    if (results?.solution_media) {
+      this.appMessagesManager.saveMessageMedia({ media: results.solution_media });
     }
 
     this.checkRefetchPollTimeout(poll);
 
-    return {poll, results};
+    return { poll, results };
   }
 
   private checkRefetchPollTimeout(poll: Poll) {
     const id = poll.id;
-    if(this.createdPollIds.has(id.toString())) return;
+    if (this.createdPollIds.has(id.toString())) return;
 
     const refetchResultTimeout = this.refetchResultsTimeouts[id];
 
-    if(refetchResultTimeout && refetchResultTimeout.closeTimestamp !== poll.close_date) {
+    if (refetchResultTimeout && refetchResultTimeout.closeTimestamp !== poll.close_date) {
       self.clearTimeout(refetchResultTimeout.timerId);
       delete this.refetchResultsTimeouts[id];
     }
@@ -200,31 +200,31 @@ export class AppPollsManager extends AppManager {
     const nowInSeconds = Date.now() / 1000;
     const closeDate = poll.close_date ? poll.close_date - this.timeManager.getServerTimeOffset() : 0;
 
-    if(!closeDate || closeDate <= nowInSeconds || this.refetchResultsTimeouts[id]) return;
+    if (!closeDate || closeDate <= nowInSeconds || this.refetchResultsTimeouts[id]) return;
 
     const diffInSeconds = closeDate - nowInSeconds;
-    if(diffInSeconds >= oneHourInSeconds) return;
+    if (diffInSeconds >= oneHourInSeconds) return;
 
     this.refetchResultsTimeouts[id] = {
       timerId: self.setTimeout(() => {
         this.refetchResultsForPoll(id);
       }, diffInSeconds * 1000),
-      closeTimestamp: poll.close_date!
+      closeTimestamp: poll.close_date!,
     };
   }
 
   public saveAndDispatchPoll(poll: Poll, results: PollResults, message?: Message.message) {
     const ret = this.savePoll(poll, results, message);
-    this.rootScope.dispatchEvent('poll_update', {poll: ret.poll, results: ret.results});
+    this.rootScope.dispatchEvent('poll_update', { poll: ret.poll, results: ret.results });
   }
 
   public saveResults(poll: Poll, results: PollResults) {
-    if(this.results[poll.id]) {
+    if (this.results[poll.id]) {
       const existingResults = this.results[poll.id];
 
       // in some cases, results are returned without results or pFlags.min, so we need to clear chosen indexes
       // for example when retracting vote from a poll with close_date and hide_results_until_close
-      if(!results.pFlags.min && !results.results) {
+      if (!results.pFlags.min && !results.results) {
         existingResults.results?.forEach(result => {
           delete result.pFlags.chosen;
         });
@@ -235,16 +235,16 @@ export class AppPollsManager extends AppManager {
       this.results[poll.id] = results;
     }
 
-    if(!results.pFlags.min) { // ! https://core.telegram.org/constructor/pollResults - min
+    if (!results.pFlags.min) { // ! https://core.telegram.org/constructor/pollResults - min
       poll.chosenIndexes!.length = 0;
       poll.correctIndexes!.length = 0;
 
-      if(results?.results?.length) {
+      if (results?.results?.length) {
         results.results.forEach((answer, idx) => {
-          if(answer.pFlags?.chosen) {
+          if (answer.pFlags?.chosen) {
             poll.chosenIndexes!.push(idx);
           }
-          if(answer.pFlags?.correct) {
+          if (answer.pFlags?.correct) {
             poll.correctIndexes!.push(idx);
           }
         });
@@ -257,12 +257,12 @@ export class AppPollsManager extends AppManager {
   public getPoll(pollId: PollId): {poll: Poll, results: PollResults} {
     return {
       poll: this.polls[pollId],
-      results: this.results[pollId]
+      results: this.results[pollId],
     };
   }
 
   public getInputMediaPoll(poll: Poll, correctAnswers?: number[], solution?: string, solutionEntities?: MessageEntity[]): InputMedia.inputMediaPoll {
-    if(solution) {
+    if (solution) {
       [solution, solutionEntities] = parseMarkdown(solution, solutionEntities);
     } else {
       solution = undefined; // can be string here
@@ -273,27 +273,27 @@ export class AppPollsManager extends AppManager {
       poll,
       correct_answers: correctAnswers,
       solution,
-      solution_entities: solution ? solutionEntities : undefined
+      solution_entities: solution ? solutionEntities : undefined,
     };
   }
 
   public updatePollToMessage(message: Message.message, add: boolean) {
-    const {id} = (message.media as MessageMedia.messageMediaPoll).poll;
+    const { id } = (message.media as MessageMedia.messageMediaPoll).poll;
     let set = this.pollToMessages[id];
 
-    if(!add && !set) {
+    if (!add && !set) {
       return;
     }
 
-    if(!set) {
+    if (!set) {
       set = this.pollToMessages[id] = new Set();
     }
 
     const key = message.peerId + '_' + message.mid;
-    if(add) set.add(key);
+    if (add) set.add(key);
     else set.delete(key);
 
-    if(!add && !set.size) {
+    if (!add && !set.size) {
       delete this.polls[id];
       delete this.results[id];
       delete this.pollToMessages[id];
@@ -303,7 +303,7 @@ export class AppPollsManager extends AppManager {
   public async sendVote(message: Message.message, optionIndexes: number[]): Promise<void> {
     const messageId = message.mid;
 
-    if(message.pFlags.is_outgoing) {
+    if (message.pFlags.is_outgoing) {
       return this.appMessagesManager.invokeAfterMessageIsSent(messageId!, 'sendVote', (message) => {
         this.log('invoke sendVote callback');
         return this.sendVote(message as Message.message, optionIndexes);
@@ -317,14 +317,14 @@ export class AppPollsManager extends AppManager {
 
     const options: Uint8Array[] = (optionIndexes.map((index) => {
       const answer = poll.answers[index];
-      if(answer?._ !== 'pollAnswer') return;
+      if (answer?._ !== 'pollAnswer') return;
       return answer.option;
     }).filter(isTruthy));
 
     const updates = await this.apiManager.invokeApi('messages.sendVote', {
       peer: inputPeer,
       msg_id: getServerMessageId(message.mid!)!,
-      options
+      options,
     });
 
     this.log('sendVote updates:', updates);
@@ -332,16 +332,16 @@ export class AppPollsManager extends AppManager {
   }
 
   public async addPollAnswer(message: Message.message, text: TextWithEntities, media?: FinalizedAttachedMedia) {
-    if(message.media?._ !== 'messageMediaPoll') return;
+    if (message.media?._ !== 'messageMediaPoll') return;
 
     const peerId = this.appPeersManager.getPeerMigratedTo(message.peerId!) || message.peerId;
     const messageId = message.mid;
 
     const uploadingMedia = media ? this.uploadPollMedia(peerId!, media) : undefined;
 
-    if(message.pFlags.is_outgoing) {
+    if (message.pFlags.is_outgoing) {
       return this.appMessagesManager.invokeAfterMessageIsSent(messageId!, 'addPollAnswer', ((message) => {
-        if(message?._ !== 'message') return;
+        if (message?._ !== 'message') return;
         return this.finalizeAddingPollAnswer(message, text, uploadingMedia);
       }) as (message: MyMessage) => Promise<any>);
     }
@@ -360,8 +360,8 @@ export class AppPollsManager extends AppManager {
       answer: {
         _: 'inputPollAnswer',
         text,
-        media: await uploadingMedia?.deferred
-      }
+        media: await uploadingMedia?.deferred,
+      },
     });
 
     this.apiUpdatesManager.processUpdateMessage(updates);
@@ -375,7 +375,7 @@ export class AppPollsManager extends AppManager {
     return this.apiManager.invokeApi('messages.getPollResults', {
       peer: inputPeer,
       msg_id: getServerMessageId(message.mid!)!,
-      poll_hash: message.media?.poll?.hash ?? 0
+      poll_hash: message.media?.poll?.hash ?? 0,
     }).then((updates) => {
       this.apiUpdatesManager.processUpdateMessage(updates);
       this.log('getResults updates:', updates);
@@ -384,13 +384,13 @@ export class AppPollsManager extends AppManager {
 
   public refetchResultsForPoll(pollId: PollId) {
     const messages = this.pollToMessages[pollId];
-    if(!messages) return;
+    if (!messages) return;
 
-    for(const key of messages) {
+    for (const key of messages) {
       const [peerId, mid] = key.split('_');
 
       const message = this.appMessagesManager.getMessageByPeer(peerId.toPeerId(), +mid);
-      if(message?._ === 'message') {
+      if (message?._ === 'message') {
         this.getResults(message);
       }
     }
@@ -402,7 +402,7 @@ export class AppPollsManager extends AppManager {
       id: getServerMessageId(message.mid!)!,
       option,
       offset,
-      limit
+      limit,
     }).then((votesList) => {
       this.log('getPollVotes messages:', votesList);
 
@@ -416,12 +416,12 @@ export class AppPollsManager extends AppManager {
   public stopPoll(message: Message.message) {
     const poll: Poll = (message.media as MessageMedia.messageMediaPoll).poll;
 
-    if(poll.pFlags.closed) return Promise.resolve();
+    if (poll.pFlags.closed) return Promise.resolve();
 
     const newPoll = copy(poll);
     newPoll.pFlags.closed = true;
     return this.appMessagesManager.editMessage(message, undefined!, {
-      newMedia: this.getInputMediaPoll(newPoll)
+      newMedia: this.getInputMediaPoll(newPoll),
     }).then(() => {
       // console.log('stopped poll');
     }, (err) => {
@@ -430,11 +430,11 @@ export class AppPollsManager extends AppManager {
   }
 
   private uploadPollMedia(peerId: PeerId, media: FinalizedAttachedMedia): UploadPollMediaResult {
-    if(media.type === 'sticker') {
+    if (media.type === 'sticker') {
       return this.makeStickerPollMedia(media);
     }
 
-    if(media.type === 'video') {
+    if (media.type === 'video') {
       return this.uploadVideoPollMedia(peerId, media);
     }
 
@@ -444,7 +444,7 @@ export class AppPollsManager extends AppManager {
   private uploadVideoPollMedia(peerId: PeerId, media: AttachedVideo): UploadPollMediaResult {
     const mediaTempId = this.appMessagesManager.getMediaTempId();
 
-    const {document, fileType, apiFileName, attachType, attributes, actionName} =
+    const { document, fileType, apiFileName, attachType, attributes, actionName } =
       this.appMessagesManager.makeDocumentAndMetaForSendingFile({
         file: media.blob,
         objectURL: media.objectUrl,
@@ -455,17 +455,17 @@ export class AppPollsManager extends AppManager {
         duration: media.duration,
         isAnimated: media.isAnimated,
         thumb: media.thumb,
-        isMedia: true
+        isMedia: true,
       });
 
-    if(!document) throw new Error('Expected a document for poll video media');
+    if (!document) throw new Error('Expected a document for poll video media');
 
-    const {deferred, uploadingFileName} = this.appMessagesManager.makeMediaUploadDeferred({file: media.blob});
+    const { deferred, uploadingFileName } = this.appMessagesManager.makeMediaUploadDeferred({ file: media.blob });
 
     const messageMedia: MessageMedia = {
       _: 'messageMediaDocument',
       pFlags: {},
-      document
+      document,
     };
 
     let uploadFileDeferred: CancellablePromise<InputFile>,
@@ -489,34 +489,34 @@ export class AppPollsManager extends AppManager {
             this.appMessagesManager.syncSentAndUploadPromises({
               sentDeferred: deferred,
               uploadFileDeferred: promise,
-              file: media.blob
+              file: media.blob,
             });
           },
           onThumbnailUploadDeferred: (promise) => {
             uploadThumbnailDeferred = promise;
-          }
+          },
         });
 
         inputMediaPromise.then(async(inputMedia) => {
           const uploaded = await this.apiManager.invokeApi('messages.uploadMedia', {
             media: inputMedia,
-            peer: this.appPeersManager.getInputPeerById(peerId)
+            peer: this.appPeersManager.getInputPeerById(peerId),
           });
 
-          if(uploaded._ !== 'messageMediaDocument') throw new Error('Unexpected media type');
-          if(uploaded.document!._ !== 'document') throw new Error('Unexpected document type');
+          if (uploaded._ !== 'messageMediaDocument') throw new Error('Unexpected media type');
+          if (uploaded.document!._ !== 'document') throw new Error('Unexpected document type');
 
           const doc = this.appDocsManager.saveDoc(uploaded.document!);
 
           deferred.resolve({
             _: 'inputMediaDocument',
             id: getDocumentInput(doc!),
-            pFlags: {}
+            pFlags: {},
           });
         }).catch((e) => deferred.reject(e));
 
         return uploadFileDeferred;
-      }
+      },
     });
 
     return {
@@ -526,70 +526,70 @@ export class AppPollsManager extends AppManager {
       cancel: () => {
         uploadFileDeferred?.cancel!();
         uploadThumbnailDeferred?.cancel!();
-      }
+      },
     };
   }
 
   private uploadPhotoPollMedia(peerId: PeerId, media: AttachedPhoto): UploadPollMediaResult {
     const mediaTempId = this.appMessagesManager.getMediaTempId();
 
-    const {photo} = this.appMessagesManager.makeDocumentAndMetaForSendingFile({
+    const { photo } = this.appMessagesManager.makeDocumentAndMetaForSendingFile({
       file: media.blob,
       objectURL: media.objectUrl,
       isDocument: false,
       mediaTempId,
       width: media.width,
       height: media.height,
-      isMedia: true
+      isMedia: true,
     });
 
-    if(!photo) throw new Error('Expected a photo for poll media');
+    if (!photo) throw new Error('Expected a photo for poll media');
 
-    const {deferred, uploadingFileName} = this.appMessagesManager.makeMediaUploadDeferred({file: media.blob});
+    const { deferred, uploadingFileName } = this.appMessagesManager.makeMediaUploadDeferred({ file: media.blob });
 
     const messageMedia: MessageMedia = {
       _: 'messageMediaPhoto',
       pFlags: {},
-      photo
+      photo,
     };
 
     let uploadFileDeferred: CancellablePromise<InputFile>;
 
     this.appMessagesManager.sendSmthLazyLoadQueue.push({
       load: () => {
-        uploadFileDeferred = this.apiFileManager.upload({file: media.blob, fileName: uploadingFileName});
+        uploadFileDeferred = this.apiFileManager.upload({ file: media.blob, fileName: uploadingFileName });
 
-        this.appMessagesManager.syncSentAndUploadPromises({sentDeferred: deferred, uploadFileDeferred, file: media.blob});
+        this.appMessagesManager.syncSentAndUploadPromises({ sentDeferred: deferred, uploadFileDeferred, file: media.blob });
 
         uploadFileDeferred.then(async(inputFile) => {
           const media = await this.apiManager.invokeApi('messages.uploadMedia', {
             media: {
               _: 'inputMediaUploadedPhoto',
               file: inputFile,
-              pFlags: {}
+              pFlags: {},
             },
-            peer: this.appPeersManager.getInputPeerById(peerId)
+            peer: this.appPeersManager.getInputPeerById(peerId),
           });
-          if(media._ !== 'messageMediaPhoto') throw new Error('Unexpected media type');
+          if (media._ !== 'messageMediaPhoto') throw new Error('Unexpected media type');
 
           const photo = this.appPhotosManager.savePhoto(media.photo!);
 
           deferred.resolve({
             _: 'inputMediaPhoto',
             id: getPhotoInput(photo!),
-            pFlags: {}
+            pFlags: {},
           });
         }, (e) => deferred.reject(e));
 
         return uploadFileDeferred;
-      }
+      },
     });
 
     return {
       uploadingFileName,
       deferred,
       messageMedia,
-      cancel: () => uploadFileDeferred.cancel!()
+      cancel: () => uploadFileDeferred.cancel!(),
     };
   }
 
@@ -602,19 +602,19 @@ export class AppPollsManager extends AppManager {
     deferred.resolve({
       _: 'inputMediaDocument',
       id: getDocumentInput(doc),
-      pFlags: {}
+      pFlags: {},
     });
 
     const messageMedia: MessageMedia = {
       _: 'messageMediaDocument',
       pFlags: {},
-      document: doc
+      document: doc,
     };
 
     return {
       uploadingFileName: undefined as string | undefined,
       deferred,
-      messageMedia
+      messageMedia,
     };
   }
 
@@ -624,8 +624,8 @@ export class AppPollsManager extends AppManager {
 
     const pollOptions = new Map<number, ReturnType<AppPollsManager['uploadPollMedia']>>;
 
-    for(const [index, option] of payload.pollOptions.entries()) {
-      if(option.attachment) {
+    for (const [index, option] of payload.pollOptions.entries()) {
+      if (option.attachment) {
         pollOptions.set(index, this.uploadPollMedia(peerId, option.attachment));
       }
     }
@@ -633,12 +633,12 @@ export class AppPollsManager extends AppManager {
     return {
       description,
       explanation,
-      pollOptions
+      pollOptions,
     };
   }
 
   private parseAllPollMarkdown(payload: CreatePollPayload) {
-    const toTextAndEntities = (ret: ReturnType<typeof parseMarkdown>) => ({text: ret[0], entities: ret[1]});
+    const toTextAndEntities = (ret: ReturnType<typeof parseMarkdown>) => ({ text: ret[0], entities: ret[1] });
 
     // Note: question and poll options do not support formatting entities
     const question = toTextAndEntities([payload.question, payload.questionEntities]);
@@ -650,11 +650,11 @@ export class AppPollsManager extends AppManager {
       question,
       description,
       explanation,
-      pollOptions
+      pollOptions,
     };
   }
 
-  private makePollMedia({peerId, payload, parsedPayload, uploadingMedia}: MakePollMediaArgs) {
+  private makePollMedia({ peerId, payload, parsedPayload, uploadingMedia }: MakePollMediaArgs) {
     const pollId = randomLong();
     this.createdPollIds.add(pollId);
 
@@ -664,7 +664,7 @@ export class AppPollsManager extends AppManager {
       _: 'poll',
       question: {
         _: 'textWithEntities',
-        ...parsedPayload.question
+        ...parsedPayload.question,
       },
       id: pollId,
       hash: (undefined as unknown as string | number),
@@ -676,26 +676,26 @@ export class AppPollsManager extends AppManager {
         shuffle_answers: flag(payload.shuffleOptions),
         quiz: flag(payload.hasCorrectAnswer),
         open_answers: flag(payload.allowAddingOptions),
-        creator: true
+        creator: true,
       },
       close_date: payload.timeLimit?.type === 'timestamp' ? payload.timeLimit.timestamp : undefined,
-      close_period: payload.timeLimit?.type === 'duration' ? payload.timeLimit.duration : undefined
+      close_period: payload.timeLimit?.type === 'duration' ? payload.timeLimit.duration : undefined,
     };
 
     const answersForMedia = payload.pollOptions.map((_, index): PollAnswer.pollAnswer => ({
       _: 'pollAnswer',
       text: {
         _: 'textWithEntities',
-        ...parsedPayload.pollOptions[index]
+        ...parsedPayload.pollOptions[index],
       },
       option: new Uint8Array(Array.from(index.toString()).map((c) => c.charCodeAt(0))),
       added_by: this.appPeersManager.getOutputPeer(peerId),
-      media: uploadingMedia.pollOptions.get(index)?.messageMedia
+      media: uploadingMedia.pollOptions.get(index)?.messageMedia,
     }));
 
     const pollForMedia: Poll.poll = {
       ...pollWithoutAnswers,
-      answers: answersForMedia
+      answers: answersForMedia,
     };
 
     const savePollResult = this.appPollsManager.savePoll(pollForMedia, {
@@ -705,30 +705,30 @@ export class AppPollsManager extends AppManager {
       recent_voters: [],
       solution: parsedPayload.explanation.text,
       solution_entities: parsedPayload.explanation.entities,
-      solution_media: uploadingMedia.explanation?.messageMedia
+      solution_media: uploadingMedia.explanation?.messageMedia,
     });
 
     const messageMedia: MessageMedia.messageMediaPoll = {
       _: 'messageMediaPoll',
       poll: savePollResult.poll,
       results: savePollResult.results,
-      attached_media: uploadingMedia.description?.messageMedia
+      attached_media: uploadingMedia.description?.messageMedia,
     };
 
     return {
       pollWithoutAnswers,
-      messageMedia
+      messageMedia,
     };
   }
 
-  private async invokeSendPoll({peerId, params, randomId, pollWithoutAnswers, payload, parsedPayload, uploadingMedia}: InvokeSendPollArgs) {
+  private async invokeSendPoll({ peerId, params, randomId, pollWithoutAnswers, payload, parsedPayload, uploadingMedia }: InvokeSendPollArgs) {
     const getCorrectAnswers = () => {
       const result = payload.pollOptions
-      .map((option, index) => ({option, index}))
-      .filter(({option}) => option.checked)
-      .map(({index}) => index)
+        .map((option, index) => ({ option, index }))
+        .filter(({ option }) => option.checked)
+        .map(({ index }) => index)
 
-      if(!result.length) return;
+      if (!result.length) return;
 
       return result;
     };
@@ -741,23 +741,23 @@ export class AppPollsManager extends AppManager {
         question: {
           _: 'textWithEntities',
           text: parsedPayload.question.text,
-          entities: this.appMessagesManager.getInputEntities(parsedPayload.question.entities) || []
+          entities: this.appMessagesManager.getInputEntities(parsedPayload.question.entities) || [],
         },
         answers: await Promise.all(parsedPayload.pollOptions.map(async(option, index): Promise<PollAnswer.inputPollAnswer> => ({
           _: 'inputPollAnswer',
           text: {
             _: 'textWithEntities',
             text: option.text,
-            entities: this.appMessagesManager.getInputEntities(option.entities) || []
+            entities: this.appMessagesManager.getInputEntities(option.entities) || [],
           },
-          media: await uploadingMedia.pollOptions.get(index)?.deferred
-        })))
+          media: await uploadingMedia.pollOptions.get(index)?.deferred,
+        }))),
       },
       correct_answers: getCorrectAnswers(),
       attached_media: await uploadingMedia.description?.deferred,
       solution: parsedPayload.explanation.text || undefined,
       solution_entities: parsedPayload.explanation.text ? this.appMessagesManager.getInputEntities(parsedPayload.explanation.entities) || [] : undefined,
-      solution_media: await uploadingMedia.explanation?.deferred
+      solution_media: await uploadingMedia.explanation?.deferred,
     };
 
     const paidStars = params.confirmedPaymentResult?.starsAmount || undefined;
@@ -776,13 +776,13 @@ export class AppPollsManager extends AppManager {
       update_stickersets_order: params.updateStickersetOrder,
       invert_media: params.invertMedia,
       effect: params.effect,
-      allow_paid_stars: paidStars
+      allow_paid_stars: paidStars,
     });
 
     this.apiUpdatesManager.processUpdateMessage(updates)
     this.apiUpdatesManager.processPaidMessageUpdate({
       paidStars: paidStars!,
-      wereStarsReserved: params.confirmedPaymentResult?.canUndo!
+      wereStarsReserved: params.confirmedPaymentResult?.canUndo!,
     });
   }
 
@@ -796,7 +796,7 @@ export class AppPollsManager extends AppManager {
     const uploadingMedia = this.startUploadingAllPollMedia(peerId!, payload);
     const parsedPayload = this.parseAllPollMarkdown(payload);
 
-    const {pollWithoutAnswers, messageMedia} = this.makePollMedia({peerId: peerId!, payload, parsedPayload, uploadingMedia});
+    const { pollWithoutAnswers, messageMedia } = this.makePollMedia({ peerId: peerId!, payload, parsedPayload, uploadingMedia });
 
     const pollId = messageMedia.poll.id;
 
@@ -805,13 +805,13 @@ export class AppPollsManager extends AppManager {
     this.uploadingFileNamesByPollId.set(pollId, {
       description: uploadingMedia.description?.uploadingFileName,
       explanation: uploadingMedia.explanation?.uploadingFileName,
-      answers: payload.pollOptions.map((_, i) => uploadingMedia.pollOptions.get(i)?.uploadingFileName)
+      answers: payload.pollOptions.map((_, i) => uploadingMedia.pollOptions.get(i)?.uploadingFileName),
     });
 
     const cancelCallbacks: Array<() => void> = ([
       uploadingMedia.description?.cancel,
       uploadingMedia.explanation?.cancel,
-      ...Array.from(uploadingMedia.pollOptions.values()).map(option => option.cancel)
+      ...Array.from(uploadingMedia.pollOptions.values()).map(option => option.cancel),
     ].filter(Boolean) as Array<() => void>);
 
     this.uploadingCancelCallbacks.set(pollId, cancelCallbacks);
@@ -819,7 +819,7 @@ export class AppPollsManager extends AppManager {
     Promise.all([
       uploadingMedia.description?.deferred,
       uploadingMedia.explanation?.deferred,
-      ...Array.from(uploadingMedia.pollOptions.values()).map(option => option.deferred)
+      ...Array.from(uploadingMedia.pollOptions.values()).map(option => option.deferred),
     ]).catch(() => {
       // Run canceling for others in case one fails
       this.runUploadingCancelCallbacksForPoll(pollId);
@@ -837,7 +837,7 @@ export class AppPollsManager extends AppManager {
     message.uploadingFileName = ([
       uploadingMedia.description?.uploadingFileName,
       uploadingMedia.explanation?.uploadingFileName,
-      ...Array.from(uploadingMedia.pollOptions.values()).map((attachment) => attachment.uploadingFileName)
+      ...Array.from(uploadingMedia.pollOptions.values()).map((attachment) => attachment.uploadingFileName),
     ].filter(Boolean) as string[] | undefined);
 
     message.send = async() => {
@@ -850,9 +850,9 @@ export class AppPollsManager extends AppManager {
           pollWithoutAnswers,
           payload,
           parsedPayload,
-          uploadingMedia
+          uploadingMedia,
         });
-      } catch(err) {
+      } catch (err) {
         const error = err as ApiError;
 
         const repayRequest = this.appMessagesManager.repayRequestHandler.tryRegisterRequest({
@@ -860,9 +860,9 @@ export class AppPollsManager extends AppManager {
           messageCount: 1,
           paidStars: (params.confirmedPaymentResult?.starsAmount || undefined)!,
           repayCallback: (override) => {
-            this.sendPollMessage({...params, ...override}, payload);
+            this.sendPollMessage({ ...params, ...override }, payload);
           },
-          wereStarsReserved: params.confirmedPaymentResult?.canUndo!
+          wereStarsReserved: params.confirmedPaymentResult?.canUndo!,
         });
 
         this.appMessagesManager.toggleError(message, error, repayRequest);
@@ -871,7 +871,7 @@ export class AppPollsManager extends AppManager {
 
     this.appMessagesManager.beforeMessageSending(message, {
       isScheduled: !!params.scheduleDate || undefined,
-      threadId: params.threadId
+      threadId: params.threadId,
     });
   }
 
@@ -882,7 +882,7 @@ export class AppPollsManager extends AppManager {
   public runUploadingCancelCallbacksForPoll(pollId: PollId) {
     const callbacks = this.uploadingCancelCallbacks.get(pollId);
     callbacks?.forEach(callback => {
-      try { callback?.(); } catch{}
+      try { callback?.(); } catch {}
     });
 
     this.uploadingCancelCallbacks.delete(pollId);
@@ -891,10 +891,10 @@ export class AppPollsManager extends AppManager {
   public getRandomIdByUploadingFileName(filename: string) {
     let pollId: PollId | undefined;
 
-    for(const [id, uploadingFileNames] of this.uploadingFileNamesByPollId.entries()) {
-      if(uploadingFileNames.description === filename) pollId = id;
-      if(uploadingFileNames.answers?.includes(filename)) pollId = id;
-      if(uploadingFileNames.explanation === filename) pollId = id;
+    for (const [id, uploadingFileNames] of this.uploadingFileNamesByPollId.entries()) {
+      if (uploadingFileNames.description === filename) pollId = id;
+      if (uploadingFileNames.answers?.includes(filename)) pollId = id;
+      if (uploadingFileNames.explanation === filename) pollId = id;
     }
 
     return pollId ? this.tempMessageByPollId.get(pollId)?.random_id : undefined;

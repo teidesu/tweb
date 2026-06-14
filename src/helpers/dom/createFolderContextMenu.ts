@@ -1,8 +1,8 @@
-import type {AppManagers} from '@lib/managers';
-import type {AppChatFoldersTab} from '@components/solidJsTabs/tabs';
-import type {AppEditFolderTab} from '@components/solidJsTabs/tabs';
-import type {AppSidebarLeft} from '@components/sidebarLeft';
-import {FOLDER_ID_ALL, REAL_FOLDERS} from '@appManagers/constants';
+import type { AppManagers } from '@lib/managers';
+import type { AppChatFoldersTab } from '@components/solidJsTabs/tabs';
+import type { AppEditFolderTab } from '@components/solidJsTabs/tabs';
+import type { AppSidebarLeft } from '@components/sidebarLeft';
+import { FOLDER_ID_ALL, REAL_FOLDERS } from '@appManagers/constants';
 import createContextMenu from '@helpers/dom/createContextMenu';
 import findUpClassName from '@helpers/dom/findUpClassName';
 
@@ -12,7 +12,7 @@ export default function createFolderContextMenu({
   AppEditFolderTab: _AppEditFolderTab,
   managers,
   className,
-  listenTo
+  listenTo,
 }: {
   appSidebarLeft: AppSidebarLeft,
   AppChatFoldersTab: typeof AppChatFoldersTab,
@@ -22,23 +22,23 @@ export default function createFolderContextMenu({
   listenTo: HTMLElement
 }) {
   async function openSettingsForFilter(filterId: number) {
-    if(REAL_FOLDERS.has(filterId)) return;
+    if (REAL_FOLDERS.has(filterId)) return;
     const filter = await managers.filtersStorage.getFilter(filterId);
 
     appSidebarLeft.closeTabsBefore(() => {
-      appSidebarLeft.createTab(_AppEditFolderTab).open({..._AppEditFolderTab.getInitArgs(), initFilter: filter});
+      appSidebarLeft.createTab(_AppEditFolderTab).open({ ..._AppEditFolderTab.getInitArgs(), initFilter: filter });
     });
   }
 
   let clickFilterId: number;
-  const {destroy} = createContextMenu({
+  const { destroy } = createContextMenu({
     buttons: [{
       icon: 'edit',
       text: 'FilterEdit',
       onClick: () => {
         openSettingsForFilter(clickFilterId);
       },
-      verify: () => clickFilterId !== FOLDER_ID_ALL
+      verify: () => clickFilterId !== FOLDER_ID_ALL,
     }, {
       icon: 'edit',
       text: 'FilterEditAll',
@@ -47,14 +47,14 @@ export default function createFolderContextMenu({
           appSidebarLeft.createTab(_AppChatFoldersTab).open(_AppChatFoldersTab.getInitArgs());
         });
       },
-      verify: () => clickFilterId === FOLDER_ID_ALL
+      verify: () => clickFilterId === FOLDER_ID_ALL,
     }, {
       icon: 'readchats',
       text: 'MarkAllAsRead',
       onClick: () => {
         managers.dialogsStorage.markFolderAsRead(clickFilterId);
       },
-      verify: async() => !!(await managers.dialogsStorage.getFolderUnreadCount(clickFilterId)).unreadCount
+      verify: async() => !!(await managers.dialogsStorage.getFolderUnreadCount(clickFilterId)).unreadCount,
     }, {
       icon: 'delete',
       className: 'danger',
@@ -62,14 +62,14 @@ export default function createFolderContextMenu({
       onClick: () => {
         _AppEditFolderTab.deleteFolder(clickFilterId);
       },
-      verify: () => clickFilterId !== FOLDER_ID_ALL
+      verify: () => clickFilterId !== FOLDER_ID_ALL,
     }],
     listenTo,
     findElement: (e) => findUpClassName(e.target!, className),
     onOpen: (e, target) => {
       clickFilterId = +target.dataset.filterId!;
-    }
+    },
   });
 
-  return {destroy, openSettingsForFilter};
+  return { destroy, openSettingsForFilter };
 }

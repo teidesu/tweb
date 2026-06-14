@@ -128,17 +128,17 @@ let resizeTransitionRaf = 0;
 
 (function loadUserPreferences() {
   const rawLeft = localStorage.getItem(STORAGE_KEY_LEFT);
-  if(rawLeft != null) {
+  if (rawLeft != null) {
     const n = parseInt(rawLeft);
-    if(!isNaN(n)) {
-      if(n === 0) userPreferredLeftCollapsed = true;
+    if (!isNaN(n)) {
+      if (n === 0) userPreferredLeftCollapsed = true;
       else userPreferredLeftWidth = clamp(n, MIN_LEFT_SIDEBAR_WIDTH, MAX_SIDEBAR_WIDTH);
     }
   }
   const rawRight = localStorage.getItem(STORAGE_KEY_RIGHT);
-  if(rawRight != null) {
+  if (rawRight != null) {
     const n = parseInt(rawRight);
-    if(!isNaN(n)) userPreferredRightWidth = clamp(n, MIN_RIGHT_SIDEBAR_WIDTH, MAX_SIDEBAR_WIDTH);
+    if (!isNaN(n)) userPreferredRightWidth = clamp(n, MIN_RIGHT_SIDEBAR_WIDTH, MAX_SIDEBAR_WIDTH);
   }
 })();
 
@@ -168,7 +168,7 @@ function clampSidebarWidth(width: number, otherWidth: number, minWidth: number):
   const isMobile = mediaSizes.isMobile;
   const isFloatingLeft = mediaSizes.isLessThanFloatingLeftSidebar && !isMobile;
 
-  if(isMobile || isFloatingLeft || last.floats) {
+  if (isMobile || isFloatingLeft || last.floats) {
     return clamp(width, minWidth, MAX_SIDEBAR_WIDTH);
   }
 
@@ -179,7 +179,7 @@ function clampSidebarWidth(width: number, otherWidth: number, minWidth: number):
 function disableResizeTransitions(): void {
   document.body.classList.add('layout-resizing');
 
-  if(resizeTransitionRaf) {
+  if (resizeTransitionRaf) {
     window.cancelAnimationFrame(resizeTransitionRaf);
   }
 
@@ -196,7 +196,7 @@ function disableResizeTransitions(): void {
  * records a collapsed preference; any other value is clamped before storing.
  */
 export function setUserPreferredLeft(width: number): void {
-  if(width <= 0) {
+  if (width <= 0) {
     userPreferredLeftCollapsed = true;
     userPreferredLeftWidth = undefined;
   } else {
@@ -228,7 +228,7 @@ export function isUserCollapsedLeft(): boolean {
  * change is animated by CSS (transition on #column-left.is-collapsed width).
  */
 export function setOpenTabsLeftSidebar(value: boolean): void {
-  if(openTabsLeftSidebar === value) return;
+  if (openTabsLeftSidebar === value) return;
   openTabsLeftSidebar = value;
   updateColumnWidths();
 }
@@ -239,7 +239,7 @@ export function setOpenTabsLeftSidebar(value: boolean): void {
  * starts to float a bit sooner when the folders panel reserves space.
  */
 export function setFoldersSidebarShown(value: boolean): void {
-  if(foldersSidebarShown === value) return;
+  if (foldersSidebarShown === value) return;
   foldersSidebarShown = value;
   updateColumnWidths();
 }
@@ -252,12 +252,12 @@ function computeVisualLeftWidth(): number {
 
   // mobile — SCSS handhelds rule fills the parent grid cell regardless
   // (width: auto; max-width: none). The variable is still consistent.
-  if(isMobile) return vw;
+  if (isMobile) return vw;
   // 601-925px — drawer over the chat, fixed at default.
-  if(isFloatingLeft) return defaultColumnWidth;
+  if (isFloatingLeft) return defaultColumnWidth;
   // Collapsed AND no tabs open → narrow strip. Tabs-open swaps this to the
   // full width; the CSS transition on .is-collapsed animates the change.
-  if(userPreferredLeftCollapsed && !openTabsLeftSidebar) return SIDEBAR_COLLAPSED_WIDTH;
+  if (userPreferredLeftCollapsed && !openTabsLeftSidebar) return SIDEBAR_COLLAPSED_WIDTH;
   // Steady state: user preference, or default if none.
   return userPreferredLeftWidth ?? defaultColumnWidth;
 }
@@ -272,15 +272,15 @@ function computeLayoutLeftWidth(): number {
   const isFloatingLeft = mediaSizes.isLessThanFloatingLeftSidebar && !isMobile;
   const defaultColumnWidth = Math.min(vw, DEFAULT_COLUMN_WIDTH);
 
-  if(isMobile) return vw;
-  if(isFloatingLeft) return defaultColumnWidth;
-  if(userPreferredLeftCollapsed) return SIDEBAR_COLLAPSED_WIDTH;
+  if (isMobile) return vw;
+  if (isFloatingLeft) return defaultColumnWidth;
+  if (userPreferredLeftCollapsed) return SIDEBAR_COLLAPSED_WIDTH;
   return userPreferredLeftWidth ?? defaultColumnWidth;
 }
 
 function computeRightWidth(): number {
   const vw = window.innerWidth;
-  if(mediaSizes.isMobile) return vw;
+  if (mediaSizes.isMobile) return vw;
   return userPreferredRightWidth ?? Math.min(vw, DEFAULT_COLUMN_WIDTH);
 }
 
@@ -296,7 +296,7 @@ const last = {
   rightSidebarFits: -1,
   pageChatsPaddingRoot: -1,
   pageChatsPaddingChat: -1,
-  floats: undefined as boolean | undefined
+  floats: undefined as boolean | undefined,
 };
 let installed = false;
 
@@ -361,58 +361,58 @@ export default function updateColumnWidths(): void {
   const pageChatsPaddingRoot = isMobile ? PAGE_CHATS_PADDING_ROOT_HANDHELD : PAGE_CHATS_PADDING_ROOT_DESKTOP;
   const pageChatsPaddingChat = isMobile ? PAGE_CHATS_PADDING_CHAT_HANDHELD : PAGE_CHATS_PADDING_CHAT_DESKTOP;
 
-  if(last.defaultColumn !== defaultColumnWidth) {
+  if (last.defaultColumn !== defaultColumnWidth) {
     root.style.setProperty('--default-column-width', defaultColumnWidth + 'px');
     last.defaultColumn = defaultColumnWidth;
   }
-  if(last.visual !== visualLeftWidth) {
+  if (last.visual !== visualLeftWidth) {
     root.style.setProperty('--left-column-visual-width', visualLeftWidth + 'px');
     last.visual = visualLeftWidth;
   }
-  if(last.layout !== layoutLeftWidth) {
+  if (last.layout !== layoutLeftWidth) {
     root.style.setProperty('--left-column-width', layoutLeftWidth + 'px');
     last.layout = layoutLeftWidth;
   }
-  if(last.right !== rightWidth) {
+  if (last.right !== rightWidth) {
     root.style.setProperty('--right-column-width', rightWidth + 'px');
     last.right = rightWidth;
   }
-  if(last.middle !== middleWidth) {
+  if (last.middle !== middleWidth) {
     root.style.setProperty('--middle-column-width', middleWidth + 'px');
     root.style.setProperty('--middle-column-width-value', '' + middleWidth);
     last.middle = middleWidth;
   }
-  if(last.foldersWidth !== FOLDERS_SIDEBAR_WIDTH) {
+  if (last.foldersWidth !== FOLDERS_SIDEBAR_WIDTH) {
     root.style.setProperty('--folders-sidebar-width', FOLDERS_SIDEBAR_WIDTH + 'px');
     last.foldersWidth = FOLDERS_SIDEBAR_WIDTH;
   }
-  if(last.foldersOffset !== foldersOffset) {
+  if (last.foldersOffset !== foldersOffset) {
     root.style.setProperty('--folders-sidebar-offset', foldersOffset + 'px');
     last.foldersOffset = foldersOffset;
   }
-  if(last.chatWidth !== chatWidth) {
+  if (last.chatWidth !== chatWidth) {
     root.style.setProperty('--chat-width', chatWidth + 'px');
     last.chatWidth = chatWidth;
   }
-  if(last.rightSidebarFits !== rightSidebarFits) {
+  if (last.rightSidebarFits !== rightSidebarFits) {
     root.style.setProperty('--right-sidebar-fits', rightSidebarFits + 'px');
     last.rightSidebarFits = rightSidebarFits;
   }
-  if(last.pageChatsPaddingRoot !== pageChatsPaddingRoot) {
+  if (last.pageChatsPaddingRoot !== pageChatsPaddingRoot) {
     root.style.setProperty('--page-chats-padding', pageChatsPaddingRoot + 'px');
     last.pageChatsPaddingRoot = pageChatsPaddingRoot;
   }
-  if(last.pageChatsPaddingChat !== pageChatsPaddingChat) {
+  if (last.pageChatsPaddingChat !== pageChatsPaddingChat) {
     const center = document.getElementById('column-center');
     // Skip the cache update if #column-center isn't in the DOM yet (initial
     // module-import run before HTML parse reaches the chat container) so
     // the next call retries.
-    if(center) {
+    if (center) {
       center.style.setProperty('--page-chats-padding', pageChatsPaddingChat + 'px');
       last.pageChatsPaddingChat = pageChatsPaddingChat;
     }
   }
-  if(last.floats !== floats) {
+  if (last.floats !== floats) {
     document.body.classList.toggle('right-column-floats', floats);
     last.floats = floats;
     rootScope.dispatchEventSingle('right_column_floats', floats);
@@ -424,9 +424,9 @@ export function isRightColumnFloating(): boolean {
 }
 
 export function installColumnWidthsUpdater(): void {
-  if(installed) return;
+  if (installed) return;
   installed = true;
-  window.addEventListener('resize', disableResizeTransitions, {passive: true});
+  window.addEventListener('resize', disableResizeTransitions, { passive: true });
   mediaSizes.addEventListener('resize', updateColumnWidths);
   rootScope.addEventListener('resizing_left_sidebar', updateColumnWidths);
   updateColumnWidths();

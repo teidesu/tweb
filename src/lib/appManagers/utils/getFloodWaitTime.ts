@@ -12,5 +12,5 @@ export function getFloodWaitTime(error: ApiError): Result {
   const match = error.type.match(/^FLOOD_WAIT_(\d+)/);
   const waitTime = match ? parseInt(match[1]) || 0 : 0;
 
-  return waitTime ? {hasWaitTime: true, waitTime} : {hasWaitTime: false};
+  return waitTime ? { hasWaitTime: true, waitTime } : { hasWaitTime: false };
 }

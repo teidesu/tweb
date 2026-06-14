@@ -1,43 +1,43 @@
-import {isIpRevealingExtension, isIpRevealingMimeType} from '@environment/ipRevealingDocuments';
+import { isIpRevealingExtension, isIpRevealingMimeType } from '@environment/ipRevealingDocuments';
 import MEDIA_MIME_TYPES_SUPPORTED from '@environment/mediaMimeTypesSupport';
-import {CancellablePromise} from '@helpers/cancellablePromise';
-import {clearBadCharsAndTrim} from '@helpers/cleanSearchText';
-import {formatFullSentTime} from '@helpers/date';
-import {simulateClickEvent, attachClickEvent} from '@helpers/dom/clickEvent';
+import { CancellablePromise } from '@helpers/cancellablePromise';
+import { clearBadCharsAndTrim } from '@helpers/cleanSearchText';
+import { formatFullSentTime } from '@helpers/date';
+import { simulateClickEvent, attachClickEvent } from '@helpers/dom/clickEvent';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import formatBytes from '@helpers/formatBytes';
 import liteMode from '@helpers/liteMode';
-import {MediaSizeType} from '@helpers/mediaSizes';
+import { MediaSizeType } from '@helpers/mediaSizes';
 import noop from '@helpers/noop';
-import {Message, MessageMedia, WebPage} from '@layer';
-import {MyDocument} from '@appManagers/appDocsManager';
-import appDownloadManager, {Progress} from '@lib/appDownloadManager';
+import { Message, MessageMedia, WebPage } from '@layer';
+import { MyDocument } from '@appManagers/appDocsManager';
+import appDownloadManager, { Progress } from '@lib/appDownloadManager';
 import appImManager from '@lib/appImManager';
-import {AppManagers} from '@lib/managers';
+import { AppManagers } from '@lib/managers';
 import getDownloadMediaDetails from '@appManagers/utils/download/getDownloadMediaDetails';
 import choosePhotoSize from '@appManagers/utils/photos/choosePhotoSize';
-import {joinElementsWith} from '@lib/langPack';
-import {MAX_FILE_SAVE_SIZE} from '@appManagers/constants';
+import { joinElementsWith } from '@lib/langPack';
+import { MAX_FILE_SAVE_SIZE } from '@appManagers/constants';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import wrapPlainText from '@lib/richTextProcessor/wrapPlainText';
 import rootScope from '@lib/rootScope';
-import type {ThumbCache} from '@lib/storages/thumbs';
-import {MediaSearchContext} from '@components/appMediaPlaybackController';
+import type { ThumbCache } from '@lib/storages/thumbs';
+import { MediaSearchContext } from '@components/appMediaPlaybackController';
 import AudioElement from '@components/audio';
-import {emptyMediaListLoaderFactory} from '@components/emptyMediaListLoader';
+import { emptyMediaListLoaderFactory } from '@components/emptyMediaListLoader';
 import confirmationPopup from '@components/confirmationPopup';
 import LazyLoadQueue from '@components/lazyLoadQueue';
-import {MiddleEllipsisElement} from '@components/middleEllipsis';
+import { MiddleEllipsisElement } from '@components/middleEllipsis';
 import ProgressivePreloader from '@components/preloader';
 import wrapPhoto from '@components/wrappers/photo';
 import wrapSenderToPeer from '@components/wrappers/senderToPeer';
 import wrapSentTime from '@components/wrappers/sentTime';
-import {Middleware} from '@helpers/middleware';
+import { Middleware } from '@helpers/middleware';
 
 rootScope.addEventListener('document_downloading', (docId) => {
   const elements = Array.from(document.querySelectorAll(`.document[data-doc-id="${docId}"]`));
   elements.forEach((element) => {
-    if(element.querySelector('.preloader-container.manual')) {
+    if (element.querySelector('.preloader-container.manual')) {
       simulateClickEvent(element as HTMLElement);
     }
   });
@@ -66,7 +66,7 @@ export default async function wrapDocument({
   customAudioToTextButton,
   globalMedia,
   doc: docOverride,
-  slot
+  slot,
 }: {
   message: Message.message,
   middleware: Middleware,
@@ -110,12 +110,12 @@ export default async function wrapDocument({
 
   const doc = docOverride ?? (((message.media as MessageMedia.messageMediaDocument).document || ((message.media as MessageMedia.messageMediaWebPage).webpage as WebPage.webPage).document) as MyDocument);
   uploadingFileName ??= message?.uploadingFileName?.[0];
-  if(doc.type === 'audio' || doc.type === 'voice' || doc.type === 'round') {
+  if (doc.type === 'audio' || doc.type === 'voice' || doc.type === 'round') {
     const audioElement = new AudioElement();
     audioElement.withTime = withTime!;
     audioElement.message = message;
-    if(docOverride) audioElement.doc = docOverride;
-    if(slot !== undefined) {
+    if (docOverride) audioElement.doc = docOverride;
+    if (slot !== undefined) {
       audioElement.mediaSlot = slot;
       // Slotted audio (e.g. poll description / explanation) should not
       // participate in any chat-wide playlist. Use an empty list loader
@@ -131,19 +131,19 @@ export default async function wrapDocument({
     audioElement.middleware = middleware;
 
     audioElement.audio = globalMedia as any;
-    if(globalMedia) audioElement.dataset.toBeSkipped = '1';
+    if (globalMedia) audioElement.dataset.toBeSkipped = '1';
 
-    if(canTranscribeVoice && doc.type === 'voice') audioElement.transcriptionState = 0;
+    if (canTranscribeVoice && doc.type === 'voice') audioElement.transcriptionState = 0;
     (audioElement as any).getSize = getSize;
 
-    if(voiceAsMusic) audioElement.voiceAsMusic = voiceAsMusic;
-    if(searchContext) audioElement.searchContext = searchContext;
-    if(showSender) audioElement.showSender = showSender;
+    if (voiceAsMusic) audioElement.voiceAsMusic = voiceAsMusic;
+    if (searchContext) audioElement.searchContext = searchContext;
+    if (showSender) audioElement.showSender = showSender;
 
     audioElement.dataset.fontWeight = '' + fontWeight;
     audioElement.dataset.fontSize = '' + fontSize;
     audioElement.dataset.sizeType = sizeType;
-    if(isOut) audioElement.classList.add('is-out');
+    if (isOut) audioElement.classList.add('is-out');
     await audioElement.render();
     return audioElement;
   }
@@ -172,13 +172,13 @@ export default async function wrapDocument({
 
   cacheContext = getCacheContext();
   let hasThumb = false;
-  if((doc.thumbs?.length || (message.pFlags.is_outgoing && cacheContext!.url && doc.type === 'photo'))/*  && doc.mime_type !== 'image/gif' */) {
+  if ((doc.thumbs?.length || (message.pFlags.is_outgoing && cacheContext!.url && doc.type === 'photo'))/*  && doc.mime_type !== 'image/gif' */) {
     docDiv.classList.add('document-with-thumb');
     hasThumb = true;
 
     const imgs: (HTMLImageElement | HTMLCanvasElement | HTMLVideoElement)[] = [];
     // ! WARNING, use thumbs for check when thumb will be generated for media
-    if(message.pFlags.is_outgoing && ['photo', 'video'].includes(doc.type!) && cacheContext!.url) {
+    if (message.pFlags.is_outgoing && ['photo', 'video'].includes(doc.type!) && cacheContext!.url) {
       icoDiv.innerHTML = `<img src="${cacheContext!.url}">`;
       imgs.push(icoDiv.firstElementChild as HTMLImageElement);
     } else {
@@ -193,12 +193,12 @@ export default async function wrapDocument({
         withoutPreloader: true,
         lazyLoadQueue,
         size: choosePhotoSize(doc, 54, 54, true),
-        managers
+        managers,
       });
       // console.log('was wrapping photo', performance.now() - perf);
       icoDiv.style.width = icoDiv.style.height = '';
-      if(wrapped.images.thumb) imgs.push(wrapped.images.thumb);
-      if(wrapped.images.full) imgs.push(wrapped.images.full);
+      if (wrapped.images.thumb) imgs.push(wrapped.images.thumb);
+      if (wrapped.images.full) imgs.push(wrapped.images.full);
     }
 
     imgs.forEach((img) => img.classList.add('document-thumb'));
@@ -219,15 +219,15 @@ export default async function wrapDocument({
 
   const descriptionParts: (HTMLElement | string | DocumentFragment)[] = [bytesEl];
 
-  if(withTime) {
+  if (withTime) {
     descriptionParts.push(formatFullSentTime(message.date));
   }
 
-  if(showSender) {
+  if (showSender) {
     descriptionParts.push(await wrapSenderToPeer(message));
   }
 
-  if(!withTime && !showSender) {
+  if (!withTime && !showSender) {
     const b = document.createElement('span');
     const bytesMaxEl = formatBytes(doc.size!);
     b.append(bytesJoiner, bytesMaxEl);
@@ -251,13 +251,13 @@ export default async function wrapDocument({
   // setInnerHTML(middleEllipsisEl, fileName);
 
   // * new media popup
-  if(!message.mid) {
+  if (!message.mid) {
     docDiv.classList.add('downloaded');
   }
 
   nameDiv.append(middleEllipsisEl);
 
-  if(showSender) {
+  if (showSender) {
     nameDiv.append(wrapSentTime(message));
   }
 
@@ -267,7 +267,7 @@ export default async function wrapDocument({
 
   docDiv.prepend(icoDiv);
 
-  if(!uploadingFileName && message.pFlags.is_outgoing && !message.mid) {
+  if (!uploadingFileName && message.pFlags.is_outgoing && !message.mid) {
     return docDiv;
   }
 
@@ -277,7 +277,7 @@ export default async function wrapDocument({
   const onLoad = () => {
     docDiv.classList.remove('downloading');
 
-    if(/* !hasThumb ||  */(doc.size! > MAX_FILE_SAVE_SIZE && !uploadingFileName)) {
+    if (/* !hasThumb ||  */(doc.size! > MAX_FILE_SAVE_SIZE && !uploadingFileName)) {
       preloader!.setManual();
       preloader!.attach((downloadDiv as Element));
       preloader!.preloader.classList.add('manual');
@@ -285,12 +285,12 @@ export default async function wrapDocument({
       return;
     }
 
-    if(canSaveToCache) {
+    if (canSaveToCache) {
       docDiv.classList.add('downloaded');
     }
 
-    if(downloadDiv) {
-      if(downloadDiv !== icoDiv) {
+    if (downloadDiv) {
+      if (downloadDiv !== icoDiv) {
         const _downloadDiv = downloadDiv;
         setTimeout(() => {
           _downloadDiv.remove();
@@ -300,7 +300,7 @@ export default async function wrapDocument({
       downloadDiv = null;
     }
 
-    if(preloader) {
+    if (preloader) {
       preloader = null;
     }
   };
@@ -341,12 +341,12 @@ export default async function wrapDocument({
     // const doc = await managers.appDocsManager.getDoc(docDiv.dataset.docId);
     let download: CancellablePromise<any>;
     const queueId = appImManager.chat.bubbles ? appImManager.chat.bubbles.lazyLoadQueue!.queueId : undefined;
-    if(!save) {
-      download = appDownloadManager.downloadToDisc({media: doc, queueId}, true);
-    } else if(doc.type === 'pdf' && false) {
+    if (!save) {
+      download = appDownloadManager.downloadToDisc({ media: doc, queueId }, true);
+    } else if (doc.type === 'pdf' && false) {
       const canOpenAfter = /* managers.appDocsManager.downloading.has(doc.id) ||  */!preloader || preloader!.detached;
-      download = appDownloadManager.downloadMediaURL({media: doc, queueId});
-      if(canOpenAfter) {
+      download = appDownloadManager.downloadMediaURL({ media: doc, queueId });
+      if (canOpenAfter) {
         download.then(() => {
           setTimeout(async() => { // wait for preloader animation end
             const url = (getCacheContext())!.url;
@@ -354,22 +354,22 @@ export default async function wrapDocument({
           }, liteMode.isAvailable('animations') ? 250 : 0);
         });
       }
-    } else if(
+    } else if (
       MEDIA_MIME_TYPES_SUPPORTED.has(doc.mime_type) &&
       doc.thumbs?.length &&
       canSaveToCache
     ) {
-      download = appDownloadManager.downloadMediaURL({media: doc, queueId});
+      download = appDownloadManager.downloadMediaURL({ media: doc, queueId });
     } else {
-      download = appDownloadManager.downloadToDisc({media: doc, queueId});
+      download = appDownloadManager.downloadToDisc({ media: doc, queueId });
 
-      if(isIpRevealingMimeType(doc.mime_type) || isIpRevealingExtension(ext)) {
+      if (isIpRevealingMimeType(doc.mime_type) || isIpRevealingExtension(ext)) {
         confirmationPopup({
           descriptionLangKey: 'Chat.File.QuickLook.Svg',
           button: {
             langKey: 'OK',
-            isCancel: true
-          }
+            isCancel: true,
+          },
         });
       }
     }
@@ -378,34 +378,34 @@ export default async function wrapDocument({
       docDiv.classList.remove('downloading');
     });
 
-    if(downloadDiv) {
+    if (downloadDiv) {
       preloader!.attach(downloadDiv, true, download);
       addByteProgress(download);
     }
   };
 
-  const {fileName: downloadFileName} = getDownloadMediaDetails({media: doc, downloadId: '1'});
-  if(await managers.apiFileManager.isDownloading(downloadFileName)) {
+  const { fileName: downloadFileName } = getDownloadMediaDetails({ media: doc, downloadId: '1' });
+  if (await managers.apiFileManager.isDownloading(downloadFileName)) {
     downloadDiv = docDiv.querySelector('.document-download') || icoDiv;
-    const promise = appDownloadManager.downloadToDisc({media: doc}, true);
+    const promise = appDownloadManager.downloadToDisc({ media: doc }, true);
 
     preloader = new ProgressivePreloader();
     preloader.attach(downloadDiv, false, promise);
     preloader.setDownloadFunction(load);
     addByteProgress(promise);
-  } else if(!cacheContext!.downloaded || uploadingFileName) {
+  } else if (!cacheContext!.downloaded || uploadingFileName) {
     downloadDiv = docDiv.querySelector('.document-download') || icoDiv;
     preloader = new ProgressivePreloader({
-      isUpload: !!uploadingFileName
+      isUpload: !!uploadingFileName,
     });
 
-    if(!uploadingFileName) {
+    if (!uploadingFileName) {
       preloader.construct();
       preloader.setManual();
       preloader.attach(downloadDiv);
       preloader.setDownloadFunction(load);
 
-      if(autoDownloadSize !== undefined && autoDownloadSize >= doc.size!) {
+      if (autoDownloadSize !== undefined && autoDownloadSize >= doc.size!) {
         simulateClickEvent(preloader.preloader);
       }
     } else {
@@ -417,11 +417,11 @@ export default async function wrapDocument({
   }
 
   attachClickEvent(docDiv, (e) => {
-    if(findUpClassName(e.target!, 'time')) { // prevent downloading by clicking on time
+    if (findUpClassName(e.target!, 'time')) { // prevent downloading by clicking on time
       return;
     }
 
-    if(preloader) {
+    if (preloader) {
       preloader.onClick(e);
     } else {
       load(e);

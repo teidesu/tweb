@@ -1,29 +1,29 @@
-import {Component, createRoot} from 'solid-js';
-import rootScope, {BroadcastEvents} from '@lib/rootScope';
-import AppSearchSuper, {SearchSuperMediaTab, SearchSuperMediaType, SearchSuperType} from '@components/appSearchSuper';
+import { Component, createRoot } from 'solid-js';
+import rootScope, { BroadcastEvents } from '@lib/rootScope';
+import AppSearchSuper, { SearchSuperMediaTab, SearchSuperMediaType, SearchSuperType } from '@components/appSearchSuper';
 import TransitionSlider from '@components/transition';
-import {AppEditBotTab, AppEditChatTab, AppEditContactTab, AppEditTopicTab} from '@components/solidJsTabs/tabs';
+import { AppEditBotTab, AppEditChatTab, AppEditContactTab, AppEditTopicTab } from '@components/solidJsTabs/tabs';
 import Button from '@components/button';
 import ButtonIcon from '@components/buttonIcon';
-import I18n, {LangPackKey, i18n} from '@lib/langPack';
+import I18n, { LangPackKey, i18n } from '@lib/langPack';
 import ButtonCorner from '@components/buttonCorner';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
-import {renderPeerProfile} from '@components/peerProfile';
-import {Message} from '@layer';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
+import { renderPeerProfile } from '@components/peerProfile';
+import { Message } from '@layer';
 import getMessageThreadId from '@appManagers/utils/messages/getMessageThreadId';
 import liteMode from '@helpers/liteMode';
 import addChatUsers from '@components/addChatUsers';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
-import ButtonMenuToggle, {filterButtonMenuItems} from '@components/buttonMenuToggle';
-import {useIsFrozen} from '@stores/appState';
-import {profileStarGiftsButtonMenu} from '@components/stargifts/profileList';
-import {profileStoriesButtonMenu} from '@components/stories/profileList';
+import ButtonMenuToggle, { filterButtonMenuItems } from '@components/buttonMenuToggle';
+import { useIsFrozen } from '@stores/appState';
+import { profileStarGiftsButtonMenu } from '@components/stargifts/profileList';
+import { profileStoriesButtonMenu } from '@components/stories/profileList';
 import namedPromises from '@helpers/namedPromises';
 import hasRights from '@lib/appManagers/utils/chats/hasRights';
-import {ButtonMenuItemOptionsVerifiable} from '@components/buttonMenu';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 import type AppSharedMediaTab from '@components/sidebarRight/tabs/sharedMediaTab';
 
 type SharedMediaHistoryStorage = Partial<{
@@ -38,21 +38,21 @@ const historiesStorage: {
 
 const SharedMedia: Component = () => {
   const [tab] = useSuperTab<typeof AppSharedMediaTab>();
-  const {HotReloadGuard, apiManagerProxy, appImManager} = useHotReloadGuard();
+  const { HotReloadGuard, apiManagerProxy, appImManager } = useHotReloadGuard();
 
   const getHistoryStorage = (peerId: PeerId, threadId?: number) => {
     return (historiesStorage[peerId] ??= {})[threadId!] ??= {};
   };
 
   const setQuery = () => {
-    const {peerId, threadId} = tab;
+    const { peerId, threadId } = tab;
     const historyStorage = getHistoryStorage(peerId, threadId);
     historyStorage.inputMessagesFilterEmpty = getHistoryStorage(rootScope.myId, peerId).inputMessagesFilterEmpty ??= [];
 
     tab.searchSuper.setQuery({
       peerId,
       threadId,
-      historyStorage
+      historyStorage,
     });
   };
 
@@ -60,7 +60,7 @@ const SharedMedia: Component = () => {
     const isAnyChat = tab.peerId.isAnyChat();
     const [canViewMembers, hasInviteRights] = await Promise.all([
       isAnyChat ? tab.searchSuper.canViewMembers() : false,
-      isAnyChat ? tab.managers.appChatsManager.hasRights(tab.peerId.toChatId(), 'invite_users') : false
+      isAnyChat ? tab.managers.appChatsManager.hasRights(tab.peerId.toChatId(), 'invite_users') : false,
     ]);
 
     return () => {
@@ -71,10 +71,10 @@ const SharedMedia: Component = () => {
   };
 
   const changeTitleKey = async() => {
-    const {peerId, threadId} = tab;
+    const { peerId, threadId } = tab;
     const isSavedDialog = !!(peerId === rootScope.myId && threadId);
     const usePeerId = isSavedDialog ? threadId : peerId;
-    const {isForum, isBotforum, isBroadcast, isBot, peerTitle} = await namedPromises({
+    const { isForum, isBotforum, isBroadcast, isBot, peerTitle } = await namedPromises({
       isForum: tab.managers.appPeersManager.isForum(usePeerId),
       isBotforum: tab.managers.appPeersManager.isBotforum(usePeerId),
       isBroadcast: tab.managers.appPeersManager.isBroadcast(usePeerId),
@@ -83,18 +83,18 @@ const SharedMedia: Component = () => {
         peerId,
         threadId: isSavedDialog ? undefined : threadId,
         meAsNotes: isSavedDialog && threadId === rootScope.myId,
-        dialog: true
-      })
+        dialog: true,
+      }),
     });
 
     const titleKey = ((): LangPackKey => {
-      if((isForum || isBotforum) && threadId) {
+      if ((isForum || isBotforum) && threadId) {
         return 'Profile.Info.Topic';
-      } else if(isBot) {
+      } else if (isBot) {
         return 'Profile.Info.Bot';
-      } else if(isBroadcast) {
+      } else if (isBroadcast) {
         return 'Profile.Info.Channel';
-      } else if(usePeerId.isUser()) {
+      } else if (usePeerId.isUser()) {
         return 'Profile.Info.User';
       } else {
         return 'Profile.Info.Group';
@@ -103,7 +103,7 @@ const SharedMedia: Component = () => {
 
     return () => {
       titleI18n.compareAndUpdate({
-        key: titleKey
+        key: titleKey,
       });
       sharedMediaTitle!.replaceChildren(peerTitle);
       btnMenu.classList.toggle('hide', !tab.isFirst || isSavedDialog || peerId !== rootScope.myId);
@@ -113,16 +113,16 @@ const SharedMedia: Component = () => {
   function toggleEditBtn(manual: true): Promise<() => void>;
   function toggleEditBtn(manual?: false): Promise<void>;
   async function toggleEditBtn(manual?: boolean): Promise<(() => void) | void> {
-    const {peerId} = tab;
+    const { peerId } = tab;
     let show: boolean;
-    if(useIsFrozen()) {
+    if (useIsFrozen()) {
       show = false;
-    } else if(peerId.isUser()) {
+    } else if (peerId.isUser()) {
       show = peerId !== rootScope.myId && await tab.managers.appUsersManager.canEdit(peerId.toUserId());
     } else {
       const chatId = peerId.toChatId();
       const isTopic = tab.threadId && apiManagerProxy.isForum(peerId);
-      if(isTopic) {
+      if (isTopic) {
         show = await tab.managers.dialogsStorage.canManageTopic((await tab.managers.dialogsStorage.getForumTopic(peerId, tab.threadId))!);
       } else {
         const chat = apiManagerProxy.getChat(chatId);
@@ -138,7 +138,7 @@ const SharedMedia: Component = () => {
   }
 
   const fillProfileElements = async() => {
-    if(!tab.peerChanged) {
+    if (!tab.peerChanged) {
       return;
     }
 
@@ -159,12 +159,12 @@ const SharedMedia: Component = () => {
             searchSuperContainer: tab.searchSuper.container,
             onPinnedGiftsChange: (gifts) => {
               tab.searchSuper.setPinnedGifts(gifts);
-            }
+            },
           }, HotReloadGuard));
         });
 
         // * keep same layout
-        if(tab.noProfile) {
+        if (tab.noProfile) {
           tab.container.classList.add('profile-container');
 
           const content = document.createElement('div');
@@ -175,7 +175,7 @@ const SharedMedia: Component = () => {
         }
 
         return () => {};
-      })()
+      })(),
     ]);
 
     return () => {
@@ -191,7 +191,7 @@ const SharedMedia: Component = () => {
 
   const setSearchTab = (type: SearchSuperMediaType) => {
     const idx = tab.searchSuper.mediaTabs.findIndex((t) => t.type === type)
-    if(idx === -1) return;
+    if (idx === -1) return;
     tab.searchSuper.selectTab(idx);
   };
 
@@ -201,17 +201,17 @@ const SharedMedia: Component = () => {
 
   const _renderNewMessage = (message: Message.message | Message.messageService, peerId = message.peerId, threadId?: number) => {
     const historyStorage = historiesStorage[peerId!]?.[threadId!];
-    if(!historyStorage) return;
+    if (!historyStorage) return;
 
-    for(const mediaTab of tab.searchSuper.mediaTabs) {
+    for (const mediaTab of tab.searchSuper.mediaTabs) {
       const inputFilter = mediaTab.inputFilter;
       const history = historyStorage[inputFilter!];
-      if(!history) {
+      if (!history) {
         continue;
       }
 
       let filtered: (typeof message)[];
-      if(mediaTab.type === 'saved') {
+      if (mediaTab.type === 'saved') {
         filtered = [message].filter((message) => {
           const savedPeerId = (message as Message.message).saved_peer_id;
           return savedPeerId &&
@@ -222,22 +222,22 @@ const SharedMedia: Component = () => {
         filtered = tab.searchSuper.filterMessagesByType([message], inputFilter!);
       }
 
-      if(!filtered.length) {
+      if (!filtered.length) {
         continue;
       }
 
       const toInsert = filtered
-      .filter((message) => !history.find((m) => m.mid === message.mid && m.peerId === message.peerId))
-      .map((message) => ({mid: message.mid!, peerId: message.peerId!}));
+        .filter((message) => !history.find((m) => m.mid === message.mid && m.peerId === message.peerId))
+        .map((message) => ({ mid: message.mid!, peerId: message.peerId! }));
       history.unshift(...toInsert);
 
-      if(
+      if (
         (mediaTab.type === 'saved' ? tab.peerId === threadId : tab.peerId === peerId) &&
         tab.searchSuper.usedFromHistory[inputFilter!] !== -1 &&
         tab.threadId === threadId
       ) {
         tab.searchSuper.usedFromHistory[inputFilter!]! += filtered.length;
-        tab.searchSuper.performSearchResult({messages: filtered, mediaTab, append: false}).then((length) => {
+        tab.searchSuper.performSearchResult({ messages: filtered, mediaTab, append: false }).then((length) => {
           tab.searchSuper.setCounter(mediaTab.type, tab.searchSuper.counters[mediaTab.type]! + length);
         });
       }
@@ -245,12 +245,12 @@ const SharedMedia: Component = () => {
   };
 
   const renderNewMessage = async(message: Message.message | Message.messageService) => {
-    const {peerId} = message;
+    const { peerId } = message;
     const isForum = await tab.managers.appPeersManager.isForum(peerId!);
-    const threadId = getMessageThreadId(message, {isForum});
+    const threadId = getMessageThreadId(message, { isForum });
 
     _renderNewMessage(message);
-    if(threadId) {
+    if (threadId) {
       _renderNewMessage(message, undefined, threadId);
     }
   };
@@ -262,27 +262,27 @@ const SharedMedia: Component = () => {
     threadId?: number
   ) => {
     const notFound: Set<SearchSuperMediaTab> = new Set();
-    for(const mid of mids) {
-      for(const mediaTab of tab.searchSuper.mediaTabs) {
+    for (const mid of mids) {
+      for (const mediaTab of tab.searchSuper.mediaTabs) {
         const inputFilter = mediaTab.inputFilter;
 
         const history = historyStorage[inputFilter!];
-        if(!history) continue;
+        if (!history) continue;
 
         const isGood = mediaTab.type === 'saved' ?
           tab.peerId === threadId :
           tab.peerId === peerId && tab.threadId === threadId;
 
         const idx = history.findIndex((m) => m.mid === mid);
-        if(idx === -1) {
+        if (idx === -1) {
           history.splice(idx, 1);
         }
 
-        if(isGood) {
+        if (isGood) {
           const container = tab.searchSuper.tabs[inputFilter!];
           const div = container.querySelector(`[data-mid="${mid}"][data-peer-id="${peerId}"]`) as HTMLElement;
-          if(div) {
-            if(tab.searchSuper.selection!.isSelecting) {
+          if (div) {
+            if (tab.searchSuper.selection!.isSelecting) {
               tab.searchSuper.selection!.toggleByElement(div);
             }
 
@@ -290,7 +290,7 @@ const SharedMedia: Component = () => {
             const idx = Array.from(divs).indexOf(div);
             div.remove();
 
-            if(idx !== -1 && tab.searchSuper.usedFromHistory[inputFilter!]! >= (idx + 1)) {
+            if (idx !== -1 && tab.searchSuper.usedFromHistory[inputFilter!]! >= (idx + 1)) {
               --tab.searchSuper.usedFromHistory[inputFilter!]!;
             }
 
@@ -308,20 +308,20 @@ const SharedMedia: Component = () => {
       }
     }
 
-    const filters = Array.from(notFound).map((mediaTab) => ({_: mediaTab.inputFilter!}));
-    if(!filters.length) {
+    const filters = Array.from(notFound).map((mediaTab) => ({ _: mediaTab.inputFilter! }));
+    if (!filters.length) {
       return;
     }
 
     const middleware = tab.searchSuper.middleware.get();
     tab.searchSuper.getSearchCounters(filters).then((counters) => {
-      if(!middleware()) {
+      if (!middleware()) {
         return;
       }
 
       notFound.forEach((mediaTab) => {
         const counter = counters.find((c) => c.filter._ === mediaTab.inputFilter);
-        if(counter) {
+        if (counter) {
           tab.searchSuper.setCounter(mediaTab.type, counter.count);
         }
       });
@@ -330,10 +330,10 @@ const SharedMedia: Component = () => {
 
   const deleteDeletedMessages = (peerId: PeerId, msgs: BroadcastEvents['history_delete']['msgs']) => {
     const h = historiesStorage[peerId];
-    if(!h) return;
+    if (!h) return;
     const mids = [...msgs.keys()];
 
-    for(const threadId in h) {
+    for (const threadId in h) {
       _deleteDeletedMessages(h[threadId], peerId, mids, isNaN(+threadId) ? undefined : +threadId);
     }
 
@@ -345,7 +345,7 @@ const SharedMedia: Component = () => {
   tab.container.classList.add('shared-media-container');
 
   // * header
-  const newCloseBtn = Button('btn-icon sidebar-close-button', {noRipple: true});
+  const newCloseBtn = Button('btn-icon sidebar-close-button', { noRipple: true });
   tab.closeBtn.replaceWith(newCloseBtn);
   tab.closeBtn = newCloseBtn;
 
@@ -353,7 +353,7 @@ const SharedMedia: Component = () => {
   animatedCloseIcon.classList.add('animated-close-icon');
   newCloseBtn.append(animatedCloseIcon);
 
-  if(tab.isFirst) {
+  if (tab.isFirst) {
     animatedCloseIcon.classList.add('state-back');
   }
 
@@ -373,7 +373,7 @@ const SharedMedia: Component = () => {
     title!.append(titleInner!);
 
     let subtitle: HTMLElement;
-    if(noCounter) {
+    if (noCounter) {
       element.append(title!);
     } else {
       const rows = document.createElement('div');
@@ -384,7 +384,7 @@ const SharedMedia: Component = () => {
       element.append(rows);
     }
 
-    return {element, title, subtitle: subtitle!};
+    return { element, title, subtitle: subtitle! };
   };
 
   const titleI18n = new I18n.IntlElement();
@@ -399,31 +399,31 @@ const SharedMedia: Component = () => {
       onClick: () => {
         appImManager.toggleViewAsMessages(rootScope.myId, true);
       },
-      verify: () => tab.peerId === rootScope.myId && tab.isFirst
+      verify: () => tab.peerId === rootScope.myId && tab.isFirst,
     },
     ...profileStoriesButtonMenu({
       peerId: tab.peerId,
       slider: tab.slider,
       verify: () => lastMediaTabType === 'stories',
       canEdit: () => {
-        if(tab.peerId === rootScope.myId) return true;
-        if(tab.peerId.isAnyChat()) {
+        if (tab.peerId === rootScope.myId) return true;
+        if (tab.peerId.isAnyChat()) {
           return tab.managers.appChatsManager.hasRights(tab.peerId.toChatId(), 'edit_stories');
         }
         return false;
-      }
+      },
     }),
     ...profileStarGiftsButtonMenu({
       get store() { return tab.searchSuper.stargiftsStore },
       get actions() { return tab.searchSuper.stargiftsActions },
       verify: () => lastMediaTabType === 'gifts',
-      peerId: tab.peerId
-    })
+      peerId: tab.peerId,
+    }),
   ];
   const btnMenu = ButtonMenuToggle({
     listenerSetter: tab.listenerSetter,
     direction: 'bottom-left',
-    buttons: btnMenuButtons
+    buttons: btnMenuButtons,
   });
 
   transitionFirstItem.element.append(editBtn);
@@ -451,11 +451,11 @@ const SharedMedia: Component = () => {
     ['music', 'MusicFiles'],
     ['voice', 'Voice'],
     ['groups', 'CommonGroups'],
-    ['similar', 'SimilarChannelsCount']
+    ['similar', 'SimilarChannelsCount'],
   ];
 
   sharedMediaTransitionContainer.append(...c.map((item) => {
-    item[2] = new I18n.IntlElement({key: 'Loading'});
+    item[2] = new I18n.IntlElement({ key: 'Loading' });
     const element = document.createElement('div');
     element.classList.add('transition-item');
     element.append(item[2].element);
@@ -464,8 +464,8 @@ const SharedMedia: Component = () => {
 
   transitionContainer.append(...[
     transitionFirstItem,
-    transitionSharedMedia
-  ].map(({element}) => element));
+    transitionSharedMedia,
+  ].map(({ element }) => element));
 
   tab.header.append(transitionContainer, btnMenu);
 
@@ -480,7 +480,7 @@ const SharedMedia: Component = () => {
     cb?.();
     const isSingle = tab.searchSuper.navScrollableContainer.classList.contains('is-single');
     const rect = (isSingle ? tab.searchSuper.container : tab.searchSuper.nav).getBoundingClientRect();
-    if(!rect.width) return;
+    if (!rect.width) return;
 
     const top = rect.top - 1;
     setIsSharedMedia(top <= (OFFSET + BODY_PADDING));
@@ -488,7 +488,7 @@ const SharedMedia: Component = () => {
 
   const getTitleIndex = (isSharedMedia = transition.prevId() !== TitleIndex.Profile) => {
     let index = TitleIndex.Profile;
-    if(isSharedMedia) {
+    if (isSharedMedia) {
       index = TitleIndex.Media;
     }
 
@@ -502,7 +502,7 @@ const SharedMedia: Component = () => {
 
     transition(getTitleIndex(isSharedMedia));
 
-    if(isSharedMedia) {
+    if (isSharedMedia) {
       tab.container.classList.add('header-filled');
     } else {
       tab.searchSuper.cleanScrollPositions();
@@ -513,7 +513,7 @@ const SharedMedia: Component = () => {
     content: transitionContainer,
     type: 'slide-fade',
     transitionTime: 400,
-    isHeavy: false
+    isHeavy: false,
   });
 
   transition(tab.noProfile ? TitleIndex.Media : TitleIndex.Profile);
@@ -522,66 +522,66 @@ const SharedMedia: Component = () => {
     content: sharedMediaTransitionContainer,
     type: 'slide-fade',
     transitionTime: 400,
-    isHeavy: false
+    isHeavy: false,
   });
 
   transitionSubtitle(0);
 
   attachClickEvent(tab.closeBtn, (e) => {
-    if(transition.prevId() && !tab.noProfile) {
+    if (transition.prevId() && !tab.noProfile) {
       tab.scrollable.scrollIntoViewNew({
         element: tab.scrollable.container.querySelector('.profile-content') as HTMLElement,
-        position: 'start'
+        position: 'start',
       });
       transition(TitleIndex.Profile);
 
-      if(!tab.isFirst) {
+      if (!tab.isFirst) {
         animatedCloseIcon.classList.remove('state-back');
         tab.container.classList.remove('header-filled');
       }
-    } else if(!tab.scrollable.isHeavyAnimationInProgress) {
+    } else if (!tab.scrollable.isHeavyAnimationInProgress) {
       tab.slider.onCloseBtnClick();
     }
-  }, {listenerSetter: tab.listenerSetter});
+  }, { listenerSetter: tab.listenerSetter });
 
   attachClickEvent(editBtn, async() => {
     let editTab: InstanceType<typeof AppEditChatTab> | InstanceType<typeof AppEditContactTab> | InstanceType<typeof AppEditTopicTab> | InstanceType<typeof AppEditBotTab>;
-    const {peerId, threadId} = tab;
-    if(threadId && await tab.managers.appPeersManager.isForum(peerId)) {
+    const { peerId, threadId } = tab;
+    if (threadId && await tab.managers.appPeersManager.isForum(peerId)) {
       editTab = tab.slider.createTab(AppEditTopicTab)
-    } else if(peerId.isAnyChat()) {
+    } else if (peerId.isAnyChat()) {
       editTab = tab.slider.createTab(AppEditChatTab);
-    } else if(await tab.managers.appUsersManager.isBot(peerId)) {
+    } else if (await tab.managers.appUsersManager.isBot(peerId)) {
       editTab = tab.slider.createTab(AppEditBotTab);
     } else {
       editTab = tab.slider.createTab(AppEditContactTab);
     }
 
-    if(!editTab) {
+    if (!editTab) {
       return;
     }
 
-    if(editTab instanceof AppEditTopicTab) {
-      editTab.open({peerId, threadId: tab.threadId});
-    } else if(editTab instanceof AppEditBotTab) {
+    if (editTab instanceof AppEditTopicTab) {
+      editTab.open({ peerId, threadId: tab.threadId });
+    } else if (editTab instanceof AppEditBotTab) {
       editTab.open(peerId);
-    } else if(editTab instanceof AppEditContactTab) {
+    } else if (editTab instanceof AppEditContactTab) {
       editTab.open(peerId);
     } else {
       // all four edit tabs are scaffolds now; their structural types don't
       // subtract from the instanceof union, so cast to the editChat one.
-      (editTab as InstanceType<typeof AppEditChatTab>).open({chatId: peerId.toChatId()});
+      (editTab as InstanceType<typeof AppEditChatTab>).open({ chatId: peerId.toChatId() });
     }
-  }, {listenerSetter: tab.listenerSetter});
+  }, { listenerSetter: tab.listenerSetter });
 
   tab.listenerSetter.add(rootScope)('contacts_update', (userId) => {
-    if(tab.peerId === userId.toPeerId(false)) {
+    if (tab.peerId === userId.toPeerId(false)) {
       toggleEditBtn();
     }
   });
 
   tab.listenerSetter.add(rootScope)('chat_update', (chatId) => {
-    if(tab.peerId === chatId.toPeerId(true)) {
+    if (tab.peerId === chatId.toPeerId(true)) {
       toggleEditBtn();
     }
   });
@@ -590,53 +590,53 @@ const SharedMedia: Component = () => {
     renderNewMessage(message);
   });
 
-  tab.listenerSetter.add(rootScope)('history_delete', ({peerId, msgs}) => {
+  tab.listenerSetter.add(rootScope)('history_delete', ({ peerId, msgs }) => {
     deleteDeletedMessages(peerId, msgs);
   });
 
   tab.searchSuper = new AppSearchSuper({
     mediaTabs: [{
       name: 'SharedMedia.SavedDialogs',
-      type: 'savedDialogs'
+      type: 'savedDialogs',
     }, {
       name: 'Stories',
-      type: 'stories'
+      type: 'stories',
     }, {
       name: 'PeerMedia.Members',
-      type: 'members'
+      type: 'members',
     }, {
       inputFilter: 'inputMessagesFilterPhotoVideo',
       name: 'SharedMediaTab2',
-      type: 'media'
+      type: 'media',
     }, {
       name: 'SharedMedia.Gifts',
-      type: 'gifts'
+      type: 'gifts',
     }, {
       inputFilter: 'inputMessagesFilterEmpty',
       name: 'SharedMedia.Saved',
-      type: 'saved'
+      type: 'saved',
     }, {
       inputFilter: 'inputMessagesFilterDocument',
       name: 'SharedFilesTab2',
-      type: 'files'
+      type: 'files',
     }, {
       inputFilter: 'inputMessagesFilterUrl',
       name: 'SharedLinksTab2',
-      type: 'links'
+      type: 'links',
     }, {
       inputFilter: 'inputMessagesFilterMusic',
       name: 'SharedMusicTab2',
-      type: 'music'
+      type: 'music',
     }, {
       inputFilter: 'inputMessagesFilterRoundVoice',
       name: 'SharedVoiceTab2',
-      type: 'voice'
+      type: 'voice',
     }, {
       name: 'ChatList.Filter.Groups',
-      type: 'groups'
+      type: 'groups',
     }, {
       name: 'SimilarChannels',
-      type: 'similar'
+      type: 'similar',
     }],
     scrollable: tab.scrollable,
     onChangeTab: (mediaTab) => {
@@ -648,8 +648,8 @@ const SharedMedia: Component = () => {
         btnAddMembers.classList.toggle('is-hidden', mediaTab.type !== 'members');
       }, timeout);
 
-      if(!tab.isFirst) {
-        if(mediaTab.type === 'gifts' || mediaTab.type === 'stories') {
+      if (!tab.isFirst) {
+        if (mediaTab.type === 'gifts' || mediaTab.type === 'stories') {
           filterButtonMenuItems(btnMenuButtons).then((items) => {
             btnMenu.classList.toggle('hide', items.length === 0);
           })
@@ -661,41 +661,41 @@ const SharedMedia: Component = () => {
     managers: tab.managers,
     onLengthChange: (type, length) => {
       const item = c.find((item) => item[0] === type);
-      if(!item) {
+      if (!item) {
         return;
       }
 
-      item[2]!.compareAndUpdate({key: item[1], args: [length]});
+      item[2]!.compareAndUpdate({ key: item[1], args: [length] });
     },
     openSavedDialogsInner: !tab.isFirst,
     slider: tab.slider,
-    scrollOffset: OFFSET
+    scrollOffset: OFFSET,
   });
 
   tab.searchSuper.scrollStartCallback = () => {
     setIsSharedMedia(true);
   };
 
-  if(tab.noProfile) {
+  if (tab.noProfile) {
     tab.scrollable.append(tab.searchSuper.container);
   }
 
-  const btnAddMembers = ButtonCorner({icon: 'addmember_filled'});
+  const btnAddMembers = ButtonCorner({ icon: 'addmember_filled' });
   tab.content.append(btnAddMembers);
 
   attachClickEvent(btnAddMembers, () => {
     addChatUsers({
       peerId: tab.peerId,
-      slider: tab.slider
+      slider: tab.slider,
     });
-  }, {listenerSetter: tab.listenerSetter});
+  }, { listenerSetter: tab.listenerSetter });
 
   (tab as any)._impl = {
     setQuery,
     fillProfileElements,
     loadSidebarMedia,
     setSearchTab,
-    setLoadMutex
+    setLoadMutex,
   };
 
   return null;

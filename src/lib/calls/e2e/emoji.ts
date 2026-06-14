@@ -16,16 +16,16 @@
  * wrong (notes/call.md gotcha #5).
  */
 
-import {bytesToHex, constantTimeEqual, hmacSha512, randomBytes, sha256} from './crypto';
-import {PrivateKey, PublicKey} from './keys';
+import { bytesToHex, constantTimeEqual, hmacSha512, randomBytes, sha256 } from './crypto';
+import { PrivateKey, PublicKey } from './keys';
 import {
   encodeGroupBroadcastNonceCommit,
   encodeGroupBroadcastNonceReveal,
   GroupBroadcast,
   GroupBroadcastNonceCommit,
-  GroupBroadcastNonceReveal
+  GroupBroadcastNonceReveal,
 } from './tlTypes';
-import {TLWriter} from './tl';
+import { TLWriter } from './tl';
 
 export type VerificationPhase = 'commit' | 'reveal' | 'end';
 
@@ -81,8 +81,8 @@ export class VerificationChain {
     mePrivate: PrivateKey,
     participants: VerificationParticipant[]
   ): Promise<VerificationChain> {
-    if(blockHash.length !== 32) throw new Error('blockHash must be 32 bytes');
-    if(!participants.some((p) => p.userId === me.userId)) {
+    if (blockHash.length !== 32) throw new Error('blockHash must be 32 bytes');
+    if (!participants.some((p) => p.userId === me.userId)) {
       throw new Error('start: self not listed in participants');
     }
     const myNonce = randomBytes(32);
@@ -110,7 +110,7 @@ export class VerificationChain {
       blockHash: new Uint8Array(this.blockHash),
       commitsSeen: this.commits.size,
       revealsSeen: this.reveals.size,
-      emojiHash: this.emojiHash ? new Uint8Array(this.emojiHash) : undefined
+      emojiHash: this.emojiHash ? new Uint8Array(this.emojiHash) : undefined,
     };
   }
 
@@ -125,35 +125,35 @@ export class VerificationChain {
   // Returns true if the broadcast caused a phase transition.
   public async receive(b: GroupBroadcast): Promise<boolean> {
     const sender = this.findParticipant(b.userId);
-    if(!sender) {
+    if (!sender) {
       // Unknown sender — silently drop per spec ("errors logged not propagated").
       return false;
     }
-    if(b.chainHeight !== this.height) return false;
-    if(!constantTimeEqual(b.chainHash, this.blockHash)) return false;
+    if (b.chainHeight !== this.height) return false;
+    if (!constantTimeEqual(b.chainHash, this.blockHash)) return false;
 
     // Signature verify. The broadcast is signed over its own TL encoding with
     // the signature field replaced by 64 zero bytes — same trick as Block.
     const w = new TLWriter();
-    if(b.kind === 'commit') {
-      const stub: GroupBroadcastNonceCommit = {...b, signature: new Uint8Array(64)};
+    if (b.kind === 'commit') {
+      const stub: GroupBroadcastNonceCommit = { ...b, signature: new Uint8Array(64) };
       encodeGroupBroadcastNonceCommit(w, stub);
     } else {
-      const stub: GroupBroadcastNonceReveal = {...b, signature: new Uint8Array(64)};
+      const stub: GroupBroadcastNonceReveal = { ...b, signature: new Uint8Array(64) };
       encodeGroupBroadcastNonceReveal(w, stub);
     }
-    if(!sender.publicKey.verify(w.finish(), b.signature)) {
+    if (!sender.publicKey.verify(w.finish(), b.signature)) {
       return false; // bad signature
     }
 
     const senderKey = this.keyForUser(sender.userId);
 
-    if(b.kind === 'commit') {
-      if(this.phase !== 'commit') return false;
-      if(this.commits.has(senderKey)) return false; // duplicate
+    if (b.kind === 'commit') {
+      if (this.phase !== 'commit') return false;
+      if (this.commits.has(senderKey)) return false; // duplicate
       this.commits.set(senderKey, new Uint8Array(b.nonceHash));
       // If all participants have committed, advance to reveal + enqueue our reveal.
-      if(this.commits.size === this.participants.length) {
+      if (this.commits.size === this.participants.length) {
         this.phase = 'reveal';
         this.reveals.set(this.keyForUser(this.me.userId), this.myNonce);
         this.outbound.push(this.signAndEncodeReveal());
@@ -163,14 +163,14 @@ export class VerificationChain {
     }
 
     // reveal
-    if(this.phase !== 'reveal') return false;
-    if(this.reveals.has(senderKey)) return false;
+    if (this.phase !== 'reveal') return false;
+    if (this.reveals.has(senderKey)) return false;
     const expectedHash = this.commits.get(senderKey);
-    if(!expectedHash) return false; // they reveal without ever committing
+    if (!expectedHash) return false; // they reveal without ever committing
     const actualHash = await sha256(b.nonce);
-    if(!constantTimeEqual(expectedHash, actualHash)) return false;
+    if (!constantTimeEqual(expectedHash, actualHash)) return false;
     this.reveals.set(senderKey, new Uint8Array(b.nonce));
-    if(this.reveals.size === this.participants.length) {
+    if (this.reveals.size === this.participants.length) {
       await this.finalize();
       return true;
     }
@@ -180,7 +180,7 @@ export class VerificationChain {
   // ===== Internal =====
 
   private findParticipant(userId: bigint): VerificationParticipant | undefined {
-    for(const p of this.participants) if(p.userId === userId) return p;
+    for (const p of this.participants) if (p.userId === userId) return p;
     return undefined;
   }
 
@@ -194,12 +194,12 @@ export class VerificationChain {
       userId: this.me.userId,
       chainHeight: this.height,
       chainHash: this.blockHash,
-      nonceHash: this.myNonceHash
+      nonceHash: this.myNonceHash,
     };
     const toSignWriter = new TLWriter();
     encodeGroupBroadcastNonceCommit(toSignWriter, stub);
     const signature = this.mePrivate.sign(toSignWriter.finish());
-    const signed: GroupBroadcastNonceCommit = {...stub, signature};
+    const signed: GroupBroadcastNonceCommit = { ...stub, signature };
     const finalWriter = new TLWriter();
     encodeGroupBroadcastNonceCommit(finalWriter, signed);
     return finalWriter.finish();
@@ -211,12 +211,12 @@ export class VerificationChain {
       userId: this.me.userId,
       chainHeight: this.height,
       chainHash: this.blockHash,
-      nonce: this.myNonce
+      nonce: this.myNonce,
     };
     const toSignWriter = new TLWriter();
     encodeGroupBroadcastNonceReveal(toSignWriter, stub);
     const signature = this.mePrivate.sign(toSignWriter.finish());
-    const signed: GroupBroadcastNonceReveal = {...stub, signature};
+    const signed: GroupBroadcastNonceReveal = { ...stub, signature };
     const finalWriter = new TLWriter();
     encodeGroupBroadcastNonceReveal(finalWriter, signed);
     return finalWriter.finish();
@@ -227,10 +227,10 @@ export class VerificationChain {
     const nonceList = Array.from(this.reveals.values()).map((n) => new Uint8Array(n));
     nonceList.sort((a, b) => compareBytes(a, b));
     let total = 0;
-    for(const n of nonceList) total += n.length;
+    for (const n of nonceList) total += n.length;
     const concat = new Uint8Array(total);
     let offset = 0;
-    for(const n of nonceList) {
+    for (const n of nonceList) {
       concat.set(n, offset);
       offset += n.length;
     }
@@ -242,8 +242,8 @@ export class VerificationChain {
 
 function compareBytes(a: Uint8Array, b: Uint8Array): number {
   const cap = Math.min(a.length, b.length);
-  for(let i = 0; i < cap; i++) {
-    if(a[i] !== b[i]) return a[i] - b[i];
+  for (let i = 0; i < cap; i++) {
+    if (a[i] !== b[i]) return a[i] - b[i];
   }
   return a.length - b.length;
 }

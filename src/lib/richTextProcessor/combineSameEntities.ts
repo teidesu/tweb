@@ -1,5 +1,5 @@
 import deepEqual from '@helpers/object/deepEqual';
-import {MessageEntity} from '@layer';
+import { MessageEntity } from '@layer';
 
 const CAN_COMBINE_ENTITIES: Set<MessageEntity['_']> = new Set([
   'messageEntityBold',
@@ -11,7 +11,7 @@ const CAN_COMBINE_ENTITIES: Set<MessageEntity['_']> = new Set([
   // 'messageEntityBlockquote',
   'messageEntitySpoiler',
   'messageEntityFormattedDate',
-  'messageEntityTextUrl'
+  'messageEntityTextUrl',
 ]);
 const combineMap: {[entityType in MessageEntity['_']]?: (entity1: any, entity2: any) => boolean} = {
   messageEntityFormattedDate: (entity1: MessageEntity.messageEntityFormattedDate, entity2: MessageEntity.messageEntityFormattedDate) => {
@@ -22,11 +22,11 @@ const combineMap: {[entityType in MessageEntity['_']]?: (entity1: any, entity2: 
   },
   messageEntityTextUrl: (entity1: MessageEntity.messageEntityTextUrl, entity2: MessageEntity.messageEntityTextUrl) => {
     return entity1.url === entity2.url;
-  }
+  },
 };
 export default function combineSameEntities(entities: MessageEntity[]) {
   // entities = entities.slice();
-  for(let i = 0; i < entities.length; ++i) {
+  for (let i = 0; i < entities.length; ++i) {
     const entity = entities[i];
 
     let nextEntityIdx = -1;
@@ -40,12 +40,12 @@ export default function combineSameEntities(entities: MessageEntity[]) {
           (verifyFunc?.(entity, e) ?? true);
       });
 
-      if(nextEntityIdx !== -1) {
+      if (nextEntityIdx !== -1) {
         const nextEntity = entities[nextEntityIdx];
         entity.length! += nextEntity.length!;
         entities.splice(nextEntityIdx, 1);
       }
-    } while(nextEntityIdx !== -1);
+    } while (nextEntityIdx !== -1);
   }
   // return entities;
 }

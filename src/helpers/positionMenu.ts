@@ -1,4 +1,4 @@
-import type {ButtonMenuDirection} from '@components/buttonMenuToggle';
+import type { ButtonMenuDirection } from '@components/buttonMenuToggle';
 import mediaSizes from '@helpers/mediaSizes';
 import I18n from '@lib/langPack';
 import clamp from './number/clamp';
@@ -27,7 +27,7 @@ const OPPOSITE_SIDE: Record<FloatingMenuSide, FloatingMenuSide> = {
   top: 'bottom',
   bottom: 'top',
   left: 'right',
-  right: 'left'
+  right: 'left',
 };
 
 function canFitSide(
@@ -37,7 +37,7 @@ function canFitSide(
   mainOffset: number
 ) {
   const margin = DEFAULT_MENU_WINDOW_MARGIN;
-  switch(side) {
+  switch (side) {
     case 'right':
       return triggerBcr.right + mainOffset + menu.clientWidth + margin <= window.innerWidth;
     case 'left':
@@ -86,8 +86,8 @@ export function positionFloatingMenu(
   let left: number;
   let top: number;
 
-  if(side === 'right' || side === 'left') {
-    if(side === 'right') {
+  if (side === 'right' || side === 'left') {
+    if (side === 'right') {
       left = triggerBcr.right + mainOffset;
     } else {
       left = triggerBcr.left - mainOffset - menuW;
@@ -95,16 +95,16 @@ export function positionFloatingMenu(
     left = clamp(left, margin, window.innerWidth - menuW - margin);
 
     // Cross axis: vertical.
-    if(alignment === 'start') {
+    if (alignment === 'start') {
       top = triggerBcr.top + crossOffset;
-    } else if(alignment === 'center') {
+    } else if (alignment === 'center') {
       top = triggerBcr.top + triggerBcr.height / 2 - menuH / 2 + crossOffset;
     } else {
       top = triggerBcr.bottom - menuH - crossOffset;
     }
     top = clamp(top, margin, window.innerHeight - menuH - margin);
   } else {
-    if(side === 'bottom') {
+    if (side === 'bottom') {
       top = triggerBcr.bottom + mainOffset;
     } else {
       top = triggerBcr.top - mainOffset - menuH;
@@ -112,9 +112,9 @@ export function positionFloatingMenu(
     top = clamp(top, margin, window.innerHeight - menuH - margin);
 
     // Cross axis: horizontal.
-    if(alignment === 'start') {
+    if (alignment === 'start') {
       left = triggerBcr.left + crossOffset;
-    } else if(alignment === 'center') {
+    } else if (alignment === 'center') {
       left = triggerBcr.left + triggerBcr.width / 2 - menuW / 2 + crossOffset;
     } else {
       left = triggerBcr.right - menuW - crossOffset;
@@ -127,7 +127,7 @@ export function positionFloatingMenu(
   let originY: string;
   const alignmentToPercent = alignment === 'start' ? '0' : alignment === 'center' ? '50%' : '100%';
 
-  if(side === 'right' || side === 'left') {
+  if (side === 'right' || side === 'left') {
     originX = side === 'right' ? '0' : '100%';
     originY = alignmentToPercent;
   } else {
@@ -145,7 +145,7 @@ export function positionFloatingMenu(
 export function getMenuTopPositionForStartDirection(triggerBcr: DOMRect, menu: HTMLElement, offset: [number, number]) {
   let top = triggerBcr.top + offset[1];
   const bottom = top + menu.clientHeight;
-  if(bottom + DEFAULT_MENU_WINDOW_MARGIN > window.innerHeight) top -= bottom - window.innerHeight + DEFAULT_MENU_WINDOW_MARGIN;
+  if (bottom + DEFAULT_MENU_WINDOW_MARGIN > window.innerHeight) top -= bottom - window.innerHeight + DEFAULT_MENU_WINDOW_MARGIN;
   top = Math.max(top, DEFAULT_MENU_WINDOW_MARGIN);
 
   return top;
@@ -157,7 +157,7 @@ export function canMenuFitDirection(
   direction: MenuHorizontalDirection,
   offset: [number, number]
 ) {
-  if(direction === 'right') {
+  if (direction === 'right') {
     const left = triggerBcr.right + offset[0];
     return left + menu.clientWidth + DEFAULT_MENU_WINDOW_MARGIN <= window.innerWidth;
   }
@@ -172,33 +172,33 @@ export function getMenuLeftPositionForDirection(
   direction: MenuHorizontalDirection,
   offset: [number, number]
 ) {
-  if(direction === 'right') {
+  if (direction === 'right') {
     let left = triggerBcr.right + offset[0];
     const right = left + menu.clientWidth;
-    if(right + DEFAULT_MENU_WINDOW_MARGIN > window.innerWidth) left -= right - window.innerWidth + DEFAULT_MENU_WINDOW_MARGIN;
+    if (right + DEFAULT_MENU_WINDOW_MARGIN > window.innerWidth) left -= right - window.innerWidth + DEFAULT_MENU_WINDOW_MARGIN;
     return left;
   }
 
   const right = triggerBcr.left - offset[0];
   let left = right - menu.clientWidth;
-  if(left - DEFAULT_MENU_WINDOW_MARGIN < 0) left = DEFAULT_MENU_WINDOW_MARGIN;
+  if (left - DEFAULT_MENU_WINDOW_MARGIN < 0) left = DEFAULT_MENU_WINDOW_MARGIN;
   return left;
 }
 
 export default function positionMenu(e: MouseEvent | Touch | TouchEvent, elem: HTMLElement, side?: 'left' | 'right' | 'center', additionalPadding?: MenuPositionPadding) {
-  if((e as TouchEvent).touches) {
+  if ((e as TouchEvent).touches) {
     e = (e as TouchEvent).touches[0];
   }
 
-  const {pageX, pageY} = e as Touch;
+  const { pageX, pageY } = e as Touch;
   // let {clientX, clientY} = e;
 
   // * side mean the OPEN side
 
   const getScrollWidthFromElement = (Array.from(elem.children) as HTMLElement[]).find((element) => element.classList.contains('btn-menu-items') || (element.classList.contains('btn-menu-item') && !element.classList.contains('hide'))) || elem;
 
-  let {scrollWidth: menuWidth} = getScrollWidthFromElement;
-  const {scrollHeight: menuHeight} = elem;
+  let { scrollWidth: menuWidth } = getScrollWidthFromElement;
+  const { scrollHeight: menuHeight } = elem;
   // let {innerWidth: windowWidth, innerHeight: windowHeight} = window;
   const rect = document.body.getBoundingClientRect();
   const windowWidth = rect.width;
@@ -207,14 +207,14 @@ export default function positionMenu(e: MouseEvent | Touch | TouchEvent, elem: H
   menuWidth += getScrollWidthFromElement.offsetLeft * 2;
 
   let paddingTop = PADDING_TOP, paddingRight = PADDING_RIGHT, paddingBottom = PADDING_BOTTOM, paddingLeft = PADDING_LEFT;
-  if(additionalPadding) {
-    if(additionalPadding.top) paddingTop += additionalPadding.top;
-    if(additionalPadding.right) paddingRight += additionalPadding.right;
-    if(additionalPadding.bottom) paddingBottom += additionalPadding.bottom;
-    if(additionalPadding.left) paddingLeft += additionalPadding.left;
+  if (additionalPadding) {
+    if (additionalPadding.top) paddingTop += additionalPadding.top;
+    if (additionalPadding.right) paddingRight += additionalPadding.right;
+    if (additionalPadding.bottom) paddingBottom += additionalPadding.bottom;
+    if (additionalPadding.left) paddingLeft += additionalPadding.left;
   }
 
-  if(I18n.getIsRTL()) side = mediaSizes.isMobile ? 'left' : 'right';
+  if (I18n.getIsRTL()) side = mediaSizes.isMobile ? 'left' : 'right';
   else side = mediaSizes.isMobile ? 'right' : 'left';
   let verticalSide: 'top' /* | 'bottom' */ | 'center' = 'top';
 
@@ -227,17 +227,17 @@ export default function positionMenu(e: MouseEvent | Touch | TouchEvent, elem: H
     return {
       x: {
         left: pageX,
-        right: Math.min(maxLeft, pageX - menuWidth)
+        right: Math.min(maxLeft, pageX - menuWidth),
       },
       intermediateX: side === 'right' ? minLeft : maxLeft,
       // intermediateX: clientX < windowWidth / 2 ? PADDING_LEFT : windowWidth - menuWidth - PADDING_LEFT,
       y: {
         top: pageY,
-        bottom: pageY - menuHeight
+        bottom: pageY - menuHeight,
       },
       // intermediateY: verticalSide === 'top' ? paddingTop : windowHeight - menuHeight - paddingTop,
       // intermediateY: pageY < (windowHeight / 2) ? paddingTop : windowHeight - menuHeight - paddingBottom,
-      intermediateY: maxTop
+      intermediateY: maxTop,
     };
   };
 
@@ -246,12 +246,12 @@ export default function positionMenu(e: MouseEvent | Touch | TouchEvent, elem: H
   const possibleSides = {
     x: {
       left: (sides.x.left + menuWidth + paddingRight) <= windowWidth,
-      right: sides.x.right >= paddingLeft
+      right: sides.x.right >= paddingLeft,
     },
     y: {
       top: (sides.y.top + menuHeight + paddingBottom) <= windowHeight,
-      bottom: (sides.y.bottom - paddingBottom) >= paddingBottom
-    }
+      bottom: (sides.y.bottom - paddingBottom) >= paddingBottom,
+    },
   };
 
   /* if(side === undefined) {
@@ -307,7 +307,7 @@ export default function positionMenu(e: MouseEvent | Touch | TouchEvent, elem: H
 
   return {
     width: menuWidth,
-    height: menuHeight
+    height: menuHeight,
   };
 }
 
@@ -316,7 +316,7 @@ export function positionMenuTrigger(trigger: HTMLElement, menu: HTMLElement, dir
 
   const [directionX, directionY] = direction.split('-');
 
-  if(directionX === 'bottom') {
+  if (directionX === 'bottom') {
     const top = triggerRect.top + triggerRect.height + (additionalPadding?.top ?? 0);
     menu.style.top = `${Math.max(top, additionalPadding?.top ?? 0)}px`
   } else {
@@ -324,7 +324,7 @@ export function positionMenuTrigger(trigger: HTMLElement, menu: HTMLElement, dir
     menu.style.bottom = `${Math.max(bottom, additionalPadding?.bottom ?? 0)}px`
   }
 
-  if(directionY === 'right' || directionY === 'center') {
+  if (directionY === 'right' || directionY === 'center') {
     const left = triggerRect.left + (additionalPadding?.left ?? 0);
     menu.style.left = `${Math.max(left, additionalPadding?.left ?? 0)}px`
   } else {
@@ -332,7 +332,7 @@ export function positionMenuTrigger(trigger: HTMLElement, menu: HTMLElement, dir
     menu.style.right = `${Math.max(right, additionalPadding?.right ?? 0)}px`
   }
 
-  if(directionY === 'center') {
+  if (directionY === 'center') {
     menu.style.setProperty('--parent-half-width', (trigger.clientWidth / 2) + 'px');
   }
 }

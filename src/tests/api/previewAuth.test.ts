@@ -22,9 +22,9 @@
  *     pnpm test src/tests/api/previewAuth
  */
 
-import {readFileSync, writeFileSync, mkdirSync} from 'fs';
-import {dirname} from 'path';
-import {createTestClient, AccountSeed, TrueDcSeed} from './harness';
+import { readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { dirname } from 'path';
+import { createTestClient, AccountSeed, TrueDcSeed } from './harness';
 
 const ENABLED = process.env.TG_API_TEST === '1';
 const seedPath = process.env.TG_API_SEED;
@@ -41,7 +41,7 @@ function delay(ms: number) {
 
 /** Pull a login code of `codeLength` digits out of a service message. */
 function extractLoginCode(text: string, codeLength: number): string | undefined {
-  if(!text) return undefined;
+  if (!text) return undefined;
   // Telegram may print the code split by a space/hyphen ("12 345"): join those
   const joined = text.replace(/(\d)[\s\-]+(\d)/g, '$1$2');
   const standalone = joined.match(new RegExp(`(?<!\\d)\\d{${codeLength}}(?!\\d)`));
@@ -57,7 +57,7 @@ function extractLoginCode(text: string, codeLength: number): string | undefined 
  * harness into a genuine "logged out" state. Returns a restore function.
  */
 async function muteManagerStorm(): Promise<() => void> {
-  const {ApiManager} = await import('@appManagers/apiManager');
+  const { ApiManager } = await import('@appManagers/apiManager');
   const proto: any = ApiManager.prototype;
 
   const allowed = (method: string) =>
@@ -71,7 +71,7 @@ async function muteManagerStorm(): Promise<() => void> {
   const hang = () => new Promise(() => {}); // never settles -> no call, no rejection
 
   const originals: Record<string, any> = {};
-  for(const name of ['invokeApi', 'invokeApiAfter', 'invokeApiSingle']) {
+  for (const name of ['invokeApi', 'invokeApiAfter', 'invokeApiSingle']) {
     originals[name] = proto[name];
     proto[name] = function(method: string, ...rest: any[]) {
       return allowed(method) ? originals[name].call(this, method, ...rest) : hang();
@@ -83,7 +83,7 @@ async function muteManagerStorm(): Promise<() => void> {
   };
 
   return () => {
-    for(const name in originals) proto[name] = originals[name];
+    for (const name in originals) proto[name] = originals[name];
   };
 }
 
@@ -98,16 +98,16 @@ describeOrSkip('preview auth', () => {
 
     try {
       // ---- Phase 1: probe the seed session ----
-      const probe = await createTestClient({seed, testDc, accountNumber: 1});
+      const probe = await createTestClient({ seed, testDc, accountNumber: 1 });
 
       const probeSelf: any = await probe.apiManager.invokeApi('users.getUsers', {
-        id: [{_: 'inputUserSelf'}]
+        id: [{ _: 'inputUserSelf' }],
       });
       const phone: string = String(probeSelf?.[0]?.phone || '').replace(/\D/g, '');
       console.log(`[previewAuth] seed account: userId=${seed.userId} dc=${homeDc} phone=${phone}`);
       expect(phone.length).toBeGreaterThan(0);
 
-      const servicePeer = {_: 'inputPeerUser', user_id: TELEGRAM_SERVICE_ID, access_hash: '0'};
+      const servicePeer = { _: 'inputPeerUser', user_id: TELEGRAM_SERVICE_ID, access_hash: '0' };
       const serviceHistory = (limit: number) => probe.apiManager.invokeApi('messages.getHistory', {
         peer: servicePeer as any,
         offset_id: 0,
@@ -116,7 +116,7 @@ describeOrSkip('preview auth', () => {
         limit,
         max_id: 0,
         min_id: 0,
-        hash: '0'
+        hash: '0',
       });
 
       const beforeHistory: any = await serviceHistory(1);
@@ -124,15 +124,15 @@ describeOrSkip('preview auth', () => {
 
       // ---- Phase 2: fresh login on an empty account slot ----
       // empty authKeys -> the harness boots with no key -> a fresh DH handshake runs
-      const freshSeed: AccountSeed = {userId: seed.userId, dcId: seed.dcId, authKeys: {}};
-      const fresh = await createTestClient({seed: freshSeed, testDc, accountNumber: 2});
+      const freshSeed: AccountSeed = { userId: seed.userId, dcId: seed.dcId, authKeys: {} };
+      const fresh = await createTestClient({ seed: freshSeed, testDc, accountNumber: 2 });
 
       const App = (await import('@config/app')).default;
       const sentCode: any = await fresh.apiManager.invokeApi('auth.sendCode', {
         phone_number: phone,
         api_id: App.id,
         api_hash: App.hash,
-        settings: {_: 'codeSettings', pFlags: {}}
+        settings: { _: 'codeSettings', pFlags: {} },
       });
       expect(sentCode?.phone_code_hash).toBeTruthy();
       const codeLength: number = sentCode?.type?.length || 5;
@@ -140,19 +140,19 @@ describeOrSkip('preview auth', () => {
 
       // read the login code from the Telegram service chat via the seed session
       let code: string | undefined;
-      for(let attempt = 0; attempt < 20 && !code; attempt++) {
+      for (let attempt = 0; attempt < 20 && !code; attempt++) {
         await delay(1500);
         const history: any = await serviceHistory(5);
-        for(const message of history?.messages || []) {
-          if(message.id <= beforeTopId || typeof message.message !== 'string') continue;
+        for (const message of history?.messages || []) {
+          if (message.id <= beforeTopId || typeof message.message !== 'string') continue;
           const candidate = extractLoginCode(message.message, codeLength);
-          if(candidate) {
+          if (candidate) {
             code = candidate;
             break;
           }
         }
       }
-      if(!code) {
+      if (!code) {
         throw new Error(
           `[previewAuth] login code not found (sendCode type=${sentCode?.type?._}). ` +
           'A production account with an active session should receive it in-app (777000).'
@@ -166,14 +166,14 @@ describeOrSkip('preview auth', () => {
         auth = await fresh.apiManager.invokeApi('auth.signIn', {
           phone_number: phone,
           phone_code_hash: sentCode.phone_code_hash,
-          phone_code: code
-        }, {ignoreErrors: true});
-      } catch(err: any) {
-        if(err?.type === 'SESSION_PASSWORD_NEEDED') needsPassword = true;
+          phone_code: code,
+        }, { ignoreErrors: true });
+      } catch (err: any) {
+        if (err?.type === 'SESSION_PASSWORD_NEEDED') needsPassword = true;
         else throw err;
       }
 
-      if(needsPassword) {
+      if (needsPassword) {
         console.log('[previewAuth] SESSION_PASSWORD_NEEDED — checking cloud password');
         const passwordState = await fresh.managers.passwordManager.getState();
         auth = await fresh.managers.passwordManager.check(CLOUD_PASSWORD, passwordState);
@@ -193,13 +193,13 @@ describeOrSkip('preview auth', () => {
 
       // the new session works
       const freshSelf: any = await fresh.apiManager.invokeApi('users.getUsers', {
-        id: [{_: 'inputUserSelf'}]
+        id: [{ _: 'inputUserSelf' }],
       });
       expect(String(freshSelf?.[0]?.id)).toBe(String(seed.userId));
 
       // the original seed session is still alive (a new login does not log it out)
       const probeSelfAgain: any = await probe.apiManager.invokeApi('users.getUsers', {
-        id: [{_: 'inputUserSelf'}]
+        id: [{ _: 'inputUserSelf' }],
       });
       expect(String(probeSelfAgain?.[0]?.id)).toBe(String(seed.userId));
 
@@ -210,14 +210,14 @@ describeOrSkip('preview auth', () => {
       // handshake on the base DC and hit AUTH_KEY_UNREGISTERED. Force an
       // authorized call to every other DC so tweb exports/imports the auth and
       // persists each dc{n}_auth_key into account2.
-      for(let dcId = 1 as TrueDcSeed; dcId <= 5; dcId = (dcId + 1) as TrueDcSeed) {
-        if(dcId === homeDc) continue;
+      for (let dcId = 1 as TrueDcSeed; dcId <= 5; dcId = (dcId + 1) as TrueDcSeed) {
+        if (dcId === homeDc) continue;
         try {
           await fresh.apiManager.invokeApi('users.getUsers', {
-            id: [{_: 'inputUserSelf'}]
-          }, {dcId});
+            id: [{ _: 'inputUserSelf' }],
+          }, { dcId });
           console.log(`[previewAuth] authorized dc${dcId}`);
-        } catch(err: any) {
+        } catch (err: any) {
           console.log(`[previewAuth] dc${dcId} authorize skipped: ${err?.type || err}`);
         }
       }
@@ -226,23 +226,23 @@ describeOrSkip('preview auth', () => {
       let timeOffset: number;
       try {
         timeOffset = await sessionStorage.get('server_time_offset' as any) as number;
-      } catch{}
+      } catch {}
       const previewSeed: AccountSeed = {
         userId: seed.userId,
         dcId: seed.dcId,
         authKeys: {},
-        timeOffset: timeOffset! ?? undefined
+        timeOffset: timeOffset! ?? undefined,
       };
       // re-read account2 — Phase 3.5 authorized more DCs after the earlier snapshot
       const account2Final: any = await sessionStorage.get('account2' as any);
-      for(let i = 1 as TrueDcSeed; i <= 5; i = (i + 1) as TrueDcSeed) {
+      for (let i = 1 as TrueDcSeed; i <= 5; i = (i + 1) as TrueDcSeed) {
         const key = account2Final?.[`dc${i}_auth_key`];
         const salt = account2Final?.[`dc${i}_server_salt`];
-        if(key && salt) previewSeed.authKeys[i] = {key, salt};
+        if (key && salt) previewSeed.authKeys[i] = { key, salt };
       }
 
       const outPath = process.env.PREVIEW_SEED_OUT || './tmp/seed-preview.json';
-      mkdirSync(dirname(outPath), {recursive: true});
+      mkdirSync(dirname(outPath), { recursive: true });
       writeFileSync(outPath, JSON.stringify(previewSeed, null, 2));
       console.log(`[previewAuth] OK — fresh preview authorization written to ${outPath}`);
       console.log(`[previewAuth] seed key dc${homeDc}: ${seedKey?.slice(0, 16)}…`);

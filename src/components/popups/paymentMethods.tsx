@@ -1,11 +1,11 @@
 import PopupElement from '.';
-import {i18n} from '@lib/langPack';
-import {PaymentsPaymentForm, User} from '@layer';
+import { i18n } from '@lib/langPack';
+import { PaymentsPaymentForm, User } from '@layer';
 import PopupPayment from '@components/popups/payment';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
 import CheckboxField from '@components/checkboxField';
-import PopupPaymentCard, {PaymentCardDetails, PaymentCardDetailsResult} from '@components/popups/paymentCard';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
+import PopupPaymentCard, { PaymentCardDetails, PaymentCardDetailsResult } from '@components/popups/paymentCard';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
 import Row from '@components/row';
 
 export default class PopupPaymentMethods extends PopupElement {
@@ -20,7 +20,7 @@ export default class PopupPaymentMethods extends PopupElement {
       closable: true,
       overlayClosable: true,
       body: true,
-      title: 'PaymentMethod'
+      title: 'PaymentMethod',
     });
 
     this.promise = deferredPromise();
@@ -42,11 +42,11 @@ export default class PopupPaymentMethods extends PopupElement {
     ) => {
       return PopupPayment.createRow({
         title,
-        checkboxField: new CheckboxField({round: true, checked}),
+        checkboxField: new CheckboxField({ round: true, checked }),
         clickable: () => {
           this.hide();
           this.promise.resolve(onClick());
-        }
+        },
       });
     };
 
@@ -59,8 +59,8 @@ export default class PopupPaymentMethods extends PopupElement {
     });
 
     let currentCardRow: Row;
-    if(this.savedCard) {
-      const {str} = PopupPayment.getCardDetailsInfo(this.savedCard);
+    if (this.savedCard) {
+      const { str } = PopupPayment.getCardDetailsInfo(this.savedCard);
       const span = document.createElement('span');
       span.textContent = str;
       currentCardRow = createRow(span, () => (undefined as unknown as PopupPaymentCard), true);

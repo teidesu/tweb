@@ -2,9 +2,9 @@ import findUpClassName from '@helpers/dom/findUpClassName';
 import sequentialDom from '@helpers/sequentialDom';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
 import findUpAsChild from '@helpers/dom/findUpAsChild';
-import {fastRaf} from '@helpers/schedulers';
+import { fastRaf } from '@helpers/schedulers';
 import liteMode from '@helpers/liteMode';
-import {Accessor, createRenderEffect, onCleanup} from 'solid-js';
+import { Accessor, createRenderEffect, onCleanup } from 'solid-js';
 
 
 declare module 'solid-js' {
@@ -27,18 +27,18 @@ function _ripple(
   attachListenerTo = elem
 ) {
   // return;
-  if(elem.querySelector('.c-ripple')) return;
+  if (elem.querySelector('.c-ripple')) return;
   elem.classList.add('rp');
 
   const r = document.createElement('div');
   r.classList.add('c-ripple');
 
   const isSquare = elem.classList.contains('rp-square');
-  if(isSquare) {
+  if (isSquare) {
     r.classList.add('is-square');
   }
 
-  if(prepend !== 'no') {
+  if (prepend !== 'no') {
     elem[prepend ? 'prepend' : 'append'](r);
   }
 
@@ -72,7 +72,7 @@ function _ripple(
 
         onEnd?.(clickId);
       };
-      if(elapsedTime < duration) {
+      if (elapsedTime < duration) {
         const delay = Math.max(duration - elapsedTime, duration / 2);
         setTimeout(() => circle.classList.add('hiding'), Math.max(delay - duration / 2, 0));
 
@@ -82,7 +82,7 @@ function _ripple(
         setTimeout(cb, duration / 2);
       }
 
-      if(!IS_TOUCH_SUPPORTED) {
+      if (!IS_TOUCH_SUPPORTED) {
         window.removeEventListener('contextmenu', handler!);
         window.removeEventListener('mousemove', handler!);
       }
@@ -108,7 +108,7 @@ function _ripple(
       } */
 
     fastRaf(() => {
-      if(lastHandler !== _handler) {
+      if (lastHandler !== _handler) {
         return;
       }
 
@@ -151,7 +151,7 @@ function _ripple(
       void circle.offsetWidth; // force reflow
       circle.style.opacity = '';
 
-      if(auto) {
+      if (auto) {
         // window.addEventListener('mousemove', handler, {once: true, passive: true});
         _handler();
       }
@@ -174,84 +174,84 @@ function _ripple(
 
   // TODO: rename this variable
   let touchStartFired = false;
-  if(IS_TOUCH_SUPPORTED) {
+  if (IS_TOUCH_SUPPORTED) {
     const touchEnd = () => {
       handler?.();
     };
 
     const onTouchStart = (e: TouchEvent) => {
-      if(!liteMode.isAvailable('animations')) {
+      if (!liteMode.isAvailable('animations')) {
         return;
       }
 
       // console.log('ripple touchstart', e);
-      if(e.touches.length > 1 || touchStartFired || isRippleUnneeded(e)) {
+      if (e.touches.length > 1 || touchStartFired || isRippleUnneeded(e)) {
         return;
       }
 
       // console.log('touchstart', e);
       touchStartFired = true;
 
-      const {clientX, clientY} = e.touches[0];
+      const { clientX, clientY } = e.touches[0];
       drawRipple(clientX, clientY);
-      attachListenerTo.addEventListener('touchend', touchEnd, {once: true});
+      attachListenerTo.addEventListener('touchend', touchEnd, { once: true });
 
       window.addEventListener('touchmove', (e) => {
         e.cancelBubble = true;
         e.stopPropagation();
         touchEnd();
         attachListenerTo.removeEventListener('touchend', touchEnd);
-      }, {once: true});
+      }, { once: true });
     };
 
-    attachListenerTo.addEventListener('touchstart', onTouchStart, {passive: true});
+    attachListenerTo.addEventListener('touchstart', onTouchStart, { passive: true });
     return {
       dispose: () => {
         attachListenerTo.removeEventListener('touchstart', onTouchStart);
         r.remove();
       },
-      element: r
+      element: r,
     };
   } else {
     const onMouseDown = (e: MouseEvent) => {
-      if(![0, 2].includes(e.button)) { // only left and right buttons
+      if (![0, 2].includes(e.button)) { // only left and right buttons
         return;
       }
 
-      if(!liteMode.isAvailable('animations')) {
+      if (!liteMode.isAvailable('animations')) {
         return;
       }
       // console.log('ripple mousedown', e, e.target, findUpClassName(e.target as HTMLElement, 'c-ripple') === r);
 
-      if(attachListenerTo.dataset.ripple === '0' || isRippleUnneeded(e)) {
+      if (attachListenerTo.dataset.ripple === '0' || isRippleUnneeded(e)) {
         return;
-      } else if(touchStartFired) {
+      } else if (touchStartFired) {
         touchStartFired = false;
         return;
       }
 
-      const {clientX, clientY} = e;
+      const { clientX, clientY } = e;
       drawRipple(clientX, clientY);
-      window.addEventListener('mouseup', handler!, {once: true, passive: true});
-      window.addEventListener('contextmenu', handler!, {once: true, passive: true});
+      window.addEventListener('mouseup', handler!, { once: true, passive: true });
+      window.addEventListener('contextmenu', handler!, { once: true, passive: true });
     };
 
-    attachListenerTo.addEventListener('mousedown', onMouseDown, {passive: true});
+    attachListenerTo.addEventListener('mousedown', onMouseDown, { passive: true });
     return {
       dispose: () => {
         attachListenerTo.removeEventListener('mousedown', onMouseDown);
         r.remove();
       },
-      element: r
+      element: r,
     };
   }
 }
 
 export default function ripple(elem: HTMLElement, accessor?: Accessor<boolean>, prepend?: boolean | 'no') {
-  if(accessor) {
+  if (accessor) {
     createRenderEffect(() => {
       const value = accessor();
-      if(value === undefined || value) {
+      if (value === undefined || value) {
         const ret = _ripple(elem, prepend);
         onCleanup(() => {
           ret!.dispose();

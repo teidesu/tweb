@@ -1,39 +1,39 @@
-import {createSignal, For, onMount, Show} from 'solid-js';
+import { createSignal, For, onMount, Show } from 'solid-js';
 import ButtonMenuToggle from '@components/buttonMenuToggle';
-import {AppPrivacyAndSecurityTab} from '@components/solidJsTabs/tabs';
-import {AppChatFoldersTab} from '@components/solidJsTabs/tabs';
+import { AppPrivacyAndSecurityTab } from '@components/solidJsTabs/tabs';
+import { AppChatFoldersTab } from '@components/solidJsTabs/tabs';
 import {
   AppGeneralSettingsTab,
   AppKeyboardShortcutsTab,
   AppLanguageTab,
   AppMyProfileTab,
   AppNotificationsTab,
-  AppSpeakersAndCameraTab
+  AppSpeakersAndCameraTab,
 } from '@components/solidJsTabs';
 import lottieLoader from '@lib/rlottie/lottieLoader';
-import {AppDataAndStorageTab} from '@components/solidJsTabs/tabs';
+import { AppDataAndStorageTab } from '@components/solidJsTabs/tabs';
 import rootScope from '@lib/rootScope';
 import Row from '@components/rowTsx';
-import {AppActiveSessionsTab} from '@components/solidJsTabs/tabs';
-import {i18n, LangPackKey} from '@lib/langPack';
-import {SliderSuperTabConstructable, SliderSuperTabEventable} from '@components/sliderTab';
-import {AccountAuthorizations, Authorization} from '@layer';
+import { AppActiveSessionsTab } from '@components/solidJsTabs/tabs';
+import { i18n, LangPackKey } from '@lib/langPack';
+import { SliderSuperTabConstructable, SliderSuperTabEventable } from '@components/sliderTab';
+import { AccountAuthorizations, Authorization } from '@layer';
 import PopupElement from '@components/popups';
 import Section from '@components/section';
-import {AppStickersAndEmojiTab} from '@components/solidJsTabs/tabs';
+import { AppStickersAndEmojiTab } from '@components/solidJsTabs/tabs';
 import PopupPremium from '@components/popups/premium';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import useStars from '@stores/stars';
 import PopupStars from '@components/popups/stars';
 import showPickUserPopup from '@components/popups/pickUser';
 import PopupSendGift from '@components/popups/sendGift';
-import {formatNanoton} from '@helpers/paymentsWrapCurrencyAmount';
+import { formatNanoton } from '@helpers/paymentsWrapCurrencyAmount';
 import showLogOutPopup from '@components/popups/logOut';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {usePromiseCollector} from '@components/solidJsTabs/promiseCollector';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {getAccountEntries, AccountEntry} from '@lib/accounts/getAccountEntries';
-import {MAX_ACCOUNTS} from '@lib/accounts/constants';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { getAccountEntries, AccountEntry } from '@lib/accounts/getAccountEntries';
+import { MAX_ACCOUNTS } from '@lib/accounts/constants';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -60,7 +60,7 @@ const makeSubTabConfig = (
 ): SubTabConfig => {
   let getInitArgs: (() => any[]) | undefined;
   const g = (tabConstructor as any).getInitArgs;
-  if(g) {
+  if (g) {
     getInitArgs = () => [g(fromTab)];
   }
   return {
@@ -68,7 +68,7 @@ const makeSubTabConfig = (
     text,
     tabConstructor,
     getInitArgs,
-    args: getInitArgs?.()
+    args: getInitArgs?.(),
   };
 };
 
@@ -84,7 +84,7 @@ type AccountRow = AccountEntry & {
 const Settings = () => {
   const promiseCollector = usePromiseCollector();
   const [tab] = useSuperTab();
-  const {appSidebarLeft, uiNotificationsManager, AvatarNewTsx} = useHotReloadGuard();
+  const { appSidebarLeft, uiNotificationsManager, AvatarNewTsx } = useHotReloadGuard();
 
   // ── Accounts section, mirrors the hamburger menu's account list. All data is
   //    local (storage / worker caches), so we can afford waiting on it before
@@ -93,22 +93,22 @@ const Settings = () => {
   promiseCollector.collect((async() => {
     const [notificationsCount, entries] = await Promise.all([
       uiNotificationsManager.getNotificationsCountForAllAccounts(),
-      getAccountEntries()
+      getAccountEntries(),
     ]);
 
     setAccounts(entries.map((entry) => {
-      const {user, peerId, accountNumber, active} = entry;
+      const { user, peerId, accountNumber, active } = entry;
       const name = user ? [user.first_name, user.last_name].filter(Boolean).join(' ') : '' + peerId;
       return {
         ...entry,
         title: wrapEmojiText(name),
-        notificationsCount: active ? 0 : notificationsCount[accountNumber] ?? 0
+        notificationsCount: active ? 0 : notificationsCount[accountNumber] ?? 0,
       };
     }));
   })());
 
   const onAccountClick = (account: AccountRow) => (e: MouseEvent) => {
-    if(account.active) {
+    if (account.active) {
       tab.slider.createTab(AppMyProfileTab).open();
       return;
     }
@@ -123,8 +123,8 @@ const Settings = () => {
     buttons: [{
       icon: 'logout',
       text: 'EditAccount.Logout',
-      onClick: () => showLogOutPopup()
-    }]
+      onClick: () => showLogOutPopup(),
+    }],
   });
 
   onMount(() => {
@@ -140,7 +140,7 @@ const Settings = () => {
     makeSubTabConfig('settings', 'Telegram.GeneralSettingsViewController', AppGeneralSettingsTab, tab),
     makeSubTabConfig('folder', 'AccountSettings.Filters', AppChatFoldersTab, tab),
     makeSubTabConfig('stickers_face', 'StickersName', AppStickersAndEmojiTab, tab),
-    makeSubTabConfig('videocamera', 'AccountSettings.SpeakersAndCamera', AppSpeakersAndCameraTab, tab)
+    makeSubTabConfig('videocamera', 'AccountSettings.SpeakersAndCamera', AppSpeakersAndCameraTab, tab),
   ];
 
   const onSubTabClick = (item: SubTabConfig) => async() => {
@@ -148,7 +148,7 @@ const Settings = () => {
     const subTab = tab.slider.createTab(item.tabConstructor as any);
     subTab.open(...args);
 
-    if(subTab instanceof SliderSuperTabEventable && item.getInitArgs) {
+    if (subTab instanceof SliderSuperTabEventable && item.getInitArgs) {
       (subTab as SliderSuperTabEventable).eventListener.addEventListener('destroyAfter', (promise) => {
         item.args = promise.then(() => item.getInitArgs!() as any);
       });
@@ -162,14 +162,14 @@ const Settings = () => {
   const [authCount, setAuthCount] = createSignal('');
 
   const getAuthorizations = (overwrite?: boolean) => {
-    if(getAuthorizationsPromise && !overwrite) return getAuthorizationsPromise;
+    if (getAuthorizationsPromise && !overwrite) return getAuthorizationsPromise;
 
     const promise = getAuthorizationsPromise = rootScope.managers.appAccountManager.getAuthorizations()
-    .finally(() => {
-      if(getAuthorizationsPromise === promise) {
-        getAuthorizationsPromise = undefined;
-      }
-    });
+      .finally(() => {
+        if (getAuthorizationsPromise === promise) {
+          getAuthorizationsPromise = undefined;
+        }
+      });
 
     return promise;
   };
@@ -187,7 +187,7 @@ const Settings = () => {
   updateActiveSessions();
 
   const onDevicesClick = async() => {
-    if(!authorizations) {
+    if (!authorizations) {
       await updateActiveSessions();
     }
 
@@ -195,8 +195,8 @@ const Settings = () => {
     subTab.eventListener.addEventListener('destroy', () => {
       authorizations = undefined;
       updateActiveSessions(true);
-    }, {once: true});
-    subTab.open({authorizations: authorizations!});
+    }, { once: true });
+    subTab.open({ authorizations: authorizations! });
   };
 
   // ── Premium section. Signal-backed so `<Show>` re-evaluates when the
@@ -222,9 +222,9 @@ const Settings = () => {
       selfPresence: 'SendGiftSelfCaption',
       meAsSaved: false,
       onSelect: (chosen) => {
-        PopupElement.createPopup(PopupSendGift, {peerId: chosen[0].peerId});
+        PopupElement.createPopup(PopupSendGift, { peerId: chosen[0].peerId });
       },
-      filterPeerTypeBy: ['isRegularUser', 'isBroadcast']
+      filterPeerTypeBy: ['isRegularUser', 'isBroadcast'],
     });
   };
 
@@ -302,7 +302,7 @@ const Settings = () => {
             </Row>
           </Show>
           <Show when={String(starsTon()) !== '0'}>
-            <Row clickable={() => PopupElement.createPopup(PopupStars, {ton: true})}>
+            <Row clickable={() => PopupElement.createPopup(PopupStars, { ton: true })}>
               <Row.Icon icon="ton" />
               <Row.Title titleRight={formatNanoton(starsTon())} titleRightSecondary>
                 {i18n('MenuTelegramStarsTon')}

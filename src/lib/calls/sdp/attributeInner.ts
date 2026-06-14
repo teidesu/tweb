@@ -49,7 +49,7 @@ export default class SDPAttributeInner {
   }
 
   private static fill(attribute: SDPAttributeInner) {
-    if(attribute.#nestedMap !== null) {
+    if (attribute.#nestedMap !== null) {
       return;
     }
 

@@ -1,4 +1,4 @@
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 import setBlankToAnchor from '@lib/richTextProcessor/setBlankToAnchor';
 
 const FRAGMENT_USERNAME_URL = 'https://fragment.com/username/';
@@ -18,11 +18,11 @@ export function purchaseUsernameCaption() {
   return {
     element: p,
     setUsername: (username: string) => {
-      if(username) {
+      if (username) {
         a.href = FRAGMENT_USERNAME_URL + username;
       }
 
       p.classList.toggle('hide', !username);
-    }
+    },
   };
 }

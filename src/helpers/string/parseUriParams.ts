@@ -2,19 +2,19 @@ export default function parseUriParams(uri: string, splitted = uri.split('?')) {
   try {
     const url = new URL(uri);
     const obj: any = {};
-    for(const [key, value] of url.searchParams.entries()) {
+    for (const [key, value] of url.searchParams.entries()) {
       obj[key] = value;
     }
 
     return obj;
-  } catch(err) {
+  } catch (err) {
     return parseUriParamsLine(splitted?.[1]);
   }
 }
 
 export function parseUriParamsLine(line: string) {
   const params: any = {};
-  if(!line) {
+  if (!line) {
     return params;
   }
 

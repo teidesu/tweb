@@ -1,5 +1,5 @@
-import {createContext, useContext} from 'solid-js';
-import {PollMessageContentProps} from './PollMessageContent';
+import { createContext, useContext } from 'solid-js';
+import { PollMessageContentProps } from './PollMessageContent';
 
 export const PollMessageContentPropsContext = createContext<PollMessageContentProps>();
 

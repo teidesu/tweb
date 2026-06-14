@@ -1,12 +1,12 @@
 import bigInt from 'big-integer';
-import {InputSavedStarGift, Message, MessageAction, PremiumGiftCodeOption, SavedStarGift, StarGift, StarGiftAttribute, StarGiftAttributeId, StarGiftCollection, StarGiftUpgradePrice, StarsAmount, WebPageAttribute} from '@layer';
-import {STARS_CURRENCY} from '@appManagers/constants';
-import {MyDocument} from '@appManagers/appDocsManager';
-import {AppManager} from '@appManagers/manager';
+import { InputSavedStarGift, Message, MessageAction, PremiumGiftCodeOption, SavedStarGift, StarGift, StarGiftAttribute, StarGiftAttributeId, StarGiftCollection, StarGiftUpgradePrice, StarsAmount, WebPageAttribute } from '@layer';
+import { STARS_CURRENCY } from '@appManagers/constants';
+import { MyDocument } from '@appManagers/appDocsManager';
+import { AppManager } from '@appManagers/manager';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
-import {nanotonToJsNumber} from '@helpers/paymentsWrapCurrencyAmount';
-import {inputStarGiftEquals} from '@appManagers/utils/gifts/inputStarGiftEquals';
-import {randomLong} from '@helpers/random';
+import { nanotonToJsNumber } from '@helpers/paymentsWrapCurrencyAmount';
+import { inputStarGiftEquals } from '@appManagers/utils/gifts/inputStarGiftEquals';
+import { randomLong } from '@helpers/random';
 
 export interface MyStarGift {
   type: 'stargift',
@@ -52,18 +52,18 @@ export interface StarGiftUpgradePreview {
 
 function mapPremiumOptions(premiumOptions: PremiumGiftCodeOption.premiumGiftCodeOption[]) {
   const map: Map<MyPremiumGiftOption['months'], MyPremiumGiftOption> = new Map();
-  for(const option of premiumOptions) {
-    if(option.users !== 1) continue;
-    if(option.months !== 3 && option.months !== 6 && option.months !== 12) continue;
+  for (const option of premiumOptions) {
+    if (option.users !== 1) continue;
+    if (option.months !== 3 && option.months !== 6 && option.months !== 12) continue;
 
-    if(map.has(option.months)) {
+    if (map.has(option.months)) {
       const oldOption = map.get(option.months);
-      if(oldOption!.currency === STARS_CURRENCY) {
+      if (oldOption!.currency === STARS_CURRENCY) {
         oldOption!.priceStars = oldOption!.price;
         oldOption!.price = option.amount;
         oldOption!.currency = option.currency;
         oldOption!.raw = option;
-      } else if(option.currency === STARS_CURRENCY) {
+      } else if (option.currency === STARS_CURRENCY) {
         oldOption!.priceStars = option.amount;
       }
       continue;
@@ -75,7 +75,7 @@ function mapPremiumOptions(premiumOptions: PremiumGiftCodeOption.premiumGiftCode
       price: option.amount,
       currency: option.currency,
       discountPercent: 0,
-      raw: option
+      raw: option,
     });
   }
 
@@ -84,7 +84,7 @@ function mapPremiumOptions(premiumOptions: PremiumGiftCodeOption.premiumGiftCode
     const optionPrice = option.price;
     const rawPrice = threePrice.multiply(mul);
 
-    if(rawPrice.lt(optionPrice)) return;
+    if (rawPrice.lt(optionPrice)) return;
     option.discountPercent = rawPrice.subtract(optionPrice).toJSNumber() / rawPrice.toJSNumber() * 100;
   }
 
@@ -94,7 +94,7 @@ function mapPremiumOptions(premiumOptions: PremiumGiftCodeOption.premiumGiftCode
   return [
     map.get(3),
     map.get(6),
-    map.get(12)
+    map.get(12),
   ] as MyPremiumGiftOption[];
 }
 
@@ -105,27 +105,27 @@ export default class AppGiftsManager extends AppManager {
 
   protected after() {
     this.apiUpdatesManager.addMultipleEventsListeners({
-      updateNewMessage: ({message}) => {
-        if(message._ !== 'messageService') return;
+      updateNewMessage: ({ message }) => {
+        if (message._ !== 'messageService') return;
         const action = message.action;
 
-        switch(action._) {
+        switch (action._) {
           case 'messageActionStarGift':
-            this.rootScope.dispatchEvent('star_gift_list_update', {peerId: getPeerId(message.peer_id)});
+            this.rootScope.dispatchEvent('star_gift_list_update', { peerId: getPeerId(message.peer_id) });
             break;
 
           case 'messageActionStarGiftUnique': {
             const peerId = getPeerId(message.peer_id);
-            this.rootScope.dispatchEvent('star_gift_list_update', {peerId});
-            if(action.pFlags.transferred && message.pFlags.out || action.resale_amount || action.pFlags.from_offer) {
-              this.rootScope.dispatchEvent('star_gift_list_update', {peerId: this.rootScope.myId});
+            this.rootScope.dispatchEvent('star_gift_list_update', { peerId });
+            if (action.pFlags.transferred && message.pFlags.out || action.resale_amount || action.pFlags.from_offer) {
+              this.rootScope.dispatchEvent('star_gift_list_update', { peerId: this.rootScope.myId });
             }
-            if(action._ === 'messageActionStarGiftUnique' && action.pFlags.upgrade) {
+            if (action._ === 'messageActionStarGiftUnique' && action.pFlags.upgrade) {
               this.wrapGiftFromMessage(message).then(gift => {
                 this.rootScope.dispatchEvent('star_gift_upgrade', {
                   gift,
                   savedId: action.saved_id,
-                  fromMsgId: message.reply_to?._ === 'messageReplyHeader' ? message.reply_to.reply_to_msg_id : undefined
+                  fromMsgId: message.reply_to?._ === 'messageReplyHeader' ? message.reply_to.reply_to_msg_id : undefined,
                 });
               })
             }
@@ -134,36 +134,36 @@ export default class AppGiftsManager extends AppManager {
         }
       },
       updateUserEmojiStatus: (upd) => {
-        if(upd.user_id !== this.rootScope.myId) return;
+        if (upd.user_id !== this.rootScope.myId) return;
 
-        if(this.wearingGiftSlug) {
-          this.rootScope.dispatchEvent('star_gift_update', {input: {_: 'inputSavedStarGiftSlug', slug: this.wearingGiftSlug}, wearing: false});
+        if (this.wearingGiftSlug) {
+          this.rootScope.dispatchEvent('star_gift_update', { input: { _: 'inputSavedStarGiftSlug', slug: this.wearingGiftSlug }, wearing: false });
         }
 
-        if(upd.emoji_status._ === 'emojiStatusCollectible') {
+        if (upd.emoji_status._ === 'emojiStatusCollectible') {
           this.wearingGiftSlug = upd.emoji_status.slug;
-          this.rootScope.dispatchEvent('star_gift_update', {input: {_: 'inputSavedStarGiftSlug', slug: this.wearingGiftSlug}, wearing: true});
+          this.rootScope.dispatchEvent('star_gift_update', { input: { _: 'inputSavedStarGiftSlug', slug: this.wearingGiftSlug }, wearing: true });
         } else {
           this.wearingGiftSlug = null;
         }
-      }
+      },
     })
   }
 
   private async ensureHaveWearingGiftSlug() {
-    if(this.wearingGiftSlug === undefined) {
+    if (this.wearingGiftSlug === undefined) {
       const self = this.appUsersManager.getSelf();
-      if(!self) return
+      if (!self) return
       this.wearingGiftSlug = self.emoji_status?._ === 'emojiStatusCollectible' ? self.emoji_status.slug : null;
     };
   }
 
   public wrapGift(gift: StarGift): MyStarGift {
-    if(gift._ === 'starGift') {
+    if (gift._ === 'starGift') {
       return {
         type: 'stargift',
         raw: gift,
-        sticker: this.appDocsManager.saveDoc(gift.sticker)!
+        sticker: this.appDocsManager.saveDoc(gift.sticker)!,
       };
     } else {
       let attrModel: StarGiftAttribute.starGiftAttributeModel;
@@ -171,8 +171,8 @@ export default class AppGiftsManager extends AppManager {
       let attrPatern: StarGiftAttribute.starGiftAttributePattern;
       let attrOrig: StarGiftAttribute.starGiftAttributeOriginalDetails;
 
-      for(const attr of gift.attributes) {
-        switch(attr._) {
+      for (const attr of gift.attributes) {
+        switch (attr._) {
           case 'starGiftAttributeModel':
             attr.document = this.appDocsManager.saveDoc(attr.document)!;
             attrModel = attr;
@@ -193,11 +193,11 @@ export default class AppGiftsManager extends AppManager {
       let resellPriceStars: Long | undefined;
       let resellPriceTon: Long | undefined;
 
-      if(gift.resell_amount) {
-        for(const amount of gift.resell_amount) {
-          if(amount._ === 'starsAmount') {
+      if (gift.resell_amount) {
+        for (const amount of gift.resell_amount) {
+          if (amount._ === 'starsAmount') {
             resellPriceStars = amount.amount;
-          } else if(amount._ === 'starsTonAmount') {
+          } else if (amount._ === 'starsTonAmount') {
             resellPriceTon = amount.amount;
           }
         }
@@ -211,14 +211,14 @@ export default class AppGiftsManager extends AppManager {
           model: attrModel!,
           backdrop: attrBackdrop!,
           pattern: attrPatern!,
-          original: attrOrig!
+          original: attrOrig!,
         },
         resellPriceStars,
         resellPriceTon,
         resellOnlyTon: gift.pFlags.resale_ton_only,
         ownerId: getPeerId(gift.owner_id!),
-        input: {_:'inputSavedStarGiftSlug', slug: gift.slug},
-        isWearing: gift.slug === this.wearingGiftSlug
+        input: { _:'inputSavedStarGiftSlug', slug: gift.slug },
+        isWearing: gift.slug === this.wearingGiftSlug,
       };
     }
   }
@@ -235,9 +235,9 @@ export default class AppGiftsManager extends AppManager {
       pFlags: {
         unsaved: action.pFlags.saved ? undefined : true,
         can_upgrade: action._ === 'messageActionStarGift' ? action.pFlags.can_upgrade : undefined,
-        refunded: action.pFlags.refunded
+        refunded: action.pFlags.refunded,
       },
-      from_id: isIncomingGift ? message.peer_id : {_: 'peerUser', user_id: this.rootScope.myId},
+      from_id: isIncomingGift ? message.peer_id : { _: 'peerUser', user_id: this.rootScope.myId },
       date: message.date,
       gift,
       message: action._ === 'messageActionStarGift' ? action.message : baseWrap.collectibleAttributes!.original?.message,
@@ -249,10 +249,10 @@ export default class AppGiftsManager extends AppManager {
       can_transfer_at: action._ === 'messageActionStarGiftUnique' ? action.can_transfer_at : undefined,
       can_resell_at: action._ === 'messageActionStarGiftUnique' ? action.can_resell_at : undefined,
       drop_original_details_stars: action._ === 'messageActionStarGiftUnique' ? action.drop_original_details_stars : undefined,
-      prepaid_upgrade_hash: action._ === 'messageActionStarGift' ? action.prepaid_upgrade_hash : undefined
+      prepaid_upgrade_hash: action._ === 'messageActionStarGift' ? action.prepaid_upgrade_hash : undefined,
     };
 
-    if(!baseWrap.ownerId) {
+    if (!baseWrap.ownerId) {
       baseWrap.ownerId = isIncomingGift ? this.rootScope.myId : message.peerId;
     }
 
@@ -265,8 +265,8 @@ export default class AppGiftsManager extends AppManager {
       saved,
       input: {
         _: 'inputSavedStarGiftUser',
-        msg_id: saved.msg_id!
-      }
+        msg_id: saved.msg_id!,
+      },
     };
   }
 
@@ -277,7 +277,7 @@ export default class AppGiftsManager extends AppManager {
   public async getPinnedGifts(peerId: PeerId) {
     const res = await this.getProfileGifts({
       peerId,
-      limit: (await this.apiManager.getAppConfig()).stargifts_pinned_to_top_limit
+      limit: (await this.apiManager.getAppConfig()).stargifts_pinned_to_top_limit,
     });
 
     return res.gifts;
@@ -298,7 +298,7 @@ export default class AppGiftsManager extends AppManager {
     withCollections?: boolean
     collectionId?: number
   }) {
-    if(params.peerId === this.rootScope.myId) {
+    if (params.peerId === this.rootScope.myId) {
       await this.ensureHaveWearingGiftSlug();
     }
 
@@ -307,7 +307,7 @@ export default class AppGiftsManager extends AppManager {
     const collectionsPromise = params.withCollections ?
       this.apiManager.invokeApiSingle('payments.getStarGiftCollections', {
         peer: inputPeer,
-        hash: 0
+        hash: 0,
       }) : null
     const res = await this.apiManager.invokeApiSingleProcess({
       method: 'payments.getSavedStarGifts',
@@ -322,42 +322,42 @@ export default class AppGiftsManager extends AppManager {
         exclude_unique: params.unique === false,
         exclude_saved: params.displayed === false,
         exclude_unsaved: params.hidden === false,
-        collection_id: params.collectionId
-      }
+        collection_id: params.collectionId,
+      },
     });
 
     this.appPeersManager.saveApiPeers(res);
 
     const wrapped: MyStarGift[] = [];
-    for(const it of res.gifts) {
+    for (const it of res.gifts) {
       wrapped.push({
         ...this.wrapGift(it.gift),
         ownerId: params.peerId,
         input: ((isUser ? {
           _: 'inputSavedStarGiftUser',
-          msg_id: it.msg_id
+          msg_id: it.msg_id,
         } : {
           _: 'inputSavedStarGiftChat',
           peer: inputPeer,
-          saved_id: it.saved_id
+          saved_id: it.saved_id,
         }) as InputSavedStarGift | undefined),
         isIncoming: params.peerId.isUser() && this.rootScope.myId === params.peerId,
-        saved: it
+        saved: it,
       });
     }
 
     let collections: StarGiftCollection[] | undefined;
-    if(collectionsPromise) {
+    if (collectionsPromise) {
       const res = await collectionsPromise;
-      if(res._ === 'payments.starGiftCollections') {
+      if (res._ === 'payments.starGiftCollections') {
         collections = res.collections;
-        for(const it of collections) {
-          if(it.icon) this.appDocsManager.saveDoc(it.icon);
+        for (const it of collections) {
+          if (it.icon) this.appDocsManager.saveDoc(it.icon);
         }
       }
     }
 
-    if(!params.offset) {
+    if (!params.offset) {
       this.pinnedGiftsByPeer.set(params.peerId, (wrapped.filter((it) => it.saved?.pFlags.pinned_to_top).map((it) => it.input) as InputSavedStarGift[]));
     }
 
@@ -365,30 +365,30 @@ export default class AppGiftsManager extends AppManager {
       next: res.next_offset,
       gifts: wrapped,
       count: res.count,
-      collections
+      collections,
     };
   }
 
   public async getStarGiftOptions(): Promise<MyStarGift[]> {
     const res = await this.apiManager.invokeApiSingleProcess({
       method: 'payments.getStarGifts',
-      params: {hash: this.cachedStarGiftOptionsHash}
+      params: { hash: this.cachedStarGiftOptionsHash },
     });
 
-    if(res._ === 'payments.starGiftsNotModified') {
+    if (res._ === 'payments.starGiftsNotModified') {
       return this.cachedStarGiftOptions!;
     }
 
     this.cachedStarGiftOptionsHash = res.hash;
 
     const options: MyStarGift[] = [];
-    for(const it of res.gifts) {
+    for (const it of res.gifts) {
       const gift = this.wrapGift(it);
       const isResale = gift.raw._ === 'starGift' && !!gift.raw.availability_resale;
-      if(isResale) {
-        if(!!(gift.raw as StarGift.starGift).availability_remains) {
+      if (isResale) {
+        if (!!(gift.raw as StarGift.starGift).availability_remains) {
           options.push(gift);
-          options.push({...gift, isResale})
+          options.push({ ...gift, isResale })
         } else {
           gift.isResale = true;
           options.push(gift);
@@ -402,17 +402,17 @@ export default class AppGiftsManager extends AppManager {
   }
 
   public async toggleGiftHidden(gift: InputSavedStarGift, hidden: boolean) {
-    this.rootScope.dispatchEvent('star_gift_update', {input: gift, unsaved: hidden});
+    this.rootScope.dispatchEvent('star_gift_update', { input: gift, unsaved: hidden });
     await this.apiManager.invokeApiSingle('payments.saveStarGift', {
       stargift: gift,
-      unsave: hidden
+      unsave: hidden,
     });
   }
 
   public async convertGift(gift: InputSavedStarGift) {
-    this.rootScope.dispatchEvent('star_gift_update', {input: gift, converted: true});
+    this.rootScope.dispatchEvent('star_gift_update', { input: gift, converted: true });
     await this.apiManager.invokeApiSingle('payments.convertStarGift', {
-      stargift: gift
+      stargift: gift,
     });
   }
 
@@ -426,8 +426,8 @@ export default class AppGiftsManager extends AppManager {
     const backdrops: StarGiftAttribute.starGiftAttributeBackdrop[] = [];
     const patterns: StarGiftAttribute.starGiftAttributePattern[] = [];
 
-    for(const attribute of attrs) {
-      switch(attribute._) {
+    for (const attribute of attrs) {
+      switch (attribute._) {
         case 'starGiftAttributeModel': {
           attribute.document = this.appDocsManager.saveDoc(attribute.document)!;
           models.push(attribute);
@@ -450,38 +450,38 @@ export default class AppGiftsManager extends AppManager {
     return {
       models,
       backdrops,
-      patterns
+      patterns,
     };
   }
 
   public async getUpgradePreview(giftId: Long): Promise<StarGiftUpgradePreview> {
     const res = await this.apiManager.invokeApiSingle('payments.getStarGiftUpgradePreview', {
-      gift_id: giftId
+      gift_id: giftId,
     });
 
     return {
       ...this.wrapAttributeList(res.sample_attributes),
       prices: res.prices.sort((a, b) => a.date - b.date),
-      next_prices: res.next_prices.sort((a, b) => a.date - b.date)
+      next_prices: res.next_prices.sort((a, b) => a.date - b.date),
     };
   }
 
   public async getGiftBySlug(slug: string) {
     const [result, savedResult] = await Promise.all([
-      this.apiManager.invokeApiSingle('payments.getUniqueStarGift', {slug}),
+      this.apiManager.invokeApiSingle('payments.getUniqueStarGift', { slug }),
       this.apiManager.invokeApiSingle('payments.getSavedStarGift', {
-        stargift: [{_: 'inputSavedStarGiftSlug', slug}]
-      }).catch((): null => null)
+        stargift: [{ _: 'inputSavedStarGiftSlug', slug }],
+      }).catch((): null => null),
     ]);
 
     this.appUsersManager.saveApiUsers(result.users);
 
     const ret = this.wrapGift(result.gift);
-    if(savedResult) {
+    if (savedResult) {
       this.appPeersManager.saveApiPeers(savedResult);
       ret.saved = savedResult.gifts[0];
-      if(ret.raw._ === 'starGiftUnique' && !ret.raw.owner_id) {
-        ret.raw.owner_id = {_: 'peerUser', user_id: this.rootScope.myId};
+      if (ret.raw._ === 'starGiftUnique' && !ret.raw.owner_id) {
+        ret.raw.owner_id = { _: 'peerUser', user_id: this.rootScope.myId };
       }
     }
 
@@ -490,7 +490,7 @@ export default class AppGiftsManager extends AppManager {
 
   public async getSavedGiftBySlug(slug: string) {
     const res = await this.apiManager.invokeApiSingle('payments.getSavedStarGift', {
-      stargift: [{_: 'inputSavedStarGiftSlug', slug}]
+      stargift: [{ _: 'inputSavedStarGiftSlug', slug }],
     }).catch((): null => null);
     return res?.gifts[0];
   }
@@ -498,7 +498,7 @@ export default class AppGiftsManager extends AppManager {
   public async togglePinnedGift(gift: InputSavedStarGift, peerId: PeerId) {
     const pinned = (this.pinnedGiftsByPeer.get(peerId) ?? []).slice();
     const idx = pinned.findIndex((it) => inputStarGiftEquals(it, gift));
-    if(idx !== -1) {
+    if (idx !== -1) {
       pinned.splice(idx, 1);
     } else {
       pinned.push(gift);
@@ -506,10 +506,10 @@ export default class AppGiftsManager extends AppManager {
 
     await this.apiManager.invokeApiSingle('payments.toggleStarGiftsPinnedToTop', {
       peer: this.appPeersManager.getInputPeerById(peerId),
-      stargift: pinned
+      stargift: pinned,
     });
     this.pinnedGiftsByPeer.set(peerId, pinned);
-    this.rootScope.dispatchEvent('pinned_stargifts', {peerId, gifts: pinned});
+    this.rootScope.dispatchEvent('pinned_stargifts', { peerId, gifts: pinned });
   }
 
   public upgradeStarGift(input: InputSavedStarGift, keepDetails: boolean) {
@@ -517,8 +517,8 @@ export default class AppGiftsManager extends AppManager {
       method: 'payments.upgradeStarGift',
       params: {
         stargift: input,
-        keep_original_details: keepDetails
-      }
+        keep_original_details: keepDetails,
+      },
     }).then((updates) => {
       this.apiUpdatesManager.processUpdateMessage(updates);
     });
@@ -527,14 +527,14 @@ export default class AppGiftsManager extends AppManager {
   public transferStarGift(input: InputSavedStarGift, toId: PeerId, fromId?: PeerId) {
     return this.apiManager.invokeApiSingle('payments.transferStarGift', {
       stargift: input,
-      to_id: this.appPeersManager.getInputPeerById(toId)
+      to_id: this.appPeersManager.getInputPeerById(toId),
     }).then((updates) => {
       this.apiUpdatesManager.processUpdateMessage(updates);
 
-      if(fromId !== undefined) {
-        this.rootScope.dispatchEvent('star_gift_list_update', {peerId: fromId});
+      if (fromId !== undefined) {
+        this.rootScope.dispatchEvent('star_gift_list_update', { peerId: fromId });
       }
-      this.rootScope.dispatchEvent('star_gift_list_update', {peerId: toId});
+      this.rootScope.dispatchEvent('star_gift_list_update', { peerId: toId });
     });
   }
 
@@ -552,22 +552,22 @@ export default class AppGiftsManager extends AppManager {
       attributes: params.filters,
       attributes_hash: params.attributesHash,
       offset: params.offset!,
-      limit: 51 // divisible by 3 for even grid
+      limit: 51, // divisible by 3 for even grid
     })
 
     this.appPeersManager.saveApiPeers(res);
 
     const wrappedGifts: MyStarGift[] = res.gifts.map((it) => this.wrapGift(it));
     const ownedGifts = wrappedGifts.filter((it) => getPeerId((it.raw as StarGift.starGiftUnique).owner_id!) === this.rootScope.myId);
-    if(ownedGifts.length > 0) {
+    if (ownedGifts.length > 0) {
       const savedGifts = await this.apiManager.invokeApiSingle('payments.getSavedStarGift', {
-        stargift: (ownedGifts.map((it) => it.input) as InputSavedStarGift[])
+        stargift: (ownedGifts.map((it) => it.input) as InputSavedStarGift[]),
       }).catch((): null => null)
-      if(savedGifts) {
+      if (savedGifts) {
         this.appPeersManager.saveApiPeers(savedGifts);
-        for(const it of ownedGifts) {
+        for (const it of ownedGifts) {
           const savedGift = savedGifts.gifts.find((it) => (it.gift as StarGift.starGiftUnique).slug === (it.gift as StarGift.starGiftUnique).slug);
-          if(savedGift) {
+          if (savedGift) {
             it.saved = savedGift;
           }
         }
@@ -580,7 +580,7 @@ export default class AppGiftsManager extends AppManager {
       count: res.count,
       counters: res.counters,
       attributes: res.attributes ? this.wrapAttributeList(res.attributes) : undefined,
-      attributesHash: res.attributes_hash
+      attributesHash: res.attributes_hash,
     }
   }
 
@@ -592,14 +592,14 @@ export default class AppGiftsManager extends AppManager {
         resell_amount: price ?? {
           _: 'starsAmount',
           amount: 0,
-          nanos: 0
-        }
+          nanos: 0,
+        },
       },
       processResult: async(updates) => {
         this.apiUpdatesManager.processUpdateMessage(updates);
         const prices = price ? [price] : [];
 
-        if(price?._ === 'starsTonAmount') {
+        if (price?._ === 'starsTonAmount') {
           // need price in stars. we cant refetch the gift directly so estimate it based on rates
 
           const appConfig = await this.apiManager.getAppConfig();
@@ -608,18 +608,18 @@ export default class AppGiftsManager extends AppManager {
           prices.push({
             _: 'starsAmount',
             amount: Math.round(stars),
-            nanos: 0
+            nanos: 0,
           });
         }
 
-        this.rootScope.dispatchEvent('star_gift_update', {input: gift, resalePrice: prices});
-      }
+        this.rootScope.dispatchEvent('star_gift_update', { input: gift, resalePrice: prices });
+      },
     })
   }
 
   public async getGiftValue(slug: string) {
     const res = await this.apiManager.invokeApiSingle('payments.getUniqueStarGiftValueInfo', {
-      slug
+      slug,
     });
 
     return res;
@@ -637,11 +637,11 @@ export default class AppGiftsManager extends AppManager {
     title?: string,
   }) {
     // optimistically update collection_id on affected gifts
-    for(const input of options.add ?? []) {
-      this.rootScope.dispatchEvent('star_gift_update', {input, addCollectionId: options.collectionId});
+    for (const input of options.add ?? []) {
+      this.rootScope.dispatchEvent('star_gift_update', { input, addCollectionId: options.collectionId });
     }
-    for(const input of options.delete ?? []) {
-      this.rootScope.dispatchEvent('star_gift_update', {input, removeCollectionId: options.collectionId});
+    for (const input of options.delete ?? []) {
+      this.rootScope.dispatchEvent('star_gift_update', { input, removeCollectionId: options.collectionId });
     }
 
     try {
@@ -650,19 +650,19 @@ export default class AppGiftsManager extends AppManager {
         collection_id: options.collectionId,
         add_stargift: options.add?.length ? options.add : undefined,
         delete_stargift: options.delete?.length ? options.delete : undefined,
-        title: options.title
+        title: options.title,
       });
 
-      if(res.icon) this.appDocsManager.saveDoc(res.icon);
+      if (res.icon) this.appDocsManager.saveDoc(res.icon);
 
       return res;
-    } catch(err) {
+    } catch (err) {
       // revert optimistic updates
-      for(const input of options.add ?? []) {
-        this.rootScope.dispatchEvent('star_gift_update', {input, removeCollectionId: options.collectionId});
+      for (const input of options.add ?? []) {
+        this.rootScope.dispatchEvent('star_gift_update', { input, removeCollectionId: options.collectionId });
       }
-      for(const input of options.delete ?? []) {
-        this.rootScope.dispatchEvent('star_gift_update', {input, addCollectionId: options.collectionId});
+      for (const input of options.delete ?? []) {
+        this.rootScope.dispatchEvent('star_gift_update', { input, addCollectionId: options.collectionId });
       }
       throw err;
     }
@@ -673,11 +673,11 @@ export default class AppGiftsManager extends AppManager {
       method: 'payments.resolveStarGiftOffer',
       params: {
         offer_msg_id: msgId,
-        decline: action === 'reject'
+        decline: action === 'reject',
       },
       processResult: async(updates) => {
         this.apiUpdatesManager.processUpdateMessage(updates)
-      }
+      },
     });
   }
 
@@ -694,11 +694,11 @@ export default class AppGiftsManager extends AppManager {
         slug: options.slug,
         price: options.amount,
         duration: options.duration,
-        random_id: randomLong()
+        random_id: randomLong(),
       },
       processResult: async(updates) => {
         this.apiUpdatesManager.processUpdateMessage(updates)
-      }
+      },
     });
   }
 }

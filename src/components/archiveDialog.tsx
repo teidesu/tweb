@@ -1,25 +1,25 @@
 import lastItem from '@helpers/array/lastItem';
 import ListenerSetter from '@helpers/listenerSetter';
 import formatNumber from '@helpers/number/formatNumber';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {Dialog} from '@layer';
-import {StoriesSegments} from '@lib/appManagers/appStoriesManager';
-import {FOLDER_ID_ARCHIVE} from '@lib/appManagers/constants';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { Dialog } from '@layer';
+import { StoriesSegments } from '@lib/appManagers/appStoriesManager';
+import { FOLDER_ID_ARCHIVE } from '@lib/appManagers/constants';
 import getDialogIndex from '@lib/appManagers/utils/dialogs/getDialogIndex';
 import getDialogIndexKey from '@lib/appManagers/utils/dialogs/getDialogIndexKey';
-import {isDialog} from '@lib/appManagers/utils/dialogs/isDialog';
-import defineSolidElement, {PassedProps} from '@lib/solidjs/defineSolidElement';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {AckedResult} from '@lib/superMessagePort';
-import {useAppSettings} from '@stores/appSettings';
-import {Accessor, createComputed, createEffect, createMemo, createResource, createRoot, createSignal, For, onCleanup, Ref, Setter, Show} from 'solid-js';
-import {createStore, unwrap} from 'solid-js/store';
+import { isDialog } from '@lib/appManagers/utils/dialogs/isDialog';
+import defineSolidElement, { PassedProps } from '@lib/solidjs/defineSolidElement';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { AckedResult } from '@lib/superMessagePort';
+import { useAppSettings } from '@stores/appSettings';
+import { Accessor, createComputed, createEffect, createMemo, createResource, createRoot, createSignal, For, onCleanup, Ref, Setter, Show } from 'solid-js';
+import { createStore, unwrap } from 'solid-js/store';
 import styles from './archiveDialog.module.scss';
 import Badge from './badge';
-import {IconTsx} from './iconTsx';
+import { IconTsx } from './iconTsx';
 import ripple from './ripple';
-import {createStoriesStore, StoriesContextValue} from './stories/store';
-import {createStoriesViewerWithProvider} from './stories/viewer';
+import { createStoriesStore, StoriesContextValue } from './stories/store';
+import { createStoriesViewerWithProvider } from './stories/viewer';
 
 // if(import.meta.hot) import.meta.hot.accept(); // screw it
 
@@ -90,7 +90,7 @@ const ArchiveDialog = defineSolidElement({
         </div>
       </>
     );
-  }
+  },
 });
 
 type CreateArchiveDialogStateArgs = {
@@ -99,7 +99,7 @@ type CreateArchiveDialogStateArgs = {
 
 export type DisposableArchiveDialogState = ReturnType<typeof createArchiveDialogState>;
 
-export const createArchiveDialogState = ({onHasArchiveDialogChanged}: CreateArchiveDialogStateArgs) => createRoot((dispose) => {
+export const createArchiveDialogState = ({ onHasArchiveDialogChanged }: CreateArchiveDialogStateArgs) => createRoot((dispose) => {
   const state = useArchivedDialogsState();
 
   const [appSettings] = useAppSettings();
@@ -108,26 +108,26 @@ export const createArchiveDialogState = ({onHasArchiveDialogChanged}: CreateArch
   const hasArchiveDialog = createMemo(() => appSettings.showArchiveInChatList && hasDialogs());
 
   createEffect(() => {
-    if(!state.isReady()) return;
+    if (!state.isReady()) return;
     onHasArchiveDialogChanged(hasArchiveDialog());
   });
 
   return {
     state,
     hasArchiveDialog,
-    dispose
+    dispose,
   };
 });
 
 function useArchivedDialogsState() {
-  const {rootScope} = useHotReloadGuard();
+  const { rootScope } = useHotReloadGuard();
 
   let initialPromise: Promise<AckedResult<unknown>>;
 
   const fetchDialogs = async() => {
     const typedPromise = rootScope.managers.acknowledged.dialogsStorage.getDialogs({
       filterId: FOLDER_ID_ARCHIVE,
-      limit
+      limit,
     });
 
     initialPromise = typedPromise;
@@ -138,7 +138,7 @@ function useArchivedDialogsState() {
 
   const [canFetch, setCanFetch] = createSignal(false);
 
-  const [fetchedDialogs, {refetch}] = createResource(canFetch, () => fetchDialogs()); // used for initial loading state
+  const [fetchedDialogs, { refetch }] = createResource(canFetch, () => fetchDialogs()); // used for initial loading state
   const [dialogs, setDialogs] = createSignal<Dialog.dialog[]>([]);
 
   const isReady = createMemo(() => fetchedDialogs.state === 'ready');
@@ -148,7 +148,7 @@ function useArchivedDialogsState() {
   const sortedDialogs = createMemo(() => [...dialogs()].sort((a, b) => getArchivedDialogIndex(b)! - getArchivedDialogIndex(a)!));
 
   createComputed(() => {
-    if(fetchedDialogs.state === 'ready') {
+    if (fetchedDialogs.state === 'ready') {
       setDialogs(fetchedDialogs().dialogs!.filter(d => isDialog(d)));
     }
   });
@@ -156,11 +156,11 @@ function useArchivedDialogsState() {
   useDialogEvents({
     sortedDialogs,
     setDialogs,
-    isEnd
+    isEnd,
   });
 
   createEffect(() => {
-    if(
+    if (
       isReady() &&
       !isEnd() &&
       dialogs().length < fetchedDialogsLength() && // when some dialogs have been removed
@@ -171,14 +171,14 @@ function useArchivedDialogsState() {
   });
 
   function ensureHydrated() {
-    if(canFetch()) return;
+    if (canFetch()) return;
 
     setCanFetch(true);
 
     return initialPromise;
   }
 
-  const storiesContext = createStoriesStore({archive: true});
+  const storiesContext = createStoriesStore({ archive: true });
 
   return {
     totalUnreadCount: useTotalUnreadCount(),
@@ -186,7 +186,7 @@ function useArchivedDialogsState() {
     openArchiveStories: useOpenArchiveStories(storiesContext),
     ensureHydrated,
     isReady,
-    sortedDialogs
+    sortedDialogs,
   };
 }
 
@@ -199,13 +199,13 @@ type UseDialogEventsArgs = {
   isEnd: Accessor<boolean>;
 };
 
-function useDialogEvents({sortedDialogs, setDialogs, isEnd}: UseDialogEventsArgs) {
-  const {rootScope} = useHotReloadGuard();
+function useDialogEvents({ sortedDialogs, setDialogs, isEnd }: UseDialogEventsArgs) {
+  const { rootScope } = useHotReloadGuard();
 
   const listenerSetter = new ListenerSetter;
 
   const canKeepDialog = (dialog: Dialog.dialog) => {
-    if(!isArchivedDialog(dialog)) return false;
+    if (!isArchivedDialog(dialog)) return false;
 
     const last = lastItem(sortedDialogs());
     const isEmptyList = !last;
@@ -218,44 +218,44 @@ function useDialogEvents({sortedDialogs, setDialogs, isEnd}: UseDialogEventsArgs
 
   const addDialog = (dialog: Dialog.dialog) => setDialogs(prev => [
     ...prev.filter(d => d.peerId !== dialog.peerId),
-    dialog
+    dialog,
   ]);
 
   const removeDialog = (dialog: Dialog.dialog) => setDialogs(prev => prev.filter(d => d.peerId !== dialog.peerId));
 
   const updateDialog = (dialog: Dialog.dialog) => {
-    if(canKeepDialog(dialog)) {
+    if (canKeepDialog(dialog)) {
       addDialog(dialog);
     } else {
       removeDialog(dialog);
     }
   };
 
-  listenerSetter.add(rootScope)('dialog_flush', ({dialog}) => {
+  listenerSetter.add(rootScope)('dialog_flush', ({ dialog }) => {
     updateDialog(dialog);
   });
 
   listenerSetter.add(rootScope)('dialogs_multiupdate', (dialogs) => {
-    for(const [, {dialog}] of dialogs) {
-      if(!isDialog(dialog!)) continue;
+    for (const [, { dialog }] of dialogs) {
+      if (!isDialog(dialog!)) continue;
       updateDialog(dialog);
     }
   });
 
   listenerSetter.add(rootScope)('dialog_drop', (dialog) => {
-    if(!isDialog(dialog)) return;
+    if (!isDialog(dialog)) return;
     removeDialog(dialog);
   });
 
-  listenerSetter.add(rootScope)('dialog_unread', ({dialog}) => {
-    if(!isDialog(dialog)) return;
+  listenerSetter.add(rootScope)('dialog_unread', ({ dialog }) => {
+    if (!isDialog(dialog)) return;
     updateDialog(dialog);
   });
 
-  listenerSetter.add(rootScope)('dialog_draft', ({dialog, drop}) => {
-    if(!isDialog(dialog)) return;
+  listenerSetter.add(rootScope)('dialog_draft', ({ dialog, drop }) => {
+    if (!isDialog(dialog)) return;
 
-    if(drop) {
+    if (drop) {
       removeDialog(dialog);
     } else {
       updateDialog(dialog);
@@ -268,19 +268,19 @@ function useDialogEvents({sortedDialogs, setDialogs, isEnd}: UseDialogEventsArgs
 }
 
 function useTotalUnreadCount() {
-  const {rootScope} = useHotReloadGuard();
+  const { rootScope } = useHotReloadGuard();
 
-  const [totalUnreadCount, {mutate}] = createResource(
+  const [totalUnreadCount, { mutate }] = createResource(
     () => rootScope.managers.dialogsStorage.getFolderUnreadCount(FOLDER_ID_ARCHIVE).then(result => result.unreadCount),
     {
-      initialValue: 0
+      initialValue: 0,
     }
   );
 
   const listenerSetter = new ListenerSetter;
 
   listenerSetter.add(rootScope)('folder_unread', (folder) => {
-    if(folder.id === FOLDER_ID_ARCHIVE) {
+    if (folder.id === FOLDER_ID_ARCHIVE) {
       const count = folder.unreadPeerIds.size;
       mutate(count);
     }
@@ -294,7 +294,7 @@ function useTotalUnreadCount() {
 }
 
 function useStoriesSegments(storiesContextValue: StoriesContextValue) {
-  const {rootScope} = useHotReloadGuard();
+  const { rootScope } = useHotReloadGuard();
 
   const [stories] = storiesContextValue;
   const storiesPeerIds = createMemo(() => stories.peers?.map(peer => peer.peerId));
@@ -303,7 +303,7 @@ function useStoriesSegments(storiesContextValue: StoriesContextValue) {
 
   const fetchStoriesSegmentsByPeerIds = (peerIds: PeerId[]) => rootScope.managers.appStoriesManager.getPeersStoriesSegments(peerIds);
 
-  const [storiesSegmentsByPeerIds, {refetch}] = createResource(
+  const [storiesSegmentsByPeerIds, { refetch }] = createResource(
     storiesPeerIds,
     fetchStoriesSegmentsByPeerIds
   );
@@ -316,8 +316,8 @@ function useStoriesSegments(storiesContextValue: StoriesContextValue) {
   listenerSetter.add(rootScope)('story_new', refetchStoriesSegments);
   listenerSetter.add(rootScope)('story_update', refetchStoriesSegments);
 
-  function refetchStoriesSegments({peerId}: { peerId: PeerId }) {
-    if(!storiesPeerIds()?.includes(peerId)) return;
+  function refetchStoriesSegments({ peerId }: { peerId: PeerId }) {
+    if (!storiesPeerIds()?.includes(peerId)) return;
     refetch();
   }
 
@@ -326,15 +326,15 @@ function useStoriesSegments(storiesContextValue: StoriesContextValue) {
   });
 
   createComputed(() => {
-    if(storiesSegmentsByPeerIds.state !== 'ready') return;
+    if (storiesSegmentsByPeerIds.state !== 'ready') return;
 
-    if(!storiesSegmentsByPeerIds()?.length) {
+    if (!storiesSegmentsByPeerIds()?.length) {
       setStoriesSegments(undefined);
       return;
     }
 
     // Show only one segment per peer
-    const newStoriesSegments = storiesSegmentsByPeerIds().map(({segments}) => {
+    const newStoriesSegments = storiesSegmentsByPeerIds().map(({ segments }) => {
       const segment =
         segments!.find(segment => segment.type === 'close') ||
         segments!.find(segment => segment.type === 'unread') ||
@@ -342,7 +342,7 @@ function useStoriesSegments(storiesContextValue: StoriesContextValue) {
 
       return {
         ...segment,
-        length: 1
+        length: 1,
       };
     }).filter(Boolean);
 
@@ -361,7 +361,7 @@ function useOpenArchiveStories(storiesContextValue: StoriesContextValue) {
   const cloneCurrentPeers = () => structuredClone(unwrap(stories.peers));
 
   createEffect(() => {
-    if(!viewerTarget()) return;
+    if (!viewerTarget()) return;
 
     const onExit = () => {
       setViewerTarget(undefined);
@@ -369,15 +369,15 @@ function useOpenArchiveStories(storiesContextValue: StoriesContextValue) {
 
     createStoriesViewerWithProvider({
       onExit,
-      target: (viewerTarget as Accessor<Element> | undefined)
+      target: (viewerTarget as Accessor<Element> | undefined),
     }, {
       peers: cloneCurrentPeers(),
-      archive: true
+      archive: true,
     });
   });
 
   return (target: HTMLElement) => {
-    if(!canOpenStories()) return;
+    if (!canOpenStories()) return;
     setViewerTarget(target);
   };
 }
@@ -387,14 +387,14 @@ function PeerTitleItem(props: {
   cachedIsUnread: boolean;
   onIsUnreadChange: (isUnread: boolean) => void;
 }) {
-  const {PeerTitleTsx, rootScope} = useHotReloadGuard();
+  const { PeerTitleTsx, rootScope } = useHotReloadGuard();
 
   const [isUnread] = createResource(() => props.dialog, (dialog) => rootScope.managers.appMessagesManager.isDialogUnread(dialog));
 
   createEffect(() => {
-    if(isUnread.state !== 'ready') return;
+    if (isUnread.state !== 'ready') return;
 
-    if(isUnread() !== props.cachedIsUnread) {
+    if (isUnread() !== props.cachedIsUnread) {
       props.onIsUnreadChange(isUnread());
     }
   });
@@ -407,13 +407,13 @@ function ArchiveAvatar(props: {
   storiesSegments: StoriesSegments;
   ref: Ref<HTMLDivElement>;
 }) {
-  const {StoriesSegments} = useHotReloadGuard();
+  const { StoriesSegments } = useHotReloadGuard();
 
   const hasStories = createMemo(() => props.storiesSegments?.length > 0);
 
-  const {setStoriesSegments, storyDimensions, storiesCircle} = StoriesSegments({
+  const { setStoriesSegments, storyDimensions, storiesCircle } = StoriesSegments({
     size: 48,
-    colors: {}
+    colors: {},
   });
 
   createComputed(() => {
@@ -425,10 +425,10 @@ function ArchiveAvatar(props: {
       class={`${styles.Media} row-media row-media-bigger dialog-avatar`}
       classList={{
         'archive-dialog-with-stories': hasStories(),
-        [styles.hasStories]: hasStories()
+        [styles.hasStories]: hasStories(),
       }}
       style={{
-        'padding': storyDimensions() ? (storyDimensions().size - storyDimensions().willBeSize) / 2 + 'px' : undefined
+        'padding': storyDimensions() ? (storyDimensions().size - storyDimensions().willBeSize) / 2 + 'px' : undefined,
       }}
       ref={props.ref}
     >

@@ -4,10 +4,10 @@
  * the same hash must NOT change any ancestor's hash.
  */
 
-import {describe, it, expect} from 'vitest';
-import {bytesToHex} from '../crypto';
-import {BitString} from '../bitString';
-import {get, getByKeyBytes, TrieNode, TrieNodeType} from '../trie';
+import { describe, it, expect } from 'vitest';
+import { bytesToHex } from '../crypto';
+import { BitString } from '../bitString';
+import { get, getByKeyBytes, TrieNode, TrieNodeType } from '../trie';
 
 const enc = (s: string) => new TextEncoder().encode(s);
 

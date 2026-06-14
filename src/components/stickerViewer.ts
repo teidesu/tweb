@@ -1,34 +1,34 @@
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {simulateClickEvent, attachClickEvent} from '@helpers/dom/clickEvent';
+import { simulateClickEvent, attachClickEvent } from '@helpers/dom/clickEvent';
 import findUpAsChild from '@helpers/dom/findUpAsChild';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import getVisibleRect from '@helpers/dom/getVisibleRect';
 import isInDOM from '@helpers/dom/isInDOM';
 import safePlay from '@helpers/dom/safePlay';
 import ListenerSetter from '@helpers/listenerSetter';
-import {makeMediaSize} from '@helpers/mediaSize';
-import {getMiddleware, Middleware} from '@helpers/middleware';
-import {doubleRaf} from '@helpers/schedulers';
+import { makeMediaSize } from '@helpers/mediaSize';
+import { getMiddleware, Middleware } from '@helpers/middleware';
+import { doubleRaf } from '@helpers/schedulers';
 import pause from '@helpers/schedulers/pause';
 import windowSize from '@helpers/windowSize';
-import {DocumentAttribute} from '@layer';
-import {MyDocument} from '@appManagers/appDocsManager';
+import { DocumentAttribute } from '@layer';
+import { MyDocument } from '@appManagers/appDocsManager';
 import getStickerEffectThumb from '@appManagers/utils/stickers/getStickerEffectThumb';
 import CustomEmojiElement from '@lib/customEmoji/element';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
 import lottieLoader from '@lib/rlottie/lottieLoader';
 import RLottiePlayer from '@lib/rlottie/rlottiePlayer';
 import rootScope from '@lib/rootScope';
-import animationIntersector, {AnimationItemGroup} from '@components/animationIntersector';
-import {EMOJI_TEXT_COLOR} from '@components/emoticonsDropdown';
+import animationIntersector, { AnimationItemGroup } from '@components/animationIntersector';
+import { EMOJI_TEXT_COLOR } from '@components/emoticonsDropdown';
 import SetTransition from '@components/singleTransition';
 import wrapSticker from '@components/wrappers/sticker';
-import {STICKER_EFFECT_MULTIPLIER} from '@components/wrappers/sticker';
+import { STICKER_EFFECT_MULTIPLIER } from '@components/wrappers/sticker';
 import wrapVideo from '@components/wrappers/video';
 
 let hasViewer = false;
-export default function attachStickerViewerListeners({listenTo, listenerSetter, selector, findTarget: originalFindTarget, getTextColor, additionalClass}: {
+export default function attachStickerViewerListeners({ listenTo, listenerSetter, selector, findTarget: originalFindTarget, getTextColor, additionalClass }: {
   additionalClass?: string,
   listenerSetter: ListenerSetter,
   listenTo: HTMLElement,
@@ -36,13 +36,13 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
   findTarget?: (e: MouseEvent) => HTMLElement,
   getTextColor?: () => string
 }) {
-  if(IS_TOUCH_SUPPORTED) {
+  if (IS_TOUCH_SUPPORTED) {
     return;
   }
 
   const findTarget = (e: MouseEvent, checkForParent?: boolean) => {
     let el: HTMLElement;
-    if(originalFindTarget) el = originalFindTarget(e);
+    if (originalFindTarget) el = originalFindTarget(e);
     else {
       const s = selector || '.media-sticker-wrapper, .media-gif-wrapper';
       el = (e.target as HTMLElement).closest(s) as HTMLElement;
@@ -54,16 +54,16 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
   const managers = rootScope.managers;
 
   listenerSetter.add(listenTo)('mousedown', (e) => {
-    if(hasViewer || e.buttons > 1 || e.button !== 0) return;
+    if (hasViewer || e.buttons > 1 || e.button !== 0) return;
     let mediaContainer = findTarget(e);
-    if(!mediaContainer) {
+    if (!mediaContainer) {
       return;
     }
 
     // const img: HTMLImageElement = mediaContainer.querySelector('img.media-sticker');
 
     const docId = mediaContainer.dataset.docId;
-    if(!docId) {
+    if (!docId) {
       return;
     }
 
@@ -77,7 +77,7 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
       previousTransformer: HTMLElement,
       isMouseUp = false;
 
-    const doThatSticker = async({mediaContainer, doc, middleware, lockGroups, isSwitching}: {
+    const doThatSticker = async({ mediaContainer, doc, middleware, lockGroups, isSwitching }: {
       mediaContainer: HTMLElement,
       doc: MyDocument,
       middleware: Middleware,
@@ -109,7 +109,7 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
       stickerEmoji.classList.add(className + '-emoji');
       stickerEmoji.append(wrapEmojiText(doc.stickerEmojiRaw!));
 
-      if(effectThumb) {
+      if (effectThumb) {
         const margin = (size * STICKER_EFFECT_MULTIPLIER - size) / 3 * (isOut ? 1 : -1);
         transformer.classList.add('has-effect');
         // const property = `--margin-${isOut ? 'right' : 'left'}`;
@@ -120,7 +120,7 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
 
       const overflowElement = findUpClassName(mediaContainer, 'scrollable');
       const visibleRect = getVisibleRect(mediaContainer, overflowElement, true, mediaRect);
-      if(visibleRect!.overflow.vertical || visibleRect!.overflow.horizontal) {
+      if (visibleRect!.overflow.vertical || visibleRect!.overflow.horizontal) {
         stickerContainer.classList.add('is-overflow');
       }
 
@@ -138,7 +138,7 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
       const transformX = rect.left - (windowSize.width - rect.width) / 2;
       const transformY = rect.top - (windowSize.height - rect.height) / 2;
       transformer.style.transform = `translate(${transformX}px, ${transformY}px) scale(${scaleX}, ${scaleY})`;
-      if(isSwitching) transformer.classList.add('is-switching', 'forwards');
+      if (isSwitching) transformer.classList.add('is-switching', 'forwards');
       transformer.append(stickerContainer, stickerEmoji);
       container.append(transformer);
 
@@ -152,7 +152,7 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
         boxHeight: fitted.height,
         canAutoplay: true,
         middleware,
-        noInfo: true
+        noInfo: true,
         // noPreview: true
       }).then(async(res) => (await res.loadPromise, res.video)) : await wrapSticker({
         doc,
@@ -169,39 +169,39 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
         withThumb: false,
         relativeEffect: true,
         loopEffect: true,
-        textColor: attribute && attribute.pFlags.text_color ? getTextColor?.() || EMOJI_TEXT_COLOR : undefined
-      }).then(({render}) => render);
-      if(!middleware()) return;
+        textColor: attribute && attribute.pFlags.text_color ? getTextColor?.() || EMOJI_TEXT_COLOR : undefined,
+      }).then(({ render }) => render);
+      if (!middleware()) return;
 
-      if(!container.parentElement) {
+      if (!container.parentElement) {
         document.body.append(container);
       }
 
       const player = Array.isArray(o) ? o[0] : o;
 
       const firstFramePromise = player instanceof RLottiePlayer ?
-        new Promise<void>((resolve) => player.addEventListener('firstFrame', resolve, {once: true})) :
+        new Promise<void>((resolve) => player.addEventListener('firstFrame', resolve, { once: true })) :
         Promise.resolve();
       await Promise.all([firstFramePromise, doubleRaf()]);
       await pause(0); // ! need it because firstFrame will be called just from the loop
-      if(!middleware()) return;
+      if (!middleware()) return;
 
-      if(lockGroups) {
+      if (lockGroups) {
         animationIntersector.setOnlyOnePlayableGroup(group);
         animationIntersector.checkAnimations2(true);
       }
 
-      if(player instanceof RLottiePlayer) {
+      if (player instanceof RLottiePlayer) {
         const prevPlayer = mediaContainer instanceof CustomEmojiElement ?
           mediaContainer.player as RLottiePlayer :
           lottieLoader.getAnimation(mediaContainer);
-        if(prevPlayer) {
+        if (prevPlayer) {
           player.curFrame = prevPlayer.curFrame;
           player.play();
           await new Promise<void>((resolve) => {
             let i = 0;
             const c = () => {
-              if(++i === 2) {
+              if (++i === 2) {
                 resolve();
                 player.removeEventListener('enterFrame', c);
               }
@@ -209,27 +209,27 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
 
             player.addEventListener('enterFrame', c);
           });
-          if(!middleware()) return;
+          if (!middleware()) return;
           player.pause();
         }
-      } else if(player instanceof HTMLVideoElement) {
+      } else if (player instanceof HTMLVideoElement) {
         const prevPlayer = mediaContainer.querySelector<HTMLVideoElement>('video');
-        if(prevPlayer) {
+        if (prevPlayer) {
           player.currentTime = prevPlayer.currentTime;
         }
       }
 
       return {
         ready: () => {
-          if(player instanceof RLottiePlayer || player instanceof HTMLVideoElement) {
+          if (player instanceof RLottiePlayer || player instanceof HTMLVideoElement) {
             safePlay(player);
           }
 
-          if(effectThumb) {
+          if (effectThumb) {
             simulateClickEvent(stickerContainer);
           }
         },
-        transformer
+        transformer,
       };
     };
 
@@ -242,7 +242,7 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
 
       const middleware = _middleware.get();
       const doc = await managers.appDocsManager.getDoc(docId);
-      if(!middleware()) return;
+      if (!middleware()) return;
 
       let result: Awaited<ReturnType<typeof doThatSticker>>;
       try {
@@ -250,19 +250,19 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
           doc,
           mediaContainer: mediaContainer!,
           middleware,
-          lockGroups: true
+          lockGroups: true,
         });
-        if(!result) return;
-      } catch(err) {
+        if (!result) return;
+      } catch (err) {
         return;
       }
 
       // * can't use middleware here
-      if(isMouseUp) {
+      if (isMouseUp) {
         return;
       }
 
-      const {ready, transformer} = result;
+      const { ready, transformer } = result;
 
       previousTransformer = transformer;
 
@@ -272,9 +272,9 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
         forwards: true,
         duration: openDuration,
         onTransitionEnd: () => {
-          if(!middleware()) return;
+          if (!middleware()) return;
           ready();
-        }
+        },
       });
 
       document.addEventListener('mousemove', onMouseMove);
@@ -282,12 +282,12 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
 
     const onMouseMove = async(e: MouseEvent) => {
       const newMediaContainer = findTarget(e, true);
-      if(!newMediaContainer || mediaContainer === newMediaContainer) {
+      if (!newMediaContainer || mediaContainer === newMediaContainer) {
         return;
       }
 
       const docId = newMediaContainer.dataset.docId;
-      if(!docId) {
+      if (!docId) {
         return;
       }
 
@@ -296,7 +296,7 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
       const middleware = _middleware.get();
 
       const doc = await managers.appDocsManager.getDoc(docId);
-      if(!middleware()) return;
+      if (!middleware()) return;
 
       let r: Awaited<ReturnType<typeof doThatSticker>>;
       try {
@@ -304,15 +304,15 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
           doc,
           mediaContainer,
           middleware,
-          isSwitching: true
+          isSwitching: true,
         });
-        if(!r) return;
-      } catch(err) {
+        if (!r) return;
+      } catch (err) {
         console.error('sticker viewer error', err);
         return;
       }
 
-      const {ready, transformer} = r;
+      const { ready, transformer } = r;
 
       const _previousTransformer = previousTransformer;
       SetTransition({
@@ -323,7 +323,7 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
         onTransitionEnd: () => {
           _previousTransformer.remove();
           _previousTransformer.middlewareHelper!.destroy();
-        }
+        },
       });
 
       previousTransformer = transformer;
@@ -334,14 +334,14 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
         forwards: false,
         duration: switchDuration,
         onTransitionEnd: () => {
-          if(!middleware()) return;
+          if (!middleware()) return;
           ready();
-        }
+        },
       });
     };
 
     const onMousePreMove = (e: MouseEvent) => {
-      if(!findUpAsChild(((e.target as HTMLElement) as { parentElement: HTMLElement; }), mediaContainer!)) {
+      if (!findUpAsChild(((e.target as HTMLElement) as { parentElement: HTMLElement; }), mediaContainer!)) {
         onMouseUp();
       }
     };
@@ -352,7 +352,7 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
       clearInterval(unmountInterval);
       // _middleware.clean();
 
-      if(container) {
+      if (container) {
         SetTransition({
           element: container,
           className: 'is-visible',
@@ -364,21 +364,21 @@ export default function attachStickerViewerListeners({listenTo, listenerSetter, 
             animationIntersector.checkAnimations2(false);
             _middleware.destroy();
             hasViewer = false;
-          }
+          },
         });
 
-        attachClickEvent(document.body, cancelEvent, {capture: true, once: true});
+        attachClickEvent(document.body, cancelEvent, { capture: true, once: true });
       }
 
       document.removeEventListener('mousemove', onMousePreMove);
       document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp, {capture: true});
+      document.removeEventListener('mouseup', onMouseUp, { capture: true });
     };
 
     document.addEventListener('mousemove', onMousePreMove);
-    document.addEventListener('mouseup', onMouseUp, {once: true, capture: true});
+    document.addEventListener('mouseup', onMouseUp, { once: true, capture: true });
     const unmountInterval = setInterval(() => {
-      if(!isInDOM(mediaContainer!)) {
+      if (!isInDOM(mediaContainer!)) {
         onMouseUp();
       }
     }, 100);

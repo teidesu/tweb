@@ -1,4 +1,4 @@
-import {MessageEntity} from '@layer';
+import { MessageEntity } from '@layer';
 import fixEmoji from '@lib/richTextProcessor/fixEmoji';
 import mergeEntities from '@lib/richTextProcessor/mergeEntities';
 import parseEntities from '@lib/richTextProcessor/parseEntities';
@@ -12,6 +12,6 @@ export default function wrapMessageEntities(message: string, entities: MessageEn
     message,
     entities,
     myEntities,
-    totalEntities
+    totalEntities,
   };
 }

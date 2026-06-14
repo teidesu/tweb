@@ -1,10 +1,10 @@
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
 import deepEqual from '@helpers/object/deepEqual';
-import {renderImageFromUrlPromise} from '@helpers/dom/renderImageFromUrl';
-import mediaSizes, {ScreenSize} from '@helpers/mediaSizes';
+import { renderImageFromUrlPromise } from '@helpers/dom/renderImageFromUrl';
+import mediaSizes, { ScreenSize } from '@helpers/mediaSizes';
 import windowSize from '@helpers/windowSize';
 import IS_IMAGE_BITMAP_SUPPORTED from '@environment/imageBitmapSupport';
-import {IS_FIREFOX} from '@environment/userAgent';
+import { IS_FIREFOX } from '@environment/userAgent';
 
 const SCALE_PATTERN = false;
 const USE_BITMAP = IS_IMAGE_BITMAP_SUPPORTED && IS_FIREFOX;
@@ -39,7 +39,7 @@ export default class ChatBackgroundPatternRenderer {
       return instance.options.element === options.element && deepEqual(instance.options, options, ['element']);
     });
 
-    if(!instance) {
+    if (!instance) {
       instance = new ChatBackgroundPatternRenderer();
       instance.init(options);
       this.INSTANCES.push(instance);
@@ -72,17 +72,17 @@ export default class ChatBackgroundPatternRenderer {
   }
 
   private renderImageFromUrl(url: string) {
-    if(this.renderImageFromUrlPromise) return this.renderImageFromUrlPromise;
+    if (this.renderImageFromUrlPromise) return this.renderImageFromUrlPromise;
     const img = this.image = document.createElement('img');
     img.crossOrigin = 'anonymous';
     return this.renderImageFromUrlPromise = renderImageFromUrlPromise(img, url, false).then(() => {
-      if(!IS_IMAGE_BITMAP_SUPPORTED || !USE_BITMAP) {
+      if (!IS_IMAGE_BITMAP_SUPPORTED || !USE_BITMAP) {
         return img;
       }
 
       return createImageBitmap(img, {
         resizeWidth: 1440,
-        resizeHeight: 2960
+        resizeHeight: 2960,
       }).then((imageBitmap) => {
         this.imageBitmap = imageBitmap;
         return img;
@@ -125,7 +125,7 @@ export default class ChatBackgroundPatternRenderer {
   public cleanup(canvas: HTMLCanvasElement) {
     this.canvases.delete(canvas);
 
-    if(!this.canvases.size) {
+    if (!this.canvases.size) {
       indexOfAndSplice(ChatBackgroundPatternRenderer.INSTANCES, this);
 
       this.imageBitmap?.close();
@@ -137,7 +137,7 @@ export default class ChatBackgroundPatternRenderer {
 
   public fillCanvas(canvas: HTMLCanvasElement) {
     const context = canvas.getContext('2d');
-    const {width, height} = canvas;
+    const { width, height } = canvas;
     // const perf = performance.now();
     // if(context.fillStyle instanceof CanvasPattern) {
     //   context.clearRect(0, 0, width, height);
@@ -153,7 +153,7 @@ export default class ChatBackgroundPatternRenderer {
     imageWidth *= ratio;
     imageHeight = patternHeight;
 
-    if(this.options.mask) {
+    if (this.options.mask) {
       context!.fillStyle = '#000';
       context!.fillRect(0, 0, width, height);
       context!.globalCompositeOperation = 'destination-out';
@@ -162,7 +162,7 @@ export default class ChatBackgroundPatternRenderer {
     }
 
     const d = (y: number) => {
-      for(let x = 0; x < width; x += imageWidth) {
+      for (let x = 0; x < width; x += imageWidth) {
         context!.drawImage(source, x, y, imageWidth, imageHeight);
       }
     };
@@ -170,15 +170,15 @@ export default class ChatBackgroundPatternRenderer {
     const centerY = (height - imageHeight) / 2;
     d(centerY);
 
-    if(centerY > 0) {
+    if (centerY > 0) {
       let topY = centerY;
       do {
         d(topY -= imageHeight);
-      } while(topY >= 0);
+      } while (topY >= 0);
     }
 
     const endY = height - 1;
-    for(let bottomY = centerY + imageHeight; bottomY < endY; bottomY += imageHeight) {
+    for (let bottomY = centerY + imageHeight; bottomY < endY; bottomY += imageHeight) {
       d(bottomY);
     }
 
@@ -199,7 +199,7 @@ export default class ChatBackgroundPatternRenderer {
 
     canvas.dpr = devicePixelRatio;
     canvas.dataset.originalHeight = '' + height;
-    if(mediaSizes.activeScreen === ScreenSize.large && SCALE_PATTERN) height *= 1.5;
+    if (mediaSizes.activeScreen === ScreenSize.large && SCALE_PATTERN) height *= 1.5;
     canvas.width = width;
     canvas.height = height;
   }
@@ -215,11 +215,11 @@ export default class ChatBackgroundPatternRenderer {
     this.init({
       ...this.options,
       width,
-      height
+      height,
     });
 
     const promises: Promise<any>[] = [];
-    for(const canvas of this.canvases) {
+    for (const canvas of this.canvases) {
       this.setCanvasDimensions(canvas);
       promises.push(this.renderToCanvas(canvas));
     }

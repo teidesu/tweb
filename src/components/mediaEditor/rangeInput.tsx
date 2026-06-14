@@ -1,7 +1,7 @@
-import {createMemo, JSX} from 'solid-js';
+import { createMemo, JSX } from 'solid-js';
 
 import clamp from '@helpers/number/clamp';
-import {hexaToHsla} from '@helpers/color';
+import { hexaToHsla } from '@helpers/color';
 import nMap from '@helpers/number/nMap';
 
 export default function RangeInput(props: {
@@ -30,7 +30,7 @@ export default function RangeInput(props: {
       classList={{
         'media-editor__range-input--passive': props.passiveLabel,
         'media-editor__range-input--has-value': !props.passiveLabel && !!props.value,
-        'media-editor__range-input--bright-shadow': (brightShadow()! as boolean | undefined)
+        'media-editor__range-input--bright-shadow': (brightShadow()! as boolean | undefined),
       }}
       style={{
         '--color': props.color,
@@ -38,7 +38,7 @@ export default function RangeInput(props: {
         '--w': (Math.abs(props.value - Math.max(0, props.min)) / (props.max - props.min)) * 100 + '%',
         '--bar-left': props.value >= 0 ? Math.max(0, mappedCenter()) + '%' : undefined,
         '--bar-right': props.value < 0 ? mappedCenter() + '%' : undefined,
-        ...props.style
+        ...props.style,
       }}
     >
       <div class="media-editor__range-input-row">
@@ -53,7 +53,7 @@ export default function RangeInput(props: {
           step="1"
           value={props.value}
           onInput={(e) => {
-            if(prevValue === null) prevValue = props.value;
+            if (prevValue === null) prevValue = props.value;
             const newValue = clamp(e.currentTarget.valueAsNumber, props.min, props.max);
             props.onChange(newValue);
           }}

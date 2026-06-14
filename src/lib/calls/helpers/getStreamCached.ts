@@ -16,7 +16,7 @@ export default function getStreamCached() {
     }>
   } = {
     main: {},
-    screen: {}
+    screen: {},
   };
 
   return async(options: {
@@ -27,14 +27,14 @@ export default function getStreamCached() {
     constraints: MediaStreamConstraints,
     muted: boolean
   }) => {
-    const {isScreen, constraints} = options;
+    const { isScreen, constraints } = options;
     const cache = _cache[isScreen ? 'screen' : 'main'];
     let promise: Promise<MediaStream> = cache[constraints.audio ? 'audio' : 'video']!;
 
-    if(!promise) {
+    if (!promise) {
       promise = (isScreen ? getScreenStream : getStream)(constraints, (options as any).muted);
-      if(constraints.audio && !cache.audio) cache.audio = promise.finally(() => cache.audio = undefined);
-      if(constraints.video && !cache.video) cache.video = promise.finally(() => cache.video = undefined);
+      if (constraints.audio && !cache.audio) cache.audio = promise.finally(() => cache.audio = undefined);
+      if (constraints.video && !cache.video) cache.video = promise.finally(() => cache.video = undefined);
     }
 
     try {
@@ -50,7 +50,7 @@ export default function getStreamCached() {
       ].filter(Boolean));
 
       return out; */
-    } catch(err) {
+    } catch (err) {
       throw err;
     }
   };

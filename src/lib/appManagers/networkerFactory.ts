@@ -8,10 +8,10 @@
 import MTPNetworker from '@lib/mtproto/networker';
 import App from '@config/app';
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
-import {AppManager} from '@appManagers/manager';
+import { AppManager } from '@appManagers/manager';
 import AccountController from '@lib/accounts/accountController';
 import bytesToHex from '@helpers/bytes/bytesToHex';
-import {getEnvironment} from '@environment/utils';
+import { getEnvironment } from '@environment/utils';
 
 export class NetworkerFactory extends AppManager {
   private networkers: MTPNetworker[] = [];
@@ -47,7 +47,7 @@ export class NetworkerFactory extends AppManager {
         version: 'web ' + App.version,
         systemLangCode: navigator.language || 'en',
         langPack: App.langPack,
-        langCode: this.language
+        langCode: this.language,
       }),
       getBaseDcId: () => this.apiManager.getBaseDcId(),
       createLogger: this.createLogger.bind(this),
@@ -58,22 +58,22 @@ export class NetworkerFactory extends AppManager {
       },
       onServerSalt: (serverSalt) => {
         AccountController.update(this.getAccountNumber(), {
-          [`dc${options.dcId}_server_salt`]: bytesToHex(serverSalt)
+          [`dc${options.dcId}_server_salt`]: bytesToHex(serverSalt),
         });
-      }
+      },
     });
     this.networkers.push(networker);
     return networker;
   }
 
   public startAll() {
-    if(this.akStopped) {
+    if (this.akStopped) {
       const stoppedNetworkers = this.networkers.filter((networker) => networker.isStopped());
 
       this.akStopped = false;
-      this.updatesProcessor && this.updatesProcessor({_: 'new_session_created'});
+      this.updatesProcessor && this.updatesProcessor({ _: 'new_session_created' });
 
-      for(const networker of stoppedNetworkers) {
+      for (const networker of stoppedNetworkers) {
         networker.sendPingDelayDisconnect();
         networker.scheduleRequest();
       }
@@ -85,33 +85,33 @@ export class NetworkerFactory extends AppManager {
   }
 
   public setLanguage(langCode: string) {
-    if(this.language === langCode) {
+    if (this.language === langCode) {
       return;
     }
 
     this.language = langCode;
-    for(const networker of this.networkers) {
-      if(!networker.isFileNetworker) {
+    for (const networker of this.networkers) {
+      if (!networker.isFileNetworker) {
         networker.connectionInited = false;
       }
     }
   }
 
   public unsetConnectionInited() {
-    for(const networker of this.networkers) {
+    for (const networker of this.networkers) {
       networker.connectionInited = false;
     }
   }
 
   public forceReconnectTimeout() {
-    for(const networker of this.networkers) {
+    for (const networker of this.networkers) {
       networker.forceReconnectTimeout();
     }
   }
 
   public forceReconnect() {
-    for(const networker of this.networkers) {
-      if(!networker.isFileNetworker) {
+    for (const networker of this.networkers) {
+      if (!networker.isFileNetworker) {
         networker.forceReconnect();
         break;
       }

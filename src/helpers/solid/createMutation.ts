@@ -1,5 +1,5 @@
 import noop from '@helpers/noop';
-import {createMemo, createSignal} from 'solid-js';
+import { createMemo, createSignal } from 'solid-js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -79,7 +79,7 @@ export function createMutation<TData, TError = Error, TVariables = void>(
       await options.onSettled?.(result, undefined, variables);
 
       return result;
-    } catch(err) {
+    } catch (err) {
       const typedError = err as TError;
 
       setError(() => typedError);
@@ -107,6 +107,6 @@ export function createMutation<TData, TError = Error, TVariables = void>(
     isPending,
     isSuccess,
     isError,
-    isIdle
+    isIdle,
   };
 }

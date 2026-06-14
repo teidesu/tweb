@@ -1,5 +1,5 @@
-import {GroupCallParticipantVideoSourceGroup} from '@layer';
-import {toTelegramSource} from '@lib/calls/utils';
+import { GroupCallParticipantVideoSourceGroup } from '@layer';
+import { toTelegramSource } from '@lib/calls/utils';
 
 export function parseSourceGroups(sdpLines: string[]) {
   const telegramSourceGroups = sdpLines.map((str) => {
@@ -9,7 +9,7 @@ export function parseSourceGroups(sdpLines: string[]) {
       _: 'groupCallParticipantVideoSourceGroup',
       semantics,
       // sources: rest.map((ssrc) => +ssrc)
-      sources: rest.map((ssrc) => toTelegramSource(+ssrc))
+      sources: rest.map((ssrc) => toTelegramSource(+ssrc)),
     };
 
     return sourceGroup;

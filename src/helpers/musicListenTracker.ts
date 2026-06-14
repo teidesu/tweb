@@ -1,5 +1,5 @@
-import {InputDocument} from '@layer';
-import type {MyDocument} from '@appManagers/appDocsManager';
+import { InputDocument } from '@layer';
+import type { MyDocument } from '@appManagers/appDocsManager';
 import getDocumentInput from '@appManagers/utils/docs/getDocumentInput';
 import ListenerSetter from './listenerSetter';
 
@@ -45,14 +45,14 @@ export default class MusicListenTracker {
 
   public onPlay(details: PlayDetails) {
     // Only music is tracked — switching away from music to a voice/round/video finalizes any session.
-    if(details?.doc?.type !== 'audio') {
+    if (details?.doc?.type !== 'audio') {
       this.finish();
       return;
     }
 
     const inputDoc = getDocumentInput(details.doc) as InputDocument.inputDocument;
     const session = this.session;
-    if(session && session.inputDoc.id === inputDoc.id && session.media === details.media) {
+    if (session && session.inputDoc.id === inputDoc.id && session.media === details.media) {
       // Same track still playing (e.g. resume) — the media-level listeners handle it.
       return;
     }
@@ -69,7 +69,7 @@ export default class MusicListenTracker {
     this.clearPauseTimeout();
 
     const session = this.session;
-    if(!session) {
+    if (!session) {
       return;
     }
 
@@ -81,12 +81,12 @@ export default class MusicListenTracker {
     this.closeRange(session, session.lastPosition);
 
     let total = 0;
-    for(const range of session.ranges) {
+    for (const range of session.ranges) {
       total += range.to - range.from;
     }
 
     const listenedDuration = Math.floor(total);
-    if(listenedDuration < MUSIC_LISTEN_MIN_DURATION) {
+    if (listenedDuration < MUSIC_LISTEN_MIN_DURATION) {
       return;
     }
 
@@ -101,12 +101,12 @@ export default class MusicListenTracker {
       listeners,
       ranges: [],
       rangeStart: -1,
-      lastPosition: media.currentTime
+      lastPosition: media.currentTime,
     };
 
     // The media is already playing when the controller's `play` event reaches us, so open the
     // first interval right away; later play/pause/seek transitions adjust it.
-    if(!media.paused) {
+    if (!media.paused) {
       this.openRange(media.currentTime);
     }
 
@@ -134,7 +134,7 @@ export default class MusicListenTracker {
       // Close the interval at the pre-seek position, then reopen at the new one if still playing.
       this.closeRange(session, session.lastPosition);
       this.clearPauseTimeout();
-      if(!media.paused) {
+      if (!media.paused) {
         this.openRange(media.currentTime);
       }
       session.lastPosition = media.currentTime;
@@ -144,31 +144,31 @@ export default class MusicListenTracker {
   // Opens a covered interval at the given position (no-op if one is already open).
   private openRange(position: number) {
     const session = this.session;
-    if(session && session.rangeStart < 0) {
+    if (session && session.rangeStart < 0) {
       session.rangeStart = position;
     }
   }
 
   // Closes the open interval at the given position and merges it into the covered ranges.
   private closeRange(session: MusicListenSession, position: number) {
-    if(session.rangeStart < 0) {
+    if (session.rangeStart < 0) {
       return;
     }
 
     const from = session.rangeStart;
     session.rangeStart = -1;
-    if(position <= from) {
+    if (position <= from) {
       return;
     }
 
     // Insert sorted by `from`, then merge any overlapping/touching neighbours.
     const ranges = session.ranges;
     let idx = 0;
-    while(idx < ranges.length && ranges[idx].from <= from) idx++;
-    ranges.splice(idx, 0, {from, to: position});
-    for(let i = Math.max(0, idx - 1); i < ranges.length - 1;) {
+    while (idx < ranges.length && ranges[idx].from <= from) idx++;
+    ranges.splice(idx, 0, { from, to: position });
+    for (let i = Math.max(0, idx - 1); i < ranges.length - 1;) {
       const cur = ranges[i], next = ranges[i + 1];
-      if(cur.to >= next.from) {
+      if (cur.to >= next.from) {
         cur.to = Math.max(cur.to, next.to);
         ranges.splice(i + 1, 1);
       } else {
@@ -178,7 +178,7 @@ export default class MusicListenTracker {
   }
 
   private clearPauseTimeout() {
-    if(this.pauseTimeout !== undefined) {
+    if (this.pauseTimeout !== undefined) {
       clearTimeout(this.pauseTimeout);
       this.pauseTimeout = undefined;
     }

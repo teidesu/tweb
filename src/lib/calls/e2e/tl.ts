@@ -46,7 +46,7 @@ export const TL_MAGIC = {
   changeSetValue: 0xfe0139cc,
   changeSetGroupState: 0x2cf17146,
   changeSetSharedKey: 0x987a2158,
-  stateProof: 0xd6b679e6
+  stateProof: 0xd6b679e6,
 } as const;
 
 export class TLReader {
@@ -127,16 +127,16 @@ export class TLReader {
   // Vector<T>: 4-byte length followed by N items (caller parses each).
   public vector<T>(parseItem: (r: TLReader) => T): T[] {
     const n = this.int32();
-    if(n < 0) throw new Error(`TLReader: negative vector length ${n}`);
+    if (n < 0) throw new Error(`TLReader: negative vector length ${n}`);
     const out: T[] = [];
-    for(let i = 0; i < n; i++) out.push(parseItem(this));
+    for (let i = 0; i < n; i++) out.push(parseItem(this));
     return out;
   }
 
   // Constructor-tag prefix. Throws if it doesn't match the expected magic.
   public expectMagic(expected: number): void {
     const got = this.int32() >>> 0;
-    if((got >>> 0) !== (expected >>> 0)) {
+    if ((got >>> 0) !== (expected >>> 0)) {
       throw new Error(`TLReader: expected magic ${expected.toString(16)}, got ${got.toString(16)}`);
     }
   }
@@ -146,7 +146,7 @@ export class TLReader {
     this.requireAvailable(1);
     let length = this.data[this.offset++];
     let lenBytes = 1;
-    if(length === 254) {
+    if (length === 254) {
       this.requireAvailable(3);
       length = this.data[this.offset] | (this.data[this.offset + 1] << 8) | (this.data[this.offset + 2] << 16);
       this.offset += 3;
@@ -160,7 +160,7 @@ export class TLReader {
   }
 
   private requireAvailable(n: number): void {
-    if(this.offset + n > this.data.length) {
+    if (this.offset + n > this.data.length) {
       throw new Error(`TLReader: out of data (need ${n}, have ${this.remaining()})`);
     }
   }
@@ -184,17 +184,17 @@ export class TLWriter {
   }
 
   public raw(data: Uint8Array): this {
-    for(let i = 0; i < data.length; i++) this.buf.push(data[i]);
+    for (let i = 0; i < data.length; i++) this.buf.push(data[i]);
     return this;
   }
 
   public int512(data: Uint8Array): this {
-    if(data.length !== 64) throw new Error(`int512: must be 64 bytes, got ${data.length}`);
+    if (data.length !== 64) throw new Error(`int512: must be 64 bytes, got ${data.length}`);
     return this.raw(data);
   }
 
   public int256(data: Uint8Array): this {
-    if(data.length !== 32) throw new Error(`int256: must be 32 bytes, got ${data.length}`);
+    if (data.length !== 32) throw new Error(`int256: must be 32 bytes, got ${data.length}`);
     return this.raw(data);
   }
 
@@ -209,7 +209,7 @@ export class TLWriter {
 
   public vector<T>(items: readonly T[], writeItem: (w: TLWriter, item: T) => void): this {
     this.int32(items.length);
-    for(const item of items) writeItem(this, item);
+    for (const item of items) writeItem(this, item);
     return this;
   }
 
@@ -221,7 +221,7 @@ export class TLWriter {
   // TL bytes — length-prefixed + zero-pad to 4-byte alignment.
   public bytes(data: Uint8Array): this {
     let lenBytes: number;
-    if(data.length < 254) {
+    if (data.length < 254) {
       this.buf.push(data.length);
       lenBytes = 1;
     } else {
@@ -231,13 +231,13 @@ export class TLWriter {
     this.raw(data);
     const total = lenBytes + data.length;
     const pad = (4 - (total % 4)) % 4;
-    for(let i = 0; i < pad; i++) this.buf.push(0);
+    for (let i = 0; i < pad; i++) this.buf.push(0);
     return this;
   }
 
   // Pad current buffer up to a 4-byte boundary (used by BitString serialization).
   public padToAlignment(): this {
-    while(this.buf.length % 4 !== 0) this.buf.push(0);
+    while (this.buf.length % 4 !== 0) this.buf.push(0);
     return this;
   }
 
@@ -256,7 +256,7 @@ export class TLWriter {
 const GOOD_LOCAL_MAGICS = new Set<number>([
   TL_MAGIC.block,
   TL_MAGIC.groupBroadcastNonceCommit,
-  TL_MAGIC.groupBroadcastNonceReveal
+  TL_MAGIC.groupBroadcastNonceReveal,
 ]);
 
 function readMagicLE(buf: Uint8Array): number {
@@ -275,9 +275,9 @@ function writeMagicLE(buf: Uint8Array, value: number): void {
 // This makes the helper safe to call on inputs that may have skipped the server
 // round-trip (e.g. test fixtures, or our own outbound bytes echoed back).
 export function serverToLocal(serverBytes: Uint8Array): Uint8Array {
-  if(serverBytes.length < 4) throw new Error('serverToLocal: too short');
+  if (serverBytes.length < 4) throw new Error('serverToLocal: too short');
   const magic = readMagicLE(serverBytes);
-  if(GOOD_LOCAL_MAGICS.has(magic)) {
+  if (GOOD_LOCAL_MAGICS.has(magic)) {
     // Already in local form — return a defensive copy without mutating magic.
     return new Uint8Array(serverBytes);
   }
@@ -288,9 +288,9 @@ export function serverToLocal(serverBytes: Uint8Array): Uint8Array {
 
 // Apply the server's +1 magic bump for outbound bytes. Returns a fresh copy.
 export function localToServer(localBytes: Uint8Array): Uint8Array {
-  if(localBytes.length < 4) throw new Error('localToServer: too short');
+  if (localBytes.length < 4) throw new Error('localToServer: too short');
   const magic = readMagicLE(localBytes);
-  if(!GOOD_LOCAL_MAGICS.has(magic)) {
+  if (!GOOD_LOCAL_MAGICS.has(magic)) {
     throw new Error(`localToServer: magic ${magic.toString(16)} is not a known local-format constructor`);
   }
   const out = new Uint8Array(localBytes);

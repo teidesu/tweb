@@ -1,5 +1,5 @@
 import deepEqual from '@helpers/object/deepEqual';
-import {DraftMessage} from '@layer';
+import { DraftMessage } from '@layer';
 import repliesAreEqual from '@appManagers/utils/messages/repliesAreEqual';
 
 export default function draftsAreEqual(draft1: DraftMessage, draft2: DraftMessage) {

@@ -3,12 +3,12 @@
  * commits + reveals and verifies they reach the same emoji_hash.
  */
 
-import {beforeAll, describe, it, expect} from 'vitest';
-import {bytesToHex, ensureCryptoReady, hmacSha512, randomBytes, sha256} from '../crypto';
-import {PrivateKey} from '../keys';
-import {VerificationChain, VerificationParticipant} from '../emoji';
-import {decodeGroupBroadcast} from '../tlTypes';
-import {TLReader} from '../tl';
+import { beforeAll, describe, it, expect } from 'vitest';
+import { bytesToHex, ensureCryptoReady, hmacSha512, randomBytes, sha256 } from '../crypto';
+import { PrivateKey } from '../keys';
+import { VerificationChain, VerificationParticipant } from '../emoji';
+import { decodeGroupBroadcast } from '../tlTypes';
+import { TLReader } from '../tl';
 
 beforeAll(() => ensureCryptoReady());
 
@@ -20,12 +20,12 @@ function pullAll(chain: VerificationChain) {
 // Run one round of the protocol between two chains until both finalize, or
 // `maxSteps` is exceeded. Asserts both reach 'end' with matching emojis.
 async function runRound(a: VerificationChain, b: VerificationChain) {
-  for(let step = 0; step < 8; step++) {
+  for (let step = 0; step < 8; step++) {
     const aMsgs = pullAll(a);
     const bMsgs = pullAll(b);
-    if(aMsgs.length === 0 && bMsgs.length === 0) break;
-    for(const m of aMsgs) await b.receive(m);
-    for(const m of bMsgs) await a.receive(m);
+    if (aMsgs.length === 0 && bMsgs.length === 0) break;
+    for (const m of aMsgs) await b.receive(m);
+    for (const m of bMsgs) await a.receive(m);
   }
 }
 
@@ -35,9 +35,9 @@ describe('Emoji commit-reveal', () => {
     const bobKey = PrivateKey.fromSeed(new Uint8Array(32).fill(2));
     const alice: VerificationParticipant = {
       userId: BigInt('1001'),
-      publicKey: aliceKey.publicKey()
+      publicKey: aliceKey.publicKey(),
     };
-    const bob: VerificationParticipant = {userId: BigInt('1002'), publicKey: bobKey.publicKey()};
+    const bob: VerificationParticipant = { userId: BigInt('1002'), publicKey: bobKey.publicKey() };
 
     const blockHash = randomBytes(32);
     const participants = [alice, bob];
@@ -63,8 +63,8 @@ describe('Emoji commit-reveal', () => {
   it('rejects a reveal whose nonce does not match its committed hash', async() => {
     const aliceKey = PrivateKey.fromSeed(new Uint8Array(32).fill(3));
     const bobKey = PrivateKey.fromSeed(new Uint8Array(32).fill(4));
-    const alice: VerificationParticipant = {userId: BigInt('1'), publicKey: aliceKey.publicKey()};
-    const bob: VerificationParticipant = {userId: BigInt('2'), publicKey: bobKey.publicKey()};
+    const alice: VerificationParticipant = { userId: BigInt('1'), publicKey: aliceKey.publicKey() };
+    const bob: VerificationParticipant = { userId: BigInt('2'), publicKey: bobKey.publicKey() };
     const blockHash = randomBytes(32);
     const participants = [alice, bob];
 
@@ -81,7 +81,7 @@ describe('Emoji commit-reveal', () => {
     // the nonce so SHA256(nonce) no longer matches the committed hash, and
     // hand the bad reveal to bob.
     const [aliceReveal] = pullAll(aliceChain);
-    if(aliceReveal.kind !== 'reveal') throw new Error('expected reveal');
+    if (aliceReveal.kind !== 'reveal') throw new Error('expected reveal');
     aliceReveal.nonce = new Uint8Array(aliceReveal.nonce);
     aliceReveal.nonce[0] ^= 0x01;
 
@@ -93,8 +93,8 @@ describe('Emoji commit-reveal', () => {
   it('rejects a broadcast for a different block', async() => {
     const aliceKey = PrivateKey.fromSeed(new Uint8Array(32).fill(5));
     const bobKey = PrivateKey.fromSeed(new Uint8Array(32).fill(6));
-    const alice: VerificationParticipant = {userId: BigInt('1'), publicKey: aliceKey.publicKey()};
-    const bob: VerificationParticipant = {userId: BigInt('2'), publicKey: bobKey.publicKey()};
+    const alice: VerificationParticipant = { userId: BigInt('1'), publicKey: aliceKey.publicKey() };
+    const bob: VerificationParticipant = { userId: BigInt('2'), publicKey: bobKey.publicKey() };
     const blockHash = randomBytes(32);
     const participants = [alice, bob];
 
@@ -115,9 +115,9 @@ describe('Emoji commit-reveal', () => {
     const bobKey = PrivateKey.fromSeed(new Uint8Array(32).fill(8));
     const alice: VerificationParticipant = {
       userId: BigInt('1'),
-      publicKey: aliceKey.publicKey()
+      publicKey: aliceKey.publicKey(),
     };
-    const bob: VerificationParticipant = {userId: BigInt('2'), publicKey: bobKey.publicKey()};
+    const bob: VerificationParticipant = { userId: BigInt('2'), publicKey: bobKey.publicKey() };
     const blockHash = randomBytes(32);
     const participants = [alice, bob];
 
@@ -137,12 +137,12 @@ describe('Emoji commit-reveal', () => {
     // Both should now have a reveal pending.
     const aReveals = pullAll(aChain);
     const bReveals = pullAll(bChain);
-    for(const m of aReveals) {
-      if(m.kind === 'reveal') capturedNonces.push(m.nonce);
+    for (const m of aReveals) {
+      if (m.kind === 'reveal') capturedNonces.push(m.nonce);
       await bChain.receive(m);
     }
-    for(const m of bReveals) {
-      if(m.kind === 'reveal') capturedNonces.push(m.nonce);
+    for (const m of bReveals) {
+      if (m.kind === 'reveal') capturedNonces.push(m.nonce);
       await aChain.receive(m);
     }
 
@@ -155,7 +155,7 @@ describe('Emoji commit-reveal', () => {
     expect(capturedNonces.length).toBe(2);
     capturedNonces.sort((a, b) => {
       const cap = Math.min(a.length, b.length);
-      for(let i = 0; i < cap; i++) if(a[i] !== b[i]) return a[i] - b[i];
+      for (let i = 0; i < cap; i++) if (a[i] !== b[i]) return a[i] - b[i];
       return a.length - b.length;
     });
     const concat = new Uint8Array(capturedNonces[0].length + capturedNonces[1].length);
@@ -166,7 +166,7 @@ describe('Emoji commit-reveal', () => {
     expect(bytesToHex(bSnap.emojiHash!)).toBe(bytesToHex(expected));
 
     // Sanity: commit's nonceHash equals SHA256(corresponding nonce).
-    if(aCommit.kind !== 'commit') throw new Error('expected commit');
+    if (aCommit.kind !== 'commit') throw new Error('expected commit');
     const aliceNonce = capturedNonces.find((n) => bytesToHex(n).length > 0);
     expect(aliceNonce).toBeDefined();
     // (correctness of this specific pairing is hard to assert without

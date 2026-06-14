@@ -1,4 +1,4 @@
-import {log, serviceMessagePort} from '@lib/serviceWorker/index.service';
+import { log, serviceMessagePort } from '@lib/serviceWorker/index.service';
 
 const deferred: {[id: string]: ShareData[]} = {};
 
@@ -7,7 +7,7 @@ function parseFormData(formData: FormData): ShareData {
     files: formData.getAll('files') as File[],
     title: formData.get('title') as string,
     text: formData.get('text') as string,
-    url: formData.get('url') as string
+    url: formData.get('url') as string,
   };
 }
 
@@ -16,14 +16,14 @@ async function processShareEvent(formData: FormData, clientId: string) {
     log('share data', formData);
     const data = parseFormData(formData);
     (deferred[clientId] ??= []).push(data);
-  } catch(err) {
+  } catch (err) {
     log.warn('something wrong with the data', err);
   }
 };
 
 export function checkWindowClientForDeferredShare(windowClient: WindowClient) {
   const arr = deferred[windowClient.id];
-  if(!arr) {
+  if (!arr) {
     return;
   }
 
@@ -37,10 +37,10 @@ export function checkWindowClientForDeferredShare(windowClient: WindowClient) {
 
 export default function onShareFetch(event: FetchEvent, params: string) {
   const promise = event.request.formData()
-  .then((formData) => {
-    processShareEvent(formData, event.resultingClientId)
-    return Response.redirect('..');
-  });
+    .then((formData) => {
+      processShareEvent(formData, event.resultingClientId)
+      return Response.redirect('..');
+    });
 
   event.respondWith(promise);
 }

@@ -1,5 +1,5 @@
-import {AppManager} from '@appManagers/manager';
-import {HelpCountriesList} from '@layer';
+import { AppManager } from '@appManagers/manager';
+import { HelpCountriesList } from '@layer';
 import App from '@config/app';
 
 export class AppLangPackManager extends AppManager {
@@ -10,29 +10,29 @@ export class AppLangPackManager extends AppManager {
       },
       updateLangPackTooLong: (update) => {
         this.rootScope.dispatchEvent('langpack_update_too_long', update);
-      }
+      },
     });
   }
 
   public getLangPack(langCode: string, langPack: string, ignoreCache?: boolean) {
     return this.apiManager.invokeApiCacheable('langpack.getLangPack', {
       lang_code: langCode,
-      lang_pack: langPack
-    }, {override: ignoreCache});
+      lang_pack: langPack,
+    }, { override: ignoreCache });
   }
 
   public getCountriesList(langCode: string, ignoreCache?: boolean) {
     return this.apiManager.invokeApiCacheable('help.getCountriesList', {
       lang_code: langCode,
-      hash: 0
-    }, {override: ignoreCache}) as Promise<HelpCountriesList.helpCountriesList>;
+      hash: 0,
+    }, { override: ignoreCache }) as Promise<HelpCountriesList.helpCountriesList>;
   }
 
   public getStrings(langCode: string, strings: string[]) {
     return this.apiManager.invokeApi('langpack.getStrings', {
       lang_pack: App.langPack,
       lang_code: langCode,
-      keys: strings
+      keys: strings,
     });
   }
 
@@ -40,7 +40,7 @@ export class AppLangPackManager extends AppManager {
     return this.apiManager.invokeApi('langpack.getDifference', {
       lang_code: langCode,
       from_version: fromVersion,
-      lang_pack: App.langPack
+      lang_pack: App.langPack,
     });
   }
 }

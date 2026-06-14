@@ -1,31 +1,31 @@
 import canVideoBeAnimated from '@appManagers/utils/docs/canVideoBeAnimated';
-import {ButtonIconTsx} from '@components/buttonIconTsx';
-import type {ButtonMenuSync} from '@components/buttonMenu';
-import {IconTsx} from '@components/iconTsx';
-import {EditingMediaState} from '@components/mediaEditor/context';
-import {MediaEditorFinalResult} from '@components/mediaEditor/finalRender/createFinalResult';
-import {MAX_EDITABLE_VIDEO_SIZE, supportsVideoEncoding} from '@components/mediaEditor/support';
-import {ProgressCircleSVG} from '@components/progressCircleSVG';
-import {StickerPreview} from '@components/stickerPreview';
-import {animateImageToTarget} from '@helpers/animateImageToTarget';
+import { ButtonIconTsx } from '@components/buttonIconTsx';
+import type { ButtonMenuSync } from '@components/buttonMenu';
+import { IconTsx } from '@components/iconTsx';
+import { EditingMediaState } from '@components/mediaEditor/context';
+import { MediaEditorFinalResult } from '@components/mediaEditor/finalRender/createFinalResult';
+import { MAX_EDITABLE_VIDEO_SIZE, supportsVideoEncoding } from '@components/mediaEditor/support';
+import { ProgressCircleSVG } from '@components/progressCircleSVG';
+import { StickerPreview } from '@components/stickerPreview';
+import { animateImageToTarget } from '@helpers/animateImageToTarget';
 import deferredPromise from '@helpers/cancellablePromise';
 import contextMenuController from '@helpers/contextMenuController';
-import {createPosterFromVideo} from '@helpers/createPoster';
+import { createPosterFromVideo } from '@helpers/createPoster';
 import blurActiveElement from '@helpers/dom/blurActiveElement';
 import createVideo from '@helpers/dom/createVideo';
 import noop from '@helpers/noop';
 import onMediaLoad from '@helpers/onMediaLoad';
 import detectVideoHasSound from '@helpers/video/detectVideoHasSound';
-import {positionFloatingMenu} from '@helpers/positionMenu';
+import { positionFloatingMenu } from '@helpers/positionMenu';
 import pause from '@helpers/schedulers/pause';
-import {requestRAF} from '@helpers/solid/requestRAF';
-import {wrapAsyncClickHandler} from '@helpers/wrapAsyncClickHandler';
-import {useIsCleaned} from '@hooks/useIsCleaned';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {createEffect, createMemo, createResource, createSignal, Match, on, onCleanup, Switch} from 'solid-js';
+import { requestRAF } from '@helpers/solid/requestRAF';
+import { wrapAsyncClickHandler } from '@helpers/wrapAsyncClickHandler';
+import { useIsCleaned } from '@hooks/useIsCleaned';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { createEffect, createMemo, createResource, createSignal, Match, on, onCleanup, Switch } from 'solid-js';
 import styles from './mediaAttachment.module.scss';
-import {useStickersDropdown} from './stickersDropdown';
-import {AttachedMedia, AttachedVideo, SupportedMediaType} from './storeContext';
+import { useStickersDropdown } from './stickersDropdown';
+import { AttachedMedia, AttachedVideo, SupportedMediaType } from './storeContext';
 
 
 type PersistingState = {
@@ -52,7 +52,7 @@ export const MediaAttachment = (props: {
   supportedMediaTypes?: SupportedMediaType[];
   onAttach?: (value: AttachedMedia | undefined) => void;
 }) => {
-  const {getFileAndOpenEditor, rootScope} = useHotReloadGuard();
+  const { getFileAndOpenEditor, rootScope } = useHotReloadGuard();
   const supportsMedia = (media: SupportedMediaType) => props.supportedMediaTypes?.includes(media);
 
   const [img, setImg] = createSignal<HTMLImageElement>();
@@ -69,7 +69,7 @@ export const MediaAttachment = (props: {
     cancelAnimation?.(true);
 
     const state = creatingVideoState();
-    if(!state) return;
+    if (!state) return;
     // Abort any in-flight video render and free its preview URL.
     state.editorResult.cancel?.();
     state.editorResult.animatedPreview?.remove();
@@ -77,9 +77,9 @@ export const MediaAttachment = (props: {
   });
 
   const setStickersDropdownPivot = useStickersDropdown({
-    onStickerClick: ({docId}: {docId: DocId, target: HTMLElement}) => {
-      props.onAttach?.({type: 'sticker', docId});
-    }
+    onStickerClick: ({ docId }: {docId: DocId, target: HTMLElement}) => {
+      props.onAttach?.({ type: 'sticker', docId });
+    },
   } as any);
 
   let persistingState: PersistingState | undefined;
@@ -90,8 +90,8 @@ export const MediaAttachment = (props: {
 
   const acceptMediaTypes = (): Array<'photo' | 'video'> => {
     const types: Array<'photo' | 'video'> = [];
-    if(supportsMedia('photo')) types.push('photo');
-    if(supportsMedia('video')) types.push('video');
+    if (supportsMedia('photo')) types.push('photo');
+    if (supportsMedia('video')) types.push('video');
     return types;
   };
 
@@ -105,7 +105,7 @@ export const MediaAttachment = (props: {
       // Videos above the editable size limit are attached directly without going through the editor.
       shouldOpenEditor: (file) => !(file.type.startsWith('video/') && file.size > MAX_EDITABLE_VIDEO_SIZE),
       onSkipEditor: (file) => void attachVideoDirectly(file),
-      onFinish: (args) => handleFinish(args.editorResult, args.originalFile)
+      onFinish: (args) => handleFinish(args.editorResult, args.originalFile),
     });
   });
 
@@ -121,7 +121,7 @@ export const MediaAttachment = (props: {
 
     try {
       await onMediaLoad(probeVideo as HTMLMediaElement);
-    } catch(err) {
+    } catch (err) {
       URL.revokeObjectURL(videoObjectUrl);
       return;
     }
@@ -131,13 +131,13 @@ export const MediaAttachment = (props: {
     const isAnimated = supportsMedia('gif') && canVideoBeAnimated({
       noSound: !hasSound,
       size: file.size,
-      isEditingMediaFromAlbum: false
+      isEditingMediaFromAlbum: false,
     });
 
     const poster = await createPosterFromVideo(probeVideo);
     const thumbUrl = URL.createObjectURL(poster.blob);
 
-    if(isCleaned()) {
+    if (isCleaned()) {
       URL.revokeObjectURL(videoObjectUrl);
       URL.revokeObjectURL(thumbUrl);
       return;
@@ -156,32 +156,32 @@ export const MediaAttachment = (props: {
         url: thumbUrl,
         blob: poster.blob,
         size: poster.size,
-        isCover: !isAnimated
-      }
+        isCover: !isAnimated,
+      },
     };
 
     props.onAttach?.(attachedVideo);
   };
 
   const onChooseSticker = (pivot: HTMLElement | undefined) => {
-    if(!pivot) return;
+    if (!pivot) return;
     blurActiveElement();
     setStickersDropdownPivot(pivot);
   };
 
   const onEdit = wrapAsyncClickHandler(async() => {
-    if(!props.attachedMedia || !persistingState) return;
-    if(props.attachedMedia.type !== 'photo' && props.attachedMedia.type !== 'video') return;
+    if (!props.attachedMedia || !persistingState) return;
+    if (props.attachedMedia.type !== 'photo' && props.attachedMedia.type !== 'video') return;
 
     const willAnimateFromVideo = props.attachedMedia.type === 'video';
     const wasInitiallyVideo = persistingState.isVideo;
     const sourceEl = willAnimateFromVideo ? videoEl() : img();
-    if(!sourceEl) return;
+    if (!sourceEl) return;
 
     const sourceWidth = willAnimateFromVideo ? (sourceEl as HTMLVideoElement).videoWidth : (sourceEl as HTMLImageElement).naturalWidth;
     const sourceHeight = willAnimateFromVideo ? (sourceEl as HTMLVideoElement).videoHeight : (sourceEl as HTMLImageElement).naturalHeight;
 
-    const {openMediaEditorFromMedia} = await import('@components/mediaEditor');
+    const { openMediaEditorFromMedia } = await import('@components/mediaEditor');
 
     openMediaEditorFromMedia({
       source: sourceEl,
@@ -194,12 +194,12 @@ export const MediaAttachment = (props: {
       onEditFinish: handleFinish,
       editingMediaState: persistingState.editingState,
       onClose: noop,
-      canImageResultInGIF: supportsMedia('gif')
+      canImageResultInGIF: supportsMedia('gif'),
     });
   });
 
   const handleFinish = async(editorResult: MediaEditorFinalResult, initialFile?: File) => {
-    if(editorResult.isVideo) {
+    if (editorResult.isVideo) {
       await handleVideoFinish(editorResult, initialFile);
       return;
     }
@@ -213,7 +213,7 @@ export const MediaAttachment = (props: {
       editingState: editorResult.editingMediaState,
       initialObjectUrl: editorResult.originalSrc,
       initialFile: initialFile!,
-      isVideo: false
+      isVideo: false,
     };
 
     props.onAttach?.({
@@ -221,20 +221,20 @@ export const MediaAttachment = (props: {
       objectUrl: url,
       blob: result.blob,
       width: editorResult.width,
-      height: editorResult.height
+      height: editorResult.height,
     });
 
-    if(!editorResult.animatedPreview) return;
+    if (!editorResult.animatedPreview) return;
 
     requestRAF(async() => {
-      if(!img() || isCleaned()) {
+      if (!img() || isCleaned()) {
         editorResult.animatedPreview!.remove();
         return;
       }
 
-      const {promise, cancel} = animateImageToTarget({
+      const { promise, cancel } = animateImageToTarget({
         animatedImg: editorResult.animatedPreview!,
-        target: img()!
+        target: img()!,
       });
       cancelAnimation = cancel;
 
@@ -252,12 +252,12 @@ export const MediaAttachment = (props: {
       editingState: editorResult.editingMediaState,
       initialObjectUrl: editorResult.originalSrc,
       initialFile: initialFile!,
-      isVideo: isVideo!
+      isVideo: isVideo!,
     };
 
     // No-changes path: behave like the photo flow — no creation overlay or progress,
     // animate the preview into the attached <video> slot.
-    if(!editorResult.creationProgress) {
+    if (!editorResult.creationProgress) {
       await handleUnchangedVideoFinish(editorResult);
       return;
     }
@@ -268,25 +268,25 @@ export const MediaAttachment = (props: {
     setCreatingVideoState({
       previewObjectUrl,
       editorResult,
-      progress
+      progress,
     });
 
     // Block submit while video render is in progress.
-    props.onAttach?.({type: 'pending'});
+    props.onAttach?.({ type: 'pending' });
 
     const animateDeferred = deferredPromise<void>();
 
-    if(editorResult.animatedPreview) {
+    if (editorResult.animatedPreview) {
       requestRAF(async() => {
-        if(!videoPreviewImg() || isCleaned()) {
+        if (!videoPreviewImg() || isCleaned()) {
           editorResult.animatedPreview!.remove();
           animateDeferred.reject();
           return;
         }
 
-        const {promise, cancel} = animateImageToTarget({
+        const { promise, cancel } = animateImageToTarget({
           animatedImg: editorResult.animatedPreview!,
-          target: videoPreviewImg()!
+          target: videoPreviewImg()!,
         });
         cancelAnimation = cancel;
 
@@ -303,7 +303,7 @@ export const MediaAttachment = (props: {
     try {
       resultPayload = await editorResult.getResult();
       await animateDeferred;
-    } catch(err) {
+    } catch (err) {
       // Cancelled or failed: revert to nothing attached.
       URL.revokeObjectURL(previewObjectUrl);
       setCreatingVideoState(undefined);
@@ -313,7 +313,7 @@ export const MediaAttachment = (props: {
       return;
     }
 
-    if(isCleaned()) {
+    if (isCleaned()) {
       URL.revokeObjectURL(previewObjectUrl);
       return;
     }
@@ -328,10 +328,10 @@ export const MediaAttachment = (props: {
 
     probeVideo.addEventListener('timeupdate', () => {
       probeVideo.pause();
-    }, {once: true});
+    }, { once: true });
     try {
       await onMediaLoad(probeVideo as HTMLMediaElement);
-    } catch(err) {
+    } catch (err) {
       // Failed to probe; treat as cancel.
       URL.revokeObjectURL(previewObjectUrl);
       URL.revokeObjectURL(videoObjectUrl);
@@ -345,7 +345,7 @@ export const MediaAttachment = (props: {
     const isAnimated = supportsMedia('gif') && canVideoBeAnimated({
       noSound: !resultPayload.hasSound,
       size: resultPayload.blob.size,
-      isEditingMediaFromAlbum: false
+      isEditingMediaFromAlbum: false,
     });
 
     const thumb = resultPayload.thumb || await createPosterFromVideo(probeVideo);
@@ -364,8 +364,8 @@ export const MediaAttachment = (props: {
         url: thumbUrl,
         blob: thumb.blob,
         size: thumb.size,
-        isCover: !isAnimated && !!resultPayload.thumb
-      }
+        isCover: !isAnimated && !!resultPayload.thumb,
+      },
     };
 
     URL.revokeObjectURL(previewObjectUrl);
@@ -376,7 +376,7 @@ export const MediaAttachment = (props: {
   const handleUnchangedVideoFinish = async(editorResult: MediaEditorFinalResult) => {
     const resultPayload = await editorResult.getResult();
 
-    if(isCleaned()) {
+    if (isCleaned()) {
       editorResult.animatedPreview?.remove();
       return;
     }
@@ -390,7 +390,7 @@ export const MediaAttachment = (props: {
     probeVideo.preload = 'metadata';
     try {
       await onMediaLoad(probeVideo as HTMLMediaElement);
-    } catch(err) {
+    } catch (err) {
       URL.revokeObjectURL(videoObjectUrl);
       editorResult.animatedPreview?.remove();
       persistingState = undefined;
@@ -400,7 +400,7 @@ export const MediaAttachment = (props: {
     const isAnimated = supportsMedia('gif') && canVideoBeAnimated({
       noSound: !resultPayload.hasSound,
       size: resultPayload.blob.size,
-      isEditingMediaFromAlbum: false
+      isEditingMediaFromAlbum: false,
     });
 
     const thumb = resultPayload.thumb || await createPosterFromVideo(probeVideo);
@@ -419,24 +419,24 @@ export const MediaAttachment = (props: {
         url: thumbUrl,
         blob: thumb.blob,
         size: thumb.size,
-        isCover: !isAnimated && !!resultPayload.thumb
-      }
+        isCover: !isAnimated && !!resultPayload.thumb,
+      },
     };
 
     props.onAttach?.(attachedVideo);
 
-    if(!editorResult.animatedPreview) return;
+    if (!editorResult.animatedPreview) return;
 
     requestRAF(async() => {
       const target = videoEl();
-      if(!target || isCleaned()) {
+      if (!target || isCleaned()) {
         editorResult.animatedPreview!.remove();
         return;
       }
 
-      const {promise, cancel} = animateImageToTarget({
+      const { promise, cancel } = animateImageToTarget({
         animatedImg: editorResult.animatedPreview!,
-        target
+        target,
       });
 
       cancelAnimation = cancel;
@@ -454,19 +454,19 @@ export const MediaAttachment = (props: {
   const mainMenuButtons = createMemo(() => {
     const result: MenuButtons = [];
 
-    if(supportsMedia('photo') || supportsMedia('video')) {
+    if (supportsMedia('photo') || supportsMedia('video')) {
       result.push({
         icon: 'image',
         text: !supportsMedia('video') ? 'AttachPhoto' : !supportsMedia('photo') ? 'AttachVideo' : 'Chat.Input.Attach.PhotoOrVideo',
-        onClick: onChoose
+        onClick: onChoose,
       });
     }
 
-    if(supportsMedia('sticker')) {
+    if (supportsMedia('sticker')) {
       result.push({
         icon: 'stickers_face',
         text: 'AttachSticker',
-        onClick: () => onChooseSticker(btn())
+        onClick: () => onChooseSticker(btn()),
       });
     }
 
@@ -475,7 +475,7 @@ export const MediaAttachment = (props: {
 
   const setMainMenuOpen = useMenu({
     pivot: btn as () => HTMLElement,
-    buttons: mainMenuButtons
+    buttons: mainMenuButtons,
   });
 
   const setIsPhotoMenuOpen = useMenu({
@@ -484,19 +484,19 @@ export const MediaAttachment = (props: {
       {
         icon: 'brush',
         text: 'EditThisPhoto',
-        onClick: onEdit
+        onClick: onEdit,
       },
       {
         icon: 'replace',
         text: 'ReplacePhoto',
-        onClick: onChoose
+        onClick: onChoose,
       },
       {
         icon: 'delete',
         text: 'Remove',
-        onClick: removeAttached
-      }
-    ]
+        onClick: removeAttached,
+      },
+    ],
   });
 
   const setIsVideoMenuOpen = useMenu({
@@ -507,21 +507,21 @@ export const MediaAttachment = (props: {
         get text() {
           return isAttachedGIF() ? 'EditThisGIF' : 'EditThisVideo';
         },
-        onClick: onEdit
+        onClick: onEdit,
       }] as MenuButtons : []),
       {
         icon: 'replace',
         get text() {
           return isAttachedGIF() ? 'ReplaceGIF' : 'ReplaceVideo';
         },
-        onClick: onChoose
+        onClick: onChoose,
       },
       {
         icon: 'delete',
         text: 'Remove',
-        onClick: removeAttached
-      }
-    ]
+        onClick: removeAttached,
+      },
+    ],
   });
 
   const setIsStickerMenuOpen = useMenu({
@@ -530,21 +530,21 @@ export const MediaAttachment = (props: {
       {
         icon: 'replace',
         text: 'ReplaceSticker',
-        onClick: () => onChooseSticker(stickerEl())
+        onClick: () => onChooseSticker(stickerEl()),
       },
       {
         icon: 'delete',
         text: 'Remove',
         onClick: () => {
           props.onAttach!(undefined);
-        }
-      }
-    ]
+        },
+      },
+    ],
   });
 
   const onMainButtonClick = (e: MouseEvent) => {
-    if(mainMenuButtons().length === 0) return;
-    if(mainMenuButtons().length === 1) {
+    if (mainMenuButtons().length === 0) return;
+    if (mainMenuButtons().length === 1) {
       mainMenuButtons()[0].onClick(e);
       return;
     }
@@ -634,15 +634,15 @@ function useMenu(args: {
   buttons: () => MenuButtons;
   pivot: () => HTMLElement;
 }) {
-  const {ButtonMenuSync} = useHotReloadGuard();
+  const { ButtonMenuSync } = useHotReloadGuard();
   const [isMenuOpen, setIsMenuOpen] = createSignal(false);
 
   createEffect(on(isMenuOpen, (open) => {
-    if(!open) return;
+    if (!open) return;
 
     const isCleaned = useIsCleaned();
 
-    const buttonMenu = ButtonMenuSync({buttons: args.buttons()});
+    const buttonMenu = ButtonMenuSync({ buttons: args.buttons() });
 
     buttonMenu.style.position = 'fixed';
     buttonMenu.style.top = 'unset';
@@ -650,7 +650,7 @@ function useMenu(args: {
     document.body.appendChild(buttonMenu);
 
     requestRAF(() => {
-      if(isCleaned()) return;
+      if (isCleaned()) return;
 
       positionFloatingMenu(args.pivot().getBoundingClientRect(), buttonMenu, 'right-center', [12, 0]);
       contextMenuController.openBtnMenu(buttonMenu, async() => {

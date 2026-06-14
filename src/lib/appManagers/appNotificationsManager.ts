@@ -6,11 +6,11 @@
  */
 
 import tsNow from '@helpers/tsNow';
-import {InputNotifyPeer, InputPeer, InputPeerNotifySettings, NotifyPeer, Peer, PeerNotifySettings, Update} from '@layer';
-import {MUTE_UNTIL} from '@appManagers/constants';
+import { InputNotifyPeer, InputPeer, InputPeerNotifySettings, NotifyPeer, Peer, PeerNotifySettings, Update } from '@layer';
+import { MUTE_UNTIL } from '@appManagers/constants';
 import throttle from '@helpers/schedulers/throttle';
 import convertInputKeyToKey from '@helpers/string/convertInputKeyToKey';
-import {AppManager} from '@appManagers/manager';
+import { AppManager } from '@appManagers/manager';
 import ctx from '@environment/ctx';
 import assumeType from '@helpers/assumeType';
 
@@ -23,7 +23,7 @@ export class AppNotificationsManager extends AppManager {
     notifyUsers: null as unknown as ImSadAboutIt,
     notifyChats: null as unknown as ImSadAboutIt,
     notifyBroadcasts: null as unknown as ImSadAboutIt,
-    notifyForumTopic: {} as {[peerId_threadId: string]: ImSadAboutIt}
+    notifyForumTopic: {} as {[peerId_threadId: string]: ImSadAboutIt},
   };
   // private exceptions: {[peerId: string]: PeerNotifySettings} = {};
 
@@ -38,16 +38,16 @@ export class AppNotificationsManager extends AppManager {
     this.checkMuteUntilThrottled = throttle(this.checkMuteUntil, 1000, false);
 
     this.apiUpdatesManager.addMultipleEventsListeners({
-      updateNotifySettings: this.onUpdateNotifySettings
+      updateNotifySettings: this.onUpdateNotifySettings,
     });
 
     return this.appStateManager.getState().then((state) => {
-      if(state.notifySettings) {
-        for(const key in state.notifySettings) {
+      if (state.notifySettings) {
+        for (const key in state.notifySettings) {
           assumeType<MyNotifyPeer>(key);
           this.savePeerSettings({
             key,
-            settings: state.notifySettings[key]!
+            settings: state.notifySettings[key]!,
           });
         }
       }
@@ -59,38 +59,38 @@ export class AppNotificationsManager extends AppManager {
     let obj: any = this.peerSettings[key as MyNotifyPeer];
 
     let peerId: PeerId;
-    if(peer._ === 'inputNotifyPeer') {
+    if (peer._ === 'inputNotifyPeer') {
       peerId = key = this.appPeersManager.getPeerId(peer.peer);
       obj = obj[key];
     }
 
-    if(obj) {
+    if (obj) {
       return obj;
     }
 
-    return (obj || this.peerSettings)[key] = this.apiManager.invokeApi('account.getNotifySettings', {peer})
-    .then((settings) => {
-      this.savePeerSettings({
-        key,
-        peerId,
-        settings
-      });
+    return (obj || this.peerSettings)[key] = this.apiManager.invokeApi('account.getNotifySettings', { peer })
+      .then((settings) => {
+        this.savePeerSettings({
+          key,
+          peerId,
+          settings,
+        });
 
-      return settings;
-    });
+        return settings;
+      });
   }
 
   public getNotifyPeerTypeSettings() {
-    if(this.getNotifyPeerTypePromise) return this.getNotifyPeerTypePromise;
+    if (this.getNotifyPeerTypePromise) return this.getNotifyPeerTypePromise;
 
     const promises = ([
       'inputNotifyBroadcasts',
       'inputNotifyUsers',
-      'inputNotifyChats'
+      'inputNotifyChats',
     ] as MyInputNotifyPeer[])
-    .map((inputKey) => {
-      return this.getNotifySettings({_: inputKey});
-    });
+      .map((inputKey) => {
+        return this.getNotifySettings({ _: inputKey });
+      });
 
     return this.getNotifyPeerTypePromise = Promise.all(promises);
   }
@@ -100,12 +100,12 @@ export class AppNotificationsManager extends AppManager {
       _: 'updateNotifySettings',
       peer: {
         ...peer as any,
-        _: convertInputKeyToKey(peer._)
+        _: convertInputKeyToKey(peer._),
       },
       notify_settings: {
         ...settings,
-        _: 'peerNotifySettings'
-      }
+        _: 'peerNotifySettings',
+      },
     });
   }
 
@@ -117,7 +117,7 @@ export class AppNotificationsManager extends AppManager {
 
     return this.apiManager.invokeApi('account.updateNotifySettings', {
       peer,
-      settings
+      settings,
     }).then(() => {
       this.generateLocalNotifySettingsUpdate(peer, settings);
     });
@@ -131,20 +131,20 @@ export class AppNotificationsManager extends AppManager {
   // }
 
   public getContactSignUpNotification() {
-    if(this.notifyContactsSignUp) return this.notifyContactsSignUp;
+    if (this.notifyContactsSignUp) return this.notifyContactsSignUp;
     return this.notifyContactsSignUp = this.apiManager.invokeApi('account.getContactSignUpNotification')
-    .then((silent) => !silent);
+      .then((silent) => !silent);
   }
 
   public setContactSignUpNotification(silent: boolean) {
-    this.apiManager.invokeApi('account.setContactSignUpNotification', {silent})
-    .then((value) => {
-      this.notifyContactsSignUp = Promise.resolve(!silent);
-    });
+    this.apiManager.invokeApi('account.setContactSignUpNotification', { silent })
+      .then((value) => {
+        this.notifyContactsSignUp = Promise.resolve(!silent);
+      });
   }
 
   private checkMuteUntil = () => {
-    if(this.checkMuteUntilTimeout !== undefined) {
+    if (this.checkMuteUntilTimeout !== undefined) {
       clearTimeout(this.checkMuteUntilTimeout);
       this.checkMuteUntilTimeout = undefined;
     }
@@ -153,20 +153,20 @@ export class AppNotificationsManager extends AppManager {
     let closestMuteUntil = MUTE_UNTIL;
 
     const p = (peerNotifySettings: ImSadAboutIt): peerNotifySettings is PeerNotifySettings => {
-      if(peerNotifySettings instanceof Promise) {
+      if (peerNotifySettings instanceof Promise) {
         return false;
       }
 
       const muteUntil = peerNotifySettings.mute_until;
-      if(!muteUntil) {
+      if (!muteUntil) {
         return false;
       }
 
-      if(muteUntil <= timestamp) {
+      if (muteUntil <= timestamp) {
         // ! do not delete it because peer's unique settings will be overwritten in getPeerLocalSettings with type's settings
         peerNotifySettings.mute_until = 0;
         return true;
-      } else if(muteUntil < closestMuteUntil) {
+      } else if (muteUntil < closestMuteUntil) {
         closestMuteUntil = muteUntil;
       }
 
@@ -175,11 +175,11 @@ export class AppNotificationsManager extends AppManager {
 
     [
       'notifyPeer' as const,
-      'notifyForumTopic' as const
+      'notifyForumTopic' as const,
     ].forEach((typeKey) => {
-      for(const key in this.peerSettings[typeKey]) {
+      for (const key in this.peerSettings[typeKey]) {
         const peerNotifySettings = this.peerSettings[typeKey][key];
-        if(p(peerNotifySettings)) {
+        if (p(peerNotifySettings)) {
           const [peerId, topicId] = key.split('_');
           const peer = this.appPeersManager.getOutputPeer(peerId.toPeerId());
           this.apiUpdatesManager.saveUpdate({
@@ -187,12 +187,12 @@ export class AppNotificationsManager extends AppManager {
             peer: topicId ? {
               _: 'notifyForumTopic',
               peer,
-              top_msg_id: +topicId
+              top_msg_id: +topicId,
             } : {
               _: 'notifyPeer',
-              peer
+              peer,
             },
-            notify_settings: peerNotifySettings
+            notify_settings: peerNotifySettings,
           });
         }
       }
@@ -206,22 +206,22 @@ export class AppNotificationsManager extends AppManager {
     return peerId + (threadId ? '_' + threadId : '');
   }
 
-  public savePeerSettings({key, peerId, threadId, settings}: {
+  public savePeerSettings({ key, peerId, threadId, settings }: {
     key?: Exclude<NotifyPeer['_'], 'notifyPeer'>,
     peerId?: PeerId,
     threadId?: number,
     settings: PeerNotifySettings
   }) {
     let obj: any;
-    if(peerId) {
+    if (peerId) {
       key = this.getPeerKey(peerId, threadId) as any;
       obj = this.peerSettings[threadId ? 'notifyForumTopic' : 'notifyPeer'];
     }
 
     (obj || this.peerSettings)[key!] = settings;
 
-    if(!peerId) {
-      this.rootScope.dispatchEvent('notify_peer_type_settings', {key: key!, settings});
+    if (!peerId) {
+      this.rootScope.dispatchEvent('notify_peer_type_settings', { key: key!, settings });
       this.appStateManager.getState().then((state) => {
         const notifySettings = state.notifySettings;
         notifySettings[key!] = settings;
@@ -240,39 +240,39 @@ export class AppNotificationsManager extends AppManager {
   }
 
   private getPeerMuted(peerId: PeerId) {
-    const ret = this.getNotifySettings({_: 'inputNotifyPeer', peer: this.appPeersManager.getInputPeerById(peerId)});
+    const ret = this.getNotifySettings({ _: 'inputNotifyPeer', peer: this.appPeersManager.getInputPeerById(peerId) });
     return (ret instanceof Promise ? ret : Promise.resolve(ret))
-    .then((peerNotifySettings) => this.isMuted(peerNotifySettings));
+      .then((peerNotifySettings) => this.isMuted(peerNotifySettings));
   }
 
   private getPeerLocalSettings({
     peerId,
     respectType = true,
-    threadId
+    threadId,
   }: {
     peerId: PeerId,
     respectType?: boolean,
     threadId?: number
   }): PeerNotifySettings {
     const n: PeerNotifySettings = {
-      _: 'peerNotifySettings'
+      _: 'peerNotifySettings',
     };
 
     const peerKey = this.getPeerKey(peerId, threadId);
     const notifySettings = this.peerSettings[threadId ? 'notifyForumTopic' : 'notifyPeer'][peerKey];
     // if(!notifySettings || (notifySettings instanceof Promise)) return false;
-    if(notifySettings && !(notifySettings instanceof Promise)) {
+    if (notifySettings && !(notifySettings instanceof Promise)) {
       Object.assign(n, notifySettings);
     }
 
-    if(respectType) {
-      const inputNotify = this.appPeersManager.getInputNotifyPeerById({peerId, ignorePeerId: true, threadId});
+    if (respectType) {
+      const inputNotify = this.appPeersManager.getInputNotifyPeerById({ peerId, ignorePeerId: true, threadId });
       const key = convertInputKeyToKey(inputNotify._);
       const typeNotifySettings = this.peerSettings[key as MyNotifyPeer];
-      if(typeNotifySettings && !(typeNotifySettings instanceof Promise)) {
-        for(const i in typeNotifySettings) {
+      if (typeNotifySettings && !(typeNotifySettings instanceof Promise)) {
+        for (const i in typeNotifySettings) {
           // @ts-ignore
-          if(n[i] === undefined) {
+          if (n[i] === undefined) {
             // @ts-ignore
             n[i] = typeNotifySettings[i];
           }
@@ -284,20 +284,20 @@ export class AppNotificationsManager extends AppManager {
   }
 
   public validatePeerSettings<T extends Parameters<AppNotificationsManager['getPeerLocalSettings']>[0]>(options: T): T | undefined {
-    if(options.peerId === this.appPeersManager.peerId) return;
-    if(options.threadId && !this.appPeersManager.isForum(options.peerId) && !this.appPeersManager.isBotforum(options.peerId)) options.threadId = undefined;
+    if (options.peerId === this.appPeersManager.peerId) return;
+    if (options.threadId && !this.appPeersManager.isForum(options.peerId) && !this.appPeersManager.isBotforum(options.peerId)) options.threadId = undefined;
     return options;
   }
 
   public isPeerLocalMuted(options: Parameters<AppNotificationsManager['getPeerLocalSettings']>[0]): boolean {
-    if(!(options = (this.validatePeerSettings(options) as { peerId: PeerId; respectType?: boolean; threadId?: number; }))) return false;
+    if (!(options = (this.validatePeerSettings(options) as { peerId: PeerId; respectType?: boolean; threadId?: number; }))) return false;
 
-    if(options.threadId) {
-      const notifySettings = this.getPeerLocalSettings({...options, respectType: false});
-      if(notifySettings.silent !== undefined || notifySettings.mute_until !== undefined) {
+    if (options.threadId) {
+      const notifySettings = this.getPeerLocalSettings({ ...options, respectType: false });
+      if (notifySettings.silent !== undefined || notifySettings.mute_until !== undefined) {
         return this.isMuted(notifySettings);
       } else {
-        return this.isPeerLocalMuted({...options, threadId: undefined});
+        return this.isPeerLocalMuted({ ...options, threadId: undefined });
       }
     }
 
@@ -307,31 +307,31 @@ export class AppNotificationsManager extends AppManager {
   }
 
   public isPeerStoriesMuted(peerId: PeerId) {
-    const notifySettings = this.getPeerLocalSettings({peerId});
+    const notifySettings = this.getPeerLocalSettings({ peerId });
     return !!notifySettings?.stories_muted;
   }
 
   public toggleStoriesMute(peerId: PeerId, mute: boolean, local?: boolean) {
-    const notifySettings = this.getPeerLocalSettings({peerId});
+    const notifySettings = this.getPeerLocalSettings({ peerId });
     const inputNotifyPeer: InputNotifyPeer = {
       _: 'inputNotifyPeer',
-      peer: this.appPeersManager.getInputPeerById(peerId)
+      peer: this.appPeersManager.getInputPeerById(peerId),
     };
 
     const inputPeerNotifySettings: InputPeerNotifySettings = {
       ...notifySettings,
-      _: 'inputPeerNotifySettings'
+      _: 'inputPeerNotifySettings',
     };
 
-    if(mute) inputPeerNotifySettings.stories_muted = true;
+    if (mute) inputPeerNotifySettings.stories_muted = true;
     else delete inputPeerNotifySettings.stories_muted;
 
-    if(!local) this.updateNotifySettings(inputNotifyPeer, inputPeerNotifySettings);
+    if (!local) this.updateNotifySettings(inputNotifyPeer, inputPeerNotifySettings);
     else this.generateLocalNotifySettingsUpdate(inputNotifyPeer, inputPeerNotifySettings);
   }
 
   private onUpdateNotifySettings = (update: Update.updateNotifySettings) => {
-    const {peer} = update;
+    const { peer } = update;
     const isTopic = peer._ === 'notifyForumTopic';
     const isPeerType = peer._ === 'notifyPeer' || isTopic;
     const peerId = isPeerType && this.appPeersManager.getPeerId(peer.peer);
@@ -341,7 +341,7 @@ export class AppNotificationsManager extends AppManager {
       key,
       peerId: (peerId as number | undefined),
       threadId,
-      settings: update.notify_settings
+      settings: update.notify_settings,
     });
     this.rootScope.dispatchEvent('notify_settings', update);
   };

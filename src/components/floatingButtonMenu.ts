@@ -1,6 +1,6 @@
 import contextMenuController from '@helpers/contextMenuController';
-import {FloatingMenuDirection, positionFloatingMenu} from '@helpers/positionMenu';
-import {doubleRaf} from '@helpers/schedulers';
+import { FloatingMenuDirection, positionFloatingMenu } from '@helpers/positionMenu';
+import { doubleRaf } from '@helpers/schedulers';
 
 export type FloatingButtonMenuDirection = FloatingMenuDirection;
 
@@ -23,7 +23,7 @@ export default function attachFloatingButtonMenu({
   offset = [0, 0],
   createMenu,
   canOpen = () => true,
-  onClose: onCloseArg
+  onClose: onCloseArg,
 }: AttachFloatingButtonMenuOptions) {
   let opened = false;
   let hovered = false;
@@ -31,7 +31,7 @@ export default function attachFloatingButtonMenu({
 
   const listener = (): void => void (async() => {
     hovered = true;
-    if(opened || !canOpen()) return;
+    if (opened || !canOpen()) return;
     const currentRequestId = ++requestId;
 
     const triggerBcr = element.getBoundingClientRect();
@@ -39,9 +39,9 @@ export default function attachFloatingButtonMenu({
     let menu: HTMLElement;
     try {
       menu = await createMenu();
-    } catch{}
+    } catch {}
 
-    if(
+    if (
       !menu! ||
       opened ||
       currentRequestId !== requestId ||
@@ -72,7 +72,7 @@ export default function attachFloatingButtonMenu({
   };
 
   element.addEventListener(triggerEvent, listener);
-  if(triggerEvent === 'mouseenter') {
+  if (triggerEvent === 'mouseenter') {
     element.addEventListener('mouseleave', onMouseLeave);
   }
 

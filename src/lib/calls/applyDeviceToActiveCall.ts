@@ -26,9 +26,9 @@ export type CallDeviceKind = 'speaker' | 'microphone' | 'camera';
 
 export default function applyDeviceToActiveCall(kind: CallDeviceKind, deviceId: string): void {
   const instance = getActiveCallInstance();
-  if(!instance) return;
+  if (!instance) return;
 
-  switch(kind) {
+  switch (kind) {
     case 'speaker':
       instance.setOutputDeviceId(deviceId);
       break;

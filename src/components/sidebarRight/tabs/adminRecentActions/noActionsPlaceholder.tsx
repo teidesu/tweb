@@ -1,5 +1,5 @@
-import {I18nTsx} from '@helpers/solid/i18n';
-import {IconTsx} from '@components/iconTsx';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { IconTsx } from '@components/iconTsx';
 import styles from '@components/sidebarRight/tabs/adminRecentActions/noActionsPlaceholder.module.scss';
 
 

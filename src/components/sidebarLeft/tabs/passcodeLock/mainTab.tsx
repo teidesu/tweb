@@ -1,24 +1,24 @@
-import {Component, createResource, createSignal, onCleanup, Show} from 'solid-js';
-import {IS_MOBILE} from '@environment/userAgent';
-import {keepMe} from '@helpers/keepMe';
+import { Component, createResource, createSignal, onCleanup, Show } from 'solid-js';
+import { IS_MOBILE } from '@environment/userAgent';
+import { keepMe } from '@helpers/keepMe';
 import ListenerSetter from '@helpers/listenerSetter';
-import {joinDeepPath} from '@helpers/object/setDeepProperty';
-import {i18n, LangPackKey} from '@lib/langPack';
-import {usePasscodeActions} from '@lib/passcode/actions';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { joinDeepPath } from '@helpers/object/setDeepProperty';
+import { i18n, LangPackKey } from '@lib/langPack';
+import { usePasscodeActions } from '@lib/passcode/actions';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 import SettingsTabLottieAnimation from '@components/settingsTabLottieAnimation';
 import ripple from '@components/ripple';
 import Section from '@components/section';
 import type SliderSuperTab from '@components/sliderTab';
-import type {AppPasscodeLockTab} from '@components/solidJsTabs';
-import {usePromiseCollector} from '@components/solidJsTabs/promiseCollector';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
+import type { AppPasscodeLockTab } from '@components/solidJsTabs';
+import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
 import Space from '@components/space';
 import StaticSwitch from '@components/staticSwitch';
 import commonStyles from '@components/sidebarLeft/tabs/passcodeLock/common.module.scss';
 import InlineSelect from '@components/sidebarLeft/tabs/passcodeLock/inlineSelect';
 import styles from '@components/sidebarLeft/tabs/passcodeLock/mainTab.module.scss';
-import ShortcutBuilder, {ShortcutKey} from '@components/sidebarLeft/tabs/passcodeLock/shortcutBuilder';
+import ShortcutBuilder, { ShortcutKey } from '@components/sidebarLeft/tabs/passcodeLock/shortcutBuilder';
 
 keepMe(ripple);
 
@@ -32,14 +32,14 @@ const getHintParams = (tab: SliderSuperTab, title: LangPackKey) => ({
   textElement: i18n(title),
   icon: 'premium_lock',
   class: styles.Hint,
-  canCloseOnPeerChange: false
+  canCloseOnPeerChange: false,
 } as const);
 
 const MainTab = () => {
-  const {rootScope} = useHotReloadGuard();
+  const { rootScope } = useHotReloadGuard();
   const promiseCollector = usePromiseCollector();
 
-  const [enabled, {mutate: mutateEnabled}] = createResource(() => {
+  const [enabled, { mutate: mutateEnabled }] = createResource(() => {
     const promise = rootScope.managers.appStateManager.getState().then(state =>
       state.settings?.passcode?.enabled || false
     );
@@ -51,8 +51,8 @@ const MainTab = () => {
 
   const listenerSetter = new ListenerSetter();
 
-  listenerSetter.add(rootScope)('settings_updated', ({key, value}) => {
-    if(key === joinDeepPath('settings', 'passcode', 'enabled')) {
+  listenerSetter.add(rootScope)('settings_updated', ({ key, value }) => {
+    if (key === joinDeepPath('settings', 'passcode', 'enabled')) {
       mutateEnabled(value);
     }
   });
@@ -72,37 +72,37 @@ const MainTab = () => {
 };
 
 const NoPasscodeContent = () => {
-  const [tab, {AppPasscodeEnterPasswordTab, AppPasscodeLockTab}] = useSuperTab();
-  const {enablePasscode} = usePasscodeActions();
-  const {setQuizHint} = useHotReloadGuard();
+  const [tab, { AppPasscodeEnterPasswordTab, AppPasscodeLockTab }] = useSuperTab();
+  const { enablePasscode } = usePasscodeActions();
+  const { setQuizHint } = useHotReloadGuard();
 
   const onEnable = () => {
     tab.slider.createTab(AppPasscodeEnterPasswordTab)
-    .open({
-      onSubmit: (passcode) => {
-        onSecondStep(passcode);
-        passcode = '';
-      },
-      buttonText: 'PasscodeLock.Next',
-      inputLabel: 'PasscodeLock.EnterAPasscode'
-    });
+      .open({
+        onSubmit: (passcode) => {
+          onSecondStep(passcode);
+          passcode = '';
+        },
+        buttonText: 'PasscodeLock.Next',
+        inputLabel: 'PasscodeLock.EnterAPasscode',
+      });
   };
 
   const onSecondStep = (firstPasscode: string) => {
     tab.slider.createTab(AppPasscodeEnterPasswordTab)
-    .open({
-      onSubmit: async(passcode, otherTab) => {
-        if(passcode !== firstPasscode) throw {};
-        await enablePasscode(passcode);
-        passcode = '';
-        otherTab.slider.sliceTabsUntilTab(AppPasscodeLockTab, otherTab);
-        otherTab.close();
+      .open({
+        onSubmit: async(passcode, otherTab) => {
+          if (passcode !== firstPasscode) throw {};
+          await enablePasscode(passcode);
+          passcode = '';
+          otherTab.slider.sliceTabsUntilTab(AppPasscodeLockTab, otherTab);
+          otherTab.close();
 
-        setQuizHint(getHintParams(tab, 'PasscodeLock.PasscodeHasBeenSet'));
-      },
-      buttonText: 'PasscodeLock.SetPasscode',
-      inputLabel: 'PasscodeLock.ReEnterPasscode'
-    });
+          setQuizHint(getHintParams(tab, 'PasscodeLock.PasscodeHasBeenSet'));
+        },
+        buttonText: 'PasscodeLock.SetPasscode',
+        inputLabel: 'PasscodeLock.ReEnterPasscode',
+      });
   };
 
   return (
@@ -132,34 +132,34 @@ const NoPasscodeContent = () => {
 const PasscodeSetContent: Component<{
   onDisable: () => void;
 }> = (props) => {
-  const [tab, {AppPasscodeEnterPasswordTab, AppPasscodeLockTab, AppPrivacyAndSecurityTab}] = useSuperTab<AppPasscodeLockTabType>();
-  const {disablePasscode, changePasscode} = usePasscodeActions();
-  const {rootScope, setQuizHint, Row, useAppSettings, confirmationPopup} = useHotReloadGuard();
+  const [tab, { AppPasscodeEnterPasswordTab, AppPasscodeLockTab, AppPrivacyAndSecurityTab }] = useSuperTab<AppPasscodeLockTabType>();
+  const { disablePasscode, changePasscode } = usePasscodeActions();
+  const { rootScope, setQuizHint, Row, useAppSettings, confirmationPopup } = useHotReloadGuard();
   const [, setAppSettings] = useAppSettings();
 
   const options = [
-    {value: 0, label: () => i18n('PasscodeLock.Disabled')},
-    {value: 1, label: () => i18n('MinutesShort', [1])},
-    {value: 5, label: () => i18n('MinutesShort', [5])},
-    {value: 10, label: () => i18n('MinutesShort', [10])},
-    {value: 15, label: () => i18n('MinutesShort', [15])},
-    {value: 30, label: () => i18n('MinutesShort', [30])}
+    { value: 0, label: () => i18n('PasscodeLock.Disabled') },
+    { value: 1, label: () => i18n('MinutesShort', [1]) },
+    { value: 5, label: () => i18n('MinutesShort', [5]) },
+    { value: 10, label: () => i18n('MinutesShort', [10]) },
+    { value: 15, label: () => i18n('MinutesShort', [15]) },
+    { value: 30, label: () => i18n('MinutesShort', [30]) },
   ];
 
   const [autoCloseRowEl, setAutoCloseRowEl] = createSignal<HTMLElement>();
   const [isOpen, setIsOpen] = createSignal(false);
 
-  const [lockTimeout, {mutate: mutateLockTimeout}] = createResource(() => rootScope.managers.appStateManager.getState().then(state =>
+  const [lockTimeout, { mutate: mutateLockTimeout }] = createResource(() => rootScope.managers.appStateManager.getState().then(state =>
     state?.settings?.passcode?.autoLockTimeoutMins || 0
   ));
 
-  const [shortcutEnabled, {mutate: mutateShortcutEnabled}] = createResource(() =>
+  const [shortcutEnabled, { mutate: mutateShortcutEnabled }] = createResource(() =>
     rootScope.managers.appStateManager.getState().then(state =>
       state?.settings?.passcode?.lockShortcutEnabled || false
     )
   );
 
-  const [shortcutKeys, {mutate: mutateShortcutKeys}] = createResource(() =>
+  const [shortcutKeys, { mutate: mutateShortcutKeys }] = createResource(() =>
     rootScope.managers.appStateManager.getState().then(state =>
       state?.settings?.passcode?.lockShortcut || []
     )
@@ -167,12 +167,12 @@ const PasscodeSetContent: Component<{
 
   const listenerSetter = new ListenerSetter();
 
-  listenerSetter.add(rootScope)('settings_updated', ({key, value}) => {
-    if(key === joinDeepPath('settings', 'passcode', 'lockShortcut')) {
+  listenerSetter.add(rootScope)('settings_updated', ({ key, value }) => {
+    if (key === joinDeepPath('settings', 'passcode', 'lockShortcut')) {
       mutateShortcutKeys(value);
-    } else if(key === joinDeepPath('settings', 'passcode', 'lockShortcutEnabled')) {
+    } else if (key === joinDeepPath('settings', 'passcode', 'lockShortcutEnabled')) {
       mutateShortcutEnabled(value);
-    } else if(key === joinDeepPath('settings', 'passcode', 'autoLockTimeoutMins')) {
+    } else if (key === joinDeepPath('settings', 'passcode', 'autoLockTimeoutMins')) {
       mutateLockTimeout(value);
     }
   });
@@ -201,31 +201,31 @@ const PasscodeSetContent: Component<{
 
   const onPasscodeChange = () => {
     tab.slider.createTab(AppPasscodeEnterPasswordTab)
-    .open({
-      onSubmit: (passcode) => {
-        onChangeSecondStep(passcode);
-        passcode = ''; // forget
-      },
-      buttonText: 'PasscodeLock.Next',
-      inputLabel: 'PasscodeLock.EnterAPasscode'
-    }, 'PasscodeLock.EnterANewPasscode');
+      .open({
+        onSubmit: (passcode) => {
+          onChangeSecondStep(passcode);
+          passcode = ''; // forget
+        },
+        buttonText: 'PasscodeLock.Next',
+        inputLabel: 'PasscodeLock.EnterAPasscode',
+      }, 'PasscodeLock.EnterANewPasscode');
   };
 
   const onChangeSecondStep = (firstPasscode: string) => {
     tab.slider.createTab(AppPasscodeEnterPasswordTab)
-    .open({
-      onSubmit: async(passcode, otherTab) => {
-        if(passcode !== firstPasscode) throw {};
-        await changePasscode(passcode);
-        passcode = ''; // forget
-        otherTab.slider.sliceTabsUntilTab(AppPasscodeLockTab, otherTab);
-        otherTab.close();
+      .open({
+        onSubmit: async(passcode, otherTab) => {
+          if (passcode !== firstPasscode) throw {};
+          await changePasscode(passcode);
+          passcode = ''; // forget
+          otherTab.slider.sliceTabsUntilTab(AppPasscodeLockTab, otherTab);
+          otherTab.close();
 
-        setQuizHint(getHintParams(tab, 'PasscodeLock.PasscodeHasBeenChanged'));
-      },
-      buttonText: 'PasscodeLock.SetPasscode',
-      inputLabel: 'PasscodeLock.ReEnterPasscode'
-    }, 'PasscodeLock.ReEnterPasscode');
+          setQuizHint(getHintParams(tab, 'PasscodeLock.PasscodeHasBeenChanged'));
+        },
+        buttonText: 'PasscodeLock.SetPasscode',
+        inputLabel: 'PasscodeLock.ReEnterPasscode',
+      }, 'PasscodeLock.ReEnterPasscode');
   };
 
   const onDisable = () => {
@@ -234,18 +234,18 @@ const PasscodeSetContent: Component<{
       description: i18n('PasscodeLock.TurnOff.Description'),
       button: {
         text: i18n('PasscodeLock.TurnOff'),
-        isDanger: true
-      }
+        isDanger: true,
+      },
     })
-    .then(async() => {
-      props.onDisable();
-      await disablePasscode();
-      tab.close();
-      setQuizHint(getHintParams(
-        tab.slider.getTab(AppPrivacyAndSecurityTab), 'PasscodeLock.PasscodeHasBeenDisabled'
-      ));
-    })
-    .catch(() => {});
+      .then(async() => {
+        props.onDisable();
+        await disablePasscode();
+        tab.close();
+        setQuizHint(getHintParams(
+          tab.slider.getTab(AppPrivacyAndSecurityTab), 'PasscodeLock.PasscodeHasBeenDisabled'
+        ));
+      })
+      .catch(() => {});
   };
 
   const caption = (
@@ -307,7 +307,7 @@ const PasscodeSetContent: Component<{
               <StaticSwitch checked={shortcutEnabled()} />
             </Row.RightContent>
           </Row>
-          <div class={styles.ShortcutBuilderRow} classList={{[styles.collapsed]: !shortcutEnabled()}}>
+          <div class={styles.ShortcutBuilderRow} classList={{ [styles.collapsed]: !shortcutEnabled() }}>
             <ShortcutBuilder class={styles.ShortcutBuilderRowChild} value={shortcutKeys() || []} onChange={setShortcutKeys} key="L" />
           </div>
         </Show>

@@ -1,4 +1,4 @@
-import {IS_APPLE_MOBILE} from '@environment/userAgent';
+import { IS_APPLE_MOBILE } from '@environment/userAgent';
 import rootScope from '@lib/rootScope';
 import callbackify from '@helpers/callbackify';
 import isCrbug1250841Error from '@helpers/fixChromiumMp4.constants';
@@ -8,16 +8,16 @@ export function shouldIgnoreVideoError(e: ErrorEvent) {
     const target = e.target as HTMLVideoElement;
     const error = target.error;
 
-    if(!error || error.message.includes('URL safety check')) {
+    if (!error || error.message.includes('URL safety check')) {
       console.warn('will ignore video error', e);
       return true;
     }
 
     const isChromeBug = isCrbug1250841Error(error);
-    if(isChromeBug && !(target as any).triedFixingChromeBug) {
+    if (isChromeBug && !(target as any).triedFixingChromeBug) {
       let srcPromise: MaybePromise<string>;
       const originalSrc = target.src;
-      if(originalSrc.includes('stream/')) {
+      if (originalSrc.includes('stream/')) {
         srcPromise = originalSrc + '?_crbug1250841';
       } else {
         srcPromise = rootScope.managers.appDocsManager.fixChromiumMp4(originalSrc);
@@ -25,7 +25,7 @@ export function shouldIgnoreVideoError(e: ErrorEvent) {
 
       callbackify(srcPromise, (src) => {
         (target as any).triedFixingChromeBug = true;
-        if(target.src === src) {
+        if (target.src === src) {
           return;
         }
 
@@ -33,17 +33,17 @@ export function shouldIgnoreVideoError(e: ErrorEvent) {
         target.load();
       });
       return true;
-    } else if(isChromeBug) {
+    } else if (isChromeBug) {
       console.error('chrome video error', e);
     }
-  } catch(err) {}
+  } catch (err) {}
 
   return false;
 }
 
 export default function onMediaLoad(media: HTMLMediaElement, readyState = media.HAVE_METADATA, useCanplayOnIos?: boolean) {
   return new Promise<void>((resolve, reject) => {
-    if(media.readyState >= readyState) {
+    if (media.readyState >= readyState) {
       resolve();
       return;
     }
@@ -55,7 +55,7 @@ export default function onMediaLoad(media: HTMLMediaElement, readyState = media.
       resolve();
     };
     const onError = (e: ErrorEvent) => {
-      if(shouldIgnoreVideoError(e)) {
+      if (shouldIgnoreVideoError(e)) {
         return;
       }
 
@@ -63,7 +63,7 @@ export default function onMediaLoad(media: HTMLMediaElement, readyState = media.
       media.removeEventListener(errorEventName, onError);
       reject(media.error);
     };
-    media.addEventListener(loadEventName, onLoad, {once: true});
+    media.addEventListener(loadEventName, onLoad, { once: true });
     media.addEventListener(errorEventName, onError);
   });
 }

@@ -31,7 +31,7 @@
 // }
 
 export default function isNodeFullyInsideRange(range: Range, node: Node): boolean {
-  if(!range.intersectsNode(node)) return false;
+  if (!range.intersectsNode(node)) return false;
 
   const nodeRange = document.createRange();
   nodeRange.selectNodeContents(node);

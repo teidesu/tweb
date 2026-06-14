@@ -1,20 +1,20 @@
-import {attachClickEvent} from '@helpers/dom/clickEvent';
-import {MissingInvitee} from '@layer';
-import {FormatterArguments, LangPackKey, i18n, join} from '@lib/langPack';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
+import { MissingInvitee } from '@layer';
+import { FormatterArguments, LangPackKey, i18n, join } from '@lib/langPack';
 import rootScope from '@lib/rootScope';
 import Button from '@components/button';
-import {DelimiterWithText} from '@components/chat/giveaway';
+import { DelimiterWithText } from '@components/chat/giveaway';
 import PopupElement from '@components/popups';
-import PopupPeer, {PopupPeerButtonCallback, PopupPeerButtonCallbackCheckboxes, PopupPeerCheckboxOptions} from '@components/popups/peer';
+import PopupPeer, { PopupPeerButtonCallback, PopupPeerButtonCallbackCheckboxes, PopupPeerCheckboxOptions } from '@components/popups/peer';
 import showPickUserPopup from '@components/popups/pickUser';
 import PopupPremium from '@components/popups/premium';
-import {AppAddMembersTab} from '@components/solidJsTabs';
+import { AppAddMembersTab } from '@components/solidJsTabs';
 import SidebarSlider from '@components/slider';
-import {toastNew} from '@components/toast';
+import { toastNew } from '@components/toast';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
 
 export async function handleMissingInvitees(chatId: ChatId, missingInvitees: MissingInvitee[]) {
-  if(!missingInvitees.length) {
+  if (!missingInvitees.length) {
     return;
   }
 
@@ -23,11 +23,11 @@ export async function handleMissingInvitees(chatId: ChatId, missingInvitees: Mis
   const canInviteAsPremiumIds: Set<PeerId> = new Set();
   const missingInviteeIds = missingInvitees.map((invitee) => {
     const peerId = invitee.user_id.toPeerId(false);
-    if(invitee.pFlags.premium_required_for_pm) {
+    if (invitee.pFlags.premium_required_for_pm) {
       premiumRequireIds.add(peerId);
     }
 
-    if(invitee.pFlags.premium_would_allow_invite) {
+    if (invitee.pFlags.premium_would_allow_invite) {
       canInviteAsPremiumIds.add(peerId);
     }
 
@@ -36,7 +36,7 @@ export async function handleMissingInvitees(chatId: ChatId, missingInvitees: Mis
 
   const hasPremiumSection = canInviteAsPremiumIds.size > 0;
 
-  const getTitle = (peerId: PeerId) => wrapPeerTitle({peerId, onlyFirstName: true});
+  const getTitle = (peerId: PeerId) => wrapPeerTitle({ peerId, onlyFirstName: true });
   const length = missingInviteeIds.length;
   const title = length > 1 ? undefined : await getTitle(hasPremiumSection ? [...canInviteAsPremiumIds][0] : missingInviteeIds[0]);
 
@@ -55,29 +55,29 @@ export async function handleMissingInvitees(chatId: ChatId, missingInvitees: Mis
   const popup = showPickUserPopup(
     {
       peerType: ['custom'],
-      getMoreCustom: async() => ({result: missingInviteeIds, isEnd: true}),
+      getMoreCustom: async() => ({ result: missingInviteeIds, isEnd: true }),
       onSelect: async(chosen) => {
         const peerIds = chosen.map((c) => c.peerId);
-        if(cantSendMessages) {
+        if (cantSendMessages) {
           onPremiumClick();
           return;
         }
 
         const length = peerIds.length;
-        if(!length) {
+        if (!length) {
           return;
         }
 
         peerIds.forEach((peerId) => {
           rootScope.managers.appMessagesManager.sendText({
             peerId,
-            text: inviteLink
+            text: inviteLink,
           });
         });
 
         toastNew({
           langPackKey: 'InviteViaLink.LinkShared',
-          langPackArguments: [length, (length > 1 ? undefined : await getTitle(peerIds[0]))!]
+          langPackArguments: [length, (length > 1 ? undefined : await getTitle(peerIds[0]))!],
         });
       },
       onChange: onCountUpdate,
@@ -85,14 +85,14 @@ export async function handleMissingInvitees(chatId: ChatId, missingInvitees: Mis
       initial,
       headerSearch: false,
       noSearch: true,
-      footerButtonProps: /* cantSendMessages ? undefined :  */{ref: (element) => footerButton = element},
+      footerButtonProps: /* cantSendMessages ? undefined :  */{ ref: (element) => footerButton = element },
       chatRightsActions: ['send_messages'],
-      autoHeight: cantSendMessages
+      autoHeight: cantSendMessages,
     }
   );
 
   onCountUpdate(initial.length);
-  if(hasPremiumSection) {
+  if (hasPremiumSection) {
     const container = document.createElement('div');
     container.classList.add('popup-add-members-premium-container');
 
@@ -103,19 +103,19 @@ export async function handleMissingInvitees(chatId: ChatId, missingInvitees: Mis
       subtitle
     );
 
-    if(!cantSendMessages) {
+    if (!cantSendMessages) {
       const header = i18n('InviteViaLink.Title');
       header.classList.add('popup-add-members-premium-header');
 
       const subtitle2 = i18n('InviteViaLink.Premium.Subtitle2');
       subtitle2.classList.add('popup-add-members-premium-subtitle');
 
-      const premiumButton = Button(`btn-primary popup-gift-premium-confirm action-button shimmer`, {text: 'InviteViaLink.Premium.Subscribe'});
+      const premiumButton = Button(`btn-primary popup-gift-premium-confirm action-button shimmer`, { text: 'InviteViaLink.Premium.Subscribe' });
       attachClickEvent(premiumButton, onPremiumClick);
 
       container.append(
         premiumButton,
-        DelimiterWithText({langKey: 'PremiumOr'}) as HTMLElement,
+        DelimiterWithText({ langKey: 'PremiumOr' }) as HTMLElement,
         header,
         subtitle2
       );
@@ -136,7 +136,7 @@ export async function handleMissingInvitees(chatId: ChatId, missingInvitees: Mis
 export default async function addChatUsers({
   peerId,
   slider,
-  skippable = false
+  skippable = false,
 }: {
   peerId: PeerId,
   slider: SidebarSlider,
@@ -151,42 +151,42 @@ export default async function addChatUsers({
       descriptionLangKey: LangPackKey, descriptionLangArgs: FormatterArguments,
       checkboxes: PopupPeerCheckboxOptions[];
 
-    if(peerIds.length > 1) {
+    if (peerIds.length > 1) {
       const titles = await Promise.all(peerIds.map(async(peerId) => {
         const b = document.createElement('b');
-        b.append(await wrapPeerTitle({peerId}));
+        b.append(await wrapPeerTitle({ peerId }));
         return b;
       }));
       titleLangKey = 'AddMembersAlertTitle';
       titleLangArgs = [i18n(isBroadcast ? 'Subscribers' : 'Members', [peerIds.length])];
       descriptionLangKey = 'AddMembersAlertCountText';
       descriptionLangArgs = [
-        join(titles)
+        join(titles),
       ];
 
-      if(!isChannel) {
+      if (!isChannel) {
         checkboxes = [{
           text: 'AddMembersForwardMessages',
-          checked: true
+          checked: true,
         }];
       }
     } else {
       titleLangKey = 'AddOneMemberAlertTitle';
       descriptionLangKey = 'AddMembersAlertNamesText';
       const b = document.createElement('b');
-      b.append(await wrapPeerTitle({peerId: peerIds[0]}));
+      b.append(await wrapPeerTitle({ peerId: peerIds[0] }));
       descriptionLangArgs = [b];
 
-      if(!isChannel) {
+      if (!isChannel) {
         checkboxes = [{
           text: peerIds.length > 1 ? 'AddMembersForwardMessages' : 'AddOneMemberForwardMessages',
-          textArgs: peerIds.length > 1 ? undefined : [await wrapPeerTitle({peerId: peerIds[0]})],
-          checked: true
+          textArgs: peerIds.length > 1 ? undefined : [await wrapPeerTitle({ peerId: peerIds[0] })],
+          checked: true,
         }];
       }
     }
 
-    descriptionLangArgs.push(await wrapPeerTitle({peerId}));
+    descriptionLangArgs.push(await wrapPeerTitle({ peerId }));
 
     PopupElement.createPopup(PopupPeer, 'popup-add-members', {
       peerId,
@@ -196,15 +196,15 @@ export default async function addChatUsers({
       descriptionLangArgs,
       buttons: [{
         langKey: 'Add',
-        callback: callback as PopupPeerButtonCallback
+        callback: callback as PopupPeerButtonCallback,
       }],
-      checkboxes: checkboxes!
+      checkboxes: checkboxes!,
     }).show();
   };
 
   const onError = (err: ApiError) => {
-    if(err.type === 'USER_PRIVACY_RESTRICTED') {
-      toastNew({langPackKey: 'InviteToGroupError'});
+    if (err.type === 'USER_PRIVACY_RESTRICTED') {
+      toastNew({ langPackKey: 'InviteToGroupError' });
     }/*  else if(err.type === 'USER_NOT_MUTUAL_CONTACT') {
       toastNew({langPackKey: 'InviteToGroupError'});
     }  */else {
@@ -228,6 +228,6 @@ export default async function addChatUsers({
       return false;
     },
     title: isBroadcast ? 'ChannelAddSubscribers' : 'GroupAddMembers',
-    placeholder: 'SendMessageTo'
+    placeholder: 'SendMessageTo',
   });
 }

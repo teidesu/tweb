@@ -13,8 +13,8 @@
  * per-frame crypto path, we can swap to transferables later.
  */
 
-import type {VerificationStateSnapshot} from './emoji';
-import type {GroupParticipant, GroupState} from './tlTypes';
+import type { VerificationStateSnapshot } from './emoji';
+import type { GroupParticipant, GroupState } from './tlTypes';
 
 // ===== Requests (main → worker) =====
 

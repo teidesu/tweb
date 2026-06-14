@@ -8,6 +8,6 @@ export default function getCallAudioAsset() {
     end: 'call_end.mp3',
     incoming: 'call_incoming.mp3',
     outgoing: 'call_outgoing.mp3',
-    failed: 'voip_failed.mp3'
+    failed: 'voip_failed.mp3',
   });
 }

@@ -1,56 +1,56 @@
-import type {MyDocument} from '@appManagers/appDocsManager';
+import type { MyDocument } from '@appManagers/appDocsManager';
 import type Chat from '@components/chat/chat';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import ButtonMenu, {ButtonMenuItemOptions, ButtonMenuItemOptionsVerifiable} from '@components/buttonMenu';
+import ButtonMenu, { ButtonMenuItemOptions, ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
 import PopupDeleteMessages from '@components/popups/deleteMessages';
 import showForwardPopup from '@components/popups/forward';
 import PopupPinMessage from '@components/popups/unpinMessage';
-import {copyTextToClipboard} from '@helpers/clipboard';
+import { copyTextToClipboard } from '@helpers/clipboard';
 import showSendNowPopup from '@components/popups/sendNow';
-import {toastNew} from '@components/toast';
-import I18n, {i18n, LangPackKey} from '@lib/langPack';
+import { toastNew } from '@components/toast';
+import I18n, { i18n, LangPackKey } from '@lib/langPack';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {attachClickEvent, simulateClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent, simulateClickEvent } from '@helpers/dom/clickEvent';
 import isSelectionEmpty from '@helpers/dom/isSelectionEmpty';
-import {Message, Poll, Chat as MTChat, MessageMedia, InputStickerSet, StickerSet, Document, Reaction, Photo, SponsoredMessage, TextWithEntities, TodoItem, TodoCompletion, MessageReplyHeader, PollAnswer} from '@layer';
+import { Message, Poll, Chat as MTChat, MessageMedia, InputStickerSet, StickerSet, Document, Reaction, Photo, SponsoredMessage, TextWithEntities, TodoItem, TodoCompletion, MessageReplyHeader, PollAnswer } from '@layer';
 import assumeType from '@helpers/assumeType';
 import showSponsoredPopup from '@components/popups/sponsored';
 import ListenerSetter from '@helpers/listenerSetter';
-import {getMiddleware} from '@helpers/middleware';
+import { getMiddleware } from '@helpers/middleware';
 import PeerTitle from '@components/peerTitle';
 import StackedAvatars from '@components/stackedAvatars';
-import {IS_APPLE, IS_MOBILE} from '@environment/userAgent';
+import { IS_APPLE, IS_MOBILE } from '@environment/userAgent';
 import PopupReactedList from '@components/popups/reactedList';
-import {ChatReactionsMenu, REACTION_CONTAINER_SIZE} from '@components/chat/reactionsMenu';
+import { ChatReactionsMenu, REACTION_CONTAINER_SIZE } from '@components/chat/reactionsMenu';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
 import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
-import {AppManagers} from '@lib/managers';
-import positionMenu, {MenuPositionPadding} from '@helpers/positionMenu';
+import { AppManagers } from '@lib/managers';
+import positionMenu, { MenuPositionPadding } from '@helpers/positionMenu';
 import contextMenuController from '@helpers/contextMenuController';
-import {attachContextMenuListener} from '@helpers/dom/attachContextMenuListener';
+import { attachContextMenuListener } from '@helpers/dom/attachContextMenuListener';
 import filterAsync from '@helpers/array/filterAsync';
-import appDownloadManager, {DownloadBlob} from '@lib/appDownloadManager';
-import {SERVICE_PEER_ID} from '@appManagers/constants';
-import {MessagesStorageKey, MyMessage} from '@appManagers/appMessagesManager';
+import appDownloadManager, { DownloadBlob } from '@lib/appDownloadManager';
+import { SERVICE_PEER_ID } from '@appManagers/constants';
+import { MessagesStorageKey, MyMessage } from '@appManagers/appMessagesManager';
 import filterUnique from '@helpers/array/filterUnique';
 import replaceContent from '@helpers/dom/replaceContent';
-import wrapEmojiText, {wrapEmojiTextWithEntities} from '@lib/richTextProcessor/wrapEmojiText';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
+import wrapEmojiText, { wrapEmojiTextWithEntities } from '@lib/richTextProcessor/wrapEmojiText';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
 import showStickersPopup from '@components/popups/stickers';
 import getMediaFromMessage from '@appManagers/utils/messages/getMediaFromMessage';
 import canSaveMessageMedia from '@appManagers/utils/messages/canSaveMessageMedia';
 import getGroupedText from '@appManagers/utils/messages/getGroupedText';
 import PopupElement from '@components/popups';
-import confirmationPopup, {PopupConfirmationOptions} from '@components/confirmationPopup';
+import confirmationPopup, { PopupConfirmationOptions } from '@components/confirmationPopup';
 import Icon from '@components/icon';
 import cloneDOMRect from '@helpers/dom/cloneDOMRect';
 import PopupPremium from '@components/popups/premium';
-import {ChatInputReplyTo} from '@components/chat/input';
-import {makeFullMid, TEST_BUBBLES_DELETION} from '@components/chat/bubbles';
+import { ChatInputReplyTo } from '@components/chat/input';
+import { makeFullMid, TEST_BUBBLES_DELETION } from '@components/chat/bubbles';
 import AppStatisticsTab from '@components/sidebarRight/tabs/statistics';
-import {ChatType} from './chatType';
-import {formatFullSentTime} from '@helpers/date';
+import { ChatType } from './chatType';
+import { formatFullSentTime } from '@helpers/date';
 import PopupToggleReadDate from '@components/popups/toggleReadDate';
 import rootScope from '@lib/rootScope';
 import ReactionElement from '@components/chat/reaction';
@@ -61,7 +61,7 @@ import getRichSelection from '@helpers/dom/getRichSelection';
 import detectLanguageForTranslation from '@helpers/detectLanguageForTranslation';
 import wrapRichText from '@lib/richTextProcessor/wrapRichText';
 import documentFragmentToHTML from '@helpers/dom/documentFragmentToHTML';
-import {showAdReport, showMessageReport} from '@components/popups/reportAd';
+import { showAdReport, showMessageReport } from '@components/popups/reportAd';
 import showAboutAdPopup from '@components/popups/aboutAd';
 import getRichValueWithCaret from '@helpers/dom/getRichValueWithCaret';
 import deepEqual from '@helpers/object/deepEqual';
@@ -69,26 +69,26 @@ import wrapDraftText from '@lib/richTextProcessor/wrapDraftText';
 import PopupStarReaction from '@components/popups/starReaction';
 import getUniqueCustomEmojisFromMessage from '@appManagers/utils/messages/getUniqueCustomEmojisFromMessage';
 import getPeerTitle from '@components/wrappers/getPeerTitle';
-import {getFullDate} from '@helpers/date/getFullDate';
-import PaidMessagesInterceptor, {PAYMENT_REJECTED} from '@components/chat/paidMessagesInterceptor';
-import {MySponsoredPeer} from '@appManagers/appChatsManager';
+import { getFullDate } from '@helpers/date/getFullDate';
+import PaidMessagesInterceptor, { PAYMENT_REJECTED } from '@components/chat/paidMessagesInterceptor';
+import { MySponsoredPeer } from '@appManagers/appChatsManager';
 import showChecklistPopup from '@components/popups/checklist';
-import createSubmenuTrigger, {CreateSubmenuArgs} from '@components/createSubmenuTrigger';
+import createSubmenuTrigger, { CreateSubmenuArgs } from '@components/createSubmenuTrigger';
 import noop from '@helpers/noop';
-import {isSensitive} from '@helpers/restrictions';
-import {hasSensitiveSpoiler} from '@components/wrappers/mediaSpoiler';
-import {useIsFrozen} from '@stores/appState';
+import { isSensitive } from '@helpers/restrictions';
+import { hasSensitiveSpoiler } from '@components/wrappers/mediaSpoiler';
+import { useIsFrozen } from '@stores/appState';
 import prepareTextWithEntitiesForCopying from '@helpers/prepareTextWithEntitiesForCopying';
-import {runWithHotReloadGuard} from '@lib/solidjs/runWithHotReloadGuard';
-import {MaybePromise} from '@types';
-import {ContextMenuDeleteOptionText} from '@components/chat/contextMenuDeleteOptionText';
+import { runWithHotReloadGuard } from '@lib/solidjs/runWithHotReloadGuard';
+import { MaybePromise } from '@types';
+import { ContextMenuDeleteOptionText } from '@components/chat/contextMenuDeleteOptionText';
 import getMarkupInSelection from '@helpers/dom/getMarkupInSelection';
 import isNodeFullyInsideRange from '@helpers/dom/isNodeFullyInsideRange';
 import parseEntities from '@lib/richTextProcessor/parseEntities';
-import {concatTextsWithEntities} from '@lib/richTextProcessor/concatTextsWithEntities';
-import {shouldShufflePollOptions, shufflePollOptions} from './bubbleParts/pollMessageContent/shuffle';
-import {truncateTextWithEntities} from '@lib/richTextProcessor/truncateTextWithEntities';
-import {pollOptionToLink} from './bubbleParts/pollMessageContent/pollToOptionLink';
+import { concatTextsWithEntities } from '@lib/richTextProcessor/concatTextsWithEntities';
+import { shouldShufflePollOptions, shufflePollOptions } from './bubbleParts/pollMessageContent/shuffle';
+import { truncateTextWithEntities } from '@lib/richTextProcessor/truncateTextWithEntities';
+import { pollOptionToLink } from './bubbleParts/pollMessageContent/pollToOptionLink';
 
 type ChatContextMenuButton = ButtonMenuItemOptions & {
   verify: () => boolean | Promise<boolean>,
@@ -108,9 +108,9 @@ export function getSponsoredMessageButtons(options: {
     message,
     extraVerify = () => true,
     handleReportAd,
-    handleCopy
+    handleCopy,
   } = options;
-  if(!message) return []
+  if (!message) return []
 
   const canReport = message._ === 'sponsoredPeer' ? true : message.pFlags.can_report;
 
@@ -120,7 +120,7 @@ export function getSponsoredMessageButtons(options: {
       text: 'Chat.Message.Sponsored.What',
       onClick: () =>  showSponsoredPopup(),
       verify: () => extraVerify() && !canReport,
-      isSponsored: true
+      isSponsored: true,
     }, {
       icon: 'info',
       text: 'AboutRevenueSharingAds',
@@ -128,49 +128,49 @@ export function getSponsoredMessageButtons(options: {
         showAboutAdPopup();
       },
       verify: () => extraVerify() && !!canReport,
-      isSponsored: true
+      isSponsored: true,
     }, {
       icon: 'hand',
       text: 'HideAd',
       onClick: () => {
-        PopupPremium.show({feature: 'no_ads'});
+        PopupPremium.show({ feature: 'no_ads' });
       },
       verify: () => extraVerify() && !canReport,
-      isSponsored: true
+      isSponsored: true,
     }, {
       icon: 'hand',
       text: 'ReportAd',
       onClick: handleReportAd,
       verify: () => extraVerify() && !!canReport,
-      isSponsored: true
+      isSponsored: true,
     }, {
       icon: 'crossround',
       text: 'RemoveAds',
       onClick: () => {
-        PopupPremium.show({feature: 'no_ads'});
+        PopupPremium.show({ feature: 'no_ads' });
       },
       verify: () => extraVerify() && !!canReport,
-      isSponsored: true
+      isSponsored: true,
     }, {
       icon: 'copy',
       text: 'Copy',
       onClick: handleCopy!,
       verify: () => handleCopy != null && extraVerify(),
-      isSponsored: true
+      isSponsored: true,
     }, {
       regularText: message.sponsor_info ? wrapEmojiText(message.sponsor_info) : undefined,
       separator: true,
       secondary: true,
       onClick: () => copyTextToClipboard(message.sponsor_info!),
       verify: () => extraVerify() && !!message.sponsor_info,
-      isSponsored: true
+      isSponsored: true,
     }, {
       regularText: message.additional_info ? wrapEmojiText(message.additional_info) : undefined,
       separator: true,
       secondary: true,
       onClick: () => copyTextToClipboard(message.additional_info!),
       verify: () => extraVerify() && !!message.additional_info,
-      isSponsored: true
+      isSponsored: true,
     }]
 }
 
@@ -238,9 +238,9 @@ export default class ChatContextMenu {
   public attachTo(element: HTMLElement) {
     this.attachListenerSetter.removeAll();
 
-    if(IS_TOUCH_SUPPORTED/*  && false */) {
+    if (IS_TOUCH_SUPPORTED/*  && false */) {
       attachClickEvent(element, (e) => {
-        if(this.chat.selection!.isSelecting) {
+        if (this.chat.selection!.isSelecting) {
           return;
         }
 
@@ -263,44 +263,44 @@ export default class ChatContextMenu {
           '.bubble-view-button',
           '.webpage',
           '.bubbles-group-avatar',
-          '.bubble-service-button'
+          '.bubble-service-button',
         ];
         const good = !(e.target as HTMLElement).closest(badSelectors.join(', '));
-        if(good) {
+        if (good) {
           cancelEvent(e);
           // onContextMenu((e as TouchEvent).changedTouches[0]);
           // onContextMenu((e as TouchEvent).changedTouches ? (e as TouchEvent).changedTouches[0] : e as MouseEvent);
           this.onContextMenu(e);
         }
-      }, {listenerSetter: this.attachListenerSetter});
+      }, { listenerSetter: this.attachListenerSetter });
     } else attachContextMenuListener({
       element,
       callback: this.onContextMenu,
-      listenerSetter: this.attachListenerSetter
+      listenerSetter: this.attachListenerSetter,
     });
 
     // * handle message deletion
-    this.attachListenerSetter.add(rootScope)('history_delete', ({peerId, msgs}) => {
-      if(peerId !== this.chat.peerId) {
+    this.attachListenerSetter.add(rootScope)('history_delete', ({ peerId, msgs }) => {
+      if (peerId !== this.chat.peerId) {
         return;
       }
 
-      if(this.mid && msgs.has(this.mid)) {
+      if (this.mid && msgs.has(this.mid)) {
         contextMenuController.close();
         return;
       }
 
-      if(this.chat.selection!.isSelecting && this.selectedMessages) {
+      if (this.chat.selection!.isSelecting && this.selectedMessages) {
         const hasDeletedSelectedMessage = this.selectedMessages.some((message) => msgs.has(message.mid!));
-        if(hasDeletedSelectedMessage) {
+        if (hasDeletedSelectedMessage) {
           contextMenuController.close();
           return;
         }
       }
 
-      if(this.groupedMessages) {
+      if (this.groupedMessages) {
         const hasDeletedGroupedMessage = this.groupedMessages.some((message) => msgs.has(message.mid!));
-        if(hasDeletedGroupedMessage) {
+        if (hasDeletedGroupedMessage) {
           contextMenuController.close();
         }
       }
@@ -308,7 +308,7 @@ export default class ChatContextMenu {
   }
 
   public onContextMenu = (e: MouseEvent | Touch | TouchEvent) => {
-    if(this.chat.type === ChatType.Static) return;
+    if (this.chat.type === ChatType.Static) return;
 
 
     let bubble: HTMLElement, contentWrapper: HTMLElement, avatar: HTMLElement;
@@ -317,30 +317,30 @@ export default class ChatContextMenu {
       contentWrapper = findUpClassName(e.target!, 'bubble-content-wrapper');
       bubble = (contentWrapper ? contentWrapper.parentElement : findUpClassName(e.target!, 'bubble'))!;
       avatar = findUpClassName(e.target!, 'bubbles-group-avatar') || undefined;
-    } catch(e) {}
+    } catch (e) {}
 
     // ! context menu click by date bubble (there is no pointer-events)
-    if((!bubble! || bubble.classList.contains('bubble-first')) && !avatar!) return;
+    if ((!bubble! || bubble.classList.contains('bubble-first')) && !avatar!) return;
 
     let element = this.element;
-    if(e instanceof MouseEvent || e.hasOwnProperty('preventDefault')) (e as any).preventDefault();
-    if(element && element.classList.contains('active')) {
+    if (e instanceof MouseEvent || e.hasOwnProperty('preventDefault')) (e as any).preventDefault();
+    if (element && element.classList.contains('active')) {
       return false;
     }
-    if(e instanceof MouseEvent || e.hasOwnProperty('cancelBubble')) (e as any).cancelBubble = true;
+    if (e instanceof MouseEvent || e.hasOwnProperty('cancelBubble')) (e as any).cancelBubble = true;
 
     let mid = avatar! ? 0 : +bubble!.dataset.mid!;
-    if(!mid && mid !== 0) {
+    if (!mid && mid !== 0) {
       return;
     }
 
-    if(avatar! && !avatar.dataset.peerId) {
-      toastNew({langPackKey: 'HidAccount'});
+    if (avatar! && !avatar.dataset.peerId) {
+      toastNew({ langPackKey: 'HidAccount' });
       return;
     }
 
     const paidReactionElement = (e.target as HTMLElement).closest('.reaction.is-paid');
-    if(paidReactionElement) {
+    if (paidReactionElement) {
       PopupElement.createPopup(PopupStarReaction, bubble!.dataset.peerId!.toPeerId(), mid, this.chat);
       return;
     }
@@ -348,13 +348,13 @@ export default class ChatContextMenu {
     const tagReactionElement = findUpClassName(e.target!, 'reaction-tag');
     let checklistItemId: number;
     const checklistItemElement = (e.target as HTMLElement).closest('[data-checklist-item-id]');
-    if(checklistItemElement) {
+    if (checklistItemElement) {
       checklistItemId = +(checklistItemElement as HTMLElement).dataset.checklistItemId!;
     }
 
     let pollOptionIdx: number;
     const pollOptionElement = (e.target as HTMLElement).closest('[data-poll-option-idx]');
-    if(pollOptionElement) {
+    if (pollOptionElement) {
       pollOptionIdx = +(pollOptionElement as HTMLElement).dataset.pollOptionIdx!;
     }
 
@@ -374,12 +374,12 @@ export default class ChatContextMenu {
       this.isTag = !!tagReactionElement;
       this.reactionElement = tagReactionElement as ReactionElement;
 
-      if(this.isTag && !rootScope.premium) {
-        PopupPremium.show({feature: 'saved_tags'});
+      if (this.isTag && !rootScope.premium) {
+        PopupPremium.show({ feature: 'saved_tags' });
         return;
       }
 
-      if(this.isTextSelected) {
+      if (this.isTextSelected) {
         const range = document.getSelection()!.getRangeAt(0);
         this.isTextFromMultipleMessagesSelected = findUpClassName(range.startContainer.parentElement!, 'spoilers-container') !== findUpClassName(range.endContainer.parentElement!, 'spoilers-container');
       } else {
@@ -390,16 +390,16 @@ export default class ChatContextMenu {
 
       const mids = avatar ? [] : await this.chat.getMidsByMid(this.messagePeerId, mid);
       // * если открыть контекстное меню для альбома не по бабблу, и последний элемент не выбран, чтобы показать остальные пункты
-      if(this.chat.selection!.isSelecting && !contentWrapper && mid) {
-        if(isSponsored) {
+      if (this.chat.selection!.isSelecting && !contentWrapper && mid) {
+        if (isSponsored) {
           return;
         }
 
-        if(mids.length > 1) {
+        if (mids.length > 1) {
           const selectedMid = this.chat.selection!.isMidSelected(this.messagePeerId, mid) ?
             mid :
             mids.find((mid) => this.chat.selection!.isMidSelected(this.messagePeerId, mid!));
-          if(selectedMid) {
+          if (selectedMid) {
             mid = selectedMid;
           }
         }
@@ -411,7 +411,7 @@ export default class ChatContextMenu {
 
       const groupedItem = findUpClassName(this.target, 'grouped-item');
       this.isTargetAGroupedItem = !!groupedItem;
-      if(groupedItem) {
+      if (groupedItem) {
         this.mid = +groupedItem.dataset.mid!;
       } else {
         this.mid = mid;
@@ -421,7 +421,7 @@ export default class ChatContextMenu {
       this.isSelected = this.chat.selection!.isMidSelected(this.messagePeerId, this.mid);
       this.message = avatar ? undefined : (bubble as any).message || this.chat.getMessageByPeer(this.messagePeerId, this.mid);
       this.groupedMessages = ((this.message as Message.message)?.grouped_id ? await this.managers.appMessagesManager.getMessagesByGroupedId((this.message as Message.message).grouped_id!) : undefined)!;
-      if(!groupedItem && this.groupedMessages) this.message = getMainGroupedMessage(this.groupedMessages);
+      if (!groupedItem && this.groupedMessages) this.message = getMainGroupedMessage(this.groupedMessages);
       this.mainMessage = this.groupedMessages ? getMainGroupedMessage(this.groupedMessages) : this.message;
       this.selectedMessages = (this.chat.selection!.isSelecting && !avatar ? await this.chat.selection!.getSelectedMessages() : undefined)!;
       this.noForwards = this.message && !isSponsored && !(await Promise.all((this.selectedMessages || [this.message]).map((message) => this.managers.appMessagesManager.canForward(message)))).every(Boolean);
@@ -432,20 +432,20 @@ export default class ChatContextMenu {
       this.messageLanguage = (await this.getMessageLanguage())!;
       this.bubble = findUpClassName(e.target!, 'bubble');
 
-      if(checklistItemId) {
+      if (checklistItemId) {
         const media = (this.message as Message.message).media as MessageMedia.messageMediaToDo;
         this.checklistItem = {
           item: media.todo.list.find((item) => item.id === checklistItemId)!,
-          completion: media.completions?.find((completion) => completion.id === checklistItemId)
+          completion: media.completions?.find((completion) => completion.id === checklistItemId),
         };
       } else {
         this.checklistItem = undefined;
       }
 
-      if(pollOptionIdx !== undefined) {
+      if (pollOptionIdx !== undefined) {
         const media = (this.message as Message.message).media as MessageMedia.messageMediaPoll;
         const answer = media?.poll?.answers?.[pollOptionIdx];
-        this.pollAnswer = (answer?._ === 'pollAnswer' ? {idx: pollOptionIdx, value: answer} : undefined)!;
+        this.pollAnswer = (answer?._ === 'pollAnswer' ? { idx: pollOptionIdx, value: answer } : undefined)!;
       } else {
         this.pollAnswer = undefined;
       }
@@ -457,29 +457,29 @@ export default class ChatContextMenu {
       try {
         const entry = await this.chat.bubbles.resolveAdminLog({
           log: log!,
-          noJsx: true
+          noJsx: true,
         });
 
         this.selectedMessagesText = await runWithHotReloadGuard(entry!.getCopyText);
         this.messageFromLog = (entry!.type === 'default' ? entry!.message : undefined)!;
-      } catch{}
+      } catch {}
     };
 
     const openMenu = async() => {
-      if(this.chat.type === ChatType.Logs) {
+      if (this.chat.type === ChatType.Logs) {
         await prepareForLog();
       } else {
         await prepareForMessage();
       }
 
       const initResult = await this.init();
-      if(!initResult) {
+      if (!initResult) {
         return;
       }
 
       element = initResult.element;
-      const {cleanup, destroy, menuPadding, reactionsMenu, reactionsMenuPosition} = initResult;
-      const reactionsCallbacks = reactionsMenu && ChatContextMenu.appendReactionsMenu({element, reactionsMenu, reactionsMenuPosition});
+      const { cleanup, destroy, menuPadding, reactionsMenu, reactionsMenuPosition } = initResult;
+      const reactionsCallbacks = reactionsMenu && ChatContextMenu.appendReactionsMenu({ element, reactionsMenu, reactionsMenuPosition });
 
       const side: 'left' | 'right' = !bubble || bubble.classList.contains('is-in') ? 'left' : 'right';
       // bubble.parentElement.append(element);
@@ -519,10 +519,10 @@ export default class ChatContextMenu {
   };
 
   private highlightPollAnswer() {
-    if(!this.pollAnswer || !this.bubble) return;
+    if (!this.pollAnswer || !this.bubble) return;
 
     const bubbleContext = this.chat.bubbles.contexts.get(this.bubble);
-    if(!bubbleContext?.pollMessageContentControls) return;
+    if (!bubbleContext?.pollMessageContentControls) return;
 
     bubbleContext.pollMessageContentControls.highlightAnswer?.(this.pollAnswer.idx);
 
@@ -546,12 +546,12 @@ export default class ChatContextMenu {
     return filterAsync(buttons, async(button) => {
       let good: boolean;
 
-      if((this.isSponsored && !button.isSponsored) || (!this.isSponsored && button.isSponsored)) {
+      if ((this.isSponsored && !button.isSponsored) || (!this.isSponsored && button.isSponsored)) {
         return false;
       }
 
       // if((appImManager.chatSelection.isSelecting && !button.withSelection) || (button.withSelection && !appImManager.chatSelection.isSelecting)) {
-      if(this.chat.selection!.isSelecting && !button.withSelection) {
+      if (this.chat.selection!.isSelecting && !button.withSelection) {
         good = false;
       } else {
         good = (this.isOverBubble || IS_TOUCH_SUPPORTED || true ?
@@ -564,29 +564,29 @@ export default class ChatContextMenu {
   }
 
   private setButtons() {
-    if(this.chat.type === ChatType.Logs) {
+    if (this.chat.type === ChatType.Logs) {
       this.buttons = [
         {
           icon: 'copy',
           text: 'Copy',
           onClick: this.onCopyClick,
-          verify: () => !!this.selectedMessagesText
+          verify: () => !!this.selectedMessagesText,
         },
         {
           icon: 'download',
           text: 'DownloadMedia',
           onClick: () => {
             const media = getMediaFromMessage(this.messageFromLog, true);
-            if(!media) return;
-            appDownloadManager.downloadToDisc({media, queueId: this.chat.bubbles.lazyLoadQueue!.queueId});
+            if (!media) return;
+            appDownloadManager.downloadToDisc({ media, queueId: this.chat.bubbles.lazyLoadQueue!.queueId });
           },
-          verify: () => this.messageFromLog && !!getMediaFromMessage(this.messageFromLog)
-        }
+          verify: () => this.messageFromLog && !!getMediaFromMessage(this.messageFromLog),
+        },
       ];
       return;
     }
 
-    if(this.isTag) {
+    if (this.isTag) {
       const tagTitle = this.reactionElement.findTitle();
       const reactionCount = this.reactionElement.reactionCount;
       const renameTitle: LangPackKey = tagTitle ? 'SavedTagRenameTag' : 'SavedTagLabelTag';
@@ -594,16 +594,16 @@ export default class ChatContextMenu {
         icon: 'tag_filter',
         text: 'SavedTagFilterByTag',
         onClick: () => {
-          this.chat.initSearch({reaction: reactionCount.reaction});
+          this.chat.initSearch({ reaction: reactionCount.reaction });
         },
-        verify: () => true
+        verify: () => true,
       }, {
         icon: 'tag_name',
         text: renameTitle,
         onClick: async() => {
           const inputField = new InputField({
             maxLength: 12,
-            label: 'SavedTagLabelPlaceholder'
+            label: 'SavedTagLabelPlaceholder',
           });
 
           tagTitle && inputField.setOriginalValue(tagTitle);
@@ -612,9 +612,9 @@ export default class ChatContextMenu {
             titleLangKey: renameTitle,
             descriptionLangKey: 'SavedTagLabelTagText',
             button: {
-              langKey: 'Save'
+              langKey: 'Save',
             },
-            inputField
+            inputField,
           });
 
           this.managers.appReactionsManager.updateSavedReactionTag(
@@ -622,15 +622,15 @@ export default class ChatContextMenu {
             inputField.value
           );
         },
-        verify: () => true
+        verify: () => true,
       }, {
         icon: 'tag_crossed',
         text: 'SavedTagRemoveTag',
         onClick: () => {
-          this.chat.sendReaction({message: this.message, reaction: reactionCount.reaction});
+          this.chat.sendReaction({ message: this.message, reaction: reactionCount.reaction });
         },
         verify: () => true,
-        danger: true
+        danger: true,
       }, {
         // icon: 'smile',
         text: 'Loading',
@@ -640,16 +640,16 @@ export default class ChatContextMenu {
           });
         },
         verify: () => reactionCount.reaction._ === 'reactionCustomEmoji',
-        localName: 'emojis'
+        localName: 'emojis',
       }];
       return;
     }
 
-    if(this.avatarPeerId !== undefined) {
+    if (this.avatarPeerId !== undefined) {
       const openPeer = () => {
         this.chat.appImManager.setInnerPeer({
           peerId: this.avatarPeerId,
-          stack: this.chat.appImManager.getStackFromElement((this.target as HTMLElement))
+          stack: this.chat.appImManager.getStackFromElement((this.target as HTMLElement)),
         });
       };
 
@@ -657,31 +657,31 @@ export default class ChatContextMenu {
         icon: 'message',
         text: 'SendMessage',
         onClick: openPeer,
-        verify: () => this.chat.peerId !== this.avatarPeerId && this.avatarPeerId.isUser()
+        verify: () => this.chat.peerId !== this.avatarPeerId && this.avatarPeerId.isUser(),
       }, {
         icon: 'newgroup',
         text: 'OpenGroup2',
         onClick: openPeer,
-        verify: () => this.chat.peerId !== this.avatarPeerId && this.managers.appPeersManager.isAnyGroup(this.avatarPeerId)
+        verify: () => this.chat.peerId !== this.avatarPeerId && this.managers.appPeersManager.isAnyGroup(this.avatarPeerId),
       }, {
         icon: 'newchannel',
         text: 'OpenChannel2',
         onClick: openPeer,
-        verify: () => this.chat.peerId !== this.avatarPeerId && this.managers.appPeersManager.isBroadcast(this.avatarPeerId)
+        verify: () => this.chat.peerId !== this.avatarPeerId && this.managers.appPeersManager.isBroadcast(this.avatarPeerId),
       }, {
         icon: 'mention',
         text: 'Mention',
         onClick: () => {
           this.chat.input.mentionUser(this.avatarPeerId, false);
         },
-        verify: () => /* this.avatarPeerId.isUser() &&  */this.chat.canSend('send_plain')
+        verify: () => /* this.avatarPeerId.isUser() &&  */this.chat.canSend('send_plain'),
       }, {
         icon: 'search',
         text: 'Search',
         onClick: () => {
-          this.chat.initSearch({filterPeerId: this.avatarPeerId});
+          this.chat.initSearch({ filterPeerId: this.avatarPeerId });
         },
-        verify: () => this.chat.isAnyGroup
+        verify: () => this.chat.isAnyGroup,
       }];
       return;
     }
@@ -694,12 +694,12 @@ export default class ChatContextMenu {
 
     const verifyFavoriteSticker = async(toAdd: boolean) => {
       const doc = ((this.message as Message.message).media as MessageMedia.messageMediaDocument)?.document;
-      if(!(doc as MyDocument)?.sticker && !isGif) {
+      if (!(doc as MyDocument)?.sticker && !isGif) {
         return false;
       }
 
       const favedStickers = await (isGif ? this.managers.acknowledged.appGifsManager.getGifs() : this.managers.acknowledged.appStickersManager.getFavedStickersStickers());
-      if(!favedStickers.cached) {
+      if (!favedStickers.cached) {
         return false;
       }
 
@@ -712,7 +712,7 @@ export default class ChatContextMenu {
     this.buttons = [{
       // secondary: true,
       onClick: () => {
-        if(this.canViewReadTime === false) {
+        if (this.canViewReadTime === false) {
           PopupElement.createPopup(PopupToggleReadDate, (this.peerId as number), 'readTime');
         }
       },
@@ -721,32 +721,32 @@ export default class ChatContextMenu {
       localName: 'views',
       checkForClose: () => {
         return this.canViewReadTime !== undefined;
-      }
+      },
     }, createSubmenuTrigger({
       options: {
         icon: 'more',
         get regularText() { return self.checklistItem ? wrapEmojiTextWithEntities(self.checklistItem.item.title) : undefined },
         verify: () => this.checklistItem !== undefined,
-        separatorDown: true
+        separatorDown: true,
       },
-      createSubmenu: this.createChecklistItemSubmenu as (args: CreateSubmenuArgs) => MaybePromise<HTMLElement>
+      createSubmenu: this.createChecklistItemSubmenu as (args: CreateSubmenuArgs) => MaybePromise<HTMLElement>,
     }) as ChatContextMenuButton, createSubmenuTrigger({
       options: {
         icon: 'more',
         get regularText() {
-          if(!self.pollAnswer) return undefined;
+          if (!self.pollAnswer) return undefined;
           const truncated = truncateTextWithEntities(self.pollAnswer.value.text.text, self.pollAnswer.value.text.entities, 24);
-          return wrapEmojiTextWithEntities({_: 'textWithEntities', ...truncated});
+          return wrapEmojiTextWithEntities({ _: 'textWithEntities', ...truncated });
         },
         verify: () => this.pollAnswer !== undefined,
-        separatorDown: true
+        separatorDown: true,
       },
-      createSubmenu: this.createPollAnswerSubmenu as (args: CreateSubmenuArgs) => MaybePromise<HTMLElement>
+      createSubmenu: this.createPollAnswerSubmenu as (args: CreateSubmenuArgs) => MaybePromise<HTMLElement>,
     }) as ChatContextMenuButton, {
       icon: 'send2',
       text: 'MessageScheduleSend',
       onClick: this.onSendScheduledClick,
-      verify: () => this.chat.type === ChatType.Scheduled && !this.message.pFlags.is_outgoing
+      verify: () => this.chat.type === ChatType.Scheduled && !this.message.pFlags.is_outgoing,
     }, {
       icon: 'send2',
       text: 'Message.Context.Selection.SendNow',
@@ -755,7 +755,7 @@ export default class ChatContextMenu {
         this.isSelected &&
         !this.chat.selection!.selectionSendNowBtn.hasAttribute('disabled'),
       notDirect: () => true,
-      withSelection: true
+      withSelection: true,
     }, {
       icon: 'schedule',
       text: 'MessageScheduleEditTime',
@@ -765,13 +765,13 @@ export default class ChatContextMenu {
           this.managers.appMessagesManager.editMessage(this.message, this.message.message, {
             scheduleDate: this.chat.input.scheduleDate,
             scheduleRepeatPeriod: this.chat.input.scheduleRepeatPeriod,
-            entities: this.message.entities
+            entities: this.message.entities,
           });
 
           this.chat.input.onMessageSent(false, false);
         }, new Date(this.message.date * 1000), (this.message as Message.message).schedule_repeat_period);
       },
-      verify: () => this.chat.type === ChatType.Scheduled
+      verify: () => this.chat.type === ChatType.Scheduled,
     }, {
       icon: 'message_quote',
       text: 'Quote',
@@ -785,9 +785,9 @@ export default class ChatContextMenu {
         (!this.chat.peerTranslation.enabled() || this.message.pFlags.out) &&
         (this.chat.bubbles.canForward(this.message) || (this.chat.canSend() as unknown as boolean)) &&
         (() => {
-          const {date} = getMarkupInSelection(['date'], true);
+          const { date } = getMarkupInSelection(['date'], true);
           return !date.elements[0] || isNodeFullyInsideRange(document.getSelection()!.getRangeAt(0), date.elements[0].firstChild!);
-        })())!
+        })())!,
     }, {
       icon: 'reply',
       text: 'Reply',
@@ -797,7 +797,7 @@ export default class ChatContextMenu {
         !this.message.pFlags.is_outgoing &&
         !!this.chat.input.messageInput &&
         this.chat.type !== ChatType.Scheduled &&
-        (this.chat.bubbles.canForward(this.message) || this.chat.canSend())/* ,
+        (this.chat.bubbles.canForward(this.message) || this.chat.canSend()), /* ,
       cancelEvent: true */
     }, {
       icon: 'bubblereply',
@@ -807,14 +807,14 @@ export default class ChatContextMenu {
         this.chat.appImManager.openThread({
           peerId: this.message.peerId!,
           threadId: this.message.mid!,
-          lastMsgId: 0
+          lastMsgId: 0,
         });
       },
       verify: () => {
-        if(this.chat.threadId) return false;
+        if (this.chat.threadId) return false;
         const replies = (this.message as Message.message)?.replies;
         return !!(replies && !replies.pFlags.comments && replies.replies);
-      }
+      },
     }, {
       icon: 'bubblereply',
       text: 'ViewAllReplies',
@@ -822,47 +822,47 @@ export default class ChatContextMenu {
         this.chat.appImManager.openThread({
           peerId: this.message.peerId!,
           threadId: (this.message.reply_to as MessageReplyHeader.messageReplyHeader).reply_to_top_id!,
-          lastMsgId: this.message.mid!
+          lastMsgId: this.message.mid!,
         });
       },
       verify: () => {
-        if(this.chat.threadId) return false;
+        if (this.chat.threadId) return false;
         const replies = (this.message as Message.message)?.replies;
         const replyTo = this.message?.reply_to as MessageReplyHeader.messageReplyHeader;
         return !!(!replies && replyTo?.reply_to_top_id);
-      }
+      },
     }, {
       icon: isGif ? 'gifs' : 'favourites',
       text: isGif ? 'SaveToGIFs' : 'AddToFavorites',
       onClick: this.onFaveStickerClick.bind(this, false),
-      verify: () => verifyFavoriteSticker(true)
+      verify: () => verifyFavoriteSticker(true),
     }, {
       icon: isGif ? 'crossgif' : 'crossstar',
       text: isGif ? 'Message.Context.RemoveGif' : 'DeleteFromFavorites',
       onClick: this.onFaveStickerClick.bind(this, true),
-      verify: () => verifyFavoriteSticker(false)
+      verify: () => verifyFavoriteSticker(false),
     }, {
       icon: 'edit',
       text: 'Edit',
       onClick: this.onEditClick,
       verify: async() => ((await this.managers.appMessagesManager.canEditMessage(this.message, 'text')) &&
         !!this.chat.input.messageInput ||
-        (this.message._ === 'message' && this.message.pFlags?.out && this.message.suggested_post && !this.message.suggested_post.pFlags?.accepted && !this.message.suggested_post.pFlags?.rejected))!
+        (this.message._ === 'message' && this.message.pFlags?.out && this.message.suggested_post && !this.message.suggested_post.pFlags?.accepted && !this.message.suggested_post.pFlags?.rejected))!,
     }, {
       icon: 'plusround',
       text: 'ChecklistAddTasks',
       onClick: this.onAddTaskClick,
       verify: async() => {
-        if(this.message._ !== 'message' || this.message.media?._ !== 'messageMediaToDo') return false
-        if(this.message.pFlags.is_outgoing) return false
+        if (this.message._ !== 'message' || this.message.media?._ !== 'messageMediaToDo') return false
+        if (this.message.pFlags.is_outgoing) return false
         return !!(this.message.pFlags.out || this.message.media.todo.pFlags.others_can_append)
-      }/* ,
+      }, /* ,
       cancelEvent: true */
     }, {
       icon: 'factcheck',
       text: (this.mainMessage as Message.message)?.factcheck ? 'EditFactCheck' : 'AddFactCheck',
       onClick: this.onEditFactCheckClick,
-      verify: () => this.mainMessage && this.managers.appMessagesManager.canUpdateFactCheck(this.mainMessage.peerId!, this.mainMessage.mid!)
+      verify: () => this.mainMessage && this.managers.appMessagesManager.canUpdateFactCheck(this.mainMessage.peerId!, this.mainMessage.mid!),
     }, {
       icon: 'copy',
       text: 'Copy',
@@ -870,34 +870,34 @@ export default class ChatContextMenu {
       verify: () => !this.noForwards &&
         !!(this.message as Message.message).message &&
         !this.isTextSelected &&
-        (!this.isAnchorTarget || (this.message as Message.message).message !== this.target!.innerText)
+        (!this.isAnchorTarget || (this.message as Message.message).message !== this.target!.innerText),
     }, {
       icon: 'copy',
       text: 'Chat.CopySelectedText',
       onClick: this.onCopyClick,
-      verify: () => !this.noForwards && !!(this.message as Message.message).message && this.isTextSelected
+      verify: () => !this.noForwards && !!(this.message as Message.message).message && this.isTextSelected,
     }, {
       icon: 'search',
       text: 'Chat.SearchSelected',
       onClick: () => {
         const selection = document.getSelection();
-        this.chat.initSearch({query: selection!.toString()});
+        this.chat.initSearch({ query: selection!.toString() });
       },
-      verify: () => !!(this.message as Message.message).message && this.isTextSelected
+      verify: () => !!(this.message as Message.message).message && this.isTextSelected,
     }, {
       icon: 'copy',
       text: 'Message.Context.Selection.Copy',
       onClick: this.onCopyClick,
       verify: async() => {
-        if(!this.isSelected || this.noForwards) {
+        if (!this.isSelected || this.noForwards) {
           return false;
         }
 
-        for(const [peerId, mids] of this.chat.selection!.selectedMids) {
+        for (const [peerId, mids] of this.chat.selection!.selectedMids) {
           const storageKey: MessagesStorageKey = `${peerId}_${this.chat.type === ChatType.Scheduled ? 'scheduled' : 'history'}`;
-          for(const mid of mids) {
+          for (const mid of mids) {
             const message = (await this.managers.appMessagesManager.getMessageFromStorage(storageKey, mid)) as Message.message;
-            if(!!message.message) {
+            if (!!message.message) {
               return true;
             }
           }
@@ -906,13 +906,13 @@ export default class ChatContextMenu {
         return false;
       },
       notDirect: () => true,
-      withSelection: true
+      withSelection: true,
     }, {
       icon: 'copy',
       text: this.isEmailTarget ? 'Text.Context.Copy.Email' : 'CopyLink',
       onClick: this.onCopyAnchorLinkClick,
       verify: () => this.isAnchorTarget,
-      withSelection: true
+      withSelection: true,
     }, {
       icon: 'copy',
       text: 'Text.Context.Copy.Username',
@@ -920,7 +920,7 @@ export default class ChatContextMenu {
         copyTextToClipboard(this.target!.textContent);
       },
       verify: () => this.isUsernameTarget,
-      withSelection: true
+      withSelection: true,
     }, {
       icon: 'copy',
       text: 'Text.Context.Copy.Hashtag',
@@ -928,7 +928,7 @@ export default class ChatContextMenu {
         copyTextToClipboard(this.target!.textContent);
       },
       verify: () => this.target!.classList.contains('anchor-hashtag'),
-      withSelection: true
+      withSelection: true,
     }, {
       icon: 'premium_translate',
       text: 'TranslateMessage',
@@ -939,15 +939,15 @@ export default class ChatContextMenu {
         const messageLanguage = this.messageLanguage;
         const isTextSelected = this.isTextSelected;
 
-        if(!this.chat.peerTranslation.canTranslate(true)) {
-          PopupPremium.show({feature: 'translations'});
+        if (!this.chat.peerTranslation.canTranslate(true)) {
+          PopupPremium.show({ feature: 'translations' });
         } else {
           let textWithEntities: TextWithEntities;
-          if(isTextSelected) {
-            const {text, entities} = this.getQuotedText();
-            textWithEntities = {_: 'textWithEntities', text, entities: entities!};
+          if (isTextSelected) {
+            const { text, entities } = this.getQuotedText();
+            textWithEntities = { _: 'textWithEntities', text, entities: entities! };
           }
-          if(message?._ === 'message' && message.media?._ === 'messageMediaPoll') {
+          if (message?._ === 'message' && message.media?._ === 'messageMediaPoll') {
             textWithEntities = (await this.getPollTextWithEntities(message))!;
           }
 
@@ -955,16 +955,16 @@ export default class ChatContextMenu {
             peerId: (textWithEntities! ? peerId : message.peerId)!,
             textWithEntities: textWithEntities!,
             message: textWithEntities! ? undefined : message as Message.message,
-            detectedLanguage: messageLanguage
+            detectedLanguage: messageLanguage,
           });
         }
       },
-      verify: () => !!this.messageLanguage
+      verify: () => !!this.messageLanguage,
     }, {
       icon: 'link',
       text: 'MessageContext.CopyMessageLink1',
       onClick: this.onCopyLinkClick,
-      verify: async() => !this.isLegacy && await this.managers.appPeersManager.isChannel((this.peerId as number)) && !this.chat.isMonoforum && !this.message.pFlags.is_outgoing
+      verify: async() => !this.isLegacy && await this.managers.appPeersManager.isChannel((this.peerId as number)) && !this.chat.isMonoforum && !this.message.pFlags.is_outgoing,
     }, {
       icon: 'pin',
       text: 'Message.Context.Pin',
@@ -976,29 +976,29 @@ export default class ChatContextMenu {
         !this.message.pFlags.pinned &&
         await this.managers.appPeersManager.canPinMessage(this.message.peerId!) &&
         this.chat.type !== ChatType.Scheduled &&
-        !useIsFrozen()
+        !useIsFrozen(),
     }, {
       icon: 'unpin',
       text: 'Message.Context.Unpin',
       onClick: this.onUnpinClick,
       verify: async() => ((this.message as Message.message).pFlags.pinned &&
         await this.managers.appPeersManager.canPinMessage(this.message.peerId!) &&
-        !useIsFrozen())!
+        !useIsFrozen())!,
     }, {
       icon: 'download',
       text: 'MediaViewer.Context.Download',
       onClick: () => ChatContextMenu.onDownloadClick(this.message, this.noForwards, this.chat.container),
-      verify: () => ChatContextMenu.canDownload(this.message, (this.target as HTMLElement | undefined), this.noForwards, this.chat.container)
+      verify: () => ChatContextMenu.canDownload(this.message, (this.target as HTMLElement | undefined), this.noForwards, this.chat.container),
     }, {
       icon: 'checkretract',
       text: 'Chat.Poll.Unvote',
       onClick: this.onRetractVote,
       verify: () => {
         const poll = (this.message as any).media?.poll as Poll;
-        if(poll?.pFlags.closed || !poll?.chosenIndexes?.length) return false;
+        if (poll?.pFlags.closed || !poll?.chosenIndexes?.length) return false;
 
         return !poll.pFlags.revoting_disabled;
-      }/* ,
+      }, /* ,
       cancelEvent: true */
     }, {
       icon: 'stop',
@@ -1010,7 +1010,7 @@ export default class ChatContextMenu {
           poll &&
           !poll.pFlags.closed &&
           !this.message.pFlags.is_outgoing;
-      }/* ,
+      }, /* ,
       cancelEvent: true */
     }, {
       icon: 'statistics',
@@ -1018,7 +1018,7 @@ export default class ChatContextMenu {
       onClick: this.onStatisticsClick,
       verify: async() => await this.managers.appPeersManager.isBroadcast(this.messagePeerId) &&
         await this.managers.appProfileManager.canViewStatistics(this.messagePeerId) &&
-        !this.message.pFlags.is_outgoing
+        !this.message.pFlags.is_outgoing,
     }, {
       icon: 'forward',
       text: 'Forward',
@@ -1026,7 +1026,7 @@ export default class ChatContextMenu {
       verify: () => !this.noForwards &&
         this.chat.type !== ChatType.Scheduled &&
         (!this.message.pFlags.is_outgoing || this.message.fromId === SERVICE_PEER_ID) &&
-        this.message._ !== 'messageService'
+        this.message._ !== 'messageService',
     }, {
       icon: 'forward',
       text: 'Message.Context.Selection.Forward',
@@ -1035,13 +1035,13 @@ export default class ChatContextMenu {
         this.isSelected &&
         !this.chat.selection!.selectionForwardBtn.hasAttribute('disabled'),
       notDirect: () => true,
-      withSelection: true
+      withSelection: true,
     }, {
       icon: 'download',
       text: 'Message.Context.Selection.Download',
       onClick: () => ChatContextMenu.onDownloadClick(this.selectedMessages, this.noForwards, this.chat.container),
       verify: () => this.selectedMessages && ChatContextMenu.canDownload(this.selectedMessages, undefined, this.noForwards, this.chat.container),
-      withSelection: true
+      withSelection: true,
     }, {
       icon: 'flag',
       text: 'ReportChat',
@@ -1053,28 +1053,28 @@ export default class ChatContextMenu {
         !this.message.pFlags.is_outgoing &&
         this.managers.appPeersManager.isChannel(this.messagePeerId),
       notDirect: () => true,
-      withSelection: true
+      withSelection: true,
     }, {
       icon: 'select',
       text: 'Message.Context.Select',
       onClick: this.onSelectClick,
       verify: () => !(this.message as Message.messageService).action && !this.isSelected && this.isSelectable,
       notDirect: () => true,
-      withSelection: true
+      withSelection: true,
     }, {
       icon: 'select',
       text: 'Message.Context.Selection.Clear',
       onClick: this.onClearSelectionClick,
       verify: () => this.isSelected,
       notDirect: () => true,
-      withSelection: true
+      withSelection: true,
     }, {
       onClick: () => {
-        if(this.viewerPeerId && false) {
+        if (this.viewerPeerId && false) {
           this.chat.appImManager.setInnerPeer({
-            peerId: (this.viewerPeerId as number)
+            peerId: (this.viewerPeerId as number),
           });
-        } else if(this.canOpenReactedList) {
+        } else if (this.canOpenReactedList) {
           PopupElement.createPopup(PopupReactedList, this.message as Message.message);
         } else {
           return false;
@@ -1083,28 +1083,28 @@ export default class ChatContextMenu {
       verify: () => !this.peerId!.isUser() &&
         (!!(this.message as Message.message).reactions?.recent_reactions?.length || this.managers.appMessagesManager.canViewMessageReadParticipants(this.message)),
       notDirect: () => true,
-      localName: 'views'
+      localName: 'views',
     }, {
       icon: 'rotate_right',
       text: 'Resend',
       onClick: () => this.handleRepay(),
-      verify: () => 'repayRequest' in this.message && !!this.message.repayRequest
+      verify: () => 'repayRequest' in this.message && !!this.message.repayRequest,
     }, {
       icon: 'delete',
       get className() {
-        if(self.message?.ttl_period) return 'danger with-subtitle';
+        if (self.message?.ttl_period) return 'danger with-subtitle';
         return 'danger';
       },
       get regularText() {
         const content = new ContextMenuDeleteOptionText;
         content.feedProps({
           dateTimestamp: self.message.date,
-          ttlPeriod: self.message.ttl_period || 0
+          ttlPeriod: self.message.ttl_period || 0,
         });
         return content;
       },
       onClick: this.onDeleteClick,
-      verify: async() => this.managers.appMessagesManager.canDeleteMessage(this.message)
+      verify: async() => this.managers.appMessagesManager.canDeleteMessage(this.message),
     }, {
       icon: 'delete',
       className: 'danger',
@@ -1112,18 +1112,18 @@ export default class ChatContextMenu {
       onClick: this.onDeleteClick,
       verify: () => this.isSelected && !this.chat.selection!.selectionDeleteBtn!.hasAttribute('disabled'),
       notDirect: () => true,
-      withSelection: true
+      withSelection: true,
     },
     ...getSponsoredMessageButtons({
       message: this.sponsoredMessage,
       extraVerify: () => this.isSponsored,
       handleReportAd: () => {
-        const {peerId, mid} = this.message;
+        const { peerId, mid } = this.message;
         showAdReport(this.sponsoredMessage, () => {
           this.chat.bubbles.deleteMessagesByIds([makeFullMid(peerId!, mid)], true)
         });
       },
-      handleCopy: this.onCopyClick
+      handleCopy: this.onCopyClick,
     }),
     {
       // icon: 'smile',
@@ -1135,12 +1135,12 @@ export default class ChatContextMenu {
       },
       verify: () => !!this.getUniqueCustomEmojisFromMessage().length,
       notDirect: () => true,
-      localName: 'emojis'
+      localName: 'emojis',
     }];
   }
 
-  private createChecklistItemSubmenu = async({middleware}: CreateSubmenuArgs) => {
-    const {item, completion} = this.checklistItem!;
+  private createChecklistItemSubmenu = async({ middleware }: CreateSubmenuArgs) => {
+    const { item, completion } = this.checklistItem!;
     const message = this.message as Message.message & {media: MessageMedia.messageMediaToDo};
     const canEdit = await this.managers.appMessagesManager.canEditMessage(message, 'text');
     const buttons: ButtonMenuItemOptionsVerifiable[] = [
@@ -1149,7 +1149,7 @@ export default class ChatContextMenu {
         regularText: completion ? formatFullSentTime(completion.date) : undefined,
         separatorDown: true,
         verify: () => !!completion,
-        onClick: noop
+        onClick: noop,
       },
       {
         icon: completion ? 'checklist_undone' : 'checklist_done',
@@ -1160,14 +1160,14 @@ export default class ChatContextMenu {
             peerId: message.peerId!,
             mid: message.mid!,
             taskId: item.id,
-            action: completion ? 'uncomplete' : 'complete'
+            action: completion ? 'uncomplete' : 'complete',
           })
-        }
+        },
       },
       {
         icon: 'copy',
         text: 'Copy',
-        onClick: () => copyTextToClipboard(item.title.text)
+        onClick: () => copyTextToClipboard(item.title.text),
       },
       {
         icon: 'edit',
@@ -1177,9 +1177,9 @@ export default class ChatContextMenu {
           showChecklistPopup({
             chat: this.chat,
             editMessage: message,
-            focusItemId: item.id
+            focusItemId: item.id,
           });
-        }
+        },
       },
       {
         icon: 'delete',
@@ -1193,24 +1193,24 @@ export default class ChatContextMenu {
               _: 'inputMediaTodo',
               todo: {
                 ...message.media.todo,
-                list: message.media.todo.list.filter((v) => v.id !== item.id)
-              }
-            }
+                list: message.media.todo.list.filter((v) => v.id !== item.id),
+              },
+            },
           });
-        }
-      }
+        },
+      },
     ];
 
     const filteredButtons = await filterAsync(buttons, (button) => button.verify?.() ?? true);
 
-    if(!middleware()) return;
+    if (!middleware()) return;
 
     return ButtonMenu({
-      buttons: (filteredButtons as ButtonMenuItemOptions[])
+      buttons: (filteredButtons as ButtonMenuItemOptions[]),
     })
   }
 
-  private createPollAnswerSubmenu = async({middleware}: CreateSubmenuArgs) => {
+  private createPollAnswerSubmenu = async({ middleware }: CreateSubmenuArgs) => {
     const pollAnswer = this.pollAnswer?.value;
     const message = this.message as Message.message & {media: MessageMedia.messageMediaPoll};
     const canReply = !this.isLegacy &&
@@ -1225,34 +1225,34 @@ export default class ChatContextMenu {
         icon: 'reply',
         text: 'Chat.Poll.ReplyToOption',
         verify: () => canReply,
-        onClick: () => this.onReplyToPollOptionClick((pollAnswer as PollAnswer.pollAnswer))
+        onClick: () => this.onReplyToPollOptionClick((pollAnswer as PollAnswer.pollAnswer)),
       },
       {
         icon: 'copy',
         text: 'Chat.Poll.CopyOption',
-        onClick: () => copyTextToClipboard(pollAnswer!.text.text)
+        onClick: () => copyTextToClipboard(pollAnswer!.text.text),
       },
       {
         icon: 'link',
         text: 'Chat.Poll.CopyOptionLink',
         verify: () => canCopyLink,
         onClick: () => {
-          const {url, isPrivate} = this.linkToMessage!;
+          const { url, isPrivate } = this.linkToMessage!;
           const optionParam = pollOptionToLink(pollAnswer!.option);
           const fullUrl = url + (url.includes('?') ? '&' : '?') + 'option=' + optionParam;
           const key: LangPackKey = isPrivate ? 'LinkCopiedPrivateInfo' : 'LinkCopied';
-          toastNew({langPackKey: key});
+          toastNew({ langPackKey: key });
           copyTextToClipboard(fullUrl);
-        }
-      }
+        },
+      },
     ];
 
     const filteredButtons = await filterAsync(buttons, (button) => button.verify?.() ?? true);
 
-    if(!middleware()) return;
+    if (!middleware()) return;
 
     return ButtonMenu({
-      buttons: (filteredButtons as ButtonMenuItemOptions[])
+      buttons: (filteredButtons as ButtonMenuItemOptions[]),
     })
   }
 
@@ -1262,11 +1262,11 @@ export default class ChatContextMenu {
     noForwards?: boolean,
     container?: HTMLElement
   ): boolean {
-    if(Array.isArray(message)) {
+    if (Array.isArray(message)) {
       return message.some((message) => ChatContextMenu.canDownload(message, withTarget, noForwards, container));
     }
 
-    if(!canSaveMessageMedia(message, noForwards)) {
+    if (!canSaveMessageMedia(message, noForwards)) {
       return false;
     }
 
@@ -1275,10 +1275,10 @@ export default class ChatContextMenu {
     const isPhoto: boolean = !!photo;
     let isGoodType = false
 
-    if(isPhoto) {
+    if (isPhoto) {
       isGoodType = true;
     } else {
-      if(!document) {
+      if (!document) {
         return false;
       }
 
@@ -1288,7 +1288,7 @@ export default class ChatContextMenu {
 
     let hasTarget = !withTarget || !!IS_TOUCH_SUPPORTED;
 
-    if(isGoodType && withTarget) {
+    if (isGoodType && withTarget) {
       hasTarget ||= !!(findUpClassName(withTarget, 'document') ||
         findUpClassName(withTarget, 'audio') ||
         findUpClassName(withTarget, 'media-sticker-wrapper') ||
@@ -1296,7 +1296,7 @@ export default class ChatContextMenu {
         findUpClassName(withTarget, 'media-video'));
     }
 
-    if(container && (message as Message.message).restriction_reason && isSensitive((message as Message.message).restriction_reason!)) {
+    if (container && (message as Message.message).restriction_reason && isSensitive((message as Message.message).restriction_reason!)) {
       const item = container.querySelector(`[data-mid="${message.mid}"]`);
       return !!(item && !hasSensitiveSpoiler(item as HTMLElement));
     }
@@ -1317,19 +1317,19 @@ export default class ChatContextMenu {
     this.setButtons();
 
     const filteredButtons = await this.filterButtons(this.buttons);
-    if(!filteredButtons.length) {
+    if (!filteredButtons.length) {
       return;
     }
 
     const element = this.element = await ButtonMenu({
       buttons: (filteredButtons as ButtonMenuItemOptions[]),
-      listenerSetter: this.listenerSetter
+      listenerSetter: this.listenerSetter,
     });
     element.id = 'bubble-contextmenu';
     element.classList.add('contextmenu');
 
     const viewsButton = filteredButtons.find((button) => button.localName === 'views');
-    if(viewsButton && this.peerId!.isUser()) {
+    if (viewsButton && this.peerId!.isUser()) {
       viewsButton.element!.prepend(Icon('checks', 'btn-menu-item-icon'));
       const loader = document.createElement('div');
       loader.classList.add('btn-menu-item-loader', 'shimmer');
@@ -1341,7 +1341,7 @@ export default class ChatContextMenu {
 
       const middleware = this.middleware.get();
       this.managers.appMessagesManager.getOutboxReadDate(this.message.peerId!, this.message.mid!).then((outboxReadDate) => {
-        if(!middleware()) {
+        if (!middleware()) {
           return;
         }
 
@@ -1350,11 +1350,11 @@ export default class ChatContextMenu {
         // loader.replaceWith(i18n('Chat.ContextMenu.Read'), ' ', formatFullSentTime(outboxReadDate.date, false, false));
         loader.replaceWith(formatFullSentTime(outboxReadDate.date, true, false));
       }, (err) => {
-        if(!middleware()) {
+        if (!middleware()) {
           return;
         }
 
-        if((err as ApiError).type !== 'YOUR_PRIVACY_RESTRICTED') {
+        if ((err as ApiError).type !== 'YOUR_PRIVACY_RESTRICTED') {
           delimiter!.remove();
           viewsButton.element!.remove();
           return;
@@ -1365,7 +1365,7 @@ export default class ChatContextMenu {
         when.classList.add('show-when');
         loader.replaceWith(i18n('Chat.ContextMenu.Read'), ' ', when);
       });
-    } else if(viewsButton) {
+    } else if (viewsButton) {
       const reactions = (this.message as Message.message).reactions;
       const recentReactions = reactions?.recent_reactions;
       const isViewingReactions = !!recentReactions?.length;
@@ -1382,12 +1382,12 @@ export default class ChatContextMenu {
         args: (isViewingReactions ? (
           participantsCount === undefined ? [reactedLength!] : [participantsCount, participantsCount]
         ) : undefined)!,
-        element: viewsButton.textElement
+        element: viewsButton.textElement,
       });
 
       let fakeText: HTMLElement;
-      if(isViewingReactions) {
-        if(participantsCount === undefined) {
+      if (isViewingReactions) {
+        if (participantsCount === undefined) {
           fakeText = i18n('Chat.Context.ReactedFast', [reactedLength!])!;
         } else {
           fakeText = i18n(
@@ -1409,7 +1409,7 @@ export default class ChatContextMenu {
       i18nElem.element.style.paddingRight = isViewingReactions ? PADDING_PER_AVATAR * Math.min(MAX_AVATARS, recentReactions.length) + 'rem' : '1rem';
       const middleware = this.middleware.get();
       this.managers.appMessagesManager.getMessageReactionsListAndReadParticipants(this.message as Message.message).then((result) => {
-        if(!middleware()) {
+        if (!middleware()) {
           return;
         }
 
@@ -1425,38 +1425,38 @@ export default class ChatContextMenu {
           );
 
         let fakeElem: HTMLElement;
-        if(reactions.length === 1) {
+        if (reactions.length === 1) {
           fakeElem = new PeerTitle({
             peerId: reactions[0].peerId,
             onlyFirstName: true,
-            dialog: false
+            dialog: false,
           }).element;
 
-          if(!isViewingReactions || result.readParticipantDates.length <= 1) {
+          if (!isViewingReactions || result.readParticipantDates.length <= 1) {
             this.viewerPeerId = reactions[0].peerId;
           }
-        } else if(isViewingReactions) {
+        } else if (isViewingReactions) {
           const isFull = reactedLength === reactions.length || participantsCount === undefined;
           fakeElem = i18n(
             isFull ? 'Chat.Context.ReactedFast' : 'Chat.Context.Reacted',
             isFull ? [reactedLength] : [reactedLength, reactions.length]
           )!;
         } else {
-          if(!reactions.length) {
+          if (!reactions.length) {
             i18nElem.element.style.visibility = '';
           } else {
             fakeElem = i18n('MessageSeen', [reactions.length])!;
           }
         }
 
-        if(fakeElem!) {
+        if (fakeElem!) {
           fakeElem.style.paddingRight = PADDING_PER_AVATAR * Math.min(MAX_AVATARS, reactedLength) + 'rem';
           fakeElem.classList.add('btn-menu-item-text-fake');
           viewsButton.element!.append(fakeElem);
         }
 
-        if(reactions.length) {
-          const avatars = new StackedAvatars({avatarSize: AVATAR_SIZE, middleware});
+        if (reactions.length) {
+          const avatars = new StackedAvatars({ avatarSize: AVATAR_SIZE, middleware });
           avatars.render(recentReactions ? recentReactions.map((r) => getPeerId(r.peer_id)) : reactions.map((reaction) => reaction.peerId));
           viewsButton.element!.append(avatars.container);
 
@@ -1471,7 +1471,7 @@ export default class ChatContextMenu {
     let menuPadding: MenuPositionPadding;
     let reactionsMenu: ChatReactionsMenu;
     let reactionsMenuPosition: 'horizontal' | 'vertical';
-    if(
+    if (
       this.chat.type !== ChatType.Logs &&
       this.message &&
       (this.message._ === 'message' || (this.message._ === 'messageService' && this.message.pFlags.reactions_are_possible)) &&
@@ -1494,24 +1494,24 @@ export default class ChatContextMenu {
         onFinish: async(reaction) => {
           contextMenuController.close();
           reaction = await reaction;
-          if(!reaction) {
+          if (!reaction) {
             return;
           }
 
-          if(reaction._ === 'reactionPaid') {
+          if (reaction._ === 'reactionPaid') {
             PopupElement.createPopup(PopupStarReaction, reactionsMessage.peerId!, reactionsMessage.mid!, this.chat);
             return;
           }
 
-          if(!rootScope.premium && tags) {
-            PopupPremium.show({feature: 'saved_tags'});
+          if (!rootScope.premium && tags) {
+            PopupPremium.show({ feature: 'saved_tags' });
             return;
           }
 
-          this.chat.sendReaction({message: reactionsMessage, reaction});
+          this.chat.sendReaction({ message: reactionsMessage, reaction });
         },
         getOpenPosition: (hasMenu) => ChatContextMenu.getReactionsOpenPosition(reactionsMenu, hasMenu),
-        isTags: tags
+        isTags: tags,
       });
       await reactionsMenu.init(reactionsMessage);
       // element.prepend(reactionsMenu.widthContainer);
@@ -1520,7 +1520,7 @@ export default class ChatContextMenu {
     }
 
     const emojisButton = filteredButtons.find((button) => button.localName === 'emojis');
-    if(emojisButton) {
+    if (emojisButton) {
       emojisButton.element!.classList.add('is-multiline');
       emojisButton.element!.parentElement!.insertBefore(document.createElement('hr'), emojisButton.element!);
 
@@ -1538,7 +1538,7 @@ export default class ChatContextMenu {
         const p = async(docs: Document.document[]) => {
           const s: Map<StickerSet['id'], InputStickerSet.inputStickerSetID> = new Map();
           docs.forEach((doc) => {
-            if(!doc || s.has(doc.stickerSetInput!.id)) {
+            if (!doc || s.has(doc.stickerSetInput!.id)) {
               return;
             }
 
@@ -1547,7 +1547,7 @@ export default class ChatContextMenu {
 
           const inputs = [...s.values()];
           inputsPromise.resolve(inputs);
-          if(s.size === 1) {
+          if (s.size === 1) {
             const result = await this.managers.acknowledged.appStickersManager.getStickerSet(inputs[0]);
             const promise = result.result.then((set) => {
               const el = i18n(
@@ -1563,7 +1563,7 @@ export default class ChatContextMenu {
           replaceContent(emojisButton.textElement!, i18n('MessageContainsEmojiPacks', [s.size]));
         };
 
-        if(docs.some((doc) => !doc)) {
+        if (docs.some((doc) => !doc)) {
           setPadding();
           this.managers.appEmojiManager.getCustomEmojiDocuments(docIds).then(p);
         } else {
@@ -1589,19 +1589,19 @@ export default class ChatContextMenu {
       },
       menuPadding: menuPadding!,
       reactionsMenu: reactionsMenu!,
-      reactionsMenuPosition: reactionsMenuPosition!
+      reactionsMenuPosition: reactionsMenuPosition!,
     };
   }
 
   private async getUrlToMessage() {
-    if(!this.message || this.messagePeerId.isUser()) {
+    if (!this.message || this.messagePeerId.isUser()) {
       return;
     }
 
     let threadMessage!: Message.message;
-    const {peerId, mid} = this.message;
+    const { peerId, mid } = this.message;
     const threadId = this.chat.threadId;
-    if(this.chat.type === ChatType.Discussion) {
+    if (this.chat.type === ChatType.Discussion) {
       threadMessage = (await this.managers.appMessagesManager.getMessageByPeer(peerId!, threadId)) as Message.message;
     }
 
@@ -1609,32 +1609,32 @@ export default class ChatContextMenu {
     const username = await this.managers.appPeersManager.getPeerUsername((isDiscussionFromChannel ? threadMessage.fromId : peerId)!);
     const msgId = getServerMessageId(mid!);
     let url = 'https://t.me/';
-    if(username) {
+    if (username) {
       url += username;
-      if(isDiscussionFromChannel) url += `/${getServerMessageId(threadMessage.fwd_from!.channel_post!)}?comment=${msgId}`;
-      else if(threadId) url += `/${getServerMessageId(threadId)}/${msgId}`;
+      if (isDiscussionFromChannel) url += `/${getServerMessageId(threadMessage.fwd_from!.channel_post!)}?comment=${msgId}`;
+      else if (threadId) url += `/${getServerMessageId(threadId)}/${msgId}`;
       else url += '/' + msgId;
     } else {
       url += 'c/' + peerId!.toChatId();
-      if(threadMessage) url += `/${msgId}?thread=${getServerMessageId(threadMessage.mid!)}`;
-      else if(threadId) url += `/${getServerMessageId(threadId)}/${msgId}`;
+      if (threadMessage) url += `/${msgId}?thread=${getServerMessageId(threadMessage.mid!)}`;
+      else if (threadId) url += `/${getServerMessageId(threadId)}/${msgId}`;
       else url += '/' + msgId;
     }
 
-    return {url, isPrivate: !username};
+    return { url, isPrivate: !username };
   }
 
   private async getSelectedMessagesText() {
-    if(this.avatarPeerId || !isSelectionEmpty()) {
+    if (this.avatarPeerId || !isSelectionEmpty()) {
       return;
     }
 
     let rawMessages: (Message.message | SponsoredMessage.sponsoredMessage)[];
-    if(this.isSponsored) {
+    if (this.isSponsored) {
       rawMessages = [this.sponsoredMessage];
-    } else if(!this.chat.selection!.isSelecting) {
+    } else if (!this.chat.selection!.isSelecting) {
       const message = this.getMessageWithText();
-      if(!message) {
+      if (!message) {
         return;
       }
 
@@ -1648,18 +1648,18 @@ export default class ChatContextMenu {
 
     // sort by send time so the copied text follows the chronological order, not the selection order (#357)
     const messages = (rawMessages.filter((message) => message?.message) as Message.message[])
-    .sort((a, b) => a.date - b.date || a.mid! - b.mid!);
+      .sort((a, b) => a.date - b.date || a.mid! - b.mid!);
     const meta = messages.length > 1 ? await Promise.all(messages.map(async(message) => {
       const peerTitle = await getPeerTitle({
         peerId: message.fromId!,
-        plainText: true
+        plainText: true,
       });
 
       const date = getFullDate(new Date(message.date * 1000), {
         noSeconds: true,
         monthAsNumber: true,
         timeJoiner: ' ',
-        leadingZero: true
+        leadingZero: true,
       });
 
       return peerTitle + ', [' + date + ']';
@@ -1668,13 +1668,13 @@ export default class ChatContextMenu {
     return prepareTextWithEntitiesForCopying(messages.map((message) => {
       return {
         text: message.message,
-        entities: (message).totalEntities || message.entities
+        entities: (message).totalEntities || message.entities,
       };
     }) as Parameters<typeof prepareTextWithEntitiesForCopying>[0], meta);
   }
 
   private onSendScheduledClick = async() => {
-    if(this.chat.selection!.isSelecting) {
+    if (this.chat.selection!.isSelecting) {
       simulateClickEvent(this.chat.selection!.selectionSendNowBtn);
     } else {
       showSendNowPopup((this.peerId as number), ((await this.chat.getMidsByMid(this.messagePeerId, this.mid)) as number[]));
@@ -1682,10 +1682,10 @@ export default class ChatContextMenu {
   };
 
   private onReplyClick = async() => {
-    const {peerId, message} = this;
+    const { peerId, message } = this;
     const replyTo = this.chat.input.getChatInputReplyToFromMessage(message);
 
-    if(!await this.chat.canSend()) {
+    if (!await this.chat.canSend()) {
       replyTo.replyToPeerId = peerId;
       this.chat.input.createReplyPicker(replyTo);
       return;
@@ -1695,11 +1695,11 @@ export default class ChatContextMenu {
   };
 
   private onReplyToPollOptionClick = async(pollAnswer: PollAnswer.pollAnswer) => {
-    const {peerId, message} = this;
+    const { peerId, message } = this;
     const replyTo = this.chat.input.getChatInputReplyToFromMessage(message);
     replyTo.replyToPollOption = pollAnswer.option;
 
-    if(!await this.chat.canSend()) {
+    if (!await this.chat.canSend()) {
       replyTo.replyToPeerId = peerId;
       this.chat.input.createReplyPicker(replyTo);
       return;
@@ -1711,7 +1711,7 @@ export default class ChatContextMenu {
   private onFaveStickerClick = (unfave?: boolean) => {
     const document = ((this.message as Message.message).media as MessageMedia.messageMediaDocument).document as MyDocument;
     const docId = document.id;
-    if(document.type === 'gif') {
+    if (document.type === 'gif') {
       this.managers.appGifsManager.saveGif(docId, unfave);
     } else {
       this.managers.appStickersManager.faveSticker(docId, unfave);
@@ -1720,15 +1720,15 @@ export default class ChatContextMenu {
 
   private onEditClick = () => {
     const message = this.getMessageWithText();
-    if(message._ === 'message' && message.media?._ === 'messageMediaToDo') {
+    if (message._ === 'message' && message.media?._ === 'messageMediaToDo') {
       showChecklistPopup({
         chat: this.chat,
-        editMessage: message as any
+        editMessage: message as any,
       });
       return;
     }
 
-    if(message?._ === 'message' && message.suggested_post) {
+    if (message?._ === 'message' && message.suggested_post) {
       this.chat.input.initSuggestPostChange(message.mid!);
       return;
     }
@@ -1737,30 +1737,30 @@ export default class ChatContextMenu {
   };
 
   private onEditFactCheckClick = async() => {
-    const {mainMessage: message} = this;
+    const { mainMessage: message } = this;
     const factCheck = (message as Message.message).factcheck;
-    const buttonTextElement = new I18n.IntlElement({key: 'Done'});
+    const buttonTextElement = new I18n.IntlElement({ key: 'Done' });
     const buttonOptions: PopupConfirmationOptions['button'] = {
-      text: buttonTextElement.element
+      text: buttonTextElement.element,
     };
 
     const inputField = new InputField({
       placeholder: 'FactCheckPlaceholder',
       withLinebreaks: true,
       onRawInput: factCheck ? (value) => {
-        buttonTextElement.compareAndUpdate({key: value ? 'Done' : 'Remove'});
-        if(!buttonOptions.element) {
+        buttonTextElement.compareAndUpdate({ key: value ? 'Done' : 'Remove' });
+        if (!buttonOptions.element) {
           return;
         }
 
         buttonOptions.element.classList.toggle('primary', !!value);
         buttonOptions.element.classList.toggle('danger', !value);
       } : undefined,
-      canHaveFormatting: ['bold', 'italic', 'link']
+      canHaveFormatting: ['bold', 'italic', 'link'],
     });
 
-    if(factCheck) {
-      inputField.setValueSilently(wrapDraftText(factCheck.text!.text, {entities: factCheck.text!.entities}));
+    if (factCheck) {
+      inputField.setValueSilently(wrapDraftText(factCheck.text!.text, { entities: factCheck.text!.entities }));
     }
 
     try {
@@ -1768,15 +1768,15 @@ export default class ChatContextMenu {
         titleLangKey: 'FactCheckDialog',
         inputField,
         button: buttonOptions,
-        confirmShortcutIsSendShortcut: true
+        confirmShortcutIsSendShortcut: true,
       });
-    } catch(err) {
+    } catch (err) {
       return;
     }
 
-    const {value: text, entities} = getRichValueWithCaret(inputField.input, true, false);
-    const newTextWithEntities: TextWithEntities = (text ? {_: 'textWithEntities', text, entities} : undefined)!;
-    if(factCheck && deepEqual(factCheck.text, newTextWithEntities)) {
+    const { value: text, entities } = getRichValueWithCaret(inputField.input, true, false);
+    const newTextWithEntities: TextWithEntities = (text ? { _: 'textWithEntities', text, entities } : undefined)!;
+    if (factCheck && deepEqual(factCheck.text, newTextWithEntities)) {
       return;
     }
 
@@ -1786,14 +1786,14 @@ export default class ChatContextMenu {
       newTextWithEntities
     ).then(() => {
       toastNew({
-        langPackKey: text ? 'FactCheckEdited' : 'FactCheckDeleted'
+        langPackKey: text ? 'FactCheckEdited' : 'FactCheckDeleted',
       });
     });
   };
 
   private onCopyClick = async() => {
-    if(isSelectionEmpty()) {
-      const {text, html} = this.selectedMessagesText;
+    if (isSelectionEmpty()) {
+      const { text, html } = this.selectedMessagesText;
       copyTextToClipboard(text, (html! as string | undefined));
     } else {
       document.execCommand('copy');
@@ -1808,9 +1808,9 @@ export default class ChatContextMenu {
   };
 
   private onCopyLinkClick = () => {
-    const {url, isPrivate} = this.linkToMessage!;
+    const { url, isPrivate } = this.linkToMessage!;
     const key: LangPackKey = isPrivate ? 'LinkCopiedPrivateInfo' : 'LinkCopied';
-    toastNew({langPackKey: key});
+    toastNew({ langPackKey: key });
     copyTextToClipboard(url);
   };
 
@@ -1831,7 +1831,7 @@ export default class ChatContextMenu {
   };
 
   private onAddTaskClick = async() => {
-    if(!rootScope.premium) {
+    if (!rootScope.premium) {
       PopupPremium.show();
       return;
     }
@@ -1839,18 +1839,18 @@ export default class ChatContextMenu {
     showChecklistPopup({
       chat: this.chat,
       editMessage: this.message as any,
-      appending: true
+      appending: true,
     });
   };
 
   private onForwardClick = async() => {
-    if(this.chat.selection!.isSelecting) {
+    if (this.chat.selection!.isSelecting) {
       simulateClickEvent(this.chat.selection!.selectionForwardBtn);
     } else {
       const peerId = this.messagePeerId;
       const mids = this.isTargetAGroupedItem ? [this.mid] : await this.chat.getMidsByMid(peerId, this.mid);
       showForwardPopup(({
-        [peerId]: mids
+        [peerId]: mids,
       } as { [fromPeerId: number]: number[]; } | undefined));
     }
   };
@@ -1864,13 +1864,13 @@ export default class ChatContextMenu {
   };
 
   private onDeleteClick = async() => {
-    if(this.chat.selection!.isSelecting) {
+    if (this.chat.selection!.isSelecting) {
       simulateClickEvent((this.chat.selection!.selectionDeleteBtn as HTMLElement));
       return;
     }
 
-    const {message} = this;
-    const {peerId, mid} = message;
+    const { message } = this;
+    const { peerId, mid } = message;
     // if(TEST_BUBBLES_DELETION) {
     //   return this.chat.bubbles.deleteMessagesByIds(await this.chat.getMidsByMid(mid), true);
     // }
@@ -1889,37 +1889,37 @@ export default class ChatContextMenu {
 
   private onQuoteClick = async() => {
     const messageWithText = this.getMessageWithText();
-    const {peerId} = messageWithText;
-    let {text: value, entities = [], offset: startIndex} = this.getQuotedText();
+    const { peerId } = messageWithText;
+    let { text: value, entities = [], offset: startIndex } = this.getQuotedText();
 
     const appConfig = await this.managers.apiManager.getAppConfig();
     let maxLength = appConfig.quote_length_max ?? 1024;
     const whitespaceLength = value.length - value.trimEnd().length;
-    if(whitespaceLength) { // * fix whitespace
+    if (whitespaceLength) { // * fix whitespace
       maxLength = Math.min(value.length - whitespaceLength, maxLength);
     }
-    if(value.length > maxLength) { // * fix overflow
+    if (value.length > maxLength) { // * fix overflow
       value = value.slice(0, maxLength);
       entities = entities // * fix length for entities
-      .filter((entity) => entity.offset! < maxLength)
-      .map((entity) => {
-        if((entity.offset! + entity.length!) > maxLength) {
-          entity.length = maxLength - entity.offset!;
-        }
+        .filter((entity) => entity.offset! < maxLength)
+        .map((entity) => {
+          if ((entity.offset! + entity.length!) > maxLength) {
+            entity.length = maxLength - entity.offset!;
+          }
 
-        return entity;
-      });
+          return entity;
+        });
     }
 
     const quote: ChatInputReplyTo['replyToQuote'] = {
       text: value,
       entities: entities.length ? entities : undefined,
-      offset: startIndex
+      offset: startIndex,
     };
 
     const replyTo = this.chat.input.getChatInputReplyToFromMessage(messageWithText, quote);
 
-    if(!await this.chat.canSend()) {
+    if (!await this.chat.canSend()) {
       replyTo.replyToPeerId = peerId;
       this.chat.input.createReplyPicker(replyTo);
       return;
@@ -1934,29 +1934,29 @@ export default class ChatContextMenu {
   };
 
   private async handleRepay() {
-    if(!('repayRequest' in this.message) || !this.message.repayRequest) return;
+    if (!('repayRequest' in this.message) || !this.message.repayRequest) return;
 
     const preparedPaymentResult = await this.chat.input.paidMessageInterceptor.prepareStarsForPayment(
       this.message.repayRequest.messageCount
     );
 
-    if(preparedPaymentResult === PAYMENT_REJECTED) return;
+    if (preparedPaymentResult === PAYMENT_REJECTED) return;
 
     this.managers.appMessagesManager.confirmRepayRequest(this.message.repayRequest.id, preparedPaymentResult!);
   }
 
   public static onDownloadClick(messages: MyMessage | MyMessage[], noForwards?: boolean, container?: HTMLElement): DownloadBlob | DownloadBlob[] | undefined {
-    if(Array.isArray(messages)) {
+    if (Array.isArray(messages)) {
       return messages.map((message) => {
         return this.onDownloadClick(message, noForwards, container) as any;
       });
     }
 
-    if(!this.canDownload(messages, undefined, noForwards, container)) {
+    if (!this.canDownload(messages, undefined, noForwards, container)) {
       return;
     }
 
-    return appDownloadManager.downloadToDisc({media: getMediaFromMessage(messages, true)});
+    return appDownloadManager.downloadToDisc({ media: getMediaFromMessage(messages, true) });
   };
 
   public static getReactionsMenuPadding(position: 'vertical' | 'horizontal') {
@@ -1965,22 +1965,22 @@ export default class ChatContextMenu {
     const totalSize = size + margin;
     let paddingLeft = 56;
     const paddingRight = 40;
-    if(IS_TOUCH_SUPPORTED) {
+    if (IS_TOUCH_SUPPORTED) {
       paddingLeft += 32;
     }
 
     let menuPadding: MenuPositionPadding;
-    if(position === 'vertical') {
+    if (position === 'vertical') {
       menuPadding = {
         top: paddingLeft,
         // bottom: 36, // positionMenu will detect it itself somehow
-        left: totalSize
+        left: totalSize,
       };
     } else {
       menuPadding = {
         top: totalSize,
         right: paddingRight,
-        left: paddingLeft
+        left: paddingLeft,
       };
     }
 
@@ -1992,29 +1992,29 @@ export default class ChatContextMenu {
     const newRect = cloneDOMRect(rect);
     newRect.left -= 21 / 2;
     newRect.top -= 121 / 2;
-    if(!hasMenu) newRect.top += 37;
+    if (!hasMenu) newRect.top += 37;
     return newRect;
   }
 
-  public static appendReactionsMenu({element, reactionsMenu, reactionsMenuPosition}: {
+  public static appendReactionsMenu({ element, reactionsMenu, reactionsMenuPosition }: {
     element: HTMLElement,
     reactionsMenu: ChatReactionsMenu,
     reactionsMenuPosition: 'horizontal' | 'vertical'
   }) {
     let isReactionsMenuVisible = false;
-    if(reactionsMenu) {
+    if (reactionsMenu) {
       const className = 'is-visible';
       isReactionsMenuVisible = reactionsMenu.container.classList.contains(className);
-      if(isReactionsMenuVisible) reactionsMenu.container.classList.remove(className);
+      if (isReactionsMenuVisible) reactionsMenu.container.classList.remove(className);
 
-      if(reactionsMenuPosition === 'horizontal') {
+      if (reactionsMenuPosition === 'horizontal') {
         const offsetSize = element[/* reactionsMenuPosition === 'vertical' ? 'offsetHeight' :  */'offsetWidth'];
         // if(reactionsMenu.scrollable.container.scrollWidth > offsetWidth) {
         const INNER_CONTAINER_PADDING = 8;
         const visibleLength = (offsetSize - INNER_CONTAINER_PADDING) / REACTION_CONTAINER_SIZE;
         const nextVisiblePart = visibleLength % 1;
         const MIN_NEXT_VISIBLE_PART = 0.65;
-        if(nextVisiblePart < MIN_NEXT_VISIBLE_PART) {
+        if (nextVisiblePart < MIN_NEXT_VISIBLE_PART) {
           const minSize = (offsetSize + (MIN_NEXT_VISIBLE_PART - nextVisiblePart) * REACTION_CONTAINER_SIZE) | 0;
           element.style[/* reactionsMenuPosition === 'vertical' ? 'minHeight' :  */'minWidth'] = minSize + 'px';
         }
@@ -2022,9 +2022,9 @@ export default class ChatContextMenu {
       }
     }
 
-    if(reactionsMenu) {
+    if (reactionsMenu) {
       const container = reactionsMenu.widthContainer;
-      if(!IS_MOBILE) {
+      if (!IS_MOBILE) {
         const i = document.createElement('div');
         i.classList.add('btn-menu-items', 'btn-menu-transition');
         i.append(...Array.from(element.childNodes));
@@ -2039,24 +2039,24 @@ export default class ChatContextMenu {
 
     return {
       onAfterInit: () => {
-        if(isReactionsMenuVisible) {
+        if (isReactionsMenuVisible) {
           reactionsMenu.container.classList.add('is-visible');
         }
       },
       onClose: () => {
-        if(reactionsMenu) {
+        if (reactionsMenu) {
           reactionsMenu.container.classList.remove('is-visible');
         }
-      }
+      },
     };
   }
 
   private async getMessageLanguage() {
-    if(this.chat.appConfig.freeze_since_date || this.selectedMessages || !this.message) return;
+    if (this.chat.appConfig.freeze_since_date || this.selectedMessages || !this.message) return;
 
-    if(this.message._ === 'message' && this.message.media?._ === 'messageMediaPoll') {
+    if (this.message._ === 'message' && this.message.media?._ === 'messageMediaPoll') {
       const text = (await this.getPollTextWithEntities(this.message))?.text;
-      if(!text) return;
+      if (!text) return;
 
       return detectLanguageForTranslation(text);
     }
@@ -2065,27 +2065,27 @@ export default class ChatContextMenu {
   }
 
   private async getPollTextWithEntities(message: MyMessage) {
-    if(message?._ !== 'message' || message.media?._ !== 'messageMediaPoll') return;
+    if (message?._ !== 'message' || message.media?._ !== 'messageMediaPoll') return;
 
     const listDotText = '🔘 ';
     const listDotEntities = parseEntities(listDotText);
-    const listDot: TextWithEntities = {_: 'textWithEntities', text: listDotText, entities: listDotEntities};
+    const listDot: TextWithEntities = { _: 'textWithEntities', text: listDotText, entities: listDotEntities };
     const lineBreakText = '\n';
     const lineBreakEntities = parseEntities(lineBreakText);
-    const lineBreak: TextWithEntities = {_: 'textWithEntities', text: lineBreakText, entities: lineBreakEntities};
+    const lineBreak: TextWithEntities = { _: 'textWithEntities', text: lineBreakText, entities: lineBreakEntities };
 
     // Note: poll_update doesn't modify the message, so we're getting the poll and results separately
-    const {poll, results} = await this.managers.appPollsManager.getPoll(message.media.poll.id);
+    const { poll, results } = await this.managers.appPollsManager.getPoll(message.media.poll.id);
 
-    if(!poll) return;
+    if (!poll) return;
 
     let answers = poll.answers.filter(answer => answer._ === 'pollAnswer');
 
-    if(shouldShufflePollOptions(poll)) {
+    if (shouldShufflePollOptions(poll)) {
       answers = shufflePollOptions({
         options: answers,
         userId: rootScope.myId,
-        pollId: poll.id
+        pollId: poll.id,
       });
     }
 
@@ -2093,7 +2093,7 @@ export default class ChatContextMenu {
       {
         _: 'textWithEntities',
         text: message.message,
-        entities: message.entities!
+        entities: message.entities!,
       },
       lineBreak,
       poll.question,
@@ -2101,15 +2101,15 @@ export default class ChatContextMenu {
       ...answers.filter(answer => answer._ === 'pollAnswer').map(answer => concatTextsWithEntities([
         listDot,
         answer.text,
-        lineBreak
+        lineBreak,
       ])),
       ...(results?.solution ? [
         {
           _: 'textWithEntities',
           text: results.solution,
-          entities: results.solution_entities ?? []
-        } as TextWithEntities
-      ] : [])
+          entities: results.solution_entities ?? [],
+        } as TextWithEntities,
+      ] : []),
     ];
 
     return concatTextsWithEntities(parts);

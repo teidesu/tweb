@@ -1,9 +1,9 @@
-import {CacheStorageDbName} from './files/cacheStorage';
+import { CacheStorageDbName } from './files/cacheStorage';
 
 export const cachedVideoChunksStorageNames = [
   'cachedStreamChunks',
   'cachedHlsStreamChunks',
-  'cachedHlsQualityFiles'
+  'cachedHlsQualityFiles',
 ] satisfies CacheStorageDbName[];
 
 export const cachedFilesStorageName = 'cachedFiles' satisfies CacheStorageDbName;
@@ -14,7 +14,7 @@ export type WatchedCachedStorageName = typeof watchedCachedStorageNames[number];
 export const HTTPHeaderNames = {
   cachedTime: 'Time-Cached',
   contentLength: 'Content-Length',
-  contentType: 'Content-Type'
+  contentType: 'Content-Type',
 };
 
 export const oneHourInSeconds = 60 * 60;

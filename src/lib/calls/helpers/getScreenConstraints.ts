@@ -3,13 +3,13 @@ export default function getScreenConstraints(skipAudio?: boolean) {
     video: {
       // @ts-ignore
       // cursor: 'always',
-      width: {max: 1920},
-      height: {max: 1080},
-      frameRate: {max: 30}
-    }
+      width: { max: 1920 },
+      height: { max: 1080 },
+      frameRate: { max: 30 },
+    },
   };
 
-  if(!skipAudio) {
+  if (!skipAudio) {
     constraints.audio = true;
   }
 

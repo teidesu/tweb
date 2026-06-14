@@ -1,13 +1,13 @@
-import {createMessageSpoilerOverlay} from '@components/messageSpoilerOverlay';
-import {AttachedMedia} from '@components/popups/createPoll/storeContext';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
-import {useIsCleaned} from '@hooks/useIsCleaned';
-import {Poll, TextWithEntities} from '@layer';
-import {ChatRights} from '@lib/appManagers/appChatsManager';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {Accessor, batch, createEffect, createSignal, onCleanup} from 'solid-js';
-import {unwrap} from 'solid-js/store';
-import {PollMessageContentProps} from './PollMessageContent';
+import { createMessageSpoilerOverlay } from '@components/messageSpoilerOverlay';
+import { AttachedMedia } from '@components/popups/createPoll/storeContext';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
+import { useIsCleaned } from '@hooks/useIsCleaned';
+import { Poll, TextWithEntities } from '@layer';
+import { ChatRights } from '@lib/appManagers/appChatsManager';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { Accessor, batch, createEffect, createSignal, onCleanup } from 'solid-js';
+import { unwrap } from 'solid-js/store';
+import { PollMessageContentProps } from './PollMessageContent';
 
 
 export type PollOptionResult = {
@@ -38,7 +38,7 @@ declare module 'solid-js' {
 export const dataPollViewerIdx = (el: HTMLElement, payload: Accessor<DataPollViewerIdxDirectivePayload>) => {
   createEffect(() => {
     const [idx, map] = payload();
-    if(idx === undefined) return;
+    if (idx === undefined) return;
 
     el.dataset.pollViewerIdx = idx.toString();
     map.set(idx, el);
@@ -50,7 +50,7 @@ export const dataPollViewerIdx = (el: HTMLElement, payload: Accessor<DataPollVie
 };
 
 export const attachSpoilerOverlay = (descriptionElement: HTMLDivElement, props: PollMessageContentProps) => {
-  const {HotReloadGuard} = useHotReloadGuard();
+  const { HotReloadGuard } = useHotReloadGuard();
 
   const isCleaned = useIsCleaned();
   let cleanup: () => void;
@@ -62,12 +62,12 @@ export const attachSpoilerOverlay = (descriptionElement: HTMLDivElement, props: 
   (async() => {
     await Promise.all(unwrap(props.loadPromises) || []); // TranslatableMessage delays the moment when content appears in the DOM
 
-    if(isCleaned() || !descriptionElement.querySelector('.spoiler-text')) return;
+    if (isCleaned() || !descriptionElement.querySelector('.spoiler-text')) return;
 
     const spoilerOverlay = createMessageSpoilerOverlay({
       mid: props.message.mid!,
       messageElement: descriptionElement,
-      animationGroup: props.animationGroup || 'none'
+      animationGroup: props.animationGroup || 'none',
     }, HotReloadGuard);
 
     descriptionElement.append(spoilerOverlay.element);
@@ -85,8 +85,8 @@ type UseRightsArgs<T extends ChatRights = ChatRights> = {
   getRight: (key: T) => Promise<boolean>
 };
 
-export const useChatRights = <T extends ChatRights = ChatRights>({peerId, rights, getRight}: UseRightsArgs<T>) => {
-  const {rootScope} = useHotReloadGuard();
+export const useChatRights = <T extends ChatRights = ChatRights>({ peerId, rights, getRight }: UseRightsArgs<T>) => {
+  const { rootScope } = useHotReloadGuard();
 
   const [ready, setReady] = createSignal(false);
   const [values, setValues] = createSignal<Partial<Record<T, boolean>>>({});
@@ -100,7 +100,7 @@ export const useChatRights = <T extends ChatRights = ChatRights>({peerId, rights
 
     const refresh = async() => {
       const results = await Promise.all(keys.map((k) => getRight(k)));
-      if(cancelled) return;
+      if (cancelled) return;
 
       const map: Partial<Record<ChatRights, boolean>> = {};
       keys.forEach((k, i) => {
@@ -114,7 +114,7 @@ export const useChatRights = <T extends ChatRights = ChatRights>({peerId, rights
     };
 
     const onChatUpdate = (chatId: ChatId) => {
-      if(peerId() !== chatId.toPeerId(true)) return;
+      if (peerId() !== chatId.toPeerId(true)) return;
       refresh();
     };
 
@@ -128,15 +128,15 @@ export const useChatRights = <T extends ChatRights = ChatRights>({peerId, rights
   });
 
   const hasRight = (key: T): boolean => {
-    if(!ready()) return false;
+    if (!ready()) return false;
     return values()[key] ?? false;
   };
 
-  return {ready, hasRight};
+  return { ready, hasRight };
 };
 
 export const hasSelectedCorrectAnswers = (poll: Poll.poll): boolean => {
-  if(poll.chosenIndexes?.length !== poll.correctIndexes?.length || !poll.chosenIndexes?.length) return false;
+  if (poll.chosenIndexes?.length !== poll.correctIndexes?.length || !poll.chosenIndexes?.length) return false;
   const set = new Set(poll.correctIndexes);
   return poll.chosenIndexes?.every((i) => set.has(i)) ?? false;
 };

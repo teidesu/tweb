@@ -4,7 +4,7 @@ export default function bytesToWordss(input: Parameters<typeof convertToUint8Arr
   const bytes = convertToUint8Array(input);
 
   const words: number[] = [];
-  for(let i = 0, len = bytes.length; i < len; ++i) {
+  for (let i = 0, len = bytes.length; i < len; ++i) {
     words[i >>> 2] |= bytes[i] << (24 - (i % 4) * 8);
   }
 

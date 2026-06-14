@@ -7,7 +7,7 @@
 
 export default function setRichFocus(field: HTMLElement, selectNode: Node | null, noCollapse?: boolean) {
   field.focus();
-  if(selectNode &&
+  if (selectNode &&
     selectNode.parentNode == field &&
     !selectNode.nextSibling &&
     !noCollapse) {
@@ -15,15 +15,15 @@ export default function setRichFocus(field: HTMLElement, selectNode: Node | null
     selectNode = null;
   }
 
-  if(window.getSelection && document.createRange) {
+  if (window.getSelection && document.createRange) {
     const range = document.createRange();
-    if(selectNode) {
+    if (selectNode) {
       range.selectNode(selectNode);
     } else {
       range.selectNodeContents(field);
     }
 
-    if(!noCollapse) {
+    if (!noCollapse) {
       range.collapse(false);
     }
 

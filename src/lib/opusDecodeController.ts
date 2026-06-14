@@ -1,10 +1,10 @@
-import {MOUNT_CLASS_TO} from '@config/debug';
+import { MOUNT_CLASS_TO } from '@config/debug';
 import IS_OPUS_SUPPORTED from '@environment/opusSupport';
-import {IS_SAFARI} from '@environment/userAgent';
-import {Modify} from '@types';
-import {logger, LogTypes} from '@lib/logger';
+import { IS_SAFARI } from '@environment/userAgent';
+import { Modify } from '@types';
+import { logger, LogTypes } from '@lib/logger';
 import apiManagerProxy from '@lib/apiManagerProxy';
-import type {ConvertWebPTask} from '@lib/webp/webpWorkerController';
+import type { ConvertWebPTask } from '@lib/webp/webpWorkerController';
 
 type Result = {
   bytes: Uint8Array,
@@ -36,14 +36,14 @@ export class OpusDecodeController {
   }
 
   public loadWavWorker() {
-    if(this.wavWorker) return;
+    if (this.wavWorker) return;
 
     this.wavWorker = new Worker('waveWorker.min.js');
     this.wavWorker.addEventListener('message', (e) => {
       const data = e.data;
 
       this.log('[WAV] got message:', data);
-      if(data && data.page) {
+      if (data && data.page) {
         const bytes = data.page;
         this.onTaskEnd(this.tasks.shift()!, bytes);
       }
@@ -51,25 +51,25 @@ export class OpusDecodeController {
   }
 
   public loadWorker() {
-    if(this.worker) return;
+    if (this.worker) return;
 
     this.worker = new Worker('decoderWorker.min.js');
     this.worker.addEventListener('message', (e) => {
       const data = e.data;
 
       this.log('[DECODER] got message', data);
-      if(data.type === 'done') {
+      if (data.type === 'done') {
         // this.log('[DECODER] send done to wav');
-        this.wavWorker!.postMessage({command: 'done'});
+        this.wavWorker!.postMessage({ command: 'done' });
 
-        if(data.waveform) {
+        if (data.waveform) {
           this.tasks[0].waveform = data.waveform;
         }
       } else { // e.data contains decoded buffers as float32 values
         // this.log('[DECODER] send encode to wav');
         this.wavWorker!.postMessage({
           command: 'encode',
-          buffers: e.data
+          buffers: e.data,
         }, IS_SAFARI ? undefined : data.map((typedArray: Uint8Array) => typedArray.buffer));
       }
     });
@@ -77,23 +77,23 @@ export class OpusDecodeController {
 
   public setKeepAlive(keepAlive: boolean) {
     this.keepAlive = keepAlive;
-    if(this.keepAlive) {
+    if (this.keepAlive) {
       this.loadWorker();
       this.loadWavWorker();
-    } else if(!this.tasks.length) {
+    } else if (!this.tasks.length) {
       this.terminateWorkers();
     }
   }
 
   public onTaskEnd(task: Task, result?: Uint8Array) {
-    if(!result) {
+    if (!result) {
       task.callback.reject('timeout');
     } else {
       clearTimeout(task.timeout);
-      task.callback.resolve({bytes: result, waveform: task.waveform});
+      task.callback.resolve({ bytes: result, waveform: task.waveform });
     }
 
-    if(this.tasks.length) {
+    if (this.tasks.length) {
       this.executeNewTask(this.tasks[0]);
     }
 
@@ -101,14 +101,14 @@ export class OpusDecodeController {
   }
 
   public terminateWorkers(kill = false) {
-    if((this.keepAlive || this.tasks.length) && !kill) return;
+    if ((this.keepAlive || this.tasks.length) && !kill) return;
 
-    if(this.worker) {
+    if (this.worker) {
       this.worker.terminate();
       this.worker = null;
     }
 
-    if(this.wavWorker) {
+    if (this.wavWorker) {
       this.wavWorker.terminate();
       this.wavWorker = null;
     }
@@ -118,13 +118,13 @@ export class OpusDecodeController {
     this.worker!.postMessage({
       command: 'init',
       decoderSampleRate: this.sampleRate,
-      outputBufferSampleRate: this.sampleRate
+      outputBufferSampleRate: this.sampleRate,
     });
 
     this.wavWorker!.postMessage({
       command: 'init',
       wavBitDepth: 16,
-      wavSampleRate: this.sampleRate
+      wavSampleRate: this.sampleRate,
     });
 
     // console.log('sending command to worker:', task);
@@ -133,7 +133,7 @@ export class OpusDecodeController {
     this.worker!.postMessage({
       command: 'decode',
       pages: task.pages,
-      waveform: task.withWaveform
+      waveform: task.withWaveform,
     }, (IS_SAFARI ? undefined : [task.pages.buffer]) as Transferable[]);
     // }, 1e3);
 
@@ -141,7 +141,7 @@ export class OpusDecodeController {
       this.log.error('decode timeout'/* , task */);
 
       this.terminateWorkers(true);
-      if(this.tasks.length) {
+      if (this.tasks.length) {
         this.loadWorker();
         this.loadWavWorker();
       }
@@ -155,14 +155,14 @@ export class OpusDecodeController {
       const task = {
         pages,
         withWaveform,
-        callback: {resolve, reject},
-        timeout: 0
+        callback: { resolve, reject },
+        timeout: 0,
       };
 
       this.loadWorker();
       this.loadWavWorker();
 
-      if(this.tasks.push(task) === 1) {
+      if (this.tasks.push(task) === 1) {
         this.executeNewTask(task);
       }
     });
@@ -170,8 +170,8 @@ export class OpusDecodeController {
 
   public async decode(typedArray: Uint8Array, withWaveform = false) {
     return this.pushDecodeTask(typedArray, withWaveform).then(async(result) => {
-      const dataBlob = new Blob([result.bytes as BlobPart], {type: 'audio/wav'});
-      return {url: await apiManagerProxy.invoke('createObjectURL', dataBlob), waveform: result.waveform};
+      const dataBlob = new Blob([result.bytes as BlobPart], { type: 'audio/wav' });
+      return { url: await apiManagerProxy.invoke('createObjectURL', dataBlob), waveform: result.waveform };
     });
   }
 }

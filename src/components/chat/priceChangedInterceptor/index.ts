@@ -2,13 +2,13 @@ import accumulate from '@helpers/array/accumulate';
 import type ListenerSetter from '@helpers/listenerSetter';
 import memoizeAsyncWithTTL from '@helpers/memoizeAsyncWithTTL';
 import safeAssign from '@helpers/object/safeAssign';
-import type {InputPeer} from '@layer';
-import type {AppManagers} from '@lib/managers';
+import type { InputPeer } from '@layer';
+import type { AppManagers } from '@lib/managers';
 import rootScope from '@lib/rootScope';
-import {setReservedStars} from '@stores/stars';
+import { setReservedStars } from '@stores/stars';
 
 import type Chat from '@components/chat/chat';
-import {PAYMENT_REJECTED} from '@components/chat/paidMessagesInterceptor';
+import { PAYMENT_REJECTED } from '@components/chat/paidMessagesInterceptor';
 
 import showPriceChangedTooltip from '@components/chat/priceChangedInterceptor/priceChangedTooltip';
 
@@ -61,16 +61,16 @@ class PriceChangedInterceptor {
   }
 
   init() {
-    this.listenerSetter.add(rootScope)('insufficent_stars_for_message', async({requestId, messageCount, invokeApiArgs, reservedStars}) => {
+    this.listenerSetter.add(rootScope)('insufficent_stars_for_message', async({ requestId, messageCount, invokeApiArgs, reservedStars }) => {
       reservedStars && setReservedStars(prev => Math.max(0, prev - reservedStars));
 
       const apiCallParams = invokeApiArgs[1];
 
       const peer = 'peer' in apiCallParams! ? apiCallParams.peer : 'to_peer' in apiCallParams! ? apiCallParams.to_peer : undefined;
-      if(!peer || !('allow_paid_stars' in apiCallParams!)) return;
+      if (!peer || !('allow_paid_stars' in apiCallParams!)) return;
 
       const peerId = await this.managers.appPeersManager.getPeerId(peer as InputPeer);
-      if(peerId !== this.chat.peerId) return;
+      if (peerId !== this.chat.peerId) return;
 
       const starsAmount = (await this.getAndUpdateStarsAmountIfNecessary(peerId))!;
 
@@ -79,18 +79,18 @@ class PriceChangedInterceptor {
       this.handleNewRepayRequest({
         starsAmount,
         requestId,
-        messageCount
+        messageCount,
       });
     });
 
-    this.listenerSetter.add(rootScope)('fulfill_repaid_message', ({requestId}) => {
+    this.listenerSetter.add(rootScope)('fulfill_repaid_message', ({ requestId }) => {
       this.pendingRequests = this.pendingRequests.filter(r => r.id !== requestId);
-      if(!this.pendingRequests.length) this.closeTooltip();
+      if (!this.pendingRequests.length) this.closeTooltip();
     });
   }
 
   private async getAndUpdateStarsAmountIfNecessary(peerId: PeerId) {
-    if(!peerId.isUser()) return this.managers.appPeersManager.getStarsAmount(peerId);
+    if (!peerId.isUser()) return this.managers.appPeersManager.getStarsAmount(peerId);
 
     const starsAmount = await this.getStarsAmountForUser(peerId.toUserId());
 
@@ -99,33 +99,33 @@ class PriceChangedInterceptor {
     return starsAmount;
   }
 
-  private handleNewRepayRequest({starsAmount, messageCount, requestId}: OpenTooltipArgs) {
-    if(this.openedTooltip && this.openedTooltip.withStarsAmount !== starsAmount) {
+  private handleNewRepayRequest({ starsAmount, messageCount, requestId }: OpenTooltipArgs) {
+    if (this.openedTooltip && this.openedTooltip.withStarsAmount !== starsAmount) {
       this.closeTooltip();
     }
 
-    if(!this.openedTooltip) this.openedTooltip = {
+    if (!this.openedTooltip) this.openedTooltip = {
       close: this.openTooltip(starsAmount),
-      withStarsAmount: starsAmount
+      withStarsAmount: starsAmount,
     }
 
     this.pendingRequests.push({
       id: requestId,
-      messageCount
+      messageCount,
     });
   }
 
   private openTooltip(starsAmount: number) {
     const onResend = () => {
       this.confirmResend({
-        pendingRequests: [...this.pendingRequests]
+        pendingRequests: [...this.pendingRequests],
       });
     };
 
-    const {close} = showPriceChangedTooltip({
+    const { close } = showPriceChangedTooltip({
       starsAmount,
       chat: this.chat,
-      onResend
+      onResend,
     });
 
     return close;
@@ -136,14 +136,14 @@ class PriceChangedInterceptor {
     this.openedTooltip = undefined;
   }
 
-  private async confirmResend({pendingRequests}: ConfirmResendArgs) {
+  private async confirmResend({ pendingRequests }: ConfirmResendArgs) {
     const messageCount = accumulate(pendingRequests.map(r => r.messageCount), 0);
 
     const preparedPaymentResult = await this.chat.input.paidMessageInterceptor.prepareStarsForPayment(messageCount);
 
-    if(preparedPaymentResult === PAYMENT_REJECTED) return;
+    if (preparedPaymentResult === PAYMENT_REJECTED) return;
 
-    await Promise.all(pendingRequests.map(({id}) => this.managers.appMessagesManager.confirmRepayRequest(id, preparedPaymentResult!)));
+    await Promise.all(pendingRequests.map(({ id }) => this.managers.appMessagesManager.confirmRepayRequest(id, preparedPaymentResult!)));
   }
 
   cleanup() {

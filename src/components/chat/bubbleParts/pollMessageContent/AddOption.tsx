@@ -1,23 +1,23 @@
-import appNavigationController, {NavigationItem} from '@components/appNavigationController';
-import {IconTsx} from '@components/iconTsx';
+import appNavigationController, { NavigationItem } from '@components/appNavigationController';
+import { IconTsx } from '@components/iconTsx';
 import InputField from '@components/inputField';
-import {EmojiDropdownButton} from '@components/popups/createPoll/emojiDropdownButton';
-import {MediaAttachment} from '@components/popups/createPoll/mediaAttachment';
-import {AttachedMedia, SupportedMediaType} from '@components/popups/createPoll/storeContext';
+import { EmojiDropdownButton } from '@components/popups/createPoll/emojiDropdownButton';
+import { MediaAttachment } from '@components/popups/createPoll/mediaAttachment';
+import { AttachedMedia, SupportedMediaType } from '@components/popups/createPoll/storeContext';
 import ripple from '@components/ripple';
-import {Spinner} from '@components/spinner';
+import { Spinner } from '@components/spinner';
 import getRichValueWithCaret from '@helpers/dom/getRichValueWithCaret';
-import {keepMe} from '@helpers/keepMe';
-import {createDelayed} from '@helpers/solid/createDelayed';
-import {I18nTsx} from '@helpers/solid/i18n';
+import { keepMe } from '@helpers/keepMe';
+import { createDelayed } from '@helpers/solid/createDelayed';
+import { I18nTsx } from '@helpers/solid/i18n';
 import classNames from '@helpers/string/classNames';
-import {createEffect, createMemo, createResource, Match, onCleanup, Show, Switch} from 'solid-js';
-import {supportsVideoEncoding} from '@components/mediaEditor/support';
-import {Transition} from 'solid-transition-group';
-import {usePollMessageContentProps} from './context';
+import { createEffect, createMemo, createResource, Match, onCleanup, Show, Switch } from 'solid-js';
+import { supportsVideoEncoding } from '@components/mediaEditor/support';
+import { Transition } from 'solid-transition-group';
+import { usePollMessageContentProps } from './context';
 import styles from './styles.module.scss';
-import {NewOptionValues, spinnerThickness, useChatRights} from './utils';
-import {isTruthy} from '../../../../helpers/isTruthy';
+import { NewOptionValues, spinnerThickness, useChatRights } from './utils';
+import { isTruthy } from '../../../../helpers/isTruthy';
 
 keepMe(ripple);
 
@@ -36,7 +36,7 @@ export const AddOption = (props: {
   const chatRights = useChatRights({
     peerId: () => contextProps.message.peerId!,
     rights: () => ['send_photos', 'send_stickers', 'send_gifs', 'send_videos'],
-    getRight: (key) => contextProps.canSend(key)
+    getRight: (key) => contextProps.canSend(key),
   })
 
   const [canEncodeVideoResource] = createResource(() => supportsVideoEncoding());
@@ -49,7 +49,7 @@ export const AddOption = (props: {
       ...(chatRights.hasRight('send_stickers') ? ['sticker'] as const : []),
       // GIFs and videos also requires the editor's encoder to be supported by the browser.
       ...(chatRights.hasRight('send_gifs') && canEncodeVideo() ? ['gif'] as const : []),
-      ...(chatRights.hasRight('send_videos') && canEncodeVideo() ? ['video'] as const : [])
+      ...(chatRights.hasRight('send_videos') && canEncodeVideo() ? ['video'] as const : []),
     ];
   });
 
@@ -61,20 +61,20 @@ export const AddOption = (props: {
     placeholder: 'NewPoll.Option',
     canWrapCustomEmojis: true,
     onRawInput: () => {
-      const {value, entities} = getRichValueWithCaret(inputField.input, true, false);
-      props.onPartialChange({text: value, entities});
-    }
+      const { value, entities } = getRichValueWithCaret(inputField.input, true, false);
+      props.onPartialChange({ text: value, entities });
+    },
   });
 
   inputField.input.classList.add(styles.inputFieldInput);
   inputField.placeholder.classList.add(...([styles.inputFieldPlaceholder, contextProps.isOutgoing ? styles.outgoing : null].filter(isTruthy)));
 
   inputField.input.addEventListener('keydown', (e) => {
-    if(e.key === 'Enter') {
+    if (e.key === 'Enter') {
       props.onEnter?.();
     }
 
-    if(e.key === 'Backspace' && props.value === '') {
+    if (e.key === 'Backspace' && props.value === '') {
       e.preventDefault();
       props.onActiveChange(false);
     }
@@ -83,15 +83,15 @@ export const AddOption = (props: {
   props.inputFieldRef(inputField);
 
   createEffect(() => {
-    if(!active()) return;
+    if (!active()) return;
 
     const navigationItem: NavigationItem = {
       type: 'inline-message-input',
-      onPop: () => void props.onActiveChange(false)
+      onPop: () => void props.onActiveChange(false),
     };
 
     const existing = appNavigationController.findItemByType('inline-message-input');
-    if(existing) {
+    if (existing) {
       appNavigationController.backByItem(existing.item);
     }
 
@@ -103,7 +103,7 @@ export const AddOption = (props: {
   });
 
   createEffect(() => {
-    if(props.isPending) {
+    if (props.isPending) {
       inputField.input.contentEditable = 'false';
 
       onCleanup(() => {
@@ -113,7 +113,7 @@ export const AddOption = (props: {
   });
 
   const onAfterEnter = () => {
-    if(active()) {
+    if (active()) {
       inputField.input.focus();
     }
   };
@@ -123,12 +123,12 @@ export const AddOption = (props: {
       class={classNames(styles.pollOption, styles.hasMedia, styles.isAddOption)}
       classList={{
         [styles.isOutgoing]: contextProps.isOutgoing,
-        [styles.isIncoming]: !contextProps.isOutgoing
+        [styles.isIncoming]: !contextProps.isOutgoing,
       }}
     >
       <Transition name='fade-4' mode='outin' duration={400}>
         <Show when={delayedIsClickable()}>
-          <div class={styles.clickableArea} classList={{[styles.outgoing]: contextProps.isOutgoing}} use:ripple={delayedIsClickable()} onClick={() => props.onActiveChange(!active())} />
+          <div class={styles.clickableArea} classList={{ [styles.outgoing]: contextProps.isOutgoing }} use:ripple={delayedIsClickable()} onClick={() => props.onActiveChange(!active())} />
         </Show>
       </Transition>
 
@@ -168,7 +168,7 @@ export const AddOption = (props: {
         classList={{
           [styles.stripped]: !!props.attachment,
           [styles.clickable]: !!props.attachment,
-          [styles.pointerDisabled]: props.isPending
+          [styles.pointerDisabled]: props.isPending,
         }}
       >
         <Show when={active() && supportedMediaTypes().filter(t => t !== 'gif').length > 0}>
@@ -177,7 +177,7 @@ export const AddOption = (props: {
             btnClass={styles.pollOptionMediaAttachBtn}
             imgClass={styles.pollOptionMediaAttachImg}
             attachedMedia={props.attachment}
-            onAttach={(attachment) => props.onPartialChange({attachment})}
+            onAttach={(attachment) => props.onPartialChange({ attachment })}
           />
         </Show>
       </div>

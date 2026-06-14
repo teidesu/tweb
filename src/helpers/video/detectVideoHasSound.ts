@@ -11,7 +11,7 @@
  * or an already-loaded `HTMLVideoElement` (reused in place — caller keeps ownership).
  */
 export default async function detectVideoHasSound(source: Blob | File | HTMLVideoElement): Promise<boolean> {
-  if(source instanceof HTMLVideoElement) {
+  if (source instanceof HTMLVideoElement) {
     return probeVideoElementHasSound(source);
   }
 
@@ -45,15 +45,15 @@ export default async function detectVideoHasSound(source: Blob | File | HTMLVide
 async function probeVideoElementHasSound(video: HTMLVideoElement): Promise<boolean> {
   // Firefox path.
   const audioTracks = (video as any).audioTracks;
-  if(audioTracks && typeof audioTracks.length === 'number') {
+  if (audioTracks && typeof audioTracks.length === 'number') {
     return audioTracks.length > 0;
   }
-  if(typeof (video as any).mozHasAudio === 'boolean') {
+  if (typeof (video as any).mozHasAudio === 'boolean') {
     return (video as any).mozHasAudio;
   }
 
   // Chromium/WebKit path: needs playback to start so the byte counter advances.
-  if('webkitAudioDecodedByteCount' in video) {
+  if ('webkitAudioDecodedByteCount' in video) {
     const wasPaused = video.paused;
     const previousMuted = video.muted;
     video.muted = true;
@@ -72,12 +72,12 @@ async function probeVideoElementHasSound(video: HTMLVideoElement): Promise<boole
         }, 400);
       });
     } finally {
-      if(wasPaused) video.pause();
+      if (wasPaused) video.pause();
       video.muted = previousMuted;
     }
 
     const decoded = (video as any).webkitAudioDecodedByteCount;
-    if(typeof decoded === 'number') return decoded > 0;
+    if (typeof decoded === 'number') return decoded > 0;
   }
 
   // Unknown engine — assume the safer answer (has sound).

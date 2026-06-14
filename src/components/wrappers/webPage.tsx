@@ -1,10 +1,10 @@
-import {JSX, Ref} from 'solid-js';
-import {getDirection} from '@helpers/dom/setInnerHTML';
+import { JSX, Ref } from 'solid-js';
+import { getDirection } from '@helpers/dom/setInnerHTML';
 import classNames from '@helpers/string/classNames';
-import {IconTsx} from '@components/iconTsx';
-import {Ripple} from '@components/rippleTsx';
-import {Dynamic} from 'solid-js/web';
-import {isTruthy} from '../../helpers/isTruthy';
+import { IconTsx } from '@components/iconTsx';
+import { Ripple } from '@components/rippleTsx';
+import { Dynamic } from 'solid-js/web';
+import { isTruthy } from '../../helpers/isTruthy';
 
 const className = 'webpage';
 
@@ -74,13 +74,13 @@ function WebPageMedia(props: {
   hasDocument?: boolean,
   photoSize?: 'vertical' | 'square'
 }) {
-  if(!props) {
+  if (!props) {
     return;
   }
 
   const _className = `${className}-preview`;
   const withDocument = props.hasDocument && `${_className}-with-document`;
-  if(props.content) {
+  if (props.content) {
     props.content.classList.add(...[_className, withDocument].filter(isTruthy));
   }
 
@@ -143,7 +143,7 @@ export default function WebPageBox(props: {
     </Dynamic>
   );
 
-  if(!props.clickable) {
+  if (!props.clickable) {
     return ret;
   }
 

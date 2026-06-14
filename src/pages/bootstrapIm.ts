@@ -1,10 +1,10 @@
 import blurActiveElement from '@helpers/dom/blurActiveElement';
 import loadFonts from '@helpers/dom/loadFonts';
-import {doubleRaf} from '@helpers/schedulers';
+import { doubleRaf } from '@helpers/schedulers';
 import isNativeVoiceRecorderSupported from '@helpers/voiceRecorder/isNativeSupported';
 import rootScope from '@lib/rootScope';
 
-import {disposeActiveAuthFlow} from '@/pages/mountAuthFlow';
+import { disposeActiveAuthFlow } from '@/pages/mountAuthFlow';
 
 let bootstrapped = false;
 
@@ -19,13 +19,13 @@ let bootstrapped = false;
  * time.
  */
 export async function bootstrapIm(): Promise<void> {
-  if(bootstrapped) return;
+  if (bootstrapped) return;
   bootstrapped = true;
 
-  await rootScope.managers.appStateManager.pushToState('authState', {_: 'authStateSignedIn'});
+  await rootScope.managers.appStateManager.pushToState('authState', { _: 'authStateSignedIn' });
 
   const pageChatsEl = document.getElementById('page-chats');
-  if(pageChatsEl) pageChatsEl.style.display = '';
+  if (pageChatsEl) pageChatsEl.style.display = '';
 
   blurActiveElement();
 
@@ -36,16 +36,16 @@ export async function bootstrapIm(): Promise<void> {
     Promise.resolve(null) :
     import('@vendor/recorder.min.js' as any);
 
-  const [{default: appDialogsManager}, recorder] = await Promise.all([
+  const [{ default: appDialogsManager }, recorder] = await Promise.all([
     import('@lib/appDialogsManager'),
     recorderImport,
     loadFonts(),
     'requestVideoFrameCallback' in HTMLVideoElement.prototype ?
       Promise.resolve() :
-      import('@helpers/dom/requestVideoFrameCallbackPolyfill')
+      import('@helpers/dom/requestVideoFrameCallbackPolyfill'),
   ]);
 
-  if(recorder) {
+  if (recorder) {
     (window as any).Recorder = recorder.default;
   }
   appDialogsManager.start();

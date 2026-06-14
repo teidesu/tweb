@@ -1,7 +1,7 @@
-import {i18n, LangPackKey} from '@lib/langPack';
+import { i18n, LangPackKey } from '@lib/langPack';
 
 export default function formatBytes(bytes: number, decimals: number | 'auto' = 'auto') {
-  if(bytes === 0) return i18n('FileSize.B', [0]);
+  if (bytes === 0) return i18n('FileSize.B', [0]);
 
   const strictDecimals = decimals === 'auto';
 

@@ -10,12 +10,12 @@ let context: CanvasRenderingContext2D;
  */
 export default function getTextWidth(text: string, font: string) {
   // const perf = performance.now();
-  if(!context) {
+  if (!context) {
     const canvas = document.createElement('canvas');
-    context = canvas.getContext('2d', {alpha: false})!;
+    context = canvas.getContext('2d', { alpha: false })!;
   }
 
-  if(context.font !== font) {
+  if (context.font !== font) {
     context.font = font;
   }
 

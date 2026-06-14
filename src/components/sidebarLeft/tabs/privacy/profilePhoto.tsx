@@ -1,17 +1,17 @@
 import privacyTab from './privacyTab';
 import PrivacySection from '@components/privacySection';
-import {i18n, LangPackKey} from '@lib/langPack';
-import {SliderSuperTabEventable} from '@components/sliderTab';
+import { i18n, LangPackKey } from '@lib/langPack';
+import { SliderSuperTabEventable } from '@components/sliderTab';
 import SettingSection from '@components/settingSection';
 import Row from '@components/row';
-import {pickAvatarAndUpload} from '@components/avatarEdit';
+import { pickAvatarAndUpload } from '@components/avatarEdit';
 import confirmationPopup from '@components/confirmationPopup';
 import rootScope from '@lib/rootScope';
-import {avatarNew, wrapPhotoToAvatar} from '@components/avatarNew';
-import {getMiddleware, MiddlewareHelper} from '@helpers/middleware';
-import {UserFull, Photo} from '@layer';
+import { avatarNew, wrapPhotoToAvatar } from '@components/avatarNew';
+import { getMiddleware, MiddlewareHelper } from '@helpers/middleware';
+import { UserFull, Photo } from '@layer';
 import ProgressivePreloader from '@components/preloader';
-import type {CancellablePromise} from '@helpers/cancellablePromise';
+import type { CancellablePromise } from '@helpers/cancellablePromise';
 
 const caption: LangPackKey = 'PrivacySettingsController.ProfilePhoto.CustomHelp';
 
@@ -26,13 +26,13 @@ function buildFallbackSection(tab: SliderSuperTabEventable) {
   const renderRemoveAvatar = (fallback: Photo.photo | undefined) => {
     avatarMiddleware?.destroy();
     removeMedia.replaceChildren();
-    if(!fallback) return;
+    if (!fallback) return;
 
     avatarMiddleware = getMiddleware();
     const avatar = avatarNew({
       middleware: avatarMiddleware.get(),
       size: 36,
-      isDialog: false
+      isDialog: false,
     });
     removeMedia.appendChild(avatar.node);
 
@@ -43,12 +43,12 @@ function buildFallbackSection(tab: SliderSuperTabEventable) {
     // inputPeerPhotoFileLocation the server can't resolve for a fallback photo
     // → FILE_ID_INVALID. Show the static cover (strip video_sizes); a 36px
     // control doesn't need the ~2MB animated variant.
-    wrapPhotoToAvatar(avatar, {...fallback, video_sizes: undefined}, 36);
+    wrapPhotoToAvatar(avatar, { ...fallback, video_sizes: undefined }, 36);
   };
 
   const refreshFallback = async() => {
     // An in-flight upload owns the row (progress + cancel) — don't disturb it.
-    if(uploadProgress) return;
+    if (uploadProgress) return;
 
     const userFull = await tab.managers.appProfileManager.getProfile(rootScope.myId.toUserId());
     const fallback = (userFull)?.fallback_photo as Photo.photo | undefined;
@@ -77,12 +77,12 @@ function buildFallbackSection(tab: SliderSuperTabEventable) {
     removeRow.container.classList.remove('hide');
     removeRow.container.classList.add('is-uploading');
 
-    uploadPreloader ??= new ProgressivePreloader({isUpload: true, cancelable: false});
+    uploadPreloader ??= new ProgressivePreloader({ isUpload: true, cancelable: false });
     uploadPreloader.attach(removeMedia, true, progress);
 
     // Cancel / failure reverts the row; success is handled via onUploaded.
     progress.catch(() => {
-      if(uploadProgress === progress) endUploadProgress();
+      if (uploadProgress === progress) endUploadProgress();
     });
   };
 
@@ -91,7 +91,7 @@ function buildFallbackSection(tab: SliderSuperTabEventable) {
       managers: tab.managers,
       mode: 'fallback',
       onUploadStart: (progress) => showUploadProgress(progress),
-      onUploaded: () => endUploadProgress()
+      onUploaded: () => endUploadProgress(),
     });
   };
 
@@ -100,16 +100,16 @@ function buildFallbackSection(tab: SliderSuperTabEventable) {
       await confirmationPopup({
         titleLangKey: 'PrivacySettingsController.RemovePublicPhotoConfirmTitle',
         descriptionLangKey: 'PrivacySettingsController.RemovePublicPhotoConfirmDescription',
-        button: {langKey: 'Remove', isDanger: true}
+        button: { langKey: 'Remove', isDanger: true },
       });
-    } catch{ return; }
+    } catch { return; }
 
     await tab.managers.appProfileManager.clearFallbackProfilePhoto();
     refreshFallback();
   };
 
   const onRemoveRowClick = () => {
-    if(uploadProgress) {
+    if (uploadProgress) {
       uploadProgress.cancel!();
       return;
     }
@@ -119,14 +119,14 @@ function buildFallbackSection(tab: SliderSuperTabEventable) {
 
   const section = new SettingSection({
     name: 'PrivacySettingsController.PublicPhoto',
-    caption: 'PrivacySettingsController.PublicPhoto.Help'
+    caption: 'PrivacySettingsController.PublicPhoto.Help',
   });
 
   const fallbackRow = new Row({
     icon: 'cameraadd',
     titleLangKey: 'PrivacySettingsController.SetPublicPhoto',
     clickable: () => onSetFallbackClick(),
-    listenerSetter: tab.listenerSetter
+    listenerSetter: tab.listenerSetter,
   });
 
   // The remove control is a transparent-danger Row whose media is the
@@ -135,7 +135,7 @@ function buildFallbackSection(tab: SliderSuperTabEventable) {
   const removeRow = new Row({
     titleLangKey: 'PrivacySettingsController.RemovePublicPhoto',
     clickable: () => onRemoveRowClick(),
-    listenerSetter: tab.listenerSetter
+    listenerSetter: tab.listenerSetter,
   });
   removeRow.container.classList.add('danger', 'privacy-public-photo-remove');
   const removeMedia = removeRow.createMedia('medium');
@@ -145,7 +145,7 @@ function buildFallbackSection(tab: SliderSuperTabEventable) {
 
   refreshFallback();
   tab.listenerSetter.add(rootScope)('user_full_update', (userId) => {
-    if(userId === rootScope.myId.toUserId()) refreshFallback();
+    if (userId === rootScope.myId.toUserId()) refreshFallback();
   });
 }
 
@@ -157,7 +157,7 @@ export default privacyTab('privacy-profile-photo', (tab) => {
     captions: [caption, caption, caption],
     exceptionTexts: ['PrivacySettingsController.NeverShare', 'PrivacySettingsController.AlwaysShare'],
     appendTo: tab.scrollable,
-    managers: tab.managers
+    managers: tab.managers,
   });
 
   buildFallbackSection(tab);

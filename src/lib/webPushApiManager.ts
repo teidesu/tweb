@@ -5,15 +5,15 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import type {PushNotificationObject} from '@lib/serviceWorker/push';
-import type {ServicePushPingTaskPayload} from '@lib/serviceWorker/serviceMessagePort';
-import type {NotificationSettings} from '@lib/uiNotificationsManager';
-import type {ActiveAccountNumber} from '@lib/accounts/types';
+import type { PushNotificationObject } from '@lib/serviceWorker/push';
+import type { ServicePushPingTaskPayload } from '@lib/serviceWorker/serviceMessagePort';
+import type { NotificationSettings } from '@lib/uiNotificationsManager';
+import type { ActiveAccountNumber } from '@lib/accounts/types';
 import type ServiceMessagePort from '@lib/serviceWorker/serviceMessagePort';
-import {MOUNT_CLASS_TO} from '@config/debug';
-import {logger} from '@lib/logger';
-import I18n, {LangPackKey} from '@lib/langPack';
-import {IS_MOBILE} from '@environment/userAgent';
+import { MOUNT_CLASS_TO } from '@config/debug';
+import { logger } from '@lib/logger';
+import I18n, { LangPackKey } from '@lib/langPack';
+import { IS_MOBILE } from '@environment/userAgent';
 import copy from '@helpers/object/copy';
 import singleInstance from '@lib/singleInstance';
 import EventListenerBase from '@helpers/eventListenerBase';
@@ -50,7 +50,7 @@ export class WebPushApiManager extends EventListenerBase<{
   constructor() {
     super(false);
 
-    if(
+    if (
       !('PushManager' in window) ||
       !('Notification' in window) ||
       !('serviceWorker' in navigator) ||
@@ -61,7 +61,7 @@ export class WebPushApiManager extends EventListenerBase<{
       this.localNotificationsAvailable = false;
     }
 
-    if(this.isAvailable && Notification.permission === 'denied') {
+    if (this.isAvailable && Notification.permission === 'denied') {
       this.log.warn('the user has blocked notifications.');
     }
   }
@@ -75,7 +75,7 @@ export class WebPushApiManager extends EventListenerBase<{
   }
 
   public getSubscription() {
-    if(!this.isAvailable) {
+    if (!this.isAvailable) {
       return;
     }
 
@@ -89,7 +89,7 @@ export class WebPushApiManager extends EventListenerBase<{
   }
 
   public subscribe = (): Promise<PushSubscriptionNotify | void> => {
-    if(!this.isAvailable) {
+    if (!this.isAvailable) {
       return undefined as unknown as Promise<void>;
     }
 
@@ -97,16 +97,16 @@ export class WebPushApiManager extends EventListenerBase<{
     return navigator.serviceWorker.ready.then((reg) => {
       return reg.pushManager.subscribe({
         userVisibleOnly: this.userVisibleOnly,
-        applicationServerKey: App.pushServerKey
+        applicationServerKey: App.pushServerKey,
       }).then((subscription) => {
         this.log('subscribed');
         return this.makeTokenData(subscription);
       }).catch((e) => {
-        if(Notification.permission === 'denied') {
+        if (Notification.permission === 'denied') {
           this.log('permission for Notifications was denied');
         } else {
           this.log('unable to subscribe to push.', e);
-          if(!this.userVisibleOnly) {
+          if (!this.userVisibleOnly) {
             this.userVisibleOnly = true;
             return new Promise((resolve) => setTimeout(resolve, 0)).then(this.subscribe);
           }
@@ -116,14 +116,14 @@ export class WebPushApiManager extends EventListenerBase<{
   }
 
   public unsubscribe() {
-    if(!this.isAvailable) {
+    if (!this.isAvailable) {
       return;
     }
 
     this.log('unsubscribing');
     return navigator.serviceWorker.ready.then((reg) => {
       return reg.pushManager.getSubscription().then((subscription) => {
-        if(!subscription) {
+        if (!subscription) {
           this.log('no subscription to unsubscribe from');
           return;
         }
@@ -141,7 +141,7 @@ export class WebPushApiManager extends EventListenerBase<{
   }
 
   public isAliveNotify = async() => {
-    if(!this.isAvailable || singleInstance.deactivatedReason) {
+    if (!this.isAvailable || singleInstance.deactivatedReason) {
       return;
     }
 
@@ -152,10 +152,10 @@ export class WebPushApiManager extends EventListenerBase<{
       push_action_mute1d: IS_MOBILE ? 'PushNotification.Action.Mute1d.Mobile' : 'PushNotification.Action.Mute1d',
       push_action_settings: IS_MOBILE ? 'PushNotification.Action.Settings.Mobile' : 'PushNotification.Action.Settings',
       push_message_nopreview: 'PushNotification.Message.NoPreview',
-      push_message_error: 'PushNotification.Message.Refreshing'
+      push_message_error: 'PushNotification.Message.Refreshing',
     };
 
-    for(const action in ACTIONS_LANG_MAP) {
+    for (const action in ACTIONS_LANG_MAP) {
       lang[action as keyof typeof ACTIONS_LANG_MAP] = I18n.format(
         ACTIONS_LANG_MAP[action as keyof typeof ACTIONS_LANG_MAP],
         true
@@ -165,7 +165,7 @@ export class WebPushApiManager extends EventListenerBase<{
     const accounts: ServicePushPingTaskPayload['accounts'] = {};
     const [userIds, keysIdsBase64] = await Promise.all([
       AccountController.getUserIds(),
-      apiManagerProxy.pushSingleManager.getKeysIdsBase64()
+      apiManagerProxy.pushSingleManager.getKeysIdsBase64(),
     ]);
     userIds.forEach((userId, accountNumber) => {
       accounts[(accountNumber + 1) as ActiveAccountNumber] = userId;
@@ -176,7 +176,7 @@ export class WebPushApiManager extends EventListenerBase<{
       lang: lang,
       settings: this.settings,
       accounts,
-      keysIdsBase64
+      keysIdsBase64,
     };
 
     this.serviceMessagePort.invokeVoid('pushPing', payload);
@@ -191,7 +191,7 @@ export class WebPushApiManager extends EventListenerBase<{
   }
 
   public hidePushNotifications() {
-    if(!this.isAvailable) {
+    if (!this.isAvailable) {
       return;
     }
 
@@ -199,12 +199,12 @@ export class WebPushApiManager extends EventListenerBase<{
   }
 
   public setUpServiceWorkerChannel() {
-    if(!this.isAvailable) {
+    if (!this.isAvailable) {
       return;
     }
 
     this.serviceMessagePort.addEventListener('pushClick', (payload) => {
-      if(singleInstance.deactivatedReason) {
+      if (singleInstance.deactivatedReason) {
         appNavigationController.reload();
         return;
       }
@@ -216,12 +216,12 @@ export class WebPushApiManager extends EventListenerBase<{
   }
 
   private makeTokenData(subscription: PushSubscription): PushSubscriptionNotify | undefined {
-    if(!subscription) {
+    if (!subscription) {
       return;
     }
 
     const subscriptionObj: PushSubscriptionJSON & {vapid?: boolean} = subscription.toJSON();
-    if(!subscriptionObj ||
+    if (!subscriptionObj ||
       !subscriptionObj.endpoint ||
       !subscriptionObj.keys ||
       !subscriptionObj.keys.p256dh ||
@@ -234,12 +234,12 @@ export class WebPushApiManager extends EventListenerBase<{
     subscriptionObj.vapid = true;
     return {
       tokenType: 10,
-      tokenValue: JSON.stringify(subscriptionObj)
+      tokenValue: JSON.stringify(subscriptionObj),
     };
   }
 
   public ignorePushByMid(peerId: PeerId, mid: number) {
-    if(!this.isAvailable) {
+    if (!this.isAvailable) {
       return;
     }
 

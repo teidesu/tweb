@@ -1,9 +1,9 @@
 import type Scrollable from '@components/scrollable';
-import type {ScrollableContextValue} from '@components/scrollable2';
-import {MOUNT_CLASS_TO} from '@config/debug';
-import {IS_SAFARI} from '@environment/userAgent';
+import type { ScrollableContextValue } from '@components/scrollable2';
+import { MOUNT_CLASS_TO } from '@config/debug';
+import { IS_SAFARI } from '@environment/userAgent';
 import getVisibleRect from '@helpers/dom/getVisibleRect';
-import {fastRaf} from '@helpers/schedulers';
+import { fastRaf } from '@helpers/schedulers';
 
 // let USE_REFLOW = false;
 // if(IS_SAFARI) {
@@ -45,33 +45,33 @@ export default class ScrollSaver {
     return {
       scrollHeight: this.scrollHeight,
       scrollTop: this.scrollTop,
-      clientHeight: this.clientHeight
+      clientHeight: this.clientHeight,
     };
   }
 
   public findElements() {
-    if(!this.query) return [];
+    if (!this.query) return [];
 
-    const {container} = this;
+    const { container } = this;
     const containerRect = container.getBoundingClientRect();
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+
     const bubbles = Array.from(container.querySelectorAll(this.query)) as HTMLElement[];
     const elements: ScrollSaver['elements'] = [];
-    for(const bubble of bubbles) {
+    for (const bubble of bubbles) {
       const elementRect = bubble.getBoundingClientRect();
       const visibleRect = getVisibleRect(bubble, container, undefined, elementRect, containerRect);
-      if(visibleRect) {
-        elements.push({element: bubble, rect: elementRect});
+      if (visibleRect) {
+        elements.push({ element: bubble, rect: elementRect });
         // break; // find first
-      } else if(elements.length) { // find last
+      } else if (elements.length) { // find last
         break;
       }
     }
 
-    if(!elements.length) {
+    if (!elements.length) {
       const bubble = bubbles[0];
-      if(bubble) {
-        elements.push({element: bubble, rect: bubble.getBoundingClientRect()});
+      if (bubble) {
+        elements.push({ element: bubble, rect: bubble.getBoundingClientRect() });
       }
     }
 
@@ -79,12 +79,12 @@ export default class ScrollSaver {
   }
 
   public replaceSaved(from: HTMLElement, to: HTMLElement) {
-    if(!this.elements) {
+    if (!this.elements) {
       return;
     }
 
-    const idx = this.elements.findIndex(({element}) => from === element);
-    if(idx !== -1) {
+    const idx = this.elements.findIndex(({ element }) => from === element);
+    if (idx !== -1) {
       this.elements[idx].element = to;
     }
   }
@@ -100,7 +100,7 @@ export default class ScrollSaver {
   }
 
   public _save() {
-    const {scrollTop, scrollHeight, clientHeight} = this.container;
+    const { scrollTop, scrollHeight, clientHeight } = this.container;
 
     // previousScrollHeight = scrollHeight;
     // previousScrollHeight = scrollHeight + padding;
@@ -132,9 +132,9 @@ export default class ScrollSaver {
     // container.scrollTop = scrollHeight;
     // isTouchSupported && isApple && (container.container.style.overflow = '');
 
-    if(IS_SAFARI) {
+    if (IS_SAFARI) {
       fastRaf(() => {
-        if(this.scrollTop === newScrollTop) {
+        if (this.scrollTop === newScrollTop) {
           this.scrollable.setScrollPositionSilently(this.scrollTop = newScrollTop);
         }
       });
@@ -148,10 +148,10 @@ export default class ScrollSaver {
   }
 
   public restore(useReflow?: boolean) {
-    const {scrollPosition: scrollTop, scrollSize: scrollHeight} = this.scrollable;
+    const { scrollPosition: scrollTop, scrollSize: scrollHeight } = this.scrollable;
     this.scrollHeight = scrollHeight;
 
-    if(!this.elements.length && this.query) { // maybe all messages have been deleted or adding first message
+    if (!this.elements.length && this.query) { // maybe all messages have been deleted or adding first message
       // this._restore(useReflow);
       this.setScrollTop(this.reverse ? scrollHeight : 0, useReflow); // fix scrolling to first new message
       return;
@@ -167,23 +167,23 @@ export default class ScrollSaver {
     // }
     anchor = this.getAnchor();
 
-    if(!anchor?.element?.parentElement) { // try to find new anchor
+    if (!anchor?.element?.parentElement) { // try to find new anchor
       this.findAndSetElements();
       anchor = this.getAnchor();
 
-      if(!anchor) { // fallback to old method if smth is really strange
+      if (!anchor) { // fallback to old method if smth is really strange
         this._restore(useReflow);
         return;
       }
     }
 
-    const {element, rect} = anchor;
+    const { element, rect } = anchor;
     const newRect = element.getBoundingClientRect();
     const containerRect = this.container.getBoundingClientRect();
     const isOverflowingTop = rect.top < containerRect.top;
     const isOverflowingBottom = rect.bottom > containerRect.bottom;
     let positionKey: 'top' | 'bottom' = this.reverse ? 'top' : 'bottom';
-    if( // * stick to one of the visible edges
+    if ( // * stick to one of the visible edges
       this.reverse ?
         isOverflowingTop && !isOverflowingBottom :
         isOverflowingBottom && !isOverflowingTop
@@ -193,12 +193,12 @@ export default class ScrollSaver {
     const newPosition = newRect[positionKey];
     let position = rect[positionKey];
     const modifiedHeight = rect.height - newRect.height;
-    if(isOverflowingTop && isOverflowingBottom && modifiedHeight > 0) { // * large quote collapsing
+    if (isOverflowingTop && isOverflowingBottom && modifiedHeight > 0) { // * large quote collapsing
       position = containerRect[positionKey];
       // position = newRect[positionKey] - containerRect[positionKey];
       // position = (position + rect.height / 2) - (containerRect.height / 2);
     }
-    if(
+    if (
       newPosition === position &&
       // newRect.bottom === rect.bottom &&
       !this.scrolledToEnd
@@ -211,7 +211,7 @@ export default class ScrollSaver {
     const posDiff = newPosition - position;
     const diff = posDiff/*  + (modifiedHeight > 0 ? modifiedHeight : -modifiedHeight) *//*  * (this.reverse ? -1 : 1) */;
     // console.log(rect, posDiff, diff, newRect);
-    if(!Math.abs(diff)) {
+    if (!Math.abs(diff)) {
       return;
     }
     this.setScrollTop(scrollTop + diff, useReflow);
@@ -220,7 +220,7 @@ export default class ScrollSaver {
   }
 
   public _restore(useReflow?: boolean) {
-    const {scrollHeightMinusTop: previousScrollHeightMinusTop, scrollable} = this;
+    const { scrollHeightMinusTop: previousScrollHeightMinusTop, scrollable } = this;
     // if(previousScrollHeightMinusTop === undefined) {
     //   throw new Error('scroll was not saved');
     // }

@@ -1,9 +1,9 @@
-import {getDatabaseState} from '@config/databases/state';
-import {MAX_ACCOUNTS} from '@lib/accounts/constants';
+import { getDatabaseState } from '@config/databases/state';
+import { MAX_ACCOUNTS } from '@lib/accounts/constants';
 import AppStorage from '@lib/storage';
-import {ResetStoragesPromise} from '@appManagers/appStateManager';
-import {AppManager} from '@appManagers/manager';
-import {ActiveAccountNumber} from '@lib/accounts/types';
+import { ResetStoragesPromise } from '@appManagers/appStateManager';
+import { AppManager } from '@appManagers/manager';
+import { ActiveAccountNumber } from '@lib/accounts/types';
 import createStorages from '@appManagers/utils/storages/createStorages';
 import loadStorages from '@appManagers/utils/storages/loadStorages';
 
@@ -41,7 +41,7 @@ export class AppStoragesManager extends AppManager {
     return this.loadStorages().then((storagesResults) => {
       return {
         storage: this.storages[name],
-        results: storagesResults[name]
+        results: storagesResults[name],
       };
     });
   }
@@ -55,7 +55,7 @@ export class AppStoragesManager extends AppManager {
 
       const sourceEntries = await sourceStorage.getAllEntries();
 
-      if(sourceEntries.length)
+      if (sourceEntries.length)
         await targetStorage.set(Object.fromEntries(sourceEntries));
     });
 
@@ -86,9 +86,9 @@ export class AppStoragesManager extends AppManager {
   }
 
   public static async shiftStorages(upTo: ActiveAccountNumber) {
-    for(let i = upTo; i <= MAX_ACCOUNTS; i++) {
+    for (let i = upTo; i <= MAX_ACCOUNTS; i++) {
       await this.clearAllStoresForAccount(i);
-      if(i < MAX_ACCOUNTS) {
+      if (i < MAX_ACCOUNTS) {
         await this.moveAccountStorages((i + 1) as ActiveAccountNumber, i);
       }
     }

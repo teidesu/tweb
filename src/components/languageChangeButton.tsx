@@ -1,10 +1,10 @@
-import {createSignal, JSX, onCleanup, onMount, Show} from 'solid-js';
+import { createSignal, JSX, onCleanup, onMount, Show } from 'solid-js';
 
 import Button from '@components/buttonTsx';
-import {GrowHeightReveal} from '@helpers/solid/animations';
+import { GrowHeightReveal } from '@helpers/solid/animations';
 import loadFonts from '@helpers/dom/loadFonts';
-import {Config, LangPackString} from '@layer';
-import I18n, {LangPackKey} from '@lib/langPack';
+import { Config, LangPackString } from '@layer';
+import I18n, { LangPackKey } from '@lib/langPack';
 import rootScope from '@lib/rootScope';
 
 const KEY: LangPackKey = 'Login.ContinueOnLanguage';
@@ -16,14 +16,14 @@ let appliedAlready = false;
 
 function getLang() {
   return cachedPromise ||= rootScope.managers.apiManager.getConfig().then(async(config) => {
-    if(config.suggested_lang_code === I18n.getLastRequestedLangCode()) {
+    if (config.suggested_lang_code === I18n.getLastRequestedLangCode()) {
       return undefined;
     }
     const [strings] = await Promise.all([
       I18n.getStrings(config.suggested_lang_code!, [KEY]),
-      I18n.getCacheLangPackAndApply()
+      I18n.getCacheLangPackAndApply(),
     ]);
-    return {config, strings};
+    return { config, strings };
   });
 }
 
@@ -33,7 +33,7 @@ function formatSuggestedText(strings: LangPackString[]) {
   const backup: LangPackString[] = [];
   strings.forEach((string) => {
     const backupString = I18n.strings.get(string.key as LangPackKey);
-    if(!backupString) return;
+    if (!backupString) return;
     backup.push(backupString);
     I18n.strings.set(string.key as LangPackKey, string);
   });
@@ -50,18 +50,18 @@ export default function LanguageChangeButton(): JSX.Element {
   let suggestedLangCode: string;
 
   const onLanguageApply = () => setVisible(false);
-  rootScope.addEventListener('language_apply', onLanguageApply, {once: true});
+  rootScope.addEventListener('language_apply', onLanguageApply, { once: true });
   onCleanup(() => rootScope.removeEventListener('language_apply', onLanguageApply));
 
   onMount(async() => {
-    if(appliedAlready) return;
+    if (appliedAlready) return;
 
     const payload = await getLang();
-    if(!payload) return;
+    if (!payload) return;
 
     suggestedLangCode = payload.config.suggested_lang_code!;
     const text = formatSuggestedText(payload.strings);
-    await loadFonts({text: [text]});
+    await loadFonts({ text: [text] });
 
     setContent(text);
     setVisible(true);

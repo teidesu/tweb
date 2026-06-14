@@ -1,19 +1,19 @@
 import Icon from '@components/icon';
-import {animateImageToTarget} from '@helpers/animateImageToTarget';
-import type {CancellablePromise} from '@helpers/cancellablePromise';
-import {createImageAndURLFromBlob} from '@helpers/createImageAndURLFromBlob';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
-import {getFileAndOpenEditor} from '@helpers/getFileAndOpenEditor';
-import type {InputFile, Photo} from '@layer';
-import type {AppManagers} from '@lib/managers';
+import { animateImageToTarget } from '@helpers/animateImageToTarget';
+import type { CancellablePromise } from '@helpers/cancellablePromise';
+import { createImageAndURLFromBlob } from '@helpers/createImageAndURLFromBlob';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
+import { getFileAndOpenEditor } from '@helpers/getFileAndOpenEditor';
+import type { InputFile, Photo } from '@layer';
+import type { AppManagers } from '@lib/managers';
 import appDownloadManager from '@lib/appDownloadManager';
 import choosePhotoSize from '@appManagers/utils/photos/choosePhotoSize';
 import chooseProfileVideoSize from '@appManagers/utils/photos/chooseProfileVideoSize';
 import rootScope from '@lib/rootScope';
-import {render} from 'solid-js/web';
-import {MediaEditorFinalResult} from './mediaEditor/finalRender/createFinalResult';
+import { render } from 'solid-js/web';
+import { MediaEditorFinalResult } from './mediaEditor/finalRender/createFinalResult';
 import RenderProgressCircle from './mediaEditor/renderProgressCircle';
-import {snapToViewport} from './mediaEditor/utils';
+import { snapToViewport } from './mediaEditor/utils';
 
 export type AvatarEditPayload = {
   file: () => CancellablePromise<InputFile>;
@@ -46,18 +46,18 @@ export async function mediaEditorResultToAvatarPayload(
 ): Promise<AvatarEditPayload | undefined> {
   const resultPayload = await editorResult.getResult();
 
-  if(editorResult.isVideo) {
-    if(!resultPayload.thumb) return undefined;
+  if (editorResult.isVideo) {
+    if (!resultPayload.thumb) return undefined;
     const videoStartTs = computeVideoStartTs(editorResult);
     return {
       file: () => appDownloadManager.upload(resultPayload.thumb!.blob, namePrefix + '-cover.jpg'),
       video: () => appDownloadManager.upload(resultPayload.blob, namePrefix + '.mp4'),
-      videoStartTs
+      videoStartTs,
     };
   }
 
   return {
-    file: () => appDownloadManager.upload(resultPayload.blob, namePrefix + '.jpg')
+    file: () => appDownloadManager.upload(resultPayload.blob, namePrefix + '.jpg'),
   };
 }
 
@@ -75,7 +75,7 @@ async function handleAvatarEditorResult(opts: {
   onUploadStart?: (progress: CancellablePromise<InputFile>) => void;
   onUploaded?: () => void;
 }) {
-  const {result, managers, mode} = opts;
+  const { result, managers, mode } = opts;
   // Drop the full-screen preview right away; the encode + upload run in the
   // background and the target avatar (if any) shows the upload progress.
   result.animatedPreview?.remove();
@@ -85,7 +85,7 @@ async function handleAvatarEditorResult(opts: {
     (mode.suggest ? 'suggest' : 'personal');
 
   const payload = await mediaEditorResultToAvatarPayload(result, namePrefix);
-  if(!payload) return;
+  if (!payload) return;
 
   const filePromise = payload.file();
   const videoPromise = payload.video?.();
@@ -104,17 +104,17 @@ async function handleAvatarEditorResult(opts: {
   let file: InputFile, video: InputFile;
   try {
     [file, video!] = await Promise.all([filePromise, videoPromise]) as [InputFile, InputFile];
-  } catch{
+  } catch {
     return; // cancelled or upload failed
   }
 
-  if(mode === 'self') {
+  if (mode === 'self') {
     await managers.appProfileManager.uploadProfilePhoto({
-      file, video, videoStartTs: payload.videoStartTs
+      file, video, videoStartTs: payload.videoStartTs,
     });
-  } else if(mode === 'fallback') {
+  } else if (mode === 'fallback') {
     await managers.appProfileManager.uploadProfilePhoto({
-      file, video, videoStartTs: payload.videoStartTs, fallback: true
+      file, video, videoStartTs: payload.videoStartTs, fallback: true,
     });
   } else {
     await managers.appProfileManager.uploadContactProfilePhoto({
@@ -125,7 +125,7 @@ async function handleAvatarEditorResult(opts: {
       // sends the suggestion message (save stays false). Mirrors the official
       // clients (Android: set → suggest=F/save=T; suggest → suggest=T/save=F).
       suggest: mode.suggest || undefined,
-      save: mode.suggest ? undefined : true
+      save: mode.suggest ? undefined : true,
     });
   }
   opts.onUploaded?.();
@@ -144,13 +144,13 @@ export function pickAvatarAndUpload(opts: {
     isEditingForAvatar: true,
     isEditingForumAvatar: opts.isForum,
     acceptMediaTypes: ['photo', 'video'],
-    onFinish: ({editorResult}) => handleAvatarEditorResult({
+    onFinish: ({ editorResult }) => handleAvatarEditorResult({
       result: editorResult,
       managers: opts.managers,
       mode: opts.mode,
       onUploadStart: opts.onUploadStart,
-      onUploaded: opts.onUploaded
-    })
+      onUploaded: opts.onUploaded,
+    }),
   });
 }
 
@@ -168,13 +168,13 @@ export async function editAndSetOwnAvatar(opts: {
   // the editor in video mode, so accepting keeps the animation. Static → image.
   const videoSize = opts.photo.video_sizes?.length ? chooseProfileVideoSize(opts.photo, 'full') : undefined;
   let file: File;
-  if(videoSize) {
-    const blob = await appDownloadManager.downloadMedia({media: opts.photo, thumb: videoSize});
-    file = new File([blob], 'suggested.mp4', {type: 'video/mp4'});
+  if (videoSize) {
+    const blob = await appDownloadManager.downloadMedia({ media: opts.photo, thumb: videoSize });
+    file = new File([blob], 'suggested.mp4', { type: 'video/mp4' });
   } else {
     const size = choosePhotoSize(opts.photo, 1280, 1280, true);
-    const blob = await appDownloadManager.downloadMedia({media: opts.photo, thumb: size});
-    file = new File([blob], 'suggested.jpg', {type: blob.type || 'image/jpeg'});
+    const blob = await appDownloadManager.downloadMedia({ media: opts.photo, thumb: size });
+    file = new File([blob], 'suggested.jpg', { type: blob.type || 'image/jpeg' });
   }
 
   return openAvatarEditorWithFile(file, {
@@ -184,8 +184,8 @@ export async function editAndSetOwnAvatar(opts: {
       managers: opts.managers,
       mode: 'self',
       onUploadStart: opts.onUploadStart,
-      onUploaded: opts.onUploaded
-    })
+      onUploaded: opts.onUploaded,
+    }),
   });
 }
 
@@ -193,7 +193,7 @@ export async function editAndSetOwnAvatar(opts: {
 // Used when editing an existing photo (e.g. accepting a suggested profile photo).
 export async function openAvatarEditorWithFile(
   file: File | Blob,
-  {isForum, onFinish, dontCreatePreview}: {
+  { isForum, onFinish, dontCreatePreview }: {
     isForum?: boolean;
     dontCreatePreview?: boolean;
     onFinish: (editorResult: MediaEditorFinalResult) => void;
@@ -202,15 +202,15 @@ export async function openAvatarEditorWithFile(
   const isVideo = file.type.startsWith('video/');
 
   let mediaSrc: string;
-  if(isVideo) {
+  if (isVideo) {
     mediaSrc = URL.createObjectURL(file);
   } else {
     const imgResult = await createImageAndURLFromBlob(file);
-    if(!imgResult.ok) return;
+    if (!imgResult.ok) return;
     mediaSrc = imgResult.url;
   }
 
-  const {openMediaEditorFromMediaRaw} = await import('@components/mediaEditor');
+  const { openMediaEditorFromMediaRaw } = await import('@components/mediaEditor');
 
   openMediaEditorFromMediaRaw({
     isEditingForAvatar: true,
@@ -225,7 +225,7 @@ export async function openAvatarEditorWithFile(
     initialTab: isVideo ? 'adjustments' : 'crop',
     onEditFinish: onFinish,
     dontCreatePreview,
-    onClose: () => { }
+    onClose: () => { },
   });
 }
 
@@ -250,13 +250,13 @@ export default class AvatarEdit {
         isEditingForAvatar: true,
         isEditingForumAvatar: options?.isForum,
         acceptMediaTypes: ['photo', 'video'],
-        onFinish: ({editorResult}) => {
+        onFinish: ({ editorResult }) => {
           finishFromResult({
             result: editorResult,
             onChange,
-            canvas: this.canvas
+            canvas: this.canvas,
           })
-        }
+        },
       });
     });
   }
@@ -273,11 +273,11 @@ type FinishFromResultArgs = {
   onChange: (payload: AvatarEditPayload) => void;
 };
 
-async function finishFromResult({result: editorResult, canvas, onChange}: FinishFromResultArgs) {
+async function finishFromResult({ result: editorResult, canvas, onChange }: FinishFromResultArgs) {
   // Video: don't block on the (real-time) encode here — fly the preview into the
   // avatar and show the progress ring on the avatar itself, encoding in the bg.
-  if(editorResult.isVideo) {
-    await finishFromVideoResult({editorResult, canvas, onChange});
+  if (editorResult.isVideo) {
+    await finishFromVideoResult({ editorResult, canvas, onChange });
     return;
   }
 
@@ -287,15 +287,15 @@ async function finishFromResult({result: editorResult, canvas, onChange}: Finish
 
   const resultPayload = await editorResult.getResult();
 
-  if(!editorResult.animatedPreview) return void earlyDispose();
+  if (!editorResult.animatedPreview) return void earlyDispose();
 
   const imgResult = await createImageAndURLFromBlob(resultPayload.blob);
-  if(!imgResult.ok) return earlyDispose();
+  if (!imgResult.ok) return earlyDispose();
 
   const img = imgResult.img;
 
   const animatedImg = editorResult.animatedPreview;
-  await animateImageToTarget({animatedImg, target: canvas, targetIsRound: true}).promise;
+  await animateImageToTarget({ animatedImg, target: canvas, targetIsRound: true }).promise;
 
   const [width, height] = snapToViewport(1, editorResult.width, editorResult.height);
 
@@ -308,14 +308,14 @@ async function finishFromResult({result: editorResult, canvas, onChange}: Finish
 
   // Doing this now prevents the avatar blinking to the old one
   onChange({
-    file: () => appDownloadManager.upload(resultPayload.blob)
+    file: () => appDownloadManager.upload(resultPayload.blob),
   });
 
   await animatedImg.animate({
-    opacity: [1, 0]
+    opacity: [1, 0],
   }, {
     duration: 200,
-    fill: 'forwards'
+    fill: 'forwards',
   }).finished;
 
   animatedImg.remove();
@@ -324,7 +324,7 @@ async function finishFromResult({result: editorResult, canvas, onChange}: Finish
 async function finishFromVideoResult({
   editorResult,
   canvas,
-  onChange
+  onChange,
 }: {
   editorResult: MediaEditorFinalResult;
   canvas: HTMLCanvasElement;
@@ -335,8 +335,8 @@ async function finishFromVideoResult({
   // The editor has already started closing.
   const animatedImg = editorResult.animatedPreview;
   let ringCleanup: (() => void) | undefined;
-  if(animatedImg) {
-    await animateImageToTarget({animatedImg, target: canvas, targetIsRound: true}).promise;
+  if (animatedImg) {
+    await animateImageToTarget({ animatedImg, target: canvas, targetIsRound: true }).promise;
     // Spin an encode-progress ring centered on the avatar while the video
     // renders in the background, so nothing ever looks frozen.
     ringCleanup = spawnAvatarProgressRing(animatedImg, editorResult.creationProgress);
@@ -347,9 +347,9 @@ async function finishFromVideoResult({
   let resultPayload: Awaited<ReturnType<MediaEditorFinalResult['getResult']>> | undefined;
   try {
     resultPayload = await editorResult.getResult();
-  } catch{}
+  } catch {}
 
-  if(!resultPayload?.thumb) {
+  if (!resultPayload?.thumb) {
     ringCleanup?.();
     animatedImg?.remove();
     return;
@@ -359,7 +359,7 @@ async function finishFromVideoResult({
 
   // Paint the avatar canvas with the real cover thumb (sits behind the preview).
   const thumbImg = await createImageAndURLFromBlob(resultPayload.thumb.blob);
-  if(thumbImg.ok) {
+  if (thumbImg.ok) {
     const [width, height] = snapToViewport(1, editorResult.width, editorResult.height);
     [canvas.width, canvas.height] = [width, height];
     const ctx = canvas.getContext('2d');
@@ -371,17 +371,17 @@ async function finishFromVideoResult({
   onChange({
     file: () => appDownloadManager.upload(resultPayload.thumb!.blob, 'cover.jpg'),
     video: () => appDownloadManager.upload(resultPayload.blob, 'avatar.mp4'),
-    videoStartTs
+    videoStartTs,
   });
 
   // Drop the ring and fade the preview out to reveal the canvas thumb.
   ringCleanup?.();
-  if(animatedImg) {
+  if (animatedImg) {
     await animatedImg.animate({
-      opacity: [1, 0]
+      opacity: [1, 0],
     }, {
       duration: 200,
-      fill: 'forwards'
+      fill: 'forwards',
     }).finished;
     animatedImg.remove();
   }
@@ -394,7 +394,7 @@ function spawnAvatarProgressRing(
   anchor: HTMLElement,
   creationProgress: MediaEditorFinalResult['creationProgress']
 ): () => void {
-  if(!creationProgress) return () => {};
+  if (!creationProgress) return () => {};
 
   const bcr = anchor.getBoundingClientRect();
   const container = document.createElement('div');
@@ -404,7 +404,7 @@ function spawnAvatarProgressRing(
     'z-index:1001;pointer-events:none';
   document.body.append(container);
 
-  const dispose = render(() => RenderProgressCircle({creationProgress}), container);
+  const dispose = render(() => RenderProgressCircle({ creationProgress }), container);
 
   return () => {
     dispose();

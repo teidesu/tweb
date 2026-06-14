@@ -5,9 +5,9 @@
  * needs to be rewritten once the server echoes back the real id+access_hash).
  */
 
-import {describe, expect, it} from 'vitest';
-import {AppGroupCallsManager} from '@appManagers/appGroupCallsManager';
-import {DataJSON, Updates, Update, GroupCall} from '@layer';
+import { describe, expect, it } from 'vitest';
+import { AppGroupCallsManager } from '@appManagers/appGroupCallsManager';
+import { DataJSON, Updates, Update, GroupCall } from '@layer';
 
 type JoinOptions = Parameters<AppGroupCallsManager['joinGroupCall']>[2];
 
@@ -22,28 +22,28 @@ function buildUpdatesReply(includeGroupCall: {
     {
       _: 'updateGroupCallConnection',
       pFlags: {},
-      params: {_: 'dataJSON', data: '{"answer":"sdp"}'}
-    }
+      params: { _: 'dataJSON', data: '{"answer":"sdp"}' },
+    },
   ];
-  if(includeGroupCall) {
+  if (includeGroupCall) {
     const call: GroupCall = includeGroupCall.discarded ? {
       _: 'groupCallDiscarded',
       id: includeGroupCall.callId,
       access_hash: includeGroupCall.accessHash,
-      duration: 0
+      duration: 0,
     } : {
       _: 'groupCall',
-      pFlags: {conference: true},
+      pFlags: { conference: true },
       id: includeGroupCall.callId,
       access_hash: includeGroupCall.accessHash,
       participants_count: 0,
       unmuted_video_limit: 0,
-      version: 1
+      version: 1,
     };
     updates.push({
       _: 'updateGroupCall',
       pFlags: {},
-      call
+      call,
     });
   }
   return {
@@ -52,7 +52,7 @@ function buildUpdatesReply(includeGroupCall: {
     users: [],
     chats: [],
     date: 0,
-    seq: 0
+    seq: 0,
   };
 }
 
@@ -65,13 +65,13 @@ function makeManager(opts: {
   const manager = new AppGroupCallsManager();
 
   const apiManagerMock = {
-    invokeApi: async(_method: string, _params: any) => opts.apiResponse
+    invokeApi: async(_method: string, _params: any) => opts.apiResponse,
   };
   const apiUpdatesManagerMock = {
-    processUpdateMessage: (_updates: Updates) => {}
+    processUpdateMessage: (_updates: Updates) => {},
   };
   const appPeersManagerMock = {
-    getInputPeerSelf: () => opts.inputPeerSelf ?? {_: 'inputPeerSelf'}
+    getInputPeerSelf: () => opts.inputPeerSelf ?? { _: 'inputPeerSelf' },
   };
 
   // AppManager fields are `protected`, so reach in via `as any`.
@@ -87,26 +87,26 @@ function makeManager(opts: {
       warn: () => {},
       error: () => {},
       info: () => {},
-      debug: () => {}
-    })
+      debug: () => {},
+    }),
   });
 
   return manager;
 }
 
-const params: DataJSON = {_: 'dataJSON', data: '{"offer":"sdp"}'};
+const params: DataJSON = { _: 'dataJSON', data: '{"offer":"sdp"}' };
 
 const baseOptions: JoinOptions = {
   type: 'main',
   isMuted: true,
   joinVideo: false,
-  e2eCallInput: {_: 'inputGroupCallSlug', slug: 'fake-slug-for-test'}
+  e2eCallInput: { _: 'inputGroupCallSlug', slug: 'fake-slug-for-test' },
 };
 
 describe('AppGroupCallsManager.joinGroupCall — resolvedCallId / resolvedAccessHash promotion', () => {
   it('attaches resolvedCallId + resolvedAccessHash when updates contain updateGroupCall', async() => {
-    const reply = buildUpdatesReply({callId: '12345678901', accessHash: '99887766554433'});
-    const manager = makeManager({apiResponse: reply});
+    const reply = buildUpdatesReply({ callId: '12345678901', accessHash: '99887766554433' });
+    const manager = makeManager({ apiResponse: reply });
 
     const update = await manager.joinGroupCall('placeholder-id', params, baseOptions);
 
@@ -117,7 +117,7 @@ describe('AppGroupCallsManager.joinGroupCall — resolvedCallId / resolvedAccess
 
   it('leaves resolvedCallId / resolvedAccessHash undefined when no updateGroupCall in response (legacy case)', async() => {
     const reply = buildUpdatesReply(null);
-    const manager = makeManager({apiResponse: reply});
+    const manager = makeManager({ apiResponse: reply });
 
     // For the legacy case the controller must already know the id, so we
     // wouldn't be using `e2eCallInput`. Use the id-form input + a synthetic
@@ -130,14 +130,14 @@ describe('AppGroupCallsManager.joinGroupCall — resolvedCallId / resolvedAccess
         access_hash: '7',
         participants_count: 0,
         unmuted_video_limit: 0,
-        version: 1
-      }]
+        version: 1,
+      }],
     ]);
 
     const update = await manager.joinGroupCall('42', params, {
       type: 'main',
       isMuted: true,
-      joinVideo: false
+      joinVideo: false,
     });
 
     expect(update._).toBe('updateGroupCallConnection');
@@ -149,8 +149,8 @@ describe('AppGroupCallsManager.joinGroupCall — resolvedCallId / resolvedAccess
     // If the server echoes back a discarded call there is no usable
     // id+access_hash to promote — the guard `call._ !== 'groupCallDiscarded'`
     // must keep `resolvedCallId` undefined.
-    const reply = buildUpdatesReply({callId: 'discarded-id', accessHash: 'discarded-hash', discarded: true});
-    const manager = makeManager({apiResponse: reply});
+    const reply = buildUpdatesReply({ callId: 'discarded-id', accessHash: 'discarded-hash', discarded: true });
+    const manager = makeManager({ apiResponse: reply });
 
     const update = await manager.joinGroupCall('placeholder-id', params, baseOptions);
 
@@ -164,7 +164,7 @@ describe('AppGroupCallsManager.joinGroupCall — resolvedCallId / resolvedAccess
     // don't yet have an access_hash, so the manager must pass the override to
     // the server rather than calling `getGroupCallInput` with the placeholder
     // id (which would throw 'Group call not found').
-    const reply = buildUpdatesReply({callId: 'resolved-1', accessHash: 'resolved-hash'});
+    const reply = buildUpdatesReply({ callId: 'resolved-1', accessHash: 'resolved-hash' });
 
     // Sniff the request that the apiManager mock receives.
     let sniffedRequest: any;
@@ -174,22 +174,22 @@ describe('AppGroupCallsManager.joinGroupCall — resolvedCallId / resolvedAccess
         invokeApi: async(_method: string, params: any) => {
           sniffedRequest = params;
           return reply;
-        }
+        },
       },
-      apiUpdatesManager: {processUpdateMessage: () => {}},
-      appPeersManager: {getInputPeerSelf: () => ({_: 'inputPeerSelf'})},
+      apiUpdatesManager: { processUpdateMessage: () => {} },
+      appPeersManager: { getInputPeerSelf: () => ({ _: 'inputPeerSelf' }) },
       // construct() isn't run here; mirror the maps joinGroupCall resets.
       nextOffsets: new Map(),
       participants: new Map(),
-      log: Object.assign(() => {}, {warn: () => {}, error: () => {}, info: () => {}, debug: () => {}})
+      log: Object.assign(() => {}, { warn: () => {}, error: () => {}, info: () => {}, debug: () => {} }),
     });
 
-    const inviteMessageInput = {_: 'inputGroupCallInviteMessage' as const, msg_id: 9999};
+    const inviteMessageInput = { _: 'inputGroupCallInviteMessage' as const, msg_id: 9999 };
     await manager.joinGroupCall('placeholder-id', params, {
       type: 'main',
       isMuted: true,
       joinVideo: false,
-      e2eCallInput: inviteMessageInput
+      e2eCallInput: inviteMessageInput,
     });
 
     expect(sniffedRequest.call).toEqual(inviteMessageInput);

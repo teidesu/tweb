@@ -1,25 +1,25 @@
 import cancelEvent from '@helpers/dom/cancelEvent';
 import safePlay from '@helpers/dom/safePlay';
 import getImageFromStrippedThumb from '@helpers/getImageFromStrippedThumb';
-import {Document, Photo, PhotoSize} from '@layer';
-import {i18n} from '@lib/langPack';
+import { Document, Photo, PhotoSize } from '@layer';
+import { i18n } from '@lib/langPack';
 import rootScope from '@lib/rootScope';
 import useContentSettings from '@stores/contentSettings';
 import confirmationPopup from '@components/confirmationPopup';
 import DotRenderer from '@components/dotRenderer';
 import Icon from '@components/icon';
-import {AgeVerificationPopup} from '@components/popups/ageVerification';
+import { AgeVerificationPopup } from '@components/popups/ageVerification';
 import SetTransition from '@components/singleTransition';
-import {toastNew} from '@components/toast';
+import { toastNew } from '@components/toast';
 
 const sensitiveSpoilers = new Set<HTMLElement>();
 
 export function clearSensitiveSpoilers() {
-  for(const spoiler of sensitiveSpoilers) {
+  for (const spoiler of sensitiveSpoilers) {
     toggleMediaSpoiler({
       mediaSpoiler: spoiler,
       reveal: true,
-      destroyAfter: true
+      destroyAfter: true,
     });
   }
   sensitiveSpoilers.clear();
@@ -30,18 +30,18 @@ export function toggleMediaSpoiler(options: {
   reveal: boolean,
   destroyAfter?: boolean
 }) {
-  const {mediaSpoiler, reveal, destroyAfter} = options;
+  const { mediaSpoiler, reveal, destroyAfter } = options;
   SetTransition({
     element: mediaSpoiler,
     forwards: reveal,
     className: 'is-revealing',
     duration: 250,
     onTransitionEnd: () => {
-      if(reveal && destroyAfter) {
+      if (reveal && destroyAfter) {
         mediaSpoiler.remove();
         mediaSpoiler.middlewareHelper!.destroy();
       }
-    }
+    },
   });
 }
 
@@ -50,17 +50,17 @@ function revealSpoilerWithAnimation(options: {
   mediaSpoiler: HTMLElement,
   event: Event
 }) {
-  const {mediaSpoiler, event} = options;
+  const { mediaSpoiler, event } = options;
 
   const thumbnailCanvas = mediaSpoiler.querySelector('canvas.media-spoiler-thumbnail') as HTMLCanvasElement;
   const canvas = mediaSpoiler.querySelector('canvas.canvas-dots') as HTMLElement;
 
   const controls = DotRenderer.getImageSpoilerByElement(canvas);
 
-  if(!controls || !thumbnailCanvas) return false;
+  if (!controls || !thumbnailCanvas) return false;
 
   const result = controls.revealWithAnimation(event, thumbnailCanvas);
-  if(!result) return false;
+  if (!result) return false;
 
   return result.then(() => {
     mediaSpoiler?.remove?.();
@@ -72,23 +72,23 @@ export function onMediaSpoilerClick(options: {
   mediaSpoiler: HTMLElement,
   event: Event
 }) {
-  const {mediaSpoiler, event} = options;
+  const { mediaSpoiler, event } = options;
   const contentSettings = useContentSettings();
   cancelEvent(event);
 
-  if(mediaSpoiler.classList.contains('is-revealing') || mediaSpoiler.dataset.isRevealing) {
+  if (mediaSpoiler.classList.contains('is-revealing') || mediaSpoiler.dataset.isRevealing) {
     return;
   }
 
-  if(mediaSpoiler.dataset.isSensitive) {
-    if(!contentSettings.sensitiveCanChange()) {
-      toastNew({langPackKey: 'SensitiveContentUnavailable'});
+  if (mediaSpoiler.dataset.isSensitive) {
+    if (!contentSettings.sensitiveCanChange()) {
+      toastNew({ langPackKey: 'SensitiveContentUnavailable' });
       return;
     }
 
-    if(contentSettings.needAgeVerification() && !contentSettings.ageVerified()) {
+    if (contentSettings.needAgeVerification() && !contentSettings.ageVerified()) {
       AgeVerificationPopup.create().then((verified) => {
-        if(verified) {
+        if (verified) {
           clearSensitiveSpoilers();
         }
       });
@@ -99,14 +99,14 @@ export function onMediaSpoilerClick(options: {
       titleLangKey: '18Plus',
       descriptionLangKey: 'SensitiveContentDesc',
       button: {
-        langKey: 'SensitiveContentConfirm'
+        langKey: 'SensitiveContentConfirm',
       },
       checkbox: {
-        text: 'SensitiveContentRemember'
-      }
+        text: 'SensitiveContentRemember',
+      },
     }).then((remember: any) => {
-      if(remember) {
-        rootScope.managers.appPrivacyManager.setContentSettings({sensitive_enabled: true});
+      if (remember) {
+        rootScope.managers.appPrivacyManager.setContentSettings({ sensitive_enabled: true });
         clearSensitiveSpoilers();
         return
       }
@@ -118,12 +118,12 @@ export function onMediaSpoilerClick(options: {
   }
 
   const video = mediaSpoiler.parentElement!.querySelector('video');
-  if(video && !mediaSpoiler.parentElement!.querySelector('.video-play')) {
+  if (video && !mediaSpoiler.parentElement!.querySelector('.video-play')) {
     video.autoplay = true;
     safePlay(video);
   }
 
-  if(revealSpoilerWithAnimation({mediaSpoiler, event})) {
+  if (revealSpoilerWithAnimation({ mediaSpoiler, event })) {
     mediaSpoiler.dataset.isRevealing = 'true';
     return;
   }
@@ -131,15 +131,15 @@ export function onMediaSpoilerClick(options: {
   toggleMediaSpoiler({
     mediaSpoiler,
     reveal: true,
-    destroyAfter: true
+    destroyAfter: true,
   });
 }
 
 function wrapMediaSpoilerWithImage(options: {
   image: Awaited<ReturnType<typeof getImageFromStrippedThumb>>['image']
 } & Parameters<typeof DotRenderer['create']>[0]) {
-  const {middleware, image} = options;
-  if(!middleware()) {
+  const { middleware, image } = options;
+  if (!middleware()) {
     return;
   }
 
@@ -149,14 +149,14 @@ function wrapMediaSpoilerWithImage(options: {
   container.classList.add('media-spoiler-container');
   container.middlewareHelper = middleware.create();
 
-  const {canvas, readyResult} = DotRenderer.create({
+  const { canvas, readyResult } = DotRenderer.create({
     ...options,
-    middleware: container.middlewareHelper.get()
+    middleware: container.middlewareHelper.get(),
   });
 
   container.append(image, canvas);
 
-  return {container, readyResult};
+  return { container, readyResult };
 }
 
 export function hasSensitiveSpoiler(container: HTMLElement) {
@@ -169,22 +169,22 @@ export default async function wrapMediaSpoiler(
     sensitive?: boolean
   }
 ) {
-  const {media, sensitive} = options;
+  const { media, sensitive } = options;
   const sizes = (media as Photo.photo).sizes || (media as Document.document).thumbs;
   const thumb = sizes.find((size) => size._ === 'photoStrippedSize') as PhotoSize.photoStrippedSize;
-  if(!thumb) {
+  if (!thumb) {
     return;
   }
 
-  const {image, loadPromise} = getImageFromStrippedThumb(media, thumb, true);
+  const { image, loadPromise } = getImageFromStrippedThumb(media, thumb, true);
   await loadPromise;
 
-  const {container, readyResult} = wrapMediaSpoilerWithImage({
+  const { container, readyResult } = wrapMediaSpoilerWithImage({
     ...options,
-    image
+    image,
   })!;
 
-  if(sensitive) {
+  if (sensitive) {
     const div = document.createElement('div');
     div.classList.add('sensitive-content-warning');
     div.replaceChildren(Icon('eyecross_outline'), i18n('18Plus'));
@@ -196,7 +196,7 @@ export default async function wrapMediaSpoiler(
     });
   }
 
-  if(readyResult instanceof Promise) {
+  if (readyResult instanceof Promise) {
     await readyResult;
   }
 

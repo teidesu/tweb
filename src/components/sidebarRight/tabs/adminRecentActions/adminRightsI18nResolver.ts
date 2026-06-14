@@ -1,5 +1,5 @@
-import {ChatAdminRights} from '@layer';
-import {LangPackKey} from '@lib/langPack';
+import { ChatAdminRights } from '@layer';
+import { LangPackKey } from '@lib/langPack';
 
 
 type Args = { isBroadcast: boolean };
@@ -9,12 +9,12 @@ const adminRightToI18n: Record<keyof ChatAdminRights.chatAdminRights['pFlags'], 
   manage_call: () => 'Channel.EditAdmin.ManageCalls',
   manage_direct_messages: () => 'Channel.EditAdmin.ManageDirectMessages',
 
-  change_info: ({isBroadcast}) =>
+  change_info: ({ isBroadcast }) =>
     isBroadcast ? 'EditAdminChangeChannelInfo' : 'EditAdminChangeGroupInfo',
 
   post_messages: () => 'EditAdminPostMessages',
   edit_messages: () => 'EditAdminEditMessages',
-  delete_messages: ({isBroadcast}) =>
+  delete_messages: ({ isBroadcast }) =>
     isBroadcast ? 'EditAdminDeleteMessages' : 'EditAdminGroupDeleteMessages',
 
   ban_users: () => 'EditAdminBanUsers',
@@ -24,14 +24,14 @@ const adminRightToI18n: Record<keyof ChatAdminRights.chatAdminRights['pFlags'], 
   manage_topics: () => 'ManageTopicsPermission',
   manage_ranks: () => 'AdminRights.Other',
 
-  invite_users: ({isBroadcast}) =>
+  invite_users: ({ isBroadcast }) =>
     isBroadcast ?
       'Channel.EditAdmin.PermissionInviteSubscribers' :
       'EditAdminAddUsersViaLink',
 
   post_stories: () => 'AdminRights.PostStories',
   edit_stories: () => 'AdminRights.EditStories',
-  delete_stories: () => 'AdminRights.DeleteStories'
+  delete_stories: () => 'AdminRights.DeleteStories',
 };
 
 export function resolveAdminRightFlagI18n(flag: keyof ChatAdminRights.chatAdminRights['pFlags'], args: Args) {

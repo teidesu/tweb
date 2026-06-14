@@ -1,13 +1,13 @@
 import deferredPromise from '@helpers/cancellablePromise';
-import {InputFileLocation} from '@layer';
+import { InputFileLocation } from '@layer';
 
-import {getCurrentAccountFromURL} from '@lib/accounts/getCurrentAccountFromURL';
-import type {DownloadOptions} from '@appManagers/apiFileManager';
-import {get500ErrorResponse} from '@lib/serviceWorker/errors';
-import {serviceMessagePort} from '@lib/serviceWorker/index.service';
+import { getCurrentAccountFromURL } from '@lib/accounts/getCurrentAccountFromURL';
+import type { DownloadOptions } from '@appManagers/apiFileManager';
+import { get500ErrorResponse } from '@lib/serviceWorker/errors';
+import { serviceMessagePort } from '@lib/serviceWorker/index.service';
 
-import {ctx, swLog} from '@lib/hls/common';
-import {createHlsVideoSource} from '@lib/hls/createHlsVideoSource';
+import { ctx, swLog } from '@lib/hls/common';
+import { createHlsVideoSource } from '@lib/hls/createHlsVideoSource';
 
 export async function onHlsPlaylistFetch(event: FetchEvent, params: string, search: string) {
   const deferred = deferredPromise<Response>();
@@ -21,15 +21,15 @@ export async function onHlsPlaylistFetch(event: FetchEvent, params: string, sear
 
     const docId = (options.location as InputFileLocation.inputDocumentFileLocation)?.id;
 
-    const altDocs = await serviceMessagePort.invoke('requestAltDocsByDoc', {docId, accountNumber});
+    const altDocs = await serviceMessagePort.invoke('requestAltDocsByDoc', { docId, accountNumber });
 
-    if(!altDocs) throw new Error('No alt docs found for document');
+    if (!altDocs) throw new Error('No alt docs found for document');
 
     const videoSource = createHlsVideoSource(altDocs);
-    if(!videoSource) throw new Error('Failed to create video source for hls streaming');
+    if (!videoSource) throw new Error('Failed to create video source for hls streaming');
 
     deferred.resolve(new Response(videoSource));
-  } catch(e) {
+  } catch (e) {
     deferred.resolve(get500ErrorResponse());
     swLog.error(e);
   }

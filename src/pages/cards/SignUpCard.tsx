@@ -1,4 +1,4 @@
-import {createSignal, JSX, onMount} from 'solid-js';
+import { createSignal, JSX, onMount } from 'solid-js';
 
 import Button from '@components/buttonTsx';
 import Icon from '@components/icon';
@@ -7,16 +7,16 @@ import PopupElement from '@components/popups';
 import PopupAvatar from '@components/popups/avatar';
 import MediaHeader from '@components/mediaHeader';
 import blurActiveElement from '@helpers/dom/blurActiveElement';
-import type {CancellablePromise} from '@helpers/cancellablePromise';
-import type {InputFile} from '@layer';
-import {LangPackKey, i18n} from '@lib/langPack';
+import type { CancellablePromise } from '@helpers/cancellablePromise';
+import type { InputFile } from '@layer';
+import { LangPackKey, i18n } from '@lib/langPack';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
 
 import AuthCard from '@/pages/AuthCard';
-import {CardSpec, useAuthFlow} from '@/pages/authFlow';
+import { CardSpec, useAuthFlow } from '@/pages/authFlow';
 import styles from '@/pages/authFlow.module.scss';
 
-if(import.meta.hot) import.meta.hot.accept();
+if (import.meta.hot) import.meta.hot.accept();
 
 type Spec = Extract<CardSpec, {name: 'signUp'}>;
 
@@ -26,7 +26,7 @@ type Spec = Extract<CardSpec, {name: 'signUp'}>;
  * entered full name.
  */
 export default function SignUpCard(props: {spec: Spec}) {
-  const {managers, toIm} = useAuthFlow();
+  const { managers, toIm } = useAuthFlow();
 
   /* ---------- state ---------- */
 
@@ -56,12 +56,12 @@ export default function SignUpCard(props: {spec: Spec}) {
 
   const nameInputField = new InputField({
     label: 'FirstName',
-    maxLength: 70
+    maxLength: 70,
   });
 
   const lastNameInputField = new InputField({
     label: 'LastName',
-    maxLength: 64
+    maxLength: 64,
   });
 
   /* ---------- live full-name preview (drives MediaHeader.Title) ---------- */
@@ -84,7 +84,7 @@ export default function SignUpCard(props: {spec: Spec}) {
 
   function sendAvatar() {
     return new Promise<void>((resolve, reject) => {
-      if(!uploadAvatar) return resolve();
+      if (!uploadAvatar) return resolve();
 
       uploadAvatar().then((inputFile) => {
         managers.appProfileManager.uploadProfilePhoto(inputFile).then(resolve, reject);
@@ -93,11 +93,11 @@ export default function SignUpCard(props: {spec: Spec}) {
   }
 
   function onSubmit() {
-    if(nameInputField.input.classList.contains('error') || lastNameInputField.input.classList.contains('error')) {
+    if (nameInputField.input.classList.contains('error') || lastNameInputField.input.classList.contains('error')) {
       return;
     }
 
-    if(!nameInputField.value.length) {
+    if (!nameInputField.value.length) {
       nameInputField.input.classList.add('error');
       return;
     }
@@ -111,13 +111,13 @@ export default function SignUpCard(props: {spec: Spec}) {
       phone_number: props.spec.payload.phone_number,
       phone_code_hash: props.spec.payload.phone_code_hash,
       first_name: name,
-      last_name: lastName
+      last_name: lastName,
     };
 
     setSignUpKey('PleaseWait');
 
     managers.apiManager.invokeApi('auth.signUp', params).then(async(response) => {
-      switch(response._) {
+      switch (response._) {
         case 'auth.authorization':
           await managers.apiManager.setUser(response.user);
           sendAvatar().finally(() => {
@@ -132,7 +132,7 @@ export default function SignUpCard(props: {spec: Spec}) {
     }).catch((err) => {
       setSubmitting(false);
 
-      switch(err.type) {
+      switch (err.type) {
         default:
           setSignUpKey(err.type);
           break;
@@ -145,7 +145,7 @@ export default function SignUpCard(props: {spec: Spec}) {
   onMount(() => {
     managers.appStateManager.pushToState('authState', {
       _: 'authStateSignUp',
-      authCode: props.spec.payload
+      authCode: props.spec.payload,
     });
 
     blurActiveElement();

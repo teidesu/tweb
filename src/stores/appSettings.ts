@@ -1,11 +1,11 @@
-import {createRoot} from 'solid-js';
-import {createStore, unwrap} from 'solid-js/store';
-import {StateSettings} from '@config/state';
+import { createRoot } from 'solid-js';
+import { createStore, unwrap } from 'solid-js/store';
+import { StateSettings } from '@config/state';
 import rootScope from '@lib/rootScope';
-import {joinDeepPath} from '@helpers/object/setDeepProperty';
+import { joinDeepPath } from '@helpers/object/setDeepProperty';
 import getDeepProperty from '@helpers/object/getDeepProperty';
-import {MOUNT_CLASS_TO} from '@config/debug';
-import {SetStoreFunctionReturning} from '@helpers/solid/setStoreFunctionReturning';
+import { MOUNT_CLASS_TO } from '@config/debug';
+import { SetStoreFunctionReturning } from '@helpers/solid/setStoreFunctionReturning';
 
 const [appSettings, _setAppSettings] = createRoot(() => createStore<StateSettings>({} as any));
 
@@ -16,7 +16,7 @@ const setAppSettings = ((...args: any[]) => {
   _setAppSettings(...args);
   const newValue = getDeepProperty(unwrap(appSettings), keys);
 
-  if(silent) {
+  if (silent) {
     return Promise.resolve();
   }
 
@@ -25,7 +25,7 @@ const setAppSettings = ((...args: any[]) => {
 
 const setAppSettingsSilent = (...args: any[]) => {
   const key = args[0];
-  if(typeof(key) === 'object') {
+  if (typeof(key) === 'object') {
     _setAppSettings(key);
     return;
   }
@@ -42,7 +42,7 @@ export {
   appSettings,
   useAppSettings,
   setAppSettings,
-  setAppSettingsSilent
+  setAppSettingsSilent,
 };
 
 MOUNT_CLASS_TO && (MOUNT_CLASS_TO.useAppSettings = useAppSettings);

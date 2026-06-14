@@ -18,11 +18,11 @@ export function fromTelegramSource(source: number) {
 }
 
 export function getAmplitude(array: Uint8Array, scale = 3) {
-  if(!array) return 0;
+  if (!array) return 0;
 
-  const {length} = array;
+  const { length } = array;
   let total = 0;
-  for(let i = 0; i < length; ++i) {
+  for (let i = 0; i < length; ++i) {
     total += array[i] * array[i];
   }
   const rms = Math.sqrt(total / length) / 255;

@@ -1,5 +1,5 @@
 import autoDownloadTab from './autoDownloadTab';
-import {autoDownloadPeerTypeSection} from './peerTypeSection';
+import { autoDownloadPeerTypeSection } from './peerTypeSection';
 
 export default autoDownloadTab((tab) => {
   const section = autoDownloadPeerTypeSection('photo', 'AutoDownloadPhotosTitle', tab.listenerSetter);

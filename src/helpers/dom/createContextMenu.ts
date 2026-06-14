@@ -1,13 +1,13 @@
-import ButtonMenu, {ButtonMenuItemOptionsVerifiable} from '@components/buttonMenu';
+import ButtonMenu, { ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
 import filterAsync from '@helpers/array/filterAsync';
 import callbackify from '@helpers/callbackify';
 import contextMenuController from '@helpers/contextMenuController';
 import ListenerSetter from '@helpers/listenerSetter';
-import {getMiddleware, Middleware} from '@helpers/middleware';
+import { getMiddleware, Middleware } from '@helpers/middleware';
 import positionMenu from '@helpers/positionMenu';
-import {attachContextMenuListener} from '@helpers/dom/attachContextMenuListener';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
-import {logger} from '@lib/logger';
+import { attachContextMenuListener } from '@helpers/dom/attachContextMenuListener';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
+import { logger } from '@lib/logger';
 
 const log = logger('createContextMenu');
 
@@ -24,7 +24,7 @@ export default function createContextMenu<T extends ButtonMenuItemOptionsVerifia
   onOpenBefore,
   listenerSetter: attachListenerSetter,
   middleware,
-  listenForClick
+  listenForClick,
 }: {
   buttons: T[],
   findElement?: (e: MouseEvent | TouchEvent) => HTMLElement,
@@ -49,22 +49,22 @@ export default function createContextMenu<T extends ButtonMenuItemOptionsVerifia
 
   const open = (e: MouseEvent | TouchEvent) => {
     const target = findElement ? findElement(e as any) : listenTo;
-    if(!target) {
+    if (!target) {
       return;
     }
 
     let _element = element;
-    if(e instanceof MouseEvent || e.hasOwnProperty('preventDefault')) (e as any).preventDefault();
-    if(_element && _element.classList.contains('active')) {
+    if (e instanceof MouseEvent || e.hasOwnProperty('preventDefault')) (e as any).preventDefault();
+    if (_element && _element.classList.contains('active')) {
       return false;
     }
-    if(e instanceof MouseEvent || e.hasOwnProperty('cancelBubble')) (e as any).cancelBubble = true;
+    if (e instanceof MouseEvent || e.hasOwnProperty('cancelBubble')) (e as any).cancelBubble = true;
 
     const r = async() => {
       try {
         await onOpen?.(e, target);
-      } catch(e) {
-        if(e instanceof Error) {
+      } catch (e) {
+        if (e instanceof Error) {
           log.error('Error opening context menu:', e);
         } else {
           log('Opening context menu was blocked, reason:', e);
@@ -74,7 +74,7 @@ export default function createContextMenu<T extends ButtonMenuItemOptionsVerifia
       }
 
       const initResult = await init();
-      if(!initResult) {
+      if (!initResult) {
         onClose?.();
         return;
       }
@@ -82,7 +82,7 @@ export default function createContextMenu<T extends ButtonMenuItemOptionsVerifia
       target.classList.add('menu-open');
 
       _element = initResult.element;
-      const {cleanup, destroy} = initResult;
+      const { cleanup, destroy } = initResult;
 
       positionMenu(e, _element);
       contextMenuController.openBtnMenu(_element, () => {
@@ -103,7 +103,7 @@ export default function createContextMenu<T extends ButtonMenuItemOptionsVerifia
   attachContextMenuListener({
     element: listenTo,
     callback: open,
-    listenerSetter: attachListenerSetter
+    listenerSetter: attachListenerSetter,
   });
 
   const cleanup = () => {
@@ -125,13 +125,13 @@ export default function createContextMenu<T extends ButtonMenuItemOptionsVerifia
     }));
 
     const filteredButtons = await f(buttons);
-    if(!filteredButtons.length) {
+    if (!filteredButtons.length) {
       return;
     }
 
     const _element = element = await ButtonMenu({
       buttons: filteredButtons,
-      listenerSetter
+      listenerSetter,
     });
     _element.classList.add('contextmenu');
 
@@ -145,19 +145,19 @@ export default function createContextMenu<T extends ButtonMenuItemOptionsVerifia
       cleanup,
       destroy: () => {
         _element.remove();
-      }
+      },
     };
   };
 
-  if(middleware) {
+  if (middleware) {
     middleware.onDestroy(() => {
       destroy();
     });
   }
 
-  if(listenForClick) {
-    attachClickEvent(listenTo, open, {listenerSetter: attachListenerSetter});
+  if (listenForClick) {
+    attachClickEvent(listenTo, open, { listenerSetter: attachListenerSetter });
   }
 
-  return {element: element!, destroy, open};
+  return { element: element!, destroy, open };
 }

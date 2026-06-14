@@ -1,8 +1,8 @@
-import {Component, createSelector, JSX} from 'solid-js';
+import { Component, createSelector, JSX } from 'solid-js';
 
-import {IS_APPLE} from '@environment/userAgent';
+import { IS_APPLE } from '@environment/userAgent';
 
-import {IconTsx} from '@components/iconTsx';
+import { IconTsx } from '@components/iconTsx';
 import ripple from '@components/ripple'; ripple; // keep
 
 import styles from '@components/sidebarLeft/tabs/passcodeLock/shortcutBuilder.module.scss';
@@ -21,17 +21,17 @@ const ShortcutBuilder: Component<{
   const isSelected = createSelector(() => props.value, (value: ShortcutKey, shortcuts) => shortcuts.includes(value));
 
   const getKeyContent = (key: ShortcutKey): JSX.Element => {
-    if(key === 'Meta') {
+    if (key === 'Meta') {
       return <IconTsx icon={IS_APPLE ? 'mac_command_key' : 'win_key'} />;
     }
     return <span>{key}</span>;
   };
 
   const onKeyClick = (key: ShortcutKey) => {
-    if(props.value.includes(key)) {
+    if (props.value.includes(key)) {
       const newValue = props.value.filter((k) => k !== key);
 
-      if(!newValue.length) {
+      if (!newValue.length) {
         const indicies = [0, 1, 2, 3].filter((i) => i !== shortcutKeys.indexOf(key));
         newValue.push(shortcutKeys[indicies[Math.floor(Math.random() * indicies.length)]]);
       }
@@ -43,7 +43,7 @@ const ShortcutBuilder: Component<{
   };
 
   return (
-    <div class={styles.Container} classList={{[props.class!]: !!props.class}}>
+    <div class={styles.Container} classList={{ [props.class!]: !!props.class }}>
       <div class={styles.KeysContainer}>
         {shortcutKeys.map((key, idx, array) => (
           <button
@@ -52,7 +52,7 @@ const ShortcutBuilder: Component<{
             classList={{
               [styles.selected]: isSelected(key),
               [styles.KeyButtonFirst]: idx === 0,
-              [styles.KeyButtonLast]: idx === array.length - 1
+              [styles.KeyButtonLast]: idx === array.length - 1,
             }}
             onClick={[onKeyClick, key]}
           >

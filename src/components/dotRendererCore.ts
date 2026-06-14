@@ -1,6 +1,6 @@
 // * thanks https://github.com/dkaraush/particles for webgl version
 
-import {IS_MOBILE} from '@environment/userAgent';
+import { IS_MOBILE } from '@environment/userAgent';
 import callbackify from '@helpers/callbackify';
 import callbackifyAll from '@helpers/callbackifyAll';
 import clamp from '@helpers/number/clamp';
@@ -45,7 +45,7 @@ export function buildDotRendererConfig(width: number, height: number, dpr: numbe
     noiseMovement: 4,
     timeScale: .65,
     color: 0xffffff,
-    ...config
+    ...config,
   };
 }
 
@@ -118,19 +118,19 @@ export default class DotRendererCore {
     this.canvas.height = height * dpr;
     this.config = config;
 
-    if(this.inited) {
+    if (this.inited) {
       this.draw();
     }
   }
 
   private genBuffer() {
-    if(this.buffer) {
+    if (this.buffer) {
       this.context.deleteBuffer(this.buffer[0]);
       this.context.deleteBuffer(this.buffer[1]);
     }
 
     this.buffer = [];
-    for(let i = 0; i < 2; ++i) {
+    for (let i = 0; i < 2; ++i) {
       this.buffer[i] = this.context.createBuffer();
       this.context.bindBuffer(this.context.ARRAY_BUFFER, this.buffer[i]);
       this.context.bufferData(this.context.ARRAY_BUFFER, (this.bufferParticlesCount = Math.ceil(this.config.particlesCount)) * 6 * 4, this.context.DYNAMIC_DRAW);
@@ -141,12 +141,12 @@ export default class DotRendererCore {
     const shader = this.context.createShader(type);
     const shaderTextResult = DotRendererCore.shaderTexts[url] ??=
       fetch(url)
-      .then((response) => response.text())
-      .then((text) => DotRendererCore.shaderTexts[url] = text + '\n//' + Math.random());
+        .then((response) => response.text())
+        .then((text) => DotRendererCore.shaderTexts[url] = text + '\n//' + Math.random());
     return callbackify(shaderTextResult, (shaderText) => {
       this.context.shaderSource(shader!, shaderText);
       this.context.compileShader(shader!);
-      if(!this.context.getShaderParameter(shader!, this.context.COMPILE_STATUS)) {
+      if (!this.context.getShaderParameter(shader!, this.context.COMPILE_STATUS)) {
         throw 'compile shader error:\n' + this.context.getShaderInfoLog(shader!);
       }
       return shader!;
@@ -156,12 +156,12 @@ export default class DotRendererCore {
   private compileShaders() {
     return callbackifyAll([
       this.compileShader(this.context.VERTEX_SHADER, this.shaderURLs.vertex),
-      this.compileShader(this.context.FRAGMENT_SHADER, this.shaderURLs.fragment)
+      this.compileShader(this.context.FRAGMENT_SHADER, this.shaderURLs.fragment),
     ], (result) => result);
   }
 
   public draw() {
-    if(!this.inited) {
+    if (!this.inited) {
       return;
     }
 
@@ -173,7 +173,7 @@ export default class DotRendererCore {
 
     this.time += dt;
 
-    if(this.bufferParticlesCount < config.particlesCount) {
+    if (this.bufferParticlesCount < config.particlesCount) {
       this.genBuffer();
       this.reset = true;
     }
@@ -183,7 +183,7 @@ export default class DotRendererCore {
 
     gl.useProgram(this.program);
     gl.uniform1f(this.resetHandle, this.reset ? 1 : 0);
-    if(this.reset) {
+    if (this.reset) {
       this.time = 0;
       this.reset = false;
     }
@@ -242,7 +242,7 @@ export default class DotRendererCore {
     gl.attachShader(program, fragmentShader);
     gl.transformFeedbackVaryings(program, ['outPosition', 'outVelocity', 'outTime', 'outDuration'], gl.INTERLEAVED_ATTRIBS);
     gl.linkProgram(program);
-    if(!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
       throw 'program link error:\n' + gl.getProgramInfoLog(program);
     }
     gl.deleteShader(vertexShader);
@@ -281,7 +281,7 @@ export default class DotRendererCore {
   }
 
   public destroy() {
-    if(this.buffer) {
+    if (this.buffer) {
       this.context.deleteBuffer(this.buffer[0]);
       this.context.deleteBuffer(this.buffer[1]);
     }

@@ -1,16 +1,16 @@
-import {horizontalMenu} from '@components/horizontalMenu';
+import { horizontalMenu } from '@components/horizontalMenu';
 import TransitionSlider from '@components/transition';
-import appNavigationController, {NavigationItem} from '@components/appNavigationController';
-import SliderSuperTab, {SliderSuperTabConstructable} from '@components/sliderTab';
+import appNavigationController, { NavigationItem } from '@components/appNavigationController';
+import SliderSuperTab, { SliderSuperTabConstructable } from '@components/sliderTab';
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
 import safeAssign from '@helpers/object/safeAssign';
-import {AppManagers} from '@lib/managers';
-import {getMiddleware, MiddlewareHelper} from '@helpers/middleware';
-import {MaybePromise} from '@types';
+import { AppManagers } from '@lib/managers';
+import { getMiddleware, MiddlewareHelper } from '@helpers/middleware';
+import { MaybePromise } from '@types';
 
 const TRANSITION_TIME = 250;
 
-export {SliderSuperTab};
+export { SliderSuperTab };
 
 export type SidebarSliderOptions = {
   sidebarEl: SidebarSlider['sidebarEl'],
@@ -41,9 +41,9 @@ export default class SidebarSlider {
     this._selectTab = TransitionSlider({
       content: this.tabsContainer,
       type: 'navigation',
-      transitionTime: TRANSITION_TIME
+      transitionTime: TRANSITION_TIME,
     });
-    if(!this.canHideFirst) {
+    if (!this.canHideFirst) {
       this._selectTab(0);
     }
 
@@ -60,17 +60,17 @@ export default class SidebarSlider {
 
   public onCloseBtnClick = () => {
     const item = appNavigationController.findItemByType(this.navigationType);
-    if(item) {
+    if (item) {
       appNavigationController.back(this.navigationType);
       this.onTabsCountChange?.();
-    } else if(this.historyTabIds.length) {
+    } else if (this.historyTabIds.length) {
       this.closeTab(this.historyTabIds[this.historyTabIds.length - 1]);
     }
     // this.closeTab();
   };
 
   public closeTab = (id?: number | SliderSuperTab, animate?: boolean, isNavigation?: boolean) => {
-    if(id !== undefined && this.historyTabIds[this.historyTabIds.length - 1] !== id) {
+    if (id !== undefined && this.historyTabIds[this.historyTabIds.length - 1] !== id) {
       this.removeTabFromHistory(id);
       return false;
     }
@@ -89,16 +89,16 @@ export default class SidebarSlider {
   protected shouldSkipNavigationItem?(tab: SliderSuperTab): boolean;
 
   protected pushNavigationItem(tab: SliderSuperTab) {
-    if(this.shouldSkipNavigationItem?.(tab)) {
+    if (this.shouldSkipNavigationItem?.(tab)) {
       return;
     }
 
     const navigationItem: NavigationItem = {
       type: this.navigationType,
       onPop: (canAnimate) => {
-        if(tab.isConfirmationNeededOnClose) {
+        if (tab.isConfirmationNeededOnClose) {
           const result = tab.isConfirmationNeededOnClose();
-          if(result) {
+          if (result) {
             Promise.resolve(result).then(() => {
               appNavigationController.removeItem(navigationItem);
               this.onTabsCountChange?.();
@@ -113,7 +113,7 @@ export default class SidebarSlider {
         this.closeTab(undefined, canAnimate, true);
         this.onTabsCountChange?.();
         return true;
-      }
+      },
     };
 
     // if(!this.canHideFirst || this.historyTabIds.length) {
@@ -127,19 +127,19 @@ export default class SidebarSlider {
       id = id.id;
     } */
 
-    if(this.historyTabIds[this.historyTabIds.length - 1] === id) {
+    if (this.historyTabIds[this.historyTabIds.length - 1] === id) {
       return false;
     }
 
     const tab: SliderSuperTab = (id instanceof SliderSuperTab ? id : this.tabs.get(id))!;
     this.onOpenTab && await this.onOpenTab();
 
-    if(tab) {
+    if (tab) {
       // @ts-ignore
       tab.onOpen?.();
 
       // @ts-ignore
-      if(tab.onOpenAfterTimeout) {
+      if (tab.onOpenAfterTimeout) {
         setTimeout(() => {
           // @ts-ignore
           tab.onOpenAfterTimeout();
@@ -161,7 +161,7 @@ export default class SidebarSlider {
 
   public closeAllTabs() {
     const hasTabs = this.hasTabsInNavigation();
-    for(let i = this.historyTabIds.length - 1; i >= 0; --i) {
+    for (let i = this.historyTabIds.length - 1; i >= 0; --i) {
       const tabId = this.historyTabIds[i];
       const tab = tabId instanceof SliderSuperTab ? tabId : this.tabs.get(tabId);
       tab!.close();
@@ -170,10 +170,10 @@ export default class SidebarSlider {
   }
 
   public sliceTabsUntilTab(tabConstructor: SliderSuperTabConstructable, preserveTab: SliderSuperTab) {
-    for(let i = this.historyTabIds.length - 1; i >= 0; --i) {
+    for (let i = this.historyTabIds.length - 1; i >= 0; --i) {
       const tab = this.historyTabIds[i];
-      if(tab === preserveTab) continue;
-      else if(tab instanceof tabConstructor) {
+      if (tab === preserveTab) continue;
+      else if (tab instanceof tabConstructor) {
         break;
       }
 
@@ -195,22 +195,22 @@ export default class SidebarSlider {
   }
 
   protected onCloseTab(id: number | SliderSuperTab, animate: boolean, isNavigation?: boolean) {
-    if(!isNavigation) {
+    if (!isNavigation) {
       appNavigationController.removeByType(this.navigationType, true);
       this.onTabsCountChange?.();
     }
 
     const tab: SliderSuperTab = (id instanceof SliderSuperTab ? id : this.tabs.get(id))!;
-    if(tab) {
+    if (tab) {
       try {
         // @ts-ignore
         tab.onClose?.();
-      } catch(err) {
+      } catch (err) {
         console.error('tab onClose error', tab);
       }
 
       // @ts-ignore
-      if(tab.onCloseAfterTimeout) {
+      if (tab.onCloseAfterTimeout) {
         setTimeout(() => {
           // @ts-ignore
           tab.onCloseAfterTimeout();
@@ -220,10 +220,10 @@ export default class SidebarSlider {
   }
 
   public addTab(tab: SliderSuperTab) {
-    if(!tab.container.parentElement) {
+    if (!tab.container.parentElement) {
       this.tabsContainer.append(tab.container);
 
-      if(tab.closeBtn) {
+      if (tab.closeBtn) {
         tab.closeBtn.addEventListener('click', this.onCloseBtnClick);
       }
     }
@@ -238,7 +238,7 @@ export default class SidebarSlider {
     destroyable = true,
     doNotAppend?: boolean
   ) {
-    if(
+    if (
       (ctor as any).noSame &&
       this.historyTabIds[this.historyTabIds.length - 1] instanceof ctor
     ) {

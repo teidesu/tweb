@@ -1,8 +1,8 @@
-import {joinDeepPath} from '@helpers/object/setDeepProperty';
-import {UserProfilePhoto, ChatPhoto, InputFileLocation, Photo} from '@layer';
-import {DownloadOptions} from '@appManagers/apiFileManager';
+import { joinDeepPath } from '@helpers/object/setDeepProperty';
+import { UserProfilePhoto, ChatPhoto, InputFileLocation, Photo } from '@layer';
+import { DownloadOptions } from '@appManagers/apiFileManager';
 import MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
-import {AppManager} from '@appManagers/manager';
+import { AppManager } from '@appManagers/manager';
 import chooseProfileVideoSize from '@appManagers/utils/photos/chooseProfileVideoSize';
 
 // 'photo_video' = small animated preview ('p', ~100KB) for chat list / topbar;
@@ -17,8 +17,8 @@ export class AppAvatarsManager extends AppManager {
   } = {};
 
   protected after() {
-    this.rootScope.addEventListener('avatar_update', ({peerId, threadId}) => {
-      if(threadId) {
+    this.rootScope.addEventListener('avatar_update', ({ peerId, threadId }) => {
+      if (threadId) {
         return;
       }
 
@@ -28,7 +28,7 @@ export class AppAvatarsManager extends AppManager {
 
   public isAvatarCached(peerId: PeerId, size?: PeerPhotoSize) {
     const saved = this.savedAvatarURLs[peerId];
-    if(size === undefined) {
+    if (size === undefined) {
       return !!saved;
     }
 
@@ -36,29 +36,29 @@ export class AppAvatarsManager extends AppManager {
   }
 
   public removeFromAvatarsCache(peerId: PeerId) {
-    if(this.savedAvatarURLs[peerId]) {
+    if (this.savedAvatarURLs[peerId]) {
       delete this.savedAvatarURLs[peerId];
       MTProtoMessagePort.getInstance<false>().invokeVoid('mirror', {
         name: 'avatars',
         key: '' + peerId,
-        accountNumber: this.getAccountNumber()
+        accountNumber: this.getAccountNumber(),
       });
     }
   }
 
   public loadAvatar(peerId: PeerId, photo: UserProfilePhoto.userProfilePhoto | ChatPhoto.chatPhoto, size: PeerPhotoSize) {
     const saved = this.savedAvatarURLs[peerId] ??= {};
-    if(saved[size]) {
+    if (saved[size]) {
       return saved[size];
     }
 
-    if(size === 'photo_video' || size === 'photo_video_full') {
+    if (size === 'photo_video' || size === 'photo_video_full') {
       const quality = size === 'photo_video_full' ? 'full' : 'preview';
       const promise = saved[size] = (this.loadAvatarVideo(peerId, photo, quality, size) as string | Promise<string> | undefined);
       // Don't keep a failed (undefined) video load cached — let it retry next time
       // (e.g. once the full photo's video_sizes is available).
       (promise as Promise<string>).then((url) => {
-        if(!url && saved[size] === promise) {
+        if (!url && saved[size] === promise) {
           delete saved[size];
         }
       });
@@ -70,11 +70,11 @@ export class AppAvatarsManager extends AppManager {
       _: 'inputPeerPhotoFileLocation',
       pFlags: {},
       peer: this.appPeersManager.getInputPeerById(peerId),
-      photo_id: photo.photo_id
+      photo_id: photo.photo_id,
     };
 
-    const downloadOptions: DownloadOptions = {dcId: photo.dc_id, location: peerPhotoFileLocation};
-    if(size === 'photo_big') {
+    const downloadOptions: DownloadOptions = { dcId: photo.dc_id, location: peerPhotoFileLocation };
+    if (size === 'photo_big') {
       peerPhotoFileLocation.pFlags.big = true;
       downloadOptions.limitPart = 512 * 1024;
     }
@@ -87,7 +87,7 @@ export class AppAvatarsManager extends AppManager {
         name: 'avatars',
         key: joinDeepPath(peerId, size),
         value: url,
-        accountNumber: this.getAccountNumber()
+        accountNumber: this.getAccountNumber(),
       });
 
       return url;
@@ -101,13 +101,13 @@ export class AppAvatarsManager extends AppManager {
     peerId: PeerId,
     photo: UserProfilePhoto.userProfilePhoto | ChatPhoto.chatPhoto
   ): Promise<Photo.photo | undefined> {
-    if(!photo.pFlags?.has_video) return undefined;
+    if (!photo.pFlags?.has_video) return undefined;
 
     let fullPhoto: Photo.photo | undefined = this.appPhotosManager.getPhoto(photo.photo_id);
-    if(!fullPhoto?.video_sizes?.length) {
-      if(peerId.isUser()) {
-        const {photos: photoIds} = await this.appPhotosManager.getUserPhotos(peerId, '0', 1);
-        if(photoIds?.length) {
+    if (!fullPhoto?.video_sizes?.length) {
+      if (peerId.isUser()) {
+        const { photos: photoIds } = await this.appPhotosManager.getUserPhotos(peerId, '0', 1);
+        if (photoIds?.length) {
           fullPhoto = this.appPhotosManager.getPhoto(photoIds[0]);
         }
       } else {
@@ -142,14 +142,14 @@ export class AppAvatarsManager extends AppManager {
     cacheSize: PeerPhotoSize = 'photo_video'
   ) {
     const fullPhoto = await this.getFullVideoPhoto(peerId, photo);
-    if(!fullPhoto) return undefined;
+    if (!fullPhoto) return undefined;
 
     const videoSize = chooseProfileVideoSize(fullPhoto, quality);
-    if(!videoSize) return undefined;
+    if (!videoSize) return undefined;
 
     const blob = await this.apiFileManager.downloadMedia({
       media: fullPhoto,
-      thumb: videoSize
+      thumb: videoSize,
     });
 
     const url = URL.createObjectURL(blob);
@@ -159,7 +159,7 @@ export class AppAvatarsManager extends AppManager {
       name: 'avatars',
       key: joinDeepPath(peerId, cacheSize),
       value: url,
-      accountNumber: this.getAccountNumber()
+      accountNumber: this.getAccountNumber(),
     });
 
     return url;

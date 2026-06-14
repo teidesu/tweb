@@ -21,7 +21,7 @@ export default class AudioAssetPlayer<AssetMap extends Record<string, string>> {
   constructor(private assets: AssetMap) {
     this.tempId = 0;
 
-    if(!AudioAssetPlayer.container) {
+    if (!AudioAssetPlayer.container) {
       AudioAssetPlayer.container = document.createElement('div');
       AudioAssetPlayer.container.id = 'audio-asset-player';
       document.body.append(AudioAssetPlayer.container);
@@ -42,14 +42,14 @@ export default class AudioAssetPlayer<AssetMap extends Record<string, string>> {
       audio.setAttribute('name', options.name as string);
       AudioAssetPlayer.container.append(audio);
       safePlay(audio);
-    } catch(e) {
+    } catch (e) {
       console.error('playSound', name, e);
     }
   }
 
   public playWithThrottle(options: PlayOptions<AssetMap>, throttle: number) {
     const now = tsNow();
-    if(this.nextAt && now < this.nextAt && deepEqual(this.lastOptions, options)) {
+    if (this.nextAt && now < this.nextAt && deepEqual(this.lastOptions, options)) {
       return;
     }
 
@@ -58,14 +58,14 @@ export default class AudioAssetPlayer<AssetMap extends Record<string, string>> {
   }
 
   public playIfDifferent(options: PlayOptions<AssetMap>) {
-    if(this.assetName !== options.name) {
+    if (this.assetName !== options.name) {
       this.play(options);
     }
   }
 
   public createAudio() {
-    let {audio} = this;
-    if(audio) {
+    let { audio } = this;
+    if (audio) {
       return audio;
     }
 
@@ -75,7 +75,7 @@ export default class AudioAssetPlayer<AssetMap extends Record<string, string>> {
   }
 
   public stop() {
-    if(!this.audio) {
+    if (!this.audio) {
       return;
     }
 
@@ -90,7 +90,7 @@ export default class AudioAssetPlayer<AssetMap extends Record<string, string>> {
     // timeout = 0;
     const tempId = ++this.tempId;
     setTimeout(() => {
-      if(this.tempId !== tempId) {
+      if (this.tempId !== tempId) {
         return;
       }
 

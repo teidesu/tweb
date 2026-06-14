@@ -1,13 +1,13 @@
 // Thanks to https://xn--2-umb.com/09/12/brent-pollard-rho-factorisation/
 
 import bigInt from 'big-integer';
-import {bigIntFromBytes, bigIntToBytes} from '@helpers/bigInt/bigIntConversion';
+import { bigIntFromBytes, bigIntToBytes } from '@helpers/bigInt/bigIntConversion';
 import bigIntRandom from '@helpers/bigInt/bigIntRandom';
 
 // let test = 0;
 function BrentPollardFactor(n: bigInt.BigInteger) {
   const two = bigInt[2];
-  if(n.remainder(two).isZero()) {
+  if (n.remainder(two).isZero()) {
     return two;
   }
 
@@ -21,7 +21,7 @@ function BrentPollardFactor(n: bigInt.BigInteger) {
     g: bigInt.BigInteger;
   do
     a = bigIntRandom(bigInt.one, n.minus(1));
-  while(a.isZero() || a.eq(n.minus(two)));
+  while (a.isZero() || a.eq(n.minus(two)));
   y = bigIntRandom(bigInt.one, n.minus(1));
   r = bigInt.one;
   q = bigInt.one;
@@ -37,7 +37,7 @@ function BrentPollardFactor(n: bigInt.BigInteger) {
   const performY = (y: bigInt.BigInteger) => {
     y = y.pow(two).mod(n);
     y = y.add(a);
-    if(y.lesser(a)) { // it slows down the script
+    if (y.lesser(a)) { // it slows down the script
       y = y.add(bigIntUint64MinusPqPlusOne);
     }
     y = y.mod(n);
@@ -46,7 +46,7 @@ function BrentPollardFactor(n: bigInt.BigInteger) {
 
   do {
     x = y;
-    for(let i = 0; bigInt(i).lesser(r); ++i) {
+    for (let i = 0; bigInt(i).lesser(r); ++i) {
       y = performY(y);
     }
 
@@ -54,22 +54,22 @@ function BrentPollardFactor(n: bigInt.BigInteger) {
     do {
       ys = y;
       const condition = bigInt.min(m, r.minus(k));
-      for(let i = 0; bigInt(i).lesser(condition); ++i) {
+      for (let i = 0; bigInt(i).lesser(condition); ++i) {
         y = performY(y);
         q = q.multiply(x.greater(y) ? x.minus(y) : y.minus(x)).mod(n);
       }
       g = bigInt.gcd(q, n);
       k = k.add(m);
-    } while(k.lesser(r) && g.eq(bigInt.one));
+    } while (k.lesser(r) && g.eq(bigInt.one));
 
     r = r.shiftLeft(bigInt.one);
-  } while(g.eq(bigInt.one));
+  } while (g.eq(bigInt.one));
 
-  if(g.eq(n)) {
+  if (g.eq(n)) {
     do {
       ys = performY(ys);
       g = bigInt.gcd(x.minus(ys).abs(), n);
-    } while(g.eq(bigInt.one));
+    } while (g.eq(bigInt.one));
   }
 
   return g;
@@ -90,19 +90,19 @@ function primeFactors(pqBytes: Uint8Array | number[]) {
   do {
     const m = factors.pop();
 
-    if(m!.eq(bigInt.one))
+    if (m!.eq(bigInt.one))
       continue;
 
-    if(m!.isPrime(true)) {
+    if (m!.isPrime(true)) {
       primes.push(m!);
 
       // Remove the prime from the other factors
-      for(let i = 0; i < factors.length; ++i) {
+      for (let i = 0; i < factors.length; ++i) {
         let k = factors[i];
-        if(k.mod(m!).isZero()) {
+        if (k.mod(m!).isZero()) {
           do
             k = k.divide(m!);
-          while(k.mod(m!).isZero());
+          while (k.mod(m!).isZero());
           factors[i] = k;
         }
       }
@@ -112,7 +112,7 @@ function primeFactors(pqBytes: Uint8Array | number[]) {
       factors.push(m!.divide(factor));
       factors.push(factor);
     }
-  } while(factors.length);
+  } while (factors.length);
 
   return primes;
 }
@@ -120,10 +120,10 @@ function primeFactors(pqBytes: Uint8Array | number[]) {
 export default function factorizeBrentPollardPQ(pqBytes: Uint8Array | number[]): [Uint8Array, Uint8Array] {
   let factors = primeFactors(pqBytes);
   factors.sort((a, b) => a.compare(b));
-  if(factors.length > 2) {
+  if (factors.length > 2) {
     factors = [
       factors.splice(factors.length - 2, 1)[0],
-      factors.reduce((acc, v) => acc.multiply(v), bigInt.one)
+      factors.reduce((acc, v) => acc.multiply(v), bigInt.one),
     ];
   }
 

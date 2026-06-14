@@ -1,4 +1,4 @@
-import type {InputStickerSet, MessagesStickerSet} from '@layer';
+import type { InputStickerSet, MessagesStickerSet } from '@layer';
 
 export type STICKER_LOCAL_SET_INPUT = Extract<InputStickerSet, {_: STICKER_LOCAL_SET_ID}>;
 
@@ -18,7 +18,7 @@ export const STICKERS_LOCAL_IDS: {[key in STICKERS_LOCAL_ID]: STICKER_LOCAL_SET_
   GENERIC_ANIMATIONS: 'inputStickerSetEmojiGenericAnimations',
   DEFAULT_STATUSES: 'inputStickerSetEmojiDefaultStatuses',
   DEFAULT_TOPIC_ICONS: 'inputStickerSetEmojiDefaultTopicIcons',
-  TON_GIFTS: 'inputStickerSetTonGifts'
+  TON_GIFTS: 'inputStickerSetTonGifts',
 };
 
 export const STICKERS_LOCAL_IDS_SET: Set<STICKER_LOCAL_SET_ID> = new Set(Object.values(STICKERS_LOCAL_IDS) as any);

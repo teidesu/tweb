@@ -1,8 +1,8 @@
 import styles from '@components/codeInputField.module.scss';
 import classNames from '@helpers/string/classNames';
-import {children, createRoot, createSignal, Index, Ref, Show, Signal} from 'solid-js';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
-import {Transition} from '@vendor/solid-transition-group';
+import { children, createRoot, createSignal, Index, Ref, Show, Signal } from 'solid-js';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
+import { Transition } from '@vendor/solid-transition-group';
 
 export default class CodeInputFieldCompat {
   public container: HTMLDivElement;
@@ -77,7 +77,7 @@ export function CodeInputField(props: {
   const previousSelection = {
     inserting: false as boolean,
     start: null as number | null,
-    end: null as number | null
+    end: null as number | null,
   };
 
   const syncSelection = (props: {
@@ -92,7 +92,7 @@ export function CodeInputField(props: {
     previousSelection.end = props.originalEnd
     const start = props.start
     const end = props.end
-    if(start === null || end === null) {
+    if (start === null || end === null) {
       setActiveIndexStart(-1)
       setActiveIndexEnd(-1)
       return
@@ -103,7 +103,7 @@ export function CodeInputField(props: {
   }
 
   const onSelectionChange = (inputType?: string) => {
-    if(
+    if (
       !isFocused ||
       document.activeElement !== inputRef ||
       inputRef.selectionStart === null ||
@@ -114,7 +114,7 @@ export function CodeInputField(props: {
         end: null,
         inserting: false,
         originalStart: inputRef.selectionStart,
-        originalEnd: inputRef.selectionEnd
+        originalEnd: inputRef.selectionEnd,
       })
       setIsInserting(false)
       return
@@ -125,13 +125,13 @@ export function CodeInputField(props: {
       inputRef.selectionStart === inputRef.value.length
     setIsInserting(inserting)
 
-    if(inserting || inputRef.selectionStart !== inputRef.selectionEnd) {
+    if (inserting || inputRef.selectionStart !== inputRef.selectionEnd) {
       syncSelection({
         start: inputRef.selectionStart,
         end: inserting ? inputRef.selectionEnd + 1 : inputRef.selectionEnd,
         inserting: inserting,
         originalStart: inputRef.selectionStart,
-        originalEnd: inputRef.selectionEnd
+        originalEnd: inputRef.selectionEnd,
       })
       return
     }
@@ -139,23 +139,23 @@ export function CodeInputField(props: {
     let selectionStart = 0
     let selectionEnd = 0
     let direction: 'forward' | 'backward' | undefined = undefined
-    if(inputRef.selectionStart === 0) {
+    if (inputRef.selectionStart === 0) {
       selectionStart = 0
       selectionEnd = 1
       direction = 'forward'
-    } else if(inputRef.selectionStart === maxLength) {
+    } else if (inputRef.selectionStart === maxLength) {
       selectionStart = maxLength - 1
       selectionEnd = maxLength
       direction = 'backward'
     } else {
       let startOffset = 0
       let endOffset = 1
-      if(previousSelection.start !== null && previousSelection.end !== null) {
+      if (previousSelection.start !== null && previousSelection.end !== null) {
         const navigatedBackwards =
           inputRef.selectionStart < previousSelection.end &&
           Math.abs(previousSelection.start - previousSelection.end) === 1
         direction = navigatedBackwards ? 'backward' : 'forward'
-        if(
+        if (
           (navigatedBackwards &&
             !previousSelection.inserting &&
             inputType !== 'deleteContentForward') ||
@@ -164,7 +164,7 @@ export function CodeInputField(props: {
           startOffset += -1
         }
       }
-      if(isShiftKeyDown && inputType === undefined) {
+      if (isShiftKeyDown && inputType === undefined) {
         endOffset += 1
       }
       selectionStart = inputRef.selectionStart + startOffset
@@ -177,7 +177,7 @@ export function CodeInputField(props: {
       end: selectionEnd,
       inserting: inserting,
       originalStart: inputRef.selectionStart,
-      originalEnd: inputRef.selectionEnd
+      originalEnd: inputRef.selectionEnd,
     })
   }
 
@@ -215,12 +215,12 @@ export function CodeInputField(props: {
           onSelectionChange()
         }}
         onKeyDown={(e) => {
-          if(e.key === 'Shift') {
+          if (e.key === 'Shift') {
             isShiftKeyDown = true;
           }
         }}
         onKeyUp={(e) => {
-          if(e.key === 'Shift') {
+          if (e.key === 'Shift') {
             isShiftKeyDown = false;
           }
         }}
@@ -232,20 +232,20 @@ export function CodeInputField(props: {
             (previousSelection.start ?? 0) - (previousSelection.end ?? 0),
           )
 
-          if((previousSelection.inserting || selectionSize === oldValue.length)) {
+          if ((previousSelection.inserting || selectionSize === oldValue.length)) {
             finalValue = finalValue.replace(/[^\d]/g, '')
           }
           finalValue = finalValue.slice(0, props.length)
 
           const hasInvalidChars = !/^\d*$/.test(finalValue)
-          if(
+          if (
             (rawValue.length !== 0 && finalValue.length === 0) ||
             finalValue === oldValue ||
             hasInvalidChars
           ) {
             e.preventDefault()
             e.currentTarget.value = oldValue
-            if(hasInvalidChars) {
+            if (hasInvalidChars) {
               e.currentTarget.setSelectionRange(
                 previousSelection.start ?? 0,
                 previousSelection.end ?? 0,
@@ -254,20 +254,20 @@ export function CodeInputField(props: {
             return
           }
 
-          if(finalValue.length < oldValue.length) {
+          if (finalValue.length < oldValue.length) {
             onSelectionChange(e.inputType)
           }
 
           setValue(finalValue)
 
           props.onChange?.(finalValue)
-          if(finalValue.length === props.length) {
+          if (finalValue.length === props.length) {
             props.onFill?.(finalValue)
           }
         }}
       />
 
-      <Index each={Array.from({length: props.length})}>
+      <Index each={Array.from({ length: props.length })}>
         {(_, idx) => (
           <div
             class={classNames(

@@ -1,4 +1,4 @@
-import {createStore, unwrap} from 'solid-js/store';
+import { createStore, unwrap } from 'solid-js/store';
 
 type SetArgs = [...(string | number)[], any]; // path..., value
 type WireMsg =
@@ -16,11 +16,11 @@ function setArgsToValue(
 ): { path: (string | number)[]; value: any } {
   const path = rawArgs.slice(0, -1) as (string | number)[];
   const last = rawArgs[rawArgs.length - 1];
-  if(typeof(last) === 'function') {
+  if (typeof(last) === 'function') {
     const prev = getAtPath(storeSnapshot, path);
-    return {path, value: (last as (p: any) => any)(prev)};
+    return { path, value: (last as (p: any) => any)(prev) };
   }
-  return {path, value: last};
+  return { path, value: last };
 }
 
 export function createMirroredStore<T extends object>(
@@ -34,30 +34,30 @@ export function createMirroredStore<T extends object>(
   let ready = false;
 
   // Отправляем привет и снапшот состояния при подключении
-  ch.postMessage({type: 'hello', originId, state: unwrap(store)} as WireMsg);
+  ch.postMessage({ type: 'hello', originId, state: unwrap(store) } as WireMsg);
 
   ch.onmessage = (ev: MessageEvent<WireMsg>) => {
     const msg = ev.data;
-    if(!msg || msg.originId === originId) return;
+    if (!msg || msg.originId === originId) return;
 
-    if(msg.type === 'hello') {
+    if (msg.type === 'hello') {
       // Ответим своим снапшотом
       ch.postMessage({
         type: 'state',
         originId,
-        state: unwrap(store)
+        state: unwrap(store),
       } as WireMsg);
       return;
     }
 
-    if(msg.type === 'state' && !ready) {
+    if (msg.type === 'state' && !ready) {
       // Первичная синхронизация
       _setStore(msg.state);
       ready = true;
       return;
     }
 
-    if(msg.type === 'set') {
+    if (msg.type === 'set') {
       // Применяем чужое изменение
       // @ts-ignore
       _setStore(...msg.path as any, msg.value);
@@ -67,15 +67,15 @@ export function createMirroredStore<T extends object>(
   // Обёртка над setStore: применяем локально и рассылаем «интент»
   function setStore(...args: any[]) {
     // вычисляем финальное value (если был апдейтер-функция)
-    const {path, value} = setArgsToValue(unwrap(store), args);
+    const { path, value } = setArgsToValue(unwrap(store), args);
     // @ts-ignore
     _setStore(...path as any, value);
-    const wire: WireMsg = {type: 'set', originId, path, value};
+    const wire: WireMsg = { type: 'set', originId, path, value };
     ch.postMessage(wire);
   }
 
   return [
     store,
-    setStore as any as typeof _setStore
+    setStore as any as typeof _setStore,
   ] as const;
 }

@@ -1,20 +1,20 @@
-import {createEffect, createResource, on, onCleanup, Ref} from 'solid-js';
-import {ScrollableX} from '@components/scrollable';
-import {AppBackgroundTab} from '@components/sidebarLeft/tabs/background';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { createEffect, createResource, on, onCleanup, Ref } from 'solid-js';
+import { ScrollableX } from '@components/scrollable';
+import { AppBackgroundTab } from '@components/sidebarLeft/tabs/background';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import ListenerSetter from '@helpers/listenerSetter';
 import createMiddleware from '@helpers/solid/createMiddleware';
-import {IS_SAFARI} from '@environment/userAgent';
-import {DEFAULT_THEME} from '@config/state';
-import {blendWallpaperForTinted} from '@config/themePresets';
-import {BaseTheme, Theme} from '@layer';
+import { IS_SAFARI } from '@environment/userAgent';
+import { DEFAULT_THEME } from '@config/state';
+import { blendWallpaperForTinted } from '@config/themePresets';
+import { BaseTheme, Theme } from '@layer';
 import rootScope from '@lib/rootScope';
 import themeController from '@helpers/themeController';
 import liteMode from '@helpers/liteMode';
 import RLottiePlayer from '@lib/rlottie/rlottiePlayer';
 import wrapStickerEmoji from '@components/wrappers/stickerEmoji';
-import {isTruthy} from '../helpers/isTruthy';
+import { isTruthy } from '../helpers/isTruthy';
 
 type ThemeItem = {
   container: HTMLElement;
@@ -27,7 +27,7 @@ const AVAILABLE_BASE_THEMES: Set<BaseTheme['_']> = new Set([
   'baseThemeClassic',
   'baseThemeNight',
   'baseThemeDay',
-  'baseThemeTinted'
+  'baseThemeTinted',
 ]);
 
 // Inverse of themeController's `themeNameToBaseTheme`. The virtual theme below
@@ -42,7 +42,7 @@ const BASE_THEME_TO_THEME_NAME: {[k in BaseTheme['_']]?: string} = {
   baseThemeClassic: 'day',
   baseThemeNight: 'night',
   baseThemeDay: 'light',
-  baseThemeTinted: 'tinted'
+  baseThemeTinted: 'tinted',
 };
 
 export type ChatThemesPickerProps = {
@@ -124,7 +124,7 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
     const virtualTheme = {
       ...item.theme,
       name: BASE_THEME_TO_THEME_NAME[effectiveBase] ?? (isNight ? 'night' : 'day'),
-      settings: entry ? [entry] : item.theme.settings
+      settings: entry ? [entry] : item.theme.settings,
     } as unknown as Theme;
     themeController.applyTheme(virtualTheme, item.container);
 
@@ -133,7 +133,7 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
 
     const wallPaperContainer = item.wallPaperContainers[base] ??
       item.wallPaperContainers[isNight ? 'baseThemeNight' : 'baseThemeClassic'];
-    if(wallPaperContainer) {
+    if (wallPaperContainer) {
       item.container.prepend(wallPaperContainer);
     }
   };
@@ -150,14 +150,14 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
 
   const buildThemes = async() => {
     const themes = themesPromise();
-    if(!themes) return;
+    if (!themes) return;
 
     const defaultThemes = themes.filter((theme) => theme.pFlags.default);
     defaultThemes.unshift(DEFAULT_THEME);
 
     const containers = await Promise.all(defaultThemes.map(async(theme) => {
       const container = document.createElement('div');
-      const k: ThemeItem = {container, theme, wallPaperContainers: {}};
+      const k: ThemeItem = { container, theme, wallPaperContainers: {} };
 
       // Cloud themes (numeric id) get their tinted wallpaper navy-blended;
       // DEFAULT_THEME (id='') and accent presets keep their curated gradients.
@@ -165,28 +165,28 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
       const isCurated = themeId === '' || themeId.startsWith('preset:');
 
       const results = theme.settings!
-      .filter((themeSettings) => AVAILABLE_BASE_THEMES.has(themeSettings.base_theme._))
-      .map((themeSettings) => {
-        const shouldBlend = themeSettings.base_theme._ === 'baseThemeTinted' && !isCurated && themeSettings.wallpaper;
-        const wp = shouldBlend ? blendWallpaperForTinted(themeSettings.wallpaper!, themeSettings.accent_color) : themeSettings.wallpaper;
-        const result = AppBackgroundTab.addWallPaper(wp!, undefined, themeSettings.base_theme._);
-        // addWallPaper returns undefined for a pattern wallpaper with no colors —
-        // skip rather than deref (matches the tinted-fallback guard below).
-        if(!result) return undefined;
-        k.wallPaperContainers[themeSettings.base_theme._] = result.container;
-        solidRoots.push(result.dispose);
-        return result;
-      })
-      .filter(isTruthy);
+        .filter((themeSettings) => AVAILABLE_BASE_THEMES.has(themeSettings.base_theme._))
+        .map((themeSettings) => {
+          const shouldBlend = themeSettings.base_theme._ === 'baseThemeTinted' && !isCurated && themeSettings.wallpaper;
+          const wp = shouldBlend ? blendWallpaperForTinted(themeSettings.wallpaper!, themeSettings.accent_color) : themeSettings.wallpaper;
+          const result = AppBackgroundTab.addWallPaper(wp!, undefined, themeSettings.base_theme._);
+          // addWallPaper returns undefined for a pattern wallpaper with no colors —
+          // skip rather than deref (matches the tinted-fallback guard below).
+          if (!result) return undefined;
+          k.wallPaperContainers[themeSettings.base_theme._] = result.container;
+          solidRoots.push(result.dispose);
+          return result;
+        })
+        .filter(isTruthy);
 
       // Synthesize a tinted preview from the night entry when the theme ships
       // only Classic/Night, matching applyNewTheme's blend-on-fallback.
-      if(!k.wallPaperContainers['baseThemeTinted'] && !isCurated) {
+      if (!k.wallPaperContainers['baseThemeTinted'] && !isCurated) {
         const nightEntry = theme.settings!.find((s) => s.base_theme._ === 'baseThemeNight');
-        if(nightEntry?.wallpaper) {
+        if (nightEntry?.wallpaper) {
           const blendedWp = blendWallpaperForTinted(nightEntry.wallpaper, nightEntry.accent_color);
           const result = AppBackgroundTab.addWallPaper(blendedWp, undefined, 'baseThemeTinted');
-          if(result) {
+          if (result) {
             k.wallPaperContainers['baseThemeTinted'] = result.container;
             solidRoots.push(result.dispose);
             results.push(result);
@@ -197,13 +197,13 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
       themesMap.set(container, k);
       applyThemeOnItem(k);
 
-      if(String(theme.id ?? '') === props.selectedId()) {
+      if (String(theme.id ?? '') === props.selectedId()) {
         container.classList.add('active');
       }
 
       const loadPromises: Promise<any>[] = [];
       let emoticonContainer: HTMLElement;
-      if(theme.emoticon) {
+      if (theme.emoticon) {
         emoticonContainer = document.createElement('div');
         emoticonContainer.classList.add('theme-emoticon');
         const size = 28 * 1.75;
@@ -216,8 +216,8 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
           loadPromises,
           middleware,
           play: false,
-          group: 'none'
-        }).then(({render}) => render).then((player) => {
+          group: 'none',
+        }).then(({ render }) => render).then((player) => {
           k.player = player as RLottiePlayer;
         });
       }
@@ -233,13 +233,13 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
 
       await Promise.all(loadPromises);
 
-      if(emoticonContainer!) container.append(emoticonContainer);
+      if (emoticonContainer!) container.append(emoticonContainer);
       container.append(bubbleIn, bubble);
 
       return container;
     }));
 
-    if(!middleware()) return;
+    if (!middleware()) return;
     scrollable.append(...containers);
     // Reveal in the next frame so the appended DOM has settled (layout +
     // background-item paints are flushed) before the opacity transition runs.
@@ -249,7 +249,7 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
   };
 
   createEffect(on(themesPromise, (themes) => {
-    if(themes) {
+    if (themes) {
       buildThemes();
     }
   }));
@@ -260,7 +260,7 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
     const lastActive = scrollable.container.querySelector('.active');
     lastActive?.classList.remove('active');
     themesMap.forEach((item) => {
-      if(String(item.theme.id ?? '') === id) {
+      if (String(item.theme.id ?? '') === id) {
         item.container.classList.add('active');
       }
     });
@@ -274,49 +274,49 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
       themesMap.forEach((item) => applyThemeOnItem(item));
       // Restore the legacy "scroll active tile to centre on variant change"
       // (General Settings only — see recenterOnBaseChange).
-      if(props.recenterOnBaseChange) {
+      if (props.recenterOnBaseChange) {
         const active = scrollable.container.querySelector('.active');
-        if(active) scrollable.scrollIntoViewNew({element: active as HTMLElement, position: 'center', axis: 'x'});
+        if (active) scrollable.scrollIntoViewNew({ element: active as HTMLElement, position: 'center', axis: 'x' });
       }
     },
-    {defer: true}
+    { defer: true }
   ));
 
   const listenerSetter = new ListenerSetter();
   attachClickEvent(scrollable.container, async(e) => {
     const container = findUpClassName(e.target!, 'theme-container');
-    if(!container) return;
+    if (!container) return;
 
     const item = themesMap.get(container);
-    if(!item) return;
+    if (!item) return;
 
     props.onSelect(item.theme);
     lastOnFrameNo?.(-1);
 
-    if(!item.player || !liteMode.isAvailable('animations')) return;
+    if (!item.player || !liteMode.isAvailable('animations')) return;
 
-    if(IS_SAFARI) {
-      if(item.player.paused) item.player.restart();
+    if (IS_SAFARI) {
+      if (item.player.paused) item.player.restart();
       return;
     }
 
-    if(item.player.paused) item.player.stop(true);
+    if (item.player.paused) item.player.stop(true);
     item.player.el[0].style.transform = 'scale(2)';
 
     const onFrameNo = lastOnFrameNo = (frameNo) => {
-      if(item.player!.maxFrame === frameNo || frameNo === -1) {
+      if (item.player!.maxFrame === frameNo || frameNo === -1) {
         item.player!.el[0].style.transform = '';
         item.player!.removeEventListener('enterFrame', onFrameNo);
-        if(lastOnFrameNo === onFrameNo) lastOnFrameNo = undefined;
+        if (lastOnFrameNo === onFrameNo) lastOnFrameNo = undefined;
       }
     };
 
     setTimeout(() => {
-      if(lastOnFrameNo !== onFrameNo) return;
+      if (lastOnFrameNo !== onFrameNo) return;
       item.player!.play();
       item.player!.addEventListener('enterFrame', onFrameNo);
     }, 250);
-  }, {listenerSetter});
+  }, { listenerSetter });
 
   onCleanup(() => {
     listenerSetter.removeAll();
@@ -329,7 +329,7 @@ export default function ChatThemesPicker(props: ChatThemesPickerProps) {
       ref={(el) => {
         el.append(scrollable.container);
         const ref = props.ref;
-        if(typeof ref === 'function') (ref as (el: HTMLDivElement) => void)(el);
+        if (typeof ref === 'function') (ref as (el: HTMLDivElement) => void)(el);
       }}
     />
   );

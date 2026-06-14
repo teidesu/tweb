@@ -1,21 +1,21 @@
 import flatten from '@helpers/array/flatten';
 import contextMenuController from '@helpers/contextMenuController';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {AttachClickOptions, attachClickEvent} from '@helpers/dom/clickEvent';
+import { AttachClickOptions, attachClickEvent } from '@helpers/dom/clickEvent';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import setInnerHTML from '@helpers/dom/setInnerHTML';
 import ListenerSetter from '@helpers/listenerSetter';
-import {_i18n, FormatterArguments, i18n, LangPackKey} from '@lib/langPack';
+import { _i18n, FormatterArguments, i18n, LangPackKey } from '@lib/langPack';
 import CheckboxField from '@components/checkboxField';
-import {Chat, Document, User} from '@layer';
-import {IS_MOBILE} from '@environment/userAgent';
+import { Chat, Document, User } from '@layer';
+import { IS_MOBILE } from '@environment/userAgent';
 import ripple from '@components/ripple';
 import Icon from '@components/icon';
 import RadioForm from '@components/radioForm';
 import wrapAttachBotIcon from '@components/wrappers/attachBotIcon';
-import {createRoot} from 'solid-js';
-import {AvatarNew} from '@components/avatarNew';
-import {ActiveAccountNumber} from '@lib/accounts/types';
+import { createRoot } from 'solid-js';
+import { AvatarNew } from '@components/avatarNew';
+import { ActiveAccountNumber } from '@lib/accounts/types';
 
 type ButtonMenuItemInner = Omit<Parameters<typeof ButtonMenuSync>[0], 'listenerSetter'>;
 type AvatarInfo = {
@@ -65,7 +65,7 @@ export type ButtonMenuItemOptionsVerifiable = ButtonMenuItemOptions & {
 };
 
 export function ButtonMenuItem(options: ButtonMenuItemOptions) {
-  if(options.element) return [options.separator as HTMLElement, options.element].filter(Boolean);
+  if (options.element) return [options.separator as HTMLElement, options.element].filter(Boolean);
 
   const {
     icon,
@@ -77,7 +77,7 @@ export function ButtonMenuItem(options: ButtonMenuItemOptions) {
     onClick,
     checkboxField,
     noCheckboxClickListener,
-    emptyIcon
+    emptyIcon,
   } = options;
   const el = document.createElement('div');
   const iconSplitted = icon?.split(' ');
@@ -86,31 +86,31 @@ export function ButtonMenuItem(options: ButtonMenuItemOptions) {
     (className ? ' ' + className : '') +
     (options.danger ? ' danger' : '');
 
-  if(IS_MOBILE) {
+  if (IS_MOBILE) {
     ripple(el);
   }
 
-  if(iconElement) {
+  if (iconElement) {
     iconElement.classList.add('btn-menu-item-icon');
     el.append(iconElement);
-  } else if(iconSplitted) {
+  } else if (iconSplitted) {
     el.append(Icon(iconSplitted[0] as Icon, 'btn-menu-item-icon'));
-  } else if(emptyIcon) {
+  } else if (emptyIcon) {
     const iconPlaceholder = document.createElement('span');
     iconPlaceholder.classList.add('btn-menu-item-icon');
     el.append(iconPlaceholder);
   }
 
   let textElement = options.textElement;
-  if(!textElement) {
+  if (!textElement) {
     textElement = options.textElement = text ? i18n(text, options.textArgs) : document.createElement('span');
-    if(options.regularText) {
+    if (options.regularText) {
       setInnerHTML(textElement, options.regularText);
       textElement.dir = '';
     }
   }
 
-  if(iconDoc) {
+  if (iconDoc) {
     const iconElement = document.createElement('span');
     iconElement.classList.add('btn-menu-item-icon');
     el.append(iconElement);
@@ -122,20 +122,20 @@ export function ButtonMenuItem(options: ButtonMenuItemOptions) {
       element: iconElement,
       size: 24,
       textColor: () => isMobile() ? 'secondary-text-color' : 'primary-text-color',
-      strokeWidth: () => isMobile() ? .625 : .375
+      strokeWidth: () => isMobile() ? .625 : .375,
     });
   }
 
-  if(avatarInfo) {
+  if (avatarInfo) {
     const avatar = createRoot((dispose) => {
       options.dispose = dispose;
       return AvatarNew({
         size: /* avatarInfo.active ? 22 :  */24,
-        ...avatarInfo
+        ...avatarInfo,
       });
     });
     avatar.node.classList.add('btn-menu-item-icon', 'is-external', 'btn-menu-item-avatar');
-    if(avatarInfo.active) {
+    if (avatarInfo.active) {
       avatar.node.classList.add('active');
     }
     el.append(avatar.node);
@@ -144,7 +144,7 @@ export function ButtonMenuItem(options: ButtonMenuItemOptions) {
   textElement.classList.add('btn-menu-item-text');
   el.append(textElement);
 
-  if(options.new) {
+  if (options.new) {
     const badge = document.createElement('span');
     badge.classList.add('btn-menu-item-badge');
     _i18n(badge, 'New');
@@ -158,7 +158,7 @@ export function ButtonMenuItem(options: ButtonMenuItemOptions) {
     cancelEvent(e);
 
     const menu = findUpClassName(e.target!, 'btn-menu');
-    if(menu && !menu.classList.contains('active')) {
+    if (menu && !menu.classList.contains('active')) {
       return;
     }
 
@@ -174,38 +174,38 @@ export function ButtonMenuItem(options: ButtonMenuItemOptions) {
     // }
 
     onClick(e);
-    if(options.checkForClose?.() === false) {
+    if (options.checkForClose?.() === false) {
       return;
     }
 
-    if(!keepOpen/*  && !closed */) {
+    if (!keepOpen/*  && !closed */) {
       contextMenuController.close();
     }
 
-    if(checkboxField && !noCheckboxClickListener/*  && result !== false */) {
+    if (checkboxField && !noCheckboxClickListener/*  && result !== false */) {
       checkboxField.checked = checkboxField.input.type === 'radio' ? true : !checkboxField.checked;
     }
   }/*  : onClick */, options.options);
 
-  if(checkboxField) {
+  if (checkboxField) {
     el.append(checkboxField.label);
     el.classList.add('has-checkbox')
   }
 
-  if(options.separator === true || options.separatorDown) {
+  if (options.separator === true || options.separatorDown) {
     options.separator = document.createElement('hr');
   }
 
-  if(options.secondary) {
+  if (options.secondary) {
     el.classList.add('is-secondary');
     options.multiline = true;
   }
 
-  if(options.multiline) {
+  if (options.multiline) {
     el.classList.add('is-multiline');
   }
 
-  if(options.inner) {
+  if (options.inner) {
     el.append(Icon('next', 'btn-menu-item-icon', 'btn-menu-item-icon-right'));
     el.classList.add('has-inner');
     (el as any).inner = options.inner;
@@ -213,14 +213,14 @@ export function ButtonMenuItem(options: ButtonMenuItemOptions) {
 
   const ret: HTMLElement[] = [options.element = el];
 
-  if(options.separator) {
+  if (options.separator) {
     ret[options.separatorDown ? 'push' : 'unshift'](options.separator);
   }
 
   return ret.filter(Boolean);
 }
 
-export function ButtonMenuSync({listenerSetter, buttons, radioGroups}: {
+export function ButtonMenuSync({ listenerSetter, buttons, radioGroups }: {
   buttons: ButtonMenuItemOptions[],
   radioGroups?: {
     name: string,
@@ -232,9 +232,9 @@ export function ButtonMenuSync({listenerSetter, buttons, radioGroups}: {
   const el: HTMLElement = document.createElement('div');
   el.classList.add('btn-menu');
 
-  if(radioGroups) {
+  if (radioGroups) {
     buttons.forEach((b) => {
-      if(!b.radioGroup) {
+      if (!b.radioGroup) {
         return;
       }
 
@@ -242,7 +242,7 @@ export function ButtonMenuSync({listenerSetter, buttons, radioGroups}: {
     });
   }
 
-  if(listenerSetter) {
+  if (listenerSetter) {
     buttons.forEach((b) => {
       (b.options ??= {}).listenerSetter = listenerSetter;
     });
@@ -251,7 +251,7 @@ export function ButtonMenuSync({listenerSetter, buttons, radioGroups}: {
   const items = buttons.map(ButtonMenuItem);
   el.append(...flatten(items));
 
-  if(radioGroups) {
+  if (radioGroups) {
     radioGroups.forEach((group) => {
       const elements = buttons.filter((button) => button.radioGroup === group.name);
 
@@ -266,7 +266,7 @@ export function ButtonMenuSync({listenerSetter, buttons, radioGroups}: {
         input.checked = idx === group.checked;
         return {
           container: e.element,
-          input: e.checkboxField!.input
+          input: e.checkboxField!.input,
         };
       }) as { container: HTMLElement; input: HTMLInputElement; }[]), group.onChange);
 
@@ -280,6 +280,6 @@ export function ButtonMenuSync({listenerSetter, buttons, radioGroups}: {
 
 export default async function ButtonMenu(options: Parameters<typeof ButtonMenuSync>[0]) {
   const el = ButtonMenuSync(options);
-  await Promise.all(options.buttons.map(({loadPromise}) => loadPromise));
+  await Promise.all(options.buttons.map(({ loadPromise }) => loadPromise));
   return el;
 }

@@ -1,17 +1,17 @@
 import EmptyListLoader from '@helpers/emptyListLoader';
 import mediaSizes from '@helpers/mediaSizes';
-import {Photo, Document} from '@layer';
+import { Photo, Document } from '@layer';
 import appImManager from '@lib/appImManager';
 import AppMediaViewerBase from './appMediaViewerBase';
-import {ButtonMenuItemOptionsVerifiable} from './buttonMenu';
+import { ButtonMenuItemOptionsVerifiable } from './buttonMenu';
 import PopupElement from './popups';
 import PopupForward from './popups/forward';
 import appSidebarRight from './sidebarRight';
 import AppSharedMediaTab from './sidebarRight/tabs/sharedMediaTab';
 import appDownloadManager from '@lib/appDownloadManager';
-import {wrapAsyncClickHandler} from '@helpers/wrapAsyncClickHandler';
+import { wrapAsyncClickHandler } from '@helpers/wrapAsyncClickHandler';
 import showForwardPopup from './popups/forward';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 
 
 export type AppMediaViewerStaticTargetType = {
@@ -37,12 +37,12 @@ export default class AppMediaViewerStatic extends AppMediaViewerBase<never, 'for
       {
         icon: 'forward',
         text: 'Forward',
-        onClick: this.onForwardClick
+        onClick: this.onForwardClick,
       }, {
         icon: 'download',
         text: 'MediaViewer.Context.Download',
-        onClick: this.onDownloadClick
-      }
+        onClick: this.onDownloadClick,
+      },
     ];
 
     this.setBtnMenuToggle(buttons);
@@ -58,22 +58,22 @@ export default class AppMediaViewerStatic extends AppMediaViewerBase<never, 'for
   onPrevClick = (target: AppMediaViewerStaticTargetType) => {
     this.openMedia({
       ...target,
-      fromRight: -1
+      fromRight: -1,
     });
   };
 
   onNextClick = (target: AppMediaViewerStaticTargetType) => {
     this.openMedia({
       ...target,
-      fromRight: 1
+      fromRight: 1,
     });
   };
 
   onForwardClick = () => {
     const target = this.target;
-    if(target!.mid) {
+    if (target!.mid) {
       showForwardPopup({
-        [target!.peerId]: [target!.mid]
+        [target!.peerId]: [target!.mid],
       }, undefined, undefined, () => {
         return this.close();
       });
@@ -82,23 +82,23 @@ export default class AppMediaViewerStatic extends AppMediaViewerBase<never, 'for
 
   onAuthorClick = async(e: MouseEvent) => {
     await this.close(e)
-    if(mediaSizes.isMobile) {
+    if (mediaSizes.isMobile) {
       const tab = appSidebarRight.getTab(AppSharedMediaTab);
-      if(tab) {
+      if (tab) {
         tab.close();
       }
     }
 
     appImManager.setInnerPeer({
-      peerId: this.target!.peerId
+      peerId: this.target!.peerId,
     });
   };
 
   onDownloadClick = wrapAsyncClickHandler(async() => {
-    await appDownloadManager.downloadToDisc({media: this.target!.media, queueId: appImManager.chat.bubbles.lazyLoadQueue!.queueId});
+    await appDownloadManager.downloadToDisc({ media: this.target!.media, queueId: appImManager.chat.bubbles.lazyLoadQueue!.queueId });
   });
 
-  public openMedia({allTargets, index, ...rest}: OpenMediaArgs) {
+  public openMedia({ allTargets, index, ...rest }: OpenMediaArgs) {
     const prevTargets = index !== undefined && allTargets ? allTargets.slice(0, index) : undefined;
     const nextTargets = index !== undefined && allTargets ? allTargets.slice(index + 1) : undefined;
     console.log('my-debug rest', rest)
@@ -107,7 +107,7 @@ export default class AppMediaViewerStatic extends AppMediaViewerBase<never, 'for
       prevTargets,
       nextTargets,
       target: rest.element,
-      ...rest
+      ...rest,
     });
     Object.assign(this.target!, {
       media: rest.media,
@@ -115,7 +115,7 @@ export default class AppMediaViewerStatic extends AppMediaViewerBase<never, 'for
       fromId: rest.fromId,
       timestamp: rest.timestamp,
       peerId: rest.peerId,
-      mid: rest.mid
+      mid: rest.mid,
     });
   }
 }

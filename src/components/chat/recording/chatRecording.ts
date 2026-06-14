@@ -8,33 +8,33 @@
 // cycle (ChatInput constructs this class at runtime).
 
 import type ChatInput from '../input';
-import {POSTING_NOT_ALLOWED_MAP} from '../input';
-import {ChatType} from '../chatType';
+import { POSTING_NOT_ALLOWED_MAP } from '../input';
+import { ChatType } from '../chatType';
 import opusDecodeController from '@lib/opusDecodeController';
 import VoiceWaveformAnalyser from '@helpers/voiceWaveformAnalyser';
 import LiveWaveformAnalyser from '@helpers/voiceRecorder/liveWaveformAnalyser';
-import NativeVoiceRecorder, {isNativeVoiceRecorderSupported} from '@helpers/voiceRecorder/nativeVoiceRecorder';
-import NativeVideoRecorder, {isNativeVideoRecorderSupported} from '@helpers/videoRecorder/nativeVideoRecorder';
+import NativeVoiceRecorder, { isNativeVoiceRecorderSupported } from '@helpers/voiceRecorder/nativeVoiceRecorder';
+import NativeVideoRecorder, { isNativeVideoRecorderSupported } from '@helpers/videoRecorder/nativeVideoRecorder';
 import VoiceRecordingPanel from '@components/chat/voiceRecording/voiceRecordingPanel';
-import {createVideoRecordingPanel, VideoRecordingPanelHandle} from '@components/chat/recording/videoRecordingPanel';
-import {appSettings} from '@stores/appSettings';
-import {toast, toastNew} from '@components/toast';
-import {Listener} from '@helpers/listenerSetter';
-import appNavigationController, {NavigationItem} from '@components/appNavigationController';
+import { createVideoRecordingPanel, VideoRecordingPanelHandle } from '@components/chat/recording/videoRecordingPanel';
+import { appSettings } from '@stores/appSettings';
+import { toast, toastNew } from '@components/toast';
+import { Listener } from '@helpers/listenerSetter';
+import appNavigationController, { NavigationItem } from '@components/appNavigationController';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import blurActiveElement from '@helpers/dom/blurActiveElement';
-import {attachClickEvent, simulateClickEvent} from '@helpers/dom/clickEvent';
-import {fastRaf} from '@helpers/schedulers';
+import { attachClickEvent, simulateClickEvent } from '@helpers/dom/clickEvent';
+import { fastRaf } from '@helpers/schedulers';
 import PopupPeer from '@components/popups/peer';
 import appMediaPlaybackController from '@components/appMediaPlaybackController';
 import toHHMMSS from '@helpers/string/toHHMMSS';
 import PopupElement from '@components/popups';
 import contextMenuController from '@helpers/contextMenuController';
-import {ChatRights} from '@appManagers/appChatsManager';
+import { ChatRights } from '@appManagers/appChatsManager';
 import createContextMenu from '@helpers/dom/createContextMenu';
-import {PAYMENT_REJECTED} from '@components/chat/paidMessagesInterceptor';
-import {createPosterFromMedia} from '@helpers/createPoster';
-import type {MediaSize} from '@helpers/mediaSize';
+import { PAYMENT_REJECTED } from '@components/chat/paidMessagesInterceptor';
+import { createPosterFromMedia } from '@helpers/createPoster';
+import type { MediaSize } from '@helpers/mediaSize';
 import cancelEvent from '@helpers/dom/cancelEvent';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
@@ -102,7 +102,7 @@ export default class ChatRecording {
       onCancel: () => this.onCancelRecordClick(),
       onPauseToggle: () => this.onPauseToggleClick(),
       onPlayToggle: () => this.onPlayToggleClick(),
-      onSeek: (progress) => this.onPlaybackSeek(progress)
+      onSeek: (progress) => this.onPlaybackSeek(progress),
     });
     // The panel is an absolutely-positioned overlay inside the input row.
     // It sits *under* btnSendContainer in DOM order so the send button stays
@@ -114,7 +114,7 @@ export default class ChatRecording {
     // bar slots into the input row the same way as voice; the dim overlay +
     // 360x360 round preview is mounted into the chat container so it covers
     // bubbles but stays under the input bar (which has a higher z-index).
-    if(this.videoRecorder) {
+    if (this.videoRecorder) {
       // Just the centered round preview — all recording controls stay in the
       // chat input (the same voiceRecordingPanel + btn-send the voice flow
       // uses). Mounted on <body> so it's reliably screen-centered.
@@ -133,51 +133,51 @@ export default class ChatRecording {
       monitorGain: 0,
       numberOfChannels: 1,
       recordingGain: 1,
-      reuseWorker: true
+      reuseWorker: true,
     };
 
-    if(isNativeVoiceRecorderSupported()) {
+    if (isNativeVoiceRecorderSupported()) {
       try {
         this.recorder = new NativeVoiceRecorder(config);
-      } catch(err) {
+      } catch (err) {
         console.error('NativeVoiceRecorder constructor error:', err);
       }
     }
 
-    if(!this.recorder) {
+    if (!this.recorder) {
       const Recorder = (window as any).Recorder;
-      if(Recorder) try {
+      if (Recorder) try {
         this.recorder = new Recorder(config);
-      } catch(err) {
+      } catch (err) {
         console.error('Recorder constructor error:', err);
       }
     }
 
-    if(isNativeVideoRecorderSupported()) {
+    if (isNativeVideoRecorderSupported()) {
       try {
         this.videoRecorder = new NativeVideoRecorder({
           width: 400,
           height: 400,
           frameRate: 30,
           videoBitsPerSecond: 1_200_000,
-          audioBitsPerSecond: 64_000
+          audioBitsPerSecond: 64_000,
         });
-      } catch(err) {
+      } catch (err) {
         console.error('NativeVideoRecorder constructor error:', err);
       }
     }
 
-    if(!this.recorder) {
+    if (!this.recorder) {
       return;
     }
 
-    attachClickEvent(this.input.btnCancelRecord, this.onCancelRecordClick, {listenerSetter: this.input.listenerSetter});
+    attachClickEvent(this.input.btnCancelRecord, this.onCancelRecordClick, { listenerSetter: this.input.listenerSetter });
 
     this.recorder.onstop = () => {
       this.setRecording(false);
       this.input.chatInput.classList.remove('is-locked');
 
-      if(this.waveformAnalyser) {
+      if (this.waveformAnalyser) {
         this.waveformAnalyser.finish();
         this.waveformAnalyser = undefined;
       }
@@ -189,17 +189,17 @@ export default class ChatRecording {
     };
 
     this.recorder.ondataavailable = async(typedArray: Uint8Array) => {
-      if(this.releaseMediaPlayback) {
+      if (this.releaseMediaPlayback) {
         this.releaseMediaPlayback();
         this.releaseMediaPlayback = undefined;
       }
 
-      if(this.recordingOverlayListener) {
+      if (this.recordingOverlayListener) {
         this.input.listenerSetter.remove(this.recordingOverlayListener);
         this.recordingOverlayListener = undefined;
       }
 
-      if(this.recordingNavigationItem) {
+      if (this.recordingNavigationItem) {
         appNavigationController.removeItem(this.recordingNavigationItem);
         this.recordingNavigationItem = undefined;
       }
@@ -207,19 +207,19 @@ export default class ChatRecording {
       const waveform = this.waveformAnalyser?.finish();
       this.waveformAnalyser = undefined;
 
-      if(this.recordCanceled) {
+      if (this.recordCanceled) {
         return;
       }
 
       const sendingParams = this.input.chat.getMessageSendingParams();
 
       const preparedPaymentResult = await this.input.paidMessageInterceptor.prepareStarsForPayment(1);
-      if(preparedPaymentResult === PAYMENT_REJECTED) return;
+      if (preparedPaymentResult === PAYMENT_REJECTED) return;
 
       sendingParams.confirmedPaymentResult = preparedPaymentResult;
 
       const duration = this.getRecordingElapsedMs() / 1000 | 0;
-      const dataBlob = new Blob([typedArray as BlobPart], {type: 'audio/ogg'});
+      const dataBlob = new Blob([typedArray as BlobPart], { type: 'audio/ogg' });
       opusDecodeController.decode(typedArray, false).then((result) => {
         opusDecodeController.setKeepAlive(false);
 
@@ -232,14 +232,14 @@ export default class ChatRecording {
           duration,
           waveform,
           objectURL: result.url,
-          clearDraft: true
+          clearDraft: true,
         });
 
         this.input.onMessageSent(false, true);
       });
     };
 
-    if(this.videoRecorder) {
+    if (this.videoRecorder) {
       this.videoRecorder.onstop = () => {
         this.setRecording(false);
         this.videoLimitReached = false;
@@ -257,22 +257,22 @@ export default class ChatRecording {
       };
 
       this.videoRecorder.ondataavailable = async(blob: Blob) => {
-        if(this.releaseMediaPlayback) {
+        if (this.releaseMediaPlayback) {
           this.releaseMediaPlayback();
           this.releaseMediaPlayback = undefined;
         }
 
-        if(this.recordingOverlayListener) {
+        if (this.recordingOverlayListener) {
           this.input.listenerSetter.remove(this.recordingOverlayListener);
           this.recordingOverlayListener = undefined;
         }
 
-        if(this.recordingNavigationItem) {
+        if (this.recordingNavigationItem) {
           appNavigationController.removeItem(this.recordingNavigationItem);
           this.recordingNavigationItem = undefined;
         }
 
-        if(this.recordCanceled) {
+        if (this.recordCanceled) {
           return;
         }
 
@@ -283,7 +283,7 @@ export default class ChatRecording {
 
         const sendingParams = this.input.chat.getMessageSendingParams();
         const preparedPaymentResult = await this.input.paidMessageInterceptor.prepareStarsForPayment(1);
-        if(preparedPaymentResult === PAYMENT_REJECTED) return;
+        if (preparedPaymentResult === PAYMENT_REJECTED) return;
         sendingParams.confirmedPaymentResult = preparedPaymentResult;
 
         const duration = this.getRecordingElapsedMs() / 1000 | 0;
@@ -305,7 +305,7 @@ export default class ChatRecording {
           height: 400,
           objectURL,
           thumb,
-          clearDraft: true
+          clearDraft: true,
         });
 
         this.input.onMessageSent(false, true);
@@ -314,7 +314,7 @@ export default class ChatRecording {
   }
 
   private onCancelRecordClick = (e?: Event) => {
-    if(e) {
+    if (e) {
       cancelEvent(e);
     }
 
@@ -322,37 +322,37 @@ export default class ChatRecording {
     this.stopPlayback();
     this.stopVideoPlayback();
     this.getActiveRecorder()?.stop();
-    if(this.recordingType === 'voice') {
+    if (this.recordingType === 'voice') {
       opusDecodeController.setKeepAlive(false);
     }
   };
 
   private getRecordingElapsedMs() {
-    if(this.recordPaused) return this.recordAccumulatedMs;
+    if (this.recordPaused) return this.recordAccumulatedMs;
     return this.recordAccumulatedMs + (Date.now() - this.recordStartTime);
   }
 
   private teardownLiveWaveform() {
-    if(this.liveWaveformAnalyser) {
+    if (this.liveWaveformAnalyser) {
       this.liveWaveformAnalyser.destroy();
       this.liveWaveformAnalyser = undefined;
     }
   }
 
   private onPauseToggleClick = () => {
-    if(!this.active) return;
-    if(this.recordingType === 'video') {
+    if (!this.active) return;
+    if (this.recordingType === 'video') {
       this.onVideoPauseToggleClick();
       return;
     }
-    if(!this.recorder) return;
+    if (!this.recorder) return;
 
-    if(this.recordPaused) {
+    if (this.recordPaused) {
       // Resume recording from paused state. Keep the existing waveform —
       // new live bars will push in from the right, gradually shifting the
       // snapshot off to the left rather than starting from scratch.
       this.stopPlayback();
-      if(typeof this.recorder.resume === 'function') {
+      if (typeof this.recorder.resume === 'function') {
         this.recorder.resume();
       }
       this.recordPaused = false;
@@ -367,13 +367,13 @@ export default class ChatRecording {
       // full compressed peaks the analyser has accumulated so playback
       // progress maps to the whole recording duration, not just the bars
       // that happened to fit in the live window.
-      if(typeof this.recorder.pause !== 'function') return;
+      if (typeof this.recorder.pause !== 'function') return;
       this.recordAccumulatedMs += Date.now() - this.recordStartTime;
       this.recordPaused = true;
       this.liveWaveformAnalyser?.setPaused(true);
       this.waveformAnalyser?.setPaused(true);
       const fullPeaks = this.waveformAnalyser?.getCurrentPeaks();
-      if(fullPeaks && fullPeaks.length) {
+      if (fullPeaks && fullPeaks.length) {
         this.voiceRecordingPanel?.setPeaks(fullPeaks);
       }
       this.voiceRecordingPanel?.setMode('paused');
@@ -384,13 +384,13 @@ export default class ChatRecording {
   };
 
   private onVideoPauseToggleClick() {
-    if(!this.videoRecorder) return;
+    if (!this.videoRecorder) return;
 
-    if(this.recordPaused) {
+    if (this.recordPaused) {
       // Max length hit — recording is locked at the cap. Keep the resume button
       // but tell the user why pressing it does nothing.
-      if(this.videoLimitReached) {
-        toastNew({langPackKey: 'Chat.Input.Record.VideoLimitReached'});
+      if (this.videoLimitReached) {
+        toastNew({ langPackKey: 'Chat.Input.Record.VideoLimitReached' });
         return;
       }
       // Resume from paused state — discard any preview playback, restore the
@@ -413,7 +413,7 @@ export default class ChatRecording {
       this.waveformAnalyser?.setPaused(true);
       // Freeze the waveform on the full-recording peaks, like voice.
       const fullPeaks = this.waveformAnalyser?.getCurrentPeaks();
-      if(fullPeaks && fullPeaks.length) this.voiceRecordingPanel?.setPeaks(fullPeaks);
+      if (fullPeaks && fullPeaks.length) this.voiceRecordingPanel?.setPeaks(fullPeaks);
       this.voiceRecordingPanel?.setMode('paused');
       this.voiceRecordingPanel?.setPlaybackProgress(undefined);
       this.voiceRecordingPanel?.setSeekable(true);
@@ -423,16 +423,16 @@ export default class ChatRecording {
   }
 
   private onPlayToggleClick = () => {
-    if(!this.active || !this.recordPaused) return;
-    if(this.recordingType === 'video') {
+    if (!this.active || !this.recordPaused) return;
+    if (this.recordingType === 'video') {
       this.onVideoPlayToggleClick();
       return;
     }
-    if(this.playbackAudio && !this.playbackAudio.paused) {
+    if (this.playbackAudio && !this.playbackAudio.paused) {
       this.playbackAudio.pause();
       return;
     }
-    if(this.playbackAudio && this.playbackAudio.currentTime > 0 && this.playbackAudio.currentTime < this.playbackAudio.duration) {
+    if (this.playbackAudio && this.playbackAudio.currentTime > 0 && this.playbackAudio.currentTime < this.playbackAudio.duration) {
       this.playbackAudio.play().catch(() => {});
       return;
     }
@@ -440,12 +440,12 @@ export default class ChatRecording {
   };
 
   private onVideoPlayToggleClick() {
-    if(!this.videoRecordingPanel || !this.videoRecorder) return;
+    if (!this.videoRecordingPanel || !this.videoRecorder) return;
     const video = this.videoRecordingPanel.previewVideo;
     // If we already have a playable snapshot mounted in the <video>, just
     // play/pause it directly. The first call swaps in the snapshot blob.
-    if(!video.srcObject && video.src) {
-      if(video.paused) {
+    if (!video.srcObject && video.src) {
+      if (video.paused) {
         video.play().catch(() => {});
       } else {
         video.pause();
@@ -460,13 +460,13 @@ export default class ChatRecording {
   // already track for progress + seeking math.
   private getVideoPreviewDurationSec() {
     const video = this.videoRecordingPanel?.previewVideo;
-    if(video && video.duration && isFinite(video.duration)) return video.duration;
+    if (video && video.duration && isFinite(video.duration)) return video.duration;
     return this.recordAccumulatedMs / 1000;
   }
 
   private startVideoPlaybackFromSnapshot() {
     const snapshot = this.videoRecorder?.getSnapshot();
-    if(!snapshot || !snapshot.size || !this.videoRecordingPanel) return;
+    if (!snapshot || !snapshot.size || !this.videoRecordingPanel) return;
     this.stopVideoPlayback();
     this.videoPlaybackObjectUrl = URL.createObjectURL(snapshot);
     const video = this.videoRecordingPanel.previewVideo;
@@ -489,9 +489,9 @@ export default class ChatRecording {
     // a rAF loop reading currentTime each frame keeps the timer/ring/playhead
     // smooth.
     const tick = () => {
-      if(this.videoPlaybackRafId === undefined) return;
+      if (this.videoPlaybackRafId === undefined) return;
       const dur = this.getVideoPreviewDurationSec();
-      if(dur) {
+      if (dur) {
         const progress = Math.max(0, Math.min(1, video.currentTime / dur));
         this.voiceRecordingPanel?.setPlaybackProgress(progress);
         this.videoRecordingPanel?.setProgress(progress);
@@ -500,10 +500,10 @@ export default class ChatRecording {
       this.videoPlaybackRafId = requestAnimationFrame(tick);
     };
     const startTick = () => {
-      if(this.videoPlaybackRafId === undefined) this.videoPlaybackRafId = requestAnimationFrame(tick);
+      if (this.videoPlaybackRafId === undefined) this.videoPlaybackRafId = requestAnimationFrame(tick);
     };
     const stopTick = () => {
-      if(this.videoPlaybackRafId !== undefined) {
+      if (this.videoPlaybackRafId !== undefined) {
         cancelAnimationFrame(this.videoPlaybackRafId);
         this.videoPlaybackRafId = undefined;
       }
@@ -532,30 +532,30 @@ export default class ChatRecording {
   }
 
   private stopVideoPlayback() {
-    if(this.videoPlaybackRafId !== undefined) {
+    if (this.videoPlaybackRafId !== undefined) {
       cancelAnimationFrame(this.videoPlaybackRafId);
       this.videoPlaybackRafId = undefined;
     }
-    if(!this.videoRecordingPanel) return;
+    if (!this.videoRecordingPanel) return;
     const video = this.videoRecordingPanel.previewVideo;
     try {
       video.pause();
-    } catch(e) {}
+    } catch (e) {}
     video.onplay = null;
     video.onpause = null;
     video.onended = null;
     video.muted = true;
-    if(this.videoPlaybackObjectUrl) {
+    if (this.videoPlaybackObjectUrl) {
       try {
         URL.revokeObjectURL(this.videoPlaybackObjectUrl);
-      } catch(e) {}
+      } catch (e) {}
       this.videoPlaybackObjectUrl = undefined;
     }
-    if(video.src) {
+    if (video.src) {
       video.removeAttribute('src');
       try {
         video.load();
-      } catch(e) {}
+      } catch (e) {}
     }
     this.videoRecordingPanel.setPlaying(false);
     this.voiceRecordingPanel?.setPlaying(false);
@@ -568,16 +568,16 @@ export default class ChatRecording {
   // state (iOS-style): preview + send/discard, but no further recording.
   private startVideoRecordingTimerLoop() {
     const r = () => {
-      if(!this.active || this.recordPaused) return;
-      if(this.recordingType !== 'video') return;
+      if (!this.active || this.recordPaused) return;
+      if (this.recordingType !== 'video') return;
       const elapsed = this.getRecordingElapsedMs();
-      if(elapsed >= VIDEO_RECORD_MAX_MS) {
+      if (elapsed >= VIDEO_RECORD_MAX_MS) {
         this.reachVideoLimit();
         return;
       }
       // Timer text lives in the shared voice panel; the ring is the video
       // overlay's own progress affordance.
-      if(!this.voiceRecordingPanel?.getIsPlaying()) {
+      if (!this.voiceRecordingPanel?.getIsPlaying()) {
         this.voiceRecordingPanel?.setTimer(this.formatRecordingTimer(elapsed));
       }
       this.videoRecordingPanel?.setProgress(elapsed / VIDEO_RECORD_MAX_MS);
@@ -590,7 +590,7 @@ export default class ChatRecording {
   // paused-preview state. Resume is then blocked (see onVideoPauseToggleClick);
   // the user can only preview, send or discard.
   private reachVideoLimit() {
-    if(this.videoLimitReached) return;
+    if (this.videoLimitReached) return;
     this.videoLimitReached = true;
     this.videoRecordingPanel?.setProgress(1);
     // Enter the paused state (recordPaused is false here, so this pauses).
@@ -605,19 +605,19 @@ export default class ChatRecording {
   // visible button while recording is its own action target. Capture phase so
   // we beat the buttons' own bubble-phase click listeners.
   public setVoiceRecordingMenuGuard(active: boolean) {
-    if(this.voiceMenuClickGuard) {
-      document.removeEventListener('click', this.voiceMenuClickGuard, {capture: true});
+    if (this.voiceMenuClickGuard) {
+      document.removeEventListener('click', this.voiceMenuClickGuard, { capture: true });
       this.voiceMenuClickGuard = undefined;
     }
-    if(!active || !this.active) return;
+    if (!active || !this.active) return;
 
     this.voiceMenuClickGuard = (e: MouseEvent) => {
       // Let clicks inside the menu through so menu items still work.
-      if(findUpClassName(e.target as HTMLElement, 'btn-menu')) return;
+      if (findUpClassName(e.target as HTMLElement, 'btn-menu')) return;
       cancelEvent(e);
-      if(contextMenuController.isOpened()) contextMenuController.close();
+      if (contextMenuController.isOpened()) contextMenuController.close();
     };
-    document.addEventListener('click', this.voiceMenuClickGuard, {capture: true});
+    document.addEventListener('click', this.voiceMenuClickGuard, { capture: true });
   }
 
   // Stop the recorder so its ondataavailable handler sends the voice file.
@@ -631,7 +631,7 @@ export default class ChatRecording {
   // video note from the menu does nothing. The silent/schedule flags are already
   // set by the caller and picked up via getMessageSendingParams on send.
   public finishRecordingFromMenu() {
-    if(!this.active) return;
+    if (!this.active) return;
     this.stopPlayback();
     this.stopVideoPlayback();
     this.getActiveRecorder()?.stop();
@@ -640,18 +640,18 @@ export default class ChatRecording {
   // Click-to-seek from the waveform. progress is 0..1 along the bars.
   // If audio hasn't been decoded yet we kick playback off at that offset.
   private onPlaybackSeek(progress: number) {
-    if(!this.recordPaused) return;
+    if (!this.recordPaused) return;
     // The shared voice panel's waveform seek is wired to this; for a video
     // recording it should scrub the round-video preview instead of audio.
-    if(this.recordingType === 'video') {
+    if (this.recordingType === 'video') {
       this.onVideoPlaybackSeek(progress);
       return;
     }
-    if(this.playbackAudio && this.playbackAudio.duration && !isNaN(this.playbackAudio.duration)) {
+    if (this.playbackAudio && this.playbackAudio.duration && !isNaN(this.playbackAudio.duration)) {
       const target = Math.max(0, Math.min(this.playbackAudio.duration, progress * this.playbackAudio.duration));
       this.playbackAudio.currentTime = target;
       this.voiceRecordingPanel?.setPlaybackProgress(progress);
-      if(this.playbackAudio.paused) this.playbackAudio.play().catch(() => {});
+      if (this.playbackAudio.paused) this.playbackAudio.play().catch(() => {});
       return;
     }
     // No audio yet — start playback and seek once metadata is available.
@@ -659,21 +659,21 @@ export default class ChatRecording {
   }
 
   private async startPlaybackFromSnapshot(seekProgress?: number) {
-    if(!this.recorder || typeof this.recorder.getSnapshot !== 'function') return;
+    if (!this.recorder || typeof this.recorder.getSnapshot !== 'function') return;
     const snapshot: Uint8Array = this.recorder.getSnapshot();
-    if(!snapshot || !snapshot.length) return;
+    if (!snapshot || !snapshot.length) return;
 
     // Tear down any prior playback before decoding the fresh snapshot.
     this.stopPlayback();
 
     try {
-      const {url} = await opusDecodeController.decode(snapshot, false);
+      const { url } = await opusDecodeController.decode(snapshot, false);
       this.playbackObjectUrl = url;
-    } catch(err) {
+    } catch (err) {
       console.error('[ChatInput] voice playback decode error:', err);
       return;
     }
-    if(!this.recordPaused) {
+    if (!this.recordPaused) {
       // Recording was resumed while we were decoding — drop the result.
       this.playbackObjectUrl && URL.revokeObjectURL(this.playbackObjectUrl);
       this.playbackObjectUrl = undefined;
@@ -684,8 +684,8 @@ export default class ChatRecording {
     audio.preload = 'auto';
 
     const onTick = () => {
-      if(this.playbackAudio !== audio) return;
-      if(!audio.duration || isNaN(audio.duration)) {
+      if (this.playbackAudio !== audio) return;
+      if (!audio.duration || isNaN(audio.duration)) {
         this.playbackRafId = requestAnimationFrame(onTick);
         return;
       }
@@ -718,9 +718,9 @@ export default class ChatRecording {
       cancelAnimationFrame(this.playbackRafId!);
     });
 
-    if(seekProgress != null) {
+    if (seekProgress != null) {
       const seek = () => {
-        if(audio.duration && !isNaN(audio.duration)) {
+        if (audio.duration && !isNaN(audio.duration)) {
           audio.currentTime = Math.max(0, Math.min(audio.duration, seekProgress * audio.duration));
           this.voiceRecordingPanel?.setPlaybackProgress(seekProgress);
           audio.removeEventListener('loadedmetadata', seek);
@@ -747,10 +747,10 @@ export default class ChatRecording {
   // resume() restarts it from onPauseToggleClick.
   private startRecordingTimerLoop() {
     const r = () => {
-      if(!this.active || this.recordPaused) return;
+      if (!this.active || this.recordPaused) return;
       const elapsed = this.getRecordingElapsedMs();
       const formatted = this.formatRecordingTimer(elapsed);
-      if(!this.voiceRecordingPanel?.getIsPlaying()) {
+      if (!this.voiceRecordingPanel?.getIsPlaying()) {
         this.voiceRecordingPanel?.setTimer(formatted);
       }
       fastRaf(r);
@@ -759,21 +759,21 @@ export default class ChatRecording {
   }
 
   private stopPlayback() {
-    if(this.playbackRafId) {
+    if (this.playbackRafId) {
       cancelAnimationFrame(this.playbackRafId);
       this.playbackRafId = undefined;
     }
-    if(this.playbackAudio) {
+    if (this.playbackAudio) {
       try {
         this.playbackAudio.pause();
-      } catch(e) {}
+      } catch (e) {}
       this.playbackAudio.src = '';
       this.playbackAudio = undefined;
     }
-    if(this.playbackObjectUrl) {
+    if (this.playbackObjectUrl) {
       try {
         URL.revokeObjectURL(this.playbackObjectUrl);
-      } catch(e) {}
+      } catch (e) {}
       this.playbackObjectUrl = undefined;
     }
     this.voiceRecordingPanel?.setPlaying(false);
@@ -781,12 +781,12 @@ export default class ChatRecording {
   }
 
   private setRecording(value: boolean) {
-    if(this.active === value) {
+    if (this.active === value) {
       return;
     }
 
     this.active = value;
-    this.input.starsState.set({isRecording: value});
+    this.input.starsState.set({ isRecording: value });
     this.input.setShrinking(this.active, ['is-recording']);
     this.input.updateSendBtn();
     this.input.onRecording?.(value);
@@ -795,7 +795,7 @@ export default class ChatRecording {
   // Swallow the click that ends a record-button long-press (it already opened
   // the mode-switch menu). Returns true when the click should be ignored.
   public consumeLongPressSuppression(): boolean {
-    if(this.recordModeLongPressed) {
+    if (this.recordModeLongPressed) {
       this.recordModeLongPressed = false;
       return true;
     }
@@ -815,7 +815,7 @@ export default class ChatRecording {
   // Handle the send button's recording branch: stop+send (or cancel if too
   // short). Called by ChatInput.onBtnSendClick when a recording is active.
   public handleSendButtonClick() {
-    if(this.getRecordingElapsedMs() < RECORD_MIN_TIME) {
+    if (this.getRecordingElapsedMs() < RECORD_MIN_TIME) {
       this.onCancelRecordClick();
     } else {
       this.stopPlayback();
@@ -849,32 +849,32 @@ export default class ChatRecording {
   }
 
   private setupRecordingModeMenu() {
-    if(!this.recorder || !this.videoRecorder) return; // nothing to switch between
+    if (!this.recorder || !this.videoRecorder) return; // nothing to switch between
 
     const contextMenu = createContextMenu({
       buttons: [{
         icon: 'microphone',
         text: 'Chat.Input.Record.Voice',
         onClick: () => this.setRecordingMediaType('voice'),
-        verify: () => this.canSwitchRecordingMode() && this.getActiveRecordingMediaType() !== 'voice'
+        verify: () => this.canSwitchRecordingMode() && this.getActiveRecordingMediaType() !== 'voice',
       }, {
         icon: 'recordround',
         text: 'Chat.Input.Record.Video',
         onClick: () => this.setRecordingMediaType('video'),
-        verify: () => this.canSwitchRecordingMode() && this.getActiveRecordingMediaType() !== 'video'
+        verify: () => this.canSwitchRecordingMode() && this.getActiveRecordingMediaType() !== 'video',
       }],
       listenTo: this.input.btnSend,
-      listenerSetter: this.input.listenerSetter
+      listenerSetter: this.input.listenerSetter,
     });
 
     // Desktop: hold the left mouse button on the record button (~400ms) to open
     // the same switch menu — more discoverable than the right-click. Touch
     // devices already get this via attachContextMenuListener (long-press →
     // contextmenu) inside createContextMenu, so this is mouse-only.
-    if(!IS_TOUCH_SUPPORTED) {
+    if (!IS_TOUCH_SUPPORTED) {
       let pressTimer: number;
       const clearPressTimer = () => {
-        if(pressTimer) {
+        if (pressTimer) {
           clearTimeout(pressTimer);
           pressTimer = 0;
         }
@@ -882,7 +882,7 @@ export default class ChatRecording {
 
       this.input.listenerSetter.add(this.input.btnSend)('mousedown', (e: MouseEvent) => {
         this.recordModeLongPressed = false; // clear any stale flag from an aborted press
-        if(e.button !== 0 || !this.canSwitchRecordingMode()) return; // left button, idle record state
+        if (e.button !== 0 || !this.canSwitchRecordingMode()) return; // left button, idle record state
         clearPressTimer();
         pressTimer = window.setTimeout(() => {
           pressTimer = 0;
@@ -899,19 +899,19 @@ export default class ChatRecording {
   // type while recording (so resuming / sending uses the matching recorder);
   // otherwise driven by the persisted user preference.
   public getActiveRecordingMediaType(): 'voice' | 'video' {
-    if(this.active) return this.recordingType;
+    if (this.active) return this.recordingType;
     const persisted = this.input.chat?.appSettings?.recordingMediaType ?? 'voice';
     // If the persisted type isn't available on this device (e.g. no
     // MediaRecorder support for video), silently fall back to voice.
-    if(persisted === 'video' && !this.videoRecorder) return 'voice';
-    if(persisted === 'voice' && !this.recorder) return 'video';
+    if (persisted === 'video' && !this.videoRecorder) return 'voice';
+    if (persisted === 'voice' && !this.recorder) return 'video';
     return persisted;
   }
 
   // Returns the recorder driving the current session (or undefined when not
   // recording). Used by the click handler to stop+send regardless of type.
   private getActiveRecorder(): {stop: () => void, pause?: () => void | Promise<void>, resume?: () => void, getSnapshot?: () => unknown} | undefined {
-    if(!this.active) return undefined;
+    if (!this.active) return undefined;
     return this.recordingType === 'video' ? this.videoRecorder : this.recorder;
   }
 
@@ -920,8 +920,8 @@ export default class ChatRecording {
     // now includes waiting for the camera's first visible frame, a longer
     // window in which a second click could kick off a duplicate recording.
     // Guard it explicitly.
-    if(this.active || this.isStartingRecording) return;
-    if(type === 'video' && !this.videoRecorder) return;
+    if (this.active || this.isStartingRecording) return;
+    if (type === 'video' && !this.videoRecorder) return;
     this.isStartingRecording = true;
     const promise = type === 'video' ? this.startVideoRecording() : this.startVoiceRecording();
     Promise.resolve(promise).catch(() => {}).finally(() => {
@@ -932,12 +932,12 @@ export default class ChatRecording {
   private async startVoiceRecording() {
     const isAnyChat = this.input.chat.peerId.isAnyChat();
     const flag: ChatRights = 'send_voices';
-    if(isAnyChat && !(await this.input.chat.canSend(flag))) {
-      toastNew({langPackKey: POSTING_NOT_ALLOWED_MAP[flag]});
+    if (isAnyChat && !(await this.input.chat.canSend(flag))) {
+      toastNew({ langPackKey: POSTING_NOT_ALLOWED_MAP[flag] });
       return;
     }
 
-    if(await this.input.showSlowModeTooltipIfNeeded()) {
+    if (await this.input.showSlowModeTooltipIfNeeded()) {
       return;
     }
 
@@ -945,18 +945,18 @@ export default class ChatRecording {
     blurActiveElement();
 
     let restricted = false;
-    if(!isAnyChat) {
+    if (!isAnyChat) {
       const userFull = await this.input.managers.appProfileManager.getProfile(this.input.chat.peerId.toUserId());
-      if(userFull?.pFlags.voice_messages_forbidden) {
+      if (userFull?.pFlags.voice_messages_forbidden) {
         toastNew({
           langPackKey: 'Chat.SendVoice.PrivacyError',
-          langPackArguments: [await wrapPeerTitle({peerId: this.input.chat.peerId})]
+          langPackArguments: [await wrapPeerTitle({ peerId: this.input.chat.peerId })],
         });
         restricted = true;
       }
     }
 
-    if(restricted) {
+    if (restricted) {
       this.input.chatInput.classList.remove('is-locked');
       return;
     }
@@ -969,10 +969,10 @@ export default class ChatRecording {
     // backs this session: NativeVoiceRecorder via its setter, or the opus-recorder
     // fallback by setting the `config.mediaTrackConstraints` its start() reads.
     const microphoneId = appSettings.callDevices?.microphoneId;
-    if(this.recorder.setMicrophoneId) {
+    if (this.recorder.setMicrophoneId) {
       this.recorder.setMicrophoneId(microphoneId);
-    } else if(this.recorder.config) {
-      this.recorder.config.mediaTrackConstraints = microphoneId ? {deviceId: {exact: microphoneId}} : true;
+    } else if (this.recorder.config) {
+      this.recorder.config.mediaTrackConstraints = microphoneId ? { deviceId: { exact: microphoneId } } : true;
     }
 
     this.recorder.start().then(() => {
@@ -994,20 +994,20 @@ export default class ChatRecording {
             langKey: 'DiscardVoiceMessageAction',
             callback: () => {
               simulateClickEvent(this.input.btnCancelRecord);
-            }
+            },
           }, {
             langKey: 'Continue',
-            isCancel: true
-          }]
+            isCancel: true,
+          }],
         }).show();
       };
 
       this.recordingOverlayListener = this.input.listenerSetter.add(document.body)('mousedown', (e) => {
-        if(!findUpClassName(e.target!, CLASS_NAME) && !findUpClassName(e.target!, 'popup-cancel-record')) {
+        if (!findUpClassName(e.target!, CLASS_NAME) && !findUpClassName(e.target!, 'popup-cancel-record')) {
           cancelEvent(e);
           showDiscardPopup();
         }
-      }, {capture: true, passive: false}) as any;
+      }, { capture: true, passive: false }) as any;
 
       appNavigationController.pushItem(this.recordingNavigationItem = {
         type: 'voice',
@@ -1017,7 +1017,7 @@ export default class ChatRecording {
           }, 0);
 
           return false;
-        }
+        },
       });
 
       this.recordStartTime = Date.now();
@@ -1031,9 +1031,9 @@ export default class ChatRecording {
 
       this.startRecordingTimerLoop();
     }).catch((e: Error) => {
-      switch(e.name) {
+      switch (e.name) {
         case 'NotAllowedError': {
-          toastNew({langPackKey: 'NoMicrophoneAccess'});
+          toastNew({ langPackKey: 'NoMicrophoneAccess' });
           break;
         }
 
@@ -1054,17 +1054,17 @@ export default class ChatRecording {
   }
 
   private async startVideoRecording() {
-    if(!this.videoRecorder) return;
+    if (!this.videoRecorder) return;
     const isAnyChat = this.input.chat.peerId.isAnyChat();
     // Round video notes go through the same restriction set as voice (the
     // server-side flag is shared; clients gate on `send_voices`).
     const flag: ChatRights = 'send_voices';
-    if(isAnyChat && !(await this.input.chat.canSend(flag))) {
-      toastNew({langPackKey: POSTING_NOT_ALLOWED_MAP[flag]});
+    if (isAnyChat && !(await this.input.chat.canSend(flag))) {
+      toastNew({ langPackKey: POSTING_NOT_ALLOWED_MAP[flag] });
       return;
     }
 
-    if(await this.input.showSlowModeTooltipIfNeeded()) {
+    if (await this.input.showSlowModeTooltipIfNeeded()) {
       return;
     }
 
@@ -1081,11 +1081,11 @@ export default class ChatRecording {
 
     try {
       await this.videoRecorder.start();
-    } catch(e) {
+    } catch (e) {
       const err = e as Error;
-      switch(err.name) {
+      switch (err.name) {
         case 'NotAllowedError':
-          toastNew({langPackKey: 'NoMicrophoneAccess'});
+          toastNew({ langPackKey: 'NoMicrophoneAccess' });
           break;
         case 'NotReadableError':
           toast(err.message);
@@ -1134,11 +1134,11 @@ export default class ChatRecording {
           langKey: 'DiscardVoiceMessageAction',
           callback: () => {
             simulateClickEvent(this.input.btnCancelRecord);
-          }
+          },
         }, {
           langKey: 'Continue',
-          isCancel: true
-        }]
+          isCancel: true,
+        }],
       }).show();
     };
 
@@ -1146,7 +1146,7 @@ export default class ChatRecording {
       // Same dismiss-on-outside-click guard as voice — clicks inside the chat
       // input or the discard popup are allowed; everything else opens the
       // discard confirmation.
-      if(
+      if (
         !findUpClassName(e.target!, CLASS_NAME) &&
         !findUpClassName(e.target!, 'popup-cancel-record') &&
         !findUpClassName(e.target!, 'video-recording-stage') // clicking the preview circle isn't "outside"
@@ -1154,7 +1154,7 @@ export default class ChatRecording {
         cancelEvent(e);
         showDiscardPopup();
       }
-    }, {capture: true, passive: false}) as any;
+    }, { capture: true, passive: false }) as any;
 
     appNavigationController.pushItem(this.recordingNavigationItem = {
       type: 'voice',
@@ -1164,7 +1164,7 @@ export default class ChatRecording {
         }, 0);
 
         return false;
-      }
+      },
     });
 
     this.recordStartTime = Date.now();
@@ -1176,15 +1176,15 @@ export default class ChatRecording {
   // panel waveform. Torn down in teardownVideoWaveform (on stop). Best-effort —
   // a waveform failure must not break the recording.
   private setupVideoWaveform() {
-    if(!this.videoRecorder?.stream || !this.voiceRecordingPanel) return;
+    if (!this.videoRecorder?.stream || !this.voiceRecordingPanel) return;
     const audioTracks = this.videoRecorder.stream.getAudioTracks();
-    if(!audioTracks.length) return;
+    if (!audioTracks.length) return;
     try {
       this.videoAudioContext = new AudioContext();
       // Created after `await getUserMedia`, i.e. outside the original click
       // gesture, so it may start suspended — without resuming, the
       // ScriptProcessor never fires and the waveform stays flat.
-      if(this.videoAudioContext.state === 'suspended') {
+      if (this.videoAudioContext.state === 'suspended') {
         this.videoAudioContext.resume().catch(() => {});
       }
       // Tap a CLONE of the audio track, not the one MediaRecorder is recording.
@@ -1198,27 +1198,27 @@ export default class ChatRecording {
       this.waveformAnalyser = new VoiceWaveformAnalyser(source);
       this.liveWaveformAnalyser = new LiveWaveformAnalyser(source);
       this.liveWaveformAnalyser.onpeak = (peak) => {
-        if(this.recordingType === 'video') this.voiceRecordingPanel?.pushPeak(peak);
+        if (this.recordingType === 'video') this.voiceRecordingPanel?.pushPeak(peak);
       };
-    } catch(e) {
+    } catch (e) {
       console.error('[ChatInput] video waveform setup error:', e);
     }
   }
 
   private teardownVideoWaveform() {
     this.teardownLiveWaveform();
-    if(this.waveformAnalyser) {
+    if (this.waveformAnalyser) {
       this.waveformAnalyser.finish();
       this.waveformAnalyser = undefined;
     }
-    if(this.videoWaveformStream) {
+    if (this.videoWaveformStream) {
       this.videoWaveformStream.getTracks().forEach((t) => t.stop());
       this.videoWaveformStream = undefined;
     }
-    if(this.videoAudioContext) {
+    if (this.videoAudioContext) {
       const ctx = this.videoAudioContext;
       this.videoAudioContext = undefined;
-      if(ctx.state !== 'closed') ctx.close().catch(() => {});
+      if (ctx.state !== 'closed') ctx.close().catch(() => {});
     }
   }
 
@@ -1228,29 +1228,29 @@ export default class ChatRecording {
   // `thumb` expects, or undefined on failure (sending still works without it).
   private async captureVideoPoster(): Promise<{blob: Blob, url: string, size: MediaSize} | undefined> {
     const v = this.videoRecordingPanel?.previewVideo;
-    if(!v || !v.videoWidth || !v.videoHeight) return undefined;
+    if (!v || !v.videoWidth || !v.videoHeight) return undefined;
     try {
       const poster = await createPosterFromMedia(v);
-      if(!poster?.blob) return undefined;
-      return {blob: poster.blob, url: URL.createObjectURL(poster.blob), size: poster.size};
-    } catch(e) {
+      if (!poster?.blob) return undefined;
+      return { blob: poster.blob, url: URL.createObjectURL(poster.blob), size: poster.size };
+    } catch (e) {
       return undefined;
     }
   }
 
   private onVideoPlaybackSeek(progress: number) {
     const video = this.videoRecordingPanel?.previewVideo;
-    if(!video) return;
+    if (!video) return;
     const seekTo = () => {
       const dur = this.getVideoPreviewDurationSec();
-      if(!dur) return;
+      if (!dur) return;
       video.currentTime = Math.max(0, Math.min(dur, progress * dur));
       this.voiceRecordingPanel?.setPlaybackProgress(progress);
       this.videoRecordingPanel?.setProgress(progress);
     };
     // No preview mounted yet (still showing the live camera) — start playback
     // and seek once it's loaded.
-    if(video.srcObject || !video.src) {
+    if (video.srcObject || !video.src) {
       this.startVideoPlaybackFromSnapshot();
       const onMeta = () => {
         seekTo();
@@ -1260,7 +1260,7 @@ export default class ChatRecording {
       return;
     }
     seekTo();
-    if(video.paused) video.play().catch(() => {});
+    if (video.paused) video.play().catch(() => {});
   }
 
   public destroy() {
@@ -1274,7 +1274,7 @@ export default class ChatRecording {
     this.videoRecorder?.releaseStream();
     // A recording in flight pushed a navigation item with an onPop discard popup;
     // drop it so it doesn't linger / fire after the chat is gone.
-    if(this.recordingNavigationItem) {
+    if (this.recordingNavigationItem) {
       appNavigationController.removeItem(this.recordingNavigationItem);
       this.recordingNavigationItem = undefined;
     }

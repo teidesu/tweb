@@ -1,5 +1,5 @@
-import type {Document, PhotoSize, VideoSize} from '@layer';
-import type {DownloadOptions} from '@appManagers/apiFileManager';
+import type { Document, PhotoSize, VideoSize } from '@layer';
+import type { DownloadOptions } from '@appManagers/apiFileManager';
 import getDocumentInputFileLocation from '@appManagers/utils/docs/getDocumentInputFileLocation';
 
 type GetDocumentDownloadOptions = {
@@ -10,12 +10,12 @@ type GetDocumentDownloadOptions = {
 
 export default function getDocumentDownloadOptions(
   doc: Document.document,
-  {thumb, queueId, onlyCache}: GetDocumentDownloadOptions = {}
+  { thumb, queueId, onlyCache }: GetDocumentDownloadOptions = {}
 ): DownloadOptions {
   const inputFileLocation = getDocumentInputFileLocation(doc, thumb?.type);
 
   let mimeType: MTMimeType;
-  if(thumb?._ === 'photoSize') {
+  if (thumb?._ === 'photoSize') {
     mimeType = (doc.sticker ? 'image/webp' : (doc.mime_type!.startsWith('image/') ? doc.mime_type : 'image/jpeg'))!;
   } else {
     mimeType = doc.mime_type || 'application/octet-stream';
@@ -28,6 +28,6 @@ export default function getDocumentDownloadOptions(
     mimeType,
     fileName: doc.file_name,
     queueId,
-    onlyCache
+    onlyCache,
   };
 }

@@ -33,8 +33,8 @@ export default class SDP {
 
   toString() {
     return this.session.lines
-    .concat(...this.media.map((section) => section.lines))
-    .map((line) => line.toString()).join('\r\n') + '\r\n';
+      .concat(...this.media.map((section) => section.lines))
+      .map((line) => line.toString()).join('\r\n') + '\r\n';
   }
 
   /* get buggedMedia() {

@@ -1,4 +1,4 @@
-import {JSX, onMount} from 'solid-js';
+import { JSX, onMount } from 'solid-js';
 
 import ripple from '@components/ripple';
 
@@ -22,7 +22,7 @@ export default function LargeButton(props: MediaEditorLargeButtonProps) {
       classList={{
         'media-editor__large-button--active': props.active,
         'media-editor__large-button--disabled': props.disabled,
-        [props.class as string]: !!props.class
+        [props.class as string]: !!props.class,
       }}
     />
   );

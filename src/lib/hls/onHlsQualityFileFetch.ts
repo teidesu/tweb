@@ -1,13 +1,13 @@
 import deferredPromise from '@helpers/cancellablePromise';
 
-import {getCurrentAccountFromURL} from '@lib/accounts/getCurrentAccountFromURL';
-import {ActiveAccountNumber} from '@lib/accounts/types';
+import { getCurrentAccountFromURL } from '@lib/accounts/getCurrentAccountFromURL';
+import { ActiveAccountNumber } from '@lib/accounts/types';
 import CacheStorageController from '@lib/files/cacheStorage';
-import {get500ErrorResponse} from '@lib/serviceWorker/errors';
-import {serviceMessagePort} from '@lib/serviceWorker/index.service';
+import { get500ErrorResponse } from '@lib/serviceWorker/errors';
+import { serviceMessagePort } from '@lib/serviceWorker/index.service';
 
-import {ctx, swLog} from '@lib/hls/common';
-import {RequestSynchronizer} from '@lib/hls/requestSynchronizer';
+import { ctx, swLog } from '@lib/hls/common';
+import { RequestSynchronizer } from '@lib/hls/requestSynchronizer';
 
 const cacheStorage = new CacheStorageController('cachedHlsQualityFiles');
 const requestSynchronizer = new RequestSynchronizer<string, string>();
@@ -36,7 +36,7 @@ export async function onHlsQualityFileFetch(event: FetchEvent, params: string, s
     );
 
     deferred.resolve(new Response(result));
-  } catch(e) {
+  } catch (e) {
     deferred.resolve(get500ErrorResponse());
     swLog.error(e);
   }
@@ -62,9 +62,9 @@ async function getHlsQualityFile(docId: string, accountNumber: ActiveAccountNumb
     const file = await cacheStorage.getFile(getHlsQualityCacheFilename(docId));
     swLog.info('using cached quality file', docId);
     return file;
-  } catch{
+  } catch {
     swLog.info('fetching quality file', docId);
-    const file = await serviceMessagePort.invoke('downloadDoc', {docId, accountNumber});
+    const file = await serviceMessagePort.invoke('downloadDoc', { docId, accountNumber });
     cacheStorage.saveFile(getHlsQualityCacheFilename(docId), file);
     return file;
   }
@@ -74,21 +74,21 @@ async function replaceQualityFileWithLocalURLs(fileString: string, accountNumber
   const regex = 'mtproto:(\\d+)';
 
   const match = fileString.match(new RegExp(regex));
-  if(!match) throw new Error('Wrong Hls quality file format');
+  if (!match) throw new Error('Wrong Hls quality file format');
 
   const targetDocId = match[1];
 
   swLog.info('targetDocId', targetDocId);
 
-  if(!targetDocId) throw new Error('Wrong Hls quality file format');
+  if (!targetDocId) throw new Error('Wrong Hls quality file format');
 
-  const doc = await serviceMessagePort.invoke('requestDoc', {docId: targetDocId, accountNumber});
+  const doc = await serviceMessagePort.invoke('requestDoc', { docId: targetDocId, accountNumber });
 
   const params: HlsStreamUrlParams = {
     docId: targetDocId,
     dcId: doc.dc_id,
     size: doc.size!,
-    mimeType: doc.mime_type!
+    mimeType: doc.mime_type!,
   };
   const pathname = `hls_stream/${encodeURIComponent(JSON.stringify(params))}`;
 

@@ -1,5 +1,5 @@
-import {ChatBannedRights} from '@layer';
-import {LangPackKey} from '@lib/langPack';
+import { ChatBannedRights } from '@layer';
+import { LangPackKey } from '@lib/langPack';
 
 export const participantRightsMap: Record<keyof ChatBannedRights.chatBannedRights['pFlags'], LangPackKey | null> = {
   send_plain:        'UserRestrictionsSend',
@@ -22,5 +22,5 @@ export const participantRightsMap: Record<keyof ChatBannedRights.chatBannedRight
   view_messages:     null,
   send_messages:     null,
   send_games:        null,
-  send_inline:       null
+  send_inline:       null,
 };

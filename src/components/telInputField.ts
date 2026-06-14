@@ -1,8 +1,8 @@
 import placeCaretAtEnd from '@helpers/dom/placeCaretAtEnd';
-import {formatPhoneNumber} from '@helpers/formatPhoneNumber';
-import {IS_APPLE, IS_ANDROID, IS_APPLE_MOBILE} from '@environment/userAgent';
-import {HelpCountry, HelpCountryCode} from '@layer';
-import InputField, {InputFieldOptions} from '@components/inputField';
+import { formatPhoneNumber } from '@helpers/formatPhoneNumber';
+import { IS_APPLE, IS_ANDROID, IS_APPLE_MOBILE } from '@environment/userAgent';
+import { HelpCountry, HelpCountryCode } from '@layer';
+import InputField, { InputFieldOptions } from '@components/inputField';
 
 export default class TelInputField extends InputField {
   private pasted = false;
@@ -18,24 +18,24 @@ export default class TelInputField extends InputField {
       label: 'Contacts.PhoneNumber.Placeholder',
       // plainText: true,
       name: 'phone',
-      ...options
+      ...options,
     });
 
     this.container.classList.add('input-field-phone');
 
     const telEl = this.input;
-    if(telEl instanceof HTMLInputElement) {
+    if (telEl instanceof HTMLInputElement) {
       telEl.type = 'tel';
       telEl.autocomplete = 'rr55RandomRR55' as any;
     } else {
       telEl.inputMode = 'decimal';
 
       const pixelRatio = window.devicePixelRatio;
-      if(pixelRatio > 1) {
+      if (pixelRatio > 1) {
         let letterSpacing: number;
-        if(IS_APPLE) {
+        if (IS_APPLE) {
           letterSpacing = pixelRatio * -.16;
-        } else if(IS_ANDROID) {
+        } else if (IS_ANDROID) {
           letterSpacing = 0;
         }
 
@@ -53,7 +53,7 @@ export default class TelInputField extends InputField {
       // console.log('input', this.value);
       telEl.classList.remove('error');
 
-      if(this.pastedValue !== undefined) {
+      if (this.pastedValue !== undefined) {
         // The browser just inserted the raw clipboard text at the caret; swap it for
         // the country-code-aware merge computed in the paste handler, then format below.
         this.setValueSilently(this.pastedValue);
@@ -62,7 +62,7 @@ export default class TelInputField extends InputField {
 
       const value = this.value;
       const diff = Math.abs(value.length - this.lastValue.length);
-      if(diff > 1 && !this.pasted && IS_APPLE_MOBILE) {
+      if (diff > 1 && !this.pasted && IS_APPLE_MOBILE) {
         this.setValueSilently(this.lastValue + value);
       }
 
@@ -72,7 +72,7 @@ export default class TelInputField extends InputField {
 
       let formattedPhoneNumber: ReturnType<typeof formatPhoneNumber>;
       let formatted: string, country: HelpCountry, countryCode: HelpCountryCode, leftPattern = '';
-      if(this.value.replace(/\++/, '+') === '+') {
+      if (this.value.replace(/\++/, '+') === '+') {
         this.setValueSilently('+');
       } else {
         formattedPhoneNumber = formatPhoneNumber(this.value);
@@ -95,7 +95,7 @@ export default class TelInputField extends InputField {
 
       const clipboard = e.clipboardData?.getData('text/plain');
       const pastedDigits = clipboard?.replace(/\D/g, '');
-      if(!pastedDigits) {
+      if (!pastedDigits) {
         return; // nothing useful (empty clipboard or non-digit text)
       }
 
@@ -105,7 +105,7 @@ export default class TelInputField extends InputField {
       // still the pre-paste content. We can't apply it now: `preventDefault()` does
       // NOT stop a contentEditable from inserting the raw clipboard text, so instead
       // we stash it and overwrite the field in the `input` handler that fires next.
-      if(clipboard!.trimStart().startsWith('+') || pastedDigits.startsWith('00')) {
+      if (clipboard!.trimStart().startsWith('+') || pastedDigits.startsWith('00')) {
         // Full international number — it carries its own country code, so it REPLACES
         // the field. '+66' + paste '+66809716338' -> '+66809716338' (no doubled '66').
         this.pastedValue = '+' + (pastedDigits.startsWith('00') ? pastedDigits.slice(2) : pastedDigits);
@@ -124,7 +124,7 @@ export default class TelInputField extends InputField {
     telEl.addEventListener('keypress', (e) => {
       // console.log('keypress', this.value);
       const key = e.key;
-      if(/\D/.test(key) && !(e.metaKey || e.ctrlKey) && key !== 'Backspace' && !(key === '+' && e.shiftKey/*  && !this.value */)) {
+      if (/\D/.test(key) && !(e.metaKey || e.ctrlKey) && key !== 'Backspace' && !(key === '+' && e.shiftKey/*  && !this.value */)) {
         e.preventDefault();
         return false;
       }

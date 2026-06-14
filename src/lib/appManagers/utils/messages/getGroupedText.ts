@@ -1,17 +1,17 @@
 import assumeType from '@helpers/assumeType';
-import {Message} from '@layer';
+import { Message } from '@layer';
 
 export default function getGroupedText(messages: Message.message[]) {
   let foundMessages = 0, message: Message.message | undefined;
-  for(const m of messages) {
+  for (const m of messages) {
     assumeType<Message.message>(m);
-    if(m.message) {
-      if(++foundMessages > 1) break;
+    if (m.message) {
+      if (++foundMessages > 1) break;
       message = m;
     }
   }
 
-  if(foundMessages > 1) {
+  if (foundMessages > 1) {
     message = undefined;
   }
 

@@ -1,10 +1,10 @@
-import type {ServiceDownloadTaskPayload} from '@lib/serviceWorker/serviceMessagePort';
+import type { ServiceDownloadTaskPayload } from '@lib/serviceWorker/serviceMessagePort';
 import type ServiceMessagePort from '@lib/serviceWorker/serviceMessagePort';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
 import makeError from '@helpers/makeError';
 import pause from '@helpers/schedulers/pause';
-import {logger} from '@lib/logger';
-import {invokeVoidAll, log} from '@lib/serviceWorker/index.service';
+import { logger } from '@lib/logger';
+import { invokeVoidAll, log } from '@lib/serviceWorker/index.service';
 
 type DownloadType = Uint8Array;
 type DownloadItem = ServiceDownloadTaskPayload & {
@@ -29,8 +29,8 @@ type A = Parameters<ServiceMessagePort<false>['addMultipleEventsListeners']>[0];
 
 const events: A = {
   download: (payload) => {
-    const {id} = payload;
-    if(downloadMap.has(id)) {
+    const { id } = payload;
+    if (downloadMap.has(id)) {
       return Promise.reject(DOWNLOAD_ERROR);
     }
 
@@ -40,7 +40,7 @@ const events: A = {
     // const y = (20 * 1024 * 1024) / payload.limitPart;
     // const strategy = new ByteLengthQueuingStrategy({highWaterMark: y});
     // let controller: TransformStreamDefaultController<DownloadType>;
-    const strategy = new CountQueuingStrategy({highWaterMark: 1});
+    const strategy = new CountQueuingStrategy({ highWaterMark: 1 });
     // const transformStream = new TransformStream<DownloadType, DownloadType>(/* {
     //   start: (_controller) => controller = _controller,
     // },  */undefined, strategy, strategy);
@@ -68,7 +68,7 @@ const events: A = {
       cancel: (reason) => {
         log('cancel', id, reason);
         promise.reject(DOWNLOAD_ERROR);
-      }
+      },
     }, strategy);
 
     // writer.closed.catch(noop).finally(() => {
@@ -86,7 +86,7 @@ const events: A = {
       // downloadPromise,
       promise,
       controller: controller!,
-      log
+      log,
     };
 
     downloadMap.set(id, item);
@@ -95,9 +95,9 @@ const events: A = {
     return promise.catch(() => {throw DOWNLOAD_ERROR});
   },
 
-  downloadChunk: ({id, chunk}) => {
+  downloadChunk: ({ id, chunk }) => {
     const item = downloadMap.get(id);
-    if(!item) {
+    if (!item) {
       return Promise.reject();
     }
 
@@ -111,7 +111,7 @@ const events: A = {
 
   downloadFinalize: (id) => {
     const item = downloadMap.get(id);
-    if(!item) {
+    if (!item) {
       return Promise.reject();
     }
 
@@ -125,7 +125,7 @@ const events: A = {
 
   downloadCancel: (id) => {
     const item = downloadMap.get(id);
-    if(!item) {
+    if (!item) {
       return;
     }
 
@@ -135,7 +135,7 @@ const events: A = {
     // return item.controller.error();
     // return item.writer.abort();
     return item.controller.error();
-  }
+  },
 };
 
 export default function handleDownload(serviceMessagePort: ServiceMessagePort<false>) {
@@ -143,7 +143,7 @@ export default function handleDownload(serviceMessagePort: ServiceMessagePort<fa
 
   return {
     onDownloadFetch,
-    onClosedWindows: cancelAllDownloads
+    onClosedWindows: cancelAllDownloads,
   };
 }
 
@@ -152,7 +152,7 @@ function onDownloadFetch(event: FetchEvent, params: string) {
 
   const promise = pause(100).then(() => {
     const item = downloadMap.get(params);
-    if(!item || (item.used && !DOWNLOAD_TEST)) {
+    if (!item || (item.used && !DOWNLOAD_TEST)) {
       log.warn('no such download', params);
       return;
     }
@@ -160,7 +160,7 @@ function onDownloadFetch(event: FetchEvent, params: string) {
     item.log('fetch');
     item.used = true;
     const stream = item.readableStream;
-    const response = new Response(stream, {headers: item.headers, status: 200});
+    const response = new Response(stream, { headers: item.headers, status: 200 });
     return response;
   });
 
@@ -169,8 +169,8 @@ function onDownloadFetch(event: FetchEvent, params: string) {
 
 function cancelAllDownloads() {
   log('cancelling all downloads');
-  if(downloadMap.size) {
-    for(const [id, item] of downloadMap) {
+  if (downloadMap.size) {
+    for (const [id, item] of downloadMap) {
       // item.writer.abort().catch(noop);
       item.controller.error();
     }

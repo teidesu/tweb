@@ -1,6 +1,6 @@
 import TDrag from '@lib/tchart/drag';
-import {isTouchDevice, getElemPagePos, drawRoundedRect} from '@lib/tchart/utils';
-import {TChartUnitOptions} from '@lib/tchart/types';
+import { isTouchDevice, getElemPagePos, drawRoundedRect } from '@lib/tchart/utils';
+import { TChartUnitOptions } from '@lib/tchart/types';
 
 export default class THandle {
   private opts: TChartUnitOptions;
@@ -47,7 +47,7 @@ export default class THandle {
         this.firstMove = false;
       },
       onDragEnd: (params) => {
-      }
+      },
     });
 
     this.trackMouse(true);
@@ -58,11 +58,11 @@ export default class THandle {
     const state = this.opts.state;
     const zoomMode = this.opts.state!.zoomMode;
 
-    if(y < 0 || y > dims.h) return '';
+    if (y < 0 || y > dims.h) return '';
 
     let xw = isTouch ? dims.w * 0.3 : 10;
-    if(isTouch && xw < 14) xw = 14;
-    if(isTouch && xw > 30) xw = 30;
+    if (isTouch && xw < 14) xw = 14;
+    if (isTouch && xw > 30) xw = 30;
 
     const xl1 = this.prevX1! + (isTouch ? (state!.x1 === state!.xg1 ? -5 : -15) : 0);
     let xl2 = xl1 + xw;
@@ -70,24 +70,24 @@ export default class THandle {
     const xr2 = this.prevX2! + (isTouch ? (state!.x2 === state!.xg2 ? 5 : 15) : 0);
     let xr1 = xr2 - xw;
 
-    if(Math.abs(state!.x2! - state!.x1! - (zoomMode ? this.opts.data!.mainPeriodLen : this.minRange)!) < 0.01) {
-      if(state!.x2 === state!.xg2) {
+    if (Math.abs(state!.x2! - state!.x1! - (zoomMode ? this.opts.data!.mainPeriodLen : this.minRange)!) < 0.01) {
+      if (state!.x2 === state!.xg2) {
         xr1 = xr2 + 1;
       }
-      if(state!.x1 === state!.xg1) {
+      if (state!.x1 === state!.xg1) {
         xl2 = xl1 - 1;
       }
     }
 
-    if(x > xl2 && x < xr1) {
+    if (x > xl2 && x < xr1) {
       return 'both';
     }
 
-    if(x >= xl1 && x <= xl2) {
+    if (x >= xl1 && x <= xl2) {
       return 'start';
     }
 
-    if(x >= xr1 && x <= xr2) {
+    if (x >= xr1 && x <= xr2) {
       return 'end';
     }
 
@@ -95,7 +95,7 @@ export default class THandle {
   }
 
   trackMouse(enabled: boolean) {
-    if(this.isTouch) return;
+    if (this.isTouch) return;
 
     this.$canvas!.addEventListener('mousemove', this.onMouseMove);
     this.$canvas!.addEventListener('mouseleave', this.onMouseLeave);
@@ -122,7 +122,7 @@ export default class THandle {
       '': '',
       'both': this.opts.settings!.isIE ? 'pointer' : 'grab',
       'start': 'col-resize',
-      'end': 'col-resize'
+      'end': 'col-resize',
     };
 
     this.onMouseLeave();
@@ -148,10 +148,10 @@ export default class THandle {
 
     this.minRange = minRange;
 
-    if(x2! - x1! < minRange) {
+    if (x2! - x1! < minRange) {
       x2 = x1! + minRange;
 
-      if(x2 > xg2!) {
+      if (x2 > xg2!) {
         x2 = xg2;
         x1 = x2! - minRange;
       }
@@ -169,30 +169,30 @@ export default class THandle {
     const _x1 = this._x1;
     const _x2 = this._x2;
 
-    if(tp === 'both') {
+    if (tp === 'both') {
       x1 = _x1 + per;
       x2 = _x2 + per;
-      if(x1 < state!.xg1!) {
+      if (x1 < state!.xg1!) {
         x1 = state!.xg1;
         x2 = state!.xg1! + _x2 - _x1;
       }
-      if(x2 > state!.xg2!) {
+      if (x2 > state!.xg2!) {
         x1 = state!.xg2! - (_x2 - _x1);
         x2 = state!.xg2;
       }
     }
 
-    if(tp === 'start') {
+    if (tp === 'start') {
       x2 = state!.x2!;
       x1 = Math.min(Math.max(_x1 + per, state!.xg1!), x2 - this.minRange!);
     }
 
-    if(tp === 'end') {
+    if (tp === 'end') {
       x1 = state!.x1!;
       x2 = Math.max(Math.min(_x2 + per, state!.xg2!), x1 + this.minRange!);
     }
 
-    if(state!.x1 === x1 && state!.x2 === x2) return;
+    if (state!.x1 === x1 && state!.x2 === x2) return;
 
     this.opts.additional!.cb!(x1, x2, tp, this.firstMove);
   }

@@ -1,15 +1,15 @@
-import {createEffect, createSignal, JSX, on, onMount, Show} from 'solid-js'
-import {IconTsx} from '@components/iconTsx'
-import {doubleRaf} from '@helpers/schedulers'
+import { createEffect, createSignal, JSX, on, onMount, Show } from 'solid-js'
+import { IconTsx } from '@components/iconTsx'
+import { doubleRaf } from '@helpers/schedulers'
 import liteMode from '@helpers/liteMode'
-import {animateSingle} from '@helpers/animation'
-import {easeInOutSineApply} from '@helpers/easing/easeInOutSine'
+import { animateSingle } from '@helpers/animation'
+import { easeInOutSineApply } from '@helpers/easing/easeInOutSine'
 import classNames from '@helpers/string/classNames'
 import clamp from '@helpers/number/clamp'
 import styles from '@components/limitLineTsx.module.scss';
 import RangeSelector from '@components/rangeSelector'
 import I18n from '@lib/langPack'
-import {lerp} from '@helpers/lerp'
+import { lerp } from '@helpers/lerp'
 
 
 export function LimitLineTsx(props: {
@@ -53,11 +53,11 @@ export function LimitLineTsx(props: {
 
     const progress$ = progress()
     let sliderTipPosition = progress$ * parentWidth
-    if(isSlider) {
+    if (isSlider) {
       // adjust for slider thumb (30 - thumb width + padding)
       sliderTipPosition += 30 * (1 - progress$) - 15;
     }
-    if(isReverse()) {
+    if (isReverse()) {
       sliderTipPosition = parentWidth - sliderTipPosition;
     }
 
@@ -68,7 +68,7 @@ export function LimitLineTsx(props: {
     const maxHintLeft = parentWidth - hintWidth - hintPadding;
     const hintLeftClamped = clamp(hintLeft, minHintLeft, maxHintLeft);
     // for the second half align to the right to avoid issues with hidpi rendering
-    if(hintLeftClamped < parentWidth / 2) {
+    if (hintLeftClamped < parentWidth / 2) {
       hintRef.style.setProperty('--left', hintLeftClamped + 'px');
       hintRef.style.setProperty('--right', 'auto');
     } else {
@@ -85,11 +85,11 @@ export function LimitLineTsx(props: {
     let tailLeft2 = tailLeft;
     const tailLeftMin = isSlider ? -extra : -halfTailWidth;
     const tailLeftMax = isSlider ? parentWidth - tailWidth + extra : parentWidth;
-    if(isSlider) {
-      if((tailLeftMax - tailLeft) < extra) {
+    if (isSlider) {
+      if ((tailLeftMax - tailLeft) < extra) {
         tailLeft2 += lerp(0, extra, 1 - (tailLeftMax - tailLeft) / extra);
       }
-      if(tailLeft < extraHalf) {
+      if (tailLeft < extraHalf) {
         tailLeft2 -= lerp(0, extra, 1 - -(-extraHalf - tailLeft) / extra);
       }
     }
@@ -120,22 +120,22 @@ export function LimitLineTsx(props: {
 
   let line: JSX.Element
   let range: RangeSelector;
-  if(isSlider) {
+  if (isSlider) {
     range = new RangeSelector({
       step: 0.0001,
       min: 0,
       max: 1,
       useProperty: true,
-      offsetAxisValue: 30
+      offsetAxisValue: 30,
     }, progress());
     range.setListeners();
     range.setHandlers({
-      onScrub: props.onScrub
+      onScrub: props.onScrub,
     });
     range.container.classList.add(styles.line, styles.slider);
     line = range.container;
 
-    if(props.filledProgressElement) {
+    if (props.filledProgressElement) {
       onMount(() => {
         range.container.querySelector('.progress-line__filled')!.appendChild(props.filledProgressElement!);
       })
@@ -158,7 +158,7 @@ export function LimitLineTsx(props: {
   }
 
   createEffect(on(() => props.progress, (val, prev) => {
-    if(prev !== undefined && liteMode.isAvailable('animations') && !isSlider && props.animateProgress !== false) {
+    if (prev !== undefined && liteMode.isAvailable('animations') && !isSlider && props.animateProgress !== false) {
       const duration = 200;
       const startTime = performance.now();
       const diff = val - prev;
@@ -188,7 +188,7 @@ export function LimitLineTsx(props: {
         isReverse() && styles.reverse,
         props.class
       )}
-      style={{'--limit-progress': progress() * 100 + '%'}}
+      style={{ '--limit-progress': progress() * 100 + '%' }}
       ref={containerRef}
     >
       <Show when={'hint' in props || props.hintIcon}>

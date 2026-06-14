@@ -1,13 +1,13 @@
 import type SidebarSlider from '@components/slider';
-import {AppAddMembersTab} from '@components/solidJsTabs/tabs';
-import {AppNewGroupTab} from '@components/solidJsTabs/tabs';
+import { AppAddMembersTab } from '@components/solidJsTabs/tabs';
+import { AppNewGroupTab } from '@components/solidJsTabs/tabs';
 
 export default function createNewGroupTab(slider: SidebarSlider) {
   slider.createTab(AppAddMembersTab).open({
     type: 'chat',
     skippable: true,
-    takeOut: (peerIds) => slider.createTab(AppNewGroupTab).open({peerIds}),
+    takeOut: (peerIds) => slider.createTab(AppNewGroupTab).open({ peerIds }),
     title: 'GroupAddMembers',
-    placeholder: 'SendMessageTo'
+    placeholder: 'SendMessageTo',
   });
 }

@@ -85,7 +85,7 @@ const lang = {
   'Chat.Selection.LimitToast': 'Max selection count reached.',
   'Chat.Search.MessagesFound': {
     'one_value': '%d message found',
-    'other_value': '%d messages found'
+    'other_value': '%d messages found',
   },
   'Chat.Search.NoMessagesFound': 'No messages found',
   'Chat.Search.PrivateSearch': 'Private Search',
@@ -95,7 +95,7 @@ const lang = {
   'Chat.Service.TopicEdited.You.Mixed.IconRemoved': 'You changed the topic name to "%1$@" and removed icon',
   'ChatsNew': {
     'one_value': '%d new chat',
-    'other_value': '%d new chats'
+    'other_value': '%d new chats',
   },
   'ChatList.Main.EmptyPlaceholder.Title': 'Your chats will appear here',
   'ChatList.Main.EmptyPlaceholder.Subtitle': 'You have %s on Telegram',
@@ -116,7 +116,7 @@ const lang = {
   'ConnectionStatus.Waiting': 'Waiting for network...',
   'Contacts.Count': {
     'one_value': '%d contact',
-    'other_value': '%d contacts'
+    'other_value': '%d contacts',
   },
   'Deactivated.Title': 'Too many tabs...',
   'Deactivated.Subtitle': 'Telegram supports only one active tab with the app.\nClick anywhere to continue using this tab.',
@@ -224,16 +224,16 @@ const lang = {
   'PreviewSender.GroupItems': 'Group items',
   'PreviewSender.SendAlbum': {
     'one_value': 'Send Album',
-    'other_value': 'Send %d Albums'
+    'other_value': 'Send %d Albums',
   },
   'Presence.YourChat': 'chat with yourself',
   'Privacy.Devices': {
     'one_value': '%1$d device',
-    'other_value': '%1$d devices'
+    'other_value': '%1$d devices',
   },
   'Privacy.Websites': {
     'one_value': '%1$d website',
-    'other_value': '%1$d websites'
+    'other_value': '%1$d websites',
   },
   'Privacy.SensitiveContent': 'Sensitive Content',
   'Privacy.Bio': 'Who can see my bio',
@@ -242,7 +242,7 @@ const lang = {
   'Permissions.NoExceptions': 'No exceptions',
   'Permissions.ExceptionsCount': {
     'one_value': '%d exception',
-    'other_value': '%d exceptions'
+    'other_value': '%d exceptions',
   },
   'Permissions.RemoveFromGroup': 'Are you sure you want to remove **%s** from the group?',
   'PWA.Install': 'Install App',
@@ -286,11 +286,11 @@ const lang = {
   'ReportBug': 'Report Bug',
   'Notifications.Count': {
     'one_value': '%d notification',
-    'other_value': '%d notifications'
+    'other_value': '%d notifications',
   },
   'Notifications.Forwarded': {
     'one_value': 'Forwarded %d message',
-    'other_value': 'Forwarded %d messages'
+    'other_value': 'Forwarded %d messages',
   },
   'Notifications.New': 'New notification',
   // 'Notifications.Section': 'Notifications',
@@ -322,7 +322,7 @@ const lang = {
   'Alert.BotAppDoesntExist': 'Sorry, this application doesn\'t exist.',
   'ChatsSelected': {
     'one_value': '%d chat selected',
-    'other_value': '%d chats selected'
+    'other_value': '%d chats selected',
   },
   'SelectAll': 'select all',
   'SelectAll2': 'Select All',
@@ -340,7 +340,7 @@ const lang = {
   'Stories': 'Stories',
   'StoriesCount': {
     'one_value': '%1$d story',
-    'other_value': '%1$d stories'
+    'other_value': '%1$d stories',
   },
   'ExpiredStory': 'Expired Story',
   'ExpiredStorySubtitle': 'From: %s',
@@ -397,25 +397,25 @@ const lang = {
   'BoostsViaGifts.Prepaid': 'Prepaid Giveaways',
   'BoostsViaGifts.PrepaidSubtitle': {
     'one_value': '%d subscription for %s',
-    'other_value': '%d subscriptions for %s'
+    'other_value': '%d subscriptions for %s',
   },
   'BoostsViaGifts.Quantity': 'Quantity of prizes',
   'BoostsViaGifts.QuantitySubtitle': 'Choose how many Premium subscriptions to give away and boosts to receive. For larger volumes, use [fragment.com](https://fragment.com).',
   'BoostsViaGifts.Channels': 'Channels included in the giveaway',
   'BoostsViaGifts.ChannelSubscription': {
     'one_value': 'this channel will receive %d boost',
-    'other_value': 'this channel will receive %d boosts'
+    'other_value': 'this channel will receive %d boosts',
   },
   'BoostsViaGifts.Users': 'Users eligible for the giveaway',
   'BoostsViaGifts.UsersSubtitle': 'Choose if you want to limit the giveaway only to those who joined the channel after the giveaway started or to users from specific countries.',
   'BoostsViaGifts.End': 'Date when giveaway ends',
   'BoostsViaGifts.EndSubtitle': {
     'one_value': 'Choose when %d subscriber of your channel will receive Telegram Premium.',
-    'other_value': 'Choose when %d subscribers of your channel will be randomly selected to receive Telegram Premium.'
+    'other_value': 'Choose when %d subscribers of your channel will be randomly selected to receive Telegram Premium.',
   },
   'BoostsViaGifts.Stars.EndSubtitle': {
     'one_value': 'Choose when %d subscriber of your channel will receive Stars.',
-    'other_value': 'Choose when %d subscribers of your channel will be randomly selected to receive Stars.'
+    'other_value': 'Choose when %d subscribers of your channel will be randomly selected to receive Stars.',
   },
   'BoostsViaGifts.Duration': 'Duration of premium subscriptions',
   'BoostsViaGifts.DurationSubtitle': 'You can review the list of features and terms of use for Telegram Premium [here]().',
@@ -427,7 +427,7 @@ const lang = {
   'Boost.DescriptionJustReachedLevel.Group': 'This group reached **Level %1$d** and can now post %2$s per day.',
   'Boost.StoriesCount': {
     'one_value': '**%d** story',
-    'other_value': '**%d** stories'
+    'other_value': '**%d** stories',
   },
   // 'Boost.Already': 'Already Boosted',
   // 'Boost.AlreadyDescription': 'You are already boosting this channel.',
@@ -442,16 +442,16 @@ const lang = {
   'New': 'New',
   'Giveaway.ToBeSelected': {
     'one_value': '%d winner to be selected on %s',
-    'other_value': '%d winners to be selected on %s'
+    'other_value': '%d winners to be selected on %s',
   },
   'Giveaway.ToBeSelectedFull': 'Giveaway: %s',
   'Giveaway.Info.Users': {
     'one_value': '**%d** random user that joined',
-    'other_value': '**%d** random users that joined'
+    'other_value': '**%d** random users that joined',
   },
   'Giveaway.Info.OtherChannels': {
     'one_value': '**%d** other listed channel',
-    'other_value': '**%d** other listed channels'
+    'other_value': '**%d** other listed channels',
   },
   'Giveaway.Info': 'On **%s**, Telegram will automatically select %s **%s**.',
   'Giveaway.Info.End': 'On **%s**, Telegram automatically selected %s **%s**.',
@@ -472,15 +472,15 @@ const lang = {
   'Multiplier': '%s x %s',
   'Giveaway.Results': {
     'one_value': '%d winner of the giveaway was randomly selected by Telegram and received private message with giftcode.',
-    'other_value': '%d winners of the giveaway were randomly selected by Telegram and received private messages with giftcodes.'
+    'other_value': '%d winners of the giveaway were randomly selected by Telegram and received private messages with giftcodes.',
   },
   'Giveaway.Results.Unclaimed': {
     'one_value': '%d undistributed link code was forwarded to channel administrators.',
-    'other_value': '%d undistributed link codes were forwarded to channel administrators.'
+    'other_value': '%d undistributed link codes were forwarded to channel administrators.',
   },
   'Giveaway.Results.NoWinners': {
     'one_value': 'Due to the giveaway terms, no winner could be selected by Telegram, **1** gift link was forwarded to channel administrators.',
-    'other_value': 'Due to the giveaway terms, no winners could be selected by Telegram, all **%d** gift links were forwarded to channel administrators.'
+    'other_value': 'Due to the giveaway terms, no winners could be selected by Telegram, all **%d** gift links were forwarded to channel administrators.',
   },
   'Giveaway.Results.NoWinners.Stars': 'Due to the giveaway terms, no winners could be selected by Telegram, all stars were credited to channel administrators.',
   'Giveaway.Results.Combined': '%s\n%s',
@@ -493,7 +493,7 @@ const lang = {
   'CodeCopied': 'Code copied to clipboard',
   'Giveaway.MaximumSubscribers': {
     'one_value': 'You can select up to %d subscriber',
-    'other_value': 'You can select up to %d subscribers'
+    'other_value': 'You can select up to %d subscribers',
   },
   'AddChannels': 'Add Channels',
   'Chart.Tooltip.All': 'All',
@@ -505,54 +505,54 @@ const lang = {
   'BoostsViaGifts.AdditionalPrizesSubtitleOff': 'Turn this on if you want to give the winners your own prizes in addition to Telegram Premium subscriptions.',
   'BoostsViaGifts.AdditionalPrizesDetailed': {
     'one_value': '**%d** Telegram Premium subscription for %s',
-    'other_value': '**%d** Telegram Premium subscriptions for %s'
+    'other_value': '**%d** Telegram Premium subscriptions for %s',
   },
   'BoostsViaGifts.AdditionalPrizesDetailedWith': {
     'one_value': '**%d** %s with Telegram Premium subscription for %s',
-    'other_value': '**%d** %s with Telegram Premium subscriptions for %s'
+    'other_value': '**%d** %s with Telegram Premium subscriptions for %s',
   },
   'BoostsViaGifts.AdditionalStarsPrizesDetailed': {
     'one_value': '**%1$d** Star.',
-    'other_value': '**%1$d** Stars.'
+    'other_value': '**%1$d** Stars.',
   },
   'BoostsViaGifts.AdditionalStarsPrizesDetailedWith': {
     'one_value': '**%d** %s with %1$d Star.',
-    'other_value': '**%d** %s with %1$d Stars.'
+    'other_value': '**%d** %s with %1$d Stars.',
   },
   'Giveaway.AlsoPrizes': '**%s** also included **%d** **%s** in the prizes. %s',
   'Giveaway.AlsoPrizes2': {
     'one_value': 'Admins of the channel are responsible for delivering this prize.',
-    'other_value': 'Admins of the channel are responsible for delivering these prizes.'
+    'other_value': 'Admins of the channel are responsible for delivering these prizes.',
   },
   'Giveaway.With': 'with',
   'Giveaway.WithSubscriptionsSingle': 'Telegram Premium subscription for %s',
   'Giveaway.WithSubscriptionsPlural': 'Telegram Premium subscriptions for %s',
   'Giveaway.WithStars': {
     'one_value': '%s will be distributed to %1$d winner',
-    'other_value': '%s will be distributed to %1$d winners'
+    'other_value': '%s will be distributed to %1$d winners',
   },
   'Giveaway.WithStars.Stars': {
     'one_value': '**%d** Star',
-    'other_value': '**%d** Stars'
+    'other_value': '**%d** Stars',
   },
   'Giveaway.Results.Title': {
     'one_value': '**Winner Selected!**',
-    'other_value': '**Winners Selected!**'
+    'other_value': '**Winners Selected!**',
   },
   'BoostingGiveawayResultsMsgAllWinnersReceivedLinks': 'All winners received gift links in private messages.',
   'Giveaway.Results.Subtitle': {
     'one_value': '%1$d winner of the **[Giveaway]()** was randomly selected by Telegram.',
-    'other_value': '%1$d winners of the **[Giveaway]()** were randomly selected by Telegram.'
+    'other_value': '%1$d winners of the **[Giveaway]()** were randomly selected by Telegram.',
   },
   'Giveaway.Results.Stars.Winners.Single': 'The winner received **%s**.',
   'Giveaway.Results.Stars.Winners.Plural': 'All winners received a total of **%s**.',
   'Giveaway.Results.Stars.Winners.Stars': {
     'one_value': '%d Star',
-    'other_value': '%d Stars'
+    'other_value': '%d Stars',
   },
   'Giveaway.Results.Footer': {
     'one_value': 'The winner received their gift link in a private message.',
-    'other_value': 'All winners received their gift links in private messages.'
+    'other_value': 'All winners received their gift links in private messages.',
   },
   'Giveaway.Results.AndMore': '**and %d more!**',
   'GiftCode.ShareReceived': 'This link allows you or **[anyone you choose]()** to activate a **Telegram Premium** subscription.',
@@ -562,22 +562,22 @@ const lang = {
   'RequestPeer.MultipleLimit': 'You can select up to %s.',
   'RequestPeer.MultipleLimit.Users': {
     'one_value': '%d user',
-    'other_value': '%d users'
+    'other_value': '%d users',
   },
   'RequestPeer.MultipleLimit.Channels': {
     'one_value': '%d channels',
-    'other_value': '%d channelss'
+    'other_value': '%d channelss',
   },
   'RequestPeer.MultipleLimit.Groups': {
     'one_value': '%d group',
-    'other_value': '%d groups'
+    'other_value': '%d groups',
   },
   'RequestPeer.Title.Users': 'Choose Users',
   'RequestPeer.Title.Groups': 'Choose Groups',
   'RequestPeer.Title.Channels': 'Choose Channels',
   'SimilarChannels.Unlock': {
     'one_value': 'Subscribe to **[Telegram Premium]()** to unlock up to **%d** similar channel.',
-    'other_value': 'Subscribe to **[Telegram Premium]()** to unlock up to **%d** similar channels.'
+    'other_value': 'Subscribe to **[Telegram Premium]()** to unlock up to **%d** similar channels.',
   },
   'SharedMedia.SavedDialogs': 'Chats',
   'AuthorHidden': 'Author Hidden',
@@ -590,32 +590,32 @@ const lang = {
   'SharedMedia.Gifts': 'Gifts',
   'Giveaway.Prepaid': {
     'one_value': 'Prepaid Giveaway',
-    'other_value': 'Prepaid Giveaways'
+    'other_value': 'Prepaid Giveaways',
   },
   'Giveaway.Prepaid.Period': {
-    'other_value': '%d-month'
+    'other_value': '%d-month',
   },
   'Giveaway.Prepaid.Subtitle': {
     'one_value': '%2$s subscription',
-    'other_value': '%2$s subscriptions'
+    'other_value': '%2$s subscriptions',
   },
   'BoostsExpiration': {
     'one_value': 'boost expires on %2$s',
-    'other_value': 'boosts expire on %2$s'
+    'other_value': 'boosts expire on %2$s',
   },
   'Boost.GetMoreBoosts': {
     'one_value': 'To boost **%1$s**, get **%2$d** more boost by gifting **Telegram Premium** to a friend.',
-    'other_value': 'To boost **%1$s**, get **%2$d** more boosts by gifting **Telegram Premium** to a friend.'
+    'other_value': 'To boost **%1$s**, get **%2$d** more boosts by gifting **Telegram Premium** to a friend.',
   },
   'Boost.Reassign.Description': 'To boost **%1$s**, reassign a previous boost or %2$s to a friend to get %3$s.',
   'Boost.GiftPremium': '**[gift Telegram Premium]()**',
   'Boost.Additional': {
     'one_value': '**%1$d** additional boost',
-    'other_value': '**%1$d** additional boosts'
+    'other_value': '**%1$d** additional boosts',
   },
   'Boost.Reassign': {
     'one_value': 'Reassign Boost',
-    'other_value': 'Reassign Boosts'
+    'other_value': 'Reassign Boosts',
   },
   'Boost.Reassign.Wait': 'Wait until the boost is available or get %s by gifting a **[Telegram Premium]()** subscription.',
   'Search.Empty': 'There were no results for "**%@**". Try a new search.',
@@ -640,7 +640,7 @@ const lang = {
   'Birthday': 'Birthday',
   'BirthdayYearsOld': {
     'one_value': ' (%d year old)',
-    'other_value': ' (%d years old)'
+    'other_value': ' (%d years old)',
   },
   'ContactNoteRow': 'Notes',
   'ContactNoteRowDesc': 'only visible to you',
@@ -678,11 +678,11 @@ const lang = {
   'Chat.ContextMenu.Read': 'Read',
   'MediaFiles': {
     'one_value': '%d media file',
-    'other_value': '%d media files'
+    'other_value': '%d media files',
   },
   'SimilarChannelsCount': {
     'one_value': '%d similar channel',
-    'other_value': '%d similar channels'
+    'other_value': '%d similar channels',
   },
   'Reactions.Tag.Description': 'Tag the message with an emoji for quick search',
   'Reaction.Tag.From': 'This tag is from **%s pack**.',
@@ -693,7 +693,7 @@ const lang = {
   'Profile.Info.Group': 'Group Info',
   'Profile.Info.Channel': 'Channel Info',
   'Rtmp.Watching': {
-    'other_value': '%s watching'
+    'other_value': '%s watching',
   },
   'Rtmp.Topbar.Title': 'Live Stream',
   'Rtmp.Topbar.NoViewers': 'No viewers',
@@ -885,18 +885,18 @@ const lang = {
   'Stars.Unlock.FromBot': 'Do you want to unlock %s from **%s** for **%s**?',
   'Stars.Unlock.Stars': {
     'one_value': '%d Star',
-    'other_value': '%d Stars'
+    'other_value': '%d Stars',
   },
   'Stars.Unlock.Media': '%s and %s',
   'Stars.Unlock.Photo': 'a **photo**',
   'Stars.Unlock.Photos': {
     'one_value': '**%d photo**',
-    'other_value': '**%d photos**'
+    'other_value': '**%d photos**',
   },
   'Stars.Unlock.Video': 'a **video**',
   'Stars.Unlock.Videos': {
     'one_value': '**%d video**',
-    'other_value': '**%d videos**'
+    'other_value': '**%d videos**',
   },
   'InviteLink.Subscription.Title': 'Require Monthly Fee',
   'InviteLink.Subscription.Caption': 'Charge a subscription fee from people joining your channel via this link. [Learn More >](https://telegram.org/)',
@@ -941,15 +941,15 @@ const lang = {
   'MiniApps.Collapsed.One': '%s',
   'MiniApps.Collapsed.Two': '%s & %s',
   'MiniApps.Collapsed.Many': {
-    'other_value': '%s & %d Other'
+    'other_value': '%s & %d Other',
   },
   'PaidReaction.Sent': {
     'one_value': 'Star sent!',
-    'other_value': 'Stars sent!'
+    'other_value': 'Stars sent!',
   },
   'PaidReaction.Sent.Anonymously': {
     'one_value': 'Star sent anonymously!',
-    'other_value': 'Stars sent anonymously!'
+    'other_value': 'Stars sent anonymously!',
   },
   'Stars.TopUp.Reaction': 'Buy **Stars** and send them to **%s** to support their posts.',
   'Stars.TopUp.Label_default': 'Buy Stars to unlock content and services\nin mini apps on Telegram.',
@@ -957,12 +957,12 @@ const lang = {
   'Stars.TopUp.Enough': 'You have enough Stars at the moment. [Buy anyway]()',
   'Action.StarGiveawayPrize': {
     'one_value': 'You won a prize in a giveaway organized by **%s**.\n\nYour prize is **%1$d Star**.',
-    'other_value': 'You won a prize in a giveaway organized by **%s**.\n\nYour prize is **%1$d Stars**.'
+    'other_value': 'You won a prize in a giveaway organized by **%s**.\n\nYour prize is **%1$d Stars**.',
   },
   'Giveaway.Prize': 'Prize',
   'Giveaway.Prepaid.For': {
     'one_value': 'for %d user',
-    'other_value': 'for %d users'
+    'other_value': 'for %d users',
   },
   'MediaEditor.Free': 'Free',
   'MediaEditor.Original': 'Original',
@@ -1011,19 +1011,19 @@ const lang = {
   'InviteViaLink.Title': 'Invite via Link',
   'InviteViaLink.Subtitle': {
     'one_value': '**%2$s** restricts adding them to groups.\nYou can send them an invite link as message instead.',
-    'other_value': '**%d users** restrict adding them to groups.\nYou can send them an invite link as message instead.'
+    'other_value': '**%d users** restrict adding them to groups.\nYou can send them an invite link as message instead.',
   },
   'InviteViaLink.Send': 'Send Invite Link',
   'InviteViaLink.Skip': 'Skip',
   'InviteViaLink.LinkShared': {
     'one_value': 'Link shared with **%2$s**',
-    'other_value': 'Link shared with **%d users**'
+    'other_value': 'Link shared with **%d users**',
   },
   // 'InviteToGroupLeftError': 'Sorry, if a person is no longer part of a group, you need to add each other to your respective contact lists to be able to add them back.\n\nNote that they could still join via the group\'s invite link as long as they are not in the Removed users list.',
   'InviteViaLink.Premium': 'Upgrade to Premium',
   'InviteViaLink.Premium.Subtitle': {
     'one_value': '**%2$s** only accepts invitations to groups from Contacts and **Premium** users.',
-    'other_value': '**%d users** only accept invitations to groups from Contacts and **Premium** users.'
+    'other_value': '**%d users** only accept invitations to groups from Contacts and **Premium** users.',
   },
   'InviteViaLink.Premium.Subtitle2': 'You can send an invite link to the group in a private message instead.',
   'InviteViaLink.Premium.Subscribe': 'Subscribe to Telegram Premium',
@@ -1075,7 +1075,7 @@ const lang = {
   'Privacy.Passkeys.Caption': 'Your passkey is stored securely in your password manager. [Learn more >]()',
   'Passkeys': {
     'one_value': '%d passkey',
-    'other_value': '%d passkeys'
+    'other_value': '%d passkeys',
   },
   'Privacy.Passkey.Created': 'Created %s',
   'Privacy.Passkey.LastUsage': 'used %s',
@@ -1124,15 +1124,15 @@ const lang = {
   'Stories.Albums.RenameTitle': 'Rename Album',
   'Stories.Albums.AddCount': {
     'one_value': 'Add %1$d Story',
-    'other_value': 'Add %1$d Stories'
+    'other_value': 'Add %1$d Stories',
   },
   'Stories.Albums.Added': {
     'one_value': 'This story was added to the album.',
-    'other_value': '%1$d stories were added to the album.'
+    'other_value': '%1$d stories were added to the album.',
   },
   'Stories.Albums.Removed': {
     'one_value': 'This story was removed from the album.',
-    'other_value': '%1$d stories were removed from the album.'
+    'other_value': '%1$d stories were removed from the album.',
   },
   'LeastActiveCommunities': 'Least active communities',
   'InactiveChannel': '%s, inactive for %s',
@@ -1140,7 +1140,7 @@ const lang = {
   'InactiveChannel.Broadcast': 'channel',
   'LeaveCommunities': {
     'one_value': 'Leave %d community',
-    'other_value': 'Leave %d communities'
+    'other_value': 'Leave %d communities',
   },
   'Rank.Label': 'Title',
   'NoMicrophoneAccess': 'Please allow access to your microphone',
@@ -1155,7 +1155,7 @@ const lang = {
   'CantBoostChat': 'Sorry, you can\'t boost this group or channel.',
   'UserBoostedGroup': {
     'one_value': '**%s** boosted the group %s times',
-    'other_value': '**%s** boosted the group %s times'
+    'other_value': '**%s** boosted the group %s times',
   },
   'EventLogRankRemove': '%1$s removed %2$s’s «%3$s» tag',
   'EventLogRankEdit': '%1$s changed %2$s’s tag from «%3$s» to «%4$s»',
@@ -1274,7 +1274,7 @@ const lang = {
   'ActionCreateDirectMessages' : 'Direct Messages Opened',
   'AndOther': {
     'one_value': 'and %1$d other',
-    'other_value': 'and %1$d others'
+    'other_value': 'and %1$d others',
   },
   'AttachPhoto': 'Photo',
   'AttachVideo': 'Video',
@@ -1307,41 +1307,41 @@ const lang = {
   'FilterRecommended': 'Recommended Folders',
   'FilterShowMoreChats': {
     'one_value': 'Show %1$d More Chat',
-    'other_value': 'Show %1$d More Chats'
+    'other_value': 'Show %1$d More Chats',
   },
   'ForwardedMessageCount': {
     'one_value': 'Forwarded message',
-    'other_value': '%1$d forwarded messages'
+    'other_value': '%1$d forwarded messages',
   },
   'FromYou': 'You',
   'Add': 'Add',
   'Chats': {
     'one_value': '%1$d chat',
-    'other_value': '%1$d chats'
+    'other_value': '%1$d chats',
   },
   'Channels': {
     'one_value': '%1$d channel',
-    'other_value': '%1$d channels'
+    'other_value': '%1$d channels',
   },
   'Comments': {
     'one_value': '%1$d Comment',
-    'other_value': '%1$d Comments'
+    'other_value': '%1$d Comments',
   },
   'Groups': {
     'one_value': '%1$d group',
-    'other_value': '%1$d groups'
+    'other_value': '%1$d groups',
   },
   'Users': {
     'one_value': '%1$d user',
-    'other_value': '%1$d users'
+    'other_value': '%1$d users',
   },
   'Members': {
     'one_value': '%1$d member',
-    'other_value': '%1$d members'
+    'other_value': '%1$d members',
   },
   'messages': {
     'one_value': '%1$d message',
-    'other_value': '%1$d messages'
+    'other_value': '%1$d messages',
   },
   'UsernameHelpLink': 'This link opens a chat with you:\n%1$s',
   'NewChannel': 'New Channel',
@@ -1382,7 +1382,7 @@ const lang = {
   'PinnedMessage': 'Pinned Message',
   'PinnedMessagesCount': {
     'one_value': 'Pinned Message',
-    'other_value': '%1$d Pinned Messages'
+    'other_value': '%1$d Pinned Messages',
   },
   // "PreviousPinnedMessage": "Previous Message",
   'PrivacyExceptions': 'Exceptions',
@@ -1548,7 +1548,7 @@ const lang = {
   'SetUrlPlaceholder': 'Link',
   'Subscribers': {
     'one_value': '%1$d subscriber',
-    'other_value': '%1$d subscribers'
+    'other_value': '%1$d subscribers',
   },
   'SearchGifsTitle': 'Search GIFs',
   'PinMessageAlert': 'Pin this message in the group?',
@@ -1598,7 +1598,7 @@ const lang = {
   'RemoveStickersCount': 'REMOVE %1$s',
   'Stickers': {
     'one_value': '%1$d sticker',
-    'other_value': '%1$d stickers'
+    'other_value': '%1$d stickers',
   },
   'HidAccount': 'The account was hidden by the user',
   'TelegramFeatures': 'Telegram Features',
@@ -1626,45 +1626,45 @@ const lang = {
   'HiddenName': 'Deleted Account',
   'Seconds': {
     'one_value': '%1$d second',
-    'other_value': '%1$d seconds'
+    'other_value': '%1$d seconds',
   },
   'Minutes': {
     'one_value': '%1$d minute',
-    'other_value': '%1$d minutes'
+    'other_value': '%1$d minutes',
   },
   'Hours': {
     'one_value': '%1$d hour',
-    'other_value': '%1$d hours'
+    'other_value': '%1$d hours',
   },
   'Days': {
     'one_value': '%1$d day',
-    'other_value': '%1$d days'
+    'other_value': '%1$d days',
   },
   'Calendar.SelectedDays': {
     'one_value': '%1$d day selected',
-    'other_value': '%1$d days selected'
+    'other_value': '%1$d days selected',
   },
   'Calendar.ClearHistory': 'Clear History',
   'Calendar.ClearHistory.Confirm': 'Are you sure you want to delete all messages for the %1$@?',
   'Calendar.ClearHistory.SelectedDays': {
     'one_value': 'selected day',
-    'other_value': 'selected %1$d days'
+    'other_value': 'selected %1$d days',
   },
   'Weeks': {
     'one_value': '%1$d week',
-    'other_value': '%1$d weeks'
+    'other_value': '%1$d weeks',
   },
   'Months': {
     'one_value': '%1$d month',
-    'other_value': '%1$d months'
+    'other_value': '%1$d months',
   },
   'Years': {
     'one_value': '%1$d year',
-    'other_value': '%1$d years'
+    'other_value': '%1$d years',
   },
   'MinutesShort': {
     'one_value': '%1$d min',
-    'other_value': '%1$d min'
+    'other_value': '%1$d min',
   },
   'TodayAtFormattedWithToday': 'today at %1$s',
   'formatDateAtTime': '%1$s at %2$s',
@@ -1746,7 +1746,7 @@ const lang = {
   'BroadcastGroupConvertWarning': 'Regular members of the group (non-admins) will **permanently** lose their right to send messages in the group.\n\nThis action **can\'t** be undone.',
   'BroadcastGroupConvertDone': {
     'one_value': 'Your group can now have more than %1$d member.',
-    'other_value': 'Your group can now have more than %1$d members.'
+    'other_value': 'Your group can now have more than %1$d members.',
   },
   'Comment': 'Comment',
   'SendAnonymously': 'Send anonymously',
@@ -1767,7 +1767,7 @@ const lang = {
   'LogOut': 'Log out',
   'OnlineCount': {
     'one_value': '%1$d online',
-    'other_value': '%1$d online'
+    'other_value': '%1$d online',
   },
   'EditedMessage': 'edited',
   'GlobalSearch': 'Global search',
@@ -1833,7 +1833,7 @@ const lang = {
   'NobodyViewed': 'Nobody viewed',
   'MessageSeen': {
     'one_value': 'Seen',
-    'other_value': '%1$d Seen'
+    'other_value': '%1$d Seen',
   },
   // "Close": "Close",
   'DataSettings': 'Data and Storage',
@@ -1884,59 +1884,59 @@ const lang = {
   'FormattedDate.JustNow': 'just now',
   'FormattedDate.SecondsAgo': {
     'one_value': '%1$d second ago',
-    'other_value': '%1$d seconds ago'
+    'other_value': '%1$d seconds ago',
   },
   'FormattedDate.MinutesAgo': {
     'one_value': '%1$d minute ago',
-    'other_value': '%1$d minutes ago'
+    'other_value': '%1$d minutes ago',
   },
   'FormattedDate.HoursAgo': {
     'one_value': '%1$d hour ago',
-    'other_value': '%1$d hours ago'
+    'other_value': '%1$d hours ago',
   },
   'FormattedDate.DaysAgo': {
     'one_value': '%1$d day ago',
-    'other_value': '%1$d days ago'
+    'other_value': '%1$d days ago',
   },
   'FormattedDate.WeeksAgo': {
     'one_value': '%1$d week ago',
-    'other_value': '%1$d weeks ago'
+    'other_value': '%1$d weeks ago',
   },
   'FormattedDate.MonthsAgo': {
     'one_value': '%1$d month ago',
-    'other_value': '%1$d months ago'
+    'other_value': '%1$d months ago',
   },
   'FormattedDate.YearsAgo': {
     'one_value': '%1$d year ago',
-    'other_value': '%1$d years ago'
+    'other_value': '%1$d years ago',
   },
   'FormattedDate.InSeconds': {
     'one_value': 'in %1$d second',
-    'other_value': 'in %1$d seconds'
+    'other_value': 'in %1$d seconds',
   },
   'FormattedDate.InMinutes': {
     'one_value': 'in %1$d minute',
-    'other_value': 'in %1$d minutes'
+    'other_value': 'in %1$d minutes',
   },
   'FormattedDate.InHours': {
     'one_value': 'in %1$d hour',
-    'other_value': 'in %1$d hours'
+    'other_value': 'in %1$d hours',
   },
   'FormattedDate.InDays': {
     'one_value': 'in %1$d day',
-    'other_value': 'in %1$d days'
+    'other_value': 'in %1$d days',
   },
   'FormattedDate.InWeeks': {
     'one_value': 'in %1$d week',
-    'other_value': 'in %1$d weeks'
+    'other_value': 'in %1$d weeks',
   },
   'FormattedDate.InMonths': {
     'one_value': 'in %1$d month',
-    'other_value': 'in %1$d months'
+    'other_value': 'in %1$d months',
   },
   'FormattedDate.InYears': {
     'one_value': 'in %1$d year',
-    'other_value': 'in %1$d years'
+    'other_value': 'in %1$d years',
   },
   'PaymentInvoice': 'INVOICE',
   'PaymentTestInvoice': 'TEST INVOICE',
@@ -2002,16 +2002,16 @@ const lang = {
   'PrivacyVoiceMessagesTitle': 'Who can send me voice or video messages?',
   'PrivacyVoiceMessagesInfo': 'You can restrict who can send you voice or video messages with granular precision.',
   'EmojiCount': {
-    'other_value': '%1$d emoji'
+    'other_value': '%1$d emoji',
   },
   'AddEmojiNotFound': 'Emoji pack not found.',
   'MessageContainsEmojiPack': 'This message contains emoji from %s pack.',
   'MessageContainsEmojiPacks': {
-    'other_value': 'This message contains emoji from **%d Packs**.'
+    'other_value': 'This message contains emoji from **%d Packs**.',
   },
   'EmojiPackCount': {
     'one_value': '%1$d Emoji Pack',
-    'other_value': '%1$d Emoji Packs'
+    'other_value': '%1$d Emoji Packs',
   },
   'ReactionsAll': 'All',
   'EnableSomeReactionsInfo': 'Members of the group can use only certain approved emoji as reactions to messages.',
@@ -2073,7 +2073,7 @@ const lang = {
   'AccDescrTopic': 'Topic',
   'DeleteTopics': {
     'one_value': 'Delete topic',
-    'other_value': 'Delete topics'
+    'other_value': 'Delete topics',
   },
   'DeleteSelectedTopic': 'Are you sure you want delete %s?',
   'NewTopic': 'New Topic',
@@ -2104,7 +2104,7 @@ const lang = {
   'FwdMessageTo': 'Message forwarded to %s.',
   'FwdMessagesTo': 'Messages forwarded to %s.',
   'FwdMessagesToChats': {
-    'other_value': '%d chats'
+    'other_value': '%d chats',
   },
   'ColorTheme': 'Color theme',
   'SendAsFile': 'Send as file',
@@ -2184,7 +2184,7 @@ const lang = {
   'LocationUpdatedJustNow': 'updated just now',
   'UpdatedMinutes': {
     'one_value': 'updated %1$d minute ago',
-    'other_value': 'updated %1$d minutes ago'
+    'other_value': 'updated %1$d minutes ago',
   },
   'InviteLink': 'Invite Link',
   'InviteLinks': 'Invite Links',
@@ -2259,14 +2259,14 @@ const lang = {
   'DeleteAllRevokedLinks': 'Delete All Revoked Links',
   'RevokedLinks': 'Revoked Links',
   'CanJoin': {
-    'other_value': '%1$d can join'
+    'other_value': '%1$d can join',
   },
   'PeopleJoined': {
     'one_value': '%1$d person joined',
-    'other_value': '%1$d people joined'
+    'other_value': '%1$d people joined',
   },
   'PeopleJoinedRemaining': {
-    'other_value': '%1$d remaining'
+    'other_value': '%1$d remaining',
   },
   'NewLink': 'New Link',
   'LinkNameHint': 'Link Name (Optional)',
@@ -2282,20 +2282,20 @@ const lang = {
   'LinkCreatedeBy': 'Link created by',
   'PeopleCanJoinViaLinkCount': {
     'one_value': '%s person can join via this link.',
-    'other_value': '%s people can join via this link.'
+    'other_value': '%s people can join via this link.',
   },
   'MemberRequests': 'Join Requests',
   'SubscribeRequests': 'Join Requests',
   'JoinRequests': {
     'one_value': '%1$d join request',
-    'other_value': '%1$d join requests'
+    'other_value': '%1$d join requests',
   },
   'Dismiss': 'Dismiss',
   'RequestedToJoinAt': 'requested to join %1$s',
   'LinksCreatedByOtherAdmins': 'Links created by other admins',
   'InviteLinkCount': {
     'one_value': '%1$d invite link',
-    'other_value': '%1$d invite links'
+    'other_value': '%1$d invite links',
   },
   'LinksCreatedByThisAdmin': 'Invite links created by this admin',
   'DeleteThisChat': 'Delete this chat',
@@ -2308,34 +2308,34 @@ const lang = {
   'StoryArchivedFromChannel': 'This story is hidden from the channel profile.',
   'StorySavedTitle': {
     'one_value': '%d story posted to your profile',
-    'other_value': '%d stories posted to your profile'
+    'other_value': '%d stories posted to your profile',
   },
   'StoryArchived': {
     'one_value': '%d story removed from your profile',
-    'other_value': '%d stories removed from your profile'
+    'other_value': '%d stories removed from your profile',
   },
   'StorySavedGroupTitle': {
     'one_value': '%d story posted to the group profile',
-    'other_value': '%d stories posted to the group profile'
+    'other_value': '%d stories posted to the group profile',
   },
   'StoryGroupArchived': {
     'one_value': '%d story removed from the group profile',
-    'other_value': '%d stories removed from the group profile'
+    'other_value': '%d stories removed from the group profile',
   },
   'StorySavedChannelTitle': {
     'one_value': '%d story posted to the channel profile',
-    'other_value': '%d stories posted to the channel profile'
+    'other_value': '%d stories posted to the channel profile',
   },
   'StoryChannelArchived': {
     'one_value': '%d story removed from the channel profile',
-    'other_value': '%d stories removed from the channel profile'
+    'other_value': '%d stories removed from the channel profile',
   },
   'DeleteStoryTitle': 'Delete Story',
   'DeleteStoriesTitle': 'Delete Stories',
   'DeleteStorySubtitle': 'Are you sure you want to delete this story?',
   'DeleteStoriesSubtitle': {
     'one_value': 'Are you sure you want to delete %d story?',
-    'other_value': 'Are you sure you want to delete %d stories?'
+    'other_value': 'Are you sure you want to delete %d stories?',
   },
   'ProfileStoriesArchiveHint': 'Only you can see archived stories unless you choose to post them to your profile.',
   'ProfileStoriesArchiveGroupHint': 'Only admins of the group can see archived stories unless they are posted to the group page.',
@@ -2345,7 +2345,7 @@ const lang = {
   'StoryContactsHint': 'Only **%s’s** contacts can view this story.',
   'Views': {
     'one_value': '%1$s view',
-    'other_value': '%1$s views'
+    'other_value': '%1$s views',
   },
   'ViewsTooltip': 'Views: %1$s',
   'SharesTooltip': 'Shares: %1$s',
@@ -2394,7 +2394,7 @@ const lang = {
   'CantBoostWithGiftedPremiumDescription': 'Because your **Telegram Premium** subscription was gifted to you, you can\'t use it to boost channels.',
   'MoreBoosts': {
     'one_value': '**%d** more boost',
-    'other_value': '**%d** more boosts'
+    'other_value': '**%d** more boosts',
   },
   'BoostsMaxLevelReached': 'Maximum Level Reached',
   'YouBoostedChannel': 'You boosted the channel',
@@ -2403,66 +2403,66 @@ const lang = {
   'BoostingWinnersDate': '**Winners Selection Date**',
   'BoostingGiveawayPrizes': '**Giveaway Prizes**',
   'BoostingGiveawayMsgInfoPlural1': {
-    'other_value': '**%1$d** Telegram Premium'
+    'other_value': '**%1$d** Telegram Premium',
   },
   'BoostingGiveawayMsgInfoPlural2': {
     'one_value': 'Subscription for %2$s.',
-    'other_value': 'Subscriptions for %2$s.'
+    'other_value': 'Subscriptions for %2$s.',
   },
   'BoostingGiveawayMsgParticipants': '**Participants**',
   'BoostingGiveawayMsgAllSubsPlural': {
     'one_value': 'All subscribers of the channel:',
-    'other_value': 'All subscribers of the channels:'
+    'other_value': 'All subscribers of the channels:',
   },
   'BoostingGiveawayMsgNewSubsPlural': {
     'one_value': 'New subscribers of the channel:',
-    'other_value': 'New subscribers of the channels:'
+    'other_value': 'New subscribers of the channels:',
   },
   'BoostingStarsGiveawayMsgInfoPlural1': {
     'one_value': '**%1$d Star** will be distributed',
-    'other_value': '**%1$d Stars** will be distributed'
+    'other_value': '**%1$d Stars** will be distributed',
   },
   'BoostingStarsGiveawayMsgInfoPlural2': {
     'one_value': 'to the **%1$d** winner.',
-    'other_value': 'among **%1$d** winners.'
+    'other_value': 'among **%1$d** winners.',
   },
   'BoostingHowItWork': 'LEARN MORE',
   'BoldDays': {
     'one_value': '**%1$d** day',
-    'other_value': '**%1$d** days'
+    'other_value': '**%1$d** days',
   },
   'BoldMonths': {
     'one_value': '**%1$d** month',
-    'other_value': '**%1$d** months'
+    'other_value': '**%1$d** months',
   },
   'BoldYears': {
     'one_value': '**%1$d** year',
-    'other_value': '**%1$d** years'
+    'other_value': '**%1$d** years',
   },
   'BoostingGiveAwayFromCountries': 'from %1$s',
   'BoostingGiveAwayAbout': 'About this giveaway',
   'BoostingGiveawayHowItWorksText': {
     'one_value': 'This giveaway is sponsored by the admins of **%2$s**, who acquired **%3$s Telegram Premium** subscription for %4$s for its followers.',
-    'other_value': 'This giveaway is sponsored by the admins of **%2$s**, who acquired **%3$s Telegram Premium** subscriptions for %4$s for its followers.'
+    'other_value': 'This giveaway is sponsored by the admins of **%2$s**, who acquired **%3$s Telegram Premium** subscriptions for %4$s for its followers.',
   },
   'BoostingStarsGiveawayHowItWorksText': {
     'one_value': 'This giveaway is sponsored by the admins of **%2$s**, who acquired **%1$d Star** for its followers.',
-    'other_value': 'This giveaway is sponsored by the admins of **%2$s**, who acquired **%1$d Stars** for its followers.'
+    'other_value': 'This giveaway is sponsored by the admins of **%2$s**, who acquired **%1$d Stars** for its followers.',
   },
   'BoostingGiveawayHowItWorksTextEnd': {
     'one_value': 'This giveaway was sponsored by the admins of **%2$s**, who acquired **%3$s Telegram Premium** subscription for %4$s for its followers.',
-    'other_value': 'This giveaway was sponsored by the admins of **%2$s**, who acquired **%3$s Telegram Premium** subscriptions for %4$s for its followers.'
+    'other_value': 'This giveaway was sponsored by the admins of **%2$s**, who acquired **%3$s Telegram Premium** subscriptions for %4$s for its followers.',
   },
   'BoostingStarsGiveawayHowItWorksTextEnd': {
     'one_value': 'This giveaway was sponsored by the admins of **%2$s**, who acquired **%1$d Star** for its followers.',
-    'other_value': 'This giveaway was sponsored by the admins of **%2$s**, who acquired **%1$d Stars** for its followers.'
+    'other_value': 'This giveaway was sponsored by the admins of **%2$s**, who acquired **%1$d Stars** for its followers.',
   },
   'BoostingGiveawayYouNotWon': 'You didn\'t win a prize in this giveaway.',
   'BoostingGiveawayNotEligible': 'You are not eligible to participate in this giveaway, because you joined this channel on **%1$s**, which is before the contest started.',
   'BoostingGiveawayNotEligibleAdmin': 'You are not eligible to participate in this giveaway, because you are an admin of participating channel (**%1$s**).',
   'BoostingGiveawayNotEligibleCountry': 'You are not eligible to participate in this giveaway, because your country is not included in the terms of the giveaway.',
   'BoostingGiveawayUsedLinksPlural': {
-    'other_value': '**%1$d** of the winners already used their gift links.'
+    'other_value': '**%1$d** of the winners already used their gift links.',
   },
   'BoostingGiveawayViewPrize': 'View my prize',
   'BoostingGiveawayCanceledByPayment': 'The channel canceled the prizes by reversing the payment for them.',
@@ -2502,12 +2502,12 @@ const lang = {
   'BoostingGetMoreBoosts2': 'Get more boosts and subscribers for your channel by giving away prizes.',
   'BoostingStarsOptions': 'Stars to distribute',
   'BoostingStarOptionPerUser': {
-    'other_value': '%d per user'
+    'other_value': '%d per user',
   },
   'BoostingStarsOptionsInfo': 'Choose how many stars to give away and how many boosts to receive for 1 year.',
   'BoostingStarsGiveawayJustStarted': {
     'one_value': '%2$s just started a giveaway of %1$d Star to its followers.',
-    'other_value': '%2$s just started a giveaway of %1$d Stars to its followers.'
+    'other_value': '%2$s just started a giveaway of %1$d Stars to its followers.',
   },
   'GrowthChartTitle': 'Growth',
   'FollowersChartTitle': 'Followers',
@@ -2530,23 +2530,23 @@ const lang = {
   'StatisticViews': 'Views',
   'Recipient': {
     'one_value': '%1$d recipient',
-    'other_value': '%1$d recipients'
+    'other_value': '%1$d recipients',
   },
   'BoostingFromAllCountries': 'from all countries',
   'BoostingFromCountriesCount': {
     'one_value': 'from %1$d country',
-    'other_value': 'from %1$d countries'
+    'other_value': 'from %1$d countries',
   },
   'HideAd': 'Hide',
   'SponsoredMessageRecommended': 'recommended',
   'BoostingSelectCountry': 'Select Countries',
   'BoostingSelectUpToWarningCountriesPlural': {
     'one_value': 'You can select up to %1$d country.',
-    'other_value': 'You can select up to %1$d countries.'
+    'other_value': 'You can select up to %1$d countries.',
   },
   'BoostingSelectUpToWarningChannelsPlural': {
     'one_value': 'You can select up to %1$d channel.',
-    'other_value': 'You can select up to %1$d channels.'
+    'other_value': 'You can select up to %1$d channels.',
   },
   'ReplyTo': 'Reply to %s',
   'ReplyToQuote': 'Reply to quote by %s',
@@ -2588,23 +2588,23 @@ const lang = {
   'CharactersPerMessage': '%s per message',
   'Characters': {
     'one_value': '%1$d character',
-    'other_value': '%1$d characters'
+    'other_value': '%1$d characters',
   },
   'Deletions': {
     'one_value': '%1$d deletion',
-    'other_value': '%1$d deletions'
+    'other_value': '%1$d deletions',
   },
   'Bans': {
     'one_value': '%1$d ban',
-    'other_value': '%1$d bans'
+    'other_value': '%1$d bans',
   },
   'Restrictions': {
     'one_value': '%1$d restriction',
-    'other_value': '%1$d restrictions'
+    'other_value': '%1$d restrictions',
   },
   'Invitations': {
     'one_value': '%1$d invitation',
-    'other_value': '%1$d invitations'
+    'other_value': '%1$d invitations',
   },
   'TopAdmins': 'Top admins',
   'TopMembers': 'Top members',
@@ -2617,7 +2617,7 @@ const lang = {
   'PrivateShares': 'Private Shares',
   'PublicSharesCount': {
     'one_value': '%1$s public share',
-    'other_value': '%1$s public shares'
+    'other_value': '%1$s public shares',
   },
   'ViewStory': 'View Story',
   'ViewStoryAlbum': 'VIEW ALBUM',
@@ -2628,7 +2628,7 @@ const lang = {
   'BoostingGiveawayDeleteMsgText': 'Deleting this message won\'t cancel the giveaway — the winners will still be selected on **%s**.\n\nOnce deleted, the Giveaway Announcement cannot be restored.',
   'BoostingGiveawayResultsMsgWinners': {
     'one_value': '**Winner**',
-    'other_value': '**Winners**'
+    'other_value': '**Winners**',
   },
   'GiftPremiumUseGiftBtn': 'Use Gift',
   'ActionGiftPremiumView': 'View',
@@ -2639,11 +2639,11 @@ const lang = {
   'TelegramPremiumUserGiftedPremiumOutboundDialogSubtitle': '**%1$s** now has access to additional features.',
   'GiftMonths': {
     'one_value': '%1$d-month',
-    'other_value': '%1$d-months'
+    'other_value': '%1$d-months',
   },
   'GiftDays': {
     'one_value': '%1$d-day',
-    'other_value': '%1$d-days'
+    'other_value': '%1$d-days',
   },
   'BoostingGiftLinkForwardedTo': 'Gift link forwarded to **%1$s**.',
   'BoostingGiftLinkForwardedToSavedMsg': 'Gift link forwarded to **Saved Messages**.',
@@ -2667,11 +2667,11 @@ const lang = {
   'BoostingGetMoreBoosts': 'Get more boosts for your channel by gifting Premium to your subscribers.',
   'BoostingBoostsCount': {
     'one_value': '%1$d Boost',
-    'other_value': '%1$d Boosts'
+    'other_value': '%1$d Boosts',
   },
   'BoostingGiftsCount': {
     'one_value': '%1$d Gift',
-    'other_value': '%1$d Gifts'
+    'other_value': '%1$d Gifts',
   },
   'BoostingUnclaimed': 'Unclaimed',
   'BoostingToBeDistributed': 'To be distributed',
@@ -2679,11 +2679,11 @@ const lang = {
   'BoostingGiveaway': 'Giveaway',
   'BoostingShowMoreBoosts': {
     'one_value': 'Show %1$d More Boost',
-    'other_value': 'Show %1$d More Boosts'
+    'other_value': 'Show %1$d More Boosts',
   },
   'BoostingShowMoreGifts': {
     'one_value': 'Show %1$d More Gifted Boost',
-    'other_value': 'Show %1$d More Gifted Boosts'
+    'other_value': 'Show %1$d More Gifted Boosts',
   },
   'BoostingRecipientWillBeSelected': 'The recipient will be selected when the giveaway ends.',
   'BoostingLinkNotActivated': 'This link hasn\'t been activated yet.',
@@ -2696,11 +2696,11 @@ const lang = {
   'BoostingRemoveBoostFrom': 'Remove your boost from',
   'BoostingReassignedFromPlural': {
     'one_value': '%1$d boost reassigned from %2$s',
-    'other_value': '%1$d boosts reassigned from %2$s'
+    'other_value': '%1$d boosts reassigned from %2$s',
   },
   'BoostingFromOtherChannel': {
     'one_value': '%d other channel',
-    'other_value': '%d other channels'
+    'other_value': '%d other channels',
   },
   'BoostingAvailableIn': 'available in %1$s',
   'HideReadTime': 'Hide Read Time',
@@ -2735,35 +2735,35 @@ const lang = {
   'SavedViewAsMessages': 'View as Messages',
   'SavedDialogsTabCount': {
     'one_value': '%d chat',
-    'other_value': '%d chats'
+    'other_value': '%d chats',
   },
   'Files': {
     'one_value': '%d file',
-    'other_value': '%d files'
+    'other_value': '%d files',
   },
   'MusicFiles': {
     'one_value': '%d music file',
-    'other_value': '%d music files'
+    'other_value': '%d music files',
   },
   'Voice': {
     'one_value': '%d voice message',
-    'other_value': '%d voice messages'
+    'other_value': '%d voice messages',
   },
   'Links': {
     'one_value': '%d link',
-    'other_value': '%d links'
+    'other_value': '%d links',
   },
   'GIFs': {
     'one_value': '%d GIF',
-    'other_value': '%d GIFs'
+    'other_value': '%d GIFs',
   },
   'CommonGroups': {
     'one_value': '%1$d group in common',
-    'other_value': '%1$d groups in common'
+    'other_value': '%1$d groups in common',
   },
   'SavedMessagesCount': {
     'one_value': '%d saved message',
-    'other_value': '%d saved messages'
+    'other_value': '%d saved messages',
   },
   'PremiumPreviewLastSeen': 'Last Seen Times',
   'PremiumPreviewLastSeenDescription': 'View the last seen and read times of others even if you hide yours.',
@@ -2791,7 +2791,7 @@ const lang = {
   'VoipChannelJoinVoiceChatUrl': 'Join Live Stream',
   'InviteLinkSentSingle': 'Invite link sent to **%s**.',
   'InviteLinkSentMany': {
-    'other_value': 'Invite link sent to **%d chats**.'
+    'other_value': 'Invite link sent to **%d chats**.',
   },
   'ActionSetWallpaperForThisChatSelf': 'You set a new wallpaper for this chat',
   'ActionSetWallpaperForThisChannel': 'Channel set a new wallpaper',
@@ -2822,15 +2822,15 @@ const lang = {
   'BusinessHoursProfileNowClosed': 'Closed',
   'BusinessHoursProfileOpensInMinutes': {
     'one_value': 'opens in %d minute',
-    'other_value': 'opens in %d minutes'
+    'other_value': 'opens in %d minutes',
   },
   'BusinessHoursProfileOpensInHours': {
     'one_value': 'opens in %d hour',
-    'other_value': 'opens in %d hours'
+    'other_value': 'opens in %d hours',
   },
   'BusinessHoursProfileOpensInDays': {
     'one_value': 'opens tomorrow',
-    'other_value': 'opens in %d days'
+    'other_value': 'opens in %d days',
   },
   'BusinessHoursProfileSwitchLocal': 'local time',
   'BusinessHoursProfileSwitchMy': 'my time',
@@ -2847,7 +2847,7 @@ const lang = {
   'DoNotTranslate': 'Do Not Translate',
   'Languages': {
     'one_value': '%1$d Language',
-    'other_value': '%1$d Languages'
+    'other_value': '%1$d Languages',
   },
   'TranslateMessage': 'Translate',
   'ReadAllReactions': 'Read all reactions',
@@ -2883,7 +2883,7 @@ const lang = {
   'RevenueSharingAdsAlertButton': 'Understood',
   'ViewReplies': {
     'one_value': 'View %1$d Reply',
-    'other_value': 'View %1$d Replies'
+    'other_value': 'View %1$d Replies',
   },
   'ViewAllReplies': 'View All Replies',
   'DeletedMessage': 'Deleted message',
@@ -2891,7 +2891,7 @@ const lang = {
   'DeleteAdditionalActions': 'Additional actions',
   'DeleteOptionsTitle': {
     'one_value': 'Delete %1$d Message?',
-    'other_value': 'Delete %1$d Messages?'
+    'other_value': 'Delete %1$d Messages?',
   },
   'DeleteToggleBanUsers': 'Fully ban users',
   'DeleteToggleBanUser': 'Fully ban this user',
@@ -2904,7 +2904,7 @@ const lang = {
   'DeleteRestrictUsers': 'Restrict users',
   'UserRestrictionsCanDoUsers': {
     'one_value': 'What can %1$s selected user do?',
-    'other_value': 'What can %1$s selected users do?'
+    'other_value': 'What can %1$s selected users do?',
   },
   'TelegramStars': 'Telegram Stars',
   'TelegramStarsInfo': 'Buy Stars to unlock content and services\nin mini apps on Telegram.',
@@ -2917,15 +2917,15 @@ const lang = {
   'StarsConfirmPurchaseTitle': 'Confirm Your Purchase',
   'StarsConfirmPurchaseText': {
     'one_value': 'Do you want to buy "**%2$s**" in **%3$s** for **%1$d star**?',
-    'other_value': 'Do you want to buy "**%2$s**" in **%3$s** for **%1$d stars**?'
+    'other_value': 'Do you want to buy "**%2$s**" in **%3$s** for **%1$d stars**?',
   },
   'StarGiftConfirmPurchaseText': {
     'one_value': 'Do you want to buy a gift for **%1$d star**?',
-    'other_value': 'Do you want to buy a gift for **%1$d stars**?'
+    'other_value': 'Do you want to buy a gift for **%1$d stars**?',
   },
   'StarGiftConfirmTransferText': {
     'one_value': 'Do you want to transfer a gift for **%1$d star**?',
-    'other_value': 'Do you want to transfer a gift for **%1$d stars**?'
+    'other_value': 'Do you want to transfer a gift for **%1$d stars**?',
   },
   'StarGiftConfirmFreeTransferTitle': 'Confirm Transfer',
   'StarGiftConfirmFreeTransferText': 'Do you want to transfer %s to **%s**?',
@@ -2937,7 +2937,7 @@ const lang = {
   'StarGiftFragmentTransferPassword': 'Please enter your password to send **%s** to Fragment.',
   'StarsNeededTitle': {
     'one_value': '%d Star Needed',
-    'other_value': '%d Stars Needed'
+    'other_value': '%d Stars Needed',
   },
   'TonNeededTitle': '%s TON Needed',
   'StarsNeededText': 'Buy **Stars** and use them on **%s** and other mini apps.',
@@ -2947,7 +2947,7 @@ const lang = {
   'MenuTelegramStarsTon': 'My TON',
   'StarsCount': {
     'one_value': '%d Star',
-    'other_value': '%d Stars'
+    'other_value': '%d Stars',
   },
   'StarsTransactionID': 'Transaction ID',
   'StarsTransactionIDCopied': 'Transaction ID copied to clipboard',
@@ -2970,29 +2970,29 @@ const lang = {
   'DownloadSpeedLimited': 'Download speed limited',
   'UploadSpeedLimited': 'Upload speed limited',
   'StoriesPinLimit': {
-    'other_value': 'You can’t pin more than %d posts.'
+    'other_value': 'You can’t pin more than %d posts.',
   },
   'Photos': {
     'one_value': '%d photo',
-    'other_value': '%d photos'
+    'other_value': '%d photos',
   },
   'Videos': {
     'one_value': '%d video',
-    'other_value': '%d videos'
+    'other_value': '%d videos',
   },
   'Media': {
-    'other_value': '%d media'
+    'other_value': '%d media',
   },
   'SearchAsList': 'Show as List',
   'SearchAsChat': 'Show as Chat',
   'Stars': {
     'one_value': '%d Star',
-    'other_value': '%d Stars'
+    'other_value': '%d Stars',
   },
   'StarsMediaPurchaseCompleted': 'Media Unlocked',
   'StarsMediaPurchaseCompletedInfo': {
     'one_value': '**%1$d Star** transferred to **%2$s**.',
-    'other_value': '**%1$d Stars** transferred to **%2$s**.'
+    'other_value': '**%1$d Stars** transferred to **%2$s**.',
   },
   'StarMediaPurchase': 'Media Purchase',
   'StarsTransactionMedia': 'Media',
@@ -3001,7 +3001,7 @@ const lang = {
   'StarsPending': 'Pending',
   'BotUsers': {
     'one_value': '%d user',
-    'other_value': '%d users'
+    'other_value': '%d users',
   },
   'ChannelSignMessagesWithProfile': 'Show Authors\' Profiles',
   'ChannelSignProfilesInfo': 'Add names and photos of admins to the messages they post, linking to their profiles.',
@@ -3011,7 +3011,7 @@ const lang = {
   // 'StarsGiftSentPopup': 'Stars Gift Sent!',
   'StarsGiftSentPopupInfo': {
     'one_value': '**%1$d Star** sent as gift to %2$s.',
-    'other_value': '**%1$d Stars** sent as gift to %2$s.'
+    'other_value': '**%1$d Stars** sent as gift to %2$s.',
   },
   'ActionGiftStarsSubtitle': 'With Stars, **%s** is able to unlock content and services on Telegram.',
   'ActionGiftStarsSubtitleYou': 'Use Stars to unlock content and services on Telegram.',
@@ -3020,23 +3020,23 @@ const lang = {
   'GiftStarsSubtitleLinkName': '**See Examples >**',
   'StarGiftSentMessageIncoming': {
     'one_value': '**%1$s** sent you a gift for **%2$d Star**',
-    'other_value': '**%1$s** sent you a gift for **%2$d Stars**'
+    'other_value': '**%1$s** sent you a gift for **%2$d Stars**',
   },
   'StarGiftSentMessageOutgoing': {
     'one_value': '**You** sent a gift for **%d Star**',
-    'other_value': '**You** sent a gift for **%d Stars**'
+    'other_value': '**You** sent a gift for **%d Stars**',
   },
   'StarGiftSentMessagePrepaidIncoming': {
     'one_value': '**%s** sent an upgrade worth **%d Star** for your gift',
-    'other_value': '**%s** sent an upgrade worth **%d Stars** for your gift'
+    'other_value': '**%s** sent an upgrade worth **%d Stars** for your gift',
   },
   'StarGiftSentMessagePrepaidOutgoing': {
     'one_value': 'You sent an upgrade worth **%d Star**',
-    'other_value': 'You sent an upgrade worth **%d Stars**'
+    'other_value': 'You sent an upgrade worth **%d Stars**',
   },
   'StarGiftSentMessageSelf': {
     'one_value': 'You bought a gift for **%d Star**',
-    'other_value': 'You bought a gift for **%d Stars**'
+    'other_value': 'You bought a gift for **%d Stars**',
   },
   'StarGiftSentMessageSelfTon': 'You bought a gift for **%d TON**',
   'StarGiftFrom': 'Gift from %s',
@@ -3045,11 +3045,11 @@ const lang = {
   'StarGiftDefaultMessageOut': '%s can display this gift on their profile.',
   'StarGiftDefaultMessageConvertable': {
     'one_value': 'Add this gift to your profile or convert it to %d Star.',
-    'other_value': 'Add this gift to your profile or convert it to %d Stars.'
+    'other_value': 'Add this gift to your profile or convert it to %d Stars.',
   },
   'StarGiftDefaultMessageConvertableOut': {
     'one_value': '%s can add this gift on their profile or convert it to %d Star.',
-    'other_value': '%s can add this gift on their profile or convert it to %d Stars.'
+    'other_value': '%s can add this gift on their profile or convert it to %d Stars.',
   },
   'StarGiftDefaultMessageUpgrade': 'Upgrade this gift to a unique collectible.',
   'StarGiftDefaultMessageUpgradeOut': '%s can turn this gift into a unique collectible.',
@@ -3057,7 +3057,7 @@ const lang = {
   'StarGiftTitle': 'Gift',
   'StarGiftReceivedSubtitle': {
     'one_value': 'You can add this gift to your profile or convert it to %d Star.',
-    'other_value': 'You can add this gift to your profile or convert it to %d Stars.'
+    'other_value': 'You can add this gift to your profile or convert it to %d Stars.',
   },
   'StarGiftReceivedSubtitleLink': 'More About Stars >',
   'StarGiftDisplayOnMyPage': 'Display on my Page',
@@ -3078,16 +3078,16 @@ const lang = {
   'SendGiftSelfCaption': 'buy yourself a gift',
   'StarGiftAvailability': 'Availability',
   'StarGiftAvailabilityValue2': {
-    'other_value': '%1$d of %2$d left'
+    'other_value': '%1$d of %2$d left',
   },
   'StarGiftAvailabilityIssued': '%1$d/%2$d issued',
   'StarGiftConvertButton': {
     'one_value': 'sell for %d Star',
-    'other_value': 'sell for %d Stars'
+    'other_value': 'sell for %d Stars',
   },
   'StarGiftsCount': {
     'one_value': '%d gift',
-    'other_value': '%d gifts'
+    'other_value': '%d gifts',
   },
   'StarGiftLimitedBadge': 'limited',
   'StarGiftSoldOutBadge': 'sold out',
@@ -3110,7 +3110,7 @@ const lang = {
   'StarGiftSend': 'Send a Gift for %s',
   'StarGiftLimitedLeft': '%d left',
   'StarGiftLimitedSold2': {
-    'other_value': '%d sold'
+    'other_value': '%d sold',
   },
   'StarGiftMakeUnique': 'Make Unique for %s %s',
   'StarGiftMakeUniqueHint': 'Enable this to let %s turn your gift into a unique collectible. %s',
@@ -3142,17 +3142,17 @@ const lang = {
   'StarGiftModel': 'Model',
   'StarGiftNModels': {
     'one_value': '%d Model',
-    'other_value': '%d Models'
+    'other_value': '%d Models',
   },
   'StarGiftBackdrop': 'Backdrop',
   'StarGiftNBackdrops': {
     'one_value': '%d Backdrop',
-    'other_value': '%d Backdrops'
+    'other_value': '%d Backdrops',
   },
   'StarGiftPattern': 'Symbol',
   'StarGiftNPatterns': {
     'one_value': '%d Symbol',
-    'other_value': '%d Symbols'
+    'other_value': '%d Symbols',
   },
   'StarGiftOwner': 'Owner',
   'StarGiftCollectibleNum': 'Collectible #%s',
@@ -3208,17 +3208,17 @@ const lang = {
   'StarGiftRarityLegendary': 'legendary',
   'StarGiftYouWillReceiveStars': {
     'one_value': 'You will receive **%s** Star.',
-    'other_value': 'You will receive **%s** Stars.'
+    'other_value': 'You will receive **%s** Stars.',
   },
   'StarGiftYouWillReceiveTon': 'You will receive **%s** TON.',
   'StarGiftYouWillReceivePercent': 'You will receive %d% of the selected amount.',
   'StarGiftMinSellAmountStars': {
     'one_value': 'You must request minimum %s Star',
-    'other_value': 'You must request minimum %s Stars'
+    'other_value': 'You must request minimum %s Stars',
   },
   'StarGiftMaxSellAmountStars': {
     'one_value': 'You can request maximum %s Star',
-    'other_value': 'You can request maximum %s Stars'
+    'other_value': 'You can request maximum %s Stars',
   },
   'StarGiftMinSellAmountTon': 'You must request minimum %s TON',
   'StarGiftMaxSellAmountTon': 'You can request maximum %s TON',
@@ -3287,13 +3287,13 @@ const lang = {
   'StarGiftDropOriginalDetailsText': 'Do you want to permanently remove the description from this collectible?',
   'ActionGiftStarsTitle': {
     'one_value': '%d Star',
-    'other_value': '%d Stars'
+    'other_value': '%d Stars',
   },
   'SearchAppsExamples': 'Examples',
   'TelegramStarsGift': 'Gift Stars to Friends',
   'StarsSentText': {
     'one_value': 'You reacted with **%d** star.',
-    'other_value': 'You reacted with **%d** stars.'
+    'other_value': 'You reacted with **%d** stars.',
   },
   'StarsReactionTitle': 'Star Reaction',
   'StarsReactionText': 'Choose how many stars you want to send to **%s** to support this post.',
@@ -3304,7 +3304,7 @@ const lang = {
   'StarsGiveawayPrizeReceived': 'Received Prize',
   'BoostingBoostsCountTitle': {
     'one_value': '%d boost',
-    'other_value': '%d boosts'
+    'other_value': '%d boosts',
   },
   'Report2Comment': 'Add Comment',
   'Report2CommentOptional': 'Add Comment (Optional)',
@@ -3364,36 +3364,36 @@ const lang = {
   'Channel.UsernameAboutGroup': 'People can share this link with others and find your group using Telegram search.',
   'Chat.Accessory.Forward': {
     'one_value': 'Forward Message',
-    'other_value': 'Forward %d Messages'
+    'other_value': 'Forward %d Messages',
   },
   'Chat.Accessory.Forward.You': 'You',
   'Chat.Accessory.Forward.From': 'From',
   'Chat.Accessory.Hidden': {
     'one_value': 'Forward Message (sender\'s name hidden)',
-    'other_value': 'Forward %d Messages (senders\' names hidden)'
+    'other_value': 'Forward %d Messages (senders\' names hidden)',
   },
   'Chat.Alert.Forward.Action.Another': 'Forward to Another Chat',
   'Chat.Alert.Forward.Action.Hide1': {
     'one_value': 'Hide Sender\'s Name',
-    'other_value': 'Hide Senders\' Names'
+    'other_value': 'Hide Senders\' Names',
   },
   'Chat.Alert.Forward.Action.Show1': {
     'one_value': 'Show Sender\'s Name',
-    'other_value': 'Show Senders\' Names'
+    'other_value': 'Show Senders\' Names',
   },
   'Chat.Alert.Forward.Action.ShowCaption': {
     'one_value': 'Show Caption',
-    'other_value': 'Show Captions'
+    'other_value': 'Show Captions',
   },
   'Chat.Alert.Forward.Action.HideCaption': {
     'one_value': 'Hide Caption',
-    'other_value': 'Hide Captions'
+    'other_value': 'Hide Captions',
   },
   'Chat.CopySelectedText': 'Copy Selected Text',
   'Chat.Confirm.Unpin': 'Would you like to unpin this message?',
   'Chat.Context.Reacted': '%1$@/%2$@ Reacted',
   'Chat.Context.ReactedFast': {
-    'other_value': '%d Reacted'
+    'other_value': '%d Reacted',
   },
   'Chat.Confirm.ReportSpam.Header': 'Report Spam',
   'Chat.Confirm.ReportSpam.Channel': 'Report Spam and Leave Channel?',
@@ -3479,7 +3479,7 @@ const lang = {
   'Chat.Poll.Type.Closed': 'Final Results',
   'Chat.Poll.MembersVoted': {
     'one_value': '%d member voted',
-    'other_value': '%d members voted'
+    'other_value': '%d members voted',
   },
   'Chat.Poll.SelectAnOption': 'Select an option',
   'Chat.Poll.EndsIn': 'ends in %s',
@@ -3492,7 +3492,7 @@ const lang = {
   'Chat.Poll.CopyOptionLink': 'Copy Option Link',
   'Chat.Quiz.MembersAnswered': {
     'one_value': '%d member answered',
-    'other_value': '%d members answered'
+    'other_value': '%d members answered',
   },
   'Chat.Poll.TotalVotesEmpty': 'No votes yet',
   'Chat.Poll.TotalVotesResultEmpty': 'No votes',
@@ -3508,7 +3508,7 @@ const lang = {
   'Chat.Pinned.DontShow': 'Don\'t Show Pinned Messages',
   'Chat.Title.Comments': {
     'one_value': '%d Comment',
-    'other_value': '%d Comments'
+    'other_value': '%d Comments',
   },
   // 'Chat.TopicBadge': 'topic creator',
   'ChatTitle.ReportMessages': 'Report Messages',
@@ -3519,11 +3519,11 @@ const lang = {
   'Chat.SendAs.PersonalAccount': 'personal account',
   'Chat.UnpinAllMessagesConfirmation': {
     'one_value': 'Do you want to unpin %d message in this chat?',
-    'other_value': 'Do you want to unpin all %d messages in this chat?'
+    'other_value': 'Do you want to unpin all %d messages in this chat?',
   },
   'Chat.Header.RequestToJoin': {
     'one_value': '%d Join Request',
-    'other_value': '%d Join Requests'
+    'other_value': '%d Join Requests',
   },
   'Chat.Message.Ad.Text': 'Unlike other apps, Telegram never uses your private data to target ads. Sponsored messages on Telegram are based solely on the topic of the public channels in which they are shown. This means that no user data is mined or analyzed to display ads, and every user viewing a channel on Telegram sees the same sponsored messages.\n\nUnlike other apps, Telegram doesn\'t track whether you tapped on a sponsored message and doesn\'t profile you based on your activity. We also prevent external links in sponsored messages to ensure that third parties can’t spy on our users. We believe that everyone has the right to privacy, and technological platforms should respect that.\n\nTelegram offers a free and unlimited service to hundreds of millions of users, which involves significant server and traffic costs. In order to remain independent and stay true to its values, Telegram developed a paid tool to promote messages with user privacy in mind. We welcome responsible advertisers at:\n\n%@\n\nSponsored Messages are currently in test mode. Once they are fully launched and allow Telegram to cover its basic costs, we will start sharing ad revenue with the owners of public channels in which sponsored messages are displayed.\n\nOnline ads should no longer be synonymous with abuse of user privacy. Let us redefine how a tech company should operate – together.',
   'Chat.Message.Ad.ReadMore': 'Read More',
@@ -3634,13 +3634,13 @@ const lang = {
   'FileSize.GB': '%@ GB',
   'InstalledStickers.LoopAnimated': 'Loop Animated Stickers',
   'InviteLink.JoinedNew': {
-    'other_value': '%d joined'
+    'other_value': '%d joined',
   },
   'InviteLink.JoinedRevoked': 'no one joined',
   'InviteLink.Sticker.TimeLeft': 'expires in %@',
   'LastSeen.HoursAgo': {
     'one_value': 'last seen %d hour ago',
-    'other_value': 'last seen %d hours ago'
+    'other_value': 'last seen %d hours ago',
   },
   'Login.Register.LastName.Placeholder': 'Last Name',
   'LiteMode.Title': 'Power Saving',
@@ -3715,15 +3715,15 @@ const lang = {
   'Peer.Status.LastSeenAt': 'last seen %@ at %@',
   'Peer.Status.minAgo': {
     'one_value': 'last seen %d minute ago',
-    'other_value': 'last seen %d minutes ago'
+    'other_value': 'last seen %d minutes ago',
   },
   'Peer.Status.Member': {
     'one_value': '%d member',
-    'other_value': '%d members'
+    'other_value': '%d members',
   },
   'Peer.Status.Subscribers': {
     'one_value': '%d subscriber',
-    'other_value': '%d subscribers'
+    'other_value': '%d subscribers',
   },
   'PeerInfo.Administrators': 'Administrators',
   'PeerInfo.DeleteChannel': 'Delete Channel',
@@ -3741,30 +3741,30 @@ const lang = {
   'PollResults.Title.Poll': 'Poll Results',
   'PollResults.Title.Quiz': 'Quiz Results',
   'PollResults.LoadMore': {
-    'other_value': 'Show More (%d)'
+    'other_value': 'Show More (%d)',
   },
   // "PeerInfo.Confirm.DeleteGroupConfirmation": "Wait! Deleting this group will remove all members and all messages will be lost. Delete the group anyway?",
   'Preview.Dragging.AddItems': {
     'one_value': 'Add Item',
-    'other_value': 'Add Items'
+    'other_value': 'Add Items',
   },
   'PreviewSender.CaptionPlaceholder': 'Add a caption...',
   'PreviewSender.CompressFile': 'Send compressed',
   'PreviewSender.SendFile': {
     'one_value': 'Send File',
-    'other_value': 'Send %d Files'
+    'other_value': 'Send %d Files',
   },
   'PreviewSender.SendPhoto': {
     'one_value': 'Send Photo',
-    'other_value': 'Send %d Photos'
+    'other_value': 'Send %d Photos',
   },
   'PreviewSender.SendVideo': {
     'one_value': 'Send Video',
-    'other_value': 'Send %d Videos'
+    'other_value': 'Send %d Videos',
   },
   'PreviewSender.SendGif': {
     'one_value': 'Send GIF',
-    'other_value': 'Send %d GIFs'
+    'other_value': 'Send %d GIFs',
   },
   'PrivacyAndSecurity.Item.On': 'On',
   'PrivacyAndSecurity.Item.Off': 'Off',
@@ -3819,7 +3819,7 @@ const lang = {
   'PrivacySettingsController.AlwaysAllow': 'Always Allow',
   'PrivacySettingsController.UserCount': {
     'one_value': '%d user',
-    'other_value': '%d users'
+    'other_value': '%d users',
   },
   'RecentSessions.Error.FreshReset': 'For security reasons, you can\'t terminate older sessions from a device that you\'ve just connected. Please use an earlier connection or wait for a few hours.',
   'RequestJoin.Button': 'Request to Join',
@@ -3893,7 +3893,7 @@ const lang = {
   'VoiceChat.Status.Connecting': 'Connecting...',
   'VoiceChat.Status.Members': {
     'one_value': '%d participant',
-    'other_value': '%d participants'
+    'other_value': '%d participants',
   },
   'VoiceChat.Status.MutedForYou': 'muted for you',
   'VoiceChat.Status.Speaking': 'speaking',
@@ -4011,11 +4011,11 @@ const lang = {
   'CopyRestricted.User': 'Copying is restricted in this chat.',
   'Chat.DownloadLimit.Text': {
     'one_value': 'Subscribe to [Telegram Premium]() to increase download speeds %d time.',
-    'other_value': 'Subscribe to [Telegram Premium]() to increase download speeds %d times.'
+    'other_value': 'Subscribe to [Telegram Premium]() to increase download speeds %d times.',
   },
   'Chat.UploadLimit.Text': {
     'one_value': 'Subscribe to [Telegram Premium]() to increase upload speeds %d time.',
-    'other_value': 'Subscribe to [Telegram Premium]() to increase upload speeds %d times.'
+    'other_value': 'Subscribe to [Telegram Premium]() to increase upload speeds %d times.',
   },
   'Chat.Service.Refund': '%@ refunded %@',
   'EnableDarkMode': 'Enable Dark Mode',
@@ -4097,49 +4097,49 @@ const lang = {
   'PaidMessages.UserChargesForMultipleMessageWarning': '**%s** charges **%s** per incoming message. Would you like to pay **%s** to send **%d messages**?',
   'PaidMessages.PayForMessages': {
     'one_value': 'Pay for %d message',
-    'other_value': 'Pay for %d messages'
+    'other_value': 'Pay for %d messages',
   },
   'PaidMessages.MessagesSent': {
     'one_value': '%d Message sent!',
-    'other_value': '%d Messages sent!'
+    'other_value': '%d Messages sent!',
   },
   'PaidMessages.YouPaidForMessages': {
     'one_value': 'You paid %d Star.',
-    'other_value': 'You paid %d Stars.'
+    'other_value': 'You paid %d Stars.',
   },
   'PaidMessages.YouPaidToSendMessages': {
     'one_value': 'You paid **%2$s** to send a message',
-    'other_value': 'You paid **%2$s** to send %1$d messages.'
+    'other_value': 'You paid **%2$s** to send %1$d messages.',
   },
   'PaidMessages.YouReceivedStarsFrom': '%1$s paid %2$s to send a message',
   'PaidMessages.FeeForMessages': {
     'one_value': 'Fee for %d message',
-    'other_value': 'Fee for %d messages'
+    'other_value': 'Fee for %d messages',
   },
   'PaidMessages.YouReceiveWithCommissionNotice': 'You receive %d% of the price that you charge for each incoming message.',
   'PaidMessages.FullPrice': 'Full Price',
   'PaidMessages.GroupPriceChangedFree': 'Messages in this group are now free',
   'PaidMessages.GroupPriceChanged': {
     'one_value': 'Messages now cost **%d Star** in this group',
-    'other_value': 'Messages now cost **%d Stars** in this group'
+    'other_value': 'Messages now cost **%d Stars** in this group',
   },
   'PaidMessages.ChannelPriceDisabled': '%s disabled direct messages',
   'PaidMessages.ChannelPriceChangedFree': '%s now accepts direct messages for free',
   'PaidMessages.ChannelPriceChanged': {
     'one_value': '%2$s now accepts direct messages for **%1$d Star**',
-    'other_value': '%2$s now accepts direct messages for **%1$d Stars**'
+    'other_value': '%2$s now accepts direct messages for **%1$d Stars**',
   },
   'PaidMessages.StarsRefundedToYou': {
     'one_value': '%2$s refunded **%1$d Star** to you',
-    'other_value': '%2$s refunded **%1$d Stars** to you'
+    'other_value': '%2$s refunded **%1$d Stars** to you',
   },
   'PaidMessages.StarsRefundedByYou': {
     'one_value': 'You refunded **%1$d Star** to %2$s',
-    'other_value': 'You refunded **%1$d Stars** to %2$s'
+    'other_value': 'You refunded **%1$d Stars** to %2$s',
   },
   'PaidMessages.StarsRefundedShort': {
     'one_value': '%d Star refunded',
-    'other_value': '%d Stars refunded'
+    'other_value': '%d Stars refunded',
   },
   'PaidMessages.UserPaysForMessagesNotice': '%s must pay %d for each message to you.',
   'PaidMessages.RemoveFeeWarning': 'Are you sure you want to allow %s to message you for free?',
@@ -4148,7 +4148,7 @@ const lang = {
   'PaidMessages.PriceChanged': 'Price changed to %s',
   'PaidMessages.FailedToPayForMessage': {
     'one_value': 'You failed to pay **%2$s** to send a message',
-    'other_value': 'You failed to pay **%2$s** to send %1$d messages.'
+    'other_value': 'You failed to pay **%2$s** to send %1$d messages.',
   },
 
   'BuyStars': 'Buy Stars',
@@ -4252,11 +4252,11 @@ const lang = {
   'ChannelDirectMessages.CantChangeSuggestedPostMessage': 'Can\'t change message of this post',
   'ChannelDirectMessages.ThreadsCount': {
     'one_value': '%d Chat',
-    'other_value': '%d Chats'
+    'other_value': '%d Chats',
   },
   'ChannelDirectMessages.MessagesCount': {
     'one_value': '%d Message',
-    'other_value': '%d Messages'
+    'other_value': '%d Messages',
   },
   'ChannelDirectMessages.Settings.Title': 'Direct Messages',
   'ChannelDirectMessages.Settings.Off': 'Off',
@@ -4318,7 +4318,7 @@ const lang = {
   'NoTopics': 'No topics',
   'TopicsCount': {
     'one_value': '%d topic',
-    'other_value': '%d topics'
+    'other_value': '%d topics',
   },
   'WaitForTopicCreation': 'Wait for the topic to be created',
   'ContinueLastTopic': 'Continue last topic',
@@ -4341,15 +4341,15 @@ const lang = {
   'StarsRating.NegativeDescription': 'A negative rating indicates that **%s**\'s payments are unreliable.',
   'StarsRating.NegativeDescriptionMy': {
     'one_value': 'A negative rating indicates that your payments are unreliable. Spend **%s Star** to fix this issue.',
-    'other_value': 'A negative rating indicates that your payments are unreliable. Spend **%s Stars** to fix this issue.'
+    'other_value': 'A negative rating indicates that your payments are unreliable. Spend **%s Stars** to fix this issue.',
   },
   'StarsRating.PendingDescription': {
     'one_value': 'The rating updates in **%s** after purchases. **%s point** is pending.',
-    'other_value': 'The rating updates in **%s** after purchases. **%s points** are pending.'
+    'other_value': 'The rating updates in **%s** after purchases. **%s points** are pending.',
   },
   'StarsRating.FutureDescription': {
     'one_value': 'This will be your rating in **%s**, after **%s point** is added.',
-    'other_value': 'This will be your rating in **%s**, after **%s points** are added.'
+    'other_value': 'This will be your rating in **%s**, after **%s points** are added.',
   },
   'StarsRating.Preview': 'Preview',
   'StarsRating.Back': 'Back',
@@ -4476,7 +4476,7 @@ const lang = {
   'AdminRecentActionsFilters.ShowAllAdminActions': 'Show actions of all admins',
   'AdminRecentActionsFilters.NotShowingAdmins': {
     'one_value': 'Not showing %d admin',
-    'other_value': 'Not showing %d admins'
+    'other_value': 'Not showing %d admins',
   },
 
   'AdminRecentActionsPlaceholder.Title': 'No actions here yet',
@@ -4681,11 +4681,11 @@ const lang = {
   'PostsSearch.TitleLimited': 'Limit Reached',
   'PostsSearch.DescriptionLimited': {
     'one_value': 'You can make up to %d search query per day.',
-    'other_value': 'You can make up to %d search queries per day.'
+    'other_value': 'You can make up to %d search queries per day.',
   },
   'PostsSearch.FreeSearches': {
     'one_value': '%d free search remaining today',
-    'other_value': '%d free searches remaining today.'
+    'other_value': '%d free searches remaining today.',
   },
   'PostsSearch.NeedPremium': 'Global search is a Premium feature.',
   'PostsSearch.SubscribeToPremium': 'Subscribe to Premium',
@@ -4747,7 +4747,7 @@ const lang = {
   'NewPoll.EndDate': 'End on %@ at %@',
   'NewPoll.OptionsLeft': {
     'one_value': 'You can add %d more option',
-    'other_value': 'You can add %d more options'
+    'other_value': 'You can add %d more options',
   },
   'NewPoll.MaxOptions': 'You have added the maximum amount of options',
   'NewPoll.CouldNotCreate': 'Could not create poll',
@@ -4779,7 +4779,7 @@ const lang = {
   'CancelPollConfirm.Title': 'Cancel Sending Poll',
   'CancelPollConfirm.Description': 'Are you sure you want to cancel sending the poll?',
   'CancelPollConfirm.Button': 'Cancel Sending',
-  'CancelPollConfirm.Timeout': 'The poll was already sent, you can delete the message instead.'
+  'CancelPollConfirm.Timeout': 'The poll was already sent, you can delete the message instead.',
 };
 
 export default lang;

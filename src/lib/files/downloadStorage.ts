@@ -10,7 +10,7 @@ export default class DownloadStorage implements FileStorage {
     return Promise.reject(makeError('NO_ENTRY_FOUND'));
   }
 
-  public prepareWriting({fileName, downloadId, size, mimeType}: {
+  public prepareWriting({ fileName, downloadId, size, mimeType }: {
     fileName: string,
     downloadId: string,
     size: number,
@@ -21,13 +21,13 @@ export default class DownloadStorage implements FileStorage {
     const headers = {
       'Content-Type': mimeType || 'application/octet-stream',
       'Content-Disposition': `attachment; filename="${asciiFileName}"; filename*=UTF-8''${fileNameRFC(fileName)}`,
-      ...(size ? {'Content-Length': size} : {})
+      ...(size ? { 'Content-Length': size } : {}),
     };
 
     const serviceMessagePort = appManagersManager.getServiceMessagePort();
     const promise = serviceMessagePort!.invoke('download', {
       headers,
-      id: downloadId
+      id: downloadId,
     });
 
     const deferred = deferredPromise<void>();
@@ -45,7 +45,7 @@ export default class DownloadStorage implements FileStorage {
       deferred,
       getWriter: () => {
         return new DownloadWriter(serviceMessagePort!, downloadId);
-      }
+      },
     };
   }
 }

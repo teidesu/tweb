@@ -1,8 +1,8 @@
-import {CryptoMethods} from '@lib/crypto/cryptoMethodsRegistry';
+import { CryptoMethods } from '@lib/crypto/cryptoMethodsRegistry';
 import SuperMessagePort from '@lib/superMessagePort';
-import {MOUNT_CLASS_TO} from '@config/debug';
-import {IS_WORKER} from '@helpers/context';
-import type {ThreadedWorkerEvents} from '@lib/mainWorker/mainMessagePort';
+import { MOUNT_CLASS_TO } from '@config/debug';
+import { IS_WORKER } from '@helpers/context';
+import type { ThreadedWorkerEvents } from '@lib/mainWorker/mainMessagePort';
 
 
 type CryptoEvent = {
@@ -21,21 +21,21 @@ export class CryptoMessagePort<Master extends boolean = false> extends SuperMess
   }
 
   // TODO: Transfer transferables on result tasks?
-  public invokeCryptoNew<T extends keyof CryptoMethods>({method, args, transfer}: {
+  public invokeCryptoNew<T extends keyof CryptoMethods>({ method, args, transfer }: {
     method: T,
     args: Parameters<CryptoMethods[T]>,
     transfer?: Transferable[]
   }): Promise<Awaited<SuperMessagePort.TransferableResultValue<ReturnType<CryptoMethods[T]>>>> {
-    const payload = {method, args};
+    const payload = { method, args };
     const listeners = this.listeners['invoke'];
-    if(listeners?.size) { // already in worker
+    if (listeners?.size) { // already in worker
       const callback = listeners.values().next().value!.callback;
-      if(this.readyPromise) {
+      if (this.readyPromise) {
         return this.readyPromise.then(() => callback(payload) as any);
       }
 
       let result: any = callback(payload);
-      if(!IS_WORKER && !(result instanceof Promise)) {
+      if (!IS_WORKER && !(result instanceof Promise)) {
         result = Promise.resolve(result);
       }
 
@@ -50,7 +50,7 @@ export class CryptoMessagePort<Master extends boolean = false> extends SuperMess
   }
 
   public invokeCrypto<T extends keyof CryptoMethods>(method: T, ...args: Parameters<CryptoMethods[T]>) {
-    return this.invokeCryptoNew({method, args});
+    return this.invokeCryptoNew({ method, args });
   }
 
   public sendToOnePort(port: MessagePort) {

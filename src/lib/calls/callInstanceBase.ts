@@ -1,7 +1,7 @@
 import safePlay from '@helpers/dom/safePlay';
-import EventListenerBase, {EventListenerListeners} from '@helpers/eventListenerBase';
+import EventListenerBase, { EventListenerListeners } from '@helpers/eventListenerBase';
 import noop from '@helpers/noop';
-import {logger} from '@lib/logger';
+import { logger } from '@lib/logger';
 import getAudioConstraints from '@lib/calls/helpers/getAudioConstraints';
 import getScreenConstraints from '@lib/calls/helpers/getScreenConstraints';
 import getStream from '@lib/calls/helpers/getStream';
@@ -9,9 +9,9 @@ import getStreamCached from '@lib/calls/helpers/getStreamCached';
 import getVideoConstraints from '@lib/calls/helpers/getVideoConstraints';
 import stopTrack from '@lib/calls/helpers/stopTrack';
 import LocalConferenceDescription from '@lib/calls/localConferenceDescription';
-import StreamManager, {StreamItem} from '@lib/calls/streamManager';
+import StreamManager, { StreamItem } from '@lib/calls/streamManager';
 import shouldMirrorVideoTrack from '@lib/calls/helpers/shouldMirrorVideoTrack';
-import {appSettings} from '@stores/appSettings';
+import { appSettings } from '@stores/appSettings';
 
 export type TryAddTrackOptions = {
   stream: MediaStream,
@@ -82,23 +82,23 @@ export default abstract class CallInstanceBase<E extends EventListenerListeners>
   }
 
   public requestInputSource(audio: boolean, video: boolean, muted: boolean) {
-    const {streamManager} = this;
-    if(streamManager) {
+    const { streamManager } = this;
+    if (streamManager) {
       const isAudioGood = !audio || this.isSharingAudio;
       const isVideoGood = !video || this.isSharingVideo;
-      if(isAudioGood && isVideoGood) {
+      if (isAudioGood && isVideoGood) {
         return Promise.resolve();
       }
     }
 
     const constraints: MediaStreamConstraints = {
       audio: audio && getAudioConstraints(),
-      video: video && getVideoConstraints()
+      video: video && getVideoConstraints(),
     };
 
     return this.getStream({
       constraints,
-      muted
+      muted,
     }).then((stream) => {
       this.onInputStream(stream);
     });
@@ -107,7 +107,7 @@ export default abstract class CallInstanceBase<E extends EventListenerListeners>
   public requestScreen() {
     return this.getStream({
       isScreen: true,
-      constraints: getScreenConstraints(true)
+      constraints: getScreenConstraints(true),
     }).then((stream) => {
       this.onInputStream(stream);
     });
@@ -136,7 +136,7 @@ export default abstract class CallInstanceBase<E extends EventListenerListeners>
     this.tryAddTrack({
       stream: event.streams[0],
       track: event.track,
-      type: 'output'
+      type: 'output',
     });
   }
 
@@ -146,12 +146,12 @@ export default abstract class CallInstanceBase<E extends EventListenerListeners>
       stream,
       track,
       type: 'input',
-      source: type || 'main'
+      source: type || 'main',
     });
   }
 
-  public tryAddTrack({stream, track, type, source}: TryAddTrackOptions) {
-    if(!source) {
+  public tryAddTrack({ stream, track, type, source }: TryAddTrackOptions) {
+    if (!source) {
       source = StreamManager.getSource(stream, type);
     }
 
@@ -159,7 +159,7 @@ export default abstract class CallInstanceBase<E extends EventListenerListeners>
 
     const isOutput = type === 'output';
 
-    const {player, elements, streamManager} = this;
+    const { player, elements, streamManager } = this;
 
     const tagName = track.kind as StreamItem['kind'];
     const isVideo = tagName === 'video';
@@ -167,33 +167,33 @@ export default abstract class CallInstanceBase<E extends EventListenerListeners>
     const elementEndpoint = isVideo ? source : tagName;
     let element = elements.get(elementEndpoint);
 
-    if(isVideo) {
+    if (isVideo) {
       track.addEventListener('ended', () => {
         this.log('[track] onended');
         elements.delete(elementEndpoint);
         // element.remove();
-      }, {once: true});
+      }, { once: true });
     }
 
-    if(isOutput) {
+    if (isOutput) {
       streamManager.addTrack(stream, track, type);
     }
 
     const useStream = isVideo ? stream : streamManager.outputStream;
-    if(!element) {
+    if (!element) {
       element = document.createElement(tagName);
       element.autoplay = true;
       element.srcObject = useStream;
       element.volume = 1.0;
 
-      if((element as any).sinkId !== 'undefined') {
-        const {outputDeviceId} = this;
-        if(outputDeviceId) {
+      if ((element as any).sinkId !== 'undefined') {
+        const { outputDeviceId } = this;
+        if (outputDeviceId) {
           (element as any).setSinkId(outputDeviceId);
         }
       }
 
-      if(!isVideo) {
+      if (!isVideo) {
         player.appendChild(element);
       } else {
         element.setAttribute('playsinline', 'true');
@@ -213,7 +213,7 @@ export default abstract class CallInstanceBase<E extends EventListenerListeners>
         // Exception: our own rear-facing camera (`facingMode === 'environment'`)
         // stays un-mirrored — flipping it would invert any text or sign the
         // user is pointing the camera at. shouldMirrorVideoTrack handles that.
-        if(type === 'input' && shouldMirrorVideoTrack(track)) {
+        if (type === 'input' && shouldMirrorVideoTrack(track)) {
           element.classList.add('call-video-mirror');
         }
       }
@@ -221,7 +221,7 @@ export default abstract class CallInstanceBase<E extends EventListenerListeners>
 
       elements.set(elementEndpoint, element);
     } else {
-      if(element.paused) {
+      if (element.paused) {
         safePlay(element);
       }
 
@@ -236,7 +236,7 @@ export default abstract class CallInstanceBase<E extends EventListenerListeners>
 
   public setMuted(muted?: boolean) {
     this.streamManager.inputStream.getAudioTracks().forEach((track) => {
-      if(track?.kind === 'audio') {
+      if (track?.kind === 'audio') {
         track.enabled = muted === undefined ? !track.enabled : !muted;
       }
     });
@@ -249,8 +249,8 @@ export default abstract class CallInstanceBase<E extends EventListenerListeners>
   public setOutputDeviceId(deviceId: string) {
     this.outputDeviceId = deviceId || '';
     const apply = deviceId || '';
-    for(const [, element] of this.elements) {
-      if(typeof (element as any).setSinkId === 'function') {
+    for (const [, element] of this.elements) {
+      if (typeof (element as any).setSinkId === 'function') {
         // setSinkId rejects on unknown ids / no permission; swallow because
         // the device list itself came from enumerateDevices() and the only
         // failure mode worth surfacing is permission, which would already
@@ -267,13 +267,13 @@ export default abstract class CallInstanceBase<E extends EventListenerListeners>
   // track via streamManager.appendToConference; sender.replaceTrack avoids
   // a renegotiation for the common case.
   public async setInputAudioDeviceId(deviceId: string) {
-    if(!this.isSharingAudio) return; // no active mic yet — settings will be honoured by the next acquisition path
+    if (!this.isSharingAudio) return; // no active mic yet — settings will be honoured by the next acquisition path
     let newStream: MediaStream;
     try {
       newStream = await getStream({
-        audio: getAudioConstraints(deviceId)
+        audio: getAudioConstraints(deviceId),
       });
-    } catch(err) {
+    } catch (err) {
       this.log?.error?.('setInputAudioDeviceId getUserMedia failed', err);
       return;
     }
@@ -282,14 +282,14 @@ export default abstract class CallInstanceBase<E extends EventListenerListeners>
     // If that happens, cleanup() already ran and won't run again — releasing
     // the just-acquired stream here is the only way to free the mic / let
     // the OS indicator turn off.
-    if(this.isClosing) {
+    if (this.isClosing) {
       newStream.getTracks().forEach((t) => stopTrack(t));
       return;
     }
 
     const newTrack = newStream.getAudioTracks()[0];
     const oldTrack = this.streamManager.inputStream.getAudioTracks()[0];
-    if(!newTrack || !oldTrack) {
+    if (!newTrack || !oldTrack) {
       newStream.getTracks().forEach((t) => stopTrack(t));
       return;
     }
@@ -320,18 +320,18 @@ export default abstract class CallInstanceBase<E extends EventListenerListeners>
     const allVideos = Array.from(document.querySelectorAll('video'));
     const targetStreams = new Set<MediaStream>();
     const targetVideos: HTMLVideoElement[] = [];
-    for(const video of allVideos) {
+    for (const video of allVideos) {
       const stream = video.srcObject;
-      if(!(stream instanceof MediaStream)) continue;
-      if(!(stream.getVideoTracks() as MediaStreamTrack[]).includes(oldTrack)) continue;
+      if (!(stream instanceof MediaStream)) continue;
+      if (!(stream.getVideoTracks() as MediaStreamTrack[]).includes(oldTrack)) continue;
       targetStreams.add(stream);
       targetVideos.push(video);
     }
-    for(const stream of targetStreams) {
+    for (const stream of targetStreams) {
       stream.removeTrack(oldTrack);
       stream.addTrack(newTrack);
     }
-    for(const video of targetVideos) {
+    for (const video of targetVideos) {
       // Re-assigning `srcObject` (even to the same stream) forces Chrome to
       // pick up the new track. Setting to null first guarantees a clean
       // repaint cycle even when the browser is mid-frame.
@@ -345,13 +345,13 @@ export default abstract class CallInstanceBase<E extends EventListenerListeners>
   // streamManager.replaceInputAudio (which is audio-only) — for video we
   // mutate the inputStream directly.
   public async setInputVideoDeviceId(deviceId: string) {
-    if(!this.isSharingVideo) return;
+    if (!this.isSharingVideo) return;
     let newStream: MediaStream;
     try {
       newStream = await getStream({
-        video: getVideoConstraints(deviceId)
+        video: getVideoConstraints(deviceId),
       });
-    } catch(err) {
+    } catch (err) {
       this.log?.error?.('setInputVideoDeviceId getUserMedia failed', err);
       return;
     }
@@ -360,14 +360,14 @@ export default abstract class CallInstanceBase<E extends EventListenerListeners>
     // `getUserMedia` resolution. After that point cleanup has already run,
     // and the freshly-acquired stream would otherwise stay LIVE forever —
     // the macOS camera indicator stays on. Release it here.
-    if(this.isClosing) {
+    if (this.isClosing) {
       newStream.getTracks().forEach((t) => stopTrack(t));
       return;
     }
 
     const newTrack = newStream.getVideoTracks()[0];
     const oldTrack = this.streamManager.inputStream.getVideoTracks()[0];
-    if(!newTrack || !oldTrack) {
+    if (!newTrack || !oldTrack) {
       newStream.getTracks().forEach((t) => stopTrack(t));
       return;
     }
@@ -403,16 +403,16 @@ export default abstract class CallInstanceBase<E extends EventListenerListeners>
   ): void;
 
   protected onInputStream(stream: MediaStream): void {
-    if(!this.isClosing) {
+    if (!this.isClosing) {
       const videoTracks = stream.getVideoTracks();
-      if(videoTracks.length) {
+      if (videoTracks.length) {
         this.saveInputVideoStream(stream, 'main');
       }
 
-      const {streamManager, description} = this;
+      const { streamManager, description } = this;
       streamManager.addStream(stream, 'input');
 
-      if(description) {
+      if (description) {
         streamManager.appendToConference(description);
       }
     } else { // if call is declined earlier than stream appears

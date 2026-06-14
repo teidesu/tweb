@@ -1,7 +1,7 @@
-import type {HistoryStorage, HistoryStorageKey} from '@appManagers/appMessagesManager';
-import {createStore} from 'solid-js/store';
+import type { HistoryStorage, HistoryStorageKey } from '@appManagers/appMessagesManager';
+import { createStore } from 'solid-js/store';
 import createHistoryStorage from '@appManagers/utils/messages/createHistoryStorage';
-import {MOUNT_CLASS_TO} from '@config/debug';
+import { MOUNT_CLASS_TO } from '@config/debug';
 
 type S = ReturnType<typeof createStore<HistoryStorage>>;
 
@@ -10,7 +10,7 @@ const cache: {
 } = {};
 
 export default function useHistoryStorage(key: HistoryStorageKey) {
-  if(!key) return;
+  if (!key) return;
   return _useHistoryStorage(key)[0];
 }
 
@@ -28,7 +28,7 @@ export function _changeHistoryStorageKey(key: HistoryStorageKey, newKey: History
 }
 
 export function _iterateHistoryStorages(callback: (key: HistoryStorageKey, value: S) => void) {
-  for(const i in cache) {
+  for (const i in cache) {
     callback(i as HistoryStorageKey, cache[i as HistoryStorageKey]);
   }
 }

@@ -1,11 +1,11 @@
-import {createDelayed} from '@helpers/solid/createDelayed';
-import {createMutation} from '@helpers/solid/createMutation';
-import {wrapAsyncClickHandler} from '@helpers/wrapAsyncClickHandler';
-import {Message} from '@layer';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {Accessor} from 'solid-js';
-import {unwrap} from 'solid-js/store';
-import {NewOptionValues} from './utils';
+import { createDelayed } from '@helpers/solid/createDelayed';
+import { createMutation } from '@helpers/solid/createMutation';
+import { wrapAsyncClickHandler } from '@helpers/wrapAsyncClickHandler';
+import { Message } from '@layer';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { Accessor } from 'solid-js';
+import { unwrap } from 'solid-js/store';
+import { NewOptionValues } from './utils';
 
 type UsePollMutationsArgs = {
   getOverridenMessage: Accessor<Message.message>;
@@ -23,12 +23,12 @@ export function usePollMutations({
   isShowingResult,
   initialIdxFromShuffledIdx,
   newOption,
-  onSuccess
+  onSuccess,
 }: UsePollMutationsArgs) {
-  const {rootScope} = useHotReloadGuard();
+  const { rootScope } = useHotReloadGuard();
 
   const sendVoteMutation = createMutation(async(indexes: number[]) => {
-    if(isShowingResult() || !indexes.length) return;
+    if (isShowingResult() || !indexes.length) return;
 
     const optionIndexes = indexes.map(initialIdxFromShuffledIdx).filter(idx => idx !== -1);
 
@@ -43,15 +43,15 @@ export function usePollMutations({
   const delayedSendVotePending = createDelayed(sendVoteMutation.isPending, false, value => value ? 100 : -1);
 
   const addOptionMutation = createMutation(async() => {
-    const {text, entities, attachment} = unwrap(newOption);
-    if(isShowingResult() || !text || attachment?.type === 'pending') return;
+    const { text, entities, attachment } = unwrap(newOption);
+    if (isShowingResult() || !text || attachment?.type === 'pending') return;
 
     await rootScope.managers.appPollsManager.addPollAnswer(
       getOverridenMessage(),
       {
         _: 'textWithEntities',
         text,
-        entities
+        entities,
       },
       attachment
     );
@@ -66,6 +66,6 @@ export function usePollMutations({
     wrappedSendVote,
     delayedSendVotePending,
     addOptionMutation,
-    wrappedAddOption
+    wrappedAddOption,
   };
 }

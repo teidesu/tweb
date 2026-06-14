@@ -5,14 +5,14 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import {CommonDatabase, getCommonDatabaseState} from '@config/databases/state';
+import { CommonDatabase, getCommonDatabaseState } from '@config/databases/state';
 import Modes from '@config/modes';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
-import {IS_WORKER} from '@helpers/context';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
+import { IS_WORKER } from '@helpers/context';
 import makeError from '@helpers/makeError';
-import {StringKey, WorkerTaskTemplate} from '@types';
+import { StringKey, WorkerTaskTemplate } from '@types';
 import EncryptedStorageLayer from '@lib/encryptedStorageLayer';
-import {logger} from '@lib/logger';
+import { logger } from '@lib/logger';
 import MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
 import DeferredIsUsingPasscode from '@lib/passcode/deferredIsUsingPasscode';
 
@@ -23,27 +23,27 @@ class LocalStorage<Storage extends Record<string, any>> {
   private useStorage = true;
 
   constructor() {
-    if(Modes.test) {
+    if (Modes.test) {
       this.prefix = 't_';
     }
   }
 
   public get<T extends keyof Storage>(key: T, useCache = true): Storage[T] {
-    if(this.cache.hasOwnProperty(key) && useCache) {
+    if (this.cache.hasOwnProperty(key) && useCache) {
       return this.cache[key]!;
-    } else if(this.useStorage) {
+    } else if (this.useStorage) {
       let value: Storage[T] | undefined;
       try {
         value = localStorage.getItem(this.prefix + (key as string)) as any;
-      } catch(err) {
+      } catch (err) {
         this.useStorage = false;
         throw makeError('STORAGE_OFFLINE');
       }
 
-      if(value !== null) {
+      if (value !== null) {
         try {
           value = JSON.parse((value as string));
-        } catch(err) {
+        } catch (err) {
           // console.error(err);
         }
       } else {
@@ -58,20 +58,20 @@ class LocalStorage<Storage extends Record<string, any>> {
 
   public set(obj: Partial<Storage>, onlyLocal = false) {
     let lastError: any;
-    for(const key in obj) {
-      if(obj.hasOwnProperty(key)) {
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
         const value = obj[key];
         this.cache[key] = value;
 
-        if(!onlyLocal) {
+        if (!onlyLocal) {
           try {
-            if(!this.useStorage) {
+            if (!this.useStorage) {
               throw makeError('STORAGE_OFFLINE');
             }
 
             const stringified = JSON.stringify(value);
             localStorage.setItem(this.prefix + key, stringified);
-          } catch(err) {
+          } catch (err) {
             this.useStorage = false;
             lastError = err;
           }
@@ -79,7 +79,7 @@ class LocalStorage<Storage extends Record<string, any>> {
       }
     }
 
-    if(lastError) {
+    if (lastError) {
       throw lastError;
     }
   }
@@ -88,14 +88,14 @@ class LocalStorage<Storage extends Record<string, any>> {
     // ! it is needed here
     key = String(key);
 
-    if(!saveLocal) {
+    if (!saveLocal) {
       delete this.cache[key];
     }
 
     // if(this.useStorage) {
     try {
       localStorage.removeItem(this.prefix + (key as unknown as string));
-    } catch(err) {
+    } catch (err) {
 
     }
     // }
@@ -104,10 +104,10 @@ class LocalStorage<Storage extends Record<string, any>> {
   public clear(preserveKeys: (keyof Storage)[] = []) {
     try {
       const obj: Partial<Storage> = {};
-      if(preserveKeys?.length) {
+      if (preserveKeys?.length) {
         preserveKeys.forEach((key) => {
           const value = this.get(key);
-          if(value !== undefined) {
+          if (value !== undefined) {
             obj[key] = value;
           }
         });
@@ -115,10 +115,10 @@ class LocalStorage<Storage extends Record<string, any>> {
 
       localStorage.clear();
 
-      if(preserveKeys?.length) {
+      if (preserveKeys?.length) {
         this.set(obj);
       }
-    } catch(err) {
+    } catch (err) {
 
     }
   }
@@ -126,11 +126,11 @@ class LocalStorage<Storage extends Record<string, any>> {
   public toggleStorage(enabled: boolean, clearWrite: boolean) {
     this.useStorage = enabled;
 
-    if(!clearWrite) {
+    if (!clearWrite) {
       return;
     }
 
-    if(enabled) {
+    if (enabled) {
       return this.set(this.cache);
     }
   }
@@ -169,13 +169,13 @@ export default class LocalStorageController<Storage extends Record<string, any>>
     LocalStorageController.STORAGES.push(this);
     this.encryptableKeys = new Set(encryptableKeys);
 
-    if(!IS_WORKER) {
+    if (!IS_WORKER) {
       this.storage = new LocalStorage();
     }
   }
 
   private async getEncryptedStorage() {
-    if(this.encryptedStorage) return this.encryptedStorage;
+    if (this.encryptedStorage) return this.encryptedStorage;
 
     this.encryptedStorage = EncryptedStorageLayer.getInstance(
       LocalStorageController.ENCRYPTION_DB, LocalStorageController.ENCRYPTION_DB_STORE_NAME
@@ -188,15 +188,15 @@ export default class LocalStorageController<Storage extends Record<string, any>>
 
   private async shouldUseEncryptableStorage(key: keyof Storage) {
     const isEncryptable = this.encryptableKeys.has(key);
-    if(isEncryptable === false) return false;
+    if (isEncryptable === false) return false;
 
     return DeferredIsUsingPasscode.isUsingPasscode();
   }
 
   public async localStorageProxy<T>(type: LocalStorageProxyTask['payload']['type'], ...args: LocalStorageProxyTask['payload']['args']): Promise<T> {
-    if(IS_WORKER) {
+    if (IS_WORKER) {
       const port = MTProtoMessagePort.getInstance<false>();
-      return port.invoke('localStorageProxy', {type, args});
+      return port.invoke('localStorageProxy', { type, args });
     }
 
     args = Array.prototype.slice.call(args);
@@ -209,9 +209,9 @@ export default class LocalStorageController<Storage extends Record<string, any>>
     type: T,
     ...args: Parameters<EncryptedStorageLayer<any>[T]>
   ): Promise<Awaited<ReturnType<EncryptedStorageLayer<any>[T]>>> {
-    if(!IS_WORKER) {
+    if (!IS_WORKER) {
       const port = MTProtoMessagePort.getMasterInstance();
-      return port.invoke('localStorageEncryptedProxy', {type, args});
+      return port.invoke('localStorageEncryptedProxy', { type, args });
     }
 
     const encryptedStorage = await this.getEncryptedStorage();
@@ -220,14 +220,14 @@ export default class LocalStorageController<Storage extends Record<string, any>>
   }
 
   private async waitEncryptionToFinish() {
-    if(this.encryptionDeferred) await this.encryptionDeferred;
+    if (this.encryptionDeferred) await this.encryptionDeferred;
   }
 
 
   public async get<Key extends keyof Storage>(key: StringKey<Key>, useCache?: boolean) {
     await this.waitEncryptionToFinish();
 
-    if(await this.shouldUseEncryptableStorage(key)) {
+    if (await this.shouldUseEncryptableStorage(key)) {
       const result = await this.encryptedStorageProxy('get', [key]); // uses cache by default
       return result[0] as Storage[Key];
     }
@@ -238,11 +238,11 @@ export default class LocalStorageController<Storage extends Record<string, any>>
   public async set(obj: Partial<Storage>) {
     await this.waitEncryptionToFinish();
 
-    obj = {...obj};
+    obj = { ...obj };
 
     const encryptableKeys = Object.keys(obj).filter(key => this.encryptableKeys.has(key));
 
-    if(encryptableKeys.length && await this.shouldUseEncryptableStorage(encryptableKeys[0])) {
+    if (encryptableKeys.length && await this.shouldUseEncryptableStorage(encryptableKeys[0])) {
       const values = encryptableKeys.map((key) => obj[key]);
       await this.encryptedStorageProxy('save', encryptableKeys, values);
       encryptableKeys.forEach((key) => {
@@ -250,7 +250,7 @@ export default class LocalStorageController<Storage extends Record<string, any>>
       });
     }
 
-    if(Object.keys(obj).length) {
+    if (Object.keys(obj).length) {
       return this.localStorageProxy<void>('set', obj);
     }
   }
@@ -258,7 +258,7 @@ export default class LocalStorageController<Storage extends Record<string, any>>
   public async delete(key: StringKey<keyof Storage>) {
     await this.waitEncryptionToFinish();
 
-    if(await this.shouldUseEncryptableStorage(key)) {
+    if (await this.shouldUseEncryptableStorage(key)) {
       return this.encryptedStorageProxy('delete', key);
     }
 
@@ -270,14 +270,14 @@ export default class LocalStorageController<Storage extends Record<string, any>>
   }
 
   private warnAboutEncrypting(methodName: string) {
-    if(IS_WORKER) return false;
+    if (IS_WORKER) return false;
 
     this.log.warn(`${methodName} should not be called in a window client, call it only in the MTProto worker`);
     return true;
   }
 
   public async encryptEncryptable() {
-    if(this.warnAboutEncrypting('encryptEncryptable')) return;
+    if (this.warnAboutEncrypting('encryptEncryptable')) return;
 
     this.encryptionDeferred = deferredPromise();
 
@@ -305,7 +305,7 @@ export default class LocalStorageController<Storage extends Record<string, any>>
   }
 
   public async reEncryptEncryptable() {
-    if(this.warnAboutEncrypting('reEncryptEncryptable')) return;
+    if (this.warnAboutEncrypting('reEncryptEncryptable')) return;
 
     this.encryptionDeferred = deferredPromise();
 
@@ -317,7 +317,7 @@ export default class LocalStorageController<Storage extends Record<string, any>>
   }
 
   public async decryptEncryptable() {
-    if(this.warnAboutEncrypting('decryptEncryptable')) return;
+    if (this.warnAboutEncrypting('decryptEncryptable')) return;
 
     this.encryptionDeferred = deferredPromise();
 

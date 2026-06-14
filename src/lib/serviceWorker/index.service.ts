@@ -1,28 +1,28 @@
-import {logger, LogTypes} from '@lib/logger';
-import {CACHE_ASSETS_NAME, requestCache} from '@lib/serviceWorker/cache';
-import onStreamFetch, {toggleStreamInUse} from '@lib/serviceWorker/stream';
-import {closeAllNotifications, fillPushObject, onPing, onShownNotification, resetPushAccounts} from '@lib/serviceWorker/push';
+import { logger, LogTypes } from '@lib/logger';
+import { CACHE_ASSETS_NAME, requestCache } from '@lib/serviceWorker/cache';
+import onStreamFetch, { toggleStreamInUse } from '@lib/serviceWorker/stream';
+import { closeAllNotifications, fillPushObject, onPing, onShownNotification, resetPushAccounts } from '@lib/serviceWorker/push';
 import CacheStorageController from '@lib/files/cacheStorage';
-import {IS_SAFARI} from '@environment/userAgent';
+import { IS_SAFARI } from '@environment/userAgent';
 import ServiceMessagePort from '@lib/serviceWorker/serviceMessagePort';
-import {getLogEntries, setLogBufferEnabled} from '@lib/debug/logsBuffer';
+import { getLogEntries, setLogBufferEnabled } from '@lib/debug/logsBuffer';
 import listenMessagePort from '@helpers/listenMessagePort';
-import {getWindowClients} from '@helpers/context';
-import {MessageSendPort} from '@lib/superMessagePort';
+import { getWindowClients } from '@helpers/context';
+import { MessageSendPort } from '@lib/superMessagePort';
 import handleDownload from '@lib/serviceWorker/download';
-import onShareFetch, {checkWindowClientForDeferredShare} from '@lib/serviceWorker/share';
-import {onRtmpFetch, onRtmpLeftCall} from '@lib/serviceWorker/rtmp';
-import {onHlsQualityFileFetch} from '@lib/hls/onHlsQualityFileFetch';
-import {get500ErrorResponse} from '@lib/serviceWorker/errors';
-import {onHlsStreamFetch} from '@lib/hls/onHlsStreamFetch';
-import {onHlsPlaylistFetch} from '@lib/hls/onHlsPlaylistFetch';
-import {setEnvironment} from '@environment/utils';
+import onShareFetch, { checkWindowClientForDeferredShare } from '@lib/serviceWorker/share';
+import { onRtmpFetch, onRtmpLeftCall } from '@lib/serviceWorker/rtmp';
+import { onHlsQualityFileFetch } from '@lib/hls/onHlsQualityFileFetch';
+import { get500ErrorResponse } from '@lib/serviceWorker/errors';
+import { onHlsStreamFetch } from '@lib/hls/onHlsStreamFetch';
+import { onHlsPlaylistFetch } from '@lib/hls/onHlsPlaylistFetch';
+import { setEnvironment } from '@environment/utils';
 import cryptoMessagePort from '@lib/crypto/cryptoMessagePort';
 import EncryptionKeyStore from '@lib/passcode/keyStore';
 import DeferredIsUsingPasscode from '@lib/passcode/deferredIsUsingPasscode';
-import {onBackgroundsFetch} from '@lib/serviceWorker/backgrounds';
-import {watchMtprotoOnDev} from '@lib/serviceWorker/watchMtprotoOnDev';
-import {watchCacheStoragesLifetime} from './clearOldCache';
+import { onBackgroundsFetch } from '@lib/serviceWorker/backgrounds';
+import { watchMtprotoOnDev } from '@lib/serviceWorker/watchMtprotoOnDev';
+import { watchCacheStoragesLifetime } from './clearOldCache';
 
 // #if MTPROTO_SW
 // import '../mtproto/mtproto.worker';
@@ -81,7 +81,7 @@ const sendMessagePort = (source: MessageSendPort) => {
 };
 
 const sendMessagePortIfNeeded = (source: MessageSendPort) => {
-  if(!connectedWindows.size && !_mtprotoMessagePort) {
+  if (!connectedWindows.size && !_mtprotoMessagePort) {
     log('sending message port for mtproto');
     sendMessagePort(source);
   }
@@ -91,12 +91,12 @@ const onWindowConnected = (source: WindowClient, from: string) => {
   const _log = log.bindPrefix('windowConnected');
   _log('new', source.id, 'from', from, 'before', connectedWindows.size);
 
-  if(source.frameType === 'none') {
+  if (source.frameType === 'none') {
     log.warn('maybe a bugged Safari starting window', source.id);
     return;
   }
 
-  if(connectedWindows.has(source.id)) {
+  if (connectedWindows.has(source.id)) {
     _log('already connected', source.id);
     return;
   }
@@ -123,7 +123,7 @@ serviceMessagePort.addMultipleEventsListeners({
 
   notificationsClear: closeAllNotifications,
 
-  toggleStorages: ({enabled, clearWrite}) => {
+  toggleStorages: ({ enabled, clearWrite }) => {
     CacheStorageController.toggleStorage(enabled, clearWrite);
   },
 
@@ -152,7 +152,7 @@ serviceMessagePort.addMultipleEventsListeners({
     DeferredIsUsingPasscode.resolveDeferred(payload.isUsingPasscode);
 
     // Make sure the promise is not resloved to null in case the encryption key is not provided and we have a passcode set
-    if(payload.type === 'full') {
+    if (payload.type === 'full') {
       EncryptionKeyStore.save(payload.encryptionKey);
     }
   },
@@ -173,12 +173,12 @@ serviceMessagePort.addMultipleEventsListeners({
 
   resetOpenCacheStoragesByNames: (names) => {
     CacheStorageController.resetOpenStoragesByNames(names);
-  }
+  },
 });
 
 const {
   onDownloadFetch,
-  onClosedWindows: onDownloadClosedWindows
+  onClosedWindows: onDownloadClosedWindows,
 } = handleDownload(serviceMessagePort);
 
 // * service worker can be killed, so won't get 'hello' event
@@ -187,7 +187,7 @@ async function startupCheck() {
   const length = windowClients.length;
   log(`got ${length} windows from the start`);
   windowClients.forEach((windowClient) => {
-    if(windowClient.frameType === 'none') {
+    if (windowClient.frameType === 'none') {
       log.warn('skipping bugged Safari starting window', windowClient.id);
       return;
     }
@@ -204,12 +204,12 @@ async function startupCheck() {
       let timedOut = false;
       const timeout = setTimeout(() => timedOut = true, 5000);
       promise.finally(() => {
-        if(!timedOut) {
+        if (!timedOut) {
           clearTimeout(timeout);
           onWindowConnected(windowClient, 'startup check');
         }
       });
-    } catch(err) {
+    } catch (err) {
       log.error('failed to send hello to window', windowClient.id, err);
     }
   });
@@ -221,28 +221,28 @@ const connectedWindows: Map<string, WindowClient> = new Map();
 listenMessagePort(serviceMessagePort, undefined, (source) => {
   log('something has disconnected', source);
   const isWindowClient = source instanceof WindowClient;
-  if(!isWindowClient || !connectedWindows.has(source.id)) {
+  if (!isWindowClient || !connectedWindows.has(source.id)) {
     log.warn('it is not a window');
     return;
   }
 
   connectedWindows.delete(source.id);
   log('window disconnected, left', connectedWindows.size);
-  if(!connectedWindows.size) {
+  if (!connectedWindows.size) {
     log.warn('no windows left');
 
-    if(DeferredIsUsingPasscode.isUsingPasscodeUndeferred()) {
+    if (DeferredIsUsingPasscode.isUsingPasscodeUndeferred()) {
       resetPushAccounts();
     }
 
     EncryptionKeyStore.resetDeferred();
     DeferredIsUsingPasscode.resetDeferred();
 
-    if(_mtprotoMessagePort) {
+    if (_mtprotoMessagePort) {
       serviceMessagePort.detachPort(_mtprotoMessagePort);
       _mtprotoMessagePort = undefined;
     }
-    if(_cryptoMessagePort) {
+    if (_cryptoMessagePort) {
       cryptoMessagePort.detachPort(_cryptoMessagePort);
       _cryptoMessagePort = undefined;
     }
@@ -253,21 +253,21 @@ listenMessagePort(serviceMessagePort, undefined, (source) => {
 // #endif
 
 watchCacheStoragesLifetime({
-  onStorageError: async({storageName, error}) => {
+  onStorageError: async({ storageName, error }) => {
     log(`Error clearing old cache in ${storageName}:`, error);
     log(`Clearing cache storage ${storageName}`);
 
     const windowClients = await getWindowClients();
-    if(!windowClients.length) return;
+    if (!windowClients.length) return;
 
     await serviceMessagePort.invoke('clearCacheStoragesByNames', [storageName], undefined, windowClients[0]);
-  }
+  },
 });
 
-watchMtprotoOnDev({connectedWindows, onWindowConnected});
+watchMtprotoOnDev({ connectedWindows, onWindowConnected });
 
 const onFetch = (event: FetchEvent): void => {
-  if(
+  if (
     import.meta.env.PROD &&
     !IS_SAFARI &&
     event.request.url.indexOf(location.origin + '/') === 0 &&
@@ -276,7 +276,7 @@ const onFetch = (event: FetchEvent): void => {
     return event.respondWith(requestCache(event));
   }
 
-  if(import.meta.env.DEV && event.request.url.match(/\.([jt]sx?|s?css)?($|\?)/)) {
+  if (import.meta.env.DEV && event.request.url.match(/\.([jt]sx?|s?css)?($|\?)/)) {
     return;
   }
 
@@ -287,7 +287,7 @@ const onFetch = (event: FetchEvent): void => {
 
     // log.debug('[fetch]', event, event.request.url);
 
-    switch(scope) {
+    switch (scope) {
       case 'stream': {
         onStreamFetch(event, params, search);
         break;
@@ -339,7 +339,7 @@ const onFetch = (event: FetchEvent): void => {
       //   break;
       // }
     }
-  } catch(err) {
+  } catch (err) {
     log.error('fetch error', err);
     event.respondWith(get500ErrorResponse());
   }

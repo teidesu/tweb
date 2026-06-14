@@ -1,35 +1,35 @@
-import {adjustmentsConfig, AdjustmentsConfig} from '@components/mediaEditor/adjustments';
+import { adjustmentsConfig, AdjustmentsConfig } from '@components/mediaEditor/adjustments';
 import initVideoPlayback from '@components/mediaEditor/canvas/initVideoPlayback';
-import {useMediaEditorContext} from '@components/mediaEditor/context';
-import {cleanupWebGl, snapToAvailableQuality, snapToViewport} from '@components/mediaEditor/utils';
-import {draw} from '@components/mediaEditor/webgl/draw';
-import {initWebGL} from '@components/mediaEditor/webgl/initWebGL';
+import { useMediaEditorContext } from '@components/mediaEditor/context';
+import { cleanupWebGl, snapToAvailableQuality, snapToViewport } from '@components/mediaEditor/utils';
+import { draw } from '@components/mediaEditor/webgl/draw';
+import { initWebGL } from '@components/mediaEditor/webgl/initWebGL';
 import createMiddleware from '@helpers/solid/createMiddleware';
-import {withCurrentOwner} from '@helpers/solid/withCurrentOwner';
-import {batch, createEffect, createReaction, onCleanup, onMount} from 'solid-js';
-import {useCropOffset} from './useCropOffset';
+import { withCurrentOwner } from '@helpers/solid/withCurrentOwner';
+import { batch, createEffect, createReaction, onCleanup, onMount } from 'solid-js';
+import { useCropOffset } from './useCropOffset';
 
 
 function drawAdjustedImage(gl: WebGLRenderingContext) {
-  const {editorState, mediaState} = useMediaEditorContext()!;
+  const { editorState, mediaState } = useMediaEditorContext()!;
 
   const payload = editorState.renderingPayload;
-  if(!payload) return;
+  if (!payload) return;
 
   draw(gl, payload, {
     ...editorState.finalTransform,
     imageSize: [payload.media.width, payload.media.height],
     ...(Object.fromEntries(
-      adjustmentsConfig.map(({key, to100}) => {
+      adjustmentsConfig.map(({ key, to100 }) => {
         const value = mediaState.adjustments[key];
         return [key, value / (to100 ? 100 : 50)];
       })
-    ) as Record<AdjustmentsConfig[number]['key'], number>)
+    ) as Record<AdjustmentsConfig[number]['key'], number>),
   });
 }
 
 export default function ImageCanvas() {
-  const {editorState, mediaState, mediaSrc, mediaType, actions, isEditingForAvatar} = useMediaEditorContext()!;
+  const { editorState, mediaState, mediaSrc, mediaType, actions, isEditingForAvatar } = useMediaEditorContext()!;
 
   const cropOffset = useCropOffset();
 
@@ -38,7 +38,7 @@ export default function ImageCanvas() {
   ) as HTMLCanvasElement;
 
   const gl = canvas.getContext('webgl', {
-    preserveDrawingBuffer: true
+    preserveDrawingBuffer: true,
   });
 
   editorState.imageCanvas = canvas;
@@ -46,20 +46,20 @@ export default function ImageCanvas() {
   const ownedDrawAdjustedImage = withCurrentOwner(() => drawAdjustedImage(gl!));
 
   const ownedInitVideoPlayback = withCurrentOwner(() =>
-    initVideoPlayback({gl: gl!, drawAdjustedImage: ownedDrawAdjustedImage})
+    initVideoPlayback({ gl: gl!, drawAdjustedImage: ownedDrawAdjustedImage })
   );
 
   const middleware = createMiddleware().get();
 
   async function init() {
-    const payload = await initWebGL({gl: gl!, mediaSrc, mediaType, videoTime: mediaState.currentVideoTime, middleware});
+    const payload = await initWebGL({ gl: gl!, mediaSrc, mediaType, videoTime: mediaState.currentVideoTime, middleware });
 
     batch(() => {
       editorState.renderingPayload = payload;
       editorState.mediaSize = [payload.media.width, payload.media.height];
       editorState.mediaRatio = payload.media.width / payload.media.height;
 
-      if(!mediaState.videoQuality) {
+      if (!mediaState.videoQuality) {
         const videoQuality = snapToAvailableQuality(payload.media.height);
         actions.updateMediaStateClone(state => {
           state.videoQuality = videoQuality;
@@ -67,7 +67,7 @@ export default function ImageCanvas() {
         mediaState.videoQuality = videoQuality;
       }
 
-      if(isEditingForAvatar && !mediaState.currentImageRatio) {
+      if (isEditingForAvatar && !mediaState.currentImageRatio) {
         const squareRatio = 1;
 
         const [w1, h1] = snapToViewport(editorState.mediaRatio, cropOffset().width, cropOffset().height);
@@ -82,7 +82,7 @@ export default function ImageCanvas() {
           state.currentImageRatio = squareRatio;
           state.scale = mediaState.scale;
         });
-      } else if(!mediaState.currentImageRatio) {
+      } else if (!mediaState.currentImageRatio) {
         const ratio = payload.media.width / payload.media.height;
         actions.updateMediaStateClone(state => {
           state.currentImageRatio = ratio;
@@ -96,7 +96,7 @@ export default function ImageCanvas() {
   }
 
   onMount(() => {
-    if(editorState.isReady) init(); // When hot reloading
+    if (editorState.isReady) init(); // When hot reloading
     else {
       const track = createReaction(() => {
         init();

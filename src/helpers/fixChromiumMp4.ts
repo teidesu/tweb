@@ -5,11 +5,11 @@ function readLengthField(buf: Uint8Array, offset: number) {
   let length = 0;
   let size = 0;
 
-  for(let i = 0; i < 4; i++) {
+  for (let i = 0; i < 4; i++) {
     const byte = buf[offset + i];
     length = (length << 7) + (byte & 0x7f);
     size++;
-    if((byte & 0x80) === 0) {
+    if ((byte & 0x80) === 0) {
       break;
     }
   }
@@ -18,7 +18,7 @@ function readLengthField(buf: Uint8Array, offset: number) {
 }
 
 function parseDecoderSpecificInfo(buf: Uint8Array) {
-  if(buf[0] !== 0x05) {
+  if (buf[0] !== 0x05) {
     throw new Error('Invalid DecoderSpecificInfo tag');
   }
 
@@ -29,7 +29,7 @@ function parseDecoderSpecificInfo(buf: Uint8Array) {
 }
 
 function parseDecoderConfigDescriptor(buf: Uint8Array) {
-  if(buf[0] !== 0x04) {
+  if (buf[0] !== 0x04) {
     throw new Error('Invalid DecoderConfigDescriptor tag');
   }
 
@@ -48,7 +48,7 @@ function parseDecoderConfigDescriptor(buf: Uint8Array) {
 }
 
 function parseES_Descriptor(buf: Uint8Array) {
-  if(buf[0] !== 0x03) {
+  if (buf[0] !== 0x03) {
     throw new Error('Invalid ES_Descriptor tag');
   }
 
@@ -62,17 +62,17 @@ function parseES_Descriptor(buf: Uint8Array) {
   const streamDependenceFlag = flags & 0x80;
   const URL_Flag = flags & 0x40;
 
-  if(streamDependenceFlag) {
+  if (streamDependenceFlag) {
     offset += 2;
   }
-  if(URL_Flag) {
+  if (URL_Flag) {
     const URLlength = readLengthField(buf, offset);
     offset += 1 + URLlength[0] + URLlength[1];
   }
 
   const decoderConfigDescriptor = parseDecoderConfigDescriptor(buf.subarray(offset));
 
-  return {decoderConfigDescriptor};
+  return { decoderConfigDescriptor };
 }
 
 // function isoMakePath(box: any) {
@@ -94,15 +94,15 @@ const ESDS = new TextEncoder().encode('esds');
 const MP4A = new TextEncoder().encode('mp4a');
 
 function findUint8ArrayBack(buf: Uint8Array, needle: Uint8Array, start = buf.length) {
-  for(let i = start - needle.length; i >= 0; i--) {
+  for (let i = start - needle.length; i >= 0; i--) {
     let found = true;
-    for(let j = 0; j < needle.length; j++) {
-      if(buf[i + j] !== needle[j]) {
+    for (let j = 0; j < needle.length; j++) {
+      if (buf[i + j] !== needle[j]) {
         found = false;
         break;
       }
     }
-    if(found) return i;
+    if (found) return i;
   }
 
   return -1;
@@ -114,36 +114,36 @@ function fixMp4ForChromium(u8: Uint8Array) {
   // starting from end is more efficient because mdat is usually at the start
   let pos = u8.length;
   let found = null;
-  while(true) {
+  while (true) {
     const esdsOffset = findUint8ArrayBack(u8, ESDS, pos);
-    if(esdsOffset === -1) break;
+    if (esdsOffset === -1) break;
     pos = esdsOffset;
 
     // validate size
     const esdsSize = dv.getUint32(esdsOffset - 4); // mp4 box
-    if(esdsSize < 0 || esdsOffset + esdsSize > u8.length) {
+    if (esdsSize < 0 || esdsOffset + esdsSize > u8.length) {
       // invalid esds
       continue;
     }
 
     // esds can only be inside mp4a
     const mp4aOffset = findUint8ArrayBack(u8, MP4A, esdsOffset);
-    if(mp4aOffset === -1 || esdsOffset - mp4aOffset > 100) continue;
+    if (mp4aOffset === -1 || esdsOffset - mp4aOffset > 100) continue;
 
-    found = {offset: esdsOffset + 8, size: esdsSize - 12};
+    found = { offset: esdsOffset + 8, size: esdsSize - 12 };
   }
 
-  if(!found) throw new Error('No ESDS found');
+  if (!found) throw new Error('No ESDS found');
 
   const esds = u8.subarray(found.offset, found.offset + found.size);
 
   const parsed = parseES_Descriptor(esds);
-  if(!parsed) throw new Error('Invalid ESDS');
-  if(!bytesCmp(parsed.decoderConfigDescriptor, BROKEN_DSCI)) {
+  if (!parsed) throw new Error('Invalid ESDS');
+  if (!bytesCmp(parsed.decoderConfigDescriptor, BROKEN_DSCI)) {
     throw new Error('Not a broken DSCI');
   }
 
-  if(found.size < FIXED_ESDS.length) {
+  if (found.size < FIXED_ESDS.length) {
     throw new Error(`ESDS Size not enough (expected at least ${FIXED_ESDS.length}, got ${found.size})`);
   }
 
@@ -160,7 +160,7 @@ export default function tryPatchMp4(u8: Uint8Array) {
   try {
     fixMp4ForChromium(u8);
     return true;
-  } catch(e) {
+  } catch (e) {
     return false;
   }
 }

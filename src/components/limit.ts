@@ -1,9 +1,9 @@
-import {animateSingle} from '@helpers/animation';
-import {easeInOutSineApply} from '@helpers/easing/easeInOutSine';
+import { animateSingle } from '@helpers/animation';
+import { easeInOutSineApply } from '@helpers/easing/easeInOutSine';
 import liteMode from '@helpers/liteMode';
 import clamp from '@helpers/number/clamp';
-import {doubleRaf} from '@helpers/schedulers';
-import {_i18n, i18n} from '@lib/langPack';
+import { doubleRaf } from '@helpers/schedulers';
+import { _i18n, i18n } from '@lib/langPack';
 import Icon from '@components/icon';
 import RangeSelector from '@components/rangeSelector';
 
@@ -40,7 +40,7 @@ export default class LimitLine {
     let container: HTMLElement;
     let hint: HTMLElement;
 
-    if(options.hint) {
+    if (options.hint) {
       container = document.createElement('div');
       container.classList.add('limit-line-container');
 
@@ -49,7 +49,7 @@ export default class LimitLine {
       const i = Icon(options.hint.icon, 'limit-line-hint-icon');
       hint.append(i);
 
-      if(options.hint.content) {
+      if (options.hint.content) {
         hint.append(options.hint.content);
       }
 
@@ -59,8 +59,8 @@ export default class LimitLine {
 
     const limit = options.slider ? this.constructSlider(options) : this.constructLine(options, container!);
     this.container = container! || limit;
-    if(container!) {
-      if(limit) container.append(limit);
+    if (container!) {
+      if (limit) container.append(limit);
     }
   }
 
@@ -68,7 +68,7 @@ export default class LimitLine {
     const limit = this.line = document.createElement('div');
     limit.classList.add('limit-line');
 
-    if(!container) {
+    if (!container) {
       limit.classList.add('is-alone');
     }
 
@@ -78,24 +78,24 @@ export default class LimitLine {
     const right = this.right = document.createElement('div');
     right.classList.add('limit-line-part', 'limit-line-filled');
 
-    if(options.progress) {
+    if (options.progress) {
       // const rightContainer = document.createElement('div');
       // rightContainer.classList.add('limit-line-absolute-container');
       // rightContainer.append(right);
       right.classList.add('limit-line-absolute');
-      if(options.progress !== true) {
+      if (options.progress !== true) {
         this.setProgressElements(options.progress);
       }
     }
 
-    if(options.limitPremium !== undefined) {
-      if(options.limitFree === undefined) {
+    if (options.limitPremium !== undefined) {
+      if (options.limitFree === undefined) {
         _i18n(left, 'LimitFree');
       } else {
         left.append(i18n('LimitFree'), '' + options.limitFree);
       }
 
-      if(options.color !== undefined) right.style.setProperty('--limit-background', options.color);
+      if (options.color !== undefined) right.style.setProperty('--limit-background', options.color);
       limit.append(right);
       right.append(i18n('LimitPremium'), '' + options.limitPremium);
     }
@@ -110,11 +110,11 @@ export default class LimitLine {
       min: 0,
       max: 1,
       useProperty: true,
-      offsetAxisValue: 30
+      offsetAxisValue: 30,
     }, options.sliderValue ?? 0);
     range.setListeners();
     range.setHandlers({
-      onScrub: options.slider
+      onScrub: options.slider,
     });
 
     range.container.classList.add('limit-line-slider');
@@ -134,18 +134,18 @@ export default class LimitLine {
     elements?: LimitLineProgressElements
   ) {
     const lastProgress = this.lastProgress;
-    if(this.hint) {
+    if (this.hint) {
       this.hint.classList.remove('is-locked');
-      if(hintContent) {
+      if (hintContent) {
         this.hint.replaceChildren(this.hint.firstElementChild!, hintContent);
       }
     }
 
     const set = (value: number) => {
       this.container.style.setProperty('--limit-progress', value * 100 + '%');
-      if(this.hint) {
+      if (this.hint) {
         const t = 0.1;
-        if(this.hintNoStartEnd) {
+        if (this.hintNoStartEnd) {
           this.hint.style.setProperty('--limit-progress', clamp(value, t, 1 - t) * 100 + '%')
         } else {
           this.hint.classList.toggle('is-start', value <= t);
@@ -154,7 +154,7 @@ export default class LimitLine {
       }
     };
 
-    if(lastProgress !== undefined && liteMode.isAvailable('animations')) {
+    if (lastProgress !== undefined && liteMode.isAvailable('animations')) {
       const duration = 200;
       const startTime = Date.now();
       const toAdd = progress - this.lastProgress;
@@ -169,7 +169,7 @@ export default class LimitLine {
       set(progress);
     }
 
-    if(elements) {
+    if (elements) {
       this.setProgressElements(elements);
     }
 
@@ -181,7 +181,7 @@ export default class LimitLine {
   };
 
   public _setHintActive() {
-    if(liteMode.isAvailable('animations')) {
+    if (liteMode.isAvailable('animations')) {
       doubleRaf().then(this.setHintActive);
     } else {
       this.setHintActive();

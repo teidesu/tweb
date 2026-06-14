@@ -1,14 +1,14 @@
-import {ChannelParticipant, ChatParticipant} from '@layer';
+import { ChannelParticipant, ChatParticipant } from '@layer';
 
 export const participantCreatorPredicates: Set<(ChannelParticipant | ChatParticipant)['_']> = new Set([
   'channelParticipantCreator',
-  'chatParticipantCreator'
+  'chatParticipantCreator',
 ]);
 
 export const participantAdminPredicates: Set<(ChannelParticipant | ChatParticipant)['_']> = new Set([
   ...Array.from(participantCreatorPredicates),
   'channelParticipantAdmin',
-  'chatParticipantAdmin'
+  'chatParticipantAdmin',
 ]);
 
 export const isParticipantCreator = (participant: ChatParticipant | ChannelParticipant | undefined) =>

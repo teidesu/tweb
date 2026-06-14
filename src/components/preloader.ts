@@ -1,8 +1,8 @@
-import {CancellablePromise} from '@helpers/cancellablePromise';
+import { CancellablePromise } from '@helpers/cancellablePromise';
 import SetTransition from '@components/singleTransition';
-import {fastRaf} from '@helpers/schedulers';
+import { fastRaf } from '@helpers/schedulers';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import isInDOM from '@helpers/dom/isInDOM';
 import safeAssign from '@helpers/object/safeAssign';
 
@@ -38,11 +38,11 @@ export default class ProgressivePreloader {
     tryAgainOnFail: ProgressivePreloader['tryAgainOnFail'],
     attachMethod: ProgressivePreloader['attachMethod']
   }>) {
-    if(options) {
+    if (options) {
       safeAssign(this, options);
     }
 
-    if(this.isUpload) {
+    if (this.isUpload) {
       this.tryAgainOnFail = false;
     }
   }
@@ -51,23 +51,23 @@ export default class ProgressivePreloader {
     color: 'transparent',
     bold: boolean
   }> = {}) {
-    if(!this.preloader) {
+    if (!this.preloader) {
       this.preloader = document.createElement('div');
-      if(this.rtmp) {
+      if (this.rtmp) {
         this.preloader.classList.add('preloader-container-rtmp');
       } else {
         this.preloader.classList.add('preloader-container');
       }
 
-      if(options.color) {
+      if (options.color) {
         this.preloader.classList.add('preloader-' + options.color);
       }
 
-      if(options.bold) {
+      if (options.bold) {
         this.preloader.classList.add('preloader-bold');
       }
 
-      if(this.streamable) {
+      if (this.streamable) {
         this.preloader.classList.add('preloader-streamable');
       }
     }
@@ -82,7 +82,7 @@ export default class ProgressivePreloader {
 
     this.constructContainer();
 
-    if(this.rtmp) {
+    if (this.rtmp) {
       this.preloader.innerHTML = `
       <div class="loading-wrap is-loading">
         <div class="loading"></div>
@@ -99,13 +99,13 @@ export default class ProgressivePreloader {
       </div>`;
     }
 
-    if(this.streamable) {
+    if (this.streamable) {
       this.totalLength = 118.61124420166016;
     } else {
       this.totalLength = 149.82473754882812;
     }
 
-    if(this.cancelable) {
+    if (this.cancelable) {
       this.preloader.innerHTML += `
       <svg xmlns="http://www.w3.org/2000/svg" class="preloader-close" viewBox="0 0 24 24">
         <g fill="none" fill-rule="evenodd">
@@ -128,17 +128,17 @@ export default class ProgressivePreloader {
 
     this.circle = this.preloader.firstElementChild!.firstElementChild!.firstElementChild as SVGCircleElement;
 
-    if(this.cancelable) {
+    if (this.cancelable) {
       attachClickEvent(this.preloader, this.onClick);
     }
   }
 
   public onClick = (e?: Event) => {
-    if(e) {
+    if (e) {
       cancelEvent(e);
     }
 
-    if(this.preloader.classList.contains('manual')) {
+    if (this.preloader.classList.contains('manual')) {
       this.loadFunc?.(e);
     } else {
       this.promise?.cancel?.();
@@ -155,7 +155,7 @@ export default class ProgressivePreloader {
   }
 
   public attachPromise(promise: CancellablePromise<any> | null) {
-    if(this.isUpload && this.promise) return;
+    if (this.isUpload && this.promise) return;
 
     this.promise = promise;
 
@@ -165,7 +165,7 @@ export default class ProgressivePreloader {
     const onEnd = (err: Error) => {
       promise!.notify = (promise!.notifyAll = null)!;
 
-      if(tempId !== this.tempId) {
+      if (tempId !== this.tempId) {
         return;
       }
 
@@ -173,22 +173,22 @@ export default class ProgressivePreloader {
 
       // console.log('[PP]: end', this.detached, performance.now());
 
-      if(!err && this.cancelable) {
+      if (!err && this.cancelable) {
         this.setProgress(100);
 
         const delay = TRANSITION_TIME * 0.75;
 
-        if(elapsedTime < delay) {
+        if (elapsedTime < delay) {
           this.detach();
         } else {
           setTimeout(() => { // * wait for transition complete
-            if(tempId === this.tempId) {
+            if (tempId === this.tempId) {
               this.detach();
             }
           }, delay);
         }
       } else {
-        if(this.tryAgainOnFail) {
+        if (this.tryAgainOnFail) {
           this.attach(this.preloader.parentElement!);
           fastRaf(() => {
             this.setManual();
@@ -202,15 +202,15 @@ export default class ProgressivePreloader {
     };
 
     promise!
-    .then(() => onEnd(null as unknown as Error))
-    .catch((err) => onEnd(err));
+      .then(() => onEnd(null as unknown as Error))
+      .catch((err) => onEnd(err));
 
     promise!.addNotifyListener?.((details: {done: number, total: number}) => {
       /* if(details.done >= details.total) {
         onEnd();
       } */
 
-      if(tempId !== this.tempId) return;
+      if (tempId !== this.tempId) return;
 
       // console.log('preloader download', promise, details);
       const percents = details.done / details.total * 100;
@@ -219,26 +219,26 @@ export default class ProgressivePreloader {
   }
 
   public attach(elem: Element, reset = false, promise?: CancellablePromise<any>) {
-    if(!this.detached && (!this.preloader || !this.preloader.classList.contains('manual'))) {
+    if (!this.detached && (!this.preloader || !this.preloader.classList.contains('manual'))) {
       return;
     }
 
     this.construct?.();
 
-    if(this.preloader.parentElement) {
+    if (this.preloader.parentElement) {
       this.preloader.classList.remove('manual');
     }
 
     this.detached = false;
 
-    if(promise/*  && false */) {
+    if (promise/*  && false */) {
       this.attachPromise(promise);
     }
 
     let useRafs = 0;
-    if(this.detached || this.preloader.parentElement !== elem) {
+    if (this.detached || this.preloader.parentElement !== elem) {
       useRafs = isInDOM(this.preloader) ? 1 : 2;
-      if(this.preloader.parentElement !== elem) {
+      if (this.preloader.parentElement !== elem) {
         elem[this.attachMethod](this.preloader);
       }
     }
@@ -248,16 +248,16 @@ export default class ProgressivePreloader {
       className: 'is-visible',
       forwards: true,
       duration: TRANSITION_TIME,
-      useRafs
+      useRafs,
     });
 
-    if(this.cancelable && reset) {
+    if (this.cancelable && reset) {
       this.setProgress(0);
     }
   }
 
   public detach() {
-    if(this.detached) {
+    if (this.detached) {
       return;
     }
     // return;
@@ -266,7 +266,7 @@ export default class ProgressivePreloader {
 
     // return;
 
-    if(this.preloader?.parentElement) {
+    if (this.preloader?.parentElement) {
       /* setTimeout(() =>  */// fastRaf(() => {
       /* if(!this.detached) return;
         this.detached = true; */
@@ -286,7 +286,7 @@ export default class ProgressivePreloader {
         onTransitionEnd: () => {
           this.preloader.remove();
         },
-        useRafs: 1
+        useRafs: 1,
       });
       // });
       // })/* , 5e3) */;
@@ -294,11 +294,11 @@ export default class ProgressivePreloader {
   }
 
   public setProgress(percents: number) {
-    if(!this.totalLength && !isInDOM(this.circle)) {
+    if (!this.totalLength && !isInDOM(this.circle)) {
       return;
     }
 
-    if(percents === 0) {
+    if (percents === 0) {
       this.circle.style.strokeDasharray = '';
       return;
     }
@@ -308,6 +308,6 @@ export default class ProgressivePreloader {
 
       // console.log('setProgress', (percents / 100 * totalLength));
       this.circle.style.strokeDasharray = '' + Math.max(5, percents / 100 * this.totalLength) + ', ' + this.totalLength;
-    } catch(err) {}
+    } catch (err) {}
   }
 }

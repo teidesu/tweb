@@ -1,12 +1,12 @@
 import AppSelectPeers from '@components/appSelectPeers';
 import PopupElement from '@components/popups';
 import showLimitPopup from '@components/popups/limit';
-import {wrapFormattedDuration} from '@components/wrappers/wrapDuration';
+import { wrapFormattedDuration } from '@components/wrappers/wrapDuration';
 import deferredPromise from '@helpers/cancellablePromise';
 import formatDuration from '@helpers/formatDuration';
-import {getMiddleware} from '@helpers/middleware';
+import { getMiddleware } from '@helpers/middleware';
 import tsNow from '@helpers/tsNow';
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 import rootScope from '@lib/rootScope';
 
 /**
@@ -15,8 +15,8 @@ import rootScope from '@lib/rootScope';
 export async function handleChannelsTooMuch(getPromise: () => Promise<any>) {
   try {
     return await getPromise();
-  } catch(err) {
-    if((err as ApiError).type === 'CHANNELS_TOO_MUCH') {
+  } catch (err) {
+    if ((err as ApiError).type === 'CHANNELS_TOO_MUCH') {
       await showChannelsTooMuchPopup();
       return handleChannelsTooMuch(getPromise);
     }
@@ -40,14 +40,14 @@ export async function showChannelsTooMuchPopup() {
       // @ts-ignore
       appendTo: popup.body,
       onChange: (value) => {
-        if(!value) {
+        if (!value) {
           mainButton.element!.replaceChildren(...mainButtonChildren);
           mainButton.callback = mainButtonCallback;
-        } else if(value) {
+        } else if (value) {
           mainButton.element!.replaceChildren(i18n('LeaveCommunities', [value]));
           mainButton.callback = async() => {
             const peerIds = selector.getSelected();
-            for(const peerId of peerIds) {
+            for (const peerId of peerIds) {
               await rootScope.managers.appChatsManager.leave(peerId.toChatId());
             }
             deferred.resolve();
@@ -72,14 +72,14 @@ export async function showChannelsTooMuchPopup() {
           (await rootScope.managers.appPeersManager.isBroadcast(peerId) ?
             i18n('InactiveChannel.Broadcast') :
             i18n('InactiveChannel.Group')),
-          wrapFormattedDuration(formatDuration(duration, 1))
+          wrapFormattedDuration(formatDuration(duration, 1)),
         ]);
-      }
+      },
     });
 
     selector.scrollable.attachBorderListeners();
 
-    const peerIds = inactiveChannels.map(({id, date}) => {
+    const peerIds = inactiveChannels.map(({ id, date }) => {
       const peerId = id.toPeerId(true);
       datesMap.set(peerId, date);
       return peerId;

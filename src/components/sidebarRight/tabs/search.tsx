@@ -1,19 +1,19 @@
-import {Component} from 'solid-js';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { Component } from 'solid-js';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import rootScope from '@lib/rootScope';
 import AppSearch from '@components/appSearch';
-import {createSearchGroup} from '@components/searchGroup';
+import { createSearchGroup } from '@components/searchGroup';
 import ButtonIcon from '@components/buttonIcon';
 import InputSearch from '@components/inputSearch';
 import showDatePickerPopup from '@components/popups/datePicker';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import type {AppPrivateSearchTab} from '@components/solidJsTabs/tabs';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import type { AppPrivateSearchTab } from '@components/solidJsTabs/tabs';
 
 const PrivateSearch: Component = () => {
   const [tab] = useSuperTab<typeof AppPrivateSearchTab>();
-  const {appSidebarRight} = useHotReloadGuard();
-  const {peerId, threadId, onDatePick, query} = tab.payload;
+  const { appSidebarRight } = useHotReloadGuard();
+  const { peerId, threadId, onDatePick, query } = tab.payload;
 
   let _peerId: PeerId;
   let _threadId = 0;
@@ -22,7 +22,7 @@ const PrivateSearch: Component = () => {
 
   tab.container.id = 'search-private-container';
   tab.container.classList.add('chatlist-container');
-  const inputSearch = new InputSearch({placeholder: 'Search'});
+  const inputSearch = new InputSearch({ placeholder: 'Search' });
   tab.title.replaceWith(inputSearch.container);
 
   const btnPickDate = ButtonIcon('calendar sidebar-header-right');
@@ -35,7 +35,7 @@ const PrivateSearch: Component = () => {
     c,
     inputSearch,
     {
-      messages: createSearchGroup({name: 'Chat.Search.PrivateSearch', type: 'messages', middleware: tab.middlewareHelper.get()})
+      messages: createSearchGroup({ name: 'Chat.Search.PrivateSearch', type: 'messages', middleware: tab.middlewareHelper.get() }),
     },
     tab.middlewareHelper.get(),
     undefined,
@@ -43,17 +43,17 @@ const PrivateSearch: Component = () => {
     !!(peerId === rootScope.myId && threadId)
   );
 
-  if(!_peerId!) {
+  if (!_peerId!) {
     _query = query!;
     _peerId = peerId;
     _threadId = threadId!;
     _onDatePick = onDatePick!;
 
     btnPickDate.classList.toggle('hide', !_onDatePick);
-    if(_onDatePick) {
+    if (_onDatePick) {
       attachClickEvent(btnPickDate, () => {
-        showDatePickerPopup({initDate: new Date(), onPick: _onDatePick});
-      }, {listenerSetter: tab.listenerSetter});
+        showDatePickerPopup({ initDate: new Date(), onPick: _onDatePick });
+      }, { listenerSetter: tab.listenerSetter });
     }
 
     query && appSearch.searchInput.inputField.setValueSilently(query);

@@ -1,7 +1,7 @@
-import {SliderSuperTab} from '@components/slider';
+import { SliderSuperTab } from '@components/slider';
 import emoticonsDropdown from '@components/emoticonsDropdown';
 import appSidebarRight from '@components/sidebarRight';
-import {setAppSettings} from '@stores/appSettings';
+import { setAppSettings } from '@stores/appSettings';
 
 export default class AppEmoticonsTab extends SliderSuperTab {
   public static noSame = true;
@@ -27,7 +27,7 @@ export default class AppEmoticonsTab extends SliderSuperTab {
   }
 
   protected onClose() {
-    if(!this.transient) {
+    if (!this.transient) {
       setAppSettings('esgInSidebar', false);
     }
   }
@@ -40,8 +40,8 @@ export default class AppEmoticonsTab extends SliderSuperTab {
 
 export async function openEmoticonsPanel(animate?: boolean, persist = true) {
   let tab = appSidebarRight.getTab(AppEmoticonsTab);
-  if(!tab) {
-    if(persist) {
+  if (!tab) {
+    if (persist) {
       setAppSettings('esgInSidebar', true);
     }
 
@@ -59,7 +59,7 @@ export function closeEmoticonsPanel() {
 
 export function replaceEmoticonsPanelWithProfile() {
   const tab = appSidebarRight.getTab(AppEmoticonsTab);
-  if(!tab) {
+  if (!tab) {
     return false;
   }
 

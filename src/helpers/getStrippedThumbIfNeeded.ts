@@ -1,17 +1,17 @@
-import type {MyDocument} from '@appManagers/appDocsManager';
-import type {MyPhoto} from '@appManagers/appPhotosManager';
-import type {ThumbCache} from '@lib/storages/thumbs';
-import {THUMB_TYPE_FULL} from '@appManagers/constants';
+import type { MyDocument } from '@appManagers/appDocsManager';
+import type { MyPhoto } from '@appManagers/appPhotosManager';
+import type { ThumbCache } from '@lib/storages/thumbs';
+import { THUMB_TYPE_FULL } from '@appManagers/constants';
 import getImageFromStrippedThumb from '@helpers/getImageFromStrippedThumb';
 import apiManagerProxy from '@lib/apiManagerProxy';
-import {PhotoSize} from '@layer';
+import { PhotoSize } from '@layer';
 
 export default function getMediaThumbIfNeeded({
   photo,
   cacheContext,
   useBlur,
   ignoreCache,
-  onlyStripped
+  onlyStripped,
 }: {
   photo: MyPhoto | MyDocument,
   cacheContext: ThumbCache,
@@ -20,8 +20,8 @@ export default function getMediaThumbIfNeeded({
   onlyStripped?: boolean
 }) {
   const isVideo = (['video', 'gif'] as MyDocument['type'][]).includes((photo as MyDocument).type);
-  if(!cacheContext.downloaded || isVideo || ignoreCache) {
-    if(
+  if (!cacheContext.downloaded || isVideo || ignoreCache) {
+    if (
       photo._ === 'document' &&
       cacheContext.downloaded &&
       !ignoreCache &&
@@ -32,25 +32,25 @@ export default function getMediaThumbIfNeeded({
 
     const sizes = (photo as MyPhoto).sizes || (photo as MyDocument).thumbs;
     const length = sizes?.length;
-    if(!length) {
+    if (!length) {
       return null;
     }
 
     let currentSizeIndex = -1;
-    if(!onlyStripped) for(let i = length - 1; i >= 0; --i) {
+    if (!onlyStripped) for (let i = length - 1; i >= 0; --i) {
       const size = sizes[i];
-      if(size.type === cacheContext.type) {
+      if (size.type === cacheContext.type) {
         currentSizeIndex = i;
-      } else if(currentSizeIndex) {
+      } else if (currentSizeIndex) {
         const cacheContext = apiManagerProxy.getCacheContext(photo, size.type);
-        if(cacheContext.downloaded) {
+        if (cacheContext.downloaded) {
           return getImageFromStrippedThumb(photo, size as PhotoSize.photoCachedSize, false, cacheContext.url);
         }
       }
     }
 
     const thumb = sizes.find((size) => size._ === 'photoStrippedSize');
-    if(thumb && ('bytes' in thumb)) {
+    if (thumb && ('bytes' in thumb)) {
       return getImageFromStrippedThumb(photo, thumb as any, useBlur);
     }
   }

@@ -1,28 +1,28 @@
-import type {Message, StickerSet, Update, NotifyPeer, PeerNotifySettings, PollResults, Poll, WebPage, GroupCall, GroupCallParticipant, ReactionCount, MessagePeerReaction, PhoneCall, Config, Reaction, AttachMenuBot, PeerSettings, StoryItem, PeerStories, SavedDialog, SavedReactionTag, InputSavedStarGift, LangPackDifference, StarsAmount, MessageEntity, HelpPromoData, StoriesStealthMode, StoryAlbum, GlobalPrivacySettings} from '@layer';
-import type {Dialog, ForumTopic, MessagesStorageKey, MyMessage} from '@appManagers/appMessagesManager';
-import type {MyDialogFilter} from '@lib/storages/filters';
-import type {AnyDialog, Folder} from '@lib/storages/dialogs';
-import type {UserTyping} from '@appManagers/appProfileManager';
-import type {MyDraftMessage} from '@appManagers/appDraftsManager';
-import type {ConnectionStatusChange} from '@lib/mtproto/connectionStatus';
-import type {GroupCallId} from '@appManagers/appGroupCallsManager';
-import type {AppManagers} from '@lib/managers';
-import type {StateSettings} from '@config/state';
-import type {Progress} from '@lib/appDownloadManager';
-import type {CallId} from '@appManagers/appCallsManager';
-import type {MyDocument} from '@appManagers/appDocsManager';
+import type { Message, StickerSet, Update, NotifyPeer, PeerNotifySettings, PollResults, Poll, WebPage, GroupCall, GroupCallParticipant, ReactionCount, MessagePeerReaction, PhoneCall, Config, Reaction, AttachMenuBot, PeerSettings, StoryItem, PeerStories, SavedDialog, SavedReactionTag, InputSavedStarGift, LangPackDifference, StarsAmount, MessageEntity, HelpPromoData, StoriesStealthMode, StoryAlbum, GlobalPrivacySettings } from '@layer';
+import type { Dialog, ForumTopic, MessagesStorageKey, MyMessage } from '@appManagers/appMessagesManager';
+import type { MyDialogFilter } from '@lib/storages/filters';
+import type { AnyDialog, Folder } from '@lib/storages/dialogs';
+import type { UserTyping } from '@appManagers/appProfileManager';
+import type { MyDraftMessage } from '@appManagers/appDraftsManager';
+import type { ConnectionStatusChange } from '@lib/mtproto/connectionStatus';
+import type { GroupCallId } from '@appManagers/appGroupCallsManager';
+import type { AppManagers } from '@lib/managers';
+import type { StateSettings } from '@config/state';
+import type { Progress } from '@lib/appDownloadManager';
+import type { CallId } from '@appManagers/appCallsManager';
+import type { MyDocument } from '@appManagers/appDocsManager';
 import type StoriesCacheType from '@appManagers/utils/stories/cacheType';
-import type {StoriesListPosition} from '@appManagers/appStoriesManager';
-import type {ArgumentTypes} from '@types';
-import type {RtmpCallInstance} from '@lib/calls/rtmpCallsController';
-import type {ApiManager} from '@appManagers/apiManager';
-import type {MonoforumDialog} from '@lib/storages/monoforumDialogs';
-import type {MyStarGift} from '@appManagers/appGiftsManager';
-import type {MyPromoData} from '@appManagers/appPromoManager';
-import type {ActiveAccountNumber} from '@lib/accounts/types';
-import {NULL_PEER_ID, UserAuth} from '@appManagers/constants';
-import EventListenerBase, {EventListenerListeners} from '@helpers/eventListenerBase';
-import {MOUNT_CLASS_TO} from '@config/debug';
+import type { StoriesListPosition } from '@appManagers/appStoriesManager';
+import type { ArgumentTypes } from '@types';
+import type { RtmpCallInstance } from '@lib/calls/rtmpCallsController';
+import type { ApiManager } from '@appManagers/apiManager';
+import type { MonoforumDialog } from '@lib/storages/monoforumDialogs';
+import type { MyStarGift } from '@appManagers/appGiftsManager';
+import type { MyPromoData } from '@appManagers/appPromoManager';
+import type { ActiveAccountNumber } from '@lib/accounts/types';
+import { NULL_PEER_ID, UserAuth } from '@appManagers/constants';
+import EventListenerBase, { EventListenerListeners } from '@helpers/eventListenerBase';
+import { MOUNT_CLASS_TO } from '@config/debug';
 import MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
 
 export type BroadcastEvents = {
@@ -260,13 +260,13 @@ export class RootScope extends EventListenerBase<BroadcastEventsListeners> {
     this.connectionStatus = {};
     this.premium = false;
 
-    this.addEventListener('user_auth', ({id}) => {
+    this.addEventListener('user_auth', ({ id }) => {
       this.myId = id.toPeerId();
     });
 
-    this.addEventListener('premium_toggle_private', ({isNew, isPremium}) => {
+    this.addEventListener('premium_toggle_private', ({ isNew, isPremium }) => {
       this.premium = isPremium;
-      if(!isNew) { // * only on change
+      if (!isNew) { // * only on change
         this.dispatchEventSingle('premium_toggle', isPremium);
       }
     });
@@ -282,7 +282,7 @@ export class RootScope extends EventListenerBase<BroadcastEventsListeners> {
         MTProtoMessagePort.getInstance().invokeVoid('event', {
           name: e as string,
           args,
-          accountNumber: accountNumber!
+          accountNumber: accountNumber!,
         });
       })();
     };

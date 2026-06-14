@@ -1,12 +1,12 @@
-import {RemainingTime} from '@components/remainingTime';
-import {Show} from 'solid-js';
-import {attachHotClassName} from '../../helpers/solid/classname';
-import {I18nTsx} from '../../helpers/solid/i18n';
-import defineSolidElement, {PassedProps} from '../../lib/solidjs/defineSolidElement';
-import {IconTsx} from '../iconTsx';
+import { RemainingTime } from '@components/remainingTime';
+import { Show } from 'solid-js';
+import { attachHotClassName } from '../../helpers/solid/classname';
+import { I18nTsx } from '../../helpers/solid/i18n';
+import defineSolidElement, { PassedProps } from '../../lib/solidjs/defineSolidElement';
+import { IconTsx } from '../iconTsx';
 import styles from './contextMenuDeleteOptionText.module.scss';
 
-if(import.meta.hot) import.meta.hot.accept();
+if (import.meta.hot) import.meta.hot.accept();
 
 
 type Props = {
@@ -38,5 +38,5 @@ export const ContextMenuDeleteOptionText = defineSolidElement({
         </div>
       </Show>
     );
-  }
+  },
 });

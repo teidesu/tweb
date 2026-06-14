@@ -1,18 +1,18 @@
-import {Accessor, createComputed, createEffect, createMemo, createSelector, createSignal, For, onCleanup, onMount, Setter, Show} from 'solid-js';
-import {IS_MOBILE} from '@environment/userAgent';
-import {CLICK_EVENT_NAME} from '@helpers/dom/clickEvent';
-import {Dialog} from '@layer';
-import {i18n} from '@lib/langPack';
-import defineSolidElement, {PassedProps} from '@lib/solidjs/defineSolidElement';
-import {MyDialogFilter} from '@lib/storages/filters';
+import { Accessor, createComputed, createEffect, createMemo, createSelector, createSignal, For, onCleanup, onMount, Setter, Show } from 'solid-js';
+import { IS_MOBILE } from '@environment/userAgent';
+import { CLICK_EVENT_NAME } from '@helpers/dom/clickEvent';
+import { Dialog } from '@layer';
+import { i18n } from '@lib/langPack';
+import defineSolidElement, { PassedProps } from '@lib/solidjs/defineSolidElement';
+import { MyDialogFilter } from '@lib/storages/filters';
 import appNavigationController from '@components/appNavigationController';
-import {IconTsx} from '@components/iconTsx';
+import { IconTsx } from '@components/iconTsx';
 import Scrollable from '@components/scrollable2';
-import {createFolderItems, createSearchableFolders, FolderItem, useInputKeydown, useToggleDialogInFilter, useTooltipHint} from '@components/addToFolderDropdownMenu/hooks';
+import { createFolderItems, createSearchableFolders, FolderItem, useInputKeydown, useToggleDialogInFilter, useTooltipHint } from '@components/addToFolderDropdownMenu/hooks';
 import styles from '@components/addToFolderDropdownMenu/styles.module.scss';
-import {fetchDialogFilters} from '@components/addToFolderDropdownMenu/utils';
+import { fetchDialogFilters } from '@components/addToFolderDropdownMenu/utils';
 
-if(import.meta.hot) import.meta.hot.accept();
+if (import.meta.hot) import.meta.hot.accept();
 
 
 const MAX_VISIBLE_SCROLL_ITEMS = 6;
@@ -56,7 +56,7 @@ const AddToFolderDropdownMenu = defineSolidElement({
         props.dialog = newDialog;
         props.onNewDialog?.(newDialog);
       },
-      isInFilter
+      isInFilter,
     });
 
     const folderItems = createFolderItems({
@@ -64,17 +64,17 @@ const AddToFolderDropdownMenu = defineSolidElement({
       isInFilter,
       isSelected,
       onToggle: toggleDialogInFilter,
-      currentFilter: props.currentFilter
+      currentFilter: props.currentFilter,
     });
 
     const searchableFolders = createSearchableFolders({
       folderItems,
       search,
       isSelected,
-      setSelected
+      setSelected,
     });
 
-    const {showHint, closeAndDisableTooltip} = useTooltipHint({pivot: () => infoIcon!});
+    const { showHint, closeAndDisableTooltip } = useTooltipHint({ pivot: () => infoIcon! });
     controls.closeTooltip = closeAndDisableTooltip;
 
     const onInputKeyDown = useInputKeydown({
@@ -85,7 +85,7 @@ const AddToFolderDropdownMenu = defineSolidElement({
       selectedFilter,
       currentFilter: props.currentFilter,
       onToggle: toggleDialogInFilter,
-      visibleFoldersCount: () => searchableFolders().visibleFoldersCount
+      visibleFoldersCount: () => searchableFolders().visibleFoldersCount,
     });
 
     onMount(() => {
@@ -100,7 +100,7 @@ const AddToFolderDropdownMenu = defineSolidElement({
     });
 
     createEffect(() => {
-      if(typeof selected() !== 'number') label?.scrollIntoView({block: 'center'});
+      if (typeof selected() !== 'number') label?.scrollIntoView({ block: 'center' });
     });
 
     createEffect(() => {
@@ -125,9 +125,9 @@ const AddToFolderDropdownMenu = defineSolidElement({
         <div
           class={styles.ScrollableContainer}
           classList={{
-            [styles.mobile]: IS_MOBILE
+            [styles.mobile]: IS_MOBILE,
           }}
-          style={{'--max-visible-items': MAX_VISIBLE_SCROLL_ITEMS}}
+          style={{ '--max-visible-items': MAX_VISIBLE_SCROLL_ITEMS }}
         >
           <Show when={!IS_MOBILE}>
             <input
@@ -165,8 +165,8 @@ const AddToFolderDropdownMenu = defineSolidElement({
         </div>
       </Show>
     );
-  }
+  },
 });
 
-export {fetchDialogFilters};
+export { fetchDialogFilters };
 export default AddToFolderDropdownMenu;

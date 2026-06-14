@@ -2,19 +2,19 @@ import Button from '@components/buttonTsx';
 import RangeSettingSelector from '@components/rangeSettingSelector';
 import Section from '@components/section';
 import Space from '@components/space';
-import {wrapFormattedDuration} from '@components/wrappers/wrapDuration';
+import { wrapFormattedDuration } from '@components/wrappers/wrapDuration';
 import DEBUG from '@config/debug';
 import lastItem from '@helpers/array/lastItem';
 import formatBytes from '@helpers/formatBytes';
-import {DurationType} from '@helpers/formatDuration';
+import { DurationType } from '@helpers/formatDuration';
 import namedPromises from '@helpers/namedPromises';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {wrapAsyncClickHandler} from '@helpers/wrapAsyncClickHandler';
-import {cachedFilesStorageName, cachedVideoChunksStorageNames, HTTPHeaderNames, oneDayInSeconds, oneMonthInSeconds, oneWeekInSeconds, oneYearInSeconds, watchedCachedStorageNames} from '@lib/constants';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { wrapAsyncClickHandler } from '@helpers/wrapAsyncClickHandler';
+import { cachedFilesStorageName, cachedVideoChunksStorageNames, HTTPHeaderNames, oneDayInSeconds, oneMonthInSeconds, oneWeekInSeconds, oneYearInSeconds, watchedCachedStorageNames } from '@lib/constants';
 import CacheStorageController from '@lib/files/cacheStorage';
-import type {FormatterArgument, FormatterArguments, LangPackKey} from '@lib/langPack';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {createResource, createSignal, JSX, Match, Resource, Switch} from 'solid-js';
+import type { FormatterArgument, FormatterArguments, LangPackKey } from '@lib/langPack';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { createResource, createSignal, JSX, Match, Resource, Switch } from 'solid-js';
 import styles from './storageQuota.module.scss';
 
 
@@ -29,22 +29,22 @@ type ConfirmationArgs = {
 const getClearCachedFilesArgs = (size: FormatterArgument | null): ConfirmationArgs => ({
   titleLangKey: 'StorageQuota.ClearCachedFiles',
   descriptionLangKey: size ? 'StorageQuota.ClearConfirmation' : 'StorageQuota.ClearConfirmationUnknown',
-  descriptionLangArgs: size ? [size] : undefined
+  descriptionLangArgs: size ? [size] : undefined,
 });
 
 const getClearStreamChunksArgs = (size: FormatterArgument | null): ConfirmationArgs => ({
   titleLangKey: 'StorageQuota.ClearCachedStreamChunks',
   descriptionLangKey: size ? 'StorageQuota.ClearConfirmation' : 'StorageQuota.ClearConfirmationUnknown',
-  descriptionLangArgs: size ? [size] : undefined
+  descriptionLangArgs: size ? [size] : undefined,
 });
 
 const getClearAllArgs = (): ConfirmationArgs => ({
   titleLangKey: 'StorageQuota.ClearAll',
-  descriptionLangKey: 'StorageQuota.ClearAllConfirmation'
+  descriptionLangKey: 'StorageQuota.ClearAllConfirmation',
 });
 
 const tryFormatBytes = (size: number | null | undefined) => {
-  if(typeof size !== 'number') return null;
+  if (typeof size !== 'number') return null;
   return formatBytes(size, decimalsForFormatBytes);
 }
 
@@ -55,17 +55,17 @@ async function collectCachedFilesSizes() {
     images: 0,
     videos: 0,
     stickers: 0,
-    other: 0
+    other: 0,
   };
   let totalSize = 0;
 
   const storage = new CacheStorageController(cachedFilesStorageName);
 
-  await storage.minimalBlockingIterateResponses(({response}) => {
+  await storage.minimalBlockingIterateResponses(({ response }) => {
     const headers = response.headers;
 
     const contentSize = getContentSizeFromHeaders(headers);
-    if(!contentSize) return;
+    if (!contentSize) return;
 
     const contentType = headers.get('content-type');
 
@@ -82,7 +82,7 @@ async function collectCachedFilesSizes() {
 
   return {
     totalSize,
-    collectedSizeByTypes
+    collectedSizeByTypes,
   };
 };
 
@@ -93,18 +93,18 @@ function getZeroedCollectedCachedFilesSizes(): Awaited<ReturnType<typeof collect
       images: 0,
       videos: 0,
       stickers: 0,
-      other: 0
-    }
+      other: 0,
+    },
   };
 }
 
 async function collectCachedVideoStreamChunksSize() {
   let totalSize = 0;
 
-  for(const storageName of cachedVideoChunksStorageNames) {
+  for (const storageName of cachedVideoChunksStorageNames) {
     const storage = new CacheStorageController(storageName);
 
-    await storage.minimalBlockingIterateResponses(({response}) => {
+    await storage.minimalBlockingIterateResponses(({ response }) => {
       const contentSize = getContentSizeFromHeaders(response.headers);
       totalSize += contentSize;
     }).finally(() => {
@@ -117,7 +117,7 @@ async function collectCachedVideoStreamChunksSize() {
 
 function getContentSizeFromHeaders(headers: Headers): number {
   const contentSize = parseInt(headers.get(HTTPHeaderNames.contentLength) || '0');
-  if(!contentSize) return 0;
+  if (!contentSize) return 0;
 
   return contentSize;
 }
@@ -142,7 +142,7 @@ const SizeWithFallback = (props: {
 
 const makeTimeOption = (value: number, duration: number, type: DurationType) => ({
   value,
-  label: () => wrapFormattedDuration([{duration, type}])
+  label: () => wrapFormattedDuration([{ duration, type }]),
 });
 
 const cacheTimeOptions = [
@@ -161,12 +161,12 @@ const cacheTimeOptions = [
   makeTimeOption(oneMonthInSeconds * 4, 4, DurationType.Months),
   makeTimeOption(oneMonthInSeconds * 5, 5, DurationType.Months),
   makeTimeOption(oneMonthInSeconds * 6, 6, DurationType.Months),
-  makeTimeOption(oneYearInSeconds, 1, DurationType.Years)
+  makeTimeOption(oneYearInSeconds, 1, DurationType.Years),
 ];
 
 const makeSizeOption = (value: number) => ({
   value,
-  label: () => formatBytes(value, decimalsForFormatBytes)
+  label: () => formatBytes(value, decimalsForFormatBytes),
 });
 
 const mb = 1024 * 1024;
@@ -202,26 +202,26 @@ const getCacheSizeOptions = (autoLabel: () => JSX.Element) => [
   makeSizeOption(10 * gb),
   {
     value: 0,
-    label: autoLabel
-  }
+    label: autoLabel,
+  },
 ];
 
 const getInitialCacheTimeIdx = (cacheTTL: number) => {
   const value = cacheTTL || 0;
   let foundIdx = 0;
-  for(let i = 1; i < cacheTimeOptions.length; i++) {
-    if(cacheTimeOptions[i].value <= value) foundIdx = i;
+  for (let i = 1; i < cacheTimeOptions.length; i++) {
+    if (cacheTimeOptions[i].value <= value) foundIdx = i;
   }
   return foundIdx;
 };
 
 const getInitialCacheSizeIdx = (cacheSize: number, options: Option[]) => {
   const value = cacheSize || 0;
-  if(value === 0) return options.length - 1;
+  if (value === 0) return options.length - 1;
 
   let foundIdx = 0;
-  for(let i = 1; i < options.length - 1; i++) {
-    if(options[i].value <= value) foundIdx = i;
+  for (let i = 1; i < options.length - 1; i++) {
+    if (options[i].value <= value) foundIdx = i;
   }
   return foundIdx;
 };
@@ -235,7 +235,7 @@ type Props = {
 };
 
 export const StorageQuota = (props: Props) => {
-  const {Row, confirmationPopup, i18n, useAppSettings, apiManagerProxy} = useHotReloadGuard();
+  const { Row, confirmationPopup, i18n, useAppSettings, apiManagerProxy } = useHotReloadGuard();
 
   const cacheSizeOptions = getCacheSizeOptions(() => i18n('StorageQuota.CacheSizeLimitAuto'));
 
@@ -249,14 +249,14 @@ export const StorageQuota = (props: Props) => {
 
   const getFinalCacheTTL = () => {
     const option = cacheTimeOptions[cacheTimeIdx()] || cacheTimeOptions[0];
-    if(option.value === appSettings.cacheTTL) return;
+    if (option.value === appSettings.cacheTTL) return;
 
     return option.value;
   };
 
   const getFinalCacheSize = () => {
     const option = cacheSizeOptions[cacheSizeIdx()] || lastItem(cacheSizeOptions);
-    if(option.value === appSettings.cacheSize) return;
+    if (option.value === appSettings.cacheSize) return;
 
     return option.value;
   };
@@ -268,9 +268,9 @@ export const StorageQuota = (props: Props) => {
 
       await Promise.all([
         cacheTTL !== undefined ? setAppSettings('cacheTTL', cacheTTL) : Promise.resolve(),
-        cacheSize !== undefined ? setAppSettings('cacheSize', cacheSize) : Promise.resolve()
+        cacheSize !== undefined ? setAppSettings('cacheSize', cacheSize) : Promise.resolve(),
       ]);
-    }
+    },
   });
 
   const btnClass = `${styles.Button} primary btn`;
@@ -280,18 +280,18 @@ export const StorageQuota = (props: Props) => {
       await confirmationPopup({
         ...args,
         button: {
-          text: i18n('StorageQuota.Clear')
-        }
+          text: i18n('StorageQuota.Clear'),
+        },
       });
       return true;
-    } catch{
+    } catch {
       return false;
     }
   };
 
   const onClearCachedFiles = wrapAsyncClickHandler(async() => {
     const formattedSize = tryFormatBytes(cachedFilesSizes.state === 'ready' ? cachedFilesSizes()?.totalSize : null);
-    if(!(await getConfirmation(getClearCachedFilesArgs(formattedSize)))) return;
+    if (!(await getConfirmation(getClearCachedFilesArgs(formattedSize)))) return;
 
     cachedFilesSizesActions.mutate(getZeroedCollectedCachedFilesSizes());
 
@@ -304,7 +304,7 @@ export const StorageQuota = (props: Props) => {
 
   const onClearCachedVideoStreamChunks = wrapAsyncClickHandler(async() => {
     const formattedSize = tryFormatBytes(cachedVideoStreamChunksSize.state === 'ready' ? cachedVideoStreamChunksSize() : null);
-    if(!(await getConfirmation(getClearStreamChunksArgs(formattedSize)))) return;
+    if (!(await getConfirmation(getClearStreamChunksArgs(formattedSize)))) return;
 
     cachedVideoStreamChunksSizeActions.mutate(0);
 
@@ -315,16 +315,16 @@ export const StorageQuota = (props: Props) => {
   });
 
   const onClearAllCachedData = wrapAsyncClickHandler(async() => {
-    if(!(await getConfirmation(getClearAllArgs()))) return;
+    if (!(await getConfirmation(getClearAllArgs()))) return;
 
     cachedFilesSizesActions.mutate(getZeroedCollectedCachedFilesSizes());
     cachedVideoStreamChunksSizeActions.mutate(0);
 
     await apiManagerProxy.clearCacheStoragesByNames(watchedCachedStorageNames);
 
-    const {newCachedFilesSizes, newCachedVideoStreamChunksSize} = await namedPromises({
+    const { newCachedFilesSizes, newCachedVideoStreamChunksSize } = await namedPromises({
       newCachedFilesSizes: collectCachedFilesSizes(),
-      newCachedVideoStreamChunksSize: collectCachedVideoStreamChunksSize()
+      newCachedVideoStreamChunksSize: collectCachedVideoStreamChunksSize(),
     });
 
     cachedFilesSizesActions.mutate(newCachedFilesSizes);

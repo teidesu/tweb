@@ -1,5 +1,5 @@
-import {AttributeMap} from '.';
-import {NoExtraProperties} from '@types';
+import { AttributeMap } from '.';
+import { NoExtraProperties } from '@types';
 import SDPAttributes from '@lib/calls/sdp/attributes';
 import SDPLine from '@lib/calls/sdp/line';
 
@@ -33,13 +33,13 @@ export default class SDPMediaSection {
   }
 
   public get direction() {
-    if(!this.#direction) {
+    if (!this.#direction) {
       const attributes = this.attributes;
 
       let direction: SDPMediaDirection;
-      if(attributes.get('sendonly').exists) direction = 'sendonly';
-      else if(attributes.get('recvonly').exists) direction = 'recvonly';
-      else if(attributes.get('inactive').exists) direction = 'inactive';
+      if (attributes.get('sendonly').exists) direction = 'sendonly';
+      else if (attributes.get('recvonly').exists) direction = 'recvonly';
+      else if (attributes.get('inactive').exists) direction = 'inactive';
       else direction = 'sendrecv';
 
       this.#direction = direction;
@@ -68,11 +68,11 @@ export default class SDPMediaSection {
   public lookupAttributeKeys<T extends AttributeMap>(keys: NoExtraProperties<AttributeMap, T>): {[k in keyof T]: T[k] extends true ? string : string[]} {
     const out: any = {};
 
-    for(const key in keys) {
+    for (const key in keys) {
       const result = this.attributes.get(key);
       // @ts-ignore
       const resultShouldBeArray = !keys[key];
-      if(!result) {
+      if (!result) {
         out[key] = resultShouldBeArray ? [] : undefined;
       } else {
         out[key] = resultShouldBeArray ? result.lines : result.value;

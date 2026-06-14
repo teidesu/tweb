@@ -1,6 +1,6 @@
 import Modes from '@config/modes';
 import blobConstruct from '@helpers/blob/blobConstruct';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
 import makeError from '@helpers/makeError';
 import readBlobAsUint8Array from '@helpers/blob/readBlobAsUint8Array';
 
@@ -11,8 +11,8 @@ import DeferredIsUsingPasscode from '@lib/passcode/deferredIsUsingPasscode';
 import MemoryWriter from '@lib/files/memoryWriter';
 import FileStorage from '@lib/files/fileStorage';
 import pause from '@helpers/schedulers/pause';
-import {HTTPHeaderNames} from '@lib/constants';
-import {isTruthy} from '../../helpers/isTruthy';
+import { HTTPHeaderNames } from '@lib/constants';
+import { isTruthy } from '../../helpers/isTruthy';
 
 
 type CacheStorageDbConfigEntry = {
@@ -28,23 +28,23 @@ type SaveArgs = {
 
 const cacheStorageDbConfig = {
   cachedAssets: {
-    encryptable: false
+    encryptable: false,
   },
   cachedBackgrounds: {
-    encryptable: false
+    encryptable: false,
   },
   cachedFiles: {
-    encryptable: true
+    encryptable: true,
   },
   cachedStreamChunks: {
-    encryptable: true
+    encryptable: true,
   },
   cachedHlsQualityFiles: {
-    encryptable: true
+    encryptable: true,
   },
   cachedHlsStreamChunks: {
-    encryptable: true
-  }
+    encryptable: true,
+  },
 } satisfies Record<string, CacheStorageDbConfigEntry>;
 
 const defaultOperationTimeout = 15e3;
@@ -74,11 +74,11 @@ export default class CacheStorageController implements FileStorage {
   // private log: ReturnType<typeof logger> = logger('CS');
 
   constructor(private dbName: CacheStorageDbName) {
-    if(Modes.test) {
+    if (Modes.test) {
       this.dbName += '_test';
     }
 
-    if(CacheStorageController.STORAGES.length) {
+    if (CacheStorageController.STORAGES.length) {
       this.useStorage = CacheStorageController.STORAGES[0].useStorage;
     }
 
@@ -106,12 +106,12 @@ export default class CacheStorageController implements FileStorage {
       method: 'aes-local-encrypt',
       args: [{
         key: key!,
-        data: dataAsBuffer
+        data: dataAsBuffer,
       }],
-      transfer: [dataAsBuffer.buffer]
+      transfer: [dataAsBuffer.buffer],
     });
 
-    return new Blob([result], {type});
+    return new Blob([result], { type });
   }
 
   private static async decrypt(blob: Blob) {
@@ -124,12 +124,12 @@ export default class CacheStorageController implements FileStorage {
       method: 'aes-local-decrypt',
       args: [{
         key: key!,
-        encryptedData: dataAsBuffer
+        encryptedData: dataAsBuffer,
       }],
-      transfer: [dataAsBuffer.buffer]
+      transfer: [dataAsBuffer.buffer],
     });
 
-    return new Blob([result], {type});
+    return new Blob([result], { type });
   }
 
   private getDisabledPromises() {
@@ -140,7 +140,7 @@ export default class CacheStorageController implements FileStorage {
     // Note: even if initially there was one disabled promise, another one could be added while we are waiting
 
     let disabledPromises: CancellablePromise<void>[];
-    while((disabledPromises = (this.getDisabledPromises())).length) {
+    while ((disabledPromises = (this.getDisabledPromises())).length) {
       await Promise.all(disabledPromises);
     }
   }
@@ -175,18 +175,18 @@ export default class CacheStorageController implements FileStorage {
 
       let prevTime = performance.now();
 
-      for(let i = 0; i < allKeys.length; i += batchSize) {
+      for (let i = 0; i < allKeys.length; i += batchSize) {
         const slice = allKeys.slice(i, i + batchSize);
 
         await Promise.all(slice.map(async(key) => {
           const response = await cache.match(key);
 
-          const callbackResult = callback({request: key, response: response!, cache});
-          if(callbackResult instanceof Promise) await callbackResult;
+          const callbackResult = callback({ request: key, response: response!, cache });
+          if (callbackResult instanceof Promise) await callbackResult;
         }));
 
         const now = performance.now();
-        if(now - prevTime > minimalBlockingAllowedTimePerBulk) {
+        if (now - prevTime > minimalBlockingAllowedTimePerBulk) {
           await pause(0); // give back control to the event loop
           prevTime = now;
         }
@@ -203,15 +203,15 @@ export default class CacheStorageController implements FileStorage {
     await this.waitToEnable();
 
     const response = await this.timeoutOperation((cache) => cache.match('/' + entryName));
-    if(!response) return undefined;
+    if (!response) return undefined;
 
-    if(this.config?.encryptable && await DeferredIsUsingPasscode.isUsingPasscode()) {
+    if (this.config?.encryptable && await DeferredIsUsingPasscode.isUsingPasscode()) {
       return new Response(
         await CacheStorageController.decrypt(await response.blob()),
         {
           headers: response.headers,
           status: response.status,
-          statusText: response.statusText
+          statusText: response.statusText,
         }
       );
     }
@@ -219,7 +219,7 @@ export default class CacheStorageController implements FileStorage {
     return response;
   }
 
-  public async save({entryName, response, size, contentType}: SaveArgs) {
+  public async save({ entryName, response, size, contentType }: SaveArgs) {
     await this.waitToEnable();
 
     // Avoids modifying read-only headers (e.g. the response returned from `fetch`)
@@ -228,19 +228,19 @@ export default class CacheStorageController implements FileStorage {
         ...Object.fromEntries(response.headers),
         [HTTPHeaderNames.cachedTime]: Math.floor(Date.now() / 1000 | 0).toString(),
         [HTTPHeaderNames.contentLength]: size.toString(),
-        ...(contentType ? {[HTTPHeaderNames.contentType]: contentType} : {})
+        ...(contentType ? { [HTTPHeaderNames.contentType]: contentType } : {}),
       },
       status: response.status,
-      statusText: response.statusText
+      statusText: response.statusText,
     });
 
-    if(this.config?.encryptable && await DeferredIsUsingPasscode.isUsingPasscode()) {
+    if (this.config?.encryptable && await DeferredIsUsingPasscode.isUsingPasscode()) {
       result = new Response(
         await CacheStorageController.encrypt(await response.blob()),
         {
           headers: result.headers,
           status: result.status,
-          statusText: result.statusText
+          statusText: result.statusText,
         }
       );
     }
@@ -256,7 +256,7 @@ export default class CacheStorageController implements FileStorage {
     // const str = `get fileName: ${fileName}`;
     // console.time(str);
     return this.get(fileName).then((response) => {
-      if(!response) {
+      if (!response) {
         // console.warn('getFile:', response, fileName);
         throw makeError('NO_ENTRY_FOUND');
       }
@@ -271,17 +271,17 @@ export default class CacheStorageController implements FileStorage {
 
   public saveFile(fileName: string, blob: Blob | Uint8Array) {
     // return Promise.resolve(blobConstruct([blob]));
-    if(!(blob instanceof Blob)) {
+    if (!(blob instanceof Blob)) {
       blob = blobConstruct(blob);
     }
 
     const response = new Response(blob);
 
-    return this.save({entryName: fileName, response, size: blob.size}).then(() => blob);
+    return this.save({ entryName: fileName, response, size: blob.size }).then(() => blob);
   }
 
   public timeoutOperation<T>(callback: (cache: Cache) => Promise<T>, operationTimeout = defaultOperationTimeout) {
-    if(!this.useStorage) {
+    if (!this.useStorage) {
       return Promise.reject(makeError('STORAGE_OFFLINE'));
     }
 
@@ -295,7 +295,7 @@ export default class CacheStorageController implements FileStorage {
 
       try {
         const cache = await this.openDatabase();
-        if(!cache) {
+        if (!cache) {
           this.useStorage = false;
           this.openDbPromise = undefined;
           throw 'no cache?';
@@ -303,9 +303,9 @@ export default class CacheStorageController implements FileStorage {
 
         const res = await callback(cache);
 
-        if(rejected) return;
+        if (rejected) return;
         resolve(res);
-      } catch(err) {
+      } catch (err) {
         reject(err);
       }
 
@@ -322,7 +322,7 @@ export default class CacheStorageController implements FileStorage {
         });
 
         return writer;
-      }
+      },
     };
   }
 
@@ -344,10 +344,10 @@ export default class CacheStorageController implements FileStorage {
 
 
   public static temporarilyToggle(enabled: boolean) {
-    if(enabled) {
+    if (enabled) {
       this.disabledPromise?.resolve();
       this.disabledPromise = undefined;
-    } else if(!this.disabledPromise) {
+    } else if (!this.disabledPromise) {
       this.disabledPromise = deferredPromise();
     }
   }
@@ -355,10 +355,10 @@ export default class CacheStorageController implements FileStorage {
   public static temporarilyToggleByName(name: CacheStorageDbName, enabled: boolean) {
     const hadPromise = this.disabledPromisesByKey.has(name);
 
-    if(enabled) {
+    if (enabled) {
       this.disabledPromisesByKey.get(name)?.resolve();
       this.disabledPromisesByKey.delete(name);
-    } else if(!hadPromise) {
+    } else if (!hadPromise) {
       this.disabledPromisesByKey.set(name, deferredPromise());
     }
   }
@@ -369,8 +369,8 @@ export default class CacheStorageController implements FileStorage {
 
   public static async clearEncryptableStorages() {
     const encryptableStorageNames = Object.entries(cacheStorageDbConfig)
-    .filter(([, {encryptable}]) => encryptable)
-    .map(([name]) => name) as CacheStorageDbName[];
+      .filter(([, { encryptable }]) => encryptable)
+      .map(([name]) => name) as CacheStorageDbName[];
 
     await this.clearStoragesByNames(encryptableStorageNames);
   }
@@ -382,7 +382,7 @@ export default class CacheStorageController implements FileStorage {
 
       try {
         await storage.deleteAll();
-      } catch(e) {
+      } catch (e) {
         console.error(e);
       } finally {
         storage.forget();

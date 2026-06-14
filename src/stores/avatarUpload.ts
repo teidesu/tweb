@@ -1,6 +1,6 @@
-import {createRoot, createSignal} from 'solid-js';
-import type {CancellablePromise} from '@helpers/cancellablePromise';
-import type {InputFile} from '@layer';
+import { createRoot, createSignal } from 'solid-js';
+import type { CancellablePromise } from '@helpers/cancellablePromise';
+import type { InputFile } from '@layer';
 
 // Tracks in-flight profile-photo uploads per peer so the big collapsible
 // profile avatar (PeerProfileAvatars) can show a cancellable progress ring and
@@ -23,7 +23,7 @@ export function getAvatarUpload(peerId: PeerId) {
 function setEntry(peerId: PeerId, entry: AvatarUploadEntry | null) {
   setMap((prev) => {
     const next = new Map(prev);
-    if(entry) next.set(peerId, entry);
+    if (entry) next.set(peerId, entry);
     else next.delete(peerId);
     return next;
   });
@@ -37,7 +37,7 @@ export function trackAvatarUpload(peerId: PeerId, promises: {
   video?: CancellablePromise<InputFile>
 }) {
   const progressSource = promises.video || promises.file;
-  if(!progressSource) return;
+  if (!progressSource) return;
 
   // Capture the ORIGINAL cancels before overriding — progressSource is one of
   // these promises, so reading its cancel after the override would recurse.
@@ -49,9 +49,9 @@ export function trackAvatarUpload(peerId: PeerId, promises: {
     videoCancel?.();
   };
 
-  setEntry(peerId, {promise: progressSource});
+  setEntry(peerId, { promise: progressSource });
 
   Promise.all([promises.file, promises.video].filter(Boolean))
-  .catch(() => {})
-  .finally(() => setEntry(peerId, null));
+    .catch(() => {})
+    .finally(() => setEntry(peerId, null));
 }

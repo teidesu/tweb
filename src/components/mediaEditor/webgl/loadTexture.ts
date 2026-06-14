@@ -1,7 +1,7 @@
 import deferredPromise from '@helpers/cancellablePromise';
-import {Middleware} from '@helpers/middleware';
+import { Middleware } from '@helpers/middleware';
 import createVideoForDrawing from '@components/mediaEditor/canvas/createVideoForDrawing';
-import {MediaType} from '@components/mediaEditor/types';
+import { MediaType } from '@components/mediaEditor/types';
 
 
 type LoadTextureArgs = {
@@ -26,13 +26,13 @@ type LoadTextureResult = {
   media: LoadTextureMedia;
 };
 
-export async function loadTexture({gl, mediaSrc, mediaType, videoTime, waitToSeek, middleware}: LoadTextureArgs): Promise<LoadTextureResult> {
+export async function loadTexture({ gl, mediaSrc, mediaType, videoTime, waitToSeek, middleware }: LoadTextureArgs): Promise<LoadTextureResult> {
   const texture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, texture);
 
   let media: LoadTextureMedia;
 
-  if(mediaType === 'image') {
+  if (mediaType === 'image') {
     const image = new Image();
     image.src = mediaSrc;
 
@@ -43,15 +43,15 @@ export async function loadTexture({gl, mediaSrc, mediaType, videoTime, waitToSee
     media = {
       image,
       width: image.naturalWidth,
-      height: image.naturalHeight
+      height: image.naturalHeight,
     };
   } else {
-    const video = await createVideoForDrawing(mediaSrc, {currentTime: videoTime, waitToSeek, middleware});
+    const video = await createVideoForDrawing(mediaSrc, { currentTime: videoTime, waitToSeek, middleware });
 
     media = {
       video,
       width: video.videoWidth,
-      height: video.videoHeight
+      height: video.videoHeight,
     };
   }
 
@@ -63,5 +63,5 @@ export async function loadTexture({gl, mediaSrc, mediaType, videoTime, waitToSee
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
-  return {media, texture};
+  return { media, texture };
 }

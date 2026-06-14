@@ -1,11 +1,11 @@
-import {Accessor, createComputed, createSignal, createEffect, createMemo} from 'solid-js';
-import {createStore, reconcile} from 'solid-js/store';
+import { Accessor, createComputed, createSignal, createEffect, createMemo } from 'solid-js';
+import { createStore, reconcile } from 'solid-js/store';
 
 import throttle from '@helpers/schedulers/throttle';
 import deepEqual from '@helpers/object/deepEqual';
-import {GlobalPrivacySettings} from '@layer';
+import { GlobalPrivacySettings } from '@layer';
 
-import {MessagesPrivacyOption, MessagesTabStateStore} from '@components/sidebarLeft/tabs/privacy/messages/config';
+import { MessagesPrivacyOption, MessagesTabStateStore } from '@components/sidebarLeft/tabs/privacy/messages/config';
 
 
 type UseStateStoreArgs = {
@@ -24,18 +24,18 @@ export type ChosenPeersByType = {
 const useStateStore = ({
   isReady,
   globalPrivacy,
-  currentOption, currentAllowedChats, currentAllowedUsers
+  currentOption, currentAllowedChats, currentAllowedUsers,
 }: UseStateStoreArgs) => {
   let initialState: MessagesTabStateStore = {};
   const [store, setStore] = createStore<MessagesTabStateStore>({});
 
   createComputed(() => {
-    if(!isReady()) return;
+    if (!isReady()) return;
 
     initialState = {
       option: currentOption(),
       stars: Number(globalPrivacy().noncontact_peers_paid_stars) || undefined,
-      chosenPeers: [...currentAllowedUsers(), ...currentAllowedChats()]
+      chosenPeers: [...currentAllowedUsers(), ...currentAllowedChats()],
     };
 
     setStore(reconcile(structuredClone(initialState)));
@@ -51,14 +51,14 @@ const useStateStore = ({
 
   const chosenPeersByType = (): ChosenPeersByType => ({
     chats: store.chosenPeers!.filter(peer => peer.isAnyChat()).map(peer => peer.toChatId()),
-    users: store.chosenPeers!.filter(peer => peer.isUser())
+    users: store.chosenPeers!.filter(peer => peer.isUser()),
   });
 
 
   return [
     store,
     setStore,
-    {hasChanges, isPaid, chosenPeersByType}
+    { hasChanges, isPaid, chosenPeersByType },
   ] as const;
 };
 

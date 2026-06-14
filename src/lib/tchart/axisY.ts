@@ -1,5 +1,5 @@
-import {getFormatter, yTickFormatter} from '@lib/tchart/utils';
-import {TChartAnimationProperty, TChartState, TChartUnitOptions} from '@lib/tchart/types';
+import { getFormatter, yTickFormatter } from '@lib/tchart/utils';
+import { TChartAnimationProperty, TChartState, TChartUnitOptions } from '@lib/tchart/types';
 
 export type TChartAxisYItem = {
   animated?: boolean,
@@ -64,12 +64,12 @@ export default class TAxisY {
 
   render(opacity: number) {
     let calcDataLeft: ReturnType<TAxisY['calcAxisData']>, calcDataRight: ReturnType<TAxisY['calcAxisData']>;
-    if(this.opts.pairY) {
+    if (this.opts.pairY) {
       calcDataLeft = this.calcAxisData('y1_0', 'y2_0');
       calcDataRight = this.calcAxisData('y1_1', 'y2_1');
 
       // left axis is main, if both need animation priority goes to left
-      if((calcDataRight.needAnimation && !calcDataLeft.needAnimation) || this.opts.state!['o_0']! < 1) {
+      if ((calcDataRight.needAnimation && !calcDataLeft.needAnimation) || this.opts.state!['o_0']! < 1) {
         this.updateAxisState('y1_1', 'y2_1', 'numRight', calcDataRight, calcDataLeft, calcDataRight);
       } else {
         this.updateAxisState('y1_0', 'y2_0', 'numLeft', calcDataLeft, calcDataLeft, calcDataRight);
@@ -105,7 +105,7 @@ export default class TAxisY {
     const yScaleCur = (this.opts.state!.dims!.axisYLines.h - pTop - pBottom) / yCurRange;
     const yScaleEnd = (this.opts.state!.dims!.axisYLines.h - pTop - pBottom) / yEndRange;
 
-    if(changeSpeedFirst > 1.05 || changeSpeedLast > 1.05 || this.forceUpdate) {
+    if (changeSpeedFirst > 1.05 || changeSpeedLast > 1.05 || this.forceUpdate) {
       withAnimation = true;
     }
 
@@ -119,7 +119,7 @@ export default class TAxisY {
       yRealStep: yRealStep,
       yRealStart: yRealStart,
       yScaleCur: yScaleCur,
-      yScaleEnd: yScaleEnd
+      yScaleEnd: yScaleEnd,
     };
   }
 
@@ -145,11 +145,11 @@ export default class TAxisY {
     let startedAtLeastOne = false;
     const dims = this.opts.state!.dims!.axisYLines;
 
-    if(baseData.needAnimation) {
+    if (baseData.needAnimation) {
       this.animationInProgress = true;
     }
 
-    for(let i = 0; i <= linesCount; ++i) {
+    for (let i = 0; i <= linesCount; ++i) {
       const numReal = baseData.yRealStart! + Math.round(baseData.yRealStep * i);
       const numRealLeft = leftData.yRealStart! + Math.round(leftData.yRealStep * i);
       const numRealRight = rightData.yRealStart! + Math.round(rightData.yRealStep * i);
@@ -164,20 +164,20 @@ export default class TAxisY {
       // to avoid small 2nd graph scale on first graph is off (cause no fit to first graph is needed)
       const numDisplayRightStr = formatter(Math.max(numRealRight, 0), rightData.yRealStep, true /* , this.opts.state['e_0']*/ );
 
-      if(baseData.needAnimation) {
+      if (baseData.needAnimation) {
         const oldFrom = dims.t + dims.h - pBottom - (numReal - baseData.y1!) * baseData.yScaleEnd;
         const oldTo = dims.t + dims.h - pBottom - (this.items[i][numName]! - baseData.y1!) * baseData.yScaleEnd;
         const newFrom = dims.t + dims.h - pBottom - (numReal - state![y1Name]!) * baseData.yScaleCur;
         const newTo = dims.t + dims.h - pBottom - (numReal - baseData.y1!) * baseData.yScaleEnd;
 
         // if stays on the same pos - no animation
-        if(Math.abs(oldTo - newTo) < 1) {
+        if (Math.abs(oldTo - newTo) < 1) {
           this.items[i] = {
             numLeft: numRealLeft,
             strLeft: numDisplayLeftStr,
             numRight: numRealRight,
             strRight: numDisplayRightStr,
-            y: newTo
+            y: newTo,
           };
         } else {
           startedAtLeastOne = true;
@@ -191,8 +191,8 @@ export default class TAxisY {
             oProp: `oyt_${this.uuid}`,
             yProp: `yyt_${this.uuid}`,
             state: {
-              id: `t_${this.uuid}`
-            }
+              id: `t_${this.uuid}`,
+            },
           };
           item.state![item.oProp!] = 1;
           item.state![item.yProp!] = oldFrom;
@@ -204,7 +204,7 @@ export default class TAxisY {
             end: 0,
             duration: this.noAnimation ? 0 : 200,
             tween: 'linear',
-            group: {top: true}
+            group: { top: true },
           }, {
             prop: item.yProp!,
             state: item.state,
@@ -213,8 +213,8 @@ export default class TAxisY {
             fixed: !this.forceUpdate,
             tween: (!this.forceUpdate ? 'exp' : null)!,
             speed: 0.18,
-            group: {top: true},
-            cbEnd: this.deleteItem
+            group: { top: true },
+            cbEnd: this.deleteItem,
           }]);
 
           delete this.items[i];
@@ -232,8 +232,8 @@ export default class TAxisY {
               numLeft: numRealLeft,
               strLeft: numDisplayLeftStr,
               numRight: numRealRight,
-              strRight: numDisplayRightStr
-            }
+              strRight: numDisplayRightStr,
+            },
           }
           item.state![item.oProp!] = 0;
           item.state![item.yProp!] = newFrom;
@@ -245,7 +245,7 @@ export default class TAxisY {
             end: 1,
             duration: this.noAnimation ? 0 : 200,
             tween: 'linear',
-            group: {top: true}
+            group: { top: true },
           }, {
             prop: (item.yProp! as never),
             state: item.state,
@@ -254,27 +254,27 @@ export default class TAxisY {
             fixed: !this.forceUpdate,
             tween: (!this.forceUpdate ? 'exp' : null)!,
             speed: 0.18,
-            group: {top: true},
+            group: { top: true },
             cbEnd: (state) => {
               this.items[state!.id] = {
                 numLeft: state!.numLeft,
                 strLeft: state!.strLeft!,
                 numRight: state!.numRight,
                 strRight: state!.strRight!,
-                y: state![`yy_${state!.id as number}`]
+                y: state![`yy_${state!.id as number}`],
               }
 
               clearTimeout(this.animationEndTimeout);
               this.animationEndTimeout = window.setTimeout(() => {
                 this.animationInProgress = false;
               }, 30);
-            }
+            },
           }];
 
           animator!.add(props);
         }
       } else {
-        if(this.items[i] && this.items[i].animated) {
+        if (this.items[i] && this.items[i].animated) {
           this.items[i].numLeft = numRealLeft;
           this.items[i].strLeft = numDisplayLeftStr;
           this.items[i].numRight = numRealRight;
@@ -289,13 +289,13 @@ export default class TAxisY {
             strLeft: numDisplayLeftStr,
             numRight: numRealRight,
             strRight: numDisplayRightStr,
-            y: dims.t + dims.h - pBottom - (numReal - baseData.y1!) * baseData.yScaleEnd
+            y: dims.t + dims.h - pBottom - (numReal - baseData.y1!) * baseData.yScaleEnd,
           };
         }
       }
     }
 
-    if(baseData.needAnimation && !startedAtLeastOne) {
+    if (baseData.needAnimation && !startedAtLeastOne) {
       this.animationInProgress = false;
     }
 
@@ -316,11 +316,11 @@ export default class TAxisY {
     // @ts-ignore
     this.ctx.lineJoin = 'square';
 
-    for(const i in this.items) {
+    for (const i in this.items) {
       const item = this.items[i];
 
       let o: number, y: number;
-      if(item.animated) {
+      if (item.animated) {
         y = item.state![item.yProp!];
         o = item.state![item.oProp!];
       } else {
@@ -328,11 +328,11 @@ export default class TAxisY {
         o = 1;
       }
 
-      if((y - 6) >= 0 && (y - 16) <= dimsLeft.h) {
+      if ((y - 6) >= 0 && (y - 16) <= dimsLeft.h) {
         this.ctx.globalAlpha = o  * (this.opts.pairY ? this.opts.state!['o_0'] : 1)! * opacity;
         this.ctx.textAlign = 'left';
 
-        if(this.opts.pairY) {
+        if (this.opts.pairY) {
           this.ctx.fillStyle = this.isDarkMode ? ys![0].colors_n[1] : ys![0].colors_d[1];
         } else {
           this.ctx.fillStyle = this.opts.settings!.COLORS.axis.y;
@@ -340,7 +340,7 @@ export default class TAxisY {
 
         this.ctx.fillText(item.strLeft, dimsLeft.l * dpi, (y - 7) * dpi);
 
-        if(this.opts.pairY) {
+        if (this.opts.pairY) {
           this.ctx.globalAlpha = o * this.opts.state!['o_1']! * opacity;
           this.ctx.textAlign = 'right';
           this.ctx.fillStyle = this.isDarkMode ? ys![1].colors_n[1] : ys![1].colors_d[1];
@@ -350,7 +350,7 @@ export default class TAxisY {
       }
 
       y = (y << 0) - 0.5;
-      if(y >= 0 && y <= dimsLeft.h) {
+      if (y >= 0 && y <= dimsLeft.h) {
         this.ctx.beginPath();
         this.ctx.globalAlpha = o * opacity;
         this.ctx.moveTo(dimsLines.l * dpi, (y) * dpi);

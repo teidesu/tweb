@@ -1,15 +1,15 @@
 import appDialogsManager from '@lib/appDialogsManager';
 import rootScope from '@lib/rootScope';
-import {createSearchGroup, SearchGroup} from '@components/searchGroup';
-import {Middleware} from '@helpers/middleware';
-import {MyTopPeer} from '@lib/appManagers/appUsersManager';
+import { createSearchGroup, SearchGroup } from '@components/searchGroup';
+import { Middleware } from '@helpers/middleware';
+import { MyTopPeer } from '@lib/appManagers/appUsersManager';
 
 export default function createTopPeersList({
   middleware,
   onFound,
   group,
   modifyPeers,
-  className
+  className,
 }: {
   middleware: Middleware,
   onFound?: () => void,
@@ -26,18 +26,18 @@ export default function createTopPeersList({
     noIcons: true,
     middleware,
     scrollableX: true,
-    clickable: !!onFound
+    clickable: !!onFound,
   });
 
   const promise = rootScope.managers.appUsersManager.getTopPeers('correspondents').then((peers) => {
-    if(!middleware()) return;
+    if (!middleware()) return;
 
-    if(modifyPeers) {
+    if (modifyPeers) {
       peers = modifyPeers(peers.slice());
     }
 
     peers.forEach((peer) => {
-      const {dom} = appDialogsManager.addDialogNew({
+      const { dom } = appDialogsManager.addDialogNew({
         peerId: peer.id,
         container: group.list,
         onlyFirstName: true,
@@ -45,9 +45,9 @@ export default function createTopPeersList({
         autonomous,
         noIcons: group.noIcons,
         wrapOptions: {
-          middleware
+          middleware,
         },
-        withStories: true
+        withStories: true,
       });
 
       dom.subtitleEl.remove();
@@ -56,5 +56,5 @@ export default function createTopPeersList({
     group.toggle();
   });
 
-  return {group, promise};
+  return { group, promise };
 }

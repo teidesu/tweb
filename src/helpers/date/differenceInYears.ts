@@ -7,7 +7,7 @@ export default function differenceInYears(earlierDate: Date, laterDate: Date) {
   const year2 = laterDate.getFullYear();
   const diff = year2 - year1;
 
-  if(month1 < month2 || (month1 === month2 && day1 <= day2)) {
+  if (month1 < month2 || (month1 === month2 && day1 <= day2)) {
     return diff;
   } else {
     return diff - 1;

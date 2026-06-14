@@ -1,6 +1,6 @@
 export default function drawCircle(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, fill?: boolean, stroke?: boolean) {
   const dpr = ctx.canvas.dpr;
-  if(dpr) {
+  if (dpr) {
     x *= dpr;
     y *= dpr;
     radius *= dpr;
@@ -10,11 +10,11 @@ export default function drawCircle(ctx: CanvasRenderingContext2D, x: number, y: 
   ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
   ctx.closePath();
 
-  if(fill) {
+  if (fill) {
     ctx.fill();
   }
 
-  if(stroke) {
+  if (stroke) {
     ctx.stroke();
   }
 }

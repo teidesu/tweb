@@ -4,9 +4,9 @@ function modPow(base: number, exponent: number, modulus: number) {
   /* initialize result */
   let result = 1;
 
-  while(exponent > 0) {
+  while (exponent > 0) {
     /* if y is odd, multiply base with result */
-    if(exponent % 2 == 1)
+    if (exponent % 2 == 1)
       result = (result * base) % modulus;
 
     /* exponent = exponent/2 */
@@ -21,11 +21,11 @@ function modPow(base: number, exponent: number, modulus: number) {
 /* method to return prime divisor for n */
 export default function factorizePollardRhoPQ(n: number): number {
   /* no prime divisor for 1 */
-  if(n === 1)
+  if (n === 1)
     return n;
 
   /* even number means one of the divisors is 2 */
-  if(n % 2 === 0)
+  if (n % 2 === 0)
     return 2;
 
   /* we will pick from the range [2, N) */
@@ -41,7 +41,7 @@ export default function factorizePollardRhoPQ(n: number): number {
   let d = 1;
   /* until the prime factor isn't obtained.
   If n is prime, return n */
-  while(d == 1) {
+  while (d == 1) {
     /* Tortoise Move: x(i+1) = f(x(i)) */
     x = (modPow(x, 2, n) + c + n) % n;
 
@@ -54,7 +54,7 @@ export default function factorizePollardRhoPQ(n: number): number {
 
     /* retry if the algorithm fails to find prime factor
       * with chosen x and c */
-    if(d === n) return factorizePollardRhoPQ(n);
+    if (d === n) return factorizePollardRhoPQ(n);
   }
 
   return d;

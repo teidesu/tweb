@@ -5,7 +5,7 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import {nextRandomUint} from '@helpers/random';
+import { nextRandomUint } from '@helpers/random';
 import ulongFromInts from '@helpers/long/ulongFromInts';
 
 /*
@@ -59,7 +59,7 @@ export class TimeManager {
       random = nextRandomUint(16);
 
     let messageId: TimeManager['lastMessageId'] = [timeSec, (timeMSec << 21) | (random << 3) | 4];
-    if(this.lastMessageId[0] > messageId[0] ||
+    if (this.lastMessageId[0] > messageId[0] ||
       this.lastMessageId[0] === messageId[0] && this.lastMessageId[1] >= messageId[1]) {
       messageId = [this.lastMessageId[0], this.lastMessageId[1] + 4];
     }
@@ -84,7 +84,7 @@ export class TimeManager {
     const changed = Math.abs(this.timeOffset - newTimeOffset) > 10;
     this.lastMessageId = [0, 0];
 
-    if(this.timeOffset !== newTimeOffset) {
+    if (this.timeOffset !== newTimeOffset) {
       this.timeOffset = newTimeOffset;
     }
 

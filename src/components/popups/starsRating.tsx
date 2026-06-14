@@ -1,20 +1,20 @@
 
-import PopupElement, {createPopup} from '@components/popups/indexTsx';
-import {StarsRating, User, UserFull} from '@layer';
-import {i18n} from '@lib/langPack';
+import PopupElement, { createPopup } from '@components/popups/indexTsx';
+import { StarsRating, User, UserFull } from '@layer';
+import { i18n } from '@lib/langPack';
 import bigInt from 'big-integer';
-import {LimitLineTsx} from '@components/limitLineTsx';
-import {I18nTsx} from '@helpers/solid/i18n';
+import { LimitLineTsx } from '@components/limitLineTsx';
+import { I18nTsx } from '@helpers/solid/i18n';
 import Row from '@components/rowTsx';
 import classNames from '@helpers/string/classNames';
 import styles from '@components/popups/starsRating.module.scss';
-import {createMemo, createSignal, Show, Switch} from 'solid-js';
+import { createMemo, createSignal, Show, Switch } from 'solid-js';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
 import rootScope from '@lib/rootScope';
 import formatDuration from '@helpers/formatDuration';
-import {wrapFormattedDuration} from '@components/wrappers/wrapDuration';
-import {Transition} from 'solid-transition-group';
-import {IconTsx} from '@components/iconTsx';
+import { wrapFormattedDuration } from '@components/wrappers/wrapDuration';
+import { Transition } from 'solid-transition-group';
+import { IconTsx } from '@components/iconTsx';
 import formatNumber from '@helpers/number/formatNumber';
 
 function Badge(props: {
@@ -35,7 +35,7 @@ export default function showStarsRatingPopup(props: {
   const {
     stars_rating: currentRating,
     stars_my_pending_rating: futureRating,
-    stars_my_pending_rating_date: futureRatingDate
+    stars_my_pending_rating_date: futureRatingDate,
   } = props.userFull;
 
   const isPersonal = props.user.id === rootScope.myId;
@@ -50,9 +50,9 @@ export default function showStarsRatingPopup(props: {
       const rating$ = rating();
       const isMaxLevel = rating$!.next_level_stars === undefined;
       const isNegativeLevel = rating$!.level < 0;
-      if(isNegativeLevel) {
+      if (isNegativeLevel) {
         return 0.5;
-      } else if(isMaxLevel) {
+      } else if (isMaxLevel) {
         return 1;
       } else {
         return (Number(rating$!.stars) - Number(rating$!.current_level_stars)) /
@@ -107,7 +107,7 @@ export default function showStarsRatingPopup(props: {
                       key="StarsRating.PendingDescription"
                       args={[
                         wrapFormattedDuration(formatDuration(futureRatingDate! - Date.now() / 1000, 1)),
-                        pendingStars.toString()
+                        pendingStars.toString(),
                       ]}
                     />
                     <a class={styles.previewButton} onClick={() => setIsFuture(true)}>
@@ -122,7 +122,7 @@ export default function showStarsRatingPopup(props: {
                       key="StarsRating.FutureDescription"
                       args={[
                         wrapFormattedDuration(formatDuration(futureRatingDate! - Date.now() / 1000, 1)),
-                        pendingStars.toString()
+                        pendingStars.toString(),
                       ]}
                     />
                     <a class={styles.previewButton} onClick={() => setIsFuture(false)}>

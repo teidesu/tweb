@@ -1,7 +1,7 @@
-import {Middleware} from '@helpers/middleware';
-import {LottieAssetName} from '@lib/rlottie/lottieLoader';
+import { Middleware } from '@helpers/middleware';
+import { LottieAssetName } from '@lib/rlottie/lottieLoader';
 import wrapLocalSticker from '@components/wrappers/localSticker';
-import {Accessor, createRoot, JSX} from 'solid-js';
+import { Accessor, createRoot, JSX } from 'solid-js';
 
 export default async function emptyPlaceholder({
   middleware,
@@ -11,7 +11,7 @@ export default async function emptyPlaceholder({
   assetName = 'UtyanSearch',
   width = 140,
   height = 140,
-  isFullSize
+  isFullSize,
 }: {
   middleware: Middleware,
   title: Accessor<JSX.Element>,
@@ -22,20 +22,20 @@ export default async function emptyPlaceholder({
   height?: number,
   isFullSize?: boolean
 }) {
-  const {container, promise} = await wrapLocalSticker({
+  const { container, promise } = await wrapLocalSticker({
     width,
     height,
     assetName,
     middleware,
-    loop: true
+    loop: true,
   });
 
-  if(!middleware()) {
+  if (!middleware()) {
     return;
   }
 
   await promise;
-  if(!middleware()) {
+  if (!middleware()) {
     return;
   }
 
@@ -45,7 +45,7 @@ export default async function emptyPlaceholder({
   createRoot((disposer) => {
     middleware.onClean(disposer);
     ret = (
-      <div class="selector-empty-placeholder" classList={{'hide': hide(), 'is-full': isFullSize}}>
+      <div class="selector-empty-placeholder" classList={{ 'hide': hide(), 'is-full': isFullSize }}>
         {container}
         <div class="selector-empty-placeholder-title">
           {title()}

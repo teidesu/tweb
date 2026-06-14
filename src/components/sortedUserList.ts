@@ -1,19 +1,19 @@
 import type LazyLoadQueue from '@components/lazyLoadQueue';
-import appDialogsManager, {AppDialogsManager, DialogDom, DialogElement, DialogElementSize} from '@lib/appDialogsManager';
-import {getHeavyAnimationPromise} from '@hooks/useHeavyAnimationCheck';
+import appDialogsManager, { AppDialogsManager, DialogDom, DialogElement, DialogElementSize } from '@lib/appDialogsManager';
+import { getHeavyAnimationPromise } from '@hooks/useHeavyAnimationCheck';
 import isInDOM from '@helpers/dom/isInDOM';
 import positionElementByIndex from '@helpers/dom/positionElementByIndex';
 import replaceContent from '@helpers/dom/replaceContent';
-import {fastRaf} from '@helpers/schedulers';
-import SortedList, {SortedElementBase} from '@helpers/sortedList';
+import { fastRaf } from '@helpers/schedulers';
+import SortedList, { SortedElementBase } from '@helpers/sortedList';
 import safeAssign from '@helpers/object/safeAssign';
-import {AppManagers} from '@lib/managers';
+import { AppManagers } from '@lib/managers';
 import getUserStatusString from '@components/wrappers/getUserStatusString';
 import getChatMembersString from '@components/wrappers/getChatMembersString';
 import wrapParticipantRank from '@components/wrappers/participantRank';
 import getParticipantRank from '@appManagers/utils/chats/getParticipantRank';
-import {Middleware, MiddlewareHelper} from '@helpers/middleware';
-import {isTruthy} from '../helpers/isTruthy';
+import { Middleware, MiddlewareHelper } from '@helpers/middleware';
+import { isTruthy } from '../helpers/isTruthy';
 
 interface SortedUser extends SortedElementBase<PeerId> {
   dom: DialogDom,
@@ -53,7 +53,7 @@ export default class SortedUserList extends SortedList<SortedUser> {
         this.onListLengthChange?.();
       },
       onUpdate: options.onUpdate || (async(element) => {
-        if(element.id.isAnyChat()) {
+        if (element.id.isAnyChat()) {
           const status = await getChatMembersString(element.id.toChatId(), this.managers);
           replaceContent(element.dom.lastMessageSpan, status);
         } else {
@@ -68,7 +68,7 @@ export default class SortedUserList extends SortedList<SortedUser> {
         const willChangeLength = element.dom.listEl.parentElement !== this.list;
         positionElementByIndex(element.dom.listEl, this.list, idx);
 
-        if(willChangeLength && this.onListLengthChange) {
+        if (willChangeLength && this.onListLengthChange) {
           this.onListLengthChange();
         }
       },
@@ -82,9 +82,9 @@ export default class SortedUserList extends SortedList<SortedUser> {
           rippleEnabled: this.rippleEnabled,
           wrapOptions: {
             lazyLoadQueue: this.lazyLoadQueue,
-            middleware: this.middlewareHelper.get()
+            middleware: this.middlewareHelper.get(),
           },
-          withStories: true
+          withStories: true,
         });
 
         const rank = this.ranks.get(base.id);
@@ -96,23 +96,23 @@ export default class SortedUserList extends SortedList<SortedUser> {
       },
       updateElementWith: fastRaf,
       updateListWith: async(callback) => {
-        if(!Array.from(this.elements.values()).some((element) => element.id.isUser())) {
+        if (!Array.from(this.elements.values()).some((element) => element.id.isUser())) {
           return callback(false);
         }
 
-        if(!isInDOM(this.list)) {
+        if (!isInDOM(this.list)) {
           return callback(false);
         }
 
         await getHeavyAnimationPromise();
 
-        if(!isInDOM(this.list)) {
+        if (!isInDOM(this.list)) {
           return callback(false);
         }
 
         callback(true);
       },
-      middleware: options.middleware
+      middleware: options.middleware,
     });
 
     safeAssign(this, options);
@@ -123,7 +123,7 @@ export default class SortedUserList extends SortedList<SortedUser> {
     const doTimeout = () => {
       timeout = window.setTimeout(() => {
         this.updateList((good) => {
-          if(good) {
+          if (good) {
             doTimeout();
           }
         });

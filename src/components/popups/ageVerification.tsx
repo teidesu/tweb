@@ -2,7 +2,7 @@ import PopupElement from '.';
 import deferredPromise from '@helpers/cancellablePromise';
 import safeAssign from '@helpers/object/safeAssign';
 import appImManager from '@lib/appImManager';
-import {i18n, LangPackKey} from '@lib/langPack';
+import { i18n, LangPackKey } from '@lib/langPack';
 import useContentSettings from '@stores/contentSettings';
 import Button from '@components/buttonTsx';
 import styles from '@components/popups/ageVerification.module.scss';
@@ -17,7 +17,7 @@ export class AgeVerificationPopup extends PopupElement {
       title: 'AgeVerification.Title',
       body: true,
       closable: true,
-      overlayClosable: true
+      overlayClosable: true,
     })
 
     safeAssign(this, options);
@@ -29,12 +29,12 @@ export class AgeVerificationPopup extends PopupElement {
 
   private async construct() {
     const appConfig = await this.managers.apiManager.getAppConfig();
-    this.appendSolidBody(() => this._construct({appConfig}));
+    this.appendSolidBody(() => this._construct({ appConfig }));
   }
 
-  protected _construct({appConfig}: {appConfig: MTAppConfig}) {
+  protected _construct({ appConfig }: {appConfig: MTAppConfig}) {
     let textKey: LangPackKey;
-    if(appConfig.verify_age_country === 'GB') {
+    if (appConfig.verify_age_country === 'GB') {
       textKey = 'AgeVerification.TextGB';
     } else {
       textKey = 'AgeVerification.Text';
@@ -53,7 +53,7 @@ export class AgeVerificationPopup extends PopupElement {
         forcePopup: true,
         onClose: () => {
           this.onVerify(!!useContentSettings().ageVerified());
-        }
+        },
       });
     };
 
@@ -72,11 +72,11 @@ export class AgeVerificationPopup extends PopupElement {
   static create(): Promise<boolean> {
     const promise = deferredPromise<boolean>();
     const popup = PopupElement.createPopup(AgeVerificationPopup, {
-      onVerify: (verified) => promise.resolve(verified)
+      onVerify: (verified) => promise.resolve(verified),
     });
 
     popup.addEventListener('close', () => {
-      if(!popup._switchedToWebApp) {
+      if (!popup._switchedToWebApp) {
         promise.resolve(false);
       }
     });

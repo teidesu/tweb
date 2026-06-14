@@ -2,17 +2,17 @@ import anchorCallback from '@helpers/dom/anchorCallback';
 import createContextMenu from '@helpers/dom/createContextMenu';
 import findUpTag from '@helpers/dom/findUpTag';
 import noop from '@helpers/noop';
-import {FOLDER_ID_ARCHIVE} from '@lib/appManagers/constants';
-import {i18n} from '@lib/langPack';
+import { FOLDER_ID_ARCHIVE } from '@lib/appManagers/constants';
+import { i18n } from '@lib/langPack';
 import rootScope from '@lib/rootScope';
-import {useAppSettings} from '@stores/appSettings';
-import {archiveDialogTagName} from './archiveDialog';
+import { useAppSettings } from '@stores/appSettings';
+import { archiveDialogTagName } from './archiveDialog';
 import confirmationPopup from './confirmationPopup';
 import createFeatureDetailsIconSticker from './featureDetailsIconSticker';
 import showFeatureDetailsPopup from './popups/featureDetails';
 import appSidebarLeft from './sidebarLeft';
-import {AppArchiveSettingsTab} from './solidJsTabs/tabs';
-import {ButtonMenuItemOptionsVerifiable} from './buttonMenu';
+import { AppArchiveSettingsTab } from './solidJsTabs/tabs';
+import { ButtonMenuItemOptionsVerifiable } from './buttonMenu';
 
 
 type CreateArchiveDialogContextMenuArgs = {
@@ -22,7 +22,7 @@ type CreateArchiveDialogContextMenuArgs = {
 const showConfirmationWhenAbove = 1000;
 
 export const createArchiveDialogContextMenu = ({
-  element
+  element,
 }: CreateArchiveDialogContextMenuArgs) => {
   let dialogElement: HTMLElement;
 
@@ -38,7 +38,7 @@ export const createArchiveDialogContextMenu = ({
     },
     findElement: (e) => {
       return findUpTag(e.target, archiveDialogTagName);
-    }
+    },
   });
 };
 
@@ -54,27 +54,27 @@ export const getArchiveContextMenuButtons = (): ButtonMenuItemOptionsVerifiable[
       onClick: () => {
         setAppSettings('showArchiveInChatList', false);
       },
-      verify: () => appSettings.showArchiveInChatList
+      verify: () => appSettings.showArchiveInChatList,
     }, {
       icon: 'movetochats',
       text: 'Archive.ShowInChatList',
       onClick: () => {
         setAppSettings('showArchiveInChatList', true);
       },
-      verify: () => !appSettings.showArchiveInChatList
+      verify: () => !appSettings.showArchiveInChatList,
     },
     {
       icon: 'readchats',
       text: 'MarkAllAsRead',
       onClick: async() => {
         const unreadCount = await getUnreadCount();
-        if(unreadCount > showConfirmationWhenAbove) {
+        if (unreadCount > showConfirmationWhenAbove) {
           confirmationPopup({
             titleLangKey: 'Archive.MarkAllAsRead.ConfirmationTitle',
             descriptionLangKey: 'Archive.MarkAllAsRead.ConfirmationDescription',
             button: {
-              langKey: 'Confirm'
-            }
+              langKey: 'Confirm',
+            },
           }).then(() => {
             markAllAsRead();
           }, noop);
@@ -82,22 +82,22 @@ export const getArchiveContextMenuButtons = (): ButtonMenuItemOptionsVerifiable[
           markAllAsRead();
         }
       },
-      verify: async() => !markAllAsRead.isLoading() && (await getUnreadCount() > 0)
+      verify: async() => !markAllAsRead.isLoading() && (await getUnreadCount() > 0),
     },
     {
       icon: 'tools',
       text: 'ArchiveSettings',
       onClick: () => {
         appSidebarLeft.createTab(AppArchiveSettingsTab).open();
-      }
+      },
     },
     {
       icon: 'help',
       text: 'ArchiveFeatureDetails.MenuOption',
       onClick: () => {
         openFeatureDetails();
-      }
-    }
+      },
+    },
   ]
 };
 
@@ -119,7 +119,7 @@ function createMarkAllAsReadHandler() {
 };
 
 async function getUnreadCount() {
-  const {unreadCount} = await rootScope.managers.dialogsStorage.getFolderUnreadCount(FOLDER_ID_ARCHIVE);
+  const { unreadCount } = await rootScope.managers.dialogsStorage.getFolderUnreadCount(FOLDER_ID_ARCHIVE);
   return unreadCount;
 };
 
@@ -134,26 +134,26 @@ function openFeatureDetails() {
       {
         icon: 'archive',
         title: i18n('ArchiveFeatureDetails.HowTo.Title'),
-        subtitle: i18n('ArchiveFeatureDetails.HowTo.Subtitle', [i18n('Archive'), i18n('Unarchive')])
+        subtitle: i18n('ArchiveFeatureDetails.HowTo.Subtitle', [i18n('Archive'), i18n('Unarchive')]),
       },
       {
         icon: 'eyecross_outline',
         title: i18n('ArchiveFeatureDetails.Hide.Title'),
-        subtitle: i18n('ArchiveFeatureDetails.Hide.Subtitle', [i18n('Archive.HideFromChatList')])
+        subtitle: i18n('ArchiveFeatureDetails.Hide.Subtitle', [i18n('Archive.HideFromChatList')]),
       },
       {
         icon: 'story',
         title: i18n('ArchiveFeatureDetails.Stories.Title'),
-        subtitle: i18n('ArchiveFeatureDetails.Stories.Subtitle')
-      }
+        subtitle: i18n('ArchiveFeatureDetails.Stories.Subtitle'),
+      },
     ],
     buttons: [
       {
-        text: i18n('ArchiveFeatureDetails.Button')
-      }
+        text: i18n('ArchiveFeatureDetails.Button'),
+      },
     ],
     sticker: {
-      element: createFeatureDetailsIconSticker('archive_filled', 'background-gradient-archive')
-    }
+      element: createFeatureDetailsIconSticker('archive_filled', 'background-gradient-archive'),
+    },
   });
 }

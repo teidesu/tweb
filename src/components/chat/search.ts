@@ -1,6 +1,6 @@
 import type ChatTopbar from '@components/chat/topbar';
 import AppSearch from '@components/appSearch';
-import {createSearchGroup, SearchGroup} from '@components/searchGroup';
+import { createSearchGroup, SearchGroup } from '@components/searchGroup';
 import showDatePickerPopup from '@components/popups/datePicker';
 import ripple from '@components/ripple';
 import InputSearch from '@components/inputSearch';
@@ -9,13 +9,13 @@ import findUpTag from '@helpers/dom/findUpTag';
 import cancelEvent from '@helpers/dom/cancelEvent';
 import whichChild from '@helpers/dom/whichChild';
 import replaceContent from '@helpers/dom/replaceContent';
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 import ListenerSetter from '@helpers/listenerSetter';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
-import appNavigationController, {NavigationItem} from '@components/appNavigationController';
-import {IS_MOBILE_SAFARI} from '@environment/userAgent';
-import {DIALOG_LIST_ELEMENT_TAG} from '@lib/appDialogsManager';
-import {MiddlewareHelper, getMiddleware} from '@helpers/middleware';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
+import appNavigationController, { NavigationItem } from '@components/appNavigationController';
+import { IS_MOBILE_SAFARI } from '@environment/userAgent';
+import { DIALOG_LIST_ELEMENT_TAG } from '@lib/appDialogsManager';
+import { MiddlewareHelper, getMiddleware } from '@helpers/middleware';
 import ButtonIcon from '@components/buttonIcon';
 import pause from '@helpers/schedulers/pause';
 
@@ -54,27 +54,27 @@ export default class ChatSearch {
     const listenerSetter = this.listenerSetter = new ListenerSetter();
 
     const attachClick = (element: HTMLElement, callback: (e: MouseEvent) => void) => {
-      attachClickEvent(element, callback, {listenerSetter});
+      attachClickEvent(element, callback, { listenerSetter });
     };
 
     attachClick(this.backBtn, () => {
       this.destroy();
     });
 
-    this.inputSearch = new InputSearch({placeholder: 'Search'});
+    this.inputSearch = new InputSearch({ placeholder: 'Search' });
 
     // Results
     this.results = document.createElement('div');
     this.results.classList.add('chat-search-results', 'chatlist-container');
 
-    this.searchGroup = createSearchGroup({type: 'messages', className: '', clickable: false, middleware: this.middlewareHelper.get()});
+    this.searchGroup = createSearchGroup({ type: 'messages', className: '', clickable: false, middleware: this.middlewareHelper.get() });
     attachClick(this.searchGroup.list, this.onResultsClick);
 
     this.appSearch = new AppSearch(
       this.results,
       this.inputSearch,
       {
-        messages: this.searchGroup
+        messages: this.searchGroup,
       },
       this.middlewareHelper.get(),
       (count) => {
@@ -82,7 +82,7 @@ export default class ChatSearch {
 
         const value = this.inputSearch.value;
         this.foundCountEl.classList.toggle('empty', !value);
-        if(!this.foundCount) {
+        if (!this.foundCount) {
           replaceContent(this.foundCountEl, (value ? i18n('NoResult') : ''));
           this.results.classList.remove('active');
           this.chat.bubbles.container.classList.remove('search-results-active');
@@ -109,13 +109,13 @@ export default class ChatSearch {
     this.foundCountEl = document.createElement('span');
     this.foundCountEl.classList.add('chat-search-count', 'empty');
 
-    this.dateBtn = ButtonIcon('calendar chat-search-calendar', {noRipple: true});
+    this.dateBtn = ButtonIcon('calendar chat-search-calendar', { noRipple: true });
 
     this.controls = document.createElement('div');
     this.controls.classList.add('chat-search-controls');
 
-    this.upBtn = ButtonIcon('up', {noRipple: true});
-    this.downBtn = ButtonIcon('down', {noRipple: true});
+    this.upBtn = ButtonIcon('up', { noRipple: true });
+    this.downBtn = ButtonIcon('down', { noRipple: true });
 
     this.upBtn.setAttribute('disabled', 'true');
     this.downBtn.setAttribute('disabled', 'true');
@@ -137,16 +137,16 @@ export default class ChatSearch {
 
     this.inputSearch.input.focus();
 
-    if(query) {
+    if (query) {
       this.setQuery(query);
     }
 
-    if(!IS_MOBILE_SAFARI) {
+    if (!IS_MOBILE_SAFARI) {
       this.navigationItem = {
         type: 'mobile-search',
         onPop: () => {
           this.destroy();
-        }
+        },
       };
 
       appNavigationController.pushItem(this.navigationItem);
@@ -173,24 +173,24 @@ export default class ChatSearch {
 
   private onDateClick = (e: MouseEvent) => {
     cancelEvent(e);
-    showDatePickerPopup({initDate: new Date(), onPick: this.chat.bubbles.onDatePick});
+    showDatePickerPopup({ initDate: new Date(), onPick: this.chat.bubbles.onDatePick });
   };
 
   private selectResult(elem: HTMLElement) {
-    if(this.setPeerPromise) return this.setPeerPromise;
+    if (this.setPeerPromise) return this.setPeerPromise;
 
     const peerId = elem.dataset.peerId!.toPeerId();
     const lastMsgId = +elem.dataset.mid! || undefined;
 
     const index = whichChild(elem);
 
-    if(index === (this.foundCount - 1)) {
+    if (index === (this.foundCount - 1)) {
       this.upBtn.setAttribute('disabled', 'true');
     } else {
       this.upBtn.removeAttribute('disabled');
     }
 
-    if(!index) {
+    if (!index) {
       this.downBtn.setAttribute('disabled', 'true');
     } else {
       this.downBtn.removeAttribute('disabled');
@@ -200,13 +200,13 @@ export default class ChatSearch {
     this.chat.bubbles.container.classList.remove('search-results-active');
     this.chat.bubbles.updateGoDownVisibility();
 
-    const res = this.chat.setPeer({peerId, lastMsgId});
+    const res = this.chat.setPeer({ peerId, lastMsgId });
     this.setPeerPromise = ((res instanceof Promise ? res : Promise.resolve(res)) as Promise<any>).then(() => {
       this.selectedIndex = index;
       replaceContent(this.foundCountEl, i18n('Of', [index + 1, this.foundCount]));
 
       const renderedCount = this.searchGroup.list.childElementCount;
-      if(this.selectedIndex >= (renderedCount - 6)) {
+      if (this.selectedIndex >= (renderedCount - 6)) {
         this.appSearch.searchMore();
       }
     }).finally(() => {
@@ -216,13 +216,13 @@ export default class ChatSearch {
 
   private onResultsClick = (e: MouseEvent) => {
     const target = findUpTag(e.target, DIALOG_LIST_ELEMENT_TAG);
-    if(target) {
+    if (target) {
       this.selectResult(target);
     }
   };
 
   private onFooterClick = (e: MouseEvent) => {
-    if(this.foundCount) {
+    if (this.foundCount) {
       this.chat.bubbles.container.classList.toggle('search-results-active');
       this.chat.bubbles.updateGoDownVisibility();
       this.results.classList.toggle('active');

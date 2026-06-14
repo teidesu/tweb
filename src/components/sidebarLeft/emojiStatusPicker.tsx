@@ -1,11 +1,11 @@
 import filterUnique from '@helpers/array/filterUnique';
 import flatten from '@helpers/array/flatten';
 import cloneDOMRect from '@helpers/dom/cloneDOMRect';
-import {AccountEmojiStatuses, EmojiStatus} from '@layer';
-import {AppManagers} from '@lib/managers';
-import {EmoticonsDropdown} from '@components/emoticonsDropdown';
+import { AccountEmojiStatuses, EmojiStatus } from '@layer';
+import { AppManagers } from '@lib/managers';
+import { EmoticonsDropdown } from '@components/emoticonsDropdown';
 import EmojiTab from '@components/emoticonsDropdown/tabs/emoji';
-import Icon, {getIconContent} from '@components/icon';
+import Icon, { getIconContent } from '@components/icon';
 
 const openPickers = new WeakMap<HTMLElement, EmoticonsDropdown>();
 
@@ -14,10 +14,10 @@ export function openEmojiStatusPicker(options: {
   anchorElement: HTMLElement
   onChosen?: () => void
 }) {
-  const {managers, anchorElement} = options
+  const { managers, anchorElement } = options
 
   const openPicker = openPickers.get(anchorElement);
-  if(openPicker) {
+  if (openPicker) {
     openPicker.toggle(false);
     return;
   }
@@ -27,15 +27,15 @@ export function openEmojiStatusPicker(options: {
     managers: managers,
     mainSets: () => {
       const defaultStatuses = managers.appStickersManager.getLocalStickerSet('inputStickerSetEmojiDefaultStatuses')
-      .then((stickerSet) => {
-        return stickerSet.documents.map((doc) => doc.id);
-      });
+        .then((stickerSet) => {
+          return stickerSet.documents.map((doc) => doc.id);
+        });
 
       const convertEmojiStatuses = (emojiStatuses: AccountEmojiStatuses) => {
         return (emojiStatuses as AccountEmojiStatuses.accountEmojiStatuses)
-        .statuses
-        .map((status) => (status as EmojiStatus.emojiStatus).document_id)
-        .filter(Boolean);
+          .statuses
+          .map((status) => (status as EmojiStatus.emojiStatus).document_id)
+          .filter(Boolean);
       };
 
       return [
@@ -43,10 +43,10 @@ export function openEmojiStatusPicker(options: {
           defaultStatuses,
           managers.appUsersManager.getRecentEmojiStatuses().then(convertEmojiStatuses),
           managers.appUsersManager.getDefaultEmojiStatuses().then(convertEmojiStatuses),
-          managers.appEmojiManager.getRecentEmojis('custom')
+          managers.appEmojiManager.getRecentEmojis('custom'),
         ]).then((arrays) => {
           return filterUnique(flatten(arrays));
-        })
+        }),
       ];
     },
     onClick: async(emoji) => {
@@ -54,14 +54,14 @@ export function openEmojiStatusPicker(options: {
 
       const noStatus = getIconContent('star') === emoji.emoji;
       let emojiStatus: EmojiStatus;
-      if(noStatus) {
+      if (noStatus) {
         emojiStatus = {
-          _: 'emojiStatusEmpty'
+          _: 'emojiStatusEmpty',
         };
       } else {
         emojiStatus = {
           _: 'emojiStatus',
-          document_id: emoji.docId!
+          document_id: emoji.docId!,
         };
 
         options.onChosen?.()
@@ -69,7 +69,7 @@ export function openEmojiStatusPicker(options: {
 
       managers.appUsersManager.updateEmojiStatus(emojiStatus);
     },
-    canHaveEmojiTimer: true
+    canHaveEmojiTimer: true,
   });
 
   const emoticonsDropdown = new EmoticonsDropdown({
@@ -82,7 +82,7 @@ export function openEmojiStatusPicker(options: {
       cloned.left = rect.left + rect.width / 2;
       cloned.top = rect.top + rect.height / 2;
       return cloned;
-    }
+    },
   });
 
   const textColor = 'primary-color';
@@ -108,7 +108,7 @@ export function openEmojiStatusPicker(options: {
       category,
       element: emojiElement,
       batch: false,
-      prepend: true
+      prepend: true,
       // active: !iconEmojiId
     });
 

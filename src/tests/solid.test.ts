@@ -1,4 +1,4 @@
-import {createStore} from 'solid-js/store';
+import { createStore } from 'solid-js/store';
 
 type Item = {
   _: 'a' | 'b',
@@ -8,12 +8,12 @@ type Item = {
 const keys: (keyof Item)[] = ['_'];
 keys.forEach((key) => {
   const [state, setState] = createStore({
-    array: [] as Item[]
+    array: [] as Item[],
   });
 
   const makeItem = (value: 'a' | 'b') => {
     return {
-      [key]: value
+      [key]: value,
     } as Item;
   };
 

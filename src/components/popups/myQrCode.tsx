@@ -5,31 +5,31 @@ import {
   createSignal,
   onCleanup,
   onMount,
-  on
+  on,
 } from 'solid-js';
-import PopupElement, {createPopup} from '@components/popups/indexTsx';
-import {AvatarNewTsx} from '@components/avatarNew';
-import {ChatBackground as ChatBackgroundLayer} from '@components/chat/bubbles/chatBackground';
+import PopupElement, { createPopup } from '@components/popups/indexTsx';
+import { AvatarNewTsx } from '@components/avatarNew';
+import { ChatBackground as ChatBackgroundLayer } from '@components/chat/bubbles/chatBackground';
 import Section from '@components/section';
-import {IconTsx} from '@components/iconTsx';
-import {i18n} from '@lib/langPack';
+import { IconTsx } from '@components/iconTsx';
+import { i18n } from '@lib/langPack';
 import rootScope from '@lib/rootScope';
 import themeController from '@helpers/themeController';
-import {paintQrCode, buildTelegramUserQrUrl} from '@helpers/qrCode/paintQrCode';
-import {getWallPaperColors, darkenToMaxLuminance} from '@helpers/color';
+import { paintQrCode, buildTelegramUserQrUrl } from '@helpers/qrCode/paintQrCode';
+import { getWallPaperColors, darkenToMaxLuminance } from '@helpers/color';
 import roundRect from '@helpers/canvas/roundRect';
 import getPeerActiveUsernames from '@appManagers/utils/peers/getPeerActiveUsernames';
-import {toastNew} from '@components/toast';
-import {copyTextToClipboard} from '@helpers/clipboard';
+import { toastNew } from '@components/toast';
+import { copyTextToClipboard } from '@helpers/clipboard';
 import classNames from '@helpers/string/classNames';
-import {BaseTheme, Chat, Theme, User, WallPaper} from '@layer';
-import {AppTheme, DEFAULT_THEME} from '@config/state';
-import {useAppSettings} from '@stores/appSettings';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
+import { BaseTheme, Chat, Theme, User, WallPaper } from '@layer';
+import { AppTheme, DEFAULT_THEME } from '@config/state';
+import { useAppSettings } from '@stores/appSettings';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
 import ChatThemesPicker from '@components/chatThemesPicker';
 
 import styles from './myQrCode.module.scss';
-import {FontFamily, FontWeightBold} from '@config/font';
+import { FontFamily, FontWeightBold } from '@config/font';
 import Button from '@components/buttonTsx';
 
 // Geometry numbers are lifted from Telegram-iOS' ChatQrCodeScreen.swift so the
@@ -46,7 +46,7 @@ const AVATAR_SIZE = 100;    // ChatQrCodeScreen.swift L1968: `avatarSize = 100`
  * follow, so the picked theme owns its own brand colour end-to-end.
  */
 function pickThemeSettingsForBase(theme: Theme, base: BaseTheme['_']) {
-  if(!theme.settings?.length) return undefined;
+  if (!theme.settings?.length) return undefined;
   const exact = theme.settings.find((s) => s.base_theme?._ === base);
   return exact ?? theme.settings[0];
 }
@@ -94,10 +94,10 @@ function createSharedState(self: User.user, peerId: PeerId = rootScope.myId, ove
     async() => {
       try {
         const rules = await rootScope.managers.appPrivacyManager.getPrivacy('inputPrivacyKeyAddedByPhone');
-        if(rules.some((rule) => rule._ === 'privacyValueAllowAll')) return undefined; // phone-discovery on → t.me/+phone is enough
+        if (rules.some((rule) => rule._ === 'privacyValueAllowAll')) return undefined; // phone-discovery on → t.me/+phone is enough
         const token = await rootScope.managers.appUsersManager.exportContactToken();
         return token?.url;
-      } catch{
+      } catch {
         return undefined; // any failure → fall back to the codeLink, never break profileUrl
       }
     }
@@ -108,11 +108,11 @@ function createSharedState(self: User.user, peerId: PeerId = rootScope.myId, ove
   // Telegram-iOS' QR codeLink (ChatQrCodeScreen.swift L1740-1748): username →
   // t.me/<username>; a user without one → t.me/+<phone>; a channel → t.me/c/<id>.
   const profileUrl = createMemo(() => {
-    if(overrideUrl) return overrideUrl;
+    if (overrideUrl) return overrideUrl;
     const tokenUrl = contactTokenUrl();
-    if(tokenUrl) return tokenUrl;
-    if(username()) return buildTelegramUserQrUrl(username()!);
-    if(peerId.isUser()) return `https://t.me/+${(self).phone ?? ''}`;
+    if (tokenUrl) return tokenUrl;
+    if (username()) return buildTelegramUserQrUrl(username()!);
+    if (peerId.isUser()) return `https://t.me/+${(self).phone ?? ''}`;
     return `https://t.me/c/${peerId.toChatId()}`;
   });
 
@@ -160,10 +160,10 @@ function createSharedState(self: User.user, peerId: PeerId = rootScope.myId, ove
       return {
         theme,
         wallPaper: s?.wallpaper,
-        wallpaperStops: getWallPaperColors(s?.wallpaper!)
+        wallpaperStops: getWallPaperColors(s?.wallpaper!),
       };
     };
-    if(!id) return resolve(DEFAULT_THEME);
+    if (!id) return resolve(DEFAULT_THEME);
     const themes = allThemes() ?? [];
     const found = themes.find((t) => String(t.id ?? '') === id);
     return resolve(found ?? DEFAULT_THEME);
@@ -186,7 +186,7 @@ function createSharedState(self: User.user, peerId: PeerId = rootScope.myId, ove
     setSelectedThemeId,
     baseTheme,
     activeWallPaper,
-    QRCodeStylingCtor
+    QRCodeStylingCtor,
   };
 }
 
@@ -265,7 +265,7 @@ const DISPLAY_LAYOUT: CanvasLayout = {
   qrX: (DISPLAY_CANVAS_W - QR_SIZE) / 2,                         // 78
   qrY: DISPLAY_CARD_Y + 50,                                      // 160
   qrSize: QR_SIZE,
-  usernameY: DISPLAY_CARD_Y + 50 + QR_SIZE + 20                  // 400
+  usernameY: DISPLAY_CARD_Y + 50 + QR_SIZE + 20,                  // 400
 };
 
 // Export layout — iOS-faithful 390×844 sheet at 3× scale. Card centered
@@ -287,7 +287,7 @@ const EXPORT_LAYOUT: CanvasLayout = {
   qrX: (EXPORT_CANVAS_W - QR_SIZE) / 2,                           // 85
   qrY: EXPORT_CARD_Y + 50,                                        // 307
   qrSize: QR_SIZE,
-  usernameY: EXPORT_CARD_Y + 50 + QR_SIZE + 20                    // 547
+  usernameY: EXPORT_CARD_Y + 50 + QR_SIZE + 20,                    // 547
 };
 
 // Same system font stack the rest of the popup uses — no rounded override.
@@ -302,8 +302,8 @@ const USERNAME_MIN_FONT = 12;
 // bucket to fit the same column width instead (see fitUsernameFontSize).
 function pickUsernameFontSize(text: string): number {
   const n = text.length;
-  if(n >= 18) return 16;
-  if(n >= 12) return 22;
+  if (n >= 18) return 16;
+  if (n >= 12) return 22;
   return 24;
 }
 
@@ -312,9 +312,9 @@ function pickUsernameFontSize(text: string): number {
 // so the caller can measure/paint without re-assigning it.
 function fitUsernameFontSize(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): number {
   let size = pickUsernameFontSize(text);
-  while(size > USERNAME_MIN_FONT) {
+  while (size > USERNAME_MIN_FONT) {
     ctx.font = `${FontWeightBold} ${size}px ${USERNAME_FONT_FAMILY}`;
-    if(ctx.measureText(text).width <= maxWidth) return size;
+    if (ctx.measureText(text).width <= maxWidth) return size;
     size--;
   }
   ctx.font = `${FontWeightBold} ${USERNAME_MIN_FONT}px ${USERNAME_FONT_FAMILY}`;
@@ -324,12 +324,12 @@ function fitUsernameFontSize(ctx: CanvasRenderingContext2D, text: string, maxWid
 // Trim `text` (at the already-set ctx.font) to the longest prefix that fits
 // `maxWidth` with a trailing ellipsis. No-op when it already fits.
 function ellipsizeToWidth(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string {
-  if(ctx.measureText(text).width <= maxWidth) return text;
+  if (ctx.measureText(text).width <= maxWidth) return text;
   const ellipsis = '…';
   let lo = 0, hi = text.length;
-  while(lo < hi) {
+  while (lo < hi) {
     const mid = Math.ceil((lo + hi) / 2);
-    if(ctx.measureText(text.slice(0, mid) + ellipsis).width <= maxWidth) lo = mid;
+    if (ctx.measureText(text.slice(0, mid) + ellipsis).width <= maxWidth) lo = mid;
     else hi = mid - 1;
   }
   return text.slice(0, lo) + ellipsis;
@@ -343,7 +343,7 @@ function TopSection(props: {
   blobRef: (getter: () => Blob | undefined) => void,
   onWallpaperReady?: () => void
 }) {
-  const {activeWallPaper, nightMode, profileUrl, QRCodeStylingCtor, username, self} = props.shared;
+  const { activeWallPaper, nightMode, profileUrl, QRCodeStylingCtor, username, self } = props.shared;
 
   let canvas!: HTMLCanvasElement;
   let wallpaperHost!: HTMLDivElement;
@@ -364,7 +364,7 @@ function TopSection(props: {
 
   const regenerateQr = async() => {
     const ctor = QRCodeStylingCtor();
-    if(!ctor) return;
+    if (!ctor) return;
     const id = ++qrRepaintId;
     const scratch = document.createElement('div');
     // iOS uses solid black QR ink on the white card (ChatQrCodeScreen.swift
@@ -380,11 +380,11 @@ function TopSection(props: {
       // One QR bitmap feeds both the display (2×) and the 1170×2532 export (3×).
       // Bake it at ≥3× so the export PNG stays crisp on 1×/2× displays.
       pixelRatio: Math.max(window.devicePixelRatio, EXPORT_LAYOUT.dpr),
-      QRCodeStylingCtor: ctor
+      QRCodeStylingCtor: ctor,
     });
-    if(id !== qrRepaintId) return;
+    if (id !== qrRepaintId) return;
     const inkQr = scratch.lastChild;
-    if(inkQr instanceof HTMLCanvasElement) setInkQrCanvas(inkQr);
+    if (inkQr instanceof HTMLCanvasElement) setInkQrCanvas(inkQr);
   };
 
   // The offscreen canvas we render the export-sized image into. Display and
@@ -403,7 +403,7 @@ function TopSection(props: {
   // chrome.
   const paintTo = (target: HTMLCanvasElement, layout: CanvasLayout) => {
     const ctx = target.getContext('2d');
-    if(!ctx) return;
+    if (!ctx) return;
 
     const stops = activeWallPaper().wallpaperStops;
 
@@ -431,7 +431,7 @@ function TopSection(props: {
     // We mask the gradient instead of the wallpaper itself so the pattern
     // doodles don't bleed through and leave the dots see-through.
     const qr = inkQrCanvas();
-    if(qr) {
+    if (qr) {
       const maskedQr = composeQrWithGradient(qr, stops, '#000000');
       ctx.drawImage(maskedQr, layout.qrX, layout.qrY, layout.qrSize, layout.qrSize);
     }
@@ -443,7 +443,7 @@ function TopSection(props: {
     const text = username() ?
       '@' + username()!.toUpperCase() :
       (self.first_name || (self as unknown as Chat.channel).title || '');
-    if(text) {
+    if (text) {
       ctx.save();
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
@@ -457,12 +457,12 @@ function TopSection(props: {
       const shown = ellipsizeToWidth(ctx, text, maxTextWidth);
       const width = ctx.measureText(shown).width;
       const dark = darkenInkStops(stops);
-      if(dark.length >= 2) {
+      if (dark.length >= 2) {
         const grad = ctx.createLinearGradient(
           layout.avatarCx - width / 2, layout.usernameY,
           layout.avatarCx + width / 2, layout.usernameY + size
         );
-        for(let i = 0; i < dark.length; i++) {
+        for (let i = 0; i < dark.length; i++) {
           grad.addColorStop(i / (dark.length - 1), dark[i]);
         }
         ctx.fillStyle = grad;
@@ -478,7 +478,7 @@ function TopSection(props: {
   const paint = () => {
     // `disposed` guards the late avatar-`load` listener (and any stray callback)
     // from painting into a detached canvas after the popup closes.
-    if(disposed || !canvas) return;
+    if (disposed || !canvas) return;
     // 1. Paint the visible compact canvas.
     paintTo(canvas, DISPLAY_LAYOUT);
 
@@ -492,7 +492,7 @@ function TopSection(props: {
     paintTo(exportCanvas, EXPORT_LAYOUT);
     const id = ++blobRepaintId;
     exportCanvas.toBlob((b) => {
-      if(id !== blobRepaintId) return;
+      if (id !== blobRepaintId) return;
       latestBlob = b ?? undefined;
     }, 'image/png');
   };
@@ -526,7 +526,7 @@ function TopSection(props: {
   // behaviour we want.
   const onLayerReady = () => {
     paint();
-    if(!wallpaperReady) {
+    if (!wallpaperReady) {
       wallpaperReady = true;
       props.onWallpaperReady?.();
     }
@@ -545,22 +545,22 @@ function TopSection(props: {
   // photo) when AvatarNewTsx swaps its child.
   let avatarObserver: MutationObserver | undefined;
   const attachAvatarPhotoListener = () => {
-    if(!avatarHost) return;
+    if (!avatarHost) return;
     const photo = avatarHost.querySelector('img.avatar-photo') as HTMLImageElement;
-    if(!photo) return;
-    if(photo.complete && photo.naturalWidth > 0) {
+    if (!photo) return;
+    if (photo.complete && photo.naturalWidth > 0) {
       paint();
       return;
     }
-    photo.addEventListener('load', () => paint(), {once: true});
+    photo.addEventListener('load', () => paint(), { once: true });
   };
   // Solid mounts the host before AvatarNewTsx writes the img; observe child
   // mutations so we catch the late img addition without busy-polling.
   const startAvatarObserver = () => {
-    if(!avatarHost || avatarObserver) return;
+    if (!avatarHost || avatarObserver) return;
     attachAvatarPhotoListener();
     avatarObserver = new MutationObserver(() => attachAvatarPhotoListener());
-    avatarObserver.observe(avatarHost, {childList: true, subtree: true, attributes: true, attributeFilter: ['src']});
+    avatarObserver.observe(avatarHost, { childList: true, subtree: true, attributes: true, attributeFilter: ['src'] });
   };
   onCleanup(() => {
     disposed = true;
@@ -579,7 +579,7 @@ function TopSection(props: {
       <div
         ref={wallpaperHost}
         class={styles.hiddenHost}
-        style={{width: EXPORT_LAYOUT.canvasW + 'px', height: EXPORT_LAYOUT.canvasH + 'px'}}
+        style={{ width: EXPORT_LAYOUT.canvasW + 'px', height: EXPORT_LAYOUT.canvasH + 'px' }}
       >
         {/* Sized for the larger (export) layout so the gradient + pattern
             canvases render high-enough resolution for both display sampling
@@ -597,7 +597,7 @@ function TopSection(props: {
       <div
         ref={avatarHost}
         class={styles.hiddenHost}
-        style={{width: AVATAR_SIZE + 'px', height: AVATAR_SIZE + 'px'}}
+        style={{ width: AVATAR_SIZE + 'px', height: AVATAR_SIZE + 'px' }}
       >
         <AvatarNewTsx peerId={props.shared.peerId} size={AVATAR_SIZE} isBig />
       </div>
@@ -605,7 +605,7 @@ function TopSection(props: {
       <canvas
         ref={(el) => { canvas = el; }}
         class={styles.captureCanvas}
-        style={{width: DISPLAY_LAYOUT.canvasW + 'px', height: DISPLAY_LAYOUT.canvasH + 'px'}}
+        style={{ width: DISPLAY_LAYOUT.canvasW + 'px', height: DISPLAY_LAYOUT.canvasH + 'px' }}
       />
     </>
   );
@@ -615,9 +615,9 @@ function TopSection(props: {
 // once by setting a known filter and checking it stuck.
 let _canvasFilterSupported: boolean | undefined;
 function supportsCanvasFilter(): boolean {
-  if(_canvasFilterSupported === undefined) {
+  if (_canvasFilterSupported === undefined) {
     const probe = document.createElement('canvas').getContext('2d');
-    if(probe) {
+    if (probe) {
       probe.filter = 'invert(1)';
       _canvasFilterSupported = probe.filter === 'invert(1)';
     } else {
@@ -642,7 +642,7 @@ function invertLayer(
   tctx!.drawImage(src, sx, sy, sw, sh, 0, 0, w, h);
   const image = tctx!.getImageData(0, 0, w, h);
   const d = image.data;
-  for(let i = 0; i < d.length; i += 4) {
+  for (let i = 0; i < d.length; i += 4) {
     d[i] = 255 - d[i];
     d[i + 1] = 255 - d[i + 1];
     d[i + 2] = 255 - d[i + 2];
@@ -661,25 +661,25 @@ function drawWallpaper(ctx: CanvasRenderingContext2D, host: HTMLElement, w: numb
   // Slot backdrop (e.g. IsPattern paints black so dark-pattern designs land on
   // solid black; IsImage falls back to body bg).
   const slots = host.querySelectorAll('[class*="Slot"]');
-  for(const slot of slots) {
-    if(!(slot as HTMLElement).className.match(/Active/)) continue;
+  for (const slot of slots) {
+    if (!(slot as HTMLElement).className.match(/Active/)) continue;
     const bg = window.getComputedStyle(slot as HTMLElement).backgroundColor;
-    if(bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
+    if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
       ctx.save();
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, w, h);
       ctx.restore();
     }
-    for(const layer of slot.querySelectorAll('canvas, img')) {
+    for (const layer of slot.querySelectorAll('canvas, img')) {
       const isCanvas = layer.tagName === 'CANVAS';
       const isImg = layer.tagName === 'IMG';
-      if(isCanvas) {
+      if (isCanvas) {
         const c = layer as HTMLCanvasElement;
-        if(c.width === 0 || c.height === 0) continue;
+        if (c.width === 0 || c.height === 0) continue;
       }
-      if(isImg) {
+      if (isImg) {
         const i = layer as HTMLImageElement;
-        if(!i.complete || i.naturalWidth === 0) continue;
+        if (!i.complete || i.naturalWidth === 0) continue;
       }
       const style = window.getComputedStyle(layer as HTMLElement);
       const alpha = parseFloat(style.opacity || '1');
@@ -691,23 +691,23 @@ function drawWallpaper(ctx: CanvasRenderingContext2D, host: HTMLElement, w: numb
       // the source→destination scale.
       let sx = 0, sy = 0, sw = srcW, sh = srcH;
       const srcA = srcW / srcH, dstA = w / h;
-      if(srcA > dstA) {
+      if (srcA > dstA) {
         sw = srcH * dstA;
         sx = (srcW - sw) / 2;
-      } else if(srcA < dstA) {
+      } else if (srcA < dstA) {
         sh = srcW / dstA;
         sy = (srcH - sh) / 2;
       }
       ctx.save();
       ctx.globalAlpha = isNaN(alpha) ? 1 : alpha;
-      if(mix && mix !== 'normal') ctx.globalCompositeOperation = mix as GlobalCompositeOperation;
+      if (mix && mix !== 'normal') ctx.globalCompositeOperation = mix as GlobalCompositeOperation;
       const isInvert = filter && /invert\(\s*(1|100%)\s*\)/.test(filter);
-      if(isInvert && !supportsCanvasFilter()) {
+      if (isInvert && !supportsCanvasFilter()) {
         // Safari's 2D canvas silently ignores ctx.filter, so a dark-pattern's
         // `invert(1)` would be dropped — invert manually via an offscreen buffer.
         ctx.drawImage(invertLayer(layer as CanvasImageSource, sx, sy, sw, sh, w, h), 0, 0);
       } else {
-        if(filter && filter !== 'none') ctx.filter = filter;
+        if (filter && filter !== 'none') ctx.filter = filter;
         ctx.drawImage(layer as CanvasImageSource, sx, sy, sw, sh, 0, 0, w, h);
       }
       ctx.restore();
@@ -731,7 +731,7 @@ function drawAvatar(ctx: CanvasRenderingContext2D, host: HTMLElement, cx: number
   ctx.restore();
 
   const photo = host.querySelector('img.avatar-photo') as HTMLImageElement;
-  if(photo && photo.complete && photo.naturalWidth > 0) {
+  if (photo && photo.complete && photo.naturalWidth > 0) {
     ctx.save();
     ctx.beginPath();
     ctx.arc(cx, cy, AVATAR_R, 0, Math.PI * 2);
@@ -740,10 +740,10 @@ function drawAvatar(ctx: CanvasRenderingContext2D, host: HTMLElement, cx: number
     const src = photo;
     const srcA = src.naturalWidth / src.naturalHeight;
     let sx = 0, sy = 0, sw = src.naturalWidth, sh = src.naturalHeight;
-    if(srcA > 1) {
+    if (srcA > 1) {
       sw = src.naturalHeight;
       sx = (src.naturalWidth - sw) / 2;
-    } else if(srcA < 1) {
+    } else if (srcA < 1) {
       sh = src.naturalWidth;
       sy = (src.naturalHeight - sh) / 2;
     }
@@ -765,7 +765,7 @@ function drawAvatar(ctx: CanvasRenderingContext2D, host: HTMLElement, cx: number
   ctx.arc(cx, cy, AVATAR_R, 0, Math.PI * 2);
   ctx.clip();
   const gradientColors: string[] = cs ? (cs.backgroundImage.match(/rgba?\([^)]+\)|#[0-9a-f]{3,8}/gi) ?? []) : [];
-  if(gradientColors.length >= 2) {
+  if (gradientColors.length >= 2) {
     const grad = ctx.createLinearGradient(cx, cy - AVATAR_R, cx, cy + AVATAR_R);
     grad.addColorStop(0, gradientColors[0]);
     grad.addColorStop(1, gradientColors[gradientColors.length - 1]);
@@ -776,7 +776,7 @@ function drawAvatar(ctx: CanvasRenderingContext2D, host: HTMLElement, cx: number
   }
   ctx.fillRect(cx - AVATAR_R, cy - AVATAR_R, AVATAR_R * 2, AVATAR_R * 2);
   const abbreviation = avatarEl?.textContent?.trim() ?? '';
-  if(abbreviation) {
+  if (abbreviation) {
     ctx.fillStyle = '#ffffff';
     ctx.font = `600 ${Math.round(AVATAR_R * 0.8)}px system-ui, -apple-system, sans-serif`;
     ctx.textAlign = 'center';
@@ -811,17 +811,17 @@ function composeQrWithGradient(
   masked.width = inkQrCanvas.width;
   masked.height = inkQrCanvas.height;
   const mctx = masked.getContext('2d');
-  if(!mctx) return inkQrCanvas;
+  if (!mctx) return inkQrCanvas;
   // Clamp the wallpaper stops to a scannable luminance (see darkenInkStops) —
   // this replaces the old flat 20% dim, which left light-theme QRs at ~1.6:1
   // contrast and unscannable.
   const dark = darkenInkStops(stops);
-  if(dark.length >= 2) {
+  if (dark.length >= 2) {
     // Diagonal sweep so multi-stop gradients still read as a sweep across the
     // QR rather than a horizontal band — same direction as the wallpaper's
     // own gradient renderer.
     const g = mctx.createLinearGradient(0, 0, masked.width, masked.height);
-    for(let i = 0; i < dark.length; i++) {
+    for (let i = 0; i < dark.length; i++) {
       g.addColorStop(i / (dark.length - 1), dark[i]);
     }
     mctx.fillStyle = g;
@@ -858,7 +858,7 @@ function PopupThemeApplier(props: {
   let sentinel!: HTMLDivElement;
   onMount(() => {
     const container = sentinel.closest('.popup') as HTMLElement;
-    if(!container) return;
+    if (!container) return;
     createEffect(() => {
       const theme = props.theme();
       const isNight = props.isNight();
@@ -870,12 +870,12 @@ function PopupThemeApplier(props: {
       const virtualTheme = {
         ...theme,
         name: isNight ? 'night' : 'day',
-        settings: entry ? [entry] : (theme as Theme).settings
+        settings: entry ? [entry] : (theme as Theme).settings,
       } as unknown as Theme;
       themeController.applyTheme(virtualTheme, container);
     });
   });
-  return <div ref={sentinel} style={{display: 'none'}} />;
+  return <div ref={sentinel} style={{ display: 'none' }} />;
 }
 
 /**
@@ -888,7 +888,7 @@ function PopupThemeApplier(props: {
 function BodySlot(props: {shared: QrPopupShared}) {
   const {
     selectedThemeId, setSelectedThemeId, baseTheme, nightMode, setNightMode,
-    activeWallPaper
+    activeWallPaper,
   } = props.shared;
 
   return (
@@ -936,16 +936,16 @@ function BodySlot(props: {shared: QrPopupShared}) {
  * synchronously, no `await` between the activation and the write call.
  */
 function FooterSlot(props: {shared: QrPopupShared, getBlob: () => Blob | undefined}) {
-  const {profileUrl} = props.shared;
+  const { profileUrl } = props.shared;
 
   const onCopyClick = async() => {
     const blob = props.getBlob();
-    if(blob) {
+    if (blob) {
       try {
-        await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
-        toastNew({langPackKey: 'QRCode.Copied'});
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        toastNew({ langPackKey: 'QRCode.Copied' });
         return;
-      } catch(err) {
+      } catch (err) {
         // Image-write may still fail on Safari (no `image/png` write support)
         // or if the user denied clipboard permission at the OS / Chrome
         // policy level. Fall through to the link copy.
@@ -959,10 +959,10 @@ function FooterSlot(props: {shared: QrPopupShared, getBlob: () => Blob | undefin
     // so this path works even when the modern API is blocked.
     try {
       await copyTextToClipboard(profileUrl());
-      toastNew({langPackKey: 'QRCode.CopiedLink'});
-    } catch(fallbackErr) {
+      toastNew({ langPackKey: 'QRCode.CopiedLink' });
+    } catch (fallbackErr) {
       console.error('QRCode link copy failed', fallbackErr);
-      toastNew({langPackKey: 'Error.AnError'});
+      toastNew({ langPackKey: 'Error.AnError' });
     }
   };
 
@@ -990,7 +990,7 @@ export default async function showMyQrCodePopup(peerId: PeerId = rootScope.myId,
   const self = peerId === rootScope.myId ?
     await rootScope.managers.appUsersManager.getSelf() :
     await rootScope.managers.appPeersManager.getPeer(peerId);
-  if(!self) return;
+  if (!self) return;
 
   createPopup(() => {
     const shared = createSharedState(self as User.user, peerId, options?.url);
@@ -1003,7 +1003,7 @@ export default async function showMyQrCodePopup(peerId: PeerId = rootScope.myId,
     // TopSection repaint signals readiness via `onWallpaperReady`.
     const [show, setShow] = createSignal(false);
     const onWallpaperReady = () => {
-      if(show()) return;
+      if (show()) return;
       setShow(true);
     };
 

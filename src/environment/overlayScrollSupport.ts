@@ -1,5 +1,5 @@
-import {createMemo} from 'solid-js';
-import {CHROMIUM_VERSION, IS_CHROMIUM, IS_MOBILE, IS_MOBILE_SAFARI, IS_SAFARI} from '@environment/userAgent';
+import { createMemo } from 'solid-js';
+import { CHROMIUM_VERSION, IS_CHROMIUM, IS_MOBILE, IS_MOBILE_SAFARI, IS_SAFARI } from '@environment/userAgent';
 import scrollbarWidth from '@helpers/dom/scrollbarWidth';
 
 export const USE_NATIVE_SCROLL = /* IS_APPLE ||  */IS_MOBILE/*  || true */;

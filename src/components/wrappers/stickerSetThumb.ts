@@ -1,18 +1,18 @@
 import createVideo from '@helpers/dom/createVideo';
 import renderImageFromUrl from '@helpers/dom/renderImageFromUrl';
-import {Document, DocumentAttribute, StickerSet} from '@layer';
+import { Document, DocumentAttribute, StickerSet } from '@layer';
 import appDownloadManager from '@lib/appDownloadManager';
-import {AppManagers} from '@lib/managers';
+import { AppManagers } from '@lib/managers';
 import lottieLoader from '@lib/rlottie/lottieLoader';
 import rootScope from '@lib/rootScope';
-import animationIntersector, {AnimationItemGroup} from '@components/animationIntersector';
+import animationIntersector, { AnimationItemGroup } from '@components/animationIntersector';
 import LazyLoadQueue from '@components/lazyLoadQueue';
 import wrapSticker from '@components/wrappers/sticker';
-import {Middleware} from '@helpers/middleware';
-import {EMOJI_TEXT_COLOR} from '@components/emoticonsDropdown';
-import {getStickerSetInputById} from '@lib/appManagers/utils/stickers/getStickerSetInput';
+import { Middleware } from '@helpers/middleware';
+import { EMOJI_TEXT_COLOR } from '@components/emoticonsDropdown';
+import { getStickerSetInputById } from '@lib/appManagers/utils/stickers/getStickerSetInput';
 
-export default async function wrapStickerSetThumb({set, lazyLoadQueue, container, group, autoplay, width, height, managers = rootScope.managers, middleware, textColor}: {
+export default async function wrapStickerSetThumb({ set, lazyLoadQueue, container, group, autoplay, width, height, managers = rootScope.managers, middleware, textColor }: {
   set: StickerSet.stickerSet,
   lazyLoadQueue: LazyLoadQueue,
   container: HTMLElement,
@@ -24,7 +24,7 @@ export default async function wrapStickerSetThumb({set, lazyLoadQueue, container
   middleware: Middleware,
   textColor?: WrapSomethingOptions['textColor']
 }) {
-  if(set.thumbs?.length) {
+  if (set.thumbs?.length) {
     container.classList.add('media-sticker-wrapper');
     lazyLoadQueue.push({
       div: container,
@@ -33,7 +33,7 @@ export default async function wrapStickerSetThumb({set, lazyLoadQueue, container
         const promise = appDownloadManager.download(downloadOptions);
 
         const isLottie = downloadOptions.mimeType === 'application/x-tgsticker';
-        if(isLottie) {
+        if (isLottie) {
           return promise.then((blob) => {
             lottieLoader.loadAnimationWorker({
               container,
@@ -45,14 +45,14 @@ export default async function wrapStickerSetThumb({set, lazyLoadQueue, container
               needUpscale: true,
               name: 'setThumb' + set.id,
               group,
-              middleware
+              middleware,
             });
           });
         } else {
           const isVideo = set.thumbs?.some((thumb) => thumb.type === 'v');
           let media: HTMLElement;
-          if(isVideo) {
-            media = createVideo({middleware});
+          if (isVideo) {
+            media = createVideo({ middleware });
             (media as HTMLVideoElement).autoplay = true;
             (media as HTMLVideoElement).muted = true;
             (media as HTMLVideoElement).loop = true;
@@ -66,18 +66,18 @@ export default async function wrapStickerSetThumb({set, lazyLoadQueue, container
             renderImageFromUrl(media, URL.createObjectURL(blob), () => {
               container.append(media);
 
-              if(isVideo) {
+              if (isVideo) {
                 animationIntersector.addAnimation({
                   animation: media as HTMLVideoElement,
                   group,
                   observeElement: media,
-                  type: 'video'
+                  type: 'video',
                 });
               }
             });
           });
         }
-      }
+      },
     });
 
     return;
@@ -85,14 +85,14 @@ export default async function wrapStickerSetThumb({set, lazyLoadQueue, container
 
   let getDocPromise: Promise<Document.document>;
 
-  if(set.thumb_document_id) {
+  if (set.thumb_document_id) {
     getDocPromise = managers.appEmojiManager.getCustomEmojiDocument(set.thumb_document_id);
   } else {
     getDocPromise = managers.appStickersManager.getStickerSet(getStickerSetInputById(set)).then((stickerSet) => stickerSet.documents[0] as Document.document);
   }
 
   const doc = await getDocPromise;
-  if(!doc) {
+  if (!doc) {
     return;
   }
 
@@ -107,6 +107,6 @@ export default async function wrapStickerSetThumb({set, lazyLoadQueue, container
     width,
     height,
     middleware,
-    textColor: attribute?.pFlags?.text_color ? textColor || EMOJI_TEXT_COLOR : undefined
+    textColor: attribute?.pFlags?.text_color ? textColor || EMOJI_TEXT_COLOR : undefined,
   }); // kostil
 }

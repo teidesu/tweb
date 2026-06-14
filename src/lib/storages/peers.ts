@@ -1,6 +1,6 @@
 import applyMixins from '@helpers/applyMixins';
 import EventListenerBase from '@helpers/eventListenerBase';
-import {AppManager} from '@appManagers/manager';
+import { AppManager } from '@appManagers/manager';
 
 export type StatePeerType = 'recentSearch' | 'topPeer' | 'dialog' | 'contact' | 'topMessage' | 'self';
 
@@ -22,11 +22,11 @@ class PeersStorage {
 
   public requestPeer(peerId: PeerId, key: PeersStorageKey) {
     let set = this.neededPeers.get(peerId);
-    if(set && set.has(key)) {
+    if (set && set.has(key)) {
       return;
     }
 
-    if(!set) {
+    if (!set) {
       set = new Set();
       this.neededPeers.set(peerId, set);
     }
@@ -38,27 +38,27 @@ class PeersStorage {
 
   public releasePeer(peerId: PeerId, key: PeersStorageKey) {
     const set = this.neededPeers.get(peerId);
-    if(!set) {
+    if (!set) {
       return;
     }
 
     set.delete(key);
 
-    if(!set.size) {
+    if (!set.size) {
       this.neededPeers.delete(peerId);
       this.dispatchEvent('peerUnneeded', peerId);
     }
   }
 
   public requestPeersForKey(peerIds: Set<PeerId> | number[], key: PeersStorageKey) {
-    if(Array.isArray(peerIds)) {
+    if (Array.isArray(peerIds)) {
       peerIds = new Set(peerIds);
     }
 
     let set = this.singlePeerMap.get(key);
-    if(set) {
-      for(const peerId of set) {
-        if(peerIds.has(peerId)) {
+    if (set) {
+      for (const peerId of set) {
+        if (peerIds.has(peerId)) {
           continue;
         }
 
@@ -66,20 +66,20 @@ class PeersStorage {
         set.delete(peerId);
       }
 
-      if(!set.size && !peerIds.size) {
+      if (!set.size && !peerIds.size) {
         this.singlePeerMap.delete(key);
         return;
       }
     }
 
-    if(peerIds.size) {
-      if(!set) {
+    if (peerIds.size) {
+      if (!set) {
         set = new Set();
         this.singlePeerMap.set(key, set);
       }
 
-      for(const peerId of peerIds) {
-        if(set.has(peerId)) {
+      for (const peerId of peerIds) {
+        if (set.has(peerId)) {
           continue;
         }
 

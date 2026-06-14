@@ -1,11 +1,11 @@
-import {AppManagers} from '@lib/managers';
+import { AppManagers } from '@lib/managers';
 import LazyLoadQueue from '@components/lazyLoadQueue';
 import SuperStickerRenderer from '@components/emoticonsDropdown/tabs/SuperStickerRenderer';
-import {getMiddleware, MiddlewareHelper} from '@helpers/middleware';
+import { getMiddleware, MiddlewareHelper } from '@helpers/middleware';
 import wrapStickerAnimation from '@components/wrappers/stickerAnimation';
 import getStickerEffectThumb from '@appManagers/utils/stickers/getStickerEffectThumb';
-import {STICKER_EFFECT_MULTIPLIER} from '@components/wrappers/sticker';
-import {Document} from '@layer';
+import { STICKER_EFFECT_MULTIPLIER } from '@components/wrappers/sticker';
+import { Document } from '@layer';
 
 export default class PremiumStickersCarousel {
   private superStickerRenderer: SuperStickerRenderer;
@@ -47,14 +47,14 @@ export default class PremiumStickersCarousel {
       relativeEffect: true,
       loopEffect: false,
       onUnmount: () => {
-        if(this.ignoreUnmount) {
+        if (this.ignoreUnmount) {
           this.ignoreUnmount = undefined;
           return;
         }
-        if(!this.destroyed) {
+        if (!this.destroyed) {
           this.previousSticker();
         }
-      }
+      },
     });
   }
 
@@ -62,7 +62,7 @@ export default class PremiumStickersCarousel {
     const stickersLength = this.stickers.length;
     this.stickersMiddlewareHelper.clean();
     Array.from(this.container.children).forEach((child) => child.classList.remove('top-sibling', 'active', 'bottom-sibling', 'visible'));
-    if((this.activeStickerIndex - 1) < 0) {
+    if ((this.activeStickerIndex - 1) < 0) {
       this.activeStickerIndex = stickersLength - 1;
     } else {
       --this.activeStickerIndex;
@@ -79,7 +79,7 @@ export default class PremiumStickersCarousel {
     const stickersLength = this.stickers.length;
     this.stickersMiddlewareHelper.clean();
     Array.from(this.container.children).forEach((child) => child.classList.remove('top-sibling', 'active', 'bottom-sibling', 'visible'));
-    if((this.activeStickerIndex + 1) === stickersLength) {
+    if ((this.activeStickerIndex + 1) === stickersLength) {
       this.activeStickerIndex = 0;
     } else {
       ++this.activeStickerIndex;
@@ -95,13 +95,13 @@ export default class PremiumStickersCarousel {
   private assignSiblings() {
     const siblingsCount = 3;
 
-    for(let i = -siblingsCount; i <= siblingsCount; ++i) {
+    for (let i = -siblingsCount; i <= siblingsCount; ++i) {
       const siblingIndex = (this.activeStickerIndex + i + this.stickers.length) % this.stickers.length;
       const siblingElement = this.container.children[siblingIndex];
 
-      if(i < 0) {
+      if (i < 0) {
         siblingElement.classList.add('top-sibling');
-      } else if(i > 0) {
+      } else if (i > 0) {
         siblingElement.classList.add('bottom-sibling');
       }
     }
@@ -119,8 +119,8 @@ export default class PremiumStickersCarousel {
       visibleRenderOptions: {
         withLock: false,
         width: 200,
-        height: 200
-      }
+        height: 200,
+      },
     });
     this.stickers = stickers;
     this.container = document.createElement('div');
@@ -133,12 +133,12 @@ export default class PremiumStickersCarousel {
       carouselItem.append(element);
       carouselItem.addEventListener('click', (e) => {
         e.stopPropagation();
-        if(index !== this.activeStickerIndex) {
+        if (index !== this.activeStickerIndex) {
           this.ignoreUnmount = true;
-          if(carouselItem.classList.contains('bottom-sibling')) {
+          if (carouselItem.classList.contains('bottom-sibling')) {
             this.nextSticker();
           }
-          if(carouselItem.classList.contains('top-sibling')) {
+          if (carouselItem.classList.contains('top-sibling')) {
             this.previousSticker();
           }
         }

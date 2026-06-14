@@ -1,15 +1,15 @@
-import {ButtonIconTsx} from '@components/buttonIconTsx';
-import {animateToNewRotationOrRatio} from '@components/mediaEditor/canvas/animateToNewRotationOrRatio';
+import { ButtonIconTsx } from '@components/buttonIconTsx';
+import { animateToNewRotationOrRatio } from '@components/mediaEditor/canvas/animateToNewRotationOrRatio';
 import getConvenientPositioning from '@components/mediaEditor/canvas/getConvenientPositioning';
-import {useMediaEditorContext} from '@components/mediaEditor/context';
-import {NumberPair} from '@components/mediaEditor/types';
+import { useMediaEditorContext } from '@components/mediaEditor/context';
+import { NumberPair } from '@components/mediaEditor/types';
 import SwipeHandler from '@components/swipeHandler';
-import {animateValue} from '@helpers/animateValue';
-import {lerp} from '@helpers/lerp';
+import { animateValue } from '@helpers/animateValue';
+import { lerp } from '@helpers/lerp';
 import clamp from '@helpers/number/clamp';
-import {withCurrentOwner} from '@helpers/solid/withCurrentOwner';
-import {batch, createEffect, createSignal, on, onCleanup, onMount} from 'solid-js';
-import {modifyMutable, produce} from 'solid-js/store';
+import { withCurrentOwner } from '@helpers/solid/withCurrentOwner';
+import { batch, createEffect, createSignal, on, onCleanup, onMount } from 'solid-js';
+import { modifyMutable, produce } from 'solid-js/store';
 
 
 const DEGREE_DIST_PX = 42;
@@ -23,7 +23,7 @@ function rotationFromMove(amount: number) {
 }
 
 export default function RotationWheel() {
-  const {editorState, mediaState, actions} = useMediaEditorContext()!;
+  const { editorState, mediaState, actions } = useMediaEditorContext()!;
 
   const isCropping = () => editorState.currentTab === 'crop';
 
@@ -66,7 +66,7 @@ export default function RotationWheel() {
         }, {
           onEnd: () => {
             isAnimating = false
-          }
+          },
         });
       }, 750);
     }
@@ -85,13 +85,13 @@ export default function RotationWheel() {
       onSwipe(xDiff) {
         targetDiff = currentDiff = clamp(moved() + xDiff, -MAX_DEGREES_DIST_PX, MAX_DEGREES_DIST_PX) - moved();
         const shouldSnap = getShouldSnap();
-        if(shouldSnap) targetDiff = -moved();
+        if (shouldSnap) targetDiff = -moved();
 
-        if(prevShouldSnap !== shouldSnap) {
+        if (prevShouldSnap !== shouldSnap) {
           window.clearTimeout(timeoutId);
           timeoutId = window.setTimeout(() => {
             const shouldSnapAfterTimeout = getShouldSnap();
-            if(shouldSnapAfterTimeout !== shouldSnap) return;
+            if (shouldSnapAfterTimeout !== shouldSnap) return;
             isAnimating = true;
             const initialDiff = movedDiff();
             cancelAnimation?.();
@@ -102,21 +102,21 @@ export default function RotationWheel() {
                 isAnimating = false;
                 isSnapped = getShouldSnap();
 
-                if(!isSnapped) return;
+                if (!isSnapped) return;
                 removeSnapAfterTimeout();
-              }
+              },
             });
           }, 200);
         }
 
         prevShouldSnap = shouldSnap;
 
-        if(isAnimating || isSnapped) return;
+        if (isAnimating || isSnapped) return;
         handleDiffChange(currentDiff);
       },
       onReset() {
         let newMoved = moved() + movedDiff();
-        if(Math.abs(newMoved) === MAX_DEGREES_DIST_PX) {
+        if (Math.abs(newMoved) === MAX_DEGREES_DIST_PX) {
           newMoved = 0;
           prevRotation = 0;
           prevShouldSnap = false;
@@ -130,7 +130,7 @@ export default function RotationWheel() {
           editorState.isMoving = false;
           mediaState.rotation = mediaState.rotation % (Math.PI * 2)
         });
-      }
+      },
     });
 
     onCleanup(() => {
@@ -151,17 +151,17 @@ export default function RotationWheel() {
 
     const targetTranslation: NumberPair = [
       mediaState.translation[0] * r[0] + mediaState.translation[1] * r[1],
-      mediaState.translation[1] * r[0] - mediaState.translation[0] * r[1]
+      mediaState.translation[1] * r[0] - mediaState.translation[0] * r[1],
     ];
 
     prevRotation = rotationFromSwiper;
 
-    if(!initialScale) return;
-    const {cropMinX, cropMaxX, cropMinY, cropMaxY, imageMinX, imageMaxX, imageMinY, imageMaxY} =
+    if (!initialScale) return;
+    const { cropMinX, cropMaxX, cropMinY, cropMaxY, imageMinX, imageMaxX, imageMinY, imageMaxY } =
       getConvenientPositioning({
         scale: initialScale,
         rotation: targetRotation,
-        translation: targetTranslation
+        translation: targetTranslation,
       });
 
     const halfImageWidth = (imageMaxX - imageMinX) / 2,
@@ -170,18 +170,18 @@ export default function RotationWheel() {
 
     let additionalScale = 1;
 
-    if(imageMinX > cropMinX) additionalScale = Math.max((imageCenter[0] - cropMinX) / halfImageWidth, additionalScale);
-    if(imageMaxX < cropMaxX) additionalScale = Math.max((cropMaxX - imageCenter[0]) / halfImageWidth, additionalScale);
-    if(imageMinY > cropMinY)
+    if (imageMinX > cropMinX) additionalScale = Math.max((imageCenter[0] - cropMinX) / halfImageWidth, additionalScale);
+    if (imageMaxX < cropMaxX) additionalScale = Math.max((cropMaxX - imageCenter[0]) / halfImageWidth, additionalScale);
+    if (imageMinY > cropMinY)
       additionalScale = Math.max((imageCenter[1] - cropMinY) / halfImageHeight, additionalScale);
-    if(imageMaxY < cropMaxY)
+    if (imageMaxY < cropMaxY)
       additionalScale = Math.max((cropMaxY - imageCenter[1]) / halfImageHeight, additionalScale);
 
 
     modifyMutable(mediaState, produce(s => {
       s.rotation = targetRotation;
       s.translation = targetTranslation;
-      if(additionalScale > 1) {
+      if (additionalScale > 1) {
         s.scale = initialScale * additionalScale;
       }
     }));
@@ -205,7 +205,7 @@ export default function RotationWheel() {
   let isFirstEffect = true;
   createEffect(
     on(() => editorState.fixedImageRatioKey, () => {
-      if(isFirstEffect) {
+      if (isFirstEffect) {
         isFirstEffect = false;
         return;
       }
@@ -227,26 +227,26 @@ export default function RotationWheel() {
     const snapTo1 = (value: number) => value < 0 ? -1 : 1;
     const targetFlip: NumberPair = [
       snapTo1(mediaState.flip[0]) * (isReversedRatio ? 1 : -1),
-      snapTo1(mediaState.flip[1]) * (isReversedRatio ? -1 : 1)
+      snapTo1(mediaState.flip[1]) * (isReversedRatio ? -1 : 1),
     ];
     animateValue(mediaState.flip, targetFlip, 200, (value) => void (mediaState.flip = value), {
-      onEnd: () => void (editorState.isMoving = false)
+      onEnd: () => void (editorState.isMoving = false),
     });
   }
 
   const value = () =>
     ((-(moved() + movedDiff()) / DEGREE_DIST_PX) * DEGREE_STEP)
-    .toFixed(1)
-    .replace(/\.0$/, '')
-    .replace(/^-0$/, '0');
+      .toFixed(1)
+      .replace(/\.0$/, '')
+      .replace(/^-0$/, '0');
 
   return (
-    <div class="media-editor__rotation-wheel" style={{display: isCropping() ? undefined : 'none'}}>
+    <div class="media-editor__rotation-wheel" style={{ display: isCropping() ? undefined : 'none' }}>
       <ButtonIconTsx onClick={withCurrentOwner(rotateLeft)} class="media-editor__rotation-wheel-button" icon="rotate" />
       <div class="media-editor__rotation-wheel-swiper-wrapper">
         <div
           ref={swiperEl!}
-          style={{['--moved']: moved() + movedDiff() + 'px'}}
+          style={{ ['--moved']: moved() + movedDiff() + 'px' }}
           class="media-editor__rotation-wheel-swiper"
         >
           <div class="media-editor__rotation-wheel-labels">

@@ -1,10 +1,10 @@
-import PopupElement, {addCancelButton, PopupButton} from '.';
+import PopupElement, { addCancelButton, PopupButton } from '.';
 import deferredPromise from '@helpers/cancellablePromise';
-import {InputCheckPasswordSRP} from '@layer';
+import { InputCheckPasswordSRP } from '@layer';
 import rootScope from '@lib/rootScope';
-import {InputState} from '@components/inputField';
+import { InputState } from '@components/inputField';
 import PasswordInputField from '@components/passwordInputField';
-import PopupPeer, {PopupPeerOptions} from '@components/popups/peer';
+import PopupPeer, { PopupPeerOptions } from '@components/popups/peer';
 
 export async function passwordPopup<Result>(options: Omit<PopupPeerOptions, 'inputField'> & {
   button?: Omit<NonNullable<PopupPeerOptions['buttons']>[0], 'callback'>;
@@ -16,7 +16,7 @@ export async function passwordPopup<Result>(options: Omit<PopupPeerOptions, 'inp
     labelText: state.hint ?? '',
     onRawInput: () => {
       passwordInputField.setState(InputState.Neutral);
-    }
+    },
   });
 
   let resolved = false;
@@ -33,11 +33,11 @@ export async function passwordPopup<Result>(options: Omit<PopupPeerOptions, 'inp
         deferred.resolve(result);
         resolved = true;
         return true
-      } catch(err) {
+      } catch (err) {
         console.error(err)
-        if((err as ApiError).type === 'PASSWORD_HASH_INVALID') {
+        if ((err as ApiError).type === 'PASSWORD_HASH_INVALID') {
           passwordInputField.setState(InputState.Error, 'PASSWORD_HASH_INVALID')
-        } else if((err as ApiError).type.startsWith('FLOOD_WAIT_')) {
+        } else if ((err as ApiError).type.startsWith('FLOOD_WAIT_')) {
           passwordInputField.setState(InputState.Error, 'PasscodeLock.TooManyAttempts')
         } else {
           passwordInputField.setState(InputState.Error, 'Error.AnError')
@@ -47,17 +47,17 @@ export async function passwordPopup<Result>(options: Omit<PopupPeerOptions, 'inp
       } finally {
         buttonOptions.element!.disabled = false
       }
-    }
+    },
   }
 
   const popup = PopupElement.createPopup(PopupPeer, 'popup-confirmation', {
     ...options,
     inputField: passwordInputField,
-    buttons: addCancelButton([buttonOptions])
+    buttons: addCancelButton([buttonOptions]),
   })
 
   popup.addEventListener('closeAfterTimeout', () => {
-    if(!resolved) {
+    if (!resolved) {
       deferred.reject();
     }
   });

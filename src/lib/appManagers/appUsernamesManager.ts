@@ -1,23 +1,23 @@
-import {AppManager} from '@appManagers/manager';
+import { AppManager } from '@appManagers/manager';
 
 export default class AppUsernamesManager extends AppManager {
   public toggleUsername({
     username,
     active,
-    peerId
+    peerId,
   }: {
     username: string,
     active: boolean,
     peerId?: PeerId
   }) {
-    if(!peerId || peerId === this.appUsersManager.userId) {
-      return this.apiManager.invokeApi('account.toggleUsername', {username, active});
-    } else if(peerId.isAnyChat()) {
+    if (!peerId || peerId === this.appUsersManager.userId) {
+      return this.apiManager.invokeApi('account.toggleUsername', { username, active });
+    } else if (peerId.isAnyChat()) {
       const chatId = peerId.toChatId();
       const promise = this.apiManager.invokeApi('channels.toggleUsername', {
         channel: this.appChatsManager.getChannelInput(chatId),
         username,
-        active
+        active,
       });
 
       return this.appChatsManager.refreshChatAfterRequest(chatId, promise);
@@ -25,32 +25,32 @@ export default class AppUsernamesManager extends AppManager {
       return this.apiManager.invokeApi('bots.toggleUsername', {
         bot: this.appUsersManager.getUserInput(peerId),
         username,
-        active
+        active,
       });
     }
   }
 
   public reorderUsernames({
     peerId,
-    order
+    order,
   }: {
     peerId: PeerId,
     order: string[]
   }) {
-    if(!peerId || peerId === this.appUsersManager.userId) {
-      return this.apiManager.invokeApi('account.reorderUsernames', {order});
-    } else if(peerId.isAnyChat()) {
+    if (!peerId || peerId === this.appUsersManager.userId) {
+      return this.apiManager.invokeApi('account.reorderUsernames', { order });
+    } else if (peerId.isAnyChat()) {
       const chatId = peerId.toChatId();
       const promise = this.apiManager.invokeApi('channels.reorderUsernames', {
         channel: this.appChatsManager.getChannelInput(chatId),
-        order
+        order,
       });
 
       return this.appChatsManager.refreshChatAfterRequest(chatId, promise);
     } else {
       return this.apiManager.invokeApi('bots.reorderUsernames', {
         bot: this.appUsersManager.getUserInput(peerId),
-        order
+        order,
       });
     }
   }

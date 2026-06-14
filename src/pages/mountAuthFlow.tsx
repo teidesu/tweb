@@ -1,9 +1,9 @@
-import {render} from 'solid-js/web';
+import { render } from 'solid-js/web';
 
-import {AuthState} from '@types';
+import { AuthState } from '@types';
 
 import AuthCardsHost from '@/pages/AuthCardsHost';
-import {CardSpec, navigateAuth} from '@/pages/authFlow';
+import { CardSpec, navigateAuth } from '@/pages/authFlow';
 
 /**
  * Bootstrap the auth flow.
@@ -27,7 +27,7 @@ let activeDispose: (() => void) | null = (import.meta.hot?.data)?.activeDispose 
 
 export function mountAuthFlow(authState: MountAuthFlowState): () => void {
   // Auth flow can only mount once at a time — clean up any previous instance.
-  if(activeDispose) {
+  if (activeDispose) {
     activeDispose();
   }
 
@@ -47,10 +47,10 @@ export function mountAuthFlow(authState: MountAuthFlowState): () => void {
     dispose();
     root.remove();
     activeDispose = null;
-    if(import.meta.hot) (import.meta.hot.data).activeDispose = null;
+    if (import.meta.hot) (import.meta.hot.data).activeDispose = null;
   };
 
-  if(import.meta.hot) (import.meta.hot.data).activeDispose = activeDispose;
+  if (import.meta.hot) (import.meta.hot.data).activeDispose = activeDispose;
 
   return activeDispose;
 }
@@ -68,19 +68,19 @@ export function disposeActiveAuthFlow(): void {
 /* ------------------------------------------------------------------ */
 
 function authStateToCardSpec(authState: MountAuthFlowState): CardSpec {
-  switch(authState._) {
+  switch (authState._) {
     case 'authStateSignIn':
-      return {name: 'signIn'};
+      return { name: 'signIn' };
     case 'authStateSignQr':
-      return {name: 'signQR'};
+      return { name: 'signQR' };
     case 'authStateAuthCode':
-      return {name: 'authCode', payload: authState.sentCode};
+      return { name: 'authCode', payload: authState.sentCode };
     case 'authStatePassword':
-      return {name: 'password'};
+      return { name: 'password' };
     case 'authStateSignUp':
-      return {name: 'signUp', payload: authState.authCode};
+      return { name: 'signUp', payload: authState.authCode };
     case 'authStateSignImport':
-      return {name: 'signImport', payload: authState.data};
+      return { name: 'signImport', payload: authState.data };
     default: {
       const exhaustive: never = authState;
       throw new Error(`Unknown auth state: ${JSON.stringify(exhaustive)}`);
@@ -88,4 +88,4 @@ function authStateToCardSpec(authState: MountAuthFlowState): CardSpec {
   }
 }
 
-if(import.meta.hot) import.meta.hot.accept();
+if (import.meta.hot) import.meta.hot.accept();

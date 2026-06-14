@@ -1,69 +1,69 @@
 /* @refresh reload */
 
-import {animateSingle, cancelAnimationByKey} from '@helpers/animation';
+import { animateSingle, cancelAnimationByKey } from '@helpers/animation';
 import cancelEvent from '@helpers/dom/cancelEvent';
 import overlayCounter from '@helpers/overlayCounter';
 import throttle from '@helpers/schedulers/throttle';
 import classNames from '@helpers/string/classNames';
 import windowSize from '@helpers/windowSize';
-import {Document, DocumentAttribute, GeoPoint, MediaArea, MessageMedia, Reaction, StoryItem, StoryView, User, Chat as MTChat, AvailableReaction, MessageEntity, StoriesStealthMode} from '@layer';
+import { Document, DocumentAttribute, GeoPoint, MediaArea, MessageMedia, Reaction, StoryItem, StoryView, User, Chat as MTChat, AvailableReaction, MessageEntity, StoriesStealthMode } from '@layer';
 import animationIntersector from '@components/animationIntersector';
-import appNavigationController, {NavigationItem} from '@components/appNavigationController';
+import appNavigationController, { NavigationItem } from '@components/appNavigationController';
 import PeerTitle from '@components/peerTitle';
 import SwipeHandler from '@components/swipeHandler';
 import styles from '@components/stories/viewer.module.scss';
-import {createSignal, createEffect, JSX, For, Accessor, onCleanup, createMemo, mergeProps, splitProps, untrack, on, getOwner, runWithOwner, createRoot, ParentProps, Signal, onMount, Setter, createReaction, Show, createRenderEffect} from 'solid-js';
-import {unwrap} from 'solid-js/store';
-import {assign, Portal} from 'solid-js/web';
+import { createSignal, createEffect, JSX, For, Accessor, onCleanup, createMemo, mergeProps, splitProps, untrack, on, getOwner, runWithOwner, createRoot, ParentProps, Signal, onMount, Setter, createReaction, Show, createRenderEffect } from 'solid-js';
+import { unwrap } from 'solid-js/store';
+import { assign, Portal } from 'solid-js/web';
 import rootScope from '@lib/rootScope';
-import {Middleware} from '@helpers/middleware';
-import wrapRichText, {WrapRichTextOptions} from '@lib/richTextProcessor/wrapRichText';
+import { Middleware } from '@helpers/middleware';
+import wrapRichText, { WrapRichTextOptions } from '@lib/richTextProcessor/wrapRichText';
 import wrapMessageEntities from '@lib/richTextProcessor/wrapMessageEntities';
 import tsNow from '@helpers/tsNow';
-import {LangPackKey, i18n, joinElementsWith} from '@lib/langPack';
-import formatDuration, {DurationType} from '@helpers/formatDuration';
-import {easeOutCubicApply} from '@helpers/easing/easeOutCubic';
+import { LangPackKey, i18n, joinElementsWith } from '@lib/langPack';
+import formatDuration, { DurationType } from '@helpers/formatDuration';
+import { easeOutCubicApply } from '@helpers/easing/easeOutCubic';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import findUpAsChild from '@helpers/dom/findUpAsChild';
-import {onMediaCaptionClick} from '@components/appMediaViewer';
+import { onMediaCaptionClick } from '@components/appMediaViewer';
 import InputFieldAnimated from '@components/inputFieldAnimated';
 import ChatInput from '@components/chat/input';
 import appImManager from '@lib/appImManager';
 import Chat from '@components/chat/chat';
-import {ChatType} from '@components/chat/chatType';
+import { ChatType } from '@components/chat/chatType';
 import middlewarePromise from '@helpers/middlewarePromise';
 import emoticonsDropdown from '@components/emoticonsDropdown';
 import showPickUserPopup from '@components/popups/pickUser';
 import ButtonMenuToggle from '@components/buttonMenuToggle';
 import getPeerActiveUsernames from '@appManagers/utils/peers/getPeerActiveUsernames';
-import {copyTextToClipboard} from '@helpers/clipboard';
-import {toastNew} from '@components/toast';
+import { copyTextToClipboard } from '@helpers/clipboard';
+import { toastNew } from '@components/toast';
 import debounce from '@helpers/schedulers/debounce';
 import appDownloadManager from '@lib/appDownloadManager';
 import getMediaFromMessage from '@appManagers/utils/messages/getMediaFromMessage';
 import confirmationPopup from '@components/confirmationPopup';
-import {formatDateAccordingToTodayNew, formatFullSentTime} from '@helpers/date';
+import { formatDateAccordingToTodayNew, formatFullSentTime } from '@helpers/date';
 import getVisibleRect from '@helpers/dom/getVisibleRect';
 import onMediaLoad from '@helpers/onMediaLoad';
-import {AvatarNew, avatarNew} from '@components/avatarNew';
+import { AvatarNew, avatarNew } from '@components/avatarNew';
 import documentFragmentToNodes from '@helpers/dom/documentFragmentToNodes';
-import {SERVICE_PEER_ID} from '@appManagers/constants';
+import { SERVICE_PEER_ID } from '@appManagers/constants';
 import idleController from '@helpers/idleController';
 import OverlayClickHandler from '@helpers/overlayClickHandler';
-import getStoryPrivacyType, {StoryPrivacyType} from '@appManagers/utils/stories/privacyType';
+import getStoryPrivacyType, { StoryPrivacyType } from '@appManagers/utils/stories/privacyType';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
 import StackedAvatars from '@components/stackedAvatars';
 import PopupElement from '@components/popups';
-import {processDialogElementForReaction} from '@components/popups/reactedList';
+import { processDialogElementForReaction } from '@components/popups/reactedList';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
 import focusInput from '@helpers/dom/focusInput';
-import {wrapStoryMedia} from '@components/stories/preview';
-import {StoriesContextPeerState, useStories, StoriesProvider} from '@components/stories/store';
+import { wrapStoryMedia } from '@components/stories/preview';
+import { StoriesContextPeerState, useStories, StoriesProvider } from '@components/stories/store';
 import createUnifiedSignal from '@helpers/solid/createUnifiedSignal';
 import setBlankToAnchor from '@lib/richTextProcessor/setBlankToAnchor';
 import liteMode from '@helpers/liteMode';
 import Icon from '@components/icon';
-import {ChatReactionsMenu} from '@components/chat/reactionsMenu';
+import { ChatReactionsMenu } from '@components/chat/reactionsMenu';
 import setCurrentTime from '@helpers/dom/setCurrentTime';
 import ReactionElement from '@components/chat/reaction';
 import blurActiveElement from '@helpers/dom/blurActiveElement';
@@ -72,37 +72,37 @@ import reactionsEqual from '@appManagers/utils/reactions/reactionsEqual';
 import wrapSticker from '@components/wrappers/sticker';
 import createContextMenu from '@helpers/dom/createContextMenu';
 import isTargetAnInput from '@helpers/dom/isTargetAnInput';
-import {setQuizHint} from '@components/quizHint';
-import {doubleRaf} from '@helpers/schedulers';
-import {resolveFirst} from '@solid-primitives/refs';
-import {IS_MOBILE} from '@environment/userAgent';
+import { setQuizHint } from '@components/quizHint';
+import { doubleRaf } from '@helpers/schedulers';
+import { resolveFirst } from '@solid-primitives/refs';
+import { IS_MOBILE } from '@environment/userAgent';
 import formatNumber from '@helpers/number/formatNumber';
 import callbackify from '@helpers/callbackify';
-import {dispatchHeavyAnimationEvent} from '@hooks/useHeavyAnimationCheck';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
+import { dispatchHeavyAnimationEvent } from '@hooks/useHeavyAnimationCheck';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
 import wrapReply from '@components/wrappers/reply';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
 import appSidebarRight from '@components/sidebarRight';
 import AppStatisticsTab from '@components/sidebarRight/tabs/statistics';
 import getStoryRepostInfo from '@appManagers/utils/stories/repostInfo';
 import anchorCallback from '@helpers/dom/anchorCallback';
-import {ButtonIconTsx} from '@components/buttonIconTsx';
-import {IconTsx} from '@components/iconTsx';
-import {Transition} from 'solid-transition-group';
-import {TransitionGroup} from '@helpers/solid/transitionGroup';
+import { ButtonIconTsx } from '@components/buttonIconTsx';
+import { IconTsx } from '@components/iconTsx';
+import { Transition } from 'solid-transition-group';
+import { TransitionGroup } from '@helpers/solid/transitionGroup';
 import makeGoogleMapsUrl from '@helpers/makeGoogleMapsUrl';
 import createMiddleware from '@helpers/solid/createMiddleware';
 import showTooltip from '@components/tooltip';
 import safeWindowOpen from '@helpers/dom/safeWindowOpen';
 import wrapUrl from '@lib/richTextProcessor/wrapUrl';
-import {showStoryReport} from '@components/popups/reportAd';
-import {useAppSettings} from '@stores/appSettings';
+import { showStoryReport } from '@components/popups/reportAd';
+import { useAppSettings } from '@stores/appSettings';
 import showStoriesStealthModePopup from '@components/popups/storiesStealthMode';
-import {useAppConfig} from '@stores/appState';
-import {wrapStoriesStealthModeDuration} from '@components/wrappers/wrapDuration';
-import {handleShareStory} from './share';
+import { useAppConfig } from '@stores/appState';
+import { wrapStoriesStealthModeDuration } from '@components/wrappers/wrapDuration';
+import { handleShareStory } from './share';
 import createListenerSetter from '@helpers/solid/createListenerSetter';
-import {isTruthy} from '../../helpers/isTruthy';
+import { isTruthy } from '../../helpers/isTruthy';
 
 export const STORY_DURATION = 5e3;
 const STORY_HEADER_AVATAR_SIZE = 32;
@@ -126,7 +126,7 @@ const StorySlides = (props: {
   splitByDays?: boolean
 }) => {
   let storyIndex: Accessor<number>, storiesForSlides: Accessor<StoryItem[]>;
-  if(props.splitByDays) {
+  if (props.splitByDays) {
     const getStoryDateTimestamp = (storyItem: StoryItem.storyItem) => {
       const timestamp = storyItem.date;
       const date = new Date(timestamp * 1000);
@@ -164,7 +164,7 @@ const StorySlides = (props: {
 
   const slides = (
     <For each={storiesForSlides()}>
-      {(_, i) => <StorySlide {...mergeProps(props, {slideIndex: i, storyIndex})} />}
+      {(_, i) => <StorySlide {...mergeProps(props, { slideIndex: i, storyIndex })} />}
     </For>
   );
 
@@ -187,7 +187,7 @@ const StorySlide = (props: {
   };
 
   const onTick = () => {
-    if(
+    if (
       stories.peer !== props.state ||
       props.storyIndex() !== props.slideIndex() ||
       stories.paused
@@ -213,7 +213,7 @@ const StorySlide = (props: {
   };
 
   createEffect(() => { // on peer change
-    if(stories.peer !== props.state) {
+    if (stories.peer !== props.state) {
       onPause();
       return;
     }
@@ -222,11 +222,11 @@ const StorySlide = (props: {
       () => [props.storyIndex(), props.slideIndex()],
       ([storyIndex, slideIndex]) => {
         const isActive = storyIndex === slideIndex;
-        if(isActive) {
+        if (isActive) {
           setProgress(undefined as unknown as number);
 
           createEffect(() => { // on story toggle
-            if(stories.paused || stories.buffering) {
+            if (stories.paused || stories.buffering) {
               onPause();
             } else {
               onPlay();
@@ -244,7 +244,7 @@ const StorySlide = (props: {
     <div
       class={styles.ViewerStorySlidesSlide}
       // classList={{[styles.active]: index() > slideIndex()}}
-      style={progress() !== undefined ? {'--progress': Math.min(100, progress() * 100) + '%'} : {}}
+      style={progress() !== undefined ? { '--progress': Math.min(100, progress() * 100) + '%' } : {}}
     />
   );
 
@@ -278,15 +278,15 @@ const StoryInput = (props: {
   const middlewareHelper = createMiddleware();
   const middleware = middlewareHelper.get();
 
-  const chat = new Chat(appImManager, rootScope.managers, false, {elements: true, sharedMedia: true});
+  const chat = new Chat(appImManager, rootScope.managers, false, { elements: true, sharedMedia: true });
   chat.setType(ChatType.Stories);
   chat.isStandalone = true;
 
   const onReactionClick = async() => {
     const story = props.currentStory() as StoryItem.storyItem;
     const isNewReaction = !story.sent_reaction;
-    const reaction: Reaction = (!isNewReaction ? undefined : {_: 'reactionEmoji', emoticon: DEFAULT_REACTION_EMOTICON})!;
-    props.sendReaction({reaction, target: btnReactionEl!});
+    const reaction: Reaction = (!isNewReaction ? undefined : { _: 'reactionEmoji', emoticon: DEFAULT_REACTION_EMOTICON })!;
+    props.sendReaction({ reaction, target: btnReactionEl! });
   };
 
   let btnReactionEl: HTMLButtonElement;
@@ -315,7 +315,7 @@ const StoryInput = (props: {
     attachMenu: true,
     commandsHelper: true,
     botCommands: true,
-    emoticons: IS_MOBILE
+    emoticons: IS_MOBILE,
   };
   input.globalMentions = true;
   input.getMiddleware = (...args) => middleware.create().get(...args);
@@ -344,7 +344,7 @@ const StoryInput = (props: {
       findUpClassName(target, styles.ViewerStory) ||
       target.classList.contains(styles.Viewer)
     );
-    if(!good) {
+    if (!good) {
       return;
     }
 
@@ -353,7 +353,7 @@ const StoryInput = (props: {
   };
 
   onCleanup(() => {
-    if(navigationItem) {
+    if (navigationItem) {
       appNavigationController.removeItem(navigationItem);
       navigationItem = undefined;
     }
@@ -364,19 +364,19 @@ const StoryInput = (props: {
     on(
       () => focused(),
       (focused) => {
-        if(focused) {
+        if (focused) {
           playAfterFocus = untrack(() => !stories.paused);
           // document.addEventListener('mousedown', onMouseDown, {capture: true, once: true});
-          document.addEventListener('click', onClick, {capture: true});
+          document.addEventListener('click', onClick, { capture: true });
           appNavigationController.pushItem(navigationItem = {
             type: 'stories-focus',
             onPop: () => {
               setFocused(false);
-            }
+            },
           });
         } else {
           // document.removeEventListener('mousedown', onMouseDown, {capture: true});
-          document.removeEventListener('click', onClick, {capture: true});
+          document.removeEventListener('click', onClick, { capture: true });
           appNavigationController.removeItem((navigationItem as NavigationItem));
           navigationItem = undefined;
         }
@@ -386,17 +386,17 @@ const StoryInput = (props: {
         input.chatInput.classList.toggle('is-focused', focused);
         // input.setShrinking(!focused);
       },
-      {defer: true}
+      { defer: true }
     )
   );
 
   let playAfterFocus = false;
   input.onFocusChange = (_focused: boolean) => {
-    if(input.emoticonsDropdown.isActive()) {
+    if (input.emoticonsDropdown.isActive()) {
       return;
     }
 
-    if(!_focused) {
+    if (!_focused) {
       return;
     }
 
@@ -405,7 +405,7 @@ const StoryInput = (props: {
 
   let playAfter = false;
   const onMenuToggle = (open: boolean) => {
-    if(open) {
+    if (open) {
       playAfter = !stories.paused;
     }
 
@@ -421,7 +421,7 @@ const StoryInput = (props: {
   input.messageInput.dataset.textColor = 'white';
 
   createEffect(() => {
-    if(props.isActive()) {
+    if (props.isActive()) {
       const onOpen = (): void => (onMenuToggle(true)/* , setFocused(true) */, undefined);
       const onClose = (): void => (onMenuToggle(false)/* , setFocused(false) */, undefined);
       emoticonsDropdown.addEventListener('open', onOpen);
@@ -448,7 +448,7 @@ const StoryInput = (props: {
     const visibleButtons = Math.min(2, [
       isReactionButtonVisible,
       isMainButtonVisible,
-      isRecordingButtonVisible
+      isRecordingButtonVisible,
     ].reduce((acc, v) => acc + +v, 0));
     const chatInputSize = 48;
     const chatInputBtnSendMargin = 8;
@@ -464,21 +464,21 @@ const StoryInput = (props: {
   chat.peerId = props.state.peerId;
   chat.onChangePeer({
     peerId: chat.peerId,
-    type: ChatType.Stories
+    type: ChatType.Stories,
   }, middlewarePromise(middleware)).then(() => {
-    if(!middleware()) return;
+    if (!middleware()) return;
     return chat.finishPeerChange({
       peerId: chat.peerId,
-      middleware
+      middleware,
     });
   }).then(() => {
-    if(!middleware()) return;
+    if (!middleware()) return;
     props.setInputReady(true);
 
     runWithOwner(owner, () => {
       createEffect(() => {
         input.setReplyTo({
-          replyToStoryId: props.currentStory().id
+          replyToStoryId: props.currentStory().id,
         });
       });
 
@@ -542,15 +542,15 @@ const renderStoryReaction = async(props: {
   play: boolean
 }) => {
   let doc: Document.document;
-  const {reaction, div, size, textColor, play, uReaction} = props;
+  const { reaction, div, size, textColor, play, uReaction } = props;
   const isCustomEmoji = reaction._ === 'reactionCustomEmoji';
   const middleware = createMiddleware().get();
   uReaction(null);
   let availableReaction: MaybePromise<AvailableReaction>;
-  if(isCustomEmoji) {
+  if (isCustomEmoji) {
     const result = await rootScope.managers.acknowledged.appEmojiManager.getCustomEmojiDocument(reaction.document_id);
-    if(!middleware()) return;
-    if(!result.cached) {
+    if (!middleware()) return;
+    if (!result.cached) {
       uReaction();
     }
 
@@ -558,20 +558,20 @@ const renderStoryReaction = async(props: {
     availableReaction = (apiManagerProxy.getReaction(doc.stickerEmojiRaw!)! as MaybePromise<AvailableReaction.availableReaction>);
   } else {
     const availableReactionsResult = apiManagerProxy.getAvailableReactions();
-    if(availableReactionsResult instanceof Promise) {
+    if (availableReactionsResult instanceof Promise) {
       uReaction();
     }
     const availableReactions = await availableReactionsResult;
-    if(!middleware()) return;
+    if (!middleware()) return;
     availableReaction = availableReactions!.find((availableReaction) => reactionsEqual(reaction, availableReaction))!;
     doc = /* availableReaction.center_icon ??  */play ? availableReaction.select_animation : availableReaction.static_icon;
   }
 
   // preload animation
   availableReaction && callbackify(availableReaction, (availableReaction) => {
-    if(availableReaction?.around_animation) {
+    if (availableReaction?.around_animation) {
       appDownloadManager.downloadMedia({
-        media: availableReaction.around_animation
+        media: availableReaction.around_animation,
       });
     }
   });
@@ -587,11 +587,11 @@ const renderStoryReaction = async(props: {
     textColor,
     middleware,
     loadPromises,
-    loop: play || undefined
+    loop: play || undefined,
   });
 
   await Promise.all(loadPromises);
-  if(!middleware()) return;
+  if (!middleware()) return;
   uReaction(div);
 };
 
@@ -605,7 +605,7 @@ const StoryMediaArea = (props: {
   close: (callback?: () => void) => void,
 }) => {
   const [stories, actions] = useStories()!;
-  const {x, y, w, h, rotation} = props.mediaArea.coordinates;
+  const { x, y, w, h, rotation } = props.mediaArea.coordinates;
   // const rotation = 10;
   // const w = 100 / stories.width * 100;
   // const h = 100 / stories.height * 100;
@@ -621,7 +621,7 @@ const StoryMediaArea = (props: {
     const href = makeGoogleMapsUrl(geoPoint);
 
     const onAnchorClick = async(e: MouseEvent) => {
-      if(ignoreClickEvent) {
+      if (ignoreClickEvent) {
         ignoreClickEvent = false;
         return;
       }
@@ -632,11 +632,11 @@ const StoryMediaArea = (props: {
         await confirmationPopup({
           descriptionLangKey: 'Popup.OpenInGoogleMaps',
           button: {
-            langKey: 'Open'
-          }
+            langKey: 'Open',
+          },
         });
-      } catch(err) {
-        if(wasPlaying) {
+      } catch (err) {
+        if (wasPlaying) {
           actions.play();
         }
 
@@ -660,21 +660,21 @@ const StoryMediaArea = (props: {
     setBlankToAnchor(a!);
     const wasPlaying = !stories.paused;
     actions.pause();
-    const {close} = showTooltip({
+    const { close } = showTooltip({
       element: div!,
       vertical: 'top',
       textElement: a!,
       centerVertically: !!rotation,
       onClose: () => {
-        if(hasPopup) {
+        if (hasPopup) {
           hasPopup = false;
           return;
         }
 
-        if(wasPlaying) {
+        if (wasPlaying) {
           actions.play();
         }
-      }
+      },
     });
     props.setTooltipCloseCallback(() => close);
   };
@@ -690,10 +690,10 @@ const StoryMediaArea = (props: {
         genericEffect: size * 0.375,
         genericEffectSize: size * 1.5,
         size,
-        effectSize: size * multiplier
+        effectSize: size * multiplier,
       },
       textColor: mediaArea.pFlags.dark ? 'white' : undefined,
-      fireSame: true
+      fireSame: true,
     });
   };
 
@@ -708,16 +708,16 @@ const StoryMediaArea = (props: {
     a.append(_props.text);
     const wasPlaying = !stories.paused;
     actions.pause();
-    const {close} = showTooltip({
+    const { close } = showTooltip({
       element: div!,
       vertical: 'top',
       textElement: a,
       centerVertically: false,
       onClose: () => {
-        if(wasPlaying) {
+        if (wasPlaying) {
           actions.play();
         }
-      }
+      },
     });
     props.setTooltipCloseCallback(() => close);
   };
@@ -728,14 +728,14 @@ const StoryMediaArea = (props: {
         const mediaArea = props.mediaArea as MediaArea.mediaAreaChannelPost;
         appImManager.setInnerPeer({
           peerId: mediaArea.channel_id.toPeerId(true),
-          lastMsgId: mediaArea.msg_id
+          lastMsgId: mediaArea.msg_id,
         });
       });
     };
 
     showNotCenteredTooltip({
       callback: openPost,
-      text: i18n('Story.ViewPost')
+      text: i18n('Story.ViewPost'),
     });
   };
 
@@ -743,7 +743,7 @@ const StoryMediaArea = (props: {
     showNotCenteredTooltip({
       callback: () => {
         const url = (props.mediaArea as MediaArea.mediaAreaUrl).url;
-        if(wrapUrl(url).onclick) {
+        if (wrapUrl(url).onclick) {
           props.close(() => {
             appImManager.openUrl(url);
           });
@@ -751,12 +751,12 @@ const StoryMediaArea = (props: {
           safeWindowOpen(url);
         }
       },
-      text: i18n('OpenUrlTitle')
+      text: i18n('OpenUrlTitle'),
     });
   };
 
   const onClick = (e: MouseEvent) => {
-    if(!props.isActive()) {
+    if (!props.isActive()) {
       return;
     }
 
@@ -785,7 +785,7 @@ const StoryMediaArea = (props: {
       div: div!,
       size,
       textColor: (mediaArea.pFlags.dark ? 'white' : undefined)!,
-      play: true
+      play: true,
     });
 
     createRenderEffect(() => {
@@ -797,7 +797,7 @@ const StoryMediaArea = (props: {
 
     createEffect(() => {
       const element = uReaction();
-      if(element === null) {
+      if (element === null) {
         return;
       }
 
@@ -821,7 +821,7 @@ const StoryMediaArea = (props: {
               count() && styles.hasCount
             )}
             // style={{'font-size': size * .275 + 'px'}}
-            style={{'font-size': `calc(var(--stories-width) * ${w / 100 * 0.72 * .275})`}}
+            style={{ 'font-size': `calc(var(--stories-width) * ${w / 100 * 0.72 * .275})` }}
           >
             {count() ? formatNumber(count(), 1) : ''}
           </div>
@@ -832,16 +832,16 @@ const StoryMediaArea = (props: {
   };
 
   let onTypeClick: (e: MouseEvent) => any;
-  if(isReaction()) {
+  if (isReaction()) {
     onTypeClick = onReactionClick;
     renderReaction(props.mediaArea as MediaArea.mediaAreaSuggestedReaction);
-  } else if(isLocation()) {
+  } else if (isLocation()) {
     onTypeClick = onLocationClick;
     props.setReady(true);
-  } else if(isPost()) {
+  } else if (isPost()) {
     onTypeClick = onPostClick;
     props.setReady(true);
-  } else if(isLink()) {
+  } else if (isLink()) {
     onTypeClick = onLinkClick;
     props.setReady(true);
   } else {
@@ -857,10 +857,10 @@ const StoryMediaArea = (props: {
         ...(isLocation() ? [
           playingMemo() && 'shimmer',
           'shimmer-bright',
-          'shimmer-once'
+          'shimmer-once',
         ] : []),
         ...(isReaction() ? [
-          styles.ViewerStoryMediaAreaReaction
+          styles.ViewerStoryMediaAreaReaction,
         ] : [])
       )}
       style={`left: ${x}%; top: ${y}%; width: ${w}%; height: ${h}%; --rotate: ${rotation}deg`}
@@ -894,14 +894,14 @@ const Stories = (props: {
   const avatar = AvatarNew({
     size: STORY_HEADER_AVATAR_SIZE,
     peerId: props.state.peerId,
-    isDialog: false
+    isDialog: false,
   });
   avatar.node.classList.add(styles.ViewerStoryHeaderAvatar);
   const isMe = rootScope.myId === props.state.peerId;
   const peerTitle = !isMe && new PeerTitle();
   let peerTitleElement: HTMLElement;
-  if(peerTitle) {
-    peerTitle.update({peerId: props.state.peerId, dialog: false});
+  if (peerTitle) {
+    peerTitle.update({ peerId: props.state.peerId, dialog: false });
     peerTitleElement = peerTitle.element;
   } else {
     peerTitleElement = i18n('YourStory')!;
@@ -911,7 +911,7 @@ const Stories = (props: {
 
   const bindOnAnyPopupClose = (wasPlaying = !stories.paused) => () => onAnyPopupClose(wasPlaying);
   const onAnyPopupClose = (wasPlaying: boolean) => {
-    if(wasPlaying) {
+    if (wasPlaying) {
       actions.play();
     }
   };
@@ -925,25 +925,25 @@ const Stories = (props: {
         showMessageSentTooltip(
           i18n(
             toPeerId === rootScope.myId ? 'StorySharedToSavedMessages' : 'StorySharedTo',
-            [await wrapPeerTitle({peerId: toPeerId})]
+            [await wrapPeerTitle({ peerId: toPeerId })]
           )
         )
       },
-      onClose: bindOnAnyPopupClose(wasPlaying)
+      onClose: bindOnAnyPopupClose(wasPlaying),
     })
   };
 
   const onShareButtonClick = (e: MouseEvent, listenTo: HTMLElement) => {
     const story = currentStory() as StoryItem.storyItem;
-    if(story.pFlags.noforwards) {
-      const {open} = createContextMenu({
+    if (story.pFlags.noforwards) {
+      const { open } = createContextMenu({
         buttons: [{
           icon: 'link',
           text: 'CopyLink',
-          onClick: copyLink
+          onClick: copyLink,
         }],
         listenTo: listenTo,
-        ...topMenuOptions
+        ...topMenuOptions,
       });
       open(e);
     } else {
@@ -957,16 +957,16 @@ const Stories = (props: {
     isDialog: false,
     withStories: true,
     storyColors: {
-      read: 'rgba(255, 255, 255, .3)'
-    }
+      read: 'rgba(255, 255, 255, .3)',
+    },
   });
   avatarInfo.node.classList.add(styles.ViewerStoryInfoAvatar);
   let peerTitleInfoElement: HTMLElement;
-  if(isMe) {
+  if (isMe) {
     peerTitleInfoElement = i18n('MyStory')!;
   } else {
     const peerTitleInfo = new PeerTitle();
-    peerTitleInfo.update({peerId: props.state.peerId, dialog: false, onlyFirstName: true});
+    peerTitleInfo.update({ peerId: props.state.peerId, dialog: false, onlyFirstName: true });
     peerTitleInfoElement = peerTitleInfo.element;
   }
   peerTitleInfoElement.classList.add(styles.ViewerStoryInfoName);
@@ -1003,11 +1003,11 @@ const Stories = (props: {
   const isExpired = createMemo(() => {
     const story = currentStory();
     const expireDate = (story as StoryItem.storyItem).expire_date;
-    if(!expireDate) return false;
+    if (!expireDate) return false;
     return expireDate <= tsNow(true);
   });
   const isActive = createMemo(() => stories.peer === props.state);
-  const [forceReaction, setForceReaction] = createSignal(false, {equals: false});
+  const [forceReaction, setForceReaction] = createSignal(false, { equals: false });
 
   let currentStoryMiddleware: Middleware;
   createEffect(() => {
@@ -1016,7 +1016,7 @@ const Stories = (props: {
   });
 
   const fireReactionAnimation = (reaction: Reaction, params = untrack(() => sendingReaction())) => {
-    if(!params || params.target === storyDiv!) {
+    if (!params || params.target === storyDiv!) {
       return;
     }
 
@@ -1024,7 +1024,7 @@ const Stories = (props: {
       genericEffect: 26,
       genericEffectSize: 100,
       size: 22 + 18,
-      effectSize: 80
+      effectSize: 80,
     };
 
     ReactionElement.fireAroundAnimation({
@@ -1033,13 +1033,13 @@ const Stories = (props: {
       sizes,
       stickerContainer: params.target,
       cache: params.fireSame ? {} : params.target as any,
-      textColor: params.textColor
+      textColor: params.textColor,
     });
   };
 
   createEffect(() => {
     const reaction = (currentStory() as StoryItem.storyItem).sent_reaction;
-    if(!reaction) {
+    if (!reaction) {
       return;
     }
 
@@ -1050,29 +1050,29 @@ const Stories = (props: {
   });
 
   const sendReaction: StorySendReaction = async(params) => {
-    let {reaction} = params;
+    let { reaction } = params;
     const peerId = props.state.peerId;
     const story = currentStory() as StoryItem.storyItem;
     const storyId = story.id;
     const sentReaction = story.sent_reaction;
 
     // * wait for picker
-    if(reaction instanceof Promise) {
+    if (reaction instanceof Promise) {
       reaction = await reaction;
-      if(!reaction) {
+      if (!reaction) {
         return;
       }
     }
 
     const isNewReaction = !reactionsEqual(sentReaction!, reaction);
-    if(!isNewReaction && !params.fireSame) {
+    if (!isNewReaction && !params.fireSame) {
       reaction = (undefined as unknown as Reaction | Promise<Reaction>);
     }
 
     setFocused(false);
     setSendingReaction(params);
 
-    if(!isNewReaction && params.fireSame) {
+    if (!isNewReaction && params.fireSame) {
       setForceReaction(true);
     }
 
@@ -1091,11 +1091,11 @@ const Stories = (props: {
       managers: rootScope.managers,
       type: 'horizontal',
       middleware,
-      onFinish: (reaction) => sendReaction({reaction: reaction!, target: storyDiv!}),
+      onFinish: (reaction) => sendReaction({ reaction: reaction!, target: storyDiv! }),
       size: 36,
       openSide: 'top',
       getOpenPosition: () => (undefined as unknown as DOMRectEditable),
-      noMoreButton: true
+      noMoreButton: true,
     });
 
     menu.widthContainer.classList.add(styles.ViewerStoryReactions);
@@ -1106,14 +1106,14 @@ const Stories = (props: {
 
     let timeout: number;
     createEffect(() => {
-      if(!inited()) {
+      if (!inited()) {
         return;
       }
 
       const isVisible = shouldMenuBeVisible();
       menu.widthContainer.classList.toggle('is-visible', isVisible);
 
-      if(!isVisible) {
+      if (!isVisible) {
         timeout = window.setTimeout(() => {
           setReactionsMenu();
           menu.cleanup();
@@ -1132,7 +1132,7 @@ const Stories = (props: {
   });
 
   createEffect(() => {
-    if(haveToCreateMenu()) {
+    if (haveToCreateMenu()) {
       createReactionsMenu();
     }
   });
@@ -1150,7 +1150,7 @@ const Stories = (props: {
 
     const onCanPlay = () => {
       setLoading(false);
-      if(isActive()) {
+      if (isActive()) {
         actions.setBuffering(false);
       }
     };
@@ -1159,17 +1159,17 @@ const Stories = (props: {
       const loading = video.networkState === video.NETWORK_LOADING;
       const isntEnoughData = video.readyState < video.HAVE_FUTURE_DATA;
 
-      if(loading && isntEnoughData) {
+      if (loading && isntEnoughData) {
         setLoading(true);
-        if(isActive()) {
+        if (isActive()) {
           actions.setBuffering(true);
         }
-        video.addEventListener('canplay', onCanPlay, {once: true});
+        video.addEventListener('canplay', onCanPlay, { once: true });
       }
     };
 
     const reset = () => {
-      if(!video.currentTime) {
+      if (!video.currentTime) {
         return;
       }
 
@@ -1179,14 +1179,14 @@ const Stories = (props: {
     video.addEventListener('waiting', onWaiting);
 
     onCleanup(() => {
-      if(stories.buffering) {
+      if (stories.buffering) {
         actions.setBuffering(false);
       }
     });
 
     // pause the video on viewer pause or story change
     createEffect(() => {
-      if(stories.paused || !isActive()) {
+      if (stories.paused || !isActive()) {
         video.pause();
       } else {
         video.play();
@@ -1198,7 +1198,7 @@ const Stories = (props: {
       createEffect(on(
         () => [/* props.state.index,  */isActive()],
         ([/* index,  */isActive]) => {
-          if(isActive) {
+          if (isActive) {
             return;
           }
 
@@ -1211,7 +1211,7 @@ const Stories = (props: {
       });
     };
 
-    if(isActive()) {
+    if (isActive()) {
       onFirstActive();
     } else {
       createReaction(onFirstActive)(() => isActive());
@@ -1219,20 +1219,20 @@ const Stories = (props: {
 
     const story = untrack(() => currentStory());
     createEffect(() => {
-      if(isActive() && !stories.startTime && currentStory() === story) {
+      if (isActive() && !stories.startTime && currentStory() === story) {
         reset();
       }
     });
 
-    if(!untrack(noSound)) {
+    if (!untrack(noSound)) {
       const [appSettings, setAppSettings] = useAppSettings();
-      if(!cleaned && !appSettings.seenTooltips.storySound) {
+      if (!cleaned && !appSettings.seenTooltips.storySound) {
         const playingMemo = createMemo((prev) => prev || (isActive() && stories.startTime));
         createEffect(() => {
-          if(playingMemo()) {
-            const {close} = showTooltip({
+          if (playingMemo()) {
+            const { close } = showTooltip({
               ...muteTooltipOptions,
-              textElement: i18n('Story.SoundTooltip')
+              textElement: i18n('Story.SoundTooltip'),
             });
             setTooltipCloseCallback(() => close);
           }
@@ -1245,7 +1245,7 @@ const Stories = (props: {
 
   const setStoryMeta = (story: StoryItem.storyItemSkipped | StoryItem.storyItem) => {
     let privacyType = getStoryPrivacyType(story as StoryItem.storyItem);
-    if(/* !isMe &&  */privacyType === 'public') {
+    if (/* !isMe &&  */privacyType === 'public') {
       privacyType = (undefined as unknown as StoryPrivacyType);
     }
 
@@ -1261,7 +1261,7 @@ const Stories = (props: {
     const usernames = getPeerActiveUsernames(peer);
 
     setPrivacyType(privacyType);
-    setDate({timestamp: date, edited});
+    setDate({ timestamp: date, edited });
     setNoSound(noSound);
     setVideoDuration(videoDuration && (videoDuration * 1000));
     setIsPublic(isPublic);
@@ -1271,7 +1271,7 @@ const Stories = (props: {
 
   const setStory = async(story: StoryItem) => {
     setLoading(true);
-    if(story._ !== 'storyItem') {
+    if (story._ !== 'storyItem') {
       setStackedAvatars();
       setContent();
       setCaption();
@@ -1294,7 +1294,7 @@ const Stories = (props: {
     const recentViewersMemo = isMe ? createMemo<UserId[] | undefined>((previousRecentViewers) => {
       const views = story.views;
       const recentViewers = views?.recent_viewers;
-      if(previousRecentViewers?.join() === recentViewers?.join()) {
+      if (previousRecentViewers?.join() === recentViewers?.join()) {
         return previousRecentViewers;
       }
       return recentViewers;
@@ -1310,17 +1310,17 @@ const Stories = (props: {
         middleware,
         textColor: 'white',
         loadPromises,
-        passMaskedLinks: CHANGELOG_PEER_ID === peerId
+        passMaskedLinks: CHANGELOG_PEER_ID === peerId,
       };
     };
 
     isMe && createEffect(async() => {
       let stackedAvatars: StackedAvatars;
       const recentViewers = recentViewersMemo!();
-      if(recentViewers?.length) {
+      if (recentViewers?.length) {
         stackedAvatars = new StackedAvatars({
           avatarSize: 30,
-          middleware
+          middleware,
         });
 
         const peerIds = recentViewers.map((userId) => {
@@ -1329,7 +1329,7 @@ const Stories = (props: {
 
         uStackedAvatars!(null as unknown as StackedAvatars);
         await stackedAvatars.render(peerIds);
-        if(!middleware()) {
+        if (!middleware()) {
           return;
         }
       }
@@ -1339,10 +1339,10 @@ const Stories = (props: {
 
     createEffect(async() => {
       let captionNode: JSX.Element;
-      const {caption, entities} = story;
-      if(caption?.trim()) {
+      const { caption, entities } = story;
+      if (caption?.trim()) {
         const loadPromises: Promise<any>[] = [];
-        const {message, totalEntities} = wrapMessageEntities(caption, entities?.slice());
+        const { message, totalEntities } = wrapMessageEntities(caption, entities?.slice());
         const wrapped = wrapRichText(
           message,
           getRichTextOptions(props.state.peerId, totalEntities, loadPromises)
@@ -1350,7 +1350,7 @@ const Stories = (props: {
 
         uCaption(null);
         await Promise.all(loadPromises);
-        if(!middleware()) {
+        if (!middleware()) {
           return;
         }
 
@@ -1363,7 +1363,7 @@ const Stories = (props: {
     createEffect(() => {
       const media = untrack(() => getMediaFromMessage(story));
       const mediaId = media.id;
-      if(!mediaId) {
+      if (!mediaId) {
         uContent();
         return;
       }
@@ -1375,10 +1375,10 @@ const Stories = (props: {
         storyItem: unwrap(story),
         forViewer: true,
         containerProps: {
-          class: styles.ViewerStoryContentMediaContainer
+          class: styles.ViewerStoryContentMediaContainer,
         },
         childrenClassName: styles.ViewerStoryContentMedia,
-        useBlur: 40
+        useBlur: 40,
       });
 
       const onReady = () => {
@@ -1386,7 +1386,7 @@ const Stories = (props: {
       };
 
       const onLoad = () => {
-        if(!middleware()) {
+        if (!middleware()) {
           return;
         }
 
@@ -1398,7 +1398,7 @@ const Stories = (props: {
       const onMedia = () => {
         const media = wrapped.media();
 
-        if(media instanceof HTMLVideoElement) {
+        if (media instanceof HTMLVideoElement) {
           setVideoListeners(media);
           onMediaLoad(media).then(onLoad);
         } else {
@@ -1414,7 +1414,7 @@ const Stories = (props: {
       let reactionNode: JSX.Element;
       const sentReaction = story.sent_reaction;
       const isDefault = isDefaultReaction(sentReaction!);
-      if(!sentReaction || isDefault) {
+      if (!sentReaction || isDefault) {
         reactionNode = Icon('reactions_filled', ...(['btn-reaction-icon', isDefault && 'btn-reaction-default'].filter(isTruthy)));
         uReaction(reactionNode);
       } else {
@@ -1426,13 +1426,13 @@ const Stories = (props: {
           div,
           size: 26,
           textColor: 'white',
-          play: false
+          play: false,
         });
       }
     });
 
     createEffect(() => {
-      if(!(story).media_areas?.length) {
+      if (!(story).media_areas?.length) {
         uMediaAreas();
         return;
       }
@@ -1448,7 +1448,7 @@ const Stories = (props: {
 
             createReaction(() => {
               setReadyCount((count) => count + 1);
-              if(readyCount() === (story).media_areas!.length) {
+              if (readyCount() === (story).media_areas!.length) {
                 setAllReady(true);
               }
             })(ready);
@@ -1475,12 +1475,12 @@ const Stories = (props: {
 
     createEffect(async() => {
       const repostInfo = getStoryRepostInfo(story);
-      if(!repostInfo) {
+      if (!repostInfo) {
         uRepost();
         return;
       }
 
-      const {fwdFrom, mediaAreaChannelPost} = repostInfo;
+      const { fwdFrom, mediaAreaChannelPost } = repostInfo;
       uRepost(null as any);
 
       const [headerContent, setHeaderContent] = createSignal<JSX.Element>();
@@ -1491,11 +1491,11 @@ const Stories = (props: {
           <span class={styles.ViewerStoryHeaderRepost}>
             {headerContent()}
           </span>
-        )
+        ),
       } as any;
 
       let fwdFromPeerId: PeerId, fwdFromName: string, fwdFromStoryId: number;
-      if(fwdFrom) {
+      if (fwdFrom) {
         fwdFromPeerId = (fwdFrom.from && getPeerId(fwdFrom.from))!;
         fwdFromName = fwdFrom.from_name!;
         fwdFromStoryId = fwdFrom.story_id!;
@@ -1505,17 +1505,17 @@ const Stories = (props: {
 
       const peerTitleOptions: Parameters<typeof wrapPeerTitle>[0] = {
         peerId: fwdFromPeerId,
-        fromName: fwdFromName!
+        fromName: fwdFromName!,
       };
 
-      const {node, readyThumbPromise} = avatarNew({
+      const { node, readyThumbPromise } = avatarNew({
         peerId: fwdFromPeerId,
         peerTitle: fwdFromName!,
         size: 16,
         // props: {
         //   class: styles.ViewerStoryHeaderRepostAvatar
         // },
-        middleware
+        middleware,
       });
 
       const subtitleElement = (
@@ -1524,23 +1524,23 @@ const Stories = (props: {
 
       const processStoryPromise = async(promise: Promise<StoryItem.storyItem>, cached: boolean) => {
         const storyItem = await promise;
-        if(!middleware()) {
+        if (!middleware()) {
           return;
         }
 
-        if(cached && !storyItem.caption) {
+        if (cached && !storyItem.caption) {
           setSubtitle(i18n('Story'));
           return;
         }
 
         const loadPromises: Promise<any>[] = [];
-        const {message, totalEntities} = wrapMessageEntities(storyItem.caption!, storyItem.entities?.slice());
+        const { message, totalEntities } = wrapMessageEntities(storyItem.caption!, storyItem.entities?.slice());
         const wrapped = wrapRichText(
           message,
           getRichTextOptions(fwdFromPeerId, totalEntities, loadPromises)
         );
         await Promise.all(loadPromises);
-        if(!middleware()) {
+        if (!middleware()) {
           return;
         }
 
@@ -1552,7 +1552,7 @@ const Stories = (props: {
         fwdFromStoryId
       ).then(async(ackedResult) => {
         const promise = processStoryPromise((ackedResult.result as Promise<StoryItem.storyItem>), ackedResult.cached);
-        if(!ackedResult.cached) {
+        if (!ackedResult.cached) {
           setSubtitle(i18n('Story'));
           return;
         }
@@ -1563,7 +1563,7 @@ const Stories = (props: {
       const [reply, headerPeerTitle, headerAvatar] = await Promise.all([
         wrapPeerTitle(peerTitleOptions).then(async(peerTitle) => {
           const title = document.createDocumentFragment();
-          if(fwdFromPeerId) {
+          if (fwdFromPeerId) {
             const isBroadcast = await rootScope.managers.appPeersManager.isBroadcast(fwdFromPeerId);
             const icon = Icon(
               isBroadcast ? 'newchannel_filled' : (fwdFromPeerId.isUser() ? 'newprivate_filled' : 'group_filled'),
@@ -1576,18 +1576,18 @@ const Stories = (props: {
 
           title.append(peerTitle);
 
-          if(fwdFromName || mediaAreaChannelPost) {
+          if (fwdFromName || mediaAreaChannelPost) {
             const container = document.createElement('div');
             container.classList.add(styles.ViewerStoryRepostSmall);
             container.append(title);
             return container;
           }
 
-          const {container, fillPromise} = wrapReply({
+          const { container, fillPromise } = wrapReply({
             title,
             subtitle: subtitleElement as HTMLElement,
             useHighlightingColor: true,
-            setColorPeerId: fwdFromPeerId
+            setColorPeerId: fwdFromPeerId,
           });
 
           await fillPromise;
@@ -1595,9 +1595,9 @@ const Stories = (props: {
         }),
         wrapPeerTitle(peerTitleOptions),
         readyThumbPromise.then(() => node),
-        storyPromise
+        storyPromise,
       ]);
-      if(!middleware()) return;
+      if (!middleware()) return;
 
       headerPeerTitle.classList.add(styles.ViewerStoryHeaderRepostTitle);
 
@@ -1606,7 +1606,7 @@ const Stories = (props: {
       setHeaderContent([
         Icon(STORY_REPOST_ICON, styles.ViewerStoryHeaderRepostIcon),
         headerAvatar,
-        headerPeerTitle
+        headerPeerTitle,
       ]);
 
       uRepost(ret);
@@ -1616,7 +1616,7 @@ const Stories = (props: {
       on(
         () => [inputReady(), uStackedAvatars?.(), uCaption(), uContent(), uReaction?.(), uMediaAreas(), uRepost()] as const,
         ([inputReady, ...u]) => {
-          if(!inputReady || u.some((v) => v === null)) {
+          if (!inputReady || u.some((v) => v === null)) {
             return;
           }
 
@@ -1633,7 +1633,7 @@ const Stories = (props: {
             setStoryMeta(story);
           });
         },
-        {defer: true}
+        { defer: true }
       )
     );
   };
@@ -1655,7 +1655,7 @@ const Stories = (props: {
   });
 
   const pollViewedStories = () => {
-    if(!pollViewedStoriesSet.size) {
+    if (!pollViewedStoriesSet.size) {
       return;
     }
 
@@ -1666,7 +1666,7 @@ const Stories = (props: {
   const pollViewedStoriesSet: Set<number> = new Set();
   let pollViewedStoriesInterval: number;
   createEffect(() => {
-    if(isActive()) {
+    if (isActive()) {
       pollViewedStoriesInterval = window.setInterval(pollViewedStories, 60e3);
 
       createEffect(() => {
@@ -1678,7 +1678,7 @@ const Stories = (props: {
   });
 
   const readStories = (maxId: number) => {
-    if(viewedStories.size) {
+    if (viewedStories.size) {
       rootScope.managers.appStoriesManager.incrementStoryViews(props.state.peerId, Array.from(viewedStories));
       viewedStories.clear();
     }
@@ -1689,19 +1689,19 @@ const Stories = (props: {
   const viewedStories: Set<number> = new Set();
   const readDebounced = debounce(readStories, 5e3, true, true);
   createEffect(() => { // read stories
-    if(!isActive()) {
+    if (!isActive()) {
       return;
     }
 
     let lastId: number;
     createEffect(() => {
       const story = currentStory();
-      if(props.pinned && untrack(() => isExpired())) viewedStories.add(story.id);
+      if (props.pinned && untrack(() => isExpired())) viewedStories.add(story.id);
       readDebounced(lastId = story.id);
     });
 
     onCleanup(() => {
-      if(!readDebounced.isDebounced()) {
+      if (!readDebounced.isDebounced()) {
         return;
       }
 
@@ -1711,7 +1711,7 @@ const Stories = (props: {
   });
 
   const playOnOpen = () => {
-    if(!stories.hasViewer || untrack(() => !isActive())) {
+    if (!stories.hasViewer || untrack(() => !isActive())) {
       return;
     }
 
@@ -1720,22 +1720,22 @@ const Stories = (props: {
 
   createEffect(playOnOpen); // play on open
 
-  const slides = <StorySlides {...mergeProps(props, {currentStory})} />;
+  const slides = <StorySlides {...mergeProps(props, { currentStory })} />;
 
   let shouldAddTranslateX = true;
   const calculateTranslateX = () => {
     let diff = diffToActive();
-    if(!diff) {
+    if (!diff) {
       return '0px';
     }
 
-    if(
+    if (
       shouldShow() &&
       stories.hasViewer &&
       fadeIn() &&
       shouldAddTranslateX
     ) {
-      if(diff > 0) ++diff;
+      if (diff > 0) ++diff;
       else --diff;
     }
 
@@ -1746,7 +1746,7 @@ const Stories = (props: {
     let offset = storyWidth * multiplier;
     const distance = (storyWidth - smallStoryWidth) / 2 - MARGIN;
     offset = (storyWidth - distance) * multiplier;
-    if(Math.abs(diff) !== 1) {
+    if (Math.abs(diff) !== 1) {
       const d = diff - 1 * multiplier;
       offset += d * smallStoryWidth + MARGIN * d;
     }
@@ -1754,7 +1754,7 @@ const Stories = (props: {
   };
 
   const playOnReady = () => {
-    if(untrack(() => loading())) {
+    if (untrack(() => loading())) {
       return;
     }
 
@@ -1766,7 +1766,7 @@ const Stories = (props: {
 
   // let transitionPromise: CancellablePromise<void>;
   const onTransitionStart = (e?: TransitionEvent) => {
-    if(e && e.target !== div!) {
+    if (e && e.target !== div!) {
       return;
     }
 
@@ -1775,14 +1775,14 @@ const Stories = (props: {
   };
 
   const onTransitionEnd = (e?: TransitionEvent) => {
-    if(e && e.target !== div!) {
+    if (e && e.target !== div!) {
       return;
     }
 
     shouldAddTranslateX = true;
     setSliding(false);
     // transitionPromise?.resolve();
-    if(!isActive()) {
+    if (!isActive()) {
       return;
     }
 
@@ -1790,10 +1790,10 @@ const Stories = (props: {
   };
 
   const toggleMute = (e: MouseEvent) => {
-    if(noSound()) {
-      const {close} = showTooltip({
+    if (noSound()) {
+      const { close } = showTooltip({
         ...muteTooltipOptions,
-        textElement: i18n('Story.NoSound')
+        textElement: i18n('Story.NoSound'),
       });
       setTooltipCloseCallback(() => close);
       return;
@@ -1806,7 +1806,7 @@ const Stories = (props: {
   const muteButton = (
     <ButtonIconTsx
       ref={muteButtonButton!}
-      classList={{[styles.noSound]: noSound()}}
+      classList={{ [styles.noSound]: noSound() }}
       icon={stories.muted || noSound() ? 'speakerofffilled' : 'speakerfilled'}
       onClick={toggleMute}
     />
@@ -1815,7 +1815,7 @@ const Stories = (props: {
   const copyLink = () => {
     copyTextToClipboard(`https://t.me/${getPeerActiveUsernames(peer)[0]}/s/${currentStory().id}`);
     toastNew({
-      langPackKey: 'LinkCopied'
+      langPackKey: 'LinkCopied',
     });
   };
 
@@ -1830,19 +1830,19 @@ const Stories = (props: {
       actions.pause();
     },
     onCloseAfter: () => {
-      if(wasPlaying && !ignoreOnClose) {
+      if (wasPlaying && !ignoreOnClose) {
         actions.play();
       }
 
       ignoreOnClose = false;
-    }
+    },
   };
 
   // * caption start
 
   const CAPTION_ACTIVE_THRESHOLD = 0.2;
   createEffect(() => {
-    if(!isActive()) {
+    if (!isActive()) {
       return;
     }
 
@@ -1857,16 +1857,16 @@ const Stories = (props: {
     setCaptionActive(active);
     // console.log('caption progress', progress);
 
-    if(videoDuration() !== undefined) {
+    if (videoDuration() !== undefined) {
       return;
     }
 
-    if(active) {
-      if(wasPlayingBeforeCaption === undefined) {
+    if (active) {
+      if (wasPlayingBeforeCaption === undefined) {
         wasPlayingBeforeCaption = !stories.paused;
         actions.pause();
       }
-    } else if(wasPlayingBeforeCaption) {
+    } else if (wasPlayingBeforeCaption) {
       wasPlayingBeforeCaption = undefined;
       actions.play();
     }
@@ -1874,7 +1874,7 @@ const Stories = (props: {
 
   let captionScrollable: HTMLDivElement, captionText: HTMLDivElement, scrolling = false;
   const onCaptionScroll = () => {
-    if(scrolling) {
+    if (scrolling) {
       return;
     }
 
@@ -1889,7 +1889,7 @@ const Stories = (props: {
 
     const story = currentStory();
     animateSingle(() => {
-      if(currentStory() !== story) {
+      if (currentStory() !== story) {
         return false;
       }
 
@@ -1907,7 +1907,7 @@ const Stories = (props: {
   };
 
   const onCaptionClick = (e: MouseEvent) => {
-    if((captionScrollable!.scrollHeight <= captionScrollable!.clientHeight) || captionScrollable!.scrollTop) {
+    if ((captionScrollable!.scrollHeight <= captionScrollable!.clientHeight) || captionScrollable!.scrollTop) {
       return;
     }
 
@@ -1948,15 +1948,15 @@ const Stories = (props: {
   const contentItem = (
     <div
       class={styles.ViewerStoryContentItem}
-      style={((captionOpacity() && {opacity: 1 - captionOpacity() * 0.5}) as string | JSX.CSSProperties | undefined)}
+      style={((captionOpacity() && { opacity: 1 - captionOpacity() * 0.5 }) as string | JSX.CSSProperties | undefined)}
     >
       {content()}
     </div>
   );
 
   const getDateText = () => {
-    const {timestamp, edited} = date() || {};
-    if(!timestamp) {
+    const { timestamp, edited } = date() || {};
+    if (!timestamp) {
       return;
     }
 
@@ -1965,7 +1965,7 @@ const Stories = (props: {
     const map: {[type in DurationType]?: LangPackKey} = {
       [DurationType.Seconds]: 'StoryJustNow',
       [DurationType.Minutes]: 'MinutesShortAgo',
-      [DurationType.Hours]: 'HoursShortAgo'
+      [DurationType.Hours]: 'HoursShortAgo',
       // [DurationType.Days]: 'DaysShortAgo'
     };
 
@@ -1979,29 +1979,29 @@ const Stories = (props: {
     const first = formatted[0];
     const key = map[first.type];
     const elements: (Node | string | (Node | string)[])[] = [];
-    if(!key) {
+    if (!key) {
       // return formatFullSentTime(timestamp);
       // elements.push(getFullDate(new Date(timestamp * 1000), {shortYear: true}));
       elements.push(<span>{documentFragmentToNodes(formatFullSentTime(timestamp))}</span> as any);
-    } else if(first.type === DurationType.Days && first.duration !== 1) {
+    } else if (first.type === DurationType.Days && first.duration !== 1) {
       elements.push(formatDateAccordingToTodayNew(new Date(timestamp * 1000)));
     } else {
       elements.push(i18n(key, [first.duration]));
     }
 
-    if(edited) {
+    if (edited) {
       elements.push(i18n('EditedMessage'));
     }
 
-    if(repost()) {
+    if (repost()) {
       elements.unshift(repost()!.header as HTMLElement);
     }
 
     let joined: JSX.Element[] = joinElementsWith(elements, JOINER);
-    if(repost()) {
+    if (repost()) {
       joined = [
         joined[0],
-        <span class={styles.ViewerStoryHeaderSecondary}>{joined.slice(1)}</span>
+        <span class={styles.ViewerStoryHeaderSecondary}>{joined.slice(1)}</span>,
       ];
     }
 
@@ -2010,15 +2010,15 @@ const Stories = (props: {
 
   const showMessageSentTooltip = (textElement: HTMLElement, peerId?: PeerId) => {
     let a: HTMLAnchorElement;
-    if(peerId) {
+    if (peerId) {
       a = document.createElement('a');
       a.href = '#';
       a.addEventListener('click', (e) => {
         cancelEvent(e);
         props.close(() => {
-          appImManager.setInnerPeer({peerId});
+          appImManager.setInnerPeer({ peerId });
         });
-      }, {capture: true, passive: false});
+      }, { capture: true, passive: false });
       a.append(i18n('ViewInChat'));
     }
 
@@ -2028,7 +2028,7 @@ const Stories = (props: {
       appendTo: storyDiv!,
       from: 'bottom',
       duration: 3000,
-      icon: 'checkround_filled'
+      icon: 'checkround_filled',
     });
   };
 
@@ -2053,7 +2053,7 @@ const Stories = (props: {
           onMessageSent: () => {
             showMessageSentTooltip(i18n('Story.Tooltip.MessageSent'), props.state.peerId);
           },
-          setInputReady
+          setInputReady,
         })
       }
     />;
@@ -2062,13 +2062,13 @@ const Stories = (props: {
 
   const isPeerArchived = async(visible: boolean) => {
     const peerId = props.state.peerId;
-    if(peerId === rootScope.myId || peerId === CHANGELOG_PEER_ID) {
+    if (peerId === rootScope.myId || peerId === CHANGELOG_PEER_ID) {
       return false;
     }
 
     const [peer, isSubscribed] = await Promise.all([
       rootScope.managers.appStoriesManager.getPeer(peerId),
-      rootScope.managers.appStoriesManager.isSubcribedToPeer(peerId)
+      rootScope.managers.appStoriesManager.isSubcribedToPeer(peerId),
     ]);
     const isHidden = !!peer.pFlags.stories_hidden;
     return (visible ? !isHidden : isHidden) && isSubscribed;
@@ -2079,7 +2079,7 @@ const Stories = (props: {
     rootScope.managers.appStoriesManager.toggleStoriesHidden(peerId, hidden);
     toastNew({
       langPackKey: hidden ? 'StoriesMovedToContacts' : 'StoriesMovedToDialogs',
-      langPackArguments: [await wrapPeerTitle({peerId})]
+      langPackArguments: [await wrapPeerTitle({ peerId })],
     });
   };
 
@@ -2089,7 +2089,7 @@ const Stories = (props: {
       toastNew({
         langPackKey: pinned ?
           (peerId.isUser() ? 'StoryPinnedToProfile' : 'StoryPinnedToPosts') :
-          (peerId.isUser() ? 'StoryArchivedFromProfile' : 'StoryUnpinnedFromPosts')
+          (peerId.isUser() ? 'StoryArchivedFromProfile' : 'StoryUnpinnedFromPosts'),
       });
     });
   };
@@ -2104,22 +2104,22 @@ const Stories = (props: {
       icon: 'plusround',
       text: 'Story.AddToProfile',
       onClick: () => togglePinned(true),
-      verify: () => peerId === rootScope.myId && !(story as StoryItem.storyItem).pFlags?.pinned
+      verify: () => peerId === rootScope.myId && !(story as StoryItem.storyItem).pFlags?.pinned,
     }, {
       icon: 'crossround',
       text: 'Story.RemoveFromProfile',
       onClick: () => togglePinned(false),
-      verify: () => peerId === rootScope.myId && !!(story as StoryItem.storyItem).pFlags?.pinned
+      verify: () => peerId === rootScope.myId && !!(story as StoryItem.storyItem).pFlags?.pinned,
     }, {
       icon: 'plusround',
       text: 'SaveToPosts',
       onClick: () => togglePinned(true),
-      verify: () => !peerId.isUser() && !(story as StoryItem.storyItem).pFlags?.pinned && rootScope.managers.appStoriesManager.hasRights(peerId, story.id, 'pin')
+      verify: () => !peerId.isUser() && !(story as StoryItem.storyItem).pFlags?.pinned && rootScope.managers.appStoriesManager.hasRights(peerId, story.id, 'pin'),
     }, {
       icon: 'crossround',
       text: 'RemoveFromPosts',
       onClick: () => togglePinned(false),
-      verify: () => !peerId.isUser() && !!(story as StoryItem.storyItem).pFlags?.pinned && rootScope.managers.appStoriesManager.hasRights(peerId, story.id, 'pin')
+      verify: () => !peerId.isUser() && !!(story as StoryItem.storyItem).pFlags?.pinned && rootScope.managers.appStoriesManager.hasRights(peerId, story.id, 'pin'),
     }, {
       icon: 'forward',
       text: 'ShareFile',
@@ -2129,38 +2129,38 @@ const Stories = (props: {
       },
       verify: () => {
         return !!(story as StoryItem.storyItem)?.pFlags?.public && !(story as StoryItem.storyItem).pFlags.noforwards;
-      }
+      },
     }, {
       icon: 'link',
       text: 'CopyLink',
       onClick: copyLink,
       verify: () => {
-        if(story._ !== 'storyItem') {
+        if (story._ !== 'storyItem') {
           return false;
         }
 
         // const appConfig = await rootScope.managers.apiManager.getAppConfig();
         return !!(story.pFlags.public/*  || appConfig.stories_export_nopublic_link */) && !!getPeerActiveUsernames(peer)[0];
-      }
+      },
     }, {
       icon: 'download',
       text: 'MediaViewer.Context.Download',
       onClick: () => {
         const story = currentStory();
         const media = getMediaFromMessage(story as StoryItem.storyItem, true);
-        if(!media) {
+        if (!media) {
           return;
         }
-        appDownloadManager.downloadToDisc({media: unwrap(media)});
+        appDownloadManager.downloadToDisc({ media: unwrap(media) });
       },
       verify: () => {
-        if(props.state.peerId === rootScope.myId) {
+        if (props.state.peerId === rootScope.myId) {
           return true;
         }
 
         const story = currentStory();
         return !!(story?._ === 'storyItem' && !story.pFlags.noforwards && rootScope.premium);
-      }
+      },
     }, {
       icon: 'eyecross_outline',
       text: 'Stories.StealthMode.View',
@@ -2174,27 +2174,27 @@ const Stories = (props: {
               title: i18n('Stories.StealthMode.Activated.Title'),
               textElement: i18n('Stories.StealthMode.Activated.Subtitle', [
                 wrapStoriesStealthModeDuration(appConfig.stories_stealth_future_period!),
-                wrapStoriesStealthModeDuration(appConfig.stories_stealth_past_period!)
+                wrapStoriesStealthModeDuration(appConfig.stories_stealth_past_period!),
               ]),
               appendTo: storyDiv!,
               from: 'bottom',
               duration: 8000,
-              icon: 'checkround_filled'
+              icon: 'checkround_filled',
             });
           },
-          onClose: onAnyPopupClose
+          onClose: onAnyPopupClose,
         });
-      }
+      },
     }, {
       icon: 'archive',
       text: 'ArchivePeerStories',
       onClick: () => togglePeerHidden(true),
-      verify: () => isPeerArchived(true)
+      verify: () => isPeerArchived(true),
     }, {
       icon: 'unarchive',
       text: 'UnarchiveStories',
       onClick: () => togglePeerHidden(false),
-      verify: () => isPeerArchived(false)
+      verify: () => isPeerArchived(false),
     }, {
       icon: 'statistics',
       text: 'ViewStatistics',
@@ -2207,7 +2207,7 @@ const Stories = (props: {
           }, 0);
         });
       },
-      verify: () => rootScope.managers.appProfileManager.canViewStatistics(peerId)
+      verify: () => rootScope.managers.appProfileManager.canViewStatistics(peerId),
     }, {
       icon: 'delete danger' as Icon,
       text: 'Delete',
@@ -2222,17 +2222,17 @@ const Stories = (props: {
             descriptionLangKey: 'DeleteStorySubtitle',
             button: {
               langKey: 'Delete',
-              isDanger: true
-            }
+              isDanger: true,
+            },
           });
-        } catch(err) {
+        } catch (err) {
           onAnyPopupClose();
           return;
         }
 
         rootScope.managers.appStoriesManager.deleteStories(peerId, [id]);
       },
-      verify: () => rootScope.managers.appStoriesManager.hasRights(peerId, story.id, 'delete')
+      verify: () => rootScope.managers.appStoriesManager.hasRights(peerId, story.id, 'delete'),
     }, {
       icon: 'flag',
       className: 'danger',
@@ -2242,11 +2242,11 @@ const Stories = (props: {
         const onAnyPopupClose = bindOnAnyPopupClose(wasPlaying);
         showStoryReport(props.state.peerId, [currentStory().id], onAnyPopupClose);
       },
-      verify: () => !(story as StoryItem.storyItem).pFlags?.out && props.state.peerId !== CHANGELOG_PEER_ID
+      verify: () => !(story as StoryItem.storyItem).pFlags?.out && props.state.peerId !== CHANGELOG_PEER_ID,
       // separator: true
     }],
     direction: 'bottom-left',
-    ...topMenuOptions
+    ...topMenuOptions,
   });
   btnMenu.classList.add('night');
 
@@ -2258,13 +2258,13 @@ const Stories = (props: {
     close: 'star_filled',
     contacts: 'newprivate_filled',
     public: 'newchannel_filled',
-    selected: 'newgroup_filled'
+    selected: 'newgroup_filled',
   };
 
   const onPrivacyIconClick = async() => {
     const type = privacyType();
-    const peerTitle = await wrapPeerTitle({peerId: props.state.peerId, onlyFirstName: true});
-    const {close} = showTooltip({
+    const peerTitle = await wrapPeerTitle({ peerId: props.state.peerId, onlyFirstName: true });
+    const { close } = showTooltip({
       container: headerDiv!,
       element: privacyIconElement!,
       vertical: 'bottom',
@@ -2272,7 +2272,7 @@ const Stories = (props: {
         type === 'close' ? 'StoryCloseFriendsHint' : (type === 'selected' ? 'StorySelectedContactsHint' : 'StoryContactsHint'),
         [peerTitle]
       ),
-      paddingX: 13
+      paddingX: 13,
     });
 
     setTooltipCloseCallback(() => close);
@@ -2280,7 +2280,7 @@ const Stories = (props: {
 
   createEffect(() => {
     const close = tooltipCloseCallback();
-    if(!close) {
+    if (!close) {
       return;
     }
 
@@ -2293,7 +2293,7 @@ const Stories = (props: {
           close();
           setTooltipCloseCallback();
         },
-        {defer: true}
+        { defer: true }
       )
     );
   });
@@ -2319,14 +2319,14 @@ const Stories = (props: {
 
   const getViews = isMe && (() => {
     const story = currentStory();
-    if(story._ !== 'storyItem') {
+    if (story._ !== 'storyItem') {
       return;
     }
 
     const viewsCount = story.views?.views_count ?? 0;
-    if(!viewsCount) {
+    if (!viewsCount) {
       const isExpired = story.expire_date <= tsNow(true);
-      if(isExpired) {
+      if (isExpired) {
         return i18n('NobodyViewsArchived');
       } else {
         return i18n('NobodyViews');
@@ -2350,7 +2350,7 @@ const Stories = (props: {
           loadCount,
           nextOffset,
           q
-        ).then(({nextOffset: _nextOffset, views}) => {
+        ).then(({ nextOffset: _nextOffset, views }) => {
           nextOffset = _nextOffset!;
           return {
             result: views.map((storyView) => {
@@ -2358,7 +2358,7 @@ const Stories = (props: {
               viewsMap.set(peerId, storyView);
               return peerId;
             }),
-            isEnd: !nextOffset
+            isEnd: !nextOffset,
           };
         });
       },
@@ -2370,7 +2370,7 @@ const Stories = (props: {
           date: view!.date,
           isMine: true,
           middleware: popup.selector!.middlewareHelperLoader.get(),
-          reaction: view!.reaction
+          reaction: view!.reaction,
         });
       },
       onSelect: ([obj]) => {
@@ -2380,7 +2380,7 @@ const Stories = (props: {
       },
       placeholder: 'SearchPlaceholder',
       exceptSelf: true,
-      meAsSaved: false
+      meAsSaved: false,
     });
   });
 
@@ -2392,19 +2392,19 @@ const Stories = (props: {
       descriptionLangKey: 'DeleteStorySubtitle',
       button: {
         isDanger: true,
-        langKey: 'Delete'
-      }
+        langKey: 'Delete',
+      },
     });
 
     rootScope.managers.appStoriesManager.deleteStories(peerId, [storyId]);
   });
 
-  if(isMe) {
+  if (isMe) {
     const viewedStories: Set<number> = new Set();
     const getAround = 2;
     let promise: Promise<any> | undefined;
     const getStoriesViews = async() => {
-      if(promise) {
+      if (promise) {
         return;
       }
 
@@ -2422,7 +2422,7 @@ const Stories = (props: {
       });
 
       // let's clear after last execution, not before viewer is closed
-      if(cleaned) {
+      if (cleaned) {
         clearInterval(interval);
       }
     };
@@ -2487,7 +2487,7 @@ const Stories = (props: {
                 styles.ViewerStoryFooterReaction,
                 (currentStory() as StoryItem.storyItem).sent_reaction && styles.isReacted
               )}
-              onClick={(e) => sendReaction({reaction: {_: 'reactionEmoji', emoticon: DEFAULT_REACTION_EMOTICON}, target: footerReactionElement!.firstElementChild as HTMLElement})}
+              onClick={(e) => sendReaction({ reaction: { _: 'reactionEmoji', emoticon: DEFAULT_REACTION_EMOTICON }, target: footerReactionElement!.firstElementChild as HTMLElement })}
             >
               <IconTsx icon={(currentStory() as StoryItem.storyItem).sent_reaction ? 'reactions_filled' : 'reactions'} class={styles.ViewerStoryFooterIconIcon}></IconTsx>
               {(currentStory() as StoryItem.storyItem).views?.reactions_count || 0}
@@ -2504,7 +2504,7 @@ const Stories = (props: {
     on(
       () => [isActive(), currentStory()],
       () => {
-        if(liteMode.isAvailable('animations')) {
+        if (liteMode.isAvailable('animations')) {
           return;
         }
 
@@ -2527,13 +2527,13 @@ const Stories = (props: {
 
   const onProfileClick = (e: MouseEvent) => {
     // * I'm handling it elsewhere
-    if(findUpClassName(e.target!, styles.ViewerStoryHeaderRepost)) {
+    if (findUpClassName(e.target!, styles.ViewerStoryHeaderRepost)) {
       return;
     }
 
     const peerId = props.state.peerId;
     props.close(() => {
-      appImManager.setInnerPeer({peerId});
+      appImManager.setInnerPeer({ peerId });
     });
   };
 
@@ -2554,10 +2554,10 @@ const Stories = (props: {
   const shouldShow = createMemo((/* prev */) => {
     const diff = Math.abs(diffToActive());
     let shouldBeVisible: boolean;
-    if(/* props.isFull() &&  */!stories.hasViewer) {
+    if (/* props.isFull() &&  */!stories.hasViewer) {
       shouldBeVisible = diff === 0;
 
-      if(!props.isFull() && diff <= STORIES_PRESERVE) {
+      if (!props.isFull() && diff <= STORIES_PRESERVE) {
         shouldAddTranslateX = false;
       }
     } else {
@@ -2572,13 +2572,13 @@ const Stories = (props: {
   });
 
   createEffect<boolean | undefined>((prev) => {
-    if(!shouldShow()) {
+    if (!shouldShow()) {
       // if(prev) {
       setFadeIn(true);
       // }
 
       return true;
-    } else if(prev) {
+    } else if (prev) {
       setFadeIn(true);
 
       doubleRaf().then(() => {
@@ -2598,58 +2598,58 @@ const Stories = (props: {
         ...(props.isFull() ? {
           [styles.fromLeft]: fromLeft(),
           [styles.current]: isActive(),
-          [styles.fromRight]: fromRight()
+          [styles.fromRight]: fromRight(),
         } : {
-          [styles.small]: !isActive()
+          [styles.small]: !isActive(),
         }),
         [styles.hold]: stories.hideInterface && isActive(),
         [styles.focused]: focused(),
-        [styles.fadeIn]: fadeIn()
+        [styles.fadeIn]: fadeIn(),
       }}
       style={((!props.isFull() && {
-        '--translateX': calculateTranslateX()
+        '--translateX': calculateTranslateX(),
       }) as string | JSX.CSSProperties | undefined)}
       onClick={(e) => {
-        if(!isActive()) {
-          actions.set({peer: props.state, index: props.state.index});
-        } else if(
+        if (!isActive()) {
+          actions.set({ peer: props.state, index: props.state.index });
+        } else if (
           findUpClassName(e.target, styles.ViewerStoryRepost) ||
           findUpClassName(e.target, styles.ViewerStoryHeaderRepost)
         ) {
           const story = currentStory();
           const repostInfo = getStoryRepostInfo(story as StoryItem.storyItem);
-          if(!repostInfo) {
+          if (!repostInfo) {
             toastNew({
-              langPackKey: 'HidAccount'
+              langPackKey: 'HidAccount',
             });
             return;
           }
 
-          const {fwdFrom, mediaAreaChannelPost} = repostInfo;
-          if(fwdFrom?.from || mediaAreaChannelPost) {
+          const { fwdFrom, mediaAreaChannelPost } = repostInfo;
+          if (fwdFrom?.from || mediaAreaChannelPost) {
             e.stopPropagation();
             props.close(() => {
               const peerId = fwdFrom ? getPeerId(fwdFrom.from!) : mediaAreaChannelPost.channel_id.toPeerId(true);
-              if(fwdFrom?.story_id && !findUpClassName(e.target, styles.ViewerStoryHeaderRepost)) {
+              if (fwdFrom?.story_id && !findUpClassName(e.target, styles.ViewerStoryHeaderRepost)) {
                 createStoriesViewerWithPeer({
                   peerId,
-                  id: fwdFrom.story_id
+                  id: fwdFrom.story_id,
                 });
               } else {
                 appImManager.setInnerPeer({
                   peerId,
-                  lastMsgId: mediaAreaChannelPost?.msg_id
+                  lastMsgId: mediaAreaChannelPost?.msg_id,
                 });
               }
             });
           }
-        } else if(
+        } else if (
           captionScrollable!.scrollTop &&
           !findUpAsChild((e.target as { parentElement: HTMLElement; }), captionText!) &&
           !findUpClassName(e.target, styles.ViewerStoryHeader)
         ) {
           scrollPath(-captionScrollable!.scrollTop);
-        } else if(
+        } else if (
           !stories.paused &&
           !stories.hideInterface &&
           !findUpAsChild((e.target as { parentElement: HTMLElement; }), captionText!) &&
@@ -2719,7 +2719,7 @@ const Stories = (props: {
           {mediaAreas() && (
             <div
               class={styles.ViewerStoryMediaAreas}
-              style={((captionOpacity() && {'opacity': 1 - captionOpacity() * 0.5, 'z-index': 0}) as string | JSX.CSSProperties | undefined)}
+              style={((captionOpacity() && { 'opacity': 1 - captionOpacity() * 0.5, 'z-index': 0 }) as string | JSX.CSSProperties | undefined)}
             >
               {mediaAreas()}
             </div>
@@ -2742,7 +2742,7 @@ const Stories = (props: {
     container: headerDiv!,
     element: muteButtonButton!,
     vertical: 'bottom',
-    paddingX: 13
+    paddingX: 13,
   };
 
   return (
@@ -2774,27 +2774,27 @@ export default function StoriesViewer(props: {
     'ArrowRight',
     'ArrowLeft',
     'ArrowDown',
-    'Space'
+    'Space',
   ]);
 
   const onKeyDown = (e: KeyboardEvent) => {
-    if(isTargetAnInput(document.activeElement as HTMLElement)) {
+    if (isTargetAnInput(document.activeElement as HTMLElement)) {
       throttledKeyDown.clear();
       return;
     }
 
     const activeStoryContainer = getActiveStoryContainer();
-    if(animating || !!activeStoryContainer.querySelector('.is-recording')) {
+    if (animating || !!activeStoryContainer.querySelector('.is-recording')) {
       throttledKeyDown.clear();
       cancelEvent(e);
       return;
     }
 
-    if(CANCELABLE_KEYS.has(e.key) || CANCELABLE_KEYS.has(e.code)) {
+    if (CANCELABLE_KEYS.has(e.key) || CANCELABLE_KEYS.has(e.code)) {
       cancelEvent(e);
     } else {
       const input = activeStoryContainer.querySelector<HTMLElement>('.input-message-input');
-      if(
+      if (
         input &&
         !IS_TOUCH_SUPPORTED &&
         input.isContentEditable &&
@@ -2804,7 +2804,7 @@ export default function StoriesViewer(props: {
       }
     }
 
-    if(e.key === 'ArrowDown') {
+    if (e.key === 'ArrowDown') {
       throttledKeyDown.clear();
       close();
       return;
@@ -2814,11 +2814,11 @@ export default function StoriesViewer(props: {
   };
 
   const throttledKeyDown = throttle((e: KeyboardEvent) => {
-    if(e.key === 'ArrowRight') {
+    if (e.key === 'ArrowRight') {
       actions.goToNearestStorySafe(true);
-    } else if(e.key === 'ArrowLeft') {
+    } else if (e.key === 'ArrowLeft') {
       actions.goToNearestStorySafe(false);
-    } else if(e.code === 'Space') {
+    } else if (e.code === 'Space') {
       actions.toggle();
     }
   }, 200, true);
@@ -2845,7 +2845,7 @@ export default function StoriesViewer(props: {
     });
 
     actions.viewerReady(false);
-    if(dispose) {
+    if (dispose) {
       deferred = deferredPromise();
       dispatchHeavyAnimationEvent(deferred, 1000);
       dispose();
@@ -2854,7 +2854,7 @@ export default function StoriesViewer(props: {
     actions.pause();
     throttledKeyDown.clear();
     setShow(false);
-    div!.removeEventListener('click', onDivClick, {capture: true});
+    div!.removeEventListener('click', onDivClick, { capture: true });
   };
 
   let div: HTMLDivElement, backgroundDiv: HTMLDivElement, closeButton: HTMLButtonElement;
@@ -2863,7 +2863,7 @@ export default function StoriesViewer(props: {
     dispose = _dispose;
 
     createEffect(() => {
-      if(stories.ended) {
+      if (stories.ended) {
         close();
       }
     });
@@ -2886,10 +2886,10 @@ export default function StoriesViewer(props: {
     const timeout = setTimeout(() => {
       console.error('stories timeout');
       stories.peers
-      .filter((peer: StoriesContextPeerState) => storiesShouldBeReady.has(peer.peerId) && !storiesReadiness.has(peer.peerId))
-      .forEach((peer: StoriesContextPeerState) => {
-        console.error('stories not ready', peer);
-      });
+        .filter((peer: StoriesContextPeerState) => storiesShouldBeReady.has(peer.peerId) && !storiesReadiness.has(peer.peerId))
+        .forEach((peer: StoriesContextPeerState) => {
+          console.error('stories not ready', peer);
+        });
       openOnReady();
     }, 250);
 
@@ -2897,13 +2897,13 @@ export default function StoriesViewer(props: {
       const onReady = () => {
         storiesReadiness.add(peer.peerId);
 
-        if(wasReady) {
+        if (wasReady) {
           return;
         }
 
         // console.log('stories ready', peer.peerId, storiesReadiness.size, performance.now() - perf);
 
-        if(storiesReadiness.size === storiesShouldBeReady.size) {
+        if (storiesReadiness.size === storiesShouldBeReady.size) {
           openOnReady();
         }
       };
@@ -2928,7 +2928,7 @@ export default function StoriesViewer(props: {
       const ref = resolveFirst(() => ret);
       createEffect(() => {
         const element = ref();
-        if(!element) {
+        if (!element) {
           return;
         }
 
@@ -2958,18 +2958,18 @@ export default function StoriesViewer(props: {
           stories.hasViewer && styles.isReady
         )}
         onClick={(e) => {
-          if(animating) {
+          if (animating) {
             cancelEvent(e);
             return;
           }
 
-          if(e.target === div!) {
+          if (e.target === div!) {
             close();
           }
         }}
         style={{
           '--stories-width': stories.width + 'px',
-          '--stories-height': stories.height + 'px'
+          '--stories-height': stories.height + 'px',
         }}
       >
         <div ref={backgroundDiv!} class={styles.ViewerBackground} />
@@ -2986,28 +2986,28 @@ export default function StoriesViewer(props: {
   const swipeHandler = new SwipeHandler({
     element: div!,
     onSwipe: (xDiff, yDiff, e) => {
-      if(!(e instanceof TouchEvent)) {
+      if (!(e instanceof TouchEvent)) {
         return;
       }
 
       const jumpOn = Math.min(125, windowSize.width / 3);
       const closeOn = Math.min(125, windowSize.height * 0.2);
-      if(yDiff > closeOn) {
+      if (yDiff > closeOn) {
         close();
         return true;
       }
 
-      if(Math.abs(xDiff) < jumpOn) {
+      if (Math.abs(xDiff) < jumpOn) {
         return false;
       }
 
       const peerIndex = stories.peers.indexOf(stories.peer);
       const neighbourIndex = peerIndex + (xDiff < 0 ? 1 : -1);
       const neighbour = stories.peers[neighbourIndex];
-      if(!neighbour) {
+      if (!neighbour) {
         close();
       } else {
-        actions.set({peer: neighbour});
+        actions.set({ peer: neighbour });
       }
 
       return true;
@@ -3035,7 +3035,7 @@ export default function StoriesViewer(props: {
     },
     onReset: (e) => {
       window.clearTimeout(pauseTimeout);
-      if(!e ||
+      if (!e ||
         !stories.paused ||
         findUpClassName(e.target!, 'btn-icon') ||
         findUpClassName(e.target!, styles.ViewerStoryPrivacy) ||
@@ -3046,26 +3046,26 @@ export default function StoriesViewer(props: {
 
       const story = findUpClassName(e.target!, styles.ViewerStory);
       const caption = story?.querySelector('.' + styles.ViewerStoryCaption);
-      if(caption?.scrollTop) {
+      if (caption?.scrollTop) {
         return;
       }
 
-      if(story && stories.hideInterface) {
-        document.addEventListener('click', cancelEvent, {capture: true, once: true});
+      if (story && stories.hideInterface) {
+        document.addEventListener('click', cancelEvent, { capture: true, once: true });
       }
 
       const playStories = stories.playAfterGesture || !stories.hideInterface;
       actions.toggleInterface(false);
-      if(playStories) {
+      if (playStories) {
         actions.play();
       }
-    }
+    },
   });
 
   let avatarFrom: ReturnType<typeof AvatarNew> | undefined;
   const open = () => {
     const target = props.target?.();
-    if(!target || !target.classList.contains('avatar')) {
+    if (!target || !target.classList.contains('avatar')) {
       setShow(true);
       return;
     }
@@ -3073,15 +3073,15 @@ export default function StoriesViewer(props: {
     avatarFrom = AvatarNew({
       size: STORY_HEADER_AVATAR_SIZE,
       isDialog: false,
-      useCache: false
+      useCache: false,
     });
 
     avatarFrom.node.style.cssText = `position: absolute; visibility: hidden; z-index: 1000; transform-origin: top left;`;
     document.body.append(avatarFrom.node);
 
-    if(!untrack(() => show())) {
+    if (!untrack(() => show())) {
       createEffect(() => {
-        if(avatarFrom!.ready()) {
+        if (avatarFrom!.ready()) {
           setShow(true);
         }
       });
@@ -3089,17 +3089,17 @@ export default function StoriesViewer(props: {
 
     createEffect(() => {
       const peerId = stories.peer?.peerId;
-      if(!peerId || !avatarFrom) {
+      if (!peerId || !avatarFrom) {
         return;
       }
 
       untrack(() => {
-        avatarFrom!.render({peerId});
+        avatarFrom!.render({ peerId });
       });
     });
 
     onCleanup(() => {
-      if(!avatarFrom) {
+      if (!avatarFrom) {
         return;
       }
 
@@ -3108,14 +3108,14 @@ export default function StoriesViewer(props: {
   };
 
   const onDivClick = (e: MouseEvent) => {
-    if(animating) {
+    if (animating) {
       cancelEvent(e);
     }
 
     const story = findUpClassName(e.target!, styles.ViewerStory);
     const caption = story?.querySelector('.' + styles.ViewerStoryCaptionText) as HTMLElement;
     const callback = caption && onMediaCaptionClick(caption, e);
-    if(!callback) {
+    if (!callback) {
       return;
     }
 
@@ -3123,19 +3123,19 @@ export default function StoriesViewer(props: {
     return false;
   };
 
-  div!.addEventListener('click', onDivClick, {capture: true});
+  div!.addEventListener('click', onDivClick, { capture: true });
 
   const owner = getOwner();
 
   const navigationItem: NavigationItem = {
     type: 'stories',
     onPop: () => {
-      if(animating) {
+      if (animating) {
         return false;
       }
 
       close();
-    }
+    },
   };
 
   appNavigationController.pushItem(navigationItem);
@@ -3146,7 +3146,7 @@ export default function StoriesViewer(props: {
 
   const animate = (el: Element, forwards: boolean, done: () => void) => {
     const container = getActiveStoryContainer(el);
-    if(!liteMode.isAvailable('animations') || !container) {
+    if (!liteMode.isAvailable('animations') || !container) {
       done();
       return;
     }
@@ -3155,18 +3155,18 @@ export default function StoriesViewer(props: {
     let needAvatarOpacity: boolean;
     const target = untrack(() => {
       const target = props.target?.();
-      if(!target) {
+      if (!target) {
         return;
       }
 
       const overflowElement = findUpClassName(target, 'scrollable');
-      if(!overflowElement) {
+      if (!overflowElement) {
         return target;
       }
 
       const visibleRect = getVisibleRect(target as HTMLElement, overflowElement);
-      if(!visibleRect) {
-        if(avatarFrom) {
+      if (!visibleRect) {
+        if (avatarFrom) {
           avatarFrom.node.remove();
           avatarFrom = undefined;
         }
@@ -3174,7 +3174,7 @@ export default function StoriesViewer(props: {
         return;
       }
 
-      if(avatarFrom && (visibleRect.overflow.horizontal || visibleRect.overflow.vertical)) {
+      if (avatarFrom && (visibleRect.overflow.horizontal || visibleRect.overflow.vertical)) {
         needAvatarOpacity = true;
       }
 
@@ -3186,7 +3186,7 @@ export default function StoriesViewer(props: {
 
     // ! manually reverse the keyframes because Safari treats `direction: reverse` with lags
     const makeKeyframes = (keyframes: Keyframe[]) => {
-      if(!forwards) {
+      if (!forwards) {
         keyframes.reverse();
       }
 
@@ -3195,13 +3195,13 @@ export default function StoriesViewer(props: {
 
     const options: KeyframeAnimationOptions = {
       duration: 250,
-      easing: 'cubic-bezier(0.4, 0.0, 0.6, 1)'
+      easing: 'cubic-bezier(0.4, 0.0, 0.6, 1)',
       // direction: forwards ? 'normal' : 'reverse'
     };
 
     // * animate avatar movement
     let avatarAnimation: Animation, avatar: HTMLElement;
-    if(avatarFrom) {
+    if (avatarFrom) {
       avatar = container.querySelector<HTMLElement>(`.${styles.ViewerStoryHeaderAvatar}`)!;
       avatar.style.visibility = 'hidden';
       // const rectFrom = props.target.querySelector('.avatar').getBoundingClientRect();
@@ -3209,19 +3209,19 @@ export default function StoriesViewer(props: {
       avatarFrom.node.style.top = `${rectFrom!.top}px`;
       avatarFrom.node.style.left = `${rectFrom!.left}px`;
       avatarFrom.node.style.visibility = '';
-      if(!avatarFrom.node.parentElement) {
+      if (!avatarFrom.node.parentElement) {
         document.body.append(avatarFrom.node);
       }
       const translateX = rectTo.left - rectFrom!.left;
       const translateY = rectTo.top - rectFrom!.top;
 
       const keyframes: Keyframe[] = makeKeyframes([{
-        transform: `translate(0, 0) scale(${rectFrom!.width / STORY_HEADER_AVATAR_SIZE})`
+        transform: `translate(0, 0) scale(${rectFrom!.width / STORY_HEADER_AVATAR_SIZE})`,
       }, {
-        transform: `translate(${translateX}px, ${translateY}px) scale(1)`
+        transform: `translate(${translateX}px, ${translateY}px) scale(1)`,
       }]);
 
-      if(needAvatarOpacity!) {
+      if (needAvatarOpacity!) {
         keyframes[0].opacity = 0;
         keyframes[1].opacity = 1;
       }
@@ -3233,7 +3233,7 @@ export default function StoriesViewer(props: {
       // container.style.overflow = overflow ? 'visible' : '';
     };
 
-    if(!forwards) {
+    if (!forwards) {
       setOverflow(false);
     }
 
@@ -3243,13 +3243,13 @@ export default function StoriesViewer(props: {
     const containerAnimation = rectFrom && container.animate(makeKeyframes([{
       borderRadius,
       transform: `translate3d(${translateX}px, ${translateY}px, 0) scale3d(${rectFrom.width / rectTo.width}, ${rectFrom.height / rectTo.height}, 1)`,
-      opacity: 0
+      opacity: 0,
     }, {
       opacity: 1,
-      offset: 0.3
+      offset: 0.3,
     }, {
       borderRadius: '0%',
-      transform: `translate3d(0, 0, 0) scale3d(1, 1, 1)`
+      transform: `translate3d(0, 0, 0) scale3d(1, 1, 1)`,
     }]), options);
 
     // * animate simple opacity
@@ -3257,7 +3257,7 @@ export default function StoriesViewer(props: {
       [backgroundDiv!, !isFull() && closeButton!].filter(Boolean) as Element[] :
       [container, el]
     ).map((element) => {
-      return element.animate(makeKeyframes([{opacity: 0}, {opacity: 1}]), options);
+      return element.animate(makeKeyframes([{ opacity: 0 }, { opacity: 1 }]), options);
     });
 
     // * animate small containers
@@ -3266,9 +3266,9 @@ export default function StoriesViewer(props: {
     const before = containers.slice(0, activeIndex);
     const after = containers.slice(activeIndex);
     const animateSmallContainers = (containers: Element[], next: boolean) => {
-      if(!rectFrom) {
+      if (!rectFrom) {
         return containers.map((container) => {
-          return container.animate(makeKeyframes([{opacity: 0}, {opacity: 1}]), options);
+          return container.animate(makeKeyframes([{ opacity: 0 }, { opacity: 1 }]), options);
         });
       }
 
@@ -3276,13 +3276,13 @@ export default function StoriesViewer(props: {
         const offsetX = (next ? idx + 1 : (arr.length - idx)) * 60 * (next ? -1 : 1);
         return container.animate(makeKeyframes([{
           transform: `translate3d(calc(var(--translateX) + ${offsetX}px), 0, 0) scale3d(${STORY_SCALE_SMALL / 2}, ${STORY_SCALE_SMALL / 2}, 1)`,
-          opacity: 0.001 // fix lag with fractal opacity so element should be prepared for animation
+          opacity: 0.001, // fix lag with fractal opacity so element should be prepared for animation
         }, {
           opacity: 0.001,
-          offset: 0.5
+          offset: 0.5,
         }, {
           transform: `translate3d(var(--translateX), 0, 0) scale3d(${STORY_SCALE_SMALL}, ${STORY_SCALE_SMALL}, 1)`,
-          opacity: 1
+          opacity: 1,
         }]), options);
       })
     };
@@ -3292,17 +3292,17 @@ export default function StoriesViewer(props: {
       containerAnimation,
       avatarAnimation!,
       ...animateSmallContainers(before, false),
-      ...animateSmallContainers(after, true)
+      ...animateSmallContainers(after, true),
     ];
 
     const promises = animations.map((animation) => animation?.finished);
     return Promise.all(promises).then(() => {
-      if(avatarFrom) {
+      if (avatarFrom) {
         avatarFrom.node.remove();
         avatar.style.visibility = '';
       }
 
-      if(forwards) {
+      if (forwards) {
         setOverflow(true);
       }
 
@@ -3316,7 +3316,7 @@ export default function StoriesViewer(props: {
     overlayCounter.isDarkOverlayActive = active;
     animationIntersector.checkAnimations2(active);
 
-    if(active) {
+    if (active) {
       overlaysActive = overlayCounter.overlaysActive;
     }
   };
@@ -3324,7 +3324,7 @@ export default function StoriesViewer(props: {
   const listenerSetter = createListenerSetter();
   let wasPlayingBeforeIdle: boolean;
   listenerSetter.add(idleController)('change', (idle) => {
-    if(idle) {
+    if (idle) {
       wasPlayingBeforeIdle = !stories.paused;
       actions.pause();
       x.open();
@@ -3335,13 +3335,13 @@ export default function StoriesViewer(props: {
       clearTimeout(timeout);
     };
 
-    document.body.addEventListener('mousedown', onMouseDown, {once: true});
+    document.body.addEventListener('mousedown', onMouseDown, { once: true });
     const timeout = setTimeout(() => {
       document.body.removeEventListener('mousedown', onMouseDown);
       x.close();
     }, 100);
 
-    if(wasPlayingBeforeIdle) {
+    if (wasPlayingBeforeIdle) {
       actions.play();
     }
   });
@@ -3349,10 +3349,10 @@ export default function StoriesViewer(props: {
   let wasPlayingBeforeOverlay: boolean;
   listenerSetter.add(overlayCounter)('change', () => {
     const active = overlayCounter.overlaysActive;
-    if(active > overlaysActive) {
+    if (active > overlaysActive) {
       wasPlayingBeforeOverlay = !stories.paused;
       actions.pause();
-    } else if(active === overlaysActive && wasPlayingBeforeOverlay) {
+    } else if (active === overlaysActive && wasPlayingBeforeOverlay) {
       actions.play();
     }
   });
@@ -3415,7 +3415,7 @@ export const createStoriesViewerWithProvider = (
 export const createStoriesViewer = (
   props: Parameters<typeof StoriesViewer>[0] & Parameters<typeof StoriesProvider>[0]
 ): JSX.Element => {
-  if(props.peers && !props.onExit) {
+  if (props.peers && !props.onExit) {
     return createRoot((dispose) => {
       props.onExit = () => dispose();
       return (
@@ -3446,9 +3446,9 @@ export const createStoriesViewerWithStory = (
       peerId: props.peerId,
       stories: [props.storyItem],
       index: 0,
-      count: 1
+      count: 1,
     }],
-    index: 0
+    index: 0,
   });
 };
 
@@ -3461,10 +3461,10 @@ export const createStoriesViewerWithPeer = async(
   const [, rest] = splitProps(props, ['peerId', 'id']);
   const peerStories = await rootScope.managers.appStoriesManager.getPeerStories(props.peerId);
   const storyIndex = props.id ? peerStories.stories.findIndex((story) => story.id === props.id) : undefined;
-  if(props.id) {
+  if (props.id) {
     const storyItem = await rootScope.managers.appStoriesManager.getStoryById(props.peerId, props.id);
-    if(!storyItem) {
-      toastNew({langPackKey: 'Story.ExpiredToast'});
+    if (!storyItem) {
+      toastNew({ langPackKey: 'Story.ExpiredToast' });
       return;
     }
     // if(storyItem) { // own story can be missed in PeerStories
@@ -3475,7 +3475,7 @@ export const createStoriesViewerWithPeer = async(
       ...rest,
       peerId: props.peerId,
       storyItem,
-      singleStory: true
+      singleStory: true,
     });
     return;
   }
@@ -3487,9 +3487,9 @@ export const createStoriesViewerWithPeer = async(
       stories: peerStories.stories,
       maxReadId: peerStories.max_read_id,
       index: storyIndex,
-      count: peerStories.stories.length
+      count: peerStories.stories.length,
     }],
-    index: 0
+    index: 0,
   });
 };
 

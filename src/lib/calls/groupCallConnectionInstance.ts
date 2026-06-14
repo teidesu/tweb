@@ -1,21 +1,21 @@
 import forEachReverse from '@helpers/array/forEachReverse';
 import throttle from '@helpers/schedulers/throttle';
-import {GroupCallConnectionType, GroupCallId, JoinGroupCallJsonPayload} from '@appManagers/appGroupCallsManager';
-import {AppManagers} from '@lib/managers';
+import { GroupCallConnectionType, GroupCallId, JoinGroupCallJsonPayload } from '@appManagers/appGroupCallsManager';
+import { AppManagers } from '@lib/managers';
 import rootScope from '@lib/rootScope';
-import CallConnectionInstanceBase, {CallConnectionInstanceOptions} from '@lib/calls/callConnectionInstanceBase';
+import CallConnectionInstanceBase, { CallConnectionInstanceOptions } from '@lib/calls/callConnectionInstanceBase';
 import GroupCallInstance from '@lib/calls/groupCallInstance';
 import filterServerCodecs from '@lib/calls/helpers/filterServerCodecs';
 import fixLocalOffer from '@lib/calls/helpers/fixLocalOffer';
 import processMediaSection from '@lib/calls/helpers/processMediaSection';
 import senderKind from '@lib/calls/helpers/senderKind';
-import {E2E_MAIN_CHANNEL_ID, E2E_SCREENCAST_CHANNEL_ID} from '@lib/calls/constants';
-import {ConferenceEntry} from '@lib/calls/localConferenceDescription';
+import { E2E_MAIN_CHANNEL_ID, E2E_SCREENCAST_CHANNEL_ID } from '@lib/calls/constants';
+import { ConferenceEntry } from '@lib/calls/localConferenceDescription';
 import SDP from '@lib/calls/sdp';
 import SDPMediaSection from '@lib/calls/sdp/mediaSection';
-import {WebRTCLineType} from '@lib/calls/sdpBuilder';
-import {UpdateGroupCallConnectionData} from '@lib/calls/types';
-import {GroupCallParticipantVideoSourceGroup, InputGroupCall} from '@layer';
+import { WebRTCLineType } from '@lib/calls/sdpBuilder';
+import { UpdateGroupCallConnectionData } from '@lib/calls/types';
+import { GroupCallParticipantVideoSourceGroup, InputGroupCall } from '@layer';
 
 export default class GroupCallConnectionInstance extends CallConnectionInstanceBase {
   private groupCall: GroupCallInstance;
@@ -70,14 +70,14 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
       iceTransportPolicy: 'all',
       bundlePolicy: 'max-bundle',
       rtcpMuxPolicy: 'require',
-      iceCandidatePoolSize: 0
+      iceCandidatePoolSize: 0,
       // sdpSemantics: "unified-plan",
       // extmapAllowMixed: true,
     });
   }
 
   public createDataChannel() {
-    if(this.dataChannel) {
+    if (this.dataChannel) {
       return this.dataChannel;
     }
 
@@ -88,7 +88,7 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
     });
 
     dataChannel.addEventListener('close', () => {
-      if(this.updateConstraintsInterval) {
+      if (this.updateConstraintsInterval) {
         clearInterval(this.updateConstraintsInterval);
         this.updateConstraintsInterval = undefined;
       }
@@ -98,7 +98,7 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
   }
 
   public createDescription() {
-    if(this.description) {
+    if (this.description) {
       return this.description;
     }
 
@@ -129,7 +129,7 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
   }
 
   private async invokeJoinGroupCall(localSdp: SDP, mainChannels: SDPMediaSection[], options: GroupCallConnectionInstance['options']) {
-    const {groupCall, description} = this;
+    const { groupCall, description } = this;
     const groupCallId = groupCall.id;
 
     // DTLS role (client = passive, SFU = active) is the same for legacy and
@@ -144,18 +144,18 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
 
     const audioChannel = processedChannels.find((channel) => channel.media.mediaType === 'audio');
     const videoChannel = processedChannels.find((channel) => channel.media.mediaType === 'video');
-    let {source, params} = audioChannel || {};
+    let { source, params } = audioChannel || {};
     const useChannel = videoChannel || audioChannel;
 
     const channels: {[type in WebRTCLineType]?: typeof audioChannel} = {
       audio: audioChannel,
-      video: videoChannel
+      video: videoChannel,
     };
 
     description.entries.forEach((entry) => {
-      if(entry.direction === 'sendonly') {
+      if (entry.direction === 'sendonly') {
         const channel = channels[entry.type];
-        if(!channel) return;
+        if (!channel) return;
 
         description.setEntrySource(entry, (channel.sourceGroups || channel.source) as number | GroupCallParticipantVideoSourceGroup[]);
         description.setEntryPeerId(entry, rootScope.myId);
@@ -163,14 +163,14 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
     });
 
     // overwrite ssrc with audio in video params
-    if(params !== useChannel!.params) {
+    if (params !== useChannel!.params) {
       const data: JoinGroupCallJsonPayload = JSON.parse(useChannel!.params.data);
       // data.ssrc = source || data.ssrc - 1; // audio channel can be missed in screensharing
-      if(source) data.ssrc = source;
+      if (source) data.ssrc = source;
       else delete data.ssrc;
       params = {
         _: 'dataJSON',
-        data: JSON.stringify(data)
+        data: JSON.stringify(data),
       };
     }
 
@@ -190,23 +190,23 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
     // the closure so the retry loop can still invoke it locally.
     const rebuildBlock = options.type === 'main' ? options.e2eRebuildBlock : undefined;
     const stripCallback = (o: typeof options): typeof options =>
-      o.type === 'main' ? {...o, e2eRebuildBlock: undefined} : o;
+      o.type === 'main' ? { ...o, e2eRebuildBlock: undefined } : o;
     const maxRetries = 5;
     let update: Awaited<ReturnType<NonNullable<typeof this.managers.appGroupCallsManager>['joinGroupCall']>>;
     let activeOptions = options;
-    for(let attempt = 0; ; attempt++) {
+    for (let attempt = 0; ; attempt++) {
       try {
         update = await this.managers.appGroupCallsManager.joinGroupCall(groupCallId, params, stripCallback(activeOptions));
         break;
-      } catch(err) {
+      } catch (err) {
         const msg = (err as {type?: string} | Error & {type?: string})?.type ??
           (err instanceof Error ? err.message : String(err));
         const isChainRace = typeof msg === 'string' && msg.startsWith('CONF_WRITE_CHAIN_INVALID');
-        if(!isChainRace || attempt >= maxRetries - 1) throw err;
-        if(!rebuildBlock) throw err;
+        if (!isChainRace || attempt >= maxRetries - 1) throw err;
+        if (!rebuildBlock) throw err;
         const newBlock = await rebuildBlock();
         // Build a fresh options bag with the new block — keep WebRTC state.
-        activeOptions = {...activeOptions, e2eBlock: newBlock} as typeof activeOptions;
+        activeOptions = { ...activeOptions, e2eBlock: newBlock } as typeof activeOptions;
       }
     }
 
@@ -215,7 +215,7 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
     // joinGroupCall stitches them onto `update`. Promote them onto the
     // instance so downstream code (polling, hangUp, leave) works.
     const extras = update as typeof update & {resolvedCallId?: GroupCallId};
-    if(extras.resolvedCallId != null && extras.resolvedCallId !== this.groupCall.id) {
+    if (extras.resolvedCallId != null && extras.resolvedCallId !== this.groupCall.id) {
       this.groupCall.id = extras.resolvedCallId;
     }
 
@@ -229,21 +229,21 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
   }
 
   protected async negotiateInternal() {
-    const {connection, description} = this;
+    const { connection, description } = this;
     const isNewConnection = connection.iceConnectionState === 'new' && !description.getEntryByMid('0')!.source;
     const log = this.log.bindPrefix('startNegotiation');
     log('start');
 
-    const originalOffer = await connection.createOffer({iceRestart: false});
+    const originalOffer = await connection.createOffer({ iceRestart: false });
 
-    if(isNewConnection && this.dataChannel) {
+    if (isNewConnection && this.dataChannel) {
       const dataChannelEntry = description.createEntry('application');
       dataChannelEntry.setDirection('sendrecv');
     }
 
-    const {sdp: localSdp, offer} = fixLocalOffer({
+    const { sdp: localSdp, offer } = fixLocalOffer({
       offer: originalOffer,
-      data: description
+      data: description,
     });
 
     log('[sdp] setLocalDescription', offer.sdp);
@@ -253,10 +253,10 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
       return media.mediaType !== 'application' && media.isSending;
     });
 
-    if(isNewConnection) {
+    if (isNewConnection) {
       try {
         await this.invokeJoinGroupCall(localSdp, mainChannels, this.options);
-      } catch(e) {
+      } catch (e) {
         this.log.error('[tdweb] joinGroupCall error', e);
       }
     }
@@ -289,7 +289,7 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
       // pre-added recvonly transceivers for receive-side e2e transform
       // attachment). Leave such mids in the bundle as-is; Chrome's
       // generated SDP for them is already valid.
-      if(entry && entry.shouldBeSkipped(isAnswer)) {
+      if (entry && entry.shouldBeSkipped(isAnswer)) {
         arr!.splice(idx!, 1);
         entriesToDelete.push(entry);
       }
@@ -307,7 +307,7 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
     const entries = localSdp.media.map((section) => {
       const mid = section.mid;
       let entry = description.getEntryByMid(mid!);
-      if(!entry) {
+      if (!entry) {
         entry = new ConferenceEntry(mid!, section.mediaType);
         entry.setDirection('inactive');
       }
@@ -320,8 +320,8 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
       sdp: description.generateSdp({
         bundle,
         entries,
-        isAnswer
-      })
+        isAnswer,
+      }),
     };
 
     entriesToDelete.forEach((entry) => {
@@ -336,7 +336,7 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
 
   public negotiate() {
     let promise = this.negotiating;
-    if(promise) {
+    if (promise) {
       return promise;
     }
 
@@ -349,20 +349,20 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
     // in groupCallsController.joinConferenceCommon; receivers get them in
     // the `track` event handler, also before the first frame.
 
-    if(this.updateConstraints) {
+    if (this.updateConstraints) {
       promise.then(() => {
         this.maybeUpdateRemoteVideoConstraints();
         this.updateConstraints = false;
       });
     }
 
-    if(this.options.type === 'presentation') {
+    if (this.options.type === 'presentation') {
       promise.then(() => {
         this.connection.getTransceivers().find((transceiver) => {
-          if(transceiver.sender?.track?.kind === 'video') {
+          if (transceiver.sender?.track?.kind === 'video') {
             transceiver.sender.setParameters({
               ...transceiver.sender.getParameters(),
-              degradationPreference: 'maintain-resolution'
+              degradationPreference: 'maintain-resolution',
             });
           }
         });
@@ -373,7 +373,7 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
   }
 
   public maybeUpdateRemoteVideoConstraints() {
-    if(this.dataChannel.readyState !== 'open') {
+    if (this.dataChannel.readyState !== 'open') {
       return;
     }
 
@@ -389,31 +389,31 @@ export default class GroupCallConnectionInstance extends CallConnectionInstanceB
     } = {
       colibriClass: 'ReceiverVideoConstraints',
       constraints: {},
-      defaultConstraints: {maxHeight: 0},
-      onStageEndpoints: []
+      defaultConstraints: { maxHeight: 0 },
+      onStageEndpoints: [],
     };
 
-    for(const entry of this.description.entries) {
-      if(entry.direction !== 'recvonly' || entry.type !== 'video') {
+    for (const entry of this.description.entries) {
+      if (entry.direction !== 'recvonly' || entry.type !== 'video') {
         continue;
       }
 
-      const {endpoint} = entry;
+      const { endpoint } = entry;
       obj.onStageEndpoints.push(endpoint);
       obj.constraints[endpoint] = {
         minHeight: 180,
-        maxHeight: 720
+        maxHeight: 720,
       };
     }
 
     this.sendDataChannelData(obj);
 
-    if(!obj.onStageEndpoints.length) {
-      if(this.updateConstraintsInterval) {
+    if (!obj.onStageEndpoints.length) {
+      if (this.updateConstraintsInterval) {
         clearInterval(this.updateConstraintsInterval);
         this.updateConstraintsInterval = undefined;
       }
-    } else if(!this.updateConstraintsInterval) {
+    } else if (!this.updateConstraintsInterval) {
       this.updateConstraintsInterval = window.setInterval(this.maybeUpdateRemoteVideoConstraints.bind(this), 5000);
     }
   }

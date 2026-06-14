@@ -1,5 +1,5 @@
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
-import {dispatchHeavyAnimationEvent} from '@hooks/useHeavyAnimationCheck';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
+import { dispatchHeavyAnimationEvent } from '@hooks/useHeavyAnimationCheck';
 import nthChild from '@helpers/dom/nthChild';
 import whichChild from '@helpers/dom/whichChild';
 import cancelEvent from '@helpers/dom/cancelEvent';
@@ -10,7 +10,7 @@ import I18n from '@lib/langPack';
 const USE_3D = true;
 
 function makeTranslate(x: number, y: number) {
-  if(I18n.getIsRTL()) {
+  if (I18n.getIsRTL()) {
     x = -x;
   }
 
@@ -25,7 +25,7 @@ const slideNavigation = makeTransitionFunction({
   callback: (tabContent, prevTabContent, toRight) => {
     const width = prevTabContent.getBoundingClientRect().width;
     const elements = [tabContent, prevTabContent];
-    if(toRight) elements.reverse();
+    if (toRight) elements.reverse();
     elements[0].style.filter = `brightness(80%)`;
     elements[0].style.transform = makeTranslate(-width * .25, 0);
     elements[1].style.transform = makeTranslate(width, 0);
@@ -40,7 +40,7 @@ const slideNavigation = makeTransitionFunction({
       prevTabContent.style.transform = prevTabContent.style.filter = '';
     };
   },
-  animateFirst: false
+  animateFirst: false,
 });
 
 const slideTabs = makeTransitionFunction({
@@ -62,7 +62,7 @@ const slideTabs = makeTransitionFunction({
       tabContent.classList.add('active'); */
     // void tabContent.offsetWidth; // reflow
     const elements = [tabContent, prevTabContent];
-    if(toRight) elements.reverse();
+    if (toRight) elements.reverse();
     elements[0].style.transform = makeTranslate(-width, 0);
     elements[1].style.transform = makeTranslate(width, 0);
     tabContent.classList.add('active');
@@ -92,7 +92,7 @@ const slideTabs = makeTransitionFunction({
       // }
     };
   },
-  animateFirst: false
+  animateFirst: false,
 });
 
 const slidePremium = makeTransitionFunction({
@@ -100,7 +100,7 @@ const slidePremium = makeTransitionFunction({
     const width = prevTabContent.getBoundingClientRect().width;
     const elements = [tabContent, prevTabContent];
     const classes = ['slide-right', 'slide-left'];
-    if(toRight) {
+    if (toRight) {
       elements.reverse();
       classes.reverse();
     }
@@ -119,7 +119,7 @@ const slidePremium = makeTransitionFunction({
       prevTabContent.classList.remove(classes[1]);
     };
   },
-  animateFirst: false
+  animateFirst: false,
 });
 
 // const slideTopics = makeTransitionFunction({
@@ -142,7 +142,7 @@ const slidePremium = makeTransitionFunction({
 const transitions: {[type in TransitionSliderType]?: TransitionFunction} = {
   navigation: slideNavigation,
   premiumTabs: slidePremium,
-  tabs: slideTabs
+  tabs: slideTabs,
   // topics: slideTopics
 };
 
@@ -179,14 +179,14 @@ const TransitionSlider = (options: TransitionSliderOptions) => {
     once = false,
     withAnimationListener = true,
     listenerSetter,
-    animateFirst = false
+    animateFirst = false,
   } = options;
   const type = t;
 
-  const {callback: animationFunction, animateFirst: _animateFirst} = transitions[type] || {};
+  const { callback: animationFunction, animateFirst: _animateFirst } = transitions[type] || {};
   content.dataset.animation = type;
 
-  if(_animateFirst !== undefined) {
+  if (_animateFirst !== undefined) {
     animateFirst = _animateFirst;
   }
 
@@ -195,13 +195,13 @@ const TransitionSlider = (options: TransitionSliderOptions) => {
   // let animationStarted = 0;
   let from: HTMLElement | null = null;
 
-  if(withAnimationListener) {
+  if (withAnimationListener) {
     const listenerName = animationFunction ? 'transitionend' : 'animationend';
 
     const onEndEvent = (e: TransitionEvent | AnimationEvent) => {
       cancelEvent(e);
 
-      if((e.target as HTMLElement).parentElement !== content) {
+      if ((e.target as HTMLElement).parentElement !== content) {
         return;
       }
 
@@ -210,13 +210,13 @@ const TransitionSlider = (options: TransitionSliderOptions) => {
       const callback = onTransitionEndCallbacks.get(e.target as HTMLElement);
       callback?.();
 
-      if(e.target !== from) {
+      if (e.target !== from) {
         return;
       }
 
-      if(!animationDeferred && isHeavy) return;
+      if (!animationDeferred && isHeavy) return;
 
-      if(animationDeferred) {
+      if (animationDeferred) {
         animationDeferred.resolve();
         animationDeferred = undefined;
       }
@@ -225,8 +225,8 @@ const TransitionSlider = (options: TransitionSliderOptions) => {
 
       content.classList.remove('animating', 'backwards', 'disable-hover');
 
-      if(once) {
-        if(listenerSetter) listenerSetter.removeManual(content, listenerName, onEndEvent);
+      if (once) {
+        if (listenerSetter) listenerSetter.removeManual(content, listenerName, onEndEvent);
         else content.removeEventListener(listenerName, onEndEvent/* , {capture: false} */);
         from = (animationDeferred = undefined)!;
         onTransitionEndCallbacks.clear();
@@ -234,21 +234,21 @@ const TransitionSlider = (options: TransitionSliderOptions) => {
     };
 
     // TODO: check for transition type (transform, etc) using by animationFunction
-    if(listenerSetter) listenerSetter.add(content)(listenerName, onEndEvent);
+    if (listenerSetter) listenerSetter.add(content)(listenerName, onEndEvent);
     else content.addEventListener(listenerName, onEndEvent/* , {passive: true, capture: false} */);
   }
 
   function selectTab(id: number | HTMLElement, animate = true, overrideFrom?: typeof from) {
-    if(overrideFrom) {
+    if (overrideFrom) {
       from = overrideFrom;
     }
 
-    if(id instanceof HTMLElement) {
+    if (id instanceof HTMLElement) {
       id = whichChild(id);
     }
 
     const prevId = selectTab.prevId();
-    if(id === prevId) return false;
+    if (id === prevId) return false;
 
     onTransitionStart?.(id);
 
@@ -256,27 +256,27 @@ const TransitionSlider = (options: TransitionSliderOptions) => {
 
     const to = nthChild(content, id) as HTMLElement;
 
-    if(!liteMode.isAvailable('animations') || (prevId === -1 && !animateFirst)) {
+    if (!liteMode.isAvailable('animations') || (prevId === -1 && !animateFirst)) {
       animate = false;
     }
 
-    if(!withAnimationListener) {
+    if (!withAnimationListener) {
       const timeout = content.dataset.timeout;
-      if(timeout !== undefined) {
+      if (timeout !== undefined) {
         clearTimeout(+timeout);
       }
 
       delete content.dataset.timeout;
     }
 
-    if(!animate) {
-      if(from) from.classList.remove('active', 'to', 'from');
-      else if(to) { // fix instant opening back from closed slider (e.g. instant closening and opening right sidebar)
+    if (!animate) {
+      if (from) from.classList.remove('active', 'to', 'from');
+      else if (to) { // fix instant opening back from closed slider (e.g. instant closening and opening right sidebar)
         const callback = onTransitionEndCallbacks.get(to);
         callback?.();
       }
 
-      if(to) {
+      if (to) {
         to.classList.remove('to', 'from');
         to.classList.add('active');
       }
@@ -289,7 +289,7 @@ const TransitionSlider = (options: TransitionSliderOptions) => {
       return;
     }
 
-    if(!withAnimationListener) {
+    if (!withAnimationListener) {
       content.dataset.timeout = '' + window.setTimeout(() => {
         to.classList.remove('to');
         from && from.classList.remove('from');
@@ -298,7 +298,7 @@ const TransitionSlider = (options: TransitionSliderOptions) => {
       }, transitionTime);
     }
 
-    if(from) {
+    if (from) {
       from.classList.remove('to');
       from.classList.add('from');
     }
@@ -308,10 +308,10 @@ const TransitionSlider = (options: TransitionSliderOptions) => {
     content.classList.toggle('backwards', !toRight);
 
     let onTransitionEndCallback: ReturnType<TransitionFunction['callback']>;
-    if(!to) {
+    if (!to) {
       // prevTabContent.classList.remove('active');
     } else {
-      if(animationFunction) {
+      if (animationFunction) {
         onTransitionEndCallback = animationFunction(to, (from as HTMLElement), toRight);
       } else {
         to.classList.add('active');
@@ -323,9 +323,9 @@ const TransitionSlider = (options: TransitionSliderOptions) => {
       to.classList.add('to');
     }
 
-    if(to) {
+    if (to) {
       const transitionTimeout = to.dataset.transitionTimeout;
-      if(transitionTimeout) {
+      if (transitionTimeout) {
         clearTimeout(+transitionTimeout);
       }
 
@@ -335,7 +335,7 @@ const TransitionSlider = (options: TransitionSliderOptions) => {
       });
     }
 
-    if(from/*  && false */) {
+    if (from/*  && false */) {
       let timeout: number;
       const _from = from;
       const callback = () => {
@@ -347,7 +347,7 @@ const TransitionSlider = (options: TransitionSliderOptions) => {
         onTransitionEndCallbacks.delete(_from);
       };
 
-      if(to) {
+      if (to) {
         timeout = window.setTimeout(callback, transitionTime + 100); // something happened to container
         onTransitionEndCallbacks.set(_from, callback);
       } else {
@@ -360,8 +360,8 @@ const TransitionSlider = (options: TransitionSliderOptions) => {
 
       _from.dataset.transitionTimeout = '' + timeout;
 
-      if(isHeavy) {
-        if(!animationDeferred) {
+      if (isHeavy) {
+        if (!animationDeferred) {
           animationDeferred = deferredPromise<void>();
           // animationStarted = performance.now();
         }

@@ -30,10 +30,10 @@ type ObserveObjectOptions = {
 };
 
 export function wrapObject(obj: any, observing: ObserveMethodsOptions, stateProxy: any) {
-  if(!obj || typeof(obj) !== 'object') return obj;
+  if (!obj || typeof(obj) !== 'object') return obj;
 
   // Не переоборачивать, если уже проксирован
-  if((obj).__wrapped) return obj;
+  if ((obj).__wrapped) return obj;
   const wrappers = new Map<string | symbol, Function>();
 
   const proxy = new Proxy(obj, {
@@ -41,13 +41,13 @@ export function wrapObject(obj: any, observing: ObserveMethodsOptions, stateProx
       const v = Reflect.get(target, prop, receiver);
 
       // только перехватываем вызовы методов из белого списка
-      if(
+      if (
         typeof(v) === 'function' &&
         observing.methods.includes(String(prop))
       ) {
         // мемоизируем обёртку на конкретный метод
         let fn = wrappers.get(prop);
-        if(!fn) {
+        if (!fn) {
           fn = function(...args: any[]) {
             // важно сохранить корректный this
             observing.onCallBefore?.();
@@ -57,7 +57,7 @@ export function wrapObject(obj: any, observing: ObserveMethodsOptions, stateProx
               method: String(prop),
               args,
               result,
-              state: stateProxy
+              state: stateProxy,
             });
             return onCallResult ?? result;
           };
@@ -66,7 +66,7 @@ export function wrapObject(obj: any, observing: ObserveMethodsOptions, stateProx
         return fn;
       }
       return v;
-    }
+    },
   });
 
   // маркер для защиты от двойного проксирования
@@ -74,7 +74,7 @@ export function wrapObject(obj: any, observing: ObserveMethodsOptions, stateProx
     value: true,
     enumerable: false,
     configurable: false,
-    writable: false
+    writable: false,
   });
 
   observing.onWrap?.(proxy);
@@ -84,7 +84,7 @@ export function wrapObject(obj: any, observing: ObserveMethodsOptions, stateProx
 
 export default function createObservedState<T extends object>(
   state: T,
-  {onSet, observe}: ObserveObjectOptions
+  { onSet, observe }: ObserveObjectOptions
 ): T {
   // --- верхний Proxy для state ---
   const stateProxy: any = new Proxy(state as any, {
@@ -92,7 +92,7 @@ export default function createObservedState<T extends object>(
       const value = Reflect.get(target, prop, receiver);
 
       // автоматически отдаём обёрнутый history
-      if(observe![prop as string]) {
+      if (observe![prop as string]) {
         return wrapObject(value, observe![prop as string], stateProxy);
       }
       return value;
@@ -102,7 +102,7 @@ export default function createObservedState<T extends object>(
       const oldValue = (() => {
         try {
           return Reflect.get(target, prop, receiver);
-        } catch(err) {
+        } catch (err) {
           return undefined;
         }
       })();
@@ -113,17 +113,17 @@ export default function createObservedState<T extends object>(
 
       const ok = Reflect.set(target, prop, nextValue, receiver);
 
-      if(ok) {
+      if (ok) {
         // ВАЖНО: не дублируем вашу уже существующую логику внутри setter'ов.
         // Этот onSet — «универсальный хук»: используйте его, если нужна доп. реакция.
-        onSet?.({prop, value: nextValue, oldValue, state: stateProxy});
+        onSet?.({ prop, value: nextValue, oldValue, state: stateProxy });
       }
       return ok;
-    }
+    },
   });
 
   // первичная обёртка history (если нужно сразу)
-  for(const key in observe) {
+  for (const key in observe) {
     observe[key].key = key;
     (state as any)[key] = wrapObject((state as any)[key], observe[key], stateProxy);
   }

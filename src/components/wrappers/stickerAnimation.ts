@@ -1,13 +1,13 @@
-import type {MyDocument} from '@appManagers/appDocsManager';
+import type { MyDocument } from '@appManagers/appDocsManager';
 import IS_VIBRATE_SUPPORTED from '@environment/vibrateSupport';
 import assumeType from '@helpers/assumeType';
 import isInDOM from '@helpers/dom/isInDOM';
 import makeError from '@helpers/makeError';
-import {getMiddleware, Middleware} from '@helpers/middleware';
+import { getMiddleware, Middleware } from '@helpers/middleware';
 import throttleWithRaf from '@helpers/schedulers/throttleWithRaf';
 import windowSize from '@helpers/windowSize';
-import {PhotoSize, VideoSize} from '@layer';
-import {AppManagers} from '@lib/managers';
+import { PhotoSize, VideoSize } from '@layer';
+import { AppManagers } from '@lib/managers';
 import RLottiePlayer from '@lib/rlottie/rlottiePlayer';
 import Scrollable from '@components/scrollable';
 import wrapSticker from '@components/wrappers/sticker';
@@ -35,7 +35,7 @@ export default function wrapStickerAnimation({
   scrollable,
   textColor,
   addOffsetX: _addOffsetX = 0,
-  addOffsetY: _addOffsetY = 0
+  addOffsetY: _addOffsetY = 0,
 }: {
   size: number,
   stickerSize?: number,
@@ -65,7 +65,7 @@ export default function wrapStickerAnimation({
 
   let animation: RLottiePlayer | undefined;
   const unmountAnimation = () => {
-    if(NO_UNMOUNT) {
+    if (NO_UNMOUNT) {
       return;
     }
 
@@ -75,7 +75,7 @@ export default function wrapStickerAnimation({
     a?.remove();
     animationDiv.remove();
     onScroll && scrollable!.container.removeEventListener('scroll', onScroll);
-    if(a) {
+    if (a) {
       onUnmount?.();
     }
   };
@@ -98,32 +98,32 @@ export default function wrapStickerAnimation({
     managers,
     fullThumb,
     isEffect: true,
-    textColor
-  }).then(({render}) => render).then((_animation) => {
+    textColor,
+  }).then(({ render }) => render).then((_animation) => {
     assumeType<RLottiePlayer>(_animation);
-    if(!middleware()) {
+    if (!middleware()) {
       _animation.remove();
       throw makeError('MIDDLEWARE');
     }
 
     animation = _animation;
     animation.addEventListener('enterFrame', (frameNo) => {
-      if((!loopEffect && frameNo === animation!.maxFrame) || !isInDOM(target)) {
+      if ((!loopEffect && frameNo === animation!.maxFrame) || !isInDOM(target)) {
         unmountAnimation();
       }
     });
 
     animation.addEventListener('destroy', unmountAnimation);
 
-    if(IS_VIBRATE_SUPPORTED) {
+    if (IS_VIBRATE_SUPPORTED) {
       animation.addEventListener('firstFrame', () => {
         navigator.vibrate(100);
-      }, {once: true});
+      }, { once: true });
     }
 
     animation.addEventListener('firstFrame', () => {
       setPosition();
-    }, {once: true});
+    }, { once: true });
 
     return animation;
   });
@@ -136,7 +136,7 @@ export default function wrapStickerAnimation({
   const randomOffsetX = withRandomOffset ? generateRandomSigned(16) : 0;
   const randomOffsetY = withRandomOffset ? generateRandomSigned(4) : 0;
   const setPosition = () => {
-    if(!isInDOM(target)) {
+    if (!isInDOM(target)) {
       unmountAnimation();
       return;
     }
@@ -156,13 +156,13 @@ export default function wrapStickerAnimation({
     const x = rectX + addOffsetX;
     const y = rectY + addOffsetY;
 
-    if(y <= -size || y >= windowSize.height) {
+    if (y <= -size || y >= windowSize.height) {
       unmountAnimation();
       return;
     }
 
-    if(relativeEffect) {
-      if(side !== 'center') animationDiv.style[side] = Math.abs(stableOffsetX) * -1 + 'px';
+    if (relativeEffect) {
+      if (side !== 'center') animationDiv.style[side] = Math.abs(stableOffsetX) * -1 + 'px';
       else animationDiv.style.left = addOffsetX + 'px';
       animationDiv.style.top = addOffsetY + 'px';
     } else {
@@ -172,19 +172,19 @@ export default function wrapStickerAnimation({
   };
 
   let onScroll: () => void;
-  if(scrollable) {
+  if (scrollable) {
     onScroll = throttleWithRaf(setPosition);
     scrollable.container.addEventListener('scroll', onScroll);
   }
 
   // setPosition();
 
-  if(relativeEffect) {
+  if (relativeEffect) {
     animationDiv.classList.add('is-relative');
     target.parentElement!.append(animationDiv);
   } else {
     emojiAnimationContainer.append(animationDiv);
   }
 
-  return {animationDiv, stickerPromise};
+  return { animationDiv, stickerPromise };
 }

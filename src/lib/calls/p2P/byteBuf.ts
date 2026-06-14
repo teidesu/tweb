@@ -16,13 +16,13 @@ export default class ByteBuf extends Uint8Array {
 
   static concat(list: Uint8Array[]): ByteBuf {
     let total = 0;
-    for(const item of list) {
+    for (const item of list) {
       total += item.length;
     }
 
     const result = new ByteBuf(total);
     let offset = 0;
-    for(const item of list) {
+    for (const item of list) {
       result.set(item, offset);
       offset += item.length;
     }
@@ -74,12 +74,12 @@ export default class ByteBuf extends Uint8Array {
   }
 
   equals(other: Uint8Array) {
-    if(this.length !== other.length) {
+    if (this.length !== other.length) {
       return false;
     }
 
-    for(let i = 0; i < this.length; ++i) {
-      if(this[i] !== other[i]) {
+    for (let i = 0; i < this.length; ++i) {
+      if (this[i] !== other[i]) {
         return false;
       }
     }

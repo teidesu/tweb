@@ -38,7 +38,7 @@ export async function sha256(data: Uint8Array): Promise<Uint8Array> {
 // ===== HMAC =====
 
 async function hmacImport(key: Uint8Array, hash: 'SHA-256' | 'SHA-512'): Promise<CryptoKey> {
-  return subtle.importKey('raw', key as BufferSource, {name: 'HMAC', hash}, false, ['sign']);
+  return subtle.importKey('raw', key as BufferSource, { name: 'HMAC', hash }, false, ['sign']);
 }
 
 export async function hmacSha256(key: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
@@ -59,7 +59,7 @@ export async function hmacSha512(key: Uint8Array, data: Uint8Array): Promise<Uin
 // Implemented via aes-js because Web Crypto's AES-CBC always uses PKCS7.
 
 export function aesCbcEncrypt(key: Uint8Array, iv: Uint8Array, data: Uint8Array): Uint8Array {
-  if(data.length % 16 !== 0) {
+  if (data.length % 16 !== 0) {
     throw new Error(`AES-CBC plaintext length not 16-aligned: ${data.length}`);
   }
   const cipher = new aesjs.ModeOfOperation.cbc(key, iv);
@@ -67,7 +67,7 @@ export function aesCbcEncrypt(key: Uint8Array, iv: Uint8Array, data: Uint8Array)
 }
 
 export function aesCbcDecrypt(key: Uint8Array, iv: Uint8Array, data: Uint8Array): Uint8Array {
-  if(data.length % 16 !== 0) {
+  if (data.length % 16 !== 0) {
     throw new Error(`AES-CBC ciphertext length not 16-aligned: ${data.length}`);
   }
   const cipher = new aesjs.ModeOfOperation.cbc(key, iv);
@@ -80,9 +80,9 @@ export function aesCbcDecrypt(key: Uint8Array, iv: Uint8Array, data: Uint8Array)
 // short-circuit — leaks no timing info about which byte mismatched.
 
 export function constantTimeEqual(a: Uint8Array, b: Uint8Array): boolean {
-  if(a.length !== b.length) return false;
+  if (a.length !== b.length) return false;
   let diff = 0;
-  for(let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
+  for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
   return diff === 0;
 }
 
@@ -94,9 +94,9 @@ export function ed25519KeyPairFromSeed(seed: Uint8Array): {
   publicKey: Uint8Array;
   secretKey: Uint8Array;
 } {
-  if(seed.length !== 32) throw new Error(`ed25519 seed must be 32 bytes, got ${seed.length}`);
+  if (seed.length !== 32) throw new Error(`ed25519 seed must be 32 bytes, got ${seed.length}`);
   const kp = sodium.crypto_sign_seed_keypair(seed);
-  return {publicKey: kp.publicKey, secretKey: kp.privateKey};
+  return { publicKey: kp.publicKey, secretKey: kp.privateKey };
 }
 
 export function ed25519GenerateKeyPair(): {publicKey: Uint8Array; secretKey: Uint8Array} {
@@ -115,7 +115,7 @@ export function ed25519Verify(
 ): boolean {
   try {
     return sodium.crypto_sign_verify_detached(signature, message, publicKey);
-  } catch{
+  } catch {
     return false;
   }
 }
@@ -145,7 +145,7 @@ export function x25519Ecdh(curve25519Sk: Uint8Array, curve25519Pk: Uint8Array): 
 export function x25519GenerateKeyPair(): {publicKey: Uint8Array; secretKey: Uint8Array} {
   // crypto_box_keypair returns X25519 keys (libsodium calls them "boxKeys").
   const kp = sodium.crypto_box_keypair();
-  return {publicKey: kp.publicKey, secretKey: kp.privateKey};
+  return { publicKey: kp.publicKey, secretKey: kp.privateKey };
 }
 
 // Compute the X25519 public key from a 32-byte X25519 secret key.
@@ -176,7 +176,7 @@ export function ecdhFromEd25519(
 const SHARED_SECRET_DOMAIN_TAG = (() => {
   const tag = 'tde2e_shared_secret';
   const out = new Uint8Array(tag.length);
-  for(let i = 0; i < tag.length; i++) out[i] = tag.charCodeAt(i);
+  for (let i = 0; i < tag.length; i++) out[i] = tag.charCodeAt(i);
   return out;
 })();
 
@@ -208,10 +208,10 @@ export async function computeSharedSecretWithCurve25519(
 
 export function concatBytes(...parts: Uint8Array[]): Uint8Array {
   let total = 0;
-  for(const p of parts) total += p.length;
+  for (const p of parts) total += p.length;
   const out = new Uint8Array(total);
   let offset = 0;
-  for(const p of parts) {
+  for (const p of parts) {
     out.set(p, offset);
     offset += p.length;
   }
@@ -219,9 +219,9 @@ export function concatBytes(...parts: Uint8Array[]): Uint8Array {
 }
 
 export function hexToBytes(hex: string): Uint8Array {
-  if(hex.length % 2 !== 0) throw new Error('odd-length hex string');
+  if (hex.length % 2 !== 0) throw new Error('odd-length hex string');
   const out = new Uint8Array(hex.length / 2);
-  for(let i = 0; i < out.length; i++) {
+  for (let i = 0; i < out.length; i++) {
     out[i] = parseInt(hex.substr(i * 2, 2), 16);
   }
   return out;
@@ -229,7 +229,7 @@ export function hexToBytes(hex: string): Uint8Array {
 
 export function bytesToHex(bytes: Uint8Array): string {
   let s = '';
-  for(let i = 0; i < bytes.length; i++) s += bytes[i].toString(16).padStart(2, '0');
+  for (let i = 0; i < bytes.length; i++) s += bytes[i].toString(16).padStart(2, '0');
   return s;
 }
 

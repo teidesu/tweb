@@ -1,7 +1,7 @@
 import type LazyLoadQueue from '@components/lazyLoadQueue';
-import {getMiddleware, Middleware, MiddlewareHelper} from '@helpers/middleware';
-import {avatarNew} from '@components/avatarNew';
-import {createEffect, on, onCleanup} from 'solid-js';
+import { getMiddleware, Middleware, MiddlewareHelper } from '@helpers/middleware';
+import { avatarNew } from '@components/avatarNew';
+import { createEffect, on, onCleanup } from 'solid-js';
 
 const CLASS_NAME = 'stacked-avatars';
 const AVATAR_CLASS_NAME = CLASS_NAME + '-avatar';
@@ -36,13 +36,13 @@ export default class StackedAvatars {
   public render(peerIds: PeerId[], loadPromises: Promise<any>[] = []) {
     const children = this.container.children;
     peerIds = peerIds.slice().reverse();
-    if(peerIds.length > 3) {
+    if (peerIds.length > 3) {
       peerIds = peerIds.slice(-3);
     }
 
     peerIds.forEach((peerId, idx) => {
       let avatarContainer = children[idx] as HTMLElement;
-      if(!avatarContainer) {
+      if (!avatarContainer) {
         avatarContainer = document.createElement('div');
         avatarContainer.classList.add(AVATAR_CONTAINER_CLASS_NAME);
         avatarContainer.middlewareHelper = this.middlewareHelper.get().create();
@@ -55,14 +55,14 @@ export default class StackedAvatars {
         size: this.avatarSize,
         isDialog: false,
         lazyLoadQueue: this.lazyLoadQueue,
-        peerId
+        peerId,
       });
       avatarElem.node.classList.add(AVATAR_CLASS_NAME);
       loadPromises?.push(avatarElem.readyThumbPromise);
 
       avatarContainer.replaceChildren(avatarElem.node);
 
-      if(!avatarContainer.parentNode) {
+      if (!avatarContainer.parentNode) {
         this.container.append(avatarContainer);
       }
 
@@ -89,7 +89,7 @@ export function StackedAvatarsTsx(props: {
   const stackedAvatars = new StackedAvatars({
     avatarSize: props.avatarSize,
     lazyLoadQueue: props.lazyLoadQueue,
-    middleware: middleware.get()
+    middleware: middleware.get(),
   });
 
   onCleanup(() => middleware.destroy());

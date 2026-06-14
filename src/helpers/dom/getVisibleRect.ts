@@ -8,18 +8,18 @@ export default function getVisibleRect(
   overflowRect: DOMRectMinified = overflowElement.getBoundingClientRect(),
   ignoreBoundaries?: boolean
 ) {
-  let {top: overflowTop, right: overflowRight, bottom: overflowBottom, left: overflowLeft} = overflowRect;
+  let { top: overflowTop, right: overflowRight, bottom: overflowBottom, left: overflowLeft } = overflowRect;
 
   // * respect sticky headers
-  if(lookForSticky) {
+  if (lookForSticky) {
     const sticky = overflowElement.querySelector('.sticky');
-    if(sticky) {
+    if (sticky) {
       const stickyRect = sticky.getBoundingClientRect();
       overflowTop = stickyRect.bottom;
     }
   }
 
-  if(rect.top >= overflowBottom ||
+  if (rect.top >= overflowBottom ||
     rect.bottom <= overflowTop ||
     rect.right <= overflowLeft ||
     rect.left >= overflowRight) {
@@ -32,7 +32,7 @@ export default function getVisibleRect(
     bottom: false,
     left: false,
     vertical: 0 as 0 | 1 | 2,
-    horizontal: 0 as 0 | 1 | 2
+    horizontal: 0 as 0 | 1 | 2,
   };
 
   const windowWidth = windowSize.width;
@@ -43,9 +43,9 @@ export default function getVisibleRect(
       top: rect.top < overflowTop && (ignoreBoundaries || overflowTop !== 0) ? (overflow.top = true, ++overflow.vertical, overflowTop) : rect.top,
       right: rect.right > overflowRight && (ignoreBoundaries || overflowRight !== windowWidth) ? (overflow.right = true, ++overflow.horizontal, overflowRight) : rect.right,
       bottom: rect.bottom > overflowBottom && (ignoreBoundaries || overflowBottom !== windowHeight) ? (overflow.bottom = true, ++overflow.vertical, overflowBottom) : rect.bottom,
-      left: rect.left < overflowLeft && (ignoreBoundaries || overflowLeft !== 0) ? (overflow.left = true, ++overflow.horizontal, overflowLeft) : rect.left
+      left: rect.left < overflowLeft && (ignoreBoundaries || overflowLeft !== 0) ? (overflow.left = true, ++overflow.horizontal, overflowLeft) : rect.left,
     },
-    overflow
+    overflow,
   };
 }
 

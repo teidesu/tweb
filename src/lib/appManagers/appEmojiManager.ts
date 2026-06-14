@@ -1,16 +1,16 @@
-import type {MyDocument} from '@appManagers/appDocsManager';
+import type { MyDocument } from '@appManagers/appDocsManager';
 import App from '@config/app';
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
 import isObject from '@helpers/object/isObject';
 import validateInitObject from '@helpers/object/validateInitObject';
 import fixEmoji from '@lib/richTextProcessor/fixEmoji';
 import SearchIndex from '@lib/searchIndex';
-import {AppManager} from '@appManagers/manager';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
+import { AppManager } from '@appManagers/manager';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
 import pause from '@helpers/schedulers/pause';
 import filterUnique from '@helpers/array/filterUnique';
 import assumeType from '@helpers/assumeType';
-import {EmojiGroup, EmojiList, MessagesEmojiGroups} from '@layer';
+import { EmojiGroup, EmojiList, MessagesEmojiGroups } from '@layer';
 import flatten from '@helpers/array/flatten';
 
 type EmojiLangPack = {
@@ -24,7 +24,7 @@ type EmojiLangPack = {
 const EMOJI_LANG_PACK: EmojiLangPack = {
   keywords: {},
   version: 0,
-  langCode: App.langPackCode
+  langCode: App.langPackCode,
 };
 
 const RECENT_MAX_LENGTH = 32;
@@ -113,13 +113,13 @@ export class AppEmojiManager extends AppManager {
 
   public getEmojiKeywords(langCode: string = App.langPackCode) {
     const promise = this.getKeywordsPromises[langCode];
-    if(promise) {
+    if (promise) {
       return promise;
     }
 
     const storageKey: any = 'emojiKeywords_' + langCode;
     return this.getKeywordsPromises[langCode] = this.appStateManager.storage.get(storageKey).then((pack: EmojiLangPack) => {
-      if(!isObject(pack)) {
+      if (!isObject(pack)) {
         pack = {} as any;
       }
 
@@ -131,19 +131,19 @@ export class AppEmojiManager extends AppManager {
 
       return this.apiManager.invokeApi('messages.getEmojiKeywordsDifference', {
         lang_code: pack.langCode,
-        from_version: pack.version
+        from_version: pack.version,
       }).then((keywordsDifference) => {
         pack.version = keywordsDifference.version;
 
         const packKeywords = pack.keywords;
         const keywords = keywordsDifference.keywords;
-        for(let i = 0, length = keywords.length; i < length; ++i) {
-          const {keyword, emoticons} = keywords[i];
+        for (let i = 0, length = keywords.length; i < length; ++i) {
+          const { keyword, emoticons } = keywords[i];
           packKeywords[keyword] = emoticons;
         }
 
         this.appStateManager.storage.set({
-          [storageKey]: pack
+          [storageKey]: pack,
         });
 
         return pack;
@@ -155,18 +155,18 @@ export class AppEmojiManager extends AppManager {
 
   public getBothEmojiKeywords() {
     const promises: Promise<any>[] = [
-      this.getEmojiKeywords()
+      this.getEmojiKeywords(),
     ];
 
-    if(this.networkerFactory.language !== App.langPackCode) {
+    if (this.networkerFactory.language !== App.langPackCode) {
       promises.push(this.getEmojiKeywords(this.networkerFactory.language));
     }
 
-    if(!this.recent.native) {
+    if (!this.recent.native) {
       promises.push(this.getRecentEmojis('native'));
     }
 
-    if(this.rootScope.premium) {
+    if (this.rootScope.premium) {
       promises.push(this.appStickersManager.preloadEmojiSets());
     }
 
@@ -174,19 +174,19 @@ export class AppEmojiManager extends AppManager {
   }
 
   private indexEmojis() {
-    if(!this.index) {
-      this.index = new SearchIndex({minChars: 2, fullWords: true});
+    if (!this.index) {
+      this.index = new SearchIndex({ minChars: 2, fullWords: true });
     }
 
-    for(const langCode in this.keywordLangPacks) {
-      if(this.indexedLangPacks[langCode]) {
+    for (const langCode in this.keywordLangPacks) {
+      if (this.indexedLangPacks[langCode]) {
         continue;
       }
 
       const pack = this.keywordLangPacks[langCode];
       const keywords = pack.keywords;
 
-      for(const keyword in keywords) {
+      for (const keyword in keywords) {
         const emoticons = keywords[keyword];
         this.index.indexObject(emoticons, keyword);
       }
@@ -195,7 +195,7 @@ export class AppEmojiManager extends AppManager {
     }
   }
 
-  private searchEmojis({q, limit = 40, minChars = 2, addCustom}: {
+  private searchEmojis({ q, limit = 40, minChars = 2, addCustom }: {
     q: string,
     limit?: number,
     minChars?: number,
@@ -207,7 +207,7 @@ export class AppEmojiManager extends AppManager {
 
     // const perf = performance.now();
     let emojis: Array<string>/* , docIds: Array<DocId> */;
-    if(q.trim()) {
+    if (q.trim()) {
       const set = this.index.search(q, minChars);
       emojis = filterUnique(flatten(Array.from(set)));
       emojis.length = Math.min(40, emojis.length);
@@ -220,18 +220,18 @@ export class AppEmojiManager extends AppManager {
     const foundCustomEmoji: Set<DocId> = new Set();
     const customEmojiIndex = addCustom && this.appStickersManager.getEmojisSearchIndex();
     emojis.forEach((emoji) => {
-      if(/* this.rootScope.premium &&  */customEmojiIndex) {
+      if (/* this.rootScope.premium &&  */customEmojiIndex) {
         const customEmojisResult = customEmojiIndex.search(emoji, minChars);
         const customEmojis = Array.from(customEmojisResult)
-        .filter((docId) => !foundCustomEmoji.has(docId))
-        .map((docId) => {
-          foundCustomEmoji.add(docId);
-          return {docId, emoji};
-        });
+          .filter((docId) => !foundCustomEmoji.has(docId))
+          .map((docId) => {
+            foundCustomEmoji.add(docId);
+            return { docId, emoji };
+          });
         appEmojis.push(...customEmojis);
       }
 
-      appEmojis.push({emoji});
+      appEmojis.push({ emoji });
     });
 
     appEmojis.length = Math.min(limit, appEmojis.length);
@@ -261,7 +261,7 @@ export class AppEmojiManager extends AppManager {
   public async prepareAndSearchEmojis(options: Parameters<AppEmojiManager['searchEmojis']>[0]) {
     await Promise.all([
       this.getBothEmojiKeywords(),
-      this.appStickersManager.preloadEmojiSets()
+      this.appStickersManager.preloadEmojiSets(),
     ]);
 
     return this.searchEmojis(options);
@@ -273,11 +273,11 @@ export class AppEmojiManager extends AppManager {
     const promises = this.getRecentEmojisPromises;
     return promises[type] ??= this.appStateManager.getState().then((state) => {
       let recent: string[] | DocId[] = [];
-      if(type === 'native') {
-        const {recentEmoji} = state;
+      if (type === 'native') {
+        const { recentEmoji } = state;
         recent = Array.isArray(recentEmoji) && recentEmoji.length ? recentEmoji : AppEmojiManager.POPULAR_EMOJI;
       } else {
-        const {recentCustomEmoji} = state;
+        const { recentCustomEmoji } = state;
         recent = Array.isArray(recentCustomEmoji) && recentCustomEmoji.length ? recentCustomEmoji : [];
       }
 
@@ -292,11 +292,11 @@ export class AppEmojiManager extends AppManager {
     this.getRecentEmojis(type).then((recent) => {
       const i = emoji.docId || emoji.emoji;
       indexOfAndSplice(recent, i);
-      if(add) recent.unshift(i);
+      if (add) recent.unshift(i);
       recent.splice(RECENT_MAX_LENGTH, recent.length - RECENT_MAX_LENGTH);
 
       this.appStateManager.pushToState(type === 'custom' ? 'recentCustomEmoji' : 'recentEmoji', recent);
-      this.rootScope.dispatchEvent('emoji_recent', {emoji, deleted: !add});
+      this.rootScope.dispatchEvent('emoji_recent', { emoji, deleted: !add });
     });
   }
 
@@ -309,12 +309,12 @@ export class AppEmojiManager extends AppManager {
   }
 
   public getCustomEmojiDocuments(docIds: DocId[]): Promise<MyDocument[]> {
-    if(!docIds.length) return Promise.resolve([]);
-    return this.apiManager.invokeApi('messages.getCustomEmojiDocuments', {document_id: docIds}).then((documents) => {
+    if (!docIds.length) return Promise.resolve([]);
+    return this.apiManager.invokeApi('messages.getCustomEmojiDocuments', { document_id: docIds }).then((documents) => {
       return documents.map((doc) => {
         return this.appDocsManager.saveDoc(doc, {
           type: 'customEmoji',
-          docId: doc.id
+          docId: doc.id,
         });
       }) as MyDocument[];
     }, () => {
@@ -327,7 +327,7 @@ export class AppEmojiManager extends AppManager {
   }
 
   private setDebouncedGetCustomEmojiDocuments() {
-    if(this.getCustomEmojiDocumentsPromise || !this.getCustomEmojiDocumentPromises.size) {
+    if (this.getCustomEmojiDocumentsPromise || !this.getCustomEmojiDocumentPromises.size) {
       return;
     }
 
@@ -346,7 +346,7 @@ export class AppEmojiManager extends AppManager {
         });
 
         promises.push(promise);
-      } while(allIds.length);
+      } while (allIds.length);
 
       return Promise.all(promises);
     }).finally(() => {
@@ -357,12 +357,12 @@ export class AppEmojiManager extends AppManager {
 
   public getCustomEmojiDocument(id: DocId) {
     let promise = this.getCustomEmojiDocumentPromises.get(id);
-    if(promise) {
+    if (promise) {
       return promise;
     }
 
     const doc = this.appDocsManager.getDoc(id);
-    if(doc) {
+    if (doc) {
       return doc;
     }
 
@@ -380,40 +380,40 @@ export class AppEmojiManager extends AppManager {
 
   public getEmojiGroups(type: EmojiGroupType) {
     const pushPremiumGroup = (groups: EmojiGroup[]) => {
-      if(groups.some((group) => group._ === 'emojiGroupPremium')) {
+      if (groups.some((group) => group._ === 'emojiGroupPremium')) {
         return;
       }
 
       groups.push({
         _: 'emojiGroupPremium',
         title: 'Premium',
-        icon_emoji_id: '5269590556232664327'
+        icon_emoji_id: '5269590556232664327',
       });
     };
 
     return this.emojiGroups[type] ??= this.apiManager.invokeApiSingleProcess({
       method: type === 'esg' || type === 'stickers' ? 'messages.getEmojiGroups' : (type === 'status' ? 'messages.getEmojiStatusGroups' : 'messages.getEmojiProfilePhotoGroups'),
-      params: {hash: 0},
+      params: { hash: 0 },
       processResult: async(messagesEmojiGroups) => {
         assumeType<MessagesEmojiGroups.messagesEmojiGroups>(messagesEmojiGroups);
 
-        if(type === 'esg' || type === 'stickers') {
+        if (type === 'esg' || type === 'stickers') {
           pushPremiumGroup(messagesEmojiGroups.groups);
         }
 
         const documents = await Promise.all(messagesEmojiGroups.groups.map((emojiGroup) => this.getCustomEmojiDocument(emojiGroup.icon_emoji_id)));
         return this.emojiGroups[type] = messagesEmojiGroups.groups.map((group, idx) => {
-          return {group, document: documents[idx]};
+          return { group, document: documents[idx] };
         });
-      }
+      },
     });
   }
 
   public searchCustomEmoji(emoticon: string) {
     return this.apiManager.invokeApiCacheable(
       'messages.searchCustomEmoji',
-      {hash: 0, emoticon},
-      {cacheSeconds: 3600, syncIfHasResult: true}
+      { hash: 0, emoticon },
+      { cacheSeconds: 3600, syncIfHasResult: true }
     ) as MaybePromise<EmojiList.emojiList>;
   }
 }

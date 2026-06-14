@@ -1,32 +1,32 @@
-import {Match, Switch} from 'solid-js';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {Message, MessageAction, StarGift} from '@layer';
+import { Match, Switch } from 'solid-js';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { Message, MessageAction, StarGift } from '@layer';
 
 
-import {MyStarGift} from '@appManagers/appGiftsManager';
-import {i18n} from '@lib/langPack';
+import { MyStarGift } from '@appManagers/appGiftsManager';
+import { i18n } from '@lib/langPack';
 import tsNow from '@helpers/tsNow';
-import {wrapFormattedDuration} from '@components/wrappers/wrapDuration';
-import formatDuration, {DurationType} from '@helpers/formatDuration';
-import {createCurrentTime} from '@helpers/solid/createCurrentTime';
+import { wrapFormattedDuration } from '@components/wrappers/wrapDuration';
+import formatDuration, { DurationType } from '@helpers/formatDuration';
+import { createCurrentTime } from '@helpers/solid/createCurrentTime';
 
 import styles from '@components/chat/bubbles/starGiftOffer.module.scss';
-import {MyDocument} from '@appManagers/appDocsManager';
-import {StarGiftBackdrop} from '@components/stargifts/stargiftBackdrop';
-import {StickerTsx} from '@components/wrappers/sticker';
+import { MyDocument } from '@appManagers/appDocsManager';
+import { StarGiftBackdrop } from '@components/stargifts/stargiftBackdrop';
+import { StickerTsx } from '@components/wrappers/sticker';
 import Icon from '@components/icon';
 import ReplyMarkupLayout from '@components/chat/bubbleParts/replyMarkupLayout';
 import Chat from '@components/chat/chat';
 import confirmationPopup from '@components/confirmationPopup';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
 import rootScope from '@lib/rootScope';
-import {transferStarGiftConfirmationPopup} from '@components/popups/transferStarGift';
+import { transferStarGiftConfirmationPopup } from '@components/popups/transferStarGift';
 import PopupElement from '../../popups';
 import PopupStarGiftInfo from '../../popups/starGiftInfo';
 
 function wrapExpiresIn(duration: number) {
   const formatted = formatDuration(duration, 2);
-  if(formatted[0].type <= DurationType.Minutes) {
+  if (formatted[0].type <= DurationType.Minutes) {
     formatted.splice(1, Infinity);
   }
   return wrapFormattedDuration(formatted);
@@ -41,7 +41,7 @@ export function StarGiftOfferBubble(props: {
 }) {
   const now = createCurrentTime({
     fn: () => tsNow(true),
-    updateWrapper: props.modifyBubble
+    updateWrapper: props.modifyBubble,
   });
   const expired = () => props.action.expires_at < now();
 
@@ -49,7 +49,7 @@ export function StarGiftOfferBubble(props: {
     <div
       class={/* @once */ styles.wrap}
       onClick={() => {
-        PopupElement.createPopup(PopupStarGiftInfo, {gift: props.gift})
+        PopupElement.createPopup(PopupStarGiftInfo, { gift: props.gift })
       }}
     >
       <div class={/* @once */ styles.giftWrap}>
@@ -64,7 +64,7 @@ export function StarGiftOfferBubble(props: {
           width={48}
           height={48}
           autoStyle
-          extraOptions={{play: true}}
+          extraOptions={{ play: true }}
         />
       </div>
 
@@ -107,11 +107,11 @@ export function StarGiftOfferReplyMarkup(props: {
     await confirmationPopup({
       titleLangKey: 'StarGiftOffer.RejectOfferTitle',
       descriptionLangKey: 'StarGiftOffer.RejectOfferText',
-      descriptionLangArgs: [await wrapPeerTitle({peerId: props.message.peerId})],
+      descriptionLangArgs: [await wrapPeerTitle({ peerId: props.message.peerId })],
       button: {
         langKey: 'StarGiftOffer.Reject',
-        isDanger: true
-      }
+        isDanger: true,
+      },
     });
 
     await rootScope.managers.appGiftsManager.resolveGiftOffer(props.message.id, 'reject');
@@ -123,7 +123,7 @@ export function StarGiftOfferReplyMarkup(props: {
       fromOffer: props.message.action as MessageAction.messageActionStarGiftPurchaseOffer,
       handleSubmit: async() => {
         await rootScope.managers.appGiftsManager.resolveGiftOffer(props.message.id, 'accept');
-      }
+      },
     });
   };
 

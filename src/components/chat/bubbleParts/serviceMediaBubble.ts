@@ -1,9 +1,9 @@
-import {Photo, PhotoSize} from '@layer';
-import {avatarNew, wrapPhotoToAvatar} from '@components/avatarNew';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { Photo, PhotoSize } from '@layer';
+import { avatarNew, wrapPhotoToAvatar } from '@components/avatarNew';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import Button from '@components/button';
-import {LangPackKey} from '@lib/langPack';
-import {Middleware} from '@helpers/middleware';
+import { LangPackKey } from '@lib/langPack';
+import { Middleware } from '@helpers/middleware';
 import type LazyLoadQueue from '@components/lazyLoadQueue';
 import type ListenerSetter from '@helpers/listenerSetter';
 
@@ -54,7 +54,7 @@ export default function wrapServiceMediaBubble(options: WrapServiceMediaBubbleOp
     size = 100,
     caption,
     onMediaClick,
-    button
+    button,
   } = options;
 
   container.classList.add(CLASS_NAME + '-wrapper');
@@ -66,7 +66,7 @@ export default function wrapServiceMediaBubble(options: WrapServiceMediaBubbleOp
     middleware,
     size,
     isDialog: false,
-    lazyLoadQueue
+    lazyLoadQueue,
   });
   avatar.node.classList.add(CLASS_NAME + '-avatar');
 
@@ -74,28 +74,28 @@ export default function wrapServiceMediaBubble(options: WrapServiceMediaBubbleOp
 
   avatarContainer.append(avatar.node);
 
-  if(onMediaClick) {
+  if (onMediaClick) {
     avatarContainer.classList.add('is-clickable');
-    attachClickEvent(avatarContainer, onMediaClick, {listenerSetter});
+    attachClickEvent(avatarContainer, onMediaClick, { listenerSetter });
   }
 
   container.append(avatarContainer);
 
-  if(caption) {
+  if (caption) {
     const text = document.createElement('div');
     text.classList.add(CLASS_NAME + '-text');
     text.append(caption);
     container.append(text);
   }
 
-  if(button) {
+  if (button) {
     const buttonElement = Button('bubble-service-button ' + CLASS_NAME + '-button', {
       noRipple: true,
-      text: button.text
+      text: button.text,
     });
-    attachClickEvent(buttonElement, button.onClick, {listenerSetter});
+    attachClickEvent(buttonElement, button.onClick, { listenerSetter });
     container.append(buttonElement);
   }
 
-  return {avatar, avatarContainer, loadPromise};
+  return { avatar, avatarContainer, loadPromise };
 }

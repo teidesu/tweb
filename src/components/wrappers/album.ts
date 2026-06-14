@@ -1,12 +1,12 @@
 import mediaSizes from '@helpers/mediaSizes';
-import {Middleware} from '@helpers/middleware';
-import {ChatAutoDownloadSettings} from '@hooks/useAutoDownloadSettings';
-import {Document, Message, MessageMedia, Photo, PhotoSize} from '@layer';
-import {AppManagers} from '@lib/managers';
+import { Middleware } from '@helpers/middleware';
+import { ChatAutoDownloadSettings } from '@hooks/useAutoDownloadSettings';
+import { Document, Message, MessageMedia, Photo, PhotoSize } from '@layer';
+import { AppManagers } from '@lib/managers';
 import getMediaFromMessage from '@appManagers/utils/messages/getMediaFromMessage';
 import choosePhotoSize from '@appManagers/utils/photos/choosePhotoSize';
 import rootScope from '@lib/rootScope';
-import {AnimationItemGroup} from '@components/animationIntersector';
+import { AnimationItemGroup } from '@components/animationIntersector';
 import Chat from '@components/chat/chat';
 import LazyLoadQueue from '@components/lazyLoadQueue';
 import prepareAlbum from '@components/prepareAlbum';
@@ -14,7 +14,7 @@ import wrapMediaSpoiler from '@components/wrappers/mediaSpoiler';
 import wrapPhoto from '@components/wrappers/photo';
 import wrapVideo from '@components/wrappers/video';
 
-export default function wrapAlbum({messages, media, attachmentDiv, middleware, uploading, lazyLoadQueue, isOut, chat, loadPromises, autoDownload, managers = rootScope.managers, animationGroup, spoilered, videoTimes, uploadingFileName, sensitive}: {
+export default function wrapAlbum({ messages, media, attachmentDiv, middleware, uploading, lazyLoadQueue, isOut, chat, loadPromises, autoDownload, managers = rootScope.managers, animationGroup, spoilered, videoTimes, uploadingFileName, sensitive }: {
   messages?: Message.message[],
   media?: (Photo.photo | Document.document)[],
   attachmentDiv: HTMLElement,
@@ -35,14 +35,14 @@ export default function wrapAlbum({messages, media, attachmentDiv, middleware, u
   const items: {size: PhotoSize.photoSize, media: Photo.photo | Document.document, message: Message.message}[] = [];
 
   // !lowest msgID will be the FIRST in album
-  for(const message of (media || messages)!) {
+  for (const message of (media || messages)!) {
     const isMessage = !!messages;
     const media = isMessage ? getMediaFromMessage(message as Message.message, true) : message;
 
     const size: any = media._ === 'photo' ?
       choosePhotoSize(media, 480, 480) :
-      {w: (media as Document.document).w, h: (media as Document.document).h};
-    items.push({size, media: media as any, message: (isMessage ? message as Message.message : undefined)!});
+      { w: (media as Document.document).w, h: (media as Document.document).h };
+    items.push({ size, media: media as any, message: (isMessage ? message as Message.message : undefined)! });
   }
 
   /* // * pending
@@ -52,26 +52,26 @@ export default function wrapAlbum({messages, media, attachmentDiv, middleware, u
 
   prepareAlbum({
     container: attachmentDiv,
-    items: items.map((i) => ({w: i.size.w, h: i.size.h})),
+    items: items.map((i) => ({ w: i.size.w, h: i.size.h })),
     maxWidth: mediaSizes.active.album.width,
     minWidth: 100,
     spacing: 1,
     forMedia: true,
-    noGroupedItem: !messages
+    noGroupedItem: !messages,
   });
 
-  const {width, height} = attachmentDiv.style;
+  const { width, height } = attachmentDiv.style;
   const containerWidth = parseInt(width);
   const containerHeight = parseInt(height);
 
   items.forEach((item, idx) => {
-    const {size, media, message} = item;
+    const { size, media, message } = item;
 
     const messageMedia = message?.media;
     const hasSpoiler = spoilered || sensitive || !!(messageMedia as MessageMedia.messageMediaPhoto | MessageMedia.messageMediaDocument)?.pFlags?.spoiler;
 
     const div = attachmentDiv.children[idx] as HTMLElement;
-    if(message) {
+    if (message) {
       div.dataset.mid = '' + message.mid;
       div.dataset.peerId = '' + message.peerId;
     } else {
@@ -80,7 +80,7 @@ export default function wrapAlbum({messages, media, attachmentDiv, middleware, u
     const mediaDiv = div.firstElementChild as HTMLElement;
     const isPhoto = media._ === 'photo';
     let thumbPromise: Promise<any>;
-    if(isPhoto) {
+    if (isPhoto) {
       thumbPromise = wrapPhoto({
         photo: media,
         message,
@@ -94,7 +94,7 @@ export default function wrapAlbum({messages, media, attachmentDiv, middleware, u
         loadPromises,
         autoDownloadSize: autoDownload!.photo,
         managers,
-        uploadingFileName: uploadingFileName?.[idx]
+        uploadingFileName: uploadingFileName?.[idx],
       });
     } else {
       thumbPromise = wrapVideo({
@@ -111,21 +111,21 @@ export default function wrapAlbum({messages, media, attachmentDiv, middleware, u
         autoDownload,
         managers,
         noAutoplayAttribute: true,
-        uploadingFileName: uploadingFileName?.[idx]
+        uploadingFileName: uploadingFileName?.[idx],
       });
     }
 
-    if(thumbPromise) {
+    if (thumbPromise) {
       loadPromises?.push(thumbPromise);
     }
 
-    if(hasSpoiler) {
+    if (hasSpoiler) {
       const promise = (thumbPromise || Promise.resolve()).then(async() => {
-        if(!middleware!()) {
+        if (!middleware!()) {
           return;
         }
 
-        const {width, height} = div.style;
+        const { width, height } = div.style;
         const itemWidth = +width.slice(0, -1) / 100 * containerWidth;
         const itemHeight = +height.slice(0, -1) / 100 * containerHeight;
         const container = await wrapMediaSpoiler({
@@ -134,10 +134,10 @@ export default function wrapAlbum({messages, media, attachmentDiv, middleware, u
           middleware: middleware!,
           width: itemWidth,
           height: itemHeight,
-          sensitive
+          sensitive,
         });
 
-        if(!middleware!()) {
+        if (!middleware!()) {
           return;
         }
 
@@ -148,7 +148,7 @@ export default function wrapAlbum({messages, media, attachmentDiv, middleware, u
     }
 
     const videoTime = videoTimes?.[idx];
-    if(videoTime) {
+    if (videoTime) {
       mediaDiv.append(videoTime);
     }
   });

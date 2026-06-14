@@ -5,14 +5,14 @@ import cancelEvent from '@helpers/dom/cancelEvent';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
 import safeAssign from '@helpers/object/safeAssign';
 import contextMenuController from '@helpers/contextMenuController';
-import {Middleware} from '@helpers/middleware';
-import ListenerSetter, {Listener, ListenerOptions} from '@helpers/listenerSetter';
-import {attachContextMenuListener} from '@helpers/dom/attachContextMenuListener';
+import { Middleware } from '@helpers/middleware';
+import ListenerSetter, { Listener, ListenerOptions } from '@helpers/listenerSetter';
+import { attachContextMenuListener } from '@helpers/dom/attachContextMenuListener';
 import pause from '@helpers/schedulers/pause';
 import deferredPromise from '@helpers/cancellablePromise';
 import clamp from '@helpers/number/clamp';
 import debounce from '@helpers/schedulers/debounce';
-import {logger} from '@lib/logger';
+import { logger } from '@lib/logger';
 import isSwipingBackSafari from '@helpers/dom/isSwipingBackSafari';
 import windowSize from '@helpers/windowSize';
 
@@ -33,14 +33,14 @@ export const getEvent = (e: EE) => {
 };
 
 function getDistance(a: Touch, b?: Touch) {
-  if(!b) return 0;
+  if (!b) return 0;
   return Math.hypot((b.pageX - a.pageX), (b.pageY - a.pageY));
 }
 
 function getTouchCenter(a: Touch, b: Touch) {
   return {
     x: (a.pageX + b.pageX) / 2,
-    y: (a.pageY + b.pageY) / 2
+    y: (a.pageY + b.pageY) / 2,
   };
 }
 
@@ -71,9 +71,9 @@ export type SwipeHandlerOptions = {
   maxZoom?: number
 };
 
-const TOUCH_MOVE_OPTIONS: ListenerOptions = {passive: false};
+const TOUCH_MOVE_OPTIONS: ListenerOptions = { passive: false };
 const MOUSE_MOVE_OPTIONS: ListenerOptions = false as any;
-const WHEEL_OPTIONS: ListenerOptions = {capture: true, passive: false};
+const WHEEL_OPTIONS: ListenerOptions = { capture: true, passive: false };
 
 export type ZoomDetails = {
   zoom?: number;
@@ -151,16 +151,16 @@ export default class SwipeHandler {
   }
 
   public setListeners() {
-    if(!IS_TOUCH_SUPPORTED) {
+    if (!IS_TOUCH_SUPPORTED) {
       // @ts-ignore
       this.listenerSetter.add(this.element)('mousedown', this.handleStart, this.listenerOptions);
       this.listenerSetter.add(attachGlobalListenerTo)('mouseup', this.reset);
 
-      if((this.onZoom as any) || (this.onDoubleClick as any)) {
+      if ((this.onZoom as any) || (this.onDoubleClick as any)) {
         this.listenerSetter.add(this.element)('wheel', this.handleWheel, WHEEL_OPTIONS);
       }
     } else {
-      if(this.withDelay) {
+      if (this.withDelay) {
         attachContextMenuListener({
           element: this.element,
           callback: (e) => {
@@ -169,16 +169,16 @@ export default class SwipeHandler {
             this.handleStart(e);
           },
           listenerSetter: this.listenerSetter,
-          listenerOptions: this.listenerOptions
+          listenerOptions: this.listenerOptions,
         });
       } else {
         // @ts-ignore
         this.listenerSetter.add(this.element)('touchstart', this.handleStart, this.listenerOptions);
       }
 
-      if(this.onDoubleClick) {
+      if (this.onDoubleClick) {
         this.listenerSetter.add(this.element)('dblclick', (e) => {
-          this.onDoubleClick({centerX: e.pageX, centerY: e.pageY});
+          this.onDoubleClick({ centerX: e.pageX, centerY: e.pageY });
         });
       }
 
@@ -195,7 +195,7 @@ export default class SwipeHandler {
   public setCursor(cursor: SwipeHandler['cursor'] = '') {
     this.cursor = cursor;
 
-    if(!IS_TOUCH_SUPPORTED && this.hadMove) {
+    if (!IS_TOUCH_SUPPORTED && this.hadMove) {
       this.setCursorTo.style.setProperty('cursor', this.cursor, 'important');
     }
   }
@@ -206,7 +206,7 @@ export default class SwipeHandler {
     this.handleMove({
       clientX: this.eventUp.clientX,
       clientY: this.eventUp.clientY,
-      target: this.eventUp.target
+      target: this.eventUp.target,
     });
   }
 
@@ -220,14 +220,14 @@ export default class SwipeHandler {
       (this.isMouseDown =
       undefined)!)!)!;
 
-    if(this.onZoom as any) {
+    if (this.onZoom as any) {
       this.initialDistance = 0;
       this.initialTouchCenter = {
         x: windowSize.width / 2,
-        y: windowSize.height / 2
+        y: windowSize.height / 2,
       };
-      this.initialDragOffset = {x: 0, y: 0};
-      this.isDragCanceled = {x: false, y: false};
+      this.initialDragOffset = { x: 0, y: 0 };
+      this.isDragCanceled = { x: false, y: false };
       this.wheelZoom = 1;
     }
   }
@@ -238,14 +238,14 @@ export default class SwipeHandler {
       cancelEvent(e);
     } */
 
-    if(IS_TOUCH_SUPPORTED) {
+    if (IS_TOUCH_SUPPORTED) {
       this.listenerSetter.removeManual(attachGlobalListenerTo, 'touchmove', this.handleMove, TOUCH_MOVE_OPTIONS);
     } else {
       this.listenerSetter.removeManual(attachGlobalListenerTo, 'mousemove', this.handleMove, MOUSE_MOVE_OPTIONS);
       this.setCursorTo.style.cursor = '';
     }
 
-    if(this.hadMove) {
+    if (this.hadMove) {
       this.onReset?.(e);
     }
 
@@ -256,7 +256,7 @@ export default class SwipeHandler {
   };
 
   protected setHadMove(_e: EE) {
-    if(!this.hadMove) {
+    if (!this.hadMove) {
       this.log('had move');
       this.hadMove = true;
       this.setCursorTo.style.setProperty('cursor', this.cursor, 'important');
@@ -266,7 +266,7 @@ export default class SwipeHandler {
 
   protected dispatchOnSwipe(...args: Parameters<SwipeHandlerOptions['onSwipe']>) {
     const onSwipeResult = this.onSwipe(...args);
-    if(onSwipeResult !== undefined && onSwipeResult) {
+    if (onSwipeResult !== undefined && onSwipeResult) {
       this.reset();
     }
   }
@@ -274,9 +274,9 @@ export default class SwipeHandler {
   protected handleStart = async(_e: EE) => {
     this.log('start');
 
-    if(this.isMouseDown) {
+    if (this.isMouseDown) {
       const touches = (_e as any as TouchEvent).touches;
-      if(touches?.length === 2) {
+      if (touches?.length === 2) {
         this.initialDistance = getDistance(touches[0], touches[1]);
         this.initialTouchCenter = getTouchCenter(touches[0], touches[1]);
       }
@@ -285,56 +285,56 @@ export default class SwipeHandler {
     }
 
     const e = getEvent(_e);
-    if(![0, 1].includes(Math.max(0, e.button ?? 0))) {
+    if (![0, 1].includes(Math.max(0, e.button ?? 0))) {
       return;
     }
 
-    if(e.button === 1) {
+    if (e.button === 1) {
       cancelEvent(_e as any);
     }
 
-    if(isSwipingBackSafari(_e as any)) {
+    if (isSwipingBackSafari(_e as any)) {
       return;
     }
 
     const tempId = ++this.tempId;
 
     const verifyResult = this.verifyTouchTarget?.(_e);
-    if(verifyResult !== undefined) {
+    if (verifyResult !== undefined) {
       let result: any;
-      if(verifyResult instanceof Promise) {
+      if (verifyResult instanceof Promise) {
         // const tempId = this.tempId;
         result = await verifyResult;
 
-        if(this.tempId !== tempId) {
+        if (this.tempId !== tempId) {
           return;
         }
       } else {
         result = verifyResult;
       }
 
-      if(!result) {
+      if (!result) {
         return this.reset();
       }
     }
 
     this.isMouseDown = true;
 
-    if(this.withDelay && !IS_TOUCH_SUPPORTED) {
-      const options = {...MOUSE_MOVE_OPTIONS, once: true};
+    if (this.withDelay && !IS_TOUCH_SUPPORTED) {
+      const options = { ...MOUSE_MOVE_OPTIONS, once: true };
       const deferred = deferredPromise<void>();
       const cb = () => deferred.resolve();
       const listener = this.listenerSetter.add(attachGlobalListenerTo)('mousemove', cb, options) as any as Listener;
 
       await Promise.race([
         pause(300),
-        deferred
+        deferred,
       ]);
 
       deferred.resolve();
       this.listenerSetter.remove(listener);
 
-      if(this.tempId !== tempId) {
+      if (this.tempId !== tempId) {
         return;
       }
     }
@@ -343,7 +343,7 @@ export default class SwipeHandler {
     this.yDown = e.clientY;
     this.eventUp = e;
 
-    if(IS_TOUCH_SUPPORTED) {
+    if (IS_TOUCH_SUPPORTED) {
       // @ts-ignore
       this.listenerSetter.add(attachGlobalListenerTo)('touchmove', this.handleMove, TOUCH_MOVE_OPTIONS);
     } else {
@@ -351,7 +351,7 @@ export default class SwipeHandler {
       this.listenerSetter.add(attachGlobalListenerTo)('mousemove', this.handleMove, MOUSE_MOVE_OPTIONS);
     }
 
-    if(this.onStart) {
+    if (this.onStart) {
       this.onStart();
 
       // have to initiate move instantly
@@ -361,16 +361,16 @@ export default class SwipeHandler {
   };
 
   protected handleMove = (_e: EE) => {
-    if(this.xDown === undefined || this.yDown === undefined || RESET_GLOBAL) {
+    if (this.xDown === undefined || this.yDown === undefined || RESET_GLOBAL) {
       this.reset();
       return;
     }
 
-    if(this.cancelEvent) {
+    if (this.cancelEvent) {
       cancelEvent(_e as any);
     }
 
-    if(this.releaseWheelDrag?.isDebounced() || this.releaseWheelZoom?.isDebounced()) {
+    if (this.releaseWheelDrag?.isDebounced() || this.releaseWheelZoom?.isDebounced()) {
       return;
     }
 
@@ -383,8 +383,8 @@ export default class SwipeHandler {
     const xDiff = xUp - this.xDown + this.xAdded;
     const yDiff = yUp - this.yDown + this.yAdded;
 
-    if(!this.hadMove) {
-      if(!xDiff && !yDiff) {
+    if (!this.hadMove) {
+      if (!xDiff && !yDiff) {
         return;
       }
 
@@ -392,7 +392,7 @@ export default class SwipeHandler {
     }
 
     const touches = (_e as any as TouchEvent).touches;
-    if(this.onZoom && this.initialDistance > 0 && touches.length === 2) {
+    if (this.onZoom && this.initialDistance > 0 && touches.length === 2) {
       const endDistance = getDistance(touches[0], touches[1]);
       const touchCenter = getTouchCenter(touches[0], touches[1]);
       const dragOffsetX = touchCenter.x - this.initialTouchCenter.x;
@@ -405,7 +405,7 @@ export default class SwipeHandler {
         dragOffsetX,
         dragOffsetY,
         currentCenterX: touchCenter.x,
-        currentCenterY: touchCenter.y
+        currentCenterY: touchCenter.y,
       };
 
       this.onZoom(details);
@@ -415,9 +415,9 @@ export default class SwipeHandler {
   };
 
   protected handleWheel = (e: WheelEvent) => {
-    if(!this.hadMove && this.verifyTouchTarget) {
+    if (!this.hadMove && this.verifyTouchTarget) {
       const result = this.verifyTouchTarget((e as EE));
-      if(result !== undefined && !result) {
+      if (result !== undefined && !result) {
         this.reset(e);
         return;
       }
@@ -427,17 +427,17 @@ export default class SwipeHandler {
 
     this.log('wheel');
 
-    if(this.onDoubleClick && Object.is(e.deltaX, -0) && Object.is(e.deltaY, -0) && e.ctrlKey) {
+    if (this.onDoubleClick && Object.is(e.deltaX, -0) && Object.is(e.deltaY, -0) && e.ctrlKey) {
       this.onWheelCapture(e);
-      this.onDoubleClick({centerX: e.pageX, centerY: e.pageY});
+      this.onDoubleClick({ centerX: e.pageX, centerY: e.pageY });
       this.reset();
       return;
     }
 
     const metaKeyPressed = e.metaKey || e.ctrlKey || e.shiftKey;
-    if(metaKeyPressed) {
+    if (metaKeyPressed) {
       // * fix zooming while dragging is in inertia
-      if(this.releaseWheelDrag?.isDebounced()) {
+      if (this.releaseWheelDrag?.isDebounced()) {
         this.reset();
       }
 
@@ -452,29 +452,29 @@ export default class SwipeHandler {
 
     this.onWheelCapture(e);
     // Ignore wheel inertia if drag is canceled in this direction
-    if(!this.isDragCanceled.x || Math.sign(this.initialDragOffset.x) === Math.sign(e.deltaX)) {
+    if (!this.isDragCanceled.x || Math.sign(this.initialDragOffset.x) === Math.sign(e.deltaX)) {
       this.initialDragOffset.x -= e.deltaX;
     }
-    if(!this.isDragCanceled.y || Math.sign(this.initialDragOffset.y) === Math.sign(e.deltaY)) {
+    if (!this.isDragCanceled.y || Math.sign(this.initialDragOffset.y) === Math.sign(e.deltaY)) {
       this.initialDragOffset.y -= e.deltaY;
     }
-    const {x, y} = this.initialDragOffset;
+    const { x, y } = this.initialDragOffset;
     this.releaseWheelDrag(e);
     this.dispatchOnSwipe(x, y, (e as EE), (dx, dy) => {
-      this.isDragCanceled = {x: dx, y: dy};
+      this.isDragCanceled = { x: dx, y: dy };
     });
   };
 
   protected onWheelCapture = (e: WheelEvent) => {
-    if(this.hadMove) return;
+    if (this.hadMove) return;
     this.log('wheel capture');
     this.handleStart((e as EE));
     this.setHadMove((e as EE));
-    this.initialTouchCenter = {x: e.x, y: e.y};
+    this.initialTouchCenter = { x: e.x, y: e.y };
   };
 
   protected onWheelZoom = (e: WheelEvent) => {
-    if(!this.onZoom) return;
+    if (!this.onZoom) return;
     this.log('wheel zoom');
     this.onWheelCapture(e);
     const dragOffsetX = e.x - this.initialTouchCenter.x;
@@ -488,7 +488,7 @@ export default class SwipeHandler {
       dragOffsetX,
       dragOffsetY,
       currentCenterX: e.x,
-      currentCenterY: e.y
+      currentCenterY: e.y,
     };
     this.onZoom(details);
     this.releaseWheelZoom(e);

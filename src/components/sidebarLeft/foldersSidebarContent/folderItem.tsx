@@ -1,11 +1,11 @@
-import {createComputed, createEffect, createMemo, createSignal, Show} from 'solid-js';
+import { createComputed, createEffect, createMemo, createSignal, Show } from 'solid-js';
 import createMiddleware from '@helpers/solid/createMiddleware';
-import {CustomEmojiRendererElement} from '@lib/customEmoji/renderer';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { CustomEmojiRendererElement } from '@lib/customEmoji/renderer';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 import Badge from '@components/badge';
-import {IconTsx} from '@components/iconTsx';
+import { IconTsx } from '@components/iconTsx';
 import FolderAnimatedIcon from '@components/sidebarLeft/foldersSidebarContent/folderAnimatedIcon';
-import {FolderItemPayload} from '@components/sidebarLeft/foldersSidebarContent/types';
+import { FolderItemPayload } from '@components/sidebarLeft/foldersSidebarContent/types';
 
 
 type FolderItemProps = FolderItemPayload & {
@@ -24,7 +24,7 @@ const BADGE_CUTOUT_GAP = 2;
 function buildBadgeCutoutClipPath(iconEl: HTMLElement, badgeEl: HTMLElement): string | undefined {
   const icon = iconEl.getBoundingClientRect();
   const badge = badgeEl.getBoundingClientRect();
-  if(!icon.width || !badge.width) return;
+  if (!icon.width || !badge.width) return;
 
   const gap = BADGE_CUTOUT_GAP;
   const x = badge.left - icon.left - gap;
@@ -49,7 +49,7 @@ function buildBadgeCutoutClipPath(iconEl: HTMLElement, badgeEl: HTMLElement): st
 }
 
 export default function FolderItem(props: FolderItemProps) {
-  const {rootScope, wrapFolderTitle} = useHotReloadGuard();
+  const { rootScope, wrapFolderTitle } = useHotReloadGuard();
 
   const [failedToFetchIconDoc, setFailedToFetchIconDoc] = createSignal(false);
 
@@ -60,7 +60,7 @@ export default function FolderItem(props: FolderItemProps) {
   const hasNotifications = () => !!props.notifications?.count;
 
   createEffect(() => {
-    if(!hasNotifications()) {
+    if (!hasNotifications()) {
       setClipPath(undefined);
       return;
     }
@@ -74,8 +74,8 @@ export default function FolderItem(props: FolderItemProps) {
   const showCustomIcon = () => hasCustomIcon() && !failedToFetchIconDoc();
 
   const title = createMemo(() => {
-    if(props.name) return props.name;
-    if(!props.title) return;
+    if (props.name) return props.name;
+    if (!props.title) return;
 
     const middleware = createMiddleware().get();
 
@@ -104,10 +104,10 @@ export default function FolderItem(props: FolderItemProps) {
       class="folders-sidebar__folder-item"
       classList={{
         [props.class!]: !!props.class,
-        'folders-sidebar__folder-item--selected': props.selected
+        'folders-sidebar__folder-item--selected': props.selected,
       }}
       {...(props.id !== undefined ?
-        {'data-filter-id': props.id} :
+        { 'data-filter-id': props.id } :
         {}
       )}
       onClick={props.onClick}
@@ -115,7 +115,7 @@ export default function FolderItem(props: FolderItemProps) {
       <div
         ref={iconWrapRef!}
         class="folders-sidebar__folder-item-icon-wrap"
-        style={{'clip-path': clipPath(), '-webkit-clip-path': clipPath()}}
+        style={{ 'clip-path': clipPath(), '-webkit-clip-path': clipPath() }}
       >
         <Show
           when={showCustomIcon()}

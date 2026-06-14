@@ -1,71 +1,71 @@
-import {createMemo, createSignal, Index, JSX, Match, onMount, Show, Switch} from 'solid-js';
+import { createMemo, createSignal, Index, JSX, Match, onMount, Show, Switch } from 'solid-js';
 import PopupElement from '.';
-import {Peer, PaymentsUniqueStarGiftValueInfo, StarGift, StarGiftAttribute, StarGiftAttributeRarity} from '@layer';
-import {MyDocument} from '@appManagers/appDocsManager';
-import {i18n, LangPackKey} from '@lib/langPack';
-import {StarsStar} from '@components/popups/stars';
-import {PeerTitleTsx} from '@components/peerTitleTsx';
+import { Peer, PaymentsUniqueStarGiftValueInfo, StarGift, StarGiftAttribute, StarGiftAttributeRarity } from '@layer';
+import { MyDocument } from '@appManagers/appDocsManager';
+import { i18n, LangPackKey } from '@lib/langPack';
+import { StarsStar } from '@components/popups/stars';
+import { PeerTitleTsx } from '@components/peerTitleTsx';
 import Button from '@components/buttonTsx';
-import {formatDate, formatFullSentTime} from '@helpers/date';
+import { formatDate, formatFullSentTime } from '@helpers/date';
 import appImManager from '@lib/appImManager';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import wrapRichText from '@lib/richTextProcessor/wrapRichText';
-import {MyStarGift} from '@appManagers/appGiftsManager';
+import { MyStarGift } from '@appManagers/appGiftsManager';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
 import numberThousandSplitter from '@helpers/number/numberThousandSplitter';
 import PopupSendGift from '@components/popups/sendGift';
-import Table, {TableButton, TableButtonWithTooltip, TablePeer, TableRow} from '@components/table';
-import {NULL_PEER_ID, STARS_CURRENCY, TON_CURRENCY} from '@appManagers/constants';
+import Table, { TableButton, TableButtonWithTooltip, TablePeer, TableRow } from '@components/table';
+import { NULL_PEER_ID, STARS_CURRENCY, TON_CURRENCY } from '@appManagers/constants';
 import rootScope from '@lib/rootScope';
-import {toastNew} from '@components/toast';
-import {ButtonIconTsx} from '@components/buttonIconTsx';
-import {StarGiftBackdrop} from '@components/stargifts/stargiftBackdrop';
-import {ButtonMenuToggleTsx} from '@components/buttonMenuToggleTsx';
-import {copyTextToClipboard} from '@helpers/clipboard';
-import {showSharingPicker2Popup} from '@components/popups/pickUser';
-import {I18nTsx} from '@helpers/solid/i18n';
+import { toastNew } from '@components/toast';
+import { ButtonIconTsx } from '@components/buttonIconTsx';
+import { StarGiftBackdrop } from '@components/stargifts/stargiftBackdrop';
+import { ButtonMenuToggleTsx } from '@components/buttonMenuToggleTsx';
+import { copyTextToClipboard } from '@helpers/clipboard';
+import { showSharingPicker2Popup } from '@components/popups/pickUser';
+import { I18nTsx } from '@helpers/solid/i18n';
 import tsNow from '@helpers/tsNow';
-import {useAppState} from '@stores/appState';
+import { useAppState } from '@stores/appState';
 import transferStarGift from '@components/popups/transferStarGift';
 import safeAssign from '@helpers/object/safeAssign';
 import paymentsWrapCurrencyAmount from '@helpers/paymentsWrapCurrencyAmount';
 import PopupBuyResaleGift from '@components/popups/buyResaleGift';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
-import {wrapFormattedDuration} from '@components/wrappers/wrapDuration';
+import { wrapFormattedDuration } from '@components/wrappers/wrapDuration';
 import formatDuration from '@helpers/formatDuration';
 import PopupSellStarGift from '@components/popups/sellStarGift';
-import {inputStarGiftEquals} from '@appManagers/utils/gifts/inputStarGiftEquals';
+import { inputStarGiftEquals } from '@appManagers/utils/gifts/inputStarGiftEquals';
 import confirmationPopup from '@components/confirmationPopup';
-import {getCollectibleName} from '@appManagers/utils/gifts/getCollectibleName';
-import {updateStarGift} from '@appManagers/utils/gifts/updateStarGift';
+import { getCollectibleName } from '@appManagers/utils/gifts/getCollectibleName';
+import { updateStarGift } from '@appManagers/utils/gifts/updateStarGift';
 import wrapMessageEntities from '@lib/richTextProcessor/wrapMessageEntities';
 import PopupStarGiftValue from '@components/popups/starGiftValue';
 import Icon from '@components/icon';
 import PopupStarGiftWear from '@components/popups/starGiftWear';
-import {setQuizHint} from '@components/quizHint';
+import { setQuizHint } from '@components/quizHint';
 import createStarGiftUpgradePopup from '@components/popups/starGiftUpgrade';
 import classNames from '@helpers/string/classNames';
 import PopupPayment from '@components/popups/payment';
-import {StarGiftUpgradePreview} from '@appManagers/appGiftsManager';
-import {rgbIntToHex} from '@helpers/color';
+import { StarGiftUpgradePreview } from '@appManagers/appGiftsManager';
+import { rgbIntToHex } from '@helpers/color';
 import wrapSticker from '@components/wrappers/sticker';
 import createMiddleware from '@helpers/solid/createMiddleware';
 import RLottiePlayer from '@lib/rlottie/rlottiePlayer';
-import {SimpleAnimation} from '@helpers/solid/animations';
+import { SimpleAnimation } from '@helpers/solid/animations';
 import BezierEasing from '@vendor/bezierEasing';
-import {AnimatedSuper} from '@components/animatedSuper';
-import {ConfettiContainer, ConfettiRef} from '@components/confetti';
-import {PreloaderTsx} from '@components/putPreloader';
-import {showCreateStarGiftOfferPopup} from '@components/popups/createStarGiftOffer';
-import {getCanManagePeerGifts} from '@components/stargifts/canManageGifts';
+import { AnimatedSuper } from '@components/animatedSuper';
+import { ConfettiContainer, ConfettiRef } from '@components/confetti';
+import { PreloaderTsx } from '@components/putPreloader';
+import { showCreateStarGiftOfferPopup } from '@components/popups/createStarGiftOffer';
+import { getCanManagePeerGifts } from '@components/stargifts/canManageGifts';
 
 function AttributeTableButton(props: {rarity: StarGiftAttributeRarity}) {
-  if(props.rarity._ !== 'starGiftAttributeRarity') {
+  if (props.rarity._ !== 'starGiftAttributeRarity') {
     const map: Record<Exclude<StarGiftAttributeRarity['_'], 'starGiftAttributeRarity'>, {langKey: LangPackKey, color: string}> = {
-      'starGiftAttributeRarityUncommon': {langKey: 'StarGiftRarityUncommon', color: 'green'},
-      'starGiftAttributeRarityRare': {langKey: 'StarGiftRarityRare', color: 'blue'},
-      'starGiftAttributeRarityEpic': {langKey: 'StarGiftRarityEpic', color: 'violet'},
-      'starGiftAttributeRarityLegendary': {langKey: 'StarGiftRarityLegendary', color: 'gold'}
+      'starGiftAttributeRarityUncommon': { langKey: 'StarGiftRarityUncommon', color: 'green' },
+      'starGiftAttributeRarityRare': { langKey: 'StarGiftRarityRare', color: 'blue' },
+      'starGiftAttributeRarityEpic': { langKey: 'StarGiftRarityEpic', color: 'violet' },
+      'starGiftAttributeRarityLegendary': { langKey: 'StarGiftRarityLegendary', color: 'gold' },
     };
 
     return (
@@ -101,15 +101,15 @@ export function AttributeValue(props: {name: string, rarity: StarGiftAttributeRa
 }
 
 const attributeValueKeyFrames = (element: Element, removed: boolean) => [
-  {opacity: 0, transform: `translateY(${removed ? '-14px' : '14px'}) scaleY(0.5)`},
-  {opacity: 1, transform: 'translateY(0)'}
+  { opacity: 0, transform: `translateY(${removed ? '-14px' : '14px'}) scaleY(0.5)` },
+  { opacity: 1, transform: 'translateY(0)' },
 ]
 
 const attributeIntervalEasing = BezierEasing(0.5, 0, 1, 1);
 
 function calculateEasedIntervals(count: number, duration: number): number[] {
   const intervals: number[] = [];
-  for(let i = 0; i < count; i++) {
+  for (let i = 0; i < count; i++) {
     const t0 = i / count;
     const t1 = (i + 1) / count;
     const interval = (attributeIntervalEasing(t1) - attributeIntervalEasing(t0)) * duration;
@@ -131,7 +131,7 @@ function AnimatedAttributeValue(props: {
   const [position, setPosition] = createSignal(0);
 
   const items: AnimatedAttributeValueItem[] = [];
-  while(items.length < props.count - 1) {
+  while (items.length < props.count - 1) {
     const left = props.count - 1 - items.length;
     items.push(...props.items.slice(0, left));
   }
@@ -144,7 +144,7 @@ function AnimatedAttributeValue(props: {
       setTimeout(() => {
         const nextIndex = index + 1;
         setPosition(nextIndex);
-        if(nextIndex < items.length - 1) {
+        if (nextIndex < items.length - 1) {
           scheduleNext(nextIndex);
         } else {
           props.onComplete?.();
@@ -154,13 +154,13 @@ function AnimatedAttributeValue(props: {
 
     function scheduleRandom() {
       let randomIndex = Math.floor(Math.random() * items.length);
-      if(position() === randomIndex) {
+      if (position() === randomIndex) {
         randomIndex = (randomIndex + 1) % items.length;
       }
       setPosition(randomIndex);
 
       setTimeout(() => {
-        if(props.started) {
+        if (props.started) {
           scheduleNext(0);
         } else {
           scheduleRandom();
@@ -168,7 +168,7 @@ function AnimatedAttributeValue(props: {
       }, 150);
     }
 
-    if(props.started) {
+    if (props.started) {
       scheduleNext(0);
     } else {
       scheduleRandom();
@@ -214,14 +214,14 @@ function UpgradeAnimation(props: {
   const BACKDROPS_DURATION = 700;
 
   const models: StarGiftAttribute.starGiftAttributeModel[] = [];
-  while(models.length < MODELS_COUNT - 1) {
+  while (models.length < MODELS_COUNT - 1) {
     const left = MODELS_COUNT - 1 - models.length;
     models.push(...props.preview.models.slice(0, left));
   }
   models.push(props.actualModel);
 
   const backdrops: StarGiftAttribute.starGiftAttributeBackdrop[] = [];
-  while(backdrops.length < BACKDROPS_COUNT - 1) {
+  while (backdrops.length < BACKDROPS_COUNT - 1) {
     const left = BACKDROPS_COUNT - 1 - backdrops.length;
     backdrops.push(...props.preview.backdrops.slice(0, left));
   }
@@ -239,7 +239,7 @@ function UpgradeAnimation(props: {
       return [`${color} ${base + sectionSize * 0.33}%`, `${color} ${base + sectionSize * 0.67}%`];
     }),
     // final padding
-    `${colors.at(-1)} ${(totalSections - 1) * sectionSize}%`, `${colors.at(-1)} 100%`
+    `${colors.at(-1)} ${(totalSections - 1) * sectionSize}%`, `${colors.at(-1)} 100%`,
   ].join(', ');
 
   let modelsContainer!: HTMLDivElement;
@@ -254,7 +254,7 @@ function UpgradeAnimation(props: {
       const div = document.createElement('div');
       const isLast = idx === models.length - 1;
       div.classList.add('popup-star-gift-info-upgrade-model');
-      if(isLast) {
+      if (isLast) {
         div.classList.add('last');
       }
       modelsContainer.appendChild(div);
@@ -266,9 +266,9 @@ function UpgradeAnimation(props: {
         height: MODEL_WIDTH,
         play: false,
         needFadeIn: false,
-        middleware: middleware.get()
-      }).then(({render}) => render).then((player) => {
-        if(isLast) {
+        middleware: middleware.get(),
+      }).then(({ render }) => render).then((player) => {
+        if (isLast) {
           lastPlayer = player as RLottiePlayer;
         }
       });
@@ -285,12 +285,12 @@ function UpgradeAnimation(props: {
     const modelDivs = Array.from(modelsContainer.children) as HTMLDivElement[];
 
     const animation = modelsContainer.animate([
-      {transform: `translateX(${startOffset}px)`},
-      {transform: `translateX(${endOffset}px)`}
+      { transform: `translateX(${startOffset}px)` },
+      { transform: `translateX(${endOffset}px)` },
     ], {
       duration: MODELS_DURATION,
       easing: 'cubic-bezier(1.00,1.00,0.35,1.00)',
-      fill: 'forwards'
+      fill: 'forwards',
     });
 
     // 3d-ish scrolling animation
@@ -298,7 +298,7 @@ function UpgradeAnimation(props: {
     let finishing = false;
     const updateModels = () => {
       const containerRect = modelsContainer.parentElement!.getBoundingClientRect();
-      for(const div of modelDivs) {
+      for (const div of modelDivs) {
         const rect = div.getBoundingClientRect();
         const modelCenter = rect.left + rect.width / 2 - containerRect.left;
         const distFromCenter = Math.abs(modelCenter - containerCenter);
@@ -306,12 +306,12 @@ function UpgradeAnimation(props: {
         const scaleY = 1 - t * 0.2;
         const scaleX = 1 - t * 0.5;
         div.style.transform = `scale(${scaleX}, ${scaleY})`;
-        if(!finishing) {
+        if (!finishing) {
           const opacity = 1 - t * 0.5;
           div.style.opacity = `${opacity}`;
         }
       }
-      if(animation.playState === 'running') {
+      if (animation.playState === 'running') {
         rafId = requestAnimationFrame(updateModels);
       }
     };
@@ -323,7 +323,7 @@ function UpgradeAnimation(props: {
       finishing = true
       lastPlayer.playOrRestart();
       lastPlayer.addEventListener('enterFrame', (frameNo) => {
-        if(frameNo === lastPlayer.maxFrame) {
+        if (frameNo === lastPlayer.maxFrame) {
           lastPlayer.stop(false);
           middleware.destroy();
           props.onComplete();
@@ -331,16 +331,16 @@ function UpgradeAnimation(props: {
       });
     }, MODELS_DURATION - 500);
     setTimeout(() => {
-      props.confetti.create({mode: 'poppers'});
+      props.confetti.create({ mode: 'poppers' });
     }, MODELS_DURATION - 750);
 
     setTimeout(() => backdropEl.animate([
-      {backgroundPosition: '0% 0%'},
-      {backgroundPosition: '100% 0%'}
+      { backgroundPosition: '0% 0%' },
+      { backgroundPosition: '100% 0%' },
     ], {
       duration: BACKDROPS_DURATION,
       easing: 'linear',
-      fill: 'forwards'
+      fill: 'forwards',
     }), 50);
 
     setTimeout(() => {
@@ -355,14 +355,14 @@ function UpgradeAnimation(props: {
         class="popup-star-gift-info-upgrade-backdrops"
         style={{
           'background': `linear-gradient(to right, ${gradientStopsStr})`,
-          'background-size': `${totalSections * 100}% 100%`
+          'background-size': `${totalSections * 100}% 100%`,
         }}
       />
       <div class="popup-star-gift-info-upgrade-models-container">
         <Show when={loading()}>
           <PreloaderTsx />
         </Show>
-        <div ref={modelsContainer} class="popup-star-gift-info-upgrade-models" style={{display: loading() ? 'none' : undefined}} />
+        <div ref={modelsContainer} class="popup-star-gift-info-upgrade-models" style={{ display: loading() ? 'none' : undefined }} />
       </div>
     </>
   );
@@ -380,9 +380,9 @@ function AnimatedCollectibleNumber(props: {
 
     // ! cant use AnimatedCounter because of the comma separator
     const digitAnimators: {animator: AnimatedSuper, placeholder: HTMLElement}[] = [];
-    for(let i = 0; i < digitCount; i++) {
+    for (let i = 0; i < digitCount; i++) {
       const posFromRight = digitCount - i;
-      if(posFromRight < digitCount && posFromRight % 3 === 0) {
+      if (posFromRight < digitCount && posFromRight % 3 === 0) {
         const comma = document.createElement('div');
         comma.className = 'animated-counter-decimal';
         comma.textContent = ',';
@@ -395,25 +395,25 @@ function AnimatedCollectibleNumber(props: {
       const placeholder = document.createElement('div');
       placeholder.className = 'animated-counter-decimal-placeholder';
 
-      const animator = new AnimatedSuper({duration: 100});
+      const animator = new AnimatedSuper({ duration: 100 });
       animator.container.className = 'animated-counter-decimal-wrapper';
 
       item.append(placeholder, animator.container);
       containerRef.appendChild(item);
-      digitAnimators.push({animator, placeholder});
+      digitAnimators.push({ animator, placeholder });
     }
 
     const getRandomDigit = () => Math.floor(Math.random() * 10);
 
     const setDigits = (lockedFromLeft: number, animate: boolean) => {
-      for(let i = 0; i < digitCount; i++) {
-        const {animator, placeholder} = digitAnimators[i];
+      for (let i = 0; i < digitCount; i++) {
+        const { animator, placeholder } = digitAnimators[i];
         let newDigit: number;
-        if(i < lockedFromLeft) {
+        if (i < lockedFromLeft) {
           newDigit = parseInt(targetStr[i]);
         } else {
           newDigit = getRandomDigit();
-          if(i === 0 && newDigit === 0) newDigit = 1
+          if (i === 0 && newDigit === 0) newDigit = 1
         }
 
         const previousDigit = animator.rows[Object.keys(animator.rows)[0]] ?
@@ -422,9 +422,9 @@ function AnimatedCollectibleNumber(props: {
         const row = animator.getRow(newDigit, animate);
         row.textContent = placeholder.textContent = String(newDigit);
 
-        if(animate && previousDigit !== newDigit) {
+        if (animate && previousDigit !== newDigit) {
           animator.animate(newDigit, previousDigit, newDigit > previousDigit, true);
-        } else if(!animate) {
+        } else if (!animate) {
           animator.setNewRow(newDigit);
         }
       }
@@ -448,7 +448,7 @@ function AnimatedCollectibleNumber(props: {
           Math.floor(progress * (digitCount + 1))
         );
 
-        if(updateCount >= totalUpdates) {
+        if (updateCount >= totalUpdates) {
           setDigits(digitCount, true);
         } else {
           setDigits(lockedDigits, true);
@@ -460,7 +460,7 @@ function AnimatedCollectibleNumber(props: {
     function scheduleRandom() {
       setTimeout(() => {
         setDigits(0, true)
-        if(props.started) {
+        if (props.started) {
           scheduleNext();
         } else {
           scheduleRandom()
@@ -468,7 +468,7 @@ function AnimatedCollectibleNumber(props: {
       }, 150);
     }
 
-    if(props.started) {
+    if (props.started) {
       scheduleNext();
     } else {
       scheduleRandom()
@@ -501,7 +501,7 @@ export default class PopupStarGiftInfo extends PopupElement {
       body: true,
       footer: true,
       withConfirm: 'OK',
-      withFooterConfirm: true
+      withFooterConfirm: true,
     });
 
     safeAssign(this, options);
@@ -522,7 +522,7 @@ export default class PopupStarGiftInfo extends PopupElement {
       sticker,
       isIncoming,
       isConverted,
-      collectibleAttributes
+      collectibleAttributes,
     } = this.gift;
 
     const isUnavailable = !saved && (gift as StarGift.starGift).availability_remains === 0;
@@ -533,8 +533,8 @@ export default class PopupStarGiftInfo extends PopupElement {
     const starsValue = (gift as StarGift.starGift).stars;
 
     let input = this.gift.input;
-    if(!input && gift._ === 'starGiftUnique') {
-      input = {_: 'inputSavedStarGiftSlug', slug: gift.slug}
+    if (!input && gift._ === 'starGiftUnique') {
+      input = { _: 'inputSavedStarGiftSlug', slug: gift.slug }
     }
     const ownerPeerId = this.gift.ownerId;
     const isEditableUniqueGift = gift._ === 'starGiftUnique' && ownerPeerId !== undefined && props.canManageGifts;
@@ -549,21 +549,21 @@ export default class PopupStarGiftInfo extends PopupElement {
     const [upgradeAnimationComplete, setUpgradeAnimationComplete] = createSignal(!this.upgradeAnimation);
 
     this.listenerSetter.add(rootScope)('star_gift_update', (event) => {
-      if(inputStarGiftEquals(this.gift, event.input)) {
-        if(event.resalePrice) {
+      if (inputStarGiftEquals(this.gift, event.input)) {
+        if (event.resalePrice) {
           setIsListed(event.resalePrice.length > 0);
           updateStarGift(this.gift, event);
           setResellOnlyTon(this.gift.resellOnlyTon);
           setResellPriceTon(this.gift.resellPriceTon);
           setResellPriceStars(this.gift.resellPriceStars);
         }
-        if(event.wearing !== undefined) {
+        if (event.wearing !== undefined) {
           setIsWearing(event.wearing);
           createSnackbar({
             icon: event.wearing ? 'crown' : 'crownoff',
             textElement: (event.wearing ?
               i18n('SetAsEmojiStatusInfo') :
-              i18n('StarGiftWearStopped', [getCollectibleName(gift as StarGift.starGiftUnique)]))
+              i18n('StarGiftWearStopped', [getCollectibleName(gift as StarGift.starGiftUnique)])),
           });
         }
       }
@@ -576,7 +576,7 @@ export default class PopupStarGiftInfo extends PopupElement {
     })
 
     const handleAttributeClick = (attribute: StarGiftAttribute.starGiftAttributeModel | StarGiftAttribute.starGiftAttributeBackdrop | StarGiftAttribute.starGiftAttributePattern) => {
-      if(this.onAttributeClick) {
+      if (this.onAttributeClick) {
         this.onAttributeClick(attribute);
         return
       }
@@ -585,48 +585,48 @@ export default class PopupStarGiftInfo extends PopupElement {
         peerId: rootScope.myId,
         resaleParams: {
           giftId: (gift as StarGift.starGiftUnique).gift_id,
-          filter: attribute
-        }
+          filter: attribute,
+        },
       })
     }
 
     let loading = false;
     const toggleGiftHidden = () => {
-      if(loading) return;
+      if (loading) return;
       loading = true;
       this.managers.appGiftsManager.toggleGiftHidden(input!, !saved!.pFlags.unsaved).then(() => {
         this.hide();
       });
     }
 
-    if(this.canUpgrade) {
+    if (this.canUpgrade) {
       attachClickEvent(this.btnConfirm, () => createStarGiftUpgradePopup({
         gift: this.gift,
-        descriptionForPeerId: this.gift.ownerId === rootScope.myId ? undefined : this.gift.ownerId
+        descriptionForPeerId: this.gift.ownerId === rootScope.myId ? undefined : this.gift.ownerId,
       }).then(() => this.hide()));
-    } else if(this.isResale) {
+    } else if (this.isResale) {
       attachClickEvent(this.btnConfirm, () => {
         const recipientId = this.resaleRecipient ?? rootScope.myId;
         const popup = PopupElement.createPopup(PopupBuyResaleGift, {
           recipientId,
-          gift: this.gift
+          gift: this.gift,
         })
         const giftUnique = this.gift.raw as StarGift.starGiftUnique;
         popup.show()
         popup.addEventListener('finish', async(bought) => {
-          if(bought) {
+          if (bought) {
             this.hide();
 
             const isSelf = recipientId === rootScope.myId;
-            if(isSelf) {
+            if (isSelf) {
               toastNew({
                 langPackKey: 'StarGiftResaleBoughtSelf',
-                langPackArguments: [`${giftUnique.title} #${numberThousandSplitter(giftUnique.num, ',')}`]
+                langPackArguments: [`${giftUnique.title} #${numberThousandSplitter(giftUnique.num, ',')}`],
               })
             } else {
               toastNew({
                 langPackKey: 'StarGiftResaleBoughtOther',
-                langPackArguments: [await wrapPeerTitle({peerId: recipientId, onlyFirstName: true})]
+                langPackArguments: [await wrapPeerTitle({ peerId: recipientId, onlyFirstName: true })],
               })
             }
           }
@@ -639,23 +639,23 @@ export default class PopupStarGiftInfo extends PopupElement {
     const tableContent = createMemo(() => {
       const rows: TableRow[] = [];
 
-      if(gift._ === 'starGiftUnique') {
-        if(gift.owner_id) {
+      if (gift._ === 'starGiftUnique') {
+        if (gift.owner_id) {
           rows.push([
             'StarGiftOwner',
             <TablePeer
               peerId={getPeerId(gift.owner_id)}
               onClick={() => {
-                appImManager.setInnerPeer({peerId: getPeerId(gift.owner_id!)})
+                appImManager.setInnerPeer({ peerId: getPeerId(gift.owner_id!) })
                 this.onClickAway?.()
                 this.hide()
               }}
-            />
+            />,
           ]);
-        } else if(gift.owner_name) {
+        } else if (gift.owner_name) {
           rows.push([
             'StarGiftOwner',
-            gift.owner_name
+            gift.owner_name,
           ]);
         }
 
@@ -676,7 +676,7 @@ export default class PopupStarGiftInfo extends PopupElement {
               rarity={collectibleAttributes!.model.rarity}
               onClick={() => handleAttributeClick(collectibleAttributes!.model)}
             />
-          )
+          ),
         ]);
 
         rows.push([
@@ -696,7 +696,7 @@ export default class PopupStarGiftInfo extends PopupElement {
               rarity={collectibleAttributes!.backdrop.rarity}
               onClick={() => handleAttributeClick(collectibleAttributes!.backdrop)}
             />
-          )
+          ),
         ]);
 
         rows.push([
@@ -716,18 +716,18 @@ export default class PopupStarGiftInfo extends PopupElement {
               rarity={collectibleAttributes!.pattern.rarity}
               onClick={() => handleAttributeClick(collectibleAttributes!.pattern)}
             />
-          )
+          ),
         ]);
 
         rows.push([
           'StarGiftAvailability',
           i18n('StarGiftAvailabilityIssued', [
             numberThousandSplitter(gift.availability_issued),
-            numberThousandSplitter(gift.availability_total)
-          ])
+            numberThousandSplitter(gift.availability_total),
+          ]),
         ]);
 
-        if(props.value) {
+        if (props.value) {
           rows.push([
             'StarGiftValue',
             <>
@@ -735,17 +735,17 @@ export default class PopupStarGiftInfo extends PopupElement {
               <TableButton
                 text="StarGiftValueLearnMore"
                 onClick={() => {
-                  PopupElement.createPopup(PopupStarGiftValue, {gift: this.gift, value: props.value!}).show();
+                  PopupElement.createPopup(PopupStarGiftValue, { gift: this.gift, value: props.value! }).show();
                 }}
               />
-            </>
+            </>,
           ]);
         }
 
         return rows;
       }
 
-      if(fromId !== NULL_PEER_ID) {
+      if (fromId !== NULL_PEER_ID) {
         rows.push([
           'StarGiftFromShort',
           <>
@@ -754,32 +754,32 @@ export default class PopupStarGiftInfo extends PopupElement {
               text="StarGiftSendInline"
               onClick={() => {
                 this.hide();
-                PopupElement.createPopup(PopupSendGift, {peerId: fromId});
+                PopupElement.createPopup(PopupSendGift, { peerId: fromId });
               }}
             />
-          </>
+          </>,
         ]);
       }
 
-      if(date) {
+      if (date) {
         rows.push([
           'StarGiftDate',
-          <span>{formatFullSentTime(date.getTime() / 1000 | 0)}</span>
+          <span>{formatFullSentTime(date.getTime() / 1000 | 0)}</span>,
         ]);
       }
 
-      if(isUnavailable) {
-        if(firstSaleDate) {
+      if (isUnavailable) {
+        if (firstSaleDate) {
           rows.push([
             'StarGiftUnavailableFirstSale',
-            <span>{formatFullSentTime(firstSaleDate.getTime() / 1000 | 0)}</span>
+            <span>{formatFullSentTime(firstSaleDate.getTime() / 1000 | 0)}</span>,
           ]);
         }
 
-        if(lastSaleDate) {
+        if (lastSaleDate) {
           rows.push([
             'StarGiftUnavailableLastSale',
-            <span>{formatFullSentTime(lastSaleDate.getTime() / 1000 | 0)}</span>
+            <span>{formatFullSentTime(lastSaleDate.getTime() / 1000 | 0)}</span>,
           ]);
         }
       }
@@ -799,31 +799,31 @@ export default class PopupStarGiftInfo extends PopupElement {
               textArgs={[saved.convert_stars]}
               onClick={() => {
                 rootScope.managers.appGiftsManager.convertGift(input!)
-                .then(() => {
-                  this.hide()
-                }).catch(() => {
-                  toastNew({langPackKey: 'Error.AnError'})
-                })
+                  .then(() => {
+                    this.hide()
+                  }).catch(() => {
+                    toastNew({ langPackKey: 'Error.AnError' })
+                  })
               }}
             />
           )}
-        </>
+        </>,
       ]);
 
-      if(gift.availability_total! > 0) {
+      if (gift.availability_total! > 0) {
         rows.push([
           'StarGiftAvailability',
           i18n('StarGiftAvailabilityValue2', [
             numberThousandSplitter((gift).availability_remains ?? 0),
-            numberThousandSplitter(gift.availability_total!)
-          ])
+            numberThousandSplitter(gift.availability_total!),
+          ]),
         ]);
       }
 
-      if(gift._ === 'starGift' && saved?.pFlags.can_upgrade) {
+      if (gift._ === 'starGift' && saved?.pFlags.can_upgrade) {
         rows.push([
           'StarGiftStatus',
-          i18n('StarGiftStatusNonUnique')
+          i18n('StarGiftStatusNonUnique'),
         ]);
       }
 
@@ -833,7 +833,7 @@ export default class PopupStarGiftInfo extends PopupElement {
     const [originalDetails, setOriginalDetails] = createSignal(collectibleAttributes?.original);
 
     const tableFooter = () => {
-      if(originalDetails()) {
+      if (originalDetails()) {
         const wrapPeer = (peer: Peer) => {
           const peerId = getPeerId(peer);
           return (
@@ -841,7 +841,7 @@ export default class PopupStarGiftInfo extends PopupElement {
               peerId={peerId}
               onlyFirstName
               onClick={() => {
-                appImManager.setInnerPeer({peerId})
+                appImManager.setInnerPeer({ peerId })
                 this.hide()
               }}
             />
@@ -851,7 +851,7 @@ export default class PopupStarGiftInfo extends PopupElement {
         let key: LangPackKey;
         const args: JSX.Element[] = [];
 
-        if(collectibleAttributes!.original!.sender_id) {
+        if (collectibleAttributes!.original!.sender_id) {
           key = collectibleAttributes!.original!.message ? 'StarGiftOriginalDetailsSenderComment' : 'StarGiftOriginalDetailsSender';
           args.push(wrapPeer(collectibleAttributes!.original!.sender_id));
         } else {
@@ -861,10 +861,10 @@ export default class PopupStarGiftInfo extends PopupElement {
         args.push(wrapPeer(collectibleAttributes!.original!.recipient_id));
         args.push(formatDate(new Date(collectibleAttributes!.original!.date * 1000)));
 
-        if(collectibleAttributes!.original!.message) {
+        if (collectibleAttributes!.original!.message) {
           const span = document.createElement('span');
           const wrapped = wrapMessageEntities(collectibleAttributes!.original!.message.text, collectibleAttributes!.original!.message.entities)
-          span.append(wrapRichText(wrapped.message, {entities: wrapped.totalEntities}));
+          span.append(wrapRichText(wrapped.message, { entities: wrapped.totalEntities }));
           args.push(span);
         }
 
@@ -878,12 +878,12 @@ export default class PopupStarGiftInfo extends PopupElement {
                   const popup = await PopupPayment.create({
                     inputInvoice: {
                       _: 'inputInvoiceStarGiftDropOriginalDetails',
-                      stargift: input!
-                    }
+                      stargift: input!,
+                    },
                   });
 
                   popup.addEventListener('finish', (result) => {
-                    if(result === 'paid') {
+                    if (result === 'paid') {
                       setOriginalDetails(undefined);
                       delete collectibleAttributes!.original
                     }
@@ -895,57 +895,57 @@ export default class PopupStarGiftInfo extends PopupElement {
         )
       }
 
-      if(saved?.message) {
-        return wrapRichText(saved.message.text, {entities: saved.message.entities});
+      if (saved?.message) {
+        return wrapRichText(saved.message.text, { entities: saved.message.entities });
       }
     }
 
     const handleShare = () => {
-      showSharingPicker2Popup().then(({peerId, threadId, monoforumThreadId}) => {
-        rootScope.managers.appMessagesManager.sendText({peerId, threadId, replyToMonoforumPeerId: monoforumThreadId, text: 'https://t.me/nft/' + (gift as StarGift.starGiftUnique).slug});
-        appImManager.setInnerPeer({peerId, threadId, monoforumThreadId});
+      showSharingPicker2Popup().then(({ peerId, threadId, monoforumThreadId }) => {
+        rootScope.managers.appMessagesManager.sendText({ peerId, threadId, replyToMonoforumPeerId: monoforumThreadId, text: 'https://t.me/nft/' + (gift as StarGift.starGiftUnique).slug });
+        appImManager.setInnerPeer({ peerId, threadId, monoforumThreadId });
         this.hide();
       });
     }
 
     const handleSell = async(changePrice = false) => {
-      if(!isEditableUniqueGift || !saved) return;
+      if (!isEditableUniqueGift || !saved) return;
 
-      if(isListed() && !changePrice) {
+      if (isListed() && !changePrice) {
         await confirmationPopup({
           titleLangKey: 'StarGiftUnlistTitle',
           titleLangArgs: [getCollectibleName(gift)],
           descriptionLangKey: 'StarGiftUnlistText',
           button: {
-            langKey: 'StarGiftUnlistConfirm'
-          }
+            langKey: 'StarGiftUnlistConfirm',
+          },
         });
         await this.managers.appGiftsManager.updateResalePrice(input!, null);
         createSnackbar({
           icon: 'tag_alt_crossed',
-          textElement: i18n('StarGiftResaleRemoved', [getCollectibleName(gift)])
+          textElement: i18n('StarGiftResaleRemoved', [getCollectibleName(gift)]),
         })
         return
       }
 
       const now = tsNow(true);
-      if(saved.can_resell_at !== undefined && saved.can_resell_at > now) {
+      if (saved.can_resell_at !== undefined && saved.can_resell_at > now) {
         toastNew({
           langPackKey: 'StarGiftResaleCooldown',
-          langPackArguments: [wrapFormattedDuration(formatDuration(saved.can_resell_at - now, 2))]
+          langPackArguments: [wrapFormattedDuration(formatDuration(saved.can_resell_at - now, 2))],
         });
         return
       }
 
-      const popup = PopupElement.createPopup(PopupSellStarGift, {gift: this.gift, allowUnlist: changePrice})
+      const popup = PopupElement.createPopup(PopupSellStarGift, { gift: this.gift, allowUnlist: changePrice })
       popup.addEventListener('finish', (result) => {
-        if(result !== 'cancel') {
+        if (result !== 'cancel') {
           createSnackbar({
             icon: result === 'list' ? 'tag_alt' : 'tag_alt_crossed',
             textElement: i18n(
               result === 'list' ? 'StarGiftResaleListed' : 'StarGiftResaleRemoved',
               [getCollectibleName(gift)]
-            )
+            ),
           })
         }
       })
@@ -957,13 +957,13 @@ export default class PopupStarGiftInfo extends PopupElement {
         appendTo: this.container,
         from: 'bottom',
         duration: 5000,
-        ...params
+        ...params,
       });
     }
 
     let stickerContainer!: HTMLDivElement;
     onMount(() => {
-      if(isEditableUniqueGift) {
+      if (isEditableUniqueGift) {
         // ! preload options for resale floor price
         this.managers.appGiftsManager.getStarGiftOptions().catch(() => {})
       }
@@ -975,7 +975,7 @@ export default class PopupStarGiftInfo extends PopupElement {
         height: 120,
         play: !this.upgradeAnimation,
         needFadeIn: !!this.upgradeAnimation,
-        middleware: this.middlewareHelper.get()
+        middleware: this.middlewareHelper.get(),
       })
     })
 
@@ -994,7 +994,7 @@ export default class PopupStarGiftInfo extends PopupElement {
           )}
           <div
             class="popup-star-gift-info-sticker"
-            classList={{hide: !upgradeAnimationComplete()}}
+            classList={{ hide: !upgradeAnimationComplete() }}
             ref={stickerContainer}
           />
           {this.upgradeAnimation && !upgradeAnimationComplete() && (
@@ -1029,17 +1029,17 @@ export default class PopupStarGiftInfo extends PopupElement {
                 text: saved?.pFlags.pinned_to_top ? 'StarGiftUnpin' : 'StarGiftPin',
                 verify: () => isEditableUniqueGift,
                 onClick: () => {
-                  if(ownerPeerId === undefined) return;
+                  if (ownerPeerId === undefined) return;
                   this.managers.appGiftsManager.togglePinnedGift(input!, ownerPeerId).then(() => {
                     this.hide();
                   });
-                }
+                },
               },
               {
                 icon: 'tag_alt_outline',
                 text: 'StarGiftChangePrice',
                 verify: () => isEditableUniqueGift && isListed(),
-                onClick: () => handleSell(true)
+                onClick: () => handleSell(true),
               },
               {
                 icon: 'tag_alt_outline',
@@ -1047,22 +1047,22 @@ export default class PopupStarGiftInfo extends PopupElement {
                 verify: () => gift._ === 'starGiftUnique' && gift.offer_min_stars !== undefined,
                 onClick: () => showCreateStarGiftOfferPopup({
                   gift: this.gift,
-                  onFinish: (res) => res === 'created' && this.hide()
-                })
+                  onFinish: (res) => res === 'created' && this.hide(),
+                }),
               },
               {
                 icon: 'forward',
                 text: 'ShareFile',
-                onClick: handleShare
+                onClick: handleShare,
               },
               {
                 icon: 'link',
                 text: 'CopyLink',
                 onClick: () => {
                   copyTextToClipboard('https://t.me/nft/' + (gift as StarGift.starGiftUnique).slug);
-                  toastNew({langPackKey: 'LinkCopied'});
-                }
-              }
+                  toastNew({ langPackKey: 'LinkCopied' });
+                },
+              },
             ]}
           />
 
@@ -1109,10 +1109,10 @@ export default class PopupStarGiftInfo extends PopupElement {
                         peerId={getPeerId(gift.released_by)}
                         username
                         onClick={() => {
-                          appImManager.setInnerPeer({peerId: getPeerId(gift.released_by!)})
+                          appImManager.setInnerPeer({ peerId: getPeerId(gift.released_by!) })
                           this.hide()
                         }}
-                      />
+                      />,
                     ]}
                   /> :
                   <I18nTsx
@@ -1120,7 +1120,7 @@ export default class PopupStarGiftInfo extends PopupElement {
                     args={[
                       this.upgradeAnimation ? (
                         <AnimatedCollectibleNumber targetNumber={gift.num} started={upgradeAnimationStarted()} />
-                      ) : numberThousandSplitter(gift.num, ',')
+                      ) : numberThousandSplitter(gift.num, ','),
                     ]}
                   />
               }
@@ -1135,7 +1135,7 @@ export default class PopupStarGiftInfo extends PopupElement {
                 icon="gem_transfer"
                 text="StarGiftTransfer"
                 onClick={() => transferStarGift(this.gift).then((ok) => {
-                  if(ok) {
+                  if (ok) {
                     this.hide();
                   }
                 })}
@@ -1146,21 +1146,21 @@ export default class PopupStarGiftInfo extends PopupElement {
                 icon={isWearing() ? 'crownoff' : 'crown'}
                 text={isWearing() ? 'StarGiftWearStop' : 'StarGiftWear'}
                 onClick={async() => {
-                  if(ownerPeerId === undefined) return;
-                  if(isWearing()) {
-                    if(ownerPeerId === rootScope.myId) {
-                      rootScope.managers.appUsersManager.updateEmojiStatus({_: 'emojiStatusEmpty'});
+                  if (ownerPeerId === undefined) return;
+                  if (isWearing()) {
+                    if (ownerPeerId === rootScope.myId) {
+                      rootScope.managers.appUsersManager.updateEmojiStatus({ _: 'emojiStatusEmpty' });
                     } else {
                       rootScope.managers.apiManager.invokeApiSingleProcess({
                         method: 'channels.updateEmojiStatus',
                         params: {
                           channel: await rootScope.managers.appChatsManager.getChannelInput(ownerPeerId.toChatId()),
-                          emoji_status: {_: 'emojiStatusEmpty'}
-                        }
+                          emoji_status: { _: 'emojiStatusEmpty' },
+                        },
                       }).then((updates) => {
                         rootScope.managers.apiUpdatesManager.processUpdateMessage(updates);
                       }).catch(() => {
-                        toastNew({langPackKey: 'Error.AnError'});
+                        toastNew({ langPackKey: 'Error.AnError' });
                       });
                     }
                   } else {
@@ -1212,30 +1212,30 @@ export default class PopupStarGiftInfo extends PopupElement {
     const gift = this.gift.raw;
     const [value, canManageGifts] = await Promise.all([
       gift._ === 'starGiftUnique' ? this.managers.appGiftsManager.getGiftValue(gift.slug) : Promise.resolve(null),
-      this.gift.ownerId !== undefined ? getCanManagePeerGifts(this.gift.ownerId) : Promise.resolve(false)
+      this.gift.ownerId !== undefined ? getCanManagePeerGifts(this.gift.ownerId) : Promise.resolve(false),
     ]);
-    this.appendSolid(() => this._construct({value, canManageGifts}));
+    this.appendSolid(() => this._construct({ value, canManageGifts }));
 
-    if(this.isResale) {
+    if (this.isResale) {
       const resaleRecipient = this.resaleRecipient ?? rootScope.myId;
       this.btnConfirm.classList.add('popup-star-gift-info-resale-button');
       this.btnConfirm.replaceChildren(
         i18n(resaleRecipient !== rootScope.myId ? 'StarGiftResaleSend' : 'StarGiftResaleBuy', [
           this.gift.resellOnlyTon ?
             paymentsWrapCurrencyAmount(this.gift.resellPriceTon!, TON_CURRENCY) :
-            paymentsWrapCurrencyAmount(this.gift.resellPriceStars!, STARS_CURRENCY)
+            paymentsWrapCurrencyAmount(this.gift.resellPriceStars!, STARS_CURRENCY),
         ])
       )
 
-      if(this.gift.resellOnlyTon) {
+      if (this.gift.resellOnlyTon) {
         this.btnConfirm.classList.add('popup-star-gift-info-resale-button-twoline');
         const span = i18n('StarGiftResaleStarsAmount', [
-          paymentsWrapCurrencyAmount(this.gift.resellPriceStars!, STARS_CURRENCY)
+          paymentsWrapCurrencyAmount(this.gift.resellPriceStars!, STARS_CURRENCY),
         ])
         span.classList.add('popup-star-gift-info-resale-stars-amount');
         this.btnConfirm.append(span);
       }
-    } else if(this.canUpgrade) {
+    } else if (this.canUpgrade) {
       this.btnConfirm.replaceChildren(
         i18n(this.gift.saved?.prepaid_upgrade_hash ? 'StarGiftGiftUpgrade' : 'StarGiftStatusUpgrade'),
         Icon('arrow_up_circle_fill')

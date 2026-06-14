@@ -1,5 +1,5 @@
 import crc32 from '@helpers/number/crc32';
-import {Poll, PollAnswer} from '@layer';
+import { Poll, PollAnswer } from '@layer';
 
 export const shouldShufflePollOptions = (poll: Poll): boolean =>
   !poll.pFlags.creator && !!poll.pFlags.shuffle_answers;
@@ -34,8 +34,8 @@ const hashPollShuffleValue = (
  */
 const compareOptionBytes = (a: Uint8Array, b: Uint8Array): number => {
   const len = Math.min(a.length, b.length);
-  for(let i = 0; i < len; i++) {
-    if(a[i] !== b[i]) return a[i] - b[i];
+  for (let i = 0; i < len; i++) {
+    if (a[i] !== b[i]) return a[i] - b[i];
   }
   return a.length - b.length;
 };
@@ -46,11 +46,11 @@ type ShufflePollOptionsArgs = {
   pollId: Poll.poll['id'];
 };
 
-export const shufflePollOptions = ({options, userId, pollId}: ShufflePollOptionsArgs) => {
+export const shufflePollOptions = ({ options, userId, pollId }: ShufflePollOptionsArgs) => {
   return options.slice().sort((a, b) => {
     const hashA = hashPollShuffleValue(userId, pollId, a.option);
     const hashB = hashPollShuffleValue(userId, pollId, b.option);
-    if(hashA !== hashB) return hashA - hashB;
+    if (hashA !== hashB) return hashA - hashB;
     return compareOptionBytes(a.option, b.option);
   });
 };

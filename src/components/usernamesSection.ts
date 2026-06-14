@@ -1,20 +1,20 @@
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import findUpAsChild from '@helpers/dom/findUpAsChild';
 import placeCaretAtEnd from '@helpers/dom/placeCaretAtEnd';
 import positionElementByIndex from '@helpers/dom/positionElementByIndex';
 import Sortable from '@helpers/dom/sortable';
 import ListenerSetter from '@helpers/listenerSetter';
-import {Middleware} from '@helpers/middleware';
+import { Middleware } from '@helpers/middleware';
 import noop from '@helpers/noop';
-import SortedList, {SortedElementBase} from '@helpers/sortedList';
-import {Chat, User, Username} from '@layer';
-import {i18n, LangPackKey} from '@lib/langPack';
+import SortedList, { SortedElementBase } from '@helpers/sortedList';
+import { Chat, User, Username } from '@layer';
+import { i18n, LangPackKey } from '@lib/langPack';
 import rootScope from '@lib/rootScope';
 import confirmationPopup from '@components/confirmationPopup';
 import Icon from '@components/icon';
 import Row from '@components/row';
 import SettingSection from '@components/settingSection';
-import {UsernameInputField} from '@components/usernameInputField';
+import { UsernameInputField } from '@components/usernameInputField';
 
 const CLASS_NAME = 'usernames';
 
@@ -31,10 +31,10 @@ export class UsernameRow extends Row {
       subtitle: true,
       clickable: true,
       titleRight,
-      subtitleRight
+      subtitleRight,
     });
 
-    if(isLink) {
+    if (isLink) {
       this.title.classList.add('text-bold');
       this.container.classList.add('is-link');
     }
@@ -43,8 +43,8 @@ export class UsernameRow extends Row {
     this.subtitle.classList.add(CLASS_NAME + '-username-status');
     const media = this.createMedia('abitbigger');
     media.classList.add(CLASS_NAME + '-username-icon', 'avatar-gradient');
-    if(color) media.dataset.color = color;
-    if(isLink && icon === 'link_paid') this.container.classList.add('is-paid');
+    if (color) media.dataset.color = color;
+    if (isLink && icon === 'link_paid') this.container.classList.add('is-paid');
     media.append(Icon(icon));
   }
 }
@@ -61,15 +61,15 @@ export default class UsernamesSection extends SettingSection {
   }) {
     /* const section = this.section = new SettingSection */super({
       name: 'UsernamesProfileHeader',
-      caption: (options.peer as User.user).pFlags.bot ? 'UsernamesBotHelp' : (!options.peerId.isUser() ? 'UsernamesChannelHelp' : 'UsernamesProfileHelp')
+      caption: (options.peer as User.user).pFlags.bot ? 'UsernamesBotHelp' : (!options.peerId.isUser() ? 'UsernamesChannelHelp' : 'UsernamesProfileHelp'),
     });
 
-    const {peerId, peer, usernameInputField, listenerSetter, middleware} = options;
+    const { peerId, peer, usernameInputField, listenerSetter, middleware } = options;
     const managers = rootScope.managers;
     const channelId = peerId.isUser() ? undefined : peerId.toChatId();
     const botId = (options.peer as User.user).pFlags.bot ? peerId.toUserId() : undefined;
 
-    if(botId) {
+    if (botId) {
       usernameInputField.container.classList.add('disable-hover');
     }
 
@@ -100,7 +100,7 @@ export default class UsernamesSection extends SettingSection {
         const editable = !!username!.pFlags.editable;
         const active = !!username!.pFlags.active;
 
-        if(editable) row.container.dataset.editable = '1';
+        if (editable) row.container.dataset.editable = '1';
 
         row.makeSortable();
 
@@ -110,7 +110,7 @@ export default class UsernamesSection extends SettingSection {
 
         return base as SortedUsername;
       },
-      middleware
+      middleware,
     });
 
     const changeActive = (row: Row, active: boolean) => {
@@ -123,13 +123,13 @@ export default class UsernamesSection extends SettingSection {
       _usernames = usernames;
 
       sortedList.getAll().forEach((element) => {
-        if(!usernames.some((username) => username.username === element.id)) {
+        if (!usernames.some((username) => username.username === element.id)) {
           sortedList.delete(element.id);
         }
       });
 
       usernames.forEach((username) => {
-        if(!sortedList.has(username.username)) {
+        if (!sortedList.has(username.username)) {
           sortedList.add(username.username);
         } else {
           const element = sortedList.get(username.username);
@@ -143,8 +143,8 @@ export default class UsernamesSection extends SettingSection {
 
     applyUsernames(peer.usernames);
 
-    listenerSetter.add(rootScope)('peer_title_edit', async({peerId: _peerId}) => {
-      if(_peerId !== peerId) {
+    listenerSetter.add(rootScope)('peer_title_edit', async({ peerId: _peerId }) => {
+      if (_peerId !== peerId) {
         return;
       }
 
@@ -154,18 +154,18 @@ export default class UsernamesSection extends SettingSection {
 
     let cancelClick = false;
     attachClickEvent(list, async(e) => {
-      if(cancelClick) {
+      if (cancelClick) {
         cancelClick = false;
         return;
       }
 
       const container = findUpAsChild(((e.target as HTMLElement) as { parentElement: HTMLElement; }), list) as HTMLElement | null;
-      if(!container) {
+      if (!container) {
         return;
       }
 
-      if(container.dataset.editable) {
-        if(!botId) {
+      if (container.dataset.editable) {
+        if (!botId) {
           placeCaretAtEnd(usernameInputField.input, true, true);
         }
 
@@ -176,7 +176,7 @@ export default class UsernamesSection extends SettingSection {
 
       const active = container.classList.contains('active');
       let titleLangKey: LangPackKey, descriptionLangKey: LangPackKey;
-      if(active) {
+      if (active) {
         titleLangKey = 'UsernameDeactivateLink';
         descriptionLangKey = botId ? 'UsernameDeactivateLinkBotMessage' : (channelId ? 'UsernameDeactivateLinkChannelMessage' : 'UsernameDeactivateLinkProfileMessage');
       } else {
@@ -189,10 +189,10 @@ export default class UsernamesSection extends SettingSection {
           titleLangKey,
           descriptionLangKey,
           button: {
-            langKey: active ? 'Hide' : 'Show'
-          }
+            langKey: active ? 'Hide' : 'Show',
+          },
         });
-      } catch(err) {
+      } catch (err) {
         return;
       }
 
@@ -200,15 +200,15 @@ export default class UsernamesSection extends SettingSection {
       const promise = managers.appUsernamesManager.toggleUsername({
         peerId,
         username: username!,
-        active: newActive
+        active: newActive,
       });
 
       promise.catch((err: ApiError) => {
-        if(err.type === 'USERNAMES_ACTIVE_TOO_MUCH') {
+        if (err.type === 'USERNAMES_ACTIVE_TOO_MUCH') {
           confirmationPopup({
             titleLangKey: 'UsernameActivateErrorTitle',
             descriptionLangKey: 'UsernameActivateErrorMessage',
-            button: {langKey: 'OK', isCancel: true}
+            button: { langKey: 'OK', isCancel: true },
           }).catch(noop);
         } else {
           console.error('turn username error', err);
@@ -227,8 +227,8 @@ export default class UsernamesSection extends SettingSection {
         // sortedList.update(username.username);
 
         const usernames = _usernames.filter((username) => username.pFlags.active).map((username) => username.username);
-        managers.appUsernamesManager.reorderUsernames({peerId, order: usernames});
-      }
+        managers.appUsernamesManager.reorderUsernames({ peerId, order: usernames });
+      },
     });
 
     section.content.append(list);

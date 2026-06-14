@@ -1,14 +1,14 @@
-import {useCreatePollLimits} from '@components/popups/createPoll/useCreatePollLimits';
+import { useCreatePollLimits } from '@components/popups/createPoll/useCreatePollLimits';
 import compareUint8Arrays from '@helpers/bytes/compareUint8Arrays';
-import {Document, InputMedia, Message, MessageMedia, Photo, PollAnswer} from '@layer';
+import { Document, InputMedia, Message, MessageMedia, Photo, PollAnswer } from '@layer';
 import getPeerId from '@lib/appManagers/utils/peers/getPeerId';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {Accessor, createMemo, createResource} from 'solid-js';
-import {unwrap} from 'solid-js/store';
-import {PollMessageContentProps} from './PollMessageContent';
-import {getRoundedPercentsFromResults} from './roundPercents';
-import {shouldShufflePollOptions} from './shuffle';
-import {PollOptionResult} from './utils';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { Accessor, createMemo, createResource } from 'solid-js';
+import { unwrap } from 'solid-js/store';
+import { PollMessageContentProps } from './PollMessageContent';
+import { getRoundedPercentsFromResults } from './roundPercents';
+import { shouldShufflePollOptions } from './shuffle';
+import { PollOptionResult } from './utils';
 
 
 type UsePollDerivedPropsArgs = {
@@ -35,8 +35,8 @@ export type GetStickerMediaResult = {
 };
 
 const getStickerMedia = (media: MessageMedia | InputMedia | undefined): GetStickerMediaResult | undefined => {
-  if(media?._ === 'messageMediaDocument' && media.document?._ === 'document' && media.document.sticker) {
-    return {media: unwrap(media), document: unwrap(media.document)};
+  if (media?._ === 'messageMediaDocument' && media.document?._ === 'document' && media.document.sticker) {
+    return { media: unwrap(media), document: unwrap(media.document) };
   }
 };
 
@@ -53,9 +53,9 @@ const getGeo = (media: MessageMedia | InputMedia | undefined): MessageMedia.mess
  * Returns the various memos derived from the poll props plus helper
  * functions (`getOverridenMessage`, `getResultForOption`, ...).
  */
-export function usePollDerivedProps({props, pollOptions, chosenIndexes, newOptionText}: UsePollDerivedPropsArgs) {
-  const {rootScope} = useHotReloadGuard();
-  const {maxOptions} = useCreatePollLimits();
+export function usePollDerivedProps({ props, pollOptions, chosenIndexes, newOptionText }: UsePollDerivedPropsArgs) {
+  const { rootScope } = useHotReloadGuard();
+  const { maxOptions } = useCreatePollLimits();
 
   const [timeOffset] = createResource(() => rootScope.managers.timeManager.getServerTimeOffset());
 
@@ -101,8 +101,8 @@ export function usePollDerivedProps({props, pollOptions, chosenIndexes, newOptio
       // On poll_update, only the poll and results are updated, not the message itself
       _: 'messageMediaPoll' as const,
       poll: unwrap(props.poll),
-      results: unwrap(props.results)
-    }
+      results: unwrap(props.results),
+    },
   });
 
   const explanationPhoto = createMemo(() => getPhoto(props.results.solution_media));
@@ -128,14 +128,14 @@ export function usePollDerivedProps({props, pollOptions, chosenIndexes, newOptio
   };
 
   const getResultForOption = (initialIdx: number): PollOptionResult | undefined => {
-    if(!isShowingResult()) return undefined;
+    if (!isShowingResult()) return undefined;
     const result = props.results?.results?.[initialIdx];
     return {
       correct: props.poll.correctIndexes?.includes(initialIdx) ?? false,
       chosen: props.poll.chosenIndexes?.includes(initialIdx) ?? false,
       percent: roundedPercents()[initialIdx],
       voters: result?.voters ?? 0,
-      peerIds: result?.recent_voters?.map(peer => getPeerId(peer)) ?? []
+      peerIds: result?.recent_voters?.map(peer => getPeerId(peer)) ?? [],
     };
   };
 
@@ -190,6 +190,6 @@ export function usePollDerivedProps({props, pollOptions, chosenIndexes, newOptio
     getPhotoForOption,
     getVideoForOption,
     getStickerForOption,
-    getGeoForOption
+    getGeoForOption,
   };
 }

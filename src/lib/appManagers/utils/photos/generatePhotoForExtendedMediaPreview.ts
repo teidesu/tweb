@@ -1,8 +1,8 @@
-import {MessageExtendedMedia, Photo, PhotoSize} from '@layer';
+import { MessageExtendedMedia, Photo, PhotoSize } from '@layer';
 
 export default function generatePhotoForExtendedMediaPreview(media: MessageExtendedMedia.messageExtendedMediaPreview): Photo.photo {
   let thumb = media.thumb as PhotoSize.photoStrippedSize;
-  if(thumb) {
+  if (thumb) {
     thumb.w = media.w;
     thumb.h = media.h;
   } else {
@@ -11,7 +11,7 @@ export default function generatePhotoForExtendedMediaPreview(media: MessageExten
       bytes: new Uint8Array([1, 24, 30, 197, 162, 138, 40, 0, 162, 138, 40, 0, 162, 138, 40, 0, 162, 138, 40, 3]),
       type: 'i',
       w: 1,
-      h: 1
+      h: 1,
     };
   }
 
@@ -23,6 +23,6 @@ export default function generatePhotoForExtendedMediaPreview(media: MessageExten
     dc_id: 0,
     file_reference: [],
     id: 0,
-    sizes: [thumb]
+    sizes: [thumb],
   };
 }

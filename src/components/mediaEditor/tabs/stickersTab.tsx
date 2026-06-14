@@ -1,31 +1,31 @@
-import {batch, createEffect, createResource, createSignal, For, onCleanup, onMount, Show, useContext} from 'solid-js';
+import { batch, createEffect, createResource, createSignal, For, onCleanup, onMount, Show, useContext } from 'solid-js';
 
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {Document, EmojiGroup, StickerSet} from '@layer';
-import {i18n} from '@lib/langPack';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { Document, EmojiGroup, StickerSet } from '@layer';
+import { i18n } from '@lib/langPack';
 
 import SuperStickerRenderer from '@components/emoticonsDropdown/tabs/SuperStickerRenderer';
 import createMiddleware from '@helpers/solid/createMiddleware';
 import LazyLoadQueue from '@components/lazyLoadQueue';
-import {ScrollableX} from '@components/scrollable';
-import {IconTsx} from '@components/iconTsx';
+import { ScrollableX } from '@components/scrollable';
+import { IconTsx } from '@components/iconTsx';
 import Space from '@components/space';
 
 import useNormalizePoint from '@components/mediaEditor/canvas/useNormalizePoint';
-import {HistoryItem, useMediaEditorContext} from '@components/mediaEditor/context';
-import {ResizableLayer} from '@components/mediaEditor/types';
-import {delay} from '@components/mediaEditor/utils';
+import { HistoryItem, useMediaEditorContext } from '@components/mediaEditor/context';
+import { ResizableLayer } from '@components/mediaEditor/types';
+import { delay } from '@components/mediaEditor/utils';
 
-import {TabContentContext} from '@components/mediaEditor/tabs/tabContent';
-import {getStickerSetInputById} from '@lib/appManagers/utils/stickers/getStickerSetInput';
+import { TabContentContext } from '@components/mediaEditor/tabs/tabContent';
+import { getStickerSetInputById } from '@lib/appManagers/utils/stickers/getStickerSetInput';
 
 export default function StickersTab() {
-  const {wrapStickerSetThumb, EmoticonsSearch} = useHotReloadGuard();
+  const { wrapStickerSetThumb, EmoticonsSearch } = useHotReloadGuard();
   const context = useMediaEditorContext();
-  const {container, scrollAmount} = useContext(TabContentContext)!;
+  const { container, scrollAmount } = useContext(TabContentContext)!;
 
-  const {managers, editorState, mediaState, actions} = context!;
+  const { managers, editorState, mediaState, actions } = context!;
 
   const normalizePoint = useNormalizePoint();
 
@@ -46,8 +46,8 @@ export default function StickersTab() {
     regularLazyLoadQueue: lazyLoadQueue,
     group: 'none',
     managers,
-    intersectionObserverInit: {root: container()},
-    withLock: false
+    intersectionObserverInit: { root: container() },
+    withLock: false,
   });
 
   onCleanup(() => {
@@ -60,7 +60,7 @@ export default function StickersTab() {
     setScrolling(true);
     container()?.querySelector(`[data-set-id="${id}"]`)?.scrollIntoView({
       behavior: 'smooth',
-      block: 'start'
+      block: 'start',
     });
     await delay(1000);
     setScrolling(false);
@@ -83,7 +83,7 @@ export default function StickersTab() {
         middleware: middleware.get(),
         set: props.set,
         managers,
-        textColor: 'white'
+        textColor: 'white',
       });
     });
 
@@ -94,7 +94,7 @@ export default function StickersTab() {
         ref={renderContainer!}
         class="media-editor__stickers-set-thumb"
         classList={{
-          'media-editor__stickers-set-thumb--active': isActive()
+          'media-editor__stickers-set-thumb--active': isActive(),
         }}
         onClick={() => onStickerSetThumbClick(String(props.set.id))}
       />
@@ -118,7 +118,7 @@ export default function StickersTab() {
         rotation: -transform.rotation,
         scale: 1 / transform.scale,
         type: 'sticker',
-        sticker: props.doc
+        sticker: props.doc,
       } as ResizableLayer;
 
       batch(() => {
@@ -130,8 +130,8 @@ export default function StickersTab() {
           newValue: newLayer,
           oldValue: HistoryItem.RemoveArrayItem,
           findBy: {
-            id: newLayer.id
-          }
+            id: newLayer.id,
+          },
         })
       });
     }
@@ -143,7 +143,7 @@ export default function StickersTab() {
     let label: HTMLDivElement;
 
     createEffect(() => {
-      if(intersectionObserver()) {
+      if (intersectionObserver()) {
         intersectionObserver()!.observe(label!);
         onCleanup(() => {
           intersectionObserver()?.unobserve(label!);
@@ -188,7 +188,7 @@ export default function StickersTab() {
       class="media-editor__stickers-thumb-list-scrollable"
       classList={{
         'media-editor__stickers-thumb-list-scrollable--hidden': !visible(),
-        'media-editor__stickers-thumb-list-scrollable--has-scroll': scrollAmount() > 8
+        'media-editor__stickers-thumb-list-scrollable--has-scroll': scrollAmount() > 8,
       }}
       ref={thumbsListScrollable!}
     >
@@ -197,7 +197,7 @@ export default function StickersTab() {
           <div
             class="media-editor__stickers-recent-button"
             classList={{
-              'media-editor__stickers-recent-button--active': activeSet() === 'recent'
+              'media-editor__stickers-recent-button--active': activeSet() === 'recent',
             }}
             onClick={() => onStickerSetThumbClick('recent')}
           >
@@ -215,15 +215,15 @@ export default function StickersTab() {
       new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
-            if(!scrolling() && entry.isIntersecting) {
+            if (!scrolling() && entry.isIntersecting) {
               const id = (entry.target as HTMLDivElement).dataset.setId;
-              if(id) setActiveSet(id);
+              if (id) setActiveSet(id);
             }
           });
         },
         {
           root: container(),
-          rootMargin: `0px 0px -${container().clientHeight - 100}px 0px`
+          rootMargin: `0px 0px -${container().clientHeight - 100}px 0px`,
         }
       )
     );
@@ -234,7 +234,7 @@ export default function StickersTab() {
   });
 
   createEffect(() => {
-    if(intersectionObserver() && recentLabel()) {
+    if (intersectionObserver() && recentLabel()) {
       intersectionObserver()!.observe(recentLabel()!);
       onCleanup(() => {
         intersectionObserver()?.unobserve(recentLabel()!);
@@ -243,26 +243,26 @@ export default function StickersTab() {
   });
 
   createEffect(async() => {
-    if(search()) {
+    if (search()) {
       setFilteredStickers(await managers.appStickersManager.searchStickers(search()));
       return;
     }
-    if(group()) {
+    if (group()) {
       const g = group();
-      if(g!._ === 'emojiGroupPremium') {
+      if (g!._ === 'emojiGroupPremium') {
         setFilteredStickers(await managers.appStickersManager.getPremiumStickers());
         return;
       }
       setFilteredStickers(
         await managers.appStickersManager.getStickersByEmoticon({
           emoticon: g!.emoticons,
-          includeServerStickers: true
+          includeServerStickers: true,
         })
       );
 
       return;
     }
-    if(!group() && !search()) {
+    if (!group() && !search()) {
       setFilteredStickers();
     }
   });

@@ -1,10 +1,10 @@
 import filterUnique from '@helpers/array/filterUnique';
 import lastItem from '@helpers/array/lastItem';
 import tsNow from '@helpers/tsNow';
-import {DraftMessage, MessagesGetSavedDialogs, MessagesSavedDialogs, SavedDialog, Update} from '@layer';
-import {Pair} from '@types';
-import {MyMessage, SUGGESTED_POST_MIN_THRESHOLD_SECONDS} from '@appManagers/appMessagesManager';
-import {AppManager} from '@appManagers/manager';
+import { DraftMessage, MessagesGetSavedDialogs, MessagesSavedDialogs, SavedDialog, Update } from '@layer';
+import { Pair } from '@types';
+import { MyMessage, SUGGESTED_POST_MIN_THRESHOLD_SECONDS } from '@appManagers/appMessagesManager';
+import { AppManager } from '@appManagers/manager';
 import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
 import isMentionUnread from '@appManagers/utils/messages/isMentionUnread';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
@@ -93,11 +93,11 @@ class BatchQueue {
 
   addToQueue(parentPeerId: PeerId, ids: PeerId[]) {
     const items = this.map.get(parentPeerId) || [];
-    if(!this.map.has(parentPeerId)) this.map.set(parentPeerId, items);
+    if (!this.map.has(parentPeerId)) this.map.set(parentPeerId, items);
 
     items.push(...ids);
 
-    if(this.isProcessing) return;
+    if (this.isProcessing) return;
 
     this.isProcessing = true;
     queueMicrotask(() => {
@@ -108,10 +108,10 @@ class BatchQueue {
   private async processQueue() {
     let entries: Pair<PeerId, PeerId[]>[];
 
-    while((entries = Array.from(this.map.entries())).length) {
+    while ((entries = Array.from(this.map.entries())).length) {
       this.map.clear();
       await Promise.all(
-        entries.map(([parentPeerId, ids]) => this.actionOnBatch({parentPeerId, ids: filterUnique(ids)}))
+        entries.map(([parentPeerId, ids]) => this.actionOnBatch({ parentPeerId, ids: filterUnique(ids) }))
       );
     }
 
@@ -133,11 +133,11 @@ class MonoforumDialogsStorage extends AppManager {
 
   protected after() {
     this.apiUpdatesManager.addMultipleEventsListeners({
-      updateMonoForumNoPaidException: this.onUpdateMonoForumNoPaidException
+      updateMonoForumNoPaidException: this.onUpdateMonoForumNoPaidException,
     });
   }
 
-  public async getDialogs({parentPeerId, limit, offsetIndex}: MonoforumDialogsStorage.GetDialogsArgs) {
+  public async getDialogs({ parentPeerId, limit, offsetIndex }: MonoforumDialogsStorage.GetDialogsArgs) {
     const collection = this.getDialogCollection(parentPeerId);
     const checkIsCollectionIncomplete = () => !collection.count || collection.items.length < collection.count;
 
@@ -148,7 +148,7 @@ class MonoforumDialogsStorage extends AppManager {
     let previousStableLength = -1;
 
     // Fetch while we have enough dialogs, note that we might get the same dialogs the second time if there were drafts for them
-    while(
+    while (
       cachedOffsetPosition + limit > collection.stable.length && // check if we have enough stable dialogs already
       checkIsCollectionIncomplete() && // stop when the collection is full
       previousStableLength !== collection.stable.length // guard in case the request doesn't add new dialogs
@@ -156,16 +156,16 @@ class MonoforumDialogsStorage extends AppManager {
       previousStableLength = collection.stable.length;
       const toFetchOffsetDialog = lastItem(collection.stable);
 
-      await this.fetchAndSaveDialogs({parentPeerId, limit, offsetDialog: toFetchOffsetDialog});
+      await this.fetchAndSaveDialogs({ parentPeerId, limit, offsetDialog: toFetchOffsetDialog });
     }
 
     let promise: Promise<any>;
 
     promise = this.appDraftsManager.addMissedDialogsOrVoid()!;
-    if(promise) await promise;
+    if (promise) await promise;
 
     promise = this.fetchQueuedDraftDialogs(parentPeerId)!;
-    if(promise) await promise;
+    if (promise) await promise;
 
     // Just in case there are duplicates or some reordering stuff
     cachedOffsetPosition = this.getPositionForOffsetIndex(collection.items, offsetIndex!);
@@ -174,12 +174,12 @@ class MonoforumDialogsStorage extends AppManager {
 
     const isEnd = cachedOffsetPosition + limit >= collection.items.length && collection.items.length === collection.count;
 
-    if(DEBUG) MTProtoMessagePort.getInstance<false>().invoke('log', {m: '[my-debug] getDialogs', parentPeerId, limit, offsetIndex, resultingDialogs, isEnd, count: collection.count});
+    if (DEBUG) MTProtoMessagePort.getInstance<false>().invoke('log', { m: '[my-debug] getDialogs', parentPeerId, limit, offsetIndex, resultingDialogs, isEnd, count: collection.count });
 
     return {
       dialogs: resultingDialogs,
       count: collection.count,
-      isEnd
+      isEnd,
     };
   }
 
@@ -193,28 +193,28 @@ class MonoforumDialogsStorage extends AppManager {
   }
 
   public checkPreloadedDraft(parentPeerId: PeerId, draft: DraftMessage.draftMessage) {
-    if(draft?.reply_to?._ !== 'inputReplyToMessage' && draft?.reply_to?._ !== 'inputReplyToMonoForum') return;
+    if (draft?.reply_to?._ !== 'inputReplyToMessage' && draft?.reply_to?._ !== 'inputReplyToMonoForum') return;
     const peerId = getPeerId(draft.reply_to.monoforum_peer_id!);
-    if(!peerId) return;
+    if (!peerId) return;
 
-    if(DEBUG) MTProtoMessagePort.getInstance<false>().invoke('log', {m: '[my-debug] enqueing draft', parentPeerId, peerId, draft});
+    if (DEBUG) MTProtoMessagePort.getInstance<false>().invoke('log', { m: '[my-debug] enqueing draft', parentPeerId, peerId, draft });
     this.enqueDraftDialog(parentPeerId, peerId);
   }
 
   private fetchQueuedDraftDialogs(parentPeerId: PeerId) {
     let toFetch = this.queuedDraftDialogs[parentPeerId];
     delete this.queuedDraftDialogs[parentPeerId];
-    if(!toFetch?.length) return;
+    if (!toFetch?.length) return;
 
     const collection = this.getDialogCollection(parentPeerId);
     toFetch = toFetch.filter(peerId => !collection.map.has(peerId));
-    if(!toFetch.length) return;
+    if (!toFetch.length) return;
 
-    if(DEBUG) MTProtoMessagePort.getInstance<false>().invoke('log', {m: '[my-debug] fetching enqued draft dialogs', parentPeerId, toFetch});
-    return this.fetchAndSaveDialogsById({parentPeerId, ids: filterUnique(toFetch)});
+    if (DEBUG) MTProtoMessagePort.getInstance<false>().invoke('log', { m: '[my-debug] fetching enqued draft dialogs', parentPeerId, toFetch });
+    return this.fetchAndSaveDialogsById({ parentPeerId, ids: filterUnique(toFetch) });
   }
 
-  private async fetchAndSaveDialogs({parentPeerId, limit, offsetDialog}: MonoforumDialogsStorage.FetchDialogsArgs) {
+  private async fetchAndSaveDialogs({ parentPeerId, limit, offsetDialog }: MonoforumDialogsStorage.FetchDialogsArgs) {
     const parentPeer = this.appPeersManager.getInputPeerById(parentPeerId);
 
     const offsetPeer = this.appPeersManager.getInputPeerById(offsetDialog?.peerId!);
@@ -230,14 +230,14 @@ class MonoforumDialogsStorage extends AppManager {
         offset_date: offsetDate!,
         offset_id: offsetId!,
         offset_peer: offsetPeer,
-        parent_peer: parentPeer
-      }
+        parent_peer: parentPeer,
+      },
     });
 
-    if(DEBUG) MTProtoMessagePort.getInstance<false>().invoke('log', {m: '[my-debug] fetching dialogs', parentPeerId, p, result});
+    if (DEBUG) MTProtoMessagePort.getInstance<false>().invoke('log', { m: '[my-debug] fetching dialogs', parentPeerId, p, result });
 
-    const processedResult = this.processGetDialogsResult({parentPeerId, result});
-    const {dialogs} = processedResult!;
+    const processedResult = this.processGetDialogsResult({ parentPeerId, result });
+    const { dialogs } = processedResult!;
 
     const newStableIds = new Set(dialogs.map(dialog => dialog.peerId));
 
@@ -251,7 +251,7 @@ class MonoforumDialogsStorage extends AppManager {
     return processedResult;
   }
 
-  private async fetchAndSaveDialogsById({parentPeerId, ids}: MonoforumDialogsStorage.FetchDialogsByIdArgs) {
+  private async fetchAndSaveDialogsById({ parentPeerId, ids }: MonoforumDialogsStorage.FetchDialogsByIdArgs) {
     const collection = this.getDialogCollection(parentPeerId);
     const isCollectionEmpty = !collection.count;
 
@@ -261,15 +261,15 @@ class MonoforumDialogsStorage extends AppManager {
         method: 'messages.getSavedDialogsByID',
         params: {
           ids: ids.map(id => this.appPeersManager.getInputPeerById(id)),
-          parent_peer: parentPeer
-        }
+          parent_peer: parentPeer,
+        },
       }),
-      isCollectionEmpty && this.fetchAndSaveDialogs({parentPeerId, limit: 1}) // make sure we have the correct count as the by id request doesn't return it
+      isCollectionEmpty && this.fetchAndSaveDialogs({ parentPeerId, limit: 1 }), // make sure we have the correct count as the by id request doesn't return it
     ]);
 
-    if(DEBUG) MTProtoMessagePort.getInstance<false>().invoke('log', {m: '[my-debug] by id', parentPeerId, ids, result});
+    if (DEBUG) MTProtoMessagePort.getInstance<false>().invoke('log', { m: '[my-debug] by id', parentPeerId, ids, result });
 
-    const {dialogs} = this.processGetDialogsResult({parentPeerId, result})!;
+    const { dialogs } = this.processGetDialogsResult({ parentPeerId, result })!;
 
     const lastStableDialogIndex = lastItem(collection.stable)?.stableIndex || Infinity;
 
@@ -280,35 +280,35 @@ class MonoforumDialogsStorage extends AppManager {
     collection.stable.push(...dialogs.filter(dialog => dialog.stableIndex! >= lastStableDialogIndex));
     collection.stable.sort(this.sortStableDialogsComparator);
 
-    this.rootScope.dispatchEvent('monoforum_dialogs_update', {dialogs});
+    this.rootScope.dispatchEvent('monoforum_dialogs_update', { dialogs });
 
     const deletedDialogs = ids.filter(id => !fetchedDialogsSet.has(id));
-    if(!deletedDialogs.length) return;
+    if (!deletedDialogs.length) return;
 
     this.dropDeletedDialogs(parentPeerId, deletedDialogs);
   };
 
-  private processGetDialogsResult({parentPeerId, result}: MonoforumDialogsStorage.ProcessGetDialogsResultArgs) {
-    if(result._ === 'messages.savedDialogsNotModified') return;
+  private processGetDialogsResult({ parentPeerId, result }: MonoforumDialogsStorage.ProcessGetDialogsResultArgs) {
+    if (result._ === 'messages.savedDialogsNotModified') return;
 
     let count = 0;
 
-    if(result._ === 'messages.savedDialogsSlice') count = result.count;
+    if (result._ === 'messages.savedDialogsSlice') count = result.count;
     else count = result.dialogs.length;
 
     this.appMessagesManager.saveApiResult(result);
 
     const monoforumDialogs = result.dialogs.filter(dialog => dialog._ === 'monoForumDialog');
 
-    this.saveDialogs({parentPeerId, dialogs: monoforumDialogs, count});
+    this.saveDialogs({ parentPeerId, dialogs: monoforumDialogs, count });
 
     return {
       count,
-      dialogs: monoforumDialogs
+      dialogs: monoforumDialogs,
     };
   }
 
-  private saveDialogs({dialogs, parentPeerId, count}: MonoforumDialogsStorage.SaveDialogsArgs) {
+  private saveDialogs({ dialogs, parentPeerId, count }: MonoforumDialogsStorage.SaveDialogsArgs) {
     dialogs.forEach(dialog => this.setAdditionalProps(parentPeerId, dialog));
 
     const collection = this.getDialogCollection(parentPeerId);
@@ -339,7 +339,7 @@ class MonoforumDialogsStorage extends AppManager {
     const message = this.appMessagesManager.getMessageByPeer(dialog.parentPeerId!, dialog.top_message);
 
     let sortDate: number;
-    if(dialog.draft?._ !== 'draftMessageEmpty' && dialog.draft?.date) {
+    if (dialog.draft?._ !== 'draftMessageEmpty' && dialog.draft?.date) {
       sortDate = dialog.draft.date;
     } else {
       sortDate = message?.date!;
@@ -348,7 +348,7 @@ class MonoforumDialogsStorage extends AppManager {
     dialog.index_0 = sortDate;
     dialog.stableIndex = message?.date;
 
-    if(!resort || this.isResortingQueued) return;
+    if (!resort || this.isResortingQueued) return;
 
     this.isResortingQueued = true;
     queueMicrotask(() => {
@@ -380,14 +380,14 @@ class MonoforumDialogsStorage extends AppManager {
       items: [],
       stable: [],
       map: new Map,
-      count: 0
+      count: 0,
     };
   }
 
   private getPositionForOffsetIndex(dialogs: MonoforumDialog[], offsetIndex: number) {
     let position = 0;
 
-    while(
+    while (
       position < dialogs.length &&
       this.getDialogIndex(dialogs[position])! >= offsetIndex
     ) position++;
@@ -405,66 +405,66 @@ class MonoforumDialogsStorage extends AppManager {
 
     ids.forEach(id => collection.map.delete(id));
 
-    if(wasCollectionComplete) collection.count = collection.items.length;
+    if (wasCollectionComplete) collection.count = collection.items.length;
 
-    this.rootScope.dispatchEvent('monoforum_dialogs_drop', {parentPeerId, ids});
+    this.rootScope.dispatchEvent('monoforum_dialogs_drop', { parentPeerId, ids });
   }
 
   public checkLastMessageForExistingDialog(message: MyMessage) {
     const parentPeerId = message.peerId;
     const peerId = getPeerId(message.saved_peer_id!);
 
-    if(!peerId || !parentPeerId) return;
+    if (!peerId || !parentPeerId) return;
 
     const collection = this.collectionsByPeerId[parentPeerId];
-    if(!collection) return;
+    if (!collection) return;
 
     const dialog = collection.map.get(peerId);
-    if(!dialog) {
-      this.updateDialogsByPeerId({parentPeerId, ids: [peerId]});
+    if (!dialog) {
+      this.updateDialogsByPeerId({ parentPeerId, ids: [peerId] });
       return;
     }
 
     const inboxUnread = !message.pFlags.out && message.pFlags.unread;
     const isPastReadCursor = dialog.read_inbox_max_id !== undefined && message.mid! <= dialog.read_inbox_max_id;
-    if(inboxUnread && message.mid! > dialog.top_message && !isPastReadCursor) {
+    if (inboxUnread && message.mid! > dialog.top_message && !isPastReadCursor) {
       increment(dialog, 'unread_count');
-      if(isMentionUnread(message)) increment(dialog, 'unread_reactions_count');
+      if (isMentionUnread(message)) increment(dialog, 'unread_reactions_count');
     }
 
-    if(dialog.top_message > message.mid!) return;
+    if (dialog.top_message > message.mid!) return;
 
     dialog.top_message = message.mid!;
     this.updateDialogIndex(dialog);
 
-    this.rootScope.dispatchEvent('monoforum_dialogs_update', {dialogs: [dialog]});
+    this.rootScope.dispatchEvent('monoforum_dialogs_update', { dialogs: [dialog] });
   }
 
-  public updateDialogsByPeerId({parentPeerId, ids}: MonoforumDialogsStorage.FetchDialogsByIdArgs) {
+  public updateDialogsByPeerId({ parentPeerId, ids }: MonoforumDialogsStorage.FetchDialogsByIdArgs) {
     this.fetchByIdBatchQueue.addToQueue(parentPeerId, ids);
   }
 
   public updateDialogIfExists(parentPeerId: PeerId, peerId: PeerId) {
     const dialog = this.getDialogByParent(parentPeerId, peerId);
-    if(!dialog) return;
+    if (!dialog) return;
 
-    this.updateDialogsByPeerId({parentPeerId, ids: [peerId]});
+    this.updateDialogsByPeerId({ parentPeerId, ids: [peerId] });
   }
 
-  public async updateDialogUnreadMark({parentPeerId, peerId, unread}: MonoforumDialogsStorage.UpdateDialogUnreadMarkArgs) {
+  public async updateDialogUnreadMark({ parentPeerId, peerId, unread }: MonoforumDialogsStorage.UpdateDialogUnreadMarkArgs) {
     const dialog = this.getDialogByParent(parentPeerId, peerId);
-    if(!dialog) return;
+    if (!dialog) return;
 
-    if(!unread) {
+    if (!unread) {
       delete dialog.pFlags.unread_mark;
     } else {
       dialog.pFlags.unread_mark = true;
     }
 
-    this.rootScope.dispatchEvent('monoforum_dialogs_update', {dialogs: [dialog]});
+    this.rootScope.dispatchEvent('monoforum_dialogs_update', { dialogs: [dialog] });
   }
 
-  public async toggleSuggestedPostApproval({parentPeerId, messageId, reject, rejectComment, scheduleTimestamp}: MonoforumDialogsStorage.ToggleSuggestedPostApprovalArgs) {
+  public async toggleSuggestedPostApproval({ parentPeerId, messageId, reject, rejectComment, scheduleTimestamp }: MonoforumDialogsStorage.ToggleSuggestedPostApprovalArgs) {
     const updates = await this.apiManager.invokeApi('messages.toggleSuggestedPostApproval', {
       peer: this.appPeersManager.getInputPeerById(parentPeerId),
       msg_id: getServerMessageId(messageId)!,
@@ -472,7 +472,7 @@ class MonoforumDialogsStorage extends AppManager {
       reject_comment: rejectComment,
       schedule_date: scheduleTimestamp && scheduleTimestamp >= tsNow(true) + SUGGESTED_POST_MIN_THRESHOLD_SECONDS ?
         scheduleTimestamp :
-        undefined
+        undefined,
     });
 
     this.apiUpdatesManager.processUpdateMessage(updates);
@@ -483,22 +483,22 @@ class MonoforumDialogsStorage extends AppManager {
     const peerId = getPeerId(update.saved_peer_id);
 
     const dialog = this.getDialogByParent(parentPeerId, peerId);
-    if(!dialog) return;
+    if (!dialog) return;
 
-    if(!dialog.pFlags) dialog.pFlags = {};
+    if (!dialog.pFlags) dialog.pFlags = {};
 
-    if(update.pFlags?.exception) {
+    if (update.pFlags?.exception) {
       dialog.pFlags.nopaid_messages_exception = true;
     } else {
       delete dialog.pFlags.nopaid_messages_exception;
     }
 
-    this.rootScope.dispatchEvent('monoforum_dialogs_update', {dialogs: [dialog]});
+    this.rootScope.dispatchEvent('monoforum_dialogs_update', { dialogs: [dialog] });
   }
 }
 
 export function increment<T extends object>(obj: T, key: keyof T, by = 1) {
-  if(!obj) return;
+  if (!obj) return;
   obj[key] = Math.max(((obj[key] as number) + by) || 0, 0) as any;
 }
 

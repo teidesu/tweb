@@ -1,9 +1,9 @@
-import {LangPackKey} from '@lib/langPack';
+import { LangPackKey } from '@lib/langPack';
 import SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
 import PopupElement from '@components/popups';
-import {AutoDeleteMessagesCustomTimePopupContent} from '@components/sidebarLeft/tabs/autoDeleteMessages/customTimePopup/content';
+import { AutoDeleteMessagesCustomTimePopupContent } from '@components/sidebarLeft/tabs/autoDeleteMessages/customTimePopup/content';
 
-if(import.meta.hot) import.meta.hot.accept('./content', () => {});
+if (import.meta.hot) import.meta.hot.accept('./content', () => {});
 
 
 type Args = {
@@ -16,7 +16,7 @@ type Args = {
 export default class AutoDeleteMessagesCustomTimePopup extends PopupElement {
   private period: number;
 
-  constructor({descriptionLangKey, period, HotReloadGuard, onFinish}: Args) {
+  constructor({ descriptionLangKey, period, HotReloadGuard, onFinish }: Args) {
     super('auto-delete-messages-custom-time-popup', {
       overlayClosable: true,
       closable: true,
@@ -28,14 +28,14 @@ export default class AutoDeleteMessagesCustomTimePopup extends PopupElement {
           callback: () => {
             onFinish(this.period);
             this.hide();
-          }
+          },
         },
         {
           langKey: 'Cancel',
-          isCancel: true
-        }
+          isCancel: true,
+        },
       ],
-      old: true
+      old: true,
     });
 
     this.period = period;
@@ -47,7 +47,7 @@ export default class AutoDeleteMessagesCustomTimePopup extends PopupElement {
       descriptionLangKey,
       onChange: (newPeriod) => {
         this.period = newPeriod;
-      }
+      },
     })
 
     this.body.append(content);

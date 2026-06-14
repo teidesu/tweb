@@ -14,9 +14,9 @@ export default class DeferredIsUsingPasscode extends StaticUtilityClass {
   }
 
   public static async isUsingPasscode() {
-    if(this.deferred) await this.deferred;
+    if (this.deferred) await this.deferred;
 
-    if(typeof this.value !== 'boolean') throw new Error('Is using passcode is not boolean WTF?');
+    if (typeof this.value !== 'boolean') throw new Error('Is using passcode is not boolean WTF?');
 
     return this.value;
   }

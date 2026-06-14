@@ -1,32 +1,32 @@
-import {Component, createSignal, onMount, Show} from 'solid-js';
-import {formatFullSentTime} from '@helpers/date';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { Component, createSignal, onMount, Show } from 'solid-js';
+import { formatFullSentTime } from '@helpers/date';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import findUpAsChild from '@helpers/dom/findUpAsChild';
 import placeCaretAtEnd from '@helpers/dom/placeCaretAtEnd';
 import formatDuration from '@helpers/formatDuration';
 import clamp from '@helpers/number/clamp';
 import tsNow from '@helpers/tsNow';
-import {i18n, LangPackKey} from '@lib/langPack';
+import { i18n, LangPackKey } from '@lib/langPack';
 import ButtonCorner from '@components/buttonCorner';
 import CheckboxField from '@components/checkboxField';
 import InputField from '@components/inputField';
-import {InputFieldTsx} from '@components/inputFieldTsx';
-import {InputStarsField} from '@components/popups/makePaid';
-import {InputRightNumber} from '@components/popups/payment';
+import { InputFieldTsx } from '@components/inputFieldTsx';
+import { InputStarsField } from '@components/popups/makePaid';
+import { InputRightNumber } from '@components/popups/payment';
 import showDatePickerPopup from '@components/popups/datePicker';
-import {setButtonLoader} from '@components/putPreloader';
+import { setButtonLoader } from '@components/putPreloader';
 import RangeStepsSelector from '@components/rangeStepsSelector';
 import Row from '@components/row';
 import Section from '@components/section';
-import {wrapFormattedDuration} from '@components/wrappers/wrapDuration';
-import {ChatInvite} from './chatInviteLinkShared';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {usePromiseCollector} from '@components/solidJsTabs/promiseCollector';
-import type {AppEditChatInviteLinkTab} from '@components/solidJsTabs/tabs';
+import { wrapFormattedDuration } from '@components/wrappers/wrapDuration';
+import { ChatInvite } from './chatInviteLinkShared';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
+import type { AppEditChatInviteLinkTab } from '@components/solidJsTabs/tabs';
 
 export function findClosestDifference(array: Array<number>, difference: number) {
   const differences = array.map((value, idx) => {
-    return {idx, diff: Math.abs(value - difference)};
+    return { idx, diff: Math.abs(value - difference) };
   });
 
   return differences.sort((a, b) => a.diff - b.diff)[0];
@@ -35,7 +35,7 @@ export function findClosestDifference(array: Array<number>, difference: number) 
 const EditChatInviteLink: Component = () => {
   const [tab] = useSuperTab<typeof AppEditChatInviteLinkTab>();
   const promiseCollector = usePromiseCollector();
-  const {chatId, invite} = tab.payload;
+  const { chatId, invite } = tab.payload;
 
   let nameInputField!: InputField;
   let timePeriodSelector: RangeStepsSelector<number | Date>;
@@ -53,7 +53,7 @@ const EditChatInviteLink: Component = () => {
   const [usersLimitHidden, setUsersLimitHidden] = createSignal(false);
 
   const build = async() => {
-    const confirmBtn = ButtonCorner({className: 'is-visible', icon: 'check'});
+    const confirmBtn = ButtonCorner({ className: 'is-visible', icon: 'check' });
     tab.content.append(confirmBtn);
 
     attachClickEvent(confirmBtn, async() => {
@@ -65,14 +65,14 @@ const EditChatInviteLink: Component = () => {
       const usageLimit = requestNeeded ? 0 : (usersLimitSelector.value ?? 0);
 
       let chatInvite: ChatInvite;
-      if(invite) {
+      if (invite) {
         const result = await tab.managers.appChatInvitesManager.editExportedChatInvite({
           chatId,
           link: invite.link,
           expireDate,
           requestNeeded,
           title,
-          usageLimit
+          usageLimit,
         });
 
         chatInvite = result.invite as ChatInvite;
@@ -83,25 +83,25 @@ const EditChatInviteLink: Component = () => {
           requestNeeded,
           usageLimit,
           expireDate,
-          stars: paidLinkCheckboxField?.checked ? +paidLinkInputField.value : undefined
+          stars: paidLinkCheckboxField?.checked ? +paidLinkInputField.value : undefined,
         }) as ChatInvite;
       }
 
       tab.eventListener.dispatchEvent('finish', chatInvite);
       tab.close();
-    }, {listenerSetter: tab.listenerSetter});
+    }, { listenerSetter: tab.listenerSetter });
 
-    if(invite?.title) {
+    if (invite?.title) {
       nameInputField.setOriginalValue(invite.title);
     }
 
     const isBroadcastChat = await tab.managers.appChatsManager.isBroadcast(chatId);
     const appConfig = await tab.managers.apiManager.getAppConfig();
 
-    if(isBroadcastChat) {
+    if (isBroadcastChat) {
       const row = new Row({
         titleLangKey: 'InviteLink.Subscription.Title',
-        checkboxField: paidLinkCheckboxField = new CheckboxField({toggle: true})
+        checkboxField: paidLinkCheckboxField = new CheckboxField({ toggle: true }),
       });
 
       tab.listenerSetter.add(paidLinkCheckboxField.input)('change', () => {
@@ -119,9 +119,9 @@ const EditChatInviteLink: Component = () => {
         middleware: tab.middlewareHelper.get(),
         onValue: (stars) => {
           rightLabel.replaceChildren(...(stars ? [
-            i18n('InviteLink.Subscription.Price', ['$' + (appConfig.stars_usd_sell_rate_x1000! / 1000 * stars / 100).toFixed(2)])
+            i18n('InviteLink.Subscription.Price', ['$' + (appConfig.stars_usd_sell_rate_x1000! / 1000 * stars / 100).toFixed(2)]),
           ] : []));
-        }
+        },
       });
 
       const rightLabel = document.createElement('span');
@@ -136,7 +136,7 @@ const EditChatInviteLink: Component = () => {
 
       const approveRow = new Row({
         titleLangKey: 'ApproveNewMembers',
-        checkboxField: approveNewMembersCheckboxField = new CheckboxField({toggle: true})
+        checkboxField: approveNewMembersCheckboxField = new CheckboxField({ toggle: true }),
       });
       setApproveContent(approveRow.container);
 
@@ -152,15 +152,15 @@ const EditChatInviteLink: Component = () => {
         generateSteps: (values) => {
           return [
             ...values.map(range.generateStep),
-            ['∞', undefined]
+            ['∞', undefined],
           ] as any[];
         },
         onValue: (value) => {
-          if(!value) {
+          if (!value) {
             setExpiry();
           } else {
             let date: Date;
-            if(value instanceof Date) {
+            if (value instanceof Date) {
               date = value;
             } else {
               date = new Date();
@@ -170,7 +170,7 @@ const EditChatInviteLink: Component = () => {
             setExpiry(date.getTime() / 1000);
           }
         },
-        middleware: tab.middlewareHelper.get()
+        middleware: tab.middlewareHelper.get(),
       });
 
       const row = new Row({
@@ -179,7 +179,7 @@ const EditChatInviteLink: Component = () => {
         clickable: () => {
           let initDate: Date;
           const value = range.value;
-          if(value) {
+          if (value) {
             initDate = new Date(value instanceof Date ? value : tsNow() + value * 1000);
           } else {
             initDate = new Date();
@@ -190,10 +190,10 @@ const EditChatInviteLink: Component = () => {
             initDate,
             withTime: true,
             onPick: setCustomTimestamp,
-            btnConfirmLangKey: 'Save'
+            btnConfirmLangKey: 'Save',
           });
         },
-        listenerSetter: tab.listenerSetter
+        listenerSetter: tab.listenerSetter,
       });
 
       const setCustomTimestamp = (timestamp: number) => {
@@ -205,7 +205,7 @@ const EditChatInviteLink: Component = () => {
       };
 
       const setExpiry = (timestamp?: number) => {
-        if(!timestamp) {
+        if (!timestamp) {
           row.titleRight.replaceChildren(i18n('EditInvitation.Never'));
         } else {
           row.titleRight.replaceChildren(formatFullSentTime(timestamp));
@@ -216,7 +216,7 @@ const EditChatInviteLink: Component = () => {
       const steps = range.generateSteps(stepValues);
       range.setSteps(steps, steps.length - 1);
 
-      if(invite && invite.expire_date && invite.expire_date > tsNow(true)) {
+      if (invite && invite.expire_date && invite.expire_date > tsNow(true)) {
         setCustomTimestamp(invite.expire_date);
       }
 
@@ -229,13 +229,13 @@ const EditChatInviteLink: Component = () => {
         generateSteps: (values) => {
           return [
             ...values.map(range.generateStep),
-            ['∞', undefined]
+            ['∞', undefined],
           ] as any[];
         },
         onValue: (value) => {
           setNumber(value);
         },
-        middleware: tab.middlewareHelper.get()
+        middleware: tab.middlewareHelper.get(),
       });
 
       const row = new Row({
@@ -243,18 +243,18 @@ const EditChatInviteLink: Component = () => {
         titleRightSecondary: true,
         clickable: true,
         listenerSetter: tab.listenerSetter,
-        noRipple: true
+        noRipple: true,
       });
 
       const inputRightNumber = new InputRightNumber();
-      const {input} = inputRightNumber;
+      const { input } = inputRightNumber;
 
       tab.listenerSetter.add(row.container)('mousedown', (e) => {
-        if(!range.value) {
+        if (!range.value) {
           setCustomNumber(stepValues[0]);
         }
 
-        if(!findUpAsChild(((e.target as HTMLElement) as { parentElement: HTMLElement; }), input)) {
+        if (!findUpAsChild(((e.target as HTMLElement) as { parentElement: HTMLElement; }), input)) {
           placeCaretAtEnd(input);
         }
       });
@@ -265,7 +265,7 @@ const EditChatInviteLink: Component = () => {
         originalValue = originalValue.replace(/\D/g, '');
 
         const value = clamp(isEmpty ? 0 : +originalValue, stepValues[0], 9999);
-        if(!isEmpty) inputRightNumber.value = '' + value;
+        if (!isEmpty) inputRightNumber.value = '' + value;
         ignoreNextSet = true;
         setCustomNumber(value);
       };
@@ -281,12 +281,12 @@ const EditChatInviteLink: Component = () => {
 
       let ignoreNextSet = false;
       const setNumber = (value?: number) => {
-        if(ignoreNextSet) {
+        if (ignoreNextSet) {
           ignoreNextSet = false;
           return;
         }
 
-        if(!value) {
+        if (!value) {
           row.titleRight.replaceChildren(i18n('EditInvitation.Unlimited'));
         } else {
           inputRightNumber.value = '' + value;
@@ -298,7 +298,7 @@ const EditChatInviteLink: Component = () => {
       const steps = range.generateSteps(stepValues);
       range.setSteps(steps, steps.length - 1);
 
-      if(invite?.usage_limit) {
+      if (invite?.usage_limit) {
         const value = Math.max(stepValues[0], invite.usage_limit - (invite.usage || 0));
         setNumber(value);
         setCustomNumber(value);
@@ -307,26 +307,26 @@ const EditChatInviteLink: Component = () => {
       usersLimitContent.append(range.container, row.container);
     }
 
-    if(approveNewMembersCheckboxField) {
+    if (approveNewMembersCheckboxField) {
       tab.listenerSetter.add(approveNewMembersCheckboxField.input)('change', () => {
         setUsersLimitHidden(approveNewMembersCheckboxField.checked);
       });
 
-      if(invite) {
+      if (invite) {
         approveNewMembersCheckboxField.checked = invite?.pFlags?.request_needed!;
       }
     }
 
-    if(paidLinkCheckboxField) {
+    if (paidLinkCheckboxField) {
       const value = !!invite?.subscription_pricing;
       paidLinkCheckboxField.setValueSilently(!value);
       paidLinkCheckboxField.checked = value;
 
-      if(value) {
+      if (value) {
         paidLinkInputField.value = '' + invite.subscription_pricing?.amount;
       }
 
-      if(invite) {
+      if (invite) {
         paidLinkCheckboxField.toggleDisability(true);
         paidLinkInputField.container.classList.add('disable-hover');
       }
@@ -360,7 +360,7 @@ const EditChatInviteLink: Component = () => {
       <Section name="LimitByPeriod" caption="TimeLimitHelp">
         <div ref={timePeriodContent} />
       </Section>
-      <Section name="LimitNumberOfUses" caption="UsesLimitHelp" classList={{hide: usersLimitHidden()}}>
+      <Section name="LimitNumberOfUses" caption="UsesLimitHelp" classList={{ hide: usersLimitHidden() }}>
         <div ref={usersLimitContent} />
       </Section>
     </>

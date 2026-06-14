@@ -2,10 +2,10 @@ export default function RadioForm(radios: {container: HTMLElement, input: HTMLIn
   const form = document.createElement('form');
 
   radios.forEach((r) => {
-    const {container, input} = r;
+    const { container, input } = r;
     form.append(container);
     input.addEventListener('change', (e) => {
-      if(input.checked) {
+      if (input.checked) {
         onChange(input.value, e);
       }
     });

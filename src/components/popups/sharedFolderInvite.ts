@@ -1,12 +1,12 @@
 import PopupElement from '.';
 import filterUnique from '@helpers/array/filterUnique';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import shake from '@helpers/dom/shake';
 import toggleDisability from '@helpers/dom/toggleDisability';
 import safeAssign from '@helpers/object/safeAssign';
-import {ChatlistsChatlistInvite, ChatlistsChatlistUpdates, DialogFilter, Peer} from '@layer';
+import { ChatlistsChatlistInvite, ChatlistsChatlistUpdates, DialogFilter, Peer } from '@layer';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
-import I18n, {i18n, _i18n} from '@lib/langPack';
+import I18n, { i18n, _i18n } from '@lib/langPack';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
 import AppSelectPeers from '@components/appSelectPeers';
 import Button from '@components/button';
@@ -35,7 +35,7 @@ export default class PopupSharedFolderInvite extends PopupElement {
       body: true,
       footer: true,
       title: true,
-      withConfirm: true
+      withConfirm: true,
     });
 
     safeAssign(this, options);
@@ -50,7 +50,7 @@ export default class PopupSharedFolderInvite extends PopupElement {
     const nav = document.createElement('nav');
     nav.classList.add('menu-horizontal-div');
 
-    const {chatlistInvite, deleting, updating} = this;
+    const { chatlistInvite, deleting, updating } = this;
     const isAlready = chatlistInvite?._ === 'chatlists.chatlistInviteAlready';
     const isJoining = isAlready && !!chatlistInvite.missing_peers.length;
     this.filter ??= (isAlready ? await this.managers.filtersStorage.getFilter(chatlistInvite.filter_id) as DialogFilter.dialogFilterChatlist : undefined)!;
@@ -59,7 +59,7 @@ export default class PopupSharedFolderInvite extends PopupElement {
     this.title.append(i18n(deleting ? 'SharedFolder.Link.TitleRemove' : (isJoining ? 'SharedFolder.Link.TitleAdd' : 'SharedFolder.Link.Title')));
 
     let leaveSuggestionsPeerIds: PeerId[];
-    if(deleting) {
+    if (deleting) {
       const peers = await this.managers.filtersStorage.getLeaveChatlistSuggestions(this.filter.id);
       leaveSuggestionsPeerIds = peers.map((peer) => getPeerId(peer));
     }
@@ -92,9 +92,9 @@ export default class PopupSharedFolderInvite extends PopupElement {
     const description = document.createElement('div');
     description.classList.add(CLASS_NAME + '-description', 'subtitle');
     let descriptionAddI18n: I18n.IntlElement, descriptionAddTitle: HTMLElement;
-    if(deleting) {
+    if (deleting) {
       _i18n(description, 'SharedFolder.Link.DescriptionRemove', [await wrapFolderTitle(filter.title, this.middlewareHelper.get())]);
-    } else if(!isJoining) {
+    } else if (!isJoining) {
       _i18n(description, isAlready ? 'SharedFolder.Link.DescriptionAlready' : 'SharedFolder.Link.Description');
     } else {
       descriptionAddI18n = new I18n.IntlElement();
@@ -105,36 +105,36 @@ export default class PopupSharedFolderInvite extends PopupElement {
     const counterI18n = new I18n.IntlElement();
 
     const onSelectionChange = (length: number) => {
-      if(alreadyPeerIds && isJoining) {
+      if (alreadyPeerIds && isJoining) {
         length = Math.max(0, length - alreadyPeerIds.length);
       }
 
       counterI18n.update({
         key: deleting ? 'SharedFolder.Link.ChatsRemove' : (isJoining ? 'SharedFolder.Link.ChatsAdd' : (isAlready ? 'SharedFolder.Link.ChatsAlready' : 'SharedFolder.Link.Chats')),
-        args: [i18n('Chats', [length])]
+        args: [i18n('Chats', [length])],
       });
 
       selectAllI18n?.update({
-        key: (shouldDeselect = length === peerIds.length) ? 'DeselectAll' : 'SelectAll'
+        key: (shouldDeselect = length === peerIds.length) ? 'DeselectAll' : 'SelectAll',
       });
 
       descriptionAddI18n?.update({
         key: 'SharedFolder.Link.DescriptionAdd',
-        args: [i18n('Chats', [length]), descriptionAddTitle]
+        args: [i18n('Chats', [length]), descriptionAddTitle],
       });
 
-      if(selectAllI18n) {
-        if(length) addFolderText.dataset.badge = '' + length;
+      if (selectAllI18n) {
+        if (length) addFolderText.dataset.badge = '' + length;
         addFolderText.classList.toggle('has-badge', !!length);
       }
 
-      if(deleting) {
+      if (deleting) {
         addFolderI18n.update({
-          key: length ? 'SharedFolder.Link.Remove' : 'SharedFolder.Link.TitleRemove'
+          key: length ? 'SharedFolder.Link.Remove' : 'SharedFolder.Link.TitleRemove',
         });
       }
 
-      if(!deleting) {
+      if (!deleting) {
         toggleDisability([this.btnConfirm], !length);
       }
     };
@@ -155,36 +155,36 @@ export default class PopupSharedFolderInvite extends PopupElement {
       managers: this.managers,
       peerType: [],
       getSubtitleForElement: async(peerId) => {
-        if(alreadyPeerIds?.includes(peerId)) {
+        if (alreadyPeerIds?.includes(peerId)) {
           const isBroadcast = await this.managers.appPeersManager.isBroadcast(peerId);
           return i18n(isBroadcast ? 'SharedFolder.Link.ChannelAlready' : 'SharedFolder.Link.ChatAlready');
         }
         return undefined as unknown as HTMLElement;
       },
       processElementAfter: (peerId, dialogElement) => {
-        if(alreadyPeerIds?.includes(peerId)) {
+        if (alreadyPeerIds?.includes(peerId)) {
           dialogElement.dom.containerEl.classList.add('already');
         }
-      }
+      },
     });
 
     let selectAllI18n: I18n.IntlElement;
-    if(!isAlready || isJoining) {
+    if (!isAlready || isJoining) {
       selectAllI18n = new I18n.IntlElement();
       selectAllI18n.element.classList.add('sidebar-left-section-name-right');
       this.selector.section.title.append(selectAllI18n.element);
 
       attachClickEvent(selectAllI18n.element, () => {
-        if(shouldDeselect) {
+        if (shouldDeselect) {
           this.selector.removeBatch(peerIds);
         } else {
           this.selector.addBatch(peerIds);
         }
-      }, {listenerSetter: this.listenerSetter});
+      }, { listenerSetter: this.listenerSetter });
     }
 
     let peerIds: PeerId[];
-    if(chatlistInvite) {
+    if (chatlistInvite) {
       const peers = isJoining ? chatlistInvite.missing_peers : (isAlready ? chatlistInvite.already_peers : chatlistInvite.peers);
       peerIds = peers.map((peer) => getPeerId(peer));
     } else {
@@ -192,15 +192,15 @@ export default class PopupSharedFolderInvite extends PopupElement {
     }
 
     let alreadyPeerIds: PeerId[];
-    if(isAlready) {
+    if (isAlready) {
       alreadyPeerIds = chatlistInvite.already_peers.map((peer) => getPeerId(peer));
     }
 
-    if(alreadyPeerIds!) {
+    if (alreadyPeerIds!) {
       const _remove = this.selector.remove.bind(this.selector);
       this.selector.remove = (...args) => {
         const peerId = args[0].toPeerId();
-        if(alreadyPeerIds.includes(peerId)) {
+        if (alreadyPeerIds.includes(peerId)) {
           const container = this.selector.getElementByKey(peerId);
           shake(container!);
           return false;
@@ -217,7 +217,7 @@ export default class PopupSharedFolderInvite extends PopupElement {
 
     this.btnConfirm.classList.add(`${CLASS_NAME}-button`);
     const addFolderI18n = new I18n.IntlElement({
-      key: deleting ? 'SharedFolder.Link.Remove' : (isJoining ? 'SharedFolder.Link.Join' : (isAlready ? 'OK' : 'SharedFolder.Link.Title'))
+      key: deleting ? 'SharedFolder.Link.Remove' : (isJoining ? 'SharedFolder.Link.Join' : (isAlready ? 'OK' : 'SharedFolder.Link.Title')),
     });
     const addFolderText = addFolderI18n.element;
     addFolderText.classList.add(`${CLASS_NAME}-button-text`);
@@ -225,7 +225,7 @@ export default class PopupSharedFolderInvite extends PopupElement {
     this.footer.append(this.btnConfirm);
 
     attachClickEvent(this.btnConfirm, () => {
-      if(isAlready && !isJoining) {
+      if (isAlready && !isJoining) {
         this.hide();
         return;
       }
@@ -235,14 +235,14 @@ export default class PopupSharedFolderInvite extends PopupElement {
       const toggle = toggleDisability([this.btnConfirm], true);
 
       const peerIds = [...this.selector.selected] as PeerId[];
-      if(updating) {
+      if (updating) {
         promise = this.managers.filtersStorage.joinChatlistUpdates(this.filter.id, peerIds);
-      } else if(chatlistInvite) {
+      } else if (chatlistInvite) {
         promise = this.managers.filtersStorage.joinChatlistInvite(
           this.slug,
           peerIds
         ).catch((error: ApiError) => {
-          if(error.type === 'DIALOG_FILTERS_TOO_MUCH') {
+          if (error.type === 'DIALOG_FILTERS_TOO_MUCH') {
             showLimitPopup('folders');
             this.hide();
           } else {
@@ -259,14 +259,14 @@ export default class PopupSharedFolderInvite extends PopupElement {
         toggle();
         throw error;
       });
-    }, {listenerSetter: this.listenerSetter});
+    }, { listenerSetter: this.listenerSetter });
 
     const totalPeerIds = alreadyPeerIds! ? peerIds.concat(alreadyPeerIds) : peerIds;
     const initial = deleting ? leaveSuggestionsPeerIds! : totalPeerIds
     this.selector.addInitial(initial);
     this.selector.renderResultsFunc(deleting ? filterUnique(leaveSuggestionsPeerIds!.concat(totalPeerIds)) : totalPeerIds);
 
-    if(!initial.length) {
+    if (!initial.length) {
       onSelectionChange(0);
     }
     // if(isAlready && !isJoining) {

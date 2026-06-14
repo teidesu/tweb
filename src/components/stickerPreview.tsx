@@ -1,8 +1,8 @@
-import type {AnimationItemGroup} from '@components/animationIntersector';
+import type { AnimationItemGroup } from '@components/animationIntersector';
 import createMiddleware from '@helpers/solid/createMiddleware';
-import type {MyDocument} from '@lib/appManagers/appDocsManager';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {onMount} from 'solid-js';
+import type { MyDocument } from '@lib/appManagers/appDocsManager';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { onMount } from 'solid-js';
 import type wrapSticker from './wrappers/sticker';
 
 
@@ -23,7 +23,7 @@ export type StickerPreviewProps = {
 };
 
 export const StickerPreview = (props: StickerPreviewProps) => {
-  const {rootScope, wrapSticker} = useHotReloadGuard();
+  const { rootScope, wrapSticker } = useHotReloadGuard();
 
   let container: HTMLDivElement;
 
@@ -32,7 +32,7 @@ export const StickerPreview = (props: StickerPreviewProps) => {
 
     (async() => {
       const doc = props.doc ?? await rootScope.managers.appDocsManager.getDoc(props.docId!);
-      if(!middleware()) return;
+      if (!middleware()) return;
 
       wrapSticker({
         div: container,
@@ -44,7 +44,7 @@ export const StickerPreview = (props: StickerPreviewProps) => {
         loop: true,
         withThumb: false,
         middleware,
-        ...props.stickerOptions
+        ...props.stickerOptions,
       });
     })();
   });

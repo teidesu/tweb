@@ -1,4 +1,4 @@
-import {animate} from '@helpers/animation';
+import { animate } from '@helpers/animation';
 
 export default function callVideoCanvasBlur(video: HTMLVideoElement) {
   const canvas = document.createElement('canvas');
@@ -7,7 +7,7 @@ export default function callVideoCanvasBlur(video: HTMLVideoElement) {
   canvas.width = size;
   canvas.height = size;
 
-  const ctx = canvas.getContext('2d', {alpha: false})!;
+  const ctx = canvas.getContext('2d', { alpha: false })!;
   ctx.filter = 'blur(2px)';
   const renderFrame = () => {
     ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight, 0, 0, canvas.width, canvas.height);

@@ -1,4 +1,4 @@
-import {createMemo, createSelector, For, JSX} from 'solid-js';
+import { createMemo, createSelector, For, JSX } from 'solid-js';
 import clamp from '@helpers/number/clamp';
 
 
@@ -45,14 +45,14 @@ export default function StepInput<T = any>(props: {
             {index() && <div
               class="media-editor__step-input-separator"
               classList={{
-                'media-editor__step-input-separator--active': isActive(index())
+                'media-editor__step-input-separator--active': isActive(index()),
               }}
             />}
             <div
               class="media-editor__step-input-dot"
               classList={{
                 'media-editor__step-input-dot--active': isActive(index()),
-                'media-editor__step-input-dot--selected': isSelected(index())
+                'media-editor__step-input-dot--selected': isSelected(index()),
               }}
             />
           </>}

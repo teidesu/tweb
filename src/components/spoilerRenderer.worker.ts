@@ -1,8 +1,8 @@
 import callbackify from '@helpers/callbackify';
 import applyColorOnContext from '@helpers/canvas/applyColorOnContext';
-import {defaultEasing, simpleEasing, unwrapEasing} from '@helpers/easings';
-import DotRendererCore, {drawClippingCircle, DotRendererConfig} from '@components/dotRendererCore';
-import {drawImageFromSource} from '@components/messageSpoilerOverlay/drawImageFromSource';
+import { defaultEasing, simpleEasing, unwrapEasing } from '@helpers/easings';
+import DotRendererCore, { drawClippingCircle, DotRendererConfig } from '@components/dotRendererCore';
+import { drawImageFromSource } from '@components/messageSpoilerOverlay/drawImageFromSource';
 
 export type SpoilerRendererSimInit = {
   width: number,
@@ -125,25 +125,25 @@ let timerId: number;
 
 const createSim = (init: SpoilerRendererSimInit): Sim => {
   const canvas = new OffscreenCanvas(init.width * init.dpr, init.height * init.dpr);
-  const core = new DotRendererCore(canvas, {vertex: init.vertexURL, fragment: init.fragmentURL});
+  const core = new DotRendererCore(canvas, { vertex: init.vertexURL, fragment: init.fragmentURL });
   core.resize(init.width, init.height, init.dpr, init.config);
   core.init();
-  return {core, canvas};
+  return { core, canvas };
 };
 
 const encodeBluffMask = (sim: TextSim, dpr: number) => {
   sim.encoding = true;
   // webp is pixel-identical here at less than half the png size; unsupporting
   // browsers (Safari) silently encode png instead
-  sim.canvas.convertToBlob({type: 'image/webp', quality: 1}).then((blob) => {
+  sim.canvas.convertToBlob({ type: 'image/webp', quality: 1 }).then((blob) => {
     sim.encoding = false;
     // data: URLs resolve synchronously when referenced from CSS; blob: URLs load
     // asynchronously on every swap (even when predecoded) and flicker the mask
     reader ??= new FileReaderSync();
     const url = reader.readAsDataURL(blob);
     ports.forEach((state) => {
-      if(state.bluffPlaying && state.textDpr === dpr) {
-        state.port.postMessage({type: 'bluff-mask', url});
+      if (state.bluffPlaying && state.textDpr === dpr) {
+        state.port.postMessage({ type: 'bluff-mask', url });
       }
     });
   }, () => {
@@ -152,12 +152,12 @@ const encodeBluffMask = (sim: TextSim, dpr: number) => {
 };
 
 const drawMediaTarget = (sim: Sim, target: MediaTarget, dpr: number) => {
-  const {canvas, context, x, y, reveal} = target;
-  const {width, height} = canvas;
+  const { canvas, context, x, y, reveal } = target;
+  const { width, height } = canvas;
 
   context.clearRect(0, 0, width, height);
 
-  if(!reveal) {
+  if (!reveal) {
     context.drawImage(sim.canvas, x, y, width, height, 0, 0, width, height);
   } else {
     const progress = simpleEasing(Math.min((Date.now() - reveal.startTime) / reveal.duration, 1));
@@ -172,12 +172,12 @@ const drawMediaTarget = (sim: Sim, target: MediaTarget, dpr: number) => {
     // Draw a clipping circle growing from where the user clicked
     drawClippingCircle(context, progress, reveal.coords, reveal.maxDist, dpr);
 
-    if(progress >= 1) {
+    if (progress >= 1) {
       target.revealed = true;
     }
   }
 
-  if(target.color) {
+  if (target.color) {
     applyColorOnContext(context, target.color, 0, 0, width, height);
   }
 };
@@ -190,11 +190,11 @@ const getUnwrapProgress = (unwrap: OverlayTarget['unwrap']) => {
 const isUnwrapSettled = (unwrap: OverlayTarget['unwrap']) => (Date.now() - unwrap!.startTime) >= unwrap!.duration;
 
 const drawOverlayTarget = (sim: Sim | undefined, target: OverlayTarget) => {
-  const {canvas, context, scratch, scratchContext, dpr, rects, backgroundColor, particleColor} = target;
+  const { canvas, context, scratch, scratchContext, dpr, rects, backgroundColor, particleColor } = target;
   const sourceCanvas = sim?.core.inited ? sim.canvas : undefined;
 
-  let {unwrap} = target;
-  if(unwrap && !unwrap.to && isUnwrapSettled(unwrap)) { // the wrap-back has finished
+  let { unwrap } = target;
+  if (unwrap && !unwrap.to && isUnwrapSettled(unwrap)) { // the wrap-back has finished
     unwrap = target.unwrap = undefined;
   }
 
@@ -203,7 +203,7 @@ const drawOverlayTarget = (sim: Sim | undefined, target: OverlayTarget) => {
 
   context.clearRect(0, 0, canvas.width, canvas.height);
 
-  for(const rect of rects) {
+  for (const rect of rects) {
     const x = rect.left;
     const y = Math.max(0, rect.top);
     const dw = rect.width;
@@ -212,10 +212,10 @@ const drawOverlayTarget = (sim: Sim | undefined, target: OverlayTarget) => {
     context.fillStyle = rect.color || backgroundColor;
     context.fillRect(x * dpr, y * dpr, dw * dpr, dh * dpr);
 
-    if(!sourceCanvas) continue;
+    if (!sourceCanvas) continue;
 
     scratchContext.clearRect(x * dpr, y * dpr, dw * dpr, dh * dpr);
-    if(!coords) {
+    if (!coords) {
       drawImageFromSource(scratchContext, sourceCanvas, x * dpr, y * dpr, dw * dpr, dh * dpr, x * dpr, y * dpr, dw * dpr, dh * dpr);
     } else {
       const scaledProgress = progress ** 2 /* * Math.sqrt(progress) */ * 0.4;
@@ -238,7 +238,7 @@ const drawOverlayTarget = (sim: Sim | undefined, target: OverlayTarget) => {
     context.drawImage(scratch, x * dpr, y * dpr, dw * dpr, dh * dpr, x * dpr, y * dpr, dw * dpr, dh * dpr);
   }
 
-  if(coords && unwrap!.maxDist) {
+  if (coords && unwrap!.maxDist) {
     context.save();
     context.globalCompositeOperation = 'destination-out';
     context.fillStyle = 'white';
@@ -259,13 +259,13 @@ const isOverlayTargetActive = (target: OverlayTarget) =>
   target.playing || target.needsRedraw || (target.unwrap && (!target.unwrap.to || !isUnwrapSettled(target.unwrap)));
 
 const needsFrame = () => {
-  for(const state of ports) {
-    if(state.bluffPlaying) return true;
-    for(const target of state.mediaTargets.values()) {
-      if(isMediaTargetActive(target)) return true;
+  for (const state of ports) {
+    if (state.bluffPlaying) return true;
+    for (const target of state.mediaTargets.values()) {
+      if (isMediaTargetActive(target)) return true;
     }
-    for(const target of state.overlayTargets.values()) {
-      if(isOverlayTargetActive(target)) return true;
+    for (const target of state.overlayTargets.values()) {
+      if (isOverlayTargetActive(target)) return true;
     }
   }
   return false;
@@ -275,27 +275,27 @@ const frame = () => {
   // the text simulation feeds the bluff masks and the bubble overlays
   const textDprsNeeded = new Set<number>();
   ports.forEach((state) => {
-    if(state.bluffPlaying) textDprsNeeded.add(state.textDpr!);
-    for(const target of state.overlayTargets.values()) {
-      if(isOverlayTargetActive(target)) textDprsNeeded.add(target.dpr);
+    if (state.bluffPlaying) textDprsNeeded.add(state.textDpr!);
+    for (const target of state.overlayTargets.values()) {
+      if (isOverlayTargetActive(target)) textDprsNeeded.add(target.dpr);
     }
   });
   textDprsNeeded.forEach((dpr) => textSims.get(dpr)?.core.draw());
 
   textSims.forEach((sim, dpr) => {
-    if(!textDprsNeeded.has(dpr) || sim.encoding || !sim.core.inited) return;
+    if (!textDprsNeeded.has(dpr) || sim.encoding || !sim.core.inited) return;
 
     let anyBluffPlaying = false;
-    for(const state of ports) {
-      if(state.bluffPlaying && state.textDpr === dpr) {
+    for (const state of ports) {
+      if (state.bluffPlaying && state.textDpr === dpr) {
         anyBluffPlaying = true;
         break;
       }
     }
-    if(!anyBluffPlaying) return;
+    if (!anyBluffPlaying) return;
 
     const now = Date.now();
-    if((now - sim.lastEncodeTime) >= ENCODE_INTERVAL) {
+    if ((now - sim.lastEncodeTime) >= ENCODE_INTERVAL) {
       sim.lastEncodeTime = now;
       encodeBluffMask(sim, dpr);
     }
@@ -303,8 +303,8 @@ const frame = () => {
 
   const mediaDprsNeeded = new Set<number>();
   ports.forEach((state) => {
-    for(const target of state.mediaTargets.values()) {
-      if(isMediaTargetActive(target)) {
+    for (const target of state.mediaTargets.values()) {
+      if (isMediaTargetActive(target)) {
         mediaDprsNeeded.add(state.mediaDpr!);
         break;
       }
@@ -314,15 +314,15 @@ const frame = () => {
 
   ports.forEach((state) => {
     const mediaSim = mediaSims.get(state.mediaDpr!);
-    if(mediaSim) {
+    if (mediaSim) {
       state.mediaTargets.forEach((target) => {
-        if(!isMediaTargetActive(target)) return;
+        if (!isMediaTargetActive(target)) return;
         drawMediaTarget(mediaSim, target, state.mediaDpr!);
       });
     }
 
     state.overlayTargets.forEach((target) => {
-      if(!isOverlayTargetActive(target)) return;
+      if (!isOverlayTargetActive(target)) return;
       drawOverlayTarget(textSims.get(target.dpr), target);
     });
   });
@@ -333,7 +333,7 @@ const frame = () => {
 };
 
 const ensureLoop = () => {
-  if(timerId !== undefined || !needsFrame()) return;
+  if (timerId !== undefined || !needsFrame()) return;
 
   const now = Date.now();
   textSims.forEach((sim) => sim.core.lastDrawTime = now);
@@ -349,19 +349,19 @@ const pruneSims = () => {
   const textDprs = new Set<number>();
   const mediaDprs = new Set<number>();
   ports.forEach((state) => {
-    if(state.textDpr !== undefined) textDprs.add(state.textDpr);
-    if(state.mediaDpr !== undefined) mediaDprs.add(state.mediaDpr);
+    if (state.textDpr !== undefined) textDprs.add(state.textDpr);
+    if (state.mediaDpr !== undefined) mediaDprs.add(state.mediaDpr);
     state.overlayTargets.forEach((target) => textDprs.add(target.dpr));
   });
 
-  textSims.forEach(({core}, dpr) => {
-    if(!textDprs.has(dpr)) {
+  textSims.forEach(({ core }, dpr) => {
+    if (!textDprs.has(dpr)) {
       core.destroy();
       textSims.delete(dpr);
     }
   });
-  mediaSims.forEach(({core}, dpr) => {
-    if(!mediaDprs.has(dpr)) {
+  mediaSims.forEach(({ core }, dpr) => {
+    if (!mediaDprs.has(dpr)) {
       core.destroy();
       mediaSims.delete(dpr);
     }
@@ -369,7 +369,7 @@ const pruneSims = () => {
 };
 
 const removePort = (state: PortState) => {
-  if(!ports.delete(state)) return;
+  if (!ports.delete(state)) return;
   pruneSims();
 };
 
@@ -378,31 +378,31 @@ const removePort = (state: PortState) => {
 let encodeCanvas: OffscreenCanvas;
 let encodeContext: ImageBitmapRenderingContext;
 const encodeBitmap = (state: PortState, bitmap: ImageBitmap) => {
-  if(!encodeCanvas || encodeCanvas.width !== bitmap.width || encodeCanvas.height !== bitmap.height) {
+  if (!encodeCanvas || encodeCanvas.width !== bitmap.width || encodeCanvas.height !== bitmap.height) {
     encodeCanvas = new OffscreenCanvas(bitmap.width, bitmap.height);
     encodeContext = encodeCanvas.getContext('bitmaprenderer')!;
   }
 
   encodeContext.transferFromImageBitmap(bitmap);
-  encodeCanvas.convertToBlob({type: 'image/webp', quality: 1}).then((blob) => {
+  encodeCanvas.convertToBlob({ type: 'image/webp', quality: 1 }).then((blob) => {
     reader ??= new FileReaderSync();
-    state.port.postMessage({type: 'bluff-mask', url: reader.readAsDataURL(blob)});
+    state.port.postMessage({ type: 'bluff-mask', url: reader.readAsDataURL(blob) });
   });
 };
 
 const handleMessage = (state: PortState, message: SpoilerRendererInMessage | ImageBitmap) => {
-  if(message instanceof ImageBitmap) {
+  if (message instanceof ImageBitmap) {
     encodeBitmap(state, message);
     return;
   }
 
-  switch(message.type) {
+  switch (message.type) {
     case 'text-init': {
       state.textDpr = message.dpr;
       let sim = textSims.get(message.dpr);
-      if(!sim) textSims.set(message.dpr, sim = {...createSim(message), lastEncodeTime: 0});
+      if (!sim) textSims.set(message.dpr, sim = { ...createSim(message), lastEncodeTime: 0 });
       pruneSims();
-      callbackify(sim.core.init(), () => state.port.postMessage({type: 'text-inited'}));
+      callbackify(sim.core.init(), () => state.port.postMessage({ type: 'text-inited' }));
       break;
     }
 
@@ -420,9 +420,9 @@ const handleMessage = (state: PortState, message: SpoilerRendererInMessage | Ima
     case 'media-init': {
       state.mediaDpr = message.dpr;
       let sim = mediaSims.get(message.dpr);
-      if(!sim) mediaSims.set(message.dpr, sim = createSim(message));
+      if (!sim) mediaSims.set(message.dpr, sim = createSim(message));
       pruneSims();
-      callbackify(sim.core.init(), () => state.port.postMessage({type: 'media-inited'}));
+      callbackify(sim.core.init(), () => state.port.postMessage({ type: 'media-inited' }));
       break;
     }
 
@@ -432,14 +432,14 @@ const handleMessage = (state: PortState, message: SpoilerRendererInMessage | Ima
         context: message.canvas.getContext('2d')!,
         x: message.x,
         y: message.y,
-        color: message.color
+        color: message.color,
       });
       break;
     }
 
     case 'media-play': {
       const target = state.mediaTargets.get(message.id);
-      if(!target) break;
+      if (!target) break;
       target.playing = true;
       ensureLoop();
       break;
@@ -447,18 +447,18 @@ const handleMessage = (state: PortState, message: SpoilerRendererInMessage | Ima
 
     case 'media-pause': {
       const target = state.mediaTargets.get(message.id);
-      if(target) target.playing = false;
+      if (target) target.playing = false;
       break;
     }
 
     case 'media-reveal': {
       const target = state.mediaTargets.get(message.id);
-      if(!target || target.revealed) break;
+      if (!target || target.revealed) break;
       target.reveal = {
         coords: message.coords,
         maxDist: message.maxDist,
         duration: message.duration,
-        startTime: Date.now()
+        startTime: Date.now(),
       };
       ensureLoop();
       break;
@@ -479,15 +479,15 @@ const handleMessage = (state: PortState, message: SpoilerRendererInMessage | Ima
         dpr: message.dpr,
         rects: [],
         backgroundColor: 'transparent',
-        particleColor: 'white'
+        particleColor: 'white',
       });
       break;
     }
 
     case 'overlay-update': {
       const target = state.overlayTargets.get(message.id);
-      if(!target) break;
-      if(target.canvas.width !== message.width || target.canvas.height !== message.height) {
+      if (!target) break;
+      if (target.canvas.width !== message.width || target.canvas.height !== message.height) {
         target.canvas.width = target.scratch.width = message.width;
         target.canvas.height = target.scratch.height = message.height;
       }
@@ -501,7 +501,7 @@ const handleMessage = (state: PortState, message: SpoilerRendererInMessage | Ima
 
     case 'overlay-unwrap': {
       const target = state.overlayTargets.get(message.id);
-      if(!target) break;
+      if (!target) break;
       target.unwrap = {
         coords: message.coords,
         maxDist: message.maxDist,
@@ -509,7 +509,7 @@ const handleMessage = (state: PortState, message: SpoilerRendererInMessage | Ima
         to: 1,
         duration: message.duration,
         startTime: Date.now(),
-        easing: unwrapEasing
+        easing: unwrapEasing,
       };
       ensureLoop();
       break;
@@ -517,14 +517,14 @@ const handleMessage = (state: PortState, message: SpoilerRendererInMessage | Ima
 
     case 'overlay-wrap': {
       const target = state.overlayTargets.get(message.id);
-      if(!target?.unwrap) break;
+      if (!target?.unwrap) break;
       target.unwrap = {
         ...target.unwrap,
         from: getUnwrapProgress(target.unwrap),
         to: 0,
         duration: message.duration,
         startTime: Date.now(),
-        easing: defaultEasing
+        easing: defaultEasing,
       };
       ensureLoop();
       break;
@@ -532,7 +532,7 @@ const handleMessage = (state: PortState, message: SpoilerRendererInMessage | Ima
 
     case 'overlay-reset': {
       const target = state.overlayTargets.get(message.id);
-      if(!target) break;
+      if (!target) break;
       target.unwrap = undefined;
       target.needsRedraw = true;
       ensureLoop();
@@ -541,7 +541,7 @@ const handleMessage = (state: PortState, message: SpoilerRendererInMessage | Ima
 
     case 'overlay-clear': {
       const target = state.overlayTargets.get(message.id);
-      if(!target) break;
+      if (!target) break;
       target.rects = [];
       target.context.clearRect(0, 0, target.canvas.width, target.canvas.height);
       break;
@@ -549,7 +549,7 @@ const handleMessage = (state: PortState, message: SpoilerRendererInMessage | Ima
 
     case 'overlay-play': {
       const target = state.overlayTargets.get(message.id);
-      if(!target) break;
+      if (!target) break;
       target.playing = true;
       ensureLoop();
       break;
@@ -557,7 +557,7 @@ const handleMessage = (state: PortState, message: SpoilerRendererInMessage | Ima
 
     case 'overlay-pause': {
       const target = state.overlayTargets.get(message.id);
-      if(target) target.playing = false;
+      if (target) target.playing = false;
       break;
     }
 
@@ -575,14 +575,14 @@ const handleMessage = (state: PortState, message: SpoilerRendererInMessage | Ima
 };
 
 const setupPort = (port: Port & {onmessage?: any, addEventListener?: any}) => {
-  const state: PortState = {port, mediaTargets: new Map(), overlayTargets: new Map()};
+  const state: PortState = { port, mediaTargets: new Map(), overlayTargets: new Map() };
   ports.add(state);
   port.onmessage = (event: MessageEvent) => handleMessage(state, event.data);
   // fires when the other side's document is destroyed (where supported)
   port.addEventListener?.('close', () => removePort(state));
 };
 
-if(typeof(DedicatedWorkerGlobalScope) !== 'undefined' && self instanceof DedicatedWorkerGlobalScope) {
+if (typeof(DedicatedWorkerGlobalScope) !== 'undefined' && self instanceof DedicatedWorkerGlobalScope) {
   setupPort(ctx);
 } else {
   (self as any as SharedWorkerGlobalScope).onconnect = (event) => setupPort((event.ports[0] as Port & { onmessage?: any; addEventListener?: any; }));

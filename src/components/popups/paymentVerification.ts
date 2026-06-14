@@ -5,9 +5,9 @@ import TelegramWebView from '@components/telegramWebView';
 export function createVerificationIframe(options: ConstructorParameters<typeof TelegramWebView>[0]) {
   const result = new TelegramWebView({
     ...options,
-    sandbox: 'allow-forms allow-scripts allow-same-origin allow-modals'
+    sandbox: 'allow-forms allow-scripts allow-same-origin allow-modals',
   });
-  const {iframe} = result;
+  const { iframe } = result;
   iframe.allow = 'payment';
   iframe.classList.add('payment-verification');
   return result;
@@ -23,7 +23,7 @@ export default class PopupPaymentVerification extends PopupElement<{
       closable: true,
       overlayClosable: true,
       body: true,
-      title: 'Checkout.WebConfirmation.Title'
+      title: 'Checkout.WebConfirmation.Title',
     });
 
     this.d();
@@ -31,13 +31,13 @@ export default class PopupPaymentVerification extends PopupElement<{
 
   private d() {
     const telegramWebView = this.telegramWebView = createVerificationIframe({
-      url: this.url
+      url: this.url,
     });
 
     telegramWebView.addEventListener('web_app_open_tg_link', (e) => {
       this.dispatchEvent('finish');
       this.hide();
-      if(this.openPathAfter) {
+      if (this.openPathAfter) {
         appImManager.openUrl('https://t.me' + e.path_full);
       }
     });

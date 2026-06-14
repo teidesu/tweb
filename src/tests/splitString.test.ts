@@ -53,7 +53,7 @@ describe('splitStringByLength', () => {
   });
 
   test('large realistic message (~12k chars, maxLength 4096)', () => {
-    const words = Array.from({length: 2000}, (_, i) => 'word' + i);
+    const words = Array.from({ length: 2000 }, (_, i) => 'word' + i);
     const str = words.join(' ');
     const parts = splitStringByLength(str, 4096);
     assertValidSplit(str, parts, 4096);
@@ -74,7 +74,7 @@ describe('splitStringByLength', () => {
   });
 
   test('many parts split correctly (stress test)', () => {
-    const words = Array.from({length: 500}, () => 'test');
+    const words = Array.from({ length: 500 }, () => 'test');
     const str = words.join(' ');
     const parts = splitStringByLength(str, 20);
     assertValidSplit(str, parts, 20);

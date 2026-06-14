@@ -1,6 +1,6 @@
-import type {MyDocument} from '@appManagers/appDocsManager';
-import type {MyInputMessagesFilter, MyMessage} from '@appManagers/appMessagesManager';
-import {Message, MessageMedia, MessageEntity, MessageAction, Reaction} from '@layer';
+import type { MyDocument } from '@appManagers/appDocsManager';
+import type { MyInputMessagesFilter, MyMessage } from '@appManagers/appMessagesManager';
+import { Message, MessageMedia, MessageEntity, MessageAction, Reaction } from '@layer';
 import matchUrl from '@lib/richTextProcessor/matchUrl';
 import reactionsEqual from '@appManagers/utils/reactions/reactionsEqual';
 
@@ -8,19 +8,19 @@ export default function filterMessagesByInputFilter({
   inputFilter,
   messages,
   limit,
-  savedReaction
+  savedReaction,
 }: {
   inputFilter: MyInputMessagesFilter,
   messages: Array<Message.message | Message.messageService>,
   limit: number,
   savedReaction?: (Reaction.reactionEmoji | Reaction.reactionCustomEmoji)[]
 }) {
-  if(inputFilter === 'inputMessagesFilterEmpty' && !savedReaction) {
+  if (inputFilter === 'inputMessagesFilterEmpty' && !savedReaction) {
     return messages.slice(0, limit);
   }
 
   const foundMsgs: MyMessage[] = [];
-  if(!messages.length) {
+  if (!messages.length) {
     return foundMsgs;
   }
 
@@ -35,7 +35,7 @@ export default function filterMessagesByInputFilter({
     // excludeDocTypes: MyDocument['type'][] = [],
     neededFlags: (keyof Message.message['pFlags'])[] = [];
 
-  switch(inputFilter) {
+  switch (inputFilter) {
     case 'inputMessagesFilterPhotos':
       neededContents['messageMediaPhoto'] = true;
       break;
@@ -103,23 +103,23 @@ export default function filterMessagesByInputFilter({
       }); */
   }
 
-  if(!filtering && !savedReaction?.length) {
+  if (!filtering && !savedReaction?.length) {
     return foundMsgs;
   }
 
-  for(let i = 0, length = messages.length; i < length; ++i) {
+  for (let i = 0, length = messages.length; i < length; ++i) {
     const message: Message.message | Message.messageService = messages[i];
-    if(!message) continue;
+    if (!message) continue;
 
     // || (neededContents['mentioned'] && message.totalEntities.find((e: any) => e._ === 'messageEntityMention'));
 
     let found = !filtering;
-    if(neededFlags?.some((flag) => (message as any as Message.message).pFlags[flag])) {
+    if (neededFlags?.some((flag) => (message as any as Message.message).pFlags[flag])) {
       found = true;
-    } else if(message._ === 'message') {
-      if(message.media && neededContents[message.media._] && !(message.media as MessageMedia.messageMediaPhoto).ttl_seconds/*  && !message.fwd_from */) {
+    } else if (message._ === 'message') {
+      if (message.media && neededContents[message.media._] && !(message.media as MessageMedia.messageMediaPhoto).ttl_seconds/*  && !message.fwd_from */) {
         const doc = (message.media as MessageMedia.messageMediaDocument).document as MyDocument;
-        if(doc &&
+        if (doc &&
           (
             (neededDocTypes.length && !neededDocTypes.includes(doc.type))/*  ||
             excludeDocTypes.includes(doc.type) */
@@ -129,33 +129,33 @@ export default function filterMessagesByInputFilter({
         }
 
         found = true;
-      } else if(neededContents['url'] && message.message) {
+      } else if (neededContents['url'] && message.message) {
         const goodEntities = ['messageEntityTextUrl', 'messageEntityUrl'];
-        if((message.totalEntities as MessageEntity[]).find((e) => goodEntities.includes(e._)) || matchUrl(message.message)) {
+        if ((message.totalEntities as MessageEntity[]).find((e) => goodEntities.includes(e._)) || matchUrl(message.message)) {
           found = true;
         }
       }
 
-      if(found && savedReaction) {
+      if (found && savedReaction) {
         const results = message.reactions?.results;
         found = results ? savedReaction.every((reaction) => {
           return results.some((reactionCount) => reactionsEqual(reactionCount.reaction, reaction));
         }) : false;
       }
-    } else if(
+    } else if (
       neededContents['avatar'] &&
       message.action &&
       ([
         'messageActionChannelEditPhoto' as const,
         'messageActionChatEditPhoto' as const,
         'messageActionChannelEditVideo' as const,
-        'messageActionChatEditVideo' as const
+        'messageActionChatEditVideo' as const,
       ] as MessageAction['_'][]).includes(message.action._)
     ) {
       found = true;
     }
 
-    if(found && foundMsgs.push(message) >= limit) {
+    if (found && foundMsgs.push(message) >= limit) {
       break;
     }
   }

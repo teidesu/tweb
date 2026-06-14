@@ -1,18 +1,18 @@
-import {ResizableContainer} from '@components/mediaEditor/canvas/resizableLayers';
-import {HistoryItem, useMediaEditorContext} from '@components/mediaEditor/context';
-import {ResizableLayerProps, TextLayerInfo, TextRenderingInfoLine} from '@components/mediaEditor/types';
-import {fontInfoMap, getContrastColor} from '@components/mediaEditor/utils';
+import { ResizableContainer } from '@components/mediaEditor/canvas/resizableLayers';
+import { HistoryItem, useMediaEditorContext } from '@components/mediaEditor/context';
+import { ResizableLayerProps, TextLayerInfo, TextRenderingInfoLine } from '@components/mediaEditor/types';
+import { fontInfoMap, getContrastColor } from '@components/mediaEditor/utils';
 import createElementFromMarkup from '@helpers/createElementFromMarkup';
 import track from '@helpers/solid/track';
-import {i18n} from '@lib/langPack';
-import {batch, createEffect, createMemo, on, onCleanup, onMount} from 'solid-js';
-import {modifyMutable, reconcile} from 'solid-js/store';
+import { i18n } from '@lib/langPack';
+import { batch, createEffect, createMemo, on, onCleanup, onMount } from 'solid-js';
+import { modifyMutable, reconcile } from 'solid-js/store';
 
 
 export default function TextLayerContent(props: ResizableLayerProps) {
-  const {editorState, mediaState, actions} = useMediaEditorContext()!;
+  const { editorState, mediaState, actions } = useMediaEditorContext()!;
 
-  if(!props.layer.textInfo) return;
+  if (!props.layer.textInfo) return;
 
   const onFocus = () => {
     batch(() => {
@@ -26,7 +26,7 @@ export default function TextLayerContent(props: ResizableLayerProps) {
   function deleteThisLayer() {
     const layers = mediaState.resizableLayers;
     const idx = layers.findIndex(layer => layer.id === props.layer.id);
-    if(idx < 0) return;
+    if (idx < 0) return;
     const deletedLayer = layers.splice(idx, 1)[0];
     deletedLayer.textRenderingInfo = undefined;
 
@@ -35,14 +35,14 @@ export default function TextLayerContent(props: ResizableLayerProps) {
       newValue: HistoryItem.RemoveArrayItem,
       oldValue: deletedLayer,
       findBy: {
-        id: deletedLayer.id
-      }
+        id: deletedLayer.id,
+      },
     });
   }
 
   function updateBackground() {
     contentEditable!.childNodes.forEach((childNode) => {
-      if(childNode instanceof HTMLDivElement && !childNode.hasAttributes()) {
+      if (childNode instanceof HTMLDivElement && !childNode.hasAttributes()) {
         childNode.querySelectorAll('*').forEach((element) => {
           const node = document.createTextNode(element.textContent);
           element.replaceWith(node);
@@ -53,7 +53,7 @@ export default function TextLayerContent(props: ResizableLayerProps) {
         childNode.replaceWith(div);
       }
     });
-    if(!contentEditable!.textContent) {
+    if (!contentEditable!.textContent) {
       contentEditable!.innerHTML = '<div></div>';
 
       // Firefox cursor reset
@@ -70,9 +70,9 @@ export default function TextLayerContent(props: ResizableLayerProps) {
 
     // Firefox puts the cursor outside the inner divs and messes up everything
     const selection = window.getSelection();
-    if(selection!.rangeCount > 0) {
+    if (selection!.rangeCount > 0) {
       const range = selection!.getRangeAt(0);
-      if(range.startContainer === contentEditable! && range.startOffset === 0) {
+      if (range.startContainer === contentEditable! && range.startOffset === 0) {
         const innerDiv = contentEditable.children[0];
         const innerDivRange = document.createRange();
         innerDivRange.selectNodeContents(innerDiv);
@@ -87,14 +87,14 @@ export default function TextLayerContent(props: ResizableLayerProps) {
     const lines = getLinesRenderingInfo(contentEditable!, props.layer.textInfo!.alignment);
     const path = createTextBackgroundPath(lines);
 
-    if(props.layer.textInfo!.style === 'background') updateBackgroundStyle(container!, path.join(' '), props.layer.textInfo!);
-    if(props.layer.textInfo!.style === 'outline') updateOutlineStyle(container!, contentEditable!, props.layer.textInfo!);
+    if (props.layer.textInfo!.style === 'background') updateBackgroundStyle(container!, path.join(' '), props.layer.textInfo!);
+    if (props.layer.textInfo!.style === 'outline') updateOutlineStyle(container!, contentEditable!, props.layer.textInfo!);
 
     props.layer.textRenderingInfo =  {
       width: container!.clientWidth,
       height: container!.clientHeight,
       path,
-      lines
+      lines,
     };
   }
 
@@ -107,21 +107,21 @@ export default function TextLayerContent(props: ResizableLayerProps) {
   }
 
   createEffect(() => {
-    track(() => ({...props.layer.textInfo}));
+    track(() => ({ ...props.layer.textInfo }));
     updateBackground();
   });
 
   const isThisLayerSelected = createMemo(() => props.layer.id === editorState.selectedResizableLayer);
 
   onMount(() => {
-    if(isThisLayerSelected()) selectAll();
+    if (isThisLayerSelected()) selectAll();
   });
 
 
   createEffect(() => {
-    if(isThisLayerSelected()) {
+    if (isThisLayerSelected()) {
       onCleanup(() => {
-        if(!contentEditable!.innerText.trim()) {
+        if (!contentEditable!.innerText.trim()) {
           deleteThisLayer();
         }
       })
@@ -129,8 +129,8 @@ export default function TextLayerContent(props: ResizableLayerProps) {
   });
 
   createEffect(
-    on(() => ({...editorState.currentTextLayerInfo}), () => {
-      if(editorState.selectedResizableLayer !== props.layer.id) return;
+    on(() => ({ ...editorState.currentTextLayerInfo }), () => {
+      if (editorState.selectedResizableLayer !== props.layer.id) return;
       modifyMutable(props.layer.textInfo, reconcile(editorState.currentTextLayerInfo));
     })
   );
@@ -145,13 +145,13 @@ export default function TextLayerContent(props: ResizableLayerProps) {
   let contentEditable: HTMLDivElement;
 
   const color = () => {
-    if(props.layer.textInfo!.style === 'normal') return props.layer.textInfo!.color;
+    if (props.layer.textInfo!.style === 'normal') return props.layer.textInfo!.color;
     return getContrastColor(props.layer.textInfo!.color);
   };
 
   const intialContent = (() => {
     const layerInfo = props.layer.textRenderingInfo;
-    if(!layerInfo) return <div>{/* {i18n('MediaEditor.TypeSomething')} */}</div>;
+    if (!layerInfo) return <div>{/* {i18n('MediaEditor.TypeSomething')} */}</div>;
     return layerInfo.lines.map((line) => <div>{line.content}</div>);
   })();
 
@@ -160,14 +160,14 @@ export default function TextLayerContent(props: ResizableLayerProps) {
       ref={container!}
       class="media-editor__text-layer"
       classList={{
-        'media-editor__text-layer--with-bg': props.layer.textInfo.style === 'background'
+        'media-editor__text-layer--with-bg': props.layer.textInfo.style === 'background',
       }}
       style={{
         'color': color(),
         'font-size': props.layer.textInfo.size + 'px',
         'font-family': fontInfo().fontFamily,
         'font-weight': fontInfo().fontWeight,
-        '--align-items': flexAlignMap[props.layer.textInfo.alignment]
+        '--align-items': flexAlignMap[props.layer.textInfo.alignment],
       }}
     >
       <div
@@ -193,9 +193,9 @@ function getLinesRenderingInfo(linesContainer: HTMLDivElement, alignment: string
   return Array.from(linesContainer.children).map((_child) => {
     const child = _child as HTMLElement;
     let offset = 0;
-    if(alignment === 'left') {
+    if (alignment === 'left') {
       offset = 0;
-    } else if(alignment === 'center') {
+    } else if (alignment === 'center') {
       offset = (linesContainer.clientWidth - child.clientWidth) / 2;
     } else {
       offset = linesContainer.clientWidth - child.clientWidth;
@@ -204,7 +204,7 @@ function getLinesRenderingInfo(linesContainer: HTMLDivElement, alignment: string
       left: offset,
       right: offset + child.clientWidth,
       content: child.innerText,
-      height: child.clientHeight
+      height: child.clientHeight,
     };
   });
 }
@@ -226,7 +226,7 @@ function createTextBackgroundPath(lines: TextRenderingInfoLine[]) {
   let prevPosition = first;
   let prevY = first.height;
 
-  for(let i = 1; i < lines.length; i++) {
+  for (let i = 1; i < lines.length; i++) {
     const position = lines[i];
 
     const diffSign = position.right > prevPosition.right ? 1 : -1;
@@ -249,7 +249,7 @@ function createTextBackgroundPath(lines: TextRenderingInfoLine[]) {
 
   const last = lines[lines.length - 1];
   prevY -= last.height;
-  for(let i = lines.length - 2; i >= 0; i--) {
+  for (let i = lines.length - 2; i >= 0; i--) {
     const position = lines[i];
 
     const diffSign = position.left > prevPosition.left ? 1 : -1;
@@ -307,12 +307,12 @@ function updateOutlineStyle(container: HTMLDivElement, contentEditable: HTMLDivE
   bgDiv.innerHTML = contentEditable.innerHTML;
   container.prepend(bgDiv);
   Array.from(bgDiv.children).forEach((line) => {
-    if(line instanceof HTMLDivElement) updateSvg(line);
+    if (line instanceof HTMLDivElement) updateSvg(line);
   });
 }
 
 const flexAlignMap: Record<string, string> = {
   left: 'start',
   center: 'center',
-  right: 'end'
+  right: 'end',
 };

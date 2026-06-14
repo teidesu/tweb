@@ -1,4 +1,4 @@
-import {createSignal, onCleanup, onMount, Component, createSelector, createMemo, For, Show, Ref, createComputed, on, Accessor, untrack} from 'solid-js';
+import { createSignal, onCleanup, onMount, Component, createSelector, createMemo, For, Show, Ref, createComputed, on, Accessor, untrack } from 'solid-js';
 
 import createAnimatedValue from '@helpers/solid/createAnimatedValue';
 import ListenerSetter from '@helpers/listenerSetter';
@@ -57,7 +57,7 @@ const VerticalVirtualList: Component<{
     hostHeight: () => hostSize.height,
     itemHeight: () => props.itemHeight,
     scrollAmount,
-    onScrollShift
+    onScrollShift,
   });
 
   const canAnimate = createMemo(() => shouldAnimate() && props.animate);
@@ -97,7 +97,7 @@ const VerticalVirtualList: Component<{
       class={props.class}
       style={{
         height: height() + 'px',
-        overflow: props.forceHostHeight ? 'hidden' : undefined
+        overflow: props.forceHostHeight ? 'hidden' : undefined,
       }}
     >
       <For each={props.list}>
@@ -126,7 +126,7 @@ type UseShouldAnimateArgs = {
  * For example when a new chat appears on top, and we have some scroll, prevent all the chats from viewport
  * moving at the same time
  */
-function useShouldAnimate({list, scrollAmount, hostHeight, itemHeight, onScrollShift}: UseShouldAnimateArgs) {
+function useShouldAnimate({ list, scrollAmount, hostHeight, itemHeight, onScrollShift }: UseShouldAnimateArgs) {
   const [shouldAnimate, setShouldAnimate] = createSignal(true);
 
   const isActuallyVisible = createSelector(
@@ -149,36 +149,36 @@ function useShouldAnimate({list, scrollAmount, hostHeight, itemHeight, onScrollS
     let allChangedTheSameAmount = true;
     let prevDiff: number;
 
-    for(const item of visiblePrevAndNow) {
+    for (const item of visiblePrevAndNow) {
       const prevIdx = prev.indexOf(item);
       const currentIdx = current.indexOf(item);
 
-      if(prevIdx === -1 || currentIdx === -1) {
+      if (prevIdx === -1 || currentIdx === -1) {
         allChangedTheSameAmount = false;
         break;
       }
 
       const diff = prevIdx - currentIdx;
 
-      if(typeof prevDiff! === 'undefined') {
+      if (typeof prevDiff! === 'undefined') {
         prevDiff = diff;
         continue;
       }
 
-      if(prevDiff !== diff) {
+      if (prevDiff !== diff) {
         allChangedTheSameAmount = false;
         break;
       }
     }
 
-    if(!visiblePrevAndNow.length) {
+    if (!visiblePrevAndNow.length) {
       allChangedTheSameAmount = false;
       prevDiff = 0;
     }
 
     setShouldAnimate(!allChangedTheSameAmount);
 
-    if(allChangedTheSameAmount) {
+    if (allChangedTheSameAmount) {
       onScrollShift(prevDiff! * itemHeight());
     }
 

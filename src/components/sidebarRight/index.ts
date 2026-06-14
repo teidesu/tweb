@@ -1,15 +1,15 @@
-import appImManager, {APP_TABS} from '@lib/appImManager';
-import SidebarSlider, {SliderSuperTab} from '@components/slider';
-import mediaSizes, {ScreenSize} from '@helpers/mediaSizes';
+import appImManager, { APP_TABS } from '@lib/appImManager';
+import SidebarSlider, { SliderSuperTab } from '@components/slider';
+import mediaSizes, { ScreenSize } from '@helpers/mediaSizes';
 import AppSharedMediaTab from '@components/sidebarRight/tabs/sharedMediaTab';
 import AppEmoticonsTab from '@components/sidebarRight/tabs/emoticons';
-import {MOUNT_CLASS_TO} from '@config/debug';
-import {AppManagers} from '@lib/managers';
+import { MOUNT_CLASS_TO } from '@config/debug';
+import { AppManagers } from '@lib/managers';
 import appNavigationController from '@components/appNavigationController';
 import rootScope from '@lib/rootScope';
-import {installColumnWidthsUpdater, isRightColumnFloating} from '@helpers/updateColumnWidths';
+import { installColumnWidthsUpdater, isRightColumnFloating } from '@helpers/updateColumnWidths';
 import installColumnResize from '@helpers/installColumnResize';
-import {setAppSettings} from '@stores/appSettings';
+import { setAppSettings } from '@stores/appSettings';
 
 
 export const RIGHT_COLUMN_ACTIVE_CLASSNAME = 'is-right-column-shown';
@@ -22,7 +22,7 @@ export class AppSidebarRight extends SidebarSlider {
     super({
       sidebarEl: document.getElementById('column-right') as HTMLElement,
       canHideFirst: true,
-      navigationType: 'right'
+      navigationType: 'right',
     });
   }
 
@@ -30,13 +30,13 @@ export class AppSidebarRight extends SidebarSlider {
     this.managers = managers;
 
     mediaSizes.addEventListener('changeScreen', (from, to) => {
-      if(to === ScreenSize.medium && from !== ScreenSize.mobile) {
+      if (to === ScreenSize.medium && from !== ScreenSize.mobile) {
         this.toggleSidebar(false, false, false);
       }
     });
 
     installColumnWidthsUpdater();
-    installColumnResize({columnEl: this.sidebarEl, side: 'right'});
+    installColumnResize({ columnEl: this.sidebarEl, side: 'right' });
 
     // floating ↔ docked changes whether the open tab is transparent to the nav stack
     rootScope.addEventListener('right_column_floats', () => this.updateNavigationTransparency());
@@ -45,12 +45,12 @@ export class AppSidebarRight extends SidebarSlider {
   // a docked sidebar showing only the active chat's profile or the ESG panel is
   // persisted state, not user navigation — Esc / back should go to the chat instead
   private isTabNavigationTransparent(tab: SliderSuperTab) {
-    if(isRightColumnFloating()) {
+    if (isRightColumnFloating()) {
       return false;
     }
 
     // pushNavigationItem may be called before or after the tab lands in history
-    if(this.historyTabIds.length !== (this.historyTabIds.includes(tab) ? 1 : 0)) {
+    if (this.historyTabIds.length !== (this.historyTabIds.includes(tab) ? 1 : 0)) {
       return false;
     }
 
@@ -62,21 +62,21 @@ export class AppSidebarRight extends SidebarSlider {
   }
 
   private updateNavigationTransparency() {
-    if(!document.body.classList.contains(RIGHT_COLUMN_ACTIVE_CLASSNAME)) {
+    if (!document.body.classList.contains(RIGHT_COLUMN_ACTIVE_CLASSNAME)) {
       return;
     }
 
     const topTab = this.historyTabIds[this.historyTabIds.length - 1];
-    if(!(topTab instanceof SliderSuperTab)) {
+    if (!(topTab instanceof SliderSuperTab)) {
       return;
     }
 
     const found = appNavigationController.findItemByType('right');
-    if(this.isTabNavigationTransparent(topTab)) {
-      if(found) {
+    if (this.isTabNavigationTransparent(topTab)) {
+      if (found) {
         appNavigationController.removeItem(found.item);
       }
-    } else if(!found) {
+    } else if (!found) {
       this.pushNavigationItem(topTab);
     }
   }
@@ -90,26 +90,26 @@ export class AppSidebarRight extends SidebarSlider {
 
   public replaceSharedMediaTab(tab?: AppSharedMediaTab) {
     const previousTab = this.sharedMediaTab;
-    if(previousTab) {
+    if (previousTab) {
       const idx = this.historyTabIds.indexOf(previousTab);
 
-      if(this._selectTab.getFrom() === previousTab.container) {
+      if (this._selectTab.getFrom() === previousTab.container) {
         this._selectTab.setFrom(tab?.container!);
       }
 
-      if(tab) {
-        if(idx !== -1) {
+      if (tab) {
+        if (idx !== -1) {
           this.historyTabIds[idx] = tab;
         }
 
         const wasActive = previousTab.container.classList.contains('active');
-        if(wasActive) {
+        if (wasActive) {
           tab.container.classList.add('active');
         }
 
         previousTab.container.replaceWith(tab.container);
       } else {
-        if(idx !== -1) {
+        if (idx !== -1) {
           this.historyTabIds.splice(idx, 1);
         }
 
@@ -123,7 +123,7 @@ export class AppSidebarRight extends SidebarSlider {
   }
 
   public onCloseTab(id: number, animate: boolean, isNavigation?: boolean) {
-    if(!this.historyTabIds.length) {
+    if (!this.historyTabIds.length) {
       this.toggleSidebar(false, animate);
     }
 
@@ -140,40 +140,40 @@ export class AppSidebarRight extends SidebarSlider {
   public toggleSidebar(enable?: boolean, animate?: boolean, persist = true) {
     const active = document.body.classList.contains(RIGHT_COLUMN_ACTIVE_CLASSNAME);
     let willChange: boolean;
-    if(enable !== undefined) {
-      if(enable) {
-        if(!active) {
+    if (enable !== undefined) {
+      if (enable) {
+        if (!active) {
           willChange = true;
         }
-      } else if(active) {
+      } else if (active) {
         willChange = true;
       }
     } else {
       willChange = true;
     }
 
-    if(!willChange!) return Promise.resolve();
+    if (!willChange!) return Promise.resolve();
 
-    if(persist && !isRightColumnFloating()) {
+    if (persist && !isRightColumnFloating()) {
       setAppSettings('rightColumnShown', !active);
     }
 
-    if(!active && !this.historyTabIds.length) {
+    if (!active && !this.historyTabIds.length) {
       this.sharedMediaTab.open();
     }
 
     const animationPromise = appImManager.selectTab(active ? APP_TABS.CHAT : APP_TABS.PROFILE, animate);
-    if(!enable) {
+    if (!enable) {
       this.hide();
 
-      for(const tab of this.historyTabIds.slice()) {
-        if(tab instanceof SliderSuperTab) {
+      for (const tab of this.historyTabIds.slice()) {
+        if (tab instanceof SliderSuperTab) {
           tab.onSidebarHide?.(persist);
         }
       }
     } else {
       document.body.classList.add(RIGHT_COLUMN_ACTIVE_CLASSNAME);
-      if(!appNavigationController.findItemByType('right')) {
+      if (!appNavigationController.findItemByType('right')) {
         const topTab = this.historyTabIds[this.historyTabIds.length - 1];
         this.pushNavigationItem(topTab instanceof SliderSuperTab ? topTab : this.sharedMediaTab);
       }

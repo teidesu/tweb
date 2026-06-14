@@ -1,13 +1,13 @@
-import {Accessor, createEffect, createMemo, createSignal, For, type JSX, on, onCleanup, untrack} from 'solid-js';
-import {animateValue} from '@helpers/animateValue';
-import {animate} from '@helpers/animation';
+import { Accessor, createEffect, createMemo, createSignal, For, type JSX, on, onCleanup, untrack } from 'solid-js';
+import { animateValue } from '@helpers/animateValue';
+import { animate } from '@helpers/animation';
 import lastItem from '@helpers/array/lastItem';
-import {keepMe} from '@helpers/keepMe';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
-import swipe, {SwipeDirectiveArgs} from '@helpers/useSwipe';
+import { keepMe } from '@helpers/keepMe';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
+import swipe, { SwipeDirectiveArgs } from '@helpers/useSwipe';
 import useElementSize from '@hooks/useElementSize';
-import {useIsCleaned} from '@hooks/useIsCleaned';
-import {useScrollTop} from '@hooks/useScrollTop';
+import { useIsCleaned } from '@hooks/useIsCleaned';
+import { useScrollTop } from '@hooks/useScrollTop';
 import styles from '@components/verticalOptionWheel.module.scss';
 
 keepMe(swipe);
@@ -50,17 +50,17 @@ export const VerticalOptionWheel = <V, >(props: {
         <div class={styles.Option} onClick={[onOptionClick, idx]}>
           {option.label}
         </div>
-      ) as HTMLDivElement
+      ) as HTMLDivElement,
     })));
 
   createEffect(on(elementsAndOptions, () => {
     const localScrollable = scrollable();
     const localElementsAndOptions = elementsAndOptions();
-    if(!localScrollable || !localElementsAndOptions.length) return;
+    if (!localScrollable || !localElementsAndOptions.length) return;
 
-    const selectedOptionIdx = Math.max(0, localElementsAndOptions.findIndex(({option}) => option.value === props.value));
+    const selectedOptionIdx = Math.max(0, localElementsAndOptions.findIndex(({ option }) => option.value === props.value));
 
-    if(selectedOptionIdx) {
+    if (selectedOptionIdx) {
       localScrollable.scrollTop = selectedOptionIdx * optionSize;
     }
     setHasScrolledInitially(true);
@@ -68,12 +68,12 @@ export const VerticalOptionWheel = <V, >(props: {
 
   createEffect(() => {
     const localElementsAndOptions = elementsAndOptions();
-    if(!localElementsAndOptions.length || !hasScrolledInitially()) return;
+    if (!localElementsAndOptions.length || !hasScrolledInitially()) return;
 
     let bestItem = localElementsAndOptions[0];
     let bestDiff = Infinity;
 
-    for(let i = 0; i < localElementsAndOptions.length; i++) {
+    for (let i = 0; i < localElementsAndOptions.length; i++) {
       const item = localElementsAndOptions[i];
       const element = item.element;
 
@@ -83,14 +83,14 @@ export const VerticalOptionWheel = <V, >(props: {
       const distSigned = diffSigned / size.height * 2;
       const dist = Math.abs(distSigned);
 
-      if(diff < bestDiff) {
+      if (diff < bestDiff) {
         bestItem = item;
         bestDiff = diff;
       }
 
       element.classList.toggle(styles.hidden, dist > 1);
 
-      if(dist <= 1) {
+      if (dist <= 1) {
         element.style.setProperty('--current-dist', `${dist}`);
         element.style.setProperty('--current-dist-sign', `${Math.sign(distSigned)}`);
       } else {
@@ -102,14 +102,14 @@ export const VerticalOptionWheel = <V, >(props: {
     const prevValue = untrack(() => props.value);
     const newValue = bestItem.option.value;
 
-    if(newValue !== prevValue) props.onChange(newValue);
+    if (newValue !== prevValue) props.onChange(newValue);
   });
 
 
   let timeoutId: number;
 
   createEffect(() => {
-    if(isDragging()) return;
+    if (isDragging()) return;
 
     scrollTop();
 
@@ -122,11 +122,11 @@ export const VerticalOptionWheel = <V, >(props: {
 
   createEffect(() => {
     const localScrollable = scrollable();
-    if(!localScrollable) return;
+    if (!localScrollable) return;
 
     subscribeOn(localScrollable)('wheel', () => {
       cancelSmoothScroll?.();
-    }, {passive: true});
+    }, { passive: true });
   })
 
   let cancelDeceleration: () => void;
@@ -159,14 +159,14 @@ export const VerticalOptionWheel = <V, >(props: {
     },
     onMove: (_, yDiff) => {
       const localScrollable = scrollable();
-      if(!localScrollable) return;
+      if (!localScrollable) return;
 
       // c = (c + 1) % 4;
       // if(c % 4 === 0) {
       pushDiffWithTime(yDiff);
       // }
 
-      if(Math.abs(yDiff) > dragThreshold) setHasDraggedALittle(true);
+      if (Math.abs(yDiff) > dragThreshold) setHasDraggedALittle(true);
 
       localScrollable.scrollTop = initialScroll - yDiff;
     },
@@ -176,7 +176,7 @@ export const VerticalOptionWheel = <V, >(props: {
       setTimeout(() => {
         setHasDraggedALittle(false);
       }, 0);
-    }
+    },
   };
 
   function calcDiffFromCenterFor(idx: number) {
@@ -187,7 +187,7 @@ export const VerticalOptionWheel = <V, >(props: {
   function runDeceleration() {
     const localScrollable = scrollable();
 
-    if(lastDiffs.length < 2 || !localScrollable) {
+    if (lastDiffs.length < 2 || !localScrollable) {
       lastDiffs = [];
       return;
     }
@@ -199,7 +199,7 @@ export const VerticalOptionWheel = <V, >(props: {
     const referenceFrameTime = 1000 / 60;
 
     let speed = 0;
-    for(let i = 0; i < lastDiffs.length - 1; i++) {
+    for (let i = 0; i < lastDiffs.length - 1; i++) {
       speed += lastDiffs[i + 1].diff - lastDiffs[i].diff;
     }
 
@@ -209,7 +209,7 @@ export const VerticalOptionWheel = <V, >(props: {
     let lastScrollTop = -1;
 
     animate(() => {
-      if(isCleaned() || isCanceled) return false;
+      if (isCleaned() || isCanceled) return false;
 
       const time = performance.now();
       const deltaTime = time - lastTime;
@@ -217,7 +217,7 @@ export const VerticalOptionWheel = <V, >(props: {
 
       const currentScrollTop = localScrollable.scrollTop;
 
-      if(currentScrollTop === lastScrollTop) return false; // hit an end
+      if (currentScrollTop === lastScrollTop) return false; // hit an end
 
       lastScrollTop = localScrollable.scrollTop;
       localScrollable.scrollTop = lastScrollTop + speed;
@@ -235,40 +235,40 @@ export const VerticalOptionWheel = <V, >(props: {
   function pushDiffWithTime(yDiff: number) {
     lastDiffs = [{
       time: performance.now(),
-      diff: yDiff
+      diff: yDiff,
     }, ...lastDiffs.slice(0, diffSampleCount - 1)];
   }
 
   function snapClosestToCenter() {
     const localScrollable = scrollable();
     const localElementsAndOptions = elementsAndOptions();
-    if(!localElementsAndOptions.length || !localScrollable) return;
+    if (!localElementsAndOptions.length || !localScrollable) return;
 
 
     let bestIdx = 0;
     let bestDiff = Infinity;
 
-    for(let i = 0; i < localElementsAndOptions.length; i++) {
+    for (let i = 0; i < localElementsAndOptions.length; i++) {
       const diff = Math.abs(calcDiffFromCenterFor(i));
 
-      if(diff < bestDiff) {
+      if (diff < bestDiff) {
         bestIdx = i;
         bestDiff = diff;
       }
     }
 
-    if(bestDiff > generousDiffError) scrollToIdx(bestIdx);
+    if (bestDiff > generousDiffError) scrollToIdx(bestIdx);
   }
 
   function onOptionClick(idx: number) {
-    if(hasDraggedALittle()) return;
+    if (hasDraggedALittle()) return;
 
     scrollToIdx(idx);
   }
 
   function scrollToIdx(idx: number) {
     const localScrollable = scrollable();
-    if(!localScrollable) return;
+    if (!localScrollable) return;
 
     cancelSmoothScroll?.();
     cancelSmoothScroll = animateValue(
@@ -282,12 +282,12 @@ export const VerticalOptionWheel = <V, >(props: {
   }
 
   return (
-    <div class={styles.Container} style={{'--option-size': `${optionSize}px`}}>
+    <div class={styles.Container} style={{ '--option-size': `${optionSize}px` }}>
       <div class={styles.Scrollable} ref={setScrollable} use:swipe={swipeArgs}>
         <div class={styles.EmptyOption} />
         <div class={styles.EmptyOption} />
         <For each={elementsAndOptions()}>
-          {({element}) => element}
+          {({ element }) => element}
         </For>
         <div class={styles.EmptyOption} />
         <div class={styles.EmptyOption} />

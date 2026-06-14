@@ -1,10 +1,10 @@
-import {children, createContext, createEffect, createMemo, createSignal, For, JSX, Ref, Show, useContext} from 'solid-js';
-import {render} from 'solid-js/web';
+import { children, createContext, createEffect, createMemo, createSignal, For, JSX, Ref, Show, useContext } from 'solid-js';
+import { render } from 'solid-js/web';
 import wrapKeyboardButton from '@components/wrappers/keyboardButton';
 import type Chat from '@components/chat/chat';
-import {KeyboardButtonRow, Message} from '@layer';
+import { KeyboardButtonRow, Message } from '@layer';
 import classNames from '@helpers/string/classNames';
-import {IconTsx} from '@components/iconTsx';
+import { IconTsx } from '@components/iconTsx';
 import RippleElement from '@components/rippleElement';
 
 type ContextValue = {
@@ -17,7 +17,7 @@ const ReplyMarkupLayout = (props: {
 }) => {
   const [elements, setElements] = createSignal<JSX.Element[]>([]);
   const value: ContextValue = {
-    elements
+    elements,
   };
 
   const resolvedChildren = children(() => (
@@ -52,7 +52,7 @@ ReplyMarkupLayout.Row = (props: {
     get isLast() {
       return context.elements()[context.elements().length - 1] === ref;
     },
-    elements
+    elements,
   };
 
   const resolvedChildren = children(() => (
@@ -127,7 +127,7 @@ ReplyMarkupLayout.Inline = (props: {
                   button,
                   chat: props.chat!,
                   message: props.message,
-                  wrapOptions: props.wrapOptions
+                  wrapOptions: props.wrapOptions,
                 });
               }}
             </For>

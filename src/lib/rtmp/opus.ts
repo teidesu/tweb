@@ -1,6 +1,6 @@
-import type {OpusDecodedAudio} from '@vendor/opus';
-import {Mp4Sample} from '@lib/rtmp/mp4';
-import {encodeFlacFrame} from '@lib/rtmp/flac';
+import type { OpusDecodedAudio } from '@vendor/opus';
+import { Mp4Sample } from '@lib/rtmp/mp4';
+import { encodeFlacFrame } from '@lib/rtmp/flac';
 
 export type OpusDecoderDelegate = (data: Uint8Array) => MaybePromise<OpusDecodedAudio>;
 
@@ -16,7 +16,7 @@ export interface FlacFrame {
 }
 
 export async function reencodeOpusToFlac(params: OpusReencodeOptions) {
-  const {decodeOpus, chunk, samples} = params;
+  const { decodeOpus, chunk, samples } = params;
   const samplesPerFrame = 2048;
 
   let pcms: Int16Array[][] | null = null;
@@ -25,27 +25,27 @@ export async function reencodeOpusToFlac(params: OpusReencodeOptions) {
 
   const flacFrames: FlacFrame[] = [];
   function encodePendingPcms(force = false) {
-    if(!force && pendingPcmsCount < samplesPerFrame) return;
+    if (!force && pendingPcmsCount < samplesPerFrame) return;
 
     const blockSize = force ? pendingPcmsCount : samplesPerFrame;
     const frame = encodeFlacFrame({
       index: flacFrames.length,
       blockSize,
-      pcms: pcms!
+      pcms: pcms!,
     });
     pendingPcmsCount -= blockSize;
 
     flacFrames.push(frame);
   }
 
-  for(const sample of samples) {
-    const {channelData, samplesDecoded} = await decodeOpus(chunk.subarray(sample.offset, sample.offset + sample.size));
+  for (const sample of samples) {
+    const { channelData, samplesDecoded } = await decodeOpus(chunk.subarray(sample.offset, sample.offset + sample.size));
 
     pendingPcmsCount += samplesDecoded;
     totalPcmCount += samplesDecoded;
 
-    if(pcms === null) pcms = Array.from({length: channelData.length}, () => [] as any);
-    for(let i = 0; i < channelData.length; i++) {
+    if (pcms === null) pcms = Array.from({ length: channelData.length }, () => [] as any);
+    for (let i = 0; i < channelData.length; i++) {
       pcms[i].push(floatPcmTo16BitPcm(channelData[i]));
     }
 
@@ -59,7 +59,7 @@ export async function reencodeOpusToFlac(params: OpusReencodeOptions) {
 
 function floatPcmTo16BitPcm(floatPcm: Float32Array) {
   const intPcm = new Int16Array(floatPcm.length);
-  for(let i = 0; i < floatPcm.length; i++) {
+  for (let i = 0; i < floatPcm.length; i++) {
     const sample = Math.max(-1, Math.min(1, floatPcm[i]));
 
     intPcm[i] = sample * 32767.5 - 0.5;

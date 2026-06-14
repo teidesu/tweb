@@ -1,5 +1,5 @@
-import {CURRENT_ACCOUNT_QUERY_PARAM} from '@lib/accounts/constants';
-import {ActiveAccountNumber} from '@lib/accounts/types';
+import { CURRENT_ACCOUNT_QUERY_PARAM } from '@lib/accounts/constants';
+import { ActiveAccountNumber } from '@lib/accounts/types';
 
 export function createAppURLForAccount(
   accountNumber: ActiveAccountNumber,
@@ -11,17 +11,17 @@ export function createAppURLForAccount(
   const filteredEntries = Object.entries(hashParams || {}).filter((entry) => entry[1]);
   const filteredParams = Object.fromEntries(filteredEntries);
 
-  if(filteredEntries.length) {
+  if (filteredEntries.length) {
     const hashSearchParams = new URLSearchParams();
-    for(const key in filteredParams) {
+    for (const key in filteredParams) {
       hashSearchParams.set(key, filteredParams[key]);
     }
     url.hash = `#/im?${hashSearchParams.toString()}`;
-  } else if(!keepHash) {
+  } else if (!keepHash) {
     url.hash = '';
   }
 
-  if(accountNumber === 1) url.searchParams.delete(CURRENT_ACCOUNT_QUERY_PARAM);
+  if (accountNumber === 1) url.searchParams.delete(CURRENT_ACCOUNT_QUERY_PARAM);
   else url.searchParams.set(CURRENT_ACCOUNT_QUERY_PARAM, accountNumber + '');
 
   return url;

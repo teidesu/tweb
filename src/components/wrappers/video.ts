@@ -1,9 +1,9 @@
-import {IS_SAFARI} from '@environment/userAgent';
-import {IS_H265_SUPPORTED} from '@environment/videoSupport';
-import {animateSingle} from '@helpers/animation';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
+import { IS_SAFARI } from '@environment/userAgent';
+import { IS_H265_SUPPORTED } from '@environment/videoSupport';
+import { animateSingle } from '@helpers/animation';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import createVideo from '@helpers/dom/createVideo';
 import handleVideoLeak from '@helpers/dom/handleVideoLeak';
 import isInDOM from '@helpers/dom/isInDOM';
@@ -13,46 +13,46 @@ import setCurrentTime from '@helpers/dom/setCurrentTime';
 import getMediaThumbIfNeeded from '@helpers/getStrippedThumbIfNeeded';
 import liteMode from '@helpers/liteMode';
 import makeError from '@helpers/makeError';
-import mediaSizes, {ScreenSize} from '@helpers/mediaSizes';
-import {getMiddleware, Middleware, MiddlewareHelper} from '@helpers/middleware';
+import mediaSizes, { ScreenSize } from '@helpers/mediaSizes';
+import { getMiddleware, Middleware, MiddlewareHelper } from '@helpers/middleware';
 import noop from '@helpers/noop';
-import onMediaLoad, {shouldIgnoreVideoError} from '@helpers/onMediaLoad';
-import {fastRaf} from '@helpers/schedulers';
+import onMediaLoad, { shouldIgnoreVideoError } from '@helpers/onMediaLoad';
+import { fastRaf } from '@helpers/schedulers';
 import throttle from '@helpers/schedulers/throttle';
 import sequentialDom from '@helpers/sequentialDom';
 import toHHMMSS from '@helpers/string/toHHMMSS';
-import {Message, PhotoSize, VideoSize} from '@layer';
-import {MyDocument} from '@appManagers/appDocsManager';
+import { Message, PhotoSize, VideoSize } from '@layer';
+import { MyDocument } from '@appManagers/appDocsManager';
 import appDownloadManager from '@lib/appDownloadManager';
 import appImManager from '@lib/appImManager';
-import {AppManagers} from '@lib/managers';
-import {NULL_PEER_ID} from '@appManagers/constants';
+import { AppManagers } from '@lib/managers';
+import { NULL_PEER_ID } from '@appManagers/constants';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import rootScope from '@lib/rootScope';
-import {ThumbCache} from '@lib/storages/thumbs';
-import animationIntersector, {AnimationItemGroup} from '@components/animationIntersector';
-import appMediaPlaybackController, {AppMediaPlaybackController, MediaSearchContext} from '@components/appMediaPlaybackController';
-import AudioElement, {findMediaTargets} from '@components/audio';
+import { ThumbCache } from '@lib/storages/thumbs';
+import animationIntersector, { AnimationItemGroup } from '@components/animationIntersector';
+import appMediaPlaybackController, { AppMediaPlaybackController, MediaSearchContext } from '@components/appMediaPlaybackController';
+import AudioElement, { findMediaTargets } from '@components/audio';
 import Button from '@components/button';
 import Icon from '@components/icon';
-import {createProgressRing, getProgressRingRadius} from '@components/progressRing';
+import { createProgressRing, getProgressRingRadius } from '@components/progressRing';
 import LazyLoadQueue from '@components/lazyLoadQueue';
 import ProgressivePreloader from '@components/preloader';
 import wrapPhoto from '@components/wrappers/photo';
-import SuperIntersectionObserver, {IntersectionCallback} from '@helpers/dom/superIntersectionObserver';
+import SuperIntersectionObserver, { IntersectionCallback } from '@helpers/dom/superIntersectionObserver';
 import VideoPlayer from '@lib/mediaPlayer';
 import debounce from '@helpers/schedulers/debounce';
-import {isFullScreen} from '@helpers/dom/fullScreen';
+import { isFullScreen } from '@helpers/dom/fullScreen';
 import ButtonIcon from '@components/buttonIcon';
 import overlayCounter from '@helpers/overlayCounter';
-import {ChatAutoDownloadSettings} from '@hooks/useAutoDownloadSettings';
+import { ChatAutoDownloadSettings } from '@hooks/useAutoDownloadSettings';
 
 const MAX_VIDEO_AUTOPLAY_SIZE = 50 * 1024 * 1024; // 50 MB
 export const USE_VIDEO_OBSERVER = false;
 
 let roundVideoCircumference = 0;
 mediaSizes.addEventListener('changeScreen', (from, to) => {
-  if(to === ScreenSize.mobile || from === ScreenSize.mobile) {
+  if (to === ScreenSize.mobile || from === ScreenSize.mobile) {
     const elements = Array.from(document.querySelectorAll('.media-round .progress-ring'));
     const width = mediaSizes.active.round.width;
     const halfSize = width / 2;
@@ -77,7 +77,7 @@ mediaSizes.addEventListener('changeScreen', (from, to) => {
 
 let turnedObserverOn = false;
 
-export default async function wrapVideo({doc, altDoc, container, message, boxWidth, boxHeight, withTail, isOut, middleware, lazyLoadQueue, noInfo, group, onlyPreview, noPreview, withoutPreloader, loadPromises, noPlayButton, photoSize, videoSize, searchContext, autoDownload, managers = rootScope.managers, noAutoplayAttribute, ignoreStreaming, canAutoplay, useBlur, observer, setShowControlsOn, uploadingFileName, onGlobalMedia, onLoad, withPreview}: {
+export default async function wrapVideo({ doc, altDoc, container, message, boxWidth, boxHeight, withTail, isOut, middleware, lazyLoadQueue, noInfo, group, onlyPreview, noPreview, withoutPreloader, loadPromises, noPlayButton, photoSize, videoSize, searchContext, autoDownload, managers = rootScope.managers, noAutoplayAttribute, ignoreStreaming, canAutoplay, useBlur, observer, setShowControlsOn, uploadingFileName, onGlobalMedia, onLoad, withPreview }: {
   doc: MyDocument,
   altDoc?: MyDocument,
   container?: HTMLElement,
@@ -112,12 +112,12 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
   onLoad?: () => void
 }) {
   const supportsStreaming = doc.supportsStreaming && !ignoreStreaming;
-  if(!supportsStreaming && altDoc && !onlyPreview && !IS_H265_SUPPORTED) {
+  if (!supportsStreaming && altDoc && !onlyPreview && !IS_H265_SUPPORTED) {
     doc = altDoc;
     altDoc = undefined;
   }
 
-  if(doc.type === 'gif' && container) {
+  if (doc.type === 'gif' && container) {
     container.classList.add('media-gif-wrapper');
     container.dataset.docId = '' + doc.id;
   }
@@ -137,18 +137,18 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
   let spanTime: HTMLElement, spanPlay: HTMLElement;
 
   let willObserveSound = false, noSoundIcon: HTMLElement, myMiddlewareHelper: MiddlewareHelper, originalMiddleware: Middleware;
-  if(!noInfo && container) {
+  if (!noInfo && container) {
     spanTime = document.createElement('span');
     spanTime.classList.add('video-time');
     container.append(spanTime);
 
     let needPlayButton = false;
-    if(doc.type !== 'gif') {
+    if (doc.type !== 'gif') {
       spanTime.innerText = toHHMMSS(doc.duration!, false);
 
-      if(!noPlayButton && doc.type !== 'round') {
-        if(canAutoplay && !noAutoDownload) {
-          if(observer && USE_VIDEO_OBSERVER) {
+      if (!noPlayButton && doc.type !== 'round') {
+        if (canAutoplay && !noAutoDownload) {
+          if (observer && USE_VIDEO_OBSERVER) {
             willObserveSound = true;
             // noAutoplayAttribute = true;
             originalMiddleware = middleware;
@@ -164,14 +164,14 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
     } else {
       spanTime.innerText = 'GIF';
 
-      if(!canAutoplay && !noPlayButton) {
+      if (!canAutoplay && !noPlayButton) {
         needPlayButton = true;
         noAutoDownload = (undefined as unknown as boolean);
       }
     }
 
-    if(needPlayButton) {
-      spanPlay = Button('btn-circle video-play position-center', {icon: 'largeplay', noRipple: true});
+    if (needPlayButton) {
+      spanPlay = Button('btn-circle video-play position-center', { icon: 'largeplay', noRipple: true });
       container.append(spanPlay);
     }
   }
@@ -182,7 +182,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
     loadPromise: Promise<any>
   } = {} as any;
 
-  if(doc.mime_type === 'image/gif') {
+  if (doc.mime_type === 'image/gif') {
     const photoRes = await wrapPhoto({
       photo: doc,
       message,
@@ -199,7 +199,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
       size: photoSize,
       managers,
       useBlur,
-      uploadingFileName
+      uploadingFileName,
     });
 
     res.thumb = photoRes;
@@ -214,10 +214,10 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
 
   let preloader: ProgressivePreloader; // it must be here, otherwise will get error before initialization in round onPlay
 
-  const video = createVideo({middleware, pip: willObserveSound});
+  const video = createVideo({ middleware, pip: willObserveSound });
   video.classList.add('media-video');
   video.muted = true;
-  if(doc.type === 'round') {
+  if (doc.type === 'round') {
     const divRound = document.createElement('div');
     divRound.classList.add('media-round', 'z-depth-1');
     divRound.dataset.mid = '' + message!.mid;
@@ -227,14 +227,14 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
     const size = mediaSizes.active.round;
     const strokeWidth = 3.5;
     const radius = getProgressRingRadius(size.width, strokeWidth);
-    if(!roundVideoCircumference) {
+    if (!roundVideoCircumference) {
       roundVideoCircumference = 2 * Math.PI * radius;
     }
 
     // Shared round progress-ring component (also used by the video-note
     // recorder). We drive it imperatively below (and the global changeScreen
     // resize handler mutates it too), so progress stays a plain DOM write.
-    const ring = createProgressRing({size: size.width, strokeWidth, strokeOpacity: 0.3});
+    const ring = createProgressRing({ size: size.width, strokeWidth, strokeOpacity: 0.3 });
     middleware.onClean(() => ring.destroy());
     divRound.append(ring.element);
 
@@ -243,7 +243,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
     circle.style.strokeDashoffset = '' + roundVideoCircumference;
 
     const isUnread = message!.pFlags.media_unread;
-    if(isUnread) {
+    if (isUnread) {
       divRound.classList.add('is-unread');
     }
 
@@ -262,11 +262,11 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
 
     const onLoad = () => {
       const message: Message.message = (divRound as any).message;
-      const globalVideo = appMediaPlaybackController.addMedia({message, autoload: !noAutoDownload}) as HTMLVideoElement;
+      const globalVideo = appMediaPlaybackController.addMedia({ message, autoload: !noAutoDownload }) as HTMLVideoElement;
       onGlobalMedia?.(globalVideo);
       const clear = () => {
         (appImManager.chat.setPeerPromise || Promise.resolve()).finally(() => {
-          if(isInDOM(globalVideo)) {
+          if (isInDOM(globalVideo)) {
             return;
           }
 
@@ -287,16 +287,16 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
       };
 
       const onTimeUpdate = () => {
-        if(!globalVideo.duration) {
+        if (!globalVideo.duration) {
           return;
         }
 
-        if(!isInDOM(globalVideo)) {
+        if (!isInDOM(globalVideo)) {
           clear();
           return;
         }
 
-        if(globalVideo.paused) {
+        if (globalVideo.paused) {
           onFrame();
         }
 
@@ -310,7 +310,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
       const noSoundIcon = Icon('nosound', 'video-time-icon');
       const setIsPaused = (paused: boolean) => {
         divRound.classList.toggle('is-paused', paused);
-        if(paused) {
+        if (paused) {
           spanTime.append(noSoundIcon);
         } else {
           noSoundIcon.remove();
@@ -322,13 +322,13 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
         setIsPaused(false);
         animateSingle(onFrame, canvas);
 
-        if(preloader?.preloader && preloader.preloader.classList.contains('manual')) {
+        if (preloader?.preloader && preloader.preloader.classList.contains('manual')) {
           preloader.onClick();
         }
       };
 
       const onPaused = () => {
-        if(!isInDOM(globalVideo)) {
+        if (!isInDOM(globalVideo)) {
           clear();
           return;
         }
@@ -343,7 +343,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
         setCurrentTime(video, 0);
         spanTime.firstChild!.nodeValue = toHHMMSS(globalVideo.duration, false);
 
-        if(globalVideo.currentTime) {
+        if (globalVideo.currentTime) {
           setCurrentTime(globalVideo, 0);
         }
       };
@@ -357,7 +357,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
         cancelEvent(e);
 
         // ! костыль
-        if(preloader && !preloader.detached) {
+        if (preloader && !preloader.detached) {
           preloader.onClick();
         }
 
@@ -366,15 +366,15 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
           return;
         } */
 
-        if(globalVideo.paused) {
+        if (globalVideo.paused) {
           const hadSearchContext = !!searchContext;
-          if(appMediaPlaybackController.setSearchContext(searchContext || {
+          if (appMediaPlaybackController.setSearchContext(searchContext || {
             peerId: NULL_PEER_ID,
-            inputFilter: {_: 'inputMessagesFilterEmpty'},
-            useSearch: false
+            inputFilter: { _: 'inputMessagesFilterEmpty' },
+            useSearch: false,
           })) {
             const [prev, next] = !hadSearchContext ? [] : findMediaTargets(divRound, message.mid!/* , searchContext.useSearch */);
-            appMediaPlaybackController.setTargets({peerId: message.peerId!, mid: message.mid!}, prev, next);
+            appMediaPlaybackController.setTargets({ peerId: message.peerId!, mid: message.mid! }, prev, next);
           }
 
           safePlay(globalVideo);
@@ -383,8 +383,8 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
         }
       });
 
-      if(globalVideo.paused) {
-        if(globalVideo.duration && globalVideo.currentTime !== globalVideo.duration && globalVideo.currentTime > 0) {
+      if (globalVideo.paused) {
+        if (globalVideo.duration && globalVideo.currentTime !== globalVideo.duration && globalVideo.currentTime > 0) {
           onFrame();
           onTimeUpdate();
           video.classList.add('hide');
@@ -396,19 +396,19 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
       }
     };
 
-    if(message!.pFlags.is_outgoing) {
+    if (message!.pFlags.is_outgoing) {
       // ! WARNING ! just to type-check
       (divRound as any as AudioElement).onLoad = onLoad;
       divRound.dataset.isOutgoing = '1';
     } else {
       onLoad();
     }
-  } else if(!noAutoplayAttribute && !uploadingFileName) {
+  } else if (!noAutoplayAttribute && !uploadingFileName) {
     video.autoplay = true; // для safari
   }
 
   let photoRes!: Awaited<ReturnType<typeof wrapPhoto>>;
-  if(message || onlyPreview || withPreview) {
+  if (message || onlyPreview || withPreview) {
     photoRes = await wrapPhoto({
       photo: doc,
       message,
@@ -426,16 +426,16 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
       managers,
       useBlur,
       canHaveVideoPlayer: willObserveSound,
-      uploadingFileName
+      uploadingFileName,
     });
 
     res.thumb = photoRes;
 
-    if((!canAutoplay && doc.type !== 'gif') || onlyPreview) {
-      if(uploadingFileName && container && !onlyPreview) {
+    if ((!canAutoplay && doc.type !== 'gif') || onlyPreview) {
+      if (uploadingFileName && container && !onlyPreview) {
         preloader = new ProgressivePreloader({
           attachMethod: 'prepend',
-          isUpload: true
+          isUpload: true,
         });
         preloader.attachPromise(appDownloadManager.getUpload(uploadingFileName));
         preloader.attach(container, false);
@@ -445,33 +445,33 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
       return res;
     }
 
-    if(withTail) {
+    if (withTail) {
       const foreignObject = (photoRes.images.thumb || photoRes.images.full).parentElement;
       video.width = +foreignObject!.getAttributeNS(null, 'width')!;
       video.height = +foreignObject!.getAttributeNS(null, 'height')!;
       foreignObject!.append(video);
     }
-  } else if(!noPreview) { // * gifs masonry
+  } else if (!noPreview) { // * gifs masonry
     const gotThumb = getMediaThumbIfNeeded({
       photo: doc,
       cacheContext: {} as ThumbCache,
-      useBlur: useBlur || true
+      useBlur: useBlur || true,
     });
-    if(gotThumb) {
+    if (gotThumb) {
       const thumbImage = gotThumb.image;
       thumbImage.classList.add('media-poster');
       container?.append(thumbImage);
       res.thumb = {
         loadPromises: {
           thumb: gotThumb.loadPromise,
-          full: Promise.resolve()
+          full: Promise.resolve(),
         },
         images: {
           thumb: thumbImage,
-          full: null as unknown as HTMLImageElement | HTMLVideoElement
+          full: null as unknown as HTMLImageElement | HTMLVideoElement,
         },
         preloader: null as unknown as ProgressivePreloader,
-        aspecter: null as unknown as HTMLElement
+        aspecter: null as unknown as HTMLElement,
       };
 
       loadPromises?.push(gotThumb.loadPromise);
@@ -479,7 +479,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
     }
   }
 
-  if(onlyPreview) {
+  if (onlyPreview) {
     return res;
   }
 
@@ -488,7 +488,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
     (photoRes?.aspecter || container).append(video);
   };
 
-  if(!video.parentElement && container && video.poster/*  && !altDoc */) {
+  if (!video.parentElement && container && video.poster/*  && !altDoc */) {
     appendVideo();
   }
 
@@ -500,10 +500,10 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
 
   getCacheContext();
 
-  if(uploadingFileName) { // means upload
+  if (uploadingFileName) { // means upload
     preloader = new ProgressivePreloader({
       attachMethod: 'prepend',
-      isUpload: true
+      isUpload: true,
     });
     preloader.attachPromise(appDownloadManager.getUpload(uploadingFileName));
     preloader.attach(container!, false);
@@ -511,45 +511,45 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
 
     // * autoplay is suppressed while the upload is in progress, and the bubble
     // * isn't re-rendered on send — resume playback once the upload completes
-    if(!noAutoplayAttribute && doc.type !== 'round') {
+    if (!noAutoplayAttribute && doc.type !== 'round') {
       appDownloadManager.getUpload(uploadingFileName).then(() => {
-        if(middleware && !middleware()) return;
+        if (middleware && !middleware()) return;
         video.play().catch(noop);
       }, noop);
     }
-  } else if(!cacheContext!.downloaded && !supportsStreaming && !withoutPreloader) {
+  } else if (!cacheContext!.downloaded && !supportsStreaming && !withoutPreloader) {
     preloader = new ProgressivePreloader({
-      attachMethod: 'prepend'
+      attachMethod: 'prepend',
     });
-  } else if(supportsStreaming && !withoutPreloader) {
+  } else if (supportsStreaming && !withoutPreloader) {
     preloader = new ProgressivePreloader({
       cancelable: false,
-      attachMethod: 'prepend'
+      attachMethod: 'prepend',
     });
   }
 
   const renderDeferred = deferredPromise<void>();
   video.addEventListener('error', (e) => {
-    if(shouldIgnoreVideoError(e)) {
+    if (shouldIgnoreVideoError(e)) {
       return;
     }
 
-    if(video.error!.code !== 4) {
+    if (video.error!.code !== 4) {
       console.error('Error ' + video.error!.code + '; details: ' + video.error!.message);
     }
 
-    if(preloader && !uploadingFileName) {
+    if (preloader && !uploadingFileName) {
       preloader.detach();
     }
 
-    if(!renderDeferred.isFulfilled) {
+    if (!renderDeferred.isFulfilled) {
       renderDeferred.resolve();
     }
-  }, {once: true});
+  }, { once: true });
 
-  if(doc.type === 'video' && spanTime!) {
+  if (doc.type === 'video' && spanTime!) {
     const onTimeUpdate = () => {
-      if(!video.duration) {
+      if (!video.duration) {
         return;
       }
 
@@ -562,56 +562,56 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
 
     video.addEventListener('timeupdate', throttledTimeUpdate);
 
-    if(spanPlay!) {
+    if (spanPlay!) {
       video.addEventListener('timeupdate', () => {
         sequentialDom.mutateElement(spanPlay, () => {
           spanPlay.remove();
         });
-      }, {once: true});
+      }, { once: true });
     }
   }
 
   video.muted = true;
   video.loop = true;
   // video.play();
-  if(!noAutoplayAttribute && !uploadingFileName) {
+  if (!noAutoplayAttribute && !uploadingFileName) {
     video.autoplay = true;
   }
 
   let loadPhotoThumbFunc = noAutoDownload && photoRes?.preloader?.loadFunc;
   const load = async() => {
-    if(preloader && noAutoDownload && !withoutPreloader) {
+    if (preloader && noAutoDownload && !withoutPreloader) {
       preloader.construct();
       preloader.setManual();
     }
 
     getCacheContext();
     let loadPromise: Promise<any> = Promise.resolve();
-    if((preloader && !uploadingFileName) || withoutPreloader) {
-      if(!cacheContext.downloaded && !supportsStreaming) {
+    if ((preloader && !uploadingFileName) || withoutPreloader) {
+      if (!cacheContext.downloaded && !supportsStreaming) {
         const promise = loadPromise = appDownloadManager.downloadMediaURL({
           media: doc,
           queueId: lazyLoadQueue?.queueId,
           onlyCache: noAutoDownload,
-          thumb: videoSize
+          thumb: videoSize,
         });
 
-        if(preloader) {
+        if (preloader) {
           preloader.attach(container!, false, promise);
         }
-      } else if(supportsStreaming) {
-        if(noAutoDownload) {
+      } else if (supportsStreaming) {
+        if (noAutoDownload) {
           loadPromise = Promise.reject(makeError('NO_AUTO_DOWNLOAD'));
-        } else if(!cacheContext.downloaded && preloader) { // * check for uploading video
+        } else if (!cacheContext.downloaded && preloader) { // * check for uploading video
           preloader.attach(container!, false, undefined);
           video.addEventListener(IS_SAFARI ? 'timeupdate' : 'canplay', () => {
             preloader.detach();
-          }, {once: true});
+          }, { once: true });
         }
       }
     }
 
-    if(!noAutoDownload && loadPhotoThumbFunc) {
+    if (!noAutoDownload && loadPhotoThumbFunc) {
       loadPhotoThumbFunc();
       loadPhotoThumbFunc = false;
     }
@@ -619,12 +619,12 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
     noAutoDownload = (undefined as unknown as boolean);
 
     loadPromise.then(async() => {
-      if(middleware && !middleware()) {
+      if (middleware && !middleware()) {
         renderDeferred.resolve();
         return;
       }
 
-      if(doc.type === 'round') {
+      if (doc.type === 'round') {
         appMediaPlaybackController.resolveWaitingForLoadMedia(message!.peerId!, message!.mid!, message!.pFlags.is_scheduled);
       }
 
@@ -632,11 +632,11 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
 
       const onError = (err: any) => {
         console.error('video load error', video, err);
-        if(spanTime) {
+        if (spanTime) {
           spanTime.classList.add('is-error');
           const previousIcon = spanTime.querySelector('.video-time-icon');
           const newIcon = Icon('sendingerror', 'video-time-icon');
-          if(previousIcon) previousIcon.replaceWith(newIcon);
+          if (previousIcon) previousIcon.replaceWith(newIcon);
           else spanTime.append(newIcon);
         }
         renderDeferred.reject(err);
@@ -645,25 +645,25 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
       const videoLeakPromise = handleVideoLeak(video, onMediaLoadPromise);
       videoLeakPromise.catch(onError);
       onMediaLoadPromise.then(() => {
-        if(group) {
+        if (group) {
           animationIntersector.addAnimation({
             animation: video,
             group,
             observeElement: video,
             type: 'video',
-            locked: willObserveSound
+            locked: willObserveSound,
           });
         }
 
-        if(preloader && !uploadingFileName) {
+        if (preloader && !uploadingFileName) {
           preloader.detach();
         }
 
-        if(!video.parentElement && container && !video.poster/*  && !altDoc */) {
+        if (!video.parentElement && container && !video.poster/*  && !altDoc */) {
           appendVideo();
         }
 
-        if(altDoc) {
+        if (altDoc) {
           videoLeakPromise.then(() => {
             video.pause();
             renderDeferred.resolve();
@@ -677,11 +677,11 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
         attachSoundObserver?.();
       }, onError);
 
-      if(altDoc && altCacheContext) {
+      if (altDoc && altCacheContext) {
         const sources = [
-          {context: cacheContext, type: 'video/mp4; codecs="hev1"', width: doc.w},
-          {context: altCacheContext, type: 'video/mp4; codecs="avc1.64001E"', width: altDoc.w}
-        ].map(({context, type, width}) => {
+          { context: cacheContext, type: 'video/mp4; codecs="hev1"', width: doc.w },
+          { context: altCacheContext, type: 'video/mp4; codecs="avc1.64001E"', width: altDoc.w },
+        ].map(({ context, type, width }) => {
           const source = document.createElement('source');
           source.src = context.url;
           // source.type = type;
@@ -696,32 +696,32 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
       }
     }, noop);
 
-    return {download: loadPromise, render: Promise.all([loadPromise, renderDeferred])};
+    return { download: loadPromise, render: Promise.all([loadPromise, renderDeferred]) };
   };
 
-  if(preloader! && !uploadingFileName) {
+  if (preloader! && !uploadingFileName) {
     preloader.setDownloadFunction(load);
   }
 
   container && ((container as any).preloader = preloader!);
 
-  if(doc.type === 'gif' && !canAutoplay) {
+  if (doc.type === 'gif' && !canAutoplay) {
     attachClickEvent(container!, (e) => {
       cancelEvent(e);
       spanPlay?.remove();
       load();
-    }, {capture: true, once: true});
+    }, { capture: true, once: true });
   } else {
     res.loadPromise = !lazyLoadQueue ?
       (await load()).render :
-      (lazyLoadQueue.push({div: container!, load: () => load().then(({render}) => render)}), Promise.resolve());
+      (lazyLoadQueue.push({ div: container!, load: () => load().then(({ render }) => render) }), Promise.resolve());
   }
 
-  if(res.thumb) {
+  if (res.thumb) {
     await res.thumb.loadPromises.thumb;
   }
 
-  if(video) {
+  if (video) {
     res.video = video;
   }
 
@@ -755,7 +755,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
       releaseSingleMedia = appMediaPlaybackController.setSingleMedia({
         media: video,
         message,
-        standalone: true
+        standalone: true,
       });
       // onAnotherSingleMedia = _onAnotherSingleMedia = () => {
       //   mute();
@@ -763,7 +763,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
     };
 
     const mute = () => {
-      if(!releaseSingleMedia) {
+      if (!releaseSingleMedia) {
         return;
       }
 
@@ -772,7 +772,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
     };
 
     const unmute = () => {
-      if(releaseSingleMedia) {
+      if (releaseSingleMedia) {
         return;
       }
 
@@ -793,11 +793,11 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
     // });
 
     const onIntersection: IntersectionCallback = (entry) => {
-      if(!entry.isIntersecting) {
+      if (!entry.isIntersecting) {
         destroyPlayer();
       }
 
-      if(!entry.isIntersecting && !video.muted) {
+      if (!entry.isIntersecting && !video.muted) {
         // toggle(false);
         onMuted();
       }
@@ -808,7 +808,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
 
     const destroyPlayer = () => {
       debouncedDestroy.clearTimeout();
-      if(
+      if (
         !videoPlayer ||
         !middleware() ||
         isFullScreen() ||
@@ -827,17 +827,17 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
 
     let videoPlayer: VideoPlayer | undefined, releasePromise: CancellablePromise<void>/* , changedVolume = false */;
     container!.onMiniVideoMouseMove = (e: MouseEvent) => {
-      if(videoPlayer) {
+      if (videoPlayer) {
         return;
       }
 
       const toggleReleasePromise = (active: boolean) => {
-        if(active) releasePromise = deferredPromise();
+        if (active) releasePromise = deferredPromise();
         else releasePromise?.resolve();
       };
 
       const onLock = (active: boolean) => {
-        if(ignoreNextEvents && ignoreNextEvents--) {
+        if (ignoreNextEvents && ignoreNextEvents--) {
           return;
         }
 
@@ -858,13 +858,13 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
         onVolumeChange: (type) => {
           const noVolume = !video.volume || video.muted;
           let newValue: boolean;
-          if(noVolume) {
+          if (noVolume) {
             newValue = turnedObserverOn = false;
-          } else if(type === 'click') {
+          } else if (type === 'click') {
             newValue = turnedObserverOn = true;
           }
 
-          if(newValue! !== turnedObserverOn && newValue! !== undefined) {
+          if (newValue! !== turnedObserverOn && newValue! !== undefined) {
             appMediaPlaybackController.dispatchEvent('toggleVideoAutoplaySound', newValue);
           }
 
@@ -878,7 +878,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
         onFullScreenToPip: () => {
           ignoreNextEvents = 2;
         },
-        onPip: onLock/* ,
+        onPip: onLock, /* ,
         onPipClose: () => {
           if(!setShowControlsOn.classList.contains('show-controls')) {
             debouncedDestroy();
@@ -886,11 +886,11 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
         } */
       });
 
-      videoPlayer.volumeSelector.setVolume({muted: !turnedObserverOn, volume: video.volume});
+      videoPlayer.volumeSelector.setVolume({ muted: !turnedObserverOn, volume: video.volume });
 
       videoPlayer.addEventListener('toggleControls', (show) => {
         setShowControlsOn!.classList.toggle('show-controls', show);
-        if(show) {
+        if (show) {
           debouncedDestroy.clearTimeout();
         } else {
           debouncedDestroy();
@@ -900,7 +900,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
 
     // * mute video when other media is playing
     const onAutoplaySound = (enabled: boolean) => {
-      if(videoPlayer) {
+      if (videoPlayer) {
         return;
       }
 
@@ -909,9 +909,9 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
     };
 
     const onSingleMedia = (media: HTMLMediaElement) => {
-      if(media !== video && !video.muted) {
-        if(videoPlayer) {
-          videoPlayer.volumeSelector.setVolume({muted: true, volume: video.volume});
+      if (media !== video && !video.muted) {
+        if (videoPlayer) {
+          videoPlayer.volumeSelector.setVolume({ muted: true, volume: video.volume });
         } else {
           video.muted = true;
         }
@@ -919,7 +919,7 @@ export default async function wrapVideo({doc, altDoc, container, message, boxWid
     };
 
     const onPlaybackMediaParams = (params: ReturnType<AppMediaPlaybackController['getPlaybackParams']>) => {
-      if(videoPlayer) {
+      if (videoPlayer) {
         return;
       }
 

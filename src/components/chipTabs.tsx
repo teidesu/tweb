@@ -1,14 +1,14 @@
-import {createContext, createEffect, JSX, on, onCleanup, onMount, Ref, useContext} from 'solid-js';
+import { createContext, createEffect, JSX, on, onCleanup, onMount, Ref, useContext } from 'solid-js';
 
 import styles from '@components/chipTabs.module.scss';
 import classNames from '@helpers/string/classNames';
 import findUpClassName from '@helpers/dom/findUpClassName';
-import {fastRaf} from '@helpers/schedulers';
+import { fastRaf } from '@helpers/schedulers';
 import getVisibleRect from '@helpers/dom/getVisibleRect';
 import Scrollable from '@components/scrollable2';
 import fastSmoothScroll from '@helpers/fastSmoothScroll';
 import createContextMenu from '@helpers/dom/createContextMenu';
-import {ButtonMenuItemOptionsVerifiable} from '@components/buttonMenu';
+import { ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
 import filterAsync from '../helpers/array/filterAsync';
 
 interface ChipTabsContextValue {
@@ -57,19 +57,19 @@ export function ChipTabs(props: {
     chosenRef.style.left = `${categoryRect.left - scrollableRect.left + scrollable.scrollLeft}px`;
 
     const visibleRect = getVisibleRect(categoryEl, scrollable, false, categoryRect, undefined, true);
-    if(!visibleRect || visibleRect.overflow.horizontal) {
+    if (!visibleRect || visibleRect.overflow.horizontal) {
       fastSmoothScroll({
         element: categoryEl,
         container: scrollable,
         position: 'center',
-        axis: 'x'
+        axis: 'x',
       });
     }
   }
 
   function handleClick(event: MouseEvent, value: string) {
     const result = props.onChange(value);
-    if(result === false) return;
+    if (result === false) return;
     const categoryEl = findUpClassName(event.target as HTMLElement, styles.chip);
 
     fastRaf(() => {
@@ -81,12 +81,12 @@ export function ChipTabs(props: {
   let updatedOnce = false
   function updateCurrent() {
     const categoryEl = scrollable.querySelector(`[data-value="${props.value}"]`);
-    if(categoryEl) {
+    if (categoryEl) {
       const rect = categoryEl.getBoundingClientRect();
-      if(rect.width === 0 && rect.height === 0) return;
+      if (rect.width === 0 && rect.height === 0) return;
       updateChosen(categoryEl as HTMLElement, rect);
     }
-    if(!updatedOnce) {
+    if (!updatedOnce) {
       chosenRef.classList.add(styles.animate);
       updatedOnce = true;
     }
@@ -94,17 +94,17 @@ export function ChipTabs(props: {
 
   createEffect(on(() => props.value, () => fastRaf(updateCurrent)))
 
-  if(props.needIntersectionObserver) {
+  if (props.needIntersectionObserver) {
     onMount(() => {
       const observer = new IntersectionObserver((mutations) => {
         mutations.forEach((mutation) => {
-          if(mutation.isIntersecting) {
+          if (mutation.isIntersecting) {
             updateCurrent();
             observer.disconnect();
           }
         });
       }, {
-        threshold: 1
+        threshold: 1,
       });
 
       observer.observe(scrollable.parentElement!);
@@ -113,7 +113,7 @@ export function ChipTabs(props: {
     })
   }
 
-  if(props.contextMenuButtons) {
+  if (props.contextMenuButtons) {
     let chosenElement: HTMLElement;
     onMount(() => {
       createContextMenu({
@@ -128,7 +128,7 @@ export function ChipTabs(props: {
           return filterAsync(buttons, async(button) => {
             return button?.verify ? (await button.verify()) ?? false : true;
           })
-        }) as (buttons: ButtonMenuItemOptionsVerifiable[]) => Promise<ButtonMenuItemOptionsVerifiable[]>
+        }) as (buttons: ButtonMenuItemOptionsVerifiable[]) => Promise<ButtonMenuItemOptionsVerifiable[]>,
       })
     })
   }
@@ -140,7 +140,7 @@ export function ChipTabs(props: {
           return props.value;
         },
         onClick: handleClick,
-        updateCurrent
+        updateCurrent,
       }}
     >
       <div

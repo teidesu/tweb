@@ -7,7 +7,7 @@ export default function applyMixins(derivedCtor: any, constructors: any[]) {
       /* if(name === '_constructor') {
         callbacks.push(value.value);
         return;
-      } else  */if(name === 'constructor') {
+      } else  */if (name === 'constructor') {
         return;
       }
 

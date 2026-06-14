@@ -1,7 +1,7 @@
 import ctx from '@environment/ctx';
 import tsNow from '@helpers/tsNow';
-import {HelpPromoData} from '@layer';
-import {AppManager} from '@appManagers/manager';
+import { HelpPromoData } from '@layer';
+import { AppManager } from '@appManagers/manager';
 
 export interface MyPromoData {
   pendingSuggestions: string[];
@@ -15,11 +15,11 @@ export default class AppPromoManager extends AppManager {
   private pendingDismissed = new Set<string>();
 
   public async getPromoData(force = false): Promise<MyPromoData> {
-    if(!force && this.promoData && this.promoData.expires > tsNow(true)) {
+    if (!force && this.promoData && this.promoData.expires > tsNow(true)) {
       return this.myPromoData;
     };
 
-    if(this.refetchTimeout) {
+    if (this.refetchTimeout) {
       ctx.clearTimeout(this.refetchTimeout);
       this.refetchTimeout = undefined;
     }
@@ -27,7 +27,7 @@ export default class AppPromoManager extends AppManager {
     return this.apiManager.invokeApiSingleProcess({
       method: 'help.getPromoData',
       processResult: (promoData) => {
-        if(promoData._ === 'help.promoData') {
+        if (promoData._ === 'help.promoData') {
           this.appPeersManager.saveApiPeers(promoData);
         }
 
@@ -38,7 +38,7 @@ export default class AppPromoManager extends AppManager {
         }, promoData.expires * 1000 - tsNow());
 
         return this.myPromoData;
-      }
+      },
     });
   }
 
@@ -46,33 +46,33 @@ export default class AppPromoManager extends AppManager {
     this.promoData = promoData;
 
     const pendingSuggestions = [];
-    if(promoData._ === 'help.promoData') {
-      for(const suggestion of promoData.pending_suggestions) {
-        if(this.pendingDismissed.has(suggestion)) continue;
+    if (promoData._ === 'help.promoData') {
+      for (const suggestion of promoData.pending_suggestions) {
+        if (this.pendingDismissed.has(suggestion)) continue;
         pendingSuggestions.push(suggestion);
       }
     }
 
-    this.myPromoData = {pendingSuggestions};
+    this.myPromoData = { pendingSuggestions };
 
     this.rootScope.dispatchEvent('promo_data_update', this.myPromoData);
   }
 
   public dismissSuggestion(suggestion: string) {
-    if(this.pendingDismissed.has(suggestion)) return;
+    if (this.pendingDismissed.has(suggestion)) return;
 
     this.pendingDismissed.add(suggestion);
 
     this.apiManager.invokeApiSingleProcess({
       method: 'help.dismissSuggestion',
-      params: {suggestion, peer: {_: 'inputPeerEmpty'}}
+      params: { suggestion, peer: { _: 'inputPeerEmpty' } },
     }).then((result) => {
-      if(!result) return;
+      if (!result) return;
 
-      if(this.promoData?._ === 'help.promoData') {
+      if (this.promoData?._ === 'help.promoData') {
         this.setPromoData({
           ...this.promoData,
-          pending_suggestions: this.promoData.pending_suggestions.filter((s) => s !== suggestion)
+          pending_suggestions: this.promoData.pending_suggestions.filter((s) => s !== suggestion),
         })
       }
     }).catch(() => {

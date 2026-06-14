@@ -1,11 +1,11 @@
-import {ForumTopic, Message, MessageAction} from '@layer';
+import { ForumTopic, Message, MessageAction } from '@layer';
 
 type CreateTopicFromActionArgs = {
   message: Message.messageService;
   action: MessageAction.messageActionTopicCreate;
 };
 
-export function createBotforumTopicFromAction({message, action}: CreateTopicFromActionArgs) {
+export function createBotforumTopicFromAction({ message, action }: CreateTopicFromActionArgs) {
   const newTopic: ForumTopic.forumTopic = {
     _: 'forumTopic',
     pFlags: {},
@@ -16,7 +16,7 @@ export function createBotforumTopicFromAction({message, action}: CreateTopicFrom
     icon_color: action.icon_color,
     id: message.id,
     notify_settings: {
-      _: 'peerNotifySettings'
+      _: 'peerNotifySettings',
     },
     icon_emoji_id: action.icon_emoji_id,
     top_message: message.id,
@@ -25,7 +25,7 @@ export function createBotforumTopicFromAction({message, action}: CreateTopicFrom
     unread_count: 1,
     unread_mentions_count: 0,
     unread_reactions_count: 0,
-    unread_poll_votes_count: 0
+    unread_poll_votes_count: 0,
   };
 
   return newTopic;

@@ -5,22 +5,22 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import {MOUNT_CLASS_TO} from '@config/debug';
-import {MessageEntity} from '@layer';
+import { MOUNT_CLASS_TO } from '@config/debug';
+import { MessageEntity } from '@layer';
 import combineSameEntities from '@lib/richTextProcessor/combineSameEntities';
 import findConflictingEntity from '@lib/richTextProcessor/findConflictingEntity';
 import sortEntities from '@lib/richTextProcessor/sortEntities';
-import getRichElementValue, {SELECTION_SEPARATOR} from '@helpers/dom/getRichElementValue';
-import {SINGLE_ENTITIES} from '@lib/richTextProcessor';
+import getRichElementValue, { SELECTION_SEPARATOR } from '@helpers/dom/getRichElementValue';
+import { SINGLE_ENTITIES } from '@lib/richTextProcessor';
 
 export function getCaretPos(field: Node) {
   const sel = window.getSelection();
   let selNode: Node;
   let selOffset: number;
-  if(sel?.rangeCount) {
+  if (sel?.rangeCount) {
     const range = sel.getRangeAt(0);
     const startOffset = range.startOffset;
-    if(
+    if (
       range.startContainer &&
       range.startContainer == range.endContainer &&
       startOffset == range.endOffset
@@ -28,15 +28,15 @@ export function getCaretPos(field: Node) {
       // * if focused on img, or caret has been set via placeCaretAtEnd
       const possibleChildrenFocusOffset = startOffset - 1;
       const childNodes = field.childNodes;
-      if(range.startContainer === field && childNodes[possibleChildrenFocusOffset]) {
+      if (range.startContainer === field && childNodes[possibleChildrenFocusOffset]) {
         selNode = childNodes[possibleChildrenFocusOffset];
         selOffset = 0;
 
-        for(let i = 0; i < range.endOffset; ++i) {
+        for (let i = 0; i < range.endOffset; ++i) {
           const node = childNodes[i];
           const value = node.nodeValue || (node as HTMLImageElement).alt;
 
-          if(value) {
+          if (value) {
             selOffset += value.length;
           }
         }
@@ -47,7 +47,7 @@ export function getCaretPos(field: Node) {
     }
   }
 
-  return {node: selNode!, offset: selOffset!};
+  return { node: selNode!, offset: selOffset! };
 }
 
 export default function getRichValueWithCaret(
@@ -58,13 +58,13 @@ export default function getRichValueWithCaret(
   const lines: string[] = [];
   const line: string[] = [];
 
-  const {node: selNode, offset: selOffset} = (!(field instanceof DocumentFragment) && withCaret && getCaretPos(field)) as {node: Node; offset: number};
+  const { node: selNode, offset: selOffset } = (!(field instanceof DocumentFragment) && withCaret && getCaretPos(field)) as {node: Node; offset: number};
 
   const entities: MessageEntity[] = (withEntities ? [] : undefined)!;
-  const offset = {offset: 0};
-  if(field instanceof DocumentFragment) {
+  const offset = { offset: 0 };
+  if (field instanceof DocumentFragment) {
     let curChild = field.firstChild as HTMLElement;
-    while(curChild) {
+    while (curChild) {
       getRichElementValue(curChild, lines, line, selNode, selOffset, entities, offset);
       curChild = curChild.nextSibling as any;
     }
@@ -72,18 +72,18 @@ export default function getRichValueWithCaret(
     getRichElementValue(field as HTMLElement, lines, line, selNode, selOffset, entities, offset);
   }
 
-  if(line.length) {
+  if (line.length) {
     lines.push(line.join(''));
   }
 
   let value = lines.join('\n');
   const caretPos = value.indexOf(SELECTION_SEPARATOR);
-  if(caretPos !== -1) {
+  if (caretPos !== -1) {
     value = value.substr(0, caretPos) + value.substr(caretPos + 1);
   }
   value = value.replace(/\u00A0/g, ' ');
 
-  if(entities?.length) {
+  if (entities?.length) {
     // ! cannot do that here because have the same check before the sending in RichTextProcessor.parseMarkdown
     /* const entity = entities[entities.length - 1];
     const length = value.length;
@@ -93,19 +93,19 @@ export default function getRichValueWithCaret(
     } */
 
     const singleEntities = entities.filter((entity) => SINGLE_ENTITIES.has(entity._));
-    for(let i = 0; i < entities.length; ++i) { // * filter conflicting entities
+    for (let i = 0; i < entities.length; ++i) { // * filter conflicting entities
       const entity = entities[i];
-      if(SINGLE_ENTITIES.has(entity._)) {
+      if (SINGLE_ENTITIES.has(entity._)) {
         continue;
       }
 
       const conflictingEntity = findConflictingEntity(singleEntities, entity);
-      if(!conflictingEntity) {
+      if (!conflictingEntity) {
         continue;
       }
 
       entity.length = conflictingEntity.offset! - entity.offset!;
-      if(entity.length <= 0) {
+      if (entity.length <= 0) {
         entities.splice(i--, 1);
       }
     }
@@ -114,7 +114,7 @@ export default function getRichValueWithCaret(
     sortEntities(entities);
   }
 
-  return {value, entities, caretPos};
+  return { value, entities, caretPos };
 }
 
 MOUNT_CLASS_TO.getCaretPos = getCaretPos;

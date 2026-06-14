@@ -6,12 +6,12 @@
  */
 
 import EventListenerBase from '@helpers/eventListenerBase';
-import {logger} from '@lib/logger';
-import {GROUP_CALL_AMPLITUDE_ANALYSE_COUNT_MAX} from '@lib/calls/constants';
+import { logger } from '@lib/logger';
+import { GROUP_CALL_AMPLITUDE_ANALYSE_COUNT_MAX } from '@lib/calls/constants';
 import stopTrack from '@lib/calls/helpers/stopTrack';
 import LocalConferenceDescription from '@lib/calls/localConferenceDescription';
-import {fixMediaLineType, WebRTCLineType} from '@lib/calls/sdpBuilder';
-import {getAmplitude, toTelegramSource} from '@lib/calls/utils';
+import { fixMediaLineType, WebRTCLineType } from '@lib/calls/sdpBuilder';
+import { getAmplitude, toTelegramSource } from '@lib/calls/utils';
 
 export type StreamItemBase = {
   type: 'input' | 'output',
@@ -95,14 +95,14 @@ export default class StreamManager {
   public addTrack(stream: MediaStream, track: MediaStreamTrack, type: StreamItem['type']) {
     this.log('addTrack', type, track, stream);
 
-    const {context, items, inputStream, outputStream} = this;
+    const { context, items, inputStream, outputStream } = this;
     const kind: StreamItem['kind'] = track.kind as any;
     const source = StreamManager.getSource(stream, type);
 
     // this.removeTrack(track);
-    switch(type) {
+    switch (type) {
       case 'input': {
-        if(!inputStream) {
+        if (!inputStream) {
           this.inputStream = stream;
         } else {
           inputStream.addTrack(track);
@@ -112,16 +112,16 @@ export default class StreamManager {
       }
 
       case 'output': {
-        for(let i = 0; i < items.length; ++i) {
-          const {track: t, type, source: itemSource} = items[i];
-          if(itemSource === source && type === 'input') {
+        for (let i = 0; i < items.length; ++i) {
+          const { track: t, type, source: itemSource } = items[i];
+          if (itemSource === source && type === 'input') {
             items.splice(i, 1);
             outputStream.removeTrack(t);
             break;
           }
         }
 
-        if(kind !== 'video') {
+        if (kind !== 'video') {
           outputStream.addTrack(track);
         }
 
@@ -135,19 +135,19 @@ export default class StreamManager {
       stream,
       track,
       kind,
-      streamAnalyser: (kind === 'audio' ? new AudioStreamAnalyser(context, stream) : undefined)!
+      streamAnalyser: (kind === 'audio' ? new AudioStreamAnalyser(context, stream) : undefined)!,
     });
 
-    if(kind === 'audio' && this.interval) {
+    if (kind === 'audio' && this.interval) {
       this.changeTimer();
     }
   }
 
   private finalizeAddingTrack(item: StreamItem) {
-    const {track} = item;
+    const { track } = item;
     track.addEventListener('ended', () => {
       this.removeTrack(track);
-    }, {once: true});
+    }, { once: true });
 
     this.items.push(item);
   }
@@ -163,14 +163,14 @@ export default class StreamManager {
   public removeTrack(track: MediaStreamTrack) {
     this.log('removeTrack', track);
 
-    const {items} = this;
+    const { items } = this;
 
     let handled = false;
-    for(let i = 0, length = items.length; !handled && i < length; ++i) {
-      const {track: t, type} = items[i];
-      switch(type) {
+    for (let i = 0, length = items.length; !handled && i < length; ++i) {
+      const { track: t, type } = items[i];
+      switch (type) {
         case 'output': {
-          if(t === track) {
+          if (t === track) {
             items.splice(i, 1);
             this.outputStream.removeTrack(track);
             handled = true;
@@ -180,7 +180,7 @@ export default class StreamManager {
         }
 
         case 'input': {
-          if(t === track) {
+          if (t === track) {
             items.splice(i, 1);
             this.inputStream.removeTrack(track);
             handled = true;
@@ -191,7 +191,7 @@ export default class StreamManager {
       }
     }
 
-    if(track.kind === 'audio' && this.interval) {
+    if (track.kind === 'audio' && this.interval) {
       this.changeTimer();
     }
   }
@@ -202,19 +202,19 @@ export default class StreamManager {
   }
 
   private changeTimer() {
-    if(this.timer !== undefined) {
+    if (this.timer !== undefined) {
       clearInterval(this.timer);
     }
 
-    if(this.items.length) {
+    if (this.items.length) {
       this.timer = window.setInterval(this.analyse, this.interval);
     }
   }
 
   public getAmplitude = (item: StreamAudioItem): StreamAmplitude | undefined => {
-    const {streamAnalyser, stream, track, source, type} = item;
+    const { streamAnalyser, stream, track, source, type } = item;
     const analyser = streamAnalyser.analyser;
-    if(!analyser) return;
+    if (!analyser) return;
 
     const array = new Uint8Array(analyser.frequencyBinCount);
     analyser.getByteFrequencyData(array);
@@ -225,7 +225,7 @@ export default class StreamManager {
       source,
       stream,
       track,
-      value
+      value,
     };
   };
 
@@ -234,13 +234,13 @@ export default class StreamManager {
     const filteredItems = all ? this.items : this.items.filter((x) => x.type === 'input');
     const audioItems = filteredItems.filter((x) => x.kind === 'audio');
     const amplitudes = audioItems.slice(0, GROUP_CALL_AMPLITUDE_ANALYSE_COUNT_MAX).map(this.getAmplitude);
-    if(++this.counter >= 1000) {
+    if (++this.counter >= 1000) {
       this.counter = 0;
     }
 
     StreamManager.ANALYSER_LISTENER.dispatchEvent('amplitude', {
       amplitudes: (amplitudes as StreamAmplitude[]),
-      type: all ? 'all' : 'input'
+      type: all ? 'all' : 'input',
     });
   };
 
@@ -263,27 +263,27 @@ export default class StreamManager {
   // Chrome doesn't reject it as "Too late to create encoded streams" — see
   // memory tde2e-port.md K-2 for the timing details.
   public appendToConference(conference: LocalConferenceDescription, onSenderCreated?: (sender: RTCRtpSender) => void) {
-    if(this.locked) {
+    if (this.locked) {
       return;
     }
 
-    const {inputStream, direction, canCreateConferenceEntry} = this;
-    const transceiverInit: RTCRtpTransceiverInit = {direction, streams: [inputStream]};
+    const { inputStream, direction, canCreateConferenceEntry } = this;
+    const transceiverInit: RTCRtpTransceiverInit = { direction, streams: [inputStream] };
     const types = this.types.map((type) => {
       return [
         type,
         /* type === 'video' || type === 'screencast' ?
           {sendEncodings: [{maxBitrate: 2500000}], ...transceiverInit} :  */
-        transceiverInit
+        transceiverInit,
       ] as const;
     });
 
     const tracks = inputStream.getTracks();
     // const transceivers = conference.connection.getTransceivers();
-    for(const [type, transceiverInit] of types) {
+    for (const [type, transceiverInit] of types) {
       let entry = conference.findEntry((entry) => entry.direction === direction && entry.type === type);
-      if(!entry) {
-        if(!canCreateConferenceEntry) {
+      if (!entry) {
+        if (!canCreateConferenceEntry) {
           continue;
         }
 
@@ -294,9 +294,9 @@ export default class StreamManager {
         entry.transceiver = transceivers.find((transceiver) => transceiver.mid === entry.mid);
       } */
 
-      let {transceiver} = entry;
+      let { transceiver } = entry;
       let newlyCreated = false;
-      if(!transceiver) {
+      if (!transceiver) {
         transceiver = entry.createTransceiver(conference.connection, transceiverInit);
         newlyCreated = true;
 
@@ -308,7 +308,7 @@ export default class StreamManager {
         } */
       }
 
-      if(entry.direction !== transceiver.direction) {
+      if (entry.direction !== transceiver.direction) {
         transceiver.direction = entry.direction;
       }
 
@@ -328,11 +328,11 @@ export default class StreamManager {
       // both sides are undefined (e.g. preview without mic / mic denied) the
       // skip would otherwise hide the hook entirely, and no transform would
       // ever attach.
-      if(newlyCreated && onSenderCreated) {
+      if (newlyCreated && onSenderCreated) {
         onSenderCreated(sender);
       }
 
-      if(sender.track === track) {
+      if (sender.track === track) {
         continue;
       }
 
@@ -352,7 +352,7 @@ export default class StreamManager {
       tracks.forEach((track) => {
         stopTrack(track);
       });
-    } catch(e) {
+    } catch (e) {
       this.log.error(e);
     }
   }

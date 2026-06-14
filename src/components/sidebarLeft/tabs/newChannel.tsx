@@ -1,20 +1,20 @@
-import {onCleanup, onMount} from 'solid-js';
+import { onCleanup, onMount } from 'solid-js';
 import InputField from '@components/inputField';
-import {InputFieldTsx} from '@components/inputFieldTsx';
-import AvatarEdit, {AvatarEditPayload} from '@components/avatarEdit';
+import { InputFieldTsx } from '@components/inputFieldTsx';
+import AvatarEdit, { AvatarEditPayload } from '@components/avatarEdit';
 import ButtonCorner from '@components/buttonCorner';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import Section from '@components/section';
 import addChatUsers from '@components/addChatUsers';
-import {handleChannelsTooMuch} from '@components/popups/channelsTooMuch';
-import type {AppChatsManager} from '@lib/appManagers/appChatsManager';
+import { handleChannelsTooMuch } from '@components/popups/channelsTooMuch';
+import type { AppChatsManager } from '@lib/appManagers/appChatsManager';
 import toggleDisability from '@helpers/dom/toggleDisability';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 
 const NewChannel = () => {
   const [tab] = useSuperTab();
-  const {appImManager, appSidebarLeft} = useHotReloadGuard();
+  const { appImManager, appSidebarLeft } = useHotReloadGuard();
 
   let uploadAvatar: AvatarEditPayload | null = null;
   let nameField!: InputField;
@@ -34,7 +34,7 @@ const NewChannel = () => {
   onMount(() => {
     tab.container.classList.add('new-channel-container');
 
-    nextBtn = ButtonCorner({icon: 'arrow_next'});
+    nextBtn = ButtonCorner({ icon: 'arrow_next' });
     tab.content.append(nextBtn);
 
     attachClickEvent(nextBtn, () => {
@@ -45,29 +45,29 @@ const NewChannel = () => {
       const options: Parameters<AppChatsManager['createChannel']>[0] = {
         title,
         about,
-        broadcast: true
+        broadcast: true,
       };
       handleChannelsTooMuch(() => tab.managers.appChatsManager.createChannel(options))
-      .then((channelId) => {
-        if(uploadAvatar) {
-          uploadAvatar.file().then((inputFile) => {
-            tab.managers.appChatsManager.editPhoto(channelId, inputFile);
+        .then((channelId) => {
+          if (uploadAvatar) {
+            uploadAvatar.file().then((inputFile) => {
+              tab.managers.appChatsManager.editPhoto(channelId, inputFile);
+            });
+          }
+
+          appImManager.setInnerPeer({ peerId: channelId.toPeerId(true) });
+
+          appSidebarLeft.removeTabFromHistory(tab);
+          addChatUsers({
+            peerId: channelId.toPeerId(true),
+            slider: tab.slider,
+            skippable: true,
           });
-        }
-
-        appImManager.setInnerPeer({peerId: channelId.toPeerId(true)});
-
-        appSidebarLeft.removeTabFromHistory(tab);
-        addChatUsers({
-          peerId: channelId.toPeerId(true),
-          slider: tab.slider,
-          skippable: true
+        }, (err) => {
+          console.error('createChannel error', err);
+          toggle();
         });
-      }, (err) => {
-        console.error('createChannel error', err);
-        toggle();
-      });
-    }, {listenerSetter: tab.listenerSetter});
+    }, { listenerSetter: tab.listenerSetter });
 
     nameField.input.addEventListener('input', onLengthChange);
     descField.input.addEventListener('input', onLengthChange);

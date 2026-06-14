@@ -1,6 +1,6 @@
 const resizeObserverMap: WeakMap<Element, (entry: ResizeObserverEntry) => void> = new WeakMap();
 const resizeObserver = new ResizeObserver((entries) => {
-  for(const entry of entries) {
+  for (const entry of entries) {
     const callback = resizeObserverMap.get(entry.target);
     callback!(entry);
   }

@@ -5,23 +5,23 @@ export default function isMixedScriptUrl(url: string): boolean {
   let domain;
   try {
     domain = convertPunycode(new URL(url).hostname);
-  } catch(e) {
+  } catch (e) {
     return true; // If URL is invalid, treat it as mixed script
   }
 
   let hasLatin = false;
   let hasNonLatin = false;
 
-  for(const char of Array.from(domain)) {
-    if(!/\p{L}/u.test(char)) continue; // Ignore non-letter characters
+  for (const char of Array.from(domain)) {
+    if (!/\p{L}/u.test(char)) continue; // Ignore non-letter characters
 
-    if(/\p{Script=Latin}/u.test(char)) {
+    if (/\p{Script=Latin}/u.test(char)) {
       hasLatin = true;
     } else {
       hasNonLatin = true;
     }
 
-    if(hasLatin && hasNonLatin) return true;
+    if (hasLatin && hasNonLatin) return true;
   }
 
   return false;

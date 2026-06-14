@@ -1,32 +1,32 @@
-import {createEffect, createMemo, createSignal, onCleanup} from 'solid-js';
+import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js';
 import PopupElement from '@components/popups/indexTsx';
 import PopupElementOld from '@components/popups/index'
-import {MyStarGift} from '@appManagers/appGiftsManager';
-import {StarGiftAttribute} from '@layer';
-import {randomItemExcept} from '@helpers/array/randomItem';
-import {i18n} from '@lib/langPack';
-import {IconTsx} from '@components/iconTsx';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {StarGiftBackdrop} from '@components/stargifts/stargiftBackdrop';
-import {MyDocument} from '@appManagers/appDocsManager';
+import { MyStarGift } from '@appManagers/appGiftsManager';
+import { StarGiftAttribute } from '@layer';
+import { randomItemExcept } from '@helpers/array/randomItem';
+import { i18n } from '@lib/langPack';
+import { IconTsx } from '@components/iconTsx';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { StarGiftBackdrop } from '@components/stargifts/stargiftBackdrop';
+import { MyDocument } from '@appManagers/appDocsManager';
 import wrapSticker from '@components/wrappers/sticker';
 import RLottiePlayer from '@lib/rlottie/rlottiePlayer';
 import Row from '@components/rowTsx';
 import CheckboxFieldTsx from '@components/checkboxFieldTsx';
-import {ButtonIconTsx} from '@components/buttonIconTsx';
+import { ButtonIconTsx } from '@components/buttonIconTsx';
 import PopupPayment from '@components/popups/payment';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
 import rootScope from '@lib/rootScope';
-import {createPopup} from '@components/popups/indexTsx';
+import { createPopup } from '@components/popups/indexTsx';
 import createMiddleware from '@helpers/solid/createMiddleware';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
 import tsNow from '@helpers/tsNow';
-import {wrapLeftDuration} from '@components/wrappers/wrapDuration';
-import {AnimatedCounter} from '@components/animatedCounter';
-import {createStarGiftUpgradePricePopup} from '@components/popups/starGiftUpgradePrice';
+import { wrapLeftDuration } from '@components/wrappers/wrapDuration';
+import { AnimatedCounter } from '@components/animatedCounter';
+import { createStarGiftUpgradePricePopup } from '@components/popups/starGiftUpgradePrice';
 import PopupStarGiftInfo from '@components/popups/starGiftInfo';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
-import {createCurrentTime} from '@helpers/solid/createCurrentTime';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
+import { createCurrentTime } from '@helpers/solid/createCurrentTime';
 
 export default async function createStarGiftUpgradePopup(props: {
   gift: MyStarGift,
@@ -34,10 +34,10 @@ export default async function createStarGiftUpgradePopup(props: {
 }) {
   const [
     preview,
-    peerTitle
+    peerTitle,
   ] = await Promise.all([
     rootScope.managers.appGiftsManager.getUpgradePreview(props.gift.raw.id),
-    props.descriptionForPeerId ? wrapPeerTitle({peerId: props.descriptionForPeerId}) : undefined
+    props.descriptionForPeerId ? wrapPeerTitle({ peerId: props.descriptionForPeerId }) : undefined,
   ]);
 
   const [show, setShow] = createSignal(true);
@@ -60,15 +60,15 @@ export default async function createStarGiftUpgradePopup(props: {
   randomize();
 
   async function handleUpgrade(): Promise<boolean> {
-    if(props.descriptionForPeerId && canPrepay) {
+    if (props.descriptionForPeerId && canPrepay) {
       const deferred = deferredPromise<boolean>();
       PopupPayment.create({
         inputInvoice: {
           _: 'inputInvoiceStarGiftPrepaidUpgrade',
           hash: props.gift.saved?.prepaid_upgrade_hash!,
-          peer: await rootScope.managers.appPeersManager.getInputPeerById(props.descriptionForPeerId)
+          peer: await rootScope.managers.appPeersManager.getInputPeerById(props.descriptionForPeerId),
         },
-        noShowIfStars: true
+        noShowIfStars: true,
       }).then((popup) => {
         popup.addEventListener('finish', (result) => {
           deferred.resolve(result === 'paid');
@@ -79,7 +79,7 @@ export default async function createStarGiftUpgradePopup(props: {
 
     upgradePromise = deferredPromise<boolean>();
 
-    if(freeUpgrade) {
+    if (freeUpgrade) {
       await rootScope.managers.appGiftsManager.upgradeStarGift(
         props.gift.input!,
         keepInfoSignal[0]()
@@ -92,13 +92,13 @@ export default async function createStarGiftUpgradePopup(props: {
         _: 'inputInvoiceStarGiftUpgrade',
         stargift: props.gift.input!,
         pFlags: {
-          keep_original_details: keepInfoSignal[0]() ? true : undefined
-        }
+          keep_original_details: keepInfoSignal[0]() ? true : undefined,
+        },
       },
-      noShowIfStars: true
+      noShowIfStars: true,
     }).then((popup) => {
       popup.addEventListener('finish', (result) => {
-        if(result !== 'paid') {
+        if (result !== 'paid') {
           upgradePromise!.resolve(false);
         }
       });
@@ -109,7 +109,7 @@ export default async function createStarGiftUpgradePopup(props: {
 
   const now = createCurrentTime({
     fn: () => tsNow(true),
-    updateInterval: 1000
+    updateInterval: 1000,
   })
   const [nextPrices, setNextPrices] = createSignal(preview.next_prices)
 
@@ -117,8 +117,8 @@ export default async function createStarGiftUpgradePopup(props: {
     const now$ = now()
     // the array is expected to be sorted by date ascending
     const nextPrices$ = nextPrices()
-    for(let i = nextPrices$.length - 1; i >= 0; i--) {
-      if(nextPrices$[i].date <= now$) {
+    for (let i = nextPrices$.length - 1; i >= 0; i--) {
+      if (nextPrices$[i].date <= now$) {
         return i
       }
     }
@@ -135,7 +135,7 @@ export default async function createStarGiftUpgradePopup(props: {
 
   const priceCounter = new AnimatedCounter({
     reverse: true,
-    duration: 1000
+    duration: 1000,
   })
   createEffect(() => priceCounter.setCount(Number(currentPrice().upgrade_stars)))
 
@@ -152,12 +152,12 @@ export default async function createStarGiftUpgradePopup(props: {
         height: 120,
         play: true,
         loop: false,
-        middleware: middleware.get()
-      }).then(({render}) => render).then((player_) => {
+        middleware: middleware.get(),
+      }).then(({ render }) => render).then((player_) => {
         const player = player_ as RLottiePlayer;
         player.playOrRestart();
         player.addEventListener('enterFrame', (frameNo) => {
-          if(frameNo === player.maxFrame) {
+          if (frameNo === player.maxFrame) {
             player.stop(false);
             randomize();
           }
@@ -166,12 +166,12 @@ export default async function createStarGiftUpgradePopup(props: {
     });
 
     subscribeOn(rootScope)('star_gift_upgrade', (event) => {
-      if(!upgradePromise) return;
-      if(!(event.savedId === props.gift.saved?.saved_id || event.fromMsgId === props.gift.saved?.msg_id)) return
+      if (!upgradePromise) return;
+      if (!(event.savedId === props.gift.saved?.saved_id || event.fromMsgId === props.gift.saved?.msg_id)) return
 
       PopupElementOld.createPopup(PopupStarGiftInfo, {
         gift: event.gift,
-        upgradeAnimation: preview
+        upgradeAnimation: preview,
       })
       upgradePromise.resolve(true)
     })
@@ -267,7 +267,7 @@ export default async function createStarGiftUpgradePopup(props: {
                   <span class="popup-star-gift-upgrade-price-wrap">
                     <IconTsx icon="star" class="currency-star-icon" />
                     {priceCounter.container}
-                  </span>
+                  </span>,
                 ]}
               />
               {!freeUpgrade && hasFuturePrices() && (
@@ -282,7 +282,7 @@ export default async function createStarGiftUpgradePopup(props: {
           {hasFuturePrices() && !canPrepay && (
             <div
               class="popup-star-gift-upgrade-price-decrease-link"
-              onClick={() => createStarGiftUpgradePricePopup({preview})}
+              onClick={() => createStarGiftUpgradePricePopup({ preview })}
             >
               <I18nTsx key="StarGiftPriceDecreaseLink" />
               <IconTsx icon="next" />

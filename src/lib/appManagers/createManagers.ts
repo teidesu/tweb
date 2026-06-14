@@ -1,40 +1,40 @@
-import {PasswordManager} from '@appManagers/passwordManager';
-import {ReferencesStorage} from '@lib/storages/references';
+import { PasswordManager } from '@appManagers/passwordManager';
+import { ReferencesStorage } from '@lib/storages/references';
 import DialogsStorage from '@lib/storages/dialogs';
 import FiltersStorage from '@lib/storages/filters';
-import {ApiUpdatesManager} from '@appManagers/apiUpdatesManager';
-import {AppAvatarsManager} from '@appManagers/appAvatarsManager';
-import {AppCallsManager} from '@appManagers/appCallsManager';
-import {AppChatsManager} from '@appManagers/appChatsManager';
-import {AppDocsManager} from '@appManagers/appDocsManager';
-import {AppDraftsManager} from '@appManagers/appDraftsManager';
-import {AppEmojiManager} from '@appManagers/appEmojiManager';
-import {AppGroupCallsManager} from '@appManagers/appGroupCallsManager';
-import {AppInlineBotsManager} from '@appManagers/appInlineBotsManager';
-import {AppMessagesIdsManager} from '@appManagers/appMessagesIdsManager';
-import {AppMessagesManager} from '@appManagers/appMessagesManager';
-import {AppNotificationsManager} from '@appManagers/appNotificationsManager';
-import {AppPeersManager} from '@appManagers/appPeersManager';
-import {AppPhotosManager} from '@appManagers/appPhotosManager';
-import {AppPollsManager} from '@appManagers/appPollsManager';
-import {AppPrivacyManager} from '@appManagers/appPrivacyManager';
-import {AppProfileManager} from '@appManagers/appProfileManager';
-import {AppReactionsManager} from '@appManagers/appReactionsManager';
-import {AppStickersManager} from '@appManagers/appStickersManager';
-import {AppUsersManager} from '@appManagers/appUsersManager';
-import {AppWebPagesManager} from '@appManagers/appWebPagesManager';
-import {AppLangPackManager} from '@appManagers/appLangPackManager';
-import {ApiFileManager} from '@appManagers/apiFileManager';
-import {ApiManager} from '@appManagers/apiManager';
+import { ApiUpdatesManager } from '@appManagers/apiUpdatesManager';
+import { AppAvatarsManager } from '@appManagers/appAvatarsManager';
+import { AppCallsManager } from '@appManagers/appCallsManager';
+import { AppChatsManager } from '@appManagers/appChatsManager';
+import { AppDocsManager } from '@appManagers/appDocsManager';
+import { AppDraftsManager } from '@appManagers/appDraftsManager';
+import { AppEmojiManager } from '@appManagers/appEmojiManager';
+import { AppGroupCallsManager } from '@appManagers/appGroupCallsManager';
+import { AppInlineBotsManager } from '@appManagers/appInlineBotsManager';
+import { AppMessagesIdsManager } from '@appManagers/appMessagesIdsManager';
+import { AppMessagesManager } from '@appManagers/appMessagesManager';
+import { AppNotificationsManager } from '@appManagers/appNotificationsManager';
+import { AppPeersManager } from '@appManagers/appPeersManager';
+import { AppPhotosManager } from '@appManagers/appPhotosManager';
+import { AppPollsManager } from '@appManagers/appPollsManager';
+import { AppPrivacyManager } from '@appManagers/appPrivacyManager';
+import { AppProfileManager } from '@appManagers/appProfileManager';
+import { AppReactionsManager } from '@appManagers/appReactionsManager';
+import { AppStickersManager } from '@appManagers/appStickersManager';
+import { AppUsersManager } from '@appManagers/appUsersManager';
+import { AppWebPagesManager } from '@appManagers/appWebPagesManager';
+import { AppLangPackManager } from '@appManagers/appLangPackManager';
+import { ApiFileManager } from '@appManagers/apiFileManager';
+import { ApiManager } from '@appManagers/apiManager';
 import ctx from '@environment/ctx';
 import PeersStorage from '@lib/storages/peers';
 import ThumbsStorage from '@lib/storages/thumbs';
-import {NetworkerFactory} from '@appManagers/networkerFactory';
-import rootScope, {RootScope} from '@lib/rootScope';
-import {Authorizer} from '@lib/mtproto/authorizer';
-import {DcConfigurator} from '@lib/mtproto/dcConfigurator';
-import {TimeManager} from '@lib/mtproto/timeManager';
-import {AppStoragesManager} from '@appManagers/appStoragesManager';
+import { NetworkerFactory } from '@appManagers/networkerFactory';
+import rootScope, { RootScope } from '@lib/rootScope';
+import { Authorizer } from '@lib/mtproto/authorizer';
+import { DcConfigurator } from '@lib/mtproto/dcConfigurator';
+import { TimeManager } from '@lib/mtproto/timeManager';
+import { AppStoragesManager } from '@appManagers/appStoragesManager';
 import cryptoMessagePort from '@lib/crypto/cryptoMessagePort';
 import AppStateManager from '@appManagers/appStateManager';
 import filterUnique from '@helpers/array/filterUnique';
@@ -52,8 +52,8 @@ import AppStatisticsManager from '@appManagers/appStatisticsManager';
 import AppBusinessManager from '@appManagers/appBusinessManager';
 import AppTranslationsManager from '@appManagers/appTranslationsManager';
 import AppGifsManager from '@appManagers/appGifsManager';
-import {ActiveAccountNumber} from '@lib/accounts/types';
-import {AppManager} from '@appManagers/manager';
+import { ActiveAccountNumber } from '@lib/accounts/types';
+import { AppManager } from '@appManagers/manager';
 import AppGiftsManager from '@appManagers/appGiftsManager';
 import AppGamesManager from '@appManagers/appGamesManager';
 import MonoforumDialogsStorage from '@lib/storages/monoforumDialogs';
@@ -125,23 +125,23 @@ export default function createManagers(
     monoforumDialogsStorage: new MonoforumDialogsStorage,
     messagesPersistentStorage: new MessagesPersistentStorage,
     appPromoManager: new AppPromoManager,
-    appAccountManager: new AppAccountManager
+    appAccountManager: new AppAccountManager,
   };
 
   managers.authorizer = new Authorizer({
     timeManager: managers.timeManager,
-    dcConfigurator: managers.dcConfigurator
+    dcConfigurator: managers.dcConfigurator,
   });
 
   type T = typeof managers;
 
-  for(const name in managers) {
+  for (const name in managers) {
     const manager = managers[name as keyof T] as AppManager;
-    if(!manager) {
+    if (!manager) {
       continue;
     }
 
-    if(manager.setManagersAndAccountNumber) {
+    if (manager.setManagersAndAccountNumber) {
       manager.setManagersAndAccountNumber(managers as any, accountNumber);
       delete (manager as any).setManagersAndAccountNumber;
     }
@@ -150,7 +150,7 @@ export default function createManagers(
     ctx[name] = manager;
   }
 
-  Object.assign(managers.rootScope, {managers});
+  Object.assign(managers.rootScope, { managers });
 
   const promises: Array<Promise<(() => void) | void> | void>[] = [];
   let names = Object.keys(managers) as (keyof T)[];
@@ -162,9 +162,9 @@ export default function createManagers(
     'dialogsStorage'
   );
   names = filterUnique(names);
-  for(const name of names) {
+  for (const name of names) {
     const manager = managers[name];
-    if((manager as any)?.after) {
+    if ((manager as any)?.after) {
       // console.log('injecting after', name);
       const result = (manager as any).after();
       promises.push(result);
@@ -177,7 +177,7 @@ export default function createManagers(
     }
   }
 
-  if(userId) {
+  if (userId) {
     managers.apiManager.setUserAuth(userId);
   }
 

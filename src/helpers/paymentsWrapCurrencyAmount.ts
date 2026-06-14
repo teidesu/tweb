@@ -1,10 +1,10 @@
-import bigInt, {BigInteger} from 'big-integer';
+import bigInt, { BigInteger } from 'big-integer';
 import Icon from '@components/icon';
 import Currencies from '@config/currencies';
 import I18n from '@lib/langPack';
-import {STARS_CURRENCY, TON_CURRENCY} from '@appManagers/constants';
-import {numberThousandSplitterForStars} from '@helpers/number/numberThousandSplitter';
-import {MOUNT_CLASS_TO} from '@config/debug';
+import { STARS_CURRENCY, TON_CURRENCY } from '@appManagers/constants';
+import { numberThousandSplitterForStars } from '@helpers/number/numberThousandSplitter';
+import { MOUNT_CLASS_TO } from '@config/debug';
 
 // https://stackoverflow.com/a/34141813
 function number_format(number: any, decimals: any, dec_point: any, thousands_sep: any): string {
@@ -21,10 +21,10 @@ function number_format(number: any, decimals: any, dec_point: any, thousands_sep
     };
   // Fix for IE parseFloat(0.55).toFixed(0) = 0;
   s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
-  if(s[0].length > 3) {
+  if (s[0].length > 3) {
     s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
   }
-  if((s[1] || '').length < prec) {
+  if ((s[1] || '').length < prec) {
     s[1] = s[1] || '';
     s[1] += new Array(prec - s[1].length + 1).join('0');
   }
@@ -36,13 +36,13 @@ const NANOTON_DECIMALS = 9;
 export function formatNanoton(amount: number | string | BigInteger, maxDecimals: number = 2, withThousandsSep = true) {
   let amountStr = String(amount);
   let negative = false;
-  if(amountStr.startsWith('-')) {
+  if (amountStr.startsWith('-')) {
     negative = true;
     amountStr = amountStr.slice(1);
   }
 
   // pad if needed
-  if(amountStr.length < NANOTON_DECIMALS) {
+  if (amountStr.length < NANOTON_DECIMALS) {
     amountStr = amountStr.padStart(NANOTON_DECIMALS, '0');
   }
   let intPart = amountStr.slice(0, amountStr.length - NANOTON_DECIMALS) || '0';
@@ -52,9 +52,9 @@ export function formatNanoton(amount: number | string | BigInteger, maxDecimals:
   let frac2 = fracPart.slice(0, maxDecimals);
   const nextDigit = fracPart.length > maxDecimals ? parseInt(fracPart[maxDecimals], 10) : 0;
 
-  if(nextDigit >= 5) {
+  if (nextDigit >= 5) {
     const asNum = parseInt(frac2, 10) + 1;
-    if(asNum >= 10 ** maxDecimals) {
+    if (asNum >= 10 ** maxDecimals) {
       intPart = bigInt(intPart).plus(1).toString();
       frac2 = '00';
     } else {
@@ -63,17 +63,17 @@ export function formatNanoton(amount: number | string | BigInteger, maxDecimals:
   }
 
   let res = ''
-  if(negative) res += '-';
+  if (negative) res += '-';
 
-  if(withThousandsSep) {
+  if (withThousandsSep) {
     res += intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   } else {
     res += intPart;
   }
 
-  if(maxDecimals > 0) {
+  if (maxDecimals > 0) {
     frac2 = frac2.replace(/0+$/, '');
-    if(frac2) {
+    if (frac2) {
       res += '.' + frac2;
     }
   }
@@ -99,9 +99,9 @@ export default function paymentsWrapCurrencyAmount<T extends boolean = false>(
   useNative?: boolean,
   plain?: T
 ): T extends true ? string : HTMLElement | string {
-  if(currency === TON_CURRENCY) {
+  if (currency === TON_CURRENCY) {
     const str = formatNanoton(amount);
-    if(plain) return str + ' TON';
+    if (plain) return str + ' TON';
     const out = document.createElement('span');
     out.classList.add('ton-amount');
     out.append(Icon('ton', 'ton-amount-icon'), ' ', str);
@@ -110,8 +110,8 @@ export default function paymentsWrapCurrencyAmount<T extends boolean = false>(
 
   amount = +amount;
 
-  if(currency === STARS_CURRENCY) {
-    if(plain) {
+  if (currency === STARS_CURRENCY) {
+    if (plain) {
       return I18n.format('StarsCount', true, [amount]);
     }
 
@@ -124,31 +124,31 @@ export default function paymentsWrapCurrencyAmount<T extends boolean = false>(
   const isNegative = amount < 0;
 
   const currencyData = Currencies[currency];
-  if(!currencyData) {
+  if (!currencyData) {
     throw new Error('CURRENCY_WRAP_INVALID');
   }
 
   const amountExp = amount / Math.pow(10, currencyData.exp);
 
   let decimals = currencyData.exp;
-  if(currency == 'IRR' && Math.floor(amountExp) == amountExp) {
+  if (currency == 'IRR' && Math.floor(amountExp) == amountExp) {
     decimals = 0; // у иранцев копейки почти всегда = 0 и не показываются в UI
   }
 
   let formatted = number_format(amountExp, decimals, currencyData.decimal_sep, currencyData.thousands_sep);
-  if(skipSymbol) {
+  if (skipSymbol) {
     return formatted;
   }
 
   let symbol = useNative ? currencyData.native || currencyData.symbol : currencyData.symbol;
-  if(isNegative && !currencyData.space_between && currencyData.symbol_left) {
+  if (isNegative && !currencyData.space_between && currencyData.symbol_left) {
     symbol = '-' + symbol;
     formatted = formatted.replace('-', '');
   }
 
   let out: string;
   const splitter = currencyData.space_between ? ' ' : '';
-  if(currencyData.symbol_left) {
+  if (currencyData.symbol_left) {
     out = symbol + splitter + formatted;
   } else {
     out = formatted + splitter + symbol;

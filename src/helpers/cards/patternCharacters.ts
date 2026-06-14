@@ -1,4 +1,4 @@
-import {fixBuggedNumbers} from '@helpers/string/buggedNumbers';
+import { fixBuggedNumbers } from '@helpers/string/buggedNumbers';
 import replaceNonNumber from '@helpers/string/replaceNonNumber';
 
 export type PatternCharacter = {
@@ -19,15 +19,15 @@ export type PatternCharacter = {
 export type PatternFunction = (str: string) => ((str: string) => PatternCharacter)[];
 
 function makeOptionalCharacter(result: string, consumed: number): PatternCharacter {
-  return {type: 'optional', result, consumed};
+  return { type: 'optional', result, consumed };
 }
 
 function makeRequiredCharacter(result: string, consumed: number, partial?: boolean): PatternCharacter {
-  return {type: 'required', result, consumed, partial};
+  return { type: 'required', result, consumed, partial };
 }
 
 function makeFormattingCharacter(result: string, consumed: number): PatternCharacter {
-  return {type: 'formatting', result, consumed};
+  return { type: 'formatting', result, consumed };
 }
 
 function wrapCharacterRegExpFactory(regExp: RegExp, optional?: boolean) {
@@ -35,7 +35,7 @@ function wrapCharacterRegExpFactory(regExp: RegExp, optional?: boolean) {
     const _regExp = new RegExp('^'.concat(regExp.source.replace(/^\^/, '')));
     const match = str.match(_regExp);
     const makeCharacter = optional ? makeOptionalCharacter : makeRequiredCharacter;
-    if(match) {
+    if (match) {
       const result = match[0];
       return makeCharacter(result, match.index! + result.length);
     }
@@ -62,7 +62,7 @@ const patternCharacters = {
     const char = makeMonthDigitPatternCharacter(fixBuggedNumbers(str));
     const cleanedResult = replaceNonNumber(char.result);
     const isPartial = ['0', '1'].includes(char.result) && str.length === 1;
-    if(isPartial || (char.result === '0' && str.length >= 2)) {
+    if (isPartial || (char.result === '0' && str.length >= 2)) {
       return makeRequiredCharacter(char.result, str.length, true);
     }
 
@@ -79,7 +79,7 @@ const patternCharacters = {
       const char = wrapCharacterRegExpFactory(regExp, true)(str);
       return char.result ? char : makeOptionalCharacter('', 0);
     };
-  }
+  },
 };
 
 export default patternCharacters;

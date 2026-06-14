@@ -1,5 +1,5 @@
-import {Signal} from 'solid-js';
-import {ProgressCircleSVG} from '@components/progressCircleSVG';
+import { Signal } from 'solid-js';
+import { ProgressCircleSVG } from '@components/progressCircleSVG';
 
 export default function RenderProgressCircle(props: {creationProgress: Signal<number>}) {
   const [progress] = props.creationProgress;
@@ -19,8 +19,8 @@ export default function RenderProgressCircle(props: {creationProgress: Signal<nu
           'max-width': '80%',
           'max-height': '80%',
           'aspect-ratio': '1 / 1',
-          'z-index': 2
-        }
+          'z-index': 2,
+        },
       }}
     >
       <ProgressCircleSVG progress={progress()} strokeThickness={1 / 10} withText stroke='white' />

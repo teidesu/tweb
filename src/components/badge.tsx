@@ -1,5 +1,5 @@
-import {Dynamic} from 'solid-js/web';
-import {JSX, Ref} from 'solid-js';
+import { Dynamic } from 'solid-js/web';
+import { JSX, Ref } from 'solid-js';
 import classNames from '@helpers/string/classNames';
 
 export default function Badge(props: {

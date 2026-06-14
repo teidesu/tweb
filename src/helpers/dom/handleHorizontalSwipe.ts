@@ -1,4 +1,4 @@
-import SwipeHandler, {SwipeHandlerOptions} from '@components/swipeHandler';
+import SwipeHandler, { SwipeHandlerOptions } from '@components/swipeHandler';
 import cancelEvent from '@helpers/dom/cancelEvent';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import isSwipingBackSafari from '@helpers/dom/isSwipingBackSafari';
@@ -20,14 +20,14 @@ export default function handleHorizontalSwipe(options: SwipeHandlerHorizontalOpt
       xDiff *= -1;
       yDiff *= -1;
 
-      if(!cancelY && Math.abs(yDiff) > 20) {
+      if (!cancelY && Math.abs(yDiff) > 20) {
         return true;
       }
 
-      if(Math.abs(xDiff) > Math.abs(yDiff)) {
+      if (Math.abs(xDiff) > Math.abs(yDiff)) {
         cancelEvent(e as any as Event);
         cancelY = true;
-      } else if(!cancelY && Math.abs(yDiff) > Math.abs(xDiff)/*  || Math.abs(yDiff) > 20 */) {
+      } else if (!cancelY && Math.abs(yDiff) > Math.abs(xDiff)/*  || Math.abs(yDiff) > 20 */) {
         return true;
       }
 
@@ -39,9 +39,9 @@ export default function handleHorizontalSwipe(options: SwipeHandlerHorizontalOpt
       return options.onSwipe(xDiff, yDiff, e);
     },
     onReset: () => {
-      if(hadMove) options.onReset?.();
+      if (hadMove) options.onReset?.();
       cancelY = hadMove = false;
     },
-    cancelEvent: false // cannot use cancelEvent on Safari iOS because scroll will be canceled too
+    cancelEvent: false, // cannot use cancelEvent on Safari iOS because scroll will be canceled too
   });
 }

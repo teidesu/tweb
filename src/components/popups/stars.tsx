@@ -2,46 +2,46 @@
 
 import PopupElement from '.';
 import maybe2x from '@helpers/maybe2x';
-import {InputInvoice, MessageMedia, PaymentsPaymentForm, Photo, Document, StarsTopupOption, StarsTransaction, StarsTransactionPeer, MessageExtendedMedia, ChatInvite, StarsSubscription, StarsGiftOption, InputStorePaymentPurpose, WebDocument} from '@layer';
-import I18n, {i18n, LangPackKey} from '@lib/langPack';
+import { InputInvoice, MessageMedia, PaymentsPaymentForm, Photo, Document, StarsTopupOption, StarsTransaction, StarsTransactionPeer, MessageExtendedMedia, ChatInvite, StarsSubscription, StarsGiftOption, InputStorePaymentPurpose, WebDocument } from '@layer';
+import I18n, { i18n, LangPackKey } from '@lib/langPack';
 import Section from '@components/section';
-import {createMemo, createRoot, createSignal, For, JSX, Show, untrack} from 'solid-js';
-import paymentsWrapCurrencyAmount, {formatNanoton} from '@helpers/paymentsWrapCurrencyAmount';
+import { createMemo, createRoot, createSignal, For, JSX, Show, untrack } from 'solid-js';
+import paymentsWrapCurrencyAmount, { formatNanoton } from '@helpers/paymentsWrapCurrencyAmount';
 import classNames from '@helpers/string/classNames';
 import PopupPayment from '@components/popups/payment';
-import useStars, {prefetchStars} from '@stores/stars';
+import useStars, { prefetchStars } from '@stores/stars';
 import safeAssign from '@helpers/object/safeAssign';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
-import {renderImageFromUrlPromise} from '@helpers/dom/renderImageFromUrl';
-import {createLoadableList} from '@components/sidebarRight/tabs/statistics';
+import { renderImageFromUrlPromise } from '@helpers/dom/renderImageFromUrl';
+import { createLoadableList } from '@components/sidebarRight/tabs/statistics';
 import Row from '@components/rowTsx';
-import {formatFullSentTime} from '@helpers/date';
-import {avatarNew} from '@components/avatarNew';
+import { formatFullSentTime } from '@helpers/date';
+import { avatarNew } from '@components/avatarNew';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
 import Icon from '@components/icon';
-import {Middleware} from '@helpers/middleware';
+import { Middleware } from '@helpers/middleware';
 import generatePhotoForExtendedMediaPreview from '@appManagers/utils/photos/generatePhotoForExtendedMediaPreview';
 import wrapMediaSpoiler from '@components/wrappers/mediaSpoiler';
 import wrapPhoto from '@components/wrappers/photo';
 import currencyStarIcon from '@components/currencyStarIcon';
-import {wrapChatInviteAvatar, wrapChatInviteTitle} from '@components/popups/joinChatInvite';
+import { wrapChatInviteAvatar, wrapChatInviteTitle } from '@components/popups/joinChatInvite';
 import tsNow from '@helpers/tsNow';
 import Button from '@components/buttonTsx';
-import showPickUserPopup, {showContactPickerPopup} from '@components/popups/pickUser';
+import showPickUserPopup, { showContactPickerPopup } from '@components/popups/pickUser';
 import anchorCallback from '@helpers/dom/anchorCallback';
 import rootScope from '@lib/rootScope';
 import appImManager from '@lib/appImManager';
-import {toastNew} from '@components/toast';
+import { toastNew } from '@components/toast';
 import toggleDisability from '@helpers/dom/toggleDisability';
-import {MoreButton} from '@components/sidebarRight/tabs/statistics';
+import { MoreButton } from '@components/sidebarRight/tabs/statistics';
 import formatStarsAmount from '@appManagers/utils/payments/formatStarsAmount';
 import wrapLocalSticker from '@components/wrappers/localSticker';
 import bigInt from 'big-integer';
 import safeWindowOpen from '@helpers/dom/safeWindowOpen';
-import {IconTsx} from '@components/iconTsx';
+import { IconTsx } from '@components/iconTsx';
 import Tabs from '@components/tabs';
-import {GrowHeightReveal} from '@helpers/solid/animations';
+import { GrowHeightReveal } from '@helpers/solid/animations';
 
 export function StarsStrokeStar(props: {stroke?: boolean, style?: JSX.HTMLAttributes<HTMLDivElement>['style']}) {
   return (
@@ -73,20 +73,20 @@ export function StarsStrokeStar(props: {stroke?: boolean, style?: JSX.HTMLAttrib
 
 export function StarsStackedStars(props: {stars: number, size: number}) {
   let icons = 1;
-  if(props.stars >= 2500) icons = 6;
-  else if(props.stars >= 1000) icons = 5;
-  else if(props.stars >= 500) icons = 4;
-  else if(props.stars >= 250) icons = 3;
-  else if(props.stars >= 50) icons = 2;
+  if (props.stars >= 2500) icons = 6;
+  else if (props.stars >= 1000) icons = 5;
+  else if (props.stars >= 500) icons = 4;
+  else if (props.stars >= 250) icons = 3;
+  else if (props.stars >= 50) icons = 2;
   let iconsElements: JSX.Element;
   const m = props.size + (props.size === 18 ? 4 : 6);
-  if(icons > 1) {
+  if (icons > 1) {
     iconsElements = [];
-    for(let i = 0; i < icons; ++i) iconsElements.push((
+    for (let i = 0; i < icons; ++i) iconsElements.push((
       <StarsStrokeStar
         stroke={i !== (icons - 1)}
         style={{
-          'margin-right': (Math.min(i, 1) * -m) + 'px'
+          'margin-right': (Math.min(i, 1) * -m) + 'px',
         }}
       />
     ));
@@ -99,7 +99,7 @@ export function StarsStackedStars(props: {stars: number, size: number}) {
       class="stars-stacked"
       style={{
         'width': `${props.size + (icons - 1) * 6}px`,
-        '--size': props.size + 'px'
+        '--size': props.size + 'px',
       }}
     >
       {iconsElements}
@@ -149,11 +149,11 @@ export function StarsChange(props: {
 }
 
 export function getStarsTransactionTitle(transaction: StarsTransaction) {
-  if(transaction.subscription_period) {
+  if (transaction.subscription_period) {
     return i18n('Stars.Subscription.Title');
   }
 
-  if(transaction.pFlags.gift) {
+  if (transaction.pFlags.gift) {
     return i18n('StarsGiftReceived');
   }
 
@@ -161,7 +161,7 @@ export function getStarsTransactionTitle(transaction: StarsTransaction) {
     starsTransactionPeerFragment: 'Stars.Via.Fragment',
     starsTransactionPeerPremiumBot: 'Stars.Via.Bot',
     starsTransactionPeerAppStore: 'Stars.Via.App',
-    starsTransactionPeerPlayMarket: 'Stars.Via.App'
+    starsTransactionPeerPlayMarket: 'Stars.Via.App',
   };
 
   const key = map[transaction.peer._] ?? 'Stars.Via.Unsupported';
@@ -172,9 +172,9 @@ export function getExamplesAnchor(hide: (callback: () => void) => void) {
   let loading = false;
   const popularAppBotsPromise = rootScope.managers.appAttachMenuBotsManager.getPopularAppBots();
   const anchor = anchorCallback(async() => {
-    if(loading) return;
+    if (loading) return;
     loading = true;
-    const {userIds: botIds} = await popularAppBotsPromise;
+    const { userIds: botIds } = await popularAppBotsPromise;
     loading = false;
     showPickUserPopup({
       onSelect: ([obj]) => {
@@ -186,10 +186,10 @@ export function getExamplesAnchor(hide: (callback: () => void) => void) {
       getMoreCustom: async() => {
         return {
           result: botIds.map((botId) => botId.toPeerId(false)),
-          isEnd: true
+          isEnd: true,
         };
       },
-      titleLangKey: 'SearchAppsExamples'
+      titleLangKey: 'SearchAppsExamples',
     });
   });
   anchor.append(i18n('GiftStarsSubtitleLinkName'));
@@ -204,7 +204,7 @@ export async function getStarsTransactionTitleAndMedia({
   paidMediaPeerId,
   chatInvite,
   subscription,
-  photo
+  photo,
 }: {
   transaction: StarsTransaction,
   middleware: Middleware,
@@ -217,21 +217,21 @@ export async function getStarsTransactionTitleAndMedia({
 }) {
   const [title, media] = await Promise.all([
     (() => {
-      if(subscription) {
-        return wrapPeerTitle({peerId: getPeerId(subscription.peer)});
+      if (subscription) {
+        return wrapPeerTitle({ peerId: getPeerId(subscription.peer) });
       }
 
-      if(chatInvite) {
+      if (chatInvite) {
         return wrapChatInviteTitle(chatInvite, middleware);
       }
 
-      if(paidMedia || transaction?.extended_media) {
-        return wrapPeerTitle({peerId: paidMediaPeerId || getPeerId((transaction.peer as StarsTransactionPeer.starsTransactionPeer).peer)});
+      if (paidMedia || transaction?.extended_media) {
+        return wrapPeerTitle({ peerId: paidMediaPeerId || getPeerId((transaction.peer as StarsTransactionPeer.starsTransactionPeer).peer) });
       }
 
-      if(!transaction || transaction.peer._ === 'starsTransactionPeer') {
+      if (!transaction || transaction.peer._ === 'starsTransactionPeer') {
         return wrapPeerTitle({
-          peerId: transaction ? getPeerId((transaction.peer as StarsTransactionPeer.starsTransactionPeer).peer) : paidMediaPeerId
+          peerId: transaction ? getPeerId((transaction.peer as StarsTransactionPeer.starsTransactionPeer).peer) : paidMediaPeerId,
         });
       }
 
@@ -248,29 +248,29 @@ export async function getStarsTransactionTitleAndMedia({
           middleware,
           loadPromises,
           withoutPreloader: true,
-          size: photo._ === 'webDocument' ? {_: 'photoSizeEmpty', type: ''} : undefined
+          size: photo._ === 'webDocument' ? { _: 'photoSizeEmpty', type: '' } : undefined,
         });
 
         await Promise.all(loadPromises);
       };
 
-      if(photo) {
+      if (photo) {
         const container = document.createElement('div');
         container.classList.add('popup-stars-pay-item');
         await _wrapPhoto(container, photo);
         return container;
       }
 
-      if(chatInvite) {
+      if (chatInvite) {
         const avatar = await wrapChatInviteAvatar(chatInvite, middleware, 90);
         return avatar.node;
       }
 
-      if(paidMedia || transaction?.extended_media) {
+      if (paidMedia || transaction?.extended_media) {
         const array = paidMedia?.extended_media || transaction.extended_media;
         let media: Photo.photo | Document.document;
 
-        if(paidMedia) {
+        if (paidMedia) {
           const extendedMedia = paidMedia.extended_media[0] as MessageExtendedMedia.messageExtendedMediaPreview;
           media = generatePhotoForExtendedMediaPreview(extendedMedia);
         } else {
@@ -282,13 +282,13 @@ export async function getStarsTransactionTitleAndMedia({
         const container = document.createElement('div');
         container.classList.add('popup-stars-transaction-media', 'is-paid-media');
 
-        if(paidMedia) {
+        if (paidMedia) {
           const spoilerContainer = await wrapMediaSpoiler({
             media,
             animationGroup: 'chat',
             middleware,
             width: size,
-            height: size
+            height: size,
           });
           container.append(spoilerContainer!);
         } else {
@@ -296,7 +296,7 @@ export async function getStarsTransactionTitleAndMedia({
         }
 
         const length = array!.length;
-        if(length > 1) {
+        if (length > 1) {
           const counter = document.createElement('span');
           counter.classList.add('popup-stars-transaction-media-counter');
           counter.textContent = '' + length;
@@ -306,7 +306,7 @@ export async function getStarsTransactionTitleAndMedia({
         return container;
       }
 
-      if(transaction?.photo) {
+      if (transaction?.photo) {
         const container = document.createElement('div');
         container.classList.add('popup-stars-transaction-media', 'is-paid-media');
         await _wrapPhoto(container, transaction?.photo);
@@ -314,16 +314,16 @@ export async function getStarsTransactionTitleAndMedia({
       }
 
       let peerId: PeerId;
-      if(subscription) {
+      if (subscription) {
         peerId = getPeerId(subscription.peer);
-      } else if(transaction && transaction.peer._ === 'starsTransactionPeer') {
+      } else if (transaction && transaction.peer._ === 'starsTransactionPeer') {
         peerId = getPeerId(transaction.peer.peer);
-      } else if(paidMediaPeerId) {
+      } else if (paidMediaPeerId) {
         peerId = paidMediaPeerId;
       }
 
-      if(peerId!) {
-        const avatar = avatarNew({peerId, size, middleware});
+      if (peerId!) {
+        const avatar = avatarNew({ peerId, size, middleware });
         await avatar.readyThumbPromise;
         return avatar.node;
       }
@@ -332,10 +332,10 @@ export async function getStarsTransactionTitleAndMedia({
       div.classList.add('popup-stars-transaction-media');
       div.append(Icon('star'));
       return div;
-    })()
+    })(),
   ]);
 
-  return {title, media};
+  return { title, media };
 }
 
 export default class PopupStars extends PopupElement {
@@ -369,7 +369,7 @@ export default class PopupStars extends PopupElement {
       floatingHeader: true,
       body: true,
       title: 'TelegramStars',
-      scrollable: true
+      scrollable: true,
     });
 
     safeAssign(this, options);
@@ -379,10 +379,10 @@ export default class PopupStars extends PopupElement {
 
   private renderTransaction = async(transaction: StarsTransaction) => {
     const middleware = this.middlewareHelper.get();
-    const {title, media} = await getStarsTransactionTitleAndMedia({
+    const { title, media } = await getStarsTransactionTitleAndMedia({
       transaction,
       middleware,
-      size: 42
+      size: 42,
     });
 
     return createRoot((dispose) => {
@@ -390,28 +390,28 @@ export default class PopupStars extends PopupElement {
 
       const _title = transaction.extended_media ? i18n('StarMediaPurchase') : title;
       let midtitle: HTMLElement | DocumentFragment;
-      if(transaction.extended_media) {
+      if (transaction.extended_media) {
         midtitle = title!;
-      } else if(transaction.description) {
+      } else if (transaction.description) {
         midtitle = wrapEmojiText(transaction.description);
-      } else if(transaction.pFlags.reaction) {
+      } else if (transaction.pFlags.reaction) {
         midtitle = i18n('StarsReactionTitle')!;
-      } else if(transaction.giveaway_post_id) {
+      } else if (transaction.giveaway_post_id) {
         midtitle = i18n('StarsGiveawayPrizeReceived')!;
-      } else if(transaction.paid_messages) {
+      } else if (transaction.paid_messages) {
         midtitle = i18n('PaidMessages.FeeForMessages', [transaction.paid_messages])!;
-      } else if(formatStarsAmount(transaction.amount) > 0) {
+      } else if (formatStarsAmount(transaction.amount) > 0) {
         midtitle = (transaction.pFlags.gift ? i18n('StarsGiftReceived') : i18n('Stars.TopUp'))!;
-      } else if(transaction.subscription_period) {
+      } else if (transaction.subscription_period) {
         midtitle = i18n('Stars.Subscription.Title')!;
       }
 
       const subtitle = formatFullSentTime(transaction.date);
 
       let subtitleStatus: HTMLElement;
-      if(transaction.pFlags.refund) subtitleStatus = i18n('StarsRefunded')!;
-      else if(transaction.pFlags.failed) subtitleStatus = i18n('StarsFailed')!;
-      else if(transaction.pFlags.pending) subtitleStatus = i18n('StarsPending')!;
+      if (transaction.pFlags.refund) subtitleStatus = i18n('StarsRefunded')!;
+      else if (transaction.pFlags.failed) subtitleStatus = i18n('StarsFailed')!;
+      else if (transaction.pFlags.pending) subtitleStatus = i18n('StarsPending')!;
 
       let container: HTMLDivElement;
       (
@@ -419,7 +419,7 @@ export default class PopupStars extends PopupElement {
           ref={container!}
           clickable={() => {
             PopupPayment.create({
-              transaction
+              transaction,
             });
           }}
         >
@@ -439,9 +439,9 @@ export default class PopupStars extends PopupElement {
     const middleware = this.middlewareHelper.get();
 
     const peerId = getPeerId(subscription.peer);
-    const title = await wrapPeerTitle({peerId});
+    const title = await wrapPeerTitle({ peerId });
     title.classList.add('text-bold');
-    const avatar = untrack(() => avatarNew({peerId, size: 42, middleware}));
+    const avatar = untrack(() => avatarNew({ peerId, size: 42, middleware }));
     await avatar.readyThumbPromise;
 
     const isCancelled = !!subscription.pFlags.canceled;
@@ -457,11 +457,11 @@ export default class PopupStars extends PopupElement {
           clickable={async() => {
             const popup = await PopupPayment.create({
               subscription,
-              noPaymentForm: true
+              noPaymentForm: true,
             });
 
             popup.addEventListener('finish', (result) => {
-              if(result === 'paid') {
+              if (result === 'paid') {
                 this.hide();
               }
             });
@@ -489,20 +489,20 @@ export default class PopupStars extends PopupElement {
     peerTitle?: HTMLElement,
     avatar?: HTMLElement
   ) {
-    if(!this.ton) {
+    if (!this.ton) {
       this.header.append(StarsBalance() as HTMLElement);
     }
 
     const stars = useStars(this.ton);
     const starsNeeded = createMemo(() => {
-      if(!this.itemPrice) return bigInt.zero;
+      if (!this.itemPrice) return bigInt.zero;
       return bigInt(this.itemPrice.toString()).minus(stars());
     });
     const topupOptions = createMemo(() => {
-      if(this.ton) return [];
-      if(this.itemPrice) {
+      if (this.ton) return [];
+      if (this.itemPrice) {
         const filtered = this.options.filter((option) => starsNeeded().lt(option.stars));
-        if(!filtered.length) {
+        if (!filtered.length) {
           return [this.options[this.options.length - 1]];
         }
 
@@ -518,10 +518,10 @@ export default class PopupStars extends PopupElement {
     let busy = false;
 
     let title: JSX.Element;
-    if(this.giftPeerId && !this.itemPrice) {
+    if (this.giftPeerId && !this.itemPrice) {
       title = i18n('GiftStarsTitle');
-    } else if(this.itemPrice) {
-      if(this.ton) {
+    } else if (this.itemPrice) {
+      if (this.ton) {
         title = i18n('TonNeededTitle', [formatNanoton(starsNeeded().toString())]);
       } else {
         title = i18n('StarsNeededTitle', [starsNeeded().toJSNumber()]);
@@ -531,7 +531,7 @@ export default class PopupStars extends PopupElement {
     }
 
     let subtitle: JSX.Element;
-    if(this.giftPeerId && !this.purpose) {
+    if (this.giftPeerId && !this.purpose) {
       subtitle = (
         <>
           {i18n('GiftStarsSubtitle', [peerTitle!])}
@@ -539,16 +539,16 @@ export default class PopupStars extends PopupElement {
           {getExamplesAnchor(this.hideWithCallback)}
         </>
       );
-    } else if(this.ton) {
+    } else if (this.ton) {
       subtitle = i18n('TonNeededText');
-    } else if(this.purpose) {
+    } else if (this.purpose) {
       let langPackKey: LangPackKey;
-      if(this.purpose === 'reaction') {
+      if (this.purpose === 'reaction') {
         langPackKey = 'Stars.TopUp.Reaction';
       } else {
         const key = `Stars.TopUp.Label_`;
         // @ts-ignore
-        if(I18n.strings.get(key + this.purpose)) {
+        if (I18n.strings.get(key + this.purpose)) {
           // @ts-ignore
           langPackKey = key + this.purpose;
         } else {
@@ -558,7 +558,7 @@ export default class PopupStars extends PopupElement {
       }
 
       subtitle = i18n(langPackKey as LangPackKey, [peerTitle!]);
-    } else if(this.itemPrice) {
+    } else if (this.itemPrice) {
       subtitle = i18n(this.paymentForm ? 'StarsNeededText' : 'Stars.Subscribe.Need', [peerTitle!]);
     } else {
       subtitle = i18n('TelegramStarsInfo');
@@ -566,7 +566,7 @@ export default class PopupStars extends PopupElement {
 
     const firstSection = (
       <Section caption="Stars.TOS">
-        <div class="popup-stars-options" style={{height: (displayingRows() * 79 + (displayingRows() - 1) * 8) + 'px'}}>
+        <div class="popup-stars-options" style={{ height: (displayingRows() * 79 + (displayingRows() - 1) * 8) + 'px' }}>
           <Show when={this.ton}>
             <Button
               class="btn-primary btn-color-primary"
@@ -581,26 +581,26 @@ export default class PopupStars extends PopupElement {
             const translateX = createMemo(() => (index() % 2) ? 'calc(100% + .5rem)' : '0');
             const translateY = createMemo(() => (Math.floor(index() / 2) * 79 + Math.floor(index() / 2) * 8) + 'px');
             const isFullWidth = createMemo(() => {
-              if(!((extended() ? topupOptions() : alwaysVisible).length % 2)) {
+              if (!((extended() ? topupOptions() : alwaysVisible).length % 2)) {
                 return false;
               }
 
-              if(extended() || option.pFlags.extended) {
+              if (extended() || option.pFlags.extended) {
                 return index() === (topupOptions().length - 1);
               }
 
               return index() === (alwaysVisible.length - 1);
             });
 
-            const iconsElements = StarsStackedStars({stars: +option.stars, size: 26});
+            const iconsElements = StarsStackedStars({ stars: +option.stars, size: 26 });
 
             return (
               <div
                 class="popup-stars-option"
-                classList={{invisible: option.pFlags.extended && !extended(), full: isFullWidth()}}
-                style={{transform: `translate(${translateX()}, ${translateY()})`}}
+                classList={{ invisible: option.pFlags.extended && !extended(), full: isFullWidth() }}
+                style={{ transform: `translate(${translateX()}, ${translateY()})` }}
                 onClick={async() => {
-                  if(busy) {
+                  if (busy) {
                     return;
                   }
 
@@ -611,7 +611,7 @@ export default class PopupStars extends PopupElement {
                     amount: option.amount,
                     currency: option.currency,
                     stars: option.stars,
-                    user_id: await this.managers.appUsersManager.getUserInput(this.giftPeerId.toUserId())
+                    user_id: await this.managers.appUsersManager.getUserInput(this.giftPeerId.toUserId()),
                   } : {
                     _: 'inputStorePaymentStarsTopup',
                     amount: option.amount,
@@ -619,31 +619,31 @@ export default class PopupStars extends PopupElement {
                     stars: option.stars,
                     spend_purpose_peer: this.spendPurposePeerId && this.spendPurposePeerId !== rootScope.myId ?
                       await this.managers.appPeersManager.getInputPeerById(this.spendPurposePeerId) :
-                      undefined
+                      undefined,
                   };
 
                   const inputInvoice: InputInvoice = {
                     _: 'inputInvoiceStars',
-                    purpose
+                    purpose,
                   };
                   try {
                     const paymentForm = await this.managers.appPaymentsManager.getPaymentForm(inputInvoice);
                     const popup = await PopupPayment.create({
                       inputInvoice,
-                      paymentForm
+                      paymentForm,
                     });
 
                     popup.addEventListener('finish', (result) => {
-                      if(result === 'paid') {
+                      if (result === 'paid') {
                         this.toppedUp = true;
 
-                        if(this.onTopup) {
+                        if (this.onTopup) {
                           this.hide();
                           this.onTopup(+option.amount);
                         }
                       }
                     });
-                  } catch(err) {
+                  } catch (err) {
                     console.error('stars error', err);
                   }
 
@@ -671,22 +671,22 @@ export default class PopupStars extends PopupElement {
       const middleware = this.middlewareHelper.get();
       let offset = '', loading = false;
       const loadMore = async() => {
-        if(loading) {
+        if (loading) {
           return;
         }
 
         loading = true;
         const starsStatus = await this.managers.appPaymentsManager.getStarsTransactions(offset, inbound, this.ton);
-        if(!middleware()) return;
+        if (!middleware()) return;
 
         const promises = (starsStatus.history || []).map(this.renderTransaction);
         const rendered = await Promise.all(promises);
-        if(!middleware()) return;
+        if (!middleware()) return;
 
         setF((value) => {
           // value.count = starsStatus.count;
           offset = starsStatus.next_offset!;
-          if(!offset) {
+          if (!offset) {
             value.loadMore = undefined;
           }
 
@@ -697,7 +697,7 @@ export default class PopupStars extends PopupElement {
         loading = false;
       };
 
-      const [f, setF] = createLoadableList({loadMore});
+      const [f, setF] = createLoadableList({ loadMore });
       return f;
     };
 
@@ -718,18 +718,18 @@ export default class PopupStars extends PopupElement {
     let subscriptionsOffset: string;
     const loadMoreSubscriptions = async() => {
       const starsStatus = await this.managers.appPaymentsManager.getStarsSubscriptions(subscriptionsOffset);
-      if(!middleware()) {
+      if (!middleware()) {
         return;
       }
 
       const promises = (starsStatus.subscriptions || []).map(this.renderSubscription);
       const rendered = await Promise.all(promises);
-      if(!middleware()) return;
+      if (!middleware()) return;
 
       setSubscriptionsLoader((value) => {
         value.count += rendered.length;
         subscriptionsOffset = starsStatus.subscriptions_next_offset!;
-        if(!subscriptionsOffset) {
+        if (!subscriptionsOffset) {
           value.loadMore = undefined;
         }
 
@@ -739,7 +739,7 @@ export default class PopupStars extends PopupElement {
     };
 
     const [subscriptionsLoader, setSubscriptionsLoader] = createLoadableList({
-      loadMore: loadMoreSubscriptions
+      loadMore: loadMoreSubscriptions,
     });
 
     subscriptionsLoader().loadMore!();
@@ -764,7 +764,7 @@ export default class PopupStars extends PopupElement {
           menu={[
             i18n('StarsTransactionsAll'),
             i18n('StarsTransactionsIncoming'),
-            i18n('StarsTransactionsOutgoing')
+            i18n('StarsTransactionsOutgoing'),
           ]}
           content={lists.map((list) => {
             return <div>{list().rendered}</div>
@@ -788,9 +788,9 @@ export default class PopupStars extends PopupElement {
                   onTopup: async(stars) => {
                     toastNew({
                       langPackKey: 'StarsGiftSentPopupInfo',
-                      langPackArguments: [stars, await wrapPeerTitle({peerId})]
+                      langPackArguments: [stars, await wrapPeerTitle({ peerId })],
                     });
-                  }
+                  },
                 });
               }}
             />
@@ -816,7 +816,7 @@ export default class PopupStars extends PopupElement {
   private async construct() {
     const [image, peerTitle, options, avatar, appConfig, _] = await Promise.all([
       (async() => {
-        if(this.ton) {
+        if (this.ton) {
           const stickerDiv = document.createElement('div');
           stickerDiv.classList.add('popup-stars-image');
           stickerDiv.style.width = stickerDiv.style.height = '100px';
@@ -826,8 +826,8 @@ export default class PopupStars extends PopupElement {
             height: 100,
             middleware: this.middlewareHelper.get(),
             loop: true,
-            autoplay: true
-          }).then(({container}) => {
+            autoplay: true,
+          }).then(({ container }) => {
             stickerDiv.append(container);
             return stickerDiv;
           });
@@ -837,22 +837,22 @@ export default class PopupStars extends PopupElement {
         await renderImageFromUrlPromise(img, `assets/img/${maybe2x(this.giftPeerId ? 'stars_pay' : 'stars')}.png`);
         return img;
       })(),
-      this.peerId || this.paymentForm?.bot_id || this.giftPeerId ? wrapPeerTitle({peerId: this.peerId || this.giftPeerId || this.paymentForm.bot_id.toPeerId(false)}) : undefined,
+      this.peerId || this.paymentForm?.bot_id || this.giftPeerId ? wrapPeerTitle({ peerId: this.peerId || this.giftPeerId || this.paymentForm.bot_id.toPeerId(false) }) : undefined,
       this.giftPeerId ? this.managers.appPaymentsManager.getStarsGiftOptions(this.giftPeerId.toUserId()) : this.managers.appPaymentsManager.getStarsTopupOptions(),
       this.giftPeerId && (async() => {
-        const avatar = avatarNew({peerId: this.giftPeerId, size: 100, middleware: this.middlewareHelper.get()});
+        const avatar = avatarNew({ peerId: this.giftPeerId, size: 100, middleware: this.middlewareHelper.get() });
         await avatar.readyThumbPromise;
         avatar.node.classList.add('popup-stars-gift-avatar');
         return avatar.node;
       })(),
       this.managers.apiManager.getAppConfig(),
-      this.itemPrice && prefetchStars(this.middlewareHelper.get())
+      this.itemPrice && prefetchStars(this.middlewareHelper.get()),
     ]);
     this.options = options;
     this.appConfig = appConfig;
     this.appendSolid(() => this._construct(image, peerTitle, (avatar as HTMLElement | undefined)));
     this.addEventListener('close', () => {
-      if(!this.toppedUp && this.onCancel) {
+      if (!this.toppedUp && this.onCancel) {
         this.onCancel();
       }
     });

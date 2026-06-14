@@ -1,4 +1,4 @@
-import {Middleware} from '@helpers/middleware';
+import { Middleware } from '@helpers/middleware';
 import safeAssign from '@helpers/object/safeAssign';
 import RangeSelector from '@components/rangeSelector';
 
@@ -33,10 +33,10 @@ export default class RangeStepsSelector<T extends any = any> {
       this.range.removeListeners();
     });
 
-    const range = this.range = new RangeSelector({step: 1});
+    const range = this.range = new RangeSelector({ step: 1 });
     range.setListeners();
     range.setHandlers({
-      onScrub: this.onIndex
+      onScrub: this.onIndex,
     });
 
     container.append(range.container);
@@ -51,19 +51,19 @@ export default class RangeStepsSelector<T extends any = any> {
     option.append(text);
     option.style.left = `${idx / maxIndex * 100}%`;
 
-    if(idx === 0 && !this.noFirstLast) option.classList.add('is-first');
-    else if(idx === maxIndex) {
+    if (idx === 0 && !this.noFirstLast) option.classList.add('is-first');
+    else if (idx === maxIndex) {
       option.style.left = '';
       option.style.right = '0';
       !this.noFirstLast && option.classList.add('is-last');
     }
 
-    return {container: option, text};
+    return { container: option, text };
   }
 
   public setSteps(steps: RangeStep[], index?: number) {
-    if(this.optionsElements) {
-      this.optionsElements.forEach(({container}) => container.remove());
+    if (this.optionsElements) {
+      this.optionsElements.forEach(({ container }) => container.remove());
     }
 
     const maxIndex = steps.length - 1;
@@ -76,14 +76,14 @@ export default class RangeStepsSelector<T extends any = any> {
       return option;
     });
 
-    if(index !== undefined) {
+    if (index !== undefined) {
       this.setIndex(index);
     }
   }
 
   protected onIndex = (index: number) => {
     this.onValue?.(this.steps[index][1]);
-    this.optionsElements.forEach(({container}, idx) => {
+    this.optionsElements.forEach(({ container }, idx) => {
       container.classList.toggle('active', index >= idx);
       container.classList.toggle('is-chosen', index === idx);
     });

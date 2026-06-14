@@ -1,7 +1,7 @@
-import {Accessor, batch, createMemo, createReaction, createRoot, createSignal, onCleanup} from 'solid-js';
-import {Middleware} from '@helpers/middleware';
+import { Accessor, batch, createMemo, createReaction, createRoot, createSignal, onCleanup } from 'solid-js';
+import { Middleware } from '@helpers/middleware';
 import useDynamicCachedValue from '@helpers/solid/useDynamicCachedValue';
-import rootScope, {BroadcastEventsListeners} from '@lib/rootScope';
+import rootScope, { BroadcastEventsListeners } from '@lib/rootScope';
 import formatStarsAmount from '@appManagers/utils/payments/formatStarsAmount';
 import bigInt from 'big-integer';
 
@@ -18,7 +18,7 @@ export function prefetchStars(middleware: Middleware) {
   return createRoot((dispose) => {
     middleware.onClean(dispose);
     const stars = useStars();
-    if(stars() !== undefined) {
+    if (stars() !== undefined) {
       return stars();
     }
 
@@ -28,23 +28,23 @@ export function prefetchStars(middleware: Middleware) {
   });
 }
 
-export {setReservedStars};
+export { setReservedStars };
 
 let cached: Accessor<Long>;
 let cachedTon: Accessor<Long>;
 function _useStars(ton: boolean) {
-  if(ton && cachedTon) {
+  if (ton && cachedTon) {
     return cachedTon;
-  } else if(!ton && cached) {
+  } else if (!ton && cached) {
     return cached;
   }
 
   return useDynamicCachedValue(() => _useStars.name + (ton ? 'ton' : ''), () => {
     (ton ? fetchTonBalance : fetchStars)();
-    const handler: BroadcastEventsListeners['stars_balance'] = ({balance, fulfilledReservedStars, ton}) => {
+    const handler: BroadcastEventsListeners['stars_balance'] = ({ balance, fulfilledReservedStars, ton }) => {
       batch(() => {
         (ton ? setTonBalance : setStars)(balance);
-        if(fulfilledReservedStars) (ton ? setReservedTonBalance : setReservedStars)(prev => Math.max(0, prev - fulfilledReservedStars));
+        if (fulfilledReservedStars) (ton ? setReservedTonBalance : setReservedStars)(prev => Math.max(0, prev - fulfilledReservedStars));
       });
     }
     rootScope.addEventListener('stars_balance', handler);
@@ -60,7 +60,7 @@ function _useStars(ton: boolean) {
 
     // return stars;
     return createMemo(() => {
-      if(ton) {
+      if (ton) {
         return bigInt(tonBalance() as string).minus(reservedTonBalance()).toString();
       }
       return +stars()! - +reservedStars();
@@ -70,7 +70,7 @@ function _useStars(ton: boolean) {
 
 // * cache once and for all
 export default function useStars(ton = false) {
-  if(ton) {
+  if (ton) {
     return cachedTon ??= createRoot(() => _useStars(ton));
   }
 

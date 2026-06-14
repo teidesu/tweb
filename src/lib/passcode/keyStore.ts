@@ -1,4 +1,4 @@
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
 import StaticUtilityClass from '@lib/staticUtilityClass';
 
 
@@ -8,13 +8,13 @@ export default class EncryptionKeyStore extends StaticUtilityClass {
   private static deferred = deferredPromise<void>();
 
   public static async get() {
-    if(this.deferred) await this.deferred;
+    if (this.deferred) await this.deferred;
     return this.key;
   }
 
   public static async getAsBase64() {
     const key = await this.get();
-    if(!key) return null;
+    if (!key) return null;
 
     const exportedKey = await crypto.subtle.exportKey('raw', key);
     const base64Key = btoa(String.fromCharCode(...new Uint8Array(exportedKey)));

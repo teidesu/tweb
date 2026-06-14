@@ -1,10 +1,10 @@
-import {numberThousandSplitterForStars} from '@helpers/number/numberThousandSplitter';
+import { numberThousandSplitterForStars } from '@helpers/number/numberThousandSplitter';
 import classNames from '@helpers/string/classNames';
-import {Message} from '@layer';
-import {i18n} from '@lib/langPack';
-import {SUGGESTED_POST_WAIT_FOR_REWARD_HOURS} from '@appManagers/constants';
-import defineSolidElement, {PassedProps} from '@lib/solidjs/defineSolidElement';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { Message } from '@layer';
+import { i18n } from '@lib/langPack';
+import { SUGGESTED_POST_WAIT_FOR_REWARD_HOURS } from '@appManagers/constants';
+import defineSolidElement, { PassedProps } from '@lib/solidjs/defineSolidElement';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 import confirmationPopup from '@components/confirmationPopup';
 import Icon from '@components/icon';
 import ReplyMarkupLayout from '@components/chat/bubbleParts/replyMarkupLayout';
@@ -12,11 +12,11 @@ import ripple from '@components/ripple';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
 import type Chat from '@components/chat/chat';
 import SuggestedPostAcceptWithTimePopup from '@components/chat/bubbleParts/suggestedPostAcceptWithTimePopup';
-import {useFormattedCommission} from '@components/chat/bubbleParts/suggestedPostAcceptWithTimePopup/useFormattedCommission';
+import { useFormattedCommission } from '@components/chat/bubbleParts/suggestedPostAcceptWithTimePopup/useFormattedCommission';
 import SuggestedPostRejectPopup from '@components/chat/bubbleParts/suggestedPostRejectPopup';
 ripple; // keep
 
-if(import.meta.hot) import.meta.hot.accept();
+if (import.meta.hot) import.meta.hot.accept();
 
 
 type Props = {
@@ -27,22 +27,22 @@ type Props = {
 const SuggestedPostReplyMarkupContent = defineSolidElement({
   name: 'suggested-post-reply-markup-content',
   component: (props: PassedProps<Props>) => {
-    const {rootScope, HotReloadGuard} = useHotReloadGuard();
+    const { rootScope, HotReloadGuard } = useHotReloadGuard();
 
-    const {commission, formattedCommission} = useFormattedCommission();
+    const { commission, formattedCommission } = useFormattedCommission();
 
     const onAcceptClick = async() => {
       const canManageDirectMessages = await rootScope.managers.appPeersManager.canManageDirectMessages(props.message.peerId);
       const stars = props.message.suggested_post?.price?._ === 'starsAmount' && +props.message.suggested_post?.price?.amount || undefined;
       let scheduleDate = props.message.suggested_post?.schedule_date || undefined;
-      if(scheduleDate && scheduleDate * 1000 < Date.now()) scheduleDate = undefined;
+      if (scheduleDate && scheduleDate * 1000 < Date.now()) scheduleDate = undefined;
 
-      if(canManageDirectMessages && !scheduleDate) {
+      if (canManageDirectMessages && !scheduleDate) {
         new SuggestedPostAcceptWithTimePopup({
           message: props.message,
           peerId: props.chat.peerId,
           HotReloadGuard,
-          offeredStars: stars
+          offeredStars: stars,
         }).show();
         return;
       }
@@ -55,27 +55,27 @@ const SuggestedPostReplyMarkupContent = defineSolidElement({
             stars ? 'SuggestedPosts.AcceptOfferDescription.ForAdminPaid' : 'SuggestedPosts.AcceptOfferDescription.ForAdmin' :
             'SuggestedPosts.AcceptOfferDescription.ForSubscriber',
           descriptionLangArgs: [
-            await wrapPeerTitle({peerId: props.message.fromId, onlyFirstName: true}),
+            await wrapPeerTitle({ peerId: props.message.fromId, onlyFirstName: true }),
             ...(canManageDirectMessages && stars ? [
               i18n('Stars', [numberThousandSplitterForStars((stars * commission()).toFixed(2))]),
               formattedCommission(),
-              SUGGESTED_POST_WAIT_FOR_REWARD_HOURS
-            ] : [])
+              SUGGESTED_POST_WAIT_FOR_REWARD_HOURS,
+            ] : []),
           ],
-          button: {langKey: 'SuggestedPosts.Accept'}
+          button: { langKey: 'SuggestedPosts.Accept' },
         });
 
         await rootScope.managers.monoforumDialogsStorage.toggleSuggestedPostApproval({
           parentPeerId: props.message.peerId!,
-          messageId: props.message.mid!
+          messageId: props.message.mid!,
         });
-      } catch{ }
+      } catch { }
     };
 
     const onRejectClick = () => {
       new SuggestedPostRejectPopup({
         peerId: props.message.peerId!,
-        messageId: props.message.mid!
+        messageId: props.message.mid!,
       }).show();
     };
 
@@ -100,7 +100,7 @@ const SuggestedPostReplyMarkupContent = defineSolidElement({
         </ReplyMarkupLayout.Row>
       </ReplyMarkupLayout>
     );
-  }
+  },
 });
 
 export default SuggestedPostReplyMarkupContent;

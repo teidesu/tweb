@@ -24,7 +24,7 @@ import type {
   HostResponse,
   RequestKind,
   RequestResultMap,
-  WorkerEvent
+  WorkerEvent,
 } from './encryptWorkerProtocol';
 
 type Pending = {resolve: (v: unknown) => void; reject: (e: Error) => void};
@@ -47,7 +47,7 @@ export class EncryptWorkerHost extends EventListenerBase<HostEvents> {
     super(false);
     // Classic (IIFE) worker via Vite's `?worker` suffix. See the comment on
     // the import for why module workers were ditched.
-    this.worker = new EncryptWorker({name: 'tde2e-encrypt'});
+    this.worker = new EncryptWorker({ name: 'tde2e-encrypt' });
     this.worker.addEventListener('message', this.onMessage);
     this.worker.addEventListener('error', this.onError);
   }
@@ -91,17 +91,17 @@ export class EncryptWorkerHost extends EventListenerBase<HostEvents> {
 
   // Send `destroy` to the worker (wiping the key) then terminate it.
   public async terminate(): Promise<void> {
-    if(this.destroyed) return;
+    if (this.destroyed) return;
     this.destroyed = true;
     try {
       await this.invoke('destroy');
-    } catch{
+    } catch {
       // Best-effort — even if the destroy RPC fails, we still terminate.
     }
     this.worker.removeEventListener('message', this.onMessage);
     this.worker.removeEventListener('error', this.onError);
     this.worker.terminate();
-    for(const {reject} of this.pending.values()) {
+    for (const { reject } of this.pending.values()) {
       reject(new Error('Worker terminated'));
     }
     this.pending.clear();
@@ -139,7 +139,7 @@ export class EncryptWorkerHost extends EventListenerBase<HostEvents> {
     // RTCRtpScriptTransform may not be in older TS DOM libs; access via
     // globalThis to avoid build-target issues.
     const Ctor = (globalThis as unknown as {RTCRtpScriptTransform?: typeof RTCRtpScriptTransform}).RTCRtpScriptTransform;
-    if(!Ctor) throw new Error('RTCRtpScriptTransform is not supported in this browser');
+    if (!Ctor) throw new Error('RTCRtpScriptTransform is not supported in this browser');
     return new Ctor(this.worker, options);
   }
 
@@ -147,7 +147,7 @@ export class EncryptWorkerHost extends EventListenerBase<HostEvents> {
   // participant set changes — the recv transform consults this on every
   // inbound frame. Unknown SSRCs are dropped silently.
   public setSsrcUsers(entries: Array<[number, bigint]>): Promise<void> {
-    return this.invoke('setSsrcUsers', {entries});
+    return this.invoke('setSsrcUsers', { entries });
   }
 
   public getDebug(): Promise<RequestResultMap['getDebug']> {
@@ -162,36 +162,36 @@ export class EncryptWorkerHost extends EventListenerBase<HostEvents> {
       undefined :
       Extract<HostRequest, {kind: K}> extends {args: infer A} ? A : undefined
   ): Promise<RequestResultMap[K]> {
-    if(this.destroyed) {
+    if (this.destroyed) {
       return Promise.reject(new Error('EncryptWorkerHost: terminated'));
     }
     const id = this.nextId++;
     return new Promise<RequestResultMap[K]>((resolve, reject) => {
       this.pending.set(id, {
         resolve: (v: unknown) => resolve(v as RequestResultMap[K]),
-        reject
+        reject,
       });
-      const req = {kind, id, ...(args !== undefined ? {args} : {})} as HostRequest;
+      const req = { kind, id, ...(args !== undefined ? { args } : {}) } as HostRequest;
       this.worker.postMessage(req);
     });
   }
 
   private onMessage = (ev: MessageEvent<HostResponse>) => {
     const msg = ev.data;
-    if(msg.kind === 'event') {
+    if (msg.kind === 'event') {
       // @ts-ignore - dispatchEvent's signature is too strict for our union.
       this.dispatchEvent(msg.event.kind, msg.event);
       return;
     }
     const pending = this.pending.get(msg.id);
-    if(!pending) return;
+    if (!pending) return;
     this.pending.delete(msg.id);
-    if(msg.kind === 'ok') pending.resolve(msg.result);
+    if (msg.kind === 'ok') pending.resolve(msg.result);
     else pending.reject(new Error(msg.message));
   };
 
   private onError = (ev: ErrorEvent) => {
-    for(const {reject} of this.pending.values()) {
+    for (const { reject } of this.pending.values()) {
       reject(new Error(ev.message || 'Worker error'));
     }
     this.pending.clear();

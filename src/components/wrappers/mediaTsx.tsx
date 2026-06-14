@@ -1,6 +1,6 @@
-import {Ref, Show, createResource, splitProps} from 'solid-js';
+import { Ref, Show, createResource, splitProps } from 'solid-js';
 import createMiddleware from '@helpers/solid/createMiddleware';
-import {Middleware} from '@helpers/middleware';
+import { Middleware } from '@helpers/middleware';
 
 export type MediaComponentProps = {
   class?: string,
@@ -32,9 +32,9 @@ export function MediaTsx<T, R>(props: T & {
       ...others as any,
       item,
       middleware,
-      container: ref
+      container: ref,
     }).then(async(result: R) => {
-      if(!middleware()) {
+      if (!middleware()) {
         return;
       }
 

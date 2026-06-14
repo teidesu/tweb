@@ -21,7 +21,7 @@ export default function memoizeAsyncWithTTL<Callback extends(...args: any[]) => 
 
   return ((...args: Args) => {
     const key = getKeyFromArgs(args);
-    if(cachedResultsMap.has(key)) return cachedResultsMap.get(key)!;
+    if (cachedResultsMap.has(key)) return cachedResultsMap.get(key)!;
 
     const promise = callback(...args).finally(() => {
       self.setTimeout(() => {

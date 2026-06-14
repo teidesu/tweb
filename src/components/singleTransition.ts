@@ -13,20 +13,20 @@ type SetTransitionOptions = {
   onTransitionStart?: () => void
 };
 const SetTransition = (options: SetTransitionOptions) => {
-  const {element, className, forwards, duration, onTransitionEnd, onTransitionStart, useRafs} = options;
+  const { element, className, forwards, duration, onTransitionEnd, onTransitionStart, useRafs } = options;
   const classNames = className && className.split(' ');
   const timeout: number = (element as any)[$TRANSITION_TIMEOUT];
   const raf: number = (element as any)[$TRANSITION_RAF];
-  if(timeout !== undefined) {
+  if (timeout !== undefined) {
     clearTimeout(+timeout);
   }
 
   // useRafs = undefined;
   // duration = 0;
 
-  if(raf !== undefined) {
+  if (raf !== undefined) {
     window.cancelAnimationFrame(+raf);
-    if(!useRafs) {
+    if (!useRafs) {
       delete (element as any)[$TRANSITION_RAF];
     }
   }
@@ -35,25 +35,25 @@ const SetTransition = (options: SetTransitionOptions) => {
   //   return;
   // }
 
-  if(useRafs && liteMode.isAvailable('animations') && duration) {
+  if (useRafs && liteMode.isAvailable('animations') && duration) {
     (element as any)[$TRANSITION_RAF] = '' + window.requestAnimationFrame(() => {
       delete (element as any)[$TRANSITION_RAF];
       SetTransition({
         ...options,
-        useRafs: useRafs - 1
+        useRafs: useRafs - 1,
       });
     });
 
     return;
   }
 
-  if(forwards && className) {
+  if (forwards && className) {
     element.classList.add(...classNames);
   }
 
   const afterTimeout = () => {
     delete (element as any)[$TRANSITION_TIMEOUT];
-    if(!forwards && className) {
+    if (!forwards && className) {
       element.classList.remove('backwards', ...classNames);
     }
 
@@ -64,7 +64,7 @@ const SetTransition = (options: SetTransitionOptions) => {
 
   onTransitionStart?.();
   element.classList.toggle('forwards', forwards);
-  if(!liteMode.isAvailable('animations') || !duration) {
+  if (!liteMode.isAvailable('animations') || !duration) {
     element.classList.remove('animating', 'backwards');
     afterTimeout();
     return;

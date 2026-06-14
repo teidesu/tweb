@@ -1,10 +1,10 @@
 import formatBytes from '@helpers/formatBytes';
 import debounce from '@helpers/schedulers/debounce';
-import I18n, {LangPackKey, _i18n} from '@lib/langPack';
-import {useAppSettings} from '@stores/appSettings';
+import I18n, { LangPackKey, _i18n } from '@lib/langPack';
+import { useAppSettings } from '@stores/appSettings';
 import RangeSelector from '@components/rangeSelector';
 import autoDownloadTab from './autoDownloadTab';
-import {autoDownloadPeerTypeSection} from './peerTypeSection';
+import { autoDownloadPeerTypeSection } from './peerTypeSection';
 
 class RangeSettingSelector {
   public container: HTMLDivElement;
@@ -35,7 +35,7 @@ class RangeSettingSelector {
     const valueDiv = this.valueContainer = document.createElement('div');
     valueDiv.classList.add(BASE_CLASS + '-value');
 
-    if(writeValue) {
+    if (writeValue) {
       valueDiv.innerHTML = '' + initialValue;
     }
 
@@ -44,17 +44,17 @@ class RangeSettingSelector {
     this.range = new RangeSelector({
       step,
       min: minValue,
-      max: maxValue
+      max: maxValue,
     }, initialValue);
     this.range.setListeners();
     this.range.setHandlers({
       onScrub: (value) => {
         this.onChange?.(value);
 
-        if(writeValue) {
+        if (writeValue) {
           valueDiv.innerText = '' + value;
         }
-      }
+      },
     });
 
     this.container.append(details, this.range.container);
@@ -79,13 +79,13 @@ export default autoDownloadTab((tab) => {
   const value = Math.sqrt(Math.sqrt((sizeMax! - MIN) / MAX_RANGE));
   const upTo = new I18n.IntlElement({
     key: 'AutodownloadSizeLimitUpTo',
-    args: [formatBytes(sizeMax!)]
+    args: [formatBytes(sizeMax!)],
   });
   const range = new RangeSettingSelector('AutoDownloadMaxFileSize', 0.01, value, 0, 1, false);
   range.onChange = (value) => {
     const sizeMax = (value ** 4 * MAX_RANGE + MIN) | 0;
 
-    upTo.compareAndUpdate({args: [formatBytes(sizeMax)]});
+    upTo.compareAndUpdate({ args: [formatBytes(sizeMax)] });
 
     debouncedSave(sizeMax);
   };

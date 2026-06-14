@@ -1,17 +1,17 @@
 import type ChatTopbar from '@components/chat/topbar';
 import Chat from '@components/chat/chat';
 import I18n from '@lib/langPack';
-import {ChatFull} from '@layer';
-import {AppManagers} from '@lib/managers';
+import { ChatFull } from '@layer';
+import { AppManagers } from '@lib/managers';
 import StackedAvatars from '@components/stackedAvatars';
 import appSidebarRight from '@components/sidebarRight';
-import {AppChatRequestsTab} from '@components/solidJsTabs/tabs';
+import { AppChatRequestsTab } from '@components/solidJsTabs/tabs';
 import callbackify from '@helpers/callbackify';
-import {ONE_DAY} from '@helpers/date';
-import {MiddlewareHelper, getMiddleware} from '@helpers/middleware';
-import {AckedResult} from '@lib/superMessagePort';
-import {Accessor, createSignal, Show} from 'solid-js';
-import TopbarPlate, {createTopbarPlate, TopbarPlateController} from '@components/chat/topbarPlate';
+import { ONE_DAY } from '@helpers/date';
+import { MiddlewareHelper, getMiddleware } from '@helpers/middleware';
+import { AckedResult } from '@lib/superMessagePort';
+import { Accessor, createSignal, Show } from 'solid-js';
+import TopbarPlate, { createTopbarPlate, TopbarPlateController } from '@components/chat/topbarPlate';
 
 type RequestData = {
   peerId: PeerId,
@@ -33,14 +33,14 @@ function RequestsPlateBody(props: {
 }) {
   const titleElement = new I18n.IntlElement({
     key: 'Chat.Header.RequestToJoin',
-    args: [0]
+    args: [0],
   });
 
   return (
     <TopbarPlate.Body onClick={props.onOpen}>
       <Show when={props.data()}>
         {(d) => {
-          titleElement.compareAndUpdate({args: [d().length]});
+          titleElement.compareAndUpdate({ args: [d().length] });
           return (
             <>
               {d().avatars.container}
@@ -66,14 +66,14 @@ export default function createChatRequestsPlate(
   let currentPeerId: PeerId | undefined;
 
   const onOpen = async() => {
-    if(appSidebarRight.isTabExists(AppChatRequestsTab)) return;
+    if (appSidebarRight.isTabExists(AppChatRequestsTab)) return;
     const tab = appSidebarRight.createTab(AppChatRequestsTab);
     await tab.open(chat.peerId.toChatId());
     appSidebarRight.toggleSidebar(true);
   };
 
   const onClose = () => {
-    if(currentPeerId !== undefined) {
+    if (currentPeerId !== undefined) {
       chat.setAppState('hideChatJoinRequests', currentPeerId, Date.now());
     }
     unset(currentPeerId!);
@@ -83,24 +83,24 @@ export default function createChatRequestsPlate(
     modifier: 'requests',
     height: 52,
     onVisibilityChange: () => topbar.setFloating(),
-    render: () => <RequestsPlateBody data={data} onOpen={onOpen} onClose={onClose} />
+    render: () => <RequestsPlateBody data={data} onOpen={onOpen} onClose={onClose} />,
   });
 
   const unset = (peerId: PeerId) => {
     currentPeerId = peerId;
     const prev = data();
-    if(prev) prev.avatarsMiddleware.destroy();
+    if (prev) prev.avatarsMiddleware.destroy();
     setData(undefined);
     plate.setHidden(true);
   };
 
   const set = async(peerId: PeerId, peerIds: PeerId[], length: number) => {
-    if(!peerIds.length) {
+    if (!peerIds.length) {
       return () => unset(peerId);
     }
 
     const avatarsMiddleware = getMiddleware();
-    const avatars = new StackedAvatars({avatarSize: 32, middleware: avatarsMiddleware.get()});
+    const avatars = new StackedAvatars({ avatarSize: 32, middleware: avatarsMiddleware.get() });
     const loadPromises: Promise<any>[] = [];
     avatars.render(peerIds, loadPromises);
     await Promise.all(loadPromises);
@@ -108,22 +108,22 @@ export default function createChatRequestsPlate(
     return () => {
       const prev = data();
       currentPeerId = peerId;
-      setData({peerId, avatars, avatarsMiddleware, length});
+      setData({ peerId, avatars, avatarsMiddleware, length });
       plate.setHidden(false);
-      if(prev) prev.avatarsMiddleware.destroy();
+      if (prev) prev.avatarsMiddleware.destroy();
     };
   };
 
   const setPeerId = (peerId: PeerId) => {
     return Promise.all([
-      managers.acknowledged.appProfileManager.getProfileByPeerId(peerId)
+      managers.acknowledged.appProfileManager.getProfileByPeerId(peerId),
     ]).then(([peerFullAcked]) => {
       return {
         cached: peerFullAcked.cached,
         result: callbackify(peerFullAcked.result, (peerFull) => {
           const recentRequesters = (peerFull as ChatFull.channelFull)?.recent_requesters;
           const hidden = chat.appState.hideChatJoinRequests[peerId];
-          if(recentRequesters && (!hidden || (Date.now() - hidden) >= ONE_DAY)) {
+          if (recentRequesters && (!hidden || (Date.now() - hidden) >= ONE_DAY)) {
             return set(
               peerId,
               recentRequesters.slice(0, 3).map((userId) => userId.toPeerId(false)),
@@ -132,7 +132,7 @@ export default function createChatRequestsPlate(
           } else {
             return set(peerId, [], 0);
           }
-        })
+        }),
       };
     });
   };
@@ -144,8 +144,8 @@ export default function createChatRequestsPlate(
     setPeerId,
     destroy: () => {
       const prev = data();
-      if(prev) prev.avatarsMiddleware.destroy();
+      if (prev) prev.avatarsMiddleware.destroy();
       plate.destroy();
-    }
+    },
   };
 }

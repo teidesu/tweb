@@ -1,21 +1,21 @@
-import {Component, onCleanup, onMount} from 'solid-js';
-import {MissingInvitee} from '@layer';
+import { Component, onCleanup, onMount } from 'solid-js';
+import { MissingInvitee } from '@layer';
 import appDialogsManager from '@lib/appDialogsManager';
 import InputField from '@components/inputField';
-import AvatarEdit, {AvatarEditPayload} from '@components/avatarEdit';
-import I18n, {i18n} from '@lib/langPack';
+import AvatarEdit, { AvatarEditPayload } from '@components/avatarEdit';
+import I18n, { i18n } from '@lib/langPack';
 import ButtonCorner from '@components/buttonCorner';
 import getUserStatusString from '@components/wrappers/getUserStatusString';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import SettingSection from '@components/settingSection';
-import {handleMissingInvitees} from '@components/addChatUsers';
-import type {AppChatsManager} from '@lib/appManagers/appChatsManager';
-import {handleChannelsTooMuch} from '@components/popups/channelsTooMuch';
+import { handleMissingInvitees } from '@components/addChatUsers';
+import type { AppChatsManager } from '@lib/appManagers/appChatsManager';
+import { handleChannelsTooMuch } from '@components/popups/channelsTooMuch';
 import toggleDisability from '@helpers/dom/toggleDisability';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {usePromiseCollector} from '@components/solidJsTabs/promiseCollector';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import type {AppNewGroupTab} from '@components/solidJsTabs/tabs';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import type { AppNewGroupTab } from '@components/solidJsTabs/tabs';
 
 interface OpenStreetMapInterface {
   place_id?: number;
@@ -31,10 +31,10 @@ interface OpenStreetMapInterface {
 
 const NewGroup: Component = () => {
   const [tab] = useSuperTab<typeof AppNewGroupTab>();
-  const {appImManager} = useHotReloadGuard();
+  const { appImManager } = useHotReloadGuard();
   const promiseCollector = usePromiseCollector();
 
-  const {peerIds, isGeoChat = false, onCreate, openAfter = true, title, asChannel = false} = tab.payload;
+  const { peerIds, isGeoChat = false, onCreate, openAfter = true, title, asChannel = false } = tab.payload;
 
   let uploadAvatar: AvatarEditPayload | null = null;
   let userLocationCoords: {lat: number, long: number};
@@ -47,24 +47,24 @@ const NewGroup: Component = () => {
 
   const groupNameInputField = new InputField({
     label: 'CreateGroup.NameHolder',
-    maxLength: 128
+    maxLength: 128,
   });
 
   const groupLocationInputField = new InputField({
     label: 'ChatLocation',
     name: 'location',
-    canBeEdited: false
+    canBeEdited: false,
   });
 
   const list = appDialogsManager.createChatList({
-    new: true
+    new: true,
   });
 
   const startLocating = () => {
     navigator.geolocation.getCurrentPosition((location) => {
       userLocationCoords = {
         lat: location.coords.latitude,
-        long: location.coords.longitude
+        long: location.coords.longitude,
       };
 
       let uri = 'https://nominatim.openstreetmap.org/reverse';
@@ -74,13 +74,13 @@ const NewGroup: Component = () => {
       uri += '&addressdetails=1';
       uri += '&accept-language=en';
       fetch(uri)
-      .then((response) => response.json())
-      .then((response: OpenStreetMapInterface) => {
-        userLocationAddress = response.display_name;
-        groupLocationInputField.setValueSilently(response.display_name);
-      });
+        .then((response) => response.json())
+        .then((response: OpenStreetMapInterface) => {
+          userLocationAddress = response.display_name;
+          groupLocationInputField.setValueSilently(response.display_name);
+        });
     }, (error) => {
-      if(error instanceof GeolocationPositionError) {
+      if (error instanceof GeolocationPositionError) {
         groupLocationInputField.setValueSilently('Location permission denied. Please retry later.');
       } else {
         groupLocationInputField.setValueSilently('An error has occurred. Please retry later.');
@@ -104,11 +104,11 @@ const NewGroup: Component = () => {
     tab.listenerSetter.add(groupNameInputField.input)('input', () => {
       const value = groupNameInputField.value;
       let valueCheck = !!value.length && !groupNameInputField.input.classList.contains('error');
-      if(isGeoChat) valueCheck = valueCheck && !!userLocationCoords && !!userLocationAddress;
+      if (isGeoChat) valueCheck = valueCheck && !!userLocationCoords && !!userLocationAddress;
       nextBtn.classList.toggle('is-visible', !!valueCheck);
     });
 
-    nextBtn = ButtonCorner({icon: 'arrow_next'});
+    nextBtn = ButtonCorner({ icon: 'arrow_next' });
 
     attachClickEvent(nextBtn, () => {
       const groupTitle = groupNameInputField.value;
@@ -116,8 +116,8 @@ const NewGroup: Component = () => {
       const toggle = toggleDisability(nextBtn, true);
 
       let promise: Promise<{chatId: ChatId, missingInvitees: MissingInvitee[]}>;
-      if(isGeoChat) {
-        if(!userLocationAddress || !userLocationCoords) {
+      if (isGeoChat) {
+        if (!userLocationAddress || !userLocationCoords) {
           toggle();
           return;
         }
@@ -127,38 +127,38 @@ const NewGroup: Component = () => {
           about: '',
           geo_point: {
             _: 'inputGeoPoint',
-            ...userLocationCoords
+            ...userLocationCoords,
           },
           address: userLocationAddress,
-          megagroup: true
+          megagroup: true,
         };
         promise = handleChannelsTooMuch(() => tab.managers.appChatsManager.createChannel(options))
-        .then(async(chatId) => {
-          if(uploadAvatar) {
-            uploadAvatar.file().then((inputFile) => {
-              tab.managers.appChatsManager.editPhoto(chatId, inputFile);
-            });
-          }
+          .then(async(chatId) => {
+            if (uploadAvatar) {
+              uploadAvatar.file().then((inputFile) => {
+                tab.managers.appChatsManager.editPhoto(chatId, inputFile);
+              });
+            }
 
-          const missingInvitees = peerIds.length ?
+            const missingInvitees = peerIds.length ?
             await tab.managers.appChatsManager.inviteToChannel(chatId, peerIds) :
             [];
-          return {chatId, missingInvitees};
-        });
+            return { chatId, missingInvitees };
+          });
       } else {
-        if(asChannel) {
+        if (asChannel) {
           const options: Parameters<AppChatsManager['createChannel']>[0] = {
             megagroup: true,
             title: groupTitle,
-            about: ''
+            about: '',
           };
           promise = handleChannelsTooMuch(() => tab.managers.appChatsManager.createChannel(options))
-          .then((chatId) => ({chatId, missingInvitees: [] as MissingInvitee[]}));
+            .then((chatId) => ({ chatId, missingInvitees: [] as MissingInvitee[] }));
 
-          if(peerIds.length) {
-            promise = promise.then(({chatId}) => {
+          if (peerIds.length) {
+            promise = promise.then(({ chatId }) => {
               return tab.managers.appChatsManager.inviteToChannel(chatId, userIds)
-              .then((missingInvitees) => ({chatId, missingInvitees}));
+                .then((missingInvitees) => ({ chatId, missingInvitees }));
             });
           }
         } else {
@@ -169,7 +169,7 @@ const NewGroup: Component = () => {
         }
 
         promise = promise.then((result) => {
-          if(uploadAvatar) {
+          if (uploadAvatar) {
             uploadAvatar.file().then((inputFile) => {
               tab.managers.appChatsManager.editPhoto(result.chatId, inputFile);
             });
@@ -179,28 +179,28 @@ const NewGroup: Component = () => {
         });
       }
 
-      if(!promise) {
+      if (!promise) {
         toggle();
         return;
       }
 
-      promise.then(({chatId, missingInvitees}) => {
+      promise.then(({ chatId, missingInvitees }) => {
         onCreate?.(chatId);
         tab.close();
-        if(openAfter) appImManager.setInnerPeer({peerId: chatId.toPeerId(true)});
+        if (openAfter) appImManager.setInnerPeer({ peerId: chatId.toPeerId(true) });
         handleMissingInvitees(chatId, missingInvitees);
       }, (err) => {
         console.error('createGroup error', err);
         toggle();
       });
-    }, {listenerSetter: tab.listenerSetter});
+    }, { listenerSetter: tab.listenerSetter });
 
     const chatsSection = new SettingSection({
       name: 'Members',
-      nameArgs: [peerIds.length]
+      nameArgs: [peerIds.length],
     });
 
-    if(!peerIds.length) {
+    if (!peerIds.length) {
       chatsSection.container.classList.add('hide');
     }
 
@@ -211,7 +211,7 @@ const NewGroup: Component = () => {
     tab.content.append(nextBtn);
     tab.scrollable.append(section.container, chatsSection.container);
 
-    if(isGeoChat) {
+    if (isGeoChat) {
       tab.title.replaceChildren(i18n('NearbyCreateGroup'));
       groupLocationInputField.container.classList.remove('hide');
       groupLocationInputField.setValueSilently(I18n.format('Loading', true));
@@ -225,14 +225,14 @@ const NewGroup: Component = () => {
 
     const a = usersPromise.then((users) => {
       users.forEach((user) => {
-        const {dom} = appDialogsManager.addDialogNew({
+        const { dom } = appDialogsManager.addDialogNew({
           peerId: user.id.toPeerId(false),
           container: list,
           rippleEnabled: false,
           avatarSize: 'abitbigger',
           wrapOptions: {
-            middleware: tab.middlewareHelper.get()
-          }
+            middleware: tab.middlewareHelper.get(),
+          },
         });
 
         dom.lastMessageSpan.append(getUserStatusString(user));
@@ -241,7 +241,7 @@ const NewGroup: Component = () => {
 
     let setTitlePromise: Promise<void>;
 
-    if(!title) {
+    if (!title) {
       setTitlePromise = peerIds.length > 0 && peerIds.length < 5 ? Promise.all([usersPromise, myUserPromise]).then(([users, myUser]) => {
         const names = users.map((user) => [user.first_name, user.last_name, user.username].find(Boolean));
         names.unshift(myUser.first_name);

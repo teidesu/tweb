@@ -3,21 +3,21 @@ import Tabs from '@components/tabs';
 import wrapFolderTitle from '@components/wrappers/folderTitle';
 import documentFragmentToNodes from '@helpers/dom/documentFragmentToNodes';
 import createMiddleware from '@helpers/solid/createMiddleware';
-import {FOLDER_ID_ALL} from '@lib/appManagers/constants';
-import {i18n} from '@lib/langPack';
+import { FOLDER_ID_ALL } from '@lib/appManagers/constants';
+import { i18n } from '@lib/langPack';
 import useFolders from '@stores/folders';
-import {For} from 'solid-js';
+import { For } from 'solid-js';
 
 export default function FoldersTabs(props: {
   scrollableProps?: Partial<Parameters<typeof Tabs.MenuScrollable>[0]>,
   menuProps?: Partial<Parameters<typeof Tabs.Menu>[0]>,
   gradientProps?: Parameters<typeof Tabs.MenuGradient>[0]
 }) {
-  const {folderItems} = useFolders();
+  const { folderItems } = useFolders();
 
   const Tab = (item: typeof folderItems[0]) => {
     const title = () => {
-      if(item.id === FOLDER_ID_ALL) {
+      if (item.id === FOLDER_ID_ALL) {
         return i18n('FilterAllChatsShort');
       }
 
@@ -25,7 +25,7 @@ export default function FoldersTabs(props: {
         item.filter.title,
         createMiddleware().get(),
         true,
-        {textColor: 'secondary-text-color'}
+        { textColor: 'secondary-text-color' }
       );
       return documentFragmentToNodes(fragment);
     };

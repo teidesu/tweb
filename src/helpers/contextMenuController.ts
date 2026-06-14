@@ -20,7 +20,7 @@ class ContextMenuController extends OverlayClickHandler {
     super('menu', true);
 
     mediaSizes.addEventListener('resize', () => {
-      if(this.element) {
+      if (this.element) {
         this.close();
       }
 
@@ -44,12 +44,12 @@ class ContextMenuController extends OverlayClickHandler {
         triggerElement: undefined,
         level: 0,
         element: this.element,
-        close: () => this.close()
-      }
+        close: () => this.close(),
+      },
     ];
 
     function isFartherThan(element: HTMLElement, distance: number) {
-      const {clientX, clientY} = e;
+      const { clientX, clientY } = e;
 
       const rect = element.getBoundingClientRect();
 
@@ -59,10 +59,10 @@ class ContextMenuController extends OverlayClickHandler {
       return diffX >= distance || diffY >= distance;
     }
 
-    for(const item of allMenus) {
-      if(item.triggerElement && !isFartherThan(item.triggerElement, 40)) break;
+    for (const item of allMenus) {
+      if (item.triggerElement && !isFartherThan(item.triggerElement, 40)) break;
 
-      if(isFartherThan((item.element as HTMLElement), item.level === 0 ? 100 : 40)) {
+      if (isFartherThan((item.element as HTMLElement), item.level === 0 ? 100 : 40)) {
         this.closeAndRemoveMenu((item as AdditionalMenuItem));
       } else {
         break;
@@ -73,8 +73,8 @@ class ContextMenuController extends OverlayClickHandler {
   protected closeAndRemoveMenu(item: AdditionalMenuItem) {
     item.close();
     const idx = this.additionalMenus.indexOf(item);
-    if(idx > -1) {
-      for(let i = idx + 1; i < this.additionalMenus.length; i++) {
+    if (idx > -1) {
+      for (let i = idx + 1; i < this.additionalMenus.length; i++) {
         this.additionalMenus[i].close();
       }
       this.additionalMenus.splice(idx);
@@ -90,19 +90,19 @@ class ContextMenuController extends OverlayClickHandler {
   }
 
   public close(e?: MouseEvent | TouchEvent) {
-    if(e && (e.target as HTMLElement).classList.contains('btn-menu')) {
+    if (e && (e.target as HTMLElement).classList.contains('btn-menu')) {
       return;
     }
 
-    if(this.element) {
+    if (this.element) {
       this.element.classList.remove('active');
       this.menuOpenTarget?.classList.remove('menu-open');
       this.menuOpenTarget = undefined;
 
-      if(this.element.classList.contains('night')) {
+      if (this.element.classList.contains('night')) {
         const element = this.element;
         setTimeout(() => {
-          if(element.classList.contains('active')) {
+          if (element.classList.contains('active')) {
             return;
           }
 
@@ -119,19 +119,19 @@ class ContextMenuController extends OverlayClickHandler {
 
     super.close();
 
-    if(!IS_TOUCH_SUPPORTED) {
+    if (!IS_TOUCH_SUPPORTED) {
       window.removeEventListener('mousemove', this.onMouseMove);
     }
   }
 
   protected shouldApplyNight(triggerElement?: HTMLElement) {
-    if(overlayCounter.isDarkOverlayActive) return true;
+    if (overlayCounter.isDarkOverlayActive) return true;
     const nightAncestor = triggerElement && findUpClassName(triggerElement, 'night');
     return !!nightAncestor && nightAncestor !== document.documentElement;
   }
 
   public openBtnMenu(element: HTMLElement, onClose?: () => void, triggerElement?: HTMLElement) {
-    if(this.shouldApplyNight(triggerElement)) {
+    if (this.shouldApplyNight(triggerElement)) {
       element.classList.add('night');
     }
 
@@ -141,17 +141,17 @@ class ContextMenuController extends OverlayClickHandler {
     this.menuOpenTarget = (triggerElement ?? this.element!.parentElement)!;
     this.menuOpenTarget?.classList.add('menu-open');
 
-    if(onClose) {
-      this.addEventListener('toggle', onClose, {once: true});
+    if (onClose) {
+      this.addEventListener('toggle', onClose, { once: true });
     }
 
-    if(!IS_TOUCH_SUPPORTED) {
+    if (!IS_TOUCH_SUPPORTED) {
       window.addEventListener('mousemove', this.onMouseMove);
     }
   }
 
   public addAdditionalMenu(element: HTMLElement, triggerElement: HTMLElement, level: number, onClose?: () => void) {
-    if(!this.element) return;
+    if (!this.element) return;
 
     this.closeMenusByLevel(level);
 
@@ -163,15 +163,15 @@ class ContextMenuController extends OverlayClickHandler {
         element.classList.remove('active');
         pause(400).then(() => element.remove());
         onClose!();
-      }
+      },
     });
-    if(this.shouldApplyNight(triggerElement)) {
+    if (this.shouldApplyNight(triggerElement)) {
       element.classList.add('night');
     }
     element.classList.add('active', 'was-open');
 
-    if(onClose) {
-      this.addEventListener('toggle', onClose, {once: true});
+    if (onClose) {
+      this.addEventListener('toggle', onClose, { once: true });
     }
   }
 }

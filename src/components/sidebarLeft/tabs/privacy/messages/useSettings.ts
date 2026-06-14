@@ -1,16 +1,16 @@
-import {createResource} from 'solid-js';
+import { createResource } from 'solid-js';
 
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 
-import {usePromiseCollector} from '@components/solidJsTabs/promiseCollector';
+import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
 
-import {privacyRulesInputKey, MessagesPrivacyOption} from '@components/sidebarLeft/tabs/privacy/messages/config';
+import { privacyRulesInputKey, MessagesPrivacyOption } from '@components/sidebarLeft/tabs/privacy/messages/config';
 import useIsPremium from '@components/sidebarLeft/tabs/privacy/messages/useIsPremium';
-import {getUserId} from '@components/sidebarLeft/tabs/privacy/messages/utils';
+import { getUserId } from '@components/sidebarLeft/tabs/privacy/messages/utils';
 
 
 const useSettings = () => {
-  const {rootScope} = useHotReloadGuard();
+  const { rootScope } = useHotReloadGuard();
   const promiseCollector = usePromiseCollector();
 
   const isPremium = useIsPremium();
@@ -32,26 +32,26 @@ const useSettings = () => {
   const isReady = () => privacyRules.state === 'ready' && globalPrivacy.state === 'ready';
 
   const currentOption = () => {
-    if(!isPremium()) return MessagesPrivacyOption.Everybody;
+    if (!isPremium()) return MessagesPrivacyOption.Everybody;
 
-    if(globalPrivacy()!.noncontact_peers_paid_stars) return MessagesPrivacyOption.Paid;
+    if (globalPrivacy()!.noncontact_peers_paid_stars) return MessagesPrivacyOption.Paid;
 
-    if(globalPrivacy()!.pFlags.new_noncontact_peers_require_premium) return MessagesPrivacyOption.ContactsAndPremium;
+    if (globalPrivacy()!.pFlags.new_noncontact_peers_require_premium) return MessagesPrivacyOption.ContactsAndPremium;
 
     return MessagesPrivacyOption.Everybody;
   };
 
   const currentAllowedUsers = () =>
     privacyRules()
-    ?.filter((rule) => rule._ === 'privacyValueAllowUsers')
-    ?.map(rule => rule?.users).flat()
-    ?.map(user => user.toPeerId()) || [];
+      ?.filter((rule) => rule._ === 'privacyValueAllowUsers')
+      ?.map(rule => rule?.users).flat()
+      ?.map(user => user.toPeerId()) || [];
 
   const currentAllowedChats = () =>
     privacyRules()
-    ?.find((rule) => rule._ === 'privacyValueAllowChatParticipants')?.chats
-    ?.map(getUserId)
-    ?.filter((v) => v !== undefined) || [];
+      ?.find((rule) => rule._ === 'privacyValueAllowChatParticipants')?.chats
+      ?.map(getUserId)
+      ?.filter((v) => v !== undefined) || [];
 
 
   return {
@@ -62,7 +62,7 @@ const useSettings = () => {
 
     currentOption,
     currentAllowedUsers,
-    currentAllowedChats
+    currentAllowedChats,
   };
 };
 

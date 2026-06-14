@@ -1,19 +1,19 @@
-import {createSignal, Match, Switch} from 'solid-js';
-import {numberThousandSplitterForStars} from '@helpers/number/numberThousandSplitter';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {Message} from '@layer';
-import {SUGGESTED_POST_WAIT_FOR_REWARD_HOURS} from '@appManagers/constants';
+import { createSignal, Match, Switch } from 'solid-js';
+import { numberThousandSplitterForStars } from '@helpers/number/numberThousandSplitter';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { Message } from '@layer';
+import { SUGGESTED_POST_WAIT_FOR_REWARD_HOURS } from '@appManagers/constants';
 import rootScope from '@lib/rootScope';
-import defineSolidElement, {PassedProps} from '@lib/solidjs/defineSolidElement';
-import {PeerTitleTsx} from '@components/peerTitleTsx';
+import defineSolidElement, { PassedProps } from '@lib/solidjs/defineSolidElement';
+import { PeerTitleTsx } from '@components/peerTitleTsx';
 import ripple from '@components/ripple';
 import Space from '@components/space';
 import PublishTimeField from '@components/chat/suggestPostPopup/publishTimeField';
 import styles from '@components/chat/bubbleParts/suggestedPostAcceptWithTimePopup/styles.module.scss';
-import {useFormattedCommission} from '@components/chat/bubbleParts/suggestedPostAcceptWithTimePopup/useFormattedCommission';
+import { useFormattedCommission } from '@components/chat/bubbleParts/suggestedPostAcceptWithTimePopup/useFormattedCommission';
 ripple; // keep
 
-if(import.meta.hot) import.meta.hot.accept();
+if (import.meta.hot) import.meta.hot.accept();
 
 
 type Props = {
@@ -28,18 +28,18 @@ const SuggestedPostAcceptWithTimePopupContent = defineSolidElement({
   component: (props: PassedProps<Props>) => {
     const [publishTimestamp, setPublishTimestamp] = createSignal<number>();
 
-    const {commission, formattedCommission} = useFormattedCommission();
+    const { commission, formattedCommission } = useFormattedCommission();
 
 
     let isFinishing = false;
 
     const onFinish = () => {
-      if(isFinishing) return;
+      if (isFinishing) return;
       isFinishing = true;
       rootScope.managers.monoforumDialogsStorage.toggleSuggestedPostApproval({
         parentPeerId: props.peerId,
         messageId: props.message.mid!,
-        scheduleTimestamp: publishTimestamp()
+        scheduleTimestamp: publishTimestamp(),
       });
       props.onFinish();
     };
@@ -56,7 +56,7 @@ const SuggestedPostAcceptWithTimePopupContent = defineSolidElement({
                 <PeerTitleTsx peerId={props.message.fromId!} />,
                 <I18nTsx key='Stars' args={[numberThousandSplitterForStars(props.offeredStars! * commission())]} />,
                 formattedCommission(),
-                SUGGESTED_POST_WAIT_FOR_REWARD_HOURS + ''
+                SUGGESTED_POST_WAIT_FOR_REWARD_HOURS + '',
               ]}
             />
           </Match>
@@ -89,7 +89,7 @@ const SuggestedPostAcceptWithTimePopupContent = defineSolidElement({
 
       <Space amount="0.5rem" />
     </>;
-  }
+  },
 });
 
 export default SuggestedPostAcceptWithTimePopupContent;

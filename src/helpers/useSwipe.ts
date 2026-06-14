@@ -1,8 +1,8 @@
-import {StandardLonghandPropertiesHyphen} from 'csstype';
-import {Accessor} from 'solid-js';
+import { StandardLonghandPropertiesHyphen } from 'csstype';
+import { Accessor } from 'solid-js';
 import useGlobalDocumentEvent from '@helpers/useGlobalDocumentEvent';
-import {requestRAF} from '@helpers/solid/requestRAF';
-import {useIsCleaned} from '@hooks/useIsCleaned';
+import { requestRAF } from '@helpers/solid/requestRAF';
+import { useIsCleaned } from '@hooks/useIsCleaned';
 
 
 export type SwipeDirectiveArgs = {
@@ -28,24 +28,24 @@ export default function swipe(element: HTMLElement, args: Accessor<SwipeDirectiv
 
   const getDiffPointer = (e: PointerEvent) => [
     e.clientX - initialX,
-    e.clientY - initialY!
+    e.clientY - initialY!,
   ] as const;
 
   const getDiffTouch = (e: TouchEvent) => [
     e.changedTouches[0].clientX - initialX,
-    e.changedTouches[0].clientY - initialY!
+    e.changedTouches[0].clientY - initialY!,
   ] as const;
 
   function handleStart(e: PointerEvent | TouchEvent, x: number, y: number) {
-    if(isDragging) return;
+    if (isDragging) return;
     isDragging = true;
     initialX = x;
     initialY = y;
 
-    const {onStart, globalCursor} = args();
+    const { onStart, globalCursor } = args();
     onStart?.(e);
 
-    if(globalCursor) {
+    if (globalCursor) {
       document.body.style.setProperty('cursor', globalCursor()!, 'important');
       element.style.setProperty('cursor', globalCursor()!, 'important');
     }
@@ -55,30 +55,30 @@ export default function swipe(element: HTMLElement, args: Accessor<SwipeDirectiv
   let callback: () => void;
 
   function handleMove(e: PointerEvent | TouchEvent, diff: readonly [number, number]) {
-    if(!isDragging) return;
+    if (!isDragging) return;
 
     callback = () => {
-      const {onMove} = args();
+      const { onMove } = args();
       onMove?.(...diff, e);
     };
 
-    if(isRAFing) return;
+    if (isRAFing) return;
 
     isRAFing = true;
     requestRAF(() => {
       isRAFing = false;
-      if(!isDragging || isCleaned()) return;
+      if (!isDragging || isCleaned()) return;
 
       callback();
     })
   }
 
   function handleEnd(e: PointerEvent | TouchEvent, diff: readonly [number, number]) {
-    if(!isDragging) return;
+    if (!isDragging) return;
 
-    const {onEnd, globalCursor} = args();
+    const { onEnd, globalCursor } = args();
     onEnd?.(...diff, e);
-    if(globalCursor) {
+    if (globalCursor) {
       document.body.style.removeProperty('cursor');
       element.style.removeProperty('cursor');
     }

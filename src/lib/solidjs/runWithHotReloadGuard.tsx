@@ -1,4 +1,4 @@
-import {createRoot} from 'solid-js';
+import { createRoot } from 'solid-js';
 import SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
 
 /**

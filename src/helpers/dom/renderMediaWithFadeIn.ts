@@ -1,5 +1,5 @@
 import sequentialDom from '@helpers/sequentialDom';
-import {renderImageFromUrlPromise} from '@helpers/dom/renderImageFromUrl';
+import { renderImageFromUrlPromise } from '@helpers/dom/renderImageFromUrl';
 
 const UNMOUNT_THUMBS = true;
 
@@ -13,7 +13,7 @@ export default function renderMediaWithFadeIn({
   fadeInElement = media as any,
   onRender,
   onRenderFinish,
-  useRenderCache
+  useRenderCache,
 }: {
   container: HTMLElement,
   media: Parameters<typeof renderImageFromUrlPromise>[0],
@@ -26,7 +26,7 @@ export default function renderMediaWithFadeIn({
   onRenderFinish?: () => void,
   useRenderCache?: boolean
 }) {
-  if(needFadeIn) {
+  if (needFadeIn) {
     fadeInElement.classList.add('fade-in');
   }
 
@@ -34,7 +34,7 @@ export default function renderMediaWithFadeIn({
     return sequentialDom.mutateElement(container, () => {
       aspecter?.append(media);
 
-      if(needFadeIn) {
+      if (needFadeIn) {
         onRender?.();
         fadeInElement.addEventListener('animationend', () => {
           sequentialDom.mutate(() => {
@@ -43,7 +43,7 @@ export default function renderMediaWithFadeIn({
             container.classList.add('no-background');
             onRenderFinish?.();
           });
-        }, {once: true});
+        }, { once: true });
       } else {
         UNMOUNT_THUMBS && thumbImage?.remove();
         container.classList.add('no-background');

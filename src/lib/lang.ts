@@ -1,5 +1,5 @@
-import {MessageAction} from '@layer';
-import {FormatterArgument, LangPackKey} from '@lib/langPack';
+import { MessageAction } from '@layer';
+import { FormatterArgument, LangPackKey } from '@lib/langPack';
 
 type Result = {
   langPackKey: LangPackKey;
@@ -13,27 +13,27 @@ export function getPriceChangedActionMessageLangParams(action: MessageAction.mes
   const isFree = !+action?.stars;
   const allowedDirectMessages = action?.pFlags?.broadcast_messages_allowed;
 
-  if(isBroadcast) {
+  if (isBroadcast) {
     const peerTitleResult = peerTitle!();
     const langPackKey: LangPackKey = allowedDirectMessages ?
       (isFree ? 'PaidMessages.ChannelPriceChangedFree' : 'PaidMessages.ChannelPriceChanged') :
       'PaidMessages.ChannelPriceDisabled';
 
-    if(peerTitleResult instanceof Promise) {
+    if (peerTitleResult instanceof Promise) {
       return (async() => ({
         langPackKey,
-        args: isFree ? [await peerTitleResult] : [+action.stars, await peerTitleResult]
+        args: isFree ? [await peerTitleResult] : [+action.stars, await peerTitleResult],
       }))();
     }
 
     return {
       langPackKey,
-      args: isFree ? [peerTitleResult] : [+action.stars, peerTitleResult]
+      args: isFree ? [peerTitleResult] : [+action.stars, peerTitleResult],
     }
   } else {
     return {
       langPackKey: isFree ? 'PaidMessages.GroupPriceChangedFree' : 'PaidMessages.GroupPriceChanged',
-      args: [+action.stars]
+      args: [+action.stars],
     };
   }
 }

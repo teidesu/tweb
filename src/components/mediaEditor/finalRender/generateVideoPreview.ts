@@ -1,8 +1,8 @@
-import {unwrap} from 'solid-js/store';
-import {useCropOffset} from '@components/mediaEditor/canvas/useCropOffset';
+import { unwrap } from 'solid-js/store';
+import { useCropOffset } from '@components/mediaEditor/canvas/useCropOffset';
 import useProcessPoint from '@components/mediaEditor/canvas/useProcessPoint';
-import {useMediaEditorContext} from '@components/mediaEditor/context';
-import {snapToViewport} from '@components/mediaEditor/utils';
+import { useMediaEditorContext } from '@components/mediaEditor/context';
+import { snapToViewport } from '@components/mediaEditor/utils';
 import drawStickerLayer from '@components/mediaEditor/finalRender/drawStickerLayer';
 import drawTextLayer from '@components/mediaEditor/finalRender/drawTextLayer';
 
@@ -12,16 +12,16 @@ type Args = {
   scaledHeight: number;
 };
 
-export async function generateVideoPreview({scaledWidth, scaledHeight}: Args) {
+export async function generateVideoPreview({ scaledWidth, scaledHeight }: Args) {
   const context = useMediaEditorContext();
 
   const {
     editorState: {
-      canvasSize, imageCanvas, brushCanvas, currentTab, stickersLayersInfo, finalTransform: {scale}
+      canvasSize, imageCanvas, brushCanvas, currentTab, stickersLayersInfo, finalTransform: { scale },
     },
     mediaState: {
-      resizableLayers, rotation
-    }
+      resizableLayers, rotation,
+    },
   } = context!;
   const [cw, ch] = canvasSize!;
 
@@ -54,24 +54,24 @@ export async function generateVideoPreview({scaledWidth, scaledHeight}: Args) {
     scale: layer.scale * scale,
     textInfo: layer.textInfo ? {
       ...layer.textInfo,
-      size: layer.textInfo.size * layer.scale * scale
-    } : undefined
+      size: layer.textInfo.size * layer.scale * scale,
+    } : undefined,
   }));
 
   processedLayers.forEach((layer) => {
-    if(layer.type === 'text') drawTextLayer(context!, mirrorCtx!, layer, false);
+    if (layer.type === 'text') drawTextLayer(context!, mirrorCtx!, layer, false);
 
-    if(layer.type === 'sticker') {
-      const {container} = stickersLayersInfo[layer.id];
+    if (layer.type === 'sticker') {
+      const { container } = stickersLayersInfo[layer.id];
       const stickerChild = container?.lastElementChild;
 
       let ratio: number;
 
-      if(stickerChild instanceof HTMLImageElement)
+      if (stickerChild instanceof HTMLImageElement)
         ratio = stickerChild.naturalWidth / stickerChild.naturalHeight;
-      else if(stickerChild instanceof HTMLCanvasElement)
+      else if (stickerChild instanceof HTMLCanvasElement)
         ratio = 1;
-      else if(stickerChild instanceof HTMLVideoElement)
+      else if (stickerChild instanceof HTMLVideoElement)
         ratio = stickerChild.videoWidth / stickerChild.videoHeight;
       else return;
 
@@ -79,7 +79,7 @@ export async function generateVideoPreview({scaledWidth, scaledHeight}: Args) {
     }
   });
 
-  if(isCropping) {
+  if (isCropping) {
     previewCtx!.drawImage(
       mirrorCanvas,
       cropOffset().left + (cropOffset().width - previewWidth) / 2, cropOffset().top + (cropOffset().height - previewHeight) / 2, previewWidth, previewHeight,

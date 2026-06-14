@@ -1,6 +1,6 @@
-import {createEffect, createSignal, ParentProps} from 'solid-js';
-import {Transition} from 'solid-transition-group';
-import {animate} from '@helpers/animation';
+import { createEffect, createSignal, ParentProps } from 'solid-js';
+import { Transition } from 'solid-transition-group';
+import { animate } from '@helpers/animation';
 import liteMode from '@helpers/liteMode';
 
 
@@ -19,7 +19,7 @@ export const HeightTransition = (props: ParentProps<HeightTransitionProps>) => {
   const decrease = () => setRunningAnimations(prev => prev - 1);
 
   createEffect(() => {
-    if(!props.onRunningAnimations) return;
+    if (!props.onRunningAnimations) return;
     props.onRunningAnimations(runningAnimations());
   });
 
@@ -41,30 +41,30 @@ export const HeightTransition = (props: ParentProps<HeightTransitionProps>) => {
         animate(() => {
           const targetHeight = el.scrollHeight;
           el.animate([
-            {height: '0px', opacity: 0, ...(props.scale && {transform: 'scale(0.95)', transformOrigin: '75% center'})},
-            {height: `${targetHeight}px`, opacity: 1, ...(props.scale && {transform: 'scale(1)'})}
+            { height: '0px', opacity: 0, ...(props.scale && { transform: 'scale(0.95)', transformOrigin: '75% center' }) },
+            { height: `${targetHeight}px`, opacity: 1, ...(props.scale && { transform: 'scale(1)' }) },
           ], {
             duration: liteMode.isAvailable('animations') ? transitionTime : 0,
-            easing: 'ease-in-out'
+            easing: 'ease-in-out',
           }).finished
-          .then(() => {
-            el.style.removeProperty('height');
-            el.style.removeProperty('opacity');
+            .then(() => {
+              el.style.removeProperty('height');
+              el.style.removeProperty('opacity');
 
-            done();
-          });
+              done();
+            });
         });
       }}
 
       onExit={async(el, done) => {
         animate(() => {
           el.animate([
-            {height: `${el.scrollHeight}px`, opacity: 1},
-            {height: '0px', opacity: 0}
+            { height: `${el.scrollHeight}px`, opacity: 1 },
+            { height: '0px', opacity: 0 },
           ], {
             duration: liteMode.isAvailable('animations') ? transitionTime : 0,
             fill: 'forwards',
-            easing: 'ease-in-out'
+            easing: 'ease-in-out',
           }).finished.then(done);
         });
       }}

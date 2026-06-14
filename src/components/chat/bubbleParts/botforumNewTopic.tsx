@@ -1,9 +1,9 @@
-import {I18nTsx} from '@helpers/solid/i18n';
+import { I18nTsx } from '@helpers/solid/i18n';
 import defineSolidElement from '@lib/solidjs/defineSolidElement';
-import {IconTsx} from '@components/iconTsx';
+import { IconTsx } from '@components/iconTsx';
 import styles from '@components/chat/bubbleParts/botforumNewTopic.module.scss';
 
-if(import.meta.hot) import.meta.hot.accept();
+if (import.meta.hot) import.meta.hot.accept();
 
 
 const BotforumNewTopic = defineSolidElement({
@@ -28,7 +28,7 @@ const BotforumNewTopic = defineSolidElement({
         </div>
       </div>
     );
-  }
+  },
 });
 
 export default BotforumNewTopic;

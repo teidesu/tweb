@@ -2,11 +2,11 @@ import styles from '@components/popups/createBot/createBot.module.scss';
 import PopupElement from '@components/popups/indexTsx';
 import SimpleFormField from '@components/simpleFormField';
 import Space from '@components/space';
-import {createMutation} from '@helpers/solid/createMutation';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {LangPackKey} from '@lib/langPack';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {createComputed, createMemo, createSignal, on, onCleanup, Show} from 'solid-js';
+import { createMutation } from '@helpers/solid/createMutation';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { LangPackKey } from '@lib/langPack';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { createComputed, createMemo, createSignal, on, onCleanup, Show } from 'solid-js';
 
 
 const USERNAME_SUFFIX = 'bot';
@@ -32,44 +32,44 @@ export type CreateBotPopupProps = {
 }
 
 const CreateBotPopup = (props: CreateBotPopupProps) => {
-  const {PeerTitleTsx, AvatarNewTsx, rootScope} = useHotReloadGuard();
+  const { PeerTitleTsx, AvatarNewTsx, rootScope } = useHotReloadGuard();
 
   const [show, setShow] = createSignal(true);
   const [botName, setBotName] = createSignal(props.suggestedBotName ?? '');
   const [usernameValue, setUsernameValue] = createSignal(props.suggestedUsername ?? '');
-  const [usernameStatus, setUsernameStatus] = createSignal<UsernameStatus>({state: 'idle'});
+  const [usernameStatus, setUsernameStatus] = createSignal<UsernameStatus>({ state: 'idle' });
 
 
   const trimmedName = createMemo(() => botName().trim());
   const nameError = createMemo(() => {
     const name = trimmedName();
-    if(!name) return 'empty';
-    if(name.length > MAX_BOT_NAME_LENGTH) return 'tooLong';
+    if (!name) return 'empty';
+    if (name.length > MAX_BOT_NAME_LENGTH) return 'tooLong';
     return undefined;
   });
 
   const submitMutation = createMutation(async() => {
-    if(!isValid()) return false;
+    if (!isValid()) return false;
     const ok = await props.onCreate({
       name: trimmedName(),
-      username: fullUsername()
+      username: fullUsername(),
     });
     return ok;
   })
 
   function validateUsernameLocally(value: string): UsernameStatus | undefined {
-    if(!value) return {state: 'idle'};
-    if(!/^[a-zA-Z]/.test(value)) {
-      return {state: 'invalid', reason: 'mustStartLetter'};
+    if (!value) return { state: 'idle' };
+    if (!/^[a-zA-Z]/.test(value)) {
+      return { state: 'invalid', reason: 'mustStartLetter' };
     }
-    if(!USERNAME_REGEX.test(value)) {
-      return {state: 'invalid', reason: 'invalidChars'};
+    if (!USERNAME_REGEX.test(value)) {
+      return { state: 'invalid', reason: 'invalidChars' };
     }
-    if(value.length < MIN_USERNAME_LENGTH) {
-      return {state: 'invalid', reason: 'tooShort'};
+    if (value.length < MIN_USERNAME_LENGTH) {
+      return { state: 'invalid', reason: 'tooShort' };
     }
-    if(value.length > MAX_USERNAME_LENGTH) {
-      return {state: 'invalid', reason: 'tooLong'};
+    if (value.length > MAX_USERNAME_LENGTH) {
+      return { state: 'invalid', reason: 'tooLong' };
     }
     return undefined;
   }
@@ -77,29 +77,29 @@ const CreateBotPopup = (props: CreateBotPopupProps) => {
   // Constantly check username availability when it changes
   createComputed(on(usernameValue, (value) => {
     const localResult = validateUsernameLocally(value);
-    if(localResult) {
+    if (localResult) {
       setUsernameStatus(localResult);
       return;
     }
 
-    setUsernameStatus({state: 'loading'});
+    setUsernameStatus({ state: 'loading' });
 
     let cancelled = false;
 
     const timeout = self.setTimeout(async() => {
-      if(cancelled) return;
+      if (cancelled) return;
 
       const fullUsername = value + USERNAME_SUFFIX;
 
       const result = await rootScope.managers.appBotsManager.checkUsername(fullUsername);
-      if(cancelled) return;
+      if (cancelled) return;
 
-      if(usernameValue() !== value) return; // out-of-date result
+      if (usernameValue() !== value) return; // out-of-date result
 
-      if(result === 'invalid') {
-        setUsernameStatus({state: 'invalid', reason: 'unknown'});
+      if (result === 'invalid') {
+        setUsernameStatus({ state: 'invalid', reason: 'unknown' });
       } else {
-        setUsernameStatus({state: result});
+        setUsernameStatus({ state: result });
       }
     }, 500);
 
@@ -118,7 +118,7 @@ const CreateBotPopup = (props: CreateBotPopupProps) => {
   function handleUsernameChange(value: string) {
     // Sanitize: lowercase, strip non-allowed chars, prevent typing the suffix manually
     let cleaned = value.replace(/[^a-zA-Z0-9_]/g, '');
-    if(cleaned.length > MAX_USERNAME_LENGTH) {
+    if (cleaned.length > MAX_USERNAME_LENGTH) {
       cleaned = cleaned.slice(0, MAX_USERNAME_LENGTH);
     }
     setUsernameValue(cleaned);
@@ -126,13 +126,13 @@ const CreateBotPopup = (props: CreateBotPopupProps) => {
 
   const usernameStatusKey = createMemo((): LangPackKey => {
     const s = usernameStatus();
-    switch(s.state) {
+    switch (s.state) {
       case 'idle': return 'CreateBot.Username.Caption';
       case 'loading': return 'CreateBot.Username.Checking';
       case 'available': return 'CreateBot.Username.Available';
       case 'taken': return 'CreateBot.Username.Taken';
       case 'invalid':
-        switch(s.reason) {
+        switch (s.reason) {
           case 'tooShort': return 'CreateBot.Username.TooShort';
           case 'tooLong': return 'CreateBot.Username.TooLong';
           case 'mustStartLetter': return 'CreateBot.Username.MustStartLetter';
@@ -146,9 +146,9 @@ const CreateBotPopup = (props: CreateBotPopupProps) => {
 
   const usernameStatusClass = createMemo(() => {
     const s = usernameStatus();
-    if(s.state === 'available') return styles.statusSuccess;
-    if(s.state === 'taken' || s.state === 'invalid') return styles.statusError;
-    if(s.state === 'loading') return styles.statusLoading;
+    if (s.state === 'available') return styles.statusSuccess;
+    if (s.state === 'taken' || s.state === 'invalid') return styles.statusError;
+    if (s.state === 'loading') return styles.statusLoading;
     return undefined;
   });
 
@@ -239,7 +239,7 @@ const CreateBotPopup = (props: CreateBotPopupProps) => {
               args={[
                 <span class={styles.linkInfoLink}>
                   t.me/{fullUsername()}
-                </span>
+                </span>,
               ]}
             />
           </Show>

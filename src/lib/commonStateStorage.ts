@@ -1,10 +1,10 @@
-import {LangPackDifference} from '@layer';
-import {CommonDatabase, getCommonDatabaseState} from '@config/databases/state';
-import {MOUNT_CLASS_TO} from '@config/debug';
-import {StateSettings} from '@config/state';
+import { LangPackDifference } from '@layer';
+import { CommonDatabase, getCommonDatabaseState } from '@config/databases/state';
+import { MOUNT_CLASS_TO } from '@config/debug';
+import { StateSettings } from '@config/state';
 
 import AppStorage from '@lib/storage';
-import {ActiveAccountNumber} from '@lib/accounts/types';
+import { ActiveAccountNumber } from '@lib/accounts/types';
 import DeferredIsUsingPasscode from '@lib/passcode/deferredIsUsingPasscode';
 
 export type PasscodeStorageValue = {

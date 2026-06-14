@@ -1,7 +1,7 @@
 import liteMode from '@helpers/liteMode';
-import {resolveElements} from '@solid-primitives/refs';
-import {createListTransition} from '@vendor/createListTransition';
-import {Accessor, createEffect, createRoot, FlowComponent, JSX, onCleanup} from 'solid-js';
+import { resolveElements } from '@solid-primitives/refs';
+import { createListTransition } from '@vendor/createListTransition';
+import { Accessor, createEffect, createRoot, FlowComponent, JSX, onCleanup } from 'solid-js';
 
 export const TransitionGroup: FlowComponent<{
   noWait?: Accessor<boolean>,
@@ -11,8 +11,8 @@ export const TransitionGroup: FlowComponent<{
     const transition = props.transitions.get(element);
     createEffect((prev) => {
       const t = transition!();
-      if(prev || t) {
-        if(!t) {
+      if (prev || t) {
+        if (!t) {
           callback();
         }
 
@@ -32,7 +32,7 @@ export const TransitionGroup: FlowComponent<{
       });
 
       onCleanup(() => {
-        if(disposers.get(element) === dispose) {
+        if (disposers.get(element) === dispose) {
           disposers.delete(element);
         }
       });
@@ -45,20 +45,20 @@ export const TransitionGroup: FlowComponent<{
 
   const listTransition = createListTransition(resolveElements(() => props.children).toArray, {
     exitMethod: 'keep-relative',
-    onChange: ({added, removed, finishRemoved}) => {
-      for(const element of added) {
+    onChange: ({ added, removed, finishRemoved }) => {
+      for (const element of added) {
         const dispose = disposers.get(element);
         dispose?.();
       }
 
-      if(props.noWait?.() || !liteMode.isAvailable('animations')) {
+      if (props.noWait?.() || !liteMode.isAvailable('animations')) {
         finishRemoved(removed);
         return;
       }
 
       const filtered: Element[] = [];
-      for(const element of removed) {
-        if(!props.transitions.has(element)) {
+      for (const element of removed) {
+        if (!props.transitions.has(element)) {
           filtered.push(element);
           continue;
         }
@@ -68,10 +68,10 @@ export const TransitionGroup: FlowComponent<{
         });
       }
 
-      if(filtered.length) {
+      if (filtered.length) {
         finishRemoved(filtered);
       }
-    }
+    },
   }) as unknown as JSX.Element;
 
   return listTransition;

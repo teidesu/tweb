@@ -2,11 +2,11 @@ import type ListenerSetter from '@helpers/listenerSetter';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
 
 export default function handleScrollSideEvent(elem: HTMLElement, side: 'top' | 'bottom', callback: () => void, listenerSetter: ListenerSetter) {
-  if(IS_TOUCH_SUPPORTED) {
+  if (IS_TOUCH_SUPPORTED) {
     let lastY: number;
-    const options = {passive: true};
+    const options = { passive: true };
     listenerSetter.add(elem)('touchstart', (e) => {
-      if(e.touches.length > 1) {
+      if (e.touches.length > 1) {
         onTouchEnd();
         return;
       }
@@ -21,8 +21,8 @@ export default function handleScrollSideEvent(elem: HTMLElement, side: 'top' | '
       const clientY = e.touches[0].clientY;
 
       const isDown = clientY < lastY;
-      if(side === 'bottom' && isDown) callback();
-      else if(side === 'top' && !isDown) callback();
+      if (side === 'bottom' && isDown) callback();
+      else if (side === 'top' && !isDown) callback();
       lastY = clientY;
       // alert('isDown: ' + !!isDown);
     };
@@ -35,8 +35,8 @@ export default function handleScrollSideEvent(elem: HTMLElement, side: 'top' | '
     listenerSetter.add(elem)('wheel', (e) => {
       const isDown = e.deltaY > 0;
       // this.log('wheel', e, isDown);
-      if(side === 'bottom' && isDown) callback();
-      else if(side === 'top' && !isDown) callback();
-    }, {passive: true});
+      if (side === 'bottom' && isDown) callback();
+      else if (side === 'top' && !isDown) callback();
+    }, { passive: true });
   }
 }

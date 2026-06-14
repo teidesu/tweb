@@ -1,6 +1,6 @@
-import {batch, createEffect, createMemo, createSignal, JSX, on, onCleanup, onMount} from 'solid-js';
-import {doubleRaf} from '@helpers/schedulers';
-import {useMediaEditorContext} from '@components/mediaEditor/context';
+import { batch, createEffect, createMemo, createSignal, JSX, on, onCleanup, onMount } from 'solid-js';
+import { doubleRaf } from '@helpers/schedulers';
+import { useMediaEditorContext } from '@components/mediaEditor/context';
 import AdjustmentsTab from '@components/mediaEditor/tabs/adjustmentsTab';
 import BrushTab from '@components/mediaEditor/tabs/brushTab';
 import CropTab from '@components/mediaEditor/tabs/cropTab';
@@ -10,15 +10,15 @@ import Tabs from '@components/mediaEditor/tabs/tabs';
 import TextTab from '@components/mediaEditor/tabs/textTab';
 import Topbar from '@components/mediaEditor/topbar';
 import useIsMobile from '@components/mediaEditor/useIsMobile';
-import {delay} from '@components/mediaEditor/utils';
-import {animateValue} from '@helpers/animateValue';
-import {lerp} from '@helpers/lerp';
+import { delay } from '@components/mediaEditor/utils';
+import { animateValue } from '@helpers/animateValue';
+import { lerp } from '@helpers/lerp';
 
 
 export default function Toolbar(props: {onFinish: () => void; onClose: () => void}) {
   let toolbar: HTMLDivElement;
 
-  const {editorState, actions} = useMediaEditorContext()!;
+  const { editorState, actions } = useMediaEditorContext()!;
 
   const [move, setMove] = createSignal(0);
   const [isCollapsed, setIsCollapsed] = createSignal(false);
@@ -36,7 +36,7 @@ export default function Toolbar(props: {onFinish: () => void; onClose: () => voi
   let canMove = false;
 
   function resetMove() {
-    if(isResetting) return;
+    if (isResetting) return;
     isResetting = true;
 
     startY = 0;
@@ -50,7 +50,7 @@ export default function Toolbar(props: {onFinish: () => void; onClose: () => voi
 
   onMount(() => {
     function startDrag(y: number) {
-      if(!isMobile()) return;
+      if (!isMobile()) return;
       startY = y;
       isAborted = false;
       canMove = false;
@@ -59,18 +59,18 @@ export default function Toolbar(props: {onFinish: () => void; onClose: () => voi
       }, 100); // wait for scroll to trigger first
     }
     function dragMove(y: number) {
-      if(!isMobile()) return;
-      if(isAborted) return;
-      if(!canMove) return;
+      if (!isMobile()) return;
+      if (isAborted) return;
+      if (!canMove) return;
       const diff = y - startY;
-      if(isCollapsed()) setMove(Math.min(Math.max(-containerHeight(), diff), 0));
+      if (isCollapsed()) setMove(Math.min(Math.max(-containerHeight(), diff), 0));
       else setMove(Math.max(Math.min(containerHeight(), diff), 0));
     }
     function dragEnd() {
-      if(!isMobile()) return;
-      if(isAborted) return;
+      if (!isMobile()) return;
+      if (isAborted) return;
       isAborted = true;
-      if(Math.abs(move()) > 100) {
+      if (Math.abs(move()) > 100) {
         setIsCollapsed((prev) => !prev);
       } else {
         resetMove();
@@ -127,11 +127,11 @@ export default function Toolbar(props: {onFinish: () => void; onClose: () => voi
   );
 
   createEffect(() => {
-    if(editorState.currentTab !== 'crop') setIsCollapsed(false);
+    if (editorState.currentTab !== 'crop') setIsCollapsed(false);
   });
 
   createEffect(() => {
-    if(editorState.renderingPayload && shouldHide()) {
+    if (editorState.renderingPayload && shouldHide()) {
       (async() => {
         toolbar!.style.transition = '.2s';
         await doubleRaf();
@@ -145,11 +145,11 @@ export default function Toolbar(props: {onFinish: () => void; onClose: () => voi
   const totalMove = () => extraMove() + move();
 
   const style = createMemo((): JSX.CSSProperties | undefined => {
-    if(isMobile()) return {
+    if (isMobile()) return {
       'opacity': editorState.isAdjusting ? 0 : 1,
       'transform': shouldHide() ?
         'translate(-50%, 100%)' :
-        `translate(-50%, ${totalMove()}px)`
+        `translate(-50%, ${totalMove()}px)`,
     };
   });
 
@@ -172,7 +172,7 @@ export default function Toolbar(props: {onFinish: () => void; onClose: () => voi
           crop: () => <CropTab />,
           text: () => <TextTab />,
           brush: () => <BrushTab />,
-          stickers: () => <StickersTab />
+          stickers: () => <StickersTab />,
         }}
       />
     </div>

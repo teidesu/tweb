@@ -7,27 +7,27 @@
  * stopPhoneCall; `!this.p2p` means the engine has not been started / is stopped).
  */
 
-import {gunzipSync, gzipSync} from 'fflate';
+import { gunzipSync, gzipSync } from 'fflate';
 import ctx from '@environment/ctx';
 import assumeType from '@helpers/assumeType';
 import safeAssign from '@helpers/object/safeAssign';
-import {PhoneCall, PhoneCallDiscardReason, PhoneCallProtocol, PhoneConnection} from '@layer';
-import {emojiFromCodePoints} from '@vendor/emoji';
-import type {CallId} from '@appManagers/appCallsManager';
-import type {AppManagers} from '@lib/managers';
-import {logger} from '@lib/logger';
+import { PhoneCall, PhoneCallDiscardReason, PhoneCallProtocol, PhoneConnection } from '@layer';
+import { emojiFromCodePoints } from '@vendor/emoji';
+import type { CallId } from '@appManagers/appCallsManager';
+import type { AppManagers } from '@lib/managers';
+import { logger } from '@lib/logger';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import CallInstanceBase from '@lib/calls/callInstanceBase';
 import getStream from '@lib/calls/helpers/getStream';
 import shouldMirrorVideoTrack from '@lib/calls/helpers/shouldMirrorVideoTrack';
 import callsController from '@lib/calls/callsController';
 import CALL_STATE from '@lib/calls/callState';
-import {GROUP_CALL_AMPLITUDE_ANALYSE_INTERVAL_MS} from '@lib/calls/constants';
+import { GROUP_CALL_AMPLITUDE_ANALYSE_INTERVAL_MS } from '@lib/calls/constants';
 import getCallProtocol from '@lib/calls/p2P/getCallProtocol';
 import P2PEncryptor from '@lib/calls/p2P/p2PEncryptor';
 import ByteBuf from '@lib/calls/p2P/byteBuf';
-import {isSctpPacket, SctpSignaling} from '@lib/calls/p2P/sctpSignaling';
-import {black, silence} from '@lib/calls/p2P/fallbackMedia';
+import { isSctpPacket, SctpSignaling } from '@lib/calls/p2P/sctpSignaling';
+import { black, silence } from '@lib/calls/p2P/fallbackMedia';
 import {
   ActiveLocalMedia,
   buildIceServers,
@@ -58,7 +58,7 @@ import {
   summarizeContents,
   summarizeTrack,
   tryAddCandidate,
-  validateRemoteAnswerSdp
+  validateRemoteAnswerSdp,
 } from '@lib/calls/p2P/utils';
 import {
   getSdpDirection,
@@ -68,12 +68,12 @@ import {
   parsePayloadTypes,
   parseSdpSections,
   summarizeSdp,
-  SdpSection
+  SdpSection,
 } from '@lib/calls/p2P/sdpCommon';
-import {SDPBuilder} from '@lib/calls/sdpBuilder';
+import { SDPBuilder } from '@lib/calls/sdpBuilder';
 import StreamManager from '@lib/calls/streamManager';
-import {CallMediaState, DiffieHellmanInfo, P2PMediaContent, P2PMessage} from '@lib/calls/types';
-import {isTruthy} from '../../helpers/isTruthy';
+import { CallMediaState, DiffieHellmanInfo, P2PMediaContent, P2PMessage } from '@lib/calls/types';
+import { isTruthy } from '../../helpers/isTruthy';
 
 const ICE_CANDIDATE_POOL_SIZE = 10;
 const DEFAULT_AUDIO_MID = '0';
@@ -219,9 +219,9 @@ export default class CallInstance extends CallInstanceBase<{
     newTrack: MediaStreamTrack
   ): void {
     const connection = this.p2p?.connection;
-    if(!connection) return;
-    for(const sender of connection.getSenders()) {
-      if(sender.track === oldTrack || (sender.track?.kind === kind && !sender.track)) {
+    if (!connection) return;
+    for (const sender of connection.getSenders()) {
+      if (sender.track === oldTrack || (sender.track?.kind === kind && !sender.track)) {
         sender.replaceTrack(newTrack).catch((err) => this.log?.warn?.('replaceSenderTrack', err));
       }
     }
@@ -240,21 +240,21 @@ export default class CallInstance extends CallInstanceBase<{
   // would dereference the cleared p2p, throw, and leave `newStream` LIVE —
   // camera LED stays on after the call ends.
   public async setInputVideoDeviceId(deviceId: string): Promise<void> {
-    if(!this.p2p || !this.isSharingVideo) return;
+    if (!this.p2p || !this.isSharingVideo) return;
     const sender = this.p2p.senders.video;
-    if(!sender) return;
+    if (!sender) return;
 
     let newStream: MediaStream;
     try {
       newStream = await getStream({
-        video: deviceId ? {deviceId: {exact: deviceId}} : true
+        video: deviceId ? { deviceId: { exact: deviceId } } : true,
       });
-    } catch(err) {
+    } catch (err) {
       this.log?.warn?.('setInputVideoDeviceId getUserMedia failed', err);
       return;
     }
 
-    if(!this.p2p || this.isClosing) {
+    if (!this.p2p || this.isClosing) {
       newStream.getTracks().forEach((t) => t.stop());
       return;
     }
@@ -262,28 +262,28 @@ export default class CallInstance extends CallInstanceBase<{
     const newTrack = newStream.getVideoTracks()[0];
     const oldStream = this.p2p.streams.ownVideo;
     const oldTrack = oldStream?.getVideoTracks()[0];
-    if(!newTrack || !oldTrack) {
+    if (!newTrack || !oldTrack) {
       newStream.getTracks().forEach((t) => t.stop());
       return;
     }
 
     try {
       await sender.replaceTrack(newTrack);
-    } catch(err) {
+    } catch (err) {
       this.log?.warn?.('setInputVideoDeviceId replaceTrack failed', err);
       newStream.getTracks().forEach((t) => t.stop());
       return;
     }
 
     // The `replaceTrack` itself was async — re-check after it resolves.
-    if(!this.p2p || this.isClosing) {
+    if (!this.p2p || this.isClosing) {
       newStream.getTracks().forEach((t) => t.stop());
       return;
     }
 
     // Stop the OLD getUserMedia stream so the camera light goes out — but
     // not the reused black/silence fallbacks the engine keeps around.
-    if(oldStream && oldStream !== this.p2p.blackVideo && oldStream !== this.p2p.blackPresentation) {
+    if (oldStream && oldStream !== this.p2p.blackVideo && oldStream !== this.p2p.blackPresentation) {
       oldStream.getTracks().forEach((t) => t.stop());
     }
 
@@ -294,7 +294,7 @@ export default class CallInstance extends CallInstanceBase<{
     // updates srcObject lazily on mediaState changes; doing it inline avoids
     // the next render gap.
     const inputEl = this.videoElements.get('input');
-    if(inputEl) {
+    if (inputEl) {
       inputEl.srcObject = newStream;
     }
 
@@ -308,21 +308,21 @@ export default class CallInstance extends CallInstanceBase<{
   // `!this.p2p` guard after each await — without it a hang-up during the
   // device picker resolution leaks the just-acquired mic stream.
   public async setInputAudioDeviceId(deviceId: string): Promise<void> {
-    if(!this.p2p || this.isMuted) return;
+    if (!this.p2p || this.isMuted) return;
     const sender = this.p2p.senders.audio;
-    if(!sender) return;
+    if (!sender) return;
 
     let newStream: MediaStream;
     try {
       newStream = await getStream({
-        audio: deviceId ? {deviceId: {exact: deviceId}} : true
+        audio: deviceId ? { deviceId: { exact: deviceId } } : true,
       });
-    } catch(err) {
+    } catch (err) {
       this.log?.warn?.('setInputAudioDeviceId getUserMedia failed', err);
       return;
     }
 
-    if(!this.p2p || this.isClosing) {
+    if (!this.p2p || this.isClosing) {
       newStream.getTracks().forEach((t) => t.stop());
       return;
     }
@@ -330,25 +330,25 @@ export default class CallInstance extends CallInstanceBase<{
     const newTrack = newStream.getAudioTracks()[0];
     const oldStream = this.p2p.streams.ownAudio;
     const oldTrack = oldStream?.getAudioTracks()[0];
-    if(!newTrack || !oldTrack) {
+    if (!newTrack || !oldTrack) {
       newStream.getTracks().forEach((t) => t.stop());
       return;
     }
 
     try {
       await sender.replaceTrack(newTrack);
-    } catch(err) {
+    } catch (err) {
       this.log?.warn?.('setInputAudioDeviceId replaceTrack failed', err);
       newStream.getTracks().forEach((t) => t.stop());
       return;
     }
 
-    if(!this.p2p || this.isClosing) {
+    if (!this.p2p || this.isClosing) {
       newStream.getTracks().forEach((t) => t.stop());
       return;
     }
 
-    if(oldStream && oldStream !== this.p2p.silence) {
+    if (oldStream && oldStream !== this.p2p.silence) {
       oldStream.getTracks().forEach((t) => t.stop());
     }
 
@@ -370,7 +370,7 @@ export default class CallInstance extends CallInstanceBase<{
 
     this.log = logger('CALL');
 
-    if(!this.protocol) {
+    if (!this.protocol) {
       this.protocol = getCallProtocol();
     }
 
@@ -386,18 +386,18 @@ export default class CallInstance extends CallInstanceBase<{
     this.addEventListener('state', (state) => {
       this.log('state', CALL_STATE[state]);
 
-      if(state === CALL_STATE.CLOSED) {
+      if (state === CALL_STATE.CLOSED) {
         this.cleanup();
       }
     });
   }
 
   get connectionState() {
-    if(this._connectionState !== undefined) {
+    if (this._connectionState !== undefined) {
       return this._connectionState;
     }
 
-    switch(this.p2pConnectionState) {
+    switch (this.p2pConnectionState) {
       case 'connected':
         return CALL_STATE.CONNECTED;
       case 'failed':
@@ -428,19 +428,19 @@ export default class CallInstance extends CallInstanceBase<{
 
   public getVideoElement(type: CallMediaState['type']) {
     const streams = this.getStreams();
-    if(!streams) {
+    if (!streams) {
       return undefined;
     }
 
     const stream = type === 'input' ?
       (this.isSharingScreen ? streams.ownPresentation : streams.ownVideo) :
       (streams.presentation || streams.video);
-    if(!stream) {
+    if (!stream) {
       return undefined;
     }
 
     let element = this.videoElements.get(type);
-    if(!element) {
+    if (!element) {
       element = document.createElement('video');
       element.autoplay = true;
       element.muted = true;
@@ -453,13 +453,13 @@ export default class CallInstance extends CallInstanceBase<{
       // text they hold up. Rear-facing own camera (`facingMode === 'environment'`)
       // stays un-mirrored — handled by shouldMirrorVideoTrack.
       const track = stream.getVideoTracks()[0];
-      if(type === 'input' && shouldMirrorVideoTrack(track)) {
+      if (type === 'input' && shouldMirrorVideoTrack(track)) {
         element.classList.add('call-video-mirror');
       }
       this.videoElements.set(type, element);
     }
 
-    if(element.srcObject !== stream) {
+    if (element.srcObject !== stream) {
       element.srcObject = stream;
     }
 
@@ -486,7 +486,7 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   public getMediaState(type: CallMediaState['type']): CallMediaState {
-    if(type === 'output') {
+    if (type === 'output') {
       return this.outputMediaState;
     }
 
@@ -497,7 +497,7 @@ export default class CallInstance extends CallInstanceBase<{
       'lowBattery': false,
       'screencastState': this.isSharingScreen ? 'active' : 'inactive',
       'videoRotation': 0,
-      'videoState': this.isSharingVideo ? 'active' : 'inactive'
+      'videoState': this.isSharingVideo ? 'active' : 'inactive',
     };
   }
 
@@ -519,7 +519,7 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   public get isClosing() {
-    const {connectionState} = this;
+    const { connectionState } = this;
     return connectionState === CALL_STATE.CLOSING || connectionState === CALL_STATE.CLOSED;
   }
 
@@ -532,7 +532,7 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   public clearHangUpTimeout() {
-    if(this.hangUpTimeout !== undefined) {
+    if (this.hangUpTimeout !== undefined) {
       clearTimeout(this.hangUpTimeout);
       this.hangUpTimeout = undefined;
     }
@@ -541,8 +541,8 @@ export default class CallInstance extends CallInstanceBase<{
   public setPhoneCall(phoneCall: PhoneCall) {
     this.call = phoneCall;
 
-    const {id} = phoneCall;
-    if(this.id !== id) {
+    const { id } = phoneCall;
+    if (this.id !== id) {
       const prevId = this.id;
       this.id = id;
       this.dispatchEvent('id', id, prevId);
@@ -551,7 +551,7 @@ export default class CallInstance extends CallInstanceBase<{
 
   public async acceptCall() {
     const canAccept = (await Promise.all(this.dispatchResultableEvent('acceptCallOverride')))[0] ?? true;
-    if(this.isClosing || !canAccept) {
+    if (this.isClosing || !canAccept) {
       return;
     }
 
@@ -565,13 +565,13 @@ export default class CallInstance extends CallInstanceBase<{
         b: dh.a,
         g_b: dh.g_a,
         g_b_hash: dh.g_a_hash,
-        p: dh.p
+        p: dh.p,
       };
 
       return this.managers.apiManager.invokeApi('phone.acceptCall', {
         peer: await this.managers.appCallsManager.getCallInput(this.id),
         protocol: this.protocol,
-        g_b: this.dh.g_b!
+        g_b: this.dh.g_b!,
       });
     }).then(async(phonePhoneCall) => {
       await this.managers.appCallsManager.savePhonePhoneCall(phonePhoneCall);
@@ -582,11 +582,11 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   public async confirmCall() {
-    const {protocol, id, call} = this;
+    const { protocol, id, call } = this;
     const dh = this.dh as DiffieHellmanInfo.a;
 
     this.overrideConnectionState(CALL_STATE.EXCHANGING_KEYS);
-    const {key, key_fingerprint} = await this.managers.appCallsManager.computeKey(
+    const { key, key_fingerprint } = await this.managers.appCallsManager.computeKey(
       (call as PhoneCall.phoneCallAccepted).g_b,
       dh.a,
       dh.p
@@ -596,7 +596,7 @@ export default class CallInstance extends CallInstanceBase<{
       peer: await this.managers.appCallsManager.getCallInput(id),
       protocol: protocol,
       g_a: dh.g_a,
-      key_fingerprint: key_fingerprint
+      key_fingerprint: key_fingerprint,
     });
 
     this.encryptionKey = key;
@@ -605,7 +605,7 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   public joinCall() {
-    if(this.joined) {
+    if (this.joined) {
       return;
     }
 
@@ -615,24 +615,24 @@ export default class CallInstance extends CallInstanceBase<{
     this.getEmojisFingerprint();
 
     const call = this.call as PhoneCall.phoneCall;
-    const {isOutgoing, encryptionKey} = this;
+    const { isOutgoing, encryptionKey } = this;
 
     this.encryptor = new P2PEncryptor(isOutgoing, encryptionKey);
     this.sctp = this.getCustomParam('network_signaling_nosctp') ? undefined : new SctpSignaling();
 
     const connections: Connection[] = (call.connections || [])
-    .filter((connection): connection is PhoneConnection.phoneConnectionWebrtc => {
-      return connection._ === 'phoneConnectionWebrtc';
-    })
-    .map((connection) => ({
-      ip: connection.ip,
-      ipv6: connection.ipv6,
-      port: +connection.port,
-      username: connection.username,
-      password: connection.password,
-      isTurn: !!connection.pFlags.turn,
-      isStun: !!connection.pFlags.stun
-    }));
+      .filter((connection): connection is PhoneConnection.phoneConnectionWebrtc => {
+        return connection._ === 'phoneConnectionWebrtc';
+      })
+      .map((connection) => ({
+        ip: connection.ip,
+        ipv6: connection.ipv6,
+        port: +connection.port,
+        username: connection.username,
+        password: connection.password,
+        isTurn: !!connection.pFlags.turn,
+        isStun: !!connection.pFlags.stun,
+      }));
 
     this.joinPhoneCall(
       connections,
@@ -653,14 +653,14 @@ export default class CallInstance extends CallInstanceBase<{
     const json = JSON.stringify(data);
     // 13.0.0 (v3): gzip the JSON payload inside the encrypted packet.
     const gzipped = gzipSync(new TextEncoder().encode(json));
-    const {bytes} = await this.encryptor.encryptRawPacket(gzipped);
+    const { bytes } = await this.encryptor.encryptRawPacket(gzipped);
 
     this.log('sendCallSignalingData', this.id, json);
 
-    if(this.sctp) {
+    if (this.sctp) {
       // wrap the encrypted blob in an SCTP DATA packet (or an INIT during handshake)
       const packet = this.sctp.wrapPayload(ByteBuf.wrap(bytes));
-      if(packet) {
+      if (packet) {
         await this.sendSignalingRaw(packet);
       }
 
@@ -673,39 +673,39 @@ export default class CallInstance extends CallInstanceBase<{
   private async sendSignalingRaw(packet: number[] | Uint8Array) {
     await this.managers.apiManager.invokeApi('phone.sendSignalingData', {
       peer: await this.managers.appCallsManager.getCallInput(this.id),
-      data: packet instanceof Uint8Array ? packet : new Uint8Array(packet)
+      data: packet instanceof Uint8Array ? packet : new Uint8Array(packet),
     });
   }
 
   // Flush SCTP control packets (INIT/COOKIE/SACK/heartbeat) produced as a side effect.
   private async drainSctp() {
-    if(!this.sctp) {
+    if (!this.sctp) {
       return;
     }
 
-    for(const packet of this.sctp.drainPackets()) {
+    for (const packet of this.sctp.drainPackets()) {
       await this.sendSignalingRaw(packet);
     }
   }
 
   private getCustomParam(key: string) {
     const customParameters = (this.call as PhoneCall.phoneCall)?.custom_parameters;
-    if(customParameters?._ !== 'dataJSON') {
+    if (customParameters?._ !== 'dataJSON') {
       return undefined;
     }
 
     try {
       return JSON.parse(customParameters.data)?.[key];
-    } catch(err) {
+    } catch (err) {
       return undefined;
     }
   }
 
   private onUpdate(update: Update) {
-    switch(update['@type']) {
+    switch (update['@type']) {
       case 'updatePhoneCallConnectionState': {
         this.p2pConnectionState = update.connectionState;
-        if(update.connectionState === 'connected' && this.connectedAt === undefined) {
+        if (update.connectionState === 'connected' && this.connectedAt === undefined) {
           this.connectedAt = Date.now();
         }
 
@@ -713,7 +713,7 @@ export default class CallInstance extends CallInstanceBase<{
         this._connectionState = undefined;
         this.dispatchEvent('state', this.connectionState);
 
-        if(update.connectionState === 'failed') {
+        if (update.connectionState === 'failed') {
           this.hangUp('phoneCallDiscardReasonDisconnect');
         }
         break;
@@ -727,7 +727,7 @@ export default class CallInstance extends CallInstanceBase<{
           'lowBattery': update.isBatteryLow,
           'screencastState': update.screencastState === 'active' ? 'active' : 'inactive',
           'videoRotation': update.videoRotation || 0,
-          'videoState': update.videoState === 'active' ? 'active' : 'inactive'
+          'videoState': update.videoState === 'active' ? 'active' : 'inactive',
         });
         break;
       }
@@ -735,8 +735,8 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   public getEmojisFingerprint() {
-    if(this.emojisFingerprint) return this.emojisFingerprint;
-    if(this.getEmojisFingerprintPromise) return this.getEmojisFingerprintPromise;
+    if (this.emojisFingerprint) return this.emojisFingerprint;
+    if (this.getEmojisFingerprintPromise) return this.getEmojisFingerprintPromise;
     return this.getEmojisFingerprintPromise = apiManagerProxy.invokeCrypto(
       'get-emojis-fingerprint',
       this.encryptionKey,
@@ -769,11 +769,11 @@ export default class CallInstance extends CallInstanceBase<{
     discardReason?: PhoneCallDiscardReason | Exclude<PhoneCallDiscardReason['_'], PhoneCallDiscardReason.phoneCallDiscardReasonMigrateConferenceCall['_']>,
     discardedByOtherParty?: boolean
   ) {
-    if(this.isClosing) {
+    if (this.isClosing) {
       return;
     }
 
-    discardReason = typeof(discardReason) === 'string' ? {_: discardReason} : discardReason;
+    discardReason = typeof(discardReason) === 'string' ? { _: discardReason } : discardReason;
     assumeType<PhoneCallDiscardReason>(discardReason);
 
     this.discardReason = discardReason;
@@ -785,38 +785,38 @@ export default class CallInstance extends CallInstanceBase<{
 
     try {
       this.stopPhoneCall();
-    } catch(err) {
+    } catch (err) {
       this.log.error('stopPhoneCall error', err);
     }
 
-    if(discardReason && !discardedByOtherParty) {
+    if (discardReason && !discardedByOtherParty) {
       await this.managers.appCallsManager.discardCall(this.id, this.duration, discardReason, hasVideo);
     }
   }
 
   private async processDecryptQueue() {
-    const {encryptor} = this;
-    if(!encryptor) {
+    const { encryptor } = this;
+    if (!encryptor) {
       this.log.warn('got encrypted signaling data before the encryption key');
       return;
     }
 
     const length = this.decryptQueue.length;
-    if(!length) {
+    if (!length) {
       return;
     }
 
     const queue = this.decryptQueue.slice();
     this.decryptQueue.length = 0;
 
-    for(const data of queue) {
+    for (const data of queue) {
       // a v3 packet may be SCTP-wrapped and carry several encrypted payloads
       const incoming = ByteBuf.wrap(data);
       const bodies = this.sctp && isSctpPacket(incoming) ? this.sctp.receive(incoming) : [incoming];
 
-      for(const body of bodies) {
+      for (const body of bodies) {
         const decryptedData = await encryptor.decryptRawPacket(body);
-        if(!decryptedData) {
+        if (!decryptedData) {
           continue;
         }
 
@@ -827,7 +827,7 @@ export default class CallInstance extends CallInstanceBase<{
         let signalingData: P2PMessage;
         try {
           signalingData = JSON.parse(str);
-        } catch(err) {
+        } catch (err) {
           this.log.error('wrong signaling data', str);
           this.hangUp('phoneCallDiscardReasonDisconnect');
           callsController.dispatchEvent('incompatible', this.interlocutorUserId);
@@ -858,27 +858,27 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   private updateStreams() {
-    if(!this.p2p) return;
+    if (!this.p2p) return;
 
     this.onUpdate({
       ...this.p2p.remoteMediaState,
-      '@type': 'updatePhoneCallMediaState'
+      '@type': 'updatePhoneCallMediaState',
     });
   }
 
   private getSender(streamType: StreamType) {
-    if(!this.p2p) return undefined;
+    if (!this.p2p) return undefined;
 
-    if(streamType === 'audio') return this.p2p.senders.audio;
-    if(streamType === 'video') return this.p2p.senders.video;
+    if (streamType === 'audio') return this.p2p.senders.audio;
+    if (streamType === 'video') return this.p2p.senders.video;
     return this.p2p.senders.presentation;
   }
 
   private getTransceiver(streamType: StreamType) {
-    if(!this.p2p) return undefined;
+    if (!this.p2p) return undefined;
 
-    if(streamType === 'audio') return this.p2p.transceivers.audio;
-    if(streamType === 'video') return this.p2p.transceivers.video;
+    if (streamType === 'audio') return this.p2p.transceivers.audio;
+    if (streamType === 'video') return this.p2p.transceivers.video;
     return this.p2p.transceivers.presentation;
   }
 
@@ -886,9 +886,9 @@ export default class CallInstance extends CallInstanceBase<{
     streamType: Extract<StreamType, 'video' | 'presentation'>,
     transceiver: RTCRtpTransceiver,
   ) {
-    if(!this.p2p) return;
+    if (!this.p2p) return;
 
-    if(streamType === 'video') {
+    if (streamType === 'video') {
       this.p2p.transceivers.video = transceiver;
       this.p2p.senders.video = transceiver.sender;
     } else {
@@ -898,11 +898,11 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   private setOwnStream(streamType: StreamType, stream: MediaStream) {
-    if(!this.p2p) return;
+    if (!this.p2p) return;
 
-    if(streamType === 'audio') {
+    if (streamType === 'audio') {
       this.p2p.streams.ownAudio = stream;
-    } else if(streamType === 'video') {
+    } else if (streamType === 'video') {
       this.p2p.streams.ownVideo = stream;
     } else {
       this.p2p.streams.ownPresentation = stream;
@@ -910,28 +910,28 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   private getOwnStream(streamType: StreamType) {
-    if(!this.p2p) return undefined;
+    if (!this.p2p) return undefined;
 
-    if(streamType === 'audio') return this.p2p.streams.ownAudio;
-    if(streamType === 'video') return this.p2p.streams.ownVideo;
+    if (streamType === 'audio') return this.p2p.streams.ownAudio;
+    if (streamType === 'video') return this.p2p.streams.ownVideo;
     return this.p2p.streams.ownPresentation;
   }
 
   private getFallbackStream(streamType: StreamType) {
-    if(!this.p2p) return undefined;
+    if (!this.p2p) return undefined;
 
-    if(streamType === 'audio') return this.p2p.silence;
-    if(streamType === 'video') return this.p2p.blackVideo;
+    if (streamType === 'audio') return this.p2p.silence;
+    if (streamType === 'video') return this.p2p.blackVideo;
     return this.p2p.blackPresentation;
   }
 
   public async switchCameraInput() {
-    if(!this.p2p || !this.p2p.facingMode) {
+    if (!this.p2p || !this.p2p.facingMode) {
       return;
     }
 
     const sender = this.getSender('video');
-    if(!sender) {
+    if (!sender) {
       this.log('switch camera skipped: missing sender');
       return;
     }
@@ -942,7 +942,7 @@ export default class CallInstance extends CallInstanceBase<{
     try {
       newStream = await getUserStream('video', nextFacingMode);
       const newTrack = getStreamTrack(newStream);
-      if(!newTrack) {
+      if (!newTrack) {
         stopStream(newStream);
         return;
       }
@@ -954,7 +954,7 @@ export default class CallInstance extends CallInstanceBase<{
       stopStream(oldStream, this.p2p.blackVideo);
       this.updateStreams();
       this.sendLocalMediaState();
-    } catch{
+    } catch {
       stopStream(newStream);
       this.log('switch camera failed');
       // Ignore camera switch failures; the previous track stays active.
@@ -962,17 +962,17 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   private async toggleStream(streamType: StreamType, value: boolean | undefined = undefined) {
-    if(!this.p2p) return;
+    if (!this.p2p) return;
 
     const stream = this.getOwnStream(streamType);
     const track = getStreamTrack(stream);
     const sender = this.getSender(streamType);
 
-    if(!track || (streamType === 'audio' && !sender)) {
+    if (!track || (streamType === 'audio' && !sender)) {
       this.log('toggle skipped: missing track or sender', {
         streamType,
         track: summarizeTrack(track),
-        hasSender: Boolean(sender)
+        hasSender: Boolean(sender),
       });
       return;
     }
@@ -982,11 +982,11 @@ export default class CallInstance extends CallInstanceBase<{
     try {
       let hasChanged = false;
       let shouldRenegotiate = false;
-      if(shouldEnable && !track.enabled) {
+      if (shouldEnable && !track.enabled) {
         const facingMode = streamType === 'video' ? this.p2p.facingMode || 'user' : undefined;
         const newStream = await getUserStream(streamType, facingMode);
         const newTrack = getStreamTrack(newStream);
-        if(!newTrack) {
+        if (!newTrack) {
           stopStream(newStream);
           return;
         }
@@ -999,54 +999,54 @@ export default class CallInstance extends CallInstanceBase<{
           let transceiver = this.getTransceiver(streamType);
           const shouldCreateVideoTransceiver = streamType !== 'audio' &&
             (!sender || !transceiver || transceiver.currentDirection === 'stopped');
-          if(shouldCreateVideoTransceiver) {
+          if (shouldCreateVideoTransceiver) {
             transceiver = this.p2p.connection.addTransceiver(newTrack, {
               direction: 'sendrecv',
-              streams: [newStream]
+              streams: [newStream],
             });
             this.setLocalVideoTransceiver(streamType, transceiver);
             shouldRenegotiate = true;
           } else {
             await sender!.replaceTrack(newTrack);
           }
-          if(transceiver && streamType !== 'audio') {
+          if (transceiver && streamType !== 'audio') {
             shouldRenegotiate ||= !transceiver.mid || transceiver.currentDirection === 'inactive';
             transceiver.direction = 'sendrecv';
           }
           this.setOwnStream(streamType, newStream);
-        } catch(err) {
+        } catch (err) {
           stopStream(newStream);
           throw err;
         }
         hasChanged = true;
 
-        if(streamType === 'video') {
+        if (streamType === 'video') {
           this.p2p.facingMode = facingMode;
           this.p2p.isUpdatingExclusiveVideo = true;
           await this.toggleStream('presentation', false);
           this.p2p.isUpdatingExclusiveVideo = false;
-        } else if(streamType === 'presentation') {
+        } else if (streamType === 'presentation') {
           this.p2p.isUpdatingExclusiveVideo = true;
           await this.toggleStream('video', false);
           this.p2p.isUpdatingExclusiveVideo = false;
         }
-      } else if(!shouldEnable && track.enabled) {
+      } else if (!shouldEnable && track.enabled) {
         const fallback = this.getFallbackStream(streamType);
         const fallbackTrack = getStreamTrack(fallback);
-        if(!fallback || !fallbackTrack) {
+        if (!fallback || !fallbackTrack) {
           return;
         }
 
-        if(!sender) {
+        if (!sender) {
           return;
         }
 
         try {
           await sender.replaceTrack(fallbackTrack);
-        } catch(err) {
+        } catch (err) {
           this.log('toggle failed replacing stream with fallback', {
             error: err instanceof Error ? err.message : String(err),
-            streamType
+            streamType,
           });
           return;
         }
@@ -1056,7 +1056,7 @@ export default class CallInstance extends CallInstanceBase<{
         hasChanged = true;
       }
 
-      if(!hasChanged) {
+      if (!hasChanged) {
         return;
       }
 
@@ -1066,17 +1066,17 @@ export default class CallInstance extends CallInstanceBase<{
         !this.p2p.isStarting &&
         !this.p2p.isUpdatingExclusiveVideo &&
         (streamType === 'video' || streamType === 'presentation');
-      if(shouldRenegotiate) {
+      if (shouldRenegotiate) {
         void this.sendOffer();
       }
-    } catch(err) {
+    } catch (err) {
       this.log('toggle failed', {
         streamType,
         shouldEnable,
         error: err instanceof Error ? {
           name: err.name,
-          message: err.message
-        } : String(err)
+          message: err.message,
+        } : String(err),
       });
       // Ignore media device failures; the current sender track stays active.
     }
@@ -1087,32 +1087,32 @@ export default class CallInstance extends CallInstanceBase<{
     shouldStartVideo: boolean,
     isP2p: boolean,
   ) {
-    const {isOutgoing} = this;
+    const { isOutgoing } = this;
     const conn = new RTCPeerConnection({
       iceServers: buildIceServers(connections, isP2p),
       iceTransportPolicy: isP2p ? 'all' : 'relay',
       bundlePolicy: 'max-bundle',
       rtcpMuxPolicy: 'require',
-      iceCandidatePoolSize: ICE_CANDIDATE_POOL_SIZE
+      iceCandidatePoolSize: ICE_CANDIDATE_POOL_SIZE,
     });
 
     const audioContext = new AudioContext();
     const silentStream = silence(audioContext);
-    const blackVideo = black({width: 640, height: 480});
-    const blackPresentation = black({width: 640, height: 480});
+    const blackVideo = black({ width: 640, height: 480 });
+    const blackPresentation = black({ width: 640, height: 480 });
     const audioTrack = getStreamTrack(silentStream);
 
-    if(!audioTrack) {
+    if (!audioTrack) {
       throw Error('Failed creating phone call placeholder tracks');
     }
 
     const audioTransceiver = conn.addTransceiver(audioTrack, {
       direction: 'sendrecv',
-      streams: [silentStream]
+      streams: [silentStream],
     });
 
     const dataChannel = isOutgoing ? conn.createDataChannel('data', {
-      id: DATA_CHANNEL_ID
+      id: DATA_CHANNEL_ID,
     }) : undefined;
 
     const audio = new Audio();
@@ -1125,9 +1125,9 @@ export default class CallInstance extends CallInstanceBase<{
         return {
           isTurn: connection.isTurn,
           isStun: connection.isStun,
-          port: connection.port
+          port: connection.port,
         };
-      })
+      }),
     });
 
     this.p2p = {
@@ -1141,36 +1141,36 @@ export default class CallInstance extends CallInstanceBase<{
       streams: {
         ownVideo: blackVideo,
         ownAudio: silentStream,
-        ownPresentation: blackPresentation
+        ownPresentation: blackPresentation,
       },
       remoteMediaState: {
         isBatteryLow: false,
         screencastState: 'inactive',
         videoState: 'inactive',
         videoRotation: 0,
-        isMuted: true
+        isMuted: true,
       },
       blackVideo,
       blackPresentation,
       silence: silentStream,
       dataChannel,
       transceivers: {
-        audio: audioTransceiver
+        audio: audioTransceiver,
       },
       senders: {
-        audio: audioTransceiver.sender
+        audio: audioTransceiver.sender,
       },
-      exchangeId: Math.floor(Math.random() * 0xFFFFFFFF)
+      exchangeId: Math.floor(Math.random() * 0xFFFFFFFF),
     };
 
     conn.onicecandidate = (event) => {
-      if(!event.candidate || !this.p2p) {
+      if (!event.candidate || !this.p2p) {
         return;
       }
 
       const serializedCandidate = event.candidate.toJSON();
       const sdpString = normalizeCandidateComponent(serializedCandidate.candidate);
-      if(!sdpString) {
+      if (!sdpString) {
         return;
       }
 
@@ -1182,8 +1182,8 @@ export default class CallInstance extends CallInstanceBase<{
           sdpString,
           sdpMid: serializedCandidate.sdpMid || undefined,
           sdpMLineIndex: serializedCandidate.sdpMLineIndex ?? undefined,
-          usernameFragment: serializedCandidate.usernameFragment || undefined
-        }]
+          usernameFragment: serializedCandidate.usernameFragment || undefined,
+        }],
       });
     };
 
@@ -1191,27 +1191,27 @@ export default class CallInstance extends CallInstanceBase<{
       this.log('connection state changed', {
         connectionState: conn.connectionState,
         iceConnectionState: conn.iceConnectionState,
-        signalingState: conn.signalingState
+        signalingState: conn.signalingState,
       });
       this.onUpdate({
         '@type': 'updatePhoneCallConnectionState',
-        'connectionState': conn.connectionState
+        'connectionState': conn.connectionState,
       });
     };
 
     conn.ontrack = (event) => {
-      if(!this.p2p) return;
+      if (!this.p2p) return;
 
-      if(conn.iceConnectionState === 'connected' || conn.iceConnectionState === 'completed') {
+      if (conn.iceConnectionState === 'connected' || conn.iceConnectionState === 'completed') {
         this.onUpdate({
           '@type': 'updatePhoneCallConnectionState',
-          'connectionState': 'connected'
+          'connectionState': 'connected',
         });
       }
 
       const stream = event.streams[0] || new MediaStream([event.track]);
-      if(event.track.kind === 'audio') {
-        if(event.transceiver !== this.p2p.transceivers.audio) {
+      if (event.track.kind === 'audio') {
+        if (event.transceiver !== this.p2p.transceivers.audio) {
           this.p2p.transceivers.remoteAudio = event.transceiver;
         }
         this.p2p.audio.srcObject = stream;
@@ -1219,27 +1219,27 @@ export default class CallInstance extends CallInstanceBase<{
         this.p2p.audio.setAttribute('playsinline', 'true');
         this.p2p.audio.play().catch((err) => {
           this.log('audio playback failed', {
-            error: err instanceof Error ? err.message : String(err)
+            error: err instanceof Error ? err.message : String(err),
           });
         });
         event.track.onunmute = () => {
-          if(!this.p2p) return;
+          if (!this.p2p) return;
 
           this.p2p.audio.srcObject = stream;
           this.p2p.audio.play().catch((err) => {
             this.log('audio playback after unmute failed', {
-              error: err instanceof Error ? err.message : String(err)
+              error: err instanceof Error ? err.message : String(err),
             });
           });
         };
         this.p2p.streams.audio = stream;
-      } else if(
+      } else if (
         event.transceiver === this.p2p.transceivers.remoteVideo || this.isRemoteContentTransceiver(event.transceiver, false)
       ) {
         this.p2p.transceivers.remoteVideo = event.transceiver;
         this.p2p.remoteMediaState.videoState = 'active';
         this.p2p.streams.video = stream;
-      } else if(
+      } else if (
         event.transceiver === this.p2p.transceivers.remotePresentation ||
         this.isRemoteContentTransceiver(event.transceiver, true)
       ) {
@@ -1249,7 +1249,7 @@ export default class CallInstance extends CallInstanceBase<{
       } else {
         this.log('remote video track ignored: unknown transceiver', {
           track: summarizeTrack(event.track),
-          mid: event.transceiver.mid
+          mid: event.transceiver.mid,
         });
       }
 
@@ -1257,13 +1257,13 @@ export default class CallInstance extends CallInstanceBase<{
     };
 
     conn.oniceconnectionstatechange = () => {
-      if(conn.iceConnectionState === 'connected' || conn.iceConnectionState === 'completed') {
+      if (conn.iceConnectionState === 'connected' || conn.iceConnectionState === 'completed') {
         this.onUpdate({
           '@type': 'updatePhoneCallConnectionState',
-          'connectionState': 'connected'
+          'connectionState': 'connected',
         });
       }
-      if(!this.p2p || !isOutgoing || conn.iceConnectionState !== 'failed') {
+      if (!this.p2p || !isOutgoing || conn.iceConnectionState !== 'failed') {
         return;
       }
 
@@ -1273,32 +1273,32 @@ export default class CallInstance extends CallInstanceBase<{
     };
 
     conn.ondatachannel = (event) => {
-      if(event.channel.label === 'data') {
+      if (event.channel.label === 'data') {
         this.attachDataChannel(event.channel);
       }
     };
 
-    if(dataChannel) {
+    if (dataChannel) {
       this.attachDataChannel(dataChannel);
     }
 
     await this.toggleStream('audio', true);
 
-    if(shouldStartVideo) {
+    if (shouldStartVideo) {
       await this.toggleStream('video', true);
     }
 
-    if(this.p2p) {
+    if (this.p2p) {
       this.p2p.isStarting = false;
     }
 
-    if(isOutgoing) {
+    if (isOutgoing) {
       await this.sendOffer();
     }
   }
 
   private stopPhoneCall() {
-    if(!this.p2p) return;
+    if (!this.p2p) return;
 
     stopStream(this.p2p.streams.ownVideo);
     stopStream(this.p2p.streams.ownPresentation);
@@ -1314,7 +1314,7 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   private isRemoteContentTransceiver(transceiver: RTCRtpTransceiver, isPresentation: boolean) {
-    if(!this.p2p || !transceiver.mid) {
+    if (!this.p2p || !transceiver.mid) {
       return false;
     }
 
@@ -1324,7 +1324,7 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   private attachDataChannel(dataChannel: RTCDataChannel) {
-    if(!this.p2p) return;
+    if (!this.p2p) return;
 
     this.p2p.dataChannel = dataChannel;
     dataChannel.onopen = () => {
@@ -1334,13 +1334,13 @@ export default class CallInstance extends CallInstanceBase<{
     dataChannel.onerror = () => {
       this.log('data channel error', {
         id: dataChannel.id,
-        readyState: dataChannel.readyState
+        readyState: dataChannel.readyState,
       });
     };
     dataChannel.onmessage = (event) => {
-      if(typeof event.data !== 'string') {
+      if (typeof event.data !== 'string') {
         this.log('data channel non-string message', {
-          dataType: typeof event.data
+          dataType: typeof event.data,
         });
         return;
       }
@@ -1348,11 +1348,11 @@ export default class CallInstance extends CallInstanceBase<{
       let message: P2PMessage;
       try {
         message = JSON.parse(event.data);
-      } catch(err) {
+      } catch (err) {
         this.log('data channel message parse failed', {
           dataLength: event.data.length,
           dataType: typeof event.data,
-          error: err instanceof Error ? err.message : String(err)
+          error: err instanceof Error ? err.message : String(err),
         });
         return;
       }
@@ -1360,7 +1360,7 @@ export default class CallInstance extends CallInstanceBase<{
       this.enqueueDataChannelSignalingMessage(message).catch((err) => {
         this.log('data channel signaling message failed', {
           error: err instanceof Error ? err.message : String(err),
-          messageType: message['@type']
+          messageType: message['@type'],
         });
       });
     };
@@ -1368,14 +1368,14 @@ export default class CallInstance extends CallInstanceBase<{
 
   private enqueueDataChannelSignalingMessage(message: P2PMessage) {
     this.dataChannelSignalingMessagePromise = this.dataChannelSignalingMessagePromise
-    .catch(() => {})
-    .then(() => this.processSignalingMessage(message));
+      .catch(() => {})
+      .then(() => this.processSignalingMessage(message));
 
     return this.dataChannelSignalingMessagePromise;
   }
 
   private sendLocalMediaState() {
-    if(!this.p2p || this.p2p.dataChannel?.readyState !== 'open') return;
+    if (!this.p2p || this.p2p.dataChannel?.readyState !== 'open') return;
 
     const ownAudioTrack = getStreamTrack(this.p2p.streams.ownAudio);
     const ownVideoTrack = getStreamTrack(this.p2p.streams.ownVideo);
@@ -1387,19 +1387,19 @@ export default class CallInstance extends CallInstanceBase<{
       'muted': !ownAudioTrack?.enabled,
       'lowBattery': false,
       'videoState': ownVideoTrack?.enabled ? 'active' : 'inactive',
-      'screencastState': ownPresentationTrack?.enabled ? 'active' : 'inactive'
+      'screencastState': ownPresentationTrack?.enabled ? 'active' : 'inactive',
     };
 
     this.p2p.dataChannel.send(JSON.stringify(message));
   }
 
   private getMediaMids(): MediaMids {
-    if(!this.p2p) {
+    if (!this.p2p) {
       return {
         audio: DEFAULT_AUDIO_MID,
         video: DEFAULT_VIDEO_MID,
         presentation: DEFAULT_PRESENTATION_MID,
-        data: DEFAULT_DATA_MID
+        data: DEFAULT_DATA_MID,
       };
     }
 
@@ -1412,19 +1412,19 @@ export default class CallInstance extends CallInstanceBase<{
       audio: this.p2p.transceivers.audio.mid || DEFAULT_AUDIO_MID,
       video: this.p2p.transceivers.video?.mid || DEFAULT_VIDEO_MID,
       presentation: this.p2p.transceivers.presentation?.mid || DEFAULT_PRESENTATION_MID,
-      data: localDataMid || DEFAULT_DATA_MID
+      data: localDataMid || DEFAULT_DATA_MID,
     };
   }
 
   private sendLocalDescription(
     description: RTCSessionDescription | RTCSessionDescriptionInit | undefined, exchangeId?: string,
   ) {
-    if(!this.p2p || !description?.sdp) return;
+    if (!this.p2p || !description?.sdp) return;
 
     const contents = parseMediaContents(description.sdp, this.getMediaMids(), this.getActiveLocalMedia());
     const localExchangeId = exchangeId || String(++this.p2p.exchangeId);
 
-    if(description.type === 'offer') {
+    if (description.type === 'offer') {
       this.p2p.pendingLocalContentMids = parseMediaContentMids(description.sdp, contents);
     }
     this.p2p.localCandidateExchangeId = localExchangeId;
@@ -1435,25 +1435,25 @@ export default class CallInstance extends CallInstanceBase<{
       contents: summarizeContents(contents),
       contentMids: this.p2p.pendingLocalContentMids,
       sdp: summarizeSdp(description.sdp),
-      transceivers: this.summarizeTransceivers()
+      transceivers: this.summarizeTransceivers(),
     });
     this.sendLocalSetup(description);
     this.p2p.pendingLocalExchangeId = localExchangeId;
     this.sendCallSignalingData({
       '@type': 'NegotiateChannels',
       'exchangeId': localExchangeId,
-      contents
+      contents,
     });
   }
 
   private sendLocalMediaOffer() {
-    if(!this.p2p?.connection.localDescription?.sdp) {
+    if (!this.p2p?.connection.localDescription?.sdp) {
       return;
     }
 
-    const {localDescription} = this.p2p.connection;
+    const { localDescription } = this.p2p.connection;
     const contents = parseMediaContents(localDescription.sdp, this.getMediaMids(), this.getActiveLocalMedia());
-    if(!contents.length) {
+    if (!contents.length) {
       return;
     }
 
@@ -1467,30 +1467,30 @@ export default class CallInstance extends CallInstanceBase<{
       contents: summarizeContents(contents),
       contentMids: this.p2p.pendingLocalContentMids,
       sdp: summarizeSdp(localDescription.sdp),
-      transceivers: this.summarizeTransceivers()
+      transceivers: this.summarizeTransceivers(),
     });
     this.sendCallSignalingData({
       '@type': 'NegotiateChannels',
       exchangeId,
-      contents
+      contents,
     });
   }
 
   private async sendOffer() {
-    if(!this.p2p || this.p2p.isMakingOffer || this.p2p.connection.signalingState === 'closed') {
+    if (!this.p2p || this.p2p.isMakingOffer || this.p2p.connection.signalingState === 'closed') {
       return;
     }
 
-    const {connection} = this.p2p;
+    const { connection } = this.p2p;
     this.p2p.isMakingOffer = true;
     this.log('create offer', {
       signalingState: connection.signalingState,
-      transceivers: this.summarizeTransceivers()
+      transceivers: this.summarizeTransceivers(),
     });
 
     try {
       const offer = await connection.createOffer();
-      if(!this.p2p) {
+      if (!this.p2p) {
         return;
       }
 
@@ -1498,38 +1498,38 @@ export default class CallInstance extends CallInstanceBase<{
       this.p2p.localCandidateExchangeId = exchangeId;
       await connection.setLocalDescription(offer);
       this.sendLocalDescription(connection.localDescription || undefined, exchangeId);
-    } catch{
+    } catch {
       this.log('create offer failed', {
-        signalingState: connection.signalingState
+        signalingState: connection.signalingState,
       });
       // Negotiation errors are recovered by the next signaling exchange or hang-up.
     } finally {
-      if(this.p2p) {
+      if (this.p2p) {
         this.p2p.isMakingOffer = false;
       }
     }
   }
 
   private async applyRemoteNegotiation() {
-    if(!this.p2p || !this.p2p.remoteSetup || !this.p2p.pendingRemoteNegotiation?.contents.length) {
+    if (!this.p2p || !this.p2p.remoteSetup || !this.p2p.pendingRemoteNegotiation?.contents.length) {
       return;
     }
-    if(this.p2p.isApplyingRemoteNegotiation) {
+    if (this.p2p.isApplyingRemoteNegotiation) {
       this.log('remote negotiation already applying', {
-        exchangeId: this.p2p.pendingRemoteNegotiation.exchangeId
+        exchangeId: this.p2p.pendingRemoteNegotiation.exchangeId,
       });
       return;
     }
 
     const {
-      connection, remoteSetup, pendingLocalExchangeId, pendingRemoteNegotiation
+      connection, remoteSetup, pendingLocalExchangeId, pendingRemoteNegotiation,
     } = this.p2p;
     const isAnswer = pendingRemoteNegotiation.exchangeId === pendingLocalExchangeId;
-    if(isAnswer && connection.signalingState !== 'have-local-offer') {
+    if (isAnswer && connection.signalingState !== 'have-local-offer') {
       this.log('apply logical remote answer', {
         exchangeId: pendingRemoteNegotiation.exchangeId,
         signalingState: connection.signalingState,
-        contents: summarizeContents(pendingRemoteNegotiation.contents)
+        contents: summarizeContents(pendingRemoteNegotiation.contents),
       });
       this.p2p.pendingLocalExchangeId = undefined;
       this.p2p.pendingLocalContentMids = undefined;
@@ -1537,7 +1537,7 @@ export default class CallInstance extends CallInstanceBase<{
       this.p2p.pendingRemoteNegotiation = undefined;
       return;
     }
-    if(!isAnswer) {
+    if (!isAnswer) {
       this.prepareTransceiversForRemoteOffer(pendingRemoteNegotiation.contents);
       this.p2p.pendingRemoteContentMids = this.buildRemoteContentMids(pendingRemoteNegotiation.contents);
     }
@@ -1548,46 +1548,46 @@ export default class CallInstance extends CallInstanceBase<{
       signalingState: connection.signalingState,
       contents: summarizeContents(pendingRemoteNegotiation.contents),
       sdp: summarizeSdp(sdp),
-      transceivers: this.summarizeTransceivers()
+      transceivers: this.summarizeTransceivers(),
     });
 
     this.p2p.isApplyingRemoteNegotiation = true;
     try {
-      if(!isAnswer && connection.signalingState === 'have-local-offer' && !this.isOutgoing) {
+      if (!isAnswer && connection.signalingState === 'have-local-offer' && !this.isOutgoing) {
         this.log('rollback local offer for remote offer glare', {
-          exchangeId: pendingRemoteNegotiation.exchangeId
+          exchangeId: pendingRemoteNegotiation.exchangeId,
         });
-        await connection.setLocalDescription({type: 'rollback'});
+        await connection.setLocalDescription({ type: 'rollback' });
         this.p2p.pendingLocalExchangeId = undefined;
       }
 
-      if(isAnswer && connection.signalingState !== 'have-local-offer') {
+      if (isAnswer && connection.signalingState !== 'have-local-offer') {
         this.log('ignore remote answer in wrong signaling state', {
           exchangeId: pendingRemoteNegotiation.exchangeId,
-          signalingState: connection.signalingState
+          signalingState: connection.signalingState,
         });
         return;
       }
-      if(!isAnswer && connection.signalingState !== 'stable') {
+      if (!isAnswer && connection.signalingState !== 'stable') {
         this.log('ignore remote offer in wrong signaling state', {
           exchangeId: pendingRemoteNegotiation.exchangeId,
-          signalingState: connection.signalingState
+          signalingState: connection.signalingState,
         });
         return;
       }
 
-      if(!isAnswer) {
+      if (!isAnswer) {
         this.log('prepared transceivers for remote offer', {
           exchangeId: pendingRemoteNegotiation.exchangeId,
-          transceivers: this.summarizeTransceivers()
+          transceivers: this.summarizeTransceivers(),
         });
       }
 
-      if(isAnswer) {
+      if (isAnswer) {
         validateRemoteAnswerSdp(this.log, connection.localDescription?.sdp, sdp);
       }
 
-      await connection.setRemoteDescription({type: isAnswer ? 'answer' : 'offer', sdp});
+      await connection.setRemoteDescription({ type: isAnswer ? 'answer' : 'offer', sdp });
       this.p2p.appliedRemoteExchangeId = pendingRemoteNegotiation.exchangeId;
       this.p2p.appliedRemoteExchangeIds.add(pendingRemoteNegotiation.exchangeId);
       this.p2p.appliedRemoteUfrag = remoteSetup.ufrag;
@@ -1596,20 +1596,20 @@ export default class CallInstance extends CallInstanceBase<{
         type: isAnswer ? 'answer' : 'offer',
         ufrag: remoteSetup.ufrag,
         signalingState: connection.signalingState,
-        transceivers: this.summarizeTransceivers()
+        transceivers: this.summarizeTransceivers(),
       });
-      if(!isAnswer) {
+      if (!isAnswer) {
         this.updateRemoteMediaStateFromOffer(pendingRemoteNegotiation.contents);
         await this.bindLocalAudioToSharedRemoteOffer();
       }
       await this.commitPendingIceCandidates();
 
-      if(isAnswer) {
+      if (isAnswer) {
         this.p2p.pendingLocalExchangeId = undefined;
         this.p2p.pendingLocalContentMids = undefined;
       } else {
         const answer = await connection.createAnswer();
-        if(!this.p2p) {
+        if (!this.p2p) {
           return;
         }
 
@@ -1625,19 +1625,19 @@ export default class CallInstance extends CallInstanceBase<{
           exchangeId: pendingRemoteNegotiation.exchangeId,
           contents: summarizeContents((contents)),
           sdp: localDescription?.sdp ? summarizeSdp(localDescription.sdp) : undefined,
-          transceivers: this.summarizeTransceivers()
+          transceivers: this.summarizeTransceivers(),
         });
         this.sendLocalSetup(localDescription);
         this.sendCallSignalingData({
           '@type': 'NegotiateChannels',
           'exchangeId': pendingRemoteNegotiation.exchangeId,
-          'contents': (contents)
+          'contents': (contents),
         });
 
-        if(this.shouldSendLocalOfferAfterRemoteAnswer()) {
+        if (this.shouldSendLocalOfferAfterRemoteAnswer()) {
           this.log('send local media offer after remote answer', {
             exchangeId: pendingRemoteNegotiation.exchangeId,
-            transceivers: this.summarizeTransceivers()
+            transceivers: this.summarizeTransceivers(),
           });
           this.sendLocalMediaOffer();
         }
@@ -1645,17 +1645,17 @@ export default class CallInstance extends CallInstanceBase<{
 
       this.p2p.handledRemoteExchangeIds.add(pendingRemoteNegotiation.exchangeId);
     } finally {
-      if(this.p2p) {
-        if(this.p2p.pendingRemoteNegotiation?.exchangeId === pendingRemoteNegotiation.exchangeId) {
+      if (this.p2p) {
+        if (this.p2p.pendingRemoteNegotiation?.exchangeId === pendingRemoteNegotiation.exchangeId) {
           this.p2p.pendingRemoteNegotiation = undefined;
           this.p2p.pendingRemoteContentMids = undefined;
         }
         this.p2p.isApplyingRemoteNegotiation = false;
-        if(!this.p2p.pendingLocalExchangeId && !this.p2p.pendingRemoteNegotiation && this.p2p.queuedRemoteNegotiation) {
+        if (!this.p2p.pendingLocalExchangeId && !this.p2p.pendingRemoteNegotiation && this.p2p.queuedRemoteNegotiation) {
           this.p2p.pendingRemoteNegotiation = this.p2p.queuedRemoteNegotiation;
           this.p2p.queuedRemoteNegotiation = undefined;
         }
-        if(this.p2p.pendingRemoteNegotiation) {
+        if (this.p2p.pendingRemoteNegotiation) {
           void this.applyRemoteNegotiation();
         }
       }
@@ -1663,11 +1663,11 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   private sendLocalSetup(description: RTCSessionDescription | RTCSessionDescriptionInit | undefined) {
-    if(!this.p2p || !description?.sdp) return;
+    if (!this.p2p || !description?.sdp) return;
 
     const setup = parseInitialSetup(description.sdp);
     const setupKey = JSON.stringify(setup);
-    if(this.p2p.lastLocalSetupKey === setupKey) {
+    if (this.p2p.lastLocalSetupKey === setupKey) {
       return;
     }
 
@@ -1676,8 +1676,8 @@ export default class CallInstance extends CallInstanceBase<{
       setup: {
         ufrag: setup.ufrag,
         fingerprintCount: setup.fingerprints.length,
-        renomination: setup.renomination
-      }
+        renomination: setup.renomination,
+      },
     });
     this.sendCallSignalingData(setup);
   }
@@ -1685,36 +1685,36 @@ export default class CallInstance extends CallInstanceBase<{
   private getActiveLocalMedia(): ActiveLocalMedia {
     return {
       hasVideo: Boolean(getStreamTrack(this.p2p?.streams.ownVideo)?.enabled),
-      hasPresentation: Boolean(getStreamTrack(this.p2p?.streams.ownPresentation)?.enabled)
+      hasPresentation: Boolean(getStreamTrack(this.p2p?.streams.ownPresentation)?.enabled),
     };
   }
 
   private prepareTransceiversForRemoteOffer(contents: P2PMediaContent[]) {
-    if(!this.p2p) {
+    if (!this.p2p) {
       return;
     }
 
     const hasRemoteAudio = contents.some((content) => content.type === 'audio');
     const hasRemoteVideo = contents.filter((content) => content.type === 'video').length;
     const shouldUseSharedAudioSection = hasRemoteAudio && !this.p2p.transceivers.audio.mid;
-    if(shouldUseSharedAudioSection) {
+    if (shouldUseSharedAudioSection) {
       this.p2p.transceivers.audio.direction = 'sendrecv';
-    } else if(hasRemoteAudio && !this.setRemoteTransceiverDirection('remoteAudio', 'audio', 'recvonly')) {
-      this.p2p.transceivers.remoteAudio = this.p2p.connection.addTransceiver('audio', {direction: 'recvonly'});
+    } else if (hasRemoteAudio && !this.setRemoteTransceiverDirection('remoteAudio', 'audio', 'recvonly')) {
+      this.p2p.transceivers.remoteAudio = this.p2p.connection.addTransceiver('audio', { direction: 'recvonly' });
     }
-    if(hasRemoteVideo >= 1 && !this.setRemoteTransceiverDirection('remoteVideo', 'video', 'recvonly')) {
-      this.p2p.transceivers.remoteVideo = this.p2p.connection.addTransceiver('video', {direction: 'recvonly'});
+    if (hasRemoteVideo >= 1 && !this.setRemoteTransceiverDirection('remoteVideo', 'video', 'recvonly')) {
+      this.p2p.transceivers.remoteVideo = this.p2p.connection.addTransceiver('video', { direction: 'recvonly' });
     }
-    if(hasRemoteVideo >= 2 && !this.setRemoteTransceiverDirection('remotePresentation', 'video', 'recvonly')) {
-      this.p2p.transceivers.remotePresentation = this.p2p.connection.addTransceiver('video', {direction: 'recvonly'});
+    if (hasRemoteVideo >= 2 && !this.setRemoteTransceiverDirection('remotePresentation', 'video', 'recvonly')) {
+      this.p2p.transceivers.remotePresentation = this.p2p.connection.addTransceiver('video', { direction: 'recvonly' });
     }
-    if(!hasRemoteAudio || shouldUseSharedAudioSection) {
+    if (!hasRemoteAudio || shouldUseSharedAudioSection) {
       this.setRemoteTransceiverDirection('remoteAudio', 'audio', 'inactive');
     }
-    if(hasRemoteVideo < 1) {
+    if (hasRemoteVideo < 1) {
       this.setRemoteTransceiverDirection('remoteVideo', 'video', 'inactive');
     }
-    if(hasRemoteVideo < 2) {
+    if (hasRemoteVideo < 2) {
       this.setRemoteTransceiverDirection('remotePresentation', 'video', 'inactive');
     }
   }
@@ -1724,38 +1724,38 @@ export default class CallInstance extends CallInstanceBase<{
     kind: 'audio' | 'video',
     direction: RTCRtpTransceiverDirection,
   ) {
-    if(!this.p2p?.transceivers[name]) {
+    if (!this.p2p?.transceivers[name]) {
       return false;
     }
 
     try {
       const transceiver = this.p2p.transceivers[name];
-      if(transceiver.receiver.track.kind !== kind) {
+      if (transceiver.receiver.track.kind !== kind) {
         return false;
       }
 
       transceiver.direction = direction;
       return true;
-    } catch{
+    } catch {
       return false;
     }
   }
 
   private buildRemoteContentMids(contents: P2PMediaContent[]) {
-    if(!this.p2p) {
+    if (!this.p2p) {
       return {};
     }
 
     const [audioContent, mainVideoContent, presentationContent] = orderMediaContents(contents);
     const result: Record<string, string> = {};
-    if(audioContent) {
+    if (audioContent) {
       result[audioContent.ssrc] = this.p2p.transceivers.audio.mid ?
         (this.p2p.transceivers.remoteAudio?.mid || audioContent.ssrc) : this.getMediaMids().audio;
     }
-    if(mainVideoContent) {
+    if (mainVideoContent) {
       result[mainVideoContent.ssrc] = this.p2p.transceivers.remoteVideo?.mid || mainVideoContent.ssrc;
     }
-    if(presentationContent) {
+    if (presentationContent) {
       result[presentationContent.ssrc] = this.p2p.transceivers.remotePresentation?.mid || presentationContent.ssrc;
     }
 
@@ -1763,7 +1763,7 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   private updateRemoteMediaStateFromOffer(contents: P2PMediaContent[]) {
-    if(!this.p2p) {
+    if (!this.p2p) {
       return;
     }
 
@@ -1774,7 +1774,7 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   private shouldSendLocalOfferAfterRemoteAnswer() {
-    if(!this.p2p || this.isOutgoing || this.p2p.pendingLocalExchangeId) {
+    if (!this.p2p || this.isOutgoing || this.p2p.pendingLocalExchangeId) {
       return false;
     }
 
@@ -1784,12 +1784,12 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   private async bindLocalAudioToSharedRemoteOffer() {
-    if(!this.p2p || this.p2p.transceivers.audio.mid) {
+    if (!this.p2p || this.p2p.transceivers.audio.mid) {
       return;
     }
 
     const audioTrack = this.p2p.senders.audio.track;
-    if(!audioTrack?.enabled) {
+    if (!audioTrack?.enabled) {
       return;
     }
 
@@ -1797,7 +1797,7 @@ export default class CallInstance extends CallInstanceBase<{
     const transceiver = this.p2p.connection.getTransceivers().find((item) => {
       return item.mid === audioMid && item.receiver.track.kind === 'audio';
     });
-    if(!transceiver || transceiver === this.p2p.transceivers.audio) {
+    if (!transceiver || transceiver === this.p2p.transceivers.audio) {
       return;
     }
 
@@ -1809,7 +1809,7 @@ export default class CallInstance extends CallInstanceBase<{
     this.log('bound local audio to shared remote offer transceiver', {
       mid: transceiver.mid,
       track: summarizeTrack(audioTrack),
-      transceivers: this.summarizeTransceivers()
+      transceivers: this.summarizeTransceivers(),
     });
   }
 
@@ -1840,16 +1840,16 @@ export default class CallInstance extends CallInstanceBase<{
       [
         {
           ...buildSsrc(audioContent, remoteAudioMid, false),
-          direction: sharedAudioDirection
+          direction: sharedAudioDirection,
         },
         buildSsrc(mainVideoContent, remoteVideoMid, true),
-        buildSsrc(presentationContent, remotePresentationMid, true, true)
+        buildSsrc(presentationContent, remotePresentationMid, true, true),
       ];
-    if(!isAnswer && this.shouldAddLocalAudioOfferSection(entries, mids)) {
+    if (!isAnswer && this.shouldAddLocalAudioOfferSection(entries, mids)) {
       entries.push({
         ...buildSsrc(undefined, mids.audio, false),
         isLocalOnly: true,
-        isRemoved: false
+        isRemoved: false,
       });
     }
 
@@ -1866,12 +1866,12 @@ export default class CallInstance extends CallInstanceBase<{
       videoExtensions: videoPayloadSource?.rtpExtensions || localMediaParameters.videoExtensions,
       sectionOrder: isAnswer ? this.getLocalOfferSections() : this.getEstablishedSections(),
       bundleMids: isAnswer && localOfferSdp ? parseBundleMids(localOfferSdp) : undefined,
-      shouldKeepRemoteReceiveSection: (section) => this.shouldKeepRemoteReceiveSection(section)
+      shouldKeepRemoteReceiveSection: (section) => this.shouldKeepRemoteReceiveSection(section),
     });
   }
 
   private getLocalOfferSections() {
-    if(!this.p2p?.connection.localDescription?.sdp || this.p2p.connection.localDescription.type !== 'offer') {
+    if (!this.p2p?.connection.localDescription?.sdp || this.p2p.connection.localDescription.type !== 'offer') {
       return undefined;
     }
 
@@ -1880,7 +1880,7 @@ export default class CallInstance extends CallInstanceBase<{
 
   private getEstablishedSections() {
     const sdp = this.p2p?.connection.remoteDescription?.sdp || this.p2p?.connection.localDescription?.sdp;
-    if(!sdp) {
+    if (!sdp) {
       return undefined;
     }
 
@@ -1900,7 +1900,7 @@ export default class CallInstance extends CallInstanceBase<{
       audioExtensions: audioSection?.kind === 'audio' ? parseExtmaps(audioSection) : [],
       videoPayloadTypes: videoSection?.kind === 'video' ?
         parsePayloadTypes(videoSection).map(payloadTypeToConference) : getDefaultVideoPayloadTypes(),
-      videoExtensions: videoSection?.kind === 'video' ? parseExtmaps(videoSection) : []
+      videoExtensions: videoSection?.kind === 'video' ? parseExtmaps(videoSection) : [],
     };
   }
 
@@ -1927,7 +1927,7 @@ export default class CallInstance extends CallInstanceBase<{
     const audioSection = sections.find((section) => section.mid === mids.audio);
     const videoSections = [
       sections.find((section) => section.mid === mids.video),
-      sections.find((section) => section.mid === mids.presentation)
+      sections.find((section) => section.mid === mids.presentation),
     ].filter(isTruthy);
     let videoIndex = 0;
 
@@ -1935,17 +1935,17 @@ export default class CallInstance extends CallInstanceBase<{
       const remoteMid = this.p2p?.pendingRemoteContentMids?.[content.ssrc];
       const section = remoteMid ? sections.find((item) => item.mid === remoteMid) :
         (content.type === 'audio' ? audioSection : videoSections[videoIndex++]);
-      if(!section || getSdpPort(section) === 0) {
+      if (!section || getSdpPort(section) === 0) {
         return undefined;
       }
 
       const direction = getSdpDirection(section);
-      if(direction !== 'recvonly' && direction !== 'sendrecv') {
+      if (direction !== 'recvonly' && direction !== 'sendrecv') {
         return undefined;
       }
 
       const acceptedContent = parseMediaContent(section, content.type, content);
-      if(!acceptedContent.payloadTypes?.length) {
+      if (!acceptedContent.payloadTypes?.length) {
         return undefined;
       }
 
@@ -1954,16 +1954,16 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   private shouldKeepRemoteReceiveSection(section: SdpSection) {
-    if(!this.p2p || getSdpDirection(section) !== 'recvonly') {
+    if (!this.p2p || getSdpDirection(section) !== 'recvonly') {
       return false;
     }
 
     const mid = section.mid;
-    if(section.kind === 'audio') {
+    if (section.kind === 'audio') {
       return mid === this.p2p.transceivers.remoteAudio?.mid && hasLiveTrack(this.p2p.streams.audio);
     }
 
-    if(section.kind === 'video') {
+    if (section.kind === 'video') {
       return (mid === this.p2p.transceivers.remoteVideo?.mid && hasLiveTrack(this.p2p.streams.video)) ||
         (mid === this.p2p.transceivers.remotePresentation?.mid && hasLiveTrack(this.p2p.streams.presentation));
     }
@@ -1972,21 +1972,21 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   private summarizeTransceivers() {
-    if(!this.p2p) {
+    if (!this.p2p) {
       return [];
     }
 
     return [
-      {name: 'audio', transceiver: this.p2p.transceivers.audio},
-      {name: 'remoteAudio', transceiver: this.p2p.transceivers.remoteAudio},
-      {name: 'video', transceiver: this.p2p.transceivers.video},
-      {name: 'remoteVideo', transceiver: this.p2p.transceivers.remoteVideo},
-      {name: 'presentation', transceiver: this.p2p.transceivers.presentation},
-      {name: 'remotePresentation', transceiver: this.p2p.transceivers.remotePresentation}
-    ].map(({name, transceiver}) => {
-      if(!transceiver) {
+      { name: 'audio', transceiver: this.p2p.transceivers.audio },
+      { name: 'remoteAudio', transceiver: this.p2p.transceivers.remoteAudio },
+      { name: 'video', transceiver: this.p2p.transceivers.video },
+      { name: 'remoteVideo', transceiver: this.p2p.transceivers.remoteVideo },
+      { name: 'presentation', transceiver: this.p2p.transceivers.presentation },
+      { name: 'remotePresentation', transceiver: this.p2p.transceivers.remotePresentation },
+    ].map(({ name, transceiver }) => {
+      if (!transceiver) {
         return {
-          name
+          name,
         };
       }
 
@@ -1996,15 +1996,15 @@ export default class CallInstance extends CallInstanceBase<{
         direction: transceiver.direction,
         currentDirection: transceiver.currentDirection,
         senderTrack: summarizeTrack(transceiver.sender.track || undefined),
-        receiverTrack: summarizeTrack(transceiver.receiver.track || undefined)
+        receiverTrack: summarizeTrack(transceiver.receiver.track || undefined),
       };
     });
   }
 
   private async processSignalingMessage(message: P2PMessage) {
-    if(!this.p2p || !message) return;
+    if (!this.p2p || !message) return;
 
-    switch(message['@type']) {
+    switch (message['@type']) {
       case 'MediaState': {
         const videoState = message.videoState === 'inactive' && hasLiveTrack(this.p2p.streams.video) ?
           'active' : message.videoState;
@@ -2015,7 +2015,7 @@ export default class CallInstance extends CallInstanceBase<{
           isBatteryLow: message.lowBattery,
           videoState,
           videoRotation: message.videoRotation,
-          screencastState
+          screencastState,
         };
         this.updateStreams();
         break;
@@ -2026,13 +2026,13 @@ export default class CallInstance extends CallInstanceBase<{
           ufrag: message.ufrag,
           pendingRemoteExchangeId: this.p2p.pendingRemoteNegotiation?.exchangeId,
           remoteDescriptionMids: getRemoteDescriptionMids(this.p2p.connection),
-          count: message.candidates.length
+          count: message.candidates.length,
         });
         this.p2p.pendingCandidates.push(...message.candidates.map((candidate) => {
           return {
             ...candidate,
             exchangeId: message.exchangeId,
-            ufrag: message.ufrag || candidate.usernameFragment
+            ufrag: message.ufrag || candidate.usernameFragment,
           };
         }));
         await this.commitPendingIceCandidates();
@@ -2044,24 +2044,24 @@ export default class CallInstance extends CallInstanceBase<{
         break;
       }
       case 'NegotiateChannels': {
-        if(this.p2p.handledRemoteExchangeIds.has(message.exchangeId)) {
+        if (this.p2p.handledRemoteExchangeIds.has(message.exchangeId)) {
           this.log('ignore duplicate remote negotiation', {
-            exchangeId: message.exchangeId
+            exchangeId: message.exchangeId,
           });
           return;
         }
-        if(this.p2p.isApplyingRemoteNegotiation && this.p2p.pendingRemoteNegotiation?.exchangeId === message.exchangeId) {
+        if (this.p2p.isApplyingRemoteNegotiation && this.p2p.pendingRemoteNegotiation?.exchangeId === message.exchangeId) {
           this.log('ignore in-flight duplicate remote negotiation', {
-            exchangeId: message.exchangeId
+            exchangeId: message.exchangeId,
           });
           return;
         }
-        if(this.p2p.pendingLocalExchangeId && message.exchangeId !== this.p2p.pendingLocalExchangeId) {
-          if(this.isOutgoing) {
+        if (this.p2p.pendingLocalExchangeId && message.exchangeId !== this.p2p.pendingLocalExchangeId) {
+          if (this.isOutgoing) {
             this.p2p.queuedRemoteNegotiation = message;
             this.log('queue remote offer until local answer is applied', {
               exchangeId: message.exchangeId,
-              pendingLocalExchangeId: this.p2p.pendingLocalExchangeId
+              pendingLocalExchangeId: this.p2p.pendingLocalExchangeId,
             });
             return;
           }
@@ -2077,11 +2077,11 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   private async commitPendingIceCandidates() {
-    if(!this.p2p || !this.p2p.pendingCandidates.length) {
+    if (!this.p2p || !this.p2p.pendingCandidates.length) {
       return;
     }
 
-    const {connection, pendingCandidates} = this.p2p;
+    const { connection, pendingCandidates } = this.p2p;
     const candidatesToAdd: QueuedCandidate[] = [];
     const queuedCandidates: QueuedCandidate[] = [];
 
@@ -2093,12 +2093,12 @@ export default class CallInstance extends CallInstanceBase<{
         ufrag: getCandidateUfrag(candidate),
         pendingRemoteExchangeId: this.p2p?.pendingRemoteNegotiation?.exchangeId,
         appliedRemoteExchangeId: this.p2p?.appliedRemoteExchangeId,
-        remoteDescriptionMids: getRemoteDescriptionMids(connection)
+        remoteDescriptionMids: getRemoteDescriptionMids(connection),
       });
 
-      if(decision === 'add') {
+      if (decision === 'add') {
         candidatesToAdd.push(candidate);
-      } else if(decision === 'queue') {
+      } else if (decision === 'queue') {
         queuedCandidates.push(candidate);
       }
     });
@@ -2111,7 +2111,7 @@ export default class CallInstance extends CallInstanceBase<{
   }
 
   private getCandidateCommitDecision(candidate: QueuedCandidate): 'add' | 'queue' | 'drop' {
-    if(!this.p2p?.connection.remoteDescription) {
+    if (!this.p2p?.connection.remoteDescription) {
       return 'queue';
     }
 
@@ -2122,12 +2122,12 @@ export default class CallInstance extends CallInstanceBase<{
       remoteUfrags.has(candidateUfrag) ||
       candidateUfrag === this.p2p.appliedRemoteUfrag;
 
-    if(candidateExchangeId) {
-      if(this.p2p.appliedRemoteExchangeIds.has(candidateExchangeId)) {
+    if (candidateExchangeId) {
+      if (this.p2p.appliedRemoteExchangeIds.has(candidateExchangeId)) {
         return isCurrentUfrag ? 'add' : 'drop';
       }
 
-      if(
+      if (
         candidateExchangeId === this.p2p.pendingLocalExchangeId ||
         candidateExchangeId === this.p2p.pendingRemoteNegotiation?.exchangeId ||
         candidateExchangeId === this.p2p.queuedRemoteNegotiation?.exchangeId
@@ -2135,14 +2135,14 @@ export default class CallInstance extends CallInstanceBase<{
         return 'queue';
       }
 
-      if(this.p2p.handledRemoteExchangeIds.has(candidateExchangeId)) {
+      if (this.p2p.handledRemoteExchangeIds.has(candidateExchangeId)) {
         return 'drop';
       }
 
       return 'queue';
     }
 
-    if(isCurrentUfrag) {
+    if (isCurrentUfrag) {
       return 'add';
     }
 

@@ -1,36 +1,36 @@
-import type {MyDocument} from '@appManagers/appDocsManager';
+import type { MyDocument } from '@appManagers/appDocsManager';
 import MEDIA_MIME_TYPES_SUPPORTED from '@environment/mediaMimeTypesSupport';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import findUpTag from '@helpers/dom/findUpTag';
 import setInnerHTML from '@helpers/dom/setInnerHTML';
 import mediaSizes from '@helpers/mediaSizes';
 import SearchListLoader from '@helpers/searchListLoader';
-import {Message, MessageMedia, WebPage} from '@layer';
+import { Message, MessageMedia, WebPage } from '@layer';
 import confirmationPopup from '@components/confirmationPopup';
 import appDownloadManager from '@lib/appDownloadManager';
 import appImManager from '@lib/appImManager';
-import {MyMessage} from '@appManagers/appMessagesManager';
-import {MyPhoto} from '@appManagers/appPhotosManager';
+import { MyMessage } from '@appManagers/appMessagesManager';
+import { MyPhoto } from '@appManagers/appPhotosManager';
 import canSaveMessageMedia from '@appManagers/utils/messages/canSaveMessageMedia';
 import getMediaFromMessage from '@appManagers/utils/messages/getMediaFromMessage';
 import wrapRichText from '@richTextProcessor/wrapRichText';
-import {MediaSearchContext} from '@components/appMediaPlaybackController';
-import AppMediaViewerBase, {MEDIA_VIEWER_CLASSNAME} from '@components/appMediaViewerBase';
+import { MediaSearchContext } from '@components/appMediaPlaybackController';
+import AppMediaViewerBase, { MEDIA_VIEWER_CLASSNAME } from '@components/appMediaViewerBase';
 import overlayAvatarVideoOnMover from '@components/appMediaViewerAvatarVideo';
-import {ButtonMenuItemOptionsVerifiable} from '@components/buttonMenu';
+import { ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
 import PopupDeleteMessages from '@components/popups/deleteMessages';
 import showForwardPopup from '@components/popups/forward';
 import Scrollable from '@components/scrollable';
 import appSidebarRight from '@components/sidebarRight';
 import AppSharedMediaTab from '@components/sidebarRight/tabs/sharedMediaTab';
 import PopupElement from '@components/popups';
-import {ChatType} from './chat/chatType';
+import { ChatType } from './chat/chatType';
 import getFwdFromName from '@appManagers/utils/messages/getFwdFromName';
 import TranslatableMessage from '@components/translatableMessage';
-import {MAX_FILE_SAVE_SIZE} from '@appManagers/constants';
-import {i18n} from '@lib/langPack';
+import { MAX_FILE_SAVE_SIZE } from '@appManagers/constants';
+import { i18n } from '@lib/langPack';
 import wrapEmojiText from '@richTextProcessor/wrapEmojiText';
 import wrapWebPageDescription from '@components/wrappers/webPageDescription';
 import Button from '@components/button';
@@ -49,19 +49,19 @@ export const onMediaCaptionClick = (caption: HTMLElement, e: MouseEvent) => {
   const spoiler = findUpClassName(e.target!, 'spoiler');
   const quoteDiv = findUpClassName(e.target!, 'quote-like-collapsable');
   const isSpoilerVisible = caption.classList.contains('is-spoiler-visible');
-  if(quoteDiv && !a && (!spoiler || isSpoilerVisible)) {
-    if(onQuoteClick(e, quoteDiv)) {
+  if (quoteDiv && !a && (!spoiler || isSpoilerVisible)) {
+    if (onQuoteClick(e, quoteDiv)) {
       return;
     }
   }
 
-  if(!a || a.classList.contains('timestamp')) {
+  if (!a || a.classList.contains('timestamp')) {
     return;
   }
 
-  if(a instanceof HTMLAnchorElement && (!spoiler || isSpoilerVisible)) { // close viewer if it's t.me/ redirect
+  if (a instanceof HTMLAnchorElement && (!spoiler || isSpoilerVisible)) { // close viewer if it's t.me/ redirect
     const onclick = a.getAttribute('onclick');
-    if(!onclick || onclick.includes('showMaskedAlert')) {
+    if (!onclick || onclick.includes('showMaskedAlert')) {
       return;
     }
 
@@ -88,17 +88,17 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
     super(new SearchListLoader({
       processItem: ((item: any) => {
         const isForDocument = this.searchContext!.inputFilter._ === 'inputMessagesFilterDocument';
-        const {mid, peerId} = item;
+        const { mid, peerId } = item;
         const media = getMediaFromMessage(item, true);
 
-        if(!media) return;
+        if (!media) return;
 
-        if(isForDocument && !AppMediaViewer.isMediaCompatibleForDocumentViewer(media)) {
+        if (isForDocument && !AppMediaViewer.isMediaCompatibleForDocumentViewer(media)) {
           return;
         }
 
-        return {element: null as unknown as HTMLElement, mid: mid!, peerId: peerId!};
-      }) as any
+        return { element: null as unknown as HTMLElement, mid: mid!, peerId: peerId! };
+      }) as any,
     }), ['delete', 'forward'], sponsored ? 60 : 0);
 
     this.listLoader.onEmptied = () => {
@@ -114,7 +114,7 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
 
     let captionTimeout: number | undefined;
     const setCaptionTimeout = () => {
-      if(captionTimeout) {
+      if (captionTimeout) {
         clearTimeout(captionTimeout);
       }
 
@@ -124,16 +124,16 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
       }, 800);
     };
     this.content.caption.addEventListener('touchstart', () => {
-      if(!mediaSizes.isMobile) return;
+      if (!mediaSizes.isMobile) return;
 
       this.content.caption.classList.add('is-focused');
 
-      if(captionTimeout) {
+      if (captionTimeout) {
         clearTimeout(captionTimeout);
         captionTimeout = undefined;
       }
 
-      document.addEventListener('touchend', setCaptionTimeout, {once: true});
+      document.addEventListener('touchend', setCaptionTimeout, { once: true });
     });
 
     const captionScrollable = new Scrollable(this.content.caption);
@@ -147,16 +147,16 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
     const buttons: ButtonMenuItemOptionsVerifiable[] = [this.btnMenuForward = {
       icon: 'forward',
       text: 'Forward',
-      onClick: this.onForwardClick
+      onClick: this.onForwardClick,
     }, this.btnMenuDownload = {
       icon: 'download',
       text: 'MediaViewer.Context.Download',
-      onClick: this.onDownloadClick
+      onClick: this.onDownloadClick,
     }, this.btnMenuDelete = {
       icon: 'delete',
       className: 'danger',
       text: 'Delete',
-      onClick: this.onDeleteClick
+      onClick: this.onDeleteClick,
     }];
 
     this.setBtnMenuToggle(buttons);
@@ -173,16 +173,16 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
 
     const onClick = (e: MouseEvent) => {
       const callback = onMediaCaptionClick(this.content.caption, e);
-      if(callback) {
+      if (callback) {
         this.close()!.then(() => {
-          this.content.caption.removeEventListener('click', onClick, {capture: true});
+          this.content.caption.removeEventListener('click', onClick, { capture: true });
           callback();
         });
         return false;
       }
     };
 
-    this.content.caption.addEventListener('click', onClick, {capture: true});
+    this.content.caption.addEventListener('click', onClick, { capture: true });
   }
 
   /* public close(e?: MouseEvent) {
@@ -206,7 +206,7 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
       message: (this.local ? target.message : await this.getMessageByPeer(target.peerId, target.mid))!,
       index: target.index,
       target: target.element,
-      fromRight: -1
+      fromRight: -1,
     });
   };
 
@@ -215,28 +215,28 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
       message: (this.local ? target.message : await this.getMessageByPeer(target.peerId, target.mid))!,
       index: target.index,
       target: target.element,
-      fromRight: 1
+      fromRight: 1,
     });
   };
 
   onDeleteClick = async() => {
     const target = this.target;
-    if(this.deleteAsChatPhoto) {
+    if (this.deleteAsChatPhoto) {
       try {
         await confirmationPopup({
           titleLangKey: 'Delete',
           descriptionLangKey: 'AreYouSureDeletePhoto',
           button: {
             langKey: 'Delete',
-            isDanger: true
-          }
+            isDanger: true,
+          },
         });
-      } catch{
+      } catch {
         return;
       }
 
       await this.managers.appChatsManager.editPhoto(target!.peerId.toChatId());
-      this.target = {element: this.content.media} as any;
+      this.target = { element: this.content.media } as any;
       this.close();
       return;
     }
@@ -247,7 +247,7 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
       [target!.mid],
       ChatType.Chat,
       () => {
-        this.target = {element: this.content.media} as any;
+        this.target = { element: this.content.media } as any;
         this.close();
       }
     );
@@ -255,10 +255,10 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
 
   onForwardClick = () => {
     const target = this.target;
-    if(target!.mid) {
+    if (target!.mid) {
       // appSidebarRight.forwardTab.open([target.mid]);
       showForwardPopup({
-        [target!.peerId]: [target!.mid]
+        [target!.peerId]: [target!.mid],
       }, (() => {
         return this.close();
       }) as any);
@@ -266,44 +266,44 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
   };
 
   onAuthorClick = async(e: MouseEvent) => {
-    let {mid, peerId, message} = this.target!;
-    if(mid && mid !== Number.MAX_SAFE_INTEGER) {
+    let { mid, peerId, message } = this.target!;
+    if (mid && mid !== Number.MAX_SAFE_INTEGER) {
       const threadId = this.searchContext!.threadId;
       message ||= await this.getMessageByPeer(peerId, mid);
       this.close(e)!
       // .then(() => mediaSizes.isMobile ? appSidebarRight.sharedMediaTab.closeBtn.click() : Promise.resolve())
-      .then(async() => {
-        if(mediaSizes.isMobile) {
-          const tab = appSidebarRight.getTab(AppSharedMediaTab);
-          if(tab) {
-            tab.close();
+        .then(async() => {
+          if (mediaSizes.isMobile) {
+            const tab = appSidebarRight.getTab(AppSharedMediaTab);
+            if (tab) {
+              tab.close();
+            }
           }
-        }
 
-        appImManager.setInnerPeer({
-          peerId: message!.peerId!,
-          lastMsgId: mid,
-          threadId
+          appImManager.setInnerPeer({
+            peerId: message!.peerId!,
+            lastMsgId: mid,
+            threadId,
+          });
         });
-      });
     }
   };
 
   onDownloadClick = async(_: any, docId?: DocId) => {
-    if(docId) {
+    if (docId) {
       const doc = await this.managers.appDocsManager.getDoc(docId);
-      appDownloadManager.downloadToDisc({media: doc, queueId: appImManager.chat.bubbles.lazyLoadQueue!.queueId});
+      appDownloadManager.downloadToDisc({ media: doc, queueId: appImManager.chat.bubbles.lazyLoadQueue!.queueId });
       return;
     }
-    const {message, index} = this.target!;
+    const { message, index } = this.target!;
     const media = getMediaFromMessage(message!, true, index);
-    if(!media) return;
-    appDownloadManager.downloadToDisc({media, queueId: appImManager.chat.bubbles.lazyLoadQueue!.queueId});
+    if (!media) return;
+    appDownloadManager.downloadToDisc({ media, queueId: appImManager.chat.bubbles.lazyLoadQueue!.queueId });
   };
 
   private setCaption(message: MyMessage) {
     const isSponsored = !!(message as Message.message).pFlags.sponsored;
-    if(isSponsored) {
+    if (isSponsored) {
       this.author.nameEl.append(i18n('SponsoredMessageAd'));
     }
 
@@ -312,12 +312,12 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
     const richTextOptions: Parameters<typeof wrapRichText>[1] = {
       maxMediaTimestamp: ((media as MyDocument)?.type === 'video' && (media as MyDocument).duration) || undefined,
       textColor: 'white',
-      loadPromises
+      loadPromises,
     };
 
     let hasCaption: boolean;
     let html: HTMLElement;
-    if(isSponsored) {
+    if (isSponsored) {
       const sponsoredMessage = (message as Message.message).sponsoredMessage;
       const webPage = ((message as Message.message).media as MessageMedia.messageMediaWebPage).webpage as WebPage.webPage;
       html = document.createElement('div');
@@ -327,10 +327,10 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
       html.append(
         b,
         '\n',
-        wrapWebPageDescription(webPage, {...richTextOptions, entities: webPage.entities}, true)
+        wrapWebPageDescription(webPage, { ...richTextOptions, entities: webPage.entities }, true)
       );
 
-      const button = Button('btn-primary media-viewer-caption-button', {noRipple: true});
+      const button = Button('btn-primary media-viewer-caption-button', { noRipple: true });
       button.append(wrapEmojiText(sponsoredMessage!.button_text));
       this.content.caption.append(button);
       this.content.caption.classList.add('has-button');
@@ -340,12 +340,12 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
           appImManager.onSponsoredBoxClick(message as Message.message);
         });
       });
-    } else if(hasCaption = !!(message as Message.message).message) {
+    } else if (hasCaption = !!(message as Message.message).message) {
       html = TranslatableMessage({
         peerId: message.peerId!,
         message: message as Message.message,
         middleware: this.content.mover.middlewareHelper!.get(),
-        richTextOptions
+        richTextOptions,
       });
       this.saveTimestamps(html, loadPromises);
     }
@@ -365,22 +365,22 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
 
     this.videoTimestamps = timestampElements.map((element) => ({
       time: +(element as HTMLElement).dataset.timestamp!,
-      text: this.extractTimestampText(element)
+      text: this.extractTimestampText(element),
     }));
   }
 
   private extractTimestampText(element: Element) {
     const result: string[] = [];
     let current = element.nextSibling;
-    while(current) {
-      if(current instanceof HTMLElement && current.classList.contains('timestamp')) break;
+    while (current) {
+      if (current instanceof HTMLElement && current.classList.contains('timestamp')) break;
 
       const text = current.textContent;
 
       const shouldBreak = text!.includes('\n');
       result.push(text!.split('\n')[0].trim());
 
-      if(shouldBreak) break;
+      if (shouldBreak) break;
       current = current.nextSibling;
     }
 
@@ -401,7 +401,7 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
     reverse = false,
     prevTargets = [],
     nextTargets = [],
-    mediaTimestamp
+    mediaTimestamp,
   }: {
     message: MyMessage,
     index?: number,
@@ -413,7 +413,7 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
     mediaTimestamp?: number
     /* , needLoadMore = true */
   }) {
-    if(this.setMoverPromise) return this.setMoverPromise;
+    if (this.setMoverPromise) return this.setMoverPromise;
 
     const mid = message.mid;
     const fromId = (message as Message.message).fwd_from && !message.fromId ? getFwdFromName((message as Message.message).fwd_from!) : message.fromId;
@@ -436,12 +436,12 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
     const a: [(HTMLElement | ButtonMenuItemOptionsVerifiable)[], boolean][] = [
       [[this.buttons.forward, this.btnMenuForward], cantForwardMessage],
       [[this.buttons.download, this.btnMenuDownload], cantDownloadMessage],
-      [[this.buttons.delete, this.btnMenuDelete], cantDeleteMessage]
+      [[this.buttons.delete, this.btnMenuDelete], cantDeleteMessage],
     ];
 
     a.forEach(([buttons, hide]) => {
       buttons.forEach((button) => {
-        if(button instanceof HTMLElement) {
+        if (button instanceof HTMLElement) {
           button.classList.toggle('hide', hide);
         } else {
           button.verify = () => !hide;
@@ -465,7 +465,7 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
       nextTargets,
       message,
       mediaTimestamp,
-      noAuthor
+      noAuthor,
       /* , needLoadMore */
     });
     this.target!.mid = mid!;
@@ -478,10 +478,10 @@ export default class AppMediaViewer extends AppMediaViewerBase<'caption', 'delet
     // still image once the open/move animation settles, like the avatar viewer.
     this.videoAvatarCleanup?.();
     this.videoAvatarCleanup = undefined;
-    if((media as MyPhoto)?._ === 'photo' && (media as MyPhoto).video_sizes?.length) {
+    if ((media as MyPhoto)?._ === 'photo' && (media as MyPhoto).video_sizes?.length) {
       const photo = media as MyPhoto;
       Promise.resolve(promise).then(() => {
-        if(this.target?.message !== message || !this.content.mover) return;
+        if (this.target?.message !== message || !this.content.mover) return;
         this.videoAvatarCleanup = overlayAvatarVideoOnMover(this.content.mover, photo);
       });
     }

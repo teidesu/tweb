@@ -1,11 +1,11 @@
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import {logger, LogTypes} from '@lib/logger';
-import fastSmoothScroll, {ScrollOptions} from '@helpers/fastSmoothScroll';
+import { logger, LogTypes } from '@lib/logger';
+import fastSmoothScroll, { ScrollOptions } from '@helpers/fastSmoothScroll';
 import useHeavyAnimationCheck from '@hooks/useHeavyAnimationCheck';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {IS_OVERLAY_SCROLL_SUPPORTED} from '@environment/overlayScrollSupport';
+import { IS_OVERLAY_SCROLL_SUPPORTED } from '@environment/overlayScrollSupport';
 import liteMode from '@helpers/liteMode';
-import {IS_MOBILE_SAFARI, IS_SAFARI} from '@environment/userAgent';
+import { IS_MOBILE_SAFARI, IS_SAFARI } from '@environment/userAgent';
 /*
 var el = $0;
 var height = 0;
@@ -60,8 +60,8 @@ export function syncThumbContainerGeometry(container: HTMLElement, thumbContaine
   const top = container.offsetTop + container.clientTop;
   const left = container.offsetLeft + container.clientLeft;
   const geometry = `${top},${left},${container.clientWidth},${container.clientHeight}`;
-  if(geometry !== lastGeometry) {
-    const {style} = thumbContainer;
+  if (geometry !== lastGeometry) {
+    const { style } = thumbContainer;
     style.top = top + 'px';
     style.left = left + 'px';
     style.width = container.clientWidth + 'px';
@@ -72,14 +72,14 @@ export function syncThumbContainerGeometry(container: HTMLElement, thumbContaine
 }
 
 function throttleMeasurement(callback: () => void): number {
-  if(!IS_OVERLAY_SCROLL_SUPPORTED()) {
+  if (!IS_OVERLAY_SCROLL_SUPPORTED()) {
     return requestAnimationFrame(callback);
   }
   return window.setTimeout(callback, SCROLL_THROTTLE);
 }
 
 function cancelMeasurement(id: number): void {
-  if(!IS_OVERLAY_SCROLL_SUPPORTED()) {
+  if (!IS_OVERLAY_SCROLL_SUPPORTED()) {
     cancelAnimationFrame(id);
   } else {
     window.clearTimeout(id);
@@ -136,7 +136,7 @@ export class ScrollableBase {
 
     this.log = logger('SCROLL' + (logPrefix ? '-' + logPrefix : ''), LogTypes.Error);
 
-    if(el) {
+    if (el) {
       Array.from(el.children).forEach((c) => this.container.append(c));
 
       el.append(this.container);
@@ -146,29 +146,29 @@ export class ScrollableBase {
   }
 
   public addScrollListener() {
-    if(this.addedScrollListener) {
+    if (this.addedScrollListener) {
       return;
     }
 
     this.addedScrollListener = true;
-    this.container.addEventListener('scroll', this.onScroll, {passive: true, capture: true});
+    this.container.addEventListener('scroll', this.onScroll, { passive: true, capture: true });
   }
 
   public removeScrollListener() {
-    if(!this.addedScrollListener) {
+    if (!this.addedScrollListener) {
       return;
     }
 
     this.addedScrollListener = false;
-    this.container.removeEventListener('scroll', this.onScroll, {capture: true});
+    this.container.removeEventListener('scroll', this.onScroll, { capture: true });
   }
 
   public setListeners() {
-    if(this.removeHeavyAnimationListener) {
+    if (this.removeHeavyAnimationListener) {
       return;
     }
 
-    window.addEventListener('resize', this.invalidateMeasurements, {passive: true});
+    window.addEventListener('resize', this.invalidateMeasurements, { passive: true });
     this.addScrollListener();
 
     // ResizeObserver covers the container's own box, MutationObserver covers
@@ -177,19 +177,19 @@ export class ScrollableBase {
     this.resizeObserver = new ResizeObserver(this.invalidateMeasurements);
     this.resizeObserver.observe(this.container);
     this.mutationObserver = new MutationObserver(this.invalidateMeasurements);
-    this.mutationObserver.observe(this.container, {childList: true, subtree: true});
+    this.mutationObserver.observe(this.container, { childList: true, subtree: true });
 
     this.removeHeavyAnimationListener = useHeavyAnimationCheck(() => {
       this.isHeavyAnimationInProgress = true;
 
-      if(this.onScrollMeasure) {
+      if (this.onScrollMeasure) {
         this.cancelMeasure();
         this.needCheckAfterAnimation = true;
       }
     }, () => {
       this.isHeavyAnimationInProgress = false;
 
-      if(this.needCheckAfterAnimation) {
+      if (this.needCheckAfterAnimation) {
         this.onScroll();
         this.needCheckAfterAnimation = false;
       }
@@ -197,7 +197,7 @@ export class ScrollableBase {
   }
 
   public removeListeners() {
-    if(!this.removeHeavyAnimationListener) {
+    if (!this.removeHeavyAnimationListener) {
       return;
     }
 
@@ -206,7 +206,7 @@ export class ScrollableBase {
     this.resizeObserver = undefined;
     this.mutationObserver!.disconnect();
     this.mutationObserver = undefined;
-    if(this.thumb) {
+    if (this.thumb) {
       this.thumb.removeEventListener('mousedown', this.onMouseDown);
       this.container.removeEventListener('mouseenter', this.onContainerMouseEnter);
       window.removeEventListener('mousemove', this.onMouseMove);
@@ -242,7 +242,7 @@ export class ScrollableBase {
     // this.removeListeners();
     return fastSmoothScroll({
       ...options,
-      container: this.container
+      container: this.container,
     });/* .finally(() => {
       this.setListeners();
     }); */
@@ -255,23 +255,23 @@ export class ScrollableBase {
 
     // return;
 
-    if(this.isHeavyAnimationInProgress) {
+    if (this.isHeavyAnimationInProgress) {
       this.cancelMeasure();
       this.needCheckAfterAnimation = true;
       return;
     }
 
     // if(this.onScrollMeasure || ((this.scrollLocked || (!this.onScrolledTop && !this.onScrolledBottom)) && !this.splitUp && !this.onAdditionalScroll)) return;
-    if((!this.onScrolledTop && !this.onScrolledBottom) && !this.splitUp && !this.onAdditionalScroll && !this.thumb) return;
+    if ((!this.onScrolledTop && !this.onScrolledBottom) && !this.splitUp && !this.onAdditionalScroll && !this.thumb) return;
 
     // cache scroll position to avoid forced reflows if the layout is dirty in the throttled measure
     this.capturedScrollPosition = this.scrollPosition;
 
-    if(this.onScrollMeasure) return;
+    if (this.onScrollMeasure) return;
     this.onScrollMeasure = throttleMeasurement(() => {
       this.onScrollMeasure = 0;
 
-      if(this.sizesDirty) {
+      if (this.sizesDirty) {
         this.refreshMeasurements();
       }
 
@@ -282,11 +282,11 @@ export class ScrollableBase {
       this.updateThumb(scrollPosition, false);
 
       // lastScrollDirection check is useless here, every callback should decide on its own
-      if(this.onAdditionalScroll/*  && this.lastScrollDirection !== 0 */) {
+      if (this.onAdditionalScroll/*  && this.lastScrollDirection !== 0 */) {
         this.onAdditionalScroll();
       }
 
-      if(this.checkForTriggers) {
+      if (this.checkForTriggers) {
         this.checkForTriggers();
       }
     });
@@ -304,7 +304,7 @@ export class ScrollableBase {
     this.sizesDirty = false;
     this.cachedScrollSize = this.container[this.scrollSizeProperty];
     this.cachedClientSize = this.container[this.clientSizeProperty];
-    if(this.thumb && this.thumbContainer.parentElement) {
+    if (this.thumb && this.thumbContainer.parentElement) {
       this.lastThumbGeometry = syncThumbContainerGeometry(this.container, this.thumbContainer, this.lastThumbGeometry);
     }
   }
@@ -321,14 +321,14 @@ export class ScrollableBase {
   // is re-asserted lazily — on every thumb update and on hover, the only
   // moments the thumb is visible.
   protected ensureThumbAttached() {
-    if(!this.container.parentElement) {
+    if (!this.container.parentElement) {
       this.thumbContainer.remove();
       this.lastThumbGeometry = '';
       return false;
     }
 
     // adjacency (not mere presence) is required by the :hover sibling selector
-    if(this.container.nextElementSibling !== this.thumbContainer) {
+    if (this.container.nextElementSibling !== this.thumbContainer) {
       this.container.after(this.thumbContainer);
       // an attach/move means the container's offsets may have changed too
       this.sizesDirty = true;
@@ -345,11 +345,11 @@ export class ScrollableBase {
   // change we can't observe synchronously); scroll measures pass false and
   // consume the caches
   public updateThumb(scrollPosition = this.scrollPosition, fresh = true) {
-    if(IS_OVERLAY_SCROLL_SUPPORTED() || !this.thumb) {
+    if (IS_OVERLAY_SCROLL_SUPPORTED() || !this.thumb) {
       return;
     }
 
-    if(!this.ensureThumbAttached()) {
+    if (!this.ensureThumbAttached()) {
       return;
     }
 
@@ -357,7 +357,7 @@ export class ScrollableBase {
     // tracks the scroll position without lag
     this.thumbTransitionCleanup?.();
 
-    if(fresh || this.sizesDirty) {
+    if (fresh || this.sizesDirty) {
       this.refreshMeasurements();
     }
 
@@ -372,7 +372,7 @@ export class ScrollableBase {
     // const b = (scrollPosition + clientSize) / scrollSize;
     const b = scrollPosition / (scrollSize - clientSize);
     const maxValue = trackSize - thumbSize;
-    if(clientSize < scrollSize) {
+    if (clientSize < scrollSize) {
       this.thumb.style.height = thumbSize + 'px';
       // this.thumb.style.top = `${Math.min(maxValue, value - thumbSize * b)}px`;
       this.thumb.style.transform = `translateY(${Math.min(maxValue, value - thumbSize * b)}px)`;
@@ -389,7 +389,7 @@ export class ScrollableBase {
   // thumb never lags behind live scrolling.
   public updateThumbAnimated() {
     const thumb = this.thumb;
-    if(IS_OVERLAY_SCROLL_SUPPORTED() || !thumb || !liteMode.isAvailable('animations')) {
+    if (IS_OVERLAY_SCROLL_SUPPORTED() || !thumb || !liteMode.isAvailable('animations')) {
       this.updateThumb();
       return;
     }
@@ -401,7 +401,7 @@ export class ScrollableBase {
     this.updateThumb();
 
     const onTransitionEnd = (e: TransitionEvent) => {
-      if(e.target === thumb && e.propertyName === 'transform') cleanup();
+      if (e.target === thumb && e.propertyName === 'transform') cleanup();
     };
     const timeout = setTimeout(() => cleanup(), 400);
     thumb.addEventListener('transitionend', onTransitionEnd);
@@ -414,7 +414,7 @@ export class ScrollableBase {
   }
 
   public cancelMeasure() {
-    if(this.onScrollMeasure) {
+    if (this.onScrollMeasure) {
       cancelMeasurement(this.onScrollMeasure);
       this.onScrollMeasure = 0;
     }
@@ -446,7 +446,7 @@ export class ScrollableBase {
     this.thumb.classList.add('is-focused');
 
     window.addEventListener('mousemove', this.onMouseMove);
-    window.addEventListener('mouseup', this.onMouseUp, {once: true});
+    window.addEventListener('mouseup', this.onMouseUp, { once: true });
   };
 
   protected onMouseUp = (e: MouseEvent) => {
@@ -501,12 +501,12 @@ export class ScrollableBase {
   }
 
   public ignoreNextScrollEvent() {
-    if(this.removeHeavyAnimationListener) {
+    if (this.removeHeavyAnimationListener) {
       this.removeScrollListener();
       this.container.addEventListener('scroll', (e) => {
         cancelEvent(e);
         this.addScrollListener();
-      }, {capture: true, passive: false, once: true});
+      }, { capture: true, passive: false, once: true });
     }
   }
 
@@ -519,7 +519,7 @@ export type SliceSides = 'top' | 'bottom';
 export type SliceSidesContainer = {[k in SliceSides]: boolean};
 
 export default class Scrollable extends ScrollableBase {
-  public loadedAll: SliceSidesContainer = {top: true, bottom: false};
+  public loadedAll: SliceSidesContainer = { top: true, bottom: false };
 
   constructor(
     el?: HTMLElement,
@@ -544,7 +544,7 @@ export default class Scrollable extends ScrollableBase {
     this.offsetSizeProperty = 'offsetHeight';
     this.clientAxis = 'clientY';
 
-    if(!IS_OVERLAY_SCROLL_SUPPORTED()) {
+    if (!IS_OVERLAY_SCROLL_SUPPORTED()) {
       this.thumbContainer = document.createElement('div');
       this.thumbContainer.classList.add('scrollable-thumb-container');
       this.thumb = document.createElement('div');
@@ -557,7 +557,7 @@ export default class Scrollable extends ScrollableBase {
     }
 
     this.container.classList.add('scrollable-y');
-    if(IS_SAFARI && !IS_MOBILE_SAFARI) {
+    if (IS_SAFARI && !IS_MOBILE_SAFARI) {
       this.container.classList.add('no-scrollbar');
     }
     this.setListeners();
@@ -582,14 +582,14 @@ export default class Scrollable extends ScrollableBase {
   }
 
   public checkForTriggers = () => {
-    if((!this.onScrolledTop && !this.onScrolledBottom)) return;
+    if ((!this.onScrolledTop && !this.onScrolledBottom)) return;
 
-    if(this.isHeavyAnimationInProgress) {
+    if (this.isHeavyAnimationInProgress) {
       this.onScroll();
       return;
     }
 
-    if(this.sizesDirty) {
+    if (this.sizesDirty) {
       this.refreshMeasurements();
     }
 
@@ -598,7 +598,7 @@ export default class Scrollable extends ScrollableBase {
     // load) come after a measure or a silent set
     const scrollSize = this.cachedScrollSize;
     const scrollPosition = this.lastScrollPosition;
-    if(!scrollSize) { // незачем вызывать триггеры если блок пустой или не виден
+    if (!scrollSize) { // незачем вызывать триггеры если блок пустой или не виден
       return;
     }
 
@@ -606,11 +606,11 @@ export default class Scrollable extends ScrollableBase {
 
     // this.log('checkForTriggers:', scrollTop, maxScrollTop);
 
-    if(this.onScrolledTop && scrollPosition <= this.onScrollOffset && this.lastScrollDirection <= 0/* && direction === -1 */) {
+    if (this.onScrolledTop && scrollPosition <= this.onScrollOffset && this.lastScrollDirection <= 0/* && direction === -1 */) {
       this.onScrolledTop();
     }
 
-    if(this.onScrolledBottom && (maxScrollPosition - scrollPosition) <= this.onScrollOffset && this.lastScrollDirection >= 0/* && direction === 1 */) {
+    if (this.onScrolledBottom && (maxScrollPosition - scrollPosition) <= this.onScrollOffset && this.lastScrollDirection >= 0/* && direction === 1 */) {
       this.onScrolledBottom();
     }
   };
@@ -622,16 +622,16 @@ export class ScrollableX extends ScrollableBase {
 
     this.container.classList.add('scrollable-x');
 
-    if(!IS_TOUCH_SUPPORTED) {
+    if (!IS_TOUCH_SUPPORTED) {
       const scrollHorizontally = (e: WheelEvent) => {
         e.stopPropagation();
-        if(!e.deltaX && this.container.scrollWidth > this.container.clientWidth) {
+        if (!e.deltaX && this.container.scrollWidth > this.container.clientWidth) {
           this.container.scrollLeft += e.deltaY / 4;
           cancelEvent(e);
         }
       };
 
-      this.container.addEventListener('wheel', scrollHorizontally, {passive: false});
+      this.container.addEventListener('wheel', scrollHorizontally, { passive: false });
     }
 
     this.scrollPositionProperty = 'scrollLeft';

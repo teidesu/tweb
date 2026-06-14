@@ -16,22 +16,22 @@ export default class SuperIntersectionObserver {
 
     this.observer = new IntersectionObserver((entries) => {
       const observing = this.observing;
-      for(let i = 0, length = entries.length; i < length; ++i) {
+      for (let i = 0, length = entries.length; i < length; ++i) {
         const entry = entries[i];
         const callbacks = observing.get(entry.target);
-        if(!callbacks) {
+        if (!callbacks) {
           console.error('intersection process no callbacks:', entry);
           debugger;
           continue;
         }
 
-        if(entry.isIntersecting) this.intersecting.add(entry.target);
+        if (entry.isIntersecting) this.intersecting.add(entry.target);
         else this.intersecting.delete(entry.target);
 
-        for(const callback of callbacks) {
+        for (const callback of callbacks) {
           try {
             callback(entry);
-          } catch(err) {
+          } catch (err) {
             console.error('intersection process callback error:', err);
           }
         }
@@ -51,16 +51,16 @@ export default class SuperIntersectionObserver {
   }
 
   public toggleObservingNew(value: boolean) {
-    if(this.freezedObservingNew === value) {
+    if (this.freezedObservingNew === value) {
       return;
     }
 
     this.freezedObservingNew = value;
 
     const queue = this.observingQueue;
-    if(!value && queue.size) {
-      for(const [target, callbacks] of queue) {
-        for(const callback of callbacks) {
+    if (!value && queue.size) {
+      for (const [target, callbacks] of queue) {
+        for (const callback of callbacks) {
           this.observe(target, callback);
         }
       }
@@ -75,21 +75,21 @@ export default class SuperIntersectionObserver {
   }
 
   public observe(target: IntersectionTarget, callback: IntersectionCallback) {
-    if(this.freezedObservingNew && this.has(target, callback)) {
+    if (this.freezedObservingNew && this.has(target, callback)) {
       return;
     }
 
     const observing = this.freezedObservingNew ? this.observingQueue : this.observing;
     let callbacks = observing.get(target);
-    if(callbacks && callbacks.has(callback)) {
+    if (callbacks && callbacks.has(callback)) {
       return;
     }
 
-    if(!callbacks) {
+    if (!callbacks) {
       callbacks = new Set();
       observing.set(target, callbacks);
 
-      if(observing === this.observing) {
+      if (observing === this.observing) {
         this.observer.observe(target);
       }
     }
@@ -100,12 +100,12 @@ export default class SuperIntersectionObserver {
   public unobserve(target: IntersectionTarget, callback: IntersectionCallback) {
     const observing = this.freezedObservingNew && !this.has(target, callback) ? this.observingQueue : this.observing;
     const callbacks = observing.get(target);
-    if(!callbacks) {
+    if (!callbacks) {
       return;
     }
 
     callbacks.delete(callback);
-    if(!callbacks.size) {
+    if (!callbacks.size) {
       observing.delete(target);
       this.observer.unobserve(target);
       this.intersecting.delete(target);

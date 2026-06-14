@@ -1,28 +1,28 @@
-import {Component, onCleanup, onMount} from 'solid-js';
-import type {MyDialogFilter} from '@lib/storages/filters';
+import { Component, onCleanup, onMount } from 'solid-js';
+import type { MyDialogFilter } from '@lib/storages/filters';
 import AppSelectPeers from '@components/appSelectPeers';
 import appDialogsManager from '@lib/appDialogsManager';
 import ButtonIcon from '@components/buttonIcon';
 import Button from '@components/button';
-import {i18n, LangPackKey, join} from '@lib/langPack';
+import { i18n, LangPackKey, join } from '@lib/langPack';
 import copy from '@helpers/object/copy';
 import forEachReverse from '@helpers/array/forEachReverse';
-import {REAL_FOLDERS} from '@appManagers/constants';
+import { REAL_FOLDERS } from '@appManagers/constants';
 import rootScope from '@lib/rootScope';
-import {attachClickEvent, simulateClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent, simulateClickEvent } from '@helpers/dom/clickEvent';
 import SettingSection from '@components/settingSection';
-import {DialogFilter} from '@layer';
+import { DialogFilter } from '@layer';
 import showLimitPopup from '@components/popups/limit';
 import wrapFolderTitle from '@components/wrappers/folderTitle';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {usePromiseCollector} from '@components/solidJsTabs/promiseCollector';
-import type {AppIncludedChatsTab} from '@components/solidJsTabs/tabs';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
+import type { AppIncludedChatsTab } from '@components/solidJsTabs/tabs';
 
 const IncludedChats: Component = () => {
   const [tab] = useSuperTab<typeof AppIncludedChatsTab>();
   const promiseCollector = usePromiseCollector();
 
-  const {type, onSetFilter} = tab.payload;
+  const { type, onSetFilter } = tab.payload;
   const originalFilter = tab.payload.filter;
   const filter = copy(originalFilter);
 
@@ -40,19 +40,19 @@ const IncludedChats: Component = () => {
         rippleEnabled: true,
         avatarSize: 'abitbigger',
         wrapOptions: {
-          middleware: tab.middlewareHelper.get()
-        }
+          middleware: tab.middlewareHelper.get(),
+        },
       });
 
       (dialogElement.container as any).dialogElement = dialogElement;
-      const {dom} = dialogElement;
+      const { dom } = dialogElement;
 
       const selected = selector!.selected.has(peerId);
       dom.containerEl.append(selector!.checkbox(selected));
 
       const foundInFilters: HTMLElement[] = [];
       const promises = [...dialogsByFilters.entries()].map(async([filter, dialogs]) => {
-        if(dialogs.has(peerId)) {
+        if (dialogs.has(peerId)) {
           const span = document.createElement('span');
           span.append(await wrapFolderTitle(filter.title, tab.middlewareHelper.get()));
           foundInFilters.push(span);
@@ -71,7 +71,7 @@ const IncludedChats: Component = () => {
   };
 
   const onSelectChange = (length: number) => {
-    if(type === 'included') {
+    if (type === 'included') {
       confirmBtn.style.display = length ? '' : 'none';
     }
   };
@@ -82,25 +82,25 @@ const IncludedChats: Component = () => {
 
     const categoriesSection = new SettingSection({
       noDelimiter: true,
-      name: 'FilterChatTypes'
+      name: 'FilterChatTypes',
     });
 
     categoriesSection.container.classList.add('folder-categories');
 
     let details: {[flag: string]: {ico: Icon, icoFilled?: Icon, text: LangPackKey}};
-    if(type === 'excluded') {
+    if (type === 'excluded') {
       details = {
-        exclude_muted: {ico: 'mute', text: 'ChatList.Filter.MutedChats'},
-        exclude_archived: {ico: 'archive', icoFilled: 'archive_filled', text: 'ChatList.Filter.Archive'},
-        exclude_read: {ico: 'readchats', text: 'ChatList.Filter.ReadChats'}
+        exclude_muted: { ico: 'mute', text: 'ChatList.Filter.MutedChats' },
+        exclude_archived: { ico: 'archive', icoFilled: 'archive_filled', text: 'ChatList.Filter.Archive' },
+        exclude_read: { ico: 'readchats', text: 'ChatList.Filter.ReadChats' },
       };
     } else {
       details = {
-        contacts: {ico: 'newprivate', icoFilled: 'newprivate_filled', text: 'ChatList.Filter.Contacts'},
-        non_contacts: {ico: 'noncontacts', text: 'ChatList.Filter.NonContacts'},
-        groups: {ico: 'group', icoFilled: 'group_filled', text: 'ChatList.Filter.Groups'},
-        broadcasts: {ico: 'newchannel', icoFilled: 'channel_filled', text: 'ChatList.Filter.Channels'},
-        bots: {ico: 'bots', icoFilled: 'bot_filled', text: 'ChatList.Filter.Bots'}
+        contacts: { ico: 'newprivate', icoFilled: 'newprivate_filled', text: 'ChatList.Filter.Contacts' },
+        non_contacts: { ico: 'noncontacts', text: 'ChatList.Filter.NonContacts' },
+        groups: { ico: 'group', icoFilled: 'group_filled', text: 'ChatList.Filter.Groups' },
+        broadcasts: { ico: 'newchannel', icoFilled: 'channel_filled', text: 'ChatList.Filter.Channels' },
+        bots: { ico: 'bots', icoFilled: 'bot_filled', text: 'ChatList.Filter.Bots' },
       };
     }
 
@@ -112,12 +112,12 @@ const IncludedChats: Component = () => {
       renderResultsFunc: renderResults,
       placeholder: 'Search',
       sectionNameLangPackKey: 'FilterChats',
-      managers: tab.managers
+      managers: tab.managers,
     });
 
     const f = document.createDocumentFragment();
-    for(const key in details) {
-      const button = Button('btn-primary btn-transparent folder-category-button', {icon: details[key].ico, text: details[key].text});
+    for (const key in details) {
+      const button = Button('btn-primary btn-transparent folder-category-button', { icon: details[key].ico, text: details[key].text });
       button.dataset.peerId = key;
       button.append(selector.checkbox());
       f.append(button);
@@ -130,9 +130,9 @@ const IncludedChats: Component = () => {
 
     let addedInitial = false;
     const _add = selector.add.bind(selector);
-    selector.add = ({key, title, scroll}) => {
+    selector.add = ({ key, title, scroll }) => {
       const d = details[key];
-      if(selector!.selected.size >= limit && addedInitial && !d) {
+      if (selector!.selected.size >= limit && addedInitial && !d) {
         showLimitPopup('folderPeers');
         return false;
       }
@@ -141,7 +141,7 @@ const IncludedChats: Component = () => {
         key,
         title: d ? i18n(d.text) : undefined,
         scroll,
-        fallbackIcon: d ? d.icoFilled || d.ico : undefined
+        fallbackIcon: d ? d.icoFilled || d.ico : undefined,
       });
       return ret;
     };
@@ -155,8 +155,8 @@ const IncludedChats: Component = () => {
     addedInitial = true;
 
     const pFlags = (filter as DialogFilter.dialogFilter).pFlags;
-    if(pFlags) for(const flag in pFlags) {
-      if(details.hasOwnProperty(flag) && !!pFlags[flag as keyof typeof pFlags]) {
+    if (pFlags) for (const flag in pFlags) {
+      if (details.hasOwnProperty(flag) && !!pFlags[flag as keyof typeof pFlags]) {
         simulateClickEvent(categoriesSection.content.querySelector(`[data-peer-id="${flag}"]`) as HTMLElement);
       }
     }
@@ -165,7 +165,7 @@ const IncludedChats: Component = () => {
   onMount(() => {
     tab.content.remove();
     tab.container.classList.add('included-chatlist-container');
-    confirmBtn = ButtonIcon('check btn-confirm blue', {noRipple: true});
+    confirmBtn = ButtonIcon('check btn-confirm blue', { noRipple: true });
     confirmBtn.style.display = 'none';
 
     tab.header.append(confirmBtn);
@@ -174,18 +174,18 @@ const IncludedChats: Component = () => {
       const selected = selector!.getSelected();
 
       const pFlags = (filter as DialogFilter.dialogFilter).pFlags;
-      if(type === 'included' && pFlags) {
-        for(const key in pFlags) {
-          if(key.indexOf('exclude_') === 0) {
+      if (type === 'included' && pFlags) {
+        for (const key in pFlags) {
+          if (key.indexOf('exclude_') === 0) {
             continue;
           }
 
           // @ts-ignore
           delete pFlags[key];
         }
-      } else if(pFlags) {
-        for(const key in pFlags) {
-          if(key.indexOf('exclude_') !== 0) {
+      } else if (pFlags) {
+        for (const key in pFlags) {
+          if (key.indexOf('exclude_') !== 0) {
             continue;
           }
 
@@ -195,8 +195,8 @@ const IncludedChats: Component = () => {
       }
 
       const peerIds: PeerId[] = [];
-      for(const key of selected) {
-        if(key.isPeerId()) {
+      for (const key of selected) {
+        if (key.isPeerId()) {
           peerIds.push(key.toPeerId());
         } else {
           // @ts-ignore
@@ -205,14 +205,14 @@ const IncludedChats: Component = () => {
       }
 
       let cmp: (peerId: PeerId) => boolean;
-      if(type === 'included') {
+      if (type === 'included') {
         cmp = (peerId) => peerIds.includes(peerId);
       } else {
         cmp = (peerId) => !peerIds.includes(peerId);
       }
 
       forEachReverse(filter.pinnedPeerIds!, (peerId, idx) => {
-        if(!cmp(peerId)) {
+        if (!cmp(peerId)) {
           filter.pinnedPeerIds!.splice(idx!, 1);
           filter.pinned_peers.splice(idx!, 1);
         }
@@ -222,8 +222,8 @@ const IncludedChats: Component = () => {
       const otherLegacy = type === 'included' ? 'exclude_peers' : 'include_peers';
       const otherArr = (filter as DialogFilter.dialogFilter)[other];
       const otherLegacyArr = (filter as DialogFilter.dialogFilter)[otherLegacy];
-      if(otherArr) forEachReverse(otherArr, (peerId, idx) => {
-        if(peerIds.includes(peerId)) {
+      if (otherArr) forEachReverse(otherArr, (peerId, idx) => {
+        if (peerIds.includes(peerId)) {
           otherArr.splice(idx!, 1);
           otherLegacyArr.splice(idx!, 1);
         }
@@ -234,7 +234,7 @@ const IncludedChats: Component = () => {
 
       onSetFilter(filter);
       tab.close();
-    }, {listenerSetter: tab.listenerSetter});
+    }, { listenerSetter: tab.listenerSetter });
 
     const onAppConfig = (appConfig: MTAppConfig) => {
       limit = (rootScope.premium ? appConfig.dialog_filters_chats_limit_premium : appConfig.dialog_filters_chats_limit_default)!;
@@ -254,7 +254,7 @@ const IncludedChats: Component = () => {
 
         tab.managers.apiManager.getAppConfig().then((appConfig) => {
           onAppConfig(appConfig);
-        })
+        }),
       ]);
 
       buildSelector();
@@ -262,7 +262,7 @@ const IncludedChats: Component = () => {
   });
 
   onCleanup(() => {
-    if(selector) {
+    if (selector) {
       selector.container.remove();
       selector = null;
     }

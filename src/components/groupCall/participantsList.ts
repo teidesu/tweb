@@ -1,14 +1,14 @@
 import positionElementByIndex from '@helpers/dom/positionElementByIndex';
 import replaceContent from '@helpers/dom/replaceContent';
-import {fastRaf} from '@helpers/schedulers';
-import SortedList, {SortedElementBase} from '@helpers/sortedList';
-import appDialogsManager, {DialogDom, AppDialogsManager, DialogElementSize} from '@lib/appDialogsManager';
-import {getGroupCallParticipantMutedState} from '.';
+import { fastRaf } from '@helpers/schedulers';
+import SortedList, { SortedElementBase } from '@helpers/sortedList';
+import appDialogsManager, { DialogDom, AppDialogsManager, DialogElementSize } from '@lib/appDialogsManager';
+import { getGroupCallParticipantMutedState } from '.';
 import GroupCallParticipantMutedIcon from '@components/groupCall/participantMutedIcon';
 import GroupCallParticipantStatusElement from '@components/groupCall/participantStatus';
 import type GroupCallInstance from '@lib/calls/groupCallInstance';
 import type LazyLoadQueue from '@components/lazyLoadQueue';
-import {MiddlewareHelper, getMiddleware} from '@helpers/middleware';
+import { MiddlewareHelper, getMiddleware } from '@helpers/middleware';
 
 interface SortedParticipant extends SortedElementBase<PeerId> {
   dom: DialogDom,
@@ -24,7 +24,7 @@ export default class GroupCallParticipantsList extends SortedList<SortedParticip
   protected avatarSize: DialogElementSize = 'abitbigger';
   protected rippleEnabled = true;
   protected autonomous = true;
-  protected createChatListOptions: Parameters<AppDialogsManager['createChatList']>[0] = {/* new: true,  */dialogSize: 72};
+  protected createChatListOptions: Parameters<AppDialogsManager['createChatList']>[0] = { /* new: true,  */dialogSize: 72 };
 
   constructor(private instance: GroupCallInstance) {
     super({
@@ -45,7 +45,7 @@ export default class GroupCallParticipantsList extends SortedList<SortedParticip
       },
       onElementCreate: (base) => {
         const middlewareHelper = getMiddleware();
-        const {dom} = appDialogsManager.addDialogNew({
+        const { dom } = appDialogsManager.addDialogNew({
           peerId: base.id,
           container: false,
           avatarSize: this.avatarSize,
@@ -54,8 +54,8 @@ export default class GroupCallParticipantsList extends SortedList<SortedParticip
           rippleEnabled: this.rippleEnabled,
           wrapOptions: {
             lazyLoadQueue: this.lazyLoadQueue,
-            middleware: middlewareHelper.get()
-          }
+            middleware: middlewareHelper.get(),
+          },
         });
 
         const className = 'group-call-participant';
@@ -80,7 +80,7 @@ export default class GroupCallParticipantsList extends SortedList<SortedParticip
 
         return base as SortedParticipant;
       },
-      updateElementWith: fastRaf
+      updateElementWith: fastRaf,
     });
 
     this.list = appDialogsManager.createChatList(this.createChatListOptions);

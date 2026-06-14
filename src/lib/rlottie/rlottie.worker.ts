@@ -37,7 +37,7 @@ export class RLottieItem {
   }
 
   public init(json: string, fps: number) {
-    if(this.dead) {
+    if (this.dead) {
       throw makeError('ITEM_DESTROYED');
     }
 
@@ -61,27 +61,27 @@ export class RLottieItem {
 
       worker.Api.resize(this.handle, this.width, this.height);
 
-      if(!this.raw && IS_IMAGE_BITMAP_SUPPORTED) {
+      if (!this.raw && IS_IMAGE_BITMAP_SUPPORTED) {
         this.imageData = new ImageData(this.width, this.height);
       }
 
       return {
         frameCount: this.frameCount,
-        fps: this.fps
+        fps: this.fps,
       };
-    } catch(e) {
+    } catch (e) {
       console.error('init RLottieItem error:', e);
       throw e;
     }
   }
 
   public render(frameNo: number, clamped?: Uint8ClampedArray) {
-    if(this.dead || this.handle === undefined) {
+    if (this.dead || this.handle === undefined) {
       throw makeError('ITEM_DESTROYED');
     }
     // return;
 
-    if(this.frameCount < frameNo || frameNo < 0) {
+    if (this.frameCount < frameNo || frameNo < 0) {
       throw makeError('FRAME_OUT_OF_RANGE');
     }
 
@@ -92,21 +92,21 @@ export class RLottieItem {
 
       const data = Module.HEAPU8.subarray(bufferPointer, bufferPointer + (this.width * this.height * 4));
 
-      if(this.imageData) {
+      if (this.imageData) {
         this.imageData.data.set(data);
         return createImageBitmap(this.imageData).then((imageBitmap) => {
-          if(this.dead) {
+          if (this.dead) {
             throw makeError('ITEM_DESTROYED');
           }
 
-          if(CAN_USE_TRANSFERABLES) {
-            return new SuperMessagePort.TransferableResult({frameNo, frame: imageBitmap}, [imageBitmap]);
+          if (CAN_USE_TRANSFERABLES) {
+            return new SuperMessagePort.TransferableResult({ frameNo, frame: imageBitmap }, [imageBitmap]);
           }
 
-          return {frameNo, frame: imageBitmap};
+          return { frameNo, frame: imageBitmap };
         });
       } else {
-        if(!clamped) {
+        if (!clamped) {
           clamped = new Uint8ClampedArray(data);
         } else {
           clamped.set(data);
@@ -114,13 +114,13 @@ export class RLottieItem {
 
         // this.context.putImageData(new ImageData(clamped, this.width, this.height), 0, 0);
 
-        if(CAN_USE_TRANSFERABLES) {
-          return new SuperMessagePort.TransferableResult({frameNo, frame: clamped}, [clamped.buffer]);
+        if (CAN_USE_TRANSFERABLES) {
+          return new SuperMessagePort.TransferableResult({ frameNo, frame: clamped }, [clamped.buffer]);
         }
 
-        return {frameNo, frame: clamped};
+        return { frameNo, frame: clamped };
       }
-    } catch(e) {
+    } catch (e) {
       console.error('Render error:', e);
       this.dead = true;
       throw e;
@@ -130,7 +130,7 @@ export class RLottieItem {
   public destroy() {
     this.dead = true;
 
-    if(this.handle !== undefined) {
+    if (this.handle !== undefined) {
       worker.Api.destroy(this.handle);
     }
   }
@@ -153,7 +153,7 @@ class RLottieWorker {
       resize: Module.cwrap('lottie_resize', '', ['number', 'number', 'number']),
       buffer: Module.cwrap('lottie_buffer', 'number', ['number']),
       render: Module.cwrap('lottie_render', '', ['number', 'number']),
-      loadFromData: Module.cwrap('lottie_load_from_data', 'number', ['number', 'number'])
+      loadFromData: Module.cwrap('lottie_load_from_data', 'number', ['number', 'number']),
     };
 
     resolveReady();
@@ -178,16 +178,16 @@ rlottieMessagePort.addMultipleEventsListeners({
     rlottieMessagePort.attachPort(event.ports[0]);
   },
 
-  loadFromData: async({reqId, blob, width, height, toneIndex, raw}) => {
+  loadFromData: async({ reqId, blob, width, height, toneIndex, raw }) => {
     const item = items[reqId] = new RLottieItem(reqId, width, height, raw/* , canvas */);
     let json = await readBlobAsText(blob);
 
-    if(readyPromise) {
+    if (readyPromise) {
       await readyPromise;
     }
 
     try {
-      if(typeof(toneIndex) === 'number' && toneIndex >= 1 && toneIndex <= 5) {
+      if (typeof(toneIndex) === 'number' && toneIndex >= 1 && toneIndex <= 5) {
         /* params.animationData = copy(params.animationData);
         this.applyReplacements(params.animationData, toneIndex); */
 
@@ -211,15 +211,15 @@ rlottieMessagePort.addMultipleEventsListeners({
       // console.log('Rendering sticker:', reqId, frameRate, 'now rendered:', Object.keys(items).length);
 
       return item.init(json, frameRate);
-    } catch(err) {
+    } catch (err) {
       console.error('Invalid file for sticker:', err, json);
       throw makeError('FILE_INVALID');
     }
   },
 
-  destroy: ({reqId}) => {
+  destroy: ({ reqId }) => {
     const item = items[reqId];
-    if(!item) {
+    if (!item) {
       return;
     }
 
@@ -227,12 +227,12 @@ rlottieMessagePort.addMultipleEventsListeners({
     delete items[reqId];
   },
 
-  renderFrame: ({reqId, frameNo, clamped}) => {
+  renderFrame: ({ reqId, frameNo, clamped }) => {
     return items[reqId].render(frameNo, clamped) as any;
-  }
+  },
 });
 
-if(typeof(MessageChannel) !== 'undefined') listenMessagePort(rlottieMessagePort, (source) => {
+if (typeof(MessageChannel) !== 'undefined') listenMessagePort(rlottieMessagePort, (source) => {
   const channel = new MessageChannel();
   rlottieMessagePort.attachPort(channel.port1);
   rlottieMessagePort.invokeVoid('port', undefined, source, [channel.port2]);

@@ -3,7 +3,7 @@ export default function exceptKeys<T extends object, Key extends keyof T>(obj: T
   const res = {};
 
   Object.keys(obj).forEach((key) => {
-    if(set.has(key)) return;
+    if (set.has(key)) return;
     (res as any)[key] = (obj as any)[key];
   });
 

@@ -1,4 +1,4 @@
-import {renderImageFromUrlPromise} from '@helpers/dom/renderImageFromUrl';
+import { renderImageFromUrlPromise } from '@helpers/dom/renderImageFromUrl';
 
 export function averageColorFromCanvas(canvas: HTMLCanvasElement) {
   const context = canvas.getContext('2d');
@@ -6,7 +6,7 @@ export function averageColorFromCanvas(canvas: HTMLCanvasElement) {
   const pixel = new Array(4).fill(0);
   const pixels = context!.getImageData(0, 0, canvas.width, canvas.height).data;
   const pixelsLength = pixels.length / 4;
-  for(let i = 0; i < pixels.length; i += 4) {
+  for (let i = 0; i < pixels.length; i += 4) {
     // const alphaPixel = pixels[i + 3];
     pixel[0] += pixels[i]/*  * (alphaPixel / 255) */;
     pixel[1] += pixels[i + 1]/*  * (alphaPixel / 255) */;
@@ -27,10 +27,10 @@ export function averageColorFromImageSource(imageSource: CanvasImageSource, widt
   const canvas = document.createElement('canvas');
   const ratio = width / height;
   const DIMENSIONS = 50;
-  if(ratio === 1) {
+  if (ratio === 1) {
     canvas.width = DIMENSIONS;
     canvas.height = canvas.width / ratio;
-  } else if(ratio > 1) {
+  } else if (ratio > 1) {
     canvas.height = DIMENSIONS;
     canvas.width = canvas.height / ratio;
   } else {

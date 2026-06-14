@@ -1,16 +1,16 @@
-import {Component} from 'solid-js';
-import {render} from 'solid-js/web';
+import { Component } from 'solid-js';
+import { render } from 'solid-js/web';
 import appDialogsManager from '@lib/appDialogsManager';
-import {FOLDER_ID_ARCHIVE, REAL_FOLDER_ID} from '@appManagers/constants';
+import { FOLDER_ID_ARCHIVE, REAL_FOLDER_ID } from '@appManagers/constants';
 import StoriesList from '@components/stories/list';
-import {AutonomousDialogList} from '@components/autonomousDialogList/dialogs';
+import { AutonomousDialogList } from '@components/autonomousDialogList/dialogs';
 import ButtonMenuToggle from '@components/buttonMenuToggle';
-import {getArchiveContextMenuButtons} from '@components/archiveDialogContextMenu';
-import {fastSmoothScrollToStart} from '@helpers/fastSmoothScroll';
-import {i18n} from '@lib/langPack';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {usePromiseCollector} from '@components/solidJsTabs/promiseCollector';
-import type {AppArchivedTab} from '@components/solidJsTabs/tabs';
+import { getArchiveContextMenuButtons } from '@components/archiveDialogContextMenu';
+import { fastSmoothScrollToStart } from '@helpers/fastSmoothScroll';
+import { i18n } from '@lib/langPack';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
+import type { AppArchivedTab } from '@components/solidJsTabs/tabs';
 
 const ArchivedTab: Component = () => {
   const [tab] = useSuperTab<typeof AppArchivedTab>();
@@ -39,7 +39,7 @@ const ArchivedTab: Component = () => {
           const container = autonomousDialogList!.scrollable.container;
           tab.container.classList.add('scrolled-start');
           fastSmoothScrollToStart(container, 'y');
-        }
+        },
       });
     }, storiesListContainer);
   };
@@ -48,7 +48,7 @@ const ArchivedTab: Component = () => {
     const buttonMenu = ButtonMenuToggle({
       icon: 'more',
       buttons: getArchiveContextMenuButtons(),
-      direction: 'bottom-left'
+      direction: 'bottom-left',
     });
 
     tab.header.append(buttonMenu);
@@ -82,11 +82,11 @@ const ArchivedTab: Component = () => {
 
   appendMenu();
 
-  if(!appDialogsManager.xds[filterId]) {
-    const {ul, scrollable} = appDialogsManager.l({
+  if (!appDialogsManager.xds[filterId]) {
+    const { ul, scrollable } = appDialogsManager.l({
       title: undefined as any,
       id: filterId,
-      localId: FOLDER_ID_ARCHIVE
+      localId: FOLDER_ID_ARCHIVE,
     });
     scrollable.append(ul);
   }

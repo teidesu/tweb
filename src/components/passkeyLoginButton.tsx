@@ -1,23 +1,23 @@
-import {createSignal, JSX, onMount} from 'solid-js';
+import { createSignal, JSX, onMount } from 'solid-js';
 
 import IS_WEB_AUTHN_SUPPORTED from '@environment/webAuthn';
-import {AuthPasskeyLoginOptions, InputPasskeyResponse} from '@layer';
+import { AuthPasskeyLoginOptions, InputPasskeyResponse } from '@layer';
 import AccountController from '@lib/accounts/accountController';
-import {changeAccount} from '@lib/accounts/changeAccount';
-import {ActiveAccountNumber} from '@lib/accounts/types';
-import {getInputPasskeyCredential} from '@appManagers/utils/account/getInputPasskeyResponse';
-import {GrowHeightReveal} from '@helpers/solid/animations';
+import { changeAccount } from '@lib/accounts/changeAccount';
+import { ActiveAccountNumber } from '@lib/accounts/types';
+import { getInputPasskeyCredential } from '@appManagers/utils/account/getInputPasskeyResponse';
+import { GrowHeightReveal } from '@helpers/solid/animations';
 import rootScope from '@lib/rootScope';
-import {TrueDcId} from '@types';
+import { TrueDcId } from '@types';
 import Button from '@components/buttonTsx';
-import {toastNew} from '@components/toast';
+import { toastNew } from '@components/toast';
 
 let _fetchPasskeyOptionPromise: Promise<[TrueDcId, AuthPasskeyLoginOptions]> | undefined;
 
 export default function PasskeyLoginButton(props: {
   disabled?: boolean
 } = {}): JSX.Element {
-  if(!IS_WEB_AUTHN_SUPPORTED) return null;
+  if (!IS_WEB_AUTHN_SUPPORTED) return null;
 
   const [visible, setVisible] = createSignal(false);
   const [submitting, setSubmitting] = createSignal(false);
@@ -26,13 +26,13 @@ export default function PasskeyLoginButton(props: {
   let passkeyInitDcId: TrueDcId;
 
   const fetchPasskeyOption = (overwrite?: boolean) => {
-    if(overwrite) {
+    if (overwrite) {
       _fetchPasskeyOptionPromise = undefined;
     }
 
     _fetchPasskeyOptionPromise ||= Promise.all([
       rootScope.managers.apiManager.getBaseDcId(),
-      rootScope.managers.appAccountManager.initPasskeyLogin()
+      rootScope.managers.appAccountManager.initPasskeyLogin(),
     ]);
 
     return _fetchPasskeyOptionPromise.then(([dcId, passkeyLoginOptions]) => {
@@ -47,14 +47,14 @@ export default function PasskeyLoginButton(props: {
     try {
       const userIds = await AccountController.getUserIds();
       const credential = await navigator.credentials.get({
-        publicKey: PublicKeyCredential.parseRequestOptionsFromJSON(JSON.parse(passkeyOptionJSON).publicKey)
+        publicKey: PublicKeyCredential.parseRequestOptionsFromJSON(JSON.parse(passkeyOptionJSON).publicKey),
       });
       const inputPasskeyCredential = getInputPasskeyCredential(credential as PublicKeyCredential);
       const [dcId, userId] = (inputPasskeyCredential.response as InputPasskeyResponse.inputPasskeyResponseLogin).user_handle
-      .split(':').map((n) => parseInt(n));
+        .split(':').map((n) => parseInt(n));
 
       const existingIndex = userIds.indexOf(userId);
-      if(existingIndex !== -1) {
+      if (existingIndex !== -1) {
         changeAccount(existingIndex + 1 as ActiveAccountNumber);
         return;
       }
@@ -65,14 +65,14 @@ export default function PasskeyLoginButton(props: {
         passkeyInitDcId === dcId ? undefined : passkeyInitDcId
       );
       import('../pages/bootstrapIm').then((m) => m.bootstrapIm());
-    } catch(err) {
-      if((err as ApiError).type === 'SESSION_PASSWORD_NEEDED') {
-        import('../pages/authFlow').then(({navigateAuth}) => navigateAuth({name: 'password'}));
+    } catch (err) {
+      if ((err as ApiError).type === 'SESSION_PASSWORD_NEEDED') {
+        import('../pages/authFlow').then(({ navigateAuth }) => navigateAuth({ name: 'password' }));
         return;
-      } else if((err as ApiError).type === 'PASSKEY_CREDENTIAL_NOT_FOUND') {
-        toastNew({langPackKey: 'Login.Passkey.Error.NotFound'});
+      } else if ((err as ApiError).type === 'PASSKEY_CREDENTIAL_NOT_FOUND') {
+        toastNew({ langPackKey: 'Login.Passkey.Error.NotFound' });
       } else {
-        toastNew({langPackKey: 'Login.Passkey.Error'});
+        toastNew({ langPackKey: 'Login.Passkey.Error' });
       }
 
       await fetchPasskeyOption(true);

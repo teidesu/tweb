@@ -1,5 +1,5 @@
 // import { MOUNT_CLASS_TO } from "@config/debug";
-import type {ArgumentTypes, SuperReturnType} from '@types';
+import type { ArgumentTypes, SuperReturnType } from '@types';
 
 // class EventSystem {
 //   wm: WeakMap<any, Record<any, Set<any>>> = new WeakMap();
@@ -77,13 +77,13 @@ export default class EventListenerBase<Listeners extends EventListenerListeners>
   }
 
   public addEventListener<T extends keyof Listeners>(name: T, callback: Listeners[T], options?: boolean | AddEventListenerOptions) {
-    const listenerObject: ListenerObject<Listeners[T]> = {callback, options: options!};
+    const listenerObject: ListenerObject<Listeners[T]> = { callback, options: options! };
     (this.listeners[name] ??= new Set()).add(listenerObject); // ! add before because if you don't, you won't be able to delete it from callback
 
-    if(this.listenerResults.hasOwnProperty(name)) {
+    if (this.listenerResults.hasOwnProperty(name)) {
       callback(...this.listenerResults[name]!);
 
-      if((options as AddEventListenerOptions)?.once) {
+      if ((options as AddEventListenerOptions)?.once) {
         this.listeners[name].delete(listenerObject);
         return;
       }
@@ -95,7 +95,7 @@ export default class EventListenerBase<Listeners extends EventListenerListeners>
   public addMultipleEventsListeners(obj: {
     [name in keyof Listeners]?: Listeners[name]
   }) {
-    for(const i in obj) {
+    for (const i in obj) {
       this.addEventListener(i, obj[i]!);
     }
   }
@@ -105,9 +105,9 @@ export default class EventListenerBase<Listeners extends EventListenerListeners>
     callback: Listeners[T],
     options?: boolean | AddEventListenerOptions
   ) {
-    if(this.listeners[name]) {
-      for(const l of this.listeners[name]) {
-        if(l.callback === callback) {
+    if (this.listeners[name]) {
+      for (const l of this.listeners[name]) {
+        if (l.callback === callback) {
           this.listeners[name].delete(l);
           break;
         }
@@ -124,16 +124,16 @@ export default class EventListenerBase<Listeners extends EventListenerListeners>
     let result: any, error: any;
     try {
       result = listener.callback(...args);
-    } catch(err) {
+    } catch (err) {
       error = err;
       // console.error('listener callback error', err);
     }
 
-    if((listener.options as AddEventListenerOptions)?.once) {
+    if ((listener.options as AddEventListenerOptions)?.once) {
       this.removeEventListener(name, listener.callback);
     }
 
-    if(error) {
+    if (error) {
       throw error;
     }
 
@@ -145,21 +145,21 @@ export default class EventListenerBase<Listeners extends EventListenerListeners>
     collectResults: boolean,
     ...args: ArgumentTypes<Listeners[T]>
   ) {
-    if(this.reuseResults) {
+    if (this.reuseResults) {
       this.listenerResults[name] = args;
     }
 
     const results: Array<SuperReturnType<Listeners[typeof name]>> = ((collectResults && []) as SuperReturnType<Listeners[T]>[]);
 
     const listeners = this.listeners[name];
-    for(const listener of listeners || []) {
+    for (const listener of listeners || []) {
       try {
         const result = this.invokeListenerCallback(name, listener, ...args);
-        if(results) {
+        if (results) {
           results.push(result);
         }
-      } catch(err) {
-        if(results) {
+      } catch (err) {
+        if (results) {
           throw err;
         }
       }

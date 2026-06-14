@@ -1,11 +1,11 @@
 import cryptoWorker from '@lib/crypto/cryptoMessagePort';
-import {AccountPassword, InputCheckPasswordSRP, PasswordKdfAlgo} from '@layer';
+import { AccountPassword, InputCheckPasswordSRP, PasswordKdfAlgo } from '@layer';
 import addPadding from '@helpers/bytes/addPadding';
 import bufferConcats from '@helpers/bytes/bufferConcats';
 import bytesXor from '@helpers/bytes/bytesXor';
 import convertToUint8Array from '@helpers/bytes/convertToUint8Array';
 import bigInt from 'big-integer';
-import {bigIntFromBytes, bigIntToBytes} from '@helpers/bigInt/bigIntConversion';
+import { bigIntFromBytes, bigIntToBytes } from '@helpers/bigInt/bigIntConversion';
 import bytesToHex from '@helpers/bytes/bytesToHex';
 
 export async function makePasswordHash(password: string, client_salt: Uint8Array, server_salt: Uint8Array) {
@@ -52,7 +52,7 @@ export default async function computeSRP(password: string, state: AccountPasswor
   const x = bigInt(bytesToHex(pw_hash), 16);
 
   const padArray = function(arr: number[] | Uint8Array, len: number) {
-    if(!(arr instanceof Uint8Array)) {
+    if (!(arr instanceof Uint8Array)) {
       arr = convertToUint8Array(arr);
     }
 
@@ -63,7 +63,7 @@ export default async function computeSRP(password: string, state: AccountPasswor
 
   const flipper = (arr: Uint8Array | number[]) => {
     const out = new Uint8Array(arr.length);
-    for(let i = 0; i < arr.length; i += 4) {
+    for (let i = 0; i < arr.length; i += 4) {
       out[i] = arr[i + 3];
       out[i + 1] = arr[i + 2];
       out[i + 2] = arr[i + 1];
@@ -74,7 +74,7 @@ export default async function computeSRP(password: string, state: AccountPasswor
   };
 
   // * https://core.telegram.org/api/srp#setting-a-new-2fa-password
-  if(isNew) {
+  if (isNew) {
     const bytes = bigIntToBytes(v);
     return padArray(/* (isBigEndian ? bytes.reverse() : bytes) */bytes, 256);
   }
@@ -94,7 +94,7 @@ export default async function computeSRP(password: string, state: AccountPasswor
     const diff = prime.subtract(modexp);
     const min_diff_bits_count = 2048 - 64;
     const max_mod_exp_size = 256;
-    if(diff.isNegative() ||
+    if (diff.isNegative() ||
       diff.bitLength().toJSNumber() < min_diff_bits_count ||
       modexp.bitLength().toJSNumber() < min_diff_bits_count ||
       Math.floor((modexp.bitLength().toJSNumber() + 7) / 8) > max_mod_exp_size)
@@ -103,27 +103,27 @@ export default async function computeSRP(password: string, state: AccountPasswor
   };
 
   const generate_and_check_random = async() => {
-    while(true) {
+    while (true) {
       const a = bigIntFromBytes(flipper(state.secure_random));
       // const a = str2bigInt('9153faef8f2bb6da91f6e5bc96bc00860a530a572a0f45aac0842b4602d711f8bda8d59fb53705e4ae3e31a3c4f0681955425f224297b8e9efd898fec22046debb7ba8a0bcf2be1ada7b100424ea318fdcef6ccfe6d7ab7d978c0eb76a807d4ab200eb767a22de0d828bc53f42c5a35c2df6e6ceeef9a3487aae8e9ef2271f2f6742e83b8211161fb1a0e037491ab2c2c73ad63c8bd1d739de1b523fe8d461270cedcf240de8da75f31be4933576532955041dc5770c18d3e75d0b357df9da4a5c8726d4fced87d15752400883dc57fa1937ac17608c5446c4774dcd123676d683ce3a1ab9f7e020ca52faafc99969822717c8e07ea383d5fb1a007ba0d170cb', 16);
 
       const A = g.modPow(a, p);
-      if(is_good_mod_exp_first(A, p)) {
+      if (is_good_mod_exp_first(A, p)) {
         const a_for_hash = bigIntToBytes(A);
 
         const s = await cryptoWorker.invokeCrypto('sha256', bufferConcats(a_for_hash, b_for_hash));
         // const u = bigInt(s.hex, 16);
         const u = bigIntFromBytes(s);
-        if(!u.isZero() && !u.isNegative())
-          return {a, a_for_hash, u};
+        if (!u.isZero() && !u.isNegative())
+          return { a, a_for_hash, u };
       }
     }
   }
 
-  const {a, a_for_hash, u} = await generate_and_check_random();
+  const { a, a_for_hash, u } = await generate_and_check_random();
 
   let g_b: bigInt.BigInteger;
-  if(!B.greater(k_v)) {
+  if (!B.greater(k_v)) {
     g_b = B.add(p);
   } else g_b = B;
   g_b = g_b.subtract(k_v).mod(p);
@@ -153,7 +153,7 @@ export default async function computeSRP(password: string, state: AccountPasswor
     _: 'inputCheckPasswordSRP',
     srp_id: state.srp_id!,
     A: new Uint8Array(a_for_hash),
-    M1
+    M1,
   };
 
   return out;

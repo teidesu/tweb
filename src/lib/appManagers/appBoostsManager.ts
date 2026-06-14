@@ -1,9 +1,9 @@
-import {Boost} from '@layer';
-import {AppManager} from '@appManagers/manager';
+import { Boost } from '@layer';
+import { AppManager } from '@appManagers/manager';
 
 export default class AppBoostsManager extends AppManager {
   public saveBoost(peerId: PeerId, boost: Boost) {
-    if(boost.giveaway_msg_id) {
+    if (boost.giveaway_msg_id) {
       boost.giveaway_msg_id = this.appMessagesIdsManager.generateMessageId(
         boost.giveaway_msg_id,
         this.appPeersManager.isChannel(peerId) ? peerId.toChatId() : undefined
@@ -14,7 +14,7 @@ export default class AppBoostsManager extends AppManager {
   }
 
   public saveBoosts(peerId: PeerId, boosts: Boost[]) {
-    if(!boosts || (boosts as any).saved) return boosts;
+    if (!boosts || (boosts as any).saved) return boosts;
     (boosts as any).saved = true;
     boosts.forEach((boost, idx, arr) => {
       arr[idx] = this.saveBoost(peerId, boost);
@@ -27,7 +27,7 @@ export default class AppBoostsManager extends AppManager {
     peerId,
     limit,
     offset,
-    gifts
+    gifts,
   }: {
     peerId: PeerId,
     limit: number,
@@ -38,7 +38,7 @@ export default class AppBoostsManager extends AppManager {
       peer: this.appPeersManager.getInputPeerById(peerId),
       limit,
       offset,
-      gifts
+      gifts,
     }).then((boostsList) => {
       this.appPeersManager.saveApiPeers(boostsList);
       boostsList.boosts = this.saveBoosts(peerId, boostsList.boosts);
@@ -52,7 +52,7 @@ export default class AppBoostsManager extends AppManager {
       processResult: (myBoosts) => {
         this.appPeersManager.saveApiPeers(myBoosts);
         return myBoosts;
-      }
+      },
     });
   }
 
@@ -60,8 +60,8 @@ export default class AppBoostsManager extends AppManager {
     return this.apiManager.invokeApiSingleProcess({
       method: 'premium.getBoostsStatus',
       params: {
-        peer: this.appPeersManager.getInputPeerById(peerId)
-      }
+        peer: this.appPeersManager.getInputPeerById(peerId),
+      },
     });
   }
 
@@ -86,8 +86,8 @@ export default class AppBoostsManager extends AppManager {
       method: 'premium.applyBoost',
       params: {
         peer: this.appPeersManager.getInputPeerById(peerId),
-        slots
-      }
+        slots,
+      },
     });
   }
 }

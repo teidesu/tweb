@@ -22,7 +22,7 @@ function resizeableImage(originalImage: HTMLImageElement, canvas?: HTMLCanvasEle
     CROPWIDTH = 200,
     CROPHEIGHT = 200;
 
-  if(originalImage.complete) init();
+  if (originalImage.complete) init();
   else originalImage.onload = init;
 
   function removeHandlers() {
@@ -59,7 +59,7 @@ function resizeableImage(originalImage: HTMLImageElement, canvas?: HTMLCanvasEle
     cropImage.draggable = false;
     cropImage.classList.add('crop-overlay-image');
 
-    if(!canvas) {
+    if (!canvas) {
       canvas = document.createElement('canvas');
     }
 
@@ -136,9 +136,9 @@ function resizeableImage(originalImage: HTMLImageElement, canvas?: HTMLCanvasEle
     let left: number,
       top: number;
 
-    if(newWidth < MINWIDTH) {
+    if (newWidth < MINWIDTH) {
       return;
-    } else if(newWidth > w) {
+    } else if (newWidth > w) {
       return;
     }
 
@@ -147,11 +147,11 @@ function resizeableImage(originalImage: HTMLImageElement, canvas?: HTMLCanvasEle
     const right = left + newWidth;
     const bottom = top + newHeight;
 
-    if(left < 0) left = 0;
-    if(top < 0) top = 0;
+    if (left < 0) left = 0;
+    if (top < 0) top = 0;
 
-    if(right > w) return;
-    if(bottom > h) return;
+    if (right > w) return;
+    if (bottom > h) return;
 
     updateCropSize(newWidth, newWidth);
     updateCropImage(left, top);
@@ -162,7 +162,7 @@ function resizeableImage(originalImage: HTMLImageElement, canvas?: HTMLCanvasEle
   function keyHandler(e: KeyboardEvent) {
     e.preventDefault();
 
-    switch(String.fromCharCode(e.charCode)) {
+    switch (String.fromCharCode(e.charCode)) {
       case '+':
         imgZoom(keyZoomValue);
         break;
@@ -199,7 +199,7 @@ function resizeableImage(originalImage: HTMLImageElement, canvas?: HTMLCanvasEle
   }
 
   function moving(e: any) {
-    const currentTouch = {x: 0, y: 0};
+    const currentTouch = { x: 0, y: 0 };
 
     e.preventDefault();
     e.stopPropagation();
@@ -212,11 +212,11 @@ function resizeableImage(originalImage: HTMLImageElement, canvas?: HTMLCanvasEle
     const w = container.offsetWidth;
     const h = container.offsetHeight;
 
-    if(left < 0) left = 0;
-    else if(left > cropImage.offsetWidth - w) left = cropImage.offsetWidth - w;
+    if (left < 0) left = 0;
+    else if (left > cropImage.offsetWidth - w) left = cropImage.offsetWidth - w;
 
-    if(top < 0) top = 0;
-    else if(top > cropImage.offsetHeight - h) top = cropImage.offsetHeight - h;
+    if (top < 0) top = 0;
+    else if (top > cropImage.offsetHeight - h) top = cropImage.offsetHeight - h;
 
     updateCropImage(left, top);
     updateContainer(left, top);
@@ -236,7 +236,7 @@ function resizeableImage(originalImage: HTMLImageElement, canvas?: HTMLCanvasEle
     );
   }
 
-  return {crop, removeHandlers};
+  return { crop, removeHandlers };
 }
 
 export default resizeableImage;

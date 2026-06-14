@@ -1,4 +1,4 @@
-import {TChartData} from '@lib/tchart/types';
+import { TChartData } from '@lib/tchart/types';
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const MONTHS_SHORT = MONTHS.map((month) => month.slice(0, 3));
@@ -11,7 +11,7 @@ export function statsFormatDayHour(value: number, data: TChartData) {
 
 let utcDiff: number;
 export function statsFormatDayHourFull(value: number, data: TChartData) {
-  if(utcDiff === undefined) {
+  if (utcDiff === undefined) {
     utcDiff = new Date().getTimezoneOffset() * 60e3;
   }
 
@@ -19,7 +19,7 @@ export function statsFormatDayHourFull(value: number, data: TChartData) {
 }
 
 export function statsFormatDay(value: number, data: TChartData) {
-  return data.getLabelDate!(value, {isShort: true, displayYear: false});
+  return data.getLabelDate!(value, { isShort: true, displayYear: false });
 }
 
 export function statsFormatMin(value: number, data: TChartData) {
@@ -37,7 +37,7 @@ export function getLabelDate(
     isMonthShort = true,
     displayWeekDay,
     displayYear = true,
-    displayHours
+    displayHours,
   }: {
     isShort?: boolean,
     isMonthShort?: boolean,
@@ -50,13 +50,13 @@ export function getLabelDate(
   const weekDaysArray = isShort ? WEEK_DAYS_SHORT : WEEK_DAYS;
 
   let string = `${date.getUTCDate()} ${(isMonthShort ? MONTHS_SHORT : MONTHS)[date.getUTCMonth()]}`;
-  if(displayWeekDay) {
+  if (displayWeekDay) {
     string = `${weekDaysArray[date.getUTCDay()]}, ` + string;
   }
-  if(displayYear) {
+  if (displayYear) {
     string += ` ${date.getUTCFullYear()}`;
   }
-  if(displayHours) {
+  if (displayHours) {
     string += `, ${('0' + date.getUTCHours()).slice(-2)}:${('0' + date.getUTCMinutes()).slice(-2)}`
   }
 

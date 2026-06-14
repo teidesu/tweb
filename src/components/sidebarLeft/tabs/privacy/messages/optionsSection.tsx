@@ -1,11 +1,11 @@
-import {Component} from 'solid-js';
-import {SetStoreFunction} from 'solid-js/store';
-import {Transition} from 'solid-transition-group';
+import { Component } from 'solid-js';
+import { SetStoreFunction } from 'solid-js/store';
+import { Transition } from 'solid-transition-group';
 import anchorCallback from '@helpers/dom/anchorCallback';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 import Section from '@components/section';
 import StaticRadio from '@components/staticRadio';
-import {MessagesPrivacyOption, MessagesTabStateStore, TRANSITION_TIME} from '@components/sidebarLeft/tabs/privacy/messages/config';
+import { MessagesPrivacyOption, MessagesTabStateStore, TRANSITION_TIME } from '@components/sidebarLeft/tabs/privacy/messages/config';
 import useIsPremium from '@components/sidebarLeft/tabs/privacy/messages/useIsPremium';
 
 
@@ -17,13 +17,13 @@ const OptionsSection: Component<{
   isPaid: boolean;
   onExitAnimationPromise: (promise: Promise<any>) => void;
 }> = (props) => {
-  const {PopupPremium, i18n, toastNew, hideToast, Row} = useHotReloadGuard();
+  const { PopupPremium, i18n, toastNew, hideToast, Row } = useHotReloadGuard();
 
   const isPremium = useIsPremium();
 
 
   const handlePremiumOptionClick = (callback: () => void) => () => {
-    if(isPremium()) return callback();
+    if (isPremium()) return callback();
 
     toastNew({
       langPackKey: 'PrivacySettings.Messages.PremiumError',
@@ -31,10 +31,10 @@ const OptionsSection: Component<{
         anchorCallback(() => {
           hideToast();
           PopupPremium.show({
-            feature: 'message_privacy'
+            feature: 'message_privacy',
           });
-        })
-      ]
+        }),
+      ],
     });
   };
 
@@ -42,11 +42,11 @@ const OptionsSection: Component<{
     <Transition
       mode="outin"
       onEnter={async(el, done) => {
-        await el.animate({opacity: [0, 1]}, {duration: TRANSITION_TIME}).finished;
+        await el.animate({ opacity: [0, 1] }, { duration: TRANSITION_TIME }).finished;
         done();
       }}
       onExit={async(el, done) => {
-        const promise = el.animate({opacity: [1, 0]}, {duration: TRANSITION_TIME}).finished;
+        const promise = el.animate({ opacity: [1, 0] }, { duration: TRANSITION_TIME }).finished;
         props.onExitAnimationPromise(promise);
         await promise;
         done();
@@ -98,7 +98,7 @@ const OptionsSection: Component<{
         clickable={handlePremiumOptionClick(() => {
           props.setStore(prev => ({
             option: MessagesPrivacyOption.Paid,
-            stars: prev.stars || DEFAULT_STARS_AMOUNT
+            stars: prev.stars || DEFAULT_STARS_AMOUNT,
           }));
         })}
       >

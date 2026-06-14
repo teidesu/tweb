@@ -1,7 +1,7 @@
 import PopupElement from '.';
 import safeAssign from '@helpers/object/safeAssign';
-import {fastRaf} from '@helpers/schedulers';
-import {AttachMenuBot} from '@layer';
+import { fastRaf } from '@helpers/schedulers';
+import { AttachMenuBot } from '@layer';
 import ButtonMenuToggle from '@components/buttonMenuToggle';
 import WebApp from '@components/webApp';
 
@@ -20,12 +20,12 @@ export default class PopupWebApp extends PopupElement {
       body: true,
       title: true,
       onBackClick: () => this.webApp.onBackClick(),
-      isConfirmationNeededOnClose: () => this.webApp.isConfirmationNeededOnClose()
+      isConfirmationNeededOnClose: () => this.webApp.isConfirmationNeededOnClose(),
     });
 
     safeAssign(this, options);
 
-    if(options.onClose) {
+    if (options.onClose) {
       this.addEventListener('close', options.onClose);
     }
 
@@ -35,13 +35,13 @@ export default class PopupWebApp extends PopupElement {
       title: this.title,
       body: this.body,
       forceHide: this.forceHide.bind(this),
-      onBackStatus: (visible) => this.btnCloseAnimatedIcon.classList.toggle('state-back', visible)
+      onBackStatus: (visible) => this.btnCloseAnimatedIcon.classList.toggle('state-back', visible),
     });
 
     const btnMenu = ButtonMenuToggle({
       listenerSetter: this.listenerSetter,
       buttons: this.webApp.getMenuButtons(),
-      direction: 'bottom-left'
+      direction: 'bottom-left',
     });
     this.title.after(btnMenu);
 

@@ -1,13 +1,13 @@
-import type {AppGroupCallsManager, GroupCallConnectionType, GroupCallId, GroupCallOutputSource} from '@appManagers/appGroupCallsManager';
-import {IS_SAFARI} from '@environment/userAgent';
+import type { AppGroupCallsManager, GroupCallConnectionType, GroupCallId, GroupCallOutputSource } from '@appManagers/appGroupCallsManager';
+import { IS_SAFARI } from '@environment/userAgent';
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
 import safeAssign from '@helpers/object/safeAssign';
 import throttle from '@helpers/schedulers/throttle';
-import {GroupCall, GroupCallParticipant, InputGroupCall} from '@layer';
-import {logger} from '@lib/logger';
-import {NULL_PEER_ID} from '@appManagers/constants';
+import { GroupCall, GroupCallParticipant, InputGroupCall } from '@layer';
+import { logger } from '@lib/logger';
+import { NULL_PEER_ID } from '@appManagers/constants';
 import rootScope from '@lib/rootScope';
-import CallInstanceBase, {TryAddTrackOptions} from '@lib/calls/callInstanceBase';
+import CallInstanceBase, { TryAddTrackOptions } from '@lib/calls/callInstanceBase';
 import GroupCallConnectionInstance from '@lib/calls/groupCallConnectionInstance';
 import GROUP_CALL_STATE from '@lib/calls/groupCallState';
 import getScreenConstraints from '@lib/calls/helpers/getScreenConstraints';
@@ -16,14 +16,14 @@ import getStream from '@lib/calls/helpers/getStream';
 import getVideoConstraints from '@lib/calls/helpers/getVideoConstraints';
 import stopTrack from '@lib/calls/helpers/stopTrack';
 import localConferenceDescription from '@lib/calls/localConferenceDescription';
-import {WebRTCLineType} from '@lib/calls/sdpBuilder';
+import { WebRTCLineType } from '@lib/calls/sdpBuilder';
 import StreamManager from '@lib/calls/streamManager';
-import {Ssrc} from '@lib/calls/types';
+import { Ssrc } from '@lib/calls/types';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
-import {AppManagers} from '@lib/managers';
-import {generateSelfVideo, makeSsrcFromParticipant, makeSsrcsFromParticipant} from '@lib/calls/groupCallsController';
-import type {EncryptWorkerHost} from '@lib/calls/e2e/encryptWorkerHost';
-import type {CallStatusSnapshot} from '@lib/calls/e2e/encryptWorkerProtocol';
+import { AppManagers } from '@lib/managers';
+import { generateSelfVideo, makeSsrcFromParticipant, makeSsrcsFromParticipant } from '@lib/calls/groupCallsController';
+import type { EncryptWorkerHost } from '@lib/calls/e2e/encryptWorkerHost';
+import type { CallStatusSnapshot } from '@lib/calls/e2e/encryptWorkerProtocol';
 
 // If a conference poller hasn't reached the server in this long while the call
 // is alive, the watchdog forces recovery. Comfortably past the poll cadences
@@ -85,15 +85,15 @@ export default class GroupCallInstance extends CallInstanceBase<{
 
     safeAssign(this, options);
 
-    if(!this.log) {
+    if (!this.log) {
       this.log = logger('GROUP-CALL');
     }
 
-    if(!this.connections) {
+    if (!this.connections) {
       this.connections = {};
     }
 
-    if(!this.isSpeakingMap) {
+    if (!this.isSpeakingMap) {
       this.isSpeakingMap = new Map();
     }
 
@@ -105,7 +105,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
     }, 0, false);
 
     this.addEventListener('state', (state) => {
-      if(state === GROUP_CALL_STATE.CLOSED) {
+      if (state === GROUP_CALL_STATE.CLOSED) {
         this.cleanup();
       }
     });
@@ -116,7 +116,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
     // Terminate the e2e worker so its Web Worker thread exits. Best-effort —
     // the controller may have already done so via its own state listener,
     // but a double-terminate is harmless (encryptWorkerHost guards).
-    if(this.e2e) {
+    if (this.e2e) {
       void this.e2e.terminate().catch((): undefined => undefined);
       this.e2e = undefined;
     }
@@ -145,10 +145,10 @@ export default class GroupCallInstance extends CallInstanceBase<{
       // participant roster + count off it. Cheap string-key diff avoids
       // re-polling on unrelated status churn (e.g. emoji verification phases).
       const members = (ev.status?.groupState?.participants || [])
-      .map((p) => p.userId.toString())
-      .sort()
-      .join(',');
-      if(members !== this.prevConferenceMembers) {
+        .map((p) => p.userId.toString())
+        .sort()
+        .join(',');
+      if (members !== this.prevConferenceMembers) {
         this.prevConferenceMembers = members;
         void this.refreshConferenceParticipants();
       }
@@ -176,7 +176,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
       );
       // Sustained ⇒ a real stuck stream (not a transient at-join blip): the
       // "seen but not heard" symptom. Surface it to the user.
-      if(ev.sustained) {
+      if (ev.sustained) {
         this.reportConferenceBug(
           ev.reason === 'unmapped' ?
             'inbound media undecryptable — unmapped SSRC (participant seen but not heard)' :
@@ -184,7 +184,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
           {
             ssrc: ev.ssrc >>> 0,
             mappedUser: mappedUser !== undefined ? mappedUser.toString() : null,
-            message: ev.message
+            message: ev.message,
           }
         );
       }
@@ -194,8 +194,8 @@ export default class GroupCallInstance extends CallInstanceBase<{
     // verification broadcast channel. The server pushes these updates when it
     // can, but we also poll because conference push delivery is best-effort
     // (tdlib: TdE2E::Call::joined → shortPoll(0); shortPoll(1)).
-    rootScope.addEventListener('group_call_chain_blocks', ({callId, subChainId, blocks, nextOffset}) => {
-      if(callId !== this.id || !this.e2e) return;
+    rootScope.addEventListener('group_call_chain_blocks', ({ callId, subChainId, blocks, nextOffset }) => {
+      if (callId !== this.id || !this.e2e) return;
       void this.deliverE2eChainBlocks(subChainId, blocks);
       // Advance the poll cursor past what this push delivered. The cursor
       // otherwise only moves on poll responses (pollE2eChain), so a burst of
@@ -203,7 +203,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
       // blocks the push already applied. deliverE2eChainBlocks is idempotent
       // now, so this just shrinks the redundant-fetch window; Math.max guards
       // against out-of-order pushes (the broadcast subchain delivers unordered).
-      if(typeof nextOffset === 'number' && (subChainId === 0 || subChainId === 1)) {
+      if (typeof nextOffset === 'number' && (subChainId === 0 || subChainId === 1)) {
         this.e2eChainOffsets[subChainId] = Math.max(this.e2eChainOffsets[subChainId], nextOffset);
       }
     });
@@ -218,7 +218,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
   // subchain and re-issue `phone.getGroupCallChainBlocks` on a slow tick.
   // The push from `updateGroupCallChainBlocks` advances the cursor too.
   private e2eChainPollInterval: ReturnType<typeof setInterval> | undefined;
-  private e2eChainOffsets: {0: number; 1: number} = {0: 0, 1: 0};
+  private e2eChainOffsets: {0: number; 1: number} = { 0: 0, 1: 0 };
 
   // Conference participant reconciliation (see refreshConferenceParticipants).
   // `prevConferenceMembers` is the last e2e group_state member set we synced;
@@ -249,7 +249,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
   private reportedBugAt: Map<string, number> = new Map();
 
   private startE2eChainPolling(): void {
-    if(this.e2eChainPollInterval) return;
+    if (this.e2eChainPollInterval) return;
     // Seed the watchdog clocks so it grants a full stall window before the
     // first successful poll lands (invitee/slug joins hydrate `groupCall`
     // lazily — see pollE2eChain).
@@ -265,14 +265,14 @@ export default class GroupCallInstance extends CallInstanceBase<{
     // worker `status` handler) covers the common join/leave case; this catches
     // anything that changes the SFU roster without a chain delta. 5s matches
     // the official Android conference poll cadence.
-    if(!this.conferenceParticipantsInterval) {
+    if (!this.conferenceParticipantsInterval) {
       this.conferenceParticipantsInterval = setInterval(() => {
         void this.refreshConferenceParticipants();
       }, 5000);
     }
 
     // Watchdog: detect + self-heal a silent poller stall (see field comment).
-    if(!this.e2eWatchdogInterval) {
+    if (!this.e2eWatchdogInterval) {
       this.e2eWatchdogInterval = setInterval(() => {
         this.e2eWatchdogTick();
       }, E2E_WATCHDOG_INTERVAL_MS);
@@ -280,15 +280,15 @@ export default class GroupCallInstance extends CallInstanceBase<{
   }
 
   private stopE2eChainPolling(): void {
-    if(this.e2eChainPollInterval) {
+    if (this.e2eChainPollInterval) {
       clearInterval(this.e2eChainPollInterval);
       this.e2eChainPollInterval = undefined;
     }
-    if(this.conferenceParticipantsInterval) {
+    if (this.conferenceParticipantsInterval) {
       clearInterval(this.conferenceParticipantsInterval);
       this.conferenceParticipantsInterval = undefined;
     }
-    if(this.e2eWatchdogInterval) {
+    if (this.e2eWatchdogInterval) {
       clearInterval(this.e2eWatchdogInterval);
       this.e2eWatchdogInterval = undefined;
     }
@@ -299,17 +299,17 @@ export default class GroupCallInstance extends CallInstanceBase<{
   // lifting (fresh fetch, leave reconciliation, count) lives in the manager;
   // here we just guard against overlapping runs and a torn-down call.
   private async refreshConferenceParticipants(): Promise<void> {
-    if(!this.e2e || this.refreshingConferenceParticipants) return;
-    if(this.connectionState === 'closed') return;
+    if (!this.e2e || this.refreshingConferenceParticipants) return;
+    if (this.connectionState === 'closed') return;
     this.refreshingConferenceParticipants = true;
     try {
       // `false` => the manager bailed (no cached groupCall), so the roster sync
       // isn't actually running. Only stamp the watchdog clock on a real fetch.
       const fetched = await this.managers.appGroupCallsManager.refreshConferenceParticipants(this.id);
-      if(fetched) {
+      if (fetched) {
         this.lastParticipantsRefreshAt = Date.now();
       }
-    } catch(err) {
+    } catch (err) {
       this.log.warn('refreshConferenceParticipants', err);
     } finally {
       this.refreshingConferenceParticipants = false;
@@ -317,17 +317,17 @@ export default class GroupCallInstance extends CallInstanceBase<{
   }
 
   private async pollE2eChain(): Promise<void> {
-    if(!this.e2e) return;
+    if (!this.e2e) return;
     // Lazy-hydrate `groupCall` for invitee paths (slug / inviteMessage join):
     // the join response carries `updateGroupCall` with the real id+access_hash
     // and the manager caches it, but the instance's own `groupCall` reference
     // wasn't set during joinConferenceCommon (we didn't have the id yet).
     // Pull from the cache here once it lands.
-    if(!this.groupCall) {
+    if (!this.groupCall) {
       const cached = await this.managers.appGroupCallsManager
-      .getGroupCall(this.id)
-      .catch((): undefined => undefined);
-      if(cached && cached._ === 'groupCall') {
+        .getGroupCall(this.id)
+        .catch((): undefined => undefined);
+      if (cached && cached._ === 'groupCall') {
         this.groupCall = cached;
         // For invitee/slug joins the real groupCall (with participants_count,
         // title, …) only lands here, AFTER the topbar/popup first rendered off
@@ -338,7 +338,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
       }
     }
     const input = this.toInputGroupCall();
-    if(!input) {
+    if (!input) {
       // The silent stall the watchdog exists for. Trace it on transition.
       this.notePollBail(this.groupCall ? 'groupCall discarded' : 'groupCall missing');
       return;
@@ -362,18 +362,18 @@ export default class GroupCallInstance extends CallInstanceBase<{
           // but small enough to stay cheap.
           16
         );
-        if(updates._ !== 'updates' && updates._ !== 'updatesCombined') return;
-        for(const u of (updates as any).updates) {
-          if(u._ !== 'updateGroupCallChainBlocks') continue;
-          if(u.sub_chain_id !== subChainId) continue;
-          if(u.blocks?.length) {
+        if (updates._ !== 'updates' && updates._ !== 'updatesCombined') return;
+        for (const u of (updates as any).updates) {
+          if (u._ !== 'updateGroupCallChainBlocks') continue;
+          if (u.sub_chain_id !== subChainId) continue;
+          if (u.blocks?.length) {
             await this.deliverE2eChainBlocks(subChainId, u.blocks);
           }
-          if(typeof u.next_offset === 'number') {
+          if (typeof u.next_offset === 'number') {
             this.e2eChainOffsets[subChainId] = u.next_offset;
           }
         }
-      } catch(err) {
+      } catch (err) {
         // Transient errors are expected (network blips, brief auth churn).
         // Log and let the next tick retry.
         this.log.warn('pollE2eChain: subchain', subChainId, err);
@@ -384,21 +384,21 @@ export default class GroupCallInstance extends CallInstanceBase<{
   // Transition-logged bail tracing for pollE2eChain — logs once when the chain
   // poll starts (or stops) being unable to reach the server, not every tick.
   private notePollBail(reason: string): void {
-    if(reason === this.lastPollBailReason) return;
+    if (reason === this.lastPollBailReason) return;
     const wasBailing = !!this.lastPollBailReason;
     this.lastPollBailReason = reason;
-    if(reason) this.log.warn('pollE2eChain: not polling —', reason);
-    else if(wasBailing) this.log('pollE2eChain: reached server, resuming');
+    if (reason) this.log.warn('pollE2eChain: not polling —', reason);
+    else if (wasBailing) this.log('pollE2eChain: reached server, resuming');
   }
 
   // Runs on E2E_WATCHDOG_INTERVAL_MS. If either conference poller hasn't reached
   // the server within E2E_SYNC_STALL_MS while the call is alive, force recovery.
   private e2eWatchdogTick(): void {
-    if(!this.e2e || this.connectionState === 'closed' || this.recoveringConferenceSync) return;
+    if (!this.e2e || this.connectionState === 'closed' || this.recoveringConferenceSync) return;
     const now = Date.now();
     const chainStall = now - this.lastChainPollAt;
     const participantsStall = now - this.lastParticipantsRefreshAt;
-    if(chainStall < E2E_SYNC_STALL_MS && participantsStall < E2E_SYNC_STALL_MS) return;
+    if (chainStall < E2E_SYNC_STALL_MS && participantsStall < E2E_SYNC_STALL_MS) return;
 
     this.log.warn(
       'conference sync stalled — chainPoll', Math.round(chainStall / 1000) + 's ago,',
@@ -408,7 +408,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
     this.reportConferenceBug('conference sync stalled (pollers not reaching the server)', {
       chainStallSec: Math.round(chainStall / 1000),
       participantsStallSec: Math.round(participantsStall / 1000),
-      lastBail: this.lastPollBailReason || '(none)'
+      lastBail: this.lastPollBailReason || '(none)',
     });
     void this.recoverConferenceSync();
   }
@@ -421,10 +421,10 @@ export default class GroupCallInstance extends CallInstanceBase<{
   // Deduped per reason with a 1-minute cooldown so a persistent stall can't spam.
   private reportConferenceBug(reason: string, details: Record<string, unknown>): void {
     const now = Date.now();
-    if(now - (this.reportedBugAt.get(reason) || 0) < 60000) return;
+    if (now - (this.reportedBugAt.get(reason) || 0) < 60000) return;
     this.reportedBugAt.set(reason, now);
 
-    const payload = {reason, at: new Date(now).toISOString(), callId: String(this.id), ...details};
+    const payload = { reason, at: new Date(now).toISOString(), callId: String(this.id), ...details };
     this.log.error('CONFERENCE BUG —', reason, payload);
     try {
       console.warn(
@@ -436,7 +436,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
       const g = self as any;
       (g.__conferenceBugs ??= []).push(payload);
       g.__conferenceBug = payload;
-    } catch{}
+    } catch {}
   }
 
   // Re-hydrate `groupCall` (the dependency both pollers silently bail on) and
@@ -444,20 +444,20 @@ export default class GroupCallInstance extends CallInstanceBase<{
   // once the manager loses the call `getGroupCallInput` throws and getGroupCallFull
   // can't bootstrap. Guarded against overlapping runs.
   private async recoverConferenceSync(): Promise<void> {
-    if(this.recoveringConferenceSync) return;
+    if (this.recoveringConferenceSync) return;
     this.recoveringConferenceSync = true;
     try {
-      if(this.groupCall && this.groupCall._ === 'groupCall') {
+      if (this.groupCall && this.groupCall._ === 'groupCall') {
         await this.managers.appGroupCallsManager.saveGroupCall(this.groupCall)
-        .catch((err) => this.log.warn('recoverConferenceSync: saveGroupCall', err));
+          .catch((err) => this.log.warn('recoverConferenceSync: saveGroupCall', err));
       }
 
       const fresh = await this.managers.appGroupCallsManager.getGroupCallFull(this.id, true)
-      .catch((err): undefined => {
-        this.log.warn('recoverConferenceSync: getGroupCallFull failed', err);
-        return undefined;
-      });
-      if(fresh && fresh._ === 'groupCall') {
+        .catch((err): undefined => {
+          this.log.warn('recoverConferenceSync: getGroupCallFull failed', err);
+          return undefined;
+        });
+      if (fresh && fresh._ === 'groupCall') {
         this.groupCall = fresh;
       }
 
@@ -470,40 +470,40 @@ export default class GroupCallInstance extends CallInstanceBase<{
   }
 
   private async flushE2eOutbound(): Promise<void> {
-    if(!this.e2e) return;
+    if (!this.e2e) return;
     const input = this.toInputGroupCall();
-    if(!input) return;
+    if (!input) return;
     let messages: Uint8Array[];
     try {
       messages = await this.e2e.pullOutbound();
-    } catch(err) {
+    } catch (err) {
       this.log.error('flushE2eOutbound: pullOutbound failed', err);
       return;
     }
-    for(const bytes of messages) {
+    for (const bytes of messages) {
       try {
         await this.managers.appCallsManager.sendConferenceCallBroadcast(input, bytes);
-      } catch(err) {
+      } catch (err) {
         this.log.error('flushE2eOutbound: sendConferenceCallBroadcast failed', err);
       }
     }
   }
 
   private async deliverE2eChainBlocks(subChainId: number, blocks: Uint8Array[]): Promise<void> {
-    if(!this.e2e) return;
-    if(subChainId === 0) {
-      for(const block of blocks) {
+    if (!this.e2e) return;
+    if (subChainId === 0) {
+      for (const block of blocks) {
         try {
-          await this.e2e.applyBlock({serverBlock: block});
-        } catch(err) {
+          await this.e2e.applyBlock({ serverBlock: block });
+        } catch (err) {
           this.log.error('deliverE2eChainBlocks: applyBlock failed', err);
         }
       }
-    } else if(subChainId === 1) {
-      for(const b of blocks) {
+    } else if (subChainId === 1) {
+      for (const b of blocks) {
         try {
-          await this.e2e.receiveInbound({serverMessage: b});
-        } catch(err) {
+          await this.e2e.receiveInbound({ serverMessage: b });
+        } catch (err) {
           this.log.error('deliverE2eChainBlocks: receiveInbound failed', err);
         }
       }
@@ -522,10 +522,10 @@ export default class GroupCallInstance extends CallInstanceBase<{
     kind: 'audio' | 'video',
     channelId = 0
   ): void {
-    if(!this.e2e || (receiver as any).transform) return;
+    if (!this.e2e || (receiver as any).transform) return;
     try {
-      receiver.transform = this.e2e.newRtcScriptTransform({direction: 'recv', channelId, kind});
-    } catch(err) {
+      receiver.transform = this.e2e.newRtcScriptTransform({ direction: 'recv', channelId, kind });
+    } catch (err) {
       this.log.error('attachE2eRecvTransform', err);
     }
   }
@@ -539,10 +539,10 @@ export default class GroupCallInstance extends CallInstanceBase<{
     kind: 'audio' | 'video',
     channelId = 0
   ): void {
-    if(!this.e2e || (sender as any).transform) return;
+    if (!this.e2e || (sender as any).transform) return;
     try {
-      sender.transform = this.e2e.newRtcScriptTransform({direction: 'send', channelId, kind});
-    } catch(err) {
+      sender.transform = this.e2e.newRtcScriptTransform({ direction: 'send', channelId, kind });
+    } catch (err) {
       this.log.error('attachE2eSendTransform', err);
     }
   }
@@ -552,7 +552,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
   // can dispatch each frame by `frame.getMetadata().synchronizationSource`.
   public registerE2eUserSsrc(userId: bigint, ssrc: number): void {
     const normalized = ssrc >>> 0;
-    if(this.e2eUserBySsrc.get(normalized) === userId) return;
+    if (this.e2eUserBySsrc.get(normalized) === userId) return;
     this.e2eUserBySsrc.set(normalized, userId);
     this.syncSsrcMapToWorker();
   }
@@ -560,9 +560,9 @@ export default class GroupCallInstance extends CallInstanceBase<{
   // Replace the SSRC table on the worker side. Cheap enough on every
   // change — the table is small (one entry per active participant).
   private syncSsrcMapToWorker(): void {
-    if(!this.e2e) return;
+    if (!this.e2e) return;
     const entries: Array<[number, bigint]> = [];
-    for(const [ssrc, userId] of this.e2eUserBySsrc) entries.push([ssrc, userId]);
+    for (const [ssrc, userId] of this.e2eUserBySsrc) entries.push([ssrc, userId]);
     void this.e2e.setSsrcUsers(entries).catch((err) => {
       this.log.warn('syncSsrcMapToWorker failed', err);
     });
@@ -572,8 +572,8 @@ export default class GroupCallInstance extends CallInstanceBase<{
   // Returns undefined for discarded calls (no access_hash).
   public toInputGroupCall(): InputGroupCall | undefined {
     const c = this.groupCall;
-    if(!c || c._ === 'groupCallDiscarded') return undefined;
-    return {_: 'inputGroupCall', id: c.id, access_hash: c.access_hash};
+    if (!c || c._ === 'groupCallDiscarded') return undefined;
+    return { _: 'inputGroupCall', id: c.id, access_hash: c.access_hash };
   }
 
   get connectionState() {
@@ -581,25 +581,25 @@ export default class GroupCallInstance extends CallInstanceBase<{
   }
 
   get state() {
-    const {connectionState} = this;
-    if(connectionState === 'closed') {
+    const { connectionState } = this;
+    if (connectionState === 'closed') {
       return GROUP_CALL_STATE.CLOSED;
-    } else if(connectionState !== 'connected' && (!IS_SAFARI || connectionState !== 'completed')) {
+    } else if (connectionState !== 'connected' && (!IS_SAFARI || connectionState !== 'completed')) {
       return GROUP_CALL_STATE.CONNECTING;
     } else {
-      const {participant} = this;
+      const { participant } = this;
       // Conference invitee paths may reach `connected` before the server
       // sends our self-participant update (the SFU lists us in the next
       // `phone.getGroupCallParticipants` reply, which lands after the SDP
       // exchange completes). Treat "connected but no self yet" as MUTED —
       // we asked to join muted, and waiting for the participant payload
       // is purely informational.
-      if(!participant) {
+      if (!participant) {
         return GROUP_CALL_STATE.MUTED;
       }
-      if(!participant.pFlags.can_self_unmute) {
+      if (!participant.pFlags.can_self_unmute) {
         return GROUP_CALL_STATE.MUTED_BY_ADMIN;
-      } else if(participant.pFlags.muted) {
+      } else if (participant.pFlags.muted) {
         return GROUP_CALL_STATE.MUTED;
       } else {
         return GROUP_CALL_STATE.UNMUTED;
@@ -624,7 +624,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
   }
 
   public get isClosing() {
-    const {state} = this;
+    const { state } = this;
     return state === GROUP_CALL_STATE.CLOSED;
   }
 
@@ -663,11 +663,11 @@ export default class GroupCallInstance extends CallInstanceBase<{
 
   public async changeUserMuted(peerId: PeerId, muted?: boolean) {
     const participant = await this.getParticipantByPeerId(peerId);
-    if(NULL_PEER_ID === peerId && participant!.pFlags.can_self_unmute) {
+    if (NULL_PEER_ID === peerId && participant!.pFlags.can_self_unmute) {
       muted = muted === undefined ? !participant!.pFlags.muted : muted;
     }
 
-    return this.editParticipant(participant!, {muted});
+    return this.editParticipant(participant!, { muted });
   }
 
   public getElement(endpoint: GroupCallOutputSource) {
@@ -676,7 +676,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
 
   public getVideoElementFromParticipantByType(participant: GroupCallParticipant, type: 'video' | 'presentation') {
     let source: GroupCallOutputSource;
-    if(participant.pFlags.self) {
+    if (participant.pFlags.self) {
       const connectionType: GroupCallConnectionType = type === 'video' ? 'main' : 'presentation';
       source = connectionType;
     } else {
@@ -685,11 +685,11 @@ export default class GroupCallInstance extends CallInstanceBase<{
     }
 
     const element = this.getElement(source) as HTMLVideoElement;
-    if(!element) return;
+    if (!element) return;
 
     const clone = element.cloneNode() as typeof element;
     clone.srcObject = element.srcObject;
-    return {video: clone, source};
+    return { video: clone, source };
   }
 
   public createConnectionInstance(options: {
@@ -701,12 +701,12 @@ export default class GroupCallInstance extends CallInstanceBase<{
       groupCall: this,
       log: this.log.bindPrefix(options.type),
       managers: this.managers,
-      ...options
+      ...options,
     });
   }
 
   public changeRaiseHand(raise: boolean) {
-    return this.editParticipant(this.participant, {raiseHand: raise});
+    return this.editParticipant(this.participant, { raiseHand: raise });
   }
 
   public async startScreenSharingInternal() {
@@ -718,7 +718,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
       // before it resolves. hangUp() already walked this.connections and never
       // saw the presentation connection (it didn't exist yet), so building it
       // now would leave the screen capture live forever — release and bail.
-      if(this.isClosing) {
+      if (this.isClosing) {
         stream.getTracks().forEach((t) => stopTrack(t));
         return;
       }
@@ -728,8 +728,8 @@ export default class GroupCallInstance extends CallInstanceBase<{
         streamManager,
         type,
         options: {
-          type
-        }
+          type,
+        },
       });
 
       const connection = connectionInstance.createPeerConnection();
@@ -738,14 +738,14 @@ export default class GroupCallInstance extends CallInstanceBase<{
       });
 
       stream.getVideoTracks()[0].addEventListener('ended', () => {
-        if(this.connections.presentation) { // maybe user has stopped screensharing through browser's ui
+        if (this.connections.presentation) { // maybe user has stopped screensharing through browser's ui
           this.stopScreenSharing();
         }
-      }, {once: true});
+      }, { once: true });
 
       connectionInstance.createDescription();
       connectionInstance.addInputVideoStream(stream);
-    } catch(err) {
+    } catch (err) {
       this.log.error('start screen sharing error', err);
     }
   }
@@ -758,7 +758,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
 
   public stopScreenSharing() {
     const connectionInstance = this.connections.presentation;
-    if(!connectionInstance) {
+    if (!connectionInstance) {
       return Promise.resolve();
     }
 
@@ -773,7 +773,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
   }
 
   public toggleScreenSharing() {
-    if(this.isSharingScreen) {
+    if (this.isSharingScreen) {
       return this.stopScreenSharing();
     } else {
       return this.startScreenSharing();
@@ -782,7 +782,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
 
   public async startVideoSharingInternal() {
     const constraints: MediaStreamConstraints = {
-      video: getVideoConstraints()
+      video: getVideoConstraints(),
     };
 
     try {
@@ -790,7 +790,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
       // The call can be hung up during the `getUserMedia` window. After that
       // cleanup() has already run streamManager.stop(), so adding this stream
       // would leak the camera (LED stuck on) — release it instead.
-      if(this.isClosing) {
+      if (this.isClosing) {
         stream.getTracks().forEach((t) => stopTrack(t));
         return;
       }
@@ -799,9 +799,9 @@ export default class GroupCallInstance extends CallInstanceBase<{
 
       await this.editParticipant(this.participant, {
         videoPaused: false,
-        videoStopped: false
+        videoStopped: false,
       });
-    } catch(err) {
+    } catch (err) {
       this.log.error('startVideoSharing error', err, constraints);
     }
   }
@@ -815,7 +815,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
   public async stopVideoSharing() {
     const connectionInstance = this.connections.main;
     const track = connectionInstance!.streamManager.inputStream.getVideoTracks()[0];
-    if(!track) {
+    if (!track) {
       return;
     }
 
@@ -839,12 +839,12 @@ export default class GroupCallInstance extends CallInstanceBase<{
     connectionInstance!.streamManager.appendToConference(connectionInstance!.description); // clear sender track
 
     await this.editParticipant(this.participant, {
-      videoStopped: true
+      videoStopped: true,
     });
   }
 
   public toggleVideoSharing() {
-    if(this.isSharingVideo) {
+    if (this.isSharingVideo) {
       return this.stopVideoSharing();
     } else {
       return this.startVideoSharing();
@@ -861,12 +861,12 @@ export default class GroupCallInstance extends CallInstanceBase<{
     oldTrack: MediaStreamTrack,
     newTrack: MediaStreamTrack
   ): void {
-    for(const type in this.connections) {
+    for (const type in this.connections) {
       const connectionInstance = this.connections[type as GroupCallConnectionType];
       const connection = connectionInstance?.connection;
-      if(!connection) continue;
-      for(const sender of connection.getSenders()) {
-        if(sender.track === oldTrack) {
+      if (!connection) continue;
+      for (const sender of connection.getSenders()) {
+        if (sender.track === oldTrack) {
           sender.replaceTrack(newTrack).catch((err) => this.log?.warn?.('replaceSenderTrack', err));
         }
       }
@@ -875,22 +875,22 @@ export default class GroupCallInstance extends CallInstanceBase<{
 
 
   public async hangUp(discard = false, rejoin = false, isDiscarded = false) {
-    for(const type in this.connections) {
+    for (const type in this.connections) {
       const connection = this.connections[type as GroupCallConnectionType];
       connection!.closeConnectionAndStream(!rejoin);
     }
 
     this.dispatchEvent('state', this.state);
 
-    if(isDiscarded) {
+    if (isDiscarded) {
       return;
     }
 
-    if(!rejoin) {
+    if (!rejoin) {
       let d: Parameters<AppGroupCallsManager['hangUp']>[1];
       try {
         d = discard || (/* this.joined ?  */this.connections.main!.sources.audio.source/*  : undefined */);
-      } catch(err) {
+      } catch (err) {
         d = 0;
       }
 
@@ -899,14 +899,14 @@ export default class GroupCallInstance extends CallInstanceBase<{
   }
 
   public tryAddTrack(options: Omit<TryAddTrackOptions, 'streamManager'>) {
-    const {description} = this;
+    const { description } = this;
     const source = super.tryAddTrack(options);
 
-    if(options.type === 'output') {
+    if (options.type === 'output') {
       const entry = description.getEntryBySource(+source);
       this.getParticipantByPeerId(entry!.peerId).then((participant) => {
-        if(participant) {
-          rootScope.dispatchEvent('group_call_participant', {groupCallId: this.id, participant});
+        if (participant) {
+          rootScope.dispatchEvent('group_call_participant', { groupCallId: this.id, participant });
         }
       });
     }
@@ -922,22 +922,22 @@ export default class GroupCallInstance extends CallInstanceBase<{
     videoPaused: boolean,
     presentationPaused: boolean
   }>) {
-    if(!Object.keys(options).length) {
+    if (!Object.keys(options).length) {
       return;
     }
 
     // let processUpdate = true;
-    if(participant) {
+    if (participant) {
       // const {currentGroupCall} = this;
       // const isCurrentCall = currentGroupCall?.id === groupCallId;
       const isCurrentCall = true;
       const isUpdatingMeInCurrentCall = isCurrentCall && participant.pFlags.self;
 
-      if(isUpdatingMeInCurrentCall) {
-        if(options.muted !== undefined && !this.isSharingAudio) {
+      if (isUpdatingMeInCurrentCall) {
+        if (options.muted !== undefined && !this.isSharingAudio) {
           delete options.muted;
 
-          if(!Object.keys(options).length) {
+          if (!Object.keys(options).length) {
             return;
           }
         }
@@ -945,7 +945,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
 
       // if(isCurrentCall) {
       const muted = options.muted;
-      if(muted !== undefined) {
+      if (muted !== undefined) {
         /* const isAdmin = appChatsManager.hasRights(currentGroupCall.chatId, 'manage_call');
           if(isAdmin) {
             if(muted) {
@@ -954,10 +954,10 @@ export default class GroupCallInstance extends CallInstanceBase<{
             } else {
               participant.pFlags.can_self_unmute = true;
             }
-          } else  */if(participant.pFlags.self) {
-          if(muted) {
+          } else  */if (participant.pFlags.self) {
+          if (muted) {
             participant.pFlags.muted = true;
-          } else if(participant.pFlags.can_self_unmute) {
+          } else if (participant.pFlags.can_self_unmute) {
             delete participant.pFlags.muted;
           }
         }/*  else {
@@ -987,18 +987,18 @@ export default class GroupCallInstance extends CallInstanceBase<{
         }
       }); */
 
-      if(options.raiseHand !== undefined) {
-        if(options.raiseHand) participant.raise_hand_rating = '1';
+      if (options.raiseHand !== undefined) {
+        if (options.raiseHand) participant.raise_hand_rating = '1';
         else delete participant.raise_hand_rating;
       }
 
-      if(isUpdatingMeInCurrentCall) {
-        if(options.videoStopped !== undefined) {
-          if(options.videoStopped) delete participant.video;
+      if (isUpdatingMeInCurrentCall) {
+        if (options.videoStopped !== undefined) {
+          if (options.videoStopped) delete participant.video;
           else participant.video = generateSelfVideo(this.connections.main!.sources.video!);
         }
 
-        if(!participant.pFlags.muted && participant.pFlags.can_self_unmute) {
+        if (!participant.pFlags.muted && participant.pFlags.can_self_unmute) {
           this.setMuted(false);
         }
 
@@ -1017,41 +1017,41 @@ export default class GroupCallInstance extends CallInstanceBase<{
 
   public onParticipantUpdate(participant: GroupCallParticipant, doNotDispatchParticipantUpdate?: PeerId) {
     const connectionInstance = this.connections.main;
-    const {connection, description} = connectionInstance!;
+    const { connection, description } = connectionInstance!;
 
     const peerId = getPeerId(participant.peer);
     const hasLeft = !!participant.pFlags.left;
     const oldSsrcs = this.participantsSsrcs.get(peerId) || [];
 
-    if(participant.presentation && !hasLeft) {
-      const {source} = makeSsrcFromParticipant(participant, 'video', participant.presentation.source_groups, participant.presentation.endpoint);
-      if(!this.hadAutoPinnedSources.has(source)) {
+    if (participant.presentation && !hasLeft) {
+      const { source } = makeSsrcFromParticipant(participant, 'video', participant.presentation.source_groups, participant.presentation.endpoint);
+      if (!this.hadAutoPinnedSources.has(source)) {
         this.hadAutoPinnedSources.add(source);
         this.pinSource(participant.pFlags.self ? 'presentation' : source);
       }
     }
 
-    if(participant.pFlags.self) {
+    if (participant.pFlags.self) {
       this.participant = participant;
 
-      if(connectionInstance!.sources.audio.source !== participant.source) {
+      if (connectionInstance!.sources.audio.source !== participant.source) {
         this.hangUp();
       }
 
       let mute = false;
-      if(!participant.pFlags.can_self_unmute) {
+      if (!participant.pFlags.can_self_unmute) {
         this.stopScreenSharing();
         this.stopVideoSharing();
         mute = true;
-      } else if(participant.pFlags.muted) {
+      } else if (participant.pFlags.muted) {
         mute = true;
       }
 
-      if(mute) {
+      if (mute) {
         this.setMuted(true);
       }
 
-      if(doNotDispatchParticipantUpdate !== peerId) {
+      if (doNotDispatchParticipantUpdate !== peerId) {
         this.dispatchEvent('state', this.state);
       }
 
@@ -1060,7 +1060,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
 
     const ssrcs = hasLeft ? [] : makeSsrcsFromParticipant(participant);
 
-    if(!hasLeft) {
+    if (!hasLeft) {
       this.participantsSsrcs.set(peerId, (ssrcs));
     } else {
       this.participantsSsrcs.delete(peerId);
@@ -1070,17 +1070,17 @@ export default class GroupCallInstance extends CallInstanceBase<{
     // Telegram user_id so recv RTCRtpScriptTransform handlers can look up
     // the correct Ed25519 public key for signature verification. The
     // TdE2E "user_id" IS the Telegram user_id — same value namespace.
-    if(this.e2e && participant.peer?._ === 'peerUser') {
+    if (this.e2e && participant.peer?._ === 'peerUser') {
       const userId = BigInt(participant.peer.user_id);
-      if(hasLeft) {
+      if (hasLeft) {
         let changed = false;
-        for(const ssrc of oldSsrcs) {
-          if(ssrc.source && this.e2eUserBySsrc.delete(ssrc.source >>> 0)) changed = true;
+        for (const ssrc of oldSsrcs) {
+          if (ssrc.source && this.e2eUserBySsrc.delete(ssrc.source >>> 0)) changed = true;
         }
-        if(changed) this.syncSsrcMapToWorker();
+        if (changed) this.syncSsrcMapToWorker();
       } else {
-        for(const ssrc of ssrcs) {
-          if((ssrc).source) this.registerE2eUserSsrc(userId, (ssrc).source);
+        for (const ssrc of ssrcs) {
+          if ((ssrc).source) this.registerE2eUserSsrc(userId, (ssrc).source);
         }
       }
     }
@@ -1091,11 +1091,11 @@ export default class GroupCallInstance extends CallInstanceBase<{
     oldSsrcs.forEach((oldSsrc) => {
       const oldSource = oldSsrc.source;
       const newSsrc = ssrcs.find((ssrc) => (ssrc).source === oldSource);
-      if(!newSsrc) {
+      if (!newSsrc) {
         this.unpinSource(oldSource);
 
         const oldEntry = description.getEntryBySource(oldSource);
-        if(oldEntry && oldEntry.direction !== 'inactive') {
+        if (oldEntry && oldEntry.direction !== 'inactive') {
           oldEntry.setDirection('inactive');
           modifiedTypes.add(oldEntry.type);
         }
@@ -1105,8 +1105,8 @@ export default class GroupCallInstance extends CallInstanceBase<{
     ssrcs.forEach((ssrc) => {
       const _ssrc = ssrc;
       let entry = description.getEntryBySource(_ssrc.source);
-      if(entry) {
-        if(entry.direction === 'inactive') {
+      if (entry) {
+        if (entry.direction === 'inactive') {
           entry.setDirection(entry.originalDirection);
           modifiedTypes.add(entry.type);
         }
@@ -1123,7 +1123,7 @@ export default class GroupCallInstance extends CallInstanceBase<{
       //   entry.setDirection('recvonly');
       // } else {
       _ssrc.type === 'video' && entry.setEndpoint(_ssrc.endpoint!);
-      entry.createTransceiver(connection, {direction: 'recvonly'});
+      entry.createTransceiver(connection, { direction: 'recvonly' });
 
       // Conference (e2e) only: attach the receive-side RTCRtpScriptTransform
       // RIGHT NOW — in the gap between createTransceiver and the next
@@ -1149,8 +1149,8 @@ export default class GroupCallInstance extends CallInstanceBase<{
         description,
         ssrcs
       });
-    } else  */if(modifiedTypes.size) {
-      if(modifiedTypes.has('video')) {
+    } else  */if (modifiedTypes.size) {
+      if (modifiedTypes.has('video')) {
         connectionInstance!.updateConstraints = true;
       }
 

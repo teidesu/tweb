@@ -1,6 +1,6 @@
-import type {MyDocument} from '@appManagers/appDocsManager';
-import type {MyPhoto} from '@appManagers/appPhotosManager';
-import {PhotoSize} from '@layer';
+import type { MyDocument } from '@appManagers/appDocsManager';
+import type { MyPhoto } from '@appManagers/appPhotosManager';
+import { PhotoSize } from '@layer';
 // import appDownloadManager from "@lib/appManagers/appDownloadManager";
 import getPreviewURLFromBytes from '@helpers/bytes/getPreviewURLFromBytes';
 

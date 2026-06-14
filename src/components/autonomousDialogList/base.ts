@@ -1,23 +1,23 @@
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
 import DialogsPlaceholder from '@helpers/dialogsPlaceholder';
 import replaceContent from '@helpers/dom/replaceContent';
 import ListenerSetter from '@helpers/listenerSetter';
 import throttle from '@helpers/schedulers/throttle';
-import {SequentialCursorFetcher, SequentialCursorFetcherResult} from '@helpers/sequentialCursorFetcher';
+import { SequentialCursorFetcher, SequentialCursorFetcherResult } from '@helpers/sequentialCursorFetcher';
 import windowSize from '@helpers/windowSize';
-import type {AppDialogsManager} from '@lib/appDialogsManager';
+import type { AppDialogsManager } from '@lib/appDialogsManager';
 import appImManager from '@lib/appImManager';
-import {AppManagers} from '@lib/managers';
+import { AppManagers } from '@lib/managers';
 import getDialogIndex from '@appManagers/utils/dialogs/getDialogIndex';
 import getDialogIndexKey from '@appManagers/utils/dialogs/getDialogIndexKey';
-import {isForumTopic} from '@appManagers/utils/dialogs/isDialog';
-import {logger} from '@lib/logger';
+import { isForumTopic } from '@appManagers/utils/dialogs/isDialog';
+import { logger } from '@lib/logger';
 import rootScope from '@lib/rootScope';
-import {AnyDialog} from '@lib/storages/dialogs';
-import {MonoforumDialog} from '@lib/storages/monoforumDialogs';
+import { AnyDialog } from '@lib/storages/dialogs';
+import { MonoforumDialog } from '@lib/storages/monoforumDialogs';
 import Scrollable from '@components/scrollable';
 import SortedDialogList from '@components/sortedDialogList';
-import {AutonomousDialogList} from '@components/autonomousDialogList/dialogs';
+import { AutonomousDialogList } from '@components/autonomousDialogList/dialogs';
 
 
 export const DIALOG_LOAD_COUNT = 20;
@@ -76,7 +76,7 @@ export class AutonomousDialogListBase<T extends PossibleDialog = PossibleDialog>
     this.loadDialogsDeferred?.reject();
   }
 
-  constructor({appDialogsManager}: BaseConstructorArgs) {
+  constructor({ appDialogsManager }: BaseConstructorArgs) {
     this.log = logger('CL');
     this.managers = rootScope.managers;
     this.listenerSetter = new ListenerSetter();
@@ -100,12 +100,12 @@ export class AutonomousDialogListBase<T extends PossibleDialog = PossibleDialog>
    * @returns Returns `true` if a new dialog was just added
    */
   private addOrDeleteDialogIfNeeded(dialog: T, key: any) {
-    if(!this.canUpdateDialog(dialog)) {
+    if (!this.canUpdateDialog(dialog)) {
       this.deleteDialog(dialog);
       return false;
     }
 
-    if(!this.sortedList.has(key)) {
+    if (!this.sortedList.has(key)) {
       this.sortedList.add(key);
       return true;
     }
@@ -116,17 +116,17 @@ export class AutonomousDialogListBase<T extends PossibleDialog = PossibleDialog>
   public updateDialog(dialog: T) {
     const key = this.getDialogKey(dialog);
 
-    if(this.addOrDeleteDialogIfNeeded(dialog, key)) return;
+    if (this.addOrDeleteDialogIfNeeded(dialog, key)) return;
 
     const dialogElement = this.getDialogElement(key);
-    if(!dialogElement) {
+    if (!dialogElement) {
       return;
     }
 
     this.appDialogsManager.setLastMessageN({
       dialog,
       dialogElement,
-      setUnread: true
+      setUnread: true,
     });
     this.sortedList.update(key);
   }
@@ -159,14 +159,14 @@ export class AutonomousDialogListBase<T extends PossibleDialog = PossibleDialog>
       container: this.sortedList.list.parentElement!,
       getRectFrom,
       onRemove: () => {
-        if(this.placeholder === placeholder) {
+        if (this.placeholder === placeholder) {
           this.placeholder = undefined;
 
           // The dialogs placeholder is a little taller than the container, so we need to update the scrollbar
           this.scrollable?.onScroll?.();
         }
       },
-      blockScrollable: this.scrollable
+      blockScrollable: this.scrollable,
     });
 
     return placeholder;
@@ -178,14 +178,14 @@ export class AutonomousDialogListBase<T extends PossibleDialog = PossibleDialog>
     this.loadDialogsDeferred?.reject();
     const deferred = this.loadDialogsDeferred = deferredPromise();
 
-    this.loadDialogsInner({offsetIndex, canFinish: () => !deferred.isRejected})
-    .then(
-      deferred.resolve.bind(deferred),
-      deferred.reject.bind(deferred)
-    )
-    .finally(() => {
-      this.placeholder?.detach(this.sortedList?.itemsLength() || 0);
-    });
+    this.loadDialogsInner({ offsetIndex, canFinish: () => !deferred.isRejected })
+      .then(
+        deferred.resolve.bind(deferred),
+        deferred.reject.bind(deferred)
+      )
+      .finally(() => {
+        this.placeholder?.detach(this.sortedList?.itemsLength() || 0);
+      });
 
     return this.loadDialogsDeferred;
   }
@@ -211,7 +211,7 @@ export class AutonomousDialogListBase<T extends PossibleDialog = PossibleDialog>
   }
 
   public checkForDialogsPlaceholder() {
-    if(this.placeholder || this.loadedDialogsAtLeastOnce) return;
+    if (this.placeholder || this.loadedDialogsAtLeastOnce) return;
 
     this.placeholder = this.createPlaceholder();
   }
@@ -228,7 +228,7 @@ export class AutonomousDialogListBase<T extends PossibleDialog = PossibleDialog>
       offsetIndex: 0,
       limit: this.guessLoadCount(),
       filterId,
-      skipMigrated: this.skipMigrated
+      skipMigrated: this.skipMigrated,
     });
 
     this.checkForDialogsPlaceholder();
@@ -239,7 +239,7 @@ export class AutonomousDialogListBase<T extends PossibleDialog = PossibleDialog>
       offsetIndex,
       limit,
       filterId: this.getFilterId(),
-      skipMigrated: this.skipMigrated
+      skipMigrated: this.skipMigrated,
     });
 
     const result = await ackedResult.result;
@@ -247,7 +247,7 @@ export class AutonomousDialogListBase<T extends PossibleDialog = PossibleDialog>
     return result as {dialogs: PossibleDialog[], count: number, isEnd: boolean};
   }
 
-  protected async loadDialogsInner({offsetIndex, removePlaceholder = true, canFinish}: LoadDialogsInnerArgs): Promise<SequentialCursorFetcherResult<number>> {
+  protected async loadDialogsInner({ offsetIndex, removePlaceholder = true, canFinish }: LoadDialogsInnerArgs): Promise<SequentialCursorFetcherResult<number>> {
     this.checkForDialogsPlaceholder();
 
     /**
@@ -256,21 +256,21 @@ export class AutonomousDialogListBase<T extends PossibleDialog = PossibleDialog>
      * make sure we get the latest total count of dialogs to properly render the whole list
      */
     let shouldRefetch = false;
-    if(this.appDialogsManager.isFirstDialogsLoad && !offsetIndex) {
+    if (this.appDialogsManager.isFirstDialogsLoad && !offsetIndex) {
       this.appDialogsManager.isFirstDialogsLoad = false;
       shouldRefetch = true;
     }
 
     const result = await this.dialogsFetcher(offsetIndex!, this.guessLoadCount());
 
-    if(shouldRefetch) {
+    if (shouldRefetch) {
       const id = this.refetchTimeout = self.setTimeout(async() => {
         try {
-          const {totalCount} = await this.loadDialogsInner({
-            canFinish: () => id === this.refetchTimeout
+          const { totalCount } = await this.loadDialogsInner({
+            canFinish: () => id === this.refetchTimeout,
           });
           this.cursorFetcher.setFetchedItemsCount(totalCount!);
-        } catch{}
+        } catch {}
       }, 500);
     }
 
@@ -285,26 +285,26 @@ export class AutonomousDialogListBase<T extends PossibleDialog = PossibleDialog>
       return this.sortedList.createItemForKey(key);
     }));
 
-    if(!canFinish()) throw new Error();
+    if (!canFinish()) throw new Error();
 
     this.loadedDialogsAtLeastOnce = true;
     this.hasReachedTheEnd = !!result.isEnd;
 
     this.sortedList.addDeferredItems(items as any, result.count || 0);
 
-    if(removePlaceholder) this.placeholder?.detach(this.sortedList.itemsLength());
+    if (removePlaceholder) this.placeholder?.detach(this.sortedList.itemsLength());
 
     return {
       cursor: ((newOffsetIndex === Infinity ? undefined : newOffsetIndex)! as unknown as number),
       count: result.dialogs.length,
-      totalCount: this.sortedList.itemsLength() // Note that at some point we might add duplicates
+      totalCount: this.sortedList.itemsLength(), // Note that at some point we might add duplicates
     };
   }
 
   public async setTyping(dialog: T) {
     const key = this.getDialogKey(dialog);
     const dom = this.getDialogDom(key);
-    if(!dom) {
+    if (!dom) {
       return;
     }
 
@@ -314,7 +314,7 @@ export class AutonomousDialogListBase<T extends PossibleDialog = PossibleDialog>
       oldTypingElement,
       isForumTopic(dialog) ? dialog.id : undefined
     );
-    if(!oldTypingElement && newTypingElement) {
+    if (!oldTypingElement && newTypingElement) {
       replaceContent(dom.lastMessageSpan, newTypingElement);
       dom.lastMessageSpan.classList.add('user-typing');
     }
@@ -323,7 +323,7 @@ export class AutonomousDialogListBase<T extends PossibleDialog = PossibleDialog>
   public unsetTyping(dialog: T) {
     const key = this.getDialogKey(dialog);
     const dialogElement = this.getDialogElement(key);
-    if(!dialogElement) {
+    if (!dialogElement) {
       return;
     }
 
@@ -332,7 +332,7 @@ export class AutonomousDialogListBase<T extends PossibleDialog = PossibleDialog>
       dialog,
       lastMessage: undefined,
       dialogElement,
-      setUnread: undefined
+      setUnread: undefined,
     });
   }
 

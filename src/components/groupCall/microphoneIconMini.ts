@@ -1,4 +1,4 @@
-import {SuperRLottieIcon} from '@components/superIcon';
+import { SuperRLottieIcon } from '@components/superIcon';
 
 export default class GroupCallMicrophoneIconMini extends SuperRLottieIcon<{
   PartState: boolean,
@@ -17,7 +17,7 @@ export default class GroupCallMicrophoneIconMini extends SuperRLottieIcon<{
       getColor: colored ? (state) => {
         return state ? [255, 255, 255] : [158, 158, 158];
       } : undefined,
-      skipAnimation
+      skipAnimation,
     });
 
     this.add({
@@ -25,24 +25,24 @@ export default class GroupCallMicrophoneIconMini extends SuperRLottieIcon<{
       parts: [{
         startFrame: 0,
         endFrame: 35,
-        name: 'hand-to-muted'
+        name: 'hand-to-muted',
       }, {
         startFrame: 36,
         endFrame: 68,
-        name: 'unmute'
+        name: 'unmute',
       }, {
         startFrame: 69,
         endFrame: 98,
-        name: 'mute'
+        name: 'mute',
       }, {
         startFrame: 99,
         endFrame: 135,
-        name: 'muted-to-hand'
+        name: 'muted-to-hand',
       }, {
         startFrame: 136,
         endFrame: 171,
-        name: 'unmuted-to-hand'
-      }]
+        name: 'unmuted-to-hand',
+      }],
     });
   }
 }

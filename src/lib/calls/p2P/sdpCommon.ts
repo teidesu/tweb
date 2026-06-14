@@ -8,9 +8,9 @@
  * protocol-specific shaping (payload types, fingerprints, ssrc groups) lives here.
  */
 
-import {P2PFingerprint, P2PPayloadType, RtpHdrexts} from '@lib/calls/types';
+import { P2PFingerprint, P2PPayloadType, RtpHdrexts } from '@lib/calls/types';
 import SDPAttributes from '@lib/calls/sdp/attributes';
-import {parseSdp} from '@lib/calls/sdp/utils';
+import { parseSdp } from '@lib/calls/sdp/utils';
 
 // A media (or session) section, in the flat shape the ported engine consumes,
 // backed by tweb's SDPAttributes for any attribute lookup.
@@ -49,18 +49,18 @@ export function parseSdpSections(sdp: string): SdpSection[] {
     lines: parsed.session.lines.map((line) => line.toString()),
     direction: undefined,
     port: 0,
-    attributes: new SDPAttributes(parsed.session.lines)
+    attributes: new SDPAttributes(parsed.session.lines),
   }];
 
   parsed.media.forEach((section) => {
-    const {attributes} = section;
+    const { attributes } = section;
     sections.push({
       kind: section.mediaType,
       mid: section.mid || undefined,
       lines: section.lines.map((line) => line.toString()),
       direction: SDP_DIRECTIONS.find((direction) => attributes.get(direction).exists),
       port: Number(section.mediaLineParts?.port || 0),
-      attributes
+      attributes,
     });
   });
 
@@ -83,9 +83,9 @@ function readAttributeValue(section: SdpSection, key: string) {
 export function findSdpLineValue(sections: SdpSection[], prefix: string, section?: SdpSection) {
   const key = prefix.replace(/^a=/, '').replace(/:$/, '');
 
-  if(section) {
+  if (section) {
     const value = readAttributeValue(section, key);
-    if(value !== undefined) {
+    if (value !== undefined) {
       return value;
     }
 
@@ -93,9 +93,9 @@ export function findSdpLineValue(sections: SdpSection[], prefix: string, section
     return sessionSection && sessionSection !== section ? readAttributeValue(sessionSection, key) : undefined;
   }
 
-  for(const item of sections) {
+  for (const item of sections) {
     const value = readAttributeValue(item, key);
-    if(value !== undefined) {
+    if (value !== undefined) {
       return value;
     }
   }
@@ -116,20 +116,20 @@ export function parseFingerprints(sections: SdpSection[]): P2PFingerprint[] {
 
   sections.forEach((section) => {
     const fingerprint = findSdpLineValue(sections, 'a=fingerprint:', section);
-    if(!fingerprint) {
+    if (!fingerprint) {
       return;
     }
 
     const [hash, value] = fingerprint.split(' ');
     const setup = findSdpLineValue(sections, 'a=setup:', section) || 'actpass';
-    if(!hash || !value) {
+    if (!hash || !value) {
       return;
     }
 
     values.set(`${hash}:${value}:${setup}`, {
       hash,
       setup,
-      fingerprint: value
+      fingerprint: value,
     });
   });
 
@@ -141,7 +141,7 @@ export function parseSsrcGroups(section: SdpSection): SdpSsrcGroup[] {
     const [semantics, ...ssrcs] = line.split(' ');
     return {
       semantics,
-      ssrcs: ssrcs.map(Number)
+      ssrcs: ssrcs.map(Number),
     };
   });
 }
@@ -151,12 +151,12 @@ export function parseSsrcs(section: SdpSection, shouldIncludeGroups = false) {
 
   section.attributes.get('ssrc').lines.forEach((line) => {
     const match = line.match(/^\d+/);
-    if(match) {
+    if (match) {
       values.add(Number(match[0]));
     }
   });
 
-  if(shouldIncludeGroups) {
+  if (shouldIncludeGroups) {
     section.attributes.get('ssrc-group').lines.forEach((line) => {
       line.match(/\d+/g)?.forEach((value) => {
         values.add(Number(value));
@@ -170,13 +170,13 @@ export function parseSsrcs(section: SdpSection, shouldIncludeGroups = false) {
 export function parseExtmaps(section: SdpSection): RtpHdrexts[] {
   return section.attributes.get('extmap').lines.map((line) => {
     const [, rawId, uri] = line.match(/^(\d+)(?:\/[^\s]+)?\s(.+)$/) || [];
-    if(!rawId || !uri) {
+    if (!rawId || !uri) {
       throw new Error('Failed parsing SDP RTP extension');
     }
 
     return {
       id: Number(rawId),
-      uri
+      uri,
     };
   });
 }
@@ -184,7 +184,7 @@ export function parseExtmaps(section: SdpSection): RtpHdrexts[] {
 export function parsePayloadTypes(section: SdpSection): P2PPayloadType[] {
   const payloadTypes: P2PPayloadType[] = section.attributes.get('rtpmap').lines.map((line) => {
     const [, rawId, name, rawClockrate, rawChannels] = line.match(/^(\d+)\s([^/]+)\/(\d+)(?:\/(\d+))?/) || [];
-    if(!rawId || !name || !rawClockrate) {
+    if (!rawId || !name || !rawClockrate) {
       throw new Error('Failed parsing SDP payload type');
     }
 
@@ -192,7 +192,7 @@ export function parsePayloadTypes(section: SdpSection): P2PPayloadType[] {
       id: Number(rawId),
       name,
       clockrate: Number(rawClockrate),
-      channels: rawChannels ? Number(rawChannels) : 0
+      channels: rawChannels ? Number(rawChannels) : 0,
     };
   });
 
@@ -200,10 +200,10 @@ export function parsePayloadTypes(section: SdpSection): P2PPayloadType[] {
     const parameters = parsePayloadParameters(section, payloadType.id);
     const feedbackTypes = parseFeedbackTypes(section, payloadType.id);
 
-    if(Object.keys(parameters).length) {
+    if (Object.keys(parameters).length) {
       payloadType.parameters = parameters;
     }
-    if(feedbackTypes.length) {
+    if (feedbackTypes.length) {
       payloadType.feedbackTypes = feedbackTypes;
     }
   });
@@ -220,7 +220,7 @@ export function summarizeSdp(sdp: string, shouldIncludeSsrcGroups = false): SdpS
       port: section.port,
       direction: section.direction,
       payloads: (section.lines[0] || '').split(' ').slice(3),
-      ssrcs: parseSsrcs(section, shouldIncludeSsrcGroups)
+      ssrcs: parseSsrcs(section, shouldIncludeSsrcGroups),
     };
   });
 }
@@ -229,20 +229,20 @@ function parsePayloadParameters(section: SdpSection, payloadId: number) {
   const parameters: Record<string, string> = {};
   const prefix = `${payloadId} `;
   const rawParameters = section.attributes.get('fmtp').lines.find((line) => line.startsWith(prefix))?.slice(prefix.length);
-  if(!rawParameters) {
+  if (!rawParameters) {
     return parameters;
   }
 
   rawParameters.split(';').forEach((item) => {
     const trimmed = item.trim();
     const separatorIndex = trimmed.indexOf('=');
-    if(separatorIndex === -1) {
+    if (separatorIndex === -1) {
       return;
     }
 
     const key = trimmed.slice(0, separatorIndex);
     const value = trimmed.slice(separatorIndex + 1);
-    if(key && value) {
+    if (key && value) {
       parameters[key] = value;
     }
   });
@@ -256,7 +256,7 @@ function parseFeedbackTypes(section: SdpSection, payloadId: number): NonNullable
     const [type, subtype] = line.slice(prefix.length).split(' ');
     return {
       type,
-      subtype: subtype || ''
+      subtype: subtype || '',
     };
   });
 }

@@ -1,8 +1,8 @@
-import type {MyMessage} from '@appManagers/appMessagesManager';
-import type {AccountDatabase} from '@config/databases/state';
+import type { MyMessage } from '@appManagers/appMessagesManager';
+import type { AccountDatabase } from '@config/databases/state';
 import type AppStorage from '@lib/storage';
-import type {SlicedArrayPersisted} from '@helpers/slicedArray';
-import {AppManager} from '@appManagers/manager';
+import type { SlicedArrayPersisted } from '@helpers/slicedArray';
+import { AppManager } from '@appManagers/manager';
 import debounce from '@helpers/schedulers/debounce';
 
 export type MessagesPersistedHistory = {
@@ -41,11 +41,11 @@ export default class MessagesPersistentStorage extends AppManager {
     this.clear(true);
     this.flushDebounced = debounce(() => this.flush(), FLUSH_DEBOUNCE, false, true);
 
-    return this.appStoragesManager.loadStorage('messages').then(({storage, results}) => {
+    return this.appStoragesManager.loadStorage('messages').then(({ storage, results }) => {
       this.storage = storage;
-      for(const record of results) {
-        if(record?.peerId !== undefined) {
-          if(this.deletedPeers.has(record.peerId)) {
+      for (const record of results) {
+        if (record?.peerId !== undefined) {
+          if (this.deletedPeers.has(record.peerId)) {
             this.storage.delete(record.peerId);
             continue;
           }
@@ -72,9 +72,9 @@ export default class MessagesPersistentStorage extends AppManager {
     this.records = new Map();
     this.deletedPeers = new Set();
 
-    if(init) {
+    if (init) {
       this.loaded = false; // * about to (re)load from IDB; keep persistence disabled until it completes
-    } else if(this.storage) {
+    } else if (this.storage) {
       // * runtime wipe (e.g. differenceTooLong): drop stale data but stay loaded so persistence keeps working
       this.storage.clear();
     }
@@ -91,36 +91,36 @@ export default class MessagesPersistentStorage extends AppManager {
 
   public deletePeer(peerId: PeerId) {
     this.dirtyPeers.delete(peerId);
-    if(!this.loaded) {
+    if (!this.loaded) {
       this.deletedPeers.add(peerId);
     }
 
-    if(this.records.delete(peerId) && this.storage) {
+    if (this.records.delete(peerId) && this.storage) {
       this.storage.delete(peerId);
     }
   }
 
   private flush() {
-    if(!this.storage) {
+    if (!this.storage) {
       return;
     }
 
     const toSet: Record<PeerId, MessagesPersistedRecord> = {};
     let hasToSet = false;
-    for(const peerId of this.dirtyPeers) {
+    for (const peerId of this.dirtyPeers) {
       const record = this.appMessagesManager.serializePeerForPersistence(peerId);
-      if(record) {
+      if (record) {
         this.records.set(peerId, record);
         toSet[peerId] = record;
         hasToSet = true;
-      } else if(this.records.delete(peerId)) {
+      } else if (this.records.delete(peerId)) {
         this.storage.delete(peerId);
       }
     }
 
     this.dirtyPeers.clear();
 
-    if(hasToSet) {
+    if (hasToSet) {
       this.storage.set(toSet);
     }
 
@@ -129,12 +129,12 @@ export default class MessagesPersistentStorage extends AppManager {
 
   private enforceCap() {
     const excess = this.records.size - MAX_PERSISTED_PEERS;
-    if(excess <= 0) {
+    if (excess <= 0) {
       return;
     }
 
     const sorted = [...this.records.entries()].sort(([, a], [, b]) => a.accessedAt - b.accessedAt);
-    for(let i = 0; i < excess; ++i) {
+    for (let i = 0; i < excess; ++i) {
       const [peerId] = sorted[i];
       this.records.delete(peerId);
       this.storage.delete(peerId);

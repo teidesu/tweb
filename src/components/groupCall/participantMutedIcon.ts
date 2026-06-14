@@ -1,6 +1,6 @@
 import RLottieIcon from '@lib/rlottie/rlottieIcon';
-import {GROUP_CALL_PARTICIPANT_CLEARED_MUTED_STATE, GROUP_CALL_PARTICIPANT_MUTED_STATE, getColorByMutedState, clearMutedStateModifier} from '.';
-import {SuperRLottieIcon} from '@components/superIcon';
+import { GROUP_CALL_PARTICIPANT_CLEARED_MUTED_STATE, GROUP_CALL_PARTICIPANT_MUTED_STATE, getColorByMutedState, clearMutedStateModifier } from '.';
+import { SuperRLottieIcon } from '@components/superIcon';
 
 export default class GroupCallParticipantMutedIcon extends SuperRLottieIcon<{
   PartState: GROUP_CALL_PARTICIPANT_CLEARED_MUTED_STATE,
@@ -14,7 +14,7 @@ export default class GroupCallParticipantMutedIcon extends SuperRLottieIcon<{
         const states = GROUP_CALL_PARTICIPANT_MUTED_STATE;
 
         let index!: number;
-        switch(state) {
+        switch (state) {
           case states.HAND:
             index = 3;
             break;
@@ -30,7 +30,7 @@ export default class GroupCallParticipantMutedIcon extends SuperRLottieIcon<{
       },
       getColor: colored ? (state, prevState) => {
         return getColorByMutedState(state);
-      } : undefined
+      } : undefined,
     });
 
     const className = 'group-call-participant-muted-icon';
@@ -39,7 +39,7 @@ export default class GroupCallParticipantMutedIcon extends SuperRLottieIcon<{
     const parts = RLottieIcon.generateEqualParts(4, 21);
     this.add({
       name: 'voice_outlined2',
-      parts
+      parts,
     });
   }
 

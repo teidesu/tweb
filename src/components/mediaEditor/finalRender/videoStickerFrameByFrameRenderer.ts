@@ -1,17 +1,17 @@
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
 import appDownloadManager from '@lib/appDownloadManager';
-import {getMiddleware} from '@helpers/middleware';
-import {Document} from '@layer';
+import { getMiddleware } from '@helpers/middleware';
+import { Document } from '@layer';
 import createVideo from '@helpers/dom/createVideo';
 import onMediaLoad from '@helpers/onMediaLoad';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import handleVideoLeak from '@helpers/dom/handleVideoLeak';
-import {IS_FIREFOX} from '@environment/userAgent';
+import { IS_FIREFOX } from '@environment/userAgent';
 
-import {delay} from '@components/mediaEditor/utils';
+import { delay } from '@components/mediaEditor/utils';
 
-import {StickerFrameByFrameRenderer} from '@components/mediaEditor/finalRender/types';
-import {FRAMES_PER_SECOND} from '@components/mediaEditor/finalRender/constants';
+import { StickerFrameByFrameRenderer } from '@components/mediaEditor/finalRender/types';
+import { FRAMES_PER_SECOND } from '@components/mediaEditor/finalRender/constants';
 
 export default class VideoStickerFrameByFrameRenderer implements StickerFrameByFrameRenderer {
   private duration: number = 0;
@@ -22,10 +22,10 @@ export default class VideoStickerFrameByFrameRenderer implements StickerFrameByF
 
   async init(doc: Document.document) {
     const blob = await appDownloadManager.downloadMedia({
-      media: doc
+      media: doc,
     });
 
-    const video = (this.video = createVideo({middleware: this.middleware.get()}));
+    const video = (this.video = createVideo({ middleware: this.middleware.get() }));
     video.src = await apiManagerProxy.invoke('createObjectURL', blob);
     // video.autoplay = true;
     video.controls = false;
@@ -48,7 +48,7 @@ export default class VideoStickerFrameByFrameRenderer implements StickerFrameByF
   }
 
   async renderFrame(frame: number) {
-    if(IS_FIREFOX) return;
+    if (IS_FIREFOX) return;
     this.currentDeferredFrame = deferredPromise<void>();
     this.video!.currentTime = (1 / FRAMES_PER_SECOND) * frame;
     await this.currentDeferredFrame;

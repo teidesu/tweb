@@ -1,29 +1,29 @@
-import {createSignal, JSX} from 'solid-js';
-import appMediaPlaybackController, {AppMediaPlaybackController} from '@components/appMediaPlaybackController';
+import { createSignal, JSX } from 'solid-js';
+import appMediaPlaybackController, { AppMediaPlaybackController } from '@components/appMediaPlaybackController';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import PeerTitle from '@components/peerTitle';
-import {i18n} from '@lib/langPack';
-import {formatFullSentTime} from '@helpers/date';
-import {DocumentAttribute} from '@layer';
+import { i18n } from '@lib/langPack';
+import { formatFullSentTime } from '@helpers/date';
+import { DocumentAttribute } from '@layer';
 import MediaProgressLine from '@components/mediaProgressLine';
 import VolumeSelector from '@components/volumeSelector';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import {AppManagers} from '@lib/managers';
+import { AppManagers } from '@lib/managers';
 import getFwdFromName from '@appManagers/utils/messages/getFwdFromName';
 import toHHMMSS from '@helpers/string/toHHMMSS';
-import {PlaybackRateButton} from '@components/playbackRateButton';
+import { PlaybackRateButton } from '@components/playbackRateButton';
 import apiManagerProxy from '@lib/apiManagerProxy';
-import {doubleRaf} from '@helpers/schedulers';
+import { doubleRaf } from '@helpers/schedulers';
 import ListenerSetter from '@helpers/listenerSetter';
 import SetTransition from '@components/singleTransition';
-import {ChatType} from './chatType';
-import type {AppImManager} from '@lib/appImManager';
+import { ChatType } from './chatType';
+import type { AppImManager } from '@lib/appImManager';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import toggleDisability from '@helpers/dom/toggleDisability';
 import appSidebarRight from '../sidebarRight';
 import AppSavedMusicTab from '../sidebarRight/tabs/savedMusic';
-import TopbarPlate, {createTopbarPlate} from '@components/chat/topbarPlate';
+import TopbarPlate, { createTopbarPlate } from '@components/chat/topbarPlate';
 import Button from '@components/buttonTsx';
 import classNames from '@helpers/string/classNames';
 import styles from '@components/chat/audio.module.scss';
@@ -56,9 +56,9 @@ export default function createChatAudio(
 
   // ───────────────────────── Imperative widgets ─────────────────────────
 
-  const playbackRateButton = PlaybackRateButton({direction: 'bottom-left'});
+  const playbackRateButton = PlaybackRateButton({ direction: 'bottom-left' });
 
-  const volumeSelector = new VolumeSelector({listenerSetter, vertical: true, useGlobalVolume: 'auto'});
+  const volumeSelector = new VolumeSelector({ listenerSetter, vertical: true, useGlobalVolume: 'auto' });
   const volumeProgressLineContainer = document.createElement('div');
   volumeProgressLineContainer.classList.add('progress-line-container');
   volumeProgressLineContainer.append(volumeSelector.container);
@@ -71,7 +71,7 @@ export default function createChatAudio(
   const progressLine = new MediaProgressLine({
     withTransition: true,
     useTransform: true,
-    onTimeUpdate: (t) => setTimeText(toHHMMSS(t, true))
+    onTimeUpdate: (t) => setTimeText(toHHMMSS(t, true)),
   });
   progressLine.container.classList.add(styles.progress);
 
@@ -126,9 +126,9 @@ export default function createChatAudio(
               onClick={(e) => {
                 cancelEvent(e);
                 const params = appMediaPlaybackController.getPlaybackParams();
-                if(!params.round) {
+                if (!params.round) {
                   appMediaPlaybackController.round = true;
-                } else if(params.loop) {
+                } else if (params.loop) {
                   appMediaPlaybackController.round = false;
                   appMediaPlaybackController.loop = false;
                 } else {
@@ -145,22 +145,22 @@ export default function createChatAudio(
           {progressLine.container}
         </div>
       </>
-    )
+    ),
   });
 
   // Click on the central content (title/subtitle) → open the source chat /
   // saved music tab. Clicks anywhere else on the plate do nothing.
   attachClickEvent(plate.container, (e) => {
-    if(!findUpClassName(e.target!, 'pinned-container-content')) {
+    if (!findUpClassName(e.target!, 'pinned-container-content')) {
       return;
     }
 
     const mid = +plate.container.dataset.mid!;
     const peerId = plate.container.dataset.peerId!.toPeerId();
     const savedMusicDocId = plate.container.dataset.savedMusicDocId;
-    if(savedMusicDocId) {
+    if (savedMusicDocId) {
       const prevTab = appSidebarRight.getTab(AppSavedMusicTab);
-      if(prevTab?.peerId === peerId) {
+      if (prevTab?.peerId === peerId) {
         appSidebarRight.toggleSidebar(true);
         return;
       }
@@ -169,7 +169,7 @@ export default function createChatAudio(
       tab.peerId = peerId;
       tab.open();
       appSidebarRight.toggleSidebar(true);
-      if(prevTab) setTimeout(() => prevTab.close(), 300);
+      if (prevTab) setTimeout(() => prevTab.close(), 300);
       return;
     }
 
@@ -178,15 +178,15 @@ export default function createChatAudio(
       peerId,
       lastMsgId: mid,
       type: searchContext.isScheduled ? ChatType.Scheduled : undefined,
-      threadId: searchContext.threadId
+      threadId: searchContext.threadId,
     });
-  }, {listenerSetter});
+  }, { listenerSetter });
 
   // ───────────────────────── State / event handlers ─────────────────────────
 
   function toggle(hide?: boolean): void {
     const current = !plate.container.classList.contains(styles.isVisible);
-    if((hide ??= !current) === current) return;
+    if ((hide ??= !current) === current) return;
 
     // Keep in sync with --transition-standard-in-time (the plate's transform
     // transition) — shorter would display:none the plate mid-slide on hide.
@@ -199,7 +199,7 @@ export default function createChatAudio(
         doubleRaf().then(() => {
           document.body.classList.toggle('is-pinned-audio-shown', !hide);
         });
-      }
+      },
     });
   }
 
@@ -210,11 +210,11 @@ export default function createChatAudio(
     repeatEl.classList.toggle('active', playbackParams.loop || playbackParams.round);
   };
 
-  const onMediaPlay = ({doc, message, media, playbackParams, isSavedMusic, isSlotted}: NonNullable<ReturnType<AppMediaPlaybackController['getPlayingDetails']>>) => {
+  const onMediaPlay = ({ doc, message, media, playbackParams, isSavedMusic, isSlotted }: NonNullable<ReturnType<AppMediaPlaybackController['getPlayingDetails']>>) => {
     let titleVal: JSX.Element, subtitleVal: JSX.Element;
     const isMusic = doc.type !== 'voice' && doc.type !== 'round';
-    if(!isMusic) {
-      titleVal = new PeerTitle({peerId: message.fromId, fromName: getFwdFromName(message.fwd_from!)}).element;
+    if (!isMusic) {
+      titleVal = new PeerTitle({ peerId: message.fromId, fromName: getFwdFromName(message.fwd_from!) }).element;
       subtitleVal = formatFullSentTime(message.date);
     } else {
       const audioAttribute = doc.attributes.find((attr: DocumentAttribute) => attr._ === 'documentAttributeAudio') as DocumentAttribute.documentAttributeAudio;
@@ -231,7 +231,7 @@ export default function createChatAudio(
     volumeSelector.setMaxVolume(isMusic ? 1 : 2);
     volumeSelector.setGlobalVolume();
 
-    progressLine.setMedia({media, duration: duration = doc.duration!});
+    progressLine.setMedia({ media, duration: duration = doc.duration! });
     toggleDisability([prevEl, nextEl], !message.peerId);
     // Visually mute the next button for slotted playback — there's no
     // next track to advance to. The click handler is a safe no-op on the
@@ -240,7 +240,7 @@ export default function createChatAudio(
 
     plate.container.dataset.peerId = '' + message.peerId;
     plate.container.dataset.mid = '' + message.mid;
-    if(isSavedMusic) {
+    if (isSavedMusic) {
       plate.container.dataset.savedMusicDocId = '' + doc.id;
     } else {
       delete plate.container.dataset.savedMusicDocId;
@@ -264,7 +264,7 @@ export default function createChatAudio(
   const toggleActivity = (active: boolean) => {
     apiManagerProxy.invokeVoid('toggleUninteruptableActivity', {
       activity: 'PlayingMedia',
-      active
+      active,
     });
   };
 
@@ -277,7 +277,7 @@ export default function createChatAudio(
   listenerSetter.add(appMediaPlaybackController)('playbackParams', onPlaybackParams);
 
   const playingDetails = appMediaPlaybackController.getPlayingDetails();
-  if(playingDetails) {
+  if (playingDetails) {
     onMediaPlay(playingDetails);
     onPlaybackParams(playingDetails.playbackParams);
   }
@@ -288,6 +288,6 @@ export default function createChatAudio(
       progressLine?.removeListeners();
       listenerSetter.removeAll();
       plate.destroy();
-    }
+    },
   };
 }

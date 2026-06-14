@@ -1,25 +1,25 @@
-import type {Birthday} from '@layer';
-import {i18n} from '@lib/langPack';
-import {useAppState} from '@stores/appState';
+import type { Birthday } from '@layer';
+import { i18n } from '@lib/langPack';
+import { useAppState } from '@stores/appState';
 import Row from '@components/rowTsx';
 import styles from '@components/sidebarLeft/pendingSuggestion.module.scss';
-import {render} from 'solid-js/web';
-import {createEffect, createMemo, createSignal, JSX, onMount, Show, splitProps} from 'solid-js';
+import { render } from 'solid-js/web';
+import { createEffect, createMemo, createSignal, JSX, onMount, Show, splitProps } from 'solid-js';
 import classNames from '@helpers/string/classNames';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import {useIsSidebarCollapsed} from '@stores/foldersSidebar';
+import { useIsSidebarCollapsed } from '@stores/foldersSidebar';
 import RippleElement from '@components/rippleElement';
 import documentFragmentToNodes from '@helpers/dom/documentFragmentToNodes';
 import showFrozenPopup from '@components/popups/frozen';
-import {useAppSettings} from '@stores/appSettings';
+import { useAppSettings } from '@stores/appSettings';
 import Button from '@components/buttonTsx';
-import {toastNew} from '@components/toast';
+import { toastNew } from '@components/toast';
 import Animated from '@helpers/solid/animations';
 import uiNotificationsManager from '@lib/uiNotificationsManager';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {usePendingSuggestions} from '@stores/promo';
-import showBirthdayPopup, {saveMyBirthday} from '@components/popups/birthday';
-import {showEmailSetupPopup} from '@components/popups/emailSetup';
+import { usePendingSuggestions } from '@stores/promo';
+import showBirthdayPopup, { saveMyBirthday } from '@components/popups/birthday';
+import { showEmailSetupPopup } from '@components/popups/emailSetup';
 import rootScope from '@lib/rootScope';
 import showPasskeyPopup from '@components/popups/passkey';
 import IS_WEB_AUTHN_SUPPORTED from '@environment/webAuthn';
@@ -123,7 +123,7 @@ function NotificationsSuggestion() {
 
   const onDismissed = () => {
     setAppSettings('notifications', 'suggested', true);
-    toastNew({langPackKey: 'Suggestion.Notifications.Dismissed'});
+    toastNew({ langPackKey: 'Suggestion.Notifications.Dismissed' });
 
     // setTimeout(() => {
     //   setAppSettings('notifications', 'suggested', false);
@@ -132,10 +132,10 @@ function NotificationsSuggestion() {
 
   const onClick = () => {
     Notification.requestPermission().then((permission) => {
-      if(permission === 'granted') {
+      if (permission === 'granted') {
         setAppSettings('notifications', 'suggested', true);
         uiNotificationsManager.onPushConditionsChange();
-      } else if(permission === 'denied') {
+      } else if (permission === 'denied') {
         throw 1;
       }
     }).catch(onDismissed);
@@ -162,12 +162,12 @@ function BirthdaySetupSuggestion() {
   const onClick = () => {
     showBirthdayPopup({
       onSave: (async(date: Birthday | null) => {
-        if(await saveMyBirthday(date)) {
+        if (await saveMyBirthday(date)) {
           rootScope.managers.appPromoManager.dismissSuggestion(BIRTHDAY_SETUP_SUGGESTION_KEY);
           return;
         }
         return false;
-      }) as any
+      }) as any,
     });
   };
 
@@ -210,7 +210,7 @@ export function renderPendingSuggestion(toElement: HTMLElement) {
   toElement.classList.add(styles.container);
 
   render(() => {
-    const [{appConfig}] = useAppState();
+    const [{ appConfig }] = useAppState();
     const [appSettings, setAppSettings] = useAppSettings();
     const [element, setElement] = createSignal<JSX.Element>();
     const pendingSuggestions = usePendingSuggestions();
@@ -224,28 +224,28 @@ export function renderPendingSuggestion(toElement: HTMLElement) {
 
     createEffect(() => {
       const pendingSuggestions$ = pendingSuggestions();
-      if(pendingSuggestions$.has(EMAIL_SETUP_KEY) || pendingSuggestions$.has(EMAIL_SETUP_KEY_NOSKIP)) {
+      if (pendingSuggestions$.has(EMAIL_SETUP_KEY) || pendingSuggestions$.has(EMAIL_SETUP_KEY_NOSKIP)) {
         Promise.all([
           rootScope.managers.appPromoManager.getPromoData(true),
-          rootScope.managers.passwordManager.getState()
+          rootScope.managers.passwordManager.getState(),
         ]).then(([data, passwordState]) => {
-          if(passwordState.login_email_pattern && !passwordState.email_unconfirmed_pattern) {
+          if (passwordState.login_email_pattern && !passwordState.email_unconfirmed_pattern) {
             return;
           }
 
           const noskip = data.pendingSuggestions.includes(EMAIL_SETUP_KEY_NOSKIP);
-          if(data.pendingSuggestions.includes(EMAIL_SETUP_KEY) || noskip) {
+          if (data.pendingSuggestions.includes(EMAIL_SETUP_KEY) || noskip) {
             showEmailSetupPopup({
               noskip,
-              purpose: {_: 'emailVerifyPurposeLoginChange'},
+              purpose: { _: 'emailVerifyPurposeLoginChange' },
               onDismiss: () => {
-                if(!noskip) {
+                if (!noskip) {
                   rootScope.managers.appPromoManager.dismissSuggestion(EMAIL_SETUP_KEY);
                 }
               },
               onSuccess: () => {
-                toastNew({langPackKey: 'EmailSetup.SetupToast'});
-              }
+                toastNew({ langPackKey: 'EmailSetup.SetupToast' });
+              },
             });
           }
         });
@@ -253,13 +253,13 @@ export function renderPendingSuggestion(toElement: HTMLElement) {
     });
 
     const suggestionConstructor = createMemo(() => {
-      if(appConfig.freeze_since_date) {
+      if (appConfig.freeze_since_date) {
         return FrozenSuggestion;
-      } else if(IS_WEB_AUTHN_SUPPORTED && pendingSuggestions().has(PASSKEY_SETUP_KEY)) {
+      } else if (IS_WEB_AUTHN_SUPPORTED && pendingSuggestions().has(PASSKEY_SETUP_KEY)) {
         return PasskeySetupSuggestion;
-      } else if(pendingSuggestions().has(BIRTHDAY_SETUP_SUGGESTION_KEY)) {
+      } else if (pendingSuggestions().has(BIRTHDAY_SETUP_SUGGESTION_KEY)) {
         return BirthdaySetupSuggestion;
-      } else if(
+      } else if (
         !appSettings.notifications.suggested &&
         Notification.permission !== 'granted'
       ) {

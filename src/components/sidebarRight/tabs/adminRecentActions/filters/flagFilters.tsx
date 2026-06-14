@@ -1,15 +1,15 @@
-import {For, Show} from 'solid-js';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { For, Show } from 'solid-js';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 import Button from '@components/buttonTsx';
 import Scrollable from '@components/scrollable2';
 import SimpleFormField from '@components/simpleFormField';
 import Space from '@components/space';
-import {limitPeerTitleSymbols} from '@components/sidebarRight/tabs/adminRecentActions/constants';
-import {ExpandableFilterGroup} from '@components/sidebarRight/tabs/adminRecentActions/filters/expandableFilterGroup';
+import { limitPeerTitleSymbols } from '@components/sidebarRight/tabs/adminRecentActions/constants';
+import { ExpandableFilterGroup } from '@components/sidebarRight/tabs/adminRecentActions/filters/expandableFilterGroup';
 import styles from '@components/sidebarRight/tabs/adminRecentActions/filters/flagFilters.module.scss';
-import {CommittedFilters} from '@components/sidebarRight/tabs/adminRecentActions/filters/types';
-import {useFlagFilters} from '@components/sidebarRight/tabs/adminRecentActions/filters/useFlagFilters';
+import { CommittedFilters } from '@components/sidebarRight/tabs/adminRecentActions/filters/types';
+import { useFlagFilters } from '@components/sidebarRight/tabs/adminRecentActions/filters/useFlagFilters';
 
 
 export const FlagFilters = (props: {
@@ -22,7 +22,7 @@ export const FlagFilters = (props: {
 
   filtersControls: ReturnType<typeof useFlagFilters>;
 }) => {
-  const {PeerTitleTsx} = useHotReloadGuard();
+  const { PeerTitleTsx } = useHotReloadGuard();
 
   const filtersControls = () => props.filtersControls;
 
@@ -62,7 +62,7 @@ export const FlagFilters = (props: {
             items={group.items.map(item => ({
               checked: () => filtersControls().isFlagSelected(item.pFlag),
               label: <I18nTsx key={item.i18nKey} />,
-              onClick: () => filtersControls().onFlagClick(item.pFlag)
+              onClick: () => filtersControls().onFlagClick(item.pFlag),
             }))}
           />
         )}
@@ -79,7 +79,7 @@ export const FlagFilters = (props: {
           items={filtersControls().adminIds().map(userId => ({
             checked: () => filtersControls().isAdminIdSelected(userId.toPeerId()),
             label: <PeerTitleTsx peerId={userId.toPeerId()} limitSymbols={limitPeerTitleSymbols} />,
-            onClick: () => filtersControls().onAdminClick(userId.toPeerId())
+            onClick: () => filtersControls().onAdminClick(userId.toPeerId()),
           }))}
         />
       </Show>

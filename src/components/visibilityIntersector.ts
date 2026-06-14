@@ -9,7 +9,7 @@ export default class VisibilityIntersector {
 
   constructor(onVisibilityChange: OnVisibilityChange, options?: IntersectionObserverInit) {
     this.observer = new IntersectionObserver((entries) => {
-      if(this.locked) {
+      if (this.locked) {
         return;
       }
 
@@ -18,7 +18,7 @@ export default class VisibilityIntersector {
       entries.forEach((entry, index) => {
         const target = entry.target as TargetType;
 
-        if(this.items.get(target) === entry.isIntersecting) {
+        if (this.items.get(target) === entry.isIntersecting) {
           return;
         } else {
           this.items.set(target, entry.isIntersecting);
@@ -32,7 +32,7 @@ export default class VisibilityIntersector {
           return;
         } */
 
-        const change: typeof changed[0] = {target, visible: entry.isIntersecting, entry, index};
+        const change: typeof changed[0] = { target, visible: entry.isIntersecting, entry, index };
 
         // ! order will be incorrect so can't use it
         // changed[entry.isIntersecting ? 'unshift' : 'push'](change);
@@ -50,7 +50,7 @@ export default class VisibilityIntersector {
   public getVisible() {
     const items: TargetType[] = [];
     this.items.forEach((value, key) => {
-      if(value) {
+      if (value) {
         items.push(key);
       }
     });
@@ -60,7 +60,7 @@ export default class VisibilityIntersector {
 
   public clearVisible() {
     const visible = this.getVisible();
-    for(const target of visible) {
+    for (const target of visible) {
       this.items.set(target, false);
     }
   }
@@ -79,7 +79,7 @@ export default class VisibilityIntersector {
 
     // window.requestAnimationFrame(() => {
     const targets = [...this.items.keys()];
-    for(const target of targets) {
+    for (const target of targets) {
       // this.items.set(target, false);
       this.observer.observe(target);
     }
@@ -88,11 +88,11 @@ export default class VisibilityIntersector {
 
   public refreshVisible() {
     const visible = this.getVisible();
-    for(const target of visible) {
+    for (const target of visible) {
       this.observer.unobserve(target);
     }
 
-    for(const target of visible) {
+    for (const target of visible) {
       this.observer.observe(target);
     }
   }

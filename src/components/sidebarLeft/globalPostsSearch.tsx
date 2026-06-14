@@ -1,28 +1,28 @@
-import {batch, createEffect, createMemo, createSignal, Match, on, onMount, Show, Switch} from 'solid-js';
-import {wrapSolidComponent} from '../../helpers/solid/wrapSolidComponent';
-import {Middleware} from '../../helpers/middleware';
+import { batch, createEffect, createMemo, createSignal, Match, on, onMount, Show, Switch } from 'solid-js';
+import { wrapSolidComponent } from '../../helpers/solid/wrapSolidComponent';
+import { Middleware } from '../../helpers/middleware';
 
 import styles from './globalPostsSearch.module.scss';
-import {I18nTsx} from '../../helpers/solid/i18n';
+import { I18nTsx } from '../../helpers/solid/i18n';
 import rootScope from '../../lib/rootScope';
 import Section from '../section';
-import {Message, SearchPostsFlood} from '../../layer';
+import { Message, SearchPostsFlood } from '../../layer';
 import Button from '../buttonTsx';
-import {i18n} from '../../lib/langPack';
+import { i18n } from '../../lib/langPack';
 import PopupPremium from '../popups/premium';
 import classNames from '../../helpers/string/classNames';
-import {IconTsx} from '../iconTsx';
+import { IconTsx } from '../iconTsx';
 import wrapEmojiText from '../../lib/richTextProcessor/wrapEmojiText';
-import {NULL_PEER_ID, STARS_CURRENCY} from '../../lib/appManagers/constants';
+import { NULL_PEER_ID, STARS_CURRENCY } from '../../lib/appManagers/constants';
 import appDialogsManager from '../../lib/appDialogsManager';
 import createMiddleware from '../../helpers/solid/createMiddleware';
-import {PreloaderTsx} from '../putPreloader';
+import { PreloaderTsx } from '../putPreloader';
 import paymentsWrapCurrencyAmount from '../../helpers/paymentsWrapCurrencyAmount';
-import {createCurrentTime} from '../../helpers/solid/createCurrentTime';
+import { createCurrentTime } from '../../helpers/solid/createCurrentTime';
 import tsNow from '../../helpers/tsNow';
-import {wrapLeftDuration} from '../wrappers/wrapDuration';
+import { wrapLeftDuration } from '../wrappers/wrapDuration';
 import usePremium from '../../stores/premium';
-import {toastNew} from '../toast';
+import { toastNew } from '../toast';
 
 const renderHistoryResult = (options: {
   messages: (Message.message | Message.messageService)[]
@@ -31,17 +31,17 @@ const renderHistoryResult = (options: {
 }) => {
   const promises = options.messages.map(async(message) => {
     const loadPromises: Promise<any>[] = [];
-    const {dom} = appDialogsManager.addDialogAndSetLastMessage({
+    const { dom } = appDialogsManager.addDialogAndSetLastMessage({
       peerId: message.peerId!,
       container: false,
       avatarSize: 'bigger',
       message,
       query: options.query,
       wrapOptions: {
-        middleware: options.middleware
+        middleware: options.middleware,
       },
       loadPromises,
-      autonomous: true
+      autonomous: true,
     });
 
     await Promise.all(loadPromises);
@@ -66,8 +66,8 @@ export function GlobalPostsSearch(props: {
   let lastMessage: Message.message | Message.messageService | null = null
   let nextRate = 0
   const loadMore = (refetch = false, allowPaid = false) => {
-    if(loading() && !refetch) return
-    if(!props.query) return
+    if (loading() && !refetch) return
+    if (!props.query) return
     setLoading(true)
 
     const offsetId = lastMessage?.mid || 0
@@ -75,35 +75,35 @@ export function GlobalPostsSearch(props: {
 
     rootScope.managers.appMessagesManager.getHistory({
       peerId: NULL_PEER_ID,
-      inputFilter: {_: 'inputMessagesFilterEmpty'},
+      inputFilter: { _: 'inputMessagesFilterEmpty' },
       offsetId,
       offsetPeerId,
       nextRate,
       limit: 30,
       isPublicPosts: true,
       query: props.query,
-      allowStars: allowPaid ? flood()?.stars_amount : 0
+      allowStars: allowPaid ? flood()?.stars_amount : 0,
     }).then((res) => {
-      if(allowPaid && !res.flood!.pFlags.query_is_free) {
+      if (allowPaid && !res.flood!.pFlags.query_is_free) {
         toastNew({
           langPackKey: 'PostsSearch.StarsSpent',
           langPackArguments: [
-            paymentsWrapCurrencyAmount(res.flood!.stars_amount, STARS_CURRENCY, false, false, true)
-          ]
+            paymentsWrapCurrencyAmount(res.flood!.stars_amount, STARS_CURRENCY, false, false, true),
+          ],
         })
       }
 
-      if(!res.messages) {
+      if (!res.messages) {
         setLoading(false);
         return;
       }
       nextRate = res.nextRate!;
       lastMessage = res.messages[res.messages.length - 1];
-      if(res.flood) setFlood(res.flood);
+      if (res.flood) setFlood(res.flood);
       renderHistoryResult({
         messages: res.messages,
         query: props.query,
-        middleware: middleware.get()
+        middleware: middleware.get(),
       }).then((doms) => {
         batch(() => {
           setPlaceholder(false)
@@ -116,14 +116,14 @@ export function GlobalPostsSearch(props: {
       })
     }).catch((err: ApiError) => {
       const m = (err.type as string ?? '').match(/^FLOOD_WAIT_(\d+)_OR_STARS_(\d+)$/)
-      if(m) {
+      if (m) {
         setFlood({
           _: 'searchPostsFlood',
           pFlags: {},
           remains: 0,
           total_daily: flood()?.total_daily || 0,
           wait_till: tsNow(true) + parseInt(m[1]),
-          stars_amount: parseInt(m[2])
+          stars_amount: parseInt(m[2]),
         })
       }
       console.error(err)
@@ -135,15 +135,15 @@ export function GlobalPostsSearch(props: {
   const loadFlood = () => {
     const myQuery = props.query
     rootScope.managers.apiManager.invokeApi('channels.checkSearchPostsFlood', {
-      query: myQuery
+      query: myQuery,
     }).then((res) => {
-      if(myQuery !== props.query) return
+      if (myQuery !== props.query) return
       setFlood(res)
       setCanShowButtonAfterEmpty(true)
-      if(myQuery) {
+      if (myQuery) {
         setResults([])
         setPlaceholder(true)
-        if(res.pFlags.query_is_free) {
+        if (res.pFlags.query_is_free) {
           loadMore(true)
         }
       }
@@ -152,8 +152,8 @@ export function GlobalPostsSearch(props: {
 
   createEffect(on(() => props.query, (value, prev) => {
     // only show the button after we load flood, to avoid blinking for free queries
-    if(prev === '') setCanShowButtonAfterEmpty(false)
-    if(value === '') {
+    if (prev === '') setCanShowButtonAfterEmpty(false)
+    if (value === '') {
       setResults([])
       setPlaceholder(true)
     }
@@ -164,30 +164,30 @@ export function GlobalPostsSearch(props: {
 
   const now = createCurrentTime({
     fn: () => tsNow(true),
-    updateInterval: 1000
+    updateInterval: 1000,
   })
   const remainingUntilReset = createMemo(() => {
     const flood$ = flood()
-    if(!flood$?.wait_till) return null
+    if (!flood$?.wait_till) return null
 
     return wrapLeftDuration(flood$.wait_till - now())
   })
 
   const title = () => {
-    if(!isPremium()) {
+    if (!isPremium()) {
       return 'PostsSearch.Title'
     }
-    if(flood()?.remains === 0) {
+    if (flood()?.remains === 0) {
       return 'PostsSearch.TitleLimited'
     }
     return 'PostsSearch.Title'
   }
 
   const description = () => {
-    if(!isPremium()) {
+    if (!isPremium()) {
       return <I18nTsx key="PostsSearch.Description" class={styles.description} />
     }
-    if(flood()?.remains === 0) {
+    if (flood()?.remains === 0) {
       return (
         <I18nTsx
           key="PostsSearch.DescriptionLimited"
@@ -200,7 +200,7 @@ export function GlobalPostsSearch(props: {
   }
 
   const button = () => {
-    if(!isPremium()) {
+    if (!isPremium()) {
       return (
         <Button
           class={classNames('btn-primary btn-color-primary', styles.button)}
@@ -211,9 +211,9 @@ export function GlobalPostsSearch(props: {
       )
     }
 
-    if(!props.query || !canShowButtonAfterEmpty()) return null
+    if (!props.query || !canShowButtonAfterEmpty()) return null
 
-    if(remainingUntilReset()) {
+    if (remainingUntilReset()) {
       return (
         <Button
           class={classNames('btn-primary btn-color-primary', styles.button, styles.buttonPaidSearch)}
@@ -241,12 +241,12 @@ export function GlobalPostsSearch(props: {
   }
 
   const footer = () => {
-    if(!isPremium()) {
+    if (!isPremium()) {
       return (
         <I18nTsx key="PostsSearch.NeedPremium" class={styles.footer} />
       )
     }
-    if(!flood() || flood()!.remains === 0) return null
+    if (!flood() || flood()!.remains === 0) return null
 
     return (
       <I18nTsx
@@ -267,7 +267,7 @@ export function GlobalPostsSearch(props: {
               ref={(el) => {
                 appDialogsManager.setListClickListener({
                   list: el,
-                  autonomous: true
+                  autonomous: true,
                 })
               }}
             >
@@ -313,6 +313,6 @@ export function wrapGlobalPostsSearch(options: {
   return {
     dom,
     loadMore,
-    setQuery
+    setQuery,
   }
 }

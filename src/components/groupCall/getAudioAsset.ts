@@ -6,6 +6,6 @@ export default function getGroupCallAudioAsset() {
     connect: 'group_call_connect.mp3',
     end: 'group_call_end.mp3',
     start: 'group_call_start.mp3',
-    allowtalk: 'voip_onallowtalk.mp3'
+    allowtalk: 'voip_onallowtalk.mp3',
   });
 }

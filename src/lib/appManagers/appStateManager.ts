@@ -1,11 +1,11 @@
-import type {State, StateSettings} from '@config/state';
+import type { State, StateSettings } from '@config/state';
 import rootScope from '@lib/rootScope';
 import StateStorage from '@lib/stateStorage';
-import setDeepProperty, {splitDeepPath} from '@helpers/object/setDeepProperty';
+import setDeepProperty, { splitDeepPath } from '@helpers/object/setDeepProperty';
 import MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
-import {ActiveAccountNumber} from '@lib/accounts/types';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
-import {StoragesResults} from '@appManagers/utils/storages/loadStorages';
+import { ActiveAccountNumber } from '@lib/accounts/types';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
+import { StoragesResults } from '@appManagers/utils/storages/loadStorages';
 import commonStateStorage from '@lib/commonStateStorage';
 import callbackify from '@helpers/callbackify';
 import isObject from '@helpers/object/isObject';
@@ -41,15 +41,15 @@ export default class AppStateManager {
     setDeepProperty(this.state, key, value);
 
     const first = splitDeepPath(key)[0] as keyof State;
-    if(first === 'settings') {
-      rootScope.dispatchEvent('settings_updated', {key, value, settings: this.state.settings!});
+    if (first === 'settings') {
+      rootScope.dispatchEvent('settings_updated', { key, value, settings: this.state.settings! });
     }
 
     return this.pushToState(first, this.state[first]);
   }
 
   public pushToState<T extends keyof State>(key: T, value: State[T], direct = true, onlyLocal?: boolean) {
-    if(direct) {
+    if (direct) {
       this.state[key] = value;
     }
 
@@ -59,7 +59,7 @@ export default class AppStateManager {
   public updateLocalState<T extends keyof State>(key: T, value: State[T]) {
     this.state[key] = value;
     return this.storage.set({
-      [key]: value
+      [key]: value,
     }, true);
   }
 
@@ -68,18 +68,18 @@ export default class AppStateManager {
       name: 'state',
       key,
       value,
-      accountNumber: this.accountNumber
+      accountNumber: this.accountNumber,
     });
 
-    if(key === 'settings') {
+    if (key === 'settings') {
       this.onSettingsUpdate?.(value as StateSettings);
       return commonStateStorage.set({
-        [key]: value
+        [key]: value,
       }, onlyLocal);
     }
 
     return this.storage.set({
-      [key]: value
+      [key]: value,
     }, onlyLocal);
   }
 
@@ -87,7 +87,7 @@ export default class AppStateManager {
     key,
     defaultValue,
     getValue,
-    overwrite
+    overwrite,
   }: {
     key: T,
     defaultValue: State[T]['value'],
@@ -99,13 +99,13 @@ export default class AppStateManager {
       const hasValue = isObject(cached) && Object.keys(cached).length;
       const now = Date.now();
       const shouldRefresh = !hasValue || cached.timestamp < (now - 86400e3);
-      if(shouldRefresh || overwrite) {
+      if (shouldRefresh || overwrite) {
         getValue().then((value) => {
-          this.pushToState(key, {value, timestamp: now});
+          this.pushToState(key, { value, timestamp: now });
         });
       }
 
-      if(!hasValue) {
+      if (!hasValue) {
         return defaultValue;
       }
 

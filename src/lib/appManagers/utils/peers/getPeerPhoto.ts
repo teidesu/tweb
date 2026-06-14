@@ -1,8 +1,8 @@
-import {Chat, ChatPhoto, User, UserProfilePhoto} from '@layer';
+import { Chat, ChatPhoto, User, UserProfilePhoto } from '@layer';
 import isPeerRestricted from '@appManagers/utils/peers/isPeerRestricted';
 
 export default function getPeerPhoto(peer: User | Chat) {
-  if(!peer || isPeerRestricted(peer, false)) {
+  if (!peer || isPeerRestricted(peer, false)) {
     return;
   }
 

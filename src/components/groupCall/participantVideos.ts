@@ -1,15 +1,15 @@
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import ControlsHover from '@helpers/dom/controlsHover';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import ListenerSetter from '@helpers/listenerSetter';
 import safeAssign from '@helpers/object/safeAssign';
-import {GroupCallParticipant} from '@layer';
-import {GroupCallOutputSource} from '@appManagers/appGroupCallsManager';
-import {AppManagers} from '@lib/managers';
+import { GroupCallParticipant } from '@layer';
+import { GroupCallOutputSource } from '@appManagers/appGroupCallsManager';
+import { AppManagers } from '@lib/managers';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
 import GroupCallInstance from '@lib/calls/groupCallInstance';
 import rootScope from '@lib/rootScope';
-import GroupCallParticipantVideoElement, {GroupCallParticipantVideoType} from '@components/groupCall/participantVideo';
+import GroupCallParticipantVideoElement, { GroupCallParticipantVideoType } from '@components/groupCall/participantVideo';
 
 export default class GroupCallParticipantsVideoElement extends ControlsHover {
   private container: HTMLDivElement;
@@ -40,10 +40,10 @@ export default class GroupCallParticipantsVideoElement extends ControlsHover {
     this.participantsElements = new Map();
     this.containers = new Map();
 
-    const {listenerSetter} = this;
+    const { listenerSetter } = this;
 
-    listenerSetter.add(rootScope)('group_call_participant', ({groupCallId, participant}) => {
-      if(this.instance.id === groupCallId) {
+    listenerSetter.add(rootScope)('group_call_participant', ({ groupCallId, participant }) => {
+      if (this.instance.id === groupCallId) {
         this.updateParticipant(participant);
       }
     });
@@ -58,25 +58,25 @@ export default class GroupCallParticipantsVideoElement extends ControlsHover {
 
     attachClickEvent(this.container, (e) => {
       const container = findUpClassName(e.target!, 'group-call-participant-video-container');
-      if(!container) {
+      if (!container) {
         return;
       }
 
       const element = this.containers.get(container);
-      if(this.instance.pinnedSource === element!.source) {
+      if (this.instance.pinnedSource === element!.source) {
         this.instance.unpinAll();
         return;
       }
 
       this.instance.pinSource(element!.source);
-    }, {listenerSetter});
+    }, { listenerSetter });
 
     this.setInstance(this.instance);
 
     this.setup({
       element: container,
       listenerSetter: listenerSetter,
-      showOnLeaveToClassName: 'group-call-buttons'
+      showOnLeaveToClassName: 'group-call-buttons',
     });
   }
 
@@ -97,32 +97,32 @@ export default class GroupCallParticipantsVideoElement extends ControlsHover {
     const types: GroupCallParticipantVideoType[] = ['video', 'presentation'];
     const hasAnyVideo = types.some((type) => !!participant[type]);
     let participantElements = this.participantsElements.get(peerId);
-    if(!hasAnyVideo && !participantElements) {
+    if (!hasAnyVideo && !participantElements) {
       return;
     }
 
-    if(!participantElements) {
+    if (!participantElements) {
       this.participantsElements.set(peerId, participantElements = new Map());
     }
 
     types.forEach((type) => {
       let element = participantElements.get(type);
       const participantVideo = participant[type];
-      if(!!participantVideo === !!element) {
-        if(element) {
+      if (!!participantVideo === !!element) {
+        if (element) {
           element.updateParticipant(participant);
         }
 
         return;
       }
 
-      if(participantVideo) {
+      if (participantVideo) {
         const result = this.instance.getVideoElementFromParticipantByType(participant, type);
-        if(!result) {
+        if (!result) {
           return;
         }
 
-        const {video, source} = result;
+        const { video, source } = result;
 
         element = new GroupCallParticipantVideoElement(this.managers, this.instance, source);
 
@@ -137,7 +137,7 @@ export default class GroupCallParticipantsVideoElement extends ControlsHover {
         participantElements.delete(type);
         element!.container.remove();
 
-        if(!participantElements.size) {
+        if (!participantElements.size) {
           this.participantsElements.delete(peerId);
           this.containers.delete(element!.container);
           element!.destroy();

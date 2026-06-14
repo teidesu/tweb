@@ -1,4 +1,4 @@
-import {Photo} from '@layer';
+import { Photo } from '@layer';
 import appDownloadManager from '@lib/appDownloadManager';
 import chooseProfileVideoSize from '@appManagers/utils/photos/chooseProfileVideoSize';
 import createLoopingMutedVideo from '@helpers/dom/createLoopingMutedVideo';
@@ -13,9 +13,9 @@ export default function overlayAvatarVideoOnMover(mover: HTMLElement, photo: Pho
   let cancelled = false;
 
   const videoSize = chooseProfileVideoSize(photo, 'full');
-  if(videoSize) {
-    Promise.resolve(appDownloadManager.downloadMediaURL({media: photo, thumb: videoSize})).then((url) => {
-      if(cancelled || !url || !mover.isConnected) return;
+  if (videoSize) {
+    Promise.resolve(appDownloadManager.downloadMediaURL({ media: photo, thumb: videoSize })).then((url) => {
+      if (cancelled || !url || !mover.isConnected) return;
       const container = (mover.querySelector('.media-viewer-aspecter') as HTMLElement) || mover;
       video = createLoopingMutedVideo(url, 'media-viewer-avatar-video', videoSize.video_start_ts);
       container.append(video);
@@ -24,7 +24,7 @@ export default function overlayAvatarVideoOnMover(mover: HTMLElement, photo: Pho
 
   return () => {
     cancelled = true;
-    if(video) {
+    if (video) {
       video.pause();
       video.src = '';
       video.remove();

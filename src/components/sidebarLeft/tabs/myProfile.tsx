@@ -1,18 +1,18 @@
-import {onMount} from 'solid-js';
+import { onMount } from 'solid-js';
 import ButtonIcon from '@components/buttonIcon';
 import ButtonMenuToggle from '@components/buttonMenuToggle';
 import rootScope from '@lib/rootScope';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
-import {renderPeerProfile} from '@components/peerProfile';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
+import { renderPeerProfile } from '@components/peerProfile';
 import SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
 import showMyQrCodePopup from '@components/popups/myQrCode';
-import AppSearchSuper, {SearchSuperMediaTab} from '@components/appSearchSuper';
-import {profileStoriesButtonMenu} from '@components/stories/profileList';
-import {profileStarGiftsButtonMenu} from '@components/stargifts/profileList';
-import {AppEditProfileTab, getEditProfileInitArgs} from '@components/solidJsTabs';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {usePromiseCollector} from '@components/solidJsTabs/promiseCollector';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
+import AppSearchSuper, { SearchSuperMediaTab } from '@components/appSearchSuper';
+import { profileStoriesButtonMenu } from '@components/stories/profileList';
+import { profileStarGiftsButtonMenu } from '@components/stargifts/profileList';
+import { AppEditProfileTab, getEditProfileInitArgs } from '@components/solidJsTabs';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
 
 const MyProfile = () => {
   const promiseCollector = usePromiseCollector();
@@ -22,10 +22,10 @@ const MyProfile = () => {
   const searchSuper = new AppSearchSuper({
     mediaTabs: [{
       name: 'Stories',
-      type: 'stories'
+      type: 'stories',
     }, {
       name: 'SharedMedia.Gifts',
-      type: 'gifts'
+      type: 'gifts',
     }],
     scrollable: tab.scrollable,
     onChangeTab: (mediaTab) => {
@@ -34,7 +34,7 @@ const MyProfile = () => {
     managers: tab.managers,
     slider: tab.slider,
     scrollOffset: 72, // header height + section padding, same as sharedMedia
-    isSelfProfile: true
+    isSelfProfile: true,
   });
 
   (tab as any)._onCloseAfterTimeout = () => {
@@ -50,15 +50,15 @@ const MyProfile = () => {
       ...profileStoriesButtonMenu({
         peerId: rootScope.myId,
         slider: tab.slider,
-        verify: () => lastMediaTabType === 'stories'
+        verify: () => lastMediaTabType === 'stories',
       }),
       ...profileStarGiftsButtonMenu({
         get store() { return searchSuper.stargiftsStore },
         get actions() { return searchSuper.stargiftsActions },
         verify: () => lastMediaTabType === 'gifts',
-        peerId: rootScope.myId
-      })
-    ]
+        peerId: rootScope.myId,
+      }),
+    ],
   });
 
   onMount(() => {
@@ -68,7 +68,7 @@ const MyProfile = () => {
 
   attachClickEvent(qrBtn, () => {
     showMyQrCodePopup();
-  }, {listenerSetter: tab.listenerSetter});
+  }, { listenerSetter: tab.listenerSetter });
 
   let editProfileArgs: ReturnType<typeof getEditProfileInitArgs>;
   const refreshEditProfileArgs = () => {
@@ -77,10 +77,10 @@ const MyProfile = () => {
   refreshEditProfileArgs();
   attachClickEvent(editBtn, () => {
     tab.slider.createTab(AppEditProfileTab).open(editProfileArgs);
-  }, {listenerSetter: tab.listenerSetter});
+  }, { listenerSetter: tab.listenerSetter });
 
   subscribeOn(rootScope)('user_update', (userId) => {
-    if(rootScope.myId.toUserId() === userId) {
+    if (rootScope.myId.toUserId() === userId) {
       refreshEditProfileArgs();
     }
   });
@@ -94,17 +94,17 @@ const MyProfile = () => {
     onPinnedGiftsChange: (gifts) => {
       searchSuper.setPinnedGifts(gifts);
     },
-    onAvatarReady: (promise) => promiseCollector.collect(promise)
+    onAvatarReady: (promise) => promiseCollector.collect(promise),
   }, SolidJSHotReloadGuardProvider);
 
-  searchSuper.setQuery({peerId: rootScope.myId});
+  searchSuper.setQuery({ peerId: rootScope.myId });
   // fire-and-forget: the tab open animation shouldn't wait for media roundtrips
   const loadPromise = searchSuper.load(true);
 
   (tab as any)._openGiftsCollection = async(collectionId: number) => {
     await loadPromise;
     searchSuper.selectTab(searchSuper.mediaTabs.findIndex((mediaTab) => mediaTab.type === 'gifts'));
-    searchSuper.stargiftsActions?.setFilters({chosenCollection: collectionId});
+    searchSuper.stargiftsActions?.setFilters({ chosenCollection: collectionId });
   };
 
   return <>{peerProfileElement}</>;

@@ -1,5 +1,5 @@
-import type {HistoryStorage, HistoryStorageKey} from '@appManagers/appMessagesManager';
-import SlicedArray, {SliceEnd} from '@helpers/slicedArray';
+import type { HistoryStorage, HistoryStorageKey } from '@appManagers/appMessagesManager';
+import SlicedArray, { SliceEnd } from '@helpers/slicedArray';
 import getHistoryStorageKey from '@appManagers/utils/messages/getHistoryStorageKey';
 
 export default function createHistoryStorage(options: Parameters<typeof getHistoryStorageKey>[0] | HistoryStorageKey) {
@@ -14,15 +14,15 @@ export default function createHistoryStorage(options: Parameters<typeof getHisto
     _maxId: (undefined as unknown as number),
     get maxId() {
       const maxId = historyStorage._maxId;
-      if(maxId) {
+      if (maxId) {
         return maxId;
       }
 
       const first = historyStorage.history!.first;
-      if(first.isEnd(SliceEnd.Bottom)) {
+      if (first.isEnd(SliceEnd.Bottom)) {
         return first[0];
       }
-    }
+    },
   };
 
   return historyStorage;
@@ -37,10 +37,10 @@ export function createHistoryStorageSearchSlicedArray() {
 
   slicedArray.findOffsetInSlice = (offsetId, slice) => {
     const index = slice.indexOf(offsetId);
-    if(index !== -1) {
+    if (index !== -1) {
       return {
         slice,
-        offset: index + 1
+        offset: index + 1,
       };
     }
   };

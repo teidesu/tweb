@@ -1,25 +1,25 @@
 import ripple from '@components/ripple';
 import animationIntersector from '@components/animationIntersector';
-import appNavigationController, {NavigationItem} from '@components/appNavigationController';
-import {i18n, LangPackKey, _i18n} from '@lib/langPack';
+import appNavigationController, { NavigationItem } from '@components/appNavigationController';
+import { i18n, LangPackKey, _i18n } from '@lib/langPack';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import blurActiveElement from '@helpers/dom/blurActiveElement';
 import ListenerSetter from '@helpers/listenerSetter';
-import {attachClickEvent, simulateClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent, simulateClickEvent } from '@helpers/dom/clickEvent';
 import isSendShortcutPressed from '@helpers/dom/isSendShortcutPressed';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import EventListenerBase, {EventListenerListeners} from '@helpers/eventListenerBase';
-import {addFullScreenListener, getFullScreenElement} from '@helpers/dom/fullScreen';
+import EventListenerBase, { EventListenerListeners } from '@helpers/eventListenerBase';
+import { addFullScreenListener, getFullScreenElement } from '@helpers/dom/fullScreen';
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
-import {AppManagers} from '@lib/managers';
+import { AppManagers } from '@lib/managers';
 import overlayCounter from '@helpers/overlayCounter';
 import Scrollable from '@components/scrollable';
-import {getMiddleware, MiddlewareHelper} from '@helpers/middleware';
+import { getMiddleware, MiddlewareHelper } from '@helpers/middleware';
 import ButtonIcon from '@components/buttonIcon';
 import Icon from '@components/icon';
 import toggleDisability from '@helpers/dom/toggleDisability';
-import {JSX} from 'solid-js';
-import {render} from 'solid-js/web';
+import { JSX } from 'solid-js';
+import { render } from 'solid-js/web';
 import MarkupTooltip from '@components/chat/markupTooltip';
 
 export type PopupButton = {
@@ -120,22 +120,22 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
     this.element.className = 'popup' + (className ? ' ' + className : '');
     this.container.classList.add('popup-container', 'z-depth-1');
 
-    if(options.old) {
+    if (options.old) {
       this.element.classList.add('old');
     }
 
-    if(overlayCounter.isDarkOverlayActive) {
+    if (overlayCounter.isDarkOverlayActive) {
       this.night = true;
       this.element.classList.add('night');
     }
 
     this.header.classList.add('popup-header');
 
-    if(options.title) {
+    if (options.title) {
       this.title.classList.add('popup-title');
-      if(typeof(options.title) === 'string') {
+      if (typeof(options.title) === 'string') {
         _i18n(this.title, options.title);
-      } else if(typeof(options.title) !== 'boolean') {
+      } else if (typeof(options.title) !== 'boolean') {
         this.title.append(options.title);
       }
 
@@ -150,13 +150,13 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
 
     this.confirmShortcutIsSendShortcut = options.confirmShortcutIsSendShortcut!;
 
-    if(options.closable) {
-      this.btnClose = ButtonIcon('', {noRipple: true});
+    if (options.closable) {
+      this.btnClose = ButtonIcon('', { noRipple: true });
       this.btnClose.classList.add('popup-close');
       // ripple(this.closeBtn);
       this.header.prepend(this.btnClose);
 
-      if(options.onBackClick) {
+      if (options.onBackClick) {
         this.btnCloseAnimatedIcon = document.createElement('div');
         this.btnCloseAnimatedIcon.classList.add('animated-close-icon');
         this.btnClose.append(this.btnCloseAnimatedIcon);
@@ -165,35 +165,35 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
       }
 
       attachClickEvent(this.btnClose, () => {
-        if(options.onBackClick && this.btnCloseAnimatedIcon.classList.contains('state-back')) {
-          if(options.onBackClick() !== false) {
+        if (options.onBackClick && this.btnCloseAnimatedIcon.classList.contains('state-back')) {
+          if (options.onBackClick() !== false) {
             this.btnCloseAnimatedIcon.classList.remove('state-back');
           }
         } else {
           this.hide();
         }
-      }, {listenerSetter: this.listenerSetter});
+      }, { listenerSetter: this.listenerSetter });
     }
 
     this.withoutOverlay = options.withoutOverlay!;
-    if(this.withoutOverlay) {
+    if (this.withoutOverlay) {
       this.element.classList.add('no-overlay');
     }
 
-    if(options.overlayClosable) {
+    if (options.overlayClosable) {
       attachClickEvent(this.element, (e: MouseEvent) => {
-        if(findUpClassName(e.target!, 'popup-container') || !(e.target as HTMLElement).isConnected) {
+        if (findUpClassName(e.target!, 'popup-container') || !(e.target as HTMLElement).isConnected) {
           return;
         }
 
         this.hide();
-      }, {listenerSetter: this.listenerSetter});
+      }, { listenerSetter: this.listenerSetter });
     }
 
-    if(options.withConfirm) {
+    if (options.withConfirm) {
       this.btnConfirm = document.createElement('button');
       this.btnConfirm.classList.add('btn-primary', 'btn-color-primary');
-      if(options.withConfirm !== true) {
+      if (options.withConfirm !== true) {
         this.btnConfirm.append(i18n(options.withConfirm));
       }
       this.header.append(this.btnConfirm);
@@ -201,17 +201,17 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
     }
 
     this.container.append(this.header);
-    if(options.body) {
+    if (options.body) {
       this.body = document.createElement('div');
       this.body.classList.add('popup-body');
       this.container.append(this.body);
     }
 
-    if(options.scrollable) {
+    if (options.scrollable) {
       const scrollable = this.scrollable = new Scrollable(this.body);
       this.attachScrollableListeners();
 
-      if(options.floatingHeader) {
+      if (options.floatingHeader) {
         this.attachScrollableListeners(this.header);
         const background = document.createElement('div');
         background.classList.add('popup-header-background');
@@ -219,17 +219,17 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
         this.header.classList.add('is-floating');
       }
 
-      if(!this.body) {
+      if (!this.body) {
         this.header.after(scrollable.container);
       }
     }
 
-    if(options.footer) {
+    if (options.footer) {
       this.footer = document.createElement('div');
       this.footer.classList.add('popup-footer');
       (this.body || this.container).append(this.footer);
 
-      if(options.withFooterConfirm) {
+      if (options.withFooterConfirm) {
         this.footer.append(this.btnConfirm);
       }
     }
@@ -244,12 +244,12 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
 
   protected setButtons(buttons: PopupButton[]) {
     this.buttons = buttons;
-    if(this.buttonsEl) {
+    if (this.buttonsEl) {
       this.buttonsEl.remove();
       this.buttonsEl = undefined;
     }
 
-    if(!buttons?.length) {
+    if (!buttons?.length) {
       return;
     }
 
@@ -260,56 +260,56 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
       const button = document.createElement('button');
       button.className = 'popup-button btn' + (b.isDanger ? ' danger' : ' primary');
 
-      if(!b.noRipple) {
+      if (!b.noRipple) {
         ripple(button);
       }
 
-      if(b.text) {
+      if (b.text) {
         button.append(b.text);
-      } else if(b.langKey) {
+      } else if (b.langKey) {
         button.append(i18n(b.langKey, b.langArgs));
       }
 
-      if(b.iconLeft || b.iconRight) {
+      if (b.iconLeft || b.iconRight) {
         const i = Icon((b.iconLeft || b.iconRight)!, 'popup-button-icon', b.iconLeft ? 'left' : 'right');
         button.classList.add('with-icon');
-        if(b.iconLeft) button.prepend(i);
+        if (b.iconLeft) button.prepend(i);
         else button.append(i);
       }
 
       attachClickEvent(button, async(e) => {
         let result = b.callback?.(e);
-        if(result !== undefined && result instanceof Promise) {
+        if (result !== undefined && result instanceof Promise) {
           const toggle = toggleDisability([b.element!], true);
           try {
             result = await result;
-          } catch(err) {
+          } catch (err) {
             result = false;
           }
 
-          if(result === false) {
+          if (result === false) {
             toggle();
           }
         }
 
-        if(result === false) {
+        if (result === false) {
           return;
         }
 
         this.hide();
-      }, {listenerSetter: this.listenerSetter});
+      }, { listenerSetter: this.listenerSetter });
 
       return b.element = button;
     });
 
-    if(!this.btnConfirmOnEnter && buttons.length === 2) {
+    if (!this.btnConfirmOnEnter && buttons.length === 2) {
       const button = buttons.find((button) => !button.isCancel);
-      if(button) {
+      if (button) {
         this.btnConfirmOnEnter = button.element!;
       }
     }
 
-    if(buttons.length >= 3) {
+    if (buttons.length >= 3) {
       buttonsDiv.classList.add('is-vertical-layout');
     }
 
@@ -326,7 +326,7 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
   }
 
   public show(animate = true) {
-    if(this.shown || this.destroyed) {
+    if (this.shown || this.destroyed) {
       return;
     }
 
@@ -334,9 +334,9 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
     this.navigationItem = {
       type: 'popup',
       onPop: () => {
-        if(this.isConfirmationNeededOnClose) {
+        if (this.isConfirmationNeededOnClose) {
           const result = this.isConfirmationNeededOnClose();
-          if(result) {
+          if (result) {
             Promise.resolve(result).then(() => {
               this.destroy();
             });
@@ -346,19 +346,19 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
         }
 
         return this.destroy();
-      }
+      },
     };
 
     appNavigationController.pushItem(this.navigationItem);
 
     blurActiveElement(); // * hide mobile keyboard
     appendPopupTo.append(this.element);
-    if(animate) void this.element.offsetWidth; // reflow
+    if (animate) void this.element.offsetWidth; // reflow
     this.element.classList.add('active');
 
     this.onContentUpdate();
 
-    if(!this.withoutOverlay) {
+    if (!this.withoutOverlay) {
       overlayCounter.isOverlayActive = true;
       animationIntersector.checkAnimations2(true);
     }
@@ -366,18 +366,18 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
     // cannot add event instantly because keydown propagation will fire it
     // if(this.btnConfirmOnEnter) {
     setTimeout(() => {
-      if(!this.element.classList.contains('active')) {
+      if (!this.element.classList.contains('active')) {
         return;
       }
 
       this.listenerSetter.add(document.body)('keydown', (e) => {
-        if(!this.btnConfirmOnEnter ||
+        if (!this.btnConfirmOnEnter ||
           (this.btnConfirmOnEnter as HTMLButtonElement).disabled ||
           PopupElement.POPUPS[PopupElement.POPUPS.length - 1] !== this) {
           return;
         }
 
-        if(this.confirmShortcutIsSendShortcut ? isSendShortcutPressed(e) : e.key === 'Enter') {
+        if (this.confirmShortcutIsSendShortcut ? isSendShortcutPressed(e) : e.key === 'Enter') {
           simulateClickEvent(this.btnConfirmOnEnter);
           cancelEvent(e);
         }
@@ -387,11 +387,11 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
   }
 
   public hide() {
-    if(this.destroyed) {
+    if (this.destroyed) {
       return;
     }
 
-    if(!this.navigationItem) {
+    if (!this.navigationItem) {
       this.destroy();
       return;
     }
@@ -409,7 +409,7 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
   }
 
   protected destroy() {
-    if(this.destroyed) {
+    if (this.destroyed) {
       return;
     }
 
@@ -421,7 +421,7 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
     this.middlewareHelper.destroy();
     MarkupTooltip.getInstance().hide();
 
-    if(!this.withoutOverlay) {
+    if (!this.withoutOverlay) {
       overlayCounter.isOverlayActive = false;
     }
 
@@ -440,7 +440,7 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
       this.scrollable?.destroy();
       this.lateMiddlewareHelper.destroy();
 
-      if(!this.withoutOverlay) {
+      if (!this.withoutOverlay) {
         animationIntersector.checkAnimations2(false);
       }
     }, 250);
@@ -460,9 +460,9 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
 
   public static reAppend() {
     this.POPUPS.forEach((popup) => {
-      const {element, container} = popup;
+      const { element, container } = popup;
       const parentElement = element.parentElement;
-      if(parentElement && parentElement !== appendPopupTo && appendPopupTo !== container) {
+      if (parentElement && parentElement !== appendPopupTo && appendPopupTo !== container) {
         appendPopupTo.append(element);
       }
     });
@@ -480,10 +480,10 @@ export default class PopupElement<T extends EventListenerListeners = {}> extends
 
 export const addCancelButton = (buttons: PopupButton[]) => {
   const button = buttons.find((b) => b.isCancel);
-  if(!button) {
+  if (!button) {
     buttons.push({
       langKey: 'Cancel',
-      isCancel: true
+      isCancel: true,
     });
   }
 

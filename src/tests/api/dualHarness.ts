@@ -1,5 +1,5 @@
-import {readFileSync} from 'fs';
-import {createTestClient, AccountSeed} from './harness';
+import { readFileSync } from 'fs';
+import { createTestClient, AccountSeed } from './harness';
 
 export type DualOpts = {
   seedA: AccountSeed;
@@ -11,12 +11,12 @@ export async function createDualClients(opts: DualOpts) {
   const clientA = await createTestClient({
     seed: opts.seedA,
     accountNumber: 1,
-    testDc: opts.testDc
+    testDc: opts.testDc,
   });
   const clientB = await createTestClient({
     seed: opts.seedB,
     accountNumber: 2,
-    testDc: opts.testDc
+    testDc: opts.testDc,
   });
 
   return {
@@ -25,7 +25,7 @@ export async function createDualClients(opts: DualOpts) {
     dispose() {
       clientA.dispose();
       clientB.dispose();
-    }
+    },
   };
 }
 

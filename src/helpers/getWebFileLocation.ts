@@ -1,4 +1,4 @@
-import {GeoPoint, InputWebFileLocation} from '@layer';
+import { GeoPoint, InputWebFileLocation } from '@layer';
 
 export default function getWebFileLocation(
   geo: GeoPoint.geoPoint,
@@ -13,11 +13,11 @@ export default function getWebFileLocation(
       _: 'inputGeoPoint',
       lat: geo.lat,
       long: geo.long,
-      accuracy_radius: geo.accuracy_radius
+      accuracy_radius: geo.accuracy_radius,
     },
     w: width,
     h: height,
     scale: window.devicePixelRatio,
-    zoom
+    zoom,
   };
 }

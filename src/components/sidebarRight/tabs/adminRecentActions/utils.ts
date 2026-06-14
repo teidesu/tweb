@@ -1,15 +1,15 @@
 import pause from '@helpers/schedulers/pause';
-import {wrapAsyncClickHandler} from '@helpers/wrapAsyncClickHandler';
-import {Message} from '@layer';
-import {isParticipantAdmin} from '@appManagers/utils/chats/isParticipantAdmin';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {AppAdminRecentActionsTab, openUserPermissionsTab} from '@components/solidJsTabs/tabs';
-import {toastNew} from '@components/toast';
+import { wrapAsyncClickHandler } from '@helpers/wrapAsyncClickHandler';
+import { Message } from '@layer';
+import { isParticipantAdmin } from '@appManagers/utils/chats/isParticipantAdmin';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { AppAdminRecentActionsTab, openUserPermissionsTab } from '@components/solidJsTabs/tabs';
+import { toastNew } from '@components/toast';
 
 
 export const getPhoto = (message: Message) => {
-  if(message?._ !== 'message' || message?.media?._ !== 'messageMediaPhoto' || message?.media?.photo?._ !== 'photo') return;
+  if (message?._ !== 'message' || message?.media?._ !== 'messageMediaPhoto' || message?.media?.photo?._ !== 'photo') return;
   return message.media.photo;
 };
 
@@ -25,25 +25,25 @@ export function diffFlags<T extends Record<string, true>>(
 
   const allKeys = new Set<keyof T>([
     ...Object.keys(prevNorm) as (keyof T)[],
-    ...Object.keys(nextNorm) as (keyof T)[]
+    ...Object.keys(nextNorm) as (keyof T)[],
   ]);
 
-  for(const key of allKeys) {
+  for (const key of allKeys) {
     const was = prevNorm[key];
     const isNow = nextNorm[key];
 
-    if(!was && isNow) {
+    if (!was && isNow) {
       newFlags.push(key);
-    } else if(was && !isNow) {
+    } else if (was && !isNow) {
       oldFlags.push(key);
     }
   }
 
-  return {new: newFlags, old: oldFlags};
+  return { new: newFlags, old: oldFlags };
 }
 
 export function useParticipantClickHandler(peerId: PeerId) {
-  const {rootScope} = useHotReloadGuard();
+  const { rootScope } = useHotReloadGuard();
   const [tab, allTabs] = useSuperTab<typeof AppAdminRecentActionsTab>();
 
   return wrapAsyncClickHandler(async() => {
@@ -56,9 +56,9 @@ export function useParticipantClickHandler(peerId: PeerId) {
       );
 
       await pause(200); // wait the open animation too
-    } catch{
+    } catch {
       toastNew({
-        langPackKey: 'AdminRecentActions.UserNotMemberAnymore'
+        langPackKey: 'AdminRecentActions.UserNotMemberAnymore',
       });
     }
   });

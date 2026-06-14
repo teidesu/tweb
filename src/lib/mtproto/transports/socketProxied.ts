@@ -1,7 +1,7 @@
-import {notifyAll} from '@helpers/context';
+import { notifyAll } from '@helpers/context';
 import EventListenerBase from '@helpers/eventListenerBase';
-import {WorkerTaskVoidTemplate} from '@types';
-import {MTConnection} from '@lib/mtproto/transports/transport';
+import { WorkerTaskVoidTemplate } from '@types';
+import { MTConnection } from '@lib/mtproto/transports/transport';
 
 let socketId = 0;
 export interface SocketProxyTask extends WorkerTaskVoidTemplate {
@@ -49,10 +49,10 @@ export default class SocketProxied extends EventListenerBase<{
         payload: {
           dcId,
           url,
-          logSuffix
+          logSuffix,
         },
-        id: this.id
-      }
+        id: this.id,
+      },
     };
 
     notifyAll(task);
@@ -64,8 +64,8 @@ export default class SocketProxied extends EventListenerBase<{
       payload: {
         type: 'send',
         payload,
-        id: this.id
-      }
+        id: this.id,
+      },
     };
 
     notifyAll(task);
@@ -76,8 +76,8 @@ export default class SocketProxied extends EventListenerBase<{
       type: 'socketProxy',
       payload: {
         type: 'close',
-        id: this.id
-      }
+        id: this.id,
+      },
     };
 
     notifyAll(task);

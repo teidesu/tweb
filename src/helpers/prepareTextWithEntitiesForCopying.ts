@@ -1,4 +1,4 @@
-import {TextWithEntities} from '@layer';
+import { TextWithEntities } from '@layer';
 import wrapRichText from '@lib/richTextProcessor/wrapRichText';
 import documentFragmentToHTML from '@helpers/dom/documentFragmentToHTML';
 
@@ -7,19 +7,19 @@ export default function prepareTextWithEntitiesForCopying(
   textWithEntities: TextWithEntitiesForCopying | TextWithEntitiesForCopying[],
   meta?: string[]
 ) {
-  if(!Array.isArray(textWithEntities)) {
+  if (!Array.isArray(textWithEntities)) {
     textWithEntities = [textWithEntities];
   }
 
-  const htmlParts = textWithEntities.map(({text, entities}) => {
+  const htmlParts = textWithEntities.map(({ text, entities }) => {
     const wrapped = wrapRichText(text, {
       entities,
-      wrappingDraft: true
+      wrappingDraft: true,
     });
     return documentFragmentToHTML(wrapped);
   });
 
-  const parts: string[] = textWithEntities.map(({text}) => {
+  const parts: string[] = textWithEntities.map(({ text }) => {
     return text;
   });
 
@@ -31,6 +31,6 @@ export default function prepareTextWithEntitiesForCopying(
 
   return {
     text: prepare(parts),
-    html: prepare(htmlParts)
+    html: prepare(htmlParts),
   };
 }

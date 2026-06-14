@@ -1,10 +1,10 @@
 import PopupElement from '.';
 import anchorCallback from '@helpers/dom/anchorCallback';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import placeCaretAtEnd from '@helpers/dom/placeCaretAtEnd';
 import shake from '@helpers/dom/shake';
-import {Middleware} from '@helpers/middleware';
-import {LangPackKey} from '@lib/langPack';
+import { Middleware } from '@helpers/middleware';
+import { LangPackKey } from '@lib/langPack';
 import Button from '@components/button';
 import currencyStarIcon from '@components/currencyStarIcon';
 import InputField from '@components/inputField';
@@ -23,7 +23,7 @@ export function InputStarsField(options: {
     label: options.label,
     placeholder: options.placeholder,
     plainText: true,
-    withLinebreaks: false
+    withLinebreaks: false,
   });
 
   inputField.container.classList.add('popup-make-paid-input');
@@ -35,7 +35,7 @@ export function InputStarsField(options: {
   const onInput = () => {
     const value = '' + +inputField.value;
     let newValue = value.replace(/[^0-9]/g, '');
-    if(+newValue > options.max) {
+    if (+newValue > options.max) {
       newValue = '' + options.max;
     }
     inputField.setValueSilently(newValue);
@@ -61,27 +61,27 @@ export default class PopupMakePaid extends PopupElement {
       title: 'PaidMedia.Title',
       withConfirm: 'PaidMedia.Button',
       footer: true,
-      withFooterConfirm: true
+      withFooterConfirm: true,
     });
 
     this.footer.classList.add('abitlarger');
 
     attachClickEvent(this.btnConfirm, () => {
       const value = parseInt(this.inputField.value || '0');
-      if(value > 0) {
+      if (value > 0) {
         onSave(value);
         this.hide();
       } else {
         shake(this.inputField.container);
       }
-    }, {listenerSetter: this.listenerSetter});
+    }, { listenerSetter: this.listenerSetter });
 
-    if(editingFrom) {
-      const button = Button('btn-primary btn-primary-transparent primary', {text: 'PaidMedia.KeepFree'});
+    if (editingFrom) {
+      const button = Button('btn-primary btn-primary-transparent primary', { text: 'PaidMedia.KeepFree' });
       attachClickEvent(button, () => {
         onSave(0);
         this.hide();
-      }, {listenerSetter: this.listenerSetter});
+      }, { listenerSetter: this.listenerSetter });
       this.btnConfirm.after(button);
     }
 
@@ -94,10 +94,10 @@ export default class PopupMakePaid extends PopupElement {
       const inputField = this.inputField = InputStarsField({
         middleware: this.middlewareHelper.get(),
         label: 'PaidMedia.Enter',
-        max: appConfig.stars_paid_post_amount_max!
+        max: appConfig.stars_paid_post_amount_max!,
       });
 
-      if(this.editingFrom) {
+      if (this.editingFrom) {
         inputField.value = '' + this.editingFrom;
       }
 
@@ -112,7 +112,7 @@ export default class PopupMakePaid extends PopupElement {
           captionArgs={[
             anchorCallback(() => {
               PopupElement.createPopup(PopupStars);
-            })
+            }),
           ]}
           noShadow
           noDelimiter

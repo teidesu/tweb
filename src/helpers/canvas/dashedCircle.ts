@@ -47,14 +47,14 @@ export default class DashedCircle {
     const totalSegments = sections.reduce((acc, section) => acc + section.length, 0);
     const totalSections = sections.length;
     this.context.lineCap = 'round';
-    if(sections.length === 1 && sections[0].length === 1) {
+    if (sections.length === 1 && sections[0].length === 1) {
       this.context.setLineDash([]);
     } else {
       this.context.setLineDash([this.totalLength / totalSegments - this.gapLength, this.gapLength]);
     }
 
     let partSum = 0;
-    for(let i = 0; i < totalSections; ++i) {
+    for (let i = 0; i < totalSections; ++i) {
       const section = sections[i];
       const part = section.length / totalSegments;
       const sectionStartAngle = this.startAngle + partSum * 2 * Math.PI;

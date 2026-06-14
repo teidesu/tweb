@@ -1,6 +1,6 @@
-import type {Database} from '.';
-import {ActiveAccountNumber} from '@lib/accounts/types';
-import {MOUNT_CLASS_TO} from '@config/debug';
+import type { Database } from '.';
+import { ActiveAccountNumber } from '@lib/accounts/types';
+import { MOUNT_CLASS_TO } from '@config/debug';
 
 export type AccountDatabase = Database<'session' | 'stickerSets' | 'users' | 'chats' | 'messages' | 'dialogs' | 'webapp'>;
 export type CommonDatabase = Database<'session' | 'localStorage'>;
@@ -10,24 +10,24 @@ export const getOldDatabaseState = (): AccountDatabase => ({
   version: 7,
   stores: [
     {
-      name: 'session'
+      name: 'session',
     },
     {
-      name: 'stickerSets'
+      name: 'stickerSets',
     },
     {
-      name: 'users'
+      name: 'users',
     },
     {
-      name: 'chats'
+      name: 'chats',
     },
     {
-      name: 'dialogs'
+      name: 'dialogs',
     },
     {
-      name: 'messages'
-    }
-  ]
+      name: 'messages',
+    },
+  ],
 });
 
 export const getCommonDatabaseState = (): CommonDatabase => ({
@@ -35,13 +35,13 @@ export const getCommonDatabaseState = (): CommonDatabase => ({
   version: 8,
   stores: [
     {
-      name: 'session'
+      name: 'session',
     },
     {
       name: 'localStorage', // not used (
-      encryptedName: 'localStorage__encrypted'
-    }
-  ]
+      encryptedName: 'localStorage__encrypted',
+    },
+  ],
 });
 
 export const getDatabaseState = (
@@ -52,33 +52,33 @@ export const getDatabaseState = (
   stores: [
     {
       name: 'session',
-      encryptedName: 'session__encrypted'
+      encryptedName: 'session__encrypted',
     },
     {
       name: 'stickerSets',
-      encryptedName: 'stickerSets__encrypted'
+      encryptedName: 'stickerSets__encrypted',
     },
     {
       name: 'users',
-      encryptedName: 'users__encrypted'
+      encryptedName: 'users__encrypted',
     },
     {
       name: 'chats',
-      encryptedName: 'chats__encrypted'
+      encryptedName: 'chats__encrypted',
     },
     {
       name: 'dialogs',
-      encryptedName: 'dialogs__encrypted'
+      encryptedName: 'dialogs__encrypted',
     },
     {
       name: 'messages',
-      encryptedName: 'messages__encrypted'
+      encryptedName: 'messages__encrypted',
     },
     {
       name: 'webapp',
-      encryptedName: 'webapp__encrypted'
-    }
-  ]
+      encryptedName: 'webapp__encrypted',
+    },
+  ],
 });
 
 MOUNT_CLASS_TO.getDatabaseState = getDatabaseState;

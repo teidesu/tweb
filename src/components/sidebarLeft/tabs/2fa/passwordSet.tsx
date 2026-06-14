@@ -1,21 +1,21 @@
-import {Component, onMount} from 'solid-js';
+import { Component, onMount } from 'solid-js';
 import Button from '@components/buttonTsx';
 import Section from '@components/section';
 import wrapStickerEmoji from '@components/wrappers/stickerEmoji';
-import {AppSettingsTab} from '@components/solidJsTabs';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import type {AppTwoStepVerificationSetTab} from '@components/solidJsTabs/tabs';
+import { AppSettingsTab } from '@components/solidJsTabs';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import type { AppTwoStepVerificationSetTab } from '@components/solidJsTabs/tabs';
 
 const TwoStepVerificationSet: Component = () => {
   const [tab] = useSuperTab<typeof AppTwoStepVerificationSetTab>();
-  const {messageFor} = tab.payload;
+  const { messageFor } = tab.payload;
 
   const stickerContainer = document.createElement('div');
   wrapStickerEmoji({
     emoji: '🥳',
     div: stickerContainer,
     width: 160,
-    height: 160
+    height: 160,
   });
 
   onMount(() => {

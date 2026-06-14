@@ -1,4 +1,4 @@
-import {doubleRaf} from '@helpers/schedulers';
+import { doubleRaf } from '@helpers/schedulers';
 
 export default function fixSafariStickyInput(input: HTMLElement) {
   input.style.transform = 'translateY(-99999px)';

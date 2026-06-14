@@ -1,8 +1,8 @@
-import {FontFamily, FontSize, FontWeight} from '@config/font';
+import { FontFamily, FontSize, FontWeight } from '@config/font';
 import getTextWidth from '@helpers/canvas/getTextWidth';
 import mediaSizes from '@helpers/mediaSizes';
 import clamp from '@helpers/number/clamp';
-import {fastRaf} from '@helpers/schedulers';
+import { fastRaf } from '@helpers/schedulers';
 
 // Thanks to https://stackoverflow.com/a/49349813
 
@@ -32,7 +32,7 @@ const fontSize = '16px';
 let pendingTest = false;
 
 function setTestQueue() {
-  if(pendingTest) {
+  if (pendingTest) {
     return;
   }
 
@@ -49,21 +49,21 @@ function testQueueElements() {
 }
 
 window.addEventListener('resize', () => {
-  for(const [key] of map) {
+  for (const [key] of map) {
     testQueue.add(key);
   }
 
   setTestQueue();
-}, {capture: true, passive: true});
+}, { capture: true, passive: true });
 
 function getElementWidth(element: HTMLElement) {
   const getSize = (element as any).getSize;
-  if(getSize) {
+  if (getSize) {
     return getSize();
   }
 
   const type = element.dataset.sizeType;
-  if(type) {
+  if (type) {
     const mediaSize = mediaSizes.active;
     // @ts-ignore
     const size: MediaSize = mediaSize[type];
@@ -79,17 +79,17 @@ function testElement(element: HTMLElement) {
   let mapped = map.get(element);
   const firstTime = !mapped;
 
-  let {text, textLength, from, multiplier, font, textWidth, elementWidth} = mapped || {};
+  let { text, textLength, from, multiplier, font, textWidth, elementWidth } = mapped || {};
   // console.log('[MEE] testElement got mapped', mapped);
 
-  if(firstTime) {
+  if (firstTime) {
     text = element.textContent;
     textLength = text.length;
     from = /* parseFloat(element.getAttribute(attributeName)) ||  */50;
     multiplier = ((from > 0 && from / 100) as number | undefined);
 
     let fontSize = element.dataset.fontSize;
-    if(fontSize && +fontSize) fontSize += 'px';
+    if (fontSize && +fontSize) fontSize += 'px';
     // const perf = performance.now();
     font = `${element.dataset.fontWeight || FontWeight} ${fontSize || FontSize} ${FontFamily}`;
     /* const computedStyle = window.getComputedStyle(elm, null);
@@ -100,7 +100,7 @@ function testElement(element: HTMLElement) {
     // const perf = performance.now();
     elementWidth = getElementWidth(element);
     // console.log('testMiddleEllipsis get offsetWidth:', performance.now() - perf, font);
-    mapped = {text, textLength, from, multiplier: multiplier!, font, textWidth, elementWidth: elementWidth!};
+    mapped = { text, textLength, from, multiplier: multiplier!, font, textWidth, elementWidth: elementWidth! };
     map.set(element, mapped);
 
     // console.log('[MEE] testElement map set', element);
@@ -110,12 +110,12 @@ function testElement(element: HTMLElement) {
   const widthChanged = firstTime || elementWidth !== newElementWidth;
   !firstTime && widthChanged && (mapped!.elementWidth = elementWidth = newElementWidth);
 
-  if(widthChanged) {
-    if(textWidth! > elementWidth!) {
+  if (widthChanged) {
+    if (textWidth! > elementWidth!) {
       element.setAttribute('title', text!);
       let smallerText = text;
       let smallerWidth = elementWidth;
-      while(smallerText!.length > 3) {
+      while (smallerText!.length > 3) {
         const smallerTextLength = smallerText!.length;
         const half = multiplier &&
           clamp(multiplier * smallerTextLength << 0, 1, smallerTextLength - 2) ||
@@ -124,7 +124,7 @@ function testElement(element: HTMLElement) {
         const half2 = smallerText!.substr(half + 1).replace(/^\s*/, '');
         smallerText = half1 + half2;
         smallerWidth = getTextWidth(smallerText + ellipsis, font!);
-        if(smallerWidth < elementWidth!) {
+        if (smallerWidth < elementWidth!) {
           element.textContent = half1 + ellipsis + half2;
           break;
         }
@@ -146,7 +146,7 @@ export class MiddleEllipsisElement extends HTMLElement {
     // console.log('[MEE]: connectedCallback before', map.has(this), testQueue.has(this), map.size, this.textContent, map);
 
     map.set(this, null as unknown as {text: string; textLength: number; from: number; multiplier: number; font: string; textWidth: number; elementWidth: number});
-    if(this.dataset.sizeType || (this as any).getSize) {
+    if (this.dataset.sizeType || (this as any).getSize) {
       testElement(this);
     } else {
       testQueue.add(this);

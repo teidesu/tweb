@@ -1,29 +1,29 @@
 import ripple from '@components/ripple';
-import {Spinner} from '@components/spinner';
-import {StickerPreview} from '@components/stickerPreview';
+import { Spinner } from '@components/spinner';
+import { StickerPreview } from '@components/stickerPreview';
 import PhotoTsx from '@components/wrappers/photoTsx';
 import VideoTsx from '@components/wrappers/videoTsx';
-import {animateValue} from '@helpers/animateValue';
-import {keepMe} from '@helpers/keepMe';
+import { animateValue } from '@helpers/animateValue';
+import { keepMe } from '@helpers/keepMe';
 import clamp from '@helpers/number/clamp';
 import formatNumber from '@helpers/number/formatNumber';
-import {createDelayed} from '@helpers/solid/createDelayed';
+import { createDelayed } from '@helpers/solid/createDelayed';
 import createMiddleware from '@helpers/solid/createMiddleware';
-import {requestRAF} from '@helpers/solid/requestRAF';
+import { requestRAF } from '@helpers/solid/requestRAF';
 import classNames from '@helpers/string/classNames';
-import {Document, MessageMedia, Photo} from '@layer';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {Accessor, createEffect, createMemo, createSignal, JSX, Match, onCleanup, onMount, Show, splitProps, Switch} from 'solid-js';
-import {unwrap} from 'solid-js/store';
-import {Transition} from 'solid-transition-group';
-import {InMessageCheckbox} from '../inMessageCheckbox';
-import {usePollMessageContentProps} from './context';
-import {AvatarGroup, GeoPreview} from './parts';
+import { Document, MessageMedia, Photo } from '@layer';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { Accessor, createEffect, createMemo, createSignal, JSX, Match, onCleanup, onMount, Show, splitProps, Switch } from 'solid-js';
+import { unwrap } from 'solid-js/store';
+import { Transition } from 'solid-transition-group';
+import { InMessageCheckbox } from '../inMessageCheckbox';
+import { usePollMessageContentProps } from './context';
+import { AvatarGroup, GeoPreview } from './parts';
 import PathDot from './PathDot';
 import styles from './styles.module.scss';
-import {GetStickerMediaResult} from './usePollDerivedProps';
-import {dataPollViewerIdx, DataPollViewerIdxDirectivePayload, LocalTextWithEntities, PollOptionResult, spinnerThickness} from './utils';
-import {IconTsx} from '@components/iconTsx';
+import { GetStickerMediaResult } from './usePollDerivedProps';
+import { dataPollViewerIdx, DataPollViewerIdxDirectivePayload, LocalTextWithEntities, PollOptionResult, spinnerThickness } from './utils';
+import { IconTsx } from '@components/iconTsx';
 
 
 keepMe(ripple);
@@ -54,7 +54,7 @@ export const PollOption = (props: {
 
   result?: PollOptionResult;
 }) => {
-  const {TranslatableMessageTsx} = useHotReloadGuard()
+  const { TranslatableMessageTsx } = useHotReloadGuard()
   const contextProps = usePollMessageContentProps()!;
 
   let clickableAreaElement: HTMLDivElement | undefined;
@@ -87,7 +87,7 @@ export const PollOption = (props: {
   });
 
   createEffect(() => {
-    if(isShowingResult()) {
+    if (isShowingResult()) {
       // Reset after we don't show the result anymore
       onCleanup(() => {
         setCanShowPercentage(false);
@@ -96,7 +96,7 @@ export const PollOption = (props: {
   });
 
   createEffect(() => {
-    if(!props.slowHighlighted || !clickableAreaElement) return;
+    if (!props.slowHighlighted || !clickableAreaElement) return;
 
     requestRAF(() => {
       clickableAreaElement.classList.add(styles.hoveredTransition, styles.hovered);
@@ -112,14 +112,14 @@ export const PollOption = (props: {
   });
 
   return (
-    <div class={styles.pollOption} classList={{[styles.hasMedia]: props.withMedia}} data-poll-option-idx={props.initialIdx}>
+    <div class={styles.pollOption} classList={{ [styles.hasMedia]: props.withMedia }} data-poll-option-idx={props.initialIdx}>
       <div
         ref={clickableAreaElement}
         class={styles.clickableArea}
         classList={{
           [styles.pointerDisabled]: isShowingResult(),
           [styles.outgoing]: contextProps.isOutgoing,
-          [styles.hovered]: props.highlighted && !props.slowHighlighted
+          [styles.hovered]: props.highlighted && !props.slowHighlighted,
         }}
         use:ripple
         onClick={props.onToggle}
@@ -153,8 +153,8 @@ export const PollOption = (props: {
         <div class={styles.labelText}>
           <TranslatableMessageTsx
             peerId={contextProps.peerId}
-            textWithEntities={{_: 'textWithEntities', text: props.text.text, entities: unwrap(props.text.entities)}}
-            richTextOptions={{middleware: createMiddleware().get(), loadPromises: unwrap(contextProps.loadPromises)}}
+            textWithEntities={{ _: 'textWithEntities', text: props.text.text, entities: unwrap(props.text.entities) }}
+            richTextOptions={{ middleware: createMiddleware().get(), loadPromises: unwrap(contextProps.loadPromises) }}
           />
         </div>
         <Show when={isShowingResult() && props.result!.voters}>
@@ -198,7 +198,7 @@ export const PollOption = (props: {
               class={styles.chosenCheckboxDot}
               classList={{
                 [styles.correct]: !contextProps.isOutgoing && props.result!.correct,
-                [styles.wrong]: !contextProps.isOutgoing && !props.result!.correct
+                [styles.wrong]: !contextProps.isOutgoing && !props.result!.correct,
               }}
             />
           </Show>
@@ -210,7 +210,7 @@ export const PollOption = (props: {
               class={styles.chosenCheckbox}
               classList={{
                 [styles.correct]: !contextProps.isOutgoing && props.hasCorrectAnswer && props.result!.correct,
-                [styles.wrong]: !contextProps.isOutgoing && props.hasCorrectAnswer && !props.result!.correct
+                [styles.wrong]: !contextProps.isOutgoing && props.hasCorrectAnswer && !props.result!.correct,
               }}
               checked
               cross={props.hasCorrectAnswer ? !props.result!.correct : undefined}
@@ -223,7 +223,7 @@ export const PollOption = (props: {
         <div class={styles.pollOptionSpacerLast}></div>
         <div
           class={classNames(styles.pollOptionMedia, styles.stripped)}
-          classList={{[styles.clickable]: !!props.video || !!props.photo || !!props.sticker || !!props.geo}}
+          classList={{ [styles.clickable]: !!props.video || !!props.photo || !!props.sticker || !!props.geo }}
           use:dataPollViewerIdx={props.pollViewerPayload}
         >
           <Switch>
@@ -247,7 +247,7 @@ export const PollOption = (props: {
                 stickerOptions={{
                   liteModeKey: 'stickers_chat',
                   withThumb: true,
-                  noPremium: props.sticker!.media!.pFlags.nopremium
+                  noPremium: props.sticker!.media!.pFlags.nopremium,
                 }}
               />
             </Match>
@@ -312,13 +312,13 @@ const PollProgressLine = (inProps: JSX.HTMLAttributes<HTMLDivElement> & {
       classList={{
         [styles.correct]: !contextProps.isOutgoing && props.hasCorrectAnswer && props.correct,
         [styles.wrong]: !contextProps.isOutgoing && props.hasCorrectAnswer && !props.correct,
-        ...props.classList
+        ...props.classList,
       }}
       {...restProps}>
       <div
         class={styles.labelProgressFill}
         style={{
-          '--progress': animatedProgress()
+          '--progress': animatedProgress(),
         }}
       />
     </div>
@@ -347,16 +347,16 @@ const useAnimatedValueFromZero = (value: Accessor<number>, canAnimate: Accessor<
   const [current, setCurrent] = createSignal(canAnimate() ? 0 : value());
 
   createEffect(() => {
-    if(!canAnimate()) {
+    if (!canAnimate()) {
       prevValue = value();
       return;
     }
 
-    if(value() === prevValue) return;
+    if (value() === prevValue) return;
 
     const duration = getDurationFromValue(value(), prevValue);
     const cancel = animateValue(prevValue, value(), duration, setCurrent, {
-      easing: p => p
+      easing: p => p,
     });
 
     prevValue = value();

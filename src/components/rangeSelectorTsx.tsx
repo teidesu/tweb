@@ -1,5 +1,5 @@
-import {createSignal, onMount, onCleanup, createEffect, JSX} from 'solid-js';
-import attachGrabListeners, {GrabEvent} from '@helpers/dom/attachGrabListeners';
+import { createSignal, onMount, onCleanup, createEffect, JSX } from 'solid-js';
+import attachGrabListeners, { GrabEvent } from '@helpers/dom/attachGrabListeners';
 import clamp from '@helpers/number/clamp';
 import I18n from '@lib/langPack';
 import classNames from '@helpers/string/classNames';
@@ -47,9 +47,9 @@ export default function RangeSelector(props: RangeSelectorProps) {
     percents = clamp(percents, 0, 1);
 
     // using scaleX and width even with vertical because it will be rotated
-    if(useTransform) {
+    if (useTransform) {
       filledRef!.style.transform = `scaleX(${percents})`;
-    } else if(useProperty) {
+    } else if (useProperty) {
       containerRef!.style.setProperty('--progress', '' + percents);
     } else {
       filledRef!.style.width = (percents * 100) + '%';
@@ -89,11 +89,11 @@ export default function RangeSelector(props: RangeSelectorProps) {
 
   const scrub = (event: GrabEvent, snapValue?: (value: number) => number) => {
     const currentRect = rect();
-    if(!currentRect) return 0;
+    if (!currentRect) return 0;
 
     let rectMax = vertical ? currentRect.height : currentRect.width;
 
-    if(offsetAxisValue) {
+    if (offsetAxisValue) {
       rectMax -= offsetAxisValue;
     }
 
@@ -105,19 +105,19 @@ export default function RangeSelector(props: RangeSelectorProps) {
       rectMax
     );
 
-    if(!vertical && I18n.getIsRTL()) {
+    if (!vertical && I18n.getIsRTL()) {
       offsetAxisValue_ = rectMax - offsetAxisValue_;
     }
 
     let val = min + (offsetAxisValue_ / rectMax * (max - min));
 
-    if((val - min) < ((max - min) / 2)) {
+    if ((val - min) < ((max - min) / 2)) {
       val -= step / 10;
     }
 
     val = +val.toFixed(decimals);
     val = clamp(val, min, max);
-    if(snapValue) val = snapValue(val);
+    if (snapValue) val = snapValue(val);
 
     setProgress(val);
     props.onScrub?.(val);
@@ -127,7 +127,7 @@ export default function RangeSelector(props: RangeSelectorProps) {
 
   onMount(() => {
     // Set initial value
-    if(props.value) {
+    if (props.value) {
       setProgress(props.value);
     }
 
@@ -140,7 +140,7 @@ export default function RangeSelector(props: RangeSelectorProps) {
 
   // Update value when props change
   createEffect(() => {
-    if(props.value !== undefined) {
+    if (props.value !== undefined) {
       setProgress(props.value);
     }
   });

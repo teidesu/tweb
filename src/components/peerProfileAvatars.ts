@@ -1,36 +1,36 @@
-import type {AppMessagesManager} from '@appManagers/appMessagesManager';
+import type { AppMessagesManager } from '@appManagers/appMessagesManager';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
 import findAndSplice from '@helpers/array/findAndSplice';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {attachClickEvent, simulateClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent, simulateClickEvent } from '@helpers/dom/clickEvent';
 import filterChatPhotosMessages from '@helpers/filterChatPhotosMessages';
 import ListenerSetter from '@helpers/listenerSetter';
 import ListLoader from '@helpers/listLoader';
-import {getMiddleware, MiddlewareHelper} from '@helpers/middleware';
-import {fastRaf} from '@helpers/schedulers';
-import {Message, ChatFull, MessageAction, Photo, User, ChatPhoto, UserFull} from '@layer';
-import {AppManagers} from '@lib/managers';
+import { getMiddleware, MiddlewareHelper } from '@helpers/middleware';
+import { fastRaf } from '@helpers/schedulers';
+import { Message, ChatFull, MessageAction, Photo, User, ChatPhoto, UserFull } from '@layer';
+import { AppManagers } from '@lib/managers';
 import rootScope from '@lib/rootScope';
 import choosePhotoSize from '@appManagers/utils/photos/choosePhotoSize';
-import {avatarNew, wrapPhotoToAvatar} from '@components/avatarNew';
+import { avatarNew, wrapPhotoToAvatar } from '@components/avatarNew';
 import Scrollable from '@components/scrollable';
 import SwipeHandler from '@components/swipeHandler';
 import wrapPhoto from '@components/wrappers/photo';
 import openAvatarViewer from '@components/openAvatarViewer';
 import Icon from '@components/icon';
 import apiManagerProxy from '@lib/apiManagerProxy';
-import {createEffect, createRoot, on} from 'solid-js';
-import {usePeerProfileAppearance} from '@hooks/useProfileColors';
-import {getHexColorFromTelegramColor} from '@helpers/color';
+import { createEffect, createRoot, on } from 'solid-js';
+import { usePeerProfileAppearance } from '@hooks/useProfileColors';
+import { getHexColorFromTelegramColor } from '@helpers/color';
 import wrapEmojiPattern from '@components/wrappers/emojiPattern';
-import {useCollapsable} from '@hooks/useCollapsable';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
+import { useCollapsable } from '@hooks/useCollapsable';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
 import useIsNightTheme from '@hooks/useIsNightTheme';
 import customProperties from '@helpers/dom/customProperties';
 import findUpClassName from '@helpers/dom/findUpClassName';
-import {changeTitleEmojiColor} from '@components/peerTitle';
+import { changeTitleEmojiColor } from '@components/peerTitle';
 import ProgressivePreloader from '@components/preloader';
-import {avatarUploads} from '@stores/avatarUpload';
+import { avatarUploads } from '@stores/avatarUpload';
 
 const LOAD_NEAREST = 3;
 export const SHOW_NO_AVATAR = true;
@@ -108,10 +108,10 @@ export default class PeerProfileAvatars {
     this.listenerSetter = new ListenerSetter();
 
     const checkScrollTop = () => {
-      if(this.scrollable.scrollPosition !== 0) {
+      if (this.scrollable.scrollPosition !== 0) {
         this.scrollable.scrollIntoViewNew({
           element: this.scrollable.firstElementChild as HTMLElement,
-          position: 'start'
+          position: 'start',
         });
         return false;
       }
@@ -123,39 +123,39 @@ export default class PeerProfileAvatars {
     let cancel = false;
     let freeze = false;
     attachClickEvent(this.container, async(_e) => {
-      if(
+      if (
         findUpClassName(_e.target!, 'profile-subtitle-rating') ||
         findUpClassName(_e.target!, 'emoji-status')
       ) {
         return;
       }
 
-      if(freeze) {
+      if (freeze) {
         cancelEvent(_e);
         return;
       }
 
-      if(cancel) {
+      if (cancel) {
         cancel = false;
         return;
       }
 
       // While an avatar upload is running the header stays collapsed and locked;
       // let clicks fall through to the cancel preloader instead of expanding.
-      if(this.uploadInProgress) {
+      if (this.uploadInProgress) {
         return;
       }
 
-      if(!checkScrollTop()) {
+      if (!checkScrollTop()) {
         return;
       }
 
-      if(this.hasNoPhoto) {
+      if (this.hasNoPhoto) {
         return;
       }
 
-      if(this.isCollapsed() && this.unfold) {
-        if(findUpClassName(_e.target!, 'avatar') && this.container.classList.contains('has-stories')) {
+      if (this.isCollapsed() && this.unfold) {
+        if (findUpClassName(_e.target!, 'avatar') && this.container.classList.contains('has-stories')) {
           cancel = true;
           simulateClickEvent(this.fakeAvatar.node);
           return;
@@ -172,7 +172,7 @@ export default class PeerProfileAvatars {
       const x = e.pageX;
 
       const clickX = x - rect.left;
-      if((!this.listLoader.previous.length && !this.listLoader.next.length) ||
+      if ((!this.listLoader.previous.length && !this.listLoader.next.length) ||
         (clickX > (rect.width * SWITCH_ZONE) && clickX < (rect.width - rect.width * SWITCH_ZONE))) {
         const peerId = this.peerId;
 
@@ -180,7 +180,7 @@ export default class PeerProfileAvatars {
         this.listLoader.previous.concat(this.listLoader.current!, this.listLoader.next).forEach((item, idx) => {
           targets.push({
             element: /* null */this.avatars.children[idx] as HTMLElement,
-            item
+            item,
           });
         });
 
@@ -189,7 +189,7 @@ export default class PeerProfileAvatars {
         // last and never paginates from it. Don't pass it through here, or it
         // would be re-anchored (duplicates) / no longer last in the viewer.
         const nextTargets = targets.slice(this.listLoader.previous.length + 1)
-        .filter((target) => target.item !== this.fallbackPhotoId);
+          .filter((target) => target.item !== this.fallbackPhotoId);
 
         const target = this.avatars.children[this.listLoader.previous.length] as HTMLElement;
         freeze = true;
@@ -207,19 +207,19 @@ export default class PeerProfileAvatars {
         const toRight = x > centerX;
 
         let distance: number;
-        if(this.listLoader.index === 0 && !toRight) distance = this.listLoader.count - 1;
-        else if(this.listLoader.index === (this.listLoader.count - 1) && toRight) distance = -(this.listLoader.count - 1);
+        if (this.listLoader.index === 0 && !toRight) distance = this.listLoader.count - 1;
+        else if (this.listLoader.index === (this.listLoader.count - 1) && toRight) distance = -(this.listLoader.count - 1);
         else distance = toRight ? 1 : -1;
 
         this.goWithoutTransition(distance);
       }
-    }, {listenerSetter: this.listenerSetter});
+    }, { listenerSetter: this.listenerSetter });
 
     const cancelNextClick = () => {
       cancel = true;
       document.body.addEventListener(IS_TOUCH_SUPPORTED ? 'touchend' : 'click', (e) => {
         cancel = false;
-      }, {once: true});
+      }, { once: true });
     };
 
     let width = 0, x = 0, lastDiffX = 0, /* lastIndex = 0, */ minX = 0;
@@ -231,21 +231,21 @@ export default class PeerProfileAvatars {
 
         lastDiffX = xDiff;
         let lastX = x + xDiff * -PeerProfileAvatars.SCALE;
-        if(lastX > 0) lastX = 0;
-        else if(lastX < minX) lastX = minX;
+        if (lastX > 0) lastX = 0;
+        else if (lastX < minX) lastX = minX;
 
         this.avatars.style.transform = PeerProfileAvatars.TRANSLATE_TEMPLATE.replace('{x}', lastX + 'px');
         // console.log(xDiff, yDiff);
         return false;
       },
       verifyTouchTarget: (e) => {
-        if(!checkScrollTop()) {
+        if (!checkScrollTop()) {
           cancelNextClick();
           cancelEvent(e as any as Event);
           return false;
-        } else if(this.isCollapsed()) {
+        } else if (this.isCollapsed()) {
           return false;
-        } else if(this.container.classList.contains('is-single') || freeze) {
+        } else if (this.container.classList.contains('is-single') || freeze) {
           return false;
         }
 
@@ -277,12 +277,12 @@ export default class PeerProfileAvatars {
           this.listLoader.go(addIndex);
           this.container.classList.remove('is-swiping');
         });
-      }
+      },
     });
 
     this.intersectionObserver = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        if(!entry.isIntersecting) {
+        if (!entry.isIntersecting) {
           return;
         }
 
@@ -308,20 +308,20 @@ export default class PeerProfileAvatars {
         this.unfold = undefined;
       });
 
-      const {folded, unfold, fold} = useCollapsable({
+      const { folded, unfold, fold } = useCollapsable({
         container: () => this.container,
         listenWheelOn: this.setCollapsedOn,
         scrollable: () => scrollable.container,
         disableHoverWhenFolded: false,
         // Don't let wheel/swipe expand the header while an avatar upload runs.
-        shouldIgnore: () => this.uploadInProgress
+        shouldIgnore: () => this.uploadInProgress,
       });
 
       this.unfold = unfold;
       this.fold = fold;
 
       createEffect(() => {
-        if(this.hasNoPhoto && !folded()) {
+        if (this.hasNoPhoto && !folded()) {
           fold();
           return;
         }
@@ -361,7 +361,7 @@ export default class PeerProfileAvatars {
     this.middlewareHelper.clean();
 
     const photo = await this.managers.appPeersManager.getPeerPhoto(peerId);
-    if(!photo && !SHOW_NO_AVATAR) {
+    if (!photo && !SHOW_NO_AVATAR) {
       return;
     }
 
@@ -369,7 +369,7 @@ export default class PeerProfileAvatars {
 
     await this.applyAppearance();
 
-    if(this.fakeAvatar) {
+    if (this.fakeAvatar) {
       this.fakeAvatar.node.remove();
     }
     this.fakeAvatar = avatarNew({
@@ -382,8 +382,8 @@ export default class PeerProfileAvatars {
         this.container.classList.toggle('has-stories', has);
       },
       storyColors: {
-        read: 'rgba(255, 255, 255, .3)'
-      }
+        read: 'rgba(255, 255, 255, .3)',
+      },
     });
     this.fakeAvatar.node.classList.add('profile-avatars-avatar-fake');
     await this.fakeAvatar.readyThumbPromise;
@@ -394,37 +394,37 @@ export default class PeerProfileAvatars {
     // only when they have avatars. getProfile is normally already cached here.
     this.fallbackPhotoId = undefined;
     this.fallbackAppended = false;
-    if(peerId === rootScope.myId && peerId.isUser() && !this.hasNoPhoto) {
+    if (peerId === rootScope.myId && peerId.isUser() && !this.hasNoPhoto) {
       const userFull = await this.managers.appProfileManager.getProfile(peerId.toUserId());
       const fallback = (userFull)?.fallback_photo as Photo.photo;
-      if(fallback?._ === 'photo') this.fallbackPhotoId = fallback.id;
+      if (fallback?._ === 'photo') this.fallbackPhotoId = fallback.id;
     }
 
     const listLoader: PeerProfileAvatars['listLoader'] = this.listLoader = new ListLoader({
       loadCount: 50,
       loadMore: (anchor, older, loadCount): any => {
-        if(!older) return Promise.resolve({count: undefined, items: []});
+        if (!older) return Promise.resolve({ count: undefined, items: [] });
 
-        if(peerId.isUser()) {
+        if (peerId.isUser()) {
           const maxId: Photo.photo['id'] = anchor as any;
           return this.managers.appPhotosManager.getUserPhotos(peerId, maxId, loadCount).then((value) => {
             const items = value.photos.slice();
             let count = value.count;
-            if(this.fallbackPhotoId) {
+            if (this.fallbackPhotoId) {
               // The public photo is one extra item beyond the real ones.
-              if(count !== undefined) count += 1;
+              if (count !== undefined) count += 1;
               // Append it once, on the last page (a short page = the end).
-              if(!this.fallbackAppended && value.photos.length < loadCount) {
+              if (!this.fallbackAppended && value.photos.length < loadCount) {
                 items.push(this.fallbackPhotoId);
                 this.fallbackAppended = true;
               }
             }
 
-            return {count, items};
+            return { count, items };
           });
         } else {
           const promises: [Promise<ChatFull> | ChatFull, ReturnType<AppMessagesManager['getHistory']>] = [] as any;
-          if(!listLoader.current) {
+          if (!listLoader.current) {
             promises.push(this.managers.appProfileManager.getChatFull(peerId.toChatId()));
           }
 
@@ -432,23 +432,23 @@ export default class PeerProfileAvatars {
             peerId,
             offsetId: Number.MAX_SAFE_INTEGER,
             inputFilter: {
-              _: 'inputMessagesFilterChatPhotos'
+              _: 'inputMessagesFilterChatPhotos',
             },
             limit: loadCount,
-            backLimit: 0
+            backLimit: 0,
           }));
 
           return Promise.all(promises).then(async(result) => {
             const value = result.pop() as typeof result[1];
 
-            let {messages, history} = value;
-            if(!messages) {
+            let { messages, history } = value;
+            if (!messages) {
               messages = (value.messages = history.map((mid) => apiManagerProxy.getMessageByPeer(peerId, mid)!))!;
             }
 
             filterChatPhotosMessages(value);
 
-            if(!listLoader.current) {
+            if (!listLoader.current) {
               const chatFull = result[0];
               const chatPhoto = chatFull?.chat_photo;
               const message = findAndSplice(messages, (message) => {
@@ -461,7 +461,7 @@ export default class PeerProfileAvatars {
             // console.log('avatars loaded:', value);
             return {
               count: value.count,
-              items: messages
+              items: messages,
             };
           });
         }
@@ -475,17 +475,17 @@ export default class PeerProfileAvatars {
 
         [this.tabs, this.avatars].forEach((container) => {
           const activeTab = container.querySelector('.active');
-          if(activeTab) activeTab.classList.remove('active');
+          if (activeTab) activeTab.classList.remove('active');
 
           const tab = container.children[id] as HTMLElement;
           tab.classList.add('active');
         });
 
         this.loadNearestToTarget(this.avatars.children[id]);
-      }
+      },
     });
 
-    if(photo?._ === 'userProfilePhoto') {
+    if (photo?._ === 'userProfilePhoto') {
       listLoader.current = photo.photo_id;
     }
 
@@ -498,7 +498,7 @@ export default class PeerProfileAvatars {
     // animated (video) avatar. For static photos it has nothing to do, and a
     // forever-running rAF needlessly churns the rendering pipeline every frame
     // (which can visibly interfere with the avatar's load fade-in).
-    if((photo as ChatPhoto.chatPhoto)?.pFlags?.has_video) {
+    if ((photo as ChatPhoto.chatPhoto)?.pFlags?.has_video) {
       this.startVideoProgressLoop();
     }
     this.watchAvatarUpload();
@@ -517,25 +517,25 @@ export default class PeerProfileAvatars {
 
       createEffect(() => {
         const entry = avatarUploads().get(this.peerId);
-        if(entry) this.showUploadProgress(entry.promise);
+        if (entry) this.showUploadProgress(entry.promise);
         else this.hideUploadProgress();
       });
     });
   }
 
   private showUploadProgress(promise: CancellablePromise<any>) {
-    if(this.uploadInProgress) return;
+    if (this.uploadInProgress) return;
     this.uploadInProgress = true;
     this.container.classList.add('is-avatar-uploading');
 
     // Force the header collapsed (shouldIgnore + the click guard keep it there).
     this.fold?.();
 
-    if(!this.uploadPreloader) {
+    if (!this.uploadPreloader) {
       this.uploadPreloader = new ProgressivePreloader({
         isUpload: true,
         cancelable: true,
-        tryAgainOnFail: false
+        tryAgainOnFail: false,
       });
     }
 
@@ -544,7 +544,7 @@ export default class PeerProfileAvatars {
   }
 
   private hideUploadProgress() {
-    if(!this.uploadInProgress) return;
+    if (!this.uploadInProgress) return;
     this.uploadInProgress = false;
     this.container.classList.remove('is-avatar-uploading');
     this.uploadPreloader?.detach();
@@ -561,7 +561,7 @@ export default class PeerProfileAvatars {
     // transient DOM detachment (unlike an isConnected check).
     const middleware = this.middlewareHelper.get();
     const tick = () => {
-      if(!middleware()) {
+      if (!middleware()) {
         this.videoProgressRAF = 0;
         return;
       }
@@ -575,26 +575,26 @@ export default class PeerProfileAvatars {
     const activeIndex = this.listLoader?.index ?? 0;
     const tabs = this.tabs.children;
     const avatars = this.avatars.children;
-    for(let i = 0; i < tabs.length; ++i) {
+    for (let i = 0; i < tabs.length; ++i) {
       const tab = tabs[i] as HTMLElement;
       const avatar = avatars[i] as HTMLElement;
       let video = avatar?.querySelector('video.avatar-video') as HTMLVideoElement;
       // The first carousel item mirrors the current profile photo, which the
       // (reliably loaded) fake/main avatar already plays — fall back to it.
-      if(!video && i === 0) {
+      if (!video && i === 0) {
         video = this.fakeAvatar?.node.querySelector('video.avatar-video') as HTMLVideoElement;
       }
       const isPlaying = tab.classList.contains('is-playing');
-      if(i === activeIndex && video && video.duration && !video.paused) {
+      if (i === activeIndex && video && video.duration && !video.paused) {
         // Only touch the DOM when something actually changed — re-asserting the
         // class / style every animation frame churns the header (style recalc +
         // paint) for nothing and can flicker the loading avatar underneath.
-        if(!isPlaying) tab.classList.add('is-playing');
+        if (!isPlaying) tab.classList.add('is-playing');
         const value = Math.min(100, (video.currentTime / video.duration) * 100).toFixed(1) + '%';
-        if(tab.style.getPropertyValue('--progress') !== value) {
+        if (tab.style.getPropertyValue('--progress') !== value) {
           tab.style.setProperty('--progress', value);
         }
-      } else if(isPlaying) {
+      } else if (isPlaying) {
         tab.classList.remove('is-playing');
         tab.style.removeProperty('--progress');
       }
@@ -607,7 +607,7 @@ export default class PeerProfileAvatars {
       this.emojiPatternCanvas?.remove();
       this.emojiPatternCanvas = undefined;
 
-      if(!docId) {
+      if (!docId) {
         return;
       }
 
@@ -641,7 +641,7 @@ export default class PeerProfileAvatars {
         ctx!.fill();
       };
 
-      if(hasBgColor) {
+      if (hasBgColor) {
         drawHalo();
       } else {
         canvas.style.mixBlendMode = 'unset';
@@ -678,18 +678,18 @@ export default class PeerProfileAvatars {
           [100, 113, MAX_SIZE, MIDDLE_OPACITY],
           [230, 44, MIDDLE_SIZE, MIDDLE_OPACITY],
           [143, 44, MIDDLE_SIZE, MIDDLE_OPACITY],
-          [187.5, 34, MIN_SIZE, MIDDLE_OPACITY]
+          [187.5, 34, MIN_SIZE, MIDDLE_OPACITY],
         ],
         color: customProperties.getProperty('primary-text-color'),
         onCacheStatus: (cached) => {
-          if(cached) {
+          if (cached) {
             promise.then(deferred.resolve.bind(deferred));
           } else {
             deferred.resolve();
           }
-        }
+        },
       }).then((_canvas) => {
-        if(!middleware()) return;
+        if (!middleware()) return;
 
         ctx!.drawImage(_canvas, 0, 0);
       });
@@ -701,9 +701,9 @@ export default class PeerProfileAvatars {
 
     const setBackgroundColors = (bgColors: number[]) => {
       let backgroundStr: string;
-      if(bgColors) {
+      if (bgColors) {
         const colors = bgColors.map((color) => getHexColorFromTelegramColor(color));
-        if(colors.length === 1) {
+        if (colors.length === 1) {
           backgroundStr = colors[0];
         } else {
           backgroundStr = `linear-gradient(180deg, ${colors.join(', ')})`;
@@ -716,7 +716,7 @@ export default class PeerProfileAvatars {
     const peerProfileAppearance = usePeerProfileAppearance(this.peerId);
     const deferred = deferredPromise<void>();
     createEffect(() => {
-      const {bgColors, backgroundEmojiId} = peerProfileAppearance()
+      const { bgColors, backgroundEmojiId } = peerProfileAppearance()
       // const docId = '5301072507598550489';
 
       setBackgroundColors(bgColors!);
@@ -727,7 +727,7 @@ export default class PeerProfileAvatars {
         isNightTheme,
         () => {
           const promise = renderBackgroundEmoji(backgroundEmojiId!, !!bgColors);
-          if(promise) promise.then(deferred.resolve.bind(deferred));
+          if (promise) promise.then(deferred.resolve.bind(deferred));
           else deferred.resolve();
         }
       ));
@@ -749,7 +749,7 @@ export default class PeerProfileAvatars {
     tab.classList.add(PeerProfileAvatars.BASE_CLASS + '-tab');
     this.tabs.append(tab);
 
-    if(this.tabs.childElementCount === 1) {
+    if (this.tabs.childElementCount === 1) {
       tab.classList.add('active');
     }
 
@@ -765,7 +765,7 @@ export default class PeerProfileAvatars {
     this.avatars.append(avatar);
 
     let photo: Photo.photo;
-    if(photoId) {
+    if (photoId) {
       photo = typeof(photoId) !== 'object' ?
         await this.managers.appPhotosManager.getPhoto(photoId) :
         (photoId.action as MessageAction.messageActionChannelEditPhoto).photo as Photo.photo;
@@ -781,12 +781,12 @@ export default class PeerProfileAvatars {
         // big in. On first open photo_big isn't cached anywhere, so its fade-in
         // animation makes the avatar's colour gradient show through (the
         // "blink"). No fade => the big just swaps over the small instantly.
-        noFadeIn: true
+        noFadeIn: true,
         // size: isFirst ? 120 : 'full',
         // withStories: isFirst
       });
 
-      if(isFirst) {
+      if (isFirst) {
         avatarElem.node.classList.add('profile-avatars-avatar-first');
       }
 
@@ -796,13 +796,13 @@ export default class PeerProfileAvatars {
       // flashing the solid colour placeholder while the full photo
       // (inputPhotoFileLocation, uncached) downloads. Older photos still go
       // through wrapPhoto.
-      if(photo && !isFirst) {
+      if (photo && !isFirst) {
         const boxSize = 420;
         const photoSize = choosePhotoSize(photo, boxSize, boxSize, false);
         await wrapPhotoToAvatar(avatarElem, photo, boxSize, photoSize);
       } else {
         avatarElem.render({
-          peerId: this.peerId
+          peerId: this.peerId,
         });
 
         await avatarElem.readyThumbPromise;
@@ -812,12 +812,12 @@ export default class PeerProfileAvatars {
       avatar.classList.remove('hide');
 
       return;
-      if(photo) {
+      if (photo) {
         const res = await wrapPhoto({
           container: avatar,
           photo,
           size: choosePhotoSize(photo, 420, 420, false),
-          withoutPreloader: true
+          withoutPreloader: true,
         });
 
         [res.images.thumb, res.images.full].filter(Boolean).forEach((img) => {
@@ -828,7 +828,7 @@ export default class PeerProfileAvatars {
           middleware,
           size: 'full',
           isBig: true,
-          peerId: this.peerId
+          peerId: this.peerId,
         });
         await _avatar.readyThumbPromise;
         avatar.append(_avatar.node);
@@ -837,7 +837,7 @@ export default class PeerProfileAvatars {
       avatar.classList.remove('hide');
     };
 
-    if(this.avatars.childElementCount <= LOAD_NEAREST) {
+    if (this.avatars.childElementCount <= LOAD_NEAREST) {
       await loadCallback();
     } else {
       this.intersectionObserver.observe(avatar);
@@ -846,7 +846,7 @@ export default class PeerProfileAvatars {
 
     this.addTab();
 
-    if(this.tabs.childElementCount === 1) {
+    if (this.tabs.childElementCount === 1) {
       avatar.classList.add('active');
     }
 
@@ -860,7 +860,7 @@ export default class PeerProfileAvatars {
 
     slice.forEach((target) => {
       const callback = this.loadCallbacks.get(target);
-      if(callback) {
+      if (callback) {
         callback();
         this.loadCallbacks.delete(target);
         this.intersectionObserver.unobserve(target);
@@ -870,13 +870,13 @@ export default class PeerProfileAvatars {
 
   private setCollapsed(collapsed: boolean) {
     // * go to the first avatar
-    if(!this.isCollapsed() && collapsed && this.listLoader?.index) {
+    if (!this.isCollapsed() && collapsed && this.listLoader?.index) {
       this.goWithoutTransition(-this.listLoader.index);
     }
 
     this.setCollapsedOn.classList.toggle('is-collapsed', collapsed);
     const needWhite = this.hasBackgroundColor || !collapsed;
-    if(this.setCollapsedOn.classList.contains('need-white') !== needWhite) {
+    if (this.setCollapsedOn.classList.contains('need-white') !== needWhite) {
       this.setCollapsedOn.classList.toggle('need-white', needWhite);
       this.onNeedWhiteChanged?.(needWhite);
       changeTitleEmojiColor(this.info, needWhite ? 'white' : 'primary-color');

@@ -1,12 +1,12 @@
 import CheckboxFieldTsx from '@components/checkboxFieldTsx';
-import {IconTsx} from '@components/iconTsx';
+import { IconTsx } from '@components/iconTsx';
 import RangeStepsSelector from '@components/rangeStepsSelectorTsx';
 import Row from '@components/rowTsx';
 import Section from '@components/section';
 import Animated from '@helpers/solid/animations';
-import {i18n} from '@lib/langPack';
-import {createEffect, createSignal, on, Show, untrack} from 'solid-js';
-import {render} from 'solid-js/web';
+import { i18n } from '@lib/langPack';
+import { createEffect, createSignal, on, Show, untrack } from 'solid-js';
+import { render } from 'solid-js/web';
 
 type Value = number | undefined;
 
@@ -22,10 +22,10 @@ export default function createDoNotRestrictBoostersSection(props: {
 
     createEffect(on(boosts, (boosts) => {
       props.onChange(boosts);
-    }, {defer: true}));
+    }, { defer: true }));
 
     createEffect(() => {
-      if(!props.show()) {
+      if (!props.show()) {
         setBoosts(undefined);
       }
     });
@@ -68,15 +68,15 @@ export default function createDoNotRestrictBoostersSection(props: {
                     indexByValue={boosts()}
                     steps={
                       [1, 2, 3, 4, 5]
-                      .map((value) => [
-                        (
-                          <>
-                            <IconTsx icon={value === 1 ? 'boost' : 'boosts'} class="inline-icon" />
-                            {value.toString()}
-                          </>
-                        ),
-                        value
-                      ])
+                        .map((value) => [
+                          (
+                            <>
+                              <IconTsx icon={value === 1 ? 'boost' : 'boosts'} class="inline-icon" />
+                              {value.toString()}
+                            </>
+                          ),
+                          value,
+                        ])
                     }
                     onValue={(value) => {
                       setBoosts(value);
@@ -93,6 +93,6 @@ export default function createDoNotRestrictBoostersSection(props: {
 
   return {
     element,
-    dispose
+    dispose,
   };
 }

@@ -1,10 +1,10 @@
 import PopupElement from '.';
 import safeAssign from '@helpers/object/safeAssign';
-import {I18nTsx} from '@helpers/solid/i18n';
+import { I18nTsx } from '@helpers/solid/i18n';
 import rootScope from '@lib/rootScope';
-import {AvatarNewTsx} from '@components/avatarNew';
-import {IconTsx} from '@components/iconTsx';
-import {PeerTitleTsx} from '@components/peerTitleTsx';
+import { AvatarNewTsx } from '@components/avatarNew';
+import { IconTsx } from '@components/iconTsx';
+import { PeerTitleTsx } from '@components/peerTitleTsx';
 
 import css from '@components/popups/webAppLocationAccess.module.scss';
 
@@ -26,20 +26,20 @@ export default class PopupWebAppLocationAccess extends PopupElement<{
           callback: () => {
             finished = true
             this.dispatchEvent('finish', true);
-          }
+          },
         },
         {
           langKey: 'Decline',
           callback: () => {
             finished = true
             this.dispatchEvent('finish', false);
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     this.addEventListener('close', () => {
-      if(!finished) {
+      if (!finished) {
         this.dispatchEvent('finish', false);
       }
     });
@@ -76,7 +76,7 @@ export default class PopupWebAppLocationAccess extends PopupElement<{
             key="BotLocationAccessText"
             args={[
               <PeerTitleTsx peerId={this.botId} />,
-              <PeerTitleTsx peerId={this.botId} />
+              <PeerTitleTsx peerId={this.botId} />,
             ]}
           />
         </div>

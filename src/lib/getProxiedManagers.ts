@@ -1,10 +1,10 @@
 import type createManagers from '@appManagers/createManagers';
-import type {AckedResult} from '@lib/superMessagePort';
-import {ModifyFunctionsToAsync} from '@types';
+import type { AckedResult } from '@lib/superMessagePort';
+import { ModifyFunctionsToAsync } from '@types';
 import apiManagerProxy from '@lib/apiManagerProxy';
-import DEBUG, {MOUNT_CLASS_TO} from '@config/debug';
-import {getCurrentAccount} from '@lib/accounts/getCurrentAccount';
-import {ActiveAccountNumber} from '@lib/accounts/types';
+import DEBUG, { MOUNT_CLASS_TO } from '@config/debug';
+import { getCurrentAccount } from '@lib/accounts/getCurrentAccount';
+import { ActiveAccountNumber } from '@lib/accounts/types';
 
 // let stats: {
 //   [manager: string]: {
@@ -91,11 +91,11 @@ function createProxy(
           name,
           method: p as string,
           args,
-          accountNumber
+          accountNumber,
         }, ack as any);
 
-        if(DEBUG) {
-          if(DEBUG_MANAGER_REQUESTS[name]?.has(p as any)) {
+        if (DEBUG) {
+          if (DEBUG_MANAGER_REQUESTS[name]?.has(p as any)) {
             console.warn('manager request', name, p, args, ack);
           }
         }
@@ -107,7 +107,7 @@ function createProxy(
         // @ts-ignore
         // return Promise.resolve(value.call(source, ...args));
       };
-    }
+    },
   });
 
   return proxy;
@@ -144,7 +144,7 @@ function createProxyProxy(proxied: any, accountNumber: ActiveAccountNumber, ack?
     get: (target, p, receiver) => {
       // @ts-ignore
       return target[p] ??= createProxy(p as string, accountNumber, ack);
-    }
+    },
   });
 }
 
@@ -156,7 +156,7 @@ MOUNT_CLASS_TO.createProxiedManagersForAccount = createProxiedManagersForAccount
 
 let proxied: CombinedManagers;
 export default function getProxiedManagers(): CombinedManagers {
-  if(proxied) {
+  if (proxied) {
     return proxied;
   }
 

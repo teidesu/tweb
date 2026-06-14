@@ -1,17 +1,17 @@
-import PopupElement, {createPopup, PopupContext} from '@components/popups/indexTsx';
-import {createEffect, createSignal, JSX, onCleanup, Show, untrack, useContext} from 'solid-js';
+import PopupElement, { createPopup, PopupContext } from '@components/popups/indexTsx';
+import { createEffect, createSignal, JSX, onCleanup, Show, untrack, useContext } from 'solid-js';
 import documentFragmentToNodes from '@helpers/dom/documentFragmentToNodes';
 import classNames from '@helpers/string/classNames';
 import usePeerTranslation from '@hooks/usePeerTranslation';
-import {Message, TextWithEntities} from '@layer';
-import {i18n} from '@lib/langPack';
-import wrapRichText, {WrapRichTextOptions} from '@lib/richTextProcessor/wrapRichText';
-import {onMediaCaptionClick} from '@components/appMediaViewer';
-import {pickLanguage} from '@components/chat/translation';
-import {putPreloader} from '@components/putPreloader';
+import { Message, TextWithEntities } from '@layer';
+import { i18n } from '@lib/langPack';
+import wrapRichText, { WrapRichTextOptions } from '@lib/richTextProcessor/wrapRichText';
+import { onMediaCaptionClick } from '@components/appMediaViewer';
+import { pickLanguage } from '@components/chat/translation';
+import { putPreloader } from '@components/putPreloader';
 import Section from '@components/section';
-import {TranslatableMessageTsx} from '@components/translatableMessage';
-import Scrollable, {ScrollableContextValue} from '@components/scrollable2';
+import { TranslatableMessageTsx } from '@components/translatableMessage';
+import Scrollable, { ScrollableContextValue } from '@components/scrollable2';
 
 export default function showTranslatePopup(options: {
   peerId: PeerId,
@@ -32,17 +32,17 @@ export default function showTranslatePopup(options: {
     const peerTranslation = usePeerTranslation(options.peerId);
 
     let originalTextWithEntities: TextWithEntities = options.textWithEntities!;
-    if(options.message) {
+    if (options.message) {
       originalTextWithEntities = {
         _: 'textWithEntities',
         text: options.message.message,
-        entities: options.message.totalEntities!
+        entities: options.message.totalEntities!,
       };
     }
 
     const richTextOptions: WrapRichTextOptions = {
       middleware,
-      textColor: 'primary-text-color'
+      textColor: 'primary-text-color',
     };
 
     const WrappedMessage = (props: {children: JSX.Element, limited?: boolean}) => {
@@ -59,17 +59,17 @@ export default function showTranslatePopup(options: {
 
       const onClick = (e: MouseEvent) => {
         const callback = div! && onMediaCaptionClick(div, e);
-        if(!callback) {
+        if (!callback) {
           return;
         }
 
-        div.removeEventListener('click', onClick, {capture: true});
+        div.removeEventListener('click', onClick, { capture: true });
         deferredCloseCallbacks.push(callback);
         context!.hide();
       };
 
-      div!.addEventListener('click', onClick, {capture: true});
-      onCleanup(() => div!.removeEventListener('click', onClick, {capture: true}));
+      div!.addEventListener('click', onClick, { capture: true });
+      onCleanup(() => div!.removeEventListener('click', onClick, { capture: true }));
       return ret;
     };
 
@@ -82,7 +82,7 @@ export default function showTranslatePopup(options: {
         const text = wrapRichText(textWithEntities.text, {
           ...richTextOptions,
           entities: textWithEntities.entities,
-          noTextFormat: limiting()
+          noTextFormat: limiting(),
           // noLinebreaks: limiting()
         });
 
@@ -120,13 +120,13 @@ export default function showTranslatePopup(options: {
         peerId={options.peerId}
         message={options.message}
         textWithEntities={options.textWithEntities}
-        richTextOptions={{...richTextOptions, loadPromises}}
+        richTextOptions={{ ...richTextOptions, loadPromises }}
         enabled
       />
     );
 
     Promise.all(loadPromises).then(() => {
-      if(!middleware()) {
+      if (!middleware()) {
         return;
       }
 

@@ -1,4 +1,4 @@
-import {MessageEntity} from '@layer';
+import { MessageEntity } from '@layer';
 import encodeSpoiler from '@lib/richTextProcessor/encodeSpoiler';
 
 /**
@@ -6,7 +6,7 @@ import encodeSpoiler from '@lib/richTextProcessor/encodeSpoiler';
  */
 export default function wrapPlainText(text: string, entities: MessageEntity[] = []) {
   entities.forEach((entity) => {
-    if(entity._ === 'messageEntitySpoiler') {
+    if (entity._ === 'messageEntitySpoiler') {
       text = encodeSpoiler(text, entity).text;
     }
   });

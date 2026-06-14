@@ -1,6 +1,6 @@
 import classNames from '@helpers/string/classNames';
-import PopupElement, {addCancelButton} from '@components/popups';
-import PopupPeer, {PopupPeerCheckboxOptions, PopupPeerOptions} from '@components/popups/peer';
+import PopupElement, { addCancelButton } from '@components/popups';
+import PopupPeer, { PopupPeerCheckboxOptions, PopupPeerOptions } from '@components/popups/peer';
 
 export type ConfirmationPopupRejectReason = 'canceled' | 'closed';
 
@@ -18,9 +18,9 @@ export default function confirmationPopup<T extends PopupConfirmationOptions>(
   options: T
 ): Promise<T['checkboxes'] extends PopupPeerCheckboxOptions[] ? Array<boolean> : (T['checkbox'] extends PopupPeerCheckboxOptions ? boolean : void)> {
   return new Promise<any>((resolve, reject: (reason?: ConfirmationPopupRejectReason) => void) => {
-    const {button, checkbox, rejectWithReason} = options;
+    const { button, checkbox, rejectWithReason } = options;
     button.callback = (e: MouseEvent, set: any) => {
-      if(checkbox || !set) {
+      if (checkbox || !set) {
         resolve(set ? !!set.size : undefined);
       } else {
         resolve(options.checkboxes!.map((checkbox) => set.has(checkbox.text)));

@@ -1,20 +1,20 @@
 import PopupElement from '@components/popups/index';
-import PromoSlideTab, {getGiftDetails} from '@components/premium/promoSlideTab';
+import PromoSlideTab, { getGiftDetails } from '@components/premium/promoSlideTab';
 import TransitionSlider from '@components/transition';
 import FeatureSlideTab from '@components/premium/featureSlideTab';
-import I18n, {FormatterArguments} from '@lib/langPack';
+import I18n, { FormatterArguments } from '@lib/langPack';
 import Button from '@components/button';
 import paymentsWrapCurrencyAmount from '@helpers/paymentsWrapCurrencyAmount';
-import {HelpPremiumPromo, MessageAction, PaymentsCheckedGiftCode, PremiumSubscriptionOption} from '@layer';
-import {PREMIUM_FEATURES, PremiumPromoFeature} from '@components/premium/featuresConfig';
+import { HelpPremiumPromo, MessageAction, PaymentsCheckedGiftCode, PremiumSubscriptionOption } from '@layer';
+import { PREMIUM_FEATURES, PremiumPromoFeature } from '@components/premium/featuresConfig';
 import Icon from '@components/icon';
-import {Middleware} from '@helpers/middleware';
-import {AppManagers} from '@lib/managers';
-import appImManager, {ChatSetPeerOptions} from '@lib/appImManager';
+import { Middleware } from '@helpers/middleware';
+import { AppManagers } from '@lib/managers';
+import appImManager, { ChatSetPeerOptions } from '@lib/appImManager';
 import rootScope from '@lib/rootScope';
 import safeAssign from '@helpers/object/safeAssign';
 import ListenerSetter from '@helpers/listenerSetter';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import PopupGiftLink from '@components/popups/giftLink';
 
 export type PopupPremiumProps = {
@@ -68,7 +68,7 @@ export default class PopupPremium extends PopupElement {
       overlayClosable: true,
       closable: true,
       body: true,
-      title: 'Premium.Boarding.Title'
+      title: 'Premium.Boarding.Title',
     });
 
     safeAssign(this, options);
@@ -87,19 +87,19 @@ export default class PopupPremium extends PopupElement {
   }) => {
     const [titleLangArgs, subtitleLangArgs] = await Promise.all([
       obj._titleLangArgs,
-      obj._subtitleLangArgs
+      obj._subtitleLangArgs,
     ].map((c) => c && c(this.managers)));
 
-    return {titleLangArgs, subtitleLangArgs};
+    return { titleLangArgs, subtitleLangArgs };
   };
 
   private filterOrder(premiumPromo: HelpPremiumPromo, order: PremiumPromoFeatureType[]) {
     return (order || []).filter((feature) => {
       const hasFeature = !!PREMIUM_FEATURES[feature];
-      if(!hasFeature) {
+      if (!hasFeature) {
         console.warn('premium feature is not implemented', feature);
         const videoIndex = premiumPromo.video_sections.indexOf(feature);
-        if(videoIndex !== -1) {
+        if (videoIndex !== -1) {
           premiumPromo.video_sections.splice(videoIndex, 1);
           premiumPromo.videos.splice(videoIndex, 1);
         }
@@ -114,11 +114,11 @@ export default class PopupPremium extends PopupElement {
       const f = PREMIUM_FEATURES[feature];
 
       let content = f!.content;
-      if(content) {
+      if (content) {
         content = await Promise.all(content.map(async(c) => {
           return {
             ...(await this.prepareArguments(c)),
-            ...c
+            ...c,
           };
         }));
       }
@@ -127,10 +127,10 @@ export default class PopupPremium extends PopupElement {
       const ff = {
         ...(await this.prepareArguments(f!)),
         ...f,
-        ...{content},
-        video
+        ...{ content },
+        video,
       } as PremiumPromoFeature;
-      if(video) ff.videoPosition ??= 'bottom';
+      if (video) ff.videoPosition ??= 'bottom';
 
       return ff;
     }));
@@ -139,7 +139,7 @@ export default class PopupPremium extends PopupElement {
   private async initTabs() {
     const [premiumPromo, appConfig] = await Promise.all([
       this.managers.appPaymentsManager.getPremiumPromo(),
-      this.managers.apiManager.getAppConfig()
+      this.managers.apiManager.getAppConfig(),
     ]);
 
     const order = this.filterOrder(premiumPromo, appConfig.premium_promo_order!);
@@ -159,7 +159,7 @@ export default class PopupPremium extends PopupElement {
       isOut: (this.isOut || this.stack?.isOut)!,
       type: this.gift ? 'gift' : 'premium',
       stack: this.stack,
-      listenerSetter: this.listenerSetter
+      listenerSetter: this.listenerSetter,
     };
 
     this.giftDetails = getGiftDetails(this.props);
@@ -187,7 +187,7 @@ export default class PopupPremium extends PopupElement {
     tabsContainer.append(...tabs);
 
     this.container.append(...[tabsContainer, this.actionButtonContainer].filter(Boolean));
-    if(!this.actionButtonContainer) {
+    if (!this.actionButtonContainer) {
       this.container.classList.add('no-button');
     }
 
@@ -211,37 +211,37 @@ export default class PopupPremium extends PopupElement {
       animateFirst: false,
       onTransitionEnd: (id) => {
         this.selectedTab = id;
-        if(id) {
+        if (id) {
           this.featureSlideTab.featureCarousel.ready(this.updateActionLayout);
         } else {
           this.updateActionLayout();
         }
-      }
+      },
     });
   }
 
   private createActionButton() {
-    if(this.props.type === 'gift') {
-      if(this.giftDetails!.isOutbound || !this.giftDetails!.isUnclaimed) {
+    if (this.props.type === 'gift') {
+      if (this.giftDetails!.isOutbound || !this.giftDetails!.isUnclaimed) {
         return;
       }
     }
 
-    this.actionButtonText = new I18n.IntlElement({key: 'OK'});
+    this.actionButtonText = new I18n.IntlElement({ key: 'OK' });
     this.actionButtonContainer = document.createElement('div');
     this.actionButtonContainer.classList.add('action-button-container');
     this.actionButton = Button(`btn-primary popup-gift-premium-confirm action-button shimmer`);
     this.actionButton.append(this.actionButtonText.element);
 
     let callback: () => void;
-    if(this.props.type === 'gift') {
+    if (this.props.type === 'gift') {
       callback = () => {
         const gift = this.props.gift as PaymentsCheckedGiftCode;
         PopupGiftLink.applyGiftCode(gift.slug!, this.actionButton, this);
       };
     } else {
       callback = () => {
-        if(this.props.isPremiumActive) {
+        if (this.props.isPremiumActive) {
           this.hide();
           return;
         }
@@ -250,7 +250,7 @@ export default class PopupPremium extends PopupElement {
       };
     }
 
-    attachClickEvent(this.actionButton, callback, {listenerSetter: this.listenerSetter, once: true});
+    attachClickEvent(this.actionButton, callback, { listenerSetter: this.listenerSetter, once: true });
 
     this.actionButtonContainer.append(this.actionButton);
   }
@@ -260,7 +260,7 @@ export default class PopupPremium extends PopupElement {
       container: this.tabsContainer,
       header: this.header,
       body: this.body,
-      ...this.props
+      ...this.props,
     });
 
     this.promoSlideTab.transition = this.transition;
@@ -277,40 +277,40 @@ export default class PopupPremium extends PopupElement {
     this.featureSlideTab = new FeatureSlideTab({
       header: this.header.cloneNode(true) as HTMLElement,
       actionButtonContainer: this.actionButtonContainer,
-      ...this.props
+      ...this.props,
     });
     this.featureSlideTab.transition = this.transition;
   }
 
   private updateActionLayout = (feature?: PremiumPromoFeature) => {
-    if(!this.actionButtonText) {
+    if (!this.actionButtonText) {
       return;
     }
 
-    if(this.props.type === 'gift') {
-      const {isOutbound, isUnclaimed} = this.giftDetails!;
-      if(!isOutbound && isUnclaimed) {
+    if (this.props.type === 'gift') {
+      const { isOutbound, isUnclaimed } = this.giftDetails!;
+      if (!isOutbound && isUnclaimed) {
         this.actionButtonText.compareAndUpdate({
-          key: 'GiftPremiumActivateForFree'
+          key: 'GiftPremiumActivateForFree',
         });
       }
 
       return;
     }
 
-    if(this.props.isPremiumActive) {
+    if (this.props.isPremiumActive) {
       return;
     }
 
     this.actionButtonText.compareAndUpdate({
       key: feature?.actionTitleLangKey || 'Premium.Boarding.Subscribe',
-      args: [this.wrapCurrency(+this.option.amount / this.option.months)]
+      args: [this.wrapCurrency(+this.option.amount / this.option.months)],
     });
 
     const previousIcon = this.actionButton.querySelector('.tgico');
     const newIcon = feature?.actionIcon && Icon(feature.actionIcon, 'row-icon', 'action-button-icon');
-    if(!newIcon) previousIcon?.remove();
-    else if(previousIcon) previousIcon?.replaceWith(newIcon);
+    if (!newIcon) previousIcon?.remove();
+    else if (previousIcon) previousIcon?.replaceWith(newIcon);
     else this.actionButton.append(newIcon);
   };
 

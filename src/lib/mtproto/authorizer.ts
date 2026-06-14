@@ -6,26 +6,26 @@
  */
 
 import type MTTransport from '@lib/mtproto/transports/transport';
-import type {TimeManager} from '@lib/mtproto/timeManager';
-import type {DcConfigurator, TransportType} from '@lib/mtproto/dcConfigurator';
+import type { TimeManager } from '@lib/mtproto/timeManager';
+import type { DcConfigurator, TransportType } from '@lib/mtproto/dcConfigurator';
 import transportController from '@lib/mtproto/transports/controller';
-import {TLSerialization, TLDeserialization} from '@lib/mtproto/tl_utils';
+import { TLSerialization, TLDeserialization } from '@lib/mtproto/tl_utils';
 import rsaKeysManager from '@lib/mtproto/rsaKeysManager';
 import CryptoWorker from '@lib/crypto/cryptoMessagePort';
-import {logger} from '@lib/logger';
+import { logger } from '@lib/logger';
 import DEBUG from '@config/debug';
-import {DcId, Modify} from '@types';
+import { DcId, Modify } from '@types';
 import addPadding from '@helpers/bytes/addPadding';
 import bytesCmp from '@helpers/bytes/bytesCmp';
 import bytesFromHex from '@helpers/bytes/bytesFromHex';
 import bytesToHex from '@helpers/bytes/bytesToHex';
 import bytesXor from '@helpers/bytes/bytesXor';
-import {bigIntFromBytes} from '@helpers/bigInt/bigIntConversion';
+import { bigIntFromBytes } from '@helpers/bigInt/bigIntConversion';
 import bigInt from 'big-integer';
 import Modes from '@config/modes';
 import tsNow from '@helpers/tsNow';
-import {randomBytes} from '@helpers/random';
-import {MTAuthKey} from '@lib/mtproto/authKey';
+import { randomBytes } from '@helpers/random';
+import { MTAuthKey } from '@lib/mtproto/authKey';
 import safeAssign from '@helpers/object/safeAssign';
 
 type AuthOptions = {
@@ -143,51 +143,51 @@ export class Authorizer {
 
     const baseError = {
       code: 406,
-      type: 'NETWORK_BAD_RESPONSE'
+      type: 'NETWORK_BAD_RESPONSE',
     };
 
-    if(DEBUG) {
+    if (DEBUG) {
       this.log('mtpSendPlainRequest: creating requestPromise');
     }
 
     const promise = transport.send(resultArray) as any as Promise<Uint8Array>;
     return promise.then((result) => {
-      if(DEBUG) {
+      if (DEBUG) {
         this.log('mtpSendPlainRequest: in good sector', result);
       }
 
-      if(!result || !result.byteLength) {
+      if (!result || !result.byteLength) {
         throw baseError;
       }
 
       try {
-        const deserializer = new TLDeserialization<MTLong>(result, {mtproto: true});
+        const deserializer = new TLDeserialization<MTLong>(result, { mtproto: true });
 
-        if(result.length === 4) {
+        if (result.length === 4) {
           const errorCode = deserializer.fetchInt();
           this.log.error('mtpSendPlainRequest: wrong response, error code:', errorCode);
           throw errorCode;
         }
 
         const auth_key_id = deserializer.fetchLong('auth_key_id');
-        if(auth_key_id !== '0') this.log.error('auth_key_id !== 0', auth_key_id);
+        if (auth_key_id !== '0') this.log.error('auth_key_id !== 0', auth_key_id);
 
         const msg_id = deserializer.fetchLong('msg_id');
-        if(msg_id === '0') this.log.error('msg_id === 0', msg_id);
+        if (msg_id === '0') this.log.error('msg_id === 0', msg_id);
 
         const msg_len = deserializer.fetchInt('msg_len');
-        if(!msg_len) this.log.error('no msg_len', msg_len);
+        if (!msg_len) this.log.error('no msg_len', msg_len);
 
         return deserializer;
-      } catch(e) {
+      } catch (e) {
         this.log.error('mtpSendPlainRequest: deserialization went bad', e);
-        const error = Object.assign(baseError, {originalError: e});
+        const error = Object.assign(baseError, { originalError: e });
         throw error;
       }
     }, (error) => {
-      if(!error.message && !error.type) {
+      if (!error.message && !error.type) {
         error = Object.assign(baseError, {
-          originalError: error
+          originalError: error,
         });
       }
 
@@ -196,11 +196,11 @@ export class Authorizer {
   }
 
   private async sendReqPQ(auth: AuthOptions) {
-    const request = new TLSerialization({mtproto: true});
+    const request = new TLSerialization({ mtproto: true });
 
-    request.storeMethod('req_pq_multi', {nonce: auth.nonce});
+    request.storeMethod('req_pq_multi', { nonce: auth.nonce });
 
-    if(DEBUG) {
+    if (DEBUG) {
       this.log('Send req_pq', bytesToHex(auth.nonce));
     }
 
@@ -209,18 +209,18 @@ export class Authorizer {
       const promise = this.sendPlainRequest(auth.transport!, request.getBytes(true));
       rsaKeysManager.prepare();
       deserializer = await promise;
-    } catch(error) {
+    } catch (error) {
       this.log.error('req_pq error', (error as Error).message);
       throw error;
     }
 
     const response: ResPQ = deserializer.fetchObject('ResPQ');
 
-    if(response._ !== 'resPQ') {
+    if (response._ !== 'resPQ') {
       throw new Error('[MT] resPQ response invalid: ' + response._);
     }
 
-    if(!bytesCmp(auth.nonce, response.nonce)) {
+    if (!bytesCmp(auth.nonce, response.nonce)) {
       this.log.error(auth.nonce, response.nonce);
       throw new Error('[MT] resPQ nonce mismatch');
     }
@@ -229,25 +229,25 @@ export class Authorizer {
     auth.pq = response.pq;
     auth.fingerprints = response.server_public_key_fingerprints;
 
-    if(DEBUG) {
+    if (DEBUG) {
       this.log('Got ResPQ', bytesToHex(auth.serverNonce), bytesToHex(auth.pq), auth.fingerprints);
     }
 
     const publicKey = await rsaKeysManager.select(auth.fingerprints);
-    if(!publicKey) {
+    if (!publicKey) {
       throw new Error('[MT] No public key found');
     }
 
     auth.publicKey = publicKey;
 
-    if(DEBUG) {
+    if (DEBUG) {
       this.log('PQ factorization start', auth.pq);
     }
 
     // let pAndQ: Awaited<ReturnType<typeof CryptoWorker['factorize']>>;
     try {
       var pAndQ = await CryptoWorker.invokeCrypto('factorize', auth.pq);
-    } catch(error) {
+    } catch (error) {
       this.log.error('worker error factorize', error);
       throw error;
     }
@@ -255,7 +255,7 @@ export class Authorizer {
     auth.p = pAndQ[0];
     auth.q = pAndQ[1];
 
-    if(DEBUG) {
+    if (DEBUG) {
       this.log('PQ factorization done', pAndQ);
     }
 
@@ -273,21 +273,21 @@ export class Authorizer {
       nonce: auth.nonce,
       server_nonce: auth.serverNonce!,
       new_nonce: auth.newNonce,
-      dc: (auth.dcId + (Modes.test ? 10000 : 0)) * (auth.media ? -1 : 1)
+      dc: (auth.dcId + (Modes.test ? 10000 : 0)) * (auth.media ? -1 : 1),
     };
 
     const maxBytesLength = 144 + (auth.temp ? 4 : 0);
-    if(auth.temp) {
+    if (auth.temp) {
       (p_q_inner_data_dc as any)._ = 'p_q_inner_data_temp_dc';
       (p_q_inner_data_dc as any).expires_in = auth.expiresIn = TEMP_EXPIRATION_TIME;
       auth.expiresAt = tsNow(true) + auth.expiresIn;
     }
 
-    const pQInnerDataSerialization = new TLSerialization({mtproto: true});
+    const pQInnerDataSerialization = new TLSerialization({ mtproto: true });
     pQInnerDataSerialization.storeObject(p_q_inner_data_dc, 'P_Q_inner_data', 'DECRYPTED_DATA');
 
     const data = pQInnerDataSerialization.getBytes(true);
-    if(data.length > maxBytesLength) {
+    if (data.length > maxBytesLength) {
       throw 'DH_params: data is more than 144 bytes!';
     }
 
@@ -295,10 +295,10 @@ export class Authorizer {
     const dataPadReversed = dataWithPadding.slice().reverse();
 
     const getKeyAesEncrypted = async() => {
-      for(;;) {
+      for (;;) {
         const tempKey = randomBytes(32);
         const dataWithHash = dataPadReversed.concat(await CryptoWorker.invokeCrypto('sha256', tempKey.concat(dataWithPadding)));
-        if(dataWithHash.length !== 224) {
+        if (dataWithHash.length !== 224) {
           throw 'DH_params: dataWithHash !== 224 bytes!';
         }
 
@@ -310,7 +310,7 @@ export class Authorizer {
         const keyAesEncryptedBigInt = bigIntFromBytes(keyAesEncrypted);
         const publicKeyModulusBigInt = bigInt(auth.publicKey!.modulus, 16);
 
-        if(keyAesEncryptedBigInt.compare(publicKeyModulusBigInt) === -1) {
+        if (keyAesEncryptedBigInt.compare(publicKeyModulusBigInt) === -1) {
           return keyAesEncrypted;
         }
       }
@@ -325,47 +325,47 @@ export class Authorizer {
       p: auth.p!,
       q: auth.q!,
       public_key_fingerprint: auth.publicKey!.fingerprint,
-      encrypted_data: encryptedData
+      encrypted_data: encryptedData,
     };
 
-    const request = new TLSerialization({mtproto: true});
+    const request = new TLSerialization({ mtproto: true });
     request.storeMethod('req_DH_params', req_DH_params);
 
     const requestBytes = request.getBytes(true);
 
-    if(DEBUG) {
+    if (DEBUG) {
       this.log('Send req_DH_params', req_DH_params/* , requestBytes.hex */);
     }
 
     let deserializer: Awaited<ReturnType<Authorizer['sendPlainRequest']>>;
     try {
       deserializer = await this.sendPlainRequest(auth.transport!, requestBytes);
-    } catch(error) {
+    } catch (error) {
       this.log.error('Send req_DH_params FAIL!', error);
       throw error;
     }
 
     const response = deserializer.fetchObject('Server_DH_Params', 'RESPONSE');
 
-    if(DEBUG) {
+    if (DEBUG) {
       this.log('Sent req_DH_params, response:', response);
     }
 
-    if(response._ !== 'server_DH_params_fail' && response._ !== 'server_DH_params_ok') {
+    if (response._ !== 'server_DH_params_fail' && response._ !== 'server_DH_params_ok') {
       throw new Error('[MT] Server_DH_Params response invalid: ' + response._);
     }
 
-    if(!bytesCmp(auth.nonce, response.nonce)) {
+    if (!bytesCmp(auth.nonce, response.nonce)) {
       throw new Error('[MT] Server_DH_Params nonce mismatch');
     }
 
-    if(!bytesCmp(auth.serverNonce!, response.server_nonce)) {
+    if (!bytesCmp(auth.serverNonce!, response.server_nonce)) {
       throw new Error('[MT] Server_DH_Params server_nonce mismatch');
     }
 
-    if(response._ === 'server_DH_params_fail') {
+    if (response._ === 'server_DH_params_fail') {
       const newNonceHash = (await CryptoWorker.invokeCrypto('sha1', auth.newNonce)).slice(-16);
-      if(!bytesCmp(newNonceHash, response.new_nonce_hash)) {
+      if (!bytesCmp(newNonceHash, response.new_nonce_hash)) {
         throw new Error('[MT] server_DH_params_fail new_nonce_hash mismatch');
       }
 
@@ -375,7 +375,7 @@ export class Authorizer {
     // fill auth object
     try {
       await this.decryptServerDhDataAnswer(auth, response.encrypted_answer);
-    } catch(e) {
+    } catch (e) {
       this.log.error('mtpDecryptServerDhDataAnswer FAILED!', e);
       throw e;
     }
@@ -390,32 +390,32 @@ export class Authorizer {
 
     // ! can't concat Array with Uint8Array!
     auth.tmpAesKey = (await CryptoWorker.invokeCrypto('sha1', auth.newNonce!.concat(auth.serverNonce!)))
-    .concat((await CryptoWorker.invokeCrypto('sha1', auth.serverNonce!.concat(auth.newNonce!))).slice(0, 12));
+      .concat((await CryptoWorker.invokeCrypto('sha1', auth.serverNonce!.concat(auth.newNonce!))).slice(0, 12));
 
     auth.tmpAesIv = (await CryptoWorker.invokeCrypto('sha1', auth.serverNonce!.concat(auth.newNonce!))).slice(12)
-    .concat(await CryptoWorker.invokeCrypto('sha1', auth.newNonce!.concat(auth.newNonce!)), auth.newNonce!.slice(0, 4));
+      .concat(await CryptoWorker.invokeCrypto('sha1', auth.newNonce!.concat(auth.newNonce!)), auth.newNonce!.slice(0, 4));
 
     const answerWithHash = new Uint8Array(await CryptoWorker.invokeCrypto('aes-decrypt', encryptedAnswer, auth.tmpAesKey, auth.tmpAesIv));
 
     const hash = answerWithHash.slice(0, 20);
     const answerWithPadding = answerWithHash.slice(20);
 
-    const deserializer = new TLDeserialization<MTLong>(answerWithPadding, {mtproto: true});
+    const deserializer = new TLDeserialization<MTLong>(answerWithPadding, { mtproto: true });
     const response = deserializer.fetchObject('Server_DH_inner_data');
 
-    if(response._ !== 'server_DH_inner_data') {
+    if (response._ !== 'server_DH_inner_data') {
       throw new Error('[MT] server_DH_inner_data response invalid: ' + response);
     }
 
-    if(!bytesCmp(auth.nonce, response.nonce)) {
+    if (!bytesCmp(auth.nonce, response.nonce)) {
       throw new Error('[MT] server_DH_inner_data nonce mismatch');
     }
 
-    if(!bytesCmp(auth.serverNonce!, response.server_nonce)) {
+    if (!bytesCmp(auth.serverNonce!, response.server_nonce)) {
       throw new Error('[MT] server_DH_inner_data serverNonce mismatch');
     }
 
-    if(DEBUG) {
+    if (DEBUG) {
       this.log('Done decrypting answer');
     }
     auth.g = response.g;
@@ -428,7 +428,7 @@ export class Authorizer {
 
     const offset = deserializer.getOffset();
 
-    if(!bytesCmp(hash, await CryptoWorker.invokeCrypto('sha1', answerWithPadding.slice(0, offset)))) {
+    if (!bytesCmp(hash, await CryptoWorker.invokeCrypto('sha1', answerWithPadding.slice(0, offset)))) {
       throw new Error('[MT] server_DH_inner_data SHA1 mismatch');
     }
 
@@ -436,45 +436,45 @@ export class Authorizer {
   }
 
   private verifyDhParams(g: number, dhPrime: Uint8Array, gA: Uint8Array) {
-    if(DEBUG) {
+    if (DEBUG) {
       this.log('Verifying DH params', g, dhPrime, gA);
     }
 
     const dhPrimeHex = bytesToHex(dhPrime);
-    if(g !== 3 || dhPrimeHex !== 'c71caeb9c6b1c9048e6c522f70f13f73980d40238e3e21c14934d037563d930f48198a0aa7c14058229493d22530f4dbfa336f6e0ac925139543aed44cce7c3720fd51f69458705ac68cd4fe6b6b13abdc9746512969328454f18faf8c595f642477fe96bb2a941d5bcd1d4ac8cc49880708fa9b378e3c4f3a9060bee67cf9a4a4a695811051907e162753b56b0f6b410dba74d8a84b2a14b3144e0ef1284754fd17ed950d5965b4b9dd46582db1178d169c6bc465b0d6ff9ca3928fef5b9ae4e418fc15e83ebea0f87fa9ff5eed70050ded2849f47bf959d956850ce929851f0d8115f635b105ee2e4e15d04b2454bf6f4fadf034b10403119cd8e3b92fcc5b') {
+    if (g !== 3 || dhPrimeHex !== 'c71caeb9c6b1c9048e6c522f70f13f73980d40238e3e21c14934d037563d930f48198a0aa7c14058229493d22530f4dbfa336f6e0ac925139543aed44cce7c3720fd51f69458705ac68cd4fe6b6b13abdc9746512969328454f18faf8c595f642477fe96bb2a941d5bcd1d4ac8cc49880708fa9b378e3c4f3a9060bee67cf9a4a4a695811051907e162753b56b0f6b410dba74d8a84b2a14b3144e0ef1284754fd17ed950d5965b4b9dd46582db1178d169c6bc465b0d6ff9ca3928fef5b9ae4e418fc15e83ebea0f87fa9ff5eed70050ded2849f47bf959d956850ce929851f0d8115f635b105ee2e4e15d04b2454bf6f4fadf034b10403119cd8e3b92fcc5b') {
       // The verified value is from https://core.telegram.org/mtproto/security_guidelines
       throw new Error('[MT] DH params are not verified: unknown dhPrime');
     }
 
-    if(DEBUG) {
+    if (DEBUG) {
       this.log('dhPrime cmp OK');
     }
 
     const gABigInt = bigIntFromBytes(gA);
     const dhPrimeBigInt = bigInt(dhPrimeHex, 16);
 
-    if(gABigInt.compare(bigInt.one) <= 0) {
+    if (gABigInt.compare(bigInt.one) <= 0) {
       throw new Error('[MT] DH params are not verified: gA <= 1');
     }
 
-    if(gABigInt.compare(dhPrimeBigInt.subtract(bigInt.one)) >= 0) {
+    if (gABigInt.compare(dhPrimeBigInt.subtract(bigInt.one)) >= 0) {
       throw new Error('[MT] DH params are not verified: gA >= dhPrime - 1');
     }
 
-    if(DEBUG) {
+    if (DEBUG) {
       this.log('1 < gA < dhPrime-1 OK');
     }
 
     const twoPow = bigInt(2).pow(2048 - 64);
 
-    if(gABigInt.compare(twoPow) < 0) {
+    if (gABigInt.compare(twoPow) < 0) {
       throw new Error('[MT] DH params are not verified: gA < 2^{2048-64}');
     }
-    if(gABigInt.compare(dhPrimeBigInt.subtract(twoPow)) >= 0) {
+    if (gABigInt.compare(dhPrimeBigInt.subtract(twoPow)) >= 0) {
       throw new Error('[MT] DH params are not verified: gA > dhPrime - 2^{2048-64}');
     }
 
-    if(DEBUG) {
+    if (DEBUG) {
       this.log('2^{2048-64} < gA < dhPrime-2^{2048-64} OK');
     }
 
@@ -489,79 +489,79 @@ export class Authorizer {
     // let gB: Awaited<ReturnType<typeof CryptoWorker['modPow']>>;
     try {
       var gB = await CryptoWorker.invokeCrypto('mod-pow', gBytes, auth.b, auth.dhPrime!);
-    } catch(error) {
+    } catch (error) {
       throw error;
     }
 
-    const data = new TLSerialization({mtproto: true});
+    const data = new TLSerialization({ mtproto: true });
     data.storeObject({
       _: 'client_DH_inner_data',
       nonce: auth.nonce,
       server_nonce: auth.serverNonce,
       retry_id: [0, auth.retry!++],
-      g_b: gB
+      g_b: gB,
     }, 'Client_DH_Inner_Data');
 
     const dataWithHash = (await CryptoWorker.invokeCrypto('sha1', data.getBuffer())).concat(data.getBytes(true));
     const encryptedData = await CryptoWorker.invokeCrypto('aes-encrypt', dataWithHash, auth.tmpAesKey!, auth.tmpAesIv!);
 
-    const request = new TLSerialization({mtproto: true});
+    const request = new TLSerialization({ mtproto: true });
     request.storeMethod('set_client_DH_params', {
       nonce: auth.nonce,
       server_nonce: auth.serverNonce,
-      encrypted_data: encryptedData
+      encrypted_data: encryptedData,
     });
 
-    if(DEBUG) {
+    if (DEBUG) {
       this.log('Send set_client_DH_params');
     }
 
     let deserializer: Awaited<ReturnType<Authorizer['sendPlainRequest']>>;
     try {
       deserializer = await this.sendPlainRequest(auth.transport!, request.getBytes(true));
-    } catch(err) {
+    } catch (err) {
       throw err;
     }
 
     const response = deserializer.fetchObject('Set_client_DH_params_answer');
 
-    if(response._ !== 'dh_gen_ok' && response._ !== 'dh_gen_retry' && response._ !== 'dh_gen_fail') {
+    if (response._ !== 'dh_gen_ok' && response._ !== 'dh_gen_retry' && response._ !== 'dh_gen_fail') {
       throw new Error('[MT] Set_client_DH_params_answer response invalid: ' + response._);
     }
 
-    if(!bytesCmp(auth.nonce, response.nonce)) {
+    if (!bytesCmp(auth.nonce, response.nonce)) {
       throw new Error('[MT] Set_client_DH_params_answer nonce mismatch');
     }
 
-    if(!bytesCmp(auth.serverNonce!, response.server_nonce)) {
+    if (!bytesCmp(auth.serverNonce!, response.server_nonce)) {
       throw new Error('[MT] Set_client_DH_params_answer server_nonce mismatch');
     }
 
     // let authKey: Uint8Array;
     try {
       var authKey = await CryptoWorker.invokeCrypto('mod-pow', auth.gA!, auth.b, auth.dhPrime!);
-    } catch(err) {
-      throw new Error('mod-pow error', {cause: err});
+    } catch (err) {
+      throw new Error('mod-pow error', { cause: err });
     }
 
     const authKeyHash = await CryptoWorker.invokeCrypto('sha1', authKey),
       authKeyAux = authKeyHash.slice(0, 8),
       authKeyId = authKeyHash.slice(-8);
 
-    if(DEBUG) {
+    if (DEBUG) {
       this.log('Got Set_client_DH_params_answer', response._, authKey);
     }
-    switch(response._) {
+    switch (response._) {
       case 'dh_gen_ok': {
         const newNonceHash1 = (await CryptoWorker.invokeCrypto('sha1', auth.newNonce!.concat([1], authKeyAux))).slice(-16);
 
-        if(!bytesCmp(newNonceHash1, response.new_nonce_hash1)) {
+        if (!bytesCmp(newNonceHash1, response.new_nonce_hash1)) {
           this.log.error('Set_client_DH_params_answer new_nonce_hash1 mismatch', newNonceHash1, response);
           throw new Error('new_nonce_hash1 mismatch');
         }
 
         const serverSalt = bytesXor(auth.newNonce!.slice(0, 8), auth.serverNonce!.slice(0, 8));
-        if(DEBUG) {
+        if (DEBUG) {
           this.log('Auth successfull!', authKeyId, authKey, serverSalt);
         }
 
@@ -573,7 +573,7 @@ export class Authorizer {
 
       case 'dh_gen_retry': {
         const newNonceHash2 = (await CryptoWorker.invokeCrypto('sha1', auth.newNonce!.concat([2], authKeyAux))).slice(-16);
-        if(!bytesCmp(newNonceHash2, response.new_nonce_hash2)) {
+        if (!bytesCmp(newNonceHash2, response.new_nonce_hash2)) {
           throw new Error('[MT] Set_client_DH_params_answer new_nonce_hash2 mismatch');
         }
 
@@ -582,7 +582,7 @@ export class Authorizer {
 
       case 'dh_gen_fail': {
         const newNonceHash3 = (await CryptoWorker.invokeCrypto('sha1', auth.newNonce!.concat([3], authKeyAux))).slice(-16);
-        if(!bytesCmp(newNonceHash3, response.new_nonce_hash3)) {
+        if (!bytesCmp(newNonceHash3, response.new_nonce_hash3)) {
           throw new Error('[MT] Set_client_DH_params_answer new_nonce_hash3 mismatch');
         }
 
@@ -594,19 +594,19 @@ export class Authorizer {
   }
 
   private getTransportType = () => {
-    if(!import.meta.env.VITE_MTPROTO_AUTO || !Modes.multipleTransports) {
+    if (!import.meta.env.VITE_MTPROTO_AUTO || !Modes.multipleTransports) {
       return;
     }
 
-    if(this.getTransportTypePromise) return this.getTransportTypePromise;
-    return this.getTransportTypePromise = transportController.pingTransports().then(({websocket}) => {
+    if (this.getTransportTypePromise) return this.getTransportTypePromise;
+    return this.getTransportTypePromise = transportController.pingTransports().then(({ websocket }) => {
       this.transportType = websocket ? 'websocket' : 'https';
       this.log('will use transport:', this.transportType);
     });
   };
 
   private async __auth(dcId: DcId, temp: boolean) {
-    if(Modes.noPfs && temp) {
+    if (Modes.noPfs && temp) {
       return;
     }
 
@@ -615,7 +615,7 @@ export class Authorizer {
       nonce: randomBytes(16),
       temp,
       transport: this.dcConfigurator.chooseServer(dcId, 'client', this.transportType, !temp)!,
-      media: false
+      media: false,
     };
 
     return this.sendReqPQ(auth);
@@ -626,10 +626,10 @@ export class Authorizer {
 
     let error: ApiError;
     let retries = 0;
-    while(++retries <= 3) {
+    while (++retries <= 3) {
       try {
         return await this.__auth(dcId, temp);
-      } catch(err) {
+      } catch (err) {
         error = err as ApiError;
       }
     }

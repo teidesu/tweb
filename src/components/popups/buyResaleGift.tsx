@@ -1,20 +1,20 @@
-import {createEffect, createSignal, on} from 'solid-js';
+import { createEffect, createSignal, on } from 'solid-js';
 import PopupElement from '.';
 import safeAssign from '@helpers/object/safeAssign';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {MyStarGift} from '@appManagers/appGiftsManager';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { MyStarGift } from '@appManagers/appGiftsManager';
 import rootScope from '@lib/rootScope';
-import {PeerTitleTsx} from '@components/peerTitleTsx';
+import { PeerTitleTsx } from '@components/peerTitleTsx';
 
 import styles from '@components/popups/buyResaleGift.module.scss';
 import paymentsWrapCurrencyAmount from '@helpers/paymentsWrapCurrencyAmount';
-import {STARS_CURRENCY, TON_CURRENCY} from '@appManagers/constants';
-import {StarGift} from '@layer';
+import { STARS_CURRENCY, TON_CURRENCY } from '@appManagers/constants';
+import { StarGift } from '@layer';
 import numberThousandSplitter from '@helpers/number/numberThousandSplitter';
-import {FloatingStarsBalance} from '@components/popups/floatingStarsBalance';
+import { FloatingStarsBalance } from '@components/popups/floatingStarsBalance';
 import PopupPayment from '@components/popups/payment';
-import {StarGiftTransferPreview} from '@components/stargifts/transferPreview';
-import {ChipTab, ChipTabs} from '@components/chipTabs';
+import { StarGiftTransferPreview } from '@components/stargifts/transferPreview';
+import { ChipTab, ChipTabs } from '@components/chipTabs';
 
 export default class PopupBuyResaleGift extends PopupElement<{
   finish: (result: boolean) => void
@@ -29,11 +29,11 @@ export default class PopupBuyResaleGift extends PopupElement<{
   }) {
     super(styles.popup, {
       overlayClosable: true,
-      body: true
+      body: true,
     });
 
     this.addEventListener('close', () => {
-      if(!this.finished) {
+      if (!this.finished) {
         this.dispatchEvent('finish', false);
       }
     });
@@ -60,37 +60,37 @@ export default class PopupBuyResaleGift extends PopupElement<{
           langArgs: [
               ton ?
                 paymentsWrapCurrencyAmount(this.gift.resellPriceTon!, TON_CURRENCY) :
-                paymentsWrapCurrencyAmount(this.gift.resellPriceStars!, STARS_CURRENCY)
+                paymentsWrapCurrencyAmount(this.gift.resellPriceStars!, STARS_CURRENCY),
           ],
           callback: async() => {
             const popup = await PopupPayment.create({
               inputInvoice: {
                 _: 'inputInvoiceStarGiftResale',
-                pFlags: {ton: ton ? true : undefined},
+                pFlags: { ton: ton ? true : undefined },
                 slug: gift.slug,
-                to_id: await rootScope.managers.appPeersManager.getInputPeerById(this.recipientId)
+                to_id: await rootScope.managers.appPeersManager.getInputPeerById(this.recipientId),
               },
               noShowIfStars: true,
-              purpose: 'stargift'
+              purpose: 'stargift',
             });
 
             popup.addEventListener('finish', (result) => {
-              if(result === 'paid' || result === 'pending') {
+              if (result === 'paid' || result === 'pending') {
                 this.finished = true;
                 this.dispatchEvent('finish', true);
                 this.hide()
               }
             });
             return false;
-          }
+          },
         },
         {
           langKey: 'Cancel',
           callback: () => {
             this.finished = true
             this.dispatchEvent('finish', false);
-          }
-        }
+          },
+        },
       ])
     }))
 
@@ -134,7 +134,7 @@ export default class PopupBuyResaleGift extends PopupElement<{
               ton() ?
                 paymentsWrapCurrencyAmount(this.gift.resellPriceTon!, TON_CURRENCY, false, false, true) :
                 paymentsWrapCurrencyAmount(this.gift.resellPriceStars!, STARS_CURRENCY, false, false, true),
-              this.recipientId !== rootScope.myId && <PeerTitleTsx peerId={this.recipientId} />
+              this.recipientId !== rootScope.myId && <PeerTitleTsx peerId={this.recipientId} />,
             ]}
           />
         </div>

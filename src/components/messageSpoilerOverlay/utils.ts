@@ -1,8 +1,8 @@
-import {animate} from '@helpers/animation';
+import { animate } from '@helpers/animation';
 import deferredPromise from '@helpers/cancellablePromise';
-import {unwrapEasing} from '@helpers/easings';
+import { unwrapEasing } from '@helpers/easings';
 import themeController from '@helpers/themeController';
-import {logger} from '@lib/logger';
+import { logger } from '@lib/logger';
 
 export const UnwrapEasing = unwrapEasing;
 
@@ -27,7 +27,7 @@ export function getInnerCustomRect(parentRect: DOMRect, rect: CustomDOMRect): Cu
     left: Math.floor(rect.left - parentRect.left),
     top: Math.floor(rect.top - parentRect.top),
     width: Math.ceil(rect.width + 0.99),
-    height: Math.ceil(rect.height + 0.99)
+    height: Math.ceil(rect.height + 0.99),
   };
 }
 
@@ -36,7 +36,7 @@ export function getActualRectForCustomRect(parentRect: DOMRect, rect: CustomDOMR
     left: parentRect.left + rect.left,
     top: parentRect.top + rect.top,
     width: rect.width,
-    height: rect.height
+    height: rect.height,
   };
 }
 
@@ -57,7 +57,7 @@ export function getTimeForDist(dist: number) {
 
 export function toDOMRectArray(list: DOMRectList) {
   const result: DOMRect[] = [];
-  for(let i = 0; i < list.length; i++) {
+  for (let i = 0; i < list.length; i++) {
     result.push(list.item(i)!);
   }
   return result;
@@ -66,10 +66,10 @@ export function toDOMRectArray(list: DOMRectList) {
 export function isMouseCloseToAnySpoilerElement(e: MouseEvent, parentElement: HTMLElement, spanRects: CustomDOMRect[]) {
   const overlayRect = parentElement.getBoundingClientRect();
 
-  for(const rect of spanRects) {
+  for (const rect of spanRects) {
     const actualRect = getActualRectForCustomRect(overlayRect, rect);
 
-    if(
+    if (
       actualRect.left <= e.clientX &&
       e.clientX <= actualRect.left + actualRect.width &&
       actualRect.top <= e.clientY &&
@@ -98,10 +98,10 @@ export async function waitResizeToBePainted(resizeEntry: ResizeObserverEntry) {
 
   animate(() => {
     skip = (skip + 1) % RESIZE_PAINT_SKIP_FRAMES;
-    if(skip) return true;
+    if (skip) return true;
 
     const targetRect = resizeEntry.target.getBoundingClientRect();
-    if(
+    if (
       Math.abs(targetRect.width - entryRect.width) < GENEROUS_COMPARISON_ERROR &&
       Math.abs(targetRect.height - entryRect.height) < GENEROUS_COMPARISON_ERROR
     ) {
@@ -119,14 +119,14 @@ export async function waitResizeToBePainted(resizeEntry: ResizeObserverEntry) {
 
 function parseRgba(rgba: string): RGBA {
   const match = rgba.match(/rgba?\((\d+), (\d+), (\d+),?\s?(\d?.?\d+)?\)/);
-  if(!match) return {
-    r: 0, g: 0, b: 0, a: 0
+  if (!match) return {
+    r: 0, g: 0, b: 0, a: 0,
   };
   return {
     r: parseInt(match[1], 10),
     g: parseInt(match[2], 10),
     b: parseInt(match[3], 10),
-    a: parseFloat(match[4] ?? '1')
+    a: parseFloat(match[4] ?? '1'),
   };
 }
 
@@ -145,17 +145,17 @@ function blendColors(base: RGBA, overlay: RGBA): RGBA {
     r,
     g,
     b,
-    a: blendedAlpha
+    a: blendedAlpha,
   };
 }
 
 export function computeFinalBackgroundColor(element: HTMLElement) {
-  let color = {r: 0, g: 0, b: 0, a: 0};
+  let color = { r: 0, g: 0, b: 0, a: 0 };
   let maxDepth = 10;
 
-  while(element && color.a < 1 && maxDepth--) {
+  while (element && color.a < 1 && maxDepth--) {
     const bgColor = window.getComputedStyle(element).backgroundColor;
-    if(bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
+    if (bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
       const rgba = parseRgba(bgColor);
       color = blendColors(rgba, color);
     }
@@ -171,17 +171,17 @@ export function getCustomDOMRectsForSpoilerSpan(el: HTMLElement, parentRect: DOM
   const originalRects = toDOMRectArray(el.getClientRects());
 
   const normalizedRects = originalRects
-  .map((spoilerRect) => getInnerCustomRect(parentRect, spoilerRect))
-  .map((rect) => ({...rect, color}));
+    .map((spoilerRect) => getInnerCustomRect(parentRect, spoilerRect))
+    .map((rect) => ({ ...rect, color }));
 
   let blockquote;
 
-  if(blockquote = el.closest('blockquote')) {
+  if (blockquote = el.closest('blockquote')) {
     const bqRect = blockquote.getBoundingClientRect();
 
     return normalizedRects
     // Blockquote collapsed case
-    .filter((rect) => rect.top + parentRect.top + rect.height < bqRect.bottom);
+      .filter((rect) => rect.top + parentRect.top + rect.height < bqRect.bottom);
   }
 
   return normalizedRects;
@@ -190,22 +190,22 @@ export function getCustomDOMRectsForSpoilerSpan(el: HTMLElement, parentRect: DOM
 export function adjustSpaceBetweenCloseRects(rects: CustomDOMRect[]): CustomDOMRect[] {
   rects = [...rects].sort((a, b) => a.top - b.top);
 
-  for(let idx = 0; idx < rects.length - 1; idx++) {
+  for (let idx = 0; idx < rects.length - 1; idx++) {
     const rect = rects[idx];
 
     let nextIdx = idx ;
-    while(++nextIdx < rects.length) {
+    while (++nextIdx < rects.length) {
       const nextRect = rects[nextIdx];
 
       const dist = nextRect.top - (rect.top + rect.height);
-      if(dist <= MAX_SPACE_BETWEEN_SPOILER_LINES) {
-        if(dist < 0) continue;
+      if (dist <= MAX_SPACE_BETWEEN_SPOILER_LINES) {
+        if (dist < 0) continue;
 
         const flooredHalfDist = Math.floor(dist / 2); //  try to make whole pixels
         const restHalfDist = dist - flooredHalfDist;
 
-        rects[nextIdx] = {...nextRect, top: nextRect.top - flooredHalfDist, height: nextRect.height + flooredHalfDist};
-        rects[idx] = {...rect, height: rect.height + restHalfDist};
+        rects[nextIdx] = { ...nextRect, top: nextRect.top - flooredHalfDist, height: nextRect.height + flooredHalfDist };
+        rects[idx] = { ...rect, height: rect.height + restHalfDist };
       } else break;
     }
   }

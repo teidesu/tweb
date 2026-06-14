@@ -1,5 +1,5 @@
-import {Chat, ChatAdminRights, ChatBannedRights} from '@layer';
-import {ChatRights} from '@appManagers/appChatsManager';
+import { Chat, ChatAdminRights, ChatBannedRights } from '@layer';
+import { ChatRights } from '@appManagers/appChatsManager';
 
 /**
  * Check the user's ability to do an action in chat
@@ -15,18 +15,18 @@ export default function hasRights(
   rights?: ChatAdminRights | ChatBannedRights,
   isThread?: boolean
 ) {
-  if(!chat) return false;
+  if (!chat) return false;
 
-  if((chat as Chat.chat).pFlags.deactivated && action !== 'view_messages') {
+  if ((chat as Chat.chat).pFlags.deactivated && action !== 'view_messages') {
     return false;
   }
 
   const isCheckingRightsForSelf = rights === undefined;
-  if((chat as Chat.chat).pFlags.creator && isCheckingRightsForSelf/*  && action !== 'anonymous' */) {
+  if ((chat as Chat.chat).pFlags.creator && isCheckingRightsForSelf/*  && action !== 'anonymous' */) {
     return true;
   }
 
-  if(chat._ === 'chatForbidden' ||
+  if (chat._ === 'chatForbidden' ||
       chat._ === 'channelForbidden' ||
       // (chat as any).pFlags.kicked ||
       (chat.pFlags.left && !(chat as Chat.channel).pFlags.megagroup)) {
@@ -36,16 +36,16 @@ export default function hasRights(
   // const adminRights = chat.admin_rights;
   // const bannedRights = (chat as Chat.channel).banned_rights || chat.default_banned_rights;
 
-  if(!rights) {
+  if (!rights) {
     rights = chat.admin_rights || (chat as Chat.channel).banned_rights || chat.default_banned_rights;
 
-    if(!rights) {
+    if (!rights) {
       return false;
     }
   }
 
   let myFlags: Partial<{[flag in keyof ChatBannedRights['pFlags'] | keyof ChatAdminRights['pFlags']]: true}> = {};
-  if(rights) {
+  if (rights) {
     myFlags = rights.pFlags as any;
   }
 
@@ -54,7 +54,7 @@ export default function hasRights(
 
   const isAdmin = rights._ === 'chatAdminRights';
 
-  switch(action) {
+  switch (action) {
     case 'embed_links':
     case 'send_games':
     case 'send_gifs':
@@ -74,12 +74,12 @@ export default function hasRights(
       //   return false;
       // }
 
-      if(!isAdmin && myFlags[action]) {
+      if (!isAdmin && myFlags[action]) {
         return false;
       }
 
-      if(chat._ === 'channel') {
-        if((!chat.pFlags.megagroup || chat.pFlags.gigagroup) && !myFlags.post_messages) {
+      if (chat._ === 'channel') {
+        if ((!chat.pFlags.megagroup || chat.pFlags.gigagroup) && !myFlags.post_messages) {
           return false;
         }
       }

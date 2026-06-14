@@ -17,14 +17,14 @@
 // captureStream from canvas, etc.) — in those cases we err toward
 // mirroring, which is the common case.
 export default function shouldMirrorVideoTrack(track: MediaStreamTrack | undefined | null): boolean {
-  if(!track || track.kind !== 'video') return false;
+  if (!track || track.kind !== 'video') return false;
 
   let facingMode: string | undefined;
   try {
     const settings = track.getSettings();
-    if((settings as {displaySurface?: string})?.displaySurface) return false;
+    if ((settings as {displaySurface?: string})?.displaySurface) return false;
     facingMode = settings?.facingMode;
-  } catch(_) {}
+  } catch (_) {}
 
   // `getSettings().facingMode` is the spec signal, but iOS Safari leaves it
   // EMPTY when the camera was opened by `deviceId` (exact) instead of a
@@ -34,10 +34,10 @@ export default function shouldMirrorVideoTrack(track: MediaStreamTrack | undefin
   // and come out backwards. Recover the facing from `getCapabilities()` (its
   // `facingMode` is an array of the camera's supported modes; a physical
   // camera advertises exactly one)…
-  if(!facingMode) {
+  if (!facingMode) {
     try {
       facingMode = track.getCapabilities?.()?.facingMode?.[0];
-    } catch(_) {}
+    } catch (_) {}
   }
 
   // …and finally from the human-readable label, the most reliable rear signal
@@ -45,7 +45,7 @@ export default function shouldMirrorVideoTrack(track: MediaStreamTrack | undefin
   // Android Chrome ("camera2 0, facing back"). Desktop webcams advertise no
   // direction in their label, so they keep falling through to the mirror
   // default below — no regression for laptop FaceTime/USB cams.
-  if(!facingMode && /\b(back|rear)\b/i.test(track.label || '')) return false;
+  if (!facingMode && /\b(back|rear)\b/i.test(track.label || '')) return false;
 
   return facingMode !== 'environment';
 }

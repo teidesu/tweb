@@ -1,4 +1,4 @@
-import {MessageEntity} from '@layer';
+import { MessageEntity } from '@layer';
 import getEmojiEntityFromEmoji from '@lib/richTextProcessor/getEmojiEntityFromEmoji';
 import emojiRegExp from '@vendor/emoji/regex';
 
@@ -9,27 +9,27 @@ export default function getAbbreviation(str: string, onlyFirst = false): {
   entities: MessageEntity[]
 } {
   const splitted = (str || '').trim().split(' ');
-  if(!splitted[0]) return {text: '', entities: []};
+  if (!splitted[0]) return { text: '', entities: [] };
 
   const entities: MessageEntity.messageEntityEmoji[] = [];
 
   const firstEmojiMatch = splitted[0].match(EMOJI_REG_EXP);
   const first = firstEmojiMatch?.[0] || splitted[0][0];
-  if(firstEmojiMatch) {
+  if (firstEmojiMatch) {
     entities.push(getEmojiEntityFromEmoji(first));
   }
 
   const length = splitted.length;
-  if(onlyFirst || length === 1) return {text: first, entities};
+  if (onlyFirst || length === 1) return { text: first, entities };
 
   const lastEmojiMatch = splitted[length - 1].match(EMOJI_REG_EXP);
   const last = lastEmojiMatch?.[0] || splitted[length - 1][0];
-  if(lastEmojiMatch) {
+  if (lastEmojiMatch) {
     entities.push({
       ...getEmojiEntityFromEmoji(last),
-      offset: first.length
+      offset: first.length,
     });
   }
 
-  return {text: first + last, entities};
+  return { text: first + last, entities };
 }

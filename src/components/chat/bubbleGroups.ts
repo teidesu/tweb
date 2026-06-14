@@ -1,27 +1,27 @@
 import rootScope from '@lib/rootScope';
 // import { generatePathData } from '@helpers/dom';
-import {MyMessage} from '@appManagers/appMessagesManager';
+import { MyMessage } from '@appManagers/appMessagesManager';
 import type Chat from '@components/chat/chat';
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
 import insertInDescendSortedArray from '@helpers/array/insertInDescendSortedArray';
 import positionElementByIndex from '@helpers/dom/positionElementByIndex';
-import {KeyboardButtonRow, Message, ReplyMarkup} from '@layer';
-import {NULL_PEER_ID, REPLIES_PEER_ID, VERIFICATION_CODES_BOT_ID} from '@appManagers/constants';
-import ChatBubbles, {SERVICE_AS_REGULAR, STICKY_OFFSET} from '@components/chat/bubbles';
+import { KeyboardButtonRow, Message, ReplyMarkup } from '@layer';
+import { NULL_PEER_ID, REPLIES_PEER_ID, VERIFICATION_CODES_BOT_ID } from '@appManagers/constants';
+import ChatBubbles, { SERVICE_AS_REGULAR, STICKY_OFFSET } from '@components/chat/bubbles';
 import forEachReverse from '@helpers/array/forEachReverse';
 import partition from '@helpers/array/partition';
 import getMessageThreadId from '@appManagers/utils/messages/getMessageThreadId';
-import {avatarNew} from '@components/avatarNew';
-import {MiddlewareHelper} from '@helpers/middleware';
-import {ChatType} from './chatType';
+import { avatarNew } from '@components/avatarNew';
+import { MiddlewareHelper } from '@helpers/middleware';
+import { ChatType } from './chatType';
 import getFwdFromName from '@appManagers/utils/messages/getFwdFromName';
-import {getMid, isMessage, isMessageForVerificationBot} from '@components/chat/utils';
-import {canHaveSuggestedPostReplyMarkup} from '@components/chat/bubbleParts/suggestedPostReplyMarkup';
+import { getMid, isMessage, isMessageForVerificationBot } from '@components/chat/utils';
+import { canHaveSuggestedPostReplyMarkup } from '@components/chat/bubbleParts/suggestedPostReplyMarkup';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
-import {BubbleElementAddons} from '@components/chat/types';
+import { BubbleElementAddons } from '@components/chat/types';
 import ChatThreadSeparator from '@components/chat/bubbleParts/chatThreadSeparator';
 import SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
-import {AdminLog} from '@appManagers/appChatsManager';
+import { AdminLog } from '@appManagers/appChatsManager';
 
 
 type GroupItem = {
@@ -39,7 +39,7 @@ type GroupItem = {
 };
 
 function insertSomething<T>(to: Array<T>, what: T, sortKey: keyof T, reverse: boolean) {
-  if(!sortKey) {
+  if (!sortKey) {
     indexOfAndSplice(to, what);
     return (reverse ? to.push(what) : to.unshift(what)) - 1;
   } else {
@@ -88,10 +88,10 @@ export class BubbleGroup {
     const currentPeerId = this.chat.peerId;
 
     const getPeerIdForLog = (log: AdminLog) => {
-      const entry = this.chat.bubbles.resolveAdminLogUnsafe({log, noJsx: true});
+      const entry = this.chat.bubbles.resolveAdminLogUnsafe({ log, noJsx: true });
 
-      if(entry?.type === 'default') {
-        if(entry.message._ === 'message') return getPeerId(
+      if (entry?.type === 'default') {
+        if (entry.message._ === 'message') return getPeerId(
           entry.message.from_id ||
           entry.message.peer_id
         );
@@ -112,12 +112,12 @@ export class BubbleGroup {
       // peerId: fwdFromName ? NULL_PEER_ID : peerId,
       peerId,
       // peerTitle: !fwdFromId && fwdFrom && fwdFromName && peerId === NULL_PEER_ID ? /* '🔥 FF 🔥' */fwdFromName : undefined
-      peerTitle: peerId === NULL_PEER_ID ? fwdFromName : undefined
+      peerTitle: peerId === NULL_PEER_ID ? fwdFromName : undefined,
     };
   }
 
   destroyAvatar() {
-    if(!this.avatar) {
+    if (!this.avatar) {
       return;
     }
 
@@ -127,9 +127,9 @@ export class BubbleGroup {
   }
 
   createAvatar(message: Message.message | Message.messageService | AdminLog, options?: Partial<Parameters<typeof avatarNew>[0]>) {
-    if(this.avatarLoadPromise) {
+    if (this.avatarLoadPromise) {
       return this.avatarLoadPromise;
-    } else if(message._ === 'messageService') {
+    } else if (message._ === 'messageService') {
       return;
     }
 
@@ -141,7 +141,7 @@ export class BubbleGroup {
       middleware: this.middlewareHelper.get(),
       size: 40,
       lazyLoadQueue: this.chat.bubbles.lazyLoadQueue,
-      ...(options || this.getAvatarOptions(message))
+      ...(options || this.getAvatarOptions(message)),
     });
     this.avatar.node.classList.add('bubbles-group-avatar', 'user-avatar'/* , 'can-zoom-fade' */);
 
@@ -166,7 +166,7 @@ export class BubbleGroup {
   }
 
   updateAvatarClassNames(message = this.lastItem.message) {
-    if(!this.avatar || message?._ !== 'message') {
+    if (!this.avatar || message?._ !== 'message') {
       return;
     }
 
@@ -201,7 +201,7 @@ export class BubbleGroup {
   updateClassNames() {
     const items = this.items;
     const length = items.length;
-    if(!length) {
+    if (!length) {
       return;
     }
 
@@ -217,7 +217,7 @@ export class BubbleGroup {
 
     this.updateAvatarClassNames();
 
-    if(items.length === 1) {
+    if (items.length === 1) {
       first.classList.add('is-group-first', 'is-group-last');
       // this.setClipIfNeeded(first);
       return;
@@ -227,7 +227,7 @@ export class BubbleGroup {
       // this.setClipIfNeeded(first, true);
     }
 
-    for(let i = 1, _length = length - 1; i < _length; ++i) {
+    for (let i = 1, _length = length - 1; i < _length; ++i) {
       const bubble = items[i].bubble;
       bubble.classList.remove('is-group-last', 'is-group-first');
       // this.setClipIfNeeded(bubble, true);
@@ -240,11 +240,11 @@ export class BubbleGroup {
   }
 
   insertItem(item: GroupItem) {
-    const {items} = this;
+    const { items } = this;
     insertSomething(items, item, this.groups.sortGroupItemsKey, (this.groups.reverse = item.reverse!));
 
     item.group = this;
-    if(items.length === 1) {
+    if (items.length === 1) {
       this.groups.insertGroup(this);
     }
   }
@@ -252,7 +252,7 @@ export class BubbleGroup {
   removeItem(item: GroupItem) {
     indexOfAndSplice(this.items, item);
 
-    if(!this.items.length) {
+    if (!this.items.length) {
       indexOfAndSplice(this.groups.groups, this);
     }
 
@@ -260,23 +260,23 @@ export class BubbleGroup {
   }
 
   mount(updateClassNames?: boolean) {
-    if(!this.groups.groups.includes(this) || !this.items.length) { // group can be already removed
+    if (!this.groups.groups.includes(this) || !this.items.length) { // group can be already removed
       debugger;
 
-      if(this.mounted) {
+      if (this.mounted) {
         this.onItemUnmount();
       }
 
       return;
     }
 
-    const {offset, items} = this;
-    const {length} = items;
+    const { offset, items } = this;
+    const { length } = items;
     forEachReverse(items, (item, idx) => {
       this.mountItem(item, length - 1 - idx!, offset);
     });
 
-    if(updateClassNames) {
+    if (updateClassNames) {
       this.updateClassNames();
     }
 
@@ -284,7 +284,7 @@ export class BubbleGroup {
   }
 
   mountItem(item: GroupItem, idx = this.items.indexOf(item), offset = this.offset) {
-    if(item.mounted) {
+    if (item.mounted) {
       return;
     }
 
@@ -293,7 +293,7 @@ export class BubbleGroup {
   }
 
   unmountItem(item: GroupItem) {
-    if(!item.mounted) {
+    if (!item.mounted) {
       return;
     }
 
@@ -303,7 +303,7 @@ export class BubbleGroup {
   }
 
   onItemMount() {
-    if(this.mounted) {
+    if (this.mounted) {
       return;
     }
 
@@ -320,11 +320,11 @@ export class BubbleGroup {
   }
 
   onItemUnmount() {
-    if(!this.mounted) {
+    if (!this.mounted) {
       return;
     }
 
-    if(!this.items.length) {
+    if (!this.items.length) {
       this.container.remove();
       this.dateContainer && --this.dateContainer.groupsLength;
       this.dateContainer = undefined;
@@ -364,7 +364,7 @@ export default class BubbleGroups {
   public reverse: boolean; // * used for search
 
   constructor(private chat: Chat) {
-    if(chat.type !== ChatType.Search) {
+    if (chat.type !== ChatType.Search) {
       this.sortItemsKey = chat.type === ChatType.Scheduled ? 'timestamp' : 'mid';
       this.sortGroupsKey = chat.type === ChatType.Scheduled ? 'lastTimestamp' : 'lastMid';
       this.sortGroupItemsKey = /* chat.type === 'scheduled' ? 'timestamp' :  */'groupMid';
@@ -378,10 +378,10 @@ export default class BubbleGroups {
 
   removeAndUnmountBubble(bubble: HTMLElement) {
     const item = this.getItemByBubble(bubble);
-    if(!item) { // * can be a placeholder
+    if (!item) { // * can be a placeholder
       const parentElement = bubble.parentElement;
-      if(parentElement) {
-        if(parentElement.classList.contains('bubbles-group')) {
+      if (parentElement) {
+        if (parentElement.classList.contains('bubbles-group')) {
           parentElement.remove();
         } else {
           bubble.remove();
@@ -399,13 +399,13 @@ export default class BubbleGroups {
     this.removeItem(item);
 
     const modifiedGroups: Set<BubbleGroup> = new Set();
-    if(group) {
+    if (group) {
       group.unmountItem(item);
       modifiedGroups.add(group);
     }
 
     const [previousSibling, nextSibling] = siblings;
-    if(
+    if (
       previousSibling &&
       nextSibling &&
       this.canItemsBeGrouped(previousSibling, nextSibling) &&
@@ -445,23 +445,23 @@ export default class BubbleGroups {
 
     const canHaveSeparators = isMonoforum || isBotforum;
 
-    if(!canHaveSeparators) return;
+    if (!canHaveSeparators) return;
 
     let prevKey: number;
 
     forEachReverse(this.itemsArr, (item, i) => {
       const message = item.message;
-      if(message._ === 'channelAdminLogEvent') return;
+      if (message._ === 'channelAdminLogEvent') return;
 
       const savedPeerId = isMonoforum ? getPeerId(message?.saved_peer_id!) : undefined;
-      const threadId = isBotforum ? getMessageThreadId(message, {isBotforum: true}) : undefined;
+      const threadId = isBotforum ? getMessageThreadId(message, { isBotforum: true }) : undefined;
 
       const key = savedPeerId || threadId;
-      if(!key) return;
+      if (!key) return;
 
       const bubbleAddons = item.bubble as BubbleElementAddons;
 
-      if(prevKey === key) {
+      if (prevKey === key) {
         item.bubble.classList.remove('has-chat-thread-separator');
         bubbleAddons.chatThreadSeparator?.remove();
         return;
@@ -469,9 +469,9 @@ export default class BubbleGroups {
 
       prevKey = key;
 
-      if(bubbleAddons.chatThreadSeparator) {
+      if (bubbleAddons.chatThreadSeparator) {
         bubbleAddons.chatThreadSeparator.feedProps<false>({
-          index: -i!
+          index: -i!,
         });
         return;
       }
@@ -484,7 +484,7 @@ export default class BubbleGroups {
         peerId: savedPeerId || this.chat.peerId,
         threadId: savedPeerId ? undefined : threadId,
         lastMsgId: message?.mid,
-        index: -i!
+        index: -i!,
       });
       item.bubble.classList.add('has-chat-thread-separator');
       item.bubble.prepend(bubbleAddons.chatThreadSeparator);
@@ -495,19 +495,19 @@ export default class BubbleGroups {
    * Makes the reply markup of the last message bubble visible
    */
   private addContinueLastTopicReplyMarkup() {
-    if(!this.chat.isBotforum) return;
+    if (!this.chat.isBotforum) return;
 
     let visible = true;
 
     this.itemsArr.forEach((item) => {
       const bubbleAddons = item.bubble as BubbleElementAddons;
 
-      if(item.message._ !== 'message') return;
-      if(!bubbleAddons.continueLastTopicReplyMarkup) return;
-      if(!getMessageThreadId(item.message, {isBotforum: this.chat.isBotforum})) return;
+      if (item.message._ !== 'message') return;
+      if (!bubbleAddons.continueLastTopicReplyMarkup) return;
+      if (!getMessageThreadId(item.message, { isBotforum: this.chat.isBotforum })) return;
 
       bubbleAddons.continueLastTopicReplyMarkup.feedProps<false>({
-        visible: visible && !(item.message.reply_markup as ReplyMarkup.replyInlineMarkup)?.rows
+        visible: visible && !(item.message.reply_markup as ReplyMarkup.replyInlineMarkup)?.rows,
       });
 
       visible = false;
@@ -515,7 +515,7 @@ export default class BubbleGroups {
   }
 
   f(items: GroupItem[], index: number = 0, length = items.length) {
-    for(; index < length; ++index) {
+    for (; index < length; ++index) {
       const item = items[index];
       item.mounted = false;
       item.group!.removeItem(item);
@@ -538,7 +538,7 @@ export default class BubbleGroups {
 
   changeBubbleMessage(bubble: HTMLElement, message: GroupItem['message']) {
     const item = this.getItemByBubble(bubble);
-    if(!item) {
+    if (!item) {
       return;
     }
 
@@ -563,7 +563,7 @@ export default class BubbleGroups {
 
   changeBubbleByBubble(from: HTMLElement, to: HTMLElement) {
     const item = this.getItemByBubble(from);
-    if(!item) {
+    if (!item) {
       return;
     }
 
@@ -571,11 +571,11 @@ export default class BubbleGroups {
   }
 
   canItemsBeGrouped(item1: GroupItem, item2: GroupItem) {
-    if(item1.message?._ === 'channelAdminLogEvent' || item2.message?._ === 'channelAdminLogEvent') return false;
+    if (item1.message?._ === 'channelAdminLogEvent' || item2.message?._ === 'channelAdminLogEvent') return false;
 
-    if(isMessageForVerificationBot(item1.message)) return false;
+    if (isMessageForVerificationBot(item1.message)) return false;
 
-    if(
+    if (
       item1.message?._ === 'message' && item1.message?.suggested_post ||
       item2.message?._ === 'message' && item2.message?.suggested_post
     ) return false;
@@ -587,8 +587,8 @@ export default class BubbleGroups {
       !item1.single &&
       !item2.single &&
       isOut1 === this.chat.isOutMessage(item2.message) &&
-      (!this.chat.isAllMessagesForum || getMessageThreadId(item1.message, {isForum: true}) === getMessageThreadId(item2.message, {isForum: true})) &&
-      (!this.chat.isBotforum || getMessageThreadId(item1.message, {isBotforum: true}) === getMessageThreadId(item2.message, {isBotforum: true})) &&
+      (!this.chat.isAllMessagesForum || getMessageThreadId(item1.message, { isForum: true }) === getMessageThreadId(item2.message, { isForum: true })) &&
+      (!this.chat.isBotforum || getMessageThreadId(item1.message, { isBotforum: true }) === getMessageThreadId(item2.message, { isBotforum: true })) &&
       (!this.chat.isMonoforum || getMessageThreadId(item1.message) === getMessageThreadId(item2.message)) &&
       (!isOut1 || item1.message.fromId === rootScope.myId || this.chat.isMonoforum) && // * group anonymous sending
       item1.message.peerId === item2.message.peerId &&
@@ -613,13 +613,13 @@ export default class BubbleGroups {
   findGroupSiblingInItems(item: GroupItem, items: GroupItem[], index = items.indexOf(item), length = items.length) {
     const previousItem = items[index - 1];
     let siblingGroupedItem: GroupItem;
-    if(previousItem?.group && this.canItemsBeGrouped(item, previousItem)) {
+    if (previousItem?.group && this.canItemsBeGrouped(item, previousItem)) {
       siblingGroupedItem = previousItem;
     } else {
-      for(let k = index + 1; k < length; ++k) {
+      for (let k = index + 1; k < length; ++k) {
         const nextItem = items[k];
-        if(this.canItemsBeGrouped(item, nextItem)) {
-          if(nextItem.group) {
+        if (this.canItemsBeGrouped(item, nextItem)) {
+          if (nextItem.group) {
             siblingGroupedItem = nextItem;
           }
         } else {
@@ -664,14 +664,14 @@ export default class BubbleGroups {
   }
 
   getMessageFromId(message: MyMessage | AdminLog) {
-    if(message._ === 'channelAdminLogEvent') {
+    if (message._ === 'channelAdminLogEvent') {
       return this.chat.peerId;
     }
 
     let fromId = /* (this.chat.peerId.isAnyChat() && message.viaBotId) ||  */message.fromId;
 
     // fix for saved messages forward to self
-    if(fromId === rootScope.myId && message.peerId === rootScope.myId && (message as Message.message).fwdFromId === fromId) {
+    if (fromId === rootScope.myId && message.peerId === rootScope.myId && (message as Message.message).fwdFromId === fromId) {
       fromId = fromId.toPeerId(true);
     }
 
@@ -679,16 +679,16 @@ export default class BubbleGroups {
   }
 
   generateGroupMid(message: MyMessage | AdminLog, dateTimestamp: number) {
-    const {date: timestamp} = message;
+    const { date: timestamp } = message;
     const mid = getMid(message);
     return this.chat.type === ChatType.Scheduled ? +`${(timestamp * 1000 - dateTimestamp) / 1000}.${+('' + mid).replace('.', '')}` : mid;
   }
 
   createItem(bubble: HTMLElement, message: MyMessage | AdminLog, reverse: boolean) {
     const single = !(message._ === 'message' || (message._ === 'messageService' && message.action && SERVICE_AS_REGULAR.has(message.action._)));
-    const {date: timestamp} = message;
+    const { date: timestamp } = message;
     const mid = getMid(message);
-    const {dateTimestamp} = this.chat.bubbles.getDateForDateContainer(timestamp);
+    const { dateTimestamp } = this.chat.bubbles.getDateForDateContainer(timestamp);
     const item: GroupItem = {
       mid: mid!,
       groupMid: this.generateGroupMid(message, dateTimestamp),
@@ -700,7 +700,7 @@ export default class BubbleGroups {
       mounted: false,
       single,
       message,
-      reverse
+      reverse,
     };
 
     return item;
@@ -711,7 +711,7 @@ export default class BubbleGroups {
     const previousGroup = previousSibling?.group;
     const nextGroup = nextSibling?.group;
 
-    if(!previousGroup) {
+    if (!previousGroup) {
       return;
     }
 
@@ -720,7 +720,7 @@ export default class BubbleGroups {
     const items = previousGroup.items;
     const index = items.indexOf(previousSibling) + 1;
     const length = items.length;
-    if(index === length) {
+    if (index === length) {
       return;
     }
 
@@ -736,7 +736,7 @@ export default class BubbleGroups {
 
   prepareForGrouping(bubble: HTMLElement, message: MyMessage | AdminLog, reverse: boolean) {
     const foundItem = this.getItemByBubble(bubble);
-    if(foundItem) { // should happen only on edit
+    if (foundItem) { // should happen only on edit
       // debugger;
       return;
     }
@@ -750,9 +750,9 @@ export default class BubbleGroups {
     const length = items.length;
     const modifiedGroups: Set<BubbleGroup> = new Set();
     // for(let i = length - 1; i >= 0; --i) {
-    for(let i = 0; i < length; ++i) {
+    for (let i = 0; i < length; ++i) {
       const item = items[i];
-      if(item.group) {
+      if (item.group) {
         continue;
       }
 
@@ -767,9 +767,9 @@ export default class BubbleGroups {
       modifiedGroups.add(group);
       group.insertItem(item);
 
-      if(!hadGroup) {
+      if (!hadGroup) {
         const splittedGroups = this.splitSiblingsOnGrouping(siblings);
-        if(splittedGroups) {
+        if (splittedGroups) {
           splittedGroups.forEach((group) => modifiedGroups.add(group));
         }
       }

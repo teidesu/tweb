@@ -1,5 +1,5 @@
 import generatePathData from '@helpers/generatePathData';
-import {FormatterArguments, i18n, LangPackKey} from '@lib/langPack';
+import { FormatterArguments, i18n, LangPackKey } from '@lib/langPack';
 import Icon from '@components/icon';
 
 export default class ChatDragAndDrop {
@@ -28,7 +28,7 @@ export default class ChatDragAndDrop {
     this.path.classList.add('drop-outline-path');
 
     let dropIcon: HTMLElement;
-    if(options.icon) {
+    if (options.icon) {
       dropIcon = document.createElement('div');
       dropIcon.classList.add('drop-icon', 'disable-hover');
       dropIcon.append(Icon(options.icon));
@@ -40,7 +40,7 @@ export default class ChatDragAndDrop {
     dropHeader.append(i18n(options.header, options.headerArgs));
 
     let dropSubtitle: HTMLElement;
-    if(options.subtitle) {
+    if (options.subtitle) {
       dropSubtitle = document.createElement('div');
       dropSubtitle.classList.add('drop-subtitle', 'disable-hover');
       dropSubtitle.append(i18n(options.subtitle));

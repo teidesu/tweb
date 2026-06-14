@@ -1,10 +1,10 @@
-import {EmoticonsDropdown} from '@components/emoticonsDropdown';
+import { EmoticonsDropdown } from '@components/emoticonsDropdown';
 import InputField from '@components/inputField';
 import cloneDOMRect from '@helpers/dom/cloneDOMRect';
-import {attachClassName} from '@helpers/solid/classname';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {createMemo, onCleanup} from 'solid-js';
+import { attachClassName } from '@helpers/solid/classname';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { createMemo, onCleanup } from 'solid-js';
 
 
 export type EmojiDropdownButtonProps = {
@@ -14,12 +14,12 @@ export type EmojiDropdownButtonProps = {
 };
 
 export const EmojiDropdownButton = (props: EmojiDropdownButtonProps) => {
-  const {createEmojiDropdownButton} = useHotReloadGuard();
+  const { createEmojiDropdownButton } = useHotReloadGuard();
 
   const button = createMemo(() => {
     let emoticonsDropdown: EmoticonsDropdown;
 
-    const {button} = createEmojiDropdownButton({
+    const { button } = createEmojiDropdownButton({
       inputField: props.inputField,
       customParentElement: document.body,
       onEmoticonsDropdown: (value) => {
@@ -31,7 +31,7 @@ export const EmojiDropdownButton = (props: EmojiDropdownButtonProps) => {
         cloned.top = rect.bottom + 8;
         return cloned;
       },
-      animationGroup: undefined!
+      animationGroup: undefined!,
     });
 
     attachClassName(button, () => props.class!);

@@ -3,7 +3,7 @@ import cancelEvent from '@helpers/dom/cancelEvent';
 export default function cancelImageEvents() {
   // prevent firefox image dragging
   document.addEventListener('dragstart', (e) => {
-    if((e.target as HTMLElement)?.tagName === 'IMG') {
+    if ((e.target as HTMLElement)?.tagName === 'IMG') {
       e.preventDefault();
       return false;
     }
@@ -11,7 +11,7 @@ export default function cancelImageEvents() {
 
   // restrict contextmenu on images (e.g. webp stickers)
   document.addEventListener('contextmenu', (e) => {
-    if((e.target as HTMLElement).tagName === 'IMG' && !(window as any).appMediaViewer) {
+    if ((e.target as HTMLElement).tagName === 'IMG' && !(window as any).appMediaViewer) {
       cancelEvent(e);
     }
   });

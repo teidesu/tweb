@@ -1,7 +1,7 @@
-import {MediaEditorFinalResult} from '@components/mediaEditor/finalRender/createFinalResult';
+import { MediaEditorFinalResult } from '@components/mediaEditor/finalRender/createFinalResult';
 import IMAGE_MIME_TYPES_SUPPORTED from '@environment/imageMimeTypesSupport';
 import VIDEO_MIME_TYPES_SUPPORTED from '@environment/videoMimeTypesSupport';
-import {createImageAndURLFromBlob} from '@helpers/createImageAndURLFromBlob';
+import { createImageAndURLFromBlob } from '@helpers/createImageAndURLFromBlob';
 import rootScope from '@lib/rootScope';
 
 
@@ -37,7 +37,7 @@ export async function getFileAndOpenEditor({
   canImageResultInGIF = false,
   acceptMediaTypes = ['photo'],
   shouldOpenEditor,
-  onSkipEditor
+  onSkipEditor,
 }: GetFileAndOpenEditorArgs) {
   const input = createHiddenFileInput(acceptMediaTypes);
   document.body.append(input);
@@ -46,9 +46,9 @@ export async function getFileAndOpenEditor({
     input.remove();
   });
 
-  if(!file) return;
+  if (!file) return;
 
-  if(shouldOpenEditor && !(await shouldOpenEditor(file))) {
+  if (shouldOpenEditor && !(await shouldOpenEditor(file))) {
     onSkipEditor?.(file);
     return;
   }
@@ -56,15 +56,15 @@ export async function getFileAndOpenEditor({
   const isVideo = file.type.startsWith('video/');
 
   let mediaSrc: string;
-  if(isVideo) {
+  if (isVideo) {
     mediaSrc = URL.createObjectURL(file);
   } else {
     const imgResult = await createImageAndURLFromBlob(file); // make sure to render the image to know if it's valid
-    if(!imgResult.ok) return;
+    if (!imgResult.ok) return;
     mediaSrc = imgResult.url;
   }
 
-  const {openMediaEditorFromMediaRaw} = await import('@components/mediaEditor');
+  const { openMediaEditorFromMediaRaw } = await import('@components/mediaEditor');
 
   openMediaEditorFromMediaRaw({
     isEditingForAvatar,
@@ -79,9 +79,9 @@ export async function getFileAndOpenEditor({
     // cover-frame picker). Non-avatar callers are unaffected.
     isVideoAvatarMode: isEditingForAvatar && isVideo,
     initialTab: isVideo ? 'adjustments' : 'crop',
-    onEditFinish: (editorResult) => onFinish({editorResult, originalFile: file}),
+    onEditFinish: (editorResult) => onFinish({ editorResult, originalFile: file }),
     dontCreatePreview,
-    onClose: () => { }
+    onClose: () => { },
   });
 }
 
@@ -91,8 +91,8 @@ function createHiddenFileInput(acceptMediaTypes: Array<'photo' | 'video'>): HTML
   input.style.display = 'none';
 
   const mimeTypes: string[] = [];
-  if(acceptMediaTypes.includes('photo')) mimeTypes.push(...IMAGE_MIME_TYPES_SUPPORTED);
-  if(acceptMediaTypes.includes('video')) mimeTypes.push(...VIDEO_MIME_TYPES_SUPPORTED);
+  if (acceptMediaTypes.includes('photo')) mimeTypes.push(...IMAGE_MIME_TYPES_SUPPORTED);
+  if (acceptMediaTypes.includes('video')) mimeTypes.push(...VIDEO_MIME_TYPES_SUPPORTED);
   input.accept = mimeTypes.join(',');
 
   return input;
@@ -112,7 +112,7 @@ function getFileFromInput(input: HTMLInputElement): Promise<File | void> {
         input.remove();
         resolve();
       }, 1000);
-    }, {once: true});
+    }, { once: true });
   });
 
   input.click();

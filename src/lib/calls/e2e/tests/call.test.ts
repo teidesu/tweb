@@ -4,13 +4,13 @@
  * encrypt/decrypt round-trip with signature + replay protection.
  */
 
-import {beforeAll, describe, it, expect} from 'vitest';
+import { beforeAll, describe, it, expect } from 'vitest';
 import {
   ActiveEpoch,
   decryptPacket,
   deriveGroupSharedKey,
   encryptPacket,
-  ReplayState
+  ReplayState,
 } from '../call';
 import {
   bytesToHex,
@@ -20,11 +20,11 @@ import {
   ensureCryptoReady,
   hmacSha512,
   randomBytes,
-  sha256
+  sha256,
 } from '../crypto';
-import {PrivateKey, PublicKey} from '../keys';
-import {encryptData, encryptHeader} from '../messageEncryption';
-import {SharedKey} from '../tlTypes';
+import { PrivateKey, PublicKey } from '../keys';
+import { encryptData, encryptHeader } from '../messageEncryption';
+import { SharedKey } from '../tlTypes';
 
 beforeAll(() => ensureCryptoReady());
 
@@ -40,11 +40,11 @@ async function buildSharedKey(
 
   const ephemeral = ed25519GenerateKeyPair();
 
-  const {output: encryptedRawGroupSharedKey} = await encryptData(rawGroupSharedKey, oneTimeSecret);
+  const { output: encryptedRawGroupSharedKey } = await encryptData(rawGroupSharedKey, oneTimeSecret);
 
   const destUserIds: bigint[] = [];
   const destHeaders: Uint8Array[] = [];
-  for(const r of recipients) {
+  for (const r of recipients) {
     const sharedSecret = await computeSharedSecret(ephemeral.secretKey, r.ed25519PublicKey);
     const encryptedHeader = await encryptHeader(
       oneTimeSecret,
@@ -61,8 +61,8 @@ async function buildSharedKey(
       ek: ephemeral.publicKey,
       encryptedSharedKey: encryptedRawGroupSharedKey,
       destUserIds,
-      destHeaders
-    }
+      destHeaders,
+    },
   };
 }
 
@@ -73,9 +73,9 @@ describe('deriveGroupSharedKey', () => {
     const alice = PrivateKey.fromSeed(new Uint8Array(32).fill(1));
     const bob = PrivateKey.fromSeed(new Uint8Array(32).fill(2));
 
-    const {rawGroupSharedKey, sharedKey} = await buildSharedKey([
-      {userId: aliceUserId, ed25519PublicKey: alice.publicKeyBytes},
-      {userId: bobUserId, ed25519PublicKey: bob.publicKeyBytes}
+    const { rawGroupSharedKey, sharedKey } = await buildSharedKey([
+      { userId: aliceUserId, ed25519PublicKey: alice.publicKeyBytes },
+      { userId: bobUserId, ed25519PublicKey: bob.publicKeyBytes },
     ]);
 
     const blockHash = randomBytes(32);
@@ -96,8 +96,8 @@ describe('deriveGroupSharedKey', () => {
 
   it('rejects a recipient not in destUserIds', async() => {
     const alice = PrivateKey.fromSeed(new Uint8Array(32).fill(3));
-    const {sharedKey} = await buildSharedKey([
-      {userId: BigInt('1'), ed25519PublicKey: alice.publicKeyBytes}
+    const { sharedKey } = await buildSharedKey([
+      { userId: BigInt('1'), ed25519PublicKey: alice.publicKeyBytes },
     ]);
     await expect(
       deriveGroupSharedKey(BigInt('999'), alice, sharedKey, new Uint8Array(32))
@@ -116,7 +116,7 @@ describe('encryptPacket / decryptPacket', () => {
       groupSharedKey: randomBytes(32),
       participantKeysByUserId: new Map(
         participants.map((p) => [p.userId.toString(), p.publicKey])
-      )
+      ),
     };
   }
 
@@ -127,15 +127,15 @@ describe('encryptPacket / decryptPacket', () => {
     const bobUserId = BigInt('1002');
 
     const epoch = await makeEpoch(0, [
-      {userId: aliceUserId, publicKey: aliceKey.publicKey()},
-      {userId: bobUserId, publicKey: bobKey.publicKey()}
+      { userId: aliceUserId, publicKey: aliceKey.publicKey() },
+      { userId: bobUserId, publicKey: bobKey.publicKey() },
     ]);
 
     const data = new Uint8Array([
       // 4-byte unencrypted prefix (pretend it's an RTP header)
       0x80, 0x60, 0x00, 0x01,
       // payload
-      0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80
+      0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80,
     ]);
 
     const packet = await encryptPacket({
@@ -144,13 +144,13 @@ describe('encryptPacket / decryptPacket', () => {
       unencryptedPrefixLength: 4,
       epochs: [epoch],
       privateKey: aliceKey,
-      seqno: 1
+      seqno: 1,
     });
 
     const decoded = await decryptPacket({
       packet,
       fromUserId: aliceUserId,
-      epochs: [epoch]
+      epochs: [epoch],
     });
 
     expect(decoded.channelId).toBe(1);
@@ -162,8 +162,8 @@ describe('encryptPacket / decryptPacket', () => {
   it('multi-epoch packet decodes with either epoch', async() => {
     const aliceKey = PrivateKey.fromSeed(new Uint8Array(32).fill(11));
     const aliceUserId = BigInt('5000');
-    const oldEpoch = await makeEpoch(0, [{userId: aliceUserId, publicKey: aliceKey.publicKey()}]);
-    const newEpoch = await makeEpoch(1, [{userId: aliceUserId, publicKey: aliceKey.publicKey()}]);
+    const oldEpoch = await makeEpoch(0, [{ userId: aliceUserId, publicKey: aliceKey.publicKey() }]);
+    const newEpoch = await makeEpoch(1, [{ userId: aliceUserId, publicKey: aliceKey.publicKey() }]);
 
     const data = new Uint8Array([1, 2, 3, 4, 5]);
     const packet = await encryptPacket({
@@ -172,20 +172,20 @@ describe('encryptPacket / decryptPacket', () => {
       unencryptedPrefixLength: 0,
       epochs: [oldEpoch, newEpoch],
       privateKey: aliceKey,
-      seqno: 0
+      seqno: 0,
     });
 
-    const onlyOld = await decryptPacket({packet, fromUserId: aliceUserId, epochs: [oldEpoch]});
+    const onlyOld = await decryptPacket({ packet, fromUserId: aliceUserId, epochs: [oldEpoch] });
     expect(bytesToHex(onlyOld.data)).toBe(bytesToHex(data));
 
-    const onlyNew = await decryptPacket({packet, fromUserId: aliceUserId, epochs: [newEpoch]});
+    const onlyNew = await decryptPacket({ packet, fromUserId: aliceUserId, epochs: [newEpoch] });
     expect(bytesToHex(onlyNew.data)).toBe(bytesToHex(data));
   });
 
   it('rejects a tampered signature', async() => {
     const aliceKey = PrivateKey.fromSeed(new Uint8Array(32).fill(12));
     const aliceUserId = BigInt('1');
-    const epoch = await makeEpoch(0, [{userId: aliceUserId, publicKey: aliceKey.publicKey()}]);
+    const epoch = await makeEpoch(0, [{ userId: aliceUserId, publicKey: aliceKey.publicKey() }]);
 
     const packet = await encryptPacket({
       channelId: 0,
@@ -193,7 +193,7 @@ describe('encryptPacket / decryptPacket', () => {
       unencryptedPrefixLength: 0,
       epochs: [epoch],
       privateKey: aliceKey,
-      seqno: 0
+      seqno: 0,
     });
 
     // Signature is the last 64 bytes BEFORE the 4-byte trailer.
@@ -202,14 +202,14 @@ describe('encryptPacket / decryptPacket', () => {
     tampered[sigPos] ^= 0x01;
 
     await expect(
-      decryptPacket({packet: tampered, fromUserId: aliceUserId, epochs: [epoch]})
+      decryptPacket({ packet: tampered, fromUserId: aliceUserId, epochs: [epoch] })
     ).rejects.toThrow();
   });
 
   it('replay state catches a repeated seqno', async() => {
     const aliceKey = PrivateKey.fromSeed(new Uint8Array(32).fill(13));
     const aliceUserId = BigInt('7');
-    const epoch = await makeEpoch(0, [{userId: aliceUserId, publicKey: aliceKey.publicKey()}]);
+    const epoch = await makeEpoch(0, [{ userId: aliceUserId, publicKey: aliceKey.publicKey() }]);
 
     const data = new Uint8Array([9, 9, 9]);
     const packet = await encryptPacket({
@@ -218,7 +218,7 @@ describe('encryptPacket / decryptPacket', () => {
       unencryptedPrefixLength: 0,
       epochs: [epoch],
       privateKey: aliceKey,
-      seqno: 42
+      seqno: 42,
     });
 
     const replay = new ReplayState();
@@ -226,12 +226,12 @@ describe('encryptPacket / decryptPacket', () => {
       packet,
       fromUserId: aliceUserId,
       epochs: [epoch],
-      replayState: replay
+      replayState: replay,
     });
     expect(first.seqno).toBe(42);
 
     await expect(
-      decryptPacket({packet, fromUserId: aliceUserId, epochs: [epoch], replayState: replay})
+      decryptPacket({ packet, fromUserId: aliceUserId, epochs: [epoch], replayState: replay })
     ).rejects.toThrow(/replay/);
   });
 
@@ -239,7 +239,7 @@ describe('encryptPacket / decryptPacket', () => {
     const aliceKey = PrivateKey.fromSeed(new Uint8Array(32).fill(14));
     const aliceUserId = BigInt('1');
     const senderEpoch = await makeEpoch(0, [
-      {userId: aliceUserId, publicKey: aliceKey.publicKey()}
+      { userId: aliceUserId, publicKey: aliceKey.publicKey() },
     ]);
 
     const packet = await encryptPacket({
@@ -248,15 +248,15 @@ describe('encryptPacket / decryptPacket', () => {
       unencryptedPrefixLength: 0,
       epochs: [senderEpoch],
       privateKey: aliceKey,
-      seqno: 0
+      seqno: 0,
     });
 
     const wrongEpoch: ActiveEpoch = {
       ...senderEpoch,
-      epochHash: new Uint8Array(32).fill(0xff)
+      epochHash: new Uint8Array(32).fill(0xff),
     };
     await expect(
-      decryptPacket({packet, fromUserId: aliceUserId, epochs: [wrongEpoch]})
+      decryptPacket({ packet, fromUserId: aliceUserId, epochs: [wrongEpoch] })
     ).rejects.toThrow(/no matching/);
   });
 });

@@ -9,9 +9,9 @@ import THandle from '@lib/tchart/handle';
 import TLines from '@lib/tchart/lines';
 import TSwitchers from '@lib/tchart/switchers';
 import TTip from '@lib/tchart/tip';
-import {getFormatter, getXIndex, roundRange, triggerEvent} from '@lib/tchart/utils';
-import {TChartAnimationProperty, TChartConstructorOptions, TChartData, TChartDataDetails, TChartRange, TChartRangePaired, TChartRangeSingle, TChartSettings, TChartState, TChartStateZoom, TChartType, TChartTypeRenderer, TChartUnitOptions} from '@lib/tchart/types';
-import {getLabelDate, getLabelTime} from '@lib/tchart/format';
+import { getFormatter, getXIndex, roundRange, triggerEvent } from '@lib/tchart/utils';
+import { TChartAnimationProperty, TChartConstructorOptions, TChartData, TChartDataDetails, TChartRange, TChartRangePaired, TChartRangeSingle, TChartSettings, TChartState, TChartStateZoom, TChartType, TChartTypeRenderer, TChartUnitOptions } from '@lib/tchart/types';
+import { getLabelDate, getLabelTime } from '@lib/tchart/format';
 import '@lib/tchart/chart.scss';
 
 export default class TChart {
@@ -75,11 +75,11 @@ export default class TChart {
       grid: 'rgba(24, 45, 59, 0.1)',
       axis: {
         x: 'rgba(37,37,41,0.5)',
-        y: 'rgba(37,37,41,0.5)'
+        y: 'rgba(37,37,41,0.5)',
       },
       barsSelectionBackground: 'rgba(255, 255, 255, 0.5)',
       miniMask: 'rgba(226, 238, 249, 0.6)',
-      miniFrame: '#C0D1E1'
+      miniFrame: '#C0D1E1',
     };
 
     const NIGHT_COLORS: TChartSettings['COLORS'] = {
@@ -90,11 +90,11 @@ export default class TChart {
       grid: 'rgba(255, 255, 255, 0.1)',
       axis: {
         x: 'rgba(163,177,194,0.6)',
-        y: 'rgba(236,242,248,0.5)'
+        y: 'rgba(236,242,248,0.5)',
       },
       barsSelectionBackground: 'rgba(36, 47, 62, 0.5)',
       miniMask: 'rgba(48, 66, 89, 0.6)',
-      miniFrame: '#56626D'
+      miniFrame: '#56626D',
     };
 
     const darkMode = !!document.documentElement.classList.contains('dark');
@@ -124,10 +124,10 @@ export default class TChart {
       FONT: {
         family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
         bold: 'bold',
-        normal: 'normal'
+        normal: 'normal',
       },
       COLORS: darkMode ? NIGHT_COLORS : DAY_COLORS,
-      ...(opts.settings || {})
+      ...(opts.settings || {}),
     };
 
     this.data = {
@@ -149,17 +149,17 @@ export default class TChart {
       pieZoomRange: opts.data.pieZoomRange || 7 * 86400 * 1000,
       pieLabelsPercentages: {
         outboard: opts.data.pieLabelsPercentages && opts.data.pieLabelsPercentages.outboard !== undefined ? opts.data.pieLabelsPercentages.outboard : 5,
-        hoverOnly: opts.data.pieLabelsPercentages && opts.data.pieLabelsPercentages.hoverOnly !== undefined ? opts.data.pieLabelsPercentages.hoverOnly : 2
+        hoverOnly: opts.data.pieLabelsPercentages && opts.data.pieLabelsPercentages.hoverOnly !== undefined ? opts.data.pieLabelsPercentages.hoverOnly : 2,
       },
       subchart: {
         show: opts.data.subchart && opts.data.subchart.show !== undefined ? opts.data.subchart.show : true,
-        defaultZoom: (opts.data.subchart && opts.data.subchart.defaultZoom)!
+        defaultZoom: (opts.data.subchart && opts.data.subchart.defaultZoom)!,
       },
       getLabelDate: opts.data.getLabelDate || getLabelDate,
-      getLabelTime: opts.data.getLabelTime || getLabelTime
+      getLabelTime: opts.data.getLabelTime || getLabelTime,
     };
 
-    if(opts.data.y_scaled) {
+    if (opts.data.y_scaled) {
       this.pairY = true;
     }
 
@@ -171,7 +171,7 @@ export default class TChart {
       const id = item.shift() as any as string;
       const tp = opts.data.types[id];
 
-      if(tp === 'x') {
+      if (tp === 'x') {
         this.data.x = item;
 
         this.state.xCount = item.length;
@@ -191,7 +191,7 @@ export default class TChart {
           x2: this.state.x2,
           xg1: this.state.xg1,
           xg2: this.state.xg2,
-          default: this.data.subchart!.defaultZoom
+          default: this.data.subchart!.defaultZoom,
         });
 
         this.state.x1 = defaultZoom.x1;
@@ -213,11 +213,11 @@ export default class TChart {
           this.data.dates![ind] = xTooltipFormatter(item, false);
           this.data.datesShort![ind] = xTickFormatter(item, false);
 
-          if(xRangeFormatter) {
+          if (xRangeFormatter) {
             this.data.datesRange![ind] = xRangeFormatter(item, false);
           }
 
-          if(this.data.datesShort![ind].length > maxXTickLength) {
+          if (this.data.datesShort![ind].length > maxXTickLength) {
             maxXTickLength = this.data.datesShort![ind].length;
           }
         });
@@ -234,7 +234,7 @@ export default class TChart {
           label: opts.data.names[id],
           y: item,
           tp: tp,
-          id: id
+          id: id,
         });
 
         // if(tp === 'line' || tp === 'step') {
@@ -267,7 +267,7 @@ export default class TChart {
     this.updateSpeed();
 
     // @ts-ignore
-    if(this.graphStyle === 'area') {
+    if (this.graphStyle === 'area') {
       settings.Y_AXIS_RANGE = 4.06;
       this.data.hasDetail = true;
     }
@@ -275,7 +275,7 @@ export default class TChart {
     // reduce global range to exclude data gaps
     const reducedRange = this.reduceGlobalRange({});
 
-    if(reducedRange.isReduced) {
+    if (reducedRange.isReduced) {
       this.state.x1 = reducedRange.x1;
       this.state.x2 = reducedRange.x2;
       this.state.xg1 = reducedRange.xg1;
@@ -328,14 +328,14 @@ export default class TChart {
     let maxXInd = xg1Ind;
     let shift = this.state.zoomMode ? (this.graphStyle === 'bar' || this.graphStyle === 'step' ? 1 : 2) : 0;
 
-    if(this.graphStyle === 'area') shift = 0; // has no details insertion
+    if (this.graphStyle === 'area') shift = 0; // has no details insertion
 
     this.data.ys!.forEach((item, ind) => {
       var y = params.useSaved ? this.data.saved.y[ind] : item.y;
-      if(this.state[`e_${ind}`]) {
-        for(let i = xg1Ind; i <= xg2Ind - shift; ++i) {
+      if (this.state[`e_${ind}`]) {
+        for (let i = xg1Ind; i <= xg2Ind - shift; ++i) {
           const v = y[i];
-          if(v !== undefined) {
+          if (v !== undefined) {
             minXInd = Math.min(minXInd, i);
             maxXInd = Math.max(maxXInd, i);
           }
@@ -343,35 +343,35 @@ export default class TChart {
       }
     });
 
-    if((maxXInd + shift) === xg2Ind) {
+    if ((maxXInd + shift) === xg2Ind) {
       maxXInd = xg2Ind - Math.max(shift - 1, 0);
     }
 
-    if(minXInd >= maxXInd) {
+    if (minXInd >= maxXInd) {
       return {
-        isReduced: false
+        isReduced: false,
       };
     }
 
     const xg1 = x[minXInd];
     const xg2 = x[maxXInd];
 
-    if(xg1Orig === xg1 && xg2Orig === xg2) {
+    if (xg1Orig === xg1 && xg2Orig === xg2) {
       return {
-        isReduced: false
+        isReduced: false,
       };
     }
 
-    if(x2! > xg2) {
+    if (x2! > xg2) {
       x1 = xg2 - (x2! - x1!);
       x2 = xg2;
-      if(x1 < xg1) {
+      if (x1 < xg1) {
         x1 = xg1;
       }
-    } else if(x1! < xg1) {
+    } else if (x1! < xg1) {
       x2 = xg1 + (x2! - x1!);
       x1 = xg1;
-      if(x2! > xg2) {
+      if (x2! > xg2) {
         x2 = xg2;
       }
     }
@@ -383,15 +383,15 @@ export default class TChart {
       xg1: xg1,
       xg2: xg2,
       xg1Ind: minXInd,
-      xg2Ind: maxXInd
+      xg2Ind: maxXInd,
     };
   }
 
   getDefaultZoom(params: TChartStateZoom) {
-    if(!params.default) {
+    if (!params.default) {
       return {
         x1: params.x1,
-        x2: params.x2
+        x2: params.x2,
       };
     }
 
@@ -401,7 +401,7 @@ export default class TChart {
     res.x1 = Math.max(res.x1, params.xg1!);
     res.x2 = Math.min(res.x2, params.xg2!);
 
-    if(res.x1 >= res.x2) {
+    if (res.x1 >= res.x2) {
       res.x1 = params.xg1;
       res.x2 = params.xg2;
     }
@@ -414,7 +414,7 @@ export default class TChart {
     const periods = (this.state.deviceSpeed! * points / 16.66 << 0);
     let k = Math.max(1 - 0.25 * periods, 0);
     k = Math.pow(k, 0.85);
-    if(this.state.deviceSpeed === undefined) {
+    if (this.state.deviceSpeed === undefined) {
       speed = 1;
     }
     speed = 1;
@@ -423,10 +423,10 @@ export default class TChart {
   }
 
   getYMinMax(x1: number, x2: number, isMini: boolean, fitTo?: boolean, useSaved?: boolean): TChartRange {
-    if(this.graphStyle === 'area') {
+    if (this.graphStyle === 'area') {
       return {
         min: 0,
-        max: 102
+        max: 102,
       };
     }
 
@@ -447,7 +447,7 @@ export default class TChart {
     let yFirst: number;
     let yLast: number;
 
-    if(!useSaved && this.state.zoomMode) { // not backing up from zoom mode
+    if (!useSaved && this.state.zoomMode) { // not backing up from zoom mode
       start = Math.max(start, this.state.detailInd1!);
       end = Math.min(end, this.state.detailInd2!);
     } else {
@@ -462,9 +462,9 @@ export default class TChart {
 
     const proceedMinMax = (yMin: number, yMax: number, ind?: number, refRange?: ReturnType<typeof roundRange>) => {
       let range: ReturnType<typeof roundRange>;
-      if(yMin === Number.MAX_VALUE) {
-        if(isMini) {
-          if(ind === undefined) {
+      if (yMin === Number.MAX_VALUE) {
+        if (isMini) {
+          if (ind === undefined) {
             yMin = state.y1m as number;
             yMax = state.y2m as number;
           } else {
@@ -472,7 +472,7 @@ export default class TChart {
             yMax = state[`y2m_${ind}`] as number;
           }
         } else {
-          if(ind === undefined) {
+          if (ind === undefined) {
             yMin = state.y1 as number;
             yMax = state.y2 as number;
           } else {
@@ -481,68 +481,68 @@ export default class TChart {
           }
         }
       } else {
-        if(this.graphStyle === 'bar') {
+        if (this.graphStyle === 'bar') {
           yMin = 0;
         }
 
         yMin = Math.floor(yMin);
         yMax = Math.ceil(yMax);
 
-        if(fitTo) {
+        if (fitTo) {
           // second pair should fit it scale to first one exactly
           // but only then first one is enabled
           // refRange holds data to fit within
           range = roundRange(yMin, yMax, settings.Y_AXIS_RANGE, refRange);
           yMin = range.yMin;
           yMax = range.yMax;
-          if(Math.abs(yMin - yMax) < settings.Y_AXIS_RANGE * yMinStep) {
+          if (Math.abs(yMin - yMax) < settings.Y_AXIS_RANGE * yMinStep) {
             yMax = yMin + Math.floor(settings.Y_AXIS_RANGE * yMinStep);
           }
         }
       }
 
-      if(Math.abs(yMin - yMax) < 0.1) {
+      if (Math.abs(yMin - yMax) < 0.1) {
         yMax++;
       }
 
       return {
         min: yMin,
         max: yMax,
-        range: range!
+        range: range!,
       };
     };
 
-    if(this.graphStyle === 'line' || this.graphStyle === 'step') {
+    if (this.graphStyle === 'line' || this.graphStyle === 'step') {
       this.data.ys!.forEach((item, ind) => {
         const y = useSaved ? this.data.saved.y[ind] : item.y;
         const startIndex = this.graphStyle === 'step' ? floorStart : ceilStart;
         const endIndex = this.graphStyle === 'step' ? ceilEnd : floorEnd;
 
-        if(state[`e_${ind}`] || (ind === 0 && this.pairY)) {
+        if (state[`e_${ind}`] || (ind === 0 && this.pairY)) {
           let v: number;
-          for(let i = startIndex; i <= endIndex; i++) {
+          for (let i = startIndex; i <= endIndex; i++) {
             v = y[i];
-            if(v === undefined) continue;
-            if(v < yMin) yMin = v;
-            if(v > yMax) yMax = v;
+            if (v === undefined) continue;
+            if (v < yMin) yMin = v;
+            if (v > yMax) yMax = v;
           }
 
-          if(this.graphStyle === 'line') {
-            if(y[floorStart] !== undefined && y[ceilStart] !== undefined) {
+          if (this.graphStyle === 'line') {
+            if (y[floorStart] !== undefined && y[ceilStart] !== undefined) {
               yFirst = y[floorStart] + (start - floorStart) * (y[ceilStart] - y[floorStart]); // clipped part of line from the beginning
-              if(yFirst < yMin) yMin = yFirst;
-              if(yFirst > yMax) yMax = yFirst;
+              if (yFirst < yMin) yMin = yFirst;
+              if (yFirst > yMax) yMax = yFirst;
             }
 
-            if(y[floorEnd] !== undefined && y[ceilEnd] !== undefined) {
+            if (y[floorEnd] !== undefined && y[ceilEnd] !== undefined) {
               yLast = y[floorEnd] + (end - floorEnd) * (y[ceilEnd] - y[floorEnd]); // clipped part of line from the end
-              if(yLast < yMin) yMin = yLast;
-              if(yLast > yMax) yMax = yLast;
+              if (yLast < yMin) yMin = yLast;
+              if (yLast > yMax) yMax = yLast;
             }
           }
         }
 
-        if(this.pairY) {
+        if (this.pairY) {
           // this.prevRange will be available for pair graphs for second one to fit first one
           // if first graph is disabled this.prevRange wiil be null and range will be rounded as always
           const tunedY = proceedMinMax(yMin, yMax, ind, prevRange!);
@@ -556,50 +556,50 @@ export default class TChart {
       });
     }
 
-    if(this.graphStyle === 'bar') {
+    if (this.graphStyle === 'bar') {
       const visibleCols: number[] = [];
 
-      for(let j = 0; j < this.data.ys!.length; j++) {
-        if(state[`e_${j}`]) {
+      for (let j = 0; j < this.data.ys!.length; j++) {
+        if (state[`e_${j}`]) {
           visibleCols.push(j);
         }
       }
 
       const colsLen = visibleCols.length;
 
-      for(let i = floorStart; i <= ceilEnd; i++) {
+      for (let i = floorStart; i <= ceilEnd; i++) {
         let yCur = 0;
-        for(let j = 0; j < colsLen; j++) {
+        for (let j = 0; j < colsLen; j++) {
           yCur += (useSaved ? this.data.saved.y[visibleCols[j]][i] : this.data.ys![visibleCols[j]].y[i]) || 0;
         }
-        if(yCur > yMax) yMax = yCur;
+        if (yCur > yMax) yMax = yCur;
       }
 
       yMin = 0;
     }
 
-    if(this.pairY) {
+    if (this.pairY) {
       // for absent values
-      if(isNaN(resMin[0])) resMin[0] = resMin[1];
-      if(isNaN(resMin[1])) resMin[1] = resMin[0];
-      if(isNaN(resMax[0])) resMax[0] = resMax[1];
-      if(isNaN(resMax[1])) resMax[1] = resMax[0];
+      if (isNaN(resMin[0])) resMin[0] = resMin[1];
+      if (isNaN(resMin[1])) resMin[1] = resMin[0];
+      if (isNaN(resMax[0])) resMax[0] = resMax[1];
+      if (isNaN(resMax[1])) resMax[1] = resMax[0];
       return {
         min: resMin,
-        max: resMax
+        max: resMax,
       };
     } else {
       const tunedY = proceedMinMax(yMin, yMax);
       return {
         min: tunedY.min,
-        max: tunedY.max
+        max: tunedY.max,
       };
     }
   }
 
   setDarkMode(enabled: boolean, colors?: TChartSettings['COLORS']) {
     this.settings.darkMode = enabled;
-    if(colors) {
+    if (colors) {
       this.settings.COLORS = colors;
     }
 
@@ -617,41 +617,41 @@ export default class TChart {
   getGraphWidth(hasLegend: boolean) {
     const rectEl = this.$el.getBoundingClientRect();
 
-    if(hasLegend) {
+    if (hasLegend) {
       const rectLegend = this.$switchers.getBoundingClientRect();
 
-      if((rectEl.width - rectLegend.width) >= 500) {
+      if ((rectEl.width - rectLegend.width) >= 500) {
         return {
           hasSpaceForLegend: true,
-          width: Math.max(rectEl.width - rectLegend.width, 1)
+          width: Math.max(rectEl.width - rectLegend.width, 1),
         };
       } else {
         return {
           hasSpaceForLegend: false,
-          width: rectEl.width
+          width: rectEl.width,
         };
       }
     } else {
       return {
-        width: rectEl.width
+        width: rectEl.width,
       };
     }
   }
 
   onResize = () => {
     const dpi = Math.min(window.devicePixelRatio || 1, 2);
-    if(this.ww === window.innerWidth && dpi === this.settings.dpi) return;
+    if (this.ww === window.innerWidth && dpi === this.settings.dpi) return;
     this.settings.dpi = dpi;
 
     this.ww = window.innerWidth;
 
-    if(this.data.sideLegend) {
+    if (this.data.sideLegend) {
       this.$switchers.classList.remove('tchart--switchers__no-space');
 
       const graphWidthData = this.getGraphWidth(true);
 
       // if no space for legend - skip sideLegend option
-      if(graphWidthData.hasSpaceForLegend) {
+      if (graphWidthData.hasSpaceForLegend) {
         this.$graph.style.width = graphWidthData.width + 'px';
       } else {
         this.$switchers.classList.add('tchart--switchers__no-space');
@@ -669,74 +669,74 @@ export default class TChart {
         w: rectGraph.width,
         h: rectGraph.height,
         l: 0,
-        t: 0
+        t: 0,
       },
       graph: {
         w: rectGraph.width,
         h: graphHeight,
         l: 0,
-        t: s.DATES_HEIGHT
+        t: s.DATES_HEIGHT,
       },
       axisYLeft: {
         w: s.Y_LABELS_WIDTH,
         h: graphHeight,
         l: s.PADD[3],
-        t: s.DATES_HEIGHT
+        t: s.DATES_HEIGHT,
       },
       axisYRight: {
         w: s.Y_LABELS_WIDTH,
         h: graphHeight,
         l: rectGraph.width - s.PADD[1] - s.Y_LABELS_WIDTH,
-        t: s.DATES_HEIGHT
+        t: s.DATES_HEIGHT,
       },
       axisYLines: {
         w: rectGraph.width - s.PADD[1] - s.PADD[3],
         h: graphHeight,
         l: s.PADD[3],
-        t: s.DATES_HEIGHT
+        t: s.DATES_HEIGHT,
       },
       fadeTop: {
         w: rectGraph.width,
         h: s.FADE_HEIGHT,
         l: 0,
-        t: s.DATES_HEIGHT
+        t: s.DATES_HEIGHT,
       },
       fadeBottom: {
         w: rectGraph.width,
         h: s.FADE_HEIGHT,
         l: 0,
-        t: s.DATES_HEIGHT + graphHeight - s.FADE_HEIGHT
+        t: s.DATES_HEIGHT + graphHeight - s.FADE_HEIGHT,
       },
       axisX: {
         w: rectGraph.width,
         h: s.X_LABELS_HEIGHT,
         l: 0,
-        t: s.DATES_HEIGHT + graphHeight - s.X_LABELS_HEIGHT
+        t: s.DATES_HEIGHT + graphHeight - s.X_LABELS_HEIGHT,
       },
       dates: {
         w: s.DATES_WIDTH,
         h: s.DATES_HEIGHT,
         l: this.opts.settings!.DATES_SIDE === 'right' ? rectGraph.width - s.DATES_WIDTH - s.PADD[1] : s.PADD[1],
-        t: 0
+        t: 0,
       },
       mini: {
         w: rectGraph.width - s.PADD[1] - s.PADD[3],
         h: s.MINI_GRAPH_HEIGHT,
         l: s.PADD[3],
-        t: s.DATES_HEIGHT + graphHeight + s.MINI_GRAPH_TOP
+        t: s.DATES_HEIGHT + graphHeight + s.MINI_GRAPH_TOP,
       },
       handle: {
         w: rectGraph.width - s.PADD[1] - s.PADD[3],
         h: s.MINI_GRAPH_HEIGHT + 2,
         l: s.PADD[3],
-        t: s.DATES_HEIGHT + graphHeight + s.MINI_GRAPH_TOP - 1
+        t: s.DATES_HEIGHT + graphHeight + s.MINI_GRAPH_TOP - 1,
       },
       tip: {
         w: rectGraph.width,
         h: graphHeight,
         l: 0,
-        t: s.DATES_HEIGHT
-      }
+        t: s.DATES_HEIGHT,
+      },
     };
 
     this.graph.onResize();
@@ -755,11 +755,11 @@ export default class TChart {
     this.$el = document.createElement('div');
     this.$el.className = 'tchart';
 
-    if(!this.data.subchart!.show) {
+    if (!this.data.subchart!.show) {
       this.$el.classList.add('tchart__no-subchart');
     }
 
-    if(this.data.slave) {
+    if (this.data.slave) {
       this.$el.classList.add('tchart__slave');
     }
 
@@ -797,8 +797,8 @@ export default class TChart {
     const rangeGraph = this.getYMinMax(this.state.x1!, this.state.x2!, false, true);
     const rangeMini = this.getYMinMax(this.state.xg1!, this.state.xg2!, true);
 
-    if(this.pairY) {
-      for(let i = 0; i < this.data.ys!.length; i++) {
+    if (this.pairY) {
+      for (let i = 0; i < this.data.ys!.length; i++) {
         this.state[`y1_${i}`] = (rangeGraph as TChartRangePaired).min[i];
         this.state[`y2_${i}`] = (rangeGraph as TChartRangePaired).max[i];
         this.state[`y1m_${i}`] = (rangeMini as TChartRangePaired).min[i];
@@ -817,19 +817,19 @@ export default class TChart {
       chart: this,
       state: this.state,
       data: this.data,
-      graphStyle: this.graphStyle
+      graphStyle: this.graphStyle,
     });
 
     this.animator = new TAnimator({
       state: this.state,
-      composer: this.composer
+      composer: this.composer,
     });
 
     const graphStyle: {[type in TChartType]: any} = {
       line: TLines,
       step: TLines,
       bar: TBars,
-      area: TAreas
+      area: TAreas,
     };
 
     const objs: [property: string, constructor: any, $parent: HTMLElement, additional?: any][] = [
@@ -838,20 +838,20 @@ export default class TChart {
       ['fade', TFade, this.$graph],
       ['axisY', TAxisY, this.$graph],
       ['tip', TTip, this.$graph, {
-        onClick: this.toggleZoom
+        onClick: this.toggleZoom,
       }],
       ['mini', graphStyle[this.graphStyle], this.$graph, {
-        mini: true
+        mini: true,
       }],
       ['handle', THandle, this.$graph, {
-        cb: this.onHandleMove
+        cb: this.onHandleMove,
       }],
       ['switchers', TSwitchers, this.$switchers, {
         onClick: this.onSwitcherChange,
         onLongTap: this.onSwitcherChange,
         onEnter: this.onSwitcherEnter,
-        onLeave: this.onSwitcherLeave
-      }]
+        onLeave: this.onSwitcherLeave,
+      }],
     ];
 
     objs.forEach((obj) => {
@@ -866,7 +866,7 @@ export default class TChart {
         data: this.data,
         $parent: obj[2],
         settings: settings,
-        additional: obj[3] || {}
+        additional: obj[3] || {},
       };
       // @ts-ignore
       this[obj[0]] = new obj[1](options);
@@ -883,7 +883,7 @@ export default class TChart {
 
     isMagnet = false; // due to range reducers on detail data gaps
 
-    if(isMagnet) {
+    if (isMagnet) {
       const periodLen = this.data.mainPeriodLen;
       x1 = Math.round(x1 / periodLen!) * periodLen!;
       x2 = Math.round(x2 / periodLen!) * periodLen!;
@@ -891,7 +891,7 @@ export default class TChart {
       x1 = Math.min(Math.max(x1, this.state.xg1!), this.state.xg2! - periodLen!);
       x2 = Math.min(Math.max(x2, this.state.xg1! + periodLen!), this.state.xg2!);
 
-      if(x2 <= x1) {
+      if (x2 <= x1) {
         x2 = x1 + periodLen!;
       }
 
@@ -900,7 +900,7 @@ export default class TChart {
       const x1End = x1AnimItem ? x1AnimItem.end : this.state['x1'];
       const x2End = x2AnimItem ? x2AnimItem.end : this.state['x2'];
 
-      if(x1 === x1End && x2 === x2End) {
+      if (x1 === x1End && x2 === x2End) {
         return;
       }
     }
@@ -913,7 +913,7 @@ export default class TChart {
     this.axisY.setAnimation(true);
     this.axisY.setForceUpdate(false);
     firstMove && triggerEvent('chart-hide-tips', {
-      except: null
+      except: null,
     });
 
     props.push({
@@ -924,8 +924,8 @@ export default class TChart {
       duration: isMagnet ? 250 : 0,
       group: {
         top: true,
-        bottom: true
-      }
+        bottom: true,
+      },
     });
 
     props.push({
@@ -936,12 +936,12 @@ export default class TChart {
       duration: isMagnet ? 250 : 0,
       group: {
         top: true,
-        bottom: true
-      }
+        bottom: true,
+      },
     });
 
-    for(let i = 0; i < this.data.ys!.length; i++) {
-      if(this.graphStyle === 'line' || this.graphStyle === 'step') {
+    for (let i = 0; i < this.data.ys!.length; i++) {
+      if (this.graphStyle === 'line' || this.graphStyle === 'step') {
         props.push({
           prop: this.pairY ? `y1_${i}` : 'y1',
           state: this.state,
@@ -951,12 +951,12 @@ export default class TChart {
           tween: 'exp',
           speed: 0.25,
           group: {
-            top: true
-          }
+            top: true,
+          },
         });
       }
 
-      if(this.graphStyle !== 'area') {
+      if (this.graphStyle !== 'area') {
         props.push({
           prop: this.pairY ? `y2_${i}` : 'y2',
           state: this.state,
@@ -966,8 +966,8 @@ export default class TChart {
           tween: 'exp',
           speed: 0.25,
           group: {
-            top: true
-          }
+            top: true,
+          },
         });
       }
     }
@@ -980,7 +980,7 @@ export default class TChart {
 
     const props: TChartAnimationProperty[] = [];
 
-    for(let i = 0; i < this.data.ys!.length; i++) {
+    for (let i = 0; i < this.data.ys!.length; i++) {
       props.push({
         prop: `f_${i}`,
         state: this.state,
@@ -988,7 +988,7 @@ export default class TChart {
         duration: 300,
         tween: 'exp',
         speed: 0.15,
-        group: {top: true, bottom: true}
+        group: { top: true, bottom: true },
       });
 
       props.push({
@@ -998,7 +998,7 @@ export default class TChart {
         duration: 300,
         tween: 'exp',
         speed: 0.15,
-        group: {top: true, bottom: true}
+        group: { top: true, bottom: true },
       });
     }
 
@@ -1011,7 +1011,7 @@ export default class TChart {
     this.switcherLeaveTimeout = window.setTimeout(() => {
       const props: TChartAnimationProperty[] = [];
 
-      for(let i = 0; i < this.data.ys!.length; i++) {
+      for (let i = 0; i < this.data.ys!.length; i++) {
         props.push({
           prop: `f_${i}`,
           state: this.state,
@@ -1019,7 +1019,7 @@ export default class TChart {
           duration: 300,
           tween: 'exp',
           speed: 0.15,
-          group: {top: true, bottom: true}
+          group: { top: true, bottom: true },
         });
 
         props.push({
@@ -1029,7 +1029,7 @@ export default class TChart {
           duration: 300,
           tween: 'exp',
           speed: 0.15,
-          group: {top: true, bottom: true}
+          group: { top: true, bottom: true },
         });
       }
 
@@ -1045,36 +1045,36 @@ export default class TChart {
 
     this.updateSpeed();
 
-    if(typeof(enabled) !== 'boolean') {
+    if (typeof(enabled) !== 'boolean') {
       longTap = true;
       ind = enabled;
 
       isAllOffExceptCurrent = true;
-      for(i = 0; i < this.data.ys!.length; i++) {
+      for (i = 0; i < this.data.ys!.length; i++) {
         isAllOffExceptCurrent = (isAllOffExceptCurrent && (i === ind ? this.state[`e_${i}`] : !this.state[`e_${i}`]))!;
       }
     }
 
     var maxYSize = 0;
 
-    for(i = 0; i < this.data.ys!.length; i++) {
+    for (i = 0; i < this.data.ys!.length; i++) {
       isCurrent = i === ind;
 
       prevE[i] = this.state[`e_${i}`]!;
 
-      if(longTap!) {
+      if (longTap!) {
         this.state[`e_${i}`] = isCurrent;
-      } else if(isCurrent) {
+      } else if (isCurrent) {
         this.state[`e_${i}`] = !!enabled;
       }
 
-      if(isAllOffExceptCurrent! && longTap!) {
+      if (isAllOffExceptCurrent! && longTap!) {
         this.state[`e_${i}`] = true;
       }
 
       e[i] = this.state[`e_${i}`]!;
 
-      if(e[i]) {
+      if (e[i]) {
         maxYSize = Math.max(maxYSize, this.data.ys![i].y.length);
       }
     }
@@ -1082,7 +1082,7 @@ export default class TChart {
     // reduce global range to exclude data gaps
     var reducedRange = this.reduceGlobalRange({});
 
-    if(reducedRange.isReduced) {
+    if (reducedRange.isReduced) {
       props.push({
         prop: 'x1',
         state: this.state,
@@ -1090,8 +1090,8 @@ export default class TChart {
         duration: 333,
         group: {
           top: true,
-          bottom: true
-        }
+          bottom: true,
+        },
       });
 
       props.push({
@@ -1101,8 +1101,8 @@ export default class TChart {
         duration: 333,
         group: {
           top: true,
-          bottom: true
-        }
+          bottom: true,
+        },
       });
 
       props.push({
@@ -1112,8 +1112,8 @@ export default class TChart {
         duration: 333,
         group: {
           top: true,
-          bottom: true
-        }
+          bottom: true,
+        },
       });
 
       props.push({
@@ -1123,8 +1123,8 @@ export default class TChart {
         duration: 333,
         group: {
           top: true,
-          bottom: true
-        }
+          bottom: true,
+        },
       });
       this.state.xg1Ind = reducedRange.xg1Ind;
       this.state.xg2Ind = reducedRange.xg2Ind;
@@ -1138,25 +1138,25 @@ export default class TChart {
 
 
     triggerEvent('chart-hide-tips', {
-      except: null
+      except: null,
     });
     this.axisY.setForceUpdate(true);
     this.axisY.setAnimation(true);
 
     this.state.activeColumnsCount = 0;
 
-    for(i = 0; i < e.length; i++) {
+    for (i = 0; i < e.length; i++) {
       e[i] && this.state.activeColumnsCount++;
 
-      if(prevE[i] !== e[i]) {
+      if (prevE[i] !== e[i]) {
         props.push({
           prop: `o_${i}`,
           state: this.state,
           end: e[i] ? 1 : 0,
           duration: 300,
           group: {
-            top: true
-          }
+            top: true,
+          },
         });
 
         props.push({
@@ -1167,58 +1167,58 @@ export default class TChart {
           delay: e[i] && this.graphStyle === 'line' || this.graphStyle === 'step' ? 200 : 0,
           tween: 'linear',
           group: {
-            bottom: true
-          }
+            bottom: true,
+          },
         });
       }
     }
 
-    for(i = 0; i < (this.pairY ? e.length : 1); i++) {
-      if(this.graphStyle === 'line' || this.graphStyle === 'step') {
+    for (i = 0; i < (this.pairY ? e.length : 1); i++) {
+      if (this.graphStyle === 'line' || this.graphStyle === 'step') {
         props.push({
           prop: this.pairY ? `y1_${i}` : 'y1',
           state: this.state,
           end: this.pairY ? (rangeGraph as TChartRangePaired).min[i] : (rangeGraph as TChartRangeSingle).min,
           duration: this.pairY ? 0 : 333,
           group: {
-            top: true
-          }
+            top: true,
+          },
         });
       }
 
-      if(this.graphStyle !== 'area') {
+      if (this.graphStyle !== 'area') {
         props.push({
           prop: this.pairY ? `y2_${i}` : 'y2',
           state: this.state,
           end: this.pairY ? (rangeGraph as TChartRangePaired).max[i] : (rangeGraph as TChartRangeSingle).max,
           duration: this.pairY ? 0 : 333,
           group: {
-            top: true
-          }
+            top: true,
+          },
         });
       }
 
-      if(this.graphStyle === 'line' || this.graphStyle === 'step') {
+      if (this.graphStyle === 'line' || this.graphStyle === 'step') {
         props.push({
           prop: this.pairY ? `y1m_${i}` : 'y1m',
           state: this.state,
           end: this.pairY ? (rangeMini as TChartRangePaired).min[i] : (rangeMini as TChartRangeSingle).min,
           duration: this.pairY ? 0 : 316,
           group: {
-            bottom: true
-          }
+            bottom: true,
+          },
         });
       }
 
-      if(this.graphStyle !== 'area') {
+      if (this.graphStyle !== 'area') {
         props.push({
           prop: this.pairY ? `y2m_${i}` : 'y2m',
           state: this.state,
           end: this.pairY ? (rangeMini as TChartRangePaired).max[i] : (rangeMini as TChartRangeSingle).max,
           duration: this.pairY ? 0 : 316,
           group: {
-            bottom: true
-          }
+            bottom: true,
+          },
         });
       }
     }
@@ -1239,11 +1239,11 @@ export default class TChart {
 
     this.updateSpeed(speed);
 
-    if(this.state.zoomModeSlave === enabled) return;
+    if (this.state.zoomModeSlave === enabled) return;
 
     this.state.zoomSpecialOrigin = zoomSpecialOrigin;
 
-    if(enabled) {
+    if (enabled) {
       this.state.zoomModeSlave = true;
 
       this.switchers.switchers.forEach((div, ind) => {
@@ -1258,7 +1258,7 @@ export default class TChart {
 
       this.data.x = details.x;
       const e: boolean[] = [];
-      for(let i = 0; i < details.y!.length; i++) {
+      for (let i = 0; i < details.y!.length; i++) {
         this.data.ys![i].y = details.y![i];
 
         const isVisible = details.hidden!.indexOf(this.data.ys![i].id) === -1;
@@ -1283,12 +1283,12 @@ export default class TChart {
       const xRangeFormatter = getFormatter('xRangeFormatter', this.data, 1);
       let maxXTickLength = 0;
 
-      for(let i = 0; i < this.data.x!.length; i++) {
+      for (let i = 0; i < this.data.x!.length; i++) {
         this.data.dates[i] = xTooltipFormatter(this.data.x![i], true);
         this.data.datesShort[i] = xTickFormatter(this.data.x![i], true);
         this.data.datesRange[i] = xRangeFormatter(this.data.x![i], true);
 
-        if(this.data.datesShort[i].length > maxXTickLength) {
+        if (this.data.datesShort[i].length > maxXTickLength) {
           maxXTickLength = this.data.datesShort[i].length;
         }
       }
@@ -1303,7 +1303,7 @@ export default class TChart {
         x2: x2,
         xg1: x1,
         xg2: x2,
-        default: this.data.subchart!.defaultZoom
+        default: this.data.subchart!.defaultZoom,
       });
 
       this.state.x1 = defaultZoom.x1;
@@ -1323,7 +1323,7 @@ export default class TChart {
       // reduce global range to exclude data gaps
       const reducedRange = this.reduceGlobalRange({});
 
-      if(reducedRange.isReduced) {
+      if (reducedRange.isReduced) {
         this.state.x1 = reducedRange.x1;
         this.state.x2 = reducedRange.x2;
         this.state.xg1 = reducedRange.xg1;
@@ -1348,7 +1348,7 @@ export default class TChart {
     const durationY = 450;
 
     setTimeout(() => {
-      if(!enabled) {
+      if (!enabled) {
         this.state.zoomModeSlave = false;
       }
     }, durationY + 20);
@@ -1362,8 +1362,8 @@ export default class TChart {
       duration: durationY,
       group: {
         top: true,
-        bottom: true
-      }
+        bottom: true,
+      },
     });
 
     this.animator.add(props);
@@ -1372,11 +1372,11 @@ export default class TChart {
   toggleZoomSpecial(enabled: boolean, dt: number, details: TChartDataDetails) {
     var props: TChartAnimationProperty[] = [];
 
-    if(this.state.zoomModeSpecial === enabled) return;
+    if (this.state.zoomModeSpecial === enabled) return;
 
     var speed = this.updateSpeed();
 
-    if(enabled) {
+    if (enabled) {
       var scale = (this.state.x2! - this.state.x1!) / (this.state.dims!.graph.w - this.settings.PADD[3] - this.settings.PADD[1]);
       var lPaddInDt = this.settings.PADD[3] * scale;
       var rPaddInDt = this.settings.PADD[1] * scale;
@@ -1405,7 +1405,7 @@ export default class TChart {
 
     document.body.style.pointerEvents = 'none';
     setTimeout(() => {
-      if(!enabled) {
+      if (!enabled) {
         this.state.zoomModeSpecial = false;
       }
       document.body.style.pointerEvents = '';
@@ -1420,8 +1420,8 @@ export default class TChart {
       duration: durationY,
       group: {
         top: true,
-        bottom: true
-      }
+        bottom: true,
+      },
     });
 
     this.animator.add(props);
@@ -1429,42 +1429,42 @@ export default class TChart {
 
   toggleZoom = (enabled: boolean, dt?: number, data?: TChartData) => {
     // this.specialZoomTransition = true;
-    if(enabled) {
+    if (enabled) {
       // this.specialZoomTransition = this.state.isSlowNow ? true : undefined;
       // this.specialZoomTransition = true;
     }
 
-    if(data && this.specialZoomTransition === undefined) {
-      if(data.columns!.length !== this.data.ys!.length + 1) this.specialZoomTransition = true;
-      if(!this.specialZoomTransition) {
+    if (data && this.specialZoomTransition === undefined) {
+      if (data.columns!.length !== this.data.ys!.length + 1) this.specialZoomTransition = true;
+      if (!this.specialZoomTransition) {
         data.columns!.forEach((item) => {
           const id = item[0];
           const tp = data.types![id];
           const label = data.names![id];
           const ind = this.data.yIds[id];
-          if(ind !== undefined) {
+          if (ind !== undefined) {
             const tpOrig = this.data.ys![ind].tp;
             const labelOrig = this.data.ys![ind].label;
-            if(tpOrig !== tp || labelOrig !== label) {
+            if (tpOrig !== tp || labelOrig !== label) {
               this.specialZoomTransition = true;
             }
           } else {
-            if((id as any as string) !== 'x') {
+            if ((id as any as string) !== 'x') {
               this.specialZoomTransition = true;
             }
           }
         });
       }
-      if(this.specialZoomTransition === undefined) {
+      if (this.specialZoomTransition === undefined) {
         this.specialZoomTransition = false;
       }
     }
 
-    if(this.specialZoomTransition) {
+    if (this.specialZoomTransition) {
       this.data.master = true;
       this.$el.classList.add('tchart__master');
 
-      if(!this.slaveChart) {
+      if (!this.slaveChart) {
         const clonedData: TChartConstructorOptions['data'] = JSON.parse(JSON.stringify(data));
         clonedData.yTickFormatter = data!.yTickFormatter!;
         clonedData.yTooltipFormatter = data!.yTooltipFormatter!;
@@ -1477,17 +1477,17 @@ export default class TChart {
         this.slaveChart = new TChart({
           container: this.opts.container,
           slave: true,
-          data: clonedData
+          data: clonedData,
         });
 
         this.slaveChart.setDarkMode(this.darkMode);
       }
     }
 
-    if(data && !data.details) {
+    if (data && !data.details) {
       data.details = {
         y: [],
-        names: []
+        names: [],
       } as TChartDataDetails;
 
       data.columns!.forEach((item) => {
@@ -1495,10 +1495,10 @@ export default class TChart {
         const tp = data.types![id!];
         const label = data.names![id!];
 
-        if(tp === 'x') {
+        if (tp === 'x') {
           data.details!.x = item;
         } else {
-          if(this.specialZoomTransition) {
+          if (this.specialZoomTransition) {
             data.details!.y!.push(item);
             data.details!.names!.push(label);
           } else {
@@ -1508,17 +1508,17 @@ export default class TChart {
       });
     }
 
-    if(data) {
+    if (data) {
       data.subchart = {
         show: data.subchart && data.subchart.show !== undefined ? data.subchart.show : true,
-        defaultZoom: (data.subchart && data.subchart.defaultZoom)!
+        defaultZoom: (data.subchart && data.subchart.defaultZoom)!,
       }
       data.details!.subchart = data.subchart;
       data.details!.hidden = data.hidden || [];
     }
 
 
-    if(this.specialZoomTransition) {
+    if (this.specialZoomTransition) {
       this.toggleZoomSpecial(enabled, dt!, (data && data.details)!);
       return;
     }
@@ -1530,9 +1530,9 @@ export default class TChart {
       rangeMini: TChartRange,
       props: TChartAnimationProperty[] = [];
 
-    if(this.state.zoomMode === enabled) return;
+    if (this.state.zoomMode === enabled) return;
 
-    if(enabled) {
+    if (enabled) {
       this.state.zoomMode = true;
       this.state.zoomDir = 1;
       this.$h1.classList.add('tchart--header__hidden');
@@ -1541,7 +1541,7 @@ export default class TChart {
       this.zoomEnterSpeed = this.updateSpeed();
 
       // area has no data
-      if(data) {
+      if (data) {
         this.data.details = {
           yTickFormatter: data.yTickFormatter,
           yTooltipFormatter: data.yTooltipFormatter,
@@ -1549,12 +1549,12 @@ export default class TChart {
           xTooltipFormatter: data.xTooltipFormatter,
           xRangeFormatter: data.xRangeFormatter,
           subchart: data.subchart,
-          hidden: data.hidden || []
+          hidden: data.hidden || [],
         };
       }
 
       // save
-      if(!this.hasSavedData) {
+      if (!this.hasSavedData) {
         this.data.saved = {};
         this.data.saved.x = this.data.x!.slice();
         this.data.saved.dates = this.data.dates!.slice();
@@ -1562,14 +1562,14 @@ export default class TChart {
         this.data.saved.datesRange = this.data.datesRange!.slice();
         this.data.saved.y = [];
 
-        for(let j = 0; j < this.data.ys!.length; j++) {
+        for (let j = 0; j < this.data.ys!.length; j++) {
           this.data.saved.y[j] = this.data.ys![j].y.slice();
         }
         this.hasSavedData = true;
       }
 
-      if(this.data.details && this.data.details.subchart) {
-        if(!this.data.details.subchart.show) {
+      if (this.data.details && this.data.details.subchart) {
+        if (!this.data.details.subchart.show) {
           this.$el.classList.add('tchart__no-subchart');
         } else {
           this.$el.classList.remove('tchart__no-subchart');
@@ -1583,20 +1583,20 @@ export default class TChart {
         xg1: this.state.xg1,
         xg2: this.state.xg2,
         xgMin: this.state.xgMin,
-        xgMax: this.state.xgMax
+        xgMax: this.state.xgMax,
       }
 
       var periodLen = this.data.mainPeriodLen;
       var x1 = dt;
       var x2 = dt! + periodLen!;
 
-      if(this.data.details) {
+      if (this.data.details) {
         var defaultZoom = this.getDefaultZoom({
           x1: x1,
           x2: x2,
           xg1: details!.x![0],
           xg2: details!.x![details!.x!.length - 1],
-          default: this.data.details.subchart!.defaultZoom
+          default: this.data.details.subchart!.defaultZoom,
         });
 
         var x1 = defaultZoom.x1;
@@ -1605,7 +1605,7 @@ export default class TChart {
       var xg1, xg2;
 
 
-      if(this.graphStyle !== 'area') {
+      if (this.graphStyle !== 'area') {
         this.data.detailPeriodLen = details!.x![1] - details!.x![0];
 
         xg1 = details!.x![0];
@@ -1618,18 +1618,18 @@ export default class TChart {
 
         x2 = x1! + Math.round((totalRange / 7) / periodLen!) * periodLen!;
 
-        if(xg1 < this.data.x![0]) {
+        if (xg1 < this.data.x![0]) {
           xg1 = this.data.x![0];
           xg2 = xg1 + totalRange;
 
-          if(xg2 > this.data.x![this.data.x!.length - 1]) {
+          if (xg2 > this.data.x![this.data.x!.length - 1]) {
             xg2 = this.data.x![this.data.x!.length - 1] + periodLen!;
           }
-        } else if(xg2 > this.data.x![this.data.x!.length - 1]) {
+        } else if (xg2 > this.data.x![this.data.x!.length - 1]) {
           xg2 = this.data.x![this.data.x!.length - 1] + periodLen!;
           xg1 = xg2 - totalRange;
 
-          if(xg1 < this.data.x![0]) {
+          if (xg1 < this.data.x![0]) {
             xg1 = this.data.x![0];
           }
         }
@@ -1639,7 +1639,7 @@ export default class TChart {
       xg2 = Math.round(xg2 / periodLen!) * periodLen!;
 
 
-      if(this.graphStyle !== 'area') {
+      if (this.graphStyle !== 'area') {
         this.insertDetails(xg1, xg2, details!);
       }
 
@@ -1651,8 +1651,8 @@ export default class TChart {
       this.$h1.classList.remove('tchart--header__hidden');
       this.$zoom.classList.remove('tchart--zoom__visible');
 
-      if(this.data.details) {
-        if(!this.data.subchart!.show) {
+      if (this.data.details) {
+        if (!this.data.subchart!.show) {
           this.$el.classList.add('tchart__no-subchart');
         } else {
           this.$el.classList.remove('tchart__no-subchart');
@@ -1677,9 +1677,9 @@ export default class TChart {
     let delayMain = 0;
     let delayZoom = 0;
 
-    if(this.graphStyle === 'area') {
+    if (this.graphStyle === 'area') {
       duration = 350;
-      if(enabled) {
+      if (enabled) {
         delayZoom = duration * 0.95;
       } else {
         delayMain = duration * 0.95;
@@ -1693,10 +1693,10 @@ export default class TChart {
       x2: x2,
       xg1: xg1,
       xg2: xg2,
-      useSaved: !enabled
+      useSaved: !enabled,
     });
 
-    if(reducedRange.isReduced) {
+    if (reducedRange.isReduced) {
       x1 = reducedRange.x1;
       x2 = reducedRange.x2!;
       xg1 = reducedRange.xg1;
@@ -1712,10 +1712,10 @@ export default class TChart {
 
     document.body.style.pointerEvents = 'none';
     setTimeout(() => {
-      if(!enabled) {
+      if (!enabled) {
         this.state.zoomMode = false;
 
-        if(this.graphStyle !== 'area') {
+        if (this.graphStyle !== 'area') {
           this.revertDetails();
         }
       }
@@ -1723,7 +1723,7 @@ export default class TChart {
 
       this.composer.render({
         top: true,
-        bottom: true
+        bottom: true,
       });
     }, duration + 20 + (this.graphStyle === 'area' ? duration * 0.9 : 0));
 
@@ -1738,8 +1738,8 @@ export default class TChart {
       delay: delayZoom,
       group: {
         top: true,
-        bottom: true
-      }
+        bottom: true,
+      },
     });
 
     props.push({
@@ -1750,8 +1750,8 @@ export default class TChart {
       duration: duration,
       group: {
         top: true,
-        bottom: true
-      }
+        bottom: true,
+      },
     });
 
     props.push({
@@ -1762,8 +1762,8 @@ export default class TChart {
       duration: duration,
       group: {
         top: true,
-        bottom: true
-      }
+        bottom: true,
+      },
     });
 
     props.push({
@@ -1774,8 +1774,8 @@ export default class TChart {
       duration: duration,
       group: {
         top: true,
-        bottom: true
-      }
+        bottom: true,
+      },
     });
 
     props.push({
@@ -1786,12 +1786,12 @@ export default class TChart {
       duration: duration,
       group: {
         top: true,
-        bottom: true
-      }
+        bottom: true,
+      },
     });
 
-    for(let i = 0; i < (this.pairY ? this.data.ys!.length : 1); i++) {
-      if(this.graphStyle === 'line' || this.graphStyle === 'step') {
+    for (let i = 0; i < (this.pairY ? this.data.ys!.length : 1); i++) {
+      if (this.graphStyle === 'line' || this.graphStyle === 'step') {
         props.push({
           prop: this.pairY ? `y1_${i}` : 'y1',
           state: this.state,
@@ -1799,12 +1799,12 @@ export default class TChart {
           delay: delayMain,
           duration: duration,
           group: {
-            top: true
-          }
+            top: true,
+          },
         });
       }
 
-      if(this.graphStyle !== 'area') {
+      if (this.graphStyle !== 'area') {
         props.push({
           prop: this.pairY ? `y2_${i}` : 'y2',
           state: this.state,
@@ -1812,12 +1812,12 @@ export default class TChart {
           delay: delayMain,
           duration: duration,
           group: {
-            top: true
-          }
+            top: true,
+          },
         });
       }
 
-      if(this.graphStyle === 'line' || this.graphStyle === 'step') {
+      if (this.graphStyle === 'line' || this.graphStyle === 'step') {
         props.push({
           prop: this.pairY ? `y1m_${i}` : 'y1m',
           state: this.state,
@@ -1825,12 +1825,12 @@ export default class TChart {
           delay: delayMain,
           duration: duration,
           group: {
-            bottom: true
-          }
+            bottom: true,
+          },
         });
       }
 
-      if(this.graphStyle !== 'area') {
+      if (this.graphStyle !== 'area') {
         props.push({
           prop: this.pairY ? `y2m_${i}` : 'y2m',
           state: this.state,
@@ -1838,8 +1838,8 @@ export default class TChart {
           delay: delayMain,
           duration: duration,
           group: {
-            bottom: true
-          }
+            bottom: true,
+          },
         });
       }
     }
@@ -1853,7 +1853,7 @@ export default class TChart {
     const startDetail = 0;
     const endDetail = details.x!.length - 1;
 
-    if(xg2 > this.data.x![endMain]) {
+    if (xg2 > this.data.x![endMain]) {
       endMain++;
     }
 
@@ -1873,18 +1873,18 @@ export default class TChart {
     const newY: number[][] = [];
     const newYFrom: number[][] = [];
 
-    for(let i = xl1; i < xl2; i++) {
+    for (let i = xl1; i < xl2; i++) {
       newInd = i - xl1;
       newX[newInd] = this.data.x![i];
       newDates[newInd] = this.data.dates![i];
       newDatesShort[newInd] = this.data.datesShort![i];
       newDatesRange[newInd] = this.data.datesRange![i];
     }
-    for(let j = 0; j < this.data.ys!.length; j++) {
+    for (let j = 0; j < this.data.ys!.length; j++) {
       newY[j] = newY[j] || [];
       y = newY[j];
       origY = this.data.ys![j].y;
-      for(let i = xl1; i < xl2; i++) {
+      for (let i = xl1; i < xl2; i++) {
         y[i - xl1] = origY[i];
       }
     }
@@ -1900,7 +1900,7 @@ export default class TChart {
     const xRangeFormatter = getFormatter('xRangeFormatter', this.data, 1);
     let maxXTickLength = 0;
 
-    for(let i = startDetail; i <= endDetail; i++) {
+    for (let i = startDetail; i <= endDetail; i++) {
       newInd = i - startDetail + xl2;
       newX[newInd] = details.x![i];
 
@@ -1908,7 +1908,7 @@ export default class TChart {
       newDatesShort[newInd] = xTickFormatter(newX[newInd], true);
       newDatesRange[newInd] = xRangeFormatter(newX[newInd], true);
 
-      if(newDatesShort[newInd].length > maxXTickLength) {
+      if (newDatesShort[newInd].length > maxXTickLength) {
         maxXTickLength = newDatesShort[newInd].length;
       }
 
@@ -1920,27 +1920,27 @@ export default class TChart {
 
     this.data.details!.maxXTickLength = maxXTickLength;
 
-    for(let j = 0; j < this.data.ys!.length; j++) {
+    for (let j = 0; j < this.data.ys!.length; j++) {
       newY[j] = newY[j] || [];
       y = newY[j];
       origY = this.data.ys![j].y;
       origYDet = details.y![j];
       newYFrom[j] = newYFrom[j] || [];
       yFrom = newYFrom[j];
-      for(let i = startDetail; i <= endDetail; i++) {
+      for (let i = startDetail; i <= endDetail; i++) {
         let yInter: number;
-        if(this.graphStyle === 'bar') {
+        if (this.graphStyle === 'bar') {
           yInter = origY[fdx[i]] || 0;
-        } else if(this.graphStyle === 'step') {
+        } else if (this.graphStyle === 'step') {
           yInter = origY[fdx[i]];
         } else {
           yInter = origY[fdx[i]] + (ndx[i] - fdx[i]) * (origY[cdx[i]] - origY[fdx[i]]);
         }
         const yDet = origYDet[i];
         // for bars it is simple, we may use 0 as value, cause they are cumulative and always starts from 0
-        if(this.graphStyle !== 'bar') {
+        if (this.graphStyle !== 'bar') {
           // has no initial value, but has detail value
-          if(isNaN(yInter) && !isNaN(yDet)) {
+          if (isNaN(yInter) && !isNaN(yDet)) {
             yInter = 0; // ugly, but seem like this situation is impossible in real cases
           }
         }
@@ -1951,18 +1951,18 @@ export default class TChart {
     }
 
 
-    for(let i = xr1 + 1; i <= xr2; i++) {
+    for (let i = xr1 + 1; i <= xr2; i++) {
       newInd = i - xr1 + endDetail + xl2;
       newX[newInd] = this.data.x![i];
       newDates[newInd] = this.data.dates![i];
       newDatesShort[newInd] = this.data.datesShort![i];
       newDatesRange[newInd] = this.data.datesRange![i];
     }
-    for(let j = 0; j < this.data.ys!.length; j++) {
+    for (let j = 0; j < this.data.ys!.length; j++) {
       newY[j] = newY[j] || [];
       y = newY[j];
       origY = this.data.ys![j].y;
-      for(let i = xr1 + 1; i <= xr2; i++) {
+      for (let i = xr1 + 1; i <= xr2; i++) {
         y[i - xr1 + endDetail + xl2] = origY[i];
       }
     }
@@ -1976,7 +1976,7 @@ export default class TChart {
     this.data.datesShort = newDatesShort;
     this.data.datesRange = newDatesRange;
 
-    for(let j = 0; j < this.data.ys!.length; j++) {
+    for (let j = 0; j < this.data.ys!.length; j++) {
       this.data.ys![j].y = newY[j];
       this.data.ys![j].yFrom = newYFrom[j];
     }
@@ -1988,7 +1988,7 @@ export default class TChart {
     this.data.datesShort = this.data.saved.datesShort;
     this.data.datesRange = this.data.saved.datesRange;
 
-    for(let i = 0; i < this.data.ys!.length; ++i) {
+    for (let i = 0; i < this.data.ys!.length; ++i) {
       this.data.ys![i].y = this.data.saved.y[i];
     }
   }

@@ -1,28 +1,28 @@
-import {Boost, PremiumBoostsStatus, PrepaidGiveaway} from '@layer';
-import {LangPackKey, i18n, joinElementsWith} from '@lib/langPack';
+import { Boost, PremiumBoostsStatus, PrepaidGiveaway } from '@layer';
+import { LangPackKey, i18n, joinElementsWith } from '@lib/langPack';
 import Section from '@components/section';
-import {SliderSuperTabEventable} from '@components/sliderTab';
-import {Accessor, createMemo, createRoot, createSignal, For, JSX, onCleanup, Show} from 'solid-js';
-import {render} from 'solid-js/web';
+import { SliderSuperTabEventable } from '@components/sliderTab';
+import { Accessor, createMemo, createRoot, createSignal, For, JSX, onCleanup, Show } from 'solid-js';
+import { render } from 'solid-js/web';
 import Row from '@components/row';
-import {avatarNew, AvatarNew} from '@components/avatarNew';
+import { avatarNew, AvatarNew } from '@components/avatarNew';
 import LimitLine from '@components/limit';
-import {LoadableList, StatisticsOverviewItems, createLoadableList, MoreButton, makeAbsStats} from '@components/sidebarRight/tabs/statistics';
-import PopupBoostsViaGifts, {BoostsBadge} from '@components/popups/boostsViaGifts';
+import { LoadableList, StatisticsOverviewItems, createLoadableList, MoreButton, makeAbsStats } from '@components/sidebarRight/tabs/statistics';
+import PopupBoostsViaGifts, { BoostsBadge } from '@components/popups/boostsViaGifts';
 import Button from '@components/button';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import PopupElement from '@components/popups';
-import {InviteLink} from '@components/sidebarLeft/tabs/inviteLink';
-import {horizontalMenu} from '@components/horizontalMenu';
+import { InviteLink } from '@components/sidebarLeft/tabs/inviteLink';
+import { horizontalMenu } from '@components/horizontalMenu';
 import classNames from '@helpers/string/classNames';
-import {formatFullSentTime} from '@helpers/date';
+import { formatFullSentTime } from '@helpers/date';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
 import Icon from '@components/icon';
 import toggleDisability from '@helpers/dom/toggleDisability';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import rootScope from '@lib/rootScope';
 import PopupGiftLink from '@components/popups/giftLink';
-import {toastNew} from '@components/toast';
+import { toastNew } from '@components/toast';
 import ListenerSetter from '@helpers/listenerSetter';
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
 import appImManager from '@lib/appImManager';
@@ -44,7 +44,7 @@ export const CPrepaidGiveaway = (props: {
   clickable?: true | (() => void),
   listenerSetter?: ListenerSetter
 }) => {
-  const {quantity} = props.giveaway;
+  const { quantity } = props.giveaway;
   const stars = (props.giveaway as PrepaidGiveaway.prepaidStarsGiveaway).stars;
   const months = (props.giveaway as PrepaidGiveaway.prepaidGiveaway).months;
   const boosts = stars ? (props.giveaway as PrepaidGiveaway.prepaidStarsGiveaway).boosts : (props.appConfig.giveaway_boosts_per_premium || 1) * quantity;
@@ -55,16 +55,16 @@ export const CPrepaidGiveaway = (props: {
     subtitleLangArgs: [quantity, i18n('Giveaway.Prepaid.Period', [months])],
     clickable: props.clickable,
     listenerSetter: props.listenerSetter,
-    rightContent: BoostsBadge({boosts}) as HTMLElement
+    rightContent: BoostsBadge({ boosts }) as HTMLElement,
   });
 
   row.title.classList.add('text-bold');
   const media = row.createMedia('abitbigger');
-  const avatar = AvatarNew({size: 42});
-  if(stars) {
-    avatar.set({icon: 'star', color: 'stars'});
+  const avatar = AvatarNew({ size: 42 });
+  if (stars) {
+    avatar.set({ icon: 'star', color: 'stars' });
   } else {
-    avatar.set({icon: 'gift_premium', color: getColorByMonths(months)});
+    avatar.set({ icon: 'gift_premium', color: getColorByMonths(months) });
   }
   media.append(avatar.node);
 
@@ -87,8 +87,8 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
       progress: true,
       hint: {
         icon: 'boost',
-        noStartEnd: true
-      }
+        noStartEnd: true,
+      },
     });
 
     const isMaxLevel = boostsStatus.next_level_boosts === undefined;
@@ -103,7 +103,7 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
         from1: i18n('BoostsLevel', [boostsStatus.level]),
         to1: i18n('BoostsLevel', [boostsStatus.level + 1]),
         from2: i18n('BoostsLevel', [boostsStatus.level]),
-        to2: i18n('BoostsLevel', [boostsStatus.level + 1])
+        to2: i18n('BoostsLevel', [boostsStatus.level + 1]),
       }
     );
 
@@ -113,18 +113,18 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
 
     const inviteLink = new InviteLink({
       listenerSetter: this.listenerSetter,
-      url
+      url,
     });
 
-    const boostsViaGiftsButton = Button('btn-primary btn-transparent primary', {icon: 'gift_premium', text: 'BoostingGetBoostsViaGifts'});
+    const boostsViaGiftsButton = Button('btn-primary btn-transparent primary', { icon: 'gift_premium', text: 'BoostingGetBoostsViaGifts' });
     attachClickEvent(boostsViaGiftsButton, () => {
       PopupElement.createPopup(PopupBoostsViaGifts, this.peerId);
-    }, {listenerSetter: this.listenerSetter});
+    }, { listenerSetter: this.listenerSetter });
 
-    const boostButton = Button('btn-primary btn-transparent primary', {icon: 'addboost', text: this.isBroadcast ? 'BoostChannel' : 'BoostGroup'});
+    const boostButton = Button('btn-primary btn-transparent primary', { icon: 'addboost', text: this.isBroadcast ? 'BoostChannel' : 'BoostGroup' });
     attachClickEvent(boostButton, () => {
       PopupElement.createPopup(PopupBoost, this.peerId);
-    }, {listenerSetter: this.listenerSetter});
+    }, { listenerSetter: this.listenerSetter });
 
     const noBoostersHint = i18n('NoBoostersHint');
     noBoostersHint.classList.add('boosts-no-boosters');
@@ -165,7 +165,7 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
     };
 
     const [tab, setTab] = createSignal(0);
-    const [prepaidGiveaways, setPrepaidGiveaways] = createSignal(boostsStatus.prepaid_giveaways?.slice() || [], {equals: false});
+    const [prepaidGiveaways, setPrepaidGiveaways] = createSignal(boostsStatus.prepaid_giveaways?.slice() || [], { equals: false });
     const onlyGiftedBoosts = createMemo(() => boostsStatus.gift_boosts === boostsStatus.boosts);
     const showGifts = createMemo(() => !onlyGiftedBoosts() && !!giftsBoostsList().count);
 
@@ -176,19 +176,19 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
           <StatisticsOverviewItems items={[{
             title: 'BoostsLevel2',
             value: makeAbsStats(boostsStatus.level),
-            includeZeroValue: true
+            includeZeroValue: true,
           }, {
             title: 'PremiumSubscribers',
             value: boostsStatus.premium_audience!,
             includeZeroValue: true,
-            describePercentage: true
+            describePercentage: true,
           }, {
             title: 'BoostsExisting',
             value: makeAbsStats(boostsStatus.boosts),
-            includeZeroValue: true
+            includeZeroValue: true,
           }, {
             title: 'BoostsToLevel',
-            value: makeAbsStats(boostsStatus.next_level_boosts! - boostsStatus.boosts)
+            value: makeAbsStats(boostsStatus.next_level_boosts! - boostsStatus.boosts),
           }]} />
         </Section>
         {this.canCreateGiveaway && prepaidGiveaways().length && (
@@ -225,11 +225,11 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
           <Tabs.Content ref={content!} class="boosts-users-contents" onClick={async(e) => {
             const target = findUpClassName(e.target!, 'row');
             const boost = this.targets.get(target);
-            if(!boost) {
+            if (!boost) {
               return;
             }
 
-            if(boost.stars) {
+            if (boost.stars) {
               PopupPayment.create({
                 noPaymentForm: true,
                 transaction: {
@@ -240,23 +240,23 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
                     _: 'starsTransactionPeer',
                     peer: {
                       _: 'peerChannel',
-                      channel_id: this.peerId.toChatId()
-                    }
+                      channel_id: this.peerId.toChatId(),
+                    },
                   },
                   pFlags: {},
                   amount: formatStarsAmount(boost.stars),
-                  giveaway_post_id: boost.giveaway_msg_id
+                  giveaway_post_id: boost.giveaway_msg_id,
                 },
-                boost
+                boost,
               });
               return;
             }
 
             const slug = boost.used_gift_slug;
             const peerId = boost.user_id?.toPeerId(false);
-            if(peerId && !boost.pFlags.gift && !boost.pFlags.unclaimed && !boost.pFlags.giveaway) {
-              appImManager.setInnerPeer({peerId: boost.user_id!.toPeerId(false)});
-            } else if(peerId && peerId !== rootScope.myId) {
+            if (peerId && !boost.pFlags.gift && !boost.pFlags.unclaimed && !boost.pFlags.giveaway) {
+              appImManager.setInnerPeer({ peerId: boost.user_id!.toPeerId(false) });
+            } else if (peerId && peerId !== rootScope.myId) {
               PopupElement.createPopup(
                 PopupGiftLink,
                 slug!,
@@ -266,19 +266,19 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
                   chats: [],
                   date: boost.date,
                   days: getBoostsDays(boost.date, boost.expires),
-                  pFlags: {via_giveaway: boost.pFlags.giveaway || undefined},
+                  pFlags: { via_giveaway: boost.pFlags.giveaway || undefined },
                   users: [],
                   from_id: await this.managers.appPeersManager.getOutputPeer(this.peerId),
                   giveaway_msg_id: boost.giveaway_msg_id,
                   slug,
                   to_id: peerId.toUserId(),
-                  used_date: slug ? 1 : undefined
+                  used_date: slug ? 1 : undefined,
                 }
               );
-            } else if(slug) {
+            } else if (slug) {
               PopupElement.createPopup(PopupGiftLink, slug);
             } else {
-              toastNew({langPackKey: 'BoostingRecipientWillBeSelected'});
+              toastNew({ langPackKey: 'BoostingRecipientWillBeSelected' });
             }
           }}>
             <ContentTab list={boostsList()} hide={tab() !== 0} moreKey="BoostingShowMoreBoosts" />
@@ -307,42 +307,42 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
     const boosts = 1 * (boost.multiplier || 1);
     const months = getBoostMonths(boost.date, boost.expires);
     let peerId = boost.user_id?.toPeerId(false);
-    if(peerId === rootScope.myId && boost.pFlags.unclaimed) {
+    if (peerId === rootScope.myId && boost.pFlags.unclaimed) {
       peerId = undefined;
     }
 
     let badge: HTMLElement;
-    if(boosts > 1) {
+    if (boosts > 1) {
       badge = document.createElement('span');
       badge.classList.add('boosts-user-boosts', 'boosts-user-badge');
       badge.append(Icon('boost'), ` ${boosts}`);
     }
 
     let title: HTMLElement;
-    if(peerId) {
-      title = await wrapPeerTitle({peerId});
+    if (peerId) {
+      title = await wrapPeerTitle({ peerId });
       title.classList.add('boosts-user-name');
-    } else if(boost.stars) {
+    } else if (boost.stars) {
       title = i18n('Stars', [boost.stars])!;
     } else {
       title = i18n(boost.pFlags.unclaimed ? 'BoostingUnclaimed' : 'BoostingToBeDistributed')!;
     }
 
     let subtitle: HTMLElement;
-    if(peerId || boost.stars) {
+    if (peerId || boost.stars) {
       subtitle = i18n('BoostsExpiration', [boosts, formatFullSentTime(boost.expires, undefined, true)])!;
     } else {
       subtitle = document.createElement('span');
       subtitle.append(
         ...(joinElementsWith([
           i18n('BoostingShortMonths', [months]),
-          formatFullSentTime(boost.expires, undefined, true)
+          formatFullSentTime(boost.expires, undefined, true),
         ], ' • ') as (string | Node)[])
       );
     }
 
     let rightContent: HTMLElement;
-    if(boost.pFlags.giveaway || boost.pFlags.gift) {
+    if (boost.pFlags.giveaway || boost.pFlags.gift) {
       rightContent = document.createElement('span');
       rightContent.classList.add('boosts-user-badge-right', 'boosts-user-badge');
       rightContent.append(
@@ -358,10 +358,10 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
       subtitle,
       clickable: true,
       noWrap: true,
-      rightContent: rightContent!
+      rightContent: rightContent!,
     });
 
-    if(peerId) {
+    if (peerId) {
       row.container.dataset.peerId = '' + peerId;
     }
 
@@ -371,21 +371,21 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
     const avatar = avatarNew({
       peerId,
       size: 42,
-      middleware: this.middlewareHelper.get()
+      middleware: this.middlewareHelper.get(),
     });
     media.append(avatar.node);
 
-    if(peerId) {
+    if (peerId) {
       await avatar.readyThumbPromise;
-    } else if(boost.stars) {
+    } else if (boost.stars) {
       avatar.set({
         icon: 'star',
-        color: 'stars'
+        color: 'stars',
       });
     } else {
       avatar.set({
         icon: boost.pFlags.unclaimed ? 'deleteuser' : 'noncontacts',
-        color: getColorByMonths(months)
+        color: getColorByMonths(months),
       });
     }
 
@@ -408,8 +408,8 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
       const loadMore = async() => {
         const limit = isFirst ? 20 : 100;
         isFirst = false;
-        const boostsList = await this.managers.appBoostsManager.getBoostsList({peerId, offset, limit, gifts});
-        if(!middleware()) return;
+        const boostsList = await this.managers.appBoostsManager.getBoostsList({ peerId, offset, limit, gifts });
+        if (!middleware()) return;
 
         const promises = boostsList.boosts.map(this.renderBoost);
         const rendered = await Promise.all(promises);
@@ -417,7 +417,7 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
         setF((value) => {
           value.count = boostsList.count;
           offset = boostsList.next_offset!;
-          if(!offset) {
+          if (!offset) {
             value.loadMore = undefined;
           }
 
@@ -426,7 +426,7 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
         });
       };
 
-      const [f, setF] = createLoadableList({loadMore});
+      const [f, setF] = createLoadableList({ loadMore });
       return f;
     };
 
@@ -441,7 +441,7 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
       this.managers.apiManager.getAppConfig(),
       boostsList().loadMore!(),
       giftsBoostsList().loadMore!(),
-      this.managers.appChatsManager.hasRights(peerId.toChatId(), 'create_giveaway')
+      this.managers.appChatsManager.hasRights(peerId.toChatId(), 'create_giveaway'),
     ]);
 
     this.canCreateGiveaway = canCreateGiveaway;

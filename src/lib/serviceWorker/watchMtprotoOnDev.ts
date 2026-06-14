@@ -1,7 +1,7 @@
-import {getWindowClients} from '@helpers/context';
-import {IS_BETA} from '@config/debug';
+import { getWindowClients } from '@helpers/context';
+import { IS_BETA } from '@config/debug';
 
-import {logger, LogTypes} from '@lib/logger';
+import { logger, LogTypes } from '@lib/logger';
 
 
 const logMtprotoBug = logger('SW-mtproto-bug', LogTypes.None);
@@ -11,11 +11,11 @@ type Args = {
   onWindowConnected: (source: WindowClient, from: string) => void;
 };
 
-export function watchMtprotoOnDev({connectedWindows, onWindowConnected}: Args) {
-  if(IS_BETA) setInterval(() => {
+export function watchMtprotoOnDev({ connectedWindows, onWindowConnected }: Args) {
+  if (IS_BETA) setInterval(() => {
     logMtprotoBug.debug('checking');
 
-    if(!connectedWindows.size) {
+    if (!connectedWindows.size) {
       getWindowClients().then((windowClients) => {
         logMtprotoBug.debug(`got ${windowClients.length} windows`);
 

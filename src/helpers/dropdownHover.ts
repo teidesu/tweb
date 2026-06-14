@@ -1,10 +1,10 @@
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import findUpAsChild from '@helpers/dom/findUpAsChild';
 import EventListenerBase from '@helpers/eventListenerBase';
 import ListenerSetter from '@helpers/listenerSetter';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
 import safeAssign from '@helpers/object/safeAssign';
-import appNavigationController, {NavigationItem} from '@components/appNavigationController';
+import appNavigationController, { NavigationItem } from '@components/appNavigationController';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import rootScope from '@lib/rootScope';
 import liteMode from '@helpers/liteMode';
@@ -53,18 +53,18 @@ export default class DropdownHover extends EventListenerBase<{
     onClick?: (button: HTMLElement, e: MouseEvent) => void
   ) {
     let firstTime = true;
-    if(IS_TOUCH_SUPPORTED) {
+    if (IS_TOUCH_SUPPORTED) {
       attachClickEvent(button, () => {
-        if(firstTime) {
+        if (firstTime) {
           firstTime = false;
           this.toggle(true);
         } else {
           this.toggle();
         }
-      }, {listenerSetter});
+      }, { listenerSetter });
     } else {
       listenerSetter.add(button)('mouseover', (e) => {
-        if(firstTime) {
+        if (firstTime) {
           listenerSetter.add(button)('mouseout', (e) => {
             this.clearTimeout('toggle');
             this.onMouseOut(e);
@@ -77,7 +77,7 @@ export default class DropdownHover extends EventListenerBase<{
         }, TOGGLE_TIMEOUT);
       });
 
-      attachClickEvent(button, onClick ? (e) => onClick(button, e) : this.onButtonClick.bind(this, button), {listenerSetter});
+      attachClickEvent(button, onClick ? (e) => onClick(button, e) : this.onButtonClick.bind(this, button), { listenerSetter });
     }
   }
 
@@ -85,11 +85,11 @@ export default class DropdownHover extends EventListenerBase<{
     const type: IgnoreMouseOutType = 'click';
     const ignore = !this.ignoreMouseOut.has(type);
 
-    if(ignore && !this.ignoreMouseOut.size) {
+    if (ignore && !this.ignoreMouseOut.size) {
       button && this.ignoreButtons.add(button);
       setTimeout(() => {
-        if(this.suppressOutClick) {
-          const options: AddEventListenerOptions = {capture: true};
+        if (this.suppressOutClick) {
+          const options: AddEventListenerOptions = { capture: true };
           window.addEventListener('mousedown', this.onMouseDownOut, options);
           window.addEventListener('click', this.onClickOut, options);
           this.detachClickEvent = () => {
@@ -97,7 +97,7 @@ export default class DropdownHover extends EventListenerBase<{
             window.removeEventListener('click', this.onClickOut, options);
           };
         } else {
-          this.detachClickEvent = attachClickEvent(window, this.onClickOut, {capture: true});
+          this.detachClickEvent = attachClickEvent(window, this.onClickOut, { capture: true });
         }
       }, 0);
     }
@@ -115,8 +115,8 @@ export default class DropdownHover extends EventListenerBase<{
 
   protected onClickOut = (e: MouseEvent) => {
     const target = e.target as HTMLElement;
-    if(e.isTrusted && this.isOutClickTarget(target)) {
-      if(this.suppressOutClick) {
+    if (e.isTrusted && this.isOutClickTarget(target)) {
+      if (this.suppressOutClick) {
         e.stopImmediatePropagation();
         e.preventDefault();
       }
@@ -129,22 +129,22 @@ export default class DropdownHover extends EventListenerBase<{
   // act on mousedown (e.g. the chat list opening a peer) fire before we close
   protected onMouseDownOut = (e: MouseEvent) => {
     const target = e.target as HTMLElement;
-    if(e.isTrusted && this.isOutClickTarget(target)) {
+    if (e.isTrusted && this.isOutClickTarget(target)) {
       e.stopImmediatePropagation();
       e.preventDefault();
     }
   };
 
   protected onMouseOut = (e: MouseEvent) => {
-    if(KEEP_OPEN || !this.isActive()) return;
+    if (KEEP_OPEN || !this.isActive()) return;
     this.clearTimeout('toggle');
 
-    if(this.ignoreMouseOut.size) {
+    if (this.ignoreMouseOut.size) {
       return;
     }
 
     const toElement = (e as any).toElement as HTMLElement;
-    if(toElement && findUpAsChild((toElement as { parentElement: HTMLElement; }), this.element)) {
+    if (toElement && findUpAsChild((toElement as { parentElement: HTMLElement; }), this.element)) {
       return;
     }
 
@@ -154,7 +154,7 @@ export default class DropdownHover extends EventListenerBase<{
   };
 
   protected clearTimeout(type: DropdownHoverTimeoutType) {
-    if(this.timeouts[type] !== undefined) {
+    if (this.timeouts[type] !== undefined) {
       clearTimeout(this.timeouts[type]);
       delete this.timeouts[type];
     }
@@ -169,10 +169,10 @@ export default class DropdownHover extends EventListenerBase<{
   }
 
   public init() {
-    if(!IS_TOUCH_SUPPORTED) {
+    if (!IS_TOUCH_SUPPORTED) {
       this.element.onmouseout = this.onMouseOut;
       this.element.onmouseover = (e) => {
-        if(this.forceClose) {
+        if (this.forceClose) {
           return;
         }
 
@@ -188,10 +188,10 @@ export default class DropdownHover extends EventListenerBase<{
 
   public toggle = async(enable?: boolean) => {
     // if(!this.element) return;
-    if(this.isToggleLocked?.()) return;
+    if (this.isToggleLocked?.()) return;
     const willBeActive = (!!this.element.style.display && enable === undefined) || enable;
-    if(this.init) {
-      if(willBeActive) {
+    if (this.init) {
+      if (willBeActive) {
         this.init();
         (this as {init: Function | null}).init = null;
       } else {
@@ -199,12 +199,12 @@ export default class DropdownHover extends EventListenerBase<{
       }
     }
 
-    if(willBeActive === this.isActive()) {
+    if (willBeActive === this.isActive()) {
       return;
     }
 
     const delay = IS_TOUCH_SUPPORTED || !liteMode.isAvailable('animations') ? 0 : ANIMATION_DURATION;
-    if((this.element.style.display && enable === undefined) || enable) {
+    if ((this.element.style.display && enable === undefined) || enable) {
       const res = this.dispatchResultableEvent('open');
       await Promise.all(res);
 
@@ -218,7 +218,7 @@ export default class DropdownHover extends EventListenerBase<{
         type: 'dropdown',
         onPop: () => {
           this.toggle(false);
-        }
+        },
       });
 
       this.clearTimeout('toggle');

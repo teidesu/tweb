@@ -1,6 +1,6 @@
 import rootScope from '@lib/rootScope';
-import {MonoforumDialog} from '@lib/storages/monoforumDialogs';
-import {AutonomousDialogListBase, BaseConstructorArgs} from '@components/autonomousDialogList/base';
+import { MonoforumDialog } from '@lib/storages/monoforumDialogs';
+import { AutonomousDialogListBase, BaseConstructorArgs } from '@components/autonomousDialogList/base';
 
 
 type ConstructorArgs = BaseConstructorArgs & {
@@ -11,25 +11,25 @@ export class AutonomousMonoforumThreadList extends AutonomousDialogListBase<Mono
   public onEmpty: () => void;
   private peerId: PeerId
 
-  constructor({peerId, ...args}: ConstructorArgs) {
+  constructor({ peerId, ...args }: ConstructorArgs) {
     super(args);
 
     this.peerId = peerId;
 
-    this.listenerSetter.add(rootScope)('monoforum_dialogs_update', ({dialogs}) => {
+    this.listenerSetter.add(rootScope)('monoforum_dialogs_update', ({ dialogs }) => {
       dialogs.filter(dialog => dialog.parentPeerId === this.peerId).forEach(dialog => this.updateDialog(dialog));
     });
 
-    this.listenerSetter.add(rootScope)('monoforum_draft_update', ({dialog}) => {
-      if(dialog.parentPeerId !== this.peerId) return;
+    this.listenerSetter.add(rootScope)('monoforum_draft_update', ({ dialog }) => {
+      if (dialog.parentPeerId !== this.peerId) return;
       this.updateDialog(dialog);
     });
 
-    this.listenerSetter.add(rootScope)('monoforum_dialogs_drop', ({parentPeerId, ids}) => {
-      if(parentPeerId !== this.peerId) return;
+    this.listenerSetter.add(rootScope)('monoforum_dialogs_drop', ({ parentPeerId, ids }) => {
+      if (parentPeerId !== this.peerId) return;
       ids.forEach(id => this.deleteDialogByKey(id));
 
-      if(!this.sortedList.itemsLength()) this.onEmpty?.();
+      if (!this.sortedList.itemsLength()) this.onEmpty?.();
     });
   }
 
@@ -42,6 +42,6 @@ export class AutonomousMonoforumThreadList extends AutonomousDialogListBase<Mono
   }
 
   protected dialogsFetcher(offsetIndex: number, limit: number) {
-    return this.managers.monoforumDialogsStorage.getDialogs({parentPeerId: this.peerId, limit, offsetIndex});
+    return this.managers.monoforumDialogsStorage.getDialogs({ parentPeerId: this.peerId, limit, offsetIndex });
   }
 }

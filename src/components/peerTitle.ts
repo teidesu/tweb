@@ -1,18 +1,18 @@
 import rootScope from '@lib/rootScope';
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 import replaceContent from '@helpers/dom/replaceContent';
-import {HIDDEN_PEER_ID, NULL_PEER_ID} from '@appManagers/constants';
+import { HIDDEN_PEER_ID, NULL_PEER_ID } from '@appManagers/constants';
 import limitSymbols from '@helpers/string/limitSymbols';
-import setInnerHTML, {setDirection} from '@helpers/dom/setInnerHTML';
+import setInnerHTML, { setDirection } from '@helpers/dom/setInnerHTML';
 import safeAssign from '@helpers/object/safeAssign';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
 import getPeerTitle from '@components/wrappers/getPeerTitle';
 import generateTitleIcons from '@components/generateTitleIcons';
-import {wrapTopicIcon} from '@components/wrappers/messageActionTextNewUnsafe';
+import { wrapTopicIcon } from '@components/wrappers/messageActionTextNewUnsafe';
 import lottieLoader from '@lib/rlottie/lottieLoader';
-import {AsAllChatsType} from '@lib/appDialogsManager';
+import { AsAllChatsType } from '@lib/appDialogsManager';
 import IS_EMOJI_SUPPORTED from '@environment/emojiSupport';
-import {isTruthy} from '../helpers/isTruthy';
+import { isTruthy } from '../helpers/isTruthy';
 
 export type PeerTitleOptions = {
   peerId?: PeerId,
@@ -34,13 +34,13 @@ export type PeerTitleOptions = {
 
 const weakMap: WeakMap<HTMLElement, PeerTitle> = new WeakMap();
 
-rootScope.addEventListener('peer_title_edit', ({peerId, threadId}) => {
+rootScope.addEventListener('peer_title_edit', ({ peerId, threadId }) => {
   let query = `.peer-title[data-peer-id="${peerId}"]`;
-  if(threadId) {
+  if (threadId) {
     query += `[data-thread-id="${threadId}"]`;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+
   const elements = Array.from(document.querySelectorAll(query)) as HTMLElement[];
   elements.forEach((element) => {
     const peerTitle = weakMap.get(element);
@@ -48,17 +48,17 @@ rootScope.addEventListener('peer_title_edit', ({peerId, threadId}) => {
   });
 });
 
-rootScope.addEventListener('botforum_pending_topic_created', ({peerId, tempId, newId}) => {
-  if(!newId) return;
+rootScope.addEventListener('botforum_pending_topic_created', ({ peerId, tempId, newId }) => {
+  if (!newId) return;
 
   const query = `.peer-title[data-peer-id="${peerId}"][data-thread-id="${tempId}"]`;
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+
   const elements = Array.from(document.querySelectorAll(query)) as HTMLElement[];
 
   elements.forEach((element) => {
     const peerTitle = weakMap.get(element);
-    peerTitle?.update({...peerTitle.options, threadId: newId});
+    peerTitle?.update({ ...peerTitle.options, threadId: newId });
   });
 });
 
@@ -74,7 +74,7 @@ export default class PeerTitle {
 
     this.options = {};
 
-    if(options) {
+    if (options) {
       this.update(options);
     }
 
@@ -82,16 +82,16 @@ export default class PeerTitle {
   }
 
   public setOptions(options?: PeerTitleOptions) {
-    if(!options) {
+    if (!options) {
       return;
     }
 
     safeAssign(this.options, options);
-    for(const i in options) {
+    for (const i in options) {
       // @ts-ignore
       const value = options[i];
 
-      if(typeof(value) !== 'object' && typeof(value) !== 'function') {
+      if (typeof(value) !== 'object' && typeof(value) !== 'function') {
         // @ts-ignore
         this.element.dataset[i] = value ? '' + (typeof(value) === 'boolean' ? +value : value) : '0';
       }
@@ -99,7 +99,7 @@ export default class PeerTitle {
   }
 
   private setHasInner(hasInner: boolean) {
-    if(this.hasInner !== hasInner) {
+    if (this.hasInner !== hasInner) {
       this.hasInner = hasInner;
       this.element.classList.toggle('with-icons', hasInner);
     }
@@ -109,8 +109,8 @@ export default class PeerTitle {
     this.setOptions(options);
 
     let fromName = this.options.fromName;
-    if(fromName !== undefined) {
-      if(this.options.limitSymbols !== undefined) {
+    if (fromName !== undefined) {
+      if (this.options.limitSymbols !== undefined) {
         fromName = limitSymbols(fromName, this.options.limitSymbols, this.options.limitSymbols);
       }
 
@@ -121,8 +121,8 @@ export default class PeerTitle {
     this.options.peerId ??= NULL_PEER_ID;
 
     let hasInner: boolean;
-    let {peerId, threadId} = this.options;
-    if(this.options.asAllChats === 'topics') {
+    let { peerId, threadId } = this.options;
+    if (this.options.asAllChats === 'topics') {
       const title = i18n('AllMessages');
 
       const inner = document.createElement('span');
@@ -137,46 +137,46 @@ export default class PeerTitle {
       fragment.append(emojiText, inner);
 
       setInnerHTML(this.element, fragment);
-    } else if(this.options.asAllChats === 'monoforum') {
+    } else if (this.options.asAllChats === 'monoforum') {
       const element = i18n('AllChats');
       replaceContent(this.element, element);
-    } else if(peerId === rootScope.myId && this.options.dialog) {
+    } else if (peerId === rootScope.myId && this.options.dialog) {
       let element: HTMLElement;
-      if(this.options.meAsNotes) {
+      if (this.options.meAsNotes) {
         element = i18n(this.options.onlyFirstName ? 'MyNotesShort' : 'MyNotes')!;
       } else {
         element = i18n(this.options.onlyFirstName ? 'Saved' : 'SavedMessages')!;
       }
 
       replaceContent(this.element, element);
-    } else if(peerId === HIDDEN_PEER_ID) {
+    } else if (peerId === HIDDEN_PEER_ID) {
       replaceContent(this.element, i18n(this.options.onlyFirstName ? 'AuthorHiddenShort' : 'AuthorHidden'));
     } else {
-      if(threadId) {
+      if (threadId) {
         const [topic, isForum, isBotforum, isMonoforum] = await Promise.all([
           rootScope.managers.dialogsStorage.getForumTopic(peerId, threadId),
           rootScope.managers.appPeersManager.isForum(peerId),
           rootScope.managers.appPeersManager.isBotforum(peerId),
-          rootScope.managers.appPeersManager.isMonoforum(peerId)
+          rootScope.managers.appPeersManager.isMonoforum(peerId),
         ]);
 
         // * fix monoforum
-        if(isMonoforum) {
+        if (isMonoforum) {
           peerId = threadId;
           threadId = undefined;
-        } else if(!topic && (isForum || isBotforum)) {
+        } else if (!topic && (isForum || isBotforum)) {
           rootScope.managers.dialogsStorage.getForumTopicById(peerId, threadId).then((forumTopic) => {
-            if(!forumTopic && this.options.threadId === threadId) {
+            if (!forumTopic && this.options.threadId === threadId) {
               this.options.threadId = undefined;
-              this.update({threadId: undefined});
+              this.update({ threadId: undefined });
               return;
             }
 
             this.update();
           }, () => {
-            if(this.options.threadId === threadId) {
+            if (this.options.threadId === threadId) {
               this.options.threadId = undefined;
-              this.update({threadId: undefined});
+              this.update({ threadId: undefined });
             }
           });
 
@@ -187,18 +187,18 @@ export default class PeerTitle {
       }
 
       const getTopicIconPromise = threadId && this.options.withIcons ?
-        rootScope.managers.dialogsStorage.getForumTopic(peerId, threadId).then((topic) => wrapTopicIcon({...(this.options.wrapOptions ?? {}), topic: topic!})) :
+        rootScope.managers.dialogsStorage.getForumTopic(peerId, threadId).then((topic) => wrapTopicIcon({ ...(this.options.wrapOptions ?? {}), topic: topic! })) :
         undefined;
 
       const [title, icons, topicIcon] = await Promise.all([
         getPeerTitle({
           ...this.options as Required<PeerTitleOptions>,
           peerId,
-          threadId
+          threadId,
         }),
-        (this.options.withIcons && generateTitleIcons({peerId, clickableEmojiStatus: this.options.clickableEmojiStatus, wrapOptions: {...this.options.wrapOptions, textColor: this.options.iconsColor || this.options.wrapOptions?.textColor}})) ||
-          (this.options.withPremiumIcon && generateTitleIcons({peerId, wrapOptions: {...this.options.wrapOptions, textColor: this.options.iconsColor || this.options.wrapOptions?.textColor}, noVerifiedIcon: true, noFakeIcon: true})),
-        getTopicIconPromise
+        (this.options.withIcons && generateTitleIcons({ peerId, clickableEmojiStatus: this.options.clickableEmojiStatus, wrapOptions: { ...this.options.wrapOptions, textColor: this.options.iconsColor || this.options.wrapOptions?.textColor } })) ||
+          (this.options.withPremiumIcon && generateTitleIcons({ peerId, wrapOptions: { ...this.options.wrapOptions, textColor: this.options.iconsColor || this.options.wrapOptions?.textColor }, noVerifiedIcon: true, noFakeIcon: true })),
+        getTopicIconPromise,
       ]);
 
       const createInnerTitleSpan = () => {
@@ -217,14 +217,14 @@ export default class PeerTitle {
         setInnerHTML(this.element, fragment);
       }
 
-      if(topicIcon) {
+      if (topicIcon) {
         setElementContent(
           [topicIcon, createInnerTitleSpan()].filter(isTruthy)
         );
-      } else if(icons && (icons.elements?.length || icons.botVerification)) {
+      } else if (icons && (icons.elements?.length || icons.botVerification)) {
         setElementContent(
           [
-            icons.botVerification, topicIcon, createInnerTitleSpan(), ...(icons.elements ?? [])
+            icons.botVerification, topicIcon, createInnerTitleSpan(), ...(icons.elements ?? []),
           ].filter(isTruthy)
         );
       } else {
@@ -240,7 +240,7 @@ export function changeTitleEmojiColor(element: HTMLElement, color: string) {
   const elements = element.querySelectorAll<HTMLElement>('.emoji-status-text-color');
   elements.forEach((emojiStatus) => {
     const player = emojiStatus && lottieLoader.getAnimation(emojiStatus);
-    if(player) {
+    if (player) {
       player.setColor(color, true);
     }
   })

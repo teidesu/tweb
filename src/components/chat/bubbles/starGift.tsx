@@ -1,23 +1,23 @@
-import {createMemo} from 'solid-js';
-import {StarGift, TextWithEntities} from '@layer';
+import { createMemo } from 'solid-js';
+import { StarGift, TextWithEntities } from '@layer';
 import wrapRichText from '@lib/richTextProcessor/wrapRichText';
-import {AvatarNewTsx} from '@components/avatarNew';
+import { AvatarNewTsx } from '@components/avatarNew';
 import Button from '@components/buttonTsx';
-import {StickerTsx, StickerTsxExtraOptions} from '@components/wrappers/sticker';
-import {PeerTitleTsx} from '@components/peerTitleTsx';
+import { StickerTsx, StickerTsxExtraOptions } from '@components/wrappers/sticker';
+import { PeerTitleTsx } from '@components/peerTitleTsx';
 
 import styles from '@components/chat/bubbles/starGift.module.scss';
 import stylesCommon from '@components/chat/bubbles/service.module.scss';
-import {Sparkles} from '@components/sparkles';
+import { Sparkles } from '@components/sparkles';
 import classNames from '@helpers/string/classNames';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {MyStarGift} from '@appManagers/appGiftsManager';
-import {StarGiftBadge} from '@components/stargifts/stargiftBadge';
-import {StarGiftBackdrop} from '@components/stargifts/stargiftBackdrop';
-import {MyDocument} from '@appManagers/appDocsManager';
-import {simulateClickEvent} from '@helpers/dom/clickEvent';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { MyStarGift } from '@appManagers/appGiftsManager';
+import { StarGiftBadge } from '@components/stargifts/stargiftBadge';
+import { StarGiftBackdrop } from '@components/stargifts/stargiftBackdrop';
+import { MyDocument } from '@appManagers/appDocsManager';
+import { simulateClickEvent } from '@helpers/dom/clickEvent';
 import formatNumber from '@helpers/number/formatNumber';
-import {getCollectibleName} from '@appManagers/utils/gifts/getCollectibleName';
+import { getCollectibleName } from '@appManagers/utils/gifts/getCollectibleName';
 
 export function StarGiftBubble(props: {
   gift: MyStarGift
@@ -31,7 +31,7 @@ export function StarGiftBubble(props: {
   onViewClick?: () => void;
 }) {
   const message = createMemo(() => {
-    if(props.gift.raw._ === 'starGiftUnique') {
+    if (props.gift.raw._ === 'starGiftUnique') {
       return (
         <div class={/* @once */ styles.uniqueGiftInfo}>
           <div class={/* @once */ styles.uniqueGiftTitle}>
@@ -56,11 +56,11 @@ export function StarGiftBubble(props: {
       )
     }
 
-    if(props.message) {
-      return wrapRichText(props.message.text, {entities: props.message.entities});
+    if (props.message) {
+      return wrapRichText(props.message.text, { entities: props.message.entities });
     }
 
-    if(props.asUpgrade && props.ownerId) {
+    if (props.asUpgrade && props.ownerId) {
       return (
         <I18nTsx
           key="StarGiftDefaultMessageUpgradeOut"
@@ -69,11 +69,11 @@ export function StarGiftBubble(props: {
       )
     }
 
-    if(props.asUpgrade) {
+    if (props.asUpgrade) {
       return <I18nTsx key="StarGiftDefaultMessageUpgrade" />
     }
 
-    if(props.gift.raw.convert_stars !== undefined && !props.gift.isUpgraded) {
+    if (props.gift.raw.convert_stars !== undefined && !props.gift.isUpgraded) {
       return props.gift.isIncoming ? (
         <I18nTsx
           key="StarGiftDefaultMessageConvertable"
@@ -84,7 +84,7 @@ export function StarGiftBubble(props: {
           key="StarGiftDefaultMessageConvertableOut"
           args={[
             <PeerTitleTsx peerId={props.ownerId!} />,
-            `${props.gift.raw.convert_stars}`
+            `${props.gift.raw.convert_stars}`,
           ]}
         />
       );

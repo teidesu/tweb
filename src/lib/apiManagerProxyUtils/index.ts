@@ -1,1 +1,1 @@
-export {createCacheStorageThreadedControls, type CacheStorageThreadedControls} from './createCacheStorageThreadedControls';
+export { createCacheStorageThreadedControls, type CacheStorageThreadedControls } from './createCacheStorageThreadedControls';

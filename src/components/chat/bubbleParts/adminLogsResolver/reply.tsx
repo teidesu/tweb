@@ -1,6 +1,6 @@
 import createMiddleware from '@helpers/solid/createMiddleware';
-import {MessageEntity} from '@layer';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { MessageEntity } from '@layer';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 import type wrapReply from '@components/wrappers/reply';
 
 
@@ -10,7 +10,7 @@ export const Reply = (props: {
   text: string;
   entities?: MessageEntity[];
 }) => {
-  const {wrapReply} = useHotReloadGuard();
+  const { wrapReply } = useHotReloadGuard();
 
   const content = () => {
     const middleware = createMiddleware().get();
@@ -20,9 +20,9 @@ export const Reply = (props: {
       title: props.title,
       quote: {
         text: props.text,
-        entities: props.entities
+        entities: props.entities,
       },
-      middleware
+      middleware,
     }).container;
 
     container.classList.add('margin-0');

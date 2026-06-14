@@ -1,44 +1,44 @@
 // * zoom part from WebZ
 // * https://github.com/Ajaxy/telegram-tt/blob/069f4f5b2f2c7c22529ccced876842e7f9cb81f4/src/components/mediaViewer/MediaViewerSlides.tsx
 
-import type {MyDocument} from '@appManagers/appDocsManager';
-import type {MyPhoto} from '@appManagers/appPhotosManager';
+import type { MyDocument } from '@appManagers/appDocsManager';
+import type { MyPhoto } from '@appManagers/appPhotosManager';
 import deferredPromise from '@helpers/cancellablePromise';
 import mediaSizes from '@helpers/mediaSizes';
 import calcImageInBox from '@helpers/calcImageInBox';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import {IS_MOBILE, IS_MOBILE_SAFARI, IS_SAFARI} from '@environment/userAgent';
-import {logger} from '@lib/logger';
+import { IS_MOBILE, IS_MOBILE_SAFARI, IS_SAFARI } from '@environment/userAgent';
+import { logger } from '@lib/logger';
 import VideoPlayer from '@lib/mediaPlayer';
 import rootScope from '@lib/rootScope';
 import animationIntersector from '@components/animationIntersector';
-import appMediaPlaybackController, {AppMediaPlaybackController} from '@components/appMediaPlaybackController';
+import appMediaPlaybackController, { AppMediaPlaybackController } from '@components/appMediaPlaybackController';
 import ButtonIcon from '@components/buttonIcon';
-import {ButtonMenuItemOptions, ButtonMenuItemOptionsVerifiable} from '@components/buttonMenu';
+import { ButtonMenuItemOptions, ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
 import ButtonMenuToggle from '@components/buttonMenuToggle';
 import ProgressivePreloader from '@components/preloader';
-import SwipeHandler, {ZoomDetails} from '@components/swipeHandler';
-import {formatFullSentTime} from '@helpers/date';
-import appNavigationController, {NavigationItem} from '@components/appNavigationController';
-import {InputGroupCall, Message, MessageMedia, PhotoSize} from '@layer';
+import SwipeHandler, { ZoomDetails } from '@components/swipeHandler';
+import { formatFullSentTime } from '@helpers/date';
+import appNavigationController, { NavigationItem } from '@components/appNavigationController';
+import { InputGroupCall, Message, MessageMedia, PhotoSize } from '@layer';
 import findUpClassName from '@helpers/dom/findUpClassName';
-import renderImageFromUrl, {renderImageFromUrlPromise} from '@helpers/dom/renderImageFromUrl';
+import renderImageFromUrl, { renderImageFromUrlPromise } from '@helpers/dom/renderImageFromUrl';
 import getVisibleRect from '@helpers/dom/getVisibleRect';
 import cancelEvent from '@helpers/dom/cancelEvent';
 import generatePathData from '@helpers/generatePathData';
 import replaceContent from '@helpers/dom/replaceContent';
-import {doubleRaf, fastRaf} from '@helpers/schedulers';
+import { doubleRaf, fastRaf } from '@helpers/schedulers';
 import RangeSelector from '@components/rangeSelector';
 import windowSize from '@helpers/windowSize';
 import ListLoader from '@helpers/listLoader';
 import EventListenerBase from '@helpers/eventListenerBase';
-import {MyMessage} from '@appManagers/appMessagesManager';
-import {NULL_PEER_ID} from '@appManagers/constants';
-import {isFullScreen} from '@helpers/dom/fullScreen';
-import {attachClickEvent, hasMouseMovedSinceDown} from '@helpers/dom/clickEvent';
+import { MyMessage } from '@appManagers/appMessagesManager';
+import { NULL_PEER_ID } from '@appManagers/constants';
+import { isFullScreen } from '@helpers/dom/fullScreen';
+import { attachClickEvent, hasMouseMovedSinceDown } from '@helpers/dom/clickEvent';
 import SearchListLoader from '@helpers/searchListLoader';
 import createVideo from '@helpers/dom/createVideo';
-import {AppManagers} from '@lib/managers';
+import { AppManagers } from '@lib/managers';
 import getMediaThumbIfNeeded from '@helpers/getStrippedThumbIfNeeded';
 import setAttachmentSize from '@helpers/setAttachmentSize';
 import wrapEmojiText from '@richTextProcessor/wrapEmojiText';
@@ -46,32 +46,32 @@ import LazyLoadQueueBase from '@components/lazyLoadQueueBase';
 import overlayCounter from '@helpers/overlayCounter';
 import appDownloadManager from '@lib/appDownloadManager';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
-import {toastNew} from '@components/toast';
+import { toastNew } from '@components/toast';
 import clamp from '@helpers/number/clamp';
 import debounce from '@helpers/schedulers/debounce';
 import isBetween from '@helpers/number/isBetween';
 import findUpAsChild from '@helpers/dom/findUpAsChild';
 import liteMode from '@helpers/liteMode';
-import {avatarNew, findUpAvatar} from '@components/avatarNew';
-import {Middleware, MiddlewareHelper, getMiddleware} from '@helpers/middleware';
-import onMediaLoad, {shouldIgnoreVideoError} from '@helpers/onMediaLoad';
+import { avatarNew, findUpAvatar } from '@components/avatarNew';
+import { Middleware, MiddlewareHelper, getMiddleware } from '@helpers/middleware';
+import onMediaLoad, { shouldIgnoreVideoError } from '@helpers/onMediaLoad';
 import handleVideoLeak from '@helpers/dom/handleVideoLeak';
 import Icon from '@components/icon';
-import {replaceButtonIcon} from '@components/button';
+import { replaceButtonIcon } from '@components/button';
 import setCurrentTime from '@helpers/dom/setCurrentTime';
-import {MediaSize} from '@helpers/mediaSize';
-import {getRtmpStreamUrl} from '@lib/rtmp/url';
+import { MediaSize } from '@helpers/mediaSize';
+import { getRtmpStreamUrl } from '@lib/rtmp/url';
 import boxBlurCanvasRGB from '@vendor/fastBlur';
-import {i18n} from '@lib/langPack';
-import {getQualityFilesEntries} from '@lib/hls/createHlsVideoSource';
-import {snapQualityHeight} from '@lib/hls/snapQualityHeight';
-import {ButtonMenuItemWithAuxiliaryText} from '@lib/mediaPlayer/qualityLevelsSwitchButton';
+import { i18n } from '@lib/langPack';
+import { getQualityFilesEntries } from '@lib/hls/createHlsVideoSource';
+import { snapQualityHeight } from '@lib/hls/snapQualityHeight';
+import { ButtonMenuItemWithAuxiliaryText } from '@lib/mediaPlayer/qualityLevelsSwitchButton';
 import formatBytes from '@helpers/formatBytes';
 import getDocumentURL from '@appManagers/utils/docs/getDocumentURL';
 import assumeType from '@helpers/assumeType';
-import {createRoot, createResource, createEffect, createMemo} from 'solid-js';
+import { createRoot, createResource, createEffect, createMemo } from 'solid-js';
 import readBlobAsText from '@helpers/blob/readBlobAsText';
-import {Storyboard, StoryboardFrame} from '@lib/mediaPlayer/preview';
+import { Storyboard, StoryboardFrame } from '@lib/mediaPlayer/preview';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import cloneDOMRect from '../helpers/dom/cloneDOMRect';
 
@@ -112,36 +112,36 @@ export type VideoTimestamp = {
 
 function prepareStoryboard({
   message,
-  middleware
+  middleware,
 }: {
   message?: Message.message,
   middleware: Middleware
 }) {
-  if(!message?.media) {
+  if (!message?.media) {
     return;
   }
 
   const altDocuments = (message.media as MessageMedia.messageMediaDocument).alt_documents as MyDocument[] || [];
   const mapDoc = altDocuments.find((d) => d.mime_type === 'application/x-tgstoryboardmap');
-  if(!mapDoc) {
+  if (!mapDoc) {
     return;
   }
 
   const docId = mapDoc.file_name!.split(':')[1];
   const doc = altDocuments.find((d) => d.id === docId);
 
-  if(!doc) {
+  if (!doc) {
     return;
   }
 
   return createRoot((dispose) => {
     middleware.onClean(dispose);
     const [imageFileURL] = createResource(doc, () => {
-      return appDownloadManager.downloadMediaURL({media: doc});
+      return appDownloadManager.downloadMediaURL({ media: doc });
     });
 
     const [image] = createResource(imageFileURL, async(url) => {
-      if(!url) {
+      if (!url) {
         return;
       }
 
@@ -151,11 +151,11 @@ function prepareStoryboard({
     });
 
     const [mapFile] = createResource(mapDoc, () => {
-      return appDownloadManager.downloadMedia({media: mapDoc});
+      return appDownloadManager.downloadMedia({ media: mapDoc });
     });
 
     const [map] = createResource(mapFile, async(file) => {
-      if(!file) {
+      if (!file) {
         return;
       }
 
@@ -164,14 +164,14 @@ function prepareStoryboard({
       const fileNameLine = lines.shift();
       const frameWidth = +lines.shift()!.split('=').pop()!;
       const frameHeight = +lines.shift()!.split('=').pop()!;
-      if(!lines[lines.length - 1].trim()) {
+      if (!lines[lines.length - 1].trim()) {
         lines.pop();
       }
       const frames: StoryboardFrame[] = lines.map((line) => {
         const [time, left, top] = line.split(',').map(Number);
-        return {time, left, top};
+        return { time, left, top };
       });
-      return {frameWidth, frameHeight, frames};
+      return { frameWidth, frameHeight, frames };
     });
 
     const storyboard = createMemo<Storyboard>(() => {
@@ -179,7 +179,7 @@ function prepareStoryboard({
       const map$ = map();
       return (image$ && map$ ? {
         image: image$,
-        ...map$
+        ...map$,
       } : undefined) as Storyboard;
     });
 
@@ -250,7 +250,7 @@ export default class AppMediaViewerBase<
     btnIn: HTMLElement,
     rangeSelector: RangeSelector
   } = {} as any;
-  protected transform: Transform = {x: 0, y: 0, scale: ZOOM_INITIAL_VALUE};
+  protected transform: Transform = { x: 0, y: 0, scale: ZOOM_INITIAL_VALUE };
   // Accumulated rotation in degrees (multiples of 90, counterclockwise = negative).
   // Lives on moversContainer alongside the zoom/pan transform; reset per media.
   protected rotation: number = 0;
@@ -305,7 +305,7 @@ export default class AppMediaViewerBase<
     this.preloader = new ProgressivePreloader();
     this.preloaderStreamable = new ProgressivePreloader({
       cancelable: false,
-      streamable: true
+      streamable: true,
     });
     this.preloader.construct();
     this.preloaderStreamable.construct();
@@ -327,7 +327,7 @@ export default class AppMediaViewerBase<
     const topbarLeft = document.createElement('div');
     topbarLeft.classList.add(MEDIA_VIEWER_CLASSNAME + '-topbar-left');
 
-    this.buttons['mobile-close'] = ButtonIcon('close', {onlyMobile: true});
+    this.buttons['mobile-close'] = ButtonIcon('close', { onlyMobile: true });
 
     // * author
     this.author.container = document.createElement('div');
@@ -354,7 +354,7 @@ export default class AppMediaViewerBase<
       // Desktop), so it carries the left-pointing glyph while keeping the plain
       // `rotate` key in this.buttons.
       const icon: Icon = name === 'rotate' ? 'rotate_left' : name as Icon;
-      const button = ButtonIcon(icon, {noRipple: true});
+      const button = ButtonIcon(icon, { noRipple: true });
       this.buttons[name] = button;
       buttonsDiv.append(button);
     });
@@ -363,16 +363,16 @@ export default class AppMediaViewerBase<
     this.zoomElements.container = document.createElement('div');
     this.zoomElements.container.classList.add('zoom-container');
 
-    this.zoomElements.btnOut = ButtonIcon('zoomout', {noRipple: true});
+    this.zoomElements.btnOut = ButtonIcon('zoomout', { noRipple: true });
     attachClickEvent(this.zoomElements.btnOut, () => this.addZoomStep(false));
-    this.zoomElements.btnIn = ButtonIcon('zoomin', {noRipple: true});
+    this.zoomElements.btnIn = ButtonIcon('zoomin', { noRipple: true });
     attachClickEvent(this.zoomElements.btnIn, () => this.addZoomStep(true));
 
     this.zoomElements.rangeSelector = new RangeSelector({
       step: 0.01,
       min: ZOOM_MIN_VALUE,
       max: ZOOM_MAX_VALUE,
-      withTransition: true
+      withTransition: true,
     }, ZOOM_INITIAL_VALUE);
     this.zoomElements.rangeSelector.setListeners();
     this.zoomElements.rangeSelector.setHandlers({
@@ -386,12 +386,12 @@ export default class AppMediaViewerBase<
       },
       onMouseUp: () => {
         this.onSwipeReset();
-      }
+      },
     });
 
     this.zoomElements.container.append(this.zoomElements.btnOut, this.zoomElements.rangeSelector.container, this.zoomElements.btnIn);
 
-    if(!IS_TOUCH_SUPPORTED) {
+    if (!IS_TOUCH_SUPPORTED) {
       this.wholeDiv.append(this.zoomElements.container);
     }
 
@@ -442,14 +442,14 @@ export default class AppMediaViewerBase<
 
   protected setListeners() {
     attachClickEvent(this.buttons.download, (e) => {
-      if(this.hasQualityOptions) return;
+      if (this.hasQualityOptions) return;
       this.onDownloadClick(e);
     });
     this.buttons.download.classList.add('quality-download-options-button-menu');
     ButtonMenuToggle({
       container: this.buttons.download,
       buttons: this.downloadQualityMenuOptions,
-      direction: 'bottom-left'
+      direction: 'bottom-left',
     });
 
     [this.buttons.close, this.buttons['mobile-close'], this.preloaderStreamable!.preloader].forEach((el) => {
@@ -465,7 +465,7 @@ export default class AppMediaViewerBase<
     });
 
     attachClickEvent(this.buttons.zoomin, () => {
-      if(this.isZooming) this.resetZoom();
+      if (this.isZooming) this.resetZoom();
       else {
         this.addZoomStep(true);
       }
@@ -478,7 +478,7 @@ export default class AppMediaViewerBase<
     this.wholeDiv.addEventListener('click', this.onClick);
 
     this.listLoader.onJump = (item, older) => {
-      if(older) this.onNextClick(item);
+      if (older) this.onNextClick(item);
       else this.onPrevClick(item);
     };
 
@@ -487,22 +487,22 @@ export default class AppMediaViewerBase<
       const [transform, inBoundsX, inBoundsY] = this.calculateOffsetBoundaries({
         x: this.transform.x + x,
         y: this.transform.y + y,
-        scale: this.transform.scale
+        scale: this.transform.scale,
       });
 
       this.lastDragDelta = {
         x,
-        y
+        y,
       };
 
       this.lastDragOffset = {
         x: xDiff,
-        y: yDiff
+        y: yDiff,
       };
 
       this.setTransform(transform);
 
-      return {inBoundsX, inBoundsY};
+      return { inBoundsX, inBoundsY };
     };
 
     const setLastGestureTime = debounce(() => {
@@ -518,32 +518,32 @@ export default class AppMediaViewerBase<
       onReset: this.onSwipeReset,
       onFirstSwipe: this.onSwipeFirst as any,
       onSwipe: (xDiff, yDiff, e, cancelDrag) => {
-        if(isFullScreen()) {
+        if (isFullScreen()) {
           return;
         }
 
-        if(this.isZooming && !this.isZoomingNow) {
+        if (this.isZooming && !this.isZoomingNow) {
           setLastGestureTime();
 
           this.draggingType = e.type as any;
-          const {inBoundsX, inBoundsY} = adjustPosition(xDiff, yDiff);
+          const { inBoundsX, inBoundsY } = adjustPosition(xDiff, yDiff);
           cancelDrag?.(!inBoundsX, !inBoundsY);
 
           return;
         }
 
-        if(this.isZoomingNow || !IS_TOUCH_SUPPORTED) {
+        if (this.isZoomingNow || !IS_TOUCH_SUPPORTED) {
           return;
         }
 
         const percents = Math.abs(xDiff) / windowSize.width;
-        if(percents > .2 || Math.abs(xDiff) > 125) {
+        if (percents > .2 || Math.abs(xDiff) > 125) {
           this.goToSibling(xDiff > 0 ? -1 : 1, e.type === 'touchmove');
           return true;
         }
 
         const percentsY = Math.abs(yDiff) / windowSize.height;
-        if(percentsY > .2 || Math.abs(yDiff) > 125) {
+        if (percentsY > .2 || Math.abs(yDiff) > 125) {
           this.close();
           return true;
         }
@@ -551,8 +551,8 @@ export default class AppMediaViewerBase<
         return false;
       },
       onZoom: this.onZoom,
-      onDoubleClick: ({centerX, centerY}) => {
-        if(this.isZooming) {
+      onDoubleClick: ({ centerX, centerY }) => {
+        if (this.isZooming) {
           this.resetZoom();
         } else {
           const scale = ZOOM_INITIAL_VALUE + 2;
@@ -561,7 +561,7 @@ export default class AppMediaViewerBase<
       },
       verifyTouchTarget: (e) => {
         // * Fix for seek input
-        if(isFullScreen() ||
+        if (isFullScreen() ||
           findUpAsChild(((e.target as HTMLElement) as { parentElement: HTMLElement; }), this.zoomElements.container) ||
           findUpClassName(e.target, 'ckin__controls') ||
           findUpClassName(e.target, 'media-viewer-caption') ||
@@ -571,15 +571,15 @@ export default class AppMediaViewerBase<
 
         return true;
       },
-      cursor: ''
+      cursor: '',
       // cursor: 'move'
     });
   }
 
   protected onSwipeFirst = (e?: MouseEvent | TouchEvent | WheelEvent) => {
-    this.lastDragOffset = this.lastDragDelta = {x: 0, y: 0};
-    this.lastTransform = {...this.transform};
-    if(e?.type !== 'wheel' || !this.ctrlKeyDown) { // keep transition for real mouse wheel
+    this.lastDragOffset = this.lastDragDelta = { x: 0, y: 0 };
+    this.lastTransform = { ...this.transform };
+    if (e?.type !== 'wheel' || !this.ctrlKeyDown) { // keep transition for real mouse wheel
       this.moversContainer.classList.add('no-transition');
       this.zoomElements.rangeSelector.container.classList.remove('with-transition');
     }
@@ -587,7 +587,7 @@ export default class AppMediaViewerBase<
     this.lastGestureTime = Date.now();
     this.clampZoomDebounced.clearTimeout();
 
-    if(!this.lastTransform.x && !this.lastTransform.y && !this.isZooming) {
+    if (!this.lastTransform.x && !this.lastTransform.y && !this.isZooming) {
       this.initialContentRect = this.content.media.getBoundingClientRect();
     }
   };
@@ -598,20 +598,20 @@ export default class AppMediaViewerBase<
     this.zoomElements.rangeSelector.container.classList.add('with-transition');
     this.clampZoomDebounced.clearTimeout();
 
-    if(e?.type === 'mouseup' && this.draggingType === 'mousemove') {
+    if (e?.type === 'mouseup' && this.draggingType === 'mousemove') {
       this.ignoreNextClick = true;
     }
 
-    const {draggingType} = this;
+    const { draggingType } = this;
     this.isZoomingNow = false;
     this.isGesturingNow = false;
     this.draggingType = undefined;
 
-    if(this.closing) {
+    if (this.closing) {
       return;
     }
 
-    if(this.transform.scale > ZOOM_INITIAL_VALUE) {
+    if (this.transform.scale > ZOOM_INITIAL_VALUE) {
       // Get current content boundaries
       const s1 = Math.min(this.transform.scale, ZOOM_MAX_VALUE);
       const scaleFactor = s1 / this.transform.scale;
@@ -622,7 +622,7 @@ export default class AppMediaViewerBase<
       let y1 = this.transform.y * scaleFactor + (this.lastZoomCenter.y - scaleFactor * this.lastZoomCenter.y);
 
       // If scale didn't change, we need to add inertia to pan gesture
-      if(draggingType && draggingType !== 'wheel' && this.lastTransform.scale === this.transform.scale) {
+      if (draggingType && draggingType !== 'wheel' && this.lastTransform.scale === this.transform.scale) {
         // Arbitrary pan velocity coefficient
         const k = 0.1;
 
@@ -636,10 +636,10 @@ export default class AppMediaViewerBase<
         y1 -= Math.abs(this.lastDragOffset.y) * Vy * k * -this.lastDragDelta.y;
       }
 
-      const [transform] = this.calculateOffsetBoundaries({x: x1, y: y1, scale: s1});
+      const [transform] = this.calculateOffsetBoundaries({ x: x1, y: y1, scale: s1 });
       this.lastTransform = transform;
       this.setTransform(transform);
-    } else if(this.transform.scale < ZOOM_INITIAL_VALUE) {
+    } else if (this.transform.scale < ZOOM_INITIAL_VALUE) {
       this.resetZoom();
     }
   };
@@ -653,7 +653,7 @@ export default class AppMediaViewerBase<
     currentCenterY,
     dragOffsetX,
     dragOffsetY,
-    zoomFactor
+    zoomFactor,
   }: ZoomDetails) => {
     initialCenterX ||= windowSize.width / 2;
     initialCenterY ||= windowSize.height / 2;
@@ -671,30 +671,30 @@ export default class AppMediaViewerBase<
     // Save last zoom center for bounce back effect
     this.lastZoomCenter = {
       x: currentCenterX,
-      y: currentCenterY
+      y: currentCenterY,
     };
 
     // Calculate new center relative to the shifted image
     const scaledCenterX = offsetX + initialCenterX;
     const scaledCenterY = offsetY + initialCenterY;
 
-    const {scaleOffsetX, scaleOffsetY} = this.calculateScaleOffset({x: scaledCenterX, y: scaledCenterY, scale: scaleFactor});
+    const { scaleOffsetX, scaleOffsetY } = this.calculateScaleOffset({ x: scaledCenterX, y: scaledCenterY, scale: scaleFactor });
 
     const [transform] = this.calculateOffsetBoundaries({
       x: this.lastTransform.x + scaleOffsetX + dragOffsetX,
       y: this.lastTransform.y + scaleOffsetY + dragOffsetY,
-      scale
+      scale,
     });
 
     this.setTransform(transform);
   };
 
   protected changeZoomByPosition(x: number, y: number, scale: number) {
-    const {scaleOffsetX, scaleOffsetY} = this.calculateScaleOffset({x, y, scale});
+    const { scaleOffsetX, scaleOffsetY } = this.calculateScaleOffset({ x, y, scale });
     const transform = this.calculateOffsetBoundaries({
       x: scaleOffsetX,
       y: scaleOffsetY,
-      scale
+      scale,
     })[0];
 
     this.setTransform(transform);
@@ -706,27 +706,27 @@ export default class AppMediaViewerBase<
   }
 
   // Calculate how much we need to shift the image to keep the zoom center at the same position
-  protected calculateScaleOffset({x, y, scale}: {
+  protected calculateScaleOffset({ x, y, scale }: {
     x: number,
     y: number,
     scale: number
   }) {
     return {
       scaleOffsetX: x - scale * x,
-      scaleOffsetY: y - scale * y
+      scaleOffsetY: y - scale * y,
     };
   }
 
   protected toggleZoom(enable?: boolean) {
     const isVisible = this.isZooming;
     const auto = enable === undefined;
-    if(this.zoomElements.rangeSelector.mousedown || this.ctrlKeyDown) {
+    if (this.zoomElements.rangeSelector.mousedown || this.ctrlKeyDown) {
       enable = true;
     }
 
     enable ??= !isVisible;
 
-    if(isVisible === enable) {
+    if (isVisible === enable) {
       return;
     }
 
@@ -734,7 +734,7 @@ export default class AppMediaViewerBase<
     this.zoomElements.container.classList.toggle('is-visible', this.isZooming = enable);
     this.wholeDiv.classList.toggle('is-zooming', enable);
 
-    if(auto || !enable) {
+    if (auto || !enable) {
       const zoomValue = enable ? this.transform.scale : ZOOM_INITIAL_VALUE;
       this.setZoomValue(zoomValue);
       this.zoomElements.rangeSelector.setProgress(zoomValue);
@@ -752,7 +752,7 @@ export default class AppMediaViewerBase<
     this.setTransform({
       x: 0,
       y: 0,
-      scale: ZOOM_INITIAL_VALUE
+      scale: ZOOM_INITIAL_VALUE,
     });
   }
 
@@ -771,7 +771,7 @@ export default class AppMediaViewerBase<
       initialCenterX: 0,
       initialCenterY: 0,
       dragOffsetX: 0,
-      dragOffsetY: 0
+      dragOffsetY: 0,
     });
     this.lastTransform = this.transform;
     this.clampZoomDebounced();
@@ -782,15 +782,15 @@ export default class AppMediaViewerBase<
   }
 
   protected calculateOffsetBoundaries = (
-    {x, y, scale}: Transform,
+    { x, y, scale }: Transform,
     offsetTop = 0
   ): [Transform, boolean, boolean] => {
-    if(!this.initialContentRect) return [{x, y, scale}, true, true];
+    if (!this.initialContentRect) return [{ x, y, scale }, true, true];
     // Get current content boundaries
     let inBoundsX = true;
     let inBoundsY = true;
 
-    const {minX, maxX, minY, maxY} = this.getZoomBoundaries(scale, offsetTop);
+    const { minX, maxX, minY, maxY } = this.getZoomBoundaries(scale, offsetTop);
 
     inBoundsX = isBetween(x, maxX, minX);
     x = clamp(x, maxX, minX);
@@ -798,12 +798,12 @@ export default class AppMediaViewerBase<
     inBoundsY = isBetween(y, maxY, minY);
     y = clamp(y, maxY, minY);
 
-    return [{x, y, scale}, inBoundsX, inBoundsY];
+    return [{ x, y, scale }, inBoundsX, inBoundsY];
   };
 
   protected getZoomBoundaries(scale = this.transform.scale, offsetTop = 0) {
-    if(!this.initialContentRect) {
-      return {minX: 0, maxX: 0, minY: 0, maxY: 0};
+    if (!this.initialContentRect) {
+      return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
     }
 
     const centerX = (windowSize.width - windowSize.width * scale) / 2;
@@ -818,14 +818,14 @@ export default class AppMediaViewerBase<
     const minY = Math.max(-rect.top * scale + offsetTop, centerY);
     const maxY = windowSize.height - rect.bottom * scale;
 
-    return {minX, maxX, minY, maxY};
+    return { minX, maxX, minY, maxY };
   }
 
   protected setZoomValue = (value = this.transform.scale) => {
     this.initialContentRect ??= this.content.media.getBoundingClientRect();
 
     // this.zoomValue = value;
-    if(value === ZOOM_INITIAL_VALUE) {
+    if (value === ZOOM_INITIAL_VALUE) {
       this.transform.x = 0;
       this.transform.y = 0;
     }
@@ -854,9 +854,9 @@ export default class AppMediaViewerBase<
   // function-by-function instead of matrix-decomposing from a bare zoom (which slid
   // the image off before settling).
   protected buildMoversTransform(scaleValue = this.transform.scale) {
-    const {x, y} = this.transform;
+    const { x, y } = this.transform;
     const fit = this.getRotationFitScale();
-    const {x: cx, y: cy} = this.getMediaCenter();
+    const { x: cx, y: cy } = this.getMediaCenter();
     return `translate3d(${x.toFixed(3)}px, ${y.toFixed(3)}px, 0px) scale(${scaleValue.toFixed(3)}) ` +
       `translate(${cx.toFixed(3)}px, ${cy.toFixed(3)}px) rotate(${this.rotation}deg) scale(${fit.toFixed(5)}) translate(${(-cx).toFixed(3)}px, ${(-cy).toFixed(3)}px)`;
   }
@@ -868,7 +868,7 @@ export default class AppMediaViewerBase<
     const rect = this.initialContentRect ?? this.content.media.getBoundingClientRect();
     return {
       x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 2
+      y: rect.top + rect.height / 2,
     };
   }
 
@@ -878,13 +878,13 @@ export default class AppMediaViewerBase<
   // is 1. Independent of zoom (zoom multiplies on top in screen space).
   protected getRotationFitScale(rotation = this.rotation) {
     const normalized = ((rotation % 360) + 360) % 360;
-    if(normalized !== 90 && normalized !== 270) {
+    if (normalized !== 90 && normalized !== 270) {
       return 1;
     }
 
     const rect = this.initialContentRect ?? this.content.media.getBoundingClientRect();
-    const {width, height} = rect;
-    if(!width || !height) {
+    const { width, height } = rect;
+    if (!width || !height) {
       return 1;
     }
 
@@ -897,7 +897,7 @@ export default class AppMediaViewerBase<
   // boundaries derive from it directly. Unrotated → just initialContentRect.
   protected getDisplayRect(): DOMRectMinified & {width: number, height: number} {
     const rect = this.initialContentRect ?? this.content.media.getBoundingClientRect();
-    if(!this.rotation) {
+    if (!this.rotation) {
       return rect;
     }
 
@@ -914,7 +914,7 @@ export default class AppMediaViewerBase<
       top: cy - height / 2,
       bottom: cy + height / 2,
       width,
-      height
+      height,
     };
   }
 
@@ -926,7 +926,7 @@ export default class AppMediaViewerBase<
     // before settling). Once an inline transform exists (after any zoom/rotate) it's
     // already in that form — re-priming here would add `no-transition` mid-flight and
     // snap a still-animating turn to its target.
-    if(!this.moversContainer.style.transform) {
+    if (!this.moversContainer.style.transform) {
       this.moversContainer.classList.add('no-transition');
       this.applyMoversTransform();
       void this.moversContainer.offsetLeft; // reflow to commit the primed state
@@ -949,7 +949,7 @@ export default class AppMediaViewerBase<
   // OR rotated, restore auto-hide otherwise. (Keyboard controls keep working via the
   // player's `listenKeyboardEvents: 'always'`, so playback is still controllable.)
   protected updateVideoControlsLock() {
-    if(!this.videoPlayer) {
+    if (!this.videoPlayer) {
       return;
     }
 
@@ -957,40 +957,40 @@ export default class AppMediaViewerBase<
   }
 
   protected setBtnMenuToggle(buttons: ButtonMenuItemOptionsVerifiable[]) {
-    const btnMenuToggle = ButtonMenuToggle({buttonOptions: {onlyMobile: true}, direction: 'bottom-left', buttons});
+    const btnMenuToggle = ButtonMenuToggle({ buttonOptions: { onlyMobile: true }, direction: 'bottom-left', buttons });
     this.topbar.append(btnMenuToggle);
   }
 
   public close(e?: MouseEvent) {
     this.disposeSolid?.();
 
-    if(e) {
+    if (e) {
       cancelEvent(e);
     }
 
-    if(this.closing) {
+    if (this.closing) {
       return this.setMoverAnimationPromise;
     }
 
-    if(this.setMoverAnimationPromise) return Promise.reject();
+    if (this.setMoverAnimationPromise) return Promise.reject();
 
     this.closing = true;
     this.swipeHandler?.removeListeners();
 
-    if(this.navigationItem) {
+    if (this.navigationItem) {
       appNavigationController.removeItem(this.navigationItem);
     }
 
     this.lazyLoadQueue.clear();
     this.author.avatarMiddlewareHelper?.destroy();
 
-    const promise = this.setMoverToTarget((this.target?.element as HTMLElement), true).then(({onAnimationEnd}) => onAnimationEnd);
+    const promise = this.setMoverToTarget((this.target?.element as HTMLElement), true).then(({ onAnimationEnd }) => onAnimationEnd);
 
     this.listLoader.reset();
     (this.listLoader as SearchListLoader<any>).cleanup && (this.listLoader as SearchListLoader<any>).cleanup();
     this.setMoverPromise = null;
     this.tempId = -1;
-    if((window as any).appMediaViewer === this) {
+    if ((window as any).appMediaViewer === this) {
       (window as any).appMediaViewer = undefined;
     }
 
@@ -1012,7 +1012,7 @@ export default class AppMediaViewerBase<
   }
 
   protected toggleOverlay(active: boolean) {
-    if(this.overlayActive === active) {
+    if (this.overlayActive === active) {
       return;
     }
 
@@ -1022,7 +1022,7 @@ export default class AppMediaViewerBase<
   }
 
   protected toggleGlobalListeners(active: boolean) {
-    if(active) this.setGlobalListeners();
+    if (active) this.setGlobalListeners();
     else this.removeGlobalListeners();
   }
 
@@ -1044,19 +1044,19 @@ export default class AppMediaViewerBase<
 
   onClick = (e: MouseEvent) => {
     const target = e.target as HTMLElement;
-    if(findUpClassName(target, 'popup')) { // target could be inside a popup
+    if (findUpClassName(target, 'popup')) { // target could be inside a popup
       return;
     }
 
-    if(this.ignoreNextClick) {
+    if (this.ignoreNextClick) {
       this.ignoreNextClick = undefined;
       return;
     }
 
-    if(this.setMoverAnimationPromise) return;
+    if (this.setMoverAnimationPromise) return;
 
-    if(target.tagName === 'A') return;
-    if(!findUpClassName(target, 'admin-popup-container')) {
+    if (target.tagName === 'A') return;
+    if (!findUpClassName(target, 'admin-popup-container')) {
       cancelEvent(e);
     }
 
@@ -1064,13 +1064,13 @@ export default class AppMediaViewerBase<
     // so a tap on it toggles the chrome (topbar + caption) itself — mirroring the
     // video controls toggle — instead of closing the viewer. Taps on the chrome /
     // menus keep their own handlers; drags are already filtered via ignoreNextClick.
-    if(mediaSizes.isMobile && !this.videoPlayer && !findUpClassName(target, 'media-viewer-topbar') && !findUpClassName(target, 'media-viewer-caption') && !findUpClassName(target, 'btn-menu')) {
+    if (mediaSizes.isMobile && !this.videoPlayer && !findUpClassName(target, 'media-viewer-topbar') && !findUpClassName(target, 'media-viewer-caption') && !findUpClassName(target, 'btn-menu')) {
       this.wholeDiv.classList.toggle('chrome-hidden');
       return;
     }
 
-    if(IS_TOUCH_SUPPORTED) {
-      if(this.highlightSwitchersTimeout) {
+    if (IS_TOUCH_SUPPORTED) {
+      if (this.highlightSwitchersTimeout) {
         clearTimeout(this.highlightSwitchersTimeout);
       } else {
         this.wholeDiv.classList.add('highlight-switchers');
@@ -1084,7 +1084,7 @@ export default class AppMediaViewerBase<
       return;
     }
 
-    if(hasMouseMovedSinceDown(e)) {
+    if (hasMouseMovedSinceDown(e)) {
       return;
     }
 
@@ -1095,7 +1095,7 @@ export default class AppMediaViewerBase<
     // button, which lives in .media-viewer-topbar-left (not .media-viewer-buttons)
     // and would otherwise be misread as a background tap → PiP on a live stream.
     const classNames = ['admin-popup-container', 'ckin__player', 'media-viewer-buttons', 'media-viewer-author', 'media-viewer-caption', 'zoom-container', 'media-viewer-topbar'];
-    if(isZooming) {
+    if (isZooming) {
       classNames.push('media-viewer-movers');
     }
 
@@ -1105,62 +1105,62 @@ export default class AppMediaViewerBase<
     // — the same action as the dedicated PiP button, which the player only renders
     // on desktop (mediaPlayer: !IS_MOBILE). On handhelds there's no roomy backdrop
     // and no PiP button, so a background tap falls through to close() below.
-    if(!hasClickedSomething && this.live && !mediaSizes.isMobile && document.pictureInPictureEnabled) {
+    if (!hasClickedSomething && this.live && !mediaSizes.isMobile && document.pictureInPictureEnabled) {
       this.videoPlayer!.requestPictureInPicture();
       return;
     }
 
-    if(/* target === this.mediaViewerDiv */!hasClickedSomething || (!isZooming && (target.tagName === 'IMG' || target.tagName === 'image'))) {
+    if (/* target === this.mediaViewerDiv */!hasClickedSomething || (!isZooming && (target.tagName === 'IMG' || target.tagName === 'image'))) {
       this.close();
     }
   };
 
   private onKeyDown = (e: KeyboardEvent) => {
     // this.log('onKeyDown', e);
-    if(overlayCounter.overlaysActive > 1) {
+    if (overlayCounter.overlaysActive > 1) {
       return;
     }
 
     const key = e.key;
 
     let good = true;
-    if(key === 'ArrowRight') {
+    if (key === 'ArrowRight') {
       !this.isZooming && this.buttons.next.click();
-    } else if(key === 'ArrowLeft') {
+    } else if (key === 'ArrowLeft') {
       !this.isZooming && this.buttons.prev.click();
-    } else if(key === '-' || key === '=') {
-      if(this.ctrlKeyDown) {
+    } else if (key === '-' || key === '=') {
+      if (this.ctrlKeyDown) {
         this.addZoomStep(key === '=');
       }
     } else {
       good = false;
     }
 
-    if(e.ctrlKey || e.metaKey) {
+    if (e.ctrlKey || e.metaKey) {
       this.ctrlKeyDown = true;
     }
 
-    if(good) {
+    if (good) {
       cancelEvent(e);
     }
   };
 
   private onKeyUp = (e: KeyboardEvent) => {
-    if(overlayCounter.overlaysActive > 1) {
+    if (overlayCounter.overlaysActive > 1) {
       return;
     }
 
-    if(!(e.ctrlKey || e.metaKey)) {
+    if (!(e.ctrlKey || e.metaKey)) {
       this.ctrlKeyDown = false;
 
-      if(this.isZooming) {
+      if (this.isZooming) {
         this.setZoomValue();
       }
     }
   };
 
   protected goToSibling(moveLength: number, animated = false) {
-    if(this.setMoverPromise) return;
+    if (this.setMoverPromise) return;
 
     this.animatedNav = animated;
     this.listLoader.go(moveLength);
@@ -1173,15 +1173,15 @@ export default class AppMediaViewerBase<
     // so they don't overlap the mover at the thumb position. On close: animate them back.
     // Uses the original target before any re-target, so floatings on the actual chat
     // bubble we're animating to/from are the ones affected.
-    if(closing) {
+    if (closing) {
       this.revealHiddenFloatings();
-    } else if(target) {
+    } else if (target) {
       this.hideFloatings(target);
     }
 
     const mover = this.content.mover;
 
-    if(!closing) {
+    if (!closing) {
       mover.replaceChildren();
       // mover.append(this.buttons.prev, this.buttons.next);
     }
@@ -1198,7 +1198,7 @@ export default class AppMediaViewerBase<
     // further below. Mover-local because the rotate wrapper is the inner transform.
     let closeRotationPivotX = 0;
     let closeRotationPivotY = 0;
-    if(zoomedClose || rotatedClose) {
+    if (zoomedClose || rotatedClose) {
       // Closing while zoomed/rotated. We can't animate moversContainer's transform
       // from the current state to a target matrix: the mover's wrapper carries the
       // close clip-path (in wrapper-local coords), and if moversContainer is
@@ -1221,7 +1221,7 @@ export default class AppMediaViewerBase<
       const visualY = zoom * baseRect.top + panY;
 
       let startTransform = `translate3d(${visualX}px, ${visualY}px, 0) scale3d(${zoom}, ${zoom}, 1)`;
-      if(rotatedClose) {
+      if (rotatedClose) {
         // Same rotate+refit wrapper buildMoversTransform emits, kept as the INNER
         // transform (after the zoom/pan transfer) and pivoted on the mover's own
         // content center — mirroring the screen-space order so the visual position
@@ -1243,7 +1243,7 @@ export default class AppMediaViewerBase<
       mover.style.transform = startTransform;
       mover.classList.remove('center');
       this.clearCenterStyles(mover);
-      if(!zoomedClose) {
+      if (!zoomedClose) {
         // Rotated-but-not-zoomed: pin the mover to the media's real rect (same as the
         // non-transfer close branch) so it doesn't paint at mobile full-viewport size
         // for the doubleRaf frames before setMoverToTarget assigns containerRect.
@@ -1256,7 +1256,7 @@ export default class AppMediaViewerBase<
       this.moversContainer.classList.remove('no-transition');
     } else {
       this.removeCenterFromMover(mover);
-      if(closing) {
+      if (closing) {
         // removeCenterFromMover dropped .center but left applyCenterStyles' mobile
         // width/height: 100% on the mover (the full-viewport rest state). Pin it to
         // the media's real rect now, so it doesn't paint at full-viewport size for
@@ -1268,7 +1268,7 @@ export default class AppMediaViewerBase<
         mover.style.height = `${mediaRect.height}px`;
       }
     }
-    if(closing) {
+    if (closing) {
       void mover.offsetLeft; // reflow
       await doubleRaf();
     }
@@ -1291,38 +1291,38 @@ export default class AppMediaViewerBase<
     let realParent: HTMLElement;
 
     let rect: DOMRectEditable | undefined;
-    if(target) {
-      if(findUpAvatar(target) || target.classList.contains('grid-item')/*  || target.classList.contains('document-ico') */) {
+    if (target) {
+      if (findUpAvatar(target) || target.classList.contains('grid-item')/*  || target.classList.contains('document-ico') */) {
         realParent = target;
         rect = target.getBoundingClientRect();
-      } else if(target instanceof SVGImageElement || target.parentElement instanceof SVGForeignObjectElement) {
+      } else if (target instanceof SVGImageElement || target.parentElement instanceof SVGForeignObjectElement) {
         realParent = findUpClassName(target, 'attachment');
         rect = realParent.getBoundingClientRect();
-      } else if(target.classList.contains('profile-avatars-avatar')) {
+      } else if (target.classList.contains('profile-avatars-avatar')) {
         realParent = findUpClassName(target, 'profile-avatars-container');
         rect = cloneDOMRect(realParent.getBoundingClientRect());
 
         // * if not active avatar
-        if(closing && target.getBoundingClientRect().left !== rect.left) {
+        if (closing && target.getBoundingClientRect().left !== rect.left) {
           target = (realParent = (rect = undefined)!)!;
         }
       }
     }
 
-    if(!target) {
+    if (!target) {
       target = this.content.media;
     }
 
-    if(!rect!) {
+    if (!rect!) {
       realParent = target.parentElement as HTMLElement;
       rect = target.getBoundingClientRect();
     }
 
     let needOpacity = false;
     let clipInsets!: {top: number, right: number, bottom: number, left: number};
-    if(target === this.content.media) {
+    if (target === this.content.media) {
       needOpacity = true;
-    } else if(!target.classList.contains('profile-avatars-avatar')) {
+    } else if (!target.classList.contains('profile-avatars-avatar')) {
       const overflowElement = findUpClassName(realParent!, 'scrollable');
       let overflowRect: DOMRectMinified;
       // In chats, scrollable extends past the visible bubble area via negative inset-block,
@@ -1330,19 +1330,19 @@ export default class AppMediaViewerBase<
       // topbar and chat-input) when present.
       const chatContainer = overflowElement && findUpClassName(realParent!, 'chat');
       const bubblesViewport = chatContainer?.querySelector(':scope > .bubbles-viewport') as HTMLElement;
-      if(bubblesViewport) {
+      if (bubblesViewport) {
         const baseRect = overflowElement.getBoundingClientRect();
         const viewportRect = bubblesViewport.getBoundingClientRect();
         overflowRect = {
           top: Math.max(baseRect.top, viewportRect.top),
           right: Math.min(baseRect.right, viewportRect.right),
           bottom: Math.min(baseRect.bottom, viewportRect.bottom),
-          left: Math.max(baseRect.left, viewportRect.left)
+          left: Math.max(baseRect.left, viewportRect.left),
         };
       }
       const visibleRect = overflowElement && getVisibleRect(realParent!, overflowElement, true, undefined, overflowRect!);
 
-      if(closing && overflowElement && (!visibleRect || visibleRect.overflow.vertical === 2 || visibleRect.overflow.horizontal === 2)) {
+      if (closing && overflowElement && (!visibleRect || visibleRect.overflow.vertical === 2 || visibleRect.overflow.horizontal === 2)) {
         // On close, retarget to the centered media instead of flying toward an
         // off-screen / larger-than-viewport source. Retargeting keeps the mover where
         // it already is, so when the source is fully off-screen there's no motion — and
@@ -1351,20 +1351,20 @@ export default class AppMediaViewerBase<
         target = this.content.media;
         realParent = target.parentElement as HTMLElement;
         rect = target.getBoundingClientRect();
-        if(!visibleRect) {
+        if (!visibleRect) {
           needOpacity = true;
         }
-      } else if(overflowElement && !visibleRect) {
+      } else if (overflowElement && !visibleRect) {
         // Opening from a source that's off-screen — fade in via opacity.
         needOpacity = true;
-      } else if(visibleRect && (visibleRect.overflow.vertical || visibleRect.overflow.horizontal)) {
+      } else if (visibleRect && (visibleRect.overflow.vertical || visibleRect.overflow.horizontal)) {
         // Target partially overlapped (e.g. clipped behind topbar / chat-input) —
         // animate clip-path from the visible portion to the full mover.
         clipInsets = {
           top: visibleRect.rect.top - rect.top,
           right: rect.right - visibleRect.rect.right,
           bottom: rect.bottom - visibleRect.rect.bottom,
-          left: visibleRect.rect.left - rect.left
+          left: visibleRect.rect.left - rect.left,
         };
       }
     }
@@ -1378,7 +1378,7 @@ export default class AppMediaViewerBase<
     let left: number;
     let top: number;
 
-    if(wasActive) {
+    if (wasActive) {
       // non-animated nav starts at the final position right away
       left = animatedMove ? (fromRight === 1 ? windowSize.width : -containerRect.width) : containerRect.left;
       top = containerRect.top;
@@ -1407,20 +1407,20 @@ export default class AppMediaViewerBase<
     } */
 
     let aspecter: HTMLDivElement;
-    if(target instanceof HTMLImageElement || target instanceof HTMLVideoElement || target.tagName === 'DIV') {
-      if(mover.firstElementChild && mover.firstElementChild.classList.contains('media-viewer-aspecter')) {
+    if (target instanceof HTMLImageElement || target instanceof HTMLVideoElement || target.tagName === 'DIV') {
+      if (mover.firstElementChild && mover.firstElementChild.classList.contains('media-viewer-aspecter')) {
         aspecter = mover.firstElementChild as HTMLDivElement;
 
         const player = aspecter.querySelector('.ckin__player');
-        if(player && !needOpacity) {
+        if (player && !needOpacity) {
           const video = player.querySelector('video');
-          if(video) {
+          if (video) {
             video.pause();
             player.replaceWith(video);
           }
         }
 
-        if(!aspecter.style.cssText) { // всё из-за видео, элементы управления скейлятся, так бы можно было этого не делать
+        if (!aspecter.style.cssText) { // всё из-за видео, элементы управления скейлятся, так бы можно было этого не делать
           mover.classList.remove('active');
           this.setFullAspect(aspecter, containerRect, rect);
           void mover.offsetLeft; // reflow
@@ -1442,7 +1442,7 @@ export default class AppMediaViewerBase<
     // const scaleY = rect.height / (containerRect.height * zoomValue);
     const scaleX = rect.width / containerRect.width;
     const scaleY = rect.height / containerRect.height;
-    if(!wasActive) {
+    if (!wasActive) {
       transform += `scale3d(${scaleX},${scaleY},1) `;
     }
 
@@ -1465,7 +1465,7 @@ export default class AppMediaViewerBase<
     const borderRadius = `${xRadii.map((v) => v + 'px').join(' ')} / ${yRadii.map((v) => v + 'px').join(' ')}`;
     // let borderRadius = '0px 0px 0px 0px';
 
-    if(rotatedClose) {
+    if (rotatedClose) {
       // Unwind the turn to the nearest upright (a multiple of 360 ≡ 0° visually,
       // matching the still-upright thumbnail) and undo the orientation refit, around
       // the same mover-local pivot the transfer used, kept as the INNER transform.
@@ -1497,7 +1497,7 @@ export default class AppMediaViewerBase<
     const vh = windowSize.height;
     const wrapper = mover.parentElement;
     const allZerosClipPath = formatInsetRound(0, 0, 0, 0, [0, 0, 0, 0], [0, 0, 0, 0]);
-    if(!wasActive) {
+    if (!wasActive) {
       // Visible portion of the target in viewport coords (= wrapper coords).
       const visT = rect.top + (clipInsets?.top || 0);
       const visR = rect.right - (clipInsets?.right || 0);
@@ -1531,10 +1531,10 @@ export default class AppMediaViewerBase<
     const isOut = target.classList.contains('is-out');
 
     const deferred = this.setMoverAnimationPromise = deferredPromise<void>();
-    const ret = {onAnimationEnd: deferred};
+    const ret = { onAnimationEnd: deferred };
 
     const timeout = setTimeout(() => {
-      if(!deferred.isFulfilled && !deferred.isRejected) {
+      if (!deferred.isFulfilled && !deferred.isRejected) {
         deferred.resolve();
       }
     }, 1000);
@@ -1542,56 +1542,56 @@ export default class AppMediaViewerBase<
     deferred.finally(() => {
       this.dispatchEvent('setMoverAfter');
 
-      if(this.setMoverAnimationPromise === deferred) {
+      if (this.setMoverAnimationPromise === deferred) {
         this.setMoverAnimationPromise = null;
       }
 
       clearTimeout(timeout);
     });
 
-    if(!closing) {
+    if (!closing) {
       let mediaElement: HTMLImageElement | HTMLVideoElement | HTMLCanvasElement;
       let src: string;
 
       // if(target instanceof HTMLVideoElement) {
       const selector = 'video, img, .canvas-thumbnail';
       const queryFrom = target.matches(selector) ? target.parentElement : target;
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+
       const elements = Array.from(queryFrom!.querySelectorAll(selector)) as HTMLElement[];
-      if(elements.length) {
+      if (elements.length) {
         target = elements.pop()!;
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
-        if(target instanceof HTMLImageElement) {
+        if (target instanceof HTMLImageElement) {
           canvas.width = target.naturalWidth;
           canvas.height = target.naturalHeight;
-        } else if(target instanceof HTMLVideoElement) {
+        } else if (target instanceof HTMLVideoElement) {
           canvas.width = target.videoWidth;
           canvas.height = target.videoHeight;
-        } else if(target instanceof HTMLCanvasElement) {
+        } else if (target instanceof HTMLCanvasElement) {
           canvas.width = target.width;
           canvas.height = target.height;
         }
 
         canvas.className = 'canvas-thumbnail thumbnail media-photo';
         context!.drawImage(target as HTMLImageElement | HTMLCanvasElement, 0, 0);
-        if(this.live) {
+        if (this.live) {
           boxBlurCanvasRGB(context, 0, 0, canvas.width, canvas.height, 8, 2);
         }
         target = canvas;
       }
       // }
 
-      if(target.tagName === 'DIV' || findUpAvatar(target)) { // useContainerAsTarget
+      if (target.tagName === 'DIV' || findUpAvatar(target)) { // useContainerAsTarget
         const images = Array.from(target.querySelectorAll('img'));
         const image = images.pop();
-        if(image) {
+        if (image) {
           mediaElement = new Image();
           src = image.src;
           mover.append(mediaElement);
         } else {
           const el = target.querySelector('.avatar[data-color]');
-          if(el) {
+          if (el) {
             const el2 = el.cloneNode(true);
             el2.textContent = '';
             aspecter!.append(el2);
@@ -1599,17 +1599,17 @@ export default class AppMediaViewerBase<
         }
         /* mediaElement = new Image();
         src = target.style.backgroundImage.slice(5, -2); */
-      } else if(target instanceof HTMLImageElement) {
+      } else if (target instanceof HTMLImageElement) {
         mediaElement = new Image();
         src = target.src;
-      } else if(target instanceof HTMLVideoElement) {
-        mediaElement = createVideo({middleware: mover.middlewareHelper!.get()});
+      } else if (target instanceof HTMLVideoElement) {
+        mediaElement = createVideo({ middleware: mover.middlewareHelper!.get() });
         mediaElement.src = target.src;
-      } else if(target instanceof SVGSVGElement) {
+      } else if (target instanceof SVGSVGElement) {
         const clipId = target.dataset.clipId;
         const newClipId = clipId + '-mv';
 
-        const {width, height} = containerRect;
+        const { width, height } = containerRect;
 
         const newSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         newSvg.setAttributeNS(null, 'width', '' + width);
@@ -1625,11 +1625,11 @@ export default class AppMediaViewerBase<
         // теперь надо выставить новую позицию для хвостика
         const defs = newSvg.firstElementChild;
         const use = defs!.firstElementChild!.firstElementChild as SVGUseElement;
-        if(use instanceof SVGUseElement) {
+        if (use instanceof SVGUseElement) {
           let transform = use.getAttributeNS(null, 'transform');
           transform = transform!.replace(/translate\((.+?), (.+?)\) scale\((.+?), (.+?)\)/, (match, x, y, sX, sY) => {
             x = +x;
-            if(x !== 2) {
+            if (x !== 2) {
               x = width - (2 / scaleX);
             } else {
               x = 2 / scaleX;
@@ -1647,7 +1647,7 @@ export default class AppMediaViewerBase<
           // код ниже нужен только чтобы скрыть моргание до момента как сработает таймаут
           let d: string;
           const br: [number, number, number, number] = borderRadius.split(' ').map((v) => parseInt(v)) as any;
-          if(isOut) d = generatePathData(0, 0, width - 9 / scaleX, height, ...br);
+          if (isOut) d = generatePathData(0, 0, width - 9 / scaleX, height, ...br);
           else d = generatePathData(9 / scaleX, 0, width - 9 / scaleX, height, ...br);
           path.setAttributeNS(null, 'd', d);
         }
@@ -1657,27 +1657,27 @@ export default class AppMediaViewerBase<
         foreignObject!.setAttributeNS(null, 'height', '' + containerRect.height);
 
         mover.prepend(newSvg);
-      } else if(target instanceof HTMLCanvasElement) {
+      } else if (target instanceof HTMLCanvasElement) {
         mediaElement = target;
       }
 
-      if(aspecter!) {
+      if (aspecter!) {
         aspecter.style.borderRadius = borderRadius;
 
-        if(mediaElement!) {
+        if (mediaElement!) {
           aspecter.append(mediaElement);
         }
       }
 
       mediaElement = mover.querySelector('video, img')!;
-      if(mediaElement instanceof HTMLImageElement) {
+      if (mediaElement instanceof HTMLImageElement) {
         mediaElement.classList.add('thumbnail');
-        if(!aspecter!) {
+        if (!aspecter!) {
           mediaElement.style.width = containerRect.width + 'px';
           mediaElement.style.height = containerRect.height + 'px';
         }
 
-        if(src!) {
+        if (src!) {
           await renderImageFromUrlPromise(mediaElement, src);
         }
       }/*  else if(mediaElement instanceof HTMLVideoElement && mediaElement.firstElementChild && ((mediaElement.firstElementChild as HTMLSourceElement).src || src)) {
@@ -1701,10 +1701,10 @@ export default class AppMediaViewerBase<
         void mover.offsetLeft; // reflow
       } */
 
-      if(target instanceof SVGSVGElement) {
+      if (target instanceof SVGSVGElement) {
         path = mover.querySelector('path')!;
 
-        if(path) {
+        if (path) {
           this.sizeTailPath(path, containerRect, scaleX, delay, false, isOut, borderRadius);
         }
       }
@@ -1716,7 +1716,7 @@ export default class AppMediaViewerBase<
       setTimeout(() => {
         mover.style.borderRadius = borderRadius;
 
-        if(mover.firstElementChild) {
+        if (mover.firstElementChild) {
           (mover.firstElementChild as HTMLElement).style.borderRadius = borderRadius;
         }
       }, delay / 2);
@@ -1749,13 +1749,13 @@ export default class AppMediaViewerBase<
     mover.style.transform = `translate3d(${containerRect.left}px,${containerRect.top}px,0) scale3d(1,1,1)`;
     // mover.style.transform = `translate(-50%,-50%) scale(1,1)`;
     needOpacity && (mover.style.opacity = ''/* closing ? '0' : '' */);
-    if(!wasActive) {
+    if (!wasActive) {
       // Retract the wrapper's clip to inset(0) (no clip) — same syntactic structure
       // as initialClipPath so CSS interpolates each value linearly in viewport px.
       wrapper!.style.clipPath = allZerosClipPath;
     }
 
-    if(aspecter!) {
+    if (aspecter!) {
       this.setFullAspect(aspecter, containerRect, rect);
     }
 
@@ -1764,7 +1764,7 @@ export default class AppMediaViewerBase<
     setTimeout(() => {
       mover.style.borderRadius = '';
 
-      if(mover.firstElementChild) {
+      if (mover.firstElementChild) {
         (mover.firstElementChild as HTMLElement).style.borderRadius = '';
       }
     }, 0/* delay / 2 */);
@@ -1772,8 +1772,8 @@ export default class AppMediaViewerBase<
     mover.dataset.timeout = '' + setTimeout(() => {
       mover.classList.remove('moving', 'opening');
 
-      if(aspecter) { // всё из-за видео, элементы управления скейлятся, так бы можно было этого не делать
-        if(mover.querySelector('video') || true) {
+      if (aspecter) { // всё из-за видео, элементы управления скейлятся, так бы можно было этого не делать
+        if (mover.querySelector('video') || true) {
           mover.classList.remove('active');
           aspecter.style.cssText = '';
           void mover.offsetLeft; // reflow
@@ -1799,7 +1799,7 @@ export default class AppMediaViewerBase<
       deferred.resolve();
     }, delay);
 
-    if(path!) {
+    if (path!) {
       this.sizeTailPath(path, containerRect, scaleX, delay, true, isOut, borderRadius);
     }
 
@@ -1807,7 +1807,7 @@ export default class AppMediaViewerBase<
   }
 
   protected toggleWholeActive(active: boolean) {
-    if(active) {
+    if (active) {
       this.wholeDiv.classList.add('active');
     } else {
       this.wholeDiv.classList.add('backwards');
@@ -1827,11 +1827,11 @@ export default class AppMediaViewerBase<
     } */
     const proportion = containerRect.width / containerRect.height;
 
-    let {width, height} = rect;
+    let { width, height } = rect;
     /* if(proportion === 1) {
       aspecter.style.cssText = '';
     } else { */
-    if(proportion > 0) {
+    if (proportion > 0) {
       width = height * proportion;
     } else {
       height = width * proportion;
@@ -1845,7 +1845,7 @@ export default class AppMediaViewerBase<
 
   protected sizeTailPath(path: SVGPathElement, rect: DOMRect, scaleX: number, delay: number, upscale: boolean, isOut: boolean, borderRadius: string) {
     const start = Date.now();
-    const {width, height} = rect;
+    const { width, height } = rect;
     delay = delay / 2;
 
     const br = borderRadius.split(' ').map((v) => parseInt(v));
@@ -1854,17 +1854,17 @@ export default class AppMediaViewerBase<
       const diff = Date.now() - start;
 
       let progress = delay ? diff / delay : 1;
-      if(progress > 1) progress = 1;
-      if(upscale) progress = 1 - progress;
+      if (progress > 1) progress = 1;
+      if (upscale) progress = 1 - progress;
 
       const _br: [number, number, number, number] = br.map((v) => v * progress) as any;
 
       let d: string;
-      if(isOut) d = generatePathData(0, 0, width - (9 / scaleX * progress), height, ..._br);
+      if (isOut) d = generatePathData(0, 0, width - (9 / scaleX * progress), height, ..._br);
       else d = generatePathData(9 / scaleX * progress, 0, width/* width - (9 / scaleX * progress) */, height, ..._br);
       path.setAttributeNS(null, 'd', d);
 
-      if(diff < delay) fastRaf(step);
+      if (diff < delay) fastRaf(step);
     };
 
     // window.requestAnimationFrame(step);
@@ -1872,7 +1872,7 @@ export default class AppMediaViewerBase<
   }
 
   protected removeCenterFromMover(mover: HTMLElement) {
-    if(mover.classList.contains('center')) {
+    if (mover.classList.contains('center')) {
       // const rect = mover.getBoundingClientRect();
       const rect = this.content.media.getBoundingClientRect();
       // Suppress the transform jump from .center anchor to target rect: set
@@ -1895,7 +1895,7 @@ export default class AppMediaViewerBase<
     // mover.classList.remove('active');
     mover.classList.add('moving');
 
-    if(mover.dataset.timeout) { // и это тоже всё из-за скейла видео, так бы это не нужно было
+    if (mover.dataset.timeout) { // и это тоже всё из-за скейла видео, так бы это не нужно было
       clearTimeout(+mover.dataset.timeout);
     }
 
@@ -1905,8 +1905,8 @@ export default class AppMediaViewerBase<
       (mover.parentElement || mover).remove();
     };
 
-    if(!animated) {
-      this.addEventListener('setMoverAfter', remove, {once: true});
+    if (!animated) {
+      this.addEventListener('setMoverAfter', remove, { once: true });
       return;
     }
 
@@ -1942,7 +1942,7 @@ export default class AppMediaViewerBase<
     newMover.middlewareHelper = this.middlewareHelper.get().create();
     wrapper.appendChild(newMover);
 
-    if(this.content.mover) {
+    if (this.content.mover) {
       const oldWrapper = this.content.mover.parentElement;
       oldWrapper!.parentElement!.appendChild(wrapper);
     } else {
@@ -1955,13 +1955,13 @@ export default class AppMediaViewerBase<
   protected updateMediaSource(target: HTMLElement, url: string, tagName: 'video' | 'img') {
     // if(target instanceof SVGSVGElement) {
     const el = target.tagName.toLowerCase() === tagName ? target : target.querySelector(tagName) as HTMLElement;
-    if(el && !findUpClassName(target, 'document')) {
-      if(findUpClassName(target, 'attachment')) {
+    if (el && !findUpClassName(target, 'document')) {
+      if (findUpClassName(target, 'attachment')) {
         // two parentElements because element can be contained in aspecter
         const preloader = target.parentElement!.parentElement!.querySelector('.preloader-container') as HTMLElement;
-        if(preloader) {
-          if(tagName === 'video') {
-            if(preloader.classList.contains('manual')) {
+        if (preloader) {
+          if (tagName === 'video') {
+            if (preloader.classList.contains('manual')) {
               preloader.click();
               // return;
             }
@@ -1973,12 +1973,12 @@ export default class AppMediaViewerBase<
         }
       }
 
-      if((el as HTMLImageElement).getAttribute('src') !== url) {
+      if ((el as HTMLImageElement).getAttribute('src') !== url) {
         renderImageFromUrl(el, url);
       }
 
       // ! костыль, но он тут даже и не нужен
-      if(el.classList.contains('thumbnail') && el.parentElement!.classList.contains('media-container-aspecter')) {
+      if (el.classList.contains('thumbnail') && el.parentElement!.classList.contains('media-container-aspecter')) {
         el.classList.remove('thumbnail');
       }
     }
@@ -1990,12 +1990,12 @@ export default class AppMediaViewerBase<
   protected setAuthorInfo(fromId: PeerId | string, timestamp: number) {
     const isPeerId = fromId.isPeerId();
     let wrapTitlePromise: Promise<HTMLElement> | HTMLElement;
-    if(isPeerId) {
+    if (isPeerId) {
       wrapTitlePromise = wrapPeerTitle({
         peerId: fromId as PeerId,
         dialog: false,
         onlyFirstName: false,
-        plainText: false
+        plainText: false,
       })
     } else {
       const title = wrapTitlePromise = document.createElement('span');
@@ -2009,25 +2009,25 @@ export default class AppMediaViewerBase<
       middleware: (this.author.avatarMiddlewareHelper = this.middlewareHelper.get().create()).get(),
       size: 44,
       peerId: fromId as PeerId || NULL_PEER_ID,
-      peerTitle: isPeerId ? undefined : '' + fromId
+      peerTitle: isPeerId ? undefined : '' + fromId,
     });
 
     newAvatar.node.classList.add(MEDIA_VIEWER_CLASSNAME + '-userpic');
 
     return Promise.all([
       newAvatar.readyThumbPromise,
-      wrapTitlePromise
+      wrapTitlePromise,
     ]).then(([_, title]) => {
       replaceContent(this.author.date, (this.live ? i18n('Rtmp.MediaViewer.Streaming') : formatFullSentTime(timestamp)));
       replaceContent(this.author.nameEl, title);
 
-      if(oldAvatar?.node && oldAvatar.node.parentElement) {
+      if (oldAvatar?.node && oldAvatar.node.parentElement) {
         oldAvatar.node.replaceWith(this.author.avatarEl.node);
       } else {
         this.author.container.prepend(this.author.avatarEl.node);
       }
 
-      if(oldAvatar) {
+      if (oldAvatar) {
         oldAvatar.node.remove();
         oldAvatarMiddlewareHelper!.destroy();
       }
@@ -2051,25 +2051,25 @@ export default class AppMediaViewerBase<
 
     let ancestor = element.parentElement;
     let depth = 0;
-    while(ancestor && ancestor !== document.body && depth++ < 20) {
+    while (ancestor && ancestor !== document.body && depth++ < 20) {
       const aStyle = window.getComputedStyle(ancestor);
-      if(aStyle.overflow !== 'visible') {
+      if (aStyle.overflow !== 'visible') {
         const aTL = parseFloat(aStyle.borderTopLeftRadius) || 0;
         const aTR = parseFloat(aStyle.borderTopRightRadius) || 0;
         const aBR = parseFloat(aStyle.borderBottomRightRadius) || 0;
         const aBL = parseFloat(aStyle.borderBottomLeftRadius) || 0;
 
-        if(aTL || aTR || aBR || aBL) {
+        if (aTL || aTR || aBR || aBL) {
           const aRect = ancestor.getBoundingClientRect();
           const sameLeft = Math.abs(elementRect.left - aRect.left) < TOLERANCE;
           const sameRight = Math.abs(elementRect.right - aRect.right) < TOLERANCE;
           const sameTop = Math.abs(elementRect.top - aRect.top) < TOLERANCE;
           const sameBottom = Math.abs(elementRect.bottom - aRect.bottom) < TOLERANCE;
 
-          if(aTL && sameLeft && sameTop) radii[0] = Math.max(radii[0], aTL);
-          if(aTR && sameRight && sameTop) radii[1] = Math.max(radii[1], aTR);
-          if(aBR && sameRight && sameBottom) radii[2] = Math.max(radii[2], aBR);
-          if(aBL && sameLeft && sameBottom) radii[3] = Math.max(radii[3], aBL);
+          if (aTL && sameLeft && sameTop) radii[0] = Math.max(radii[0], aTL);
+          if (aTR && sameRight && sameTop) radii[1] = Math.max(radii[1], aTR);
+          if (aBR && sameRight && sameBottom) radii[2] = Math.max(radii[2], aBR);
+          if (aBL && sameLeft && sameBottom) radii[3] = Math.max(radii[3], aBL);
         }
       }
       ancestor = ancestor.parentElement;
@@ -2079,11 +2079,11 @@ export default class AppMediaViewerBase<
   }
 
   protected getLayoutReserves(): {top: number, bottom: number} {
-    if(mediaSizes.isMobile) {
-      return {top: RESERVE_TOP_MOBILE, bottom: RESERVE_BOTTOM_MOBILE};
+    if (mediaSizes.isMobile) {
+      return { top: RESERVE_TOP_MOBILE, bottom: RESERVE_BOTTOM_MOBILE };
     }
 
-    return {top: RESERVE_TOP_DESKTOP, bottom: RESERVE_BOTTOM_DESKTOP};
+    return { top: RESERVE_TOP_DESKTOP, bottom: RESERVE_BOTTOM_DESKTOP };
   }
 
   // Floating overlays on the source/target bubble (e.g. .video-time, .time.is-floating) should
@@ -2104,33 +2104,33 @@ export default class AppMediaViewerBase<
   }> = [{
       trigger: 'profile-avatars-container',
       layers: [
-        {containerClass: 'profile-avatars-container', selectors: '.profile-avatars-info, .profile-avatars-gradient, .profile-music-container'},
-        {containerClass: 'sidebar-slider-item', selectors: ':scope > .sidebar-header'}
-      ]
+        { containerClass: 'profile-avatars-container', selectors: '.profile-avatars-info, .profile-avatars-gradient, .profile-music-container' },
+        { containerClass: 'sidebar-slider-item', selectors: ':scope > .sidebar-header' },
+      ],
     }, {
       trigger: 'bubble',
-      layers: [{containerClass: 'bubble', selectors: '.video-time, .time.is-floating, .video-play'}]
+      layers: [{ containerClass: 'bubble', selectors: '.video-time, .time.is-floating, .video-play' }],
     }, {
       trigger: 'grid-item',
-      layers: [{containerClass: 'grid-item', selectors: '.video-time, .time.is-floating, .video-play'}]
+      layers: [{ containerClass: 'grid-item', selectors: '.video-time, .time.is-floating, .video-play' }],
     }];
 
   protected hideFloatings(target: HTMLElement) {
-    if(!target) return;
-    const context = AppMediaViewerBase.FLOATING_CONTEXTS.find(({trigger}) => findUpClassName(target, trigger));
-    if(!context) return;
+    if (!target) return;
+    const context = AppMediaViewerBase.FLOATING_CONTEXTS.find(({ trigger }) => findUpClassName(target, trigger));
+    if (!context) return;
     // In an album each item carries its own floating overlays (.video-time, .video-play),
     // but the container query spans the whole bubble. Only the clicked item's mover
     // animates, so skip overlays that belong to a sibling album item. Bubble-level
     // floatings (e.g. .time.is-floating, which has no .album-item ancestor) are still hidden.
     const targetAlbumItem = findUpClassName(target, 'album-item');
-    for(const {containerClass, selectors} of context.layers) {
+    for (const { containerClass, selectors } of context.layers) {
       const container = findUpClassName(target, containerClass);
-      if(!container) continue;
+      if (!container) continue;
       container.querySelectorAll<HTMLElement>(selectors).forEach((el) => {
-        if(this.hiddenFloatings.has(el)) return;
+        if (this.hiddenFloatings.has(el)) return;
         const albumItem = findUpClassName(el, 'album-item');
-        if(albumItem && albumItem !== targetAlbumItem) return;
+        if (albumItem && albumItem !== targetAlbumItem) return;
         el.style.transition = 'none';
         el.style.opacity = '0';
         this.hiddenFloatings.add(el);
@@ -2139,7 +2139,7 @@ export default class AppMediaViewerBase<
   }
 
   protected revealHiddenFloatings() {
-    if(!this.hiddenFloatings.size) return;
+    if (!this.hiddenFloatings.size) return;
     const elements = Array.from(this.hiddenFloatings);
     this.hiddenFloatings.clear();
     // Wait for the viewer's close animation to settle, THEN fade the floatings back in.
@@ -2168,14 +2168,14 @@ export default class AppMediaViewerBase<
   protected applyLayoutVariables = () => {
     this.applyLayoutPadding();
     const mover = this.content.mover;
-    if(mover && mover.classList.contains('center')) {
+    if (mover && mover.classList.contains('center')) {
       this.refitMediaToViewport();
       this.applyCenterStyles(mover);
     }
   };
 
   protected applyLayoutPadding() {
-    const {top, bottom} = this.getLayoutReserves();
+    const { top, bottom } = this.getLayoutReserves();
     const cs = this.content.main.style;
     cs.paddingTop = `${top}px`;
     cs.paddingBottom = `${bottom}px`;
@@ -2190,21 +2190,21 @@ export default class AppMediaViewerBase<
     const media = this.content.media;
     const w = parseFloat(media.style.width);
     const h = parseFloat(media.style.height);
-    if(!w || !h) return;
-    const {width: boxW, height: boxH} = this.mediaBoxSize;
+    if (!w || !h) return;
+    const { width: boxW, height: boxH } = this.mediaBoxSize;
     const noZoom = !mediaSizes.isMobile;
     const fit = calcImageInBox(w, h, boxW, boxH, noZoom);
     media.style.width = `${fit.width}px`;
     media.style.height = `${fit.height}px`;
     const mover = this.content.mover;
-    if(mover) {
+    if (mover) {
       mover.style.width = `${fit.width}px`;
       mover.style.height = `${fit.height}px`;
     }
   }
 
   protected applyCenterStyles(mover: HTMLElement) {
-    const {top, bottom} = this.getLayoutReserves();
+    const { top, bottom } = this.getLayoutReserves();
     const s = mover.style;
     s.left = '50%';
     s.top = `calc(50% + ${(top - bottom) / 2}px)`;
@@ -2215,7 +2215,7 @@ export default class AppMediaViewerBase<
     // width/height assigned by openMedia / refit). On desktop, leave width/
     // height alone — they're set in px by openMedia at open time and kept in
     // sync with viewport changes by refitMediaToViewport.
-    if(mediaSizes.isMobile) {
+    if (mediaSizes.isMobile) {
       s.width = '100%';
       s.height = '100%';
     }
@@ -2235,8 +2235,8 @@ export default class AppMediaViewerBase<
   }
 
   protected get mediaBoxSize(): MediaSize {
-    const {width, height} = windowSize;
-    const {top, bottom} = this.getLayoutReserves();
+    const { width, height } = windowSize;
+    const { top, bottom } = this.getLayoutReserves();
     return new MediaSize(
       width,
       height - top - bottom - this.extraHeightPadding
@@ -2251,24 +2251,24 @@ export default class AppMediaViewerBase<
     this.removeQualityOptions();
 
     const altDocs = await this.managers.appDocsManager.getAltDocsByDocument(doc.id);
-    if(!altDocs) return;
+    if (!altDocs) return;
 
     const qualityEntries = getQualityFilesEntries(altDocs);
-    if(!qualityEntries.length) return;
+    if (!qualityEntries.length) return;
 
     const availableHeights = Array.from(new Set(qualityEntries.map((entry) => snapQualityHeight(entry.h))))
-    .sort((a, b) => b - a);
+      .sort((a, b) => b - a);
 
     const filteredEntries = availableHeights.map((height) => {
       let chosenEntry: (typeof qualityEntries)[number];
-      for(const entry of qualityEntries) {
-        if(snapQualityHeight(entry.h) !== height) continue;
-        if(!chosenEntry! || entry.bandwidth < chosenEntry.bandwidth) chosenEntry = entry;
+      for (const entry of qualityEntries) {
+        if (snapQualityHeight(entry.h) !== height) continue;
+        if (!chosenEntry! || entry.bandwidth < chosenEntry.bandwidth) chosenEntry = entry;
       }
       return chosenEntry!;
     });
 
-    if(filteredEntries.length <= 1) return;
+    if (filteredEntries.length <= 1) return;
 
     const options: ButtonMenuItemOptionsVerifiable[] = await Promise.all(filteredEntries.map(async(entry) => {
       const doc = await this.managers.appDocsManager.getDoc(entry.id);
@@ -2278,7 +2278,7 @@ export default class AppMediaViewerBase<
         regularText: ButtonMenuItemWithAuxiliaryText(`Hls.SaveIn${snappedHeight}`, formatBytes(doc.size!, 1)) as HTMLElement,
         onClick: (e) => {
           this.onDownloadClick(e, entry.id);
-        }
+        },
       });
     }));
 
@@ -2301,7 +2301,7 @@ export default class AppMediaViewerBase<
     onCanPlay,
     onMoverSet,
     onBuffering,
-    noAuthor
+    noAuthor,
   }: {
     media: MyDocument | MyPhoto | InputGroupCall.inputGroupCall,
     mediaThumbnail?: string,
@@ -2321,7 +2321,7 @@ export default class AppMediaViewerBase<
     noAuthor?: boolean
     /* , needLoadMore = true */
   }) {
-    if(this.setMoverPromise) return this.setMoverPromise;
+    if (this.setMoverPromise) return this.setMoverPromise;
 
     const setAuthorPromise = noAuthor ? Promise.resolve() : this.setAuthorInfo(fromId, timestamp);
 
@@ -2338,7 +2338,7 @@ export default class AppMediaViewerBase<
     // hidden post-close); skip the refit + recenter that the resize handler does.
     this.applyLayoutPadding();
 
-    if(this.isFirstOpen) {
+    if (this.isFirstOpen) {
       // this.targetContainer = targetContainer;
       // this.needLoadMore = needLoadMore;
       this.isFirstOpen = false;
@@ -2347,7 +2347,7 @@ export default class AppMediaViewerBase<
       // this.loadMore = loadMore;
     }
 
-    if(this.listLoader.next.length < 10) {
+    if (this.listLoader.next.length < 10) {
       setTimeout(() => {
         this.listLoader.load(true);
       }, 0);
@@ -2367,17 +2367,17 @@ export default class AppMediaViewerBase<
 
     const container = this.content.media;
     const useContainerAsTarget = !target || target === container;
-    if(useContainerAsTarget) target = container;
+    if (useContainerAsTarget) target = container;
 
-    this.target = {element: target} as any;
+    this.target = { element: target } as any;
     const tempId = ++this.tempId;
 
-    if(container.firstElementChild) {
+    if (container.firstElementChild) {
       container.replaceChildren();
     }
 
     let changeQualityOptionsPromise: Promise<void>;
-    if(media._ === 'document')
+    if (media._ === 'document')
       changeQualityOptionsPromise = this.loadQualityLevelsDownloadOptions(media);
     else
       changeQualityOptionsPromise = Promise.resolve(this.removeQualityOptions());
@@ -2385,7 +2385,7 @@ export default class AppMediaViewerBase<
     // Rotation is per-media. Clear any leftover turn from the previous image and snap
     // moversContainer back to identity instantly (no-transition) — so neither the
     // outgoing nav slide nor the incoming open animates a stray spin.
-    if(this.rotation) {
+    if (this.rotation) {
       this.rotation = 0;
       this.moversContainer.classList.add('no-transition');
       this.applyMoversTransform();
@@ -2394,23 +2394,23 @@ export default class AppMediaViewerBase<
     }
 
     const wasActive = fromRight !== 0;
-    if(wasActive) {
+    if (wasActive) {
       this.moveTheMover(this.content.mover, fromRight === 1, this.animatedNav);
       this.setNewMover();
     } else {
       this.navigationItem = {
         type: 'media',
         onPop: (canAnimate) => {
-          if(this.setMoverAnimationPromise) {
+          if (this.setMoverAnimationPromise) {
             return false;
           }
 
-          if(!canAnimate && IS_MOBILE_SAFARI) {
+          if (!canAnimate && IS_MOBILE_SAFARI) {
             this.wholeDiv.remove();
           }
 
           this.close();
-        }
+        },
       };
 
       appNavigationController.pushItem(this.navigationItem);
@@ -2419,7 +2419,7 @@ export default class AppMediaViewerBase<
       this.setGlobalListeners();
       await setAuthorPromise;
 
-      if(!this.wholeDiv.parentElement) {
+      if (!this.wholeDiv.parentElement) {
         document.body.append(this.wholeDiv);
         void this.wholeDiv.offsetLeft; // reflow
       }
@@ -2436,25 +2436,25 @@ export default class AppMediaViewerBase<
       boxWidth: mediaBoxSize.width,
       boxHeight: mediaBoxSize.height,
       element: container,
-      size: mediaSize
+      size: mediaSize,
     } : {
       photo: media,
       element: container,
       boxWidth: mediaBoxSize.width,
       boxHeight: mediaBoxSize.height,
       noZoom: mediaSizes.isMobile ? false : true,
-      pushDocumentSize: !!(isDocument && media.w && media.h)
+      pushDocumentSize: !!(isDocument && media.w && media.h),
     }).photoSize;
 
     const isVideoWithPlayer = isLiveStream || (isVideo && (media).type !== 'gif');
-    if(isVideoWithPlayer) {
+    if (isVideoWithPlayer) {
       const currentWidth = parseFloat(container.style.width);
-      if(currentWidth > 0 && currentWidth < VIDEO_MIN_WIDTH) {
+      if (currentWidth > 0 && currentWidth < VIDEO_MIN_WIDTH) {
         const currentHeight = parseFloat(container.style.height);
         const aspect = currentWidth / currentHeight;
         let newWidth = Math.min(VIDEO_MIN_WIDTH, mediaBoxSize.width);
         let newHeight = newWidth / aspect;
-        if(newHeight > mediaBoxSize.height) {
+        if (newHeight > mediaBoxSize.height) {
           newHeight = mediaBoxSize.height;
           newWidth = newHeight * aspect;
         }
@@ -2462,10 +2462,10 @@ export default class AppMediaViewerBase<
         container.style.height = newHeight + 'px';
       }
     }
-    if(useContainerAsTarget && !isLiveStream) {
+    if (useContainerAsTarget && !isLiveStream) {
       const cacheContext = await this.managers.thumbsStorage.getCacheContext(media, size?.type);
       let img: HTMLImageElement | HTMLCanvasElement;
-      if(cacheContext.downloaded) {
+      if (cacheContext.downloaded) {
         img = new Image();
         // Await decode: setMoverToTarget draws this thumbnail onto a canvas via
         // drawImage, which yields a BLANK canvas for a not-yet-decoded image —
@@ -2477,22 +2477,22 @@ export default class AppMediaViewerBase<
           photo: media,
           cacheContext,
           useBlur: true,
-          onlyStripped: true
+          onlyStripped: true,
         });
-        if(gotThumb) {
+        if (gotThumb) {
           thumbPromise = gotThumb.loadPromise;
           img = gotThumb.image;
         }
       }
 
-      if(img!) {
+      if (img!) {
         img.classList.add('thumbnail');
         container.append(img);
       }
     }
 
-    if(isLiveStream) {
-      if(mediaThumbnail) {
+    if (isLiveStream) {
+      if (mediaThumbnail) {
         const img = new Image();
         img.classList.add('thumbnail');
         container.append(img);
@@ -2501,7 +2501,7 @@ export default class AppMediaViewerBase<
         const avatar = avatarNew({
           middleware: this.middlewareHelper.get(),
           peerId: fromId.toPeerId(),
-          size: 'full'
+          size: 'full',
         });
         avatar.node.classList.add('thumbnail-avatar');
         container.append(avatar.node);
@@ -2518,29 +2518,29 @@ export default class AppMediaViewerBase<
     const preloader = isLiveStream ? undefined : supportsStreaming ? this.preloaderStreamable : this.preloader;
 
     const getCacheContext = (type = size?.type) => {
-      if(isLiveStream) return {url: getRtmpStreamUrl(media)};
-      if(isHlsStream && apiManagerProxy.isServiceWorkerOnline()) return {url: getDocumentURL(media as MyDocument, {supportsHlsStreaming: true})};
+      if (isLiveStream) return { url: getRtmpStreamUrl(media) };
+      if (isHlsStream && apiManagerProxy.isServiceWorkerOnline()) return { url: getDocumentURL(media as MyDocument, { supportsHlsStreaming: true }) };
       return this.managers.thumbsStorage.getCacheContext(media, type);
     };
 
     let setMoverPromise: Promise<void>;
-    if(isVideo || isLiveStream) {
+    if (isVideo || isLiveStream) {
       const middleware = mover.middlewareHelper!.get();
       // потому что для safari нужно создать элемент из event'а
       const useController = /* isLiveStream ||  */message && (media as MyDocument).type !== 'gif';
       const video = /* useController ?
         appMediaPlaybackController.addMedia(message, false, true) as HTMLVideoElement :
-         */createVideo({pip: useController || isLiveStream, middleware});
+         */createVideo({ pip: useController || isLiveStream, middleware });
 
-      if(isLiveStream) {
+      if (isLiveStream) {
         video.ignoreLeak = true;
       }
 
-      if(this.wholeDiv.classList.contains('no-forwards') || isLiveStream) {
+      if (this.wholeDiv.classList.contains('no-forwards') || isLiveStream) {
         video.addEventListener('contextmenu', cancelEvent);
       }
 
-      const set = () => this.setMoverToTarget(target!, false, fromRight).then(({onAnimationEnd}) => {
+      const set = () => this.setMoverToTarget(target!, false, fromRight).then(({ onAnimationEnd }) => {
       // return; // set and don't move
       // if(wasActive) return;
         // return;
@@ -2562,17 +2562,17 @@ export default class AppMediaViewerBase<
         video.autoplay = true;
         // }
 
-        if(media._ === 'inputGroupCall') {
+        if (media._ === 'inputGroupCall') {
           video.autoplay = true;
-        } else if(media.type === 'gif') {
+        } else if (media.type === 'gif') {
           video.muted = true;
           video.autoplay = true;
           video.loop = true;
-        } else if(media.duration! < 60) {
+        } else if (media.duration! < 60) {
           video.loop = true;
         }
 
-        if(mediaTimestamp !== undefined) {
+        if (mediaTimestamp !== undefined) {
           setCurrentTime(video, mediaTimestamp);
         }
 
@@ -2580,36 +2580,36 @@ export default class AppMediaViewerBase<
         div.append(video);
 
         const canPlayThrough = new Promise((resolve) => {
-          video.addEventListener('canplay', resolve, {once: true});
+          video.addEventListener('canplay', resolve, { once: true });
         });
 
         const setSingleMedia = () => {
-          if(isLiveStream) {
+          if (isLiveStream) {
             // this.releaseSingleMedia = appMediaPlaybackController.setSingleMedia();
           } else {
             this.releaseSingleMedia = appMediaPlaybackController.setSingleMedia({
               media: video,
-              message: message as Message.message
+              message: message as Message.message,
             });
           }
         };
 
         const createPlayer = async() => {
-          if((media as MyDocument).type === 'gif') {
+          if ((media as MyDocument).type === 'gif') {
             return;
           }
 
           const readyPromise = Promise.all([canPlayThrough, onAnimationEnd]);
-          if(!isLiveStream) { // should display interface for live streams instantly
+          if (!isLiveStream) { // should display interface for live streams instantly
             await readyPromise;
-            if(this.tempId !== tempId) {
+            if (this.tempId !== tempId) {
               return;
             }
           }
 
           const storyboard = prepareStoryboard({
             message: message as Message.message,
-            middleware: this.middlewareHelper.get()
+            middleware: this.middlewareHelper.get(),
           });
 
           // const play = useController ? appMediaPlaybackController.willBePlayedMedia === video : true;
@@ -2634,7 +2634,7 @@ export default class AppMediaViewerBase<
             },
             onPip: (pip) => {
               const otherMediaViewer = (window as any).appMediaViewer;
-              if(!pip && otherMediaViewer && otherMediaViewer !== this) {
+              if (!pip && otherMediaViewer && otherMediaViewer !== this) {
                 this.releaseSingleMedia = undefined;
                 this.close();
                 return;
@@ -2649,13 +2649,13 @@ export default class AppMediaViewerBase<
               this.toggleOverlay(!pip);
               this.toggleGlobalListeners(!pip);
 
-              if(this.navigationItem) {
-                if(pip) appNavigationController.removeItem(this.navigationItem);
+              if (this.navigationItem) {
+                if (pip) appNavigationController.removeItem(this.navigationItem);
                 else appNavigationController.pushItem(this.navigationItem);
               }
 
-              if(useController) {
-                if(pip) {
+              if (useController) {
+                if (pip) {
                   // appMediaPlaybackController.toggleSwitchers(true);
 
                   this.releaseSingleMedia?.(false);
@@ -2675,7 +2675,7 @@ export default class AppMediaViewerBase<
             },
             listenKeyboardEvents: 'always',
             useGlobalVolume: 'auto',
-            storyboard
+            storyboard,
           });
           this.videoPlayer?.loadQualityLevels();
 
@@ -2692,11 +2692,11 @@ export default class AppMediaViewerBase<
             this.wholeDiv.classList.remove('has-video', 'has-video-controls');
             this.videoPlayer!.cleanup();
             this.videoPlayer = undefined;
-          }, {once: true});
+          }, { once: true });
 
-          if(this.isZooming || this.isRotated()) {
+          if (this.isZooming || this.isRotated()) {
             this.videoPlayer.lockControls(false);
-          } else if(isLiveStream) {
+          } else if (isLiveStream) {
             // Lock hidden (not shown) during the open animation. Otherwise the
             // controls render inside the still-animating aspecter (containerRect-
             // sized, scaled by setFullAspect) and then jump to the viewport
@@ -2709,11 +2709,11 @@ export default class AppMediaViewerBase<
           setupPlayer?.(this.videoPlayer, readyPromise);
         };
 
-        if(supportsStreaming || isLiveStream) {
+        if (supportsStreaming || isLiveStream) {
           let attachedCanPlay = false, buffering = false;
 
           const _onBuffering = (noCanPlay?: boolean) => {
-            if(buffering) {
+            if (buffering) {
               return;
             }
 
@@ -2727,13 +2727,13 @@ export default class AppMediaViewerBase<
           };
 
           onAnimationEnd.then(() => {
-            if(video.readyState < video.HAVE_FUTURE_DATA) {
+            if (video.readyState < video.HAVE_FUTURE_DATA) {
               _onBuffering(true);
             }
           });
 
           const attachCanPlay = () => {
-            if(attachedCanPlay) {
+            if (attachedCanPlay) {
               return;
             }
 
@@ -2745,18 +2745,18 @@ export default class AppMediaViewerBase<
               preloader?.detach();
               video.parentElement!.classList.remove('is-buffering');
 
-              if(!this.isZooming) {
+              if (!this.isZooming) {
                 // Defer unlocking until the open animation settles. For live
                 // streams canplay can fire mid-animation; unlocking right away
                 // would show controls inside the still-animating aspecter/mover
                 // layout and they'd snap to their final position when it ends.
                 onAnimationEnd.then(() => {
-                  if(this.tempId === tempId) {
+                  if (this.tempId === tempId) {
                     this.videoPlayer?.lockControls(undefined!);
                   }
                 });
               }
-            }, {once: true});
+            }, { once: true });
           };
 
           video.addEventListener('waiting', () => {
@@ -2764,12 +2764,12 @@ export default class AppMediaViewerBase<
             const isntEnoughData = video.readyState < video.HAVE_FUTURE_DATA;
 
             // this.log('video waiting for progress', loading, isntEnoughData);
-            if(loading && isntEnoughData) {
+            if (loading && isntEnoughData) {
               _onBuffering();
             }
           });
 
-          if(this.wholeDiv.classList.contains('no-forwards')) {
+          if (this.wholeDiv.classList.contains('no-forwards')) {
             video.addEventListener('contextmenu', (e) => {
               cancelEvent(e);
             });
@@ -2784,11 +2784,11 @@ export default class AppMediaViewerBase<
               appMediaPlaybackController.resolveWaitingForLoadMedia(message.peerId, message.mid, message.pFlags.is_scheduled);
             } */
 
-          const promise: Promise<any> = supportsStreaming || isLiveStream ? Promise.resolve() : appDownloadManager.downloadMediaURL({media});
+          const promise: Promise<any> = supportsStreaming || isLiveStream ? Promise.resolve() : appDownloadManager.downloadMediaURL({ media });
 
-          if(!supportsStreaming) {
+          if (!supportsStreaming) {
             onAnimationEnd.then(async() => {
-              if(!(await getCacheContext()).url) {
+              if (!(await getCacheContext()).url) {
                 preloader?.attach(mover, true, promise as any);
               }
             });
@@ -2796,9 +2796,9 @@ export default class AppMediaViewerBase<
 
           Promise.all([
             promise,
-            isLiveStream ? undefined : onAnimationEnd
+            isLiveStream ? undefined : onAnimationEnd,
           ]).then(async() => {
-            if(this.tempId !== tempId) {
+            if (this.tempId !== tempId) {
               this.log.warn('media viewer changed video');
               return;
             }
@@ -2806,16 +2806,16 @@ export default class AppMediaViewerBase<
             const url = (await getCacheContext()).url;
 
             const onError = (e: ErrorEvent) => {
-              if(shouldIgnoreVideoError(e) || isLiveStream) {
+              if (shouldIgnoreVideoError(e) || isLiveStream) {
                 return;
               }
 
               toastNew({
-                langPackKey: IS_MOBILE ? 'Video.Unsupported.Mobile' : 'Video.Unsupported.Desktop'
+                langPackKey: IS_MOBILE ? 'Video.Unsupported.Mobile' : 'Video.Unsupported.Desktop',
               });
 
               const error = video.error;
-              if(error && error.code !== 4) {
+              if (error && error.code !== 4) {
                 this.log.error('Error ' + error.code + '; details: ' + error.message);
               }
 
@@ -2823,16 +2823,16 @@ export default class AppMediaViewerBase<
             };
 
             const onMediaLoadPromise = onMediaLoad(video);
-            if(!isLiveStream) {
+            if (!isLiveStream) {
               handleVideoLeak(video, onMediaLoadPromise).catch(onError);
             }
 
-            video.addEventListener('error', onError, {once: true});
+            video.addEventListener('error', onError, { once: true });
             middleware.onClean(() => {
               video.removeEventListener('error', onError);
             });
 
-            if(target instanceof SVGSVGElement/*  && (video.parentElement || !isSafari) */) { // if video exists
+            if (target instanceof SVGSVGElement/*  && (video.parentElement || !isSafari) */) { // if video exists
               // if(!video.parentElement) {
               div.firstElementChild!.lastElementChild!.append(video);
               // }
@@ -2843,18 +2843,18 @@ export default class AppMediaViewerBase<
 
             // * have to set options (especially playbackRate) after src
             // * https://github.com/videojs/video.js/issues/2516
-            if(useController) {
+            if (useController) {
               setSingleMedia();
 
               this.addEventListener('setMoverBefore', () => {
                 this.releaseSingleMedia?.();
                 this.releaseSingleMedia = undefined;
-              }, {once: true});
+              }, { once: true });
             }
 
             this.updateMediaSource(target!, url, 'video');
 
-            if(isLiveStream) {
+            if (isLiveStream) {
               createPlayer();
             } else onMediaLoadPromise.then(() => {
               createPlayer();
@@ -2864,44 +2864,44 @@ export default class AppMediaViewerBase<
           return promise;
         };
 
-        this.lazyLoadQueue.unshift({load});
+        this.lazyLoadQueue.unshift({ load });
         // } else createPlayer();
       });
 
       setMoverPromise = Promise.all([thumbPromise, changeQualityOptionsPromise]).then(set);
     } else {
-      const set = () => this.setMoverToTarget(target!, false, fromRight).then(({onAnimationEnd}) => {
+      const set = () => this.setMoverToTarget(target!, false, fromRight).then(({ onAnimationEnd }) => {
       // return; // set and don't move
       // if(wasActive) return;
         // return;
 
         const load = async() => {
-          const cancellablePromise = isDocument ? appDownloadManager.downloadMediaURL({media}) : appDownloadManager.downloadMediaURL({media, thumb: size});
+          const cancellablePromise = isDocument ? appDownloadManager.downloadMediaURL({ media }) : appDownloadManager.downloadMediaURL({ media, thumb: size });
 
           const photoSizes = !isDocument && media.sizes.slice().filter((size) => (size as PhotoSize.photoSize).w) as PhotoSize.photoSize[];
           photoSizes && photoSizes.sort((a, b) => b.size - a.size);
           const fullPhotoSize = (photoSizes as PhotoSize.photoSize[] | undefined)?.[0];
-          const cancellableFullPromise = !isDocument && fullPhotoSize !== size && appDownloadManager.downloadMediaURL({media, thumb: fullPhotoSize});
+          const cancellableFullPromise = !isDocument && fullPhotoSize !== size && appDownloadManager.downloadMediaURL({ media, thumb: fullPhotoSize });
 
           onAnimationEnd.then(async() => {
-            if(!(await getCacheContext()).url) {
+            if (!(await getCacheContext()).url) {
               this.preloader!.attachPromise(cancellablePromise);
               // this.preloader.attach(mover, true, cancellablePromise);
             }
           });
 
           Promise.all([onAnimationEnd, cancellablePromise]).then(async() => {
-            if(this.tempId !== tempId) {
+            if (this.tempId !== tempId) {
               this.log.warn('media viewer changed photo');
               return;
             }
 
             const url = (await getCacheContext()).url;
-            if(target instanceof SVGSVGElement) {
+            if (target instanceof SVGSVGElement) {
               this.updateMediaSource(target, url, 'img');
               this.updateMediaSource(mover, url, 'img');
 
-              if(mediaSizes.isMobile) {
+              if (mediaSizes.isMobile) {
                 const imgs = mover.querySelectorAll('img');
                 imgs.forEach((img) => {
                   img.classList.remove('thumbnail'); // может здесь это вообще не нужно
@@ -2910,7 +2910,7 @@ export default class AppMediaViewerBase<
             } else {
               const div = mover.firstElementChild && mover.firstElementChild.classList.contains('media-viewer-aspecter') ? mover.firstElementChild : mover;
               const haveImage = ['CANVAS', 'IMG'].includes(div.firstElementChild?.tagName!) ? div.firstElementChild as HTMLElement : null;
-              if((haveImage as HTMLImageElement)?.src !== url)  {
+              if ((haveImage as HTMLImageElement)?.src !== url)  {
                 const image = new Image();
                 image.classList.add('thumbnail');
 
@@ -2918,7 +2918,7 @@ export default class AppMediaViewerBase<
                   fastRaf(() => {
                     this.updateMediaSource(target!, url, 'img');
 
-                    if(haveImage) {
+                    if (haveImage) {
                       fastRaf(() => {
                         haveImage.remove();
                       });
@@ -2950,7 +2950,7 @@ export default class AppMediaViewerBase<
           return cancellablePromise;
         };
 
-        this.lazyLoadQueue.unshift({load});
+        this.lazyLoadQueue.unshift({ load });
       });
 
       setMoverPromise = thumbPromise.then(set);

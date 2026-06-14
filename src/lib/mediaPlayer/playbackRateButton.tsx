@@ -1,7 +1,7 @@
-import {createEffect, createSignal} from 'solid-js';
-import {render} from 'solid-js/web';
+import { createEffect, createSignal } from 'solid-js';
+import { render } from 'solid-js/web';
 
-import {ButtonMenuItemOptionsVerifiable} from '@components/buttonMenu';
+import { ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
 import ButtonMenuToggle from '@components/buttonMenuToggle';
 import appMediaPlaybackController from '@components/appMediaPlaybackController';
 import Icon from '@components/icon';
@@ -36,7 +36,7 @@ const geometricFontMap: Record<string, Icon> = {
   '8': 'geometric_digit_8',
   '9': 'geometric_digit_9',
   'x': 'geometric_letter_x',
-  '.': 'geometric_dot'
+  '.': 'geometric_dot',
 };
 
 function PlaybackRateButton(props: InternalPlaybackRateButtonProps) {
@@ -46,7 +46,7 @@ function PlaybackRateButton(props: InternalPlaybackRateButtonProps) {
     setPlayBackRate: setSelectedRate,
     changeRateByAmount: (amount) => {
       const newValue = selectedRate() + amount;
-      if(newValue < 1) {
+      if (newValue < 1) {
         setSelectedRate(0.5);
       } else {
         setSelectedRate(Math.min(MAX_RATE, Math.round(newValue - 0.01)));
@@ -55,7 +55,7 @@ function PlaybackRateButton(props: InternalPlaybackRateButtonProps) {
     },
     isMenuOpen: () => {
       return playbackRateButton.classList.contains('menu-open');
-    }
+    },
   };
 
   props.controlsRef(controls);
@@ -68,13 +68,13 @@ function PlaybackRateButton(props: InternalPlaybackRateButtonProps) {
       setSelectedRate(rate);
     },
     text: rate === 1 ? 'PlaybackRateNormal' : undefined,
-    regularText: rate !== 1 ? rate + 'x' : undefined
+    regularText: rate !== 1 ? rate + 'x' : undefined,
   }));
 
   createEffect(() => {
     buttons.forEach((btn) => btn.icon = undefined);
     const button = buttons.find((btn) => btn.id === selectedRate().toFixed(1));
-    if(button) button.icon = 'check';
+    if (button) button.icon = 'check';
   });
 
   createEffect(() => {
@@ -85,13 +85,13 @@ function PlaybackRateButton(props: InternalPlaybackRateButtonProps) {
 
     const icons = rateAsString.split('').map((char) => ({
       char: char === '.' ? 'dot': char,
-      icon: geometricFontMap[char]
+      icon: geometricFontMap[char],
     })).filter(Boolean);
 
     const rateElement = document.createElement('span');
     rateElement.classList.add(cls);
 
-    rateElement.append(...icons.map((({char, icon}) => Icon(icon, 'geometric-font-icon', `geometric-font-icon--${char}`))));
+    rateElement.append(...icons.map((({ char, icon }) => Icon(icon, 'geometric-font-icon', `geometric-font-icon--${char}`))));
 
     playbackRateButton.append(rateElement);
   });
@@ -105,7 +105,7 @@ function PlaybackRateButton(props: InternalPlaybackRateButtonProps) {
     },
     onClose: () => {
       props.onMenuToggle?.(false);
-    }
+    },
   });
 
   createEffect(() => {
@@ -136,6 +136,6 @@ export function createPlaybackRateButton(props: PlaybackRateButtonProps) {
     get controls() {
       return controls;
     },
-    dispose
+    dispose,
   };
 }

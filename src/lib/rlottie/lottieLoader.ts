@@ -1,8 +1,8 @@
 import animationIntersector from '@components/animationIntersector';
-import {MOUNT_CLASS_TO} from '@config/debug';
+import { MOUNT_CLASS_TO } from '@config/debug';
 import pause from '@helpers/schedulers/pause';
-import {logger, LogTypes} from '@lib/logger';
-import RLottiePlayer, {RLottieOptions} from '@lib/rlottie/rlottiePlayer';
+import { logger, LogTypes } from '@lib/logger';
+import RLottiePlayer, { RLottieOptions } from '@lib/rlottie/rlottiePlayer';
 import blobConstruct from '@helpers/blob/blobConstruct';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import IS_WEB_ASSEMBLY_SUPPORTED from '@environment/webAssemblySupport';
@@ -67,15 +67,15 @@ export class LottieLoader {
 
   constructor() {
     rootScope.addEventListener('theme_changed', () => {
-      for(const reqId in this.players) {
+      for (const reqId in this.players) {
         this.players[reqId].applyColorForAllContexts();
       }
     });
   }
 
   public getAnimation(element: HTMLElement) {
-    for(const i in this.players) {
-      if(this.players[i].el.includes(element)) {
+    for (const i in this.players) {
+      if (this.players[i].el.includes(element)) {
         return this.players[i];
       }
     }
@@ -84,7 +84,7 @@ export class LottieLoader {
   }
 
   public loadLottieWorkers() {
-    if(this.loadPromise) {
+    if (this.loadPromise) {
       return this.loadPromise;
     }
 
@@ -97,10 +97,10 @@ export class LottieLoader {
       createWorker: () => {
         return new Worker(
           new URL('./rlottie.worker.ts', import.meta.url),
-          {type: 'module'}
+          { type: 'module' }
         );
       },
-      superMessagePort: rlottieMessagePort
+      superMessagePort: rlottieMessagePort,
     });
   }
 
@@ -116,22 +116,22 @@ export class LottieLoader {
   public loadAnimationDataFromURL(url: string, method: 'json'): Promise<any>;
   public loadAnimationDataFromURL(url: string, method?: 'blob'): Promise<Blob>;
   public loadAnimationDataFromURL(url: string, method: 'json' | 'blob' = 'blob'): Promise<Blob | any> {
-    if(!IS_WEB_ASSEMBLY_SUPPORTED) {
+    if (!IS_WEB_ASSEMBLY_SUPPORTED) {
       return this.loadPromise as any;
     }
 
     this.loadLottieWorkers();
 
     return fetch(url)
-    .then((res) => {
-      if(!res.headers || res.headers.get('content-type') === 'application/octet-stream') {
-        return res.arrayBuffer()
-        .then((data) => apiManagerProxy.invokeCrypto('gzipUncompress', data))
-        .then((arr) => blobConstruct(arr as Uint8Array, ''));
-      } else {
-        return res[method]();
-      }
-    });
+      .then((res) => {
+        if (!res.headers || res.headers.get('content-type') === 'application/octet-stream') {
+          return res.arrayBuffer()
+            .then((data) => apiManagerProxy.invokeCrypto('gzipUncompress', data))
+            .then((arr) => blobConstruct(arr as Uint8Array, ''));
+        } else {
+          return res[method]();
+        }
+      });
     /* .then((str) => {
       return new Promise<string>((resolve) => setTimeout(() => resolve(str), 2e3));
     }) */
@@ -151,7 +151,7 @@ export class LottieLoader {
   }
 
   public loadAnimationFromURLNext(blob: Blob, params: Omit<RLottieOptions, 'animationData'>, url: string) {
-    const newParams = Object.assign(params, {animationData: blob, needUpscale: true});
+    const newParams = Object.assign(params, { animationData: blob, needUpscale: true });
     newParams.name ||= url;
     return this.loadAnimationWorker(newParams);
   }
@@ -164,27 +164,27 @@ export class LottieLoader {
         }, true);
       }) */
       new Promise<void>((resolve) => {
-        player.addEventListener('firstFrame', resolve, {once: true});
+        player.addEventListener('firstFrame', resolve, { once: true });
       }),
-      pause(2500)
+      pause(2500),
     ]).then(() => player);
   }
 
   public async loadAnimationWorker(params: RLottieOptions): Promise<RLottiePlayer> {
-    if(!IS_WEB_ASSEMBLY_SUPPORTED) {
+    if (!IS_WEB_ASSEMBLY_SUPPORTED) {
       return this.loadPromise as any;
     }
 
-    if(!this.loaded) {
+    if (!this.loaded) {
       await this.loadLottieWorkers();
     }
 
-    const {middleware, group = ''} = params;
-    if(middleware && !middleware()) {
+    const { middleware, group = '' } = params;
+    if (middleware && !middleware()) {
       throw makeError('MIDDLEWARE');
     }
 
-    if(params.sync) {
+    if (params.sync) {
       const cacheName = RLottiePlayer.CACHE.generateName(
         params.name!,
         params.width!,
@@ -193,18 +193,18 @@ export class LottieLoader {
         params.toneIndex!
       );
       const players = this.playersByCacheName[cacheName];
-      if(players?.size) {
+      if (players?.size) {
         return Promise.resolve(players.entries().next().value![0]);
       }
     }
 
     const containers = toArray(params.container);
-    if(!params.width || !params.height) {
+    if (!params.width || !params.height) {
       params.width = parseInt(containers[0].style.width);
       params.height = parseInt(containers[0].style.height);
     }
 
-    if(!params.width || !params.height) {
+    if (!params.width || !params.height) {
       throw new Error('No size for sticker!');
     }
 
@@ -218,10 +218,10 @@ export class LottieLoader {
       observeElement: player.el[0],
       controlled: middleware,
       liteModeKey: params.liteModeKey,
-      type: 'lottie'
+      type: 'lottie',
     });
 
-    if(!params.sync) {
+    if (!params.sync) {
       // * have to use onClean here, SuperStickerRenderer relies on it
       middleware?.onClean(() => {
         player.remove();
@@ -249,7 +249,7 @@ export class LottieLoader {
   }
 
   public destroyWorkers() {
-    if(!IS_WEB_ASSEMBLY_SUPPORTED) {
+    if (!IS_WEB_ASSEMBLY_SUPPORTED) {
       return;
     }
 
@@ -263,20 +263,20 @@ export class LottieLoader {
   private initPlayer(el: RLottiePlayer['el'], options: RLottieOptions) {
     const player = new RLottiePlayer({
       el,
-      options
+      options,
     });
 
-    const {reqId, cacheName} = player;
+    const { reqId, cacheName } = player;
     this.players[reqId] = player;
 
     const playersByCacheName = cacheName ? this.playersByCacheName[cacheName] ??= new Set() : undefined;
-    if(cacheName) {
+    if (cacheName) {
       playersByCacheName!.add(player);
     }
 
     player.addEventListener('destroy', () => {
       this.onDestroy(reqId);
-      if(playersByCacheName!.delete(player) && !playersByCacheName!.size) {
+      if (playersByCacheName!.delete(player) && !playersByCacheName!.size) {
         delete this.playersByCacheName[cacheName];
       }
     });

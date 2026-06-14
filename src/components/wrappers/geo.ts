@@ -3,13 +3,13 @@ import getWebFileLocation from '@helpers/getWebFileLocation';
 import liteMode from '@helpers/liteMode';
 import makeGoogleMapsUrl from '@helpers/makeGoogleMapsUrl';
 import mediaSizes from '@helpers/mediaSizes';
-import {Middleware} from '@helpers/middleware';
+import { Middleware } from '@helpers/middleware';
 import tsNow from '@helpers/tsNow';
-import {GeoPoint, MessageMedia} from '@layer';
-import I18n, {i18n, LangPackKey, FormatterArguments} from '@lib/langPack';
+import { GeoPoint, MessageMedia } from '@layer';
+import I18n, { i18n, LangPackKey, FormatterArguments } from '@lib/langPack';
 import setBlankToAnchor from '@lib/richTextProcessor/setBlankToAnchor';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import {avatarNew} from '@components/avatarNew';
+import { avatarNew } from '@components/avatarNew';
 import GeoPin from '@components/geoPin';
 import wrapPhoto from '@components/wrappers/photo';
 
@@ -40,7 +40,7 @@ export default function wrapGeo({
   editDate,
   middleware,
   loadPromises,
-  onLiveExpire
+  onLiveExpire,
 }: {
   messageMedia: MessageMedia.messageMediaVenue | MessageMedia.messageMediaGeo | MessageMedia.messageMediaGeoLive,
   attachmentDiv: HTMLElement,
@@ -57,7 +57,7 @@ export default function wrapGeo({
 
   const isVenue = messageMedia._ === 'messageMediaVenue';
   const isLive = messageMedia._ === 'messageMediaGeoLive';
-  const {geo} = messageMedia;
+  const { geo } = messageMedia;
   assumeType<GeoPoint.geoPoint>(geo);
 
   const svgWidth = 277;
@@ -92,8 +92,8 @@ export default function wrapGeo({
     const _wrapTempId = ++wrapTempId;
 
     const oldImageContainer = container.querySelector('.geo-image-container');
-    if(oldImageContainer) {
-      if(liteMode.isAvailable('animations')) {
+    if (oldImageContainer) {
+      if (liteMode.isAvailable('animations')) {
         oldImageContainer.classList.add('fade-out');
       } else {
         oldImageContainer.remove();
@@ -105,12 +105,12 @@ export default function wrapGeo({
 
     const newWrapOptions: WrapSomethingOptions = {
       ...wrapOptions,
-      ...(_wrapTempId !== 0 ? {lazyLoadQueue: undefined} : {})
+      ...(_wrapTempId !== 0 ? { lazyLoadQueue: undefined } : {}),
     };
 
     const imageContainer = document.createElement('div');
     imageContainer.classList.add('geo-image-container');
-    if(isLive) {
+    if (isLive) {
       const pin = document.createElement('div');
       pin.classList.add('geo-live-pin');
 
@@ -136,7 +136,7 @@ export default function wrapGeo({
         size: 54,
         peerId,
         isDialog: false,
-        wrapOptions: newWrapOptions
+        wrapOptions: newWrapOptions,
       });
       avatar.node.classList.add('geo-live-pin-avatar');
       loadPromises?.push(avatar.readyThumbPromise);
@@ -153,17 +153,17 @@ export default function wrapGeo({
       container: imageContainer,
       fadeInElement: imageContainer,
       onRender: () => {
-        if(_wrapTempId !== wrapTempId) return;
+        if (_wrapTempId !== wrapTempId) return;
         container.append(imageContainer);
       },
       onRenderFinish: () => {
-        if(_wrapTempId !== wrapTempId) return;
+        if (_wrapTempId !== wrapTempId) return;
         container.classList.remove('shimmer');
         svgPlaceholder!.remove();
         oldImageContainer?.remove();
       },
       loadPromises,
-      ...newWrapOptions
+      ...newWrapOptions,
     });
   };
 
@@ -183,11 +183,11 @@ export default function wrapGeo({
     mediaRequiresMessageDiv: undefined,
     isVenue,
     isLive,
-    isLiveExpired
+    isLiveExpired,
   };
 
   let footer: HTMLElement, title: HTMLElement, address: HTMLElement;
-  if(isVenue || (isLive && !isLiveExpired)) {
+  if (isVenue || (isLive && !isLiveExpired)) {
     footer = document.createElement('div');
     footer.classList.add('geo-footer');
 
@@ -206,15 +206,15 @@ export default function wrapGeo({
     ret.canHaveTail = false;
   }
 
-  if(isLive) {
+  if (isLive) {
     container.classList.add('is-live');
     container.classList.toggle('is-expired', isLiveExpired);
   }
 
-  if(isVenue) {
+  if (isVenue) {
     title!.append(wrapEmojiText((messageMedia).title));
     address!.append(wrapEmojiText((messageMedia).address));
-  } else if(isLive && !isLiveExpired) {
+  } else if (isLive && !isLiveExpired) {
     title!.classList.add('disable-hover');
     address!.classList.add('disable-hover');
     footer!.classList.add('is-live');
@@ -247,21 +247,21 @@ export default function wrapGeo({
     let lastData: GeoLiveUpdate = {
       messageMedia: messageMedia,
       date,
-      editDate
+      editDate,
     };
     let cleaned = false;
     const update = (data: GeoLiveUpdate = lastData, isExpired?: boolean) => {
-      if(cleaned) {
+      if (cleaned) {
         return;
       }
 
-      const {messageMedia: newMedia, date: newDate, editDate: newEditDate} = data;
-      const {period} = newMedia;
+      const { messageMedia: newMedia, date: newDate, editDate: newEditDate } = data;
+      const { period } = newMedia;
       const newGeo = newMedia.geo as GeoPoint.geoPoint;
       liveExpiration = isExpired ? 0 : (newDate + period) * 1000;
 
-      if(lastData !== data) {
-        if(geo.lat !== newGeo.lat || geo.long !== newGeo.long) {
+      if (lastData !== data) {
+        if (geo.lat !== newGeo.lat || geo.long !== newGeo.long) {
           setAnchorURL(newGeo);
           wrapGeo(newMedia);
         }
@@ -269,7 +269,7 @@ export default function wrapGeo({
         lastData = data;
       }
 
-      if(Date.now() >= liveExpiration) {
+      if (Date.now() >= liveExpiration) {
         container.classList.add('is-expired');
         onLiveExpire?.(footer);
         clean();
@@ -278,13 +278,13 @@ export default function wrapGeo({
 
       container.style.setProperty('--heading', `${newMedia.heading}deg`);
 
-      if(newGeo.accuracy_radius !== undefined) {
+      if (newGeo.accuracy_radius !== undefined) {
         const accuracyRadiusPx = newGeo.accuracy_radius / getMetersPerPixel(newGeo.lat, zoom);
         container.style.setProperty('--accuracy-size', `${accuracyRadiusPx * 2}px`);
       }
 
       let langPackKey: LangPackKey, langPackArgs: FormatterArguments;
-      if((tsNow(true) - (newEditDate ?? newDate)) < 60) {
+      if ((tsNow(true) - (newEditDate ?? newDate)) < 60) {
         langPackKey = 'LocationUpdatedJustNow';
       } else {
         langPackKey = 'UpdatedMinutes';
@@ -297,12 +297,12 @@ export default function wrapGeo({
 
       updatedI18n.compareAndUpdate({
         key: langPackKey,
-        args: langPackArgs!
+        args: langPackArgs!,
       });
 
       timerTextI18n.compareAndUpdate({
         key: timeLeft < 3600 ? 'JustArgument' : 'MessageTimer.ShortHours',
-        args: [Math.round(timeLeft < 3600 ? timeLeft / 60 : timeLeft / 3600)]
+        args: [Math.round(timeLeft < 3600 ? timeLeft / 60 : timeLeft / 3600)],
       });
     };
 

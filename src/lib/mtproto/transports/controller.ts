@@ -2,7 +2,7 @@ import App from '@config/app';
 import deferredPromise from '@helpers/cancellablePromise';
 import EventListenerBase from '@helpers/eventListenerBase';
 import pause from '@helpers/schedulers/pause';
-import {TransportType, DcConfigurator} from '@lib/mtproto/dcConfigurator';
+import { TransportType, DcConfigurator } from '@lib/mtproto/dcConfigurator';
 import type HTTP from '@lib/mtproto/transports/http';
 import type TcpObfuscated from '@lib/mtproto/transports/tcpObfuscated';
 import MTTransport from '@lib/mtproto/transports/transport';
@@ -25,7 +25,7 @@ export class MTTransportController extends EventListenerBase<{
     }); */
 
     this.addEventListener('change', (opened) => {
-      if(!opened.get('websocket')) {
+      if (!opened.get('websocket')) {
         this.waitForWebSocket();
       }
     });
@@ -40,25 +40,25 @@ export class MTTransportController extends EventListenerBase<{
     const timeout = 2000;
     const transports: {[k in TransportType]?: MTTransport} = this.transports = {
       https: dcConfigurator.chooseServer(App.baseDcId, 'client', 'https', false)!,
-      websocket: dcConfigurator.chooseServer(App.baseDcId, 'client', 'websocket', false)!
+      websocket: dcConfigurator.chooseServer(App.baseDcId, 'client', 'websocket', false)!,
     };
 
     const httpPromise = deferredPromise<boolean>();
     ((this.transports.https as HTTP)._send(new Uint8Array(), 'no-cors') as any as Promise<any>)
-    .then(() => httpPromise.resolve(true), () => httpPromise.resolve(false));
+      .then(() => httpPromise.resolve(true), () => httpPromise.resolve(false));
     setTimeout(() => httpPromise.resolve(false), timeout);
 
     const websocketPromise = deferredPromise<boolean>();
     const socket = transports.websocket as TcpObfuscated;
     socket.setAutoReconnect(false);
-    socket.connection!.addEventListener('close', () => websocketPromise.resolve(false), {once: true});
-    socket.connection!.addEventListener('open', () => websocketPromise.resolve(true), {once: true});
+    socket.connection!.addEventListener('close', () => websocketPromise.resolve(false), { once: true });
+    socket.connection!.addEventListener('open', () => websocketPromise.resolve(true), { once: true });
     setTimeout(() => {
-      if(websocketPromise.isFulfilled || websocketPromise.isRejected) {
+      if (websocketPromise.isFulfilled || websocketPromise.isRejected) {
         return;
       }
 
-      if(socket.connection) {
+      if (socket.connection) {
         socket.connection.close();
       }
 
@@ -67,14 +67,14 @@ export class MTTransportController extends EventListenerBase<{
 
     const [isHttpAvailable, isWebSocketAvailable] = await Promise.all([httpPromise, websocketPromise]);
 
-    for(const transportType in transports) {
+    for (const transportType in transports) {
       const transport = transports[transportType as TransportType];
       transport!.destroy();
     }
 
     const result = {
       https: isHttpAvailable || this.opened.get('https')! > 0,
-      websocket: isWebSocketAvailable || this.opened.get('websocket')! > 0
+      websocket: isWebSocketAvailable || this.opened.get('websocket')! > 0,
     };
 
     // result.websocket = false;
@@ -82,16 +82,16 @@ export class MTTransportController extends EventListenerBase<{
   }
 
   public async waitForWebSocket() {
-    if(this.pinging) return;
+    if (this.pinging) return;
     this.pinging = true;
 
-    while(true) {
-      const {https, websocket} = await this.pingTransports();
-      if(https || websocket) {
+    while (true) {
+      const { https, websocket } = await this.pingTransports();
+      if (https || websocket) {
         this.dispatchEvent('transport', websocket || !https ? 'websocket' : 'https');
       }
 
-      if(websocket) {
+      if (websocket) {
         break;
       }
 

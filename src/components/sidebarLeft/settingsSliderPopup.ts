@@ -1,7 +1,7 @@
 import pause from '@helpers/schedulers/pause';
-import {AppManagers} from '@lib/managers';
+import { AppManagers } from '@lib/managers';
 import PopupElement from '@components/popups';
-import SidebarSlider, {SidebarSliderOptions} from '@components/slider';
+import SidebarSlider, { SidebarSliderOptions } from '@components/slider';
 
 class SettingsSlider extends SidebarSlider {
   constructor(options: SidebarSliderOptions & {managers: AppManagers}) {
@@ -17,7 +17,7 @@ export default class SettingsSliderPopup extends PopupElement {
     super('settings-slider-popup', {
       overlayClosable: true,
       body: true,
-      title: false
+      title: false,
     });
 
     this.middlewareHelper.onDestroy(() => {
@@ -38,11 +38,11 @@ export default class SettingsSliderPopup extends PopupElement {
     this.slider = new SettingsSlider({
       navigationType: 'settings-popup',
       sidebarEl: element,
-      managers
+      managers,
     });
 
     this.slider.onTabsCountChange = () => {
-      if(this.slider.hasTabsInNavigation()) return;
+      if (this.slider.hasTabsInNavigation()) return;
       this.hide();
     };
 

@@ -1,11 +1,11 @@
-import {JSX, Show} from 'solid-js';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {ExportedChatInvite} from '@layer';
-import {i18n} from '@lib/langPack';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {limitPeerTitleSymbols} from '@components/sidebarRight/tabs/adminRecentActions/constants';
+import { JSX, Show } from 'solid-js';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { ExportedChatInvite } from '@layer';
+import { i18n } from '@lib/langPack';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { limitPeerTitleSymbols } from '@components/sidebarRight/tabs/adminRecentActions/constants';
 import styles from '@components/sidebarRight/tabs/adminRecentActions/keyValuePair.module.scss';
-import {useParticipantClickHandler} from '@components/sidebarRight/tabs/adminRecentActions/utils';
+import { useParticipantClickHandler } from '@components/sidebarRight/tabs/adminRecentActions/utils';
 
 
 export const KeyValuePair = (props: {
@@ -20,7 +20,7 @@ export const KeyValuePair = (props: {
       class={styles.Container}
       classList={{
         'interactable': props.interactable || !!props.onClick,
-        [styles.hoverable]: !!props.onClick
+        [styles.hoverable]: !!props.onClick,
       }}
       onClick={props.onClick}
     >
@@ -59,7 +59,7 @@ export const ParticipantKeyValue = (props: {
   label?: JSX.Element;
   peerId: PeerId;
 }) => {
-  const {PeerTitleTsx} = useHotReloadGuard();
+  const { PeerTitleTsx } = useHotReloadGuard();
 
   return (
     <Show when={props.peerId}>

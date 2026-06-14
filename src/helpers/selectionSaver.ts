@@ -5,12 +5,12 @@ export default class SelectionSaver {
   private range: Range;
 
   public save(input = document.activeElement as HTMLElement) {
-    if(input.isContentEditable || input.tagName === 'INPUT') {
+    if (input.isContentEditable || input.tagName === 'INPUT') {
       this.input = input;
     }
 
     const selection = document.getSelection();
-    if(!selection!.rangeCount) {
+    if (!selection!.rangeCount) {
       return;
     }
 
@@ -18,7 +18,7 @@ export default class SelectionSaver {
   }
 
   public restore(focus?: boolean) {
-    if(!this.range) {
+    if (!this.range) {
       cancelSelection();
       return;
     }

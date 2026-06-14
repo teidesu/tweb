@@ -1,10 +1,10 @@
 import rootScope from '@lib/rootScope';
-import {LangPackKey} from '@lib/langPack';
-import {toastNew} from '@components/toast';
+import { LangPackKey } from '@lib/langPack';
+import { toastNew } from '@components/toast';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
 import appImManager from '@lib/appImManager';
-import PaidMessagesInterceptor, {PAYMENT_REJECTED} from '@components/chat/paidMessagesInterceptor';
-import {showSharingPickerPopup} from '@components/popups/pickUser';
+import PaidMessagesInterceptor, { PAYMENT_REJECTED } from '@components/chat/paidMessagesInterceptor';
+import { showSharingPickerPopup } from '@components/popups/pickUser';
 
 // Shared "send a URL via the standard sharing picker" helper. Subsumes the
 // near-identical onSelect handlers in giftLink.tsx, appMediaViewerRtmp.ts
@@ -40,49 +40,49 @@ export default function shareUrlToPeers(options: ShareUrlOptions): void {
     multiSelect: options.multiSelect,
     onSelect: async(chosen) => {
       let sent = 0;
-      for(const {peerId, threadId, monoforumThreadId} of chosen) {
+      for (const { peerId, threadId, monoforumThreadId } of chosen) {
         const preparedPayment = await PaidMessagesInterceptor.prepareStarsForPayment({
           messageCount: 1,
-          peerId
+          peerId,
         });
-        if(preparedPayment === PAYMENT_REJECTED) continue;
+        if (preparedPayment === PAYMENT_REJECTED) continue;
 
         rootScope.managers.appMessagesManager.sendText({
           peerId,
           threadId,
           text: options.url,
           replyToMonoforumPeerId: monoforumThreadId,
-          confirmedPaymentResult: preparedPayment
+          confirmedPaymentResult: preparedPayment,
         });
 
         ++sent;
       }
 
-      if(!sent) return;
+      if (!sent) return;
 
       const isMulti = chosen.length > 1;
       const single = chosen[0];
 
-      if(!isMulti && options.openAfter) {
-        appImManager.setInnerPeer({peerId: single.peerId});
+      if (!isMulti && options.openAfter) {
+        appImManager.setInnerPeer({ peerId: single.peerId });
         return;
       }
 
-      if(isMulti) {
+      if (isMulti) {
         const key = options.toastKeyForMany || options.toastKey;
-        if(key) {
-          toastNew({langPackKey: key, langPackArguments: [sent]});
+        if (key) {
+          toastNew({ langPackKey: key, langPackArguments: [sent] });
         }
-      } else if(options.toastKey || options.toastKeyForSelf) {
+      } else if (options.toastKey || options.toastKeyForSelf) {
         const isSelf = single.peerId === rootScope.myId;
         const key = isSelf ? (options.toastKeyForSelf || options.toastKey) : options.toastKey;
-        if(key) {
+        if (key) {
           toastNew({
             langPackKey: key,
-            langPackArguments: [await wrapPeerTitle({peerId: single.peerId})]
+            langPackArguments: [await wrapPeerTitle({ peerId: single.peerId })],
           });
         }
       }
-    }
+    },
   });
 }

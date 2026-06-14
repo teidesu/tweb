@@ -1,5 +1,5 @@
-import {drawRoundedRect, drawRoundedRect2} from '@lib/tchart/utils';
-import {TChartAnimationProperty, TChartUnitOptions} from '@lib/tchart/types';
+import { drawRoundedRect, drawRoundedRect2 } from '@lib/tchart/utils';
+import { TChartAnimationProperty, TChartUnitOptions } from '@lib/tchart/types';
 
 export default class TComposer {
   private opts: TChartUnitOptions;
@@ -22,7 +22,7 @@ export default class TComposer {
     const dims = this.opts.state!.dims!.composer;
     this.$canvas.width = dims.w * dpi;
     this.$canvas.height = dims.h * dpi;
-    this.render({top: true, bottom: true});
+    this.render({ top: true, bottom: true });
   }
 
   setDarkMode(enabled: boolean) {
@@ -32,7 +32,7 @@ export default class TComposer {
   }
 
   render(groups: TChartAnimationProperty['group']) {
-    if(this.deviceSpeed === undefined) {
+    if (this.deviceSpeed === undefined) {
       const t1 = performance.now();
       const prevX = this.opts.state!.x1;
       this.opts.state!.x1 = this.opts.state!.xMainMin;
@@ -56,20 +56,20 @@ export default class TComposer {
     const pieChartAnimating = this.opts.graphStyle === 'area' && state!.zoomMode && zoomMorph < 1;
     const pieChartAnimated = this.opts.graphStyle === 'area' && state!.zoomMode && zoomMorph === 1;
 
-    if(this.opts.data!.master) {
+    if (this.opts.data!.master) {
       this.$canvas.style.opacity = '' + state!.masterVisibility;
     }
 
-    if(this.opts.data!.slave) {
+    if (this.opts.data!.slave) {
       this.$canvas.style.opacity = '' + state!.slaveVisibility;
       this.opts.chart!.$el.style.visibility = state!.slaveVisibility > 0 ? 'visible' : 'hidden';
     }
 
-    if(groups.top) {
+    if (groups.top) {
       ctx.clearRect(dims!.dates.l * dpi, dims!.dates.t * dpi, dims!.dates.w * dpi, dims!.dates.h * dpi);
 
-      if(this.opts.graphStyle === 'line' || this.opts.graphStyle === 'step' || (this.opts.graphStyle === 'area' && zoomMorph > 0) || (this.opts.data!.slave && state!.slaveVisibility < 1) || (this.opts.data!.master && state!.masterVisibility < 1)) {
-        if(pieChartAnimated) {
+      if (this.opts.graphStyle === 'line' || this.opts.graphStyle === 'step' || (this.opts.graphStyle === 'area' && zoomMorph > 0) || (this.opts.data!.slave && state!.slaveVisibility < 1) || (this.opts.data!.master && state!.masterVisibility < 1)) {
+        if (pieChartAnimated) {
           // for pie chart, need a little bit more region to clear, cause of outboard labels
           ctx.clearRect(dims!.graph.l * dpi, (dims!.graph.t - 18) * dpi, dims!.graph.w * dpi, (dims!.graph.h + 30) * dpi);
         } else {
@@ -78,28 +78,28 @@ export default class TComposer {
       }
 
       // hack, clear only edges
-      if((this.opts.graphStyle === 'area' && zoomMorph === 0) || (this.opts.graphStyle === 'bar')) {
+      if ((this.opts.graphStyle === 'area' && zoomMorph === 0) || (this.opts.graphStyle === 'bar')) {
         ctx.clearRect(dims!.graph.l * dpi, dims!.graph.t * dpi, dims!.graph.w * dpi, (settings!.PADD[0] + 4) * dpi);
         ctx.clearRect(dims!.graph.l * dpi, (dims!.graph.t + padd[0]) * dpi, padd[3] * dpi, (dims!.graph.h - padd[0] - padd[2]) * dpi);
         ctx.clearRect(dims!.graph.l * dpi, (dims!.graph.t + dims!.graph.h - padd[2]) * dpi, dims!.graph.w * dpi, (padd[2]) * dpi);
         ctx.clearRect((dims!.graph.l + dims!.graph.w - padd[1] - 1) * dpi, (dims!.graph.t + padd[0]) * dpi, (padd[1] + 1) * dpi, (dims!.graph.h - padd[0] - padd[2]) * dpi);
       }
 
-      if(!pieChartAnimating && !pieChartAnimated) {
+      if (!pieChartAnimating && !pieChartAnimated) {
         ctx.save();
         ctx.beginPath();
         ctx.rect(dims!.graph.l * dpi, dims!.graph.t * dpi, dims!.graph.w * dpi, dims!.graph.h * dpi);
         ctx.clip();
       }
 
-      if(this.opts.data!.master && state!.masterVisibility < 1) {
+      if (this.opts.data!.master && state!.masterVisibility < 1) {
         ctx.save();
         const scale = (1 - state!.masterVisibility) * 5 + 1;
         ctx.translate(dims!.graph.w * state!.zoomSpecialOrigin! * (1 - scale), 0);
         ctx.scale(scale, 1);
       }
 
-      if(this.opts.data!.slave && state!.slaveVisibility < 1) {
+      if (this.opts.data!.slave && state!.slaveVisibility < 1) {
         ctx.save();
         const scale = state!.slaveVisibility;
         ctx.translate(dims!.graph.w * state!.zoomSpecialOrigin! * (1 - scale), 0);
@@ -107,11 +107,11 @@ export default class TComposer {
       }
 
       let opacity = 1;
-      if(this.opts.graphStyle === 'area' && state!.zoomMode) {
+      if (this.opts.graphStyle === 'area' && state!.zoomMode) {
         opacity = 1 - zoomMorph;
       }
 
-      if(pieChartAnimating) {
+      if (pieChartAnimating) {
         ctx.save();
         const r = settings!.PIE_RADIUS;
         const cw = dims!.graph.w + zoomMorph * (r * 2 - dims!.graph.w);
@@ -132,43 +132,43 @@ export default class TComposer {
 
       this.opts.chart!.graph.render();
 
-      if(pieChartAnimating) {
+      if (pieChartAnimating) {
         ctx.restore();
       }
 
-      if(this.opts.data!.master && state!.masterVisibility < 1) {
+      if (this.opts.data!.master && state!.masterVisibility < 1) {
         ctx.restore();
       }
 
-      if(this.opts.data!.slave && state!.slaveVisibility < 1) {
+      if (this.opts.data!.slave && state!.slaveVisibility < 1) {
         ctx.restore();
       }
 
       this.opts.chart!.axisY.render(opacity);
       this.opts.chart!.fade.render();
 
-      if(!pieChartAnimating && !pieChartAnimated) {
+      if (!pieChartAnimating && !pieChartAnimated) {
         ctx.restore();
       }
 
       this.opts.chart!.axisX.render(opacity);
     }
 
-    if(groups.bottom) {
+    if (groups.bottom) {
       ctx.clearRect((dims!.graph.l) * dpi, (dims!.handle.t - 1) * dpi, (dims!.graph.w) * dpi, (dims!.handle.h + 2) * dpi);
 
       let subchartShown = this.opts.data!.subchart!.show;
       const isNotSpecialAndChangedSubchart = !this.opts.data!.master && !this.opts.data!.slave && this.opts.data!.details && this.opts.data!.subchart!.show !== this.opts.data!.details.subchart!.show;
 
-      if(isNotSpecialAndChangedSubchart) {
-        if(subchartShown) {
+      if (isNotSpecialAndChangedSubchart) {
+        if (subchartShown) {
           subchartShown = zoomMorph < 1;
         } else {
           subchartShown = zoomMorph > 0;
         }
       }
 
-      if(subchartShown) {
+      if (subchartShown) {
         ctx.save();
         drawRoundedRect(ctx, dpi, dims!.mini.w, dims!.mini.h, dims!.mini.l, dims!.mini.t, 7);
         ctx.clip();
@@ -177,8 +177,8 @@ export default class TComposer {
         this.opts.chart!.handle.render();
       }
 
-      if(isNotSpecialAndChangedSubchart) {
-        if(zoomMorph > 0 && zoomMorph < 1) {
+      if (isNotSpecialAndChangedSubchart) {
+        if (zoomMorph > 0 && zoomMorph < 1) {
           ctx.fillStyle = this.opts.settings!.COLORS.background;
           ctx.globalAlpha = this.opts.data!.subchart!.show ? zoomMorph : 1 - zoomMorph;
           ctx.fillRect((dims!.graph.l) * dpi, (dims!.handle.t - 1) * dpi, (dims!.graph.w) * dpi, (dims!.handle.h + 2) * dpi);

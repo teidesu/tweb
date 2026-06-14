@@ -1,11 +1,11 @@
-import {createContext, useContext, ParentProps} from 'solid-js';
+import { createContext, useContext, ParentProps } from 'solid-js';
 
 type PromiseCollectorContextValue = {
   collect: (promise: Promise<any>) => void;
 };
 
 const PromiseCollectorContext = createContext<PromiseCollectorContextValue>({
-  collect: () => {}
+  collect: () => {},
 });
 
 type PromiseCollectorProps = {
@@ -14,7 +14,7 @@ type PromiseCollectorProps = {
 
 export const PromiseCollector = (props: ParentProps<PromiseCollectorProps>) => {
   return (
-    <PromiseCollectorContext.Provider value={{collect: props.onCollect}}>
+    <PromiseCollectorContext.Provider value={{ collect: props.onCollect }}>
       {props.children}
     </PromiseCollectorContext.Provider>
   );
@@ -32,7 +32,7 @@ PromiseCollector.createHelper = () => {
     await: () => {
       collectPromise = () => {}; // lose reference to the promises array
       return Promise.all(promises);
-    }
+    },
   };
 };
 

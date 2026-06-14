@@ -1,8 +1,8 @@
-import type {Accessor} from 'solid-js';
-import type {ConfirmationPopupRejectReason} from '@components/confirmationPopup';
-import type {PopupPeerOptions} from '@components/popups/peer';
-import type {LangPackKey} from '@lib/langPack';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import type { Accessor } from 'solid-js';
+import type { ConfirmationPopupRejectReason } from '@components/confirmationPopup';
+import type { PopupPeerOptions } from '@components/popups/peer';
+import type { LangPackKey } from '@lib/langPack';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 
 
 type UseIsConfirmationNeededOnCloseArgs = {
@@ -11,14 +11,14 @@ type UseIsConfirmationNeededOnCloseArgs = {
   saveAllSettings: () => Promise<void>;
 };
 
-const useIsConfirmationNeededOnClose = ({descriptionLangKey, hasChanges, saveAllSettings}: UseIsConfirmationNeededOnCloseArgs) => {
-  const {confirmationPopup} = useHotReloadGuard();
+const useIsConfirmationNeededOnClose = ({ descriptionLangKey, hasChanges, saveAllSettings }: UseIsConfirmationNeededOnCloseArgs) => {
+  const { confirmationPopup } = useHotReloadGuard();
 
   return async() => {
-    if(!hasChanges()) return;
+    if (!hasChanges()) return;
 
     const saveButton: NonNullable<PopupPeerOptions['buttons']>[number] = {
-      langKey: 'Save'
+      langKey: 'Save',
     };
 
     try {
@@ -28,17 +28,17 @@ const useIsConfirmationNeededOnClose = ({descriptionLangKey, hasChanges, saveAll
         button: saveButton,
         buttons: [
           saveButton,
-          {isCancel: true, langKey: 'Discard'}
+          { isCancel: true, langKey: 'Discard' },
         ],
-        rejectWithReason: true
+        rejectWithReason: true,
       });
       saveAllSettings();
 
       return true;
-    } catch(_reason: any) {
+    } catch (_reason: any) {
       const reason: ConfirmationPopupRejectReason = _reason;
 
-      if(reason === 'closed') throw new Error();
+      if (reason === 'closed') throw new Error();
     }
   };
 };

@@ -1,15 +1,15 @@
 import '@components/rtmp/adminStreamPopup.scss';
 
-import {createSignal, onMount} from 'solid-js';
-import {RtmpData} from '@components/rtmp/rtmpData';
+import { createSignal, onMount } from 'solid-js';
+import { RtmpData } from '@components/rtmp/rtmpData';
 import rootScope from '@lib/rootScope';
-import {toastNew} from '@components/toast';
-import {i18n} from '@lib/langPack';
+import { toastNew } from '@components/toast';
+import { i18n } from '@lib/langPack';
 import pause from '@helpers/schedulers/pause';
 
 const cnPlayer = (className = '') => `rtmp-player${className}`;
 
-export const AdminStreamPopup = ({peerId}: {peerId: PeerId}) => {
+export const AdminStreamPopup = ({ peerId }: {peerId: PeerId}) => {
   const [rtmpUrl, setRtmpUrl] = createSignal('');
   const [rtmpKey, setRtmpKey] = createSignal('');
   const [rtmpDataLoading, setRtmpDataLoading] = createSignal(true);
@@ -21,7 +21,7 @@ export const AdminStreamPopup = ({peerId}: {peerId: PeerId}) => {
       setRtmpDataLoading(false);
     }).catch(() => {
       toastNew({
-        langPackKey: 'Error.AnError'
+        langPackKey: 'Error.AnError',
       });
     });
   });

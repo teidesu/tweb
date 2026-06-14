@@ -17,10 +17,10 @@ export function silence(audioContext: AudioContext) {
   return new MediaStream([track]);
 }
 
-export function black({width, height}: {width: number, height: number}) {
+export function black({ width, height }: {width: number, height: number}) {
   // createCanvasStream (tweb's helper) already paints the canvas black via the
   // default fillStyle; we only need to disable the track for a placeholder.
-  const stream = createCanvasStream({width, height});
+  const stream = createCanvasStream({ width, height });
   stream.getVideoTracks()[0].enabled = false;
   return stream;
 }

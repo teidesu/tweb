@@ -1,6 +1,6 @@
-import type {ThreadedWorkerEvents} from '@lib/mainWorker/mainMessagePort';
+import type { ThreadedWorkerEvents } from '@lib/mainWorker/mainMessagePort';
 import SuperMessagePort from '@lib/superMessagePort';
-import {MOUNT_CLASS_TO} from '@config/debug';
+import { MOUNT_CLASS_TO } from '@config/debug';
 
 type CommonPayload = {reqId: number};
 export type RLottieWorkerMethods = {
@@ -43,7 +43,7 @@ export class RLottieMessagePort<Master extends boolean = true> extends SuperMess
 
   public terminateAll() {
     const ports = this.sendPorts.slice();
-    for(const port of ports) {
+    for (const port of ports) {
       // @ts-ignore
       this.invokeVoid('terminate', undefined, port);
       this.detachPort(port as any);

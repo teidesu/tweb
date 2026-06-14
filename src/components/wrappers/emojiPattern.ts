@@ -1,9 +1,9 @@
 import customProperties from '@helpers/dom/customProperties';
-import {Middleware} from '@helpers/middleware';
+import { Middleware } from '@helpers/middleware';
 import noop from '@helpers/noop';
 import pause from '@helpers/schedulers/pause';
-import {MyDocument} from '@appManagers/appDocsManager';
-import {applyColorOnContext} from '@lib/rlottie/rlottiePlayer';
+import { MyDocument } from '@appManagers/appDocsManager';
+import { applyColorOnContext } from '@lib/rlottie/rlottiePlayer';
 import rootScope from '@lib/rootScope';
 import wrapSticker from '@components/wrappers/sticker';
 
@@ -18,7 +18,7 @@ export default async function wrapEmojiPattern({
   canvasWidth,
   canvasHeight,
   emojiSize,
-  onCacheStatus: onCacheStatus
+  onCacheStatus: onCacheStatus,
 }: {
   docId: DocId | MyDocument,
   middleware: Middleware,
@@ -33,11 +33,11 @@ export default async function wrapEmojiPattern({
   onCacheStatus?: (cached: boolean) => void
 }) {
   let doc: MyDocument;
-  if(typeof docId  === 'object') {
+  if (typeof docId  === 'object') {
     doc = docId;
   } else {
     const result = await rootScope.managers.acknowledged.appEmojiManager.getCustomEmojiDocument(docId);
-    if(!result.cached) onCacheStatus?.(false);
+    if (!result.cached) onCacheStatus?.(false);
     doc = await result.result;
   }
 
@@ -52,13 +52,13 @@ export default async function wrapEmojiPattern({
     static: true,
     withThumb: false,
     exportLoad: 2,
-    useCache: false
-  }).then(({load, downloaded}) => {
+    useCache: false,
+  }).then(({ load, downloaded }) => {
     onCacheStatus?.((downloaded as boolean));
     return load();
   }).then((result) => {
     const image = (result as HTMLImageElement[])[0];
-    if(!image.naturalWidth) {
+    if (!image.naturalWidth) {
       console.warn('should wait for image size', image);
       return pause(100).then(() => image);
     }
@@ -78,14 +78,14 @@ export default async function wrapEmojiPattern({
     });
     ctx!.globalAlpha = 1;
 
-    if(useHighlightingColor) {
+    if (useHighlightingColor) {
       color = '#ffffff';
-    } else if(colorAsOut) {
+    } else if (colorAsOut) {
       color = customProperties.getProperty('message-out-primary-color');
     }
 
     applyColorOnContext(ctx!, color!, 0, 0, canvas.width, canvas.height);
-    if(container) container.prepend(canvas);
+    if (container) container.prepend(canvas);
     return canvas;
   }).catch(noop) as Promise<HTMLCanvasElement>;
 }

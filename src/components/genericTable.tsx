@@ -1,5 +1,5 @@
-import {For, JSX, Show} from 'solid-js';
-import {Dynamic} from 'solid-js/web';
+import { For, JSX, Show } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 import classNames from '@helpers/string/classNames';
 import styles from '@components/genericTable.module.scss';
 

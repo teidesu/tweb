@@ -1,20 +1,20 @@
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import AppSelectPeers, {SelectSearchPeerType} from '@components/appSelectPeers';
-import PopupElement, {createPopup, PopupContext, PopupContextValue} from '@components/popups/indexTsx';
-import {LangPackKey, i18n} from '@lib/langPack';
-import {Modify} from '@types';
-import {IsPeerType} from '@appManagers/appPeersManager';
+import AppSelectPeers, { SelectSearchPeerType } from '@components/appSelectPeers';
+import PopupElement, { createPopup, PopupContext, PopupContextValue } from '@components/popups/indexTsx';
+import { LangPackKey, i18n } from '@lib/langPack';
+import { Modify } from '@types';
+import { IsPeerType } from '@appManagers/appPeersManager';
 import TransitionSlider from '@components/transition';
-import appNavigationController, {NavigationItem} from '@components/appNavigationController';
-import {ForumTopic} from '@layer';
+import appNavigationController, { NavigationItem } from '@components/appNavigationController';
+import { ForumTopic } from '@layer';
 import Row from '@components/row';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import {avatarNew} from '@components/avatarNew';
-import {makeMediaSize} from '@helpers/mediaSize';
+import { avatarNew } from '@components/avatarNew';
+import { makeMediaSize } from '@helpers/mediaSize';
 import getDialogIndex from '@appManagers/utils/dialogs/getDialogIndex';
-import {Middleware} from '@helpers/middleware';
+import { Middleware } from '@helpers/middleware';
 import deferredPromise from '@helpers/cancellablePromise';
-import {MOUNT_CLASS_TO} from '@config/debug';
+import { MOUNT_CLASS_TO } from '@config/debug';
 import findUpAttribute from '@helpers/dom/findUpAttribute';
 import cancelEvent from '@helpers/dom/cancelEvent';
 import rootScope from '@lib/rootScope';
@@ -22,19 +22,19 @@ import apiManagerProxy from '@lib/apiManagerProxy';
 import createTopPeersList from '@components/topPeersList';
 import findAndSplice from '@helpers/array/findAndSplice';
 import FoldersTabs from '@components/foldersTabs';
-import {observeResize} from '@components/resizeObserver';
-import {render} from 'solid-js/web';
-import {selectTarget} from '@components/horizontalMenu';
-import {ScrollableContextValue} from '@components/scrollable2';
+import { observeResize } from '@components/resizeObserver';
+import { render } from 'solid-js/web';
+import { selectTarget } from '@components/horizontalMenu';
+import { ScrollableContextValue } from '@components/scrollable2';
 import whichChild from '@helpers/dom/whichChild';
 import showLimitPopup from '@components/popups/limit';
 import type DialogsStorage from '@lib/storages/dialogs';
 import type MonoforumDialogsStorage from '@lib/storages/monoforumDialogs';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
-import {Accessor, createSignal, JSX, Show, untrack, useContext} from 'solid-js';
+import { Accessor, createSignal, JSX, Show, untrack, useContext } from 'solid-js';
 import fastSmoothScroll from '@helpers/fastSmoothScroll';
-import {AppManagers} from '@lib/managers';
-import {REAL_FOLDERS} from '@lib/appManagers/constants';
+import { AppManagers } from '@lib/managers';
+import { REAL_FOLDERS } from '@lib/appManagers/constants';
 
 type PopupPickUserSelectedItem = {
   peerId: PeerId,
@@ -64,7 +64,7 @@ export type PopupPickUserOptions = Modify<ConstructorParameters<typeof AppSelect
 async function wrapTopicRow({
   peerId,
   threadId,
-  middleware
+  middleware,
 }: {
   peerId: PeerId,
   threadId: number,
@@ -72,13 +72,13 @@ async function wrapTopicRow({
 }) {
   const size = makeMediaSize(32, 32);
   const row = new Row({
-    title: threadId ? await wrapPeerTitle({peerId, threadId}) : i18n('AllMessages'),
-    clickable: true
+    title: threadId ? await wrapPeerTitle({ peerId, threadId }) : i18n('AllMessages'),
+    clickable: true,
   });
   row.container.dataset.peerId = [peerId, threadId].filter(Boolean).join('_');
   row.container.classList.add('selector-forum-topic');
   const media = row.createMedia('abitbigger');
-  if(threadId) {
+  if (threadId) {
     const avatar = avatarNew({
       peerId,
       threadId,
@@ -87,8 +87,8 @@ async function wrapTopicRow({
       wrapOptions: {
         middleware,
         textColor: 'primary-text-color',
-        customEmojiSize: size
-      }
+        customEmojiSize: size,
+      },
     });
     await avatar.readyThumbPromise;
     media.append(avatar.node);
@@ -102,7 +102,7 @@ async function wrapTopicRow({
 
 export default function showPickUserPopup(options: PopupPickUserOptions) {
   let multiSelect: AppSelectPeers['multiSelect'];
-  if(typeof(options.multiSelect) === 'boolean') {
+  if (typeof(options.multiSelect) === 'boolean') {
     multiSelect = options.multiSelect ? 'enabled' : 'disabled';
   } else {
     multiSelect = options.multiSelect!;
@@ -133,19 +133,19 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
 
   let busy = false;
   const finalize = async() => {
-    if(busy) {
+    if (busy) {
       return;
     }
 
     busy = true;
     try {
       const res = _onSelect!(selected);
-      if(res instanceof Promise) {
+      if (res instanceof Promise) {
         await res;
       }
 
       busy = false;
-    } catch(err) {
+    } catch (err) {
       busy = false;
       throw err;
     }
@@ -166,13 +166,13 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
       peerId,
       threadId: isMonoforum ? undefined : threadId,
       monoforumThreadId: isMonoforum ? threadId : undefined,
-      key
+      key,
     };
 
-    if(adding) selected.push(item);
+    if (adding) selected.push(item);
     else findAndSplice(selected, (item) => item.key === key);
 
-    if((sel.multiSelect === 'enabled' && selected.length) || !selected.length) {
+    if ((sel.multiSelect === 'enabled' && selected.length) || !selected.length) {
       return;
     }
 
@@ -180,7 +180,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
   };
 
   const onBackClick = () => {
-    if(forumSelector) {
+    if (forumSelector) {
       const selected = forumSelector.getSelected();
       selector!.removeBatch(selector!.getSelected(), false);
       selector!.setMultiSelectMode(forumSelector.multiSelect);
@@ -188,7 +188,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
     }
 
     transition?.(selector!.container);
-    if(forumNavigationItem) {
+    if (forumNavigationItem) {
       appNavigationController.removeItem(forumNavigationItem);
       forumNavigationItem = undefined;
     }
@@ -198,7 +198,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
   const createForumSelector = async({
     peerId,
     placeholder,
-    isMonoforum: _isMonoforum
+    isMonoforum: _isMonoforum,
   }: {
     peerId: PeerId,
     placeholder: LangPackKey,
@@ -220,21 +220,21 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
       placeholder,
       peerType: ['custom'],
       onChange: (length, changes) => {
-        changes.forEach(({key, add}) => onSingleSelect(fs, key, add));
+        changes.forEach(({ key, add }) => onSingleSelect(fs, key, add));
       },
       getMoreCustom: (async(q: string, middleware: () => boolean) => {
-        if(lastQuery !== q) {
+        if (lastQuery !== q) {
           offsetIndex = undefined;
           lastQuery = q;
         }
 
         const limit = 20;
         let result: Awaited<ReturnType<DialogsStorage['getDialogs']> | ReturnType<MonoforumDialogsStorage['getDialogs']>>;
-        if(_isMonoforum) {
+        if (_isMonoforum) {
           result = await managers.monoforumDialogsStorage.getDialogs({
             parentPeerId: peerId,
             limit,
-            offsetIndex
+            offsetIndex,
           });
         } else {
           result = await managers.dialogsStorage.getDialogs({
@@ -242,11 +242,11 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
             filterId: peerId,
             limit,
             skipMigrated: true,
-            offsetIndex
+            offsetIndex,
           });
         }
 
-        if(!middleware()) {
+        if (!middleware()) {
           return;
         }
 
@@ -256,20 +256,20 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
           result: _isMonoforum ?
             result.dialogs!.map((dialog) => dialog.peerId) as any :
             result.dialogs!.map((forumTopic) => (forumTopic as ForumTopic.forumTopic).id),
-          isEnd: result.isEnd
+          isEnd: result.isEnd,
         };
       }) as any,
       renderResultsFunc: async(threadIds, append) => {
-        if(firstRender) {
+        if (firstRender) {
           firstRender = false;
 
-          if(apiManagerProxy.isBotforum(peerId)) {
+          if (apiManagerProxy.isBotforum(peerId)) {
             threadIds.unshift(undefined!);
           }
         }
 
         const promises = threadIds.map((threadId) => {
-          return wrapTopicRow({peerId, threadId, middleware: fsMiddleware});
+          return wrapTopicRow({ peerId, threadId, middleware: fsMiddleware });
         });
         const elements = await Promise.all(promises);
         elements.forEach((element) => {
@@ -293,14 +293,14 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
       onFirstRender: () => {
         deferred.resolve();
       },
-      noSearch: _isMonoforum && !selected.length
+      noSearch: _isMonoforum && !selected.length,
     });
 
     fs.setMultiSelectMode(selector!.multiSelect);
     fs.addInitial(selected);
     fs.container.classList.add('tabs-tab');
     fs.container.middlewareHelper = fsMiddlewareHelper;
-    if(_isMonoforum && fs.selectorSearch) {
+    if (_isMonoforum && fs.selectorSearch) {
       fs.selectorSearch.inputSearch.container.classList.add('hide');
     }
 
@@ -312,7 +312,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
       type: 'popup',
       onPop: () => {
         onBackClick();
-      }
+      },
     };
     appNavigationController.pushItem(navigationItem);
     middleware.onClean(() => {
@@ -341,7 +341,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
     const scrollToStart = (callback: () => void) => {
       let clicked = false;
       const onFinish = () => {
-        if(!clicked) {
+        if (!clicked) {
           clicked = true;
           callback();
         }
@@ -351,13 +351,13 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
         container: selector!.scrollable.container,
         element: selector!.section.container,
         position: 'start',
-        getElementPosition: ({elementPosition}) => elementPosition -
+        getElementPosition: ({ elementPosition }) => elementPosition -
           mount.offsetHeight -
           sectionContainer.offsetHeight,
-        startCallback: ({duration, path}) => {
-          if(path >= 0) onFinish();
+        startCallback: ({ duration, path }) => {
+          if (path >= 0) onFinish();
           else setTimeout(onFinish, Math.max(0, duration / 2));
-        }
+        },
       }).finally(callback);
     };
 
@@ -370,12 +370,12 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
           const filterId = +(target.dataset.filterId || 0);
           const available = REAL_FOLDERS.has(filterId) ||
             (await rootScope.managers.filtersStorage.isFilterIdAvailable(filterId) ?? true);
-          if(!available) {
+          if (!available) {
             showLimitPopup('folders');
             return false;
           }
 
-          if(prevId !== -1) {
+          if (prevId !== -1) {
             await new Promise<void>((resolve) => scrollToStart(resolve));
           }
 
@@ -383,7 +383,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
           prevId = id;
         },
         prevId,
-        scrollableX: scrollableContext
+        scrollableX: scrollableContext,
       });
     };
 
@@ -391,30 +391,30 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
       scrollableProps: {
         class: 'popup-forward-folder-tabs',
         scrollableProps: {
-          contextRef: (ref) => scrollableContext = ref
-        }
+          contextRef: (ref) => scrollableContext = ref,
+        },
       },
       menuProps: {
         ref: (ref) => {
           menu = ref;
           queueMicrotask(async() => {
             const first = ref.firstElementChild as HTMLElement;
-            if(first) await onTabClick(first, 0);
+            if (first) await onTabClick(first, 0);
             deferred.resolve();
           });
         },
         onClick: (e) => {
           cancelEvent(e);
           const target = findUpAttribute(e.target, 'data-filter-id');
-          if(!target) return;
+          if (!target) return;
           const id = whichChild(target);
           onTabClick(target, id);
-        }
+        },
       },
       gradientProps: {
         color: 'background',
-        className: 'popup-forward-folder-tabs-gradient'
-      }
+        className: 'popup-forward-folder-tabs-gradient',
+      },
     }), mount);
 
     lateMiddleware.onClean(dispose);
@@ -439,12 +439,12 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
       appendTo: tabsContainer,
       onChange: (length, changes) => {
         btnConfirm?.classList.toggle('is-visible', !!length);
-        changes.forEach(({key, add}) => onSingleSelect((selector as AppSelectPeers), key, add));
+        changes.forEach(({ key, add }) => onSingleSelect((selector as AppSelectPeers), key, add));
         options.onChange?.(length, changes);
       },
       onSelect: async(peerId, adding, e) => {
         let _isMonoforum = false;
-        if(
+        if (
           options.useTopics &&
           e.isTrusted &&
           (
@@ -459,7 +459,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
           createForumSelector({
             peerId,
             placeholder: options.placeholder!,
-            isMonoforum: _isMonoforum
+            isMonoforum: _isMonoforum,
           });
           return false;
         }
@@ -468,7 +468,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
         setShow(true);
         selector!.checkForTriggers();
 
-        if(!IS_TOUCH_SUPPORTED && selector!.inputSearch) {
+        if (!IS_TOUCH_SUPPORTED && selector!.inputSearch) {
           selector!.inputSearch.input.focus();
         }
       },
@@ -478,7 +478,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
       managers,
       night,
       noInstantLoad: true,
-      noSearch: options.noSearch
+      noSearch: options.noSearch,
     });
     selector.container.classList.add('tabs-tab');
 
@@ -490,18 +490,18 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
     setMultiSelectMode(selector.multiSelect);
 
     const loadPromises: Promise<any>[] = [];
-    if(options.showTopPeers) {
-      const {group, promise} = createTopPeersList({
+    if (options.showTopPeers) {
+      const { group, promise } = createTopPeersList({
         middleware,
         className: 'popup-forward-top-peers collapsable',
         modifyPeers: (peers) => {
           findAndSplice(peers, (peer) => peer.id === rootScope.myId);
           peers.unshift({
             id: rootScope.myId,
-            rating: 0
+            rating: 0,
           });
           return peers;
-        }
+        },
       });
       selector.heightContainer.before(group.container);
 
@@ -513,7 +513,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
         prevOnSearchChange?.(query);
       };
 
-      if(multiSelect !== 'disabled') promise.then(() => {
+      if (multiSelect !== 'disabled') promise.then(() => {
         const topPeerElements = group.list.querySelectorAll<HTMLElement>('.chatlist-chat');
 
         topPeerElements.forEach((el) => {
@@ -524,21 +524,21 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
       });
     }
 
-    if(options.initial) {
+    if (options.initial) {
       selector.addInitial(options.initial);
     }
     selector.container.classList.add('active');
 
-    if(options.useTopics) {
+    if (options.useTopics) {
       transition = TransitionSlider({
         content: tabsContainer,
         type: 'tabs',
         transitionTime: 150,
         animateFirst: false,
         onTransitionEnd: (id) => {
-          if(!id) {
+          if (!id) {
             (Array.from(tabsContainer.children) as HTMLElement[]).forEach((el) => {
-              if(el !== selector!.container) {
+              if (el !== selector!.container) {
                 (el as any).middlewareHelper?.destroy();
                 el.remove();
               }
@@ -546,7 +546,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
           } else {
             selector!.clearInput();
           }
-        }
+        },
       });
       transition(selector.container);
     }
@@ -559,8 +559,8 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
   }
 
   function FooterInner(): JSX.Element {
-    if(options.footer) {
-      return options.footer({multiSelect: multiSelectMode});
+    if (options.footer) {
+      return options.footer({ multiSelect: multiSelectMode });
     }
 
     return (
@@ -618,7 +618,7 @@ export default function showPickUserPopup(options: PopupPickUserOptions) {
     hide() {
       setShow(false);
     },
-    finalize
+    finalize,
   };
 }
 
@@ -631,7 +631,7 @@ export async function showPickUser2Popup<T extends boolean = false>({
   limitCallback,
   titleLangKey,
   placeholder,
-  exceptSelf
+  exceptSelf,
 }: {
   peerType?: SelectSearchPeerType[],
   filterPeerTypeBy: AppSelectPeers['filterPeerTypeBy'],
@@ -657,13 +657,13 @@ export async function showPickUser2Popup<T extends boolean = false>({
       titleLangKey: titleLangKey!,
       exceptSelf,
       onClose: () => {
-        if(!resolved) {
+        if (!resolved) {
           reject();
         }
-      }
+      },
     });
 
-    if(limit) {
+    if (limit) {
       popup.selector?.setLimit(limit, limitCallback!);
     }
   });
@@ -673,15 +673,15 @@ export async function showPickUser3Popup(
   types: Parameters<typeof AppSelectPeers['convertPeerTypes']>[0] = ['users', 'bots', 'groups', 'channels'],
   chatRightsActions?: PopupPickUserOptions['chatRightsActions']
 ) {
-  if(!Array.isArray(types)) {
+  if (!Array.isArray(types)) {
     types = [];
   }
 
   const filterPeerTypeBy: IsPeerType[] = AppSelectPeers.convertPeerTypes(types);
   const peerType: SelectSearchPeerType[] = ['dialogs'];
-  if(types.includes('users')) peerType.push('contacts');
+  if (types.includes('users')) peerType.push('contacts');
 
-  if(!filterPeerTypeBy.length) {
+  if (!filterPeerTypeBy.length) {
     throw undefined;
   }
 
@@ -689,7 +689,7 @@ export async function showPickUser3Popup(
     peerType,
     filterPeerTypeBy,
     chatRightsActions,
-    titleLangKey: 'ShareWith'
+    titleLangKey: 'ShareWith',
   });
 }
 
@@ -716,9 +716,9 @@ export function showSharingPickerPopup(options: {
     // Default the floating footer button's label to "Send" — without this the
     // PopupElement.FooterButton renders as an empty purple bar in multi-select
     // mode (single-select callers complete via row click and never see it).
-    footerButtonProps: {langKey: 'Send'},
+    footerButtonProps: { langKey: 'Send' },
     ...options,
-    peerType: ['dialogs', 'contacts']
+    peerType: ['dialogs', 'contacts'],
   });
 }
 
@@ -732,10 +732,10 @@ export function showSharingPicker2Popup(options?: Modify<Parameters<typeof showS
         resolve(chosen[0]);
       },
       onClose: () => {
-        if(!resolved) {
+        if (!resolved) {
           reject();
         }
-      }
+      },
     });
   });
 }
@@ -744,7 +744,7 @@ export function showReplyPickerPopup(options: Pick<PopupPickUserOptions, 'exclud
   return showSharingPicker2Popup({
     placeholder: 'ReplyToDialog',
     selfPresence: 'SavedMessagesInfoQuote',
-    ...options
+    ...options,
   });
 }
 
@@ -760,10 +760,10 @@ export function showContactPickerPopup() {
         resolve(chosen[0].peerId);
       },
       onClose: () => {
-        if(!resolved) {
+        if (!resolved) {
           reject();
         }
-      }
+      },
     });
   });
 }

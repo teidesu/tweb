@@ -1,10 +1,10 @@
-import type {CancellablePromise} from '@helpers/cancellablePromise';
+import type { CancellablePromise } from '@helpers/cancellablePromise';
 import animationIntersector from '@components/animationIntersector';
 import safePlay from '@helpers/dom/safePlay';
-import {MiddlewareHelper} from '@helpers/middleware';
-import {createCustomFiller} from '@lib/richTextProcessor/wrapRichText';
+import { MiddlewareHelper } from '@helpers/middleware';
+import { createCustomFiller } from '@lib/richTextProcessor/wrapRichText';
 import RLottiePlayer from '@lib/rlottie/rlottiePlayer';
-import {CustomEmojiRendererElement, SyncedPlayer} from '@lib/customEmoji/renderer';
+import { CustomEmojiRendererElement, SyncedPlayer } from '@lib/customEmoji/renderer';
 
 export type CustomEmojiElements = Set<CustomEmojiElement>;
 
@@ -39,7 +39,7 @@ export default class CustomEmojiElement extends HTMLElement {
 
   public static create(docId?: DocId) {
     const element = new CustomEmojiElement();
-    if(docId) element.docId = docId;
+    if (docId) element.docId = docId;
     return element;
   }
 
@@ -52,13 +52,13 @@ export default class CustomEmojiElement extends HTMLElement {
     //   return;
     // }
 
-    if(this.player) {
+    if (this.player) {
       animationIntersector.addAnimation({
         animation: this,
         group: this.renderer.animationGroup,
         observeElement: this.placeholder ?? this,
         controlled: true,
-        type: 'emoji'
+        type: 'emoji',
       });
     }
 
@@ -66,7 +66,7 @@ export default class CustomEmojiElement extends HTMLElement {
   }
 
   public disconnectedCallback() {
-    if(this.isConnected || !this.renderer?.isSelectable) { // prepend on sibling can invoke disconnectedCallback
+    if (this.isConnected || !this.renderer?.isSelectable) { // prepend on sibling can invoke disconnectedCallback
       return;
     }
 
@@ -78,7 +78,7 @@ export default class CustomEmojiElement extends HTMLElement {
   }
 
   public clear(replaceChildren = true) {
-    if(this.clean) {
+    if (this.clean) {
       return;
     }
 
@@ -89,24 +89,24 @@ export default class CustomEmojiElement extends HTMLElement {
     this.clean = true;
     this.pause();
 
-    const {syncedPlayer} = this;
-    if(syncedPlayer) {
+    const { syncedPlayer } = this;
+    if (syncedPlayer) {
       syncedPlayer.pausedElements.delete(this);
     }
 
     this.middlewareHelper?.clean();
     this.readyPromise?.reject();
 
-    if(this.renderer) {
+    if (this.renderer) {
       const elements = this.renderer.customEmojis.get(this.docId);
-      if(elements?.delete(this) && !elements.size) {
+      if (elements?.delete(this) && !elements.size) {
         this.renderer.customEmojis.delete(this.docId);
         this.renderer.textColored.delete(elements);
         this.renderer.playersSynced.delete(elements);
       }
 
-      if(replaceChildren) {
-        if(this.renderer.isSelectable) {
+      if (replaceChildren) {
+        if (this.renderer.isSelectable) {
           this.replaceChildren(createCustomFiller(true));
         } else {
           // otherwise https://bugs.chromium.org/p/chromium/issues/detail?id=1144736#c27 will happen
@@ -115,11 +115,11 @@ export default class CustomEmojiElement extends HTMLElement {
       }
     }
 
-    if(this.player) {
+    if (this.player) {
       animationIntersector.removeAnimationByPlayer(this);
     }
 
-    CustomEmojiRendererElement.globalLazyLoadQueue?.delete({div: this});
+    CustomEmojiRendererElement.globalLazyLoadQueue?.delete({ div: this });
 
     /* this.disconnectedCallback =  */this.elements =
       (this.renderer =
@@ -129,42 +129,42 @@ export default class CustomEmojiElement extends HTMLElement {
   }
 
   public pause() {
-    if(this.paused) {
+    if (this.paused) {
       return;
     }
 
     this.paused = true;
 
-    if(this.player instanceof HTMLVideoElement && !this.syncedPlayer) {
+    if (this.player instanceof HTMLVideoElement && !this.syncedPlayer) {
       this.renderer.lastPausedVideo = this.player;
       this.player.pause();
     }
 
-    if(this.syncedPlayer && !this.syncedPlayer.pausedElements.has(this)) {
+    if (this.syncedPlayer && !this.syncedPlayer.pausedElements.has(this)) {
       this.syncedPlayer.pausedElements.add(this);
 
-      if(this.syncedPlayer.player && this.syncedPlayer.pausedElements.size === this.syncedPlayer.middlewares.size) {
+      if (this.syncedPlayer.player && this.syncedPlayer.pausedElements.size === this.syncedPlayer.middlewares.size) {
         this.syncedPlayer.player.pause();
       }
     }
   }
 
   public play() {
-    if(!this.paused) {
+    if (!this.paused) {
       return;
     }
 
     this.paused = false;
 
-    if(this.player instanceof HTMLVideoElement) {
+    if (this.player instanceof HTMLVideoElement) {
       this.player.currentTime = this.renderer.lastPausedVideo?.currentTime ?? this.player.currentTime;
       safePlay(this.player);
     }
 
-    if(this.syncedPlayer && this.syncedPlayer.pausedElements.has(this)) {
+    if (this.syncedPlayer && this.syncedPlayer.pausedElements.has(this)) {
       this.syncedPlayer.pausedElements.delete(this);
 
-      if(this.syncedPlayer.pausedElements.size !== this.syncedPlayer.middlewares.size) {
+      if (this.syncedPlayer.pausedElements.size !== this.syncedPlayer.middlewares.size) {
         this.player.play();
       }
     }

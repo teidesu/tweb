@@ -2,23 +2,23 @@ import SaveButton from '@components/saveButton';
 import Section from '@components/section';
 import StarRangeInput from '@components/sidebarLeft/tabs/privacy/messages/starsRangeInput';
 import useStarsCommissionAndWithdrawalPrice from '@components/sidebarLeft/tabs/privacy/messages/useStarsCommissionAndWithdrawalPrice';
-import type {AppDirectMessagesTab} from '@components/solidJsTabs';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
+import type { AppDirectMessagesTab } from '@components/solidJsTabs';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
 import StaticSwitch from '@components/staticSwitch';
 import useIsConfirmationNeededOnClose from '@hooks/useIsConfirmationNeededOnClose';
-import {i18n} from '@lib/langPack';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {createMemo, createSignal, Show} from 'solid-js';
-import {Portal} from 'solid-js/web';
-import {Transition} from 'solid-transition-group';
+import { i18n } from '@lib/langPack';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { createMemo, createSignal, Show } from 'solid-js';
+import { Portal } from 'solid-js/web';
+import { Transition } from 'solid-transition-group';
 
 
 const ChannelDirectMessages = () => {
   const [tab] = useSuperTab<typeof AppDirectMessagesTab>();
-  const {apiManagerProxy, rootScope, Row} = useHotReloadGuard();
+  const { apiManagerProxy, rootScope, Row } = useHotReloadGuard();
 
   const chat = tab.payload.chat;
-  if(!chat) return <></>;
+  if (!chat) return <></>;
 
   const linkedChat = chat.linked_monoforum_id ? apiManagerProxy.getChat(chat.linked_monoforum_id) : undefined;
 
@@ -30,12 +30,12 @@ const ChannelDirectMessages = () => {
 
   const hasChanges = createMemo(() => initialEnabled !== enabled() || (enabled() && initialStars !== stars()));
 
-  const {commissionPercents, willReceiveDollars} = useStarsCommissionAndWithdrawalPrice(stars);
+  const { commissionPercents, willReceiveDollars } = useStarsCommissionAndWithdrawalPrice(stars);
 
   let isSaving = false;
 
   async function saveSettings() {
-    if(isSaving) return;
+    if (isSaving) return;
     isSaving = true;
 
     try {
@@ -53,7 +53,7 @@ const ChannelDirectMessages = () => {
   tab.isConfirmationNeededOnClose = useIsConfirmationNeededOnClose({
     saveAllSettings: saveSettings,
     hasChanges,
-    descriptionLangKey: 'UnsavedChangesDescription.Channel'
+    descriptionLangKey: 'UnsavedChangesDescription.Channel',
   });
 
   return <>

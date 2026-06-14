@@ -1,13 +1,13 @@
-import SwipeHandler, {getEvent} from '@components/swipeHandler';
-import {toastNew} from '@components/toast';
+import SwipeHandler, { getEvent } from '@components/swipeHandler';
+import { toastNew } from '@components/toast';
 import rootScope from '@lib/rootScope';
-import {appSettings, setAppSettings} from '@stores/appSettings';
+import { appSettings, setAppSettings } from '@stores/appSettings';
 import {
   MIN_LEFT_SIDEBAR_WIDTH,
   MIN_RIGHT_SIDEBAR_WIDTH,
   SIDEBAR_COLLAPSE_FACTOR,
   setUserPreferredLeft,
-  setUserPreferredRight
+  setUserPreferredRight,
 } from '@helpers/updateColumnWidths';
 
 export type ColumnResizeSide = 'left' | 'right';
@@ -41,7 +41,7 @@ export type InstallColumnResizeOptions = {
  * column is resized in lock-step with the dragged one.
  */
 export default function installColumnResize(opts: InstallColumnResizeOptions): void {
-  const {columnEl, side, isCollapsed, setCollapsed, onCollapsedChange, preventCollapse, onSwipeTick} = opts;
+  const { columnEl, side, isCollapsed, setCollapsed, onCollapsedChange, preventCollapse, onSwipeTick } = opts;
   const otherBodyClass = side === 'left' ? 'resizing-left-sidebar' : 'resizing-right-sidebar';
 
   const handle = document.createElement('div');
@@ -54,9 +54,9 @@ export default function installColumnResize(opts: InstallColumnResizeOptions): v
     onStart: () => {
       handle.classList.add('is-active');
       document.body.classList.add(otherBodyClass);
-      if(!appSettings.seenTooltips.sidebarResize) {
+      if (!appSettings.seenTooltips.sidebarResize) {
         setAppSettings('seenTooltips', 'sidebarResize', true);
-        toastNew({langPackKey: 'Sidebar.Resize.ShiftTip'});
+        toastNew({ langPackKey: 'Sidebar.Resize.ShiftTip' });
       }
     },
     onSwipe: (_, __, _e) => {
@@ -70,20 +70,20 @@ export default function installColumnResize(opts: InstallColumnResizeOptions): v
 
       const isShift = (e as MouseEvent).shiftKey === true;
 
-      if(side === 'left') {
+      if (side === 'left') {
         const wasCollapsed = !!isCollapsed?.();
         const collapsed = !preventCollapse?.() && rawWidth < MIN_LEFT_SIDEBAR_WIDTH * SIDEBAR_COLLAPSE_FACTOR;
         setUserPreferredLeft(collapsed ? 0 : rawWidth);
         setCollapsed?.(collapsed);
-        if(collapsed !== wasCollapsed) onCollapsedChange?.();
-        if(isShift) {
+        if (collapsed !== wasCollapsed) onCollapsedChange?.();
+        if (isShift) {
           // Mirror to the right column — clamped to its valid range, no
           // collapse semantics. setUserPreferredRight handles the clamp.
           setUserPreferredRight(collapsed ? MIN_RIGHT_SIDEBAR_WIDTH : rawWidth);
         }
       } else {
         setUserPreferredRight(rawWidth);
-        if(isShift) setUserPreferredLeft(rawWidth);
+        if (isShift) setUserPreferredLeft(rawWidth);
       }
 
       rootScope.dispatchEvent('resizing_left_sidebar');
@@ -92,6 +92,6 @@ export default function installColumnResize(opts: InstallColumnResizeOptions): v
     onReset: () => {
       handle.classList.remove('is-active');
       document.body.classList.remove(otherBodyClass);
-    }
+    },
   });
 }

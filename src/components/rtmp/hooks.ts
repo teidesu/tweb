@@ -1,10 +1,10 @@
-import {createSignal} from 'solid-js';
-import rtmpCallsController, {RtmpCallInstance} from '@lib/calls/rtmpCallsController';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
-import {NULL_PEER_ID} from '@appManagers/constants';
+import { createSignal } from 'solid-js';
+import rtmpCallsController, { RtmpCallInstance } from '@lib/calls/rtmpCallsController';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
+import { NULL_PEER_ID } from '@appManagers/constants';
 
 export function useCurrentRtmpCall() {
-  const [call, setCall] = createSignal<RtmpCallInstance>(rtmpCallsController.currentCall!, {equals: false});
+  const [call, setCall] = createSignal<RtmpCallInstance>(rtmpCallsController.currentCall!, { equals: false });
   const [peerId, setPeerId] = createSignal<PeerId>(NULL_PEER_ID);
 
   subscribeOn(rtmpCallsController)('currentCallChanged', (call) => {
@@ -16,5 +16,5 @@ export function useCurrentRtmpCall() {
     setPeerId(peerId);
   });
 
-  return {call, peerId};
+  return { call, peerId };
 }

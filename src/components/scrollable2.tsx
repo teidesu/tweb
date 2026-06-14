@@ -1,24 +1,24 @@
-import {children, createContext, createEffect, createMemo, createSignal, JSX, on, onCleanup, onMount, Ref, untrack} from 'solid-js';
-import {IS_OVERLAY_SCROLL_SUPPORTED} from '@environment/overlayScrollSupport';
+import { children, createContext, createEffect, createMemo, createSignal, JSX, on, onCleanup, onMount, Ref, untrack } from 'solid-js';
+import { IS_OVERLAY_SCROLL_SUPPORTED } from '@environment/overlayScrollSupport';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import {IS_MOBILE_SAFARI, IS_SAFARI} from '@environment/userAgent';
+import { IS_MOBILE_SAFARI, IS_SAFARI } from '@environment/userAgent';
 import cancelEvent from '@helpers/dom/cancelEvent';
 import classNames from '@helpers/string/classNames';
 import useHeavyAnimationCheck from '@hooks/useHeavyAnimationCheck';
-import {syncThumbContainerGeometry} from '@components/scrollable';
-import {isTruthy} from '../helpers/isTruthy';
+import { syncThumbContainerGeometry } from '@components/scrollable';
+import { isTruthy } from '../helpers/isTruthy';
 
 const SCROLL_THROTTLE = /* IS_ANDROID ? 200 :  */24;
 
 function throttleMeasurement(callback: () => void): number {
-  if(!IS_OVERLAY_SCROLL_SUPPORTED()) {
+  if (!IS_OVERLAY_SCROLL_SUPPORTED()) {
     return requestAnimationFrame(callback);
   }
   return window.setTimeout(callback, SCROLL_THROTTLE);
 }
 
 function cancelMeasurement(id: number): void {
-  if(!IS_OVERLAY_SCROLL_SUPPORTED()) {
+  if (!IS_OVERLAY_SCROLL_SUPPORTED()) {
     cancelAnimationFrame(id);
   } else {
     window.clearTimeout(id);
@@ -89,14 +89,14 @@ export default function Scrollable(props: {
   const removeHeavyAnimationListener = useHeavyAnimationCheck(() => {
     isHeavyAnimationInProgress = true;
 
-    if(onScrollMeasure) {
+    if (onScrollMeasure) {
       cancelMeasure();
       needCheckAfterAnimation = true;
     }
   }, () => {
     isHeavyAnimationInProgress = false;
 
-    if(needCheckAfterAnimation) {
+    if (needCheckAfterAnimation) {
       onScroll();
       needCheckAfterAnimation = false;
     }
@@ -111,23 +111,23 @@ export default function Scrollable(props: {
 
     // return;
 
-    if(isHeavyAnimationInProgress) {
+    if (isHeavyAnimationInProgress) {
       cancelMeasure();
       needCheckAfterAnimation = true;
       return;
     }
 
     // if(this.onScrollMeasure || ((this.scrollLocked || (!this.onScrolledTop && !this.onScrolledBottom)) && !this.splitUp && !this.onAdditionalScroll)) return;
-    if((!props.onScrolledTop && !props.onScrolledBottom)/*  && !this.splitUp */ && !onScrollCallbacks().length && IS_OVERLAY_SCROLL_SUPPORTED()) return;
+    if ((!props.onScrolledTop && !props.onScrolledBottom)/*  && !this.splitUp */ && !onScrollCallbacks().length && IS_OVERLAY_SCROLL_SUPPORTED()) return;
 
     // cache scroll position to avoid forced reflows if the layout is dirty in the throttled measure
     capturedScrollPosition = scrollPosition();
 
-    if(onScrollMeasure) return;
+    if (onScrollMeasure) return;
     onScrollMeasure = throttleMeasurement(() => {
       onScrollMeasure = 0;
 
-      if(sizesDirty) {
+      if (sizesDirty) {
         refreshMeasurements();
       }
 
@@ -138,7 +138,7 @@ export default function Scrollable(props: {
       updateThumb(_scrollPosition, false);
 
       // lastScrollDirection check is useless here, every callback should decide on its own
-      if(true/*  && lastScrollDirection !== 0 */) {
+      if (true/*  && lastScrollDirection !== 0 */) {
         onScrollCallbacks().forEach((callback) => callback());
       }
 
@@ -147,26 +147,26 @@ export default function Scrollable(props: {
   };
 
   const cancelMeasure = () => {
-    if(onScrollMeasure) {
+    if (onScrollMeasure) {
       cancelMeasurement(onScrollMeasure);
       onScrollMeasure = 0;
     }
   };
 
   const checkForTriggers = () => {
-    if(!props.onScrolledTop && !props.onScrolledBottom) return;
+    if (!props.onScrolledTop && !props.onScrolledBottom) return;
 
     // if(this.isHeavyAnimationInProgress) {
     //   this.onScroll();
     //   return;
     // }
 
-    if(sizesDirty) {
+    if (sizesDirty) {
       refreshMeasurements();
     }
 
     const _scrollSize = cachedScrollSize;
-    if(!_scrollSize) { // незачем вызывать триггеры если блок пустой или не виден
+    if (!_scrollSize) { // незачем вызывать триггеры если блок пустой или не виден
       return;
     }
 
@@ -179,11 +179,11 @@ export default function Scrollable(props: {
 
     // this.log('checkForTriggers:', scrollTop, maxScrollTop);
 
-    if(props.onScrolledTop && _scrollPosition <= _onScrollOffset && lastScrollDirection <= 0/* && direction === -1 */) {
+    if (props.onScrolledTop && _scrollPosition <= _onScrollOffset && lastScrollDirection <= 0/* && direction === -1 */) {
       props.onScrolledTop();
     }
 
-    if(props.onScrolledBottom && (maxScrollPosition - _scrollPosition) <= _onScrollOffset && lastScrollDirection >= 0/* && direction === 1 */) {
+    if (props.onScrolledBottom && (maxScrollPosition - _scrollPosition) <= _onScrollOffset && lastScrollDirection >= 0/* && direction === 1 */) {
       props.onScrolledBottom();
     }
   };
@@ -211,7 +211,7 @@ export default function Scrollable(props: {
     cachedScrollSize = scrollSize();
     cachedClientSize = clientSize();
     cachedOffsetSize = offsetSize();
-    if(thumbContainerRef?.parentElement) {
+    if (thumbContainerRef?.parentElement) {
       lastThumbGeometry = syncThumbContainerGeometry(ref, thumbContainerRef, lastThumbGeometry);
     }
   };
@@ -228,13 +228,13 @@ export default function Scrollable(props: {
   // transition wrappers track only the first node of a fragment. Adjacency is
   // re-asserted on every update: wrappers may move the scroller without us.
   const ensureThumbAttached = () => {
-    if(!ref.parentElement) {
+    if (!ref.parentElement) {
       thumbContainerRef.remove();
       lastThumbGeometry = '';
       return false;
     }
 
-    if(ref.nextElementSibling !== thumbContainerRef) {
+    if (ref.nextElementSibling !== thumbContainerRef) {
       ref.after(thumbContainerRef);
       // an attach/move means the container's offsets may have changed too
       sizesDirty = true;
@@ -247,15 +247,15 @@ export default function Scrollable(props: {
   // change we can't observe synchronously); scroll measures pass false and
   // consume the caches
   const updateThumb = (_scrollPosition = scrollPosition(), fresh = true) => {
-    if(IS_OVERLAY_SCROLL_SUPPORTED() || !thumbRef) {
+    if (IS_OVERLAY_SCROLL_SUPPORTED() || !thumbRef) {
       return;
     }
 
-    if(!ensureThumbAttached()) {
+    if (!ensureThumbAttached()) {
       return;
     }
 
-    if(fresh || sizesDirty) {
+    if (fresh || sizesDirty) {
       refreshMeasurements();
     }
 
@@ -269,7 +269,7 @@ export default function Scrollable(props: {
     // const b = (scrollPosition + clientSize) / scrollSize;
     const b = _scrollPosition / (_scrollSize - _clientSize);
     const maxValue = _clientSize - thumbSize;
-    if(_clientSize < _scrollSize) {
+    if (_clientSize < _scrollSize) {
       thumbRef.style.height = thumbSize + 'px';
       // this.thumb.style.top = `${Math.min(maxValue, value - thumbSize * b)}px`;
       thumbRef.style.transform = `translateY(${Math.min(maxValue, value - thumbSize * b)}px)`;
@@ -293,7 +293,7 @@ export default function Scrollable(props: {
       cancelEvent(e);
       setIgnoreScrollEvent(false);
       // this.addScrollListener();
-    }, {capture: true, passive: false, once: true});
+    }, { capture: true, passive: false, once: true });
   };
 
   const onScrollCallbacks = createMemo(() => [props.onScroll, props.withBorders && checkEnds].filter(isTruthy));
@@ -323,7 +323,7 @@ export default function Scrollable(props: {
     (e.target as HTMLElement).classList.add('is-focused');
 
     window.addEventListener('mousemove', onThumbMouseMove);
-    window.addEventListener('mouseup', onThumbMouseUp, {once: true});
+    window.addEventListener('mouseup', onThumbMouseUp, { once: true });
   };
 
   const onThumbMouseUp = (e: MouseEvent) => {
@@ -334,7 +334,7 @@ export default function Scrollable(props: {
   const onWheel = (e: WheelEvent) => {
     e.stopPropagation();
     const container = ref;
-    if(!e.deltaX && container.scrollWidth > container.clientWidth) {
+    if (!e.deltaX && container.scrollWidth > container.clientWidth) {
       container.scrollLeft += e.deltaY / 4;
       cancelEvent(e);
     }
@@ -351,7 +351,7 @@ export default function Scrollable(props: {
     const resizeObserver = new ResizeObserver(invalidateMeasurements);
     resizeObserver.observe(ref);
     const mutationObserver = new MutationObserver(invalidateMeasurements);
-    mutationObserver.observe(ref, {childList: true, subtree: true});
+    mutationObserver.observe(ref, { childList: true, subtree: true });
     onCleanup(() => {
       resizeObserver.disconnect();
       mutationObserver.disconnect();
@@ -377,10 +377,10 @@ export default function Scrollable(props: {
     },
     onSizeChange,
     setScrollPositionSilently,
-    checkForTriggers
+    checkForTriggers,
   };
 
-  if(props.contextRef) {
+  if (props.contextRef) {
     untrack(() => props.contextRef)!(value);
   }
 
@@ -397,7 +397,7 @@ export default function Scrollable(props: {
   let ref: HTMLDivElement, thumbRef: HTMLDivElement, thumbContainerRef: HTMLDivElement;
 
   const withThumb = !IS_OVERLAY_SCROLL_SUPPORTED() && axis === 'y';
-  if(withThumb) {
+  if (withThumb) {
     thumbContainerRef = (
       <div class="scrollable-thumb-container">
         <div
@@ -430,7 +430,7 @@ export default function Scrollable(props: {
           isScrolledToEnd() && 'scrolled-end',
           axis === 'y' && 'scrollable-y-bordered',
           (props.withBorders === 'top' || props.withBorders === 'both') && 'scrollable-y-bordered-top',
-          (props.withBorders === 'bottom' || props.withBorders === 'both') && 'scrollable-y-bordered-bottom'
+          (props.withBorders === 'bottom' || props.withBorders === 'both') && 'scrollable-y-bordered-bottom',
         ] : [])
       )}
       onScroll={(!ignoreScrollEvent() && onScroll) || undefined}

@@ -51,18 +51,18 @@ export class WeavingState {
         [[GROUP_CALL_STATE.MUTED_BY_ADMIN], MUTED_BY_ADMIN_STOPS],
         [[GROUP_CALL_STATE.UNMUTED], UNMUTED_STOPS],
         [[GROUP_CALL_STATE.MUTED], MUTED_STOPS],
-        [[GROUP_CALL_STATE.CONNECTING], CONNECTING_STOPS]
+        [[GROUP_CALL_STATE.CONNECTING], CONNECTING_STOPS],
       ],
       rtmp: [
         [[RTMP_STATE.PLAYING], RTMP_STOPS],
-        [[RTMP_STATE.BUFFERING, RTMP_STATE.CONNECTING], CONNECTING_STOPS]
-      ]
+        [[RTMP_STATE.BUFFERING, RTMP_STATE.CONNECTING], CONNECTING_STOPS],
+      ],
     };
 
     const a = map[type];
-    for(const [states, colors] of a!) {
-      if(states.includes(state)) {
-        for(const [offset, color] of colors) {
+    for (const [states, colors] of a!) {
+      if (states.includes(state)) {
+        for (const [offset, color] of colors) {
           gradient.addColorStop(offset, color);
         }
         return gradient;
@@ -119,13 +119,13 @@ export default class TopbarWeave {
         GROUP_CALL_STATE.UNMUTED,
         GROUP_CALL_STATE.MUTED,
         GROUP_CALL_STATE.MUTED_BY_ADMIN,
-        GROUP_CALL_STATE.CONNECTING
+        GROUP_CALL_STATE.CONNECTING,
       ]],
       ['rtmp', [
         RTMP_STATE.PLAYING,
         RTMP_STATE.BUFFERING,
-        RTMP_STATE.CONNECTING
-      ]]
+        RTMP_STATE.CONNECTING,
+      ]],
     ];
 
     this.allStates = new Map(s.map(([type, states]) => [type, new Map(WeavingState.createStates(type, states))]));
@@ -141,7 +141,7 @@ export default class TopbarWeave {
   }
 
   public componentDidMount() {
-    if(this.mounted) {
+    if (this.mounted) {
       return;
     }
 
@@ -170,7 +170,7 @@ export default class TopbarWeave {
     window.removeEventListener('resize', this.handleResize);
     this.media.removeEventListener('change', this.handleDevicePixelRatioChanged);
 
-    const {canvas} = this;
+    const { canvas } = this;
     const ctx = canvas.getContext('2d');
     ctx!.clearRect(0, 0, canvas.width, canvas.height);
   }
@@ -195,7 +195,7 @@ export default class TopbarWeave {
   }
 
   private handleResize = () => {
-    if(this.resizeHandler) {
+    if (this.resizeHandler) {
       clearTimeout(this.resizeHandler);
       this.resizeHandler = null;
     }
@@ -226,18 +226,18 @@ export default class TopbarWeave {
   }
 
   private invokeDraw = () => {
-    if(this.raf) return;
+    if (this.raf) return;
 
     this.draw();
   }
 
   private draw = (force = false) => {
     this.raf = null;
-    if(!this.mounted) {
+    if (!this.mounted) {
       return;
     }
-    const {lbd, lbd1, lbd2, scale, left, top, right, bottom, currentState, previousState, focused, resizing, canvas} = this;
-    if(!focused && !resizing && this.progressToState >= 1.0) {
+    const { lbd, lbd1, lbd2, scale, left, top, right, bottom, currentState, previousState, focused, resizing, canvas } = this;
+    if (!focused && !resizing && this.progressToState >= 1.0) {
       return;
     }
 
@@ -245,46 +245,46 @@ export default class TopbarWeave {
 
     const newTime = Date.now();
     let dt = (newTime - this.lastUpdateTime);
-    if(dt > 20) {
+    if (dt > 20) {
       dt = 17;
     }
 
     // console.log('draw start', this.amplitude, this.animateToAmplitude);
-    if(this.animateToAmplitude !== this.amplitude) {
+    if (this.animateToAmplitude !== this.amplitude) {
       this.amplitude += this.animateAmplitudeDiff * dt;
-      if(this.animateAmplitudeDiff > 0) {
-        if(this.amplitude > this.animateToAmplitude) {
+      if (this.animateAmplitudeDiff > 0) {
+        if (this.amplitude > this.animateToAmplitude) {
           this.amplitude = this.animateToAmplitude;
         }
       } else {
-        if(this.amplitude < this.animateToAmplitude) {
+        if (this.amplitude < this.animateToAmplitude) {
           this.amplitude = this.animateToAmplitude;
         }
       }
     }
 
-    if(this.animateToAmplitude !== this.amplitude2) {
+    if (this.animateToAmplitude !== this.amplitude2) {
       this.amplitude2 += this.animateAmplitudeDiff2 * dt;
-      if(this.animateAmplitudeDiff2 > 0) {
-        if(this.amplitude2 > this.animateToAmplitude) {
+      if (this.animateAmplitudeDiff2 > 0) {
+        if (this.amplitude2 > this.animateToAmplitude) {
           this.amplitude2 = this.animateToAmplitude;
         }
       } else {
-        if(this.amplitude2 < this.animateToAmplitude) {
+        if (this.amplitude2 < this.animateToAmplitude) {
           this.amplitude2 = this.animateToAmplitude;
         }
       }
     }
 
-    if(previousState) {
+    if (previousState) {
       this.progressToState += dt / 250;
-      if(this.progressToState > 1) {
+      if (this.progressToState > 1) {
         this.progressToState = 1;
         this.previousState = null;
       }
     }
 
-    const {amplitude, amplitude2, progressToState} = this;
+    const { amplitude, amplitude2, progressToState } = this;
 
     const top1 = 6 * amplitude2 * scale;
     const top2 = 6 * amplitude2 * scale;
@@ -303,14 +303,14 @@ export default class TopbarWeave {
     lbd1.update(amplitude, 0.7);
     lbd2.update(amplitude, 0.7);
 
-    for(let i = 0; i < 2; i++) {
-      if(i === 0 && !previousState) {
+    for (let i = 0; i < 2; i++) {
+      if (i === 0 && !previousState) {
         continue;
       }
 
       let alpha = 1;
       let state: WeavingState;
-      if(i === 0) {
+      if (i === 0) {
         alpha = 1 - progressToState;
         state = (previousState as WeavingState);
         // previousState.setToPaint(paint);
@@ -335,15 +335,15 @@ export default class TopbarWeave {
       lbd.draw(left, top, right, bottom, canvas, paint, top, 1.0);
     }
 
-    if(!force) {
+    if (!force) {
       this.raf = requestAnimationFrame(() => this.draw());
     }
   };
 
   public setCurrentState = (type: WeavingCallType, state: WeavingCallState, animated: boolean) => {
-    const {currentState} = this;
+    const { currentState } = this;
 
-    if(currentState?.state === state && currentState.type === type) {
+    if (currentState?.state === state && currentState.type === type) {
       return;
     }
 
@@ -354,7 +354,7 @@ export default class TopbarWeave {
   };
 
   public setAmplitude(value: number) {
-    const {amplitude} = this;
+    const { amplitude } = this;
     this.animateToAmplitude = value;
     this.animateAmplitudeDiff = (value - amplitude) / 250;
     this.animateAmplitudeDiff2 = (value - amplitude) / 120;

@@ -1,14 +1,14 @@
 import callbackify from '@helpers/callbackify';
 import numberThousandSplitter from '@helpers/number/numberThousandSplitter';
-import {Chat, ChatFull} from '@layer';
+import { Chat, ChatFull } from '@layer';
 import getParticipantsCount from '@appManagers/utils/chats/getParticipantsCount';
-import {i18n, LangPackKey} from '@lib/langPack';
+import { i18n, LangPackKey } from '@lib/langPack';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import rootScope from '@lib/rootScope';
 
 function _getChatMembersString(chat: Chat, chatFull: ChatFull) {
   let count: number;
-  if(chatFull) {
+  if (chatFull) {
     count = getParticipantsCount(chatFull);
   } else {
     count = (chat as Chat.chat).participants_count || (chat as any).participants?.participants.length;
@@ -29,11 +29,11 @@ export default function getChatMembersString(
   chatFull?: ChatFull
 ) {
   chat ??= apiManagerProxy.getChat(chatId);
-  if(chat._ === 'chatForbidden') {
+  if (chat._ === 'chatForbidden') {
     return i18n('YouWereKicked');
   }
 
-  if(onlySync) {
+  if (onlySync) {
     return _getChatMembersString(chat, undefined!);
   }
 

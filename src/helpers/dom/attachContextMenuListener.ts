@@ -1,12 +1,12 @@
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import {IS_APPLE} from '@environment/userAgent';
+import { IS_APPLE } from '@environment/userAgent';
 import contextMenuController from '@helpers/contextMenuController';
-import ListenerSetter, {ListenerOptions} from '@helpers/listenerSetter';
+import ListenerSetter, { ListenerOptions } from '@helpers/listenerSetter';
 import cancelEvent from '@helpers/dom/cancelEvent';
 
 let _cancelContextMenuOpening = false, _cancelContextMenuOpeningTimeout = 0;
 export function cancelContextMenuOpening() {
-  if(_cancelContextMenuOpeningTimeout) {
+  if (_cancelContextMenuOpeningTimeout) {
     clearTimeout(_cancelContextMenuOpeningTimeout);
   }
 
@@ -22,7 +22,7 @@ export function attachContextMenuListener({
   element,
   callback,
   listenerSetter,
-  listenerOptions
+  listenerOptions,
 }: {
   element: HTMLElement,
   callback: (e: TouchEvent | MouseEvent) => void,
@@ -33,12 +33,12 @@ export function attachContextMenuListener({
   const remove = listenerSetter ? listenerSetter.removeManual.bind(listenerSetter, element) : element.removeEventListener.bind(element);
 
   // can't cancel further events coming after 'contextmenu' event
-  if((IS_APPLE && IS_TOUCH_SUPPORTED) || listenerOptions) {
+  if ((IS_APPLE && IS_TOUCH_SUPPORTED) || listenerOptions) {
     let timeout: number;
 
     const options: EventListenerOptions = {
       ...(listenerOptions || {}),
-      capture: true
+      capture: true,
     };
 
     const onCancel = () => {
@@ -52,7 +52,7 @@ export function attachContextMenuListener({
     };
 
     add('touchstart', (e: TouchEvent) => {
-      if(e.touches.length > 1) {
+      if (e.touches.length > 1) {
         onCancel();
         return;
       }
@@ -62,7 +62,7 @@ export function attachContextMenuListener({
       add('touchcancel', onCancel, options);
 
       timeout = window.setTimeout(() => {
-        if(_cancelContextMenuOpening) {
+        if (_cancelContextMenuOpening) {
           onCancel();
           return;
         }
@@ -70,8 +70,8 @@ export function attachContextMenuListener({
         callback(e);
         onCancel();
 
-        if(contextMenuController.isOpened()) {
-          add('touchend', cancelEvent, {once: true}); // * fix instant closing
+        if (contextMenuController.isOpened()) {
+          add('touchend', cancelEvent, { once: true }); // * fix instant closing
         }
       }, .4e3);
     }, listenerOptions);
@@ -85,8 +85,8 @@ export function attachContextMenuListener({
     add('contextmenu', IS_TOUCH_SUPPORTED ? (e: any) => {
       callback(e);
 
-      if(contextMenuController.isOpened()) {
-        add('touchend', cancelEvent, {once: true}); // * fix instant closing
+      if (contextMenuController.isOpened()) {
+        add('touchend', cancelEvent, { once: true }); // * fix instant closing
       }
     } : callback, listenerOptions);
   }

@@ -1,24 +1,24 @@
 import SaveButton from '@components/saveButton';
 import Section from '@components/section';
-import {usePromiseCollector} from '@components/solidJsTabs/promiseCollector';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
 import StaticSwitch from '@components/staticSwitch';
 import deepEqual from '@helpers/object/deepEqual';
 import setBooleanFlag from '@helpers/object/setBooleanFlag';
-import {HeightTransition} from '@helpers/solid/heightTransition';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {wrapAsyncClickHandler} from '@helpers/wrapAsyncClickHandler';
+import { HeightTransition } from '@helpers/solid/heightTransition';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { wrapAsyncClickHandler } from '@helpers/wrapAsyncClickHandler';
 import useIsConfirmationNeededOnClose from '@hooks/useIsConfirmationNeededOnClose';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {createComputed, createMemo, createResource, Show} from 'solid-js';
-import {createStore} from 'solid-js/store';
-import {Portal} from 'solid-js/web';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { createComputed, createMemo, createResource, Show } from 'solid-js';
+import { createStore } from 'solid-js/store';
+import { Portal } from 'solid-js/web';
 import useIsPremium from './privacy/messages/useIsPremium';
 
 
 export default function ArchiveSettingsTab() {
   const [tab] = useSuperTab();
-  const {Row, rootScope} = useHotReloadGuard();
+  const { Row, rootScope } = useHotReloadGuard();
 
   const promiseCollector = usePromiseCollector();
 
@@ -35,7 +35,7 @@ export default function ArchiveSettingsTab() {
   const [store, setStore] = createStore({
     keepArchivedUnmutedChats: false,
     keepArchiveFromFolders: false,
-    archiveNonContactChats: false
+    archiveNonContactChats: false,
   });
 
   type StoreState = typeof store;
@@ -43,25 +43,25 @@ export default function ArchiveSettingsTab() {
   let initialValues: StoreState = {
     keepArchivedUnmutedChats: false,
     keepArchiveFromFolders: false,
-    archiveNonContactChats: false
+    archiveNonContactChats: false,
   };
 
   const hasChanges = createMemo(() => !deepEqual(store, initialValues));
 
   createComputed(() => {
-    if(!isReady()) return;
+    if (!isReady()) return;
 
     initialValues = {
       keepArchivedUnmutedChats: !!globalPrivacy()?.pFlags?.keep_archived_unmuted,
       keepArchiveFromFolders: !!globalPrivacy()?.pFlags?.keep_archived_folders,
-      archiveNonContactChats: !!globalPrivacy()?.pFlags?.archive_and_mute_new_noncontact_peers
+      archiveNonContactChats: !!globalPrivacy()?.pFlags?.archive_and_mute_new_noncontact_peers,
     };
 
     setStore(initialValues);
   });
 
   const saveGlobalSettings = wrapAsyncClickHandler(async() => {
-    if(!isReady()) return;
+    if (!isReady()) return;
 
     const settings = structuredClone(globalPrivacy());
 
@@ -75,7 +75,7 @@ export default function ArchiveSettingsTab() {
     tab.close();
   });
 
-  tab.isConfirmationNeededOnClose = useIsConfirmationNeededOnClose({hasChanges, saveAllSettings: saveGlobalSettings, descriptionLangKey: 'UnsavedChangesDescription.Archive'});
+  tab.isConfirmationNeededOnClose = useIsConfirmationNeededOnClose({ hasChanges, saveAllSettings: saveGlobalSettings, descriptionLangKey: 'UnsavedChangesDescription.Archive' });
 
   return (
     <>
@@ -95,7 +95,7 @@ export default function ArchiveSettingsTab() {
       <Show when={isReady()}> {/* Prevent animation triggering when the store is initialized */}
         <HeightTransition>
           <Show when={!store.keepArchivedUnmutedChats}>
-            <div style={{overflow: 'hidden'}}> {/* Note: The `overflow: hidden` makes so the margin-bottom of the section is included in the scroll height */}
+            <div style={{ overflow: 'hidden' }}> {/* Note: The `overflow: hidden` makes so the margin-bottom of the section is included in the scroll height */}
               <Section name='ArchiveSettings.FolderChats.Title' caption='ArchiveSettings.FolderChats.Description'>
                 <Row clickable={() => setStore('keepArchiveFromFolders', prev => !prev)}>
                   <Row.Title>

@@ -1,6 +1,6 @@
 export default function fixFirefoxSvg(text: string) {
   const svgIndex = text.indexOf('<svg');
-  if(svgIndex !== 0) {
+  if (svgIndex !== 0) {
     text = text.slice(svgIndex);
   }
 

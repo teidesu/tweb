@@ -1,23 +1,23 @@
-import {Component, onMount} from 'solid-js';
+import { Component, onMount } from 'solid-js';
 import Button from '@components/buttonTsx';
 import InputField from '@components/inputField';
-import {InputFieldTsx} from '@components/inputFieldTsx';
-import {putPreloader} from '@components/putPreloader';
-import {AppTwoStepVerificationEmailConfirmationTab, AppTwoStepVerificationSetTab} from '@components/solidJsTabs/tabs';
+import { InputFieldTsx } from '@components/inputFieldTsx';
+import { putPreloader } from '@components/putPreloader';
+import { AppTwoStepVerificationEmailConfirmationTab, AppTwoStepVerificationSetTab } from '@components/solidJsTabs/tabs';
 import PopupPeer from '@components/popups/peer';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {canFocus} from '@helpers/dom/canFocus';
+import { canFocus } from '@helpers/dom/canFocus';
 import matchEmail from '@lib/richTextProcessor/matchEmail';
 import Section from '@components/section';
 import PopupElement from '@components/popups';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import type {AppTwoStepVerificationEmailTab} from '@components/solidJsTabs/tabs';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import type { AppTwoStepVerificationEmailTab } from '@components/solidJsTabs/tabs';
 
 const TwoStepVerificationEmail: Component = () => {
   const [tab] = useSuperTab<typeof AppTwoStepVerificationEmailTab>();
-  const {lottieLoader} = useHotReloadGuard();
-  const {state, plainPassword, newPassword, hint} = tab.payload;
+  const { lottieLoader } = useHotReloadGuard();
+  const { state, plainPassword, newPassword, hint } = tab.payload;
   const isFirst = tab.payload.isFirst ?? false;
   const justSetPasssword = tab.payload.justSetPasssword ?? false;
 
@@ -33,11 +33,11 @@ const TwoStepVerificationEmail: Component = () => {
     width: 160,
     height: 160,
     loop: false,
-    autoplay: true
+    autoplay: true,
   }, 'LoveLetter');
 
   const toggleButtons = (freeze: boolean) => {
-    if(freeze) {
+    if (freeze) {
       btnContinue.setAttribute('disabled', 'true');
       btnSkip.setAttribute('disabled', 'true');
     } else {
@@ -47,13 +47,13 @@ const TwoStepVerificationEmail: Component = () => {
   };
 
   const goNext = () => {
-    tab.slider.createTab(AppTwoStepVerificationSetTab).open({messageFor: justSetPasssword ? 'password' : 'email'});
+    tab.slider.createTab(AppTwoStepVerificationSetTab).open({ messageFor: justSetPasssword ? 'password' : 'email' });
   };
 
   const onContinueClick = () => {
     const email = inputField.value.trim();
     const match = matchEmail(email);
-    if(!match || match[0].length !== email.length) {
+    if (!match || match[0].length !== email.length) {
       inputField.input.classList.add('error');
       return;
     }
@@ -65,18 +65,18 @@ const TwoStepVerificationEmail: Component = () => {
       hint: hint,
       currentPassword: plainPassword,
       newPassword: newPassword,
-      email
+      email,
     }).then((value) => {
       goNext();
     }, (err) => {
-      if(err.type.includes('EMAIL_UNCONFIRMED')) {
+      if (err.type.includes('EMAIL_UNCONFIRMED')) {
         const symbols = +err.type.match(/^EMAIL_UNCONFIRMED_(\d+)/)[1];
 
         tab.slider.createTab(AppTwoStepVerificationEmailConfirmationTab).open({
           state,
           email,
           length: symbols,
-          justSetPasssword
+          justSetPasssword,
         });
       } else {
         console.log('password set error', err);
@@ -91,7 +91,7 @@ const TwoStepVerificationEmail: Component = () => {
     const popup = PopupElement.createPopup(PopupPeer, 'popup-skip-email', {
       buttons: [{
         langKey: 'Cancel',
-        isCancel: true
+        isCancel: true,
       }, {
         langKey: 'YourEmailSkip',
         callback: () => {
@@ -101,17 +101,17 @@ const TwoStepVerificationEmail: Component = () => {
             hint: hint,
             currentPassword: plainPassword,
             newPassword: newPassword,
-            email: ''
+            email: '',
           }).then(() => {
             goNext();
           }, (err) => {
             toggleButtons(false);
           });
         },
-        isDanger: true
+        isDanger: true,
       }],
       titleLangKey: 'YourEmailSkipWarning',
-      descriptionLangKey: 'YourEmailSkipWarningText'
+      descriptionLangKey: 'YourEmailSkipWarningText',
     });
 
     popup.show();
@@ -121,7 +121,7 @@ const TwoStepVerificationEmail: Component = () => {
     tab.container.classList.add('two-step-verification', 'two-step-verification-email');
 
     inputField.input.addEventListener('keypress', (e) => {
-      if(e.key === 'Enter') {
+      if (e.key === 'Enter') {
         cancelEvent(e);
         return onContinueClick();
       }
@@ -129,7 +129,7 @@ const TwoStepVerificationEmail: Component = () => {
   });
 
   (tab as any)._onOpenAfterTimeout = () => {
-    if(!canFocus(isFirst)) return;
+    if (!canFocus(isFirst)) return;
     inputField.input.focus();
   };
 

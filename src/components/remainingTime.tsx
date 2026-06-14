@@ -1,7 +1,7 @@
 import formatDuration from '@helpers/formatDuration';
 import toHHMMSS from '@helpers/string/toHHMMSS';
-import {Accessor, createEffect, createMemo, createSignal, JSX, onCleanup} from 'solid-js';
-import {wrapFormattedDuration} from './wrappers/wrapDuration';
+import { Accessor, createEffect, createMemo, createSignal, JSX, onCleanup } from 'solid-js';
+import { wrapFormattedDuration } from './wrappers/wrapDuration';
 
 
 const hourInSeconds = 60 * 60;
@@ -27,7 +27,7 @@ export const RemainingTime = (props: Props) => {
   });
 
   const formattedTime = createMemo(() => {
-    if(remainingSeconds() < hourInSeconds) {
+    if (remainingSeconds() < hourInSeconds) {
       return toHHMMSS(remainingSeconds());
     }
     return wrapFormattedDuration(formatDuration(remainingSeconds(), 1))
@@ -40,7 +40,7 @@ function useNowMillis(shouldUpdate: Accessor<boolean>) {
   const [now, setNow] = createSignal(Date.now());
 
   createEffect(() => {
-    if(!shouldUpdate()) {
+    if (!shouldUpdate()) {
       return;
     }
 

@@ -1,21 +1,21 @@
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import {IS_MOBILE, IS_SAFARI} from '@environment/userAgent';
+import { IS_MOBILE, IS_SAFARI } from '@environment/userAgent';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import fixSafariStickyInput from '@helpers/dom/fixSafariStickyInput';
 
 export const IS_STICKY_INPUT_BUGGED = IS_SAFARI && IS_MOBILE && IS_TOUCH_SUPPORTED && false;
 
-if(IS_STICKY_INPUT_BUGGED) {
+if (IS_STICKY_INPUT_BUGGED) {
   const key: 'clientY' | 'pageY' = 'clientY';
   let startY = 0;
-  const o = {capture: true, passive: false};
+  const o = { capture: true, passive: false };
   const onTouchMove = (e: TouchEvent) => {
     const touch = e.touches[0];
 
     // console.log('touchmove y', touch[key], startY);
 
     const scrollable = findUpClassName(touch.target, 'scrollable-y');
-    if(scrollable) {
+    if (scrollable) {
       const y = touch[key];
       const scrolled = startY - y;
 
@@ -29,7 +29,7 @@ if(IS_STICKY_INPUT_BUGGED) {
       const nextScrollTop = scrollTop ? Math.round(scrollTop + scrollable.clientHeight + scrolled) : scrollTop + scrolled;
       // const needCancel = scrollHeight !== clientHeight ? (scrollTop && diff <= 1) || (scrollTop - diff) < 0 : true;
       const needCancel = scrollHeight === clientHeight || nextScrollTop >= scrollHeight || nextScrollTop <= 0;
-      if(needCancel) {
+      if (needCancel) {
         e.preventDefault();
       }
 
@@ -50,7 +50,7 @@ if(IS_STICKY_INPUT_BUGGED) {
   // let hasFocus = false;
   let lastFocusOutTimeStamp = 0;
   document.addEventListener('focusin', (e) => {
-    if(!(e.target as HTMLElement).classList.contains('is-sticky-input-bugged') || (e.timeStamp - lastFocusOutTimeStamp) < 50/*  && document.activeElement === input */) {
+    if (!(e.target as HTMLElement).classList.contains('is-sticky-input-bugged') || (e.timeStamp - lastFocusOutTimeStamp) < 50/*  && document.activeElement === input */) {
       return;
     }
 
@@ -65,12 +65,12 @@ if(IS_STICKY_INPUT_BUGGED) {
 
     document.addEventListener('touchmove', onTouchMove, o);
     document.addEventListener('touchstart', (e) => {
-      if(e.touches.length > 1) return;
+      if (e.touches.length > 1) return;
       const touchStart = e.touches[0];
 
       startY = touchStart[key];
     });
-  }, {passive: true});
+  }, { passive: true });
 
   document.addEventListener('focusout', (e) => {
     // console.log('focusout', e, e.timeStamp);
@@ -84,11 +84,11 @@ if(IS_STICKY_INPUT_BUGGED) {
     //   hasFocus = false;
     //   document.body.classList.remove('is-keyboard-opened');
     // }
-  }, {passive: true});
+  }, { passive: true });
 
   document.addEventListener('visibilitychange', () => {
     // console.log('window visibilitychange');
-    if(document.activeElement &&
+    if (document.activeElement &&
       document.activeElement.classList.contains('is-sticky-input-bugged') &&
       (document.activeElement as HTMLElement).blur) {
       fixSafariStickyInput(document.activeElement as HTMLElement);
@@ -97,10 +97,10 @@ if(IS_STICKY_INPUT_BUGGED) {
     /* blurActiveElement();
     window.scrollTo(0, 0);
     setVH(); */
-  }, {passive: true});
+  }, { passive: true });
 }
 
 export default function fixSafariStickyInputFocusing(input: HTMLElement) {
-  if(!IS_STICKY_INPUT_BUGGED) return;
+  if (!IS_STICKY_INPUT_BUGGED) return;
   input.classList.add('is-sticky-input-bugged');
 }

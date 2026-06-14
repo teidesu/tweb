@@ -1,6 +1,6 @@
 import _limitSymbols from '@helpers/string/limitSymbols';
-import {Chat} from '@layer';
-import {AppManagers} from '@lib/managers';
+import { Chat } from '@layer';
+import { AppManagers } from '@lib/managers';
 import getPeerActiveUsernames from '@appManagers/utils/peers/getPeerActiveUsernames';
 import I18n from '@lib/langPack';
 import apiManagerProxy from '@lib/apiManagerProxy';
@@ -19,7 +19,7 @@ type GetPeerTitleOptions = {
 
 
 async function getTitleIfMonoforum(chat: Chat, managers?: AppManagers) {
-  if(chat?._ !== 'channel' || !chat?.pFlags?.monoforum || !chat.linked_monoforum_id) return;
+  if (chat?._ !== 'channel' || !chat?.pFlags?.monoforum || !chat.linked_monoforum_id) return;
   const peerId = chat.linked_monoforum_id.toPeerId();
 
   const linkedChannel = (managers ? await managers.appChatsManager.getChat(peerId.toChatId()) : apiManagerProxy.getChat(peerId.toChatId()));
@@ -40,38 +40,38 @@ export default async function getPeerTitle(options: GetPeerTitleOptions): Promis
     limitSymbols,
     managers = rootScope.managers,
     useManagers,
-    threadId
+    threadId,
   } = options;
 
   let title = '';
-  if(peerId.isUser()) {
+  if (peerId.isUser()) {
     const user = useManagers ? await managers.appUsersManager.getUser(peerId.toUserId()) : apiManagerProxy.getUser(peerId.toUserId());
-    if(user) {
-      if(user.pFlags?.bot_forum_view && threadId) {
+    if (user) {
+      if (user.pFlags?.bot_forum_view && threadId) {
         const topic = await managers.dialogsStorage.getForumTopic(peerId, threadId);
         title = topic?.title || '';
-      } else if(username) {
+      } else if (username) {
         const username = getPeerActiveUsernames(user)[0] || '';
-        if(username) title = '@' + username;
+        if (username) title = '@' + username;
       } else {
-        if(user.first_name) title += user.first_name;
-        if(user.last_name && (!onlyFirstName || !title)) title += ' ' + user.last_name;
+        if (user.first_name) title += user.first_name;
+        if (user.last_name && (!onlyFirstName || !title)) title += ' ' + user.last_name;
       }
     }
 
-    if(!title) title = !user || user.pFlags.deleted ? I18n.format(onlyFirstName ? 'Deleted' : 'HiddenName', true) : getPeerActiveUsernames(user)[0] || '';
+    if (!title) title = !user || user.pFlags.deleted ? I18n.format(onlyFirstName ? 'Deleted' : 'HiddenName', true) : getPeerActiveUsernames(user)[0] || '';
     else title = title.trim();
   } else {
-    if(threadId) {
+    if (threadId) {
       const topic = await managers.dialogsStorage.getForumTopic(peerId, threadId);
       title = topic?.title || '';
     }
 
-    if(!title) {
+    if (!title) {
       const chat = (useManagers ? await managers.appChatsManager.getChat(peerId.toChatId()) : apiManagerProxy.getChat(peerId.toChatId())) as Chat.chat;
-      if(username) {
+      if (username) {
         const username = getPeerActiveUsernames(chat)[0] || '';
-        if(username) title = '@' + username;
+        if (username) title = '@' + username;
       } else {
         const monoforumTitle = !plainText ? await getTitleIfMonoforum(chat, useManagers ? managers : undefined) : undefined;
 
@@ -79,12 +79,12 @@ export default async function getPeerTitle(options: GetPeerTitleOptions): Promis
       }
     }
 
-    if(onlyFirstName) {
+    if (onlyFirstName) {
       title = title.split(' ')[0];
     }
   }
 
-  if(limitSymbols !== undefined) {
+  if (limitSymbols !== undefined) {
     title = _limitSymbols(title, limitSymbols, limitSymbols);
   }
 

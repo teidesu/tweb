@@ -1,4 +1,4 @@
-import {Accessor, createMemo} from 'solid-js';
+import { Accessor, createMemo } from 'solid-js';
 
 export type ValueOrGetter<T> = T | Accessor<T>;
 

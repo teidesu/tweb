@@ -1,19 +1,19 @@
-import {StarGift} from '@layer';
-import {BroadcastEvents} from '@lib/rootScope';
-import {MyStarGift} from '@appManagers/appGiftsManager';
+import { StarGift } from '@layer';
+import { BroadcastEvents } from '@lib/rootScope';
+import { MyStarGift } from '@appManagers/appGiftsManager';
 
 export function updateStarGift(gift: MyStarGift, update: BroadcastEvents['star_gift_update']) {
-  const {unsaved, converted, resalePrice, wearing, addCollectionId, removeCollectionId} = update;
+  const { unsaved, converted, resalePrice, wearing, addCollectionId, removeCollectionId } = update;
 
-  if(unsaved !== undefined) {
+  if (unsaved !== undefined) {
     gift.saved!.pFlags.unsaved = unsaved ? true : undefined;
   }
-  if(converted !== undefined) {
+  if (converted !== undefined) {
     gift.isConverted = converted;
   }
 
-  if(resalePrice !== undefined) {
-    if(resalePrice.length === 0) {
+  if (resalePrice !== undefined) {
+    if (resalePrice.length === 0) {
       gift.resellPriceStars = null;
       gift.resellPriceTon = null;
       gift.resellOnlyTon = false;
@@ -22,10 +22,10 @@ export function updateStarGift(gift: MyStarGift, update: BroadcastEvents['star_g
       raw.resell_amount = undefined;
     } else {
       gift.resellOnlyTon = false;
-      for(const price of resalePrice) {
-        if(price._ === 'starsAmount') {
+      for (const price of resalePrice) {
+        if (price._ === 'starsAmount') {
           gift.resellPriceStars = price.amount;
-        } else if(price._ === 'starsTonAmount') {
+        } else if (price._ === 'starsTonAmount') {
           gift.resellPriceTon = price.amount;
           gift.resellOnlyTon = true;
         }
@@ -37,22 +37,22 @@ export function updateStarGift(gift: MyStarGift, update: BroadcastEvents['star_g
     }
   }
 
-  if(wearing !== undefined) {
+  if (wearing !== undefined) {
     gift.isWearing = wearing;
   }
 
-  if(addCollectionId !== undefined) {
+  if (addCollectionId !== undefined) {
     const ids = gift.saved!.collection_id ?? [];
-    if(!ids.includes(addCollectionId)) {
+    if (!ids.includes(addCollectionId)) {
       gift.saved!.collection_id = [...ids, addCollectionId];
     }
   }
 
-  if(removeCollectionId !== undefined) {
+  if (removeCollectionId !== undefined) {
     const ids = gift.saved!.collection_id;
-    if(ids) {
+    if (ids) {
       gift.saved!.collection_id = ids.filter((id) => id !== removeCollectionId);
-      if(!gift.saved!.collection_id.length) {
+      if (!gift.saved!.collection_id.length) {
         gift.saved!.collection_id = undefined;
       }
     }

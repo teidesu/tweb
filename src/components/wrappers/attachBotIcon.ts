@@ -1,4 +1,4 @@
-import type {MyDocument} from '@appManagers/appDocsManager';
+import type { MyDocument } from '@appManagers/appDocsManager';
 import customProperties from '@helpers/dom/customProperties';
 import textToSvgURL from '@helpers/textToSvgURL';
 import rootScope from '@lib/rootScope';
@@ -10,7 +10,7 @@ export default function wrapAttachBotIcon({
   element: iconElement,
   size,
   textColor,
-  strokeWidth
+  strokeWidth,
 }: {
   doc: MyDocument,
   element: HTMLElement,
@@ -20,7 +20,7 @@ export default function wrapAttachBotIcon({
 }) {
   iconElement.classList.add('is-external');
 
-  if(!addedThemeListener) {
+  if (!addedThemeListener) {
     addedThemeListener = true;
 
     rootScope.addEventListener('theme_changed', () => {
@@ -42,7 +42,7 @@ export default function wrapAttachBotIcon({
     });
 
     const url = await textToSvgURL(svg.outerHTML);
-    if(!manual) {
+    if (!manual) {
       return url;
     }
 
@@ -64,7 +64,7 @@ export default function wrapAttachBotIcon({
       (iconElement as any).svg = svg;
       (iconElement as any).set = set;
       return (await set())!;
-    }
+    },
   });
 
   return originalPromise.then(async(ret) => {

@@ -1,17 +1,17 @@
-import {onMount, Show} from 'solid-js';
-import {monthsLocalized} from '@helpers/date';
+import { onMount, Show } from 'solid-js';
+import { monthsLocalized } from '@helpers/date';
 import liteMode from '@helpers/liteMode';
-import {I18nTsx} from '@helpers/solid/i18n';
-import {Birthday} from '@layer';
+import { I18nTsx } from '@helpers/solid/i18n';
+import { Birthday } from '@layer';
 import lottieLoader from '@lib/rlottie/lottieLoader';
 import LottieAnimation from '@components/lottieAnimation';
 
 
 import styles from '@components/chat/bubbles/suggestBirthday.module.scss';
 import Button from '@components/buttonTsx';
-import showBirthdayPopup, {saveMyBirthday} from '@components/popups/birthday';
+import showBirthdayPopup, { saveMyBirthday } from '@components/popups/birthday';
 import rootScope from '@lib/rootScope';
-import {toastNew} from '@components/toast';
+import { toastNew } from '@components/toast';
 
 export function SuggestBirthdayBubble(props: {
   birthday: Birthday
@@ -27,7 +27,7 @@ export function SuggestBirthdayBubble(props: {
         lottieLoader={lottieLoader}
         needRaf
         rlottieOptions={{
-          autoplay: liteMode.isAvailable('stickers_chat')
+          autoplay: liteMode.isAvailable('stickers_chat'),
         }}
       />
 
@@ -56,7 +56,7 @@ export function SuggestBirthdayBubble(props: {
           onClick={() => showBirthdayPopup({
             initialDate: props.birthday,
             fromSuggestion: true,
-            onSave: saveMyBirthday
+            onSave: saveMyBirthday,
           })}
         >
           <I18nTsx key="BirthdaySuggestView" />

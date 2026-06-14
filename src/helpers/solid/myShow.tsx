@@ -1,4 +1,4 @@
-import {JSX, createMemo, untrack, Show, createSignal, createRenderEffect} from 'solid-js';
+import { JSX, createMemo, untrack, Show, createSignal, createRenderEffect } from 'solid-js';
 
 /**
  * Drop-in replacement for solid-js Show.

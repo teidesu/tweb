@@ -1,24 +1,24 @@
-import {Component, onMount, Show} from 'solid-js';
+import { Component, onMount, Show } from 'solid-js';
 import Button from '@components/buttonTsx';
 import PopupElement from '@components/popups';
 import PopupPeer from '@components/popups/peer';
 import Section from '@components/section';
 import wrapStickerEmoji from '@components/wrappers/stickerEmoji';
-import {AppSettingsTab} from '@components/solidJsTabs';
-import {AppTwoStepVerificationEmailTab, AppTwoStepVerificationEnterPasswordTab} from '@components/solidJsTabs/tabs';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import type {AppTwoStepVerificationTab} from '@components/solidJsTabs/tabs';
+import { AppSettingsTab } from '@components/solidJsTabs';
+import { AppTwoStepVerificationEmailTab, AppTwoStepVerificationEnterPasswordTab } from '@components/solidJsTabs/tabs';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import type { AppTwoStepVerificationTab } from '@components/solidJsTabs/tabs';
 
 const TwoStepVerification: Component = () => {
   const [tab] = useSuperTab<typeof AppTwoStepVerificationTab>();
-  const {state, plainPassword} = tab.payload;
+  const { state, plainPassword } = tab.payload;
 
   const stickerContainer = document.createElement('div');
   wrapStickerEmoji({
     div: stickerContainer,
     width: 168,
     height: 168,
-    emoji: '🔐'
+    emoji: '🔐',
   });
 
   onMount(() => {
@@ -30,15 +30,15 @@ const TwoStepVerification: Component = () => {
       buttons: [{
         langKey: 'Disable',
         callback: () => {
-          tab.managers.passwordManager.updateSettings({currentPassword: plainPassword}).then(() => {
+          tab.managers.passwordManager.updateSettings({ currentPassword: plainPassword }).then(() => {
             tab.slider.sliceTabsUntilTab(AppSettingsTab, tab);
             tab.close();
           });
         },
-        isDanger: true
+        isDanger: true,
       }],
       titleLangKey: 'TurnPasswordOffQuestionTitle',
-      descriptionLangKey: 'TurnPasswordOffQuestion'
+      descriptionLangKey: 'TurnPasswordOffQuestion',
     });
 
     popup.show();
@@ -58,7 +58,7 @@ const TwoStepVerification: Component = () => {
             <Button
               primaryFilled
               text="TwoStepVerificationSetPassword"
-              onClick={() => tab.slider.createTab(AppTwoStepVerificationEnterPasswordTab).open({state})}
+              onClick={() => tab.slider.createTab(AppTwoStepVerificationEnterPasswordTab).open({ state })}
             />
           </div>
         }
@@ -67,7 +67,7 @@ const TwoStepVerification: Component = () => {
           class="btn-primary btn-transparent"
           icon="edit"
           text="TwoStepAuth.ChangePassword"
-          onClick={() => tab.slider.createTab(AppTwoStepVerificationEnterPasswordTab).open({state, plainPassword})}
+          onClick={() => tab.slider.createTab(AppTwoStepVerificationEnterPasswordTab).open({ state, plainPassword })}
         />
         <Button
           class="btn-primary btn-transparent"
@@ -84,7 +84,7 @@ const TwoStepVerification: Component = () => {
             hint: state.hint,
             plainPassword,
             newPassword: plainPassword,
-            isFirst: true
+            isFirst: true,
           })}
         />
       </Show>

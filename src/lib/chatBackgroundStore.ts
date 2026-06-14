@@ -1,9 +1,9 @@
-import {DEFAULT_BACKGROUND_SLUG} from '@config/app';
+import { DEFAULT_BACKGROUND_SLUG } from '@config/app';
 import blur from '@helpers/blur';
-import type {Document, WallPaper} from '@layer';
+import type { Document, WallPaper } from '@layer';
 
 import type AppDownloadManagerInstance from '@lib/appDownloadManager';
-import type {AppManagers} from '@lib/managers';
+import type { AppManagers } from '@lib/managers';
 import CacheStorageController from '@lib/files/cacheStorage';
 import StaticUtilityClass from '@lib/staticUtilityClass';
 
@@ -56,7 +56,7 @@ class ChatBackgroundStore extends StaticUtilityClass {
     blur,
 
     managers,
-    appDownloadManager
+    appDownloadManager,
   }: ChatBackgroundStore.GetBackgroundArgs) {
     const storageUrl = this.getWallPaperStorageUrl(slug, blur);
     const canReallyDownload = canDownload && !!managers && !!appDownloadManager;
@@ -64,16 +64,16 @@ class ChatBackgroundStore extends StaticUtilityClass {
     return this.backgroundPromises[storageUrl] ||= this.cacheStorage.getFile(storageUrl).then((blob) => {
       return this.backgroundPromises[storageUrl] = URL.createObjectURL(blob);
     }, canReallyDownload ? async(err) => {
-      if((err as ApiError).type !== 'NO_ENTRY_FOUND') {
+      if ((err as ApiError).type !== 'NO_ENTRY_FOUND') {
         throw err;
       }
 
       const wallPaper = await managers.appThemesManager.getWallPaperBySlug(slug);
       let url = await appDownloadManager.downloadMediaURL({
-        media: (wallPaper as WallPaper.wallPaper).document as Document.document
+        media: (wallPaper as WallPaper.wallPaper).document as Document.document,
       });
 
-      if(blur) {
+      if (blur) {
         url = await this.blurWallPaperImage(url);
       }
 
@@ -83,14 +83,14 @@ class ChatBackgroundStore extends StaticUtilityClass {
   }
 
   public static blurWallPaperImage(url: string) {
-    const {canvas, promise} = blur(url, 12, 4);
+    const { canvas, promise } = blur(url, 12, 4);
     return promise.then(() => {
       return canvas.toDataURL();
     });
   }
 
   public static async saveWallPaperToCache(slug: string, url: string, blur?: boolean) {
-    if(!slug || slug === DEFAULT_BACKGROUND_SLUG) {
+    if (!slug || slug === DEFAULT_BACKGROUND_SLUG) {
       return;
     }
 
@@ -101,11 +101,11 @@ class ChatBackgroundStore extends StaticUtilityClass {
     return this.cacheStorage.save({
       entryName: this.getWallPaperStorageUrl(slug, blur),
       response: clonedResponse,
-      size: blob.size
+      size: blob.size,
     });
   }
 
-  public static setBackgroundUrlToCache({slug, url, blur}: ChatBackgroundStore.SetBackgroundUrlToCacheArgs) {
+  public static setBackgroundUrlToCache({ slug, url, blur }: ChatBackgroundStore.SetBackgroundUrlToCacheArgs) {
     this.backgroundPromises[this.getWallPaperStorageUrl(slug, blur)] = url;
   }
 
@@ -123,17 +123,17 @@ class ChatBackgroundStore extends StaticUtilityClass {
     let wallPapers: WallPaper[];
     try {
       wallPapers = await managers.appThemesManager.getWallPapers();
-    } catch(err) {
+    } catch (err) {
       return; // best-effort prefetch — give up silently if the list can't be fetched
     }
 
     // Keep the synchronous list cache warm so the picker can render its grid without an async wait.
     this.cachedWallPapers = wallPapers;
 
-    for(const wallPaper of wallPapers) {
-      const {slug, settings} = wallPaper as WallPaper.wallPaper;
+    for (const wallPaper of wallPapers) {
+      const { slug, settings } = wallPaper as WallPaper.wallPaper;
       // Color-only wallpapers have no slug; the default pattern is bundled — neither downloads.
-      if(!slug || slug === DEFAULT_BACKGROUND_SLUG) {
+      if (!slug || slug === DEFAULT_BACKGROUND_SLUG) {
         continue;
       }
 
@@ -142,9 +142,9 @@ class ChatBackgroundStore extends StaticUtilityClass {
         canDownload: true,
         managers,
         appDownloadManager,
-        blur: settings?.pFlags?.blur
+        blur: settings?.pFlags?.blur,
       });
-      if(result instanceof Promise) {
+      if (result instanceof Promise) {
         result.catch(() => {});
       }
     }

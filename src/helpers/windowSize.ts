@@ -1,5 +1,5 @@
-import {MOUNT_CLASS_TO} from '@config/debug';
-import {IS_WORKER} from '@helpers/context';
+import { MOUNT_CLASS_TO } from '@config/debug';
+import { IS_WORKER } from '@helpers/context';
 import createUnifiedSignal from '@helpers/solid/createUnifiedSignal';
 
 export class WindowSize {
@@ -9,7 +9,7 @@ export class WindowSize {
   private viewport: VisualViewport | Window;
 
   constructor() {
-    if(IS_WORKER) {
+    if (IS_WORKER) {
       return;
     }
 

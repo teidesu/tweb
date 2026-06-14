@@ -1,15 +1,15 @@
 import createContextMenu from '@helpers/dom/createContextMenu';
 import findUpClassName from '@helpers/dom/findUpClassName';
-import {ChannelParticipant, Chat, ChatParticipant} from '@layer';
+import { ChannelParticipant, Chat, ChatParticipant } from '@layer';
 import SidebarSlider from '@components/slider';
 import rootScope from '@lib/rootScope';
 import appImManager from '@lib/appImManager';
 import canEditAdmin from '@appManagers/utils/chats/canEditAdmin';
-import {openUserPermissionsTab} from '@components/solidJsTabs/tabs';
-import {Middleware} from '@helpers/middleware';
-import {ButtonMenuItemOptionsVerifiable} from '@components/buttonMenu';
-import {handleMissingInvitees} from '@components/addChatUsers';
-import {isParticipantAdmin, isParticipantCreator} from '@lib/appManagers/utils/chats/isParticipantAdmin';
+import { openUserPermissionsTab } from '@components/solidJsTabs/tabs';
+import { Middleware } from '@helpers/middleware';
+import { ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
+import { handleMissingInvitees } from '@components/addChatUsers';
+import { isParticipantAdmin, isParticipantCreator } from '@lib/appManagers/utils/chats/isParticipantAdmin';
 
 type Participant = ChannelParticipant | ChatParticipant;
 
@@ -23,7 +23,7 @@ export default function createParticipantContextMenu(options: {
   participants: Map<PeerId, Participant>,
   middleware?: Middleware
 }) {
-  const {listenTo, appendTo, onOpen, onClose, slider, chatId, participants, middleware} = options;
+  const { listenTo, appendTo, onOpen, onClose, slider, chatId, participants, middleware } = options;
   let target: HTMLElement,
     participant: Participant,
     participantPeerId: PeerId,
@@ -42,36 +42,36 @@ export default function createParticipantContextMenu(options: {
       icon: 'message',
       text: 'SendMessage',
       onClick: () => {
-        appImManager.setInnerPeer({peerId: participantPeerId});
-      }
+        appImManager.setInnerPeer({ peerId: participantPeerId });
+      },
     }, {
       icon: 'adduser',
       text: isBroadcast ? 'AddToChannel' : 'AddToGroup',
       onClick: () => {
-        if(isBanned) {
+        if (isBanned) {
           rootScope.managers.appChatsManager.addToChat(chatId, participantPeerId)
-          .then((missingInvitees) => {
-            handleMissingInvitees(chatId, missingInvitees);
-          });
+            .then((missingInvitees) => {
+              handleMissingInvitees(chatId, missingInvitees);
+            });
         }
       },
       verify: () => {
-        if(!isBanned) {
+        if (!isBanned) {
           return false;
         }
 
         return true;
-      }
+      },
     }, {
       icon: 'promote',
       text: 'SetAsAdmin',
       onClick: () => openPermissions(true),
-      verify: () => canManageAdmins && !isParticipantAdmin(participant)
+      verify: () => canManageAdmins && !isParticipantAdmin(participant),
     }, {
       icon: 'admin',
       text: 'EditAdminRights',
       onClick: () => openPermissions(true),
-      verify: () => isParticipantAdmin(participant) && canEditAdmin(chat, participant as ChannelParticipant, rootScope.myId)
+      verify: () => isParticipantAdmin(participant) && canEditAdmin(chat, participant as ChannelParticipant, rootScope.myId),
     }, {
       icon: 'restrict',
       text: 'KickFromSupergroup',
@@ -80,30 +80,30 @@ export default function createParticipantContextMenu(options: {
         participant._ === 'channelParticipant' ||
         participant._ === 'chatParticipant' ||
         (participant._ === 'channelParticipantBanned' && !participant.pFlags.left)
-      )
+      ),
     }, {
       icon: 'delete',
       text: 'Delete',
       onClick: () => {
-        if(isBanned) {
+        if (isBanned) {
           rootScope.managers.appChatsManager.editBanned(
             chatId,
             participant,
             {
               _: 'chatBannedRights',
               pFlags: {},
-              until_date: 0
+              until_date: 0,
             }
           );
         }
       },
       verify: () => {
-        if(!isBanned || !canChangePermissions || participantPeerId === rootScope.myId) {
+        if (!isBanned || !canChangePermissions || participantPeerId === rootScope.myId) {
           return false;
         }
 
         return true;
-      }
+      },
     }, {
       icon: 'delete',
       text: 'KickFromGroup',
@@ -114,7 +114,7 @@ export default function createParticipantContextMenu(options: {
         participantPeerId !== rootScope.myId &&
         !isParticipantCreator(participant) &&
         (!isParticipantAdmin(participant) || canEditAdmin(chat, participant, rootScope.myId)) &&
-        (participant._ === 'channelParticipant' || !isBanned)
+        (participant._ === 'channelParticipant' || !isBanned),
     }];
   }
 
@@ -131,7 +131,7 @@ export default function createParticipantContextMenu(options: {
         rootScope.managers.appChatsManager.getChat(chatId) as Promise<typeof chat>,
         rootScope.managers.appChatsManager.isBroadcast(chatId),
         rootScope.managers.appChatsManager.hasRights(chatId, 'change_permissions'),
-        rootScope.managers.appChatsManager.hasRights(chatId, 'change_permissions')
+        rootScope.managers.appChatsManager.hasRights(chatId, 'change_permissions'),
       ]);
 
       target.classList.add('menu-open');
@@ -143,6 +143,6 @@ export default function createParticipantContextMenu(options: {
       target.classList.remove('menu-open');
       return onClose?.();
     },
-    buttons
+    buttons,
   });
 }

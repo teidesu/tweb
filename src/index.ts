@@ -8,10 +8,10 @@ import '@helpers/dom/previewUnfreeze';
 import '@helpers/dom/previewRaf';
 import App from '@config/app';
 import blurActiveElement from '@helpers/dom/blurActiveElement';
-import {IS_STICKY_INPUT_BUGGED} from '@helpers/dom/fixSafariStickyInputFocusing';
+import { IS_STICKY_INPUT_BUGGED } from '@helpers/dom/fixSafariStickyInputFocusing';
 import loadFonts from '@helpers/dom/loadFonts';
 import IS_EMOJI_SUPPORTED from '@environment/emojiSupport';
-import {IS_ANDROID, IS_APPLE, IS_APPLE_MOBILE, IS_FIREFOX, IS_MOBILE, IS_SAFARI} from '@environment/userAgent';
+import { IS_ANDROID, IS_APPLE, IS_APPLE_MOBILE, IS_FIREFOX, IS_MOBILE, IS_SAFARI } from '@environment/userAgent';
 import '@/materialize.scss';
 import '@/scss/style.scss';
 import pause from '@helpers/schedulers/pause';
@@ -19,7 +19,7 @@ import setWorkerProxy from '@helpers/setWorkerProxy';
 import toggleAttributePolyfill from '@helpers/dom/toggleAttributePolyfill';
 import rootScope from '@lib/rootScope';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import I18n, {checkLangPackForUpdates, i18n, LangPackKey} from '@lib/langPack';
+import I18n, { checkLangPackForUpdates, i18n, LangPackKey } from '@lib/langPack';
 import '@helpers/peerIdPolyfill';
 import '@lib/polyfill';
 import '@lib/debug/mountLogExport'; // main-thread-only: wires window.downloadLogs / collectLogs
@@ -27,37 +27,37 @@ import apiManagerProxy from '@lib/apiManagerProxy';
 import getProxiedManagers from '@lib/getProxiedManagers';
 import themeController from '@helpers/themeController';
 import overlayCounter from '@helpers/overlayCounter';
-import singleInstance, {InstanceDeactivateReason} from '@lib/singleInstance';
-import {parseUriParamsLine} from '@helpers/string/parseUriParams';
+import singleInstance, { InstanceDeactivateReason } from '@lib/singleInstance';
+import { parseUriParamsLine } from '@helpers/string/parseUriParams';
 import Modes from '@config/modes';
-import {AuthState} from '@types';
-import DEBUG, {IS_BETA} from '@config/debug';
+import { AuthState } from '@types';
+import DEBUG, { IS_BETA } from '@config/debug';
 import IS_INSTALL_PROMPT_SUPPORTED from '@environment/installPrompt';
 import cacheInstallPrompt from '@helpers/dom/installPrompt';
-import {fillLocalizedDates} from '@helpers/date';
-import {createEffect} from 'solid-js';
-import {IS_OVERLAY_SCROLL_SUPPORTED, USE_CUSTOM_SCROLL, USE_NATIVE_SCROLL} from '@environment/overlayScrollSupport';
-import IMAGE_MIME_TYPES_SUPPORTED, {IMAGE_MIME_TYPES_SUPPORTED_PROMISE} from '@environment/imageMimeTypesSupport';
+import { fillLocalizedDates } from '@helpers/date';
+import { createEffect } from 'solid-js';
+import { IS_OVERLAY_SCROLL_SUPPORTED, USE_CUSTOM_SCROLL, USE_NATIVE_SCROLL } from '@environment/overlayScrollSupport';
+import IMAGE_MIME_TYPES_SUPPORTED, { IMAGE_MIME_TYPES_SUPPORTED_PROMISE } from '@environment/imageMimeTypesSupport';
 import MEDIA_MIME_TYPES_SUPPORTED from '@environment/mediaMimeTypesSupport';
-import {doubleRaf} from '@helpers/schedulers';
-import {getCurrentAccount} from '@lib/accounts/getCurrentAccount';
+import { doubleRaf } from '@helpers/schedulers';
+import { getCurrentAccount } from '@lib/accounts/getCurrentAccount';
 import AccountController from '@lib/accounts/accountController';
-import {changeAccount} from '@lib/accounts/changeAccount';
-import {MAX_ACCOUNTS_FREE, MAX_ACCOUNTS_PREMIUM} from '@lib/accounts/constants';
+import { changeAccount } from '@lib/accounts/changeAccount';
+import { MAX_ACCOUNTS_FREE, MAX_ACCOUNTS_PREMIUM } from '@lib/accounts/constants';
 import sessionStorage from '@lib/sessionStorage';
 import replaceChildrenPolyfill from '@helpers/dom/replaceChildrenPolyfill';
 import listenForWindowPrint from '@helpers/dom/windowPrint';
 import cancelImageEvents from '@helpers/dom/cancelImageEvents';
 import PopupElement from '@components/popups';
 import PasscodeLockScreenController from '@components/passcodeLock/passcodeLockScreenController'; PasscodeLockScreenController;
-import type {LangPackDifference} from '@layer';
+import type { LangPackDifference } from '@layer';
 import commonStateStorage from '@lib/commonStateStorage';
-import {useAppSettings, setAppSettingsSilent} from '@stores/appSettings';
-import {isUserCollapsedLeft} from '@helpers/updateColumnWidths';
-import {useMediaSizes} from '@helpers/mediaSizes';
-import useHasFoldersSidebar, {useIsSidebarCollapsed} from '@stores/foldersSidebar';
+import { useAppSettings, setAppSettingsSilent } from '@stores/appSettings';
+import { isUserCollapsedLeft } from '@helpers/updateColumnWidths';
+import { useMediaSizes } from '@helpers/mediaSizes';
+import useHasFoldersSidebar, { useIsSidebarCollapsed } from '@stores/foldersSidebar';
 import appNavigationController from '@components/appNavigationController';
-import {preventCrossTabDynamicImportDeadlock} from '@helpers/preventDeadlock';
+import { preventCrossTabDynamicImportDeadlock } from '@helpers/preventDeadlock';
 import appChatBackground from '@components/chat/bubbles/chatBackground';
 
 // import commonStateStorage from '@lib/commonStateStorage';
@@ -84,7 +84,7 @@ IMAGE_MIME_TYPES_SUPPORTED_PROMISE.then((mimeTypes) => {
 
 function setManifest() {
   const manifest = document.getElementById('manifest') as HTMLLinkElement;
-  if(manifest) manifest.href = `site${IS_APPLE && !IS_APPLE_MOBILE ? '_apple' : ''}.webmanifest?v=jw3mK7G9Aq`;
+  if (manifest) manifest.href = `site${IS_APPLE && !IS_APPLE_MOBILE ? '_apple' : ''}.webmanifest?v=jw3mK7G9Aq`;
 }
 
 function setViewportHeightListeners() {
@@ -95,9 +95,9 @@ function setViewportHeightListeners() {
   const setVH = () => {
     let vh = (setViewportVH && !overlayCounter.isOverlayActive ? (w as VisualViewport).height || (w as Window).innerHeight : window.innerHeight) * 0.01;
     vh = +vh.toFixed(2);
-    if(lastVH === vh) {
+    if (lastVH === vh) {
       return;
-    } else if(IS_TOUCH_SUPPORTED && lastVH < vh && (vh - lastVH) > 1) {
+    } else if (IS_TOUCH_SUPPORTED && lastVH < vh && (vh - lastVH) > 1) {
       blurActiveElement(); // (Android) fix blurring inputs when keyboard is being closed (e.g. closing keyboard by back arrow and touching a bubble)
     }
 
@@ -119,13 +119,13 @@ function setViewportHeightListeners() {
   window.addEventListener('resize', setVH);
   setVH();
 
-  if(IS_STICKY_INPUT_BUGGED) {
+  if (IS_STICKY_INPUT_BUGGED) {
     const toggleResizeMode = () => {
       setViewportVH = tabId === 1 && IS_STICKY_INPUT_BUGGED && !overlayCounter.isOverlayActive;
       setVH();
 
-      if(w !== window) {
-        if(setViewportVH) {
+      if (w !== window) {
+        if (setViewportVH) {
           window.removeEventListener('resize', setVH);
           w.addEventListener('resize', setVH);
         } else {
@@ -140,7 +140,7 @@ function setViewportHeightListeners() {
       const wasTabId = tabId !== undefined;
       tabId = id;
 
-      if(wasTabId || tabId === 1) {
+      if (wasTabId || tabId === 1) {
         toggleResizeMode();
       }
     };
@@ -179,26 +179,26 @@ function setSidebarLeftWidth() {
   });
   createEffect(() => {
     const el = document.getElementById('column-left');
-    if(el) el.classList.toggle('is-collapsed', isSidebarCollapsed());
+    if (el) el.classList.toggle('is-collapsed', isSidebarCollapsed());
   });
 }
 
 function setRootClasses() {
   const add: string[] = [];
 
-  if(IS_EMOJI_SUPPORTED) {
+  if (IS_EMOJI_SUPPORTED) {
     add.push('native-emoji');
   }
 
-  if(USE_NATIVE_SCROLL) {
+  if (USE_NATIVE_SCROLL) {
     add.push('native-scroll');
   } else {
     createEffect(() => {
       const root = document.documentElement;
-      if(IS_OVERLAY_SCROLL_SUPPORTED()) {
+      if (IS_OVERLAY_SCROLL_SUPPORTED()) {
         root.classList.add('overlay-scroll');
         root.classList.remove('custom-scroll');
-      } else if(USE_CUSTOM_SCROLL()) {
+      } else if (USE_CUSTOM_SCROLL()) {
         root.classList.remove('overlay-scroll');
         root.classList.add('custom-scroll');
       }
@@ -207,27 +207,27 @@ function setRootClasses() {
 
   // root.style.setProperty('--quote-icon', `"${getIconContent('quote')}"`);
 
-  if(IS_FIREFOX) {
+  if (IS_FIREFOX) {
     add.push('is-firefox', 'no-backdrop');
   }
 
-  if(IS_MOBILE) {
+  if (IS_MOBILE) {
     add.push('is-mobile');
   }
 
-  if(IS_APPLE) {
-    if(IS_SAFARI) {
+  if (IS_APPLE) {
+    if (IS_SAFARI) {
       add.push('is-safari');
     }
 
     // root.classList.add('emoji-supported');
 
-    if(IS_APPLE_MOBILE) {
+    if (IS_APPLE_MOBILE) {
       add.push('is-ios');
     } else {
       add.push('is-mac');
     }
-  } else if(IS_ANDROID) {
+  } else if (IS_ANDROID) {
     add.push('is-android');
 
     // force losing focus on input blur
@@ -257,7 +257,7 @@ function setRootClasses() {
     // });
   }
 
-  if(!IS_TOUCH_SUPPORTED) {
+  if (!IS_TOUCH_SUPPORTED) {
     add.push('no-touch');
   } else {
     add.push('is-touch');
@@ -280,7 +280,7 @@ function onInstanceDeactivated(reason: InstanceDeactivateReason) {
   const onTabsClick = () => {
     document.body.classList.add('deactivated-backwards');
 
-    if(reason === 'otherClient') {
+    if (reason === 'otherClient') {
       singleInstance.onMyClient();
     } else {
       singleInstance.activateInstance();
@@ -301,22 +301,22 @@ function onInstanceDeactivated(reason: InstanceDeactivateReason) {
     version: {
       title: 'Deactivated.Version.Title',
       subtitle: 'Deactivated.Version.Subtitle',
-      onClick: onVersionClick
+      onClick: onVersionClick,
     },
     tabs: {
       title: 'Deactivated.Title',
       subtitle: 'Deactivated.Subtitle',
-      onClick: onTabsClick
+      onClick: onTabsClick,
     },
     otherClient: {
       title: 'Deactivated.OtherClient.Title',
       subtitle: 'Deactivated.OtherClient.Subtitle',
-      onClick: onOtherClientClick
-    }
+      onClick: onOtherClientClick,
+    },
   };
 
   const isUpdated = reason === 'version';
-  const popup = PopupElement.createPopup(PopupElement, 'popup-instance-deactivated', {overlayClosable: true});
+  const popup = PopupElement.createPopup(PopupElement, 'popup-instance-deactivated', { overlayClosable: true });
   const c = document.createElement('div');
   c.classList.add('instance-deactivated-container');
   (popup as any).container.replaceWith(c);
@@ -340,7 +340,7 @@ function onInstanceDeactivated(reason: InstanceDeactivateReason) {
 const TIME_LABEL = 'Elapsed time since unlocked';
 
 function setDocumentLangPackProperties(langPack: LangPackDifference.langPackDifference) {
-  if(langPack.lang_code === 'ar' || langPack.lang_code === 'fa' && IS_BETA && false) {
+  if (langPack.lang_code === 'ar' || langPack.lang_code === 'fa' && IS_BETA && false) {
     document.documentElement.classList.add('is-rtl');
     document.documentElement.dir = 'rtl';
     document.documentElement.lang = langPack.lang_code;
@@ -351,7 +351,7 @@ function setDocumentLangPackProperties(langPack: LangPackDifference.langPackDiff
 }
 
 (window as any)['showIconLibrary'] = async() => {
-  const {showIconLibrary} = await import('./components/iconLibrary/trigger');
+  const { showIconLibrary } = await import('./components/iconLibrary/trigger');
   showIconLibrary();
 };
 
@@ -368,7 +368,7 @@ function setDocumentLangPackProperties(langPack: LangPackDifference.langPackDiff
   cancelImageEvents();
   setRootClasses();
 
-  if(IS_INSTALL_PROMPT_SUPPORTED) {
+  if (IS_INSTALL_PROMPT_SUPPORTED) {
     cacheInstallPrompt();
   }
 
@@ -382,12 +382,12 @@ function setDocumentLangPackProperties(langPack: LangPackDifference.langPackDiff
     themeController.setThemeListener();
 
     appChatBackground.attach();
-    appChatBackground.setBackground({transition: 'instant'});
+    appChatBackground.setBackground({ transition: 'instant' });
 
     const langPack = await I18n.getCacheLangPackAndApply();
     setDocumentLangPackProperties(langPack);
 
-    if(IS_BETA) import('./pages/bootstrapIm'); // cache it
+    if (IS_BETA) import('./pages/bootstrapIm'); // cache it
     // const settings = await commonStateStorage.get('settings');
     // const timeFormat =
     // I18n.setTimeFormat(settings?.timeFormat || STATE_INIT.settings?.timeFormat);
@@ -415,7 +415,7 @@ function setDocumentLangPackProperties(langPack: LangPackDifference.langPackDiff
   console.timeLog(TIME_LABEL, 'singleInstance started');
 
   const sendAllStatesPromise = singleInstance.deactivatedReason !== 'version' && apiManagerProxy.sendAllStates(allStates);
-  if(singleInstance.deactivatedReason) {
+  if (singleInstance.deactivatedReason) {
     onInstanceDeactivated(singleInstance.deactivatedReason);
   }
 
@@ -441,7 +441,7 @@ function setDocumentLangPackProperties(langPack: LangPackDifference.langPackDiff
   rootScope.addEventListener('language_apply', onLanguageApply);
 
   // * (4)
-  if(!sendAllStatesPromise) {
+  if (!sendAllStatesPromise) {
     return;
   }
 
@@ -460,7 +460,7 @@ function setDocumentLangPackProperties(langPack: LangPackDifference.langPackDiff
   themeController.setThemeListener();
 
   // * fetch lang pack updates
-  if((langPack.localVersion !== App.langPackLocalVersion || true) && IS_BETA) {
+  if ((langPack.localVersion !== App.langPackLocalVersion || true) && IS_BETA) {
     I18n.getLangPackAndApply(langPack.lang_code);
   } else {
     checkLangPackForUpdates();
@@ -491,7 +491,7 @@ function setDocumentLangPackProperties(langPack: LangPackDifference.langPackDiff
   console.timeLog(TIME_LABEL, 'IMAGE_MIME_TYPES_SUPPORTED_PROMISE');
 
   appChatBackground.attach();
-  appChatBackground.setBackground({transition: 'instant'});
+  appChatBackground.setBackground({ transition: 'instant' });
 
   setDocumentLangPackProperties(langPack);
 
@@ -500,18 +500,18 @@ function setDocumentLangPackProperties(langPack: LangPackDifference.langPackDiff
   const hash = location.hash;
   const splitted = hash.split('?');
   const params = parseUriParamsLine(splitted[1] ?? splitted[0].slice(1));
-  if(params.tgWebAuthToken && authState._ !== 'authStateSignedIn') {
+  if (params.tgWebAuthToken && authState._ !== 'authStateSignedIn') {
     const data: AuthState.signImport['data'] = {
       token: params.tgWebAuthToken,
       dcId: +params.tgWebAuthDcId,
       userId: params.tgWebAuthUserId.toUserId(),
       isTest: params.tgWebAuthTest !== undefined && !!+params.tgWebAuthTest,
-      tgAddr: params.tgaddr
+      tgAddr: params.tgaddr,
     };
 
-    if(data.isTest !== Modes.test) {
+    if (data.isTest !== Modes.test) {
       const url = new URL(location.href);
-      if(+params.tgWebAuthTest) {
+      if (+params.tgWebAuthTest) {
         url.searchParams.set('test', '1');
       } else {
         url.searchParams.delete('test');
@@ -521,14 +521,14 @@ function setDocumentLangPackProperties(langPack: LangPackDifference.langPackDiff
       return;
     }
 
-    rootScope.managers.appStateManager.pushToState('authState', authState = {_: 'authStateSignImport', data});
+    rootScope.managers.appStateManager.pushToState('authState', authState = { _: 'authStateSignImport', data });
   }
 
-  if(params.tgWebAuthToken) {
+  if (params.tgWebAuthToken) {
     appNavigationController.overrideHash(params.tgaddr ? '#?tgaddr=' + encodeURIComponent(params.tgaddr) : '');
   }
 
-  if(authState._ !== 'authStateSignedIn'/*  || 1 === 1 */) {
+  if (authState._ !== 'authStateSignedIn'/*  || 1 === 1 */) {
     console.log('Will mount auth page:', authState._, Date.now() / 1000);
 
     (async() => {
@@ -538,7 +538,7 @@ function setDocumentLangPackProperties(langPack: LangPackDifference.langPackDiff
 
       const currentAccount = getCurrentAccount();
 
-      if(currentAccount > Math.min(maxAccountNumber, totalAccounts + 1)) {
+      if (currentAccount > Math.min(maxAccountNumber, totalAccounts + 1)) {
         changeAccount(1);
       }
     })();
@@ -547,11 +547,11 @@ function setDocumentLangPackProperties(langPack: LangPackDifference.langPackDiff
       await import('./lib/webPushApiManager').then((pushModule) => {
         pushModule.default.unsubscribe();
       });
-    } catch(err) {
+    } catch (err) {
 
     }
 
-    const {mountAuthFlow} = await import('./pages/mountAuthFlow');
+    const { mountAuthFlow } = await import('./pages/mountAuthFlow');
     mountAuthFlow(authState);
   } else {
     console.log('Will mount IM page:', Date.now() / 1000);
@@ -559,14 +559,14 @@ function setDocumentLangPackProperties(langPack: LangPackDifference.langPackDiff
     const fontsPromise = loadFonts();
     fadeInWhenFontsReady(document.getElementById('main-columns')!, fontsPromise);
 
-    const [{bootstrapIm}, shouldAnimate] = await Promise.all([
+    const [{ bootstrapIm }, shouldAnimate] = await Promise.all([
       import('./pages/bootstrapIm'),
-      sessionStorage.get('should_animate_main')
+      sessionStorage.get('should_animate_main'),
     ]);
 
     const pageChatsEl = document.getElementById('page-chats') as HTMLDivElement;
 
-    if(shouldAnimate) {
+    if (shouldAnimate) {
       await sessionStorage.delete('should_animate_main');
       pageChatsEl.classList.add('main-screen-enter');
 

@@ -25,14 +25,14 @@ export function createBroadcastChannelWrapper<EventMap extends Record<string, an
 
   broadcastChannel.onmessage = (event) => {
     const data = event.data;
-    if(!isEventValid(data)) {
+    if (!isEventValid(data)) {
       return;
     }
 
-    const {eventName, payload} = data;
+    const { eventName, payload } = data;
 
     const listenersForEvent = listeners.get(eventName);
-    if(listenersForEvent) {
+    if (listenersForEvent) {
       listenersForEvent.forEach(listener => listener(payload));
     }
   };
@@ -41,7 +41,7 @@ export function createBroadcastChannelWrapper<EventMap extends Record<string, an
     on: (inEventName, listener) => {
       const eventName = inEventName as string;
       const listenersForEvent = listeners.get(eventName);
-      if(listenersForEvent) {
+      if (listenersForEvent) {
         listenersForEvent.push(listener);
       } else {
         listeners.set(eventName, [listener]);
@@ -49,9 +49,9 @@ export function createBroadcastChannelWrapper<EventMap extends Record<string, an
 
       const remove = () => {
         const listenersForEvent = listeners.get(eventName);
-        if(listenersForEvent) {
+        if (listenersForEvent) {
           const index = listenersForEvent.indexOf(listener);
-          if(index !== -1) {
+          if (index !== -1) {
             listenersForEvent.splice(index, 1);
           }
         }
@@ -60,13 +60,13 @@ export function createBroadcastChannelWrapper<EventMap extends Record<string, an
       return remove;
     },
     emit: (eventName, payload) => {
-      broadcastChannel.postMessage({eventName, payload});
+      broadcastChannel.postMessage({ eventName, payload });
     },
     emitVoid: (eventName) => {
-      broadcastChannel.postMessage({eventName});
+      broadcastChannel.postMessage({ eventName });
     },
     close: () => {
       broadcastChannel.close();
-    }
+    },
   };
 }

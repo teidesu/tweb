@@ -1,5 +1,5 @@
-import {WebPage} from '@layer';
-import {UNSAFE_ANCHOR_LINK_TYPES} from '@helpers/addAnchorListener';
+import { WebPage } from '@layer';
+import { UNSAFE_ANCHOR_LINK_TYPES } from '@helpers/addAnchorListener';
 import wrapUrl from '@lib/richTextProcessor/wrapUrl';
 
 /**
@@ -25,7 +25,7 @@ export default function getWebPageActionOnClick(
   webPage: WebPage,
   allowedTypes: WebPage.webPage['type'][]
 ): ((e: Event) => void) | undefined {
-  if(webPage._ !== 'webPage' || !allowedTypes.includes(webPage.type)) {
+  if (webPage._ !== 'webPage' || !allowedTypes.includes(webPage.type)) {
     return;
   }
 
@@ -34,7 +34,7 @@ export default function getWebPageActionOnClick(
   // `wrapUrl` already nulls `onclick` when the matching `window[onclick]`
   // handler isn't registered; the UNSAFE check mirrors the renderer's
   // `hasSafeUrl` gate so masked-alert types never reach here.
-  if(!onclick || UNSAFE_ANCHOR_LINK_TYPES.has(onclick)) {
+  if (!onclick || UNSAFE_ANCHOR_LINK_TYPES.has(onclick)) {
     return;
   }
 

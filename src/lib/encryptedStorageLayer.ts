@@ -1,14 +1,14 @@
-import {Database} from '@config/databases';
+import { Database } from '@config/databases';
 import DEBUG from '@config/debug';
 import toArray from '@helpers/array/toArray';
 import convertToUint8Array from '@helpers/bytes/convertToUint8Array';
-import {IS_WORKER} from '@helpers/context';
+import { IS_WORKER } from '@helpers/context';
 import formatBytesPure from '@helpers/formatBytesPure';
 import asyncThrottle from '@helpers/schedulers/asyncThrottle';
 
 import cryptoMessagePort from '@lib/crypto/cryptoMessagePort';
 import IDBStorage from '@lib/files/idb';
-import {logger, Logger} from '@lib/logger';
+import { logger, Logger } from '@lib/logger';
 import MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
 import EncryptionKeyStore from '@lib/passcode/keyStore';
 
@@ -51,7 +51,7 @@ export default class EncryptedStorageLayer<T extends Database<any>> implements S
 
   public static getInstance<T extends Database<any>>(db: T, encryptedStoreName: T['stores'][number]['encryptedName']): EncryptedStorageLayer<T> {
     const key = this.getStorageKey(db.name, encryptedStoreName!);
-    if(this.instances.has(key)) return this.instances.get(key) as EncryptedStorageLayer<T>;
+    if (this.instances.has(key)) return this.instances.get(key) as EncryptedStorageLayer<T>;
 
     const instance = new EncryptedStorageLayer(db, encryptedStoreName);
     this.instances.set(key, instance);
@@ -63,7 +63,7 @@ export default class EncryptedStorageLayer<T extends Database<any>> implements S
   }
 
   private static async encrypt(data: StoredData): Promise<Uint8Array | null> {
-    if(!Object.keys(data).length) return null;
+    if (!Object.keys(data).length) return null;
 
     const key = await EncryptionKeyStore.get();
     const dataAsBuffer = convertToUint8Array(JSON.stringify(data));
@@ -72,9 +72,9 @@ export default class EncryptedStorageLayer<T extends Database<any>> implements S
       method: 'aes-local-encrypt',
       args: [{
         key: key!,
-        data: dataAsBuffer
+        data: dataAsBuffer,
       }],
-      transfer: [dataAsBuffer.buffer]
+      transfer: [dataAsBuffer.buffer],
     });
 
     return result;
@@ -87,9 +87,9 @@ export default class EncryptedStorageLayer<T extends Database<any>> implements S
       method: 'aes-local-decrypt',
       args: [{
         key: key!,
-        encryptedData: data
+        encryptedData: data,
       }],
-      transfer: [data.buffer]
+      transfer: [data.buffer],
     });
 
     const decoded = new TextDecoder().decode(result);
@@ -111,7 +111,7 @@ export default class EncryptedStorageLayer<T extends Database<any>> implements S
   }
 
   private waitToLoad() {
-    if(this.loadingDataPromise) return this.loadingDataPromise;
+    if (this.loadingDataPromise) return this.loadingDataPromise;
   }
 
   private saveToIDB = async() => {
@@ -130,7 +130,7 @@ export default class EncryptedStorageLayer<T extends Database<any>> implements S
 
     const endTime = performance.now();
 
-    if(DEBUG && IS_WORKER) {
+    if (DEBUG && IS_WORKER) {
       /**
        * The time it takes is very random, it might be because of the busy-ness of the crypto worker and the indexed DB
        *
@@ -154,13 +154,13 @@ export default class EncryptedStorageLayer<T extends Database<any>> implements S
     try {
       const storageData = await this.storage.get(EncryptedStorageLayer.STORAGE_KEY);
 
-      if(storageData === null || storageData === undefined) throw null;
-      if(!(storageData instanceof Uint8Array)) throw new Error('Stored data in encrypted store is not a Uint8Array'); // Should not happen but anyway))
+      if (storageData === null || storageData === undefined) throw null;
+      if (!(storageData instanceof Uint8Array)) throw new Error('Stored data in encrypted store is not a Uint8Array'); // Should not happen but anyway))
 
       const decrypted = await EncryptedStorageLayer.decrypt(storageData);
       this.data = decrypted;
-    } catch(error) {
-      if(error) this.log(error);
+    } catch (error) {
+      if (error) this.log(error);
       this.data = {};
     }
 

@@ -1,4 +1,4 @@
-import {createSignal, onCleanup} from 'solid-js';
+import { createSignal, onCleanup } from 'solid-js';
 
 function useMediaQuery(query: string) {
   const [isMatch, setIsMatch] = createSignal(false);

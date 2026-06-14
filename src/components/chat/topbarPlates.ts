@@ -9,16 +9,16 @@
 
 import type Chat from '@components/chat/chat';
 import type ChatTopbar from '@components/chat/topbar';
-import {AppManagers} from '@lib/managers';
+import { AppManagers } from '@lib/managers';
 import IS_LIVE_STREAM_SUPPORTED from '@environment/liveStreamSupport';
-import createChatRequestsPlate, {ChatRequestsPlate} from '@components/chat/requests';
-import createChatActionsPlate, {ChatActionsPlate} from '@components/chat/actions';
-import createChatRemoveFeePlate, {ChatRemoveFeePlate} from '@components/chat/removeFee';
-import createChatLivePlate, {ChatLivePlate} from '@components/chat/topbarLive/container';
-import createChatTranslationPlate, {ChatTranslationPlate} from '@components/chat/translation';
-import createChatSponsoredPlate, {ChatSponsoredPlate} from '@components/chat/topbarSponsored';
-import {TopbarPlateController} from '@components/chat/topbarPlate';
-import {isTruthy} from '../../helpers/isTruthy';
+import createChatRequestsPlate, { ChatRequestsPlate } from '@components/chat/requests';
+import createChatActionsPlate, { ChatActionsPlate } from '@components/chat/actions';
+import createChatRemoveFeePlate, { ChatRemoveFeePlate } from '@components/chat/removeFee';
+import createChatLivePlate, { ChatLivePlate } from '@components/chat/topbarLive/container';
+import createChatTranslationPlate, { ChatTranslationPlate } from '@components/chat/translation';
+import createChatSponsoredPlate, { ChatSponsoredPlate } from '@components/chat/topbarSponsored';
+import { TopbarPlateController } from '@components/chat/topbarPlate';
+import { isTruthy } from '../../helpers/isTruthy';
 
 export type TopbarPlates = {
   requests: ChatRequestsPlate,
@@ -58,6 +58,6 @@ export function createTopbarPlates(
     sponsored,
     all: (all as TopbarPlateController[]),
     mount: (host) => host.append(...all.map((plate) => plate.container)),
-    destroy: () => all.forEach((plate) => plate.destroy())
+    destroy: () => all.forEach((plate) => plate.destroy()),
   };
 }

@@ -1,18 +1,18 @@
-import {render} from 'solid-js/web';
-import {SliderSuperTab} from '@components/slider';
+import { render } from 'solid-js/web';
+import { SliderSuperTab } from '@components/slider';
 import appSidebarRight from '..';
 import appDialogsManager from '@lib/appDialogsManager';
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 import setInnerHTML from '@helpers/dom/setInnerHTML';
 import Section from '@components/section';
-import {Message, MessageMedia} from '@layer';
+import { Message, MessageMedia } from '@layer';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
 import wrapRichText from '@lib/richTextProcessor/wrapRichText';
 import wrapTextWithEntities from '@lib/richTextProcessor/wrapTextWithEntities';
-import {Show, untrack} from 'solid-js';
-import {createLoadableList, MoreButton} from '@components/sidebarRight/tabs/statistics';
-import {formatFullSentTimeRaw} from '@helpers/date';
-import {getRoundedPercentsFromResults} from '@components/chat/bubbleParts/pollMessageContent/roundPercents';
+import { Show, untrack } from 'solid-js';
+import { createLoadableList, MoreButton } from '@components/sidebarRight/tabs/statistics';
+import { formatFullSentTimeRaw } from '@helpers/date';
+import { getRoundedPercentsFromResults } from '@components/chat/bubbleParts/pollMessageContent/roundPercents';
 
 
 export default class AppPollResultsTab extends SliderSuperTab {
@@ -38,7 +38,7 @@ export default class AppPollResultsTab extends SliderSuperTab {
     const percents = getRoundedPercentsFromResults(poll.results);
 
     const getSections = () => poll.results.results!.map((result, idx) => {
-      if(!result.voters) {
+      if (!result.voters) {
         return;
       }
 
@@ -46,7 +46,7 @@ export default class AppPollResultsTab extends SliderSuperTab {
 
       const answerTitle = document.createElement('div');
       const answerText = wrapTextWithEntities(answer.text);
-      const answerTextWrapped = wrapRichText(answerText.text, {entities: answerText.entities, middleware: this.middlewareHelper.get()});
+      const answerTextWrapped = wrapRichText(answerText.text, { entities: answerText.entities, middleware: this.middlewareHelper.get() });
       setInnerHTML(answerTitle, answerTextWrapped);
       answerTitle.append(' — ', Math.round(percents[idx]) + '%');
 
@@ -61,14 +61,14 @@ export default class AppPollResultsTab extends SliderSuperTab {
         onFound: () => {
           appSidebarRight.onCloseBtnClick();
         },
-        openInner: true
+        openInner: true,
       });
 
       list.style.minHeight = Math.min(result.voters, 4) * 48 + 'px';
 
       let offset: string, limit = 4;
       const load = async() => {
-        if(answer._ !== 'pollAnswer') return;
+        if (answer._ !== 'pollAnswer') return;
 
         const votesList = await this.managers.appPollsManager.getVotes(
           message,
@@ -78,7 +78,7 @@ export default class AppPollResultsTab extends SliderSuperTab {
         );
 
         const elements = votesList.votes.map((vote) => {
-          const {dom} = appDialogsManager.addDialogNew({
+          const { dom } = appDialogsManager.addDialogNew({
             peerId: getPeerId(vote.peer),
             container: false,
             rippleEnabled: false,
@@ -86,12 +86,12 @@ export default class AppPollResultsTab extends SliderSuperTab {
             avatarSize: 'small',
             withStories: false,
             wrapOptions: {
-              middleware: this.middlewareHelper.get()
+              middleware: this.middlewareHelper.get(),
             },
-            dontSetActive: true
+            dontSetActive: true,
           });
           dom.lastMessageSpan.parentElement!.remove();
-          const {dateEl, timeEl} = formatFullSentTimeRaw(vote.date);
+          const { dateEl, timeEl } = formatFullSentTimeRaw(vote.date);
           dom.containerEl.append((
             <span class="vote-time-container disable-hover">
               <span class="vote-time-title secondary">{dateEl}</span>
@@ -104,7 +104,7 @@ export default class AppPollResultsTab extends SliderSuperTab {
         setLoader((value) => {
           value.count = votesList.count;
           limit = 20;
-          if(!(offset = votesList.next_offset!)) {
+          if (!(offset = votesList.next_offset!)) {
             value.loadMore = undefined;
           }
 
@@ -114,7 +114,7 @@ export default class AppPollResultsTab extends SliderSuperTab {
         });
       };
 
-      const [loader, setLoader] = createLoadableList({loadMore: load});
+      const [loader, setLoader] = createLoadableList({ loadMore: load });
       loader().loadMore!();
 
       return (
@@ -136,7 +136,7 @@ export default class AppPollResultsTab extends SliderSuperTab {
     const questionText = wrapTextWithEntities(poll.poll.question);
     const questionFragment = wrapRichText(questionText.text, {
       entities: questionText.entities,
-      middleware: this.middlewareHelper.get()
+      middleware: this.middlewareHelper.get(),
     });
 
     const div = document.createElement('div');

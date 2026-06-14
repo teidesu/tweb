@@ -19,7 +19,7 @@ export default class StickyIntersector {
 
   private createObservers() {
     this.headersObserver = new IntersectionObserver((entries) => {
-      for(const entry of entries) {
+      for (const entry of entries) {
         const targetInfo = entry.boundingClientRect;
         const stickyTarget = entry.target.parentElement;
         const rootBoundsInfo = entry.rootBounds;
@@ -28,27 +28,27 @@ export default class StickyIntersector {
         // section is either in view or scrolled past below — both mean not stuck.
         this.handler(targetInfo.bottom < rootBoundsInfo!.top, stickyTarget!);
       }
-    }, {threshold: 0, root: this.container, rootMargin: this.rootMargin});
+    }, { threshold: 0, root: this.container, rootMargin: this.rootMargin });
 
     this.elementsObserver = new IntersectionObserver((entries) => {
       // A section is "stuck" while it straddles the root's top edge. Containers
       // have real height, so unlike thin sentinels the observer can't skip their
       // intersection transitions on fast scrolls — this serves as a backup that
       // clears state when headersObserver missed a sentinel crossing.
-      for(const entry of entries) {
+      for (const entry of entries) {
         const stuck = entry.isIntersecting && entry.boundingClientRect.top < entry.rootBounds!.top;
         this.handler(stuck, entry.target as HTMLElement);
       }
-    }, {root: this.container, rootMargin: this.rootMargin});
+    }, { root: this.container, rootMargin: this.rootMargin });
   }
 
   public setRootMargin(rootMargin: string | undefined) {
-    if(this.rootMargin === rootMargin) return;
+    if (this.rootMargin === rootMargin) return;
     this.rootMargin = rootMargin;
     this.headersObserver.disconnect();
     this.elementsObserver.disconnect();
     this.createObservers();
-    for(const [element, sentinel] of this.observed) {
+    for (const [element, sentinel] of this.observed) {
       this.headersObserver.observe(sentinel);
       this.elementsObserver.observe(element);
     }
@@ -85,7 +85,7 @@ export default class StickyIntersector {
   public unobserve(element: HTMLElement, headerSentinel?: HTMLElement) {
     this.elementsObserver.unobserve(element);
     const sentinel = this.observed.get(element) ?? headerSentinel;
-    if(sentinel) {
+    if (sentinel) {
       this.headersObserver.unobserve(sentinel);
     }
     this.observed.delete(element);

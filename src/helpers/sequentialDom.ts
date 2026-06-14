@@ -1,6 +1,6 @@
-import {fastRaf} from '@helpers/schedulers';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
-import {MOUNT_CLASS_TO} from '@config/debug';
+import { fastRaf } from '@helpers/schedulers';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
+import { MOUNT_CLASS_TO } from '@config/debug';
 import isInDOM from '@helpers/dom/isInDOM';
 
 class SequentialDom {
@@ -13,12 +13,12 @@ class SequentialDom {
 
   private do(kind: keyof SequentialDom['promises'], callback?: VoidFunction) {
     let promise = this.promises[kind];
-    if(!promise) {
+    if (!promise) {
       this.scheduleFlush();
       promise = this.promises[kind] = deferredPromise<void>();
     }
 
-    if(callback !== undefined) {
+    if (callback !== undefined) {
       promise.then(() => callback());
     }
 
@@ -42,8 +42,8 @@ class SequentialDom {
     const isConnected = isInDOM(element);
     const promise = isConnected ? this.mutate() : Promise.resolve();
 
-    if(callback !== undefined) {
-      if(!isConnected) {
+    if (callback !== undefined) {
+      if (!isConnected) {
         callback();
       } else {
         promise.then(() => callback());
@@ -54,7 +54,7 @@ class SequentialDom {
   }
 
   private scheduleFlush() {
-    if(!this.scheduled) {
+    if (!this.scheduled) {
       this.scheduled = true;
 
       this.raf(() => {

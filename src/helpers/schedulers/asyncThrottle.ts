@@ -15,7 +15,7 @@ export default function asyncThrottle<Callback extends(...args: any[]) => Promis
 
       callback(...lastArgs!)?.then(() => {
         timeoutId = undefined;
-        if(wasCalledWhileRunning) runAfterTimeout();
+        if (wasCalledWhileRunning) runAfterTimeout();
       });
     }, timeoutMs);
   }
@@ -24,7 +24,7 @@ export default function asyncThrottle<Callback extends(...args: any[]) => Promis
     lastArgs = args;
     wasCalledWhileRunning = true;
 
-    if(timeoutId) return;
+    if (timeoutId) return;
 
     runAfterTimeout();
   };

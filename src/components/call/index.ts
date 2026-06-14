@@ -1,9 +1,9 @@
 import IS_SCREEN_SHARING_SUPPORTED from '@environment/screenSharingSupport';
-import {IS_MOBILE} from '@environment/userAgent';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { IS_MOBILE } from '@environment/userAgent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import ControlsHover from '@helpers/dom/controlsHover';
 import findUpClassName from '@helpers/dom/findUpClassName';
-import {addFullScreenListener, cancelFullScreen, isFullScreen, requestFullScreen} from '@helpers/dom/fullScreen';
+import { addFullScreenListener, cancelFullScreen, isFullScreen, requestFullScreen } from '@helpers/dom/fullScreen';
 import replaceContent from '@helpers/dom/replaceContent';
 import safePlay from '@helpers/dom/safePlay';
 import MovablePanel from '@helpers/movablePanel';
@@ -12,15 +12,15 @@ import themeController from '@helpers/themeController';
 import toggleClassName from '@helpers/toggleClassName';
 import CallInstance from '@lib/calls/callInstance';
 import CALL_STATE from '@lib/calls/callState';
-import I18n, {i18n} from '@lib/langPack';
+import I18n, { i18n } from '@lib/langPack';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import {animateValue} from '@helpers/animateValue';
+import { animateValue } from '@helpers/animateValue';
 import animationIntersector from '@components/animationIntersector';
-import {avatarNew} from '@components/avatarNew';
+import { avatarNew } from '@components/avatarNew';
 import ButtonIcon from '@components/buttonIcon';
 import ChatBackgroundGradientRenderer from '@components/chat/gradientRenderer';
 import GroupCallMicrophoneIconMini from '@components/groupCall/microphoneIconMini';
-import {MovableState} from '@components/movableElement';
+import { MovableState } from '@components/movableElement';
 import PeerTitle from '@components/peerTitle';
 import PopupElement from '@components/popups';
 import SetTransition from '@components/singleTransition';
@@ -35,7 +35,7 @@ import showCallSettingsPopup from '@components/call/settingsPopup';
 const GRADIENT_COLORS = {
   connecting: '568fd6,626ed5,a667d5,7664da',
   active:     'acbd65,459f8d,53a4d1,3e917a',
-  weak:       'c0508d,f09536,ce5081,fc7c4c'
+  weak:       'c0508d,f09536,ce5081,fc7c4c',
 };
 type GradientStateKey = keyof typeof GRADIENT_COLORS;
 
@@ -46,10 +46,10 @@ const MIN_HEIGHT = 580;
 
 const INIT_STATE: MovableState = {
   width: MIN_WIDTH,
-  height: MIN_HEIGHT
+  height: MIN_HEIGHT,
 };
 
-let previousState: MovableState = {...INIT_STATE};
+let previousState: MovableState = { ...INIT_STATE };
 
 export default class PopupCall extends PopupElement {
   private peerId: PeerId;
@@ -100,28 +100,28 @@ export default class PopupCall extends PopupElement {
   constructor(private instance: CallInstance) {
     super('popup-call', {
       withoutOverlay: true,
-      closable: true
+      closable: true,
     });
 
     this.videoContainers = {};
 
-    const {container, listenerSetter} = this;
+    const { container, listenerSetter } = this;
     container.classList.add(className, 'night');
 
     const avatarContainer = document.createElement('div');
     avatarContainer.classList.add(className + '-avatar');
 
     const peerId = this.peerId = this.instance.interlocutorUserId.toPeerId();
-    const {node} = avatarNew({
+    const { node } = avatarNew({
       middleware: this.middlewareHelper.get(),
       isBig: true,
       peerId,
-      size: 'full'
+      size: 'full',
     });
     avatarContainer.append(node);
 
     const title = new PeerTitle({
-      peerId
+      peerId,
     }).element;
 
     title.classList.add(className + '-title');
@@ -149,10 +149,10 @@ export default class PopupCall extends PopupElement {
     this.gradientRenderers = {} as Record<GradientStateKey, ChatBackgroundGradientRenderer>;
     this.gradientCanvases = {} as Record<GradientStateKey, HTMLCanvasElement>;
     this.gradientCancels = {};
-    for(const key of Object.keys(GRADIENT_COLORS) as GradientStateKey[]) {
+    for (const key of Object.keys(GRADIENT_COLORS) as GradientStateKey[]) {
       const created = ChatBackgroundGradientRenderer.create(GRADIENT_COLORS[key]);
       created.canvas.classList.add(className + '-gradient');
-      if(key !== this.gradientState) {
+      if (key !== this.gradientState) {
         created.canvas.classList.add('is-hidden');
       }
       container.append(created.canvas);
@@ -179,15 +179,15 @@ export default class PopupCall extends PopupElement {
 
     this.btnSettings = ButtonIcon('settings_filled');
     attachClickEvent(this.btnSettings, () => {
-      showCallSettingsPopup({mode: 'p2p', instance: this.instance});
-    }, {listenerSetter});
+      showCallSettingsPopup({ mode: 'p2p', instance: this.instance });
+    }, { listenerSetter });
     headerActions.append(this.btnSettings);
 
-    if(!IS_MOBILE) {
+    if (!IS_MOBILE) {
       this.btnFullScreen = ButtonIcon('fullscreen');
       this.btnExitFullScreen = ButtonIcon('smallscreen hide');
-      attachClickEvent(this.btnFullScreen, this.onFullScreenClick, {listenerSetter});
-      attachClickEvent(this.btnExitFullScreen, () => cancelFullScreen(), {listenerSetter});
+      attachClickEvent(this.btnFullScreen, this.onFullScreenClick, { listenerSetter });
+      attachClickEvent(this.btnExitFullScreen, () => cancelFullScreen(), { listenerSetter });
       addFullScreenListener(this.container, this.onFullScreenChange, listenerSetter);
       headerActions.append(this.btnExitFullScreen, this.btnFullScreen);
     }
@@ -202,7 +202,7 @@ export default class PopupCall extends PopupElement {
 
     this.partyMutedState = document.createElement('div');
     this.partyMutedState.classList.add(className + '-party-state');
-    const stateText = i18n('VoipUserMicrophoneIsOff', [new PeerTitle({peerId, onlyFirstName: true, limitSymbols: 18}).element]);
+    const stateText = i18n('VoipUserMicrophoneIsOff', [new PeerTitle({ peerId, onlyFirstName: true, limitSymbols: 18 }).element]);
     stateText.classList.add(className + '-party-state-text');
     const mutedIcon = new GroupCallMicrophoneIconMini(false, true, 36);
     mutedIcon.setState(false, false);
@@ -234,21 +234,21 @@ export default class PopupCall extends PopupElement {
         element: this.element,
         verifyTouchTarget: (e) => {
           const target = e.target;
-          if(findUpClassName(target, 'call-button') ||
+          if (findUpClassName(target, 'call-button') ||
             findUpClassName(target, 'btn-icon') ||
             isFullScreen()) {
             return false;
           }
 
           return true;
-        }
+        },
       },
       // onResize: () => this.toggleBigLayout(),
-      previousState: !this.instance.wasTryingToJoin && !this.instance.isOutgoing ? {...INIT_STATE} : previousState
+      previousState: !this.instance.wasTryingToJoin && !this.instance.isOutgoing ? { ...INIT_STATE } : previousState,
     });
 
     const movableElement = this.movablePanel.movable;
-    if(movableElement) {
+    if (movableElement) {
       this.listenerSetter.add(movableElement)('resize', () => {
         this.resizeVideoContainers();
       });
@@ -258,12 +258,12 @@ export default class PopupCall extends PopupElement {
     controlsHover.setup({
       element: this.container,
       listenerSetter: this.listenerSetter,
-      showOnLeaveToClassName: 'call-buttons'
+      showOnLeaveToClassName: 'call-buttons',
     });
     controlsHover.showControls(false);
 
     this.addEventListener('close', () => {
-      const {movablePanel} = this;
+      const { movablePanel } = this;
       previousState = movablePanel.state;
 
       this.microphoneIcon.destroy();
@@ -271,15 +271,15 @@ export default class PopupCall extends PopupElement {
       // Stop every state's rAF loop and tear down the renderers. Nulling
       // `gradientRenderers` first stops any late `tickGradient` from
       // re-arming itself.
-      if(this.gradientHideTimeout !== undefined) {
+      if (this.gradientHideTimeout !== undefined) {
         clearTimeout(this.gradientHideTimeout);
         this.gradientHideTimeout = undefined;
       }
-      for(const key of Object.keys(this.gradientCancels) as GradientStateKey[]) {
+      for (const key of Object.keys(this.gradientCancels) as GradientStateKey[]) {
         this.gradientCancels[key]?.();
       }
       this.gradientCancels = {};
-      for(const renderer of Object.values(this.gradientRenderers || {})) {
+      for (const renderer of Object.values(this.gradientRenderers || {})) {
         renderer.cleanup();
       }
       this.gradientRenderers = undefined;
@@ -314,19 +314,19 @@ export default class PopupCall extends PopupElement {
   // The hide timeout is tracked so a rapid follow-up state change cancels
   // the pending hide of an intermediate state (and re-uses its canvas).
   private setGradientState(next: GradientStateKey) {
-    if(next === this.gradientState) return;
+    if (next === this.gradientState) return;
     const prev = this.gradientState;
     this.gradientState = next;
 
     const prevCanvas = this.gradientCanvases?.[prev];
     const nextCanvas = this.gradientCanvases?.[next];
-    if(!prevCanvas || !nextCanvas) return;
+    if (!prevCanvas || !nextCanvas) return;
 
     // Layer the new canvas above the previous one for the duration of the
     // fade. Both stay BELOW the video container (z -1) and the avatar /
     // buttons / header (z 0+) — the SCSS default is z -3 so we promote to
     // -2 for the next gradient and leave prev / others at -3.
-    for(const key of Object.keys(this.gradientCanvases) as GradientStateKey[]) {
+    for (const key of Object.keys(this.gradientCanvases) as GradientStateKey[]) {
       const canvas = this.gradientCanvases[key];
       canvas.style.zIndex = key === next ? '-2' : '';
     }
@@ -340,7 +340,7 @@ export default class PopupCall extends PopupElement {
 
     // Cancel any pending hide from a prior transition — the canvas it was
     // meant to hide may now be the active one.
-    if(this.gradientHideTimeout !== undefined) {
+    if (this.gradientHideTimeout !== undefined) {
       clearTimeout(this.gradientHideTimeout);
       this.gradientHideTimeout = undefined;
     }
@@ -350,7 +350,7 @@ export default class PopupCall extends PopupElement {
       this.gradientHideTimeout = undefined;
       // Skip if the state has flipped back to `prev` since we scheduled
       // (i.e. prev is now the active canvas).
-      if(this.gradientState === prev) return;
+      if (this.gradientState === prev) return;
       prevCanvas.classList.add('is-hidden');
     }, FADE_MS + 50);
   }
@@ -370,7 +370,7 @@ export default class PopupCall extends PopupElement {
   // velocity, i.e. constant-speed drift.
   private tickGradient = (state: GradientStateKey) => {
     const renderer = this.gradientRenderers?.[state];
-    if(!renderer) return;
+    if (!renderer) return;
     let progress = 0;
     this.gradientCancels[state] = animateValue(0, 1, 2000, (t) => {
       progress = 1 - Math.sqrt(1 - t);
@@ -379,7 +379,7 @@ export default class PopupCall extends PopupElement {
       onEnd: () => {
         this.gradientCancels[state] = undefined;
         this.tickGradient(state);
-      }
+      },
     });
     renderer.toNextPosition(() => progress);
   };
@@ -396,7 +396,7 @@ export default class PopupCall extends PopupElement {
       callback: () => {
         const toggle = toggleDisability([btnVideo, btnScreen], true);
         this.instance.toggleVideoSharing().finally(toggle);
-      }
+      },
     });
 
     const btnScreen = this.btnScreen = this.makeButton({
@@ -405,22 +405,22 @@ export default class PopupCall extends PopupElement {
       callback: () => {
         const toggle = toggleDisability([btnVideo, btnScreen], true);
         this.instance.toggleScreenSharing().finally(toggle);
-      }
+      },
     });
 
-    if(!IS_SCREEN_SHARING_SUPPORTED) {
+    if (!IS_SCREEN_SHARING_SUPPORTED) {
       btnScreen.classList.add('hide');
       this.container.classList.add('no-screen');
     }
 
     this.muteI18nElement = new I18n.IntlElement({
-      key: 'Call.Mute'
+      key: 'Call.Mute',
     });
     const btnMute = this.btnMute = this.makeButton({
       text: this.muteI18nElement.element,
       callback: () => {
         this.instance.toggleMuted();
-      }
+      },
     });
 
     const microphoneIcon = this.microphoneIcon = new GroupCallMicrophoneIconMini(true, true, 36);
@@ -438,7 +438,7 @@ export default class PopupCall extends PopupElement {
     buttons.classList.add(className + '-buttons', 'is-second');
 
     this.declineI18nElement = new I18n.IntlElement({
-      key: 'Call.Decline'
+      key: 'Call.Decline',
     });
     const btnDecline = this.btnDecline = this.makeButton({
       text: this.declineI18nElement.element,
@@ -446,7 +446,7 @@ export default class PopupCall extends PopupElement {
       callback: () => {
         this.instance.hangUp('phoneCallDiscardReasonHangup');
       },
-      isDanger: true
+      isDanger: true,
     });
 
     const btnAccept = this.btnAccept = this.makeButton({
@@ -455,7 +455,7 @@ export default class PopupCall extends PopupElement {
       callback: () => {
         this.instance.acceptCall();
       },
-      isConfirm: true
+      isConfirm: true,
     });
 
     buttons.append(btnDecline, btnAccept);
@@ -469,7 +469,7 @@ export default class PopupCall extends PopupElement {
   private onFullScreenChange = () => {
     const isFull = isFullScreen();
 
-    const {btnFullScreen, btnExitFullScreen} = this;
+    const { btnFullScreen, btnExitFullScreen } = this;
 
     const wasFullScreen = this.container.classList.contains('is-full-screen');
     this.container.classList.toggle('is-full-screen', isFull);
@@ -477,7 +477,7 @@ export default class PopupCall extends PopupElement {
     btnExitFullScreen && btnExitFullScreen.classList.toggle('hide', !isFull);
     this.btnClose.classList.toggle('hide', isFull);
 
-    if(isFull !== wasFullScreen) {
+    if (isFull !== wasFullScreen) {
       animationIntersector.checkAnimations(isFull);
 
       themeController.setThemeColor(isFull ? '#000000' : undefined);
@@ -492,12 +492,12 @@ export default class PopupCall extends PopupElement {
     container.classList.add(_className + '-container');
 
     video.classList.add(_className);
-    if(video.paused) {
+    if (video.paused) {
       safePlay(video);
     }
 
     attachClickEvent(container, () => {
-      if(!container.classList.contains('small')) {
+      if (!container.classList.contains('small')) {
         return;
       }
 
@@ -519,10 +519,10 @@ export default class PopupCall extends PopupElement {
   }
 
   private updateInstance() {
-    const {instance} = this;
-    const {connectionState} = instance;
-    if(connectionState === CALL_STATE.CLOSED) {
-      if(this.container.classList.contains('is-full-screen')) {
+    const { instance } = this;
+    const { connectionState } = instance;
+    if (connectionState === CALL_STATE.CLOSED) {
+      if (this.container.classList.contains('is-full-screen')) {
         cancelFullScreen();
       }
 
@@ -541,7 +541,7 @@ export default class PopupCall extends PopupElement {
 
     const isPendingIncoming = !instance.isOutgoing && connectionState === CALL_STATE.PENDING;
     this.declineI18nElement.compareAndUpdate({
-      key: connectionState === CALL_STATE.PENDING ? 'Call.Decline' : 'Call.End'
+      key: connectionState === CALL_STATE.PENDING ? 'Call.Decline' : 'Call.End',
     });
     this.btnAccept.classList.toggle('disable', !isPendingIncoming);
     this.btnAccept.classList.toggle('hide-me', !isPendingIncoming);
@@ -554,12 +554,12 @@ export default class PopupCall extends PopupElement {
 
     const player = this.microphoneIcon.getItem().player;
     this.microphoneIcon.setState(!isMuted, !isMuted, onFrame);
-    if(!player) {
+    if (!player) {
       onFrame();
     }
 
     this.muteI18nElement.compareAndUpdate({
-      key: isMuted ? 'VoipUnmute' : 'Call.Mute'
+      key: isMuted ? 'VoipUnmute' : 'Call.Mute',
     });
 
     const isSharingVideo = instance.isSharingVideo;
@@ -574,17 +574,17 @@ export default class PopupCall extends PopupElement {
       element: this.partyMutedState,
       className: 'is-visible',
       forwards: !!outputState?.muted,
-      duration: 300
+      duration: 300,
     });
 
     const containers = this.videoContainers;
-    const oldContainers = {...containers};
+    const oldContainers = { ...containers };
     ['input' as const, 'output' as const].forEach((type) => {
       const mediaState = instance.getMediaState(type);
       const video = instance.getVideoElement(type) as HTMLVideoElement;
 
       const hasFrame = !!(video && video.videoWidth && video.videoHeight);
-      if(video && !hasFrame && !video.dataset.hasPromise) {
+      if (video && !hasFrame && !video.dataset.hasPromise) {
         video.dataset.hasPromise = '1';
         // container.classList.add('hide');
         onMediaLoad(video).then(() => {
@@ -598,12 +598,12 @@ export default class PopupCall extends PopupElement {
       const isActive = !!video && hasFrame && !!(mediaState && (mediaState.videoState === 'active' || mediaState.screencastState === 'active'));
       let videoContainer = containers[type];
 
-      if(isActive && video && !videoContainer) {
+      if (isActive && video && !videoContainer) {
         videoContainer = containers[type] = this.createVideoContainer(video);
         this.container.append(videoContainer);
       }
 
-      if(!isActive && videoContainer) {
+      if (!isActive && videoContainer) {
         videoContainer.remove();
         delete containers[type];
       }
@@ -612,11 +612,11 @@ export default class PopupCall extends PopupElement {
     {
       const input = containers.input;
       const output = containers.output;
-      if(Object.keys(oldContainers).length !== Object.keys(containers).length && input) {
+      if (Object.keys(oldContainers).length !== Object.keys(containers).length && input) {
         input.classList.toggle('small', !!output);
       }
 
-      if(output && !input) {
+      if (output && !input) {
         output.classList.remove('small');
       }
     }
@@ -625,7 +625,7 @@ export default class PopupCall extends PopupElement {
 
     this.container.classList.toggle('no-video', !Object.keys(containers).length);
 
-    if(!this.emojisSubtitle.textContent && connectionState < CALL_STATE.EXCHANGING_KEYS) {
+    if (!this.emojisSubtitle.textContent && connectionState < CALL_STATE.EXCHANGING_KEYS) {
       Promise.resolve(instance.getEmojisFingerprint()).then((emojis) => {
         replaceContent(this.emojisSubtitle, wrapEmojiText(emojis.join('')));
       });
@@ -637,7 +637,7 @@ export default class PopupCall extends PopupElement {
   private resizeVideoContainers() {
     Object.values(this.videoContainers).forEach((container) => {
       const isSmall = container.classList.contains('small');
-      if(isSmall) {
+      if (isSmall) {
         const video = container.querySelector('video')!;
         const popupWidth = this.movablePanel.state;
         const MAX_WIDTH_PX = 240;

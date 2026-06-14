@@ -1,15 +1,15 @@
-import {Accessor} from 'solid-js';
+import { Accessor } from 'solid-js';
 
-import {GlobalPrivacySettings, InputPrivacyRule} from '@layer';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { GlobalPrivacySettings, InputPrivacyRule } from '@layer';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 import setBooleanFlag from '@helpers/object/setBooleanFlag';
-import {logger} from '@lib/logger';
+import { logger } from '@lib/logger';
 
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import type {AppPrivacyMessagesTab} from '@components/solidJsTabs';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import type { AppPrivacyMessagesTab } from '@components/solidJsTabs';
 
-import {MessagesTabStateStore, MessagesPrivacyOption, defaultPrivacyRules, privacyRulesInputKey} from '@components/sidebarLeft/tabs/privacy/messages/config';
-import {ChosenPeersByType} from '@components/sidebarLeft/tabs/privacy/messages/useStateStore';
+import { MessagesTabStateStore, MessagesPrivacyOption, defaultPrivacyRules, privacyRulesInputKey } from '@components/sidebarLeft/tabs/privacy/messages/config';
+import { ChosenPeersByType } from '@components/sidebarLeft/tabs/privacy/messages/useStateStore';
 
 
 const log = logger('useSaveSettings');
@@ -24,8 +24,8 @@ type UseSaveSettingsArgs = {
   chosenPeersByType: Accessor<ChosenPeersByType>;
 };
 
-const useSaveSettings = ({store, globalPrivacy, isPaid, hasChanges, chosenPeersByType}: UseSaveSettingsArgs) => {
-  const {rootScope} = useHotReloadGuard();
+const useSaveSettings = ({ store, globalPrivacy, isPaid, hasChanges, chosenPeersByType }: UseSaveSettingsArgs) => {
+  const { rootScope } = useHotReloadGuard();
   const [tab] = useSuperTab<AppPrivacyMessagesTabType>();
 
   const saveGlobalSettings = () => {
@@ -49,17 +49,17 @@ const useSaveSettings = ({store, globalPrivacy, isPaid, hasChanges, chosenPeersB
   const savePrivacyRules = async() => {
     const rules: InputPrivacyRule[] = [];
 
-    const {chats, users} = chosenPeersByType();
+    const { chats, users } = chosenPeersByType();
 
     rules.push(...defaultPrivacyRules);
 
-    if(chats.length) rules.push({
+    if (chats.length) rules.push({
       _: 'inputPrivacyValueAllowChatParticipants',
-      chats
+      chats,
     });
-    if(users.length) rules.push({
+    if (users.length) rules.push({
       _: 'inputPrivacyValueAllowUsers',
-      users: await Promise.all(users.map((id) => rootScope.managers.appUsersManager.getUserInput(id)))
+      users: await Promise.all(users.map((id) => rootScope.managers.appUsersManager.getUserInput(id))),
     });
 
 
@@ -72,13 +72,13 @@ const useSaveSettings = ({store, globalPrivacy, isPaid, hasChanges, chosenPeersB
   let isSaving = false;
 
   const saveAllSettings = async() => {
-    if(isSaving || !hasChanges()) return;
+    if (isSaving || !hasChanges()) return;
     isSaving = true;
 
     try {
       await Promise.all([
         saveGlobalSettings(),
-        isPaid() ? savePrivacyRules() : undefined
+        isPaid() ? savePrivacyRules() : undefined,
       ]);
       tab.close();
     } finally {

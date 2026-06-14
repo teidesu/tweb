@@ -1,18 +1,18 @@
-import {formatFullSentTimeRaw} from '@helpers/date';
+import { formatFullSentTimeRaw } from '@helpers/date';
 import numberThousandSplitter from '@helpers/number/numberThousandSplitter';
-import {User} from '@layer';
-import {LangPackKey, i18n} from '@lib/langPack';
-import {REPLIES_PEER_ID, SERVICE_PEER_ID} from '@appManagers/constants';
+import { User } from '@layer';
+import { LangPackKey, i18n } from '@lib/langPack';
+import { REPLIES_PEER_ID, SERVICE_PEER_ID } from '@appManagers/constants';
 
 export default function getUserStatusString(user: User.user): HTMLElement {
-  if(!user) {
+  if (!user) {
     return document.createElement('span');
   }
 
   let key: LangPackKey;
   let args: any[];
 
-  switch(user.id) {
+  switch (user.id) {
     case REPLIES_PEER_ID.toUserId():
       key = 'Peer.RepliesNotifications';
       break;
@@ -20,8 +20,8 @@ export default function getUserStatusString(user: User.user): HTMLElement {
       key = 'Peer.ServiceNotifications';
       break;
     default: {
-      if(user.pFlags.bot) {
-        if(user.bot_active_users === undefined) {
+      if (user.pFlags.bot) {
+        if (user.bot_active_users === undefined) {
           key = 'Bot';
           break;
         }
@@ -31,12 +31,12 @@ export default function getUserStatusString(user: User.user): HTMLElement {
         break;
       }
 
-      if(user.pFlags.support) {
+      if (user.pFlags.support) {
         key = 'SupportStatus';
         break;
       }
 
-      switch(user.status?._) {
+      switch (user.status?._) {
         case 'userStatusRecently': {
           key = 'Lately';
           break;
@@ -58,19 +58,19 @@ export default function getUserStatusString(user: User.user): HTMLElement {
           const now = today.getTime() / 1000 | 0;
 
           const diff = now - date;
-          if(diff < 60) {
+          if (diff < 60) {
             key = 'Peer.Status.justNow';
-          } else if(diff < 3600) {
+          } else if (diff < 3600) {
             key = 'Peer.Status.minAgo';
             const c = diff / 60 | 0;
             args = [c];
-          } else if(diff < 86400 && today.getDate() === new Date(date * 1000).getDate()) {
+          } else if (diff < 86400 && today.getDate() === new Date(date * 1000).getDate()) {
             key = 'LastSeen.HoursAgo';
             const c = diff / 3600 | 0;
             args = [c];
           } else {
             key = 'Peer.Status.LastSeenAt';
-            const {dateEl, timeEl} = formatFullSentTimeRaw(date);
+            const { dateEl, timeEl } = formatFullSentTimeRaw(date);
             args = [dateEl, timeEl];
           }
 

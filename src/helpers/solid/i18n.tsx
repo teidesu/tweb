@@ -1,7 +1,7 @@
-import {Accessor, createEffect, createMemo, JSX, on} from 'solid-js';
-import I18n, {FormatterArgument, FormatterArguments, LangPackKey} from '@lib/langPack';
-import {attachClassName} from '@helpers/solid/classname';
-import {resolveElements} from '@solid-primitives/refs';
+import { Accessor, createEffect, createMemo, JSX, on } from 'solid-js';
+import I18n, { FormatterArgument, FormatterArguments, LangPackKey } from '@lib/langPack';
+import { attachClassName } from '@helpers/solid/classname';
+import { resolveElements } from '@solid-primitives/refs';
 
 export function I18nTsx(props: {
   key: LangPackKey,
@@ -13,14 +13,14 @@ export function I18nTsx(props: {
 
   const el = new I18n.IntlElement({
     key: props.key,
-    args: args()
+    args: args(),
   })
 
   attachClassName(el.element, () => props.class!);
 
   createEffect(on(() => [props.key, args()] as const, ([key, args], _prev) => {
-    el.update({key, args});
-  }, {defer: true}))
+    el.update({ key, args });
+  }, { defer: true }))
 
   return el.element;
 }

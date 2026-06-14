@@ -1,80 +1,80 @@
-import type {Channel} from '@appManagers/appChatsManager';
-import type {AppSidebarRight} from '@components/sidebarRight';
+import type { Channel } from '@appManagers/appChatsManager';
+import type { AppSidebarRight } from '@components/sidebarRight';
 import type Chat from '@components/chat/chat';
-import {RIGHT_COLUMN_ACTIVE_CLASSNAME} from '@components/sidebarRight';
-import {replaceEmoticonsPanelWithProfile} from '@components/sidebarRight/tabs/emoticons';
-import mediaSizes, {ScreenSize} from '@helpers/mediaSizes';
-import rootScope, {BroadcastEvents} from '@lib/rootScope';
+import { RIGHT_COLUMN_ACTIVE_CLASSNAME } from '@components/sidebarRight';
+import { replaceEmoticonsPanelWithProfile } from '@components/sidebarRight/tabs/emoticons';
+import mediaSizes, { ScreenSize } from '@helpers/mediaSizes';
+import rootScope, { BroadcastEvents } from '@lib/rootScope';
 import ButtonIcon from '@components/buttonIcon';
 import ButtonMenuToggle from '@components/buttonMenuToggle';
-import createChatPinnedMessage, {ChatPinnedMessageController} from '@components/chat/pinnedMessage';
+import createChatPinnedMessage, { ChatPinnedMessageController } from '@components/chat/pinnedMessage';
 import ListenerSetter from '@helpers/listenerSetter';
 import PopupDeleteDialog from '@components/popups/deleteDialog';
 import appNavigationController from '@components/appNavigationController';
-import {LEFT_COLUMN_ACTIVE_CLASSNAME} from '@components/sidebarLeft';
+import { LEFT_COLUMN_ACTIVE_CLASSNAME } from '@components/sidebarLeft';
 import PeerTitle from '@components/peerTitle';
-import I18n, {LangPackKey, i18n} from '@lib/langPack';
+import I18n, { LangPackKey, i18n } from '@lib/langPack';
 import findUpClassName from '@helpers/dom/findUpClassName';
 import blurActiveElement from '@helpers/dom/blurActiveElement';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
-import {toastNew} from '@components/toast';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
+import { toastNew } from '@components/toast';
 import replaceContent from '@helpers/dom/replaceContent';
-import {ChatFull, Chat as MTChat, GroupCall, Dialog, InputGroupCall, UserFull} from '@layer';
-import {showSharingPickerPopup} from '@components/popups/pickUser';
-import PopupPeer, {PopupPeerCheckboxOptions} from '@components/popups/peer';
-import {AppEditContactTab} from '@components/solidJsTabs/tabs';
+import { ChatFull, Chat as MTChat, GroupCall, Dialog, InputGroupCall, UserFull } from '@layer';
+import { showSharingPickerPopup } from '@components/popups/pickUser';
+import PopupPeer, { PopupPeerCheckboxOptions } from '@components/popups/peer';
+import { AppEditContactTab } from '@components/solidJsTabs/tabs';
 import IS_GROUP_CALL_SUPPORTED from '@environment/groupCallSupport';
 import IS_CALL_SUPPORTED from '@environment/callSupport';
-import {CallType} from '@lib/calls/types';
+import { CallType } from '@lib/calls/types';
 import showMutePopup from '@components/popups/mute';
-import {AppManagers} from '@lib/managers';
+import { AppManagers } from '@lib/managers';
 import hasRights from '@appManagers/utils/chats/hasRights';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
 import groupCallsController from '@lib/calls/groupCallsController';
 import apiManagerProxy from '@lib/apiManagerProxy';
-import {makeMediaSize} from '@helpers/mediaSize';
-import {FOLDER_ID_ALL} from '@appManagers/constants';
+import { makeMediaSize } from '@helpers/mediaSize';
+import { FOLDER_ID_ALL } from '@appManagers/constants';
 import formatNumber from '@helpers/number/formatNumber';
 import PopupElement from '@components/popups';
-import {modifyAckedPromise} from '@helpers/modifyAckedResult';
+import { modifyAckedPromise } from '@helpers/modifyAckedResult';
 import callbackify from '@helpers/callbackify';
 import confirmationPopup from '@components/confirmationPopup';
 import IS_LIVE_STREAM_SUPPORTED from '@environment/liveStreamSupport';
-import {avatarNew, findUpAvatar} from '@components/avatarNew';
-import {Middleware, MiddlewareHelper, getMiddleware} from '@helpers/middleware';
+import { avatarNew, findUpAvatar } from '@components/avatarNew';
+import { Middleware, MiddlewareHelper, getMiddleware } from '@helpers/middleware';
 import setBadgeContent from '@helpers/setBadgeContent';
 import createBadge from '@helpers/createBadge';
 import AppStatisticsTab from '@components/sidebarRight/tabs/statistics';
-import {ChatType} from './chatType';
+import { ChatType } from './chatType';
 import AppBoostsTab from '@components/sidebarRight/tabs/boosts';
-import {RtmpStartStreamPopup} from '@components/rtmp/adminPopup';
+import { RtmpStartStreamPopup } from '@components/rtmp/adminPopup';
 import assumeType from '@helpers/assumeType';
 import PopupSendGift from '@components/popups/sendGift';
-import PaidMessagesInterceptor, {PAYMENT_REJECTED} from '@components/chat/paidMessagesInterceptor';
-import {openRemoveFeePopup} from '@components/chat/removeFee';
-import {createTopbarPlates, TopbarPlates} from '@components/chat/topbarPlates';
+import PaidMessagesInterceptor, { PAYMENT_REJECTED } from '@components/chat/paidMessagesInterceptor';
+import { openRemoveFeePopup } from '@components/chat/removeFee';
+import { createTopbarPlates, TopbarPlates } from '@components/chat/topbarPlates';
 import pause from '@helpers/schedulers/pause';
 import appImManager from '@lib/appImManager';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
 import namedPromises from '@helpers/namedPromises';
 import appDialogsManager from '@lib/appDialogsManager';
-import {createEffect, createRoot, on, untrack} from 'solid-js';
+import { createEffect, createRoot, on, untrack } from 'solid-js';
 import SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
-import {AppAdminRecentActionsTab} from '@components/solidJsTabs/tabs';
-import {setAppSettings} from '@stores/appSettings';
-import {wrapAsyncClickHandler} from '@helpers/wrapAsyncClickHandler';
+import { AppAdminRecentActionsTab } from '@components/solidJsTabs/tabs';
+import { setAppSettings } from '@stores/appSettings';
+import { wrapAsyncClickHandler } from '@helpers/wrapAsyncClickHandler';
 import liteMode from '@helpers/liteMode';
 import createSubmenuTrigger from '@components/createSubmenuTrigger';
-import ButtonMenu, {ButtonMenuItemOptionsVerifiable} from '@components/buttonMenu';
-import {getCachedFullPeer} from '@stores/fullPeers';
+import ButtonMenu, { ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
+import { getCachedFullPeer } from '@stores/fullPeers';
 import Icon from '@components/icon';
-import {getDefaultOptions} from '@components/sidebarLeft/tabs/autoDeleteMessages/options';
-import {createAutoDeleteIcon} from '@components/autoDeleteIcon';
+import { getDefaultOptions } from '@components/sidebarLeft/tabs/autoDeleteMessages/options';
+import { createAutoDeleteIcon } from '@components/autoDeleteIcon';
 import PopupBoost from '@components/popups/boost';
 import PopupPremium from '@components/popups/premium';
 import showNoForwardsPopup from '@components/popups/noForwards';
-import {isTruthy} from '../../helpers/isTruthy';
+import { isTruthy } from '../../helpers/isTruthy';
 
 type ButtonToVerify = {element?: HTMLElement, verify: () => boolean | Promise<boolean>};
 
@@ -134,8 +134,8 @@ export default class ChatTopbar {
     // own hide() via `chat.onPreviewClose`, and the folder back-unread badge is irrelevant
     // here (there's no folder navigation behind a floating preview).
     const backIcon = this.chat.isPreview ? 'close' : 'left';
-    this.btnBack = ButtonIcon(`${backIcon} sidebar-close-button`, {noRipple: true});
-    if(!this.chat.isPreview) {
+    this.btnBack = ButtonIcon(`${backIcon} sidebar-close-button`, { noRipple: true });
+    if (!this.chat.isPreview) {
       this.btnBackBadge = createBadge('span', 20, 'primary');
       this.btnBackBadge.classList.add('back-unread-badge');
       this.btnBack.append(this.btnBackBadge);
@@ -165,7 +165,7 @@ export default class ChatTopbar {
     const bottom = document.createElement('div');
     bottom.classList.add('bottom');
 
-    if(this.subtitle) {
+    if (this.subtitle) {
       bottom.append(this.subtitle);
     }
 
@@ -180,22 +180,22 @@ export default class ChatTopbar {
 
     this.plates = createTopbarPlates(this, this.chat, this.managers);
 
-    if(this.menuButtons.length) {
+    if (this.menuButtons.length) {
       this.btnMore = ButtonMenuToggle({
         listenerSetter: this.listenerSetter,
         direction: 'bottom-left',
         buttons: this.menuButtons,
-        positionPadding: {top: 7},
+        positionPadding: { top: 7 },
         onOpenBefore: async() => {
           const hasAutoDeleteButton = await this.chat.canManageAutoDelete();
-          if(!hasAutoDeleteButton) return;
+          if (!hasAutoDeleteButton) return;
 
           const period = await this.chat.getAutoDeletePeriod().then(ackedResult => ackedResult.result);
           this.autoDeleteBtnMenuOptions.iconElement = createAutoDeleteIcon(period);
         },
         onOpen: async(e, element) => {
           const deleteButton = this.menuButtons[this.menuButtons.length - 1];
-          if(deleteButton?.element) {
+          if (deleteButton?.element) {
             const deleteButtonText = await this.managers.appPeersManager.getDeleteButtonText(this.chat.monoforumThreadId || this.peerId);
             deleteButton.element.lastChild!.replaceWith(i18n(deleteButtonText));
           }
@@ -204,7 +204,7 @@ export default class ChatTopbar {
         },
         onClose: () => {
           this.autoDeleteBtnMenuOptions.onClose?.();
-        }
+        },
       });
     }
 
@@ -217,7 +217,7 @@ export default class ChatTopbar {
       this.btnGroupCallMenu,
       this.btnSearch,
       this.btnLogFilters,
-      this.btnMore
+      this.btnMore,
     ].filter(Boolean));
 
     this.pushButtonToVerify(this.btnCall, this.verifyCallButton.bind(this, 'voice'));
@@ -230,14 +230,14 @@ export default class ChatTopbar {
     // them, but never attached to the live DOM tree. They sit detached, so nothing
     // visible leaks into the popup.
     this.chatInfoContainer.append(this.btnBack, this.chatInfo);
-    if(!this.chat.isPreview) this.chatInfoContainer.append(this.chatUtils);
+    if (!this.chat.isPreview) this.chatInfoContainer.append(this.chatUtils);
     this.container.append(this.chatInfoContainer);
 
     this.floatingPlatesWrapper = document.createElement('div');
     this.floatingPlatesWrapper.classList.add('topbar-floating-plates', 'hide');
-    if(!this.chat.isPreview) this.container.append(this.floatingPlatesWrapper);
+    if (!this.chat.isPreview) this.container.append(this.floatingPlatesWrapper);
 
-    if(this.pinnedMessage) {
+    if (this.pinnedMessage) {
       this.appendPinnedMessage(this.pinnedMessage);
     }
 
@@ -251,7 +251,7 @@ export default class ChatTopbar {
     this.listenerSetter.add(mediaSizes)('changeScreen', this.onChangeScreen);
 
     attachClickEvent(this.container, (e) => {
-      if(
+      if (
         findUpClassName(e.target!, 'topbar-search-container') ||
         !(e.target as HTMLElement).isConnected ||
         findUpClassName(e.target!, 'chat-search-top')
@@ -261,35 +261,35 @@ export default class ChatTopbar {
 
       const container = findUpClassName(e.target!, 'pinned-container');
       blurActiveElement();
-      if(container) {
+      if (container) {
         return;
       } else {
         const avatar = findUpAvatar(e.target!);
-        if(mediaSizes.activeScreen === ScreenSize.medium && document.body.classList.contains(LEFT_COLUMN_ACTIVE_CLASSNAME)) {
+        if (mediaSizes.activeScreen === ScreenSize.medium && document.body.classList.contains(LEFT_COLUMN_ACTIVE_CLASSNAME)) {
           onBtnBackClick();
         } else {
-          if(avatar?.classList.contains('has-stories')) {
+          if (avatar?.classList.contains('has-stories')) {
             return;
           }
 
-          if(!replaceEmoticonsPanelWithProfile()) {
+          if (!replaceEmoticonsPanelWithProfile()) {
             this.appSidebarRight.toggleSidebar(avatar ? !document.body.classList.contains(RIGHT_COLUMN_ACTIVE_CLASSNAME) : true);
           }
         }
       }
-    }, {listenerSetter: this.listenerSetter});
+    }, { listenerSetter: this.listenerSetter });
 
     const onBtnBackClick = (e?: Event) => {
-      if(e) {
+      if (e) {
         cancelEvent(e);
       }
 
-      if(this.chat.isPreview) {
+      if (this.chat.isPreview) {
         this.chat.onPreviewClose?.();
         return;
       }
 
-      if(this.chat.type === ChatType.Search) {
+      if (this.chat.type === ChatType.Search) {
         this.chat.resetSearch();
         return;
       }
@@ -297,16 +297,16 @@ export default class ChatTopbar {
       this.chat.pop();
     };
 
-    attachClickEvent(this.btnBack, onBtnBackClick, {listenerSetter: this.listenerSetter});
+    attachClickEvent(this.btnBack, onBtnBackClick, { listenerSetter: this.listenerSetter });
   }
 
   private pushButtonToVerify(element: HTMLElement, verify: ButtonToVerify['verify']) {
-    if(!element) {
+    if (!element) {
       return;
     }
 
     element.classList.add('hide');
-    this.buttonsToVerify.push({element, verify});
+    this.buttonsToVerify.push({ element, verify });
   }
 
   private verifyButtons = (e?: Event) => {
@@ -319,11 +319,11 @@ export default class ChatTopbar {
       const results = await Promise.all(buttons.map(async(button) => {
         return {
           result: await button.verify(),
-          button
+          button,
         }
       }));
 
-      results.forEach(({button, result}) => {
+      results.forEach(({ button, result }) => {
         button.element?.classList.toggle('hide', !result);
       });
     };
@@ -332,23 +332,23 @@ export default class ChatTopbar {
   };
 
   private verifyRtmpButton = async() => {
-    if(!this.chat.isBroadcast || this.chat.type !== ChatType.Chat) {
+    if (!this.chat.isBroadcast || this.chat.type !== ChatType.Chat) {
       return false;
     }
 
     const currentGroupCall = groupCallsController.groupCall;
     const chatId = this.peerId.toChatId();
-    if(currentGroupCall?.chatId === chatId) {
+    if (currentGroupCall?.chatId === chatId) {
       return false;
     }
 
     const chat = this.chat.peer as MTChat.channel | MTChat.chat;
-    if(!chat) {
+    if (!chat) {
       return false;
     }
 
     const isCallActive = !!(chat as MTChat.chat).pFlags?.call_active;
-    if(isCallActive) {
+    if (isCallActive) {
       return false;
     }
 
@@ -356,7 +356,7 @@ export default class ChatTopbar {
   };
 
   private verifyVideoChatButton = async(type?: 'group' | 'broadcast' | 'nonadmin') => {
-    if(
+    if (
       !IS_GROUP_CALL_SUPPORTED ||
       this.peerId.isUser() ||
       this.chat.type !== ChatType.Chat ||
@@ -365,12 +365,12 @@ export default class ChatTopbar {
 
     const currentGroupCall = groupCallsController.groupCall;
     const chatId = this.peerId.toChatId();
-    if(currentGroupCall?.chatId === chatId) {
+    if (currentGroupCall?.chatId === chatId) {
       return false;
     }
 
-    if(type) {
-      if(((type === 'group' && !this.chat.isAnyGroup)) ||
+    if (type) {
+      if (((type === 'group' && !this.chat.isAnyGroup)) ||
         ((type === 'broadcast' && !this.chat.isBroadcast))) {
         return false;
       }
@@ -379,11 +379,11 @@ export default class ChatTopbar {
     const chat = this.chat.peer as MTChat.channel | MTChat.chat;
     const isCallActive = !!(chat as MTChat.chat).pFlags?.call_active;
     const canManageCall = hasRights(chat, 'manage_call');
-    if(type === 'nonadmin' && canManageCall && this.chat.isBroadcast) {
+    if (type === 'nonadmin' && canManageCall && this.chat.isBroadcast) {
       return false; // * hide live stream top button
     }
     const needActiveCall = !canManageCall;
-    if(!isCallActive) {
+    if (!isCallActive) {
       return !needActiveCall;
     }
 
@@ -392,13 +392,13 @@ export default class ChatTopbar {
     const groupCall = await this.managers.appGroupCallsManager.getGroupCallFull(
       inputGroupCall.id
     );
-    if(groupCall?._ !== 'groupCall') return false;
+    if (groupCall?._ !== 'groupCall') return false;
 
     return !groupCall.pFlags.rtmp_stream;
   };
 
   private verifyCallButton = async(type?: CallType) => {
-    if(!IS_CALL_SUPPORTED || !this.peerId.isUser() || this.chat.type !== ChatType.Chat) return false;
+    if (!IS_CALL_SUPPORTED || !this.peerId.isUser() || this.chat.type !== ChatType.Chat) return false;
     const userId = this.peerId.toUserId();
     const userFull = await this.managers.appProfileManager.getCachedFullUser(userId);
 
@@ -406,12 +406,12 @@ export default class ChatTopbar {
   };
 
   private verifyIfCanDeleteChat = async() => {
-    if(this.chat.isMonoforum) {
+    if (this.chat.isMonoforum) {
       const chat = this.chat.peer;
       return chat?._ === 'channel' && !chat?.pFlags?.creator && !chat?.pFlags?.left;
     }
 
-    if(this.chat.type === ChatType.Saved) return true;
+    if (this.chat.type === ChatType.Saved) return true;
 
     return (
       this.chat.type === ChatType.Chat &&
@@ -424,15 +424,15 @@ export default class ChatTopbar {
       options: {
         text: 'AutoDeleteMessagesShort',
         separatorDown: true,
-        verify: this.chat.canManageAutoDelete
+        verify: this.chat.canManageAutoDelete,
       },
       createSubmenu: this.createAutoDeleteSubmenu.bind(this),
-      direction: 'left-start'
+      direction: 'left-start',
     });
 
     const onBoostClick = async() => {
-      const {peerId} = this;
-      if(await this.managers.appProfileManager.canViewStatistics(peerId)) {
+      const { peerId } = this;
+      if (await this.managers.appProfileManager.canViewStatistics(peerId)) {
         this.appSidebarRight.createTab(AppBoostsTab).open(this.peerId);
         this.appSidebarRight.toggleSidebar(true);
       } else {
@@ -446,14 +446,14 @@ export default class ChatTopbar {
       onClick: () => {
         this.chat.initSearch();
       },
-      verify: () => mediaSizes.isMobile
+      verify: () => mediaSizes.isMobile,
     }, {
       icon: 'filter',
       text: 'FilterActions',
       onClick: () => {
         this.onFilterActionsClick();
       },
-      verify: () => mediaSizes.isMobile && this.chat.type === ChatType.Logs
+      verify: () => mediaSizes.isMobile && this.chat.type === ChatType.Logs,
     }, /* {
       icon: 'pinlist',
       text: 'Pinned Messages',
@@ -463,21 +463,21 @@ export default class ChatTopbar {
       icon: 'mute',
       text: 'ChatList.Context.Mute',
       onClick: this.onMuteClick,
-      verify: async() => this.chat.type === ChatType.Chat && !this.chat.monoforumThreadId && rootScope.myId !== this.peerId && !(await this.managers.appNotificationsManager.isPeerLocalMuted({peerId: this.peerId, respectType: false, threadId: this.chat.threadId}))
+      verify: async() => this.chat.type === ChatType.Chat && !this.chat.monoforumThreadId && rootScope.myId !== this.peerId && !(await this.managers.appNotificationsManager.isPeerLocalMuted({ peerId: this.peerId, respectType: false, threadId: this.chat.threadId })),
     }, {
       icon: 'unmute',
       text: 'ChatList.Context.Unmute',
       onClick: this.onUnmuteClick,
-      verify: () => this.chat.type === ChatType.Chat && !this.chat.monoforumThreadId && rootScope.myId !== this.peerId && this.managers.appNotificationsManager.isPeerLocalMuted({peerId: this.peerId, respectType: false, threadId: this.chat.threadId})
+      verify: () => this.chat.type === ChatType.Chat && !this.chat.monoforumThreadId && rootScope.myId !== this.peerId && this.managers.appNotificationsManager.isPeerLocalMuted({ peerId: this.peerId, respectType: false, threadId: this.chat.threadId }),
     }, {
       icon: 'comments',
       text: 'ViewDiscussion',
       onClick: () => {
         const middleware = this.chat.bubbles.getMiddleware();
         Promise.resolve(this.managers.appProfileManager.getChannelFull(this.peerId.toChatId())).then((channelFull) => {
-          if(middleware() && channelFull.linked_chat_id) {
+          if (middleware() && channelFull.linked_chat_id) {
             this.chat.appImManager.setInnerPeer({
-              peerId: channelFull.linked_chat_id.toPeerId(true)
+              peerId: channelFull.linked_chat_id.toPeerId(true),
             });
           }
         });
@@ -485,27 +485,27 @@ export default class ChatTopbar {
       verify: async() => {
         const chatFull = await this.managers.appProfileManager.getCachedFullChat(this.peerId.toChatId());
         return this.chat.type === ChatType.Chat && !!(chatFull as ChatFull.channelFull)?.linked_chat_id;
-      }
+      },
     }, {
       icon: 'phone',
       text: 'Call',
       onClick: this.onCallClick.bind(this, 'voice'),
-      verify: this.verifyCallButton.bind(this, 'voice')
+      verify: this.verifyCallButton.bind(this, 'voice'),
     }, {
       icon: 'videocamera',
       text: 'VideoCall',
       onClick: this.onCallClick.bind(this, 'video'),
-      verify: this.verifyCallButton.bind(this, 'video')
+      verify: this.verifyCallButton.bind(this, 'video'),
     }, {
       icon: 'videochat',
       text: 'PeerInfo.Action.LiveStream',
       onClick: this.onJoinGroupCallClick,
-      verify: this.verifyVideoChatButton.bind(this, 'broadcast')
+      verify: this.verifyVideoChatButton.bind(this, 'broadcast'),
     }, {
       icon: 'videochat',
       text: 'PeerInfo.Action.VoiceChat',
       onClick: this.onJoinGroupCallClick,
-      verify: this.verifyVideoChatButton.bind(this, 'group')
+      verify: this.verifyVideoChatButton.bind(this, 'group'),
     }, {
       icon: 'topics',
       text: 'TopicViewAsTopics',
@@ -515,55 +515,55 @@ export default class ChatTopbar {
       verify: async() => {
         const dialog = await this.managers.appMessagesManager.getDialogOnly(this.peerId);
         return !!(dialog && (dialog).pFlags.view_forum_as_messages);
-      }
+      },
     }, {
       icon: 'topics',
       text: 'SavedViewAsChats',
       onClick: () => {
         this.chat.appImManager.toggleViewAsMessages(this.peerId, false);
       },
-      verify: () => this.peerId === rootScope.myId && !this.chat.threadId && !this.chat.appSettings.savedAsForum
+      verify: () => this.peerId === rootScope.myId && !this.chat.threadId && !this.chat.appSettings.savedAsForum,
     }, {
       icon: 'message',
       text: 'ChannelDirectMessages.ViewChats',
       onClick: () => {
         appDialogsManager.toggleForumTabByPeerId(this.peerId, true);
       },
-      verify: () => this.chat.isMonoforum && !this.chat.monoforumThreadId && this.chat.canManageDirectMessages && !mediaSizes.isLessThanFloatingLeftSidebar && !appDialogsManager.hasForumOpenFor(this.peerId)
+      verify: () => this.chat.isMonoforum && !this.chat.monoforumThreadId && this.chat.canManageDirectMessages && !mediaSizes.isLessThanFloatingLeftSidebar && !appDialogsManager.hasForumOpenFor(this.peerId),
     }, {
       icon: 'select',
       text: 'Chat.Menu.SelectMessages',
       onClick: () => {
         const selection = this.chat.selection;
         selection!.toggleSelection(true, true);
-        if(this.chat.appSettings.chatContextMenuHintWasShown) {
+        if (this.chat.appSettings.chatContextMenuHintWasShown) {
           return;
         }
 
         const original = selection!.toggleByElement.bind(selection);
         selection!.toggleByElement = async(bubble) => {
           this.chat.setAppSettings('chatContextMenuHintWasShown', true);
-          toastNew({langPackKey: 'Chat.Menu.Hint'});
+          toastNew({ langPackKey: 'Chat.Menu.Hint' });
 
           selection!.toggleByElement = original;
           selection!.toggleByElement(bubble);
         };
       },
-      verify: () => !this.chat.selection!.isSelecting && !!this.chat.bubbles.getRenderedLength() && !(this.chat.type === ChatType.Logs)
+      verify: () => !this.chat.selection!.isSelecting && !!this.chat.bubbles.getRenderedLength() && !(this.chat.type === ChatType.Logs),
     }, {
       icon: 'select',
       text: 'Chat.Menu.ClearSelection',
       onClick: () => {
         this.chat.selection!.cancelSelection();
       },
-      verify: () => this.chat.selection!.isSelecting
+      verify: () => this.chat.selection!.isSelecting,
     }, {
       icon: 'adduser',
       text: 'AddContact',
       onClick: () => {
         this.addContact();
       },
-      verify: async() => !this.chat.isBot && (this.chat.monoforumThreadId || this.peerId).isUser() && !(await this.managers.appPeersManager.isContact(this.chat.monoforumThreadId || this.peerId))
+      verify: async() => !this.chat.isBot && (this.chat.monoforumThreadId || this.peerId).isUser() && !(await this.managers.appPeersManager.isContact(this.chat.monoforumThreadId || this.peerId)),
     }, {
       icon: 'forward',
       text: 'ShareContact',
@@ -571,55 +571,55 @@ export default class ChatTopbar {
         const contactPeerId = this.peerId;
         showSharingPickerPopup({
           onSelect: async(chosen) => {
-            const {peerId, monoforumThreadId} = chosen[0];
-            const preparedPaymentResult = await PaidMessagesInterceptor.prepareStarsForPayment({messageCount: 1, peerId});
-            if(preparedPaymentResult === PAYMENT_REJECTED) throw new Error();
+            const { peerId, monoforumThreadId } = chosen[0];
+            const preparedPaymentResult = await PaidMessagesInterceptor.prepareStarsForPayment({ messageCount: 1, peerId });
+            if (preparedPaymentResult === PAYMENT_REJECTED) throw new Error();
 
             const send = () => {
-              this.managers.appMessagesManager.sendContact({peerId, contactPeerId, confirmedPaymentResult: preparedPaymentResult, monoforumThreadId});
-              this.chat.appImManager.setInnerPeer({peerId});
+              this.managers.appMessagesManager.sendContact({ peerId, contactPeerId, confirmedPaymentResult: preparedPaymentResult, monoforumThreadId });
+              this.chat.appImManager.setInnerPeer({ peerId });
             };
 
-            if(preparedPaymentResult) return void send();
+            if (preparedPaymentResult) return void send();
 
             return new Promise((resolve, reject) => {
               PopupElement.createPopup(PopupPeer, '', {
                 titleLangKey: 'SendMessageTitle',
                 descriptionLangKey: 'SendContactToGroupText',
-                descriptionLangArgs: [new PeerTitle({peerId, dialog: true}).element],
+                descriptionLangArgs: [new PeerTitle({ peerId, dialog: true }).element],
                 buttons: [{
                   langKey: 'Send',
                   callback: async() => {
                     resolve();
                     send();
-                  }
+                  },
                 }, {
                   langKey: 'Cancel',
                   callback: () => {
                     reject();
                   },
-                  isCancel: true
+                  isCancel: true,
                 }],
                 peerId,
-                overlayClosable: true
+                overlayClosable: true,
               }).show();
             });
-          }
+          },
         });
       },
-      verify: async() => rootScope.myId !== this.peerId && this.peerId.isUser() && (await this.managers.appPeersManager.isContact(this.peerId)) && !!(await this.managers.appUsersManager.getUser(this.peerId.toUserId())).phone
+      verify: async() => rootScope.myId !== this.peerId && this.peerId.isUser() && (await this.managers.appPeersManager.isContact(this.peerId)) && !!(await this.managers.appUsersManager.getUser(this.peerId.toUserId())).phone,
     }, {
       icon: 'gift',
       text: 'Chat.Menu.SendGift',
-      onClick: () => PopupElement.createPopup(PopupSendGift, {peerId: this.peerId}),
+      onClick: () => PopupElement.createPopup(PopupSendGift, { peerId: this.peerId }),
       verify: async() => (
         this.chat.isChannel || (this.chat.peerId.isUser() && !this.chat.isBot && (await this.managers.appUsersManager.isRegularUser(this.peerId)))
-      ) && !(this.chat.type === ChatType.Logs)
+      ) && !(this.chat.type === ChatType.Logs),
     }, {
       icon: 'message',
       text: 'ChannelDirectMessages.Manage',
       onClick: () => this.onDirectMessagesClick(),
-      verify: () => this.chat.isChannel && this.chat.canManageDirectMessages && !this.chat.isMonoforum && !!(this.chat.peer as MTChat.channel).linked_monoforum_id && this.chat.type !== ChatType.Logs
+      verify: () => this.chat.isChannel && this.chat.canManageDirectMessages && !this.chat.isMonoforum && !!(this.chat.peer as MTChat.channel).linked_monoforum_id && this.chat.type !== ChatType.Logs,
     }, {
       icon: 'statistics',
       text: 'Statistics',
@@ -627,32 +627,32 @@ export default class ChatTopbar {
         this.appSidebarRight.createTab(AppStatisticsTab).open(this.peerId.toChatId());
         this.appSidebarRight.toggleSidebar(true);
       },
-      verify: () => !this.chat.monoforumThreadId && this.managers.appProfileManager.canViewStatistics(this.peerId)
+      verify: () => !this.chat.monoforumThreadId && this.managers.appProfileManager.canViewStatistics(this.peerId),
     }, {
       icon: 'addboost',
       text: 'BoostChannel',
       onClick: onBoostClick,
-      verify: async() => this.chat.isBroadcast
+      verify: async() => this.chat.isBroadcast,
     }, {
       icon: 'addboost',
       text: 'BoostGroup',
       onClick: onBoostClick,
-      verify: async() => this.chat.isMegagroup
+      verify: async() => this.chat.isMegagroup,
     }, {
       icon: 'bots',
       text: 'Settings',
       onClick: () => {
         // [ ] Bot with paid stars?
-        this.managers.appMessagesManager.sendText({peerId: this.peerId, text: '/settings'});
+        this.managers.appMessagesManager.sendText({ peerId: this.peerId, text: '/settings' });
       },
       verify: async() => {
         try {
           const attachMenuBot = await this.managers.appAttachMenuBotsManager.getAttachMenuBot(this.peerId.toUserId());
           return !!(attachMenuBot as Exclude<typeof attachMenuBot, false>)?.pFlags?.has_settings;
-        } catch(err) {
+        } catch (err) {
           return false;
         }
-      }
+      },
     }, {
       icon: 'premium_translate',
       text: 'Translate',
@@ -661,19 +661,19 @@ export default class ChatTopbar {
           this.peerId,
           false
         ).then(() => {
-          if(this.chat.peerTranslation.canTranslate()) {
+          if (this.chat.peerTranslation.canTranslate()) {
             this.chat.peerTranslation.toggle(true);
           }
         });
       },
       verify: async() => {
-        if(!this.chat.peerTranslation.areTranslationsAvailable()) {
+        if (!this.chat.peerTranslation.areTranslationsAvailable()) {
           return false;
         }
 
         const fullPeer = await this.managers.appProfileManager.getCachedProfileByPeerId(this.peerId);
         return fullPeer && !!fullPeer.pFlags.translations_disabled;
-      }
+      },
     }, {
       icon: 'lock',
       text: 'BlockUser',
@@ -681,33 +681,33 @@ export default class ChatTopbar {
         this.blockUser();
       },
       verify: async() => {
-        if(!this.peerId.isUser()) return false;
+        if (!this.peerId.isUser()) return false;
         const userFull = await this.managers.appProfileManager.getCachedFullUser(this.peerId.toUserId());
         return this.peerId !== rootScope.myId && userFull && !userFull.pFlags?.blocked;
-      }
+      },
     }, {
       icon: 'lockoff',
       text: 'Unblock',
       onClick: () => {
         this.managers.appUsersManager.toggleBlock(this.peerId, false).then(() => {
-          toastNew({langPackKey: 'UserUnblocked'});
+          toastNew({ langPackKey: 'UserUnblocked' });
         });
       },
       verify: async() => {
         const userFull = await this.managers.appProfileManager.getCachedFullUser(this.peerId.toUserId());
         return !!userFull?.pFlags?.blocked;
-      }
+      },
     }, {
       icon: 'sharingoff',
       text: 'DisableSharing',
       onClick: () => {
-        if(!rootScope.premium) {
-          PopupPremium.show({feature: 'pm_noforwards'});
+        if (!rootScope.premium) {
+          PopupPremium.show({ feature: 'pm_noforwards' });
           return;
         }
 
         const cb = () => this.managers.appProfileManager.toggleNoForwards(this.peerId, true);
-        if(this.chat.appSettings.seenTooltips.noForwards) {
+        if (this.chat.appSettings.seenTooltips.noForwards) {
           cb();
         } else {
           showNoForwardsPopup(() => {
@@ -717,53 +717,53 @@ export default class ChatTopbar {
         }
       },
       verify: async() => {
-        if(!this.peerId.isUser() || this.peerId === rootScope.myId || this.chat.isBot) return false;
+        if (!this.peerId.isUser() || this.peerId === rootScope.myId || this.chat.isBot) return false;
         const userFull = this.chat.fullPeer() as UserFull.userFull;
-        if(!userFull) return false;
+        if (!userFull) return false;
         return !userFull.pFlags.noforwards_my_enabled && !userFull.pFlags.noforwards_peer_enabled;
-      }
+      },
     }, {
       icon: 'sharingon',
       text: 'EnableSharing',
       onClick: async() => {
         const userFull = this.chat.fullPeer() as UserFull.userFull;
-        const {peerId} = this;
+        const { peerId } = this;
 
-        if(userFull.pFlags.noforwards_peer_enabled) {
+        if (userFull.pFlags.noforwards_peer_enabled) {
           await confirmationPopup({
             titleLangKey: 'EnableSharing',
             descriptionLangKey: 'EnableSharingCaption',
-            descriptionLangArgs: [new PeerTitle({peerId}).element],
+            descriptionLangArgs: [new PeerTitle({ peerId }).element],
             button: {
-              langKey: 'SendRequest'
-            }
+              langKey: 'SendRequest',
+            },
           });
         }
 
         this.managers.appProfileManager.toggleNoForwards(peerId, false);
       },
       verify: async() => {
-        if(!this.peerId.isUser() || this.peerId === rootScope.myId || this.chat.isBot) return false;
+        if (!this.peerId.isUser() || this.peerId === rootScope.myId || this.chat.isBot) return false;
         const userFull = this.chat.fullPeer() as UserFull.userFull;
-        if(!userFull) return false;
+        if (!userFull) return false;
         return !!(userFull?.pFlags?.noforwards_my_enabled || userFull?.pFlags?.noforwards_peer_enabled);
-      }
+      },
     }, {
       icon: 'dollar_circle',
       text: 'PaidMessages.ChargeFee',
       onClick: () => this.onToggleFeeClick(true),
-      verify: () => this.verifyToggleFee(true) as Promise<boolean>
+      verify: () => this.verifyToggleFee(true) as Promise<boolean>,
     }, {
       icon: 'dollar_circle_x',
       text: 'PaidMessages.RemoveFee',
       onClick: () => this.onToggleFeeClick(false),
-      verify: () => this.verifyToggleFee(false) as Promise<boolean>
+      verify: () => this.verifyToggleFee(false) as Promise<boolean>,
     }, {
       icon: 'clipboard',
       text: 'CompactDiffView',
       onClick: wrapAsyncClickHandler(async() => {
-        if(!this.chat.popIfMoreThanOne()) {
-          await this.chat.setPeer({peerId: this.peerId});
+        if (!this.chat.popIfMoreThanOne()) {
+          await this.chat.setPeer({ peerId: this.peerId });
         }
 
         setAppSettings('logsDiffView', true);
@@ -771,14 +771,14 @@ export default class ChatTopbar {
         // awaiting this doesn't help
         this.appSidebarRight.toggleSidebar(true, true);
 
-        if(liteMode.isAvailable('animations')) await pause(100);
+        if (liteMode.isAvailable('animations')) await pause(100);
 
         this.appSidebarRight.createTab(AppAdminRecentActionsTab).open({
           channelId: this.peerId.toChatId(),
-          isBroadcast: this.chat.isBroadcast
+          isBroadcast: this.chat.isBroadcast,
         });
       }),
-      verify: () => this.chat.type === ChatType.Logs
+      verify: () => this.chat.type === ChatType.Logs,
     }, {
       icon: 'delete',
       danger: true,
@@ -793,7 +793,7 @@ export default class ChatTopbar {
           this.chat.monoforumThreadId ? this.peerId : undefined
         );
       },
-      verify: this.verifyIfCanDeleteChat
+      verify: this.verifyIfCanDeleteChat,
     }];
 
     this.btnSearch = ButtonIcon('search');
@@ -808,7 +808,7 @@ export default class ChatTopbar {
   }
 
   public addContact() {
-    if(!this.appSidebarRight.isTabExists(AppEditContactTab)) {
+    if (!this.appSidebarRight.isTabExists(AppEditContactTab)) {
       this.appSidebarRight.createTab(AppEditContactTab).open(this.peerId);
 
       this.appSidebarRight.toggleSidebar(true);
@@ -820,39 +820,39 @@ export default class ChatTopbar {
     const checkboxes: PopupPeerCheckboxOptions[] = [
       ((showReport && {
         text: 'DeleteReportSpam',
-        checked: true
+        checked: true,
       })! as PopupPeerCheckboxOptions),
       ((showDelete && {
         text: 'DeleteThisChat',
-        checked: true
-      })! as PopupPeerCheckboxOptions)
+        checked: true,
+      })! as PopupPeerCheckboxOptions),
     ];
 
     const checked = await confirmationPopup({
       peerId,
       titleLangKey: 'BlockUser',
       descriptionLangKey: 'AreYouSureBlockContact2',
-      descriptionLangArgs: [new PeerTitle({peerId}).element],
+      descriptionLangArgs: [new PeerTitle({ peerId }).element],
       button: {
         langKey: 'BlockUser',
-        isDanger: true
+        isDanger: true,
       },
-      checkboxes: checkboxes.filter(Boolean)
+      checkboxes: checkboxes.filter(Boolean),
     });
 
     const [reportSpam, deleteChat] = Array.isArray(checked) ? checked : [];
 
     const promise = Promise.all([
       reportSpam && this.managers.appMessagesManager.reportSpam(peerId),
-      deleteChat && this.managers.appMessagesManager.flushHistory({peerId, justClear: false, revoke: true}),
-      this.managers.appUsersManager.toggleBlock(peerId, true)
+      deleteChat && this.managers.appMessagesManager.flushHistory({ peerId, justClear: false, revoke: true }),
+      this.managers.appUsersManager.toggleBlock(peerId, true),
     ]);
 
     onConfirmed?.(promise);
 
     await promise;
 
-    toastNew({langPackKey: 'UserBlocked'});
+    toastNew({ langPackKey: 'UserBlocked' });
   }
 
   public attachClickEvent(el: HTMLElement, cb: (e: MouseEvent) => void, noBlur?: boolean) {
@@ -860,7 +860,7 @@ export default class ChatTopbar {
       cancelEvent(e);
       !noBlur && blurActiveElement();
       cb(e);
-    }, {listenerSetter: this.listenerSetter});
+    }, { listenerSetter: this.listenerSetter });
   }
 
   private onCallClick(type: CallType) {
@@ -868,14 +868,14 @@ export default class ChatTopbar {
   }
 
   private verifyToggleFee = async(requirePayment: boolean) => {
-    if(!this.chat.monoforumThreadId) return;
+    if (!this.chat.monoforumThreadId) return;
 
-    const {chat, dialog} = await namedPromises({
+    const { chat, dialog } = await namedPromises({
       chat: this.chat.peer,
-      dialog: this.managers.monoforumDialogsStorage.getDialogByParent(this.peerId, this.chat.monoforumThreadId)
+      dialog: this.managers.monoforumDialogsStorage.getDialogByParent(this.peerId, this.chat.monoforumThreadId),
     });
 
-    if(chat?._ !== 'channel' || !chat?.send_paid_messages_stars) return false;
+    if (chat?._ !== 'channel' || !chat?.send_paid_messages_stars) return false;
 
     return requirePayment ? !!dialog?.pFlags?.nopaid_messages_exception : !dialog?.pFlags?.nopaid_messages_exception;
   };
@@ -883,11 +883,11 @@ export default class ChatTopbar {
   private onToggleFeeClick = async(requirePayment: boolean) => {
     const peerId = this.chat.monoforumThreadId;
     const parentPeerId = this.chat.peerId;
-    if(!peerId || !parentPeerId) return;
+    if (!peerId || !parentPeerId) return;
 
     try {
-      await openRemoveFeePopup({peerId, parentPeerId, requirePayment, managers: this.managers})
-    } catch{}
+      await openRemoveFeePopup({ peerId, parentPeerId, requirePayment, managers: this.managers })
+    } catch {}
   }
 
   private onJoinGroupCallClick = () => {
@@ -895,16 +895,16 @@ export default class ChatTopbar {
   };
 
   private onFilterActionsClick = wrapAsyncClickHandler(async() => {
-    const {default: LogFiltersPopup} = await import('./logFiltersPopup');
+    const { default: LogFiltersPopup } = await import('./logFiltersPopup');
 
     new LogFiltersPopup({
       channelId: this.peerId.toChatId(),
       isBroadcast: this.chat.isBroadcast,
       committedFilters: this.chat.bubbles.committedLogsFilters,
       HotReloadGuard: SolidJSHotReloadGuardProvider,
-      onFinish: ({committedFilters}) => {
+      onFinish: ({ committedFilters }) => {
         this.chat.bubbles.setLogFilters(committedFilters!);
-      }
+      },
     }).show();
   })
 
@@ -926,22 +926,22 @@ export default class ChatTopbar {
       buttons: [{
         icon: 'videochat',
         text: 'Rtmp.Topbar.StartVideoChat',
-        onClick: this.onJoinGroupCallClick
+        onClick: this.onJoinGroupCallClick,
       }, {
         icon: 'link',
         text: 'Rtmp.Topbar.StreamWith',
         onClick: () => {
-          PopupElement.createPopup(RtmpStartStreamPopup, {peerId: this.peerId}).show();
+          PopupElement.createPopup(RtmpStartStreamPopup, { peerId: this.peerId }).show();
         },
-        verify: () => IS_LIVE_STREAM_SUPPORTED
+        verify: () => IS_LIVE_STREAM_SUPPORTED,
       }],
-      icon: 'videochat'
+      icon: 'videochat',
     });
     this.attachClickEvent(this.btnCall, this.onCallClick.bind(this, 'voice'));
     this.attachClickEvent(this.btnGroupCall, this.onJoinGroupCallClick);
 
     this.listenerSetter.add(rootScope)('folder_unread', (folder) => {
-      if(!this.btnBackBadge || folder.id !== FOLDER_ID_ALL) {
+      if (!this.btnBackBadge || folder.id !== FOLDER_ID_ALL) {
         return;
       }
 
@@ -952,9 +952,9 @@ export default class ChatTopbar {
     });
 
     this.listenerSetter.add(rootScope)('chat_update', (chatId) => {
-      if(this.peerId === chatId.toPeerId(true)) {
+      if (this.peerId === chatId.toPeerId(true)) {
         const chat = this.chat.peer as Channel/*  | Chat */;
-        if(!chat.pFlags.broadcast) {
+        if (!chat.pFlags.broadcast) {
           return;
         }
 
@@ -963,13 +963,13 @@ export default class ChatTopbar {
     });
 
     this.listenerSetter.add(rootScope)('peer_full_update', (peerId) => {
-      if(this.peerId === peerId) {
+      if (this.peerId === peerId) {
         this.verifyButtons();
       }
     });
 
-    this.listenerSetter.add(rootScope)('chat_requests', ({chatId, recentRequesters, requestsPending}) => {
-      if(this.peerId !== chatId.toPeerId(true)) {
+    this.listenerSetter.add(rootScope)('chat_requests', ({ chatId, recentRequesters, requestsPending }) => {
+      if (this.peerId !== chatId.toPeerId(true)) {
         return;
       }
 
@@ -979,7 +979,7 @@ export default class ChatTopbar {
         recentRequesters.map((userId) => userId.toPeerId(false)),
         requestsPending
       ).then((callback) => {
-        if(!middleware()) {
+        if (!middleware()) {
           return;
         }
 
@@ -987,8 +987,8 @@ export default class ChatTopbar {
       });
     });
 
-    this.listenerSetter.add(rootScope)('peer_settings', async({peerId, settings}) => {
-      if(this.peerId !== peerId) {
+    this.listenerSetter.add(rootScope)('peer_settings', async({ peerId, settings }) => {
+      if (this.peerId !== peerId) {
         return;
       }
 
@@ -1002,41 +1002,41 @@ export default class ChatTopbar {
 
     this.chat.addEventListener('setPeer', (mid, isTopMessage) => {
       const middleware = this.chat.bubbles.getMiddleware();
-      if(!middleware() || !this.pinnedMessage) return;
+      if (!middleware() || !this.pinnedMessage) return;
 
       this.pinnedMessage.setUserHidden(!!this.chat.appState.hiddenPinnedMessages[this.chat.peerId]);
 
-      if(isTopMessage) {
+      if (isTopMessage) {
         this.pinnedMessage.unsetScrollDownListener();
         this.pinnedMessage.testMid(mid, 0); // * because slider will not let get bubble by document.elementFromPoint
-      } else if(!this.pinnedMessage.isLocked()) {
+      } else if (!this.pinnedMessage.isLocked()) {
         this.pinnedMessage.handleFollowingPinnedMessage();
         this.pinnedMessage.testMid(mid);
       }
     });
 
-    this.listenerSetter.add(rootScope)('peer_pinned_messages', ({peerId, mids}) => {
-      if(this.chat.type !== ChatType.Pinned || peerId !== this.peerId) {
+    this.listenerSetter.add(rootScope)('peer_pinned_messages', ({ peerId, mids }) => {
+      if (this.chat.type !== ChatType.Pinned || peerId !== this.peerId) {
         return;
       }
 
-      if(mids) {
+      if (mids) {
         this.setTitle();
       }
     });
 
-    this.listenerSetter.add(rootScope)('monoforum_dialogs_update', async({dialogs}) => {
-      if(!this.chat.isMonoforum || !this.chat.monoforumThreadId) return;
+    this.listenerSetter.add(rootScope)('monoforum_dialogs_update', async({ dialogs }) => {
+      if (!this.chat.isMonoforum || !this.chat.monoforumThreadId) return;
 
       const found = dialogs.find(dialog => dialog.parentPeerId === this.chat.peerId && dialog.peerId === this.chat.monoforumThreadId);
-      if(!found) return;
+      if (!found) return;
 
       const callback = await (await this.plates!.removeFee.setPeerId(this.chat.peerId)).result;
       callback();
     });
 
-    this.listenerSetter.add(rootScope)('auto_delete_period_update', ({peerId, period}) => {
-      if(peerId !== this.peerId || this.chat.type !== ChatType.Chat) return;
+    this.listenerSetter.add(rootScope)('auto_delete_period_update', ({ peerId, period }) => {
+      if (peerId !== this.peerId || this.chat.type !== ChatType.Chat) return;
       this.avatar.setAutoDeletePeriod(period);
     });
 
@@ -1047,7 +1047,7 @@ export default class ChatTopbar {
     this.chat.appImManager.setInnerPeer({
       peerId: this.peerId,
       lastMsgId: byCurrent ? +this.pinnedMessage!.container.dataset.mid! : 0,
-      type: ChatType.Pinned
+      type: ChatType.Pinned,
     });
   }
 
@@ -1057,7 +1057,7 @@ export default class ChatTopbar {
 
     const chatId = this.peerId.toChatId();
     let promise: Promise<any>;
-    if(await this.managers.appChatsManager.isChannel(chatId)) {
+    if (await this.managers.appChatsManager.isChannel(chatId)) {
       promise = this.managers.appChatsManager.joinChannel(chatId);
     } else {
       promise = this.managers.appChatsManager.addChatUser(chatId, rootScope.myId);
@@ -1065,16 +1065,16 @@ export default class ChatTopbar {
 
     promise.catch((err) => {
       assumeType<ApiError>(err);
-      switch(err.type) {
+      switch (err.type) {
         case 'INVITE_REQUEST_SENT': {
-          toastNew({langPackKey: 'Chat.SendJoinRequest.Info'});
+          toastNew({ langPackKey: 'Chat.SendJoinRequest.Info' });
           return;
         }
       }
 
       throw err;
     }).finally(() => {
-      if(!middleware()) {
+      if (!middleware()) {
         return;
       }
 
@@ -1084,15 +1084,15 @@ export default class ChatTopbar {
 
   private canClickOnDirectMessagesBtn = true;
   private onDirectMessagesClick = async() => {
-    if(!this.canClickOnDirectMessagesBtn || !this.peerId.isAnyChat()) return;
+    if (!this.canClickOnDirectMessagesBtn || !this.peerId.isAnyChat()) return;
     this.canClickOnDirectMessagesBtn = false;
     pause(200).then(() => this.canClickOnDirectMessagesBtn = true);
 
     const chat = this.chat.peer;
-    if(chat._ !== 'channel') return;
+    if (chat._ !== 'channel') return;
 
     appImManager.setInnerPeer({
-      peerId: chat.linked_monoforum_id!.toPeerId(true)
+      peerId: chat.linked_monoforum_id!.toPeerId(true),
     });
   };
 
@@ -1101,7 +1101,7 @@ export default class ChatTopbar {
   };
 
   private onUnmuteClick = () => {
-    this.managers.appMessagesManager.togglePeerMute({peerId: this.peerId, threadId: this.chat.threadId});
+    this.managers.appMessagesManager.togglePeerMute({ peerId: this.peerId, threadId: this.chat.threadId });
   };
 
   private onResize = () => {
@@ -1127,14 +1127,14 @@ export default class ChatTopbar {
   }
 
   public cleanup() {
-    if(!this.chat.peerId) {
+    if (!this.chat.peerId) {
       this.container.classList.add('hide');
     }
   }
 
   private appendPinnedMessage(pinnedMessage: ChatPinnedMessageController) {
     const container = pinnedMessage.container;
-    if(this.pinnedMessage && this.pinnedMessage !== pinnedMessage) {
+    if (this.pinnedMessage && this.pinnedMessage !== pinnedMessage) {
       this.pinnedMessage.container.replaceWith(container);
     } else {
       this.floatingPlatesWrapper.prepend(container);
@@ -1174,7 +1174,7 @@ export default class ChatTopbar {
    */
   public setupPinnedMessageForPeer(): Promise<void> | undefined {
     const peerId = this.chat.peerId;
-    if(this.pinnedMessageSetupForPeerId === peerId) {
+    if (this.pinnedMessageSetupForPeerId === peerId) {
       return this.pendingPinnedSetup?.kind === 'install' ?
         this.pendingPinnedSetup.prepareInitialPromise :
         undefined;
@@ -1182,16 +1182,16 @@ export default class ChatTopbar {
     this.pinnedMessageSetupForPeerId = peerId;
 
     // Drop an orphaned pending plate from an even earlier peer change.
-    if(this.pendingPinnedSetup?.kind === 'install') {
+    if (this.pendingPinnedSetup?.kind === 'install') {
       this.pendingPinnedSetup.newPlate.destroy();
     }
     this.pendingPinnedSetup = null;
 
     const isPinnedMessagesNeeded = this.chat.isPinnedMessagesNeeded();
     const wantsPlate = isPinnedMessagesNeeded || this.chat.type === ChatType.Discussion;
-    if(!wantsPlate) {
-      if(this.pinnedMessage) {
-        this.pendingPinnedSetup = {kind: 'destroy'};
+    if (!wantsPlate) {
+      if (this.pinnedMessage) {
+        this.pendingPinnedSetup = { kind: 'destroy' };
       }
       return;
     }
@@ -1199,7 +1199,7 @@ export default class ChatTopbar {
     const newPlate = createChatPinnedMessage(this, this.chat, this.managers);
     let prepareInitialPromise: Promise<void> | undefined;
 
-    if(this.chat.type === ChatType.Discussion) {
+    if (this.chat.type === ChatType.Discussion) {
       newPlate.setStaticMessage(this.chat.threadId);
     } else {
       newPlate.setUserHidden(!!this.chat.appState.hiddenPinnedMessages[peerId]);
@@ -1210,13 +1210,13 @@ export default class ChatTopbar {
       // pin-list border indicator and counter. Fall back to fullPeer's
       // `pinned_msg_id`, which is always the newest pin (index 0).
       const hint = savedPosition?.pinnedMessages ||
-        (cachedFull?.pinned_msg_id ? {mid: cachedFull.pinned_msg_id, index: 0, count: 1} : undefined);
-      if(hint) {
+        (cachedFull?.pinned_msg_id ? { mid: cachedFull.pinned_msg_id, index: 0, count: 1 } : undefined);
+      if (hint) {
         prepareInitialPromise = newPlate.prepareInitial(hint);
       }
     }
 
-    this.pendingPinnedSetup = {kind: 'install', newPlate, prepareInitialPromise};
+    this.pendingPinnedSetup = { kind: 'install', newPlate, prepareInitialPromise };
     return prepareInitialPromise;
   }
 
@@ -1229,14 +1229,14 @@ export default class ChatTopbar {
    */
   public revealPreparedPinnedMessage() {
     const pending = this.pendingPinnedSetup;
-    if(!pending) {
+    if (!pending) {
       this.pinnedMessage?.revealPrepared();
       return;
     }
     this.pendingPinnedSetup = null;
 
     const old = this.pinnedMessage;
-    if(pending.kind === 'install') {
+    if (pending.kind === 'install') {
       this.appendPinnedMessage(pending.newPlate);
       this.pinnedMessage = pending.newPlate;
       pending.newPlate.revealPrepared();
@@ -1248,19 +1248,19 @@ export default class ChatTopbar {
   }
 
   public async finishPeerChange(options: Parameters<Chat['finishPeerChange']>[0]) {
-    const {peerId, threadId, monoforumThreadId} = this.chat;
-    const {middleware} = options;
+    const { peerId, threadId, monoforumThreadId } = this.chat;
+    const { middleware } = options;
 
     let newAvatar!: ChatTopbar['avatar'], newAvatarMiddlewareHelper: ChatTopbar['avatarMiddlewareHelper'];
     const isSaved = this.chat.type === ChatType.Saved;
     const needArrowBack = this.chat.type === ChatType.Search;
-    if([ChatType.Chat, ChatType.Static, ChatType.Logs].includes(this.chat.type) || isSaved) {
+    if ([ChatType.Chat, ChatType.Static, ChatType.Logs].includes(this.chat.type) || isSaved) {
       const usePeerId = monoforumThreadId ||(isSaved ? threadId : peerId);
       const useThreadId = isSaved ? undefined : threadId;
       const avatar = this.avatar;
 
 
-      if(
+      if (
         !avatar ||
         avatar.node.dataset.peerId!.toPeerId() !== usePeerId ||
         avatar.node.dataset.threadId !== (useThreadId ? '' + useThreadId : undefined) ||
@@ -1272,10 +1272,10 @@ export default class ChatTopbar {
           size: 40,
           peerId: usePeerId,
           threadId: useThreadId,
-          wrapOptions: {customEmojiSize: makeMediaSize(30, 30)},
+          wrapOptions: { customEmojiSize: makeMediaSize(30, 30) },
           withStories: true,
           withVideoAvatar: true,
-          meAsNotes: isSaved
+          meAsNotes: isSaved,
         });
         newAvatar.node.classList.add('person-avatar');
       } else {
@@ -1297,7 +1297,7 @@ export default class ChatTopbar {
       modifyAckedPromise(this.plates!.actions.setPeerId(peerId)),
       modifyAckedPromise(this.plates!.removeFee.setPeerId(peerId)),
       this.chat.type === ChatType.Chat ? await modifyAckedPromise(this.chat.getAutoDeletePeriod()) : undefined,
-      this.setupPinnedMessageForPeer()
+      this.setupPinnedMessageForPeer(),
     ] as const;
 
     const [
@@ -1311,10 +1311,10 @@ export default class ChatTopbar {
       setActionsCallback,
       setChatRemoveFeeCallback,
       autoDeletePeriod,
-      _pinnedReady
+      _pinnedReady,
     ] = await Promise.all(promises);
 
-    if(!middleware() && newAvatarMiddlewareHelper!) {
+    if (!middleware() && newAvatarMiddlewareHelper!) {
       newAvatarMiddlewareHelper.destroy();
     }
 
@@ -1322,20 +1322,20 @@ export default class ChatTopbar {
       const canHaveSomeButtons = !(this.chat.type === ChatType.Pinned || this.chat.type === ChatType.Scheduled || this.chat.type === ChatType.Static || this.chat.type === ChatType.Logs);
       const canHaveSearch = canHaveSomeButtons || this.chat.type === ChatType.Logs;
 
-      if(this.btnSearch) {
+      if (this.btnSearch) {
         this.btnSearch.classList.toggle('hide', !canHaveSearch);
       }
 
-      if(this.btnLogFilters) {
+      if (this.btnLogFilters) {
         this.btnLogFilters.classList.toggle('hide', this.chat.type !== ChatType.Logs);
       }
 
-      if(this.avatar !== newAvatar) {
-        if(newAvatar) {
+      if (this.avatar !== newAvatar) {
+        if (newAvatar) {
           this.person.prepend(newAvatar.node);
         }
 
-        if(this.avatar) {
+        if (this.avatar) {
           this.avatarMiddlewareHelper.destroy();
           this.avatar.node.remove();
         }
@@ -1353,7 +1353,7 @@ export default class ChatTopbar {
 
       const canHaveMore = canHaveSomeButtons || this.chat.type === ChatType.Logs;
 
-      if(this.btnMore) {
+      if (this.btnMore) {
         this.btnMore.classList.toggle('hide', !canHaveMore);
       }
 
@@ -1365,15 +1365,15 @@ export default class ChatTopbar {
 
       this.container.classList.remove('hide');
 
-      if(setRequestsCallback.result instanceof Promise) {
+      if (setRequestsCallback.result instanceof Promise) {
         this.plates!.requests.unset(peerId);
       }
 
-      if(setActionsCallback.result instanceof Promise) {
+      if (setActionsCallback.result instanceof Promise) {
         this.plates!.actions.unset(peerId);
       }
 
-      if(setChatRemoveFeeCallback.result instanceof Promise) {
+      if (setChatRemoveFeeCallback.result instanceof Promise) {
         this.plates!.removeFee.hide();
       }
 
@@ -1382,7 +1382,7 @@ export default class ChatTopbar {
       this.plates!.sponsored.setPeerId(peerId);
 
       callbackify(setRequestsCallback.result, (callback) => {
-        if(!middleware()) {
+        if (!middleware()) {
           return;
         }
 
@@ -1390,7 +1390,7 @@ export default class ChatTopbar {
       });
 
       callbackify(setActionsCallback.result, (callback) => {
-        if(!middleware()) {
+        if (!middleware()) {
           return;
         }
 
@@ -1398,7 +1398,7 @@ export default class ChatTopbar {
       });
 
       callbackify(setChatRemoveFeeCallback.result, (callback) => {
-        if(!middleware()) {
+        if (!middleware()) {
           return;
         }
 
@@ -1410,57 +1410,57 @@ export default class ChatTopbar {
   }
 
   public async setTitleManual(count?: number) {
-    const {peerId, threadId, monoforumThreadId} = this.chat;
+    const { peerId, threadId, monoforumThreadId } = this.chat;
     let titleEl: HTMLElement, icons: Element[];
     const oldMiddlewareHelper = this.titleMiddlewareHelper;
     oldMiddlewareHelper?.destroy();
     const middlewareHelper = this.titleMiddlewareHelper = getMiddleware();
     const middleware = middlewareHelper.get();
-    if(this.chat.type === ChatType.Pinned) {
-      if(count === undefined) titleEl = i18n('Loading')!;
+    if (this.chat.type === ChatType.Pinned) {
+      if (count === undefined) titleEl = i18n('Loading')!;
       else titleEl = i18n('PinnedMessagesCount', [count])!;
 
-      if(count === undefined) {
+      if (count === undefined) {
         this.managers.appMessagesManager.getSearchCounters(
           peerId,
-          [{_: 'inputMessagesFilterPinned'}],
+          [{ _: 'inputMessagesFilterPinned' }],
           false
         ).then((result) => {
-          if(!middleware()) return;
+          if (!middleware()) return;
           const count = result[0].count;
           this.setTitle(count);
 
           // ! костыль х2, это нужно делать в другом месте
-          if(!count) {
+          if (!count) {
             this.chat.appImManager.setPeer(); // * close tab
 
             // ! костыль, это скроет закреплённые сообщения сразу, вместо того, чтобы ждать пока анимация перехода закончится
             const originalChat = this.chat.appImManager.chat;
-            if(originalChat.topbar.pinnedMessage) {
+            if (originalChat.topbar.pinnedMessage) {
               originalChat.topbar.pinnedMessage.setHidden(true);
             }
           }
         });
       }
-    } else if(this.chat.type === ChatType.Scheduled) {
+    } else if (this.chat.type === ChatType.Scheduled) {
       titleEl = i18n(peerId === rootScope.myId ? 'Reminders' : 'ScheduledMessages')!;
-    } else if(this.chat.type === ChatType.Discussion) {
+    } else if (this.chat.type === ChatType.Discussion) {
       const el = this.messagesCounter({
         middleware,
         key: 'Chat.Title.Comments',
-        minusFirst: this.chat.isForum
+        minusFirst: this.chat.isForum,
       });
-      if(count === undefined) {
+      if (count === undefined) {
         const historyStorage = this.chat.getHistoryStorage();
-        if(!middleware()) return;
+        if (!middleware()) return;
         el.compareAndUpdate(typeof(historyStorage!.count) !== 'number' ?
-          {key: 'Loading', args: undefined} :
-          {args: [historyStorage!.count - (this.chat.isForum ? 1 : 0)]}
+          { key: 'Loading', args: undefined } :
+          { args: [historyStorage!.count - (this.chat.isForum ? 1 : 0)] }
         );
       }
 
       titleEl = el.element!;
-    } else if(this.chat.type === ChatType.Chat || this.chat.type === ChatType.Saved || this.chat.type === ChatType.Static || this.chat.type === ChatType.Logs) {
+    } else if (this.chat.type === ChatType.Chat || this.chat.type === ChatType.Saved || this.chat.type === ChatType.Static || this.chat.type === ChatType.Logs) {
       const usePeerId = monoforumThreadId || (this.chat.type === ChatType.Saved ? threadId : peerId);
 
       [titleEl/* , icons */] = await Promise.all([
@@ -1469,13 +1469,13 @@ export default class ChatTopbar {
           dialog: true,
           withIcons: !threadId,
           threadId: threadId,
-          wrapOptions: {middleware},
-          meAsNotes: this.chat.type === ChatType.Saved
-        })
+          wrapOptions: { middleware },
+          meAsNotes: this.chat.type === ChatType.Saved,
+        }),
         // generateTitleIcons(peerId)
       ]);
 
-      if(!middleware()) {
+      if (!middleware()) {
         return;
       }
     }
@@ -1498,10 +1498,10 @@ export default class ChatTopbar {
     // would mark the pinnedMessage plate visible — its hardcoded `height: 48` + TOPBAR_GAP
     // would leak into `--pinned-floating-height` / `pinnedFloatingHeightPx` and inflate
     // the scrollable's top border by 48px above the first message. Bail early.
-    if(this.chat.isPreview) return;
+    if (this.chat.isPreview) return;
     const containers = [
       this.pinnedMessage,
-      ...(this.plates?.all || [])
+      ...(this.plates?.all || []),
     ].filter(isTruthy);
     const TOPBAR_GAP = 1;
     const PLATE_DIVIDER = 1;
@@ -1509,12 +1509,12 @@ export default class ChatTopbar {
     // let firstVisible: typeof containers[number];
     // let lastVisible: typeof containers[number];
     const count = containers.reduce((acc, container) => {
-      if(!container.isVisible()) {
+      if (!container.isVisible()) {
         return acc;
       }
 
       let height = container.height;
-      if(height === 'auto') {
+      if (height === 'auto') {
         height = container.container.offsetHeight;
       }
       platesHeight += height;
@@ -1541,7 +1541,7 @@ export default class ChatTopbar {
     middleware,
     key,
     minusFirst,
-    displayLoading
+    displayLoading,
   }: {
     middleware: Middleware,
     key: LangPackKey,
@@ -1549,10 +1549,10 @@ export default class ChatTopbar {
     displayLoading?: boolean
   }) {
     const el = new I18n.IntlElement(displayLoading ? {
-      key: 'Loading'
+      key: 'Loading',
     } : {
       key,
-      args: [1]
+      args: [1],
     });
 
     createRoot((dispose) => {
@@ -1561,9 +1561,9 @@ export default class ChatTopbar {
       createEffect(on(
         () => [this.chat.historyStorage!.count, this.chat.historyStorage!.wasFetched] as const,
         ([count]) => {
-          el.compareAndUpdate({key, args: [count! - (minusFirst ? 1 : 0)]});
+          el.compareAndUpdate({ key, args: [count! - (minusFirst ? 1 : 0)] });
         },
-        {defer: displayLoading ? !this.chat.historyStorage!.wasFetched : true}
+        { defer: displayLoading ? !this.chat.historyStorage!.wasFetched : true }
       ));
     });
 
@@ -1571,34 +1571,34 @@ export default class ChatTopbar {
   }
 
   private createStatus() {
-    if(!this.subtitle || (this.chat.type !== ChatType.Chat && this.chat.type !== ChatType.Saved)) return;
+    if (!this.subtitle || (this.chat.type !== ChatType.Chat && this.chat.type !== ChatType.Saved)) return;
     const middlewareHelper = getMiddleware();
     const middleware = middlewareHelper.get();
     const listenerSetter = new ListenerSetter();
 
     let prepare: (needClear: boolean) => Promise<() => void>;
-    if(this.chat.type === ChatType.Saved || this.peerId === rootScope.myId) {
+    if (this.chat.type === ChatType.Saved || this.peerId === rootScope.myId) {
       const el = this.messagesCounter({
         middleware,
         key: 'messages',
-        displayLoading: this.peerId === rootScope.myId
+        displayLoading: this.peerId === rootScope.myId,
       });
 
       prepare = async() => {
         const historyStorage = this.chat.getHistoryStorage();
-        el.compareAndUpdate({args: [historyStorage!.count!]});
+        el.compareAndUpdate({ args: [historyStorage!.count!] });
         return () => replaceContent(this.subtitle, el.element);
       };
-    } else if(this.chat.threadId) {
+    } else if (this.chat.threadId) {
       prepare = async() => {
-        const title = await wrapPeerTitle({peerId: this.peerId, dialog: true});
+        const title = await wrapPeerTitle({ peerId: this.peerId, dialog: true });
         const span = i18n('TopicProfileStatus', [title]);
 
         return () => replaceContent(this.subtitle, span);
       };
-    } else if(this.chat.isMonoforum && this.chat.canManageDirectMessages && !this.chat.monoforumThreadId) {
-      listenerSetter.add(rootScope)('monoforum_dialogs_update', ({dialogs}) => {
-        if(!dialogs.find(dialog => dialog.parentPeerId === this.chat.peerId)) return;
+    } else if (this.chat.isMonoforum && this.chat.canManageDirectMessages && !this.chat.monoforumThreadId) {
+      listenerSetter.add(rootScope)('monoforum_dialogs_update', ({ dialogs }) => {
+        if (!dialogs.find(dialog => dialog.parentPeerId === this.chat.peerId)) return;
         setAuto();
       });
 
@@ -1607,30 +1607,30 @@ export default class ChatTopbar {
       });
 
       prepare = async() => {
-        const ackedResult = await this.managers.acknowledged.monoforumDialogsStorage.getDialogs({parentPeerId: this.peerId, limit: 1});
+        const ackedResult = await this.managers.acknowledged.monoforumDialogsStorage.getDialogs({ parentPeerId: this.peerId, limit: 1 });
         const initialCount = ackedResult.cached ? (await ackedResult.result).count || 0 : '~';
 
         const el = new I18n.IntlElement({
           key: 'ChannelDirectMessages.ThreadsCount',
-          args: [initialCount]
+          args: [initialCount],
         });
 
-        if(!ackedResult.cached) ackedResult.result?.then(({count}) => el.compareAndUpdate({
+        if (!ackedResult.cached) ackedResult.result?.then(({ count }) => el.compareAndUpdate({
           key: 'ChannelDirectMessages.ThreadsCount',
-          args: [count]
+          args: [count],
         }));
 
         return () => replaceContent(this.subtitle, el.element);
       };
-    } else if(this.chat.isMonoforum) {
+    } else if (this.chat.isMonoforum) {
       listenerSetter.add(rootScope)('history_multiappend', (message) => {
-        if(message.peerId !== this.chat.peerId) return;
-        if(this.chat.monoforumThreadId && getPeerId(message?.saved_peer_id!) !== this.chat.monoforumThreadId) return;
+        if (message.peerId !== this.chat.peerId) return;
+        if (this.chat.monoforumThreadId && getPeerId(message?.saved_peer_id!) !== this.chat.monoforumThreadId) return;
         setAuto();
       });
 
-      listenerSetter.add(rootScope)('history_delete', ({peerId}) => {
-        if(peerId !== this.chat.peerId) return;
+      listenerSetter.add(rootScope)('history_delete', ({ peerId }) => {
+        if (peerId !== this.chat.peerId) return;
         setAuto();
       });
 
@@ -1638,19 +1638,19 @@ export default class ChatTopbar {
         const ackedResult = await this.managers.acknowledged.appMessagesManager.getHistory({
           ...this.chat.requestHistoryOptionsPart,
           fetchIfWasNotFetched: true,
-          limit: 1
+          limit: 1,
         });
 
         const initialCount = ackedResult.cached ? (await ackedResult.result).count || 0 : '~';
 
         const el = new I18n.IntlElement({
           key: 'ChannelDirectMessages.MessagesCount',
-          args: [initialCount]
+          args: [initialCount],
         });
 
-        if(!ackedResult.cached) ackedResult.result?.then(({count}) => el.compareAndUpdate({
+        if (!ackedResult.cached) ackedResult.result?.then(({ count }) => el.compareAndUpdate({
           key: 'ChannelDirectMessages.MessagesCount',
-          args: [count]
+          args: [count],
         }));
 
         return () => replaceContent(this.subtitle, el.element);
@@ -1658,14 +1658,14 @@ export default class ChatTopbar {
     } else {
       const peerId = this.peerId;
 
-      listenerSetter.add(rootScope)('peer_typings', ({peerId: _peerId}) => {
-        if(peerId === _peerId) {
+      listenerSetter.add(rootScope)('peer_typings', ({ peerId: _peerId }) => {
+        if (peerId === _peerId) {
           setAuto();
         }
       });
 
       listenerSetter.add(rootScope)('user_update', (userId) => {
-        if(peerId === userId.toPeerId()) {
+        if (peerId === userId.toPeerId()) {
           setAuto();
         }
       });
@@ -1682,7 +1682,7 @@ export default class ChatTopbar {
           element: this.subtitle,
           needClear,
           useWhitespace: false,
-          middleware
+          middleware,
         });
       }) as typeof prepare;
     }
@@ -1697,13 +1697,13 @@ export default class ChatTopbar {
 
     return {
       prepare,
-      destroy: () => middlewareHelper.destroy()
+      destroy: () => middlewareHelper.destroy(),
     };
   }
 
   private async createAutoDeleteSubmenu() {
     const options = getDefaultOptions({
-      offLabel: () => i18n('Never')
+      offLabel: () => i18n('Never'),
     });
 
     const menu = await ButtonMenu({
@@ -1713,14 +1713,14 @@ export default class ChatTopbar {
           regularText: option.label(),
           onClick: () => {
             this.managers.appPrivacyManager.setAutoDeletePeriodFor(this.peerId, option.value);
-          }
+          },
         })),
         {
           icon: 'tools',
           text: 'Other',
-          onClick: () => this.chat.openAutoDeleteMessagesCustomTimePopup()
-        }
-      ]
+          onClick: () => this.chat.openAutoDeleteMessagesCustomTimePopup(),
+        },
+      ],
     });
 
     return menu;

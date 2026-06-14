@@ -4,8 +4,8 @@ import onMediaLoad from '@helpers/onMediaLoad';
 
 export const loadedURLs: {[url: string]: boolean} = {};
 const set = (elem: HTMLElement | HTMLImageElement | SVGImageElement | HTMLVideoElement, url: string) => {
-  if(elem instanceof HTMLImageElement || elem instanceof HTMLVideoElement) elem.src = url;
-  else if(elem instanceof SVGImageElement) elem.setAttributeNS(null, 'href', url);
+  if (elem instanceof HTMLImageElement || elem instanceof HTMLVideoElement) elem.src = url;
+  else if (elem instanceof SVGImageElement) elem.setAttributeNS(null, 'href', url);
   else elem.style.backgroundImage = 'url(' + url + ')';
 };
 
@@ -17,28 +17,28 @@ export default function renderImageFromUrl(
   useCache?: boolean,
   processImageOnLoad?: (image: HTMLImageElement) => void
 ): MaybePromise<void> {
-  if(processImageOnLoad) useCache = false;
+  if (processImageOnLoad) useCache = false;
   useCache ??= processImageOnLoad === undefined;
 
-  if(!url) {
+  if (!url) {
     console.error('renderImageFromUrl: no url?', elem, url);
     callback?.();
     return;
   }
 
   const isVideo = elem instanceof HTMLVideoElement;
-  if(((loadedURLs[url]/*  && false */) && useCache) || isVideo) {
+  if (((loadedURLs[url]/*  && false */) && useCache) || isVideo) {
     /* if(isVideo) {
       const source = document.createElement('source');
       source.src = url;
       source.type = 'video/webm';
       elem.append(source);
-    } else  */if(elem) {
+    } else  */if (elem) {
       set(elem, url);
     }
 
-    if(callback) {
-      if(isVideo) {
+    if (callback) {
+      if (isVideo) {
         return onMediaLoad(elem).then(callback);
       } else {
         callback?.();
@@ -52,7 +52,7 @@ export default function renderImageFromUrl(
     // let perf = performance.now();
 
     const onLoad = () => {
-      if(!isImage && elem) {
+      if (!isImage && elem) {
         set(elem, url);
       }
 
@@ -76,7 +76,7 @@ export default function renderImageFromUrl(
     };
 
     const onError = (err: DOMException) => {
-      if(!err.message.includes('cannot be decoded')) {
+      if (!err.message.includes('cannot be decoded')) {
         console.error('Render image from url failed:', err, url, loader, err.message, loader.naturalWidth);
       }
 

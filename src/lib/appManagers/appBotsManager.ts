@@ -1,9 +1,9 @@
-import {AccountDatabase, getDatabaseState} from '@config/databases/state';
-import {TelegramWebViewSendEventMap} from '@types';
+import { AccountDatabase, getDatabaseState } from '@config/databases/state';
+import { TelegramWebViewSendEventMap } from '@types';
 import AppStorage from '@lib/storage';
-import {AppManager} from '@appManagers/manager';
-import {User} from '@layer';
-import {getFloodWaitTime} from './utils/getFloodWaitTime';
+import { AppManager } from '@appManagers/manager';
+import { User } from '@layer';
+import { getFloodWaitTime } from './utils/getFloodWaitTime';
 
 type InternalWebAppStorageKey = 'locationPermission' | 'deviceStorageUsed' | 'deviceStorageUsedKeys';
 const DEVICE_STORAGE_QUOTA_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -38,8 +38,8 @@ export default class AppBotsManager extends AppManager {
     return this.apiManager.invokeApiSingleProcess({
       method: 'bots.canSendMessage',
       params: {
-        bot: this.appUsersManager.getUserInput(botId)
-      }
+        bot: this.appUsersManager.getUserInput(botId),
+      },
     });
   }
 
@@ -47,11 +47,11 @@ export default class AppBotsManager extends AppManager {
     return this.apiManager.invokeApiSingleProcess({
       method: 'bots.allowSendMessage',
       params: {
-        bot: this.appUsersManager.getUserInput(botId)
+        bot: this.appUsersManager.getUserInput(botId),
       },
       processResult: (updates) => {
         this.apiUpdatesManager.processUpdateMessage(updates);
-      }
+      },
     });
   }
 
@@ -60,11 +60,11 @@ export default class AppBotsManager extends AppManager {
       method: 'bots.toggleUserEmojiStatusPermission',
       params: {
         bot: this.appUsersManager.getUserInput(botId),
-        enabled
+        enabled,
       },
       processResult: (ok) => {
         this.appProfileManager.refreshFullPeerIfNeeded(botId.toPeerId());
-      }
+      },
     });
   }
 
@@ -81,7 +81,7 @@ export default class AppBotsManager extends AppManager {
   }
 
   private writeBotStorage(botId: BotId, scope: 'internal' | 'device', key: string, value: string): Promise<void> {
-    return this.webAppStorage.set({[`${botId.toString()}:${scope}:${key}`]: value});
+    return this.webAppStorage.set({ [`${botId.toString()}:${scope}:${key}`]: value });
   }
 
   public async deleteBotStorage(botId: BotId, scope: 'internal' | 'device', key: string) {
@@ -93,14 +93,14 @@ export default class AppBotsManager extends AppManager {
   }
 
   public async writeBotDeviceStorage(botId: BotId, key: string, value: string | null): Promise<TelegramWebViewSendEventMap['device_storage_failed']['error'] | null> {
-    if(typeof key !== 'string') return 'KEY_INVALID';
-    if(typeof value !== 'string' && value !== null) return 'VALUE_INVALID';
+    if (typeof key !== 'string') return 'KEY_INVALID';
+    if (typeof value !== 'string' && value !== null) return 'VALUE_INVALID';
 
     const oldValue = await this.readBotDeviceStorage(botId, key);
-    if(oldValue === value) return null;
+    if (oldValue === value) return null;
 
     const existed = !!oldValue;
-    if(!existed && !value) return null;
+    if (!existed && !value) return null;
 
     const prevQuota = Number((await this.readBotInternalStorage(botId, 'deviceStorageUsed')) ?? '0');
     const oldItemQuota = oldValue ? key.length + oldValue.length : 0;
@@ -109,19 +109,19 @@ export default class AppBotsManager extends AppManager {
     const prevQuotaKeys = Number((await this.readBotInternalStorage(botId, 'deviceStorageUsedKeys')) ?? '0');
     const newQuotaKeys = prevQuotaKeys + (value ? 1 : 0) - (existed ? 1 : 0);
 
-    if(newQuota > DEVICE_STORAGE_QUOTA_SIZE || newQuotaKeys > DEVICE_STORAGE_QUOTA_KEYS) {
+    if (newQuota > DEVICE_STORAGE_QUOTA_SIZE || newQuotaKeys > DEVICE_STORAGE_QUOTA_KEYS) {
       return 'QUOTA_EXCEEDED';
     }
 
     try {
-      if(value) {
+      if (value) {
         await this.writeBotStorage(botId, 'device', key, value);
       } else {
         await this.deleteBotStorage(botId, 'device', key);
       }
       await this.writeBotInternalStorage(botId, 'deviceStorageUsed', newQuota.toString());
       await this.writeBotInternalStorage(botId, 'deviceStorageUsedKeys', newQuotaKeys.toString());
-    } catch(err) {
+    } catch (err) {
       return 'UNKNOWN_ERROR';
     }
     return null
@@ -142,18 +142,18 @@ export default class AppBotsManager extends AppManager {
       method: 'messages.getPreparedInlineMessage',
       params: {
         bot: this.appUsersManager.getUserInput(botId),
-        id: messageId
-      }
+        id: messageId,
+      },
     });
 
     this.appUsersManager.saveApiUsers(res.users);
 
-    if(res.result._ === 'botInlineMediaResult') {
-      if(res.result.document) {
+    if (res.result._ === 'botInlineMediaResult') {
+      if (res.result.document) {
         this.appDocsManager.saveDoc(res.result.document);
       }
 
-      if(res.result.photo) {
+      if (res.result.photo) {
         this.appPhotosManager.savePhoto(res.result.photo);
       }
     }
@@ -161,40 +161,40 @@ export default class AppBotsManager extends AppManager {
     return res;
   }
 
-  public async createManagedBot({managerId, botName, username}: CreateManagedBotArgs): Promise<CreateManagedBotResult> {
+  public async createManagedBot({ managerId, botName, username }: CreateManagedBotArgs): Promise<CreateManagedBotResult> {
     try {
       const user = await this.apiManager.invokeApi('bots.createBot', {
         manager_id: this.appUsersManager.getUserInput(managerId.toUserId()),
         name: botName,
-        username: username
+        username: username,
       });
 
-      if(user._ === 'userEmpty') return {status: 'error'};
+      if (user._ === 'userEmpty') return { status: 'error' };
 
       this.appUsersManager.saveApiUser(user);
 
-      return {status: 'created', user};
-    } catch(e) {
+      return { status: 'created', user };
+    } catch (e) {
       const error = e as ApiError;
 
       const waitTimeResult = getFloodWaitTime(error);
 
-      if(waitTimeResult.hasWaitTime) {
-        return {status: 'wait', waitTime: waitTimeResult.waitTime};
+      if (waitTimeResult.hasWaitTime) {
+        return { status: 'wait', waitTime: waitTimeResult.waitTime };
       }
 
-      return {status: 'error'};
+      return { status: 'error' };
     }
   }
 
   public async checkUsername(username: string): Promise<CheckUsernameResult> {
     try {
-      const isAvailable = await this.apiManager.invokeApi('bots.checkUsername', {username});
+      const isAvailable = await this.apiManager.invokeApi('bots.checkUsername', { username });
       return isAvailable ? 'available' : 'taken';
-    } catch(e) {
+    } catch (e) {
       const error = e as ApiError;
-      if(error.type === 'USERNAME_OCCUPIED') return 'taken';
-      if(error.type === 'USERNAME_INVALID') return 'invalid';
+      if (error.type === 'USERNAME_OCCUPIED') return 'taken';
+      if (error.type === 'USERNAME_INVALID') return 'invalid';
 
       return 'error';
     }

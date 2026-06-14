@@ -1,6 +1,6 @@
-import {InputGroupCall, Message, MessageAction} from '@layer';
+import { InputGroupCall, Message, MessageAction } from '@layer';
 import wrapUrl from '@lib/richTextProcessor/wrapUrl';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
 import noop from '@helpers/noop';
 
@@ -17,10 +17,10 @@ export default function wrapJoinVoiceChatAnchor(message: Message.messageService)
   // the dead-link error UX — via `inputGroupCallInviteMessage`, the canonical
   // form for joining from a service message (see tdesktop
   // window_session_controller.cpp:993 and calls_group_call.cpp:4254).
-  if(message.peerId!.isUser()) {
+  if (message.peerId!.isUser()) {
     const inviteInput: InputGroupCall.inputGroupCallInviteMessage = {
       _: 'inputGroupCallInviteMessage',
-      msg_id: getServerMessageId(message.mid!)!
+      msg_id: getServerMessageId(message.mid!)!,
     };
 
     const a = document.createElement('a');
@@ -33,7 +33,7 @@ export default function wrapJoinVoiceChatAnchor(message: Message.messageService)
     // single conference-join entry point without the cycle. `.catch(noop)` drops
     // the benign leave-current-call cancel — every join error is toasted inside.
     attachClickEvent(a, () => {
-      import('@lib/appImManager').then(({default: appImManager}) => appImManager.joinConference(inviteInput)).catch(noop);
+      import('@lib/appImManager').then(({ default: appImManager }) => appImManager.joinConference(inviteInput)).catch(noop);
     });
     return a;
   }
@@ -44,14 +44,14 @@ export default function wrapJoinVoiceChatAnchor(message: Message.messageService)
   // an InputGroupCall on their `call` field; messageActionConferenceCall
   // does not (and never appears for a chat peer in current servers).
   const call = (action as MessageAction.messageActionInviteToGroupCall).call as InputGroupCall.inputGroupCall;
-  if(!call || call._ !== 'inputGroupCall') {
+  if (!call || call._ !== 'inputGroupCall') {
     return document.createElement('span');
   }
 
-  const {onclick, url} = wrapUrl(
+  const { onclick, url } = wrapUrl(
     `tg://voicechat?chat_id=${message.peerId!.toChatId()}&id=${call.id}&access_hash=${call.access_hash}`
   );
-  if(!onclick) {
+  if (!onclick) {
     return document.createElement('span');
   }
 

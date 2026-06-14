@@ -1,6 +1,6 @@
 function preparePrint() {
   const chat = document.querySelector('.chat.active');
-  if(!chat) {
+  if (!chat) {
     return;
   }
 

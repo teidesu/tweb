@@ -1,11 +1,11 @@
-import {ConfirmedPaymentResult} from '@components/chat/paidMessagesInterceptor';
+import { ConfirmedPaymentResult } from '@components/chat/paidMessagesInterceptor';
 import assumeType from '@helpers/assumeType';
 import safeAssign from '@helpers/object/safeAssign';
 
-import {MessageSendingParams} from '@appManagers/appMessagesManager';
-import type {RootScope} from '@lib/rootScope';
+import { MessageSendingParams } from '@appManagers/appMessagesManager';
+import type { RootScope } from '@lib/rootScope';
 
-import type {ApiManager} from '@appManagers/apiManager';
+import type { ApiManager } from '@appManagers/apiManager';
 import MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
 
 
@@ -55,17 +55,17 @@ export default class RepayRequestHandler {
   public static attachInvokeArgsToError(error: ApiError, invokeApiArgs: InvokeApiArgs): ApiErrorWithInvokeArgs  {
     return {
       ...error,
-      invokeApiArgs: invokeApiArgs
+      invokeApiArgs: invokeApiArgs,
     };
   }
 
-  public tryRegisterRequest({error, messageCount, repayCallback, paidStars, wereStarsReserved}: HandleErrorArgs) {
+  public tryRegisterRequest({ error, messageCount, repayCallback, paidStars, wereStarsReserved }: HandleErrorArgs) {
     assumeType<ApiErrorWithInvokeArgs>(error);
 
-    if(!RepayRequestHandler.canHandleError(error) || !error.invokeApiArgs) return;
+    if (!RepayRequestHandler.canHandleError(error) || !error.invokeApiArgs) return;
 
     const requiredStars = +error.type.replace(INSUFFICIENT_STARS_FOR_MESSAGE_PREFIX, '');
-    if(isNaN(requiredStars)) return;
+    if (isNaN(requiredStars)) return;
 
     const requestId = ++this.repayRequestsSeed;
     this.repayRequests.set(requestId, repayCallback);
@@ -74,25 +74,25 @@ export default class RepayRequestHandler {
       messageCount,
       requestId,
       invokeApiArgs: error.invokeApiArgs,
-      reservedStars: wereStarsReserved ? paidStars : undefined
+      reservedStars: wereStarsReserved ? paidStars : undefined,
     });
 
     return {
       id: requestId,
-      messageCount
+      messageCount,
     };
   }
 
   private removeRepayRequest(requestId: number) {
     this.repayRequests.delete(requestId) &&
-    this.rootScope.dispatchEvent('fulfill_repaid_message', {requestId});
+    this.rootScope.dispatchEvent('fulfill_repaid_message', { requestId });
   }
 
   public confirmRepayRequest(requestId: number, confirmedPaymentResult: ConfirmedPaymentResult) {
     const repayCallback = this.repayRequests.get(requestId);
     this.removeRepayRequest(requestId);
 
-    repayCallback?.({confirmedPaymentResult});
+    repayCallback?.({ confirmedPaymentResult });
   }
 
   public cancelRepayRequest(requestId: number) {

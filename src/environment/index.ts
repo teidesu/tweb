@@ -41,7 +41,7 @@ const ENVIRONMENT = {
   IMAGE_MIME_TYPES_SUPPORTED,
   MEDIA_MIME_TYPES_SUPPORTED,
   VIDEO_MIME_TYPES_SUPPORTED,
-  ...userAgent
+  ...userAgent,
 };
 
 export default ENVIRONMENT;

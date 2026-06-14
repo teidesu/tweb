@@ -1,7 +1,7 @@
-import VisibilityIntersector, {OnVisibilityChangeItem} from '@components/visibilityIntersector';
+import VisibilityIntersector, { OnVisibilityChangeItem } from '@components/visibilityIntersector';
 import findAndSpliceAll from '@helpers/array/findAndSpliceAll';
 import findAndSplice from '@helpers/array/findAndSplice';
-import LazyLoadQueueIntersector, {LazyLoadElement} from '@components/lazyLoadQueueIntersector';
+import LazyLoadQueueIntersector, { LazyLoadElement } from '@components/lazyLoadQueueIntersector';
 import useHeavyAnimationCheck from '@hooks/useHeavyAnimationCheck';
 
 export default class LazyLoadQueue extends LazyLoadQueueIntersector {
@@ -17,14 +17,14 @@ export default class LazyLoadQueue extends LazyLoadQueueIntersector {
     });
   }
 
-  private onVisibilityChange = ({target, visible}: OnVisibilityChangeItem) => {
+  private onVisibilityChange = ({ target, visible }: OnVisibilityChangeItem) => {
     // if(DEBUG) {
     //   this.log('isIntersecting', target, visible);
     // }
 
     // if visible - will move to the end of visible arary
     findAndSpliceAll(this.queue, (i) => i.div === target).forEach((item) => {
-      if(visible) {
+      if (visible) {
         item.wasSeen = true;
       }
 
@@ -48,7 +48,7 @@ export default class LazyLoadQueue extends LazyLoadQueueIntersector {
   protected addElement(method: 'push' | 'unshift', el: LazyLoadElement) {
     const inserted = super.addElement(method, el);
 
-    if(!inserted) return false;
+    if (!inserted) return false;
 
     this.observe(el);
     /* if(el.wasSeen) {

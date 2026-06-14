@@ -1,34 +1,34 @@
-import type {EMOJI_VERSION} from '@environment/emojiVersionsSupport';
-import {SITE_HASHTAGS} from '.';
-import {EmojiVersions} from '@config/emoji';
+import type { EMOJI_VERSION } from '@environment/emojiVersionsSupport';
+import { SITE_HASHTAGS } from '.';
+import { EmojiVersions } from '@config/emoji';
 import IS_EMOJI_SUPPORTED from '@environment/emojiSupport';
 import buildURLHash from '@helpers/buildURLHash';
 import copy from '@helpers/object/copy';
 import encodeEntities from '@helpers/string/encodeEntities';
-import {MessageEntity} from '@layer';
+import { MessageEntity } from '@layer';
 import encodeSpoiler from '@lib/richTextProcessor/encodeSpoiler';
 import parseEntities from '@lib/richTextProcessor/parseEntities';
 import setBlankToAnchor from '@lib/richTextProcessor/setBlankToAnchor';
 import wrapUrl from '@lib/richTextProcessor/wrapUrl';
 import EMOJI_VERSIONS_SUPPORTED from '@environment/emojiVersionsSupport';
-import {CLICK_EVENT_NAME} from '@helpers/dom/clickEvent';
+import { CLICK_EVENT_NAME } from '@helpers/dom/clickEvent';
 import IS_CUSTOM_EMOJI_SUPPORTED from '@environment/customEmojiSupport';
 import BOM from '@helpers/string/bom';
 import wrapTelegramUrlToAnchor from '@lib/richTextProcessor/wrapTelegramUrlToAnchor';
-import {IS_FIREFOX} from '@environment/userAgent';
-import CustomEmojiElement, {CustomEmojiElements} from '@lib/customEmoji/element';
-import {CustomEmojiRendererElementOptions, CustomEmojiRendererElement} from '@lib/customEmoji/renderer';
-import {setDirection} from '@helpers/dom/setInnerHTML';
-import I18n, {i18n} from '@lib/langPack';
+import { IS_FIREFOX } from '@environment/userAgent';
+import CustomEmojiElement, { CustomEmojiElements } from '@lib/customEmoji/element';
+import { CustomEmojiRendererElementOptions, CustomEmojiRendererElement } from '@lib/customEmoji/renderer';
+import { setDirection } from '@helpers/dom/setInnerHTML';
+import I18n, { i18n } from '@lib/langPack';
 import Icon from '@components/icon';
-import {CodeLanguageAliases, highlightCode} from '@/codeLanguages';
+import { CodeLanguageAliases, highlightCode } from '@/codeLanguages';
 import callbackify from '@helpers/callbackify';
 import findIndexFrom from '@helpers/array/findIndexFrom';
-import {observeResize} from '@components/resizeObserver';
+import { observeResize } from '@components/resizeObserver';
 import createElementFromMarkup from '@helpers/createElementFromMarkup';
 import DotRenderer from '@components/dotRenderer';
 import isMixedScriptUrl from '@helpers/string/isMixedScriptUrl';
-import {createRoot, createSignal, createEffect, onCleanup} from 'solid-js';
+import { createRoot, createSignal, createEffect, onCleanup } from 'solid-js';
 import formatFormattedDate from '@helpers/date/formatFormattedDate';
 import formatRelativeTime from '@helpers/date/formatRelativeTime';
 import tsNow from '@helpers/tsNow';
@@ -82,8 +82,8 @@ function createMarkupFormatting(formatting: string, element = document.createEle
 
 function onQuoteResize(entry: ResizeObserverEntry) {
   const target = entry.target as HTMLElement;
-  if((target as any).ignoreQuoteResize) {
-    if(Date.now() < (target as any).ignoreQuoteResize) {
+  if ((target as any).ignoreQuoteResize) {
+    if (Date.now() < (target as any).ignoreQuoteResize) {
       return;
     }
 
@@ -91,7 +91,7 @@ function onQuoteResize(entry: ResizeObserverEntry) {
   }
 
   const scrollHeight = target.scrollHeight;
-  if(!scrollHeight) {
+  if (!scrollHeight) {
     return;
   }
 
@@ -121,20 +121,20 @@ function makeQuoteCollapsable(element: HTMLElement) {
  */
 export default function wrapRichText(text: string, options: WrapRichTextOptions = {}) {
   const fragment = document.createDocumentFragment();
-  if(!text) {
+  if (!text) {
     return fragment;
   }
 
   const nasty = options.nasty ??= {
     i: 0,
     usedLength: 0,
-    text
+    text,
   };
 
   const wrapSomething = (wrapElement: HTMLElement, noFiller?: boolean) => {
     const element = document.createElement('span');
     // element.append(BOM, a, BOM);
-    if(options.wrappingDraft) {
+    if (options.wrappingDraft) {
       element.contentEditable = 'false';
     }
     // element.style.display = 'inline-block';
@@ -169,22 +169,22 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
   const textLength = nasty.text.length;
   const length = entities.length;
   let lastElement: HTMLElement | DocumentFragment;
-  for(; nasty.i < length; ++nasty.i) {
+  for (; nasty.i < length; ++nasty.i) {
     let entity = entities[nasty.i];
 
     // * check whether text was sliced
     // TODO: consider about moving it to other function
-    if(entity.offset! >= textLength) {
-      if(entity._ !== 'messageEntityCaret') { // * can set caret to the end
+    if (entity.offset! >= textLength) {
+      if (entity._ !== 'messageEntityCaret') { // * can set caret to the end
         continue;
       }
-    } else if((entity.offset! + entity.length!) > textLength) {
+    } else if ((entity.offset! + entity.length!) > textLength) {
       entity = copy(entity);
       // entity.length = entity.offset + entity.length - textLength;
       entity.length = textLength - entity.offset!;
     }
 
-    if(entity.length) {
+    if (entity.length) {
       nasty.lastEntity = entity;
     }
 
@@ -197,11 +197,11 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
     const sliced = nasty.text.slice(startOffset, endPartOffset);
     let partText = sliced;
 
-    if(nasty.usedLength < startOffset!) {
+    if (nasty.usedLength < startOffset!) {
       (lastElement! || fragment).append(nasty.text.slice(nasty.usedLength, startOffset));
     }
 
-    if(lastElement!) {
+    if (lastElement!) {
       lastElement = fragment;
     }
 
@@ -211,10 +211,10 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
       property: 'alt',
       usedText = false,
       processingBlockElement = false;
-    switch(entity._) {
+    switch (entity._) {
       case 'messageEntityBold': {
-        if(!options.noTextFormat) {
-          if(options.wrappingDraft) {
+        if (!options.noTextFormat) {
+          if (options.wrappingDraft) {
             element = createMarkupFormatting('bold');
           } else {
             element = document.createElement('strong');
@@ -225,8 +225,8 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
       }
 
       case 'messageEntityItalic': {
-        if(!options.noTextFormat) {
-          if(options.wrappingDraft) {
+        if (!options.noTextFormat) {
+          if (options.wrappingDraft) {
             element = createMarkupFormatting('italic');
           } else {
             element = document.createElement('em');
@@ -237,7 +237,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
       }
 
       case 'messageEntityStrike': {
-        if(options.wrappingDraft) {
+        if (options.wrappingDraft) {
           element = createMarkupFormatting('strikethrough');
           // element = document.createElement('span');
           // const styleName = IS_SAFARI ? 'text-decoration' : 'text-decoration-line';
@@ -251,13 +251,13 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
       }
 
       case 'messageEntityUnderline': {
-        if(options.wrappingDraft) {
+        if (options.wrappingDraft) {
           element = createMarkupFormatting('underline');
           // element = document.createElement('span');
           // const styleName = IS_SAFARI ? 'text-decoration' : 'text-decoration-line';
           // element.style.cssText = `${styleName}: underline;`;
           // element.style.fontFamily = 'markup-underline';
-        } else if(!options.noTextFormat) {
+        } else if (!options.noTextFormat) {
           element = document.createElement('u');
         }
 
@@ -267,15 +267,15 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
       case 'messageEntityPre':
       case 'messageEntityCode': {
         const entityLanguage = (entity as MessageEntity.messageEntityPre).language;
-        if(options.wrappingDraft) {
+        if (options.wrappingDraft) {
           element = createMarkupFormatting('monospace');
-          if(entityLanguage) {
+          if (entityLanguage) {
             element.dataset.language = entityLanguage;
           }
           // element = document.createElement('span');
           // element.style.fontFamily = 'var(--font-monospace)';
           // element.style.fontFamily = 'markup-monospace';
-        } else if(entity._ === 'messageEntityPre' && !options.noTextFormat) {
+        } else if (entity._ === 'messageEntityPre' && !options.noTextFormat) {
           const container = document.createElement('pre');
           const content = document.createElement('div');
           content.classList.add('code-content');
@@ -300,25 +300,25 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
 
           const result = languageName && highlightCode(fullEntityText, languageName);
           result && callbackify(result, (html) => {
-            if(html) {
+            if (html) {
               element.innerHTML = html;
             }
           });
 
           usedText = true;
-          if(!result || result instanceof Promise) {
+          if (!result || result instanceof Promise) {
             element.textContent = fullEntityText;
           }
 
           let lastInnerEntityIndex = findIndexFrom(entities, (n) => n.offset! >= endOffset, nasty.i + 1);
-          if(lastInnerEntityIndex === -1) lastInnerEntityIndex = entities.length - 1;
+          if (lastInnerEntityIndex === -1) lastInnerEntityIndex = entities.length - 1;
           else lastInnerEntityIndex -= 1;
           nasty.i = lastInnerEntityIndex;
           nasty.usedLength = endOffset;
           nasty.lastEntity = entities[lastInnerEntityIndex];
           nextEntity = (undefined as unknown as MessageEntity);
           processingBlockElement = true;
-        } else if(!options.noTextFormat) {
+        } else if (!options.noTextFormat) {
           element = document.createElement('code');
           element.classList.add('monospace-text');
         }
@@ -366,7 +366,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
       }
 
       case 'messageEntityPhone': {
-        if(!(options.noLinks && !passEntities[entity._])) {
+        if (!(options.noLinks && !passEntities[entity._])) {
           element = document.createElement('a');
           element.classList.add('phone-url');
           (element as HTMLAnchorElement).href = encodeEntities('tel:' + fullEntityText);
@@ -376,11 +376,11 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
 
       case 'messageEntityBotCommand': {
         // if(!(options.noLinks || options.noCommands || contextExternal)/*  && !entity.unsafe */) {
-        if(!options.noLinks && passEntities[entity._]) {
+        if (!options.noLinks && passEntities[entity._]) {
           let command = fullEntityText.slice(1);
           let bot: string | boolean;
           let atPos: number;
-          if((atPos = command.indexOf('@')) !== -1) {
+          if ((atPos = command.indexOf('@')) !== -1) {
             bot = command.slice(atPos + 1);
             command = command.slice(0, atPos);
           } else {
@@ -389,7 +389,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
 
           element = document.createElement('a');
           (element as HTMLAnchorElement).href = encodeEntities('tg://bot_command?command=' + encodeURIComponent(command) + (bot ? '&bot=' + encodeURIComponent(bot) : ''));
-          if(!contextExternal) {
+          if (!contextExternal) {
             element.setAttribute('onclick', 'execBotCommand(this)');
           }
         }
@@ -398,11 +398,11 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
       }
 
       case 'messageEntityCustomEmoji': {
-        if(!IS_CUSTOM_EMOJI_SUPPORTED) {
+        if (!IS_CUSTOM_EMOJI_SUPPORTED) {
           break;
         }
 
-        while(nextEntity?._ === 'messageEntityEmoji' && nextEntity.offset! < endOffset) {
+        while (nextEntity?._ === 'messageEntityEmoji' && nextEntity.offset! < endOffset) {
           ++nasty.i;
           nasty.lastEntity = nextEntity;
           nasty.usedLength += nextEntity.length!;
@@ -410,22 +410,22 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
         }
 
         const customEmojiElement = element = CustomEmojiElement.create(entity.document_id);
-        const {docId} = customEmojiElement;
+        const { docId } = customEmojiElement;
         let set = customEmojis.get(docId);
-        if(!set) customEmojis.set(docId, set = new Set());
+        if (!set) customEmojis.set(docId, set = new Set());
         set.add(customEmojiElement);
         customEmojiElement.dataset.stickerEmoji = fullEntityText;
 
-        if(entity.w) {
+        if (entity.w) {
           customEmojiElement.classList.add('custom-emoji-custom-sized');
           customEmojiElement.style.setProperty('--width', entity.w + 'px');
           customEmojiElement.style.setProperty('--height', entity.h + 'px');
         }
 
-        if(options.wrappingDraft) {
+        if (options.wrappingDraft) {
           element = document.createElement('img');
           (element as HTMLImageElement).alt = fullEntityText;
-          for(const i in customEmojiElement.dataset) {
+          for (const i in customEmojiElement.dataset) {
             element.dataset[i] = customEmojiElement.dataset[i];
           }
           (element as any).customEmojiElement = customEmojiElement;
@@ -436,7 +436,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
           break;
         }
 
-        if(options.isSelectable) {
+        if (options.isSelectable) {
           // const s = document.createElement('span');
           // s.append(fullEntityText);
           // element.append(s);
@@ -464,11 +464,11 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
 
       case 'messageEntityEmoji': {
         let isSupported = IS_EMOJI_SUPPORTED;
-        if(isSupported) {
-          for(const version in EmojiVersions) {
-            if(version) {
+        if (isSupported) {
+          for (const version in EmojiVersions) {
+            if (version) {
               const emojiData = EmojiVersions[version as EMOJI_VERSION];
-              if(emojiData.hasOwnProperty(entity.unicode!) && !EMOJI_VERSIONS_SUPPORTED[version as EMOJI_VERSION]) {
+              if (emojiData.hasOwnProperty(entity.unicode!) && !EMOJI_VERSIONS_SUPPORTED[version as EMOJI_VERSION]) {
                 isSupported = false;
                 break;
               }
@@ -477,7 +477,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
         }
 
         // if(!(options.wrappingDraft && isSupported)) { // * fix safari emoji
-        if(!isSupported) { // no wrapping needed
+        if (!isSupported) { // no wrapping needed
           // if(isSupported) { // ! contenteditable="false" нужен для поля ввода, иначе там будет меняться шрифт в Safari, или же рендерить смайлик напрямую, без контейнера
           //   insertPart(entity, '<span class="emoji">', '</span>');
           // } else {
@@ -499,7 +499,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
           // element.contentEditable = 'false';
           // }
         // } else if(options.mustWrapEmoji) {
-        } else if(!options.wrappingDraft) {
+        } else if (!options.wrappingDraft) {
           element = document.createElement('span');
           element.className = 'emoji emoji-native';
         }/*  else if(!IS_SAFARI) {
@@ -520,14 +520,14 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
 
       case 'messageEntityLinebreak': {
         // slice linebreaks before and after quote
-        if(options.ignoreNextIndex === nasty.i || (options.wrappingDraft && nextEntity?._ === 'messageEntityBlockquote' && nextEntity.offset === endOffset)) {
+        if (options.ignoreNextIndex === nasty.i || (options.wrappingDraft && nextEntity?._ === 'messageEntityBlockquote' && nextEntity.offset === endOffset)) {
           usedText = true;
-        } else if(options.wrappingDraft && IS_FIREFOX) {
+        } else if (options.wrappingDraft && IS_FIREFOX) {
           element = document.createElement('br');
           usedText = true;
         }
 
-        if(options.doubleLinebreak === nasty.i) {
+        if (options.doubleLinebreak === nasty.i) {
           options.doubleLinebreak = undefined;
           (element || fragment).append('\n\n');
           usedText = true;
@@ -543,7 +543,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
 
       case 'messageEntityUrl':
       case 'messageEntityTextUrl': {
-        if(!(options.noLinks && !passEntities[entity._])) {
+        if (!(options.noLinks && !passEntities[entity._])) {
           // let inner: string;
           let url: string = (entity as MessageEntity.messageEntityTextUrl).url || fullEntityText;
           let masked = false;
@@ -553,26 +553,26 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
           url = wrapped.url;
           onclick = wrapped.onclick!;
 
-          if(options.whitelistedDomains) {
+          if (options.whitelistedDomains) {
             try {
               const hostname = new URL(url).hostname;
-              if(!options.whitelistedDomains.includes(hostname)) {
+              if (!options.whitelistedDomains.includes(hostname)) {
                 break;
               }
-            } catch(err) {
+            } catch (err) {
               break;
             }
           }
 
-          if(entity._ === 'messageEntityTextUrl') {
-            if(nextEntity?._ === 'messageEntityUrl' &&
+          if (entity._ === 'messageEntityTextUrl') {
+            if (nextEntity?._ === 'messageEntityUrl' &&
               nextEntity.length === entity.length &&
               nextEntity.offset === entity.offset) {
               nasty.lastEntity = nextEntity;
               ++nasty.i;
             }
 
-            if(url !== fullEntityText) {
+            if (url !== fullEntityText) {
               masked = true;
             }
           } else {
@@ -581,7 +581,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
           }
 
           const currentContext = !!onclick;
-          if(
+          if (
             !onclick &&
             masked &&
             !currentContext &&
@@ -590,7 +590,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
             onclick = 'showMaskedAlert';
           }
 
-          if(options.wrappingDraft) {
+          if (options.wrappingDraft) {
             onclick = undefined;
           }
 
@@ -602,11 +602,11 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
           element.className = 'anchor-url';
           (element as HTMLAnchorElement).href = href;
 
-          if(!(currentContext || typeof electronHelpers !== 'undefined')) {
+          if (!(currentContext || typeof electronHelpers !== 'undefined')) {
             setBlankToAnchor(element as HTMLAnchorElement);
           }
 
-          if(onclick) {
+          if (onclick) {
             element.setAttribute('onclick', onclick + '(this)');
           }
         }
@@ -615,7 +615,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
       }
 
       case 'messageEntityEmail': {
-        if(!options.noLinks && !passEntities[entity._]) {
+        if (!options.noLinks && !passEntities[entity._]) {
           element = document.createElement('a');
           (element as HTMLAnchorElement).href = encodeEntities('mailto:' + fullEntityText);
           setBlankToAnchor(element as HTMLAnchorElement);
@@ -626,12 +626,12 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
 
       case 'messageEntityHashtag': {
         const contextUrl = !options.noLinks && SITE_HASHTAGS[contextSite];
-        if(contextUrl) {
+        if (contextUrl) {
           const hashtag = fullEntityText.slice(1);
           element = document.createElement('a');
           element.className = 'anchor-hashtag';
           (element as HTMLAnchorElement).href = contextUrl.replace('{1}', encodeURIComponent(hashtag));
-          if(contextExternal) {
+          if (contextExternal) {
             setBlankToAnchor(element as HTMLAnchorElement);
           } else {
             element.setAttribute('onclick', 'searchByHashtag(this)');
@@ -642,7 +642,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
       }
 
       case 'messageEntityMentionName': {
-        if(!(options.noLinks && !passEntities[entity._])) {
+        if (!(options.noLinks && !passEntities[entity._])) {
           element = document.createElement('a');
           (element as HTMLAnchorElement).href = buildURLHash('' + entity.user_id);
           element.className = 'follow';
@@ -654,7 +654,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
 
       case 'messageEntityMention': {
         // const contextUrl = !options.noLinks && siteMentions[contextSite];
-        if(!options.noLinks) {
+        if (!options.noLinks) {
           const username = fullEntityText.slice(1);
 
           element = wrapTelegramUrlToAnchor('t.me/' + username);
@@ -667,22 +667,22 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
       }
 
       case 'messageEntitySpoiler': {
-        if(options.noTextFormat) {
+        if (options.noTextFormat) {
           const encoded = encodeSpoiler(nasty.text, entity);
           nasty.text = encoded.text;
           partText = encoded.entityText;
-          if(endPartOffset !== endOffset) {
+          if (endPartOffset !== endOffset) {
             nasty.usedLength += endOffset - endPartOffset;
           }
           let n: MessageEntity;
-          for(; n = entities[nasty.i + 1], n && n.offset! < endOffset;) {
+          for (; n = entities[nasty.i + 1], n && n.offset! < endOffset;) {
             // nasty.usedLength += n.length;
             ++nasty.i;
             nasty.lastEntity = n;
             nextEntity = entities[nasty.i + 1];
           }
 
-          if(!IS_FIREFOX) { // Firefox has very poor performance when drawing on canvas
+          if (!IS_FIREFOX) { // Firefox has very poor performance when drawing on canvas
             element = document.createElement('span');
             element.className = 'bluff-spoiler';
             element.append(...partText.split('').map((encodedLetter) => createElementFromMarkup(`<span class="bluff-spoiler-letter">${encodedLetter}</span>`)))
@@ -692,7 +692,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
 
             usedText = true;
           }
-        } else if(options.wrappingDraft) {
+        } else if (options.wrappingDraft) {
           element = createMarkupFormatting('spoiler');
           // element = document.createElement('span');
           // element.style.fontFamily = 'spoiler';
@@ -714,7 +714,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
       }
 
       case 'messageEntityTimestamp': {
-        if(!options.maxMediaTimestamp || entity.time! > options.maxMediaTimestamp) {
+        if (!options.maxMediaTimestamp || entity.time! > options.maxMediaTimestamp) {
           break;
         }
 
@@ -724,7 +724,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
         (element as HTMLAnchorElement).href = '#';
         element.setAttribute('onclick', 'setMediaTimestamp(this)');
 
-        if(options.maxMediaTimestamp === Infinity) {
+        if (options.maxMediaTimestamp === Infinity) {
           element.classList.add('is-disabled');
         }
 
@@ -732,12 +732,12 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
       }
 
       case 'messageEntityFormattedDate': {
-        if(options.noTextFormat) {
+        if (options.noTextFormat) {
           break;
         }
 
         element = document.createElement('span');
-        if(options.wrappingDraft) {
+        if (options.wrappingDraft) {
           createMarkupFormatting('date', element);
           element.dataset.date = '' + entity.date;
         } else {
@@ -747,15 +747,15 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
 
         ENTITY_ELEMENT_MAP.set(element, entity);
 
-        if(Object.keys(entity.pFlags).length && !options.wrappingDraft) {
+        if (Object.keys(entity.pFlags).length && !options.wrappingDraft) {
           usedText = true;
           element.dataset.originalText = fullEntityText;
           const updateText = (text: string) => {
             element.dataset.fakeText = text;
             element.textContent = text;
           };
-          if(entity.pFlags.relative) {
-            if(options.middleware) {
+          if (entity.pFlags.relative) {
+            if (options.middleware) {
               const dispose = createRoot((dispose) => {
                 const [now, setNow] = createSignal(tsNow(true));
                 let timerId: ReturnType<typeof setTimeout>;
@@ -792,15 +792,15 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
       }
 
       case 'messageEntityBlockquote': {
-        if(options.noTextFormat) {
+        if (options.noTextFormat) {
           break;
         }
 
-        if(options.wrappingDraft) {
+        if (options.wrappingDraft) {
           element = createMarkupFormatting('quote');
 
           // * ? because of layer migration
-          if(entity.pFlags?.collapsed) {
+          if (entity.pFlags?.collapsed) {
             element.dataset.collapsed = '1';
           }
         } else {
@@ -808,7 +808,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
           element.classList.add('quote', 'quote-block');
 
           // * ? because of layer migration
-          if(entity.pFlags?.collapsed/*  || true */) {
+          if (entity.pFlags?.collapsed/*  || true */) {
             const dispose = makeQuoteCollapsable(element);
             options.middleware!.onClean(dispose);
           }
@@ -822,45 +822,45 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
       }
     }
 
-    if(processingBlockElement) {
+    if (processingBlockElement) {
       let foundNextLinebreakIndex = -1;
-      for(let i = nasty.i; i < length; ++i) {
+      for (let i = nasty.i; i < length; ++i) {
         const n = entities[i];
-        if(n._ === 'messageEntityLinebreak' && n.offset! >= endOffset) {
+        if (n._ === 'messageEntityLinebreak' && n.offset! >= endOffset) {
           foundNextLinebreakIndex = i;
           break;
         }
       }
 
-      if(foundNextLinebreakIndex !== -1 && nasty.text.slice(endOffset, entities[foundNextLinebreakIndex].offset).trim()) {
+      if (foundNextLinebreakIndex !== -1 && nasty.text.slice(endOffset, entities[foundNextLinebreakIndex].offset).trim()) {
         foundNextLinebreakIndex = -1;
       }
 
-      if(!options.wrappingDraft && endOffset < nasty.text.length) {
+      if (!options.wrappingDraft && endOffset < nasty.text.length) {
         // * ignore inner linebreak if found and double next linebreak
-        if(!element.parentElement) {
+        if (!element.parentElement) {
           const container = document.createElement('div');
           container.append(element);
           fragment.append(container);
         }
 
-        if(nasty.text[endOffset - 1] === '\n') {
+        if (nasty.text[endOffset - 1] === '\n') {
           let lastInnerLinebreakIndex = -1;
-          for(let i = nasty.i; i < length; ++i) {
+          for (let i = nasty.i; i < length; ++i) {
             const n = entities[i];
-            if(n.offset! >= endOffset) {
+            if (n.offset! >= endOffset) {
               break;
             }
 
-            if(n._ === 'messageEntityLinebreak') {
+            if (n._ === 'messageEntityLinebreak') {
               lastInnerLinebreakIndex = i;
             }
           }
 
-          if(lastInnerLinebreakIndex !== -1) {
+          if (lastInnerLinebreakIndex !== -1) {
             options.ignoreNextIndex = lastInnerLinebreakIndex;
           }
-        } else if(foundNextLinebreakIndex !== -1) {
+        } else if (foundNextLinebreakIndex !== -1) {
           options.ignoreNextIndex = foundNextLinebreakIndex;
         }
 
@@ -872,7 +872,7 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
         // }
       }
 
-      if(options.wrappingDraft && foundNextLinebreakIndex !== -1) {
+      if (options.wrappingDraft && foundNextLinebreakIndex !== -1) {
         options.ignoreNextIndex = foundNextLinebreakIndex;
       }
 
@@ -886,9 +886,9 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
       // }
     }
 
-    if(!usedText && partText) {
-      if(element) {
-        if(property!) {
+    if (!usedText && partText) {
+      if (element) {
+        if (property!) {
           // @ts-ignore
           element[property] = partText;
         } else {
@@ -899,17 +899,17 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
       }
     }
 
-    if(element && !element.parentNode) {
+    if (element && !element.parentNode) {
       // @ts-expect-error use before assigned
       (lastElement || fragment).append(element);
     }
 
-    while(nextEntity && nextEntity.offset! < endOffset) {
+    while (nextEntity && nextEntity.offset! < endOffset) {
       ++nasty.i;
 
       (element || fragment).append(wrapRichText(nasty.text, {
         ...options,
-        voodoo: true
+        voodoo: true,
       }));
 
       nextEntity = entities[nasty.i + 1];
@@ -919,36 +919,36 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
     //   (lastElement || fragment).append(element ?? partText);
     // }
 
-    if(nasty.usedLength <= endOffset) {
-      if(nasty.usedLength < endOffset) {
+    if (nasty.usedLength <= endOffset) {
+      if (nasty.usedLength < endOffset) {
         (element || fragment).append(nasty.text.slice(nasty.usedLength, endOffset));
         nasty.usedLength = endOffset;
       }
 
       lastElement = fragment;
       nasty.lastEntity = undefined;
-    } else if(entity.length! > partText.length && element) {
+    } else if (entity.length! > partText.length && element) {
       lastElement = element;
     } else {
       lastElement = fragment;
     }
 
-    if(options.voodoo) {
+    if (options.voodoo) {
       return fragment;
     }
   }
 
-  if(nasty.lastEntity) {
+  if (nasty.lastEntity) {
     nasty.usedLength = nasty.lastEntity.offset! + nasty.lastEntity.length!;
   }
 
-  if(nasty.usedLength < textLength) {
+  if (nasty.usedLength < textLength) {
     (lastElement! || fragment).append(nasty.text.slice(nasty.usedLength));
   }
 
-  if((!options.wrappingDraft || options.customEmojiRenderer) && customEmojis.size) {
+  if ((!options.wrappingDraft || options.customEmojiRenderer) && customEmojis.size) {
     let renderer = options.customEmojiRenderer;
-    if(!renderer) {
+    if (!renderer) {
       renderer = CustomEmojiRendererElement.create(options);
       fragment.prepend(renderer);
     }
@@ -960,13 +960,13 @@ export default function wrapRichText(text: string, options: WrapRichTextOptions 
     const loadPromise = renderer.add({
       addCustomEmojis: customEmojis,
       lazyLoadQueue: options.lazyLoadQueue,
-      onlyThumb: options.wrappingDraft
+      onlyThumb: options.wrappingDraft,
     });
     options.loadPromises?.push(loadPromise!);
     // recordPromise(loadPromise, 'render emojis: ' + docIds.length);
   }
 
-  if(customWraps.size) {
+  if (customWraps.size) {
     insertCustomFillers(customWraps);
   }
 
@@ -983,16 +983,16 @@ export const createCustomFiller = (notFiller?: boolean) => {
 };
 
 export function isCustomFillerNeededBySiblingNode(node: ChildNode) {
-  if(
+  if (
     // !node?.textContent ||
     // node.textContent.endsWith('\n') ||
     node?.textContent !== BOM ||
     (node as HTMLElement)?.getAttribute?.('contenteditable') === 'false'
   ) {
     // if(!node || (node as HTMLElement).firstElementChild || node.textContent.endsWith('\n')) {
-    if(!node || node.textContent !== BOM || (node as HTMLElement).firstElementChild) {
+    if (!node || node.textContent !== BOM || (node as HTMLElement).firstElementChild) {
       return 2;
-    } else if(node.nodeType === node.ELEMENT_NODE) {
+    } else if (node.nodeType === node.ELEMENT_NODE) {
       return 1;
     }/*  else if(node.nodeType === node.TEXT_NODE && !node.nodeValue) {
       (node as CharacterData).insertData(0, BOM);
@@ -1005,15 +1005,15 @@ export function isCustomFillerNeededBySiblingNode(node: ChildNode) {
 export function insertCustomFillers(elements: Iterable<HTMLElement>) {
   const check = (element: HTMLElement, node: ChildNode, method: 'before' | 'after') => {
     const needed = isCustomFillerNeededBySiblingNode(node);
-    if(needed === 2) {
+    if (needed === 2) {
       element[method](createCustomFiller());
-    } else if(needed === 1) {
+    } else if (needed === 1) {
       node.appendChild(document.createTextNode(BOM));
     }
   };
 
-  for(const element of elements) {
-    const {previousSibling, nextSibling} = element;
+  for (const element of elements) {
+    const { previousSibling, nextSibling } = element;
     check(element, previousSibling!, 'before');
     check(element, nextSibling!, 'after');
   }

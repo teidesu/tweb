@@ -1,4 +1,4 @@
-import type {Photo, VideoSize} from '@layer';
+import type { Photo, VideoSize } from '@layer';
 
 type VS = Extract<VideoSize, VideoSize.videoSize>;
 
@@ -7,9 +7,9 @@ export default function chooseProfileVideoSize(
   want: 'preview' | 'full' = 'preview'
 ): VS | undefined {
   const sizes = photo.video_sizes?.filter((s): s is VS => s._ === 'videoSize');
-  if(!sizes?.length) return undefined;
+  if (!sizes?.length) return undefined;
 
-  if(want === 'preview') {
+  if (want === 'preview') {
     return sizes.find((s) => s.type === 'p') ||
       sizes.reduce((min, s) => (s.size < min.size ? s : min), sizes[0]);
   }

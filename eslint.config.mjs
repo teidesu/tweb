@@ -2,16 +2,16 @@ import typescriptEslint from '@typescript-eslint/eslint-plugin';
 import globals from 'globals';
 import tsParser from '@typescript-eslint/parser';
 import path from 'node:path';
-import {fileURLToPath} from 'node:url';
+import { fileURLToPath } from 'node:url';
 import js from '@eslint/js';
-import {FlatCompat} from '@eslint/eslintrc';
+import { FlatCompat } from '@eslint/eslintrc';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const compat = new FlatCompat({
   baseDirectory: __dirname,
   recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all
+  allConfig: js.configs.all,
 });
 
 export default [{
@@ -19,16 +19,16 @@ export default [{
     'src/vendor/**/*',
     'src/opus-recorder/**/*',
     'private/**/*',
-    'public/**/*'
-  ]
+    'public/**/*',
+  ],
 }, ...compat.extends(), {
   plugins: {
-    '@typescript-eslint': typescriptEslint
+    '@typescript-eslint': typescriptEslint,
   },
 
   languageOptions: {
     globals: {
-      ...globals.browser
+      ...globals.browser,
     },
 
     parser: tsParser,
@@ -36,8 +36,8 @@ export default [{
     sourceType: 'module',
 
     parserOptions: {
-      project: ['./tsconfig.json']
-    }
+      project: ['./tsconfig.json'],
+    },
   },
 
   rules: {
@@ -45,34 +45,6 @@ export default [{
 
     'keyword-spacing': ['error', {
       after: true,
-
-      overrides: {
-        if: {
-          before: true,
-          after: false
-        },
-
-        else: {
-          before: true
-        },
-
-        catch: {
-          before: true,
-          after: false
-        },
-
-        for: {
-          after: false
-        },
-
-        while: {
-          after: false
-        },
-
-        switch: {
-          after: false
-        }
-      }
     }],
 
     'linebreak-style': ['error', 'unix'],
@@ -80,35 +52,35 @@ export default [{
 
     'indent': ['error', 2, {
       CallExpression: {
-        arguments: 1
+        arguments: 1,
       },
 
       FunctionDeclaration: {
         body: 1,
-        parameters: 1
+        parameters: 1,
       },
 
       FunctionExpression: {
         body: 1,
-        parameters: 1
+        parameters: 1,
       },
 
-      MemberExpression: 0,
+      MemberExpression: 1,
       ObjectExpression: 1,
       SwitchCase: 1,
-      ignoredNodes: ['ConditionalExpression']
+      ignoredNodes: ['ConditionalExpression'],
     }],
 
     'space-before-function-paren': ['error', 'never'],
     'prefer-promise-reject-errors': 'off',
     'curly': 'off',
-    'comma-dangle': ['error', 'never'],
+    'comma-dangle': ['error', 'always-multiline'],
     'comma-spacing': 'error',
     'comma-style': 'error',
     'quote-props': ['error', 'consistent'],
 
     'quotes': ['error', 'single', {
-      allowTemplateLiterals: true
+      allowTemplateLiterals: true,
     }],
 
     'space-before-blocks': ['error', 'always'],
@@ -116,10 +88,10 @@ export default [{
     'prefer-spread': 'off',
 
     'prefer-const': ['error', {
-      destructuring: 'all'
+      destructuring: 'all',
     }],
 
-    'object-curly-spacing': ['error', 'never'],
+    'object-curly-spacing': ['error', 'always'],
     'array-bracket-spacing': ['error', 'never'],
     'switch-colon-spacing': 'error',
     'operator-linebreak': ['error', 'after'],
@@ -129,7 +101,7 @@ export default [{
     'no-mixed-spaces-and-tabs': 'error',
 
     'no-multiple-empty-lines': ['error', {
-      max: 2
+      max: 2,
     }],
 
     'no-tabs': 'error',
@@ -140,14 +112,12 @@ export default [{
       skipStrings: true,
       skipComments: true,
       skipRegExps: true,
-      skipTemplates: true
+      skipTemplates: true,
     }],
 
     'no-unexpected-multiline': 'error',
     'no-return-await': 'error',
-    '@typescript-eslint/await-thenable': 'off',
-    '@typescript-eslint/no-unnecessary-type-assertion': 'error'
-  }
+  },
 }, {
   files: ['**/*.ts', '**/*.tsx'],
 
@@ -156,18 +126,20 @@ export default [{
     sourceType: 'script',
 
     parserOptions: {
-      project: ['./tsconfig.json']
-    }
-  }
+      project: ['./tsconfig.json'],
+    },
+  },
 }, {
   files: ['**/*.js'],
 
   languageOptions: {
     ecmaVersion: 'latest',
-    sourceType: 'script'
+    sourceType: 'script',
   },
 
   rules: {
-    '@typescript-eslint/await-thenable': 'off'
-  }
+    '@typescript-eslint/await-thenable': 'off',
+    '@typescript-eslint/await-thenable': 'off',
+    '@typescript-eslint/no-unnecessary-type-assertion': 'error',
+  },
 }];

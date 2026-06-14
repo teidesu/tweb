@@ -1,6 +1,6 @@
-import {createEffect, createRoot, JSX, ParentProps, untrack} from 'solid-js';
-import {createMutable, unwrap} from 'solid-js/store';
-import {render} from 'solid-js/web';
+import { createEffect, createRoot, JSX, ParentProps, untrack } from 'solid-js';
+import { createMutable, unwrap } from 'solid-js/store';
+import { render } from 'solid-js/web';
 import type SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
 
 
@@ -69,11 +69,11 @@ export default function defineSolidElement<Props extends Object, ObservedAttribu
   name,
   component,
   observedAttributes = [],
-  shadow = false
+  shadow = false,
 }: Args<ObservedAttribute, Props, Controls>) {
   //
   // When the module is hot replaced
-  if(customElements.get(name)) {
+  if (customElements.get(name)) {
     const previousElementClass = customElements.get(name) as typeof SolidElement;
     previousElementClass.swapComponentFromHMR(component);
     return previousElementClass;
@@ -81,7 +81,7 @@ export default function defineSolidElement<Props extends Object, ObservedAttribu
 
   let instances: (InstanceType<typeof SolidElement>)[];
 
-  if(import.meta.hot) {
+  if (import.meta.hot) {
     instances = [];
   }
 
@@ -103,7 +103,7 @@ export default function defineSolidElement<Props extends Object, ObservedAttribu
     private savedProps = ((self: typeof this) => ({
       get element() {
         return self;
-      }
+      },
     } as unknown as PassedProps<Props>))(this);
 
     public readonly controls = {} as Controls;
@@ -116,7 +116,7 @@ export default function defineSolidElement<Props extends Object, ObservedAttribu
     public static Component = component;
 
     public static swapComponentFromHMR(newComponent: CustomElementComponent<ObservedAttribute, Props, Controls>) {
-      if(import.meta.hot) {
+      if (import.meta.hot) {
         SolidElement.Component = newComponent;
         instances.forEach((instance) => {
           instance?.mount?.();
@@ -131,13 +131,13 @@ export default function defineSolidElement<Props extends Object, ObservedAttribu
     constructor() {
       super();
 
-      this.mountPoint = shadow ? this.attachShadow({mode: 'open'}) : this;
+      this.mountPoint = shadow ? this.attachShadow({ mode: 'open' }) : this;
     }
 
     connectedCallback() {
       this.mount();
 
-      if(import.meta.hot) {
+      if (import.meta.hot) {
         instances.push(this);
       }
     }
@@ -145,9 +145,9 @@ export default function defineSolidElement<Props extends Object, ObservedAttribu
     disconnectedCallback() {
       this.unmount();
 
-      if(import.meta.hot) {
+      if (import.meta.hot) {
         const idx = instances.indexOf(this);
-        if(idx > -1) instances.splice(idx, 1);
+        if (idx > -1) instances.splice(idx, 1);
       }
     }
 
@@ -156,7 +156,7 @@ export default function defineSolidElement<Props extends Object, ObservedAttribu
     }
 
     public get props() {
-      if(this.disposeStores) {
+      if (this.disposeStores) {
         return this.propsStore;
       } else {
         return this.savedProps;
@@ -164,7 +164,7 @@ export default function defineSolidElement<Props extends Object, ObservedAttribu
     }
 
     public feedProps<Full extends boolean = true>(props: Full extends true ? Props : Partial<Props>) {
-      if(this.disposeStores) {
+      if (this.disposeStores) {
         Object.assign(this.propsStore, props);
       } else {
         Object.assign(this.savedProps, props);
@@ -182,9 +182,9 @@ export default function defineSolidElement<Props extends Object, ObservedAttribu
           const attributeName = key as ObservedAttribute;
           const value = this.attributesStore[attributeName];
 
-          if(this.getAttribute(attributeName) === this.attributesStore[attributeName]) return;
+          if (this.getAttribute(attributeName) === this.attributesStore[attributeName]) return;
 
-          if(value === null || value === undefined) {
+          if (value === null || value === undefined) {
             this.removeAttribute(attributeName);
           } else {
             this.setAttribute(attributeName, value);
@@ -197,13 +197,13 @@ export default function defineSolidElement<Props extends Object, ObservedAttribu
       let savedAttributes: AttributesRecord<ObservedAttribute>;
 
       // can happen only on hmr
-      if(this.disposeStores) savedAttributes = unwrap(this.attributesStore);
+      if (this.disposeStores) savedAttributes = unwrap(this.attributesStore);
 
       this.unmount();
       const ComponentToMount = SolidElement.Component;
 
       this.initStores();
-      if(savedAttributes!) Object.assign(this.attributesStore, savedAttributes);
+      if (savedAttributes!) Object.assign(this.attributesStore, savedAttributes);
 
       const Wrapper = this.HotReloadGuard || ((props: ParentProps) => <>{props.children}</>);
 
@@ -232,7 +232,7 @@ export default function defineSolidElement<Props extends Object, ObservedAttribu
 
 function burgerToPascal(str: string) {
   return str
-  .split('-')
-  .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-  .join('');
+    .split('-')
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('');
 }

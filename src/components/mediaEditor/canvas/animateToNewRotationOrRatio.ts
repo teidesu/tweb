@@ -1,15 +1,15 @@
-import {modifyMutable, produce} from 'solid-js/store';
-import {animateValue} from '@helpers/animateValue';
-import {lerp, lerpArray} from '@helpers/lerp';
-import {useMediaEditorContext} from '@components/mediaEditor/context';
-import {NumberPair} from '@components/mediaEditor/types';
-import {snapToViewport} from '@components/mediaEditor/utils';
-import {useCropOffset} from '@components/mediaEditor/canvas/useCropOffset';
+import { modifyMutable, produce } from 'solid-js/store';
+import { animateValue } from '@helpers/animateValue';
+import { lerp, lerpArray } from '@helpers/lerp';
+import { useMediaEditorContext } from '@components/mediaEditor/context';
+import { NumberPair } from '@components/mediaEditor/types';
+import { snapToViewport } from '@components/mediaEditor/utils';
+import { useCropOffset } from '@components/mediaEditor/canvas/useCropOffset';
 
 
 export function animateToNewRotationOrRatio(newRotation: number) {
-  const {editorState, mediaState} = useMediaEditorContext()!;
-  if(!editorState.mediaSize) return;
+  const { editorState, mediaState } = useMediaEditorContext()!;
+  if (!editorState.mediaSize) return;
 
   const cropOffset = useCropOffset();
 
@@ -21,7 +21,7 @@ export function animateToNewRotationOrRatio(newRotation: number) {
 
   let ratio: number;
 
-  if(editorState.fixedImageRatioKey?.includes('x')) {
+  if (editorState.fixedImageRatioKey?.includes('x')) {
     const parts = editorState.fixedImageRatioKey.split('x');
     ratio = parseInt(parts[0]) / parseInt(parts[1]);
   } else {
@@ -58,7 +58,7 @@ export function animateToNewRotationOrRatio(newRotation: number) {
       onEnd: () => {
         editorState.isMoving = false;
         mediaState.rotation = mediaState.rotation % (Math.PI * 2);
-      }
+      },
     }
   );
 }

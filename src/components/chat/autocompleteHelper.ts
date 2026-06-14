@@ -1,13 +1,13 @@
-import attachListNavigation, {ListNavigationOptions} from '@helpers/dom/attachListNavigation';
+import attachListNavigation, { ListNavigationOptions } from '@helpers/dom/attachListNavigation';
 import EventListenerBase from '@helpers/eventListenerBase';
-import {IS_MOBILE} from '@environment/userAgent';
+import { IS_MOBILE } from '@environment/userAgent';
 import rootScope from '@lib/rootScope';
-import appNavigationController, {NavigationItem} from '@components/appNavigationController';
+import appNavigationController, { NavigationItem } from '@components/appNavigationController';
 import SetTransition from '@components/singleTransition';
 import AutocompleteHelperController from '@components/chat/autocompleteHelperController';
 import safeAssign from '@helpers/object/safeAssign';
 import liteMode from '@helpers/liteMode';
-import {getMiddleware, MiddlewareHelper} from '@helpers/middleware';
+import { getMiddleware, MiddlewareHelper } from '@helpers/middleware';
 
 export default class AutocompleteHelper extends EventListenerBase<{
   hidden: () => void,
@@ -68,7 +68,7 @@ export default class AutocompleteHelper extends EventListenerBase<{
   }
 
   public toggleListNavigation(enabled: boolean) {
-    if(enabled) {
+    if (enabled) {
       this.attach?.();
     } else {
       this.detach?.();
@@ -79,25 +79,25 @@ export default class AutocompleteHelper extends EventListenerBase<{
     this.detach?.(); // it can be so because 'visible' calls before animation's end
 
     const list = this.list;
-    const {attach, detach, resetTarget} = attachListNavigation({
+    const { attach, detach, resetTarget } = attachListNavigation({
       list: this.getNavigationList?.() || list,
       type: this.listType,
       onSelect: this.onSelect,
       once: true,
-      waitForKey: this.waitForKey
+      waitForKey: this.waitForKey,
     });
 
     this.attach = attach;
     this.detach = detach;
     this.resetTarget = resetTarget;
-    if(!IS_MOBILE && !this.navigationItem) {
+    if (!IS_MOBILE && !this.navigationItem) {
       this.navigationItem = {
         type: 'autocomplete-helper',
         onPop: () => {
           this.navigationItem = undefined;
           this.toggle(true);
         },
-        noBlurOnPop: true
+        noBlurOnPop: true,
       };
 
       appNavigationController.pushItem(this.navigationItem);
@@ -111,11 +111,11 @@ export default class AutocompleteHelper extends EventListenerBase<{
       list.replaceChildren();
       detach();
 
-      if(this.navigationItem) {
+      if (this.navigationItem) {
         appNavigationController.removeItem(this.navigationItem);
         this.navigationItem = undefined;
       }
-    }, {once: true});
+    }, { once: true });
   };
 
   protected attachNavigation() {
@@ -123,7 +123,7 @@ export default class AutocompleteHelper extends EventListenerBase<{
   }
 
   public toggle(hide?: boolean, fromController = false, skipAnimation?: boolean) {
-    if(hide === undefined) {
+    if (hide === undefined) {
       hide = this.container.classList.contains('is-visible') && !this.container.classList.contains('backwards');
     }
 
@@ -131,16 +131,16 @@ export default class AutocompleteHelper extends EventListenerBase<{
     // * early-return paths below (not yet initialized, or already hidden). Otherwise a
     // * slow request resolves later and shows the panel for input that was already
     // * cleared, since both of those paths used to skip middlewareHelper.clean().
-    if(hide) {
+    if (hide) {
       this.middlewareHelper.clean();
     }
 
-    if(this.init) {
+    if (this.init) {
       return;
     }
 
-    if(this.hidden === hide) {
-      if(!hide) {
+    if (this.hidden === hide) {
+      if (!hide) {
         this.dispatchEvent('visible'); // reset target and listener
       }
 
@@ -149,8 +149,8 @@ export default class AutocompleteHelper extends EventListenerBase<{
 
     this.hidden = hide;
 
-    if(!hide) {
-      if(this.controller) {
+    if (!hide) {
+      if (this.controller) {
         // * preserve self + siblings so a sibling that's still loading isn't killed by us showing
         const preserve = new Set<AutocompleteHelper>([this]);
         this.siblings.forEach((sibling) => preserve.add(sibling));
@@ -158,12 +158,12 @@ export default class AutocompleteHelper extends EventListenerBase<{
       }
       this.dispatchEvent('visible'); // fire it before so target will be set
     } else {
-      if(this.navigationItem) {
+      if (this.navigationItem) {
         appNavigationController.removeItem(this.navigationItem);
         this.navigationItem = undefined;
       }
 
-      if(!fromController && this.controller) {
+      if (!fromController && this.controller) {
         this.controller.hideOtherHelpers();
       }
 
@@ -172,7 +172,7 @@ export default class AutocompleteHelper extends EventListenerBase<{
 
     const useRafs = this.controller || hide ? 0 : 2;
 
-    if(hide) {
+    if (hide) {
       this.dispatchEvent('hiding');
     }
 
@@ -184,7 +184,7 @@ export default class AutocompleteHelper extends EventListenerBase<{
       onTransitionEnd: () => {
         this.hidden && this.dispatchEvent('hidden');
       },
-      useRafs
+      useRafs,
     });
   }
 }

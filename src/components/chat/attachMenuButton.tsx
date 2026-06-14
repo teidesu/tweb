@@ -1,14 +1,14 @@
-import {IconTsx} from '@components/iconTsx';
-import {ProgressCircleSVG} from '@components/progressCircleSVG';
+import { IconTsx } from '@components/iconTsx';
+import { ProgressCircleSVG } from '@components/progressCircleSVG';
 import ripple from '@components/ripple';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
-import {attachHotClassName} from '@helpers/solid/classname';
-import defineSolidElement, {PassedProps} from '@lib/solidjs/defineSolidElement';
-import {createEffect, createSignal, onCleanup, Show} from 'solid-js';
-import {Transition} from 'solid-transition-group';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
+import { attachHotClassName } from '@helpers/solid/classname';
+import defineSolidElement, { PassedProps } from '@lib/solidjs/defineSolidElement';
+import { createEffect, createSignal, onCleanup, Show } from 'solid-js';
+import { Transition } from 'solid-transition-group';
 import styles from './attachMenuButton.module.scss';
 
-if(import.meta.hot) import.meta.hot.accept();
+if (import.meta.hot) import.meta.hot.accept();
 
 
 type Props = {
@@ -27,7 +27,7 @@ const AttachMenuButton = defineSolidElement({
     const [loadingContainer, setLoadingContainer] = createSignal<HTMLDivElement>();
 
     createEffect(() => {
-      if(!props.isLoading) return;
+      if (!props.isLoading) return;
 
       props.element.classList.add(styles.disabled);
       onCleanup(() => props.element.classList.remove(styles.disabled));
@@ -35,7 +35,7 @@ const AttachMenuButton = defineSolidElement({
 
     // Workaround around a workaround
     createEffect(() => {
-      if(!loadingContainer()) return;
+      if (!loadingContainer()) return;
 
       const clean = attachClickEvent(loadingContainer()!, (e) => {
         e.stopPropagation();
@@ -52,7 +52,7 @@ const AttachMenuButton = defineSolidElement({
           <IconTsx
             class={`${styles.Icon} button-icon`}
             classList={{
-              [styles.hidden]: props.isLoading
+              [styles.hidden]: props.isLoading,
             }}
             icon={props.isEditing ? 'attach_edit' : 'attach'}
           />
@@ -75,7 +75,7 @@ const AttachMenuButton = defineSolidElement({
         {/* </Transition>*/}
       </>
     );
-  }
+  },
 });
 
 export default AttachMenuButton;

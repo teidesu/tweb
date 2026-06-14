@@ -1,4 +1,4 @@
-import {MAX_EDITABLE_VIDEO_SIZE} from '@components/mediaEditor/support';
+import { MAX_EDITABLE_VIDEO_SIZE } from '@components/mediaEditor/support';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import rootScope from '@lib/rootScope';
 
@@ -50,15 +50,15 @@ export default async function movToVideo(
   onInfo?: (info: MovVideoInfo) => void,
   waitBeforeConvert?: Promise<void>
 ): Promise<MovVideoInfo & {blob: Blob}> {
-  const {Input, Output, Conversion, Mp4OutputFormat, BufferTarget, BlobSource, QTFF, MP4} = await import('mediabunny');
+  const { Input, Output, Conversion, Mp4OutputFormat, BufferTarget, BlobSource, QTFF, MP4 } = await import('mediabunny');
 
   const input = new Input({
     source: new BlobSource(file),
-    formats: [QTFF, MP4]
+    formats: [QTFF, MP4],
   });
 
   const videoTrack = await input.getPrimaryVideoTrack();
-  if(!videoTrack) {
+  if (!videoTrack) {
     throw new Error('mov has no video track');
   }
 
@@ -66,22 +66,22 @@ export default async function movToVideo(
     videoTrack.getDisplayWidth(),
     videoTrack.getDisplayHeight(),
     input.computeDuration(),
-    videoTrack.getCodec()
+    videoTrack.getCodec(),
   ]);
 
-  if(videoCodec !== 'avc' && file.size > MAX_TRANSCODABLE_SIZE) {
+  if (videoCodec !== 'avc' && file.size > MAX_TRANSCODABLE_SIZE) {
     throw new Error('the video needs an actual transcode and is too big for one');
   }
 
-  onInfo?.({width, height, duration});
+  onInfo?.({ width, height, duration });
 
   // the metadata read above is cheap; the conversion below isn't — the caller
   // can postpone it (e.g. until the popup open animation has finished)
   await waitBeforeConvert;
 
   const output = new Output({
-    format: new Mp4OutputFormat({fastStart: file.size <= IN_MEMORY_FASTSTART_MAX_SIZE ? 'in-memory' : false}),
-    target: new BufferTarget()
+    format: new Mp4OutputFormat({ fastStart: file.size <= IN_MEMORY_FASTSTART_MAX_SIZE ? 'in-memory' : false }),
+    target: new BufferTarget(),
   });
 
   const conversion = await Conversion.init({
@@ -90,14 +90,14 @@ export default async function movToVideo(
     // H.264 + AAC play in every Telegram client; matching sources are copied
     // as-is, only other codecs get transcoded (a PCM track would otherwise be
     // copied into the mp4 verbatim, which Telegram clients can't play)
-    video: {codec: 'avc'},
-    audio: {codec: 'aac'},
-    showWarnings: false
+    video: { codec: 'avc' },
+    audio: { codec: 'aac' },
+    showWarnings: false,
   });
 
-  if(!conversion.isValid || conversion.discardedTracks.length) {
+  if (!conversion.isValid || conversion.discardedTracks.length) {
     await conversion.cancel();
-    const reasons = conversion.discardedTracks.map(({track, reason}) => `${track.type}: ${reason}`);
+    const reasons = conversion.discardedTracks.map(({ track, reason }) => `${track.type}: ${reason}`);
     throw new Error(`cannot convert mov [${reasons.join(', ')}]`);
   }
 
@@ -105,9 +105,9 @@ export default async function movToVideo(
   await conversion.execute();
 
   return {
-    blob: new Blob([output.target.buffer!], {type: 'video/mp4'}),
+    blob: new Blob([output.target.buffer!], { type: 'video/mp4' }),
     width,
     height,
-    duration
+    duration,
   };
 }

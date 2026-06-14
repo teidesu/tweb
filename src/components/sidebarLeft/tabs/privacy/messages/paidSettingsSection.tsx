@@ -1,14 +1,14 @@
-import {Component, Show} from 'solid-js';
-import {SetStoreFunction} from 'solid-js/store';
-import {Transition} from 'solid-transition-group';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { Component, Show } from 'solid-js';
+import { SetStoreFunction } from 'solid-js/store';
+import { Transition } from 'solid-transition-group';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 import Section from '@components/section';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {MessagesTabStateStore, TRANSITION_TIME} from '@components/sidebarLeft/tabs/privacy/messages/config';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { MessagesTabStateStore, TRANSITION_TIME } from '@components/sidebarLeft/tabs/privacy/messages/config';
 import StarRangeInput from '@components/sidebarLeft/tabs/privacy/messages/starsRangeInput';
 import useStarsCommissionAndWithdrawalPrice from '@components/sidebarLeft/tabs/privacy/messages/useStarsCommissionAndWithdrawalPrice';
-import {ChosenPeersByType} from '@components/sidebarLeft/tabs/privacy/messages/useStateStore';
-import {isTruthy} from '../../../../../helpers/isTruthy';
+import { ChosenPeersByType } from '@components/sidebarLeft/tabs/privacy/messages/useStateStore';
+import { isTruthy } from '../../../../../helpers/isTruthy';
 
 
 const PaidSettingsSection: Component<{
@@ -18,10 +18,10 @@ const PaidSettingsSection: Component<{
   isPaid: boolean;
   exitAnimationPromise: Promise<any>;
 }> = (props) => {
-  const [tab, {AppAddMembersTab}] = useSuperTab();
-  const {i18n, join, Row} = useHotReloadGuard();
+  const [tab, { AppAddMembersTab }] = useSuperTab();
+  const { i18n, join, Row } = useHotReloadGuard();
 
-  const {commissionPercents, willReceiveDollars} = useStarsCommissionAndWithdrawalPrice(() => props.store.stars!);
+  const { commissionPercents, willReceiveDollars } = useStarsCommissionAndWithdrawalPrice(() => props.store.stars!);
 
   const onExceptionsClick = () => {
     tab.slider.createTab(AppAddMembersTab).open({
@@ -32,19 +32,19 @@ const PaidSettingsSection: Component<{
       takeOut: (newPeerIds) => {
         props.setStore('chosenPeers', newPeerIds);
       },
-      selectedPeerIds: [...props.store.chosenPeers!]
+      selectedPeerIds: [...props.store.chosenPeers!],
     });
   };
 
 
   const chosenPeersLabel = () => {
-    if(!props.store.chosenPeers!.length) return i18n('PrivacySettingsController.AddUsers');
+    if (!props.store.chosenPeers!.length) return i18n('PrivacySettingsController.AddUsers');
 
-    const {users, chats} = props.chosenPeersByType;
+    const { users, chats } = props.chosenPeersByType;
 
     return join(([
       users.length ? i18n('Users', [users.length]) : null,
-      chats.length ? i18n('Chats', [chats.length]) : null
+      chats.length ? i18n('Chats', [chats.length]) : null,
     ].filter(isTruthy)), false);
   };
 
@@ -54,12 +54,12 @@ const PaidSettingsSection: Component<{
         const el = _el as HTMLElement;
         el.style.opacity = '0';
         await props.exitAnimationPromise;
-        await el.animate({opacity: [0, 1]}, {duration: TRANSITION_TIME}).finished;
+        await el.animate({ opacity: [0, 1] }, { duration: TRANSITION_TIME }).finished;
         el.style.removeProperty('opacity');
         done();
       }}
       onExit={async(el, done) => {
-        await el.animate({opacity: [1, 0]}, {duration: TRANSITION_TIME}).finished;
+        await el.animate({ opacity: [1, 0] }, { duration: TRANSITION_TIME }).finished;
         done();
       }}
     >
@@ -70,7 +70,7 @@ const PaidSettingsSection: Component<{
             caption="PaidMessages.SetPriceDescription"
             captionArgs={[
               commissionPercents(),
-              willReceiveDollars()
+              willReceiveDollars(),
             ]}
           >
             <StarRangeInput value={props.store.stars!} onChange={props.setStore.bind(null, 'stars')} />

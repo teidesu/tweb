@@ -1,6 +1,6 @@
-import {Accessor, Signal, createEffect, createMemo, createSignal} from 'solid-js';
-import {HelpPeerColorOption, HelpPeerColorSet, User} from '@layer';
-import {usePeer} from '@stores/peers';
+import { Accessor, Signal, createEffect, createMemo, createSignal } from 'solid-js';
+import { HelpPeerColorOption, HelpPeerColorSet, User } from '@layer';
+import { usePeer } from '@stores/peers';
 import useIsNightTheme from '@hooks/useIsNightTheme';
 
 let signal: Signal<HelpPeerColorOption[]>;
@@ -20,15 +20,15 @@ export function usePeerProfileAppearance(peerId: PeerId): Accessor<{
     const _peer = peer();
 
     const emojiStatus = (_peer as User.user)?.emoji_status
-    if(emojiStatus?._ === 'emojiStatusCollectible') {
+    if (emojiStatus?._ === 'emojiStatusCollectible') {
       return {
         bgColors: [emojiStatus.edge_color, emojiStatus.center_color],
-        backgroundEmojiId: emojiStatus.pattern_document_id
+        backgroundEmojiId: emojiStatus.pattern_document_id,
       }
     }
 
     const profileColor = (_peer as User.user)?.profile_color;
-    if(profileColor?._ !== 'peerColor') {
+    if (profileColor?._ !== 'peerColor') {
       return {};
     }
 
@@ -36,7 +36,7 @@ export function usePeerProfileAppearance(peerId: PeerId): Accessor<{
     const colorSet = (isNightTheme() && colorOption?.dark_colors ? colorOption.dark_colors : colorOption?.colors) as HelpPeerColorSet.helpPeerColorProfileSet
     return {
       bgColors: colorSet?.bg_colors,
-      backgroundEmojiId: profileColor.background_emoji_id
+      backgroundEmojiId: profileColor.background_emoji_id,
     }
   });
 }

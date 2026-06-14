@@ -1,4 +1,4 @@
-import {IS_SAFARI} from '@environment/userAgent';
+import { IS_SAFARI } from '@environment/userAgent';
 import bytesFromHex from '@helpers/bytes/bytesFromHex';
 import bytesToDataURL from '@helpers/bytes/bytesToDataURL';
 import convertToUint8Array from '@helpers/bytes/convertToUint8Array';
@@ -35,7 +35,7 @@ export function getPreviewBytesFromURL(url: string) {
 
 export default function getPreviewURLFromBytes(bytes: Uint8Array | number[], isSticker = false) {
   let arr: Uint8Array;
-  if(!isSticker && bytes[0] === 0x1) {
+  if (!isSticker && bytes[0] === 0x1) {
     arr = new Uint8Array(JPEG_HEADER.concat(Array.from(bytes.slice(3)), JPEG_TAIL));
     arr[164] = bytes[1];
     arr[166] = bytes[2];
@@ -44,7 +44,7 @@ export default function getPreviewURLFromBytes(bytes: Uint8Array | number[], isS
   }
 
   let mimeType: string;
-  if(isSticker) {
+  if (isSticker) {
     mimeType = IS_SAFARI ? 'image/png' : 'image/webp';
   } else {
     mimeType = 'image/jpeg';

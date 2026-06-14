@@ -9,19 +9,19 @@ export default function roundRect(
   stroke?: boolean
 ) {
   const dpr = ctx.canvas.dpr;
-  if(dpr) {
+  if (dpr) {
     x *= dpr;
     y *= dpr;
     width *= dpr;
     height *= dpr;
   }
 
-  if(typeof(radius) === 'number') {
-    if(dpr) radius *= dpr;
-    radius = {tl: radius, tr: radius, br: radius, bl: radius};
+  if (typeof(radius) === 'number') {
+    if (dpr) radius *= dpr;
+    radius = { tl: radius, tr: radius, br: radius, bl: radius };
   } else {
-    const defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
-    for(const side in defaultRadius) {
+    const defaultRadius = { tl: 0, tr: 0, br: 0, bl: 0 };
+    for (const side in defaultRadius) {
       // @ts-ignore
       radius[side] = radius[side] ? (dpr ? radius[side] * dpr : radius[side]) : defaultRadius[side];
     }
@@ -39,11 +39,11 @@ export default function roundRect(
   ctx.quadraticCurveTo(x, y, x + radius.tl!, y);
   ctx.closePath();
 
-  if(fill) {
+  if (fill) {
     ctx.fill();
   }
 
-  if(stroke) {
+  if (stroke) {
     ctx.stroke();
   }
 }

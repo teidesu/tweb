@@ -1,19 +1,19 @@
-import {batch, createEffect, createMemo, createSignal, onCleanup, onMount} from 'solid-js';
-import {render} from 'solid-js/web';
+import { batch, createEffect, createMemo, createSignal, onCleanup, onMount } from 'solid-js';
+import { render } from 'solid-js/web';
 
-import {animateValue} from '@helpers/animateValue';
-import {animate} from '@helpers/animation';
+import { animateValue } from '@helpers/animateValue';
+import { animate } from '@helpers/animation';
 import ListenerSetter from '@helpers/listenerSetter';
 import debounce from '@helpers/schedulers/debounce';
 import createMiddleware from '@helpers/solid/createMiddleware';
-import {logger} from '@lib/logger';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { logger } from '@lib/logger';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 import type SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
-import type {AnimationItemGroup} from '@components/animationIntersector';
+import type { AnimationItemGroup } from '@components/animationIntersector';
 import BluffSpoilerController from '@components/bluffSpoilerController';
 import DotRenderer from '@components/dotRenderer';
-import {observeResize} from '@components/resizeObserver';
-import {drawImageFromSource} from '@components/messageSpoilerOverlay/drawImageFromSource';
+import { observeResize } from '@components/resizeObserver';
+import { drawImageFromSource } from '@components/messageSpoilerOverlay/drawImageFromSource';
 import {
   adjustSpaceBetweenCloseRects,
   computeMaxDistToMargin,
@@ -23,7 +23,7 @@ import {
   getTimeForDist,
   isMouseCloseToAnySpoilerElement,
   UnwrapEasing,
-  waitResizeToBePainted
+  waitResizeToBePainted,
 } from '@components/messageSpoilerOverlay/utils';
 
 
@@ -54,7 +54,7 @@ type RendererTarget = {
 };
 
 function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
-  const {rootScope} = useHotReloadGuard();
+  const { rootScope } = useHotReloadGuard();
 
   // when supported, the drawing runs inside the spoiler-renderer worker and this
   // component only measures the DOM and pushes geometry/colors/unwraps to it
@@ -74,7 +74,7 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
   const controls: MessageSpoilerOverlayControls = {
     update() {
       update();
-    }
+    },
   };
 
   props.controlsRef(controls);
@@ -118,7 +118,7 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
   const canShowSpoilers = createMemo(() => rendererInitResult() && spanRects().length);
 
   createEffect(() => {
-    if(canShowSpoilers()) {
+    if (canShowSpoilers()) {
       setTimeout(() => {
         props.parentElement.closest('.spoilers-container')?.classList.add('can-show-spoiler-text')
       }, 400);
@@ -127,7 +127,7 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
 
   createEffect(() => {
     // Hide text when collapsing / uncollapsing blockquote
-    if(!spanRects().length && unwrapProgress() === 0) {
+    if (!spanRects().length && unwrapProgress() === 0) {
       props.parentElement.closest('.spoilers-container')?.classList.remove('can-show-spoiler-text')
     }
   });
@@ -138,17 +138,17 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
   */
   let failTimeout: number | undefined;
   createEffect(() => {
-    if(spanRects().length) return;
+    if (spanRects().length) return;
 
     failTimeout ||= window.setTimeout(() => {
       failTimeout = undefined;
-      if(spanRects().length) return;
+      if (spanRects().length) return;
 
       update();
     }, 3000);
 
     onCleanup(() => {
-      if(failTimeout) window.clearTimeout(failTimeout);
+      if (failTimeout) window.clearTimeout(failTimeout);
     });
   });
 
@@ -156,7 +156,7 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
     <canvas
       class="message-spoiler-overlay__canvas"
       classList={{
-        'message-spoiler-overlay__canvas--hidden': unwrapProgress() === 1 || !canShowSpoilers()
+        'message-spoiler-overlay__canvas--hidden': unwrapProgress() === 1 || !canShowSpoilers(),
       }}
     />
   ) as HTMLCanvasElement;
@@ -178,11 +178,11 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
       middlewareHelper.destroy();
     });
 
-    if(useWorker) {
+    if (useWorker) {
       const initResult = DotRenderer.attachTextSpoilerOverlay({
         animationGroup: props.animationGroup,
         canvas,
-        middleware: middlewareHelper.get()
+        middleware: middlewareHelper.get(),
       });
       overlayHandle = initResult.overlay;
       await initResult.readyResult;
@@ -196,7 +196,7 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
       animationGroup: props.animationGroup,
       canvas,
       draw,
-      middleware: middlewareHelper.get()
+      middleware: middlewareHelper.get(),
     });
     await initResult.readyResult;
 
@@ -214,7 +214,7 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
   }
 
   function pushOverlayState() {
-    if(!overlayHandle) return;
+    if (!overlayHandle) return;
 
     const rect = props.parentElement.getBoundingClientRect();
 
@@ -229,21 +229,21 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
       height: Math.round(rect.height * dpr()),
       rects: spanRects(),
       backgroundColor: backgroundColor(),
-      particleColor: particleColor()
+      particleColor: particleColor(),
     });
   }
 
   async function resizeObserverCallback(entry: ResizeObserverEntry) {
-    if(!entry) return;
+    if (!entry) return;
 
     resetBeforeResize(); // When opening / closing collapsible blockquote
     await waitResizeToBePainted(entry);
     update();
-    if(!useWorker) draw();
+    if (!useWorker) draw();
   }
 
   function resetBeforeResize() {
-    if(useWorker) overlayHandle?.clear();
+    if (useWorker) overlayHandle?.clear();
     else ctx!.clearRect(0, 0, canvas.width, canvas.height);
     setSpanRects([]);
   }
@@ -253,7 +253,7 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
   });
 
   function updateCanvasSize() {
-    if(useWorker) return; // the worker owns the transferred canvas, the size goes through pushOverlayState
+    if (useWorker) return; // the worker owns the transferred canvas, the size goes through pushOverlayState
 
     const rect = props.parentElement.getBoundingClientRect();
 
@@ -283,7 +283,7 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
   function updateBackgroundColor() {
     let bg: string = 'transparent';
     const targetElement = props.messageElement.parentElement;
-    if(targetElement) {
+    if (targetElement) {
       const computedStyle = window.getComputedStyle(targetElement);
       bg = computedStyle.backgroundColor;
     }
@@ -296,9 +296,9 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
   }
 
   function onMessageClick(e: MouseEvent) {
-    if(!isMouseCloseToAnySpoilerElement(e, props.parentElement, spanRects())) return;
+    if (!isMouseCloseToAnySpoilerElement(e, props.parentElement, spanRects())) return;
 
-    if(unwrapProgress()) {
+    if (unwrapProgress()) {
       // returnToInitial();
       return;
     }
@@ -324,13 +324,13 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
         unwrapTimeout = window.setTimeout(() => {
           returnToInitial();
         }, UNWRAPPED_TIMEOUT_MS);
-      }
+      },
     });
   }
 
   // There is some space between span lines, so we need to manually set the cursor because of this
   function onMessageHover(e: MouseEvent) {
-    if(unwrapProgress()) return;
+    if (unwrapProgress()) return;
     props.messageElement.classList.toggle(
       'is-hovering-spoiler',
       isMouseCloseToAnySpoilerElement(e, props.parentElement, spanRects())
@@ -345,7 +345,7 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
     cancelAnimation?.();
     window.clearTimeout(unwrapTimeout);
 
-    if(unwrapProgress() !== 1) {
+    if (unwrapProgress() !== 1) {
       overlayHandle?.wrap(200);
       cancelAnimation = animateValue(unwrapProgress(), 0, 200, setUnwrapProgress, {
         onEnd: () => {
@@ -353,7 +353,7 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
             setClickCoordinates();
             setMaxDist();
           });
-        }
+        },
       });
     } else {
       overlayHandle?.reset();
@@ -362,7 +362,7 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
         setClickCoordinates();
         setMaxDist();
       });
-      if(!useWorker && rendererInitResult()?.animation.paused) {
+      if (!useWorker && rendererInitResult()?.animation.paused) {
         animate(() => {
           draw();
         });
@@ -374,7 +374,7 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
     resetBeforeResize();
     setTimeout(() => {
       update();
-      if(!useWorker) draw();
+      if (!useWorker) draw();
     }, 200);
   }
 
@@ -394,11 +394,11 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
     const progress = unwrapProgress();
     const initialCoords = clickCoordinates();
 
-    if(!rects) return;
+    if (!rects) return;
 
-    const {sourceCanvas} = rendererInitResult() || {};
+    const { sourceCanvas } = rendererInitResult() || {};
 
-    for(const rect of rects) {
+    for (const rect of rects) {
       const x = rect.left;
       const y = Math.max(0, rect.top);
       const dw = rect.width;
@@ -408,10 +408,10 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
       // ctx.fillStyle = 'red';
       ctx!.fillRect(...timesDpr(x, y, dw, dh));
 
-      if(!sourceCanvas) continue;
+      if (!sourceCanvas) continue;
 
       offScreenCtx!.clearRect(...timesDpr(x, y, dw, dh));
-      if(!initialCoords) {
+      if (!initialCoords) {
         drawImageFromSource(offScreenCtx!, sourceCanvas, ...timesDpr(x, y, dw, dh, x, y, dw, dh));
       } else {
         const scaledProgress = progress ** 2 /* * Math.sqrt(progress) */ * 0.4;
@@ -445,7 +445,7 @@ function MessageSpoilerOverlay(props: InternalMessageSpoilerOverlayProps) {
   function drawClippingCircle() {
     const initialCoords = clickCoordinates();
     const radius = maxDist();
-    if(!initialCoords || !radius) return;
+    if (!initialCoords || !radius) return;
 
     const progress = unwrapProgress();
 
@@ -490,6 +490,6 @@ export function createMessageSpoilerOverlay(props: MessageSpoilerOverlayProps, H
     get controls() {
       return controls;
     },
-    dispose
+    dispose,
   };
 }

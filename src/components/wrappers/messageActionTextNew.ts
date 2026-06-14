@@ -1,4 +1,4 @@
-import type {MyMessage} from '@appManagers/appMessagesManager';
+import type { MyMessage } from '@appManagers/appMessagesManager';
 import wrapMessageActionTextNewUnsafe from '@components/wrappers/messageActionTextNewUnsafe';
 
 export type WrapMessageActionTextOptions = {
@@ -15,7 +15,7 @@ export default async function wrapMessageActionTextNew(options: WrapMessageActio
 export default async function wrapMessageActionTextNew(options: WrapMessageActionTextOptions): Promise<string | HTMLElement> {
   try {
     return (await wrapMessageActionTextNewUnsafe(options));
-  } catch(err) {
+  } catch (err) {
     console.error('wrapMessageActionTextNewUnsafe error:', err);
     return options.plain ? '' : document.createElement('span');
   }

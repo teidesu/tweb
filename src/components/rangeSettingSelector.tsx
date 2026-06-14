@@ -1,4 +1,4 @@
-import {createEffect, createSignal, JSX} from 'solid-js';
+import { createEffect, createSignal, JSX } from 'solid-js';
 import RangeSelector from '@components/rangeSelectorTsx';
 
 export default function RangeSettingSelector(props: {

@@ -1,6 +1,6 @@
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import ListenerSetter from '@helpers/listenerSetter';
-import {LangPackKey, i18n} from '@lib/langPack';
+import { LangPackKey, i18n } from '@lib/langPack';
 import ButtonIcon from '@components/buttonIcon';
 import ConnectionStatusComponent from '@components/connectionStatus';
 import Icon from '@components/icon';
@@ -8,7 +8,7 @@ import InputField from '@components/inputField';
 import ProgressivePreloader from '@components/preloader';
 import SetTransition from '@components/singleTransition';
 import classNames from '@helpers/string/classNames';
-import {isTruthy} from '../helpers/isTruthy';
+import { isTruthy } from '../helpers/isTruthy';
 
 export default class InputSearch {
   public container: HTMLElement;
@@ -58,7 +58,7 @@ export default class InputSearch {
     this.inputField = new InputField({
       // placeholder,
       plainText: true,
-      withBorder: !options.noBorder
+      withBorder: !options.noBorder,
     });
 
     this.listenerSetter = new ListenerSetter();
@@ -66,7 +66,7 @@ export default class InputSearch {
     this.container.classList.remove('input-field');
     this.container.classList.add('input-search');
 
-    if(options.oldStyle) {
+    if (options.oldStyle) {
       this.container.classList.add('old-style');
     }
 
@@ -83,7 +83,7 @@ export default class InputSearch {
     const input = this.input = this.inputField.input as HTMLInputElement;
     input.classList.add('input-search-input');
 
-    if(!options.noFocusEffect) {
+    if (!options.noFocusEffect) {
       input.classList.add('with-focus-effect');
     }
 
@@ -92,14 +92,14 @@ export default class InputSearch {
 
     this.listenerSetter.add(input)('input', this.onInput);
     this.listenerSetter.add(input)('keydown', this.onKeyDown);
-    attachClickEvent(clearBtn, this.onClearClick, {listenerSetter: this.listenerSetter, cancelMouseDown: true});
+    attachClickEvent(clearBtn, this.onClearClick, { listenerSetter: this.listenerSetter, cancelMouseDown: true });
 
-    if(options.placeholder) {
+    if (options.placeholder) {
       (input).placeholder = ' ';
       this.setPlaceholder(options.placeholder);
     }
 
-    if(options.onFocusChange) {
+    if (options.onFocusChange) {
       this.listenerSetter.add(input)('focusin', () => {
         options.onFocusChange?.(true);
       });
@@ -115,15 +115,15 @@ export default class InputSearch {
   }
 
   public setArrowBack = (arrowBack: boolean) => {
-    if(this.arrowBack === arrowBack) return;
+    if (this.arrowBack === arrowBack) return;
     this.arrowBack = arrowBack;
 
     this.container.classList.toggle('with-arrow-back', arrowBack);
 
-    if(arrowBack && !this.backBtn) {
+    if (arrowBack && !this.backBtn) {
       this.backBtn = this.createButtonIcon('arrow_prev', 'input-search-icon', 'input-search-back');
       this.container.append(this.backBtn);
-      attachClickEvent(this.backBtn, this.onBack, {listenerSetter: this.listenerSetter, cancelMouseDown: true});
+      attachClickEvent(this.backBtn, this.onBack, { listenerSetter: this.listenerSetter, cancelMouseDown: true });
     }
 
     this.searchIcon.classList.toggle('hide', arrowBack);
@@ -134,7 +134,7 @@ export default class InputSearch {
   public createButtonIcon(icon: Icon, ...args: string[]) {
     args ??= [];
     args.push('input-search-part', 'input-search-button');
-    return ButtonIcon(icon + ' ' + args.join(' '), {noRipple: true});
+    return ButtonIcon(icon + ' ' + args.join(' '), { noRipple: true });
   }
 
   public createIcon(icon: Icon, ...args: string[]) {
@@ -147,15 +147,15 @@ export default class InputSearch {
 
   public toggleLoading(loading: boolean) {
     const another = this.arrowBack ? this.clearBtn : this.searchIcon;
-    if(!this.statusPreloader) {
-      this.statusPreloader = new ProgressivePreloader({cancelable: false});
-      this.statusPreloader.constructContainer({color: 'transparent', bold: true});
+    if (!this.statusPreloader) {
+      this.statusPreloader = new ProgressivePreloader({ cancelable: false });
+      this.statusPreloader.constructContainer({ color: 'transparent', bold: true });
       this.statusPreloader.construct?.();
       this.statusPreloader.preloader.classList.add('is-visible', 'will-animate');
       another.classList.add('will-animate');
     }
 
-    if(loading && !this.statusPreloader.preloader.parentElement) {
+    if (loading && !this.statusPreloader.preloader.parentElement) {
       this.container.append(this.statusPreloader.preloader);
     }
 
@@ -168,17 +168,17 @@ export default class InputSearch {
       duration: ConnectionStatusComponent.ANIMATION_DURATION,
       onTransitionEnd: loading ? undefined : () => {
         this.statusPreloader.preloader.remove();
-      }
+      },
       // useRafs: this.statusPreloader.preloader.isConnected ? 0 : 2
     });
   }
 
   public setPlaceholder = (langPackKey: LangPackKey, args?: any[]) => {
-    if(this.currentLangPackKey === langPackKey) return;
+    if (this.currentLangPackKey === langPackKey) return;
     this.currentLangPackKey = langPackKey;
 
     const oldPlaceholder = this.currentPlaceholder;
-    if(oldPlaceholder) {
+    if (oldPlaceholder) {
       SetTransition({
         element: oldPlaceholder,
         className: 'is-hiding',
@@ -186,28 +186,28 @@ export default class InputSearch {
         duration: ConnectionStatusComponent.ANIMATION_DURATION,
         onTransitionEnd: () => {
           oldPlaceholder.remove();
-        }
+        },
       });
     }
 
     this.currentPlaceholder = i18n(langPackKey, args)!;
     this.currentPlaceholder.classList.add(...([
       'input-search-placeholder',
-      !this.noPlaceholderAnimation && 'will-animate'
+      !this.noPlaceholderAnimation && 'will-animate',
     ].filter(isTruthy)));
     this.container.append(this.currentPlaceholder);
   };
 
   onInput = () => {
-    if(!this.onChange) return;
+    if (!this.onChange) return;
 
-    const {value, prevValue} = this;
-    if(value === prevValue) {
+    const { value, prevValue } = this;
+    if (value === prevValue) {
       return;
     }
 
     this.prevValue = value;
-    if(this.verifyDebounce?.(value, prevValue) === false) {
+    if (this.verifyDebounce?.(value, prevValue) === false) {
       this.clearTimeout(false);
       this.onChange(value);
       return;
@@ -221,9 +221,9 @@ export default class InputSearch {
   };
 
   onKeyDown = (e: KeyboardEvent) => {
-    if(e.key !== 'Enter' || !this.onEnter) return;
+    if (e.key !== 'Enter' || !this.onEnter) return;
     const value = this.value;
-    if(!value) return;
+    if (!value) return;
     this.onEnter(value);
   };
 

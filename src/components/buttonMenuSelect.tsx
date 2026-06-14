@@ -1,19 +1,19 @@
-import {resolveFirst} from '@solid-primitives/refs'
-import {ComponentProps, createEffect, createMemo, createRoot, createSignal, For, JSX, on, onCleanup, onMount, Show, splitProps} from 'solid-js'
-import {attachClickEvent} from '@helpers/dom/clickEvent'
-import {IconTsx} from '@components/iconTsx'
+import { resolveFirst } from '@solid-primitives/refs'
+import { ComponentProps, createEffect, createMemo, createRoot, createSignal, For, JSX, on, onCleanup, onMount, Show, splitProps } from 'solid-js'
+import { attachClickEvent } from '@helpers/dom/clickEvent'
+import { IconTsx } from '@components/iconTsx'
 import contextMenuController from '@helpers/contextMenuController'
-import {ButtonMenuDirection} from '@components/buttonMenuToggle'
-import {doubleRaf, fastRaf, fastRafPromise} from '@helpers/schedulers'
-import {I18nTsx} from '@helpers/solid/i18n'
-import {i18n} from '@lib/langPack'
+import { ButtonMenuDirection } from '@components/buttonMenuToggle'
+import { doubleRaf, fastRaf, fastRafPromise } from '@helpers/schedulers'
+import { I18nTsx } from '@helpers/solid/i18n'
+import { i18n } from '@lib/langPack'
 import Scrollable from '@components/scrollable2'
 import LazyLoadQueue from '@components/lazyLoadQueue'
 import SuperStickerRenderer from '@components/emoticonsDropdown/tabs/SuperStickerRenderer'
 import rootScope from '@lib/rootScope'
 import clamp from '@helpers/number/clamp'
 import classNames from '@helpers/string/classNames'
-import {positionMenuTrigger} from '@helpers/positionMenu'
+import { positionMenuTrigger } from '@helpers/positionMenu'
 
 type HighlightPosition = {start: number, end: number}
 export function ButtonMenuSelectText(props: {
@@ -21,14 +21,14 @@ export function ButtonMenuSelectText(props: {
   highlight?: HighlightPosition
 }) {
   function content(): JSX.Element {
-    if(!props.highlight) {
+    if (!props.highlight) {
       return props.text;
     }
 
-    const {start, end} = props.highlight;
+    const { start, end } = props.highlight;
     const parts: JSX.Element[] = [];
 
-    if(start > 0) {
+    if (start > 0) {
       parts.push(
         <span class="btn-menu-select-text-faded">
           {props.text.slice(0, start)}
@@ -38,7 +38,7 @@ export function ButtonMenuSelectText(props: {
 
     parts.push(props.text.slice(start, end));
 
-    if(end < props.text.length) {
+    if (end < props.text.length) {
       parts.push(
         <span class="btn-menu-select-text-faded">
           {props.text.slice(end)}
@@ -83,40 +83,40 @@ function ButtonMenuSelectInner<T>(props: {
   const filteredOptions = createMemo<FilteredOption[]>(() => {
     const search$ = search();
     const options = props.options;
-    if(search$ === '' || !hasSearch) {
+    if (search$ === '' || !hasSearch) {
       return options.map(option => ({
-        option
+        option,
       }));
     }
 
     const cleanSearch = cleanForSearch(search$);
     const results: FilteredOption[] = [];
 
-    for(const option of options) {
+    for (const option of options) {
       const optionText = props.optionSearchText!(option);
       const cleanOptionText = cleanForSearch(optionText);
 
       const cleanIndex = cleanOptionText.indexOf(cleanSearch);
-      if(cleanIndex !== -1) {
+      if (cleanIndex !== -1) {
         let searchIndex = 0;
         let optionIndex = 0;
         let matchStart = -1;
 
-        while(searchIndex < cleanSearch.length && optionIndex < optionText.length) {
+        while (searchIndex < cleanSearch.length && optionIndex < optionText.length) {
           const cleanChar = cleanForSearch(optionText[optionIndex]);
-          if(cleanChar === cleanSearch[searchIndex]) {
-            if(matchStart === -1) {
+          if (cleanChar === cleanSearch[searchIndex]) {
+            if (matchStart === -1) {
               matchStart = optionIndex;
             }
             searchIndex++;
-            if(searchIndex === cleanSearch.length) {
+            if (searchIndex === cleanSearch.length) {
               results.push({
                 option,
-                highlight: {start: matchStart, end: optionIndex + 1}
+                highlight: { start: matchStart, end: optionIndex + 1 },
               });
               break;
             }
-          } else if(matchStart !== -1) {
+          } else if (matchStart !== -1) {
             searchIndex = 0;
             matchStart = -1;
           }
@@ -138,14 +138,14 @@ function ButtonMenuSelectInner<T>(props: {
     regularLazyLoadQueue: lazyLoadQueue!,
     group: 'none',
     managers: rootScope.managers,
-    intersectionObserverInit: {root: scrollable!},
+    intersectionObserverInit: { root: scrollable! },
     visibleRenderOptions: {
       play: false,
       width: 20,
       height: 20,
-      ...props.stickerOptions
+      ...props.stickerOptions,
     },
-    withLock: false
+    withLock: false,
   }) : undefined;
 
   onCleanup(() => {
@@ -174,7 +174,7 @@ function ButtonMenuSelectInner<T>(props: {
       </Show>
       <div
         class="btn-menu-search-scrollable"
-        style={{height: `${10 + Math.min(1 + filteredOptions().length, 7.5) * 32}px`}}
+        style={{ height: `${10 + Math.min(1 + filteredOptions().length, 7.5) * 32}px` }}
       >
         <Scrollable axis="y" ref={scrollable!}>
           <Show when={!props.single}>
@@ -196,14 +196,14 @@ function ButtonMenuSelectInner<T>(props: {
                   const optionKey = props.optionKey(filteredOption.option)
                   const wasChosen = chosenKeys().has(optionKey)
 
-                  if(props.deselectAllOnFirstSelect && props.value.length === props.options.length) {
+                  if (props.deselectAllOnFirstSelect && props.value.length === props.options.length) {
                     props.onValueChange([filteredOption.option])
                     return
                   }
 
-                  if(wasChosen) {
+                  if (wasChosen) {
                     props.onValueChange(props.value.filter(it => props.optionKey(it) !== optionKey))
-                  } else if(props.single) {
+                  } else if (props.single) {
                     props.onValueChange([filteredOption.option])
                   } else {
                     props.onValueChange([...props.value, filteredOption.option])
@@ -217,7 +217,7 @@ function ButtonMenuSelectInner<T>(props: {
                   },
                   stickerRenderer,
                   highlight: filteredOption.highlight,
-                  optionText: props.optionSearchText?.(filteredOption.option)
+                  optionText: props.optionSearchText?.(filteredOption.option),
                 })}
               </div>
             )}
@@ -238,25 +238,25 @@ export function createButtonMenuSelect<T>(props: ComponentProps<typeof ButtonMen
   let opened = false
 
   function close() {
-    if(opened) {
+    if (opened) {
       contextMenuController.close()
       opened = false
     }
   }
 
   async function open(triggerEl: HTMLElement) {
-    if(opened) return;
+    if (opened) return;
     dispose?.()
     const _tempId = ++tempId;
 
-    if(closeTimeout) {
+    if (closeTimeout) {
       clearTimeout(closeTimeout);
       closeTimeout = undefined;
       return;
     }
 
     await fastRafPromise();
-    if(_tempId !== tempId) return;
+    if (_tempId !== tempId) return;
 
     const el = createRoot((dispose_) => {
       dispose = dispose_
@@ -266,13 +266,13 @@ export function createButtonMenuSelect<T>(props: ComponentProps<typeof ButtonMen
     })
     const domEl = typeof el === 'function' ? (el as () => HTMLElement)() : el as HTMLElement
 
-    if(props.single) {
+    if (props.single) {
       attachClickEvent(domEl, close)
     }
 
     props.onToggleMenu?.(true)
     domEl.classList.add(props.direction)
-    positionMenuTrigger(triggerEl, domEl, props.direction, {top: 8})
+    positionMenuTrigger(triggerEl, domEl, props.direction, { top: 8 })
     document.body.append(domEl)
 
     await fastRafPromise();
@@ -297,7 +297,7 @@ export function createButtonMenuSelect<T>(props: ComponentProps<typeof ButtonMen
     dispose?.()
   })
 
-  return {open, close}
+  return { open, close }
 }
 
 export function ButtonMenuSelect<T>(props: Parameters<typeof createButtonMenuSelect<T>>[0] & {
@@ -305,12 +305,12 @@ export function ButtonMenuSelect<T>(props: Parameters<typeof createButtonMenuSel
 }) {
   const children = resolveFirst(() => props.children, it => it instanceof HTMLElement)
 
-  const {open} = createButtonMenuSelect(props)
+  const { open } = createButtonMenuSelect(props)
 
   createEffect(on(children as () => HTMLElement, (el: HTMLElement) => {
-    if(!el) return
+    if (!el) return
     const clean = attachClickEvent(el, (evt) => {
-      if((evt.target as HTMLElement).closest('.btn-menu')) return;
+      if ((evt.target as HTMLElement).closest('.btn-menu')) return;
       open(el)
     })
     onCleanup(clean)

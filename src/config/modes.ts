@@ -5,7 +5,7 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import type {TransportType} from '@lib/mtproto/dcConfigurator';
+import type { TransportType } from '@lib/mtproto/dcConfigurator';
 
 const Modes = {
   test: location.search.indexOf('test=1') > 0/*  || true */,
@@ -24,22 +24,22 @@ const Modes = {
   // by `bash scripts/preview/start.sh --no-worker`.
   noWorker: location.search.indexOf('noWorker=1') > 0 || !!import.meta.env.VITE_NO_WORKER,
   multipleTransports: !!(import.meta.env.VITE_MTPROTO_AUTO && import.meta.env.VITE_MTPROTO_HAS_HTTP && import.meta.env.VITE_MTPROTO_HAS_WS) && location.search.indexOf('noMultipleTransports=1') === -1,
-  noPfs: true || location.search.indexOf('noPfs=1') > 0
+  noPfs: true || location.search.indexOf('noPfs=1') > 0,
 };
 
-if(import.meta.env.VITE_MTPROTO_HAS_HTTP) {
+if (import.meta.env.VITE_MTPROTO_HAS_HTTP) {
   const httpOnly = Modes.http = location.search.indexOf('http=1') > 0;
-  if(httpOnly) {
+  if (httpOnly) {
     Modes.multipleTransports = false;
   }
 }
 
 // * start with HTTP first
-if(Modes.multipleTransports) {
+if (Modes.multipleTransports) {
   Modes.http = true;
 }
 
-if(Modes.http) {
+if (Modes.http) {
   Modes.transport = 'https';
 }
 

@@ -1,6 +1,6 @@
 import privacyTab from './privacyTab';
 import PrivacySection from '@components/privacySection';
-import {LangPackKey} from '@lib/langPack';
+import { LangPackKey } from '@lib/langPack';
 
 const callCaption: LangPackKey = 'PrivacySettingsController.PhoneCallDescription';
 const p2pCaption: LangPackKey = 'PrivacySettingsController.P2p.Desc';
@@ -13,7 +13,7 @@ export default privacyTab('privacy-calls', (tab) => {
     captions: [callCaption, callCaption, callCaption],
     exceptionTexts: ['PrivacySettingsController.NeverAllow', 'PrivacySettingsController.AlwaysAllow'],
     appendTo: tab.scrollable,
-    managers: tab.managers
+    managers: tab.managers,
   });
 
   new PrivacySection({
@@ -23,6 +23,6 @@ export default privacyTab('privacy-calls', (tab) => {
     captions: [p2pCaption, p2pCaption, p2pCaption],
     exceptionTexts: ['PrivacySettingsController.NeverAllow', 'PrivacySettingsController.AlwaysAllow'],
     appendTo: tab.scrollable,
-    managers: tab.managers
+    managers: tab.managers,
   });
 });

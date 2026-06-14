@@ -5,15 +5,15 @@ export default function getPathFromBytes(bytes: Uint8Array) {
   const lookup = 'AACAAAAHAAALMAAAQASTAVAAAZaacaaaahaaalmaaaqastava.az0123456789-,';
 
   let path = 'M';
-  for(let i = 0, length = bytes.length; i < length; ++i) {
+  for (let i = 0, length = bytes.length; i < length; ++i) {
     const num = bytes[i];
 
-    if(num >= (128 + 64)) {
+    if (num >= (128 + 64)) {
       path += lookup[num - 128 - 64];
     } else {
-      if(num >= 128) {
+      if (num >= 128) {
         path += ',';
-      } else if(num >= 64) {
+      } else if (num >= 64) {
         path += '-';
       }
       path += '' + (num & 63);
@@ -34,5 +34,5 @@ export function createSvgFromBytes(bytes: Uint8Array, width = 512, height = 512)
   path.setAttributeNS(null, 'd', d);
   svg.append(path);
 
-  return {svg, path};
+  return { svg, path };
 }

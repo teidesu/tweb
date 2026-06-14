@@ -9,9 +9,9 @@
  * lives in a separate module that is only loaded lazily, on demand.
  */
 
-import DEBUG, {MOUNT_CLASS_TO} from '@config/debug';
-import {IS_SERVICE_WORKER, IS_WEB_WORKER} from '@helpers/context';
-import type {LogTypes} from '@lib/logger';
+import DEBUG, { MOUNT_CLASS_TO } from '@config/debug';
+import { IS_SERVICE_WORKER, IS_WEB_WORKER } from '@helpers/context';
+import type { LogTypes } from '@lib/logger';
 
 // Mirror of LogTypes — kept as literals to avoid a runtime import cycle with
 // logger.ts (logger.ts -> logsBuffer.ts). Only used for the stack-capture mask.
@@ -59,82 +59,82 @@ function bounded(s: string, max: number) {
 
 // Bounded, cycle-safe, clone-safe serializer. Never throws.
 function serialize(value: any, depth: number, seen: WeakSet<object>): any {
-  if(value === undefined) return '[undefined]';
-  if(value === null) return null;
+  if (value === undefined) return '[undefined]';
+  if (value === null) return null;
 
   const t = typeof value;
-  if(t === 'string') return bounded(value, MAX_STRING);
-  if(t === 'number' || t === 'boolean') return value;
-  if(t === 'bigint') return value.toString() + 'n';
-  if(t === 'symbol') return value.toString();
-  if(t === 'function') return `ƒ ${(value as Function).name || 'anonymous'}`;
+  if (t === 'string') return bounded(value, MAX_STRING);
+  if (t === 'number' || t === 'boolean') return value;
+  if (t === 'bigint') return value.toString() + 'n';
+  if (t === 'symbol') return value.toString();
+  if (t === 'function') return `ƒ ${(value as Function).name || 'anonymous'}`;
 
   // objects
-  if(value instanceof Error) {
-    const out: any = {__error: value.name, message: value.message, stack: value.stack};
+  if (value instanceof Error) {
+    const out: any = { __error: value.name, message: value.message, stack: value.stack };
     // Capture custom own-enumerable fields too (e.g. BlockchainError.code,
     // CallError details) — name/message/stack are non-enumerable so for-in
     // only yields the extras.
-    for(const key in value) {
-      if(key === 'name' || key === 'message' || key === 'stack') continue;
+    for (const key in value) {
+      if (key === 'name' || key === 'message' || key === 'stack') continue;
       try {
         out[key] = serialize((value as any)[key], depth + 1, seen);
-      } catch(err) {
+      } catch (err) {
         out[key] = '[unserializable]';
       }
     }
     return out;
   }
 
-  if(typeof Node !== 'undefined' && value instanceof Node) {
+  if (typeof Node !== 'undefined' && value instanceof Node) {
     const el = value as Element;
     const id = el.id ? '#' + el.id : '';
     const cls = typeof el.className === 'string' && el.className ? '.' + el.className.trim().split(/\s+/).join('.') : '';
     return `<${(value.nodeName || 'node').toLowerCase()}${id}${cls}>`;
   }
 
-  if(ArrayBuffer.isView(value) || value instanceof ArrayBuffer) {
+  if (ArrayBuffer.isView(value) || value instanceof ArrayBuffer) {
     const len = (value as any).byteLength ?? (value as any).length;
     return `${value.constructor?.name || 'Buffer'}(${len})`;
   }
 
-  if(seen.has(value)) return '[Circular]';
-  if(depth >= MAX_DEPTH) return Array.isArray(value) ? `[Array(${value.length})]` : '[Object]';
+  if (seen.has(value)) return '[Circular]';
+  if (depth >= MAX_DEPTH) return Array.isArray(value) ? `[Array(${value.length})]` : '[Object]';
   seen.add(value);
 
   try {
-    if(Array.isArray(value)) {
+    if (Array.isArray(value)) {
       const out = value.slice(0, MAX_ARRAY).map((v) => serialize(v, depth + 1, seen));
-      if(value.length > MAX_ARRAY) out.push(`…(+${value.length - MAX_ARRAY})`);
+      if (value.length > MAX_ARRAY) out.push(`…(+${value.length - MAX_ARRAY})`);
       return out;
     }
 
-    if(value instanceof Map) {
-      const out: any = {__map: value.size, entries: {}};
+    if (value instanceof Map) {
+      const out: any = { __map: value.size, entries: {} };
       let n = 0;
-      for(const [k, v] of value) {
-        if(n++ >= MAX_KEYS) {out.entries['…'] = `(+${value.size - MAX_KEYS})`; break;}
+      for (const [k, v] of value) {
+        if (n++ >= MAX_KEYS) {out.entries['…'] = `(+${value.size - MAX_KEYS})`; break;}
         out.entries[bounded(String(k), 128)] = serialize(v, depth + 1, seen);
       }
       return out;
     }
 
-    if(value instanceof Set) {
-      return {__set: value.size, values: serialize([...value].slice(0, MAX_ARRAY), depth + 1, seen)};
+    if (value instanceof Set) {
+      return { __set: value.size, values: serialize([...value].slice(0, MAX_ARRAY), depth + 1, seen) };
     }
 
     const out: any = {};
     let n = 0;
-    for(const key in value) {
-      if(n++ >= MAX_KEYS) {out['…'] = 'truncated'; break;}
+    for (const key in value) {
+      if (n++ >= MAX_KEYS) {out['…'] = 'truncated'; break;}
       try {
         out[key] = serialize(value[key], depth + 1, seen);
-      } catch(err) {
+      } catch (err) {
         out[key] = '[unserializable]';
       }
     }
     return out;
-  } catch(err) {
+  } catch (err) {
     return '[unserializable]';
   } finally {
     seen.delete(value);
@@ -147,11 +147,11 @@ function serializeArgs(args: any[]): any[] {
   const out = slice.map((a) => {
     try {
       return serialize(a, 0, seen);
-    } catch(err) {
+    } catch (err) {
       return '[unserializable]';
     }
   });
-  if(args.length > MAX_ARGS) out.push(`…(+${args.length - MAX_ARGS} args)`);
+  if (args.length > MAX_ARGS) out.push(`…(+${args.length - MAX_ARGS} args)`);
   return out;
 }
 
@@ -159,15 +159,15 @@ function serializeArgs(args: any[]): any[] {
 // stack starts at the actual caller. Handles both V8 ("Error\n  at fn (file)")
 // and SpiderMonkey/JSC ("fn@file") formats.
 function trimStack(stack: string): string {
-  if(!stack) return stack;
+  if (!stack) return stack;
   let lines = stack.split('\n');
   // Our captures use a messageless `new Error()`; drop its bare "Error" header.
-  if(lines.length && /^Error\s*$/.test(lines[0])) {
+  if (lines.length && /^Error\s*$/.test(lines[0])) {
     lines = lines.slice(1);
   }
   // Skip the consecutive leading frames inside capture()/the logger wrapper.
   let i = 0;
-  while(i < lines.length && (lines[i].includes('logsBuffer') || /\blogger\.[tj]s\b/.test(lines[i]))) {
+  while (i < lines.length && (lines[i].includes('logsBuffer') || /\blogger\.[tj]s\b/.test(lines[i]))) {
     ++i;
   }
   return lines.slice(i).join('\n');
@@ -176,7 +176,7 @@ function trimStack(stack: string): string {
 function pushEntry(e: LogEntry) {
   ring[head] = e;
   head = (head + 1) % RING_SIZE;
-  if(count < RING_SIZE) count++;
+  if (count < RING_SIZE) count++;
 }
 
 /**
@@ -186,20 +186,20 @@ function pushEntry(e: LogEntry) {
  * timeline. Never throws.
  */
 export function capture(level: LogTypes, prefix: string, args: any[]): void {
-  if(!enabled) return;
+  if (!enabled) return;
   try {
     const entry: LogEntry = {
       t: Date.now(),
       src: SRC,
       level,
       prefix: prefix ? prefix.replace(ANSI, '') : prefix,
-      args: serializeArgs(args)
+      args: serializeArgs(args),
     };
-    if(level & WANTS_STACK) {
+    if (level & WANTS_STACK) {
       entry.stack = trimStack(new Error().stack || '');
     }
     pushEntry(entry);
-  } catch(err) {
+  } catch (err) {
     // Logging must never break the app it's logging.
   }
 }
@@ -208,7 +208,7 @@ export function capture(level: LogTypes, prefix: string, args: any[]): void {
 export function getLogEntries(): LogEntry[] {
   const out: LogEntry[] = new Array(count);
   const start = count < RING_SIZE ? 0 : head;
-  for(let i = 0; i < count; ++i) {
+  for (let i = 0; i < count; ++i) {
     out[i] = ring[(start + i) % RING_SIZE];
   }
   return out;
@@ -226,7 +226,7 @@ export function isLogBufferEnabled(): boolean {
   return enabled;
 }
 
-if(MOUNT_CLASS_TO) {
+if (MOUNT_CLASS_TO) {
   MOUNT_CLASS_TO.setLogBufferEnabled = setLogBufferEnabled;
   MOUNT_CLASS_TO.clearLogBuffer = clearLogBuffer;
   // NB: the export helpers (window.downloadLogs / collectLogs) are wired from

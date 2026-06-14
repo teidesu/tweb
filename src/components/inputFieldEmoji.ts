@@ -1,8 +1,8 @@
 import getRichValueWithCaret from '@helpers/dom/getRichValueWithCaret';
 import deepEqual from '@helpers/object/deepEqual';
-import {TextWithEntities} from '@layer';
+import { TextWithEntities } from '@layer';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import InputField, {InputFieldOptions} from '@components/inputField';
+import InputField, { InputFieldOptions } from '@components/inputField';
 import createEmojiDropdownButton from '@components/emojiDropdownButton';
 import classNames from '@helpers/string/classNames';
 import styles from '@components/inputFieldEmoji.module.scss';
@@ -15,10 +15,10 @@ export class InputFieldEmoji extends InputField {
   constructor(options?: InputFieldOptions) {
     super({
       canWrapCustomEmojis: true,
-      ...options
+      ...options,
     })
 
-    const {button, dispose} = createEmojiDropdownButton({
+    const { button, dispose } = createEmojiDropdownButton({
       inputField: this as InputField,
       class: classNames(
         styles.EmojiButton,
@@ -26,11 +26,11 @@ export class InputFieldEmoji extends InputField {
       ),
       customParentElement: document.body,
       getOpenPosition: () => {
-        if(this.options.withLinebreaks) {
+        if (this.options.withLinebreaks) {
           const rect = this.input.getBoundingClientRect();
           const cloned = cloneDOMRect(rect);
           cloned.top += rect.height;
-          if(cloned.top + 420 > window.innerHeight) {
+          if (cloned.top + 420 > window.innerHeight) {
             cloned.top = rect.top - 428;
           }
 
@@ -43,7 +43,7 @@ export class InputFieldEmoji extends InputField {
         cloned.left = rect.left + rect.width / 2;
         cloned.top = rect.top + rect.height / 2;
         return cloned;
-      }
+      },
     } as any);
     this.dispose = dispose;
     this.input.after(button);
@@ -54,8 +54,8 @@ export class InputFieldEmoji extends InputField {
   }
 
   get richValue(): TextWithEntities {
-    const {value, entities} = getRichValueWithCaret(this.input);
-    return {_: 'textWithEntities', text: value, entities};
+    const { value, entities } = getRichValueWithCaret(this.input);
+    return { _: 'textWithEntities', text: value, entities };
   }
   set richValue(value: TextWithEntities) {
     this.value = wrapEmojiText(value.text, false, value.entities);

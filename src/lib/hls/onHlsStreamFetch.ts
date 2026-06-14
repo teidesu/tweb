@@ -1,13 +1,13 @@
 import deferredPromise from '@helpers/cancellablePromise';
 
-import {getCurrentAccountFromURL} from '@lib/accounts/getCurrentAccountFromURL';
-import {get500ErrorResponse} from '@lib/serviceWorker/errors';
-import {parseRange} from '@lib/serviceWorker/stream';
+import { getCurrentAccountFromURL } from '@lib/accounts/getCurrentAccountFromURL';
+import { get500ErrorResponse } from '@lib/serviceWorker/errors';
+import { parseRange } from '@lib/serviceWorker/stream';
 
-import {fetchAndConcatFileParts} from '@lib/hls/fetchAndConcatFileParts';
-import {HlsStreamUrlParams} from '@lib/hls/onHlsQualityFileFetch';
-import {swLog} from '@lib/hls/common';
-import {splitRangeForGettingFileParts} from '@lib/hls/splitRangeForGettingFileParts';
+import { fetchAndConcatFileParts } from '@lib/hls/fetchAndConcatFileParts';
+import { HlsStreamUrlParams } from '@lib/hls/onHlsQualityFileFetch';
+import { swLog } from '@lib/hls/common';
+import { splitRangeForGettingFileParts } from '@lib/hls/splitRangeForGettingFileParts';
 
 const ctx = self as any as ServiceWorkerGlobalScope;
 
@@ -16,7 +16,7 @@ export async function onHlsStreamFetch(event: FetchEvent, inParams: string, sear
   event.respondWith(deferred);
 
   try {
-    const {docId, dcId, size, mimeType}: HlsStreamUrlParams = JSON.parse(decodeURIComponent(inParams));
+    const { docId, dcId, size, mimeType }: HlsStreamUrlParams = JSON.parse(decodeURIComponent(inParams));
     const range = parseRange(event.request.headers.get('Range')!);
 
     const client = await ctx.clients.get(event.clientId);
@@ -24,14 +24,14 @@ export async function onHlsStreamFetch(event: FetchEvent, inParams: string, sear
 
 
     const [lowerBound, upperBound] = range;
-    const {ranges, alignedLowerBound} = splitRangeForGettingFileParts(lowerBound, upperBound);
+    const { ranges, alignedLowerBound } = splitRangeForGettingFileParts(lowerBound, upperBound);
 
-    const filePart = await fetchAndConcatFileParts({docId, dcId, accountNumber}, ranges);
+    const filePart = await fetchAndConcatFileParts({ docId, dcId, accountNumber }, ranges);
 
     const headers: Record<string, string> = {
       'Accept-Ranges': 'bytes',
       'Content-Range': `bytes ${range[0]}-${range[1]}/${size || '*'}`,
-      'Content-Length': `${upperBound - lowerBound + 1}`
+      'Content-Length': `${upperBound - lowerBound + 1}`,
     };
 
     headers['Content-Type'] = mimeType;
@@ -42,10 +42,10 @@ export async function onHlsStreamFetch(event: FetchEvent, inParams: string, sear
       new Response(resultingBuffer, {
         status: 206,
         statusText: 'Partial Content',
-        headers
+        headers,
       })
     );
-  } catch(e) {
+  } catch (e) {
     deferred.resolve(get500ErrorResponse());
     swLog.error(e);
   }

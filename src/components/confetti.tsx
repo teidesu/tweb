@@ -1,4 +1,4 @@
-import {Ref, onCleanup} from 'solid-js';
+import { Ref, onCleanup } from 'solid-js';
 import classNames from '@helpers/string/classNames';
 
 import styles from '@components/confetti.module.scss';
@@ -8,7 +8,7 @@ const COLORS = [
   '#CD89D0', // purple
   '#1E9AFF', // blue
   '#56CE6B', // green
-  '#E8BC2C'  // yellow/gold
+  '#E8BC2C',  // yellow/gold
 ];
 
 type ParticleShape = 'circle' | 'pill';
@@ -46,7 +46,7 @@ function createParticle(
     size: size + Math.random() * size,
     rotation: Math.random() * Math.PI * 2,
     rotationSpeed: (Math.random() - 0.5) * 0.3,
-    flickerFrequency: 0.05 + Math.random() * 0.1
+    flickerFrequency: 0.05 + Math.random() * 0.1,
   };
 }
 
@@ -55,7 +55,7 @@ function drawParticle(
   particle: Particle,
   frameCount: number
 ) {
-  const {x, y, color, shape, size, rotation, flickerFrequency} = particle;
+  const { x, y, color, shape, size, rotation, flickerFrequency } = particle;
 
   const opacity = 0.7 + 0.3 * Math.abs(Math.sin(frameCount * flickerFrequency));
 
@@ -65,7 +65,7 @@ function drawParticle(
   ctx.globalAlpha = opacity;
   ctx.fillStyle = color;
 
-  if(shape === 'circle') {
+  if (shape === 'circle') {
     ctx.beginPath();
     ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
     ctx.fill();
@@ -128,14 +128,14 @@ export function ConfettiContainer(props: {
   };
 
   const animate = (currentTime: number) => {
-    if(lastTime === 0) lastTime = currentTime;
+    if (lastTime === 0) lastTime = currentTime;
     const dt = (currentTime - lastTime) / 1000;
     lastTime = currentTime;
     frameCount++;
 
     ctx.clearRect(0, 0, width, height);
 
-    for(let i = particles.length - 1; i >= 0; i--) {
+    for (let i = particles.length - 1; i >= 0; i--) {
       const p = particles[i];
 
       p.vy += GRAVITY * dt;
@@ -144,7 +144,7 @@ export function ConfettiContainer(props: {
       p.y += p.vy * dt;
       p.rotation += p.rotationSpeed;
 
-      if(p.y > height + 50) {
+      if (p.y > height + 50) {
         particles.splice(i, 1);
         continue;
       }
@@ -152,7 +152,7 @@ export function ConfettiContainer(props: {
       drawParticle(ctx, p, frameCount);
     }
 
-    if(particles.length > 0) {
+    if (particles.length > 0) {
       animationId = requestAnimationFrame(animate);
     } else {
       props.onEnd?.();
@@ -161,24 +161,24 @@ export function ConfettiContainer(props: {
   };
 
   const startAnimation = () => {
-    if(animationId !== null) return;
+    if (animationId !== null) return;
     lastTime = 0;
     animationId = requestAnimationFrame(animate);
   };
 
   const create: ConfettiRef['create'] = (options) => {
-    const {mode} = options;
+    const { mode } = options;
 
     resizeCanvas();
 
-    if(mode === 'poppers') {
-      const {size = 6, speedScale = 1, count = 100} = options;
+    if (mode === 'poppers') {
+      const { size = 6, speedScale = 1, count = 100 } = options;
       const leftSpawnX = -10;
       const rightSpawnX = width + 10;
       const spawnY = height / 2;
       const spawnSpread = 50;
 
-      for(let i = 0; i < count / 2; i++) {
+      for (let i = 0; i < count / 2; i++) {
         // -75deg to -15deg (centered at -45)
         const leftAngle = -Math.PI / 4 + (Math.random() - 0.5) * Math.PI / 3;
         const leftSpeed = (500 + Math.random() * 400) * speedScale;
@@ -209,7 +209,7 @@ export function ConfettiContainer(props: {
 
     return () => {
       particles.length = 0;
-      if(animationId !== null) {
+      if (animationId !== null) {
         cancelAnimationFrame(animationId);
         animationId = null;
       }
@@ -220,7 +220,7 @@ export function ConfettiContainer(props: {
   const setContainerRef = (el: HTMLDivElement) => {
     (props.ref as any)({
       canvas: el,
-      create
+      create,
     });
   };
 
@@ -230,7 +230,7 @@ export function ConfettiContainer(props: {
   };
 
   onCleanup(() => {
-    if(animationId !== null) {
+    if (animationId !== null) {
       cancelAnimationFrame(animationId);
     }
   });

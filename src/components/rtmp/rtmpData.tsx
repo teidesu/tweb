@@ -1,12 +1,12 @@
-import {Show, createSignal} from 'solid-js';
+import { Show, createSignal } from 'solid-js';
 import '@components/rtmp/rtmpData.css';
-import {IconTsx} from '@components/iconTsx';
-import {Skeleton} from '@components/skeleton';
-import {ButtonIconTsx} from '@components/buttonIconTsx';
-import {copyTextToClipboard} from '@helpers/clipboard';
-import {toastNew} from '@components/toast';
+import { IconTsx } from '@components/iconTsx';
+import { Skeleton } from '@components/skeleton';
+import { ButtonIconTsx } from '@components/buttonIconTsx';
+import { copyTextToClipboard } from '@helpers/clipboard';
+import { toastNew } from '@components/toast';
 import classNames from '@helpers/string/classNames';
-import {LangPackKey, i18n} from '@lib/langPack';
+import { LangPackKey, i18n } from '@lib/langPack';
 
 export interface RtmpDataProps {
   key: string;
@@ -23,7 +23,7 @@ export const RtmpData = (props: RtmpDataProps) => {
   const [keyVisible, setKeyVisible] = createSignal(false);
 
   const keyContent = () => {
-    if(keyVisible()) return props.key;
+    if (keyVisible()) return props.key;
     return props.key.slice(0, 20).replace(/./g, '·');
   };
   const toggleKeyVisible = (e: MouseEvent) => {
@@ -34,14 +34,14 @@ export const RtmpData = (props: RtmpDataProps) => {
   const onCopy = (str: string, langPackKey: LangPackKey) => {
     copyTextToClipboard(str);
     toastNew({
-      langPackKey
+      langPackKey,
     });
   };
 
   return (
     <div classList={{
       [cnRtmpData()]: true,
-      [cnRtmpData('_contrast')]: props.contrast
+      [cnRtmpData('_contrast')]: props.contrast,
     }}>
       <div
         onClick={() => onCopy(props.url, 'Rtmp.StreamPopup.URLCopied')}
@@ -69,7 +69,7 @@ export const RtmpData = (props: RtmpDataProps) => {
         <div class={cnRtmpData('-row-item')}>
           <div classList={{
             [cnRtmpData('-row-item-text')]: true,
-            [cnRtmpData('-row-item-text_hidden')]: !keyVisible()
+            [cnRtmpData('-row-item-text_hidden')]: !keyVisible(),
           }}>
             <Skeleton loading={props.loading}>
               {keyContent()}

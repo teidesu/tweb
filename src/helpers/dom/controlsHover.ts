@@ -32,11 +32,11 @@ export default class ControlsHover extends EventListenerBase<{
   }) {
     safeAssign(this, options);
 
-    const {listenerSetter, element} = this;
+    const { listenerSetter, element } = this;
 
-    if(IS_TOUCH_SUPPORTED) {
+    if (IS_TOUCH_SUPPORTED) {
       listenerSetter.add(element)('click', (e) => {
-        if(this.ignoreClickClassName && findUpClassName(e.target!, this.ignoreClickClassName)) {
+        if (this.ignoreClickClassName && findUpClassName(e.target!, this.ignoreClickClassName)) {
           return;
         }
 
@@ -66,7 +66,7 @@ export default class ControlsHover extends EventListenerBase<{
         // those elements live outside the player, so hiding here would yank them from
         // under the cursor and bounce mouseenter↔mouseleave forever.
         const showOnLeaveClassNames = Array.isArray(this.showOnLeaveToClassName) ? this.showOnLeaveToClassName : [this.showOnLeaveToClassName];
-        if(e.relatedTarget && showOnLeaveClassNames.some((className) => className && findUpClassName(e.relatedTarget!, className))) {
+        if (e.relatedTarget && showOnLeaveClassNames.some((className) => className && findUpClassName(e.relatedTarget!, className))) {
           this.showControls(false);
           return;
         }
@@ -77,8 +77,8 @@ export default class ControlsHover extends EventListenerBase<{
   }
 
   public hideControls = (setHideTimeout = false) => {
-    if(setHideTimeout) {
-      if(!this.hideControlsTimeout) {
+    if (setHideTimeout) {
+      if (!this.hideControlsTimeout) {
         this.hideControlsTimeout = window.setTimeout(this.hideControls, 3e3);
       }
 
@@ -89,11 +89,11 @@ export default class ControlsHover extends EventListenerBase<{
     this.hideControlsTimeout = 0;
 
     const isShown = this.element.classList.contains('show-controls');
-    if(this.controlsLocked !== false) {
-      if((this.canHideControls ? !this.canHideControls() : false) || !isShown || this.controlsLocked) {
+    if (this.controlsLocked !== false) {
+      if ((this.canHideControls ? !this.canHideControls() : false) || !isShown || this.controlsLocked) {
         return;
       }
-    } else if(!isShown) {
+    } else if (!isShown) {
       return;
     }
 
@@ -102,17 +102,17 @@ export default class ControlsHover extends EventListenerBase<{
   };
 
   public showControls = (setHideTimeout = true) => {
-    if(!(this.canShowControls?.() ?? true)) return;
+    if (!(this.canShowControls?.() ?? true)) return;
 
-    if(this.hideControlsTimeout) {
+    if (this.hideControlsTimeout) {
       clearTimeout(this.hideControlsTimeout);
       this.hideControlsTimeout = 0;
-    } else if(!this.element.classList.contains('show-controls') && this.controlsLocked !== false) {
+    } else if (!this.element.classList.contains('show-controls') && this.controlsLocked !== false) {
       this.dispatchEvent('toggleControls', true);
       this.element.classList.add('show-controls');
     }
 
-    if(!setHideTimeout || this.controlsLocked) {
+    if (!setHideTimeout || this.controlsLocked) {
       return;
     }
 
@@ -122,16 +122,16 @@ export default class ControlsHover extends EventListenerBase<{
   public toggleControls = (show?: boolean) => {
     const isShown = this.element.classList.contains('show-controls');
 
-    if(show === undefined) {
-      if(isShown) this.hideControls();
+    if (show === undefined) {
+      if (isShown) this.hideControls();
       else this.showControls();
-    } else if(show === isShown) return;
-    else if(show === false) this.hideControls();
+    } else if (show === isShown) return;
+    else if (show === false) this.hideControls();
     else this.showControls();
   };
 
   public lockControls(visible: boolean) {
-    if(this.controlsLocked === visible) {
+    if (this.controlsLocked === visible) {
       return;
     }
 

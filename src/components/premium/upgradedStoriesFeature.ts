@@ -1,8 +1,8 @@
 import Row from '@components/row';
-import {HelpPremiumPromo} from '@layer';
-import {avatarNew} from '@components/avatarNew';
-import {Middleware} from '@helpers/middleware';
-import {PremiumPromoFeature} from '@components/premium/featuresConfig';
+import { HelpPremiumPromo } from '@layer';
+import { avatarNew } from '@components/avatarNew';
+import { Middleware } from '@helpers/middleware';
+import { PremiumPromoFeature } from '@components/premium/featuresConfig';
 
 export default class UpgradedStoriesFeature {
   public features: HTMLElement;
@@ -14,7 +14,7 @@ export default class UpgradedStoriesFeature {
       size: 84,
       isBig: true,
       withStories: true,
-      peerId: options.premiumPromo.users[0].id.toPeerId(false)
+      peerId: options.premiumPromo.users[0].id.toPeerId(false),
     });
 
     const features = document.createElement('div');
@@ -30,7 +30,7 @@ export default class UpgradedStoriesFeature {
         subtitleLangArgs: f.subtitleLangArgs,
         icon: f.icon,
         iconClasses: ['row-icon-custom-color'],
-        clickable: false
+        clickable: false,
       });
 
       row.container.style.setProperty('--custom-icon-color', f.iconColor!);

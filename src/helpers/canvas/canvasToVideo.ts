@@ -1,4 +1,4 @@
-import type {VIDEO_MIME_TYPE} from '@environment/videoMimeTypesSupport';
+import type { VIDEO_MIME_TYPE } from '@environment/videoMimeTypesSupport';
 
 export default function canvasToVideo({
   canvas,
@@ -7,7 +7,7 @@ export default function canvasToVideo({
   // mimeType = 'video/webm; codecs="vp8"',
   mimeType = 'video/webm; codecs="vp8"',
   audioBitsPerSecond = 0,
-  videoBitsPerSecond = 25000000
+  videoBitsPerSecond = 25000000,
 }: {
   canvas: HTMLCanvasElement
   timeslice: number,
@@ -23,24 +23,24 @@ export default function canvasToVideo({
       const recorder = new MediaRecorder(stream, {
         mimeType,
         audioBitsPerSecond,
-        videoBitsPerSecond
+        videoBitsPerSecond,
       });
 
       recorder.ondataavailable = (event) => {
-        if(event.data && event.data.size > 0) {
+        if (event.data && event.data.size > 0) {
           blobs.push(event.data);
         }
 
-        if(blobs.length === duration / timeslice) {
+        if (blobs.length === duration / timeslice) {
           stream.getTracks()[0].stop();
           recorder.stop();
 
-          resolve(new Blob(blobs, {type: mimeType}));
+          resolve(new Blob(blobs, { type: mimeType }));
         }
       };
 
       recorder.start(timeslice);
-    } catch(e) {
+    } catch (e) {
       reject(e);
     }
   });

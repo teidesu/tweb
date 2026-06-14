@@ -1,24 +1,24 @@
-import {Component, onMount, Show} from 'solid-js';
+import { Component, onMount, Show } from 'solid-js';
 import Button from '@components/buttonTsx';
 import CodeInputFieldCompat from '@components/codeInputField';
-import {putPreloader} from '@components/putPreloader';
-import {i18n} from '@lib/langPack';
-import {canFocus} from '@helpers/dom/canFocus';
+import { putPreloader } from '@components/putPreloader';
+import { i18n } from '@lib/langPack';
+import { canFocus } from '@helpers/dom/canFocus';
 import replaceContent from '@helpers/dom/replaceContent';
 import toggleDisability from '@helpers/dom/toggleDisability';
 import Section from '@components/section';
-import {AppSettingsTab} from '@components/solidJsTabs';
-import {AppTwoStepVerificationEmailTab, AppTwoStepVerificationSetTab} from '@components/solidJsTabs/tabs';
-import {toastNew} from '@components/toast';
-import {ForgotPasswordLink} from '@components/sidebarLeft/tabs/2fa/forgotPasswordLink';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import type {AppTwoStepVerificationEmailConfirmationTab} from '@components/solidJsTabs/tabs';
+import { AppSettingsTab } from '@components/solidJsTabs';
+import { AppTwoStepVerificationEmailTab, AppTwoStepVerificationSetTab } from '@components/solidJsTabs/tabs';
+import { toastNew } from '@components/toast';
+import { ForgotPasswordLink } from '@components/sidebarLeft/tabs/2fa/forgotPasswordLink';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import type { AppTwoStepVerificationEmailConfirmationTab } from '@components/solidJsTabs/tabs';
 
 const TwoStepVerificationEmailConfirmation: Component = () => {
   const [tab] = useSuperTab<typeof AppTwoStepVerificationEmailConfirmationTab>();
-  const {lottieLoader} = useHotReloadGuard();
-  const {state, email, length} = tab.payload;
+  const { lottieLoader } = useHotReloadGuard();
+  const { state, email, length } = tab.payload;
   const isFirst = tab.payload.isFirst ?? false;
   const forPasswordReset = tab.payload.forPasswordReset ?? false;
   const justSetPasssword = tab.payload.justSetPasssword ?? false;
@@ -35,16 +35,16 @@ const TwoStepVerificationEmailConfirmation: Component = () => {
     width: 160,
     height: 160,
     loop: false,
-    autoplay: true
+    autoplay: true,
   }, 'Mailbox');
 
   const goNext = () => {
-    if(forPasswordReset) {
-      toastNew({langPackKey: 'PasswordDeactivated'});
+    if (forPasswordReset) {
+      toastNew({ langPackKey: 'PasswordDeactivated' });
       tab.slider.sliceTabsUntilTab(AppSettingsTab, tab);
       tab.close();
     } else {
-      tab.slider.createTab(AppTwoStepVerificationSetTab).open({messageFor: justSetPasssword ? 'password' : 'email'});
+      tab.slider.createTab(AppTwoStepVerificationSetTab).open({ messageFor: justSetPasssword ? 'password' : 'email' });
     }
   };
 
@@ -69,30 +69,30 @@ const TwoStepVerificationEmailConfirmation: Component = () => {
       promise.then((value) => {
         goNext();
       })
-      .catch((err) => {
-        switch(err.type) {
-          case 'CODE_INVALID':
-            codeInputField.error = true;
-            codeInputField.value = ''
-            errorLabel.classList.remove('hidden');
-            replaceContent(errorLabel, i18n('TwoStepAuth.RecoveryCodeInvalid'));
-            break;
+        .catch((err) => {
+          switch (err.type) {
+            case 'CODE_INVALID':
+              codeInputField.error = true;
+              codeInputField.value = ''
+              errorLabel.classList.remove('hidden');
+              replaceContent(errorLabel, i18n('TwoStepAuth.RecoveryCodeInvalid'));
+              break;
 
-          case 'EMAIL_HASH_EXPIRED':
-            codeInputField.error = true;
-            codeInputField.value = ''
-            errorLabel.classList.remove('hidden');
-            replaceContent(errorLabel, i18n('TwoStepAuth.RecoveryCodeExpired'));
-            break;
+            case 'EMAIL_HASH_EXPIRED':
+              codeInputField.error = true;
+              codeInputField.value = ''
+              errorLabel.classList.remove('hidden');
+              replaceContent(errorLabel, i18n('TwoStepAuth.RecoveryCodeExpired'));
+              break;
 
-          default:
-            console.error('confirm error', err);
-            break;
-        }
+            default:
+              console.error('confirm error', err);
+              break;
+          }
 
-        freeze(false);
-      });
-    }
+          freeze(false);
+        });
+    },
   });
 
   const resetLink = forPasswordReset ? new ForgotPasswordLink({
@@ -100,7 +100,7 @@ const TwoStepVerificationEmailConfirmation: Component = () => {
     managers: tab.managers,
     tab: tab,
     allowReset: true,
-    forEmail: true
+    forEmail: true,
   }) : undefined;
 
   const onChangeClick = () => {
@@ -122,7 +122,7 @@ const TwoStepVerificationEmailConfirmation: Component = () => {
 
     promise.catch((err) => {
       console.error(err)
-      toastNew({langPackKey: 'Error.AnError'});
+      toastNew({ langPackKey: 'Error.AnError' });
     }).then(() => {
       d.remove();
       freeze(false);
@@ -134,7 +134,7 @@ const TwoStepVerificationEmailConfirmation: Component = () => {
   });
 
   (tab as any)._onOpenAfterTimeout = () => {
-    if(!canFocus(isFirst)) return;
+    if (!canFocus(isFirst)) return;
     codeInputField.input.focus();
   };
 

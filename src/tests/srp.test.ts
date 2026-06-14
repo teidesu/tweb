@@ -1,9 +1,9 @@
 import '../lib/crypto/crypto.worker';
 import '../lib/polyfill';
-import {salt1, salt2, srp_id, password, A, M1, passwordHashed, accountPassword} from '../mock/srp';
-import computeSRP, {makePasswordHash} from '@lib/crypto/srp';
+import { salt1, salt2, srp_id, password, A, M1, passwordHashed, accountPassword } from '../mock/srp';
+import computeSRP, { makePasswordHash } from '@lib/crypto/srp';
 import assumeType from '@helpers/assumeType';
-import {InputCheckPasswordSRP} from '@layer';
+import { InputCheckPasswordSRP } from '@layer';
 
 // NOTE: the mock data in src/mock/srp.ts is outdated and does not match the
 // current SRP implementation; the assertions below would fail. Skipping the

@@ -11,12 +11,12 @@ export function createSelectorForTab(options: ConstructorParameters<typeof AppSe
     meAsSaved: false,
     onFirstRender: () => {
       deferred.resolve();
-    }
+    },
   });
 
-  return {selector, loadPromise: deferred};
+  return { selector, loadPromise: deferred };
 }
 
 export function createSelectorForParticipants(options: ConstructorParameters<typeof AppSelectPeers>[0]) {
-  return createSelectorForTab({...options, peerType: ['channelParticipants']});
+  return createSelectorForTab({ ...options, peerType: ['channelParticipants'] });
 }

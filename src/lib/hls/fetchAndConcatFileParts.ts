@@ -1,9 +1,9 @@
 import readBlobAsUint8Array from '@helpers/blob/readBlobAsUint8Array';
-import {ActiveAccountNumber} from '@lib/accounts/types';
+import { ActiveAccountNumber } from '@lib/accounts/types';
 import CacheStorageController from '@lib/files/cacheStorage';
-import {RequestSynchronizer} from '@lib/hls/requestSynchronizer';
-import {StreamFetchingRange} from '@lib/hls/splitRangeForGettingFileParts';
-import {serviceMessagePort} from '@lib/serviceWorker/index.service';
+import { RequestSynchronizer } from '@lib/hls/requestSynchronizer';
+import { StreamFetchingRange } from '@lib/hls/splitRangeForGettingFileParts';
+import { serviceMessagePort } from '@lib/serviceWorker/index.service';
 
 
 type RequestFilePartIdentificationParams = {
@@ -22,7 +22,7 @@ export async function fetchAndConcatFileParts(
   const fileParts: Uint8Array[] = [];
   let totalLength = 0;
 
-  for(const range of ranges) {
+  for (const range of ranges) {
     const bytes = await requestSynchronizer.performRequest(
       getChunkFilename(params, range),
       () => fetchFilePart(params, range)
@@ -32,13 +32,13 @@ export async function fetchAndConcatFileParts(
     fileParts.push(bytes);
   }
 
-  if(fileParts.length === 1) return fileParts[0];
+  if (fileParts.length === 1) return fileParts[0];
 
   const result = new Uint8Array(totalLength);
 
   let currentOffset = 0;
 
-  for(const part of fileParts) {
+  for (const part of fileParts) {
     result.set(part, currentOffset);
     currentOffset += part.length;
   }
@@ -54,10 +54,10 @@ async function fetchFilePart(params: RequestFilePartIdentificationParams, range:
     const blob: Blob = await cacheStorage.getFile(filename, 'blob');
     const bytes = await readBlobAsUint8Array(blob);
     return bytes;
-  } catch{
-    const {bytes} = await serviceMessagePort.invoke('requestFilePart', {
+  } catch {
+    const { bytes } = await serviceMessagePort.invoke('requestFilePart', {
       ...params,
-      ...range
+      ...range,
     });
     saveChunkToCache(bytes, params, range);
     return bytes;
@@ -73,5 +73,5 @@ async function saveChunkToCache(bytes: Uint8Array, params: RequestFilePartIdenti
 
   const response = new Response(bytes as BodyInit);
 
-  await cacheStorage.save({entryName: filename, response, size: bytes.length, contentType: 'application/octet-stream'});
+  await cacheStorage.save({ entryName: filename, response, size: bytes.length, contentType: 'application/octet-stream' });
 }

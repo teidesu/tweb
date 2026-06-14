@@ -1,7 +1,7 @@
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
-import {Middleware} from '@helpers/middleware';
+import { Middleware } from '@helpers/middleware';
 import throttle from '@helpers/schedulers/throttle';
-import {logger, LogTypes} from '@lib/logger';
+import { logger, LogTypes } from '@lib/logger';
 
 const PARALLEL_LIMIT = 8;
 const IGNORE_ERRORS: Set<ErrorType> = new Set(['NO_ENTRY_FOUND', 'STORAGE_OFFLINE', 'MIDDLEWARE', 'NO_AUTO_DOWNLOAD']);
@@ -37,7 +37,7 @@ export default class LazyLoadQueueBase {
   }
 
   public lock() {
-    if(this.lockPromise) return;
+    if (this.lockPromise) return;
 
     // const perf = performance.now();
     this.lockPromise = new Promise((resolve, reject) => {
@@ -52,7 +52,7 @@ export default class LazyLoadQueueBase {
   }
 
   public unlock() {
-    if(!this.unlockResolve) return;
+    if (!this.unlockResolve) return;
 
     this.unlockResolve();
     this.unlockResolve = (this.lockPromise = null)!;
@@ -61,7 +61,7 @@ export default class LazyLoadQueueBase {
   }
 
   protected async processItem(item: LazyLoadElementBase) {
-    if(this.lockPromise) {
+    if (this.lockPromise) {
       return;
     }
 
@@ -76,8 +76,8 @@ export default class LazyLoadQueueBase {
       // await new Promise((resolve, reject) => window.requestAnimationFrame(() => window.requestAnimationFrame(resolve)));
       // await item.load(item.div);
       await this.loadItem(item);
-    } catch(err) {
-      if(!IGNORE_ERRORS.has((err as ApiError)?.type)) {
+    } catch (err) {
+      if (!IGNORE_ERRORS.has((err as ApiError)?.type)) {
         this.log.error('loadMediaQueue error:', err/* , item */);
       }
     }
@@ -105,18 +105,18 @@ export default class LazyLoadQueueBase {
   }
 
   protected _processQueue(item?: LazyLoadElementBase | null) {
-    if(!this.queue.length || this.lockPromise || (this.parallelLimit > 0 && this.inProcess.size >= this.parallelLimit)) return;
+    if (!this.queue.length || this.lockPromise || (this.parallelLimit > 0 && this.inProcess.size >= this.parallelLimit)) return;
 
     // console.log('_processQueue start');
     // let added = 0;
     do {
-      if(item) {
+      if (item) {
         indexOfAndSplice(this.queue, item);
       } else {
         item = this.getItem();
       }
 
-      if(item) {
+      if (item) {
         this.processItem(item);
       } else {
         break;
@@ -124,7 +124,7 @@ export default class LazyLoadQueueBase {
 
       item = null;
       // ++added;
-    } while(this.inProcess.size < this.parallelLimit && this.queue.length);
+    } while (this.inProcess.size < this.parallelLimit && this.queue.length);
     // console.log('_processQueue end, added', added, this.queue.length);
   }
 

@@ -1,21 +1,21 @@
-import {adjustmentsConfig} from '@components/mediaEditor/adjustments';
-import {useCropOffset} from '@components/mediaEditor/canvas/useCropOffset';
-import {useMediaEditorContext} from '@components/mediaEditor/context';
+import { adjustmentsConfig } from '@components/mediaEditor/adjustments';
+import { useCropOffset } from '@components/mediaEditor/canvas/useCropOffset';
+import { useMediaEditorContext } from '@components/mediaEditor/context';
 import getResultSize from '@components/mediaEditor/finalRender/getResultSize';
 import RangeInput from '@components/mediaEditor/rangeInput';
-import StepInput, {StepInputStep} from '@components/mediaEditor/stepInput';
+import StepInput, { StepInputStep } from '@components/mediaEditor/stepInput';
 import useIsMobile from '@components/mediaEditor/useIsMobile';
-import {availableQualityHeights, checkIfHasAnimatedStickers, snapToAvailableQuality} from '@components/mediaEditor/utils';
+import { availableQualityHeights, checkIfHasAnimatedStickers, snapToAvailableQuality } from '@components/mediaEditor/utils';
 import Space from '@components/space';
-import {HeightTransition} from '@helpers/solid/heightTransition';
-import {i18n} from '@lib/langPack';
-import {createEffect, createMemo, createSignal, on, onCleanup, Show} from 'solid-js';
+import { HeightTransition } from '@helpers/solid/heightTransition';
+import { i18n } from '@lib/langPack';
+import { createEffect, createMemo, createSignal, on, onCleanup, Show } from 'solid-js';
 
 
 const ADJUST_TIMEOUT = 800;
 
 export default function AdjustmentsTab() {
-  const {editorState, mediaState, actions, mediaType, canImageResultInGIF, isVideoAvatarMode} = useMediaEditorContext()!;
+  const { editorState, mediaState, actions, mediaType, canImageResultInGIF, isVideoAvatarMode } = useMediaEditorContext()!;
 
   const isMobile = useIsMobile();
   const cropOffset = useCropOffset();
@@ -35,7 +35,7 @@ export default function AdjustmentsTab() {
       newRatio: (mediaState.currentImageRatio || editorState.mediaRatio)!,
       videoType: mediaType === 'video' ? 'video' : 'gif',
       imageRatio: editorState.mediaRatio!,
-      cropOffset: !cropOffset().width ? {width: 1, height: 1} : cropOffset()
+      cropOffset: !cropOffset().width ? { width: 1, height: 1 } : cropOffset(),
     }) : [0, 0]
   );
 
@@ -48,13 +48,13 @@ export default function AdjustmentsTab() {
 
   const steps = createMemo((): StepInputStep[] =>
     availableQualityHeights
-    .filter(height => height <= maxVideoQuality())
-    .map(height => ({value: height, label: height + 'p'}))
+      .filter(height => height <= maxVideoQuality())
+      .map(height => ({ value: height, label: height + 'p' }))
   );
 
   const willResultInVideo = createMemo(() => {
-    if(mediaType === 'video') return true;
-    if(canImageResultInGIF && checkIfHasAnimatedStickers(mediaState.resizableLayers)) return true;
+    if (mediaType === 'video') return true;
+    if (canImageResultInGIF && checkIfHasAnimatedStickers(mediaState.resizableLayers)) return true;
     return false;
   });
 
@@ -92,7 +92,7 @@ export default function AdjustmentsTab() {
 
         createEffect(
           on(showGhost, () => {
-            if(!container() || !isMobile() || !showGhost()) return;
+            if (!container() || !isMobile() || !showGhost()) return;
             const bcr = container()!.getBoundingClientRect();
             const div = (
               <div
@@ -103,7 +103,7 @@ export default function AdjustmentsTab() {
                   'top': bcr.top + 'px',
                   'width': bcr.width + 'px',
                   'height': bcr.height + 'px',
-                  'z-index': 100
+                  'z-index': 100,
                 }}
               >
                 <RangeInput
@@ -153,7 +153,7 @@ export default function AdjustmentsTab() {
                 actions.pushToHistory({
                   path: ['adjustments', item.key],
                   newValue: currentValue,
-                  oldValue: prevValue
+                  oldValue: prevValue,
                 });
               }}
               min={item.to100 ? 0 : -50}

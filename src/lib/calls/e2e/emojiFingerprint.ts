@@ -75,7 +75,7 @@ const EMOJI_CODE_UNITS: number[] = [
   0xd83c, 0xddfa, 0xd83c, 0xddec, 0xd83c, 0xdde7, 0x0031, 0x20e3, 0x0032, 0x20e3, 0x0033, 0x20e3,
   0x0034, 0x20e3, 0x0035, 0x20e3, 0x0036, 0x20e3, 0x0037, 0x20e3, 0x0038, 0x20e3, 0x0039, 0x20e3,
   0x0030, 0x20e3, 0xd83d, 0xdd1f, 0x2757, 0x2753, 0x2665, 0x2666, 0xd83d, 0xdcaf, 0xd83d, 0xdd17,
-  0xd83d, 0xdd31, 0xd83d, 0xdd34, 0xd83d, 0xdd35, 0xd83d, 0xdd36, 0xd83d, 0xdd37
+  0xd83d, 0xdd31, 0xd83d, 0xdd34, 0xd83d, 0xdd35, 0xd83d, 0xdd36, 0xd83d, 0xdd37,
 ];
 
 // Offsets[i]..Offsets[i+1] gives the slice of EMOJI_CODE_UNITS that forms
@@ -108,7 +108,7 @@ const OFFSETS: number[] = [
   554, 556, 558, 560, 562, 564, 566, 567, 569, 570, 572, 574,
   576, 578, 582, 586, 590, 594, 598, 602, 606, 610, 614, 618,
   620, 622, 624, 626, 628, 630, 632, 634, 636, 638, 640, 641,
-  642, 643, 644, 646, 648, 650, 652, 654, 656, 658
+  642, 643, 644, 646, 648, 650, 652, 654, 656, 658,
 ];
 
 const EMOJI_COUNT = OFFSETS.length - 1;
@@ -118,13 +118,13 @@ const EMOJI_COUNT = OFFSETS.length - 1;
 let emojiTable: string[] | undefined;
 
 function getEmojiTable(): string[] {
-  if(emojiTable) return emojiTable;
+  if (emojiTable) return emojiTable;
   const out: string[] = new Array(EMOJI_COUNT);
-  for(let i = 0; i < EMOJI_COUNT; i++) {
+  for (let i = 0; i < EMOJI_COUNT; i++) {
     const start = OFFSETS[i];
     const end = OFFSETS[i + 1];
     let s = '';
-    for(let j = start; j < end; j++) {
+    for (let j = start; j < end; j++) {
       s += String.fromCharCode(EMOJI_CODE_UNITS[j]);
     }
     out[i] = s;
@@ -162,7 +162,7 @@ function emojiIndexFromChunk(bytes: Uint8Array, offset: number): number {
 // Render an emoji_hash (32 bytes) as a list of 4 emoji strings.
 // Inputs of other lengths are accepted, as long as length is a multiple of 8.
 export function emojiFingerprint(emojiHash: Uint8Array): string[] {
-  if(emojiHash.length % 8 !== 0) {
+  if (emojiHash.length % 8 !== 0) {
     throw new Error(
       `emojiFingerprint: length must be a multiple of 8, got ${emojiHash.length}`
     );
@@ -170,7 +170,7 @@ export function emojiFingerprint(emojiHash: Uint8Array): string[] {
   const table = getEmojiTable();
   const count = emojiHash.length / 8;
   const out: string[] = new Array(count);
-  for(let i = 0; i < count; i++) {
+  for (let i = 0; i < count; i++) {
     const idx = emojiIndexFromChunk(emojiHash, i * 8);
     out[i] = table[idx];
   }

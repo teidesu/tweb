@@ -1,13 +1,13 @@
-import {MessageEntity} from '@layer';
+import { MessageEntity } from '@layer';
 import getEmojiEntityFromEmoji from '@lib/richTextProcessor/getEmojiEntityFromEmoji';
 import rootScope from '@lib/rootScope';
-import {EmoticonsDropdown} from '@components/emoticonsDropdown';
+import { EmoticonsDropdown } from '@components/emoticonsDropdown';
 import EmojiTab from '@components/emoticonsDropdown/tabs/emoji';
-import InputField, {insertRichTextAsHTML} from '@components/inputField';
+import InputField, { insertRichTextAsHTML } from '@components/inputField';
 
 import styles from '@components/emojiDropdownButton.module.scss';
 import Button from '@components/buttonTsx';
-import {createRoot, onCleanup} from 'solid-js';
+import { createRoot, onCleanup } from 'solid-js';
 import createListenerSetter from '@helpers/solid/createListenerSetter';
 
 const createEmojiDropdownButton = ({
@@ -25,7 +25,7 @@ const createEmojiDropdownButton = ({
     icon: 'smile',
     class: _class,
     noRipple: true,
-    ref: (ref) => button = ref as HTMLButtonElement
+    ref: (ref) => button = ref as HTMLButtonElement,
   }) as HTMLElement;
 
   const emojiTab = new EmojiTab({
@@ -38,7 +38,7 @@ const createEmojiDropdownButton = ({
         _: 'messageEntityCustomEmoji',
         document_id: emoji.docId,
         length: emoji.emoji.length,
-        offset: 0
+        offset: 0,
       } : getEmojiEntityFromEmoji(emoji.emoji);
 
       insertRichTextAsHTML(
@@ -46,12 +46,12 @@ const createEmojiDropdownButton = ({
         emoji.emoji,
         (entity ? [entity] : undefined)!
       );
-    }
+    },
   });
 
   const emoticonsDropdown = new EmoticonsDropdown({
     tabsToRender: [emojiTab],
-    ...rest
+    ...rest,
   });
 
   emoticonsDropdown.attachButtonListener(button!, createListenerSetter());
@@ -63,7 +63,7 @@ const createEmojiDropdownButton = ({
     emoticonsDropdown?.hideAndDestroy();
   });
 
-  return {button: button!, dispose};
+  return { button: button!, dispose };
 });
 
 export default createEmojiDropdownButton;

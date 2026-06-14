@@ -1,10 +1,10 @@
 import safeAssign from '@helpers/object/safeAssign';
-import {logger} from '@lib/logger';
+import { logger } from '@lib/logger';
 import createDataChannel from '@lib/calls/helpers/createDataChannel';
 import createPeerConnection from '@lib/calls/helpers/createPeerConnection';
 import LocalConferenceDescription from '@lib/calls/localConferenceDescription';
 import StreamManager from '@lib/calls/streamManager';
-import {Ssrc} from '@lib/calls/types';
+import { Ssrc } from '@lib/calls/types';
 
 export type CallConnectionInstanceOptions = {
   streamManager: StreamManager,
@@ -27,7 +27,7 @@ export default abstract class CallConnectionInstanceBase {
   constructor(options: CallConnectionInstanceOptions) {
     safeAssign(this, options);
 
-    if(!this.log) {
+    if (!this.log) {
       this.log = this.connection?.log || logger('CALL-CONNECTION-BASE');
     }
 
@@ -51,15 +51,15 @@ export default abstract class CallConnectionInstanceBase {
   }
 
   public closeConnection() {
-    const {connection} = this;
-    if(!connection) {
+    const { connection } = this;
+    if (!connection) {
       return;
     }
 
     try {
       connection.log('close');
       connection.close();
-    } catch(e) {
+    } catch (e) {
       this.log.error(e);
     }
   }
@@ -73,7 +73,7 @@ export default abstract class CallConnectionInstanceBase {
 
   public negotiate() {
     const promise = this.negotiating;
-    if(promise) {
+    if (promise) {
       return promise;
     }
 
@@ -83,7 +83,7 @@ export default abstract class CallConnectionInstanceBase {
   }
 
   public sendDataChannelData(data: any) {
-    if(this.dataChannel.readyState !== 'open') {
+    if (this.dataChannel.readyState !== 'open') {
       return;
     }
 

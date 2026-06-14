@@ -12,7 +12,7 @@
  * don't have to wait for the bug in the wild.
  */
 
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Stub the e2e worker host so importing GroupCallInstance (→ groupCallsController
 // → encryptWorkerHost → `?worker`) doesn't try to spawn a real Web Worker.
@@ -20,31 +20,31 @@ vi.mock('@lib/calls/e2e/encryptWorkerHost', () => {
   class EncryptWorkerHost {
     public async terminate(): Promise<void> {}
   }
-  return {EncryptWorkerHost};
+  return { EncryptWorkerHost };
 });
 
 import GroupCallInstance from '@lib/calls/groupCallInstance';
-import {AppGroupCallsManager} from '@lib/appManagers/appGroupCallsManager';
+import { AppGroupCallsManager } from '@lib/appManagers/appGroupCallsManager';
 
-const FAKE_CALL = {_: 'groupCall', id: '777', access_hash: '888'} as any;
+const FAKE_CALL = { _: 'groupCall', id: '777', access_hash: '888' } as any;
 
 function makeInstance() {
   const getGroupCallFull = vi.fn(async() => FAKE_CALL);
   const saveGroupCall = vi.fn(async() => {});
   const managers: any = {
-    appGroupCallsManager: {getGroupCallFull, saveGroupCall, refreshConferenceParticipants: vi.fn(async() => false)},
+    appGroupCallsManager: { getGroupCallFull, saveGroupCall, refreshConferenceParticipants: vi.fn(async() => false) },
     appCallsManager: {},
-    apiUpdatesManager: {processUpdateMessage: () => {}}
+    apiUpdatesManager: { processUpdateMessage: () => {} },
   };
-  const instance = new GroupCallInstance({id: '777' as any, chatId: 0 as any, managers});
+  const instance = new GroupCallInstance({ id: '777' as any, chatId: 0 as any, managers });
   // connectionState getter reads connections.main.connection.iceConnectionState.
-  (instance as any).connections = {main: {connection: {iceConnectionState: 'connected'}}};
+  (instance as any).connections = { main: { connection: { iceConnectionState: 'connected' } } };
   (instance as any).e2e = {}; // truthy = conference mode
   (instance as any).groupCall = FAKE_CALL;
   // Isolate the watchdog→recovery wiring from the pollers' own internals.
   const pollSpy = vi.spyOn(instance as any, 'pollE2eChain').mockResolvedValue(undefined);
   const refreshSpy = vi.spyOn(instance as any, 'refreshConferenceParticipants').mockResolvedValue(undefined);
-  return {instance, getGroupCallFull, saveGroupCall, pollSpy, refreshSpy};
+  return { instance, getGroupCallFull, saveGroupCall, pollSpy, refreshSpy };
 }
 
 describe('GroupCallInstance — conference-sync watchdog', () => {
@@ -57,7 +57,7 @@ describe('GroupCallInstance — conference-sync watchdog', () => {
   });
 
   it('forces recovery + reports a bug when a poller has not reached the server', async() => {
-    const {instance, getGroupCallFull, saveGroupCall, pollSpy, refreshSpy} = makeInstance();
+    const { instance, getGroupCallFull, saveGroupCall, pollSpy, refreshSpy } = makeInstance();
     (instance as any).lastChainPollAt = 0; // long stale
     (instance as any).lastParticipantsRefreshAt = 0;
 
@@ -75,7 +75,7 @@ describe('GroupCallInstance — conference-sync watchdog', () => {
   });
 
   it('does nothing while pollers are fresh', async() => {
-    const {instance, getGroupCallFull, pollSpy} = makeInstance();
+    const { instance, getGroupCallFull, pollSpy } = makeInstance();
     (instance as any).lastChainPollAt = Date.now();
     (instance as any).lastParticipantsRefreshAt = Date.now();
 
@@ -88,7 +88,7 @@ describe('GroupCallInstance — conference-sync watchdog', () => {
   });
 
   it('does nothing while the connection is closed', async() => {
-    const {instance, getGroupCallFull} = makeInstance();
+    const { instance, getGroupCallFull } = makeInstance();
     (instance as any).connections.main.connection.iceConnectionState = 'closed';
     (instance as any).lastChainPollAt = 0;
     (instance as any).lastParticipantsRefreshAt = 0;
@@ -100,7 +100,7 @@ describe('GroupCallInstance — conference-sync watchdog', () => {
   });
 
   it('does not re-trigger once a poll has freshly stamped the clock', async() => {
-    const {instance, getGroupCallFull} = makeInstance();
+    const { instance, getGroupCallFull } = makeInstance();
     (instance as any).lastChainPollAt = 0;
     (instance as any).lastParticipantsRefreshAt = 0;
 
@@ -122,7 +122,7 @@ describe('AppGroupCallsManager.refreshConferenceParticipants — silent-bail sig
     const manager = new AppGroupCallsManager();
     Object.assign(manager as any, {
       groupCalls: new Map(),
-      log: Object.assign(() => {}, {warn: () => {}, error: () => {}, info: () => {}, debug: () => {}})
+      log: Object.assign(() => {}, { warn: () => {}, error: () => {}, info: () => {}, debug: () => {} }),
     });
 
     await expect(manager.refreshConferenceParticipants('not-cached' as any)).resolves.toBe(false);

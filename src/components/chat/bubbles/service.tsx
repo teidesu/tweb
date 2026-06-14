@@ -1,6 +1,6 @@
-import {createEffect, createResource, JSX, on} from 'solid-js';
+import { createEffect, createResource, JSX, on } from 'solid-js';
 import classNames from '@helpers/string/classNames';
-import {Message} from '@layer';
+import { Message } from '@layer';
 
 import styles from '@components/chat/bubbles/service.module.scss';
 import wrapMessageActionTextNew from '@components/wrappers/messageActionTextNew';
@@ -10,8 +10,8 @@ export function ServiceBubble(props: {
   message: Message.messageService
   children?: JSX.Element
 }) {
-  const [text, {refetch}] = createResource(() => wrapMessageActionTextNew({
-    message: props.message
+  const [text, { refetch }] = createResource(() => wrapMessageActionTextNew({
+    message: props.message,
   }))
   createEffect(on(() => props.message, refetch))
 

@@ -16,8 +16,8 @@ export async function createImageAndURLFromBlob(blob: Blob): Promise<RenderImage
 
   try {
     await img.decode();
-    return {ok: true, url, img};
-  } catch{
-    return {ok: false};
+    return { ok: true, url, img };
+  } catch {
+    return { ok: false };
   }
 }

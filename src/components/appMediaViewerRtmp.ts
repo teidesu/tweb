@@ -1,26 +1,26 @@
-import {IS_SAFARI} from '@environment/userAgent';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
-import {videoToImage} from '@helpers/dom/videoToImage';
+import { IS_SAFARI } from '@environment/userAgent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
+import { videoToImage } from '@helpers/dom/videoToImage';
 import ListLoader from '@helpers/listLoader';
 import ListenerSetter from '@helpers/listenerSetter';
 import rtmpCallsController from '@lib/calls/rtmpCallsController';
 import apiManagerProxy from '@lib/apiManagerProxy';
-import {getRtmpShareUrl, getRtmpStreamUrl} from '@lib/rtmp/url';
+import { getRtmpShareUrl, getRtmpStreamUrl } from '@lib/rtmp/url';
 import AppMediaViewerBase from '@components/appMediaViewerBase';
-import {RtmpStartStreamPopup} from '@components/rtmp/adminPopup';
+import { RtmpStartStreamPopup } from '@components/rtmp/adminPopup';
 import showOutputDevicePopup from '@components/rtmp/outputDevicePopup';
-import {RtmpRecordPopup} from '@components/rtmp/recordPopup';
+import { RtmpRecordPopup } from '@components/rtmp/recordPopup';
 import PopupElement from '@components/popups';
 import SetTransition from '@components/singleTransition';
-import {toastNew} from '@components/toast';
+import { toastNew } from '@components/toast';
 import safePlay from '@helpers/dom/safePlay';
-import {NULL_PEER_ID} from '@appManagers/constants';
-import {render} from 'solid-js/web';
-import {AdminStreamPopup} from '@components/rtmp/adminStreamPopup';
+import { NULL_PEER_ID } from '@appManagers/constants';
+import { render } from 'solid-js/web';
+import { AdminStreamPopup } from '@components/rtmp/adminStreamPopup';
 import ProgressivePreloader from '@components/preloader';
 import RTMP_STATE from '@lib/calls/rtmpState';
 import getPeerActiveUsernames from '@appManagers/utils/peers/getPeerActiveUsernames';
-import {ExportedChatInvite} from '@layer';
+import { ExportedChatInvite } from '@layer';
 import rootScope from '@lib/rootScope';
 import shareUrlToPeers from '@components/popups/shareUrl';
 
@@ -45,14 +45,14 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
       loadMore: async() => {
         return {
           count: 0,
-          items: []
+          items: [],
         };
-      }
+      },
     }), shareUrl ? ['forward'] : []);
 
     this.preloaderRtmp = new ProgressivePreloader({
       cancelable: false,
-      rtmp: true
+      rtmp: true,
     });
     this.preloaderRtmp.construct();
     this.preloaderTemplate = document.createElement('div');
@@ -60,10 +60,10 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
 
     this.retryTempId = 0;
 
-    if(this.shareUrl) this.setBtnMenuToggle([{
+    if (this.shareUrl) this.setBtnMenuToggle([{
       icon: 'forward',
       text: 'Forward',
-      onClick: this.onForward
+      onClick: this.onForward,
     }]);
 
     this.buttons.download.classList.add('hide');
@@ -77,10 +77,10 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
   protected setListeners() {
     super.setListeners();
 
-    attachClickEvent(this.buttons.forward, this.onForward, {listenerSetter: this.listenerSetter});
+    attachClickEvent(this.buttons.forward, this.onForward, { listenerSetter: this.listenerSetter });
 
     this.listenerSetter.add(apiManagerProxy.serviceMessagePort)('rtmpStreamDestroyed', (callId) => {
-      if(rtmpCallsController.currentCall?.call.id === callId) {
+      if (rtmpCallsController.currentCall?.call.id === callId) {
         this.retryLoadStream(this.videoPlayer!.video, 'was destroyed');
       }
     });
@@ -91,7 +91,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
       url: this.shareUrl,
       multiSelect: true,
       toastKey: 'InviteLinkSentSingle',
-      toastKeyForMany: 'InviteLinkSentMany'
+      toastKeyForMany: 'InviteLinkSentMany',
     });
   };
 
@@ -100,8 +100,8 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
     isAdmin: boolean
   }) {
     const chatId = params.peerId.toChatId();
-    if(!rtmpCallsController.currentCall || rtmpCallsController.currentCall.peerId !== params.peerId) {
-      if(rtmpCallsController.currentCall) {
+    if (!rtmpCallsController.currentCall || rtmpCallsController.currentCall.peerId !== params.peerId) {
+      if (rtmpCallsController.currentCall) {
         await rtmpCallsController.leaveCall();
       }
 
@@ -112,7 +112,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
     this.peerId = params.peerId;
 
     const chat = apiManagerProxy.getChat(chatId);
-    if(!getPeerActiveUsernames(chat)[0]) {
+    if (!getPeerActiveUsernames(chat)[0]) {
       const chatFull = await this.managers.appProfileManager.getChatFull(chatId);
       this.shareUrl = (chatFull.exported_invite as ExportedChatInvite.chatInviteExported)?.link;
     } else {
@@ -131,7 +131,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
         const getCall = () => rtmpCallsController.currentCall;
 
         player.updateLiveViewersCount(getCall()!.call.participants_count);
-        if(!IS_SAFARI || params.isAdmin) {
+        if (!IS_SAFARI || params.isAdmin) {
           player.setupLiveMenu([{
             icon: 'volume_up',
             text: 'Rtmp.MediaViewer.Menu.OutputDevice',
@@ -139,14 +139,14 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
               kind: 'audiooutput',
               currentId: player.video.sinkId || '',
               titleLangKey: 'Rtmp.OutputPopup.Title',
-              onPick: (deviceId) => player.video.setSinkId(deviceId)
+              onPick: (deviceId) => player.video.setSinkId(deviceId),
             }),
-            verify: () => typeof(navigator.mediaDevices?.enumerateDevices) === 'function' && !IS_SAFARI
+            verify: () => typeof(navigator.mediaDevices?.enumerateDevices) === 'function' && !IS_SAFARI,
           }, {
             icon: 'radioon',
             text: 'Rtmp.MediaViewer.Menu.StartRecording',
             verify: () => !!(getCall()?.admin && !getCall()!.call.pFlags.record_video_active),
-            onClick: () => PopupElement.createPopup(RtmpRecordPopup).show()
+            onClick: () => PopupElement.createPopup(RtmpRecordPopup).show(),
           }, {
             icon: 'radiooff',
             text: 'Rtmp.MediaViewer.Menu.StopRecording',
@@ -154,10 +154,10 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
             onClick: () => {
               this.managers.appGroupCallsManager.stopRecording(getCall()!.inputCall).catch(() => {
                 toastNew({
-                  langPackKey: 'Error.AnError'
+                  langPackKey: 'Error.AnError',
                 });
               });
-            }
+            },
           }, {
             icon: 'settings',
             text: 'Rtmp.MediaViewer.Menu.StreamSettings',
@@ -166,15 +166,15 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
               PopupElement.createPopup(RtmpStartStreamPopup, {
                 peerId: this.peerId,
                 active: true,
-                onEndStream: () => this.close(undefined, true)
+                onEndStream: () => this.close(undefined, true),
               }).show();
-            }
+            },
           }, {
             icon: 'crossround',
             text: 'Rtmp.MediaViewer.Menu.EndLiveStream',
             danger: true,
             verify: () => !!getCall()?.admin,
-            onClick: () => this.close(undefined, true)
+            onClick: () => this.close(undefined, true),
           }]);
         }
 
@@ -188,7 +188,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
         // };
 
         const onPause = () => {
-          if(!video.error && !video.ended) {
+          if (!video.error && !video.ended) {
             safePlay(video);
           }
         };
@@ -209,7 +209,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
         });
       },
       onMoverSet: () => {
-        if(!params.isAdmin) {
+        if (!params.isAdmin) {
           return;
         }
 
@@ -219,7 +219,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
         this.adminPanel = adminPanelContainer;
         this.adminPanel.classList.add('admin-hidden');
 
-        this.disposeSolid = render(() => AdminStreamPopup({peerId: params.peerId}), this.adminPanel);
+        this.disposeSolid = render(() => AdminStreamPopup({ peerId: params.peerId }), this.adminPanel);
       },
       onCanPlay: () => {
         // this.showLoader();
@@ -227,18 +227,18 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
 
         const thumbnail = this.content.mover.querySelector('canvas.canvas-thumbnail, .thumbnail-avatar') as HTMLElement;
 
-        if(!this.streamEnded) {
+        if (!this.streamEnded) {
           this.preloaderRtmp.detach();
         }
 
         this.videoPlayer!.liveEl.classList.add('is-not-buffering');
 
-        if(params.isAdmin) {
+        if (params.isAdmin) {
           SetTransition({
             element: this.adminPanel,
             className: 'is-not-buffering',
             forwards: true,
-            duration: 300
+            duration: 300,
           });
         }
 
@@ -246,16 +246,16 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
           element: thumbnail,
           className: 'hide-thumbnail',
           forwards: true,
-          duration: 300
+          duration: 300,
         });
 
         rtmpCallsController.currentCall!.state = RTMP_STATE.PLAYING;
       },
-      onBuffering: this.showLoader
+      onBuffering: this.showLoader,
     });
 
     this.listenerSetter.add(rtmpCallsController)('currentCallChanged', (call) => {
-      if(!call) {
+      if (!call) {
         this.close(undefined, true);
         return;
       }
@@ -267,7 +267,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
   }
 
   private rejoin = () => {
-    if(rtmpCallsController.currentCall) {
+    if (rtmpCallsController.currentCall) {
       rtmpCallsController.rejoinCall().catch((err) => {
         this.log.error('rejoinCall', err);
       }).then(() => {
@@ -277,9 +277,9 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
   }
 
   private toggleAdminPanel(visible: boolean) {
-    if(visible && this.videoPlayer) {
+    if (visible && this.videoPlayer) {
       this.videoPlayer.cancelFullScreen();
-      if(this.videoPlayer.inPip) {
+      if (this.videoPlayer.inPip) {
         document.exitPictureInPicture();
       }
     }
@@ -289,14 +289,14 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
       element: this.adminPanel,
       className: 'admin-hidden',
       forwards: !visible,
-      duration: 300
+      duration: 300,
     });
   }
 
   private showLoader = () => {
     this.videoPlayer!.video.parentElement!.classList.add('is-buffering');
 
-    if(!this.preloaderTemplate.parentElement) {
+    if (!this.preloaderTemplate.parentElement) {
       const thumbnail = this.content.mover.querySelector('canvas.canvas-thumbnail, .thumbnail-avatar') as HTMLElement;
       thumbnail.after(this.preloaderTemplate, this.adminPanel);
     }
@@ -313,7 +313,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
     const tempId = ++this.retryTempId!;
     const log = this.log.bindPrefix(`retryLoadStream-${tempId}-${reason}`);
     const myCallId = rtmpCallsController.currentCall?.call.id;
-    if(!myCallId) {
+    if (!myCallId) {
       this.close(undefined, true);
       return;
     }
@@ -325,14 +325,14 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
     const check = () => tempId === this.retryTempId;
 
     const retry = () => {
-      if(!check()) {
+      if (!check()) {
         return;
       }
 
       clearTimeout(this.retryTimeout);
 
       rtmpCallsController.isCurrentCallDead(checkJoined).then((empty) => {
-        if(rtmpCallsController.currentCall?.call.id !== myCallId || !check()) {
+        if (rtmpCallsController.currentCall?.call.id !== myCallId || !check()) {
           // destroyed
           return;
         }
@@ -340,13 +340,13 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
         log('empty', empty, isFirst, checkJoined);
         checkJoined = empty === 'dying';
 
-        if(empty === 'dead' || empty === 'dying') {
-          if(isFirst) {
+        if (empty === 'dead' || empty === 'dying') {
+          if (isFirst) {
             this.showLoader();
-            if(rtmpCallsController.currentCall?.admin) {
+            if (rtmpCallsController.currentCall?.admin) {
               this.toggleAdminPanel(true);
             }
-            if(IS_SAFARI) {
+            if (IS_SAFARI) {
               // если не сделать этого то сафари продолжит пытаться достучаться
               apiManagerProxy.serviceMessagePort.invokeVoid('leaveRtmpCall', [rtmpCallsController.currentCall.call.id, false]);
             }
@@ -356,26 +356,26 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
           return;
         }
 
-        if(rtmpCallsController.currentCall?.admin) {
+        if (rtmpCallsController.currentCall?.admin) {
           this.toggleAdminPanel(false);
         }
 
         const url = getRtmpStreamUrl(rtmpCallsController.currentCall.inputCall);
-        if(video.getAttribute('src') !== url) {
+        if (video.getAttribute('src') !== url) {
           video.src = url;
           video.load();
           safePlay(video);
         }
       }).catch((err) => {
-        if(rtmpCallsController.currentCall?.call.id !== myCallId || !check()) {
+        if (rtmpCallsController.currentCall?.call.id !== myCallId || !check()) {
           // destroyed
           return;
         }
 
-        if(++errors > 5) {
+        if (++errors > 5) {
           log.error(err);
           toastNew({
-            langPackKey: 'Error.AnError'
+            langPackKey: 'Error.AnError',
           });
           this.close(undefined, true);
         } else {
@@ -390,7 +390,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
   private async leaveCall(discard = false) {
     rtmpCallsController.leaveCall(discard).catch(() => {
       toastNew({
-        langPackKey: 'Error.AnError'
+        langPackKey: 'Error.AnError',
       });
     });
   }
@@ -402,41 +402,41 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
     clearTimeout(this.rejoinInterval);
     ++this.retryTempId!;
 
-    if(this.videoPlayer) {
+    if (this.videoPlayer) {
       try {
         const capturedBlob = await videoToImage(this.videoPlayer.video);
-        if(AppMediaViewerRtmp.previousCapture) {
+        if (AppMediaViewerRtmp.previousCapture) {
           URL.revokeObjectURL(AppMediaViewerRtmp.previousCapture);
         }
         AppMediaViewerRtmp.previousCapture = URL.createObjectURL(capturedBlob);
         AppMediaViewerRtmp.previousPeerId = this.peerId;
-      } catch(e) {}
+      } catch (e) {}
     }
 
     super.close(e);
     AppMediaViewerRtmp.activeInstance = undefined;
 
-    if(rtmpCallsController.currentCall) {
+    if (rtmpCallsController.currentCall) {
       this.leaveCall(end);
     }
 
     this.listenerSetter.removeAll();
-    if(hadPip) {
+    if (hadPip) {
       document.exitPictureInPicture();
     }
   }
 
   public static closeActivePip(end = false) {
-    if(!AppMediaViewerRtmp.activeInstance) return;
+    if (!AppMediaViewerRtmp.activeInstance) return;
 
-    if(AppMediaViewerRtmp.activeInstance.videoPlayer?.inPip) {
+    if (AppMediaViewerRtmp.activeInstance.videoPlayer?.inPip) {
       document.exitPictureInPicture();
     }
   }
 
   public static async getShareUrl(chatId: ChatId) {
     const chat = apiManagerProxy.getChat(chatId);
-    if(!getPeerActiveUsernames(chat)[0]) {
+    if (!getPeerActiveUsernames(chat)[0]) {
       const chatFull = await rootScope.managers.appProfileManager.getChatFull(chatId);
       return (chatFull.exported_invite as ExportedChatInvite.chatInviteExported)?.link;
     } else {

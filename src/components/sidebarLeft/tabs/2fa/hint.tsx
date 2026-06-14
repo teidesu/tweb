@@ -1,18 +1,18 @@
-import {Component, onMount} from 'solid-js';
+import { Component, onMount } from 'solid-js';
 import Button from '@components/buttonTsx';
 import InputField from '@components/inputField';
-import {InputFieldTsx} from '@components/inputFieldTsx';
-import {AppTwoStepVerificationEmailTab} from '@components/solidJsTabs/tabs';
+import { InputFieldTsx } from '@components/inputFieldTsx';
+import { AppTwoStepVerificationEmailTab } from '@components/solidJsTabs/tabs';
 import cancelEvent from '@helpers/dom/cancelEvent';
 import wrapStickerEmoji from '@components/wrappers/stickerEmoji';
 import Section from '@components/section';
-import {toastNew} from '@components/toast';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import type {AppTwoStepVerificationHintTab} from '@components/solidJsTabs/tabs';
+import { toastNew } from '@components/toast';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import type { AppTwoStepVerificationHintTab } from '@components/solidJsTabs/tabs';
 
 const TwoStepVerificationHint: Component = () => {
   const [tab] = useSuperTab<typeof AppTwoStepVerificationHintTab>();
-  const {state, plainPassword, newPassword} = tab.payload;
+  const { state, plainPassword, newPassword } = tab.payload;
 
   let inputField!: InputField;
 
@@ -21,17 +21,17 @@ const TwoStepVerificationHint: Component = () => {
     div: stickerContainer,
     width: 160,
     height: 160,
-    emoji: '💡'
+    emoji: '💡',
   });
 
   const goNext = (e?: Event, saveHint?: boolean) => {
-    if(e) {
+    if (e) {
       cancelEvent(e);
     }
 
     const hint = saveHint ? inputField.value : undefined;
-    if(hint && newPassword === hint) {
-      toastNew({langPackKey: 'PasswordAsHintError'});
+    if (hint && newPassword === hint) {
+      toastNew({ langPackKey: 'PasswordAsHintError' });
       return;
     }
 
@@ -40,7 +40,7 @@ const TwoStepVerificationHint: Component = () => {
       plainPassword,
       newPassword,
       hint,
-      justSetPasssword: true
+      justSetPasssword: true,
     });
   };
 
@@ -51,7 +51,7 @@ const TwoStepVerificationHint: Component = () => {
     tab.container.classList.add('two-step-verification', 'two-step-verification-hint');
 
     inputField.input.addEventListener('keypress', (e) => {
-      if(e.key === 'Enter') {
+      if (e.key === 'Enter') {
         cancelEvent(e);
         return inputField.value ? onContinueClick() : onSkipClick();
       }

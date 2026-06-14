@@ -1,10 +1,10 @@
-import {Component, createMemo} from 'solid-js';
+import { Component, createMemo } from 'solid-js';
 
-import {numberThousandSplitterForStars} from '@helpers/number/numberThousandSplitter';
+import { numberThousandSplitterForStars } from '@helpers/number/numberThousandSplitter';
 import accumulate from '@helpers/array/accumulate';
 import clamp from '@helpers/number/clamp';
 import nMap from '@helpers/number/nMap';
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 
 import styles from '@components/sidebarLeft/tabs/privacy/messages/starsRangeInput.module.scss';
 
@@ -18,7 +18,7 @@ const starsPerUnits: [units: number, stars: number][] = [
   [10, 50], // 50 stars per unit until 1.000
   [15, 100], // 100 stars per unit until 2.500
   [20, 250], // 250 stars per unit until 7.500
-  [5, 500] // 500 stars per unit until 10.000
+  [5, 500], // 500 stars per unit until 10.000
 ]; // 106 total units, try to be something close to 100
 
 const totalUnits = accumulate(starsPerUnits.map(v => v[0]), 0);
@@ -27,11 +27,11 @@ const totalStars = unitsToStars(totalUnits);
 function unitsToStars(units: number) {
   let stars = 0;
 
-  for(const [u, s] of starsPerUnits) {
+  for (const [u, s] of starsPerUnits) {
     stars += Math.min(units, u) * s;
     units -= u;
 
-    if(units <= 0) break;
+    if (units <= 0) break;
   }
 
   return stars;
@@ -40,7 +40,7 @@ function unitsToStars(units: number) {
 function starsToUnits(stars: number) {
   let units = 0;
 
-  for(const [u, s] of starsPerUnits) {
+  for (const [u, s] of starsPerUnits) {
     const v = Math.min(u, Math.floor(stars / s));
 
     stars -= v * s;
@@ -73,13 +73,13 @@ const StarRangeInput: Component<{
       class={styles.Container}
       style={{
         '--normalized': normalizedValue(),
-        '--w': normalizedValue() * 100 + '%'
+        '--w': normalizedValue() * 100 + '%',
       }}
     >
       <div class={styles.Row}>
         <div class={styles.Limit}>{min()}</div>
         <div class={styles.Value}>{i18n('Stars', [
-          numberThousandSplitterForStars(parseInt(props.value.toFixed(0)))
+          numberThousandSplitterForStars(parseInt(props.value.toFixed(0))),
         ])}</div>
         <div class={`${styles.Limit} ${styles.LimitLast}`}>{numberThousandSplitterForStars(totalStars)}</div>
       </div>

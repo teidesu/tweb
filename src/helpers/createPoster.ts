@@ -1,5 +1,5 @@
 import pause from '@helpers/schedulers/pause';
-import {makeMediaSize} from '@helpers/mediaSize';
+import { makeMediaSize } from '@helpers/mediaSize';
 import scaleMediaElement from '@helpers/canvas/scaleMediaElement';
 import preloadVideo from '@helpers/preloadVideo';
 import setCurrentTime from '@helpers/dom/setCurrentTime';
@@ -11,7 +11,7 @@ const POSTER_MAX_SIZE = 720;
 
 export function createPosterFromMedia(media: HTMLVideoElement | HTMLImageElement) {
   let width: number, height: number;
-  if(media instanceof HTMLVideoElement) {
+  if (media instanceof HTMLVideoElement) {
     width = media.videoWidth;
     height = media.videoHeight;
   } else {
@@ -24,7 +24,7 @@ export function createPosterFromMedia(media: HTMLVideoElement | HTMLImageElement
     mediaSize: makeMediaSize(width, height),
     // clamp the box to the source so a smaller video is never upscaled
     boxSize: makeMediaSize(Math.min(width, POSTER_MAX_SIZE), Math.min(height, POSTER_MAX_SIZE)),
-    quality: .9
+    quality: .9,
   });
 }
 
@@ -50,7 +50,7 @@ export async function createPosterForVideo(url: string) {
 
   return Promise.race([
     pause(2000) as Promise<undefined>,
-    createPosterFromVideo(video)
+    createPosterFromVideo(video),
   ]);
 }
 

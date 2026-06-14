@@ -1,30 +1,30 @@
 import Section from '@components/section';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import type {AppPasskeysTab} from '@components/solidJsTabs';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import type { AppPasskeysTab } from '@components/solidJsTabs';
 import anchorCallback from '@helpers/dom/anchorCallback';
 import MediaHeader from '@components/mediaHeader';
-import {createEffect, createSignal, For, Show} from 'solid-js';
-import {formatFullSentTime} from '@helpers/date';
+import { createEffect, createSignal, For, Show } from 'solid-js';
+import { formatFullSentTime } from '@helpers/date';
 import createMiddleware from '@helpers/solid/createMiddleware';
 import styles from '@components/sidebarLeft/tabs/passkeys.module.scss';
-import {Passkey} from '@layer';
-import showPasskeyPopup, {createPasskey} from '@components/popups/passkey';
+import { Passkey } from '@layer';
+import showPasskeyPopup, { createPasskey } from '@components/popups/passkey';
 import IS_WEB_AUTHN_SUPPORTED from '@environment/webAuthn';
 import Button from '@components/buttonTsx';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 import findAndSplice from '@helpers/array/findAndSplice';
-import {useAppConfig} from '@stores/appState';
+import { useAppConfig } from '@stores/appState';
 
 type AppPasskeysTabClass = typeof AppPasskeysTab;
 
 const PasskeyItem = (passkey: Passkey) => {
   const [tab] = useSuperTab<AppPasskeysTabClass>();
-  const {rootScope, wrapEmojiText, wrapAdaptiveCustomEmoji, Row, i18n, confirmationPopup, formatDate} = useHotReloadGuard();
+  const { rootScope, wrapEmojiText, wrapAdaptiveCustomEmoji, Row, i18n, confirmationPopup, formatDate } = useHotReloadGuard();
   const [disabled, setDisabled] = createSignal(false);
   const subtitle = () => {
-    const created = i18n('Privacy.Passkey.Created', [formatDate(new Date(passkey.date * 1000), {withTime: true})]);
-    if(!passkey.last_usage_date) return created;
-    const lastUsed = i18n('Privacy.Passkey.LastUsage', [formatDate(new Date(passkey.last_usage_date * 1000), {withTime: true})]);
+    const created = i18n('Privacy.Passkey.Created', [formatDate(new Date(passkey.date * 1000), { withTime: true })]);
+    if (!passkey.last_usage_date) return created;
+    const lastUsed = i18n('Privacy.Passkey.LastUsage', [formatDate(new Date(passkey.last_usage_date * 1000), { withTime: true })]);
     return [created, ' • ', lastUsed];
   };
   return (
@@ -40,8 +40,8 @@ const PasskeyItem = (passkey: Passkey) => {
               descriptionLangKey: 'Passkey.Deletion.Text',
               button: {
                 langKey: 'Delete',
-                isDanger: true
-              }
+                isDanger: true,
+              },
             });
 
             setDisabled(true);
@@ -53,8 +53,8 @@ const PasskeyItem = (passkey: Passkey) => {
               });
             });
           },
-          danger: true
-        }]
+          danger: true,
+        }],
       }}
     >
       <Show when={!passkey.software_emoji_id}>
@@ -68,8 +68,8 @@ const PasskeyItem = (passkey: Passkey) => {
             docId: passkey.software_emoji_id!,
             size: 42,
             wrapOptions: {
-              middleware: createMiddleware().get()
-            }
+              middleware: createMiddleware().get(),
+            },
           }).container}
         </Row.Media>
       </Show>
@@ -79,7 +79,7 @@ const PasskeyItem = (passkey: Passkey) => {
 
 const PasskeysTab = () => {
   const [tab] = useSuperTab<AppPasskeysTabClass>();
-  const {i18n} = useHotReloadGuard();
+  const { i18n } = useHotReloadGuard();
   const appConfig = useAppConfig();
 
   const onCreation = (passkey: Passkey) => {
@@ -91,7 +91,7 @@ const PasskeysTab = () => {
   };
 
   createEffect(() => {
-    if(!tab.payload.passkeys.length && !IS_WEB_AUTHN_SUPPORTED) {
+    if (!tab.payload.passkeys.length && !IS_WEB_AUTHN_SUPPORTED) {
       tab.close();
     }
   });

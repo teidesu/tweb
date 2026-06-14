@@ -1,4 +1,4 @@
-import {IS_SAFARI} from '@environment/userAgent';
+import { IS_SAFARI } from '@environment/userAgent';
 
 /*
  * This is used as a workaround for a memory leak in Safari caused by using Transferable objects to
@@ -9,12 +9,12 @@ import {IS_SAFARI} from '@environment/userAgent';
  */
 
 let CAN_USE_TRANSFERABLES: boolean;
-if(!IS_SAFARI) CAN_USE_TRANSFERABLES = true;
+if (!IS_SAFARI) CAN_USE_TRANSFERABLES = true;
 else {
   try {
     const match = navigator.userAgent.match(/Version\/(.+?) /);
     CAN_USE_TRANSFERABLES = +match![1] >= 14;
-  } catch(err) {
+  } catch (err) {
     CAN_USE_TRANSFERABLES = false;
   }
 }

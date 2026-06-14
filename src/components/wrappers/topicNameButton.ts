@@ -1,5 +1,5 @@
 import wrapTopicThreadAnchor from '@lib/richTextProcessor/wrapTopicThreadAnchor';
-import {avatarNew} from '@components/avatarNew';
+import { avatarNew } from '@components/avatarNew';
 import Icon from '@components/icon';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
 
@@ -10,14 +10,14 @@ export default async function wrapTopicNameButton(
     noLink?: boolean
   } & Pick<Parameters<typeof wrapPeerTitle>[0], 'peerId' | 'threadId' | 'wrapOptions' | 'withIcons' | 'dialog'>
 ) {
-  const {peerId, threadId, lastMsgId} = options;
+  const { peerId, threadId, lastMsgId } = options;
 
   let loadPromise: Promise<any> = Promise.resolve();
   let element: HTMLElement;
 
-  if(options.noAvatarAndLink) {
+  if (options.noAvatarAndLink) {
     element = document.createElement('span');
-  } else if(options.noLink) {
+  } else if (options.noLink) {
     element = document.createElement('span');
     element.dataset.savedFrom = `${options.peerId}_${options.lastMsgId}`;
     element.classList.add('has-avatar');
@@ -26,7 +26,7 @@ export default async function wrapTopicNameButton(
       peerId: options.peerId,
       isDialog: true,
       middleware: options.wrapOptions!.middleware!,
-      size: 30
+      size: 30,
     });
 
     avatar.node.classList.add('topic-name-button-avatar');
@@ -37,7 +37,7 @@ export default async function wrapTopicNameButton(
 
     options.withIcons = false;
   } else {
-    element = wrapTopicThreadAnchor({peerId: peerId!, threadId: threadId!, lastMsgId: lastMsgId!});
+    element = wrapTopicThreadAnchor({ peerId: peerId!, threadId: threadId!, lastMsgId: lastMsgId! });
   }
 
   element.classList.add('topic-name', 'topic-name-button');
@@ -54,6 +54,6 @@ export default async function wrapTopicNameButton(
   return {
     cached: true,
     element,
-    loadPromise
+    loadPromise,
   };
 }

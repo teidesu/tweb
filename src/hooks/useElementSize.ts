@@ -1,8 +1,8 @@
-import {Accessor, createMemo, createRenderEffect, createRoot, onCleanup} from 'solid-js';
-import {createStore, Store} from 'solid-js/store';
+import { Accessor, createMemo, createRenderEffect, createRoot, onCleanup } from 'solid-js';
+import { createStore, Store } from 'solid-js/store';
 
 import pickKeys from '@helpers/object/pickKeys';
-import {requestRAF} from '@helpers/solid/requestRAF';
+import { requestRAF } from '@helpers/solid/requestRAF';
 
 
 type SizeRoot = {
@@ -16,10 +16,10 @@ const NULL_KEY = {};
 const map = new WeakMap<Element | typeof NULL_KEY, SizeRoot>();
 
 const createSizeRoot = (element: Accessor<Element>) => createRoot(dispose => {
-  const [store, setStore] = createStore({width: 0, height: 0});
+  const [store, setStore] = createStore({ width: 0, height: 0 });
 
   createRenderEffect(() => {
-    if(!element()) return;
+    if (!element()) return;
 
     setStore(pickKeys(element().getBoundingClientRect(), ['width', 'height']));
 
@@ -27,14 +27,14 @@ const createSizeRoot = (element: Accessor<Element>) => createRoot(dispose => {
 
     const resizeObserver = new ResizeObserver(([entry]) => {
       const boxSize = entry.borderBoxSize[0];
-      if(!boxSize) return;
+      if (!boxSize) return;
 
       callback = () => setStore({
         width: boxSize.inlineSize,
-        height: boxSize.blockSize
+        height: boxSize.blockSize,
       });
 
-      if(isQueued) return;
+      if (isQueued) return;
       isQueued = true;
 
       requestRAF(() => {
@@ -54,7 +54,7 @@ const createSizeRoot = (element: Accessor<Element>) => createRoot(dispose => {
   return {
     count: 0,
     store,
-    dispose
+    dispose,
   };
 });
 
@@ -64,13 +64,13 @@ export default function useElementSize(element: Accessor<Element>) {
 
     const root = map.get(key) || createSizeRoot(element);
 
-    if(!map.has(key)) map.set(key, root);
+    if (!map.has(key)) map.set(key, root);
 
     root.count++;
 
     onCleanup(() => {
       root.count--;
-      if(!root.count) {
+      if (!root.count) {
         root.dispose();
         map.delete(key);
       }
@@ -85,6 +85,6 @@ export default function useElementSize(element: Accessor<Element>) {
     },
     get height() {
       return root().store.height;
-    }
+    },
   };
 }

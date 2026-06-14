@@ -43,7 +43,7 @@ const C2L: {[k: string]: string} = {
   'ь': 'm',
   'б': ',',
   'ю': '.',
-  '.': '/'
+  '.': '/',
 };
 
 export function clearBadCharsAndTrim(text: string) {
@@ -68,7 +68,7 @@ export default function cleanSearchText(text: string, latinize = true) {
   return processSearchText(text, {
     clearBadChars: true,
     latinize,
-    ignoreCase: true
+    ignoreCase: true,
   });
 }
 
@@ -82,10 +82,10 @@ export type ProcessSearchTextOptions = Partial<{
 export function processSearchText(text = '', options: ProcessSearchTextOptions = {}) {
   const hasTag = options.includeTag && text.charAt(0) === '%';
   const originalText = text;
-  if(options.clearBadChars) text = clearBadCharsAndTrim(text);
-  if(options.latinize) text = latinizeString(text);
-  if(options.ignoreCase) text = text.toLowerCase();
-  if(hasTag) text = '%' + text;
-  if(options.latinize) text += '\x01' + fixCyrillic(originalText);
+  if (options.clearBadChars) text = clearBadCharsAndTrim(text);
+  if (options.latinize) text = latinizeString(text);
+  if (options.ignoreCase) text = text.toLowerCase();
+  if (hasTag) text = '%' + text;
+  if (options.latinize) text += '\x01' + fixCyrillic(originalText);
   return text;
 }

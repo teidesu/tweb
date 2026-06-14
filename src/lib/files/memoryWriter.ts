@@ -15,7 +15,7 @@ export default class MemoryWriter implements StreamWriter {
   public async write(part: Uint8Array, offset: number) {
     // sometimes file size can be bigger than the prov
     const endOffset = offset + part.byteLength;
-    if(endOffset > this.bytes.byteLength) {
+    if (endOffset > this.bytes.byteLength) {
       const newBytes = new Uint8Array(endOffset);
       newBytes.set(this.bytes, 0);
       this.bytes = newBytes;
@@ -35,7 +35,7 @@ export default class MemoryWriter implements StreamWriter {
   public finalize(saveToStorage = true) {
     const blob = blobConstruct(this.bytes, this.mimeType);
 
-    if(saveToStorage && this.saveFileCallback) {
+    if (saveToStorage && this.saveFileCallback) {
       this.saveFileCallback(blob);
     }
 

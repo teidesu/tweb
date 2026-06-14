@@ -1,21 +1,21 @@
 import contextMenuController from '@helpers/contextMenuController';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {AttachClickOptions, CLICK_EVENT_NAME, hasMouseMovedSinceDown} from '@helpers/dom/clickEvent';
+import { AttachClickOptions, CLICK_EVENT_NAME, hasMouseMovedSinceDown } from '@helpers/dom/clickEvent';
 import ListenerSetter from '@helpers/listenerSetter';
 import ButtonIcon from '@components/buttonIcon';
-import ButtonMenu, {ButtonMenuItemOptionsVerifiable} from '@components/buttonMenu';
+import ButtonMenu, { ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
 import filterAsync from '@helpers/array/filterAsync';
-import {doubleRaf} from '@helpers/schedulers';
+import { doubleRaf } from '@helpers/schedulers';
 import callbackify from '@helpers/callbackify';
 import findUpClassName from '@helpers/dom/findUpClassName';
-import {MenuPositionPadding, positionMenuTrigger} from '@helpers/positionMenu';
+import { MenuPositionPadding, positionMenuTrigger } from '@helpers/positionMenu';
 
 // TODO: refactor for attachClickEvent, because if move finger after touchstart, it will start anyway
 export function ButtonMenuToggleHandler({
   el,
   onOpen,
   options,
-  onClose
+  onClose,
 }: {
   el: HTMLElement,
   onOpen?: (e: Event) => any,
@@ -25,12 +25,12 @@ export function ButtonMenuToggleHandler({
   const add = options?.listenerSetter ? options.listenerSetter.add(el) : el.addEventListener.bind(el);
 
   add(CLICK_EVENT_NAME, (e: Event) => {
-    if(!el.classList.contains('btn-menu-toggle') || hasMouseMovedSinceDown(e)) return false;
+    if (!el.classList.contains('btn-menu-toggle') || hasMouseMovedSinceDown(e)) return false;
 
     cancelEvent(e);
 
-    if(el.classList.contains('menu-open')) {
-      if(e.target && (e.target as HTMLElement).classList.contains('btn-menu')) {
+    if (el.classList.contains('menu-open')) {
+      if (e.target && (e.target as HTMLElement).classList.contains('btn-menu')) {
         return;
       }
 
@@ -39,7 +39,7 @@ export function ButtonMenuToggleHandler({
       const result = onOpen?.(e);
       const open = (element?: HTMLElement) => {
         const openedMenu = element ?? el.querySelector('.btn-menu') as HTMLDivElement;
-        if(!openedMenu) {
+        if (!openedMenu) {
           return;
         }
 
@@ -70,7 +70,7 @@ export default function ButtonMenuToggle({
   noIcon,
   icon = 'more',
   appendTo,
-  positionPadding
+  positionPadding,
 }: {
   buttonOptions?: Parameters<typeof ButtonIcon>[1],
   listenerSetter?: ListenerSetter,
@@ -86,7 +86,7 @@ export default function ButtonMenuToggle({
   icon?: (string & {}) | Icon,
   positionPadding?: MenuPositionPadding
 }) {
-  if(buttonOptions) {
+  if (buttonOptions) {
     buttonOptions.asDiv = true;
   }
 
@@ -112,17 +112,17 @@ export default function ButtonMenuToggle({
     onOpen: async(e) => {
       const _tempId = ++tempId;
       await onOpenBefore?.(e);
-      if(_tempId !== tempId) return;
-      if(closeTimeout) {
+      if (_tempId !== tempId) return;
+      if (closeTimeout) {
         clearCloseTimeout();
-        if(element?.isConnected) {
+        if (element?.isConnected) {
           return element;
         }
       }
 
       const filteredButtons = await filterButtonMenuItems(buttons);
-      if(_tempId !== tempId) return;
-      if(!filteredButtons.length) {
+      if (_tempId !== tempId) return;
+      if (!filteredButtons.length) {
         return;
       }
 
@@ -132,30 +132,30 @@ export default function ButtonMenuToggle({
 
       const _element = element = await ButtonMenu({
         buttons: filteredButtons,
-        listenerSetter
+        listenerSetter,
       });
-      if(_tempId !== tempId) return;
+      if (_tempId !== tempId) return;
       _element.classList.add(direction);
-      if(direction === 'bottom-center') {
+      if (direction === 'bottom-center') {
         _element.style.setProperty('--parent-half-width', ((container ?? button).clientWidth / 2) + 'px');
       }
 
       await onOpen?.(e, _element);
-      if(_tempId !== tempId) return;
+      if (_tempId !== tempId) return;
 
       appendTo.append(_element);
-      if(autoPosition) {
-        positionMenuTrigger(button, _element, direction, positionPadding ?? {top: 8, bottom: 8});
+      if (autoPosition) {
+        positionMenuTrigger(button, _element, direction, positionPadding ?? { top: 8, bottom: 8 });
       }
       await doubleRaf();
-      if(_tempId !== tempId) {
+      if (_tempId !== tempId) {
         _element.remove();
       }
 
       return _element
     },
     options: {
-      listenerSetter: attachListenerSetter
+      listenerSetter: attachListenerSetter,
     },
     onClose: () => {
       ++tempId;
@@ -167,13 +167,13 @@ export default function ButtonMenuToggle({
         closeTimeout = undefined;
         listenerSetter.removeAll();
         buttons.forEach((button) => {
-          try {button.dispose?.();} catch{}
+          try {button.dispose?.();} catch {}
           button.element = undefined;
         });
         canDeleteTextElementsOnClose.forEach((button) => delete button.textElement);
         element.remove();
       }, 300);
-    }
+    },
   });
 
   return button;

@@ -1,9 +1,9 @@
 import IS_WEB_AUTHN_SUPPORTED from '@environment/webAuthn';
-import {Passkey} from '@layer';
-import {getInputPasskeyCredential} from '@appManagers/utils/account/getInputPasskeyResponse';
-import {i18n} from '@lib/langPack';
+import { Passkey } from '@layer';
+import { getInputPasskeyCredential } from '@appManagers/utils/account/getInputPasskeyResponse';
+import { i18n } from '@lib/langPack';
 import rootScope from '@lib/rootScope';
-import {toastNew} from '@components/toast';
+import { toastNew } from '@components/toast';
 import showFeatureDetailsPopup from '@components/popups/featureDetails';
 
 export async function createPasskey() {
@@ -19,13 +19,13 @@ export async function createPasskey() {
   // }
 
   try {
-    const credential = await navigator.credentials.create({publicKey: publicKeyCredentialCreationOptions});
+    const credential = await navigator.credentials.create({ publicKey: publicKeyCredentialCreationOptions });
     const passkey = await rootScope.managers.appAccountManager.registerPasskey(getInputPasskeyCredential(credential as PublicKeyCredential));
-    toastNew({langPackKey: 'Passkey.Created'});
+    toastNew({ langPackKey: 'Passkey.Created' });
     return passkey;
-  } catch(err) {
+  } catch (err) {
     console.error('passkey error', err);
-    toastNew({langPackKey: 'Passkey.CreationError'});
+    toastNew({ langPackKey: 'Passkey.CreationError' });
     throw err;
   }
 }
@@ -33,13 +33,13 @@ export async function createPasskey() {
 export default function showPasskeyPopup(onCreation?: (passkey: Passkey) => void) {
   showFeatureDetailsPopup({
     rows: [
-      {icon: 'key', title: i18n('Passkey.Row1.Title'), subtitle: i18n('Passkey.Row1.Subtitle')},
-      {icon: 'faceid', title: i18n('Passkey.Row2.Title'), subtitle: i18n('Passkey.Row2.Subtitle')},
-      {icon: 'lock', title: i18n('Passkey.Row3.Title'), subtitle: i18n('Passkey.Row3.Subtitle')}
+      { icon: 'key', title: i18n('Passkey.Row1.Title'), subtitle: i18n('Passkey.Row1.Subtitle') },
+      { icon: 'faceid', title: i18n('Passkey.Row2.Title'), subtitle: i18n('Passkey.Row2.Subtitle') },
+      { icon: 'lock', title: i18n('Passkey.Row3.Title'), subtitle: i18n('Passkey.Row3.Subtitle') },
     ],
     sticker: {
       name: 'key',
-      size: 120
+      size: 120,
     },
     title: i18n('Passkey.Title'),
     subtitle: i18n('Passkey.Subtitle'),
@@ -50,18 +50,18 @@ export default function showPasskeyPopup(onCreation?: (passkey: Passkey) => void
           const passkey = await createPasskey();
           close();
           onCreation?.(passkey);
-        } catch(err) {
+        } catch (err) {
           return false;
         }
-      }
+      },
     }, {
       text: i18n('Passkey.Skip'),
       onClick: () => {},
       isCancel: true,
-      isSecondary: true
+      isSecondary: true,
     }] : [{
       text: i18n('Passkey.Unsupported'),
-      isCancel: true
-    }]
+      isCancel: true,
+    }],
   });
 }

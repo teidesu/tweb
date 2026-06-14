@@ -1,24 +1,24 @@
-import {createSignal, For, onCleanup, onMount, Show, untrack, useContext} from 'solid-js';
-import PopupElement, {createPopup, PopupContext} from '@components/popups/indexTsx';
+import { createSignal, For, onCleanup, onMount, Show, untrack, useContext } from 'solid-js';
+import PopupElement, { createPopup, PopupContext } from '@components/popups/indexTsx';
 
 import Chat from '@components/chat/chat';
 import Button from '@components/buttonTsx';
 import CheckboxFieldTsx from '@components/checkboxFieldTsx';
-import {ButtonIconTsx} from '@components/buttonIconTsx';
+import { ButtonIconTsx } from '@components/buttonIconTsx';
 import InputField from '@components/inputField';
 import Row from '@components/rowTsx';
 import Section from '@components/section';
-import {PAYMENT_REJECTED} from '@components/chat/paidMessagesInterceptor';
-import {toastNew} from '@components/toast';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { PAYMENT_REJECTED } from '@components/chat/paidMessagesInterceptor';
+import { toastNew } from '@components/toast';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import getRichValueWithCaret from '@helpers/dom/getRichValueWithCaret';
-import {fastRaf} from '@helpers/schedulers';
+import { fastRaf } from '@helpers/schedulers';
 import ListenerSetter from '@helpers/listenerSetter';
-import {I18nTsx} from '@helpers/solid/i18n';
+import { I18nTsx } from '@helpers/solid/i18n';
 import classNames from '@helpers/string/classNames';
-import {InputMedia, Message, MessageMedia, TodoItem} from '@layer';
-import {i18n, LangPackKey} from '@lib/langPack';
-import {wrapEmojiTextWithEntities} from '@lib/richTextProcessor/wrapEmojiText';
+import { InputMedia, Message, MessageMedia, TodoItem } from '@layer';
+import { i18n, LangPackKey } from '@lib/langPack';
+import { wrapEmojiTextWithEntities } from '@lib/richTextProcessor/wrapEmojiText';
 
 import css from '@components/popups/checklist.module.scss';
 
@@ -30,7 +30,7 @@ export type ChecklistPopupOptions = {
 };
 
 export default function showChecklistPopup(options: ChecklistPopupOptions): void {
-  const {chat, editMessage, focusItemId, appending} = options;
+  const { chat, editMessage, focusItemId, appending } = options;
 
   const titleKey: LangPackKey = appending ? 'ChecklistAddTasks' :
     editMessage ? 'EditChecklist' : 'NewChecklist';
@@ -65,7 +65,7 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
     let btnConfirmEl!: HTMLButtonElement;
 
     managers.apiManager.getAppConfig().then((appConfig) => {
-      if(!middleware()) return;
+      if (!middleware()) return;
 
       const itemLengthMax = appConfig.todo_item_length_max ?? 255;
       setMaxItems(appConfig.todo_items_max ?? 10);
@@ -73,18 +73,18 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
       const _titleInput = new InputField({
         placeholder: 'NewChecklist.TitlePlaceholder',
         name: 'title',
-        canBeEdited: !appending
+        canBeEdited: !appending,
       });
 
       const updateConfirmButton = () => {
         const ok = (() => {
-          if(!_titleInput.value) return false;
+          if (!_titleInput.value) return false;
           let items$ = items();
-          if(appending) {
+          if (appending) {
             items$ = items$.filter((v) => !v.existing);
           }
 
-          if(items$.length === 0) return false;
+          if (items$.length === 0) return false;
           return items$.every((v) => {
             const val = v.field.value.trim();
             return val.length > 0 && val.length <= itemLengthMax;
@@ -97,27 +97,27 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
       listenerSetter.add(_titleInput.input)('input', updateConfirmButton);
 
       addItem = (existing?: TodoItem) => {
-        if(items().length >= maxItems()) return;
+        if (items().length >= maxItems()) return;
 
         const field = new InputField({
           placeholder: 'NewChecklist.TaskPlaceholder',
           name: 'item',
           maxLength: itemLengthMax,
-          canBeEdited: !(existing && appending)
+          canBeEdited: !(existing && appending),
         });
-        if(existing) {
+        if (existing) {
           field.setValueSilently(wrapEmojiTextWithEntities(existing.title), true);
         }
         listenerSetter.add(field.input)('input', updateConfirmButton);
         setItems((v) => {
           let id: number;
-          if(existing) id = existing.id;
-          else if(v.length > 0) id = v[v.length - 1].id + 1;
+          if (existing) id = existing.id;
+          else if (v.length > 0) id = v[v.length - 1].id + 1;
           else id = 0;
-          return [...v, {id, existing: !!existing, field}];
+          return [...v, { id, existing: !!existing, field }];
         });
         updateConfirmButton();
-        if(!existing || existing.id === focusItemId) {
+        if (!existing || existing.id === focusItemId) {
           fastRaf(() => {
             field.input.focus();
           });
@@ -131,7 +131,7 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
 
       handleConfirm = async() => {
         let promise!: Promise<any>;
-        if(appending) {
+        if (appending) {
           const maxId = editMessage?.media.todo.list.reduce((max, item) => Math.max(max, item.id), 0) ?? 0;
           const newItems = items().filter((v) => !v.existing);
 
@@ -147,10 +147,10 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
                 title: {
                   _: 'textWithEntities',
                   text: richValue.value,
-                  entities: richValue.entities
-                }
+                  entities: richValue.entities,
+                },
               };
-            })
+            }),
           });
         } else {
           const title = getRichValueWithCaret(_titleInput.input, true, false);
@@ -161,12 +161,12 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
               _: 'todoList',
               pFlags: {
                 others_can_append: allowOthersToAddTasks() ? true : undefined,
-                others_can_complete: allowOthersToMarkAsDone() ? true : undefined
+                others_can_complete: allowOthersToMarkAsDone() ? true : undefined,
               },
               title: {
                 _: 'textWithEntities',
                 text: title.value,
-                entities: title.entities
+                entities: title.entities,
               },
               list: items().map((v, idx) => {
                 const richValue = getRichValueWithCaret(v.field.input, true, false);
@@ -177,22 +177,22 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
                   title: {
                     _: 'textWithEntities',
                     text: richValue.value,
-                    entities: richValue.entities
-                  }
+                    entities: richValue.entities,
+                  },
                 };
-              })
-            }
+              }),
+            },
           };
 
-          if(editMessage) {
+          if (editMessage) {
             promise = managers.appMessagesManager.editMessage(editMessage, editMessage.message, {
-              newMedia: inputMedia
+              newMedia: inputMedia,
             });
           } else {
             const sendingParams = chat.getMessageSendingParams();
 
             const preparedPaymentResult = await chat.input.paidMessageInterceptor.prepareStarsForPayment(1);
-            if(preparedPaymentResult === PAYMENT_REJECTED) return;
+            if (preparedPaymentResult === PAYMENT_REJECTED) return;
 
             sendingParams.confirmedPaymentResult = preparedPaymentResult;
 
@@ -200,10 +200,10 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
 
             managers.appMessagesManager.sendOther({
               ...sendingParams,
-              inputMedia
+              inputMedia,
             });
 
-            if(chat.input.helperType === 'reply') {
+            if (chat.input.helperType === 'reply') {
               chat.input.clearHelper();
             }
 
@@ -211,24 +211,24 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
           }
         }
 
-        if(promise as unknown) {
+        if (promise as unknown) {
           setPending(true);
           promise.then(() => {
             setPending(false);
             context!.hide();
           }).catch(() => {
             setPending(false);
-            toastNew({langPackKey: 'Error.AnError'});
+            toastNew({ langPackKey: 'Error.AnError' });
           });
         }
       };
 
-      if(editMessage) {
+      if (editMessage) {
         _titleInput.setValueSilently(wrapEmojiTextWithEntities(editMessage.media.todo.title), true);
-        for(const item of editMessage.media.todo.list) {
+        for (const item of editMessage.media.todo.list) {
           addItem(item);
         }
-        if(appending) addItem();
+        if (appending) addItem();
       } else {
         addItem();
       }
@@ -239,7 +239,7 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
     onMount(() => {
       attachClickEvent(btnConfirmEl, () => {
         handleConfirm?.();
-      }, {listenerSetter});
+      }, { listenerSetter });
       context!.setBtnConfirmOnEnter(btnConfirmEl);
     });
 

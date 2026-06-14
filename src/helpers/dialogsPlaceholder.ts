@@ -1,7 +1,7 @@
 import Scrollable from '@components/scrollable';
 import rootScope from '@lib/rootScope';
-import {animate} from '@helpers/animation';
-import {drawCircleFromStart} from '@helpers/canvas/drawCircle';
+import { animate } from '@helpers/animation';
+import { drawCircleFromStart } from '@helpers/canvas/drawCircle';
 import roundRect from '@helpers/canvas/roundRect';
 import Shimmer from '@helpers/canvas/shimmer';
 import customProperties from '@helpers/dom/customProperties';
@@ -76,19 +76,19 @@ export default class DialogsPlaceholder {
     this.noSecondLine = sizes.noSecondLine!;
   }
 
-  public attach({container, rect, getRectFrom, onRemove, blockScrollable}: {
+  public attach({ container, rect, getRectFrom, onRemove, blockScrollable }: {
     container: HTMLElement,
     rect?: ReturnType<DialogsPlaceholder['getRectFrom']>,
     getRectFrom?: HTMLElement | DialogsPlaceholder['getRectFrom'],
     onRemove?: DialogsPlaceholder['onRemove'],
     blockScrollable?: DialogsPlaceholder['blockScrollable']
   }) {
-    const {canvas} = this;
+    const { canvas } = this;
 
     this.detachTime = undefined;
     this.onRemove = onRemove!;
     this.getRectFrom = typeof(getRectFrom) === 'function' ? getRectFrom : (getRectFrom || container).getBoundingClientRect.bind(getRectFrom || container);
-    if(this.blockScrollable = blockScrollable!) {
+    if (this.blockScrollable = blockScrollable!) {
       blockScrollable.container.style.overflowY = 'hidden';
     }
 
@@ -98,14 +98,14 @@ export default class DialogsPlaceholder {
   }
 
   public detach(availableLength: number) {
-    if(this.detachTime) {
+    if (this.detachTime) {
       return;
     }
 
     this.availableLength = availableLength;
     this.detachTime = Date.now();
 
-    if(!liteMode.isAvailable('animations')) {
+    if (!liteMode.isAvailable('animations')) {
       this.remove();
     }
   }
@@ -119,10 +119,10 @@ export default class DialogsPlaceholder {
   public remove() {
     this.stopAnimation();
 
-    if(this.canvas.parentElement) {
+    if (this.canvas.parentElement) {
       this.canvas.remove();
 
-      if(this.blockScrollable) {
+      if (this.blockScrollable) {
         this.blockScrollable.container.style.overflowY = '';
         this.blockScrollable = undefined;
       }
@@ -133,7 +133,7 @@ export default class DialogsPlaceholder {
   }
 
   private updateCanvasSize(rect = this.getRectFrom()) {
-    const {canvas} = this;
+    const { canvas } = this;
     const dpr = canvas.dpr = window.devicePixelRatio;
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
@@ -147,17 +147,17 @@ export default class DialogsPlaceholder {
       ctx,
       detachTime,
       length,
-      availableLength
+      availableLength,
     } = this;
 
-    if(!detachTime) {
+    if (!detachTime) {
       return;
-    } else if(!liteMode.isAvailable('animations')) {
+    } else if (!liteMode.isAvailable('animations')) {
       this.remove();
       return;
     }
 
-    const {width} = canvas;
+    const { width } = canvas;
 
     ctx.globalCompositeOperation = 'destination-out';
 
@@ -170,10 +170,10 @@ export default class DialogsPlaceholder {
     const DELAY = 15;
     const elapsedTime = Date.now() - detachTime;
     let completed = true;
-    for(let i = 0; i < length; ++i) {
+    for (let i = 0; i < length; ++i) {
       const delay = availableLength < length && i >= availableLength ? DELAY * (availableLength - 1) : DELAY * i;
       const elapsedRowTime = elapsedTime - delay;
-      if(elapsedRowTime <= 0) {
+      if (elapsedRowTime <= 0) {
         completed = false;
         continue;
       }
@@ -185,7 +185,7 @@ export default class DialogsPlaceholder {
       ctx.fillStyle = `rgba(0, 0, 0, ${progress})`;
       ctx.fill();
 
-      if(progress < 1) {
+      if (progress < 1) {
         completed = false;
       }
     }
@@ -208,7 +208,7 @@ export default class DialogsPlaceholder {
 
     ctx.globalCompositeOperation = 'source-over';
 
-    if(completed) {
+    if (completed) {
       this.remove();
     }
   }
@@ -219,13 +219,13 @@ export default class DialogsPlaceholder {
   }
 
   private startAnimation() {
-    const {canvas, shimmer} = this;
+    const { canvas, shimmer } = this;
     const tempId = ++this.tempId;
     const pattern = this.createPattern();
 
     shimmer.settings({
       canvas,
-      fillStyle: pattern!
+      fillStyle: pattern!,
     });
 
     const middleware = () => {
@@ -234,12 +234,12 @@ export default class DialogsPlaceholder {
 
     this.renderFrame();
     animate(() => {
-      if(!middleware()) {
+      if (!middleware()) {
         return false;
       }
 
       // ! should've removed the loop if animations are disabled
-      if(liteMode.isAvailable('animations')) {
+      if (liteMode.isAvailable('animations')) {
         this.renderFrame();
       }
 
@@ -263,10 +263,10 @@ export default class DialogsPlaceholder {
   };
 
   private onResize = () => {
-    const {canvas} = this;
-    const {width, height, dpr} = canvas;
+    const { canvas } = this;
+    const { width, height, dpr } = canvas;
     this.updateCanvasSize();
-    if(canvas.width === width && canvas.height === height && canvas.dpr === dpr) {
+    if (canvas.width === width && canvas.height === height && canvas.dpr === dpr) {
       return;
     }
 
@@ -275,7 +275,7 @@ export default class DialogsPlaceholder {
   };
 
   private createPattern() {
-    const {canvas, ctx} = this;
+    const { canvas, ctx } = this;
 
     const patternCanvas = document.createElement('canvas');
     const patternContext = patternCanvas.getContext('2d');
@@ -294,7 +294,7 @@ export default class DialogsPlaceholder {
     const gapVertical = this.gapVertical * dpr!;
     let gapVerticalSum = 0;
     const length = this.length = Math.ceil(canvas.height / dialogHeight);
-    for(let i = 0; i < length; ++i) {
+    for (let i = 0; i < length; ++i) {
       this.drawChat(patternContext!, i, i * dialogHeight + gapVerticalSum);
       gapVerticalSum += gapVertical;
     }
@@ -304,22 +304,22 @@ export default class DialogsPlaceholder {
 
   private drawChat(ctx: CanvasRenderingContext2D, i: number, y: number) {
     let generatedValues = this.generatedValues[i];
-    if(!generatedValues) {
+    if (!generatedValues) {
       generatedValues = this.generatedValues[i] = {
         firstLineWidth: 40 + Math.random() * 100, // 120
         secondLineWidth: this.noSecondLine ? 0 : 120 + Math.random() * 130, // 240
-        statusWidth: (this.statusWidth ? this.statusWidth + Math.random() * 16 : undefined)!
+        statusWidth: (this.statusWidth ? this.statusWidth + Math.random() * 16 : undefined)!,
       };
     }
 
     const {
       firstLineWidth,
       secondLineWidth,
-      statusWidth
+      statusWidth,
     } = generatedValues;
 
-    const {canvas} = ctx;
-    const {dpr} = canvas;
+    const { canvas } = ctx;
+    const { dpr } = canvas;
     y /= dpr!;
 
     const {
@@ -327,12 +327,12 @@ export default class DialogsPlaceholder {
       marginVertical,
       lineHeight,
       lineBorderRadius,
-      lineMarginVertical
+      lineMarginVertical,
     } = this;
 
     let marginLeft = this.marginLeft;
 
-    if(avatarSize) {
+    if (avatarSize) {
       drawCircleFromStart(ctx, marginLeft, y + marginVertical, avatarSize / 2, true);
       marginLeft += avatarSize + this.avatarMarginRight;
     }

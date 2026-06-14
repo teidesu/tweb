@@ -1,21 +1,21 @@
-import {createMemo, createSignal, JSX, onCleanup, onMount, untrack, useContext} from 'solid-js';
-import {unwrap} from 'solid-js/store';
-import {ChatFull, ChatTheme, UserFull, WallPaper} from '@layer';
-import PopupElement, {createPopup, PopupContext} from '@components/popups/indexTsx';
+import { createMemo, createSignal, JSX, onCleanup, onMount, untrack, useContext } from 'solid-js';
+import { unwrap } from 'solid-js/store';
+import { ChatFull, ChatTheme, UserFull, WallPaper } from '@layer';
+import PopupElement, { createPopup, PopupContext } from '@components/popups/indexTsx';
 import Chat from '@components/chat/chat';
-import {ChatBackground, ChatBackgroundTheme} from '@components/chat/bubbles/chatBackground';
-import {ChatType} from '@components/chat/chatType';
-import {NULL_PEER_ID} from '@appManagers/constants';
+import { ChatBackground, ChatBackgroundTheme } from '@components/chat/bubbles/chatBackground';
+import { ChatType } from '@components/chat/chatType';
+import { NULL_PEER_ID } from '@appManagers/constants';
 import themeController from '@helpers/themeController';
 import mediaSizes from '@helpers/mediaSizes';
 import appImManager from '@lib/appImManager';
 import rootScope from '@lib/rootScope';
-import {i18n, LangPackKey} from '@lib/langPack';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { i18n, LangPackKey } from '@lib/langPack';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import replaceContent from '@helpers/dom/replaceContent';
-import {useFullPeer} from '@stores/fullPeers';
-import {appState} from '@stores/appState';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
+import { useFullPeer } from '@stores/fullPeers';
+import { appState } from '@stores/appState';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
 import ListenerSetter from '@helpers/listenerSetter';
 
 export type ChatPreviewAnchor = HTMLElement | {x: number, y: number} | {
@@ -46,7 +46,7 @@ export function chatPreviewAnchorFromDialogRow(li: HTMLElement): ChatPreviewAnch
     left: rect.left,
     right: columnRight,
     top: rect.top,
-    bottom: rect.bottom
+    bottom: rect.bottom,
   };
 }
 
@@ -57,13 +57,13 @@ const PREVIEW_H = 540;
 const MARGIN = 8;
 
 export default function showChatPreviewPopup(options: ChatPreviewOptions): void {
-  if(!options.peerId || options.peerId === NULL_PEER_ID) return;
+  if (!options.peerId || options.peerId === NULL_PEER_ID) return;
 
   // Shift+clicking through several dialogs in a row should swap the preview, not stack them.
   PopupElement.getPopups(CHAT_PREVIEW_POPUP_KIND).forEach((p) => p.hide());
 
   const [show, setShow] = createSignal(true);
-  const handle = {hide: () => setShow(false)};
+  const handle = { hide: () => setShow(false) };
 
   let containerEl!: HTMLDivElement;
   // Held in outer scope so `onClose` (fires before the 250ms close animation) can call
@@ -77,7 +77,7 @@ export default function showChatPreviewPopup(options: ChatPreviewOptions): void 
     const managers = untrack(() => context!.managers);
     const listenerSetter = new ListenerSetter();
 
-    const chat = new Chat(appImManager, managers, false, {sharedMedia: true});
+    const chat = new Chat(appImManager, managers, false, { sharedMedia: true });
     chat.isPreview = true;
     chat.isStandalone = true;
     chat.onPreviewClose = () => handle.hide();
@@ -101,7 +101,7 @@ export default function showChatPreviewPopup(options: ChatPreviewOptions): void 
       let wallPaper: WallPaper | undefined;
       let theme: ChatBackgroundTheme | undefined;
 
-      if(_fullPeer) {
+      if (_fullPeer) {
         wallPaper = unwrap((_fullPeer as ChatFull.channelFull).wallpaper);
         const emoticon = (_fullPeer as ChatFull.channelFull).theme_emoticon ||
           ((_fullPeer as UserFull.userFull).theme as ChatTheme.chatTheme)?.emoticon ||
@@ -110,10 +110,10 @@ export default function showChatPreviewPopup(options: ChatPreviewOptions): void 
         theme = found ? unwrap(found) : undefined;
         // A theme picked by emoticon brings its own wallpaper; the per-peer override
         // shouldn't compete with it.
-        if(emoticon && theme) wallPaper = undefined;
+        if (emoticon && theme) wallPaper = undefined;
       }
 
-      return {theme, wallPaper};
+      return { theme, wallPaper };
     });
 
     onMount(() => {
@@ -129,7 +129,7 @@ export default function showChatPreviewPopup(options: ChatPreviewOptions): void 
         peerId: options.peerId,
         threadId: options.threadId,
         monoforumThreadId: options.monoforumThreadId,
-        lastMsgId: options.lastMsgId
+        lastMsgId: options.lastMsgId,
       });
 
       injectMarkUnreadButton();
@@ -147,14 +147,14 @@ export default function showChatPreviewPopup(options: ChatPreviewOptions): void 
     });
 
     function positionFromAnchor(anchor: ChatPreviewAnchor) {
-      if(!anchor) return;
+      if (!anchor) return;
       let ax: number, ay: number, rectLeft: number;
-      if(anchor instanceof HTMLElement) {
+      if (anchor instanceof HTMLElement) {
         const r = anchor.getBoundingClientRect();
         ax = r.right;
         ay = r.top + r.height / 2;
         rectLeft = r.left;
-      } else if('left' in anchor) {
+      } else if ('left' in anchor) {
         ax = anchor.right;
         ay = anchor.y;
         rectLeft = anchor.left;
@@ -178,7 +178,7 @@ export default function showChatPreviewPopup(options: ChatPreviewOptions): void 
       containerEl.style.setProperty('--preview-height', height + 'px');
 
       let left: number, top: number;
-      if(mediaSizes.isMobile) {
+      if (mediaSizes.isMobile) {
         // On a handheld the left column — and thus the anchor — spans the full width, so
         // there's nowhere to sit the popup beside the row. Centre it in the viewport on
         // both axes rather than tracking the anchor (which would leave it floating at a
@@ -195,12 +195,12 @@ export default function showChatPreviewPopup(options: ChatPreviewOptions): void 
         // collapsing to a negative coordinate.
         const maxLeft = vw > MARGIN * 2 ? vw - width - MARGIN : Infinity;
         const maxTop = vh > MARGIN * 2 ? vh - height - MARGIN : Infinity;
-        if(left > maxLeft) {
+        if (left > maxLeft) {
           const fromLeft = rectLeft - width - MARGIN;
           left = Math.max(MARGIN, fromLeft);
         }
-        if(top < MARGIN) top = MARGIN;
-        if(top > maxTop) top = maxTop;
+        if (top < MARGIN) top = MARGIN;
+        if (top > maxTop) top = maxTop;
       }
 
       containerEl.style.setProperty('--preview-left', left + 'px');
@@ -216,7 +216,7 @@ export default function showChatPreviewPopup(options: ChatPreviewOptions): void 
      */
     function injectMarkUnreadButton() {
       const plateCenter = chat.container.querySelector('.chat-input-control .chat-input-plate-center');
-      if(!plateCenter) return;
+      if (!plateCenter) return;
 
       const btn = document.createElement('button');
       btn.type = 'button';
@@ -229,12 +229,12 @@ export default function showChatPreviewPopup(options: ChatPreviewOptions): void 
       // only visible one.
       const keepOnlyOurButton = () => {
         plateCenter.querySelectorAll<HTMLElement>(':scope > button').forEach((b) => {
-          if(b !== btn && !b.classList.contains('hide')) b.classList.add('hide');
+          if (b !== btn && !b.classList.contains('hide')) b.classList.add('hide');
         });
       };
       keepOnlyOurButton();
       const observer = new MutationObserver(keepOnlyOurButton);
-      observer.observe(plateCenter, {attributes: true, attributeFilter: ['class'], subtree: true, childList: true});
+      observer.observe(plateCenter, { attributes: true, attributeFilter: ['class'], subtree: true, childList: true });
       middleware.onDestroy(() => observer.disconnect());
 
       const setLabel = (key: LangPackKey) => replaceContent(btn, i18n(key));
@@ -242,9 +242,9 @@ export default function showChatPreviewPopup(options: ChatPreviewOptions): void 
 
       const refresh = async() => {
         const dialog = await getDialog();
-        if(!dialog || !middleware()) return;
+        if (!dialog || !middleware()) return;
         const unread = await managers.appMessagesManager.isDialogUnread(dialog);
-        if(!middleware()) return;
+        if (!middleware()) return;
         setLabel(unread ? 'MarkAsRead' : 'MarkAsUnread');
       };
       refresh();
@@ -252,35 +252,35 @@ export default function showChatPreviewPopup(options: ChatPreviewOptions): void 
       // Keep the label in sync with state mutations performed elsewhere (other client, this
       // very button, etc.). `subscribeOn` cleans up automatically when the popup disposes.
       subscribeOn(rootScope)('dialog_unread', (payload: {peerId: PeerId}) => {
-        if(payload.peerId === options.peerId) refresh();
+        if (payload.peerId === options.peerId) refresh();
       });
       subscribeOn(rootScope)('dialogs_multiupdate', refresh);
 
       attachClickEvent(btn, async() => {
         const dialog = await getDialog();
-        if(!dialog) return;
+        if (!dialog) return;
         const isUnread = await managers.appMessagesManager.isDialogUnread(dialog);
         // Same branching as `DialogsContextMenu.onUnreadClick` — keeps mono-forum, thread and
         // regular dialogs behaving consistently with the rest of the app.
-        if(options.monoforumThreadId) {
+        if (options.monoforumThreadId) {
           managers.appMessagesManager.markDialogUnread({
             peerId: options.peerId,
             monoforumThreadId: options.monoforumThreadId,
-            read: isUnread
+            read: isUnread,
           });
-        } else if(isUnread) {
-          if(!options.threadId) {
-            managers.appMessagesManager.markDialogUnread({peerId: options.peerId, read: true});
+        } else if (isUnread) {
+          if (!options.threadId) {
+            managers.appMessagesManager.markDialogUnread({ peerId: options.peerId, read: true });
           } else {
             const topMessage = (dialog as any).top_message;
-            if(topMessage) {
-              managers.appMessagesManager.readHistory({peerId: options.peerId, maxId: topMessage, threadId: options.threadId});
+            if (topMessage) {
+              managers.appMessagesManager.readHistory({ peerId: options.peerId, maxId: topMessage, threadId: options.threadId });
             }
           }
-        } else if(!options.threadId) {
-          managers.appMessagesManager.markDialogUnread({peerId: options.peerId});
+        } else if (!options.threadId) {
+          managers.appMessagesManager.markDialogUnread({ peerId: options.peerId });
         }
-      }, {listenerSetter});
+      }, { listenerSetter });
     }
 
     function getDialog() {
@@ -303,8 +303,8 @@ export default function showChatPreviewPopup(options: ChatPreviewOptions): void 
             width={PREVIEW_W}
             height={PREVIEW_H}
             onHighlightColor={(hsla) => {
-              if(chat?.container) {
-                themeController.applyHighlightingColor({hsla, element: chat.container});
+              if (chat?.container) {
+                themeController.applyHighlightingColor({ hsla, element: chat.container });
               }
             }}
           />
@@ -324,7 +324,7 @@ export default function showChatPreviewPopup(options: ChatPreviewOptions): void 
       withoutOverlay={!mediaSizes.isMobile}
       show={show()}
       kind={CHAT_PREVIEW_POPUP_KIND}
-      containerProps={{ref: (el: HTMLDivElement) => containerEl = el}}
+      containerProps={{ ref: (el: HTMLDivElement) => containerEl = el }}
       onClose={() => chatRef?.beforeDestroy()}
     >
       <Inner />

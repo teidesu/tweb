@@ -1,50 +1,50 @@
-import type {MyDocument} from '@appManagers/appDocsManager';
+import type { MyDocument } from '@appManagers/appDocsManager';
 import ProgressivePreloader from '@components/preloader';
-import appMediaPlaybackController, {MediaItem, MediaListLoaderFactory, MediaSearchContext} from '@components/appMediaPlaybackController';
-import {DocumentAttribute, Message} from '@layer';
+import appMediaPlaybackController, { MediaItem, MediaListLoaderFactory, MediaSearchContext } from '@components/appMediaPlaybackController';
+import { DocumentAttribute, Message } from '@layer';
 import mediaSizes from '@helpers/mediaSizes';
-import {IS_SAFARI} from '@environment/userAgent';
+import { IS_SAFARI } from '@environment/userAgent';
 import rootScope from '@lib/rootScope';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import LazyLoadQueue from '@components/lazyLoadQueue';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
-import ListenerSetter, {Listener} from '@helpers/listenerSetter';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
+import ListenerSetter, { Listener } from '@helpers/listenerSetter';
 import noop from '@helpers/noop';
 import findUpClassName from '@helpers/dom/findUpClassName';
-import {joinElementsWith} from '@lib/langPack';
-import {MiddleEllipsisElement} from '@components/middleEllipsis';
-import {formatFullSentTime} from '@helpers/date';
+import { joinElementsWith } from '@lib/langPack';
+import { MiddleEllipsisElement } from '@components/middleEllipsis';
+import { formatFullSentTime } from '@helpers/date';
 import throttleWithRaf from '@helpers/schedulers/throttleWithRaf';
-import {NULL_PEER_ID} from '@appManagers/constants';
+import { NULL_PEER_ID } from '@appManagers/constants';
 import formatBytes from '@helpers/formatBytes';
-import {animateSingle} from '@helpers/animation';
+import { animateSingle } from '@helpers/animation';
 import clamp from '@helpers/number/clamp';
 import toHHMMSS from '@helpers/string/toHHMMSS';
 import MediaProgressLine from '@components/mediaProgressLine';
 import setInnerHTML from '@helpers/dom/setInnerHTML';
-import {AppManagers} from '@lib/managers';
+import { AppManagers } from '@lib/managers';
 import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
 import wrapSenderToPeer from '@components/wrappers/senderToPeer';
 import wrapSentTime from '@components/wrappers/sentTime';
 import getMediaFromMessage from '@appManagers/utils/messages/getMediaFromMessage';
 import appDownloadManager from '@lib/appDownloadManager';
 import wrapPhoto from '@components/wrappers/photo';
-import {doubleRaf} from '@helpers/schedulers';
+import { doubleRaf } from '@helpers/schedulers';
 import safePlay from '@helpers/dom/safePlay';
-import {_tgico} from '@helpers/tgico';
+import { _tgico } from '@helpers/tgico';
 import Icon from '@components/icon';
 import setCurrentTime from '@helpers/dom/setCurrentTime';
 import makeError from '@helpers/makeError';
-import {hideToast, toastNew} from '@components/toast';
+import { hideToast, toastNew } from '@components/toast';
 import anchorCallback from '@helpers/dom/anchorCallback';
 import PopupPremium from '@components/popups/premium';
-import {Middleware} from '@helpers/middleware';
+import { Middleware } from '@helpers/middleware';
 
 
 const UNMOUNT_PRELOADER = true;
 
-rootScope.addEventListener('messages_media_read', ({mids, peerId}) => {
+rootScope.addEventListener('messages_media_read', ({ mids, peerId }) => {
   mids.forEach((mid) => {
     const attr = `[data-mid="${mid}"][data-peer-id="${peerId}"]`;
     (Array.from(document.querySelectorAll(`audio-element.is-unread${attr}, .media-round.is-unread${attr}`))).forEach((elem) => {
@@ -55,13 +55,13 @@ rootScope.addEventListener('messages_media_read', ({mids, peerId}) => {
 
 // https://github.com/LonamiWebs/Telethon/blob/4393ec0b83d511b6a20d8a20334138730f084375/telethon/utils.py#L1285
 export function decodeWaveform(waveform: Uint8Array | number[]) {
-  if(!(waveform instanceof Uint8Array)) {
+  if (!(waveform instanceof Uint8Array)) {
     waveform = new Uint8Array(waveform);
   }
 
   const bitCount = waveform.length * 8;
   const valueCount = bitCount / 5 | 0;
-  if(!valueCount) {
+  if (!valueCount) {
     return new Uint8Array([]);
   }
 
@@ -69,13 +69,13 @@ export function decodeWaveform(waveform: Uint8Array | number[]) {
   try {
     const dataView = new DataView(waveform.buffer);
     result = new Uint8Array(valueCount);
-    for(let i = 0; i < valueCount; i++) {
+    for (let i = 0; i < valueCount; i++) {
       const byteIndex = i * 5 / 8 | 0;
       const bitShift = i * 5 % 8;
       const value = dataView.getUint16(byteIndex, true);
       result[i] = (value >> bitShift) & 0b00011111;
     }
-  } catch(err) {
+  } catch (err) {
     result = new Uint8Array([]);
   }
 
@@ -100,12 +100,12 @@ function createWaveformBars(waveform: Uint8Array, duration: number) {
   const maxDelta = barHeightMax - barHeightMin;
 
   let html = '';
-  for(let i = 0, barX = 0, sumI = 0; i < wfSize; ++i) {
+  for (let i = 0, barX = 0, sumI = 0; i < wfSize; ++i) {
     const value = waveform[i] || 0;
-    if((sumI + barCount) >= wfSize) { // draw bar
+    if ((sumI + barCount) >= wfSize) { // draw bar
       sumI = sumI + barCount - wfSize;
-      if(sumI < (barCount + 1) / 2) {
-        if(maxValue < value) maxValue = value;
+      if (sumI < (barCount + 1) / 2) {
+        if (maxValue < value) maxValue = value;
       }
 
       const bar_value = Math.max(((maxValue * maxDelta) + ((normValue + 1) / 2)) / (normValue + 1), barHeightMin);
@@ -115,13 +115,13 @@ function createWaveformBars(waveform: Uint8Array, duration: number) {
 
       barX += barWidth + barMargin;
 
-      if(sumI < (barCount + 1) / 2) {
+      if (sumI < (barCount + 1) / 2) {
         maxValue = 0;
       } else {
         maxValue = value;
       }
     } else {
-      if(maxValue < value) maxValue = value;
+      if (maxValue < value) maxValue = value;
 
       sumI += barCount;
     }
@@ -129,7 +129,7 @@ function createWaveformBars(waveform: Uint8Array, duration: number) {
 
   let container: HTMLElement, svg: SVGSVGElement;
 
-  if(!html) {
+  if (!html) {
 
   } else {
     container = document.createElement('div');
@@ -145,7 +145,7 @@ function createWaveformBars(waveform: Uint8Array, duration: number) {
     container.append(svg);
   }
 
-  return {svg: svg!, container: container!, availW};
+  return { svg: svg!, container: container!, availW };
 }
 
 async function wrapVoiceMessage(audioEl: AudioElement) {
@@ -154,17 +154,17 @@ async function wrapVoiceMessage(audioEl: AudioElement) {
   const message = audioEl.message;
   const doc = audioEl.doc ?? (getMediaFromMessage(message) as MyDocument);
 
-  if(message.pFlags.out) {
+  if (message.pFlags.out) {
     audioEl.classList.add('is-out');
   }
 
   let waveform = (doc.attributes.find((attribute) => attribute._ === 'documentAttributeAudio') as DocumentAttribute.documentAttributeAudio)?.waveform || new Uint8Array([]);
   waveform = decodeWaveform(waveform.slice(0, 63));
 
-  const {svg, container: svgContainer, availW} = createWaveformBars(waveform, doc.duration!);
+  const { svg, container: svgContainer, availW } = createWaveformBars(waveform, doc.duration!);
 
   let fakeSvgContainer: HTMLElement;
-  if(svgContainer) {
+  if (svgContainer) {
     fakeSvgContainer = svgContainer.cloneNode(true) as HTMLElement;
     fakeSvgContainer.classList.add('audio-waveform-fake');
     svgContainer.classList.add('audio-waveform-background');
@@ -173,7 +173,7 @@ async function wrapVoiceMessage(audioEl: AudioElement) {
   const waveformContainer = document.createElement('div');
   waveformContainer.classList.add('audio-waveform-container');
 
-  if(svgContainer) {
+  if (svgContainer) {
     waveformContainer.append(svgContainer, fakeSvgContainer!);
   }
 
@@ -181,10 +181,10 @@ async function wrapVoiceMessage(audioEl: AudioElement) {
   timeDiv.classList.add('audio-time');
   audioEl.append(waveformContainer, timeDiv);
 
-  if(audioEl.customAudioToTextButton) {
+  if (audioEl.customAudioToTextButton) {
     audioEl.classList.add('can-transcribe');
     audioEl.append(audioEl.customAudioToTextButton);
-  } else if(audioEl.transcriptionState !== undefined) {
+  } else if (audioEl.transcriptionState !== undefined) {
     audioEl.classList.add('can-transcribe');
     const speechRecognitionDiv = document.createElement('div');
     speechRecognitionDiv.classList.add('audio-to-text-button');
@@ -196,8 +196,8 @@ async function wrapVoiceMessage(audioEl: AudioElement) {
 
     speechRecognitionDiv.onclick = () => {
       const speechTextDiv = (findUpClassName(audioEl, 'document-wrapper') || findUpClassName(audioEl, 'quote-text')).querySelector<HTMLElement>('.audio-transcribed-text');
-      if(audioEl.transcriptionState === 0) {
-        if(speechTextDiv) {
+      if (audioEl.transcriptionState === 0) {
+        if (speechTextDiv) {
           speechTextDiv.classList.remove('hide');
           speechRecognitionIcon.classList.remove(_tgico('transcribe'));
           speechRecognitionIcon.classList.add(_tgico('up'));
@@ -205,16 +205,16 @@ async function wrapVoiceMessage(audioEl: AudioElement) {
           audioEl.transcriptionState = 2;
         } else {
           const message = audioEl.message;
-          if(message.pFlags.is_outgoing) {
+          if (message.pFlags.is_outgoing) {
             return;
           }
-          if(!rootScope.getPremium()) {
+          if (!rootScope.getPremium()) {
             toastNew({
               langPackKey: 'AudioAndVideoTranscription.PremiumAlert',
               langPackArguments: [anchorCallback(() => {
                 hideToast();
-                PopupPremium.show({feature: 'voice_to_text'});
-              })]
+                PopupPremium.show({ feature: 'voice_to_text' });
+              })],
             });
             return;
           }
@@ -222,14 +222,14 @@ async function wrapVoiceMessage(audioEl: AudioElement) {
           audioEl.transcriptionState = 1;
           !speechRecognitionLoader.parentElement && speechRecognitionDiv.append(speechRecognitionLoader);
           doubleRaf().then(() => {
-            if(audioEl.transcriptionState === 1) {
+            if (audioEl.transcriptionState === 1) {
               speechRecognitionLoader.classList.add('active');
             }
           });
 
           audioEl.managers.appMessagesManager.transcribeAudio(message).catch(noop);
         }
-      } else if(audioEl.transcriptionState === 2) {
+      } else if (audioEl.transcriptionState === 2) {
         // Hide transcription
         speechTextDiv!.classList.add('hide');
         speechRecognitionIcon.classList.remove(_tgico('up'));
@@ -242,7 +242,7 @@ async function wrapVoiceMessage(audioEl: AudioElement) {
   }
 
   let progress = svg as any as HTMLElement, progressLine: MediaProgressLine;
-  if(!progress) {
+  if (!progress) {
     progressLine = new MediaProgressLine();
 
     waveformContainer.append(progressLine.container);
@@ -253,19 +253,19 @@ async function wrapVoiceMessage(audioEl: AudioElement) {
 
     const setAnimation = () => {
       animateSingle(() => {
-        if(!audio) return false;
+        if (!audio) return false;
         onTimeUpdate();
         return !audio.paused;
       }, audioEl);
     };
 
     const onTimeUpdate = () => {
-      if(fakeSvgContainer) {
+      if (fakeSvgContainer) {
         fakeSvgContainer.style.width = (audio.currentTime / audio.duration * 100) + '%';
       }
     };
 
-    if(!audio.paused || (audio.currentTime > 0 && audio.currentTime !== audio.duration)) {
+    if (!audio.paused || (audio.currentTime > 0 && audio.currentTime !== audio.duration)) {
       onTimeUpdate();
     }
 
@@ -277,7 +277,7 @@ async function wrapVoiceMessage(audioEl: AudioElement) {
     progress && audioEl.readyPromise.then(() => {
       let mousedown = false, mousemove = false;
       progress.addEventListener('mouseleave', (e) => {
-        if(mousedown) {
+        if (mousedown) {
           audioEl.togglePlay(undefined, true);
           mousedown = false;
         }
@@ -285,12 +285,12 @@ async function wrapVoiceMessage(audioEl: AudioElement) {
       });
       progress.addEventListener('mousemove', (e) => {
         mousemove = true;
-        if(mousedown) scrub(e);
+        if (mousedown) scrub(e);
       });
       progress.addEventListener('mousedown', (e) => {
         e.preventDefault();
-        if(e.button !== 0) return;
-        if(!audio.paused) {
+        if (e.button !== 0) return;
+        if (!audio.paused) {
           audioEl.togglePlay(undefined, false);
         }
 
@@ -298,19 +298,19 @@ async function wrapVoiceMessage(audioEl: AudioElement) {
         mousedown = true;
       });
       progress.addEventListener('mouseup', (e) => {
-        if(mousemove && mousedown) {
+        if (mousemove && mousedown) {
           audioEl.togglePlay(undefined, true);
           mousedown = false;
         }
       });
       attachClickEvent(progress, (e) => {
         cancelEvent(e);
-        if(!audio.paused) scrub(e);
+        if (!audio.paused) scrub(e);
       });
 
       function scrub(e: MouseEvent | TouchEvent) {
         let offsetX: number;
-        if(e instanceof MouseEvent) {
+        if (e instanceof MouseEvent) {
           offsetX = e.offsetX;
         } else { // touch
           const rect = (e.target as HTMLElement).getBoundingClientRect();
@@ -318,7 +318,7 @@ async function wrapVoiceMessage(audioEl: AudioElement) {
         }
 
         let scrubTime = offsetX / availW /* width */ * audio.duration;
-        if(audio.duration && scrubTime >= audio.duration) {
+        if (audio.duration && scrubTime >= audio.duration) {
           scrubTime = audio.duration - 0.01;
         }
         setCurrentTime(audio, scrubTime);
@@ -328,7 +328,7 @@ async function wrapVoiceMessage(audioEl: AudioElement) {
     !progress && progressLine.setMedia({
       media: audio,
       streamable: doc.supportsStreaming,
-      duration: doc.duration
+      duration: doc.duration,
     });
 
     return () => {
@@ -353,19 +353,19 @@ async function wrapAudio(audioEl: AudioElement) {
 
   const audioAttribute = doc.attributes?.find((attr) => attr._ === 'documentAttributeAudio') as DocumentAttribute.documentAttributeAudio;
 
-  if(!isVoice) {
+  if (!isVoice) {
     const parts: (Node | string)[] = [];
-    if(audioAttribute?.performer) {
+    if (audioAttribute?.performer) {
       parts.push(wrapEmojiText(audioAttribute.performer));
     }
 
-    if(withTime) {
+    if (withTime) {
       parts.push(formatFullSentTime(message.date));
-    } else if(!parts.length) {
+    } else if (!parts.length) {
       parts.push(formatBytes(doc.size!));
     }
 
-    if(audioEl.showSender) {
+    if (audioEl.showSender) {
       parts.push(await wrapSenderToPeer(message));
     }
 
@@ -386,7 +386,7 @@ async function wrapAudio(audioEl: AudioElement) {
   middleEllipsisEl.dataset.fontSize = audioEl.dataset.fontSize;
   middleEllipsisEl.dataset.sizeType = audioEl.dataset.sizeType;
   (middleEllipsisEl as any).getSize = (audioEl as any).getSize;
-  if(isVoice) {
+  if (isVoice) {
     middleEllipsisEl.append(await wrapSenderToPeer(message));
   } else {
     setInnerHTML(middleEllipsisEl, wrapEmojiText((audioAttribute?.title ?? doc.file_name)!));
@@ -394,7 +394,7 @@ async function wrapAudio(audioEl: AudioElement) {
 
   titleEl.append(middleEllipsisEl);
 
-  if(audioEl.showSender) {
+  if (audioEl.showSender) {
     titleEl.append(wrapSentTime(message));
   }
 
@@ -408,7 +408,7 @@ async function wrapAudio(audioEl: AudioElement) {
     progressLine.setMedia({
       media: audioEl.audio,
       streamable: doc.supportsStreaming,
-      duration: doc.duration
+      duration: doc.duration,
     });
 
     audioEl.addAudioListener('ended', () => {
@@ -419,11 +419,11 @@ async function wrapAudio(audioEl: AudioElement) {
     });
 
     const onPlay = () => {
-      if(!launched) {
+      if (!launched) {
         audioEl.classList.add('audio-show-progress');
         launched = true;
 
-        if(progressLine) {
+        if (progressLine) {
           subtitleDiv.lastChild!.replaceWith(progressLine.container);
         }
       }
@@ -431,7 +431,7 @@ async function wrapAudio(audioEl: AudioElement) {
 
     audioEl.addAudioListener('play', onPlay);
 
-    if(!audioEl.audio.paused || audioEl.audio.currentTime > 0) {
+    if (!audioEl.audio.paused || audioEl.audio.currentTime > 0) {
       onPlay();
     }
 
@@ -446,10 +446,10 @@ async function wrapAudio(audioEl: AudioElement) {
 }
 
 function constructDownloadPreloader(tryAgainOnFail = true) {
-  const preloader = new ProgressivePreloader({cancelable: true, tryAgainOnFail});
+  const preloader = new ProgressivePreloader({ cancelable: true, tryAgainOnFail });
   preloader.construct();
 
-  if(!tryAgainOnFail) {
+  if (!tryAgainOnFail) {
     preloader.circle.setAttributeNS(null, 'r', '23');
     preloader.totalLength = 143.58203125;
   }
@@ -462,36 +462,36 @@ export const findMediaTargets = (anchor: HTMLElement, anchorMid: number/* , useS
   // if(anchor.classList.contains('search-super-item') || !useSearch) {
   const isBubbles = !anchor.classList.contains('search-super-item');
   const container = findUpClassName(anchor, !isBubbles ? 'tabs-tab' : 'bubbles-inner');
-  if(container) {
+  if (container) {
     const attr = `:not([data-is-outgoing="1"])`;
     const justAudioSelector = `.audio:not(.is-voice)${attr}`;
     let selectors: string[];
-    if(!anchor.matches(justAudioSelector)) {
+    if (!anchor.matches(justAudioSelector)) {
       selectors = [`.audio.is-voice${attr}`, `.media-round${attr}`];
     } else {
       selectors = [justAudioSelector];
     }
 
-    if(isBubbles) {
+    if (isBubbles) {
       const prefix = '.bubble:not(.webpage) ';
       selectors = selectors.map((s) => prefix + s);
     }
 
     const selector = selectors.join(', ');
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+
     let elements = Array.from(container.querySelectorAll(selector)) as HTMLElement[];
     elements = elements.filter((element) => element === anchor || element.matches(':not([data-to-be-skipped="1"])'));
     const idx = elements.indexOf(anchor);
 
-    const mediaItems: MediaItem[] = elements.map((element) => ({peerId: element.dataset.peerId!.toPeerId(), mid: +element.dataset.mid!}));
+    const mediaItems: MediaItem[] = elements.map((element) => ({ peerId: element.dataset.peerId!.toPeerId(), mid: +element.dataset.mid! }));
 
     prev = mediaItems.slice(0, idx);
     next = mediaItems.slice(idx + 1);
   }
   // }
 
-  if((next!.length && next![0].mid < anchorMid) || (prev!.length && prev![prev!.length - 1].mid > anchorMid)) {
+  if ((next!.length && next![0].mid < anchorMid) || (prev!.length && prev![prev!.length - 1].mid > anchorMid)) {
     [prev, next] = [next!.reverse(), prev!.reverse()];
   }
 
@@ -572,11 +572,11 @@ export default class AudioElement extends HTMLElement {
     downloadDiv.classList.add('audio-download');
 
     const isUnread = doc.type !== 'audio' && this.message && this.message.pFlags.media_unread;
-    if(isUnread) {
+    if (isUnread) {
       this.classList.add('is-unread');
     }
 
-    if(uploadingFileName) {
+    if (uploadingFileName) {
       this.classList.add('is-outgoing');
       this.append(downloadDiv);
     }
@@ -595,13 +595,13 @@ export default class AudioElement extends HTMLElement {
         message: this.message,
         autoload: autoload!,
         doc: this.doc,
-        slot: this.mediaSlot
+        slot: this.mediaSlot,
       });
 
       const readyPromise = this.readyPromise = deferredPromise<void>();
-      if(this.audio.readyState >= this.audio.HAVE_CURRENT_DATA) readyPromise.resolve();
+      if (this.audio.readyState >= this.audio.HAVE_CURRENT_DATA) readyPromise.resolve();
       else {
-        this.addAudioListener('canplay', () => readyPromise.resolve(), {once: true});
+        this.addAudioListener('canplay', () => readyPromise.resolve(), { once: true });
       }
 
       this.onTypeDisconnect = onTypeLoad();
@@ -613,7 +613,7 @@ export default class AudioElement extends HTMLElement {
         toggle.classList.toggle('playing', !audio.paused);
       };
 
-      if(!audio.paused || (audio.currentTime > 0 && audio.currentTime !== audio.duration)) {
+      if (!audio.paused || (audio.currentTime > 0 && audio.currentTime !== audio.duration)) {
         onPlay();
       }
 
@@ -630,7 +630,7 @@ export default class AudioElement extends HTMLElement {
       });
 
       this.addAudioListener('timeupdate', () => {
-        if((!audio.currentTime && audio.paused) || appMediaPlaybackController.isSafariBuffering(audio)) return;
+        if ((!audio.currentTime && audio.paused) || appMediaPlaybackController.isSafariBuffering(audio)) return;
         audioTimeDiv.innerText = getTimeStr();
       });
 
@@ -641,7 +641,7 @@ export default class AudioElement extends HTMLElement {
       this.addAudioListener('play', onPlay);
     };
 
-    if(doc.thumbs?.length) {
+    if (doc.thumbs?.length) {
       const imgs: HTMLElement[] = [];
       const wrapped = await wrapPhoto({
         photo: doc,
@@ -651,17 +651,17 @@ export default class AudioElement extends HTMLElement {
         boxHeight: 48,
         loadPromises: this.loadPromises,
         withoutPreloader: true,
-        lazyLoadQueue: this.lazyLoadQueue
+        lazyLoadQueue: this.lazyLoadQueue,
       });
       toggle.style.width = toggle.style.height = '';
-      if(wrapped.images.thumb) imgs.push(wrapped.images.thumb);
-      if(wrapped.images.full) imgs.push(wrapped.images.full);
+      if (wrapped.images.thumb) imgs.push(wrapped.images.thumb);
+      if (wrapped.images.full) imgs.push(wrapped.images.full);
 
       this.classList.add('audio-with-thumb');
       imgs.forEach((img) => img.classList.add('audio-thumb'));
     }
 
-    if(!isOutgoing) {
+    if (!isOutgoing) {
       let preloader: ProgressivePreloader = (this.preloader as ProgressivePreloader);
 
       const autoDownload = doc.type !== 'audio'/*  || !this.noAutoDownload */;
@@ -670,7 +670,7 @@ export default class AudioElement extends HTMLElement {
       const r = this.load = (shouldPlay: boolean, controlledAutoplay?: boolean) => {
         this.load = undefined;
 
-        if(this.audio.src) {
+        if (this.audio.src) {
           return;
         }
 
@@ -678,15 +678,15 @@ export default class AudioElement extends HTMLElement {
 
         this.onDownloadInit(shouldPlay);
 
-        if(!preloader) {
-          if(doc.supportsStreaming) {
+        if (!preloader) {
+          if (doc.supportsStreaming) {
             this.classList.add('corner-download');
 
             let pauseListener: Listener;
             const onPlay = () => {
               const preloader = constructDownloadPreloader(false);
               const deferred = deferredPromise<void>();
-              deferred.notifyAll!({done: 75, total: 100});
+              deferred.notifyAll!({ done: 75, total: 100 });
               deferred.catch(() => {
                 this.audio.pause();
                 appMediaPlaybackController.willBePlayed(undefined!);
@@ -699,7 +699,7 @@ export default class AudioElement extends HTMLElement {
 
               pauseListener = this.addAudioListener('pause', () => {
                 deferred.cancel!();
-              }, {once: true}) as any;
+              }, { once: true }) as any;
 
               this.onDownloadInit(shouldPlay);
             };
@@ -716,23 +716,23 @@ export default class AudioElement extends HTMLElement {
           } else {
             preloader = constructDownloadPreloader();
 
-            if(!shouldPlay) {
+            if (!shouldPlay) {
               this.readyPromise = deferredPromise();
             }
 
             const load = () => {
               this.onDownloadInit(shouldPlay);
 
-              const download = appDownloadManager.downloadMediaURL({media: doc});
+              const download = appDownloadManager.downloadMediaURL({ media: doc });
 
-              if(!shouldPlay) {
+              if (!shouldPlay) {
                 download.then(() => {
                   this.readyPromise.resolve();
                 });
               }
 
               preloader.attach(downloadDiv, false, download);
-              return {download};
+              return { download };
             };
 
             preloader.setDownloadFunction(load);
@@ -740,7 +740,7 @@ export default class AudioElement extends HTMLElement {
           }
         }
 
-        if(this.classList.contains('corner-download')) {
+        if (this.classList.contains('corner-download')) {
           toggle.append(downloadDiv);
         } else {
           this.append(downloadDiv);
@@ -749,7 +749,7 @@ export default class AudioElement extends HTMLElement {
         this.classList.add('downloading');
 
         this.readyPromise.then(() => {
-          if(UNMOUNT_PRELOADER) {
+          if (UNMOUNT_PRELOADER) {
             this.classList.remove('downloading');
             downloadDiv.classList.add('downloaded');
             setTimeout(() => {
@@ -759,7 +759,7 @@ export default class AudioElement extends HTMLElement {
 
           // setTimeout(() => {
           // release loaded audio
-          if(!controlledAutoplay && appMediaPlaybackController.willBePlayedMedia === this.audio) {
+          if (!controlledAutoplay && appMediaPlaybackController.willBePlayedMedia === this.audio) {
             safePlay(this.audio);
             appMediaPlaybackController.willBePlayed(undefined!);
           }
@@ -767,16 +767,16 @@ export default class AudioElement extends HTMLElement {
         });
       };
 
-      if(!this.audio?.src) {
-        if(autoDownload) {
+      if (!this.audio?.src) {
+        if (autoDownload) {
           r(false);
         } else {
           attachClickEvent(toggle, () => {
             r(true);
-          }, {once: true, listenerSetter: this.listenerSetter});
+          }, { once: true, listenerSetter: this.listenerSetter });
         }
       }
-    } else if(uploadingFileName) {
+    } else if (uploadingFileName) {
       this.classList.add('downloading');
       this.preloader = constructDownloadPreloader(false);
       const promise = appDownloadManager.getUpload(uploadingFileName);
@@ -795,10 +795,10 @@ export default class AudioElement extends HTMLElement {
   }
 
   private onDownloadInit(shouldPlay: boolean) {
-    if(shouldPlay) {
+    if (shouldPlay) {
       appMediaPlaybackController.willBePlayed(this.audio); // prepare for loading audio
 
-      if(IS_SAFARI && !this.audio.autoplay) {
+      if (IS_SAFARI && !this.audio.autoplay) {
         this.audio.autoplay = true;
       }
     }
@@ -807,7 +807,7 @@ export default class AudioElement extends HTMLElement {
   public togglePlay(e?: Event, paused = this.audio.paused) {
     e && cancelEvent(e);
 
-    if(paused) {
+    if (paused) {
       this.setTargetsIfNeeded();
       safePlay(this.audio);
     } else {
@@ -819,14 +819,14 @@ export default class AudioElement extends HTMLElement {
     const hadSearchContext = !!this.searchContext;
     const searchContextChanged = appMediaPlaybackController.setSearchContext(this.searchContext || {
       peerId: NULL_PEER_ID,
-      inputFilter: {_: 'inputMessagesFilterEmpty'},
-      useSearch: false
+      inputFilter: { _: 'inputMessagesFilterEmpty' },
+      useSearch: false,
     });
     const loaderFactoryChanged = this.listLoaderFactory && appMediaPlaybackController.getListLoaderFactory() !== this.listLoaderFactory;
-    if(searchContextChanged || loaderFactoryChanged) {
+    if (searchContextChanged || loaderFactoryChanged) {
       const thisTarget = this.dataset.toBeSkipped ? this.audio.parentElement : this;
       const [prev, next] = !hadSearchContext ? [] : findMediaTargets(thisTarget!, this.message.mid!/* , this.searchContext.useSearch */);
-      appMediaPlaybackController.setTargets({peerId: this.message.peerId!, mid: this.message.mid!}, prev, next, this.listLoaderFactory);
+      appMediaPlaybackController.setTargets({ peerId: this.message.peerId!, mid: this.message.mid! }, prev, next, this.listLoaderFactory);
     }
   }
 
@@ -852,26 +852,26 @@ export default class AudioElement extends HTMLElement {
   }
 
   private destroy() {
-    if(this.onTypeDisconnect) {
+    if (this.onTypeDisconnect) {
       this.onTypeDisconnect();
       this.onTypeDisconnect = null;
     }
 
-    if(this.readyPromise) {
+    if (this.readyPromise) {
       this.readyPromise.reject();
     }
 
-    if(this.listenerSetter) {
+    if (this.listenerSetter) {
       this.listenerSetter.removeAll();
       this.listenerSetter = null as any;
     }
 
-    if(this.preloader) {
+    if (this.preloader) {
       this.preloader = null;
     }
   }
 }
 
-if(!customElements.get('audio-element')) {
+if (!customElements.get('audio-element')) {
   customElements.define('audio-element', AudioElement);
 }

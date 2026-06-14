@@ -1,12 +1,12 @@
-import {createResource} from 'solid-js';
+import { createResource } from 'solid-js';
 
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 
-import {usePromiseCollector} from '@components/solidJsTabs/promiseCollector';
+import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
 
 
 const useAppConfig = () => {
-  const {rootScope} = useHotReloadGuard();
+  const { rootScope } = useHotReloadGuard();
   const promiseCollector = usePromiseCollector();
 
   return createResource(() => {

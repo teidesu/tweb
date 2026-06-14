@@ -1,17 +1,17 @@
-import {MOUNT_CLASS_TO} from '@config/debug';
+import { MOUNT_CLASS_TO } from '@config/debug';
 import deepEqual from '@helpers/object/deepEqual';
 import base64ToBytes from '@helpers/string/base64ToBytes';
-import {AccountRegisterDevice, AccountUnregisterDevice} from '@layer';
+import { AccountRegisterDevice, AccountUnregisterDevice } from '@layer';
 import appManagersManager from '@appManagers/appManagersManager';
-import {logger} from '@lib/logger';
+import { logger } from '@lib/logger';
 import DeferredIsUsingPasscode from '@lib/passcode/deferredIsUsingPasscode';
 import CryptoWorker from '@lib/crypto/cryptoMessagePort';
-import type {PushSubscriptionNotify} from '@lib/webPushApiManager';
+import type { PushSubscriptionNotify } from '@lib/webPushApiManager';
 import bytesCmp from '@helpers/bytes/bytesCmp';
-import {MessageKeyUtils} from '@lib/mtproto/messageKeyUtils';
-import {TLDeserialization} from '@lib/mtproto/tl_utils';
-import type {PushNotificationObject} from '@lib/serviceWorker/push';
-import {ActiveAccountNumber} from '@lib/accounts/types';
+import { MessageKeyUtils } from '@lib/mtproto/messageKeyUtils';
+import { TLDeserialization } from '@lib/mtproto/tl_utils';
+import type { PushNotificationObject } from '@lib/serviceWorker/push';
+import { ActiveAccountNumber } from '@lib/accounts/types';
 import bytesToBase64 from '@helpers/bytes/bytesToBase64';
 import AccountController from '@lib/accounts/accountController';
 import bytesFromHex from '@helpers/bytes/bytesFromHex';
@@ -41,9 +41,9 @@ export class PushSingleManager {
   private getKeys(): Promise<PushKey[]> {
     return this.keys ??= Promise.all([
       DeferredIsUsingPasscode.isUsingPasscode(),
-      this.getLoggedInAccounts()
+      this.getLoggedInAccounts(),
     ]).then(([isUsingPasscode, accounts]) => {
-      return Promise.all(accounts.map(({accountNumber}) => {
+      return Promise.all(accounts.map(({ accountNumber }) => {
         return this.getKeyForAccountNumber(accountNumber, isUsingPasscode);
       }));
     });
@@ -58,10 +58,10 @@ export class PushSingleManager {
     // * slice last character because key is not divisible by 3
     // * this way we can easily compare base64 strings
     const keyIdBase64 = bytesToBase64(keyId)
-    .replace(/=+$/, '')
-    .slice(0, -1);
+      .replace(/=+$/, '')
+      .slice(0, -1);
 
-    return {key: key, id: keyId, idBase64: keyIdBase64};
+    return { key: key, id: keyId, idBase64: keyIdBase64 };
   }
 
   public getKeysIdsBase64(): Promise<string[]> {
@@ -70,7 +70,7 @@ export class PushSingleManager {
 
   public registerAgain() {
     this.keys = undefined;
-    if(this.registeredDevice) {
+    if (this.registeredDevice) {
       this.registerDevice(this.registeredDevice, true);
     }
   }
@@ -89,11 +89,11 @@ export class PushSingleManager {
 
     Object.values(managersByAccount).forEach((managers, idx) => {
       const peerId = managers.appPeersManager.peerId;
-      if(!!peerId) {
+      if (!!peerId) {
         out.push({
           accountNumber: idx + 1 as ActiveAccountNumber,
           userId: peerId.toUserId(),
-          managers
+          managers,
         });
       }
     });
@@ -102,7 +102,7 @@ export class PushSingleManager {
   }
 
   public async registerDevice(tokenData: PushSubscriptionNotify, override?: boolean) {
-    if(
+    if (
       !override &&
       this.registeredDevice &&
       deepEqual(this.registeredDevice, tokenData)
@@ -122,13 +122,13 @@ export class PushSingleManager {
       other_uids: userIds,
       app_sandbox: false,
       secret: (undefined as unknown as Uint8Array<ArrayBufferLike>),
-      no_muted: true
+      no_muted: true,
     };
 
-    const promises = accounts.map(async({managers}, idx) => {
+    const promises = accounts.map(async({ managers }, idx) => {
       return managers.apiManager.invokeApi('account.registerDevice', {
         ...params,
-        secret: keys[idx].key
+        secret: keys[idx].key,
       })/* .then(() => {
         return managers.apiManager.invokeApi('account.updateDeviceLocked', {
           period: 5
@@ -137,7 +137,7 @@ export class PushSingleManager {
     });
 
     await Promise.all(promises);
-    if(this.registeredDevice !== tokenData) {
+    if (this.registeredDevice !== tokenData) {
       return;
     }
 
@@ -145,7 +145,7 @@ export class PushSingleManager {
   }
 
   public async unregisterDevice(tokenData: PushSubscriptionNotify) {
-    if(!this.registeredDevice || !tokenData) {
+    if (!this.registeredDevice || !tokenData) {
       return;
     }
 
@@ -158,15 +158,15 @@ export class PushSingleManager {
     const params: AccountUnregisterDevice = {
       token_type: tokenData.tokenType,
       token: tokenData.tokenValue,
-      other_uids: userIds
+      other_uids: userIds,
     };
 
-    const promises = accounts.map(({managers}) => {
+    const promises = accounts.map(({ managers }) => {
       return managers.apiManager.invokeApi('account.unregisterDevice', params);
     });
 
     await Promise.all(promises);
-    if(this.registeredDevice) {
+    if (this.registeredDevice) {
       return;
     }
 
@@ -176,16 +176,16 @@ export class PushSingleManager {
   // * https://github.com/DrKLO/Telegram/blob/3708e9847a96ed681ff811d391749cc4535b03f2/TMessagesProj/src/main/java/org/telegram/messenger/GcmPushListenerService.java#L56
   public async decryptPush(pString: string, idBase64: string): Promise<PushNotificationObject> {
     const pushKey = await this.getKeys().then((keys) => keys.find((key) => key.idBase64 === idBase64));
-    if(!pushKey) {
+    if (!pushKey) {
       throw new Error('no push key found');
     }
 
-    const {key: authKey, id: authKeyId} = pushKey;
+    const { key: authKey, id: authKeyId } = pushKey;
     const bytes = base64ToBytes(pString);
     let deserializer = new TLDeserialization(bytes);
 
     const inAuthKeyId = deserializer.fetchIntBytes(64, true, 'auth_key_id');
-    if(!bytesCmp(inAuthKeyId, authKeyId)) {
+    if (!bytesCmp(inAuthKeyId, authKeyId)) {
       throw new Error('invalid auth key id');
     }
 
@@ -200,7 +200,7 @@ export class PushSingleManager {
     );
 
     const calcMessageKey = await MessageKeyUtils.getMsgKey(authKey, decrypted, true);
-    if(!bytesCmp(messageKey, calcMessageKey)) {
+    if (!bytesCmp(messageKey, calcMessageKey)) {
       throw new Error('server messageKey mismatch');
     }
 

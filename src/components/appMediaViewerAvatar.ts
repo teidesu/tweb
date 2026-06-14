@@ -1,14 +1,14 @@
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import AvatarListLoader from '@helpers/avatarListLoader';
-import {Photo} from '@layer';
+import { Photo } from '@layer';
 import appDownloadManager from '@lib/appDownloadManager';
 import appImManager from '@lib/appImManager';
 import rootScope from '@lib/rootScope';
 import AppMediaViewerBase from '@components/appMediaViewerBase';
 import confirmationPopup from '@components/confirmationPopup';
-import {ButtonMenuItemOptionsVerifiable} from '@components/buttonMenu';
+import { ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
 import overlayAvatarVideoOnMover from '@components/appMediaViewerAvatarVideo';
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 
 type AppMediaViewerAvatarTargetType = {element: HTMLElement, photoId: Photo.photo['id'], photo?: Photo.photo};
 export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete', AppMediaViewerAvatarTargetType> {
@@ -19,7 +19,7 @@ export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete
   private fallbackPhotoId?: Photo.photo['id'];
 
   constructor(peerId: PeerId, fallbackPhotoId?: Photo.photo['id']) {
-    super(new AvatarListLoader({peerId, managers: rootScope.managers, fallbackPhotoId}), ['delete']);
+    super(new AvatarListLoader({ peerId, managers: rootScope.managers, fallbackPhotoId }), ['delete']);
 
     this.peerId = peerId;
     this.fallbackPhotoId = fallbackPhotoId;
@@ -39,13 +39,13 @@ export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete
     this.setBtnMenuToggle([{
       icon: 'download',
       text: 'MediaViewer.Context.Download',
-      onClick: this.onDownloadClick
+      onClick: this.onDownloadClick,
     }, this.btnMenuDelete = {
       icon: 'delete',
       className: 'danger',
       text: 'Delete',
       onClick: this.onDeleteClick,
-      verify: () => this.getCanDelete()
+      verify: () => this.getCanDelete(),
     }]);
 
     // * constructing html end
@@ -58,8 +58,8 @@ export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete
   }
 
   private async computeCanDelete(): Promise<boolean> {
-    if(this.peerId === rootScope.myId) return true;
-    if(this.peerId.isAnyChat()) {
+    if (this.peerId === rootScope.myId) return true;
+    if (this.peerId.isAnyChat()) {
       return this.managers.appChatsManager.hasRights(this.peerId.toChatId(), 'change_info');
     }
     return false;
@@ -69,7 +69,7 @@ export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete
     this.openMedia({
       photoId: target.photoId,
       target: target.element,
-      fromRight: -1
+      fromRight: -1,
     });
   };
 
@@ -77,14 +77,14 @@ export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete
     this.openMedia({
       photoId: target.photoId,
       target: target.element,
-      fromRight: 1
+      fromRight: 1,
     });
   };
 
   onDownloadClick = () => {
     appDownloadManager.downloadToDisc({
       media: this.target!.photo!,
-      queueId: appImManager.chat.bubbles.lazyLoadQueue!.queueId
+      queueId: appImManager.chat.bubbles.lazyLoadQueue!.queueId,
     });
   };
 
@@ -97,20 +97,20 @@ export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete
         descriptionLangKey: 'AreYouSureDeletePhoto',
         button: {
           langKey: 'Delete',
-          isDanger: true
-        }
+          isDanger: true,
+        },
       });
-    } catch{
+    } catch {
       return;
     }
 
-    if(peerId.isUser()) {
+    if (peerId.isUser()) {
       await this.managers.appProfileManager.deletePhotos([photoId as string]);
     } else {
       await this.managers.appChatsManager.editPhoto(peerId.toChatId());
     }
 
-    this.target = {element: this.content.media} as any;
+    this.target = { element: this.content.media } as any;
     this.close();
   };
 
@@ -119,7 +119,7 @@ export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete
     target,
     fromRight = 0,
     prevTargets,
-    nextTargets
+    nextTargets,
   }: {
     photoId: Photo.photo['id'],
     target?: HTMLElement,
@@ -127,11 +127,11 @@ export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete
     prevTargets?: AppMediaViewerAvatarTargetType[],
     nextTargets?: AppMediaViewerAvatarTargetType[]
   }) {
-    if(this.setMoverPromise) return this.setMoverPromise;
+    if (this.setMoverPromise) return this.setMoverPromise;
 
     const [photo, canDelete] = await Promise.all([
       this.managers.appPhotosManager.getPhoto(photoId),
-      this.getCanDelete()
+      this.getCanDelete(),
     ]);
 
     this.buttons.delete.classList.toggle('hide', !canDelete);
@@ -149,7 +149,7 @@ export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete
       target: target?.querySelector('img, canvas, video') ? target : undefined,
       reverse: false,
       prevTargets,
-      nextTargets
+      nextTargets,
     });
     this.target!.photoId = photo.id;
     this.target!.photo = photo;
@@ -158,10 +158,10 @@ export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete
     // static image once the open/move animation has settled.
     this.videoAvatarCleanup?.();
     this.videoAvatarCleanup = undefined;
-    if((photo).video_sizes?.length) {
+    if ((photo).video_sizes?.length) {
       Promise.resolve(ret).then(() => {
         // Bail if the viewer navigated to a different photo while opening.
-        if(this.target?.photoId !== photo.id || !this.content.mover) return;
+        if (this.target?.photoId !== photo.id || !this.content.mover) return;
         this.videoAvatarCleanup = overlayAvatarVideoOnMover(this.content.mover, photo);
       });
     }
@@ -179,14 +179,14 @@ export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete
   // date text; this prepends the avatar-specific prefix + a large-dot separator.
   private applyDateExtra() {
     const dateEl = this.author?.date;
-    if(!dateEl) return;
+    if (!dateEl) return;
 
     // Re-applied on navigation and once the count loads — drop the old prefix.
     dateEl.querySelector('.media-viewer-date-extra')?.remove();
     dateEl.querySelector('.media-viewer-date-dot')?.remove();
 
     const content = this.getDateExtraContent();
-    if(!content) return;
+    if (!content) return;
 
     const extra = document.createElement('span');
     extra.classList.add('media-viewer-date-extra');
@@ -202,17 +202,17 @@ export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete
     const photoId = this.target?.photoId;
 
     // The public (fallback) photo is labelled, not numbered.
-    if(this.fallbackPhotoId && photoId && photoId === this.fallbackPhotoId) {
+    if (this.fallbackPhotoId && photoId && photoId === this.fallbackPhotoId) {
       return i18n('MediaViewer.ProfilePublicPhoto');
     }
 
     const index = this.listLoader.index; // 0-based; -1 until the count is known
     const count = this.listLoader.count;
-    if(count !== undefined && index >= 0) {
+    if (count !== undefined && index >= 0) {
       // The fallback takes one slot in count but is shown as a label, so exclude
       // it from the "of N" total.
       const total = this.fallbackPhotoId ? count - 1 : count;
-      if(total > 1) return i18n('Of', [index + 1, total]);
+      if (total > 1) return i18n('Of', [index + 1, total]);
     }
 
     return undefined;

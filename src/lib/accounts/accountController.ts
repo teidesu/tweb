@@ -1,18 +1,18 @@
-import {MOUNT_CLASS_TO} from '@config/debug';
+import { MOUNT_CLASS_TO } from '@config/debug';
 import App from '@config/app';
 import tsNow from '@helpers/tsNow';
-import type {TrueDcId} from '@types';
+import type { TrueDcId } from '@types';
 
 import sessionStorage from '@lib/sessionStorage';
 import DeferredIsUsingPasscode from '@lib/passcode/deferredIsUsingPasscode';
 import StaticUtilityClass from '@lib/staticUtilityClass';
 
-import {AccountSessionData, ActiveAccountNumber} from '@lib/accounts/types';
-import type {UserAuth} from '@appManagers/constants';
-import {MAX_ACCOUNTS} from '@lib/accounts/constants';
+import { AccountSessionData, ActiveAccountNumber } from '@lib/accounts/types';
+import type { UserAuth } from '@appManagers/constants';
+import { MAX_ACCOUNTS } from '@lib/accounts/constants';
 import bytesToHex from '@helpers/bytes/bytesToHex';
 import randomize from '@helpers/array/randomize';
-import {isTruthy} from '../../helpers/isTruthy';
+import { isTruthy } from '../../helpers/isTruthy';
 
 export class AccountController extends StaticUtilityClass {
   static async getTotalAccounts() {
@@ -34,7 +34,7 @@ export class AccountController extends StaticUtilityClass {
   static async get(accountNumber: ActiveAccountNumber, updating?: boolean) {
     const data = await sessionStorage.get(`account${accountNumber}`) || {} as AccountSessionData;
 
-    if(!updating && this.fillMissingData(data)) {
+    if (!updating && this.fillMissingData(data)) {
       await this.update(accountNumber, data);
     }
 
@@ -44,14 +44,14 @@ export class AccountController extends StaticUtilityClass {
   static fillMissingData(data: AccountSessionData) {
     return [
       this.fillFingerprint(data),
-      this.fillPushKey(data)
+      this.fillPushKey(data),
     ].some(Boolean);
   }
 
   static fillFingerprint(data: AccountSessionData) {
-    if(!data.auth_key_fingerprint) {
+    if (!data.auth_key_fingerprint) {
       const authKey = data[`dc${App.baseDcId}_auth_key`];
-      if(!authKey) {
+      if (!authKey) {
         return false;
       }
 
@@ -63,7 +63,7 @@ export class AccountController extends StaticUtilityClass {
   }
 
   static fillPushKey(data: AccountSessionData) {
-    if(!data.push_key && data.userId) {
+    if (!data.push_key && data.userId) {
       data.push_key = bytesToHex(randomize(new Uint8Array(256)));
       return true;
     }
@@ -76,22 +76,22 @@ export class AccountController extends StaticUtilityClass {
 
     const updatedData = {
       ...(overrideAll ? {} : prevData),
-      ...data
+      ...data,
     };
 
     this.fillMissingData(updatedData);
 
     await sessionStorage.set({
-      [`account${accountNumber}`]: updatedData
+      [`account${accountNumber}`]: updatedData,
     });
 
-    if(accountNumber === 1) {
+    if (accountNumber === 1) {
       await this.updateStorageForLegacy(updatedData);
     }
 
     (async() => {
       sessionStorage.set({
-        number_of_accounts: await this.getTotalAccounts()
+        number_of_accounts: await this.getTotalAccounts(),
       });
     })();
 
@@ -103,9 +103,9 @@ export class AccountController extends StaticUtilityClass {
    * @param upTo Account to delete basically
    */
   static async shiftAccounts(upTo: ActiveAccountNumber) {
-    for(let i = upTo; i <= MAX_ACCOUNTS; i++) {
+    for (let i = upTo; i <= MAX_ACCOUNTS; i++) {
       await sessionStorage.delete(`account${i}`);
-      if(i < MAX_ACCOUNTS) {
+      if (i < MAX_ACCOUNTS) {
         const toMove = await this.get((i + 1) as ActiveAccountNumber);
         toMove.userId && (await this.update(i, toMove, true));
       }
@@ -116,19 +116,19 @@ export class AccountController extends StaticUtilityClass {
    * Use `null` when needing to remove the values (e.g. when enabling passcode)
    */
   static async updateStorageForLegacy(accountData: Partial<AccountSessionData> | null) {
-    if(accountData !== null && await DeferredIsUsingPasscode.isUsingPasscode()) return; // We can't expose keys if there's a passcode set
+    if (accountData !== null && await DeferredIsUsingPasscode.isUsingPasscode()) return; // We can't expose keys if there's a passcode set
 
-    if(accountData === null) accountData = {};
+    if (accountData === null) accountData = {};
 
     const obj: Parameters<typeof sessionStorage['set']>[0] = {};
     const toClear: (keyof typeof obj)[] = [];
 
     const set = <T extends keyof typeof obj>(key: T, value: typeof obj[T]) => {
-      if(value) obj[key] = value;
+      if (value) obj[key] = value;
       else toClear.push(key);
     };
 
-    for(let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 5; i++) {
       const authKeyKey = `dc${i as TrueDcId}_auth_key` as const;
       const serverSaltKey = `dc${i as TrueDcId}_server_salt` as const;
 
@@ -140,13 +140,13 @@ export class AccountController extends StaticUtilityClass {
     set('user_auth', (accountData['userId'] && {
       date: tsNow(true),
       id: accountData.userId,
-      dcID: accountData.dcId || 0
+      dcID: accountData.dcId || 0,
     }) as UserAuth | undefined);
     set('dc', accountData.dcId);
 
     await Promise.all([
       sessionStorage.set(obj),
-      Promise.all(toClear.map((key) => sessionStorage.delete(key)))
+      Promise.all(toClear.map((key) => sessionStorage.delete(key))),
     ]);
   }
 }

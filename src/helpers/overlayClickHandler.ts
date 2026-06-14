@@ -1,8 +1,8 @@
-import appNavigationController, {NavigationItem} from '@components/appNavigationController';
+import appNavigationController, { NavigationItem } from '@components/appNavigationController';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import {IS_MOBILE_SAFARI} from '@environment/userAgent';
+import { IS_MOBILE_SAFARI } from '@environment/userAgent';
 import cancelEvent from '@helpers/dom/cancelEvent';
-import {CLICK_EVENT_NAME, hasMouseMovedSinceDown} from '@helpers/dom/clickEvent';
+import { CLICK_EVENT_NAME, hasMouseMovedSinceDown } from '@helpers/dom/clickEvent';
 import findUpAsChild from '@helpers/dom/findUpAsChild';
 import EventListenerBase from '@helpers/eventListenerBase';
 
@@ -18,22 +18,22 @@ export default class OverlayClickHandler extends EventListenerBase<{
     protected withOverlay?: boolean
   ) {
     super(false);
-    this.listenerOptions = withOverlay ? {} : {capture: true};
+    this.listenerOptions = withOverlay ? {} : { capture: true };
   }
 
   protected onClick = (e: MouseEvent | TouchEvent) => {
-    if(hasMouseMovedSinceDown(e)) {
+    if (hasMouseMovedSinceDown(e)) {
       return;
     }
 
-    if(this.element) {
+    if (this.element) {
       const isRoot = this.element === document.body;
-      if(!isRoot && findUpAsChild(((e.target as HTMLElement) as { parentElement: HTMLElement; }), this.element)) {
+      if (!isRoot && findUpAsChild(((e.target as HTMLElement) as { parentElement: HTMLElement; }), this.element)) {
         return;
       }
     }
 
-    if(this.listenerOptions?.capture) {
+    if (this.listenerOptions?.capture) {
       cancelEvent(e);
     }
 
@@ -41,20 +41,20 @@ export default class OverlayClickHandler extends EventListenerBase<{
   };
 
   public close(e?: MouseEvent | TouchEvent) {
-    if(this.element) {
+    if (this.element) {
       this.overlay?.remove();
       this.element = undefined;
       this.dispatchEvent('toggle', false);
     }
 
-    if(!IS_TOUCH_SUPPORTED) {
+    if (!IS_TOUCH_SUPPORTED) {
       // window.removeEventListener('keydown', onKeyDown, {capture: true});
       window.removeEventListener('contextmenu', this.onClick, this.listenerOptions);
     }
 
     document.removeEventListener(CLICK_EVENT_NAME, this.onClick, this.listenerOptions);
 
-    if(!IS_MOBILE_SAFARI && this.navigationType) {
+    if (!IS_MOBILE_SAFARI && this.navigationType) {
       appNavigationController.removeByType(this.navigationType);
     }
   }
@@ -62,18 +62,18 @@ export default class OverlayClickHandler extends EventListenerBase<{
   public open(element = document.body) {
     this.close();
 
-    if(!IS_MOBILE_SAFARI && this.navigationType) {
+    if (!IS_MOBILE_SAFARI && this.navigationType) {
       appNavigationController.pushItem({
         type: this.navigationType,
         onPop: (canAnimate) => {
           this.close();
-        }
+        },
       });
     }
 
     this.element = element;
 
-    if(!this.overlay && this.withOverlay) {
+    if (!this.overlay && this.withOverlay) {
       this.overlay = document.createElement('div');
       this.overlay.classList.add('btn-menu-overlay');
 
@@ -85,8 +85,8 @@ export default class OverlayClickHandler extends EventListenerBase<{
     }
 
     const isRoot = this.element === document.body;
-    if(this.overlay) {
-      if(isRoot) {
+    if (this.overlay) {
+      if (isRoot) {
         this.element.append(this.overlay);
       } else {
         this.element.parentElement!.insertBefore(this.overlay, this.element);
@@ -95,9 +95,9 @@ export default class OverlayClickHandler extends EventListenerBase<{
 
     // document.body.classList.add('disable-hover');
 
-    if(!IS_TOUCH_SUPPORTED) {
+    if (!IS_TOUCH_SUPPORTED) {
       // window.addEventListener('keydown', onKeyDown, {capture: true});
-      window.addEventListener('contextmenu', this.onClick, {...this.listenerOptions, once: true});
+      window.addEventListener('contextmenu', this.onClick, { ...this.listenerOptions, once: true });
     }
 
     /* // ! because this event must be canceled, and can't cancel on menu click (below)

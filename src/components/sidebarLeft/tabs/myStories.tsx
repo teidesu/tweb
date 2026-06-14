@@ -1,22 +1,22 @@
-import {Component, createRoot, createSignal, onMount, Show} from 'solid-js';
-import {i18n, LangPackKey} from '@lib/langPack';
+import { Component, createRoot, createSignal, onMount, Show } from 'solid-js';
+import { i18n, LangPackKey } from '@lib/langPack';
 import rootScope from '@lib/rootScope';
 import Button from '@components/buttonTsx';
 import ButtonMenuToggle from '@components/buttonMenuToggle';
 import Section from '@components/section';
-import {StoriesProfileList, profileStoriesButtonMenu} from '@components/stories/profileList';
-import {StoriesSelection} from '@components/stories/selection';
-import {StoriesContextActions, StoriesContextState} from '@components/stories/store';
-import {getFirstChild} from '@solid-primitives/refs';
-import {AppMyStoriesTab} from '@components/solidJsTabs/tabs';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
-import {usePromiseCollector} from '@components/solidJsTabs/promiseCollector';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
+import { StoriesProfileList, profileStoriesButtonMenu } from '@components/stories/profileList';
+import { StoriesSelection } from '@components/stories/selection';
+import { StoriesContextActions, StoriesContextState } from '@components/stories/store';
+import { getFirstChild } from '@solid-primitives/refs';
+import { AppMyStoriesTab } from '@components/solidJsTabs/tabs';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
 
 const MyStories: Component = () => {
   const [tab] = useSuperTab<typeof AppMyStoriesTab>();
   const promiseCollector = usePromiseCollector();
-  const {lottieLoader} = useHotReloadGuard();
+  const { lottieLoader } = useHotReloadGuard();
   const p = tab.payload;
 
   const isArchive = !!p.isArchive;
@@ -37,7 +37,7 @@ const MyStories: Component = () => {
   );
 
   const openArchive = () => {
-    tab.slider.createTab(AppMyStoriesTab).open({...AppMyStoriesTab.getInitArgs(), isArchive: true, chatId});
+    tab.slider.createTab(AppMyStoriesTab).open({ ...AppMyStoriesTab.getInitArgs(), isArchive: true, chatId });
   };
 
   onMount(() => {
@@ -54,7 +54,7 @@ const MyStories: Component = () => {
         dispose();
       });
 
-      const {render: storiesList, actions, selection: selection_, setAlbum: setAlbum_, state: state_} = StoriesProfileList({
+      const { render: storiesList, actions, selection: selection_, setAlbum: setAlbum_, state: state_ } = StoriesProfileList({
         peerId: chatId?.toPeerId(true) ?? rootScope.myId,
         pinned: !isArchive,
         archive: isArchive,
@@ -63,13 +63,13 @@ const MyStories: Component = () => {
         listenerSetter: tab.listenerSetter,
         withSelection: true,
         onCountChange: (length) => {
-          if(placeholder!) {
+          if (placeholder!) {
             placeholder.classList.toggle('hide', length > 0);
           }
         },
         onReady: () => {
           storiesContainer.append(getFirstChild(storiesList, v => v instanceof Element) as Element);
-        }
+        },
       });
 
       storiesActions = actions;
@@ -94,7 +94,7 @@ const MyStories: Component = () => {
           slider: tab.slider,
           verify: () => true,
           onAlbumCreated: (albumId) => setAlbum(albumId),
-          canEdit: () => state.canEdit
+          canEdit: () => state.canEdit,
         }),
         {
           icon: 'select',
@@ -102,16 +102,16 @@ const MyStories: Component = () => {
           onClick: () => {
             selection!.toggleSelection(true, true);
           },
-          verify: () => !!(selection && !selection.isSelecting)
+          verify: () => !!(selection && !selection.isSelecting),
         }, {
           icon: 'select',
           text: 'Message.Context.Selection.Clear',
           onClick: () => {
             selection!.cancelSelection();
           },
-          verify: () => !!selection?.isSelecting
-        }
-      ]
+          verify: () => !!selection?.isSelecting,
+        },
+      ],
     });
 
     tab.header.append(menuBtn);
@@ -124,7 +124,7 @@ const MyStories: Component = () => {
           autoplay: false,
           width: 100,
           height: 100,
-          middleware
+          middleware,
         });
 
         return lottieLoader.waitForFirstFrame(player);
@@ -133,7 +133,7 @@ const MyStories: Component = () => {
         setArchiveCaption(isBroadcast ? 'ProfileStoriesArchiveChannelHint' : 'ProfileStoriesArchiveGroupHint');
       }),
 
-      loadPromise!
+      loadPromise!,
     ]));
   });
 

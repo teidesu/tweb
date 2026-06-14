@@ -1,19 +1,19 @@
-import {formatDate} from '@helpers/date';
-import {makeDateFromTimestamp} from '@helpers/date/makeDateFromTimestamp';
+import { formatDate } from '@helpers/date';
+import { makeDateFromTimestamp } from '@helpers/date/makeDateFromTimestamp';
 import formatDuration from '@helpers/formatDuration';
 import prepareTextWithEntitiesForCopying from '@helpers/prepareTextWithEntitiesForCopying';
-import {ChannelAdminLogEventAction, ChatBannedRights, Message} from '@layer';
+import { ChannelAdminLogEventAction, ChatBannedRights, Message } from '@layer';
 import getParticipantPeerId from '@appManagers/utils/chats/getParticipantPeerId';
-import {isBannedParticipant} from '@appManagers/utils/chats/isBannedParticipant';
+import { isBannedParticipant } from '@appManagers/utils/chats/isBannedParticipant';
 import removeChatBannedRightsFromParticipant from '@appManagers/utils/chats/removeChatBannedRightsFromParticipant';
 import I18n from '@lib/langPack';
 import type apiManagerProxy from '@lib/apiManagerProxy';
-import {useHotReloadGuard} from '@lib/solidjs/hotReloadGuard';
-import {resolveAdminRightFlagI18n} from '@components/sidebarRight/tabs/adminRecentActions/adminRightsI18nResolver';
-import {participantRightsMap} from '@components/sidebarRight/tabs/adminRecentActions/participantRightsMap';
-import {diffFlags} from '@components/sidebarRight/tabs/adminRecentActions/utils';
-import {wrapFormattedDuration} from '@components/wrappers/wrapDuration';
-import {isTruthy} from '../../../../helpers/isTruthy';
+import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { resolveAdminRightFlagI18n } from '@components/sidebarRight/tabs/adminRecentActions/adminRightsI18nResolver';
+import { participantRightsMap } from '@components/sidebarRight/tabs/adminRecentActions/participantRightsMap';
+import { diffFlags } from '@components/sidebarRight/tabs/adminRecentActions/utils';
+import { wrapFormattedDuration } from '@components/wrappers/wrapDuration';
+import { isTruthy } from '../../../../helpers/isTruthy';
 
 
 type ApiManagerProxyType = typeof apiManagerProxy;
@@ -25,7 +25,7 @@ export type CopyTextResult = {
 
 export function getDateTextForCopy(timestamp: number): string {
   const date = makeDateFromTimestamp(timestamp);
-  const dateElement = formatDate(date, {withTime: true});
+  const dateElement = formatDate(date, { withTime: true });
   return dateElement.textContent || '';
 }
 
@@ -63,7 +63,7 @@ export function extractBanChanges(
   const removed = diff.new.map(key => participantRightsMap[key]).filter(isTruthy).map(key => I18n.format(key, true));
   const added = diff.old.map(key => participantRightsMap[key]).filter(isTruthy).map(key => I18n.format(key, true));
 
-  return {isBanned, participantPeerId, participantUser, username, added, removed};
+  return { isBanned, participantPeerId, participantUser, username, added, removed };
 }
 
 export function extractAdminChanges(
@@ -80,10 +80,10 @@ export function extractAdminChanges(
   const participantUser = apiManagerProxy.getUser(participantPeerId.toUserId());
   const username = participantUser?.username || '';
 
-  const added = diff.new.map(key => I18n.format(resolveAdminRightFlagI18n(key as any, {isBroadcast}), true));
-  const removed = diff.old.map(key => I18n.format(resolveAdminRightFlagI18n(key as any, {isBroadcast}), true));
+  const added = diff.new.map(key => I18n.format(resolveAdminRightFlagI18n(key as any, { isBroadcast }), true));
+  const removed = diff.old.map(key => I18n.format(resolveAdminRightFlagI18n(key as any, { isBroadcast }), true));
 
-  return {participantPeerId, participantUser, username, added, removed};
+  return { participantPeerId, participantUser, username, added, removed };
 }
 
 export function extractDefaultRightsChanges(
@@ -94,17 +94,17 @@ export function extractDefaultRightsChanges(
   const added = diff.old.map(key => participantRightsMap[key]).filter(isTruthy).map(key => I18n.format(key, true));
   const removed = diff.new.map(key => participantRightsMap[key]).filter(isTruthy).map(key => I18n.format(key, true));
 
-  return {added, removed};
+  return { added, removed };
 }
 
 export function getMessageTextForCopy(message: Message) {
-  if(message._ !== 'message') {
-    return {text: '', html: ''};
+  if (message._ !== 'message') {
+    return { text: '', html: '' };
   }
 
   return prepareTextWithEntitiesForCopying({
     text: message.message,
-    entities: message.entities!
+    entities: message.entities!,
   });
 }
 
@@ -113,11 +113,11 @@ export async function createSimpleServiceCopyText(
   peerId: PeerId,
   formatText: (peerTitle: string) => string
 ): Promise<CopyTextResult> {
-  const {getPeerTitle} = useHotReloadGuard();
+  const { getPeerTitle } = useHotReloadGuard();
   const dateText = getDateTextForCopy(timestamp);
-  const peerTitle = await getPeerTitle({peerId, plainText: true});
+  const peerTitle = await getPeerTitle({ peerId, plainText: true });
   const text = formatText(peerTitle);
-  return {text: `${text} [${dateText}]`};
+  return { text: `${text} [${dateText}]` };
 }
 
 export async function createMessageCopyText(
@@ -126,14 +126,14 @@ export async function createMessageCopyText(
   message: Message,
   formatText: (peerTitle: string) => string
 ): Promise<CopyTextResult> {
-  const {getPeerTitle} = useHotReloadGuard();
+  const { getPeerTitle } = useHotReloadGuard();
   const dateText = getDateTextForCopy(timestamp);
-  const peerTitle = await getPeerTitle({peerId, plainText: true});
+  const peerTitle = await getPeerTitle({ peerId, plainText: true });
   const text = formatText(peerTitle);
   const msg = getMessageTextForCopy(message);
   return {
     text: `${text} [${dateText}]\n${msg.text}`,
-    html: `${text} [${dateText}]<br/>${msg.html}`
+    html: `${text} [${dateText}]<br/>${msg.html}`,
   };
 }
 
@@ -145,13 +145,13 @@ export async function createPreviousValueCopyText(
   prevValue: string,
   formatPreviousLabel: () => string
 ): Promise<CopyTextResult> {
-  const {getPeerTitle} = useHotReloadGuard();
+  const { getPeerTitle } = useHotReloadGuard();
   const dateText = getDateTextForCopy(timestamp);
-  const peerTitle = await getPeerTitle({peerId, plainText: true});
+  const peerTitle = await getPeerTitle({ peerId, plainText: true });
   const mainText = formatMainText(peerTitle);
   const previousLabel = formatPreviousLabel();
   return {
-    text: `${mainText} [${dateText}]\n${newValue}\n\n${previousLabel}:\n${prevValue}`
+    text: `${mainText} [${dateText}]\n${newValue}\n\n${previousLabel}:\n${prevValue}`,
   };
 }
 
@@ -160,11 +160,11 @@ export async function createMultiLineCopyText(
   peerId: PeerId,
   buildLines: (peerTitle: string, dateText: string) => string[]
 ): Promise<CopyTextResult> {
-  const {getPeerTitle} = useHotReloadGuard();
+  const { getPeerTitle } = useHotReloadGuard();
   const dateText = getDateTextForCopy(timestamp);
-  const peerTitle = await getPeerTitle({peerId, plainText: true});
+  const peerTitle = await getPeerTitle({ peerId, plainText: true });
   const lines = buildLines(peerTitle, dateText);
-  return {text: lines.join('\n')};
+  return { text: lines.join('\n') };
 }
 
 export async function createMessageWithPreviousCopyText(
@@ -175,16 +175,16 @@ export async function createMessageWithPreviousCopyText(
   formatMainText: (peerTitle: string) => string,
   formatPreviousLabel: () => string
 ): Promise<CopyTextResult> {
-  const {getPeerTitle} = useHotReloadGuard();
+  const { getPeerTitle } = useHotReloadGuard();
   const dateText = getDateTextForCopy(timestamp);
-  const peerTitle = await getPeerTitle({peerId, plainText: true});
+  const peerTitle = await getPeerTitle({ peerId, plainText: true });
   const mainText = formatMainText(peerTitle);
   const newMsg = getMessageTextForCopy(newMessage);
   const prevMsg = getMessageTextForCopy(prevMessage);
   const previousLabel = formatPreviousLabel();
   return {
     text: `${mainText} [${dateText}]\n${newMsg.text}\n\n${previousLabel}:\n${prevMsg.text}`,
-    html: `${mainText} [${dateText}]<br/>${newMsg.html}<br/><br/>${previousLabel}:<br/>${prevMsg.html}`
+    html: `${mainText} [${dateText}]<br/>${newMsg.html}<br/><br/>${previousLabel}:<br/>${prevMsg.html}`,
   };
 }
 
@@ -194,10 +194,10 @@ export async function createTwoPeerCopyText(
   secondPeerId: PeerId,
   formatText: (peerTitle: string, secondPeerTitle: string) => string
 ): Promise<CopyTextResult> {
-  const {getPeerTitle} = useHotReloadGuard();
+  const { getPeerTitle } = useHotReloadGuard();
   const dateText = getDateTextForCopy(timestamp);
-  const peerTitle = await getPeerTitle({peerId, plainText: true});
-  const secondPeerTitle = await getPeerTitle({peerId: secondPeerId, plainText: true});
+  const peerTitle = await getPeerTitle({ peerId, plainText: true });
+  const secondPeerTitle = await getPeerTitle({ peerId: secondPeerId, plainText: true });
   const text = formatText(peerTitle, secondPeerTitle);
-  return {text: `${text} [${dateText}]`};
+  return { text: `${text} [${dateText}]` };
 }

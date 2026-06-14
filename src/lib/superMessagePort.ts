@@ -2,11 +2,11 @@ import DEBUG from '@config/debug';
 import tabId from '@config/tabId';
 import ctx from '@environment/ctx';
 import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
-import {IS_WORKER} from '@helpers/context';
+import { IS_WORKER } from '@helpers/context';
 import EventListenerBase from '@helpers/eventListenerBase';
 import makeError from '@helpers/makeError';
-import {WorkerTaskTemplate, WorkerTaskVoidTemplate} from '@types';
-import {logger} from '@lib/logger';
+import { WorkerTaskTemplate, WorkerTaskVoidTemplate } from '@types';
+import { logger } from '@lib/logger';
 
 type SuperMessagePortTask = WorkerTaskTemplate & {
   transfer?: Transferable[]
@@ -145,7 +145,7 @@ class SuperMessagePort<
   public deferInvokesUntil(promise: Promise<void>) {
     this.readyPromise = promise;
     promise.then(() => {
-      if(this.readyPromise === promise) this.readyPromise = undefined;
+      if (this.readyPromise === promise) this.readyPromise = undefined;
     }, (err) => {
       // keep readyPromise set — processInvokeTask awaits it inside its
       // try/catch, so every queued/future invoke rejects with the root error
@@ -177,7 +177,7 @@ class SuperMessagePort<
       close: this.processCloseTask,
       // open: this.processOpenTask,
       lock: this.processLockTask,
-      batch: this.processBatchTask
+      batch: this.processBatchTask,
     };
 
     // Watchdog: when a port-bridged invoke hangs (handler unregistered, port
@@ -186,20 +186,20 @@ class SuperMessagePort<
     // anything older than the threshold so the symptom surfaces immediately
     // — particularly important in Modes.noWorker where there's no cross-thread
     // boundary to blame.
-    if(DEBUG) {
+    if (DEBUG) {
       this.stuckWatchdogInterval = ctx.setInterval(this.scanStuckAwaiting, STUCK_WATCHDOG_INTERVAL_MS) as any;
     }
   }
 
   protected scanStuckAwaiting = () => {
     const now = Date.now();
-    for(const id in this.awaiting) {
+    for (const id in this.awaiting) {
       const entry = this.awaiting[id];
       const age = now - entry.createdAt;
-      if(!entry.warned && age >= STUCK_WARN_FIRST_MS) {
+      if (!entry.warned && age >= STUCK_WARN_FIRST_MS) {
         entry.warned = true;
         this.log.warn(`[STUCK] ${entry.taskType} pending ${age}ms (id=${id})`);
-      } else if(entry.warned && age >= STUCK_WARN_PERSIST_MS && age % STUCK_WARN_PERSIST_MS < STUCK_WATCHDOG_INTERVAL_MS) {
+      } else if (entry.warned && age >= STUCK_WARN_PERSIST_MS && age % STUCK_WARN_PERSIST_MS < STUCK_WATCHDOG_INTERVAL_MS) {
         this.log.error(`[STUCK] ${entry.taskType} still pending after ${age}ms (id=${id}) — likely no listener on peer or port not started`);
       }
     }
@@ -234,12 +234,12 @@ class SuperMessagePort<
     // const task = this.createTask('open', undefined);
     // this.postMessage(port, task);
 
-    if(typeof(window) !== 'undefined' && USE_LOCKS) {
-      if('locks' in navigator) {
+    if (typeof(window) !== 'undefined' && USE_LOCKS) {
+      if ('locks' in navigator) {
         const id = ['lock', tabId, this.logSuffix || '', Math.random() * 0x7FFFFFFF | 0].join('-');
         this.log.warn('created lock', id);
-        const promise = new Promise<void>((resolve) => this.heldLocks.set(port, {resolve, id}))
-        .then(() => this.heldLocks.delete(port));
+        const promise = new Promise<void>((resolve) => this.heldLocks.set(port, { resolve, id }))
+          .then(() => this.heldLocks.delete(port));
         navigator.locks.request(id, () => {
           this.resendLockTask(port);
           return promise;
@@ -257,7 +257,7 @@ class SuperMessagePort<
 
   public resendLockTask(port: SendPort) {
     const lock = this.heldLocks.get(port);
-    if(!lock) {
+    if (!lock) {
       return;
     }
 
@@ -316,9 +316,9 @@ class SuperMessagePort<
     heldLock?.resolve();
 
     const error = makeError('PORT_DISCONNECTED');
-    for(const id in this.awaiting) {
+    for (const id in this.awaiting) {
       const task = this.awaiting[id];
-      if(task.port === port) {
+      if (task.port === port) {
         task.reject(error);
         delete this.awaiting[id];
       }
@@ -328,7 +328,7 @@ class SuperMessagePort<
   protected postMessage(port: SendPort | SendPort[], task: Task) {
     const ports = Array.isArray(port) ? port : (port ? [port] : this.sendPorts);
     ports.forEach((port) => {
-      if(import.meta.env.MODE === 'test') {
+      if (import.meta.env.MODE === 'test') {
         return;
       }
 
@@ -361,14 +361,14 @@ class SuperMessagePort<
   protected async releasePending() {
     // return;
 
-    if(/* !this.listenPorts.length || !this.sendPorts.length ||  */this.releasingPending) {
+    if (/* !this.listenPorts.length || !this.sendPorts.length ||  */this.releasingPending) {
       return;
     }
 
     this.releasingPending = true;
     // const perf = performance.now();
 
-    if(USE_BATCHING) {
+    if (USE_BATCHING) {
       await Promise.resolve();
     }
     // await pause(0);
@@ -377,15 +377,15 @@ class SuperMessagePort<
 
     this.pending.forEach((portTasks, port) => {
       let tasks: Task[] = portTasks;
-      if(USE_BATCHING) {
+      if (USE_BATCHING) {
         let batchTask: BatchTask | undefined;
         tasks = [];
         portTasks.forEach((task) => {
-          if(task.transfer) {
+          if (task.transfer) {
             batchTask = undefined;
             tasks.push(task);
           } else {
-            if(!batchTask) {
+            if (!batchTask) {
               batchTask = this.createTask('batch', []) as unknown as BatchTask;
               tasks.push(batchTask);
             }
@@ -396,7 +396,7 @@ class SuperMessagePort<
       }
 
       const ports = port ? [port] : this.sendPorts;
-      if(!ports.length) {
+      if (!ports.length) {
         return;
       }
 
@@ -411,7 +411,7 @@ class SuperMessagePort<
           // } else {
           this.postMessage(ports, task);
           // }
-        } catch(err) {
+        } catch (err) {
           this.log.error('postMessage error:', err, task, ports);
         }
       });
@@ -425,9 +425,9 @@ class SuperMessagePort<
   }
 
   protected processResultTask = (task: ResultTask) => {
-    const {taskId, result, error} = task.payload;
+    const { taskId, result, error } = task.payload;
     const deferred = this.awaiting[taskId];
-    if(!deferred) {
+    if (!deferred) {
       return;
     }
 
@@ -439,7 +439,7 @@ class SuperMessagePort<
   protected processAckTask = (task: AckTask) => {
     const payload = task.payload;
     const deferred = this.awaiting[payload.taskId];
-    if(!deferred) {
+    if (!deferred) {
       return;
     }
 
@@ -473,12 +473,12 @@ class SuperMessagePort<
       result: payload.cached ? ('result' in payload ? Promise.resolve(payload.result) : Promise.reject(payload.error)) : new Promise((resolve, reject) => {
         deferred.resolve = resolve;
         deferred.reject = reject;
-      })
+      }),
     };
 
     previousResolve(ret);
 
-    if(payload.cached) {
+    if (payload.cached) {
       delete this.awaiting[payload.taskId];
     }
   };
@@ -489,7 +489,7 @@ class SuperMessagePort<
 
   protected processPongTask = (task: PongTask, source: MessageEventSource, event: MessageEvent) => {
     const pingResolve = this.pingResolves.get(source);
-    if(pingResolve) {
+    if (pingResolve) {
       this.pingResolves.delete(source);
       pingResolve();
     }
@@ -500,11 +500,11 @@ class SuperMessagePort<
   };
 
   protected processBatchTask = (task: BatchTask, source: MessageEventSource, event: MessageEvent) => {
-    if(!USE_BATCHING) {
+    if (!USE_BATCHING) {
       return;
     }
 
-    const newEvent: MessageEvent = {data: event.data, source: event.source, currentTarget: event.currentTarget} as any;
+    const newEvent: MessageEvent = { data: event.data, source: event.source, currentTarget: event.currentTarget } as any;
     task.payload.forEach((task) => {
       // @ts-ignore
       newEvent.data = task;
@@ -519,7 +519,7 @@ class SuperMessagePort<
 
   protected processLockTask = (task: LockTask, source: MessageEventSource, event: MessageEvent) => {
     const id = task.payload;
-    if(this.requestedLocks.has(id)) {
+    if (this.requestedLocks.has(id)) {
       return;
     }
 
@@ -536,15 +536,15 @@ class SuperMessagePort<
 
     let resultTaskPayload: ResultTask['payload'];
     let resultTask: ResultTask, ackTask: AckTask;
-    if(!innerTask.void) {
-      resultTaskPayload = {taskId: id};
+    if (!innerTask.void) {
+      resultTaskPayload = { taskId: id };
       resultTask = this.createTask('result', resultTaskPayload);
     }
 
-    if(innerTask.withAck) {
+    if (innerTask.withAck) {
       ackTask = this.createTask('ack', {
         taskId: id,
-        cached: true
+        cached: true,
       });
     }
 
@@ -553,10 +553,10 @@ class SuperMessagePort<
     try {
       // awaited inside try — if the init promise rejected, the caller gets an
       // error result instead of waiting forever
-      if(this.readyPromise) await this.readyPromise;
+      if (this.readyPromise) await this.readyPromise;
 
       const listeners = this.listeners[innerTask.type];
-      if(!listeners?.size) {
+      if (!listeners?.size) {
         throw new Error('no listener');
       }
 
@@ -564,40 +564,40 @@ class SuperMessagePort<
 
       // @ts-ignore
       let result = this.invokeListenerCallback(innerTask.type, listener, innerTask.payload, source, event);
-      if(innerTask.void) {
+      if (innerTask.void) {
         return;
       }
 
       isPromise = result instanceof Promise;
 
-      if(ackTask!) {
+      if (ackTask!) {
         const cached = !isPromise;
         ackTask.payload.cached = cached;
-        if(cached) ackTask.payload.result = result;
+        if (cached) ackTask.payload.result = result;
         this.pushTask(ackTask, source);
 
-        if(cached) {
+        if (cached) {
           return;
         }
       }
 
-      if(isPromise) {
+      if (isPromise) {
         result = await result;
       }
 
-      if(result instanceof SuperMessagePort.TransferableResult) {
+      if (result instanceof SuperMessagePort.TransferableResult) {
         resultTask!.transfer = result.transferables;
         result = result.value;
       }
 
       resultTaskPayload!.result = result;
-    } catch(error) {
+    } catch (error) {
       this.log.error('worker task error:', error, task);
-      if(innerTask.void) {
+      if (innerTask.void) {
         return;
       }
 
-      if(ackTask! && ackTask.payload.cached) {
+      if (ackTask! && ackTask.payload.cached) {
         ackTask.payload.error = error;
         this.pushTask(ackTask, source);
         return;
@@ -614,7 +614,7 @@ class SuperMessagePort<
       type,
       payload,
       id: this.getNextTaskId(),
-      transfer
+      transfer,
     } as K;
   }
 
@@ -623,13 +623,13 @@ class SuperMessagePort<
       type,
       payload,
       withAck,
-      void: _void
+      void: _void,
     }, transfer);
   }
 
   protected pushTask(task: Task, port?: SendPort) {
     let tasks = this.pending.get(port!);
-    if(!tasks) {
+    if (!tasks) {
       this.pending.set(port!, tasks = []);
     }
 
@@ -654,23 +654,23 @@ class SuperMessagePort<
     let task: InvokeTask;
     const promise = new Promise<Awaited<ReturnType<Send[T]>>>((resolve, reject) => {
       task = this.createInvokeTask(type as string, payload, withAck, undefined, transfer);
-      this.awaiting[task.id] = {resolve, reject, taskType: type as string, port, createdAt: Date.now()};
+      this.awaiting[task.id] = { resolve, reject, taskType: type as string, port, createdAt: Date.now() };
       this.pushTask(task, port);
     });
 
-    if(timeout) {
+    if (timeout) {
       const awaiting = this.awaiting[task!.id];
       setTimeout(() => {
         // also remove the entry, otherwise it leaks and the stuck-invoke
         // watchdog keeps reporting it forever
-        if(this.awaiting[task.id] === awaiting) {
+        if (this.awaiting[task.id] === awaiting) {
           delete this.awaiting[task.id];
           awaiting.reject(makeError('TIMEOUT'));
         }
       }, timeout);
     }
 
-    if(IS_WORKER/*  || true */) {
+    if (IS_WORKER/*  || true */) {
       promise.finally(() => {
         clearInterval(interval);
       });
@@ -678,12 +678,12 @@ class SuperMessagePort<
       const interval = ctx.setInterval(() => {
         this.log.error('task still has no result', task, port);
       }, IS_WORKER ? 60e3 : 5e3);
-    } else if(false) {
+    } else if (false) {
       // let timedOut = false;
       const startTime = Date.now();
       promise.finally(() => {
         const elapsedTime = Date.now() - startTime;
-        if(elapsedTime >= TIMEOUT) {
+        if (elapsedTime >= TIMEOUT) {
           this.log.error(`task was processing ${Date.now() - startTime}ms`, task.payload.payload, port);
         }/*  else {
           clearTimeout(timeout);

@@ -1,15 +1,15 @@
-import {Accessor, batch, Component, createEffect, createMemo, createSignal} from 'solid-js';
+import { Accessor, batch, Component, createEffect, createMemo, createSignal } from 'solid-js';
 
 import clamp from '@helpers/number/clamp';
-import swipe, {SwipeDirectiveArgs} from '@helpers/useSwipe'; swipe; // keep
+import swipe, { SwipeDirectiveArgs } from '@helpers/useSwipe'; swipe; // keep
 import useElementSize from '@hooks/useElementSize';
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 
-import {IconTsx} from '@components/iconTsx';
+import { IconTsx } from '@components/iconTsx';
 import ripple from '@components/ripple'; ripple; // keep
 import showTooltip from '@components/tooltip';
 
-import {SetVideoTimeFlags, useMediaEditorContext} from '@components/mediaEditor/context';
+import { SetVideoTimeFlags, useMediaEditorContext } from '@components/mediaEditor/context';
 
 import useVideoControlsCanvas from '@components/mediaEditor/canvas/useVideoControlsCanvas';
 
@@ -21,7 +21,7 @@ const MOVE_ACTIVATION_THRESHOLD_PX = 2;
 const VIDEO_AVATAR_MAX_DURATION_SEC = 10;
 
 const VideoControls: Component<{}> = () => {
-  const {editorState, mediaState, actions, isVideoAvatarMode} = useMediaEditorContext()!;
+  const { editorState, mediaState, actions, isVideoAvatarMode } = useMediaEditorContext()!;
 
   const [cropper, setCropper] = createSignal<HTMLDivElement>();
   const [isDraggingSomething, setIsDraggingSomething] = createSignal(false);
@@ -32,9 +32,9 @@ const VideoControls: Component<{}> = () => {
   const shouldShowTime = () => isDraggingSomething() && (swiping === 'left' || swiping === 'right');
 
   const formattedResultingTime = createMemo(() => {
-    if(!shouldShowTime()) return '';
+    if (!shouldShowTime()) return '';
     const video = editorState.renderingPayload?.media?.video;
-    if(!video) return '';
+    if (!video) return '';
 
     const totalSeconds = mediaState.videoCropLength * video.duration;
     let ts = totalSeconds;
@@ -52,23 +52,23 @@ const VideoControls: Component<{}> = () => {
 
   const minLength = createMemo(() => {
     const duration = editorState.renderingPayload?.media?.video?.duration;
-    if(!duration) return 0;
+    if (!duration) return 0;
     return Math.min(1, 0.5 / duration);
   });
 
   // In video-avatar mode the trimmed clip cannot exceed 10 seconds.
   const maxLengthCap = createMemo(() => {
-    if(!isVideoAvatarMode) return 1;
+    if (!isVideoAvatarMode) return 1;
     const duration = editorState.renderingPayload?.media?.video?.duration;
-    if(!duration) return 1;
+    if (!duration) return 1;
     return Math.min(1, VIDEO_AVATAR_MAX_DURATION_SEC / duration);
   });
 
   // Once the video duration is known, clamp the initial trim length to the cap.
   createEffect(() => {
-    if(!isVideoAvatarMode) return;
+    if (!isVideoAvatarMode) return;
     const cap = maxLengthCap();
-    if(cap < 1 && mediaState.videoCropLength > cap) {
+    if (cap < 1 && mediaState.videoCropLength > cap) {
       mediaState.videoCropLength = cap;
     }
   });
@@ -76,10 +76,10 @@ const VideoControls: Component<{}> = () => {
   // Keep the avatar cover frame (→ video_start_ts) inside the trim if the crop
   // range is moved under it.
   createEffect(() => {
-    if(!isVideoAvatarMode) return;
+    if (!isVideoAvatarMode) return;
     const lo = mediaState.videoCropStart;
     const hi = mediaState.videoCropStart + mediaState.videoCropLength;
-    if(mediaState.videoThumbnailPosition < lo || mediaState.videoThumbnailPosition > hi) {
+    if (mediaState.videoThumbnailPosition < lo || mediaState.videoThumbnailPosition > hi) {
       mediaState.videoThumbnailPosition = clamp(mediaState.videoThumbnailPosition, lo, hi);
     }
   });
@@ -93,7 +93,7 @@ const VideoControls: Component<{}> = () => {
 
   useVideoControlsCanvas({
     getCanvas: () => canvas!,
-    size: cropperSize
+    size: cropperSize,
   });
 
   const leftHandleSwipeArgs: SwipeDirectiveArgs = {
@@ -109,7 +109,7 @@ const VideoControls: Component<{}> = () => {
       });
     },
     onMove: (xDiff) => void batch(() => {
-      if(swiping !== 'left') return;
+      if (swiping !== 'left') return;
       const diff = clamp(initialStart + xDiff / strippedWidth(), 0, Math.max(0, initialStart + initialLength - minLength())) - initialStart;
       batch(() => {
         const newStart = initialStart + diff;
@@ -119,7 +119,7 @@ const VideoControls: Component<{}> = () => {
         actions.setVideoTime(mediaState.videoCropStart);
       });
     }),
-    onEnd: () => void setIsDraggingSomething(false)
+    onEnd: () => void setIsDraggingSomething(false),
   };
 
   const rightHandleSwipeArgs: SwipeDirectiveArgs = {
@@ -134,12 +134,12 @@ const VideoControls: Component<{}> = () => {
       });
     },
     onMove: (xDiff) => void batch(() => {
-      if(swiping !== 'right') return;
+      if (swiping !== 'right') return;
       const maxLength = Math.min(maxLengthCap(), 1 - mediaState.videoCropStart);
       mediaState.videoCropLength = (clamp(initialLength + xDiff / strippedWidth(), Math.min(minLength(), maxLength), maxLength));
       actions.setVideoTime(mediaState.videoCropStart + mediaState.videoCropLength);
     }),
-    onEnd: () => void setIsDraggingSomething(false)
+    onEnd: () => void setIsDraggingSomething(false),
   };
 
   let canMove = false;
@@ -152,18 +152,18 @@ const VideoControls: Component<{}> = () => {
       initialLength = mediaState.videoCropLength;
       canMove = false;
 
-      if(initialLength === 1) {
+      if (initialLength === 1) {
         setIsDraggingSomething(true);
         canMove = true;
         handleCursorMove(e);
       }
     },
     onMove: (xDiff, _, e) => void batch((): void => {
-      if(swiping !== 'middle') return;
-      if(initialLength === 1) return void handleCursorMove(e);
+      if (swiping !== 'middle') return;
+      if (initialLength === 1) return void handleCursorMove(e);
 
-      if(Math.abs(xDiff) > MOVE_ACTIVATION_THRESHOLD_PX) canMove = true;
-      if(!canMove) return;
+      if (Math.abs(xDiff) > MOVE_ACTIVATION_THRESHOLD_PX) canMove = true;
+      if (!canMove) return;
 
       const startDiff = clamp(initialStart + xDiff / strippedWidth(), 0, Math.max(0, 1 - Math.max(initialLength, minLength()))) - initialStart;
       batch(() => {
@@ -180,7 +180,7 @@ const VideoControls: Component<{}> = () => {
       self.setTimeout(() => {
         setIsDraggingSomething(false);
       }, 0); // prevent trigger click after finishing dragging
-    }
+    },
   };
 
   const cursorSwipeArgs: SwipeDirectiveArgs = {
@@ -190,12 +190,12 @@ const VideoControls: Component<{}> = () => {
       setIsDraggingSomething(true);
     },
     onMove: (xDiff, __, e) => {
-      if(swiping !== 'cursor') return;
+      if (swiping !== 'cursor') return;
       // if(Math.abs(xDiff) > MOVE_ACTIVATION_THRESHOLD_PX)
       editorState.isPlaying = false;
       handleCursorMove(e);
     },
-    onEnd: () => void setIsDraggingSomething(false)
+    onEnd: () => void setIsDraggingSomething(false),
   };
 
   const handleCursorMove = (e: PointerEvent | TouchEvent) => {
@@ -204,7 +204,7 @@ const VideoControls: Component<{}> = () => {
   };
 
   const onMiddlePartClick = (e: MouseEvent) => {
-    if(!cropper() || isDraggingSomething()) return;
+    if (!cropper() || isDraggingSomething()) return;
 
     actions.setVideoTime(clamp(getPositionInCropper(e, cropper()!), mediaState.videoCropStart, mediaState.videoCropStart + mediaState.videoCropLength));
   };
@@ -215,7 +215,7 @@ const VideoControls: Component<{}> = () => {
     vertical: 'top',
     textElement: i18n('MediaEditor.VideoMutedTooltip'),
     lighter: true,
-    auto: true
+    auto: true,
   });
 
   let closeTooltip: () => void;
@@ -225,12 +225,12 @@ const VideoControls: Component<{}> = () => {
       class={styles.Container}
       classList={{
         [styles.hidden]: editorState.currentTab !== 'adjustments',
-        [styles.changed]: mediaState.videoCropLength !== 1
+        [styles.changed]: mediaState.videoCropLength !== 1,
       }}
       style={{
         '--start': mediaState.videoCropStart,
         '--length': mediaState.videoCropLength,
-        '--current-time': mediaState.currentVideoTime
+        '--current-time': mediaState.currentVideoTime,
       }}
     >
       <div class={styles.InnerContainer}>
@@ -239,12 +239,12 @@ const VideoControls: Component<{}> = () => {
             use:ripple
             class={`btn-icon ${styles.IconButton} ${styles.MuteButton}`}
             classList={{
-              [styles.muted]: mediaState.videoMuted
+              [styles.muted]: mediaState.videoMuted,
             }}
             onClick={(e) => {
               mediaState.videoMuted = !mediaState.videoMuted;
               closeTooltip?.();
-              if(mediaState.videoMuted) closeTooltip = showMutedTooltip(e.currentTarget).close;
+              if (mediaState.videoMuted) closeTooltip = showMutedTooltip(e.currentTarget).close;
             }}
             tabIndex={-1}
           >
@@ -262,7 +262,7 @@ const VideoControls: Component<{}> = () => {
             <div
               class={styles.CropperHorizontalBorder}
               classList={{
-                [styles.dragging]: isDraggingSomething()
+                [styles.dragging]: isDraggingSomething(),
               }}
               use:swipe={middleSwipeArgs}
               onClick={onMiddlePartClick}
@@ -278,7 +278,7 @@ const VideoControls: Component<{}> = () => {
             isDraggingSomething={isDraggingSomething()}
             hidden={shouldShowTime()}
           />
-          <div class={styles.CroppedTime} classList={{[styles.visible]: shouldShowTime()}}>
+          <div class={styles.CroppedTime} classList={{ [styles.visible]: shouldShowTime() }}>
             {formattedResultingTime()}
           </div>
 
@@ -306,7 +306,7 @@ const ThumbnailTrack: Component<{
   isDraggingSomething: boolean;
   hidden: boolean;
 }> = (props) => {
-  const {actions, editorState, mediaState, isVideoAvatarMode} = useMediaEditorContext()!;
+  const { actions, editorState, mediaState, isVideoAvatarMode } = useMediaEditorContext()!;
 
   const [ghostThumbnailPosition, setGhostThumbnailPosition] = createSignal<number>();
 
@@ -324,7 +324,7 @@ const ThumbnailTrack: Component<{
   };
 
   const onClick = (e: MouseEvent) => {
-    if(!props.cropper) return;
+    if (!props.cropper) return;
 
     mediaState.videoThumbnailPosition = coverPosition(e);
   };
@@ -332,9 +332,9 @@ const ThumbnailTrack: Component<{
   let canPreviewFrame = false, previewFrameTimeout: number | undefined;
 
   const onPointerMove = (e: PointerEvent | TouchEvent) => {
-    if(!props.cropper || editorState.isPlaying || props.isDraggingSomething) return;
+    if (!props.cropper || editorState.isPlaying || props.isDraggingSomething) return;
 
-    if(!previewFrameTimeout) previewFrameTimeout = self.setTimeout(() => {
+    if (!previewFrameTimeout) previewFrameTimeout = self.setTimeout(() => {
       canPreviewFrame = true;
     }, 200);
 
@@ -342,11 +342,11 @@ const ThumbnailTrack: Component<{
 
     setGhostThumbnailPosition(position);
 
-    if(canPreviewFrame) actions.setVideoTime(position, SetVideoTimeFlags.UpdateVideo | SetVideoTimeFlags.Redraw);
+    if (canPreviewFrame) actions.setVideoTime(position, SetVideoTimeFlags.UpdateVideo | SetVideoTimeFlags.Redraw);
   };
 
   const onPointerOut = () => {
-    if(canPreviewFrame) actions.setVideoTime(mediaState.currentVideoTime, SetVideoTimeFlags.UpdateVideo | SetVideoTimeFlags.Redraw);
+    if (canPreviewFrame) actions.setVideoTime(mediaState.currentVideoTime, SetVideoTimeFlags.UpdateVideo | SetVideoTimeFlags.Redraw);
 
     setGhostThumbnailPosition();
     canPreviewFrame = false;
@@ -358,14 +358,14 @@ const ThumbnailTrack: Component<{
     globalCursor: () => 'grabbing',
     onStart: (e) => {
       void setIsDragging(true);
-      if(!props.cropper) return;
+      if (!props.cropper) return;
       mediaState.videoThumbnailPosition = coverPosition(e);
     },
     onMove: (_, __, e) => {
-      if(!props.cropper) return;
+      if (!props.cropper) return;
       mediaState.videoThumbnailPosition = coverPosition(e);
     },
-    onEnd: () => void setIsDragging(false)
+    onEnd: () => void setIsDragging(false),
   };
 
   return (
@@ -376,7 +376,7 @@ const ThumbnailTrack: Component<{
       <div
         class={styles.ThumbnailTrack}
         classList={{
-          [styles.disabled]: props.isDraggingSomething
+          [styles.disabled]: props.isDraggingSomething,
         }}
         use:swipe={swipeArgs}
         onPointerMove={onPointerMove}
@@ -401,10 +401,10 @@ const ThumbnailMark: Component<{
       classList={{
         [styles.ghost]: props.ghost,
         [styles.visible]: props.visible,
-        [styles.withTransition]: props.withTransition
+        [styles.withTransition]: props.withTransition,
       }}
       style={{
-        '--position': props.position
+        '--position': props.position,
       }}
       width="20"
       height="25"
@@ -433,7 +433,7 @@ export const PausePlay: Component<{
     <svg
       class={styles.PausePlaySvg}
       classList={{
-        [styles.paused]: props.paused
+        [styles.paused]: props.paused,
       }}
       width="24"
       height="24"

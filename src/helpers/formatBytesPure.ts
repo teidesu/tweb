@@ -1,5 +1,5 @@
 export default function formatBytesPure(bytes: number, decimals: number | 'auto' = 'auto') {
-  if(bytes === 0) return `0 B`;
+  if (bytes === 0) return `0 B`;
 
   const strictDecimals = decimals === 'auto';
 

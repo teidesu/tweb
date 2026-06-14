@@ -1,11 +1,11 @@
-import type {MyDocument} from '@appManagers/appDocsManager';
-import type {SearchSuperContext} from '@components/appSearchSuper';
+import type { MyDocument } from '@appManagers/appDocsManager';
+import type { SearchSuperContext } from '@components/appSearchSuper';
 import rootScope from '@lib/rootScope';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
-import {IS_APPLE, IS_SAFARI} from '@environment/userAgent';
-import {MOUNT_CLASS_TO} from '@config/debug';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
+import { IS_APPLE, IS_SAFARI } from '@environment/userAgent';
+import { MOUNT_CLASS_TO } from '@config/debug';
 import simulateEvent from '@helpers/dom/dispatchEvent';
-import {Document, DocumentAttribute, Message, PhotoSize} from '@layer';
+import { Document, DocumentAttribute, Message, PhotoSize } from '@layer';
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
 import I18n from '@lib/langPack';
 import SearchListLoader from '@helpers/searchListLoader';
@@ -14,7 +14,7 @@ import deepEqual from '@helpers/object/deepEqual';
 import clamp from '@helpers/number/clamp';
 import ListenerSetter from '@helpers/listenerSetter';
 import MusicListenTracker from '@helpers/musicListenTracker';
-import {AppManagers} from '@lib/managers';
+import { AppManagers } from '@lib/managers';
 import getMediaFromMessage from '@appManagers/utils/messages/getMediaFromMessage';
 import getPeerTitle from '@components/wrappers/getPeerTitle';
 import appDownloadManager from '@lib/appDownloadManager';
@@ -23,7 +23,7 @@ import EventListenerBase from '@helpers/eventListenerBase';
 import animationIntersector from '@components/animationIntersector';
 import apiManagerProxy from '@lib/apiManagerProxy';
 import setCurrentTime from '@helpers/dom/setCurrentTime';
-import ListLoader, {ListLoaderOptions} from '../helpers/listLoader';
+import ListLoader, { ListLoaderOptions } from '../helpers/listLoader';
 
 // TODO: Safari: проверить стрим, включить его и сразу попробовать включить видео или другую песню
 // TODO: Safari: попробовать замаскировать подгрузку последнего чанка
@@ -34,7 +34,7 @@ export type MediaItem = {mid: number, peerId: PeerId};
 const SHOULD_USE_SAFARI_FIX = (() => {
   try {
     return IS_SAFARI && +navigator.userAgent.match(/ Version\/(\d+)/)![1] < 14;
-  } catch(err) {
+  } catch (err) {
     return false;
   }
 })();
@@ -151,7 +151,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
   private playbackRates: Record<PlaybackMediaType, number> = {
     voice: 1,
     video: 1,
-    audio: 1
+    audio: 1,
   };
 
   private pip: HTMLVideoElement | undefined;
@@ -176,7 +176,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
     this.container.style.cssText = 'display: none;';
     document.body.append(this.container);
 
-    if(navigator.mediaSession) {
+    if (navigator.mediaSession) {
       const actions: {[action in MediaSessionAction]?: MediaSessionActionHandler} = {
         play: this.browserPlay,
         pause: this.browserPause,
@@ -185,13 +185,13 @@ export class AppMediaPlaybackController extends EventListenerBase<{
         seekforward: this.browserSeekForward,
         seekto: this.browserSeekTo,
         previoustrack: this.browserPrevious,
-        nexttrack: this.browserNext
+        nexttrack: this.browserNext,
       };
 
-      for(const action in actions) {
+      for (const action in actions) {
         try {
           navigator.mediaSession.setActionHandler(action as MediaSessionAction, actions[action as MediaSessionAction]!);
-        } catch(err) {
+        } catch (err) {
           console.warn('MediaSession action is not supported:', action);
         }
       }
@@ -199,20 +199,20 @@ export class AppMediaPlaybackController extends EventListenerBase<{
 
     rootScope.addEventListener('document_downloaded', (docId) => {
       const set = this.waitingDocumentsForLoad[docId];
-      if(set) {
-        for(const media of set) {
+      if (set) {
+        for (const media of set) {
           this.onMediaDocumentLoad(media);
         }
       }
     });
 
     rootScope.addEventListener('media_play', () => {
-      if(this.skipMediaPlayEvent) {
+      if (this.skipMediaPlayEvent) {
         this.skipMediaPlayEvent = false;
         return;
       }
 
-      if(!this.pause() && this.pip) {
+      if (!this.pause() && this.pip) {
         this.pip.pause();
       }
     });
@@ -224,7 +224,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
       'muted' as const,
       'playbackRate' as const,
       'loop' as const,
-      'round' as const
+      'round' as const,
     ];
     keys.forEach((key) => {
       const _key = ('_' + key) as `_${typeof key}`;
@@ -233,18 +233,18 @@ export class AppMediaPlaybackController extends EventListenerBase<{
         set: (value: number | boolean) => {
           // Shared master volume and the voice-only boost both stay in [0, 1]; their sum
           // (effective voice volume) tops out at 200%, the boost never touches video/music.
-          if(key === 'volume' || key === 'boost') {
+          if (key === 'volume' || key === 'boost') {
             value = clamp(value as number, 0, 1);
           }
 
-          if(this[_key] === value) {
+          if (this[_key] === value) {
             return;
           }
 
           // @ts-ignore
           this[_key] = value;
-          if(this.playingMedia && (key !== 'loop' || this.playingMediaType === 'audio') && key !== 'round') {
-            if(key === 'volume' || key === 'muted' || key === 'boost') {
+          if (this.playingMedia && (key !== 'loop' || this.playingMediaType === 'audio') && key !== 'round') {
+            if (key === 'volume' || key === 'muted' || key === 'boost') {
               this.applyVolumeToMedia(this.playingMedia, this.getVolumeForType((this.playingMediaType as PlaybackMediaType)), this.muted, (this.playingMediaType as PlaybackMediaType));
             } else {
               // @ts-ignore
@@ -252,18 +252,18 @@ export class AppMediaPlaybackController extends EventListenerBase<{
             }
           }
 
-          if(key === 'playbackRate' && this.playingMediaType !== undefined) {
+          if (key === 'playbackRate' && this.playingMediaType !== undefined) {
             this.playbackRates[this.playingMediaType] = value as number;
           }
 
           this.dispatchPlaybackParams();
-        }
+        },
       };
     });
     Object.defineProperties(this, properties);
 
     this.addEventListener('play', (details) => {
-      if(details!.doc.type === 'round') {
+      if (details!.doc.type === 'round') {
         animationIntersector.toggleMediaPause(false);
       }
 
@@ -285,12 +285,12 @@ export class AppMediaPlaybackController extends EventListenerBase<{
 
   private getOrCreateMediaGain(media: HTMLMediaElement) {
     let entry = this.mediaGainMap.get(media);
-    if(entry) return entry;
+    if (entry) return entry;
 
     try {
       const AC = (window.AudioContext || (window as any).webkitAudioContext);
-      if(!AC) return undefined;
-      if(!this.gainAudioContext) this.gainAudioContext = new AC();
+      if (!AC) return undefined;
+      if (!this.gainAudioContext) this.gainAudioContext = new AC();
       const ctx = this.gainAudioContext;
 
       const source = ctx.createMediaElementSource(media);
@@ -306,13 +306,13 @@ export class AppMediaPlaybackController extends EventListenerBase<{
       source.connect(gain);
       gain.connect(limiter);
       limiter.connect(ctx.destination);
-      entry = {source, gain, limiter};
+      entry = { source, gain, limiter };
       this.mediaGainMap.set(media, entry);
 
-      if(ctx.state === 'suspended') ctx.resume().catch(() => {});
+      if (ctx.state === 'suspended') ctx.resume().catch(() => {});
 
       return entry;
-    } catch(e) {
+    } catch (e) {
       return undefined;
     }
   }
@@ -331,17 +331,17 @@ export class AppMediaPlaybackController extends EventListenerBase<{
     muted: boolean,
     mediaType: PlaybackMediaType
   ) {
-    if(mediaType === 'voice') {
+    if (mediaType === 'voice') {
       const entry = this.getOrCreateMediaGain(media);
-      if(entry) {
-        if(this.gainAudioContext?.state === 'suspended') this.gainAudioContext.resume().catch(() => {});
+      if (entry) {
+        if (this.gainAudioContext?.state === 'suspended') this.gainAudioContext.resume().catch(() => {});
         // Below 100% linear (natural volume control), above 100% quadratic so the slider
         // delivers perceptual loudness, not just a 2× peak multiplier (e.g. 200% → 4× ≈ +12 dB).
         const amp = volume <= 1 ? volume : volume * volume;
         const target = muted ? 0 : amp;
         try {
           entry.gain.gain.setTargetAtTime(target, this.gainAudioContext.currentTime, 0.01);
-        } catch(e) {
+        } catch (e) {
           entry.gain.gain.value = target;
         }
         media.volume = 1;
@@ -355,7 +355,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
   }
 
   public getPlaybackParams() {
-    const {volume, boost, muted, playbackRate, playbackRates, loop, round} = this;
+    const { volume, boost, muted, playbackRate, playbackRates, loop, round } = this;
     return {
       volume,
       boost,
@@ -363,7 +363,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
       playbackRate,
       playbackRates,
       loop,
-      round
+      round,
     };
   }
 
@@ -381,37 +381,37 @@ export class AppMediaPlaybackController extends EventListenerBase<{
   }
 
   public seekBackward = (details: MediaSessionActionDetails, media = this.playingMedia) => {
-    if(media) {
+    if (media) {
       setCurrentTime(media, Math.max(0, media.currentTime - (details.seekOffset || SEEK_OFFSET)));
     }
   };
 
   public seekForward = (details: MediaSessionActionDetails, media = this.playingMedia) => {
-    if(media) {
+    if (media) {
       setCurrentTime(media, Math.min(media.duration, media.currentTime + (details.seekOffset || SEEK_OFFSET)));
     }
   };
 
   public seekTo = (details: MediaSessionActionDetails, media = this.playingMedia) => {
-    if(media) {
+    if (media) {
       setCurrentTime(media, details.seekTime!);
     }
   };
 
   public addMedia(args: AddMediaArgs): HTMLMediaElement {
-    const {message, autoload, clean, doc: docOverride, slot} = args;
-    const {peerId, mid} = message;
+    const { message, autoload, clean, doc: docOverride, slot } = args;
+    const { peerId, mid } = message;
     const storageKey = mid! + (slot ?? 0);
 
     const isScheduled = !!message.pFlags.is_scheduled;
     const s = isScheduled ? this.scheduled : this.media;
     let storage = s.get(message.peerId!);
-    if(!storage) {
+    if (!storage) {
       s.set(message.peerId!, storage = new Map());
     }
 
     let media = storage.get(storageKey);
-    if(media) {
+    if (media) {
       return media;
     }
 
@@ -420,7 +420,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
     // const source = document.createElement('source');
     // source.type = doc.type === 'voice' && !opusDecodeController.isPlaySupported() ? 'audio/wav' : doc.mime_type;
 
-    if(doc.type === 'round') {
+    if (doc.type === 'round') {
       media.setAttribute('playsinline', 'true');
       // media.muted = true;
     }
@@ -433,7 +433,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
       doc,
       message,
       clean,
-      isScheduled: message.pFlags.is_scheduled
+      isScheduled: message.pFlags.is_scheduled,
     };
 
     this.mediaDetails.set(media, details);
@@ -448,10 +448,10 @@ export class AppMediaPlaybackController extends EventListenerBase<{
     media.addEventListener('pause', this.onPause);
     media.addEventListener('ended', this.onEnded);
 
-    if(doc.type !== 'audio' && message?.pFlags.media_unread && message.fromId !== rootScope.myId) {
+    if (doc.type !== 'audio' && message?.pFlags.media_unread && message.fromId !== rootScope.myId) {
       media.addEventListener('timeupdate', () => {
         this.managers.appMessagesManager.readMessages(peerId!, [mid!]);
-      }, {once: true});
+      }, { once: true });
     }
 
     /* const onError = (e: Event) => {
@@ -469,12 +469,12 @@ export class AppMediaPlaybackController extends EventListenerBase<{
     media.addEventListener('error', onError); */
 
     const deferred = deferredPromise<void>();
-    if(autoload) {
+    if (autoload) {
       deferred.resolve();
     } else {
       const w = message.pFlags.is_scheduled ? this.waitingScheduledMediaForLoad : this.waitingMediaForLoad;
       let waitingStorage = w.get(peerId!);
-      if(!waitingStorage) {
+      if (!waitingStorage) {
         w.set(peerId!, waitingStorage = new Map());
       }
 
@@ -485,16 +485,16 @@ export class AppMediaPlaybackController extends EventListenerBase<{
       // media.autoplay = true;
       // console.log('will set media url:', media, doc, doc.type, doc.url);
 
-      if(doc.supportsStreaming || (apiManagerProxy.getCacheContext(doc)).url) {
+      if (doc.supportsStreaming || (apiManagerProxy.getCacheContext(doc)).url) {
         this.onMediaDocumentLoad(media);
       } else {
         let set = this.waitingDocumentsForLoad[doc.id];
-        if(!set) {
+        if (!set) {
           set = this.waitingDocumentsForLoad[doc.id] = new Set();
         }
 
         set.add(media);
-        appDownloadManager.downloadMediaURL({media: doc});
+        appDownloadManager.downloadMediaURL({ media: doc });
       }
     }/* , onError */);
 
@@ -509,7 +509,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
   private onMediaDocumentLoad = async(media: HTMLMediaElement) => {
     const details = this.mediaDetails.get(media);
     const doc = await this.managers.appDocsManager.getDoc(details!.docId);
-    if(doc.type === 'audio' && doc.supportsStreaming && SHOULD_USE_SAFARI_FIX) {
+    if (doc.type === 'audio' && doc.supportsStreaming && SHOULD_USE_SAFARI_FIX) {
       this.handleSafariStreamable(media);
     }
 
@@ -517,20 +517,20 @@ export class AppMediaPlaybackController extends EventListenerBase<{
     const cacheContext = apiManagerProxy.getCacheContext(doc);
     media.src = cacheContext.url;
 
-    if(this.playingMedia === media) {
+    if (this.playingMedia === media) {
       media.playbackRate = this.playbackRate;
 
-      if(doc.type === 'audio') {
+      if (doc.type === 'audio') {
         media.loop = this.loop;
       }
     }
     // }, doc.supportsStreaming ? 500e3 : 0);
 
     const set = this.waitingDocumentsForLoad[doc.id];
-    if(set) {
+    if (set) {
       set.delete(media);
 
-      if(!set.size) {
+      if (!set.size) {
         delete this.waitingDocumentsForLoad[doc.id];
       }
     }
@@ -556,28 +556,28 @@ export class AppMediaPlaybackController extends EventListenerBase<{
           // media.volume = 1;
           // this.setSafariBuffering(media, false);
 
-          if(!media.paused) {
+          if (!media.paused) {
             media.play()/* .catch(() => {}) */;
           }
-        }, {once: true});
-      }, {once: true});
+        }, { once: true });
+      }, { once: true });
     }/* , {once: true} */);
   }
 
   public resolveWaitingForLoadMedia(peerId: PeerId, mid: number, isScheduled?: boolean, slot?: number) {
     const w = isScheduled ? this.waitingScheduledMediaForLoad : this.waitingMediaForLoad;
     const storage = w.get(peerId);
-    if(!storage) {
+    if (!storage) {
       return;
     }
 
     const storageKey = mid + (slot ?? 0);
     const promise = storage.get(storageKey);
-    if(promise) {
+    if (promise) {
       promise.resolve();
       storage.delete(storageKey);
 
-      if(!storage.size) {
+      if (!storage.size) {
         w.delete(peerId);
       }
     }
@@ -597,35 +597,35 @@ export class AppMediaPlaybackController extends EventListenerBase<{
   }
 
   private async setNewMediadata(message: Message.message, playingMedia = this.playingMedia) {
-    if(document.pictureInPictureElement) {
+    if (document.pictureInPictureElement) {
       return;
     }
 
     await onMediaLoad((playingMedia as HTMLMediaElement), undefined, false); // have to wait for load, otherwise on macOS won't set
 
     const doc = getMediaFromMessage(message, true) as MyDocument;
-    if(!doc) return; // live
+    if (!doc) return; // live
 
     const artwork: MediaImage[] = [];
 
     const isVoice = doc.type === 'voice' || doc.type === 'round';
     let title = '', artist = '';
 
-    if(doc.thumbs?.length) {
+    if (doc.thumbs?.length) {
       const size = doc.thumbs[doc.thumbs.length - 1];
-      if(!(size as PhotoSize.photoStrippedSize).bytes) {
+      if (!(size as PhotoSize.photoStrippedSize).bytes) {
         const cacheContext = apiManagerProxy.getCacheContext(doc, size.type);
 
-        if(cacheContext.url) {
+        if (cacheContext.url) {
           artwork.push({
             src: cacheContext.url,
             sizes: `${(size as PhotoSize.photoSize).w}x${(size as PhotoSize.photoSize).h}`,
-            type: 'image/jpeg'
+            type: 'image/jpeg',
           });
         } else {
-          const download = appDownloadManager.downloadMediaURL({media: doc, thumb: size});
+          const download = appDownloadManager.downloadMediaURL({ media: doc, thumb: size });
           download.then(() => {
-            if(this.playingMedia !== playingMedia || !cacheContext.url) {
+            if (this.playingMedia !== playingMedia || !cacheContext.url) {
               return;
             }
 
@@ -633,10 +633,10 @@ export class AppMediaPlaybackController extends EventListenerBase<{
           });
         }
       }
-    } else if(isVoice) {
+    } else if (isVoice) {
       const peerId = message.fromId || message.peerId;
       const peerPhoto = await this.managers.appPeersManager.getPeerPhoto(peerId!);
-      if(peerPhoto) {
+      if (peerPhoto) {
         // const result = this.managers.appAvatarsManager.loadAvatar(peerId, peerPhoto, 'photo_small');
         // if(result.cached) {
         //   const url = await result.loadPromise;
@@ -656,29 +656,29 @@ export class AppMediaPlaybackController extends EventListenerBase<{
         // }
       }
 
-      title = await getPeerTitle({peerId: peerId!, plainText: true, onlyFirstName: false});
+      title = await getPeerTitle({ peerId: peerId!, plainText: true, onlyFirstName: false });
       artist = I18n.format(doc.type === 'voice' ? 'AttachAudio' : 'AttachRound', true);
     }
 
-    if(!isVoice) {
+    if (!isVoice) {
       const attribute = doc.attributes.find((attribute) => attribute._ === 'documentAttributeAudio') as DocumentAttribute.documentAttributeAudio;
       title = (attribute?.title ?? doc.file_name)!;
       artist = attribute?.performer!;
     }
 
-    if(!artwork.length) {
-      if(IS_APPLE) {
-        if(IS_TOUCH_SUPPORTED) {
+    if (!artwork.length) {
+      if (IS_APPLE) {
+        if (IS_TOUCH_SUPPORTED) {
           artwork.push({
             src: `assets/img/apple-touch-icon-precomposed.png`,
             sizes: '180x180',
-            type: 'image/png'
+            type: 'image/png',
           });
         } else {
           artwork.push({
             src: `assets/img/apple-touch-icon.png`,
             sizes: '180x180',
-            type: 'image/png'
+            type: 'image/png',
           });
         }
       } else {
@@ -687,7 +687,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
           artwork.push({
             src: `assets/img/android-chrome-${sizes}.png`,
             sizes,
-            type: 'image/png'
+            type: 'image/png',
           });
         });
       }
@@ -696,15 +696,15 @@ export class AppMediaPlaybackController extends EventListenerBase<{
     const metadata = new MediaMetadata({
       title,
       artist,
-      artwork
+      artwork,
     });
 
     navigator.mediaSession.metadata = metadata;
   }
 
   public setCurrentMediadata() {
-    const {playingMedia} = this;
-    if(!playingMedia) return;
+    const { playingMedia } = this;
+    if (!playingMedia) return;
     const message = this.getMessageByMedia(playingMedia);
     this.setNewMediadata(message, playingMedia);
   }
@@ -720,13 +720,13 @@ export class AppMediaPlaybackController extends EventListenerBase<{
   }
 
   public getPlayingDetails() {
-    const {playingMedia} = this;
-    if(!playingMedia) {
+    const { playingMedia } = this;
+    if (!playingMedia) {
       return;
     }
 
     const message = this.getMessageByMedia(playingMedia);
-    if(!message) {
+    if (!message) {
       return;
     }
 
@@ -744,65 +744,65 @@ export class AppMediaPlaybackController extends EventListenerBase<{
        * are not meaningful.
        */
       isSlotted: !!details && details.storageKey !== details.mid,
-      playbackParams: this.getPlaybackParams()
+      playbackParams: this.getPlaybackParams(),
     };
   }
 
   private onPlay = (e?: Event) => {
     const media = e!.target as HTMLMediaElement;
     const details = this.mediaDetails.get(media);
-    const {peerId, mid} = details!;
+    const { peerId, mid } = details!;
 
     // console.log('appMediaPlaybackController: video playing', this.currentPeerId, this.playingMedia, media);
 
     const pip = this.pip;
-    if(pip) {
+    if (pip) {
       pip.pause();
     }
 
     const message = this.getMessageByMedia(media);
 
     const previousMedia = this.playingMedia;
-    if(previousMedia !== media) {
+    if (previousMedia !== media) {
       this.stop();
       this.setMedia(media, message);
 
       const verify = (element: MediaItem) => element.mid === mid && element.peerId === peerId;
       const listLoader = this.listLoader;
       const current = listLoader.current;
-      if(!current || !verify(current)) {
+      if (!current || !verify(current)) {
         let jumpLength: number;
 
-        for(const withOtherSide of [false, true]) {
+        for (const withOtherSide of [false, true]) {
           const previous = listLoader.getPrevious(withOtherSide);
 
           let idx = previous.findIndex(verify);
-          if(idx !== -1) {
+          if (idx !== -1) {
             jumpLength = -(previous.length - idx);
           } else {
             const next = listLoader.getNext(withOtherSide);
             idx = next.findIndex(verify);
-            if(idx !== -1) {
+            if (idx !== -1) {
               jumpLength = idx + 1;
             }
           }
 
-          if(jumpLength! !== undefined) {
+          if (jumpLength! !== undefined) {
             break;
           }
         }
 
-        if(jumpLength!) {
+        if (jumpLength!) {
           this.go(jumpLength, false);
-        } else if(!listLoader.repositionTo?.(mid, peerId)) {
-          this.setTargets({peerId, mid});
+        } else if (!listLoader.repositionTo?.(mid, peerId)) {
+          this.setTargets({ peerId, mid });
         }
       }
     }
 
     // audio_pause не успеет сработать без таймаута
     setTimeout(() => {
-      if(this.playingMedia !== media) {
+      if (this.playingMedia !== media) {
         return;
       }
 
@@ -827,7 +827,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
   };
 
   private onEnded = (e?: Event) => {
-    if(e && !e.isTrusted) {
+    if (e && !e.isTrusted) {
       return;
     }
 
@@ -836,7 +836,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
     // console.log('on media end');
 
     const listLoader = this.listLoader;
-    if(
+    if (
       this.lockedSwitchers ||
       (!this.round && listLoader.current && !listLoader.getNext(false).length) ||
       !listLoader.getNext(true).length ||
@@ -857,19 +857,19 @@ export class AppMediaPlaybackController extends EventListenerBase<{
   // }
 
   public toggle(play?: boolean, media = this.playingMedia) {
-    if(!media) {
+    if (!media) {
       return false;
     }
 
-    if(play === undefined) {
+    if (play === undefined) {
       play = media.paused;
     }
 
-    if(media.paused !== play) {
+    if (media.paused !== play) {
       return false;
     }
 
-    if(play) {
+    if (play) {
       media.play();
     } else {
       media.pause();
@@ -897,7 +897,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
    * boost stays out of `volume`. For everything else it just sets the shared master.
    */
   public setGlobalSliderVolume(value: number) {
-    if(this.playingMediaType === 'voice') {
+    if (this.playingMediaType === 'voice') {
       this.boost = Math.max(value - 1, 0);
       this.volume = Math.min(value, 1);
     } else {
@@ -914,28 +914,28 @@ export class AppMediaPlaybackController extends EventListenerBase<{
   };
 
   public stop = (media = this.playingMedia, force?: boolean) => {
-    if(!media) {
+    if (!media) {
       return false;
     }
 
-    if(!media.paused) {
+    if (!media.paused) {
       media.pause();
     }
 
     setCurrentTime(media, 0);
     simulateEvent(media, 'ended'); // ! important, will be used to hide controls for audio element
 
-    if(media === this.playingMedia) {
+    if (media === this.playingMedia) {
       const details = this.mediaDetails.get(media);
-      if(details?.clean) {
+      if (details?.clean) {
         media.src = '';
         const peerId = details.peerId;
         const s = details.isScheduled ? this.scheduled : this.media;
         const storage = s.get(peerId);
-        if(storage) {
+        if (storage) {
           storage.delete(details.storageKey);
 
-          if(!storage.size) {
+          if (!storage.size) {
             s.delete(peerId);
           }
         }
@@ -949,7 +949,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
       this.playingMediaType = undefined;
     }
 
-    if(force) {
+    if (force) {
       this.dispatchEvent('stop');
     }
 
@@ -957,7 +957,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
   };
 
   public playItem = (item: MediaItem) => {
-    const {peerId, mid} = item;
+    const { peerId, mid } = item;
     const isScheduled = this.searchContext.isScheduled;
     const media = this.getMedia(peerId, mid, isScheduled);
 
@@ -974,11 +974,11 @@ export class AppMediaPlaybackController extends EventListenerBase<{
 
   public go = (length: number, dispatchJump?: boolean) => {
     const listLoader = this.listLoader;
-    if(this.lockedSwitchers || !listLoader) {
+    if (this.lockedSwitchers || !listLoader) {
       return;
     }
 
-    if(this.playingMediaType === 'audio') {
+    if (this.playingMediaType === 'audio') {
       return listLoader.goRound(length, dispatchJump);
     } else {
       return listLoader.go(length, dispatchJump);
@@ -1007,7 +1007,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
   };
 
   public previous = () => {
-    if(this.seekToStart((this.playingMedia as HTMLMediaElement))) {
+    if (this.seekToStart((this.playingMedia as HTMLMediaElement))) {
       return;
     }
 
@@ -1015,7 +1015,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
   };
 
   public seekToStart(media: HTMLMediaElement) {
-    if(media?.currentTime > 5) {
+    if (media?.currentTime > 5) {
       setCurrentTime(media, 0);
       this.toggle(true, media);
       return true;
@@ -1033,7 +1033,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
   }
 
   public setSearchContext(context: MediaSearchContext) {
-    if(deepEqual(this.searchContext, context)) {
+    if (deepEqual(this.searchContext, context)) {
       return false;
     }
 
@@ -1054,15 +1054,15 @@ export class AppMediaPlaybackController extends EventListenerBase<{
     loaderFactory: MediaListLoaderFactory = AppMediaPlaybackController.defaultLoaderFactory
   ) {
     let listLoader = this.listLoader;
-    if(!listLoader || this.listLoaderFactory !== loaderFactory) {
+    if (!listLoader || this.listLoaderFactory !== loaderFactory) {
       listLoader?.cleanup();
 
       listLoader = this.listLoader = loaderFactory({
         loadCount: 10,
         loadWhenLeft: 5,
         processItem: (message: Message.message) => {
-          this.addMedia({message, autoload: false});
-          return {peerId: message.peerId!, mid: message.mid!};
+          this.addMedia({ message, autoload: false });
+          return { peerId: message.peerId!, mid: message.mid! };
         },
         onJump: (item, older) => {
           this.playItem(item);
@@ -1070,7 +1070,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
         onEmptied: () => {
           this.dispatchEvent('stop');
           this.stop();
-        }
+        },
       });
       this.listLoaderFactory = loaderFactory;
     } else {
@@ -1078,10 +1078,10 @@ export class AppMediaPlaybackController extends EventListenerBase<{
     }
 
 
-    if(listLoader instanceof SearchListLoader) {
+    if (listLoader instanceof SearchListLoader) {
       const reverse = this.searchContext.folderId !== undefined ? false : true;
       listLoader.setSearchContext(this.searchContext);
-      if(prev) {
+      if (prev) {
         listLoader.setTargets(prev, next!, reverse);
       } else {
         listLoader.reverse = reverse;
@@ -1097,10 +1097,10 @@ export class AppMediaPlaybackController extends EventListenerBase<{
   private getPlaybackMediaTypeFromMessage(message: Message.message) {
     const doc = getMediaFromMessage(message, true) as MyDocument;
     let mediaType: PlaybackMediaType = 'audio';
-    if(doc?.type) {
-      if(doc.type === 'voice' || doc.type === 'round') {
+    if (doc?.type) {
+      if (doc.type === 'voice' || doc.type === 'round') {
         mediaType = 'voice';
-      } else if(doc.type === 'video') {
+      } else if (doc.type === 'video') {
         mediaType = 'video';
       }
     }
@@ -1115,15 +1115,15 @@ export class AppMediaPlaybackController extends EventListenerBase<{
 
     this.playingMedia = media;
     this.playingMediaType = mediaType;
-    if(!standalone) {
+    if (!standalone) {
       this.applyVolumeToMedia(this.playingMedia, this.getVolumeForType(mediaType), this.muted, mediaType);
       this.playingMedia.playbackRate = this.playbackRate;
-      if(mediaType === 'audio') {
+      if (mediaType === 'audio') {
         this.playingMedia.loop = this.loop;
       }
     }
 
-    if('mediaSession' in navigator) {
+    if ('mediaSession' in navigator) {
       this.setNewMediadata(message);
     }
   }
@@ -1131,7 +1131,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
   public setSingleMedia({
     media,
     message,
-    standalone
+    standalone,
   }: {
     media?: HTMLMediaElement,
     message?: Message.message,
@@ -1142,17 +1142,17 @@ export class AppMediaPlaybackController extends EventListenerBase<{
     const wasPlaying = this.pause();
 
     let onPlay: () => void;
-    if(media) {
+    if (media) {
       onPlay = () => {
         const pip = this.pip;
-        if(pip) {
+        if (pip) {
           pip.pause();
         }
 
         this.pauseMediaInOtherTabs();
       };
 
-      if(!media.paused) {
+      if (!media.paused) {
         onPlay();
       }
 
@@ -1162,7 +1162,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
     }
 
     this.willBePlayed(undefined!);
-    if(media) this.setMedia(media, message!, standalone);
+    if (media) this.setMedia(media, message!, standalone);
     else this.playingMedia = undefined;
     this.toggleSwitchers(false);
 
@@ -1171,8 +1171,8 @@ export class AppMediaPlaybackController extends EventListenerBase<{
     return (playPaused = wasPlaying) => {
       this.toggleSwitchers(true);
 
-      if(playingMedia) {
-        if(this.mediaDetails.get(playingMedia)) {
+      if (playingMedia) {
+        if (this.mediaDetails.get(playingMedia)) {
           this.setMedia(playingMedia, this.getMessageByMedia(playingMedia));
         } else {
           this.next() || this.previous();
@@ -1180,12 +1180,12 @@ export class AppMediaPlaybackController extends EventListenerBase<{
       }
 
       // If it's still not cleaned
-      if(this.playingMedia === media) {
+      if (this.playingMedia === media) {
         this.playingMedia = undefined;
         this.playingMediaType = undefined;
       }
 
-      if(media) {
+      if (media) {
         media.removeEventListener('play', onPlay);
       }
 
@@ -1194,7 +1194,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
       //   this.stop();
       // }
 
-      if(playPaused) {
+      if (playPaused) {
         this.play();
       }
     };
@@ -1211,7 +1211,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
 
     const listenerSetter = new ListenerSetter();
     listenerSetter.add(video)('leavepictureinpicture', () => {
-      if(this.pip !== video) {
+      if (this.pip !== video) {
         return;
       }
 
@@ -1221,10 +1221,10 @@ export class AppMediaPlaybackController extends EventListenerBase<{
       // }
 
       listenerSetter.removeAll();
-    }, {once: true});
+    }, { once: true });
 
     listenerSetter.add(video)('play', (e) => {
-      if(this.playingMedia !== video) {
+      if (this.playingMedia !== video) {
         this.pause();
       }
 

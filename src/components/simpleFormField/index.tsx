@@ -1,8 +1,8 @@
 import styles from '@components/simpleFormField/styles.module.scss';
-import {requestRAF} from '@helpers/solid/requestRAF';
-import {useMaxLengthError} from '@helpers/solid/useMaxLengthError';
+import { requestRAF } from '@helpers/solid/requestRAF';
+import { useMaxLengthError } from '@helpers/solid/useMaxLengthError';
 import classNames from '@helpers/string/classNames';
-import {Accessor, batch, createContext, createEffect, createMemo, createSignal, JSX, onCleanup, onMount, ParentProps, Ref, Setter, Show, splitProps, useContext} from 'solid-js';
+import { Accessor, batch, createContext, createEffect, createMemo, createSignal, JSX, onCleanup, onMount, ParentProps, Ref, Setter, Show, splitProps, useContext } from 'solid-js';
 
 
 type SimpleFormFieldContextValue = {
@@ -52,14 +52,14 @@ const SimpleFormField = (inProps: ParentProps<{
     'withMinHeight',
     'solidBackground',
     'hoverDisabled',
-    'isMarkupTooltipHost'
+    'isMarkupTooltipHost',
   ]);
 
   const [input, setInput] = createSignal<HTMLInputElement>();
   const [offsetElement, setOffsetElement] = createSignal<HTMLElement>();
 
-  const {value: forceFocused, useSetter: useSetForceFocused} = useForceState();
-  const {value: forceError, useSetter: useSetForceError} = useForceState();
+  const { value: forceFocused, useSetter: useSetForceFocused } = useForceState();
+  const { value: forceError, useSetter: useSetForceError } = useForceState();
 
   const contextValue: SimpleFormFieldContextValue = {
     input: (input as Accessor<HTMLInputElement>),
@@ -73,7 +73,7 @@ const SimpleFormField = (inProps: ParentProps<{
     forceFocused,
     useSetForceFocused,
     forceError,
-    useSetForceError
+    useSetForceError,
   };
 
   return (
@@ -90,7 +90,7 @@ const SimpleFormField = (inProps: ParentProps<{
           [styles.forceFocused]: forceFocused(),
           [styles.solidBackground]: props.solidBackground,
           [styles.hoverEnabled]: !props.hoverDisabled,
-          ...props.classList
+          ...props.classList,
         }}
         onClick={(...args) => {
           contextValue.input()?.focus();
@@ -120,13 +120,13 @@ SimpleFormField.Input = (inProps: {
       ref={(el) => batch(() => {
         context!.setInput(el);
         context!.setOffsetElement(el);
-        if(props.ref instanceof Function) props.ref(el);
+        if (props.ref instanceof Function) props.ref(el);
       })}
       class={classNames(styles.Input, props.class)}
       value={context!.value()}
       onInput={(e) => {
         context!.onChange(e.currentTarget.value)
-        if(props.forceFieldValue) context!.input().value = context!.value();
+        if (props.forceFieldValue) context!.input().value = context!.value();
       }}
       {...restProps}
     />
@@ -158,9 +158,9 @@ SimpleFormField.Label = (props: ParentProps<{
   const [noTransition, setNoTransition] = createSignal(true);
 
   onMount(() => {
-    if(props.forceOffset || !context!.offsetElement()) return;
+    if (props.forceOffset || !context!.offsetElement()) return;
     const parentElement = context!.offsetElement().parentElement;
-    if(!parentElement) return;
+    if (!parentElement) return;
 
     const rect = parentElement.getBoundingClientRect();
     const inputRect = context!.offsetElement().getBoundingClientRect();
@@ -178,10 +178,10 @@ SimpleFormField.Label = (props: ParentProps<{
       class={styles.Label}
       classList={{
         [styles.active]: props.active || !!context!.value(),
-        [styles.noTransition]: noTransition()
+        [styles.noTransition]: noTransition(),
       }}
       style={{
-        '--offset': `${props.forceOffset || offset()}px`
+        '--offset': `${props.forceOffset || offset()}px`,
       }}
     >
       {props.children}
@@ -205,7 +205,7 @@ SimpleFormField.SideContent = (inProps: SideContentProps) => {
         [styles.first]: props.first,
         [styles.last]: props.last,
         [styles.withFixedIcon]: props.withFixedIcon,
-        ...props.classList
+        ...props.classList,
       }}
       {...restProps}
     >
@@ -246,7 +246,7 @@ SimpleFormField.WithAutoLengthCounter = (inProps: WithAutoLengthCounterProps) =>
 
   const context = useSimpleFormFieldContext();
 
-  const {shouldShowLengthLeft, lengthLeft, hasError} = useMaxLengthError(context!.value, () => props.maxLength);
+  const { shouldShowLengthLeft, lengthLeft, hasError } = useMaxLengthError(context!.value, () => props.maxLength);
 
   const setForceError = context!.useSetForceError();
   createEffect(() => {
@@ -292,7 +292,7 @@ export const useForceState = () => {
     return setter;
   };
 
-  return {value, useSetter};
+  return { value, useSetter };
 };
 
 export default SimpleFormField;

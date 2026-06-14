@@ -1,28 +1,28 @@
-import type {ReactionsContext} from '@appManagers/appReactionsManager';
+import type { ReactionsContext } from '@appManagers/appReactionsManager';
 import forEachReverse from '@helpers/array/forEachReverse';
 import callbackifyAll from '@helpers/callbackifyAll';
 import positionElementByIndex from '@helpers/dom/positionElementByIndex';
-import {makeMediaSize} from '@helpers/mediaSize';
-import {Middleware, MiddlewareHelper} from '@helpers/middleware';
-import {ReactionCount, SavedReactionTag} from '@layer';
+import { makeMediaSize } from '@helpers/mediaSize';
+import { Middleware, MiddlewareHelper } from '@helpers/middleware';
+import { ReactionCount, SavedReactionTag } from '@layer';
 import appImManager from '@lib/appImManager';
-import {AppManagers} from '@lib/managers';
+import { AppManagers } from '@lib/managers';
 import reactionsEqual from '@appManagers/utils/reactions/reactionsEqual';
-import {CustomEmojiRendererElement} from '@lib/customEmoji/renderer';
+import { CustomEmojiRendererElement } from '@lib/customEmoji/renderer';
 import rootScope from '@lib/rootScope';
-import {AnimationItemGroup} from '@components/animationIntersector';
+import { AnimationItemGroup } from '@components/animationIntersector';
 import LazyLoadQueue from '@components/lazyLoadQueue';
-import ReactionElement, {ReactionLayoutType, REACTIONS_DISPLAY_COUNTER_AT, REACTIONS_SIZE} from '@components/chat/reaction';
-import {getHeavyAnimationPromise} from '@hooks/useHeavyAnimationCheck';
+import ReactionElement, { ReactionLayoutType, REACTIONS_DISPLAY_COUNTER_AT, REACTIONS_SIZE } from '@components/chat/reaction';
+import { getHeavyAnimationPromise } from '@hooks/useHeavyAnimationCheck';
 import pause from '@helpers/schedulers/pause';
-import {Accessor, Setter} from 'solid-js';
+import { Accessor, Setter } from 'solid-js';
 
 
 const CLASS_NAME = 'reactions';
 const TAG_NAME = CLASS_NAME + '-element';
 
 const REACTIONS_ELEMENTS: Map<string, Set<ReactionsElement>> = new Map();
-export {REACTIONS_ELEMENTS};
+export { REACTIONS_ELEMENTS };
 
 export type PendingPaidReaction = {
   count: Accessor<number>,
@@ -35,15 +35,15 @@ export type PendingPaidReaction = {
 
 const PENDING_PAID_REACTIONS: Map<string, PendingPaidReaction> = new Map();
 const PENDING_PAID_REACTION_SENT_ABORT_REASON = Symbol('Reaction was sent');
-export {PENDING_PAID_REACTIONS, PENDING_PAID_REACTION_SENT_ABORT_REASON};
+export { PENDING_PAID_REACTIONS, PENDING_PAID_REACTION_SENT_ABORT_REASON };
 
 export function getPendingPaidReactionKey(message: ReactionsContext) {
   return message.peerId + '_' + message.mid;
 }
 
 export const savedReactionTags: SavedReactionTag[] = [];
-rootScope.addEventListener('saved_tags', ({savedPeerId, tags}) => {
-  if(savedPeerId) {
+rootScope.addEventListener('saved_tags', ({ savedPeerId, tags }) => {
+  if (savedPeerId) {
     return;
   }
 
@@ -52,7 +52,7 @@ rootScope.addEventListener('saved_tags', ({savedPeerId, tags}) => {
   REACTIONS_ELEMENTS.forEach((set) => {
     set.forEach((reactionsElement) => {
       const context = reactionsElement.getContext();
-      if(context.peerId === rootScope.myId && reactionsElement.getType() === ReactionLayoutType.Tag) {
+      if (context.peerId === rootScope.myId && reactionsElement.getType() === ReactionLayoutType.Tag) {
         reactionsElement.render();
       }
     });
@@ -85,13 +85,13 @@ export default class ReactionsElement extends HTMLElement {
 
   connectedCallback() {
     let set = REACTIONS_ELEMENTS.get(this.key);
-    if(!set) {
+    if (!set) {
       REACTIONS_ELEMENTS.set(this.key, set = new Set());
     }
 
     set.add(this);
 
-    if(this.onConnectCallback && this.isConnected) {
+    if (this.onConnectCallback && this.isConnected) {
       this.onConnectCallback();
       this.onConnectCallback = undefined;
     }
@@ -100,7 +100,7 @@ export default class ReactionsElement extends HTMLElement {
   disconnectedCallback() {
     const set = REACTIONS_ELEMENTS.get(this.key);
     set!.delete(this);
-    if(!set!.size) {
+    if (!set!.size) {
       REACTIONS_ELEMENTS.delete(this.key);
     }
   }
@@ -122,12 +122,12 @@ export default class ReactionsElement extends HTMLElement {
   }
 
   public shouldUseTagsForContext(context: ReactionsElement['context']) {
-    if(context.peerId !== rootScope.myId) {
+    if (context.peerId !== rootScope.myId) {
       return false;
     }
 
     const reactions = context.reactions;
-    if(!reactions || reactions.pFlags.reactions_as_tags) {
+    if (!reactions || reactions.pFlags.reactions_as_tags) {
       return true;
     }
 
@@ -141,7 +141,7 @@ export default class ReactionsElement extends HTMLElement {
     isPlaceholder = this.isPlaceholder,
     animationGroup,
     lazyLoadQueue,
-    forceCounter
+    forceCounter,
   }: {
     context: ReactionsContext,
     type: ReactionLayoutType,
@@ -151,11 +151,11 @@ export default class ReactionsElement extends HTMLElement {
     lazyLoadQueue?: LazyLoadQueue,
     forceCounter?: boolean
   }) {
-    if(this.key !== undefined) {
+    if (this.key !== undefined) {
       this.disconnectedCallback();
     }
 
-    if(this.middleware !== middleware) {
+    if (this.middleware !== middleware) {
       middleware.onDestroy(() => {
         this.middlewareHelpers.clear();
       });
@@ -175,17 +175,17 @@ export default class ReactionsElement extends HTMLElement {
   }
 
   public setType(type: ReactionLayoutType) {
-    if(type === ReactionLayoutType.Block && this.shouldUseTagsForContext(this.context)) {
+    if (type === ReactionLayoutType.Block && this.shouldUseTagsForContext(this.context)) {
       type = ReactionLayoutType.Tag;
     }
 
-    if(this.type === type) {
+    if (this.type === type) {
       return;
     }
 
     this.type = type;
 
-    for(const type in ReactionLayoutType) {
+    for (const type in ReactionLayoutType) {
       this.classList.remove(CLASS_NAME + '-' + type);
     }
 
@@ -197,7 +197,7 @@ export default class ReactionsElement extends HTMLElement {
     return this.init({
       context,
       type: this.type,
-      middleware: this.middleware
+      middleware: this.middleware,
     });
   }
 
@@ -210,7 +210,7 @@ export default class ReactionsElement extends HTMLElement {
     const reactions = this.context.reactions;
     const hasReactions = !!(reactions && reactions.results.length);
     this.classList.toggle('has-no-reactions', !hasReactions);
-    if(!hasReactions && !this.sorted.length) return;
+    if (!hasReactions && !this.sorted.length) return;
 
     // const availableReactionsResult = this.managers.appReactionsManager.getAvailableReactions();
     // callbackify(availableReactionsResult, () => {
@@ -234,7 +234,7 @@ export default class ReactionsElement extends HTMLElement {
     forEachReverse(this.sorted, (reactionElement, idx, arr) => {
       const reaction = reactionElement.reactionCount.reaction;
       const found = counts.some((reactionCount) => reactionsEqual(reactionCount.reaction, reaction));
-      if(!found) {
+      if (!found) {
         const middlewareHelper = this.middlewareHelpers.get(reactionElement);
         middlewareHelper!.destroy();
         this.middlewareHelpers.delete(reactionElement);
@@ -252,7 +252,7 @@ export default class ReactionsElement extends HTMLElement {
     let paidReactionElement: ReactionElement, pendingPaidReaction: PendingPaidReaction;
     this.sorted = counts.map((reactionCount, idx, arr) => {
       let reactionElement: ReactionElement = this.sorted.find((reactionElement) => reactionsEqual(reactionElement.reactionCount.reaction, reactionCount.reaction))!;
-      if(!reactionElement) {
+      if (!reactionElement) {
         const middlewareHelper = this.middleware.create();
         reactionElement = new ReactionElement();
         reactionElement.init(this.type, middlewareHelper.get());
@@ -263,7 +263,7 @@ export default class ReactionsElement extends HTMLElement {
 
       const isPaidReaction = reactionCount.reaction._ === 'reactionPaid';
       const pending = isPaidReaction && PENDING_PAID_REACTIONS.get(getPendingPaidReactionKey(this.context));
-      if(pending) {
+      if (pending) {
         paidReactionElement = reactionElement;
         pendingPaidReaction = pending;
       }
@@ -275,7 +275,7 @@ export default class ReactionsElement extends HTMLElement {
       const isUnread = recentReactions.some((reaction) => reaction.pFlags.unread);
       reactionElement.reactionCount = {
         ...reactionCount,
-        count: reactionCount.count + ((pending as PendingPaidReaction | undefined)?.count?.() ?? 0)
+        count: reactionCount.count + ((pending as PendingPaidReaction | undefined)?.count?.() ?? 0),
       };
       reactionElement.setCanRenderAvatars(canRenderAvatars!);
       const customEmojiElement = reactionElement.render(this.isPlaceholder);
@@ -288,7 +288,7 @@ export default class ReactionsElement extends HTMLElement {
           undefined
       );
 
-      if(wasUnread && !isUnread && !changedResults?.includes(reactionCount)) {
+      if (wasUnread && !isUnread && !changedResults?.includes(reactionCount)) {
         (changedResults ??= []).push(reactionCount);
         animationShouldHaveDelay = true;
       }
@@ -302,11 +302,11 @@ export default class ReactionsElement extends HTMLElement {
       positionElementByIndex(element, this, idx);
     });
 
-    if(pendingPaidReaction!) {
-      const {width} = paidReactionElement!.getBoundingClientRect();
+    if (pendingPaidReaction!) {
+      const { width } = paidReactionElement!.getBoundingClientRect();
       paidReactionElement!.style.setProperty('--width', width + 'px');
       paidReactionElement!.setPaidReactionCounter(pendingPaidReaction.count());
-      if(!paidReactionElement!.classList.contains('effect-active')) {
+      if (!paidReactionElement!.classList.contains('effect-active')) {
         paidReactionElement!.classList.add('effect-active');
         pendingPaidReaction.abortController.signal.addEventListener('abort', () => {
           paidReactionElement.classList.remove('effect-active');
@@ -319,15 +319,15 @@ export default class ReactionsElement extends HTMLElement {
     callbackifyAll(customEmojiElements, (customEmojiElements) => {
       const map: Parameters<CustomEmojiRendererElement['add']>[0]['addCustomEmojis'] = new Map();
       customEmojiElements.forEach((customEmojiElement) => {
-        if(!customEmojiElement) {
+        if (!customEmojiElement) {
           return;
         }
 
         map.set(customEmojiElement.docId, new Set([customEmojiElement]));
       });
 
-      if(!map.size) {
-        if(this.customEmojiRenderer) {
+      if (!map.size) {
+        if (this.customEmojiRenderer) {
           this.customEmojiRendererMiddlewareHelper!.destroy();
           this.customEmojiRenderer.remove();
           this.customEmojiRenderer =
@@ -338,7 +338,7 @@ export default class ReactionsElement extends HTMLElement {
         return;
       }
 
-      if(!this.customEmojiRenderer) {
+      if (!this.customEmojiRenderer) {
         const size = REACTIONS_SIZE[this.type];
         this.customEmojiRendererMiddlewareHelper = this.middleware.create();
         this.customEmojiRenderer = CustomEmojiRendererElement.create({
@@ -346,7 +346,7 @@ export default class ReactionsElement extends HTMLElement {
           customEmojiSize: makeMediaSize(size, size),
           middleware: this.customEmojiRendererMiddlewareHelper.get(),
           lazyLoadQueue: this.lazyLoadQueue,
-          observeResizeElement: this
+          observeResizeElement: this,
         });
 
         this.customEmojiRenderer.classList.add(CLASS_NAME + '-renderer');
@@ -356,12 +356,12 @@ export default class ReactionsElement extends HTMLElement {
 
       this.customEmojiRenderer.add({
         addCustomEmojis: map,
-        lazyLoadQueue: this.lazyLoadQueue
+        lazyLoadQueue: this.lazyLoadQueue,
       });
     });
 
-    if(!this.isPlaceholder && changedResults?.length) {
-      if(this.isConnected) {
+    if (!this.isPlaceholder && changedResults?.length) {
+      if (this.isConnected) {
         this.handleChangedResults(changedResults, waitPromise, animationShouldHaveDelay);
       } else {
         this.onConnectCallback = () => {
@@ -374,8 +374,8 @@ export default class ReactionsElement extends HTMLElement {
   private async handleChangedResults(changedResults: ReactionCount[], waitPromise?: Promise<any>, withDelay?: boolean) {
     await getHeavyAnimationPromise();
     // ! temp
-    if(this.context.peerId !== appImManager.chat.peerId) return;
-    if(withDelay) {
+    if (this.context.peerId !== appImManager.chat.peerId) return;
+    if (withDelay) {
       waitPromise = (waitPromise || Promise.resolve()).then(() => pause(150));
     }
 
@@ -389,6 +389,6 @@ export default class ReactionsElement extends HTMLElement {
   }
 }
 
-if(!customElements.get(TAG_NAME)) {
+if (!customElements.get(TAG_NAME)) {
   customElements.define(TAG_NAME, ReactionsElement);
 }

@@ -1,4 +1,4 @@
-import {Message} from '@layer';
+import { Message } from '@layer';
 import type SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
 import PopupElement from '@components/popups';
 import SuggestedPostAcceptWithTimePopupContent from '@components/chat/bubbleParts/suggestedPostAcceptWithTimePopup/content';
@@ -12,12 +12,12 @@ type Args = {
 };
 
 export default class SuggestedPostAcceptWithTimePopup extends PopupElement {
-  constructor({peerId, message, offeredStars, HotReloadGuard}: Args) {
+  constructor({ peerId, message, offeredStars, HotReloadGuard }: Args) {
     super('suggested-post-popup', {
       overlayClosable: true,
       closable: true,
       body: true,
-      title: 'SuggestedPosts.AcceptOffer'
+      title: 'SuggestedPosts.AcceptOffer',
     });
 
     const content = new SuggestedPostAcceptWithTimePopupContent;
@@ -28,7 +28,7 @@ export default class SuggestedPostAcceptWithTimePopup extends PopupElement {
       offeredStars,
       onFinish: () => {
         this.hide();
-      }
+      },
     })
 
     this.body.append(content);

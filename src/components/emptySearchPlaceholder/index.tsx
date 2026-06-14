@@ -1,13 +1,13 @@
-import {Show} from 'solid-js';
-import {i18n} from '@lib/langPack';
+import { Show } from 'solid-js';
+import { i18n } from '@lib/langPack';
 import lottieLoader from '@lib/rlottie/lottieLoader';
-import defineSolidElement, {PassedProps} from '@lib/solidjs/defineSolidElement';
+import defineSolidElement, { PassedProps } from '@lib/solidjs/defineSolidElement';
 import LottieAnimation from '@components/lottieAnimation';
 import ripple from '@components/ripple';
 import styles from '@components/emptySearchPlaceholder/styles.module.scss';
 ripple;
 
-if(import.meta.hot) import.meta.hot.accept();
+if (import.meta.hot) import.meta.hot.accept();
 
 
 type Props = {
@@ -46,7 +46,7 @@ const EmptySearchPlaceholder = defineSolidElement({
         </Show>
       </>
     );
-  }
+  },
 });
 
 export default EmptySearchPlaceholder;

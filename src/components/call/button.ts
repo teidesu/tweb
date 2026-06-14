@@ -1,6 +1,6 @@
-import {attachClickEvent} from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
 import ListenerSetter from '@helpers/listenerSetter';
-import {i18n, LangPackKey} from '@lib/langPack';
+import { i18n, LangPackKey } from '@lib/langPack';
 import Icon from '@components/icon';
 import ripple from '@components/ripple';
 
@@ -16,28 +16,28 @@ export default function makeButton(className: string, listenerSetter: ListenerSe
   const buttonDiv = document.createElement('div');
   buttonDiv.classList.add(_className, 'call-button', 'rp-overflow');
 
-  if(options.icon) {
+  if (options.icon) {
     buttonDiv.append(Icon(options.icon));
   }
 
-  if(!options.noRipple) {
+  if (!options.noRipple) {
     ripple(buttonDiv);
   }
 
-  if(options.isDanger) {
+  if (options.isDanger) {
     buttonDiv.classList.add(_className + '-red');
   }
 
-  if(options.isConfirm) {
+  if (options.isConfirm) {
     buttonDiv.classList.add(_className + '-green');
   }
 
-  if(options.callback) {
-    attachClickEvent(buttonDiv, options.callback, {listenerSetter});
+  if (options.callback) {
+    attachClickEvent(buttonDiv, options.callback, { listenerSetter });
   }
 
   let ret = buttonDiv;
-  if(options.text) {
+  if (options.text) {
     const div = document.createElement('div');
     div.classList.add(_className + '-container', 'call-button-container');
 

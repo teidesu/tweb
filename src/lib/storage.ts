@@ -5,17 +5,17 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import {Database} from '@config/databases';
-import DEBUG, {MOUNT_CLASS_TO} from '@config/debug';
+import { Database } from '@config/databases';
+import DEBUG, { MOUNT_CLASS_TO } from '@config/debug';
 // import DATABASE_SESSION from "@config/databases/session";
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
-import {IS_WORKER} from '@helpers/context';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
+import { IS_WORKER } from '@helpers/context';
 import throttleWith from '@helpers/schedulers/throttleWith';
 // import { WorkerTaskTemplate } from "@types";
 import IDBStorage from '@lib/files/idb';
-import {logger} from '@lib/logger';
+import { logger } from '@lib/logger';
 import DeferredIsUsingPasscode from '@lib/passcode/deferredIsUsingPasscode';
-import EncryptedStorageLayer, {StorageLayer} from '@lib/encryptedStorageLayer';
+import EncryptedStorageLayer, { StorageLayer } from '@lib/encryptedStorageLayer';
 
 function noop() {}
 
@@ -82,7 +82,7 @@ export default class AppStorage<
     this.isEncryptable = !!store?.encryptedName;
     this.encryptedStoreName = store?.encryptedName;
 
-    if(AppStorage.STORAGES.length) {
+    if (AppStorage.STORAGES.length) {
       this.useStorage = AppStorage.STORAGES[0].useStorage;
     } else {
       this.useStorage = true;
@@ -99,7 +99,7 @@ export default class AppStorage<
 
 
   private async getStorage(): Promise<StorageLayer> {
-    if(this.storage) return this.storage;
+    if (this.storage) return this.storage;
 
     const isEncryptable = this.isEncryptable ?
       await DeferredIsUsingPasscode.isUsingPasscode() :
@@ -109,7 +109,7 @@ export default class AppStorage<
       EncryptedStorageLayer.getInstance(this.db, this.encryptedStoreName) :
       new IDBStorage(this.db, this.storeName);
 
-    if(storage instanceof EncryptedStorageLayer) storage.loadEncrypted();
+    if (storage instanceof EncryptedStorageLayer) storage.loadEncrypted();
 
     return storage;
   }
@@ -119,7 +119,7 @@ export default class AppStorage<
     this.saveDeferred = deferredPromise();
 
     const set = this.keysToSet;
-    if(set.size) {
+    if (set.size) {
       const keys = Array.from(set.values()) as string[];
       set.clear();
 
@@ -143,7 +143,7 @@ export default class AppStorage<
         const storage = await this.getStorage();
         storage.save(keys, values);
         // console.log('setItem: have set', key/* , value */);
-      } catch(e) {
+      } catch (e) {
         // this.useCS = false;
         this.log.error('set error', e, keys, values);
       }
@@ -151,7 +151,7 @@ export default class AppStorage<
 
     deferred.resolve();
 
-    if(set.size) {
+    if (set.size) {
       this.saveThrottled();
     }
   };
@@ -161,7 +161,7 @@ export default class AppStorage<
     this.deleteDeferred = deferredPromise();
 
     const set = this.keysToDelete;
-    if(set.size) {
+    if (set.size) {
       const keys = Array.from(set.values()) as string[];
       set.clear();
 
@@ -178,14 +178,14 @@ export default class AppStorage<
 
         const storage = await this.getStorage();
         storage.delete(keys);
-      } catch(e) {
+      } catch (e) {
         this.log.error('delete error', e, keys);
       }
     }
 
     deferred.resolve();
 
-    if(set.size) {
+    if (set.size) {
       this.deleteThrottled();
     }
   };
@@ -195,10 +195,10 @@ export default class AppStorage<
 
     const storage = await this.getStorage();
     storage.get(keys as string[]).then((values) => {
-      for(let i = 0, length = keys.length; i < length; ++i) {
+      for (let i = 0, length = keys.length; i < length; ++i) {
         const key = keys[i];
         const deferred = this.getPromises.get(key);
-        if(deferred) {
+        if (deferred) {
           // @ts-ignore
           deferred.resolve(this.cache[key] = values[i]);
           this.getPromises.delete(key);
@@ -208,22 +208,22 @@ export default class AppStorage<
       // console.log('[AS]: get time', keys, performance.now() - perf);
     }, (error: ApiError) => {
       const ignoreErrors: Set<ErrorType> = new Set(['NO_ENTRY_FOUND', 'STORAGE_OFFLINE']);
-      if(!ignoreErrors.has(error.type)) {
+      if (!ignoreErrors.has(error.type)) {
         this.useStorage = false;
         this.log.error('get error', error, keys, this.storeName);
       }
 
-      for(let i = 0, length = keys.length; i < length; ++i) {
+      for (let i = 0, length = keys.length; i < length; ++i) {
         const key = keys[i];
         const deferred = this.getPromises.get(key);
-        if(deferred) {
+        if (deferred) {
           // deferred.reject(error);
           deferred.resolve(undefined!);
           this.getPromises.delete(key);
         }
       }
     }).finally(() => {
-      if(this.getPromises.size) {
+      if (this.getPromises.size) {
         this.getThrottled();
       }
     });
@@ -246,11 +246,11 @@ export default class AppStorage<
   }
 
   public async get<T extends keyof Storage>(key: T, useCache = true): Promise<Storage[T]> {
-    if(this.cache.hasOwnProperty(key) && useCache) {
+    if (this.cache.hasOwnProperty(key) && useCache) {
       return this.getFromCache(key)!;
-    } else if(this.useStorage) {
+    } else if (this.useStorage) {
       const r = this.getPromises.get(key);
-      if(r) return r as any;
+      if (r) return r as any;
 
       const p = deferredPromise<Storage[T]>();
       this.getPromises.set(key, p as any);
@@ -296,8 +296,8 @@ export default class AppStorage<
     this.warnAboutSaving();
 
     let setSomething = false;
-    for(const key in obj) {
-      if(obj.hasOwnProperty(key)) {
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
         const value = obj[key];
         this.setToCache(key, value!);
 
@@ -315,7 +315,7 @@ export default class AppStorage<
         value = stringify(value);
         console.log('LocalStorage set: stringify time by own stringify:', performance.now() - perf); */
 
-        if(canUseStorage) {
+        if (canUseStorage) {
           this.keysToSet.add(key);
           this.keysToDelete.delete(key);
           this.saveThrottled();
@@ -338,11 +338,11 @@ export default class AppStorage<
     // ! it is needed here
     key = '' + (key as string);
 
-    if(!saveLocal) {
+    if (!saveLocal) {
       delete this.cache[key];
     }
 
-    if(this.useStorage) {
+    if (this.useStorage) {
       this.keysToSet.delete(key);
       this.keysToDelete.add(key);
       this.deleteThrottled();
@@ -352,8 +352,8 @@ export default class AppStorage<
   }
 
   public async clear(saveLocal = false) {
-    if(!saveLocal) {
-      for(const i in this.cache) {
+    if (!saveLocal) {
+      for (const i in this.cache) {
         delete this.cache[i];
       }
     }
@@ -363,15 +363,15 @@ export default class AppStorage<
       const currentStorage = await this.getStorage();
       await currentStorage.clear();
 
-      if(currentStorage instanceof EncryptedStorageLayer) {
+      if (currentStorage instanceof EncryptedStorageLayer) {
         const otherStorage = new IDBStorage(this.db, this.storeName);
         await otherStorage.clear();
-      } else if(this.isEncryptable) {
+      } else if (this.isEncryptable) {
         const otherStorage = EncryptedStorageLayer.getInstance(this.db, this.encryptedStoreName);
         await otherStorage.clear();
       }
     }
-    catch{}
+    catch {}
   }
 
   public isSavingFrozen() {
@@ -383,7 +383,7 @@ export default class AppStorage<
     this.savingFreezed = false;
     try {
       await callback();
-    } catch(err) {
+    } catch (err) {
       console.error('unfreezeAsync callback error:', err);
     }
     this.savingFreezed = prevFreezed;
@@ -397,11 +397,11 @@ export default class AppStorage<
     return Promise.all(this.STORAGES.map((storage) => {
       storage.useStorage = enabled;
 
-      if(!IS_WORKER || !clearWrite) {
+      if (!IS_WORKER || !clearWrite) {
         return;
       }
 
-      if(!enabled) {
+      if (!enabled) {
         storage.keysToSet.clear();
         storage.keysToDelete.clear();
         storage.getPromises.forEach((deferred) => deferred.resolve(undefined));
@@ -416,7 +416,7 @@ export default class AppStorage<
     this.STORAGES.forEach((storage) => storage.savingFreezed = true);
     try {
       callback();
-    } catch(err) {
+    } catch (err) {
       console.error('freezeSaving callback error:', err);
     }
     this.STORAGES.forEach((storage) => storage.savingFreezed = false);
@@ -426,23 +426,23 @@ export default class AppStorage<
     this.STORAGES.forEach((storage) => storage.savingFreezed = true);
     try {
       await callback();
-    } catch(err) {
+    } catch (err) {
       console.error('freezeSavingAsync callback error:', err);
     }
     this.STORAGES.forEach((storage) => storage.savingFreezed = false);
   }
 
   private async toggleEncrypted(shouldEncrypt: boolean) {
-    if(!this.isEncryptable) return;
+    if (!this.isEncryptable) return;
 
     const isEncrypted = this.storage instanceof EncryptedStorageLayer;
-    if(shouldEncrypt === isEncrypted) return;
+    if (shouldEncrypt === isEncrypted) return;
 
     const entries = await this.getAllEntries();
 
     await this.storage.clear();
 
-    if(shouldEncrypt) {
+    if (shouldEncrypt) {
       const storage = this.storage = EncryptedStorageLayer.getInstance(this.db, this.encryptedStoreName);
       const data = Object.fromEntries(entries);
 
@@ -457,7 +457,7 @@ export default class AppStorage<
   }
 
   private async reEncrypt() {
-    if(!(this.storage instanceof EncryptedStorageLayer)) return;
+    if (!(this.storage instanceof EncryptedStorageLayer)) return;
 
     await this.storage.reEncrypt();
   }

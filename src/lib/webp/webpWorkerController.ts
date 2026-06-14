@@ -1,6 +1,6 @@
-import {MOUNT_CLASS_TO} from '@config/debug';
-import deferredPromise, {CancellablePromise} from '@helpers/cancellablePromise';
-import {WorkerTaskVoidTemplate} from '@types';
+import { MOUNT_CLASS_TO } from '@config/debug';
+import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
+import { WorkerTaskVoidTemplate } from '@types';
 
 export interface ConvertWebPTask extends WorkerTaskVoidTemplate {
   type: 'convertWebp',
@@ -15,13 +15,13 @@ export class WebpWorkerController {
   private convertPromises: {[fileName: string]: CancellablePromise<Uint8Array>} = {};
 
   private init() {
-    this.worker = new Worker(new URL('./webp.worker.ts', import.meta.url), {type: 'module'});
+    this.worker = new Worker(new URL('./webp.worker.ts', import.meta.url), { type: 'module' });
     this.worker.addEventListener('message', (e) => {
       const task = e.data as ConvertWebPTask;
       const payload = task.payload;
 
       const promise = this.convertPromises[payload.fileName];
-      if(promise) {
+      if (promise) {
         payload.bytes ? promise.resolve(payload.bytes) : promise.reject();
         delete this.convertPromises[payload.fileName];
       }
@@ -29,7 +29,7 @@ export class WebpWorkerController {
   }
 
   private postMessage(data: ConvertWebPTask) {
-    if(this.init) {
+    if (this.init) {
       this.init();
       this.init = null as unknown as () => void;
     }
@@ -38,13 +38,13 @@ export class WebpWorkerController {
   }
 
   public convert(fileName: string, bytes: Uint8Array) {
-    if(this.convertPromises.hasOwnProperty(fileName)) {
+    if (this.convertPromises.hasOwnProperty(fileName)) {
       return this.convertPromises[fileName];
     }
 
     const convertPromise = deferredPromise<Uint8Array>();
 
-    this.postMessage({type: 'convertWebp', payload: {fileName, bytes}});
+    this.postMessage({ type: 'convertWebp', payload: { fileName, bytes } });
 
     return this.convertPromises[fileName] = convertPromise;
   }

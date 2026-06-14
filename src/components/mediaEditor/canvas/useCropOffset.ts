@@ -1,11 +1,11 @@
-import {useMediaEditorContext} from '@components/mediaEditor/context';
+import { useMediaEditorContext } from '@components/mediaEditor/context';
 
 export function useCropOffset() {
-  const {editorState} = useMediaEditorContext()!;
+  const { editorState } = useMediaEditorContext()!;
 
   return () => {
-    const {canvasSize} = editorState;
-    if(!canvasSize) return {left: 0, top: 0, width: 0, height: 0};
+    const { canvasSize } = editorState;
+    if (!canvasSize) return { left: 0, top: 0, width: 0, height: 0 };
 
     const w = canvasSize[0],
       h = canvasSize[1];
@@ -14,7 +14,7 @@ export function useCropOffset() {
       left: 60,
       top: 60,
       width: w - 120,
-      height: h - 180
+      height: h - 180,
     };
   };
 }

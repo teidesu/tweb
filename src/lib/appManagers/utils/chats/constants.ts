@@ -1,4 +1,4 @@
-import {ChatAdminRights} from '@layer';
+import { ChatAdminRights } from '@layer';
 
 export const CHAT_LEGACY_ADMIN_RIGHTS: ChatAdminRights = {
   '_': 'chatAdminRights',
@@ -10,6 +10,6 @@ export const CHAT_LEGACY_ADMIN_RIGHTS: ChatAdminRights = {
     'pin_messages': true,
     'manage_call': true,
     'other': true,
-    'manage_topics': true
-  }
+    'manage_topics': true,
+  },
 };

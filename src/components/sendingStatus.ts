@@ -1,5 +1,5 @@
-import {_tgico} from '@helpers/tgico';
-import {Message} from '@layer';
+import { _tgico } from '@helpers/tgico';
+import { Message } from '@layer';
 import Icon from '@components/icon';
 /* import findUpClassName from "@helpers/dom/findUpClassName";
 import rootScope from "@lib/rootScope";
@@ -28,28 +28,28 @@ export function setSendingStatus(
   disableAnimationIfRippleFound?: boolean
 ) {
   let className: C;
-  if(typeof(message) === 'string') {
+  if (typeof(message) === 'string') {
     className = message;
-  } else if(message?.pFlags.out) {
-    if(message.error) {
+  } else if (message?.pFlags.out) {
+    if (message.error) {
       className = 'sendingerror';
-    } else if(message.pFlags.is_outgoing) {
+    } else if (message.pFlags.is_outgoing) {
       className = 'sending';
-    } else if(message.pFlags.unread) {
+    } else if (message.pFlags.unread) {
       className = 'check';
     } else {
       className = 'checks';
     }
   }
 
-  if(!className!) {
+  if (!className!) {
     container.textContent = '';
     container.classList.add('hide');
     return;
   }
 
   const lastElement = container.lastElementChild as HTMLElement;
-  if(lastElement && lastElement.classList.contains(_tgico(className))) {
+  if (lastElement && lastElement.classList.contains(_tgico(className))) {
     return;
   }
 

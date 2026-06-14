@@ -1,35 +1,35 @@
-import type {AppStickersManager} from '@appManagers/appStickersManager';
+import type { AppStickersManager } from '@appManagers/appStickersManager';
 import type ChatInput from '@components/chat/input';
-import PopupElement, {createPopup, PopupContext} from '@components/popups/indexTsx';
+import PopupElement, { createPopup, PopupContext } from '@components/popups/indexTsx';
 import wrapSticker from '@components/wrappers/sticker';
 import LazyLoadQueue from '@components/lazyLoadQueue';
-import {putPreloader} from '@components/putPreloader';
-import animationIntersector, {AnimationItemGroup} from '@components/animationIntersector';
+import { putPreloader } from '@components/putPreloader';
+import animationIntersector, { AnimationItemGroup } from '@components/animationIntersector';
 import appImManager from '@lib/appImManager';
 import mediaSizes from '@helpers/mediaSizes';
-import {i18n} from '@lib/langPack';
+import { i18n } from '@lib/langPack';
 import findUpClassName from '@helpers/dom/findUpClassName';
-import {attachClickEvent} from '@helpers/dom/clickEvent';
-import {toastNew} from '@components/toast';
+import { attachClickEvent } from '@helpers/dom/clickEvent';
+import { toastNew } from '@components/toast';
 import createStickersContextMenu from '@helpers/dom/createStickersContextMenu';
 import attachStickerViewerListeners from '@components/stickerViewer';
-import {Document, StickerSet} from '@layer';
+import { Document, StickerSet } from '@layer';
 import Row from '@components/row';
 import rootScope from '@lib/rootScope';
 import wrapCustomEmoji from '@components/wrappers/customEmoji';
 import emoticonsDropdown from '@components/emoticonsDropdown';
 import ButtonMenuToggle from '@components/buttonMenuToggle';
-import {copyTextToClipboard} from '@helpers/clipboard';
+import { copyTextToClipboard } from '@helpers/clipboard';
 import wrapRichText from '@lib/richTextProcessor/wrapRichText';
-import {onMediaCaptionClick} from '@components/appMediaViewer';
+import { onMediaCaptionClick } from '@components/appMediaViewer';
 import DEBUG from '@config/debug';
-import {ButtonMenuItemOptionsVerifiable} from '@components/buttonMenu';
+import { ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
 import appDownloadManager from '@lib/appDownloadManager';
 import pause from '@helpers/schedulers/pause';
 import toArray from '@helpers/array/toArray';
 import ListenerSetter from '@helpers/listenerSetter';
-import {createSignal, JSX, onCleanup, onMount, Show, untrack, useContext} from 'solid-js';
-import {subscribeOn} from '@helpers/solid/subscribeOn';
+import { createSignal, JSX, onCleanup, onMount, Show, untrack, useContext } from 'solid-js';
+import { subscribeOn } from '@helpers/solid/subscribeOn';
 import MyShow from '@helpers/solid/myShow';
 
 const ANIMATION_GROUP: AnimationItemGroup = 'STICKERS-POPUP';
@@ -45,7 +45,7 @@ export default function showStickersPopup(
   const [show, setShow] = createSignal(true);
 
   const handle = {
-    hide: () => setShow(false)
+    hide: () => setShow(false),
   };
 
   let isEmojis = isEmojisInitial;
@@ -82,14 +82,14 @@ export default function showStickersPopup(
     const updateButton = () => {
       let buttonAppend: HTMLElement;
       let add: boolean;
-      if(sets.length === 1) {
+      if (sets.length === 1) {
         const firstSet = sets[0];
         buttonAppend = i18n(isEmojis ? 'EmojiCount' : 'Stickers', [firstSet.count])!;
         add = !firstSet.installed_date;
       } else {
         const installed = sets.filter((set) => set.installed_date);
         let count: number;
-        if(sets.length === installed.length) {
+        if (sets.length === installed.length) {
           add = false;
           count = sets.length;
         } else {
@@ -105,7 +105,7 @@ export default function showStickersPopup(
 
     const onStickerSetUpdate = (set: StickerSet.stickerSet) => {
       const idx = sets.findIndex((s) => s.id === set.id);
-      if(idx === -1) return;
+      if (idx === -1) return;
       sets[idx] = set;
       updateAddedMap[set.id]?.(!!set.installed_date);
       updateButton();
@@ -119,11 +119,11 @@ export default function showStickersPopup(
       container.classList.add('sticker-set');
 
       let headerRow: Row, setUpdateAdded: (added: boolean) => void;
-      if(set) {
+      if (set) {
         headerRow = new Row({
           title: wrapRichText(set.title),
           subtitle: i18n(set.pFlags.emojis ? 'EmojiCount' : 'Stickers', [set.count]),
-          buttonRight: true
+          buttonRight: true,
         });
 
         setUpdateAdded = (added) => {
@@ -139,36 +139,36 @@ export default function showStickersPopup(
       itemsContainer.classList.add('sticker-set-stickers');
       container.append(itemsContainer);
 
-      return {container, headerRow: headerRow!, updateAdded: setUpdateAdded!, itemsContainer};
+      return { container, headerRow: headerRow!, updateAdded: setUpdateAdded!, itemsContainer };
     };
 
     const onStickersClick = async(e: MouseEvent) => {
-      if(!chatInput.chat.peerId) return;
+      if (!chatInput.chat.peerId) return;
 
       const target = findUpClassName(e.target!, 'sticker-set-sticker') || findUpClassName(e.target!, 'custom-emoji');
-      if(!target) return;
+      if (!target) return;
 
       const docId = target.dataset.docId;
       let emoji: {docId: DocId, emoji: string};
-      if(isEmojis) {
-        emoji = {docId: docId!, emoji: target.dataset.stickerEmoji!};
-        if(!chatInput.emoticonsDropdown.canUseEmoji(emoji, true)) return;
+      if (isEmojis) {
+        emoji = { docId: docId!, emoji: target.dataset.stickerEmoji! };
+        if (!chatInput.emoticonsDropdown.canUseEmoji(emoji, true)) return;
       }
 
       const shouldHide = isEmojis ?
         chatInput.onEmojiSelected(emoji!, false) :
-        await appImManager.chat.input.sendMessageWithDocument({document: docId!, target});
-      if(shouldHide) handle.hide();
+        await appImManager.chat.input.sendMessageWithDocument({ document: docId!, target });
+      if (shouldHide) handle.hide();
     };
 
     const loadStickerSet = async() => {
       const inputs = toArray(stickerSetInput);
       const setsPromises = inputs.map((input) => managers.appStickersManager.getStickerSet(input));
       let rawSets = await Promise.all(setsPromises);
-      if(!middleware()) return;
+      if (!middleware()) return;
       let firstSet = rawSets[0];
-      if(rawSets.length === 1 && !firstSet) {
-        toastNew({langPackKey: isEmojis ? 'AddEmojiNotFound' : 'StickerSet.DontExist'});
+      if (rawSets.length === 1 && !firstSet) {
+        toastNew({ langPackKey: isEmojis ? 'AddEmojiNotFound' : 'StickerSet.DontExist' });
         handle.hide();
         return;
       }
@@ -180,14 +180,14 @@ export default function showStickersPopup(
 
       isEmojis ??= !!firstSet.set.pFlags.emojis;
 
-      attachClickEvent(scrollableEl, onStickersClick, {listenerSetter});
+      attachClickEvent(scrollableEl, onStickersClick, { listenerSetter });
 
-      const {destroy} = createStickersContextMenu({
+      const { destroy } = createStickersContextMenu({
         listenTo: scrollableEl,
         chatInput,
         isPack: true,
         isEmojis,
-        onSend: () => handle.hide()
+        onSend: () => handle.hide(),
       });
       middleware.onClean(destroy);
 
@@ -197,26 +197,26 @@ export default function showStickersPopup(
       const loadPromises: Promise<any>[] = [];
 
       const containersPromises = rawSets.map(async(set) => {
-        const {container, itemsContainer, headerRow, updateAdded: setUpdateAdded} =
+        const { container, itemsContainer, headerRow, updateAdded: setUpdateAdded } =
           createStickerSetElements(rawSets.length > 1 ? set.set : undefined);
 
-        if(headerRow) {
+        if (headerRow) {
           attachClickEvent(headerRow.buttonRight, () => {
             managers.appStickersManager.toggleStickerSet(set.set);
-          }, {listenerSetter});
+          }, { listenerSetter });
         }
 
         updateAddedMap[set.set.id] = setUpdateAdded;
 
         let divs: (HTMLElement | DocumentFragment)[];
         const docs = set.documents.filter((doc) => doc?._ === 'document');
-        if(isEmojis) {
+        if (isEmojis) {
           const fragment = wrapCustomEmoji({
             docIds: docs.map((doc) => doc.id),
             loadPromises,
             animationGroup: ANIMATION_GROUP,
             customEmojiSize: mediaSizes.active.esgCustomEmoji,
-            middleware
+            middleware,
           });
 
           (Array.from(fragment.children) as HTMLElement[]).slice(1).forEach((element) => {
@@ -245,7 +245,7 @@ export default function showStickersPopup(
               height: size,
               withLock: true,
               loadPromises,
-              middleware
+              middleware,
             });
             return div;
           }));
@@ -257,7 +257,7 @@ export default function showStickersPopup(
 
       const containers = await Promise.all(containersPromises);
       await Promise.all(loadPromises);
-      if(!middleware()) return;
+      if (!middleware()) return;
 
       const title = rawSets.length === 1 ?
         wrapRichText(firstSet.set.title) :
@@ -272,28 +272,28 @@ export default function showStickersPopup(
           const prefix = `https://t.me/${isEmojis ? 'addemoji' : 'addstickers'}/`;
           const text = rawSets.map((set) => prefix + set.set.short_name).join('\n');
           copyTextToClipboard(text);
-        }
+        },
       }];
 
-      if(DEBUG) {
+      if (DEBUG) {
         buttons.push({
           icon: 'download',
           text: 'MediaViewer.Context.Download',
           onClick: async() => {
-            for(const set of rawSets) {
-              for(const doc of set.documents) {
-                appDownloadManager.downloadToDisc({media: doc as Document.document});
+            for (const set of rawSets) {
+              for (const doc of set.documents) {
+                appDownloadManager.downloadToDisc({ media: doc as Document.document });
                 await pause(100);
               }
             }
-          }
+          },
         });
       }
 
       const buttonMenu = ButtonMenuToggle({
         listenerSetter,
         buttons,
-        direction: 'bottom-left'
+        direction: 'bottom-left',
       });
 
       const onReady = () => {
@@ -307,20 +307,20 @@ export default function showStickersPopup(
     };
 
     onMount(() => {
-      attachStickerViewerListeners({listenTo: scrollableEl, listenerSetter});
+      attachStickerViewerListeners({ listenTo: scrollableEl, listenerSetter });
 
       const onContainerClick = (e: MouseEvent) => {
         const callback = onMediaCaptionClick(containerEl, e);
-        if(callback) {
+        if (callback) {
           deferredCloseCallbacks.push(callback);
           handle.hide();
           return false;
         }
       };
 
-      containerEl.addEventListener('click', onContainerClick, {capture: true});
+      containerEl.addEventListener('click', onContainerClick, { capture: true });
       middleware.onDestroy(() => {
-        containerEl.removeEventListener('click', onContainerClick, {capture: true});
+        containerEl.removeEventListener('click', onContainerClick, { capture: true });
       });
 
       loadStickerSet();
@@ -370,7 +370,7 @@ export default function showStickersPopup(
       closable
       show={show()}
       kind={STICKERS_POPUP_KIND}
-      containerProps={{ref: (el) => containerEl = el}}
+      containerProps={{ ref: (el) => containerEl = el }}
       onCloseAfterTimeout={() => {
         deferredCloseCallbacks.splice(0).forEach((cb) => cb());
       }}

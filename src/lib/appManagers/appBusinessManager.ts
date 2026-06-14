@@ -1,35 +1,35 @@
-import {BusinessIntro, MessageEntity} from '@layer';
-import {AppManager} from '@appManagers/manager';
+import { BusinessIntro, MessageEntity } from '@layer';
+import { AppManager } from '@appManagers/manager';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
 
 export default class AppBusinessManager extends AppManager {
   public saveBusinessIntro(userId: UserId, intro: BusinessIntro) {
-    if(!intro) {
+    if (!intro) {
       return;
     }
 
-    intro.sticker = this.appDocsManager.saveDoc(intro.sticker!, {type: 'userFull', userId});
+    intro.sticker = this.appDocsManager.saveDoc(intro.sticker!, { type: 'userFull', userId });
     return intro;
   }
 
   public resolveBusinessChatLink(slug: string) {
     return this.apiManager.invokeApiSingleProcess({
       method: 'account.resolveBusinessChatLink',
-      params: {slug},
+      params: { slug },
       processResult: (resolved) => {
         this.appPeersManager.saveApiPeers(resolved);
 
         const peerId = getPeerId(resolved.peer);
-        const {message, entities} = resolved;
+        const { message, entities } = resolved;
         const out: {peerId: PeerId, message: string, entities?: MessageEntity[]/* , totalEntities?: MessageEntity[] */} = {
           peerId,
           message,
-          entities
+          entities,
         };
 
         // this.appMessagesManager.wrapMessageEntities(out);
         return out;
-      }
+      },
     });
   }
 }

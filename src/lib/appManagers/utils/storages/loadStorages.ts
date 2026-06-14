@@ -1,12 +1,12 @@
-import type {Chat} from '@layer';
-import type {Dialog} from '@appManagers/appMessagesManager';
-import type {User} from '@appManagers/appUsersManager';
-import type {MessagesPersistedRecord} from '@lib/storages/messagesPersistent';
-import type {StoragesStorages} from '@appManagers/utils/storages/createStorages';
-import type {ResetStoragesPromise} from '@appManagers/appStateManager';
+import type { Chat } from '@layer';
+import type { Dialog } from '@appManagers/appMessagesManager';
+import type { User } from '@appManagers/appUsersManager';
+import type { MessagesPersistedRecord } from '@lib/storages/messagesPersistent';
+import type { StoragesStorages } from '@appManagers/utils/storages/createStorages';
+import type { ResetStoragesPromise } from '@appManagers/appStateManager';
 import type AppStorage from '@lib/storage';
-import {recordPromiseBound} from '@helpers/recordPromise';
-import {logger} from '@lib/logger';
+import { recordPromiseBound } from '@helpers/recordPromise';
+import { logger } from '@lib/logger';
 import noop from '@helpers/noop';
 
 export type StoragesResults = Awaited<ReturnType<typeof loadStorages>>;
@@ -30,21 +30,21 @@ export default async function loadStorages(accountNumber: number, storages: Stor
     messages: MessagesPersistedRecord[]
   } = {} as any;
   const arr = await Promise.all(storagesPromises);
-  for(let i = 0, length = storagesKeys.length; i < length; ++i) {
+  for (let i = 0, length = storagesKeys.length; i < length; ++i) {
     storagesResults[storagesKeys[i]] = arr[i];
   }
 
   arr.splice(0, storagesKeys.length);
 
   // * will reset storages before setting the new state
-  const {storages: resetStorages, refetch, callback} = await resetStoragesPromise;
-  if(refetch && !refetching) {
+  const { storages: resetStorages, refetch, callback } = await resetStoragesPromise;
+  if (refetch && !refetching) {
     return loadStorages(accountNumber, storages, resetStoragesPromise, true);
   }
 
-  if(resetStorages.size) {
+  if (resetStorages.size) {
     const preserved: Record<keyof StoragesResults, Promise<any[]>> = {} as any;
-    for(const [key, preserve] of resetStorages) {
+    for (const [key, preserve] of resetStorages) {
       const promises = preserve.map((id) => (storages[key] as AppStorage<any, any>).get('' + id)); // important: need string here, not a number
       preserved[key] = Promise.all(promises);
     }
@@ -52,7 +52,7 @@ export default async function loadStorages(accountNumber: number, storages: Stor
     await Promise.all(Object.values(preserved)).catch(noop);
 
     const clearPromises: Promise<any>[] = [];
-    for(const [key] of resetStorages) {
+    for (const [key] of resetStorages) {
       storagesResults[key].length = 0;
       clearPromises.push(storages[key].clear());
     }
@@ -60,12 +60,12 @@ export default async function loadStorages(accountNumber: number, storages: Stor
     await Promise.all(clearPromises).catch(noop);
 
     const preservePromises: Promise<any>[] = [];
-    for(const [key, preserve] of resetStorages) {
+    for (const [key, preserve] of resetStorages) {
       const preservedValues = await preserved[key];
-      for(let i = 0; i < preserve.length; ++i) {
+      for (let i = 0; i < preserve.length; ++i) {
         const value = preservedValues[i];
         storagesResults[key].push(value);
-        preservePromises.push((storages[key] as AppStorage<any, any>).set({[preserve[i]]: value}));
+        preservePromises.push((storages[key] as AppStorage<any, any>).set({ [preserve[i]]: value }));
       }
     }
 

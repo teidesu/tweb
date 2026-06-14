@@ -1,13 +1,13 @@
-import {detect} from 'tinyld';
+import { detect } from 'tinyld';
 
 self.addEventListener('message', (event) => {
-  const {text} = event.data;
+  const { text } = event.data;
   let lang = '';
   try {
     lang = detect(text);
-  } catch(err) {
+  } catch (err) {
     console.error('language detection error', err);
   }
 
-  self.postMessage({lang});
+  self.postMessage({ lang });
 });

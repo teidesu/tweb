@@ -1,4 +1,4 @@
-import {JSX, Show} from 'solid-js';
+import { JSX, Show } from 'solid-js';
 
 import classNames from '@helpers/string/classNames';
 

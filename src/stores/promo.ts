@@ -1,13 +1,13 @@
-import {createMemo} from 'solid-js';
+import { createMemo } from 'solid-js';
 import rootScope from '@lib/rootScope';
-import {MyPromoData} from '@appManagers/appPromoManager';
-import {createStore, reconcile} from 'solid-js/store';
+import { MyPromoData } from '@appManagers/appPromoManager';
+import { createStore, reconcile } from 'solid-js/store';
 
-const [promoData, setPromoData] = createStore<MyPromoData>({pendingSuggestions: []});
+const [promoData, setPromoData] = createStore<MyPromoData>({ pendingSuggestions: [] });
 
 let _loaded = false
 export function usePendingSuggestions() {
-  if(!_loaded) {
+  if (!_loaded) {
     _loaded = true;
     rootScope.managers.appPromoManager.getPromoData()
 

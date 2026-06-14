@@ -1,7 +1,7 @@
-import {Middleware} from '@helpers/middleware';
-import {MyDocument} from '@appManagers/appDocsManager';
-import {AppManagers} from '@lib/managers';
-import lottieLoader, {LottieAssetName} from '@lib/rlottie/lottieLoader';
+import { Middleware } from '@helpers/middleware';
+import { MyDocument } from '@appManagers/appDocsManager';
+import { AppManagers } from '@lib/managers';
+import lottieLoader, { LottieAssetName } from '@lib/rlottie/lottieLoader';
 import RLottiePlayer from '@lib/rlottie/rlottiePlayer';
 import rootScope from '@lib/rootScope';
 import wrapSticker from '@components/wrappers/sticker';
@@ -15,7 +15,7 @@ export default async function wrapLocalSticker({
   middleware,
   managers = rootScope.managers,
   loop = false,
-  autoplay = true
+  autoplay = true,
 }: {
   container?: HTMLElement,
   doc?: MyDocument,
@@ -33,7 +33,7 @@ export default async function wrapLocalSticker({
   container.classList.add('media-sticker-wrapper');
 
   let playerPromise: Promise<RLottiePlayer>;
-  if(assetName) {
+  if (assetName) {
     playerPromise = lottieLoader.loadAnimationAsAsset({
       container,
       loop,
@@ -41,13 +41,13 @@ export default async function wrapLocalSticker({
       width,
       height,
       noCache: true,
-      middleware
+      middleware,
     }, assetName).then((animation) => {
       return lottieLoader.waitForFirstFrame(animation);
     });
-  } else if(emoji) {
+  } else if (emoji) {
     const doc = await managers.appStickersManager.getAnimatedEmojiSticker(emoji);
-    if(doc) playerPromise = wrapSticker({
+    if (doc) playerPromise = wrapSticker({
       doc,
       div: container,
       loop,
@@ -56,11 +56,11 @@ export default async function wrapLocalSticker({
       height,
       emoji,
       managers,
-      middleware
+      middleware,
     }).then((result) => {
       return result.render as Promise<RLottiePlayer>;
     });
   }
 
-  return {container, promise: playerPromise!};
+  return { container, promise: playerPromise! };
 }

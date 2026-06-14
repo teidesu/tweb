@@ -1,5 +1,5 @@
-import {InputMessageReadMetric} from '@layer';
-import {randomLong} from './random';
+import { InputMessageReadMetric } from '@layer';
+import { randomLong } from './random';
 import clamp from './number/clamp';
 
 /**
@@ -95,18 +95,18 @@ export default class ReadMetricsTracker {
         maxViewportHeight: this.batchViewportHeight,
         entryGracePending: true,
         exitGracePending: false,
-        exitGraceStart: 0
+        exitGraceStart: 0,
       });
     };
 
     const tracked = this.tracked.get(msgId);
-    if(!tracked) {
+    if (!tracked) {
       addTracked();
       return;
     }
 
-    if(tracked.exitGracePending) {
-      if(this.batchNow - tracked.exitGraceStart >= GRACE_PERIOD) {
+    if (tracked.exitGracePending) {
+      if (this.batchNow - tracked.exitGraceStart >= GRACE_PERIOD) {
         this.finalize(msgId, tracked);
         this.tracked.delete(msgId);
         addTracked();
@@ -125,17 +125,17 @@ export default class ReadMetricsTracker {
   }
 
   public endBatch() {
-    for(const [msgId, tracked] of this.tracked) {
-      if(this.batchVisible.has(msgId)) {
+    for (const [msgId, tracked] of this.tracked) {
+      if (this.batchVisible.has(msgId)) {
         continue;
       }
 
-      if(tracked.entryGracePending) {
+      if (tracked.entryGracePending) {
         this.tracked.delete(msgId);
         continue;
       }
 
-      if(!tracked.exitGracePending) {
+      if (!tracked.exitGracePending) {
         tracked.exitGracePending = true;
         tracked.exitGraceStart = this.batchNow;
       }
@@ -149,13 +149,13 @@ export default class ReadMetricsTracker {
   }
 
   public registerActivity() {
-    if(!this.appActive || !this.screenActive) {
+    if (!this.appActive || !this.screenActive) {
       return;
     }
 
     const now = Date.now();
     const activityDeadline = this.activeUntil();
-    if(activityDeadline && activityDeadline < now) {
+    if (activityDeadline && activityDeadline < now) {
       this.sync(now);
     }
 
@@ -164,7 +164,7 @@ export default class ReadMetricsTracker {
   }
 
   public setAppActive(active: boolean) {
-    if(this.appActive === active) {
+    if (this.appActive === active) {
       return;
     }
 
@@ -173,7 +173,7 @@ export default class ReadMetricsTracker {
   }
 
   public setScreenActive(active: boolean) {
-    if(this.screenActive === active) {
+    if (this.screenActive === active) {
       return;
     }
 
@@ -185,7 +185,7 @@ export default class ReadMetricsTracker {
   // screen is destroyed or its content (peer) is replaced.
   public finalizeAll() {
     this.sync(Date.now());
-    for(const [msgId, tracked] of this.tracked) {
+    for (const [msgId, tracked] of this.tracked) {
       this.finalize(msgId, tracked);
     }
 
@@ -207,24 +207,24 @@ export default class ReadMetricsTracker {
   }
 
   private processTransitions(now: number, activeUntil: number) {
-    for(const [msgId, tracked] of this.tracked) {
-      if(tracked.entryGracePending && !this.paused && now - tracked.entryGraceStart >= GRACE_PERIOD) {
+    for (const [msgId, tracked] of this.tracked) {
+      if (tracked.entryGracePending && !this.paused && now - tracked.entryGraceStart >= GRACE_PERIOD) {
         tracked.entryGracePending = false;
         tracked.viewId = randomLong();
         tracked.trackingStarted = tracked.entryGraceStart;
         tracked.lastUpdate = tracked.trackingStarted;
       }
 
-      if(tracked.exitGracePending && !this.paused && now - tracked.exitGraceStart >= GRACE_PERIOD) {
+      if (tracked.exitGracePending && !this.paused && now - tracked.exitGraceStart >= GRACE_PERIOD) {
         this.finalize(msgId, tracked);
         this.tracked.delete(msgId);
         continue;
       }
 
-      if(tracked.viewId && !tracked.entryGracePending && !tracked.exitGracePending) {
+      if (tracked.viewId && !tracked.entryGracePending && !tracked.exitGracePending) {
         const deadline = tracked.trackingStarted + MAX_TRACKING_DURATION;
-        if(now >= deadline) {
-          if(!this.paused && this.currentlyVisible.has(msgId) && tracked.lastUpdate < deadline) {
+        if (now >= deadline) {
+          if (!this.paused && this.currentlyVisible.has(msgId) && tracked.lastUpdate < deadline) {
             this.addElapsed(tracked, tracked.lastUpdate, deadline, activeUntil);
             tracked.lastUpdate = deadline;
           }
@@ -238,12 +238,12 @@ export default class ReadMetricsTracker {
   }
 
   private accumulate(now: number, activeUntil: number) {
-    for(const [msgId, tracked] of this.tracked) {
-      if(!tracked.viewId || tracked.entryGracePending || tracked.exitGracePending || tracked.lastUpdate <= 0) {
+    for (const [msgId, tracked] of this.tracked) {
+      if (!tracked.viewId || tracked.entryGracePending || tracked.exitGracePending || tracked.lastUpdate <= 0) {
         continue;
       }
 
-      if(this.paused || !this.currentlyVisible.has(msgId)) {
+      if (this.paused || !this.currentlyVisible.has(msgId)) {
         tracked.lastUpdate = now;
         continue;
       }
@@ -255,17 +255,17 @@ export default class ReadMetricsTracker {
 
   private refreshPaused(now: number) {
     const paused = !this.appActive || !this.screenActive;
-    if(this.paused === paused) {
+    if (this.paused === paused) {
       return;
     }
 
-    if(paused) {
+    if (paused) {
       const activeUntil = this.activeUntil();
       this.processTransitions(now, activeUntil);
       this.accumulate(now, activeUntil);
       this.pausedSince = now;
-      for(const [, tracked] of this.tracked) {
-        if(tracked.entryGracePending || tracked.exitGracePending) {
+      for (const [, tracked] of this.tracked) {
+        if (tracked.entryGracePending || tracked.exitGracePending) {
           continue;
         }
 
@@ -273,12 +273,12 @@ export default class ReadMetricsTracker {
       }
     } else {
       const delta = now - this.pausedSince;
-      for(const [, tracked] of this.tracked) {
-        if(tracked.entryGracePending) {
+      for (const [, tracked] of this.tracked) {
+        if (tracked.entryGracePending) {
           tracked.entryGraceStart = tracked.entryGraceStart < this.pausedSince ? tracked.entryGraceStart + delta : now;
-        } else if(tracked.exitGracePending) {
+        } else if (tracked.exitGracePending) {
           tracked.exitGraceStart = tracked.exitGraceStart < this.pausedSince ? tracked.exitGraceStart + delta : now;
-        } else if(tracked.viewId) {
+        } else if (tracked.viewId) {
           tracked.lastUpdate = now;
         }
       }
@@ -291,7 +291,7 @@ export default class ReadMetricsTracker {
   }
 
   private restartTimer() {
-    if(!this.tracked.size) {
+    if (!this.tracked.size) {
       this.clearTimeout();
       return;
     }
@@ -299,30 +299,30 @@ export default class ReadMetricsTracker {
     const now = Date.now();
     let nearest = 0;
     const updateNearest = (deadline: number) => {
-      if(!deadline) {
+      if (!deadline) {
         return;
       }
 
-      if(!nearest || deadline < nearest) {
+      if (!nearest || deadline < nearest) {
         nearest = deadline;
       }
     };
 
     const activityDeadline = this.activeUntil();
-    for(const [msgId, tracked] of this.tracked) {
-      if(tracked.entryGracePending && !this.paused) {
+    for (const [msgId, tracked] of this.tracked) {
+      if (tracked.entryGracePending && !this.paused) {
         updateNearest(tracked.entryGraceStart + GRACE_PERIOD);
-      } else if(tracked.exitGracePending && !this.paused) {
+      } else if (tracked.exitGracePending && !this.paused) {
         updateNearest(tracked.exitGraceStart + GRACE_PERIOD);
-      } else if(tracked.viewId) {
+      } else if (tracked.viewId) {
         updateNearest(tracked.trackingStarted + MAX_TRACKING_DURATION);
-        if(!this.paused && this.currentlyVisible.has(msgId) && activityDeadline > now) {
+        if (!this.paused && this.currentlyVisible.has(msgId) && activityDeadline > now) {
           updateNearest(activityDeadline);
         }
       }
     }
 
-    if(!nearest) {
+    if (!nearest) {
       this.clearTimeout();
       return;
     }
@@ -332,7 +332,7 @@ export default class ReadMetricsTracker {
   }
 
   private clearTimeout() {
-    if(this.timeout !== undefined) {
+    if (this.timeout !== undefined) {
       self.clearTimeout(this.timeout);
       this.timeout = undefined;
     }
@@ -343,19 +343,19 @@ export default class ReadMetricsTracker {
   }
 
   private addElapsed(tracked: TrackedItem, from: number, till: number, activeUntil: number) {
-    if(till <= from) {
+    if (till <= from) {
       return;
     }
 
     tracked.totalInView += till - from;
-    if(activeUntil > from) {
+    if (activeUntil > from) {
       tracked.activeInView += Math.max(Math.min(till, activeUntil) - from, 0);
       tracked.activeInView = Math.min(tracked.activeInView, tracked.totalInView);
     }
   }
 
   private finalize(msgId: number, tracked: TrackedItem) {
-    if(!tracked.viewId || tracked.totalInView < MIN_REPORT_THRESHOLD) {
+    if (!tracked.viewId || tracked.totalInView < MIN_REPORT_THRESHOLD) {
       return;
     }
 
@@ -374,8 +374,8 @@ export default class ReadMetricsTracker {
         time_in_view_ms: Math.round(tracked.totalInView),
         active_time_in_view_ms: Math.round(tracked.activeInView),
         height_to_viewport_ratio_permille: heightRatio,
-        seen_range_ratio_permille: seenRange
-      }
+        seen_range_ratio_permille: seenRange,
+      },
     });
   }
 }

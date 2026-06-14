@@ -1,14 +1,14 @@
-import {JSX} from 'solid-js';
-import {render} from 'solid-js/web';
+import { JSX } from 'solid-js';
+import { render } from 'solid-js/web';
 import PopupElement from '.';
-import {LangPackKey, i18n} from '@lib/langPack';
+import { LangPackKey, i18n } from '@lib/langPack';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
 import apiManagerProxy from '@lib/apiManagerProxy';
-import {DelimiterWithText} from '@components/chat/giveaway';
+import { DelimiterWithText } from '@components/chat/giveaway';
 import PopupPremium from '@components/popups/premium';
 import wrapLocalSticker from '@components/wrappers/localSticker';
 import liteMode from '@helpers/liteMode';
-import {toastNew} from '@components/toast';
+import { toastNew } from '@components/toast';
 import toggleDisability from '@helpers/dom/toggleDisability';
 
 export default class PopupToggleReadDate extends PopupElement {
@@ -23,7 +23,7 @@ export default class PopupToggleReadDate extends PopupElement {
     super('popup-toggle-read-date', {
       closable: true,
       overlayClosable: true,
-      body: true
+      body: true,
     });
 
     this.construct();
@@ -47,7 +47,7 @@ export default class PopupToggleReadDate extends PopupElement {
             class={'btn-primary btn-color-primary popup-toggle-read-date-button' + (props.isPremium ? ' popup-gift-premium-confirm shimmer' : '')}
             onClick={() => {
               const result = props.onClick();
-              if(result instanceof Promise) {
+              if (result instanceof Promise) {
                 toggleDisability(button!, true);
               }
             }}
@@ -76,14 +76,14 @@ export default class PopupToggleReadDate extends PopupElement {
         onClick: async() => {
           await this.managers.appPrivacyManager.setPrivacy(
             'inputPrivacyKeyStatusTimestamp',
-            [{_: 'inputPrivacyValueAllowAll'}]
+            [{ _: 'inputPrivacyValueAllowAll' }]
           );
           this.hide();
-          toastNew({langPackKey: 'PremiumLastSeenSet'});
+          toastNew({ langPackKey: 'PremiumLastSeenSet' });
         },
         title2: 'PremiumLastSeenHeader2',
         text2: 'PremiumLastSeenText2',
-        buttonText2: 'PremiumLastSeenButton2'
+        buttonText2: 'PremiumLastSeenButton2',
       },
       readTime: {
         title1: 'PremiumReadHeader1',
@@ -96,16 +96,16 @@ export default class PopupToggleReadDate extends PopupElement {
             _: 'globalPrivacySettings',
             pFlags: {
               ...globalPrivacy.pFlags,
-              hide_read_marks: undefined
-            }
+              hide_read_marks: undefined,
+            },
           });
           this.hide();
-          toastNew({langPackKey: 'PremiumReadSet'});
+          toastNew({ langPackKey: 'PremiumReadSet' });
         },
         title2: 'PremiumReadHeader2',
         text2: 'PremiumReadText2',
-        buttonText2: 'PremiumReadButton2'
-      }
+        buttonText2: 'PremiumReadButton2',
+      },
     };
 
     const details = map[this.type];
@@ -142,7 +142,7 @@ export default class PopupToggleReadDate extends PopupElement {
 
   private async construct() {
     const [titles, isPremiumPurchaseBlocked, stickerContainer] = await Promise.all([
-      Promise.all(new Array(2).fill(0).map(() => wrapPeerTitle({peerId: this.peerId, onlyFirstName: true}))),
+      Promise.all(new Array(2).fill(0).map(() => wrapPeerTitle({ peerId: this.peerId, onlyFirstName: true }))),
       apiManagerProxy.isPremiumPurchaseBlocked(),
       wrapLocalSticker({
         width: 86,
@@ -150,11 +150,11 @@ export default class PopupToggleReadDate extends PopupElement {
         assetName: this.type === 'lastSeen' ? 'large_lastseen' : 'large_readtime',
         middleware: this.middlewareHelper.get(),
         loop: false,
-        autoplay: liteMode.isAvailable('stickers_chat')
-      }).then(async({container, promise}) => {
+        autoplay: liteMode.isAvailable('stickers_chat'),
+      }).then(async({ container, promise }) => {
         await promise;
         return container
-      })
+      }),
     ]);
     this.titles = titles;
     this.isPremiumPurchaseBlocked = isPremiumPurchaseBlocked;

@@ -1,4 +1,4 @@
-import {batch, createSignal, JSX, onCleanup, onMount} from 'solid-js';
+import { batch, createSignal, JSX, onCleanup, onMount } from 'solid-js';
 
 export const AutoHeight = (props: {
   children: JSX.Element;
@@ -31,7 +31,7 @@ export const AutoHeight = (props: {
       style={{
         height: canHaveHeight() ? `${height()}px` : 'auto',
         overflow: props.overflowHidden ? 'hidden' : undefined,
-        transition: canHaveHeight() ? `height ${props.duration ?? 200}ms ${props.easing ?? 'ease'}` : 'none'
+        transition: canHaveHeight() ? `height ${props.duration ?? 200}ms ${props.easing ?? 'ease'}` : 'none',
       }}
     >
       <div ref={contentRef}>{props.children}</div>

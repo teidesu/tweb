@@ -6,14 +6,14 @@
  */
 
 import App from '@config/app';
-import {MOUNT_CLASS_TO} from '@config/debug';
+import { MOUNT_CLASS_TO } from '@config/debug';
 import tabId from '@config/tabId';
 import IS_SHARED_WORKER_SUPPORTED from '@environment/sharedWorkerSupport';
 import EventListenerBase from '@helpers/eventListenerBase';
 import idleController from '@helpers/idleController';
-import {getCurrentAccount} from '@lib/accounts/getCurrentAccount';
-import type {ActiveAccountNumber} from '@lib/accounts/types';
-import {logger} from '@lib/logger';
+import { getCurrentAccount } from '@lib/accounts/getCurrentAccount';
+import type { ActiveAccountNumber } from '@lib/accounts/types';
+import { logger } from '@lib/logger';
 import rootScope from '@lib/rootScope';
 import sessionStorage from '@lib/sessionStorage';
 import apiManagerProxy from '@lib/apiManagerProxy';
@@ -56,7 +56,7 @@ export class SingleInstance extends EventListenerBase<{
   }
 
   public start() {
-    if(this.started) {
+    if (this.started) {
       return;
     }
 
@@ -69,13 +69,13 @@ export class SingleInstance extends EventListenerBase<{
 
     try {
       document.documentElement.addEventListener('beforeunload', this.clearInstance);
-    } catch(e) {}
+    } catch (e) {}
 
     return this.checkInstance();
   }
 
   private listenOtherClients() {
-    if(typeof(BroadcastChannel) === 'undefined') {
+    if (typeof(BroadcastChannel) === 'undefined') {
       this.log.warn('BroadcastChannel is not supported');
       return;
     }
@@ -99,7 +99,7 @@ export class SingleInstance extends EventListenerBase<{
   };
 
   private sendClientInterclient() {
-    if(this.interclientBroadcastChannel) {
+    if (this.interclientBroadcastChannel) {
       this.interclientBroadcastChannel.postMessage(App.suffix);
     }
   }
@@ -112,14 +112,14 @@ export class SingleInstance extends EventListenerBase<{
   }
 
   private clearInstance = () => {
-    if(this.masterInstance && !this.deactivated) {
+    if (this.masterInstance && !this.deactivated) {
       this.log.warn('clear master instance');
       sessionStorage.delete('xt_instance');
     }
   };
 
   public activateInstance() {
-    if(this.deactivated) {
+    if (this.deactivated) {
       this.reset();
       this.checkInstance(false);
       this.dispatchEvent('activated');
@@ -127,7 +127,7 @@ export class SingleInstance extends EventListenerBase<{
   }
 
   private deactivateInstance(reason: InstanceDeactivateReason) {
-    if(this.masterInstance || this.deactivated) {
+    if (this.masterInstance || this.deactivated) {
       return;
     }
 
@@ -139,14 +139,14 @@ export class SingleInstance extends EventListenerBase<{
   }
 
   private clearDeactivateTimeout() {
-    if(this.deactivateTimeout) {
+    if (this.deactivateTimeout) {
       clearTimeout(this.deactivateTimeout);
       this.deactivateTimeout = 0;
     }
   }
 
   private checkInstance = async(idle = idleController.isIdle) => {
-    if(this.deactivated) {
+    if (this.deactivated) {
       return;
     }
 
@@ -155,40 +155,40 @@ export class SingleInstance extends EventListenerBase<{
       id: this.instanceId,
       idle,
       time,
-      accountNumber: getCurrentAccount()
+      accountNumber: getCurrentAccount(),
     };
 
     const [curInstance, build = App.build] = await Promise.all([
       sessionStorage.get('xt_instance', false),
-      sessionStorage.get('k_build', false)
+      sessionStorage.get('k_build', false),
     ]);
 
-    if(build > App.build) {
+    if (build > App.build) {
       this.masterInstance = false;
       rootScope.managers.all.networkerFactory.stopAll();
       this.deactivateInstance('version');
       apiManagerProxy.toggleStorages(false, false);
       return;
-    } else if(IS_MULTIPLE_TABS_SUPPORTED) {
-      sessionStorage.set({xt_instance: newInstance});
+    } else if (IS_MULTIPLE_TABS_SUPPORTED) {
+      sessionStorage.set({ xt_instance: newInstance });
       return;
     }
 
     // this.log('check instance', newInstance, curInstance)
-    if(!idle ||
+    if (!idle ||
         !curInstance ||
         curInstance.id === this.instanceId ||
         curInstance.time < (time - MULTIPLE_TABS_THRESHOLD)) {
-      sessionStorage.set({xt_instance: newInstance});
+      sessionStorage.set({ xt_instance: newInstance });
 
-      if(!this.masterInstance) {
+      if (!this.masterInstance) {
         this.masterInstance = true;
         rootScope.managers.all.networkerFactory.startAll();
         this.log.warn('now master instance', newInstance);
       }
 
       this.clearDeactivateTimeout();
-    } else if(this.masterInstance) {
+    } else if (this.masterInstance) {
       this.masterInstance = false;
       rootScope.managers.all.networkerFactory.stopAll();
       this.log.warn('now idle instance', newInstance);

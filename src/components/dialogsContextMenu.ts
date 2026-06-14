@@ -1,30 +1,30 @@
-import type {Dialog} from '@appManagers/appMessagesManager';
-import type {ForumTopic} from '@layer';
-import type {AnyDialog} from '@lib/storages/dialogs';
-import appDialogsManager, {DIALOG_LIST_ELEMENT_TAG} from '@lib/appDialogsManager';
+import type { Dialog } from '@appManagers/appMessagesManager';
+import type { ForumTopic } from '@layer';
+import type { AnyDialog } from '@lib/storages/dialogs';
+import appDialogsManager, { DIALOG_LIST_ELEMENT_TAG } from '@lib/appDialogsManager';
 import rootScope from '@lib/rootScope';
-import {useAppSettings} from '@stores/appSettings';
-import {ButtonMenuItemOptionsVerifiable} from '@components/buttonMenu';
+import { useAppSettings } from '@stores/appSettings';
+import { ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
 import PopupDeleteDialog from '@components/popups/deleteDialog';
-import {i18n, LangPackKey, _i18n} from '@lib/langPack';
+import { i18n, LangPackKey, _i18n } from '@lib/langPack';
 import findUpTag from '@helpers/dom/findUpTag';
-import {toastNew} from '@components/toast';
+import { toastNew } from '@components/toast';
 import showMutePopup from '@components/popups/mute';
-import {AppManagers} from '@lib/managers';
-import {CAN_HIDE_TOPIC, FOLDER_ID_ARCHIVE, GENERAL_TOPIC_ID, REAL_FOLDER_ID, REAL_FOLDERS} from '@appManagers/constants';
+import { AppManagers } from '@lib/managers';
+import { CAN_HIDE_TOPIC, FOLDER_ID_ARCHIVE, GENERAL_TOPIC_ID, REAL_FOLDER_ID, REAL_FOLDERS } from '@appManagers/constants';
 import showLimitPopup from '@components/popups/limit';
 import createContextMenu from '@helpers/dom/createContextMenu';
 import PopupElement from '@components/popups';
-import showChatPreviewPopup, {chatPreviewAnchorFromDialogRow} from '@components/popups/chatPreview';
+import showChatPreviewPopup, { chatPreviewAnchorFromDialogRow } from '@components/popups/chatPreview';
 import cancelEvent from '@helpers/dom/cancelEvent';
 import IS_SHARED_WORKER_SUPPORTED from '@environment/sharedWorkerSupport';
 import appImManager from '@lib/appImManager';
-import {isDialog, isForumTopic, isMonoforumDialog, isSavedDialog} from '@appManagers/utils/dialogs/isDialog';
-import createSubmenuTrigger, {CreateSubmenuArgs} from '@components/createSubmenuTrigger';
+import { isDialog, isForumTopic, isMonoforumDialog, isSavedDialog } from '@appManagers/utils/dialogs/isDialog';
+import createSubmenuTrigger, { CreateSubmenuArgs } from '@components/createSubmenuTrigger';
 import type AddToFolderDropdownMenu from '@components/addToFolderDropdownMenu';
 import memoizeAsyncWithTTL from '@helpers/memoizeAsyncWithTTL';
-import {MonoforumDialog} from '@lib/storages/monoforumDialogs';
-import {openRemoveFeePopup} from '@components/chat/removeFee';
+import { MonoforumDialog } from '@lib/storages/monoforumDialogs';
+import { openRemoveFeePopup } from '@components/chat/removeFee';
 import apiManagerProxy from '@lib/apiManagerProxy';
 
 
@@ -56,7 +56,7 @@ export default class DialogsContextMenu {
         this.threadId = (+li.dataset.threadId! || undefined)!;
         this.monoforumParentPeerId = +li.dataset.monoforumParentPeerId! || undefined;
 
-        if(li.dataset.isAllChats) {
+        if (li.dataset.isAllChats) {
           throw 'All chats dialog';
         }
 
@@ -72,7 +72,7 @@ export default class DialogsContextMenu {
         // delete button
         const langPackKey: LangPackKey = this.threadId ? 'Delete' : await this.managers.appPeersManager.getDeleteButtonText(this.peerId);
         const lastButton = this.buttons[this.buttons.length - 1];
-        if(lastButton?.element) {
+        if (lastButton?.element) {
           lastButton.element.lastChild!.replaceWith(i18n(langPackKey));
         }
       },
@@ -90,7 +90,7 @@ export default class DialogsContextMenu {
       },
       findElement: (e) => {
         return findUpTag(e.target, DIALOG_LIST_ELEMENT_TAG);
-      }
+      },
     });
   }
 
@@ -103,43 +103,43 @@ export default class DialogsContextMenu {
         appDialogsManager.openDialogInNewTab(this.li);
         cancelEvent(e);
       },
-      verify: () => IS_SHARED_WORKER_SUPPORTED && !this.monoforumParentPeerId
+      verify: () => IS_SHARED_WORKER_SUPPORTED && !this.monoforumParentPeerId,
     }, {
       icon: 'eye',
       text: 'ChatList.Context.Preview',
       onClick: this.onPreviewClick,
-      verify: () => true
+      verify: () => true,
     }, {
       icon: 'topics',
       text: 'TopicViewAsTopics',
       onClick: () => {
         appImManager.toggleViewAsMessages(this.peerId, false);
       },
-      verify: () => !!(this.dialog && (this.dialog as Dialog).pFlags.view_forum_as_messages)
+      verify: () => !!(this.dialog && (this.dialog as Dialog).pFlags.view_forum_as_messages),
     }, {
       icon: 'topics',
       text: 'SavedViewAsChats',
       onClick: () => {
         appImManager.toggleViewAsMessages(this.peerId, false);
       },
-      verify: () => this.peerId === rootScope.myId && !appSettings.savedAsForum && !this.threadId
+      verify: () => this.peerId === rootScope.myId && !appSettings.savedAsForum && !this.threadId,
     }, {
       icon: 'message',
       text: 'SavedViewAsMessages',
       onClick: () => {
         appImManager.toggleViewAsMessages(this.peerId, true);
       },
-      verify: () => this.peerId === rootScope.myId && appSettings.savedAsForum && !this.threadId
+      verify: () => this.peerId === rootScope.myId && appSettings.savedAsForum && !this.threadId,
     }, {
       icon: 'unread',
       text: 'MarkAsUnread',
       onClick: this.onUnreadClick,
-      verify: async() => !this.threadId && !(await this.managers.appMessagesManager.isDialogUnread(this.dialog))
+      verify: async() => !this.threadId && !(await this.managers.appMessagesManager.isDialogUnread(this.dialog)),
     }, {
       icon: 'readchats',
       text: 'MarkAsRead',
       onClick: this.onUnreadClick,
-      verify: () => this.managers.appMessagesManager.isDialogUnread(this.dialog)
+      verify: () => this.managers.appMessagesManager.isDialogUnread(this.dialog),
     }, createSubmenuTrigger({
       options: {
         icon: 'folder',
@@ -147,21 +147,21 @@ export default class DialogsContextMenu {
         onClose: () => {
           this.addToFolderMenu?.controls.closeTooltip?.();
         },
-        verify: (() => isDialog(this.dialog) && this.hasFilters()) as () => Promise<boolean>
+        verify: (() => isDialog(this.dialog) && this.hasFilters()) as () => Promise<boolean>,
       },
-      createSubmenu: this.createAddToFolderSubmenu as any
+      createSubmenu: this.createAddToFolderSubmenu as any,
     }), {
       icon: 'pin',
       text: 'ChatList.Context.Pin',
       onClick: this.onPinClick,
       verify: async() => {
-        if(isMonoforumDialog(this.dialog)) return false;
+        if (isMonoforumDialog(this.dialog)) return false;
 
-        if(isSavedDialog(this.dialog)) {
+        if (isSavedDialog(this.dialog)) {
           return !this.dialog.pFlags.pinned;
         }
 
-        if(this.threadId && !this.canManageTopics) {
+        if (this.threadId && !this.canManageTopics) {
           return false;
         }
 
@@ -169,19 +169,19 @@ export default class DialogsContextMenu {
           (await this.managers.appMessagesManager.getFilter(this.filterId)).pinnedPeerIds!.includes(this.dialog.peerId!) :
           !!this.dialog.pFlags?.pinned;
         return !isPinned;
-      }
+      },
     }, {
       icon: 'unpin',
       text: 'ChatList.Context.Unpin',
       onClick: this.onPinClick,
       verify: async() => {
-        if(isMonoforumDialog(this.dialog)) return false;
+        if (isMonoforumDialog(this.dialog)) return false;
 
-        if(isSavedDialog(this.dialog)) {
+        if (isSavedDialog(this.dialog)) {
           return !!this.dialog.pFlags.pinned;
         }
 
-        if(this.threadId && !this.canManageTopics) {
+        if (this.threadId && !this.canManageTopics) {
           return false;
         }
 
@@ -189,81 +189,81 @@ export default class DialogsContextMenu {
           (await this.managers.appMessagesManager.getFilter(this.filterId)).pinnedPeerIds!.includes(this.dialog.peerId!) :
           !!this.dialog.pFlags?.pinned;
         return isPinned;
-      }
+      },
     }, {
       icon: 'mute',
       text: 'ChatList.Context.Mute',
       onClick: this.onMuteClick,
       verify: async() => {
-        return !this.monoforumParentPeerId && this.peerId !== rootScope.myId && !(await this.managers.appNotificationsManager.isPeerLocalMuted({peerId: this.dialog.peerId!, threadId: this.threadId}));
-      }
+        return !this.monoforumParentPeerId && this.peerId !== rootScope.myId && !(await this.managers.appNotificationsManager.isPeerLocalMuted({ peerId: this.dialog.peerId!, threadId: this.threadId }));
+      },
     }, {
       icon: 'unmute',
       text: 'ChatList.Context.Unmute',
       onClick: this.onUnmuteClick,
       verify: () => {
-        return !this.monoforumParentPeerId && this.peerId !== rootScope.myId && this.managers.appNotificationsManager.isPeerLocalMuted({peerId: this.dialog.peerId!, threadId: this.threadId});
-      }
+        return !this.monoforumParentPeerId && this.peerId !== rootScope.myId && this.managers.appNotificationsManager.isPeerLocalMuted({ peerId: this.dialog.peerId!, threadId: this.threadId });
+      },
     }, {
       icon: 'archive',
       text: 'Archive',
       onClick: this.onArchiveClick,
-      verify: () => !this.threadId && !this.monoforumParentPeerId && (this.dialog as Dialog).folder_id !== FOLDER_ID_ARCHIVE && this.peerId !== rootScope.myId
+      verify: () => !this.threadId && !this.monoforumParentPeerId && (this.dialog as Dialog).folder_id !== FOLDER_ID_ARCHIVE && this.peerId !== rootScope.myId,
     }, {
       icon: 'unarchive',
       text: 'Unarchive',
       onClick: this.onArchiveClick,
-      verify: () => !this.threadId && !this.monoforumParentPeerId && (this.dialog as Dialog).folder_id === FOLDER_ID_ARCHIVE && this.peerId !== rootScope.myId
+      verify: () => !this.threadId && !this.monoforumParentPeerId && (this.dialog as Dialog).folder_id === FOLDER_ID_ARCHIVE && this.peerId !== rootScope.myId,
     }, ((CAN_HIDE_TOPIC ? {
       icon: 'hide',
       text: 'Hide',
       onClick: this.onHideTopicClick,
       verify: () => {
         return this.canManageTopics && (this.dialog as ForumTopic.forumTopic).id === GENERAL_TOPIC_ID;
-      }
+      },
     } : undefined)! as ButtonMenuItemOptionsVerifiable), {
       icon: 'lock',
       text: 'CloseTopic',
       onClick: this.onToggleTopicClick,
       verify: (() => {
         return !apiManagerProxy.isBotforum(this.peerId) && this.canManageTopics && !(this.dialog as ForumTopic.forumTopic).pFlags.closed;
-      }) as () => boolean
+      }) as () => boolean,
     }, {
       icon: 'lockoff',
       text: 'RestartTopic',
       onClick: this.onToggleTopicClick,
       verify: (() => {
         return this.canManageTopics && !!(this.dialog as ForumTopic.forumTopic).pFlags.closed;
-      }) as () => boolean
+      }) as () => boolean,
     }, {
       icon: 'dollar_circle',
       text: 'PaidMessages.ChargeFee',
       onClick: () => this.onToggleFeeClick(true),
-      verify: () => this.verifyToggleFee(true)
+      verify: () => this.verifyToggleFee(true),
     }, {
       icon: 'dollar_circle_x',
       text: 'PaidMessages.RemoveFee',
       onClick: () => this.onToggleFeeClick(false),
-      verify: () => this.verifyToggleFee(false)
+      verify: () => this.verifyToggleFee(false),
     }, {
       icon: 'delete',
       className: 'danger',
       text: 'Delete',
       onClick: this.onDeleteClick,
-      verify: () => this.canDelete
+      verify: () => this.canDelete,
     }];
 
     return this.buttons = this.buttons.filter(Boolean);
   }
 
-  private createAddToFolderSubmenu = async({middleware}: CreateSubmenuArgs) => {
-    if(!isDialog(this.dialog)) return;
+  private createAddToFolderSubmenu = async({ middleware }: CreateSubmenuArgs) => {
+    if (!isDialog(this.dialog)) return;
 
-    const {default: AddToFolderDropdownMenu, fetchDialogFilters} = await import('./addToFolderDropdownMenu');
+    const { default: AddToFolderDropdownMenu, fetchDialogFilters } = await import('./addToFolderDropdownMenu');
 
     const filters = await fetchDialogFilters();
 
-    if(!middleware()) return;
+    if (!middleware()) return;
 
     const menu = new AddToFolderDropdownMenu;
     menu.feedProps({
@@ -275,7 +275,7 @@ export default class DialogsContextMenu {
       },
       onCleanup: () => {
         this.addToFolderMenu = undefined;
-      }
+      },
     });
 
     return this.addToFolderMenu = menu;
@@ -291,14 +291,14 @@ export default class DialogsContextMenu {
 
   private async checkIfCanDelete() {
     const chat = await this.managers.appChatsManager.getChat(this.peerId.toChatId());
-    if(chat?._ === 'channel' && chat?.pFlags?.monoforum && (chat?.pFlags?.left || chat?.pFlags?.creator)) return false;
+    if (chat?._ === 'channel' && chat?.pFlags?.monoforum && (chat?.pFlags?.left || chat?.pFlags?.creator)) return false;
 
-    if(this.threadId) {
-      if(isSavedDialog(this.dialog)) {
+    if (this.threadId) {
+      if (isSavedDialog(this.dialog)) {
         return true;
       }
 
-      if(!this.canManageTopics) {
+      if (!this.canManageTopics) {
         return false;
       }
 
@@ -310,7 +310,7 @@ export default class DialogsContextMenu {
 
   private onArchiveClick = async() => {
     const dialog = await this.managers.appMessagesManager.getDialogOnly(this.peerId);
-    if(dialog) {
+    if (dialog) {
       this.managers.appMessagesManager.editPeerFolders([dialog.peerId!], +!dialog.folder_id as REAL_FOLDER_ID);
     }
   };
@@ -319,7 +319,7 @@ export default class DialogsContextMenu {
     this.managers.appMessagesManager.editForumTopic({
       peerId: this.peerId,
       topicId: this.threadId,
-      hidden: true
+      hidden: true,
     });
   };
 
@@ -327,27 +327,27 @@ export default class DialogsContextMenu {
     this.managers.appMessagesManager.editForumTopic({
       peerId: this.peerId,
       topicId: this.threadId,
-      closed: !(this.dialog as ForumTopic.forumTopic).pFlags.closed
+      closed: !(this.dialog as ForumTopic.forumTopic).pFlags.closed,
     });
   };
 
   private onPinClick = () => {
-    const {peerId, filterId, threadId, dialog} = this;
+    const { peerId, filterId, threadId, dialog } = this;
     const isSaved = isSavedDialog(dialog);
     this.managers.appMessagesManager.toggleDialogPin({
       peerId,
       filterId,
-      topicOrSavedId: threadId
+      topicOrSavedId: threadId,
     }).catch(async(err: ApiError) => {
-      if(err.type === 'PINNED_DIALOGS_TOO_MUCH' || err.type === 'PINNED_TOO_MUCH') {
-        if(isSaved) {
+      if (err.type === 'PINNED_DIALOGS_TOO_MUCH' || err.type === 'PINNED_TOO_MUCH') {
+        if (isSaved) {
           showLimitPopup('savedPin');
-        } else if(threadId) {
+        } else if (threadId) {
           this.managers.apiManager.getLimit('topicPin').then((limit) => {
-            toastNew({langPackKey: 'LimitReachedPinnedTopics', langPackArguments: [limit]});
+            toastNew({ langPackKey: 'LimitReachedPinnedTopics', langPackArguments: [limit] });
           });
-        } else if(!REAL_FOLDERS.has(filterId)) {
-          toastNew({langPackKey: 'PinFolderLimitReached'});
+        } else if (!REAL_FOLDERS.has(filterId)) {
+          toastNew({ langPackKey: 'PinFolderLimitReached' });
         } else {
           showLimitPopup('pin');
         }
@@ -356,7 +356,7 @@ export default class DialogsContextMenu {
   };
 
   private onUnmuteClick = () => {
-    this.managers.appMessagesManager.togglePeerMute({peerId: this.peerId, mute: false, threadId: this.threadId});
+    this.managers.appMessagesManager.togglePeerMute({ peerId: this.peerId, mute: false, threadId: this.threadId });
   };
 
   private onMuteClick = () => {
@@ -368,37 +368,37 @@ export default class DialogsContextMenu {
       peerId: this.monoforumParentPeerId || this.peerId,
       monoforumThreadId: this.monoforumParentPeerId ? this.peerId : undefined,
       threadId: this.threadId,
-      anchor: chatPreviewAnchorFromDialogRow(this.li)
+      anchor: chatPreviewAnchorFromDialogRow(this.li),
     });
   };
 
   private onUnreadClick = async() => {
-    const {peerId, dialog} = this;
-    if(!isDialog(dialog) && !isForumTopic(dialog) && !isMonoforumDialog(dialog)) return;
+    const { peerId, dialog } = this;
+    if (!isDialog(dialog) && !isForumTopic(dialog) && !isMonoforumDialog(dialog)) return;
 
-    if(this.monoforumParentPeerId) {
+    if (this.monoforumParentPeerId) {
       this.managers.appMessagesManager.markDialogUnread({
         peerId: this.monoforumParentPeerId,
         monoforumThreadId: this.peerId,
-        read: !!dialog.unread_count
+        read: !!dialog.unread_count,
       });
-    } else if(dialog.unread_count) {
-      if(!this.threadId) {
-        this.managers.appMessagesManager.markDialogUnread({peerId, read: true});
+    } else if (dialog.unread_count) {
+      if (!this.threadId) {
+        this.managers.appMessagesManager.markDialogUnread({ peerId, read: true });
       } else {
-        this.managers.appMessagesManager.readHistory({peerId, maxId: dialog.top_message, threadId: this.threadId});
+        this.managers.appMessagesManager.readHistory({ peerId, maxId: dialog.top_message, threadId: this.threadId });
       }
-    } else if(!this.threadId) {
-      this.managers.appMessagesManager.markDialogUnread({peerId});
+    } else if (!this.threadId) {
+      this.managers.appMessagesManager.markDialogUnread({ peerId });
     }
   };
 
   private verifyToggleFee = async(requirePayment: boolean) => {
-    if(!this.monoforumParentPeerId || this.dialog._ !== 'monoForumDialog') return false;
+    if (!this.monoforumParentPeerId || this.dialog._ !== 'monoForumDialog') return false;
 
     const chat = await this.managers.appChatsManager.getChat(this.monoforumParentPeerId.toChatId());
-    console.log('my-debug', {chat, requirePayment})
-    if(chat?._ !== 'channel' || !chat?.send_paid_messages_stars) return false;
+    console.log('my-debug', { chat, requirePayment })
+    if (chat?._ !== 'channel' || !chat?.send_paid_messages_stars) return false;
 
     return requirePayment ? !!this.dialog.pFlags?.nopaid_messages_exception : !this.dialog.pFlags?.nopaid_messages_exception;
   };
@@ -406,11 +406,11 @@ export default class DialogsContextMenu {
   private onToggleFeeClick = async(requirePayment: boolean) => {
     const peerId = this.peerId;
     const parentPeerId = this.monoforumParentPeerId;
-    if(!peerId || !parentPeerId) return;
+    if (!peerId || !parentPeerId) return;
 
     try {
-      await openRemoveFeePopup({peerId, parentPeerId, requirePayment, managers: this.managers})
-    } catch{}
+      await openRemoveFeePopup({ peerId, parentPeerId, requirePayment, managers: this.managers })
+    } catch {}
   }
 
   private onDeleteClick = () => {

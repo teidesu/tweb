@@ -1,10 +1,10 @@
-import {createEffect, createSignal, Show} from 'solid-js';
-import {Portal} from 'solid-js/web';
+import { createEffect, createSignal, Show } from 'solid-js';
+import { Portal } from 'solid-js/web';
 import DEBUG from '@config/debug';
 import useIsConfirmationNeededOnClose from '@hooks/useIsConfirmationNeededOnClose';
-import {logger} from '@lib/logger';
+import { logger } from '@lib/logger';
 import SaveButton from '@components/saveButton';
-import {useSuperTab} from '@components/solidJsTabs/superTabProvider';
+import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
 import OptionsSection from '@components/sidebarLeft/tabs/privacy/messages/optionsSection';
 import PaidSettingsSection from '@components/sidebarLeft/tabs/privacy/messages/paidSettingsSection';
 import useSaveSettings from '@components/sidebarLeft/tabs/privacy/messages/useSaveSettings';
@@ -21,13 +21,13 @@ const MessagesTab = () => {
   const {
     isReady,
     globalPrivacy, privacyRules,
-    currentOption, currentAllowedUsers, currentAllowedChats
+    currentOption, currentAllowedUsers, currentAllowedChats,
   } = useSettings();
 
-  const [store, setStore, {isPaid, hasChanges, chosenPeersByType}] = useStateStore({
+  const [store, setStore, { isPaid, hasChanges, chosenPeersByType }] = useStateStore({
     isReady,
     globalPrivacy: globalPrivacy as any,
-    currentOption, currentAllowedChats, currentAllowedUsers
+    currentOption, currentAllowedChats, currentAllowedUsers,
   });
 
   const saveAllSettings = useSaveSettings({
@@ -35,14 +35,14 @@ const MessagesTab = () => {
     globalPrivacy: globalPrivacy as any,
     isPaid,
     hasChanges,
-    chosenPeersByType
+    chosenPeersByType,
   });
 
-  tab.isConfirmationNeededOnClose = useIsConfirmationNeededOnClose({hasChanges, saveAllSettings, descriptionLangKey: 'UnsavedChangesDescription.Privacy'});
+  tab.isConfirmationNeededOnClose = useIsConfirmationNeededOnClose({ hasChanges, saveAllSettings, descriptionLangKey: 'UnsavedChangesDescription.Privacy' });
 
   const [exitAnimationPromise, setExitAnimationPromise] = createSignal<Promise<any>>();
 
-  if(DEBUG) createEffect(() => {
+  if (DEBUG) createEffect(() => {
     log('privacyRules() :>> ', privacyRules());
     log('globalPrivacy() :>> ', globalPrivacy());
   });

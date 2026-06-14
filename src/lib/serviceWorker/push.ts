@@ -5,20 +5,20 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import type {ActiveAccountNumber} from '@lib/accounts/types';
-import {Database} from '@config/databases';
-import {CommonDatabase, getCommonDatabaseState} from '@config/databases/state';
-import {NOTIFICATION_BADGE_PATH, NOTIFICATION_ICON_PATH} from '@config/notifications';
-import {IS_FIREFOX} from '@environment/userAgent';
+import type { ActiveAccountNumber } from '@lib/accounts/types';
+import { Database } from '@config/databases';
+import { CommonDatabase, getCommonDatabaseState } from '@config/databases/state';
+import { NOTIFICATION_BADGE_PATH, NOTIFICATION_ICON_PATH } from '@config/notifications';
+import { IS_FIREFOX } from '@environment/userAgent';
 import deepEqual from '@helpers/object/deepEqual';
 import IDBStorage from '@lib/files/idb';
-import {log, serviceMessagePort} from '@lib/serviceWorker/index.service';
-import {ServicePushPingTaskPayload} from '@lib/serviceWorker/serviceMessagePort';
-import {CURRENT_ACCOUNT_QUERY_PARAM} from '@lib/accounts/constants';
+import { log, serviceMessagePort } from '@lib/serviceWorker/index.service';
+import { ServicePushPingTaskPayload } from '@lib/serviceWorker/serviceMessagePort';
+import { CURRENT_ACCOUNT_QUERY_PARAM } from '@lib/accounts/constants';
 import DeferredIsUsingPasscode from '@lib/passcode/deferredIsUsingPasscode';
 import EncryptionKeyStore from '@lib/passcode/keyStore';
 import pause from '@helpers/schedulers/pause';
-import {getWindowClients} from '@helpers/context';
+import { getWindowClients } from '@helpers/context';
 
 const ctx = self as any as ServiceWorkerGlobalScope;
 const defaultBaseUrl = location.protocol + '//' + location.hostname + location.pathname.split('/').slice(0, -1).join('/') + '/';
@@ -75,13 +75,13 @@ class SomethingGetter<T extends Database<any>, Storage extends Record<string, an
   }
 
   public get<T extends keyof Storage>(key: T) {
-    if(this.cache.hasOwnProperty(key)) {
+    if (this.cache.hasOwnProperty(key)) {
       return this.cache[key];
     }
 
     const promise = this.storage.get(key as string);
     return promise.then((value) => value, () => undefined as Storage[T]).then((value) => {
-      if(this.cache.hasOwnProperty(key)) {
+      if (this.cache.hasOwnProperty(key)) {
         return this.cache[key];
       }
 
@@ -93,7 +93,7 @@ class SomethingGetter<T extends Database<any>, Storage extends Record<string, an
 
   public getCached<T extends keyof Storage>(key: T) {
     const value = this.get(key);
-    if(value instanceof Promise) {
+    if (value instanceof Promise) {
       throw 'no property';
     }
 
@@ -102,7 +102,7 @@ class SomethingGetter<T extends Database<any>, Storage extends Record<string, an
 
   public async set<T extends keyof Storage>(key: T, value: Storage[T]) {
     const cached = this.cache[key] ?? this.defaults[key];
-    if(deepEqual(cached, value)) {
+    if (deepEqual(cached, value)) {
       return;
     }
 
@@ -110,7 +110,7 @@ class SomethingGetter<T extends Database<any>, Storage extends Record<string, an
 
     try {
       this.storage.save(key as string, value);
-    } catch(err) {
+    } catch (err) {
 
     }
   }
@@ -130,17 +130,17 @@ const defaults: PushStorage = {
     push_message_nopreview: 'You have a new message',
     push_message_error: 'Telegram is syncing in the background...',
     push_action_mute1d: 'Mute for 24H',
-    push_action_settings: 'Settings'
+    push_action_settings: 'Settings',
   },
   push_settings: {},
   push_accounts: {},
-  push_keys_ids_base64: []
+  push_keys_ids_base64: [],
 };
 
 const getter = new SomethingGetter<CommonDatabase, PushStorage>(getCommonDatabaseState(), 'session', defaults);
 
 // fill cache
-for(const i in defaults) {
+for (const i in defaults) {
   getter.get(i as keyof PushStorage);
 }
 
@@ -152,7 +152,7 @@ async function handlePushNotificationObject(obj: PushNotificationObject) {
     _lang: PushStorage['push_lang'];
   try {
     // * this should never happen, but just in case
-    if(obj.mute === '1') {
+    if (obj.mute === '1') {
       throw `supress push notification because obj.mute is 1`;
     }
 
@@ -160,12 +160,12 @@ async function handlePushNotificationObject(obj: PushNotificationObject) {
       getter.get('push_mute_until'),
       getter.get('push_settings'),
       getter.get('push_lang'),
-      getWindowClients()
+      getWindowClients(),
     ]);
     _lang = lang!;
 
     const nowTime = Date.now();
-    if(
+    if (
       userInvisibleIsSupported() &&
       muteUntil &&
       nowTime < muteUntil
@@ -174,7 +174,7 @@ async function handlePushNotificationObject(obj: PushNotificationObject) {
     }
 
     const hasActiveWindow = windowClients.length && localNotificationsAvailable;
-    if(hasActiveWindow) {
+    if (hasActiveWindow) {
       // fix = !windowClients.some((windowClient) => windowClient.focused);
       fix = false;
       throw 'supress push notification because some instance is alive';
@@ -185,10 +185,10 @@ async function handlePushNotificationObject(obj: PushNotificationObject) {
       log.error('push notification error', err, copy);
       throw err;
     });
-  } catch(err) {
+  } catch (err) {
     log(err);
 
-    if(!fix) {
+    if (!fix) {
       return;
     }
 
@@ -198,7 +198,7 @@ async function handlePushNotificationObject(obj: PushNotificationObject) {
       icon: NOTIFICATION_ICON_PATH,
       tag,
       badge: NOTIFICATION_BADGE_PATH,
-      silent: true
+      silent: true,
     });
 
     notificationPromise.then(() => {
@@ -215,7 +215,7 @@ async function handlePushNotificationObject(obj: PushNotificationObject) {
 
 function onPushEvent(event: PushEvent) {
   const obj: EncryptedPushNotificationObject | PushNotificationObject = event.data!.json();
-  if(!('p' in obj)) {
+  if (!('p' in obj)) {
     event.waitUntil(handlePushNotificationObject(obj));
     return;
   }
@@ -224,20 +224,20 @@ function onPushEvent(event: PushEvent) {
     loc_key: '',
     loc_args: [],
     custom: {
-      msg_id: ''
+      msg_id: '',
     },
     random_id: 0,
     description: '',
     title: '',
     mute: '0',
     user_id: 0,
-    accountNumber: 1
+    accountNumber: 1,
   };
 
   log('encrypted push', obj);
 
-  const {p} = obj;
-  if(!p) {
+  const { p } = obj;
+  if (!p) {
     log('no p');
     event.waitUntil(handlePushNotificationObject(emptyNotification));
     return;
@@ -245,7 +245,7 @@ function onPushEvent(event: PushEvent) {
 
   const keysIdsBase64 = getter.getCached('push_keys_ids_base64');
   const keyIndex = keysIdsBase64?.findIndex((key) => p.startsWith(key)) ?? -1;
-  if(keyIndex === -1) {
+  if (keyIndex === -1) {
     log('no key');
     event.waitUntil(handlePushNotificationObject(emptyNotification));
     return;
@@ -256,12 +256,12 @@ function onPushEvent(event: PushEvent) {
   emptyNotification.p = p;
   emptyNotification.keyIdBase64 = keyIdBase64;
   event.waitUntil(
-    serviceMessagePort.invoke('decryptPush', {p, keyIdBase64}, undefined, undefined, undefined, 1000)
-    .catch((err) => {
-      log.error('decryptPush error', err);
-      return emptyNotification;
-    })
-    .then(handlePushNotificationObject)
+    serviceMessagePort.invoke('decryptPush', { p, keyIdBase64 }, undefined, undefined, undefined, 1000)
+      .catch((err) => {
+        log.error('decryptPush error', err);
+        return emptyNotification;
+      })
+      .then(handlePushNotificationObject)
   );
 }
 
@@ -270,10 +270,10 @@ async function isPasscodeLocked() {
     pause(1000).then(() => undefined as unknown as boolean),
     Promise.all([
       DeferredIsUsingPasscode.isUsingPasscode(),
-      EncryptionKeyStore.get()
+      EncryptionKeyStore.get(),
     ]).then(([isUsingPasscode, encryptionKey]) => {
       return isUsingPasscode && !encryptionKey;
-    })
+    }),
   ]);
 }
 
@@ -283,47 +283,47 @@ function onNotificationClick(event: NotificationEvent) {
   notification.close();
 
   const action = event.action as PushNotificationObject['action'];
-  if(action === 'mute1d' && userInvisibleIsSupported()) {
+  if (action === 'mute1d' && userInvisibleIsSupported()) {
     log('[SW] mute for 1d');
     getter.set('push_mute_until', Date.now() + 86400e3);
     return;
   }
 
   const data: PushNotificationObject = notification.data;
-  if(!data) {
+  if (!data) {
     return;
   }
 
   const promise = Promise.all([
-    ctx.clients.matchAll({type: 'window'}),
+    ctx.clients.matchAll({ type: 'window' }),
     getter.get('push_settings'),
     getter.get('push_accounts'),
-    isPasscodeLocked()
+    isPasscodeLocked(),
   ]).then(([clientList, settings, accounts, isLocked]) => {
     data.action = action;
-    for(const _accountNumber in accounts) { // * find correct account number for this notification
+    for (const _accountNumber in accounts) { // * find correct account number for this notification
       const accountNumber = +_accountNumber as ActiveAccountNumber;
-      if(accounts[accountNumber] === data.user_id) {
+      if (accounts[accountNumber] === data.user_id) {
         data.accountNumber = accountNumber;
         break;
       }
     }
 
     pendingNotification = data;
-    for(let i = 0; i < clientList.length; ++i) {
+    for (let i = 0; i < clientList.length; ++i) {
       const client = clientList[i];
-      if(!('focus' in client)) {
+      if (!('focus' in client)) {
         continue;
       }
 
       // * verify account number
       const url = new URL(client.url);
-      if((+url.searchParams.get(CURRENT_ACCOUNT_QUERY_PARAM)! || 1) !== data.accountNumber) {
+      if ((+url.searchParams.get(CURRENT_ACCOUNT_QUERY_PARAM)! || 1) !== data.accountNumber) {
         continue;
       }
 
       client.focus();
-      if(isLocked) { // * wait until app is unlocked
+      if (isLocked) { // * wait until app is unlocked
         return;
       }
 
@@ -332,9 +332,9 @@ function onNotificationClick(event: NotificationEvent) {
       return;
     }
 
-    if(ctx.clients.openWindow) {
+    if (ctx.clients.openWindow) {
       const url = new URL(settings!.baseUrl || defaultBaseUrl);
-      if(data.accountNumber && data.accountNumber > 1) { // * set account number
+      if (data.accountNumber && data.accountNumber > 1) { // * set account number
         url.searchParams.set(CURRENT_ACCOUNT_QUERY_PARAM, data.accountNumber + '');
       }
 
@@ -350,7 +350,7 @@ function onNotificationClick(event: NotificationEvent) {
 const notifications: Set<Notification> = new Set();
 let pendingNotification: PushNotificationObject | undefined;
 function pushToNotifications(notification: Notification) {
-  if(!notifications.has(notification)) {
+  if (!notifications.has(notification)) {
     notifications.add(notification);
     // @ts-ignore
     notification.onclose = onCloseNotification;
@@ -366,24 +366,24 @@ function removeFromNotifications(notification: Notification) {
 }
 
 export function closeAllNotifications(tag?: string) {
-  for(const notification of notifications) {
+  for (const notification of notifications) {
     try {
-      if(tag && notification.tag !== tag) {
+      if (tag && notification.tag !== tag) {
         continue;
       }
 
       notification.close();
       notifications.delete(notification);
-    } catch(e) {}
+    } catch (e) {}
   }
 
   let promise: Promise<void>;
-  if('getNotifications' in ctx.registration) {
-    promise = ctx.registration.getNotifications({tag}).then((notifications) => {
-      for(let i = 0, len = notifications.length; i < len; ++i) {
+  if ('getNotifications' in ctx.registration) {
+    promise = ctx.registration.getNotifications({ tag }).then((notifications) => {
+      for (let i = 0, len = notifications.length; i < len; ++i) {
         try {
           notifications[i].close();
-        } catch(e) {}
+        } catch (e) {}
       }
     }).catch((error) => {
       log.error('Offline register SW error', error);
@@ -402,10 +402,10 @@ function userInvisibleIsSupported() {
 export function fillPushObject(obj: PushNotificationObject) {
   let peerId: string;
 
-  if(obj.custom) {
-    if(obj.custom.channel_id) {
+  if (obj.custom) {
+    if (obj.custom.channel_id) {
       peerId = '' + -obj.custom.channel_id;
-    } else if(obj.custom.chat_id) {
+    } else if (obj.custom.chat_id) {
       peerId = '' + -obj.custom.chat_id;
     } else {
       peerId = obj.custom.from_id || '';
@@ -428,14 +428,14 @@ function fireNotification(
   let tag = 'peer' + peerId;
 
   const messageKey = peerId + '_' + obj.custom.msg_id;
-  if(ignoreMessages.has(messageKey)) {
+  if (ignoreMessages.has(messageKey)) {
     const error = 'ignoring push';
     log.warn(error, obj);
     ignoreMessages.delete(messageKey);
     throw error;
   }
 
-  if(settings?.nopreview || !obj.loc_key) {
+  if (settings?.nopreview || !obj.loc_key) {
     title = 'Telegram';
     body = lang.push_message_nopreview!;
     tag = 'unknown_peer';
@@ -444,8 +444,8 @@ function fireNotification(
   const actions: (Omit<NotificationAction, 'action'> & {action: PushNotificationObject['action']})[] = [
     ((userInvisibleIsSupported() && {
       action: 'mute1d',
-      title: lang.push_action_mute1d
-    }) as Omit<NotificationAction, 'action'> & { action: PushNotificationObject['action']; })/* , {
+      title: lang.push_action_mute1d,
+    }) as Omit<NotificationAction, 'action'> & { action: PushNotificationObject['action']; }), /* , {
     action: 'push_settings',
     title: lang.push_action_settings || 'Settings'
   } */];
@@ -457,7 +457,7 @@ function fireNotification(
     data: obj,
     actions: (actions.filter(Boolean) as NotificationAction[] | undefined),
     badge: NOTIFICATION_BADGE_PATH,
-    silent: obj.custom.silent === '1'
+    silent: obj.custom.silent === '1',
   };
 
   log('show notify', title, body, obj, notificationOptions);
@@ -471,7 +471,7 @@ function fireNotification(
 
 export async function canSaveAccounts() {
   const [isUsingPasscode/* , encryptionKey */] = await Promise.all([
-    DeferredIsUsingPasscode.isUsingPasscode()/* ,
+    DeferredIsUsingPasscode.isUsingPasscode(), /* ,
     EncryptionKeyStore.get() */
   ]);
   // * if no passcode or app is unlocked
@@ -481,16 +481,16 @@ export async function canSaveAccounts() {
 export async function onPing(payload: ServicePushPingTaskPayload, source?: MessageEventSource) {
   localNotificationsAvailable = payload.localNotifications;
 
-  if(pendingNotification && source) {
+  if (pendingNotification && source) {
     serviceMessagePort.invokeVoid('pushClick', pendingNotification, source);
     pendingNotification = undefined;
   }
 
-  if(payload.lang) {
+  if (payload.lang) {
     getter.set('push_lang', payload.lang);
   }
 
-  if(payload.settings) {
+  if (payload.settings) {
     getter.set('push_settings', payload.settings);
   }
 
@@ -511,7 +511,7 @@ export function onShownNotification(payload: string) {
 setInterval(() => {
   const time = Date.now();
   ignoreMessages.forEach((_time, key) => {
-    if((time - _time) > 30e3) {
+    if ((time - _time) > 30e3) {
       ignoreMessages.delete(key);
     }
   });

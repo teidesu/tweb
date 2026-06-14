@@ -1,5 +1,5 @@
-import type {InputFileLocation, InputGeoPoint, InputStickerSet, InputWebFileLocation} from '@layer';
-import type {DownloadOptions} from '@appManagers/apiFileManager';
+import type { InputFileLocation, InputGeoPoint, InputStickerSet, InputWebFileLocation } from '@layer';
+import type { DownloadOptions } from '@appManagers/apiFileManager';
 
 const FILENAME_JOINER = '_';
 
@@ -11,7 +11,7 @@ export function getFileNameByLocation(location: InputFileLocation | InputWebFile
   const ext = fileName[fileName.length - 1] || '';
 
   let str: string;
-  switch(location._) {
+  switch (location._) {
     case 'inputPhotoFileLocation': {
       str = ['photo', fileName[0], location.id, location.thumb_size].filter(Boolean).join(FILENAME_JOINER);
       break;
