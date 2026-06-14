@@ -214,7 +214,7 @@ function _ripple(
     };
   } else {
     const onMouseDown = (e: MouseEvent) => {
-      if (![0, 2].includes(e.button)) { // only left and right buttons
+      if (e.button !== 0) { // only left button
         return;
       }
 
