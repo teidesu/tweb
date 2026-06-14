@@ -2182,7 +2182,7 @@
     }
 
     &-footer {
-      height: 3.0625rem;
+      height: 2.5625rem;
       border-top: .0625rem solid var(--border-color);
       position: relative;
       display: flex;
@@ -2222,7 +2222,7 @@
 
       &-text {
         font-weight: var(--font-weight-bold);
-        font-size: .9375rem;
+        font-size: .8125rem;
         margin-inline-start: .5rem;
         display: flex;
         align-items: center;
@@ -2231,7 +2231,7 @@
       }
 
       &-avatars {
-        --margin-right: -.875rem;
+        --margin-right: -.625rem;
         --border-size: 2px;
       }
 

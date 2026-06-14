@@ -62,7 +62,7 @@ export default class RepliesElement extends HTMLElement {
         if (!this.stackedAvatars) {
           this.stackedAvatars = new StackedAvatars({
             lazyLoadQueue: this.lazyLoadQueue,
-            avatarSize: 30,
+            avatarSize: 24,
             middleware: this.middlewareHelper.get(),
           });
 
