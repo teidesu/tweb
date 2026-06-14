@@ -1,6 +1,7 @@
 import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
 import { logger, LogTypes } from '@lib/logger';
 import fastSmoothScroll, { ScrollOptions } from '@helpers/fastSmoothScroll';
+import { cancelAnimationByKey } from '@helpers/animation';
 import useHeavyAnimationCheck from '@hooks/useHeavyAnimationCheck';
 import cancelEvent from '@helpers/dom/cancelEvent';
 import { IS_OVERLAY_SCROLL_SUPPORTED } from '@environment/overlayScrollSupport';
@@ -240,12 +241,22 @@ export class ScrollableBase {
   public scrollIntoViewNew(options: Omit<ScrollOptions, 'container'>) {
     // return Promise.resolve();
     // this.removeListeners();
-    return fastSmoothScroll({
+    const promise = fastSmoothScroll({
       ...options,
       container: this.container,
     });/* .finally(() => {
       this.setListeners();
     }); */
+
+    // let user input interrupt the programmatic scroll midway
+    const cancel = () => cancelAnimationByKey(this.container);
+    const events = ['wheel', 'touchmove'] as const;
+    events.forEach((e) => this.container.addEventListener(e, cancel, { passive: true }));
+    promise.finally(() => {
+      events.forEach((e) => this.container.removeEventListener(e, cancel));
+    });
+
+    return promise;
   }
 
   public onScroll = () => {
