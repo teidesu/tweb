@@ -145,8 +145,8 @@
   }
 
   &-media {
-    height: 2rem !important;
-    width: 2rem !important;
+    height: calc(var(--line-height) * 2 - 4px) !important;
+    width: calc(var(--line-height) * 2 - 4px) !important;
     overflow: hidden;
     position: absolute;
     left: 0;
