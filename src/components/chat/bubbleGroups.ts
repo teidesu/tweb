@@ -50,9 +50,8 @@ function insertSomething<T>(to: Array<T>, what: T, sortKey: keyof T, reverse: bo
 
 function canHaveReplyMarkup(message: Message.message) {
   const replyMarkup = message.reply_markup;
-  let replyMarkupRows = replyMarkup?._ === 'replyInlineMarkup' && replyMarkup.rows;
-  replyMarkupRows = (replyMarkupRows as KeyboardButtonRow[] | undefined)?.filter((row) => row.buttons.length) as false | KeyboardButtonRow[];
-  return !!(replyMarkupRows as KeyboardButtonRow[] | undefined)?.length;
+  if (!replyMarkup || replyMarkup._ !== 'replyInlineMarkup') return false;
+  return replyMarkup.rows.some((row) => row.buttons.length);
 }
 
 export class BubbleGroup {
