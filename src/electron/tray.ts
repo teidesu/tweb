@@ -10,9 +10,11 @@ let tray: Tray | null = null;
 export function createTray(getWindow: () => BrowserWindow | null, quit: () => void) {
   if (tray) return tray;
 
-  const icon = nativeImage.createFromPath(join(ASSETS, 'favicon-32x32.png'));
-  // macOS template image renders crisp in the menu bar
-  if (process.platform === 'darwin') icon.setTemplateImage(true);
+  // macOS menu bar wants a monochrome template silhouette sized in points
+  // (16pt, @2x auto-picked); elsewhere the colored 16px favicon is correct.
+  const isMac = process.platform === 'darwin';
+  const icon = nativeImage.createFromPath(join(ASSETS, isMac ? 'trayTemplate.png' : 'favicon-16x16.png'));
+  if (isMac) icon.setTemplateImage(true);
 
   tray = new Tray(icon);
   tray.setToolTip('Telegram');
