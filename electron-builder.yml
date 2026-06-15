@@ -4,7 +4,6 @@ copyright: abolish copyright law
 
 directories:
   output: release
-  buildResources: build
 
 files:
   - dist/**/*
@@ -22,16 +21,19 @@ protocols:
 
 mac:
   category: public.app-category.social-networking
+  icon: assets/desktop-icon/icon.icns
   target:
     - dmg
   hardenedRuntime: true
 
 win:
+  icon: assets/desktop-icon/icon.png
   target:
     - nsis
 
 linux:
   category: Network
+  icon: assets/desktop-icon/icon.png
   target:
     - AppImage
 
