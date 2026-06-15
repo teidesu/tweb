@@ -2,6 +2,8 @@ node_modules
 coverage
 __pycache__
 /dist
+/dist-electron
+/release
 **/.DS_Store
 stats.json
 certs

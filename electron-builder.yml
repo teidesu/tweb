@@ -1,0 +1,36 @@
+appId: desu.inutweb
+productName: inutweb
+copyright: abolish copyright law
+
+directories:
+  output: release
+  buildResources: build
+
+files:
+  - dist/**/*
+  - dist-electron/**/*
+  - package.json
+
+protocols:
+  - name: Telegram
+    schemes:
+      - tg
+
+mac:
+  category: public.app-category.social-networking
+  target:
+    - dmg
+  hardenedRuntime: true
+
+win:
+  target:
+    - nsis
+
+linux:
+  category: Network
+  target:
+    - AppImage
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true

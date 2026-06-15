@@ -62,6 +62,8 @@
   "exclude": [
     "node_modules",
     ".claude",
+    "src/electron",
+    "dist-electron",
     "public",
     "dist",
     "coverage",

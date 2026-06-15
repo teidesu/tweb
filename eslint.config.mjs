@@ -36,7 +36,7 @@ export default [{
     sourceType: 'module',
 
     parserOptions: {
-      project: ['./tsconfig.json'],
+      project: ['./tsconfig.json', './tsconfig.electron.json'],
     },
   },
 
@@ -126,7 +126,7 @@ export default [{
     sourceType: 'script',
 
     parserOptions: {
-      project: ['./tsconfig.json'],
+      project: ['./tsconfig.json', './tsconfig.electron.json'],
     },
   },
 }, {

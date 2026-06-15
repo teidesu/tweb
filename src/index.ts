@@ -59,6 +59,7 @@ import useHasFoldersSidebar, { useIsSidebarCollapsed } from '@stores/foldersSide
 import appNavigationController from '@components/appNavigationController';
 import { preventCrossTabDynamicImportDeadlock } from '@helpers/preventDeadlock';
 import appChatBackground from '@components/chat/bubbles/chatBackground';
+import { initElectronIntegration } from '@lib/electron';
 
 // import commonStateStorage from '@lib/commonStateStorage';
 // import { STATE_INIT } from '@config/state';
@@ -367,6 +368,7 @@ function setDocumentLangPackProperties(langPack: LangPackDifference.langPackDiff
   listenForWindowPrint();
   cancelImageEvents();
   setRootClasses();
+  initElectronIntegration();
 
   if (IS_INSTALL_PROMPT_SUPPORTED) {
     cacheInstallPrompt();
