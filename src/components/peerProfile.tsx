@@ -986,12 +986,12 @@ PeerProfile.Bio = () => {
 };
 
 PeerProfile.Link = () => {
-  const context = useContext(PeerProfileContext);
+  const context = useContext(PeerProfileContext)!;
   const { i18n, I18n, toast, showMyQrCodePopup } = useHotReloadGuard();
 
-  const toFill = createMemo<Partial<{url: string, also: JSX.Element}>>(() => {
-    if (context!.peerId.isUser()) {
-      return {} as Partial<{url: string, also: JSX.Element}>;
+  const toFill = createMemo<Partial<{url: string, also: JSX.Element}> | null>(() => {
+    if (context.peerId.isUser()) {
+      return null;
     }
 
     const usernames = getPeerActiveUsernames(context!.peer as Chat.channel);
@@ -1026,7 +1026,7 @@ PeerProfile.Link = () => {
   });
 
   const onClick = () => {
-    const url = 'https://' + toFill().url;
+    const url = 'https://' + toFill()!.url;
     copyTextToClipboard(url);
     // Promise.resolve(appProfileManager.getChatFull(this.peerId.toChatId())).then((chatFull) => {
     // copyTextToClipboard(chatFull.exported_invite.link);
@@ -1047,8 +1047,8 @@ PeerProfile.Link = () => {
           }],
         }}
       >
-        <Row.Title>{toFill().url}</Row.Title>
-        <Row.Subtitle>{toFill().also || i18n('SetUrlPlaceholder')}</Row.Subtitle>
+        <Row.Title>{toFill()!.url}</Row.Title>
+        <Row.Subtitle>{toFill()!.also || i18n('SetUrlPlaceholder')}</Row.Subtitle>
         <PeerProfile.QrButton />
       </Row>
     </Show>
