@@ -10,6 +10,7 @@ import mediaSizes, { ScreenSize } from '@helpers/mediaSizes';
 import { isRightColumnFloating } from '@helpers/updateColumnWidths';
 import { logger, LogTypes } from '@lib/logger';
 import rootScope from '@lib/rootScope';
+import { IS_ELECTRON_CHAT, electronAPI } from '@lib/electron';
 import Chat, { ChatSearchKeys } from '@components/chat/chat';
 import { ChatType } from '@components/chat/chatType';
 import PopupNewMedia, { getCurrentNewMediaPopup } from '@components/popups/newMedia';
@@ -2862,6 +2863,19 @@ export class AppImManager extends EventListenerBase<{
     }
 
     peerId = options.peerId = await this.managers.appPeersManager.getPeerMigratedTo(peerId) || peerId;
+
+    if (IS_ELECTRON_CHAT && this.chat?.peerId && peerId !== this.chat.peerId) {
+      electronAPI?.openInMainWindow({
+        peerId,
+        threadId: options.threadId,
+        lastMsgId: options.lastMsgId,
+        commentId: options.commentId,
+        mediaTimestamp: options.mediaTimestamp,
+        startParam: options.startParam,
+        type: options.type,
+      });
+      return;
+    }
 
     if (!options.type) {
       if (options.threadId) {

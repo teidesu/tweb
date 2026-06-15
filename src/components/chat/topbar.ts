@@ -4,6 +4,7 @@ import type Chat from '@components/chat/chat';
 import { RIGHT_COLUMN_ACTIVE_CLASSNAME } from '@components/sidebarRight';
 import { replaceEmoticonsPanelWithProfile } from '@components/sidebarRight/tabs/emoticons';
 import mediaSizes, { ScreenSize } from '@helpers/mediaSizes';
+import { IS_ELECTRON_CHAT } from '@lib/electron';
 import rootScope, { BroadcastEvents } from '@lib/rootScope';
 import ButtonIcon from '@components/buttonIcon';
 import ButtonMenuToggle from '@components/buttonMenuToggle';
@@ -1406,6 +1407,9 @@ export default class ChatTopbar {
       });
 
       this.container.classList.toggle('show-back-button', needArrowBack);
+      if (IS_ELECTRON_CHAT) {
+        this.container.classList.toggle('no-back-button', !needArrowBack);
+      }
     };
   }
 

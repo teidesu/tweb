@@ -3151,6 +3151,7 @@
   display: flex;
   flex-direction: column;
   max-width: string.unquote('min(var(--max-content-width, 100%), var(--max-width))');
+  min-width: 0;
 }
 
 .bubble.service {

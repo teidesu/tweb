@@ -65,6 +65,7 @@ import mediaSizes from '@helpers/mediaSizes';
 import rootScope from '@lib/rootScope';
 import clamp from '@helpers/number/clamp';
 import throttle from '@helpers/schedulers/throttle';
+import { IS_ELECTRON_CHAT } from '@lib/electron';
 
 // Default and resize range for the left & right columns.
 export const DEFAULT_COLUMN_WIDTH = 360;
@@ -160,7 +161,7 @@ function getAvailableWidth(): number {
 }
 
 function getMaxDockedSidebarWidth(otherWidth: number): number {
-  const foldersOffset = foldersSidebarShown ? FOLDERS_SIDEBAR_OFFSET : 0;
+  const foldersOffset = foldersSidebarShown && !IS_ELECTRON_CHAT ? FOLDERS_SIDEBAR_OFFSET : 0;
   return getAvailableWidth() - foldersOffset - otherWidth - CHAT_WIDTH_MIN_DOCKED - PAGE_CHATS_PADDING * 2;
 }
 
@@ -245,6 +246,7 @@ export function setFoldersSidebarShown(value: boolean): void {
 }
 
 function computeVisualLeftWidth(): number {
+  if (IS_ELECTRON_CHAT) return 0;
   const vw = window.innerWidth;
   const isMobile = mediaSizes.isMobile;
   const isFloatingLeft = mediaSizes.isLessThanFloatingLeftSidebar && !isMobile;
@@ -267,6 +269,7 @@ function computeVisualLeftWidth(): number {
 // tabs, it stays at the collapsed width — the expanded sidebar overlays the
 // chat instead of pushing it.
 function computeLayoutLeftWidth(): number {
+  if (IS_ELECTRON_CHAT) return 0;
   const vw = window.innerWidth;
   const isMobile = mediaSizes.isMobile;
   const isFloatingLeft = mediaSizes.isLessThanFloatingLeftSidebar && !isMobile;
@@ -326,7 +329,7 @@ export default function updateColumnWidths(): void {
   // threshold is the sum of every horizontal piece currently in the docked
   // layout, so resizing either column (or collapsing the left, or toggling
   // the folders panel) immediately re-evaluates the floats decision.
-  const foldersOffset = foldersSidebarShown ? FOLDERS_SIDEBAR_OFFSET : 0;
+  const foldersOffset = foldersSidebarShown && !IS_ELECTRON_CHAT ? FOLDERS_SIDEBAR_OFFSET : 0;
   // 2 paddings: the two gutters flanking the chat. Both side bars are flush
   // to the screen edges, so there are no outer insets.
   const rightColumnFits = foldersOffset + layoutLeftWidth + rightWidth + CHAT_WIDTH_MIN_DOCKED + PAGE_CHATS_PADDING * 2;

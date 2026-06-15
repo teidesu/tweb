@@ -1,5 +1,21 @@
 @use "../shared" as *;
 
+// Collapse the back-button slot in the chat header (button hidden + its reserved
+// space reclaimed). Used by the >925px desktop layout and, via the JS-toggled
+// `.no-back-button` class, by the standalone window where there's no chat list.
+@mixin topbar-hide-back {
+  --topbar-close-active-size: 0px;
+  --topbar-avatar-close-gap: 0px;
+
+  .sidebar-close-button {
+    display: none;
+  }
+
+  .chat-info {
+    padding-inline-start: 0;
+  }
+}
+
 body.is-calling.forwards:not(.animating) {
   --topbar-floating-call-height: calc(var(--topbar-call-height) + var(--plates-gap));
 }
@@ -64,17 +80,13 @@ body.is-pinned-audio-shown, body.is-calling.forwards {
 
 	@include respond-to(no-floating-left-sidebar) {
 		.chat:first-child &:not(.show-back-button) {
-      --topbar-close-active-size: 0px;
-      --topbar-avatar-close-gap: 0px;
-
-			.sidebar-close-button {
-				display: none;
-			}
-
-			.chat-info {
-				padding-inline-start: 0;
-			}
+			@include topbar-hide-back;
 		}
+	}
+
+	// standalone window (no chat list to return to) — JS toggles this in topbar.ts
+	&.no-back-button:not(.show-back-button) {
+		@include topbar-hide-back;
 	}
 
   &.has-avatar {

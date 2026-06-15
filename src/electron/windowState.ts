@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync } from 'fs';
 type State = Rectangle & {maximized?: boolean};
 
 const FILE = join(app.getPath('userData'), 'window-state.json');
-const DEFAULT: State = { width: 1280, height: 800, x: undefined as any, y: undefined as any };
+const DEFAULT: State = { width: 1400, height: 860, x: undefined as any, y: undefined as any };
 
 function read(): State {
   try {

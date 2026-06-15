@@ -1,12 +1,15 @@
 import { app, BrowserWindow, shell, session, ipcMain, nativeTheme } from 'electron';
+import type { WebContents, BrowserWindowConstructorOptions } from 'electron';
 import { join } from 'path';
 import { IS_DEV, DEV_SERVER_URL, APP_INDEX_URL, APP_ORIGIN } from './constants';
 import { registerAppSchemeAsPrivileged, handleAppScheme } from './protocol';
 import { createWindowStateManager } from './windowState';
 import { createTray } from './tray';
 import { registerDeepLinks, flushPendingDeepLinks } from './deepLink';
+import { registerWindowContextIpc, setWindowContext } from './windowContext';
 
 registerAppSchemeAsPrivileged();
+registerWindowContextIpc();
 
 let mainWindow: BrowserWindow | null = null;
 let isQuitting = false;
@@ -16,6 +19,64 @@ const quit = () => {
   isQuitting = true;
   app.quit();
 };
+
+const isInternalUrl = (url: string) =>
+  url.startsWith(APP_ORIGIN) || (IS_DEV && url.startsWith(DEV_SERVER_URL));
+
+// "Open in new window" builds a #/im?p=... hash route; only those spawn a
+// standalone chat window. anything else internal is denied so a stray/forged
+// window.open can't open arbitrary app routes as a chrome-less window.
+const isChatUrl = (url: string) => {
+  try {
+    return /^#\/im(?:[?/]|$)/.test(new URL(url).hash);
+  } catch {
+    return false;
+  }
+};
+
+const chatWindowOptions = (): BrowserWindowConstructorOptions => ({
+  width: 610,
+  height: 800,
+  minWidth: 380,
+  minHeight: 480,
+  autoHideMenuBar: true,
+  backgroundColor: nativeTheme.shouldUseDarkColors ? '#212121' : '#ffffff',
+  webPreferences: {
+    preload: join(__dirname, 'preload.js'),
+    contextIsolation: true,
+    nodeIntegration: false,
+    sandbox: false,
+  },
+});
+
+// applied to the main window and every window it spawns: external links go to
+// the system browser, in-app navigation is pinned to our origin, <webview>
+// embedding is blocked, and child windows are tagged + guarded recursively.
+function applyNavigationGuards(contents: WebContents) {
+  contents.setWindowOpenHandler(({ url }) => {
+    if (!isInternalUrl(url)) {
+      shell.openExternal(url);
+      return { action: 'deny' };
+    }
+    if (!isChatUrl(url)) return { action: 'deny' };
+    return { action: 'allow', overrideBrowserWindowOptions: chatWindowOptions() };
+  });
+
+  contents.on('did-create-window', (win, { url }) => {
+    setWindowContext(win.webContents, { isChat: isChatUrl(url) });
+    applyNavigationGuards(win.webContents);
+  });
+
+  contents.on('will-navigate', (event, url) => {
+    if (!isInternalUrl(url)) {
+      event.preventDefault();
+      shell.openExternal(url);
+    }
+  });
+
+  // we never embed remote content
+  contents.on('will-attach-webview', (event) => event.preventDefault());
+}
 
 // single-instance: a second launch focuses the existing window (and forwards
 // deep links via the 'second-instance' handler in deepLink.ts)
@@ -66,13 +127,11 @@ function setupPermissions() {
   ]);
 
 
-  const isOurs = (url: string) => url.startsWith(APP_ORIGIN) || (IS_DEV && url.startsWith(DEV_SERVER_URL));
-
   session.defaultSession.setPermissionRequestHandler((wc, permission, callback) => {
-    callback(isOurs(wc?.getURL() || '') && ALLOWED.has(permission));
+    callback(isInternalUrl(wc?.getURL() || '') && ALLOWED.has(permission));
   });
   session.defaultSession.setPermissionCheckHandler((_wc, permission, origin) => {
-    return isOurs(origin) && ALLOWED.has(permission);
+    return isInternalUrl(origin) && ALLOWED.has(permission);
   });
 }
 
@@ -112,21 +171,7 @@ function createWindow() {
     mainWindow = null;
   });
 
-  // open external links (http/https not on our origin) in the system browser
-  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (!url.startsWith(APP_ORIGIN) && !(IS_DEV && url.startsWith(DEV_SERVER_URL))) {
-      shell.openExternal(url);
-      return { action: 'deny' };
-    }
-    return { action: 'allow' };
-  });
-
-  mainWindow.webContents.on('will-navigate', (event, url) => {
-    if (!url.startsWith(APP_ORIGIN) && !(IS_DEV && url.startsWith(DEV_SERVER_URL))) {
-      event.preventDefault();
-      shell.openExternal(url);
-    }
-  });
+  applyNavigationGuards(mainWindow.webContents);
 
   createTray(getWindow, quit);
 
@@ -140,3 +185,12 @@ function createWindow() {
 
 // renderer signals its deep-link listener is ready
 ipcMain.on('renderer-ready', () => flushPendingDeepLinks());
+
+// a standalone chat window asks to open a peer in the main window.
+ipcMain.on('open-in-main-window', (_event, payload) => {
+  if (!mainWindow) return;
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  mainWindow.show();
+  mainWindow.focus();
+  mainWindow.webContents.send('open-peer', payload);
+});

@@ -126,3 +126,15 @@
     }
   }
 }
+
+.no-left-sidebar {
+  .folders-sidebar,
+  #column-left {
+    display: none !important;
+  }
+
+  #column-center {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}

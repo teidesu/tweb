@@ -1,4 +1,7 @@
 const lang = {
+  // todo: move custom strings to a separate file
+  'OpenInNewWindow': 'Open in new window',
+  // end custom
   'Animations': 'Animations',
   'AttachAlbum': 'Album',
   'Appearance.Color.Hex': 'HEX',
