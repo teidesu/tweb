@@ -801,6 +801,8 @@ export default class EmojiTab extends EmoticonsTabC<EmojiTabCategory, {emojis: A
 
   public toggleCustomCategory() {
     const category = this.categories[CUSTOM_EMOJI_RECENT_ID];
+    if (!category) return; // not yet initialized — init() will call this again
+
     const hasPremium = rootScope.premium || this.peerId === rootScope.myId || !!this.mainSets;
     const canSeeCustomCategory = hasPremium || this.isStandalone;
     super.toggleLocalCategory(category, !!category.items.length && canSeeCustomCategory);
