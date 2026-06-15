@@ -763,7 +763,8 @@
         color: rgb(var(--peer-color-rgb, var(--primary-color-rgb)));
       }
 
-      &-cancel {
+      &-cancel,
+      &-icon-interactive {
         @include hover() {
           background-color: rgba(var(--peer-color-rgb, var(--primary-color-rgb)), #{$hover-alpha});
         }
@@ -772,6 +773,11 @@
 			&-icon {
 				order: 0;
 				pointer-events: none;
+
+        &-interactive {
+          pointer-events: unset;
+          cursor: pointer;
+        }
 			}
 
 			&-cancel {

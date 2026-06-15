@@ -17,7 +17,7 @@ import { cancelMessageHighlight } from '@components/chat/messageHighlight';
 import ChatInputPlate from '@components/chat/controlPlate';
 import PopupSendGift from '@components/popups/sendGift';
 import ButtonIcon from '@components/buttonIcon';
-import ButtonMenuToggle from '@components/buttonMenuToggle';
+import ButtonMenuToggle, { ButtonMenuToggleHandler, filterButtonMenuItems } from '@components/buttonMenuToggle';
 import ListenerSetter from '@helpers/listenerSetter';
 import Button, { replaceButtonIcon } from '@components/button';
 import showScheduleSendingPopup from '@components/popups/scheduleSendingPopup';
@@ -58,7 +58,6 @@ import PopupPeer from '@components/popups/peer';
 import appMediaPlaybackController from '@components/appMediaPlaybackController';
 import { BOT_START_PARAM, GENERAL_TOPIC_ID, HIDDEN_PEER_ID, NULL_PEER_ID, REPLIES_PEER_ID, SEND_PAID_WITH_STARS_DELAY, SEND_WHEN_ONLINE_TIMESTAMP, SERVICE_PEER_ID } from '@appManagers/constants';
 import setCaretAt from '@helpers/dom/setCaretAt';
-import DropdownHover from '@helpers/dropdownHover';
 import { positionMenuTrigger } from '@helpers/positionMenu';
 import findUpTag from '@helpers/dom/findUpTag';
 import toggleDisability from '@helpers/dom/toggleDisability';
@@ -76,7 +75,6 @@ import wrapDraft from '@components/wrappers/draft';
 import wrapMessageForReply from '@components/wrappers/messageForReply';
 import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
 import { AppManagers } from '@lib/managers';
-import contextMenuController from '@helpers/contextMenuController';
 import { emojiFromCodePoints } from '@vendor/emoji';
 import { modifyAckedPromise } from '@helpers/modifyAckedResult';
 import ChatSendAs from '@components/chat/sendAs';
@@ -232,12 +230,10 @@ export default class ChatInput {
     container: HTMLElement,
     cancelBtn: HTMLButtonElement,
     iconBtn: HTMLButtonElement,
-    menuContainer: HTMLElement,
-    replyInAnother: ButtonMenuItemOptions,
-    doNotReply: ButtonMenuItemOptions,
-    doNotQuote: ButtonMenuItemOptions,
+    buttons: ButtonMenuItemOptionsVerifiable[],
     content: HTMLElement
   } = {} as any;
+  private replyMessage: Message | undefined;
 
   private forwardElements: {
     changePeer: ButtonMenuItemOptions,
@@ -255,10 +251,9 @@ export default class ChatInput {
     smaller: ButtonMenuItemOptions,
     container: HTMLElement
   };
-  private forwardHover: DropdownHover;
-  private webPageHover: DropdownHover;
-  private replyHover: DropdownHover;
-  private currentHover: DropdownHover;
+  // the helper menu the icon toggle currently opens (webpage can overlay a reply, so this
+  // tracks the last-shown menu rather than helperType)
+  private helperMenuType: 'reply' | 'forward' | 'webpage' | undefined;
   private forwardWasDroppingAuthor: boolean;
 
   private getWebPagePromise: Promise<void> | undefined;
@@ -309,7 +304,6 @@ export default class ChatInput {
   /** @internal — used by ChatRecording */
   public listenerSetter: ListenerSetter;
   private middlewareHelper: MiddlewareHelper;
-  private hoverListenerSetter: ListenerSetter;
 
   private pinnedControlBtn: HTMLButtonElement;
   private openChatBtn: HTMLButtonElement;
@@ -430,7 +424,6 @@ export default class ChatInput {
     private className: string
   ) {
     this.listenerSetter = new ListenerSetter();
-    this.hoverListenerSetter = new ListenerSetter();
     this.middlewareHelper = getMiddleware();
     this.excludeParts = {};
     this.isFocused = false;
@@ -598,6 +591,7 @@ export default class ChatInput {
     this.replyElements.content.classList.add('reply-wrapper-content');
 
     this.replyElements.iconBtn = this.createButtonIcon('');
+    this.replyElements.iconBtn.classList.add('reply-icon');
     this.replyElements.cancelBtn = this.createButtonIcon('close reply-cancel', { noRipple: true });
 
     this.replyElements.content.append(this.replyElements.iconBtn, this.replyElements.cancelBtn);
@@ -606,38 +600,61 @@ export default class ChatInput {
     attachClickEvent(this.replyElements.cancelBtn, this.onHelperCancel, { listenerSetter: this.listenerSetter });
     attachClickEvent(this.replyElements.content, this.onHelperClick, { listenerSetter: this.listenerSetter });
 
-    const buttons: ButtonMenuItemOptions[] = [{
+    this.replyElements.buttons = [{
       icon: 'message_jump',
       text: 'ShowMessage',
-      onClick: () => {
-        this.onHelperClick();
-        this.replyHover.toggle(false);
-      },
-    }, this.replyElements.replyInAnother = {
+      onClick: () => this.onHelperClick(),
+    }, {
       icon: 'replace',
       text: 'ReplyToAnotherChat',
       onClick: () => this.changeReplyRecipient(),
-    }, this.replyElements.doNotReply = {
+      verify: () => this.chat.bubbles.canForward(this.replyMessage as Message.message),
+    }, {
       icon: 'delete',
       text: 'DoNotReply',
       onClick: this.onHelperCancel,
-      danger: true, /* ,
-      separator: true */
-    }, this.replyElements.doNotQuote = {
+      danger: true,
+      verify: () => !this.replyToQuote,
+    }, {
       icon: 'delete',
       text: 'DoNotQuote',
       onClick: this.onHelperCancel,
       danger: true,
+      verify: () => !!this.replyToQuote,
     }];
-    const btnMenu = this.replyElements.menuContainer = ButtonMenuSync({
-      buttons,
-      listenerSetter: this.listenerSetter,
-    });
-    btnMenu.classList.add('reply-line-menu', 'top-right');
 
-    if (!IS_TOUCH_SUPPORTED) {
-      this.replyHover = this.createReplyLineHover(btnMenu);
-    }
+    let replyMenu: HTMLElement | undefined;
+    const replyMenuListenerSetter = new ListenerSetter();
+    ButtonMenuToggleHandler({
+      el: this.replyElements.iconBtn,
+      onOpen: async() => {
+        let menu: HTMLElement | undefined;
+        if (this.helperMenuType === 'reply') {
+          replyMenuListenerSetter.removeAll();
+          menu = replyMenu = ButtonMenuSync({
+            buttons: await filterButtonMenuItems(this.replyElements.buttons),
+            listenerSetter: replyMenuListenerSetter,
+          });
+          menu.classList.add('top-right');
+        } else if (this.helperMenuType === 'forward') {
+          menu = this.forwardElements?.container;
+        } else if (this.helperMenuType === 'webpage') {
+          menu = this.webPageElements?.container;
+        }
+
+        if (!menu) return;
+        if (!menu.parentElement) document.body.append(menu);
+        this.positionReplyLineMenu(menu);
+        return menu;
+      },
+      options: { listenerSetter: this.listenerSetter },
+      onClose: () => {
+        const menu = replyMenu;
+        if (!menu) return;
+        replyMenu = undefined;
+        setTimeout(() => menu.remove(), 300); // wait for closing animation
+      },
+    });
   }
 
   private constructForwardElements() {
@@ -728,10 +745,6 @@ export default class ChatInput {
 
     forwardBtnMenu.classList.add('reply-line-menu', 'top-right');
 
-    if (!IS_TOUCH_SUPPORTED) {
-      this.forwardHover = this.createReplyLineHover(forwardBtnMenu);
-    }
-
     forwardElements.modifyArgs = forwardButtons.slice(0, -2);
   }
 
@@ -783,10 +796,6 @@ export default class ChatInput {
     });
 
     btnMenu.classList.add('reply-line-menu', 'top-right');
-
-    if (!IS_TOUCH_SUPPORTED) {
-      this.webPageHover = this.createReplyLineHover(btnMenu);
-    }
   }
 
   private constructMentionButton(kind: 'mention' | 'reaction' | 'pollVote' = 'mention') {
@@ -2133,10 +2142,8 @@ export default class ChatInput {
     // any in-flight recording navigation item, and removes the body-mounted
     // round-preview element.
     this.recordingController?.destroy();
-    this.setCurrentHover();
 
     [
-      this.replyElements?.menuContainer,
       this.forwardElements?.container,
       this.webPageElements?.container,
     ].forEach((menu) => {
@@ -3195,14 +3202,13 @@ export default class ChatInput {
       if (this.getWebPagePromise === promise) this.getWebPagePromise = undefined;
       if (this.lastUrl !== foundUrl) return;
       if (webPage?._  === 'webPage' && canEmbedLinks) {
-        const newReply = this.setTopInfo({
+        this.setTopInfo({
           type: 'webpage',
           callerFunc: () => {},
           title: webPage.site_name || webPage.title || 'Webpage',
           subtitle: webPage.description || webPage.url || '',
         });
 
-        this.setCurrentHover(this.webPageHover, newReply);
         delete this.noWebPage;
         this.willSendWebPage = webPage;
 
@@ -3784,22 +3790,12 @@ export default class ChatInput {
     e && cancelEvent(e);
 
     if (e && !findUpClassName(e.target!, 'reply')) return;
-    let possibleBtnMenuContainer: HTMLElement;
-    if (this.helperType === 'forward') {
-      possibleBtnMenuContainer = this.forwardElements?.container;
-    } else if (this.helperType === 'reply') {
+    if (this.helperType === 'reply') {
       this.chat.setMessageId({ lastMsgId: this.replyToMsgId, pollOption: this.replyToPollOption });
-      possibleBtnMenuContainer = this.replyElements?.menuContainer;
     } else if (this.helperType === 'edit') {
       this.chat.setMessageId({ lastMsgId: this.editMsgId });
     } else if (this.helperType === 'suggested') {
       this.openSuggestPostPopup(this.suggestedPost);
-    } else if (!this.helperType) {
-      possibleBtnMenuContainer = this.webPageElements?.container;
-    }
-
-    if (IS_TOUCH_SUPPORTED && possibleBtnMenuContainer! && !possibleBtnMenuContainer.classList.contains('active')) {
-      this.openReplyLineMenuTouch(possibleBtnMenuContainer);
     }
   };
 
@@ -4600,7 +4596,7 @@ export default class ChatInput {
         );
       }
 
-      const newReply = this.setTopInfo({
+      this.setTopInfo({
         type: 'forward',
         callerFunc: f,
         title: title,
@@ -4614,7 +4610,6 @@ export default class ChatInput {
         intl.update();
       });
 
-      this.setCurrentHover(this.forwardHover, newReply);
       this.forwarding = fromPeerIdsMids;
     };
 
@@ -4693,7 +4688,7 @@ export default class ChatInput {
         quote = replyToQuote!;
       }
 
-      const newReply = this.setTopInfo({
+      this.setTopInfo({
         type: 'reply',
         callerFunc: f,
         title,
@@ -4705,10 +4700,7 @@ export default class ChatInput {
       });
       this.setReplyTo((replyTo as ChatInputReplyTo));
 
-      this.replyElements.replyInAnother.element!.classList.toggle('hide', !this.chat.bubbles.canForward(message as Message.message));
-      this.replyElements.doNotReply.element!.classList.toggle('hide', !!replyToQuote);
-      this.replyElements.doNotQuote.element!.classList.toggle('hide', !replyToQuote);
-      this.setCurrentHover(this.replyHover, newReply);
+      this.replyMessage = message;
     };
     f();
   }
@@ -4729,49 +4721,10 @@ export default class ChatInput {
     this.savedReplyToPollOption = { msgId, option, text: pollOption.text };
   }
 
-  private setCurrentHover(dropdownHover?: DropdownHover, newReply?: HTMLElement) {
-    if (this.currentHover) {
-      this.currentHover.toggle(false);
-    }
-
-    this.hoverListenerSetter.removeAll();
-    this.currentHover = dropdownHover!;
-    dropdownHover?.attachButtonListener(newReply!, this.listenerSetter);
-  }
-
-  private createReplyLineHover(menu: HTMLElement) {
-    const hover = new DropdownHover({ element: menu });
-
-    hover.addEventListener('open', () => {
-      if (!menu.parentElement) {
-        document.body.append(menu);
-      }
-      this.positionReplyLineMenu(menu);
-    });
-
-    hover.addEventListener('closed', () => {
-      menu.remove();
-    });
-
-    return hover;
-  }
-
   private positionReplyLineMenu(menu: HTMLElement) {
-    const trigger = this.replyElements.content?.querySelector('.reply') as HTMLElement || this.replyElements.iconBtn;
+    const trigger = this.replyElements.iconBtn;
     if (!trigger) return;
     positionMenuTrigger(trigger, menu, 'top-right', { top: 8, bottom: 8, left: 8, right: 8 });
-  }
-
-  private openReplyLineMenuTouch(menu: HTMLElement) {
-    if (!menu.parentElement) {
-      document.body.append(menu);
-    }
-    this.positionReplyLineMenu(menu);
-    contextMenuController.openBtnMenu(menu, () => {
-      setTimeout(() => {
-        if (!menu.classList.contains('active')) menu.remove();
-      }, 300);
-    });
   }
 
   public setReplyTo(replyTo: ChatInputReplyTo) {
@@ -4817,7 +4770,7 @@ export default class ChatInput {
 
     this.editMsgId = (this.editMessage = undefined)!;
     this.helperType = (this.helperFunc = undefined)!;
-    this.setCurrentHover();
+    this.helperMenuType = undefined;
     if (!fromUpdate) {
       this.saveDraftDebounced();
     }
@@ -4919,7 +4872,11 @@ export default class ChatInput {
     const oldReply = replyParent.lastElementChild!.previousElementSibling;
     const haveReply = oldReply!.classList.contains('reply');
 
-    this.replyElements.iconBtn.replaceWith(this.replyElements.iconBtn = this.createButtonIcon((type === 'webpage' ? 'link' : type) + ' reply-icon', { noRipple: true }));
+    replaceButtonIcon(this.replyElements.iconBtn, (type === 'webpage' ? 'link' : type) as Icon);
+    // reply/forward/webpage open their menu by clicking the icon; edit/suggested have none
+    this.helperMenuType = type === 'reply' || type === 'forward' || type === 'webpage' ? type : undefined;
+    this.replyElements.iconBtn.classList.toggle('reply-icon-interactive', !!this.helperMenuType);
+    this.replyElements.iconBtn.classList.toggle('btn-menu-toggle', !!this.helperMenuType);
     const { container } = wrapReply({
       title,
       subtitle,
