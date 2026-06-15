@@ -46,6 +46,8 @@ const chatWindowOptions = (): BrowserWindowConstructorOptions => ({
     contextIsolation: true,
     nodeIntegration: false,
     sandbox: false,
+    // eagerly persist v8 bytecode so additional windows reuse it (shared session cache)
+    v8CacheOptions: 'bypassHeatCheck',
   },
 });
 
@@ -151,6 +153,7 @@ function createWindow() {
       nodeIntegration: false,
       sandbox: false,
       spellcheck: true,
+      v8CacheOptions: 'bypassHeatCheck',
     },
   });
 
