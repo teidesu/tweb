@@ -16,6 +16,7 @@ const ENV_LOCAL_FILE_PATH = join(rootDir, '.env.local');
 const LANG_PACK_LOCAL_FILE_PATH = join(rootDir, 'src', 'langPackLocalVersion.ts');
 
 const isDEV = process.env.NODE_ENV === 'development';
+const IS_ELECTRON_BUILD = !!process.env.TWEB_ELECTRON;
 if(!existsSync(LANG_PACK_LOCAL_FILE_PATH)) {
   copyFileSync(join(rootDir, 'src', 'langPackLocalVersion.example.ts'), LANG_PACK_LOCAL_FILE_PATH);
 }
@@ -112,6 +113,9 @@ export default defineConfig({
     pool: 'forks',
     globals: true,
     setupFiles: ['./src/tests/setup.ts']
+  },
+  define: {
+    __IS_ELECTRON_BUILD__: JSON.stringify(IS_ELECTRON_BUILD)
   },
   server: serverOptions,
   base: '',

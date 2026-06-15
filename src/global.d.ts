@@ -195,6 +195,8 @@ declare global {
     openExternal(url): void;
   } | undefined;
 
+  declare const __IS_ELECTRON_BUILD__: boolean;
+
   type DOMRectMinified = {top: number, right: number, bottom: number, left: number};
   type DOMRectEditable = DOMRectMinified & {width: number, height: number};
   type MaybePromise<T> = Promise<T> | T;

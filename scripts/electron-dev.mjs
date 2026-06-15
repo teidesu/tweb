@@ -46,8 +46,9 @@ async function run(cmd, args) {
   if (code) throw new Error(`${cmd} exited with ${code}`);
 }
 
-// vite keeps running; don't await it
-spawnChild('pnpm', ['dev']);
+spawnChild('pnpm', ['dev'], {
+  env: {...process.env, TWEB_ELECTRON: '1'}
+});
 await waitForServer(URL);
 
 // compile main + preload

@@ -22,8 +22,8 @@
     "electron:dev": "node ./scripts/electron-dev.mjs",
     "electron:build-main": "tsc -p tsconfig.electron.json",
     "electron:start": "pnpm run electron:build-main && electron .",
-    "electron:pack": "pnpm run build && pnpm run electron:build-main && electron-builder --dir",
-    "electron:dist": "pnpm run build && pnpm run electron:build-main && electron-builder"
+    "electron:pack": "TWEB_ELECTRON=1 vite build && pnpm run electron:build-main && electron-builder --dir",
+    "electron:dist": "TWEB_ELECTRON=1 vite build && pnpm run electron:build-main && electron-builder"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
