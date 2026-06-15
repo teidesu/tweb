@@ -17,16 +17,21 @@ import { Message, Poll, Chat as MTChat, MessageMedia, InputStickerSet, StickerSe
 import assumeType from '@helpers/assumeType';
 import showSponsoredPopup from '@components/popups/sponsored';
 import ListenerSetter from '@helpers/listenerSetter';
-import { getMiddleware } from '@helpers/middleware';
+import { getMiddleware, MiddlewareHelper } from '@helpers/middleware';
 import PeerTitle from '@components/peerTitle';
 import StackedAvatars from '@components/stackedAvatars';
 import { IS_APPLE, IS_MOBILE } from '@environment/userAgent';
 import PopupReactedList from '@components/popups/reactedList';
+import attachFloatingButtonMenu from '@components/floatingButtonMenu';
+import ReactedListSubmenu from '@components/chat/reactedListSubmenu';
+import reactedListSubmenuStyles from '@components/chat/reactedListSubmenu.module.scss';
+import pause from '@helpers/schedulers/pause';
+import { createRoot } from 'solid-js';
 import { ChatReactionsMenu, REACTION_CONTAINER_SIZE } from '@components/chat/reactionsMenu';
 import getPeerId from '@appManagers/utils/peers/getPeerId';
 import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
 import { AppManagers } from '@lib/managers';
-import positionMenu, { MenuPositionPadding } from '@helpers/positionMenu';
+import positionMenu, { MenuPositionPadding, positionFloatingMenu } from '@helpers/positionMenu';
 import contextMenuController from '@helpers/contextMenuController';
 import { attachContextMenuListener } from '@helpers/dom/attachContextMenuListener';
 import filterAsync from '@helpers/array/filterAsync';
@@ -356,6 +361,22 @@ export default class ChatContextMenu {
     const pollOptionElement = (e.target as HTMLElement).closest('[data-poll-option-idx]');
     if (pollOptionElement) {
       pollOptionIdx = +(pollOptionElement as HTMLElement).dataset.pollOptionIdx!;
+    }
+
+    const reactionElement = (e.target as HTMLElement).closest('.reaction') as ReactionElement | null;
+    if (
+      reactionElement &&
+      !reactionElement.classList.contains('is-paid') &&
+      !reactionElement.classList.contains('reaction-tag')
+    ) {
+      const peerId = bubble!.dataset.peerId!.toPeerId();
+      const message = (bubble! as any).message || this.chat.getMessageByPeer(peerId, mid);
+      const reactions = (message as Message.message)?.reactions;
+      const canSeeList = reactions && (!!reactions.pFlags.can_see_list || peerId.isUser());
+      if (canSeeList && reactions.recent_reactions?.length && reactionElement.reactionCount?.count) {
+        this.openReactionReactorsMenu(reactionElement, bubble!, mid, reactionElement.reactionCount.reaction);
+        return;
+      }
     }
 
     const prepareForMessage = async() => {
@@ -1139,6 +1160,91 @@ export default class ChatContextMenu {
     }];
   }
 
+  private async openReactionReactorsMenu(triggerElement: HTMLElement, bubble: HTMLElement, mid: number, reaction: Reaction) {
+    const peerId = bubble.dataset.peerId!.toPeerId();
+    const message = ((bubble as any).message || this.chat.getMessageByPeer(peerId, mid)) as Message.message;
+
+    const middlewareHelper = getMiddleware();
+    const middleware = middlewareHelper.get();
+
+    const result = await this.managers.appMessagesManager.getMessageReactionsListAndReadParticipants(message, undefined, reaction);
+    if (!middleware() || !result.combined.length) {
+      middlewareHelper.destroy();
+      return;
+    }
+
+    let dispose: () => void;
+    const element = createRoot((d) => {
+      dispose = d;
+      return ReactedListSubmenu({
+        entries: result.combined,
+        middleware,
+        onSelect: (peerId) => {
+          contextMenuController.close();
+          this.chat.appImManager.setInnerPeer({ peerId });
+        },
+        class: 'contextmenu',
+      }) as HTMLElement;
+    });
+
+    document.body.append(element);
+
+    // bottom-right of the reaction, flipping to top-right when there's no room below
+    positionFloatingMenu(triggerElement.getBoundingClientRect(), element, 'bottom-start', [0, 4]);
+
+    contextMenuController.openBtnMenu(element, () => {
+      middlewareHelper.destroy();
+      setTimeout(() => {
+        dispose?.();
+        element.remove();
+      }, 300);
+    });
+  }
+
+  private attachReactedListSubmenu(element: HTMLElement, combined: { peerId: PeerId, date?: number, reaction?: Reaction }[]) {
+    const MAX_ROWS = 6;
+    let isDisabled = false;
+    let submenuMiddleware: MiddlewareHelper;
+
+    element.classList.add(reactedListSubmenuStyles.trigger);
+    element.append(Icon('arrowhead', reactedListSubmenuStyles.arrow));
+
+    attachFloatingButtonMenu({
+      element,
+      direction: 'right-start',
+      offset: [-5, -5],
+      level: 2,
+      triggerEvent: 'mouseenter',
+      canOpen: () => !isDisabled && this.canOpenReactedList === true,
+      createMenu: () => {
+        submenuMiddleware?.destroy();
+        submenuMiddleware = getMiddleware();
+        const middleware = submenuMiddleware.get();
+
+        return createRoot((dispose) => {
+          middleware.onDestroy(dispose);
+
+          return ReactedListSubmenu({
+            entries: combined.slice(0, MAX_ROWS),
+            middleware,
+            onSelect: (peerId) => {
+              contextMenuController.close();
+              this.chat.appImManager.setInnerPeer({ peerId });
+            },
+            class: 'btn-menu-submenu',
+          }) as HTMLElement;
+        });
+      },
+      onClose: async() => {
+        submenuMiddleware?.destroy();
+        // Prevents hover from triggering when the menu is closing
+        isDisabled = true;
+        await pause(200);
+        isDisabled = false;
+      },
+    });
+  }
+
   private createChecklistItemSubmenu = async({ middleware }: CreateSubmenuArgs) => {
     const { item, completion } = this.checklistItem!;
     const message = this.message as Message.message & {media: MessageMedia.messageMediaToDo};
@@ -1464,6 +1570,8 @@ export default class ChatContextMenu {
           // if(isViewingReactions) {
           this.canOpenReactedList = true;
           // }
+
+          this.attachReactedListSubmenu(viewsButton.element!, reactions);
         }
       });
     }

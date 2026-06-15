@@ -19,6 +19,37 @@ import Icon from '@components/icon';
 
 const size = 24;
 const _mediaSize = makeMediaSize(size, size);
+
+export async function wrapReactionIcon({
+  reaction,
+  container,
+  middleware,
+  mediaSize = _mediaSize,
+}: {
+  reaction: Reaction,
+  container: HTMLElement,
+  middleware: Middleware,
+  mediaSize?: MediaSize
+}) {
+  if (reaction._ === 'reactionEmoji') {
+    const availableReaction = await rootScope.managers.appReactionsManager.getReaction(reaction.emoticon);
+
+    wrapSticker({
+      doc: availableReaction!.static_icon,
+      div: container,
+      width: mediaSize.width,
+      height: mediaSize.height,
+      middleware,
+    });
+  } else if (reaction._ === 'reactionCustomEmoji') {
+    container.append(wrapCustomEmoji({
+      docIds: [reaction.document_id],
+      customEmojiSize: mediaSize,
+      middleware,
+    }));
+  }
+}
+
 export async function processDialogElementForReaction({
   peerId,
   dialogElement,
@@ -41,23 +72,7 @@ export async function processDialogElementForReaction({
     const stickerContainer = document.createElement('div');
     stickerContainer.classList.add('reacted-list-reaction-icon');
 
-    if (reaction._ === 'reactionEmoji') {
-      const availableReaction = await rootScope.managers.appReactionsManager.getReaction(reaction.emoticon);
-
-      wrapSticker({
-        doc: availableReaction!.static_icon,
-        div: stickerContainer,
-        width: 24,
-        height: 24,
-        middleware,
-      });
-    } else if (reaction._ === 'reactionCustomEmoji') {
-      stickerContainer.append(wrapCustomEmoji({
-        docIds: [reaction.document_id],
-        customEmojiSize: mediaSize,
-        middleware,
-      }));
-    }
+    await wrapReactionIcon({ reaction, container: stickerContainer, middleware, mediaSize });
 
     dom.listEl.append(stickerContainer);
   }

@@ -35,6 +35,7 @@
     flex: 1 0 auto;
     justify-content: space-evenly;
     --margin-vertical: .5rem;
+    padding: 0 0.75rem;
 
     &.is-chosen {
       &.forwards {

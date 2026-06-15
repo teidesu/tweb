@@ -49,6 +49,31 @@ function canFitSide(
   }
 }
 
+// Flip start<->end along the cross axis when the requested alignment overflows the viewport.
+// Clamping then keeps the (possibly oversized) menu on-screen.
+function resolveAlignment(
+  alignment: FloatingMenuAlignment,
+  crossStart: number,
+  crossEnd: number,
+  menuCrossSize: number,
+  windowCrossSize: number,
+  crossOffset: number
+): FloatingMenuAlignment {
+  if (alignment === 'center') return alignment;
+
+  const margin = DEFAULT_MENU_WINDOW_MARGIN;
+
+  if (alignment === 'start') {
+    const startPos = crossStart + crossOffset;
+    if (startPos + menuCrossSize + margin > windowCrossSize) return 'end';
+  } else {
+    const endPos = crossEnd - menuCrossSize - crossOffset;
+    if (endPos < margin) return 'start';
+  }
+
+  return alignment;
+}
+
 /**
  * Positions a floating menu next to a trigger element.
  * - `side` is the side of the trigger the menu opens on.
@@ -81,6 +106,14 @@ export function positionFloatingMenu(
   const margin = DEFAULT_MENU_WINDOW_MARGIN;
   const menuW = menu.clientWidth;
   const menuH = menu.clientHeight;
+  const resolvedAlignment = resolveAlignment(
+    alignment,
+    isHorizontalSide ? triggerBcr.top : triggerBcr.left,
+    isHorizontalSide ? triggerBcr.bottom : triggerBcr.right,
+    isHorizontalSide ? menuH : menuW,
+    isHorizontalSide ? window.innerHeight : window.innerWidth,
+    crossOffset
+  );
 
   // Main-axis position.
   let left: number;
@@ -95,9 +128,9 @@ export function positionFloatingMenu(
     left = clamp(left, margin, window.innerWidth - menuW - margin);
 
     // Cross axis: vertical.
-    if (alignment === 'start') {
+    if (resolvedAlignment === 'start') {
       top = triggerBcr.top + crossOffset;
-    } else if (alignment === 'center') {
+    } else if (resolvedAlignment === 'center') {
       top = triggerBcr.top + triggerBcr.height / 2 - menuH / 2 + crossOffset;
     } else {
       top = triggerBcr.bottom - menuH - crossOffset;
@@ -112,9 +145,9 @@ export function positionFloatingMenu(
     top = clamp(top, margin, window.innerHeight - menuH - margin);
 
     // Cross axis: horizontal.
-    if (alignment === 'start') {
+    if (resolvedAlignment === 'start') {
       left = triggerBcr.left + crossOffset;
-    } else if (alignment === 'center') {
+    } else if (resolvedAlignment === 'center') {
       left = triggerBcr.left + triggerBcr.width / 2 - menuW / 2 + crossOffset;
     } else {
       left = triggerBcr.right - menuW - crossOffset;
@@ -125,7 +158,7 @@ export function positionFloatingMenu(
   // Transform origin: corner/edge closest to the trigger.
   let originX: string;
   let originY: string;
-  const alignmentToPercent = alignment === 'start' ? '0' : alignment === 'center' ? '50%' : '100%';
+  const alignmentToPercent = resolvedAlignment === 'start' ? '0' : resolvedAlignment === 'center' ? '50%' : '100%';
 
   if (side === 'right' || side === 'left') {
     originX = side === 'right' ? '0' : '100%';
@@ -139,7 +172,7 @@ export function positionFloatingMenu(
   menu.style.top = top + 'px';
   menu.style.transformOrigin = `${originX} ${originY}`;
 
-  return `${side}-${alignment}`;
+  return `${side}-${resolvedAlignment}`;
 }
 
 export function getMenuTopPositionForStartDirection(triggerBcr: DOMRect, menu: HTMLElement, offset: [number, number]) {
