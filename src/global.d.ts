@@ -11,6 +11,7 @@ import type { CancellablePromise } from '@helpers/cancellablePromise';
 import type Languages from '@lib/tinyld/languages';
 import type { ValueOrGetter } from '@helpers/solid/readValue';
 import type { MTAppConfig as AppConfig } from '@/appConfig';
+import type { ElectronAPI } from '@/electron/preload';
 
 declare global {
   interface AddEventListenerOptions extends EventListenerOptions {
@@ -196,6 +197,7 @@ declare global {
   } | undefined;
 
   declare const __IS_ELECTRON_BUILD__: boolean;
+  declare const electronAPI: ElectronAPI | undefined;
 
   type DOMRectMinified = {top: number, right: number, bottom: number, left: number};
   type DOMRectEditable = DOMRectMinified & {width: number, height: number};

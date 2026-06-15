@@ -123,7 +123,6 @@ import wrapPeerTitle from '@components/wrappers/peerTitle';
 import getPeerActiveUsernames from '@appManagers/utils/peers/getPeerActiveUsernames';
 import SwipeHandler from '@components/swipeHandler';
 import ReplyGesture from './replyGesture';
-import { electronAPI, IS_ELECTRON } from '@lib/electron';
 import getSelectedText from '@helpers/dom/getSelectedText';
 import { createStoriesViewerWithPeer } from '@components/stories/viewer';
 import { render } from 'solid-js/web';
@@ -1517,7 +1516,7 @@ export default class ChatBubbles {
     // trackpad swipe-to-reply: macOS (NSEvent monitor + haptics) and Linux
     // (Chromium input-event fling phases). Windows latches momentum with no
     // finger-lift signal, so it's excluded.
-    if (IS_ELECTRON && (electronAPI!.platform === 'darwin' || electronAPI!.platform === 'linux')) {
+    if (__IS_ELECTRON_BUILD__ && (electronAPI!.platform === 'darwin' || electronAPI!.platform === 'linux')) {
       this.getReplyGesture().attachTrackpad(container, verifyReplyGestureTarget);
     }
   }

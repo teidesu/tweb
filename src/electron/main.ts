@@ -7,10 +7,12 @@ import { createWindowStateManager } from './windowState';
 import { createTray } from './tray';
 import { registerDeepLinks, flushPendingDeepLinks } from './deepLink';
 import { registerWindowContextIpc, setWindowContext } from './windowContext';
+import { registerDeviceInfoIpc, getDeviceInfo } from './deviceModel';
 import { nativeAddon } from './native'
 
 registerAppSchemeAsPrivileged();
 registerWindowContextIpc();
+registerDeviceInfoIpc();
 
 let mainWindow: BrowserWindow | null = null;
 let isQuitting = false;
@@ -47,6 +49,7 @@ const chatWindowOptions = (): BrowserWindowConstructorOptions => ({
     contextIsolation: true,
     nodeIntegration: false,
     sandbox: false,
+    scrollBounce: true,
     // eagerly persist v8 bytecode so additional windows reuse it (shared session cache)
     v8CacheOptions: 'bypassHeatCheck',
   },
@@ -109,6 +112,7 @@ if (!app.requestSingleInstanceLock()) {
   app.whenReady().then(() => {
     if (!IS_DEV) handleAppScheme();
     setupPermissions();
+    getDeviceInfo(); // warm the async cache so the renderer's invoke resolves fast
     nativeAddon?.startScrollMonitor((phase) => {
       for (const win of BrowserWindow.getAllWindows()) win.webContents.send('swipe-gesture', phase);
     });
@@ -169,6 +173,7 @@ function createWindow() {
       nodeIntegration: false,
       sandbox: false,
       spellcheck: true,
+      scrollBounce: true,
       v8CacheOptions: 'bypassHeatCheck',
     },
   });

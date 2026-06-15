@@ -32,6 +32,7 @@ export function registerAppSchemeAsPrivileged() {
     privileges: {
       standard: true,
       secure: true,
+      allowServiceWorkers: true,
       supportFetchAPI: true,
       corsEnabled: true,
       stream: true,

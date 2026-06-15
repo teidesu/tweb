@@ -1,5 +1,5 @@
 {
-  "name": "tweb",
+  "name": "inutweb",
   "version": "1.0.0",
   "license": "GPL-3.0-only",
   "main": "dist-electron/main.js",
@@ -24,7 +24,7 @@
     "electron:build-native": "node ./scripts/build-native.mjs",
     "electron:start": "pnpm run electron:build-main && pnpm run electron:build-native && electron .",
     "electron:pack": "TWEB_ELECTRON=1 vite build && pnpm run electron:build-main && pnpm run electron:build-native && electron-builder --dir",
-    "electron:dist": "TWEB_ELECTRON=1 vite build && pnpm run electron:build-main && pnpm run electron:build-native && electron-builder"
+    "electron:dist": "TWEB_ELECTRON=1 vite build && pnpm run electron:build-main && pnpm run electron:build-native && electron-builder --publish never"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",

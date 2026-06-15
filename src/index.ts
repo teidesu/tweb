@@ -38,6 +38,7 @@ import { fillLocalizedDates } from '@helpers/date';
 import { createEffect } from 'solid-js';
 import { IS_OVERLAY_SCROLL_SUPPORTED, USE_CUSTOM_SCROLL, USE_NATIVE_SCROLL } from '@environment/overlayScrollSupport';
 import IMAGE_MIME_TYPES_SUPPORTED, { IMAGE_MIME_TYPES_SUPPORTED_PROMISE } from '@environment/imageMimeTypesSupport';
+import { ENVIRONMENT_READY } from '@environment/index';
 import MEDIA_MIME_TYPES_SUPPORTED from '@environment/mediaMimeTypesSupport';
 import { doubleRaf } from '@helpers/schedulers';
 import { getCurrentAccount } from '@lib/accounts/getCurrentAccount';
@@ -73,7 +74,7 @@ import { initElectronIntegration } from '@lib/electron';
 // }
 
 
-IMAGE_MIME_TYPES_SUPPORTED_PROMISE.then((mimeTypes) => {
+Promise.all([IMAGE_MIME_TYPES_SUPPORTED_PROMISE, ENVIRONMENT_READY]).then(([mimeTypes]) => {
   mimeTypes.forEach((mimeType) => {
     IMAGE_MIME_TYPES_SUPPORTED.add(mimeType);
     MEDIA_MIME_TYPES_SUPPORTED.add(mimeType);

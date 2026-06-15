@@ -41,7 +41,14 @@ const ENVIRONMENT = {
   IMAGE_MIME_TYPES_SUPPORTED,
   MEDIA_MIME_TYPES_SUPPORTED,
   VIDEO_MIME_TYPES_SUPPORTED,
+  DEVICE_MODEL: undefined as string | undefined,
+  SYSTEM_VERSION: undefined as string | undefined,
   ...userAgent,
 };
+
+export const ENVIRONMENT_READY = __IS_ELECTRON_BUILD__ ? electronAPI!.getDeviceInfo().then((info) => {
+  ENVIRONMENT.DEVICE_MODEL = info.deviceModel;
+  ENVIRONMENT.SYSTEM_VERSION = info.systemVersion;
+}) : Promise.resolve()
 
 export default ENVIRONMENT;

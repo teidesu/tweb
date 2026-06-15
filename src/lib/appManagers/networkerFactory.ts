@@ -42,8 +42,8 @@ export class NetworkerFactory extends AppManager {
       timeManager: this.timeManager,
       getInitConnectionParams: () => ({
         id: App.id,
-        deviceModel: getEnvironment().USER_AGENT || 'Unknown UserAgent',
-        systemVersion: navigator.platform || 'Unknown Platform',
+        deviceModel: getEnvironment().DEVICE_MODEL || getEnvironment().USER_AGENT || 'Unknown UserAgent',
+        systemVersion: getEnvironment().SYSTEM_VERSION || navigator.platform || 'Unknown Platform',
         version: 'web ' + App.version,
         systemLangCode: navigator.language || 'en',
         langPack: App.langPack,

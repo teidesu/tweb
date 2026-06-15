@@ -18,7 +18,6 @@ import PopupElement from '@components/popups';
 import showChatPreviewPopup, { chatPreviewAnchorFromDialogRow } from '@components/popups/chatPreview';
 import cancelEvent from '@helpers/dom/cancelEvent';
 import IS_SHARED_WORKER_SUPPORTED from '@environment/sharedWorkerSupport';
-import { IS_ELECTRON } from '@lib/electron';
 import appImManager from '@lib/appImManager';
 import { isDialog, isForumTopic, isMonoforumDialog, isSavedDialog } from '@appManagers/utils/dialogs/isDialog';
 import createSubmenuTrigger, { CreateSubmenuArgs } from '@components/createSubmenuTrigger';
@@ -99,7 +98,7 @@ export default class DialogsContextMenu {
     const [appSettings] = useAppSettings();
     this.buttons ??= [{
       icon: 'newtab',
-      text: IS_ELECTRON ? 'OpenInNewWindow' : 'OpenInNewTab',
+      text: __IS_ELECTRON_BUILD__ ? 'OpenInNewWindow' : 'OpenInNewTab',
       onClick: (e) => {
         appDialogsManager.openDialogInNewTab(this.li);
         cancelEvent(e);

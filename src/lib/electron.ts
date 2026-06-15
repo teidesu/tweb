@@ -1,14 +1,4 @@
-import type { ElectronAPI } from '@/electron/preload';
 import type { ChatType } from '@components/chat/chatType';
-
-declare global {
-  interface Window {
-    electronAPI?: ElectronAPI;
-  }
-}
-
-export const electronAPI = __IS_ELECTRON_BUILD__ ? window.electronAPI : undefined;
-export const IS_ELECTRON = __IS_ELECTRON_BUILD__ && !!electronAPI;
 
 // Standalone single-chat window ("Open in new window")
 export const IS_ELECTRON_CHAT = __IS_ELECTRON_BUILD__ && !!electronAPI?.isChat;

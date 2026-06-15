@@ -6,7 +6,6 @@ import { cancelContextMenuOpening } from '@helpers/dom/attachContextMenuListener
 import cancelEvent from '@helpers/dom/cancelEvent';
 import ListenerSetter from '@helpers/listenerSetter';
 import { fastRaf } from '@helpers/schedulers';
-import { electronAPI } from '@lib/electron';
 import { isTruthy } from '../../helpers/isTruthy';
 
 const CLASS_NAME = 'is-gesturing-reply';

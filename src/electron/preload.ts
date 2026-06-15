@@ -23,6 +23,12 @@ const context: WindowContext = ipcRenderer.sendSync('get-window-context') ?? {};
 const api = {
   isChat: !!context.isChat,
   platform: process.platform,
+  // machine-derived device model + system version (tdesktop-style), computed
+  // async in the main process; fed into MTProto initConnection so active
+  // sessions read nicely. resolved before ENVIRONMENT is shipped to the worker.
+  getDeviceInfo(): Promise<{ deviceModel: string, systemVersion: string }> {
+    return ipcRenderer.invoke('get-device-info');
+  },
   // subscribe to deep links (tg://...) forwarded from the main process.
   // returns an unsubscribe fn; signals readiness so buffered links flush.
   onDeepLink(callback: (url: string) => void) {
