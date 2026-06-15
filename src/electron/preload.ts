@@ -21,7 +21,6 @@ export interface OpenPeerPayload {
 const context: WindowContext = ipcRenderer.sendSync('get-window-context') ?? {};
 
 const api = {
-  isElectron: true,
   isChat: !!context.isChat,
   platform: process.platform,
   // subscribe to deep links (tg://...) forwarded from the main process.
@@ -42,6 +41,18 @@ const api = {
     const listener = (_event: unknown, payload: OpenPeerPayload) => callback(payload);
     ipcRenderer.on('open-peer', listener);
     return () => ipcRenderer.off('open-peer', listener);
+  },
+  // macOS trackpad two-finger swipe phase (gestureScrollBegin/End), forwarded
+  // from the main process to bracket the wheel deltas of a single gesture —
+  // drives swipe-to-reply. returns an unsubscribe fn.
+  onSwipeGesture(callback: (phase: 'begin' | 'end') => void) {
+    const listener = (_event: unknown, phase: 'begin' | 'end') => callback(phase);
+    ipcRenderer.on('swipe-gesture', listener);
+    return () => ipcRenderer.off('swipe-gesture', listener);
+  },
+  // subtle trackpad haptic, fired when the swipe-to-reply gesture arms.
+  performHaptic() {
+    ipcRenderer.send('haptic');
   },
 };
 

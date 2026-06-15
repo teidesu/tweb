@@ -158,6 +158,10 @@
       transition: transform var(--transition-standard-out);
     }
 
+    .bubble-content-wrapper {
+      position: relative;
+    }
+
     .bubble-gesture-reply-icon {
       width: var(--message-beside-button-size);
       height: var(--message-beside-button-size);

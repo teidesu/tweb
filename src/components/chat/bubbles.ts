@@ -11,7 +11,6 @@ import confirmationPopup from '@components/confirmationPopup';
 import showForwardPopup from '@components/popups/forward';
 import showStickersPopup from '@components/popups/stickers';
 import ProgressivePreloader from '@components/preloader';
-import { createProgressRing, ProgressRingHandle } from '@components/progressRing';
 import Scrollable, { SliceSides } from '@components/scrollable';
 import StickyIntersector from '@components/stickyIntersector';
 import animationIntersector from '@components/animationIntersector';
@@ -87,7 +86,6 @@ import { AppManagers } from '@lib/managers';
 import idleController from '@helpers/idleController';
 import overlayCounter from '@helpers/overlayCounter';
 import ReadMetricsTracker from '@helpers/readMetricsTracker';
-import { cancelContextMenuOpening } from '@helpers/dom/attachContextMenuListener';
 import contextMenuController from '@helpers/contextMenuController';
 import { AckedResult } from '@lib/superMessagePort';
 import middlewarePromise from '@helpers/middlewarePromise';
@@ -124,6 +122,8 @@ import internalLinkProcessor from '@lib/internalLinkProcessor';
 import wrapPeerTitle from '@components/wrappers/peerTitle';
 import getPeerActiveUsernames from '@appManagers/utils/peers/getPeerActiveUsernames';
 import SwipeHandler from '@components/swipeHandler';
+import ReplyGesture from './replyGesture';
+import { electronAPI, IS_ELECTRON } from '@lib/electron';
 import getSelectedText from '@helpers/dom/getSelectedText';
 import { createStoriesViewerWithPeer } from '@components/stories/viewer';
 import { render } from 'solid-js/web';
@@ -632,7 +632,7 @@ export default class ChatBubbles {
 
   private updateLocalOnEdit: Map<HTMLElement, (message: Message.message) => void> = new Map();
   public replySwipeHandler: SwipeHandler;
-  private replySwipeRing: ProgressRingHandle;
+  private replyGesture: ReplyGesture;
 
   private remover: HTMLDivElement;
   public floatingSeparatorsContainer: HTMLDivElement;
@@ -1414,6 +1414,23 @@ export default class ChatBubbles {
     this.chat.contextMenu.attachTo(container);
     this.chat.selection!.attachListeners(container, new ListenerSetter());
 
+    const verifyReplyGestureTarget = async(eventTarget: EventTarget): Promise<HTMLElement | undefined>  => {
+      if (this.chat.type === ChatType.Pinned ||
+      this.chat.selection!.isSelecting ||
+      !(await this.chat.canSend())) {
+        return;
+      }
+
+      const target = findUpClassName(eventTarget, 'bubble');
+      if (!target ||
+      target.classList.contains('service') ||
+      target.classList.contains('is-sending')) {
+        return;
+      }
+
+      return target;
+    }
+
     if (!IS_MOBILE && !TEST_BUBBLES_DELETION) {
       // mousedown with detail === 2 instead of dblclick: dblclick fires only on the
       // second *release*, so the whole press duration reads as input lag
@@ -1483,131 +1500,35 @@ export default class ChatBubbles {
         }, 0);
       });
     } else if (IS_TOUCH_SUPPORTED) {
-      const className = 'is-gesturing-reply';
-      const MAX = 64;
-      const replyAfter = MAX * .75;
-      let shouldReply = false;
-      let target: HTMLElement;
-      let icon: HTMLElement;
-      let swipeAvatar: HTMLElement | undefined;
       this.replySwipeHandler = handleHorizontalSwipe({
         element: container,
         verifyTouchTarget: async(e) => {
-          if (this.chat.type === ChatType.Pinned ||
-            this.chat.selection!.isSelecting ||
-            !(await this.chat.canSend())) {
-            return false;
-          }
-
-          // cancelEvent(e);
-          target = findUpClassName(e.target, 'bubble');
-          if (!target ||
-            target.classList.contains('service') ||
-            target.classList.contains('is-sending')) {
-            return false;
-          }
-
-          if (target) {
-            try {
-              const avatar = target.parentElement!.querySelector('.bubbles-group-avatar') as HTMLElement
-              if (avatar) {
-                const visibleRect = getVisibleRect(avatar, target);
-                if (visibleRect) {
-                  swipeAvatar = avatar;
-                }
-              }
-            } catch (err) {}
-
-            [target, swipeAvatar].filter(isTruthy).forEach((element) => {
-              SetTransition({
-                element: element,
-                className,
-                forwards: true,
-                duration: 250,
-              });
-              void element.offsetLeft; // reflow
-            });
-
-            if (!icon) {
-              icon = Icon('reply_filled', 'bubble-gesture-reply-icon');
-              this.replySwipeRing = createProgressRing({
-                size: 38, // = --message-beside-button-size (2.375rem)
-                strokeWidth: 2,
-                stroke: 'white',
-                strokeOpacity: 1,
-                class: 'bubble-gesture-reply-ring',
-              });
-              icon.append(this.replySwipeRing.element);
-            } else {
-              icon.classList.remove('is-visible');
-              icon.style.opacity = '';
-              this.replySwipeRing.setProgress(0);
-            }
-
-            target/* .querySelector('.bubble-content') */.append(icon);
-          }
-
-          return !!target;
+          const target = await verifyReplyGestureTarget(e.target);
+          if (!target) return false;
+          this.getReplyGesture().start(target, 'touch');
+          return true;
         },
-        onSwipe: (xDiff) => {
-          shouldReply = xDiff >= replyAfter;
-          icon.classList.toggle('is-visible', shouldReply);
-
-          const progress = Math.min(1, Math.max(0, xDiff) / replyAfter);
-          icon.style.opacity = '' + progress;
-          this.replySwipeRing.setProgress(progress);
-
-          const x = -Math.max(0, Math.min(MAX, xDiff));
-          const transform = `translateX(${x}px)`;
-          target.style.transform = transform;
-          if (swipeAvatar) {
-            swipeAvatar.style.transform = transform;
-          }
-          cancelContextMenuOpening();
-        },
-        onReset: () => {
-          const _target = target;
-          const _swipeAvatar = swipeAvatar;
-          target = (swipeAvatar = undefined)!;
-
-          const onTransitionEnd = () => {
-            if (icon.parentElement === _target) {
-              icon.classList.remove('is-visible');
-              icon.remove();
-            }
-          };
-
-          [_target, _swipeAvatar].filter(isTruthy).forEach((element, idx) => {
-            SetTransition({
-              element: element,
-              className,
-              forwards: false,
-              duration: 250,
-              onTransitionEnd: idx === 0 ? onTransitionEnd : undefined,
-            });
-          });
-
-          fastRaf(() => {
-            _target.style.transform = '';
-            if (_swipeAvatar) {
-              _swipeAvatar.style.transform = '';
-            }
-
-            // fade out along with the bubble snap-back (transition is enabled
-            // by .animating.backwards on the bubble)
-            icon.style.opacity = '0';
-
-            if (shouldReply) {
-              const message = this.chat.getMessage(getBubbleFullMid(_target)!);
-              this.chat.input.initMessageReply(this.chat.input.getChatInputReplyToFromMessage(message!));
-              shouldReply = false;
-            }
-          });
-        },
+        onSwipe: (xDiff) => this.replyGesture.move(xDiff),
+        onReset: () => this.replyGesture.end(),
         listenerOptions: { capture: true },
       });
     }
+
+    // trackpad swipe-to-reply: macOS (NSEvent monitor + haptics) and Linux
+    // (Chromium input-event fling phases). Windows latches momentum with no
+    // finger-lift signal, so it's excluded.
+    if (IS_ELECTRON && (electronAPI!.platform === 'darwin' || electronAPI!.platform === 'linux')) {
+      this.getReplyGesture().attachTrackpad(container, verifyReplyGestureTarget);
+    }
   }
+
+  private getReplyGesture() {
+    return this.replyGesture ??= new ReplyGesture((target) => {
+      const message = this.chat.getMessage(getBubbleFullMid(target)!);
+      this.chat.input.initMessageReply(this.chat.input.getChatInputReplyToFromMessage(message!));
+    }, () => electronAPI?.performHaptic());
+  }
+
 
   public constructPeerHelpers() {
     // will call when message is sent (only 1)
@@ -4512,7 +4433,7 @@ export default class ChatBubbles {
 
     this.readMetricsTracker?.finalizeAll();
 
-    this.replySwipeRing?.destroy();
+    this.replyGesture?.destroy();
 
     this.destroyScrollable();
 

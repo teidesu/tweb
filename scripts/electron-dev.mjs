@@ -51,8 +51,9 @@ spawnChild('pnpm', ['dev'], {
 });
 await waitForServer(URL);
 
-// compile main + preload
+// compile main + preload, build the native addon (no-op off macOS)
 await run('pnpm', ['exec', 'tsc', '-p', 'tsconfig.electron.json']);
+await run('node', ['./scripts/build-native.mjs']);
 
 const electron = require('electron');
 const app = spawnChild(electron, ['.'], {env: {...process.env, ELECTRON_RENDERER_URL: URL}});

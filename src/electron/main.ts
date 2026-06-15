@@ -7,6 +7,7 @@ import { createWindowStateManager } from './windowState';
 import { createTray } from './tray';
 import { registerDeepLinks, flushPendingDeepLinks } from './deepLink';
 import { registerWindowContextIpc, setWindowContext } from './windowContext';
+import { nativeAddon } from './native'
 
 registerAppSchemeAsPrivileged();
 registerWindowContextIpc();
@@ -78,6 +79,17 @@ function applyNavigationGuards(contents: WebContents) {
 
   // we never embed remote content
   contents.on('will-attach-webview', (event) => event.preventDefault());
+
+  // on linux the scrolling events are synthesized by the browser itself (because uhh wayland)
+  // and it makes the browser properly send out gestureFlingStart when the "real" swipe ends and kinetic starts.
+  // gestureScrollBegin is still needed to trigger the gesture.
+  // gestureScrollEnd is still needed if the kinetic scroll was not triggered
+  if (process.platform === 'linux') {
+    contents.on('input-event', (_event, input) => {
+      if (input.type === 'gestureScrollBegin') contents.send('swipe-gesture', 'begin');
+      else if (input.type === 'gestureFlingStart' || input.type === 'gestureScrollEnd') contents.send('swipe-gesture', 'end');
+    });
+  }
 }
 
 // single-instance: a second launch focuses the existing window (and forwards
@@ -97,6 +109,9 @@ if (!app.requestSingleInstanceLock()) {
   app.whenReady().then(() => {
     if (!IS_DEV) handleAppScheme();
     setupPermissions();
+    nativeAddon?.startScrollMonitor((phase) => {
+      for (const win of BrowserWindow.getAllWindows()) win.webContents.send('swipe-gesture', phase);
+    });
     createWindow();
 
     app.on('activate', () => {
@@ -115,6 +130,7 @@ if (!app.requestSingleInstanceLock()) {
 
   app.on('before-quit', () => {
     isQuitting = true;
+    nativeAddon?.stopScrollMonitor();
   });
 }
 
@@ -186,10 +202,8 @@ function createWindow() {
   }
 }
 
-// renderer signals its deep-link listener is ready
 ipcMain.on('renderer-ready', () => flushPendingDeepLinks());
-
-// a standalone chat window asks to open a peer in the main window.
+if (nativeAddon) ipcMain.on('haptic', () => nativeAddon!.performHapticFeedback());
 ipcMain.on('open-in-main-window', (_event, payload) => {
   if (!mainWindow) return;
   if (mainWindow.isMinimized()) mainWindow.restore();

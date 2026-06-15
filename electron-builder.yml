@@ -11,6 +11,10 @@ files:
   - dist-electron/**/*
   - package.json
 
+# native addon must live outside the asar to be require()-able
+asarUnpack:
+  - dist-electron/native/**
+
 protocols:
   - name: Telegram
     schemes:
