@@ -7927,7 +7927,7 @@ export class AppMessagesManager extends AppManager {
     this.pushBatchUpdate('messages_reactions', this.batchUpdateReactions, key, () => copy(message.reactions)!);
 
     this.modifyMessage(message, (message) => {
-      message.reactions = reactions;
+      message.reactions = reactions && this.appReactionsManager.sortReactions(reactions);
     }, undefined, update.local);
   };
 

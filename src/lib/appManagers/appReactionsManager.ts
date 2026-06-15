@@ -681,24 +681,7 @@ export class AppReactionsManager extends AppManager {
       // insertInDescendSortedArray(reactions.results, reactionCount, 'count', reactionCountIdx);
     }
 
-    const availableReactions = this.availableReactions;
-    if (reactions && availableReactions?.length) {
-      const indexes: Map<DocId | string, number> = new Map();
-      availableReactions.forEach((availableReaction, idx) => {
-        indexes.set(availableReaction.reaction, idx);
-      });
-
-      reactions.results.sort((a, b) => {
-        const id1 = (a.reaction as Reaction.reactionCustomEmoji).document_id || (a.reaction as Reaction.reactionEmoji).emoticon;
-        const id2 = (b.reaction as Reaction.reactionCustomEmoji).document_id || (b.reaction as Reaction.reactionEmoji).emoticon;
-        return (b.count - a.count) || ((indexes.get(id1) ?? 0) - (indexes.get(id2) ?? 0));
-      });
-
-      const paidReactionIndex = reactions.results.findIndex((reactionCount) => reactionCount.reaction._ === 'reactionPaid');
-      if (paidReactionIndex !== -1) {
-        reactions.results.unshift(reactions.results.splice(paidReactionIndex, 1)[0]);
-      }
-    }
+    this.sortReactions(reactions);
 
     if (onlyReturn) {
       return reactions;
@@ -789,6 +772,34 @@ export class AppReactionsManager extends AppManager {
 
     this.sendReactionPromises.set(promiseKey, promise);
     return undefined as unknown as MessageReactions;
+  }
+
+  public sortReactions(reactions: MessageReactions) {
+    const availableReactions = this.availableReactions;
+    if (!reactions || !availableReactions?.length) {
+      return reactions;
+    }
+
+    const indexes: Map<DocId | string, number> = new Map();
+    availableReactions.forEach((availableReaction, idx) => {
+      indexes.set(availableReaction.reaction, idx);
+    });
+
+    reactions.results.sort((a, b) => {
+      const id1 = (a.reaction as Reaction.reactionCustomEmoji).document_id || (a.reaction as Reaction.reactionEmoji).emoticon;
+      const id2 = (b.reaction as Reaction.reactionCustomEmoji).document_id || (b.reaction as Reaction.reactionEmoji).emoticon;
+      // discount own vote so a reaction we just tapped doesn't jump ahead under the pointer (matches tdesktop)
+      const count1 = a.count - (a.chosen_order !== undefined ? 1 : 0);
+      const count2 = b.count - (b.chosen_order !== undefined ? 1 : 0);
+      return (count2 - count1) || ((indexes.get(id1) ?? 0) - (indexes.get(id2) ?? 0));
+    });
+
+    const paidReactionIndex = reactions.results.findIndex((reactionCount) => reactionCount.reaction._ === 'reactionPaid');
+    if (paidReactionIndex !== -1) {
+      reactions.results.unshift(reactions.results.splice(paidReactionIndex, 1)[0]);
+    }
+
+    return reactions;
   }
 
   public getRandomGenericAnimation() {
