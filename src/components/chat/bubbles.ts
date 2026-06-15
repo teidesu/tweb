@@ -5946,7 +5946,7 @@ export default class ChatBubbles {
       let icon: Icon;
       if (status === 'error') icon = 'sendingerror';
       else if (status === 'sending') icon = 'sending';
-      else if (status === 'sent') icon = 'check';
+      else if (status === 'sent') icon = 'check1';
       else icon = 'checks';
 
       const newIcon = Icon(icon, 'time-sending-status');

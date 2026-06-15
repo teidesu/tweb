@@ -21,7 +21,7 @@ export function getSendingStatus(message: Message.message | Message.messageServi
     );
 }
 
-type C = 'check' | 'checks' | 'sending' | 'sendingerror' | 'premium_lock';
+type C = 'check1' | 'checks' | 'sending' | 'sendingerror' | 'premium_lock';
 export function setSendingStatus(
   container: HTMLElement,
   message?: C | Message.message | Message.messageService,
@@ -36,7 +36,7 @@ export function setSendingStatus(
     } else if (message.pFlags.is_outgoing) {
       className = 'sending';
     } else if (message.pFlags.unread) {
-      className = 'check';
+      className = 'check1';
     } else {
       className = 'checks';
     }
