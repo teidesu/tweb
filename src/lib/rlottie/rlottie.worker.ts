@@ -228,7 +228,13 @@ rlottieMessagePort.addMultipleEventsListeners({
   },
 
   renderFrame: ({ reqId, frameNo, clamped }) => {
-    return items[reqId].render(frameNo, clamped) as any;
+    // item may already be gone if a destroy raced ahead of this in-flight frame
+    const item = items[reqId];
+    if (!item) {
+      return;
+    }
+
+    return item.render(frameNo, clamped) as any;
   },
 });
 

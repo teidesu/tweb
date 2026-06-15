@@ -517,11 +517,13 @@ export default class RLottiePlayer extends EventListenerBase<{
       }
 
       this.sendQuery('renderFrame', { frameNo }, this.clamped ? [this.clamped.buffer] : undefined)
-        .then(({ frame, frameNo }) => {
-          if (this.destroyed) {
+        .then((result) => {
+          // no result when the worker dropped the frame (item destroyed mid-flight)
+          if (this.destroyed || !result) {
             return;
           }
 
+          const { frame, frameNo } = result;
           if (this.clamped !== undefined && frame instanceof Uint8ClampedArray) {
             this.clamped = frame;
           }
