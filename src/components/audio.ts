@@ -110,7 +110,7 @@ function createWaveformBars(waveform: Uint8Array, duration: number) {
 
       const bar_value = Math.max(((maxValue * maxDelta) + ((normValue + 1) / 2)) / (normValue + 1), barHeightMin);
 
-      const h = `<rect class="audio-waveform-bar" x="${barX}" y="${barHeightMax - bar_value}" width="${barWidth}" height="${bar_value}" rx="1" ry="1"></rect>`;
+      const h = `<rect class="audio-waveform-bar" x="${barX}" y="${(barHeightMax - bar_value) / 2}" width="${barWidth}" height="${bar_value}" rx="1" ry="1"></rect>`;
       html += h;
 
       barX += barWidth + barMargin;
