@@ -310,7 +310,7 @@ export default function createChatPinnedMessage(
       return;
     }
 
-    const el = chat.bubbles.getBubbleByPoint('bottom');
+    const el = chat.bubbles?.getBubbleByPoint('bottom');
     if (!el) {
       debug && bound('no element');
       return;

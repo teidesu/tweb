@@ -455,7 +455,7 @@ export class AppProfileManager extends AppManager {
 
   public getChannelParticipants(options: GetChannelParticipantsOptions) {
     options = { ...defaultGetChannelParticipantsOptions, ...options };
-    const { id, filter, offset, limit } = options;
+    const { id, filter, offset = 0, limit = 200 } = options; // * defaults survive present-but-undefined keys
     if (!this.appChatsManager.hasRights(id, 'view_participants')) {
       throw makeError('CHAT_ADMIN_REQUIRED');
     }

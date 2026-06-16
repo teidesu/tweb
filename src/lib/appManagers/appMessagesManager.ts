@@ -3682,7 +3682,7 @@ export class AppMessagesManager extends AppManager {
           limit: useLimit,
           offset_date: (offsetBotforumTopic?.date || (offsetTopicId ? undefined : offsetDate))!,
           offset_id: offsetId,
-          offset_topic: offsetTopicId!,
+          offset_topic: offsetTopicId || 0,
           q: query,
         },
         options: requestOptions,
@@ -7050,8 +7050,8 @@ export class AppMessagesManager extends AppManager {
       for (const mid of slice) {
         const message = this.getMessageByPeer(peerId, mid);
         if (!message) {
-          this.log.error('no message from historyStorage?', peerId, historyStorage, slice, mid);
-          debugger;
+          // * body not loaded yet (e.g. dialog restored from cache before reloadConversation lands) —
+          // * can't position the joined-service message without its date; retried once the body arrives
           continue;
         }
 

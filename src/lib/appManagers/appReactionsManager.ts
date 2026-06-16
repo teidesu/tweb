@@ -867,6 +867,7 @@ export class AppReactionsManager extends AppManager {
 
     return this.availableEffects ??= this.apiManager.invokeApiSingleProcess({
       method: 'messages.getAvailableEffects',
+      params: { hash: 0 },
       processResult: (availableEffects) => {
         assumeType<MessagesAvailableEffects.messagesAvailableEffects>(availableEffects);
         availableEffects.documents.forEach((doc, idx, arr) => {
