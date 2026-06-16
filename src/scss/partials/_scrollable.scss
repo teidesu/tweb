@@ -1,5 +1,10 @@
 @use "../shared" as *;
 
+@keyframes scrollable-thumb-move {
+  from { transform: translateY(0); }
+  to { transform: translateY(var(--thumb-travel, 0px)); }
+}
+
 html.overlay-scroll {
   .scrollable::-webkit-scrollbar {
     width: 0;
@@ -166,6 +171,15 @@ html.custom-scroll {
 
     @include animation-level(2) {
       transition: opacity .1s ease-in-out;
+    }
+
+    &.has-scroll-timeline {
+      @supports (animation-timeline: scroll()) {
+        animation-name: scrollable-thumb-move;
+        animation-duration: auto;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+      }
     }
 
     &-container {

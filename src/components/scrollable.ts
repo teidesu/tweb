@@ -7,6 +7,7 @@ import cancelEvent from '@/helpers/dom/cancelEvent';
 import { IS_OVERLAY_SCROLL_SUPPORTED } from '@/environment/overlayScrollSupport';
 import liteMode from '@/helpers/liteMode';
 import { IS_MOBILE_SAFARI, IS_SAFARI } from '@/environment/userAgent';
+import IS_SCROLL_TIMELINE_SUPPORTED from '@/environment/scrollTimelineSupport';
 /*
 var el = $0;
 var height = 0;
@@ -51,6 +52,43 @@ const scrollsIntersector = new IntersectionObserver((entries) => {
 }); */
 
 const SCROLL_THROTTLE = /* IS_ANDROID ? 200 :  */24;
+
+let scrollTimelineId = 0;
+
+export type ScrollTimeline = ReturnType<typeof createScrollTimeline>;
+
+// the core helpers for the animation-timeline: scroll() driven thumb
+// (needed to move the rendering to the compositor thread so the thumb never lags)
+export function createScrollTimeline(scroller: HTMLElement, thumb: HTMLElement) {
+  if (!IS_SCROLL_TIMELINE_SUPPORTED) return undefined;
+
+  const name = `--scrollable-thumb-${scrollTimelineId++}`;
+  scroller.style.setProperty('scroll-timeline-name', name);
+  scroller.style.setProperty('scroll-timeline-axis', 'y');
+  thumb.style.setProperty('animation-timeline', name);
+  thumb.classList.add('has-scroll-timeline');
+
+  let scopedParent: HTMLElement | undefined;
+  return {
+    // The named timeline is in scope only for descendants of the scroller, but
+    // the thumb is a sibling's descendant — bridge it via timeline-scope on
+    // their mutual ancestor. Cheap-guarded to (re)parenting only.
+    syncScope(parent: HTMLElement) {
+      if (scopedParent === parent) return;
+      scopedParent = parent;
+
+      const names = parent.style.getPropertyValue('timeline-scope').split(',').map((s) => s.trim()).filter(Boolean);
+      if (!names.includes(name)) {
+        names.push(name);
+        parent.style.setProperty('timeline-scope', names.join(', '));
+      }
+    },
+    // travel = track height - thumb height; depends on size, not position
+    setTravel(maxValue: number) {
+      thumb.style.setProperty('--thumb-travel', maxValue + 'px');
+    },
+  };
+}
 
 // Aligns the thumb overlay to the scroller's padding box (not border box —
 // transparent border insets like the chat topbar/input reservation must keep
@@ -117,6 +155,7 @@ export class ScrollableBase {
 
   protected thumb: HTMLElement;
   protected thumbContainer: HTMLElement;
+  protected scrollTimeline?: ScrollTimeline;
   // Shortens the thumb track at the end edge (px). Needed when part of the
   // padding box is reserved by in-content spacers rather than borders (chat
   // input helper surplus) — the track must not extend behind the overlay.
@@ -259,38 +298,54 @@ export class ScrollableBase {
     return promise;
   }
 
+  protected get hasMeasureConsumers() {
+    return !!(this.onScrolledTop || this.onScrolledBottom || this.splitUp || this.onAdditionalScroll || this.thumb);
+  }
+
   public onScroll = () => {
-    // if(this.debug) {
-    // this.log('onScroll call', this.onScrollMeasure);
-    // }
-
-    // return;
-
     if (this.isHeavyAnimationInProgress) {
       this.cancelMeasure();
       this.needCheckAfterAnimation = true;
       return;
     }
 
-    // if(this.onScrollMeasure || ((this.scrollLocked || (!this.onScrolledTop && !this.onScrolledBottom)) && !this.splitUp && !this.onAdditionalScroll)) return;
-    if ((!this.onScrolledTop && !this.onScrolledBottom) && !this.splitUp && !this.onAdditionalScroll && !this.thumb) return;
+    if (!this.hasMeasureConsumers) return;
 
     // cache scroll position to avoid forced reflows if the layout is dirty in the throttled measure
     this.capturedScrollPosition = this.scrollPosition;
+    this.hasCapturedScrollPosition = true;
 
+    if (this.thumb && !this.scrollTimeline && !this.sizesDirty) {
+      this.updateThumb(this.capturedScrollPosition, false);
+    }
+
+    this.scheduleMeasure();
+  };
+
+  protected scheduleMeasure() {
     if (this.onScrollMeasure) return;
     this.onScrollMeasure = throttleMeasurement(() => {
       this.onScrollMeasure = 0;
 
-      if (this.sizesDirty) {
+      const sizesWereDirty = this.sizesDirty;
+      if (sizesWereDirty) {
         this.refreshMeasurements();
       }
+
+      if (!this.hasCapturedScrollPosition) {
+        this.capturedScrollPosition = this.scrollPosition;
+      }
+      this.hasCapturedScrollPosition = false;
 
       const scrollPosition = this.capturedScrollPosition;
       this.lastScrollDirection = this.lastScrollPosition === scrollPosition ? 0 : (this.lastScrollPosition < scrollPosition ? 1 : -1); // * 1 - bottom, -1 - top
       this.lastScrollPosition = scrollPosition;
 
-      this.updateThumb(scrollPosition, false);
+      // with a scroll timeline the thumb is compositor-positioned; its size/travel
+      // only change when sizes do, so skip the per-scroll restyle otherwise
+      if (!this.scrollTimeline || sizesWereDirty) {
+        this.updateThumb(scrollPosition, false);
+      }
 
       // lastScrollDirection check is useless here, every callback should decide on its own
       if (this.onAdditionalScroll/*  && this.lastScrollDirection !== 0 */) {
@@ -301,13 +356,14 @@ export class ScrollableBase {
         this.checkForTriggers();
       }
     });
-  };
+  }
 
   protected lastThumbGeometry = '';
   protected cachedScrollSize = -1;
   protected cachedClientSize = -1;
   protected sizesDirty = true;
   protected capturedScrollPosition = 0;
+  protected hasCapturedScrollPosition = false;
 
   protected refreshMeasurements() {
     // ! all layout reads are here and only run when something invalidated,
@@ -322,7 +378,19 @@ export class ScrollableBase {
 
   public invalidateMeasurements = () => {
     this.sizesDirty = true;
-    this.onScroll();
+
+    // don't measure mid heavy-animation, re-check once it ends
+    if (this.isHeavyAnimationInProgress) {
+      this.cancelMeasure();
+      this.needCheckAfterAnimation = true;
+      return;
+    }
+
+    if (!this.hasMeasureConsumers) return;
+
+    // NB: never read scrollTop here. This fires from the MutationObserver on every DOM change
+    // synchronous position read while layout is dirty forces a reflow per mutation
+    this.scheduleMeasure();
   };
 
   // The thumb overlays the scroller from outside, as a sibling: any descendant
@@ -344,6 +412,8 @@ export class ScrollableBase {
       // an attach/move means the container's offsets may have changed too
       this.sizesDirty = true;
     }
+
+    this.scrollTimeline?.syncScope(this.container.parentElement);
 
     return true;
   }
@@ -374,22 +444,29 @@ export class ScrollableBase {
 
     const scrollSize = this.cachedScrollSize;
     const clientSize = this.cachedClientSize;
-    // Safari reports out-of-bounds positions during rubber-band overscroll
-    scrollPosition = Math.max(0, Math.min(scrollPosition, scrollSize - clientSize));
     const trackSize = clientSize - (this.getThumbTrackInsetEnd?.() ?? 0);
     const divider = scrollSize / trackSize / 0.75;
     const thumbSize = Math.max(20, trackSize / divider);
-    const value = scrollPosition / (scrollSize - clientSize) * trackSize;
-    // const b = (scrollPosition + clientSize) / scrollSize;
-    const b = scrollPosition / (scrollSize - clientSize);
     const maxValue = trackSize - thumbSize;
-    if (clientSize < scrollSize) {
-      this.thumb.style.height = thumbSize + 'px';
-      // this.thumb.style.top = `${Math.min(maxValue, value - thumbSize * b)}px`;
-      this.thumb.style.transform = `translateY(${Math.min(maxValue, value - thumbSize * b)}px)`;
-    } else {
+
+    if (clientSize >= scrollSize) {
       this.thumb.style.height = '0px';
+      return;
     }
+
+    this.thumb.style.height = thumbSize + 'px';
+
+    if (this.scrollTimeline) {
+      // position is compositor-driven by the scroll timeline; only the travel
+      // distance needs syncing (it depends on track/thumb size, not position)
+      this.scrollTimeline.setTravel(maxValue);
+      return;
+    }
+
+    // Safari reports out-of-bounds positions during rubber-band overscroll
+    scrollPosition = Math.max(0, Math.min(scrollPosition, scrollSize - clientSize));
+    const progress = scrollPosition / (scrollSize - clientSize);
+    this.thumb.style.transform = `translateY(${progress * maxValue}px)`;
   }
 
   protected thumbTransitionCleanup?: () => void;
@@ -506,6 +583,7 @@ export class ScrollableBase {
     this.lastScrollPosition = value;
     // a pending measure must not consume a position captured before the jump
     this.capturedScrollPosition = value;
+    this.hasCapturedScrollPosition = true;
     this.ignoreNextScrollEvent();
 
     this.scrollPosition = value;
@@ -565,6 +643,8 @@ export default class Scrollable extends ScrollableBase {
       this.thumb.addEventListener('mousedown', this.onMouseDown);
       this.container.addEventListener('mouseenter', this.onContainerMouseEnter);
       this.ensureThumbAttached();
+
+      this.scrollTimeline = createScrollTimeline(this.container, this.thumb);
     }
 
     this.container.classList.add('scrollable-y');

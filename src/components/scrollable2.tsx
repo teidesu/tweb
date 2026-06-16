@@ -5,7 +5,7 @@ import { IS_MOBILE_SAFARI, IS_SAFARI } from '@/environment/userAgent';
 import cancelEvent from '@/helpers/dom/cancelEvent';
 import classNames from '@/helpers/string/classNames';
 import useHeavyAnimationCheck from '@/hooks/useHeavyAnimationCheck';
-import { syncThumbContainerGeometry } from '@/components/scrollable';
+import { createScrollTimeline, syncThumbContainerGeometry, type ScrollTimeline } from '@/components/scrollable';
 import { isTruthy } from '../helpers/isTruthy';
 
 const SCROLL_THROTTLE = /* IS_ANDROID ? 200 :  */24;
@@ -85,6 +85,7 @@ export default function Scrollable(props: {
   const [isScrolledToEnd, setIsScrolledToEnd] = createSignal(true);
 
   let onScrollMeasure = 0;
+  let scrollTimeline: ScrollTimeline;
 
   const removeHeavyAnimationListener = useHeavyAnimationCheck(() => {
     isHeavyAnimationInProgress = true;
@@ -127,7 +128,8 @@ export default function Scrollable(props: {
     onScrollMeasure = throttleMeasurement(() => {
       onScrollMeasure = 0;
 
-      if (sizesDirty) {
+      const sizesWereDirty = sizesDirty;
+      if (sizesWereDirty) {
         refreshMeasurements();
       }
 
@@ -135,7 +137,9 @@ export default function Scrollable(props: {
       lastScrollDirection = lastScrollPosition === _scrollPosition ? 0 : (lastScrollPosition < _scrollPosition ? 1 : -1); // * 1 - bottom, -1 - top
       lastScrollPosition = _scrollPosition;
 
-      updateThumb(_scrollPosition, false);
+      if (!scrollTimeline || sizesWereDirty) {
+        updateThumb(_scrollPosition, false);
+      }
 
       // lastScrollDirection check is useless here, every callback should decide on its own
       if (true/*  && lastScrollDirection !== 0 */) {
@@ -240,6 +244,8 @@ export default function Scrollable(props: {
       sizesDirty = true;
     }
 
+    scrollTimeline?.syncScope(ref.parentElement!);
+
     return true;
   };
 
@@ -261,21 +267,31 @@ export default function Scrollable(props: {
 
     const _scrollSize = cachedScrollSize;
     const _clientSize = cachedClientSize;
-    // Safari reports out-of-bounds positions during rubber-band overscroll
-    _scrollPosition = Math.max(0, Math.min(_scrollPosition, _scrollSize - _clientSize));
     const divider = _scrollSize / _clientSize / 0.75;
     const thumbSize = Math.max(20, _clientSize / divider);
-    const value = _scrollPosition / (_scrollSize - _clientSize) * _clientSize;
-    // const b = (scrollPosition + clientSize) / scrollSize;
-    const b = _scrollPosition / (_scrollSize - _clientSize);
+    // travel reduces from the legacy min(maxValue, value - thumbSize*b) to
+    // progress * maxValue (b ∈ [0,1]); the CSS keyframe maps scroll progress to
+    // exactly that, so timeline and JS paths render identically.
     const maxValue = _clientSize - thumbSize;
-    if (_clientSize < _scrollSize) {
-      thumbRef.style.height = thumbSize + 'px';
-      // this.thumb.style.top = `${Math.min(maxValue, value - thumbSize * b)}px`;
-      thumbRef.style.transform = `translateY(${Math.min(maxValue, value - thumbSize * b)}px)`;
-    } else {
+
+    if (_clientSize >= _scrollSize) {
       thumbRef.style.height = '0px';
+      return;
     }
+
+    thumbRef.style.height = thumbSize + 'px';
+
+    if (scrollTimeline) {
+      // position is compositor-driven by the scroll timeline; only the travel
+      // distance needs syncing (depends on track/thumb size, not position)
+      scrollTimeline.setTravel(maxValue);
+      return;
+    }
+
+    // Safari reports out-of-bounds positions during rubber-band overscroll
+    _scrollPosition = Math.max(0, Math.min(_scrollPosition, _scrollSize - _clientSize));
+    const progress = _scrollPosition / (_scrollSize - _clientSize);
+    thumbRef.style.transform = `translateY(${progress * maxValue}px)`;
   };
 
   const setScrollPositionSilently = (value: number) => {
@@ -418,6 +434,10 @@ export default function Scrollable(props: {
       ref={(_ref) => {
         ref = _ref;
         (props.ref as any)?.(_ref);
+
+        if (withThumb) {
+          scrollTimeline = createScrollTimeline(ref, thumbRef);
+        }
       }}
       class={classNames(
         'scrollable',
