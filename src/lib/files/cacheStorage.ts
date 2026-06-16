@@ -60,6 +60,13 @@ type MinimalBlockingIterateResponsesCallbackArgs = {
 
 export type CacheStorageDbName = keyof typeof cacheStorageDbConfig;
 
+// https://github.com/electron/electron/issues/35033
+// crutch because CacheStorage requires http schema and fails on our custom one
+const CACHE_KEY_BASE = (() => {
+  const proto = self.location?.protocol;
+  return proto === 'http:' || proto === 'https:' ? '/' : 'https://tweb.local/';
+})();
+
 export default class CacheStorageController implements FileStorage {
   private static STORAGES: CacheStorageController[] = [];
   private openDbPromise: Promise<Cache> | undefined;
@@ -150,7 +157,7 @@ export default class CacheStorageController implements FileStorage {
   }
 
   public delete(entryName: string) {
-    return this.timeoutOperation((cache) => cache.delete('/' + entryName));
+    return this.timeoutOperation((cache) => cache.delete(CACHE_KEY_BASE + entryName));
   }
 
   /**
@@ -195,14 +202,14 @@ export default class CacheStorageController implements FileStorage {
   }
 
   public async has(entryName: string) {
-    const response = await this.timeoutOperation((cache) => cache.match('/' + entryName));
+    const response = await this.timeoutOperation((cache) => cache.match(CACHE_KEY_BASE + entryName));
     return !!response;
   }
 
   public async get(entryName: string) {
     await this.waitToEnable();
 
-    const response = await this.timeoutOperation((cache) => cache.match('/' + entryName));
+    const response = await this.timeoutOperation((cache) => cache.match(CACHE_KEY_BASE + entryName));
     if (!response) return undefined;
 
     if (this.config?.encryptable && await DeferredIsUsingPasscode.isUsingPasscode()) {
@@ -245,7 +252,7 @@ export default class CacheStorageController implements FileStorage {
       );
     }
 
-    return this.timeoutOperation((cache) => cache.put('/' + entryName, result));
+    return this.timeoutOperation((cache) => cache.put(CACHE_KEY_BASE + entryName, result));
   }
 
   public getFile(fileName: string, method: 'blob' | 'json' | 'text' = 'blob'): Promise<any> {
