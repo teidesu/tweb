@@ -95,6 +95,7 @@ export default function wrapReply(options: WrapReplyOptions) {
         emojiSize: 16,
       }).then((canvas) => {
         if (options.middleware && !options.middleware()) return;
+        if (!canvas) return; // todo: its sometimes undefined. ideally we should fix types at the source
         canvas.classList.add('reply-background-canvas');
       });
     }

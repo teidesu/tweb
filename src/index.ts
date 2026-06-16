@@ -35,7 +35,7 @@ import DEBUG, { IS_BETA } from '@config/debug';
 import IS_INSTALL_PROMPT_SUPPORTED from '@environment/installPrompt';
 import cacheInstallPrompt from '@helpers/dom/installPrompt';
 import { fillLocalizedDates } from '@helpers/date';
-import { createEffect } from 'solid-js';
+import { createEffect, createRoot } from 'solid-js';
 import { IS_OVERLAY_SCROLL_SUPPORTED, USE_CUSTOM_SCROLL, USE_NATIVE_SCROLL } from '@environment/overlayScrollSupport';
 import IMAGE_MIME_TYPES_SUPPORTED, { IMAGE_MIME_TYPES_SUPPORTED_PROMISE } from '@environment/imageMimeTypesSupport';
 import { ENVIRONMENT_READY } from '@environment/index';
@@ -153,7 +153,7 @@ function setViewportHeightListeners() {
   }
 }
 
-function setSidebarLeftWidth() {
+const setSidebarLeftWidth = () => createRoot(() => {
   // updateColumnWidths owns the loaded preference and the CSS vars; we
   // mirror the EFFECTIVE collapsed state onto:
   //   • the SolidJS signal (consumed by pendingSuggestion etc.)
@@ -183,9 +183,9 @@ function setSidebarLeftWidth() {
     const el = document.getElementById('column-left');
     if (el) el.classList.toggle('is-collapsed', isSidebarCollapsed());
   });
-}
+});
 
-function setRootClasses() {
+const setRootClasses = () => createRoot(() => {
   const add: string[] = [];
 
   if (IS_EMOJI_SUPPORTED) {
@@ -272,7 +272,7 @@ function setRootClasses() {
   }
 
   document.documentElement.classList.add(...add);
-}
+});
 
 function onInstanceDeactivated(reason: InstanceDeactivateReason) {
   const onVersionClick = () => {
