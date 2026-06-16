@@ -23,6 +23,7 @@ import { IS_WEBM_SUPPORTED } from '@/environment/videoSupport';
 import { observeResize, unobserveResize } from '@/components/resizeObserver';
 import { PAID_REACTION_EMOJI_DOCID } from '@/lib/customEmoji/constants';
 import lottieLoader from '@/lib/rlottie/lottieLoader';
+import rlottieScheduler from '@/lib/rlottie/rlottieScheduler';
 import StickerType from '@/config/stickerType';
 import { Accessor, createMemo, createRoot, createSignal, Setter } from 'solid-js';
 import readValue from '@/helpers/solid/readValue';
@@ -972,7 +973,6 @@ const hasRasterThumbPlaceholder = (elements: CustomEmojiElements) => {
   return false;
 };
 
-let emojiRenderInterval: number | undefined;
 const emojiRenderers: Set<CustomEmojiRenderer> = new Set();
 const syncedPlayers: Map<string, SyncedPlayer> = new Map();
 const syncedPlayersFrames: Map<RLottiePlayer | HTMLVideoElement, CustomEmojiFrame> = new Map();
@@ -1012,21 +1012,24 @@ export const renderEmojis = (renderers = emojiRenderers) => {
 };
 const CUSTOM_EMOJI_FPS = 60;
 const CUSTOM_EMOJI_FRAME_INTERVAL = 1000 / CUSTOM_EMOJI_FPS;
-const setRenderInterval = () => {
-  if (emojiRenderInterval) {
+
+// Compositing rides the shared rlottie scheduler rAF (coalesced with player frame
+// advances), but is capped at 60fps so high-refresh displays don't re-blit
+// unchanged frames every vsync.
+let lastCompositeTime = 0;
+const compositeTick = (now: number) => {
+  if (now - lastCompositeTime < CUSTOM_EMOJI_FRAME_INTERVAL - 1) {
     return;
   }
-
-  emojiRenderInterval = window.setInterval(renderEmojis, CUSTOM_EMOJI_FRAME_INTERVAL);
+  lastCompositeTime = now;
+  renderEmojis();
+};
+const setRenderInterval = () => {
+  rlottieScheduler.addTickListener(compositeTick);
   renderEmojis();
 };
 const clearRenderInterval = () => {
-  if (!emojiRenderInterval) {
-    return;
-  }
-
-  clearInterval(emojiRenderInterval);
-  emojiRenderInterval = undefined;
+  rlottieScheduler.removeTickListener(compositeTick);
 };
 
 // JS-driven fade-in for DOM-rendered custom emojis (images and non-synced videos).

@@ -8,6 +8,7 @@ import EventListenerBase from '@/helpers/eventListenerBase';
 import mediaSizes from '@/helpers/mediaSizes';
 import clamp from '@/helpers/number/clamp';
 import rlottieMessagePort, { RLottieWorkerMethods } from '@/lib/rlottie/rlottieMessagePort';
+import rlottieScheduler from '@/lib/rlottie/rlottieScheduler';
 import IS_IMAGE_BITMAP_SUPPORTED from '@/environment/imageBitmapSupport';
 import framesCache, { FramesCache, FramesCacheItem } from '@/helpers/framesCache';
 import customProperties from '@/helpers/dom/customProperties';
@@ -95,8 +96,9 @@ export default class RLottiePlayer extends EventListenerBase<{
   public liteModeKey: LiteModeKey;
 
   private frInterval: number;
-  private frThen: number;
-  private rafId: number | undefined;
+  private nextFrameTime: number;
+  private pendingFrame: boolean;
+  private clearCacheAfterRender: boolean;
 
   // private caching = false;
   // private removed = false;
@@ -116,7 +118,6 @@ export default class RLottiePlayer extends EventListenerBase<{
   private playedTimes = 0;
 
   private currentMethod: RLottiePlayer['mainLoopForwards'] | RLottiePlayer['mainLoopBackwards'];
-  private frameListener: (currentFrame: number) => void;
   private skipFirstFrameRendering: boolean;
   private playToFrameOnFrameCallback: (frameNo: number) => void;
 
@@ -124,7 +125,6 @@ export default class RLottiePlayer extends EventListenerBase<{
   private renderedFirstFrame: boolean;
 
   private raw: boolean;
-  private clearCacheOnRafId: number | undefined;
 
   constructor({ el, options }: {
     el: RLottiePlayer['el'],
@@ -258,8 +258,8 @@ export default class RLottiePlayer extends EventListenerBase<{
   }
 
   public clearCacheWhenSafe() {
-    if (this.rafId) { // * fix early cache clearing
-      this.clearCacheOnRafId = this.rafId;
+    if (this.pendingFrame) { // * fix early cache clearing — defer until the in-flight frame draws
+      this.clearCacheAfterRender = true;
     } else {
       this.clearCache();
     }
@@ -305,19 +305,16 @@ export default class RLottiePlayer extends EventListenerBase<{
 
     this.paused = false;
     this.setMainLoop();
+    rlottieScheduler.add(this);
   }
 
-  public pause(clearPendingRAF = true) {
+  public pause() {
     if (this.paused) {
       return;
     }
 
     this.paused = true;
-    if (clearPendingRAF) {
-      clearTimeout(this.rafId);
-      this.rafId = undefined;
-    }
-    // window.cancelAnimationFrame(this.rafId);
+    rlottieScheduler.remove(this);
   }
 
   private resetCurrentFrame() {
@@ -473,35 +470,31 @@ export default class RLottiePlayer extends EventListenerBase<{
       }
     }
 
-    /* if(!this.listenerResults.hasOwnProperty('cached')) {
-      this.setListenerResult('enterFrame', frameNo);
-      if(frameNo === (this.frameCount - 1)) {
-        this.setListenerResult('cached');
-      }
+    // pacing is handled by the shared scheduler's per-frame tick gate, so just draw
+    this.renderFrame2(frame, frameNo);
 
+    if (this.clearCacheAfterRender) {
+      this.clearCacheAfterRender = false;
+      this.clearCache();
+    }
+  }
+
+  // driven by rlottieScheduler's shared rAF loop; advances at most one frame when due
+  public tick(now: number) {
+    // frameCount is unset until onLoad — guards play() called before the data loaded
+    if (this.paused || this.pendingFrame || !this.frameCount || now < this.nextFrameTime) {
       return;
-    } */
-
-    if (this.frInterval) {
-      const now = Date.now(), delta = now - this.frThen;
-
-      if (delta < 0) {
-        const timeout = this.frInterval > -delta ? -delta % this.frInterval : this.frInterval;
-        if (this.rafId) clearTimeout(this.rafId);
-        const rafId = this.rafId = window.setTimeout(() => {
-          this.renderFrame2(frame, frameNo);
-
-          if (this.clearCacheOnRafId === rafId) {
-            this.clearCacheOnRafId = undefined;
-            this.clearCache();
-          }
-        }, timeout);
-        // await new Promise((resolve) => setTimeout(resolve, -delta % this.frInterval));
-        return;
-      }
     }
 
-    this.renderFrame2(frame, frameNo);
+    this.nextFrameTime += this.frInterval;
+    if (this.nextFrameTime < now) { // fell behind (stall / slow worker) — resync, don't burst
+      this.nextFrameTime = now + this.frInterval;
+    }
+
+    const canContinue = this.currentMethod();
+    if (!canContinue && !this.loop && this.autoplay) {
+      this.autoplay = false;
+    }
   }
 
   public requestFrame(frameNo: number) {
@@ -516,8 +509,11 @@ export default class RLottiePlayer extends EventListenerBase<{
         this.clamped = new Uint8ClampedArray(this.width * this.height * 4);
       }
 
+      this.pendingFrame = true; // gate the scheduler tick until this round-trip resolves
       this.sendQuery('renderFrame', { frameNo }, this.clamped ? [this.clamped.buffer] : undefined)
         .then((result) => {
+          this.pendingFrame = false;
+
           // no result when the worker dropped the frame (item destroyed mid-flight)
           if (this.destroyed || !result) {
             return;
@@ -544,7 +540,7 @@ export default class RLottiePlayer extends EventListenerBase<{
     }
 
     if (!this.loop) {
-      this.pause(false);
+      this.pause();
       this.clearCacheWhenSafe();
       return false;
     }
@@ -583,33 +579,10 @@ export default class RLottiePlayer extends EventListenerBase<{
   }
 
   public setMainLoop() {
-    // window.cancelAnimationFrame(this.rafId);
-    clearTimeout(this.rafId);
-    this.rafId = undefined;
-
     this.frInterval = 1000 / this.fps / this.speed * this.skipDelta;
-    this.frThen = Date.now() - this.frInterval;
+    this.nextFrameTime = performance.now(); // advance on the next tick, then pace by frInterval
 
-    // console.trace('setMainLoop', this.frInterval, this.direction, this, JSON.stringify(this.listenerResults), this.listenerResults);
-
-    const method = (this.direction === 1 ? this.mainLoopForwards : this.mainLoopBackwards).bind(this);
-    this.currentMethod = method;
-    // this.frameListener && this.removeListener('enterFrame', this.frameListener);
-
-    // setTimeout(() => {
-    // this.addListener('enterFrame', this.frameListener);
-    // }, 0);
-
-    if (this.frameListener) {
-      const lastResult = this.listenerResults.enterFrame;
-      if (lastResult !== undefined) {
-        this.frameListener(this.curFrame);
-      }
-    }
-
-    // this.mainLoop(method);
-    // this.r(method);
-    // method();
+    this.currentMethod = (this.direction === 1 ? this.mainLoopForwards : this.mainLoopBackwards).bind(this);
   }
 
   public playPart(options: {
@@ -700,7 +673,6 @@ export default class RLottiePlayer extends EventListenerBase<{
     }
 
     this.frInterval = 1000 / this.fps / this.speed * this.skipDelta;
-    this.frThen = Date.now() - this.frInterval;
     // this.sendQuery('renderFrame', 0);
 
     // Кешировать сразу не получится, рендер стикера (тайгер) занимает 519мс,
@@ -733,32 +705,6 @@ export default class RLottiePlayer extends EventListenerBase<{
       if (!this.canvas[0].parentNode && this.el?.[0] && !this.overrideRender) {
         this.el.forEach((container, idx) => container.append(this.canvas[idx]));
       }
-
-      // console.log('enterFrame firstFrame');
-
-      // let lastTime = this.frThen;
-      this.frameListener = () => {
-        if (this.paused || !this.currentMethod) {
-          return;
-        }
-
-        const time = Date.now();
-        // console.log(`enterFrame handle${this.reqId}`, time, (time - lastTime), this.frInterval);
-        /* if(Math.round(time - lastTime + this.frInterval * 0.25) < Math.round(this.frInterval)) {
-          return;
-        } */
-
-        // lastTime = time;
-
-        this.frThen = time + this.frInterval;
-        const canContinue = this.currentMethod();
-        if (!canContinue && !this.loop && this.autoplay) {
-          this.autoplay = false;
-        }
-      };
-
-      this.addEventListener('enterFrame', this.frameListener);
-      // setInterval(this.frameListener, this.frInterval);
 
       // ! fix autoplaying since there will be no animationIntersector for it
       if (this.group === 'none' && this.autoplay) {

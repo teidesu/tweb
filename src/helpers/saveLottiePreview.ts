@@ -29,7 +29,55 @@ const createCanvas = () => {
   sharedContext = sharedCanvas.getContext('2d')!;
 };
 
-export async function saveLottiePreview(doc: MyDocument, canvas: HTMLCanvasElement, toneIndex: number | string) {
+type PendingPreview = {
+  doc: MyDocument,
+  canvas: HTMLCanvasElement,
+  toneIndex: number | string,
+  width: number,
+  height: number,
+  saving: {width: number, height: number},
+};
+
+// Encoding a preview (toBlob does a GPU readback + PNG encode) is too heavy to run
+// on a sticker's firstFrame — during a fast scroll through a grid it fires hundreds
+// of times and janks every frame. Reservation is synchronous (so duplicates dedupe),
+// but the encode is deferred to idle time, where it never competes with scroll/animation.
+const pendingPreviews = new Map<string, PendingPreview>();
+let flushScheduled = false;
+
+const requestIdle: (cb: (deadline: IdleDeadline) => void) => void =
+  typeof(requestIdleCallback) !== 'undefined' ?
+    (cb) => requestIdleCallback(cb, { timeout: 1000 }) :
+    (cb) => setTimeout(() => cb({ timeRemaining: () => 8, didTimeout: true } as IdleDeadline), 1);
+
+const scheduleFlush = () => {
+  if (flushScheduled) {
+    return;
+  }
+
+  flushScheduled = true;
+  requestIdle(flushPreviews);
+};
+
+function flushPreviews(deadline: IdleDeadline) {
+  flushScheduled = false;
+
+  for (const [key, item] of pendingPreviews) {
+    pendingPreviews.delete(key);
+    encodePreview(key, item);
+
+    // yield back once the idle slice is (nearly) spent — toBlob's readback is sync
+    if (deadline.timeRemaining() < 4) {
+      break;
+    }
+  }
+
+  if (pendingPreviews.size) {
+    scheduleFlush();
+  }
+}
+
+export function saveLottiePreview(doc: MyDocument, canvas: HTMLCanvasElement, toneIndex: number | string) {
   const key = getStickerThumbKey(doc.id, toneIndex);
   const { width, height } = canvas;
   if (isSavingLottiePreview(doc, toneIndex, width, height)) {
@@ -41,6 +89,11 @@ export async function saveLottiePreview(doc: MyDocument, canvas: HTMLCanvasEleme
     height,
   };
 
+  pendingPreviews.set(key, { doc, canvas, toneIndex, width, height, saving });
+  scheduleFlush();
+}
+
+async function encodePreview(key: string, { doc, canvas, toneIndex, width, height, saving }: PendingPreview) {
   const thumb = await rootScope.managers.thumbsStorage.getStickerCachedThumb(doc.id, toneIndex);
   if (savingLottiePreview[key] !== saving) {
     return;
