@@ -2,9 +2,9 @@
  * Copyright (C) 2019-2021 Artem Kolnogorov and unknown creator of the script taken from http://useless.altervista.org/gradient.html
  */
 
-import { animateSingle } from '@helpers/animation';
-import { hexToRgb } from '@helpers/color';
-import { easeOutQuadApply } from '@helpers/easing/easeOutQuad';
+import { animateSingle } from '@/helpers/animation';
+import { hexToRgb } from '@/helpers/color';
+import { easeOutQuadApply } from '@/helpers/easing/easeOutQuad';
 
 const WIDTH = 50;
 const HEIGHT = WIDTH;

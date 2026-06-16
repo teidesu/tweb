@@ -1,6 +1,6 @@
-import { AppManager } from '@appManagers/manager';
-import { HelpCountriesList } from '@layer';
-import App from '@config/app';
+import { AppManager } from '@/lib/appManagers/manager';
+import { HelpCountriesList } from '@/layer';
+import App from '@/config/app';
 
 export class AppLangPackManager extends AppManager {
   protected after() {

@@ -1,5 +1,5 @@
-import { MessageEntity } from '@layer';
-import spoiler from '@lib/richTextProcessor/spoiler';
+import { MessageEntity } from '@/layer';
+import spoiler from '@/lib/richTextProcessor/spoiler';
 
 export default function encodeSpoiler(text: string, entity: MessageEntity.messageEntitySpoiler) {
   const before = text.slice(0, entity.offset);

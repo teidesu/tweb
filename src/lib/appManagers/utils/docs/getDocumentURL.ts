@@ -1,7 +1,7 @@
-import { FileURLType, getFileURL } from '@helpers/fileName';
-import { Document, PhotoSize } from '@layer';
+import { FileURLType, getFileURL } from '@/helpers/fileName';
+import { Document, PhotoSize } from '@/layer';
 
-import getDocumentDownloadOptions from '@appManagers/utils/docs/getDocumentDownloadOptions';
+import getDocumentDownloadOptions from '@/lib/appManagers/utils/docs/getDocumentDownloadOptions';
 
 type GetDocumentURLOptions = {
   download?: boolean;

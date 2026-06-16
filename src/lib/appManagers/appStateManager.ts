@@ -1,14 +1,14 @@
-import type { State, StateSettings } from '@config/state';
-import rootScope from '@lib/rootScope';
-import StateStorage from '@lib/stateStorage';
-import setDeepProperty, { splitDeepPath } from '@helpers/object/setDeepProperty';
-import MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
-import { ActiveAccountNumber } from '@lib/accounts/types';
-import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
-import { StoragesResults } from '@appManagers/utils/storages/loadStorages';
-import commonStateStorage from '@lib/commonStateStorage';
-import callbackify from '@helpers/callbackify';
-import isObject from '@helpers/object/isObject';
+import type { State, StateSettings } from '@/config/state';
+import rootScope from '@/lib/rootScope';
+import StateStorage from '@/lib/stateStorage';
+import setDeepProperty, { splitDeepPath } from '@/helpers/object/setDeepProperty';
+import MTProtoMessagePort from '@/lib/mainWorker/mainMessagePort';
+import { ActiveAccountNumber } from '@/lib/accounts/types';
+import deferredPromise, { CancellablePromise } from '@/helpers/cancellablePromise';
+import { StoragesResults } from '@/lib/appManagers/utils/storages/loadStorages';
+import commonStateStorage from '@/lib/commonStateStorage';
+import callbackify from '@/helpers/callbackify';
+import isObject from '@/helpers/object/isObject';
 
 export type ResetStoragesPromise = CancellablePromise<{
   storages: Map<keyof StoragesResults, (PeerId | UserId | ChatId)[]>,

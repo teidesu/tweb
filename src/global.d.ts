@@ -1,15 +1,15 @@
-import type ListenerSetter from '@helpers/listenerSetter';
-import type { Middleware, MiddlewareHelper } from '@helpers/middleware';
-import type { Chat, Document, Message, User } from '@layer';
-import type { MediaSize } from '@helpers/mediaSize';
-import type { AnimationItemGroup } from '@components/animationIntersector';
-import type LazyLoadQueue from '@components/lazyLoadQueue';
-import type { AppManagers } from '@lib/managers';
-import type { CustomProperty } from '@helpers/dom/customProperties';
+import type ListenerSetter from '@/helpers/listenerSetter';
+import type { Middleware, MiddlewareHelper } from '@/helpers/middleware';
+import type { Chat, Document, Message, User } from '@/layer';
+import type { MediaSize } from '@/helpers/mediaSize';
+import type { AnimationItemGroup } from '@/components/animationIntersector';
+import type LazyLoadQueue from '@/components/lazyLoadQueue';
+import type { AppManagers } from '@/lib/managers';
+import type { CustomProperty } from '@/helpers/dom/customProperties';
 import type Icons from '@/icons';
-import type { CancellablePromise } from '@helpers/cancellablePromise';
-import type Languages from '@lib/tinyld/languages';
-import type { ValueOrGetter } from '@helpers/solid/readValue';
+import type { CancellablePromise } from '@/helpers/cancellablePromise';
+import type Languages from '@/lib/tinyld/languages';
+import type { ValueOrGetter } from '@/helpers/solid/readValue';
 import type { MTAppConfig as AppConfig } from '@/appConfig';
 import type { ElectronAPI } from '@/electron/preload';
 

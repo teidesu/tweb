@@ -1,21 +1,21 @@
-import { CancellablePromise } from '@helpers/cancellablePromise';
-import { AccountPasskeys, AccountPassword, Authorization, ChannelParticipant, Chat, ChatFull, ChatParticipant, DialogFilter, ExportedChatlistInvite, GlobalPrivacySettings, Passkey, WebAuthorization } from '@layer';
-import type SidebarSlider from '@components/slider';
-import type { SliderSuperTab } from '@components/slider';
-import getParticipantPeerId from '@appManagers/utils/chats/getParticipantPeerId';
-import type { MyDialogFilter } from '@lib/storages/filters';
-import { FormatterArgument, LangPackKey } from '@lib/langPack';
-import type { PasscodeActions } from '@lib/passcode/actions';
-import { InstanceOf } from '@types';
+import { CancellablePromise } from '@/helpers/cancellablePromise';
+import { AccountPasskeys, AccountPassword, Authorization, ChannelParticipant, Chat, ChatFull, ChatParticipant, DialogFilter, ExportedChatlistInvite, GlobalPrivacySettings, Passkey, WebAuthorization } from '@/layer';
+import type SidebarSlider from '@/components/slider';
+import type { SliderSuperTab } from '@/components/slider';
+import getParticipantPeerId from '@/lib/appManagers/utils/chats/getParticipantPeerId';
+import type { MyDialogFilter } from '@/lib/storages/filters';
+import { FormatterArgument, LangPackKey } from '@/lib/langPack';
+import type { PasscodeActions } from '@/lib/passcode/actions';
+import { InstanceOf } from '@/types';
 import { SetStoreFunction } from 'solid-js/store';
-import { scaffoldSolidJSTab, scaffoldSolidJSTabEventable } from '@components/solidJsTabs/scaffoldSolidJSTab';
-import { SuperTabProvider } from '@components/solidJsTabs/superTabProvider';
-import rootScope from '@lib/rootScope';
-import type { EditProfileTabPayload } from '@components/sidebarLeft/tabs/editProfile';
-import { ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
-import { ChatInvite, ChatInviteActions, getChatInviteLinksInitArgs } from '@components/sidebarRight/tabs/chatInviteLinkShared';
-import lottieLoader from '@lib/rlottie/lottieLoader';
-import { deleteFolder as deleteEditFolder, getEditFolderInitArgs } from '@components/sidebarLeft/tabs/editFolderShared';
+import { scaffoldSolidJSTab, scaffoldSolidJSTabEventable } from '@/components/solidJsTabs/scaffoldSolidJSTab';
+import { SuperTabProvider } from '@/components/solidJsTabs/superTabProvider';
+import rootScope from '@/lib/rootScope';
+import type { EditProfileTabPayload } from '@/components/sidebarLeft/tabs/editProfile';
+import { ButtonMenuItemOptionsVerifiable } from '@/components/buttonMenu';
+import { ChatInvite, ChatInviteActions, getChatInviteLinksInitArgs } from '@/components/sidebarRight/tabs/chatInviteLinkShared';
+import lottieLoader from '@/lib/rlottie/lottieLoader';
+import { deleteFolder as deleteEditFolder, getEditFolderInitArgs } from '@/components/sidebarLeft/tabs/editFolderShared';
 
 
 export const AppPasscodeLockTab =

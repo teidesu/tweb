@@ -1,7 +1,7 @@
-import ctx from '@environment/ctx';
-import tsNow from '@helpers/tsNow';
-import { HelpPromoData } from '@layer';
-import { AppManager } from '@appManagers/manager';
+import ctx from '@/environment/ctx';
+import tsNow from '@/helpers/tsNow';
+import { HelpPromoData } from '@/layer';
+import { AppManager } from '@/lib/appManagers/manager';
 
 export interface MyPromoData {
   pendingSuggestions: string[];

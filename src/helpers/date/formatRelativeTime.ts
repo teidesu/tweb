@@ -1,4 +1,4 @@
-import type { LangPackKey } from '@lib/langPack';
+import type { LangPackKey } from '@/lib/langPack';
 
 export default function formatRelativeTime(timestampSec: number, nowSec: number): {
   key: LangPackKey,

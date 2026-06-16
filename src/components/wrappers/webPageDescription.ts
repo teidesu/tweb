@@ -1,7 +1,7 @@
-import limitSymbols from '@helpers/string/limitSymbols';
-import { WebPage } from '@layer';
-import wrapRichText, { WrapRichTextOptions } from '@lib/richTextProcessor/wrapRichText';
-import { appState } from '@stores/appState';
+import limitSymbols from '@/helpers/string/limitSymbols';
+import { WebPage } from '@/layer';
+import wrapRichText, { WrapRichTextOptions } from '@/lib/richTextProcessor/wrapRichText';
+import { appState } from '@/stores/appState';
 import { untrack } from 'solid-js';
 
 export default function wrapWebPageDescription(

@@ -1,4 +1,4 @@
-import ctx from '@environment/ctx';
+import ctx from '@/environment/ctx';
 
 export const USER_AGENT = navigator ? navigator.userAgent : null;
 export const IS_APPLE = navigator.userAgent.search(/OS X|iPhone|iPad|iOS/i) !== -1;

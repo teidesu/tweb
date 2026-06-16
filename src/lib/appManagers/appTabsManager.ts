@@ -1,6 +1,6 @@
-import type { TabState } from '@lib/apiManagerProxy';
-import { MOUNT_CLASS_TO } from '@config/debug';
-import MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
+import type { TabState } from '@/lib/apiManagerProxy';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import MTProtoMessagePort from '@/lib/mainWorker/mainMessagePort';
 
 type Tab = {
   source: MessageEventSource,

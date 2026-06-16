@@ -1,4 +1,4 @@
-import ListLoader from '@helpers/listLoader';
+import ListLoader from '@/helpers/listLoader';
 
 export default class EmptyListLoader<T extends {}> extends ListLoader<T, any> {
   constructor() {

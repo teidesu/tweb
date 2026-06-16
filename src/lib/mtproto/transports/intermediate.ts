@@ -1,4 +1,4 @@
-import { Codec } from '@lib/mtproto/transports/codec';
+import { Codec } from '@/lib/mtproto/transports/codec';
 
 export class IntermediatePacketCodec implements Codec {
   public tag = 0xee;

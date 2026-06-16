@@ -1,4 +1,4 @@
-import splitStringByLength from '@helpers/string/splitStringByLength';
+import splitStringByLength from '@/helpers/string/splitStringByLength';
 
 function assertValidSplit(original: string, parts: string[], maxLength: number) {
   expect(parts.join('')).toBe(original);

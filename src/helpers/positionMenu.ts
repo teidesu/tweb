@@ -1,6 +1,6 @@
-import type { ButtonMenuDirection } from '@components/buttonMenuToggle';
-import mediaSizes from '@helpers/mediaSizes';
-import I18n from '@lib/langPack';
+import type { ButtonMenuDirection } from '@/components/buttonMenuToggle';
+import mediaSizes from '@/helpers/mediaSizes';
+import I18n from '@/lib/langPack';
 import clamp from './number/clamp';
 
 export type MenuPositionPadding = {

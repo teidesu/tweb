@@ -1,17 +1,17 @@
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import { MissingInvitee } from '@layer';
-import { FormatterArguments, LangPackKey, i18n, join } from '@lib/langPack';
-import rootScope from '@lib/rootScope';
-import Button from '@components/button';
-import { DelimiterWithText } from '@components/chat/giveaway';
-import PopupElement from '@components/popups';
-import PopupPeer, { PopupPeerButtonCallback, PopupPeerButtonCallbackCheckboxes, PopupPeerCheckboxOptions } from '@components/popups/peer';
-import showPickUserPopup from '@components/popups/pickUser';
-import PopupPremium from '@components/popups/premium';
-import { AppAddMembersTab } from '@components/solidJsTabs';
-import SidebarSlider from '@components/slider';
-import { toastNew } from '@components/toast';
-import wrapPeerTitle from '@components/wrappers/peerTitle';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import { MissingInvitee } from '@/layer';
+import { FormatterArguments, LangPackKey, i18n, join } from '@/lib/langPack';
+import rootScope from '@/lib/rootScope';
+import Button from '@/components/button';
+import { DelimiterWithText } from '@/components/chat/giveaway';
+import PopupElement from '@/components/popups';
+import PopupPeer, { PopupPeerButtonCallback, PopupPeerButtonCallbackCheckboxes, PopupPeerCheckboxOptions } from '@/components/popups/peer';
+import showPickUserPopup from '@/components/popups/pickUser';
+import PopupPremium from '@/components/popups/premium';
+import { AppAddMembersTab } from '@/components/solidJsTabs';
+import SidebarSlider from '@/components/slider';
+import { toastNew } from '@/components/toast';
+import wrapPeerTitle from '@/components/wrappers/peerTitle';
 
 export async function handleMissingInvitees(chatId: ChatId, missingInvitees: MissingInvitee[]) {
   if (!missingInvitees.length) {

@@ -1,13 +1,13 @@
 import { ComponentProps, For, JSX, splitProps, untrack } from 'solid-js';
-import { LangPackKey, i18n } from '@lib/langPack';
-import { AvatarNew } from '@components/avatarNew';
-import { PeerTitleTsx } from '@components/peerTitleTsx';
-import classNames from '@helpers/string/classNames';
+import { LangPackKey, i18n } from '@/lib/langPack';
+import { AvatarNew } from '@/components/avatarNew';
+import { PeerTitleTsx } from '@/components/peerTitleTsx';
+import classNames from '@/helpers/string/classNames';
 
-import styles from '@components/table.module.scss';
-import { NULL_PEER_ID } from '@appManagers/constants';
-import Button from '@components/buttonTsx';
-import showTooltip from '@components/tooltip';
+import styles from '@/components/table.module.scss';
+import { NULL_PEER_ID } from '@/lib/appManagers/constants';
+import Button from '@/components/buttonTsx';
+import showTooltip from '@/components/tooltip';
 
 export type TableRow = [LangPackKey | JSX.Element, JSX.Element];
 

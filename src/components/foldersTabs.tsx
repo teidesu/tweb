@@ -1,11 +1,11 @@
-import Badge from '@components/badge';
-import Tabs from '@components/tabs';
-import wrapFolderTitle from '@components/wrappers/folderTitle';
-import documentFragmentToNodes from '@helpers/dom/documentFragmentToNodes';
-import createMiddleware from '@helpers/solid/createMiddleware';
-import { FOLDER_ID_ALL } from '@lib/appManagers/constants';
-import { i18n } from '@lib/langPack';
-import useFolders from '@stores/folders';
+import Badge from '@/components/badge';
+import Tabs from '@/components/tabs';
+import wrapFolderTitle from '@/components/wrappers/folderTitle';
+import documentFragmentToNodes from '@/helpers/dom/documentFragmentToNodes';
+import createMiddleware from '@/helpers/solid/createMiddleware';
+import { FOLDER_ID_ALL } from '@/lib/appManagers/constants';
+import { i18n } from '@/lib/langPack';
+import useFolders from '@/stores/folders';
 import { For } from 'solid-js';
 
 export default function FoldersTabs(props: {

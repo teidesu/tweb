@@ -1,11 +1,11 @@
-import filterUnique from '@helpers/array/filterUnique';
-import flatten from '@helpers/array/flatten';
-import cloneDOMRect from '@helpers/dom/cloneDOMRect';
-import { AccountEmojiStatuses, EmojiStatus } from '@layer';
-import { AppManagers } from '@lib/managers';
-import { EmoticonsDropdown } from '@components/emoticonsDropdown';
-import EmojiTab from '@components/emoticonsDropdown/tabs/emoji';
-import Icon, { getIconContent } from '@components/icon';
+import filterUnique from '@/helpers/array/filterUnique';
+import flatten from '@/helpers/array/flatten';
+import cloneDOMRect from '@/helpers/dom/cloneDOMRect';
+import { AccountEmojiStatuses, EmojiStatus } from '@/layer';
+import { AppManagers } from '@/lib/managers';
+import { EmoticonsDropdown } from '@/components/emoticonsDropdown';
+import EmojiTab from '@/components/emoticonsDropdown/tabs/emoji';
+import Icon, { getIconContent } from '@/components/icon';
 
 const openPickers = new WeakMap<HTMLElement, EmoticonsDropdown>();
 

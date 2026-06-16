@@ -1,5 +1,5 @@
-import deepEqual from '@helpers/object/deepEqual';
-import { MessageEntity } from '@layer';
+import deepEqual from '@/helpers/object/deepEqual';
+import { MessageEntity } from '@/layer';
 
 const CAN_COMBINE_ENTITIES: Set<MessageEntity['_']> = new Set([
   'messageEntityBold',

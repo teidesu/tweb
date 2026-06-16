@@ -1,8 +1,8 @@
-import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import { IS_APPLE } from '@environment/userAgent';
-import contextMenuController from '@helpers/contextMenuController';
-import ListenerSetter, { ListenerOptions } from '@helpers/listenerSetter';
-import cancelEvent from '@helpers/dom/cancelEvent';
+import IS_TOUCH_SUPPORTED from '@/environment/touchSupport';
+import { IS_APPLE } from '@/environment/userAgent';
+import contextMenuController from '@/helpers/contextMenuController';
+import ListenerSetter, { ListenerOptions } from '@/helpers/listenerSetter';
+import cancelEvent from '@/helpers/dom/cancelEvent';
 
 let _cancelContextMenuOpening = false, _cancelContextMenuOpeningTimeout = 0;
 export function cancelContextMenuOpening() {

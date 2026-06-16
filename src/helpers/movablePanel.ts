@@ -1,8 +1,8 @@
-import MovableElement, { MovableElementOptions, MovableState } from '@components/movableElement';
-import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import ListenerSetter from '@helpers/listenerSetter';
-import mediaSizes, { ScreenSize } from '@helpers/mediaSizes';
-import safeAssign from '@helpers/object/safeAssign';
+import MovableElement, { MovableElementOptions, MovableState } from '@/components/movableElement';
+import IS_TOUCH_SUPPORTED from '@/environment/touchSupport';
+import ListenerSetter from '@/helpers/listenerSetter';
+import mediaSizes, { ScreenSize } from '@/helpers/mediaSizes';
+import safeAssign from '@/helpers/object/safeAssign';
 
 export default class MovablePanel {
   #movable: MovableElement | undefined;

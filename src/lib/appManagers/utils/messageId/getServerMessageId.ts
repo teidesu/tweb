@@ -1,4 +1,4 @@
-import clearMessageId from '@appManagers/utils/messageId/clearMessageId';
+import clearMessageId from '@/lib/appManagers/utils/messageId/clearMessageId';
 
 /**
  * * will ignore outgoing offset

@@ -1,8 +1,8 @@
-import blurActiveElement from '@helpers/dom/blurActiveElement';
-import loadFonts from '@helpers/dom/loadFonts';
-import { doubleRaf } from '@helpers/schedulers';
-import isNativeVoiceRecorderSupported from '@helpers/voiceRecorder/isNativeSupported';
-import rootScope from '@lib/rootScope';
+import blurActiveElement from '@/helpers/dom/blurActiveElement';
+import loadFonts from '@/helpers/dom/loadFonts';
+import { doubleRaf } from '@/helpers/schedulers';
+import isNativeVoiceRecorderSupported from '@/helpers/voiceRecorder/isNativeSupported';
+import rootScope from '@/lib/rootScope';
 
 import { disposeActiveAuthFlow } from '@/pages/mountAuthFlow';
 
@@ -34,15 +34,15 @@ export async function bootstrapIm(): Promise<void> {
   // sign-in for ~94% of users (May 2026 baseline).
   const recorderImport: Promise<{default: unknown} | null> = isNativeVoiceRecorderSupported() ?
     Promise.resolve(null) :
-    import('@vendor/recorder.min.js' as any);
+    import('@/vendor/recorder.min.js' as any);
 
   const [{ default: appDialogsManager }, recorder] = await Promise.all([
-    import('@lib/appDialogsManager'),
+    import('@/lib/appDialogsManager'),
     recorderImport,
     loadFonts(),
     'requestVideoFrameCallback' in HTMLVideoElement.prototype ?
       Promise.resolve() :
-      import('@helpers/dom/requestVideoFrameCallbackPolyfill'),
+      import('@/helpers/dom/requestVideoFrameCallbackPolyfill'),
   ]);
 
   if (recorder) {

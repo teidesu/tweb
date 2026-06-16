@@ -1,25 +1,25 @@
-import type { AppTheme, AppThemeSettings } from '@config/state';
-import type { AccentPreset } from '@config/themePresets';
-import type { BaseTheme, Theme, ThemeSettings } from '@layer';
-import { blendWallpaperForTinted, presetThemeId, presetToThemeSettings } from '@config/themePresets';
-import type { AppBackgroundTab } from '@components/sidebarLeft/tabs/background';
-import type { AppChatBackground } from '@components/chat/bubbles/chatBackground';
-import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import rootScope from '@lib/rootScope';
-import { changeColorAccent, ColorRgb, getAccentColor, getAverageColor, getRgbColorFromTelegramColor, hexToRgb, hslaStringToHex, hslaStringToRgba, hslaToRgba, hsvToRgb, mixColors, rgbaToHexa, rgbaToHsla, rgbToHsv } from '@helpers/color';
-import { SETTINGS_INIT } from '@config/state';
-import { MOUNT_CLASS_TO } from '@config/debug';
-import customProperties from '@helpers/dom/customProperties';
-import { TelegramWebViewTheme } from '@types';
-import windowSize from '@helpers/windowSize';
-import liteMode from '@helpers/liteMode';
-import { useAppSettings } from '@stores/appSettings';
-import { joinDeepPath } from '@helpers/object/setDeepProperty';
-import { logger } from '@lib/logger';
-import pause from '@helpers/schedulers/pause';
-import Transitions, { getTransition } from '@config/transitions';
-import { dispatchHeavyAnimationEvent } from '@hooks/useHeavyAnimationCheck';
-import noop from '@helpers/noop';
+import type { AppTheme, AppThemeSettings } from '@/config/state';
+import type { AccentPreset } from '@/config/themePresets';
+import type { BaseTheme, Theme, ThemeSettings } from '@/layer';
+import { blendWallpaperForTinted, presetThemeId, presetToThemeSettings } from '@/config/themePresets';
+import type { AppBackgroundTab } from '@/components/sidebarLeft/tabs/background';
+import type { AppChatBackground } from '@/components/chat/bubbles/chatBackground';
+import IS_TOUCH_SUPPORTED from '@/environment/touchSupport';
+import rootScope from '@/lib/rootScope';
+import { changeColorAccent, ColorRgb, getAccentColor, getAverageColor, getRgbColorFromTelegramColor, hexToRgb, hslaStringToHex, hslaStringToRgba, hslaToRgba, hsvToRgb, mixColors, rgbaToHexa, rgbaToHsla, rgbToHsv } from '@/helpers/color';
+import { SETTINGS_INIT } from '@/config/state';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import customProperties from '@/helpers/dom/customProperties';
+import { TelegramWebViewTheme } from '@/types';
+import windowSize from '@/helpers/windowSize';
+import liteMode from '@/helpers/liteMode';
+import { useAppSettings } from '@/stores/appSettings';
+import { joinDeepPath } from '@/helpers/object/setDeepProperty';
+import { logger } from '@/lib/logger';
+import pause from '@/helpers/schedulers/pause';
+import Transitions, { getTransition } from '@/config/transitions';
+import { dispatchHeavyAnimationEvent } from '@/hooks/useHeavyAnimationCheck';
+import noop from '@/helpers/noop';
 
 // Hard cap for the theme-switch view transition: how long heavy rendering (videos/stickers/
 // lottie) stays paused, and the deadline after which a stalled transition is force-finished so

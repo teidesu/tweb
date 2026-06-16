@@ -1,4 +1,4 @@
-import { AppManager } from '@appManagers/manager';
+import { AppManager } from '@/lib/appManagers/manager';
 
 export default class AppUsernamesManager extends AppManager {
   public toggleUsername({

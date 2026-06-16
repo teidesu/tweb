@@ -1,5 +1,5 @@
-import customProperties from '@helpers/dom/customProperties';
-import clamp from '@helpers/number/clamp';
+import customProperties from '@/helpers/dom/customProperties';
+import clamp from '@/helpers/number/clamp';
 
 export default class Shimmer {
   private canvas: HTMLCanvasElement;

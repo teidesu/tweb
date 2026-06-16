@@ -1,6 +1,6 @@
-import { InputDocument } from '@layer';
-import type { MyDocument } from '@appManagers/appDocsManager';
-import getDocumentInput from '@appManagers/utils/docs/getDocumentInput';
+import { InputDocument } from '@/layer';
+import type { MyDocument } from '@/lib/appManagers/appDocsManager';
+import getDocumentInput from '@/lib/appManagers/utils/docs/getDocumentInput';
 import ListenerSetter from './listenerSetter';
 
 /**

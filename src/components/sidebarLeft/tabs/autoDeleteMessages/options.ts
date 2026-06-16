@@ -1,6 +1,6 @@
-import formatDuration, { DurationType } from '@helpers/formatDuration';
-import { wrapFormattedDuration } from '@components/wrappers/wrapDuration';
-import { oneDayInSeconds, oneHourInSeconds, oneMonthInSeconds, oneWeekInSeconds, oneYearInSeconds } from '@lib/constants';
+import formatDuration, { DurationType } from '@/helpers/formatDuration';
+import { wrapFormattedDuration } from '@/components/wrappers/wrapDuration';
+import { oneDayInSeconds, oneHourInSeconds, oneMonthInSeconds, oneWeekInSeconds, oneYearInSeconds } from '@/lib/constants';
 
 
 export type Option = {

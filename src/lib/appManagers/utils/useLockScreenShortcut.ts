@@ -1,10 +1,10 @@
-import PasscodeLockScreenController from '@components/passcodeLock/passcodeLockScreenController';
-import ListenerSetter from '@helpers/listenerSetter';
-import { joinDeepPath } from '@helpers/object/setDeepProperty';
-import { addShortcutListener } from '@helpers/shortcutListener';
-import apiManagerProxy from '@lib/apiManagerProxy';
-import appImManager from '@lib/appImManager';
-import rootScope from '@lib/rootScope';
+import PasscodeLockScreenController from '@/components/passcodeLock/passcodeLockScreenController';
+import ListenerSetter from '@/helpers/listenerSetter';
+import { joinDeepPath } from '@/helpers/object/setDeepProperty';
+import { addShortcutListener } from '@/helpers/shortcutListener';
+import apiManagerProxy from '@/lib/apiManagerProxy';
+import appImManager from '@/lib/appImManager';
+import rootScope from '@/lib/rootScope';
 import { createEffect, createResource, createRoot, createSignal, onCleanup } from 'solid-js';
 
 

@@ -1,4 +1,4 @@
-import { log, serviceMessagePort } from '@lib/serviceWorker/index.service';
+import { log, serviceMessagePort } from '@/lib/serviceWorker/index.service';
 
 const deferred: {[id: string]: ShareData[]} = {};
 

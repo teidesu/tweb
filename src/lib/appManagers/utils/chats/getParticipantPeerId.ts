@@ -1,5 +1,5 @@
-import { ChannelParticipant, ChatParticipant } from '@layer';
-import getPeerId from '@appManagers/utils/peers/getPeerId';
+import { ChannelParticipant, ChatParticipant } from '@/layer';
+import getPeerId from '@/lib/appManagers/utils/peers/getPeerId';
 
 export default function getParticipantPeerId(participant: PeerId | ChannelParticipant | ChatParticipant): PeerId {
   if (typeof(participant) !== 'object') {

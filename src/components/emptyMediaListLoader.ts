@@ -4,8 +4,8 @@
  * https://github.com/morethanwords/tweb/blob/master/LICENSE
  */
 
-import ListLoader from '@helpers/listLoader';
-import { Message } from '@layer';
+import ListLoader from '@/helpers/listLoader';
+import { Message } from '@/layer';
 import type {
   MediaItem,
   MediaListLoader,

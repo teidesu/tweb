@@ -1,10 +1,10 @@
-import { makeMediaSize, MediaSize } from '@helpers/mediaSize';
-import mediaSizes from '@helpers/mediaSizes';
-import { MiddlewareHelper, Middleware, getMiddleware } from '@helpers/middleware';
-import { StickerSet } from '@layer';
-import ButtonIcon from '@components/buttonIcon';
-import { ScrollableX } from '@components/scrollable';
-import { EMOJI_ELEMENT_SIZE } from '@components/emoticonsDropdown/tabs/emoji';
+import { makeMediaSize, MediaSize } from '@/helpers/mediaSize';
+import mediaSizes from '@/helpers/mediaSizes';
+import { MiddlewareHelper, Middleware, getMiddleware } from '@/helpers/middleware';
+import { StickerSet } from '@/layer';
+import ButtonIcon from '@/components/buttonIcon';
+import { ScrollableX } from '@/components/scrollable';
+import { EMOJI_ELEMENT_SIZE } from '@/components/emoticonsDropdown/tabs/emoji';
 
 export type StickersTabCategoryItem = {element: HTMLElement};
 export type StickersTabStyles = {

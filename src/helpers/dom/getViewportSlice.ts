@@ -1,4 +1,4 @@
-import getVisibleRect from '@helpers/dom/getVisibleRect';
+import getVisibleRect from '@/helpers/dom/getVisibleRect';
 
 export type ViewportSlicePart = {element: HTMLElement, rect: DOMRect, visibleRect: ReturnType<typeof getVisibleRect>}[];
 

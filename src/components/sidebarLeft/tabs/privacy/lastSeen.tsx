@@ -1,16 +1,16 @@
 import { Component, onMount } from 'solid-js';
-import PrivacySection from '@components/privacySection';
-import { LangPackKey, i18n } from '@lib/langPack';
-import Row from '@components/row';
-import CheckboxField from '@components/checkboxField';
-import SettingSection from '@components/settingSection';
-import Button from '@components/button';
-import rootScope from '@lib/rootScope';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import PopupPremium from '@components/popups/premium';
-import PrivacyType from '@appManagers/utils/privacy/privacyType';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import type { AppPrivacyLastSeenTab } from '@components/solidJsTabs/tabs';
+import PrivacySection from '@/components/privacySection';
+import { LangPackKey, i18n } from '@/lib/langPack';
+import Row from '@/components/row';
+import CheckboxField from '@/components/checkboxField';
+import SettingSection from '@/components/settingSection';
+import Button from '@/components/button';
+import rootScope from '@/lib/rootScope';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import PopupPremium from '@/components/popups/premium';
+import PrivacyType from '@/lib/appManagers/utils/privacy/privacyType';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import type { AppPrivacyLastSeenTab } from '@/components/solidJsTabs/tabs';
 
 const PrivacyLastSeen: Component = () => {
   const [tab] = useSuperTab<typeof AppPrivacyLastSeenTab>();

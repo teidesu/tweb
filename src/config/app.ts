@@ -5,7 +5,7 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import type { TrueDcId } from '@types';
+import type { TrueDcId } from '@/types';
 import langPackLocalVersion from '@/langPackLocalVersion';
 
 export const DEFAULT_BACKGROUND_SLUG = 'pattern';

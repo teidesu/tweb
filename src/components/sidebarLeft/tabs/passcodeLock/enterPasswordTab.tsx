@@ -1,17 +1,17 @@
 import { createEffect, createSignal, onCleanup } from 'solid-js';
-import { keepMe } from '@helpers/keepMe';
-import { i18n } from '@lib/langPack';
-import { usePasscodeActions } from '@lib/passcode/actions';
-import { MAX_PASSCODE_LENGTH } from '@lib/passcode/constants';
-import SettingsTabLottieAnimation from '@components/settingsTabLottieAnimation';
-import { InputFieldTsx } from '@components/inputFieldTsx';
-import PasswordInputField from '@components/passwordInputField';
-import ripple from '@components/ripple';
-import Section from '@components/section';
-import type { AppPasscodeEnterPasswordTab } from '@components/solidJsTabs';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import Space from '@components/space';
-import commonStyles from '@components/sidebarLeft/tabs/passcodeLock/common.module.scss';
+import { keepMe } from '@/helpers/keepMe';
+import { i18n } from '@/lib/langPack';
+import { usePasscodeActions } from '@/lib/passcode/actions';
+import { MAX_PASSCODE_LENGTH } from '@/lib/passcode/constants';
+import SettingsTabLottieAnimation from '@/components/settingsTabLottieAnimation';
+import { InputFieldTsx } from '@/components/inputFieldTsx';
+import PasswordInputField from '@/components/passwordInputField';
+import ripple from '@/components/ripple';
+import Section from '@/components/section';
+import type { AppPasscodeEnterPasswordTab } from '@/components/solidJsTabs';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import Space from '@/components/space';
+import commonStyles from '@/components/sidebarLeft/tabs/passcodeLock/common.module.scss';
 
 keepMe(ripple);
 

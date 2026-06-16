@@ -1,4 +1,4 @@
-import BezierEasing from '@vendor/bezierEasing';
+import BezierEasing from '@/vendor/bezierEasing';
 
 // a leaf module so that workers can use these too (@helpers/animateValue and the
 // spoiler-overlay utils pull in main-thread-only import chains)

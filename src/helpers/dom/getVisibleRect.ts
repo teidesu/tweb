@@ -1,4 +1,4 @@
-import windowSize from '@helpers/windowSize';
+import windowSize from '@/helpers/windowSize';
 
 export default function getVisibleRect(
   element: HTMLElement,

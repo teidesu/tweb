@@ -1,8 +1,8 @@
 import { unwrap } from 'solid-js/store';
 
-import { FinalTransform } from '@components/mediaEditor/canvas/useFinalTransform';
-import { MediaEditorContextValue } from '@components/mediaEditor/context';
-import { NumberPair } from '@components/mediaEditor/types';
+import { FinalTransform } from '@/components/mediaEditor/canvas/useFinalTransform';
+import { MediaEditorContextValue } from '@/components/mediaEditor/context';
+import { NumberPair } from '@/components/mediaEditor/types';
 
 export type ScaledLayersAndLines = ReturnType<typeof getScaledLayersAndLines>;
 

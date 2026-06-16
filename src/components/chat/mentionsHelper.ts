@@ -1,9 +1,9 @@
-import type ChatInput from '@components/chat/input';
-import AutocompleteHelperController from '@components/chat/autocompleteHelperController';
-import AutocompletePeerHelper from '@components/chat/autocompletePeerHelper';
-import { AppManagers } from '@lib/managers';
-import getPeerActiveUsernames from '@appManagers/utils/peers/getPeerActiveUsernames';
-import rootScope from '@lib/rootScope';
+import type ChatInput from '@/components/chat/input';
+import AutocompleteHelperController from '@/components/chat/autocompleteHelperController';
+import AutocompletePeerHelper from '@/components/chat/autocompletePeerHelper';
+import { AppManagers } from '@/lib/managers';
+import getPeerActiveUsernames from '@/lib/appManagers/utils/peers/getPeerActiveUsernames';
+import rootScope from '@/lib/rootScope';
 
 export default class MentionsHelper extends AutocompletePeerHelper {
   constructor(

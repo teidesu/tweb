@@ -9,9 +9,9 @@
  * lives in a separate module that is only loaded lazily, on demand.
  */
 
-import DEBUG, { MOUNT_CLASS_TO } from '@config/debug';
-import { IS_SERVICE_WORKER, IS_WEB_WORKER } from '@helpers/context';
-import type { LogTypes } from '@lib/logger';
+import DEBUG, { MOUNT_CLASS_TO } from '@/config/debug';
+import { IS_SERVICE_WORKER, IS_WEB_WORKER } from '@/helpers/context';
+import type { LogTypes } from '@/lib/logger';
 
 // Mirror of LogTypes — kept as literals to avoid a runtime import cycle with
 // logger.ts (logger.ts -> logsBuffer.ts). Only used for the stack-capture mask.

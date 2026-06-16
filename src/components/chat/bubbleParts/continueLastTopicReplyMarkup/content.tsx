@@ -1,14 +1,14 @@
 import { createEffect, onCleanup, Show } from 'solid-js';
-import { Message } from '@layer';
-import getMessageThreadId from '@appManagers/utils/messages/getMessageThreadId';
-import { i18n } from '@lib/langPack';
-import defineSolidElement, { PassedProps } from '@lib/solidjs/defineSolidElement';
-import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
-import { IconTsx } from '@components/iconTsx';
-import classNames from '@helpers/string/classNames';
-import ReplyMarkupLayout from '@components/chat/bubbleParts/replyMarkupLayout';
-import type Chat from '@components/chat/chat';
-import styles from '@components/chat/bubbleParts/continueLastTopicReplyMarkup/styles.module.scss';
+import { Message } from '@/layer';
+import getMessageThreadId from '@/lib/appManagers/utils/messages/getMessageThreadId';
+import { i18n } from '@/lib/langPack';
+import defineSolidElement, { PassedProps } from '@/lib/solidjs/defineSolidElement';
+import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
+import { IconTsx } from '@/components/iconTsx';
+import classNames from '@/helpers/string/classNames';
+import ReplyMarkupLayout from '@/components/chat/bubbleParts/replyMarkupLayout';
+import type Chat from '@/components/chat/chat';
+import styles from '@/components/chat/bubbleParts/continueLastTopicReplyMarkup/styles.module.scss';
 
 if (import.meta.hot) import.meta.hot.accept();
 

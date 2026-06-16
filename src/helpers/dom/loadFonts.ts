@@ -1,7 +1,7 @@
-import { FontFamilyName } from '@config/font';
-import noop from '@helpers/noop';
-import pause from '@helpers/schedulers/pause';
-import { TGICO_CLASS } from '@helpers/tgico';
+import { FontFamilyName } from '@/config/font';
+import noop from '@/helpers/noop';
+import pause from '@/helpers/schedulers/pause';
+import { TGICO_CLASS } from '@/helpers/tgico';
 
 const texts = ['b', 'б'];
 type FontType = 'text' | 'icons' | 'monospace';

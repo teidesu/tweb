@@ -1,22 +1,22 @@
 import type lang from '@/lang';
 import type langSign from '@/langSign';
-import type { State, StateSettings } from '@config/state';
-import { IS_BETA, MOUNT_CLASS_TO } from '@config/debug';
-import { HelpCountry, LangPackDifference, LangPackString } from '@layer';
-import App from '@config/app';
-import rootScope from '@lib/rootScope';
-import { IS_MOBILE } from '@environment/userAgent';
-import deepEqual from '@helpers/object/deepEqual';
-import safeAssign from '@helpers/object/safeAssign';
-import capitalizeFirstLetter from '@helpers/string/capitalizeFirstLetter';
-import matchUrlProtocol from '@lib/richTextProcessor/matchUrlProtocol';
-import wrapUrl from '@lib/richTextProcessor/wrapUrl';
-import { setDirection } from '@helpers/dom/setInnerHTML';
-import setBlankToAnchor from '@lib/richTextProcessor/setBlankToAnchor';
+import type { State, StateSettings } from '@/config/state';
+import { IS_BETA, MOUNT_CLASS_TO } from '@/config/debug';
+import { HelpCountry, LangPackDifference, LangPackString } from '@/layer';
+import App from '@/config/app';
+import rootScope from '@/lib/rootScope';
+import { IS_MOBILE } from '@/environment/userAgent';
+import deepEqual from '@/helpers/object/deepEqual';
+import safeAssign from '@/helpers/object/safeAssign';
+import capitalizeFirstLetter from '@/helpers/string/capitalizeFirstLetter';
+import matchUrlProtocol from '@/lib/richTextProcessor/matchUrlProtocol';
+import wrapUrl from '@/lib/richTextProcessor/wrapUrl';
+import { setDirection } from '@/helpers/dom/setInnerHTML';
+import setBlankToAnchor from '@/lib/richTextProcessor/setBlankToAnchor';
 import { createSignal } from 'solid-js';
-import commonStateStorage from '@lib/commonStateStorage';
-import Icon from '@components/icon';
-import currencyStarIcon from '@components/currencyStarIcon';
+import commonStateStorage from '@/lib/commonStateStorage';
+import Icon from '@/components/icon';
+import currencyStarIcon from '@/components/currencyStarIcon';
 import { isTruthy } from '../helpers/isTruthy';
 
 export const langPack: {[actionType: string]: LangPackKey} = {

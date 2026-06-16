@@ -1,8 +1,8 @@
-import { DataJSON } from '@layer';
-import { JoinGroupCallJsonPayload } from '@appManagers/appGroupCallsManager';
-import SDP from '@lib/calls/sdp';
-import { Ssrc } from '@lib/calls/types';
-import parseMediaSectionInfo from '@lib/calls/helpers/parseMediaSectionInfo';
+import { DataJSON } from '@/layer';
+import { JoinGroupCallJsonPayload } from '@/lib/appManagers/appGroupCallsManager';
+import SDP from '@/lib/calls/sdp';
+import { Ssrc } from '@/lib/calls/types';
+import parseMediaSectionInfo from '@/lib/calls/helpers/parseMediaSectionInfo';
 
 export default function processMediaSection(sdp: SDP, media: SDP['media'][0]) {
   const sectionInfo = parseMediaSectionInfo(sdp, media);

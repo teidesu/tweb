@@ -1,11 +1,11 @@
-import type { AppDownloadManager } from '@lib/appDownloadManager';
-import resizeableImage from '@lib/cropper';
+import type { AppDownloadManager } from '@/lib/appDownloadManager';
+import resizeableImage from '@/lib/cropper';
 import PopupElement from '.';
-import { _i18n } from '@lib/langPack';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import readBlobAsDataURL from '@helpers/blob/readBlobAsDataURL';
-import appDownloadManager from '@lib/appDownloadManager';
-import Button from '@components/button';
+import { _i18n } from '@/lib/langPack';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import readBlobAsDataURL from '@/helpers/blob/readBlobAsDataURL';
+import appDownloadManager from '@/lib/appDownloadManager';
+import Button from '@/components/button';
 
 export default class PopupAvatar extends PopupElement {
   private cropContainer: HTMLElement;

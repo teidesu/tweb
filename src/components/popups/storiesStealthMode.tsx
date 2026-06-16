@@ -1,14 +1,14 @@
-import showFeatureDetailsPopup, { FeatureDetailsButton } from '@components/popups/featureDetails';
-import { i18n } from '@lib/langPack';
-import { useAppConfig } from '@stores/appState';
-import { wrapStoriesStealthModeDuration } from '@components/wrappers/wrapDuration';
-import usePremium from '@stores/premium';
-import PopupPremium from '@components/popups/premium';
-import rootScope from '@lib/rootScope';
-import tsNow from '@helpers/tsNow';
-import { slowModeTimer } from '@components/chat/utils';
+import showFeatureDetailsPopup, { FeatureDetailsButton } from '@/components/popups/featureDetails';
+import { i18n } from '@/lib/langPack';
+import { useAppConfig } from '@/stores/appState';
+import { wrapStoriesStealthModeDuration } from '@/components/wrappers/wrapDuration';
+import usePremium from '@/stores/premium';
+import PopupPremium from '@/components/popups/premium';
+import rootScope from '@/lib/rootScope';
+import tsNow from '@/helpers/tsNow';
+import { slowModeTimer } from '@/components/chat/utils';
 import { onCleanup } from 'solid-js';
-import createFeatureDetailsIconSticker from '@components/featureDetailsIconSticker';
+import createFeatureDetailsIconSticker from '@/components/featureDetailsIconSticker';
 
 export default async function showStoriesStealthModePopup(props: {
   onActivate?: () => void,

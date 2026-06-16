@@ -1,15 +1,15 @@
-import Icon from '@components/icon';
-import { animateImageToTarget } from '@helpers/animateImageToTarget';
-import type { CancellablePromise } from '@helpers/cancellablePromise';
-import { createImageAndURLFromBlob } from '@helpers/createImageAndURLFromBlob';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import { getFileAndOpenEditor } from '@helpers/getFileAndOpenEditor';
-import type { InputFile, Photo } from '@layer';
-import type { AppManagers } from '@lib/managers';
-import appDownloadManager from '@lib/appDownloadManager';
-import choosePhotoSize from '@appManagers/utils/photos/choosePhotoSize';
-import chooseProfileVideoSize from '@appManagers/utils/photos/chooseProfileVideoSize';
-import rootScope from '@lib/rootScope';
+import Icon from '@/components/icon';
+import { animateImageToTarget } from '@/helpers/animateImageToTarget';
+import type { CancellablePromise } from '@/helpers/cancellablePromise';
+import { createImageAndURLFromBlob } from '@/helpers/createImageAndURLFromBlob';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import { getFileAndOpenEditor } from '@/helpers/getFileAndOpenEditor';
+import type { InputFile, Photo } from '@/layer';
+import type { AppManagers } from '@/lib/managers';
+import appDownloadManager from '@/lib/appDownloadManager';
+import choosePhotoSize from '@/lib/appManagers/utils/photos/choosePhotoSize';
+import chooseProfileVideoSize from '@/lib/appManagers/utils/photos/chooseProfileVideoSize';
+import rootScope from '@/lib/rootScope';
 import { render } from 'solid-js/web';
 import { MediaEditorFinalResult } from './mediaEditor/finalRender/createFinalResult';
 import RenderProgressCircle from './mediaEditor/renderProgressCircle';
@@ -210,7 +210,7 @@ export async function openAvatarEditorWithFile(
     mediaSrc = imgResult.url;
   }
 
-  const { openMediaEditorFromMediaRaw } = await import('@components/mediaEditor');
+  const { openMediaEditorFromMediaRaw } = await import('@/components/mediaEditor');
 
   openMediaEditorFromMediaRaw({
     isEditingForAvatar: true,

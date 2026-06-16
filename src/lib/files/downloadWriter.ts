@@ -1,6 +1,6 @@
-import appManagersManager from '@appManagers/appManagersManager';
-import ServiceMessagePort from '@lib/serviceWorker/serviceMessagePort';
-import StreamWriter from '@lib/files/streamWriter';
+import appManagersManager from '@/lib/appManagers/appManagersManager';
+import ServiceMessagePort from '@/lib/serviceWorker/serviceMessagePort';
+import StreamWriter from '@/lib/files/streamWriter';
 
 export default class DownloadWriter implements StreamWriter {
   constructor(

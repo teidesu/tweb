@@ -1,8 +1,8 @@
 import { Accessor, Signal, createContext, createRoot, createSignal, useContext } from 'solid-js';
 
-import rootScope from '@lib/rootScope';
-import { AuthState } from '@types';
-import { AuthSentCode } from '@layer';
+import rootScope from '@/lib/rootScope';
+import { AuthState } from '@/types';
+import { AuthSentCode } from '@/layer';
 
 /**
  * Centralised auth-flow router & shared context.

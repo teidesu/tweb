@@ -1,6 +1,6 @@
 import { Component, onMount } from 'solid-js';
-import { SliderSuperTabEventable } from '@components/sliderTab';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import { SliderSuperTabEventable } from '@/components/sliderTab';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
 
 /**
  * Thin Solid wrapper for an auto-download sub-tab: builds its section(s) on

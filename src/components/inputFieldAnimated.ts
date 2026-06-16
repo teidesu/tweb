@@ -1,8 +1,8 @@
-import { USING_BOMS } from '@helpers/dom/richInputHandler';
-import BOM from '@helpers/string/bom';
-import { _i18n } from '@lib/langPack';
-import InputField, { InputFieldOptions } from '@components/inputField';
-import SetTransition from '@components/singleTransition';
+import { USING_BOMS } from '@/helpers/dom/richInputHandler';
+import BOM from '@/helpers/string/bom';
+import { _i18n } from '@/lib/langPack';
+import InputField, { InputFieldOptions } from '@/components/inputField';
+import SetTransition from '@/components/singleTransition';
 
 const USELESS_REG_EXP = new RegExp(`(<span>${BOM}</span>)|(<br\/?>)`, 'g');
 

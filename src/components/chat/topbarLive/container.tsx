@@ -1,18 +1,18 @@
 import { Accessor, Show, createEffect, createMemo, createResource, createSignal } from 'solid-js';
-import { TopbarLive } from '@components/chat/topbarLive/topbarLive';
-import { subscribeOn } from '@helpers/solid/subscribeOn';
-import rootScope from '@lib/rootScope';
-import { useCurrentRtmpCall } from '@components/rtmp/hooks';
-import { AppManagers } from '@lib/managers';
-import Chat from '@components/chat/chat';
-import ChatTopbar from '@components/chat/topbar';
-import { NULL_PEER_ID } from '@appManagers/constants';
-import { ChatFull, GroupCall, InputGroupCall, Chat as MTChat } from '@layer';
-import appImManager from '@lib/appImManager';
-import { useChat } from '@stores/peers';
-import { useFullPeer } from '@stores/fullPeers';
-import { i18n } from '@lib/langPack';
-import TopbarPlate, { createTopbarPlate, TopbarPlateController } from '@components/chat/topbarPlate';
+import { TopbarLive } from '@/components/chat/topbarLive/topbarLive';
+import { subscribeOn } from '@/helpers/solid/subscribeOn';
+import rootScope from '@/lib/rootScope';
+import { useCurrentRtmpCall } from '@/components/rtmp/hooks';
+import { AppManagers } from '@/lib/managers';
+import Chat from '@/components/chat/chat';
+import ChatTopbar from '@/components/chat/topbar';
+import { NULL_PEER_ID } from '@/lib/appManagers/constants';
+import { ChatFull, GroupCall, InputGroupCall, Chat as MTChat } from '@/layer';
+import appImManager from '@/lib/appImManager';
+import { useChat } from '@/stores/peers';
+import { useFullPeer } from '@/stores/fullPeers';
+import { i18n } from '@/lib/langPack';
+import TopbarPlate, { createTopbarPlate, TopbarPlateController } from '@/components/chat/topbarPlate';
 
 export type ChatLivePlate = TopbarPlateController & {
   setPeerId: (peerId: PeerId) => void

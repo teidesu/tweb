@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import { createTestClient, AccountSeed } from './harness';
-import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
+import getServerMessageId from '@/lib/appManagers/utils/messageId/getServerMessageId';
 
 const ENABLED = process.env.TG_API_TEST === '1';
 const seedPath = process.env.TG_API_SEED;

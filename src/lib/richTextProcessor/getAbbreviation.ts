@@ -1,6 +1,6 @@
-import { MessageEntity } from '@layer';
-import getEmojiEntityFromEmoji from '@lib/richTextProcessor/getEmojiEntityFromEmoji';
-import emojiRegExp from '@vendor/emoji/regex';
+import { MessageEntity } from '@/layer';
+import getEmojiEntityFromEmoji from '@/lib/richTextProcessor/getEmojiEntityFromEmoji';
+import emojiRegExp from '@/vendor/emoji/regex';
 
 const EMOJI_REG_EXP = new RegExp(`(^${emojiRegExp})`);
 

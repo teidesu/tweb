@@ -1,5 +1,5 @@
-import { useSimpleFormFieldContext } from '@components/simpleFormField';
-import classNames from '@helpers/string/classNames';
+import { useSimpleFormFieldContext } from '@/components/simpleFormField';
+import classNames from '@/helpers/string/classNames';
 import { splitProps } from 'solid-js';
 import { EmojiDropdownButton, EmojiDropdownButtonProps } from './emojiDropdownButton';
 import styles from './styles.module.scss';

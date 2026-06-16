@@ -1,4 +1,4 @@
-import liteMode from '@helpers/liteMode';
+import liteMode from '@/helpers/liteMode';
 
 // Single source of truth for the message-highlight tint (the `--message-highlighting-color`
 // overlay) on a bubble. Replaces the old dueling `.is-highlighted` / `.is-selected` CSS

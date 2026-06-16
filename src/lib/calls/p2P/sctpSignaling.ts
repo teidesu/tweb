@@ -3,8 +3,8 @@
  * Ported from Telegram Web A (telegram-tt) — src/api/gramjs/methods/sctpSignaling.ts
  */
 
-import { logger } from '@lib/logger';
-import ByteBuf from '@lib/calls/p2P/byteBuf';
+import { logger } from '@/lib/logger';
+import ByteBuf from '@/lib/calls/p2P/byteBuf';
 
 const DEBUG_CALLS = true;
 const log = logger('CALL-SCTP');

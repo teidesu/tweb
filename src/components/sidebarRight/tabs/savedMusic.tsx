@@ -1,25 +1,25 @@
 import { createSignal, onCleanup, onMount, Show } from 'solid-js';
 import { render } from 'solid-js/web';
-import { SliderSuperTab } from '@components/slider';
-import { i18n } from '@lib/langPack';
-import wrapDocument from '@components/wrappers/document';
-import LazyLoadQueue from '@components/lazyLoadQueue';
-import { MyDocument } from '@appManagers/appDocsManager';
-import { Message } from '@layer';
-import { MediaItem, MediaListLoader, MediaListLoaderFactory, MediaListLoaderOptions } from '@components/appMediaPlaybackController';
-import appMediaPlaybackController from '@components/appMediaPlaybackController';
-import ListLoader, { ListLoaderResult } from '@helpers/listLoader';
-import rootScope from '@lib/rootScope';
-import type AudioElement from '@components/audio';
-import Scrollable from '@components/scrollable';
-import { PreloaderTsx } from '@components/putPreloader';
-import createContextMenu from '@helpers/dom/createContextMenu';
-import appDownloadManager from '@lib/appDownloadManager';
-import { ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
-import showForwardPopup from '@components/popups/forward';
+import { SliderSuperTab } from '@/components/slider';
+import { i18n } from '@/lib/langPack';
+import wrapDocument from '@/components/wrappers/document';
+import LazyLoadQueue from '@/components/lazyLoadQueue';
+import { MyDocument } from '@/lib/appManagers/appDocsManager';
+import { Message } from '@/layer';
+import { MediaItem, MediaListLoader, MediaListLoaderFactory, MediaListLoaderOptions } from '@/components/appMediaPlaybackController';
+import appMediaPlaybackController from '@/components/appMediaPlaybackController';
+import ListLoader, { ListLoaderResult } from '@/helpers/listLoader';
+import rootScope from '@/lib/rootScope';
+import type AudioElement from '@/components/audio';
+import Scrollable from '@/components/scrollable';
+import { PreloaderTsx } from '@/components/putPreloader';
+import createContextMenu from '@/helpers/dom/createContextMenu';
+import appDownloadManager from '@/lib/appDownloadManager';
+import { ButtonMenuItemOptionsVerifiable } from '@/components/buttonMenu';
+import showForwardPopup from '@/components/popups/forward';
 
-import styles from '@components/sidebarRight/tabs/savedMusic.module.scss';
-import createMiddleware from '@helpers/solid/createMiddleware';
+import styles from '@/components/sidebarRight/tabs/savedMusic.module.scss';
+import createMiddleware from '@/helpers/solid/createMiddleware';
 
 async function createFakeMessage(doc: MyDocument, peerId: PeerId, mid: number): Promise<Message.message> {
   return {

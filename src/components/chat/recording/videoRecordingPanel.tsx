@@ -13,8 +13,8 @@
 // drives (mirrors createProgressRing in progressRing.tsx).
 
 import { Accessor, createRoot, createSignal, JSX } from 'solid-js';
-import classNames from '@helpers/string/classNames';
-import ProgressRing from '@components/progressRing';
+import classNames from '@/helpers/string/classNames';
+import ProgressRing from '@/components/progressRing';
 
 const STAGE_SIZE = 360;
 

@@ -1,4 +1,4 @@
-import randomize from '@helpers/array/randomize';
+import randomize from '@/helpers/array/randomize';
 
 const arrays = {
   8: new Uint8Array(1),

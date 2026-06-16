@@ -6,10 +6,10 @@
 
 import { JSX } from 'solid-js';
 
-import classNames from '@helpers/string/classNames';
-import appImManager from '@lib/appImManager';
+import classNames from '@/helpers/string/classNames';
+import appImManager from '@/lib/appImManager';
 
-import showTooltip from '@components/tooltip';
+import showTooltip from '@/components/tooltip';
 
 type CurrentToast = {
   hide: () => void,

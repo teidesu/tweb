@@ -1,5 +1,5 @@
-import { MessageEntity } from '@layer';
-import { sliceTextWithEntities } from '@lib/richTextProcessor/sliceTextWithEntities';
+import { MessageEntity } from '@/layer';
+import { sliceTextWithEntities } from '@/lib/richTextProcessor/sliceTextWithEntities';
 
 /**
  * Uses Unicode horizontal ellipsis (U+2026) instead of "..."

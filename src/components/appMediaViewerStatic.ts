@@ -1,17 +1,17 @@
-import EmptyListLoader from '@helpers/emptyListLoader';
-import mediaSizes from '@helpers/mediaSizes';
-import { Photo, Document } from '@layer';
-import appImManager from '@lib/appImManager';
+import EmptyListLoader from '@/helpers/emptyListLoader';
+import mediaSizes from '@/helpers/mediaSizes';
+import { Photo, Document } from '@/layer';
+import appImManager from '@/lib/appImManager';
 import AppMediaViewerBase from './appMediaViewerBase';
 import { ButtonMenuItemOptionsVerifiable } from './buttonMenu';
 import PopupElement from './popups';
 import PopupForward from './popups/forward';
 import appSidebarRight from './sidebarRight';
 import AppSharedMediaTab from './sidebarRight/tabs/sharedMediaTab';
-import appDownloadManager from '@lib/appDownloadManager';
-import { wrapAsyncClickHandler } from '@helpers/wrapAsyncClickHandler';
+import appDownloadManager from '@/lib/appDownloadManager';
+import { wrapAsyncClickHandler } from '@/helpers/wrapAsyncClickHandler';
 import showForwardPopup from './popups/forward';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
 
 
 export type AppMediaViewerStaticTargetType = {

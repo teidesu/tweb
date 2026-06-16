@@ -1,22 +1,22 @@
-import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import handleTabSwipe from '@helpers/dom/handleTabSwipe';
-import liteMode from '@helpers/liteMode';
-import safeAssign from '@helpers/object/safeAssign';
-import pause from '@helpers/schedulers/pause';
-import appDialogsManager from '@lib/appDialogsManager';
-import { AppManagers } from '@lib/managers';
-import { logger } from '@lib/logger';
-import { AutonomousDialogListBase } from '@components/autonomousDialogList/base';
-import ButtonIcon from '@components/buttonIcon';
-import Icon from '@components/icon';
-import appSidebarLeft from '@components/sidebarLeft';
-import { MAX_SIDEBAR_WIDTH } from '@helpers/updateColumnWidths';
-import SetTransition from '@components/singleTransition';
-import { SliderSuperTabEventable } from '@components/sliderTab';
-import { Register } from '@components/forumTab/register';
-import rootScope from '@lib/rootScope';
-import { isDialog } from '@lib/appManagers/utils/dialogs/isDialog';
+import IS_TOUCH_SUPPORTED from '@/environment/touchSupport';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import handleTabSwipe from '@/helpers/dom/handleTabSwipe';
+import liteMode from '@/helpers/liteMode';
+import safeAssign from '@/helpers/object/safeAssign';
+import pause from '@/helpers/schedulers/pause';
+import appDialogsManager from '@/lib/appDialogsManager';
+import { AppManagers } from '@/lib/managers';
+import { logger } from '@/lib/logger';
+import { AutonomousDialogListBase } from '@/components/autonomousDialogList/base';
+import ButtonIcon from '@/components/buttonIcon';
+import Icon from '@/components/icon';
+import appSidebarLeft from '@/components/sidebarLeft';
+import { MAX_SIDEBAR_WIDTH } from '@/helpers/updateColumnWidths';
+import SetTransition from '@/components/singleTransition';
+import { SliderSuperTabEventable } from '@/components/sliderTab';
+import { Register } from '@/components/forumTab/register';
+import rootScope from '@/lib/rootScope';
+import { isDialog } from '@/lib/appManagers/utils/dialogs/isDialog';
 
 
 export class ForumTab extends SliderSuperTabEventable {

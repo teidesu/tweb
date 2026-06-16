@@ -1,5 +1,5 @@
-import type { MyMessage } from '@appManagers/appMessagesManager';
-import wrapMessageActionTextNewUnsafe from '@components/wrappers/messageActionTextNewUnsafe';
+import type { MyMessage } from '@/lib/appManagers/appMessagesManager';
+import wrapMessageActionTextNewUnsafe from '@/components/wrappers/messageActionTextNewUnsafe';
 
 export type WrapMessageActionTextOptions = {
   message: MyMessage,

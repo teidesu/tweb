@@ -1,6 +1,6 @@
-import { MOUNT_CLASS_TO } from '@config/debug';
-import EventListenerBase from '@helpers/eventListenerBase';
-import { makeMediaSize, MediaSize } from '@helpers/mediaSize';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import EventListenerBase from '@/helpers/eventListenerBase';
+import { makeMediaSize, MediaSize } from '@/helpers/mediaSize';
 import { createStore } from 'solid-js/store';
 
 type MediaTypeSizes = {

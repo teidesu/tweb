@@ -1,8 +1,8 @@
-import { animate } from '@helpers/animation';
-import deferredPromise from '@helpers/cancellablePromise';
-import { unwrapEasing } from '@helpers/easings';
-import themeController from '@helpers/themeController';
-import { logger } from '@lib/logger';
+import { animate } from '@/helpers/animation';
+import deferredPromise from '@/helpers/cancellablePromise';
+import { unwrapEasing } from '@/helpers/easings';
+import themeController from '@/helpers/themeController';
+import { logger } from '@/lib/logger';
 
 export const UnwrapEasing = unwrapEasing;
 

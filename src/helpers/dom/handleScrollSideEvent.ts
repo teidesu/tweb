@@ -1,5 +1,5 @@
-import type ListenerSetter from '@helpers/listenerSetter';
-import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
+import type ListenerSetter from '@/helpers/listenerSetter';
+import IS_TOUCH_SUPPORTED from '@/environment/touchSupport';
 
 export default function handleScrollSideEvent(elem: HTMLElement, side: 'top' | 'bottom', callback: () => void, listenerSetter: ListenerSetter) {
   if (IS_TOUCH_SUPPORTED) {

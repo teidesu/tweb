@@ -1,10 +1,10 @@
-import type { MyDocument } from '@appManagers/appDocsManager';
-import type { MyPhoto } from '@appManagers/appPhotosManager';
-import type { ThumbCache } from '@lib/storages/thumbs';
-import { THUMB_TYPE_FULL } from '@appManagers/constants';
-import getImageFromStrippedThumb from '@helpers/getImageFromStrippedThumb';
-import apiManagerProxy from '@lib/apiManagerProxy';
-import { PhotoSize } from '@layer';
+import type { MyDocument } from '@/lib/appManagers/appDocsManager';
+import type { MyPhoto } from '@/lib/appManagers/appPhotosManager';
+import type { ThumbCache } from '@/lib/storages/thumbs';
+import { THUMB_TYPE_FULL } from '@/lib/appManagers/constants';
+import getImageFromStrippedThumb from '@/helpers/getImageFromStrippedThumb';
+import apiManagerProxy from '@/lib/apiManagerProxy';
+import { PhotoSize } from '@/layer';
 
 export default function getMediaThumbIfNeeded({
   photo,

@@ -1,8 +1,8 @@
 import { onMount } from 'solid-js';
 
-import { putPreloader } from '@components/putPreloader';
-import App from '@config/app';
-import { STATE_INIT } from '@config/state';
+import { putPreloader } from '@/components/putPreloader';
+import App from '@/config/app';
+import { STATE_INIT } from '@/config/state';
 
 import AuthCard from '@/pages/AuthCard';
 import { CardSpec, useAuthFlow } from '@/pages/authFlow';

@@ -1,4 +1,4 @@
-import { TextWithEntities } from '@layer';
+import { TextWithEntities } from '@/layer';
 
 export function concatTextsWithEntities(items: TextWithEntities.textWithEntities[]) {
   const result: TextWithEntities.textWithEntities = {

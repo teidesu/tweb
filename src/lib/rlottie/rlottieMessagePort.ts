@@ -1,6 +1,6 @@
-import type { ThreadedWorkerEvents } from '@lib/mainWorker/mainMessagePort';
-import SuperMessagePort from '@lib/superMessagePort';
-import { MOUNT_CLASS_TO } from '@config/debug';
+import type { ThreadedWorkerEvents } from '@/lib/mainWorker/mainMessagePort';
+import SuperMessagePort from '@/lib/superMessagePort';
+import { MOUNT_CLASS_TO } from '@/config/debug';
 
 type CommonPayload = {reqId: number};
 export type RLottieWorkerMethods = {

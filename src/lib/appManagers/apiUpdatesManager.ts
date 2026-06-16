@@ -5,17 +5,17 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import { ConstructorDeclMap, Message, MessageFwdHeader, Peer, StarsAmount, Update, Updates } from '@layer';
-import { LogTypes } from '@lib/logger';
-import assumeType from '@helpers/assumeType';
-import { AppManager } from '@appManagers/manager';
-import ctx from '@environment/ctx';
-import EventListenerBase from '@helpers/eventListenerBase';
-import applyMixins from '@helpers/applyMixins';
-import tsNow from '@helpers/tsNow';
-import formatStarsAmount from '@appManagers/utils/payments/formatStarsAmount';
-import debounce from '@helpers/schedulers/debounce';
-import copy from '@helpers/object/copy';
+import { ConstructorDeclMap, Message, MessageFwdHeader, Peer, StarsAmount, Update, Updates } from '@/layer';
+import { LogTypes } from '@/lib/logger';
+import assumeType from '@/helpers/assumeType';
+import { AppManager } from '@/lib/appManagers/manager';
+import ctx from '@/environment/ctx';
+import EventListenerBase from '@/helpers/eventListenerBase';
+import applyMixins from '@/helpers/applyMixins';
+import tsNow from '@/helpers/tsNow';
+import formatStarsAmount from '@/lib/appManagers/utils/payments/formatStarsAmount';
+import debounce from '@/helpers/schedulers/debounce';
+import copy from '@/helpers/object/copy';
 
 type UpdatesState = {
   pendingPtsUpdates: (Update & {pts: number, pts_count: number})[],

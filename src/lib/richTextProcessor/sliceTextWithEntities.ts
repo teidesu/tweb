@@ -1,4 +1,4 @@
-import type { MessageEntity } from '@layer';
+import type { MessageEntity } from '@/layer';
 
 const ATOMIC: ReadonlySet<MessageEntity['_']> = new Set([
   'messageEntityMention',

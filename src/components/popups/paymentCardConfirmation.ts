@@ -1,10 +1,10 @@
 import PopupElement from '.';
-import placeCaretAtEnd from '@helpers/dom/placeCaretAtEnd';
-import { AccountPassword, AccountTmpPassword } from '@layer';
-import { InputState } from '@components/inputField';
-import PasswordInputField from '@components/passwordInputField';
-import SettingSection from '@components/settingSection';
-import { PaymentButton } from '@components/popups/payment';
+import placeCaretAtEnd from '@/helpers/dom/placeCaretAtEnd';
+import { AccountPassword, AccountTmpPassword } from '@/layer';
+import { InputState } from '@/components/inputField';
+import PasswordInputField from '@/components/passwordInputField';
+import SettingSection from '@/components/settingSection';
+import { PaymentButton } from '@/components/popups/payment';
 
 export default class PopupPaymentCardConfirmation extends PopupElement<{
   finish: (tmpPassword: AccountTmpPassword) => void

@@ -1,14 +1,14 @@
-import SwipeHandler, { getEvent } from '@components/swipeHandler';
-import { toastNew } from '@components/toast';
-import rootScope from '@lib/rootScope';
-import { appSettings, setAppSettings } from '@stores/appSettings';
+import SwipeHandler, { getEvent } from '@/components/swipeHandler';
+import { toastNew } from '@/components/toast';
+import rootScope from '@/lib/rootScope';
+import { appSettings, setAppSettings } from '@/stores/appSettings';
 import {
   MIN_LEFT_SIDEBAR_WIDTH,
   MIN_RIGHT_SIDEBAR_WIDTH,
   SIDEBAR_COLLAPSE_FACTOR,
   setUserPreferredLeft,
   setUserPreferredRight,
-} from '@helpers/updateColumnWidths';
+} from '@/helpers/updateColumnWidths';
 
 export type ColumnResizeSide = 'left' | 'right';
 

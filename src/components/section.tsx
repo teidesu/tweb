@@ -1,6 +1,6 @@
 import { JSX, ParentComponent, Ref, splitProps } from 'solid-js';
-import { LangPackKey, FormatterArguments, i18n } from '@lib/langPack';
-import classNames from '@helpers/string/classNames';
+import { LangPackKey, FormatterArguments, i18n } from '@/lib/langPack';
+import classNames from '@/helpers/string/classNames';
 
 export type SectionOptions = {
   name?: LangPackKey | HTMLElement | DocumentFragment | JSX.Element,

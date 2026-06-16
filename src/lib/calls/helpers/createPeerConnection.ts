@@ -1,4 +1,4 @@
-import { Logger, logger } from '@lib/logger';
+import { Logger, logger } from '@/lib/logger';
 
 export default function createPeerConnection(config: RTCConfiguration, log?: Logger) {
   if (!log) {

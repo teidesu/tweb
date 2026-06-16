@@ -1,14 +1,14 @@
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import AvatarListLoader from '@helpers/avatarListLoader';
-import { Photo } from '@layer';
-import appDownloadManager from '@lib/appDownloadManager';
-import appImManager from '@lib/appImManager';
-import rootScope from '@lib/rootScope';
-import AppMediaViewerBase from '@components/appMediaViewerBase';
-import confirmationPopup from '@components/confirmationPopup';
-import { ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
-import overlayAvatarVideoOnMover from '@components/appMediaViewerAvatarVideo';
-import { i18n } from '@lib/langPack';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import AvatarListLoader from '@/helpers/avatarListLoader';
+import { Photo } from '@/layer';
+import appDownloadManager from '@/lib/appDownloadManager';
+import appImManager from '@/lib/appImManager';
+import rootScope from '@/lib/rootScope';
+import AppMediaViewerBase from '@/components/appMediaViewerBase';
+import confirmationPopup from '@/components/confirmationPopup';
+import { ButtonMenuItemOptionsVerifiable } from '@/components/buttonMenu';
+import overlayAvatarVideoOnMover from '@/components/appMediaViewerAvatarVideo';
+import { i18n } from '@/lib/langPack';
 
 type AppMediaViewerAvatarTargetType = {element: HTMLElement, photoId: Photo.photo['id'], photo?: Photo.photo};
 export default class AppMediaViewerAvatar extends AppMediaViewerBase<'', 'delete', AppMediaViewerAvatarTargetType> {

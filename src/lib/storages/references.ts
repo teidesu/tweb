@@ -1,9 +1,9 @@
-import type { Photo, StoryItem, WallPaper } from '@layer';
-import bytesToHex from '@helpers/bytes/bytesToHex';
-import deepEqual from '@helpers/object/deepEqual';
-import { AppManager } from '@appManagers/manager';
-import makeError from '@helpers/makeError';
-import type { MyStickerSetInput } from '@lib/appManagers/utils/stickers/constants';
+import type { Photo, StoryItem, WallPaper } from '@/layer';
+import bytesToHex from '@/helpers/bytes/bytesToHex';
+import deepEqual from '@/helpers/object/deepEqual';
+import { AppManager } from '@/lib/appManagers/manager';
+import makeError from '@/helpers/makeError';
+import type { MyStickerSetInput } from '@/lib/appManagers/utils/stickers/constants';
 
 export type ReferenceContext =
   ReferenceContext.referenceContextProfilePhoto |

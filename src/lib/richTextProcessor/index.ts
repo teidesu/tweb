@@ -5,8 +5,8 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import emojiRegExp from '@vendor/emoji/regex';
-import { MessageEntity } from '@layer';
+import emojiRegExp from '@/vendor/emoji/regex';
+import { MessageEntity } from '@/layer';
 
 export const ALPHA_CHARS_REG_EXP = 'a-z' +
   '\\u00c0-\\u00d6\\u00d8-\\u00f6\\u00f8-\\u00ff' + // Latin-1

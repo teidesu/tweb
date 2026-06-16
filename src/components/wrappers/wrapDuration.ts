@@ -1,6 +1,6 @@
-import I18n, { LangPackKey, i18n, join } from '@lib/langPack';
-import formatDuration, { DurationType } from '@helpers/formatDuration';
-import toHHMMSS from '@helpers/string/toHHMMSS';
+import I18n, { LangPackKey, i18n, join } from '@/lib/langPack';
+import formatDuration, { DurationType } from '@/helpers/formatDuration';
+import toHHMMSS from '@/helpers/string/toHHMMSS';
 
 export const DURATION_LANG_KEYS: {[type in DurationType]: LangPackKey} = {
   [DurationType.Seconds]: 'Seconds',

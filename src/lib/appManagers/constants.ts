@@ -1,4 +1,4 @@
-import type { MyDialogFilter } from '@lib/storages/filters';
+import type { MyDialogFilter } from '@/lib/storages/filters';
 
 /**
  * Legacy Webogram's format, don't change dcID to camelCase. date is timestamp

@@ -1,5 +1,5 @@
-import { Boost } from '@layer';
-import { AppManager } from '@appManagers/manager';
+import { Boost } from '@/layer';
+import { AppManager } from '@/lib/appManagers/manager';
 
 export default class AppBoostsManager extends AppManager {
   public saveBoost(peerId: PeerId, boost: Boost) {

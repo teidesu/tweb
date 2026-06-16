@@ -1,4 +1,4 @@
-import type { Photo, VideoSize } from '@layer';
+import type { Photo, VideoSize } from '@/layer';
 
 type VS = Extract<VideoSize, VideoSize.videoSize>;
 

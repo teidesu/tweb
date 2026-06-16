@@ -1,5 +1,5 @@
-import noop from '@helpers/noop';
-import calcCodecAndBitrate, { BITRATE_TARGET_FPS } from '@components/mediaEditor/finalRender/calcCodecAndBitrate';
+import noop from '@/helpers/noop';
+import calcCodecAndBitrate, { BITRATE_TARGET_FPS } from '@/components/mediaEditor/finalRender/calcCodecAndBitrate';
 
 export default async function createMp4VideoEncoder({ width, height, frameRate, onError }: {
   width: number,

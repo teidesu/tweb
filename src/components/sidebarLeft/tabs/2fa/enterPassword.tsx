@@ -1,21 +1,21 @@
 import { Component, onMount } from 'solid-js';
-import cancelEvent from '@helpers/dom/cancelEvent';
-import { canFocus } from '@helpers/dom/canFocus';
-import replaceContent from '@helpers/dom/replaceContent';
-import setInnerHTML from '@helpers/dom/setInnerHTML';
-import { AccountPassword } from '@layer';
-import I18n, { i18n } from '@lib/langPack';
-import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import Button from '@components/buttonTsx';
-import { putPreloader } from '@components/putPreloader';
-import PasswordMonkey from '@components/monkeys/password';
-import PasswordInputField from '@components/passwordInputField';
-import { AppTwoStepVerificationReEnterPasswordTab, AppTwoStepVerificationTab } from '@components/solidJsTabs/tabs';
-import Section from '@components/section';
-import { ForgotPasswordLink } from '@components/sidebarLeft/tabs/2fa/forgotPasswordLink';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
-import type { AppTwoStepVerificationEnterPasswordTab } from '@components/solidJsTabs/tabs';
+import cancelEvent from '@/helpers/dom/cancelEvent';
+import { canFocus } from '@/helpers/dom/canFocus';
+import replaceContent from '@/helpers/dom/replaceContent';
+import setInnerHTML from '@/helpers/dom/setInnerHTML';
+import { AccountPassword } from '@/layer';
+import I18n, { i18n } from '@/lib/langPack';
+import wrapEmojiText from '@/lib/richTextProcessor/wrapEmojiText';
+import Button from '@/components/buttonTsx';
+import { putPreloader } from '@/components/putPreloader';
+import PasswordMonkey from '@/components/monkeys/password';
+import PasswordInputField from '@/components/passwordInputField';
+import { AppTwoStepVerificationReEnterPasswordTab, AppTwoStepVerificationTab } from '@/components/solidJsTabs/tabs';
+import Section from '@/components/section';
+import { ForgotPasswordLink } from '@/components/sidebarLeft/tabs/2fa/forgotPasswordLink';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@/components/solidJsTabs/promiseCollector';
+import type { AppTwoStepVerificationEnterPasswordTab } from '@/components/solidJsTabs/tabs';
 
 const TwoStepVerificationEnterPassword: Component = () => {
   const [tab] = useSuperTab<typeof AppTwoStepVerificationEnterPasswordTab>();

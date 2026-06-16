@@ -1,5 +1,5 @@
-import EventListenerBase from '@helpers/eventListenerBase';
-import { TelegramWebViewEvent, TelegramWebViewEventCallback, TelegramWebViewEventMap, TelegramWebViewSendEventMap } from '@types';
+import EventListenerBase from '@/helpers/eventListenerBase';
+import { TelegramWebViewEvent, TelegramWebViewEventCallback, TelegramWebViewEventMap, TelegramWebViewSendEventMap } from '@/types';
 
 const weakMap: WeakMap<Window, TelegramWebViewEventCallback> = new WeakMap();
 window.addEventListener('message', (e) => {

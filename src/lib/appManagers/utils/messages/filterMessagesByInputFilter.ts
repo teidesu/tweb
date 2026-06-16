@@ -1,8 +1,8 @@
-import type { MyDocument } from '@appManagers/appDocsManager';
-import type { MyInputMessagesFilter, MyMessage } from '@appManagers/appMessagesManager';
-import { Message, MessageMedia, MessageEntity, MessageAction, Reaction } from '@layer';
-import matchUrl from '@lib/richTextProcessor/matchUrl';
-import reactionsEqual from '@appManagers/utils/reactions/reactionsEqual';
+import type { MyDocument } from '@/lib/appManagers/appDocsManager';
+import type { MyInputMessagesFilter, MyMessage } from '@/lib/appManagers/appMessagesManager';
+import { Message, MessageMedia, MessageEntity, MessageAction, Reaction } from '@/layer';
+import matchUrl from '@/lib/richTextProcessor/matchUrl';
+import reactionsEqual from '@/lib/appManagers/utils/reactions/reactionsEqual';
 
 export default function filterMessagesByInputFilter({
   inputFilter,

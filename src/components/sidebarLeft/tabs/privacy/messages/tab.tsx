@@ -1,15 +1,15 @@
 import { createEffect, createSignal, Show } from 'solid-js';
 import { Portal } from 'solid-js/web';
-import DEBUG from '@config/debug';
-import useIsConfirmationNeededOnClose from '@hooks/useIsConfirmationNeededOnClose';
-import { logger } from '@lib/logger';
-import SaveButton from '@components/saveButton';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import OptionsSection from '@components/sidebarLeft/tabs/privacy/messages/optionsSection';
-import PaidSettingsSection from '@components/sidebarLeft/tabs/privacy/messages/paidSettingsSection';
-import useSaveSettings from '@components/sidebarLeft/tabs/privacy/messages/useSaveSettings';
-import useSettings from '@components/sidebarLeft/tabs/privacy/messages/useSettings';
-import useStateStore from '@components/sidebarLeft/tabs/privacy/messages/useStateStore';
+import DEBUG from '@/config/debug';
+import useIsConfirmationNeededOnClose from '@/hooks/useIsConfirmationNeededOnClose';
+import { logger } from '@/lib/logger';
+import SaveButton from '@/components/saveButton';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import OptionsSection from '@/components/sidebarLeft/tabs/privacy/messages/optionsSection';
+import PaidSettingsSection from '@/components/sidebarLeft/tabs/privacy/messages/paidSettingsSection';
+import useSaveSettings from '@/components/sidebarLeft/tabs/privacy/messages/useSaveSettings';
+import useSettings from '@/components/sidebarLeft/tabs/privacy/messages/useSettings';
+import useStateStore from '@/components/sidebarLeft/tabs/privacy/messages/useStateStore';
 
 
 const log = logger('MessagesPrivacyTab');

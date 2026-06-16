@@ -1,6 +1,6 @@
-import { MOUNT_CLASS_TO } from '@config/debug';
-import rootScope from '@lib/rootScope';
-import mediaSizes from '@helpers/mediaSizes';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import rootScope from '@/lib/rootScope';
+import mediaSizes from '@/helpers/mediaSizes';
 
 export type CustomProperty = string;
 

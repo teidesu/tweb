@@ -1,6 +1,6 @@
-import type { Message, MessageAction } from '@layer';
-import type { HistoryResult, MyMessage } from '@appManagers/appMessagesManager';
-import forEachReverse from '@helpers/array/forEachReverse';
+import type { Message, MessageAction } from '@/layer';
+import type { HistoryResult, MyMessage } from '@/lib/appManagers/appMessagesManager';
+import forEachReverse from '@/helpers/array/forEachReverse';
 
 export default function filterChatPhotosMessages(value: HistoryResult) {
   forEachReverse(value.messages!, (message, idx, arr) => {

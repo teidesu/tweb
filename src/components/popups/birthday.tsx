@@ -1,24 +1,24 @@
 import { createEffect, createSignal, For, onMount, Show } from 'solid-js';
-import PopupElement from '@components/popups/indexTsx';
-import { createPopup } from '@components/popups/indexTsx';
-import { I18nTsx } from '@helpers/solid/i18n';
+import PopupElement from '@/components/popups/indexTsx';
+import { createPopup } from '@/components/popups/indexTsx';
+import { I18nTsx } from '@/helpers/solid/i18n';
 
-import { Birthday } from '@layer';
-import { getMonths, getDaysPerMonthForYear, numberOfDaysEachMonth } from '@helpers/date';
-import InputField from '@components/inputField';
-import cancelEvent from '@helpers/dom/cancelEvent';
-import { createButtonMenuSelect } from '@components/buttonMenuSelect';
-import { IconTsx } from '@components/iconTsx';
+import { Birthday } from '@/layer';
+import { getMonths, getDaysPerMonthForYear, numberOfDaysEachMonth } from '@/helpers/date';
+import InputField from '@/components/inputField';
+import cancelEvent from '@/helpers/dom/cancelEvent';
+import { createButtonMenuSelect } from '@/components/buttonMenuSelect';
+import { IconTsx } from '@/components/iconTsx';
 
-import styles from '@components/popups/birthday.module.scss';
-import appSidebarLeft from '@components/sidebarLeft';
-import { AppPrivacyBirthdayTab } from '@components/solidJsTabs/tabs';
-import rootScope from '@lib/rootScope';
-import { doubleRaf } from '@helpers/schedulers';
-import { toastNew } from '@components/toast';
-import { PeerTitleTsx } from '@components/peerTitleTsx';
-import lottieLoader from '@lib/rlottie/lottieLoader';
-import LottieAnimation from '@components/lottieAnimation';
+import styles from '@/components/popups/birthday.module.scss';
+import appSidebarLeft from '@/components/sidebarLeft';
+import { AppPrivacyBirthdayTab } from '@/components/solidJsTabs/tabs';
+import rootScope from '@/lib/rootScope';
+import { doubleRaf } from '@/helpers/schedulers';
+import { toastNew } from '@/components/toast';
+import { PeerTitleTsx } from '@/components/peerTitleTsx';
+import lottieLoader from '@/lib/rlottie/lottieLoader';
+import LottieAnimation from '@/components/lottieAnimation';
 
 const MIN_YEAR = 1900;
 

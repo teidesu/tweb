@@ -7,30 +7,30 @@ import {
   onMount,
   on,
 } from 'solid-js';
-import PopupElement, { createPopup } from '@components/popups/indexTsx';
-import { AvatarNewTsx } from '@components/avatarNew';
-import { ChatBackground as ChatBackgroundLayer } from '@components/chat/bubbles/chatBackground';
-import Section from '@components/section';
-import { IconTsx } from '@components/iconTsx';
-import { i18n } from '@lib/langPack';
-import rootScope from '@lib/rootScope';
-import themeController from '@helpers/themeController';
-import { paintQrCode, buildTelegramUserQrUrl } from '@helpers/qrCode/paintQrCode';
-import { getWallPaperColors, darkenToMaxLuminance } from '@helpers/color';
-import roundRect from '@helpers/canvas/roundRect';
-import getPeerActiveUsernames from '@appManagers/utils/peers/getPeerActiveUsernames';
-import { toastNew } from '@components/toast';
-import { copyTextToClipboard } from '@helpers/clipboard';
-import classNames from '@helpers/string/classNames';
-import { BaseTheme, Chat, Theme, User, WallPaper } from '@layer';
-import { AppTheme, DEFAULT_THEME } from '@config/state';
-import { useAppSettings } from '@stores/appSettings';
-import { subscribeOn } from '@helpers/solid/subscribeOn';
-import ChatThemesPicker from '@components/chatThemesPicker';
+import PopupElement, { createPopup } from '@/components/popups/indexTsx';
+import { AvatarNewTsx } from '@/components/avatarNew';
+import { ChatBackground as ChatBackgroundLayer } from '@/components/chat/bubbles/chatBackground';
+import Section from '@/components/section';
+import { IconTsx } from '@/components/iconTsx';
+import { i18n } from '@/lib/langPack';
+import rootScope from '@/lib/rootScope';
+import themeController from '@/helpers/themeController';
+import { paintQrCode, buildTelegramUserQrUrl } from '@/helpers/qrCode/paintQrCode';
+import { getWallPaperColors, darkenToMaxLuminance } from '@/helpers/color';
+import roundRect from '@/helpers/canvas/roundRect';
+import getPeerActiveUsernames from '@/lib/appManagers/utils/peers/getPeerActiveUsernames';
+import { toastNew } from '@/components/toast';
+import { copyTextToClipboard } from '@/helpers/clipboard';
+import classNames from '@/helpers/string/classNames';
+import { BaseTheme, Chat, Theme, User, WallPaper } from '@/layer';
+import { AppTheme, DEFAULT_THEME } from '@/config/state';
+import { useAppSettings } from '@/stores/appSettings';
+import { subscribeOn } from '@/helpers/solid/subscribeOn';
+import ChatThemesPicker from '@/components/chatThemesPicker';
 
 import styles from './myQrCode.module.scss';
-import { FontFamily, FontWeightBold } from '@config/font';
-import Button from '@components/buttonTsx';
+import { FontFamily, FontWeightBold } from '@/config/font';
+import Button from '@/components/buttonTsx';
 
 // Geometry numbers are lifted from Telegram-iOS' ChatQrCodeScreen.swift so the
 // card layout matches the iOS sheet 1:1. Source lines are noted next to each

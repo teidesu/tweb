@@ -1,4 +1,4 @@
-import isScrollableThumbContainer from '@helpers/dom/isScrollableThumbContainer';
+import isScrollableThumbContainer from '@/helpers/dom/isScrollableThumbContainer';
 
 export default function whichChild(elem: Node, countNonElements?: boolean) {
   if (!elem?.parentNode) {

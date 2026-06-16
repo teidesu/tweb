@@ -1,7 +1,7 @@
-import wrapTopicThreadAnchor from '@lib/richTextProcessor/wrapTopicThreadAnchor';
-import { avatarNew } from '@components/avatarNew';
-import Icon from '@components/icon';
-import wrapPeerTitle from '@components/wrappers/peerTitle';
+import wrapTopicThreadAnchor from '@/lib/richTextProcessor/wrapTopicThreadAnchor';
+import { avatarNew } from '@/components/avatarNew';
+import Icon from '@/components/icon';
+import wrapPeerTitle from '@/components/wrappers/peerTitle';
 
 export default async function wrapTopicNameButton(
   options: {

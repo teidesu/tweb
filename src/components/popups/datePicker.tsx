@@ -1,18 +1,18 @@
-import PopupElement, { createPopup } from '@components/popups/indexTsx';
+import PopupElement, { createPopup } from '@/components/popups/indexTsx';
 import { batch, createEffect, createMemo, createSignal, For, JSX, onCleanup, onMount, Show } from 'solid-js';
-import classNames from '@helpers/string/classNames';
-import mediaSizes from '@helpers/mediaSizes';
-import I18n, { i18n, LangPackKey, FormatterArguments } from '@lib/langPack';
-import { ButtonIconTsx } from '@components/buttonIconTsx';
-import InputField from '@components/inputField';
-import rootScope from '@lib/rootScope';
-import ListenerSetter from '@helpers/listenerSetter';
-import { formatTime } from '@helpers/date';
-import suggestPostStyles from '@components/chat/suggestPostPopup/styles.module.scss';
-import { wrapReplyMedia } from '@components/chat/replyContainer';
-import createMiddleware from '@helpers/solid/createMiddleware';
-import { Message, MessagesFilter } from '@layer';
-import { ScrollableContextValue } from '@components/scrollable2';
+import classNames from '@/helpers/string/classNames';
+import mediaSizes from '@/helpers/mediaSizes';
+import I18n, { i18n, LangPackKey, FormatterArguments } from '@/lib/langPack';
+import { ButtonIconTsx } from '@/components/buttonIconTsx';
+import InputField from '@/components/inputField';
+import rootScope from '@/lib/rootScope';
+import ListenerSetter from '@/helpers/listenerSetter';
+import { formatTime } from '@/helpers/date';
+import suggestPostStyles from '@/components/chat/suggestPostPopup/styles.module.scss';
+import { wrapReplyMedia } from '@/components/chat/replyContainer';
+import createMiddleware from '@/helpers/solid/createMiddleware';
+import { Message, MessagesFilter } from '@/layer';
+import { ScrollableContextValue } from '@/components/scrollable2';
 
 const MILLIS_IN_MINUTE = 60 * 1000;
 

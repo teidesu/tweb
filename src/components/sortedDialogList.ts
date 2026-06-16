@@ -1,16 +1,16 @@
 import { batch, onCleanup } from 'solid-js';
-import namedPromises from '@helpers/namedPromises';
-import pickKeys from '@helpers/object/pickKeys';
-import safeAssign from '@helpers/object/safeAssign';
-import { default as appDialogsManager, DialogElement } from '@lib/appDialogsManager';
-import { AppManagers } from '@lib/managers';
-import getDialogIndex from '@appManagers/utils/dialogs/getDialogIndex';
-import getDialogIndexKey from '@appManagers/utils/dialogs/getDialogIndexKey';
-import { logger } from '@lib/logger';
-import { createDeferredSortedVirtualList, DeferredSortedVirtualListItem } from '@components/deferredSortedVirtualList';
-import { LoadingDialogSkeletonSize } from '@components/loadingDialogSkeleton';
-import Scrollable from '@components/scrollable';
-import rootScope from '@lib/rootScope';
+import namedPromises from '@/helpers/namedPromises';
+import pickKeys from '@/helpers/object/pickKeys';
+import safeAssign from '@/helpers/object/safeAssign';
+import { default as appDialogsManager, DialogElement } from '@/lib/appDialogsManager';
+import { AppManagers } from '@/lib/managers';
+import getDialogIndex from '@/lib/appManagers/utils/dialogs/getDialogIndex';
+import getDialogIndexKey from '@/lib/appManagers/utils/dialogs/getDialogIndexKey';
+import { logger } from '@/lib/logger';
+import { createDeferredSortedVirtualList, DeferredSortedVirtualListItem } from '@/components/deferredSortedVirtualList';
+import { LoadingDialogSkeletonSize } from '@/components/loadingDialogSkeleton';
+import Scrollable from '@/components/scrollable';
+import rootScope from '@/lib/rootScope';
 import { isTruthy } from '../helpers/isTruthy';
 
 

@@ -1,13 +1,13 @@
-import tsNow from '@helpers/tsNow';
-import classNames from '@helpers/string/classNames';
-import { AvatarNewTsx } from '@components/avatarNew';
-import PopupElement, { createPopup } from '@components/popups/indexTsx';
-import { RadioFormFromValues } from '@components/row';
-import { MUTE_UNTIL } from '@appManagers/constants';
-import { LangPackKey } from '@lib/langPack';
-import rootScope from '@lib/rootScope';
+import tsNow from '@/helpers/tsNow';
+import classNames from '@/helpers/string/classNames';
+import { AvatarNewTsx } from '@/components/avatarNew';
+import PopupElement, { createPopup } from '@/components/popups/indexTsx';
+import { RadioFormFromValues } from '@/components/row';
+import { MUTE_UNTIL } from '@/lib/appManagers/constants';
+import { LangPackKey } from '@/lib/langPack';
+import rootScope from '@/lib/rootScope';
 
-import styles from '@components/popups/mute.module.scss';
+import styles from '@/components/popups/mute.module.scss';
 
 const ONE_HOUR = 3600;
 const TIMES: {value: number, langPackKey: LangPackKey, checked?: boolean}[] = [

@@ -1,18 +1,18 @@
 import { Component } from 'solid-js';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import createParticipantContextMenu from '@helpers/dom/createParticipantContextMenu';
-import { ChannelParticipant, Chat } from '@layer';
-import hasRights from '@appManagers/utils/chats/hasRights';
-import { i18n } from '@lib/langPack';
-import AppSelectPeers from '@components/appSelectPeers';
-import ButtonCorner from '@components/buttonCorner';
-import showPickUserPopup from '@components/popups/pickUser';
-import SettingSection from '@components/settingSection';
-import wrapPeerTitle from '@components/wrappers/peerTitle';
-import { createSelectorForParticipants } from '@components/sidebarRight/tabs/participantsSelector';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
-import type { AppRemovedUsersTab } from '@components/solidJsTabs/tabs';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import createParticipantContextMenu from '@/helpers/dom/createParticipantContextMenu';
+import { ChannelParticipant, Chat } from '@/layer';
+import hasRights from '@/lib/appManagers/utils/chats/hasRights';
+import { i18n } from '@/lib/langPack';
+import AppSelectPeers from '@/components/appSelectPeers';
+import ButtonCorner from '@/components/buttonCorner';
+import showPickUserPopup from '@/components/popups/pickUser';
+import SettingSection from '@/components/settingSection';
+import wrapPeerTitle from '@/components/wrappers/peerTitle';
+import { createSelectorForParticipants } from '@/components/sidebarRight/tabs/participantsSelector';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@/components/solidJsTabs/promiseCollector';
+import type { AppRemovedUsersTab } from '@/components/solidJsTabs/tabs';
 
 const RemovedUsers: Component = () => {
   const [tab] = useSuperTab<typeof AppRemovedUsersTab>();

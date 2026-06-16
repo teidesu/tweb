@@ -1,14 +1,14 @@
-import TransitionSlider from '@components/transition';
-import { ScrollableX } from '@components/scrollable';
-import { fastRaf } from '@helpers/schedulers';
-import fastSmoothScroll, { FocusDirection } from '@helpers/fastSmoothScroll';
-import findUpAsChild from '@helpers/dom/findUpAsChild';
-import nthChild from '@helpers/dom/nthChild';
-import whichChild from '@helpers/dom/whichChild';
-import ListenerSetter from '@helpers/listenerSetter';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import liteMode from '@helpers/liteMode';
-import { ScrollableContextValue } from '@components/scrollable2';
+import TransitionSlider from '@/components/transition';
+import { ScrollableX } from '@/components/scrollable';
+import { fastRaf } from '@/helpers/schedulers';
+import fastSmoothScroll, { FocusDirection } from '@/helpers/fastSmoothScroll';
+import findUpAsChild from '@/helpers/dom/findUpAsChild';
+import nthChild from '@/helpers/dom/nthChild';
+import whichChild from '@/helpers/dom/whichChild';
+import ListenerSetter from '@/helpers/listenerSetter';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import liteMode from '@/helpers/liteMode';
+import { ScrollableContextValue } from '@/components/scrollable2';
 
 type OnChangeArgs = {
   element: HTMLElement;

@@ -1,9 +1,9 @@
 // * thanks https://github.com/dkaraush/particles for webgl version
 
-import { IS_MOBILE } from '@environment/userAgent';
-import callbackify from '@helpers/callbackify';
-import callbackifyAll from '@helpers/callbackifyAll';
-import clamp from '@helpers/number/clamp';
+import { IS_MOBILE } from '@/environment/userAgent';
+import callbackify from '@/helpers/callbackify';
+import callbackifyAll from '@/helpers/callbackifyAll';
+import clamp from '@/helpers/number/clamp';
 
 export type DotRendererConfig = {
   particlesCount: number,

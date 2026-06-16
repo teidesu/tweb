@@ -1,8 +1,8 @@
-import pause from '@helpers/schedulers/pause';
-import { makeMediaSize } from '@helpers/mediaSize';
-import scaleMediaElement from '@helpers/canvas/scaleMediaElement';
-import preloadVideo from '@helpers/preloadVideo';
-import setCurrentTime from '@helpers/dom/setCurrentTime';
+import pause from '@/helpers/schedulers/pause';
+import { makeMediaSize } from '@/helpers/mediaSize';
+import scaleMediaElement from '@/helpers/canvas/scaleMediaElement';
+import preloadVideo from '@/helpers/preloadVideo';
+import setCurrentTime from '@/helpers/dom/setCurrentTime';
 
 // iOS fits the uploaded video thumb into a square box (320), Android keeps the
 // frame size as-is; 720 matches the media editor's thumbnail cap and stays

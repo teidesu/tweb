@@ -1,11 +1,11 @@
-import { Photo, PhotoSize } from '@layer';
-import { avatarNew, wrapPhotoToAvatar } from '@components/avatarNew';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import Button from '@components/button';
-import { LangPackKey } from '@lib/langPack';
-import { Middleware } from '@helpers/middleware';
-import type LazyLoadQueue from '@components/lazyLoadQueue';
-import type ListenerSetter from '@helpers/listenerSetter';
+import { Photo, PhotoSize } from '@/layer';
+import { avatarNew, wrapPhotoToAvatar } from '@/components/avatarNew';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import Button from '@/components/button';
+import { LangPackKey } from '@/lib/langPack';
+import { Middleware } from '@/helpers/middleware';
+import type LazyLoadQueue from '@/components/lazyLoadQueue';
+import type ListenerSetter from '@/helpers/listenerSetter';
 
 const CLASS_NAME = 'bubble-service-media';
 

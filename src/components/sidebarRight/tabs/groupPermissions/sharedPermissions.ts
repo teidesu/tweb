@@ -1,26 +1,26 @@
-import type { ChatRights } from '@appManagers/appChatsManager';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import ListenerSetter from '@helpers/listenerSetter';
-import { ChannelParticipant, Chat, ChatAdminRights, ChatBannedRights } from '@layer';
-import { AppManagers } from '@lib/managers';
-import combineParticipantBannedRights from '@appManagers/utils/chats/combineParticipantBannedRights';
-import hasRights from '@appManagers/utils/chats/hasRights';
-import getPeerActiveUsernames from '@appManagers/utils/peers/getPeerActiveUsernames';
-import { LangPackKey } from '@lib/langPack';
-import SliderSuperTab from '@components/sliderTab';
-import CheckboxFields, { CheckboxFieldsField } from '@components/checkboxFields';
-import apiManagerProxy from '@lib/apiManagerProxy';
+import type { ChatRights } from '@/lib/appManagers/appChatsManager';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import ListenerSetter from '@/helpers/listenerSetter';
+import { ChannelParticipant, Chat, ChatAdminRights, ChatBannedRights } from '@/layer';
+import { AppManagers } from '@/lib/managers';
+import combineParticipantBannedRights from '@/lib/appManagers/utils/chats/combineParticipantBannedRights';
+import hasRights from '@/lib/appManagers/utils/chats/hasRights';
+import getPeerActiveUsernames from '@/lib/appManagers/utils/peers/getPeerActiveUsernames';
+import { LangPackKey } from '@/lib/langPack';
+import SliderSuperTab from '@/components/sliderTab';
+import CheckboxFields, { CheckboxFieldsField } from '@/components/checkboxFields';
+import apiManagerProxy from '@/lib/apiManagerProxy';
 import { createEffect, createRoot, createSignal, onCleanup } from 'solid-js';
 import { createStore } from 'solid-js/store';
-import deepEqual from '@helpers/object/deepEqual';
-import ButtonIcon from '@components/buttonIcon';
-import throttle from '@helpers/schedulers/throttle';
-import { PopupPeerOptions } from '@components/popups/peer';
-import confirmationPopup, { ConfirmationPopupRejectReason } from '@components/confirmationPopup';
-import toggleDisability from '@helpers/dom/toggleDisability';
-import { isParticipantCreator } from '@lib/appManagers/utils/chats/isParticipantAdmin';
-import { CHAT_LEGACY_ADMIN_RIGHTS } from '@lib/appManagers/utils/chats/constants';
-import { BANNED_RIGHTS_UNTIL_FOREVER } from '@lib/appManagers/constants';
+import deepEqual from '@/helpers/object/deepEqual';
+import ButtonIcon from '@/components/buttonIcon';
+import throttle from '@/helpers/schedulers/throttle';
+import { PopupPeerOptions } from '@/components/popups/peer';
+import confirmationPopup, { ConfirmationPopupRejectReason } from '@/components/confirmationPopup';
+import toggleDisability from '@/helpers/dom/toggleDisability';
+import { isParticipantCreator } from '@/lib/appManagers/utils/chats/isParticipantAdmin';
+import { CHAT_LEGACY_ADMIN_RIGHTS } from '@/lib/appManagers/utils/chats/constants';
+import { BANNED_RIGHTS_UNTIL_FOREVER } from '@/lib/appManagers/constants';
 
 type PermissionsCheckboxFieldsField = CheckboxFieldsField & {
   flags: ChatRights[],

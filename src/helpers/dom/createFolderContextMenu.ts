@@ -1,10 +1,10 @@
-import type { AppManagers } from '@lib/managers';
-import type { AppChatFoldersTab } from '@components/solidJsTabs/tabs';
-import type { AppEditFolderTab } from '@components/solidJsTabs/tabs';
-import type { AppSidebarLeft } from '@components/sidebarLeft';
-import { FOLDER_ID_ALL, REAL_FOLDERS } from '@appManagers/constants';
-import createContextMenu from '@helpers/dom/createContextMenu';
-import findUpClassName from '@helpers/dom/findUpClassName';
+import type { AppManagers } from '@/lib/managers';
+import type { AppChatFoldersTab } from '@/components/solidJsTabs/tabs';
+import type { AppEditFolderTab } from '@/components/solidJsTabs/tabs';
+import type { AppSidebarLeft } from '@/components/sidebarLeft';
+import { FOLDER_ID_ALL, REAL_FOLDERS } from '@/lib/appManagers/constants';
+import createContextMenu from '@/helpers/dom/createContextMenu';
+import findUpClassName from '@/helpers/dom/findUpClassName';
 
 export default function createFolderContextMenu({
   appSidebarLeft,

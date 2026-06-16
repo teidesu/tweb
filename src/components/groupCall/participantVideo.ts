@@ -1,16 +1,16 @@
-import { GroupCallParticipant } from '@layer';
-import type { GroupCallOutputSource } from '@appManagers/appGroupCallsManager';
-import { i18n } from '@lib/langPack';
-import PeerTitle from '@components/peerTitle';
+import { GroupCallParticipant } from '@/layer';
+import type { GroupCallOutputSource } from '@/lib/appManagers/appGroupCallsManager';
+import { i18n } from '@/lib/langPack';
+import PeerTitle from '@/components/peerTitle';
 import { getGroupCallParticipantMutedState } from '.';
-import GroupCallParticipantMutedIcon from '@components/groupCall/participantMutedIcon';
-import GroupCallParticipantStatusElement from '@components/groupCall/participantStatus';
-import GroupCallInstance from '@lib/calls/groupCallInstance';
-import callVideoCanvasBlur from '@components/call/videoCanvasBlur';
-import getPeerId from '@appManagers/utils/peers/getPeerId';
-import { AppManagers } from '@lib/managers';
-import safePlay from '@helpers/dom/safePlay';
-import Icon from '@components/icon';
+import GroupCallParticipantMutedIcon from '@/components/groupCall/participantMutedIcon';
+import GroupCallParticipantStatusElement from '@/components/groupCall/participantStatus';
+import GroupCallInstance from '@/lib/calls/groupCallInstance';
+import callVideoCanvasBlur from '@/components/call/videoCanvasBlur';
+import getPeerId from '@/lib/appManagers/utils/peers/getPeerId';
+import { AppManagers } from '@/lib/managers';
+import safePlay from '@/helpers/dom/safePlay';
+import Icon from '@/components/icon';
 
 const className = 'group-call-participant-video';
 

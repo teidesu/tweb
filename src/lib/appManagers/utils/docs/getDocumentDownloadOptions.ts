@@ -1,6 +1,6 @@
-import type { Document, PhotoSize, VideoSize } from '@layer';
-import type { DownloadOptions } from '@appManagers/apiFileManager';
-import getDocumentInputFileLocation from '@appManagers/utils/docs/getDocumentInputFileLocation';
+import type { Document, PhotoSize, VideoSize } from '@/layer';
+import type { DownloadOptions } from '@/lib/appManagers/apiFileManager';
+import getDocumentInputFileLocation from '@/lib/appManagers/utils/docs/getDocumentInputFileLocation';
 
 type GetDocumentDownloadOptions = {
   thumb?: PhotoSize.photoSize | Extract<VideoSize, VideoSize.videoSize>;

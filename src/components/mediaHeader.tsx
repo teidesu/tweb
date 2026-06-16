@@ -1,10 +1,10 @@
 import { JSX, Ref, Show } from 'solid-js';
 
-import LottieAnimation from '@components/lottieAnimation';
-import classNames from '@helpers/string/classNames';
-import lottieLoader, { LottieAssetName } from '@lib/rlottie/lottieLoader';
+import LottieAnimation from '@/components/lottieAnimation';
+import classNames from '@/helpers/string/classNames';
+import lottieLoader, { LottieAssetName } from '@/lib/rlottie/lottieLoader';
 
-import styles from '@components/mediaHeader.module.scss';
+import styles from '@/components/mediaHeader.module.scss';
 
 /**
  * Compound header used by auth cards, intro popups, and other "icon → title →

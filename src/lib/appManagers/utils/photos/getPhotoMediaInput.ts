@@ -1,6 +1,6 @@
-import { InputMedia } from '@layer';
-import { MyPhoto } from '@appManagers/appPhotosManager';
-import getPhotoInput from '@appManagers/utils/photos/getPhotoInput';
+import { InputMedia } from '@/layer';
+import { MyPhoto } from '@/lib/appManagers/appPhotosManager';
+import getPhotoInput from '@/lib/appManagers/utils/photos/getPhotoInput';
 
 export default function getPhotoMediaInput(photo: MyPhoto): InputMedia.inputMediaPhoto {
   return {

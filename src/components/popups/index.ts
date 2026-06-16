@@ -1,26 +1,26 @@
-import ripple from '@components/ripple';
-import animationIntersector from '@components/animationIntersector';
-import appNavigationController, { NavigationItem } from '@components/appNavigationController';
-import { i18n, LangPackKey, _i18n } from '@lib/langPack';
-import findUpClassName from '@helpers/dom/findUpClassName';
-import blurActiveElement from '@helpers/dom/blurActiveElement';
-import ListenerSetter from '@helpers/listenerSetter';
-import { attachClickEvent, simulateClickEvent } from '@helpers/dom/clickEvent';
-import isSendShortcutPressed from '@helpers/dom/isSendShortcutPressed';
-import cancelEvent from '@helpers/dom/cancelEvent';
-import EventListenerBase, { EventListenerListeners } from '@helpers/eventListenerBase';
-import { addFullScreenListener, getFullScreenElement } from '@helpers/dom/fullScreen';
-import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
-import { AppManagers } from '@lib/managers';
-import overlayCounter from '@helpers/overlayCounter';
-import Scrollable from '@components/scrollable';
-import { getMiddleware, MiddlewareHelper } from '@helpers/middleware';
-import ButtonIcon from '@components/buttonIcon';
-import Icon from '@components/icon';
-import toggleDisability from '@helpers/dom/toggleDisability';
+import ripple from '@/components/ripple';
+import animationIntersector from '@/components/animationIntersector';
+import appNavigationController, { NavigationItem } from '@/components/appNavigationController';
+import { i18n, LangPackKey, _i18n } from '@/lib/langPack';
+import findUpClassName from '@/helpers/dom/findUpClassName';
+import blurActiveElement from '@/helpers/dom/blurActiveElement';
+import ListenerSetter from '@/helpers/listenerSetter';
+import { attachClickEvent, simulateClickEvent } from '@/helpers/dom/clickEvent';
+import isSendShortcutPressed from '@/helpers/dom/isSendShortcutPressed';
+import cancelEvent from '@/helpers/dom/cancelEvent';
+import EventListenerBase, { EventListenerListeners } from '@/helpers/eventListenerBase';
+import { addFullScreenListener, getFullScreenElement } from '@/helpers/dom/fullScreen';
+import indexOfAndSplice from '@/helpers/array/indexOfAndSplice';
+import { AppManagers } from '@/lib/managers';
+import overlayCounter from '@/helpers/overlayCounter';
+import Scrollable from '@/components/scrollable';
+import { getMiddleware, MiddlewareHelper } from '@/helpers/middleware';
+import ButtonIcon from '@/components/buttonIcon';
+import Icon from '@/components/icon';
+import toggleDisability from '@/helpers/dom/toggleDisability';
 import { JSX } from 'solid-js';
 import { render } from 'solid-js/web';
-import MarkupTooltip from '@components/chat/markupTooltip';
+import MarkupTooltip from '@/components/chat/markupTooltip';
 
 export type PopupButton = {
   text?: HTMLElement | DocumentFragment | Text,

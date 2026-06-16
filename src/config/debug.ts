@@ -1,4 +1,4 @@
-import Modes from '@config/modes';
+import Modes from '@/config/modes';
 
 export const IS_BETA = import.meta.env.DEV;
 // True only under the authorized local preview (the flag is injected by

@@ -1,6 +1,6 @@
-import findAndSpliceAll from '@helpers/array/findAndSpliceAll';
-import LazyLoadQueueBase, { LazyLoadElementBase } from '@components/lazyLoadQueueBase';
-import VisibilityIntersector from '@components/visibilityIntersector';
+import findAndSpliceAll from '@/helpers/array/findAndSpliceAll';
+import LazyLoadQueueBase, { LazyLoadElementBase } from '@/components/lazyLoadQueueBase';
+import VisibilityIntersector from '@/components/visibilityIntersector';
 
 export type LazyLoadElement = Omit<LazyLoadElementBase, 'load'> & {
   load: (target?: HTMLElement) => Promise<any>,

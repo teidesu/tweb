@@ -1,13 +1,13 @@
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import findUpAsChild from '@helpers/dom/findUpAsChild';
-import EventListenerBase from '@helpers/eventListenerBase';
-import ListenerSetter from '@helpers/listenerSetter';
-import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import safeAssign from '@helpers/object/safeAssign';
-import appNavigationController, { NavigationItem } from '@components/appNavigationController';
-import findUpClassName from '@helpers/dom/findUpClassName';
-import rootScope from '@lib/rootScope';
-import liteMode from '@helpers/liteMode';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import findUpAsChild from '@/helpers/dom/findUpAsChild';
+import EventListenerBase from '@/helpers/eventListenerBase';
+import ListenerSetter from '@/helpers/listenerSetter';
+import IS_TOUCH_SUPPORTED from '@/environment/touchSupport';
+import safeAssign from '@/helpers/object/safeAssign';
+import appNavigationController, { NavigationItem } from '@/components/appNavigationController';
+import findUpClassName from '@/helpers/dom/findUpClassName';
+import rootScope from '@/lib/rootScope';
+import liteMode from '@/helpers/liteMode';
 
 const KEEP_OPEN = false;
 const TOGGLE_TIMEOUT = 200;

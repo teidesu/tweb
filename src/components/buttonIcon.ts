@@ -1,4 +1,4 @@
-import Button from '@components/button';
+import Button from '@/components/button';
 
 const ButtonIcon = (className?: (string & {}) | Icon, options: Partial<{noRipple: true, onlyMobile: true, asDiv: boolean}> = {}) => {
   const splitted = className?.split(' ');

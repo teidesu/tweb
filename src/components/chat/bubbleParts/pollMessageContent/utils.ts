@@ -1,10 +1,10 @@
-import { createMessageSpoilerOverlay } from '@components/messageSpoilerOverlay';
-import { AttachedMedia } from '@components/popups/createPoll/storeContext';
-import { subscribeOn } from '@helpers/solid/subscribeOn';
-import { useIsCleaned } from '@hooks/useIsCleaned';
-import { Poll, TextWithEntities } from '@layer';
-import { ChatRights } from '@lib/appManagers/appChatsManager';
-import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { createMessageSpoilerOverlay } from '@/components/messageSpoilerOverlay';
+import { AttachedMedia } from '@/components/popups/createPoll/storeContext';
+import { subscribeOn } from '@/helpers/solid/subscribeOn';
+import { useIsCleaned } from '@/hooks/useIsCleaned';
+import { Poll, TextWithEntities } from '@/layer';
+import { ChatRights } from '@/lib/appManagers/appChatsManager';
+import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
 import { Accessor, batch, createEffect, createSignal, onCleanup } from 'solid-js';
 import { unwrap } from 'solid-js/store';
 import { PollMessageContentProps } from './PollMessageContent';

@@ -1,4 +1,4 @@
-import { DocumentAttribute, WebDocument } from '@layer';
+import { DocumentAttribute, WebDocument } from '@/layer';
 
 export default class AppWebDocsManager {
   public saveWebDocument(webDocument: WebDocument) {

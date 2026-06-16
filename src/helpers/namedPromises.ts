@@ -1,5 +1,5 @@
-import { logger } from '@lib/logger';
-import { recordPromise } from '@helpers/recordPromise';
+import { logger } from '@/lib/logger';
+import { recordPromise } from '@/helpers/recordPromise';
 
 export default async function namedPromises<T extends Record<string, any>>(
   promises: T,

@@ -1,9 +1,9 @@
-import { joinDeepPath } from '@helpers/object/setDeepProperty';
-import { UserProfilePhoto, ChatPhoto, InputFileLocation, Photo } from '@layer';
-import { DownloadOptions } from '@appManagers/apiFileManager';
-import MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
-import { AppManager } from '@appManagers/manager';
-import chooseProfileVideoSize from '@appManagers/utils/photos/chooseProfileVideoSize';
+import { joinDeepPath } from '@/helpers/object/setDeepProperty';
+import { UserProfilePhoto, ChatPhoto, InputFileLocation, Photo } from '@/layer';
+import { DownloadOptions } from '@/lib/appManagers/apiFileManager';
+import MTProtoMessagePort from '@/lib/mainWorker/mainMessagePort';
+import { AppManager } from '@/lib/appManagers/manager';
+import chooseProfileVideoSize from '@/lib/appManagers/utils/photos/chooseProfileVideoSize';
 
 // 'photo_video' = small animated preview ('p', ~100KB) for chat list / topbar;
 // 'photo_video_full' = full quality ('u', ~2MB) for the big profile avatar.

@@ -1,20 +1,20 @@
 import { createMemo, onMount } from 'solid-js';
-import anchorCallback from '@helpers/dom/anchorCallback';
-import { randomLong } from '@helpers/random';
-import { LangPackLanguage } from '@layer';
-import I18n, { i18n, join } from '@lib/langPack';
-import rootScope from '@lib/rootScope';
-import usePremium from '@stores/premium';
-import { pickLanguage } from '@components/chat/translation';
-import CheckboxFieldTsx from '@components/checkboxFieldTsx';
-import PopupPremium from '@components/popups/premium';
-import RadioField from '@components/radioField';
-import Row, { RadioFormFromRows } from '@components/row';
-import RowTsx from '@components/rowTsx';
-import Section from '@components/section';
-import { useAppSettings } from '@stores/appSettings';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
+import anchorCallback from '@/helpers/dom/anchorCallback';
+import { randomLong } from '@/helpers/random';
+import { LangPackLanguage } from '@/layer';
+import I18n, { i18n, join } from '@/lib/langPack';
+import rootScope from '@/lib/rootScope';
+import usePremium from '@/stores/premium';
+import { pickLanguage } from '@/components/chat/translation';
+import CheckboxFieldTsx from '@/components/checkboxFieldTsx';
+import PopupPremium from '@/components/popups/premium';
+import RadioField from '@/components/radioField';
+import Row, { RadioFormFromRows } from '@/components/row';
+import RowTsx from '@/components/rowTsx';
+import Section from '@/components/section';
+import { useAppSettings } from '@/stores/appSettings';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@/components/solidJsTabs/promiseCollector';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Section 1 — translation toggles + "Do not translate" picker

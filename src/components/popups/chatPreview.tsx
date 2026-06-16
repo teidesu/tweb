@@ -1,22 +1,22 @@
 import { createMemo, createSignal, JSX, onCleanup, onMount, untrack, useContext } from 'solid-js';
 import { unwrap } from 'solid-js/store';
-import { ChatFull, ChatTheme, UserFull, WallPaper } from '@layer';
-import PopupElement, { createPopup, PopupContext } from '@components/popups/indexTsx';
-import Chat from '@components/chat/chat';
-import { ChatBackground, ChatBackgroundTheme } from '@components/chat/bubbles/chatBackground';
-import { ChatType } from '@components/chat/chatType';
-import { NULL_PEER_ID } from '@appManagers/constants';
-import themeController from '@helpers/themeController';
-import mediaSizes from '@helpers/mediaSizes';
-import appImManager from '@lib/appImManager';
-import rootScope from '@lib/rootScope';
-import { i18n, LangPackKey } from '@lib/langPack';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import replaceContent from '@helpers/dom/replaceContent';
-import { useFullPeer } from '@stores/fullPeers';
-import { appState } from '@stores/appState';
-import { subscribeOn } from '@helpers/solid/subscribeOn';
-import ListenerSetter from '@helpers/listenerSetter';
+import { ChatFull, ChatTheme, UserFull, WallPaper } from '@/layer';
+import PopupElement, { createPopup, PopupContext } from '@/components/popups/indexTsx';
+import Chat from '@/components/chat/chat';
+import { ChatBackground, ChatBackgroundTheme } from '@/components/chat/bubbles/chatBackground';
+import { ChatType } from '@/components/chat/chatType';
+import { NULL_PEER_ID } from '@/lib/appManagers/constants';
+import themeController from '@/helpers/themeController';
+import mediaSizes from '@/helpers/mediaSizes';
+import appImManager from '@/lib/appImManager';
+import rootScope from '@/lib/rootScope';
+import { i18n, LangPackKey } from '@/lib/langPack';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import replaceContent from '@/helpers/dom/replaceContent';
+import { useFullPeer } from '@/stores/fullPeers';
+import { appState } from '@/stores/appState';
+import { subscribeOn } from '@/helpers/solid/subscribeOn';
+import ListenerSetter from '@/helpers/listenerSetter';
 
 export type ChatPreviewAnchor = HTMLElement | {x: number, y: number} | {
   x: number, y: number, left: number, right: number, top: number, bottom: number

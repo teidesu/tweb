@@ -1,11 +1,11 @@
-import { AdminLog } from '@appManagers/appChatsManager';
-import { MyMessage } from '@appManagers/appMessagesManager';
-import { VERIFICATION_CODES_BOT_ID } from '@appManagers/constants';
-import getPeerId from '@appManagers/utils/peers/getPeerId';
-import { wrapSlowModeLeftDuration } from '@components/wrappers/wrapDuration';
-import { formatFullSentTimeRaw, formatTime } from '@helpers/date';
-import eachSecond from '@helpers/eachSecond';
-import { Document, Message } from '@layer';
+import { AdminLog } from '@/lib/appManagers/appChatsManager';
+import { MyMessage } from '@/lib/appManagers/appMessagesManager';
+import { VERIFICATION_CODES_BOT_ID } from '@/lib/appManagers/constants';
+import getPeerId from '@/lib/appManagers/utils/peers/getPeerId';
+import { wrapSlowModeLeftDuration } from '@/components/wrappers/wrapDuration';
+import { formatFullSentTimeRaw, formatTime } from '@/helpers/date';
+import eachSecond from '@/helpers/eachSecond';
+import { Document, Message } from '@/layer';
 
 
 export function isMessageForVerificationBot(message: MyMessage) {

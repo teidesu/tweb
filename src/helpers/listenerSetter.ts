@@ -1,4 +1,4 @@
-import type EventListenerBase from '@helpers/eventListenerBase';
+import type EventListenerBase from '@/helpers/eventListenerBase';
 
 export type Listener = {
   element: ListenerElement,

@@ -1,6 +1,6 @@
-import classNames from '@helpers/string/classNames';
-import PopupElement, { addCancelButton } from '@components/popups';
-import PopupPeer, { PopupPeerCheckboxOptions, PopupPeerOptions } from '@components/popups/peer';
+import classNames from '@/helpers/string/classNames';
+import PopupElement, { addCancelButton } from '@/components/popups';
+import PopupPeer, { PopupPeerCheckboxOptions, PopupPeerOptions } from '@/components/popups/peer';
 
 export type ConfirmationPopupRejectReason = 'canceled' | 'closed';
 

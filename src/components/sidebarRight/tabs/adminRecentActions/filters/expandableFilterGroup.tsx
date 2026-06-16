@@ -1,9 +1,9 @@
-import CheckboxFieldTsx from '@components/checkboxFieldTsx';
-import { IconTsx } from '@components/iconTsx';
-import ripple from '@components/ripple';
-import styles from '@components/sidebarRight/tabs/adminRecentActions/filters/expandableFilterGroup.module.scss';
-import { keepMe } from '@helpers/keepMe';
-import { HeightTransition } from '@helpers/solid/heightTransition';
+import CheckboxFieldTsx from '@/components/checkboxFieldTsx';
+import { IconTsx } from '@/components/iconTsx';
+import ripple from '@/components/ripple';
+import styles from '@/components/sidebarRight/tabs/adminRecentActions/filters/expandableFilterGroup.module.scss';
+import { keepMe } from '@/helpers/keepMe';
+import { HeightTransition } from '@/helpers/solid/heightTransition';
 import { Accessor, createMemo, createSignal, For, JSX, Show } from 'solid-js';
 
 keepMe(ripple);

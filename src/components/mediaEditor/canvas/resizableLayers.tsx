@@ -2,20 +2,20 @@ import { Accessor, batch, createEffect, createMemo, For, on, onCleanup, onMount,
 import { createMutable, modifyMutable, produce } from 'solid-js/store';
 import { Portal } from 'solid-js/web';
 
-import createContextMenu from '@helpers/dom/createContextMenu';
+import createContextMenu from '@/helpers/dom/createContextMenu';
 
-import { observeResize } from '@components/resizeObserver';
-import SwipeHandler, { getEvent } from '@components/swipeHandler';
+import { observeResize } from '@/components/resizeObserver';
+import SwipeHandler, { getEvent } from '@/components/swipeHandler';
 
-import { HistoryItem, useMediaEditorContext } from '@components/mediaEditor/context';
-import { NumberPair, ResizableLayer, ResizableLayerProps } from '@components/mediaEditor/types';
-import useIsMobile from '@components/mediaEditor/useIsMobile';
+import { HistoryItem, useMediaEditorContext } from '@/components/mediaEditor/context';
+import { NumberPair, ResizableLayer, ResizableLayerProps } from '@/components/mediaEditor/types';
+import useIsMobile from '@/components/mediaEditor/useIsMobile';
 
-import StickerLayerContent from '@components/mediaEditor/canvas/stickerLayerContent';
-import TextLayerContent from '@components/mediaEditor/canvas/textLayerContent';
-import useNormalizePoint from '@components/mediaEditor/canvas/useNormalizePoint';
-import useProcessPoint from '@components/mediaEditor/canvas/useProcessPoint';
-import { withCurrentOwner } from '@helpers/solid/withCurrentOwner';
+import StickerLayerContent from '@/components/mediaEditor/canvas/stickerLayerContent';
+import TextLayerContent from '@/components/mediaEditor/canvas/textLayerContent';
+import useNormalizePoint from '@/components/mediaEditor/canvas/useNormalizePoint';
+import useProcessPoint from '@/components/mediaEditor/canvas/useProcessPoint';
+import { withCurrentOwner } from '@/helpers/solid/withCurrentOwner';
 
 
 type ProcessedLayer = {

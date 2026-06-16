@@ -1,26 +1,26 @@
 import { Match, Switch } from 'solid-js';
-import { I18nTsx } from '@helpers/solid/i18n';
-import { Message, MessageAction, StarGift } from '@layer';
+import { I18nTsx } from '@/helpers/solid/i18n';
+import { Message, MessageAction, StarGift } from '@/layer';
 
 
-import { MyStarGift } from '@appManagers/appGiftsManager';
-import { i18n } from '@lib/langPack';
-import tsNow from '@helpers/tsNow';
-import { wrapFormattedDuration } from '@components/wrappers/wrapDuration';
-import formatDuration, { DurationType } from '@helpers/formatDuration';
-import { createCurrentTime } from '@helpers/solid/createCurrentTime';
+import { MyStarGift } from '@/lib/appManagers/appGiftsManager';
+import { i18n } from '@/lib/langPack';
+import tsNow from '@/helpers/tsNow';
+import { wrapFormattedDuration } from '@/components/wrappers/wrapDuration';
+import formatDuration, { DurationType } from '@/helpers/formatDuration';
+import { createCurrentTime } from '@/helpers/solid/createCurrentTime';
 
-import styles from '@components/chat/bubbles/starGiftOffer.module.scss';
-import { MyDocument } from '@appManagers/appDocsManager';
-import { StarGiftBackdrop } from '@components/stargifts/stargiftBackdrop';
-import { StickerTsx } from '@components/wrappers/sticker';
-import Icon from '@components/icon';
-import ReplyMarkupLayout from '@components/chat/bubbleParts/replyMarkupLayout';
-import Chat from '@components/chat/chat';
-import confirmationPopup from '@components/confirmationPopup';
-import wrapPeerTitle from '@components/wrappers/peerTitle';
-import rootScope from '@lib/rootScope';
-import { transferStarGiftConfirmationPopup } from '@components/popups/transferStarGift';
+import styles from '@/components/chat/bubbles/starGiftOffer.module.scss';
+import { MyDocument } from '@/lib/appManagers/appDocsManager';
+import { StarGiftBackdrop } from '@/components/stargifts/stargiftBackdrop';
+import { StickerTsx } from '@/components/wrappers/sticker';
+import Icon from '@/components/icon';
+import ReplyMarkupLayout from '@/components/chat/bubbleParts/replyMarkupLayout';
+import Chat from '@/components/chat/chat';
+import confirmationPopup from '@/components/confirmationPopup';
+import wrapPeerTitle from '@/components/wrappers/peerTitle';
+import rootScope from '@/lib/rootScope';
+import { transferStarGiftConfirmationPopup } from '@/components/popups/transferStarGift';
 import PopupElement from '../../popups';
 import PopupStarGiftInfo from '../../popups/starGiftInfo';
 

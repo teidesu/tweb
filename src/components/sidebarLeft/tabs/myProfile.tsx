@@ -1,18 +1,18 @@
 import { onMount } from 'solid-js';
-import ButtonIcon from '@components/buttonIcon';
-import ButtonMenuToggle from '@components/buttonMenuToggle';
-import rootScope from '@lib/rootScope';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import { renderPeerProfile } from '@components/peerProfile';
-import SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
-import showMyQrCodePopup from '@components/popups/myQrCode';
-import AppSearchSuper, { SearchSuperMediaTab } from '@components/appSearchSuper';
-import { profileStoriesButtonMenu } from '@components/stories/profileList';
-import { profileStarGiftsButtonMenu } from '@components/stargifts/profileList';
-import { AppEditProfileTab, getEditProfileInitArgs } from '@components/solidJsTabs';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
-import { subscribeOn } from '@helpers/solid/subscribeOn';
+import ButtonIcon from '@/components/buttonIcon';
+import ButtonMenuToggle from '@/components/buttonMenuToggle';
+import rootScope from '@/lib/rootScope';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import { renderPeerProfile } from '@/components/peerProfile';
+import SolidJSHotReloadGuardProvider from '@/lib/solidjs/hotReloadGuardProvider';
+import showMyQrCodePopup from '@/components/popups/myQrCode';
+import AppSearchSuper, { SearchSuperMediaTab } from '@/components/appSearchSuper';
+import { profileStoriesButtonMenu } from '@/components/stories/profileList';
+import { profileStarGiftsButtonMenu } from '@/components/stargifts/profileList';
+import { AppEditProfileTab, getEditProfileInitArgs } from '@/components/solidJsTabs';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@/components/solidJsTabs/promiseCollector';
+import { subscribeOn } from '@/helpers/solid/subscribeOn';
 
 const MyProfile = () => {
   const promiseCollector = usePromiseCollector();

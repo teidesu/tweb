@@ -1,8 +1,8 @@
-import type { MyDocument } from '@appManagers/appDocsManager';
-import customProperties from '@helpers/dom/customProperties';
-import textToSvgURL from '@helpers/textToSvgURL';
-import rootScope from '@lib/rootScope';
-import wrapPhoto from '@components/wrappers/photo';
+import type { MyDocument } from '@/lib/appManagers/appDocsManager';
+import customProperties from '@/helpers/dom/customProperties';
+import textToSvgURL from '@/helpers/textToSvgURL';
+import rootScope from '@/lib/rootScope';
+import wrapPhoto from '@/components/wrappers/photo';
 
 let addedThemeListener = false;
 export default function wrapAttachBotIcon({

@@ -1,12 +1,12 @@
-import CAN_USE_TRANSFERABLES from '@environment/canUseTransferables';
-import ctx from '@environment/ctx';
-import IS_IMAGE_BITMAP_SUPPORTED from '@environment/imageBitmapSupport';
-import readBlobAsText from '@helpers/blob/readBlobAsText';
-import listenMessagePort from '@helpers/listenMessagePort';
-import makeError from '@helpers/makeError';
-import applyReplacements from '@lib/rlottie/applyReplacements';
-import rlottieMessagePort from '@lib/rlottie/rlottieMessagePort';
-import SuperMessagePort from '@lib/superMessagePort';
+import CAN_USE_TRANSFERABLES from '@/environment/canUseTransferables';
+import ctx from '@/environment/ctx';
+import IS_IMAGE_BITMAP_SUPPORTED from '@/environment/imageBitmapSupport';
+import readBlobAsText from '@/helpers/blob/readBlobAsText';
+import listenMessagePort from '@/helpers/listenMessagePort';
+import makeError from '@/helpers/makeError';
+import applyReplacements from '@/lib/rlottie/applyReplacements';
+import rlottieMessagePort from '@/lib/rlottie/rlottieMessagePort';
+import SuperMessagePort from '@/lib/superMessagePort';
 
 // * commented "module["exports"]=Module" because Firefox doesn't support modules in workers
 // @ts-ignore

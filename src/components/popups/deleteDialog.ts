@@ -1,9 +1,9 @@
 import PopupElement from '.';
-import type { PeerType } from '@appManagers/appPeersManager';
-import { FormatterArguments, LangPackKey } from '@lib/langPack';
-import rootScope from '@lib/rootScope';
-import wrapPeerTitle from '@components/wrappers/peerTitle';
-import PopupPeer, { PopupPeerButtonCallback, PopupPeerButtonCallbackCheckboxes, PopupPeerOptions } from '@components/popups/peer';
+import type { PeerType } from '@/lib/appManagers/appPeersManager';
+import { FormatterArguments, LangPackKey } from '@/lib/langPack';
+import rootScope from '@/lib/rootScope';
+import wrapPeerTitle from '@/components/wrappers/peerTitle';
+import PopupPeer, { PopupPeerButtonCallback, PopupPeerButtonCallbackCheckboxes, PopupPeerOptions } from '@/components/popups/peer';
 
 export default class PopupDeleteDialog {
   constructor(

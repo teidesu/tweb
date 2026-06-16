@@ -1,4 +1,4 @@
-import apiManagerProxy from '@lib/apiManagerProxy';
+import apiManagerProxy from '@/lib/apiManagerProxy';
 
 type RenderImageAndURLFromBlobResult = {
   ok: true;

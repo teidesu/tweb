@@ -1,8 +1,8 @@
-import { MOUNT_CLASS_TO } from '@config/debug';
-import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
-import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
-import noop from '@helpers/noop';
-import { DcId } from '@types';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import indexOfAndSplice from '@/helpers/array/indexOfAndSplice';
+import deferredPromise, { CancellablePromise } from '@/helpers/cancellablePromise';
+import noop from '@/helpers/noop';
+import { DcId } from '@/types';
 
 export class NetworkStats {
   public sent: number;

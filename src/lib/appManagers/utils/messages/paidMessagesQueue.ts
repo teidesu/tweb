@@ -1,4 +1,4 @@
-import { SEND_PAID_WITH_STARS_DELAY } from '@appManagers/constants';
+import { SEND_PAID_WITH_STARS_DELAY } from '@/lib/appManagers/constants';
 
 
 type PaidMessagesQueueItem = {

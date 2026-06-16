@@ -1,4 +1,4 @@
-import { DurationType } from '@helpers/formatDuration';
+import { DurationType } from '@/helpers/formatDuration';
 import Icon, { OverlayedIcon } from './icon';
 import { findMatchingAutoDeleteIconOption } from './sidebarLeft/tabs/autoDeleteMessages/options';
 

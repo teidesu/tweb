@@ -1,5 +1,5 @@
-import { MOUNT_CLASS_TO } from '@config/debug';
-import type { RLottieColor } from '@lib/rlottie/rlottiePlayer';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import type { RLottieColor } from '@/lib/rlottie/rlottiePlayer';
 
 export type FramesCacheMap = Map<number, Uint8ClampedArray>;
 export type FramesCacheMapNew = Map<number, HTMLCanvasElement | ImageBitmap>;

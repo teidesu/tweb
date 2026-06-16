@@ -1,6 +1,6 @@
-import { InputSavedStarGift } from '@layer';
-import { MyStarGift } from '@appManagers/appGiftsManager';
-import getPeerId from '@appManagers/utils/peers/getPeerId';
+import { InputSavedStarGift } from '@/layer';
+import { MyStarGift } from '@/lib/appManagers/appGiftsManager';
+import getPeerId from '@/lib/appManagers/utils/peers/getPeerId';
 
 export function inputStarGiftEquals(gift: InputSavedStarGift | MyStarGift, b: InputSavedStarGift) {
   const a = 'type' in gift ? gift.input : gift;

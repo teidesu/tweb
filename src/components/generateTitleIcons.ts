@@ -1,17 +1,17 @@
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import { Chat, User } from '@layer';
-import { i18n } from '@lib/langPack';
-import apiManagerProxy from '@lib/apiManagerProxy';
-import rootScope from '@lib/rootScope';
-import generateFakeIcon from '@components/generateFakeIcon';
-import generatePremiumIcon from '@components/generatePremiumIcon';
-import generateVerifiedIcon from '@components/generateVerifiedIcon';
-import PopupElement from '@components/popups';
-import PopupPremium from '@components/popups/premium';
-import PopupStarGiftInfo from '@components/popups/starGiftInfo';
-import { openEmojiStatusPicker } from '@components/sidebarLeft/emojiStatusPicker';
-import { wrapAdaptiveCustomEmoji } from '@components/wrappers/customEmojiSimple';
-import wrapEmojiStatus from '@components/wrappers/emojiStatus';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import { Chat, User } from '@/layer';
+import { i18n } from '@/lib/langPack';
+import apiManagerProxy from '@/lib/apiManagerProxy';
+import rootScope from '@/lib/rootScope';
+import generateFakeIcon from '@/components/generateFakeIcon';
+import generatePremiumIcon from '@/components/generatePremiumIcon';
+import generateVerifiedIcon from '@/components/generateVerifiedIcon';
+import PopupElement from '@/components/popups';
+import PopupPremium from '@/components/popups/premium';
+import PopupStarGiftInfo from '@/components/popups/starGiftInfo';
+import { openEmojiStatusPicker } from '@/components/sidebarLeft/emojiStatusPicker';
+import { wrapAdaptiveCustomEmoji } from '@/components/wrappers/customEmojiSimple';
+import wrapEmojiStatus from '@/components/wrappers/emojiStatus';
 
 export default async function generateTitleIcons({
   peerId,

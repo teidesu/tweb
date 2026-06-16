@@ -1,5 +1,5 @@
-import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
-import StaticUtilityClass from '@lib/staticUtilityClass';
+import deferredPromise, { CancellablePromise } from '@/helpers/cancellablePromise';
+import StaticUtilityClass from '@/lib/staticUtilityClass';
 
 
 export default class EncryptionKeyStore extends StaticUtilityClass {

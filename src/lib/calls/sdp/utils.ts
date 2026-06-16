@@ -1,9 +1,9 @@
 import SDP from '.';
-import splitStringByLimitWithRest from '@helpers/string/splitStringByLimitWithRest';
-import UniqueNumberGenerator from '@helpers/uniqueNumberGenerator';
-import SDPLine from '@lib/calls/sdp/line';
-import SDPMediaSection from '@lib/calls/sdp/mediaSection';
-import SDPSessionSection from '@lib/calls/sdp/sessionSection';
+import splitStringByLimitWithRest from '@/helpers/string/splitStringByLimitWithRest';
+import UniqueNumberGenerator from '@/helpers/uniqueNumberGenerator';
+import SDPLine from '@/lib/calls/sdp/line';
+import SDPMediaSection from '@/lib/calls/sdp/mediaSection';
+import SDPSessionSection from '@/lib/calls/sdp/sessionSection';
 
 export function parseSdp(str: string) {
   function createSection() {

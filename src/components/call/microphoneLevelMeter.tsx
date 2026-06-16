@@ -1,6 +1,6 @@
 import { createEffect, createSignal, on, onCleanup, onMount } from 'solid-js';
-import getAudioConstraints from '@lib/calls/helpers/getAudioConstraints';
-import acquireStream, { StreamAcquisition } from '@lib/calls/helpers/acquireStream';
+import getAudioConstraints from '@/lib/calls/helpers/getAudioConstraints';
+import acquireStream, { StreamAcquisition } from '@/lib/calls/helpers/acquireStream';
 
 // A live microphone level meter. Acquires its own MediaStream so the user
 // can confirm "is my mic actually working" outside an active call — the bar

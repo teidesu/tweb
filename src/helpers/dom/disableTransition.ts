@@ -1,4 +1,4 @@
-import { doubleRaf } from '@helpers/schedulers';
+import { doubleRaf } from '@/helpers/schedulers';
 
 export default function disableTransition(elements: HTMLElement[]) {
   elements.forEach((el) => el.classList.add('no-transition'));

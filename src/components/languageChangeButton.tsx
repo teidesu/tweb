@@ -1,11 +1,11 @@
 import { createSignal, JSX, onCleanup, onMount, Show } from 'solid-js';
 
-import Button from '@components/buttonTsx';
-import { GrowHeightReveal } from '@helpers/solid/animations';
-import loadFonts from '@helpers/dom/loadFonts';
-import { Config, LangPackString } from '@layer';
-import I18n, { LangPackKey } from '@lib/langPack';
-import rootScope from '@lib/rootScope';
+import Button from '@/components/buttonTsx';
+import { GrowHeightReveal } from '@/helpers/solid/animations';
+import loadFonts from '@/helpers/dom/loadFonts';
+import { Config, LangPackString } from '@/layer';
+import I18n, { LangPackKey } from '@/lib/langPack';
+import rootScope from '@/lib/rootScope';
 
 const KEY: LangPackKey = 'Login.ContinueOnLanguage';
 

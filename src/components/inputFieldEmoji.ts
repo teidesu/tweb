@@ -1,12 +1,12 @@
-import getRichValueWithCaret from '@helpers/dom/getRichValueWithCaret';
-import deepEqual from '@helpers/object/deepEqual';
-import { TextWithEntities } from '@layer';
-import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import InputField, { InputFieldOptions } from '@components/inputField';
-import createEmojiDropdownButton from '@components/emojiDropdownButton';
-import classNames from '@helpers/string/classNames';
-import styles from '@components/inputFieldEmoji.module.scss';
-import cloneDOMRect from '@helpers/dom/cloneDOMRect';
+import getRichValueWithCaret from '@/helpers/dom/getRichValueWithCaret';
+import deepEqual from '@/helpers/object/deepEqual';
+import { TextWithEntities } from '@/layer';
+import wrapEmojiText from '@/lib/richTextProcessor/wrapEmojiText';
+import InputField, { InputFieldOptions } from '@/components/inputField';
+import createEmojiDropdownButton from '@/components/emojiDropdownButton';
+import classNames from '@/helpers/string/classNames';
+import styles from '@/components/inputFieldEmoji.module.scss';
+import cloneDOMRect from '@/helpers/dom/cloneDOMRect';
 
 export class InputFieldEmoji extends InputField {
   private richOriginalValue: TextWithEntities;

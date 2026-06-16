@@ -61,11 +61,11 @@
  * (viewport too narrow to fit left + minimum chat + right + paddings side-by-side).
  */
 
-import mediaSizes from '@helpers/mediaSizes';
-import rootScope from '@lib/rootScope';
-import clamp from '@helpers/number/clamp';
-import throttle from '@helpers/schedulers/throttle';
-import { IS_ELECTRON_CHAT } from '@lib/electron';
+import mediaSizes from '@/helpers/mediaSizes';
+import rootScope from '@/lib/rootScope';
+import clamp from '@/helpers/number/clamp';
+import throttle from '@/helpers/schedulers/throttle';
+import { IS_ELECTRON_CHAT } from '@/lib/electron';
 
 // Default and resize range for the left & right columns.
 export const DEFAULT_COLUMN_WIDTH = 360;

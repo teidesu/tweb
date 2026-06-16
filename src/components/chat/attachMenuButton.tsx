@@ -1,9 +1,9 @@
-import { IconTsx } from '@components/iconTsx';
-import { ProgressCircleSVG } from '@components/progressCircleSVG';
-import ripple from '@components/ripple';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import { attachHotClassName } from '@helpers/solid/classname';
-import defineSolidElement, { PassedProps } from '@lib/solidjs/defineSolidElement';
+import { IconTsx } from '@/components/iconTsx';
+import { ProgressCircleSVG } from '@/components/progressCircleSVG';
+import ripple from '@/components/ripple';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import { attachHotClassName } from '@/helpers/solid/classname';
+import defineSolidElement, { PassedProps } from '@/lib/solidjs/defineSolidElement';
 import { createEffect, createSignal, onCleanup, Show } from 'solid-js';
 import { Transition } from 'solid-transition-group';
 import styles from './attachMenuButton.module.scss';

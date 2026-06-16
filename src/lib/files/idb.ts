@@ -5,11 +5,11 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import { Database } from '@config/databases';
-import Modes from '@config/modes';
-import makeError from '@helpers/makeError';
-import safeAssign from '@helpers/object/safeAssign';
-import { logger } from '@lib/logger';
+import { Database } from '@/config/databases';
+import Modes from '@/config/modes';
+import makeError from '@/helpers/makeError';
+import safeAssign from '@/helpers/object/safeAssign';
+import { logger } from '@/lib/logger';
 
 /**
  * https://developer.mozilla.org/en-US/docs/Web/API/IDBObjectStore/createIndex

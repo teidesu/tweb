@@ -1,16 +1,16 @@
 import { createSignal, JSX, onMount } from 'solid-js';
 
-import IS_WEB_AUTHN_SUPPORTED from '@environment/webAuthn';
-import { AuthPasskeyLoginOptions, InputPasskeyResponse } from '@layer';
-import AccountController from '@lib/accounts/accountController';
-import { changeAccount } from '@lib/accounts/changeAccount';
-import { ActiveAccountNumber } from '@lib/accounts/types';
-import { getInputPasskeyCredential } from '@appManagers/utils/account/getInputPasskeyResponse';
-import { GrowHeightReveal } from '@helpers/solid/animations';
-import rootScope from '@lib/rootScope';
-import { TrueDcId } from '@types';
-import Button from '@components/buttonTsx';
-import { toastNew } from '@components/toast';
+import IS_WEB_AUTHN_SUPPORTED from '@/environment/webAuthn';
+import { AuthPasskeyLoginOptions, InputPasskeyResponse } from '@/layer';
+import AccountController from '@/lib/accounts/accountController';
+import { changeAccount } from '@/lib/accounts/changeAccount';
+import { ActiveAccountNumber } from '@/lib/accounts/types';
+import { getInputPasskeyCredential } from '@/lib/appManagers/utils/account/getInputPasskeyResponse';
+import { GrowHeightReveal } from '@/helpers/solid/animations';
+import rootScope from '@/lib/rootScope';
+import { TrueDcId } from '@/types';
+import Button from '@/components/buttonTsx';
+import { toastNew } from '@/components/toast';
 
 let _fetchPasskeyOptionPromise: Promise<[TrueDcId, AuthPasskeyLoginOptions]> | undefined;
 

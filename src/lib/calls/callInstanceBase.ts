@@ -1,17 +1,17 @@
-import safePlay from '@helpers/dom/safePlay';
-import EventListenerBase, { EventListenerListeners } from '@helpers/eventListenerBase';
-import noop from '@helpers/noop';
-import { logger } from '@lib/logger';
-import getAudioConstraints from '@lib/calls/helpers/getAudioConstraints';
-import getScreenConstraints from '@lib/calls/helpers/getScreenConstraints';
-import getStream from '@lib/calls/helpers/getStream';
-import getStreamCached from '@lib/calls/helpers/getStreamCached';
-import getVideoConstraints from '@lib/calls/helpers/getVideoConstraints';
-import stopTrack from '@lib/calls/helpers/stopTrack';
-import LocalConferenceDescription from '@lib/calls/localConferenceDescription';
-import StreamManager, { StreamItem } from '@lib/calls/streamManager';
-import shouldMirrorVideoTrack from '@lib/calls/helpers/shouldMirrorVideoTrack';
-import { appSettings } from '@stores/appSettings';
+import safePlay from '@/helpers/dom/safePlay';
+import EventListenerBase, { EventListenerListeners } from '@/helpers/eventListenerBase';
+import noop from '@/helpers/noop';
+import { logger } from '@/lib/logger';
+import getAudioConstraints from '@/lib/calls/helpers/getAudioConstraints';
+import getScreenConstraints from '@/lib/calls/helpers/getScreenConstraints';
+import getStream from '@/lib/calls/helpers/getStream';
+import getStreamCached from '@/lib/calls/helpers/getStreamCached';
+import getVideoConstraints from '@/lib/calls/helpers/getVideoConstraints';
+import stopTrack from '@/lib/calls/helpers/stopTrack';
+import LocalConferenceDescription from '@/lib/calls/localConferenceDescription';
+import StreamManager, { StreamItem } from '@/lib/calls/streamManager';
+import shouldMirrorVideoTrack from '@/lib/calls/helpers/shouldMirrorVideoTrack';
+import { appSettings } from '@/stores/appSettings';
 
 export type TryAddTrackOptions = {
   stream: MediaStream,

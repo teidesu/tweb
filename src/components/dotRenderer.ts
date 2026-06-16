@@ -1,19 +1,19 @@
 // * thanks https://github.com/dkaraush/particles for webgl version
 
-import { MOUNT_CLASS_TO } from '@config/debug';
-import { animate } from '@helpers/animation';
-import callbackify from '@helpers/callbackify';
-import deferredPromise from '@helpers/cancellablePromise';
-import { Middleware } from '@helpers/middleware';
-import getUnsafeRandomInt from '@helpers/number/getUnsafeRandomInt';
-import { applyColorOnContext } from '@lib/rlottie/rlottiePlayer';
-import animationIntersector, { AnimationItemGroup, AnimationItemWrapper } from '@components/animationIntersector';
-import BluffSpoilerController from '@components/bluffSpoilerController';
-import DotRendererCore, { buildDotRendererConfig, drawClippingCircle, getDefaultParticlesCount, DotRendererConfig, DotRendererShaderURLs } from '@components/dotRendererCore';
-import { retainSpoilerRenderer, SpoilerRendererConnection } from '@components/spoilerRendererConnection';
-import type { SpoilerOverlayUpdate } from '@components/spoilerRenderer.worker';
-import { animateValue, simpleEasing } from '@helpers/animateValue';
-import { CancellablePromise } from '@helpers/cancellablePromise';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import { animate } from '@/helpers/animation';
+import callbackify from '@/helpers/callbackify';
+import deferredPromise from '@/helpers/cancellablePromise';
+import { Middleware } from '@/helpers/middleware';
+import getUnsafeRandomInt from '@/helpers/number/getUnsafeRandomInt';
+import { applyColorOnContext } from '@/lib/rlottie/rlottiePlayer';
+import animationIntersector, { AnimationItemGroup, AnimationItemWrapper } from '@/components/animationIntersector';
+import BluffSpoilerController from '@/components/bluffSpoilerController';
+import DotRendererCore, { buildDotRendererConfig, drawClippingCircle, getDefaultParticlesCount, DotRendererConfig, DotRendererShaderURLs } from '@/components/dotRendererCore';
+import { retainSpoilerRenderer, SpoilerRendererConnection } from '@/components/spoilerRendererConnection';
+import type { SpoilerOverlayUpdate } from '@/components/spoilerRenderer.worker';
+import { animateValue, simpleEasing } from '@/helpers/animateValue';
+import { CancellablePromise } from '@/helpers/cancellablePromise';
 import { isTruthy } from '../helpers/isTruthy';
 
 const SHADER_URLS: DotRendererShaderURLs = {

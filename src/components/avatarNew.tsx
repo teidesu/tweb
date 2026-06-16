@@ -1,8 +1,8 @@
-import type LazyLoadQueue from '@components/lazyLoadQueue';
-import type { PeerPhotoSize } from '@appManagers/appAvatarsManager';
-import type { StoriesSegment, StoriesSegments } from '@appManagers/appStoriesManager';
-import { getMiddleware, type Middleware } from '@helpers/middleware';
-import deferredPromise from '@helpers/cancellablePromise';
+import type LazyLoadQueue from '@/components/lazyLoadQueue';
+import type { PeerPhotoSize } from '@/lib/appManagers/appAvatarsManager';
+import type { StoriesSegment, StoriesSegments } from '@/lib/appManagers/appStoriesManager';
+import { getMiddleware, type Middleware } from '@/helpers/middleware';
+import deferredPromise from '@/helpers/cancellablePromise';
 import {
   createSignal,
   createEffect,
@@ -15,38 +15,38 @@ import {
   on,
   createComputed,
 } from 'solid-js';
-import rootScope from '@lib/rootScope';
-import { NULL_PEER_ID, REPLIES_PEER_ID, HIDDEN_PEER_ID } from '@appManagers/constants';
-import { Chat, ChatPhoto, PhotoSize, User, UserProfilePhoto } from '@layer';
-import { getPeerAvatarColorByPeer } from '@appManagers/utils/peers/getPeerColorById';
-import getPeerPhoto from '@appManagers/utils/peers/getPeerPhoto';
-import wrapAbbreviation from '@lib/richTextProcessor/wrapAbbreviation';
-import getPeerInitials from '@components/wrappers/getPeerInitials';
-import liteMode from '@helpers/liteMode';
-import renderImageFromUrl, { renderImageFromUrlPromise } from '@helpers/dom/renderImageFromUrl';
-import getPreviewURLFromBytes from '@helpers/bytes/getPreviewURLFromBytes';
-import classNames from '@helpers/string/classNames';
-import { wrapTopicIcon } from '@components/wrappers/messageActionTextNewUnsafe';
-import { Modify } from '@types';
-import documentFragmentToNodes from '@helpers/dom/documentFragmentToNodes';
-import DashedCircle, { DashedCircleSection } from '@helpers/canvas/dashedCircle';
-import findUpClassName from '@helpers/dom/findUpClassName';
-import { AckedResult } from '@lib/superMessagePort';
-import apiManagerProxy from '@lib/apiManagerProxy';
-import callbackify from '@helpers/callbackify';
-import Icon from '@components/icon';
-import wrapPhoto from '@components/wrappers/photo';
-import customProperties from '@helpers/dom/customProperties';
-import useIsNightTheme from '@hooks/useIsNightTheme';
-import currencyStarIcon from '@components/currencyStarIcon';
-import type { ActiveAccountNumber } from '@lib/accounts/types';
-import { getCurrentAccount } from '@lib/accounts/getCurrentAccount';
-import { appSettings } from '@stores/appSettings';
-import { createAutoDeleteIcon } from '@components/autoDeleteIcon';
+import rootScope from '@/lib/rootScope';
+import { NULL_PEER_ID, REPLIES_PEER_ID, HIDDEN_PEER_ID } from '@/lib/appManagers/constants';
+import { Chat, ChatPhoto, PhotoSize, User, UserProfilePhoto } from '@/layer';
+import { getPeerAvatarColorByPeer } from '@/lib/appManagers/utils/peers/getPeerColorById';
+import getPeerPhoto from '@/lib/appManagers/utils/peers/getPeerPhoto';
+import wrapAbbreviation from '@/lib/richTextProcessor/wrapAbbreviation';
+import getPeerInitials from '@/components/wrappers/getPeerInitials';
+import liteMode from '@/helpers/liteMode';
+import renderImageFromUrl, { renderImageFromUrlPromise } from '@/helpers/dom/renderImageFromUrl';
+import getPreviewURLFromBytes from '@/helpers/bytes/getPreviewURLFromBytes';
+import classNames from '@/helpers/string/classNames';
+import { wrapTopicIcon } from '@/components/wrappers/messageActionTextNewUnsafe';
+import { Modify } from '@/types';
+import documentFragmentToNodes from '@/helpers/dom/documentFragmentToNodes';
+import DashedCircle, { DashedCircleSection } from '@/helpers/canvas/dashedCircle';
+import findUpClassName from '@/helpers/dom/findUpClassName';
+import { AckedResult } from '@/lib/superMessagePort';
+import apiManagerProxy from '@/lib/apiManagerProxy';
+import callbackify from '@/helpers/callbackify';
+import Icon from '@/components/icon';
+import wrapPhoto from '@/components/wrappers/photo';
+import customProperties from '@/helpers/dom/customProperties';
+import useIsNightTheme from '@/hooks/useIsNightTheme';
+import currencyStarIcon from '@/components/currencyStarIcon';
+import type { ActiveAccountNumber } from '@/lib/accounts/types';
+import { getCurrentAccount } from '@/lib/accounts/getCurrentAccount';
+import { appSettings } from '@/stores/appSettings';
+import { createAutoDeleteIcon } from '@/components/autoDeleteIcon';
 import { resolveElements } from '@solid-primitives/refs';
-import toArray from '@helpers/array/toArray';
-import computeLockColor from '@helpers/computeLockColor';
-import createLoopingMutedVideo from '@helpers/dom/createLoopingMutedVideo';
+import toArray from '@/helpers/array/toArray';
+import computeLockColor from '@/helpers/computeLockColor';
+import createLoopingMutedVideo from '@/helpers/dom/createLoopingMutedVideo';
 
 const FADE_IN_DURATION = 200;
 const TEST_SWAPPING = 0;
@@ -249,10 +249,10 @@ export function wrapPhotoToAvatar(
   });
 }
 
-async function attachAvatarVideoFromPhoto(container: HTMLElement, photo: import('@layer').Photo.photo) {
+async function attachAvatarVideoFromPhoto(container: HTMLElement, photo: import('@/layer').Photo.photo) {
   const [{ default: chooseProfileVideoSize }, { default: appDownloadManager }] = await Promise.all([
-    import('@appManagers/utils/photos/chooseProfileVideoSize'),
-    import('@lib/appDownloadManager'),
+    import('@/lib/appManagers/utils/photos/chooseProfileVideoSize'),
+    import('@/lib/appDownloadManager'),
   ]);
   const videoSize = chooseProfileVideoSize(photo, 'full');
   if (!videoSize) return;

@@ -1,5 +1,5 @@
-import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
-import makeError from '@helpers/makeError';
+import indexOfAndSplice from '@/helpers/array/indexOfAndSplice';
+import makeError from '@/helpers/makeError';
 
 export type Middleware = {
   (): boolean;

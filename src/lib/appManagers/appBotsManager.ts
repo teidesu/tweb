@@ -1,8 +1,8 @@
-import { AccountDatabase, getDatabaseState } from '@config/databases/state';
-import { TelegramWebViewSendEventMap } from '@types';
-import AppStorage from '@lib/storage';
-import { AppManager } from '@appManagers/manager';
-import { User } from '@layer';
+import { AccountDatabase, getDatabaseState } from '@/config/databases/state';
+import { TelegramWebViewSendEventMap } from '@/types';
+import AppStorage from '@/lib/storage';
+import { AppManager } from '@/lib/appManagers/manager';
+import { User } from '@/layer';
 import { getFloodWaitTime } from './utils/getFloodWaitTime';
 
 type InternalWebAppStorageKey = 'locationPermission' | 'deviceStorageUsed' | 'deviceStorageUsedKeys';

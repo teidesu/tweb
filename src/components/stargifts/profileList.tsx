@@ -1,31 +1,31 @@
 import { createMemo, createSignal, For, Match, onMount, Show, Switch, untrack } from 'solid-js';
-import rootScope from '@lib/rootScope';
-import { PreloaderTsx } from '@components/putPreloader';
-import PopupElement from '@components/popups';
-import PopupStarGiftInfo from '@components/popups/starGiftInfo';
-import { StarGiftsGrid } from '@components/stargifts/stargiftsGrid';
-import { ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
-import CheckboxField from '@components/checkboxField';
-import { AnimationList } from '@helpers/solid/animationList';
-import { ChipTab, ChipTabs } from '@components/chipTabs';
-import { I18nTsx } from '@helpers/solid/i18n';
-import classNames from '@helpers/string/classNames';
-import { StickerTsx } from '@components/wrappers/sticker';
-import { MyDocument } from '@appManagers/appDocsManager';
-import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import { IconTsx } from '@components/iconTsx';
-import InputField from '@components/inputField';
-import confirmationPopup, { PopupConfirmationOptions } from '@components/confirmationPopup';
-import Button from '@components/buttonTsx';
+import rootScope from '@/lib/rootScope';
+import { PreloaderTsx } from '@/components/putPreloader';
+import PopupElement from '@/components/popups';
+import PopupStarGiftInfo from '@/components/popups/starGiftInfo';
+import { StarGiftsGrid } from '@/components/stargifts/stargiftsGrid';
+import { ButtonMenuItemOptionsVerifiable } from '@/components/buttonMenu';
+import CheckboxField from '@/components/checkboxField';
+import { AnimationList } from '@/helpers/solid/animationList';
+import { ChipTab, ChipTabs } from '@/components/chipTabs';
+import { I18nTsx } from '@/helpers/solid/i18n';
+import classNames from '@/helpers/string/classNames';
+import { StickerTsx } from '@/components/wrappers/sticker';
+import { MyDocument } from '@/lib/appManagers/appDocsManager';
+import wrapEmojiText from '@/lib/richTextProcessor/wrapEmojiText';
+import { IconTsx } from '@/components/iconTsx';
+import InputField from '@/components/inputField';
+import confirmationPopup, { PopupConfirmationOptions } from '@/components/confirmationPopup';
+import Button from '@/components/buttonTsx';
 
-import styles from '@components/stargifts/profileList.module.scss';
-import { ALL_COLLECTIONS_ID, createProfileGiftsStore, StarGiftsProfileActions, StarGiftsProfileStore } from '@components/stargifts/profileStore';
-import { Chat, InputSavedStarGift, StarGiftCollection, User } from '@layer';
+import styles from '@/components/stargifts/profileList.module.scss';
+import { ALL_COLLECTIONS_ID, createProfileGiftsStore, StarGiftsProfileActions, StarGiftsProfileStore } from '@/components/stargifts/profileStore';
+import { Chat, InputSavedStarGift, StarGiftCollection, User } from '@/layer';
 import { unwrap } from 'solid-js/store';
-import PopupChooseGift from '@components/popups/chooseGiftPopup';
-import { MyStarGift } from '@appManagers/appGiftsManager';
-import { copyTextToClipboard } from '@helpers/clipboard';
-import { toastNew } from '@components/toast';
+import PopupChooseGift from '@/components/popups/chooseGiftPopup';
+import { MyStarGift } from '@/lib/appManagers/appGiftsManager';
+import { copyTextToClipboard } from '@/helpers/clipboard';
+import { toastNew } from '@/components/toast';
 
 async function openCreateCollectionPopup({ actions, peerId }: {
   actions: StarGiftsProfileActions

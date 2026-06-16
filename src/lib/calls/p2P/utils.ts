@@ -5,9 +5,9 @@
  * callInstance.ts.
  */
 
-import { Logger } from '@lib/logger';
-import { appSettings } from '@stores/appSettings';
-import getStream from '@lib/calls/helpers/getStream';
+import { Logger } from '@/lib/logger';
+import { appSettings } from '@/stores/appSettings';
+import getStream from '@/lib/calls/helpers/getStream';
 import {
   findSdpLineValue as findLineValue,
   getSdpDirection,
@@ -21,8 +21,8 @@ import {
   summarizeSdp,
   parseBundleMids,
   SdpSection,
-} from '@lib/calls/p2P/sdpCommon';
-import { P2PMediaContent, P2PMessage, P2PPayloadType, PayloadType, RtpHdrexts } from '@lib/calls/types';
+} from '@/lib/calls/p2P/sdpCommon';
+import { P2PMediaContent, P2PMessage, P2PPayloadType, PayloadType, RtpHdrexts } from '@/lib/calls/types';
 
 export const IS_ECHO_CANCELLATION_SUPPORTED = navigator?.mediaDevices?.getSupportedConstraints().echoCancellation;
 export const IS_NOISE_SUPPRESSION_SUPPORTED = navigator?.mediaDevices?.getSupportedConstraints().noiseSuppression;

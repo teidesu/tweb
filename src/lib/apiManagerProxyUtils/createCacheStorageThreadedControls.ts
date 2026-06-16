@@ -1,6 +1,6 @@
-import type apiManagerProxy from '@lib/apiManagerProxy';
-import CacheStorageController, { CacheStorageDbName } from '@lib/files/cacheStorage';
-import { logger } from '@lib/logger';
+import type apiManagerProxy from '@/lib/apiManagerProxy';
+import CacheStorageController, { CacheStorageDbName } from '@/lib/files/cacheStorage';
+import { logger } from '@/lib/logger';
 
 type CreateCacheStorageThreadedControlsArgs = {
   apiManagerProxy: typeof apiManagerProxy;

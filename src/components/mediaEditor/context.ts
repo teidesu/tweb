@@ -1,14 +1,14 @@
-import { AdjustmentKey, adjustmentsConfig } from '@components/mediaEditor/adjustments';
-import { BrushDrawnLine } from '@components/mediaEditor/canvas/brushPainter';
-import { FinalTransform } from '@components/mediaEditor/canvas/useFinalTransform';
-import type { MediaEditorProps } from '@components/mediaEditor/mediaEditor';
-import { MediaType, NumberPair, ResizableLayer, StickerRenderingInfo, TextLayerInfo } from '@components/mediaEditor/types';
-import { approximateDeepEqual, brushDefaults, textLayerInfoDefaults, traverseObjectDeep } from '@components/mediaEditor/utils';
-import { RenderingPayload } from '@components/mediaEditor/webgl/initWebGL';
-import exceptKeys from '@helpers/object/exceptKeys';
-import throttle from '@helpers/schedulers/throttle';
-import type { AppManagers } from '@lib/managers';
-import type { ObjectPath } from '@types';
+import { AdjustmentKey, adjustmentsConfig } from '@/components/mediaEditor/adjustments';
+import { BrushDrawnLine } from '@/components/mediaEditor/canvas/brushPainter';
+import { FinalTransform } from '@/components/mediaEditor/canvas/useFinalTransform';
+import type { MediaEditorProps } from '@/components/mediaEditor/mediaEditor';
+import { MediaType, NumberPair, ResizableLayer, StickerRenderingInfo, TextLayerInfo } from '@/components/mediaEditor/types';
+import { approximateDeepEqual, brushDefaults, textLayerInfoDefaults, traverseObjectDeep } from '@/components/mediaEditor/utils';
+import { RenderingPayload } from '@/components/mediaEditor/webgl/initWebGL';
+import exceptKeys from '@/helpers/object/exceptKeys';
+import throttle from '@/helpers/schedulers/throttle';
+import type { AppManagers } from '@/lib/managers';
+import type { ObjectPath } from '@/types';
 import { Accessor, createContext, createEffect, createMemo, createSignal, on, useContext } from 'solid-js';
 import { createMutable, modifyMutable, produce, Store } from 'solid-js/store';
 

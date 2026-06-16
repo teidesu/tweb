@@ -1,7 +1,7 @@
-import { FinalTransform } from '@components/mediaEditor/canvas/useFinalTransform';
-import { useCropOffset } from '@components/mediaEditor/canvas/useCropOffset';
-import { MediaEditorContextValue } from '@components/mediaEditor/context';
-import { getSnappedViewportsScale } from '@components/mediaEditor/utils';
+import { FinalTransform } from '@/components/mediaEditor/canvas/useFinalTransform';
+import { useCropOffset } from '@/components/mediaEditor/canvas/useCropOffset';
+import { MediaEditorContextValue } from '@/components/mediaEditor/context';
+import { getSnappedViewportsScale } from '@/components/mediaEditor/utils';
 
 export type GetResultTransformArgs = {
   context: MediaEditorContextValue;

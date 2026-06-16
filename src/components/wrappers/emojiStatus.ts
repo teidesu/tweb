@@ -1,11 +1,11 @@
-import { IS_WEBM_SUPPORTED } from '@environment/videoSupport';
-import { rgbIntToHex } from '@helpers/color';
-import { MediaSize } from '@helpers/mediaSize';
-import mediaSizes from '@helpers/mediaSizes';
-import { EmojiStatus, DocumentAttribute, Document } from '@layer';
-import rootScope from '@lib/rootScope';
-import { Sparkles } from '@components/sparkles';
-import wrapSticker from '@components/wrappers/sticker';
+import { IS_WEBM_SUPPORTED } from '@/environment/videoSupport';
+import { rgbIntToHex } from '@/helpers/color';
+import { MediaSize } from '@/helpers/mediaSize';
+import mediaSizes from '@/helpers/mediaSizes';
+import { EmojiStatus, DocumentAttribute, Document } from '@/layer';
+import rootScope from '@/lib/rootScope';
+import { Sparkles } from '@/components/sparkles';
+import wrapSticker from '@/components/wrappers/sticker';
 
 const RENDER_SPARKLES = false; // performance issues
 

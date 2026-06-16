@@ -1,4 +1,4 @@
-import noop from '@helpers/noop';
+import noop from '@/helpers/noop';
 import { createMemo, createSignal } from 'solid-js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────

@@ -5,25 +5,25 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import type { MyTopPeer } from '@appManagers/appUsersManager';
-import tsNow from '@helpers/tsNow';
-import { ChannelParticipantsFilter, ChannelsChannelParticipants, ChannelParticipant, Chat, ChatFull, ChatParticipants, ChatPhoto, ExportedChatInvite, InputChannel, InputFile, SendMessageAction, Update, UserFull, Photo, PhotoSize, Updates, ChatParticipant, PeerSettings, SendAsPeer, InputGroupCall, Birthday, TextWithEntities, UsersUserFull, MessagesChatFull } from '@layer';
-import SearchIndex from '@lib/searchIndex';
-import { AppManager } from '@appManagers/manager';
-import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
-import getPhotoInput from '@appManagers/utils/photos/getPhotoInput';
-import getParticipantPeerId from '@appManagers/utils/chats/getParticipantPeerId';
-import ctx from '@environment/ctx';
-import { ReferenceContext } from '@lib/storages/references';
-import assumeType from '@helpers/assumeType';
-import makeError from '@helpers/makeError';
-import callbackify from '@helpers/callbackify';
-import getPeerActiveUsernames from '@appManagers/utils/peers/getPeerActiveUsernames';
-import getParticipantsCount from '@appManagers/utils/chats/getParticipantsCount';
-import callbackifyAll from '@helpers/callbackifyAll';
-import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
-import { PEER_FULL_TTL } from '@appManagers/constants';
-import { isParticipantAdmin } from '@lib/appManagers/utils/chats/isParticipantAdmin';
+import type { MyTopPeer } from '@/lib/appManagers/appUsersManager';
+import tsNow from '@/helpers/tsNow';
+import { ChannelParticipantsFilter, ChannelsChannelParticipants, ChannelParticipant, Chat, ChatFull, ChatParticipants, ChatPhoto, ExportedChatInvite, InputChannel, InputFile, SendMessageAction, Update, UserFull, Photo, PhotoSize, Updates, ChatParticipant, PeerSettings, SendAsPeer, InputGroupCall, Birthday, TextWithEntities, UsersUserFull, MessagesChatFull } from '@/layer';
+import SearchIndex from '@/lib/searchIndex';
+import { AppManager } from '@/lib/appManagers/manager';
+import getServerMessageId from '@/lib/appManagers/utils/messageId/getServerMessageId';
+import getPhotoInput from '@/lib/appManagers/utils/photos/getPhotoInput';
+import getParticipantPeerId from '@/lib/appManagers/utils/chats/getParticipantPeerId';
+import ctx from '@/environment/ctx';
+import { ReferenceContext } from '@/lib/storages/references';
+import assumeType from '@/helpers/assumeType';
+import makeError from '@/helpers/makeError';
+import callbackify from '@/helpers/callbackify';
+import getPeerActiveUsernames from '@/lib/appManagers/utils/peers/getPeerActiveUsernames';
+import getParticipantsCount from '@/lib/appManagers/utils/chats/getParticipantsCount';
+import callbackifyAll from '@/helpers/callbackifyAll';
+import indexOfAndSplice from '@/helpers/array/indexOfAndSplice';
+import { PEER_FULL_TTL } from '@/lib/appManagers/constants';
+import { isParticipantAdmin } from '@/lib/appManagers/utils/chats/isParticipantAdmin';
 import { isTruthy } from '../../helpers/isTruthy';
 
 export type UserTyping = Partial<{userId: UserId, action: SendMessageAction, timeout: number}>;

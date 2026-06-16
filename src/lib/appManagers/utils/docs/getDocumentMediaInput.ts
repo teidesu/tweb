@@ -1,4 +1,4 @@
-import { Document, InputMedia } from '@layer';
+import { Document, InputMedia } from '@/layer';
 
 export default function getMediaInput(doc: Document.document): InputMedia.inputMediaDocument {
   return {

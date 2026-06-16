@@ -1,21 +1,21 @@
-import type ChatInput from '@components/chat/input';
-import DropdownHover from '@helpers/dropdownHover';
-import { ReplyMarkup } from '@layer';
-import rootScope from '@lib/rootScope';
-import ListenerSetter, { Listener } from '@helpers/listenerSetter';
-import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import findUpAsChild from '@helpers/dom/findUpAsChild';
-import cancelEvent from '@helpers/dom/cancelEvent';
-import { getHeavyAnimationPromise } from '@hooks/useHeavyAnimationCheck';
-import safeAssign from '@helpers/object/safeAssign';
-import { AppManagers } from '@lib/managers';
-import Scrollable from '@components/scrollable';
-import wrapKeyboardButton from '@components/wrappers/keyboardButton';
-import classNames from '@helpers/string/classNames';
-import { Middleware, MiddlewareHelper } from '@helpers/middleware';
+import type ChatInput from '@/components/chat/input';
+import DropdownHover from '@/helpers/dropdownHover';
+import { ReplyMarkup } from '@/layer';
+import rootScope from '@/lib/rootScope';
+import ListenerSetter, { Listener } from '@/helpers/listenerSetter';
+import IS_TOUCH_SUPPORTED from '@/environment/touchSupport';
+import findUpAsChild from '@/helpers/dom/findUpAsChild';
+import cancelEvent from '@/helpers/dom/cancelEvent';
+import { getHeavyAnimationPromise } from '@/hooks/useHeavyAnimationCheck';
+import safeAssign from '@/helpers/object/safeAssign';
+import { AppManagers } from '@/lib/managers';
+import Scrollable from '@/components/scrollable';
+import wrapKeyboardButton from '@/components/wrappers/keyboardButton';
+import classNames from '@/helpers/string/classNames';
+import { Middleware, MiddlewareHelper } from '@/helpers/middleware';
 import { createRoot, For, onCleanup } from 'solid-js';
 import { render } from 'solid-js/web';
-import ReplyMarkupLayout from '@components/chat/bubbleParts/replyMarkupLayout';
+import ReplyMarkupLayout from '@/components/chat/bubbleParts/replyMarkupLayout';
 
 export default class ReplyKeyboard extends DropdownHover {
   private static BASE_CLASS = 'reply-keyboard';

@@ -1,6 +1,6 @@
-import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
-import LazyLoadQueueIntersector, { LazyLoadElement } from '@components/lazyLoadQueueIntersector';
-import VisibilityIntersector, { OnVisibilityChange } from '@components/visibilityIntersector';
+import indexOfAndSplice from '@/helpers/array/indexOfAndSplice';
+import LazyLoadQueueIntersector, { LazyLoadElement } from '@/components/lazyLoadQueueIntersector';
+import VisibilityIntersector, { OnVisibilityChange } from '@/components/visibilityIntersector';
 
 export default class LazyLoadQueueRepeat extends LazyLoadQueueIntersector {
   private elementsMap: Map<HTMLElement, LazyLoadElement> = new Map();

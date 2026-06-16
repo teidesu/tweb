@@ -1,9 +1,9 @@
-import { MOUNT_CLASS_TO } from '@config/debug';
-import { logger } from '@lib/logger';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import { logger } from '@/lib/logger';
 
-import animationIntersector from '@components/animationIntersector';
-import { hasSpoilerRendererFailed, retainSpoilerRenderer, SpoilerRendererConnection } from '@components/spoilerRendererConnection';
-import type { SpoilerRendererSimInit } from '@components/spoilerRenderer.worker';
+import animationIntersector from '@/components/animationIntersector';
+import { hasSpoilerRendererFailed, retainSpoilerRenderer, SpoilerRendererConnection } from '@/components/spoilerRendererConnection';
+import type { SpoilerRendererSimInit } from '@/components/spoilerRenderer.worker';
 
 export default class BluffSpoilerController {
   private static log = logger('bluff-spoiler');

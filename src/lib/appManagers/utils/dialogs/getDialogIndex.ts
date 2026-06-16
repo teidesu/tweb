@@ -1,7 +1,7 @@
-import type { Dialog, ForumTopic, SavedDialog } from '@layer';
-import type { REAL_FOLDER_ID } from '@appManagers/constants';
-import type { MonoforumDialog } from '@lib/storages/monoforumDialogs';
-import getDialogIndexKey from '@appManagers/utils/dialogs/getDialogIndexKey';
+import type { Dialog, ForumTopic, SavedDialog } from '@/layer';
+import type { REAL_FOLDER_ID } from '@/lib/appManagers/constants';
+import type { MonoforumDialog } from '@/lib/storages/monoforumDialogs';
+import getDialogIndexKey from '@/lib/appManagers/utils/dialogs/getDialogIndexKey';
 
 export default function getDialogIndex(
   dialog: Dialog.dialog | ForumTopic.forumTopic | SavedDialog.savedDialog | MonoforumDialog,

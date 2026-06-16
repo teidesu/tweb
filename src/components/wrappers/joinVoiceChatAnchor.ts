@@ -1,8 +1,8 @@
-import { InputGroupCall, Message, MessageAction } from '@layer';
-import wrapUrl from '@lib/richTextProcessor/wrapUrl';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
-import noop from '@helpers/noop';
+import { InputGroupCall, Message, MessageAction } from '@/layer';
+import wrapUrl from '@/lib/richTextProcessor/wrapUrl';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import getServerMessageId from '@/lib/appManagers/utils/messageId/getServerMessageId';
+import noop from '@/helpers/noop';
 
 export default function wrapJoinVoiceChatAnchor(message: Message.messageService) {
   const action = message.action as
@@ -33,7 +33,7 @@ export default function wrapJoinVoiceChatAnchor(message: Message.messageService)
     // single conference-join entry point without the cycle. `.catch(noop)` drops
     // the benign leave-current-call cancel — every join error is toasted inside.
     attachClickEvent(a, () => {
-      import('@lib/appImManager').then(({ default: appImManager }) => appImManager.joinConference(inviteInput)).catch(noop);
+      import('@/lib/appImManager').then(({ default: appImManager }) => appImManager.joinConference(inviteInput)).catch(noop);
     });
     return a;
   }

@@ -1,5 +1,5 @@
-import type { WallPaper } from '@layer';
-import clamp from '@helpers/number/clamp';
+import type { WallPaper } from '@/layer';
+import clamp from '@/helpers/number/clamp';
 
 export type ColorHsla = {
   h: number,

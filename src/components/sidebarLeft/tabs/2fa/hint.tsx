@@ -1,14 +1,14 @@
 import { Component, onMount } from 'solid-js';
-import Button from '@components/buttonTsx';
-import InputField from '@components/inputField';
-import { InputFieldTsx } from '@components/inputFieldTsx';
-import { AppTwoStepVerificationEmailTab } from '@components/solidJsTabs/tabs';
-import cancelEvent from '@helpers/dom/cancelEvent';
-import wrapStickerEmoji from '@components/wrappers/stickerEmoji';
-import Section from '@components/section';
-import { toastNew } from '@components/toast';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import type { AppTwoStepVerificationHintTab } from '@components/solidJsTabs/tabs';
+import Button from '@/components/buttonTsx';
+import InputField from '@/components/inputField';
+import { InputFieldTsx } from '@/components/inputFieldTsx';
+import { AppTwoStepVerificationEmailTab } from '@/components/solidJsTabs/tabs';
+import cancelEvent from '@/helpers/dom/cancelEvent';
+import wrapStickerEmoji from '@/components/wrappers/stickerEmoji';
+import Section from '@/components/section';
+import { toastNew } from '@/components/toast';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import type { AppTwoStepVerificationHintTab } from '@/components/solidJsTabs/tabs';
 
 const TwoStepVerificationHint: Component = () => {
   const [tab] = useSuperTab<typeof AppTwoStepVerificationHintTab>();

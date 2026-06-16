@@ -5,13 +5,13 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import { MOUNT_CLASS_TO } from '@config/debug';
-import { MessageEntity } from '@layer';
-import combineSameEntities from '@lib/richTextProcessor/combineSameEntities';
-import findConflictingEntity from '@lib/richTextProcessor/findConflictingEntity';
-import sortEntities from '@lib/richTextProcessor/sortEntities';
-import getRichElementValue, { SELECTION_SEPARATOR } from '@helpers/dom/getRichElementValue';
-import { SINGLE_ENTITIES } from '@lib/richTextProcessor';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import { MessageEntity } from '@/layer';
+import combineSameEntities from '@/lib/richTextProcessor/combineSameEntities';
+import findConflictingEntity from '@/lib/richTextProcessor/findConflictingEntity';
+import sortEntities from '@/lib/richTextProcessor/sortEntities';
+import getRichElementValue, { SELECTION_SEPARATOR } from '@/helpers/dom/getRichElementValue';
+import { SINGLE_ENTITIES } from '@/lib/richTextProcessor';
 
 export function getCaretPos(field: Node) {
   const sel = window.getSelection();

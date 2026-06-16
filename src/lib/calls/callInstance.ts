@@ -8,26 +8,26 @@
  */
 
 import { gunzipSync, gzipSync } from 'fflate';
-import ctx from '@environment/ctx';
-import assumeType from '@helpers/assumeType';
-import safeAssign from '@helpers/object/safeAssign';
-import { PhoneCall, PhoneCallDiscardReason, PhoneCallProtocol, PhoneConnection } from '@layer';
-import { emojiFromCodePoints } from '@vendor/emoji';
-import type { CallId } from '@appManagers/appCallsManager';
-import type { AppManagers } from '@lib/managers';
-import { logger } from '@lib/logger';
-import apiManagerProxy from '@lib/apiManagerProxy';
-import CallInstanceBase from '@lib/calls/callInstanceBase';
-import getStream from '@lib/calls/helpers/getStream';
-import shouldMirrorVideoTrack from '@lib/calls/helpers/shouldMirrorVideoTrack';
-import callsController from '@lib/calls/callsController';
-import CALL_STATE from '@lib/calls/callState';
-import { GROUP_CALL_AMPLITUDE_ANALYSE_INTERVAL_MS } from '@lib/calls/constants';
-import getCallProtocol from '@lib/calls/p2P/getCallProtocol';
-import P2PEncryptor from '@lib/calls/p2P/p2PEncryptor';
-import ByteBuf from '@lib/calls/p2P/byteBuf';
-import { isSctpPacket, SctpSignaling } from '@lib/calls/p2P/sctpSignaling';
-import { black, silence } from '@lib/calls/p2P/fallbackMedia';
+import ctx from '@/environment/ctx';
+import assumeType from '@/helpers/assumeType';
+import safeAssign from '@/helpers/object/safeAssign';
+import { PhoneCall, PhoneCallDiscardReason, PhoneCallProtocol, PhoneConnection } from '@/layer';
+import { emojiFromCodePoints } from '@/vendor/emoji';
+import type { CallId } from '@/lib/appManagers/appCallsManager';
+import type { AppManagers } from '@/lib/managers';
+import { logger } from '@/lib/logger';
+import apiManagerProxy from '@/lib/apiManagerProxy';
+import CallInstanceBase from '@/lib/calls/callInstanceBase';
+import getStream from '@/lib/calls/helpers/getStream';
+import shouldMirrorVideoTrack from '@/lib/calls/helpers/shouldMirrorVideoTrack';
+import callsController from '@/lib/calls/callsController';
+import CALL_STATE from '@/lib/calls/callState';
+import { GROUP_CALL_AMPLITUDE_ANALYSE_INTERVAL_MS } from '@/lib/calls/constants';
+import getCallProtocol from '@/lib/calls/p2P/getCallProtocol';
+import P2PEncryptor from '@/lib/calls/p2P/p2PEncryptor';
+import ByteBuf from '@/lib/calls/p2P/byteBuf';
+import { isSctpPacket, SctpSignaling } from '@/lib/calls/p2P/sctpSignaling';
+import { black, silence } from '@/lib/calls/p2P/fallbackMedia';
 import {
   ActiveLocalMedia,
   buildIceServers,
@@ -59,7 +59,7 @@ import {
   summarizeTrack,
   tryAddCandidate,
   validateRemoteAnswerSdp,
-} from '@lib/calls/p2P/utils';
+} from '@/lib/calls/p2P/utils';
 import {
   getSdpDirection,
   getSdpPort,
@@ -69,10 +69,10 @@ import {
   parseSdpSections,
   summarizeSdp,
   SdpSection,
-} from '@lib/calls/p2P/sdpCommon';
-import { SDPBuilder } from '@lib/calls/sdpBuilder';
-import StreamManager from '@lib/calls/streamManager';
-import { CallMediaState, DiffieHellmanInfo, P2PMediaContent, P2PMessage } from '@lib/calls/types';
+} from '@/lib/calls/p2P/sdpCommon';
+import { SDPBuilder } from '@/lib/calls/sdpBuilder';
+import StreamManager from '@/lib/calls/streamManager';
+import { CallMediaState, DiffieHellmanInfo, P2PMediaContent, P2PMessage } from '@/lib/calls/types';
 import { isTruthy } from '../../helpers/isTruthy';
 
 const ICE_CANDIDATE_POOL_SIZE = 10;

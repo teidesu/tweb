@@ -1,11 +1,11 @@
 import { children, createContext, createEffect, createMemo, createSignal, For, JSX, Ref, Show, useContext } from 'solid-js';
 import { render } from 'solid-js/web';
-import wrapKeyboardButton from '@components/wrappers/keyboardButton';
-import type Chat from '@components/chat/chat';
-import { KeyboardButtonRow, Message } from '@layer';
-import classNames from '@helpers/string/classNames';
-import { IconTsx } from '@components/iconTsx';
-import RippleElement from '@components/rippleElement';
+import wrapKeyboardButton from '@/components/wrappers/keyboardButton';
+import type Chat from '@/components/chat/chat';
+import { KeyboardButtonRow, Message } from '@/layer';
+import classNames from '@/helpers/string/classNames';
+import { IconTsx } from '@/components/iconTsx';
+import RippleElement from '@/components/rippleElement';
 
 type ContextValue = {
   elements: () => JSX.Element[]

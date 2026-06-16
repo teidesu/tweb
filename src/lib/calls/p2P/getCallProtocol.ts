@@ -5,7 +5,7 @@
  * https://github.com/evgeny-nadymov/telegram-react/blob/master/LICENSE
  */
 
-import { PhoneCallProtocol } from '@layer';
+import { PhoneCallProtocol } from '@/layer';
 
 // tgcalls v2 P2P signaling protocol version.
 // '13.0.0' (v3) = structured NegotiateChannels signaling, encryptRawPacket crypto,

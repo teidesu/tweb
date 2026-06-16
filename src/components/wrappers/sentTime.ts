@@ -1,5 +1,5 @@
-import { formatDateAccordingToTodayNew } from '@helpers/date';
-import { MyMessage } from '@appManagers/appMessagesManager';
+import { formatDateAccordingToTodayNew } from '@/helpers/date';
+import { MyMessage } from '@/lib/appManagers/appMessagesManager';
 
 export default function wrapSentTime(message: MyMessage) {
   const el: HTMLElement = document.createElement('span');

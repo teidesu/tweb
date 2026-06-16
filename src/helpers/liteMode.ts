@@ -1,5 +1,5 @@
-import { MOUNT_CLASS_TO } from '@config/debug';
-import { useAppSettings } from '@stores/appSettings';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import { useAppSettings } from '@/stores/appSettings';
 
 export type LiteModeKey = 'all' | 'gif' | 'video' |
   'emoji' | 'emoji_panel' | 'emoji_messages' | 'emoji_appear' |

@@ -1,5 +1,5 @@
-import { statsFormatDay, statsFormatDayHour, statsFormatDayHourFull, statsFormatMin } from '@lib/tchart/format';
-import { TChartData } from '@lib/tchart/types';
+import { statsFormatDay, statsFormatDayHour, statsFormatDayHourFull, statsFormatMin } from '@/lib/tchart/format';
+import { TChartData } from '@/lib/tchart/types';
 
 Math.log2 ||= function(x) {
   return Math.log(x) * Math.LOG2E;

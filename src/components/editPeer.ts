@@ -1,11 +1,11 @@
-import AvatarEdit, { AvatarEditPayload } from '@components/avatarEdit';
-import InputField from '@components/inputField';
-import ListenerSetter from '@helpers/listenerSetter';
-import ButtonCorner from '@components/buttonCorner';
-import safeAssign from '@helpers/object/safeAssign';
-import { NULL_PEER_ID } from '@appManagers/constants';
-import { Middleware } from '@helpers/middleware';
-import { avatarNew } from '@components/avatarNew';
+import AvatarEdit, { AvatarEditPayload } from '@/components/avatarEdit';
+import InputField from '@/components/inputField';
+import ListenerSetter from '@/helpers/listenerSetter';
+import ButtonCorner from '@/components/buttonCorner';
+import safeAssign from '@/helpers/object/safeAssign';
+import { NULL_PEER_ID } from '@/lib/appManagers/constants';
+import { Middleware } from '@/helpers/middleware';
+import { avatarNew } from '@/components/avatarNew';
 
 export default class EditPeer {
   public nextBtn: HTMLButtonElement;

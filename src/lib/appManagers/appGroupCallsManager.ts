@@ -5,16 +5,16 @@
  * https://github.com/evgeny-nadymov/telegram-react/blob/master/LICENSE
  */
 
-import type GroupCallConnectionInstance from '@lib/calls/groupCallConnectionInstance';
-import safeReplaceObject from '@helpers/object/safeReplaceObject';
-import { nextRandomUint } from '@helpers/random';
-import { DataJSON, GroupCall, GroupCallParticipant, GroupCallParticipantVideoSourceGroup, GroupCallStreamChannel, InputFileLocation, InputGroupCall, PhoneJoinGroupCall, PhoneJoinGroupCallPresentation, Update, Updates } from '@layer';
-import { NULL_PEER_ID } from '@appManagers/constants';
-import { AppManager } from '@appManagers/manager';
-import getPeerId from '@appManagers/utils/peers/getPeerId';
-import { DcId } from '@types';
-import assumeType from '@helpers/assumeType';
-import { parseVideoStreamInfo } from '@lib/calls/videoStreamInfo';
+import type GroupCallConnectionInstance from '@/lib/calls/groupCallConnectionInstance';
+import safeReplaceObject from '@/helpers/object/safeReplaceObject';
+import { nextRandomUint } from '@/helpers/random';
+import { DataJSON, GroupCall, GroupCallParticipant, GroupCallParticipantVideoSourceGroup, GroupCallStreamChannel, InputFileLocation, InputGroupCall, PhoneJoinGroupCall, PhoneJoinGroupCallPresentation, Update, Updates } from '@/layer';
+import { NULL_PEER_ID } from '@/lib/appManagers/constants';
+import { AppManager } from '@/lib/appManagers/manager';
+import getPeerId from '@/lib/appManagers/utils/peers/getPeerId';
+import { DcId } from '@/types';
+import assumeType from '@/helpers/assumeType';
+import { parseVideoStreamInfo } from '@/lib/calls/videoStreamInfo';
 
 export type GroupCallId = GroupCall['id'];
 export type MyGroupCall = GroupCall | Exclude<

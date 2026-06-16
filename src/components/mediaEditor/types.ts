@@ -1,4 +1,4 @@
-import { Document } from '@layer';
+import { Document } from '@/layer';
 
 export type NumberPair = [number, number];
 

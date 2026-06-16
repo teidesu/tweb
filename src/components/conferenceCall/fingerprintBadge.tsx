@@ -8,8 +8,8 @@
  */
 
 import { Component, For, Show } from 'solid-js';
-import classNames from '@helpers/string/classNames';
-import { emojiFingerprint } from '@lib/calls/e2e/emojiFingerprint';
+import classNames from '@/helpers/string/classNames';
+import { emojiFingerprint } from '@/lib/calls/e2e/emojiFingerprint';
 
 export interface FingerprintBadgeProps {
   // 32-byte (or any multiple-of-8) emoji_hash. Pass `undefined` while the

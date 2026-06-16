@@ -1,10 +1,10 @@
-import forEachReverse from '@helpers/array/forEachReverse';
-import copy from '@helpers/object/copy';
-import { ConferenceEntry } from '@lib/calls/localConferenceDescription';
-import { parseSdp, addSimulcast } from '@lib/calls/sdp/utils';
-import { generateMediaFirstLine, SDPBuilder } from '@lib/calls/sdpBuilder';
-import { UpdateGroupCallConnectionData } from '@lib/calls/types';
-import parseMediaSectionInfo from '@lib/calls/helpers/parseMediaSectionInfo';
+import forEachReverse from '@/helpers/array/forEachReverse';
+import copy from '@/helpers/object/copy';
+import { ConferenceEntry } from '@/lib/calls/localConferenceDescription';
+import { parseSdp, addSimulcast } from '@/lib/calls/sdp/utils';
+import { generateMediaFirstLine, SDPBuilder } from '@/lib/calls/sdpBuilder';
+import { UpdateGroupCallConnectionData } from '@/lib/calls/types';
+import parseMediaSectionInfo from '@/lib/calls/helpers/parseMediaSectionInfo';
 
 export default function fixLocalOffer(options: {
   offer: RTCSessionDescriptionInit,

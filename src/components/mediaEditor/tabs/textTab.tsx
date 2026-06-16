@@ -1,15 +1,15 @@
 import { onMount, Accessor, JSX, createEffect, untrack } from 'solid-js';
-import { i18n } from '@lib/langPack';
-import ripple from '@components/ripple';
-import { IconTsx } from '@components/iconTsx';
-import Space from '@components/space';
-import { createStoredColor } from '@components/mediaEditor/createStoredColor';
-import { useMediaEditorContext } from '@components/mediaEditor/context';
-import ColorPicker from '@components/mediaEditor/colorPicker';
-import LargeButton from '@components/mediaEditor/largeButton';
-import RangeInput from '@components/mediaEditor/rangeInput';
-import { fontInfoMap, textLayerInfoDefaults } from '@components/mediaEditor/utils';
-import { FontKey, TextLayerInfo } from '@components/mediaEditor/types';
+import { i18n } from '@/lib/langPack';
+import ripple from '@/components/ripple';
+import { IconTsx } from '@/components/iconTsx';
+import Space from '@/components/space';
+import { createStoredColor } from '@/components/mediaEditor/createStoredColor';
+import { useMediaEditorContext } from '@/components/mediaEditor/context';
+import ColorPicker from '@/components/mediaEditor/colorPicker';
+import LargeButton from '@/components/mediaEditor/largeButton';
+import RangeInput from '@/components/mediaEditor/rangeInput';
+import { fontInfoMap, textLayerInfoDefaults } from '@/components/mediaEditor/utils';
+import { FontKey, TextLayerInfo } from '@/components/mediaEditor/types';
 import { createStoredValue, Optional } from '../createStoredValue';
 
 

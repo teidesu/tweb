@@ -1,12 +1,12 @@
-import AppSelectPeers from '@components/appSelectPeers';
-import { setButtonLoader } from '@components/putPreloader';
-import ButtonCorner from '@components/buttonCorner';
-import Button from '@components/button';
-import SettingSection from '@components/settingSection';
-import { i18n } from '@lib/langPack';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import type { AppAddMembersTab } from '@components/solidJsTabs/tabs';
-import type { AppAddMembersExtraCategory } from '@components/solidJsTabs/tabs';
+import AppSelectPeers from '@/components/appSelectPeers';
+import { setButtonLoader } from '@/components/putPreloader';
+import ButtonCorner from '@/components/buttonCorner';
+import Button from '@/components/button';
+import SettingSection from '@/components/settingSection';
+import { i18n } from '@/lib/langPack';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import type { AppAddMembersTab } from '@/components/solidJsTabs/tabs';
+import type { AppAddMembersExtraCategory } from '@/components/solidJsTabs/tabs';
 
 type AppAddMembersTabClass = typeof AppAddMembersTab;
 

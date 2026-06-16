@@ -1,9 +1,9 @@
-import { User } from '@layer';
-import rootScope from '@lib/rootScope';
-import AccountController from '@lib/accounts/accountController';
-import { getCurrentAccount } from '@lib/accounts/getCurrentAccount';
-import { createProxiedManagersForAccount } from '@lib/getProxiedManagers';
-import { ActiveAccountNumber } from '@lib/accounts/types';
+import { User } from '@/layer';
+import rootScope from '@/lib/rootScope';
+import AccountController from '@/lib/accounts/accountController';
+import { getCurrentAccount } from '@/lib/accounts/getCurrentAccount';
+import { createProxiedManagersForAccount } from '@/lib/getProxiedManagers';
+import { ActiveAccountNumber } from '@/lib/accounts/types';
 
 export type AccountEntry = {
   accountNumber: ActiveAccountNumber;

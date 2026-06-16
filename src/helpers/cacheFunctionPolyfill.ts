@@ -1,4 +1,4 @@
-import ctx from '@environment/ctx';
+import ctx from '@/environment/ctx';
 
 type CacheFunction = (...args: any[]) => any;
 const cache: Map<CacheFunction, {result: any, timeout: number}> = new Map();

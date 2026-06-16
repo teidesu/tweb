@@ -11,7 +11,7 @@
  * over to the worker — keep that property as the worker integration matures.
  */
 
-import EventListenerBase from '@helpers/eventListenerBase';
+import EventListenerBase from '@/helpers/eventListenerBase';
 // Vite's `?worker` suffix bundles encryptWorker.ts into a CLASSIC worker
 // (IIFE). RTCRtpScriptTransform delivery to receivers (recv direction) is
 // flaky in Chrome with module workers — Chrome 146 pumped only ~6 frames

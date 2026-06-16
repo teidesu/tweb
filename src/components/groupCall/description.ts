@@ -1,8 +1,8 @@
-import Icon from '@components/icon';
-import { GroupCall } from '@layer';
-import GroupCallInstance from '@lib/calls/groupCallInstance';
-import GROUP_CALL_STATE from '@lib/calls/groupCallState';
-import I18n, { LangPackKey, FormatterArguments } from '@lib/langPack';
+import Icon from '@/components/icon';
+import { GroupCall } from '@/layer';
+import GroupCallInstance from '@/lib/calls/groupCallInstance';
+import GROUP_CALL_STATE from '@/lib/calls/groupCallState';
+import I18n, { LangPackKey, FormatterArguments } from '@/lib/langPack';
 
 export default class GroupCallDescriptionElement {
   private descriptionIntl: I18n.IntlElement;

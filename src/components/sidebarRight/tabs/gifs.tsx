@@ -1,15 +1,15 @@
 import { Component, onCleanup, onMount } from 'solid-js';
-import type { MyDocument } from '@appManagers/appDocsManager';
-import type { AppInlineBotsManager } from '@appManagers/appInlineBotsManager';
-import InputSearch from '@components/inputSearch';
-import animationIntersector, { AnimationItemGroup } from '@components/animationIntersector';
-import GifsMasonry from '@components/gifsMasonry';
-import mediaSizes from '@helpers/mediaSizes';
-import findUpClassName from '@helpers/dom/findUpClassName';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import { NULL_PEER_ID } from '@appManagers/constants';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import type { MyDocument } from '@/lib/appManagers/appDocsManager';
+import type { AppInlineBotsManager } from '@/lib/appManagers/appInlineBotsManager';
+import InputSearch from '@/components/inputSearch';
+import animationIntersector, { AnimationItemGroup } from '@/components/animationIntersector';
+import GifsMasonry from '@/components/gifsMasonry';
+import mediaSizes from '@/helpers/mediaSizes';
+import findUpClassName from '@/helpers/dom/findUpClassName';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import { NULL_PEER_ID } from '@/lib/appManagers/constants';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
 
 const ANIMATIONGROUP: AnimationItemGroup = 'GIFS-SEARCH';
 

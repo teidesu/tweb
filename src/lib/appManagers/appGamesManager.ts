@@ -1,7 +1,7 @@
-import { Game, Photo, Document, MessagesHighScores } from '@layer';
-import { AppManager } from '@appManagers/manager';
-import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
-import type { ReferenceContext } from '@lib/storages/references';
+import { Game, Photo, Document, MessagesHighScores } from '@/layer';
+import { AppManager } from '@/lib/appManagers/manager';
+import getServerMessageId from '@/lib/appManagers/utils/messageId/getServerMessageId';
+import type { ReferenceContext } from '@/lib/storages/references';
 
 export default class AppGamesManager extends AppManager {
   public saveGame(game: Game, mediaContext?: ReferenceContext): Game {

@@ -1,11 +1,11 @@
 import { createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js';
-import PopupElement, { createPopup } from '@components/popups/indexTsx';
-import { RadioFormFromValues } from '@components/row';
-import { i18n, LangPackKey } from '@lib/langPack';
-import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
+import PopupElement, { createPopup } from '@/components/popups/indexTsx';
+import { RadioFormFromValues } from '@/components/row';
+import { i18n, LangPackKey } from '@/lib/langPack';
+import wrapEmojiText from '@/lib/richTextProcessor/wrapEmojiText';
 
-import '@components/rtmp/outputDevicePopup.scss';
-import Section from '@components/section';
+import '@/components/rtmp/outputDevicePopup.scss';
+import Section from '@/components/section';
 
 // Generic device picker. Originally the RTMP livestream popup for choosing an
 // audio output; now also the picker used by the in-call settings sheet and

@@ -1,13 +1,13 @@
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import ListenerSetter from '@helpers/listenerSetter';
-import { LangPackKey, i18n } from '@lib/langPack';
-import ButtonIcon from '@components/buttonIcon';
-import ConnectionStatusComponent from '@components/connectionStatus';
-import Icon from '@components/icon';
-import InputField from '@components/inputField';
-import ProgressivePreloader from '@components/preloader';
-import SetTransition from '@components/singleTransition';
-import classNames from '@helpers/string/classNames';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import ListenerSetter from '@/helpers/listenerSetter';
+import { LangPackKey, i18n } from '@/lib/langPack';
+import ButtonIcon from '@/components/buttonIcon';
+import ConnectionStatusComponent from '@/components/connectionStatus';
+import Icon from '@/components/icon';
+import InputField from '@/components/inputField';
+import ProgressivePreloader from '@/components/preloader';
+import SetTransition from '@/components/singleTransition';
+import classNames from '@/helpers/string/classNames';
 import { isTruthy } from '../helpers/isTruthy';
 
 export default class InputSearch {

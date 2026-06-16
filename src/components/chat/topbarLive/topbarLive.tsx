@@ -1,13 +1,13 @@
-import { numberThousandSplitterForWatching } from '@helpers/number/numberThousandSplitter';
-import { cnTopbarLive } from '@components/chat/topbarLive/topbarLive.cn';
+import { numberThousandSplitterForWatching } from '@/helpers/number/numberThousandSplitter';
+import { cnTopbarLive } from '@/components/chat/topbarLive/topbarLive.cn';
 
-import { Skeleton } from '@components/skeleton';
+import { Skeleton } from '@/components/skeleton';
 
-import '@components/chat/topbarLive/topbarLive.scss';
-import { i18n } from '@lib/langPack';
-import Button from '@components/buttonTsx';
+import '@/components/chat/topbarLive/topbarLive.scss';
+import { i18n } from '@/lib/langPack';
+import Button from '@/components/buttonTsx';
 import { JSX } from 'solid-js';
-import classNames from '@helpers/string/classNames';
+import classNames from '@/helpers/string/classNames';
 
 export const TopbarLive = (props: {
   watching: number,

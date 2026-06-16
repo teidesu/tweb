@@ -1,6 +1,6 @@
-import { LangPackKey, FormatterArguments, i18n_ } from '@lib/langPack';
-import { generateDelimiter } from '@components/generateDelimiter';
-import Scrollable from '@components/scrollable';
+import { LangPackKey, FormatterArguments, i18n_ } from '@/lib/langPack';
+import { generateDelimiter } from '@/components/generateDelimiter';
+import Scrollable from '@/components/scrollable';
 
 export type SettingSectionOptions = {
   name?: LangPackKey | HTMLElement,

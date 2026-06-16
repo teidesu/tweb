@@ -1,18 +1,18 @@
 import { Component, onMount } from 'solid-js';
-import PrivacySection from '@components/privacySection';
-import { LangPackKey } from '@lib/langPack';
-import Row from '@components/row';
-import CheckboxField from '@components/checkboxField';
-import SettingSection from '@components/settingSection';
-import { DisallowedGiftsSettings, GlobalPrivacySettings } from '@layer';
-import rootScope from '@lib/rootScope';
-import PopupPremium from '@components/popups/premium';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import { hideToast, toastNew } from '@components/toast';
-import anchorCallback from '@helpers/dom/anchorCallback';
-import cancelEvent from '@helpers/dom/cancelEvent';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import type { AppPrivacyGiftsTab } from '@components/solidJsTabs/tabs';
+import PrivacySection from '@/components/privacySection';
+import { LangPackKey } from '@/lib/langPack';
+import Row from '@/components/row';
+import CheckboxField from '@/components/checkboxField';
+import SettingSection from '@/components/settingSection';
+import { DisallowedGiftsSettings, GlobalPrivacySettings } from '@/layer';
+import rootScope from '@/lib/rootScope';
+import PopupPremium from '@/components/popups/premium';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import { hideToast, toastNew } from '@/components/toast';
+import anchorCallback from '@/helpers/dom/anchorCallback';
+import cancelEvent from '@/helpers/dom/cancelEvent';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import type { AppPrivacyGiftsTab } from '@/components/solidJsTabs/tabs';
 
 type GiftTypeFlag = keyof DisallowedGiftsSettings.disallowedGiftsSettings['pFlags'];
 

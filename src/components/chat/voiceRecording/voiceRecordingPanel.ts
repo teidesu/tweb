@@ -19,10 +19,10 @@
 //   * onPauseToggle        — pause while recording / resume recording while paused.
 //   * onPlayToggle         — playback / pause playback (paused mode only).
 
-import Icon from '@components/icon';
-import Button from '@components/button';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import ListenerSetter from '@helpers/listenerSetter';
+import Icon from '@/components/icon';
+import Button from '@/components/button';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import ListenerSetter from '@/helpers/listenerSetter';
 import LiveWaveform from './liveWaveform';
 
 export interface VoiceRecordingPanelOptions {

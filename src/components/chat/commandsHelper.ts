@@ -1,9 +1,9 @@
-import type ChatInput from '@components/chat/input';
-import type { BotInfo, ChatFull, UserFull } from '@layer';
-import AutocompleteHelperController from '@components/chat/autocompleteHelperController';
-import AutocompletePeerHelper from '@components/chat/autocompletePeerHelper';
-import SearchIndex from '@lib/searchIndex';
-import { AppManagers } from '@lib/managers';
+import type ChatInput from '@/components/chat/input';
+import type { BotInfo, ChatFull, UserFull } from '@/layer';
+import AutocompleteHelperController from '@/components/chat/autocompleteHelperController';
+import AutocompletePeerHelper from '@/components/chat/autocompletePeerHelper';
+import SearchIndex from '@/lib/searchIndex';
+import { AppManagers } from '@/lib/managers';
 
 export function processPeerFullForCommands(peerId: PeerId, full: ChatFull.chatFull | ChatFull.channelFull | UserFull.userFull, query?: string) {
   const botInfos: BotInfo.botInfo[] = ([] as BotInfo.botInfo[]).concat(full.bot_info as BotInfo.botInfo[]);

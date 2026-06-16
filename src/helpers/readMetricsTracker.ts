@@ -1,4 +1,4 @@
-import { InputMessageReadMetric } from '@layer';
+import { InputMessageReadMetric } from '@/layer';
 import { randomLong } from './random';
 import clamp from './number/clamp';
 

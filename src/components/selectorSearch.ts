@@ -1,17 +1,17 @@
-import Scrollable from '@components/scrollable';
-import InputSearch from '@components/inputSearch';
-import SettingSection from '@components/settingSection';
-import PeerTitle from '@components/peerTitle';
-import { avatarNew } from '@components/avatarNew';
-import Icon from '@components/icon';
-import Tabs from '@components/tabs';
-import { observeResize } from '@components/resizeObserver';
-import replaceContent from '@helpers/dom/replaceContent';
-import findUpClassName from '@helpers/dom/findUpClassName';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import liteMode from '@helpers/liteMode';
-import { FocusDirection } from '@helpers/fastSmoothScroll';
-import { Middleware, MiddlewareHelper } from '@helpers/middleware';
+import Scrollable from '@/components/scrollable';
+import InputSearch from '@/components/inputSearch';
+import SettingSection from '@/components/settingSection';
+import PeerTitle from '@/components/peerTitle';
+import { avatarNew } from '@/components/avatarNew';
+import Icon from '@/components/icon';
+import Tabs from '@/components/tabs';
+import { observeResize } from '@/components/resizeObserver';
+import replaceContent from '@/helpers/dom/replaceContent';
+import findUpClassName from '@/helpers/dom/findUpClassName';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import liteMode from '@/helpers/liteMode';
+import { FocusDirection } from '@/helpers/fastSmoothScroll';
+import { Middleware, MiddlewareHelper } from '@/helpers/middleware';
 
 export default class SelectorSearch {
   public section: SettingSection;

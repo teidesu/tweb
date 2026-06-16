@@ -7,7 +7,7 @@
 
 import OggOpusWriter from './oggOpusWriter';
 import isNativeVoiceRecorderSupported from './isNativeSupported';
-import getStream from '@lib/calls/helpers/getStream';
+import getStream from '@/lib/calls/helpers/getStream';
 
 export { isNativeVoiceRecorderSupported };
 

@@ -1,7 +1,7 @@
-import SwipeHandler, { SwipeHandlerOptions } from '@components/swipeHandler';
-import cancelEvent from '@helpers/dom/cancelEvent';
-import findUpClassName from '@helpers/dom/findUpClassName';
-import isSwipingBackSafari from '@helpers/dom/isSwipingBackSafari';
+import SwipeHandler, { SwipeHandlerOptions } from '@/components/swipeHandler';
+import cancelEvent from '@/helpers/dom/cancelEvent';
+import findUpClassName from '@/helpers/dom/findUpClassName';
+import isSwipingBackSafari from '@/helpers/dom/isSwipingBackSafari';
 
 export type SwipeHandlerHorizontalOptions = SwipeHandlerOptions & {
   // xThreshold?: number

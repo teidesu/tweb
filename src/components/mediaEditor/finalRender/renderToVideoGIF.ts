@@ -1,23 +1,23 @@
 import { createSignal, getOwner, runWithOwner } from 'solid-js';
 
-import deferredPromise from '@helpers/cancellablePromise';
-import noop from '@helpers/noop';
+import deferredPromise from '@/helpers/cancellablePromise';
+import noop from '@/helpers/noop';
 
-import { useMediaEditorContext } from '@components/mediaEditor/context';
-import { delay } from '@components/mediaEditor/utils';
+import { useMediaEditorContext } from '@/components/mediaEditor/context';
+import { delay } from '@/components/mediaEditor/utils';
 
-import { FRAMES_PER_SECOND, STICKER_SIZE } from '@components/mediaEditor/finalRender/constants';
-import { MediaEditorFinalResultPayload } from '@components/mediaEditor/finalRender/createFinalResult';
-import drawStickerLayer from '@components/mediaEditor/finalRender/drawStickerLayer';
-import drawTextLayer from '@components/mediaEditor/finalRender/drawTextLayer';
-import { generateVideoPreview } from '@components/mediaEditor/finalRender/generateVideoPreview';
-import { ScaledLayersAndLines } from '@components/mediaEditor/finalRender/getScaledLayersAndLines';
-import ImageStickerFrameByFrameRenderer from '@components/mediaEditor/finalRender/imageStickerFrameByFrameRenderer';
-import LottieStickerFrameByFrameRenderer from '@components/mediaEditor/finalRender/lottieStickerFrameByFrameRenderer';
-import { StickerFrameByFrameRenderer } from '@components/mediaEditor/finalRender/types';
-import VideoStickerFrameByFrameRenderer from '@components/mediaEditor/finalRender/videoStickerFrameByFrameRenderer';
-import createMp4VideoEncoder from '@components/mediaEditor/finalRender/createMp4VideoEncoder';
-import StickerType from '@config/stickerType';
+import { FRAMES_PER_SECOND, STICKER_SIZE } from '@/components/mediaEditor/finalRender/constants';
+import { MediaEditorFinalResultPayload } from '@/components/mediaEditor/finalRender/createFinalResult';
+import drawStickerLayer from '@/components/mediaEditor/finalRender/drawStickerLayer';
+import drawTextLayer from '@/components/mediaEditor/finalRender/drawTextLayer';
+import { generateVideoPreview } from '@/components/mediaEditor/finalRender/generateVideoPreview';
+import { ScaledLayersAndLines } from '@/components/mediaEditor/finalRender/getScaledLayersAndLines';
+import ImageStickerFrameByFrameRenderer from '@/components/mediaEditor/finalRender/imageStickerFrameByFrameRenderer';
+import LottieStickerFrameByFrameRenderer from '@/components/mediaEditor/finalRender/lottieStickerFrameByFrameRenderer';
+import { StickerFrameByFrameRenderer } from '@/components/mediaEditor/finalRender/types';
+import VideoStickerFrameByFrameRenderer from '@/components/mediaEditor/finalRender/videoStickerFrameByFrameRenderer';
+import createMp4VideoEncoder from '@/components/mediaEditor/finalRender/createMp4VideoEncoder';
+import StickerType from '@/config/stickerType';
 
 type Args = {
   scaledLayers: ScaledLayersAndLines['scaledLayers'];

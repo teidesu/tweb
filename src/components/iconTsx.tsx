@@ -1,6 +1,6 @@
 import { JSX, splitProps } from 'solid-js';
-import classNames from '@helpers/string/classNames';
-import { getIconContent } from '@components/icon';
+import classNames from '@/helpers/string/classNames';
+import { getIconContent } from '@/components/icon';
 
 export type IconTsxProps = {
   icon: Icon;

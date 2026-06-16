@@ -1,13 +1,13 @@
-import { EmoticonsDropdown } from '@components/emoticonsDropdown';
-import { AnimationItemGroup } from '@components/animationIntersector';
-import StickersTab from '@components/emoticonsDropdown/tabs/stickers';
-import rootScope from '@lib/rootScope';
-import findUpTag from '@helpers/dom/findUpTag';
-import cloneDOMRect from '@helpers/dom/cloneDOMRect';
-import { subscribeOn } from '@helpers/solid/subscribeOn';
+import { EmoticonsDropdown } from '@/components/emoticonsDropdown';
+import { AnimationItemGroup } from '@/components/animationIntersector';
+import StickersTab from '@/components/emoticonsDropdown/tabs/stickers';
+import rootScope from '@/lib/rootScope';
+import findUpTag from '@/helpers/dom/findUpTag';
+import cloneDOMRect from '@/helpers/dom/cloneDOMRect';
+import { subscribeOn } from '@/helpers/solid/subscribeOn';
 import { createEffect, createRoot, createSignal, onCleanup } from 'solid-js';
 
-import styles from '@components/emojiDropdownButton.module.scss';
+import styles from '@/components/emojiDropdownButton.module.scss';
 
 type StickerClickPayload = {
   docId: DocId,

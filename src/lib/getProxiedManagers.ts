@@ -1,10 +1,10 @@
-import type createManagers from '@appManagers/createManagers';
-import type { AckedResult } from '@lib/superMessagePort';
-import { ModifyFunctionsToAsync } from '@types';
-import apiManagerProxy from '@lib/apiManagerProxy';
-import DEBUG, { MOUNT_CLASS_TO } from '@config/debug';
-import { getCurrentAccount } from '@lib/accounts/getCurrentAccount';
-import { ActiveAccountNumber } from '@lib/accounts/types';
+import type createManagers from '@/lib/appManagers/createManagers';
+import type { AckedResult } from '@/lib/superMessagePort';
+import { ModifyFunctionsToAsync } from '@/types';
+import apiManagerProxy from '@/lib/apiManagerProxy';
+import DEBUG, { MOUNT_CLASS_TO } from '@/config/debug';
+import { getCurrentAccount } from '@/lib/accounts/getCurrentAccount';
+import { ActiveAccountNumber } from '@/lib/accounts/types';
 
 // let stats: {
 //   [manager: string]: {

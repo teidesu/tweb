@@ -1,6 +1,6 @@
-import type { AnyDialog } from '@lib/storages/dialogs';
-import type { Dialog } from '@appManagers/appMessagesManager';
-import type getDialogIndexKey from '@appManagers/utils/dialogs/getDialogIndexKey';
+import type { AnyDialog } from '@/lib/storages/dialogs';
+import type { Dialog } from '@/lib/appManagers/appMessagesManager';
+import type getDialogIndexKey from '@/lib/appManagers/utils/dialogs/getDialogIndexKey';
 
 export default function setDialogIndex(
   dialog: AnyDialog,

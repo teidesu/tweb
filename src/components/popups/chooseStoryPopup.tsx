@@ -1,15 +1,15 @@
 import PopupElement, { PopupButton } from '.';
-import safeAssign from '@helpers/object/safeAssign';
-import Scrollable from '@components/scrollable';
-import ListenerSetter from '@helpers/listenerSetter';
-import { StoriesProfileList } from '@components/stories/profileList';
-import { StoryItem } from '@layer';
+import safeAssign from '@/helpers/object/safeAssign';
+import Scrollable from '@/components/scrollable';
+import ListenerSetter from '@/helpers/listenerSetter';
+import { StoriesProfileList } from '@/components/stories/profileList';
+import { StoryItem } from '@/layer';
 import { createEffect, createRoot, on } from 'solid-js';
 import { getFirstChild } from '@solid-primitives/refs';
-import { i18n } from '@lib/langPack';
-import replaceContent from '@helpers/dom/replaceContent';
+import { i18n } from '@/lib/langPack';
+import replaceContent from '@/helpers/dom/replaceContent';
 
-import styles from '@components/popups/chooseStoryPopup.module.scss';
+import styles from '@/components/popups/chooseStoryPopup.module.scss';
 
 export default class PopupChooseStory extends PopupElement<{
   finish: (result: {added: number[], removed: number[]} | null) => void

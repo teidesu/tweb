@@ -1,6 +1,6 @@
-import { WebDocument } from '@layer';
-import { DownloadOptions } from '@appManagers/apiFileManager';
-import getWebFileDownloadOptions from '@appManagers/utils/webFiles/getWebFileDownloadOptions';
+import { WebDocument } from '@/layer';
+import { DownloadOptions } from '@/lib/appManagers/apiFileManager';
+import getWebFileDownloadOptions from '@/lib/appManagers/utils/webFiles/getWebFileDownloadOptions';
 
 export default function getWebDocumentDownloadOptions(webDocument: WebDocument): DownloadOptions {
   const downloadOptions = getWebFileDownloadOptions({

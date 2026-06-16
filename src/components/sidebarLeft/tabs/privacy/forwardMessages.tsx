@@ -1,6 +1,6 @@
 import privacyTab from './privacyTab';
-import PrivacySection from '@components/privacySection';
-import { LangPackKey } from '@lib/langPack';
+import PrivacySection from '@/components/privacySection';
+import { LangPackKey } from '@/lib/langPack';
 
 const caption: LangPackKey = 'PrivacySettingsController.Forwards.CustomHelp';
 

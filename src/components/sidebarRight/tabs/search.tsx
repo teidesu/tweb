@@ -1,14 +1,14 @@
 import { Component } from 'solid-js';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import rootScope from '@lib/rootScope';
-import AppSearch from '@components/appSearch';
-import { createSearchGroup } from '@components/searchGroup';
-import ButtonIcon from '@components/buttonIcon';
-import InputSearch from '@components/inputSearch';
-import showDatePickerPopup from '@components/popups/datePicker';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
-import type { AppPrivateSearchTab } from '@components/solidJsTabs/tabs';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import rootScope from '@/lib/rootScope';
+import AppSearch from '@/components/appSearch';
+import { createSearchGroup } from '@/components/searchGroup';
+import ButtonIcon from '@/components/buttonIcon';
+import InputSearch from '@/components/inputSearch';
+import showDatePickerPopup from '@/components/popups/datePicker';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
+import type { AppPrivateSearchTab } from '@/components/solidJsTabs/tabs';
 
 const PrivateSearch: Component = () => {
   const [tab] = useSuperTab<typeof AppPrivateSearchTab>();

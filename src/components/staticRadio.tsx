@@ -1,5 +1,5 @@
-import styles from '@components/staticRadio.module.scss';
-import classNames from '@helpers/string/classNames';
+import styles from '@/components/staticRadio.module.scss';
+import classNames from '@/helpers/string/classNames';
 import { JSX, splitProps } from 'solid-js';
 
 

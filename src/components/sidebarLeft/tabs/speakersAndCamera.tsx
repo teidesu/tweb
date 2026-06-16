@@ -1,20 +1,20 @@
 import { createSignal, onCleanup, onMount, Show } from 'solid-js';
-import Section from '@components/section';
-import Row from '@components/rowTsx';
-import CheckboxFieldTsx from '@components/checkboxFieldTsx';
-import { i18n } from '@lib/langPack';
-import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import rootScope from '@lib/rootScope';
-import { useAppSettings } from '@stores/appSettings';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
-import showOutputDevicePopup from '@components/rtmp/outputDevicePopup';
-import applyDeviceToActiveCall from '@lib/calls/applyDeviceToActiveCall';
-import MicrophoneLevelMeter from '@components/call/microphoneLevelMeter';
-import CallCameraSection from '@components/call/cameraSection';
-import { Authorization } from '@layer';
+import Section from '@/components/section';
+import Row from '@/components/rowTsx';
+import CheckboxFieldTsx from '@/components/checkboxFieldTsx';
+import { i18n } from '@/lib/langPack';
+import wrapEmojiText from '@/lib/richTextProcessor/wrapEmojiText';
+import rootScope from '@/lib/rootScope';
+import { useAppSettings } from '@/stores/appSettings';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@/components/solidJsTabs/promiseCollector';
+import showOutputDevicePopup from '@/components/rtmp/outputDevicePopup';
+import applyDeviceToActiveCall from '@/lib/calls/applyDeviceToActiveCall';
+import MicrophoneLevelMeter from '@/components/call/microphoneLevelMeter';
+import CallCameraSection from '@/components/call/cameraSection';
+import { Authorization } from '@/layer';
 
-import '@components/call/settingsPopup.scss';
+import '@/components/call/settingsPopup.scss';
 
 // Speakers-and-Camera settings tab. Mirrors tdesktop's settings_calls
 // "Calls" panel: Speakers → Microphone (+ live level meter) → Camera (+

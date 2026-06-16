@@ -1,6 +1,6 @@
-import IS_SHARED_WORKER_SUPPORTED from '@environment/sharedWorkerSupport';
-import { logger } from '@lib/logger';
-import type { SpoilerRendererInMessage, SpoilerRendererOutMessage } from '@components/spoilerRenderer.worker';
+import IS_SHARED_WORKER_SUPPORTED from '@/environment/sharedWorkerSupport';
+import { logger } from '@/lib/logger';
+import type { SpoilerRendererInMessage, SpoilerRendererOutMessage } from '@/components/spoilerRenderer.worker';
 
 export type SpoilerRendererConnection = {
   postMessage: (message: SpoilerRendererInMessage | ImageBitmap, transfer?: Transferable[]) => void,

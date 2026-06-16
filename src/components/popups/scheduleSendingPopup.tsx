@@ -1,15 +1,15 @@
 import { createSignal, Show } from 'solid-js';
-import showDatePickerPopup from '@components/popups/datePicker';
-import PopupElement from '@components/popups/indexTsx';
-import Row from '@components/rowTsx';
-import InlineSelect from '@components/sidebarLeft/tabs/passcodeLock/inlineSelect';
-import { IconTsx } from '@components/iconTsx';
-import { i18n } from '@lib/langPack';
-import { hideToast, toastNew } from '@components/toast';
-import anchorCallback from '@helpers/dom/anchorCallback';
-import PopupPremium from '@components/popups/premium';
-import { SEND_WHEN_ONLINE_TIMESTAMP } from '@appManagers/constants';
-import rootScope from '@lib/rootScope';
+import showDatePickerPopup from '@/components/popups/datePicker';
+import PopupElement from '@/components/popups/indexTsx';
+import Row from '@/components/rowTsx';
+import InlineSelect from '@/components/sidebarLeft/tabs/passcodeLock/inlineSelect';
+import { IconTsx } from '@/components/iconTsx';
+import { i18n } from '@/lib/langPack';
+import { hideToast, toastNew } from '@/components/toast';
+import anchorCallback from '@/helpers/dom/anchorCallback';
+import PopupPremium from '@/components/popups/premium';
+import { SEND_WHEN_ONLINE_TIMESTAMP } from '@/lib/appManagers/constants';
+import rootScope from '@/lib/rootScope';
 
 const DAY = 86400;
 const REPEAT_OPTIONS: {value: number, label: () => HTMLElement}[] = [

@@ -1,25 +1,25 @@
 import { Accessor, createEffect, createMemo, createSignal } from 'solid-js';
-import deferredPromise from '@helpers/cancellablePromise';
-import ListenerSetter from '@helpers/listenerSetter';
-import usePeerTranslation from '@hooks/usePeerTranslation';
-import { AppManagers } from '@lib/managers';
-import I18n, { i18n } from '@lib/langPack';
-import { NULL_PEER_ID } from '@appManagers/constants';
-import SearchIndex from '@lib/searchIndex';
-import Languages from '@lib/tinyld/languages';
-import usePremium from '@stores/premium';
-import ButtonMenuToggle from '@components/buttonMenuToggle';
-import Icon from '@components/icon';
-import showPickUserPopup from '@components/popups/pickUser';
-import PopupPremium from '@components/popups/premium';
-import Row from '@components/row';
-import Chat from '@components/chat/chat';
-import ChatTopbar from '@components/chat/topbar';
-import { useAppSettings } from '@stores/appSettings';
-import { toastNew } from '@components/toast';
-import { usePeer } from '@stores/peers';
-import { Chat as MTChat } from '@layer';
-import TopbarPlate, { createTopbarPlate, TopbarPlateController } from '@components/chat/topbarPlate';
+import deferredPromise from '@/helpers/cancellablePromise';
+import ListenerSetter from '@/helpers/listenerSetter';
+import usePeerTranslation from '@/hooks/usePeerTranslation';
+import { AppManagers } from '@/lib/managers';
+import I18n, { i18n } from '@/lib/langPack';
+import { NULL_PEER_ID } from '@/lib/appManagers/constants';
+import SearchIndex from '@/lib/searchIndex';
+import Languages from '@/lib/tinyld/languages';
+import usePremium from '@/stores/premium';
+import ButtonMenuToggle from '@/components/buttonMenuToggle';
+import Icon from '@/components/icon';
+import showPickUserPopup from '@/components/popups/pickUser';
+import PopupPremium from '@/components/popups/premium';
+import Row from '@/components/row';
+import Chat from '@/components/chat/chat';
+import ChatTopbar from '@/components/chat/topbar';
+import { useAppSettings } from '@/stores/appSettings';
+import { toastNew } from '@/components/toast';
+import { usePeer } from '@/stores/peers';
+import { Chat as MTChat } from '@/layer';
+import TopbarPlate, { createTopbarPlate, TopbarPlateController } from '@/components/chat/topbarPlate';
 
 export function pickLanguage<T extends boolean>(
   multi?: T,

@@ -1,4 +1,4 @@
-import { IS_PREVIEW } from '@config/debug';
+import { IS_PREVIEW } from '@/config/debug';
 
 /*
  * The preview tab runs permanently hidden, and Chrome throttles DOM timers in

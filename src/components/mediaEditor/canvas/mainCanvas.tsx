@@ -1,12 +1,12 @@
-import BrushCanvas from '@components/mediaEditor/canvas/brushCanvas';
-import CropHandles from '@components/mediaEditor/canvas/cropHandles';
-import ImageCanvas from '@components/mediaEditor/canvas/imageCanvas';
-import PreviewBrushSize from '@components/mediaEditor/canvas/previewBrushSize';
-import ResizableLayers from '@components/mediaEditor/canvas/resizableLayers';
-import RotationWheel from '@components/mediaEditor/canvas/rotationWheel';
-import useFinalTransform from '@components/mediaEditor/canvas/useFinalTransform';
-import VideoControls from '@components/mediaEditor/canvas/videoControls';
-import { useMediaEditorContext } from '@components/mediaEditor/context';
+import BrushCanvas from '@/components/mediaEditor/canvas/brushCanvas';
+import CropHandles from '@/components/mediaEditor/canvas/cropHandles';
+import ImageCanvas from '@/components/mediaEditor/canvas/imageCanvas';
+import PreviewBrushSize from '@/components/mediaEditor/canvas/previewBrushSize';
+import ResizableLayers from '@/components/mediaEditor/canvas/resizableLayers';
+import RotationWheel from '@/components/mediaEditor/canvas/rotationWheel';
+import useFinalTransform from '@/components/mediaEditor/canvas/useFinalTransform';
+import VideoControls from '@/components/mediaEditor/canvas/videoControls';
+import { useMediaEditorContext } from '@/components/mediaEditor/context';
 import { onCleanup, onMount, Show } from 'solid-js';
 
 

@@ -1,21 +1,21 @@
-import PopupElement from '@components/popups/index';
-import PromoSlideTab, { getGiftDetails } from '@components/premium/promoSlideTab';
-import TransitionSlider from '@components/transition';
-import FeatureSlideTab from '@components/premium/featureSlideTab';
-import I18n, { FormatterArguments } from '@lib/langPack';
-import Button from '@components/button';
-import paymentsWrapCurrencyAmount from '@helpers/paymentsWrapCurrencyAmount';
-import { HelpPremiumPromo, MessageAction, PaymentsCheckedGiftCode, PremiumSubscriptionOption } from '@layer';
-import { PREMIUM_FEATURES, PremiumPromoFeature } from '@components/premium/featuresConfig';
-import Icon from '@components/icon';
-import { Middleware } from '@helpers/middleware';
-import { AppManagers } from '@lib/managers';
-import appImManager, { ChatSetPeerOptions } from '@lib/appImManager';
-import rootScope from '@lib/rootScope';
-import safeAssign from '@helpers/object/safeAssign';
-import ListenerSetter from '@helpers/listenerSetter';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import PopupGiftLink from '@components/popups/giftLink';
+import PopupElement from '@/components/popups/index';
+import PromoSlideTab, { getGiftDetails } from '@/components/premium/promoSlideTab';
+import TransitionSlider from '@/components/transition';
+import FeatureSlideTab from '@/components/premium/featureSlideTab';
+import I18n, { FormatterArguments } from '@/lib/langPack';
+import Button from '@/components/button';
+import paymentsWrapCurrencyAmount from '@/helpers/paymentsWrapCurrencyAmount';
+import { HelpPremiumPromo, MessageAction, PaymentsCheckedGiftCode, PremiumSubscriptionOption } from '@/layer';
+import { PREMIUM_FEATURES, PremiumPromoFeature } from '@/components/premium/featuresConfig';
+import Icon from '@/components/icon';
+import { Middleware } from '@/helpers/middleware';
+import { AppManagers } from '@/lib/managers';
+import appImManager, { ChatSetPeerOptions } from '@/lib/appImManager';
+import rootScope from '@/lib/rootScope';
+import safeAssign from '@/helpers/object/safeAssign';
+import ListenerSetter from '@/helpers/listenerSetter';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import PopupGiftLink from '@/components/popups/giftLink';
 
 export type PopupPremiumProps = {
   order: PremiumPromoFeatureType[],

@@ -1,5 +1,5 @@
-import { getMiddleware } from '@helpers/middleware';
-import AutocompleteHelper from '@components/chat/autocompleteHelper';
+import { getMiddleware } from '@/helpers/middleware';
+import AutocompleteHelper from '@/components/chat/autocompleteHelper';
 
 export default class AutocompleteHelperController {
   private helpers: Set<AutocompleteHelper> = new Set();

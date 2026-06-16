@@ -1,5 +1,5 @@
 import { JSX } from 'solid-js';
-import classNames from '@helpers/string/classNames';
+import classNames from '@/helpers/string/classNames';
 
 /**
  * Marker class for the unified chat-input plate layout. Anything carrying this

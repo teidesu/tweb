@@ -1,4 +1,4 @@
-import splitStringByLimitWithRest from '@helpers/string/splitStringByLimitWithRest';
+import splitStringByLimitWithRest from '@/helpers/string/splitStringByLimitWithRest';
 
 export default class SDPAttributeInner {
   #key: string;

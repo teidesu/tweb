@@ -1,10 +1,10 @@
-import { ResizableContainer } from '@components/mediaEditor/canvas/resizableLayers';
-import { HistoryItem, useMediaEditorContext } from '@components/mediaEditor/context';
-import { ResizableLayerProps, TextLayerInfo, TextRenderingInfoLine } from '@components/mediaEditor/types';
-import { fontInfoMap, getContrastColor } from '@components/mediaEditor/utils';
-import createElementFromMarkup from '@helpers/createElementFromMarkup';
-import track from '@helpers/solid/track';
-import { i18n } from '@lib/langPack';
+import { ResizableContainer } from '@/components/mediaEditor/canvas/resizableLayers';
+import { HistoryItem, useMediaEditorContext } from '@/components/mediaEditor/context';
+import { ResizableLayerProps, TextLayerInfo, TextRenderingInfoLine } from '@/components/mediaEditor/types';
+import { fontInfoMap, getContrastColor } from '@/components/mediaEditor/utils';
+import createElementFromMarkup from '@/helpers/createElementFromMarkup';
+import track from '@/helpers/solid/track';
+import { i18n } from '@/lib/langPack';
 import { batch, createEffect, createMemo, on, onCleanup, onMount } from 'solid-js';
 import { modifyMutable, reconcile } from 'solid-js/store';
 

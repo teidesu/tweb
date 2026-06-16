@@ -1,13 +1,13 @@
 import { onCleanup, onMount } from 'solid-js';
 
-import Button from '@components/buttonTsx';
-import CodeInputFieldCompat from '@components/codeInputField';
-import { wrapEmailPattern } from '@components/popups/emailSetup';
-import MediaHeader from '@components/mediaHeader';
-import focusWhenConnected from '@helpers/dom/focusWhenConnected';
-import replaceContent from '@helpers/dom/replaceContent';
-import mediaSizes from '@helpers/mediaSizes';
-import { i18n } from '@lib/langPack';
+import Button from '@/components/buttonTsx';
+import CodeInputFieldCompat from '@/components/codeInputField';
+import { wrapEmailPattern } from '@/components/popups/emailSetup';
+import MediaHeader from '@/components/mediaHeader';
+import focusWhenConnected from '@/helpers/dom/focusWhenConnected';
+import replaceContent from '@/helpers/dom/replaceContent';
+import mediaSizes from '@/helpers/mediaSizes';
+import { i18n } from '@/lib/langPack';
 
 import AuthCard from '@/pages/AuthCard';
 import { CardSpec, useAuthFlow } from '@/pages/authFlow';

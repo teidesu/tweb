@@ -1,8 +1,8 @@
 import PopupElement, { addCancelButton } from '.';
-import PopupPeer, { PopupPeerButtonCallbackCheckboxes, PopupPeerOptions } from '@components/popups/peer';
-import rootScope from '@lib/rootScope';
-import { FormatterArguments, LangPackKey } from '@lib/langPack';
-import wrapPeerTitle from '@components/wrappers/peerTitle';
+import PopupPeer, { PopupPeerButtonCallbackCheckboxes, PopupPeerOptions } from '@/components/popups/peer';
+import rootScope from '@/lib/rootScope';
+import { FormatterArguments, LangPackKey } from '@/lib/langPack';
+import wrapPeerTitle from '@/components/wrappers/peerTitle';
 
 export default class PopupPinMessage {
   constructor(private peerId: PeerId, private mid: number, private unpin?: true, private onConfirm?: () => void) {

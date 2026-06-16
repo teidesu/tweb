@@ -1,7 +1,7 @@
 import { createSignal, For, onMount, Show } from 'solid-js';
-import ButtonMenuToggle from '@components/buttonMenuToggle';
-import { AppPrivacyAndSecurityTab } from '@components/solidJsTabs/tabs';
-import { AppChatFoldersTab } from '@components/solidJsTabs/tabs';
+import ButtonMenuToggle from '@/components/buttonMenuToggle';
+import { AppPrivacyAndSecurityTab } from '@/components/solidJsTabs/tabs';
+import { AppChatFoldersTab } from '@/components/solidJsTabs/tabs';
 import {
   AppGeneralSettingsTab,
   AppKeyboardShortcutsTab,
@@ -9,32 +9,32 @@ import {
   AppMyProfileTab,
   AppNotificationsTab,
   AppSpeakersAndCameraTab,
-} from '@components/solidJsTabs';
-import lottieLoader from '@lib/rlottie/lottieLoader';
-import { AppDataAndStorageTab } from '@components/solidJsTabs/tabs';
-import rootScope from '@lib/rootScope';
-import Row from '@components/rowTsx';
-import { AppActiveSessionsTab } from '@components/solidJsTabs/tabs';
-import { i18n, LangPackKey } from '@lib/langPack';
-import { SliderSuperTabConstructable, SliderSuperTabEventable } from '@components/sliderTab';
-import { AccountAuthorizations, Authorization } from '@layer';
-import PopupElement from '@components/popups';
-import Section from '@components/section';
-import { AppStickersAndEmojiTab } from '@components/solidJsTabs/tabs';
-import PopupPremium from '@components/popups/premium';
-import apiManagerProxy from '@lib/apiManagerProxy';
-import useStars from '@stores/stars';
-import PopupStars from '@components/popups/stars';
-import showPickUserPopup from '@components/popups/pickUser';
-import PopupSendGift from '@components/popups/sendGift';
-import { formatNanoton } from '@helpers/paymentsWrapCurrencyAmount';
-import showLogOutPopup from '@components/popups/logOut';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
-import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
-import { getAccountEntries, AccountEntry } from '@lib/accounts/getAccountEntries';
-import { MAX_ACCOUNTS } from '@lib/accounts/constants';
-import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
+} from '@/components/solidJsTabs';
+import lottieLoader from '@/lib/rlottie/lottieLoader';
+import { AppDataAndStorageTab } from '@/components/solidJsTabs/tabs';
+import rootScope from '@/lib/rootScope';
+import Row from '@/components/rowTsx';
+import { AppActiveSessionsTab } from '@/components/solidJsTabs/tabs';
+import { i18n, LangPackKey } from '@/lib/langPack';
+import { SliderSuperTabConstructable, SliderSuperTabEventable } from '@/components/sliderTab';
+import { AccountAuthorizations, Authorization } from '@/layer';
+import PopupElement from '@/components/popups';
+import Section from '@/components/section';
+import { AppStickersAndEmojiTab } from '@/components/solidJsTabs/tabs';
+import PopupPremium from '@/components/popups/premium';
+import apiManagerProxy from '@/lib/apiManagerProxy';
+import useStars from '@/stores/stars';
+import PopupStars from '@/components/popups/stars';
+import showPickUserPopup from '@/components/popups/pickUser';
+import PopupSendGift from '@/components/popups/sendGift';
+import { formatNanoton } from '@/helpers/paymentsWrapCurrencyAmount';
+import showLogOutPopup from '@/components/popups/logOut';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@/components/solidJsTabs/promiseCollector';
+import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
+import { getAccountEntries, AccountEntry } from '@/lib/accounts/getAccountEntries';
+import { MAX_ACCOUNTS } from '@/lib/accounts/constants';
+import wrapEmojiText from '@/lib/richTextProcessor/wrapEmojiText';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helper — wraps a sub-tab declaration. If the tab has a static `getInitArgs`,

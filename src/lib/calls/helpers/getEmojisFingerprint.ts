@@ -1,4 +1,4 @@
-import cryptoWorker from '@lib/crypto/cryptoMessagePort';
+import cryptoWorker from '@/lib/crypto/cryptoMessagePort';
 import bigInt from 'big-integer';
 
 function readBigIntFromBytesBE(bytes: Uint8Array) {

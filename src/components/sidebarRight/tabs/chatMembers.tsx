@@ -1,20 +1,20 @@
 import { Component } from 'solid-js';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import createParticipantContextMenu from '@helpers/dom/createParticipantContextMenu';
-import { Chat, ChatFull } from '@layer';
-import hasRights from '@appManagers/utils/chats/hasRights';
-import { i18n } from '@lib/langPack';
-import addChatUsers from '@components/addChatUsers';
-import AppSelectPeers from '@components/appSelectPeers';
-import ButtonCorner from '@components/buttonCorner';
-import CheckboxField from '@components/checkboxField';
-import Row from '@components/row';
-import SettingSection from '@components/settingSection';
-import { handleChannelsTooMuch } from '@components/popups/channelsTooMuch';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import createParticipantContextMenu from '@/helpers/dom/createParticipantContextMenu';
+import { Chat, ChatFull } from '@/layer';
+import hasRights from '@/lib/appManagers/utils/chats/hasRights';
+import { i18n } from '@/lib/langPack';
+import addChatUsers from '@/components/addChatUsers';
+import AppSelectPeers from '@/components/appSelectPeers';
+import ButtonCorner from '@/components/buttonCorner';
+import CheckboxField from '@/components/checkboxField';
+import Row from '@/components/row';
+import SettingSection from '@/components/settingSection';
+import { handleChannelsTooMuch } from '@/components/popups/channelsTooMuch';
 import { createSelectorForParticipants } from './participantsSelector';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
-import type { AppChatMembersTab } from '@components/solidJsTabs/tabs';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@/components/solidJsTabs/promiseCollector';
+import type { AppChatMembersTab } from '@/components/solidJsTabs/tabs';
 
 const ChatMembers: Component = () => {
   const [tab] = useSuperTab<typeof AppChatMembersTab>();

@@ -5,10 +5,10 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import { MessageEntity } from '@layer';
-import matchUrlProtocol from '@lib/richTextProcessor/matchUrlProtocol';
-import { BOM_REG_EXP } from '@helpers/string/bom';
-import { ENTITY_ELEMENT_MAP } from '@lib/richTextProcessor/wrapRichText';
+import { MessageEntity } from '@/layer';
+import matchUrlProtocol from '@/lib/richTextProcessor/matchUrlProtocol';
+import { BOM_REG_EXP } from '@/helpers/string/bom';
+import { ENTITY_ELEMENT_MAP } from '@/lib/richTextProcessor/wrapRichText';
 
 export type MarkdownType = 'bold' | 'italic' | 'underline' | 'strikethrough' |
   'monospace' | 'link' | 'mentionName' | 'spoiler' | 'quote' | 'date'/*  | 'customEmoji' */;

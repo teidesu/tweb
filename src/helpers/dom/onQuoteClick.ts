@@ -1,9 +1,9 @@
-import Scrollable from '@components/scrollable';
-import animateSomethingWithScroll from '@helpers/animateSomethingWithScroll';
-import cancelEvent from '@helpers/dom/cancelEvent';
-import liteMode from '@helpers/liteMode';
-import pause from '@helpers/schedulers/pause';
-import ScrollSaver from '@helpers/scrollSaver';
+import Scrollable from '@/components/scrollable';
+import animateSomethingWithScroll from '@/helpers/animateSomethingWithScroll';
+import cancelEvent from '@/helpers/dom/cancelEvent';
+import liteMode from '@/helpers/liteMode';
+import pause from '@/helpers/schedulers/pause';
+import ScrollSaver from '@/helpers/scrollSaver';
 
 export default function onQuoteClick(
   e: Event,

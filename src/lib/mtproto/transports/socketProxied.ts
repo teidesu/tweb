@@ -1,7 +1,7 @@
-import { notifyAll } from '@helpers/context';
-import EventListenerBase from '@helpers/eventListenerBase';
-import { WorkerTaskVoidTemplate } from '@types';
-import { MTConnection } from '@lib/mtproto/transports/transport';
+import { notifyAll } from '@/helpers/context';
+import EventListenerBase from '@/helpers/eventListenerBase';
+import { WorkerTaskVoidTemplate } from '@/types';
+import { MTConnection } from '@/lib/mtproto/transports/transport';
 
 let socketId = 0;
 export interface SocketProxyTask extends WorkerTaskVoidTemplate {

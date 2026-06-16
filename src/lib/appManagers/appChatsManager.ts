@@ -5,23 +5,23 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import deepEqual from '@helpers/object/deepEqual';
-import isObject from '@helpers/object/isObject';
-import safeReplaceObject from '@helpers/object/safeReplaceObject';
-import { ChannelAdminLogEvent, ChannelParticipant, ChannelsCreateChannel, ChannelsGetAdminLog, ChannelsSendAsPeers, Chat, ChatAdminRights, ChatBannedRights, ChatFull, ChatInvite, ChatParticipant, ChatPhoto, ChatReactions, EmojiStatus, InputChannel, InputChatPhoto, InputFile, InputPeer, MessagesChats, MessagesSponsoredMessages, MissingInvitee, Peer, SponsoredMessage, SponsoredPeer, Update, Updates } from '@layer';
-import { AppManager } from '@appManagers/manager';
-import hasRights from '@appManagers/utils/chats/hasRights';
-import getParticipantPeerId from '@appManagers/utils/chats/getParticipantPeerId';
-import { AppStoragesManager } from '@appManagers/appStoragesManager';
-import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
-import { randomLong } from '@helpers/random';
-import tsNow from '@helpers/tsNow';
-import getPeerActiveUsernames from '@appManagers/utils/peers/getPeerActiveUsernames';
-import MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
-import getPeerId from '@appManagers/utils/peers/getPeerId';
-import callbackify from '@helpers/callbackify';
-import { SlicedCachedFetcher } from '@appManagers/utils/chats/slicedCachedFetcher';
-import { CHAT_LEGACY_ADMIN_RIGHTS } from '@lib/appManagers/utils/chats/constants';
+import deepEqual from '@/helpers/object/deepEqual';
+import isObject from '@/helpers/object/isObject';
+import safeReplaceObject from '@/helpers/object/safeReplaceObject';
+import { ChannelAdminLogEvent, ChannelParticipant, ChannelsCreateChannel, ChannelsGetAdminLog, ChannelsSendAsPeers, Chat, ChatAdminRights, ChatBannedRights, ChatFull, ChatInvite, ChatParticipant, ChatPhoto, ChatReactions, EmojiStatus, InputChannel, InputChatPhoto, InputFile, InputPeer, MessagesChats, MessagesSponsoredMessages, MissingInvitee, Peer, SponsoredMessage, SponsoredPeer, Update, Updates } from '@/layer';
+import { AppManager } from '@/lib/appManagers/manager';
+import hasRights from '@/lib/appManagers/utils/chats/hasRights';
+import getParticipantPeerId from '@/lib/appManagers/utils/chats/getParticipantPeerId';
+import { AppStoragesManager } from '@/lib/appManagers/appStoragesManager';
+import getServerMessageId from '@/lib/appManagers/utils/messageId/getServerMessageId';
+import { randomLong } from '@/helpers/random';
+import tsNow from '@/helpers/tsNow';
+import getPeerActiveUsernames from '@/lib/appManagers/utils/peers/getPeerActiveUsernames';
+import MTProtoMessagePort from '@/lib/mainWorker/mainMessagePort';
+import getPeerId from '@/lib/appManagers/utils/peers/getPeerId';
+import callbackify from '@/helpers/callbackify';
+import { SlicedCachedFetcher } from '@/lib/appManagers/utils/chats/slicedCachedFetcher';
+import { CHAT_LEGACY_ADMIN_RIGHTS } from '@/lib/appManagers/utils/chats/constants';
 
 export type Channel = Chat.channel;
 export type ChatRights = keyof ChatBannedRights['pFlags'] | keyof ChatAdminRights['pFlags'] |

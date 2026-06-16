@@ -1,6 +1,6 @@
-import isRTL from '@helpers/string/isRTL';
+import isRTL from '@/helpers/string/isRTL';
 
-// import { MOUNT_CLASS_TO } from '@config/debug';
+// import { MOUNT_CLASS_TO } from '@/config/debug';
 
 let context: CanvasRenderingContext2D;
 /**

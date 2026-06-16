@@ -1,5 +1,5 @@
-import { getXIndex } from '@lib/tchart/utils';
-import { TChartUnitOptions } from '@lib/tchart/types';
+import { getXIndex } from '@/lib/tchart/utils';
+import { TChartUnitOptions } from '@/lib/tchart/types';
 
 export default class TBars {
   private opts: TChartUnitOptions;

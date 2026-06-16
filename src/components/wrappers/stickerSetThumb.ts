@@ -1,16 +1,16 @@
-import createVideo from '@helpers/dom/createVideo';
-import renderImageFromUrl from '@helpers/dom/renderImageFromUrl';
-import { Document, DocumentAttribute, StickerSet } from '@layer';
-import appDownloadManager from '@lib/appDownloadManager';
-import { AppManagers } from '@lib/managers';
-import lottieLoader from '@lib/rlottie/lottieLoader';
-import rootScope from '@lib/rootScope';
-import animationIntersector, { AnimationItemGroup } from '@components/animationIntersector';
-import LazyLoadQueue from '@components/lazyLoadQueue';
-import wrapSticker from '@components/wrappers/sticker';
-import { Middleware } from '@helpers/middleware';
-import { EMOJI_TEXT_COLOR } from '@components/emoticonsDropdown';
-import { getStickerSetInputById } from '@lib/appManagers/utils/stickers/getStickerSetInput';
+import createVideo from '@/helpers/dom/createVideo';
+import renderImageFromUrl from '@/helpers/dom/renderImageFromUrl';
+import { Document, DocumentAttribute, StickerSet } from '@/layer';
+import appDownloadManager from '@/lib/appDownloadManager';
+import { AppManagers } from '@/lib/managers';
+import lottieLoader from '@/lib/rlottie/lottieLoader';
+import rootScope from '@/lib/rootScope';
+import animationIntersector, { AnimationItemGroup } from '@/components/animationIntersector';
+import LazyLoadQueue from '@/components/lazyLoadQueue';
+import wrapSticker from '@/components/wrappers/sticker';
+import { Middleware } from '@/helpers/middleware';
+import { EMOJI_TEXT_COLOR } from '@/components/emoticonsDropdown';
+import { getStickerSetInputById } from '@/lib/appManagers/utils/stickers/getStickerSetInput';
 
 export default async function wrapStickerSetThumb({ set, lazyLoadQueue, container, group, autoplay, width, height, managers = rootScope.managers, middleware, textColor }: {
   set: StickerSet.stickerSet,

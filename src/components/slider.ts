@@ -1,12 +1,12 @@
-import { horizontalMenu } from '@components/horizontalMenu';
-import TransitionSlider from '@components/transition';
-import appNavigationController, { NavigationItem } from '@components/appNavigationController';
-import SliderSuperTab, { SliderSuperTabConstructable } from '@components/sliderTab';
-import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
-import safeAssign from '@helpers/object/safeAssign';
-import { AppManagers } from '@lib/managers';
-import { getMiddleware, MiddlewareHelper } from '@helpers/middleware';
-import { MaybePromise } from '@types';
+import { horizontalMenu } from '@/components/horizontalMenu';
+import TransitionSlider from '@/components/transition';
+import appNavigationController, { NavigationItem } from '@/components/appNavigationController';
+import SliderSuperTab, { SliderSuperTabConstructable } from '@/components/sliderTab';
+import indexOfAndSplice from '@/helpers/array/indexOfAndSplice';
+import safeAssign from '@/helpers/object/safeAssign';
+import { AppManagers } from '@/lib/managers';
+import { getMiddleware, MiddlewareHelper } from '@/helpers/middleware';
+import { MaybePromise } from '@/types';
 
 const TRANSITION_TIME = 250;
 

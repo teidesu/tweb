@@ -1,6 +1,6 @@
-import { MOUNT_CLASS_TO } from '@config/debug';
-import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
-import { WorkerTaskVoidTemplate } from '@types';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import deferredPromise, { CancellablePromise } from '@/helpers/cancellablePromise';
+import { WorkerTaskVoidTemplate } from '@/types';
 
 export interface ConvertWebPTask extends WorkerTaskVoidTemplate {
   type: 'convertWebp',

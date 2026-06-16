@@ -1,19 +1,19 @@
 import { onCleanup, untrack, useContext } from 'solid-js';
-import PopupElement, { createPopup, PopupContext } from '@components/popups/indexTsx';
-import PopupPayment from '@components/popups/payment';
-import { AvatarNewTsx } from '@components/avatarNew';
-import Button from '@components/button';
-import CheckboxField from '@components/checkboxField';
-import Row from '@components/row';
-import wrapPeerTitle from '@components/wrappers/peerTitle';
-import classNames from '@helpers/string/classNames';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import paymentsWrapCurrencyAmount from '@helpers/paymentsWrapCurrencyAmount';
-import ListenerSetter from '@helpers/listenerSetter';
-import I18n, { i18n, _i18n } from '@lib/langPack';
-import { PremiumGiftCodeOption } from '@layer';
+import PopupElement, { createPopup, PopupContext } from '@/components/popups/indexTsx';
+import PopupPayment from '@/components/popups/payment';
+import { AvatarNewTsx } from '@/components/avatarNew';
+import Button from '@/components/button';
+import CheckboxField from '@/components/checkboxField';
+import Row from '@/components/row';
+import wrapPeerTitle from '@/components/wrappers/peerTitle';
+import classNames from '@/helpers/string/classNames';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import paymentsWrapCurrencyAmount from '@/helpers/paymentsWrapCurrencyAmount';
+import ListenerSetter from '@/helpers/listenerSetter';
+import I18n, { i18n, _i18n } from '@/lib/langPack';
+import { PremiumGiftCodeOption } from '@/layer';
 
-import styles from '@components/popups/giftPremium.module.scss';
+import styles from '@/components/popups/giftPremium.module.scss';
 
 export default async function showGiftPremiumPopup(peerId: PeerId, giftOptions: PremiumGiftCodeOption[]): Promise<void> {
   const peerTitleEl = await wrapPeerTitle({ peerId });

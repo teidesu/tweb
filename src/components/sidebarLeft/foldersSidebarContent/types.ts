@@ -1,6 +1,6 @@
 import { JSX } from 'solid-js';
-import { TextWithEntities } from '@layer';
-import type { StoredFolder } from '@stores/folders';
+import { TextWithEntities } from '@/layer';
+import type { StoredFolder } from '@/stores/folders';
 
 export type FolderItemPayload = Partial<StoredFolder> & {
   icon: Icon,

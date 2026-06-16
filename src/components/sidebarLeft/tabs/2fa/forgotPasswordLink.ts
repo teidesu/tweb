@@ -1,19 +1,19 @@
-import { AccountPassword } from '@layer';
-import { i18n } from '@lib/langPack';
-import confirmationPopup from '@components/confirmationPopup';
-import tsNow from '@helpers/tsNow';
-import { toastNew } from '@components/toast';
-import formatDuration from '@helpers/formatDuration';
-import { wrapFormattedDuration } from '@components/wrappers/wrapDuration';
-import { AppSettingsTab } from '@components/solidJsTabs';
-import anchorCallback from '@helpers/dom/anchorCallback';
-import { AppManagers } from '@lib/managers';
-import safeAssign from '@helpers/object/safeAssign';
-import noop from '@helpers/noop';
-import ctx from '@environment/ctx';
-import SliderSuperTab from '@components/sliderTab';
-import { wrapEmailPattern } from '@components/popups/emailSetup';
-import { AppPrivacyAndSecurityTab, AppTwoStepVerificationEmailConfirmationTab } from '@components/solidJsTabs/tabs';
+import { AccountPassword } from '@/layer';
+import { i18n } from '@/lib/langPack';
+import confirmationPopup from '@/components/confirmationPopup';
+import tsNow from '@/helpers/tsNow';
+import { toastNew } from '@/components/toast';
+import formatDuration from '@/helpers/formatDuration';
+import { wrapFormattedDuration } from '@/components/wrappers/wrapDuration';
+import { AppSettingsTab } from '@/components/solidJsTabs';
+import anchorCallback from '@/helpers/dom/anchorCallback';
+import { AppManagers } from '@/lib/managers';
+import safeAssign from '@/helpers/object/safeAssign';
+import noop from '@/helpers/noop';
+import ctx from '@/environment/ctx';
+import SliderSuperTab from '@/components/sliderTab';
+import { wrapEmailPattern } from '@/components/popups/emailSetup';
+import { AppPrivacyAndSecurityTab, AppTwoStepVerificationEmailConfirmationTab } from '@/components/solidJsTabs/tabs';
 
 export class ForgotPasswordLink {
   private state: AccountPassword;

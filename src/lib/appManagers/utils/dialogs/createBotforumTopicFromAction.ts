@@ -1,4 +1,4 @@
-import { ForumTopic, Message, MessageAction } from '@layer';
+import { ForumTopic, Message, MessageAction } from '@/layer';
 
 type CreateTopicFromActionArgs = {
   message: Message.messageService;

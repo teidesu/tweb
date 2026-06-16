@@ -1,4 +1,4 @@
-import { MessageEntity } from '@layer';
+import { MessageEntity } from '@/layer';
 
 export default function sliceMessageEntities(entities: MessageEntity[], offset: number, length: number): MessageEntity[] {
   if (!entities?.length) return [];

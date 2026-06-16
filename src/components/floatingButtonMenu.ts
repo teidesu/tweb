@@ -1,6 +1,6 @@
-import contextMenuController from '@helpers/contextMenuController';
-import { FloatingMenuDirection, positionFloatingMenu } from '@helpers/positionMenu';
-import { doubleRaf } from '@helpers/schedulers';
+import contextMenuController from '@/helpers/contextMenuController';
+import { FloatingMenuDirection, positionFloatingMenu } from '@/helpers/positionMenu';
+import { doubleRaf } from '@/helpers/schedulers';
 
 export type FloatingButtonMenuDirection = FloatingMenuDirection;
 

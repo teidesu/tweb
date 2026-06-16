@@ -1,6 +1,6 @@
-import { WebPage } from '@layer';
-import { UNSAFE_ANCHOR_LINK_TYPES } from '@helpers/addAnchorListener';
-import wrapUrl from '@lib/richTextProcessor/wrapUrl';
+import { WebPage } from '@/layer';
+import { UNSAFE_ANCHOR_LINK_TYPES } from '@/helpers/addAnchorListener';
+import wrapUrl from '@/lib/richTextProcessor/wrapUrl';
 
 /**
  * Reproduces the click behaviour the bubble web-page renderer attaches to a

@@ -1,6 +1,6 @@
-import lottieLoader, { LottieLoader } from '@lib/rlottie/lottieLoader';
-import RLottiePlayer from '@lib/rlottie/rlottiePlayer';
-import PasswordInputField from '@components/passwordInputField';
+import lottieLoader, { LottieLoader } from '@/lib/rlottie/lottieLoader';
+import RLottiePlayer from '@/lib/rlottie/rlottiePlayer';
+import PasswordInputField from '@/components/passwordInputField';
 
 export default class PasswordMonkey {
   public container: HTMLElement;

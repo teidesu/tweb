@@ -1,10 +1,10 @@
-import type { ServiceDownloadTaskPayload } from '@lib/serviceWorker/serviceMessagePort';
-import type ServiceMessagePort from '@lib/serviceWorker/serviceMessagePort';
-import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
-import makeError from '@helpers/makeError';
-import pause from '@helpers/schedulers/pause';
-import { logger } from '@lib/logger';
-import { invokeVoidAll, log } from '@lib/serviceWorker/index.service';
+import type { ServiceDownloadTaskPayload } from '@/lib/serviceWorker/serviceMessagePort';
+import type ServiceMessagePort from '@/lib/serviceWorker/serviceMessagePort';
+import deferredPromise, { CancellablePromise } from '@/helpers/cancellablePromise';
+import makeError from '@/helpers/makeError';
+import pause from '@/helpers/schedulers/pause';
+import { logger } from '@/lib/logger';
+import { invokeVoidAll, log } from '@/lib/serviceWorker/index.service';
 
 type DownloadType = Uint8Array;
 type DownloadItem = ServiceDownloadTaskPayload & {

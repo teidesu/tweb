@@ -25,8 +25,8 @@
 // Mirrors the parts of the NativeVoiceRecorder API that input.ts uses (state,
 // onstart/onstop/onpause/onresume/ondataavailable, getSnapshot).
 
-import { IS_APPLE_MOBILE, IS_SAFARI } from '@environment/userAgent';
-import acquireStream, { StreamAcquisition } from '@lib/calls/helpers/acquireStream';
+import { IS_APPLE_MOBILE, IS_SAFARI } from '@/environment/userAgent';
+import acquireStream, { StreamAcquisition } from '@/lib/calls/helpers/acquireStream';
 
 export interface NativeVideoRecorderConfig {
   // Square output dimensions written to the encoded file. 400 = the larger of

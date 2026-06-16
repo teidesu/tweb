@@ -1,5 +1,5 @@
-import { useAppConfig } from '@stores/appState';
-import usePremium from '@stores/premium';
+import { useAppConfig } from '@/stores/appState';
+import usePremium from '@/stores/premium';
 
 
 export const useCreatePollLimits = () => {

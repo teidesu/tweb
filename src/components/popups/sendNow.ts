@@ -1,5 +1,5 @@
-import confirmationPopup from '@components/confirmationPopup';
-import rootScope from '@lib/rootScope';
+import confirmationPopup from '@/components/confirmationPopup';
+import rootScope from '@/lib/rootScope';
 
 export default function showSendNowPopup(peerId: PeerId, mids: number[], onConfirm?: () => void) {
   const isMultiple = mids.length > 1;

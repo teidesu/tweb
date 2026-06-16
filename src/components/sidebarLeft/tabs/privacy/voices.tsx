@@ -1,8 +1,8 @@
 import privacyTab from './privacyTab';
-import PrivacySection from '@components/privacySection';
-import { LangPackKey, i18n } from '@lib/langPack';
-import anchorCallback from '@helpers/dom/anchorCallback';
-import PopupPremium from '@components/popups/premium';
+import PrivacySection from '@/components/privacySection';
+import { LangPackKey, i18n } from '@/lib/langPack';
+import anchorCallback from '@/helpers/dom/anchorCallback';
+import PopupPremium from '@/components/popups/premium';
 
 const caption: LangPackKey = 'PrivacyVoiceMessagesInfo';
 

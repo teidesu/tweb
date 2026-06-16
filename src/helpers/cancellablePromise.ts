@@ -1,4 +1,4 @@
-import noop from '@helpers/noop';
+import noop from '@/helpers/noop';
 
 export interface CancellablePromise<T> extends Promise<T> {
   resolve: (value: T) => void,

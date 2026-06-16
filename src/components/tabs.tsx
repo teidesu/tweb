@@ -1,7 +1,7 @@
-import { horizontalMenu } from '@components/horizontalMenu';
-import Scrollable from '@components/scrollable2';
-import ListenerSetter from '@helpers/listenerSetter';
-import classNames from '@helpers/string/classNames';
+import { horizontalMenu } from '@/components/horizontalMenu';
+import Scrollable from '@/components/scrollable2';
+import ListenerSetter from '@/helpers/listenerSetter';
+import classNames from '@/helpers/string/classNames';
 import { Accessor, JSX, For, onCleanup, createContext, Ref, untrack } from 'solid-js';
 
 const TabsContext = createContext<{

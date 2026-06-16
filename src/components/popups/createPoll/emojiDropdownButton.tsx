@@ -1,9 +1,9 @@
-import { EmoticonsDropdown } from '@components/emoticonsDropdown';
-import InputField from '@components/inputField';
-import cloneDOMRect from '@helpers/dom/cloneDOMRect';
-import { attachClassName } from '@helpers/solid/classname';
-import { subscribeOn } from '@helpers/solid/subscribeOn';
-import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { EmoticonsDropdown } from '@/components/emoticonsDropdown';
+import InputField from '@/components/inputField';
+import cloneDOMRect from '@/helpers/dom/cloneDOMRect';
+import { attachClassName } from '@/helpers/solid/classname';
+import { subscribeOn } from '@/helpers/solid/subscribeOn';
+import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
 import { createMemo, onCleanup } from 'solid-js';
 
 

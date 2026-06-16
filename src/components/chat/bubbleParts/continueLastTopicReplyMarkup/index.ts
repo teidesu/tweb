@@ -1,8 +1,8 @@
-import { Message } from '@layer';
-import SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
-import type Chat from '@components/chat/chat';
-import { BubbleElementAddons } from '@components/chat/types';
-import ContinueLastTopicReplyMarkupContent from '@components/chat/bubbleParts/continueLastTopicReplyMarkup/content';
+import { Message } from '@/layer';
+import SolidJSHotReloadGuardProvider from '@/lib/solidjs/hotReloadGuardProvider';
+import type Chat from '@/components/chat/chat';
+import { BubbleElementAddons } from '@/components/chat/types';
+import ContinueLastTopicReplyMarkupContent from '@/components/chat/bubbleParts/continueLastTopicReplyMarkup/content';
 
 
 type Args = {

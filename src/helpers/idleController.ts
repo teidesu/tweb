@@ -1,6 +1,6 @@
-import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import EventListenerBase from '@helpers/eventListenerBase';
-import { IS_PREVIEW } from '@config/debug';
+import IS_TOUCH_SUPPORTED from '@/environment/touchSupport';
+import EventListenerBase from '@/helpers/eventListenerBase';
+import { IS_PREVIEW } from '@/config/debug';
 
 const FOCUS_EVENT_NAME = IS_TOUCH_SUPPORTED ? 'touchstart' : 'mousemove';
 const DO_NOT_IDLE = IS_PREVIEW; // the preview window is never focused — don't let it look idle

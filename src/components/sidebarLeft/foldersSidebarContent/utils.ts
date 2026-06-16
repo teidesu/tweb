@@ -1,13 +1,13 @@
 
-import { FOLDER_ID_ALL } from '@appManagers/constants';
-import type { AppManagers } from '@lib/managers';
-import { MyDialogFilter } from '@lib/storages/filters';
-import { DialogFilter } from '@layer';
-import assumeType from '@helpers/assumeType';
+import { FOLDER_ID_ALL } from '@/lib/appManagers/constants';
+import type { AppManagers } from '@/lib/managers';
+import { MyDialogFilter } from '@/lib/storages/filters';
+import { DialogFilter } from '@/layer';
+import assumeType from '@/helpers/assumeType';
 
-import { FolderItemPayload } from '@components/sidebarLeft/foldersSidebarContent/types';
-import extractEmojiFromFilterTitle, { ExtractEmojiFromFilterTitleResult } from '@components/sidebarLeft/foldersSidebarContent/extractEmojiFromFilterTitle';
-import { i18n } from '@lib/langPack';
+import { FolderItemPayload } from '@/components/sidebarLeft/foldersSidebarContent/types';
+import extractEmojiFromFilterTitle, { ExtractEmojiFromFilterTitleResult } from '@/components/sidebarLeft/foldersSidebarContent/extractEmojiFromFilterTitle';
+import { i18n } from '@/lib/langPack';
 
 export function getFolderTitle(filter: MyDialogFilter) {
   let cleanTitle!: ExtractEmojiFromFilterTitleResult;

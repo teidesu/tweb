@@ -1,8 +1,8 @@
-import type { MyDocument } from '@appManagers/appDocsManager';
-import type { MyPhoto } from '@appManagers/appPhotosManager';
-import type { PhotoSize, VideoSize, WebDocument } from '@layer';
-import calcImageInBox from '@helpers/calcImageInBox';
-import { THUMB_TYPE_FULL } from '@appManagers/constants';
+import type { MyDocument } from '@/lib/appManagers/appDocsManager';
+import type { MyPhoto } from '@/lib/appManagers/appPhotosManager';
+import type { PhotoSize, VideoSize, WebDocument } from '@/layer';
+import calcImageInBox from '@/helpers/calcImageInBox';
+import { THUMB_TYPE_FULL } from '@/lib/appManagers/constants';
 
 export default function choosePhotoSize(
   photo: MyPhoto | MyDocument | WebDocument,

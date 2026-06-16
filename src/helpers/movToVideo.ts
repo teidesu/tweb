@@ -1,6 +1,6 @@
-import { MAX_EDITABLE_VIDEO_SIZE } from '@components/mediaEditor/support';
-import apiManagerProxy from '@lib/apiManagerProxy';
-import rootScope from '@lib/rootScope';
+import { MAX_EDITABLE_VIDEO_SIZE } from '@/components/mediaEditor/support';
+import apiManagerProxy from '@/lib/apiManagerProxy';
+import rootScope from '@/lib/rootScope';
 
 export type MovVideoInfo = {
   width: number,

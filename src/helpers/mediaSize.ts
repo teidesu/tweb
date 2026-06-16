@@ -1,4 +1,4 @@
-import calcImageInBox from '@helpers/calcImageInBox';
+import calcImageInBox from '@/helpers/calcImageInBox';
 
 export class MediaSize {
   constructor(public width = 0, public height = width) {

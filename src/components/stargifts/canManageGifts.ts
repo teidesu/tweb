@@ -1,4 +1,4 @@
-import rootScope from '@lib/rootScope';
+import rootScope from '@/lib/rootScope';
 
 export async function getCanManagePeerGifts(peerId: PeerId): Promise<boolean> {
   if (peerId === rootScope.myId) return true

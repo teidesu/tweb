@@ -1,6 +1,6 @@
-import { ButtonIconTsx } from '@components/buttonIconTsx';
-import { useMediaEditorContext } from '@components/mediaEditor/context';
-import { requestRAF } from '@helpers/solid/requestRAF';
+import { ButtonIconTsx } from '@/components/buttonIconTsx';
+import { useMediaEditorContext } from '@/components/mediaEditor/context';
+import { requestRAF } from '@/helpers/solid/requestRAF';
 import { createEffect, createSignal, untrack } from 'solid-js';
 
 

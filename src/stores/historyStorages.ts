@@ -1,7 +1,7 @@
-import type { HistoryStorage, HistoryStorageKey } from '@appManagers/appMessagesManager';
+import type { HistoryStorage, HistoryStorageKey } from '@/lib/appManagers/appMessagesManager';
 import { createStore } from 'solid-js/store';
-import createHistoryStorage from '@appManagers/utils/messages/createHistoryStorage';
-import { MOUNT_CLASS_TO } from '@config/debug';
+import createHistoryStorage from '@/lib/appManagers/utils/messages/createHistoryStorage';
+import { MOUNT_CLASS_TO } from '@/config/debug';
 
 type S = ReturnType<typeof createStore<HistoryStorage>>;
 

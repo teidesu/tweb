@@ -1,4 +1,4 @@
-import classNames from '@helpers/string/classNames';
+import classNames from '@/helpers/string/classNames';
 import { JSX, splitProps } from 'solid-js';
 import styles from './staticCheckbox.module.scss';
 

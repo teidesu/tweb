@@ -1,17 +1,17 @@
-import type ChatTopbar from '@components/chat/topbar';
-import Chat from '@components/chat/chat';
-import I18n from '@lib/langPack';
-import { ChatFull } from '@layer';
-import { AppManagers } from '@lib/managers';
-import StackedAvatars from '@components/stackedAvatars';
-import appSidebarRight from '@components/sidebarRight';
-import { AppChatRequestsTab } from '@components/solidJsTabs/tabs';
-import callbackify from '@helpers/callbackify';
-import { ONE_DAY } from '@helpers/date';
-import { MiddlewareHelper, getMiddleware } from '@helpers/middleware';
-import { AckedResult } from '@lib/superMessagePort';
+import type ChatTopbar from '@/components/chat/topbar';
+import Chat from '@/components/chat/chat';
+import I18n from '@/lib/langPack';
+import { ChatFull } from '@/layer';
+import { AppManagers } from '@/lib/managers';
+import StackedAvatars from '@/components/stackedAvatars';
+import appSidebarRight from '@/components/sidebarRight';
+import { AppChatRequestsTab } from '@/components/solidJsTabs/tabs';
+import callbackify from '@/helpers/callbackify';
+import { ONE_DAY } from '@/helpers/date';
+import { MiddlewareHelper, getMiddleware } from '@/helpers/middleware';
+import { AckedResult } from '@/lib/superMessagePort';
 import { Accessor, createSignal, Show } from 'solid-js';
-import TopbarPlate, { createTopbarPlate, TopbarPlateController } from '@components/chat/topbarPlate';
+import TopbarPlate, { createTopbarPlate, TopbarPlateController } from '@/components/chat/topbarPlate';
 
 type RequestData = {
   peerId: PeerId,

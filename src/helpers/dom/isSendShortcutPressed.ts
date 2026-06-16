@@ -1,5 +1,5 @@
-import { useAppSettings } from '@stores/appSettings';
-import { IS_MOBILE, IS_APPLE } from '@environment/userAgent';
+import { useAppSettings } from '@/stores/appSettings';
+import { IS_MOBILE, IS_APPLE } from '@/environment/userAgent';
 
 export default function isSendShortcutPressed(e: KeyboardEvent) {
   if (e.key === 'Enter' && !IS_MOBILE && !e.isComposing) {

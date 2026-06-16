@@ -1,5 +1,5 @@
 import { createSignal, onCleanup } from 'solid-js';
-import tsNow from '@helpers/tsNow';
+import tsNow from '@/helpers/tsNow';
 
 export function createCurrentTime(options: {
   fn?: () => number

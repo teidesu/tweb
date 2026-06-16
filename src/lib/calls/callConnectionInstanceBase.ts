@@ -1,10 +1,10 @@
-import safeAssign from '@helpers/object/safeAssign';
-import { logger } from '@lib/logger';
-import createDataChannel from '@lib/calls/helpers/createDataChannel';
-import createPeerConnection from '@lib/calls/helpers/createPeerConnection';
-import LocalConferenceDescription from '@lib/calls/localConferenceDescription';
-import StreamManager from '@lib/calls/streamManager';
-import { Ssrc } from '@lib/calls/types';
+import safeAssign from '@/helpers/object/safeAssign';
+import { logger } from '@/lib/logger';
+import createDataChannel from '@/lib/calls/helpers/createDataChannel';
+import createPeerConnection from '@/lib/calls/helpers/createPeerConnection';
+import LocalConferenceDescription from '@/lib/calls/localConferenceDescription';
+import StreamManager from '@/lib/calls/streamManager';
+import { Ssrc } from '@/lib/calls/types';
 
 export type CallConnectionInstanceOptions = {
   streamManager: StreamManager,

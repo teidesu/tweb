@@ -7,9 +7,9 @@
  * Offline symbolication of the captured stacks: scripts/symbolicate-logs.js
  */
 
-import Modes from '@config/modes';
-import MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
-import apiManagerProxy from '@lib/apiManagerProxy';
+import Modes from '@/config/modes';
+import MTProtoMessagePort from '@/lib/mainWorker/mainMessagePort';
+import apiManagerProxy from '@/lib/apiManagerProxy';
 import { getLogEntries, LogEntry } from './logsBuffer';
 
 const WORKER_TIMEOUT = 5000;

@@ -1,5 +1,5 @@
-import { colorPickerSwatches } from '@components/mediaEditor/colorPicker';
-import { SavedBrushColor } from '@config/state';
+import { colorPickerSwatches } from '@/components/mediaEditor/colorPicker';
+import { SavedBrushColor } from '@/config/state';
 import { createStoredValue, Optional, StoredValueKey } from './createStoredValue';
 
 

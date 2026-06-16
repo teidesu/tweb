@@ -1,14 +1,14 @@
 import { createContext, createEffect, JSX, on, onCleanup, onMount, Ref, useContext } from 'solid-js';
 
-import styles from '@components/chipTabs.module.scss';
-import classNames from '@helpers/string/classNames';
-import findUpClassName from '@helpers/dom/findUpClassName';
-import { fastRaf } from '@helpers/schedulers';
-import getVisibleRect from '@helpers/dom/getVisibleRect';
-import Scrollable from '@components/scrollable2';
-import fastSmoothScroll from '@helpers/fastSmoothScroll';
-import createContextMenu from '@helpers/dom/createContextMenu';
-import { ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
+import styles from '@/components/chipTabs.module.scss';
+import classNames from '@/helpers/string/classNames';
+import findUpClassName from '@/helpers/dom/findUpClassName';
+import { fastRaf } from '@/helpers/schedulers';
+import getVisibleRect from '@/helpers/dom/getVisibleRect';
+import Scrollable from '@/components/scrollable2';
+import fastSmoothScroll from '@/helpers/fastSmoothScroll';
+import createContextMenu from '@/helpers/dom/createContextMenu';
+import { ButtonMenuItemOptionsVerifiable } from '@/components/buttonMenu';
 import filterAsync from '../helpers/array/filterAsync';
 
 interface ChipTabsContextValue {

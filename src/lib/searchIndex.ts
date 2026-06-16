@@ -5,8 +5,8 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import { processSearchText, ProcessSearchTextOptions } from '@helpers/cleanSearchText';
-import flatten from '@helpers/array/flatten';
+import { processSearchText, ProcessSearchTextOptions } from '@/helpers/cleanSearchText';
+import flatten from '@/helpers/array/flatten';
 
 type SearchIndexOptions = ProcessSearchTextOptions & {
   minChars?: number,

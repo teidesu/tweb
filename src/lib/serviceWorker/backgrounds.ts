@@ -1,8 +1,8 @@
-import deferredPromise from '@helpers/cancellablePromise';
+import deferredPromise from '@/helpers/cancellablePromise';
 
-import CacheStorageController from '@lib/files/cacheStorage';
+import CacheStorageController from '@/lib/files/cacheStorage';
 
-import { get500ErrorResponse } from '@lib/serviceWorker/errors';
+import { get500ErrorResponse } from '@/lib/serviceWorker/errors';
 
 
 const backgroundsCache = new CacheStorageController('cachedBackgrounds');

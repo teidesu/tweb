@@ -5,28 +5,28 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import filterUnique from '@helpers/array/filterUnique';
-import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
-import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
-import cleanSearchText, { ProcessSearchTextOptions, processSearchText } from '@helpers/cleanSearchText';
-import cleanUsername from '@helpers/cleanUsername';
-import tsNow from '@helpers/tsNow';
-import isObject from '@helpers/object/isObject';
-import safeReplaceObject from '@helpers/object/safeReplaceObject';
-import { AccountEmojiStatuses, Chat, ContactsResolvedPeer, EmojiStatus, InputContact, InputGeoPoint, InputMedia, InputPeer, InputUser, User as MTUser, RequirementToContact, UserProfilePhoto, UserStatus } from '@layer';
-import parseEntities from '@lib/richTextProcessor/parseEntities';
-import wrapUrl from '@lib/richTextProcessor/wrapUrl';
-import SearchIndex from '@lib/searchIndex';
-import { AppManager } from '@appManagers/manager';
-import getPeerId from '@appManagers/utils/peers/getPeerId';
-import canSendToUser from '@appManagers/utils/users/canSendToUser';
-import { AppStoragesManager } from '@appManagers/appStoragesManager';
-import deepEqual from '@helpers/object/deepEqual';
-import getPeerActiveUsernames from '@appManagers/utils/peers/getPeerActiveUsernames';
-import callbackify from '@helpers/callbackify';
-import { NULL_PEER_ID, TEST_NO_STORIES } from '@appManagers/constants';
-import MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
-import pause from '@helpers/schedulers/pause';
+import filterUnique from '@/helpers/array/filterUnique';
+import indexOfAndSplice from '@/helpers/array/indexOfAndSplice';
+import deferredPromise, { CancellablePromise } from '@/helpers/cancellablePromise';
+import cleanSearchText, { ProcessSearchTextOptions, processSearchText } from '@/helpers/cleanSearchText';
+import cleanUsername from '@/helpers/cleanUsername';
+import tsNow from '@/helpers/tsNow';
+import isObject from '@/helpers/object/isObject';
+import safeReplaceObject from '@/helpers/object/safeReplaceObject';
+import { AccountEmojiStatuses, Chat, ContactsResolvedPeer, EmojiStatus, InputContact, InputGeoPoint, InputMedia, InputPeer, InputUser, User as MTUser, RequirementToContact, UserProfilePhoto, UserStatus } from '@/layer';
+import parseEntities from '@/lib/richTextProcessor/parseEntities';
+import wrapUrl from '@/lib/richTextProcessor/wrapUrl';
+import SearchIndex from '@/lib/searchIndex';
+import { AppManager } from '@/lib/appManagers/manager';
+import getPeerId from '@/lib/appManagers/utils/peers/getPeerId';
+import canSendToUser from '@/lib/appManagers/utils/users/canSendToUser';
+import { AppStoragesManager } from '@/lib/appManagers/appStoragesManager';
+import deepEqual from '@/helpers/object/deepEqual';
+import getPeerActiveUsernames from '@/lib/appManagers/utils/peers/getPeerActiveUsernames';
+import callbackify from '@/helpers/callbackify';
+import { NULL_PEER_ID, TEST_NO_STORIES } from '@/lib/appManagers/constants';
+import MTProtoMessagePort from '@/lib/mainWorker/mainMessagePort';
+import pause from '@/helpers/schedulers/pause';
 
 export type User = MTUser.user;
 export type TopPeerType = 'correspondents' | 'bots_inline' | 'bots_app';

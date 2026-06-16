@@ -1,7 +1,7 @@
 import { JSX, Show } from 'solid-js';
 import { Transition } from 'solid-transition-group';
 
-import '@components/skeleton/skeleton.scss';
+import '@/components/skeleton/skeleton.scss';
 
 export interface SkeletonProps {
   loading: boolean | (() => boolean);

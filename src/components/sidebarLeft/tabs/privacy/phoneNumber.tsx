@@ -1,11 +1,11 @@
 import { Component, onMount } from 'solid-js';
-import PrivacySection from '@components/privacySection';
-import { i18n, LangPackKey } from '@lib/langPack';
-import anchorCopy from '@helpers/dom/anchorCopy';
-import PrivacyType from '@appManagers/utils/privacy/privacyType';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
-import type { AppPrivacyPhoneNumberTab } from '@components/solidJsTabs/tabs';
+import PrivacySection from '@/components/privacySection';
+import { i18n, LangPackKey } from '@/lib/langPack';
+import anchorCopy from '@/helpers/dom/anchorCopy';
+import PrivacyType from '@/lib/appManagers/utils/privacy/privacyType';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@/components/solidJsTabs/promiseCollector';
+import type { AppPrivacyPhoneNumberTab } from '@/components/solidJsTabs/tabs';
 
 const PrivacyPhoneNumber: Component = () => {
   const [tab] = useSuperTab<typeof AppPrivacyPhoneNumberTab>();

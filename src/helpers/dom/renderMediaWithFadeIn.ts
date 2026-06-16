@@ -1,5 +1,5 @@
-import sequentialDom from '@helpers/sequentialDom';
-import { renderImageFromUrlPromise } from '@helpers/dom/renderImageFromUrl';
+import sequentialDom from '@/helpers/sequentialDom';
+import { renderImageFromUrlPromise } from '@/helpers/dom/renderImageFromUrl';
 
 const UNMOUNT_THUMBS = true;
 

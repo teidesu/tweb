@@ -1,4 +1,4 @@
-import isScrollableThumbContainer from '@helpers/dom/isScrollableThumbContainer';
+import isScrollableThumbContainer from '@/helpers/dom/isScrollableThumbContainer';
 
 // children[index] counterpart to whichChild — both skip custom scrollbar
 // thumb siblings, so an index produced by one resolves correctly via the other

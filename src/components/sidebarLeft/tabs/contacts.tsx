@@ -1,17 +1,17 @@
 import { Component, onCleanup, onMount } from 'solid-js';
-import appDialogsManager from '@lib/appDialogsManager';
-import InputSearch from '@components/inputSearch';
-import { IS_MOBILE } from '@environment/userAgent';
-import { canFocus } from '@helpers/dom/canFocus';
-import windowSize from '@helpers/windowSize';
-import ButtonCorner from '@components/buttonCorner';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import showCreateContactPopup from '@components/popups/createContact';
-import SortedUserList from '@components/sortedUserList';
-import { getMiddleware } from '@helpers/middleware';
-import replaceContent from '@helpers/dom/replaceContent';
-import rootScope from '@lib/rootScope';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import appDialogsManager from '@/lib/appDialogsManager';
+import InputSearch from '@/components/inputSearch';
+import { IS_MOBILE } from '@/environment/userAgent';
+import { canFocus } from '@/helpers/dom/canFocus';
+import windowSize from '@/helpers/windowSize';
+import ButtonCorner from '@/components/buttonCorner';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import showCreateContactPopup from '@/components/popups/createContact';
+import SortedUserList from '@/components/sortedUserList';
+import { getMiddleware } from '@/helpers/middleware';
+import replaceContent from '@/helpers/dom/replaceContent';
+import rootScope from '@/lib/rootScope';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
 
 const Contacts: Component = () => {
   const [tab] = useSuperTab();

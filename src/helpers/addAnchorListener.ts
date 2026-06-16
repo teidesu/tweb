@@ -1,7 +1,7 @@
-import { T_ME_PREFIXES } from '@appManagers/constants';
-import wrapUrl from '@lib/richTextProcessor/wrapUrl';
-import cancelEvent from '@helpers/dom/cancelEvent';
-import parseUriParams from '@helpers/string/parseUriParams';
+import { T_ME_PREFIXES } from '@/lib/appManagers/constants';
+import wrapUrl from '@/lib/richTextProcessor/wrapUrl';
+import cancelEvent from '@/helpers/dom/cancelEvent';
+import parseUriParams from '@/helpers/string/parseUriParams';
 
 // * https://core.telegram.org/api/links
 

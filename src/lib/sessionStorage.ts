@@ -1,10 +1,10 @@
-import type { DcId } from '@types';
-import { MOUNT_CLASS_TO } from '@config/debug';
+import type { DcId } from '@/types';
+import { MOUNT_CLASS_TO } from '@/config/debug';
 
-import type { AppInstance } from '@lib/singleInstance';
-import type { UserAuth } from '@appManagers/constants';
-import LocalStorageController from '@lib/localStorage';
-import { AccountSessionData } from '@lib/accounts/types';
+import type { AppInstance } from '@/lib/singleInstance';
+import type { UserAuth } from '@/lib/appManagers/constants';
+import LocalStorageController from '@/lib/localStorage';
+import { AccountSessionData } from '@/lib/accounts/types';
 
 
 type StorageValues = {

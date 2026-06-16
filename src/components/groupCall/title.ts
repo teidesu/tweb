@@ -1,9 +1,9 @@
-import setInnerHTML from '@helpers/dom/setInnerHTML';
-import { GroupCall } from '@layer';
-import GroupCallInstance from '@lib/calls/groupCallInstance';
-import { NULL_PEER_ID } from '@appManagers/constants';
-import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import PeerTitle from '@components/peerTitle';
+import setInnerHTML from '@/helpers/dom/setInnerHTML';
+import { GroupCall } from '@/layer';
+import GroupCallInstance from '@/lib/calls/groupCallInstance';
+import { NULL_PEER_ID } from '@/lib/appManagers/constants';
+import wrapEmojiText from '@/lib/richTextProcessor/wrapEmojiText';
+import PeerTitle from '@/components/peerTitle';
 
 export default class GroupCallTitleElement {
   private peerTitle: PeerTitle;

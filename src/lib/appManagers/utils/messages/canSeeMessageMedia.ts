@@ -1,4 +1,4 @@
-import { Document, Message, MessageMedia } from '@layer';
+import { Document, Message, MessageMedia } from '@/layer';
 
 export default function canSeeMessageMedia(message: Message) {
   const media = (message as Message.message)?.media;

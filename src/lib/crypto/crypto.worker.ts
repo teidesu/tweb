@@ -1,11 +1,11 @@
-import '@lib/polyfill'; // just to include
+import '@/lib/polyfill'; // just to include
 
-import listenMessagePort from '@helpers/listenMessagePort';
-import cryptoMessagePort from '@lib/crypto/cryptoMessagePort';
-import { cryptoMethodsRegistry } from '@lib/crypto/cryptoMethodsRegistry';
-import ctx from '@environment/ctx';
-import { IS_WORKER } from '@helpers/context';
-import { initCryptoWasm } from '@lib/crypto/wasmInit';
+import listenMessagePort from '@/helpers/listenMessagePort';
+import cryptoMessagePort from '@/lib/crypto/cryptoMessagePort';
+import { cryptoMethodsRegistry } from '@/lib/crypto/cryptoMethodsRegistry';
+import ctx from '@/environment/ctx';
+import { IS_WORKER } from '@/helpers/context';
+import { initCryptoWasm } from '@/lib/crypto/wasmInit';
 
 console.log('CryptoWorker start');
 

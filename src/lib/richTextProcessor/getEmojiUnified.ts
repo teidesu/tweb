@@ -1,5 +1,5 @@
-import Emoji from '@config/emoji';
-import { encodeEmoji } from '@vendor/emoji';
+import Emoji from '@/config/emoji';
+import { encodeEmoji } from '@/vendor/emoji';
 
 // the emoji regex matches text-default symbols (™ © ® ↔ ❤ …) even without the
 // FE0F presentation selector, so gate on RGI_Emoji to only accept fully-qualified emoji

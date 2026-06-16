@@ -1,27 +1,27 @@
-import canVideoBeAnimated from '@appManagers/utils/docs/canVideoBeAnimated';
-import { ButtonIconTsx } from '@components/buttonIconTsx';
-import type { ButtonMenuSync } from '@components/buttonMenu';
-import { IconTsx } from '@components/iconTsx';
-import { EditingMediaState } from '@components/mediaEditor/context';
-import { MediaEditorFinalResult } from '@components/mediaEditor/finalRender/createFinalResult';
-import { MAX_EDITABLE_VIDEO_SIZE, supportsVideoEncoding } from '@components/mediaEditor/support';
-import { ProgressCircleSVG } from '@components/progressCircleSVG';
-import { StickerPreview } from '@components/stickerPreview';
-import { animateImageToTarget } from '@helpers/animateImageToTarget';
-import deferredPromise from '@helpers/cancellablePromise';
-import contextMenuController from '@helpers/contextMenuController';
-import { createPosterFromVideo } from '@helpers/createPoster';
-import blurActiveElement from '@helpers/dom/blurActiveElement';
-import createVideo from '@helpers/dom/createVideo';
-import noop from '@helpers/noop';
-import onMediaLoad from '@helpers/onMediaLoad';
-import detectVideoHasSound from '@helpers/video/detectVideoHasSound';
-import { positionFloatingMenu } from '@helpers/positionMenu';
-import pause from '@helpers/schedulers/pause';
-import { requestRAF } from '@helpers/solid/requestRAF';
-import { wrapAsyncClickHandler } from '@helpers/wrapAsyncClickHandler';
-import { useIsCleaned } from '@hooks/useIsCleaned';
-import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import canVideoBeAnimated from '@/lib/appManagers/utils/docs/canVideoBeAnimated';
+import { ButtonIconTsx } from '@/components/buttonIconTsx';
+import type { ButtonMenuSync } from '@/components/buttonMenu';
+import { IconTsx } from '@/components/iconTsx';
+import { EditingMediaState } from '@/components/mediaEditor/context';
+import { MediaEditorFinalResult } from '@/components/mediaEditor/finalRender/createFinalResult';
+import { MAX_EDITABLE_VIDEO_SIZE, supportsVideoEncoding } from '@/components/mediaEditor/support';
+import { ProgressCircleSVG } from '@/components/progressCircleSVG';
+import { StickerPreview } from '@/components/stickerPreview';
+import { animateImageToTarget } from '@/helpers/animateImageToTarget';
+import deferredPromise from '@/helpers/cancellablePromise';
+import contextMenuController from '@/helpers/contextMenuController';
+import { createPosterFromVideo } from '@/helpers/createPoster';
+import blurActiveElement from '@/helpers/dom/blurActiveElement';
+import createVideo from '@/helpers/dom/createVideo';
+import noop from '@/helpers/noop';
+import onMediaLoad from '@/helpers/onMediaLoad';
+import detectVideoHasSound from '@/helpers/video/detectVideoHasSound';
+import { positionFloatingMenu } from '@/helpers/positionMenu';
+import pause from '@/helpers/schedulers/pause';
+import { requestRAF } from '@/helpers/solid/requestRAF';
+import { wrapAsyncClickHandler } from '@/helpers/wrapAsyncClickHandler';
+import { useIsCleaned } from '@/hooks/useIsCleaned';
+import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
 import { createEffect, createMemo, createResource, createSignal, Match, on, onCleanup, Switch } from 'solid-js';
 import styles from './mediaAttachment.module.scss';
 import { useStickersDropdown } from './stickersDropdown';
@@ -181,7 +181,7 @@ export const MediaAttachment = (props: {
     const sourceWidth = willAnimateFromVideo ? (sourceEl as HTMLVideoElement).videoWidth : (sourceEl as HTMLImageElement).naturalWidth;
     const sourceHeight = willAnimateFromVideo ? (sourceEl as HTMLVideoElement).videoHeight : (sourceEl as HTMLImageElement).naturalHeight;
 
-    const { openMediaEditorFromMedia } = await import('@components/mediaEditor');
+    const { openMediaEditorFromMedia } = await import('@/components/mediaEditor');
 
     openMediaEditorFromMedia({
       source: sourceEl,

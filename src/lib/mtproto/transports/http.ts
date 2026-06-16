@@ -1,10 +1,10 @@
-import type { DcId, TrueDcId } from '@types';
-import pause from '@helpers/schedulers/pause';
-import { logger, LogTypes } from '@lib/logger';
-import MTTransport from '@lib/mtproto/transports/transport';
-import Modes from '@config/modes';
-import transportController from '@lib/mtproto/transports/controller';
-// import networkStats from '@lib/mtproto/networkStats';
+import type { DcId, TrueDcId } from '@/types';
+import pause from '@/helpers/schedulers/pause';
+import { logger, LogTypes } from '@/lib/logger';
+import MTTransport from '@/lib/mtproto/transports/transport';
+import Modes from '@/config/modes';
+import transportController from '@/lib/mtproto/transports/controller';
+// import networkStats from '@/lib/mtproto/networkStats';
 
 const TEST_DROPPING_REQUESTS: TrueDcId | undefined = undefined;
 

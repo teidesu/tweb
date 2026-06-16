@@ -1,5 +1,5 @@
-import { MessageEntity } from '@layer';
-import encodeSpoiler from '@lib/richTextProcessor/encodeSpoiler';
+import { MessageEntity } from '@/layer';
+import encodeSpoiler from '@/lib/richTextProcessor/encodeSpoiler';
 
 /**
  * ! This function is still unsafe to use with .innerHTML

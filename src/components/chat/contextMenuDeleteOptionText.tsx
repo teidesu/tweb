@@ -1,4 +1,4 @@
-import { RemainingTime } from '@components/remainingTime';
+import { RemainingTime } from '@/components/remainingTime';
 import { Show } from 'solid-js';
 import { attachHotClassName } from '../../helpers/solid/classname';
 import { I18nTsx } from '../../helpers/solid/i18n';

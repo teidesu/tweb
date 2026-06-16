@@ -17,7 +17,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 // Replace the e2e worker with a no-op host so `new EncryptWorkerHost()` doesn't
 // spawn a real Web Worker (which jsdom can't run). Must be hoisted via `vi.mock`
 // before the controller import.
-vi.mock('@lib/calls/e2e/encryptWorkerHost', () => {
+vi.mock('@/lib/calls/e2e/encryptWorkerHost', () => {
   class EncryptWorkerHost {
     public async createZeroBlock(_args: any): Promise<Uint8Array> {
       // Unreachable in these tests — the chain-blocks mock throws first.
@@ -31,8 +31,8 @@ vi.mock('@lib/calls/e2e/encryptWorkerHost', () => {
   return { EncryptWorkerHost };
 });
 
-import groupCallsController from '@lib/calls/groupCallsController';
-import type { InputGroupCall } from '@layer';
+import groupCallsController from '@/lib/calls/groupCallsController';
+import type { InputGroupCall } from '@/layer';
 
 const SENTINEL_MESSAGE = '__guard_passed_sentinel__';
 

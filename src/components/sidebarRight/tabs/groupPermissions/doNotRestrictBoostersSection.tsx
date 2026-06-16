@@ -1,10 +1,10 @@
-import CheckboxFieldTsx from '@components/checkboxFieldTsx';
-import { IconTsx } from '@components/iconTsx';
-import RangeStepsSelector from '@components/rangeStepsSelectorTsx';
-import Row from '@components/rowTsx';
-import Section from '@components/section';
-import Animated from '@helpers/solid/animations';
-import { i18n } from '@lib/langPack';
+import CheckboxFieldTsx from '@/components/checkboxFieldTsx';
+import { IconTsx } from '@/components/iconTsx';
+import RangeStepsSelector from '@/components/rangeStepsSelectorTsx';
+import Row from '@/components/rowTsx';
+import Section from '@/components/section';
+import Animated from '@/helpers/solid/animations';
+import { i18n } from '@/lib/langPack';
 import { createEffect, createSignal, on, Show, untrack } from 'solid-js';
 import { render } from 'solid-js/web';
 

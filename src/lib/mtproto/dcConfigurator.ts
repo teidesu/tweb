@@ -5,17 +5,17 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import MTTransport, { MTConnectionConstructable } from '@lib/mtproto/transports/transport';
-import Modes from '@config/modes';
-import App from '@config/app';
-import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
-import HTTP from '@lib/mtproto/transports/http';
-import Socket from '@lib/mtproto/transports/websocket';
-import TcpObfuscated from '@lib/mtproto/transports/tcpObfuscated';
-import { IS_WEB_WORKER } from '@helpers/context';
-import { DcId } from '@types';
-import { getEnvironment } from '@environment/utils';
-import SocketProxied from '@lib/mtproto/transports/socketProxied';
+import MTTransport, { MTConnectionConstructable } from '@/lib/mtproto/transports/transport';
+import Modes from '@/config/modes';
+import App from '@/config/app';
+import indexOfAndSplice from '@/helpers/array/indexOfAndSplice';
+import HTTP from '@/lib/mtproto/transports/http';
+import Socket from '@/lib/mtproto/transports/websocket';
+import TcpObfuscated from '@/lib/mtproto/transports/tcpObfuscated';
+import { IS_WEB_WORKER } from '@/helpers/context';
+import { DcId } from '@/types';
+import { getEnvironment } from '@/environment/utils';
+import SocketProxied from '@/lib/mtproto/transports/socketProxied';
 
 export type TransportType = 'websocket' | 'https' | 'http';
 export type ConnectionType = 'client' | 'download' | 'upload';

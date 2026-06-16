@@ -1,9 +1,9 @@
-import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import findUpClassName from '@helpers/dom/findUpClassName';
-import mediaSizes from '@helpers/mediaSizes';
-import OverlayClickHandler from '@helpers/overlayClickHandler';
-import overlayCounter from '@helpers/overlayCounter';
-import pause from '@helpers/schedulers/pause';
+import IS_TOUCH_SUPPORTED from '@/environment/touchSupport';
+import findUpClassName from '@/helpers/dom/findUpClassName';
+import mediaSizes from '@/helpers/mediaSizes';
+import OverlayClickHandler from '@/helpers/overlayClickHandler';
+import overlayCounter from '@/helpers/overlayCounter';
+import pause from '@/helpers/schedulers/pause';
 
 type AdditionalMenuItem = {
   level: number,

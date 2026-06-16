@@ -1,5 +1,5 @@
-import sliceMessageEntities from '@helpers/sliceMessageEntities';
-import { MessageEntity } from '@layer';
+import sliceMessageEntities from '@/helpers/sliceMessageEntities';
+import { MessageEntity } from '@/layer';
 
 describe('sliceMessageEntities', () => {
   test('messageEntityPre split at boundary — first part gets truncated entity', () => {

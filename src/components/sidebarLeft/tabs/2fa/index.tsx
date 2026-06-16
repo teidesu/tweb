@@ -1,13 +1,13 @@
 import { Component, onMount, Show } from 'solid-js';
-import Button from '@components/buttonTsx';
-import PopupElement from '@components/popups';
-import PopupPeer from '@components/popups/peer';
-import Section from '@components/section';
-import wrapStickerEmoji from '@components/wrappers/stickerEmoji';
-import { AppSettingsTab } from '@components/solidJsTabs';
-import { AppTwoStepVerificationEmailTab, AppTwoStepVerificationEnterPasswordTab } from '@components/solidJsTabs/tabs';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import type { AppTwoStepVerificationTab } from '@components/solidJsTabs/tabs';
+import Button from '@/components/buttonTsx';
+import PopupElement from '@/components/popups';
+import PopupPeer from '@/components/popups/peer';
+import Section from '@/components/section';
+import wrapStickerEmoji from '@/components/wrappers/stickerEmoji';
+import { AppSettingsTab } from '@/components/solidJsTabs';
+import { AppTwoStepVerificationEmailTab, AppTwoStepVerificationEnterPasswordTab } from '@/components/solidJsTabs/tabs';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import type { AppTwoStepVerificationTab } from '@/components/solidJsTabs/tabs';
 
 const TwoStepVerification: Component = () => {
   const [tab] = useSuperTab<typeof AppTwoStepVerificationTab>();

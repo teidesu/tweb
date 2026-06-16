@@ -1,10 +1,10 @@
-import StickerType from '@config/stickerType';
-import { MediaEditorContextValue } from '@components/mediaEditor/context';
-import { MediaEditorFinalResultPayload } from '@components/mediaEditor/finalRender/createFinalResult';
+import StickerType from '@/config/stickerType';
+import { MediaEditorContextValue } from '@/components/mediaEditor/context';
+import { MediaEditorFinalResultPayload } from '@/components/mediaEditor/finalRender/createFinalResult';
 
-import drawStickerLayer from '@components/mediaEditor/finalRender/drawStickerLayer';
-import drawTextLayer from '@components/mediaEditor/finalRender/drawTextLayer';
-import { ScaledLayersAndLines } from '@components/mediaEditor/finalRender/getScaledLayersAndLines';
+import drawStickerLayer from '@/components/mediaEditor/finalRender/drawStickerLayer';
+import drawTextLayer from '@/components/mediaEditor/finalRender/drawTextLayer';
+import { ScaledLayersAndLines } from '@/components/mediaEditor/finalRender/getScaledLayersAndLines';
 
 export type RenderToImageArgs = {
   context: MediaEditorContextValue;

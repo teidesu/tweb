@@ -1,7 +1,7 @@
-import PasscodeLockScreenController from '@components/passcodeLock/passcodeLockScreenController';
-import showTooltip from '@components/tooltip';
-import apiManagerProxy from '@lib/apiManagerProxy';
-import { i18n } from '@lib/langPack';
+import PasscodeLockScreenController from '@/components/passcodeLock/passcodeLockScreenController';
+import showTooltip from '@/components/tooltip';
+import apiManagerProxy from '@/lib/apiManagerProxy';
+import { i18n } from '@/lib/langPack';
 import { createEffect, createRoot, createSignal, onCleanup } from 'solid-js';
 
 

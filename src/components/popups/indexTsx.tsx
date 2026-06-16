@@ -1,26 +1,26 @@
 import { createContext, useContext, createSignal, onCleanup, JSX, Show, createRoot, Accessor, createEffect, untrack, on, Ref, Setter, onMount } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { Portal } from 'solid-js/web';
-import classNames from '@helpers/string/classNames';
-import { IconTsx } from '@components/iconTsx';
-import { FormatterArguments, i18n, LangPackKey } from '@lib/langPack';
-import { AppManagers } from '@lib/managers';
-import overlayCounter from '@helpers/overlayCounter';
-import { getMiddleware, MiddlewareHelper } from '@helpers/middleware';
-import findUpClassName from '@helpers/dom/findUpClassName';
-import blurActiveElement from '@helpers/dom/blurActiveElement';
-import animationIntersector from '@components/animationIntersector';
-import appNavigationController, { NavigationItem } from '@components/appNavigationController';
-import { addFullScreenListener, getFullScreenElement } from '@helpers/dom/fullScreen';
-import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
-import MarkupTooltip from '@components/chat/markupTooltip';
-import Button from '@components/buttonTsx';
-import { doubleRaf } from '@helpers/schedulers';
-import Scrollable, { ScrollableContextValue } from '@components/scrollable2';
-import cancelEvent from '@helpers/dom/cancelEvent';
-import { simulateClickEvent } from '@helpers/dom/clickEvent';
-import isSendShortcutPressed from '@helpers/dom/isSendShortcutPressed';
-import noop from '@helpers/noop';
+import classNames from '@/helpers/string/classNames';
+import { IconTsx } from '@/components/iconTsx';
+import { FormatterArguments, i18n, LangPackKey } from '@/lib/langPack';
+import { AppManagers } from '@/lib/managers';
+import overlayCounter from '@/helpers/overlayCounter';
+import { getMiddleware, MiddlewareHelper } from '@/helpers/middleware';
+import findUpClassName from '@/helpers/dom/findUpClassName';
+import blurActiveElement from '@/helpers/dom/blurActiveElement';
+import animationIntersector from '@/components/animationIntersector';
+import appNavigationController, { NavigationItem } from '@/components/appNavigationController';
+import { addFullScreenListener, getFullScreenElement } from '@/helpers/dom/fullScreen';
+import indexOfAndSplice from '@/helpers/array/indexOfAndSplice';
+import MarkupTooltip from '@/components/chat/markupTooltip';
+import Button from '@/components/buttonTsx';
+import { doubleRaf } from '@/helpers/schedulers';
+import Scrollable, { ScrollableContextValue } from '@/components/scrollable2';
+import cancelEvent from '@/helpers/dom/cancelEvent';
+import { simulateClickEvent } from '@/helpers/dom/clickEvent';
+import isSendShortcutPressed from '@/helpers/dom/isSendShortcutPressed';
+import noop from '@/helpers/noop';
 
 export type PopupButton = {
   text?: HTMLElement | DocumentFragment | Text,
@@ -632,7 +632,7 @@ export default PopupElement;
 /*
 Пример использования PopupElementTsx:
 
-import PopupElementTsx from '@components/popups/indexTsx';
+import PopupElementTsx from '@/components/popups/indexTsx';
 
 // Простой попап с заголовком и кнопками (чистый JSX)
 <PopupElementTsx

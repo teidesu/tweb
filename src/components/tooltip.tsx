@@ -1,10 +1,10 @@
-import clamp from '@helpers/number/clamp';
-import OverlayClickHandler from '@helpers/overlayClickHandler';
-import classNames from '@helpers/string/classNames';
+import clamp from '@/helpers/number/clamp';
+import OverlayClickHandler from '@/helpers/overlayClickHandler';
+import classNames from '@/helpers/string/classNames';
 import { createRoot, createSignal, onMount, JSX } from 'solid-js';
 import { Portal } from 'solid-js/web';
-import { IconTsx } from '@components/iconTsx';
-import SetTransition from '@components/singleTransition';
+import { IconTsx } from '@/components/iconTsx';
+import SetTransition from '@/components/singleTransition';
 
 const KEEP_TOOLTIP = true;
 const tooltipOverlayClickHandler = new OverlayClickHandler(undefined, true);

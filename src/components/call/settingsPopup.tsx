@@ -1,25 +1,25 @@
 import { createSignal, onCleanup, onMount, Show } from 'solid-js';
-import PopupElement, { createPopup } from '@components/popups/indexTsx';
-import confirmationPopup from '@components/confirmationPopup';
-import Section from '@components/section';
-import Row from '@components/rowTsx';
-import CheckboxFieldTsx from '@components/checkboxFieldTsx';
-import { i18n } from '@lib/langPack';
-import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import rootScope from '@lib/rootScope';
-import { appSettings, setAppSettings } from '@stores/appSettings';
-import showOutputDevicePopup from '@components/rtmp/outputDevicePopup';
-import shareUrlToPeers from '@components/popups/shareUrl';
-import { toastNew } from '@components/toast';
-import GroupCallInstance from '@lib/calls/groupCallInstance';
-import CallInstance from '@lib/calls/callInstance';
-import { GroupCall } from '@layer';
-import { subscribeOn } from '@helpers/solid/subscribeOn';
-import MicrophoneLevelMeter from '@components/call/microphoneLevelMeter';
-import CallCameraSection from '@components/call/cameraSection';
-import { IS_NOISE_SUPPRESSION_SUPPORTED } from '@lib/calls/p2P/utils';
+import PopupElement, { createPopup } from '@/components/popups/indexTsx';
+import confirmationPopup from '@/components/confirmationPopup';
+import Section from '@/components/section';
+import Row from '@/components/rowTsx';
+import CheckboxFieldTsx from '@/components/checkboxFieldTsx';
+import { i18n } from '@/lib/langPack';
+import wrapEmojiText from '@/lib/richTextProcessor/wrapEmojiText';
+import rootScope from '@/lib/rootScope';
+import { appSettings, setAppSettings } from '@/stores/appSettings';
+import showOutputDevicePopup from '@/components/rtmp/outputDevicePopup';
+import shareUrlToPeers from '@/components/popups/shareUrl';
+import { toastNew } from '@/components/toast';
+import GroupCallInstance from '@/lib/calls/groupCallInstance';
+import CallInstance from '@/lib/calls/callInstance';
+import { GroupCall } from '@/layer';
+import { subscribeOn } from '@/helpers/solid/subscribeOn';
+import MicrophoneLevelMeter from '@/components/call/microphoneLevelMeter';
+import CallCameraSection from '@/components/call/cameraSection';
+import { IS_NOISE_SUPPRESSION_SUPPORTED } from '@/lib/calls/p2P/utils';
 
-import '@components/call/settingsPopup.scss';
+import '@/components/call/settingsPopup.scss';
 
 // The shared in-call settings sheet. Both PopupGroupCall (legacy video chat)
 // and PopupCall (P2P) open this — the only difference is which sections show:

@@ -1,17 +1,17 @@
-import PopupElement, { createPopup, PopupContext } from '@components/popups/indexTsx';
+import PopupElement, { createPopup, PopupContext } from '@/components/popups/indexTsx';
 import { createEffect, createSignal, JSX, onCleanup, Show, untrack, useContext } from 'solid-js';
-import documentFragmentToNodes from '@helpers/dom/documentFragmentToNodes';
-import classNames from '@helpers/string/classNames';
-import usePeerTranslation from '@hooks/usePeerTranslation';
-import { Message, TextWithEntities } from '@layer';
-import { i18n } from '@lib/langPack';
-import wrapRichText, { WrapRichTextOptions } from '@lib/richTextProcessor/wrapRichText';
-import { onMediaCaptionClick } from '@components/appMediaViewer';
-import { pickLanguage } from '@components/chat/translation';
-import { putPreloader } from '@components/putPreloader';
-import Section from '@components/section';
-import { TranslatableMessageTsx } from '@components/translatableMessage';
-import Scrollable, { ScrollableContextValue } from '@components/scrollable2';
+import documentFragmentToNodes from '@/helpers/dom/documentFragmentToNodes';
+import classNames from '@/helpers/string/classNames';
+import usePeerTranslation from '@/hooks/usePeerTranslation';
+import { Message, TextWithEntities } from '@/layer';
+import { i18n } from '@/lib/langPack';
+import wrapRichText, { WrapRichTextOptions } from '@/lib/richTextProcessor/wrapRichText';
+import { onMediaCaptionClick } from '@/components/appMediaViewer';
+import { pickLanguage } from '@/components/chat/translation';
+import { putPreloader } from '@/components/putPreloader';
+import Section from '@/components/section';
+import { TranslatableMessageTsx } from '@/components/translatableMessage';
+import Scrollable, { ScrollableContextValue } from '@/components/scrollable2';
 
 export default function showTranslatePopup(options: {
   peerId: PeerId,

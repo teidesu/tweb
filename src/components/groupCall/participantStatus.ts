@@ -1,11 +1,11 @@
-import replaceContent from '@helpers/dom/replaceContent';
-import setInnerHTML from '@helpers/dom/setInnerHTML';
-import { GroupCallParticipant } from '@layer';
-import { i18n } from '@lib/langPack';
+import replaceContent from '@/helpers/dom/replaceContent';
+import setInnerHTML from '@/helpers/dom/setInnerHTML';
+import { GroupCallParticipant } from '@/layer';
+import { i18n } from '@/lib/langPack';
 import { GROUP_CALL_PARTICIPANT_MUTED_STATE } from '.';
-import { GroupCallParticipantVideoType } from '@components/groupCall/participantVideo';
-import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import Icon from '@components/icon';
+import { GroupCallParticipantVideoType } from '@/components/groupCall/participantVideo';
+import wrapEmojiText from '@/lib/richTextProcessor/wrapEmojiText';
+import Icon from '@/components/icon';
 
 const className = 'group-call-participant-status';
 export default class GroupCallParticipantStatusElement {

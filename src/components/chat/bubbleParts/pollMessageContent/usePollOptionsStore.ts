@@ -1,7 +1,7 @@
 import { createComputed, untrack } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
-import compareUint8Arrays from '@helpers/bytes/compareUint8Arrays';
-import { PollAnswer } from '@layer';
+import compareUint8Arrays from '@/helpers/bytes/compareUint8Arrays';
+import { PollAnswer } from '@/layer';
 import { PollMessageContentProps } from './PollMessageContent';
 import { shouldShufflePollOptions, shufflePollOptions } from './shuffle';
 

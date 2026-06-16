@@ -1,16 +1,16 @@
 import { For, onCleanup, onMount } from 'solid-js';
-import { blendWallpaperForTinted } from '@config/themePresets';
-import { hexaToRgba } from '@helpers/color';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import findUpClassName from '@helpers/dom/findUpClassName';
-import markGridCornerItem, { GRID_CORNER_CLASSES } from '@helpers/dom/markGridCornerItem';
-import highlightingColor from '@helpers/highlightingColor';
-import throttle from '@helpers/schedulers/throttle';
-import ColorPicker, { ColorPickerColor } from '@components/colorPicker';
-import Section from '@components/section';
-import { WallPaper } from '@layer';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { blendWallpaperForTinted } from '@/config/themePresets';
+import { hexaToRgba } from '@/helpers/color';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import findUpClassName from '@/helpers/dom/findUpClassName';
+import markGridCornerItem, { GRID_CORNER_CLASSES } from '@/helpers/dom/markGridCornerItem';
+import highlightingColor from '@/helpers/highlightingColor';
+import throttle from '@/helpers/schedulers/throttle';
+import ColorPicker, { ColorPickerColor } from '@/components/colorPicker';
+import Section from '@/components/section';
+import { WallPaper } from '@/layer';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
 
 const COLORS = [
   '#E6EBEE',

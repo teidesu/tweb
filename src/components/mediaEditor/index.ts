@@ -1,7 +1,7 @@
-import { MediaEditorProps, openMediaEditor } from '@components/mediaEditor/mediaEditor';
-import { NumberPair } from '@components/mediaEditor/types';
-import { snapToViewport } from '@components/mediaEditor/utils';
-import SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
+import { MediaEditorProps, openMediaEditor } from '@/components/mediaEditor/mediaEditor';
+import { NumberPair } from '@/components/mediaEditor/types';
+import { snapToViewport } from '@/components/mediaEditor/utils';
+import SolidJSHotReloadGuardProvider from '@/lib/solidjs/hotReloadGuardProvider';
 
 
 type SpawnImageCanvasArgs = {

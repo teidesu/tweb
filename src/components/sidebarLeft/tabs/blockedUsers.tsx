@@ -1,20 +1,20 @@
 import { onCleanup, onMount } from 'solid-js';
-import { ButtonMenuSync } from '@components/buttonMenu';
-import appDialogsManager, { DIALOG_LIST_ELEMENT_TAG } from '@lib/appDialogsManager';
-import showPickUserPopup from '@components/popups/pickUser';
-import rootScope from '@lib/rootScope';
-import findUpTag from '@helpers/dom/findUpTag';
-import ButtonCorner from '@components/buttonCorner';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import formatUserPhone from '@components/wrappers/formatUserPhone';
-import getUserStatusString from '@components/wrappers/getUserStatusString';
-import { attachContextMenuListener } from '@helpers/dom/attachContextMenuListener';
-import positionMenu from '@helpers/positionMenu';
-import contextMenuController from '@helpers/contextMenuController';
-import getPeerActiveUsernames from '@appManagers/utils/peers/getPeerActiveUsernames';
-import Section from '@components/section';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import type { AppBlockedUsersTab } from '@components/solidJsTabs/tabs';
+import { ButtonMenuSync } from '@/components/buttonMenu';
+import appDialogsManager, { DIALOG_LIST_ELEMENT_TAG } from '@/lib/appDialogsManager';
+import showPickUserPopup from '@/components/popups/pickUser';
+import rootScope from '@/lib/rootScope';
+import findUpTag from '@/helpers/dom/findUpTag';
+import ButtonCorner from '@/components/buttonCorner';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import formatUserPhone from '@/components/wrappers/formatUserPhone';
+import getUserStatusString from '@/components/wrappers/getUserStatusString';
+import { attachContextMenuListener } from '@/helpers/dom/attachContextMenuListener';
+import positionMenu from '@/helpers/positionMenu';
+import contextMenuController from '@/helpers/contextMenuController';
+import getPeerActiveUsernames from '@/lib/appManagers/utils/peers/getPeerActiveUsernames';
+import Section from '@/components/section';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import type { AppBlockedUsersTab } from '@/components/solidJsTabs/tabs';
 
 const BlockedUsers = () => {
   const [tab] = useSuperTab<typeof AppBlockedUsersTab>();

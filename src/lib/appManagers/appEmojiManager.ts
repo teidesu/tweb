@@ -1,17 +1,17 @@
-import type { MyDocument } from '@appManagers/appDocsManager';
-import App from '@config/app';
-import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
-import isObject from '@helpers/object/isObject';
-import validateInitObject from '@helpers/object/validateInitObject';
-import fixEmoji from '@lib/richTextProcessor/fixEmoji';
-import SearchIndex from '@lib/searchIndex';
-import { AppManager } from '@appManagers/manager';
-import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
-import pause from '@helpers/schedulers/pause';
-import filterUnique from '@helpers/array/filterUnique';
-import assumeType from '@helpers/assumeType';
-import { EmojiGroup, EmojiList, MessagesEmojiGroups } from '@layer';
-import flatten from '@helpers/array/flatten';
+import type { MyDocument } from '@/lib/appManagers/appDocsManager';
+import App from '@/config/app';
+import indexOfAndSplice from '@/helpers/array/indexOfAndSplice';
+import isObject from '@/helpers/object/isObject';
+import validateInitObject from '@/helpers/object/validateInitObject';
+import fixEmoji from '@/lib/richTextProcessor/fixEmoji';
+import SearchIndex from '@/lib/searchIndex';
+import { AppManager } from '@/lib/appManagers/manager';
+import deferredPromise, { CancellablePromise } from '@/helpers/cancellablePromise';
+import pause from '@/helpers/schedulers/pause';
+import filterUnique from '@/helpers/array/filterUnique';
+import assumeType from '@/helpers/assumeType';
+import { EmojiGroup, EmojiList, MessagesEmojiGroups } from '@/layer';
+import flatten from '@/helpers/array/flatten';
 
 type EmojiLangPack = {
   keywords: {

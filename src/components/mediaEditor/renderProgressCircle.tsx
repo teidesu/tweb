@@ -1,5 +1,5 @@
 import { Signal } from 'solid-js';
-import { ProgressCircleSVG } from '@components/progressCircleSVG';
+import { ProgressCircleSVG } from '@/components/progressCircleSVG';
 
 export default function RenderProgressCircle(props: {creationProgress: Signal<number>}) {
   const [progress] = props.creationProgress;

@@ -1,9 +1,9 @@
-import ListenerSetter from '@helpers/listenerSetter';
-import debounce from '@helpers/schedulers/debounce';
-import { LangPackKey } from '@lib/langPack';
-import InputField, { InputFieldOptions, InputState } from '@components/inputField';
-import { isUsernameValid } from '@lib/richTextProcessor/validators';
-import { AppManagers } from '@lib/managers';
+import ListenerSetter from '@/helpers/listenerSetter';
+import debounce from '@/helpers/schedulers/debounce';
+import { LangPackKey } from '@/lib/langPack';
+import InputField, { InputFieldOptions, InputState } from '@/components/inputField';
+import { isUsernameValid } from '@/lib/richTextProcessor/validators';
+import { AppManagers } from '@/lib/managers';
 
 export class UsernameInputField extends InputField {
   private checkUsernamePromise: Promise<any> | undefined;

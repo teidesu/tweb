@@ -8,9 +8,9 @@
  * protocol-specific shaping (payload types, fingerprints, ssrc groups) lives here.
  */
 
-import { P2PFingerprint, P2PPayloadType, RtpHdrexts } from '@lib/calls/types';
-import SDPAttributes from '@lib/calls/sdp/attributes';
-import { parseSdp } from '@lib/calls/sdp/utils';
+import { P2PFingerprint, P2PPayloadType, RtpHdrexts } from '@/lib/calls/types';
+import SDPAttributes from '@/lib/calls/sdp/attributes';
+import { parseSdp } from '@/lib/calls/sdp/utils';
 
 // A media (or session) section, in the flat shape the ported engine consumes,
 // backed by tweb's SDPAttributes for any attribute lookup.

@@ -1,8 +1,8 @@
-import callbackify from '@helpers/callbackify';
-import applyColorOnContext from '@helpers/canvas/applyColorOnContext';
-import { defaultEasing, simpleEasing, unwrapEasing } from '@helpers/easings';
-import DotRendererCore, { drawClippingCircle, DotRendererConfig } from '@components/dotRendererCore';
-import { drawImageFromSource } from '@components/messageSpoilerOverlay/drawImageFromSource';
+import callbackify from '@/helpers/callbackify';
+import applyColorOnContext from '@/helpers/canvas/applyColorOnContext';
+import { defaultEasing, simpleEasing, unwrapEasing } from '@/helpers/easings';
+import DotRendererCore, { drawClippingCircle, DotRendererConfig } from '@/components/dotRendererCore';
+import { drawImageFromSource } from '@/components/messageSpoilerOverlay/drawImageFromSource';
 
 export type SpoilerRendererSimInit = {
   width: number,

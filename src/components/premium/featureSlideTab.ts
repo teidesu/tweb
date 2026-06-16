@@ -1,8 +1,8 @@
-import ButtonIcon from '@components/buttonIcon';
-import FeaturesCarousel from '@components/premium/featuresCarousel';
-import { PopupPremiumProps } from '@components/popups/premium';
-import TransitionSlider from '@components/transition';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
+import ButtonIcon from '@/components/buttonIcon';
+import FeaturesCarousel from '@/components/premium/featuresCarousel';
+import { PopupPremiumProps } from '@/components/popups/premium';
+import TransitionSlider from '@/components/transition';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
 
 type FeatureSlideTabOptions = PopupPremiumProps & {
   header: HTMLElement,

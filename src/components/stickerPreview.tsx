@@ -1,7 +1,7 @@
-import type { AnimationItemGroup } from '@components/animationIntersector';
-import createMiddleware from '@helpers/solid/createMiddleware';
-import type { MyDocument } from '@lib/appManagers/appDocsManager';
-import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import type { AnimationItemGroup } from '@/components/animationIntersector';
+import createMiddleware from '@/helpers/solid/createMiddleware';
+import type { MyDocument } from '@/lib/appManagers/appDocsManager';
+import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
 import { onMount } from 'solid-js';
 import type wrapSticker from './wrappers/sticker';
 

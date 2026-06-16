@@ -1,10 +1,10 @@
 import { For, onMount, Show } from 'solid-js';
-import { Reaction } from '@layer';
-import { Middleware } from '@helpers/middleware';
-import { AvatarNewTsx } from '@components/avatarNew';
-import { PeerTitleTsx } from '@components/peerTitleTsx';
-import { wrapReactionIcon } from '@components/popups/reactedList';
-import classNames from '@helpers/string/classNames';
+import { Reaction } from '@/layer';
+import { Middleware } from '@/helpers/middleware';
+import { AvatarNewTsx } from '@/components/avatarNew';
+import { PeerTitleTsx } from '@/components/peerTitleTsx';
+import { wrapReactionIcon } from '@/components/popups/reactedList';
+import classNames from '@/helpers/string/classNames';
 import styles from './reactedListSubmenu.module.scss';
 
 export type ReactedListSubmenuEntry = {

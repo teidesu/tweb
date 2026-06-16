@@ -1,10 +1,10 @@
-import { MOUNT_CLASS_TO } from '@config/debug';
-import IS_OPUS_SUPPORTED from '@environment/opusSupport';
-import { IS_SAFARI } from '@environment/userAgent';
-import { Modify } from '@types';
-import { logger, LogTypes } from '@lib/logger';
-import apiManagerProxy from '@lib/apiManagerProxy';
-import type { ConvertWebPTask } from '@lib/webp/webpWorkerController';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import IS_OPUS_SUPPORTED from '@/environment/opusSupport';
+import { IS_SAFARI } from '@/environment/userAgent';
+import { Modify } from '@/types';
+import { logger, LogTypes } from '@/lib/logger';
+import apiManagerProxy from '@/lib/apiManagerProxy';
+import type { ConvertWebPTask } from '@/lib/webp/webpWorkerController';
 
 type Result = {
   bytes: Uint8Array,

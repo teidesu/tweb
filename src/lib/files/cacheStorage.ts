@@ -1,17 +1,17 @@
-import Modes from '@config/modes';
-import blobConstruct from '@helpers/blob/blobConstruct';
-import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
-import makeError from '@helpers/makeError';
-import readBlobAsUint8Array from '@helpers/blob/readBlobAsUint8Array';
+import Modes from '@/config/modes';
+import blobConstruct from '@/helpers/blob/blobConstruct';
+import deferredPromise, { CancellablePromise } from '@/helpers/cancellablePromise';
+import makeError from '@/helpers/makeError';
+import readBlobAsUint8Array from '@/helpers/blob/readBlobAsUint8Array';
 
-import EncryptionKeyStore from '@lib/passcode/keyStore';
-import cryptoMessagePort from '@lib/crypto/cryptoMessagePort';
-import DeferredIsUsingPasscode from '@lib/passcode/deferredIsUsingPasscode';
+import EncryptionKeyStore from '@/lib/passcode/keyStore';
+import cryptoMessagePort from '@/lib/crypto/cryptoMessagePort';
+import DeferredIsUsingPasscode from '@/lib/passcode/deferredIsUsingPasscode';
 
-import MemoryWriter from '@lib/files/memoryWriter';
-import FileStorage from '@lib/files/fileStorage';
-import pause from '@helpers/schedulers/pause';
-import { HTTPHeaderNames } from '@lib/constants';
+import MemoryWriter from '@/lib/files/memoryWriter';
+import FileStorage from '@/lib/files/fileStorage';
+import pause from '@/helpers/schedulers/pause';
+import { HTTPHeaderNames } from '@/lib/constants';
 import { isTruthy } from '../../helpers/isTruthy';
 
 

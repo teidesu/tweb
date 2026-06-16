@@ -1,5 +1,5 @@
-import deferredPromise from '@helpers/cancellablePromise';
-import AppSelectPeers from '@components/appSelectPeers';
+import deferredPromise from '@/helpers/cancellablePromise';
+import AppSelectPeers from '@/components/appSelectPeers';
 
 export function createSelectorForTab(options: ConstructorParameters<typeof AppSelectPeers>[0]) {
   const deferred = deferredPromise<void>();

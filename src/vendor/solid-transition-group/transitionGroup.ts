@@ -2,7 +2,7 @@
 // Note: the main difference is that here we resolve the first level of children, not recursively every nested element
 
 import { getFirstChild } from '@solid-primitives/refs';
-import { createListTransition } from '@vendor/createListTransition';
+import { createListTransition } from '@/vendor/createListTransition';
 import { children, createMemo, FlowComponent, JSX } from 'solid-js';
 import { createClassnames, enterTransition, exitTransition } from './common';
 import { TransitionProps } from "./transition";

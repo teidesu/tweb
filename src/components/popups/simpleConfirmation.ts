@@ -1,5 +1,5 @@
-import PopupElement, { addCancelButton, PopupButton } from '@components/popups';
-import { FormatterArguments, LangPackKey, i18n } from '@lib/langPack';
+import PopupElement, { addCancelButton, PopupButton } from '@/components/popups';
+import { FormatterArguments, LangPackKey, i18n } from '@/lib/langPack';
 
 // ! cant use PopupPeer/confirmationPopup because of awkward recursive dependencies.
 // Originally lived in `src/pages/loginPage.ts` next to the `LoginPage` DOM helper;

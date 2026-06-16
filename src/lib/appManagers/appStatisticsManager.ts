@@ -1,9 +1,9 @@
-import assumeType from '@helpers/assumeType';
-import callbackify from '@helpers/callbackify';
-import { ChatFull, Message, MessagesMessages, PublicForward, StatsBroadcastStats, StatsGraph, StatsPublicForwards } from '@layer';
-import { DcId, InvokeApiOptions } from '@types';
-import { AppManager } from '@appManagers/manager';
-import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
+import assumeType from '@/helpers/assumeType';
+import callbackify from '@/helpers/callbackify';
+import { ChatFull, Message, MessagesMessages, PublicForward, StatsBroadcastStats, StatsGraph, StatsPublicForwards } from '@/layer';
+import { DcId, InvokeApiOptions } from '@/types';
+import { AppManager } from '@/lib/appManagers/manager';
+import getServerMessageId from '@/lib/appManagers/utils/messageId/getServerMessageId';
 
 type GetStatsParams = {
   peerId: PeerId,

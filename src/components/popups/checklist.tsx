@@ -1,26 +1,26 @@
 import { createSignal, For, onCleanup, onMount, Show, untrack, useContext } from 'solid-js';
-import PopupElement, { createPopup, PopupContext } from '@components/popups/indexTsx';
+import PopupElement, { createPopup, PopupContext } from '@/components/popups/indexTsx';
 
-import Chat from '@components/chat/chat';
-import Button from '@components/buttonTsx';
-import CheckboxFieldTsx from '@components/checkboxFieldTsx';
-import { ButtonIconTsx } from '@components/buttonIconTsx';
-import InputField from '@components/inputField';
-import Row from '@components/rowTsx';
-import Section from '@components/section';
-import { PAYMENT_REJECTED } from '@components/chat/paidMessagesInterceptor';
-import { toastNew } from '@components/toast';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import getRichValueWithCaret from '@helpers/dom/getRichValueWithCaret';
-import { fastRaf } from '@helpers/schedulers';
-import ListenerSetter from '@helpers/listenerSetter';
-import { I18nTsx } from '@helpers/solid/i18n';
-import classNames from '@helpers/string/classNames';
-import { InputMedia, Message, MessageMedia, TodoItem } from '@layer';
-import { i18n, LangPackKey } from '@lib/langPack';
-import { wrapEmojiTextWithEntities } from '@lib/richTextProcessor/wrapEmojiText';
+import Chat from '@/components/chat/chat';
+import Button from '@/components/buttonTsx';
+import CheckboxFieldTsx from '@/components/checkboxFieldTsx';
+import { ButtonIconTsx } from '@/components/buttonIconTsx';
+import InputField from '@/components/inputField';
+import Row from '@/components/rowTsx';
+import Section from '@/components/section';
+import { PAYMENT_REJECTED } from '@/components/chat/paidMessagesInterceptor';
+import { toastNew } from '@/components/toast';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import getRichValueWithCaret from '@/helpers/dom/getRichValueWithCaret';
+import { fastRaf } from '@/helpers/schedulers';
+import ListenerSetter from '@/helpers/listenerSetter';
+import { I18nTsx } from '@/helpers/solid/i18n';
+import classNames from '@/helpers/string/classNames';
+import { InputMedia, Message, MessageMedia, TodoItem } from '@/layer';
+import { i18n, LangPackKey } from '@/lib/langPack';
+import { wrapEmojiTextWithEntities } from '@/lib/richTextProcessor/wrapEmojiText';
 
-import css from '@components/popups/checklist.module.scss';
+import css from '@/components/popups/checklist.module.scss';
 
 export type ChecklistPopupOptions = {
   chat: Chat,

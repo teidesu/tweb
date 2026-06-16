@@ -1,9 +1,9 @@
-import { DialogFilter } from '@layer';
-import rootScope from '@lib/rootScope';
-import lottieLoader from '@lib/rlottie/lottieLoader';
-import confirmationPopup from '@components/confirmationPopup';
-import PopupElement from '@components/popups';
-import PopupSharedFolderInvite from '@components/popups/sharedFolderInvite';
+import { DialogFilter } from '@/layer';
+import rootScope from '@/lib/rootScope';
+import lottieLoader from '@/lib/rlottie/lottieLoader';
+import confirmationPopup from '@/components/confirmationPopup';
+import PopupElement from '@/components/popups';
+import PopupSharedFolderInvite from '@/components/popups/sharedFolderInvite';
 
 export function getEditFolderInitArgs() {
   return {

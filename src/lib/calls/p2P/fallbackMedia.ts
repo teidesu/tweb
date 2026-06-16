@@ -4,7 +4,7 @@
  * camera/microphone track is absent, so the transceiver direction stays stable.
  */
 
-import createCanvasStream from '@helpers/canvas/createCanvasStream';
+import createCanvasStream from '@/helpers/canvas/createCanvasStream';
 
 export function silence(audioContext: AudioContext) {
   const oscillator = audioContext.createOscillator();

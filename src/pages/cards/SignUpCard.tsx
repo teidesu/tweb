@@ -1,16 +1,16 @@
 import { createSignal, JSX, onMount } from 'solid-js';
 
-import Button from '@components/buttonTsx';
-import Icon from '@components/icon';
-import InputField from '@components/inputField';
-import PopupElement from '@components/popups';
-import PopupAvatar from '@components/popups/avatar';
-import MediaHeader from '@components/mediaHeader';
-import blurActiveElement from '@helpers/dom/blurActiveElement';
-import type { CancellablePromise } from '@helpers/cancellablePromise';
-import type { InputFile } from '@layer';
-import { LangPackKey, i18n } from '@lib/langPack';
-import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
+import Button from '@/components/buttonTsx';
+import Icon from '@/components/icon';
+import InputField from '@/components/inputField';
+import PopupElement from '@/components/popups';
+import PopupAvatar from '@/components/popups/avatar';
+import MediaHeader from '@/components/mediaHeader';
+import blurActiveElement from '@/helpers/dom/blurActiveElement';
+import type { CancellablePromise } from '@/helpers/cancellablePromise';
+import type { InputFile } from '@/layer';
+import { LangPackKey, i18n } from '@/lib/langPack';
+import wrapEmojiText from '@/lib/richTextProcessor/wrapEmojiText';
 
 import AuthCard from '@/pages/AuthCard';
 import { CardSpec, useAuthFlow } from '@/pages/authFlow';

@@ -1,24 +1,24 @@
-import { Dialog } from '@appManagers/appMessagesManager';
-import { FOLDER_ID_ALL, FOLDER_ID_ARCHIVE, REAL_FOLDERS } from '@appManagers/constants';
-import getDialogIndex from '@appManagers/utils/dialogs/getDialogIndex';
-import getDialogIndexKey from '@appManagers/utils/dialogs/getDialogIndexKey';
-import { isDialog, isForumTopic } from '@appManagers/utils/dialogs/isDialog';
-import ArchiveDialog, { createArchiveDialogState, DisposableArchiveDialogState } from '@components/archiveDialog';
-import { AutonomousDialogListBase, BaseConstructorArgs, LoadDialogsInnerArgs } from '@components/autonomousDialogList/base';
-import { BADGE_TRANSITION_TIME } from '@components/autonomousDialogList/constants';
-import groupCallActiveIcon from '@components/groupCallActiveIcon';
-import Scrollable from '@components/scrollable';
-import SetTransition from '@components/singleTransition';
-import SortedDialogList, { CustomPinnedDialog } from '@components/sortedDialogList';
-import IS_GROUP_CALL_SUPPORTED from '@environment/groupCallSupport';
-import namedPromises from '@helpers/namedPromises';
-import noop from '@helpers/noop';
-import { Chat } from '@layer';
-import apiManagerProxy from '@lib/apiManagerProxy';
-import { AppDialogsManager, DialogDom } from '@lib/appDialogsManager';
-import rootScope from '@lib/rootScope';
-import SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
-import { runWithHotReloadGuard } from '@lib/solidjs/runWithHotReloadGuard';
+import { Dialog } from '@/lib/appManagers/appMessagesManager';
+import { FOLDER_ID_ALL, FOLDER_ID_ARCHIVE, REAL_FOLDERS } from '@/lib/appManagers/constants';
+import getDialogIndex from '@/lib/appManagers/utils/dialogs/getDialogIndex';
+import getDialogIndexKey from '@/lib/appManagers/utils/dialogs/getDialogIndexKey';
+import { isDialog, isForumTopic } from '@/lib/appManagers/utils/dialogs/isDialog';
+import ArchiveDialog, { createArchiveDialogState, DisposableArchiveDialogState } from '@/components/archiveDialog';
+import { AutonomousDialogListBase, BaseConstructorArgs, LoadDialogsInnerArgs } from '@/components/autonomousDialogList/base';
+import { BADGE_TRANSITION_TIME } from '@/components/autonomousDialogList/constants';
+import groupCallActiveIcon from '@/components/groupCallActiveIcon';
+import Scrollable from '@/components/scrollable';
+import SetTransition from '@/components/singleTransition';
+import SortedDialogList, { CustomPinnedDialog } from '@/components/sortedDialogList';
+import IS_GROUP_CALL_SUPPORTED from '@/environment/groupCallSupport';
+import namedPromises from '@/helpers/namedPromises';
+import noop from '@/helpers/noop';
+import { Chat } from '@/layer';
+import apiManagerProxy from '@/lib/apiManagerProxy';
+import { AppDialogsManager, DialogDom } from '@/lib/appDialogsManager';
+import rootScope from '@/lib/rootScope';
+import SolidJSHotReloadGuardProvider from '@/lib/solidjs/hotReloadGuardProvider';
+import { runWithHotReloadGuard } from '@/lib/solidjs/runWithHotReloadGuard';
 
 
 type ConstructorArgs = BaseConstructorArgs & {

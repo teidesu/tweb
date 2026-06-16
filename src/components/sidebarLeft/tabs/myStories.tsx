@@ -1,17 +1,17 @@
 import { Component, createRoot, createSignal, onMount, Show } from 'solid-js';
-import { i18n, LangPackKey } from '@lib/langPack';
-import rootScope from '@lib/rootScope';
-import Button from '@components/buttonTsx';
-import ButtonMenuToggle from '@components/buttonMenuToggle';
-import Section from '@components/section';
-import { StoriesProfileList, profileStoriesButtonMenu } from '@components/stories/profileList';
-import { StoriesSelection } from '@components/stories/selection';
-import { StoriesContextActions, StoriesContextState } from '@components/stories/store';
+import { i18n, LangPackKey } from '@/lib/langPack';
+import rootScope from '@/lib/rootScope';
+import Button from '@/components/buttonTsx';
+import ButtonMenuToggle from '@/components/buttonMenuToggle';
+import Section from '@/components/section';
+import { StoriesProfileList, profileStoriesButtonMenu } from '@/components/stories/profileList';
+import { StoriesSelection } from '@/components/stories/selection';
+import { StoriesContextActions, StoriesContextState } from '@/components/stories/store';
 import { getFirstChild } from '@solid-primitives/refs';
-import { AppMyStoriesTab } from '@components/solidJsTabs/tabs';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
-import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { AppMyStoriesTab } from '@/components/solidJsTabs/tabs';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@/components/solidJsTabs/promiseCollector';
+import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
 
 const MyStories: Component = () => {
   const [tab] = useSuperTab<typeof AppMyStoriesTab>();

@@ -5,24 +5,24 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import type { PushNotificationObject } from '@lib/serviceWorker/push';
-import type { ServicePushPingTaskPayload } from '@lib/serviceWorker/serviceMessagePort';
-import type { NotificationSettings } from '@lib/uiNotificationsManager';
-import type { ActiveAccountNumber } from '@lib/accounts/types';
-import type ServiceMessagePort from '@lib/serviceWorker/serviceMessagePort';
-import { MOUNT_CLASS_TO } from '@config/debug';
-import { logger } from '@lib/logger';
-import I18n, { LangPackKey } from '@lib/langPack';
-import { IS_MOBILE } from '@environment/userAgent';
-import copy from '@helpers/object/copy';
-import singleInstance from '@lib/singleInstance';
-import EventListenerBase from '@helpers/eventListenerBase';
-import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
-import AccountController from '@lib/accounts/accountController';
-import App from '@config/app';
-import apiManagerProxy from '@lib/apiManagerProxy';
-import appNavigationController from '@components/appNavigationController';
-import Modes from '@config/modes';
+import type { PushNotificationObject } from '@/lib/serviceWorker/push';
+import type { ServicePushPingTaskPayload } from '@/lib/serviceWorker/serviceMessagePort';
+import type { NotificationSettings } from '@/lib/uiNotificationsManager';
+import type { ActiveAccountNumber } from '@/lib/accounts/types';
+import type ServiceMessagePort from '@/lib/serviceWorker/serviceMessagePort';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import { logger } from '@/lib/logger';
+import I18n, { LangPackKey } from '@/lib/langPack';
+import { IS_MOBILE } from '@/environment/userAgent';
+import copy from '@/helpers/object/copy';
+import singleInstance from '@/lib/singleInstance';
+import EventListenerBase from '@/helpers/eventListenerBase';
+import getServerMessageId from '@/lib/appManagers/utils/messageId/getServerMessageId';
+import AccountController from '@/lib/accounts/accountController';
+import App from '@/config/app';
+import apiManagerProxy from '@/lib/apiManagerProxy';
+import appNavigationController from '@/components/appNavigationController';
+import Modes from '@/config/modes';
 
 export type PushSubscriptionNotifyType = 'init' | 'subscribe' | 'unsubscribe';
 export type PushSubscriptionNotifyEvent = `push_${PushSubscriptionNotifyType}`;

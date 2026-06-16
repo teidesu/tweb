@@ -1,11 +1,11 @@
 import { createRoot } from 'solid-js';
 import { createStore, unwrap } from 'solid-js/store';
-import { StateSettings } from '@config/state';
-import rootScope from '@lib/rootScope';
-import { joinDeepPath } from '@helpers/object/setDeepProperty';
-import getDeepProperty from '@helpers/object/getDeepProperty';
-import { MOUNT_CLASS_TO } from '@config/debug';
-import { SetStoreFunctionReturning } from '@helpers/solid/setStoreFunctionReturning';
+import { StateSettings } from '@/config/state';
+import rootScope from '@/lib/rootScope';
+import { joinDeepPath } from '@/helpers/object/setDeepProperty';
+import getDeepProperty from '@/helpers/object/getDeepProperty';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import { SetStoreFunctionReturning } from '@/helpers/solid/setStoreFunctionReturning';
 
 const [appSettings, _setAppSettings] = createRoot(() => createStore<StateSettings>({} as any));
 

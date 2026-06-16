@@ -1,5 +1,5 @@
-import crc32 from '@helpers/number/crc32';
-import { Poll, PollAnswer } from '@layer';
+import crc32 from '@/helpers/number/crc32';
+import { Poll, PollAnswer } from '@/layer';
 
 export const shouldShufflePollOptions = (poll: Poll): boolean =>
   !poll.pFlags.creator && !!poll.pFlags.shuffle_answers;

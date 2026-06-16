@@ -1,12 +1,12 @@
 // SolidJS in worker script 🤯 #ReactSucks
 import { createEffect, createRoot, createSignal, onCleanup } from 'solid-js';
 
-import accumulate from '@helpers/array/accumulate';
-import DEBUG from '@config/debug';
+import accumulate from '@/helpers/array/accumulate';
+import DEBUG from '@/config/debug';
 
-import commonStateStorage from '@lib/commonStateStorage';
+import commonStateStorage from '@/lib/commonStateStorage';
 
-import type MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
+import type MTProtoMessagePort from '@/lib/mainWorker/mainMessagePort';
 
 
 type UseAutoLockArgs = {

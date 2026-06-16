@@ -1,20 +1,20 @@
-import ServiceMessagePort from '@lib/serviceWorker/serviceMessagePort';
-import App from '@config/app';
-import { MOUNT_CLASS_TO } from '@config/debug';
-import callbackify from '@helpers/callbackify';
-import deferredPromise, { CancellablePromise } from '@helpers/cancellablePromise';
-import cryptoMessagePort from '@lib/crypto/cryptoMessagePort';
-import rlottieMessagePort from '@lib/rlottie/rlottieMessagePort';
-import MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
-import { AppStoragesManager } from '@appManagers/appStoragesManager';
-import createManagers from '@appManagers/createManagers';
-import { ActiveAccountNumber } from '@lib/accounts/types';
-import AppStateManager from '@appManagers/appStateManager';
-import rootScope from '@lib/rootScope';
-import AccountController from '@lib/accounts/accountController';
-import pushSingleManager from '@appManagers/pushSingleManager';
-import Modes from '@config/modes';
-import SuperMessagePort from '@lib/superMessagePort';
+import ServiceMessagePort from '@/lib/serviceWorker/serviceMessagePort';
+import App from '@/config/app';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import callbackify from '@/helpers/callbackify';
+import deferredPromise, { CancellablePromise } from '@/helpers/cancellablePromise';
+import cryptoMessagePort from '@/lib/crypto/cryptoMessagePort';
+import rlottieMessagePort from '@/lib/rlottie/rlottieMessagePort';
+import MTProtoMessagePort from '@/lib/mainWorker/mainMessagePort';
+import { AppStoragesManager } from '@/lib/appManagers/appStoragesManager';
+import createManagers from '@/lib/appManagers/createManagers';
+import { ActiveAccountNumber } from '@/lib/accounts/types';
+import AppStateManager from '@/lib/appManagers/appStateManager';
+import rootScope from '@/lib/rootScope';
+import AccountController from '@/lib/accounts/accountController';
+import pushSingleManager from '@/lib/appManagers/pushSingleManager';
+import Modes from '@/config/modes';
+import SuperMessagePort from '@/lib/superMessagePort';
 
 type Managers = Awaited<ReturnType<typeof createManagers>>;
 

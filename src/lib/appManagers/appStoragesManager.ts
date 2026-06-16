@@ -1,11 +1,11 @@
-import { getDatabaseState } from '@config/databases/state';
-import { MAX_ACCOUNTS } from '@lib/accounts/constants';
-import AppStorage from '@lib/storage';
-import { ResetStoragesPromise } from '@appManagers/appStateManager';
-import { AppManager } from '@appManagers/manager';
-import { ActiveAccountNumber } from '@lib/accounts/types';
-import createStorages from '@appManagers/utils/storages/createStorages';
-import loadStorages from '@appManagers/utils/storages/loadStorages';
+import { getDatabaseState } from '@/config/databases/state';
+import { MAX_ACCOUNTS } from '@/lib/accounts/constants';
+import AppStorage from '@/lib/storage';
+import { ResetStoragesPromise } from '@/lib/appManagers/appStateManager';
+import { AppManager } from '@/lib/appManagers/manager';
+import { ActiveAccountNumber } from '@/lib/accounts/types';
+import createStorages from '@/lib/appManagers/utils/storages/createStorages';
+import loadStorages from '@/lib/appManagers/utils/storages/loadStorages';
 
 export class AppStoragesManager extends AppManager {
   private storages: ReturnType<typeof createStorages>;

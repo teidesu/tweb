@@ -5,11 +5,11 @@
  * https://github.com/evgeny-nadymov/telegram-react/blob/master/LICENSE
  */
 
-import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
-import safeAssign from '@helpers/object/safeAssign';
-import { GroupCallParticipantVideoSourceGroup } from '@layer';
-import { fixMediaLineType, SDPBuilder, WebRTCLineType, WEBRTC_MEDIA_PORT } from '@lib/calls/sdpBuilder';
-import { AudioCodec, GroupCallConnectionTransport, Ssrc, UpdateGroupCallConnectionData, VideoCodec } from '@lib/calls/types';
+import indexOfAndSplice from '@/helpers/array/indexOfAndSplice';
+import safeAssign from '@/helpers/object/safeAssign';
+import { GroupCallParticipantVideoSourceGroup } from '@/layer';
+import { fixMediaLineType, SDPBuilder, WebRTCLineType, WEBRTC_MEDIA_PORT } from '@/lib/calls/sdpBuilder';
+import { AudioCodec, GroupCallConnectionTransport, Ssrc, UpdateGroupCallConnectionData, VideoCodec } from '@/lib/calls/types';
 
 export class ConferenceEntry {
   public source: number;

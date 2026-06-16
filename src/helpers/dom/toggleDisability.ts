@@ -1,4 +1,4 @@
-import toArray from '@helpers/array/toArray';
+import toArray from '@/helpers/array/toArray';
 
 export default function toggleDisability(elements: HTMLElement | HTMLElement[], disable: boolean): () => void {
   elements = toArray(elements);

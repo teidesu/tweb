@@ -1,7 +1,7 @@
-import { SliderSuperTab } from '@components/slider';
-import emoticonsDropdown from '@components/emoticonsDropdown';
-import appSidebarRight from '@components/sidebarRight';
-import { setAppSettings } from '@stores/appSettings';
+import { SliderSuperTab } from '@/components/slider';
+import emoticonsDropdown from '@/components/emoticonsDropdown';
+import appSidebarRight from '@/components/sidebarRight';
+import { setAppSettings } from '@/stores/appSettings';
 
 export default class AppEmoticonsTab extends SliderSuperTab {
   public static noSame = true;

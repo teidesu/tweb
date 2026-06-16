@@ -1,7 +1,7 @@
-import { animateValue } from '@helpers/animateValue';
-import cloneDOMRect from '@helpers/dom/cloneDOMRect';
-import throttleWith from '@helpers/schedulers/throttleWith';
-import { useIsCleaned } from '@hooks/useIsCleaned';
+import { animateValue } from '@/helpers/animateValue';
+import cloneDOMRect from '@/helpers/dom/cloneDOMRect';
+import throttleWith from '@/helpers/schedulers/throttleWith';
+import { useIsCleaned } from '@/hooks/useIsCleaned';
 import {
   Accessor,
   batch,

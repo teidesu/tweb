@@ -1,11 +1,11 @@
-import type { DownloadMediaOptions, DownloadOptions } from '@appManagers/apiFileManager';
-import getDocumentDownloadOptions from '@appManagers/utils/docs/getDocumentDownloadOptions';
-import getPhotoDownloadOptions from '@appManagers/utils/photos/getPhotoDownloadOptions';
-import getWebDocumentDownloadOptions from '@appManagers/utils/webDocs/getWebDocumentDownloadOptions';
-import isWebDocument from '@appManagers/utils/webDocs/isWebDocument';
-import getWebFileDownloadOptions from '@appManagers/utils/webFiles/getWebFileDownloadOptions';
-import isWebFileLocation from '@appManagers/utils/webFiles/isWebFileLocation';
-import getDownloadFileNameFromOptions from '@appManagers/utils/download/getDownloadFileNameFromOptions';
+import type { DownloadMediaOptions, DownloadOptions } from '@/lib/appManagers/apiFileManager';
+import getDocumentDownloadOptions from '@/lib/appManagers/utils/docs/getDocumentDownloadOptions';
+import getPhotoDownloadOptions from '@/lib/appManagers/utils/photos/getPhotoDownloadOptions';
+import getWebDocumentDownloadOptions from '@/lib/appManagers/utils/webDocs/getWebDocumentDownloadOptions';
+import isWebDocument from '@/lib/appManagers/utils/webDocs/isWebDocument';
+import getWebFileDownloadOptions from '@/lib/appManagers/utils/webFiles/getWebFileDownloadOptions';
+import isWebFileLocation from '@/lib/appManagers/utils/webFiles/isWebFileLocation';
+import getDownloadFileNameFromOptions from '@/lib/appManagers/utils/download/getDownloadFileNameFromOptions';
 
 export default function getDownloadMediaDetails(options: DownloadMediaOptions) {
   const { media, thumb, queueId, onlyCache } = options;

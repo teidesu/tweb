@@ -1,7 +1,7 @@
 // import aesjs from 'aes-js';
-import randomize from '@helpers/array/randomize';
-import cryptoMessagePort from '@lib/crypto/cryptoMessagePort';
-import { Codec } from '@lib/mtproto/transports/codec';
+import randomize from '@/helpers/array/randomize';
+import cryptoMessagePort from '@/lib/crypto/cryptoMessagePort';
+import { Codec } from '@/lib/mtproto/transports/codec';
 
 /*
 @cryptography/aes не работает с массивами которые не кратны 4, поэтому использую intermediate а не abridged

@@ -1,6 +1,6 @@
-import { MessageEntity } from '@layer';
-import findConflictingEntity from '@lib/richTextProcessor/findConflictingEntity';
-import sortEntities from '@lib/richTextProcessor/sortEntities';
+import { MessageEntity } from '@/layer';
+import findConflictingEntity from '@/lib/richTextProcessor/findConflictingEntity';
+import sortEntities from '@/lib/richTextProcessor/sortEntities';
 
 export default function mergeEntities(currentEntities: MessageEntity[], newEntities: MessageEntity[]) {
   currentEntities = currentEntities.slice();

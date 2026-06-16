@@ -1,12 +1,12 @@
-import ctx from '@environment/ctx';
-import callbackify from '@helpers/callbackify';
-import { ignoreRestrictionReasons } from '@helpers/restrictions';
-import { Config, DataJSON, HelpAppConfig, HelpPeerColors, MethodDeclMap, User } from '@layer';
-import { InvokeApiOptions } from '@types';
-import { AppManager } from '@appManagers/manager';
-import rootScope from '@lib/rootScope';
-import { UserAuth } from '@appManagers/constants';
-import { MTMessage } from '@lib/mtproto/networker';
+import ctx from '@/environment/ctx';
+import callbackify from '@/helpers/callbackify';
+import { ignoreRestrictionReasons } from '@/helpers/restrictions';
+import { Config, DataJSON, HelpAppConfig, HelpPeerColors, MethodDeclMap, User } from '@/layer';
+import { InvokeApiOptions } from '@/types';
+import { AppManager } from '@/lib/appManagers/manager';
+import rootScope from '@/lib/rootScope';
+import { UserAuth } from '@/lib/appManagers/constants';
+import { MTMessage } from '@/lib/mtproto/networker';
 
 type HashResult = {
   hash: number,

@@ -1,13 +1,13 @@
-import tsNow from '@helpers/tsNow';
-import { ChatInviteImporter, ExportedChatInvite } from '@layer';
-import { AppManagers } from '@lib/managers';
-import { i18n, LangPackKey } from '@lib/langPack';
-import lottieLoader from '@lib/rlottie/lottieLoader';
-import rootScope from '@lib/rootScope';
-import hasRights from '@lib/appManagers/utils/chats/hasRights';
-import apiManagerProxy from '@lib/apiManagerProxy';
-import AppSelectPeers from '@components/appSelectPeers';
-import { InviteLink } from '@components/sidebarLeft/tabs/inviteLink';
+import tsNow from '@/helpers/tsNow';
+import { ChatInviteImporter, ExportedChatInvite } from '@/layer';
+import { AppManagers } from '@/lib/managers';
+import { i18n, LangPackKey } from '@/lib/langPack';
+import lottieLoader from '@/lib/rlottie/lottieLoader';
+import rootScope from '@/lib/rootScope';
+import hasRights from '@/lib/appManagers/utils/chats/hasRights';
+import apiManagerProxy from '@/lib/apiManagerProxy';
+import AppSelectPeers from '@/components/appSelectPeers';
+import { InviteLink } from '@/components/sidebarLeft/tabs/inviteLink';
 
 export type ChatInvite = ExportedChatInvite.chatInviteExported;
 

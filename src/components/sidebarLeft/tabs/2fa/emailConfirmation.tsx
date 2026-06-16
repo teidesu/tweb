@@ -1,19 +1,19 @@
 import { Component, onMount, Show } from 'solid-js';
-import Button from '@components/buttonTsx';
-import CodeInputFieldCompat from '@components/codeInputField';
-import { putPreloader } from '@components/putPreloader';
-import { i18n } from '@lib/langPack';
-import { canFocus } from '@helpers/dom/canFocus';
-import replaceContent from '@helpers/dom/replaceContent';
-import toggleDisability from '@helpers/dom/toggleDisability';
-import Section from '@components/section';
-import { AppSettingsTab } from '@components/solidJsTabs';
-import { AppTwoStepVerificationEmailTab, AppTwoStepVerificationSetTab } from '@components/solidJsTabs/tabs';
-import { toastNew } from '@components/toast';
-import { ForgotPasswordLink } from '@components/sidebarLeft/tabs/2fa/forgotPasswordLink';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
-import type { AppTwoStepVerificationEmailConfirmationTab } from '@components/solidJsTabs/tabs';
+import Button from '@/components/buttonTsx';
+import CodeInputFieldCompat from '@/components/codeInputField';
+import { putPreloader } from '@/components/putPreloader';
+import { i18n } from '@/lib/langPack';
+import { canFocus } from '@/helpers/dom/canFocus';
+import replaceContent from '@/helpers/dom/replaceContent';
+import toggleDisability from '@/helpers/dom/toggleDisability';
+import Section from '@/components/section';
+import { AppSettingsTab } from '@/components/solidJsTabs';
+import { AppTwoStepVerificationEmailTab, AppTwoStepVerificationSetTab } from '@/components/solidJsTabs/tabs';
+import { toastNew } from '@/components/toast';
+import { ForgotPasswordLink } from '@/components/sidebarLeft/tabs/2fa/forgotPasswordLink';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
+import type { AppTwoStepVerificationEmailConfirmationTab } from '@/components/solidJsTabs/tabs';
 
 const TwoStepVerificationEmailConfirmation: Component = () => {
   const [tab] = useSuperTab<typeof AppTwoStepVerificationEmailConfirmationTab>();

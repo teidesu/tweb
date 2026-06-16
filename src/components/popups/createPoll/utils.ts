@@ -1,5 +1,5 @@
-import type InputField from '@components/inputField';
-import lastItem from '@helpers/array/lastItem';
+import type InputField from '@/components/inputField';
+import lastItem from '@/helpers/array/lastItem';
 import { createMemo } from 'solid-js';
 import { unwrap } from 'solid-js/store';
 import { AttachedMedia, CreatePollContextValue, CreatePollPayload, CreatePollStore, FinalizedAttachedMedia, StorePollOption, SupportedMediaType, useCreatePollContext } from './storeContext';

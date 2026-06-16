@@ -1,6 +1,6 @@
-import type { AnimationItemGroup } from '@components/animationIntersector';
-import rootScope from '@lib/rootScope';
-import wrapRichText from '@lib/richTextProcessor/wrapRichText';
+import type { AnimationItemGroup } from '@/components/animationIntersector';
+import rootScope from '@/lib/rootScope';
+import wrapRichText from '@/lib/richTextProcessor/wrapRichText';
 
 export default function wrapDraftText(text: string, options: Partial<{
   wrappingForPeerId: PeerId,

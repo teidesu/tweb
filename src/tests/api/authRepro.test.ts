@@ -1,4 +1,4 @@
-import type { DcId } from '@types';
+import type { DcId } from '@/types';
 import { installNodeEnv } from './nodeEnv';
 import { registerInlineCrypto } from './inlineCrypto';
 
@@ -7,7 +7,7 @@ test.skipIf(process.env.TG_API_TEST !== '1')('auth key handshake', async() => {
   installNodeEnv();
   registerInlineCrypto();
 
-  const { initCryptoWasm } = await import('@lib/crypto/wasmInit');
+  const { initCryptoWasm } = await import('@/lib/crypto/wasmInit');
   await initCryptoWasm();
 
   const RealWS = globalThis.WebSocket;
@@ -26,11 +26,11 @@ test.skipIf(process.env.TG_API_TEST !== '1')('auth key handshake', async() => {
     }
   } });
 
-  await import('@lib/polyfill');
+  await import('@/lib/polyfill');
 
-  const { Authorizer } = await import('@lib/mtproto/authorizer');
-  const { TimeManager } = await import('@lib/mtproto/timeManager');
-  const { DcConfigurator } = await import('@lib/mtproto/dcConfigurator');
+  const { Authorizer } = await import('@/lib/mtproto/authorizer');
+  const { TimeManager } = await import('@/lib/mtproto/timeManager');
+  const { DcConfigurator } = await import('@/lib/mtproto/dcConfigurator');
 
   const authorizer = new Authorizer({
     timeManager: new TimeManager(),

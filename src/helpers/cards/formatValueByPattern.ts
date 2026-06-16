@@ -1,5 +1,5 @@
-import accumulate from '@helpers/array/accumulate';
-import { PatternFunction } from '@helpers/cards/patternCharacters';
+import accumulate from '@/helpers/array/accumulate';
+import { PatternFunction } from '@/helpers/cards/patternCharacters';
 
 function accumulateLengths(strs: string[]) {
   return accumulate(strs.map((str) => str.length), 0);

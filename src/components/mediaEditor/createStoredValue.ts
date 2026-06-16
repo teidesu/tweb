@@ -1,7 +1,7 @@
-import { StateSettings } from '@config/state';
-import getDeepProperty from '@helpers/object/getDeepProperty';
-import asyncThrottle from '@helpers/schedulers/asyncThrottle';
-import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { StateSettings } from '@/config/state';
+import getDeepProperty from '@/helpers/object/getDeepProperty';
+import asyncThrottle from '@/helpers/schedulers/asyncThrottle';
+import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
 import { createEffect, createSignal } from 'solid-js';
 import { ColoredBrushType } from './context';
 

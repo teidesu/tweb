@@ -1,5 +1,5 @@
-import getStream from '@lib/calls/helpers/getStream';
-import stopTrack from '@lib/calls/helpers/stopTrack';
+import getStream from '@/lib/calls/helpers/getStream';
+import stopTrack from '@/lib/calls/helpers/stopTrack';
 
 export type StreamAcquisition = {
   // Resolves to the live stream, or `undefined` if dispose() was called before

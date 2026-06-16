@@ -1,5 +1,5 @@
 import { getWasmUrl, initSync } from '@mtcute/wasm';
-import pause from '@helpers/schedulers/pause';
+import pause from '@/helpers/schedulers/pause';
 
 let initPromise: Promise<void> | undefined;
 

@@ -1,4 +1,4 @@
-import bufferConcats from '@helpers/bytes/bufferConcats';
+import bufferConcats from '@/helpers/bytes/bufferConcats';
 
 Uint8Array.prototype.concat = function(...args: Array<Uint8Array | ArrayBuffer | number[]>) {
   return bufferConcats(this, ...args);

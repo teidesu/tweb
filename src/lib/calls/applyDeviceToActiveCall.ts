@@ -1,6 +1,6 @@
-import callsController from '@lib/calls/callsController';
-import groupCallsController from '@lib/calls/groupCallsController';
-import type CallInstanceBase from '@lib/calls/callInstanceBase';
+import callsController from '@/lib/calls/callsController';
+import groupCallsController from '@/lib/calls/groupCallsController';
+import type CallInstanceBase from '@/lib/calls/callInstanceBase';
 
 // Resolves whichever call is live right now — either a P2P call (highest
 // priority because the P2P UI is in front when both exist) or the legacy

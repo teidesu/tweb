@@ -20,20 +20,6 @@
     "moduleResolution": "bundler",
     "paths": {
       "solid-transition-group": ["./src/vendor/solid-transition-group"],
-      "@components/*": ["./src/components/*"],
-      "@helpers/*": ["./src/helpers/*"],
-      "@hooks/*": ["./src/hooks/*"],
-      "@stores/*": ["./src/stores/*"],
-      "@lib/*": ["./src/lib/*"],
-      "@appManagers/*": ["./src/lib/appManagers/*"],
-      "@richTextProcessor/*": ["./src/lib/richTextProcessor/*"],
-      "@environment/*": ["./src/environment/*"],
-      "@customEmoji/*": ["./src/lib/customEmoji/*"],
-      "@rlottie/*": ["./src/lib/rlottie/*"],
-      "@config/*": ["./src/config/*"],
-      "@vendor/*": ["./src/vendor/*"],
-      "@layer": ["./src/layer.d.ts"],
-      "@types": ["./src/types.d.ts"],
       "@/*": ["./src/*"]
     },
     "types": [

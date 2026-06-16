@@ -1,7 +1,7 @@
 import { createMemo } from 'solid-js';
 
-import { useMediaEditorContext } from '@components/mediaEditor/context';
-import { NumberPair } from '@components/mediaEditor/types';
+import { useMediaEditorContext } from '@/components/mediaEditor/context';
+import { NumberPair } from '@/components/mediaEditor/types';
 
 
 export default function useNormalizePoint() {

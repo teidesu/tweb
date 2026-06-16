@@ -25,13 +25,13 @@ export async function createTestClient(opts: CreateTestClientOpts) {
   installNodeEnv();
 
   step('import @config/modes');
-  const Modes = (await import('@config/modes')).default;
+  const Modes = (await import('@/config/modes')).default;
   if (opts.testDc) {
     Modes.test = true;
   }
 
   step('import @config/app');
-  const App = (await import('@config/app')).default;
+  const App = (await import('@/config/app')).default;
   if (!Number.isFinite(App.id) || !App.hash) {
     throw new Error(
       'createTestClient: VITE_API_ID / VITE_API_HASH are not set. Define them in .env.local before running api tests.'
@@ -40,9 +40,9 @@ export async function createTestClient(opts: CreateTestClientOpts) {
 
   const accountNumber = (opts.accountNumber ?? 1);
   step('polyfills + DeferredIsUsingPasscode');
-  await import('@lib/polyfill');
-  await import('@helpers/peerIdPolyfill');
-  const DeferredIsUsingPasscode = (await import('@lib/passcode/deferredIsUsingPasscode')).default;
+  await import('@/lib/polyfill');
+  await import('@/helpers/peerIdPolyfill');
+  const DeferredIsUsingPasscode = (await import('@/lib/passcode/deferredIsUsingPasscode')).default;
   DeferredIsUsingPasscode.resolveDeferred(false);
 
   step('seedLocalStorage');
@@ -52,24 +52,24 @@ export async function createTestClient(opts: CreateTestClientOpts) {
   registerInlineCrypto();
 
   step('setEnvironment (stub)');
-  const { setEnvironment } = await import('@environment/utils');
+  const { setEnvironment } = await import('@/environment/utils');
   setEnvironment(buildNodeEnvironmentStub() as any);
 
   step('init MTProtoMessagePort singleton');
-  const MTProtoMessagePort = (await import('@lib/mainWorker/mainMessagePort')).default;
+  const MTProtoMessagePort = (await import('@/lib/mainWorker/mainMessagePort')).default;
 
   new MTProtoMessagePort<false>(false);
 
   step('import managers');
-  const AppStateManager = (await import('@appManagers/appStateManager')).default;
-  const { AppStoragesManager } = await import('@appManagers/appStoragesManager');
-  const createManagers = (await import('@appManagers/createManagers')).default;
+  const AppStateManager = (await import('@/lib/appManagers/appStateManager')).default;
+  const { AppStoragesManager } = await import('@/lib/appManagers/appStoragesManager');
+  const createManagers = (await import('@/lib/appManagers/createManagers')).default;
 
   step('new AppStateManager');
   const stateManager = new AppStateManager(accountNumber);
   stateManager.userId = opts.seed.userId as UserId;
 
-  const { STATE_INIT } = await import('@config/state');
+  const { STATE_INIT } = await import('@/config/state');
   // worker normally hydrates this from the main thread; in node we seed defaults
   (stateManager as any).state = JSON.parse(JSON.stringify(STATE_INIT));
 
@@ -144,7 +144,7 @@ function buildNodeEnvironmentStub() {
 }
 
 async function seedLocalStorage(accountNumber: 1 | 2 | 3 | 4, seed: AccountSeed) {
-  const sessionStorage = (await import('@lib/sessionStorage')).default;
+  const sessionStorage = (await import('@/lib/sessionStorage')).default;
 
   const accountKey = `account${accountNumber}` as const;
   const accountData: any = {

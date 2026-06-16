@@ -1,5 +1,5 @@
-import blobConstruct from '@helpers/blob/blobConstruct';
-import StreamWriter from '@lib/files/streamWriter';
+import blobConstruct from '@/helpers/blob/blobConstruct';
+import StreamWriter from '@/lib/files/streamWriter';
 
 export default class MemoryWriter implements StreamWriter {
   private bytes: Uint8Array;

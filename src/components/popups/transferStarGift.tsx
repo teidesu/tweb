@@ -1,36 +1,36 @@
-import type { MyStarGift } from '@appManagers/appGiftsManager';
-import deferredPromise from '@helpers/cancellablePromise';
-import rootScope from '@lib/rootScope';
-import PopupPayment from '@components/popups/payment';
-import showPickUserPopup from '@components/popups/pickUser';
-import confirmationPopup from '@components/confirmationPopup';
-import { numberThousandSplitterForStars } from '@helpers/number/numberThousandSplitter';
-import { MessageAction, StarGift } from '@layer';
-import { toastNew } from '@components/toast';
-import { wrapFormattedDuration } from '@components/wrappers/wrapDuration';
-import formatDuration from '@helpers/formatDuration';
-import tsNow from '@helpers/tsNow';
-import PopupElementOld from '@components/popups/index';
-import Row from '@components/row';
-import { getCollectibleName } from '@appManagers/utils/gifts/getCollectibleName';
-import { passwordPopup } from '@components/popups/password';
-import safeWindowOpen from '@helpers/dom/safeWindowOpen';
+import type { MyStarGift } from '@/lib/appManagers/appGiftsManager';
+import deferredPromise from '@/helpers/cancellablePromise';
+import rootScope from '@/lib/rootScope';
+import PopupPayment from '@/components/popups/payment';
+import showPickUserPopup from '@/components/popups/pickUser';
+import confirmationPopup from '@/components/confirmationPopup';
+import { numberThousandSplitterForStars } from '@/helpers/number/numberThousandSplitter';
+import { MessageAction, StarGift } from '@/layer';
+import { toastNew } from '@/components/toast';
+import { wrapFormattedDuration } from '@/components/wrappers/wrapDuration';
+import formatDuration from '@/helpers/formatDuration';
+import tsNow from '@/helpers/tsNow';
+import PopupElementOld from '@/components/popups/index';
+import Row from '@/components/row';
+import { getCollectibleName } from '@/lib/appManagers/utils/gifts/getCollectibleName';
+import { passwordPopup } from '@/components/popups/password';
+import safeWindowOpen from '@/helpers/dom/safeWindowOpen';
 import { createMemo, createSignal } from 'solid-js';
-import PopupElement, { createPopup } from '@components/popups/indexTsx';
+import PopupElement, { createPopup } from '@/components/popups/indexTsx';
 
-import styles from '@components/popups/transferStarGift.module.scss'
-import { i18n } from '@lib/langPack';
-import { StarGiftTransferPreview } from '@components/stargifts/transferPreview';
-import { I18nTsx } from '@helpers/solid/i18n';
-import { PeerTitleTsx } from '@components/peerTitleTsx';
-import Table, { TableRow } from '@components/table';
-import { AttributeValue } from '@components/popups/starGiftInfo';
-import paymentsWrapCurrencyAmount, { formatNanoton } from '@helpers/paymentsWrapCurrencyAmount';
-import { FloatingStarsBalance } from '@components/popups/floatingStarsBalance';
-import { doubleRaf } from '@helpers/schedulers';
-import { useAppConfig } from '@stores/appState';
+import styles from '@/components/popups/transferStarGift.module.scss'
+import { i18n } from '@/lib/langPack';
+import { StarGiftTransferPreview } from '@/components/stargifts/transferPreview';
+import { I18nTsx } from '@/helpers/solid/i18n';
+import { PeerTitleTsx } from '@/components/peerTitleTsx';
+import Table, { TableRow } from '@/components/table';
+import { AttributeValue } from '@/components/popups/starGiftInfo';
+import paymentsWrapCurrencyAmount, { formatNanoton } from '@/helpers/paymentsWrapCurrencyAmount';
+import { FloatingStarsBalance } from '@/components/popups/floatingStarsBalance';
+import { doubleRaf } from '@/helpers/schedulers';
+import { useAppConfig } from '@/stores/appState';
 import bigInt from 'big-integer';
-import { STARS_CURRENCY, TON_CURRENCY } from '@appManagers/constants';
+import { STARS_CURRENCY, TON_CURRENCY } from '@/lib/appManagers/constants';
 
 export function transferStarGiftConfirmationPopup(options: {
   gift: MyStarGift,

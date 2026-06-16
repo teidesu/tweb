@@ -1,5 +1,5 @@
-import bytesFromHex from '@helpers/bytes/bytesFromHex';
-import bytesCmp from '@helpers/bytes/bytesCmp';
+import bytesFromHex from '@/helpers/bytes/bytesFromHex';
+import bytesCmp from '@/helpers/bytes/bytesCmp';
 
 function readLengthField(buf: Uint8Array, offset: number) {
   let length = 0;

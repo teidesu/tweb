@@ -1,6 +1,6 @@
 import { JSX, Show } from 'solid-js';
 
-import classNames from '@helpers/string/classNames';
+import classNames from '@/helpers/string/classNames';
 
 import styles from '@/pages/authFlow.module.scss';
 

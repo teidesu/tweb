@@ -1,6 +1,6 @@
-import type { AnyDialog } from '@lib/storages/dialogs';
-import type { MonoforumDialog } from '@lib/storages/monoforumDialogs';
-import type { Dialog, ForumTopic, SavedDialog } from '@appManagers/appMessagesManager';
+import type { AnyDialog } from '@/lib/storages/dialogs';
+import type { MonoforumDialog } from '@/lib/storages/monoforumDialogs';
+import type { Dialog, ForumTopic, SavedDialog } from '@/lib/appManagers/appMessagesManager';
 
 export function isForumTopic(dialog: AnyDialog | MonoforumDialog): dialog is ForumTopic {
   return dialog?._ === 'forumTopic';

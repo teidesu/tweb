@@ -1,12 +1,12 @@
 import PopupElement, { addCancelButton, PopupButton, PopupOptions } from '.';
-import { i18n, LangPackKey } from '@lib/langPack';
-import CheckboxField, { CheckboxFieldOptions } from '@components/checkboxField';
-import setInnerHTML from '@helpers/dom/setInnerHTML';
-import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import { avatarNew } from '@components/avatarNew';
-import toggleDisability from '@helpers/dom/toggleDisability';
-import rootScope from '@lib/rootScope';
-import InputField from '@components/inputField';
+import { i18n, LangPackKey } from '@/lib/langPack';
+import CheckboxField, { CheckboxFieldOptions } from '@/components/checkboxField';
+import setInnerHTML from '@/helpers/dom/setInnerHTML';
+import wrapEmojiText from '@/lib/richTextProcessor/wrapEmojiText';
+import { avatarNew } from '@/components/avatarNew';
+import toggleDisability from '@/helpers/dom/toggleDisability';
+import rootScope from '@/lib/rootScope';
+import InputField from '@/components/inputField';
 
 export type PopupPeerButton = Omit<PopupButton, 'callback'> & Partial<{callback: PopupPeerButtonCallback, onlyWithCheckbox: PopupPeerCheckboxOptions}>;
 export type PopupPeerButtonCallbackCheckboxes = Set<LangPackKey>;

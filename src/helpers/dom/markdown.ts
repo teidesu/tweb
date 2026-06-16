@@ -1,15 +1,15 @@
-import MarkupTooltip from '@components/chat/markupTooltip';
-import { FontFamilyName } from '@config/font';
-import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
-import cancelEvent from '@helpers/dom/cancelEvent';
-import simulateEvent from '@helpers/dom/dispatchEvent';
-import getCharAfterRange from '@helpers/dom/getCharAfterRange';
-import { MarkdownType } from '@helpers/dom/getRichElementValue';
-import getMarkupInSelection from '@helpers/dom/getMarkupInSelection';
-import isSelectionEmpty from '@helpers/dom/isSelectionEmpty';
-import RichInputHandler from '@helpers/dom/richInputHandler';
-import { setDirection } from '@helpers/dom/setInnerHTML';
-import filterUnique from '@helpers/array/filterUnique';
+import MarkupTooltip from '@/components/chat/markupTooltip';
+import { FontFamilyName } from '@/config/font';
+import indexOfAndSplice from '@/helpers/array/indexOfAndSplice';
+import cancelEvent from '@/helpers/dom/cancelEvent';
+import simulateEvent from '@/helpers/dom/dispatchEvent';
+import getCharAfterRange from '@/helpers/dom/getCharAfterRange';
+import { MarkdownType } from '@/helpers/dom/getRichElementValue';
+import getMarkupInSelection from '@/helpers/dom/getMarkupInSelection';
+import isSelectionEmpty from '@/helpers/dom/isSelectionEmpty';
+import RichInputHandler from '@/helpers/dom/richInputHandler';
+import { setDirection } from '@/helpers/dom/setInnerHTML';
+import filterUnique from '@/helpers/array/filterUnique';
 
 const cacheMap = new WeakMap<HTMLElement, MarkdownCache>();
 

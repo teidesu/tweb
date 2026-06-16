@@ -1,8 +1,8 @@
-import { logger, LogTypes } from '@lib/logger';
-import Modes from '@config/modes';
-import EventListenerBase from '@helpers/eventListenerBase';
-import { MTConnection } from '@lib/mtproto/transports/transport';
-import ctx from '@environment/ctx';
+import { logger, LogTypes } from '@/lib/logger';
+import Modes from '@/config/modes';
+import EventListenerBase from '@/helpers/eventListenerBase';
+import { MTConnection } from '@/lib/mtproto/transports/transport';
+import ctx from '@/environment/ctx';
 
 const TEST_NO_WEBSOCKET = false;
 

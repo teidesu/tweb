@@ -1,5 +1,5 @@
-import filterUnique from '@helpers/array/filterUnique';
-import { markdownTags, MarkdownType } from '@helpers/dom/getRichElementValue';
+import filterUnique from '@/helpers/array/filterUnique';
+import { markdownTags, MarkdownType } from '@/helpers/dom/getRichElementValue';
 
 export default function getMarkupInSelection<T extends MarkdownType>(types: T[], ignoreNoContentEditable?: boolean) {
   type ResultByType = {elements: HTMLElement[], fully: boolean, partly: boolean, textLength: number};

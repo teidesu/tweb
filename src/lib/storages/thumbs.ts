@@ -1,13 +1,13 @@
-import type { InputWebFileLocation, WebDocument } from '@layer';
-import type { MyDocument } from '@appManagers/appDocsManager';
-import type { MyPhoto } from '@appManagers/appPhotosManager';
-import { joinDeepPath } from '@helpers/object/setDeepProperty';
-import MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
-import { THUMB_TYPE_FULL } from '@appManagers/constants';
-import generateEmptyThumb from '@lib/storages/utils/thumbs/generateEmptyThumb';
-import getStickerThumbKey from '@lib/storages/utils/thumbs/getStickerThumbKey';
-import getThumbKey from '@lib/storages/utils/thumbs/getThumbKey';
-import { AppManager } from '@appManagers/manager';
+import type { InputWebFileLocation, WebDocument } from '@/layer';
+import type { MyDocument } from '@/lib/appManagers/appDocsManager';
+import type { MyPhoto } from '@/lib/appManagers/appPhotosManager';
+import { joinDeepPath } from '@/helpers/object/setDeepProperty';
+import MTProtoMessagePort from '@/lib/mainWorker/mainMessagePort';
+import { THUMB_TYPE_FULL } from '@/lib/appManagers/constants';
+import generateEmptyThumb from '@/lib/storages/utils/thumbs/generateEmptyThumb';
+import getStickerThumbKey from '@/lib/storages/utils/thumbs/getStickerThumbKey';
+import getThumbKey from '@/lib/storages/utils/thumbs/getThumbKey';
+import { AppManager } from '@/lib/appManagers/manager';
 
 export type ThumbCache = {
   downloaded: number,

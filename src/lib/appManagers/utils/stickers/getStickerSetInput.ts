@@ -1,5 +1,5 @@
-import { InputStickerSet, StickerSet } from '@layer';
-import { STICKERS_LOCAL_IDS_SET, STICKER_LOCAL_SET_ID, STICKER_LOCAL_SET_INPUT } from '@lib/appManagers/utils/stickers/constants';
+import { InputStickerSet, StickerSet } from '@/layer';
+import { STICKERS_LOCAL_IDS_SET, STICKER_LOCAL_SET_ID, STICKER_LOCAL_SET_INPUT } from '@/lib/appManagers/utils/stickers/constants';
 
 export function getStickerSetInputByLocalId(localId: STICKER_LOCAL_SET_ID): STICKER_LOCAL_SET_INPUT {
   return {

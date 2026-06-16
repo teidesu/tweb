@@ -1,14 +1,14 @@
 import { onMount } from 'solid-js';
-import type { StateSettings } from '@config/state';
-import flatten from '@helpers/array/flatten';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import { LiteModeKey } from '@helpers/liteMode';
-import pause from '@helpers/schedulers/pause';
-import CheckboxFields, { CheckboxFieldsField } from '@components/checkboxFields';
-import Section from '@components/section';
-import { toastNew } from '@components/toast';
-import { useAppSettings } from '@stores/appSettings';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
+import type { StateSettings } from '@/config/state';
+import flatten from '@/helpers/array/flatten';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import { LiteModeKey } from '@/helpers/liteMode';
+import pause from '@/helpers/schedulers/pause';
+import CheckboxFields, { CheckboxFieldsField } from '@/components/checkboxFields';
+import Section from '@/components/section';
+import { toastNew } from '@/components/toast';
+import { useAppSettings } from '@/stores/appSettings';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
 
 type PowerSavingCheckboxFieldsField = CheckboxFieldsField & {
   key: LiteModeKey

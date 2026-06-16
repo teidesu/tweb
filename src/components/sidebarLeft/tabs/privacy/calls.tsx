@@ -1,6 +1,6 @@
 import privacyTab from './privacyTab';
-import PrivacySection from '@components/privacySection';
-import { LangPackKey } from '@lib/langPack';
+import PrivacySection from '@/components/privacySection';
+import { LangPackKey } from '@/lib/langPack';
 
 const callCaption: LangPackKey = 'PrivacySettingsController.PhoneCallDescription';
 const p2pCaption: LangPackKey = 'PrivacySettingsController.P2p.Desc';

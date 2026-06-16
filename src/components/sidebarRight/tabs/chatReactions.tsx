@@ -1,14 +1,14 @@
 import { Component, createSignal, onMount } from 'solid-js';
-import debounce from '@helpers/schedulers/debounce';
-import { ChatReactions, Reaction } from '@layer';
-import { LangPackKey } from '@lib/langPack';
-import CheckboxField from '@components/checkboxField';
-import Row, { RadioFormFromValues } from '@components/row';
-import Section from '@components/section';
-import wrapStickerToRow from '@components/wrappers/stickerToRow';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
-import type { AppChatReactionsTab } from '@components/solidJsTabs/tabs';
+import debounce from '@/helpers/schedulers/debounce';
+import { ChatReactions, Reaction } from '@/layer';
+import { LangPackKey } from '@/lib/langPack';
+import CheckboxField from '@/components/checkboxField';
+import Row, { RadioFormFromValues } from '@/components/row';
+import Section from '@/components/section';
+import wrapStickerToRow from '@/components/wrappers/stickerToRow';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@/components/solidJsTabs/promiseCollector';
+import type { AppChatReactionsTab } from '@/components/solidJsTabs/tabs';
 
 const ChatReactionsTab: Component = () => {
   const [tab] = useSuperTab<typeof AppChatReactionsTab>();

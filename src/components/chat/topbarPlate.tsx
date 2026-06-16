@@ -25,10 +25,10 @@
 
 import { Accessor, createContext, createSignal, JSX, onCleanup, Ref, useContext } from 'solid-js';
 import { render } from 'solid-js/web';
-import classNames from '@helpers/string/classNames';
-import ripple from '@components/ripple';
-import Button from '@components/buttonTsx';
-import RippleElement from '@components/rippleElement';
+import classNames from '@/helpers/string/classNames';
+import ripple from '@/components/ripple';
+import Button from '@/components/buttonTsx';
+import RippleElement from '@/components/rippleElement';
 
 const BASE = 'pinned-container';
 

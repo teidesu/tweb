@@ -1,8 +1,8 @@
 import { JSX, splitProps } from 'solid-js';
 
-import styles from '@components/staticSwitch.module.scss';
+import styles from '@/components/staticSwitch.module.scss';
 import { IconTsx, IconTsxProps } from './iconTsx';
-import classNames from '@helpers/string/classNames';
+import classNames from '@/helpers/string/classNames';
 
 const StaticSwitch = (props: {
   checked?: boolean;

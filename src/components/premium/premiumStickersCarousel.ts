@@ -1,11 +1,11 @@
-import { AppManagers } from '@lib/managers';
-import LazyLoadQueue from '@components/lazyLoadQueue';
-import SuperStickerRenderer from '@components/emoticonsDropdown/tabs/SuperStickerRenderer';
-import { getMiddleware, MiddlewareHelper } from '@helpers/middleware';
-import wrapStickerAnimation from '@components/wrappers/stickerAnimation';
-import getStickerEffectThumb from '@appManagers/utils/stickers/getStickerEffectThumb';
-import { STICKER_EFFECT_MULTIPLIER } from '@components/wrappers/sticker';
-import { Document } from '@layer';
+import { AppManagers } from '@/lib/managers';
+import LazyLoadQueue from '@/components/lazyLoadQueue';
+import SuperStickerRenderer from '@/components/emoticonsDropdown/tabs/SuperStickerRenderer';
+import { getMiddleware, MiddlewareHelper } from '@/helpers/middleware';
+import wrapStickerAnimation from '@/components/wrappers/stickerAnimation';
+import getStickerEffectThumb from '@/lib/appManagers/utils/stickers/getStickerEffectThumb';
+import { STICKER_EFFECT_MULTIPLIER } from '@/components/wrappers/sticker';
+import { Document } from '@/layer';
 
 export default class PremiumStickersCarousel {
   private superStickerRenderer: SuperStickerRenderer;

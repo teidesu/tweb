@@ -1,6 +1,6 @@
 import { PASS_CONFLICTING_ENTITIES, PASS_SINGLE_CONFLICTING_ENTITIES, PASS_SINGLE_CONFLICTING_ENTITIES_WITH_QUOTE, SINGLE_ENTITIES } from '.';
-import { MessageEntity } from '@layer';
-import isEntityIntersecting from '@lib/richTextProcessor/isEntityIntersecting';
+import { MessageEntity } from '@/layer';
+import isEntityIntersecting from '@/lib/richTextProcessor/isEntityIntersecting';
 
 export default function findConflictingEntity(
   currentEntities: MessageEntity[],

@@ -1,8 +1,8 @@
-import { MediaEditorFinalResult } from '@components/mediaEditor/finalRender/createFinalResult';
-import IMAGE_MIME_TYPES_SUPPORTED from '@environment/imageMimeTypesSupport';
-import VIDEO_MIME_TYPES_SUPPORTED from '@environment/videoMimeTypesSupport';
-import { createImageAndURLFromBlob } from '@helpers/createImageAndURLFromBlob';
-import rootScope from '@lib/rootScope';
+import { MediaEditorFinalResult } from '@/components/mediaEditor/finalRender/createFinalResult';
+import IMAGE_MIME_TYPES_SUPPORTED from '@/environment/imageMimeTypesSupport';
+import VIDEO_MIME_TYPES_SUPPORTED from '@/environment/videoMimeTypesSupport';
+import { createImageAndURLFromBlob } from '@/helpers/createImageAndURLFromBlob';
+import rootScope from '@/lib/rootScope';
 
 
 type OnFinishArgs = {
@@ -64,7 +64,7 @@ export async function getFileAndOpenEditor({
     mediaSrc = imgResult.url;
   }
 
-  const { openMediaEditorFromMediaRaw } = await import('@components/mediaEditor');
+  const { openMediaEditorFromMediaRaw } = await import('@/components/mediaEditor');
 
   openMediaEditorFromMediaRaw({
     isEditingForAvatar,

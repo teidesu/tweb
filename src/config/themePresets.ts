@@ -10,8 +10,8 @@
  * separate "no preset" choice.
  */
 
-import type { BaseTheme, ThemeSettings, WallPaper } from '@layer';
-import { hsvToRgb, rgbToHsv } from '@helpers/color';
+import type { BaseTheme, ThemeSettings, WallPaper } from '@/layer';
+import { hsvToRgb, rgbToHsv } from '@/helpers/color';
 
 export type AccentPresetWallpaper = {
   intensity: number,            // 1..100; sign is derived from `dark`

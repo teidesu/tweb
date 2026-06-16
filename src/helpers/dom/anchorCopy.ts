@@ -1,8 +1,8 @@
-import { toastNew } from '@components/toast';
-import { LangPackKey } from '@lib/langPack';
-import { copyTextToClipboard } from '@helpers/clipboard';
-import cancelEvent from '@helpers/dom/cancelEvent';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
+import { toastNew } from '@/components/toast';
+import { LangPackKey } from '@/lib/langPack';
+import { copyTextToClipboard } from '@/helpers/clipboard';
+import cancelEvent from '@/helpers/dom/cancelEvent';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
 
 const T_ME = 'https://t.me/';
 export default function anchorCopy(options: Partial<{

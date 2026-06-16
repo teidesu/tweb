@@ -16,15 +16,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Stub the e2e worker host so importing GroupCallInstance (→ groupCallsController
 // → encryptWorkerHost → `?worker`) doesn't try to spawn a real Web Worker.
-vi.mock('@lib/calls/e2e/encryptWorkerHost', () => {
+vi.mock('@/lib/calls/e2e/encryptWorkerHost', () => {
   class EncryptWorkerHost {
     public async terminate(): Promise<void> {}
   }
   return { EncryptWorkerHost };
 });
 
-import GroupCallInstance from '@lib/calls/groupCallInstance';
-import { AppGroupCallsManager } from '@lib/appManagers/appGroupCallsManager';
+import GroupCallInstance from '@/lib/calls/groupCallInstance';
+import { AppGroupCallsManager } from '@/lib/appManagers/appGroupCallsManager';
 
 const FAKE_CALL = { _: 'groupCall', id: '777', access_hash: '888' } as any;
 

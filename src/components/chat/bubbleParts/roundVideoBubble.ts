@@ -1,18 +1,18 @@
-import { animateValue, simpleEasing } from '@helpers/animateValue';
-import createElementFromMarkup from '@helpers/createElementFromMarkup';
-import anchorCallback from '@helpers/dom/anchorCallback';
-import { lerp } from '@helpers/lerp';
-import { doubleRaf } from '@helpers/schedulers';
-import pause from '@helpers/schedulers/pause';
-import { Message } from '@layer';
-import { i18n } from '@lib/langPack';
-import rootScope from '@lib/rootScope';
-import appMediaPlaybackController, { MediaSearchContext } from '@components/appMediaPlaybackController';
-import Icon from '@components/icon';
-import PopupPremium from '@components/popups/premium';
-import { hideToast, toastNew } from '@components/toast';
-import wrapDocument from '@components/wrappers/document';
-import { SpinnerElement } from '@components/spinner';
+import { animateValue, simpleEasing } from '@/helpers/animateValue';
+import createElementFromMarkup from '@/helpers/createElementFromMarkup';
+import anchorCallback from '@/helpers/dom/anchorCallback';
+import { lerp } from '@/helpers/lerp';
+import { doubleRaf } from '@/helpers/schedulers';
+import pause from '@/helpers/schedulers/pause';
+import { Message } from '@/layer';
+import { i18n } from '@/lib/langPack';
+import rootScope from '@/lib/rootScope';
+import appMediaPlaybackController, { MediaSearchContext } from '@/components/appMediaPlaybackController';
+import Icon from '@/components/icon';
+import PopupPremium from '@/components/popups/premium';
+import { hideToast, toastNew } from '@/components/toast';
+import wrapDocument from '@/components/wrappers/document';
+import { SpinnerElement } from '@/components/spinner';
 
 
 type WrapRoundVideoBubbleOptions = {

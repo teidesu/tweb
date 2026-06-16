@@ -1,5 +1,5 @@
-import pause from '@helpers/schedulers/pause';
-import textToSvgURL from '@helpers/textToSvgURL';
+import pause from '@/helpers/schedulers/pause';
+import textToSvgURL from '@/helpers/textToSvgURL';
 
 /**
  * Builds a Telegram-styled QR canvas for `data` using the supplied palette.

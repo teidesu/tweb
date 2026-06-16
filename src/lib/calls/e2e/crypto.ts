@@ -11,7 +11,7 @@
 
 import aesjs from 'aes-js';
 import sodium from 'libsodium-wrappers';
-import subtle from '@lib/crypto/subtle';
+import subtle from '@/lib/crypto/subtle';
 
 let sodiumReady: Promise<void> | undefined;
 

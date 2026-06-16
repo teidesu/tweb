@@ -1,6 +1,6 @@
 import { render } from 'solid-js/web';
 
-import { AuthState } from '@types';
+import { AuthState } from '@/types';
 
 import AuthCardsHost from '@/pages/AuthCardsHost';
 import { CardSpec, navigateAuth } from '@/pages/authFlow';

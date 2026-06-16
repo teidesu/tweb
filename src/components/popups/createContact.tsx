@@ -1,13 +1,13 @@
-import PopupElement, { createPopup, PopupContext } from '@components/popups/indexTsx';
+import PopupElement, { createPopup, PopupContext } from '@/components/popups/indexTsx';
 import { createSignal, onCleanup, onMount, untrack, useContext } from 'solid-js';
-import InputField from '@components/inputField';
-import TelInputField from '@components/telInputField';
-import EditPeer from '@components/editPeer';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import { formatPhoneNumber } from '@helpers/formatPhoneNumber';
-import { toastNew } from '@components/toast';
-import { i18n } from '@lib/langPack';
-import ListenerSetter from '@helpers/listenerSetter';
+import InputField from '@/components/inputField';
+import TelInputField from '@/components/telInputField';
+import EditPeer from '@/components/editPeer';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import { formatPhoneNumber } from '@/helpers/formatPhoneNumber';
+import { toastNew } from '@/components/toast';
+import { i18n } from '@/lib/langPack';
+import ListenerSetter from '@/helpers/listenerSetter';
 
 export default function showCreateContactPopup(): void {
   function Inner() {

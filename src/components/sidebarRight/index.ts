@@ -1,15 +1,15 @@
-import appImManager, { APP_TABS } from '@lib/appImManager';
-import SidebarSlider, { SliderSuperTab } from '@components/slider';
-import mediaSizes, { ScreenSize } from '@helpers/mediaSizes';
-import AppSharedMediaTab from '@components/sidebarRight/tabs/sharedMediaTab';
-import AppEmoticonsTab from '@components/sidebarRight/tabs/emoticons';
-import { MOUNT_CLASS_TO } from '@config/debug';
-import { AppManagers } from '@lib/managers';
-import appNavigationController from '@components/appNavigationController';
-import rootScope from '@lib/rootScope';
-import { installColumnWidthsUpdater, isRightColumnFloating } from '@helpers/updateColumnWidths';
-import installColumnResize from '@helpers/installColumnResize';
-import { setAppSettings } from '@stores/appSettings';
+import appImManager, { APP_TABS } from '@/lib/appImManager';
+import SidebarSlider, { SliderSuperTab } from '@/components/slider';
+import mediaSizes, { ScreenSize } from '@/helpers/mediaSizes';
+import AppSharedMediaTab from '@/components/sidebarRight/tabs/sharedMediaTab';
+import AppEmoticonsTab from '@/components/sidebarRight/tabs/emoticons';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import { AppManagers } from '@/lib/managers';
+import appNavigationController from '@/components/appNavigationController';
+import rootScope from '@/lib/rootScope';
+import { installColumnWidthsUpdater, isRightColumnFloating } from '@/helpers/updateColumnWidths';
+import installColumnResize from '@/helpers/installColumnResize';
+import { setAppSettings } from '@/stores/appSettings';
 
 
 export const RIGHT_COLUMN_ACTIVE_CLASSNAME = 'is-right-column-shown';

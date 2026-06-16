@@ -1,7 +1,7 @@
-import { IconTsx } from '@components/iconTsx';
-import styles from '@components/sidebarRight/tabs/adminRecentActions/logEntry.module.scss';
-import { formatDate } from '@helpers/date';
-import { HeightTransition } from '@helpers/solid/heightTransition';
+import { IconTsx } from '@/components/iconTsx';
+import styles from '@/components/sidebarRight/tabs/adminRecentActions/logEntry.module.scss';
+import { formatDate } from '@/helpers/date';
+import { HeightTransition } from '@/helpers/solid/heightTransition';
 import { createSignal, JSX, Show } from 'solid-js';
 
 

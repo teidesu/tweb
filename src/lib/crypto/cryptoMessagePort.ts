@@ -1,8 +1,8 @@
-import { CryptoMethods } from '@lib/crypto/cryptoMethodsRegistry';
-import SuperMessagePort from '@lib/superMessagePort';
-import { MOUNT_CLASS_TO } from '@config/debug';
-import { IS_WORKER } from '@helpers/context';
-import type { ThreadedWorkerEvents } from '@lib/mainWorker/mainMessagePort';
+import { CryptoMethods } from '@/lib/crypto/cryptoMethodsRegistry';
+import SuperMessagePort from '@/lib/superMessagePort';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import { IS_WORKER } from '@/helpers/context';
+import type { ThreadedWorkerEvents } from '@/lib/mainWorker/mainMessagePort';
 
 
 type CryptoEvent = {

@@ -1,6 +1,6 @@
-import TDrag from '@lib/tchart/drag';
-import { isTouchDevice } from '@lib/tchart/utils';
-import { TChartUnitOptions } from '@lib/tchart/types';
+import TDrag from '@/lib/tchart/drag';
+import { isTouchDevice } from '@/lib/tchart/utils';
+import { TChartUnitOptions } from '@/lib/tchart/types';
 
 export default class TSwitchers {
   private opts: TChartUnitOptions;

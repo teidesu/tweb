@@ -1,5 +1,5 @@
-import { InputPhoto } from '@layer';
-import { MyPhoto } from '@appManagers/appPhotosManager';
+import { InputPhoto } from '@/layer';
+import { MyPhoto } from '@/lib/appManagers/appPhotosManager';
 
 export default function getPhotoInput(photo: MyPhoto): InputPhoto.inputPhoto {
   return {

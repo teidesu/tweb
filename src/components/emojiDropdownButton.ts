@@ -1,14 +1,14 @@
-import { MessageEntity } from '@layer';
-import getEmojiEntityFromEmoji from '@lib/richTextProcessor/getEmojiEntityFromEmoji';
-import rootScope from '@lib/rootScope';
-import { EmoticonsDropdown } from '@components/emoticonsDropdown';
-import EmojiTab from '@components/emoticonsDropdown/tabs/emoji';
-import InputField, { insertRichTextAsHTML } from '@components/inputField';
+import { MessageEntity } from '@/layer';
+import getEmojiEntityFromEmoji from '@/lib/richTextProcessor/getEmojiEntityFromEmoji';
+import rootScope from '@/lib/rootScope';
+import { EmoticonsDropdown } from '@/components/emoticonsDropdown';
+import EmojiTab from '@/components/emoticonsDropdown/tabs/emoji';
+import InputField, { insertRichTextAsHTML } from '@/components/inputField';
 
-import styles from '@components/emojiDropdownButton.module.scss';
-import Button from '@components/buttonTsx';
+import styles from '@/components/emojiDropdownButton.module.scss';
+import Button from '@/components/buttonTsx';
 import { createRoot, onCleanup } from 'solid-js';
-import createListenerSetter from '@helpers/solid/createListenerSetter';
+import createListenerSetter from '@/helpers/solid/createListenerSetter';
 
 const createEmojiDropdownButton = ({
   inputField,

@@ -1,10 +1,10 @@
 import { render } from 'solid-js/web';
-import SidebarSlider, { SliderSuperTab } from '@components/slider';
-import rootScope from '@lib/rootScope';
-import AppSearchSuper, { SearchSuperMediaType } from '@components/appSearchSuper';
-import SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
-import { PromiseCollector } from '@components/solidJsTabs/promiseCollector';
-import { SuperTabProvider } from '@components/solidJsTabs/superTabProvider';
+import SidebarSlider, { SliderSuperTab } from '@/components/slider';
+import rootScope from '@/lib/rootScope';
+import AppSearchSuper, { SearchSuperMediaType } from '@/components/appSearchSuper';
+import SolidJSHotReloadGuardProvider from '@/lib/solidjs/hotReloadGuardProvider';
+import { PromiseCollector } from '@/components/solidJsTabs/promiseCollector';
+import { SuperTabProvider } from '@/components/solidJsTabs/superTabProvider';
 
 export type SharedMediaImpl = {
   setQuery: () => void;

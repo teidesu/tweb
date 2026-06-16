@@ -1,6 +1,6 @@
-import type ListenerSetter from '@helpers/listenerSetter';
-import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import simulateEvent from '@helpers/dom/dispatchEvent';
+import type ListenerSetter from '@/helpers/listenerSetter';
+import IS_TOUCH_SUPPORTED from '@/environment/touchSupport';
+import simulateEvent from '@/helpers/dom/dispatchEvent';
 
 let lastMouseDownElement: HTMLElement;
 document.addEventListener('mousedown', (e) => {

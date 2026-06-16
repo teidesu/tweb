@@ -15,7 +15,7 @@ describe.runIf(enabled)('paid media gif sending', () => {
   const setup = async() => {
     const seed: AccountSeed = JSON.parse(readFileSync(process.env.TG_API_SEED || './tmp/seed.json', 'utf8'));
     const client = await createTestClient({ seed, accountNumber: 1, testDc: false });
-    const { getEnvironment } = await import('@environment/utils');
+    const { getEnvironment } = await import('@/environment/utils');
     getEnvironment().VIDEO_MIME_TYPES_SUPPORTED.add('video/mp4' as any);
 
     const managers = client.managers as any;

@@ -1,9 +1,9 @@
-import readBlobAsUint8Array from '@helpers/blob/readBlobAsUint8Array';
-import { ActiveAccountNumber } from '@lib/accounts/types';
-import CacheStorageController from '@lib/files/cacheStorage';
-import { RequestSynchronizer } from '@lib/hls/requestSynchronizer';
-import { StreamFetchingRange } from '@lib/hls/splitRangeForGettingFileParts';
-import { serviceMessagePort } from '@lib/serviceWorker/index.service';
+import readBlobAsUint8Array from '@/helpers/blob/readBlobAsUint8Array';
+import { ActiveAccountNumber } from '@/lib/accounts/types';
+import CacheStorageController from '@/lib/files/cacheStorage';
+import { RequestSynchronizer } from '@/lib/hls/requestSynchronizer';
+import { StreamFetchingRange } from '@/lib/hls/splitRangeForGettingFileParts';
+import { serviceMessagePort } from '@/lib/serviceWorker/index.service';
 
 
 type RequestFilePartIdentificationParams = {

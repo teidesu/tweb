@@ -1,4 +1,4 @@
-import { ChannelParticipant, ChatParticipant } from '@layer';
+import { ChannelParticipant, ChatParticipant } from '@/layer';
 
 export const participantCreatorPredicates: Set<(ChannelParticipant | ChatParticipant)['_']> = new Set([
   'channelParticipantCreator',

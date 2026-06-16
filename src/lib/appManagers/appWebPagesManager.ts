@@ -5,11 +5,11 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import { ReferenceContext } from '@lib/storages/references';
-import { Document, Photo, WebPage } from '@layer';
-import safeReplaceObject from '@helpers/object/safeReplaceObject';
-import { AppManager } from '@appManagers/manager';
-import findAndSplice from '@helpers/array/findAndSplice';
+import { ReferenceContext } from '@/lib/storages/references';
+import { Document, Photo, WebPage } from '@/layer';
+import safeReplaceObject from '@/helpers/object/safeReplaceObject';
+import { AppManager } from '@/lib/appManagers/manager';
+import findAndSplice from '@/helpers/array/findAndSplice';
 import { isTruthy } from '../../helpers/isTruthy';
 
 const photoTypeSet = new Set(['photo', 'video', 'gif', 'document']);

@@ -1,6 +1,6 @@
 import { createRoot, createSignal } from 'solid-js';
-import type { CancellablePromise } from '@helpers/cancellablePromise';
-import type { InputFile } from '@layer';
+import type { CancellablePromise } from '@/helpers/cancellablePromise';
+import type { InputFile } from '@/layer';
 
 // Tracks in-flight profile-photo uploads per peer so the big collapsible
 // profile avatar (PeerProfileAvatars) can show a cancellable progress ring and

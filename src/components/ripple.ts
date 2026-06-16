@@ -1,9 +1,9 @@
-import findUpClassName from '@helpers/dom/findUpClassName';
-import sequentialDom from '@helpers/sequentialDom';
-import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import findUpAsChild from '@helpers/dom/findUpAsChild';
-import { fastRaf } from '@helpers/schedulers';
-import liteMode from '@helpers/liteMode';
+import findUpClassName from '@/helpers/dom/findUpClassName';
+import sequentialDom from '@/helpers/sequentialDom';
+import IS_TOUCH_SUPPORTED from '@/environment/touchSupport';
+import findUpAsChild from '@/helpers/dom/findUpAsChild';
+import { fastRaf } from '@/helpers/schedulers';
+import liteMode from '@/helpers/liteMode';
 import { Accessor, createRenderEffect, onCleanup } from 'solid-js';
 
 

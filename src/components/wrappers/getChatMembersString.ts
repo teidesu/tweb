@@ -1,10 +1,10 @@
-import callbackify from '@helpers/callbackify';
-import numberThousandSplitter from '@helpers/number/numberThousandSplitter';
-import { Chat, ChatFull } from '@layer';
-import getParticipantsCount from '@appManagers/utils/chats/getParticipantsCount';
-import { i18n, LangPackKey } from '@lib/langPack';
-import apiManagerProxy from '@lib/apiManagerProxy';
-import rootScope from '@lib/rootScope';
+import callbackify from '@/helpers/callbackify';
+import numberThousandSplitter from '@/helpers/number/numberThousandSplitter';
+import { Chat, ChatFull } from '@/layer';
+import getParticipantsCount from '@/lib/appManagers/utils/chats/getParticipantsCount';
+import { i18n, LangPackKey } from '@/lib/langPack';
+import apiManagerProxy from '@/lib/apiManagerProxy';
+import rootScope from '@/lib/rootScope';
 
 function _getChatMembersString(chat: Chat, chatFull: ChatFull) {
   let count: number;

@@ -1,5 +1,5 @@
 import { fastRafPromise } from './schedulers';
-import { IS_PREVIEW } from '@config/debug';
+import { IS_PREVIEW } from '@/config/debug';
 
 /**
   * There is a edge-case bug that occurs when:

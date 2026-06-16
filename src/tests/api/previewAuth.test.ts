@@ -57,7 +57,7 @@ function extractLoginCode(text: string, codeLength: number): string | undefined 
  * harness into a genuine "logged out" state. Returns a restore function.
  */
 async function muteManagerStorm(): Promise<() => void> {
-  const { ApiManager } = await import('@appManagers/apiManager');
+  const { ApiManager } = await import('@/lib/appManagers/apiManager');
   const proto: any = ApiManager.prototype;
 
   const allowed = (method: string) =>
@@ -127,7 +127,7 @@ describeOrSkip('preview auth', () => {
       const freshSeed: AccountSeed = { userId: seed.userId, dcId: seed.dcId, authKeys: {} };
       const fresh = await createTestClient({ seed: freshSeed, testDc, accountNumber: 2 });
 
-      const App = (await import('@config/app')).default;
+      const App = (await import('@/config/app')).default;
       const sentCode: any = await fresh.apiManager.invokeApi('auth.sendCode', {
         phone_number: phone,
         api_id: App.id,
@@ -183,7 +183,7 @@ describeOrSkip('preview auth', () => {
       expect(String(auth.user?.id)).toBe(String(seed.userId));
 
       // ---- Phase 3: verify independence ----
-      const sessionStorage = (await import('@lib/sessionStorage')).default;
+      const sessionStorage = (await import('@/lib/sessionStorage')).default;
       const account2: any = await sessionStorage.get('account2' as any);
       const newKey: string = account2?.[`dc${homeDc}_auth_key`];
       const seedKey = seed.authKeys[homeDc]?.key;

@@ -1,16 +1,16 @@
 import { Component } from 'solid-js';
 import { render } from 'solid-js/web';
-import appDialogsManager from '@lib/appDialogsManager';
-import { FOLDER_ID_ARCHIVE, REAL_FOLDER_ID } from '@appManagers/constants';
-import StoriesList from '@components/stories/list';
-import { AutonomousDialogList } from '@components/autonomousDialogList/dialogs';
-import ButtonMenuToggle from '@components/buttonMenuToggle';
-import { getArchiveContextMenuButtons } from '@components/archiveDialogContextMenu';
-import { fastSmoothScrollToStart } from '@helpers/fastSmoothScroll';
-import { i18n } from '@lib/langPack';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
-import type { AppArchivedTab } from '@components/solidJsTabs/tabs';
+import appDialogsManager from '@/lib/appDialogsManager';
+import { FOLDER_ID_ARCHIVE, REAL_FOLDER_ID } from '@/lib/appManagers/constants';
+import StoriesList from '@/components/stories/list';
+import { AutonomousDialogList } from '@/components/autonomousDialogList/dialogs';
+import ButtonMenuToggle from '@/components/buttonMenuToggle';
+import { getArchiveContextMenuButtons } from '@/components/archiveDialogContextMenu';
+import { fastSmoothScrollToStart } from '@/helpers/fastSmoothScroll';
+import { i18n } from '@/lib/langPack';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@/components/solidJsTabs/promiseCollector';
+import type { AppArchivedTab } from '@/components/solidJsTabs/tabs';
 
 const ArchivedTab: Component = () => {
   const [tab] = useSuperTab<typeof AppArchivedTab>();

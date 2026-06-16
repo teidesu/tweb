@@ -6,8 +6,8 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { AppGroupCallsManager } from '@appManagers/appGroupCallsManager';
-import { DataJSON, Updates, Update, GroupCall } from '@layer';
+import { AppGroupCallsManager } from '@/lib/appManagers/appGroupCallsManager';
+import { DataJSON, Updates, Update, GroupCall } from '@/layer';
 
 type JoinOptions = Parameters<AppGroupCallsManager['joinGroupCall']>[2];
 

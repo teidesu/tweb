@@ -1,5 +1,5 @@
-import PopupElement from '@components/popups';
-import SuggestedPostRejectPopupContent from '@components/chat/bubbleParts/suggestedPostRejectPopup/content';
+import PopupElement from '@/components/popups';
+import SuggestedPostRejectPopupContent from '@/components/chat/bubbleParts/suggestedPostRejectPopup/content';
 
 
 type Args = {

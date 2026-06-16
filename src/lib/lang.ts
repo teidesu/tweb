@@ -1,5 +1,5 @@
-import { MessageAction } from '@layer';
-import { FormatterArgument, LangPackKey } from '@lib/langPack';
+import { MessageAction } from '@/layer';
+import { FormatterArgument, LangPackKey } from '@/lib/langPack';
 
 type Result = {
   langPackKey: LangPackKey;

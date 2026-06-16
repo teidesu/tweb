@@ -1,4 +1,4 @@
-import { Layouter, RectPart } from '@components/groupedLayout';
+import { Layouter, RectPart } from '@/components/groupedLayout';
 
 export default function prepareAlbum(options: {
   container: HTMLElement,

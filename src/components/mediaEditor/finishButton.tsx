@@ -1,8 +1,8 @@
 import { onMount } from 'solid-js';
 
-import ripple from '@components/ripple';
+import ripple from '@/components/ripple';
 
-import { useMediaEditorContext } from '@components/mediaEditor/context';
+import { useMediaEditorContext } from '@/components/mediaEditor/context';
 
 
 export default function FinishButton(props: {onClick: () => void}) {

@@ -1,8 +1,8 @@
-import formatBytes from '@helpers/formatBytes';
-import debounce from '@helpers/schedulers/debounce';
-import I18n, { LangPackKey, _i18n } from '@lib/langPack';
-import { useAppSettings } from '@stores/appSettings';
-import RangeSelector from '@components/rangeSelector';
+import formatBytes from '@/helpers/formatBytes';
+import debounce from '@/helpers/schedulers/debounce';
+import I18n, { LangPackKey, _i18n } from '@/lib/langPack';
+import { useAppSettings } from '@/stores/appSettings';
+import RangeSelector from '@/components/rangeSelector';
 import autoDownloadTab from './autoDownloadTab';
 import { autoDownloadPeerTypeSection } from './peerTypeSection';
 

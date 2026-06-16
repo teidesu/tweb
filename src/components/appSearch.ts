@@ -1,14 +1,14 @@
-import appDialogsManager, { AppDialogsManager } from '@lib/appDialogsManager';
-import Scrollable from '@components/scrollable';
-import InputSearch from '@components/inputSearch';
-import replaceContent from '@helpers/dom/replaceContent';
-import { i18n } from '@lib/langPack';
-import rootScope from '@lib/rootScope';
-import { Middleware, MiddlewareHelper } from '@helpers/middleware';
-import getPeerId from '@appManagers/utils/peers/getPeerId';
-import { Message } from '@layer';
-import apiManagerProxy from '@lib/apiManagerProxy';
-import type { SearchGroup, SearchGroupType } from '@components/searchGroup';
+import appDialogsManager, { AppDialogsManager } from '@/lib/appDialogsManager';
+import Scrollable from '@/components/scrollable';
+import InputSearch from '@/components/inputSearch';
+import replaceContent from '@/helpers/dom/replaceContent';
+import { i18n } from '@/lib/langPack';
+import rootScope from '@/lib/rootScope';
+import { Middleware, MiddlewareHelper } from '@/helpers/middleware';
+import getPeerId from '@/lib/appManagers/utils/peers/getPeerId';
+import { Message } from '@/layer';
+import apiManagerProxy from '@/lib/apiManagerProxy';
+import type { SearchGroup, SearchGroupType } from '@/components/searchGroup';
 
 export type { SearchGroup, SearchGroupType };
 

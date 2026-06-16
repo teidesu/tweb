@@ -1,14 +1,14 @@
-import contextMenuController from '@helpers/contextMenuController';
-import { attachContextMenuListener } from '@helpers/dom/attachContextMenuListener';
-import cancelEvent from '@helpers/dom/cancelEvent';
-import ListenerSetter from '@helpers/listenerSetter';
-import { getMiddleware, Middleware, MiddlewareHelper } from '@helpers/middleware';
-import { Reaction } from '@layer';
-import rootScope from '@lib/rootScope';
-import { ButtonMenuItemOptionsVerifiable, ButtonMenuSync } from '@components/buttonMenu';
-import PopupPremium from '@components/popups/premium';
-import ChatContextMenu from '@components/chat/contextMenu';
-import { ChatReactionsMenu } from '@components/chat/reactionsMenu';
+import contextMenuController from '@/helpers/contextMenuController';
+import { attachContextMenuListener } from '@/helpers/dom/attachContextMenuListener';
+import cancelEvent from '@/helpers/dom/cancelEvent';
+import ListenerSetter from '@/helpers/listenerSetter';
+import { getMiddleware, Middleware, MiddlewareHelper } from '@/helpers/middleware';
+import { Reaction } from '@/layer';
+import rootScope from '@/lib/rootScope';
+import { ButtonMenuItemOptionsVerifiable, ButtonMenuSync } from '@/components/buttonMenu';
+import PopupPremium from '@/components/popups/premium';
+import ChatContextMenu from '@/components/chat/contextMenu';
+import { ChatReactionsMenu } from '@/components/chat/reactionsMenu';
 
 export default class SendMenu {
   private type: 'schedule' | 'reminder';

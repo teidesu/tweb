@@ -1,4 +1,4 @@
-import { MessageEntity } from '@layer';
+import { MessageEntity } from '@/layer';
 
 export default function fixEmoji(text: string, entities?: MessageEntity[]) {
   /* if(!IS_EMOJI_SUPPORTED) {

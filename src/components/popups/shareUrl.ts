@@ -1,10 +1,10 @@
-import rootScope from '@lib/rootScope';
-import { LangPackKey } from '@lib/langPack';
-import { toastNew } from '@components/toast';
-import wrapPeerTitle from '@components/wrappers/peerTitle';
-import appImManager from '@lib/appImManager';
-import PaidMessagesInterceptor, { PAYMENT_REJECTED } from '@components/chat/paidMessagesInterceptor';
-import { showSharingPickerPopup } from '@components/popups/pickUser';
+import rootScope from '@/lib/rootScope';
+import { LangPackKey } from '@/lib/langPack';
+import { toastNew } from '@/components/toast';
+import wrapPeerTitle from '@/components/wrappers/peerTitle';
+import appImManager from '@/lib/appImManager';
+import PaidMessagesInterceptor, { PAYMENT_REJECTED } from '@/components/chat/paidMessagesInterceptor';
+import { showSharingPickerPopup } from '@/components/popups/pickUser';
 
 // Shared "send a URL via the standard sharing picker" helper. Subsumes the
 // near-identical onSelect handlers in giftLink.tsx, appMediaViewerRtmp.ts

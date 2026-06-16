@@ -1,6 +1,6 @@
-import I18n from '@lib/langPack';
-import capitalizeFirstLetter from '@helpers/string/capitalizeFirstLetter';
-import type { MessageEntity } from '@layer';
+import I18n from '@/lib/langPack';
+import capitalizeFirstLetter from '@/helpers/string/capitalizeFirstLetter';
+import type { MessageEntity } from '@/layer';
 
 type FormattedDatePFlags = MessageEntity.messageEntityFormattedDate['pFlags'];
 

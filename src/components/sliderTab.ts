@@ -1,12 +1,12 @@
-import EventListenerBase, { EventListenerListeners } from '@helpers/eventListenerBase';
-import ListenerSetter from '@helpers/listenerSetter';
-import { getMiddleware, MiddlewareHelper } from '@helpers/middleware';
-import noop from '@helpers/noop';
-import { AppManagers } from '@lib/managers';
-import { i18n, LangPackKey } from '@lib/langPack';
-import ButtonIcon from '@components/buttonIcon';
-import Scrollable from '@components/scrollable';
-import SidebarSlider from '@components/slider';
+import EventListenerBase, { EventListenerListeners } from '@/helpers/eventListenerBase';
+import ListenerSetter from '@/helpers/listenerSetter';
+import { getMiddleware, MiddlewareHelper } from '@/helpers/middleware';
+import noop from '@/helpers/noop';
+import { AppManagers } from '@/lib/managers';
+import { i18n, LangPackKey } from '@/lib/langPack';
+import ButtonIcon from '@/components/buttonIcon';
+import Scrollable from '@/components/scrollable';
+import SidebarSlider from '@/components/slider';
 
 export interface SliderSuperTabConstructable<T extends SliderSuperTab = any> {
   new(slider: SidebarSlider, destroyable: boolean): T;

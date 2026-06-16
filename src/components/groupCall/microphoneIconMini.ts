@@ -1,4 +1,4 @@
-import { SuperRLottieIcon } from '@components/superIcon';
+import { SuperRLottieIcon } from '@/components/superIcon';
 
 export default class GroupCallMicrophoneIconMini extends SuperRLottieIcon<{
   PartState: boolean,

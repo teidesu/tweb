@@ -1,4 +1,4 @@
-import { StaticCheckbox, StaticCheckboxProps } from '@components/staticCheckbox';
+import { StaticCheckbox, StaticCheckboxProps } from '@/components/staticCheckbox';
 import { splitProps } from 'solid-js';
 import styles from './inMessageCheckbox.module.scss';
 

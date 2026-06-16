@@ -1,7 +1,7 @@
-import type { PhotoSize, VideoSize, InputFileLocation } from '@layer';
-import type { DownloadOptions } from '@appManagers/apiFileManager';
-import type { MyDocument } from '@appManagers/appDocsManager';
-import type { MyPhoto } from '@appManagers/appPhotosManager';
+import type { PhotoSize, VideoSize, InputFileLocation } from '@/layer';
+import type { DownloadOptions } from '@/lib/appManagers/apiFileManager';
+import type { MyDocument } from '@/lib/appManagers/appDocsManager';
+import type { MyPhoto } from '@/lib/appManagers/appPhotosManager';
 
 export default function getPhotoDownloadOptions(photo: MyPhoto | MyDocument, photoSize: PhotoSize | VideoSize.videoSize, queueId?: number, onlyCache?: boolean): DownloadOptions {
   const isDocument = photo._ === 'document';

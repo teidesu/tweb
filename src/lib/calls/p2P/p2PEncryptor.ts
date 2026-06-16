@@ -6,8 +6,8 @@
  */
 
 import { createCtr256, ctr256, freeCtr256, sha256 } from '@mtcute/wasm';
-import bufferConcats from '@helpers/bytes/bufferConcats';
-import { initCryptoWasm } from '@lib/crypto/wasmInit';
+import bufferConcats from '@/helpers/bytes/bufferConcats';
+import { initCryptoWasm } from '@/lib/crypto/wasmInit';
 
 const kMaxIncomingPacketSize = 128 * 1024 * 1024;
 

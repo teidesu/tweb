@@ -5,14 +5,14 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import tsNow from '@helpers/tsNow';
-import { InputNotifyPeer, InputPeer, InputPeerNotifySettings, NotifyPeer, Peer, PeerNotifySettings, Update } from '@layer';
-import { MUTE_UNTIL } from '@appManagers/constants';
-import throttle from '@helpers/schedulers/throttle';
-import convertInputKeyToKey from '@helpers/string/convertInputKeyToKey';
-import { AppManager } from '@appManagers/manager';
-import ctx from '@environment/ctx';
-import assumeType from '@helpers/assumeType';
+import tsNow from '@/helpers/tsNow';
+import { InputNotifyPeer, InputPeer, InputPeerNotifySettings, NotifyPeer, Peer, PeerNotifySettings, Update } from '@/layer';
+import { MUTE_UNTIL } from '@/lib/appManagers/constants';
+import throttle from '@/helpers/schedulers/throttle';
+import convertInputKeyToKey from '@/helpers/string/convertInputKeyToKey';
+import { AppManager } from '@/lib/appManagers/manager';
+import ctx from '@/environment/ctx';
+import assumeType from '@/helpers/assumeType';
 
 type ImSadAboutIt = Promise<PeerNotifySettings> | PeerNotifySettings;
 type MyNotifyPeer = Exclude<NotifyPeer['_'], 'notifyPeer' | 'notifyForumTopic'>;

@@ -1,4 +1,4 @@
-import { PollResults } from '@layer';
+import { PollResults } from '@/layer';
 
 export function roundPercents(percents: number[]): number[] {
   const base = percents.map(Math.floor);

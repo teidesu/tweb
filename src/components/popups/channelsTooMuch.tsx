@@ -1,13 +1,13 @@
-import AppSelectPeers from '@components/appSelectPeers';
-import PopupElement from '@components/popups';
-import showLimitPopup from '@components/popups/limit';
-import { wrapFormattedDuration } from '@components/wrappers/wrapDuration';
-import deferredPromise from '@helpers/cancellablePromise';
-import formatDuration from '@helpers/formatDuration';
-import { getMiddleware } from '@helpers/middleware';
-import tsNow from '@helpers/tsNow';
-import { i18n } from '@lib/langPack';
-import rootScope from '@lib/rootScope';
+import AppSelectPeers from '@/components/appSelectPeers';
+import PopupElement from '@/components/popups';
+import showLimitPopup from '@/components/popups/limit';
+import { wrapFormattedDuration } from '@/components/wrappers/wrapDuration';
+import deferredPromise from '@/helpers/cancellablePromise';
+import formatDuration from '@/helpers/formatDuration';
+import { getMiddleware } from '@/helpers/middleware';
+import tsNow from '@/helpers/tsNow';
+import { i18n } from '@/lib/langPack';
+import rootScope from '@/lib/rootScope';
 
 /**
  * expect chat migration

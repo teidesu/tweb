@@ -1,4 +1,4 @@
-import readBlobAs from '@helpers/blob/readBlobAs';
+import readBlobAs from '@/helpers/blob/readBlobAs';
 
 export default function readBlobAsText(blob: Blob) {
   return readBlobAs(blob, 'readAsText');

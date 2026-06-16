@@ -15,28 +15,28 @@
 import { Component, createEffect, createSignal, on, onCleanup, onMount, untrack } from 'solid-js';
 import { render } from 'solid-js/web';
 
-import { Theme, WallPaper } from '@layer';
-import themeControllerSingleton, { ThemeController } from '@helpers/themeController';
-import { getColorsFromWallPaper } from '@helpers/color';
-import ChatBackgroundGradientRenderer from '@components/chat/gradientRenderer';
-import ChatBackgroundPatternRenderer from '@components/chat/patternRenderer';
-import ChatBackgroundStore from '@lib/chatBackgroundStore';
-import appDownloadManager from '@lib/appDownloadManager';
-import renderImageFromUrl from '@helpers/dom/renderImageFromUrl';
-import { averageColorFromCanvas, averageColorFromImage } from '@helpers/averageColor';
-import highlightingColor from '@helpers/highlightingColor';
-import rootScope from '@lib/rootScope';
-import windowSize from '@helpers/windowSize';
-import { logger, LogTypes } from '@lib/logger';
-import { MOUNT_CLASS_TO } from '@config/debug';
-import { DEFAULT_BACKGROUND_SLUG } from '@config/app';
-import { AppManagers } from '@lib/managers';
-import { AppTheme } from '@config/state';
-import { appState } from '@stores/appState';
-import classNames from '@helpers/string/classNames';
-import noop from '@helpers/noop';
+import { Theme, WallPaper } from '@/layer';
+import themeControllerSingleton, { ThemeController } from '@/helpers/themeController';
+import { getColorsFromWallPaper } from '@/helpers/color';
+import ChatBackgroundGradientRenderer from '@/components/chat/gradientRenderer';
+import ChatBackgroundPatternRenderer from '@/components/chat/patternRenderer';
+import ChatBackgroundStore from '@/lib/chatBackgroundStore';
+import appDownloadManager from '@/lib/appDownloadManager';
+import renderImageFromUrl from '@/helpers/dom/renderImageFromUrl';
+import { averageColorFromCanvas, averageColorFromImage } from '@/helpers/averageColor';
+import highlightingColor from '@/helpers/highlightingColor';
+import rootScope from '@/lib/rootScope';
+import windowSize from '@/helpers/windowSize';
+import { logger, LogTypes } from '@/lib/logger';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import { DEFAULT_BACKGROUND_SLUG } from '@/config/app';
+import { AppManagers } from '@/lib/managers';
+import { AppTheme } from '@/config/state';
+import { appState } from '@/stores/appState';
+import classNames from '@/helpers/string/classNames';
+import noop from '@/helpers/noop';
 
-import styles from '@components/chat/bubbles/chatBackground.module.scss';
+import styles from '@/components/chat/bubbles/chatBackground.module.scss';
 
 export type ChatBackgroundTheme = AppTheme | Theme;
 

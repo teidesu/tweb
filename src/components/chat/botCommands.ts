@@ -1,9 +1,9 @@
-import type ChatInput from '@components/chat/input';
-import callbackify from '@helpers/callbackify';
-import AutocompletePeerHelper from '@components/chat/autocompletePeerHelper';
-import { processPeerFullForCommands } from '@components/chat/commandsHelper';
-import { AppManagers } from '@lib/managers';
-import { Middleware } from '@helpers/middleware';
+import type ChatInput from '@/components/chat/input';
+import callbackify from '@/helpers/callbackify';
+import AutocompletePeerHelper from '@/components/chat/autocompletePeerHelper';
+import { processPeerFullForCommands } from '@/components/chat/commandsHelper';
+import { AppManagers } from '@/lib/managers';
+import { Middleware } from '@/helpers/middleware';
 
 const CLASS_NAME = 'bot-commands';
 export default class ChatBotCommands extends AutocompletePeerHelper {

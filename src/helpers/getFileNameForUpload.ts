@@ -1,4 +1,4 @@
-import tabId from '@config/tabId';
+import tabId from '@/config/tabId';
 
 let uploadId = 0;
 export default function getFileNameForUpload(file: File | Blob) {

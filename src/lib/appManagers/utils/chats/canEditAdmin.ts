@@ -1,5 +1,5 @@
-import { ChannelParticipant, Chat, ChatParticipant } from '@layer';
-import { isParticipantCreator } from '@lib/appManagers/utils/chats/isParticipantAdmin';
+import { ChannelParticipant, Chat, ChatParticipant } from '@/layer';
+import { isParticipantCreator } from '@/lib/appManagers/utils/chats/isParticipantAdmin';
 
 export default function canEditAdmin(chat: Chat, participant: ChatParticipant | ChannelParticipant, myId: PeerId) {
   const isCreator = isParticipantCreator(participant);

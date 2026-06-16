@@ -1,5 +1,5 @@
-import { MOUNT_CLASS_TO } from '@config/debug';
-import { _tgico } from '@helpers/tgico';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import { _tgico } from '@/helpers/tgico';
 
 export function putPreloader(elem: Element, returnDiv = false): HTMLElement {
   const html = `

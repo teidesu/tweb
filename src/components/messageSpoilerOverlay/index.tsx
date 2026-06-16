@@ -1,19 +1,19 @@
 import { batch, createEffect, createMemo, createSignal, onCleanup, onMount } from 'solid-js';
 import { render } from 'solid-js/web';
 
-import { animateValue } from '@helpers/animateValue';
-import { animate } from '@helpers/animation';
-import ListenerSetter from '@helpers/listenerSetter';
-import debounce from '@helpers/schedulers/debounce';
-import createMiddleware from '@helpers/solid/createMiddleware';
-import { logger } from '@lib/logger';
-import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
-import type SolidJSHotReloadGuardProvider from '@lib/solidjs/hotReloadGuardProvider';
-import type { AnimationItemGroup } from '@components/animationIntersector';
-import BluffSpoilerController from '@components/bluffSpoilerController';
-import DotRenderer from '@components/dotRenderer';
-import { observeResize } from '@components/resizeObserver';
-import { drawImageFromSource } from '@components/messageSpoilerOverlay/drawImageFromSource';
+import { animateValue } from '@/helpers/animateValue';
+import { animate } from '@/helpers/animation';
+import ListenerSetter from '@/helpers/listenerSetter';
+import debounce from '@/helpers/schedulers/debounce';
+import createMiddleware from '@/helpers/solid/createMiddleware';
+import { logger } from '@/lib/logger';
+import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
+import type SolidJSHotReloadGuardProvider from '@/lib/solidjs/hotReloadGuardProvider';
+import type { AnimationItemGroup } from '@/components/animationIntersector';
+import BluffSpoilerController from '@/components/bluffSpoilerController';
+import DotRenderer from '@/components/dotRenderer';
+import { observeResize } from '@/components/resizeObserver';
+import { drawImageFromSource } from '@/components/messageSpoilerOverlay/drawImageFromSource';
 import {
   adjustSpaceBetweenCloseRects,
   computeMaxDistToMargin,
@@ -24,7 +24,7 @@ import {
   isMouseCloseToAnySpoilerElement,
   UnwrapEasing,
   waitResizeToBePainted,
-} from '@components/messageSpoilerOverlay/utils';
+} from '@/components/messageSpoilerOverlay/utils';
 
 
 type MessageSpoilerOverlayProps = {

@@ -1,18 +1,18 @@
 import { Component } from 'solid-js';
-import InputField from '@components/inputField';
-import EditPeer from '@components/editPeer';
-import { UsernameInputField } from '@components/usernameInputField';
-import { i18n } from '@lib/langPack';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import getPeerEditableUsername from '@appManagers/utils/peers/getPeerEditableUsername';
-import SettingSection, { generateSection } from '@components/settingSection';
-import UsernamesSection from '@components/usernamesSection';
-import { purchaseUsernameCaption } from '@components/sidebarLeft/tabs/purchaseUsernameCaption';
-import Button from '@components/button';
-import wrapUrl from '@lib/richTextProcessor/wrapUrl';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
-import type { AppEditBotTab } from '@components/solidJsTabs/tabs';
+import InputField from '@/components/inputField';
+import EditPeer from '@/components/editPeer';
+import { UsernameInputField } from '@/components/usernameInputField';
+import { i18n } from '@/lib/langPack';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import getPeerEditableUsername from '@/lib/appManagers/utils/peers/getPeerEditableUsername';
+import SettingSection, { generateSection } from '@/components/settingSection';
+import UsernamesSection from '@/components/usernamesSection';
+import { purchaseUsernameCaption } from '@/components/sidebarLeft/tabs/purchaseUsernameCaption';
+import Button from '@/components/button';
+import wrapUrl from '@/lib/richTextProcessor/wrapUrl';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@/components/solidJsTabs/promiseCollector';
+import type { AppEditBotTab } from '@/components/solidJsTabs/tabs';
 
 const EditBot: Component = () => {
   const [tab] = useSuperTab<typeof AppEditBotTab>();

@@ -1,7 +1,7 @@
-import Scrollable from '@components/scrollable';
-import { animateSingle } from '@helpers/animation';
-import ScrollSaver from '@helpers/scrollSaver';
-import { dispatchHeavyAnimationEvent } from '@hooks/useHeavyAnimationCheck';
+import Scrollable from '@/components/scrollable';
+import { animateSingle } from '@/helpers/animation';
+import ScrollSaver from '@/helpers/scrollSaver';
+import { dispatchHeavyAnimationEvent } from '@/hooks/useHeavyAnimationCheck';
 
 export default function animateSomethingWithScroll(promise: Promise<any>, scrollable: Scrollable, scrollSaver: ScrollSaver) {
   let finished = false;

@@ -1,8 +1,8 @@
-import { useMediaEditorContext } from '@components/mediaEditor/context';
-import { snapToViewport } from '@components/mediaEditor/utils';
-import { NumberPair } from '@components/mediaEditor/types';
+import { useMediaEditorContext } from '@/components/mediaEditor/context';
+import { snapToViewport } from '@/components/mediaEditor/utils';
+import { NumberPair } from '@/components/mediaEditor/types';
 
-import { useCropOffset } from '@components/mediaEditor/canvas/useCropOffset';
+import { useCropOffset } from '@/components/mediaEditor/canvas/useCropOffset';
 
 type Options = {
   rotation: number;

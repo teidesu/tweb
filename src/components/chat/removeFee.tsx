@@ -1,17 +1,17 @@
-import callbackify from '@helpers/callbackify';
-import namedPromises from '@helpers/namedPromises';
-import { numberThousandSplitterForStars } from '@helpers/number/numberThousandSplitter';
-import { AppManagers } from '@lib/managers';
-import { i18n } from '@lib/langPack';
-import confirmationPopup from '@components/confirmationPopup';
-import Icon from '@components/icon';
-import PeerTitle from '@components/peerTitle';
-import wrapPeerTitle from '@components/wrappers/peerTitle';
-import Chat from '@components/chat/chat';
-import type ChatTopbar from '@components/chat/topbar';
-import { AckedResult } from '@lib/superMessagePort';
+import callbackify from '@/helpers/callbackify';
+import namedPromises from '@/helpers/namedPromises';
+import { numberThousandSplitterForStars } from '@/helpers/number/numberThousandSplitter';
+import { AppManagers } from '@/lib/managers';
+import { i18n } from '@/lib/langPack';
+import confirmationPopup from '@/components/confirmationPopup';
+import Icon from '@/components/icon';
+import PeerTitle from '@/components/peerTitle';
+import wrapPeerTitle from '@/components/wrappers/peerTitle';
+import Chat from '@/components/chat/chat';
+import type ChatTopbar from '@/components/chat/topbar';
+import { AckedResult } from '@/lib/superMessagePort';
 import { Accessor, createSignal, Show } from 'solid-js';
-import TopbarPlate, { createTopbarPlate, TopbarPlateController } from '@components/chat/topbarPlate';
+import TopbarPlate, { createTopbarPlate, TopbarPlateController } from '@/components/chat/topbarPlate';
 
 type SetArgs = {
   peerId: PeerId,

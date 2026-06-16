@@ -1,9 +1,9 @@
-import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import ListenerSetter from '@helpers/listenerSetter';
-import { AppManagers } from '@lib/managers';
-import { toastNew } from '@components/toast';
-import confirmationPopup from '@components/confirmationPopup';
-import { AppSelection } from '@components/chat/selection';
+import IS_TOUCH_SUPPORTED from '@/environment/touchSupport';
+import ListenerSetter from '@/helpers/listenerSetter';
+import { AppManagers } from '@/lib/managers';
+import { toastNew } from '@/components/toast';
+import confirmationPopup from '@/components/confirmationPopup';
+import { AppSelection } from '@/components/chat/selection';
 import { createSignal } from 'solid-js';
 import { LangPackKey } from '../../lib/langPack';
 

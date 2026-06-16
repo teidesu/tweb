@@ -1,11 +1,11 @@
 
 import { createEffect, createSignal, For, onCleanup, onMount, Show, JSX } from 'solid-js';
-import SwipeHandler from '@components/swipeHandler';
-import styles from '@components/slideshow.module.scss';
-import classNames from '@helpers/string/classNames';
-import { fastRaf } from '@helpers/schedulers';
-import findUpClassName from '@helpers/dom/findUpClassName';
-import { IconTsx } from '@components/iconTsx';
+import SwipeHandler from '@/components/swipeHandler';
+import styles from '@/components/slideshow.module.scss';
+import classNames from '@/helpers/string/classNames';
+import { fastRaf } from '@/helpers/schedulers';
+import findUpClassName from '@/helpers/dom/findUpClassName';
+import { IconTsx } from '@/components/iconTsx';
 
 export type SlideshowProps<T> = {
   class?: string;

@@ -1,8 +1,8 @@
-import appDialogsManager from '@lib/appDialogsManager';
-import rootScope from '@lib/rootScope';
-import { createSearchGroup, SearchGroup } from '@components/searchGroup';
-import { Middleware } from '@helpers/middleware';
-import { MyTopPeer } from '@lib/appManagers/appUsersManager';
+import appDialogsManager from '@/lib/appDialogsManager';
+import rootScope from '@/lib/rootScope';
+import { createSearchGroup, SearchGroup } from '@/components/searchGroup';
+import { Middleware } from '@/helpers/middleware';
+import { MyTopPeer } from '@/lib/appManagers/appUsersManager';
 
 export default function createTopPeersList({
   middleware,

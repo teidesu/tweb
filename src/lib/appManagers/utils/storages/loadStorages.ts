@@ -1,13 +1,13 @@
-import type { Chat } from '@layer';
-import type { Dialog } from '@appManagers/appMessagesManager';
-import type { User } from '@appManagers/appUsersManager';
-import type { MessagesPersistedRecord } from '@lib/storages/messagesPersistent';
-import type { StoragesStorages } from '@appManagers/utils/storages/createStorages';
-import type { ResetStoragesPromise } from '@appManagers/appStateManager';
-import type AppStorage from '@lib/storage';
-import { recordPromiseBound } from '@helpers/recordPromise';
-import { logger } from '@lib/logger';
-import noop from '@helpers/noop';
+import type { Chat } from '@/layer';
+import type { Dialog } from '@/lib/appManagers/appMessagesManager';
+import type { User } from '@/lib/appManagers/appUsersManager';
+import type { MessagesPersistedRecord } from '@/lib/storages/messagesPersistent';
+import type { StoragesStorages } from '@/lib/appManagers/utils/storages/createStorages';
+import type { ResetStoragesPromise } from '@/lib/appManagers/appStateManager';
+import type AppStorage from '@/lib/storage';
+import { recordPromiseBound } from '@/helpers/recordPromise';
+import { logger } from '@/lib/logger';
+import noop from '@/helpers/noop';
 
 export type StoragesResults = Awaited<ReturnType<typeof loadStorages>>;
 

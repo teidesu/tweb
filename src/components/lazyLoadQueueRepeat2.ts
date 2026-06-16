@@ -1,6 +1,6 @@
-import findAndSpliceAll from '@helpers/array/findAndSpliceAll';
-import LazyLoadQueueIntersector, { LazyLoadElement } from '@components/lazyLoadQueueIntersector';
-import VisibilityIntersector, { OnVisibilityChange } from '@components/visibilityIntersector';
+import findAndSpliceAll from '@/helpers/array/findAndSpliceAll';
+import LazyLoadQueueIntersector, { LazyLoadElement } from '@/components/lazyLoadQueueIntersector';
+import VisibilityIntersector, { OnVisibilityChange } from '@/components/visibilityIntersector';
 
 export default class LazyLoadQueueRepeat2 extends LazyLoadQueueIntersector {
   constructor(parallelLimit?: number, protected onVisibilityChange?: OnVisibilityChange) {

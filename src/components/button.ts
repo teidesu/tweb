@@ -1,6 +1,6 @@
-import { FormatterArguments, i18n, LangPackKey } from '@lib/langPack';
-import Icon from '@components/icon';
-import ripple from '@components/ripple';
+import { FormatterArguments, i18n, LangPackKey } from '@/lib/langPack';
+import Icon from '@/components/icon';
+import ripple from '@/components/ripple';
 
 export type ButtonOptions = Partial<{
   noRipple: true,

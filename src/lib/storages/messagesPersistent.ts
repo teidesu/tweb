@@ -1,9 +1,9 @@
-import type { MyMessage } from '@appManagers/appMessagesManager';
-import type { AccountDatabase } from '@config/databases/state';
-import type AppStorage from '@lib/storage';
-import type { SlicedArrayPersisted } from '@helpers/slicedArray';
-import { AppManager } from '@appManagers/manager';
-import debounce from '@helpers/schedulers/debounce';
+import type { MyMessage } from '@/lib/appManagers/appMessagesManager';
+import type { AccountDatabase } from '@/config/databases/state';
+import type AppStorage from '@/lib/storage';
+import type { SlicedArrayPersisted } from '@/helpers/slicedArray';
+import { AppManager } from '@/lib/appManagers/manager';
+import debounce from '@/helpers/schedulers/debounce';
 
 export type MessagesPersistedHistory = {
   slices: SlicedArrayPersisted<number>,

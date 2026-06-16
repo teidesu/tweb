@@ -1,10 +1,10 @@
 import { createEffect, createMemo, createRoot, createSignal, untrack } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
-import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
-import rootScope from '@lib/rootScope';
-import { FOLDER_ID_ALL, FOLDER_ID_ARCHIVE, REAL_FOLDERS } from '@appManagers/constants';
-import type { MyDialogFilter } from '@lib/storages/filters';
-import type { AppManagers } from '@lib/managers';
+import indexOfAndSplice from '@/helpers/array/indexOfAndSplice';
+import rootScope from '@/lib/rootScope';
+import { FOLDER_ID_ALL, FOLDER_ID_ARCHIVE, REAL_FOLDERS } from '@/lib/appManagers/constants';
+import type { MyDialogFilter } from '@/lib/storages/filters';
+import type { AppManagers } from '@/lib/managers';
 
 export type StoredFolder = {
   id: number,

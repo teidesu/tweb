@@ -1,6 +1,6 @@
 import { createEffect, createMemo, createRoot, createSignal } from 'solid-js';
-import { ScreenSize, useMediaSizes } from '@helpers/mediaSizes';
-import { setFoldersSidebarShown } from '@helpers/updateColumnWidths';
+import { ScreenSize, useMediaSizes } from '@/helpers/mediaSizes';
+import { setFoldersSidebarShown } from '@/helpers/updateColumnWidths';
 
 // RAW user preference (mirrors settings.tabsInSidebar): whether the user has
 // the folders sidebar turned ON. Independent of viewport — it stays true even

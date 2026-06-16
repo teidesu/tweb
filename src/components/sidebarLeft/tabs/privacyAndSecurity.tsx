@@ -1,8 +1,8 @@
 import { Component, createEffect, createRoot, createSignal, onMount } from 'solid-js';
 import { createStore, SetStoreFunction } from 'solid-js/store';
-import Row from '@components/row';
-import { AccountPassword, GlobalPrivacySettings, InputPrivacyKey, Passkey, WebAuthorization } from '@layer';
-import { AppTwoStepVerificationTab, AppTwoStepVerificationEnterPasswordTab, AppTwoStepVerificationEmailConfirmationTab } from '@components/solidJsTabs/tabs';
+import Row from '@/components/row';
+import { AccountPassword, GlobalPrivacySettings, InputPrivacyKey, Passkey, WebAuthorization } from '@/layer';
+import { AppTwoStepVerificationTab, AppTwoStepVerificationEnterPasswordTab, AppTwoStepVerificationEmailConfirmationTab } from '@/components/solidJsTabs/tabs';
 import {
   AppActiveWebSessionsTab,
   AppBlockedUsersTab,
@@ -22,36 +22,36 @@ import {
   AppPrivacyProfilePhotoTab,
   AppPrivacySavedMusicTab,
   AppPrivacyVoicesTab,
-} from '@components/solidJsTabs/tabs';
-import rootScope from '@lib/rootScope';
-import { i18n, LangPackKey, _i18n } from '@lib/langPack';
-import replaceContent from '@helpers/dom/replaceContent';
-import CheckboxField from '@components/checkboxField';
-import PopupPeer from '@components/popups/peer';
-import Button from '@components/buttonTsx';
-import Section from '@components/section';
-import toggleDisability from '@helpers/dom/toggleDisability';
-import convertKeyToInputKey from '@helpers/string/convertKeyToInputKey';
-import getPrivacyRulesDetails from '@appManagers/utils/privacy/getPrivacyRulesDetails';
-import PrivacyType from '@appManagers/utils/privacy/privacyType';
-import confirmationPopup, { PopupConfirmationOptions } from '@components/confirmationPopup';
-import noop from '@helpers/noop';
-import { toastNew } from '@components/toast';
-import PopupElement from '@components/popups';
-import apiManagerProxy from '@lib/apiManagerProxy';
-import Icon from '@components/icon';
-import { joinDeepPath } from '@helpers/object/setDeepProperty';
-import { AgeVerificationPopup } from '@components/popups/ageVerification';
-import { clearSensitiveSpoilers } from '@components/wrappers/mediaSpoiler';
-import useContentSettings from '@stores/contentSettings';
-import ChangeLoginEmailTab from '@components/sidebarLeft/tabs/changeLoginEmail';
-import { wrapEmailPattern } from '@components/popups/emailSetup';
-import IS_WEB_AUTHN_SUPPORTED from '@environment/webAuthn';
-import showPasskeyPopup from '@components/popups/passkey';
-import { findExistingOrCreateCustomOption } from '@components/sidebarLeft/tabs/autoDeleteMessages/options';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
-import type { AppPrivacyAndSecurityTab } from '@components/solidJsTabs/tabs';
+} from '@/components/solidJsTabs/tabs';
+import rootScope from '@/lib/rootScope';
+import { i18n, LangPackKey, _i18n } from '@/lib/langPack';
+import replaceContent from '@/helpers/dom/replaceContent';
+import CheckboxField from '@/components/checkboxField';
+import PopupPeer from '@/components/popups/peer';
+import Button from '@/components/buttonTsx';
+import Section from '@/components/section';
+import toggleDisability from '@/helpers/dom/toggleDisability';
+import convertKeyToInputKey from '@/helpers/string/convertKeyToInputKey';
+import getPrivacyRulesDetails from '@/lib/appManagers/utils/privacy/getPrivacyRulesDetails';
+import PrivacyType from '@/lib/appManagers/utils/privacy/privacyType';
+import confirmationPopup, { PopupConfirmationOptions } from '@/components/confirmationPopup';
+import noop from '@/helpers/noop';
+import { toastNew } from '@/components/toast';
+import PopupElement from '@/components/popups';
+import apiManagerProxy from '@/lib/apiManagerProxy';
+import Icon from '@/components/icon';
+import { joinDeepPath } from '@/helpers/object/setDeepProperty';
+import { AgeVerificationPopup } from '@/components/popups/ageVerification';
+import { clearSensitiveSpoilers } from '@/components/wrappers/mediaSpoiler';
+import useContentSettings from '@/stores/contentSettings';
+import ChangeLoginEmailTab from '@/components/sidebarLeft/tabs/changeLoginEmail';
+import { wrapEmailPattern } from '@/components/popups/emailSetup';
+import IS_WEB_AUTHN_SUPPORTED from '@/environment/webAuthn';
+import showPasskeyPopup from '@/components/popups/passkey';
+import { findExistingOrCreateCustomOption } from '@/components/sidebarLeft/tabs/autoDeleteMessages/options';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@/components/solidJsTabs/promiseCollector';
+import type { AppPrivacyAndSecurityTab } from '@/components/solidJsTabs/tabs';
 
 const PrivacyAndSecurity: Component = () => {
   const [tab] = useSuperTab<typeof AppPrivacyAndSecurityTab>();

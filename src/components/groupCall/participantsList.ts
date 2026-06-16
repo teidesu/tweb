@@ -1,14 +1,14 @@
-import positionElementByIndex from '@helpers/dom/positionElementByIndex';
-import replaceContent from '@helpers/dom/replaceContent';
-import { fastRaf } from '@helpers/schedulers';
-import SortedList, { SortedElementBase } from '@helpers/sortedList';
-import appDialogsManager, { DialogDom, AppDialogsManager, DialogElementSize } from '@lib/appDialogsManager';
+import positionElementByIndex from '@/helpers/dom/positionElementByIndex';
+import replaceContent from '@/helpers/dom/replaceContent';
+import { fastRaf } from '@/helpers/schedulers';
+import SortedList, { SortedElementBase } from '@/helpers/sortedList';
+import appDialogsManager, { DialogDom, AppDialogsManager, DialogElementSize } from '@/lib/appDialogsManager';
 import { getGroupCallParticipantMutedState } from '.';
-import GroupCallParticipantMutedIcon from '@components/groupCall/participantMutedIcon';
-import GroupCallParticipantStatusElement from '@components/groupCall/participantStatus';
-import type GroupCallInstance from '@lib/calls/groupCallInstance';
-import type LazyLoadQueue from '@components/lazyLoadQueue';
-import { MiddlewareHelper, getMiddleware } from '@helpers/middleware';
+import GroupCallParticipantMutedIcon from '@/components/groupCall/participantMutedIcon';
+import GroupCallParticipantStatusElement from '@/components/groupCall/participantStatus';
+import type GroupCallInstance from '@/lib/calls/groupCallInstance';
+import type LazyLoadQueue from '@/components/lazyLoadQueue';
+import { MiddlewareHelper, getMiddleware } from '@/helpers/middleware';
 
 interface SortedParticipant extends SortedElementBase<PeerId> {
   dom: DialogDom,

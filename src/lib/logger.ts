@@ -1,8 +1,8 @@
-import DEBUG from '@config/debug';
-import { IS_FIREFOX, IS_SAFARI } from '@environment/userAgent';
-import { IS_SERVICE_WORKER, IS_WEB_WORKER } from '@helpers/context';
-import dT from '@helpers/dT';
-import { capture } from '@lib/debug/logsBuffer';
+import DEBUG from '@/config/debug';
+import { IS_FIREFOX, IS_SAFARI } from '@/environment/userAgent';
+import { IS_SERVICE_WORKER, IS_WEB_WORKER } from '@/helpers/context';
+import dT from '@/helpers/dT';
+import { capture } from '@/lib/debug/logsBuffer';
 
 export enum LogTypes {
   None = 0,

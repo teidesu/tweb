@@ -1,6 +1,6 @@
-import { MOUNT_CLASS_TO } from '@config/debug';
-import indexOfAndSplice from '@helpers/array/indexOfAndSplice';
-import compareValue from '@helpers/compareValue';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import indexOfAndSplice from '@/helpers/array/indexOfAndSplice';
+import compareValue from '@/helpers/compareValue';
 
 /**
  * Descend sorted storage

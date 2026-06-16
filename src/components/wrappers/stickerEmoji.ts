@@ -1,6 +1,6 @@
-import rootScope from '@lib/rootScope';
-import wrapSticker from '@components/wrappers/sticker'
-import { Modify } from '@types';
+import rootScope from '@/lib/rootScope';
+import wrapSticker from '@/components/wrappers/sticker'
+import { Modify } from '@/types';
 
 export default async function wrapStickerEmoji(options: Modify<Parameters<typeof wrapSticker>[0], {
   div: HTMLElement,

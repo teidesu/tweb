@@ -1,4 +1,4 @@
-import { ChatAdminRights } from '@layer';
+import { ChatAdminRights } from '@/layer';
 
 export const CHAT_LEGACY_ADMIN_RIGHTS: ChatAdminRights = {
   '_': 'chatAdminRights',

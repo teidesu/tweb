@@ -1,8 +1,8 @@
-import Row from '@components/row';
-import { HelpPremiumPromo } from '@layer';
-import { avatarNew } from '@components/avatarNew';
-import { Middleware } from '@helpers/middleware';
-import { PremiumPromoFeature } from '@components/premium/featuresConfig';
+import Row from '@/components/row';
+import { HelpPremiumPromo } from '@/layer';
+import { avatarNew } from '@/components/avatarNew';
+import { Middleware } from '@/helpers/middleware';
+import { PremiumPromoFeature } from '@/components/premium/featuresConfig';
 
 export default class UpgradedStoriesFeature {
   public features: HTMLElement;

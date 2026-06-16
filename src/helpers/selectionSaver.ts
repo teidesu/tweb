@@ -1,4 +1,4 @@
-import cancelSelection from '@helpers/dom/cancelSelection';
+import cancelSelection from '@/helpers/dom/cancelSelection';
 
 export default class SelectionSaver {
   private input: HTMLElement;

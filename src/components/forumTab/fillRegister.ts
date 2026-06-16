@@ -1,8 +1,8 @@
-import apiManagerProxy from '@lib/apiManagerProxy';
-import { BotforumTab } from '@components/forumTab/botforumTab';
-import { ForumTab } from '@components/forumTab/forumTab';
-import { GroupForumTab } from '@components/forumTab/groupForumTab';
-import { MonoforumTab } from '@components/forumTab/monoforumTab';
+import apiManagerProxy from '@/lib/apiManagerProxy';
+import { BotforumTab } from '@/components/forumTab/botforumTab';
+import { ForumTab } from '@/components/forumTab/forumTab';
+import { GroupForumTab } from '@/components/forumTab/groupForumTab';
+import { MonoforumTab } from '@/components/forumTab/monoforumTab';
 
 
 export function fillForumTabRegister() {

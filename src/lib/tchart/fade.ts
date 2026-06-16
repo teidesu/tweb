@@ -1,4 +1,4 @@
-import { TChartUnitOptions } from '@lib/tchart/types';
+import { TChartUnitOptions } from '@/lib/tchart/types';
 
 export default class TFade {
   private opts: TChartUnitOptions;

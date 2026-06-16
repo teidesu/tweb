@@ -1,25 +1,25 @@
 import { getOwner, runWithOwner, Signal } from 'solid-js';
 import { unwrap } from 'solid-js/store';
-import { createPosterFromMedia } from '@helpers/createPoster';
-import { MediaSize } from '@helpers/mediaSize';
-import noop from '@helpers/noop';
-import detectVideoHasSound from '@helpers/video/detectVideoHasSound';
-import { logger } from '@lib/logger';
-import { adjustmentsConfig, AdjustmentsConfig } from '@components/mediaEditor/adjustments';
-import BrushPainter from '@components/mediaEditor/canvas/brushPainter';
-import { useCropOffset } from '@components/mediaEditor/canvas/useCropOffset';
-import { EditingMediaState, useMediaEditorContext } from '@components/mediaEditor/context';
-import { NumberPair } from '@components/mediaEditor/types';
-import { checkIfHasAnimatedStickers, cleanupWebGl, snapToAvailableQuality } from '@components/mediaEditor/utils';
-import { draw } from '@components/mediaEditor/webgl/draw';
-import { initWebGL } from '@components/mediaEditor/webgl/initWebGL';
-import getResultSize from '@components/mediaEditor/finalRender/getResultSize';
-import getResultTransform from '@components/mediaEditor/finalRender/getResultTransform';
-import getScaledLayersAndLines from '@components/mediaEditor/finalRender/getScaledLayersAndLines';
-import renderToActualVideo from '@components/mediaEditor/finalRender/renderToActualVideo';
-import renderToImage from '@components/mediaEditor/finalRender/renderToImage';
-import renderToVideoGIF from '@components/mediaEditor/finalRender/renderToVideoGIF';
-import spawnAnimatedPreview from '@components/mediaEditor/finalRender/spawnAnimatedPreview';
+import { createPosterFromMedia } from '@/helpers/createPoster';
+import { MediaSize } from '@/helpers/mediaSize';
+import noop from '@/helpers/noop';
+import detectVideoHasSound from '@/helpers/video/detectVideoHasSound';
+import { logger } from '@/lib/logger';
+import { adjustmentsConfig, AdjustmentsConfig } from '@/components/mediaEditor/adjustments';
+import BrushPainter from '@/components/mediaEditor/canvas/brushPainter';
+import { useCropOffset } from '@/components/mediaEditor/canvas/useCropOffset';
+import { EditingMediaState, useMediaEditorContext } from '@/components/mediaEditor/context';
+import { NumberPair } from '@/components/mediaEditor/types';
+import { checkIfHasAnimatedStickers, cleanupWebGl, snapToAvailableQuality } from '@/components/mediaEditor/utils';
+import { draw } from '@/components/mediaEditor/webgl/draw';
+import { initWebGL } from '@/components/mediaEditor/webgl/initWebGL';
+import getResultSize from '@/components/mediaEditor/finalRender/getResultSize';
+import getResultTransform from '@/components/mediaEditor/finalRender/getResultTransform';
+import getScaledLayersAndLines from '@/components/mediaEditor/finalRender/getScaledLayersAndLines';
+import renderToActualVideo from '@/components/mediaEditor/finalRender/renderToActualVideo';
+import renderToImage from '@/components/mediaEditor/finalRender/renderToImage';
+import renderToVideoGIF from '@/components/mediaEditor/finalRender/renderToVideoGIF';
+import spawnAnimatedPreview from '@/components/mediaEditor/finalRender/spawnAnimatedPreview';
 
 
 export type MediaEditorFinalResultPayload = {

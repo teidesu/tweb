@@ -4,9 +4,9 @@
  * https://github.com/morethanwords/tweb/blob/master/LICENSE
  */
 
-import Icon from '@components/icon';
-import setInnerHTML from '@helpers/dom/setInnerHTML';
-import appImManager from '@lib/appImManager';
+import Icon from '@/components/icon';
+import setInnerHTML from '@/helpers/dom/setInnerHTML';
+import appImManager from '@/lib/appImManager';
 import { isTruthy } from '../helpers/isTruthy';
 
 const hideQuizHint = (element: HTMLElement, onHide: () => void, timeout: number) => {

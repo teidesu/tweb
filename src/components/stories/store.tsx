@@ -1,22 +1,22 @@
-import type { StoriesListPosition, StoriesListType } from '@appManagers/appStoriesManager';
+import type { StoriesListPosition, StoriesListType } from '@/lib/appManagers/appStoriesManager';
 import { untrack, createEffect, on, createMemo, batch, onCleanup, createContext, ParentComponent, splitProps, useContext, getOwner, runWithOwner } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
-import mediaSizes from '@helpers/mediaSizes';
-import clamp from '@helpers/number/clamp';
-import windowSize from '@helpers/windowSize';
-import { StoryItem, PeerStories, StoryAlbum, StoriesStealthMode } from '@layer';
-import StoriesCacheType from '@appManagers/utils/stories/cacheType';
-import insertStory from '@appManagers/utils/stories/insertStory';
-import rootScope, { BroadcastEvents } from '@lib/rootScope';
-import { STORY_DURATION } from '@components/stories/viewer';
+import mediaSizes from '@/helpers/mediaSizes';
+import clamp from '@/helpers/number/clamp';
+import windowSize from '@/helpers/windowSize';
+import { StoryItem, PeerStories, StoryAlbum, StoriesStealthMode } from '@/layer';
+import StoriesCacheType from '@/lib/appManagers/utils/stories/cacheType';
+import insertStory from '@/lib/appManagers/utils/stories/insertStory';
+import rootScope, { BroadcastEvents } from '@/lib/rootScope';
+import { STORY_DURATION } from '@/components/stories/viewer';
 import createListenerSetter from '../../helpers/solid/createListenerSetter';
-import insertInDescendSortedArray from '@helpers/array/insertInDescendSortedArray';
-import { AnyFunction } from '@types';
-import findAndSplice from '@helpers/array/findAndSplice';
-import forEachReverse from '@helpers/array/forEachReverse';
-import getPeerId from '@appManagers/utils/peers/getPeerId';
-import AppStoriesManager from '@appManagers/appStoriesManager';
-import untrackActions from '@helpers/solid/untrackActions';
+import insertInDescendSortedArray from '@/helpers/array/insertInDescendSortedArray';
+import { AnyFunction } from '@/types';
+import findAndSplice from '@/helpers/array/findAndSplice';
+import forEachReverse from '@/helpers/array/forEachReverse';
+import getPeerId from '@/lib/appManagers/utils/peers/getPeerId';
+import AppStoriesManager from '@/lib/appManagers/appStoriesManager';
+import untrackActions from '@/helpers/solid/untrackActions';
 
 export type NextPrevStory = () => void;
 export type ChangeStoryParams = {

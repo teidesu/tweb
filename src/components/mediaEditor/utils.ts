@@ -1,9 +1,9 @@
-import { HistoryItem, MediaEditorState } from '@components/mediaEditor/context';
-import { FontInfo, FontKey, NumberPair, ResizableLayer, TextLayerInfo } from '@components/mediaEditor/types';
-import StickerType from '@config/stickerType';
-import { IS_FIREFOX } from '@environment/userAgent';
-import { hexaToHsla } from '@helpers/color';
-import { logger } from '@lib/logger';
+import { HistoryItem, MediaEditorState } from '@/components/mediaEditor/context';
+import { FontInfo, FontKey, NumberPair, ResizableLayer, TextLayerInfo } from '@/components/mediaEditor/types';
+import StickerType from '@/config/stickerType';
+import { IS_FIREFOX } from '@/environment/userAgent';
+import { hexaToHsla } from '@/helpers/color';
+import { logger } from '@/lib/logger';
 
 export const log = logger('Media editor');
 

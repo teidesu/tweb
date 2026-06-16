@@ -1,10 +1,10 @@
-import DEBUG from '@config/debug';
-import formatBytesPure from '@helpers/formatBytesPure';
-import pause from '@helpers/schedulers/pause';
-import commonStateStorage from '@lib/commonStateStorage';
-import { HTTPHeaderNames, WatchedCachedStorageName, watchedCachedStorageNames } from '@lib/constants';
-import CacheStorageController, { CacheStorageDbName } from '@lib/files/cacheStorage';
-import { logger } from '@lib/logger';
+import DEBUG from '@/config/debug';
+import formatBytesPure from '@/helpers/formatBytesPure';
+import pause from '@/helpers/schedulers/pause';
+import commonStateStorage from '@/lib/commonStateStorage';
+import { HTTPHeaderNames, WatchedCachedStorageName, watchedCachedStorageNames } from '@/lib/constants';
+import CacheStorageController, { CacheStorageDbName } from '@/lib/files/cacheStorage';
+import { logger } from '@/lib/logger';
 
 export const log = logger('SW-clear-old-cache');
 

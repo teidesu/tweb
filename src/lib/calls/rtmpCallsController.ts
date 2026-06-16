@@ -1,14 +1,14 @@
-import { MOUNT_CLASS_TO } from '@config/debug';
-import EventListenerBase from '@helpers/eventListenerBase';
-import { nextRandomUint } from '@helpers/random';
-import { DataJSON, GroupCall, InputGroupCall } from '@layer';
-import { JoinGroupCallJsonPayload } from '@appManagers/appGroupCallsManager';
-import { AppManagers } from '@lib/managers';
-import apiManagerProxy from '@lib/apiManagerProxy';
-import rootScope from '@lib/rootScope';
-import { RTMP_UNIFIED_CHANNEL_ID, RTMP_UNIFIED_QUALITY } from '@lib/calls/constants';
-import RTMP_STATE from '@lib/calls/rtmpState';
-import { logger } from '@lib/logger';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import EventListenerBase from '@/helpers/eventListenerBase';
+import { nextRandomUint } from '@/helpers/random';
+import { DataJSON, GroupCall, InputGroupCall } from '@/layer';
+import { JoinGroupCallJsonPayload } from '@/lib/appManagers/appGroupCallsManager';
+import { AppManagers } from '@/lib/managers';
+import apiManagerProxy from '@/lib/apiManagerProxy';
+import rootScope from '@/lib/rootScope';
+import { RTMP_UNIFIED_CHANNEL_ID, RTMP_UNIFIED_QUALITY } from '@/lib/calls/constants';
+import RTMP_STATE from '@/lib/calls/rtmpState';
+import { logger } from '@/lib/logger';
 
 const log = logger('RTMP');
 

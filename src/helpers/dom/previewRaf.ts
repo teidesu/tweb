@@ -1,4 +1,4 @@
-import { IS_PREVIEW } from '@config/debug';
+import { IS_PREVIEW } from '@/config/debug';
 
 /*
  * A preview tab frequently isn't painting (it runs backgrounded / headless),

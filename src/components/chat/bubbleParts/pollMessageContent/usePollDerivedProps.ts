@@ -1,8 +1,8 @@
-import { useCreatePollLimits } from '@components/popups/createPoll/useCreatePollLimits';
-import compareUint8Arrays from '@helpers/bytes/compareUint8Arrays';
-import { Document, InputMedia, Message, MessageMedia, Photo, PollAnswer } from '@layer';
-import getPeerId from '@lib/appManagers/utils/peers/getPeerId';
-import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import { useCreatePollLimits } from '@/components/popups/createPoll/useCreatePollLimits';
+import compareUint8Arrays from '@/helpers/bytes/compareUint8Arrays';
+import { Document, InputMedia, Message, MessageMedia, Photo, PollAnswer } from '@/layer';
+import getPeerId from '@/lib/appManagers/utils/peers/getPeerId';
+import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
 import { Accessor, createMemo, createResource } from 'solid-js';
 import { unwrap } from 'solid-js/store';
 import { PollMessageContentProps } from './PollMessageContent';

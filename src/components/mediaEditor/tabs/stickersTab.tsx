@@ -1,24 +1,24 @@
 import { batch, createEffect, createResource, createSignal, For, onCleanup, onMount, Show, useContext } from 'solid-js';
 
-import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
-import { Document, EmojiGroup, StickerSet } from '@layer';
-import { i18n } from '@lib/langPack';
+import wrapEmojiText from '@/lib/richTextProcessor/wrapEmojiText';
+import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
+import { Document, EmojiGroup, StickerSet } from '@/layer';
+import { i18n } from '@/lib/langPack';
 
-import SuperStickerRenderer from '@components/emoticonsDropdown/tabs/SuperStickerRenderer';
-import createMiddleware from '@helpers/solid/createMiddleware';
-import LazyLoadQueue from '@components/lazyLoadQueue';
-import { ScrollableX } from '@components/scrollable';
-import { IconTsx } from '@components/iconTsx';
-import Space from '@components/space';
+import SuperStickerRenderer from '@/components/emoticonsDropdown/tabs/SuperStickerRenderer';
+import createMiddleware from '@/helpers/solid/createMiddleware';
+import LazyLoadQueue from '@/components/lazyLoadQueue';
+import { ScrollableX } from '@/components/scrollable';
+import { IconTsx } from '@/components/iconTsx';
+import Space from '@/components/space';
 
-import useNormalizePoint from '@components/mediaEditor/canvas/useNormalizePoint';
-import { HistoryItem, useMediaEditorContext } from '@components/mediaEditor/context';
-import { ResizableLayer } from '@components/mediaEditor/types';
-import { delay } from '@components/mediaEditor/utils';
+import useNormalizePoint from '@/components/mediaEditor/canvas/useNormalizePoint';
+import { HistoryItem, useMediaEditorContext } from '@/components/mediaEditor/context';
+import { ResizableLayer } from '@/components/mediaEditor/types';
+import { delay } from '@/components/mediaEditor/utils';
 
-import { TabContentContext } from '@components/mediaEditor/tabs/tabContent';
-import { getStickerSetInputById } from '@lib/appManagers/utils/stickers/getStickerSetInput';
+import { TabContentContext } from '@/components/mediaEditor/tabs/tabContent';
+import { getStickerSetInputById } from '@/lib/appManagers/utils/stickers/getStickerSetInput';
 
 export default function StickersTab() {
   const { wrapStickerSetThumb, EmoticonsSearch } = useHotReloadGuard();

@@ -1,17 +1,17 @@
-import type ChatInput from '@components/chat/input';
-import type StickersHelper from '@components/chat/stickersHelper';
-import { appendEmoji as wrapAppEmoji, getEmojiFromElement } from '@components/emoticonsDropdown/tabs/emoji';
-import { ScrollableX } from '@components/scrollable';
-import AutocompleteHelper from '@components/chat/autocompleteHelper';
-import AutocompleteHelperController from '@components/chat/autocompleteHelperController';
-import { AppManagers } from '@lib/managers';
-import { CustomEmojiRendererElement } from '@lib/customEmoji/renderer';
-import mediaSizes from '@helpers/mediaSizes';
-import { getMiddleware, Middleware } from '@helpers/middleware';
-import CustomEmojiElement from '@lib/customEmoji/element';
-import attachStickerViewerListeners from '@components/stickerViewer';
-import ListenerSetter from '@helpers/listenerSetter';
-import rootScope from '@lib/rootScope';
+import type ChatInput from '@/components/chat/input';
+import type StickersHelper from '@/components/chat/stickersHelper';
+import { appendEmoji as wrapAppEmoji, getEmojiFromElement } from '@/components/emoticonsDropdown/tabs/emoji';
+import { ScrollableX } from '@/components/scrollable';
+import AutocompleteHelper from '@/components/chat/autocompleteHelper';
+import AutocompleteHelperController from '@/components/chat/autocompleteHelperController';
+import { AppManagers } from '@/lib/managers';
+import { CustomEmojiRendererElement } from '@/lib/customEmoji/renderer';
+import mediaSizes from '@/helpers/mediaSizes';
+import { getMiddleware, Middleware } from '@/helpers/middleware';
+import CustomEmojiElement from '@/lib/customEmoji/element';
+import attachStickerViewerListeners from '@/components/stickerViewer';
+import ListenerSetter from '@/helpers/listenerSetter';
+import rootScope from '@/lib/rootScope';
 
 export default class EmojiHelper extends AutocompleteHelper {
   private scrollable: ScrollableX;

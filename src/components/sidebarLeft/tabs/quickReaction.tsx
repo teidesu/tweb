@@ -1,12 +1,12 @@
 import { onMount } from 'solid-js';
-import { AvailableReaction } from '@layer';
-import RadioField from '@components/radioField';
-import Row, { RadioFormFromRows } from '@components/row';
-import Section from '@components/section';
-import rootScope from '@lib/rootScope';
-import wrapStickerToRow from '@components/wrappers/stickerToRow';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
+import { AvailableReaction } from '@/layer';
+import RadioField from '@/components/radioField';
+import Row, { RadioFormFromRows } from '@/components/row';
+import Section from '@/components/section';
+import rootScope from '@/lib/rootScope';
+import wrapStickerToRow from '@/components/wrappers/stickerToRow';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@/components/solidJsTabs/promiseCollector';
 
 const QuickReaction = () => {
   const [tab] = useSuperTab();

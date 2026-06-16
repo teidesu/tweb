@@ -1,9 +1,9 @@
-import type Scrollable from '@components/scrollable';
-import type { ScrollableContextValue } from '@components/scrollable2';
-import { MOUNT_CLASS_TO } from '@config/debug';
-import { IS_SAFARI } from '@environment/userAgent';
-import getVisibleRect from '@helpers/dom/getVisibleRect';
-import { fastRaf } from '@helpers/schedulers';
+import type Scrollable from '@/components/scrollable';
+import type { ScrollableContextValue } from '@/components/scrollable2';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import { IS_SAFARI } from '@/environment/userAgent';
+import getVisibleRect from '@/helpers/dom/getVisibleRect';
+import { fastRaf } from '@/helpers/schedulers';
 
 // let USE_REFLOW = false;
 // if(IS_SAFARI) {

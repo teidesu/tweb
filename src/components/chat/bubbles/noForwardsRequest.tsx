@@ -1,9 +1,9 @@
-import ReplyMarkupLayout from '@components/chat/bubbleParts/replyMarkupLayout';
-import ServiceBubbleDescription from '@components/chat/bubbles/serviceBubbleDescription';
-import Chat from '@components/chat/chat';
-import Icon from '@components/icon';
-import { Message } from '@layer';
-import { i18n, LangPackKey } from '@lib/langPack';
+import ReplyMarkupLayout from '@/components/chat/bubbleParts/replyMarkupLayout';
+import ServiceBubbleDescription from '@/components/chat/bubbles/serviceBubbleDescription';
+import Chat from '@/components/chat/chat';
+import Icon from '@/components/icon';
+import { Message } from '@/layer';
+import { i18n, LangPackKey } from '@/lib/langPack';
 
 export function NoForwardsRequestContent(props: {
   peerTitle?: HTMLElement

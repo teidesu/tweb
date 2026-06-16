@@ -1,5 +1,5 @@
-import { webp2png } from '@lib/webp/webp';
-import type { ConvertWebPTask } from '@lib/webp/webpWorkerController';
+import { webp2png } from '@/lib/webp/webp';
+import type { ConvertWebPTask } from '@/lib/webp/webpWorkerController';
 
 const ctx = self as any as DedicatedWorkerGlobalScope;
 const tasks: ConvertWebPTask[] = [];

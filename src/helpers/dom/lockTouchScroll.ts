@@ -1,4 +1,4 @@
-import cancelEvent from '@helpers/dom/cancelEvent';
+import cancelEvent from '@/helpers/dom/cancelEvent';
 
 export default function lockTouchScroll(container: HTMLElement) {
   const onTouchMove = (e: TouchEvent) => {

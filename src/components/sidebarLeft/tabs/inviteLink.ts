@@ -1,13 +1,13 @@
-import { copyTextToClipboard } from '@helpers/clipboard';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import ListenerSetter from '@helpers/listenerSetter';
-import wrapPlainText from '@lib/richTextProcessor/wrapPlainText';
-import Button from '@components/button';
-import ButtonIcon from '@components/buttonIcon';
-import ButtonMenuToggle from '@components/buttonMenuToggle';
-import shareUrlToPeers from '@components/popups/shareUrl';
-import ripple from '@components/ripple';
-import { toastNew } from '@components/toast';
+import { copyTextToClipboard } from '@/helpers/clipboard';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import ListenerSetter from '@/helpers/listenerSetter';
+import wrapPlainText from '@/lib/richTextProcessor/wrapPlainText';
+import Button from '@/components/button';
+import ButtonIcon from '@/components/buttonIcon';
+import ButtonMenuToggle from '@/components/buttonMenuToggle';
+import shareUrlToPeers from '@/components/popups/shareUrl';
+import ripple from '@/components/ripple';
+import { toastNew } from '@/components/toast';
 
 export class InviteLink {
   public container: HTMLDivElement;

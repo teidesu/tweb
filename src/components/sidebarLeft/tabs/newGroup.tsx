@@ -1,21 +1,21 @@
 import { Component, onCleanup, onMount } from 'solid-js';
-import { MissingInvitee } from '@layer';
-import appDialogsManager from '@lib/appDialogsManager';
-import InputField from '@components/inputField';
-import AvatarEdit, { AvatarEditPayload } from '@components/avatarEdit';
-import I18n, { i18n } from '@lib/langPack';
-import ButtonCorner from '@components/buttonCorner';
-import getUserStatusString from '@components/wrappers/getUserStatusString';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import SettingSection from '@components/settingSection';
-import { handleMissingInvitees } from '@components/addChatUsers';
-import type { AppChatsManager } from '@lib/appManagers/appChatsManager';
-import { handleChannelsTooMuch } from '@components/popups/channelsTooMuch';
-import toggleDisability from '@helpers/dom/toggleDisability';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
-import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
-import type { AppNewGroupTab } from '@components/solidJsTabs/tabs';
+import { MissingInvitee } from '@/layer';
+import appDialogsManager from '@/lib/appDialogsManager';
+import InputField from '@/components/inputField';
+import AvatarEdit, { AvatarEditPayload } from '@/components/avatarEdit';
+import I18n, { i18n } from '@/lib/langPack';
+import ButtonCorner from '@/components/buttonCorner';
+import getUserStatusString from '@/components/wrappers/getUserStatusString';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import SettingSection from '@/components/settingSection';
+import { handleMissingInvitees } from '@/components/addChatUsers';
+import type { AppChatsManager } from '@/lib/appManagers/appChatsManager';
+import { handleChannelsTooMuch } from '@/components/popups/channelsTooMuch';
+import toggleDisability from '@/helpers/dom/toggleDisability';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@/components/solidJsTabs/promiseCollector';
+import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
+import type { AppNewGroupTab } from '@/components/solidJsTabs/tabs';
 
 interface OpenStreetMapInterface {
   place_id?: number;

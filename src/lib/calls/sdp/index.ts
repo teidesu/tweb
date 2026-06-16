@@ -1,5 +1,5 @@
-import SDPMediaSection from '@lib/calls/sdp/mediaSection';
-import SDPSessionSection from '@lib/calls/sdp/sessionSection';
+import SDPMediaSection from '@/lib/calls/sdp/mediaSection';
+import SDPSessionSection from '@/lib/calls/sdp/sessionSection';
 
 export type AttributeKey = 'group' | 'rtcp' | 'ice-ufrag' |
   'ice-pwd' | 'ice-options' | 'fingerprint' | 'setup' |

@@ -1,5 +1,5 @@
-import nthChild from '@helpers/dom/nthChild';
-import whichChild from '@helpers/dom/whichChild';
+import nthChild from '@/helpers/dom/nthChild';
+import whichChild from '@/helpers/dom/whichChild';
 
 export default function positionElementByIndex(element: HTMLElement, container: HTMLElement, pos: number, prevPos?: number) {
   if (prevPos === undefined) {

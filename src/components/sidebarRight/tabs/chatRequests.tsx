@@ -1,16 +1,16 @@
 import { Component } from 'solid-js';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import { createSelectorForTab } from '@components/sidebarRight/tabs/participantsSelector';
-import { getImportersLoader } from '@components/sidebarRight/tabs/chatInviteLinkShared';
-import { formatFullSentTime } from '@helpers/date';
-import Button from '@components/button';
-import { i18n } from '@lib/langPack';
-import findUpClassName from '@helpers/dom/findUpClassName';
-import { DialogElement } from '@lib/appDialogsManager';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
-import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
-import type { AppChatRequestsTab } from '@components/solidJsTabs/tabs';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import { createSelectorForTab } from '@/components/sidebarRight/tabs/participantsSelector';
+import { getImportersLoader } from '@/components/sidebarRight/tabs/chatInviteLinkShared';
+import { formatFullSentTime } from '@/helpers/date';
+import Button from '@/components/button';
+import { i18n } from '@/lib/langPack';
+import findUpClassName from '@/helpers/dom/findUpClassName';
+import { DialogElement } from '@/lib/appDialogsManager';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@/components/solidJsTabs/promiseCollector';
+import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
+import type { AppChatRequestsTab } from '@/components/solidJsTabs/tabs';
 
 const ChatRequests: Component = () => {
   const [tab] = useSuperTab<typeof AppChatRequestsTab>();

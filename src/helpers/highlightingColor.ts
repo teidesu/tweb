@@ -1,5 +1,5 @@
-import { rgbaToHsla } from '@helpers/color';
-import clamp from '@helpers/number/clamp';
+import { rgbaToHsla } from '@/helpers/color';
+import clamp from '@/helpers/number/clamp';
 
 // Match Android's `bubbleSelectedOverlay` (Theme.java): force a vivid highlight regardless
 // of how muted the wallpaper is, so the jump-to-message flash stays contrasty. The previous

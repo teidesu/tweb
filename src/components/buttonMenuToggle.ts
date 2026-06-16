@@ -1,14 +1,14 @@
-import contextMenuController from '@helpers/contextMenuController';
-import cancelEvent from '@helpers/dom/cancelEvent';
-import { AttachClickOptions, CLICK_EVENT_NAME, hasMouseMovedSinceDown } from '@helpers/dom/clickEvent';
-import ListenerSetter from '@helpers/listenerSetter';
-import ButtonIcon from '@components/buttonIcon';
-import ButtonMenu, { ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
-import filterAsync from '@helpers/array/filterAsync';
-import { doubleRaf } from '@helpers/schedulers';
-import callbackify from '@helpers/callbackify';
-import findUpClassName from '@helpers/dom/findUpClassName';
-import { MenuPositionPadding, positionMenuTrigger } from '@helpers/positionMenu';
+import contextMenuController from '@/helpers/contextMenuController';
+import cancelEvent from '@/helpers/dom/cancelEvent';
+import { AttachClickOptions, CLICK_EVENT_NAME, hasMouseMovedSinceDown } from '@/helpers/dom/clickEvent';
+import ListenerSetter from '@/helpers/listenerSetter';
+import ButtonIcon from '@/components/buttonIcon';
+import ButtonMenu, { ButtonMenuItemOptionsVerifiable } from '@/components/buttonMenu';
+import filterAsync from '@/helpers/array/filterAsync';
+import { doubleRaf } from '@/helpers/schedulers';
+import callbackify from '@/helpers/callbackify';
+import findUpClassName from '@/helpers/dom/findUpClassName';
+import { MenuPositionPadding, positionMenuTrigger } from '@/helpers/positionMenu';
 
 // TODO: refactor for attachClickEvent, because if move finger after touchstart, it will start anyway
 export function ButtonMenuToggleHandler({

@@ -1,4 +1,4 @@
-import type { VIDEO_MIME_TYPE } from '@environment/videoMimeTypesSupport';
+import type { VIDEO_MIME_TYPE } from '@/environment/videoMimeTypesSupport';
 
 export default function canvasToVideo({
   canvas,

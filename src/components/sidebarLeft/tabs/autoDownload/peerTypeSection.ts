@@ -1,9 +1,9 @@
-import type ListenerSetter from '@helpers/listenerSetter';
-import { LangPackKey } from '@lib/langPack';
-import CheckboxField from '@components/checkboxField';
-import { CreateRowFromCheckboxField } from '@components/row';
-import SettingSection from '@components/settingSection';
-import { joinDeepPath } from '@helpers/object/setDeepProperty';
+import type ListenerSetter from '@/helpers/listenerSetter';
+import { LangPackKey } from '@/lib/langPack';
+import CheckboxField from '@/components/checkboxField';
+import { CreateRowFromCheckboxField } from '@/components/row';
+import SettingSection from '@/components/settingSection';
+import { joinDeepPath } from '@/helpers/object/setDeepProperty';
 
 export function autoDownloadPeerTypeSection(type: 'photo' | 'video' | 'file', title: LangPackKey, listenerSetter: ListenerSetter) {
   const section = new SettingSection({ name: title });

@@ -1,5 +1,5 @@
-import { Chat, User } from '@layer';
-import wrapAbbreviation from '@lib/richTextProcessor/wrapAbbreviation';
+import { Chat, User } from '@/layer';
+import wrapAbbreviation from '@/lib/richTextProcessor/wrapAbbreviation';
 
 export default function getPeerInitials(peer: Chat | User) {
   let str = '';

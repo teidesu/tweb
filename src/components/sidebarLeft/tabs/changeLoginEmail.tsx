@@ -1,11 +1,11 @@
-import { EnterCodeStep, EnterEmailStep } from '@components/popups/emailSetup';
-import { SliderSuperTab } from '@components/slider';
+import { EnterCodeStep, EnterEmailStep } from '@/components/popups/emailSetup';
+import { SliderSuperTab } from '@/components/slider';
 import { render } from 'solid-js/web';
 
-import styles from '@components/sidebarLeft/tabs/changeLoginEmail.module.scss';
-import { AccountSentEmailCode } from '@layer';
-import { toastNew } from '@components/toast';
-import { AppSettingsTab } from '@components/solidJsTabs';
+import styles from '@/components/sidebarLeft/tabs/changeLoginEmail.module.scss';
+import { AccountSentEmailCode } from '@/layer';
+import { toastNew } from '@/components/toast';
+import { AppSettingsTab } from '@/components/solidJsTabs';
 
 class ChangeLoginEmailCodeTab extends SliderSuperTab {
   private dispose: VoidFunction

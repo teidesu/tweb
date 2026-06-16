@@ -1,4 +1,4 @@
-import clamp from '@helpers/number/clamp';
+import clamp from '@/helpers/number/clamp';
 import { createMemo, JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 

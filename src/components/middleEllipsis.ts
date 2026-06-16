@@ -1,8 +1,8 @@
-import { FontFamily, FontSize, FontWeight } from '@config/font';
-import getTextWidth from '@helpers/canvas/getTextWidth';
-import mediaSizes from '@helpers/mediaSizes';
-import clamp from '@helpers/number/clamp';
-import { fastRaf } from '@helpers/schedulers';
+import { FontFamily, FontSize, FontWeight } from '@/config/font';
+import getTextWidth from '@/helpers/canvas/getTextWidth';
+import mediaSizes from '@/helpers/mediaSizes';
+import clamp from '@/helpers/number/clamp';
+import { fastRaf } from '@/helpers/schedulers';
 
 // Thanks to https://stackoverflow.com/a/49349813
 

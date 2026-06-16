@@ -1,6 +1,6 @@
-import cancelEvent from '@helpers/dom/cancelEvent';
-import Icon from '@components/icon';
-import InputField, { InputFieldOptions } from '@components/inputField';
+import cancelEvent from '@/helpers/dom/cancelEvent';
+import Icon from '@/components/icon';
+import InputField, { InputFieldOptions } from '@/components/inputField';
 
 export class PasswordInputHelpers {
   public passwordVisible = false;

@@ -1,20 +1,20 @@
 import { JSX, Match, Show, Switch, children, createMemo, lazy, onMount } from 'solid-js';
 
-import Scrollable from '@components/scrollable2';
-import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import { IS_MOBILE_SAFARI } from '@environment/userAgent';
-import loadFonts from '@helpers/dom/loadFonts';
-import { doubleRaf } from '@helpers/schedulers';
-import pause from '@helpers/schedulers/pause';
-import classNames from '@helpers/string/classNames';
-import themeController from '@helpers/themeController';
-import { changeAccount } from '@lib/accounts/changeAccount';
-import { getCurrentAccount } from '@lib/accounts/getCurrentAccount';
-import { getValidatedAccount } from '@lib/accounts/getValidatedAccount';
-import rootScope from '@lib/rootScope';
-import sessionStorage from '@lib/sessionStorage';
+import Scrollable from '@/components/scrollable2';
+import IS_TOUCH_SUPPORTED from '@/environment/touchSupport';
+import { IS_MOBILE_SAFARI } from '@/environment/userAgent';
+import loadFonts from '@/helpers/dom/loadFonts';
+import { doubleRaf } from '@/helpers/schedulers';
+import pause from '@/helpers/schedulers/pause';
+import classNames from '@/helpers/string/classNames';
+import themeController from '@/helpers/themeController';
+import { changeAccount } from '@/lib/accounts/changeAccount';
+import { getCurrentAccount } from '@/lib/accounts/getCurrentAccount';
+import { getValidatedAccount } from '@/lib/accounts/getValidatedAccount';
+import rootScope from '@/lib/rootScope';
+import sessionStorage from '@/lib/sessionStorage';
 
-import { Transition } from '@vendor/solid-transition-group';
+import { Transition } from '@/vendor/solid-transition-group';
 
 import {
   AuthFlowContext,
@@ -25,7 +25,7 @@ import {
 } from '@/pages/authFlow';
 import styles from '@/pages/authFlow.module.scss';
 import { bootstrapIm } from '@/pages/bootstrapIm';
-import Button from '@components/buttonTsx';
+import Button from '@/components/buttonTsx';
 
 if (import.meta.hot) import.meta.hot.accept();
 

@@ -1,4 +1,4 @@
-import createMp4VideoEncoder from '@components/mediaEditor/finalRender/createMp4VideoEncoder';
+import createMp4VideoEncoder from '@/components/mediaEditor/finalRender/createMp4VideoEncoder';
 
 let supported: boolean;
 
@@ -15,7 +15,7 @@ export async function canConvertGifToVideo(): Promise<boolean> {
     return supported = false;
   }
 
-  const { supportsVideoEncoding } = await import('@components/mediaEditor/support');
+  const { supportsVideoEncoding } = await import('@/components/mediaEditor/support');
   return supported = await supportsVideoEncoding();
 }
 

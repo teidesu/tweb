@@ -1,5 +1,5 @@
-import formatDuration from '@helpers/formatDuration';
-import toHHMMSS from '@helpers/string/toHHMMSS';
+import formatDuration from '@/helpers/formatDuration';
+import toHHMMSS from '@/helpers/string/toHHMMSS';
 import { Accessor, createEffect, createMemo, createSignal, JSX, onCleanup } from 'solid-js';
 import { wrapFormattedDuration } from './wrappers/wrapDuration';
 

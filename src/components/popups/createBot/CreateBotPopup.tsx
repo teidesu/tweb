@@ -1,11 +1,11 @@
-import styles from '@components/popups/createBot/createBot.module.scss';
-import PopupElement from '@components/popups/indexTsx';
-import SimpleFormField from '@components/simpleFormField';
-import Space from '@components/space';
-import { createMutation } from '@helpers/solid/createMutation';
-import { I18nTsx } from '@helpers/solid/i18n';
-import { LangPackKey } from '@lib/langPack';
-import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import styles from '@/components/popups/createBot/createBot.module.scss';
+import PopupElement from '@/components/popups/indexTsx';
+import SimpleFormField from '@/components/simpleFormField';
+import Space from '@/components/space';
+import { createMutation } from '@/helpers/solid/createMutation';
+import { I18nTsx } from '@/helpers/solid/i18n';
+import { LangPackKey } from '@/lib/langPack';
+import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
 import { createComputed, createMemo, createSignal, on, onCleanup, Show } from 'solid-js';
 
 

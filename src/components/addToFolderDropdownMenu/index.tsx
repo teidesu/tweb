@@ -1,16 +1,16 @@
 import { Accessor, createComputed, createEffect, createMemo, createSelector, createSignal, For, onCleanup, onMount, Setter, Show } from 'solid-js';
-import { IS_MOBILE } from '@environment/userAgent';
-import { CLICK_EVENT_NAME } from '@helpers/dom/clickEvent';
-import { Dialog } from '@layer';
-import { i18n } from '@lib/langPack';
-import defineSolidElement, { PassedProps } from '@lib/solidjs/defineSolidElement';
-import { MyDialogFilter } from '@lib/storages/filters';
-import appNavigationController from '@components/appNavigationController';
-import { IconTsx } from '@components/iconTsx';
-import Scrollable from '@components/scrollable2';
-import { createFolderItems, createSearchableFolders, FolderItem, useInputKeydown, useToggleDialogInFilter, useTooltipHint } from '@components/addToFolderDropdownMenu/hooks';
-import styles from '@components/addToFolderDropdownMenu/styles.module.scss';
-import { fetchDialogFilters } from '@components/addToFolderDropdownMenu/utils';
+import { IS_MOBILE } from '@/environment/userAgent';
+import { CLICK_EVENT_NAME } from '@/helpers/dom/clickEvent';
+import { Dialog } from '@/layer';
+import { i18n } from '@/lib/langPack';
+import defineSolidElement, { PassedProps } from '@/lib/solidjs/defineSolidElement';
+import { MyDialogFilter } from '@/lib/storages/filters';
+import appNavigationController from '@/components/appNavigationController';
+import { IconTsx } from '@/components/iconTsx';
+import Scrollable from '@/components/scrollable2';
+import { createFolderItems, createSearchableFolders, FolderItem, useInputKeydown, useToggleDialogInFilter, useTooltipHint } from '@/components/addToFolderDropdownMenu/hooks';
+import styles from '@/components/addToFolderDropdownMenu/styles.module.scss';
+import { fetchDialogFilters } from '@/components/addToFolderDropdownMenu/utils';
 
 if (import.meta.hot) import.meta.hot.accept();
 

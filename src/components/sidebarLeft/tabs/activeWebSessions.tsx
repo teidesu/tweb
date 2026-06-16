@@ -1,18 +1,18 @@
 import { Component, onMount } from 'solid-js';
-import { formatDateAccordingToTodayNew } from '@helpers/date';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import findUpClassName from '@helpers/dom/findUpClassName';
-import toggleDisability from '@helpers/dom/toggleDisability';
-import { WebAuthorization } from '@layer';
-import { avatarNew } from '@components/avatarNew';
-import Button from '@components/button';
-import confirmationPopup from '@components/confirmationPopup';
-import Row from '@components/row';
-import SettingSection from '@components/settingSection';
-import wrapPeerTitle from '@components/wrappers/peerTitle';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { usePromiseCollector } from '@components/solidJsTabs/promiseCollector';
-import type { AppActiveWebSessionsTab } from '@components/solidJsTabs/tabs';
+import { formatDateAccordingToTodayNew } from '@/helpers/date';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import findUpClassName from '@/helpers/dom/findUpClassName';
+import toggleDisability from '@/helpers/dom/toggleDisability';
+import { WebAuthorization } from '@/layer';
+import { avatarNew } from '@/components/avatarNew';
+import Button from '@/components/button';
+import confirmationPopup from '@/components/confirmationPopup';
+import Row from '@/components/row';
+import SettingSection from '@/components/settingSection';
+import wrapPeerTitle from '@/components/wrappers/peerTitle';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { usePromiseCollector } from '@/components/solidJsTabs/promiseCollector';
+import type { AppActiveWebSessionsTab } from '@/components/solidJsTabs/tabs';
 
 const ActiveWebSessions: Component = () => {
   const [tab] = useSuperTab<typeof AppActiveWebSessionsTab>();

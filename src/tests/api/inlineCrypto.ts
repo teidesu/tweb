@@ -1,5 +1,5 @@
-import cryptoMessagePort from '@lib/crypto/cryptoMessagePort';
-import { cryptoMethodsRegistry } from '@lib/crypto/cryptoMethodsRegistry';
+import cryptoMessagePort from '@/lib/crypto/cryptoMessagePort';
+import { cryptoMethodsRegistry } from '@/lib/crypto/cryptoMethodsRegistry';
 
 let registered = false;
 

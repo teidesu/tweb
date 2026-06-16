@@ -1,6 +1,6 @@
-import clamp from '@helpers/number/clamp';
-import findUpAsChild from '@helpers/dom/findUpAsChild';
-import whichChild from '@helpers/dom/whichChild';
+import clamp from '@/helpers/number/clamp';
+import findUpAsChild from '@/helpers/dom/findUpAsChild';
+import whichChild from '@/helpers/dom/whichChild';
 
 export default function compareNodes(node1: ChildNode, node1Offset: number, node2: ChildNode, node2Offset: number) {
   let diff: number;

@@ -67,42 +67,34 @@ src/
 
 ## Path Aliases
 
-Always use these aliases instead of relative paths:
+Always use the `@/` alias instead of relative paths:
 
 ```typescript
-@components/*   → src/components/
-@helpers/*      → src/helpers/
-@hooks/*        → src/hooks/
-@stores/*       → src/stores/
-@lib/*          → src/lib/
-@appManagers/*  → src/lib/appManagers/
-@environment/*  → src/environment/
-@config/*       → src/config/
-@vendor/*       → src/vendor/
-@layer          → src/layer.d.ts    (MTProto API types)
-@types          → src/types.d.ts    (utility types)
-@/*             → src/
+@/*       → src/*
+
+// examples:
+@/components/...                  → src/components/...
+@/helpers/...                     → src/helpers/...
+@/lib/...                         → src/lib/...
+@/lib/appManagers/...             → src/lib/appManagers/...
+@/environment/...                 → src/environment/...
+@/config/...                      → src/config/...
+@/vendor/...                      → src/vendor/...
+@/layer                          → src/layer.d.ts    (MTProto API types)
+@/types                          → src/types.d.ts    (utility types)
 ```
 
 ## Code Style (all ESLint-enforced)
 
-Non-obvious rules — these differ from common defaults:
-
-- **Space after keywords**: `if (cond)`, `for (...)`, `while(...)`, `switch`, `catch` — not `if(cond)`
-- **Space inside `{}`, no space inside `[]`**: `{ a: 1 }` and `[1, 2]` — not `{ a: 1 }`
-- **Trailing comma** when multi-line
-- **No space before function paren**: `function foo()`
-- **No `return await`** — return the promise directly
-
-Standard defaults, also enforced: 2-space indent, single quotes, LF + final newline, no trailing whitespace, max 2 blank lines, `prefer-const`.
+2-space indent, single quotes, LF + final newline, no trailing whitespace, max 2 blank lines, `prefer-const`.
 
 ## TypeScript Notes
 
 - `strict: true` but `strictPropertyInitialization: false`
 - `useDefineForClassFields: false` — important for class field behavior
 - `jsxImportSource: solid-js` — JSX is Solid.js, not React
-- MTProto types live in `src/layer.d.ts` (664KB, auto-generated); import from `@layer`
-- Utility types (AuthState, WorkerTask, etc.) live in `src/types.d.ts`; import from `@types`
+- MTProto types live in `src/layer.d.ts` (664KB, auto-generated); import from `@/layer`
+- Utility types (AuthState, WorkerTask, etc.) live in `src/types.d.ts`; import from `@/types`
 - Global types available everywhere: `PeerId`, `UserId`, `ChatId`, `BotId`, `DocId`, `Long`, `Icon`, `ApiError`, `ErrorType`, `MaybePromise<T>`. Defined in `src/global.d.ts`.
 
 ## Key Patterns
@@ -113,7 +105,7 @@ Components are in `.tsx` files. Props typed inline. Use `classNames()` helper fo
 
 ```typescript
 import {JSX} from 'solid-js';
-import classNames from '@helpers/string/classNames';
+import classNames from '@/helpers/string/classNames';
 
 export default function MyComponent(props: {
   class?: string,
@@ -134,7 +126,7 @@ For new components, **always** use CSS modules.
 Scoped styles use `.module.scss` files. Import as `styles`:
 
 ```typescript
-import styles from '@components/chat/bubbles/service.module.scss';
+import styles from '@/components/chat/bubbles/service.module.scss';
 // Usage: <div class={styles.wrap}>
 ```
 
@@ -160,7 +152,7 @@ Stores in `src/stores/` use `createRoot` + `createSignal` and export a hook:
 
 ```typescript
 import {createRoot, createSignal} from 'solid-js';
-import rootScope from '@lib/rootScope';
+import rootScope from '@/lib/rootScope';
 
 const [value, setValue] = createRoot(() => createSignal(initialValue));
 rootScope.addEventListener('some_event', setValue);
@@ -175,7 +167,7 @@ export default function useValue() {
 Business logic lives in `AppManager` subclasses in `src/lib/appManagers/`. They communicate via `rootScope` events and are accessed via `rootScope.managers`:
 
 ```typescript
-import {AppManager} from '@appManagers/manager';
+import {AppManager} from '@/lib/appManagers/manager';
 
 export class AppSomethingManager extends AppManager {
   protected after() {
@@ -222,7 +214,7 @@ return this.apiManager.invokeApiSingleProcess({
 Global event bus and context. Available everywhere:
 
 ```typescript
-import rootScope from '@lib/rootScope';
+import rootScope from '@/lib/rootScope';
 
 rootScope.addEventListener('premium_toggle', handler);
 rootScope.managers.appChatsManager.getChat(chatId);
@@ -232,13 +224,13 @@ IMPORTANT: `rootScope.managers.*` are asynchronous proxies to a shared worker. E
 
 ### Media devices (camera / microphone)
 
-**Strict rule — never call `navigator.mediaDevices.getUserMedia` directly when you need a camera or microphone. Use `getStream` from `@lib/calls/helpers/getStream`.** It is the single chokepoint for every `getUserMedia` in the app (calls, voice notes, round-video notes), so two things happen for free:
+**Strict rule — never call `navigator.mediaDevices.getUserMedia` directly when you need a camera or microphone. Use `getStream` from `@/lib/calls/helpers/getStream`.** It is the single chokepoint for every `getUserMedia` in the app (calls, voice notes, round-video notes), so two things happen for free:
 
 - It honours the device the user picked in **Settings → Speakers and Camera** (`appSettings.callDevices.cameraId` / `microphoneId`).
 - It self-heals a stale selection: if the saved device is gone it strips the `deviceId`, clears the now-dead `callDevices.*` entry, and retries on the OS default — incrementally, so a still-valid device survives when only the other one is stale.
 
 ```typescript
-import getStream from '@lib/calls/helpers/getStream';
+import getStream from '@/lib/calls/helpers/getStream';
 
 // ❌ wrong — ignores the chosen device, no fallback
 const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
@@ -249,12 +241,12 @@ const stream = await getStream({video, audio});
 
 For the standard call-tuned video/audio constraints (which already inject the selected device), build them with `getVideoConstraints()` / `getAudioConstraints()` from the same folder; otherwise pass your own constraints and `getStream` handles acquisition + device fallback.
 
-### Imports from `@layer`
+### Imports from `@/layer`
 
-All MTProto types come from `@layer`:
+All MTProto types come from `@/layer`:
 
 ```typescript
-import {Message, Chat, User, InputPeer} from '@layer';
+import {Message, Chat, User, InputPeer} from '@/layer';
 ```
 
 ## CSS / SCSS

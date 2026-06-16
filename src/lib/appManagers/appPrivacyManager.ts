@@ -1,8 +1,8 @@
-import { InputPrivacyKey, InputPrivacyRule, PrivacyRule, PrivacyKey, GlobalPrivacySettings, AccountSetContentSettings, AccountContentSettings } from '@layer';
-import convertInputKeyToKey from '@helpers/string/convertInputKeyToKey';
-import { AppManager } from '@appManagers/manager';
-import App from '@config/app';
-import Schema from '@lib/mtproto/schema';
+import { InputPrivacyKey, InputPrivacyRule, PrivacyRule, PrivacyKey, GlobalPrivacySettings, AccountSetContentSettings, AccountContentSettings } from '@/layer';
+import convertInputKeyToKey from '@/helpers/string/convertInputKeyToKey';
+import { AppManager } from '@/lib/appManagers/manager';
+import App from '@/config/app';
+import Schema from '@/lib/mtproto/schema';
 
 export class AppPrivacyManager extends AppManager {
   private privacy: Partial<{

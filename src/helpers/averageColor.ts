@@ -1,4 +1,4 @@
-import { renderImageFromUrlPromise } from '@helpers/dom/renderImageFromUrl';
+import { renderImageFromUrlPromise } from '@/helpers/dom/renderImageFromUrl';
 
 export function averageColorFromCanvas(canvas: HTMLCanvasElement) {
   const context = canvas.getContext('2d');

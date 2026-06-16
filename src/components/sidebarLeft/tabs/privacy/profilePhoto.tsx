@@ -1,17 +1,17 @@
 import privacyTab from './privacyTab';
-import PrivacySection from '@components/privacySection';
-import { i18n, LangPackKey } from '@lib/langPack';
-import { SliderSuperTabEventable } from '@components/sliderTab';
-import SettingSection from '@components/settingSection';
-import Row from '@components/row';
-import { pickAvatarAndUpload } from '@components/avatarEdit';
-import confirmationPopup from '@components/confirmationPopup';
-import rootScope from '@lib/rootScope';
-import { avatarNew, wrapPhotoToAvatar } from '@components/avatarNew';
-import { getMiddleware, MiddlewareHelper } from '@helpers/middleware';
-import { UserFull, Photo } from '@layer';
-import ProgressivePreloader from '@components/preloader';
-import type { CancellablePromise } from '@helpers/cancellablePromise';
+import PrivacySection from '@/components/privacySection';
+import { i18n, LangPackKey } from '@/lib/langPack';
+import { SliderSuperTabEventable } from '@/components/sliderTab';
+import SettingSection from '@/components/settingSection';
+import Row from '@/components/row';
+import { pickAvatarAndUpload } from '@/components/avatarEdit';
+import confirmationPopup from '@/components/confirmationPopup';
+import rootScope from '@/lib/rootScope';
+import { avatarNew, wrapPhotoToAvatar } from '@/components/avatarNew';
+import { getMiddleware, MiddlewareHelper } from '@/helpers/middleware';
+import { UserFull, Photo } from '@/layer';
+import ProgressivePreloader from '@/components/preloader';
+import type { CancellablePromise } from '@/helpers/cancellablePromise';
 
 const caption: LangPackKey = 'PrivacySettingsController.ProfilePhoto.CustomHelp';
 

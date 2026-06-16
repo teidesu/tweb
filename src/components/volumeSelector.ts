@@ -1,12 +1,12 @@
-import cancelEvent from '@helpers/dom/cancelEvent';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import findUpClassName from '@helpers/dom/findUpClassName';
-import ListenerSetter from '@helpers/listenerSetter';
-import safeAssign from '@helpers/object/safeAssign';
-import { _tgico } from '@helpers/tgico';
-import appMediaPlaybackController from '@components/appMediaPlaybackController';
-import { replaceButtonIcon } from '@components/button';
-import RangeSelector from '@components/rangeSelector';
+import cancelEvent from '@/helpers/dom/cancelEvent';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import findUpClassName from '@/helpers/dom/findUpClassName';
+import ListenerSetter from '@/helpers/listenerSetter';
+import safeAssign from '@/helpers/object/safeAssign';
+import { _tgico } from '@/helpers/tgico';
+import appMediaPlaybackController from '@/components/appMediaPlaybackController';
+import { replaceButtonIcon } from '@/components/button';
+import RangeSelector from '@/components/rangeSelector';
 
 const className = 'player-volume';
 

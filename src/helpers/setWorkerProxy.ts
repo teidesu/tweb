@@ -1,4 +1,4 @@
-import { CURRENT_ACCOUNT_QUERY_PARAM } from '@lib/accounts/constants';
+import { CURRENT_ACCOUNT_QUERY_PARAM } from '@/lib/accounts/constants';
 
 export function makeWorkerURL(url: string | URL) {
   if (!(url instanceof URL)) {

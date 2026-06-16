@@ -1,15 +1,15 @@
-import type ChatTopbar from '@components/chat/topbar';
-import Chat from '@components/chat/chat';
-import { LangPackKey, i18n } from '@lib/langPack';
-import { PeerSettings } from '@layer';
-import { AppManagers } from '@lib/managers';
-import callbackify from '@helpers/callbackify';
-import ripple from '@components/ripple';
-import confirmationPopup from '@components/confirmationPopup';
-import classNames from '@helpers/string/classNames';
-import { AckedResult } from '@lib/superMessagePort';
+import type ChatTopbar from '@/components/chat/topbar';
+import Chat from '@/components/chat/chat';
+import { LangPackKey, i18n } from '@/lib/langPack';
+import { PeerSettings } from '@/layer';
+import { AppManagers } from '@/lib/managers';
+import callbackify from '@/helpers/callbackify';
+import ripple from '@/components/ripple';
+import confirmationPopup from '@/components/confirmationPopup';
+import classNames from '@/helpers/string/classNames';
+import { AckedResult } from '@/lib/superMessagePort';
 import { Accessor, createSignal, For, Show } from 'solid-js';
-import TopbarPlate, { createTopbarPlate, TopbarPlateController } from '@components/chat/topbarPlate';
+import TopbarPlate, { createTopbarPlate, TopbarPlateController } from '@/components/chat/topbarPlate';
 
 type ActionKey = keyof PeerSettings['pFlags'];
 

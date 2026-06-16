@@ -1,19 +1,19 @@
 import { createEffect, createResource, on, onCleanup, Ref } from 'solid-js';
-import { ScrollableX } from '@components/scrollable';
-import { AppBackgroundTab } from '@components/sidebarLeft/tabs/background';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import findUpClassName from '@helpers/dom/findUpClassName';
-import ListenerSetter from '@helpers/listenerSetter';
-import createMiddleware from '@helpers/solid/createMiddleware';
-import { IS_SAFARI } from '@environment/userAgent';
-import { DEFAULT_THEME } from '@config/state';
-import { blendWallpaperForTinted } from '@config/themePresets';
-import { BaseTheme, Theme } from '@layer';
-import rootScope from '@lib/rootScope';
-import themeController from '@helpers/themeController';
-import liteMode from '@helpers/liteMode';
-import RLottiePlayer from '@lib/rlottie/rlottiePlayer';
-import wrapStickerEmoji from '@components/wrappers/stickerEmoji';
+import { ScrollableX } from '@/components/scrollable';
+import { AppBackgroundTab } from '@/components/sidebarLeft/tabs/background';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import findUpClassName from '@/helpers/dom/findUpClassName';
+import ListenerSetter from '@/helpers/listenerSetter';
+import createMiddleware from '@/helpers/solid/createMiddleware';
+import { IS_SAFARI } from '@/environment/userAgent';
+import { DEFAULT_THEME } from '@/config/state';
+import { blendWallpaperForTinted } from '@/config/themePresets';
+import { BaseTheme, Theme } from '@/layer';
+import rootScope from '@/lib/rootScope';
+import themeController from '@/helpers/themeController';
+import liteMode from '@/helpers/liteMode';
+import RLottiePlayer from '@/lib/rlottie/rlottiePlayer';
+import wrapStickerEmoji from '@/components/wrappers/stickerEmoji';
 import { isTruthy } from '../helpers/isTruthy';
 
 type ThemeItem = {

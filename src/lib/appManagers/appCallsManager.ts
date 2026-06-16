@@ -1,6 +1,6 @@
-import { getEnvironment } from '@environment/utils';
-import safeReplaceObject from '@helpers/object/safeReplaceObject';
-import { nextRandomUint } from '@helpers/random';
+import { getEnvironment } from '@/environment/utils';
+import safeReplaceObject from '@/helpers/object/safeReplaceObject';
+import { nextRandomUint } from '@/helpers/random';
 import {
   DataJSON,
   InputGroupCall,
@@ -11,10 +11,10 @@ import {
   PhoneCallProtocol,
   PhonePhoneCall,
   Updates,
-} from '@layer';
-import MTProtoMessagePort from '@lib/mainWorker/mainMessagePort';
-import appTabsManager from '@appManagers/appTabsManager';
-import { AppManager } from '@appManagers/manager';
+} from '@/layer';
+import MTProtoMessagePort from '@/lib/mainWorker/mainMessagePort';
+import appTabsManager from '@/lib/appManagers/appTabsManager';
+import { AppManager } from '@/lib/appManagers/manager';
 
 export type CallId = PhoneCall['id'];
 

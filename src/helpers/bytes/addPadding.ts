@@ -1,5 +1,5 @@
-import randomize from '@helpers/array/randomize';
-import bufferConcats from '@helpers/bytes/bufferConcats';
+import randomize from '@/helpers/array/randomize';
+import bufferConcats from '@/helpers/bytes/bufferConcats';
 
 export default function addPadding<T extends number[] | ArrayBuffer | Uint8Array>(
   bytes: T,

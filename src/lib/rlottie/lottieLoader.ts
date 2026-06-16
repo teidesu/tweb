@@ -1,15 +1,15 @@
-import animationIntersector from '@components/animationIntersector';
-import { MOUNT_CLASS_TO } from '@config/debug';
-import pause from '@helpers/schedulers/pause';
-import { logger, LogTypes } from '@lib/logger';
-import RLottiePlayer, { RLottieOptions } from '@lib/rlottie/rlottiePlayer';
-import blobConstruct from '@helpers/blob/blobConstruct';
-import apiManagerProxy from '@lib/apiManagerProxy';
-import IS_WEB_ASSEMBLY_SUPPORTED from '@environment/webAssemblySupport';
-import makeError from '@helpers/makeError';
-import rootScope from '@lib/rootScope';
-import toArray from '@helpers/array/toArray';
-import rlottieMessagePort from '@lib/rlottie/rlottieMessagePort';
+import animationIntersector from '@/components/animationIntersector';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import pause from '@/helpers/schedulers/pause';
+import { logger, LogTypes } from '@/lib/logger';
+import RLottiePlayer, { RLottieOptions } from '@/lib/rlottie/rlottiePlayer';
+import blobConstruct from '@/helpers/blob/blobConstruct';
+import apiManagerProxy from '@/lib/apiManagerProxy';
+import IS_WEB_ASSEMBLY_SUPPORTED from '@/environment/webAssemblySupport';
+import makeError from '@/helpers/makeError';
+import rootScope from '@/lib/rootScope';
+import toArray from '@/helpers/array/toArray';
+import rlottieMessagePort from '@/lib/rlottie/rlottieMessagePort';
 
 export type LottieAssetName =
   | 'EmptyFolder'

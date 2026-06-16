@@ -1,7 +1,7 @@
-import { i18n } from '@lib/langPack';
-import rootScope from '@lib/rootScope';
-import confirmationPopup from '@components/confirmationPopup';
-import { toastNew } from '@components/toast';
+import { i18n } from '@/lib/langPack';
+import rootScope from '@/lib/rootScope';
+import confirmationPopup from '@/components/confirmationPopup';
+import { toastNew } from '@/components/toast';
 
 export default async function showConvertToGigagroupPopup(chatId: ChatId) {
   const features = document.createElement('ul');

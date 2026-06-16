@@ -1,4 +1,4 @@
-import defineSolidElement from '@lib/solidjs/defineSolidElement';
+import defineSolidElement from '@/lib/solidjs/defineSolidElement';
 import { createMemo, mergeProps } from 'solid-js';
 import styles from './spinner.module.scss';
 

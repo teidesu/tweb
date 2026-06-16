@@ -5,18 +5,18 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import App from '@config/app';
-import { MOUNT_CLASS_TO } from '@config/debug';
-import tabId from '@config/tabId';
-import IS_SHARED_WORKER_SUPPORTED from '@environment/sharedWorkerSupport';
-import EventListenerBase from '@helpers/eventListenerBase';
-import idleController from '@helpers/idleController';
-import { getCurrentAccount } from '@lib/accounts/getCurrentAccount';
-import type { ActiveAccountNumber } from '@lib/accounts/types';
-import { logger } from '@lib/logger';
-import rootScope from '@lib/rootScope';
-import sessionStorage from '@lib/sessionStorage';
-import apiManagerProxy from '@lib/apiManagerProxy';
+import App from '@/config/app';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import tabId from '@/config/tabId';
+import IS_SHARED_WORKER_SUPPORTED from '@/environment/sharedWorkerSupport';
+import EventListenerBase from '@/helpers/eventListenerBase';
+import idleController from '@/helpers/idleController';
+import { getCurrentAccount } from '@/lib/accounts/getCurrentAccount';
+import type { ActiveAccountNumber } from '@/lib/accounts/types';
+import { logger } from '@/lib/logger';
+import rootScope from '@/lib/rootScope';
+import sessionStorage from '@/lib/sessionStorage';
+import apiManagerProxy from '@/lib/apiManagerProxy';
 
 export type AppInstance = {
   id: number,

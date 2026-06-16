@@ -1,6 +1,6 @@
 import type { Database } from '.';
-import { ActiveAccountNumber } from '@lib/accounts/types';
-import { MOUNT_CLASS_TO } from '@config/debug';
+import { ActiveAccountNumber } from '@/lib/accounts/types';
+import { MOUNT_CLASS_TO } from '@/config/debug';
 
 export type AccountDatabase = Database<'session' | 'stickerSets' | 'users' | 'chats' | 'messages' | 'dialogs' | 'webapp'>;
 export type CommonDatabase = Database<'session' | 'localStorage'>;

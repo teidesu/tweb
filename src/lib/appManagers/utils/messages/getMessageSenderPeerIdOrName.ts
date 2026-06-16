@@ -1,6 +1,6 @@
-import { Message } from '@layer';
-import type { MyMessage } from '@appManagers/appMessagesManager';
-import getFwdFromName from '@appManagers/utils/messages/getFwdFromName';
+import { Message } from '@/layer';
+import type { MyMessage } from '@/lib/appManagers/appMessagesManager';
+import getFwdFromName from '@/lib/appManagers/utils/messages/getFwdFromName';
 
 export default function getMessageSenderPeerIdOrName(message: MyMessage) {
   if (message.fromId) {

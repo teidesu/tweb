@@ -1,18 +1,18 @@
 import { render } from 'solid-js/web';
-import { SliderSuperTab } from '@components/slider';
+import { SliderSuperTab } from '@/components/slider';
 import appSidebarRight from '..';
-import appDialogsManager from '@lib/appDialogsManager';
-import { i18n } from '@lib/langPack';
-import setInnerHTML from '@helpers/dom/setInnerHTML';
-import Section from '@components/section';
-import { Message, MessageMedia } from '@layer';
-import getPeerId from '@appManagers/utils/peers/getPeerId';
-import wrapRichText from '@lib/richTextProcessor/wrapRichText';
-import wrapTextWithEntities from '@lib/richTextProcessor/wrapTextWithEntities';
+import appDialogsManager from '@/lib/appDialogsManager';
+import { i18n } from '@/lib/langPack';
+import setInnerHTML from '@/helpers/dom/setInnerHTML';
+import Section from '@/components/section';
+import { Message, MessageMedia } from '@/layer';
+import getPeerId from '@/lib/appManagers/utils/peers/getPeerId';
+import wrapRichText from '@/lib/richTextProcessor/wrapRichText';
+import wrapTextWithEntities from '@/lib/richTextProcessor/wrapTextWithEntities';
 import { Show, untrack } from 'solid-js';
-import { createLoadableList, MoreButton } from '@components/sidebarRight/tabs/statistics';
-import { formatFullSentTimeRaw } from '@helpers/date';
-import { getRoundedPercentsFromResults } from '@components/chat/bubbleParts/pollMessageContent/roundPercents';
+import { createLoadableList, MoreButton } from '@/components/sidebarRight/tabs/statistics';
+import { formatFullSentTimeRaw } from '@/helpers/date';
+import { getRoundedPercentsFromResults } from '@/components/chat/bubbleParts/pollMessageContent/roundPercents';
 
 
 export default class AppPollResultsTab extends SliderSuperTab {

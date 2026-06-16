@@ -1,15 +1,15 @@
-import createContextMenu from '@helpers/dom/createContextMenu';
-import findUpClassName from '@helpers/dom/findUpClassName';
-import { ChannelParticipant, Chat, ChatParticipant } from '@layer';
-import SidebarSlider from '@components/slider';
-import rootScope from '@lib/rootScope';
-import appImManager from '@lib/appImManager';
-import canEditAdmin from '@appManagers/utils/chats/canEditAdmin';
-import { openUserPermissionsTab } from '@components/solidJsTabs/tabs';
-import { Middleware } from '@helpers/middleware';
-import { ButtonMenuItemOptionsVerifiable } from '@components/buttonMenu';
-import { handleMissingInvitees } from '@components/addChatUsers';
-import { isParticipantAdmin, isParticipantCreator } from '@lib/appManagers/utils/chats/isParticipantAdmin';
+import createContextMenu from '@/helpers/dom/createContextMenu';
+import findUpClassName from '@/helpers/dom/findUpClassName';
+import { ChannelParticipant, Chat, ChatParticipant } from '@/layer';
+import SidebarSlider from '@/components/slider';
+import rootScope from '@/lib/rootScope';
+import appImManager from '@/lib/appImManager';
+import canEditAdmin from '@/lib/appManagers/utils/chats/canEditAdmin';
+import { openUserPermissionsTab } from '@/components/solidJsTabs/tabs';
+import { Middleware } from '@/helpers/middleware';
+import { ButtonMenuItemOptionsVerifiable } from '@/components/buttonMenu';
+import { handleMissingInvitees } from '@/components/addChatUsers';
+import { isParticipantAdmin, isParticipantCreator } from '@/lib/appManagers/utils/chats/isParticipantAdmin';
 
 type Participant = ChannelParticipant | ChatParticipant;
 

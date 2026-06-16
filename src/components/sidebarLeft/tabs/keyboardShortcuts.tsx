@@ -1,11 +1,11 @@
 import { createResource, createSignal, For, Show, JSX } from 'solid-js';
-import Row from '@components/rowTsx';
-import Section from '@components/section';
-import { i18n, LangPackKey } from '@lib/langPack';
-import { IS_APPLE } from '@environment/userAgent';
-import rootScope from '@lib/rootScope';
-import { useAppSettings } from '@stores/appSettings';
-import InlineSelect from '@components/sidebarLeft/tabs/passcodeLock/inlineSelect';
+import Row from '@/components/rowTsx';
+import Section from '@/components/section';
+import { i18n, LangPackKey } from '@/lib/langPack';
+import { IS_APPLE } from '@/environment/userAgent';
+import rootScope from '@/lib/rootScope';
+import { useAppSettings } from '@/stores/appSettings';
+import InlineSelect from '@/components/sidebarLeft/tabs/passcodeLock/inlineSelect';
 import styles from './keyboardShortcuts.module.scss';
 
 

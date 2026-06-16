@@ -5,17 +5,17 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import type { MyDocument } from '@appManagers/appDocsManager';
-import type { MyPhoto } from '@appManagers/appPhotosManager';
-import type { MyTopPeer } from '@appManagers/appUsersManager';
-import type { AppMessagesManager } from '@appManagers/appMessagesManager';
-import { BotInlineResult, Document, GeoPoint, InputGeoPoint, MessageMedia, Photo } from '@layer';
-import insertInDescendSortedArray from '@helpers/array/insertInDescendSortedArray';
-import { AppManager } from '@appManagers/manager';
-import getPhotoMediaInput from '@appManagers/utils/photos/getPhotoMediaInput';
-import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
-import generateQId from '@appManagers/utils/inlineBots/generateQId';
-import getDocumentMediaInput from '@appManagers/utils/docs/getDocumentMediaInput';
+import type { MyDocument } from '@/lib/appManagers/appDocsManager';
+import type { MyPhoto } from '@/lib/appManagers/appPhotosManager';
+import type { MyTopPeer } from '@/lib/appManagers/appUsersManager';
+import type { AppMessagesManager } from '@/lib/appManagers/appMessagesManager';
+import { BotInlineResult, Document, GeoPoint, InputGeoPoint, MessageMedia, Photo } from '@/layer';
+import insertInDescendSortedArray from '@/helpers/array/insertInDescendSortedArray';
+import { AppManager } from '@/lib/appManagers/manager';
+import getPhotoMediaInput from '@/lib/appManagers/utils/photos/getPhotoMediaInput';
+import getServerMessageId from '@/lib/appManagers/utils/messageId/getServerMessageId';
+import generateQId from '@/lib/appManagers/utils/inlineBots/generateQId';
+import getDocumentMediaInput from '@/lib/appManagers/utils/docs/getDocumentMediaInput';
 
 export class AppInlineBotsManager extends AppManager {
   private inlineResults: {[queryAndResultIds: string]: BotInlineResult} = {};

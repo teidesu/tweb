@@ -1,7 +1,7 @@
-import forEachReverse from '@helpers/array/forEachReverse';
-import SDPMediaSection from '@lib/calls/sdp/mediaSection';
-import { UpdateGroupCallConnectionData, Codec } from '@lib/calls/types';
-import { logger } from '@lib/logger';
+import forEachReverse from '@/helpers/array/forEachReverse';
+import SDPMediaSection from '@/lib/calls/sdp/mediaSection';
+import { UpdateGroupCallConnectionData, Codec } from '@/lib/calls/types';
+import { logger } from '@/lib/logger';
 
 const log = logger('SDP');
 

@@ -1,11 +1,11 @@
-import type { BubbleContext } from '@components/chat/bubbles';
-import type { MessageMedia, Document } from '@layer';
-import type { MyDocument } from '@lib/appManagers/appDocsManager';
-import type ChatBubbles from '@components/chat/bubbles';
-import { makeMediaSize } from '@helpers/mediaSize';
-import RLottiePlayer from '@lib/rlottie/rlottiePlayer';
-import wrapSticker from '@components/wrappers/sticker';
-import lottieLoader from '@lib/rlottie/lottieLoader';
+import type { BubbleContext } from '@/components/chat/bubbles';
+import type { MessageMedia, Document } from '@/layer';
+import type { MyDocument } from '@/lib/appManagers/appDocsManager';
+import type ChatBubbles from '@/components/chat/bubbles';
+import { makeMediaSize } from '@/helpers/mediaSize';
+import RLottiePlayer from '@/lib/rlottie/rlottiePlayer';
+import wrapSticker from '@/components/wrappers/sticker';
+import lottieLoader from '@/lib/rlottie/lottieLoader';
 
 export default function wrapDice(context: BubbleContext) {
   const { emoticon, value } = context.messageMedia as MessageMedia.messageMediaDice;

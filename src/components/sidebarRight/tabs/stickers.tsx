@@ -1,20 +1,20 @@
 import { Component, onCleanup, onMount } from 'solid-js';
-import InputSearch from '@components/inputSearch';
-import LazyLoadQueue from '@components/lazyLoadQueue';
-import showStickersPopup from '@components/popups/stickers';
-import animationIntersector from '@components/animationIntersector';
-import { StickerSet, StickerSetCovered } from '@layer';
-import { i18n } from '@lib/langPack';
-import findUpClassName from '@helpers/dom/findUpClassName';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import forEachReverse from '@helpers/array/forEachReverse';
-import setInnerHTML from '@helpers/dom/setInnerHTML';
-import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import attachStickerViewerListeners from '@components/stickerViewer';
-import wrapSticker from '@components/wrappers/sticker';
-import { getStickerSetInputById, getStickerSetInputByStickerSet } from '@lib/appManagers/utils/stickers/getStickerSetInput';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import InputSearch from '@/components/inputSearch';
+import LazyLoadQueue from '@/components/lazyLoadQueue';
+import showStickersPopup from '@/components/popups/stickers';
+import animationIntersector from '@/components/animationIntersector';
+import { StickerSet, StickerSetCovered } from '@/layer';
+import { i18n } from '@/lib/langPack';
+import findUpClassName from '@/helpers/dom/findUpClassName';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import forEachReverse from '@/helpers/array/forEachReverse';
+import setInnerHTML from '@/helpers/dom/setInnerHTML';
+import wrapEmojiText from '@/lib/richTextProcessor/wrapEmojiText';
+import attachStickerViewerListeners from '@/components/stickerViewer';
+import wrapSticker from '@/components/wrappers/sticker';
+import { getStickerSetInputById, getStickerSetInputByStickerSet } from '@/lib/appManagers/utils/stickers/getStickerSetInput';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
 
 const Stickers: Component = () => {
   const [tab] = useSuperTab();

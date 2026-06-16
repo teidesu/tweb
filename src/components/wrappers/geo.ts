@@ -1,17 +1,17 @@
-import assumeType from '@helpers/assumeType';
-import getWebFileLocation from '@helpers/getWebFileLocation';
-import liteMode from '@helpers/liteMode';
-import makeGoogleMapsUrl from '@helpers/makeGoogleMapsUrl';
-import mediaSizes from '@helpers/mediaSizes';
-import { Middleware } from '@helpers/middleware';
-import tsNow from '@helpers/tsNow';
-import { GeoPoint, MessageMedia } from '@layer';
-import I18n, { i18n, LangPackKey, FormatterArguments } from '@lib/langPack';
-import setBlankToAnchor from '@lib/richTextProcessor/setBlankToAnchor';
-import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import { avatarNew } from '@components/avatarNew';
-import GeoPin from '@components/geoPin';
-import wrapPhoto from '@components/wrappers/photo';
+import assumeType from '@/helpers/assumeType';
+import getWebFileLocation from '@/helpers/getWebFileLocation';
+import liteMode from '@/helpers/liteMode';
+import makeGoogleMapsUrl from '@/helpers/makeGoogleMapsUrl';
+import mediaSizes from '@/helpers/mediaSizes';
+import { Middleware } from '@/helpers/middleware';
+import tsNow from '@/helpers/tsNow';
+import { GeoPoint, MessageMedia } from '@/layer';
+import I18n, { i18n, LangPackKey, FormatterArguments } from '@/lib/langPack';
+import setBlankToAnchor from '@/lib/richTextProcessor/setBlankToAnchor';
+import wrapEmojiText from '@/lib/richTextProcessor/wrapEmojiText';
+import { avatarNew } from '@/components/avatarNew';
+import GeoPin from '@/components/geoPin';
+import wrapPhoto from '@/components/wrappers/photo';
 
 export type GeoLiveUpdate = {
   messageMedia: MessageMedia.messageMediaGeoLive,

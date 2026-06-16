@@ -1,9 +1,9 @@
-import { GROUP_CALL_AMPLITUDE_ANALYSE_INTERVAL_MS } from '@lib/calls/constants';
-import StreamManager from '@lib/calls/streamManager';
-import getAudioConstraints from '@lib/calls/helpers/getAudioConstraints';
-import getStream from '@lib/calls/helpers/getStream';
-import getVideoConstraints from '@lib/calls/helpers/getVideoConstraints';
-import { logger } from '@lib/logger';
+import { GROUP_CALL_AMPLITUDE_ANALYSE_INTERVAL_MS } from '@/lib/calls/constants';
+import StreamManager from '@/lib/calls/streamManager';
+import getAudioConstraints from '@/lib/calls/helpers/getAudioConstraints';
+import getStream from '@/lib/calls/helpers/getStream';
+import getVideoConstraints from '@/lib/calls/helpers/getVideoConstraints';
+import { logger } from '@/lib/logger';
 
 const log = logger('GROUP-CALL');
 

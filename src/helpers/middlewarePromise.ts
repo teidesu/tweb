@@ -1,4 +1,4 @@
-import makeError from '@helpers/makeError';
+import makeError from '@/helpers/makeError';
 
 const error = makeError('MIDDLEWARE');
 export default function middlewarePromise(middleware: () => boolean, throwWhat: any = error) {

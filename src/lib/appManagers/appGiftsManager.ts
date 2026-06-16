@@ -1,12 +1,12 @@
 import bigInt from 'big-integer';
-import { InputSavedStarGift, Message, MessageAction, PremiumGiftCodeOption, SavedStarGift, StarGift, StarGiftAttribute, StarGiftAttributeId, StarGiftCollection, StarGiftUpgradePrice, StarsAmount, WebPageAttribute } from '@layer';
-import { STARS_CURRENCY } from '@appManagers/constants';
-import { MyDocument } from '@appManagers/appDocsManager';
-import { AppManager } from '@appManagers/manager';
-import getPeerId from '@appManagers/utils/peers/getPeerId';
-import { nanotonToJsNumber } from '@helpers/paymentsWrapCurrencyAmount';
-import { inputStarGiftEquals } from '@appManagers/utils/gifts/inputStarGiftEquals';
-import { randomLong } from '@helpers/random';
+import { InputSavedStarGift, Message, MessageAction, PremiumGiftCodeOption, SavedStarGift, StarGift, StarGiftAttribute, StarGiftAttributeId, StarGiftCollection, StarGiftUpgradePrice, StarsAmount, WebPageAttribute } from '@/layer';
+import { STARS_CURRENCY } from '@/lib/appManagers/constants';
+import { MyDocument } from '@/lib/appManagers/appDocsManager';
+import { AppManager } from '@/lib/appManagers/manager';
+import getPeerId from '@/lib/appManagers/utils/peers/getPeerId';
+import { nanotonToJsNumber } from '@/helpers/paymentsWrapCurrencyAmount';
+import { inputStarGiftEquals } from '@/lib/appManagers/utils/gifts/inputStarGiftEquals';
+import { randomLong } from '@/helpers/random';
 
 export interface MyStarGift {
   type: 'stargift',

@@ -1,4 +1,4 @@
-import type ListenerSetter from '@helpers/listenerSetter';
+import type ListenerSetter from '@/helpers/listenerSetter';
 
 export function requestFullScreen(element: HTMLElement) {
   if (element.requestFullscreen) {

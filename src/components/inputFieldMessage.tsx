@@ -1,21 +1,21 @@
-import InputFieldAnimated from '@components/inputFieldAnimated';
-import createEmojiDropdownButton from '@components/emojiDropdownButton';
-import classNames from '@helpers/string/classNames';
-import getRichValueWithCaret from '@helpers/dom/getRichValueWithCaret';
-import ListenerSetter from '@helpers/listenerSetter';
-import throttle from '@helpers/schedulers/throttle';
-import { LangPackKey } from '@lib/langPack';
-import { EmoticonsDropdown } from '@components/emoticonsDropdown';
+import InputFieldAnimated from '@/components/inputFieldAnimated';
+import createEmojiDropdownButton from '@/components/emojiDropdownButton';
+import classNames from '@/helpers/string/classNames';
+import getRichValueWithCaret from '@/helpers/dom/getRichValueWithCaret';
+import ListenerSetter from '@/helpers/listenerSetter';
+import throttle from '@/helpers/schedulers/throttle';
+import { LangPackKey } from '@/lib/langPack';
+import { EmoticonsDropdown } from '@/components/emoticonsDropdown';
 import { Accessor, createEffect, JSX, onCleanup, Ref, Show, untrack } from 'solid-js';
 import { Portal } from 'solid-js/web';
-import cloneDOMRect from '@helpers/dom/cloneDOMRect';
-import type { AnimationItemGroup } from '@components/animationIntersector';
-import { IconTsx } from '@components/iconTsx';
-import { numberThousandSplitterForStars } from '@helpers/number/numberThousandSplitter';
-import Button from '@components/buttonTsx';
-import Animated from '@helpers/solid/animations';
-import { getTransition } from '@config/transitions';
-import liteMode from '@helpers/liteMode';
+import cloneDOMRect from '@/helpers/dom/cloneDOMRect';
+import type { AnimationItemGroup } from '@/components/animationIntersector';
+import { IconTsx } from '@/components/iconTsx';
+import { numberThousandSplitterForStars } from '@/helpers/number/numberThousandSplitter';
+import Button from '@/components/buttonTsx';
+import Animated from '@/helpers/solid/animations';
+import { getTransition } from '@/config/transitions';
+import liteMode from '@/helpers/liteMode';
 
 type InputFieldMessageProps = {
   placeholder?: LangPackKey,

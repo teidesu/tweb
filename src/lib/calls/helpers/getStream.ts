@@ -1,5 +1,5 @@
-import { appSettings, setAppSettings } from '@stores/appSettings';
-import { logger } from '@lib/logger';
+import { appSettings, setAppSettings } from '@/stores/appSettings';
+import { logger } from '@/lib/logger';
 
 const log = logger('getStream');
 

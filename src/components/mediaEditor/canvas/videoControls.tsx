@@ -1,19 +1,19 @@
 import { Accessor, batch, Component, createEffect, createMemo, createSignal } from 'solid-js';
 
-import clamp from '@helpers/number/clamp';
-import swipe, { SwipeDirectiveArgs } from '@helpers/useSwipe'; swipe; // keep
-import useElementSize from '@hooks/useElementSize';
-import { i18n } from '@lib/langPack';
+import clamp from '@/helpers/number/clamp';
+import swipe, { SwipeDirectiveArgs } from '@/helpers/useSwipe'; swipe; // keep
+import useElementSize from '@/hooks/useElementSize';
+import { i18n } from '@/lib/langPack';
 
-import { IconTsx } from '@components/iconTsx';
-import ripple from '@components/ripple'; ripple; // keep
-import showTooltip from '@components/tooltip';
+import { IconTsx } from '@/components/iconTsx';
+import ripple from '@/components/ripple'; ripple; // keep
+import showTooltip from '@/components/tooltip';
 
-import { SetVideoTimeFlags, useMediaEditorContext } from '@components/mediaEditor/context';
+import { SetVideoTimeFlags, useMediaEditorContext } from '@/components/mediaEditor/context';
 
-import useVideoControlsCanvas from '@components/mediaEditor/canvas/useVideoControlsCanvas';
+import useVideoControlsCanvas from '@/components/mediaEditor/canvas/useVideoControlsCanvas';
 
-import styles from '@components/mediaEditor/canvas/videoControls.module.scss';
+import styles from '@/components/mediaEditor/canvas/videoControls.module.scss';
 
 
 const HANDLE_WIDTH_PX = 9;

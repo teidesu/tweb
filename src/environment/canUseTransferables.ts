@@ -1,4 +1,4 @@
-import { IS_SAFARI } from '@environment/userAgent';
+import { IS_SAFARI } from '@/environment/userAgent';
 
 /*
  * This is used as a workaround for a memory leak in Safari caused by using Transferable objects to

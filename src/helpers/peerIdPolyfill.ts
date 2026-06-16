@@ -1,5 +1,5 @@
-import isAnyChat from '@appManagers/utils/peers/isAnyChat';
-import isUser from '@appManagers/utils/peers/isUser';
+import isAnyChat from '@/lib/appManagers/utils/peers/isAnyChat';
+import isUser from '@/lib/appManagers/utils/peers/isUser';
 
 String.prototype.toUserId = function() {
   return (+this).toUserId();

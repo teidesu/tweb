@@ -1,16 +1,16 @@
-import rootScope from '@lib/rootScope';
+import rootScope from '@/lib/rootScope';
 import PopupElement, { addCancelButton } from '.';
-import PopupPeer, { PopupPeerButtonCallbackCheckboxes, PopupPeerOptions } from '@components/popups/peer';
-import { ChatType } from '@components/chat/chatType';
-import { i18n, LangPackKey } from '@lib/langPack';
-import hasRights from '@appManagers/utils/chats/hasRights';
-import wrapPeerTitle from '@components/wrappers/peerTitle';
-import { Message, MessageMedia } from '@layer';
-import { formatFullSentTime } from '@helpers/date';
-import tsNow from '@helpers/tsNow';
-import PopupDeleteMegagroupMessages from '@components/popups/deleteMegagroupMessages';
-import getParticipantPeerId from '@appManagers/utils/chats/getParticipantPeerId';
-import namedPromises from '@helpers/namedPromises';
+import PopupPeer, { PopupPeerButtonCallbackCheckboxes, PopupPeerOptions } from '@/components/popups/peer';
+import { ChatType } from '@/components/chat/chatType';
+import { i18n, LangPackKey } from '@/lib/langPack';
+import hasRights from '@/lib/appManagers/utils/chats/hasRights';
+import wrapPeerTitle from '@/components/wrappers/peerTitle';
+import { Message, MessageMedia } from '@/layer';
+import { formatFullSentTime } from '@/helpers/date';
+import tsNow from '@/helpers/tsNow';
+import PopupDeleteMegagroupMessages from '@/components/popups/deleteMegagroupMessages';
+import getParticipantPeerId from '@/lib/appManagers/utils/chats/getParticipantPeerId';
+import namedPromises from '@/helpers/namedPromises';
 
 export default class PopupDeleteMessages {
   constructor(

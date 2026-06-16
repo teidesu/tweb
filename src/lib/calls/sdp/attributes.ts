@@ -1,5 +1,5 @@
-import SDPAttributeInner from '@lib/calls/sdp/attributeInner';
-import SDPLine from '@lib/calls/sdp/line';
+import SDPAttributeInner from '@/lib/calls/sdp/attributeInner';
+import SDPLine from '@/lib/calls/sdp/line';
 
 export default class SDPAttributes {
   #lines: SDPLine[];

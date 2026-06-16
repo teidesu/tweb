@@ -1,4 +1,4 @@
-import type { InputStickerSet, MessagesStickerSet } from '@layer';
+import type { InputStickerSet, MessagesStickerSet } from '@/layer';
 
 export type STICKER_LOCAL_SET_INPUT = Extract<InputStickerSet, {_: STICKER_LOCAL_SET_ID}>;
 

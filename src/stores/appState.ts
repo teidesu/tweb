@@ -1,8 +1,8 @@
 import { createRoot } from 'solid-js';
 import { createStore, reconcile, unwrap } from 'solid-js/store';
-import { State } from '@config/state';
-import rootScope from '@lib/rootScope';
-import { SetStoreFunctionReturning } from '@helpers/solid/setStoreFunctionReturning';
+import { State } from '@/config/state';
+import rootScope from '@/lib/rootScope';
+import { SetStoreFunctionReturning } from '@/helpers/solid/setStoreFunctionReturning';
 
 const [appState, _setAppState] = createRoot(() => createStore<State>({} as any));
 

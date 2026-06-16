@@ -1,6 +1,6 @@
-import { defaultEasing } from '@helpers/easings';
-import { lerp } from '@helpers/lerp';
-import { requestRAF } from '@helpers/solid/requestRAF';
+import { defaultEasing } from '@/helpers/easings';
+import { lerp } from '@/helpers/lerp';
+import { requestRAF } from '@/helpers/solid/requestRAF';
 
 
 type AnimateValueOptions = {
@@ -8,7 +8,7 @@ type AnimateValueOptions = {
   onEnd?: () => void;
 };
 
-export { simpleEasing } from '@helpers/easings';
+export { simpleEasing } from '@/helpers/easings';
 
 export function animateValue<T extends number | number[]>(
   start: T,

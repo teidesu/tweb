@@ -1,7 +1,7 @@
-import { Photo } from '@layer';
-import appDownloadManager from '@lib/appDownloadManager';
-import chooseProfileVideoSize from '@appManagers/utils/photos/chooseProfileVideoSize';
-import createLoopingMutedVideo from '@helpers/dom/createLoopingMutedVideo';
+import { Photo } from '@/layer';
+import appDownloadManager from '@/lib/appDownloadManager';
+import chooseProfileVideoSize from '@/lib/appManagers/utils/photos/chooseProfileVideoSize';
+import createLoopingMutedVideo from '@/helpers/dom/createLoopingMutedVideo';
 
 // Overlays a looping muted video (animated avatar) on top of the media-viewer
 // mover's still image, once the photo's full video variant has downloaded.

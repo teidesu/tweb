@@ -1,6 +1,6 @@
-import showFeatureDetailsPopup from '@components/popups/featureDetails';
-import createFeatureDetailsIconSticker from '@components/featureDetailsIconSticker';
-import { i18n } from '@lib/langPack';
+import showFeatureDetailsPopup from '@/components/popups/featureDetails';
+import createFeatureDetailsIconSticker from '@/components/featureDetailsIconSticker';
+import { i18n } from '@/lib/langPack';
 
 export default function showAboutAdPopup() {
   showFeatureDetailsPopup({

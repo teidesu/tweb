@@ -1,5 +1,5 @@
-import constraintSupported, { MyMediaTrackSupportedConstraints } from '@environment/constraintSupport';
-import { appSettings } from '@stores/appSettings';
+import constraintSupported, { MyMediaTrackSupportedConstraints } from '@/environment/constraintSupport';
+import { appSettings } from '@/stores/appSettings';
 
 // `deviceId` opt-in: callers pass the persisted choice from
 // `appSettings.callDevices.microphoneId`; the helper falls back to the store

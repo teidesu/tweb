@@ -1,8 +1,8 @@
-import VisibilityIntersector, { OnVisibilityChangeItem } from '@components/visibilityIntersector';
-import findAndSpliceAll from '@helpers/array/findAndSpliceAll';
-import findAndSplice from '@helpers/array/findAndSplice';
-import LazyLoadQueueIntersector, { LazyLoadElement } from '@components/lazyLoadQueueIntersector';
-import useHeavyAnimationCheck from '@hooks/useHeavyAnimationCheck';
+import VisibilityIntersector, { OnVisibilityChangeItem } from '@/components/visibilityIntersector';
+import findAndSpliceAll from '@/helpers/array/findAndSpliceAll';
+import findAndSplice from '@/helpers/array/findAndSplice';
+import LazyLoadQueueIntersector, { LazyLoadElement } from '@/components/lazyLoadQueueIntersector';
+import useHeavyAnimationCheck from '@/hooks/useHeavyAnimationCheck';
 
 export default class LazyLoadQueue extends LazyLoadQueueIntersector {
   constructor(parallelLimit?: number, ignoreHeavyAnimation?: boolean) {

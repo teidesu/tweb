@@ -1,8 +1,8 @@
 import { createRenderEffect, createSignal, onCleanup, Ref, splitProps, ValidComponent } from 'solid-js';
 import { DynamicProps } from 'solid-js/web';
-import ripple from '@components/ripple';
-import classNames from '@helpers/string/classNames';
-import Passthrough from '@helpers/solid/passthrough';
+import ripple from '@/components/ripple';
+import classNames from '@/helpers/string/classNames';
+import Passthrough from '@/helpers/solid/passthrough';
 ripple; // keep
 
 export default function RippleElement<T extends ValidComponent>(props: DynamicProps<T> & {

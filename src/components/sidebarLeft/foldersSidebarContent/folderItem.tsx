@@ -1,11 +1,11 @@
 import { createComputed, createEffect, createMemo, createSignal, Show } from 'solid-js';
-import createMiddleware from '@helpers/solid/createMiddleware';
-import { CustomEmojiRendererElement } from '@lib/customEmoji/renderer';
-import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
-import Badge from '@components/badge';
-import { IconTsx } from '@components/iconTsx';
-import FolderAnimatedIcon from '@components/sidebarLeft/foldersSidebarContent/folderAnimatedIcon';
-import { FolderItemPayload } from '@components/sidebarLeft/foldersSidebarContent/types';
+import createMiddleware from '@/helpers/solid/createMiddleware';
+import { CustomEmojiRendererElement } from '@/lib/customEmoji/renderer';
+import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
+import Badge from '@/components/badge';
+import { IconTsx } from '@/components/iconTsx';
+import FolderAnimatedIcon from '@/components/sidebarLeft/foldersSidebarContent/folderAnimatedIcon';
+import { FolderItemPayload } from '@/components/sidebarLeft/foldersSidebarContent/types';
 
 
 type FolderItemProps = FolderItemPayload & {

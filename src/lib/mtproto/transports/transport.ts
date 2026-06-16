@@ -1,5 +1,5 @@
-import type EventListenerBase from '@helpers/eventListenerBase';
-import type MTPNetworker from '@lib/mtproto/networker';
+import type EventListenerBase from '@/helpers/eventListenerBase';
+import type MTPNetworker from '@/lib/mtproto/networker';
 
 export default interface MTTransport {
   networker?: MTPNetworker;

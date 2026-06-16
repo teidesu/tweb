@@ -1,11 +1,11 @@
 import { children, createContext, createEffect, createMemo, createSignal, JSX, on, onCleanup, onMount, Ref, untrack } from 'solid-js';
-import { IS_OVERLAY_SCROLL_SUPPORTED } from '@environment/overlayScrollSupport';
-import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import { IS_MOBILE_SAFARI, IS_SAFARI } from '@environment/userAgent';
-import cancelEvent from '@helpers/dom/cancelEvent';
-import classNames from '@helpers/string/classNames';
-import useHeavyAnimationCheck from '@hooks/useHeavyAnimationCheck';
-import { syncThumbContainerGeometry } from '@components/scrollable';
+import { IS_OVERLAY_SCROLL_SUPPORTED } from '@/environment/overlayScrollSupport';
+import IS_TOUCH_SUPPORTED from '@/environment/touchSupport';
+import { IS_MOBILE_SAFARI, IS_SAFARI } from '@/environment/userAgent';
+import cancelEvent from '@/helpers/dom/cancelEvent';
+import classNames from '@/helpers/string/classNames';
+import useHeavyAnimationCheck from '@/hooks/useHeavyAnimationCheck';
+import { syncThumbContainerGeometry } from '@/components/scrollable';
 import { isTruthy } from '../helpers/isTruthy';
 
 const SCROLL_THROTTLE = /* IS_ANDROID ? 200 :  */24;

@@ -1,4 +1,4 @@
-import SDPLine from '@lib/calls/sdp/line';
+import SDPLine from '@/lib/calls/sdp/line';
 
 export default class SDPSessionSection {
   #lines: SDPLine[];

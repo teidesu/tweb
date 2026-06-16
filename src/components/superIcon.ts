@@ -1,8 +1,8 @@
-import noop from '@helpers/noop';
-import safeAssign from '@helpers/object/safeAssign';
-import { LottieAssetName } from '@lib/rlottie/lottieLoader';
-import RLottieIcon, { RLottieIconItemPartOptions, RLottieIconItemPart } from '@lib/rlottie/rlottieIcon';
-import { RLottieColor } from '@lib/rlottie/rlottiePlayer';
+import noop from '@/helpers/noop';
+import safeAssign from '@/helpers/object/safeAssign';
+import { LottieAssetName } from '@/lib/rlottie/lottieLoader';
+import RLottieIcon, { RLottieIconItemPartOptions, RLottieIconItemPart } from '@/lib/rlottie/rlottieIcon';
+import { RLottieColor } from '@/lib/rlottie/rlottiePlayer';
 
 export type SuperRLottieIconAddItemOptions = {name: LottieAssetName, parts: RLottieIconItemPartOptions};
 export type SuperRLottieIconGetInfoResult = RLottieIconItemPart;

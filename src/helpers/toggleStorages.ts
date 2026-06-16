@@ -1,7 +1,7 @@
-import CacheStorageController from '@lib/files/cacheStorage';
-import AppStorage from '@lib/storage';
-import sessionStorage from '@lib/sessionStorage';
-import noop from '@helpers/noop';
+import CacheStorageController from '@/lib/files/cacheStorage';
+import AppStorage from '@/lib/storage';
+import sessionStorage from '@/lib/sessionStorage';
+import noop from '@/helpers/noop';
 
 export default function toggleStorages(enabled: boolean, clearWrite: boolean) {
   return Promise.all([

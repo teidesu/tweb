@@ -1,7 +1,7 @@
-import Modes from '@config/modes';
-import { ChatInvite, InputUser, StarsSubscriptionPricing, Updates } from '@layer';
-import { AppManager } from '@appManagers/manager';
-import getPeerId from '@appManagers/utils/peers/getPeerId';
+import Modes from '@/config/modes';
+import { ChatInvite, InputUser, StarsSubscriptionPricing, Updates } from '@/layer';
+import { AppManager } from '@/lib/appManagers/manager';
+import getPeerId from '@/lib/appManagers/utils/peers/getPeerId';
 
 function starsSubscriptionPricing(amount: number): StarsSubscriptionPricing {
   return {

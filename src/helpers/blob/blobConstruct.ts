@@ -5,8 +5,8 @@
  * https://github.com/zhukov/webogram/blob/master/LICENSE
  */
 
-import toArray from '@helpers/array/toArray';
-import blobSafeMimeType from '@helpers/blob/blobSafeMimeType';
+import toArray from '@/helpers/array/toArray';
+import blobSafeMimeType from '@/helpers/blob/blobSafeMimeType';
 
 export default function blobConstruct<T extends Uint8Array | string>(blobParts: Array<T> | T, mimeType: string = ''): Blob {
   blobParts = toArray(blobParts);

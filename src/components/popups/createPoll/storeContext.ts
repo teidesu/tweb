@@ -1,11 +1,11 @@
-import lastItem from '@helpers/array/lastItem';
-import track from '@helpers/solid/track';
-import { MediaSize } from '@helpers/mediaSize';
-import { MessageEntity } from '@layer';
-import { oneDayInSeconds } from '@lib/constants';
+import lastItem from '@/helpers/array/lastItem';
+import track from '@/helpers/solid/track';
+import { MediaSize } from '@/helpers/mediaSize';
+import { MessageEntity } from '@/layer';
+import { oneDayInSeconds } from '@/lib/constants';
 import { Accessor, createComputed, createContext, createResource, untrack, useContext } from 'solid-js';
 import { createStore, SetStoreFunction, Store } from 'solid-js/store';
-import { supportsVideoEncoding } from '@components/mediaEditor/support';
+import { supportsVideoEncoding } from '@/components/mediaEditor/support';
 import { useCreatePollLimits } from './useCreatePollLimits';
 import { checkOptionHasValue } from './utils';
 

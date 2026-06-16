@@ -1,16 +1,16 @@
 import { onCleanup, onMount } from 'solid-js';
-import InputField from '@components/inputField';
-import { InputFieldTsx } from '@components/inputFieldTsx';
-import AvatarEdit, { AvatarEditPayload } from '@components/avatarEdit';
-import ButtonCorner from '@components/buttonCorner';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import Section from '@components/section';
-import addChatUsers from '@components/addChatUsers';
-import { handleChannelsTooMuch } from '@components/popups/channelsTooMuch';
-import type { AppChatsManager } from '@lib/appManagers/appChatsManager';
-import toggleDisability from '@helpers/dom/toggleDisability';
-import { useSuperTab } from '@components/solidJsTabs/superTabProvider';
-import { useHotReloadGuard } from '@lib/solidjs/hotReloadGuard';
+import InputField from '@/components/inputField';
+import { InputFieldTsx } from '@/components/inputFieldTsx';
+import AvatarEdit, { AvatarEditPayload } from '@/components/avatarEdit';
+import ButtonCorner from '@/components/buttonCorner';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import Section from '@/components/section';
+import addChatUsers from '@/components/addChatUsers';
+import { handleChannelsTooMuch } from '@/components/popups/channelsTooMuch';
+import type { AppChatsManager } from '@/lib/appManagers/appChatsManager';
+import toggleDisability from '@/helpers/dom/toggleDisability';
+import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
+import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
 
 const NewChannel = () => {
   const [tab] = useSuperTab();

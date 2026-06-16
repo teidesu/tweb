@@ -2,7 +2,7 @@ import { Accessor, createEffect, createMemo } from 'solid-js';
 import { render } from 'solid-js/web';
 
 import styles from './preview.module.scss';
-import classNames from '@helpers/string/classNames';
+import classNames from '@/helpers/string/classNames';
 
 export type StoryboardFrame = {
   time: number, // * frame time in seconds (float)

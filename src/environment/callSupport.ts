@@ -1,4 +1,4 @@
-import IS_WEBRTC_SUPPORTED from '@environment/webrtcSupport';
+import IS_WEBRTC_SUPPORTED from '@/environment/webrtcSupport';
 
 const IS_CALL_SUPPORTED = IS_WEBRTC_SUPPORTED;
 

@@ -1,4 +1,4 @@
-import { animate } from '@helpers/animation';
+import { animate } from '@/helpers/animation';
 
 export default function callVideoCanvasBlur(video: HTMLVideoElement) {
   const canvas = document.createElement('canvas');

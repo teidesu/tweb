@@ -11,10 +11,10 @@ import {
   StarsAmount,
   StarsTransactionPeer,
   Update,
-} from '@layer';
-import { AppManager } from '@appManagers/manager';
-import getServerMessageId from '@appManagers/utils/messageId/getServerMessageId';
-import formatStarsAmount from '@appManagers/utils/payments/formatStarsAmount';
+} from '@/layer';
+import { AppManager } from '@/lib/appManagers/manager';
+import getServerMessageId from '@/lib/appManagers/utils/messageId/getServerMessageId';
+import formatStarsAmount from '@/lib/appManagers/utils/payments/formatStarsAmount';
 
 export default class AppPaymentsManager extends AppManager {
   private premiumPromo: MaybePromise<HelpPremiumPromo> | undefined;

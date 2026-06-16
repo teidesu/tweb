@@ -1,6 +1,6 @@
-import assumeType from '@helpers/assumeType';
-import { AccountThemes, AccountWallPapers, InputWallPaper, WallPaper } from '@layer';
-import { AppManager } from '@appManagers/manager';
+import assumeType from '@/helpers/assumeType';
+import { AccountThemes, AccountWallPapers, InputWallPaper, WallPaper } from '@/layer';
+import { AppManager } from '@/lib/appManagers/manager';
 
 type WallPaperId = WallPaper['id'];
 

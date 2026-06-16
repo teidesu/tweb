@@ -1,17 +1,17 @@
-import { ScrollableBase } from '@components/scrollable';
-import SwipeHandler from '@components/swipeHandler';
-import IS_TOUCH_SUPPORTED from '@environment/touchSupport';
-import rootScope from '@lib/rootScope';
-import liteMode from '@helpers/liteMode';
-import { Middleware } from '@helpers/middleware';
-import clamp from '@helpers/number/clamp';
-import safeAssign from '@helpers/object/safeAssign';
-import pause from '@helpers/schedulers/pause';
-import cancelEvent from '@helpers/dom/cancelEvent';
-import { attachClickEvent } from '@helpers/dom/clickEvent';
-import findUpAsChild from '@helpers/dom/findUpAsChild';
-import positionElementByIndex from '@helpers/dom/positionElementByIndex';
-import whichChild from '@helpers/dom/whichChild';
+import { ScrollableBase } from '@/components/scrollable';
+import SwipeHandler from '@/components/swipeHandler';
+import IS_TOUCH_SUPPORTED from '@/environment/touchSupport';
+import rootScope from '@/lib/rootScope';
+import liteMode from '@/helpers/liteMode';
+import { Middleware } from '@/helpers/middleware';
+import clamp from '@/helpers/number/clamp';
+import safeAssign from '@/helpers/object/safeAssign';
+import pause from '@/helpers/schedulers/pause';
+import cancelEvent from '@/helpers/dom/cancelEvent';
+import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import findUpAsChild from '@/helpers/dom/findUpAsChild';
+import positionElementByIndex from '@/helpers/dom/positionElementByIndex';
+import whichChild from '@/helpers/dom/whichChild';
 
 export default class Sortable {
   private element: HTMLElement;

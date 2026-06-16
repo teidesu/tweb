@@ -5,13 +5,13 @@
  * https://github.com/evgeny-nadymov/telegram-react/blob/master/LICENSE
  */
 
-import { IS_FIREFOX } from '@environment/userAgent';
-import LocalConferenceDescription, { ConferenceEntry } from '@lib/calls/localConferenceDescription';
-import StringFromLineBuilder from '@lib/calls/stringFromLineBuilder';
-import { CallSignalingData, GroupCallConnectionTransport, PayloadType, RtpHdrexts, UpdateGroupCallConnectionData } from '@lib/calls/types';
-import { fromTelegramSource } from '@lib/calls/utils';
-import { getSdpDirection, getSdpPort, SdpSection } from '@lib/calls/p2P/sdpCommon';
-import { logger } from '@lib/logger';
+import { IS_FIREFOX } from '@/environment/userAgent';
+import LocalConferenceDescription, { ConferenceEntry } from '@/lib/calls/localConferenceDescription';
+import StringFromLineBuilder from '@/lib/calls/stringFromLineBuilder';
+import { CallSignalingData, GroupCallConnectionTransport, PayloadType, RtpHdrexts, UpdateGroupCallConnectionData } from '@/lib/calls/types';
+import { fromTelegramSource } from '@/lib/calls/utils';
+import { getSdpDirection, getSdpPort, SdpSection } from '@/lib/calls/p2P/sdpCommon';
+import { logger } from '@/lib/logger';
 import { isTruthy } from '../../helpers/isTruthy';
 
 // screencast is for Peer-to-Peer only

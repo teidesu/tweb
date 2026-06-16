@@ -1,18 +1,18 @@
-import type LazyLoadQueue from '@components/lazyLoadQueue';
-import appDialogsManager, { AppDialogsManager, DialogDom, DialogElement, DialogElementSize } from '@lib/appDialogsManager';
-import { getHeavyAnimationPromise } from '@hooks/useHeavyAnimationCheck';
-import isInDOM from '@helpers/dom/isInDOM';
-import positionElementByIndex from '@helpers/dom/positionElementByIndex';
-import replaceContent from '@helpers/dom/replaceContent';
-import { fastRaf } from '@helpers/schedulers';
-import SortedList, { SortedElementBase } from '@helpers/sortedList';
-import safeAssign from '@helpers/object/safeAssign';
-import { AppManagers } from '@lib/managers';
-import getUserStatusString from '@components/wrappers/getUserStatusString';
-import getChatMembersString from '@components/wrappers/getChatMembersString';
-import wrapParticipantRank from '@components/wrappers/participantRank';
-import getParticipantRank from '@appManagers/utils/chats/getParticipantRank';
-import { Middleware, MiddlewareHelper } from '@helpers/middleware';
+import type LazyLoadQueue from '@/components/lazyLoadQueue';
+import appDialogsManager, { AppDialogsManager, DialogDom, DialogElement, DialogElementSize } from '@/lib/appDialogsManager';
+import { getHeavyAnimationPromise } from '@/hooks/useHeavyAnimationCheck';
+import isInDOM from '@/helpers/dom/isInDOM';
+import positionElementByIndex from '@/helpers/dom/positionElementByIndex';
+import replaceContent from '@/helpers/dom/replaceContent';
+import { fastRaf } from '@/helpers/schedulers';
+import SortedList, { SortedElementBase } from '@/helpers/sortedList';
+import safeAssign from '@/helpers/object/safeAssign';
+import { AppManagers } from '@/lib/managers';
+import getUserStatusString from '@/components/wrappers/getUserStatusString';
+import getChatMembersString from '@/components/wrappers/getChatMembersString';
+import wrapParticipantRank from '@/components/wrappers/participantRank';
+import getParticipantRank from '@/lib/appManagers/utils/chats/getParticipantRank';
+import { Middleware, MiddlewareHelper } from '@/helpers/middleware';
 import { isTruthy } from '../helpers/isTruthy';
 
 interface SortedUser extends SortedElementBase<PeerId> {

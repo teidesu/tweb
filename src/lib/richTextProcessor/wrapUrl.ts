@@ -1,8 +1,8 @@
-import type addAnchorListener from '@helpers/addAnchorListener';
+import type addAnchorListener from '@/helpers/addAnchorListener';
 import { PHONE_NUMBER_REG_EXP } from '.';
-import { MOUNT_CLASS_TO } from '@config/debug';
-import matchUrlProtocol from '@lib/richTextProcessor/matchUrlProtocol';
-import { T_ME_PREFIXES } from '@appManagers/constants';
+import { MOUNT_CLASS_TO } from '@/config/debug';
+import matchUrlProtocol from '@/lib/richTextProcessor/matchUrlProtocol';
+import { T_ME_PREFIXES } from '@/lib/appManagers/constants';
 
 export default function wrapUrl(url: string, safe?: boolean) {
   if (!matchUrlProtocol(url)) {

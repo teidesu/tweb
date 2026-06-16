@@ -1,5 +1,5 @@
-import { Message, MessageAction, MessageMedia, MessageReplyHeader, Peer, WebPage, WebPageAttribute } from '@layer';
-import getPeerId from '@appManagers/utils/peers/getPeerId';
+import { Message, MessageAction, MessageMedia, MessageReplyHeader, Peer, WebPage, WebPageAttribute } from '@/layer';
+import getPeerId from '@/lib/appManagers/utils/peers/getPeerId';
 import { isTruthy } from '../../../../helpers/isTruthy';
 
 export default function getPeerIdsFromMessage(message: Message.message | Message.messageService) {

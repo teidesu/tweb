@@ -1,14 +1,14 @@
-import { KeyboardButton, RequestPeerType, Chat as MTChat } from '@layer';
-import { ChatRights } from '@appManagers/appChatsManager';
-import hasRights from '@appManagers/utils/chats/hasRights';
-import getPeerActiveUsernames from '@appManagers/utils/peers/getPeerActiveUsernames';
-import { i18n, join } from '@lib/langPack';
-import rootScope from '@lib/rootScope';
-import AppSelectPeers, { SelectSearchPeerType } from '@components/appSelectPeers';
-import confirmationPopup from '@components/confirmationPopup';
-import { showPickUser2Popup } from '@components/popups/pickUser';
-import { toastNew } from '@components/toast';
-import wrapPeerTitle from '@components/wrappers/peerTitle';
+import { KeyboardButton, RequestPeerType, Chat as MTChat } from '@/layer';
+import { ChatRights } from '@/lib/appManagers/appChatsManager';
+import hasRights from '@/lib/appManagers/utils/chats/hasRights';
+import getPeerActiveUsernames from '@/lib/appManagers/utils/peers/getPeerActiveUsernames';
+import { i18n, join } from '@/lib/langPack';
+import rootScope from '@/lib/rootScope';
+import AppSelectPeers, { SelectSearchPeerType } from '@/components/appSelectPeers';
+import confirmationPopup from '@/components/confirmationPopup';
+import { showPickUser2Popup } from '@/components/popups/pickUser';
+import { toastNew } from '@/components/toast';
+import wrapPeerTitle from '@/components/wrappers/peerTitle';
 
 // Shows the peer picker described by a `keyboardButtonRequestPeer`, applies the
 // button's peer-type constraints and (for chats/channels) a confirmation step.

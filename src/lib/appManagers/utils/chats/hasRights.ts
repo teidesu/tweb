@@ -1,5 +1,5 @@
-import { Chat, ChatAdminRights, ChatBannedRights } from '@layer';
-import { ChatRights } from '@appManagers/appChatsManager';
+import { Chat, ChatAdminRights, ChatBannedRights } from '@/layer';
+import { ChatRights } from '@/lib/appManagers/appChatsManager';
 
 /**
  * Check the user's ability to do an action in chat

@@ -1,8 +1,8 @@
 import { JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { AnimationList } from '@helpers/solid/animationList';
-import { getTransition } from '@config/transitions';
-import classNames from '@helpers/string/classNames';
+import { AnimationList } from '@/helpers/solid/animationList';
+import { getTransition } from '@/config/transitions';
+import classNames from '@/helpers/string/classNames';
 
 type AnimationType = 'cross-fade' | 'grow-width' | 'grow-height';
 

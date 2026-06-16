@@ -1,27 +1,27 @@
 import { Accessor, createEffect, createSignal, on, Show } from 'solid-js';
-import { AppManagers } from '@lib/managers';
-import { NULL_PEER_ID } from '@appManagers/constants';
-import Chat from '@components/chat/chat';
-import ChatTopbar from '@components/chat/topbar';
-import { SponsoredMessage } from '@layer';
-import classNames from '@helpers/string/classNames';
+import { AppManagers } from '@/lib/managers';
+import { NULL_PEER_ID } from '@/lib/appManagers/constants';
+import Chat from '@/components/chat/chat';
+import ChatTopbar from '@/components/chat/topbar';
+import { SponsoredMessage } from '@/layer';
+import classNames from '@/helpers/string/classNames';
 
-import styles from '@components/chat/topbarSponsored.module.scss';
-import { I18nTsx } from '@helpers/solid/i18n';
-import wrapRichText from '@lib/richTextProcessor/wrapRichText';
-import wrapEmojiText from '@lib/richTextProcessor/wrapEmojiText';
-import appImManager from '@lib/appImManager';
-import PhotoTsx from '@components/wrappers/photoTsx';
-import { MyPhoto } from '@appManagers/appPhotosManager';
-import PopupPremium from '@components/popups/premium';
-import createContextMenu from '@helpers/dom/createContextMenu';
-import { copyTextToClipboard } from '@helpers/clipboard';
-import { getSponsoredMessageButtons } from '@components/chat/contextMenu';
-import { showAdReport } from '@components/popups/reportAd';
-import createMiddleware from '@helpers/solid/createMiddleware';
-import Button from '@components/buttonTsx';
-import RippleElement from '@components/rippleElement';
-import { createTopbarPlate, TopbarPlateController } from '@components/chat/topbarPlate';
+import styles from '@/components/chat/topbarSponsored.module.scss';
+import { I18nTsx } from '@/helpers/solid/i18n';
+import wrapRichText from '@/lib/richTextProcessor/wrapRichText';
+import wrapEmojiText from '@/lib/richTextProcessor/wrapEmojiText';
+import appImManager from '@/lib/appImManager';
+import PhotoTsx from '@/components/wrappers/photoTsx';
+import { MyPhoto } from '@/lib/appManagers/appPhotosManager';
+import PopupPremium from '@/components/popups/premium';
+import createContextMenu from '@/helpers/dom/createContextMenu';
+import { copyTextToClipboard } from '@/helpers/clipboard';
+import { getSponsoredMessageButtons } from '@/components/chat/contextMenu';
+import { showAdReport } from '@/components/popups/reportAd';
+import createMiddleware from '@/helpers/solid/createMiddleware';
+import Button from '@/components/buttonTsx';
+import RippleElement from '@/components/rippleElement';
+import { createTopbarPlate, TopbarPlateController } from '@/components/chat/topbarPlate';
 
 export type ChatSponsoredPlate = TopbarPlateController & {
   setPeerId: (peerId: PeerId) => void

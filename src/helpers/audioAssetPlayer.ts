@@ -1,6 +1,6 @@
-import safePlay from '@helpers/dom/safePlay';
-import deepEqual from '@helpers/object/deepEqual';
-import tsNow from '@helpers/tsNow';
+import safePlay from '@/helpers/dom/safePlay';
+import deepEqual from '@/helpers/object/deepEqual';
+import tsNow from '@/helpers/tsNow';
 
 const ASSETS_PATH = 'assets/audio/';
 

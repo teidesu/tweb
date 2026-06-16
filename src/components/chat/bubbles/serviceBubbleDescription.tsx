@@ -1,4 +1,4 @@
-import { IconTsx } from '@components/iconTsx';
+import { IconTsx } from '@/components/iconTsx';
 import { Accessor, children, createEffect, For, JSX, Match, Switch } from 'solid-js';
 
 const ServiceBubbleDescription = (props: {
