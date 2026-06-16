@@ -1,16 +1,16 @@
-// eslint-disable-next-line spaced-comment
-/// <reference types="vitest/config" />
-import {defineConfig, ServerOptions} from 'vite';
+import {ServerOptions} from 'vite';
+import {defineConfig} from 'vitest/config';
 import solidPlugin from 'vite-plugin-solid';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import {visualizer} from 'rollup-plugin-visualizer';
 import checker from 'vite-plugin-checker';
 import autoprefixer from 'autoprefixer';
 import {existsSync, copyFileSync, readFileSync} from 'fs';
-import {resolve, join} from 'path';
+import {resolve, join, dirname} from 'path';
+import {fileURLToPath} from 'url';
 import langPlugin from './scripts/vite-plugin-lang.js';
 
-const rootDir = resolve(__dirname);
+const rootDir = resolve(dirname(fileURLToPath(import.meta.url)));
 const certsDir = join(rootDir, 'certs');
 const ENV_LOCAL_FILE_PATH = join(rootDir, '.env.local');
 const LANG_PACK_LOCAL_FILE_PATH = join(rootDir, 'src', 'langPackLocalVersion.ts');
@@ -109,6 +109,8 @@ export default defineConfig({
       '**/.{idea,git,cache,output,temp}/**',
       '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*'
     ],
+    // jsdom is the default; the MTProto api/* tests opt into 'node' via a per-file
+    // docblock so they get Node's native WebSocket (jsdom ships a non-functional one).
     environment: 'jsdom',
     pool: 'forks',
     globals: true,

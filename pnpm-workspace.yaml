@@ -1,0 +1,5 @@
+allowBuilds:
+  '@parcel/watcher': true
+  electron-winstaller: true
+  es5-ext: false
+  ttf2woff2: true
