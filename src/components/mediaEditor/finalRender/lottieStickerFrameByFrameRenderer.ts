@@ -31,6 +31,7 @@ export default class LottieStickerFrameByFrameRenderer implements StickerFrameBy
       width: size,
       height: size,
       name: 'doc' + doc.id,
+      noOffscreen: true, // getRenderedFrame() reads animation.canvas[0] synchronously
     }));
 
     const deferred = deferredPromise<void>();

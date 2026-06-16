@@ -1,8 +1,18 @@
+import { DEBUG } from '@/config/debug';
+
 export default function makeError(type: ErrorType, message?: string): ApiError {
-  const realError = new Error();
-  const error: ApiError = { type, stack: realError.stack! };
+  const error = { type } as ApiError;
   if (message) {
     error.message = message;
+  }
+
+  if (DEBUG) {
+    const realError = new Error();
+    Object.defineProperty(error, 'stack', {
+      configurable: true,
+      enumerable: true,
+      value: realError.stack,
+    });
   }
 
   return error;

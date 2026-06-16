@@ -1,4 +1,5 @@
 import type { MyDocument } from '@/lib/appManagers/appDocsManager';
+import type RLottiePlayer from '@/lib/rlottie/rlottiePlayer';
 import { applyColorOnContext } from '@/lib/rlottie/rlottiePlayer';
 import rootScope from '@/lib/rootScope';
 import getStickerThumbKey from '@/lib/storages/utils/thumbs/getStickerThumbKey';
@@ -31,7 +32,7 @@ const createCanvas = () => {
 
 type PendingPreview = {
   doc: MyDocument,
-  canvas: HTMLCanvasElement,
+  canvas: HTMLCanvasElement | ImageBitmap,
   toneIndex: number | string,
   width: number,
   height: number,
@@ -77,7 +78,7 @@ function flushPreviews(deadline: IdleDeadline) {
   }
 }
 
-export function saveLottiePreview(doc: MyDocument, canvas: HTMLCanvasElement, toneIndex: number | string) {
+export function saveLottiePreview(doc: MyDocument, canvas: HTMLCanvasElement | ImageBitmap, toneIndex: number | string) {
   const key = getStickerThumbKey(doc.id, toneIndex);
   const { width, height } = canvas;
   if (isSavingLottiePreview(doc, toneIndex, width, height)) {
@@ -103,7 +104,8 @@ async function encodePreview(key: string, { doc, canvas, toneIndex, width, heigh
     return;
   }
 
-  if (typeof(toneIndex) === 'string') {
+  let outCanvas: HTMLCanvasElement;
+  if (typeof(toneIndex) === 'string' || !(canvas instanceof HTMLCanvasElement)) {
     if (!sharedCanvas) {
       createCanvas();
     }
@@ -111,12 +113,19 @@ async function encodePreview(key: string, { doc, canvas, toneIndex, width, heigh
     sharedCanvas.width = width;
     sharedCanvas.height = height;
     sharedContext.drawImage(canvas, 0, 0, width, height);
-    applyColorOnContext(sharedContext, customProperties.getProperty(toneIndex), 0, 0, width, height);
-    canvas = sharedCanvas;
+    if (typeof(toneIndex) === 'string') {
+      applyColorOnContext(sharedContext, customProperties.getProperty(toneIndex), 0, 0, width, height);
+    }
+    if (canvas instanceof ImageBitmap) { // exportFrame mints a fresh bitmap; release it now that it's drawn
+      canvas.close();
+    }
+    outCanvas = sharedCanvas;
+  } else {
+    outCanvas = canvas;
   }
 
   const promise = new Promise<Blob>((resolve) => {
-    canvas.toBlob((blob) => resolve(blob!));
+    outCanvas.toBlob((blob) => resolve(blob!));
   });
 
   const blob = await promise;
@@ -131,4 +140,22 @@ async function encodePreview(key: string, { doc, canvas, toneIndex, width, heigh
   }
 
   rootScope.managers.thumbsStorage.saveStickerPreview(doc.id, blob, width, height, toneIndex);
+}
+
+export async function saveLottiePreviewFromPlayer(doc: MyDocument, player: RLottiePlayer, toneIndex: number | string) {
+  if (!player.offscreen) {
+    return saveLottiePreview(doc, player.canvas[0], toneIndex);
+  }
+
+  if (isSavingLottiePreview(doc, toneIndex, player.width, player.height)) {
+    return; // guard runs BEFORE the export - no bitmap ships when nothing needs saving
+  }
+
+  try {
+    const { frame } = await player.exportFrame();
+    saveLottiePreview(doc, frame, toneIndex);
+  } catch (err) {
+    // degrade to no persisted thumb - same as today's pre-firstFrame state
+    console.error('saveLottiePreviewFromPlayer: exportFrame failed', err, player);
+  }
 }

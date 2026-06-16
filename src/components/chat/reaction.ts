@@ -617,6 +617,7 @@ export default class ReactionElement extends HTMLElement {
         middleware: options.middleware,
         textColor,
         loop: isGenericMasked,
+        noOffscreen: true, // this player's consumer grabs contexts[0], re-parents canvas[0] and installs overrideRender post-load
         // static: isGenericMasked || undefined
       }).then(({ render }) => render as Promise<RLottiePlayer>);
 
