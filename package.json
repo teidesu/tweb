@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "license": "GPL-3.0-only",
   "main": "dist-electron/main.js",
+  "desktopName": "pet.tei.inutweb.desktop",
   "engines": {
     "node": ">=22"
   },
