@@ -1,4 +1,6 @@
-appId: desu.inutweb
+# Flatpak requires appId to be a valid D-Bus bus name. A valid D-Bus bus name
+# contains at least 3 segments (intended for reverse dns notation).
+appId: pet.tei.inutweb
 productName: inutweb
 copyright: abolish copyright law
 
@@ -33,9 +35,23 @@ win:
 
 linux:
   category: Network
-  icon: assets/desktop-icon/icon.png
+  icon: assets/desktop-icon/icon-linux.png
+  syncDesktopName: true
   target:
     - AppImage
+    - flatpak
+
+# electron-builder defaults to 20.08 for some reason; it's not even
+# on Flathub anymore.
+flatpak:
+  runtimeVersion: "25.08"
+  baseVersion: "25.08"
+  # electron-builder doesn't add the png icon specified above because it's
+  # 1024px, and flatpak target skips anything >512px.
+  # Add a proper scalable icon manually.
+  files:
+    - - assets/desktop-icon/icon-linux.svg
+      - /share/icons/hicolor/scalable/apps/pet.tei.inutweb.svg
 
 nsis:
   oneClick: false
