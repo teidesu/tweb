@@ -1,10 +1,14 @@
-// Generate the electron-builder desktop icons from the glyph SVG, all in this
-// dir: icon.png (full-bleed square, for Linux/Windows) and icon.icns (macOS
-// squircle with Apple's standard padding, since macOS doesn't auto-round).
-// Re-run after changing the glyph: `node assets/desktop-icon/build.mjs`.
-// Requires ImageMagick (`magick`) and, for the .icns, macOS `iconutil`.
+/* Generate the electron-builder desktop icons from the glyph SVG, all in this
+ * dir. None of Windows/Linux/macOS auto-round, so generate the icons here:
+ *
+ * 1. icon.png - full-bleed square for Windows,
+ * 2. icon-linux.{svg,png} - Linux squircle (GNOME HIG padding and rounding),
+ * 3. icon.icns - macOS squircle with Apple's standard padding.
+ *
+ * Re-run after changing the glyph: `node assets/desktop-icon/build.mjs`.
+ * Requires ImageMagick (`magick`) and, for the .icns, macOS `iconutil`. */
 import {spawnSync} from 'child_process';
-import {mkdirSync, readFileSync, rmSync} from 'fs';
+import {mkdirSync, readFileSync, rmSync, writeFileSync} from 'fs';
 import {dirname, join} from 'path';
 import {fileURLToPath} from 'url';
 
@@ -18,6 +22,12 @@ const BG_TO = '#D59EFF';
 const MAC_CONTENT = 824;
 const MAC_MARGIN = (SIZE - MAC_CONTENT) / 2;
 const MAC_RADIUS = 185;
+// GNOME app-icon: a 103×103 rounded square (8px corners) centered in the
+// 128 grid. Our icon is 1024x1024, so scaled dimensions are: 824px content,
+// 100px margin, 64px radius (same content box as macOS, softer corners).
+const GNOME_CONTENT = 824;
+const GNOME_MARGIN = (SIZE - GNOME_CONTENT) / 2;
+const GNOME_RADIUS = 64;
 
 const glyph = readFileSync(join(dir, 'icon.svg'), 'utf8');
 const viewBox = glyph.match(/viewBox\s*=\s*"\s*0\s+0\s+([\d.]+)\s+([\d.]+)\s*"/);
@@ -57,9 +67,14 @@ function render(svg, out) {
 }
 
 const square = buildSvg({size: SIZE, offset: 0, radius: 0});
-const pngPath = join(dir, 'icon.png');
-render(square, pngPath);
+render(square, join(dir, 'icon.png'));
 console.log('wrote assets/desktop-icon/icon.png');
+
+const linux = buildSvg({size: GNOME_CONTENT, offset: GNOME_MARGIN, radius: GNOME_RADIUS});
+writeFileSync(join(dir, 'icon-linux.svg'), linux);
+console.log('wrote assets/desktop-icon/icon-linux.svg');
+render(linux, join(dir, 'icon-linux.png'));
+console.log('wrote assets/desktop-icon/icon-linux.png');
 
 if (process.platform !== 'darwin') {
   console.log('[build-app-icon] skipping .icns (needs macOS iconutil)');
