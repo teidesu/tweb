@@ -59,7 +59,7 @@
     "libsodium-wrappers": "^0.8.4",
     "mediabunny": "^1.46.0",
     "prismjs": "^1.29.0",
-    "qr-code-styling": "^1.5.0",
+    "qr-code-styling": "1.9.2",
     "rollup-plugin-visualizer": "^7.0.1",
     "sass": "^1.98.0",
     "solid-js": "1.9.9",

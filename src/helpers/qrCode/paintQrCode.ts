@@ -74,22 +74,11 @@ export async function paintQrCode(options: PaintQrOptions) {
   const canvas = host.lastChild as HTMLCanvasElement;
   if (options.canvasClass) canvas.classList.add(options.canvasClass);
 
-  // qr-code-styling races the image-load against a 1s upper bound — matches the
-  // legacy behaviour so we don't leave the host stuck behind a never-loading logo.
-  let drawingPromise: Promise<void>;
-  if (qrCode._drawingPromise) {
-    drawingPromise = qrCode._drawingPromise;
-  } else {
-    drawingPromise = Promise.race([
-      pause(1000),
-      new Promise<void>((resolve) => {
-        qrCode._canvas._image.addEventListener('load', () => {
-          window.requestAnimationFrame(() => resolve());
-        }, { once: true });
-      }),
-    ]);
-  }
-  await drawingPromise;
+  // qr-code-styling exposes `_canvasDrawingPromise`, which resolves once the SVG
+  // (logo image included) has been rasterized onto the canvas. Cap it with a 1s
+  // upper bound so a never-loading logo can't leave the host stuck behind a
+  // preloader, matching the legacy behaviour.
+  await Promise.race([pause(1000), qrCode._canvasDrawingPromise ?? Promise.resolve()]);
 
   return { canvas, qrCode };
 }
