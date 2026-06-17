@@ -11,13 +11,26 @@ jobs:
       matrix:
         include:
           - os: macos-latest
+            target: --mac dmg
             artifact: macos-dmg
             pattern: release/*.dmg
           - os: ubuntu-latest
+            target: --linux AppImage
             artifact: linux-appimage
             pattern: release/*.AppImage
+          - os: ubuntu-latest
+            target: --linux flatpak
+            artifact: linux-flatpak
+            pattern: release/*.flatpak
+            container: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-25.08
+            container-options: --privileged
 
     runs-on: ${{ matrix.os }}
+
+    # Ignored if empty
+    container:
+      image: ${{ matrix.container || '' }}
+      options: ${{ matrix.container-options || '' }}
 
     steps:
       - name: Checkout code
@@ -39,11 +52,33 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # electron-builder always auto-installs the Electron base app via
+      # "flatpak install --user". flatpak-github-actions' container only has
+      # flathub as a system remote. Work this around by pre-installing
+      # (then the bundler just updates it).
+      - name: Install Flatpak deps
+        if: matrix.artifact == 'linux-flatpak'
+        run: flatpak install --system --noninteractive flathub org.electronjs.Electron2.BaseApp//25.08
+
+      # flatpak-builder's rofiles-fuse doesn't work in containers (no fuse),
+      # and electron-builder has no way to pass arguments to flatpak-builder,
+      # so make a wrapper.
+      - name: Make a flatpak-builder wrapper
+        if: matrix.artifact == 'linux-flatpak'
+        run: |
+          fb="$(command -v flatpak-builder)"
+          mv "$fb" "$fb.real"
+          printf '#!/bin/sh\nexec "%s" --disable-rofiles-fuse "$@"\n' "$fb.real" >"$fb"
+          chmod +x "$fb"
+
       - name: Build
-        run: pnpm run electron:dist
+        run: pnpm run electron:dist ${{ matrix.target }}
         env:
           # don't try to codesign / notarize in CI
           CSC_IDENTITY_AUTO_DISCOVERY: false
+          # flatpak-bundler pipes flatpak's stdout/stderr through 'debug',
+          # hiding all the diagnostics.
+          DEBUG: "@malept/flatpak-bundler"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
