@@ -36,7 +36,8 @@ export const THREADED_WORKERS_TYPES = ['crypto', 'rlottie'] as const;
 export type ThreadedWorkerType = typeof THREADED_WORKERS_TYPES[number];
 
 export class AppManagersManager {
-  private managersByAccount: Promise<ManagersByAccount> | ManagersByAccount;
+  private managersByAccount: Partial<ManagersByAccount> = {};
+  private managersByAccountPromises: Partial<Record<ActiveAccountNumber, Promise<Managers>>> = {};
   public readonly stateManagersByAccount: StateManagersByAccount;
   private threadedSharedWorkers: {[type in ThreadedWorkerType]?: ThreadedSharedWorker};
 
@@ -94,8 +95,8 @@ export class AppManagersManager {
     const port = MTProtoMessagePort.getInstance<false>();
 
     port.addEventListener('manager', ({ name, method, args, accountNumber }) => {
-      return callbackify(this.getManagersByAccount(), (managersByAccount) => {
-        if (accountNumber === undefined) {
+      if (accountNumber === undefined) {
+        return callbackify(this.getManagersByAccount(), (managersByAccount) => {
           const results: any[] = [];
           for (const accountNumber in managersByAccount) {
             const managers = managersByAccount[+accountNumber as any as ActiveAccountNumber];
@@ -105,9 +106,10 @@ export class AppManagersManager {
           }
 
           return results.some((result) => result instanceof Promise) ? Promise.all(results) : results;
-        }
+        });
+      }
 
-        const managers = managersByAccount[accountNumber];
+      return callbackify(this.getManagersForAccount(accountNumber), (managers) => {
         const manager = managers[name as keyof Managers];
         // @ts-ignore
         return manager[method](...args);
@@ -150,49 +152,57 @@ export class AppManagersManager {
         const otherAccountNumber = i as ActiveAccountNumber;
         const accountData = await AccountController.get(otherAccountNumber);
         if (accountData.userId === userId) {
-          const managersByAccount = await this.getManagersByAccount();
-          managersByAccount[accountNumber].apiManager.logOut(otherAccountNumber);
+          const managers = await this.getManagersForAccount(accountNumber);
+          managers.apiManager.logOut(otherAccountNumber);
         }
       }
     });
   }
 
-  private async createManagers() {
-    const promises = ([1, 2, 3, 4] as ActiveAccountNumber[]).map(async(accountNumber) => {
-      const stateManager = this.stateManagersByAccount[accountNumber]
-      const appStoragesManager = new AppStoragesManager(accountNumber, stateManager.resetStoragesPromise);
+  private async createManagersForAccount(accountNumber: ActiveAccountNumber) {
+    const stateManager = this.stateManagersByAccount[accountNumber]
+    const appStoragesManager = new AppStoragesManager(accountNumber, stateManager.resetStoragesPromise);
 
-      await Promise.all([
-        // new Promise(() => {}),
-        appStoragesManager.loadStorages(),
-        // In Modes.noWorker the crypto worker is never spawned — the registry
-        // is imported into the main realm and cryptoMessagePort short-circuits
-        // same-realm callers via invokeCryptoNew's early-out. There's nothing
-        // to wait for and the threadedPort handshake never resolves, so skip.
-        Modes.noWorker ? Promise.resolve() : this.threadedSharedWorkers.crypto!.promise,
-      ]);
+    await Promise.all([
+      // new Promise(() => {}),
+      appStoragesManager.loadStorages(),
+      // In Modes.noWorker the crypto worker is never spawned — the registry
+      // is imported into the main realm and cryptoMessagePort short-circuits
+      // same-realm callers via invokeCryptoNew's early-out. There's nothing
+      // to wait for and the threadedPort handshake never resolves, so skip.
+      Modes.noWorker ? Promise.resolve() : this.threadedSharedWorkers.crypto!.promise,
+    ]);
 
-      const managers = await createManagers(
-        appStoragesManager,
-        stateManager,
-        accountNumber,
-        stateManager.userId
-      );
+    const managers = await createManagers(
+      appStoragesManager,
+      stateManager,
+      accountNumber,
+      stateManager.userId
+    );
 
-      return [
-        accountNumber,
-        managers,
-      ] as const;
-    });
-
-    const accountNumberToManagersPairs = await Promise.all(promises);
-    this.managersByAccount = Object.fromEntries(accountNumberToManagersPairs) as ManagersByAccount;
-
-    return this.managersByAccount;
+    this.managersByAccount[accountNumber] = managers;
+    return managers;
   }
 
-  public getManagersByAccount() {
-    return this.managersByAccount ??= this.createManagers();
+  // per-account init is independent so the active account's first call never
+  // blocks on the other (or empty) account slots finishing
+  public getManagersForAccount(accountNumber: ActiveAccountNumber): MaybePromise<Managers> {
+    return this.managersByAccount[accountNumber] ??
+      (this.managersByAccountPromises[accountNumber] ??= this.createManagersForAccount(accountNumber));
+  }
+
+  public getManagersByAccount(): MaybePromise<ManagersByAccount> {
+    const numbers = [1, 2, 3, 4] as ActiveAccountNumber[];
+    if (numbers.every((accountNumber) => this.managersByAccount[accountNumber])) {
+      return this.managersByAccount as ManagersByAccount;
+    }
+
+    return Promise.all(
+      numbers.map((accountNumber) => callbackify(
+        this.getManagersForAccount(accountNumber),
+        (managers) => [accountNumber, managers] as const
+      ))
+    ).then((pairs) => Object.fromEntries(pairs) as ManagersByAccount);
   }
 
   public get isServiceWorkerOnline() {
@@ -215,45 +225,45 @@ export class AppManagersManager {
       this.serviceMessagePort = new ServiceMessagePort();
       this.serviceMessagePort.addMultipleEventsListeners({
         requestFilePart: (payload) => {
-          return callbackify(appManagersManager.getManagersByAccount(), (managersByAccount) => {
-            const { docId, dcId, offset, limit, accountNumber } = payload;
-            return managersByAccount[accountNumber].appDocsManager.requestDocPart(docId, dcId, offset, limit);
+          const { docId, dcId, offset, limit, accountNumber } = payload;
+          return callbackify(appManagersManager.getManagersForAccount(accountNumber), (managers) => {
+            return managers.appDocsManager.requestDocPart(docId, dcId, offset, limit);
           });
         },
         cancelFilePartRequests: ({ docId, accountNumber }) => {
-          return callbackify(appManagersManager.getManagersByAccount(), (managersByAccount) => {
-            return managersByAccount[accountNumber].appDocsManager.cancelDocPartsRequests(docId);
+          return callbackify(appManagersManager.getManagersForAccount(accountNumber), (managers) => {
+            return managers.appDocsManager.cancelDocPartsRequests(docId);
           });
         },
         requestRtmpState({ call, accountNumber }) {
-          return callbackify(appManagersManager.getManagersByAccount(), (managersByAccount) => {
-            return managersByAccount[accountNumber].appGroupCallsManager.fetchRtmpState(call);
+          return callbackify(appManagersManager.getManagersForAccount(accountNumber), (managers) => {
+            return managers.appGroupCallsManager.fetchRtmpState(call);
           });
         },
         requestRtmpPart(payload) {
-          return callbackify(appManagersManager.getManagersByAccount(), async(managersByAccount) => {
-            const { request, dcId, accountNumber } = payload;
-            return (await managersByAccount[accountNumber].appGroupCallsManager.fetchRtmpPart(request, dcId))!;
+          const { request, dcId, accountNumber } = payload;
+          return callbackify(appManagersManager.getManagersForAccount(accountNumber), async(managers) => {
+            return (await managers.appGroupCallsManager.fetchRtmpPart(request, dcId))!;
           });
         },
         requestDoc(payload) {
-          return callbackify(appManagersManager.getManagersByAccount(), (managersByAccount) => {
-            const { docId, accountNumber } = payload;
-            return managersByAccount[accountNumber].appDocsManager.getDoc(docId);
+          const { docId, accountNumber } = payload;
+          return callbackify(appManagersManager.getManagersForAccount(accountNumber), (managers) => {
+            return managers.appDocsManager.getDoc(docId);
           });
         },
         downloadDoc(payload) {
-          return callbackify(appManagersManager.getManagersByAccount(), (managersByAccount) => {
-            const { docId, accountNumber } = payload;
-            const appDocsManager = managersByAccount[accountNumber].appDocsManager;
+          const { docId, accountNumber } = payload;
+          return callbackify(appManagersManager.getManagersForAccount(accountNumber), (managers) => {
+            const appDocsManager = managers.appDocsManager;
             const doc = appDocsManager.getDoc(docId);
             return appDocsManager.downloadDoc(doc);
           });
         },
         requestAltDocsByDoc(payload) {
-          return callbackify(appManagersManager.getManagersByAccount(), (managersByAccount) => {
-            const { docId, accountNumber } = payload;
-            const { appDocsManager } = managersByAccount[accountNumber];
+          const { docId, accountNumber } = payload;
+          return callbackify(appManagersManager.getManagersForAccount(accountNumber), (managers) => {
+            const { appDocsManager } = managers;
             return appDocsManager.getAltDocsByDocument(docId);
           });
         },
