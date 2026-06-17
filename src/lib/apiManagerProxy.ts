@@ -797,8 +797,9 @@ class ApiManagerProxy extends MTProtoMessagePort {
 
         // @mtcute/wasm resolves its wasm via `new URL('mtcute-*.wasm', import.meta.url)`,
         // which throws against the blob: URL these proxy workers run from. Make the hashed
-        // filenames absolute so import.meta.url is irrelevant.
-        text = text.replace(/(["'])(mtcute(?:-simd)?-[\w-]+\.wasm)/g, '$1' + pre + '$2');
+        // filenames absolute so import.meta.url is irrelevant. The minifier emits the literal
+        // as a backtick template string, so the quote class must include it.
+        text = text.replace(/(["'`])(mtcute(?:-simd)?-[\w-]+\.wasm)/g, '$1' + pre + '$2');
 
         const blob = new Blob([text], { type: 'application/javascript' });
         return blob;
