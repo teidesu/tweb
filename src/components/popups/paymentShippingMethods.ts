@@ -30,7 +30,7 @@ export default class PopupPaymentShippingMethods extends PopupElement<{
     const section = new SettingSection({ name: 'PaymentCheckoutShippingMethod', noDelimiter: true, noShadow: true });
 
     const rows = this.requestedInfo.shipping_options!.map((shippingOption) => {
-      return new Row({
+      const row = new Row({
         radioField: new RadioField({
           text: shippingOption.title,
           name: 'shipping-method',
@@ -41,6 +41,8 @@ export default class PopupPaymentShippingMethods extends PopupElement<{
           this.paymentForm.invoice.currency
         ),
       });
+      row.container.classList.add('popup-payment-shipping-method-row');
+      return row;
     });
 
     let lastShippingId: string;

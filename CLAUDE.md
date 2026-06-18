@@ -130,6 +130,8 @@ import styles from '@/components/chat/bubbles/service.module.scss';
 // Usage: <div class={styles.wrap}>
 ```
 
+Prefer camelCase for class names in CSS modules, to avoid having to use brackets when referencing them from JS.
+
 For CSS modules, one useful trick is to use `/* @once */` to mark the prop as "it will never change",
 which allows Solid.js to skip attaching an effect to it.
 

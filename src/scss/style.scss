@@ -4,7 +4,6 @@
 @use "components/prism";
 @use "fonts";
 @use "partials/ripple";
-@use "partials/section";
 @use "partials/input";
 @use "partials/inputSearch";
 @use "partials/button";
@@ -49,7 +48,6 @@
 @use "partials/peerTyping";
 @use "partials/poll";
 @use "partials/transition";
-@use "partials/row";
 @use "partials/colorPicker";
 @use "partials/replyKeyboard";
 @use "partials/spoiler";

@@ -413,8 +413,6 @@
 
     .sidebar-left-section {
       position: relative;
-      background-color: var(--surface-color);
-      padding-bottom: .5rem;
 
       .profile-subtitle {
         .peer-typing-container {
@@ -893,7 +891,7 @@
   &-bot-verification {
     --custom-emoji-size: 1rem;
     font-size: var(--font-size-14);
-    padding-inline: calc(var(--section-padding-inline) + var(--section-margin-inline));
+    padding-inline: 1rem;
     margin-bottom: var(--section-padding-bottom);
     color: var(--secondary-text-color);
     display: flex;
@@ -909,7 +907,7 @@
   }
 
   &-unofficial-warning {
-    .row-title {
+    .profile-unofficial-warning-title {
       font-size: var(--font-size-14);
       line-height: var(--line-height-14);
       color: var(--secondary-text-color);
@@ -924,7 +922,7 @@
   }
 
   &-notes {
-    .row-title {
+    .profile-notes-title {
       white-space: pre-wrap;
     }
   }

@@ -1087,6 +1087,9 @@ export default class AppSearchSuper {
     }
 
     row.applyMediaElement(previewDiv, 'big');
+    row.media.classList.add('search-super-item-media');
+    row.title.classList.add('search-super-item-title');
+    row.subtitle.classList.add('search-super-item-subtitle');
 
     if (row.container.innerText.trim().length) {
       return { message, element: row.container };

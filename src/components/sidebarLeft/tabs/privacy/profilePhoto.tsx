@@ -138,7 +138,9 @@ function buildFallbackSection(tab: SliderSuperTabEventable) {
     listenerSetter: tab.listenerSetter,
   });
   removeRow.container.classList.add('danger', 'privacy-public-photo-remove');
+  removeRow.title.classList.add('privacy-public-photo-remove-title');
   const removeMedia = removeRow.createMedia('medium');
+  removeMedia.classList.add('privacy-public-photo-remove-media');
 
   section.content.append(fallbackRow.container, removeRow.container);
   tab.scrollable.append(section.container);

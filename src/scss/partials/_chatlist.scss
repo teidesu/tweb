@@ -84,11 +84,18 @@ ul.chatlist {
 
   -webkit-touch-callout: none; /* disable the IOS popup when long-press on a link */
 
-  // & is needed to out-specify .row-clickable/.row-big from _row.scss, which is imported later
+  // & is needed to out-specify the row module's .rowClickable border-radius.
   // todo: crutch!!!
   & &-chat {
     border-radius: 0;
     padding-inline: .5rem;
+
+    // avatar rows need a tighter clearance than the row module's generic
+    // .rowWithPadding (4.5rem); .dialog-with-avatar is stamped only when an
+    // avatar is actually present (topics/forum rows have none)
+    &.dialog-with-avatar {
+      padding-inline-start: 4.125rem;
+    }
 
     &.row-big {
       min-height: 3.875rem;
@@ -148,12 +155,12 @@ ul.chatlist {
       // display: inline-block;
     }
 
-    .row-title .topic-icon {
+    .dialog-title .topic-icon {
       --size: 1.375rem;
       margin-inline-end: .25rem;
     }
 
-    .row-title .emoji-topic-icon {
+    .dialog-title .emoji-topic-icon {
       --full-size: 22px;
       --size: 20px;
 
@@ -225,8 +232,9 @@ ul.chatlist {
         --background: var(--primary-color) !important;
         //background: var(--light-secondary-text-color);
 
-        .row-subtitle,
-        .row-title,
+        .dialog-subtitle-text,
+        .dialog-title,
+        .dialog-title-details,
         .dialog-subtitle-badge-pinned,
         //.user-title:after,
         .user-title,
@@ -314,8 +322,50 @@ ul.chatlist {
     color: var(--secondary-color);
   }
 
+  // time/status carry the row module's .rowTitle (16px) since they live in the
+  // title row; the dialog date is meant to read smaller than the peer name.
+  .dialog-title-details {
+    display: flex;
+    align-items: center;
+    height: 1.25rem;
+    margin-top: -.4375rem;
+    font-size: var(--font-size-12);
+    line-height: var(--line-height-12);
+  }
+
+  // peer name reads smaller than the module's default .rowTitle (16px)
+  .user-title {
+    line-height: 1.375rem;
+    font-size: var(--font-size-15);
+  }
+
+  .chatlist-chat-bigger .user-title .peer-title {
+    font-weight: var(--font-weight-bold);
+  }
+
+  .chatlist-chat-bigger .dialog-subtitle {
+    margin-top: .125rem;
+  }
+
+  .dialog-title,
+  .dialog-subtitle {
+    height: 1.375rem;
+  }
+
+  .chatlist-chat-abitbigger .dialog-subtitle-text {
+    margin-top: 0;
+  }
+
+  .chatlist-chat-bigger .dialog-subtitle-text {
+    margin-top: 0;
+    line-height: 1.375rem;
+    // module's .rowSubtitle sets the same size with !important; match it to win
+    font-size: var(--font-size-14) !important;
+  }
+
   .dialog-avatar,
-  .row-row {
+  .dialog-title,
+  .dialog-subtitle {
     pointer-events: none;
     position: relative; // for z-index
   }
@@ -445,7 +495,7 @@ ul.chatlist {
       }
     }
 
-    .row-icon {
+    .chatlist-top-notification-icon {
       position: absolute;
       right: .5rem;
       font-size: 1.5rem;

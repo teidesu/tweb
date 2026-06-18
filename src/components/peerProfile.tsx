@@ -520,6 +520,7 @@ PeerProfile.PersonalChannel = () => {
 
     const loadPromises: Promise<any>[] = [];
     const list = appDialogsManager.createChatList();
+    list.classList.add('personal-channel-list');
     const dialogElement = appDialogsManager.addDialogNew({
       peerId: peerId,
       container: list,
@@ -883,7 +884,7 @@ PeerProfile.ContactNote = () => {
           }],
         }}
       >
-        <Row.Title>{text()}</Row.Title>
+        <Row.Title class="profile-notes-title">{text()}</Row.Title>
         <Row.Subtitle subtitleRight={i18n('ContactNoteRowDesc')}>
           {i18n('ContactNoteRow')}
         </Row.Subtitle>
@@ -1131,6 +1132,7 @@ PeerProfile.BusinessLocation = () => {
         <Show when={location()!.geo_point}>
           <Row.Media
             size="big"
+            class="business-location-media"
             ref={(media) => {
               const loadPromises: Promise<any>[] = [];
               wrapPhoto({
@@ -1246,7 +1248,7 @@ PeerProfile.UnofficialWarning = () => {
     <Show when={show()}>
       <Section>
         <Row class="profile-unofficial-warning">
-          <Row.Title class="pre-wrap">
+          <Row.Title class="pre-wrap profile-unofficial-warning-title">
             <IconTsx icon="sendingerror" class="inline-icon inline-icon-left profile-unofficial-warning-icon" />
             {i18n('ProfileUnofficialSecurityRisk', [wrapEmojiText((context!.peer as User.user).first_name!)])}
           </Row.Title>

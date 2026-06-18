@@ -125,6 +125,7 @@ export default function showStickersPopup(
           subtitle: i18n(set.pFlags.emojis ? 'EmojiCount' : 'Stickers', [set.count]),
           buttonRight: true,
         });
+        headerRow.title.classList.add('sticker-set-row-title');
 
         setUpdateAdded = (added) => {
           headerRow.buttonRight.replaceChildren(i18n(added ? 'Stickers.SearchAdded' : 'Stickers.SearchAdd'));

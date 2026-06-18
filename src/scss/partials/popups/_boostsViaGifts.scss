@@ -60,11 +60,11 @@
   &-type {
     padding-inline-start: 7.5625rem;
 
-    .row-title {
+    .popup-boosts-type-title {
       font-weight: var(--font-weight-bold);
     }
 
-    .row-media {
+    .popup-boosts-type-media {
       inset-inline-start: 3.5rem !important;
     }
   }
@@ -95,7 +95,7 @@
   }
 
   &-channel {
-    .row-media {
+    .popup-boosts-channel-media {
       inset-inline-start: .4375rem !important;
     }
   }
@@ -141,7 +141,7 @@
 
   &-stars {
     &-row {
-      .row-right {
+      .popup-boosts-stars-row-right {
         color: var(--secondary-text-color);
       }
 

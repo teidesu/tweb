@@ -1,0 +1,549 @@
+@use "sass:math";
+@use "../scss/shared" as *;
+
+// md3 grouped-list metrics
+$m3-section-outer-radius: 1.25rem;
+$m3-section-inner-radius: .25rem;
+$m3-section-gap: 2px;
+// items that participate in md3 grouping; checkbox/radio fields are external (global) components
+$m3-items: ".row", ":global(.checkbox-field)", ":global(.radio-field)";
+
+$row-border-radius: $border-radius-medium;
+
+//
+// * Section
+//
+
+.container {
+  padding-inline: var(--section-padding-inline);
+
+  a {
+    cursor: pointer;
+  }
+}
+
+.section {
+  margin-bottom: var(--section-padding-bottom);
+
+  &.noMarginBottom {
+    margin-bottom: 0;
+  }
+
+  :global(.checkbox-field),
+  :global(.radio-field) {
+    margin: 0;
+  }
+
+  :global(.checkbox-field) {
+    display: flex;
+    align-items: center;
+    height: 3.5rem;
+    padding: 0 1.125rem;
+  }
+
+  :global(.chatlist) {
+    padding: 0;
+  }
+}
+
+.content {
+  margin: 0;
+
+  // each cell is its own rounded surface card; the tiny gap shows the darker
+  // window background, group ends get the big outer radius, inner joins stay subtle.
+  @each $sel in $m3-items {
+    > #{$sel} {
+      background-color: var(--surface-color);
+      border-radius: $m3-section-inner-radius;
+      overflow: hidden;
+    }
+
+    > #{$sel}:not(:first-child) {
+      margin-top: $m3-section-gap;
+    }
+
+    > #{$sel}:first-child,
+    > .name + #{$sel} {
+      border-start-start-radius: $m3-section-outer-radius;
+      border-start-end-radius: $m3-section-outer-radius;
+    }
+
+    > #{$sel}:last-child {
+      border-end-start-radius: $m3-section-outer-radius;
+      border-end-end-radius: $m3-section-outer-radius;
+    }
+
+    // header provides its own spacing, drop the inter-item gap right after it
+    > .name + #{$sel} {
+      margin-top: 0;
+    }
+  }
+
+  > :global(.btn-primary) {
+    margin: 0;
+  }
+
+  > :global(.checkbox-field) {
+    :global(.checkbox-box) {
+      inset-inline-start: auto;
+    }
+  }
+
+  @include respond-to(handhelds) {
+    > :global(.checkbox-ripple),
+    > :global(.btn-primary) {
+      border-radius: 0;
+    }
+  }
+
+  > :global(.media-sticker-wrapper) {
+    width: 86px;
+    height: 86px;
+    margin: 1px auto 29px;
+    flex: 0 0 auto;
+    position: relative;
+  }
+}
+
+.name {
+  padding: .5rem 1rem;
+  margin-bottom: .25rem;
+  display: flex;
+  justify-content: space-between;
+  color: var(--primary-color);
+  font-size: var(--font-size-14);
+  font-weight: var(--font-weight-bold);
+}
+
+.nameRight {
+  font-weight: var(--font-weight-normal);
+}
+
+.caption {
+  margin: .25rem 0 1rem;
+  font-size: var(--font-size-14);
+  line-height: var(--line-height-14);
+  color: var(--secondary-text-color);
+  padding: 0 1rem;
+
+  &:first-child {
+    margin-top: .8125rem;
+    margin-bottom: .8125rem;
+  }
+}
+
+.disabled {
+  pointer-events: none !important;
+  opacity: .25;
+}
+
+//
+// * Row
+//
+
+.row {
+  min-height: 3.5rem;
+  position: relative;
+  padding-block: .4375rem;
+  padding-inline: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  &.noSubtitle,
+  &.rowSmall {
+    min-height: 3rem;
+    padding-top: .1875rem;
+    padding-bottom: .1875rem;
+  }
+
+  @include animation-level(2) {
+    transition: opacity var(--transition-standard-in);
+  }
+
+  &:global(.is-disabled) {
+    pointer-events: none !important;
+    opacity: var(--disabled-opacity);
+  }
+
+  &:global(.is-fake-disabled) {
+    .rowRow {
+      opacity: var(--disabled-opacity);
+    }
+
+    :global(.checkbox-field-toggle) {
+      --primary-color: var(--secondary-color);
+    }
+  }
+
+  &.noWrap {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+
+    br {
+      content: " ";
+
+      &:after {
+        content: " ";
+      }
+    }
+  }
+
+  a {
+    position: relative;
+    z-index: 1;
+    pointer-events: all;
+  }
+
+  :global(.radio-field-main),
+  :global(.checkbox-field) {
+    padding-inline-start: 3.375rem;
+    margin-inline-start: -3.375rem;
+  }
+
+  :global(.radio-field),
+  :global(.radio-field:not(.radio-field-right)) :global(.radio-field-main),
+  :global(.checkbox-field) {
+    position: unset;
+  }
+
+  :global(.radio-field),
+  :global(.checkbox-field),
+  :global(.offset-left) {
+    --offset-left: 1rem;
+  }
+
+  :global(.radio-field) {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  :global(.checkbox-field) {
+    margin-top: 0;
+    margin-inline-end: 0;
+    margin-bottom: 0;
+    height: auto;
+
+    :global(.checkbox-caption) {
+      padding-inline-start: 0;
+      white-space: pre-wrap;
+      overflow: unset;
+      text-overflow: unset;
+    }
+  }
+
+  :global(.checkbox-field-toggle) {
+    margin-inline: .125rem .125rem;
+    padding: 0;
+  }
+
+  :global(.checkbox-field-absolute) {
+    position: absolute;
+    margin: 0 !important;
+    padding: 0 !important;
+    left: 0;
+  }
+
+  :global(.checkbox-field-round) {
+    :global(.checkbox-box-border) {
+      z-index: unset;
+    }
+  }
+
+  &:global(.menu-open) {
+    background-color: var(--light-secondary-text-color);
+  }
+
+  &:global(.accordion-toggler) {
+    :global(.checkbox-field-toggle) {
+      pointer-events: all !important;
+    }
+  }
+}
+
+.rowTitleRow,
+.row > .rowTitle {
+  order: 0;
+}
+
+.rowSubtitleRow,
+.row > .rowSubtitle {
+  order: 1;
+}
+
+.rowGrid {
+  display: grid;
+  justify-content: initial;
+  grid-template-columns: auto 1fr auto;
+  grid-template-rows: auto auto;
+  grid-template-areas: "left title right" "left subtitle right";
+  align-items: center;
+  padding-inline-start: 1rem !important;
+
+  &.rowWithPadding {
+    grid-template-columns: 3.5rem 1fr auto;
+  }
+
+  &.noSubtitle {
+    grid-template-areas: "left title right";
+    grid-template-rows: auto;
+
+    .rowTitle {
+      align-self: unset;
+    }
+  }
+
+  &:global(.with-midtitle) {
+    grid-template-areas: "left title right" "left midtitle right" "left subtitle right";
+    grid-template-rows: auto auto auto;
+  }
+
+  .rowTitle {
+    grid-area: title;
+    align-self: flex-end;
+  }
+
+  .rowSubtitle {
+    grid-area: subtitle;
+    align-self: flex-start;
+  }
+
+  .rowMidtitle {
+    grid-area: midtitle;
+    align-self: flex-start;
+  }
+
+  :global(.checkbox-field) {
+    --offset-left: 0 !important;
+    grid-area: left;
+    width: 3.5rem;
+    position: relative !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .rowRight {
+    margin-inline-start: 1rem;
+    grid-area: right;
+  }
+}
+
+.rowBig {
+  min-height: 4.5rem;
+  padding-block: .5625rem;
+  padding-inline: 1rem .75rem;
+}
+
+.rowRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .rowTitle,
+  .rowSubtitle {
+    @include text-overflow(true);
+    min-width: 0;
+    flex: 1 1 auto;
+
+    :global(.peer-title) {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+.rowTitle {
+  color: var(--primary-text-color);
+  font-size: var(--font-size);
+  line-height: var(--line-height);
+
+  @include text-overflow(false);
+}
+
+.rowTitleRightSecondary {
+  color: var(--secondary-text-color);
+}
+
+.rowTitleRight :global(.input-clear) {
+  color: inherit;
+  text-align: right;
+  pointer-events: all;
+  cursor: text;
+}
+
+.rowTitleRow:global(.with-delimiter) .rowTitle:first-child {
+  border-right: 1px solid var(--border-color);
+}
+
+:global(.row-title-badge) {
+  text-transform: uppercase;
+  border-radius: 4px;
+  background-color: var(--primary-color);
+  color: #fff;
+  padding: .1875rem .3125rem;
+  font-size: 75%;
+  margin-inline-start: .375rem;
+  font-weight: var(--font-weight-bold);
+  display: inline-block;
+  line-height: 1;
+  position: relative;
+  top: -1px;
+}
+
+.rowTitleRight,
+.rowSubtitleRight {
+  flex: 0 0 auto !important;
+  margin-inline-start: 1rem;
+}
+
+.rowTitle,
+.rowSubtitle,
+.rowMidtitle {
+  position: relative;
+  pointer-events: none;
+}
+
+.rowMidtitle {
+  font-size: var(--font-size-14);
+  line-height: 20px;
+  margin: 1px 0 -1px;
+  order: 1;
+}
+
+.rowWithPadding {
+  padding-inline-start: 4.5rem;
+
+  @include respond-to(handhelds) {
+    padding-inline-start: 4rem;
+  }
+
+  .rowIcon {
+    position: absolute;
+    inset-inline-start: 1rem;
+    font-size: 1.5rem;
+    color: var(--secondary-text-color);
+    pointer-events: none;
+    z-index: 1;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  :global(.row-icon-premium-color) {
+    color: var(--primary-color);
+  }
+
+  :global(.row-icon-custom-color) {
+    color: var(--custom-icon-color);
+  }
+
+  :global(.row-icon-stars-color) {
+    color: var(--star-golden-color);
+  }
+
+  &:not(.rowWithIcon) .rowIcon {
+    display: none;
+  }
+}
+
+.rowClickable {
+  cursor: pointer;
+  overflow: hidden;
+
+  @include respond-to(not-handhelds) {
+    border-radius: $row-border-radius;
+  }
+}
+
+.rowSortable {
+  .rowTitle,
+  .rowSubtitle {
+    padding-inline-end: 2.5rem;
+  }
+
+  &:global(.cant-sort) .rowSortableIcon {
+    display: none;
+  }
+
+  &:global(.is-dragging) {
+    background-color: var(--surface-color) !important;
+    z-index: 1;
+
+    @include hover() {
+      background-color: var(--light-filled-secondary-text-color) !important;
+    }
+  }
+
+  @include hover() {
+    .rowSortableIcon {
+      opacity: 1;
+    }
+  }
+
+  :global(.is-reordering) & {
+    @include animation-level(2) {
+      transition: transform var(--transition-standard-in);
+    }
+  }
+}
+
+.rowSortableIcon {
+  font-size: 1.5rem;
+  height: 1.5rem;
+  line-height: 1;
+  color: var(--secondary-text-color);
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  inset-inline-end: .75rem;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.rowSubtitle {
+  color: var(--secondary-text-color) !important;
+  font-size: var(--font-size-14) !important;
+  line-height: var(--line-height-14);
+  margin-top: .1875rem;
+}
+
+.rowMedia {
+  width: 2.25rem !important;
+  height: 2.25rem !important;
+  position: absolute !important;
+  margin: 0 !important;
+  inset-inline-start: .75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.rowMediaSmall {
+  width: 2rem !important;
+  height: 2rem !important;
+  inset-inline-start: .75rem !important;
+}
+
+.rowMedia40 {
+  width: 2.625rem !important;
+  height: 2.625rem !important;
+  inset-inline-start: .75rem !important;
+}
+
+.rowMediaAbitbigger {
+  width: 2.625rem !important;
+  height: 2.625rem !important;
+  inset-inline-start: .75rem !important;
+}
+
+.rowMediaBig {
+  width: 3rem !important;
+  height: 3rem !important;
+  inset-inline-start: .5rem !important;
+}
+
+.rowMediaBigger {
+  width: 3rem !important;
+  height: 3rem !important;
+  inset-inline-start: .5625rem !important; // it's wrong but old chatlist has it
+}

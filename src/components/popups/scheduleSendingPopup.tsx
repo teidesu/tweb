@@ -101,7 +101,7 @@ function RepeatRow(props: {initValue: number, onChange: (value: number) => void}
       class="popup-schedule-repeat"
     >
       <Row.Title>{i18n('Schedule.Repeat')}</Row.Title>
-      <Row.RightContent>
+      <Row.RightContent class="popup-schedule-repeat-right">
         <InlineSelect
           value={value()}
           onChange={(next: number) => {

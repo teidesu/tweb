@@ -13,6 +13,8 @@ import Button from '@/components/button';
 import createContextMenu from '@/helpers/dom/createContextMenu';
 import SidebarSlider from '@/components/slider';
 import Icon from '@/components/icon';
+import styles from '@/components/sectionRow.module.scss';
+import { rowMediaSizeClass } from '@/components/rowTsx';
 
 type K = string | HTMLElement | DocumentFragment | true;
 
@@ -99,10 +101,10 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
 
     const tagName = options.asLink ? 'a' : (options.radioField || options.checkboxField || options.asLabel ? 'label' : 'div');
     this.container = document.createElement(tagName);
-    this.container.classList.add('row', 'no-subtitle');
+    this.container.classList.add(styles.row, styles.noSubtitle);
 
     if (options.noWrap) {
-      this.container.classList.add('no-wrap');
+      this.container.classList.add(styles.noWrap);
     }
 
     if (options.subtitle || options.subtitleLangKey) {
@@ -113,13 +115,13 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
         setContent(subtitle, options.subtitle!);
       }
 
-      if (options.noWrap) subtitle.classList.add('no-wrap');
+      if (options.noWrap) subtitle.classList.add(styles.noWrap);
 
       if (options.subtitleRight) {
         this.container.append(this.subtitleRow = this.createRow());
-        this.subtitleRow.classList.add('row-subtitle-row');
+        this.subtitleRow.classList.add(styles.rowSubtitleRow);
         const subtitleRight = this.subtitleRight = document.createElement('div');
-        subtitleRight.classList.add('row-subtitle', 'row-subtitle-right');
+        subtitleRight.classList.add(styles.rowSubtitle, styles.rowSubtitleRight);
 
         setContent(subtitleRight, options.subtitleRight);
         this.subtitleRow.append(subtitle, subtitleRight);
@@ -139,7 +141,6 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
 
         const isToggle = options.checkboxField.label.classList.contains('checkbox-field-toggle');
         if (isToggle) {
-          this.container.classList.add('row-with-toggle');
           options.titleRight = this.checkboxField.label;
         } else {
           havePadding = true;
@@ -170,7 +171,7 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
       const titleRightContent = options.titleRight || options.titleRightSecondary;
       if (titleRightContent) {
         this.container.append(c = this.titleRow = this.createRow());
-        this.titleRow.classList.add('row-title-row');
+        this.titleRow.classList.add(styles.rowTitleRow);
       } else {
         c = this.container;
       }
@@ -187,10 +188,10 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
 
       if (titleRightContent) {
         const titleRight = this.titleRight = document.createElement('div');
-        titleRight.classList.add('row-title', 'row-title-right');
+        titleRight.classList.add(styles.rowTitle, styles.rowTitleRight);
 
         if (options.titleRightSecondary) {
-          titleRight.classList.add('row-title-right-secondary');
+          titleRight.classList.add(styles.rowTitleRightSecondary);
         }
 
         setContent(titleRight, titleRightContent);
@@ -202,15 +203,15 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
       havePadding = true;
       // this.title.classList.add('tgico', 'tgico-' + options.icon);
       if (options.iconClasses?.length) {
-        this.container.append(Icon(options.icon, 'row-icon', ...options.iconClasses));
+        this.container.append(Icon(options.icon, styles.rowIcon, ...options.iconClasses));
       } else {
-        this.container.append(Icon(options.icon, 'row-icon'));
+        this.container.append(Icon(options.icon, styles.rowIcon));
       }
-      this.container.classList.add('row-with-icon');
+      this.container.classList.add(styles.rowWithIcon);
     }
 
     if (havePadding) {
-      this.container.classList.add('row-with-padding');
+      this.container.classList.add(styles.rowWithPadding);
     }
 
     if (options.navigationTab) {
@@ -254,7 +255,7 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
         }, { listenerSetter: options.listenerSetter });
       }
 
-      this.container.classList.add('row-clickable', 'hover-effect');
+      this.container.classList.add(styles.rowClickable, 'hover-effect');
 
       if (!options.noRipple) {
         ripple(this.container);
@@ -273,13 +274,13 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
 
     if (options.rightTextContent) {
       options.rightContent = document.createElement('span');
-      options.rightContent.classList.add('row-title-right-secondary');
+      options.rightContent.classList.add(styles.rowTitleRightSecondary);
       options.rightContent.textContent = options.rightTextContent;
     }
 
     if (options.rightContent) {
-      options.rightContent.classList.add('row-right');
-      this.container.classList.add('row-grid');
+      options.rightContent.classList.add(styles.rowRight);
+      this.container.classList.add(styles.rowGrid);
       this.container.append(options.rightContent);
     }
 
@@ -308,30 +309,30 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
 
   private createRow() {
     const c = document.createElement('div');
-    c.classList.add('row-row');
+    c.classList.add(styles.rowRow);
     return c;
   }
 
   public createTitle() {
     const title = document.createElement('div');
-    title.classList.add('row-title');
+    title.classList.add(styles.rowTitle);
     setDirection(title);
     return title;
   }
 
   private createSubtitle() {
     const subtitle = document.createElement('div');
-    subtitle.classList.add('row-subtitle');
+    subtitle.classList.add(styles.rowSubtitle);
     setDirection(subtitle);
     if (this.title) this.title.after(subtitle);
     else this.container.prepend(subtitle);
-    this.container.classList.remove('no-subtitle');
+    this.container.classList.remove(styles.noSubtitle);
     return subtitle;
   }
 
   private createMidtitle() {
     const midtitle = document.createElement('div');
-    midtitle.classList.add('row-midtitle');
+    midtitle.classList.add(styles.rowMidtitle);
     this.subtitle.parentElement!.insertBefore(midtitle, this.subtitle);
     return midtitle;
   }
@@ -342,13 +343,14 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
   }
 
   public applyMediaElement(media: HTMLElement, size?: RowMediaSizeType) {
-    this.container.classList.add('row-with-padding');
+    this.container.classList.add(styles.rowWithPadding);
 
     this.media = media;
-    media.classList.add('row-media');
+    media.classList.add(styles.rowMedia);
 
-    if (size) {
-      media.classList.add('row-media-' + size);
+    const sizeClass = size && rowMediaSizeClass[size];
+    if (sizeClass) {
+      media.classList.add(sizeClass);
     }
 
     this.container.append(media);
@@ -373,8 +375,8 @@ export default class Row<T extends SliderSuperTabEventableConstructable = any> {
   }
 
   public makeSortable() {
-    const sortIcon = Icon('menu', 'row-sortable-icon');
-    this.container.classList.add('row-sortable');
+    const sortIcon = Icon('menu', styles.rowSortableIcon);
+    this.container.classList.add(styles.rowSortable);
     this.container.append(sortIcon);
   }
 

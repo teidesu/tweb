@@ -653,6 +653,8 @@ export default class AppStatisticsTab extends SliderSuperTabEventable {
     container.classList.add('statistics-post');
 
     row.title.classList.add('statistics-post-title');
+    row.titleRight?.classList.add('statistics-post-title-right');
+    row.subtitleRight?.classList.add('statistics-post-subtitle-right');
 
     const middleware = this.middlewareHelper.get();
     const mediaEl = document.createElement('div');

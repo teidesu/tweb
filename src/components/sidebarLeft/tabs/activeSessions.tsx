@@ -36,6 +36,10 @@ const ActiveSessions: Component = () => {
 
       row.container.dataset.hash = '' + auth.hash;
 
+      row.title.classList.add('active-session-title');
+      row.titleRight?.classList.add('active-session-title-right');
+      row.subtitle.classList.add('active-session-subtitle');
+      row.midtitle.classList.add('active-session-midtitle');
       row.midtitle.textContent = [auth.device_model, auth.system_version || auth.platform].filter(Boolean).join(', ');
 
       return row;

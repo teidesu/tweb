@@ -1,6 +1,6 @@
 import { LangPackKey, FormatterArguments, i18n_ } from '@/lib/langPack';
-import { generateDelimiter } from '@/components/generateDelimiter';
 import Scrollable from '@/components/scrollable';
+import styles from '@/components/sectionRow.module.scss';
 
 export type SettingSectionOptions = {
   name?: LangPackKey | HTMLElement,
@@ -15,7 +15,6 @@ export type SettingSectionOptions = {
   // noPaddingTop?: boolean
 };
 
-const className = 'sidebar-left-section';
 export default class SettingSection {
   public container: HTMLElement;
   public innerContainer: HTMLElement;
@@ -23,42 +22,18 @@ export default class SettingSection {
   public title: HTMLElement;
   public caption: HTMLElement;
 
-  private fullWidth: boolean;
-
   constructor(options: SettingSectionOptions = {}) {
     const container = this.container = document.createElement('div');
-    container.classList.add(className + '-container');
+    container.classList.add(styles.container);
 
     const innerContainer = this.innerContainer = document.createElement('div');
-    innerContainer.classList.add(className);
-
-    if (options.noShadow) {
-      innerContainer.classList.add('no-shadow');
-    }
-
-    if (options.fakeGradientDelimiter) {
-      innerContainer.append(generateDelimiter());
-      innerContainer.classList.add('with-fake-delimiter');
-    } else if (!options.noDelimiter) {
-      const hr = document.createElement('hr');
-      innerContainer.append(hr);
-    } else {
-      innerContainer.classList.add('no-delimiter');
-    }
-
-    // if(options.fullWidth) {
-    //   this.fullWidth = true;
-    // }
-
-    // if(options.noPaddingTop) {
-    //   innerContainer.classList.add('no-padding-top');
-    // }
+    innerContainer.classList.add(styles.section);
 
     const content = this.content = this.generateContentElement();
 
     if (options.name) {
       const title = this.title = document.createElement('div');
-      title.classList.add('sidebar-left-h2', className + '-name');
+      title.classList.add(styles.name);
       if (typeof(options.name) === 'string') {
         i18n_({ element: title, key: options.name, args: options.nameArgs });
       } else {
@@ -72,7 +47,7 @@ export default class SettingSection {
     const caption = options.caption ?? options.captionOld;
     if (caption) {
       const el = this.caption = this.generateContentElement();
-      el.classList.add(className + '-caption');
+      el.classList.add(styles.caption);
 
       if (!options.captionOld) {
         container.append(el);
@@ -86,11 +61,7 @@ export default class SettingSection {
 
   public generateContentElement() {
     const content = document.createElement('div');
-    content.classList.add(className + '-content');
-
-    // if(this.fullWidth) {
-    //   content.classList.add('full-width');
-    // }
+    content.classList.add(styles.content);
 
     this.innerContainer.append(content);
     return content;

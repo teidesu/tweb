@@ -57,6 +57,7 @@ export default async function showGiftPremiumPopup(peerId: PeerId, giftOptions: 
       });
 
       row.container.classList.add('popup-gift-premium-option');
+      row.title.classList.add('popup-gift-premium-option-title');
       return row;
     });
 

@@ -1634,68 +1634,6 @@ hr {
   }
 }
 
-.chatlist-chat {
-  &.row-with-padding {
-    padding-inline-start: 4.125rem !important;
-  }
-
-  // span {
-  //   @include text-overflow(true);
-  // }
-
-  .row {
-    &-title {
-      font-size: var(--font-size-15) !important;
-      line-height: 1.375rem;
-
-      &-right-secondary {
-        display: flex;
-        align-items: center;
-        height: 1.25rem;
-        margin-top: -.4375rem;
-        font-size: var(--font-size-12) !important;
-        line-height: var(--line-height-12) !important;
-      }
-
-      // .peer-title {
-      //   font-weight: var(--font-weight-bold);
-      // }
-    }
-
-    &-row {
-      height: 1.375rem;
-    }
-  }
-
-  &.chatlist-chat-abitbigger {
-    .row {
-      &-subtitle {
-        margin-top: 0;
-      }
-    }
-  }
-
-  &.chatlist-chat-bigger {
-    .row {
-      &-subtitle {
-        margin-top: 0;
-        font-size: var(--font-size-14) !important;
-        line-height: 1.375rem;
-
-        &-row {
-          margin-top: .125rem;
-        }
-      }
-
-      &-title {
-        .peer-title {
-          font-weight: var(--font-weight-bold);
-        }
-      }
-    }
-  }
-}
-
 .username-purchase-help {
   b {
     font-weight: var(--font-weight-normal) !important;
@@ -1841,7 +1779,7 @@ hr {
   }
 
   &-row {
-    .row-title {
+    .accordion-row-title {
       display: flex;
       align-items: center;
       gap: .25rem;
@@ -2106,13 +2044,6 @@ hr {
       transition: padding-bottom var(--transition-standard-in) !important;
     }
 
-    .row-icon {
-      top: .75rem !important;
-      transform: none !important;
-      font-size: 2rem !important;
-      margin-inline-start: -.3125rem;
-    }
-
     &.is-expanded {
       .business-hours {
         opacity: 1;
@@ -2147,7 +2078,7 @@ hr {
   padding-inline-start: 1rem!important;
   padding-inline-end: 4rem;
 
-  .row-media {
+  .business-location-media {
     inset-inline: auto .5rem !important;
     border-radius: $border-radius-medium;
   }
@@ -2157,6 +2088,13 @@ hr {
     height: 100%;
     border-radius: inherit;
   }
+}
+
+// the channel preview is a .chatlist placed straight into a Section, so it sits
+// outside the md3 per-item surface cards — give the list its own section card.
+.personal-channel-list {
+  border-radius: 1.25rem;
+  overflow: hidden;
 }
 
 .personal-channel {

@@ -108,10 +108,11 @@
       .chatlist-chat {
         padding-inline-end: 0;
         border-radius: 0;
-        .row-media-bigger {
+        .dialog-avatar {
           inset-inline-start: 13px !important;
         }
-        .row-row {
+        .dialog-title,
+        .dialog-subtitle {
           display: none;
         }
       }
@@ -883,15 +884,13 @@
 // Public (fallback) photo: the remove row shows the set photo as its media; an
 // upload overlays a dark scrim + a small centered progress ring (click cancels).
 .privacy-public-photo-remove {
-  .row-title {
+  .privacy-public-photo-remove-title {
     color: var(--danger-color);
   }
 
-  &.row-clickable {
-    @include hover-background-effect(red);
-  }
+  @include hover-background-effect(red);
 
-  .row-media {
+  .privacy-public-photo-remove-media {
     position: relative;
     width: 2.25rem;
     height: 2.25rem;
@@ -899,7 +898,7 @@
   }
 
   &.is-uploading {
-    .row-media::after {
+    .privacy-public-photo-remove-media::after {
       content: '';
       position: absolute;
       inset: 0;
@@ -920,11 +919,7 @@
 }
 
 .active-sessions-container {
-  .row {
-    // margin-top: 0;
-    // padding-top: 1rem;
-    // padding-bottom: .9375rem;
-
+  .active-session {
     &-title {
       font-weight: var(--font-weight-bold);
     }
@@ -1172,7 +1167,8 @@
 .is-forum-visible {
   // .item-main,
   .can-have-forum {
-    .row-row,
+    .dialog-title,
+    .dialog-subtitle,
     .input-search,
     .sidebar-header__title {
       opacity: 0;
@@ -1188,7 +1184,8 @@
   &.backwards {
     // .item-main,
     .can-have-forum {
-      .row-row,
+      .dialog-title,
+      .dialog-subtitle,
       .input-search,
       .sidebar-header__title {
         opacity: 1;
@@ -1203,7 +1200,8 @@
   &.animating {
     // .item-main,
     .can-have-forum {
-      .row-row,
+      .dialog-title,
+      .dialog-subtitle,
       .input-search,
       .sidebar-header__title {
         transition: opacity var(--transition-standard-in);
@@ -1217,7 +1215,8 @@
     &.backwards {
       // .item-main,
       .can-have-forum {
-        .row-row,
+        .dialog-title,
+        .dialog-subtitle,
         .input-search,
         .sidebar-header__title {
           transition: opacity var(--transition-standard-out);

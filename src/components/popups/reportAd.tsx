@@ -148,7 +148,7 @@ export default function showReportAdPopup(
             return (
               <Row clickable={() => setOption(option)}>
                 <Row.Title>{wrapEmojiText(option.text)}</Row.Title>
-                <Row.RightContent>{Icon('next', 'popup-report-ad-option-arrow-icon')}</Row.RightContent>
+                <Row.RightContent class="popup-report-ad-option-right">{Icon('next', 'popup-report-ad-option-arrow-icon')}</Row.RightContent>
               </Row>
             );
           }}

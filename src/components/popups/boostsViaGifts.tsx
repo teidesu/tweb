@@ -290,6 +290,9 @@ export default class PopupBoostsViaGifts extends PopupElement {
 
       starsRowContainer.classList.add('popup-boosts-type');
       createRowContainer.classList.add('popup-boosts-type', 'popup-boosts-specific');
+      createRow.title.classList.add('popup-boosts-type-title');
+      starsRow.title.classList.add('popup-boosts-type-title');
+      specificMedia.classList.add('popup-boosts-type-media');
     }
 
     const createNextIcon = () => Icon('next', 'popup-boosts-specific-next');
@@ -415,6 +418,7 @@ export default class PopupBoostsViaGifts extends PopupElement {
               clickable: true,
               havePadding: true,
             });
+            row.title.classList.add('selector-country-row-title');
 
             row.container.append(popup.selector!.checkbox(popup.selector!.selected.has(iso2)));
             row.container.dataset.peerId = '' + iso2;
@@ -506,7 +510,7 @@ export default class PopupBoostsViaGifts extends PopupElement {
                         </span>
                       </RowTsx.Title>
                       <RowTsx.Subtitle>{subtitle()}</RowTsx.Subtitle>
-                      <RowTsx.RightContent>{paymentsWrapCurrencyAmount(option.amount, option.currency)}</RowTsx.RightContent>
+                      <RowTsx.RightContent class="popup-boosts-stars-row-right">{paymentsWrapCurrencyAmount(option.amount, option.currency)}</RowTsx.RightContent>
                       <RowTsx.CheckboxField>{checkboxField.label}</RowTsx.CheckboxField>
                     </RowTsx>
                   );
@@ -557,7 +561,9 @@ export default class PopupBoostsViaGifts extends PopupElement {
               }),
             });
             row.container.classList.add('popup-boosts-channel');
-            row.createMedia('abitbigger').append(AvatarNew({ peerId, size: 42 }).node);
+            const channelMedia = row.createMedia('abitbigger');
+            channelMedia.classList.add('popup-boosts-channel-media');
+            channelMedia.append(AvatarNew({ peerId, size: 42 }).node);
             return row.container;
           }}</For>
           {/* (peerIds().length - 1) < this.channelsLimit &&  */addChannelButton}

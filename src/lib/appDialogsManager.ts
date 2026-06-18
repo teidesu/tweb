@@ -279,6 +279,7 @@ export class DialogElement extends Row {
     if (avatarEl) {
       avatarEl.classList.add('dialog-avatar');
       this.applyMediaElement(avatarEl, avatarSize);
+      this.container.classList.add('dialog-with-avatar');
     }
 
     const captionDiv = this.container;
@@ -329,6 +330,7 @@ export class DialogElement extends Row {
     // }
 
     const span = this.subtitle;
+    span.classList.add('dialog-subtitle-text');
     // span.classList.add('user-last-message');
 
     const li = this.container;
@@ -1240,6 +1242,7 @@ export class AppDialogsManager {
         }],
       },
       icon: 'next',
+      iconClasses: ['chatlist-top-notification-icon'],
     });
     topNotification.container.classList.add('chatlist-top-notification');
 

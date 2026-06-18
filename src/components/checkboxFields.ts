@@ -105,6 +105,7 @@ export default class CheckboxFields<K extends CheckboxFieldsField = CheckboxFiel
     });
 
     row.container.classList.add('accordion-row');
+    row.title?.classList.add('accordion-row-title');
 
     if (info.restrictionText) {
       if (!info.nestedTo) {

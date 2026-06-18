@@ -301,7 +301,7 @@
       inset-inline-start: 1.25rem !important;
     }
 
-    .chatlist-chat.row-with-padding {
+    .chatlist-chat.dialog-with-avatar {
       padding-inline-start: #{4.5rem + $add} !important; // 4.5 + x
     }
 
@@ -373,7 +373,7 @@
       font-size: 125%;
     }
 
-    .row-title {
+    .selector-country-row-title {
       display: flex;
       align-items: center;
       gap: .5rem;

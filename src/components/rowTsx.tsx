@@ -5,8 +5,18 @@ import RippleElement from '@/components/rippleElement';
 import createComponentContext, { ComponentContextValue } from '@/helpers/solid/createComponentContext';
 import createContextMenu from '@/helpers/dom/createContextMenu';
 import ListenerSetter from '@/helpers/listenerSetter';
+import styles from '@/components/sectionRow.module.scss';
 
 export type RowMediaSizeType = 'small' | 'medium' | 'big' | 'abitbigger' | 'bigger' | '40';
+
+// todo: cva
+export const rowMediaSizeClass: Partial<Record<RowMediaSizeType, string>> = {
+  'small': styles.rowMediaSmall,
+  'big': styles.rowMediaBig,
+  'abitbigger': styles.rowMediaAbitbigger,
+  'bigger': styles.rowMediaBigger,
+  '40': styles.rowMedia40,
+};
 
 type Kind = 'title' | 'subtitle' | 'media' | 'midtitle' | 'icon' |
   'rightContent' | 'checkboxField' | 'checkboxFieldToggle' | 'radioField' |
@@ -92,15 +102,15 @@ const Row = (props: {children: JSX.Element} & Partial<{
       ref={ref()}
       component={props.as === 'a' ? 'a' : (props.as === 'label' || isCheckbox() ? 'label' : 'div')}
       classList={{
-        'row': true,
-        'no-subtitle': !store.subtitle,
-        'no-wrap': value.noWrap,
-        'row-with-icon': !!store.icon,
-        'row-with-padding': havePadding(),
-        [`row-clickable hover-${props.color ? props.color + '-' : ''}effect`]: isClickable(),
+        [styles.row]: true,
+        [styles.noSubtitle]: !store.subtitle,
+        [styles.noWrap]: value.noWrap,
+        [styles.rowWithIcon]: !!store.icon,
+        [styles.rowWithPadding]: havePadding(),
+        [classNames(styles.rowClickable, `hover-${props.color ? props.color + '-' : ''}effect`)]: isClickable(),
         'is-disabled': props.disabled,
         'is-fake-disabled': props.fakeDisabled,
-        'row-grid': !!store.rightContent,
+        [styles.rowGrid]: !!store.rightContent,
         'with-midtitle': !!store.midtitle,
         ...(props.classList || {}),
         [props.class as string]: !!props.class,
@@ -132,8 +142,8 @@ Row.RowPart = (props: {
     <Show when={resolved()}>
       <div
         class={classNames(
-          'row-' + props.class,
-          useContext(RowContext)!.noWrap && 'no-wrap'
+          props.class,
+          useContext(RowContext)!.noWrap && styles.noWrap
         )}
         dir="auto"
       >
@@ -144,24 +154,21 @@ Row.RowPart = (props: {
 };
 
 Row.Row = (props: {
-  class: string,
+  baseClass: string,
+  rowClass?: string,
+  rightClass?: string,
   additionalClass?: string,
   left?: JSX.Element,
-  right?: JSX.Element,
-  rightSecondary?: boolean
+  right?: JSX.Element
 }) => {
-  const part = <Row.RowPart class={classNames(props.class, props.additionalClass)} part={props.left} />;
+  const part = <Row.RowPart class={classNames(props.baseClass, props.additionalClass)} part={props.left} />;
   const resolved = children(() => props.right);
   return (
     <Show when={resolved()} fallback={part}>
-      <div class={classNames('row-row', `row-${props.class}-row`)}>
+      <div class={classNames(styles.rowRow, props.rowClass)}>
         {part}
         <Row.RowPart
-          class={classNames(
-            props.class,
-            props.additionalClass,
-            `row-${props.class}-right${props.rightSecondary ? ` row-${props.class}-right-secondary` : ''}`
-          )}
+          class={classNames(props.baseClass, props.additionalClass, props.rightClass)}
           part={resolved()}
         />
       </div>
@@ -178,11 +185,12 @@ Row.Title = (props: {
   const context = useContext(RowContext);
   return context!.register('title', (
     <Row.Row
-      class="title"
+      baseClass={styles.rowTitle}
+      rowClass={styles.rowTitleRow}
+      rightClass={classNames(styles.rowTitleRight, props.titleRightSecondary && styles.rowTitleRightSecondary)}
       additionalClass={props.class}
       left={props.children}
       right={props.titleRight || context!.store.checkboxFieldToggle}
-      rightSecondary={props.titleRightSecondary}
     />
   ));
 };
@@ -192,7 +200,7 @@ Row.Midtitle = (props: {
 }) => {
   return useContext(RowContext)!.register('midtitle', (
     <Row.Row
-      class="midtitle"
+      baseClass={styles.rowMidtitle}
       left={props.children}
     />
   ));
@@ -205,7 +213,9 @@ Row.Subtitle = (props: {
 }) => {
   return useContext(RowContext)!.register('subtitle', (
     <Row.Row
-      class="subtitle"
+      baseClass={styles.rowSubtitle}
+      rowClass={styles.rowSubtitleRow}
+      rightClass={styles.rowSubtitleRight}
       additionalClass={props.class}
       left={props.children}
       right={props.subtitleRight}
@@ -218,14 +228,14 @@ Row.Icon = (props: {
   class?: string
 }) => {
   return useContext(RowContext)!.register('icon', (
-    <IconTsx icon={props.icon} class={classNames('row-icon', props.class)} />
+    <IconTsx icon={props.icon} class={classNames(styles.rowIcon, props.class)} />
   ));
 };
 
 Row.RightContent = (inProps: JSX.HTMLAttributes<HTMLDivElement>) => {
   const [props, restProps] = splitProps(inProps, ['class']);
   return useContext(RowContext)!.register('rightContent', (
-    <div class={classNames('row-right', props.class)} {...restProps} />
+    <div class={classNames(styles.rowRight, props.class)} {...restProps} />
   ));
 };
 
@@ -257,8 +267,8 @@ Row.Media = (inProps: JSX.HTMLAttributes<HTMLDivElement> & {
   return useContext(RowContext)!.register('media', (
     <div
       class={classNames(
-        'row-media',
-        props.size && `row-media-${props.size}`,
+        styles.rowMedia,
+        props.size && rowMediaSizeClass[props.size],
         props.class
       )}
       {...restProps}
