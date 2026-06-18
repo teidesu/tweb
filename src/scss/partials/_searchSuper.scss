@@ -17,12 +17,23 @@
   }
 
   &-tabs-scrollable {
+    --scrollable-size: #{$menu-height};
 	  position: sticky !important;
     top: 1rem;
     z-index: 2;
+    height: var(--scrollable-size);
+    margin: 0 var(--section-padding-inline);
+    border-radius: $border-radius-big;
+    overflow: hidden;
+    box-shadow: var(--section-box-shadow);
     background-color: var(--surface-color);
     top: var(--super-offset);
     margin-bottom: var(--section-padding-bottom);
+
+    .scrollable-x {
+      display: flex;
+      position: relative;
+    }
 
     &.is-single {
       order: 1;
@@ -56,6 +67,9 @@
       }
     }
   }
+
+  // the tab row look comes from horizontalMenu's module (applyMenuStyles);
+  // .search-super-tab stays only as a hook for context-specific overrides
 
   &-tab-container {
     position: relative;

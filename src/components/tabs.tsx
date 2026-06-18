@@ -1,4 +1,5 @@
 import { horizontalMenu } from '@/components/horizontalMenu';
+import styles from '@/components/horizontalMenu.module.scss';
 import Scrollable from '@/components/scrollable2';
 import ListenerSetter from '@/helpers/listenerSetter';
 import clsx from 'clsx';
@@ -29,7 +30,7 @@ Tabs.Menu = (props: {
   return (
     <div
       ref={props.ref}
-      class={clsx('menu-horizontal-div', props.class)}
+      class={clsx(styles.menu, props.class)}
       id={props.id}
       onClick={props.onClick}
     >
@@ -44,9 +45,9 @@ Tabs.MenuTab = (props: {
   children: JSX.Element
 }) => {
   return (
-    <div ref={props.ref} class={clsx('menu-horizontal-div-item', props.class)}>
-      <i class="menu-horizontal-div-item-background" />
-      <div class="menu-horizontal-div-item-span">
+    <div ref={props.ref} class={clsx(styles.item, props.class)}>
+      <i data-stripe="" />
+      <div data-tab-span="">
         {props.children}
       </div>
     </div>
@@ -60,7 +61,7 @@ Tabs.MenuScrollable = (props: {
   children: JSX.Element
 }) => {
   return (
-    <div ref={props.ref} class={clsx('menu-horizontal-scrollable', props.class)}>
+    <div ref={props.ref} class={clsx(styles.scrollable, props.class)}>
       <Scrollable axis="x" {...(props.scrollableProps || {})}>
         {props.children}
       </Scrollable>
@@ -78,15 +79,15 @@ Tabs.MenuGradient = (props: {
     <div
       ref={props.ref}
       class={clsx(
-        'menu-horizontal-gradient-container',
+        styles.gradientContainer,
         props.className && props.className + '-container'
       )}
     >
       <div
         class={clsx(
-          'menu-horizontal-gradient',
-          'menu-horizontal-gradient-color-' + props.color,
-          props.smaller && 'menu-horizontal-gradient-smaller',
+          styles.gradient,
+          props.color === 'surface' ? styles.gradientColorSurface : styles.gradientColorBackground,
+          props.smaller && styles.gradientSmaller,
           props.className
         )}
       ></div>

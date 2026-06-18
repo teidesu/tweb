@@ -28,29 +28,38 @@
     }
   }
 
-  .menu-horizontal {
-    &-scrollable {
+  .chatlist-invite {
+    &-tabs-scrollable {
+      --scrollable-size: #{$menu-height};
+      height: var(--scrollable-size);
+      margin: 0 var(--section-padding-inline);
+      border-radius: $border-radius-big;
+      overflow: hidden;
+      box-shadow: var(--section-box-shadow);
+      background-color: var(--surface-color);
       position: relative;
       pointer-events: none;
       display: flex;
-  
+
       &:after {
         content: none;
       }
-  
+
       .inner-shadow {
         --inner-shadow-size: 50%;
         z-index: 3;
       }
     }
 
-    &-div {
+    // the tab row look comes from horizontalMenu's module (applyMenuStyles);
+    // only the popup-specific overrides live here
+    &-tabs {
       width: auto;
       margin: 0 auto;
+    }
 
-      &-item {
-        padding: 0 .5rem;
-      }
+    &-tab {
+      padding: 0 .5rem;
     }
   }
 

@@ -32,6 +32,7 @@ export default function FoldersTabs(props: {
 
     return (
       <Tabs.MenuTab
+        class="folders-menu-tab"
         ref={(ref) => ref.dataset.filterId = '' + item.filter.id}
       >
         <span class="text-super">

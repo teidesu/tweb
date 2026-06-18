@@ -9,6 +9,15 @@ import ListenerSetter from '@/helpers/listenerSetter';
 import { attachClickEvent } from '@/helpers/dom/clickEvent';
 import liteMode from '@/helpers/liteMode';
 import { ScrollableContextValue } from '@/components/scrollable2';
+import styles from '@/components/horizontalMenu.module.scss';
+
+// todo: a bit of a hack for now
+export function applyMenuStyles(menu: HTMLElement) {
+  menu.classList.add(styles.menu);
+  for (const item of Array.from(menu.children) as HTMLElement[]) {
+    item.classList.add(styles.item);
+  }
+}
 
 type OnChangeArgs = {
   element: HTMLElement;
@@ -65,19 +74,15 @@ export async function selectTarget({
   }
 
   if (scrollableX) {
-    const containerEl = scrollableX.container;
-    // Skip the scroll round-trip when there's no actual scrolling to do:
-    //   - row has no horizontal overflow (every tab is already visible)
-    //   - selecting the first tab while already at scrollLeft 0 (you can't
-    //     scroll past the start to "center" it, so fastSmoothScroll
-    //     clamps path to 0 and no-ops anyway)
-    // Common at the moment the search panel opens — `selectTab(0)` runs
-    // against a row whose scroll position is the default 0.
-    const noOverflow = containerEl.scrollWidth <= containerEl.clientWidth;
-    const isFirstAndAtStart = id === 0 && containerEl.scrollLeft === 0;
+    const el = scrollableX.container;
+    // skip the scroll round-trip when there's nothing to scroll: no horizontal
+    // overflow, or selecting the first tab while already at the start (can't
+    // center past scrollLeft 0, fastSmoothScroll no-ops anyway)
+    const noOverflow = el.scrollWidth <= el.clientWidth;
+    const isFirstAndAtStart = id === 0 && el.scrollLeft === 0;
     if (!noOverflow && !isFirstAndAtStart) {
       fastSmoothScroll({
-        container: containerEl,
+        container: el,
         element: target.parentElement!.children[id] as HTMLElement,
         position: 'center',
         forceDirection: animate ? undefined : FocusDirection.Static,
@@ -105,12 +110,12 @@ export async function selectTarget({
     });
   }
 
-  // a great stripe from Jolly Cobra
+  // a great stripe from Jolly Cobra. the indicator element is found via the
+  // [data-stripe] marker so each consumer can style its own background class.
   if (prevId !== -1 && animate) {
-    const selector = '.menu-horizontal-div-item-background';
     mutateCallback(() => {
-      const indicator = target.querySelector(selector) as HTMLElement;
-      const currentIndicator = target.parentElement!.children[prevId]?.querySelector(selector) as HTMLElement;
+      const indicator = target.querySelector('[data-stripe]') as HTMLElement;
+      const currentIndicator = target.parentElement!.children[prevId]?.querySelector('[data-stripe]') as HTMLElement;
       if (!indicator || !currentIndicator) return;
 
       currentIndicator.classList.remove('animate');

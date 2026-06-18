@@ -10,9 +10,10 @@
 }
 
 // host contexts that need the ripple clipped to their bounds
+// todo: make this a variane
 :global(.rp-overflow),
 :global(.btn-menu-toggle.rp),
-:global(.menu-horizontal-div-item.rp),
+:global(.search-super-tab.rp),
 :global(.btn-corner.rp),
 :global(.pinned-container-wrapper.rp),
 :global(.btn-control-small.rp) {

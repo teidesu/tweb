@@ -93,10 +93,10 @@ export default class StickersTabCategory<Item extends StickersTabCategoryItem, A
     let menuTab: HTMLElement, menuTabPadding: HTMLElement;
     if (!options.noMenuTab) {
       menuTab = ButtonIcon(undefined, { noRipple: true });
-      menuTab.classList.add('menu-horizontal-div-item');
+      menuTab.classList.add('emoticons-menu-item');
 
       menuTabPadding = document.createElement('div');
-      menuTabPadding.classList.add('menu-horizontal-div-item-padding');
+      menuTabPadding.classList.add('emoticons-menu-item-padding');
 
       menuTab.append(menuTabPadding);
     }

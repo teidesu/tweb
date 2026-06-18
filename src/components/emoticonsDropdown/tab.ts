@@ -124,7 +124,7 @@ export default class EmoticonsTabC<Category extends StickersTabCategory<any, any
     this.menuWrapper.classList.add('menu-wrapper', 'emoticons-menu-wrapper', 'emoticons-will-move-down');
 
     this.menu = document.createElement('nav');
-    this.menu.className = 'menu-horizontal-div no-stripe justify-start emoticons-menu';
+    this.menu.className = 'emoticons-menu no-stripe justify-start';
 
     this.menuWrapper.append(this.menu);
     this.menuScroll = new ScrollableX(this.menuWrapper);

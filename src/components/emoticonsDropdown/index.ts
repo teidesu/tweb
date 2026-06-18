@@ -73,7 +73,7 @@ const renderEmojiDropdownElement = (): HTMLDivElement => {
   const div = document.createElement('div');
   div.innerHTML =
     `<div class="emoji-dropdown" style="display: none;">
-      <div class="emoji-tabs menu-horizontal-div emoticons-menu no-stripe"></div>
+      <div class="emoji-tabs emoticons-menu no-stripe"></div>
       <div class="emoji-container">
         <div class="tabs-container"></div>
       </div>
@@ -87,7 +87,7 @@ const renderEmojiDropdownElement = (): HTMLDivElement => {
   ];
   const d = div.firstElementChild as HTMLDivElement;
   d.firstElementChild!.append(...a.map(([className, icon, tabId]) => {
-    const button = ButtonIcon(`${icon} menu-horizontal-div-item emoji-tabs-${className}`, { noRipple: true });
+    const button = ButtonIcon(`${icon} emoticons-menu-item emoji-tabs-${className}`, { noRipple: true });
     button.dataset.tab = '' + tabId;
     return button;
   }));
@@ -707,9 +707,9 @@ export class EmoticonsDropdown extends DropdownHover {
 
     attachClickEvent(menu, (e) => {
       cancelEvent(e);
-      let target = findUpClassName(e.target as HTMLElement, 'menu-horizontal-div-item');
+      let target = findUpClassName(e.target as HTMLElement, 'emoticons-menu-item');
       if (!target) {
-        target = findUpClassName(e.target as HTMLElement, 'menu-horizontal-inner');
+        target = findUpClassName(e.target as HTMLElement, 'emoticons-menu-inner');
         if (!target || target.classList.contains('active')) {
           return;
         }

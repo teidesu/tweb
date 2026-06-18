@@ -186,7 +186,7 @@ $packs-menu-height: 2.25rem;
 			margin-inline-end: .5rem !important;
 		}
 
-    .menu-horizontal-div-item {
+    .emoticons-menu-item {
       margin: 0 .75rem;
       font-size: 1.5rem;
 
@@ -213,6 +213,33 @@ $packs-menu-height: 2.25rem;
     border-radius: $border-radius-medium;
     overflow: hidden;
   }
+}
+
+// base look of a menu item; the per-strip blocks above (.emoji-tabs / .emoticons-menu)
+// layer their own sizing on top
+.emoticons-menu-item {
+  height: 100%;
+  flex: 1 1 auto;
+  min-width: 1px;
+  margin: 0 .25rem;
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height);
+  border-radius: 1.25rem;
+  --ripple-display: none;
+
+  @include animation-level(2) {
+    transition: background-color var(--tabs-transition) !important;
+  }
+
+  @include hover-background-effect();
 }
 
 .emoticons {
@@ -252,9 +279,12 @@ $packs-menu-height: 2.25rem;
 		width: 100%;
 		height: $packs-menu-height;
     min-height: $packs-menu-height;
+    display: flex;
     align-items: center;
+    position: relative;
     padding: 0 .3125rem;
     z-index: 4;
+    color: var(--secondary-text-color);
     background-color: transparent;
 
     &-wrapper {
@@ -275,7 +305,7 @@ $packs-menu-height: 2.25rem;
       height: 1px;
     }
 
-    .menu-horizontal-div-item {
+    .emoticons-menu-item {
       font-size: 1.25rem;
       width: var(--item-size);
       height: var(--item-size);
@@ -308,7 +338,7 @@ $packs-menu-height: 2.25rem;
       }
     }
 
-    .menu-horizontal-inner {
+    .emoticons-menu-inner {
       overflow: hidden;
       flex: 0 0 auto;
       width: var(--item-size);
@@ -331,7 +361,7 @@ $packs-menu-height: 2.25rem;
         align-items: center;
       }
 
-      .menu-horizontal-div-item {
+      .emoticons-menu-item {
         transform: scale(1);
         margin: 0 !important;
 
@@ -344,7 +374,7 @@ $packs-menu-height: 2.25rem;
         width: 8.5rem;
         background-color: rgba(var(--primary-text-color-rgb), $menu-item-active-background-opacity) !important;
 
-        .menu-horizontal-div-item {
+        .emoticons-menu-item {
           transform: scale(.8);
 
           &.active {
@@ -356,11 +386,11 @@ $packs-menu-height: 2.25rem;
       &:not(.active) {
         cursor: pointer;
 
-        .menu-horizontal-inner-scroll {
+        .emoticons-menu-inner-scroll {
           pointer-events: none;
         }
 
-        .menu-horizontal-div-item:first-child {
+        .emoticons-menu-item:first-child {
           pointer-events: all;
         }
       }

@@ -808,7 +808,7 @@ export class AppDialogsManager {
       AppChatFoldersTab,
       AppEditFolderTab,
       managers: this.managers,
-      className: 'menu-horizontal-div-item',
+      className: 'folders-menu-tab',
       listenTo: this.folders.menu,
     });
   }

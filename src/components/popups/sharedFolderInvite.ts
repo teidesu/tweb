@@ -1,15 +1,14 @@
 import PopupElement from '.';
 import filterUnique from '@/helpers/array/filterUnique';
 import { attachClickEvent } from '@/helpers/dom/clickEvent';
+import { applyMenuStyles } from '@/components/horizontalMenu';
 import shake from '@/helpers/dom/shake';
 import toggleDisability from '@/helpers/dom/toggleDisability';
 import safeAssign from '@/helpers/object/safeAssign';
-import { ChatlistsChatlistInvite, ChatlistsChatlistUpdates, DialogFilter, Peer } from '@/layer';
+import { ChatlistsChatlistInvite, DialogFilter, Peer } from '@/layer';
 import getPeerId from '@/lib/appManagers/utils/peers/getPeerId';
 import I18n, { i18n, _i18n } from '@/lib/langPack';
-import wrapEmojiText from '@/lib/richTextProcessor/wrapEmojiText';
 import AppSelectPeers from '@/components/appSelectPeers';
-import Button from '@/components/button';
 import wrapFolderTitle from '@/components/wrappers/folderTitle';
 import showLimitPopup from '@/components/popups/limit';
 
@@ -45,10 +44,10 @@ export default class PopupSharedFolderInvite extends PopupElement {
 
   public async construct() {
     const n = document.createElement('div');
-    n.classList.add('menu-horizontal-scrollable');
+    n.classList.add('chatlist-invite-tabs-scrollable');
 
     const nav = document.createElement('nav');
-    nav.classList.add('menu-horizontal-div');
+    nav.classList.add('chatlist-invite-tabs');
 
     const { chatlistInvite, deleting, updating } = this;
     const isAlready = chatlistInvite?._ === 'chatlists.chatlistInviteAlready';
@@ -66,11 +65,11 @@ export default class PopupSharedFolderInvite extends PopupElement {
 
     const makeItem = () => {
       const item = document.createElement('div');
-      item.classList.add('menu-horizontal-div-item');
+      item.classList.add('chatlist-invite-tab');
       const i = document.createElement('i');
-      i.classList.add('menu-horizontal-div-item-background');
+      i.dataset.stripe = '';
       const span = document.createElement('span');
-      span.classList.add('menu-horizontal-div-item-span');
+      span.dataset.tabSpan = '';
       item.append(i, span);
       nav.append(item);
       return span;
@@ -79,6 +78,7 @@ export default class PopupSharedFolderInvite extends PopupElement {
     makeItem().append(i18n('FilterAllChats'));
     const activeItem = makeItem();
     activeItem.parentElement!.classList.add('active');
+    applyMenuStyles(nav);
     activeItem.append(
       await wrapFolderTitle(filter ? filter.title : (chatlistInvite as ChatlistsChatlistInvite.chatlistsChatlistInvite).title, this.middlewareHelper.get())
     );

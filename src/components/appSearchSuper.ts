@@ -3,7 +3,7 @@ import appDialogsManager, { DIALOG_LIST_ELEMENT_TAG, DialogDom } from '@/lib/app
 import { logger } from '@/lib/logger';
 import rootScope from '@/lib/rootScope';
 import { createSearchGroup, SearchGroup, SearchGroupType } from '@/components/searchGroup';
-import { horizontalMenu } from '@/components/horizontalMenu';
+import { horizontalMenu, applyMenuStyles } from '@/components/horizontalMenu';
 import LazyLoadQueue from '@/components/lazyLoadQueue';
 import { putPreloader } from '@/components/putPreloader';
 import ripple from '@/components/ripple';
@@ -460,24 +460,24 @@ export default class AppSearchSuper {
     this.selection = new SearchSelection(this, this.managers, this.listenerSetter);
 
     const navScrollableContainer = this.navScrollableContainer = document.createElement('div');
-    navScrollableContainer.classList.add('search-super-tabs-scrollable', 'menu-horizontal-scrollable', 'sticky');
+    navScrollableContainer.classList.add('search-super-tabs-scrollable', 'sticky');
 
     const navScrollable = this.navScrollable = new ScrollableX(navScrollableContainer);
     navScrollable.container.classList.add('search-super-nav-scrollable');
 
     const nav = this.nav = document.createElement('nav');
-    nav.classList.add('search-super-tabs', 'menu-horizontal-div');
+    nav.classList.add('search-super-tabs');
     this.tabsMenu = nav;
 
     navScrollable.container.append(nav);
 
     for (const mediaTab of this.mediaTabs) {
       const menuTab = document.createElement('div');
-      menuTab.classList.add('menu-horizontal-div-item');
+      menuTab.classList.add('search-super-tab');
       const span = document.createElement('span');
-      span.classList.add('menu-horizontal-div-item-span');
+      span.dataset.tabSpan = '';
       const i = document.createElement('i');
-      i.classList.add('menu-horizontal-div-item-background');
+      i.dataset.stripe = '';
 
       span.append((mediaTab.menuTabName = i18n(mediaTab.name)));
 
@@ -491,6 +491,8 @@ export default class AppSearchSuper {
 
       mediaTab.menuTab = menuTab;
     }
+
+    applyMenuStyles(this.tabsMenu);
 
     this.tabsContainer = document.createElement('div');
     this.tabsContainer.classList.add('search-super-tabs-container', 'tabs-container');

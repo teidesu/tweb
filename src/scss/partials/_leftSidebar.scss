@@ -279,20 +279,20 @@
     flex: var(--left-column-visual-width) 2 auto;
   }
 
-  .item-main .menu-horizontal {
-    &-scrollable {
+  .item-main {
+    .folders-tabs-scrollable {
       z-index: 2;
       flex: 0 0 auto;
       position: relative;
     }
 
-    &-div {
+    #folders-tabs {
       justify-content: flex-start;
       z-index: 0;
+    }
 
-      &-item {
-        min-width: 3rem;
-      }
+    .folders-menu-tab {
+      min-width: 3rem;
     }
   }
 
@@ -679,7 +679,7 @@
     &-tabs-scrollable {
       flex: 0 0 auto;
 
-      .menu-horizontal-div-item {
+      .search-super-tab {
         flex: 1 0 auto !important;
       }
     }

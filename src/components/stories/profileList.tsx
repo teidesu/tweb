@@ -766,7 +766,7 @@ function StoriesSelectionToolbar(props: {
 
   return (
     <div
-      class="search-super-tabs-scrollable menu-horizontal-scrollable sticky is-single"
+      class="search-super-tabs-scrollable sticky is-single"
       classList={{ 'is-selecting': props.selection.selecting(), 'backwards': !props.selection.selecting() }}
     >
       {content}

@@ -459,10 +459,10 @@ export default class EmojiTab extends EmoticonsTabC<EmojiTabCategory, {emojis: A
 
     if (!this.isStandalone && this.menu) {
       const x = this.menuInnerScroll = new ScrollableX(undefined!);
-      x.container.classList.add('menu-horizontal-inner-scroll');
+      x.container.classList.add('emoticons-menu-inner-scroll');
 
       innerScrollWrapper = document.createElement('div');
-      innerScrollWrapper.classList.add('menu-horizontal-inner');
+      innerScrollWrapper.classList.add('emoticons-menu-inner');
       innerScrollWrapper.append(x.container);
     }
 
