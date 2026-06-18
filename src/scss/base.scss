@@ -599,19 +599,13 @@ input:-webkit-autofill:active {
 
 .danger {
   color: var(--danger-color) !important;
-
-  .c-ripple__circle {
-    background-color: var(--light-danger-color);
-  }
+  --ripple-color: var(--light-danger-color);
 }
 
 .blue,
 .primary {
   color: var(--primary-color) !important;
-
-  .c-ripple__circle {
-    background-color: var(--light-primary-color);
-  }
+  --ripple-color: var(--light-primary-color);
 }
 
 .primary-text {
@@ -1184,19 +1178,13 @@ middle-ellipsis-element {
 }
 
 .hover-primary-effect {
+  --ripple-color: var(--light-primary-color);
   @include hover-background-effect(primary);
-
-  .c-ripple__circle {
-    background-color: var(--light-primary-color);
-  }
 }
 
 .hover-danger-effect {
+  --ripple-color: var(--light-danger-color);
   @include hover-background-effect(red);
-
-  .c-ripple__circle {
-    background-color: var(--light-danger-color);
-  }
 }
 
 .progress-ring {

@@ -2095,10 +2095,7 @@
 
   .replies {
     user-select: none;
-
-    .c-ripple__circle {
-      background-color: var(--light-primary-color);
-    }
+    --ripple-color: var(--light-primary-color);
 
     .rp {
       width: 100%;
@@ -3506,6 +3503,9 @@
   }
 
   poll-element {
+    --ripple-color: var(--message-out-primary-color);
+    --ripple-max-opacity: .08;
+
     .poll {
       &-answer-selected {
         color: var(--message-out-icon-text-color);
@@ -3527,14 +3527,6 @@
 
     .progress-ring__circle {
       stroke: var(--message-out-primary-color);
-    }
-
-    .c-ripple__circle {
-      background-color: var(--message-out-primary-color);
-
-      &:not(.hiding) {
-        opacity: .08;
-      }
     }
   }
 

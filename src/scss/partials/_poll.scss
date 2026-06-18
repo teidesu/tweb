@@ -6,7 +6,8 @@ poll-element {
   //min-width: 280px;
   width: 330px;
   color: var(--primary-text-color);
-  
+  --ripple-color: var(--light-primary-color);
+
   @include respond-to(handhelds) {
     width: 240px;
     max-width: 100%;
@@ -381,9 +382,6 @@ poll-element {
     } */
   }
 
-  .c-ripple__circle {
-    background-color: var(--light-primary-color);
-  }
 }
 
 @keyframes pollAnswerRotate {

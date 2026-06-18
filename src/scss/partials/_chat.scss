@@ -49,15 +49,12 @@
 		position: absolute;
     inset-inline-end: calc(#{$btn-send-margin} + var(--chat-input-height) + var(--padding-horizontal));
     color: var(--danger-color) !important;
+    --ripple-color: var(--light-danger-color);
 
     @include hover() {
       &:after {
         background-color: var(--light-danger-color);
       }
-    }
-
-    .c-ripple__circle {
-      background-color: var(--light-danger-color);
     }
 
     .is-rtl & {

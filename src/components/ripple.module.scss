@@ -1,0 +1,56 @@
+.ripple {
+  position: absolute;
+  inset: 0;
+  display: var(--ripple-display, block);
+
+  :global(html.is-safari) & {
+    -webkit-mask-image: -webkit-radial-gradient(circle, white 100%, black 100%); // fix safari overflow
+    border-radius: inherit;
+  }
+}
+
+// host contexts that need the ripple clipped to their bounds
+:global(.rp-overflow),
+:global(.btn-menu-toggle.rp),
+:global(.menu-horizontal-div-item.rp),
+:global(.btn-corner.rp),
+:global(.pinned-container-wrapper.rp),
+:global(.btn-control-small.rp) {
+  .ripple {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: inherit;
+  }
+
+  .circle {
+    overflow: hidden;
+  }
+}
+
+.circle {
+  opacity: var(--ripple-max-opacity, 1);
+  display: block;
+  position: absolute;
+  transform: scale(var(--ripple-start-scale));
+  border-radius: 50%;
+  // thin feathered rim instead of a hard circle edge
+  background: radial-gradient(closest-side, var(--ripple-color) 68%, transparent 100%);
+  animation: rippleEffect var(--ripple-duration) cubic-bezier(.2, 0, 0, 1) forwards;
+  transition: opacity calc(var(--ripple-duration) / 2) ease;
+  pointer-events: none;
+}
+
+.circle.hiding {
+  opacity: 0;
+}
+
+@keyframes rippleEffect {
+  from {
+    transform: scale(var(--ripple-start-scale));
+  }
+
+  to {
+    transform: scale(var(--ripple-end-scale));
+  }
+}

@@ -51,6 +51,7 @@
       border-radius: 1.25rem;
       margin: 0 .25rem;
       min-width: 1px; // * fix width
+      --ripple-display: none;
 
       @include animation-level(2) {
         transition: background-color var(--tabs-transition) !important;
@@ -58,20 +59,13 @@
 
       @include hover-background-effect();
 
-      .c-ripple {
-        display: none;
-      }
-
       &.active {
         color: var(--primary-color);
         // background: transparent !important;
+        --ripple-color: var(--light-primary-color);
 
         .menu-horizontal-div-item-background {
           opacity: 1;
-        }
-
-        .c-ripple__circle {
-          background-color: var(--light-primary-color);
         }
 
         .badge {

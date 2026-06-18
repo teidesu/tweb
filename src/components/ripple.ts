@@ -5,6 +5,7 @@ import findUpAsChild from '@/helpers/dom/findUpAsChild';
 import { fastRaf } from '@/helpers/schedulers';
 import liteMode from '@/helpers/liteMode';
 import { Accessor, createRenderEffect, onCleanup } from 'solid-js';
+import styles from '@/components/ripple.module.scss';
 
 
 declare module 'solid-js' {
@@ -18,6 +19,10 @@ declare module 'solid-js' {
   }
 }
 
+// fraction of the ripple circle that is fully opaque before the gradient feathers out;
+// keep in sync with the radial-gradient inner stop in ripple.module.scss
+const RIPPLE_SOLID_RATIO = 0.68;
+
 let rippleClickId = 0;
 function _ripple(
   elem: HTMLElement,
@@ -26,17 +31,11 @@ function _ripple(
   onEnd: (id: number) => void = null!,
   attachListenerTo = elem
 ) {
-  // return;
-  if (elem.querySelector('.c-ripple')) return;
+  if (elem.classList.contains(styles.ripple)) return;
   elem.classList.add('rp');
 
   const r = document.createElement('div');
-  r.classList.add('c-ripple');
-
-  const isSquare = elem.classList.contains('rp-square');
-  if (isSquare) {
-    r.classList.add('is-square');
-  }
+  r.classList.add(styles.ripple);
 
   if (prepend !== 'no') {
     elem[prepend ? 'prepend' : 'append'](r);
@@ -74,11 +73,11 @@ function _ripple(
       };
       if (elapsedTime < duration) {
         const delay = Math.max(duration - elapsedTime, duration / 2);
-        setTimeout(() => circle.classList.add('hiding'), Math.max(delay - duration / 2, 0));
+        setTimeout(() => circle.classList.add(styles.hiding), Math.max(delay - duration / 2, 0));
 
         setTimeout(cb, delay);
       } else {
-        circle.classList.add('hiding');
+        circle.classList.add(styles.hiding);
         setTimeout(cb, duration / 2);
       }
 
@@ -113,13 +112,13 @@ function _ripple(
       }
 
       const rect = r.getBoundingClientRect();
-      circle.classList.add('c-ripple__circle');
+      circle.classList.add(styles.circle);
 
       const clickX = clientX - rect.left;
       const clickY = clientY - rect.top;
 
       const radius = Math.sqrt((Math.abs(clickY - rect.height / 2) + rect.height / 2) ** 2 + (Math.abs(clickX - rect.width / 2) + rect.width / 2) ** 2);
-      const size = radius;
+      const size = radius / RIPPLE_SOLID_RATIO;
 
       // center of circle
       const x = clickX - size / 2;
@@ -165,7 +164,7 @@ function _ripple(
   const isRippleUnneeded = (e: Event) => {
     return e.target !== elem && (
       ['BUTTON', 'A'].includes((e.target as HTMLElement).tagName) ||
-        findUpClassName(e.target as HTMLElement, 'c-ripple') !== r
+        findUpClassName(e.target as HTMLElement, styles.ripple) !== r
     ) && (
       attachListenerTo === elem ||
         !findUpAsChild(((e.target as HTMLElement) as { parentElement: HTMLElement; }), attachListenerTo)
