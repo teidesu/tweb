@@ -4,7 +4,7 @@ import { animateSingle, cancelAnimationByKey } from '@/helpers/animation';
 import cancelEvent from '@/helpers/dom/cancelEvent';
 import overlayCounter from '@/helpers/overlayCounter';
 import throttle from '@/helpers/schedulers/throttle';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import windowSize from '@/helpers/windowSize';
 import { Document, DocumentAttribute, GeoPoint, MediaArea, MessageMedia, Reaction, StoryItem, StoryView, User, Chat as MTChat, AvailableReaction, MessageEntity, StoriesStealthMode } from '@/layer';
 import animationIntersector from '@/components/animationIntersector';
@@ -773,7 +773,7 @@ const StoryMediaArea = (props: {
     let div: HTMLDivElement;
     (<div
       ref={div!}
-      class={classNames(
+      class={clsx(
         styles.ViewerStoryMediaAreaReactionInner,
         count() && styles.hasCount
       )}
@@ -804,18 +804,18 @@ const StoryMediaArea = (props: {
       setChildren((
         <>
           <div
-            class={classNames(
+            class={clsx(
               styles.ViewerStoryMediaAreaReactionBubbles,
               mediaArea.pFlags.dark && styles.dark,
               count() && styles.hasCount
             )}
           >
             <div class={styles.ViewerStoryMediaAreaReactionBubble}></div>
-            <div class={classNames(styles.ViewerStoryMediaAreaReactionBubble, styles.small)}></div>
+            <div class={clsx(styles.ViewerStoryMediaAreaReactionBubble, styles.small)}></div>
           </div>
           {element}
           <div
-            class={classNames(
+            class={clsx(
               styles.ViewerStoryMediaAreaReactionCount,
               mediaArea.pFlags.dark && styles.dark,
               count() && styles.hasCount
@@ -852,7 +852,7 @@ const StoryMediaArea = (props: {
   return (
     <div
       ref={div!}
-      class={classNames(
+      class={clsx(
         styles.ViewerStoryMediaArea,
         ...(isLocation() ? [
           playingMemo() && 'shimmer',
@@ -1921,7 +1921,7 @@ const Stories = (props: {
   const captionContainer = (
     <div
       ref={captionScrollable!}
-      class={classNames(
+      class={clsx(
         'scrollable',
         'scrollable-y',
         'no-scrollbar',
@@ -1932,7 +1932,7 @@ const Stories = (props: {
     >
       <div
         ref={captionText!}
-        class={classNames('spoilers-container', styles.ViewerStoryCaptionText)}
+        class={clsx('spoilers-container', styles.ViewerStoryCaptionText)}
         onClick={onCaptionClick}
       >
         <div class={styles.ViewerStoryCaptionTextCell} dir="auto">
@@ -2302,7 +2302,7 @@ const Stories = (props: {
   const privacyIcon = (
     <div
       ref={privacyIconElement!}
-      class={classNames(
+      class={clsx(
         styles.ViewerStoryPrivacy,
         'privacy-bg',
         `privacy-bg-${privacyType()}`
@@ -2446,7 +2446,7 @@ const Stories = (props: {
   let footerReactionElement: HTMLSpanElement;
   const footer = (isMe || CHANGELOG_PEER_ID === props.state.peerId || !props.state.peerId.isUser()) && (
     <div
-      class={classNames(
+      class={clsx(
         styles.ViewerStoryFooter,
         styles.hideOnSmall,
         rootScope.myId === props.state.peerId && styles.isMe,
@@ -2482,7 +2482,7 @@ const Stories = (props: {
             )) as JSX.Element}
             <span
               ref={footerReactionElement!}
-              class={classNames(
+              class={clsx(
                 styles.ViewerStoryFooterIcon,
                 styles.ViewerStoryFooterReaction,
                 (currentStory() as StoryItem.storyItem).sent_reaction && styles.isReacted
@@ -2666,16 +2666,16 @@ const Stories = (props: {
       onTransitionStart={onTransitionStart}
       onTransitionEnd={onTransitionEnd}
     >
-      <div ref={storyDiv!} class={classNames(styles.ViewerStory, loading() && isActive() && 'shimmer')}>
+      <div ref={storyDiv!} class={clsx(styles.ViewerStory, loading() && isActive() && 'shimmer')}>
         <div class={styles.ViewerStoryContent}>
           {contentItem}
         </div>
         <div class={styles.hideOnSmall}>
-          <div class={classNames(styles.ViewerStoryShadow, caption() && styles.hasCaption)}></div>
+          <div class={clsx(styles.ViewerStoryShadow, caption() && styles.hasCaption)}></div>
           <div class={styles.ViewerStorySlides}>
             {slides}
           </div>
-          <div ref={headerDiv!} class={classNames(styles.ViewerStoryHeader, 'night')}>
+          <div ref={headerDiv!} class={clsx(styles.ViewerStoryHeader, 'night')}>
             <div class={styles.ViewerStoryHeaderLeft} onClick={onProfileClick}>
               {avatar.element}
               <div class={styles.ViewerStoryHeaderInfo}>
@@ -2688,7 +2688,7 @@ const Stories = (props: {
                   )}
                 </div>
                 <div
-                  class={classNames(
+                  class={clsx(
                     // styles.ViewerStoryHeaderRow,
                     repost() ? styles.hasRepost : styles.ViewerStoryHeaderSecondary,
                     styles.ViewerStoryHeaderTime
@@ -2951,7 +2951,7 @@ export default function StoriesViewer(props: {
     return (
       <div
         ref={div!}
-        class={classNames(
+        class={clsx(
           styles.Viewer,
           !show() && styles.isInvisible,
           isFull() && styles.isFull,

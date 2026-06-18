@@ -1,4 +1,4 @@
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import useStars from '@/stores/stars';
 import PopupStars, { StarsStar } from '@/components/popups/stars';
 import styles from '@/components/popups/floatingStarsBalance.module.scss';
@@ -26,7 +26,7 @@ export function FloatingStarsBalance(props: {
   }
 
   return (
-    <div class={classNames(styles.container, props.class)}>
+    <div class={clsx(styles.container, props.class)}>
       <I18nTsx
         key="StarsBalanceLong"
         args={props.ton ? [

@@ -6,7 +6,7 @@ import Button from '@/components/button';
 import CheckboxField from '@/components/checkboxField';
 import Row from '@/components/row';
 import wrapPeerTitle from '@/components/wrappers/peerTitle';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { attachClickEvent } from '@/helpers/dom/clickEvent';
 import paymentsWrapCurrencyAmount from '@/helpers/paymentsWrapCurrencyAmount';
 import ListenerSetter from '@/helpers/listenerSetter';
@@ -124,7 +124,7 @@ export default async function showGiftPremiumPopup(peerId: PeerId, giftOptions: 
   }
 
   createPopup(() => (
-    <PopupElement class={classNames(styles.popup, 'popup-gift-premium')} closable>
+    <PopupElement class={clsx(styles.popup, 'popup-gift-premium')} closable>
       <Inner />
     </PopupElement>
   ));

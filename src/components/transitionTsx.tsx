@@ -1,6 +1,6 @@
 import { createEffect, For, JSX, on, onMount, splitProps } from 'solid-js';
 import TransitionSlider, { TransitionSliderOptions } from '@/components/transition';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 
 export function TransitionSliderTsx(props: Omit<TransitionSliderOptions, 'content'> & {
   children: JSX.Element[]
@@ -21,10 +21,10 @@ export function TransitionSliderTsx(props: Omit<TransitionSliderOptions, 'conten
   })
 
   return (
-    <div class={classNames('tabs-container', props.class)} ref={ref}>
+    <div class={clsx('tabs-container', props.class)} ref={ref}>
       <For each={props.children}>
         {(child) => (
-          <div class={classNames('tabs-tab', props.tabClass)}>
+          <div class={clsx('tabs-tab', props.tabClass)}>
             {child}
           </div>
         )}

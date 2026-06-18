@@ -1,5 +1,5 @@
 import { Component } from 'solid-js';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import type { LottieAssetName } from '@/lib/rlottie/lottieLoader';
 import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
 import LottieAnimationBase from '@/components/lottieAnimation';
@@ -20,7 +20,7 @@ const SettingsTabLottieAnimation: Component<{
       lottieLoader={lottieLoader}
       onPromise={(promise) => promiseCollector.collect(promise)}
       restartOnClick
-      class={classNames(props.class, styles.Container)}
+      class={clsx(props.class, styles.Container)}
       {...props}
     />
   );

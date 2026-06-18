@@ -4,7 +4,7 @@ import { Document, Page, PageBlock, PageCaption, PageListOrderedItem, Photo, Ric
 import wrapTelegramRichText from '@/lib/richTextProcessor/wrapTelegramRichText';
 import styles from '@/components/instantView.module.scss';
 import wrapRichText from '@/lib/richTextProcessor/wrapRichText';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { IconTsx } from '@/components/iconTsx';
 import GenericTable, { GenericTableRow } from '@/components/genericTable';
 import { SolidJSHotReloadGuardContextValue, useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
@@ -151,7 +151,7 @@ export function InstantView(props: {
           <Scrollable ref={scrollableRef!}>
             <div
               dir={props.page.pFlags.rtl ? 'auto' : undefined}
-              class={classNames(styles.InstantView, 'text-overflow-wrap')}
+              class={clsx(styles.InstantView, 'text-overflow-wrap')}
               onClick={onClick.bind(null, value)}
               style={{ '--iv-scale': (1.125 * appSettings.instantView.scale).toFixed(3) }}
             >
@@ -163,7 +163,7 @@ export function InstantView(props: {
               </div>
               <div
                 dir="auto"
-                class={classNames(styles.InstantViewFooter, 'secondary')}
+                class={clsx(styles.InstantViewFooter, 'secondary')}
               >
                 <Show when={props.page.views}>
                   {i18n('Views', [props.page.views!])}
@@ -233,9 +233,9 @@ function Caption(props: {caption: PageCaption}) {
   const isCreditEmpty = isRichTextEmpty(caption.credit);
   return (
     <Show when={!isTextEmpty || !isCreditEmpty}>
-      <div class={classNames(styles.Padding, styles.Caption, 'secondary')}>
+      <div class={clsx(styles.Padding, styles.Caption, 'secondary')}>
         <Show when={!isTextEmpty}>
-          <div class={classNames(styles.CaptionText, 'text-bold')}>
+          <div class={clsx(styles.CaptionText, 'text-bold')}>
             <RichTextRenderer text={caption.text} />
           </div>
         </Show>
@@ -371,19 +371,19 @@ function Block(props: {
 
   switch (block._) {
     case 'pageBlockTitle':
-      return <h1 class={classNames(styles.Padding, styles.Title)}><RichTextRenderer text={block.text} /></h1>;
+      return <h1 class={clsx(styles.Padding, styles.Title)}><RichTextRenderer text={block.text} /></h1>;
     case 'pageBlockSubtitle':
-      return <h2 class={classNames(styles.Padding, styles.Subtitle, 'secondary')}><RichTextRenderer text={block.text} /></h2>;
+      return <h2 class={clsx(styles.Padding, styles.Subtitle, 'secondary')}><RichTextRenderer text={block.text} /></h2>;
     case 'pageBlockHeader':
-      return <h3 class={classNames(styles.Padding, styles.Header)}><RichTextRenderer text={block.text} /></h3>;
+      return <h3 class={clsx(styles.Padding, styles.Header)}><RichTextRenderer text={block.text} /></h3>;
     case 'pageBlockSubheader':
-      return <h4 class={classNames(styles.Padding, styles.Subheader)}><RichTextRenderer text={block.text} /></h4>;
+      return <h4 class={clsx(styles.Padding, styles.Subheader)}><RichTextRenderer text={block.text} /></h4>;
     case 'pageBlockParagraph':
-      return <p class={classNames(styles.Padding, styles.Paragraph)}><RichTextRenderer text={block.text} /></p>;
+      return <p class={clsx(styles.Padding, styles.Paragraph)}><RichTextRenderer text={block.text} /></p>;
     case 'pageBlockPreformatted':
-      return <pre class={classNames(styles.Preformatted)}><RichTextRenderer text={block.text} /></pre>;
+      return <pre class={clsx(styles.Preformatted)}><RichTextRenderer text={block.text} /></pre>;
     case 'pageBlockFooter':
-      return <footer class={classNames(styles.Padding, styles.Footer, 'secondary')}><RichTextRenderer text={block.text} /></footer>;
+      return <footer class={clsx(styles.Padding, styles.Footer, 'secondary')}><RichTextRenderer text={block.text} /></footer>;
     case 'pageBlockDivider':
       return <div class={styles.Divider} />;
     case 'pageBlockOrderedList':
@@ -395,7 +395,7 @@ function Block(props: {
       return (
         <Dynamic
           component={isOrdered ? 'ol' : 'ul'}
-          class={classNames(
+          class={clsx(
             styles.List,
             shouldHaveOwnNumbers && styles.ListOrdered,
             'browser-default'
@@ -425,7 +425,7 @@ function Block(props: {
     }
     case 'pageBlockBlockquote':
       return (
-        <div class={classNames(styles.Padding, styles.BlockquoteWrapper)}>
+        <div class={clsx(styles.Padding, styles.BlockquoteWrapper)}>
           <blockquote class={styles.Blockquote}>
             <div class={styles.BlockquoteBorder} />
             <RichTextRenderer text={block.text} />
@@ -513,7 +513,7 @@ function Block(props: {
       return (
         <>
           <DocumentTsx
-            class={classNames(styles.Padding, styles.Audio)}
+            class={clsx(styles.Padding, styles.Audio)}
             message={message}
             withTime={false}
             autoDownloadSize={10 * 1024 * 1024} // 10MB auto-download limit
@@ -528,7 +528,7 @@ function Block(props: {
       const peerId = block.channel.id.toPeerId(true);
       return (
         <div
-          class={classNames(
+          class={clsx(
             styles.SectionName,
             styles.Channel,
             'text-bold'
@@ -546,7 +546,7 @@ function Block(props: {
       return (
         <div
           dir="auto"
-          class={classNames(
+          class={clsx(
             styles.Padding,
             styles.AuthorDate,
             'secondary',
@@ -619,7 +619,7 @@ function Block(props: {
                 <a
                   dir="auto"
                   href={wrapped.url}
-                  class={classNames(
+                  class={clsx(
                     styles.RelatedArticle,
                     photo && styles.WithPhoto,
                     idx() && styles.BorderTop,
@@ -628,13 +628,13 @@ function Block(props: {
                   // @ts-ignore
                   attr:onclick={wrapped.onclick + '(this)'}
                 >
-                  <div class={classNames(styles.RelatedArticleTitle, 'text-bold')}>
+                  <div class={clsx(styles.RelatedArticleTitle, 'text-bold')}>
                     <RichTextRenderer text={{ _: 'textPlain', text: article.title! }} />
                   </div>
                   <div class={styles.RelatedArticleDescription}>
                     <RichTextRenderer text={{ _: 'textPlain', text: article.description! }} />
                   </div>
-                  <div class={classNames(styles.RelatedArticleAuthor, 'secondary')}>
+                  <div class={clsx(styles.RelatedArticleAuthor, 'secondary')}>
                     <Show when={article.author}>
                       <RichTextRenderer text={{ _: 'textPlain', text: article.author! }} />
                       {` • `}
@@ -733,7 +733,7 @@ function Block(props: {
                 Math.max(isFullWidth ? 0 : 2, props.paddings)
               );
             }}
-            class={classNames(
+            class={clsx(
               styles.Media,
               styles.Embed,
               isFullWidth ? styles.EmbedFullWidth : styles.EmbedAutoWidth,
@@ -843,7 +843,7 @@ function Block(props: {
     }
     case 'pageBlockKicker':
       return (
-        <div class={classNames(styles.Padding, styles.Kicker, 'text-bold')}>
+        <div class={clsx(styles.Padding, styles.Kicker, 'text-bold')}>
           <RichTextRenderer text={block.text} />
         </div>
       );
@@ -852,7 +852,7 @@ function Block(props: {
         <div class={styles.Pullquote}>
           <RichTextRenderer text={block.text} />
           <Show when={!isRichTextEmpty(block.caption)}>
-            <div class={classNames(styles.BlockquoteCaption, 'secondary')}>
+            <div class={clsx(styles.BlockquoteCaption, 'secondary')}>
               <RichTextRenderer text={block.caption} />
             </div>
           </Show>
@@ -864,23 +864,23 @@ function Block(props: {
       return (
         <div
           ref={(ref) => {detailsMap.set(ref, setOpen)}}
-          class={classNames(styles.Details)}
+          class={clsx(styles.Details)}
         >
           <div
-            class={classNames(styles.DetailsSummary, 'hover-effect')}
+            class={clsx(styles.DetailsSummary, 'hover-effect')}
             onClick={() => setOpen(!open())}
           >
             <IconTsx
               icon="down"
-              class={classNames(styles.DetailsIcon, open() && styles.DetailsIconOpen)}
+              class={clsx(styles.DetailsIcon, open() && styles.DetailsIconOpen)}
             />
-            <div class={classNames(styles.DetailsTitle, 'text-bold')}>
+            <div class={clsx(styles.DetailsTitle, 'text-bold')}>
               <RichTextRenderer text={block.title} />
             </div>
           </div>
           <div class={styles.Border} />
           <div
-            class={classNames(
+            class={clsx(
               styles.DetailsContent,
               open() && styles.DetailsContentOpen
             )}
@@ -900,7 +900,7 @@ function Block(props: {
       const ret = (
         <div
           ref={ref!}
-          class={classNames(styles.Collage, styles.Media)}
+          class={clsx(styles.Collage, styles.Media)}
         >
           <For each={block.items}>{(item) => {
             let ref: HTMLDivElement;
@@ -946,7 +946,7 @@ function Block(props: {
     }
     default:
       return (
-        <div class={classNames(styles.Padding, styles.Unsupported)}>
+        <div class={clsx(styles.Padding, styles.Unsupported)}>
           Unsupported block: {block._}
         </div>
       );

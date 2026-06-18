@@ -10,7 +10,7 @@ import cancelEvent from '@/helpers/dom/cancelEvent';
 import rootScope from '@/lib/rootScope';
 import Chat from '@/components/chat/chat';
 import { AvatarNewTsx } from '@/components/avatarNew';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { PeerTitleTsx } from '@/components/peerTitleTsx';
 import { IconTsx } from '@/components/iconTsx';
 import { wrapEmojiTextWithEntities } from '@/lib/richTextProcessor/wrapEmojiText';
@@ -116,7 +116,7 @@ export function ChecklistBubble(props: {
 
             return (
               <div
-                class={classNames(
+                class={clsx(
                   styles.item,
                   isReadonly ? styles.itemReadonly : styles.itemClickable,
                   completionsById()[item.id] && styles.itemCompleted,

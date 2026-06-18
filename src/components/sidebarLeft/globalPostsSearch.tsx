@@ -10,7 +10,7 @@ import { Message, SearchPostsFlood } from '../../layer';
 import Button from '../buttonTsx';
 import { i18n } from '../../lib/langPack';
 import PopupPremium from '../popups/premium';
-import classNames from '../../helpers/string/classNames';
+import clsx from 'clsx';
 import { IconTsx } from '../iconTsx';
 import wrapEmojiText from '../../lib/richTextProcessor/wrapEmojiText';
 import { NULL_PEER_ID, STARS_CURRENCY } from '../../lib/appManagers/constants';
@@ -203,7 +203,7 @@ export function GlobalPostsSearch(props: {
     if (!isPremium()) {
       return (
         <Button
-          class={classNames('btn-primary btn-color-primary', styles.button)}
+          class={clsx('btn-primary btn-color-primary', styles.button)}
           onClick={() => PopupPremium.show()}
         >
           {i18n('PostsSearch.SubscribeToPremium')}
@@ -216,7 +216,7 @@ export function GlobalPostsSearch(props: {
     if (remainingUntilReset()) {
       return (
         <Button
-          class={classNames('btn-primary btn-color-primary', styles.button, styles.buttonPaidSearch)}
+          class={clsx('btn-primary btn-color-primary', styles.button, styles.buttonPaidSearch)}
           onClick={() => loadMore(true, true)}
         >
           <I18nTsx key="PostsSearch.SearchFor" args={[paymentsWrapCurrencyAmount(flood()!.stars_amount, STARS_CURRENCY)]} />
@@ -227,7 +227,7 @@ export function GlobalPostsSearch(props: {
 
     return (
       <Button
-        class={classNames('btn-primary btn-color-primary', styles.button)}
+        class={clsx('btn-primary btn-color-primary', styles.button)}
         onClick={() => loadMore(true)}
       >
         <IconTsx icon="search" />

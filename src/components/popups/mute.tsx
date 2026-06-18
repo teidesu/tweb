@@ -1,5 +1,5 @@
 import tsNow from '@/helpers/tsNow';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { AvatarNewTsx } from '@/components/avatarNew';
 import PopupElement, { createPopup } from '@/components/popups/indexTsx';
 import { RadioFormFromValues } from '@/components/row';
@@ -29,7 +29,7 @@ export default function showMutePopup(peerId: PeerId, threadId?: number) {
     }, true);
 
     return (
-      <PopupElement class={classNames('popup-peer', styles.popup)}>
+      <PopupElement class={clsx('popup-peer', styles.popup)}>
         <PopupElement.Header>
           <AvatarNewTsx
             peerId={isSavedDialog ? threadId : peerId}

@@ -2,7 +2,7 @@ import { JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { AnimationList } from '@/helpers/solid/animationList';
 import { getTransition } from '@/config/transitions';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 
 type AnimationType = 'cross-fade' | 'grow-width' | 'grow-height';
 
@@ -31,7 +31,7 @@ export function SimpleAnimation(props: Pick<
       animationOptions={{ duration: 200, easing: getTransition('standard').easing }}
       keyframes={props.keyframes}
       mode={props.mode || 'replacement'}
-      itemClass={classNames(!props.noItemClass && 'animated-item', props.itemClass)}
+      itemClass={clsx(!props.noItemClass && 'animated-item', props.itemClass)}
       appear={props.appear}
     >
       {props.children}

@@ -1,7 +1,7 @@
 import styles from '@/components/simpleFormField/styles.module.scss';
 import { requestRAF } from '@/helpers/solid/requestRAF';
 import { useMaxLengthError } from '@/helpers/solid/useMaxLengthError';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { Accessor, batch, createContext, createEffect, createMemo, createSignal, JSX, onCleanup, onMount, ParentProps, Ref, Setter, Show, splitProps, useContext } from 'solid-js';
 
 
@@ -79,7 +79,7 @@ const SimpleFormField = (inProps: ParentProps<{
   return (
     <Context.Provider value={contextValue}>
       <div
-        class={classNames(styles.Container, props.class)}
+        class={clsx(styles.Container, props.class)}
         classList={{
           [styles.error]: props.isError || forceError(),
           [styles.clickable]: props.clickable,
@@ -122,7 +122,7 @@ SimpleFormField.Input = (inProps: {
         context!.setOffsetElement(el);
         if (props.ref instanceof Function) props.ref(el);
       })}
-      class={classNames(styles.Input, props.class)}
+      class={clsx(styles.Input, props.class)}
       value={context!.value()}
       onInput={(e) => {
         context!.onChange(e.currentTarget.value)
@@ -141,7 +141,7 @@ SimpleFormField.InputStub = (props: ParentProps<{
   return (
     <div
       ref={context!.setOffsetElement}
-      class={classNames(styles.InputStub, props.class)}
+      class={clsx(styles.InputStub, props.class)}
     >
       {props.children}
     </div>
@@ -200,7 +200,7 @@ SimpleFormField.SideContent = (inProps: SideContentProps) => {
   const [props, restProps] = splitProps(inProps, ['class', 'first', 'last', 'withFixedIcon', 'classList', 'children']);
   return (
     <div
-      class={classNames(styles.SideContent, props.class)}
+      class={clsx(styles.SideContent, props.class)}
       classList={{
         [styles.first]: props.first,
         [styles.last]: props.last,
@@ -224,7 +224,7 @@ SimpleFormField.WithLengthCounter = (inProps: WithLengthCounterProps) => {
 
   return (
     <SimpleFormField.SideContent
-      class={classNames(styles.withLimit, props.class)}
+      class={clsx(styles.withLimit, props.class)}
       {...restProps}
     >
       {props.children}

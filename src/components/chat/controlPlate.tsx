@@ -1,5 +1,5 @@
 import { JSX } from 'solid-js';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 
 /**
  * Marker class for the unified chat-input plate layout. Anything carrying this
@@ -33,7 +33,7 @@ export default function ChatInputPlate(props: {
   right?: JSX.Element
 }): JSX.Element {
   return (
-    <div class={classNames(CHAT_INPUT_PLATE_CLASS, 'rows-wrapper-row', props.class)}>
+    <div class={clsx(CHAT_INPUT_PLATE_CLASS, 'rows-wrapper-row', props.class)}>
       <div class={`${CHAT_INPUT_PLATE_CLASS}-side`}>{props.left}</div>
       <div class={`${CHAT_INPUT_PLATE_CLASS}-center`}>{props.center}</div>
       <div class={`${CHAT_INPUT_PLATE_CLASS}-side`}>{props.right}</div>

@@ -11,7 +11,7 @@ import safeAssign from '@/helpers/object/safeAssign';
 import { AppManagers } from '@/lib/managers';
 import Scrollable from '@/components/scrollable';
 import wrapKeyboardButton from '@/components/wrappers/keyboardButton';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { Middleware, MiddlewareHelper } from '@/helpers/middleware';
 import { createRoot, For, onCleanup } from 'solid-js';
 import { render } from 'solid-js/web';
@@ -131,7 +131,7 @@ export default class ReplyKeyboard extends DropdownHover {
                     onClick: () => {
                       this.toggle(false);
                     },
-                    className: classNames(ReplyKeyboard.BASE_CLASS + '-button', 'btn'),
+                    className: clsx(ReplyKeyboard.BASE_CLASS + '-button', 'btn'),
                   })
                 )}
               </For>

@@ -1,7 +1,7 @@
 import { horizontalMenu } from '@/components/horizontalMenu';
 import Scrollable from '@/components/scrollable2';
 import ListenerSetter from '@/helpers/listenerSetter';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { Accessor, JSX, For, onCleanup, createContext, Ref, untrack } from 'solid-js';
 
 const TabsContext = createContext<{
@@ -29,7 +29,7 @@ Tabs.Menu = (props: {
   return (
     <div
       ref={props.ref}
-      class={classNames('menu-horizontal-div', props.class)}
+      class={clsx('menu-horizontal-div', props.class)}
       id={props.id}
       onClick={props.onClick}
     >
@@ -44,7 +44,7 @@ Tabs.MenuTab = (props: {
   children: JSX.Element
 }) => {
   return (
-    <div ref={props.ref} class={classNames('menu-horizontal-div-item', props.class)}>
+    <div ref={props.ref} class={clsx('menu-horizontal-div-item', props.class)}>
       <i class="menu-horizontal-div-item-background" />
       <div class="menu-horizontal-div-item-span">
         {props.children}
@@ -60,7 +60,7 @@ Tabs.MenuScrollable = (props: {
   children: JSX.Element
 }) => {
   return (
-    <div ref={props.ref} class={classNames('menu-horizontal-scrollable', props.class)}>
+    <div ref={props.ref} class={clsx('menu-horizontal-scrollable', props.class)}>
       <Scrollable axis="x" {...(props.scrollableProps || {})}>
         {props.children}
       </Scrollable>
@@ -77,13 +77,13 @@ Tabs.MenuGradient = (props: {
   return (
     <div
       ref={props.ref}
-      class={classNames(
+      class={clsx(
         'menu-horizontal-gradient-container',
         props.className && props.className + '-container'
       )}
     >
       <div
-        class={classNames(
+        class={clsx(
           'menu-horizontal-gradient',
           'menu-horizontal-gradient-color-' + props.color,
           props.smaller && 'menu-horizontal-gradient-smaller',
@@ -113,7 +113,7 @@ Tabs.ContentTab = (props: {
   children: JSX.Element
 }) => {
   return (
-    <div class={classNames(props.class, props.hide && 'hide')}>
+    <div class={clsx(props.class, props.hide && 'hide')}>
       {props.children}
     </div>
   );
@@ -138,7 +138,7 @@ Tabs.Simple = (props: {
           );
         }}</For>
       </Tabs.Menu>
-      <Tabs.Content ref={content!} class={classNames(`${className}-contents`)}>
+      <Tabs.Content ref={content!} class={clsx(`${className}-contents`)}>
         <For each={props.content}>{(item, index) => {
           return (
             <Tabs.ContentTab class={`${className}-content`} hide={index() !== props.tab()}>{item}</Tabs.ContentTab>

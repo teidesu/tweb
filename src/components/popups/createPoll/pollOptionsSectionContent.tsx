@@ -15,7 +15,7 @@ import createMiddleware from '@/helpers/solid/createMiddleware';
 import { createSortableList } from '@/helpers/solid/createSortableList';
 import { I18nTsx } from '@/helpers/solid/i18n';
 import { subscribeOn } from '@/helpers/solid/subscribeOn';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import I18n from '@/lib/langPack';
 import wrapDraftText from '@/lib/richTextProcessor/wrapDraftText';
 import { batch, children, createEffect, createMemo, createSignal, For, JSX, mapArray, Match, on, Ref, Show, Switch } from 'solid-js';
@@ -359,7 +359,7 @@ const PollOptionInputField = (props: {
     <SimpleFormField
       ref={props.ref}
       value={props.value}
-      class={classNames(styles.flexFull, styles.formField, styles.pollOptionInputField)}
+      class={clsx(styles.flexFull, styles.formField, styles.pollOptionInputField)}
       withEndButtonIcon
       withStartButtonIcon
       withMinHeight

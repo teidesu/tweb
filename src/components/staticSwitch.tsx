@@ -2,7 +2,7 @@ import { JSX, splitProps } from 'solid-js';
 
 import styles from '@/components/staticSwitch.module.scss';
 import { IconTsx, IconTsxProps } from './iconTsx';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 
 const StaticSwitch = (props: {
   checked?: boolean;
@@ -20,7 +20,7 @@ const StaticSwitch = (props: {
 
 StaticSwitch.HandleIcon = (inProps: IconTsxProps) => {
   const [props, restProps] = splitProps(inProps, ['class']);
-  return <IconTsx class={classNames(props.class, styles.HandleIcon)} {...restProps} />
+  return <IconTsx class={clsx(props.class, styles.HandleIcon)} {...restProps} />
 };
 
 export default StaticSwitch;

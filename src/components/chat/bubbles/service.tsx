@@ -1,5 +1,5 @@
 import { createEffect, createResource, JSX, on } from 'solid-js';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { Message } from '@/layer';
 
 import styles from '@/components/chat/bubbles/service.module.scss';
@@ -16,7 +16,7 @@ export function ServiceBubble(props: {
   createEffect(on(() => props.message, refetch))
 
   return (
-    <div class={classNames(styles.wrap, props.class)}>
+    <div class={clsx(styles.wrap, props.class)}>
       <div class={/* @once */ styles.text}>
         {text()}
       </div>

@@ -3,7 +3,7 @@ import type { RequestHistoryOptions } from '@/lib/appManagers/appMessagesManager
 import { createEffect, createSignal, onCleanup, JSX, createMemo, onMount, on, untrack, batch, Accessor } from 'solid-js';
 import InputSearch from '@/components/inputSearch';
 import { ButtonIconTsx } from '@/components/buttonIconTsx';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import PopupElement from '@/components/popups';
 import showDatePickerPopup from '@/components/popups/datePicker';
 import rootScope, { BroadcastEvents } from '@/lib/rootScope';
@@ -243,11 +243,11 @@ function SearchFooter(props: {
   choosingSender: () => boolean
 }) {
   return (
-    <div class={classNames('chat-search-footer', props.choosingSender() && 'hide')}>
+    <div class={clsx('chat-search-footer', props.choosingSender() && 'hide')}>
       <div class="chat-search-footer-left">
         {props.pickDateBtn}
         {props.pickUserBtn}
-        <span class={classNames('chat-search-footer-count', props.count() === undefined && 'hide')}>
+        <span class={clsx('chat-search-footer-count', props.count() === undefined && 'hide')}>
           {
             props.count() === 0 ?
               i18n('NoResult') :
@@ -255,7 +255,7 @@ function SearchFooter(props: {
           }
         </span>
       </div>
-      <div class={classNames('chat-search-footer-right', !props.count() && 'hide')}>
+      <div class={clsx('chat-search-footer-right', !props.count() && 'hide')}>
         <span
           class="chat-search-footer-type"
           onClick={() => props.onToggle()}
@@ -517,7 +517,7 @@ export default function TopbarSearch(props: {
   const hashWidth = getTextWidth('#', FontFull);
   const fromText = I18n.format('Search.From', true) + ' ';
   const fromWidth = getTextWidth(fromText, FontFull);
-  const fromSpan = (<span class={classNames('topbar-search-input-from', shouldShowFromPlaceholder() && 'is-visible')}>{fromText}</span>);
+  const fromSpan = (<span class={clsx('topbar-search-input-from', shouldShowFromPlaceholder() && 'is-visible')}>{fromText}</span>);
   inputSearch.container.append(fromSpan as HTMLElement);
   createEffect<HTMLElement | undefined>((_element) => {
     const filtering = filteringSender();
@@ -687,7 +687,7 @@ export default function TopbarSearch(props: {
     return (
       <ButtonIconTsx
         icon={direction}
-        class={classNames(
+        class={clsx(
           'input-search-part',
           'topbar-search-input-arrow',
           (!count() || (filteringSender() && !filterPeerId())) && 'hide'
@@ -768,7 +768,7 @@ export default function TopbarSearch(props: {
     const list = (
       <div
         ref={ref!}
-        class={classNames(!untrack(isSmallScreen) && 'topbar-search-left-chatlist', 'chatlist', isEmpty() && 'is-empty')}
+        class={clsx(!untrack(isSmallScreen) && 'topbar-search-left-chatlist', 'chatlist', isEmpty() && 'is-empty')}
       >
         {isEmpty() ? (
           <div class="topbar-search-left-results-empty">
@@ -1205,7 +1205,7 @@ export default function TopbarSearch(props: {
 
   const pickUserBtn = props.canFilterSender && (
     <ButtonIconTsx
-      class={classNames(!isSmallScreen() && 'topbar-search-right-filter-button')}
+      class={clsx(!isSmallScreen() && 'topbar-search-right-filter-button')}
       icon="newprivate"
       ref={(element) => {
         const detach = attachClickEvent(element, (e) => {
@@ -1272,7 +1272,7 @@ export default function TopbarSearch(props: {
   return (
     <div ref={container!} class="topbar-search-container">
       <div
-        class={classNames('topbar-search-left-container', isActive() && 'is-focused')}
+        class={clsx('topbar-search-left-container', isActive() && 'is-focused')}
         // style={calculateHeight() ? {height: calculateHeight() + 'px'} : undefined}
       >
         <div class="topbar-search-left-background">
@@ -1302,12 +1302,12 @@ export default function TopbarSearch(props: {
       {!isSmallScreen() && (
         <div class="topbar-search-right-container">
           {pickUserBtn && (
-            <div class={classNames('topbar-search-right-filter', (filteringSender() || isHashtag()) && 'is-hidden')}>
+            <div class={clsx('topbar-search-right-filter', (filteringSender() || isHashtag()) && 'is-hidden')}>
               {pickUserBtn}
             </div>
           )}
           {pickDateBtn && (
-            <div class={classNames('topbar-search-right-filter', isHashtag() && 'is-hidden')}>
+            <div class={clsx('topbar-search-right-filter', isHashtag() && 'is-hidden')}>
               {pickDateBtn}
             </div>
           )}

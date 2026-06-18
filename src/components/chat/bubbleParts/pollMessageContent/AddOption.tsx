@@ -10,7 +10,7 @@ import getRichValueWithCaret from '@/helpers/dom/getRichValueWithCaret';
 import { keepMe } from '@/helpers/keepMe';
 import { createDelayed } from '@/helpers/solid/createDelayed';
 import { I18nTsx } from '@/helpers/solid/i18n';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { createEffect, createMemo, createResource, Match, onCleanup, Show, Switch } from 'solid-js';
 import { supportsVideoEncoding } from '@/components/mediaEditor/support';
 import { Transition } from 'solid-transition-group';
@@ -120,7 +120,7 @@ export const AddOption = (props: {
 
   return (
     <div
-      class={classNames(styles.pollOption, styles.hasMedia, styles.isAddOption)}
+      class={clsx(styles.pollOption, styles.hasMedia, styles.isAddOption)}
       classList={{
         [styles.isOutgoing]: contextProps.isOutgoing,
         [styles.isIncoming]: !contextProps.isOutgoing,
@@ -144,7 +144,7 @@ export const AddOption = (props: {
               </div>
             </Match>
             <Match when={active()}>
-              <EmojiDropdownButton class={classNames(styles.emojiDropdownButton, props.isPending && styles.pointerDisabled)} inputField={inputField} />
+              <EmojiDropdownButton class={clsx(styles.emojiDropdownButton, props.isPending && styles.pointerDisabled)} inputField={inputField} />
             </Match>
           </Switch>
         </Transition>

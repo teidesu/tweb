@@ -1,7 +1,7 @@
 import { JSX, Ref, Show } from 'solid-js';
 
 import LottieAnimation from '@/components/lottieAnimation';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import lottieLoader, { LottieAssetName } from '@/lib/rlottie/lottieLoader';
 
 import styles from '@/components/mediaHeader.module.scss';
@@ -26,7 +26,7 @@ import styles from '@/components/mediaHeader.module.scss';
  */
 function MediaHeader(props: {class?: string, children?: JSX.Element}): JSX.Element {
   return (
-    <div class={classNames(styles.container, props.class)}>
+    <div class={clsx(styles.container, props.class)}>
       {props.children}
     </div>
   );
@@ -59,7 +59,7 @@ MediaHeader.Sticker = function MediaHeaderSticker(props: MediaHeaderStickerProps
 
   return (
     <div
-      class={classNames(styles.sticker, props.class)}
+      class={clsx(styles.sticker, props.class)}
       style={{ '--sticker-size': size() + 'px' }}
       ref={props.ref}
     >
@@ -93,7 +93,7 @@ export type MediaHeaderTitleProps = {
 
 MediaHeader.Title = function MediaHeaderTitle(props: MediaHeaderTitleProps): JSX.Element {
   return (
-    <div class={classNames(styles.title, 'text-center text-overflow-wrap', props.class)}>
+    <div class={clsx(styles.title, 'text-center text-overflow-wrap', props.class)}>
       {props.children}
     </div>
   );
@@ -113,7 +113,7 @@ export type MediaHeaderSubtitleProps = {
 MediaHeader.Subtitle = function MediaHeaderSubtitle(props: MediaHeaderSubtitleProps): JSX.Element {
   return (
     <div
-      class={classNames(
+      class={clsx(
         styles.subtitle,
         props.secondary && styles.secondary,
         'text-center',

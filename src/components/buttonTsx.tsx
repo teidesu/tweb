@@ -1,7 +1,7 @@
 import { Accessor, createMemo, createSignal, JSX, Ref, Setter } from 'solid-js';
 import { FormatterArguments, i18n, LangPackKey } from '@/lib/langPack';
 import { IconTsx } from '@/components/iconTsx';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import RippleElement from '@/components/rippleElement';
 
 const Button = (props: Partial<{
@@ -36,7 +36,7 @@ const Button = (props: Partial<{
     <RippleElement
       ref={props.ref as Ref<any>}
       component={props.as || 'button'}
-      class={classNames(
+      class={clsx(
         props.class,
         props.primaryFilled && 'btn-primary btn-color-primary',
         props.primary && 'btn btn-primary primary',
@@ -62,9 +62,9 @@ const Button = (props: Partial<{
       rippleSquare={props.rippleSquare}
       tabIndex={props.tabIndex}
     >
-      {props.icon && <IconTsx icon={props.icon} class={classNames('button-icon', props.iconClass)} />}
+      {props.icon && <IconTsx icon={props.icon} class={clsx('button-icon', props.iconClass)} />}
       {props.text ? i18n(props.text, props.textArgs) : props.children}
-      {props.iconAfter && <IconTsx icon={props.iconAfter} class={classNames('button-icon', props.iconClass)} />}
+      {props.iconAfter && <IconTsx icon={props.iconAfter} class={clsx('button-icon', props.iconClass)} />}
     </RippleElement>
   );
 };
@@ -76,7 +76,7 @@ Button.Corner = (props: Partial<{
   class: string
 }>) => {
   return (
-    <Button {...props} class={classNames('btn-circle', 'btn-corner', 'z-depth-1', props.class)} tabIndex={-1} />
+    <Button {...props} class={clsx('btn-circle', 'btn-corner', 'z-depth-1', props.class)} tabIndex={-1} />
   );
 };
 
@@ -90,7 +90,7 @@ Button.Icon = (props: {icon: Icon} & Partial<{
   return (
     <Button
       {...props}
-      class={classNames('btn-icon', props.icon, props.class)}
+      class={clsx('btn-icon', props.icon, props.class)}
       tabIndex={-1}
     />
   )

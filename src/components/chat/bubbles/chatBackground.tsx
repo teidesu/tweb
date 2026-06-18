@@ -33,7 +33,7 @@ import { DEFAULT_BACKGROUND_SLUG } from '@/config/app';
 import { AppManagers } from '@/lib/managers';
 import { AppTheme } from '@/config/state';
 import { appState } from '@/stores/appState';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import noop from '@/helpers/noop';
 
 import styles from '@/components/chat/bubbles/chatBackground.module.scss';
@@ -541,7 +541,7 @@ export const ChatBackground: Component<ChatBackgroundProps> = (props) => {
     }
   ));
 
-  return <div ref={layer} class={classNames(styles.Layer, props.class)} />;
+  return <div ref={layer} class={clsx(styles.Layer, props.class)} />;
 };
 
 /**

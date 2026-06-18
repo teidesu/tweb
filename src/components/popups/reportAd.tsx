@@ -14,7 +14,7 @@ import wrapStickerEmoji from '@/components/wrappers/stickerEmoji';
 import InputField from '@/components/inputField';
 import createMiddleware from '@/helpers/solid/createMiddleware';
 import Button from '@/components/buttonTsx';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import Row from '@/components/rowTsx';
 import Scrollable from '@/components/scrollable2';
 
@@ -167,7 +167,7 @@ export default function showReportAdPopup(
           onTransitionStart={onTransition}
           onTransitionEnd={onTransition}
         >
-          <div class={classNames('popup-report-ad-tab-options')} style={{ height: (activeHeight() || maxHeight()) + 'px' }}>
+          <div class={clsx('popup-report-ad-tab-options')} style={{ height: (activeHeight() || maxHeight()) + 'px' }}>
             {inner}
           </div>
         </Section>

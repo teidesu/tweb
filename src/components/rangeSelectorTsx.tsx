@@ -2,7 +2,7 @@ import { createSignal, onMount, onCleanup, createEffect, JSX } from 'solid-js';
 import attachGrabListeners, { GrabEvent } from '@/helpers/dom/attachGrabListeners';
 import clamp from '@/helpers/number/clamp';
 import I18n from '@/lib/langPack';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 
 export interface RangeSelectorProps {
   step: number;
@@ -148,7 +148,7 @@ export default function RangeSelector(props: RangeSelectorProps) {
   return (
     <div
       ref={containerRef!}
-      class={classNames(
+      class={clsx(
         'progress-line',
         useTransform && 'use-transform',
         withTransition && 'with-transition'

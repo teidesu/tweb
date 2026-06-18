@@ -1,6 +1,6 @@
 import clamp from '@/helpers/number/clamp';
 import OverlayClickHandler from '@/helpers/overlayClickHandler';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { createRoot, createSignal, onMount, JSX } from 'solid-js';
 import { Portal } from 'solid-js/web';
 import { IconTsx } from '@/components/iconTsx';
@@ -84,7 +84,7 @@ export default function showTooltip({
     const tooltip = (
       <div
         ref={div!}
-        class={classNames('tooltip', 'tooltip-' + vertical, icon && 'tooltip-with-icon', className, lighter && 'tooltip-lighter')}
+        class={clsx('tooltip', 'tooltip-' + vertical, icon && 'tooltip-with-icon', className, lighter && 'tooltip-lighter')}
         style={((!relative && getStyle()) as string | JSX.CSSProperties | undefined)}
       >
         <div class="tooltip-part tooltip-background"></div>

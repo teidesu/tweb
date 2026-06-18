@@ -6,7 +6,7 @@ import { AppManagers } from '@/lib/managers';
 import callbackify from '@/helpers/callbackify';
 import ripple from '@/components/ripple';
 import confirmationPopup from '@/components/confirmationPopup';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { AckedResult } from '@/lib/superMessagePort';
 import { Accessor, createSignal, For, Show } from 'solid-js';
 import TopbarPlate, { createTopbarPlate, TopbarPlateController } from '@/components/chat/topbarPlate';
@@ -38,7 +38,7 @@ function ActionsPlateBody(props: {
   onClose: () => void
 }) {
   return (
-    <TopbarPlate.Body class={classNames(props.disabled() && 'is-disabled')}>
+    <TopbarPlate.Body class={clsx(props.disabled() && 'is-disabled')}>
       <Show when={props.buttons()}>
         {(btns) => (
           <For each={btns()}>
@@ -46,7 +46,7 @@ function ActionsPlateBody(props: {
               const total = btns().length;
               const button = (
                 <div
-                  class={classNames(
+                  class={clsx(
                     'pinned-actions-button',
                     action.danger ? 'danger' : 'primary',
                     total > 1 && 'half',

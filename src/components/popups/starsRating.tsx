@@ -6,7 +6,7 @@ import bigInt from 'big-integer';
 import { LimitLineTsx } from '@/components/limitLineTsx';
 import { I18nTsx } from '@/helpers/solid/i18n';
 import Row from '@/components/rowTsx';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import styles from '@/components/popups/starsRating.module.scss';
 import { createMemo, createSignal, Show, Switch } from 'solid-js';
 import wrapEmojiText from '@/lib/richTextProcessor/wrapEmojiText';
@@ -23,7 +23,7 @@ function Badge(props: {
   return (
     <I18nTsx
       key={props.active ? 'StarsRating.BadgeAdded' : 'StarsRating.BadgeDeducted'}
-      class={classNames(styles.badge, props.active && styles.active)}
+      class={clsx(styles.badge, props.active && styles.active)}
     />
   );
 }
@@ -67,7 +67,7 @@ export default function showStarsRatingPopup(props: {
         </PopupElement.Header>
         <PopupElement.Body>
           <LimitLineTsx
-            class={classNames(styles.limitLine, isNegativeLevel() && styles.limitLineNegative)}
+            class={clsx(styles.limitLine, isNegativeLevel() && styles.limitLineNegative)}
             progress={progress()}
             progressFrom={isNegativeLevel() ? i18n('StarsRating.Negative') : i18n('StarsRating.Level', [rating()!.level])}
             progressTo={isNegativeLevel() ? <div /> : i18n('StarsRating.Level', [rating()!.level + 1])}
@@ -90,7 +90,7 @@ export default function showStarsRatingPopup(props: {
           <Show when={isNegativeLevel() && !futureRating}>
             <I18nTsx
               key={isPersonal ? 'StarsRating.NegativeDescriptionMy' : 'StarsRating.NegativeDescription'}
-              class={classNames(styles.description, styles.negativeDescription)}
+              class={clsx(styles.description, styles.negativeDescription)}
               args={isPersonal ?
                 [Math.abs(Number(rating()!.stars)).toString()] :
                 [wrapEmojiText(props.user.first_name!)]

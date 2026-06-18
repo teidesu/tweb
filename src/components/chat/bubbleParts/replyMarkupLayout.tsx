@@ -3,7 +3,7 @@ import { render } from 'solid-js/web';
 import wrapKeyboardButton from '@/components/wrappers/keyboardButton';
 import type Chat from '@/components/chat/chat';
 import { KeyboardButtonRow, Message } from '@/layer';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { IconTsx } from '@/components/iconTsx';
 import RippleElement from '@/components/rippleElement';
 
@@ -64,7 +64,7 @@ ReplyMarkupLayout.Row = (props: {
   createEffect<void>(() => void setElements(resolvedChildren.toArray()));
 
   return (
-    <div ref={ref} class={classNames('reply-markup-row', props.class)}>
+    <div ref={ref} class={clsx('reply-markup-row', props.class)}>
       {resolvedChildren()}
     </div>
   );
@@ -90,7 +90,7 @@ ReplyMarkupLayout.Button = (props: {
         ref = _ref;
         (props.ref as any)?.(ref);
       }}
-      class={classNames(
+      class={clsx(
         'reply-markup-button',
         rowContext.isLast && isFirst() && 'is-first',
         rowContext.isLast && isLast() && 'is-last',
@@ -101,7 +101,7 @@ ReplyMarkupLayout.Button = (props: {
       <Show when={props.icon}>
         <IconTsx icon={props.icon!} class="reply-markup-button-icon" />
       </Show>
-      <span class={classNames('reply-markup-button-text', props.textClass)}>
+      <span class={clsx('reply-markup-button-text', props.textClass)}>
         {props.children}
       </span>
     </RippleElement>

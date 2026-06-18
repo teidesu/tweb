@@ -12,7 +12,7 @@ import LazyLoadQueue from '@/components/lazyLoadQueue'
 import SuperStickerRenderer from '@/components/emoticonsDropdown/tabs/SuperStickerRenderer'
 import rootScope from '@/lib/rootScope'
 import clamp from '@/helpers/number/clamp'
-import classNames from '@/helpers/string/classNames'
+import clsx from 'clsx'
 import { positionMenuTrigger } from '@/helpers/positionMenu'
 
 type HighlightPosition = {start: number, end: number}
@@ -157,7 +157,7 @@ function ButtonMenuSelectInner<T>(props: {
   onMount(() => doubleRaf().then(() => inputEl?.focus()))
 
   return (
-    <div class={classNames('btn-menu', 'btn-menu-select', props.class)}>
+    <div class={clsx('btn-menu', 'btn-menu-select', props.class)}>
       <Show when={hasSearch}>
         <div class="btn-menu-item btn-menu-search">
           <IconTsx icon="search" class="btn-menu-item-icon" />

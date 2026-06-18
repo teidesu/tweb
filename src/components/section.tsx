@@ -1,6 +1,6 @@
 import { JSX, ParentComponent, Ref, splitProps } from 'solid-js';
 import { LangPackKey, FormatterArguments, i18n } from '@/lib/langPack';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import styles from '@/components/sectionRow.module.scss';
 
 export type SectionOptions = {
@@ -23,7 +23,7 @@ export type SectionOptions = {
 
 const SectionContent: ParentComponent<JSX.HTMLAttributes<HTMLDivElement>> = (props) => {
   return (
-    <div ref={props.ref} class={classNames(styles.content, props.class)}>
+    <div ref={props.ref} class={clsx(styles.content, props.class)}>
       {props.children}
     </div>
   );
@@ -41,12 +41,12 @@ const Section: ParentComponent<SectionOptions & JSX.HTMLAttributes<HTMLDivElemen
   const [, rest] = splitProps(props, ['name', 'nameRef', 'nameArgs', 'nameRight', 'innerClass', 'caption', 'captionArgs', 'captionOld', 'captionRef', 'noDelimiter', 'noShadow', 'class', 'contentProps']);
   return (
     <div
-      class={classNames(styles.container, props.class)}
+      class={clsx(styles.container, props.class)}
       ref={props.ref}
       {...rest}
     >
       <div
-        class={classNames(
+        class={clsx(
           styles.section,
           props.innerClass,
           props.noMarginBottom && styles.noMarginBottom

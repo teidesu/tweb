@@ -11,7 +11,7 @@ import { I18nTsx } from '@/helpers/solid/i18n';
 import { InputFieldTsx } from '@/components/inputFieldTsx';
 import { LangPackKey } from '@/lib/langPack';
 import ButtonTsx from '@/components/buttonTsx';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { AccountSentEmailCode, EmailVerifyPurpose, MessageEntity } from '@/layer';
 import appNavigationController, { NavigationItem } from '@/components/appNavigationController';
 import InputField, { InputState } from '@/components/inputField';
@@ -133,7 +133,7 @@ export function EnterEmailStep(props: {
         }}
       />
 
-      <div class={classNames(styles.footer, props.footerClass)}>
+      <div class={clsx(styles.footer, props.footerClass)}>
         <Animated type="cross-fade">
           <Show
             when={!error()}
@@ -145,7 +145,7 @@ export function EnterEmailStep(props: {
           >
             <div class={styles.buttonContainer}>
               <ButtonTsx
-                class={classNames(styles.button, 'btn-primary btn-color-primary')}
+                class={clsx(styles.button, 'btn-primary btn-color-primary')}
                 text="Continue"
                 disabled={loading()}
                 onClick={onSubmit}
@@ -246,7 +246,7 @@ export function EnterCodeStep(props: {
         onChange={() => setError(undefined)}
       />
 
-      <div class={classNames(styles.footer, props.footerClass)}>
+      <div class={clsx(styles.footer, props.footerClass)}>
         <Animated type="cross-fade">
           <Show
             when={!error()}
@@ -258,7 +258,7 @@ export function EnterCodeStep(props: {
           >
             <div class={styles.buttonContainer}>
               <ButtonTsx
-                class={classNames(styles.button, 'btn-primary btn-color-primary')}
+                class={clsx(styles.button, 'btn-primary btn-color-primary')}
                 text="Continue"
                 disabled={loading() || codeSignal[0]().length !== props.sentCode.length}
                 onClick={onSubmit}

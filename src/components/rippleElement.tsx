@@ -1,7 +1,7 @@
 import { createRenderEffect, createSignal, onCleanup, Ref, splitProps, ValidComponent } from 'solid-js';
 import { DynamicProps } from 'solid-js/web';
 import ripple from '@/components/ripple';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import Passthrough from '@/helpers/solid/passthrough';
 ripple; // keep
 
@@ -30,7 +30,7 @@ export default function RippleElement<T extends ValidComponent>(props: DynamicPr
     <Passthrough
       element={el}
       {...rest as any}
-      class={classNames(
+      class={clsx(
         local.class,
         !local.noRipple && 'rp',
         !local.noRipple && local.rippleSquare && 'rp-square',

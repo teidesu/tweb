@@ -6,7 +6,7 @@ import Space from '@/components/space';
 import getRichValueWithCaret from '@/helpers/dom/getRichValueWithCaret';
 import { I18nTsx } from '@/helpers/solid/i18n';
 import { useMaxLengthError } from '@/helpers/solid/useMaxLengthError';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
 import type SolidJSHotReloadGuardProvider from '@/lib/solidjs/hotReloadGuardProvider';
 import { createSignal, Show } from 'solid-js';
@@ -134,7 +134,7 @@ const QuestionAndDescription = () => {
     <>
       <SimpleFormField
         value={context!.store.question}
-        class={classNames(styles.flexFull, styles.formField)}
+        class={clsx(styles.flexFull, styles.formField)}
         withEndButtonIcon
         withMinHeight
         isError={questionError.hasError()}
@@ -159,7 +159,7 @@ const QuestionAndDescription = () => {
 
       <SimpleFormField
         value={context!.store.description}
-        class={classNames(styles.flexFull, styles.formField)}
+        class={clsx(styles.flexFull, styles.formField)}
         withEndButtonIcon
         withMinHeight
         isMarkupTooltipHost

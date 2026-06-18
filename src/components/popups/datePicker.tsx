@@ -1,6 +1,6 @@
 import PopupElement, { createPopup } from '@/components/popups/indexTsx';
 import { batch, createEffect, createMemo, createSignal, For, JSX, onCleanup, onMount, Show } from 'solid-js';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import mediaSizes from '@/helpers/mediaSizes';
 import I18n, { i18n, LangPackKey, FormatterArguments } from '@/lib/langPack';
 import { ButtonIconTsx } from '@/components/buttonIconTsx';
@@ -752,21 +752,21 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
             <Show when={showMultiSelectToggle}>
               <ButtonIconTsx
                 icon="select"
-                class={classNames('date-picker-multiselect', 'primary', multiSelectActive() && 'is-active')}
+                class={clsx('date-picker-multiselect', 'primary', multiSelectActive() && 'is-active')}
                 noRipple
                 onClick={toggleMultiSelect}
               />
             </Show>
             <ButtonIconTsx
               icon="up"
-              class={classNames('date-picker-prev', 'primary')}
+              class={clsx('date-picker-prev', 'primary')}
               noRipple
               disabled={isPrevDisabled()}
               onClick={onPrev}
             />
             <ButtonIconTsx
               icon="down"
-              class={classNames('date-picker-next', 'primary')}
+              class={clsx('date-picker-next', 'primary')}
               noRipple
               disabled={isNextDisabled()}
               onClick={onNext}
@@ -795,7 +795,7 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
                 </div>
                 <div class="date-picker-weekdays">
                   <For each={weekdayInfo}>{(info) => (
-                    <div class={classNames('date-picker-weekday', info.weekend && 'danger')}>{info.name}</div>
+                    <div class={clsx('date-picker-weekday', info.weekend && 'danger')}>{info.name}</div>
                   )}</For>
                 </div>
                 <div class="date-picker-month-grid">
@@ -815,7 +815,7 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
 
                     return (
                       <button
-                        class={classNames(
+                        class={clsx(
                           'btn-icon',
                           'date-picker-month-date',
                           selected() && 'active',
@@ -854,7 +854,7 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
         </Show>
 
         <Show when={opts.minTimeDate}>
-          <div class={classNames(
+          <div class={clsx(
             suggestPostStyles.Caption,
             suggestPostStyles.center,
             !isMinTimeCaptionVisible() && 'hide'
@@ -870,7 +870,7 @@ export default function showDatePickerPopup(opts: DatePickerPopupOptions): void 
         <PopupElement.Footer>
           <PopupElement.FooterButton
             color={confirmColor()}
-            class={classNames(opts.btnConfirmLangKey && 'text-uppercase')}
+            class={clsx(opts.btnConfirmLangKey && 'text-uppercase')}
             disabled={isConfirmDisabled()}
             callback={onConfirm}
           >

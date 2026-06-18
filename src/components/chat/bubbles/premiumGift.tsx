@@ -7,7 +7,7 @@ import { RLottieOptions } from '@/lib/rlottie/rlottiePlayer';
 
 import styles from '@/components/chat/bubbles/premiumGift.module.scss';
 import stylesCommon from '@/components/chat/bubbles/service.module.scss';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { MyDocument } from '@/lib/appManagers/appDocsManager';
 import { StickerTsx } from '@/components/wrappers/sticker';
 
@@ -21,7 +21,7 @@ export function PremiumGiftBubble(props: {
   rlottieOptions?: Partial<RLottieOptions>
 }) {
   return (
-    <div class={/* @once */ classNames(styles.bubble, stylesCommon.addon)}>
+    <div class={/* @once */ clsx(styles.bubble, stylesCommon.addon)}>
       {props.sticker && (
         <StickerTsx
           sticker={props.sticker}

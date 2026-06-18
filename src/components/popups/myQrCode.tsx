@@ -21,7 +21,7 @@ import roundRect from '@/helpers/canvas/roundRect';
 import getPeerActiveUsernames from '@/lib/appManagers/utils/peers/getPeerActiveUsernames';
 import { toastNew } from '@/components/toast';
 import { copyTextToClipboard } from '@/helpers/clipboard';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { BaseTheme, Chat, Theme, User, WallPaper } from '@/layer';
 import { AppTheme, DEFAULT_THEME } from '@/config/state';
 import { useAppSettings } from '@/stores/appSettings';

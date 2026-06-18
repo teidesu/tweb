@@ -1,7 +1,7 @@
 import { Accessor, createEffect, createMemo, createResource, createSignal, JSX } from 'solid-js';
 import Animated from '@/helpers/solid/animations';
 import createMiddleware from '@/helpers/solid/createMiddleware';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import rootScope from '@/lib/rootScope';
 import wrapSticker from '@/components/wrappers/sticker';
 import { fireMessageEffect } from '@/components/chat/messageRender';
@@ -54,7 +54,7 @@ export default function SelectedEffect(props: {
   });
 
   return (
-    <div class={classNames('btn-send-effect-container', element() && 'is-visible')}>
+    <div class={clsx('btn-send-effect-container', element() && 'is-visible')}>
       <Animated type="cross-fade">
         {lastElement()}
       </Animated>

@@ -1,7 +1,7 @@
 import PopupElement, { createPopup, PopupContext } from '@/components/popups/indexTsx';
 import { createEffect, createSignal, JSX, onCleanup, Show, untrack, useContext } from 'solid-js';
 import documentFragmentToNodes from '@/helpers/dom/documentFragmentToNodes';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import usePeerTranslation from '@/hooks/usePeerTranslation';
 import { Message, TextWithEntities } from '@/layer';
 import { i18n } from '@/lib/langPack';
@@ -50,7 +50,7 @@ export default function showTranslatePopup(options: {
       const ret = (
         <div
           ref={div!}
-          class={classNames('popup-translate-text', 'spoilers-container', props.limited && 'is-limited')}
+          class={clsx('popup-translate-text', 'spoilers-container', props.limited && 'is-limited')}
           dir="auto"
         >
           {props.children}

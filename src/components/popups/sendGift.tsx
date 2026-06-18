@@ -10,7 +10,7 @@ import paymentsWrapCurrencyAmount from '@/helpers/paymentsWrapCurrencyAmount';
 import PopupStars, { StarsBalance, StarsStar } from '@/components/popups/stars';
 import LottieAnimation from '@/components/lottieAnimation';
 import lottieLoader from '@/lib/rlottie/lottieLoader';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { StarGiftsGrid } from '@/components/stargifts/stargiftsGrid';
 import { fastRaf } from '@/helpers/schedulers';
 import PopupStarGiftInfo from '@/components/popups/starGiftInfo';
@@ -264,7 +264,7 @@ function GiftOptionsPage(props: {
           value={category()}
           onChange={handleCategoryChanged}
           view={isPinned() ? 'secondary' : 'surface'}
-          class={classNames(styles.categoriesContainer, isPinned() && styles.categoriesContainerPinned)}
+          class={clsx(styles.categoriesContainer, isPinned() && styles.categoriesContainerPinned)}
           ref={categoriesContainer}
           center
         >

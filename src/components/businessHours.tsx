@@ -6,7 +6,7 @@ import Row from '@/components/row';
 import I18n, { i18n } from '@/lib/langPack';
 import { getWeekDays, ONE_DAY_MINUTES, ONE_WEEK_MINUTES } from '@/helpers/date';
 import rotateArray from '@/helpers/array/rotate';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import findUpAsChild from '@/helpers/dom/findUpAsChild';
 import ListenerSetter from '@/helpers/listenerSetter';
 import { copyTextToClipboard } from '@/helpers/clipboard';
@@ -35,7 +35,7 @@ export default function BusinessHours(props: {
     titleRight: (
       <span
         ref={switchElement!}
-        class={classNames('business-hours-switch-time', showInMyTimezone() === undefined && 'hide')}
+        class={clsx('business-hours-switch-time', showInMyTimezone() === undefined && 'hide')}
       >
         {showInMyTimezone() !== undefined && i18n(showInMyTimezone() ? 'BusinessHoursProfileSwitchMy' : 'BusinessHoursProfileSwitchLocal')}
       </span>

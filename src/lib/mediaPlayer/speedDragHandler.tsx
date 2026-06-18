@@ -8,7 +8,7 @@ import clamp from '@/helpers/number/clamp';
 import { IS_MOBILE } from '@/environment/userAgent';
 
 import { i18n } from '@/lib/langPack';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 
 type SpeedDragHandlerProps = {
   video: HTMLVideoElement;
@@ -276,7 +276,7 @@ function areSpeedsEqual(a: number, b: number) {
 
 function SpeedArrowRight(props: {class?: string}) {
   return (
-    <svg class={classNames('speed-drag-handler__speed-arrow-right', props.class)} width="8" height="11" viewBox="0 0 8 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg class={clsx('speed-drag-handler__speed-arrow-right', props.class)} width="8" height="11" viewBox="0 0 8 11" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path opacity="0.7" d="M0 1.5V9.5C0 10.324 0.940764 10.7944 1.6 10.3L6.93333 6.3C7.46667 5.9 7.46667 5.1 6.93333 4.7L1.6 0.7C0.940764 0.205573 0 0.675955 0 1.5Z" fill="currentColor"/>
     </svg>
   );

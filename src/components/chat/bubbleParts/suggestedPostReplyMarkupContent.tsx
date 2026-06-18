@@ -1,5 +1,4 @@
 import { numberThousandSplitterForStars } from '@/helpers/number/numberThousandSplitter';
-import classNames from '@/helpers/string/classNames';
 import { Message } from '@/layer';
 import { i18n } from '@/lib/langPack';
 import { SUGGESTED_POST_WAIT_FOR_REWARD_HOURS } from '@/lib/appManagers/constants';

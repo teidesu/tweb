@@ -1,4 +1,4 @@
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { JSX, splitProps } from 'solid-js';
 import styles from './staticCheckbox.module.scss';
 
@@ -26,7 +26,7 @@ export const StaticCheckbox = (inProps: StaticCheckboxProps) => {
 
   return (
     <div
-      class={classNames(styles.Checkbox, props.class)}
+      class={clsx(styles.Checkbox, props.class)}
       classList={{
         [styles.checked]: props.checked,
         [styles.round]: props.round,

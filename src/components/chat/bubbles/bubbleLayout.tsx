@@ -1,5 +1,5 @@
 import { createEffect, createResource, JSX, on } from 'solid-js';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { MessageEntity, ReplyMarkup } from '@/layer';
 import { generateTail } from '@/components/chat/utils';
 import { I18nTsx } from '@/helpers/solid/i18n';
@@ -44,7 +44,7 @@ export function BubbleLayout(props: {
 
   return (
     <div
-      class={classNames(
+      class={clsx(
         'bubble',
         props.tail && 'can-have-tail',
         props.out && 'is-out',
@@ -66,7 +66,7 @@ export function BubbleLayout(props: {
             </div>
           ) : (
             <div
-              class={classNames(
+              class={clsx(
                 'name floating-part',
                 !props.attachment && 'next-is-message'
               )}
@@ -77,7 +77,7 @@ export function BubbleLayout(props: {
           )}
           {props.attachment}
           {(props.text || props.content) && (
-            <div class={classNames('message spoilers-container', props.attachment && 'mt-shorter')}>
+            <div class={clsx('message spoilers-container', props.attachment && 'mt-shorter')}>
               {props.content ?? wrapRichText(props.text!, { entities: props.textEntities })}
             </div>
           )}

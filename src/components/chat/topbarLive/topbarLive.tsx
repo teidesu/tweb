@@ -7,7 +7,7 @@ import '@/components/chat/topbarLive/topbarLive.scss';
 import { i18n } from '@/lib/langPack';
 import Button from '@/components/buttonTsx';
 import { JSX } from 'solid-js';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 
 export const TopbarLive = (props: {
   watching: number,
@@ -29,10 +29,10 @@ export const TopbarLive = (props: {
     <>
       <Button.Icon icon="livestream" class="danger disable-hover" />
       <div class={cnTopbarLive('-content')}>
-        <div class={classNames(cnTopbarLive('-title'), 'primary', 'text-bold')}>
+        <div class={clsx(cnTopbarLive('-title'), 'primary', 'text-bold')}>
           {i18n('Rtmp.Topbar.Title')}
         </div>
-        <div class={classNames(cnTopbarLive('-subtitle'), 'secondary')}>
+        <div class={clsx(cnTopbarLive('-subtitle'), 'secondary')}>
           {subtitle}
         </div>
       </div>

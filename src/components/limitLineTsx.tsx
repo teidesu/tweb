@@ -4,7 +4,7 @@ import { doubleRaf } from '@/helpers/schedulers'
 import liteMode from '@/helpers/liteMode'
 import { animateSingle } from '@/helpers/animation'
 import { easeInOutSineApply } from '@/helpers/easing/easeInOutSine'
-import classNames from '@/helpers/string/classNames'
+import clsx from 'clsx'
 import clamp from '@/helpers/number/clamp'
 import styles from '@/components/limitLineTsx.module.scss';
 import RangeSelector from '@/components/rangeSelector'
@@ -144,11 +144,11 @@ export function LimitLineTsx(props: {
     line = (
       <div class={styles.line}>
         <Show when={props.progressFrom || props.progressTo}>
-          <div class={classNames(styles.linePart, props.progressClass)}>
+          <div class={clsx(styles.linePart, props.progressClass)}>
             {props.progressFrom}
             {props.progressTo}
           </div>
-          <div class={classNames(`${styles.linePart} ${styles.lineFilled}`, props.progressFilledClass)}>
+          <div class={clsx(`${styles.linePart} ${styles.lineFilled}`, props.progressFilledClass)}>
             {props.progressFrom}
             {props.progressTo}
           </div>
@@ -181,7 +181,7 @@ export function LimitLineTsx(props: {
 
   return (
     <div
-      class={classNames(
+      class={clsx(
         styles.container,
         props.hintJustIcon && styles.justIcon,
         ('hint' in props || props.hintIcon) && styles.hasHint,
@@ -193,7 +193,7 @@ export function LimitLineTsx(props: {
     >
       <Show when={'hint' in props || props.hintIcon}>
         <div
-          class={classNames(styles.hint, hintActive() && styles.active)}
+          class={clsx(styles.hint, hintActive() && styles.active)}
           ref={hintRef}
         >
           {props.hintIcon && <IconTsx icon={props.hintIcon} class={styles.hintIcon} />}

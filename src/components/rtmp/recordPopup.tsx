@@ -12,7 +12,7 @@ import imgVideoHorizontal from '@/components/rtmp/assets/videoHorizontal.svg';
 
 import { Transition } from 'solid-transition-group';
 import { Ripple } from '@/components/rippleTsx';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { CallRecordParams } from '@/lib/appManagers/appGroupCallsManager';
 import { toastNew } from '@/components/toast';
 import rtmpCallsController from '@/lib/calls/rtmpCallsController';
@@ -118,7 +118,7 @@ const RtmpRecordPopupContent = (props: RtmpRecordPopupContentProps) => {
               <img
                 src={imgRecordAudio}
                 alt={i18n('Rtmp.RecordPopup.RecordAudio').innerText}
-                class={classNames(cnPopup('-preview-img'), cnPopup('-preview-img_audio'))}
+                class={clsx(cnPopup('-preview-img'), cnPopup('-preview-img_audio'))}
               />
               <div class={cnPopup('-preview-title')}>
                 {i18n('Rtmp.RecordPopup.RecordAudioHint')}

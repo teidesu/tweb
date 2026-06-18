@@ -1,4 +1,4 @@
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { MyDocument } from '@/lib/appManagers/appDocsManager';
 import { MyStarGift } from '@/lib/appManagers/appGiftsManager';
 import { AvatarNewTsx } from '@/components/avatarNew';
@@ -13,7 +13,7 @@ export function StarGiftTransferPreview(props: {
   recipient: PeerId
 }) {
   return (
-    <div class={classNames(styles.graph, props.class)}>
+    <div class={clsx(styles.graph, props.class)}>
       <div class={/* @once */ styles.giftWrap}>
         <StarGiftBackdrop
           backdrop={props.gift.collectibleAttributes?.backdrop!}

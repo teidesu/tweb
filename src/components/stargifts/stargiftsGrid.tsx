@@ -9,7 +9,7 @@ import SuperStickerRenderer from '@/components/emoticonsDropdown/tabs/SuperStick
 import rootScope from '@/lib/rootScope';
 
 import styles from '@/components/stargifts/stargiftsGrid.module.scss';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { StarGiftBadge } from '@/components/stargifts/stargiftBadge';
 import { StarGiftBackdrop } from '@/components/stargifts/stargiftBackdrop';
 import { MyDocument } from '@/lib/appManagers/appDocsManager';
@@ -183,7 +183,7 @@ function StarGiftGridItem(props: {
 
   return (
     <div
-      class={/* @once */ classNames(
+      class={/* @once */ clsx(
         styles.gridItem,
         {
           profile: styles.viewProfile,
@@ -376,7 +376,7 @@ export function StarGiftsGrid(props: {
   });
 
   return (
-    <div class={classNames(styles.grid, props.class)}>
+    <div class={clsx(styles.grid, props.class)}>
       <For each={props.items}>
         {(item) => (
           <StarGiftGridItem

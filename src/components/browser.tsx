@@ -6,7 +6,7 @@ import getTextWidth from '@/helpers/canvas/getTextWidth';
 import { FontFull, FontFullBold } from '@/config/font';
 import { createStore, reconcile, unwrap } from 'solid-js/store';
 import untrackActions from '@/helpers/solid/untrackActions';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import Scrollable from '@/components/scrollable2';
 import fastSmoothScroll from '@/helpers/fastSmoothScroll';
 import { IconTsx } from '@/components/iconTsx';
@@ -78,7 +78,7 @@ type BrowserPageProps<T = {}> = T & {
 
 function BrowserHeaderTipSvg(props: {left?: boolean, right?: boolean}) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class={classNames(styles.BrowserHeaderSelectorTail, props.left ? styles.left : styles.right)}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class={clsx(styles.BrowserHeaderSelectorTail, props.left ? styles.left : styles.right)}>
       <path fill-rule="evenodd" clip-rule="evenodd" d="M16 16V0C16 8.83656 8.83656 16 0 16H16Z" fill="var(--surface-color)"/>
     </svg>
   );
@@ -86,7 +86,7 @@ function BrowserHeaderTipSvg(props: {left?: boolean, right?: boolean}) {
 
 function BrowserHeaderButton(props: Parameters<typeof ButtonIconTsx>[0]) {
   return (
-    <ButtonIconTsx {...props} class={classNames(styles.BrowserHeaderButton, props.class)} noRipple />
+    <ButtonIconTsx {...props} class={clsx(styles.BrowserHeaderButton, props.class)} noRipple />
   );
 }
 
@@ -115,7 +115,7 @@ function BrowserHeaderTab(props: {
   return (
     <div
       ref={props.ref}
-      class={classNames(
+      class={clsx(
         styles.BrowserHeaderTab,
         isActive() && styles.active,
         state.pages.indexOf(props.page) === 0 && styles.first
@@ -131,17 +131,17 @@ function BrowserHeaderTab(props: {
         <span class={styles.BrowserHeaderTabIconInner}>{props.page.icon}</span>
         <IconTsx
           icon="more"
-          class={classNames(styles.BrowserHeaderTabHover, styles.BrowserHeaderTabMore)}
+          class={clsx(styles.BrowserHeaderTabHover, styles.BrowserHeaderTabMore)}
           onClick={props.openPageMenu}
         />
       </BrowserHeaderButton>
       <div dir="auto" class={styles.BrowserHeaderTabTitle}>
         {documentFragmentToNodes(wrapEmojiText(props.page.title))}
       </div>
-      <div class={classNames(styles.BrowserHeaderTabHover, styles.BrowserHeaderTabMask)}></div>
+      <div class={clsx(styles.BrowserHeaderTabHover, styles.BrowserHeaderTabMask)}></div>
       <ButtonIconTsx
         icon="close"
-        class={classNames(styles.BrowserHeaderTabHover, styles.BrowserHeaderTabClose)}
+        class={clsx(styles.BrowserHeaderTabHover, styles.BrowserHeaderTabClose)}
         noRipple
         onClick={(e) => {
           e.stopPropagation();
@@ -253,10 +253,10 @@ function BrowserHeader(props: {
           }
         }}
       >
-        <div class={classNames('animated-close-icon', needBackButton() && 'state-back')}></div>
+        <div class={clsx('animated-close-icon', needBackButton() && 'state-back')}></div>
       </BrowserHeaderButton>
       <Scrollable
-        class={classNames(styles.BrowserHeaderTabsScrollable, state.collapsed && 'disable-hover')}
+        class={clsx(styles.BrowserHeaderTabsScrollable, state.collapsed && 'disable-hover')}
         axis="x"
         ref={scrollableRef!}
         withBorders="manual"
@@ -286,7 +286,7 @@ function BrowserHeader(props: {
             </For>
           </Animated>
           <BrowserHeaderButton
-            class={classNames(styles.BrowserHeaderTabIcon, styles.BrowserHeaderNewButton)}
+            class={clsx(styles.BrowserHeaderTabIcon, styles.BrowserHeaderNewButton)}
             onClick={() => openCatalogueInAppBrowser()}
           >
             <span class={styles.BrowserHeaderTabIconInner}><IconTsx icon="plus" /></span>
@@ -553,7 +553,7 @@ function Browser(props: {
 
   let ref: HTMLDivElement;
   const main = (
-    <div ref={ref!} class={classNames(styles.Browser, state.collapsed && styles.collapsed, 'movable-element')}>
+    <div ref={ref!} class={clsx(styles.Browser, state.collapsed && styles.collapsed, 'movable-element')}>
       <BrowserHeader />
       <div
         class={styles.BrowserBody}
@@ -566,7 +566,7 @@ function Browser(props: {
         <For each={state.pages}>{(page) => {
           return (
             <div
-              class={classNames(
+              class={clsx(
                 styles.BrowserPage,
                 state.page !== page && 'hide'
               )}
@@ -843,7 +843,7 @@ export async function openCatalogueInAppBrowser() {
 
     const children = (items: Accessor<JSX.Element>, folded?: Accessor<boolean>) => {
       return (
-        <div class={classNames(styles.BrowserCatalogueList, folded?.() && styles.folded)}>{items()}</div>
+        <div class={clsx(styles.BrowserCatalogueList, folded?.() && styles.folded)}>{items()}</div>
       );
     };
 
@@ -1147,10 +1147,10 @@ export function openInstantViewInAppBrowser({
       },
       menuButtons: [{
         element: (
-          <span class={classNames('btn-menu-item', styles.ScaleMenu)}>
-            <span class={classNames(styles.ScaleMenuSmaller, 'hover-effect')} onClick={changeScale.bind(null, false)}>A</span>
+          <span class={clsx('btn-menu-item', styles.ScaleMenu)}>
+            <span class={clsx(styles.ScaleMenuSmaller, 'hover-effect')} onClick={changeScale.bind(null, false)}>A</span>
             <span class={styles.ScaleMenuScale}>{Math.round(appSettings.instantView.scale * 100) + '%'}</span>
-            <span class={classNames(styles.ScaleMenuBigger, 'hover-effect')} onClick={changeScale.bind(null, true)}>A</span>
+            <span class={clsx(styles.ScaleMenuBigger, 'hover-effect')} onClick={changeScale.bind(null, true)}>A</span>
           </span>
         ) as HTMLElement,
         onClick: () => {},

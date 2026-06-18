@@ -2,7 +2,7 @@ import { Accessor, createEffect, createMemo } from 'solid-js';
 import { render } from 'solid-js/web';
 
 import styles from './preview.module.scss';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 
 export type StoryboardFrame = {
   time: number, // * frame time in seconds (float)
@@ -59,7 +59,7 @@ function Preview(props: PreviewProps) {
   return (
     <canvas
       ref={canvasRef!}
-      // class={classNames(styles.PreviewCanvas, props.visible() && styles.Visible)}
+      // class={clsx(styles.PreviewCanvas, props.visible() && styles.Visible)}
       width={props.storyboard()?.frameWidth}
       height={props.storyboard()?.frameHeight}
       style={props.storyboard() && {

@@ -1,7 +1,7 @@
 import { createContext, createEffect, JSX, on, onCleanup, onMount, Ref, useContext } from 'solid-js';
 
 import styles from '@/components/chipTabs.module.scss';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import findUpClassName from '@/helpers/dom/findUpClassName';
 import { fastRaf } from '@/helpers/schedulers';
 import getVisibleRect from '@/helpers/dom/getVisibleRect';
@@ -28,7 +28,7 @@ export function ChipTab(props: {
   onCleanup(() => fastRaf(ctx!.updateCurrent));
   return (
     <div
-      class={classNames(styles.chip, ctx!.value === props.value && styles.active, props.class)}
+      class={clsx(styles.chip, ctx!.value === props.value && styles.active, props.class)}
       onClick={(event: MouseEvent) => ctx!.onClick(event, props.value)}
       data-value={props.value}
     >
@@ -144,7 +144,7 @@ export function ChipTabs(props: {
       }}
     >
       <div
-        class={classNames(
+        class={clsx(
           props.class,
           styles.container,
           styles[props.view],

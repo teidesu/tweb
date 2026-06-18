@@ -1,5 +1,5 @@
 import { useSimpleFormFieldContext } from '@/components/simpleFormField';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { splitProps } from 'solid-js';
 import { EmojiDropdownButton, EmojiDropdownButtonProps } from './emojiDropdownButton';
 import styles from './styles.module.scss';
@@ -13,7 +13,7 @@ export const EmojiButtonWithOpacity = (inProps: Omit<EmojiDropdownButtonProps, '
 
   return (
     <EmojiDropdownButton
-      class={classNames(props.class, styles.emojiDropdownButton, forceFocused() && styles.forceFocused)}
+      class={clsx(props.class, styles.emojiDropdownButton, forceFocused() && styles.forceFocused)}
       {...restProps}
       onToggle={setForceFocused}
     />

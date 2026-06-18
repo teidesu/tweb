@@ -26,7 +26,7 @@ import TelegramWebView from '@/components/telegramWebView';
 import wrapAttachBotIcon from '@/components/wrappers/attachBotIcon';
 import getPeerTitle from '@/components/wrappers/getPeerTitle';
 import wrapPeerTitle from '@/components/wrappers/peerTitle';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { render } from 'solid-js/web';
 import { attachClassName } from '@/helpers/solid/classname';
 import PopupWebAppEmojiStatusAccess from '@/components/popups/webAppEmojiStatusAccess';
@@ -206,7 +206,7 @@ export default class WebApp {
       secondaryButtonRef!.style.setProperty('--text-color', state.text_color);
     };
 
-    attachClassName(this.footer, () => classNames(
+    attachClassName(this.footer, () => clsx(
       'web-app-footer',
       (mainButtonState().is_visible || secondaryButtonState().is_visible) && 'is-visible',
       (mainButtonState().is_visible && secondaryButtonState().is_visible) && `has-two-buttons position-${secondaryButtonState().position}`,
@@ -243,7 +243,7 @@ export default class WebApp {
       <>
         <ButtonTsx
           ref={secondaryButtonRef!}
-          class={classNames(
+          class={clsx(
             'btn-primary',
             'btn-color-primary',
             'web-app-button',
@@ -259,7 +259,7 @@ export default class WebApp {
         </ButtonTsx>
         <ButtonTsx
           ref={mainButtonRef!}
-          class={classNames(
+          class={clsx(
             'btn-primary',
             'web-app-button',
             'btn-color-primary',

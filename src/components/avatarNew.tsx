@@ -25,7 +25,7 @@ import getPeerInitials from '@/components/wrappers/getPeerInitials';
 import liteMode from '@/helpers/liteMode';
 import renderImageFromUrl, { renderImageFromUrlPromise } from '@/helpers/dom/renderImageFromUrl';
 import getPreviewURLFromBytes from '@/helpers/bytes/getPreviewURLFromBytes';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { wrapTopicIcon } from '@/components/wrappers/messageActionTextNewUnsafe';
 import { Modify } from '@/types';
 import documentFragmentToNodes from '@/helpers/dom/documentFragmentToNodes';
@@ -538,7 +538,7 @@ export const AvatarNew = (props: {
     const animate = !cached && liteMode.isAvailable('animations') && !props.noFadeIn;
     let image: HTMLImageElement;
     const element = image = document.createElement('img');
-    element.className = classNames('avatar-photo', animate && 'fade-in');
+    element.className = clsx('avatar-photo', animate && 'fade-in');
 
     let renderThumbPromise: Promise<void>;
     let callback: () => void;

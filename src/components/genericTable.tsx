@@ -1,6 +1,6 @@
 import { For, JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import styles from '@/components/genericTable.module.scss';
 
 export type GenericTableCell = {
@@ -25,9 +25,9 @@ export default function GenericTable(props: {
   class?: string;
 }) {
   return (
-    <div class={classNames(styles.wrapper, 'no-scrollbar')}>
+    <div class={clsx(styles.wrapper, 'no-scrollbar')}>
       <table
-        class={classNames(
+        class={clsx(
           styles.genericTable,
           props.bordered && styles.bordered,
           props.class
@@ -39,7 +39,7 @@ export default function GenericTable(props: {
         <tbody>
           <For each={props.rows}>{(row, idx) => (
             <tr
-              class={classNames(
+              class={clsx(
                 styles.genericRow,
                 props.striped && !(idx() % 2) && styles.striped
               )}
@@ -49,7 +49,7 @@ export default function GenericTable(props: {
                   component={cell.header ? 'th' : 'td'}
                   colSpan={cell.colspan}
                   rowSpan={cell.rowspan}
-                  class={classNames(
+                  class={clsx(
                     cell.header ? styles.genericHeaderCell : styles.genericCell,
                     cell.alignCenter && styles.cellAlignCenter,
                     cell.alignRight && styles.cellAlignRight,

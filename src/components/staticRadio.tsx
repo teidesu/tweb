@@ -1,5 +1,5 @@
 import styles from '@/components/staticRadio.module.scss';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { JSX, splitProps } from 'solid-js';
 
 
@@ -11,7 +11,7 @@ const StaticRadio = (inProps: {
   const [props, spanProps] = splitProps(inProps, ['checked', 'floating', 'class', 'classList']);
 
   return <span
-    class={classNames(styles.Radio, props.class)}
+    class={clsx(styles.Radio, props.class)}
     classList={{
       [styles.checked]: props.checked,
       [styles.floating]: props.floating,

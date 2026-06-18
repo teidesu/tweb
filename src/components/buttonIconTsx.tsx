@@ -1,5 +1,5 @@
 import { JSX, splitProps } from 'solid-js';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import Icon from '@/components/icon';
 import ripple from '@/components/ripple';
 
@@ -9,7 +9,7 @@ export const ButtonIconTsx = (props: {icon?: Icon, noRipple?: boolean} & JSX.But
   const btn = (
     <button
       {...rest}
-      class={classNames('btn-icon', props.class)}
+      class={clsx('btn-icon', props.class)}
       tabIndex={-1}
     >
       {props.icon && Icon(props.icon)}

@@ -44,7 +44,7 @@ import Icon from '@/components/icon';
 import PopupStarGiftWear from '@/components/popups/starGiftWear';
 import { setQuizHint } from '@/components/quizHint';
 import createStarGiftUpgradePopup from '@/components/popups/starGiftUpgrade';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import PopupPayment from '@/components/popups/payment';
 import { StarGiftUpgradePreview } from '@/lib/appManagers/appGiftsManager';
 import { rgbIntToHex } from '@/helpers/color';
@@ -869,7 +869,7 @@ export default class PopupStarGiftInfo extends PopupElement {
         }
 
         return (
-          <div class={classNames('popup-star-gift-info-original', saved?.drop_original_details_stars && 'has-delete')}>
+          <div class={clsx('popup-star-gift-info-original', saved?.drop_original_details_stars && 'has-delete')}>
             <I18nTsx key={key} args={args} />
             {saved?.drop_original_details_stars && (
               <ButtonIconTsx

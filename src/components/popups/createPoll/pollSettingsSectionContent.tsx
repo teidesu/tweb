@@ -15,7 +15,7 @@ import pause from '@/helpers/schedulers/pause';
 import { HeightTransition } from '@/helpers/solid/heightTransition';
 import { I18nTsx } from '@/helpers/solid/i18n';
 import { requestRAF } from '@/helpers/solid/requestRAF';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { useIsCleaned } from '@/hooks/useIsCleaned';
 import { oneDayInSeconds, oneHourInSeconds, oneWeekInSeconds } from '@/lib/constants';
 import { LangPackKey } from '@/lib/langPack';
@@ -219,7 +219,7 @@ export const PollSettingsSectionContent = () => {
 
             <SimpleFormField
               value={context!.store.explanation}
-              class={classNames(styles.flexFull, styles.formField)}
+              class={clsx(styles.flexFull, styles.formField)}
               withEndButtonIcon
               withMinHeight
               isMarkupTooltipHost

@@ -4,7 +4,7 @@ import { TextWithEntities } from '@/layer';
 import wrapEmojiText from '@/lib/richTextProcessor/wrapEmojiText';
 import InputField, { InputFieldOptions } from '@/components/inputField';
 import createEmojiDropdownButton from '@/components/emojiDropdownButton';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import styles from '@/components/inputFieldEmoji.module.scss';
 import cloneDOMRect from '@/helpers/dom/cloneDOMRect';
 
@@ -20,7 +20,7 @@ export class InputFieldEmoji extends InputField {
 
     const { button, dispose } = createEmojiDropdownButton({
       inputField: this as InputField,
-      class: classNames(
+      class: clsx(
         styles.EmojiButton,
         this.options.withLinebreaks && styles.multiline
       ),

@@ -3,7 +3,7 @@ import PopupElement from '@/components/popups/indexTsx';
 import Row from '@/components/rowTsx';
 import { createPopup } from '@/components/popups/indexTsx';
 import styles from '@/components/popups/featureDetails.module.scss';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import MediaHeader, { MediaHeaderStickerProps } from '@/components/mediaHeader';
 
 interface FeatureDetailsRow {
@@ -60,7 +60,7 @@ export default function showFeatureDetailsPopup(props: FeatureDetailsPopupProps)
         </MediaHeader>
         <For each={props.rows}>{({ icon, title, subtitle }) => (
           <Row class={styles.row}>
-            <Row.Icon class={classNames('primary', styles.rowIcon)} icon={icon} />
+            <Row.Icon class={clsx('primary', styles.rowIcon)} icon={icon} />
             <Row.Title class="text-bold">{title}</Row.Title>
             <Row.Subtitle class={styles.rowSubtitle}>{subtitle}</Row.Subtitle>
           </Row>

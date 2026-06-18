@@ -4,7 +4,7 @@ import { Middleware } from '@/helpers/middleware';
 import { AvatarNewTsx } from '@/components/avatarNew';
 import { PeerTitleTsx } from '@/components/peerTitleTsx';
 import { wrapReactionIcon } from '@/components/popups/reactedList';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import styles from './reactedListSubmenu.module.scss';
 
 export type ReactedListSubmenuEntry = {
@@ -27,7 +27,7 @@ export default function ReactedListSubmenu(props: {
   class?: string
 }) {
   return (
-    <div class={/* @once */ classNames('btn-menu', styles.submenu, props.class)}>
+    <div class={/* @once */ clsx('btn-menu', styles.submenu, props.class)}>
       <For each={props.entries}>
         {(entry) => (
           <div

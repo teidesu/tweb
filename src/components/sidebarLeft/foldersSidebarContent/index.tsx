@@ -6,7 +6,7 @@ import { keepMe } from '@/helpers/keepMe';
 import { Middleware } from '@/helpers/middleware';
 import pause from '@/helpers/schedulers/pause';
 import Animated from '@/helpers/solid/animations';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { logger, LogTypes } from '@/lib/logger';
 import { REAL_FOLDERS } from '@/lib/appManagers/constants';
 import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
@@ -134,7 +134,7 @@ export function FoldersSidebarContent(props: {
   let openingChatFolders = false;
   return (
     <>
-      <div class={classNames(
+      <div class={clsx(
         'folders-sidebar__background',
         !hasGradient() && 'folders-sidebar__background--no-gradient',
         isDarkPattern() && 'folders-sidebar__background--dark-pattern'

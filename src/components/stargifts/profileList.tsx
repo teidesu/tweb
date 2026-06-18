@@ -9,7 +9,7 @@ import CheckboxField from '@/components/checkboxField';
 import { AnimationList } from '@/helpers/solid/animationList';
 import { ChipTab, ChipTabs } from '@/components/chipTabs';
 import { I18nTsx } from '@/helpers/solid/i18n';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { StickerTsx } from '@/components/wrappers/sticker';
 import { MyDocument } from '@/lib/appManagers/appDocsManager';
 import wrapEmojiText from '@/lib/richTextProcessor/wrapEmojiText';
@@ -348,7 +348,7 @@ export function StarGiftsProfileTab(props: {
   })
 
   const render = (
-    <div class={classNames(styles.tab, store.hasCollections && styles.hasCollections)}>
+    <div class={clsx(styles.tab, store.hasCollections && styles.hasCollections)}>
       <Show when={store.hasCollections}>
         <ChipTabs
           class={/* @once */ styles.collections}

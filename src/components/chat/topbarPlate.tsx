@@ -25,7 +25,7 @@
 
 import { Accessor, createContext, createSignal, JSX, onCleanup, Ref, useContext } from 'solid-js';
 import { render } from 'solid-js/web';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import ripple from '@/components/ripple';
 import Button from '@/components/buttonTsx';
 import RippleElement from '@/components/rippleElement';
@@ -55,7 +55,7 @@ const TopbarPlate = (props: {
     <PlateContext.Provider value={{ modifier: props.modifier }}>
       <div
         ref={props.ref}
-        class={classNames(
+        class={clsx(
           BASE,
           `pinned-${props.modifier}`,
           props.hidden && 'hide',
@@ -80,7 +80,7 @@ TopbarPlate.Body = (props: {
     <RippleElement
       component="div"
       noRipple={props.noRipple}
-      class={classNames(baseCls('wrapper'), modCls(modifier, 'wrapper'), props.class)}
+      class={clsx(baseCls('wrapper'), modCls(modifier, 'wrapper'), props.class)}
       onClick={props.onClick}
     >
       {props.children}
@@ -98,7 +98,7 @@ TopbarPlate.Content = (props: {
     <RippleElement
       component="div"
       noRipple={!props.ripple}
-      class={classNames(baseCls('content'), modCls(modifier, 'content'), props.class)}
+      class={clsx(baseCls('content'), modCls(modifier, 'content'), props.class)}
     >
       {props.children}
     </RippleElement>
@@ -111,7 +111,7 @@ TopbarPlate.Title = (props: {
 }) => {
   const modifier = useModifier();
   return (
-    <div class={classNames(baseCls('title'), modCls(modifier, 'title'), props.class)}>
+    <div class={clsx(baseCls('title'), modCls(modifier, 'title'), props.class)}>
       {props.children}
     </div>
   );
@@ -123,7 +123,7 @@ TopbarPlate.Subtitle = (props: {
 }) => {
   const modifier = useModifier();
   return (
-    <div class={classNames(baseCls('subtitle'), modCls(modifier, 'subtitle'), props.class)}>
+    <div class={clsx(baseCls('subtitle'), modCls(modifier, 'subtitle'), props.class)}>
       {props.children}
     </div>
   );
@@ -139,7 +139,7 @@ TopbarPlate.CloseButton = (props: {
     <Button.Icon
       ref={props.ref}
       icon="close"
-      class={classNames(baseCls('close'), modCls(modifier, 'close'), props.class)}
+      class={clsx(baseCls('close'), modCls(modifier, 'close'), props.class)}
       onClick={props.onClick}
       noRipple
     />
@@ -156,7 +156,7 @@ TopbarPlate.ActionButton = (props: {
   children: JSX.Element
 }) => {
   const modifier = useModifier();
-  const className = () => classNames(
+  const className = () => clsx(
     baseCls('action-button'),
     modCls(modifier, 'action-button'),
     'text-overflow-no-wrap',
@@ -190,7 +190,7 @@ TopbarPlate.PrimaryButton = (props: {
   return (
     <Button
       ref={props.ref}
-      class={classNames(baseCls('primary-button'), modCls(modifier, 'primary-button'), props.class)}
+      class={clsx(baseCls('primary-button'), modCls(modifier, 'primary-button'), props.class)}
       primaryTransparent
       onClick={props.onClick}
     >

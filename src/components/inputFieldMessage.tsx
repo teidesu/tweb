@@ -1,6 +1,6 @@
 import InputFieldAnimated from '@/components/inputFieldAnimated';
 import createEmojiDropdownButton from '@/components/emojiDropdownButton';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import getRichValueWithCaret from '@/helpers/dom/getRichValueWithCaret';
 import ListenerSetter from '@/helpers/listenerSetter';
 import throttle from '@/helpers/schedulers/throttle';
@@ -86,7 +86,7 @@ const InputFieldMessage = (props: InputFieldMessageProps) => {
           (props.btnProps?.ref as any)(ref);
         }}
         primaryFilled
-        class={classNames(_additionalClass, props.btnProps!.class)}
+        class={clsx(_additionalClass, props.btnProps!.class)}
         noRipple
       >
         <div ref={contentWrapper!} class={contentClass}>
@@ -178,7 +178,7 @@ const InputFieldMessage = (props: InputFieldMessageProps) => {
   return (
     <div ref={container!} class={additionalClass + '-container'}>
       {emojiButton}
-      <div class={classNames('input-message-container', additionalClass + '-inputs')}>
+      <div class={clsx('input-message-container', additionalClass + '-inputs')}>
         {inputField.input}
         {inputField.placeholder}
         {inputField.inputFake}

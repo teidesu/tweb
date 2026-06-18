@@ -12,7 +12,7 @@ import { avatarNew } from '@/components/avatarNew';
 import PeerTitle from '@/components/peerTitle';
 import Row from '@/components/rowTsx';
 import { IconTsx } from '@/components/iconTsx';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { ChatPermissions } from '@/components/sidebarRight/tabs/groupPermissions/sharedPermissions';
 import { animate } from '@/helpers/animation';
 import { isTruthy } from '../../helpers/isTruthy';
@@ -299,7 +299,7 @@ export default class PopupDeleteMegagroupMessages extends PopupElement {
               color="primary"
             >
               <Row.Title>
-                <div class={classNames(`${className}-expand-row`, !collapsed() && 'is-expanded')}>
+                <div class={clsx(`${className}-expand-row`, !collapsed() && 'is-expanded')}>
                   {i18n(collapsedName())}
                   <IconTsx icon="down" class={`${className}-expand-row-icon`} />
                 </div>

@@ -8,7 +8,7 @@
  */
 
 import { Component, For, Show } from 'solid-js';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { emojiFingerprint } from '@/lib/calls/e2e/emojiFingerprint';
 
 export interface FingerprintBadgeProps {
@@ -30,7 +30,7 @@ const FingerprintBadge: Component<FingerprintBadgeProps> = (props) => {
 
   return (
     <span
-      class={classNames('conference-fingerprint-badge', props.class)}
+      class={clsx('conference-fingerprint-badge', props.class)}
       onClick={props.onClick}
     >
       <Show

@@ -15,7 +15,7 @@ const SMALL_CANVAS_WIDTH = 120;
 const SMALL_CANVAS_HEIGHT = 120;
 
 import styles from '@/components/stargifts/stargiftBackdrop.module.scss';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { Transition } from '@/vendor/solid-transition-group';
 
 const POSITIONS: [number, number, number, number][] = [
@@ -86,7 +86,7 @@ export function StarGiftBackdrop(props: {
 
   return (
     <div
-      class={classNames(styles.wrap, props.class)}
+      class={clsx(styles.wrap, props.class)}
       style={{
         '--stargift-backdrop-edge-color': rgbIntToHex(props.backdrop.edge_color),
         '--stargift-backdrop-center-color': rgbIntToHex(props.backdrop.center_color),
@@ -95,7 +95,7 @@ export function StarGiftBackdrop(props: {
       <Transition>
         {patternCanvas()}
       </Transition>
-      <div class={classNames(styles.halo, props.small && styles.haloSmall)} />
+      <div class={clsx(styles.halo, props.small && styles.haloSmall)} />
     </div>
   );
 }

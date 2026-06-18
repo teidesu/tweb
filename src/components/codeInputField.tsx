@@ -1,5 +1,5 @@
 import styles from '@/components/codeInputField.module.scss';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { children, createRoot, createSignal, Index, Ref, Show, Signal } from 'solid-js';
 import { subscribeOn } from '@/helpers/solid/subscribeOn';
 import { Transition } from '@/vendor/solid-transition-group';
@@ -186,7 +186,7 @@ export function CodeInputField(props: {
   let inputRef!: HTMLInputElement;
   return (
     <div
-      class={classNames(
+      class={clsx(
         styles.wrap,
         props.error && styles.error,
         props.disabled && styles.disabled,
@@ -270,7 +270,7 @@ export function CodeInputField(props: {
       <Index each={Array.from({ length: props.length })}>
         {(_, idx) => (
           <div
-            class={classNames(
+            class={clsx(
               styles.digit,
               (activeIndexStart() <= idx && idx < activeIndexEnd()) && styles.active
             )}

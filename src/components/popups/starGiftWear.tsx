@@ -16,7 +16,7 @@ import Row from '@/components/rowTsx';
 import PopupPremium from '@/components/popups/premium';
 import { getCollectibleName } from '@/lib/appManagers/utils/gifts/getCollectibleName';
 import { PeerTitleTsx } from '@/components/peerTitleTsx';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { StickerTsx } from '@/components/wrappers/sticker';
 import PopupBoost from './boost';
 
@@ -48,7 +48,7 @@ export default class PopupStarGiftWear extends PopupElement {
 
     return (
       <div class={/* @once */ styles.container}>
-        <div class={/* @once */ classNames(styles.header, 'profile-container need-white is-collapsed')}>
+        <div class={/* @once */ clsx(styles.header, 'profile-container need-white is-collapsed')}>
           {gift._ === 'starGiftUnique' && (
             <StarGiftBackdrop
               class={/* @once */ styles.backdrop}

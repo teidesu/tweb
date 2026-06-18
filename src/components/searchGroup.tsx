@@ -2,7 +2,7 @@ import appDialogsManager, { AppDialogsManager } from '@/lib/appDialogsManager';
 import { i18n, LangPackKey } from '@/lib/langPack';
 import Section from '@/components/section';
 import { createMemo, createRoot, createSignal, JSX, Show } from 'solid-js';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { Middleware } from '@/helpers/middleware';
 import Scrollable from '@/components/scrollable2';
 
@@ -84,7 +84,7 @@ export function createSearchGroup(options: {
       name={name}
       nameRef={(ref) => nameEl = ref}
       nameRight={nameRight()}
-      class={classNames(
+      class={clsx(
         'search-group',
         'search-group-' + type,
         className,

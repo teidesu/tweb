@@ -1,5 +1,5 @@
 import { createRoot, createSignal, JSX } from 'solid-js';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 
 // The circular SVG progress ring used by round video notes (wrappers/video.ts)
 // and the video-note recording preview. Markup/classes are kept identical to
@@ -42,7 +42,7 @@ export default function ProgressRing(props: ProgressRingProps): JSX.Element {
   return (
     <svg
       ref={props.ref}
-      class={classNames('progress-ring', props.class)}
+      class={clsx('progress-ring', props.class)}
       width={props.size}
       height={props.size}
       style={{ transform: 'rotate(-90deg)' }}

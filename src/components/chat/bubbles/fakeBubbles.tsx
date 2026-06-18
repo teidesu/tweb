@@ -3,7 +3,7 @@ import { ChatBackground } from '@/components/chat/bubbles/chatBackground';
 import rootScope from '@/lib/rootScope';
 import themeController from '@/helpers/themeController';
 
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import styles from '@/components/chat/bubbles/fakeBubbles.module.scss';
 import { subscribeOn } from '@/helpers/solid/subscribeOn';
 
@@ -23,14 +23,14 @@ export function FakeBubbles(props: {
   })
 
   return (
-    <div ref={container} class={classNames(styles.root, props.class)}>
+    <div ref={container} class={clsx(styles.root, props.class)}>
       <ChatBackground
         managers={rootScope.managers}
         themeController={themeController}
         peerId={props.peerId}
         onHighlightColor={hsla => themeController.applyHighlightingColor({ hsla, element: container })}
       />
-      <div class={classNames(styles.content, props.contentClass)}>
+      <div class={clsx(styles.content, props.contentClass)}>
         {props.children}
       </div>
     </div>

@@ -27,7 +27,7 @@ import { FontFullBold } from '@/config/font';
 import { KeyboardButton, Message } from '@/layer';
 import TopbarPlate, { createTopbarPlate, TopbarPlateController } from '@/components/chat/topbarPlate';
 import { createSignal, JSX } from 'solid-js';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import getWebPageActionOnClick from '@/components/chat/getWebPageActionOnClick';
 
 /**
@@ -219,7 +219,7 @@ export default function createChatPinnedMessage(
     modifier: 'message',
     height: 48,
     initiallyHidden: true,
-    class: () => classNames(
+    class: () => clsx(
       isMedia() && 'is-media',
       isMany() && 'is-many',
       hasCustomActionButton() && 'has-custom-action-button'

@@ -6,7 +6,7 @@ import { IS_MOBILE_SAFARI } from '@/environment/userAgent';
 import loadFonts from '@/helpers/dom/loadFonts';
 import { doubleRaf } from '@/helpers/schedulers';
 import pause from '@/helpers/schedulers/pause';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import themeController from '@/helpers/themeController';
 import { changeAccount } from '@/lib/accounts/changeAccount';
 import { getCurrentAccount } from '@/lib/accounts/getCurrentAccount';
@@ -153,19 +153,19 @@ export default function AuthCardsHost(): JSX.Element {
 
   return (
     <AuthFlowContext.Provider value={ctx}>
-      <div ref={hostEl} style={{ opacity: 0 }} class={classNames('whole', styles.host)} id="auth-pages">
+      <div ref={hostEl} style={{ opacity: 0 }} class={clsx('whole', styles.host)} id="auth-pages">
         {showBackButton && (
           <Button.Icon icon="back" class={styles.closeButton} onClick={back} />
         )}
         <Button.Icon icon="darkmode_filled" class={styles.themeButton} onClick={toggleTheme} />
         <Scrollable
           ref={scrollableEl}
-          class={classNames(
+          class={clsx(
             styles.scrollable,
             (!IS_TOUCH_SUPPORTED || IS_MOBILE_SAFARI) && 'no-scrollbar'
           )}
         >
-          <div class={classNames(styles.placeholder, styles.placeholderTop)} />
+          <div class={clsx(styles.placeholder, styles.placeholderTop)} />
           <div class={styles.cardsContainer}>
             <CardsTransition />
           </div>

@@ -10,7 +10,7 @@ import createMiddleware from '@/helpers/solid/createMiddleware';
 import { Skeleton } from '@/components/skeleton';
 import { Middleware } from '@/helpers/middleware';
 import pause from '@/helpers/schedulers/pause';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import Row from '@/components/rowTsx';
 import formatUserPhone from '@/components/wrappers/formatUserPhone';
 import { copyTextToClipboard } from '@/helpers/clipboard';
@@ -196,7 +196,7 @@ const PeerProfile = (props: {
   return (
     <PeerProfileContext.Provider value={value}>
       <div
-        class={classNames(
+        class={clsx(
           'profile-content',
           value.hasSavedMusic && 'has-music',
           value.peerId === rootScope.myId && 'is-me'
@@ -1456,7 +1456,7 @@ PeerProfile.MainSection = () => {
   return (
     <Section
       noDelimiter
-      contentProps={{ class: classNames(context!.needSimpleAvatar && 'has-simple-avatar') }}
+      contentProps={{ class: clsx(context!.needSimpleAvatar && 'has-simple-avatar') }}
     >
       <Show when={context!.needSimpleAvatar}>
         <PeerProfile.AutoAvatar />

@@ -14,7 +14,7 @@ import { toast, toastNew } from '@/components/toast';
 import wrapCustomEmoji from '@/components/wrappers/customEmoji';
 import { makeMediaSize } from '@/helpers/mediaSize';
 import ReplyMarkupLayout from '@/components/chat/bubbleParts/replyMarkupLayout';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import showCreateBotPopup from '@/components/popups/createBot';
 import confirmationPopup from '@/components/confirmationPopup';
 import SolidJSHotReloadGuardProvider from '@/lib/solidjs/hotReloadGuardProvider';
@@ -390,7 +390,7 @@ export default function wrapKeyboardButton(options: {
   const { onClick: _onClick } = options;
   return ReplyMarkupLayout.Button({
     children: handler.text,
-    class: classNames(...handler.classNames),
+    class: clsx(...handler.classNames),
     onClick: (_onClick ? (e) => (_onClick(), handler.onClick!(e)) : handler.onClick)!,
     icon: handler.icon,
     ref: (ref) => {

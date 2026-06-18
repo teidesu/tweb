@@ -6,7 +6,7 @@
 
 import { JSX } from 'solid-js';
 
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import appImManager from '@/lib/appImManager';
 
 import showTooltip from '@/components/tooltip';
@@ -60,7 +60,7 @@ export default function showChatToast(options: {
     mountOn: appImManager.chat.container,
     relative: true,
     vertical: 'top',
-    class: classNames('chat-toast', `chat-toast--${options.animation ?? 'slide'}`, options.class),
+    class: clsx('chat-toast', `chat-toast--${options.animation ?? 'slide'}`, options.class),
     icon: options.icon,
     textElement: options.title ?? options.textElement,
     subtitleElement: options.title && options.textElement,

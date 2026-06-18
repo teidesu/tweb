@@ -12,7 +12,7 @@ import { Message, MessageReactor, PaidReactionPrivacy, Peer } from '@/layer';
 import { AvatarNewTsx } from '@/components/avatarNew';
 import getPeerId from '@/lib/appManagers/utils/peers/getPeerId';
 import { IconTsx } from '@/components/iconTsx';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import appImManager from '@/lib/appImManager';
 import { Ripple } from '@/components/rippleTsx';
 import RangeSelector from '@/components/rangeSelector';
@@ -204,7 +204,7 @@ export default class PopupStarReaction extends PopupElement {
       const anonymous = sender.pFlags.anonymous;
       let ret = (
         <div
-          class={classNames('popup-star-reaction-senders-item', !anonymous && 'is-clickable')}
+          class={clsx('popup-star-reaction-senders-item', !anonymous && 'is-clickable')}
           onClick={() => {
             if (anonymous) return;
             appImManager.setInnerPeer({

@@ -10,7 +10,7 @@ import formatNumber from '@/helpers/number/formatNumber';
 import { createDelayed } from '@/helpers/solid/createDelayed';
 import createMiddleware from '@/helpers/solid/createMiddleware';
 import { requestRAF } from '@/helpers/solid/requestRAF';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { Document, MessageMedia, Photo } from '@/layer';
 import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
 import { Accessor, createEffect, createMemo, createSignal, JSX, Match, onCleanup, onMount, Show, splitProps, Switch } from 'solid-js';
@@ -222,7 +222,7 @@ export const PollOption = (props: {
       <Show when={props.withMedia}>
         <div class={styles.pollOptionSpacerLast}></div>
         <div
-          class={classNames(styles.pollOptionMedia, styles.stripped)}
+          class={clsx(styles.pollOptionMedia, styles.stripped)}
           classList={{ [styles.clickable]: !!props.video || !!props.photo || !!props.sticker || !!props.geo }}
           use:dataPollViewerIdx={props.pollViewerPayload}
         >
@@ -308,7 +308,7 @@ const PollProgressLine = (inProps: JSX.HTMLAttributes<HTMLDivElement> & {
 
   return (
     <div
-      class={classNames(styles.labelProgress, props.class)}
+      class={clsx(styles.labelProgress, props.class)}
       classList={{
         [styles.correct]: !contextProps.isOutgoing && props.hasCorrectAnswer && props.correct,
         [styles.wrong]: !contextProps.isOutgoing && props.hasCorrectAnswer && !props.correct,

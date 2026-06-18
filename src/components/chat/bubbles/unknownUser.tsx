@@ -1,7 +1,7 @@
 import { createResource, Show, JSX } from 'solid-js';
 import { PeerSettings, User, UserFull } from '@/layer';
 
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { PeerTitleTsx } from '@/components/peerTitleTsx';
 
 import stylesCommon from '@/components/chat/bubbles/service.module.scss';
@@ -60,7 +60,7 @@ export function UnknownUserBubble(props: {
   return (
     <Show when={props.peerSettings?.phone_country || props.peerSettings?.registration_month}>
       <div class={/* @once */ styles.spacerTop} />
-      <div class={/* @once */ classNames(stylesCommon.addon, styles.bubble)}>
+      <div class={/* @once */ clsx(stylesCommon.addon, styles.bubble)}>
         <div class={/* @once */ styles.head}>
           <PeerTitleTsx
             peerId={props.peerId}
@@ -131,7 +131,7 @@ export function UnknownUserBubble(props: {
       <div class={/* @once */ styles.spacerBottom} />
 
       {props.peerSettings?.name_change_date && (
-        <div class={/* @once */ classNames(stylesCommon.text, styles.text)}>
+        <div class={/* @once */ clsx(stylesCommon.text, styles.text)}>
           <I18nTsx
             key="UnknownUserName"
             args={[wrapFormattedDuration(
@@ -142,7 +142,7 @@ export function UnknownUserBubble(props: {
       )}
 
       {props.peerSettings?.photo_change_date && (
-        <div class={/* @once */ classNames(stylesCommon.text, styles.text)}>
+        <div class={/* @once */ clsx(stylesCommon.text, styles.text)}>
           <I18nTsx
             key="UnknownUserPhoto"
             args={[wrapFormattedDuration(

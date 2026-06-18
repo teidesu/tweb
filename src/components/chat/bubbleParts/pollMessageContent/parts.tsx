@@ -7,7 +7,7 @@ import mediaSizes from '@/helpers/mediaSizes';
 import formatNumber from '@/helpers/number/formatNumber';
 import createMiddleware from '@/helpers/solid/createMiddleware';
 import { I18nTsx } from '@/helpers/solid/i18n';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { Document, MessageMedia, Photo } from '@/layer';
 import { LangPackKey } from '@/lib/langPack';
 import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
@@ -66,7 +66,7 @@ export const Explanation = (props: LocalTextWithEntities & {
           <I18nTsx key='Chat.Quiz.Explanation' />
         </div>
         <Show when={props.text}>
-          <div class={classNames(styles.explanationText, 'reply-subtitle')}>
+          <div class={clsx(styles.explanationText, 'reply-subtitle')}>
             <TranslatableMessageTsx
               peerId={contextProps.peerId}
               textWithEntities={{ _: 'textWithEntities', text: props.text, entities: unwrap(props.entities) }}

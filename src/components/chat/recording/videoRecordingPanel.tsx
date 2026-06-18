@@ -13,7 +13,7 @@
 // drives (mirrors createProgressRing in progressRing.tsx).
 
 import { Accessor, createRoot, createSignal, JSX } from 'solid-js';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import ProgressRing from '@/components/progressRing';
 
 const STAGE_SIZE = 360;
@@ -33,7 +33,7 @@ export default function VideoRecordingPanel(props: {
   return (
     <div
       ref={props.rootRef}
-      class={classNames(
+      class={clsx(
         'video-recording-stage',
         props.mode() === 'recording' && 'video-recording-stage--recording',
         props.mode() === 'paused' && 'video-recording-stage--paused',

@@ -5,7 +5,7 @@ import { Skeleton } from '@/components/skeleton';
 import { ButtonIconTsx } from '@/components/buttonIconTsx';
 import { copyTextToClipboard } from '@/helpers/clipboard';
 import { toastNew } from '@/components/toast';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { LangPackKey, i18n } from '@/lib/langPack';
 
 export interface RtmpDataProps {
@@ -91,7 +91,7 @@ export const RtmpData = (props: RtmpDataProps) => {
       <Show when={props.showRevoke}>
         <div
           onClick={props.onRevoke}
-          class={classNames(cnRtmpData('-row'), cnRtmpData('-row_danger'))}
+          class={clsx(cnRtmpData('-row'), cnRtmpData('-row_danger'))}
         >
           <IconTsx icon="rotate_left" class={cnRtmpData('-row-icon')} />
           <div class={cnRtmpData('-row-item')}>

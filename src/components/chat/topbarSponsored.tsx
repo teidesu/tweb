@@ -4,7 +4,7 @@ import { NULL_PEER_ID } from '@/lib/appManagers/constants';
 import Chat from '@/components/chat/chat';
 import ChatTopbar from '@/components/chat/topbar';
 import { SponsoredMessage } from '@/layer';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 
 import styles from '@/components/chat/topbarSponsored.module.scss';
 import { I18nTsx } from '@/helpers/solid/i18n';
@@ -65,7 +65,7 @@ function SponsoredPlateBody(props: {
     <Show when={message()}>
       <RippleElement
         component="div"
-        class={/* @once */ classNames(styles.container, 'quote-like-hoverable', 'overflow-hidden')}
+        class={/* @once */ clsx(styles.container, 'quote-like-hoverable', 'overflow-hidden')}
         onClick={() => appImManager.onSponsoredMessageClick(message()!)}
         ref={(el) => {
           createContextMenu({
@@ -84,7 +84,7 @@ function SponsoredPlateBody(props: {
         }}
       >
         <Show when={photo()}>
-          <div class={/* @once */ classNames(styles.photoWrap, 'disable-hover')}>
+          <div class={/* @once */ clsx(styles.photoWrap, 'disable-hover')}>
             <PhotoTsx
               class={/* @once */ styles.photo}
               photo={photo()!}
@@ -94,7 +94,7 @@ function SponsoredPlateBody(props: {
             />
           </div>
         </Show>
-        <div class={/* @once */ classNames(styles.content, 'disable-hover')}>
+        <div class={/* @once */ clsx(styles.content, 'disable-hover')}>
           <div class="text-bold">
             <I18nTsx class="primary" key="SponsoredMessageAd" />
             {' '}

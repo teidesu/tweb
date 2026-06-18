@@ -14,7 +14,7 @@ import { attachClickEvent } from '@/helpers/dom/clickEvent';
 import PopupElement from '@/components/popups';
 import { InviteLink } from '@/components/sidebarLeft/tabs/inviteLink';
 import { horizontalMenu } from '@/components/horizontalMenu';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { formatFullSentTime } from '@/helpers/date';
 import wrapPeerTitle from '@/components/wrappers/peerTitle';
 import Icon from '@/components/icon';
@@ -147,7 +147,7 @@ export default class AppBoostsTab extends SliderSuperTabEventable {
     }) => {
       return (
         <Tabs.ContentTab
-          class={classNames('boosts-users-content', !props.list.count && 'is-empty')}
+          class={clsx('boosts-users-content', !props.list.count && 'is-empty')}
           hide={props.hide}
         >
           <Show when={props.list.count} fallback={noBoostersHint}>

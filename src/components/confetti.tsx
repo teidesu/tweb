@@ -1,5 +1,5 @@
 import { Ref, onCleanup } from 'solid-js';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 
 import styles from '@/components/confetti.module.scss';
 
@@ -238,7 +238,7 @@ export function ConfettiContainer(props: {
   return (
     <div
       ref={setContainerRef}
-      class={classNames(styles.container, props.class)}
+      class={clsx(styles.container, props.class)}
     >
       <canvas ref={setCanvasRef} class={styles.canvas} />
     </div>

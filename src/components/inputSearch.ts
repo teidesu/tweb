@@ -7,7 +7,7 @@ import Icon from '@/components/icon';
 import InputField from '@/components/inputField';
 import ProgressivePreloader from '@/components/preloader';
 import SetTransition from '@/components/singleTransition';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { isTruthy } from '../helpers/isTruthy';
 
 export default class InputSearch {

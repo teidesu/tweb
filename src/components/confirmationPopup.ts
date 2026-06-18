@@ -1,4 +1,4 @@
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import PopupElement, { addCancelButton } from '@/components/popups';
 import PopupPeer, { PopupPeerCheckboxOptions, PopupPeerOptions } from '@/components/popups/peer';
 
@@ -36,7 +36,7 @@ export default function confirmationPopup<T extends PopupConfirmationOptions>(
     options.buttons = buttons;
     options.checkboxes ??= checkbox && [checkbox];
 
-    const popup = PopupElement.createPopup(PopupPeer, classNames('popup-confirmation', options.className), options);
+    const popup = PopupElement.createPopup(PopupPeer, clsx('popup-confirmation', options.className), options);
 
     options.onPopup?.(popup);
 

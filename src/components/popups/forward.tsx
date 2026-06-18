@@ -13,7 +13,7 @@ import { Message, User } from '@/layer';
 import { createMemo, createRoot, Show } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import Animated from '@/helpers/solid/animations';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import InputFieldMessage from '@/components/inputFieldMessage';
 import PopupElement from '@/components/popups/indexTsx';
 import InputFieldAnimated from '@/components/inputFieldAnimated';
@@ -392,7 +392,7 @@ export default async function showForwardPopup(
       const showCopyLink = () => canCopyLink && multiSelect() === 'hidden' && !hasMessage();
       const isFooterHidden = () => !canCopyLink && multiSelect() === 'hidden' && !hasMessage();
       return (
-        <div class={classNames('popup-forward-footer-content', isFooterHidden() && 'is-hidden')}>
+        <div class={clsx('popup-forward-footer-content', isFooterHidden() && 'is-hidden')}>
           <Animated type="cross-fade" itemClass="popup-forward-footer-item">
             <Show
               when={showCopyLink()}

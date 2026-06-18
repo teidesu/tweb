@@ -5,7 +5,7 @@ import Row from '@/components/rowTsx';
 import styles from '@/components/sidebarLeft/pendingSuggestion.module.scss';
 import { render } from 'solid-js/web';
 import { createEffect, createMemo, createSignal, JSX, onMount, Show, splitProps } from 'solid-js';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import wrapEmojiText from '@/lib/richTextProcessor/wrapEmojiText';
 import { useIsSidebarCollapsed } from '@/stores/foldersSidebar';
 import RippleElement from '@/components/rippleElement';
@@ -34,7 +34,7 @@ const PendingSuggestion = (props: Parameters<typeof Row>[0] & {closable?: () => 
   return (
     <Row
       {...props}
-      class={classNames(styles.suggestion, props.class)}
+      class={clsx(styles.suggestion, props.class)}
     >
       {props.children}
       {props.closable && (
@@ -54,7 +54,7 @@ const PendingSuggestion = (props: Parameters<typeof Row>[0] & {closable?: () => 
 PendingSuggestion.Title = (props: Parameters<typeof Row.Title>[0]) => {
   return (
     <Row.Title {...props}>
-      <span class={classNames('text-bold', styles.suggestionTitle)}>{props.children}</span>
+      <span class={clsx('text-bold', styles.suggestionTitle)}>{props.children}</span>
     </Row.Title>
   );
 };
@@ -95,7 +95,7 @@ function SimpleSuggestion(props: {
     >
       <RippleElement
         component="div"
-        class={classNames(styles.collapsed, props.danger ? 'hover-danger-effect' : 'hover-effect')}
+        class={clsx(styles.collapsed, props.danger ? 'hover-danger-effect' : 'hover-effect')}
         onClick={props.onClick}
       >
         {documentFragmentToNodes(emoji())}

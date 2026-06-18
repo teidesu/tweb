@@ -1,7 +1,7 @@
 import { createEffect, createMemo, createSignal, For, JSX } from 'solid-js';
 import clamp from '@/helpers/number/clamp';
 import RangeSelector from '@/components/rangeSelectorTsx';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 
 export type RangeStep<T = any> = [
   text: JSX.Element,
@@ -64,7 +64,7 @@ export default function RangeStepsSelector<T = any>(props: {
   };
 
   return (
-    <div class={classNames('range-setting-selector', 'range-steps-selector', props.class)}>
+    <div class={clsx('range-setting-selector', 'range-steps-selector', props.class)}>
       <RangeSelector
         step={1}
         min={0}

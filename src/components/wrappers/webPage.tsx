@@ -1,6 +1,6 @@
 import { JSX, Ref } from 'solid-js';
 import { getDirection } from '@/helpers/dom/setInnerHTML';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { IconTsx } from '@/components/iconTsx';
 import { Ripple } from '@/components/rippleTsx';
 import { Dynamic } from 'solid-js/web';
@@ -17,7 +17,7 @@ function WebPageFooter(props: {
   return props?.content && (
     <div
       dir={getDirection()}
-      class={classNames(`${className}-footer`, props.link && 'is-link', props.text && 'is-text', !props.text && 'is-button')}
+      class={clsx(`${className}-footer`, props.link && 'is-link', props.text && 'is-text', !props.text && 'is-button')}
       ref={props.ref}
     >
       {props.content}
@@ -86,7 +86,7 @@ function WebPageMedia(props: {
 
   return (
     <div class={`${className}-preview-resizer`}>
-      {props.content || <div ref={props.ref} class={classNames(_className, withDocument)}></div>}
+      {props.content || <div ref={props.ref} class={clsx(_className, withDocument)}></div>}
     </div>
   );
 }
@@ -107,7 +107,7 @@ export default function WebPageBox(props: {
   const previewResizer = WebPageMedia(props.media!);
 
   const contentDiv = (
-    <div class={classNames(`${className}-content`, props.media?.hasDocument && 'has-document', props.minContent && 'min-content')}>
+    <div class={clsx(`${className}-content`, props.media?.hasDocument && 'has-document', props.minContent && 'min-content')}>
       {props.media?.position === 'top' && previewResizer}
       {siteName}
       {titleDiv}
@@ -119,7 +119,7 @@ export default function WebPageBox(props: {
 
   const quote = (
     <div
-      class={classNames(
+      class={clsx(
         `${className}-quote`,
         'quote-like-border'
       )}
@@ -132,7 +132,7 @@ export default function WebPageBox(props: {
     <Dynamic
       component={props.clickable ? 'a' : 'div'}
       ref={props.ref}
-      class={classNames(
+      class={clsx(
         className,
         'quote-like',
         props.clickable && 'quote-like-hoverable',

@@ -15,7 +15,7 @@ import { hexToRgb, mixColors } from '@/helpers/color';
 import emptyPlaceholder from '@/components/emptyPlaceholder';
 import deferredPromise, { CancellablePromise } from '@/helpers/cancellablePromise';
 import liteMode from '@/helpers/liteMode';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import Icon from '@/components/icon';
 import indexOfAndSplice from '@/helpers/array/indexOfAndSplice';
 import Row from '@/components/row';
@@ -193,7 +193,7 @@ const StatisticsOverviewItem = ({
         <>
           {v}{' '}
           <span
-            class={classNames('statistics-overview-item-value-description', diff > 0 ? 'green' : 'red')}
+            class={clsx('statistics-overview-item-value-description', diff > 0 ? 'green' : 'red')}
           >
             {str}
           </span>

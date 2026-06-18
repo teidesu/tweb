@@ -26,7 +26,7 @@ import cancelEvent from '@/helpers/dom/cancelEvent';
 import AppMediaViewer from '@/components/appMediaViewer';
 import { NULL_PEER_ID, TON_CURRENCY } from '@/lib/appManagers/constants';
 import tsNow from '@/helpers/tsNow';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { useChat } from '@/stores/peers';
 import wrapLocalSticker from '@/components/wrappers/localSticker';
 import liteMode from '@/helpers/liteMode';
@@ -475,13 +475,13 @@ export default class PopupStarsPay extends PopupElement<{
             ton={isTon}
           />
         )}
-        {subtitle && <div class={classNames('popup-stars-subtitle', tableContent! && !this.subscription && !this.boost && 'mt')}>{subtitle}</div>}
+        {subtitle && <div class={clsx('popup-stars-subtitle', tableContent! && !this.subscription && !this.boost && 'mt')}>{subtitle}</div>}
         {tableContent! && (
           <>
             <Table class="popup-stars-pay-table" content={tableContent.filter(Boolean)} />
             <div class="popup-stars-pay-tos">{i18n('Stars.TransactionTOS')}</div>
             {this.subscription && (
-              <div class={classNames('popup-stars-pay-tos', 'popup-stars-pay-tos2', this.subscription.pFlags.canceled && 'danger')}>{
+              <div class={clsx('popup-stars-pay-tos', 'popup-stars-pay-tos2', this.subscription.pFlags.canceled && 'danger')}>{
                 i18n(
                   this.subscription.pFlags.canceled ?
                     'Stars.Subscription.Cancelled' :

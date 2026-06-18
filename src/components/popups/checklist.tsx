@@ -15,7 +15,7 @@ import getRichValueWithCaret from '@/helpers/dom/getRichValueWithCaret';
 import { fastRaf } from '@/helpers/schedulers';
 import ListenerSetter from '@/helpers/listenerSetter';
 import { I18nTsx } from '@/helpers/solid/i18n';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { InputMedia, Message, MessageMedia, TodoItem } from '@/layer';
 import { i18n, LangPackKey } from '@/lib/langPack';
 import { wrapEmojiTextWithEntities } from '@/lib/richTextProcessor/wrapEmojiText';
@@ -265,7 +265,7 @@ export default function showChecklistPopup(options: ChecklistPopupOptions): void
               <For each={items()}>
                 {(item, idx) => (
                   <div
-                    class={classNames(
+                    class={clsx(
                       css.item,
                       idx() === 0 && css.itemFirst,
                       idx() === items().length - 1 && css.itemLast

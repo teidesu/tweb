@@ -7,7 +7,7 @@ import Scrollable from '@/components/scrollable2';
 import formatNumber from '@/helpers/number/formatNumber';
 import { Chat, MessagesChats, User } from '@/layer';
 import computeLockColor from '@/helpers/computeLockColor';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import cancelEvent from '@/helpers/dom/cancelEvent';
 import { attachClickEvent } from '@/helpers/dom/clickEvent';
 import findUpClassName from '@/helpers/dom/findUpClassName';
@@ -118,7 +118,7 @@ export function SimilarPeer(props: {
 
   return (
     <div
-      class={classNames('similar-channels-channel', props.isLast && 'is-last', !displayBadge() && 'no-badge')}
+      class={clsx('similar-channels-channel', props.isLast && 'is-last', !displayBadge() && 'no-badge')}
       ref={props.ref}
     >
       {props.isLast ? (

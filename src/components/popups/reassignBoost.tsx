@@ -12,7 +12,7 @@ import PopupPeer from '@/components/popups/peer';
 import getPeerId from '@/lib/appManagers/utils/peers/getPeerId';
 import toggleDisability from '@/helpers/dom/toggleDisability';
 import { AvatarNew } from '@/components/avatarNew';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import filterUnique from '@/helpers/array/filterUnique';
 import { resolveElements } from '@solid-primitives/refs';
 import liteMode from '@/helpers/liteMode';
@@ -96,7 +96,7 @@ export default class PopupReassignBoost extends PopupPeer {
               style={`--offset: ${diff() * -offset}px`}
             >
               {element}
-              <IconTsx icon="boostcircle" class={classNames(`${className}-avatars-avatar-icon`, !diff() && 'is-visible')} />
+              <IconTsx icon="boostcircle" class={clsx(`${className}-avatars-avatar-icon`, !diff() && 'is-visible')} />
             </div>
           );
         }}</For>
@@ -126,7 +126,7 @@ export default class PopupReassignBoost extends PopupPeer {
 
       return (
         <div
-          class={classNames(`${className}-avatars`, peerIds().length && 'has-left')}
+          class={clsx(`${className}-avatars`, peerIds().length && 'has-left')}
           style={`transform: translateX(${Math.max(0, peerIds().length - 1) * (offset / 2)}px)`}
         >
           <div class={`${className}-avatars-left`}>

@@ -1,5 +1,5 @@
 import { children, createMemo, JSX, onCleanup, Ref, Show, splitProps, useContext } from 'solid-js';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { IconTsx } from '@/components/iconTsx';
 import RippleElement from '@/components/rippleElement';
 import createComponentContext, { ComponentContextValue } from '@/helpers/solid/createComponentContext';
@@ -107,7 +107,7 @@ const Row = (props: {children: JSX.Element} & Partial<{
         [styles.noWrap]: value.noWrap,
         [styles.rowWithIcon]: !!store.icon,
         [styles.rowWithPadding]: havePadding(),
-        [classNames(styles.rowClickable, `hover-${props.color ? props.color + '-' : ''}effect`)]: isClickable(),
+        [clsx(styles.rowClickable, `hover-${props.color ? props.color + '-' : ''}effect`)]: isClickable(),
         'is-disabled': props.disabled,
         'is-fake-disabled': props.fakeDisabled,
         [styles.rowGrid]: !!store.rightContent,
@@ -141,7 +141,7 @@ Row.RowPart = (props: {
   return (
     <Show when={resolved()}>
       <div
-        class={classNames(
+        class={clsx(
           props.class,
           useContext(RowContext)!.noWrap && styles.noWrap
         )}
@@ -161,14 +161,14 @@ Row.Row = (props: {
   left?: JSX.Element,
   right?: JSX.Element
 }) => {
-  const part = <Row.RowPart class={classNames(props.baseClass, props.additionalClass)} part={props.left} />;
+  const part = <Row.RowPart class={clsx(props.baseClass, props.additionalClass)} part={props.left} />;
   const resolved = children(() => props.right);
   return (
     <Show when={resolved()} fallback={part}>
-      <div class={classNames(styles.rowRow, props.rowClass)}>
+      <div class={clsx(styles.rowRow, props.rowClass)}>
         {part}
         <Row.RowPart
-          class={classNames(props.baseClass, props.additionalClass, props.rightClass)}
+          class={clsx(props.baseClass, props.additionalClass, props.rightClass)}
           part={resolved()}
         />
       </div>
@@ -187,7 +187,7 @@ Row.Title = (props: {
     <Row.Row
       baseClass={styles.rowTitle}
       rowClass={styles.rowTitleRow}
-      rightClass={classNames(styles.rowTitleRight, props.titleRightSecondary && styles.rowTitleRightSecondary)}
+      rightClass={clsx(styles.rowTitleRight, props.titleRightSecondary && styles.rowTitleRightSecondary)}
       additionalClass={props.class}
       left={props.children}
       right={props.titleRight || context!.store.checkboxFieldToggle}
@@ -228,14 +228,14 @@ Row.Icon = (props: {
   class?: string
 }) => {
   return useContext(RowContext)!.register('icon', (
-    <IconTsx icon={props.icon} class={classNames(styles.rowIcon, props.class)} />
+    <IconTsx icon={props.icon} class={clsx(styles.rowIcon, props.class)} />
   ));
 };
 
 Row.RightContent = (inProps: JSX.HTMLAttributes<HTMLDivElement>) => {
   const [props, restProps] = splitProps(inProps, ['class']);
   return useContext(RowContext)!.register('rightContent', (
-    <div class={classNames(styles.rowRight, props.class)} {...restProps} />
+    <div class={clsx(styles.rowRight, props.class)} {...restProps} />
   ));
 };
 
@@ -266,7 +266,7 @@ Row.Media = (inProps: JSX.HTMLAttributes<HTMLDivElement> & {
 
   return useContext(RowContext)!.register('media', (
     <div
-      class={classNames(
+      class={clsx(
         styles.rowMedia,
         props.size && rowMediaSizeClass[props.size],
         props.class

@@ -1,7 +1,7 @@
 import { createContext, useContext, createSignal, onCleanup, JSX, Show, createRoot, Accessor, createEffect, untrack, on, Ref, Setter, onMount } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { Portal } from 'solid-js/web';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { IconTsx } from '@/components/iconTsx';
 import { FormatterArguments, i18n, LangPackKey } from '@/lib/langPack';
 import { AppManagers } from '@/lib/managers';
@@ -321,7 +321,7 @@ const PopupElement = (props: {
       <Portal mount={appendPopupTo()}>
         <div
           ref={setPopupElement}
-          class={classNames(
+          class={clsx(
             'popup',
             props.class,
             night && 'night',
@@ -354,7 +354,7 @@ const PopupElement = (props: {
         >
           <div
             {...(props.containerProps || {})}
-            class={classNames(
+            class={clsx(
               'popup-container z-depth-1',
               props.containerClass,
               props.containerProps?.class
@@ -377,7 +377,7 @@ PopupElement.Header = (props: {
   children?: JSX.Element
 }) => {
   return useContext(PopupContext)!.register('header', (
-    <div class={classNames('popup-header', props.class)}>
+    <div class={clsx('popup-header', props.class)}>
       {props.children}
     </div>
   ));
@@ -402,7 +402,7 @@ PopupElement.Title = (props: {
 
   return context!.register('title', (
     <Show when={titleContent()}>
-      <div class={classNames('popup-title', props.class)} dir="auto">
+      <div class={clsx('popup-title', props.class)} dir="auto">
         {titleContent()}
       </div>
     </Show>
@@ -426,11 +426,11 @@ PopupElement.CloseButton = (props: {
 
   return context!.register('closeButton', (
     <button
-      class={classNames('btn-icon popup-close', props.class)}
+      class={clsx('btn-icon popup-close', props.class)}
       onClick={handleClick}
     >
       <Show when={props.onBackClick} fallback={<IconTsx icon="close" />}>
-        <div class={classNames('animated-close-icon', props.canGoBack && 'state-back')} />
+        <div class={clsx('animated-close-icon', props.canGoBack && 'state-back')} />
       </Show>
     </button>
   ));
@@ -441,7 +441,7 @@ PopupElement.Body = (props: {
   class?: string
 }) => {
   return useContext(PopupContext)!.register('body', (
-    <div class={classNames('popup-body', props.class)}>
+    <div class={clsx('popup-body', props.class)}>
       {props.children}
     </div>
   ));
@@ -456,7 +456,7 @@ PopupElement.Scrollable = (props: Parameters<typeof Scrollable>[0]) => {
         props.contextRef?.(ref);
       }}
       {...props}
-      class={classNames(
+      class={clsx(
         'popup-scrollable',
         props.class
       )}
@@ -472,7 +472,7 @@ PopupElement.Footer = (props: {
 }) => {
   return useContext(PopupContext)!.register('footer', (
     <div
-      class={classNames(
+      class={clsx(
         'popup-footer popup-footer-abitlarger',
         (props.floating || props.sticky) && 'popup-footer-floating',
         props.sticky && 'popup-footer-sticky',
@@ -500,7 +500,7 @@ PopupElement.FooterButton = (
     <PopupElement.Button
       {...props}
       noDefaultClass
-      class={classNames(
+      class={clsx(
         'popup-footer-button',
         'btn-primary',
         props.color === 'danger' && 'btn-primary-transparent danger',
@@ -572,7 +572,7 @@ PopupElement.Button = (props: {
   let ref: HTMLButtonElement;
   return context!.registerButton(props, (
     <Button
-      class={classNames(
+      class={clsx(
         !props.noDefaultClass && 'popup-button btn',
         props.noDefaultClass ? undefined : (props.danger ? 'danger' : 'primary'),
         props.class
@@ -582,7 +582,7 @@ PopupElement.Button = (props: {
       disabled={props.disabled || disabled()}
       icon={props.iconLeft}
       iconAfter={props.iconRight}
-      iconClass={classNames('popup-button-icon', props.iconLeft ? 'left' : 'right')}
+      iconClass={clsx('popup-button-icon', props.iconLeft ? 'left' : 'right')}
       text={props.langKey}
       textArgs={props.langArgs}
       ref={(_ref) => {
@@ -599,7 +599,7 @@ PopupElement.Buttons = (props: {
 }) => {
   const context = useContext(PopupContext);
   return context!.register('buttons', (
-    <div class={classNames('popup-buttons', props.class)}>
+    <div class={clsx('popup-buttons', props.class)}>
       {props.children}
     </div>
   ));

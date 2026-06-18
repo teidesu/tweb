@@ -15,7 +15,7 @@ import { For, JSX } from 'solid-js';
 import wrapPeerTitle from '@/components/wrappers/peerTitle';
 import PopupElement from '@/components/popups';
 import PopupGiftLink from '@/components/popups/giftLink';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import createMiddleware from '@/helpers/solid/createMiddleware';
 import { IconTsx } from '@/components/iconTsx';
 import { setPeerColorToElement } from '@/components/peerColors';
@@ -312,9 +312,9 @@ export default function Giveaway(props: {
 
   let stickerDiv: HTMLDivElement;
   const ret = (
-    <div class={classNames('bubble-giveaway', 'no-select', 'disable-hover', isResults && 'bubble-giveaway-results')}>
+    <div class={clsx('bubble-giveaway', 'no-select', 'disable-hover', isResults && 'bubble-giveaway-results')}>
       <div ref={stickerDiv!} class="bubble-giveaway-sticker">
-        <div class={classNames('bubble-giveaway-sticker-counter', giveaway.stars && 'bubble-giveaway-sticker-counter-stars')}>
+        <div class={clsx('bubble-giveaway-sticker-counter', giveaway.stars && 'bubble-giveaway-sticker-counter-stars')}>
           {giveaway.stars && <IconTsx icon="star" />}
           {giveaway.stars ? ` ${quantity}` : `X${quantity}`}
         </div>

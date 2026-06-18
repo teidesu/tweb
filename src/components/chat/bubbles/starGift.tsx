@@ -9,7 +9,7 @@ import { PeerTitleTsx } from '@/components/peerTitleTsx';
 import styles from '@/components/chat/bubbles/starGift.module.scss';
 import stylesCommon from '@/components/chat/bubbles/service.module.scss';
 import { Sparkles } from '@/components/sparkles';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { I18nTsx } from '@/helpers/solid/i18n';
 import { MyStarGift } from '@/lib/appManagers/appGiftsManager';
 import { StarGiftBadge } from '@/components/stargifts/stargiftBadge';
@@ -101,7 +101,7 @@ export function StarGiftBubble(props: {
   });
 
   return (
-    <div class={/* @once */ classNames(
+    <div class={/* @once */ clsx(
       styles.bubble,
       props.gift.raw._ === 'starGiftUnique' && styles.bubbleIsUnique,
       stylesCommon.addon
@@ -149,7 +149,7 @@ export function StarGiftBubble(props: {
 
       {props.asUpgrade ? (
         <Button
-          class={/* @once */ classNames('bubble-service-button', styles.upgradeButton)}
+          class={/* @once */ clsx('bubble-service-button', styles.upgradeButton)}
           onClick={props.onViewClick}
           iconAfter="unpack"
         >

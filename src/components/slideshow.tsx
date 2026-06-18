@@ -2,7 +2,7 @@
 import { createEffect, createSignal, For, onCleanup, onMount, Show, JSX } from 'solid-js';
 import SwipeHandler from '@/components/swipeHandler';
 import styles from '@/components/slideshow.module.scss';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import { fastRaf } from '@/helpers/schedulers';
 import findUpClassName from '@/helpers/dom/findUpClassName';
 import { IconTsx } from '@/components/iconTsx';
@@ -138,7 +138,7 @@ export default function Slideshow<T>(props: SlideshowProps<T>) {
   return (
     <div
       ref={container!}
-      class={classNames(
+      class={clsx(
         styles.Slideshow,
         isSwiping() && styles.IsSwiping,
         getCount() <= 1 && styles.IsSingle,
@@ -162,14 +162,14 @@ export default function Slideshow<T>(props: SlideshowProps<T>) {
 
       <div class={styles.Tabs}>
         <For each={new Array(getCount())}>{(_, i) => (
-          <div class={classNames(styles.Tab, i() === index() && styles.Active)} />
+          <div class={clsx(styles.Tab, i() === index() && styles.Active)} />
         )}</For>
       </div>
 
-      <div class={classNames(styles.Arrow, styles.ArrowPrev)} onClick={handlePrev}>
+      <div class={clsx(styles.Arrow, styles.ArrowPrev)} onClick={handlePrev}>
         <IconTsx icon="avatarprevious" class={styles.ArrowIcon} />
       </div>
-      <div class={classNames(styles.Arrow, styles.ArrowNext)} onClick={handleNext}>
+      <div class={clsx(styles.Arrow, styles.ArrowNext)} onClick={handleNext}>
         <IconTsx icon="avatarnext" class={styles.ArrowIcon} />
       </div>
     </div>

@@ -2,7 +2,7 @@ import { Accessor, createEffect, createRoot, createSignal, onCleanup } from 'sol
 
 import { SEND_PAID_WITH_STARS_DELAY } from '@/lib/appManagers/constants';
 import I18n, { i18n, LangPackKey } from '@/lib/langPack';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import eachSecond from '@/helpers/eachSecond';
 import { animate } from '@/helpers/animation';
 
@@ -79,7 +79,7 @@ export default function showUndoablePaidTooltip(props: {
       animation: 'fade',
       // the undo countdown outlives a chat switch — the send can still be aborted
       closeOnPeerChange: false,
-      class: classNames('paid-reaction-tooltip', props.wider && 'paid-reaction-tooltip--a-little-wider'),
+      class: clsx('paid-reaction-tooltip', props.wider && 'paid-reaction-tooltip--a-little-wider'),
       title: title.element,
       textElement: subtitle.element,
       rightElement: (

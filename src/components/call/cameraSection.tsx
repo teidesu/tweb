@@ -8,7 +8,7 @@ import showOutputDevicePopup from '@/components/rtmp/outputDevicePopup';
 import applyDeviceToActiveCall from '@/lib/calls/applyDeviceToActiveCall';
 import acquireStream, { StreamAcquisition } from '@/lib/calls/helpers/acquireStream';
 import shouldMirrorVideoTrack from '@/lib/calls/helpers/shouldMirrorVideoTrack';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 
 // Self-contained "Camera" section used by both the in-call settings popup
 // and the Speakers-and-Camera settings tab. Owns its own preview MediaStream
@@ -145,7 +145,7 @@ export default function CallCameraSection() {
         <div class="speakers-and-camera-preview">
           <video
             ref={(el) => { videoEl = el; }}
-            class={classNames('speakers-and-camera-preview-video', isMirrored() && 'call-video-mirror')}
+            class={clsx('speakers-and-camera-preview-video', isMirrored() && 'call-video-mirror')}
             autoplay
             playsinline
             muted

@@ -10,7 +10,7 @@ import { PeerTitleTsx } from '@/components/peerTitleTsx';
 
 import css from '@/components/popups/webAppPreparedMessage.module.scss';
 import wrapPhoto from '@/components/wrappers/photo';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import setAttachmentSize from '@/helpers/setAttachmentSize';
 import { MyDocument } from '@/lib/appManagers/appDocsManager';
 import mediaSizes from '@/helpers/mediaSizes';
@@ -253,7 +253,7 @@ export default class PopupWebAppPreparedMessage extends PopupElement<{
       <>
         <FakeBubbles class={css.bubbles} contentClass={css.bubblesContent}>
           <BubbleLayout
-            class={classNames(css.bubble, bubbleClass)}
+            class={clsx(css.bubble, bubbleClass)}
             justMedia={justMedia}
             contentStyle={bubbleContainerStyle}
             text={text!}

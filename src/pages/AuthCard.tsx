@@ -1,6 +1,6 @@
 import { JSX, Show } from 'solid-js';
 
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 
 import styles from '@/pages/authFlow.module.scss';
 
@@ -51,7 +51,7 @@ export default function AuthCard(props: AuthCardProps): JSX.Element {
   const useInputWrapper = () => props.inputWrapper !== false;
 
   return (
-    <div class={classNames(styles.card, props.class)}>
+    <div class={clsx(styles.card, props.class)}>
       {props.header}
       <Show when={useInputWrapper()} fallback={props.children}>
         <div class="input-wrapper">{props.children}</div>

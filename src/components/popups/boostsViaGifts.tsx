@@ -36,7 +36,7 @@ import anchorCallback from '@/helpers/dom/anchorCallback';
 import { IconTsx } from '@/components/iconTsx';
 import { CPrepaidGiveaway } from '@/components/sidebarRight/tabs/boosts';
 import isObject from '@/helpers/object/isObject';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import RowTsx from '@/components/rowTsx';
 import { StarsStackedStars } from '@/components/popups/stars';
 import numberThousandSplitter, { numberThousandSplitterForStars } from '@/helpers/number/numberThousandSplitter';
@@ -61,7 +61,7 @@ export const BoostsConfirmButton = (props: {
 }) => {
   let s: HTMLSpanElement, ssss: HTMLSpanElement;
   const ss = (<span ref={s!} class="popup-boosts-button-text">{i18n(props.langKey(), props.langArgs?.())}</span>);
-  const sss = (<span ref={ssss!} class={classNames('popup-boosts-button-badge', !props.boosts() && 'hide')}><IconTsx icon="boost" class="popup-boosts-button-badge-icon" />{props.boosts()}</span>);
+  const sss = (<span ref={ssss!} class={clsx('popup-boosts-button-badge', !props.boosts() && 'hide')}><IconTsx icon="boost" class="popup-boosts-button-badge-icon" />{props.boosts()}</span>);
   props.button.classList.add('popup-boosts-button');
   props.button.append(s!, ssss!);
 };

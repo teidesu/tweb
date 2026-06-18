@@ -25,7 +25,7 @@ import appSidebarRight from '../sidebarRight';
 import AppSavedMusicTab from '../sidebarRight/tabs/savedMusic';
 import TopbarPlate, { createTopbarPlate } from '@/components/chat/topbarPlate';
 import Button from '@/components/buttonTsx';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import styles from '@/components/chat/audio.module.scss';
 
 export type ChatAudioController = {
@@ -108,7 +108,7 @@ export default function createChatAudio(
             noRipple
             onClick={(e) => { cancelEvent(e); appMediaPlaybackController.next(); }}
           />
-          <TopbarPlate.Content class={/* @once */ classNames('hover-effect', styles.content)} ripple>
+          <TopbarPlate.Content class={/* @once */ clsx('hover-effect', styles.content)} ripple>
             <span class={/* @once */ styles.label}>
               <span class={/* @once */ styles.artist}>{title()}</span>
               {' – '}
@@ -116,7 +116,7 @@ export default function createChatAudio(
             </span>
             <span class={/* @once */ styles.time}>{timeText()}</span>
           </TopbarPlate.Content>
-          <div class={/* @once */ classNames('pinned-container-wrapper-utils', styles.utils)}>
+          <div class={/* @once */ clsx('pinned-container-wrapper-utils', styles.utils)}>
             {volumeSelector.btn}
             {playbackRateButton.element}
             <Button.Icon

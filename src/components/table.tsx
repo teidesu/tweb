@@ -2,7 +2,7 @@ import { ComponentProps, For, JSX, splitProps, untrack } from 'solid-js';
 import { LangPackKey, i18n } from '@/lib/langPack';
 import { AvatarNew } from '@/components/avatarNew';
 import { PeerTitleTsx } from '@/components/peerTitleTsx';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 
 import styles from '@/components/table.module.scss';
 import { NULL_PEER_ID } from '@/lib/appManagers/constants';
@@ -11,7 +11,7 @@ import showTooltip from '@/components/tooltip';
 
 export type TableRow = [LangPackKey | JSX.Element, JSX.Element];
 
-const keyCellClass = classNames(styles.cell, styles.key);
+const keyCellClass = clsx(styles.cell, styles.key);
 
 export default function Table(props: {
   class?: string,
@@ -24,7 +24,7 @@ export default function Table(props: {
 }) {
   return (
     <table
-      class={classNames(
+      class={clsx(
         styles.table,
         props.boldKey && styles.boldKey,
         props.class
@@ -33,10 +33,10 @@ export default function Table(props: {
       <For each={props.content}>
         {([key, value]) => (
           <tr class={/* @once */ styles.row}>
-            <td class={classNames(keyCellClass, props.cellClass, props.keyCellClass)}>
+            <td class={clsx(keyCellClass, props.cellClass, props.keyCellClass)}>
               {typeof key === 'string' ? i18n(key as LangPackKey) : key}
             </td>
-            <td class={classNames(styles.cell, props.cellClass)}>
+            <td class={clsx(styles.cell, props.cellClass)}>
               <div class={/* @once */ styles.value}>
                 {value}
               </div>
@@ -46,7 +46,7 @@ export default function Table(props: {
       </For>
       {props.footer && (
         <tr class={/* @once */ styles.row}>
-          <td class={props.footerClass ?? classNames(styles.cell, props.cellClass)} colspan={2}>
+          <td class={props.footerClass ?? clsx(styles.cell, props.cellClass)} colspan={2}>
             {props.footer}
           </td>
         </tr>
@@ -99,7 +99,7 @@ export function TableButtonWithTooltip(props: ComponentProps<typeof Button> & {
   return (
     <Button
       {...rest}
-      class={classNames(rest.class, styles.button)}
+      class={clsx(rest.class, styles.button)}
       onClick={(evt) => {
         props.onClick?.(evt);
         if (props.tooltipTextElement) showTooltip({

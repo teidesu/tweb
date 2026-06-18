@@ -5,7 +5,7 @@ import { i18n } from '@/lib/langPack';
 import defineSolidElement, { PassedProps } from '@/lib/solidjs/defineSolidElement';
 import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
 import { IconTsx } from '@/components/iconTsx';
-import classNames from '@/helpers/string/classNames';
+import clsx from 'clsx';
 import ReplyMarkupLayout from '@/components/chat/bubbleParts/replyMarkupLayout';
 import type Chat from '@/components/chat/chat';
 import styles from '@/components/chat/bubbleParts/continueLastTopicReplyMarkup/styles.module.scss';
@@ -44,7 +44,7 @@ const ContinueLastTopicReplyMarkupContent = defineSolidElement({
       <Show when={props.visible}>
         <ReplyMarkupLayout>
           <ReplyMarkupLayout.Row>
-            <ReplyMarkupLayout.Button textClass={classNames(styles.Button, 'reply-markup-suggested-action')} onClick={onClick}>
+            <ReplyMarkupLayout.Button textClass={clsx(styles.Button, 'reply-markup-suggested-action')} onClick={onClick}>
               {/* @once */i18n('ContinueLastTopic')}
               <IconTsx icon='arrowhead' class={styles.ArrowIcon} />
             </ReplyMarkupLayout.Button>
