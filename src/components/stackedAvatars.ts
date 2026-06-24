@@ -2,10 +2,7 @@ import type LazyLoadQueue from '@/components/lazyLoadQueue';
 import { getMiddleware, Middleware, MiddlewareHelper } from '@/helpers/middleware';
 import { avatarNew } from '@/components/avatarNew';
 import { createEffect, on, onCleanup } from 'solid-js';
-
-const CLASS_NAME = 'stacked-avatars';
-const AVATAR_CLASS_NAME = CLASS_NAME + '-avatar';
-const AVATAR_CONTAINER_CLASS_NAME = AVATAR_CLASS_NAME + '-container';
+import styles from '@/components/stackedAvatars.module.scss';
 
 export default class StackedAvatars {
   public container: HTMLElement;
@@ -16,16 +13,20 @@ export default class StackedAvatars {
   constructor(options: {
     lazyLoadQueue?: StackedAvatars['lazyLoadQueue'],
     avatarSize: StackedAvatars['avatarSize'],
-    middleware: Middleware
+    middleware: Middleware,
+    class?: string
   }) {
     this.lazyLoadQueue = options.lazyLoadQueue!;
     this.avatarSize = options.avatarSize;
     this.middlewareHelper = options.middleware.create();
 
     this.container = document.createElement('div');
-    this.container.classList.add(CLASS_NAME);
+    this.container.classList.add(styles.container);
+    if (options.class) {
+      this.container.classList.add(...options.class.split(' '));
+    }
 
-    this.container.style.setProperty('--avatar-size', options.avatarSize + 'px');
+    this.container.style.setProperty('--stacked-avatars-avatar-size', options.avatarSize + 'px');
   }
 
   /**
@@ -44,7 +45,7 @@ export default class StackedAvatars {
       let avatarContainer = children[idx] as HTMLElement;
       if (!avatarContainer) {
         avatarContainer = document.createElement('div');
-        avatarContainer.classList.add(AVATAR_CONTAINER_CLASS_NAME);
+        avatarContainer.classList.add(styles.avatarContainer);
         avatarContainer.middlewareHelper = this.middlewareHelper.get().create();
       } else {
         avatarContainer.middlewareHelper!.clean();
@@ -57,7 +58,7 @@ export default class StackedAvatars {
         lazyLoadQueue: this.lazyLoadQueue,
         peerId,
       });
-      avatarElem.node.classList.add(AVATAR_CLASS_NAME);
+      avatarElem.node.classList.add(styles.avatar);
       loadPromises?.push(avatarElem.readyThumbPromise);
 
       avatarContainer.replaceChildren(avatarElem.node);
@@ -66,8 +67,8 @@ export default class StackedAvatars {
         this.container.append(avatarContainer);
       }
 
-      avatarContainer.classList.toggle('is-first', idx === 0);
-      avatarContainer.classList.toggle('is-last', idx === peerIds.length - 1);
+      avatarContainer.classList.toggle(styles.first, idx === 0);
+      avatarContainer.classList.toggle(styles.last, idx === peerIds.length - 1);
     });
 
     // if were 3 and became 2
@@ -84,12 +85,14 @@ export function StackedAvatarsTsx(props: {
   peerIds: PeerId[],
   avatarSize: number,
   lazyLoadQueue?: StackedAvatars['lazyLoadQueue'],
+  class?: string,
 }) {
   const middleware = getMiddleware()
   const stackedAvatars = new StackedAvatars({
     avatarSize: props.avatarSize,
     lazyLoadQueue: props.lazyLoadQueue,
     middleware: middleware.get(),
+    class: props.class,
   });
 
   onCleanup(() => middleware.destroy());

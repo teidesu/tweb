@@ -480,6 +480,7 @@ export default class ReactionElement extends HTMLElement {
       this.stackedAvatars = new StackedAvatars({
         avatarSize: 18,
         middleware: this.middleware,
+        class: CLASS_NAME + '-avatars',
       });
 
       this.append(this.stackedAvatars.container);

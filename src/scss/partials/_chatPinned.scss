@@ -502,7 +502,7 @@
   }
 
   &-title,
-  .stacked-avatars {
+  .pinned-requests-avatars {
     pointer-events: none;
   }
 
@@ -756,9 +756,8 @@
   }
 
   // Avatar stack inside the gradient bar — borderless so the gradient shows through.
-  .stacked-avatars {
-    --border-color: transparent;
-    --avatar-size: 16px;
+  .topbar-call-avatars {
+    --stacked-avatars-border-color: transparent;
     flex: 0 0 auto;
   }
 

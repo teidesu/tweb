@@ -367,7 +367,7 @@ export default function createTopbarCall(managers: AppManagers): TopbarCallContr
           </Button>
         </Show>
         <div class={`${CLASS_NAME}-center`} ref={centerEl}>
-          <StackedAvatarsTsx peerIds={avatarPeers()} avatarSize={16} />
+          <StackedAvatarsTsx peerIds={avatarPeers()} avatarSize={16} class={`${CLASS_NAME}-avatars`} />
           <div class={`${CLASS_NAME}-text`}>
             <div class={`${CLASS_NAME}-title`} ref={titleEl} />
             <div class={`${CLASS_NAME}-status`} ref={statusEl} />

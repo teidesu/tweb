@@ -100,7 +100,7 @@ export default function createChatRequestsPlate(
     }
 
     const avatarsMiddleware = getMiddleware();
-    const avatars = new StackedAvatars({ avatarSize: 32, middleware: avatarsMiddleware.get() });
+    const avatars = new StackedAvatars({ avatarSize: 32, middleware: avatarsMiddleware.get(), class: 'pinned-requests-avatars' });
     const loadPromises: Promise<any>[] = [];
     avatars.render(peerIds, loadPromises);
     await Promise.all(loadPromises);

@@ -2212,8 +2212,8 @@
       &.is-chosen.backwards {
         --counter-color: var(--message-primary-color);
 
-        .stacked-avatars {
-          --border-color: var(--background-color);
+        .reaction-avatars {
+          --stacked-avatars-border-color: var(--background-color);
         }
       }
     }
@@ -3515,12 +3515,6 @@
         .animation-ring {
           background-color: var(--message-out-primary-color);
           opacity: .08;
-        }
-      }
-
-      &-avatars {
-        .stacked-avatars {
-          --border-color: var(--message-background-color);
         }
       }
     }

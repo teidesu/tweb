@@ -101,6 +101,7 @@ export function UnknownUserBubble(props: {
                 <StackedAvatarsTsx
                   peerIds={commonChats()?.chats.map((chat) => chat.id.toPeerId(true)) ?? []}
                   avatarSize={18}
+                  class={/* @once */ styles.commonChatsAvatars}
                 />
                 <IconTsx class={styles.commonChatsArrow} icon="next" />
               </div>

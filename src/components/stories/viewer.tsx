@@ -1321,6 +1321,7 @@ const Stories = (props: {
         stackedAvatars = new StackedAvatars({
           avatarSize: 30,
           middleware,
+          class: styles.stackedAvatars,
         });
 
         const peerIds = recentViewers.map((userId) => {

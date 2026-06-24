@@ -1,0 +1,32 @@
+.container {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.avatarContainer {
+  width: calc(var(--stacked-avatars-avatar-size, 1rem) + var(--stacked-avatars-border-size, 1px) * 2);
+  height: calc(var(--stacked-avatars-avatar-size, 1rem) + var(--stacked-avatars-border-size, 1px) * 2);
+  border: var(--stacked-avatars-border-size, 1px) solid var(--stacked-avatars-border-color, var(--surface-color));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+  margin-inline-end: var(--stacked-avatars-margin-right, -.3125rem);
+  transition: var(--stacked-avatars-container-transition, none);
+
+  &.first {
+    margin-inline-end: 0;
+  }
+
+  &:not(.last) :global(.avatar) {
+    clip-path: var(--stacked-avatars-clip-path, none);
+  }
+}
+
+.avatar {
+  width: var(--stacked-avatars-avatar-size, 1rem);
+  height: var(--stacked-avatars-avatar-size, 1rem);
+  z-index: 0; // * fix border blinking
+}

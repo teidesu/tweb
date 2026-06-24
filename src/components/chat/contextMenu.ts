@@ -1562,7 +1562,7 @@ export default class ChatContextMenu {
         }
 
         if (reactions.length) {
-          const avatars = new StackedAvatars({ avatarSize: AVATAR_SIZE, middleware });
+          const avatars = new StackedAvatars({ avatarSize: AVATAR_SIZE, middleware, class: 'btn-menu-item-avatars' });
           avatars.render(recentReactions ? recentReactions.map((r) => getPeerId(r.peer_id)) : reactions.map((reaction) => reaction.peerId));
           viewsButton.element!.append(avatars.container);
 

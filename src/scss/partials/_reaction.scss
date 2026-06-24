@@ -77,7 +77,7 @@
     background-color: var(--background-color);
     color: var(--counter-color);
 
-    &:has(.stacked-avatars) {
+    &:has(.reaction-avatars) {
       padding: 0 0.0625rem 0 0.3125rem;
     }
 
@@ -118,8 +118,8 @@
           // visibility: visible;
         }
 
-        .stacked-avatars {
-          --border-color: var(--chosen-background-color);
+        .reaction-avatars {
+          --stacked-avatars-border-color: var(--chosen-background-color);
         }
       }
 
@@ -134,16 +134,16 @@
           // transition: color 1s linear;
         }
 
-        .stacked-avatars-avatar-container {
-          transition: border-color var(--transition-standard-in);
+        .reaction-avatars {
+          --stacked-avatars-container-transition: border-color var(--transition-standard-in);
         }
       }
     }
 
-    .stacked-avatars {
-      --border-color: transparent;
-      --border-size: .125rem;
-      --margin-right: -.65625rem;
+    .reaction-avatars {
+      --stacked-avatars-border-color: transparent;
+      --stacked-avatars-border-size: .125rem;
+      --stacked-avatars-margin-right: -.65625rem;
       margin-inline-start: .1875rem;
       // margin-right: .0625rem;
     }

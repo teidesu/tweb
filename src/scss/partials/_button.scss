@@ -454,8 +454,8 @@ $btn-menu-z-index: 4;
       position: relative;
     }
 
-    .stacked-avatars {
-      --margin-right: -.6875rem;
+    .btn-menu-item-avatars {
+      --stacked-avatars-margin-right: -.6875rem;
       flex: 0 0 auto;
       inset-inline-end: .5rem;
       // margin-right: -1.5rem;

@@ -106,15 +106,11 @@
     text-decoration: underline;
   }
 
-  :global {
-    .stacked-avatars {
-      --border-size: 0;
-      --margin-right: -0.46875rem;
-
-      .stacked-avatars-avatar-container:not(.is-last) .avatar {
-        clip-path: path("M 8.999 -0.329 a 9 9 0 1 1 -4.11 17.006 a 10.22 10.22 0 0 0 3.856 -8.006 c 0 -3.24 -1.507 -6.13 -3.856 -8.006 A 8.96 8.96 0 0 1 8.999 -0.33");
-      }
-    }
+  &Avatars {
+    --stacked-avatars-border-size: 0;
+    --stacked-avatars-margin-right: -0.46875rem;
+    // todo: do we need a custom path here?
+    --stacked-avatars-clip-path: path("M 8.999 -0.329 a 9 9 0 1 1 -4.11 17.006 a 10.22 10.22 0 0 0 3.856 -8.006 c 0 -3.24 -1.507 -6.13 -3.856 -8.006 A 8.96 8.96 0 0 1 8.999 -0.33");
   }
 
   &Arrow {
