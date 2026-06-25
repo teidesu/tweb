@@ -26,7 +26,6 @@ import sessionStorage from '@/lib/sessionStorage';
 import { attachClickEvent, CLICK_EVENT_NAME, simulateClickEvent } from '@/helpers/dom/clickEvent';
 import ButtonIcon from '@/components/buttonIcon';
 import confirmationPopup from '@/components/confirmationPopup';
-import { replaceButtonIcon } from '@/components/button';
 import noop from '@/helpers/noop';
 import ripple from '@/components/ripple';
 import indexOfAndSplice from '@/helpers/array/indexOfAndSplice';
@@ -53,11 +52,7 @@ import getAttachMenuBotIcon from '@/lib/appManagers/utils/attachMenuBots/getAtta
 import wrapEmojiText from '@/lib/richTextProcessor/wrapEmojiText';
 import wrapUrl from '@/lib/richTextProcessor/wrapUrl';
 import flatten from '@/helpers/array/flatten';
-import { AttachMenuBot, EmojiStatus, User } from '@/layer';
-import { Middleware, MiddlewareHelper } from '@/helpers/middleware';
-import wrapEmojiStatus from '@/components/wrappers/emojiStatus';
-import { makeMediaSize } from '@/helpers/mediaSize';
-import ReactionElement from '@/components/chat/reaction';
+import { AttachMenuBot, User } from '@/layer';
 import setBlankToAnchor from '@/lib/richTextProcessor/setBlankToAnchor';
 import AccountController from '@/lib/accounts/accountController';
 import { ActiveAccountNumber } from '@/lib/accounts/types';
@@ -96,7 +91,6 @@ import useHasFoldersSidebar, {
 } from '@/stores/foldersSidebar';
 import isObject from '@/helpers/object/isObject';
 import { useAppSettings } from '@/stores/appSettings';
-import { openEmojiStatusPicker } from '@/components/sidebarLeft/emojiStatusPicker';
 
 export const LEFT_COLUMN_ACTIVE_CLASSNAME = 'is-left-column-shown';
 
@@ -150,6 +144,10 @@ export class AppSidebarLeft extends SidebarSlider {
     sidebarHeader!.append(this.inputSearch.container);
 
     this.backBtn = this.sidebarEl.querySelector('.sidebar-back-button') as HTMLButtonElement;
+
+    const searchCloseBtn = this.inputSearch.createButtonIcon('close', 'sidebar-search-close');
+    this.inputSearch.container.append(searchCloseBtn);
+    attachClickEvent(searchCloseBtn, () => simulateClickEvent(this.backBtn));
 
     this.toolsBtn = this.createToolsMenu();
     // .is-visible is owned by the Solid effect below (see "burger element
@@ -223,108 +221,19 @@ export class AppSidebarLeft extends SidebarSlider {
       }
     });
 
-    let statusMiddlewareHelper: MiddlewareHelper, fireOnNew: boolean;
-    const premiumMiddlewareHelper = this.getMiddleware().create();
-    const statusBtnIcon = ButtonIcon(' sidebar-emoji-status', { noRipple: true });
-
     const lockButton = createLockButton();
 
-    attachClickEvent(statusBtnIcon, () => {
-      openEmojiStatusPicker({
-        managers: this.managers,
-        anchorElement: statusBtnIcon,
-        onChosen: () => {
-          fireOnNew = true
-        },
-      })
-    });
-
-    const wrapStatus = async(middleware: Middleware) => {
-      const user = apiManagerProxy.getUser(rootScope.myId.toUserId());
-      const emojiStatus = user.emoji_status as EmojiStatus.emojiStatus;
-      if (!emojiStatus) {
-        statusBtnIcon.replaceChildren();
-        replaceButtonIcon(statusBtnIcon, 'star');
-        return;
-      }
-
-      fireOnNew && ReactionElement.fireAroundAnimation({
-        middleware: statusMiddlewareHelper?.get() || this.getMiddleware(),
-        reaction: {
-          _: 'reactionCustomEmoji',
-          document_id: emojiStatus.document_id,
-        },
-        sizes: {
-          genericEffect: 26,
-          genericEffectSize: 100,
-          size: 22 + 18,
-          effectSize: 80,
-        },
-        stickerContainer: statusBtnIcon,
-        cache: statusBtnIcon as any,
-        textColor: 'primary-color',
-      });
-
-      fireOnNew = false;
-
-      const container = await wrapEmojiStatus({
-        wrapOptions: {
-          middleware,
-        },
-        emojiStatus,
-        size: makeMediaSize(24, 24),
-      });
-
-      container.classList.replace('emoji-status', 'sidebar-emoji-status-emoji');
-
-      statusBtnIcon.replaceChildren(container);
-    };
-
-    const onPremium = async(isPremium: boolean) => {
-      premiumMiddlewareHelper.clean();
-      const middleware = premiumMiddlewareHelper.get();
-      if (isPremium) {
-        await wrapStatus((statusMiddlewareHelper = middleware.create()).get());
-        if (!middleware()) return;
-        toggleRightButtons(true, await DeferredIsUsingPasscode.isUsingPasscode());
-
-        const onEmojiStatusChange = () => {
-          const oldStatusMiddlewareHelper = statusMiddlewareHelper;
-          wrapStatus((statusMiddlewareHelper = middleware.create()).get())
-            .finally(() => {
-              oldStatusMiddlewareHelper.destroy();
-            });
-        };
-
-        rootScope.addEventListener('emoji_status_change', onEmojiStatusChange);
-
-        middleware.onClean(() => {
-          rootScope.removeEventListener('emoji_status_change', onEmojiStatusChange);
-        });
-      } else {
-        toggleRightButtons(false, await DeferredIsUsingPasscode.isUsingPasscode());
-      }
-
-      appDialogsManager.resizeStoriesList?.();
-    };
-
-    const toggleRightButtons = (isPremium: boolean, isUsingPasscode: boolean) => {
-      if (isPremium) sidebarHeader!.append(statusBtnIcon);
-      else statusBtnIcon.remove();
-
+    const toggleRightButtons = (isUsingPasscode: boolean) => {
       if (isUsingPasscode) sidebarHeader!.append(lockButton.element);
       else lockButton.element.remove();
 
-      sidebarHeader!.classList.toggle('is-input-the-last-child', !isPremium && !isUsingPasscode);
+      sidebarHeader!.classList.toggle('is-input-the-last-child', !isUsingPasscode);
     };
 
-    appImManager.addEventListener('premium_toggle', onPremium);
-    rootScope.addEventListener('toggle_using_passcode', (isUsingPasscode) => {
-      toggleRightButtons(rootScope.premium, isUsingPasscode);
-    });
+    rootScope.addEventListener('toggle_using_passcode', toggleRightButtons);
 
     const [appSettings] = useAppSettings();
-    toggleRightButtons(rootScope.premium, appSettings.passcode?.enabled);
+    toggleRightButtons(appSettings.passcode?.enabled);
 
     this.managers.appUsersManager.getTopPeers('correspondents');
 
@@ -384,26 +293,25 @@ export class AppSidebarLeft extends SidebarSlider {
     });
 
     // The burger element has two visual states: the three-line menu icon (a
-    // click on it opens the burger menu) and the back arrow (a click on it
-    // closes the open search). Three classes encode that state — toolsBtn /
-    // backBtn `.is-visible` (which click target is active) and the animated
-    // icon's `.state-back` (which shape it renders as). They all flow from
-    // the same condition, so a single Solid effect owns the truth:
+    // click on it opens the burger menu) and the back arrow. Three classes
+    // encode that state — toolsBtn / backBtn `.is-visible` (which click target
+    // is active) and the animated icon's `.state-back` (which shape it renders
+    // as). They all flow from one condition:
     //
-    //   showBack = useFoldersSidebarShown OR useIsLeftSearchActive
+    //   showBack = useFoldersSidebarShown
     //
     // When the folders panel is actually shown it has its own menu trigger, so
-    // the in-sidebar burger never serves as a menu — it stays in back state
-    // regardless of search activity. NOTE: gate on the viewport-aware *shown*
-    // value, not the raw useHasFoldersSidebar preference — below 925px the panel
-    // is hidden (its menu trigger with it), so the burger MUST fall back to the
-    // menu icon. Without the panel shown, back state follows search activity.
+    // the in-sidebar burger never serves as a menu — it stays in back state.
+    // NOTE: gate on the viewport-aware *shown* value, not the raw
+    // useHasFoldersSidebar preference — below 925px the panel is hidden (its
+    // menu trigger with it), so the burger MUST fall back to the menu icon.
+    // Search no longer drives this: closing search is done via the in-input
+    // close button (see searchCloseBtn), not a back arrow in the header.
     createRoot(() => {
       const [foldersSidebarShown] = useFoldersSidebarShown();
-      const [isLeftSearchActive] = useIsLeftSearchActive();
       const animatedMenuIcon = this.buttonsContainer.firstElementChild as HTMLElement;
       createEffect(() => {
-        const showBack = foldersSidebarShown() || isLeftSearchActive();
+        const showBack = foldersSidebarShown();
         this.toolsBtn.classList.toggle('is-visible', !showBack);
         this.backBtn.classList.toggle('is-visible', showBack);
         animatedMenuIcon.classList.toggle('state-back', showBack);
@@ -1377,9 +1285,6 @@ export class AppSidebarLeft extends SidebarSlider {
     transition(0);
 
     const onFocus = () => {
-      // toolsBtn/backBtn `.is-visible` and the animated icon's `.state-back`
-      // are owned by the Solid effect in init() — flipping `isSearchActive`
-      // below propagates to all three classes.
       this.updateBtn.classList.add('is-hidden');
 
       const navigationType: NavigationItem['type'] = 'global-search';
@@ -1395,19 +1300,6 @@ export class AppSidebarLeft extends SidebarSlider {
 
       transition(1);
 
-      // Decide whether the burger should grow/shrink with a transition.
-      // Only set it on the first focus of this open cycle — re-focusing the
-      // input while search is already open would otherwise see the burger's
-      // own `.is-visible` and flip the flag off, breaking the close
-      // animation. Driven structurally off the search trigger's class
-      // because the user prefers checking button presence over proxying
-      // through `.is-collapsed`.
-      if (!this.buttonsContainer.classList.contains('is-visible')) {
-        const triggerIsVisible = this.searchTriggerWhenCollapsed.classList.contains('is-visible');
-        this.buttonsContainer.classList.toggle('appear-animated', !triggerIsVisible);
-      }
-
-      this.buttonsContainer.classList.add('is-visible');
       this.isSearchActive = true;
       this.onSomethingOpenInsideChange();
     };
@@ -1416,12 +1308,9 @@ export class AppSidebarLeft extends SidebarSlider {
     onFocus();
 
     attachClickEvent(this.backBtn, (e) => {
-      // Burger state classes flip back when `isSearchActive` becomes false
-      // — see the init() effect that owns toolsBtn/backBtn/state-back.
       appNavigationController.removeByType('global-search');
 
       transition(0);
-      this.buttonsContainer.classList.remove('is-visible');
       this.isSearchActive = false;
       this.onSomethingOpenInsideChange();
 

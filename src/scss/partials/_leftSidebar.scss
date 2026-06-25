@@ -45,18 +45,36 @@
   .main-search-sidebar-header {
     transition: background-color var(--transition-standard-in), opacity var(--transition-standard-in);
     opacity: 1;
+    min-height: 3.375rem;
+    padding-inline: 0.5rem;
 
-    &.is-input-the-last-child {
-      padding-inline-end: .5rem;
+    // todo: we should try making it rectangular and flush
+
+    .input-search {
+      --padding-horizontal: 1rem;
+      --height: 2.5rem;
+      font-size: 14px;
+      margin-inline: 0;
     }
 
-    .has-vertical-folders & {
-      padding-inline: .5rem;
-
-      &:not(.is-input-the-last-child) {
-        padding-inline-end: 1rem;
-      }
+    .input-search-icon,
+    .input-search-clear {
+      display: none;
     }
+
+    .input-search-input {
+      padding-inline-end: 2.75rem;
+    }
+
+    .sidebar-search-close {
+      display: none;
+      inset-inline-end: calc((var(--height) - 2.25rem) / 2);
+      z-index: 1;
+    }
+  }
+
+  .item-main.is-search-active .main-search-sidebar-header .sidebar-search-close {
+    display: flex;
   }
 
   @include respond-to(no-floating-left-sidebar) {
@@ -193,7 +211,6 @@
     &.force-hide-search {
       .main-search-sidebar-header {
         .input-search,
-        .sidebar-emoji-status,
         .sidebar-lock-button {
           display: none;
         }
@@ -364,19 +381,6 @@
       }
     }
 
-    .sidebar-emoji-status {
-      width: 2.5rem;
-      height: 2.5rem;
-      flex: 0 0 auto;
-      color: var(--primary-color);
-
-      &-emoji {
-        position: relative;
-        width: 1.5rem;
-        height: 1.5rem;
-      }
-    }
-
     .search-helper {
       display: flex;
       margin-inline-start: .625rem;
@@ -536,14 +540,8 @@
   }
 
   // Holds the burger / back-button / animated state icon at the start of
-  // .main-search-sidebar-header. JS adds `.is-visible` when search opens
-  // (the burger needs to appear next to the input).
-  //
-  // Width/opacity animate only when there's nothing else to the left of
-  // the search input at the moment the burger appears — JS captures
-  // that as the `.appear-animated` class so this transition fires for
-  // both the open and the close of the burger in the expanded sidebar,
-  // but stays out of the way of the instant collapsed-mode swap.
+  // .main-search-sidebar-header. In folders-sidebar mode the folders panel
+  // owns the menu trigger, so this stays hidden there.
   .left-sidebar-burger {
     position: relative;
     width: 2.5rem;
@@ -593,19 +591,6 @@
         margin-top: -.25rem;
       }
     }
-  }
-
-  // Animate the burger opening AND closing when there's no other button
-  // sitting where it appears (the only such case in practice is the
-  // expanded sidebar — collapsed always has the search trigger as a peer).
-  // The decision is captured in JS via `.appear-animated` because the
-  // structural check (trigger's .is-visible) would race the Solid effect
-  // that removes that class — by the time CSS sees paint, the trigger has
-  // already vanished and pure :has() can't tell "trigger was just here"
-  // from "trigger never was". The class persists across the open lifetime,
-  // so the close transition (width 2.5rem → 0) also runs.
-  .left-sidebar-burger.appear-animated {
-    transition: width 0.12s, opacity 0.12s, margin-inline-start 0.12s;
   }
 
   .sidebar-tools-button {
