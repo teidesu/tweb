@@ -15,6 +15,7 @@ import { useAppSettings } from '@/stores/appSettings';
 import { Accessor, createComputed, createEffect, createMemo, createResource, createRoot, createSignal, For, onCleanup, Ref, Setter, Show } from 'solid-js';
 import { createStore, unwrap } from 'solid-js/store';
 import styles from './archiveDialog.module.scss';
+import rowStyles from './sectionRow.module.scss';
 import Badge from './badge';
 import { IconTsx } from './iconTsx';
 import ripple from './ripple';
@@ -40,7 +41,11 @@ export const archiveDialogTagName = 'archive-dialog';
 const ArchiveDialog = defineSolidElement({
   name: archiveDialogTagName,
   component: (props: PassedProps<ArchiveDialogProps>, _, controls: Controls) => {
-    props.element.classList.add('row', 'no-wrap', 'row-with-padding', 'row-clickable', 'hover-effect', 'rp', 'chatlist-chat', 'chatlist-chat-bigger', 'row-big');
+    // todo: we SHOULD NOT do this
+    props.element.classList.add(
+      rowStyles.row, rowStyles.noWrap, rowStyles.rowWithPadding, rowStyles.rowClickable,
+      'hover-effect', 'rp', 'dialog-with-avatar', 'chatlist-chat', 'chatlist-chat-bigger', 'row-big'
+    );
 
     const [openStoriesTarget, setOpenStoriesTarget] = createSignal<HTMLElement>();
 
@@ -64,11 +69,11 @@ const ArchiveDialog = defineSolidElement({
           storiesSegments={props.state.segments()!}
           ref={setOpenStoriesTarget}
         />
-        <div class="row-row row-title-row">
-          <I18nTsx class={styles.Title} key="ArchivedChats" />
+        <div class={`${rowStyles.rowRow} ${rowStyles.rowTitleRow}`}>
+          <I18nTsx class={`${rowStyles.rowTitle} ${styles.Title}`} key="ArchivedChats" />
         </div>
-        <div class="row-row row-subtitle-row">
-          <div class={styles.Subtitle}>
+        <div class={`${rowStyles.rowRow} ${rowStyles.rowSubtitleRow}`}>
+          <div class={`${rowStyles.rowSubtitle} ${styles.Subtitle}`}>
             <For each={sortedDialogs()}>
               {(dialog, index) => (
                 <>
@@ -422,7 +427,7 @@ function ArchiveAvatar(props: {
 
   return (
     <div
-      class={`${styles.Media} row-media row-media-bigger dialog-avatar`}
+      class={`${styles.Media} ${rowStyles.rowMedia} ${rowStyles.rowMediaBigger} dialog-avatar`}
       classList={{
         'archive-dialog-with-stories': hasStories(),
         [styles.hasStories]: hasStories(),
