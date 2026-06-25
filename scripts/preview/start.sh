@@ -93,4 +93,4 @@ fi
 echo "[start-preview] id=$ID  port=$PORT  seed=$SEED  no-worker=$NO_WORKER"
 echo "[start-preview] preview: http://localhost:$PORT"
 exec env PREVIEW_SEED="$SEED" TWEB_PREVIEW=1 TWEB_NO_WORKER="$NO_WORKER" pnpm exec vite \
-  --config scripts/preview/vite.config.ts --port "$PORT" --strictPort
+  --config scripts/preview/vite.config.mts --port "$PORT" --strictPort

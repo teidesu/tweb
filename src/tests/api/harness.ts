@@ -50,6 +50,7 @@ export async function createTestClient(opts: CreateTestClientOpts) {
 
   step('registerInlineCrypto');
   registerInlineCrypto();
+  await (await import('@/lib/crypto/wasmInit')).initCryptoWasm();
 
   step('setEnvironment (stub)');
   const { setEnvironment } = await import('@/environment/utils');

@@ -31,7 +31,8 @@ const seedPath = process.env.TG_API_SEED;
 const describeOrSkip = ENABLED && seedPath ? describe : describe.skip;
 
 // cloud (2FA) password for the seed accounts is a single space
-const CLOUD_PASSWORD = ' ';
+const CLOUD_PASSWORD = process.env.VITE_PREVIEW_CLOUD_PASSWORD;
+if (!CLOUD_PASSWORD) throw new Error('PREVIEW_CLOUD_PASSWORD is not set');
 // Telegram service notifications peer — login codes are delivered here in-app
 const TELEGRAM_SERVICE_ID = 777000;
 

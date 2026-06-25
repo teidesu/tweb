@@ -16,7 +16,7 @@
 import {mergeConfig} from 'vite';
 import {readFileSync} from 'fs';
 import {basename, resolve} from 'path';
-import baseConfig from '../../vite.config';
+import baseConfig from '../../vite.config.mts';
 
 const seedPath = process.env.PREVIEW_SEED ?
   resolve(process.env.PREVIEW_SEED) :
