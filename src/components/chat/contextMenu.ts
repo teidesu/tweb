@@ -94,6 +94,7 @@ import { concatTextsWithEntities } from '@/lib/richTextProcessor/concatTextsWith
 import { shouldShufflePollOptions, shufflePollOptions } from './bubbleParts/pollMessageContent/shuffle';
 import { truncateTextWithEntities } from '@/lib/richTextProcessor/truncateTextWithEntities';
 import { pollOptionToLink } from './bubbleParts/pollMessageContent/pollToOptionLink';
+import { getAppWindow, getOverlayRoot } from '@/helpers/appWindow';
 
 type ChatContextMenuButton = ButtonMenuItemOptions & {
   verify: () => boolean | Promise<boolean>,
@@ -328,11 +329,15 @@ export default class ChatContextMenu {
     if ((!bubble! || bubble.classList.contains('bubble-first')) && !avatar!) return;
 
     let element = this.element;
-    if (e instanceof MouseEvent || e.hasOwnProperty('preventDefault')) (e as any).preventDefault();
+    // `!('touches' in e)` is the cross-realm-safe equivalent of `instanceof MouseEvent`: it stays true
+    // for a Document PiP window's mouse event (whose constructor is a different realm, so `instanceof`
+    // the main realm's MouseEvent is false) while still excluding TouchEvent/Touch — otherwise the
+    // native browser context menu wasn't suppressed on right-click inside the popped-out client.
+    if (!('touches' in e) && 'preventDefault' in e) (e as any).preventDefault();
     if (element && element.classList.contains('active')) {
       return false;
     }
-    if (e instanceof MouseEvent || e.hasOwnProperty('cancelBubble')) (e as any).cancelBubble = true;
+    if (!('touches' in e) && 'cancelBubble' in e) (e as any).cancelBubble = true;
 
     let mid = avatar! ? 0 : +bubble!.dataset.mid!;
     if (!mid && mid !== 0) {
@@ -401,7 +406,7 @@ export default class ChatContextMenu {
       }
 
       if (this.isTextSelected) {
-        const range = document.getSelection()!.getRangeAt(0);
+        const range = getAppWindow().getSelection()!.getRangeAt(0);
         this.isTextFromMultipleMessagesSelected = findUpClassName(range.startContainer.parentElement!, 'spoilers-container') !== findUpClassName(range.endContainer.parentElement!, 'spoilers-container');
       } else {
         this.isTextFromMultipleMessagesSelected = false;
@@ -807,7 +812,7 @@ export default class ChatContextMenu {
         (this.chat.bubbles.canForward(this.message) || (this.chat.canSend() as unknown as boolean)) &&
         (() => {
           const { date } = getMarkupInSelection(['date'], true);
-          return !date.elements[0] || isNodeFullyInsideRange(document.getSelection()!.getRangeAt(0), date.elements[0].firstChild!);
+          return !date.elements[0] || isNodeFullyInsideRange(getAppWindow().getSelection()!.getRangeAt(0), date.elements[0].firstChild!);
         })())!,
     }, {
       icon: 'reply',
@@ -901,8 +906,8 @@ export default class ChatContextMenu {
       icon: 'search',
       text: 'Chat.SearchSelected',
       onClick: () => {
-        const selection = document.getSelection();
-        this.chat.initSearch({ query: selection!.toString() });
+        const selection = getAppWindow().getSelection()!;
+        this.chat.initSearch({ query: selection.toString() });
       },
       verify: () => !!(this.message as Message.message).message && this.isTextSelected,
     }, {
@@ -1681,7 +1686,9 @@ export default class ChatContextMenu {
       // emojisButton.element.append(i18n('Loading'));
     }
 
-    document.body.append(element);
+    // Mount into the active window's body so a context menu opened while the client is popped out
+    // lands in the Document PiP window (positionMenu + contextMenuController then follow its realm).
+    getOverlayRoot().append(element);
     this.buttons.forEach((button) => button.onOpen?.());
 
     return {
@@ -1904,7 +1911,7 @@ export default class ChatContextMenu {
       const { text, html } = this.selectedMessagesText;
       copyTextToClipboard(text, (html! as string | undefined));
     } else {
-      document.execCommand('copy');
+      getAppWindow().document.execCommand('copy');
       // cancelSelection();
     }
   };

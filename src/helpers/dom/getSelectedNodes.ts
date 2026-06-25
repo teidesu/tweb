@@ -1,8 +1,10 @@
+import { getAppWindow } from '@/helpers/appWindow';
+
 export default function getSelectedNodes() {
   const nodes: Node[] = [];
-  const selection = window.getSelection();
-  for (let i = 0; i < selection!.rangeCount; ++i) {
-    const range = selection!.getRangeAt(i);
+  const selection = getAppWindow().getSelection()!;
+  for (let i = 0; i < selection.rangeCount; ++i) {
+    const range = selection.getRangeAt(i);
     let { startContainer, endContainer } = range;
     if (endContainer.nodeType !== endContainer.TEXT_NODE) endContainer = endContainer.firstChild!;
 

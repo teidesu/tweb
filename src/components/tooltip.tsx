@@ -5,6 +5,7 @@ import { createRoot, createSignal, onMount, JSX } from 'solid-js';
 import { Portal } from 'solid-js/web';
 import { IconTsx } from '@/components/iconTsx';
 import SetTransition from '@/components/singleTransition';
+import { getOverlayRoot } from '@/helpers/appWindow';
 
 const KEEP_TOOLTIP = true;
 const tooltipOverlayClickHandler = new OverlayClickHandler(undefined, true);
@@ -21,11 +22,13 @@ export default function showTooltip({
   onClose,
   icon,
   auto,
-  mountOn = document.body,
+  // Mount into the active window's body so a tooltip shown while the client is popped out renders in
+  // the Document PiP window. Falls back to the main body when not popped out — same as before.
+  mountOn = getOverlayRoot(),
   relative,
   lighter,
   rightElement,
-  useOverlay = mountOn === document.body,
+  useOverlay = mountOn === getOverlayRoot(),
 }: {
   element: HTMLElement,
   class?: string,

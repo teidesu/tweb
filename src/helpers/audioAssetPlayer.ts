@@ -1,6 +1,7 @@
 import safePlay from '@/helpers/dom/safePlay';
 import deepEqual from '@/helpers/object/deepEqual';
 import tsNow from '@/helpers/tsNow';
+import { getOverlayRoot } from '@/helpers/appWindow';
 
 const ASSETS_PATH = 'assets/audio/';
 
@@ -24,7 +25,7 @@ export default class AudioAssetPlayer<AssetMap extends Record<string, string>> {
     if (!AudioAssetPlayer.container) {
       AudioAssetPlayer.container = document.createElement('div');
       AudioAssetPlayer.container.id = 'audio-asset-player';
-      document.body.append(AudioAssetPlayer.container);
+      getOverlayRoot().append(AudioAssetPlayer.container);
     }
   }
 

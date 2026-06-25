@@ -57,6 +57,7 @@ import clamp from '@/helpers/number/clamp';
 import windowSize from '@/helpers/windowSize';
 import IS_TOUCH_SUPPORTED from '@/environment/touchSupport';
 import { isTruthy } from '../helpers/isTruthy';
+import { getOverlayRoot } from '@/helpers/appWindow';
 
 type BrowserPageProps<T = {}> = T & {
   title: string, // plain text
@@ -184,9 +185,9 @@ function BrowserHeader(props: {
       return;
     }
 
-    if (e instanceof MouseEvent) e.preventDefault();
+    if (!('touches' in e)) e.preventDefault(); // cross-realm-safe mouse check (Document PiP window)
     // smth
-    if (e instanceof MouseEvent) e.cancelBubble = true;
+    if (!('touches' in e)) e.cancelBubble = true;
 
     const page = state.pages.find((page) => tabMap.get(page.id!) === target);
     if (!page?.menuButtons) {
@@ -205,7 +206,7 @@ function BrowserHeader(props: {
     });
     element.classList.add('contextmenu');
 
-    document.body.append(element);
+    getOverlayRoot().append(element);
 
     positionMenu(e, element);
     contextMenuController.openBtnMenu(element, () => {

@@ -10,6 +10,7 @@ import throttle from '@/helpers/schedulers/throttle';
 import { withCurrentOwner } from '@/helpers/solid/withCurrentOwner';
 import { batch, createEffect, createMemo, createSignal, on, onCleanup, onMount } from 'solid-js';
 import { modifyMutable, produce } from 'solid-js/store';
+import { getOverlayRoot } from '@/helpers/appWindow';
 
 
 const MAX_SCALE = 20;
@@ -110,7 +111,7 @@ export default function CropHandles() {
     const resizeSwipeHandlers = multipliers.map(({ el, left, top }) => {
       return new SwipeHandler({
         element: el,
-        setCursorTo: document.body,
+        setCursorTo: getOverlayRoot(),
         onStart() {
           initialScale = mediaState.scale;
           initialTranslation = mediaState.translation;

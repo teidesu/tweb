@@ -39,6 +39,8 @@ import isInputEmpty from '@/helpers/dom/isInputEmpty';
 import isSendShortcutPressed from '@/helpers/dom/isSendShortcutPressed';
 import placeCaretAtEnd from '@/helpers/dom/placeCaretAtEnd';
 import getRichValueWithCaret from '@/helpers/dom/getRichValueWithCaret';
+import classifyInputKeyup from '@/helpers/dom/classifyInputKeyup';
+import isPlausibleEmojiQuery from '@/components/chat/isPlausibleEmojiQuery';
 import EmojiHelper from '@/components/chat/emojiHelper';
 import CommandsHelper from '@/components/chat/commandsHelper';
 import AutocompleteHelperController from '@/components/chat/autocompleteHelperController';
@@ -145,6 +147,7 @@ import appDownloadManager, { DownloadBlob } from '@/lib/appDownloadManager';
 import { MediaEditorProps } from '@/components/mediaEditor/mediaEditor';
 import { NumberPair } from '@/components/mediaEditor/types';
 import { renderImageFromUrlPromise } from '@/helpers/dom/renderImageFromUrl';
+import { getAppWindow } from '@/helpers/appWindow';
 import AttachMenuButton from './attachMenuButton';
 import pause from '@/helpers/schedulers/pause';
 import onMediaLoad from '@/helpers/onMediaLoad';
@@ -2147,7 +2150,9 @@ export default class ChatInput {
       this.forwardElements?.container,
       this.webPageElements?.container,
     ].forEach((menu) => {
-      if (menu?.parentElement === document.body) menu.remove();
+      // matches('body') instead of `=== document.body` so a menu floated into the Document PiP
+      // window's body (getOverlayRoot) is still torn down — its parent is the PiP body, not the tab's.
+      if (menu?.parentElement?.matches('body')) menu.remove();
     });
   }
 
@@ -2902,7 +2907,7 @@ export default class ChatInput {
     if (!isSendShortcutPressed(e)) return void focusInput(this.messageInput, e);
 
     this.sendMessage();
-    document.addEventListener('keyup', () => {
+    getAppWindow().document.addEventListener('keyup', () => {
       focusInput(this.messageInput);
     }, { once: true });
   }
@@ -3027,7 +3032,15 @@ export default class ChatInput {
       }
     }); */
     this.listenerSetter.add(this.messageInput)('input', this.onMessageInput);
-    this.listenerSetter.add(this.messageInput)('keyup', () => {
+    this.listenerSetter.add(this.messageInput)('keyup', (e) => {
+      // * a content-changing key already fired an `input` event before this `keyup`, and the
+      // * input handler re-parsed + ran checkAutocomplete with the parsed value — re-doing it
+      // * here would just re-walk the DOM and bail at the previousQuery guard. Only re-check on
+      // * a caret-move key (arrows/Home/End/PageUp/PageDown), which never fires `input`.
+      if (classifyInputKeyup(e) !== 'caret-move') {
+        return;
+      }
+
       this.checkAutocomplete();
     });
 
@@ -3475,7 +3488,10 @@ export default class ChatInput {
           (e._ === 'messageEntityEmoji' || e._ === 'messageEntityCustomEmoji') &&
           (e.offset! + e.length!) === value.length
         );
-        if (!hasEmojiEntityAtEnd && !value.match(/^\s*:(.+):\s*$/) && !value.match(/:[;!@#$%^&*()\-=|]/) && query) {
+        // * gate the SharedWorker emoji search: an explicit `:foo` query always searches, but a
+        // * bare-word query (typing prose) is only searched once it can match the keyword index
+        // * (minChars=2) — a 1-char bare token can never yield a result, so skip the round-trip.
+        if (!hasEmojiEntityAtEnd && !value.match(/^\s*:(.+):\s*$/) && !value.match(/:[;!@#$%^&*()\-=|]/) && isPlausibleEmojiQuery(query, firstChar)) {
           foundHelpers.add(this.emojiHelper);
           this.emojiHelper.checkQuery(query, firstChar);
         }

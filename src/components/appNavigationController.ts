@@ -5,6 +5,7 @@ import blurActiveElement from '@/helpers/dom/blurActiveElement';
 import cancelEvent from '@/helpers/dom/cancelEvent';
 import isSwipingBackSafari from '@/helpers/dom/isSwipingBackSafari';
 import tabId from '@/config/tabId';
+import { bindActiveWindowListener } from '@/helpers/appWindow';
 
 export type NavigationItem = {
   type: 'left' | 'right' | 'im' | 'chat' | 'popup' | 'media' | 'menu' |
@@ -73,7 +74,9 @@ export class AppNavigationController {
       }
     }
 
-    window.addEventListener('keydown', this.onKeyDown, { capture: true, passive: false });
+    // Follow the active app window so Esc / back-navigation keys keep working when the client is
+    // popped into a Document PiP window (its key events fire on the PiP window, not the tab's).
+    bindActiveWindowListener((w) => w, 'keydown', this.onKeyDown, { capture: true, passive: false });
 
     if (IS_MOBILE_SAFARI) {
       const options = { passive: true };

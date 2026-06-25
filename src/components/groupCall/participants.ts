@@ -23,6 +23,7 @@ import PopupElement from '@/components/popups';
 import Scrollable from '@/components/scrollable';
 import GroupCallParticipantsList from '@/components/groupCall/participantsList';
 import GroupCallParticipantsVideoElement from '@/components/groupCall/participantVideos';
+import { getOverlayRoot } from '@/helpers/appWindow';
 
 export class GroupCallParticipantContextMenu {
   private buttons: (ButtonMenuItemOptions & {verify: (peerId: PeerId) => boolean | Promise<boolean>})[];
@@ -137,10 +138,10 @@ export class GroupCallParticipantContextMenu {
       }
     });
 
-    let appendTo: HTMLElement = document.body;
+    let appendTo: HTMLElement = getOverlayRoot();
     addFullScreenListener(document.body, () => {
       const isFull = isFullScreen();
-      appendTo = isFull ? PopupElement.getPopups(PopupGroupCall)[0].getContainer(): document.body;
+      appendTo = isFull ? PopupElement.getPopups(PopupGroupCall)[0].getContainer(): getOverlayRoot();
 
       if (!isFull) {
         contextMenuController.close();

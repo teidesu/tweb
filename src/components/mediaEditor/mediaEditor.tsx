@@ -16,6 +16,7 @@ import { AppManagers } from '@/lib/managers';
 import type SolidJSHotReloadGuardProvider from '@/lib/solidjs/hotReloadGuardProvider';
 import { createEffect, onCleanup, onMount } from 'solid-js';
 import { render } from 'solid-js/web';
+import { getOverlayRoot } from '@/helpers/appWindow';
 
 
 export type MediaEditorProps = {
@@ -152,7 +153,7 @@ export function MediaEditor(props: MediaEditorProps) {
 
 export function openMediaEditor(props: MediaEditorProps, HotReloadGuardProvider: typeof SolidJSHotReloadGuardProvider) {
   const element = document.createElement('div');
-  document.body.append(element);
+  getOverlayRoot().append(element);
 
   const dispose = render(() => (
     <HotReloadGuardProvider>

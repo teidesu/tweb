@@ -10,6 +10,7 @@ import Space from '@/components/space';
 import { HeightTransition } from '@/helpers/solid/heightTransition';
 import { i18n } from '@/lib/langPack';
 import { createEffect, createMemo, createSignal, on, onCleanup, Show } from 'solid-js';
+import { getOverlayRoot } from '@/helpers/appWindow';
 
 
 const ADJUST_TIMEOUT = 800;
@@ -115,7 +116,7 @@ export default function AdjustmentsTab() {
                 />
               </div>
             ) as HTMLDivElement;
-            document.body.append(div);
+            getOverlayRoot().append(div);
 
             onCleanup(() => {
               setTimeout(() => {

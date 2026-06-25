@@ -12,6 +12,7 @@ import chooseProfileVideoSize from '@/lib/appManagers/utils/photos/chooseProfile
 import rootScope from '@/lib/rootScope';
 import { render } from 'solid-js/web';
 import { MediaEditorFinalResult } from './mediaEditor/finalRender/createFinalResult';
+import { getOverlayRoot } from '@/helpers/appWindow';
 import RenderProgressCircle from './mediaEditor/renderProgressCircle';
 import { snapToViewport } from './mediaEditor/utils';
 
@@ -402,7 +403,7 @@ function spawnAvatarProgressRing(
     `position:fixed;left:${bcr.left + bcr.width / 2}px;top:${bcr.top + bcr.height / 2}px;` +
     `width:${bcr.width}px;height:${bcr.height}px;transform:translate(-50%, -50%);` +
     'z-index:1001;pointer-events:none';
-  document.body.append(container);
+  getOverlayRoot().append(container);
 
   const dispose = render(() => RenderProgressCircle({ creationProgress }), container);
 

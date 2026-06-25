@@ -21,6 +21,7 @@ import cancelEvent from '@/helpers/dom/cancelEvent';
 import { simulateClickEvent } from '@/helpers/dom/clickEvent';
 import isSendShortcutPressed from '@/helpers/dom/isSendShortcutPressed';
 import noop from '@/helpers/noop';
+import { getOverlayRoot } from '@/helpers/appWindow';
 
 export type PopupButton = {
   text?: HTMLElement | DocumentFragment | Text,
@@ -88,10 +89,12 @@ export const PopupContext = createContext<PopupContextValue>();
 const PopupControllerContext = createContext<PopupControllerContextValue>();
 
 const DEFAULT_APPEND_TO = document.body;
-const [appendPopupTo, setAppendPopupTo] = createSignal(DEFAULT_APPEND_TO);
+// A fullscreen element always wins; otherwise each popup uses the realm it captured at creation
+// (see the Portal mount below). Only the fullscreen state is reactive here.
+const [fullScreenElement, setFullScreenElement] = createSignal<HTMLElement | null>(null);
 
 const onFullScreenChange = () => {
-  setAppendPopupTo(getFullScreenElement() || DEFAULT_APPEND_TO);
+  setFullScreenElement((getFullScreenElement() as HTMLElement) || null);
 };
 
 addFullScreenListener(DEFAULT_APPEND_TO, onFullScreenChange);
@@ -125,6 +128,10 @@ const PopupElement = (props: {
   const controllerContext = useContext(PopupControllerContext);
 
   const managers = props.managers || PopupElement.MANAGERS;
+  // Capture the active overlay root once. A popup opened while the client is popped out must stay in
+  // the Document PiP window for its whole life; reading the live root in the Portal mount would yank
+  // it to the tab the instant the app moves back.
+  const capturedRoot = getOverlayRoot();
   const middlewareHelper = getMiddleware();
   const lateMiddlewareHelper = getMiddleware();
   const withoutOverlay = props.withoutOverlay || false;
@@ -318,7 +325,7 @@ const PopupElement = (props: {
 
   return (
     <PopupContext.Provider value={value}>
-      <Portal mount={appendPopupTo()}>
+      <Portal mount={fullScreenElement() || capturedRoot}>
         <div
           ref={setPopupElement}
           class={clsx(

@@ -34,6 +34,7 @@ import { PAID_REACTION_EMOJI_DOCID } from '@/lib/customEmoji/constants';
 import { StarsStar } from '@/components/popups/stars';
 import { cleanEmoji } from '@/lib/richTextProcessor/fixEmoji';
 import { isTruthy } from '../../helpers/isTruthy';
+import { getOverlayRoot } from '@/helpers/appWindow';
 
 const REACTIONS_CLASS_NAME = 'btn-menu-reactions';
 const REACTION_CLASS_NAME = REACTIONS_CLASS_NAME + '-reaction';
@@ -239,7 +240,10 @@ export class ChatReactionsMenu {
       }
 
       this.reactions = peerAvailableReactions.reactions;
-      this.noPacks = this.noSearch = peerAvailableReactions.type !== 'chatReactionsAll';
+      // At reactions_uniq_max the message can take no new distinct reaction, so hide the
+      // custom-emoji search/packs (like tdesktop/iOS/Android) — the grid is already narrowed
+      // to the present kinds; only piling onto those stays possible.
+      this.noPacks = this.noSearch = peerAvailableReactions.type !== 'chatReactionsAll' || !!peerAvailableReactions.atUniqCap;
       return this.renderReactions(peerAvailableReactions, (availableReactions as AvailableReaction.availableReaction[]));
     });
 
@@ -448,7 +452,10 @@ export class ChatReactionsMenu {
 
     const emoticonsDropdown = new EmoticonsDropdown({
       tabsToRender: [emojiTab],
-      customParentElement: document.body,
+      // Mount into the active app window's body (a function so it resolves lazily at open time):
+      // while the client is popped into a Document PiP window the reactions menu lives there, so a
+      // hardcoded main-`document.body` would render this emoji picker into the now-background tab.
+      customParentElement: getOverlayRoot,
       getOpenPosition: () => this.getOpenPosition(!this.noPacks),
     });
 

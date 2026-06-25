@@ -4,6 +4,7 @@ import { Portal } from 'solid-js/web';
 
 import pause from '@/helpers/schedulers/pause';
 import { i18n } from '@/lib/langPack';
+import { getAppWindow } from '@/helpers/appWindow';
 
 import ripple from '@/components/ripple'; ripple; // keep
 
@@ -23,10 +24,10 @@ const SimplePopup: Component<{
     const listener = (e: KeyboardEvent) => {
       if (e.key === 'Escape') props.onClose?.();
     }
-    document.addEventListener('keydown', listener);
+    getAppWindow().document.addEventListener('keydown', listener);
 
     onCleanup(() => {
-      document.removeEventListener('keydown', listener);
+      getAppWindow().document.removeEventListener('keydown', listener);
     });
   });
 

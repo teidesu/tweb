@@ -15,6 +15,7 @@ import getPeerActiveUsernames from '@/lib/appManagers/utils/peers/getPeerActiveU
 import Section from '@/components/section';
 import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
 import type { AppBlockedUsersTab } from '@/components/solidJsTabs/tabs';
+import { getOverlayRoot } from '@/helpers/appWindow';
 
 const BlockedUsers = () => {
   const [tab] = useSuperTab<typeof AppBlockedUsersTab>();
@@ -95,7 +96,7 @@ const BlockedUsers = () => {
     element.id = 'blocked-users-contextmenu';
     element.classList.add('contextmenu');
 
-    document.body.append(element);
+    getOverlayRoot().append(element);
 
     attachContextMenuListener({
       element: tab.scrollable.container,
@@ -105,8 +106,8 @@ const BlockedUsers = () => {
           return;
         }
 
-        if (e instanceof MouseEvent) e.preventDefault();
-        if (e instanceof MouseEvent) e.cancelBubble = true;
+        if (!('touches' in e)) e.preventDefault(); // cross-realm-safe mouse check (Document PiP window)
+        if (!('touches' in e)) e.cancelBubble = true;
 
         positionMenu(e, element);
         contextMenuController.openBtnMenu(element);

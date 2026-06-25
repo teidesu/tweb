@@ -103,6 +103,7 @@ import { wrapStoriesStealthModeDuration } from '@/components/wrappers/wrapDurati
 import { handleShareStory } from './share';
 import createListenerSetter from '@/helpers/solid/createListenerSetter';
 import { isTruthy } from '../../helpers/isTruthy';
+import { bindActiveWindowListener, getAppWindow, getOverlayRoot } from '@/helpers/appWindow';
 
 export const STORY_DURATION = 5e3;
 const STORY_HEADER_AVATAR_SIZE = 32;
@@ -354,7 +355,7 @@ const StoryInput = (props: {
 
   onCleanup(() => {
     if (navigationItem) {
-      appNavigationController.removeItem(navigationItem);
+      appNavigationController.removeItem(navigationItem!);
       navigationItem = undefined;
     }
   });
@@ -367,7 +368,7 @@ const StoryInput = (props: {
         if (focused) {
           playAfterFocus = untrack(() => !stories.paused);
           // document.addEventListener('mousedown', onMouseDown, {capture: true, once: true});
-          document.addEventListener('click', onClick, { capture: true });
+          getAppWindow().document.addEventListener('click', onClick, { capture: true });
           appNavigationController.pushItem(navigationItem = {
             type: 'stories-focus',
             onPop: () => {
@@ -376,8 +377,8 @@ const StoryInput = (props: {
           });
         } else {
           // document.removeEventListener('mousedown', onMouseDown, {capture: true});
-          document.removeEventListener('click', onClick, { capture: true });
-          appNavigationController.removeItem((navigationItem as NavigationItem));
+          getAppWindow().document.removeEventListener('click', onClick, { capture: true });
+          appNavigationController.removeItem(navigationItem!);
           navigationItem = undefined;
         }
 
@@ -2779,7 +2780,7 @@ export default function StoriesViewer(props: {
   ]);
 
   const onKeyDown = (e: KeyboardEvent) => {
-    if (isTargetAnInput(document.activeElement as HTMLElement)) {
+    if (isTargetAnInput(getAppWindow().document.activeElement as HTMLElement)) {
       throttledKeyDown.clear();
       return;
     }
@@ -2824,14 +2825,18 @@ export default function StoriesViewer(props: {
     }
   }, 200, true);
 
+  // Follow the active window so the stories keyboard handler keeps firing when the overlay
+  // moves into a Document PiP window.
+  let disposeKeyDownListener: () => void;
+
   emoticonsDropdown.getElement().classList.add('night');
   emoticonsDropdown.setTextColor('white');
 
   onCleanup(() => {
-    document.body.removeEventListener('keydown', onKeyDown);
+    disposeKeyDownListener?.();
     toggleOverlay(false);
     swipeHandler.removeListeners();
-    appNavigationController.removeItem(navigationItem);
+    appNavigationController.removeItem(navigationItem!);
 
     emoticonsDropdown.getElement().classList.remove('night');
     emoticonsDropdown.setTextColor();
@@ -3052,7 +3057,7 @@ export default function StoriesViewer(props: {
       }
 
       if (story && stories.hideInterface) {
-        document.addEventListener('click', cancelEvent, { capture: true, once: true });
+        getAppWindow().document.addEventListener('click', cancelEvent, { capture: true, once: true });
       }
 
       const playStories = stories.playAfterGesture || !stories.hideInterface;
@@ -3078,7 +3083,7 @@ export default function StoriesViewer(props: {
     });
 
     avatarFrom.node.style.cssText = `position: absolute; visibility: hidden; z-index: 1000; transform-origin: top left;`;
-    document.body.append(avatarFrom.node);
+    getOverlayRoot().append(avatarFrom.node);
 
     if (!untrack(() => show())) {
       createEffect(() => {
@@ -3211,7 +3216,7 @@ export default function StoriesViewer(props: {
       avatarFrom.node.style.left = `${rectFrom!.left}px`;
       avatarFrom.node.style.visibility = '';
       if (!avatarFrom.node.parentElement) {
-        document.body.append(avatarFrom.node);
+        getOverlayRoot().append(avatarFrom.node);
       }
       const translateX = rectTo.left - rectFrom!.left;
       const translateY = rectTo.top - rectFrom!.top;
@@ -3366,7 +3371,7 @@ export default function StoriesViewer(props: {
       <Transition
         onEnter={(el, done) => {
           dispatchHeavyAnimationEvent(deferred, 1000);
-          document.body.addEventListener('keydown', onKeyDown);
+          disposeKeyDownListener = bindActiveWindowListener((w) => w.document.body, 'keydown', onKeyDown);
           toggleOverlay(true);
           animate(el, true, done);
         }}

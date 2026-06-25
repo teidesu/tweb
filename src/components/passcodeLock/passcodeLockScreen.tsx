@@ -19,6 +19,7 @@ import Background from '@/components/passcodeLock/background';
 import styles from '@/components/passcodeLock/passcodeLockScreen.module.scss';
 import PasswordMonkeyTsx from '@/components/passcodeLock/passwordMonkeyTsx';
 import SimplePopup from '@/components/passcodeLock/simplePopup';
+import { getAppWindow } from '@/helpers/appWindow';
 
 keepMe(ripple);
 
@@ -85,12 +86,13 @@ const PasscodeLockScreen: Component<{
     })();
 
     const listener = (e: KeyboardEvent) => {
-      if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+      const doc = getAppWindow().document; // active window (the PiP doc when popped out)
+      if (doc.activeElement && doc.activeElement.tagName === 'INPUT') return;
       focusInput(passwordInputField.input, e);
     };
-    document.addEventListener('keydown', listener);
+    getAppWindow().document.addEventListener('keydown', listener);
     onCleanup(() => {
-      document.removeEventListener('keydown', listener);
+      getAppWindow().document.removeEventListener('keydown', listener);
     });
   });
 

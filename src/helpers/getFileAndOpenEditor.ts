@@ -3,6 +3,7 @@ import IMAGE_MIME_TYPES_SUPPORTED from '@/environment/imageMimeTypesSupport';
 import VIDEO_MIME_TYPES_SUPPORTED from '@/environment/videoMimeTypesSupport';
 import { createImageAndURLFromBlob } from '@/helpers/createImageAndURLFromBlob';
 import rootScope from '@/lib/rootScope';
+import { getAppWindow } from '@/helpers/appWindow';
 
 
 type OnFinishArgs = {
@@ -105,8 +106,8 @@ function getFileFromInput(input: HTMLInputElement): Promise<File | void> {
       resolve(file);
     });
 
-    // Resolve the promise if the user cancels the file selection
-    window.addEventListener('focus', () => {
+    // Resolve the promise if the user cancels the file selection — active window (the PiP when popped)
+    getAppWindow().addEventListener('focus', () => {
       // It seems like the focus event fires before the change event, so we need to wait a bit before resolving
       setTimeout(() => {
         input.remove();

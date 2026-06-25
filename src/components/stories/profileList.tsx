@@ -29,6 +29,7 @@ import { attachClickEvent } from '@/helpers/dom/clickEvent';
 import cancelClickOrNextIfNotClick from '@/helpers/dom/cancelClickOrNextIfNotClick';
 import { ButtonMenuItemOptionsVerifiable } from '@/components/buttonMenu';
 import { AppMyStoriesTab } from '@/components/solidJsTabs/tabs';
+import { getOverlayRoot } from '@/helpers/appWindow';
 import SidebarSlider from '../slider';
 import InputField from '@/components/inputField';
 import confirmationPopup from '@/components/confirmationPopup';
@@ -79,11 +80,11 @@ class StoriesContextMenu {
 
         if (!item!) return;
 
-        if (e instanceof MouseEvent) e.preventDefault();
+        if (!('touches' in e)) e.preventDefault(); // cross-realm-safe mouse check (Document PiP window)
         if (this.element.classList.contains('active')) {
           return false;
         }
-        if (e instanceof MouseEvent) e.cancelBubble = true;
+        if (!('touches' in e)) e.cancelBubble = true;
 
         const r = async() => {
           this.target = item;
@@ -262,7 +263,7 @@ class StoriesContextMenu {
 
     this.element = ButtonMenuSync({ buttons: this.buttons, listenerSetter: this.listenerSetter });
     this.element.classList.add('search-contextmenu', 'contextmenu');
-    document.body.append(this.element);
+    getOverlayRoot().append(this.element);
 
     this.buttons.forEach((button) => button.onOpen?.());
   }

@@ -6,6 +6,7 @@ import apiManagerProxy from '@/lib/apiManagerProxy';
 import appImManager from '@/lib/appImManager';
 import rootScope from '@/lib/rootScope';
 import { createEffect, createResource, createRoot, createSignal, onCleanup } from 'solid-js';
+import { getAppWindow } from '@/helpers/appWindow';
 
 
 const _useLockScreenShortcut = () => {
@@ -56,7 +57,7 @@ const _useLockScreenShortcut = () => {
     appImManager.isShiftLockShortcut = isShiftLockShortcut;
 
     const removeListener = addShortcutListener([combo], (_, event) => {
-      const activeElement = document.activeElement as HTMLElement;
+      const activeElement = getAppWindow().document.activeElement as HTMLElement;
 
       if (
         isShiftLockShortcut &&

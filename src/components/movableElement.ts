@@ -5,6 +5,7 @@ import clamp from '@/helpers/number/clamp';
 import safeAssign from '@/helpers/object/safeAssign';
 import windowSize from '@/helpers/windowSize';
 import SwipeHandler from '@/components/swipeHandler';
+import { getOverlayRoot } from '@/helpers/appWindow';
 
 type ResizeSide = 'n' | 'e' | 's' | 'w' | 'ne' | 'se' | 'sw' | 'nw';
 export type MovableState = {
@@ -223,7 +224,7 @@ export default class MovableElement extends EventListenerBase<{
 
         this.overlay.remove();
       },
-      setCursorTo: document.body,
+      setCursorTo: getOverlayRoot(),
     });
   }
 

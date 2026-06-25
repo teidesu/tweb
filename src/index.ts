@@ -61,6 +61,7 @@ import appNavigationController from '@/components/appNavigationController';
 import { preventCrossTabDynamicImportDeadlock } from '@/helpers/preventDeadlock';
 import appChatBackground from '@/components/chat/bubbles/chatBackground';
 import { initElectronIntegration } from '@/lib/electron';
+import { getAppWindow, onAppWindowChange } from '@/helpers/appWindow';
 
 // import commonStateStorage from '@/lib/commonStateStorage';
 // import { STATE_INIT } from '@/config/state';
@@ -95,7 +96,7 @@ function setViewportHeightListeners() {
   let setViewportVH = false/* , hasFocus = false */;
   let lastVH: number;
   const setVH = () => {
-    let vh = (setViewportVH && !overlayCounter.isOverlayActive ? (w as VisualViewport).height || (w as Window).innerHeight : window.innerHeight) * 0.01;
+    let vh = (setViewportVH && !overlayCounter.isOverlayActive ? (w as VisualViewport).height || (w as Window).innerHeight : getAppWindow().innerHeight) * 0.01;
     vh = +vh.toFixed(2);
     if (lastVH === vh) {
       return;
@@ -118,8 +119,17 @@ function setViewportHeightListeners() {
     } */
   };
 
-  window.addEventListener('resize', setVH);
-  setVH();
+  // Bind the --vh resize listener to the active app window, re-binding when the client moves into /
+  // out of the Document PiP window so --vh tracks whichever viewport the app is rendered in.
+  let vhWindow: Window;
+  const bindVH = (win: Window) => {
+    vhWindow?.removeEventListener('resize', setVH);
+    vhWindow = win;
+    win.addEventListener('resize', setVH);
+    setVH();
+  };
+  bindVH(getAppWindow());
+  onAppWindowChange((win) => bindVH(win));
 
   if (IS_STICKY_INPUT_BUGGED) {
     const toggleResizeMode = () => {

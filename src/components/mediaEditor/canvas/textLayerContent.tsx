@@ -58,8 +58,8 @@ export default function TextLayerContent(props: ResizableLayerProps) {
 
       // Firefox cursor reset
       const child = contentEditable!.children[0];
-      const range = document.createRange();
-      const sel = window.getSelection();
+      const range = contentEditable!.ownerDocument.createRange();
+      const sel = contentEditable!.ownerDocument.defaultView!.getSelection()!;
 
       range.setStart(child, 0);
       range.collapse(true);
@@ -69,12 +69,12 @@ export default function TextLayerContent(props: ResizableLayerProps) {
     }
 
     // Firefox puts the cursor outside the inner divs and messes up everything
-    const selection = window.getSelection();
-    if (selection!.rangeCount > 0) {
-      const range = selection!.getRangeAt(0);
+    const selection = contentEditable!.ownerDocument.defaultView!.getSelection()!;
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
       if (range.startContainer === contentEditable! && range.startOffset === 0) {
-        const innerDiv = contentEditable.children[0];
-        const innerDivRange = document.createRange();
+        const innerDiv = contentEditable!.children[0];
+        const innerDivRange = contentEditable!.ownerDocument.createRange();
         innerDivRange.selectNodeContents(innerDiv);
         innerDivRange.collapse(false); // Collapse to the end of the inner div
 
@@ -99,11 +99,11 @@ export default function TextLayerContent(props: ResizableLayerProps) {
   }
 
   function selectAll() {
-    const range = document.createRange();
+    const range = contentEditable!.ownerDocument.createRange();
     range.selectNodeContents(contentEditable!.children[0]);
-    const selection = window.getSelection();
-    selection!.removeAllRanges();
-    selection!.addRange(range);
+    const selection = contentEditable!.ownerDocument.defaultView!.getSelection()!;
+    selection.removeAllRanges();
+    selection.addRange(range);
   }
 
   createEffect(() => {

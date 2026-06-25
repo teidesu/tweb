@@ -23,6 +23,7 @@ import { createCustomFiller, insertCustomFillers } from '@/lib/richTextProcessor
 import type { MarkupTooltipTypes } from '@/components/chat/markupTooltip';
 import forEachReverse from '@/helpers/array/forEachReverse';
 import findAndSpliceAll from '@/helpers/array/findAndSpliceAll';
+import { bindActiveWindowListener } from '@/helpers/appWindow';
 
 export async function insertRichTextAsHTML(input: HTMLElement, text: string, entities: MessageEntity[], wrappingForPeerId?: PeerId) {
   const loadPromises: Promise<any>[] = [];
@@ -72,10 +73,10 @@ export async function insertRichTextAsHTML(input: HTMLElement, text: string, ent
     //   pre.selection.collapseToEnd();
     // }
   } else {
-    const range = document.createRange();
+    const range = input.ownerDocument.createRange();
     let node = input.lastChild;
     if (!node) {
-      input.append(node /* = textNode */ = document.createTextNode(''));
+      input.append(node /* = textNode */ = input.ownerDocument.createTextNode(''));
     }
 
     range.setStartAfter(node);
@@ -91,7 +92,7 @@ export async function insertRichTextAsHTML(input: HTMLElement, text: string, ent
   // s.append(node);
   input.addEventListener('input', cancelEvent, { capture: true, once: true, passive: false });
   richInputHandler?.onBeforeInput({ inputType: 'insertContent' });
-  window.document.execCommand('insertHTML', false, html);
+  input.ownerDocument.execCommand('insertHTML', false, html);
   Array.from(input.querySelectorAll<HTMLImageElement>('[data-ces]')).forEach((el, idx) => {
     delete el.dataset.ces;
     const customEmojiElement = customEmojiElements[idx];
@@ -151,7 +152,9 @@ export async function insertRichTextAsHTML(input: HTMLElement, text: string, ent
 }
 
 let init = () => {
-  document.addEventListener('paste', (e) => {
+  // Global rich-paste for every contenteditable; follow the active window so paste into a popped-out
+  // (Document PiP) input is still intercepted.
+  bindActiveWindowListener((w) => w.document, 'paste', (e) => {
     const input = findUpAttribute(e.target, 'contenteditable="true"');
     if (!input) {
       return;
@@ -507,8 +510,8 @@ export default class InputField {
       RichInputHandler.getInstance();
 
       input.addEventListener('mousedown', (e) => {
-        const selection = document.getSelection();
-        if (!selection!.isCollapsed) {
+        const selection = input.ownerDocument.defaultView!.getSelection()!;
+        if (!selection.isCollapsed) {
           return;
         }
 
@@ -521,7 +524,7 @@ export default class InputField {
         const centerX = rect.left + rect.width / 2;
         const focusOnNext = e.clientX >= centerX;
 
-        const range = document.createRange();
+        const range = input.ownerDocument.createRange();
         range.setStartAfter(focusOnNext ? placeholder : placeholder.previousSibling ?? placeholder);
         selection!.removeAllRanges();
         selection!.addRange(range);

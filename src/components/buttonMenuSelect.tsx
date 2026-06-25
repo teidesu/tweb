@@ -14,6 +14,7 @@ import rootScope from '@/lib/rootScope'
 import clamp from '@/helpers/number/clamp'
 import clsx from 'clsx'
 import { positionMenuTrigger } from '@/helpers/positionMenu'
+import { getOverlayRoot } from '@/helpers/appWindow'
 
 type HighlightPosition = {start: number, end: number}
 export function ButtonMenuSelectText(props: {
@@ -273,7 +274,7 @@ export function createButtonMenuSelect<T>(props: ComponentProps<typeof ButtonMen
     props.onToggleMenu?.(true)
     domEl.classList.add(props.direction)
     positionMenuTrigger(triggerEl, domEl, props.direction, { top: 8 })
-    document.body.append(domEl)
+    getOverlayRoot().append(domEl)
 
     await fastRafPromise();
 

@@ -23,6 +23,7 @@ import getPeerActiveUsernames from '@/lib/appManagers/utils/peers/getPeerActiveU
 import { ExportedChatInvite } from '@/layer';
 import rootScope from '@/lib/rootScope';
 import shareUrlToPeers from '@/components/popups/shareUrl';
+import { getAppWindow } from '@/helpers/appWindow';
 
 const REJOIN_INTERVAL = 15000;
 
@@ -280,7 +281,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
     if (visible && this.videoPlayer) {
       this.videoPlayer.cancelFullScreen();
       if (this.videoPlayer.inPip) {
-        document.exitPictureInPicture();
+        getAppWindow().document.exitPictureInPicture();
       }
     }
 
@@ -422,7 +423,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
 
     this.listenerSetter.removeAll();
     if (hadPip) {
-      document.exitPictureInPicture();
+      getAppWindow().document.exitPictureInPicture();
     }
   }
 
@@ -430,7 +431,7 @@ export class AppMediaViewerRtmp extends AppMediaViewerBase<never, 'forward', nev
     if (!AppMediaViewerRtmp.activeInstance) return;
 
     if (AppMediaViewerRtmp.activeInstance.videoPlayer?.inPip) {
-      document.exitPictureInPicture();
+      getAppWindow().document.exitPictureInPicture();
     }
   }
 

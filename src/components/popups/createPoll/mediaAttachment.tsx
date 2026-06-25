@@ -23,6 +23,7 @@ import { wrapAsyncClickHandler } from '@/helpers/wrapAsyncClickHandler';
 import { useIsCleaned } from '@/hooks/useIsCleaned';
 import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
 import { createEffect, createMemo, createResource, createSignal, Match, on, onCleanup, Switch } from 'solid-js';
+import { getOverlayRoot } from '@/helpers/appWindow';
 import styles from './mediaAttachment.module.scss';
 import { useStickersDropdown } from './stickersDropdown';
 import { AttachedMedia, AttachedVideo, SupportedMediaType } from './storeContext';
@@ -647,7 +648,7 @@ function useMenu(args: {
     buttonMenu.style.position = 'fixed';
     buttonMenu.style.top = 'unset';
 
-    document.body.appendChild(buttonMenu);
+    getOverlayRoot().appendChild(buttonMenu);
 
     requestRAF(() => {
       if (isCleaned()) return;

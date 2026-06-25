@@ -17,6 +17,7 @@ import PopupElement from '@/components/popups';
 import { toastNew } from '@/components/toast';
 import { useSuperTab } from '@/components/solidJsTabs/superTabProvider';
 import type { AppActiveSessionsTab } from '@/components/solidJsTabs/tabs';
+import { getOverlayRoot } from '@/helpers/appWindow';
 
 const ActiveSessions: Component = () => {
   const [tab] = useSuperTab<typeof AppActiveSessionsTab>();
@@ -139,7 +140,7 @@ const ActiveSessions: Component = () => {
     element.id = 'active-sessions-contextmenu';
     element.classList.add('contextmenu');
 
-    document.body.append(element);
+    getOverlayRoot().append(element);
 
     attachContextMenuListener({
       element: tab.scrollable.container,
@@ -149,8 +150,8 @@ const ActiveSessions: Component = () => {
           return;
         }
 
-        if (e instanceof MouseEvent) e.preventDefault();
-        if (e instanceof MouseEvent) e.cancelBubble = true;
+        if (!('touches' in e)) e.preventDefault(); // cross-realm-safe mouse check (Document PiP window)
+        if (!('touches' in e)) e.cancelBubble = true;
 
         positionMenu(e, element);
         contextMenuController.openBtnMenu(element);

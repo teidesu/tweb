@@ -427,6 +427,7 @@ const Icons = {
   win_key: 'eaa9',
   zoomin: 'eaaa',
   zoomout: 'eaab',
+  privacypolicy: 'eaac',
 };
 
 export default Icons;

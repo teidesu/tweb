@@ -144,6 +144,7 @@ import positionMenu from '@/helpers/positionMenu';
 import { copyTextToClipboard } from '@/helpers/clipboard';
 import showDatePickerPopup from '@/components/popups/datePicker';
 import { getFullDate } from '@/helpers/date/getFullDate';
+import { bindActiveWindowListener, getAppWindow, getOverlayRoot } from '@/helpers/appWindow';
 
 export type ChatSavedPosition = {
   /**
@@ -667,7 +668,7 @@ export class AppImManager extends EventListenerBase<{
       const menu = ButtonMenuSync({ buttons: buttons.filter(Boolean) });
       menu.classList.add('contextmenu');
 
-      document.body.append(menu);
+      getOverlayRoot().append(menu);
       positionMenu(e, menu);
       contextMenuController.openBtnMenu(menu, () => {
         setTimeout(() => {
@@ -676,7 +677,9 @@ export class AppImManager extends EventListenerBase<{
       });
     };
 
-    document.addEventListener('mousemove', (e) => {
+    // Hover-to-play stickers — follow the active window so it still works in a Document PiP window
+    // (the mousemove fires on the PiP document, not the tab's).
+    bindActiveWindowListener((w) => w.document, 'mousemove', (e) => {
       const mediaStickerWrapper = findUpClassName(e.target!, 'media-sticker-wrapper');
       if (!mediaStickerWrapper ||
         mediaStickerWrapper.classList.contains('custom-emoji') ||
@@ -830,12 +833,13 @@ export class AppImManager extends EventListenerBase<{
 
     // ! THANKS TO CHROMIUM DEVELOPERS FOR THIS BUG
     // ! https://issues.chromium.org/issues/328755781
-    if (IS_CHROMIUM) document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
+    if (IS_CHROMIUM) bindActiveWindowListener((w) => w.document, 'visibilitychange', () => {
+      const doc = getAppWindow().document; // redraw the active window's canvases (the PiP doc when popped out)
+      if (doc.hidden) {
         return;
       }
 
-      const canvases = Array.from(document.querySelectorAll('canvas'));
+      const canvases = Array.from(doc.querySelectorAll('canvas')) as HTMLCanvasElement[];
       canvases.forEach((canvas) => {
         if (canvas.dataset.offscreen) { // control transferred to a worker - getContext would throw
           return;
@@ -1277,7 +1281,9 @@ export class AppImManager extends EventListenerBase<{
       this.clickIfSponsoredMessage(message);
     };
 
-    document.addEventListener('click', async(e) => {
+    // Global link / story-avatar click handling — follow the active window so links and story avatars
+    // are still clickable when the client is popped into a Document PiP window.
+    bindActiveWindowListener((w) => w.document, 'click', async(e) => {
       const anchor = findUpTag(e.target as HTMLElement, 'A') as HTMLAnchorElement;
       if (anchor?.href) {
         onAuthAnchorClick(anchor);
@@ -1565,12 +1571,16 @@ export class AppImManager extends EventListenerBase<{
       }
     };
 
-    document.body.addEventListener('keydown', onKeyDown);
+    // Follow the active app window so the global "type anywhere → focus input" + shortcut handler
+    // keeps firing when the client is popped into a Document PiP window.
+    bindActiveWindowListener((w) => w.document.body, 'keydown', onKeyDown);
   }
 
   // * restrict copying no forwards content
   private attachCopyListener() {
-    document.addEventListener('copy', (e) => {
+    // Follow the active app window so the restricted-copy guard still fires in a Document PiP window
+    // (SECURITY: if it never rebinds there, no-forwards text becomes copyable out of PiP).
+    bindActiveWindowListener((w) => w.document, 'copy', (e) => {
       let peerId: PeerId;
       const nodes = getSelectedNodes();
       const foundRestrictedNode = nodes.some((node) => {
@@ -2299,7 +2309,8 @@ export class AppImManager extends EventListenerBase<{
   }
 
   private init() {
-    document.addEventListener('paste', this.onDocumentPaste, true);
+    // Follow the active app window so paste-to-send keeps working in a Document PiP window.
+    bindActiveWindowListener((w) => w.document, 'paste', this.onDocumentPaste, true);
     this.attachDragAndDropListeners();
     MarkupTooltip.getInstance().handleSelection();
     MarkupTooltip.showDatePickerPopup = showDatePickerPopup;
@@ -2449,7 +2460,7 @@ export class AppImManager extends EventListenerBase<{
         clearLastDialogElement();
       }
 
-      document.body.classList.toggle('is-dragging', mount);
+      getOverlayRoot().classList.toggle('is-dragging', mount);
       mounted = mount;
     };
 
@@ -2459,12 +2470,14 @@ export class AppImManager extends EventListenerBase<{
 
     let counter = 0;
     let dragTimeout: number;
-    document.body.addEventListener('dragenter', (e) => {
+    // Drag-and-drop listeners follow the active app window so dropping a file onto the popped-out
+    // Document PiP client still sends it (the drag events fire on the PiP body, not the tab's).
+    bindActiveWindowListener((w) => w.document.body, 'dragenter', (e) => {
       debug && log('dragenter', e, counter);
       ++counter;
     });
 
-    document.body.addEventListener('dragover', (e) => {
+    bindActiveWindowListener((w) => w.document.body, 'dragover', (e) => {
       debug && log('dragover', e/* , e.dataTransfer.types[0] */);
       toggle(e, true);
       cancelEvent(e);
@@ -2493,7 +2506,7 @@ export class AppImManager extends EventListenerBase<{
       }
     });
 
-    document.body.addEventListener('dragleave', (e) => {
+    bindActiveWindowListener((w) => w.document.body, 'dragleave', (e) => {
       debug && log('dragleave', e, counter);
       if (--counter === 0) {
         toggle(e, false);
@@ -2502,7 +2515,7 @@ export class AppImManager extends EventListenerBase<{
       clearLastDialogElement();
     });
 
-    document.body.addEventListener('drop', async(e) => {
+    bindActiveWindowListener((w) => w.document.body, 'drop', async(e) => {
       debug && log('body drop', e, counter);
 
       if (lastDialogElement) {
@@ -2550,8 +2563,8 @@ export class AppImManager extends EventListenerBase<{
     // console.log('document paste');
     // console.log('item', event.clipboardData.getData());
 
-    if (e instanceof DragEvent) {
-      const _types = e.dataTransfer!.types;
+    if ('dataTransfer' in e && (e as DragEvent).dataTransfer) { // cross-realm-safe `instanceof DragEvent` (Document PiP window)
+      const _types = (e as DragEvent).dataTransfer!.types;
       // @ts-ignore
       const isFiles = _types.contains ? _types.contains('Files') : _types.indexOf('Files') >= 0;
       if (isFiles) {

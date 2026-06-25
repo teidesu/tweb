@@ -41,6 +41,7 @@ import { makeFullMid } from '@/components/chat/bubbles';
 import { ChatType } from './chatType';
 import ChatInputPlate from '@/components/chat/controlPlate';
 import { isTruthy } from '../../helpers/isTruthy';
+import { getAppWindow } from '@/helpers/appWindow';
 
 const accumulateMapSet = (map: Map<any, Set<number>>) => {
   return [...map.values()].reduce((acc, v) => acc + v.size, 0);
@@ -167,6 +168,12 @@ export class AppSelection extends EventListenerBase<{
       return;
     }
 
+    // The drag-end `mouseup` and the post-drag click-swallow must land on whichever window the app is
+    // in (the tab, or the Document PiP window) — otherwise a drag-select started in the PiP never ends
+    // (mouseup fires on the PiP window, not the main document) and the selection sticks.
+    const activeWindow = getAppWindow();
+    const activeDocument = activeWindow.document;
+
     const seen: AppSelection['selectedMids'] = new Map();
     let selecting: boolean;
 
@@ -250,7 +257,7 @@ export class AppSelection extends EventListenerBase<{
 
       if (this.verifyMouseMoveTarget && !this.verifyMouseMoveTarget(e, element, selecting)) {
         this.listenerSetter.removeManual(this.listenElement, 'mousemove', onMouseMove);
-        this.listenerSetter.removeManual(document, 'mouseup', onMouseUp, documentListenerOptions);
+        this.listenerSetter.removeManual(activeDocument, 'mouseup', onMouseUp, documentListenerOptions);
         return;
       }
 
@@ -261,7 +268,7 @@ export class AppSelection extends EventListenerBase<{
       document.body.classList.remove('no-select');
 
       if (seen.size) {
-        attachClickEvent(window, cancelEvent, { capture: true, once: true, passive: false });
+        attachClickEvent(activeWindow, cancelEvent, { capture: true, once: true, passive: false });
       }
 
       this.listenerSetter.removeManual(this.listenElement, 'mousemove', onMouseMove);
@@ -273,7 +280,7 @@ export class AppSelection extends EventListenerBase<{
 
     const documentListenerOptions = { once: true };
     this.listenerSetter.add(this.listenElement)('mousemove', onMouseMove);
-    this.listenerSetter.add(document)('mouseup', onMouseUp, documentListenerOptions);
+    this.listenerSetter.add(activeDocument)('mouseup', onMouseUp, documentListenerOptions);
   };
 
   private getElementsBetween = (first: HTMLElement, last: HTMLElement): HTMLElement[] => {

@@ -45,6 +45,7 @@ import PopupPaymentShippingMethods from '@/components/popups/paymentShippingMeth
 import PopupPaymentVerification from '@/components/popups/paymentVerification';
 import type PopupStars from '@/components/popups/stars';
 import PopupStarsPay from '@/components/popups/starsPay';
+import { getAppWindow } from '@/helpers/appWindow';
 
 const USE_NATIVE_SYMBOL = true;
 const iconPath = 'assets/img/';
@@ -136,13 +137,13 @@ export class InputRightNumber {
       setTimeout(() => {
         ignoreNextSelectionChange = haveToIgnoreEvents;
         placeCaretAtEnd(input);
-        document.addEventListener('selectionchange', onSelectionChange);
+        getAppWindow().document.addEventListener('selectionchange', onSelectionChange);
       }, 0);
     };
 
     const onFocusOut = () => {
       input.addEventListener('focus', onFocus, { once: true });
-      document.removeEventListener('selectionchange', onSelectionChange);
+      getAppWindow().document.removeEventListener('selectionchange', onSelectionChange);
     };
 
     let ignoreNextSelectionChange: number;
@@ -162,7 +163,7 @@ export class InputRightNumber {
   }
 
   public onValue() {
-    if (document.activeElement === this.input) {
+    if (this.input.ownerDocument.activeElement === this.input) {
       placeCaretAtEnd(this.input);
     }
 

@@ -24,6 +24,7 @@ import animationIntersector from '@/components/animationIntersector';
 import apiManagerProxy from '@/lib/apiManagerProxy';
 import setCurrentTime from '@/helpers/dom/setCurrentTime';
 import ListLoader, { ListLoaderOptions } from '../helpers/listLoader';
+import { getAppWindow } from '@/helpers/appWindow';
 
 // TODO: Safari: проверить стрим, включить его и сразу попробовать включить видео или другую песню
 // TODO: Safari: попробовать замаскировать подгрузку последнего чанка
@@ -597,7 +598,7 @@ export class AppMediaPlaybackController extends EventListenerBase<{
   }
 
   private async setNewMediadata(message: Message.message, playingMedia = this.playingMedia) {
-    if (document.pictureInPictureElement) {
+    if (getAppWindow().document.pictureInPictureElement) {
       return;
     }
 

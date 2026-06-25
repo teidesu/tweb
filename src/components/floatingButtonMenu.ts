@@ -1,6 +1,7 @@
 import contextMenuController from '@/helpers/contextMenuController';
 import { FloatingMenuDirection, positionFloatingMenu } from '@/helpers/positionMenu';
 import { doubleRaf } from '@/helpers/schedulers';
+import { getOverlayRoot } from '@/helpers/appWindow';
 
 export type FloatingButtonMenuDirection = FloatingMenuDirection;
 
@@ -58,7 +59,7 @@ export default function attachFloatingButtonMenu({
       onCloseArg?.();
     };
 
-    document.body.append(menu);
+    getOverlayRoot().append(menu);
 
     positionFloatingMenu(triggerBcr, menu, direction, offset);
 

@@ -9,6 +9,7 @@ import { VideoTimestamp } from '@/components/appMediaViewerBase';
 import RangeSelector from '@/components/rangeSelector';
 import { observeResize } from '@/components/resizeObserver';
 import { isTruthy } from '../helpers/isTruthy';
+import { getOverlayRoot } from '@/helpers/appWindow';
 
 const MIN_VIDEO_TIMESTAMP_SEGMENT_WIDTH = 7; // -2px padding will be 5px
 
@@ -280,7 +281,7 @@ export default class MediaProgressLine extends RangeSelector {
       </svg>
     `);
 
-    document.body.append(this.clipPathSvg);
+    getOverlayRoot().append(this.clipPathSvg);
 
     this.filledContainer!.style.clipPath = `url(#${clipPathId})`;
   }

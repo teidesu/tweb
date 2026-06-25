@@ -26,6 +26,7 @@ import { supportedDescriptionFormattingTypes } from './config';
 import { EmojiButtonWithOpacity as EmojiDropdownButton } from './emojiButtonWithOpacity';
 import { MediaAttachment } from './mediaAttachment';
 import { CreatePollStore, useCreatePollContext } from './storeContext';
+import { getOverlayRoot } from '@/helpers/appWindow';
 import styles from './styles.module.scss';
 import { useCreatePollLimits } from './useCreatePollLimits';
 import { createFormFieldClickHandler, interactableClass, useSupportsMedia } from './utils';
@@ -380,7 +381,7 @@ const usePollDurationMenu = (args: PollDurationMenuArgs) => {
 
     buttonMenu.classList.add(styles.pollDurationMenu);
 
-    document.body.appendChild(buttonMenu);
+    getOverlayRoot().appendChild(buttonMenu);
 
     requestRAF(() => {
       if (isCleaned()) return;

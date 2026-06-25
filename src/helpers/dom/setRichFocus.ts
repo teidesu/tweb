@@ -15,8 +15,8 @@ export default function setRichFocus(field: HTMLElement, selectNode: Node | null
     selectNode = null;
   }
 
-  if (window.getSelection && document.createRange) {
-    const range = document.createRange();
+  if ((field.ownerDocument.defaultView!.getSelection as unknown) && field.ownerDocument.createRange) {
+    const range = field.ownerDocument.createRange();
     if (selectNode) {
       range.selectNode(selectNode);
     } else {
@@ -27,9 +27,9 @@ export default function setRichFocus(field: HTMLElement, selectNode: Node | null
       range.collapse(false);
     }
 
-    const sel = window.getSelection();
-    sel!.removeAllRanges();
-    sel!.addRange(range);
+    const sel = field.ownerDocument.defaultView!.getSelection()!;
+    sel.removeAllRanges();
+    sel.addRange(range);
   }
   /* else if (document.body.createTextRange !== undefined) {
     var textRange = document.body.createTextRange()
