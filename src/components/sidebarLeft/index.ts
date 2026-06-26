@@ -1,4 +1,4 @@
-import { createEffect, createRoot, createSignal } from 'solid-js';
+import { createSignal } from 'solid-js';
 import appImManager from '@/lib/appImManager';
 import rootScope from '@/lib/rootScope';
 import { createSearchGroup, SearchGroup } from '@/components/searchGroup';
@@ -24,7 +24,6 @@ import App from '@/config/app';
 import ButtonMenuToggle from '@/components/buttonMenuToggle';
 import sessionStorage from '@/lib/sessionStorage';
 import { attachClickEvent, CLICK_EVENT_NAME, simulateClickEvent } from '@/helpers/dom/clickEvent';
-import ButtonIcon from '@/components/buttonIcon';
 import confirmationPopup from '@/components/confirmationPopup';
 import noop from '@/helpers/noop';
 import ripple from '@/components/ripple';
@@ -76,7 +75,8 @@ import tsNow from '@/helpers/tsNow';
 import { toastNew } from '@/components/toast';
 import DeferredIsUsingPasscode from '@/lib/passcode/deferredIsUsingPasscode';
 import EncryptionKeyStore from '@/lib/passcode/keyStore';
-import createLockButton from '@/components/sidebarLeft/lockButton';
+import { SidebarHeader } from '@/components/sidebarLeft/sidebarHeader';
+import { wrapSolidComponent } from '@/helpers/solid/wrapSolidComponent';
 import createSubmenuTrigger, { CreateSubmenuArgs } from '@/components/createSubmenuTrigger';
 import ChatTypeMenu from '@/components/chatTypeMenu';
 import { RequestHistoryOptions } from '@/lib/appManagers/appMessagesManager';
@@ -87,7 +87,6 @@ import useHasFoldersSidebar, {
   useIsSidebarCollapsed,
   useHasOpenLeftTabs,
   useIsLeftSearchActive,
-  useFoldersSidebarShown,
 } from '@/stores/foldersSidebar';
 import isObject from '@/helpers/object/isObject';
 import { useAppSettings } from '@/stores/appSettings';
@@ -120,7 +119,6 @@ export class AppSidebarLeft extends SidebarSlider {
   private set isSearchActive(value: boolean) {
     useIsLeftSearchActive()[1](value);
   }
-  private searchTriggerWhenCollapsed: HTMLElement;
 
   private updateBtn: HTMLElement;
   private hasUpdate: boolean;
@@ -221,20 +219,6 @@ export class AppSidebarLeft extends SidebarSlider {
       }
     });
 
-    const lockButton = createLockButton();
-
-    const toggleRightButtons = (isUsingPasscode: boolean) => {
-      if (isUsingPasscode) sidebarHeader!.append(lockButton.element);
-      else lockButton.element.remove();
-
-      sidebarHeader!.classList.toggle('is-input-the-last-child', !isUsingPasscode);
-    };
-
-    rootScope.addEventListener('toggle_using_passcode', toggleRightButtons);
-
-    const [appSettings] = useAppSettings();
-    toggleRightButtons(appSettings.passcode?.enabled);
-
     this.managers.appUsersManager.getTopPeers('correspondents');
 
     this.initNavigation();
@@ -266,57 +250,14 @@ export class AppSidebarLeft extends SidebarSlider {
     fastRaf(this.onResize);
     // mediaSizes.resize subscription happens inside installColumnWidthsUpdater().
 
-    this.searchTriggerWhenCollapsed = document.createElement('div');
-    this.searchTriggerWhenCollapsed.className = 'sidebar-header-search-trigger';
-    this.searchTriggerWhenCollapsed.append(ButtonIcon('search'));
-    this.searchTriggerWhenCollapsed.addEventListener('click', () => {
-      this.initSearch().open();
-    });
-
-    this.buttonsContainer.parentElement!.prepend(this.searchTriggerWhenCollapsed);
-
-    // Visibility lives in JS — drives the `.is-visible` class from the
-    // signals that decide whether the icon-only search affordance should
-    // be shown. The CSS only reads that class, no body/parent-selector
-    // cascades.
-    createRoot(() => {
-      const [hasFoldersSidebar] = useHasFoldersSidebar();
-      const [isCollapsed] = useIsSidebarCollapsed();
-      const [hasOpenLeftTabs] = useHasOpenLeftTabs();
-      createEffect(() => {
-        const visible =
-          hasFoldersSidebar() &&
-          isCollapsed() &&
-          !hasOpenLeftTabs();
-        this.searchTriggerWhenCollapsed.classList.toggle('is-visible', visible);
-      });
-    });
-
-    // The burger element has two visual states: the three-line menu icon (a
-    // click on it opens the burger menu) and the back arrow. Three classes
-    // encode that state — toolsBtn / backBtn `.is-visible` (which click target
-    // is active) and the animated icon's `.state-back` (which shape it renders
-    // as). They all flow from one condition:
-    //
-    //   showBack = useFoldersSidebarShown
-    //
-    // When the folders panel is actually shown it has its own menu trigger, so
-    // the in-sidebar burger never serves as a menu — it stays in back state.
-    // NOTE: gate on the viewport-aware *shown* value, not the raw
-    // useHasFoldersSidebar preference — below 925px the panel is hidden (its
-    // menu trigger with it), so the burger MUST fall back to the menu icon.
-    // Search no longer drives this: closing search is done via the in-input
-    // close button (see searchCloseBtn), not a back arrow in the header.
-    createRoot(() => {
-      const [foldersSidebarShown] = useFoldersSidebarShown();
-      const animatedMenuIcon = this.buttonsContainer.firstElementChild as HTMLElement;
-      createEffect(() => {
-        const showBack = foldersSidebarShown();
-        this.toolsBtn.classList.toggle('is-visible', !showBack);
-        this.backBtn.classList.toggle('is-visible', showBack);
-        animatedMenuIcon.classList.toggle('state-back', showBack);
-      });
-    });
+    const searchTrigger = wrapSolidComponent(() => SidebarHeader({
+      sidebarHeader: sidebarHeader as HTMLElement,
+      toolsBtn: this.toolsBtn,
+      backBtn: this.backBtn,
+      buttonsContainer: this.buttonsContainer,
+      onOpenSearch: () => this.initSearch().open(),
+    }), mainMiddleware);
+    this.buttonsContainer.parentElement!.prepend(searchTrigger);
 
     const sidebarOverlay = document.querySelector('.sidebar-left-overlay');
     sidebarOverlay!.addEventListener('click', () => {

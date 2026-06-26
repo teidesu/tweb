@@ -1,0 +1,10 @@
+.searchTrigger {
+  display: none;
+
+  &.visible {
+    display: flex;
+    flex: 0 0 auto;
+    width: 2.5rem;
+    margin-inline-start: .75rem;
+  }
+}

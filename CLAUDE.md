@@ -96,6 +96,7 @@ Always use the `@/` alias instead of relative paths:
 - MTProto types live in `src/layer.d.ts` (664KB, auto-generated); import from `@/layer`
 - Utility types (AuthState, WorkerTask, etc.) live in `src/types.d.ts`; import from `@/types`
 - Global types available everywhere: `PeerId`, `UserId`, `ChatId`, `BotId`, `DocId`, `Long`, `Icon`, `ApiError`, `ErrorType`, `MaybePromise<T>`. Defined in `src/global.d.ts`.
+- Avoid using default exports. The codebase already uses them a lot, but new code should not use them.
 
 ## Key Patterns
 
@@ -120,6 +121,7 @@ export default function MyComponent(props: {
 ```
 
 For new components, **always** use CSS modules. 
+To embed a SolidJS component into an imperative pure-JS component, use `wrapSolidComponent` from `@/helpers/solid/wrapSolidComponent`.
 
 ### CSS Modules
 
