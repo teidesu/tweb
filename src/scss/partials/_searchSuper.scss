@@ -17,7 +17,7 @@
   }
 
   &-tabs-scrollable {
-    --scrollable-size: #{$menu-height};
+    --scrollable-size: 2.5rem;
 	  position: sticky !important;
     top: 1rem;
     z-index: 2;
@@ -71,6 +71,13 @@
   // the tab row look comes from horizontalMenu's module (applyMenuStyles);
   // .search-super-tab stays only as a hook for context-specific overrides
 
+  &-tab {
+    margin: 0;
+    padding: 0 .75rem;
+    font-size: .9375rem;
+    border-radius: .75rem;
+  }
+
   &-tab-container {
     position: relative;
     min-height: 150px;
@@ -104,12 +111,10 @@
     }
   }
 
-  &-tabs-gradient {
-    &-container {
-      position: sticky;
-      top: calc(var(--super-offset) - var(--section-padding-bottom));
-      pointer-events: none;
-    }
+  & &-tabs-gradient-container {
+    position: sticky;
+    top: calc(var(--super-offset) - var(--section-padding-bottom));
+    pointer-events: none;
   }
 
   .document-name, 
