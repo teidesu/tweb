@@ -328,7 +328,6 @@ ul.chatlist {
     display: flex;
     align-items: center;
     height: 1.25rem;
-    margin-top: -.4375rem;
     font-size: var(--font-size-12);
     line-height: var(--line-height-12);
   }
@@ -543,7 +542,7 @@ ul.chatlist {
       font-size: .75rem;
       padding: 1px 0px 0px 0px;
       flex: 0 0 auto;
-      margin-inline-start: .5rem !important;
+      margin-inline-start: .25rem !important;
     }
   }
 
