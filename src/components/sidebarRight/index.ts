@@ -10,6 +10,7 @@ import rootScope from '@/lib/rootScope';
 import { installColumnWidthsUpdater, isRightColumnFloating } from '@/helpers/updateColumnWidths';
 import installColumnResize from '@/helpers/installColumnResize';
 import { setAppSettings } from '@/stores/appSettings';
+import animationIntersector from '@/components/animationIntersector';
 
 
 export const RIGHT_COLUMN_ACTIVE_CLASSNAME = 'is-right-column-shown';
@@ -134,6 +135,7 @@ export class AppSidebarRight extends SidebarSlider {
   public hide() {
     document.body.classList.remove(RIGHT_COLUMN_ACTIVE_CLASSNAME);
     appNavigationController.removeByType('right');
+    animationIntersector.toggleVideosUnder(this.sidebarEl, true);
     rootScope.dispatchEventSingle('right_sidebar_toggle', false);
   }
 
@@ -177,6 +179,7 @@ export class AppSidebarRight extends SidebarSlider {
         const topTab = this.historyTabIds[this.historyTabIds.length - 1];
         this.pushNavigationItem(topTab instanceof SliderSuperTab ? topTab : this.sharedMediaTab);
       }
+      animationIntersector.toggleVideosUnder(this.sidebarEl, false);
       rootScope.dispatchEventSingle('right_sidebar_toggle', true);
     }
     return animationPromise;

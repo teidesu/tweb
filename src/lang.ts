@@ -2379,6 +2379,7 @@ const lang = {
   'BotAttachMenuShortcatAddedAttach': '**%s** shortcut added in attachment menu.',
   'NotificationsStoryMutedHint': 'Disabled notifications for **%s** stories.',
   'NotificationsStoryUnmutedHint': 'You will receive a notification whenever **%s** posts a new story.',
+  'Story.Notification': 'posted a story',
   'StoriesMovedToContacts': 'Stories of **%s** were moved to the **Archive**.',
   'StoriesMovedToDialogs': 'Stories of **%s** were moved to **Chats**.',
   'StorySharedTo': 'Story forwarded to **%s**.',
@@ -4797,6 +4798,59 @@ const lang = {
   'CancelPollConfirm.Description': 'Are you sure you want to cancel sending the poll?',
   'CancelPollConfirm.Button': 'Cancel Sending',
   'CancelPollConfirm.Timeout': 'The poll was already sent, you can delete the message instead.',
+
+  'TextCopyFailed': 'Failed to copy text to clipboard',
+
+  'AiEditor.Title': 'AI Editor',
+  'AiEditor.Style': 'Style',
+  'AiEditor.Fix': 'Fix',
+  'AiEditor.Original': 'Original',
+  'AiEditor.Emojify': 'emojify',
+  'AiEditor.Result': 'Result',
+  'AiEditor.TranslateFrom': 'From %s',
+  'AiEditor.TranslateTo': 'To %s',
+  'Translate.Error': 'Something went wrong while trying to translate the text.',
+  'AiEditor.StyleBy': 'Style by %s',
+  'AiEditor.PremiumFlood': 'You have hit the limit for now. Subscribe to [Telegram Premium]() to increase the limit by 50 times or try again later.',
+  'AiEditor.ComposeError': 'Something went wrong while trying to compose the message.',
+
+  'AiEditor.NewStyle.Title': 'New Style',
+  'AiEditor.NewStyle.TitleEdit': 'Edit Style',
+  'AiEditor.NewStyle.StyleName': 'Style Name',
+  'AiEditor.NewStyle.StyleNameDescription': 'Style name (for example, "Pirate")',
+  'AiEditor.NewStyle.Instructions': 'Instructions',
+  'AiEditor.NewStyle.InstructionsDescription': 'Instructions (for example "write in bold, nautical tone, light slang (aye, matey), vivid sea imagery, playful swagger, rhythmic phrasing, and adventurous mood")',
+  'AiEditor.NewStyle.AddLink': 'Add a link to my account',
+  'AiEditor.NewStyle.EmojiUnsupported': 'Sorry, this emoji is unsupported, please choose an animated emoji instead.',
+  'AiEditor.NewStyle.Error': 'Failed to create new style',
+  'AiEditor.NewStyle.ErrorEdit': 'Failed to save the style',
+
+  'AiEditor.Chat.ViewStyle': 'View Style',
+
+  'AiEditor.StyleNotFound': 'Style not found, it was probably deleted',
+  'AiEditor.StyleAdded': 'Style was added',
+  'AiEditor.StyleAddError': 'Failed to add style',
+  'AiEditor.StyleRemoved': 'Style was removed',
+  'AiEditor.StyleRemoveError': 'Failed to remove style',
+
+  'AiEditor.DeleteStyle.Title': 'Delete Style',
+  'AiEditor.DeleteStyle.Description': 'Are you sure you want to delete this style? It will be removed for anyone who saved it.',
+
+  'AiEditor.ViewStyle.Description': 'Add this style to instantly rewrite your messages.',
+  'AiEditor.ViewStyle.AnotherExample': 'Another Example',
+  'AiEditor.ViewStyle.Before': 'Before',
+  'AiEditor.ViewStyle.After': 'After',
+  'AiEditor.ViewStyle.InstallsCountCreatedByYou': {
+    'one_value': 'Used by %d person. Created by you.',
+    'other_value': 'Used by %d people. Created by you.'
+  },
+  'AiEditor.ViewStyle.CreatedBy': 'Created by %s',
+  'AiEditor.ViewStyle.SaveStyle': 'Save Style',
+  'AiEditor.ViewStyle.RemoveStyle': 'Remove Style',
+  'AiEditor.ViewStyle.DeleteStyle': 'Delete Style',
+  'AiEditor.ViewStyle.MaxSavedTones': 'You have reached the maximum number of custom styles.',
+
+  'Apply': 'Apply'
 };
 
 export default lang;

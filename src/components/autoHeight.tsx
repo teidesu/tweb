@@ -1,10 +1,13 @@
-import { batch, createSignal, JSX, onCleanup, onMount } from 'solid-js';
+import { batch, createSignal, JSX, onCleanup, onMount, Ref } from 'solid-js';
 
 export const AutoHeight = (props: {
   children: JSX.Element;
   duration?: number;
   overflowHidden?: boolean;
   easing?: JSX.CSSProperties['transition-property'];
+  ref?: Ref<HTMLDivElement>;
+  outerClass?: string;
+  hasTransition?: boolean;
 }) => {
   let containerRef!: HTMLDivElement;
   let contentRef!: HTMLDivElement;
@@ -27,7 +30,11 @@ export const AutoHeight = (props: {
 
   return (
     <div
-      ref={containerRef}
+      ref={(el) => {
+        containerRef = el;
+        if (typeof props.ref === 'function') (props.ref as (el: HTMLDivElement) => void)(el);
+      }}
+      class={props.outerClass}
       style={{
         height: canHaveHeight() ? `${height()}px` : 'auto',
         overflow: props.overflowHidden ? 'hidden' : undefined,

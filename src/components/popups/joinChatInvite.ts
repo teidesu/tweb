@@ -121,7 +121,7 @@ export default class PopupJoinChatInvite extends PopupPeer {
 
   public static openChat(chatId: ChatId) {
     const peerId = chatId.toPeerId(true);
-    appImManager.setInnerPeer({ peerId });
+    appImManager.open({ peerId });
   }
 
   public static import(hash: string) {

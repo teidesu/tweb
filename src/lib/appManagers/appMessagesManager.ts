@@ -46,7 +46,6 @@ import defineNotNumerableProperties from '@/helpers/object/defineNotNumerablePro
 import getDocumentMediaInput from '@/lib/appManagers/utils/docs/getDocumentMediaInput';
 import getFileNameForUpload from '@/helpers/getFileNameForUpload';
 import noop from '@/helpers/noop';
-import appTabsManager from '@/lib/appManagers/appTabsManager';
 import MTProtoMessagePort from '@/lib/mainWorker/mainMessagePort';
 import getGroupedText from '@/lib/appManagers/utils/messages/getGroupedText';
 import pause from '@/helpers/schedulers/pause';
@@ -75,7 +74,6 @@ import getMainGroupedMessage from '@/lib/appManagers/utils/messages/getMainGroup
 import getUnreadReactions from '@/lib/appManagers/utils/messages/getUnreadReactions';
 import isMentionUnread from '@/lib/appManagers/utils/messages/isMentionUnread';
 import canMessageHaveFactCheck from '@/lib/appManagers/utils/messages/canMessageHaveFactCheck';
-import commonStateStorage from '@/lib/commonStateStorage';
 import PaidMessagesQueue from '@/lib/appManagers/utils/messages/paidMessagesQueue';
 import type { ConfirmedPaymentResult } from '@/components/chat/paidMessagesInterceptor';
 import RepayRequestHandler, { RepayRequest } from '@/lib/appManagers/utils/repayRequestHandler';
@@ -7647,8 +7645,15 @@ export class AppMessagesManager extends AppManager {
       } as Update.updateNewDiscussionMessage;
 
       if ((this.appChatsManager.isForum(peerId.toChatId()) || this.appPeersManager.isBotforum(peerId)) && !this.dialogsStorage.getForumTopic(peerId, threadId)) {
-        // this.dialogsStorage.getForumTopicById(peerId, threadId);
-        this.handleNewUpdateAfterReload(peerId, update, threadId);
+        const action = (message as Message.messageService).action;
+        if (action?._ === 'messageActionTopicCreate') {
+          this.dialogsStorage.applyLocalForumTopics([
+            createBotforumTopicFromAction({message: message as Message.messageService, action}),
+          ]);
+        } else {
+          // this.dialogsStorage.getForumTopicById(peerId, threadId);
+          this.handleNewUpdateAfterReload(peerId, update, threadId);
+        }
       } else if (peerId === this.appPeersManager.peerId && !this.dialogsStorage.getAnyDialog(peerId, threadId)) {
         this.handleNewUpdateAfterReload(peerId, update, threadId);
       } else if (threadStorage) {
@@ -7981,6 +7986,12 @@ export class AppMessagesManager extends AppManager {
       }
 
       releaseUnreadCount();
+      // * refresh chat-folder membership: toggling unread_mark can move the
+      // * dialog in/out of exclude_read folders, but the filter index isn't
+      // * updated by the counter modify above. Without this, a read dialog
+      // * lingers in an "Unread" folder after its unread_mark is cleared
+      // * (e.g. from another client) until something else re-processes it.
+      this.dialogsStorage.processDialogForFilters(dialog);
       this.dialogsStorage.setDialogToState(dialog);
       this.rootScope.dispatchEvent('dialogs_multiupdate', new Map([[peerId, { dialog }]]));
     }
@@ -8559,6 +8570,12 @@ export class AppMessagesManager extends AppManager {
 
       if (affected) {
         (releaseUnreadCount as () => void)();
+        // * refresh chat-folder membership: deleting unread messages can drop
+        // * unread_count to 0, which must remove the dialog from exclude_read
+        // * folders. The counter modify above does NOT touch the filter index,
+        // * so without this a read-now dialog lingers in an "Unread" folder
+        // * (no badge) until something else re-processes it.
+        this.dialogsStorage.processDialogForFilters(dialog);
 
         if (!isSaved) { // ! WARNING, was `!isTopic` here
           this.rootScope.dispatchEvent('dialog_unread', { peerId, dialog });
@@ -9372,26 +9389,7 @@ export class AppMessagesManager extends AppManager {
       return;
     }
 
-    const settings = await commonStateStorage.get('settings', false);
-
-    let tabs = appTabsManager.getTabs();
-    if (!settings.notifyAllAccounts)
-      tabs = tabs.filter((tab) => tab.state.accountNumber === this.getAccountNumber());
-
-    tabs.sort((a, b) => a.state.idleStartTime - b.state.idleStartTime);
-
-    let tab = tabs.find((tab) => {
-      const { chatPeerIds, accountNumber } = tab.state;
-      return accountNumber === this.getAccountNumber() && chatPeerIds[chatPeerIds.length - 1] === peerId;
-    });
-
-    if (!tab) {
-      tab = tabs.find((tab) => tab.state.accountNumber === this.getAccountNumber());
-    }
-
-    if (!tab && tabs.length) {
-      tab = !tabs[0].state.idleStartTime ? tabs[0] : tabs[tabs.length - 1];
-    }
+    const tab = await this.appNotificationsManager.getNotificationTab(peerId);
 
     const port = MTProtoMessagePort.getInstance<false>();
     port.invokeVoid('notificationBuild', {

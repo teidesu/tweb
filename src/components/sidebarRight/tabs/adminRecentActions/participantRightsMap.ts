@@ -23,4 +23,5 @@ export const participantRightsMap: Record<keyof ChatBannedRights.chatBannedRight
   send_messages:     null,
   send_games:        null,
   send_inline:       null,
+  send_reactions:    null
 };

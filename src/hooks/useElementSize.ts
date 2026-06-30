@@ -15,13 +15,14 @@ const NULL_KEY = {};
 
 const map = new WeakMap<Element | typeof NULL_KEY, SizeRoot>();
 
-const createSizeRoot = (element: Accessor<Element>) => createRoot(dispose => {
+const createSizeRoot = (element: Accessor<Element | undefined>) => createRoot(dispose => {
   const [store, setStore] = createStore({ width: 0, height: 0 });
 
   createRenderEffect(() => {
-    if (!element()) return;
+    const el = element();
+    if (!el) return;
 
-    setStore(pickKeys(element().getBoundingClientRect(), ['width', 'height']));
+    setStore(pickKeys(el.getBoundingClientRect(), ['width', 'height']));
 
     let callback: (() => void) | undefined, isQueued = false;
 
@@ -44,7 +45,7 @@ const createSizeRoot = (element: Accessor<Element>) => createRoot(dispose => {
       });
     });
 
-    resizeObserver.observe(element());
+    resizeObserver.observe(el);
 
     onCleanup(() => {
       resizeObserver.disconnect();
@@ -58,7 +59,7 @@ const createSizeRoot = (element: Accessor<Element>) => createRoot(dispose => {
   };
 });
 
-export default function useElementSize(element: Accessor<Element>) {
+export default function useElementSize(element: Accessor<Element | undefined>) {
   const root = createMemo(() => {
     const key = element() || NULL_KEY;
 

@@ -49,6 +49,8 @@ export const PAYMENT_REJECTED = Symbol('Payment rejected');
 export default class PaidMessagesInterceptor {
   private pendingUndoableMessage = createPendingUndoableMessage();
 
+  public static PaymentRejectedSymbol: typeof PAYMENT_REJECTED = PAYMENT_REJECTED;
+
   private static rawStars = useStars();
 
   /**

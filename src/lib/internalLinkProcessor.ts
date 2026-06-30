@@ -833,7 +833,7 @@ export class InternalLinkProcessor {
     return this.managers.appChatInvitesManager.checkChatInvite(link.invite).then(async(chatInvite) => {
       if (chatInvite!._ === 'chatInviteAlready' ||
         chatInvite!._ === 'chatInvitePeek'/*  && chatInvite.expires > tsNow(true) */) {
-        appImManager.setInnerPeer({
+        appImManager.open({
           peerId: chatInvite!.chat.id.toPeerId(true),
         });
         return;

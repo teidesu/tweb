@@ -36,6 +36,7 @@ export default function createLoopingMutedVideo(url: string, className?: string,
         v.currentTime = Math.min(seekTo, v.duration || seekTo);
       } catch {}
       tryPlay();
+      v.autoplay = true;
     }, { once: true });
     v.addEventListener('canplay', tryPlay, { once: true }); // backstop
   } else {

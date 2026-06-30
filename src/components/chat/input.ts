@@ -162,6 +162,8 @@ import compareUint8Arrays from '@/helpers/bytes/compareUint8Arrays';
 import { LocalTextWithOptionalEntities } from './bubbleParts/pollMessageContent/utils';
 import { SupportedMediaType } from '@/components/popups/createPoll/storeContext';
 import { isTruthy } from '../../helpers/isTruthy';
+import { useAiEditorButton } from './inputState/useAiEditorButton';
+import { runWithHotReloadGuard } from '@/lib/solidjs/runWithHotReloadGuard';
 
 
 const REPLY_IN_TOPIC = false;
@@ -554,6 +556,7 @@ export default class ChatInput {
     this.fileInputState = this.createFileInputState();
     this.starsState = this.createStarsState();
     this.directMessagesHandler = this.createDirectMessagesHandler();
+    runWithHotReloadGuard(() => this.createAiEditorButtonState());
   }
 
   public freezeFocused(focused: boolean) {
@@ -813,13 +816,20 @@ export default class ChatInput {
     attachClickEvent(btn, (e) => {
       cancelEvent(e);
       const middleware = this.getMiddleware();
-      this.managers.appMessagesManager.goToNextMention({ peerId: this.chat.peerId, threadId: this.chat.threadId, isReaction, isPollVote }).then((mid) => {
-        if (!middleware()) {
+      const peerId = this.chat.peerId;
+      this.managers.appMessagesManager.goToNextMention({ peerId, threadId: this.chat.threadId, isReaction, isPollVote }).then(async(mid) => {
+        if(!middleware() || !mid) {
           return;
         }
 
-        if (mid) {
-          this.chat.setMessageId({ lastMsgId: mid });
+        const result = await this.chat.setMessageId({ lastMsgId: mid });
+        await result?.promise?.catch(() => {});
+        if(!middleware()) {
+          return;
+        }
+
+        if(!isPollVote) {
+          this.chat.bubbles.reobserveUnreadContent(peerId, mid);
         }
       });
     }, { listenerSetter: this.listenerSetter });
@@ -4100,6 +4110,27 @@ export default class ChatInput {
     return { store, set, canPaste };
   });
 
+  private createAiEditorButtonState = () => createRoot((dispose) => {
+    this.getMiddleware()?.onDestroy(() => void dispose());
+
+    useAiEditorButton({
+      forceHidden: () => this.starsState.store.messageCount !== 1,
+      instance: this,
+      container: () => this.inputMessageContainer,
+      inputField: () => this.messageInputField,
+      onApply: (text) => {
+        const node = wrapDraftText(text.text, {
+          entities: text.entities,
+          middleware: this.getMiddleware(),
+          wrappingForPeerId: this.chat.peerId
+        });
+        this.setInputValue(node, false, true);
+      },
+      appendTo: () => this.newMessageWrapper,
+      canSend: true
+    });
+  });
+
   private throttledSetMessageCountToBadgeState = asyncThrottle(async(value: string) => {
     if (!value?.trim()) {
       this.starsState.set({ messageCount: 0 });
@@ -4269,7 +4300,7 @@ export default class ChatInput {
       });
     }
 
-    return { value };
+    return { value, messageCount };
   }
 
   public async sendMessage(force = false) {
@@ -4304,7 +4335,7 @@ export default class ChatInput {
         paidMessageInterceptor: this.paidMessageInterceptor,
       });
 
-      if (!result) {
+      if (!result || !result.messageCount) {
         return;
       }
 

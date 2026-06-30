@@ -53,7 +53,8 @@ export default function Scrollable(props: {
   onScrolledBottom?: () => void,
   onScroll?: () => void,
   onScrollOffset?: number,
-  relative?: boolean
+  relative?: boolean,
+  hideThumb?: boolean
 }) {
   const axis = props.axis ?? 'y';
   const scrollPositionProperty: 'scrollTop' | 'scrollLeft' = axis === 'x' ? 'scrollLeft' : 'scrollTop';
@@ -420,6 +421,7 @@ export default function Scrollable(props: {
       <div class="scrollable-thumb-container">
         <div
           class="scrollable-thumb"
+          classList={{'scrollable-thumb--hidden': props.hideThumb}}
           ref={(el) => {
             thumbRef = el;
             props.thumbRef?.(el);

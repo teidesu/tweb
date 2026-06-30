@@ -32,7 +32,6 @@ import { wrapStarsRatingLevel } from '@/components/wrappers/starsRating';
 import cancelEvent from '@/helpers/dom/cancelEvent';
 import { HIDDEN_PEER_ID } from '@/lib/appManagers/constants';
 import { rgbIntToHex } from '@/helpers/color';
-import { makeMediaSize } from '@/helpers/mediaSize';
 import type { MyStarGift } from '@/lib/appManagers/appGiftsManager';
 import { attachClickEvent } from '@/helpers/dom/clickEvent';
 import ListenerSetter from '@/helpers/listenerSetter';
@@ -75,7 +74,6 @@ type PeerProfileContextValue = {
   isSavedDialog: boolean,
   isTopic: boolean,
   isBotforum: boolean,
-  needSimpleAvatar: boolean,
   hasSavedMusic: boolean,
   getDetailsForUse: () => {peerId: PeerId, threadId?: number},
   verifyContext: (peerId: PeerId, threadId?: number) => boolean,
@@ -147,9 +145,6 @@ const PeerProfile = (props: {
     get isBotforum() {
       return !!(value.peer as User.user).pFlags.bot_forum_view;
     },
-    get needSimpleAvatar() {
-      return value.isTopic;
-    },
     get hasSavedMusic() {
       return !!(value.fullPeer as UserFull)?.saved_music;
     },
@@ -203,9 +198,7 @@ const PeerProfile = (props: {
           value.peerId === rootScope.myId && 'is-me'
         )}
       >
-        <Show when={!value.needSimpleAvatar}>
-          <PeerProfile.AutoAvatar />
-        </Show>
+        <PeerProfile.AutoAvatar />
         <div class="profile-content-delimiter"></div>
         <PeerProfile.UnofficialWarning />
         <PeerProfile.PersonalChannel />
@@ -221,69 +214,43 @@ const PeerProfile = (props: {
 
 PeerProfile.Avatar = () => {
   const context = useContext(PeerProfileContext);
-  const { rootScope, PeerProfileAvatars, avatarNew } = useHotReloadGuard();
-  const { peerId, threadId } = context!.getDetailsForUse();
+  const { rootScope, PeerProfileAvatars } = useHotReloadGuard();
 
   const name = (<PeerProfile.Name />) as HTMLElement;
   const subtitle = (<PeerProfile.Subtitle />) as HTMLElement;
 
-  if (!context!.needSimpleAvatar) {
-    const middleware = createMiddleware()
-    const avatars = new PeerProfileAvatars(
-      context!.scrollable,
-      rootScope.managers,
-      context!.setCollapsedOn
-    );
-    avatars.onNeedWhiteChanged = context!.setNeedWhite;
-
-    // Expose the readiness promise so the host (e.g. settings tab's
-    // promiseCollector) can wait for the avatar before showing the tab —
-    // otherwise the gradient header renders empty for the duration of the
-    // setPeer pipeline (peer photo IPC + appearance + thumb load) and the
-    // avatar pops in mid-transition. NOTE: optional-call short-circuits arg
-    // evaluation, so we MUST call setPeer first and pass the result through.
-    const setPeerPromise = avatars.setPeer(context!.peerId);
-    context!.onAvatarReady?.(setPeerPromise);
-    avatars.info.append(name, subtitle);
-    avatars.container.append(
-      wrapSolidComponent(PeerProfile.PinnedGifts, middleware.get()),
-      wrapSolidComponent(PeerProfile.PinnedMusic, middleware.get()),
-      wrapSolidComponent(() => PeerProfile.StoryPreviews({
-        info: avatars.info,
-      }), middleware.get()),
-    );
-
-    onCleanup(() => {
-      avatars.cleanup();
-    });
-
-    return avatars.container;
-  }
-
-  const middleware = createMiddleware().get();
-  const avatar = avatarNew({
-    middleware,
-    size: 120,
-    isDialog: context!.isDialog,
-    peerId,
-    threadId: context!.isTopic ? threadId : undefined,
-    wrapOptions: {
-      customEmojiSize: makeMediaSize(120, 120),
-      middleware,
-    },
-    withStories: true,
-    meAsNotes: !!(peerId === rootScope.myId && threadId),
-  });
-  avatar.node.classList.add('profile-avatar', 'avatar-120');
-  // Same as above — let the host wait for the simple-avatar thumb.
-  context!.onAvatarReady?.(avatar.readyThumbPromise);
-  return (
-    <>
-      {avatar.node}
-      {name}
-      {subtitle}
-    </>
+  const middleware = createMiddleware()
+  const avatars = new PeerProfileAvatars(
+    context!.scrollable,
+    rootScope.managers,
+    context!.setCollapsedOn
   );
+  avatars.onNeedWhiteChanged = context!.setNeedWhite;
+
+  // Expose the readiness promise so the host (e.g. settings tab's
+  // promiseCollector) can wait for the avatar before showing the tab —
+  // otherwise the gradient header renders empty for the duration of the
+  // setPeer pipeline (peer photo IPC + appearance + thumb load) and the
+  // avatar pops in mid-transition. NOTE: optional-call short-circuits arg
+  // evaluation, so we MUST call setPeer first and pass the result through.
+  // Topics render through the same carousel header (as a single topic-icon
+  // avatar) — just like a chat with no avatar photo — so pass the topic id.
+  const setPeerPromise = avatars.setPeer(context!.peerId, context!.isTopic ? context!.threadId : undefined);
+  context!.onAvatarReady?.(setPeerPromise);
+  avatars.info.append(name, subtitle);
+  avatars.container.append(
+    wrapSolidComponent(PeerProfile.PinnedGifts, middleware.get()),
+    wrapSolidComponent(PeerProfile.PinnedMusic, middleware.get()),
+    wrapSolidComponent(() => PeerProfile.StoryPreviews({
+      info: avatars.info,
+    }), middleware.get()),
+  );
+
+  onCleanup(() => {
+    avatars.cleanup();
+  });
+
+  return avatars.container;
 };
 
 PeerProfile.AutoAvatar = () => {
@@ -918,7 +885,7 @@ PeerProfile.Location = () => {
 
 PeerProfile.Bio = () => {
   const context = useContext(PeerProfileContext);
-  const { i18n, PopupPremium, showTranslatePopup, I18n, wrapRichText, toast } = useHotReloadGuard();
+  const { i18n, PopupPremium, I18n, wrapRichText, toast, HotReloadGuard } = useHotReloadGuard();
   const appConfig = useAppConfig();
   const peerTranslation = usePeerTranslation(context!.peerId);
 
@@ -966,7 +933,8 @@ PeerProfile.Bio = () => {
               if (!peerTranslation.canTranslate(true)) {
                 PopupPremium.show({ feature: 'translations' });
               } else {
-                showTranslatePopup({
+                const { openTranslatePopup } = await import('@/components/popups/translate');
+                openTranslatePopup({
                   peerId: context!.peerId,
                   textWithEntities: {
                     _: 'textWithEntities',
@@ -974,7 +942,7 @@ PeerProfile.Bio = () => {
                     entities: [],
                   },
                   detectedLanguage: await bioLanguagePromise(),
-                });
+                }, HotReloadGuard);
               }
             },
             verify: async() => !!(await bioLanguagePromise()),
@@ -1249,7 +1217,7 @@ PeerProfile.BotVerification = () => {
     <Show when={content()}>
       <div class="profile-bot-verification">
         {content()!.icon}
-        <div class="profile-bot-verification-content">
+        <div class="profile-bot-verification-content text-overflow-wrap">
           {content()!.text}
         </div>
       </div>
@@ -1513,11 +1481,7 @@ PeerProfile.MainSection = () => {
   return (
     <Section
       noDelimiter
-      contentProps={{ class: clsx(context!.needSimpleAvatar && 'has-simple-avatar') }}
     >
-      <Show when={context!.needSimpleAvatar}>
-        <PeerProfile.AutoAvatar />
-      </Show>
       <Show when={!(context!.isBotforum && context!.threadId)}>
         <PeerProfile.Phone />
         <PeerProfile.Bio />

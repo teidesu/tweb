@@ -26,3 +26,17 @@ export const Skeleton = (props: SkeletonProps) => {
     </Transition>
   );
 };
+
+Skeleton.Div = (props: {
+  class?: string;
+  secondary?: boolean;
+  style?: JSX.CSSProperties;
+  textLine?: boolean;
+}) => {
+  return (
+    <div
+      class={`skeleton${props.secondary ? ' skeleton-secondary' : ''}${props.textLine ? ' skeleton-text-line' : ''}${props.class ? ' ' + props.class : ''}`}
+      style={props.style}
+    />
+  );
+};

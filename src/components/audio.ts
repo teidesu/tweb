@@ -65,18 +65,13 @@ export function decodeWaveform(waveform: Uint8Array | number[]) {
     return new Uint8Array([]);
   }
 
-  let result: Uint8Array;
-  try {
-    const dataView = new DataView(waveform.buffer);
-    result = new Uint8Array(valueCount);
-    for (let i = 0; i < valueCount; i++) {
-      const byteIndex = i * 5 / 8 | 0;
-      const bitShift = i * 5 % 8;
-      const value = dataView.getUint16(byteIndex, true);
-      result[i] = (value >> bitShift) & 0b00011111;
-    }
-  } catch (err) {
-    result = new Uint8Array([]);
+  const result = new Uint8Array(valueCount);
+  for(let i = 0; i < valueCount; i++) {
+    const byteIndex = i * 5 / 8 | 0;
+    const bitShift = i * 5 % 8;
+    const low = waveform[byteIndex];
+    const high = byteIndex + 1 < waveform.length ? waveform[byteIndex + 1] : 0;
+    result[i] = ((low | (high << 8)) >> bitShift) & 0b00011111;
   }
 
   return result;
@@ -159,7 +154,7 @@ async function wrapVoiceMessage(audioEl: AudioElement) {
   }
 
   let waveform = (doc.attributes.find((attribute) => attribute._ === 'documentAttributeAudio') as DocumentAttribute.documentAttributeAudio)?.waveform || new Uint8Array([]);
-  waveform = decodeWaveform(waveform.slice(0, 63));
+  waveform = decodeWaveform(waveform);
 
   const { svg, container: svgContainer, availW } = createWaveformBars(waveform, doc.duration!);
 

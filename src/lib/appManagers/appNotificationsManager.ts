@@ -13,6 +13,8 @@ import convertInputKeyToKey from '@/helpers/string/convertInputKeyToKey';
 import { AppManager } from '@/lib/appManagers/manager';
 import ctx from '@/environment/ctx';
 import assumeType from '@/helpers/assumeType';
+import appTabsManager from '@/lib/appManagers/appTabsManager';
+import commonStateStorage from '@/lib/commonStateStorage';
 
 type ImSadAboutIt = Promise<PeerNotifySettings> | PeerNotifySettings;
 type MyNotifyPeer = Exclude<NotifyPeer['_'], 'notifyPeer' | 'notifyForumTopic'>;
@@ -309,6 +311,39 @@ export class AppNotificationsManager extends AppManager {
   public isPeerStoriesMuted(peerId: PeerId) {
     const notifySettings = this.getPeerLocalSettings({ peerId });
     return !!notifySettings?.stories_muted;
+  }
+
+  public async getPeerStoriesMuted(peerId: PeerId) {
+    await Promise.all([
+      this.getNotifyPeerTypeSettings(),
+      this.getNotifySettings({_: 'inputNotifyPeer', peer: this.appPeersManager.getInputPeerById(peerId)})
+    ]);
+    return this.isPeerStoriesMuted(peerId);
+  }
+
+  public async getNotificationTab(peerId: PeerId) {
+    const settings = await commonStateStorage.get('settings', false);
+
+    let tabs = appTabsManager.getTabs();
+    if(!settings.notifyAllAccounts)
+      tabs = tabs.filter((tab) => tab.state.accountNumber === this.getAccountNumber());
+
+    tabs.sort((a, b) => a.state.idleStartTime - b.state.idleStartTime);
+
+    let tab = tabs.find((tab) => {
+      const {chatPeerIds, accountNumber} = tab.state;
+      return accountNumber === this.getAccountNumber() && chatPeerIds[chatPeerIds.length - 1] === peerId;
+    });
+
+    if(!tab) {
+      tab = tabs.find((tab) => tab.state.accountNumber === this.getAccountNumber());
+    }
+
+    if(!tab && tabs.length) {
+      tab = !tabs[0].state.idleStartTime ? tabs[0] : tabs[tabs.length - 1];
+    }
+
+    return tab;
   }
 
   public toggleStoriesMute(peerId: PeerId, mute: boolean, local?: boolean) {

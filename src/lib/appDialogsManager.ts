@@ -744,6 +744,10 @@ export class AppDialogsManager {
         return false;
       }
 
+      if (!await appSidebarLeft.closeEverythingInsideNaturally()) {
+        return false;
+      }
+
       if (!IS_MOBILE_SAFARI) {
         if (index) {
           if (!this.filtersNavigationItem) {

@@ -1,4 +1,4 @@
-import { createMemo, createSignal, JSX, onCleanup, onMount, untrack, useContext } from 'solid-js';
+import { createEffect, createMemo, createSignal, JSX, onCleanup, onMount, untrack, useContext } from 'solid-js';
 import { unwrap } from 'solid-js/store';
 import { ChatFull, ChatTheme, UserFull, WallPaper } from '@/layer';
 import PopupElement, { createPopup, PopupContext } from '@/components/popups/indexTsx';
@@ -15,6 +15,7 @@ import { attachClickEvent } from '@/helpers/dom/clickEvent';
 import replaceContent from '@/helpers/dom/replaceContent';
 import { useFullPeer } from '@/stores/fullPeers';
 import { appState } from '@/stores/appState';
+import useIsNightTheme from '@/hooks/useIsNightTheme';
 import { subscribeOn } from '@/helpers/solid/subscribeOn';
 import ListenerSetter from '@/helpers/listenerSetter';
 import { bindActiveWindowListener, getAppWindow, onAppWindowChange } from '@/helpers/appWindow';
@@ -117,6 +118,13 @@ export default function showChatPreviewPopup(options: ChatPreviewOptions): void 
       }
 
       return { theme, wallPaper };
+    });
+
+    const isNight = useIsNightTheme();
+    createEffect(() => {
+      isNight();
+      chat.currentTheme = resolvedBg().theme;
+      chat.applyContainerTheme();
     });
 
     onMount(() => {

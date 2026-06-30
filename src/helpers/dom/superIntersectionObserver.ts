@@ -97,6 +97,15 @@ export default class SuperIntersectionObserver {
     callbacks.add(callback);
   }
 
+  public reobserve(target: IntersectionTarget) {
+    if(this.freezedObservingNew || !this.observing.has(target)) {
+      return;
+    }
+
+    this.observer.unobserve(target);
+    this.observer.observe(target);
+  }
+
   public unobserve(target: IntersectionTarget, callback: IntersectionCallback) {
     const observing = this.freezedObservingNew && !this.has(target, callback) ? this.observingQueue : this.observing;
     const callbacks = observing.get(target);

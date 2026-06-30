@@ -338,8 +338,6 @@ export default class ChatSendAs {
             needPremium: sendAsPeer.pFlags.premium_required,
           }
         });
-        this.sendAsPeers = peers.slice();
-
         const idx = peers.findIndex((peer) => peer.peerId === sendAsPeerId);
         if (idx !== -1) {
           const peer = peers.splice(idx, 1)[0];
@@ -347,6 +345,8 @@ export default class ChatSendAs {
         } else {
           peers.unshift({ peerId: sendAsPeerId });
         }
+
+        this.sendAsPeers = peers.slice();
 
         this.updateButtons(peers);
       });

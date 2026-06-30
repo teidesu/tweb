@@ -47,6 +47,7 @@ import { resolveElements } from '@solid-primitives/refs';
 import toArray from '@/helpers/array/toArray';
 import computeLockColor from '@/helpers/computeLockColor';
 import createLoopingMutedVideo from '@/helpers/dom/createLoopingMutedVideo';
+import animationIntersector from '@/components/animationIntersector';
 
 const FADE_IN_DURATION = 200;
 const TEST_SWAPPING = 0;
@@ -164,23 +165,15 @@ async function loadAvatarVideoOverlay(
   // Muted-autoplay setup with src assigned last (see helper) — retry on
   // canplay/loadeddata covers the "interrupted by a new load request" reject.
   const v = createLoopingMutedVideo(url, 'avatar-photo avatar-video', videoStartTs);
-  const tryPlay = () => { v.play().catch(() => {}); };
 
-  // Pause while the avatar is scrolled off screen (chat list / topbar can have
-  // many of these) and resume when it returns — mirrors the hierarchy-tracking
-  // pause that iOS does for its AvatarVideoNode.
-  let observer: IntersectionObserver;
-  try {
-    observer = new IntersectionObserver((entries) => {
-      const isVisible = entries.some((e) => e.isIntersecting);
-      if (isVisible) tryPlay();
-      else v.pause();
-    });
-    observer.observe(node);
-  } catch {}
+  animationIntersector.addAnimation({
+    animation: v,
+    observeElement: v,
+    type: 'video',
+  });
 
   middleware.onDestroy(() => {
-    observer?.disconnect();
+    animationIntersector.removeAnimationByPlayer(v);
     v.pause();
     v.src = '';
     v.load();
@@ -264,6 +257,12 @@ async function attachAvatarVideoFromPhoto(container: HTMLElement, photo: import(
 
   const v = createLoopingMutedVideo(url, 'avatar-photo avatar-video', videoSize.video_start_ts);
   container.appendChild(v);
+
+  animationIntersector.addAnimation({
+    animation: v,
+    observeElement: v,
+    type: 'video',
+  });
 }
 
 export function StoriesSegments(props: {

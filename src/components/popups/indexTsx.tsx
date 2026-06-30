@@ -88,6 +88,8 @@ type PopupControllerContextValue = {
 export const PopupContext = createContext<PopupContextValue>();
 const PopupControllerContext = createContext<PopupControllerContextValue>();
 
+export const usePopupContext = () => useContext(PopupContext);
+
 const DEFAULT_APPEND_TO = document.body;
 // A fullscreen element always wins; otherwise each popup uses the realm it captured at creation
 // (see the Portal mount below). Only the fullscreen state is reactive here.

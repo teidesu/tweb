@@ -428,6 +428,13 @@ const Icons = {
   zoomin: 'eaaa',
   zoomout: 'eaab',
   privacypolicy: 'eaac',
+  ai_letters: 'eaad',
+  ai_star1: 'eaae',
+  ai_star2: 'eaaf',
+  ai_style_tone: 'eab0',
+  edit_stars: 'eab1',
+  edit_stars_add: 'eab2',
+  search_check: 'eab3'
 };
 
 export default Icons;

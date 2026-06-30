@@ -729,17 +729,19 @@ export class AppImManager extends EventListenerBase<{
     });
 
     apiManagerProxy.addEventListener('notificationBuild', async(options) => {
-      const { accountNumber } = options;
-      const managers = createProxiedManagersForAccount(accountNumber);
-      const isForum = await managers.appPeersManager.isForum(options.message.peerId!);
-      const threadId = getMessageThreadId(options.message, { isForum });
+      if(!('story' in options)) {
+        const { accountNumber } = options;
+        const managers = createProxiedManagersForAccount(accountNumber);
+        const isForum = await managers.appPeersManager.isForum(options.message.peerId!);
+        const threadId = getMessageThreadId(options.message, { isForum });
 
-      if (
-        this.chat.peerId === options.message.peerId &&
-        this.chat.threadId === threadId &&
-        !idleController.isIdle
-      ) {
-        return;
+        if(
+          this.chat.peerId === options.message.peerId &&
+          this.chat.threadId === threadId &&
+          !idleController.isIdle
+        ) {
+          return;
+        }
       }
 
       uiNotificationsManager.buildNotificationQueue(options);
@@ -1344,6 +1346,10 @@ export class AppImManager extends EventListenerBase<{
     });
   }
 
+  public openStoriesForPeer(peerId: PeerId) {
+    return createStoriesViewerWithPeer({peerId});
+  }
+
   public getStackFromElement(element: HTMLElement): ChatSetPeerOptions['stack'] {
     let possibleBubble = findUpClassName(element, 'bubble');
     if (!possibleBubble) {
@@ -1691,6 +1697,11 @@ export class AppImManager extends EventListenerBase<{
 
           default: { // peerId
             const peerId = postId ? p.toPeerId(true) : p.toPeerId();
+            if(params.story !== undefined) {
+              this.openStoriesForPeer(peerId);
+              break;
+            }
+
             this.managers.appPeersManager.getPeer(peerId).then((peer) => {
               this.op({
                 peer,

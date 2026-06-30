@@ -340,6 +340,19 @@ export class AppSidebarLeft extends SidebarSlider {
     return this.closeAllTabs();
   }
 
+  public async closeEverythingInsideNaturally() {
+    if (!await this.closeAllTabsNaturally()) {
+      return false;
+    }
+
+    if (this.isSearchActive) {
+      this.closeSearch();
+    }
+    appDialogsManager.toggleForumTab();
+
+    return true;
+  }
+
   private isAnimatingCollapse = false;
   private onSomethingOpenInsideChange = (force = false) => {
     const wasFloating = this.sidebarEl.classList.contains('has-open-tabs');

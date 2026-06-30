@@ -196,7 +196,7 @@ export async function wrapReplyDivAndCaption(options: {
   if (isMessageReply && replyHeader.poll_option && message?._ === 'message' && message.media?._ === 'messageMediaPoll') {
     const pollOption = message.media.poll.answers.find(answer => answer._ === 'pollAnswer' && compareUint8Arrays(replyHeader.poll_option!, answer.option));
     if (pollOption) {
-      quoteIcon = Icon('checkround_filled');
+      quoteIcon = Icon('checkround_filled', 'inline-icon', 'inline-icon-left');
       quote ??= {
         text: pollOption.text.text,
         entities: pollOption.text.entities,
@@ -239,7 +239,6 @@ export async function wrapReplyDivAndCaption(options: {
       // noTextFormat: true
     });
 
-    subtitleEl.classList.add('with-icon');
     subtitleEl.replaceChildren(...([quoteIcon, fragment].filter(isTruthy)));
   } else if (message) {
     const fragment = await wrapMessageForReply(options);

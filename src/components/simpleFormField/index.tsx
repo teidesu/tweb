@@ -1,4 +1,5 @@
 import styles from '@/components/simpleFormField/styles.module.scss';
+import fieldSectionStyles from '@/scss/modulePartials/fieldSectionPanel.module.scss';
 import { requestRAF } from '@/helpers/solid/requestRAF';
 import { useMaxLengthError } from '@/helpers/solid/useMaxLengthError';
 import clsx from 'clsx';
@@ -151,11 +152,22 @@ SimpleFormField.InputStub = (props: ParentProps<{
 SimpleFormField.Label = (props: ParentProps<{
   active?: boolean;
   forceOffset?: number;
+  maxLength?: number;
 }>) => {
   const context = useSimpleFormFieldContext();
 
   const [offset, setOffset] = createSignal(0);
   const [noTransition, setNoTransition] = createSignal(true);
+
+  const { shouldShowLengthLeft, lengthLeft, hasError } = useMaxLengthError(
+    context!.value,
+    () => props.maxLength ?? Infinity
+  );
+
+  const setForceError = context!.useSetForceError();
+  createEffect(() => {
+    if (props.maxLength) setForceError(hasError());
+  });
 
   onMount(() => {
     if (props.forceOffset || !context!.offsetElement()) return;
@@ -185,6 +197,9 @@ SimpleFormField.Label = (props: ParentProps<{
       }}
     >
       {props.children}
+      <Show when={props.maxLength && shouldShowLengthLeft()}>
+        <span class={styles.lengthLeft}>{lengthLeft()}</span>
+      </Show>
     </div>
   );
 };
@@ -293,6 +308,14 @@ export const useForceState = () => {
   };
 
   return { value, useSetter };
+};
+
+SimpleFormField.Section = (props: ParentProps) => {
+  return <div class={/* @once */ fieldSectionStyles.fieldSectionPanel}>{props.children}</div>;
+};
+
+SimpleFormField.Caption = (props: ParentProps) => {
+  return <div class={/* @once */ fieldSectionStyles.fieldSectionCaption}>{props.children}</div>;
 };
 
 export default SimpleFormField;

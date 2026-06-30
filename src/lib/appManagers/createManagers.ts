@@ -60,6 +60,7 @@ import MonoforumDialogsStorage from '@/lib/storages/monoforumDialogs';
 import MessagesPersistentStorage from '@/lib/storages/messagesPersistent';
 import AppPromoManager from '@/lib/appManagers/appPromoManager';
 import AppAccountManager from '@/lib/appManagers/appAccountManager';
+import { AiTonesManager } from '@/lib/appManagers/aiTonesManager';
 
 export default function createManagers(
   appStoragesManager: AppStoragesManager,
@@ -126,6 +127,7 @@ export default function createManagers(
     messagesPersistentStorage: new MessagesPersistentStorage,
     appPromoManager: new AppPromoManager,
     appAccountManager: new AppAccountManager,
+    aiTonesManager: new AiTonesManager,
   };
 
   managers.authorizer = new Authorizer({

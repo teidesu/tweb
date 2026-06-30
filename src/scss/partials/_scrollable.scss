@@ -182,6 +182,10 @@ html.custom-scroll {
       }
     }
 
+    &--hidden {
+      display: none;
+    }
+
     &-container {
       position: absolute;
       top: 0;

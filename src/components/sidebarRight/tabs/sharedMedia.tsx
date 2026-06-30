@@ -126,7 +126,11 @@ const SharedMedia: Component = () => {
         show = await tab.managers.dialogsStorage.canManageTopic((await tab.managers.dialogsStorage.getForumTopic(peerId, tab.threadId))!);
       } else {
         const chat = apiManagerProxy.getChat(chatId);
-        show = hasRights(chat, 'change_info');
+        if(chat._ === 'channel') {
+          show = !chat.pFlags.monoforum && (hasRights(chat, 'just_admin') || hasRights(chat, 'change_info'));
+        } else {
+          show = hasRights(chat, 'change_info') || hasRights(chat, 'change_permissions');
+        }
       }
     }
 

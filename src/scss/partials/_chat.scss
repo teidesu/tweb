@@ -1074,7 +1074,11 @@
 	// confined between the topbar and the input by the transparent borders on
 	// .bubbles-scrollable below. The negative insets cancel the handheld 8px
 	// chat padding (0 on desktop).
-	inset-inline: calc(var(--page-chats-padding) * -1);
+	// Scoped to #column-center so the preview popup's bubbles (rendered outside it)
+	// don't get the negative inset and overflow the popup width.
+	#column-center & {
+		inset-inline: calc(var(--page-chats-padding) * -1);
+	}
 	flex: 1 1 auto;
 	position: absolute;
   inset-block: calc(var(--page-chats-padding) * -1);

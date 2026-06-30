@@ -26,7 +26,15 @@ import PopupPremium from '@/components/popups/premium';
 import PopupSendGift from '@/components/popups/sendGift';
 import showStarsRatingPopup from '@/components/popups/starsRating';
 import PopupToggleReadDate from '@/components/popups/toggleReadDate';
-import showTranslatePopup from '@/components/popups/translate';
+import { openTranslatePopup } from '@/components/popups/translate';
+import { pickLanguage } from '@/components/chat/translation';
+import usePeerTranslation from '@/hooks/usePeerTranslation';
+import { onMediaCaptionClick } from '@/components/appMediaViewer';
+import { showSharingPickerPopup } from '@/components/popups/pickUser';
+import PaidMessagesInterceptor from '@/components/chat/paidMessagesInterceptor';
+import { useEmojiDropdown } from '@/components/emojiDropdownButton';
+import { useAppConfig } from '@/stores/appState';
+import usePremium from '@/stores/premium';
 import { setQuizHint } from '@/components/quizHint';
 import Row from '@/components/rowTsx';
 import appSidebarLeft from '@/components/sidebarLeft';
@@ -96,7 +104,15 @@ export default function SolidJSHotReloadGuardProvider(props: ParentProps) {
       i18n,
       join,
       PopupElement,
-      showTranslatePopup,
+      openTranslatePopup,
+      pickLanguage,
+      usePeerTranslation,
+      onMediaCaptionClick,
+      showSharingPickerPopup,
+      PaidMessagesInterceptor,
+      useEmojiDropdown,
+      useAppConfig,
+      usePremium,
       PopupToggleReadDate,
       wrapSticker,
       wrapTopicNameButton,

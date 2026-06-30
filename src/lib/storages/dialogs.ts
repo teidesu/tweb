@@ -1833,15 +1833,17 @@ export default class DialogsStorage extends AppManager {
 
       cache.getTopicPromises.clear();
 
-      const fullfillLeft = () => {
+      const resolveLeft = (isDeleted: (encodedTopicId: number) => boolean) => {
         for (const topicId in promises) {
           promises[topicId].resolve(undefined!);
-          cache.deletedTopics.add(+topicId);
+          if(isDeleted(+topicId)) {
+            cache.deletedTopics.add(+topicId);
+          }
         }
       };
 
       if (this.getForumTopicsCache(peerId) !== cache) {
-        fullfillLeft();
+        resolveLeft(() => false);
         return;
       }
 
@@ -1861,8 +1863,15 @@ export default class DialogsStorage extends AppManager {
         }),
       ]).then(([messagesForumTopics, allMessagesForumTopicsResult]) => {
         if (this.getForumTopicsCache(peerId) !== cache) {
+          resolveLeft(() => false);
           return;
         }
+
+        const deletedServerIds = new Set<number>(
+          (messagesForumTopics.topics || [])
+            .filter((topic) => topic._ === 'forumTopicDeleted')
+            .map((topic) => topic.id)
+        );
 
         this.applyDialogs(messagesForumTopics, peerId);
 
@@ -1877,10 +1886,11 @@ export default class DialogsStorage extends AppManager {
           }
         });
 
-        return messagesForumTopics;
-      }, () => {}).then(() => {
-        fullfillLeft();
-
+        resolveLeft((encodedTopicId) => deletedServerIds.has(getServerMessageId(encodedTopicId)!));
+      }, (error) => {
+        this.log.error('getForumTopicsByID failed, not marking topics deleted', peerId, ids, error);
+        resolveLeft(() => false);
+      }).then(() => {
         cache.getTopicsPromise = undefined;
         if (cache.getTopicPromises.size) {
           this.getForumTopicById(peerId);
@@ -1973,6 +1983,10 @@ export default class DialogsStorage extends AppManager {
   }
 
   public canManageTopic(forumTopic: ForumTopic) {
+    if (!forumTopic) {
+      return false;
+    }
+
     if (forumTopic.pFlags.my) {
       return true;
     }

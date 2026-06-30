@@ -61,7 +61,6 @@ import rootScope from '@/lib/rootScope';
 import ReactionElement from '@/components/chat/reaction';
 import InputField from '@/components/inputField';
 import getMainGroupedMessage from '@/lib/appManagers/utils/messages/getMainGroupedMessage';
-import showTranslatePopup from '@/components/popups/translate';
 import getRichSelection from '@/helpers/dom/getRichSelection';
 import detectLanguageForTranslation from '@/helpers/detectLanguageForTranslation';
 import wrapRichText from '@/lib/richTextProcessor/wrapRichText';
@@ -85,6 +84,7 @@ import { hasSensitiveSpoiler } from '@/components/wrappers/mediaSpoiler';
 import { useIsFrozen } from '@/stores/appState';
 import prepareTextWithEntitiesForCopying from '@/helpers/prepareTextWithEntitiesForCopying';
 import { runWithHotReloadGuard } from '@/lib/solidjs/runWithHotReloadGuard';
+import HotReloadGuardProvider from '@/lib/solidjs/hotReloadGuardProvider';
 import { MaybePromise } from '@/types';
 import { ContextMenuDeleteOptionText } from '@/components/chat/contextMenuDeleteOptionText';
 import getMarkupInSelection from '@/helpers/dom/getMarkupInSelection';
@@ -977,12 +977,13 @@ export default class ChatContextMenu {
             textWithEntities = (await this.getPollTextWithEntities(message))!;
           }
 
-          showTranslatePopup({
+          const { openTranslatePopup } = await import('@/components/popups/translate');
+          openTranslatePopup({
             peerId: (textWithEntities! ? peerId : message.peerId)!,
             textWithEntities: textWithEntities!,
             message: textWithEntities! ? undefined : message as Message.message,
             detectedLanguage: messageLanguage,
-          });
+          }, HotReloadGuardProvider);
         }
       },
       verify: () => !!this.messageLanguage,

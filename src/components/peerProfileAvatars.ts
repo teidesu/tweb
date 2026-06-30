@@ -7,12 +7,14 @@ import filterChatPhotosMessages from '@/helpers/filterChatPhotosMessages';
 import ListenerSetter from '@/helpers/listenerSetter';
 import ListLoader from '@/helpers/listLoader';
 import { getMiddleware, MiddlewareHelper } from '@/helpers/middleware';
+import { makeMediaSize } from '@/helpers/mediaSize';
 import { fastRaf } from '@/helpers/schedulers';
 import { Message, ChatFull, MessageAction, Photo, User, ChatPhoto, UserFull } from '@/layer';
 import { AppManagers } from '@/lib/managers';
 import rootScope from '@/lib/rootScope';
 import choosePhotoSize from '@/lib/appManagers/utils/photos/choosePhotoSize';
 import { avatarNew, wrapPhotoToAvatar } from '@/components/avatarNew';
+import animationIntersector from '@/components/animationIntersector';
 import Scrollable from '@/components/scrollable';
 import SwipeHandler from '@/components/swipeHandler';
 import wrapPhoto from '@/components/wrappers/photo';
@@ -50,6 +52,7 @@ export default class PeerProfileAvatars {
   private tabs: HTMLDivElement;
   private listLoader: ListLoader<Photo.photo['id'] | Message.messageService, Photo.photo['id'] | Message.messageService>;
   private peerId: PeerId;
+  private threadId?: number;
   private intersectionObserver: IntersectionObserver;
   private loadCallbacks: Map<Element, () => void>;
   private listenerSetter: ListenerSetter;
@@ -107,6 +110,12 @@ export default class PeerProfileAvatars {
 
     this.loadCallbacks = new Map();
     this.listenerSetter = new ListenerSetter();
+
+    this.listenerSetter.add(this.container)('play', (e) => {
+      if((e.target as HTMLElement)?.classList?.contains('avatar-video') && !this.videoProgressRAF) {
+        this.startVideoProgressLoop();
+      }
+    }, {capture: true});
 
     const checkScrollTop = () => {
       if (this.scrollable.scrollPosition !== 0) {
@@ -357,11 +366,12 @@ export default class PeerProfileAvatars {
     });
   }
 
-  public async setPeer(peerId: PeerId) {
+  public async setPeer(peerId: PeerId, threadId?: number) {
     this.peerId = peerId;
+    this.threadId = threadId;
     this.middlewareHelper.clean();
 
-    const photo = await this.managers.appPeersManager.getPeerPhoto(peerId);
+    const photo = threadId ? undefined : await this.managers.appPeersManager.getPeerPhoto(peerId);
     if (!photo && !SHOW_NO_AVATAR) {
       return;
     }
@@ -369,6 +379,12 @@ export default class PeerProfileAvatars {
     this.hasNoPhoto = !photo;
 
     await this.applyAppearance();
+
+    if(threadId) {
+      this.container.classList.add('is-topic');
+      await this.processItem(undefined as any);
+      return;
+    }
 
     if (this.fakeAvatar) {
       this.fakeAvatar.node.remove();
@@ -483,6 +499,8 @@ export default class PeerProfileAvatars {
         });
 
         this.loadNearestToTarget(this.avatars.children[id]);
+
+        if(!this.videoProgressRAF) this.startVideoProgressLoop();
       },
     });
 
@@ -566,7 +584,10 @@ export default class PeerProfileAvatars {
         this.videoProgressRAF = 0;
         return;
       }
-      this.updateActiveTabProgress();
+      if(!this.updateActiveTabProgress()) {
+        this.videoProgressRAF = 0;
+        return;
+      }
       this.videoProgressRAF = requestAnimationFrame(tick);
     };
     this.videoProgressRAF = requestAnimationFrame(tick);
@@ -576,6 +597,7 @@ export default class PeerProfileAvatars {
     const activeIndex = this.listLoader?.index ?? 0;
     const tabs = this.tabs.children;
     const avatars = this.avatars.children;
+    let activePlaying = false;
     for (let i = 0; i < tabs.length; ++i) {
       const tab = tabs[i] as HTMLElement;
       const avatar = avatars[i] as HTMLElement;
@@ -587,6 +609,7 @@ export default class PeerProfileAvatars {
       }
       const isPlaying = tab.classList.contains('is-playing');
       if (i === activeIndex && video && video.duration && !video.paused) {
+        activePlaying = true;
         // Only touch the DOM when something actually changed — re-asserting the
         // class / style every animation frame churns the header (style recalc +
         // paint) for nothing and can flicker the loading avatar underneath.
@@ -600,6 +623,8 @@ export default class PeerProfileAvatars {
         tab.style.removeProperty('--progress');
       }
     }
+
+    return activePlaying;
   }
 
   private _applyAppearance() {
@@ -772,10 +797,11 @@ export default class PeerProfileAvatars {
         (photoId.action as MessageAction.messageActionChannelEditPhoto).photo as Photo.photo;
     }
 
+    const isTopic = !!this.threadId;
     const loadCallback = async() => {
       const avatarElem = avatarNew({
         middleware,
-        size: 'full',
+        size: isTopic ? 120 : 'full',
         isDialog: false,
         isBig: true,
         // Show the cached small thumb first, then the big — but DON'T fade the
@@ -783,6 +809,12 @@ export default class PeerProfileAvatars {
         // animation makes the avatar's colour gradient show through (the
         // "blink"). No fade => the big just swaps over the small instantly.
         noFadeIn: true,
+        ...(isTopic && {
+          wrapOptions: {
+            customEmojiSize: makeMediaSize(120, 120),
+            middleware
+          }
+        })
         // size: isFirst ? 120 : 'full',
         // withStories: isFirst
       });
@@ -804,6 +836,7 @@ export default class PeerProfileAvatars {
       } else {
         avatarElem.render({
           peerId: this.peerId,
+          threadId: this.threadId
         });
 
         await avatarElem.readyThumbPromise;
@@ -899,6 +932,12 @@ export default class PeerProfileAvatars {
 
   public cleanup() {
     cancelAnimationFrame(this.videoProgressRAF);
+    this.container.querySelectorAll<HTMLVideoElement>('video.avatar-video').forEach((video) => {
+      animationIntersector.removeAnimationByPlayer(video);
+      video.pause();
+      video.src = '';
+      video.load();
+    });
     this.listenerSetter.removeAll();
     this.swipeHandler.removeListeners();
     this.intersectionObserver?.disconnect();

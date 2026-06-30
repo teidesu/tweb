@@ -97,7 +97,7 @@ export type MirrorTaskPayload<
   accountNumber: ActiveAccountNumber
 };
 
-export type NotificationBuildTaskPayload = {
+export type NotificationBuildMessageTaskPayload = {
   message: Message.message | Message.messageService,
   fwdCount?: number,
   peerReaction?: MessagePeerReaction,
@@ -105,6 +105,14 @@ export type NotificationBuildTaskPayload = {
   accountNumber: ActiveAccountNumber,
   isOtherTabActive?: boolean
 };
+
+export type NotificationBuildStoryTaskPayload = {
+  story: {peerId: PeerId, storyId: number},
+  accountNumber: ActiveAccountNumber,
+  isOtherTabActive?: boolean
+};
+
+export type NotificationBuildTaskPayload = NotificationBuildMessageTaskPayload | NotificationBuildStoryTaskPayload;
 
 export type TabState = {
   chatPeerIds: PeerId[],

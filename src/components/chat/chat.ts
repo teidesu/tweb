@@ -1087,6 +1087,7 @@ export default class Chat extends EventListenerBase<{
       this.peerIdSignal[1](this.peerId = peerId || NULL_PEER_ID);
       this.threadId = threadId!;
       this.monoforumThreadId = monoforumThreadId!;
+      this.isForum = apiManagerProxy.isForum(this.peerId);
       this.isTemporaryThread = isTempId(threadId!);
       this.noInput = [ChatType.Static, ChatType.Logs].includes(type!);
       this.middlewareHelper.clean();

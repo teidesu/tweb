@@ -156,6 +156,25 @@ export class AnimationIntersector {
     }
   }
 
+  public toggleVideosUnder(element: HTMLElement, paused: boolean) {
+    if(!element) {
+      return;
+    }
+
+    this.byPlayer.forEach((item) => {
+      if(item.type !== 'video' || !element.contains(item.el)) {
+        return;
+      }
+
+      this.toggleItemLock(item, paused);
+      if(paused) {
+        item.animation.pause();
+      } else {
+        this.checkAnimation(item);
+      }
+    });
+  }
+
   public setOverrideIdleGroup(group: string, override: boolean) {
     if (override) this.overrideIdleGroups.add(group);
     else this.overrideIdleGroups.delete(group);
