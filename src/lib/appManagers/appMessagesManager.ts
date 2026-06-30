@@ -7648,7 +7648,7 @@ export class AppMessagesManager extends AppManager {
         const action = (message as Message.messageService).action;
         if (action?._ === 'messageActionTopicCreate') {
           this.dialogsStorage.applyLocalForumTopics([
-            createBotforumTopicFromAction({message: message as Message.messageService, action}),
+            createBotforumTopicFromAction({ message: message as Message.messageService, action }),
           ]);
         } else {
           // this.dialogsStorage.getForumTopicById(peerId, threadId);

@@ -64,7 +64,7 @@ type NotificationKey = BroadcastEvents['notification_cancel'];
 
 function wrapUserName(user: User.user) {
   let name = user.first_name;
-  if(user.last_name) name += ' ' + user.last_name;
+  if (user.last_name) name += ' ' + user.last_name;
 
   name = limitSymbols(name!, 12, 15);
   return wrapPlainText(name);
@@ -256,7 +256,7 @@ export class UiNotificationsManager {
           return;
         }
 
-        if(notificationData.custom.story_id) {
+        if (notificationData.custom.story_id) {
           appImManager.openStoriesForPeer(peerId);
           return;
         }
@@ -295,7 +295,7 @@ export class UiNotificationsManager {
   }
 
   public async buildNotification(payload: NotificationBuildTaskPayload) {
-    if('story' in payload) {
+    if ('story' in payload) {
       return this.buildStoryNotification(payload);
     }
 
@@ -306,7 +306,7 @@ export class UiNotificationsManager {
       isOtherTabActive,
       accountNumber,
     } = payload;
-    let {message} = payload;
+    let { message } = payload;
     const peerId = message.peerId;
     const isAnyChat = peerId!.isAnyChat();
     const notification: NotifyOptions = {};
@@ -440,12 +440,12 @@ export class UiNotificationsManager {
   }
 
   private async buildStoryNotification({
-    story: {peerId, storyId},
+    story: { peerId, storyId },
     accountNumber,
-    isOtherTabActive
+    isOtherTabActive,
   }: NotificationBuildStoryTaskPayload) {
     const account = this.accounts.get(accountNumber);
-    if(!account) {
+    if (!account) {
       return;
     }
 
@@ -453,7 +453,7 @@ export class UiNotificationsManager {
 
     const [peerString, peerTitle] = await Promise.all([
       account.managers.appPeersManager.getPeerString(peerId),
-      getPeerTitle({peerId, plainText: true, managers: account.managers, useManagers: true})
+      getPeerTitle({ peerId, plainText: true, managers: account.managers, useManagers: true }),
     ]);
 
     const notification: NotifyOptions = {
@@ -462,12 +462,12 @@ export class UiNotificationsManager {
       tag: peerString,
       key: `story_${accountNumber}_${peerId}_${storyId}`,
       silent: true,
-      noIncrement: true
+      noIncrement: true,
     };
 
     const isDifferentAccount = accountNumber !== getCurrentAccount();
     const hasMoreThanOneAccount = (await AccountController.getTotalAccounts()) > 1;
-    if((hasMoreThanOneAccount && isOtherTabActive) || isDifferentAccount) {
+    if ((hasMoreThanOneAccount && isOtherTabActive) || isDifferentAccount) {
       notification.title += ' ➜ ' + wrapUserName(await account.managers.appUsersManager.getSelf());
     }
 
@@ -476,15 +476,15 @@ export class UiNotificationsManager {
     notification.image = !isLocked ? await createNotificationImage(account.managers, peerId, peerTitle) : undefined;
 
     notification.onclick = () => {
-      if(isDifferentAccount) {
-        const url = createAppURLForAccount(accountNumber, {p: '' + peerId, story: '1'});
+      if (isDifferentAccount) {
+        const url = createAppURLForAccount(accountNumber, { p: '' + peerId, story: '1' });
         window.open(url, '_blank');
       } else {
         appImManager.openStoriesForPeer(peerId);
       }
     };
 
-    if(isLocked) {
+    if (isLocked) {
       notification.title = I18n.format('PasscodeLock.NotificationTitle', true);
       notification.message = I18n.format('PasscodeLock.NotificationDescription', true);
     }
@@ -493,7 +493,7 @@ export class UiNotificationsManager {
       custom: {
         msg_id: '0',
         story_id: '' + storyId,
-        peerId: '' + peerId
+        peerId: '' + peerId,
       },
       description: '',
       loc_key: '',
@@ -501,7 +501,7 @@ export class UiNotificationsManager {
       mute: '',
       random_id: 0,
       title: '',
-      accountNumber
+      accountNumber,
     };
 
     await this.notify(notification, pushData);

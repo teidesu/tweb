@@ -6020,9 +6020,9 @@ export default class ChatBubbles {
   }
 
   public reobserveUnreadContent(peerId: PeerId, mid: number) {
-    if(!this.observer) return;
+    if (!this.observer) return;
     const bubble = this.getBubble(peerId, mid);
-    if(!bubble || !this.unreadedContent.has(bubble)) return;
+    if (!bubble || !this.unreadedContent.has(bubble)) return;
     this.observer.reobserve(bubble);
   }
 

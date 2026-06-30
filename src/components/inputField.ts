@@ -349,7 +349,7 @@ let init = () => {
         // * wrapDraftText renders line breaks from the text itself; passing explicit linebreak
         // * entities makes wrapRichText slice the one before a blockquote (losing a \n on e.g.
         // * `text\n\nquote`). Strip them so paste matches the edit/draft path.
-        'messageEntityLinebreak'
+        'messageEntityLinebreak',
       ]);
       findAndSpliceAll(entities, (entity) => ignoreEntities.has(entity._));
     }

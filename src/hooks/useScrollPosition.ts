@@ -1,5 +1,5 @@
-import {type Accessor, createEffect, createSignal, onCleanup} from 'solid-js';
-import {requestRAF} from '@/helpers/solid/requestRAF';
+import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
+import { requestRAF } from '@/helpers/solid/requestRAF';
 
 
 export function useScrollPosition(
@@ -11,7 +11,7 @@ export function useScrollPosition(
   let isRAFing = false;
 
   const requestMetricsUpdate = (el: HTMLElement) => {
-    if(isRAFing) return;
+    if (isRAFing) return;
     isRAFing = true;
 
     requestRAF(() => {
@@ -23,7 +23,7 @@ export function useScrollPosition(
   createEffect(() => {
     const el = element();
 
-    if(!el) {
+    if (!el) {
       setScrollPosition(0);
       return;
     }
@@ -31,7 +31,7 @@ export function useScrollPosition(
     requestMetricsUpdate(el);
 
     const onScroll = () => requestMetricsUpdate(el);
-    el.addEventListener('scroll', onScroll, {passive: true});
+    el.addEventListener('scroll', onScroll, { passive: true });
 
     onCleanup(() => {
       el.removeEventListener('scroll', onScroll);

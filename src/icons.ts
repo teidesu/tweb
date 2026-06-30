@@ -434,7 +434,7 @@ const Icons = {
   ai_style_tone: 'eab0',
   edit_stars: 'eab1',
   edit_stars_add: 'eab2',
-  search_check: 'eab3'
+  search_check: 'eab3',
 };
 
 export default Icons;

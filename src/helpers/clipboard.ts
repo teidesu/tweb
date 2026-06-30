@@ -36,7 +36,7 @@ function fallbackCopyTextToClipboard(text: string, html?: string, options?: Copy
     window.getSelection()!.removeAllRanges();
   } catch (err) {
     console.error('unable to copy', err);
-    if(options?.rethrow) {
+    if (options?.rethrow) {
       throw err;
     }
   } finally {

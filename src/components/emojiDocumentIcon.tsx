@@ -1,11 +1,11 @@
 import wrapSticker from '@/components/wrappers/sticker';
 import noop from '@/helpers/noop';
 import createMiddleware from '@/helpers/solid/createMiddleware';
-import {useIsCleaned} from '@/hooks/useIsCleaned';
-import {Document, DocumentAttribute} from '@/layer';
-import type {AppManagers} from '@/lib/managers';
+import { useIsCleaned } from '@/hooks/useIsCleaned';
+import { Document, DocumentAttribute } from '@/layer';
+import type { AppManagers } from '@/lib/managers';
 import RLottiePlayer from '@/lib/rlottie/rlottiePlayer';
-import {createEffect, createResource, createSignal, untrack} from 'solid-js';
+import { createEffect, createResource, createSignal, untrack } from 'solid-js';
 
 
 function useStickerRenderer(options: {
@@ -16,7 +16,7 @@ function useStickerRenderer(options: {
   dontAnimate?: () => boolean | undefined;
   onFail?: () => void;
 }) {
-  const {container} = options;
+  const { container } = options;
   const [playerToColor, setPlayerToColor] = createSignal<RLottiePlayer>();
 
   createEffect(() => {
@@ -47,20 +47,20 @@ function useStickerRenderer(options: {
           loop: animate,
           withThumb: false,
           middleware,
-          textColor: color
+          textColor: color,
         });
 
         const attribute = options.doc.attributes.find(
           (attribute) => attribute._ === 'documentAttributeCustomEmoji'
         ) as DocumentAttribute.documentAttributeCustomEmoji;
 
-        if(attribute?.pFlags.text_color) {
+        if (attribute?.pFlags.text_color) {
           const renderResult = await promise.render.catch(noop);
-          if(isCleaned()) return;
-          if(renderResult instanceof RLottiePlayer) setPlayerToColor(renderResult);
+          if (isCleaned()) return;
+          if (renderResult instanceof RLottiePlayer) setPlayerToColor(renderResult);
         }
-      } catch{
-        if(isCleaned()) return;
+      } catch {
+        if (isCleaned()) return;
         options.onFail?.();
       }
     })();
@@ -84,10 +84,10 @@ export default function EmojiDocumentIcon(props: {
   );
 
   createEffect(() => {
-    if(doc.loading) return;
+    if (doc.loading) return;
 
     const loadedDoc = doc.error ? undefined : doc();
-    if(!loadedDoc) {
+    if (!loadedDoc) {
       props.onFail?.();
       return;
     }
@@ -98,7 +98,7 @@ export default function EmojiDocumentIcon(props: {
       color: () => props.color,
       size: () => props.size,
       dontAnimate: () => props.dontAnimate,
-      onFail: () => props.onFail?.()
+      onFail: () => props.onFail?.(),
     });
   });
 

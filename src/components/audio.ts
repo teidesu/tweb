@@ -66,7 +66,7 @@ export function decodeWaveform(waveform: Uint8Array | number[]) {
   }
 
   const result = new Uint8Array(valueCount);
-  for(let i = 0; i < valueCount; i++) {
+  for (let i = 0; i < valueCount; i++) {
     const byteIndex = i * 5 / 8 | 0;
     const bitShift = i * 5 % 8;
     const low = waveform[byteIndex];

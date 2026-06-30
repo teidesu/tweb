@@ -249,7 +249,7 @@ export default class SwipeHandler {
       this.setCursorTo.style.cursor = '';
     }
 
-    if(this.endListener) {
+    if (this.endListener) {
       this.listenerSetter.remove(this.endListener);
       this.endListener = undefined;
     }
@@ -315,7 +315,7 @@ export default class SwipeHandler {
     // Document-PiP — document the element actually lives in) is never seen, so the gesture would pause
     // on press but never resume on release. Resolving `ownerDocument` here keeps PiP support intact.
     // Done before the (possibly async) verify so a release during verification still cancels cleanly.
-    if(this.endListener) {
+    if (this.endListener) {
       this.listenerSetter.remove(this.endListener);
     }
     // @ts-ignore

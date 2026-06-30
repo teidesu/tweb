@@ -1,5 +1,5 @@
-import {readFileSync} from 'fs';
-import {createTestClient, AccountSeed} from './harness';
+import { readFileSync } from 'fs';
+import { createTestClient, AccountSeed } from './harness';
 
 const ENABLED = process.env.TG_API_TEST === '1';
 const seedPath = process.env.TG_API_SEED;
@@ -13,7 +13,7 @@ describeOrSkip('channel mute + exclude_read folder', () => {
 
   beforeAll(async() => {
     const seed = JSON.parse(readFileSync(seedPath!, 'utf8')) as AccountSeed;
-    client = await createTestClient({seed, testDc: false});
+    client = await createTestClient({ seed, testDc: false });
   }, 60_000);
 
   afterAll(() => {
@@ -29,8 +29,8 @@ describeOrSkip('channel mute + exclude_read folder', () => {
       title,
       date: 0,
       version: 0,
-      photo: {_: 'chatPhotoEmpty'},
-      pFlags: {broadcast: true}
+      photo: { _: 'chatPhotoEmpty' },
+      pFlags: { broadcast: true },
     }]);
     return id;
   }
@@ -40,14 +40,14 @@ describeOrSkip('channel mute + exclude_read folder', () => {
     filtersStorage.saveDialogFilter({
       _: 'dialogFilter',
       id: 2,
-      title: {_: 'textWithEntities', text: 'Unread', entities: []},
-      pFlags: {exclude_read: true, broadcasts: true, groups: true, contacts: true, non_contacts: true, bots: true},
+      title: { _: 'textWithEntities', text: 'Unread', entities: [] },
+      pFlags: { exclude_read: true, broadcasts: true, groups: true, contacts: true, non_contacts: true, bots: true },
       pinned_peers: [],
       include_peers: [],
       exclude_peers: [],
       pinnedPeerIds: [],
       includePeerIds: [],
-      excludePeerIds: []
+      excludePeerIds: [],
     } as any, false);
   }
 
@@ -56,7 +56,7 @@ describeOrSkip('channel mute + exclude_read folder', () => {
     const idsManager: any = client.managers.appMessagesIdsManager;
     const apiUpdates: any = client.managers.apiUpdatesManager;
     apiUpdates.channelStates ??= {};
-    apiUpdates.channelStates[channelId] = {pts: 1, pendingPtsUpdates: [], syncPending: null, syncLoading: null};
+    apiUpdates.channelStates[channelId] = { pts: 1, pendingPtsUpdates: [], syncPending: null, syncLoading: null };
 
     const peerId = (-channelId) as PeerId;
     const topMid = idsManager.generateMessageId(opts.topServerMid, channelId);
@@ -65,21 +65,21 @@ describeOrSkip('channel mute + exclude_read folder', () => {
     const dialog: any = {
       _: 'dialog',
       peerId,
-      peer: {_: 'peerChannel', channel_id: channelId},
+      peer: { _: 'peerChannel', channel_id: channelId },
       top_message: topMid,
       read_inbox_max_id: readInboxMid,
       read_outbox_max_id: topMid,
       unread_count: opts.unreadCount,
       unread_mentions_count: 0,
       unread_reactions_count: 0,
-      notify_settings: {_: 'peerNotifySettings'},
+      notify_settings: { _: 'peerNotifySettings' },
       folder_id: 0,
       pts: 1,
       pFlags: {},
-      draft: undefined
+      draft: undefined,
     };
     dialogsStorage.dialogs[peerId] = dialog;
-    return {peerId, dialog, topMid};
+    return { peerId, dialog, topMid };
   }
 
   function inFolder(peerId: PeerId) {
@@ -92,13 +92,13 @@ describeOrSkip('channel mute + exclude_read folder', () => {
   function muteUpdate(channelId: number) {
     return {
       _: 'updateNotifySettings',
-      peer: {_: 'notifyPeer', peer: {_: 'peerChannel', channel_id: channelId}},
+      peer: { _: 'notifyPeer', peer: { _: 'peerChannel', channel_id: channelId } },
       notify_settings: {
         _: 'peerNotifySettings',
         mute_until: 2147483647, // muted forever
         show_previews: true,
-        silent: true
-      }
+        silent: true,
+      },
     } as any;
   }
 
@@ -108,7 +108,7 @@ describeOrSkip('channel mute + exclude_read folder', () => {
     makeChannel(channelId, 'Muted Unread Channel');
     setupExcludeReadFilter();
     const topServerMid = 100;
-    const {peerId, dialog} = injectChannelDialog(channelId, {unreadCount: 5, topServerMid, readInboxServerMid: 95});
+    const { peerId, dialog } = injectChannelDialog(channelId, { unreadCount: 5, topServerMid, readInboxServerMid: 95 });
 
     client.managers.dialogsStorage.processDialogForFilters(dialog);
     console.log('[unread, not muted] in folder:', inFolder(peerId));
@@ -126,7 +126,7 @@ describeOrSkip('channel mute + exclude_read folder', () => {
       max_id: topServerMid,
       still_unread_count: 0,
       pts: 2,
-      pts_count: 0
+      pts_count: 0,
     } as any);
     console.log('[after read elsewhere] in folder (should be false):', inFolder(peerId), 'unread_count:', dialog.unread_count);
     expect(dialog.unread_count).toBe(0);
@@ -144,21 +144,21 @@ describeOrSkip('channel mute + exclude_read folder', () => {
     const readInboxServerMid = 100;
     const unreadServerIds = [101, 102];
     const topServerMid = 102;
-    const {peerId, dialog} = injectChannelDialog(channelId, {unreadCount: unreadServerIds.length, topServerMid, readInboxServerMid});
+    const { peerId, dialog } = injectChannelDialog(channelId, { unreadCount: unreadServerIds.length, topServerMid, readInboxServerMid });
 
     // inject the unread messages into history storage so handleDeletedMessages counts them
     const messagesStorage = m.getHistoryMessagesStorage(peerId);
-    for(const serverId of unreadServerIds) {
+    for (const serverId of unreadServerIds) {
       const mid = idsManager.generateMessageId(serverId, channelId);
       messagesStorage.set(mid, {
         _: 'message',
         mid,
         id: serverId,
         peerId,
-        peer_id: {_: 'peerChannel', channel_id: channelId},
+        peer_id: { _: 'peerChannel', channel_id: channelId },
         date: 0,
         message: 'post ' + serverId,
-        pFlags: {unread: true}
+        pFlags: { unread: true },
       });
     }
 
@@ -172,7 +172,7 @@ describeOrSkip('channel mute + exclude_read folder', () => {
       channel_id: channelId,
       messages: unreadServerIds,
       pts: 2,
-      pts_count: unreadServerIds.length
+      pts_count: unreadServerIds.length,
     } as any);
 
     console.log('[after deleting unread posts] unread_count:', dialog.unread_count, 'in folder (should be false):', inFolder(peerId));
@@ -185,7 +185,7 @@ describeOrSkip('channel mute + exclude_read folder', () => {
     const channelId = 900002;
     makeChannel(channelId, 'Read Channel');
     setupExcludeReadFilter();
-    const {peerId, dialog} = injectChannelDialog(channelId, {unreadCount: 0, topServerMid: 50, readInboxServerMid: 50});
+    const { peerId, dialog } = injectChannelDialog(channelId, { unreadCount: 0, topServerMid: 50, readInboxServerMid: 50 });
 
     client.managers.dialogsStorage.processDialogForFilters(dialog);
     console.log('[read, not muted] in folder (should be false):', inFolder(peerId));

@@ -1591,7 +1591,7 @@ export default class AppStoriesManager extends AppManager {
     if (cache.maxReadId === undefined) {
       Promise.resolve(this.getPeerStories(peerId)).then((userStories) => {
         this.rootScope.dispatchEvent('stories_stories', userStories);
-        if(
+        if (
           story._ === 'storyItem' &&
           !this.isStoryExpired(story) &&
           this.getCacheTypeForPeerId(peerId)
@@ -1612,19 +1612,19 @@ export default class AppStoriesManager extends AppManager {
   };
 
   private async notifyAboutStory(peerId: PeerId, story: StoryItem.storyItem, maxReadId?: number) {
-    if(peerId === this.appPeersManager.peerId || story.pFlags?.out) {
+    if (peerId === this.appPeersManager.peerId || story.pFlags?.out) {
       return;
     }
 
-    if(maxReadId && story.id <= maxReadId) {
+    if (maxReadId && story.id <= maxReadId) {
       return;
     }
 
-    if(await this.appPeersManager.isPeerRestricted(peerId)) {
+    if (await this.appPeersManager.isPeerRestricted(peerId)) {
       return;
     }
 
-    if(await this.appNotificationsManager.getPeerStoriesMuted(peerId)) {
+    if (await this.appNotificationsManager.getPeerStoriesMuted(peerId)) {
       return;
     }
 
@@ -1632,9 +1632,9 @@ export default class AppStoriesManager extends AppManager {
 
     const port = MTProtoMessagePort.getInstance<false>();
     port.invokeVoid('notificationBuild', {
-      story: {peerId, storyId: story.id},
+      story: { peerId, storyId: story.id },
       accountNumber: this.getAccountNumber(),
-      isOtherTabActive: tab ? !!tab.state.idleStartTime : true
+      isOtherTabActive: tab ? !!tab.state.idleStartTime : true,
     }, tab?.source);
   }
 

@@ -52,6 +52,7 @@ Order: all clean picks in one batch (`git cherry-pick <sha> <sha> ...`), then ad
 
 - No leftover markers: `rg -l '^(<{7}|={7}|>{7})' src` must be empty.
 - Typecheck from the worktree: `../../../node_modules/.bin/tsc --noEmit`. A fresh worktree lacks the gitignored `src/langPackLocalVersion.ts` — seed it: `cp src/langPackLocalVersion.example.ts src/langPackLocalVersion.ts` (do not commit).
+- ESLint pass: `pnpm run lint --fix`. Our eslint config is a bit stricter than the upstream (and we have different formatting style), so you might need to fix some errors.
 
 ## Phase 3 — land
 

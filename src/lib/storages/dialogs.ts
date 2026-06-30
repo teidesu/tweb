@@ -1836,7 +1836,7 @@ export default class DialogsStorage extends AppManager {
       const resolveLeft = (isDeleted: (encodedTopicId: number) => boolean) => {
         for (const topicId in promises) {
           promises[topicId].resolve(undefined!);
-          if(isDeleted(+topicId)) {
+          if (isDeleted(+topicId)) {
             cache.deletedTopics.add(+topicId);
           }
         }

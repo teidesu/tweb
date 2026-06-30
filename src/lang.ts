@@ -4842,7 +4842,7 @@ const lang = {
   'AiEditor.ViewStyle.After': 'After',
   'AiEditor.ViewStyle.InstallsCountCreatedByYou': {
     'one_value': 'Used by %d person. Created by you.',
-    'other_value': 'Used by %d people. Created by you.'
+    'other_value': 'Used by %d people. Created by you.',
   },
   'AiEditor.ViewStyle.CreatedBy': 'Created by %s',
   'AiEditor.ViewStyle.SaveStyle': 'Save Style',
@@ -4850,7 +4850,7 @@ const lang = {
   'AiEditor.ViewStyle.DeleteStyle': 'Delete Style',
   'AiEditor.ViewStyle.MaxSavedTones': 'You have reached the maximum number of custom styles.',
 
-  'Apply': 'Apply'
+  'Apply': 'Apply',
 };
 
 export default lang;

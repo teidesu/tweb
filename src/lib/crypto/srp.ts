@@ -51,12 +51,12 @@ export default async function computeSRP(password: string, state: AccountPasswor
     return padArray(bytes, 256);
   }
 
-  if(state.srp_B!.length < 248 || state.srp_B!.length > 256) {
+  if (state.srp_B!.length < 248 || state.srp_B!.length > 256) {
     throw new Error('[SRP] invalid srp_B length: ' + state.srp_B!.length);
   }
 
   const B = bigIntFromBytes(state.srp_B!);
-  if(!B.greater(bigInt.zero) || !B.lesser(p)) {
+  if (!B.greater(bigInt.zero) || !B.lesser(p)) {
     throw new Error('[SRP] srp_B out of range');
   }
 

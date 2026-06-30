@@ -316,7 +316,7 @@ export class AppNotificationsManager extends AppManager {
   public async getPeerStoriesMuted(peerId: PeerId) {
     await Promise.all([
       this.getNotifyPeerTypeSettings(),
-      this.getNotifySettings({_: 'inputNotifyPeer', peer: this.appPeersManager.getInputPeerById(peerId)})
+      this.getNotifySettings({ _: 'inputNotifyPeer', peer: this.appPeersManager.getInputPeerById(peerId) }),
     ]);
     return this.isPeerStoriesMuted(peerId);
   }
@@ -325,21 +325,21 @@ export class AppNotificationsManager extends AppManager {
     const settings = await commonStateStorage.get('settings', false);
 
     let tabs = appTabsManager.getTabs();
-    if(!settings.notifyAllAccounts)
+    if (!settings.notifyAllAccounts)
       tabs = tabs.filter((tab) => tab.state.accountNumber === this.getAccountNumber());
 
     tabs.sort((a, b) => a.state.idleStartTime - b.state.idleStartTime);
 
     let tab = tabs.find((tab) => {
-      const {chatPeerIds, accountNumber} = tab.state;
+      const { chatPeerIds, accountNumber } = tab.state;
       return accountNumber === this.getAccountNumber() && chatPeerIds[chatPeerIds.length - 1] === peerId;
     });
 
-    if(!tab) {
+    if (!tab) {
       tab = tabs.find((tab) => tab.state.accountNumber === this.getAccountNumber());
     }
 
-    if(!tab && tabs.length) {
+    if (!tab && tabs.length) {
       tab = !tabs[0].state.idleStartTime ? tabs[0] : tabs[tabs.length - 1];
     }
 

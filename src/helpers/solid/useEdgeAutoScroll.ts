@@ -1,4 +1,4 @@
-import {type Accessor, createEffect, onCleanup} from 'solid-js';
+import { type Accessor, createEffect, onCleanup } from 'solid-js';
 
 export type ScrollAxis = 'horizontal' | 'vertical';
 
@@ -30,12 +30,12 @@ export function useEdgeAutoScroll(args: UseEdgeAutoScrollArgs): void {
     listenTo = () => window,
     enabled = () => true,
     smooth = () => true,
-    padding = () => 0
+    padding = () => 0,
   } = args;
 
   createEffect(() => {
     const el = container();
-    if(!el || !enabled()) return;
+    if (!el || !enabled()) return;
 
     let pointerX = 0;
     let pointerY = 0;
@@ -51,7 +51,7 @@ export function useEdgeAutoScroll(args: UseEdgeAutoScrollArgs): void {
     const scrollNearestChild = (direction: -1 | 1) => {
       const rect = el.getBoundingClientRect();
       const children = Array.from(el.children);
-      if(children.length === 0) return;
+      if (children.length === 0) return;
 
       const horizontal = isHorizontal();
       const containerStart = horizontal ? rect.left : rect.top;
@@ -61,35 +61,35 @@ export function useEdgeAutoScroll(args: UseEdgeAutoScrollArgs): void {
 
       let target: HTMLElement | null = null;
 
-      if(direction > 0) {
-        for(const child of children) {
-          if(!(child instanceof HTMLElement)) continue;
+      if (direction > 0) {
+        for (const child of children) {
+          if (!(child instanceof HTMLElement)) continue;
           const cr = child.getBoundingClientRect();
           const childEnd = horizontal ? cr.right : cr.bottom;
-          if(childEnd > containerEnd + epsilon) {
+          if (childEnd > containerEnd + epsilon) {
             target = child;
             break;
           }
         }
       } else {
-        for(let i = children.length - 1; i >= 0; i--) {
+        for (let i = children.length - 1; i >= 0; i--) {
           const child = children[i];
-          if(!(child instanceof HTMLElement)) continue;
+          if (!(child instanceof HTMLElement)) continue;
           const cr = child.getBoundingClientRect();
           const childStart = horizontal ? cr.left : cr.top;
-          if(childStart < containerStart - epsilon) {
+          if (childStart < containerStart - epsilon) {
             target = child;
             break;
           }
         }
       }
 
-      if(!target) return;
+      if (!target) return;
 
       const cr = target.getBoundingClientRect();
       let delta: number;
 
-      if(direction > 0) {
+      if (direction > 0) {
         const childEnd = horizontal ? cr.right : cr.bottom;
         delta = childEnd - containerEnd + padding();
       } else {
@@ -98,10 +98,10 @@ export function useEdgeAutoScroll(args: UseEdgeAutoScrollArgs): void {
       }
 
       const behavior: ScrollBehavior = smooth() ? 'smooth' : 'auto';
-      if(horizontal) {
-        el.scrollBy({left: delta, behavior});
+      if (horizontal) {
+        el.scrollBy({ left: delta, behavior });
       } else {
-        el.scrollBy({top: delta, behavior});
+        el.scrollBy({ top: delta, behavior });
       }
     };
 
@@ -111,12 +111,12 @@ export function useEdgeAutoScroll(args: UseEdgeAutoScrollArgs): void {
       const maxScroll = horizontal ?
         el.scrollWidth - el.clientWidth :
         el.scrollHeight - el.clientHeight;
-      if(direction < 0) return scrollPos > 0;
+      if (direction < 0) return scrollPos > 0;
       return scrollPos < maxScroll - 1;
     };
 
     const resolveDirection = (): -1 | 1 | null => {
-      if(!pointerKnown) return null;
+      if (!pointerKnown) return null;
 
       const rect = el.getBoundingClientRect();
       const horizontal = isHorizontal();
@@ -128,7 +128,7 @@ export function useEdgeAutoScroll(args: UseEdgeAutoScrollArgs): void {
       const crossPos = horizontal ? pointerY : pointerX;
       const crossStart = horizontal ? rect.top : rect.left;
       const crossEnd = horizontal ? rect.bottom : rect.right;
-      if(crossPos < crossStart || crossPos > crossEnd) return null;
+      if (crossPos < crossStart || crossPos > crossEnd) return null;
 
       const inner = innerThreshold();
       const outer = outerThreshold();
@@ -136,18 +136,18 @@ export function useEdgeAutoScroll(args: UseEdgeAutoScrollArgs): void {
       const distFromStart = pos - start;
       const distFromEnd = end - pos;
 
-      if(distFromStart >= -outer && distFromStart <= inner) return -1;
-      if(distFromEnd >= -outer && distFromEnd <= inner) return 1;
+      if (distFromStart >= -outer && distFromStart <= inner) return -1;
+      if (distFromEnd >= -outer && distFromEnd <= inner) return 1;
       return null;
     };
 
     const stop = () => {
       activeDirection = null;
-      if(armTimer != null) {
+      if (armTimer != null) {
         clearTimeout(armTimer);
         armTimer = null;
       }
-      if(timeoutId != null) {
+      if (timeoutId != null) {
         clearTimeout(timeoutId);
         timeoutId = null;
       }
@@ -155,8 +155,8 @@ export function useEdgeAutoScroll(args: UseEdgeAutoScrollArgs): void {
 
     const tick = () => {
       timeoutId = null;
-      if(activeDirection == null) return;
-      if(!canScroll(activeDirection)) {
+      if (activeDirection == null) return;
+      if (!canScroll(activeDirection)) {
         stop();
         return;
       }
@@ -171,21 +171,21 @@ export function useEdgeAutoScroll(args: UseEdgeAutoScrollArgs): void {
 
     const begin = () => {
       armTimer = null;
-      if(activeDirection == null) return;
+      if (activeDirection == null) return;
       currentInterval = Math.max(interval(), startInterval());
       tick();
     };
 
     const start = (direction: -1 | 1) => {
-      if(activeDirection === direction) return;
+      if (activeDirection === direction) return;
       stop();
 
-      if(!canScroll(direction)) return;
+      if (!canScroll(direction)) return;
 
       activeDirection = direction;
 
       const delay = startDelay();
-      if(delay > 0) {
+      if (delay > 0) {
         armTimer = setTimeout(begin, delay);
       } else {
         begin();
@@ -194,7 +194,7 @@ export function useEdgeAutoScroll(args: UseEdgeAutoScrollArgs): void {
 
     const evaluate = () => {
       const direction = resolveDirection();
-      if(direction == null) {
+      if (direction == null) {
         stop();
       } else {
         start(direction);
@@ -209,7 +209,7 @@ export function useEdgeAutoScroll(args: UseEdgeAutoScrollArgs): void {
     };
 
     const target = listenTo();
-    if(!target) return;
+    if (!target) return;
 
     target.addEventListener('pointermove', onPointerMove as EventListener);
 

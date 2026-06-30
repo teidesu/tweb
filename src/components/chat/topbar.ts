@@ -1516,7 +1516,7 @@ export default class ChatTopbar {
     this.floatingPlatesWrapper.classList.toggle('hide', count === 0);
 
     let platesHeight = 0;
-    for(const container of visible) {
+    for (const container of visible) {
       platesHeight += container.height === 'auto' ? container.container.offsetHeight : container.height;
     }
 

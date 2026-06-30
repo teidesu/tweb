@@ -112,10 +112,10 @@ export default class PeerProfileAvatars {
     this.listenerSetter = new ListenerSetter();
 
     this.listenerSetter.add(this.container)('play', (e) => {
-      if((e.target as HTMLElement)?.classList?.contains('avatar-video') && !this.videoProgressRAF) {
+      if ((e.target as HTMLElement)?.classList?.contains('avatar-video') && !this.videoProgressRAF) {
         this.startVideoProgressLoop();
       }
-    }, {capture: true});
+    }, { capture: true });
 
     const checkScrollTop = () => {
       if (this.scrollable.scrollPosition !== 0) {
@@ -380,7 +380,7 @@ export default class PeerProfileAvatars {
 
     await this.applyAppearance();
 
-    if(threadId) {
+    if (threadId) {
       this.container.classList.add('is-topic');
       await this.processItem(undefined as any);
       return;
@@ -500,7 +500,7 @@ export default class PeerProfileAvatars {
 
         this.loadNearestToTarget(this.avatars.children[id]);
 
-        if(!this.videoProgressRAF) this.startVideoProgressLoop();
+        if (!this.videoProgressRAF) this.startVideoProgressLoop();
       },
     });
 
@@ -584,7 +584,7 @@ export default class PeerProfileAvatars {
         this.videoProgressRAF = 0;
         return;
       }
-      if(!this.updateActiveTabProgress()) {
+      if (!this.updateActiveTabProgress()) {
         this.videoProgressRAF = 0;
         return;
       }
@@ -812,9 +812,9 @@ export default class PeerProfileAvatars {
         ...(isTopic && {
           wrapOptions: {
             customEmojiSize: makeMediaSize(120, 120),
-            middleware
-          }
-        })
+            middleware,
+          },
+        }),
         // size: isFirst ? 120 : 'full',
         // withStories: isFirst
       });
@@ -836,7 +836,7 @@ export default class PeerProfileAvatars {
       } else {
         avatarElem.render({
           peerId: this.peerId,
-          threadId: this.threadId
+          threadId: this.threadId,
         });
 
         await avatarElem.readyThumbPromise;

@@ -98,7 +98,7 @@ export default class SuperIntersectionObserver {
   }
 
   public reobserve(target: IntersectionTarget) {
-    if(this.freezedObservingNew || !this.observing.has(target)) {
+    if (this.freezedObservingNew || !this.observing.has(target)) {
       return;
     }
 

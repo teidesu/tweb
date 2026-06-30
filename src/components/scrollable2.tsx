@@ -421,7 +421,7 @@ export default function Scrollable(props: {
       <div class="scrollable-thumb-container">
         <div
           class="scrollable-thumb"
-          classList={{'scrollable-thumb--hidden': props.hideThumb}}
+          classList={{ 'scrollable-thumb--hidden': props.hideThumb }}
           ref={(el) => {
             thumbRef = el;
             props.thumbRef?.(el);

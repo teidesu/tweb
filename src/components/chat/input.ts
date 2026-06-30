@@ -818,17 +818,17 @@ export default class ChatInput {
       const middleware = this.getMiddleware();
       const peerId = this.chat.peerId;
       this.managers.appMessagesManager.goToNextMention({ peerId, threadId: this.chat.threadId, isReaction, isPollVote }).then(async(mid) => {
-        if(!middleware() || !mid) {
+        if (!middleware() || !mid) {
           return;
         }
 
         const result = await this.chat.setMessageId({ lastMsgId: mid });
         await result?.promise?.catch(() => {});
-        if(!middleware()) {
+        if (!middleware()) {
           return;
         }
 
-        if(!isPollVote) {
+        if (!isPollVote) {
           this.chat.bubbles.reobserveUnreadContent(peerId, mid);
         }
       });
@@ -4122,12 +4122,12 @@ export default class ChatInput {
         const node = wrapDraftText(text.text, {
           entities: text.entities,
           middleware: this.getMiddleware(),
-          wrappingForPeerId: this.chat.peerId
+          wrappingForPeerId: this.chat.peerId,
         });
         this.setInputValue(node, false, true);
       },
       appendTo: () => this.newMessageWrapper,
-      canSend: true
+      canSend: true,
     });
   });
 

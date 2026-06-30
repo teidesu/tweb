@@ -157,17 +157,17 @@ export class AnimationIntersector {
   }
 
   public toggleVideosUnder(element: HTMLElement, paused: boolean) {
-    if(!element) {
+    if (!element) {
       return;
     }
 
     this.byPlayer.forEach((item) => {
-      if(item.type !== 'video' || !element.contains(item.el)) {
+      if (item.type !== 'video' || !element.contains(item.el)) {
         return;
       }
 
       this.toggleItemLock(item, paused);
-      if(paused) {
+      if (paused) {
         item.animation.pause();
       } else {
         this.checkAnimation(item);

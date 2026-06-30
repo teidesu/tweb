@@ -1,5 +1,5 @@
-import {readFileSync} from 'fs';
-import {createTestClient, AccountSeed} from './harness';
+import { readFileSync } from 'fs';
+import { createTestClient, AccountSeed } from './harness';
 
 const ENABLED = process.env.TG_API_TEST === '1';
 const seedPath = process.env.TG_API_SEED;
@@ -15,7 +15,7 @@ describeOrSkip('unread_mark filter index staleness', () => {
 
   beforeAll(async() => {
     const seed = JSON.parse(readFileSync(seedPath!, 'utf8')) as AccountSeed;
-    client = await createTestClient({seed, testDc: false});
+    client = await createTestClient({ seed, testDc: false });
   }, 60_000);
 
   afterAll(() => {
@@ -38,24 +38,24 @@ describeOrSkip('unread_mark filter index staleness', () => {
       access_hash: '0',
       first_name: 'Filter',
       last_name: 'Test',
-      pFlags: {contact: true}
+      pFlags: { contact: true },
     }]);
 
     // a fully READ dialog (no unread messages, no unread_mark)
     const dialog: any = {
       _: 'dialog',
       peerId,
-      peer: {_: 'peerUser', user_id: userId},
+      peer: { _: 'peerUser', user_id: userId },
       top_message: 10,
       read_inbox_max_id: 10,
       read_outbox_max_id: 10,
       unread_count: 0,
       unread_mentions_count: 0,
       unread_reactions_count: 0,
-      notify_settings: {_: 'peerNotifySettings'},
+      notify_settings: { _: 'peerNotifySettings' },
       folder_id: 0,
       pFlags: {},
-      draft: undefined
+      draft: undefined,
     };
     dialogsStorage.dialogs[peerId] = dialog;
 
@@ -63,14 +63,14 @@ describeOrSkip('unread_mark filter index staleness', () => {
     filtersStorage.saveDialogFilter({
       _: 'dialogFilter',
       id: 2,
-      title: {_: 'textWithEntities', text: 'Unread', entities: []},
-      pFlags: {exclude_read: true, contacts: true},
+      title: { _: 'textWithEntities', text: 'Unread', entities: [] },
+      pFlags: { exclude_read: true, contacts: true },
       pinned_peers: [],
       include_peers: [],
       exclude_peers: [],
       pinnedPeerIds: [],
       includePeerIds: [],
-      excludePeerIds: []
+      excludePeerIds: [],
     } as any, false);
 
     const indexKey = dialogsStorage.getDialogIndexKeyByFilterId(2);
@@ -80,7 +80,7 @@ describeOrSkip('unread_mark filter index staleness', () => {
       return {
         messages: folder.unreadMessagesCount,
         inPeerIds: folder.unreadPeerIds.has(folderKey),
-        peerIdsSize: folder.unreadPeerIds.size
+        peerIdsSize: folder.unreadPeerIds.size,
       };
     };
 
@@ -94,8 +94,8 @@ describeOrSkip('unread_mark filter index staleness', () => {
     // The handler itself must update the filter index (no manual re-process).
     (m as any).onUpdateDialogUnreadMark({
       _: 'updateDialogUnreadMark',
-      peer: {_: 'dialogPeer', peer: {_: 'peerUser', user_id: userId}},
-      pFlags: {unread: true}
+      peer: { _: 'dialogPeer', peer: { _: 'peerUser', user_id: userId } },
+      pFlags: { unread: true },
     });
     expect(dialog.pFlags.unread_mark).toBe(true);
     const indexWhenMarked = dialogsStorage.getDialogIndex(dialog, indexKey);
@@ -109,8 +109,8 @@ describeOrSkip('unread_mark filter index staleness', () => {
     // now clear unread_mark, as if read/unmarked from ANOTHER client
     (m as any).onUpdateDialogUnreadMark({
       _: 'updateDialogUnreadMark',
-      peer: {_: 'dialogPeer', peer: {_: 'peerUser', user_id: userId}},
-      pFlags: {}
+      peer: { _: 'dialogPeer', peer: { _: 'peerUser', user_id: userId } },
+      pFlags: {},
     });
     expect(dialog.pFlags.unread_mark).toBeUndefined();
 
