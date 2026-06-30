@@ -223,24 +223,24 @@ export class AppSidebarLeft extends SidebarSlider {
 
     this.initNavigation();
 
-    {
-      const CHECK_UPDATE_INTERVAL = 1800e3;
-      const checkUpdateInterval = setInterval(() => {
-        fetch('version', { cache: 'no-cache' })
-          .then((res) => (res.status === 200 && res.ok && res.text()) || Promise.reject())
-          .then((text) => {
-            if (text !== App.versionFull) {
-              this.hasUpdate = true;
-              clearInterval(checkUpdateInterval);
+    // {
+    //   const CHECK_UPDATE_INTERVAL = 1800e3;
+    //   const checkUpdateInterval = setInterval(() => {
+    //     fetch('version', { cache: 'no-cache' })
+    //       .then((res) => (res.status === 200 && res.ok && res.text()) || Promise.reject())
+    //       .then((text) => {
+    //         if (text !== App.versionFull) {
+    //           this.hasUpdate = true;
+    //           clearInterval(checkUpdateInterval);
 
-              if (!this.isSearchActive) {
-                this.updateBtn.classList.remove('is-hidden');
-              }
-            }
-          })
-          .catch(noop);
-      }, CHECK_UPDATE_INTERVAL);
-    }
+    //           if (!this.isSearchActive) {
+    //             this.updateBtn.classList.remove('is-hidden');
+    //           }
+    //         }
+    //       })
+    //       .catch(noop);
+    //   }, CHECK_UPDATE_INTERVAL);
+    // }
 
     this.onResize = () => {
       this.rect = this.tabsContainer.getBoundingClientRect();
