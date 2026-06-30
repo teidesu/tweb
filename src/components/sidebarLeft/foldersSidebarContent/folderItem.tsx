@@ -1,4 +1,5 @@
 import { createComputed, createEffect, createMemo, createSignal, Show } from 'solid-js';
+import { useMediaSizes } from '@/helpers/mediaSizes';
 import createMiddleware from '@/helpers/solid/createMiddleware';
 import { CustomEmojiRendererElement } from '@/lib/customEmoji/renderer';
 import { useHotReloadGuard } from '@/lib/solidjs/hotReloadGuard';
@@ -58,6 +59,7 @@ export default function FolderItem(props: FolderItemProps) {
   const [clipPath, setClipPath] = createSignal<string>();
 
   const hasNotifications = () => !!props.notifications?.count;
+  const mediaSizes = useMediaSizes();
 
   createEffect(() => {
     if (!hasNotifications()) {
@@ -65,8 +67,10 @@ export default function FolderItem(props: FolderItemProps) {
       return;
     }
 
-    // re-measure on digit-count change
+    // re-measure on digit-count change, and when the sidebar becomes visible again
+    // (it's display:none until docked, so it measures 0 while floating)
     props.notifications!.count;
+    mediaSizes.isLessThanFloatingLeftSidebar;
     setClipPath(iconWrapRef! && badgeRef && buildBadgeCutoutClipPath(iconWrapRef, badgeRef));
   });
 
