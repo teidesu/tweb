@@ -52,7 +52,6 @@ import pause from '@/helpers/schedulers/pause';
 import makeError from '@/helpers/makeError';
 import getStickerEffectThumb from '@/lib/appManagers/utils/stickers/getStickerEffectThumb';
 import getDocumentInput from '@/lib/appManagers/utils/docs/getDocumentInput';
-import reactionsEqual from '@/lib/appManagers/utils/reactions/reactionsEqual';
 import getPeerActiveUsernames from '@/lib/appManagers/utils/peers/getPeerActiveUsernames';
 import { BroadcastEvents } from '@/lib/rootScope';
 import setBooleanFlag from '@/helpers/object/setBooleanFlag';
@@ -7954,7 +7953,7 @@ export class AppMessagesManager extends AppManager {
     }
 
     const key = message.peerId + '_' + message.mid;
-    this.pushBatchUpdate('messages_reactions', this.batchUpdateReactions, key, () => copy(message.reactions)!);
+    this.pushBatchUpdate('messages_reactions', this.batchUpdateReactions, key);
 
     this.modifyMessage(message, (message) => {
       message.reactions = reactions && this.appReactionsManager.sortReactions(reactions);
@@ -10887,33 +10886,12 @@ export class AppMessagesManager extends AppManager {
     return toDispatch;
   };
 
-  private batchUpdateReactions = (batch: Map<string, MessageReactions>) => {
+  private batchUpdateReactions = (batch: Map<string, undefined>) => {
     const toDispatch: BroadcastEvents['messages_reactions'] = [];
 
     const map = this.getMessagesFromMap(batch);
-    for (const [message, previousReactions] of map) {
-      const results = message.reactions?.results ?? [];
-      const previousResults = previousReactions?.results ?? [];
-      const changedResults = results.filter((reactionCount) => {
-        const previousReactionCount = previousResults.find((_reactionCount) => reactionsEqual(_reactionCount.reaction, reactionCount.reaction));
-        return (
-          message.pFlags.out && (
-            !previousReactionCount ||
-            reactionCount.count > previousReactionCount.count
-          )
-        ) || (
-          reactionCount.chosen_order !== undefined && (
-            !previousReactionCount ||
-            previousReactionCount.chosen_order === undefined
-          )
-        );
-      });
-
-      const removedResults = previousResults.filter((reactionCount) => {
-        return !results.some((_reactionCount) => reactionsEqual(_reactionCount.reaction, reactionCount.reaction));
-      });
-
-      toDispatch.push({ message, changedResults, removedResults });
+    for (const [message] of map) {
+      toDispatch.push({ message, changedResults: [], removedResults: [] });
     }
 
     return toDispatch;

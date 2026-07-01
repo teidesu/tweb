@@ -4,10 +4,11 @@ import callbackifyAll from '@/helpers/callbackifyAll';
 import positionElementByIndex from '@/helpers/dom/positionElementByIndex';
 import { makeMediaSize } from '@/helpers/mediaSize';
 import { Middleware, MiddlewareHelper } from '@/helpers/middleware';
-import { ReactionCount, SavedReactionTag } from '@/layer';
+import { Reaction, ReactionCount, SavedReactionTag } from '@/layer';
 import appImManager from '@/lib/appImManager';
 import { AppManagers } from '@/lib/managers';
 import reactionsEqual from '@/lib/appManagers/utils/reactions/reactionsEqual';
+import getReactionKey from '@/lib/appManagers/utils/reactions/getReactionKey';
 import { CustomEmojiRendererElement } from '@/lib/customEmoji/renderer';
 import rootScope from '@/lib/rootScope';
 import { AnimationItemGroup } from '@/components/animationIntersector';
@@ -39,6 +40,27 @@ export { PENDING_PAID_REACTIONS, PENDING_PAID_REACTION_SENT_ABORT_REASON };
 
 export function getPendingPaidReactionKey(message: ReactionsContext) {
   return message.peerId + '_' + message.mid;
+}
+
+const OPTIMISTIC_AROUND_ANIMATION_TIMEOUT = 1500;
+const OPTIMISTIC_AROUND_ANIMATIONS = new Map<string, Map<string, number>>();
+
+export function registerOptimisticAroundAnimation(peerId: PeerId, mid: number, reaction: Reaction) {
+  const key = peerId + '_' + mid;
+  let set = OPTIMISTIC_AROUND_ANIMATIONS.get(key);
+  if (!set) {
+    OPTIMISTIC_AROUND_ANIMATIONS.set(key, set = new Map());
+  }
+
+  const reactionKey = getReactionKey(reaction);
+  clearTimeout(set.get(reactionKey));
+  set.set(reactionKey, window.setTimeout(() => {
+    const set = OPTIMISTIC_AROUND_ANIMATIONS.get(key);
+    set?.delete(reactionKey);
+    if (set && !set.size) {
+      OPTIMISTIC_AROUND_ANIMATIONS.delete(key);
+    }
+  }, OPTIMISTIC_AROUND_ANIMATION_TIMEOUT));
 }
 
 export const savedReactionTags: SavedReactionTag[] = [];
@@ -360,14 +382,42 @@ export default class ReactionsElement extends HTMLElement {
       });
     });
 
-    if (!this.isPlaceholder && changedResults?.length) {
+    if (!this.isPlaceholder) {
+      const fire = () => {
+        this.fireOptimisticAroundAnimations();
+        if (changedResults?.length) {
+          this.handleChangedResults(changedResults, waitPromise, animationShouldHaveDelay);
+        }
+      };
+
       if (this.isConnected) {
-        this.handleChangedResults(changedResults, waitPromise, animationShouldHaveDelay);
+        fire();
       } else {
-        this.onConnectCallback = () => {
-          this.handleChangedResults(changedResults!, waitPromise, animationShouldHaveDelay);
-        };
+        this.onConnectCallback = fire;
       }
+    }
+  }
+
+  private fireOptimisticAroundAnimations() {
+    const set = OPTIMISTIC_AROUND_ANIMATIONS.get(this.key);
+    if (!set?.size) {
+      return;
+    }
+
+    this.sorted.forEach((reactionElement) => {
+      const reactionKey = getReactionKey(reactionElement.reactionCount.reaction);
+      const timeout = set.get(reactionKey);
+      if (timeout === undefined) {
+        return;
+      }
+
+      clearTimeout(timeout);
+      set.delete(reactionKey);
+      reactionElement.fireAroundAnimation();
+    });
+
+    if (!set.size) {
+      OPTIMISTIC_AROUND_ANIMATIONS.delete(this.key);
     }
   }
 

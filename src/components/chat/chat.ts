@@ -49,7 +49,9 @@ import useIsNightTheme from '@/hooks/useIsNightTheme';
 import useStars, { setReservedStars } from '@/stores/stars';
 import PopupElement from '@/components/popups';
 import PopupStars from '@/components/popups/stars';
-import { getPendingPaidReactionKey, PENDING_PAID_REACTION_SENT_ABORT_REASON, PENDING_PAID_REACTIONS } from '@/components/chat/reactions';
+import { getPendingPaidReactionKey, PENDING_PAID_REACTION_SENT_ABORT_REASON, PENDING_PAID_REACTIONS, registerOptimisticAroundAnimation } from '@/components/chat/reactions';
+import reactionsEqual from '@/lib/appManagers/utils/reactions/reactionsEqual';
+import availableReactionToReaction from '@/lib/appManagers/utils/reactions/availableReactionToReaction';
 import showUndoablePaidTooltip, { paidReactionLangKeys } from '@/components/chat/undoablePaidTooltip';
 import namedPromises from '@/helpers/namedPromises';
 import { getCurrentNewMediaPopup } from '@/components/popups/newMedia';
@@ -1584,6 +1586,19 @@ export default class Chat extends EventListenerBase<{
           onUndo: () => void pending.abortController.abort(),
           ...paidReactionLangKeys,
         });
+      }
+    }
+
+    if (!isPaidReaction && options.reaction) {
+      const reaction = options.reaction._ === 'availableReaction' ?
+        availableReactionToReaction(options.reaction) :
+        options.reaction;
+      const reactions = (options.message as Message.message).reactions;
+      const isAdding = !reactions?.results?.some((reactionCount) =>
+        reactionsEqual(reactionCount.reaction, reaction) && reactionCount.chosen_order !== undefined
+      );
+      if (isAdding) {
+        registerOptimisticAroundAnimation(options.message.peerId!, options.message.mid!, reaction);
       }
     }
 
