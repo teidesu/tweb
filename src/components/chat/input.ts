@@ -2193,8 +2193,11 @@ export default class ChatInput {
     // finishPeerChange has already flipped the flag back, but a draft applied
     // on chat open must not animate the helper in
     const isPeerChange = this.peerChanging;
+    // refuse an incoming draft only when the user has unsaved local edits (a pending debounced
+    // save); otherwise the input is just mirroring the server, so track the newer draft instead
+    // of freezing on a stale value it would later echo back. equal drafts no-op below anyway.
     if (
-      (!force && draft && !isInputEmpty(this.messageInput)) ||
+      (!force && draft && this.saveDraftDebounced?.isDebounced()) ||
       PEER_EXCEPTIONS.has(this.chat.type)
     ) {
       return false;
