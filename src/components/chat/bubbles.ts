@@ -72,6 +72,7 @@ import getViewportSlice from '@/helpers/dom/getViewportSlice';
 import SuperIntersectionObserver, { IntersectionCallback } from '@/helpers/dom/superIntersectionObserver';
 import generateFakeIcon from '@/components/generateFakeIcon';
 import copyFromElement from '@/helpers/dom/copyFromElement';
+import { getCodeBlockClickTarget, toggleCodeBlockWrap } from '@/helpers/dom/codeBlockClick';
 import PopupElement from '@/components/popups';
 import setAttachmentSize, { EXPAND_TEXT_WIDTH } from '@/helpers/setAttachmentSize';
 import wrapWebPageDescription from '@/components/wrappers/webPageDescription';
@@ -173,6 +174,7 @@ import showTooltip from '@/components/tooltip';
 import wrapTextWithEntities from '@/lib/richTextProcessor/wrapTextWithEntities';
 import clearfix from '@/helpers/dom/clearfix';
 import { usePeer } from '@/stores/peers';
+import { setAppSettings } from '@/stores/appSettings';
 import safeWindowOpen from '@/helpers/dom/safeWindowOpen';
 import findAndSplice from '@/helpers/array/findAndSplice';
 import generatePhotoForExtendedMediaPreview from '@/lib/appManagers/utils/photos/generatePhotoForExtendedMediaPreview';
@@ -191,7 +193,7 @@ import PopupStarGiftInfo from '@/components/popups/starGiftInfo';
 import { StarGiftBubble, UniqueStarGiftWebPageBox } from '@/components/chat/bubbles/starGift';
 import { PremiumGiftBubble } from '@/components/chat/bubbles/premiumGift';
 import { UnknownUserBubble } from '@/components/chat/bubbles/unknownUser';
-import { generateTail, getMid, isMessage, isMessageForVerificationBot, isVerificationBot } from '@/components/chat/utils';
+import { generateTail, getGuestChatViaFromId, getMid, isGuestChatMessage, isMessage, isMessageForVerificationBot, isVerificationBot } from '@/components/chat/utils';
 import { ChecklistBubble } from '@/components/chat/bubbles/checklist';
 import { getRestrictionReason } from '@/helpers/restrictions';
 import { isMessageSensitive } from '@/lib/appManagers/utils/messages/isMessageRestricted';
@@ -229,6 +231,8 @@ import { createMutable } from 'solid-js/store';
 import compareUint8Arrays from '@/helpers/bytes/compareUint8Arrays';
 import { linkToPollOption } from './bubbleParts/pollMessageContent/pollToOptionLink';
 import { getSimulatedEvent } from '@/helpers/dom/dispatchEvent';
+import { richMessageToPage } from '@/lib/richMessage';
+import { RichMessageBubble } from '@/components/chat/bubbles/richMessage';
 import { isTruthy } from '../../helpers/isTruthy';
 import { getAppWindow, onAppWindowChange, onBeforeAppWindowChange } from '@/helpers/appWindow';
 
@@ -1332,26 +1336,18 @@ export default class ChatBubbles {
     this.listenerSetter.add(this.scrollable.container)('mousedown', (e) => {
       if (e.button !== 0) return;
 
-      const codeContainer = findUpClassName(e.target!, 'code-header') && findUpClassName(e.target!, 'code');
-      const code: HTMLElement = codeContainer?.querySelector<HTMLElement>('.code-code') || findUpClassName(e.target!, 'monospace-text');
-      if (code) {
-        const isTogglingWrap = !!findUpClassName(e.target!, 'code-header-toggle-wrap');
+      const codeTarget = getCodeBlockClickTarget(e.target!);
+      if (codeTarget) {
         cancelEvent(e);
-        if (!isTogglingWrap) {
-          copyFromElement(code);
+        if (!codeTarget.isWrapToggle) {
+          copyFromElement(codeTarget.code);
         }
 
         const onClick = (e: MouseEvent) => {
           cancelEvent(e);
 
-          if (isTogglingWrap) {
-            // const scrollSaver = this.createScrollSaver(true);
-            // scrollSaver.save();
-            const present = codeContainer.classList.toggle('is-scrollable');
-            // code.classList.toggle('scrollable', present);
-            // code.classList.toggle('scrollable-x', present);
-            code.classList.toggle('no-scrollbar', present);
-            // scrollSaver.restore();
+          if (codeTarget.isWrapToggle) {
+            toggleCodeBlockWrap(codeTarget);
             return;
           }
 
@@ -2064,6 +2060,48 @@ export default class ChatBubbles {
         this.sendViewCountersDebounced();
       }
     }
+  };
+
+  // * guarded to at most once per chat-open (like iOS's hasDisplayedGuestChatMessageTooltip); reset in cleanup
+  private guestChatHintShown = false;
+
+  // * hint explaining guest bots: shown above the "<Bot> for <Visitor>" name of the first guest-chat
+  // * message that scrolls into view (iOS shows it in any chat type, at most twice — see
+  // * TelegramUI/…/ChatControllerDisplayGuestChatMessageTooltip)
+  private guestChatHintObserverCallback = (entry: IntersectionObserverEntry) => {
+    if (!entry.isIntersecting) {
+      return;
+    }
+
+    this.observer!.unobserve(entry.target, this.guestChatHintObserverCallback);
+
+    if (this.chat.isPreview || this.guestChatHintShown) { // once per chat-open (iOS hasDisplayedGuestChatMessageTooltip)
+      return;
+    }
+
+    const shownTimes = this.chat.appSettings.seenTooltips.guestBotPrivacy || 0; // undefined for pre-existing state
+    if (shownTimes >= 2) { // twice total (iOS counter notice)
+      return;
+    }
+
+    this.guestChatHintShown = true;
+    setAppSettings('seenTooltips', 'guestBotPrivacy', shownTimes + 1);
+
+    // * notch over the bot's name (element = the .peer-title, which hugs its text), body over the bubble
+    // * (container = the bubble clamps the body's width/position). fall back to the bubble as the notch
+    // * anchor too when the name is hidden (a grouped, non-first guest bubble)
+    const bubble = entry.target as HTMLElement;
+    const nameNode = bubble.querySelector<HTMLElement>('.name .peer-title');
+
+    showTooltip({
+      element: nameNode?.offsetParent ? nameNode : bubble,
+      container: bubble,
+      vertical: 'top',
+      textElement: i18n('BotCantReadChatTooltip'),
+      paddingX: 8,
+      auto: true, // auto-dismiss after a few seconds — it appears unsolicited
+      useOverlay: false, // don't swallow the user's next click
+    });
   };
 
   private setupReadMetrics() {
@@ -4002,6 +4040,7 @@ export default class ChatBubbles {
 
       this.observer.unobserve(bubble, this.stickerEffectObserverCallback);
       this.observer.unobserve(bubble, this.messageEffectObserverCallback);
+      this.observer.unobserve(bubble, this.guestChatHintObserverCallback);
     }
 
     bubble.timeAppenders = bubble.timeSpan = undefined;
@@ -4589,6 +4628,7 @@ export default class ChatBubbles {
     //   TEST_SCROLL = TEST_SCROLL_TIMES;
     // }
 
+    this.guestChatHintShown = false; // re-arm the guest-bot hint for the next chat-open (capped total by seenTooltips)
     this.skippedMids.clear();
     this.dateMessages = {};
     this.bubbleGroups?.cleanup();
@@ -6880,6 +6920,8 @@ export default class ChatBubbles {
     const isSponsored = (message as Message.message).pFlags.sponsored;
     const sponsoredMessage = (message as Message.message).sponsoredMessage;
     const factCheck = /* !!isSponsored === !sponsoredMessage &&  */isMessage && message.factcheck;
+    const richMessage = isMessage ? message.rich_message : undefined;
+    const richMessagePage = richMessage && richMessageToPage(richMessage);
 
     context.messageMedia = ((isMessage && message.media)! as MessageMedia | undefined);
     let needToSetHTML = true;
@@ -7129,6 +7171,24 @@ export default class ChatBubbles {
         container.classList.add('margin-0');
         messageDiv.appendChild(container);
       }
+    }
+
+    if (richMessagePage) {
+      const container = document.createElement('div');
+      renderComponent({
+        element: container,
+        Component: RichMessageBubble,
+        props: {
+          message: message as Message.message,
+          richMessage,
+          page: richMessagePage,
+        },
+        middleware,
+        HotReloadGuard: SolidJSHotReloadGuardProvider,
+      });
+      messageDiv.append(container);
+      isMessageEmpty = false;
+      context.mediaRequiresMessageDiv = true;
     }
 
     const usedId = message.mid;
@@ -8766,6 +8826,14 @@ export default class ChatBubbles {
         }
 
         default:
+          if (richMessagePage) {
+            context.attachmentDiv = undefined;
+            context.mediaRequiresMessageDiv = true;
+            noAttachmentDivNeeded = true;
+            this.log.warn('unrecognized media type with rich_message:', context.messageMedia._, message);
+            break;
+          }
+
           context.attachmentDiv = undefined;
           context.mediaRequiresMessageDiv = true;
           noAttachmentDivNeeded = true;
@@ -8859,9 +8927,13 @@ export default class ChatBubbles {
 
     const iPostedAsSomeoneElse = message.fromId !== rootScope.myId && !this.chat.isMonoforum;
 
+    // * a guest-chat message shows "<bot> for <visitor>" and the bot's avatar, even in a 1-on-1
+    const guestChatViaFromId = getGuestChatViaFromId(message);
+
     const needName = ((iPostedAsSomeoneElse || !isOut) && this.chat.isLikeGroup) ||
       message.viaBotId ||
       storyFromPeerId! ||
+      guestChatViaFromId ||
       (showNameForVerificationCodes && !replyTo);
 
     if (needName || fwdFrom || replyTo || topicNameButtonContainer!) { // chat
@@ -9061,6 +9133,25 @@ export default class ChatBubbles {
         nameDiv.append(span);
       }
 
+      // * append "for <visitor>" after the guest bot's name; the visitor title opens its profile on click.
+      // * plain first name, no premium/status icons — those add `.peer-title.with-icons` (display: flex,
+      // * i.e. block), which would drop the visitor onto its own line
+      if (guestChatViaFromId) {
+        if (!nameDiv) {
+          nameDiv = document.createElement('div');
+        } else {
+          nameDiv.append(' ');
+        }
+
+        const visitorTitle = new PeerTitle({ peerId: guestChatViaFromId, onlyFirstName: true, wrapOptions }).element;
+        const span = document.createElement('span');
+        span.classList.add('is-guest-chat-for');
+        span.append(i18n('GuestChatFor'), ' ', visitorTitle);
+
+        nameDiv.append(span);
+        bubble.classList.remove('hide-name');
+      }
+
       if (topicNameButtonContainer!) {
         if (context.isStandaloneMedia) {
           topicNameButtonContainer.classList.add('floating-part');
@@ -9178,6 +9269,17 @@ export default class ChatBubbles {
     }
 
     bubble.classList.add(isOut ? 'is-out' : 'is-in');
+
+    // * reserve room for the forced guest-bot avatar in 1-on-1 chats (group chats already indent)
+    if (guestChatViaFromId) {
+      bubble.classList.add('is-guest-chat');
+
+      // * explain what a guest bot is when its first message scrolls into view — up to twice, like iOS.
+      // * iOS shows this in any chat type (not just 1-on-1), so there's no peer-type gate here
+      if (this.observer && !this.guestChatHintShown && (this.chat.appSettings.seenTooltips.guestBotPrivacy || 0) < 2) {
+        this.observer.observe(bubble, this.guestChatHintObserverCallback);
+      }
+    }
 
     if (withReplies) {
       const isFooter = MessageRender.renderReplies({
@@ -11218,6 +11320,8 @@ export default class ChatBubbles {
     }
 
     if (isMessageForVerificationBot(message)) return true;
+    // * guest-chat messages carry the guest bot's avatar even in a 1-on-1 chat
+    if (isGuestChatMessage(message)) return true;
     return this.chat.isLikeGroup && !this.chat.isOutMessage(message);
   }
 

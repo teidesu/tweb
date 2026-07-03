@@ -106,7 +106,8 @@ export type StateSettings = {
   seenTooltips: {
     storySound: boolean,
     noForwards: boolean,
-    sidebarResize: boolean
+    sidebarResize: boolean,
+    guestBotPrivacy: number // how many times the guest-bot hint has been shown (capped at 2, like iOS)
   },
   playbackParams: ReturnType<AppMediaPlaybackController['getPlaybackParams']>,
   translations: {
@@ -517,6 +518,7 @@ export const SETTINGS_INIT: StateSettings = {
     storySound: false,
     noForwards: false,
     sidebarResize: false,
+    guestBotPrivacy: 0,
   },
   translations: {
     peers: {},
