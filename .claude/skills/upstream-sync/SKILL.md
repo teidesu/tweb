@@ -14,13 +14,15 @@ Standard procedure for pulling upstream tweb changes into this fork. The fork is
 | Upstream clone | `~/repo/tweb` (fetch its `origin` for the latest `origin/master`) |
 | Upstream as remote in this repo | `upstream` → `~/repo/tweb` (so `git fetch upstream master` brings objects in for cherry-picking) |
 | Last synced upstream commit | `private/last-upstream-sync-commit` (single sha + newline). This is the range start for every sync; bump it to the new upstream tip at the end. |
+| Divergence map | `private/upstream-sync-divergence-map.md` — standing fork↔upstream differences that recur every sync. **Read it before assessing; update it at the end of every sync.** |
+| Sync helper scripts | `scripts/upstream-sync/` — `normalize-imports.js` (upstream aliases/relative → fork `@/`), `resolve-import-conflicts.js` (auto-resolves pure-import conflict regions) |
 | Port worktree | `.claude/worktrees/upstream-sync`, branch `upstream-sync` off `master` |
 
 If the `upstream` remote is missing, add it: `git remote add upstream ~/repo/tweb`.
 
 ## Phase 1 — assess
 
-1. Read the fork point: `cat private/last-upstream-sync-commit`.
+1. Read the fork point (`cat private/last-upstream-sync-commit`) and the divergence map (`private/upstream-sync-divergence-map.md`) — the map answers most "why does this conflict/error" questions upfront; include it in assessment-agent prompts.
 2. `git -C ~/repo/tweb fetch origin`, then `git -C ~/repo/tweb log --format='%h %ad %s' --date=short <fork-point>..origin/master`.
 3. Fan out assessment subagents (Explore), grouping commits by domain (media, chat UI, misc...). Each agent gets: upstream path, fork path, fork point, and its commit list. For each commit it must answer:
    - What does it do, and is it a real fix/feature or noise (build artifacts, version bumps)?
@@ -39,7 +41,14 @@ git worktree add .claude/worktrees/upstream-sync -b upstream-sync master
 cd .claude/worktrees/upstream-sync
 ```
 
+Right after creating the worktree, warm the typecheck cache in the background (see Verify) so later runs are seconds, not ~20s.
+
 Order: all clean picks in one batch (`git cherry-pick <sha> <sha> ...`), then adaptation ports easiest-first, respecting dependencies.
+
+### Conflict/port helpers (use them, don't hand-edit mechanically)
+
+- On any conflicted pick, FIRST run `node scripts/upstream-sync/resolve-import-conflicts.js` (from the worktree). It auto-resolves conflict regions that are purely import statements — unions both sides, converts upstream aliases to `@/`, rewrites `classNames` → `clsx` — and stages fully-resolved files. Only hand-resolve what it leaves behind.
+- After all picks land, run `node scripts/upstream-sync/normalize-imports.js` (no args = all files changed vs master) to convert upstream import style in newly added files. Then run tsc — don't wait until the end of the phase.
 
 ### Special cases
 
@@ -51,7 +60,12 @@ Order: all clean picks in one batch (`git cherry-pick <sha> <sha> ...`), then ad
 ### Verify
 
 - No leftover markers: `rg -l '^(<{7}|={7}|>{7})' src` must be empty.
-- Typecheck from the worktree: `../../../node_modules/.bin/tsc --noEmit`. A fresh worktree lacks the gitignored `src/langPackLocalVersion.ts` — seed it: `cp src/langPackLocalVersion.example.ts src/langPackLocalVersion.ts` (do not commit).
+- Typecheck from the worktree — always incremental, the full run costs ~20s and repeats many times per sync:
+  ```bash
+  ../../../node_modules/.bin/tsc --noEmit --incremental --tsBuildInfoFile ../upstream-sync.tsbuildinfo
+  ```
+  (buildinfo lives in `.claude/worktrees/`, outside the worktree, so git operations never touch it). Kick off the first run right after worktree creation as a background task to warm the cache; subsequent runs are a few seconds. A fresh worktree lacks the gitignored `src/langPackLocalVersion.ts` — seed it first: `cp src/langPackLocalVersion.example.ts src/langPackLocalVersion.ts` (do not commit).
+- Expect a batch of `strictNullChecks` errors in ported code (fork enforces it, upstream doesn't — see divergence map). They're mechanical; fix in bulk or delegate to a subagent, and run tsc after the clean-picks batch rather than once at the end.
 - ESLint pass: `pnpm run lint --fix`. Our eslint config is a bit stricter than the upstream (and we have different formatting style), so you might need to fix some errors.
 
 ## Phase 3 — land
@@ -67,5 +81,7 @@ git worktree remove .claude/worktrees/upstream-sync && git branch -D upstream-sy
 ```
 
 `<new-upstream-tip>` is upstream's `origin/master` head at assessment time (include even skipped commits in the range — the file records "assessed up to", not "ported up to").
+
+Then update `private/upstream-sync-divergence-map.md`: add any newly discovered *standing* divergence (recurring conflict cause, fork-only mechanism, deleted/renamed upstream file) and prune stale entries. One-off conflicts don't belong there.
 
 Confirm with the user before landing on master; they may want to review the branch first.

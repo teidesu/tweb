@@ -92,7 +92,7 @@ import namedPromises from '@/helpers/namedPromises';
 import callbackifyAll from '@/helpers/callbackifyAll';
 import { createBotforumTopicFromAction } from './utils/dialogs/createBotforumTopicFromAction';
 import { AttachedMedia, CreatePollPayload } from '@/components/popups/createPoll/storeContext';
-import { isTruthy } from '../../helpers/isTruthy';
+import { isTruthy } from '@/helpers/isTruthy';
 
 // console.trace('include');
 // TODO: если удалить диалог находясь в папке, то он не удалится из папки и будет виден в настройках
@@ -875,6 +875,10 @@ export class AppMessagesManager extends AppManager {
     this.waitingTranscriptions = new Map();
     this.pendingNewBotforumTopics = {};
     this.pendingEditingMessages = new Map();
+
+    if (!init) {
+      this.appProfileManager.clearBotCommands();
+    }
 
     this.dialogsStorage && this.dialogsStorage.clear(init);
     this.filtersStorage && this.filtersStorage.clear(init);
@@ -5223,7 +5227,7 @@ export class AppMessagesManager extends AppManager {
           replyTo.reply_to_top_id = this.appMessagesIdsManager.generateMessageId(replyTo.reply_to_top_id, replyToChannelId);
         }
 
-        this.saveMessageMedia(replyTo, mediaContext, options.isScheduled);
+        this.saveMessageMedia(replyTo, 'reply_media', mediaContext, options.isScheduled);
       }
     }
 
@@ -5305,7 +5309,7 @@ export class AppMessagesManager extends AppManager {
       }
     } */
 
-    const unsupported = this.saveMessageMedia(message, mediaContext, options.isScheduled);
+    const unsupported = this.saveMessageMedia(message, 'media', mediaContext, options.isScheduled);
 
     // if(isMessage && !unsupported && message.entities) {
     //   unsupported = message.entities.some((entity) => entity._ === 'messageEntityCustomEmoji');
@@ -5486,13 +5490,11 @@ export class AppMessagesManager extends AppManager {
     return messages;
   }
 
-  public saveMessageMedia(message: {
-    media?: MessageMedia,
+  public saveMessageMedia<K extends string>(message: {
     reply_media?: MessageMedia,
     peerId?: PeerId,
     mid?: number
-  }, mediaContext?: ReferenceContext, isScheduled?: boolean) {
-    const key = 'media' in message ? 'media' : 'reply_media';
+  } & Partial<Record<K, MessageMedia>>, key: K, mediaContext?: ReferenceContext, isScheduled?: boolean) {
     const media = message[key];
     if (!media) {
       return;
@@ -5516,7 +5518,7 @@ export class AppMessagesManager extends AppManager {
         media.poll = result.poll;
         media.results = result.results;
         if (media.attached_media) {
-          this.saveMessageMedia({ media: media.attached_media }, mediaContext);
+          this.saveMessageMedia(media, 'attached_media', mediaContext);
         }
         break;
       }
@@ -5568,7 +5570,7 @@ export class AppMessagesManager extends AppManager {
       case 'messageMediaPaidMedia': {
         media.extended_media.forEach((extendedMedia) => {
           if (extendedMedia._ === 'messageExtendedMedia') {
-            this.saveMessageMedia(extendedMedia, mediaContext, isScheduled);
+            this.saveMessageMedia(extendedMedia, 'media', mediaContext, isScheduled);
           }
         });
         break;
@@ -5701,6 +5703,7 @@ export class AppMessagesManager extends AppManager {
     }
   }
 
+  // * an empty `mids` array reports the peer itself
   public reportMessages(peerId: PeerId, mids: number[], option: Uint8Array, message?: string) {
     return this.apiManager.invokeApiSingle('messages.report', {
       peer: this.appPeersManager.getInputPeerById(peerId),
@@ -5724,7 +5727,30 @@ export class AppMessagesManager extends AppManager {
     }
   }
 
-  public async startBot(botId: BotId, chatId?: ChatId, startParam?: string) {
+  public async addBotToChat(botId: BotId, chatId: ChatId, startParam?: string): Promise<void> {
+    if (startParam) {
+      await this.startBot(botId, chatId, startParam);
+      return;
+    }
+
+    let promise: Promise<MissingInvitee[]>;
+    if (this.appChatsManager.isChannel(chatId)) {
+      promise = this.appChatsManager.inviteToChannel(chatId, [botId]);
+    } else {
+      promise = this.appChatsManager.addChatUser(chatId, botId, 0);
+    }
+
+    await promise.catch((error: ApiError) => {
+      if (error?.type === 'USER_ALREADY_PARTICIPANT') {
+        error.handled = true;
+        return;
+      }
+
+      throw error;
+    });
+  }
+
+  public async startBot(botId: BotId, chatId?: ChatId, startParam?: string): Promise<void> {
     const peerId = chatId ? chatId.toPeerId(true) : botId.toPeerId();
     if (!chatId) {
       await this.unblockBot(botId);
@@ -5733,7 +5759,7 @@ export class AppMessagesManager extends AppManager {
     if (startParam) {
       const randomId = randomLong();
 
-      return this.apiManager.invokeApi('messages.startBot', {
+      await this.apiManager.invokeApi('messages.startBot', {
         bot: this.appUsersManager.getUserInput(botId),
         peer: this.appPeersManager.getInputPeerById(peerId),
         random_id: randomId,
@@ -5741,35 +5767,17 @@ export class AppMessagesManager extends AppManager {
       }).then((updates) => {
         this.apiUpdatesManager.processUpdateMessage(updates);
       });
+      return;
     }
 
-    const str = '/start';
     if (chatId) {
-      let promise: Promise<MissingInvitee[]>;
-      if (this.appChatsManager.isChannel(chatId)) {
-        promise = this.appChatsManager.inviteToChannel(chatId, [botId]);
-      } else {
-        promise = this.appChatsManager.addChatUser(chatId, botId, 0);
-      }
-
-      return promise.catch((error: ApiError) => {
-        if (error?.type == 'USER_ALREADY_PARTICIPANT') {
-          error.handled = true;
-          return;
-        }
-
-        throw error;
-      }).then(() => {
-        return this.sendText({
-          peerId,
-          text: str + '@' + this.appPeersManager.getPeerUsername(botId.toPeerId()),
-        });
-      });
+      await this.addBotToChat(botId, chatId);
+      return;
     }
 
-    return this.sendText({
+    await this.sendText({
       peerId,
-      text: str,
+      text: '/start',
     });
   }
 
@@ -6558,6 +6566,17 @@ export class AppMessagesManager extends AppManager {
 
     // console.trace('start read')
     this.log('readHistory:', peerId, maxId, threadId);
+
+    // A maxId from a foreign mid namespace (channel-offset mid for a legacy peer or vice versa)
+    // can only be a value leaked from another chat — e.g. raced in from the UI during a fast peer
+    // switch. It must not get through: `getServerMessageId(maxId)` would ask the server to read up
+    // to an arbitrary point, and storing it in `triedToReadMaxId` (monotonic) would permanently
+    // latch `skipServerCall`, silently disabling server reads for this peer until the worker dies.
+    if (maxId && isLegacyMessageId(maxId) === this.appPeersManager.isChannel(peerId)) {
+      this.log.error('readHistory: refusing maxId from a foreign mid namespace', peerId, maxId, threadId, monoforumThreadId);
+      return Promise.resolve();
+    }
+
     const readMaxId = this.getReadMaxIdIfUnread(peerId, threadId);
     if (!readMaxId) {
       if (threadId && !force) {
@@ -7653,7 +7672,21 @@ export class AppMessagesManager extends AppManager {
 
     const isForum = this.appPeersManager.isForum(peerId);
     const threadKey = this.getThreadKey(message);
-    const threadId = threadKey ? +threadKey.split('_')[1] : undefined;
+    let threadId = threadKey ? +threadKey.split('_')[1] : undefined;
+
+    // A `messageActionTopicCreate` service message only ever exists inside a forum, so its arrival is
+    // itself proof the channel is a forum — even when our cached channel flag is still stale (e.g. the
+    // group was JUST converted into a forum on another account and `pFlags.forum=true` hasn't reached
+    // us yet). Trusting the stale flag here would leave `threadId` undefined (getMessageThreadId only
+    // derives it for a topic-create when `isForum` is already true), the whole topic-create branch
+    // below would be skipped, and the brand-new topic would be dropped until a full app reload.
+    const topicCreateAction = message._ === 'messageService' &&
+      (message as Message.messageService).action?._ === 'messageActionTopicCreate' ?
+      (message as Message.messageService).action as MessageAction.messageActionTopicCreate :
+      undefined;
+    if (topicCreateAction && !threadId) {
+      threadId = (message as MyMessage).mid;
+    }
 
     const dialog = this.dialogsStorage.getAnyDialog(peerId, isLocalThreadUpdate ? threadId : undefined);
 
@@ -7679,11 +7712,15 @@ export class AppMessagesManager extends AppManager {
         message,
       } as Update.updateNewDiscussionMessage;
 
-      if ((this.appChatsManager.isForum(peerId.toChatId()) || this.appPeersManager.isBotforum(peerId)) && !this.dialogsStorage.getForumTopic(peerId, threadId)) {
-        const action = (message as Message.messageService).action;
-        if (action?._ === 'messageActionTopicCreate') {
-          this.dialogsStorage.applyLocalForumTopics([
-            createBotforumTopicFromAction({ message: message as Message.messageService, action }),
+      if ((this.appChatsManager.isForum(peerId.toChatId()) || this.appPeersManager.isBotforum(peerId) || topicCreateAction) && !this.dialogsStorage.getForumTopic(peerId, threadId)) {
+        if (topicCreateAction) {
+          // The topic-create service message already carries the whole topic (title, icon, id), so
+          // build it locally instead of fetching it by id. `messages.getForumTopicsByID` races
+          // server-side replication right after creation — it can briefly report the brand-new topic
+          // as deleted/absent, which would blacklist it in `deletedTopics` permanently and hide it
+          // until a full reload (reopening the forum / new messages in the topic wouldn't recover it).
+          this.dialogsStorage.applyLocalForumTopics(peerId, [
+            createBotforumTopicFromAction({ message: message as Message.messageService, action: topicCreateAction }),
           ]);
         } else {
           // this.dialogsStorage.getForumTopicById(peerId, threadId);
@@ -11172,7 +11209,7 @@ export class AppMessagesManager extends AppManager {
         }
 
         if (sponsoredMessage.media) {
-          this.saveMessageMedia(sponsoredMessage, undefined);
+          this.saveMessageMedia(sponsoredMessage, 'media', undefined);
         }
 
         // sponsoredMessage.pFlags.can_report = true;

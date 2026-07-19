@@ -10,7 +10,7 @@ import { Document, Photo, WebPage } from '@/layer';
 import safeReplaceObject from '@/helpers/object/safeReplaceObject';
 import { AppManager } from '@/lib/appManagers/manager';
 import findAndSplice from '@/helpers/array/findAndSplice';
-import { isTruthy } from '../../helpers/isTruthy';
+import { isTruthy } from '@/helpers/isTruthy';
 
 const photoTypeSet = new Set(['photo', 'video', 'gif', 'document']);
 
@@ -37,7 +37,7 @@ export class AppWebPagesManager extends AppManager {
   }
 
   public saveWebPage(apiWebPage: WebPage, messageKey?: WebPageMessageKey, mediaContext?: ReferenceContext) {
-    if (apiWebPage._ === 'webPageNotModified' || apiWebPage._ === 'webPageEmpty') {
+    if (!apiWebPage || apiWebPage._ === 'webPageNotModified' || apiWebPage._ === 'webPageEmpty') {
       return;
     }
 

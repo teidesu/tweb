@@ -1,6 +1,6 @@
-import compareUint8Arrays from '@/helpers/bytes/compareUint8Arrays';
 import { joinDeepPath } from '@/helpers/object/setDeepProperty';
 import { useAppSettings } from '@/stores/appSettings';
+import bytesCmpConstTime from '@/helpers/bytes/bytesCmpConstTime';
 
 import AccountController from '@/lib/accounts/accountController';
 import commonStateStorage from '@/lib/commonStateStorage';
@@ -85,7 +85,7 @@ export function usePasscodeActions() {
     const hashed = await hashPasscode(passcode, passcodeData.verificationSalt);
     passcode = ''; // forget
 
-    return compareUint8Arrays(hashed, passcodeData.verificationHash);
+    return bytesCmpConstTime(hashed, passcodeData.verificationHash);
   }
 
   async function disablePasscode() {

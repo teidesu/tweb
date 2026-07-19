@@ -15,6 +15,7 @@ import {
 import { AppManager } from '@/lib/appManagers/manager';
 import getServerMessageId from '@/lib/appManagers/utils/messageId/getServerMessageId';
 import formatStarsAmount from '@/lib/appManagers/utils/payments/formatStarsAmount';
+import forEachReverse from '@/helpers/array/forEachReverse';
 
 export default class AppPaymentsManager extends AppManager {
   private premiumPromo: MaybePromise<HelpPremiumPromo> | undefined;
@@ -206,11 +207,23 @@ export default class AppPaymentsManager extends AppManager {
       }
 
       if (transaction.extended_media) {
-        transaction.extended_media.forEach((messageMedia) => {
+        const removedIds = transaction.extended_media.map((messageMedia, idx) => {
+          const m = { media: messageMedia };
           this.appMessagesManager.saveMessageMedia(
-            { media: messageMedia },
+            m,
+            'media',
             { type: 'starsTransaction', peerId, mid: transaction.msg_id! }
           );
+
+          if (!m.media) {
+            return idx;
+          }
+        });
+
+        forEachReverse(removedIds, (idx, _, arr) => {
+          if (idx !== undefined) {
+            arr!.splice(idx, 1);
+          }
         });
       }
     });

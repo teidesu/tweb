@@ -1,8 +1,11 @@
 /*
  * Unit tests for AppGroupCallsManager.joinGroupCall — focused on the
- * `resolvedCallId` / `resolvedAccessHash` promotion the controller depends on
- * for invite-link / invite-message joins (where the placeholder instance.id
- * needs to be rewritten once the server echoes back the real id+access_hash).
+ * `resolvedCallId` promotion the controller depends on for invite-link /
+ * invite-message joins (where the placeholder instance.id needs to be rewritten
+ * once the server echoes back the real call). Only the id is promoted: the
+ * access_hash is already in the manager's own cache by then, saved off the same
+ * `updateGroupCall` via processUpdateMessage, and is read back by
+ * getGroupCallInput.
  */
 
 import { describe, expect, it } from 'vitest';
@@ -103,8 +106,8 @@ const baseOptions: JoinOptions = {
   e2eCallInput: { _: 'inputGroupCallSlug', slug: 'fake-slug-for-test' },
 };
 
-describe('AppGroupCallsManager.joinGroupCall — resolvedCallId / resolvedAccessHash promotion', () => {
-  it('attaches resolvedCallId + resolvedAccessHash when updates contain updateGroupCall', async() => {
+describe('AppGroupCallsManager.joinGroupCall — resolvedCallId promotion', () => {
+  it('attaches resolvedCallId when updates contain updateGroupCall', async() => {
     const reply = buildUpdatesReply({ callId: '12345678901', accessHash: '99887766554433' });
     const manager = makeManager({ apiResponse: reply });
 
@@ -112,10 +115,9 @@ describe('AppGroupCallsManager.joinGroupCall — resolvedCallId / resolvedAccess
 
     expect(update._).toBe('updateGroupCallConnection');
     expect((update as any).resolvedCallId).toBe('12345678901');
-    expect((update as any).resolvedAccessHash).toBe('99887766554433');
   });
 
-  it('leaves resolvedCallId / resolvedAccessHash undefined when no updateGroupCall in response (legacy case)', async() => {
+  it('leaves resolvedCallId undefined when no updateGroupCall in response (legacy case)', async() => {
     const reply = buildUpdatesReply(null);
     const manager = makeManager({ apiResponse: reply });
 
@@ -142,7 +144,6 @@ describe('AppGroupCallsManager.joinGroupCall — resolvedCallId / resolvedAccess
 
     expect(update._).toBe('updateGroupCallConnection');
     expect((update as any).resolvedCallId).toBeUndefined();
-    expect((update as any).resolvedAccessHash).toBeUndefined();
   });
 
   it('does not promote a groupCallDiscarded — leaves the extras unset', async() => {
@@ -156,7 +157,6 @@ describe('AppGroupCallsManager.joinGroupCall — resolvedCallId / resolvedAccess
 
     expect(update._).toBe('updateGroupCallConnection');
     expect((update as any).resolvedCallId).toBeUndefined();
-    expect((update as any).resolvedAccessHash).toBeUndefined();
   });
 
   it('forwards `e2eCallInput` straight through as the `call` field (no synth from id)', async() => {

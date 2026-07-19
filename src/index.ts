@@ -87,7 +87,7 @@ Promise.all([IMAGE_MIME_TYPES_SUPPORTED_PROMISE, ENVIRONMENT_READY]).then(([mime
 
 function setManifest() {
   const manifest = document.getElementById('manifest') as HTMLLinkElement;
-  if (manifest) manifest.href = `site${IS_APPLE && !IS_APPLE_MOBILE ? '_apple' : ''}.webmanifest?v=jw3mK7G9Aq`;
+  if (manifest) manifest.href = `site${IS_APPLE && !IS_APPLE_MOBILE ? '_apple' : ''}.webmanifest?v=7mQ2pK8xWs`;
 }
 
 function setViewportHeightListeners() {

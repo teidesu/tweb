@@ -25,6 +25,8 @@ export class AppSidebarRight extends SidebarSlider {
       canHideFirst: true,
       navigationType: 'right',
     });
+
+    this.sidebarEl.inert = !document.body.classList.contains(RIGHT_COLUMN_ACTIVE_CLASSNAME);
   }
 
   construct(managers: AppManagers) {
@@ -133,6 +135,7 @@ export class AppSidebarRight extends SidebarSlider {
   }
 
   public hide() {
+    this.sidebarEl.inert = true;
     document.body.classList.remove(RIGHT_COLUMN_ACTIVE_CLASSNAME);
     appNavigationController.removeByType('right');
     animationIntersector.toggleVideosUnder(this.sidebarEl, true);
@@ -175,6 +178,7 @@ export class AppSidebarRight extends SidebarSlider {
       }
     } else {
       document.body.classList.add(RIGHT_COLUMN_ACTIVE_CLASSNAME);
+      this.sidebarEl.inert = false;
       if (!appNavigationController.findItemByType('right')) {
         const topTab = this.historyTabIds[this.historyTabIds.length - 1];
         this.pushNavigationItem(topTab instanceof SliderSuperTab ? topTab : this.sharedMediaTab);
@@ -183,49 +187,6 @@ export class AppSidebarRight extends SidebarSlider {
       rootScope.dispatchEventSingle('right_sidebar_toggle', true);
     }
     return animationPromise;
-
-    /* return new Promise((resolve, reject) => {
-      const hidden: {element: HTMLDivElement, height: number}[] = [];
-      const observer = new IntersectionObserver((entries) => {
-        for(const entry of entries) {
-          const bubble = entry.target as HTMLDivElement;
-          if(!entry.isIntersecting) {
-            hidden.push({element: bubble, height: bubble.scrollHeight});
-          }
-        }
-
-        for(const item of hidden) {
-          item.element.style.minHeight = item.height + 'px';
-          (item.element.firstElementChild as HTMLElement).style.display = 'none';
-          item.element.style.width = '1px';
-        }
-
-        //console.log('hidden', hidden);
-        observer.disconnect();
-
-        set();
-
-        setTimeout(() => {
-          for(const item of hidden) {
-            item.element.style.minHeight = '';
-            item.element.style.width = '';
-            (item.element.firstElementChild as HTMLElement).style.display = '';
-          }
-
-          resolve();
-        }, 200);
-      });
-
-      const length = Object.keys(appImManager.bubbles).length;
-      if(length) {
-        for(const i in appImManager.bubbles) {
-          observer.observe(appImManager.bubbles[i]);
-        }
-      } else {
-        set();
-        setTimeout(resolve, 200);
-      }
-    }); */
   }
 }
 

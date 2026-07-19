@@ -17,6 +17,7 @@ import rootScope from '@/lib/rootScope';
 import CallInstance from '@/lib/calls/callInstance';
 import CALL_STATE from '@/lib/calls/callState';
 import IS_CONFERENCE_CALL_SUPPORTED from '@/environment/conferenceCallSupport';
+import bytesCmpConstTime from '@/helpers/bytes/bytesCmpConstTime';
 
 const CALL_REQUEST_TIMEOUT = 45e3;
 
@@ -114,7 +115,7 @@ export class CallsController extends EventListenerBase<{
           const g_a = instance.dh.g_a = call.g_a_or_b;
           const dh = instance.dh;
           const g_a_hash = await apiManagerProxy.invokeCrypto('sha256', g_a);
-          if (!bytesCmp(dh.g_a_hash!, g_a_hash!)) {
+          if (!bytesCmpConstTime(dh.g_a_hash!, g_a_hash!)) {
             this.log.error('Incorrect g_a_hash', dh.g_a_hash, g_a_hash);
             break;
           }

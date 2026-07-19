@@ -161,7 +161,7 @@ import { createAutoDeleteIcon } from '@/components/autoDeleteIcon';
 import compareUint8Arrays from '@/helpers/bytes/compareUint8Arrays';
 import { LocalTextWithOptionalEntities } from './bubbleParts/pollMessageContent/utils';
 import { SupportedMediaType } from '@/components/popups/createPoll/storeContext';
-import { isTruthy } from '../../helpers/isTruthy';
+import { isTruthy } from '@/helpers/isTruthy';
 import { useAiEditorButton } from './inputState/useAiEditorButton';
 import { runWithHotReloadGuard } from '@/lib/solidjs/runWithHotReloadGuard';
 
@@ -1536,6 +1536,10 @@ export default class ChatInput {
     this.listenerSetter.add(rootScope)('peer_full_update', (peerId) => {
       if (peerId === this.chat?.peerId) {
         this.updateGiftButtonVisibility();
+        if (this.previousQuery?.startsWith('/')) {
+          this.previousQuery = undefined;
+          this.checkAutocomplete();
+        }
       }
     });
 

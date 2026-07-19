@@ -13,7 +13,7 @@ import { MessageSendingParams, MyMessage } from './appMessagesManager';
 import getDocumentInput from './utils/docs/getDocumentInput';
 import getMessageThreadId from './utils/messages/getMessageThreadId';
 import getPhotoInput from './utils/photos/getPhotoInput';
-import { isTruthy } from '../../helpers/isTruthy';
+import { isTruthy } from '@/helpers/isTruthy';
 
 
 type PollId = Poll['id'];
@@ -175,10 +175,10 @@ export class AppPollsManager extends AppManager {
 
     poll.answers.forEach(answer => {
       if (answer._ !== 'pollAnswer' || !answer.media) return;
-      this.appMessagesManager.saveMessageMedia({ media: answer.media });
+      this.appMessagesManager.saveMessageMedia(answer, 'media');
     });
     if (results?.solution_media) {
-      this.appMessagesManager.saveMessageMedia({ media: results.solution_media });
+      this.appMessagesManager.saveMessageMedia(results, 'solution_media');
     }
 
     this.checkRefetchPollTimeout(poll);

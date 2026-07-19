@@ -48,6 +48,9 @@ import showBirthdayPopup, { saveMyBirthday } from '@/components/popups/birthday'
 import showLogOutPopup from '@/components/popups/logOut';
 import { getStickerSetInputByShortName } from '@/lib/appManagers/utils/stickers/getStickerSetInput';
 import { AppMyProfileTab, AppMyStoriesTab } from '@/components/solidJsTabs/tabs';
+import showAddBotToChat from '@/components/popups/addBotToChat';
+import getBotAddToChatScope from '@/lib/appManagers/utils/bots/getBotAddToChatScope';
+import parseBotAdminRights from '@/lib/appManagers/utils/bots/parseBotAdminRights';
 
 export class InternalLinkProcessor {
   protected managers: AppManagers;
@@ -247,7 +250,7 @@ export class InternalLinkProcessor {
     }
 
     type K1 = {thread?: string, comment?: string, t?: string, option?: string};
-    type K2 = {thread?: string, comment?: string, start?: string, t?: string, text?: string, option?: string};
+    type K2 = {thread?: string, comment?: string, start?: string, startgroup?: string, startchannel?: string, admin?: string, t?: string, text?: string, option?: string};
     type K3 = {startattach?: string, attach?: string, choose?: TelegramChoosePeerType};
     type K4 = {startapp?: string, mode?: 'compact' | 'fullscreen'};
     type K5 = {story?: string};
@@ -339,6 +342,9 @@ export class InternalLinkProcessor {
             thread,
             comment: uriParams.comment,
             start: 'start' in uriParams ? uriParams.start : undefined,
+            startgroup: 'startgroup' in uriParams ? uriParams.startgroup : undefined,
+            startchannel: 'startchannel' in uriParams ? uriParams.startchannel : undefined,
+            admin: 'admin' in uriParams ? uriParams.admin : undefined,
             option: 'option' in uriParams ? uriParams.option : undefined,
             stack: appImManager.getStackFromElement(element!),
             t: uriParams.t,
@@ -374,6 +380,8 @@ export class InternalLinkProcessor {
         // regular
         start?: string,
         startgroup?: string,
+        startchannel?: string,
+        admin?: string,
         game?: string,
         voicechat?: string,
         videochat?: string,
@@ -776,6 +784,30 @@ export class InternalLinkProcessor {
   }
 
   public processMessageLink = (link: InternalLink.InternalLinkMessage) => {
+    if (link.startgroup !== undefined || link.startchannel !== undefined) {
+      const requestedRights = parseBotAdminRights(link.admin);
+      const scope = getBotAddToChatScope(link, requestedRights);
+      return this.managers.appUsersManager.resolveUsername(link.domain).then(async(peer) => {
+        if (peer._ === 'user' && peer.pFlags.bot) {
+          await showAddBotToChat({
+            botId: peer.id as BotId,
+            scope,
+            startParam: link.startgroup,
+            requestedRights,
+          });
+          return;
+        }
+
+        await appImManager.openUsername({ userName: link.domain });
+      }, (err: ApiError) => {
+        if (err.type === 'USERNAME_NOT_OCCUPIED') {
+          toastNew({ langPackKey: 'NoUsernameFound' });
+        } else if (err.type === 'USERNAME_INVALID') {
+          toastNew({ langPackKey: 'Alert.UserDoesntExists' });
+        }
+      });
+    }
+
     const postId = link.post ? +link.post : undefined;
     const commentId = link.comment ? +link.comment : undefined;
     const threadId = link.thread ? +link.thread : undefined;

@@ -18,7 +18,7 @@ import reactionsEqual from '@/lib/appManagers/utils/reactions/reactionsEqual';
 import StoriesCacheType from '@/lib/appManagers/utils/stories/cacheType';
 import insertStory from '@/lib/appManagers/utils/stories/insertStory';
 import MTProtoMessagePort from '@/lib/mainWorker/mainMessagePort';
-import { isTruthy } from '../../helpers/isTruthy';
+import { isTruthy } from '@/helpers/isTruthy';
 
 type MyStoryItem = Exclude<StoryItem, StoryItem.storyItemDeleted>;
 
@@ -385,7 +385,7 @@ export default class AppStoriesManager extends AppManager {
         storyId: storyItem.id,
       };
 
-      this.appMessagesManager.saveMessageMedia(storyItem, mediaContext);
+      this.appMessagesManager.saveMessageMedia(storyItem, 'media', mediaContext);
       const mediaAreas = storyItem.media_areas;
       mediaAreas?.forEach((mediaArea) => {
         (mediaArea as MediaArea.mediaAreaChannelPost).msg_id =

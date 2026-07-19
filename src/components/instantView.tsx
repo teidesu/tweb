@@ -87,11 +87,29 @@ function onClick(context: InstantViewContextValue, e: MouseEvent) {
   }
 }
 
+// Expand every collapsed <details> the anchor target sits inside, so it's actually visible before we
+// scroll to it. Shared by the full-page IV and inline RichMessage anchor navigation.
+function expandDetailsAncestors(context: InstantViewContextValue, element: HTMLElement) {
+  let detailsElement: HTMLElement = element;
+  do {
+    detailsElement = findUpClassName(detailsElement, styles.Details);
+    if (!detailsElement) {
+      break;
+    }
+
+    context.details.get(detailsElement)?.(true);
+    detailsElement = detailsElement.parentElement!;
+  } while (true);
+}
+
 export function InstantViewBlocks(props: {
   webPageId: Long,
   page: Page.page,
   openNewPage: (url: string) => void,
   collapse: () => void,
+  // host-provided scroll for in-page anchor jumps (the embedding chat passes its viewport-aware
+  // bubbles.scrollToBubble); omitted → anchor links are inert
+  scrollToElement?: (element: HTMLElement) => void,
   class?: string,
   contentClass?: string,
   paddings?: number,
@@ -112,7 +130,19 @@ export function InstantViewBlocks(props: {
     randomId: '' + (Math.random() * 1000 | 0),
     openNewPage: props.openNewPage,
     collapse: props.collapse,
-    scrollToAnchor: () => {},
+    scrollToAnchor: (anchor) => {
+      if (!anchor) {
+        return;
+      }
+
+      const element = document.getElementById(value.randomId + anchor.slice(1)) as HTMLElement;
+      if (!element) {
+        return;
+      }
+
+      expandDetailsAncestors(value, element);
+      props.scrollToElement?.(element);
+    },
     customEmojiRenderer,
     details: new WeakMap(),
     savingScroll: false,
@@ -191,17 +221,11 @@ export function InstantView(props: {
       }
 
       const element = document.getElementById(value.randomId + anchor.slice(1)) as HTMLElement;
-      let detailsElement: HTMLElement = element;
-      do {
-        detailsElement = findUpClassName(detailsElement, styles.Details);
-        if (!detailsElement) {
-          break;
-        }
+      if (!element) {
+        return;
+      }
 
-        value.details.get(detailsElement)!(true);
-        detailsElement = detailsElement.parentElement!;
-      } while (true);
-
+      expandDetailsAncestors(value, element);
       fastSmoothScroll({
         container: scrollableRef!,
         element,
@@ -551,6 +575,8 @@ function Block(props: {
           {...orderedProps}
           class={clsx(
             styles.List,
+            styles.BlockContainer,
+            styles.BlockGutter,
             shouldHaveOwnNumbers && styles.ListOrdered,
             'browser-default'
           )}
@@ -588,8 +614,7 @@ function Block(props: {
     case 'pageBlockBlockquote':
       return (
         <div class={clsx(styles.Padding, styles.BlockquoteWrapper)}>
-          <blockquote class={styles.Blockquote}>
-            <div class={styles.BlockquoteBorder} />
+          <blockquote class={clsx('quote-like', 'quote-like-border', 'quote-like-icon', styles.Blockquote)}>
             <RichTextRenderer text={block.text} />
             <Show when={!isRichTextEmpty(block.caption)}>
               <div class={clsx(styles.BlockquoteCaption, 'secondary')}>
@@ -602,13 +627,14 @@ function Block(props: {
     case 'pageBlockBlockquoteBlocks':
       return (
         <div class={clsx(styles.Padding, styles.BlockquoteWrapper)}>
-          <blockquote class={styles.Blockquote}>
-            <div class={styles.BlockquoteBorder} />
+          {/* same app-standard quote chrome as the inline blockquote (accent bar + tinted bg + glyph),
+              but hosting parsed child blocks instead of a single rich-text run */}
+          <blockquote class={clsx('quote-like', 'quote-like-border', 'quote-like-icon', styles.Blockquote, styles.BlockquoteBlocks, styles.BlockContainer)}>
             <For each={block.blocks}>{(subBlock) => (
               <Block block={subBlock} paddings={props.paddings + 1} />
             )}</For>
             <Show when={!isRichTextEmpty(block.caption)}>
-              <div class={styles.BlockquoteCaption}>
+              <div class={clsx(styles.BlockquoteCaption, 'secondary')}>
                 <RichTextRenderer text={block.caption} />
               </div>
             </Show>
@@ -942,7 +968,7 @@ function Block(props: {
         undefined;
 
       return (
-        <div class={styles.Post}>
+        <div class={clsx(styles.Post, styles.BlockGutter)}>
           <div class={styles.PostBorder} />
           <Row class={styles.PostAuthor}>
             <Row.Title class="text-bold">
@@ -961,7 +987,7 @@ function Block(props: {
               />
             </Row.Media>
           </Row>
-          <div class={styles.PostContent}>
+          <div class={styles.BlockContainer}>
             <For each={block.blocks}>{(subBlock) => (
               <Block block={subBlock} paddings={props.paddings + 1} />
             )}</For>

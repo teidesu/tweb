@@ -16,6 +16,7 @@ import bytesToBase64 from '@/helpers/bytes/bytesToBase64';
 import AccountController from '@/lib/accounts/accountController';
 import bytesFromHex from '@/helpers/bytes/bytesFromHex';
 import rootScope from '@/lib/rootScope';
+import bytesCmpConstTime from '@/helpers/bytes/bytesCmpConstTime';
 
 export type PushKey = {
   key: Uint8Array,
@@ -200,7 +201,7 @@ export class PushSingleManager {
     );
 
     const calcMessageKey = await MessageKeyUtils.getMsgKey(authKey, decrypted, true);
-    if (!bytesCmp(messageKey, calcMessageKey)) {
+    if (!bytesCmpConstTime(messageKey, calcMessageKey)) {
       throw new Error('server messageKey mismatch');
     }
 

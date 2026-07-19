@@ -11,6 +11,7 @@ import ButtonMenuToggle from '@/components/buttonMenuToggle';
 import createChatPinnedMessage, { ChatPinnedMessageController } from '@/components/chat/pinnedMessage';
 import ListenerSetter from '@/helpers/listenerSetter';
 import PopupDeleteDialog from '@/components/popups/deleteDialog';
+import { showPeerReport } from '@/components/popups/reportAd';
 import appNavigationController from '@/components/appNavigationController';
 import { LEFT_COLUMN_ACTIVE_CLASSNAME } from '@/components/sidebarLeft';
 import PeerTitle from '@/components/peerTitle';
@@ -21,7 +22,7 @@ import cancelEvent from '@/helpers/dom/cancelEvent';
 import { attachClickEvent } from '@/helpers/dom/clickEvent';
 import { toastNew } from '@/components/toast';
 import replaceContent from '@/helpers/dom/replaceContent';
-import { ChatFull, Chat as MTChat, GroupCall, Dialog, InputGroupCall, UserFull } from '@/layer';
+import { ChatFull, Chat as MTChat, GroupCall, Dialog, InputGroupCall, User, UserFull } from '@/layer';
 import { showSharingPickerPopup } from '@/components/popups/pickUser';
 import PopupPeer, { PopupPeerCheckboxOptions } from '@/components/popups/peer';
 import { AppEditContactTab } from '@/components/solidJsTabs/tabs';
@@ -76,6 +77,8 @@ import PopupBoost from '@/components/popups/boost';
 import PopupPremium from '@/components/popups/premium';
 import showNoForwardsPopup from '@/components/popups/noForwards';
 import { isTruthy } from '../../helpers/isTruthy';
+import showAddBotToChat from '@/components/popups/addBotToChat';
+import getAddBotToChatAction from '@/lib/appManagers/utils/bots/getAddBotToChatAction';
 
 type ButtonToVerify = {element?: HTMLElement, verify: () => boolean | Promise<boolean>};
 
@@ -406,6 +409,20 @@ export default class ChatTopbar {
     return !!userFull && !!(type === 'voice' ? userFull.pFlags.phone_calls_available : userFull.pFlags.video_calls_available);
   };
 
+  private verifyIfCanReportChat = () => {
+    if (
+      this.chat.type !== ChatType.Chat ||
+      this.chat.threadId ||
+      this.chat.isMonoforum ||
+      !this.peerId.isAnyChat()
+    ) {
+      return false;
+    }
+
+    const peer = this.chat.peer as MTChat.chat | MTChat.channel;
+    return !!peer && (peer._ === 'chat' || peer._ === 'channel') && !peer.pFlags.creator;
+  };
+
   private verifyIfCanDeleteChat = async() => {
     if (this.chat.isMonoforum) {
       const chat = this.chat.peer;
@@ -440,6 +457,13 @@ export default class ChatTopbar {
         PopupElement.createPopup(PopupBoost, this.peerId);
       }
     };
+
+    const getBotAddToChatAction = () => this.peerId.isUser() && getAddBotToChatAction(
+      this.chat.peer as User.user,
+      this.chat.fullPeer() as UserFull.userFull
+    );
+    const onAddBotToChat = () => showAddBotToChat({ botId: this.peerId.toUserId() });
+    const verifyAddBotToChat = (text: LangPackKey) => () => (getBotAddToChatAction() || undefined)?.text === text;
 
     this.menuButtons = [this.autoDeleteBtnMenuOptions, {
       icon: 'search',
@@ -565,6 +589,21 @@ export default class ChatTopbar {
         this.addContact();
       },
       verify: async() => !this.chat.isBot && (this.chat.monoforumThreadId || this.peerId).isUser() && !(await this.managers.appPeersManager.isContact(this.chat.monoforumThreadId || this.peerId)),
+    }, {
+      icon: 'adduser',
+      text: 'AddToGroup',
+      onClick: onAddBotToChat,
+      verify: verifyAddBotToChat('AddToGroup'),
+    }, {
+      icon: 'adduser',
+      text: 'BotAddToGroupOrChannel',
+      onClick: onAddBotToChat,
+      verify: verifyAddBotToChat('BotAddToGroupOrChannel'),
+    }, {
+      icon: 'adduser',
+      text: 'AddToChannel',
+      onClick: onAddBotToChat,
+      verify: verifyAddBotToChat('AddToChannel'),
     }, {
       icon: 'forward',
       text: 'ShareContact',
@@ -780,6 +819,13 @@ export default class ChatTopbar {
         });
       }),
       verify: () => this.chat.type === ChatType.Logs,
+    }, {
+      icon: 'flag',
+      text: 'ReportChat',
+      onClick: () => {
+        showPeerReport(this.peerId);
+      },
+      verify: this.verifyIfCanReportChat,
     }, {
       icon: 'delete',
       danger: true,
